@@ -28,8 +28,9 @@ const API          = 'https://api.polyhaven.com';
 // Directories and file extensions to scan for polyhaven texture references.
 // Add entries here when new source types are introduced.
 const SCAN_SOURCES = [
-  { dir: join(ROOT, 'src/props'),  exts: ['.prop'] },
-  { dir: join(ROOT, 'examples'),   exts: ['.map', '.json'] },
+  { dir: join(ROOT, 'src/props'),   exts: ['.prop'] },
+  { dir: join(ROOT, 'src/render'),  exts: ['.js']   },
+  { dir: join(ROOT, 'examples'),    exts: ['.map', '.json'] },
 ];
 
 const MAPS = [
