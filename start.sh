@@ -47,6 +47,18 @@ fi
 
 cd "$SCRIPT_DIR"
 
+# Check if port 3000 is already in use
+if lsof -iTCP:3000 -sTCP:LISTEN -t >/dev/null 2>&1 || \
+   nc -z localhost 3000 2>/dev/null; then
+    echo "Mapwright is already running."
+    echo
+    echo "Opening browser to existing instance..."
+    open "http://localhost:3000/editor/" 2>/dev/null || \
+    xdg-open "http://localhost:3000/editor/" 2>/dev/null
+    echo
+    exit 0
+fi
+
 echo "Starting Mapwright..."
 echo
 echo "The editor will open in your browser at:"
