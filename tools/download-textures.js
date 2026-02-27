@@ -22,9 +22,15 @@ const __dirname    = dirname(fileURLToPath(import.meta.url));
 const ROOT         = join(__dirname, '..');
 const TEXTURES_DIR = join(ROOT, 'src/textures');
 const POLYHAVEN_DIR = join(TEXTURES_DIR, 'polyhaven');
-const PROPS_DIR    = join(ROOT, 'src/props');
 const MANIFEST_PATH = join(TEXTURES_DIR, 'manifest.json');
 const API          = 'https://api.polyhaven.com';
+
+// Directories and file extensions to scan for polyhaven texture references.
+// Add entries here when new source types are introduced.
+const SCAN_SOURCES = [
+  { dir: join(ROOT, 'src/props'),  exts: ['.prop'] },
+  { dir: join(ROOT, 'examples'),   exts: ['.map', '.json'] },
+];
 
 const MAPS = [
   { key: 'diff', apiKey: 'Diffuse'      },
@@ -64,14 +70,17 @@ function toTitleCase(str) {
   return str.split(/[\s_-]+/).map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
 }
 
-/** Scan prop files for `texfill polyhaven/<id>` references */
+/** Scan all source files for polyhaven/<id> references */
 function scanRequiredTextures() {
   const ids = new Set();
-  const files = readdirSync(PROPS_DIR).filter(f => f.endsWith('.prop'));
-  for (const file of files) {
-    const content = readFileSync(join(PROPS_DIR, file), 'utf8');
-    for (const m of content.matchAll(/texfill\s+polyhaven\/(\S+)/g)) {
-      ids.add(m[1]);
+  for (const { dir, exts } of SCAN_SOURCES) {
+    if (!existsSync(dir)) continue;
+    const files = readdirSync(dir).filter(f => exts.some(ext => f.endsWith(ext)));
+    for (const file of files) {
+      const content = readFileSync(join(dir, file), 'utf8');
+      for (const m of content.matchAll(/polyhaven\/([a-z0-9_]+)/g)) {
+        ids.add(m[1]);
+      }
     }
   }
   return [...ids].sort();
