@@ -657,7 +657,7 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
  * composited via ctx.setTransform (same as rock shading) for pixel-perfect
  * output at any zoom level. Also draws the grid overlay.
  */
-function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid) {
+function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, skipGrid = false) {
   const { scale: sc, offsetX: txOff, offsetY: tyOff } = transform;
   const data = getFluidPathCache(cells, gridSize, theme, roomCells);
 
@@ -718,10 +718,8 @@ function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRou
     ctx.restore();
   }
 
-  // Grid overlay (between floor and walls so walls render on top).
-  // skipExteriorOnly=true lets the grid draw through exterior-only wedges
-  // (unrevealed building corners) so lines match normal grid weight.
-  if (showGrid) {
+  // Grid overlay — skipped here when caller handles it separately (e.g. to draw bridges first).
+  if (!skipGrid && showGrid) {
     withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
       drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid);
     }, true);
@@ -935,9 +933,6 @@ function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelSt
   const getTextureImage = textureOptions?.catalog
     ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
     : null;
-
-  // Bridges — rendered above fills/floors but below props and labels
-  renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImage);
 
   renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0);
 
@@ -1222,11 +1217,24 @@ export function renderCells(ctx, cells, gridSize, theme, transform, showGrid, la
     renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, transform, textureOptions);
   }
 
-  // Fill patterns (pit/water/lava) + grid overlay
-  renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid);
+  // Fill patterns (pit/water/lava) — grid drawn later so bridges sit under it
+  renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, true);
 
   // Buffer shading + walls + arc walls
   renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform);
+
+  // Bridges — rendered above fills and walls but below grid, props, and labels
+  const getTextureImageForBridges = textureOptions?.catalog
+    ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
+    : null;
+  renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
+
+  // Grid overlay — drawn after bridges so grid lines show on top of bridge surface
+  if (showGrid) {
+    withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+      drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid);
+    }, true);
+  }
 
   // Props, labels, stairs
   renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels);
