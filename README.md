@@ -71,10 +71,20 @@ The editor opens at **http://localhost:3000/editor/**. Press `Ctrl+C` in the ter
 
 The per-cell texture library is not included in the repo. The editor works fine without textures — this only affects the per-cell texture painting feature.
 
-**Polyhaven textures** — downloaded automatically:
+The install script prompts you to download textures. You can also run it manually at any time:
+
 ```bash
-node tools/polyhaven/download-polyhaven.js
+# Only textures used by built-in props (~25 textures)
+node tools/download-textures.js --required
+
+# Full Polyhaven library (700+ textures)
+node tools/download-textures.js --all
+
+# Check which required textures are missing (no download)
+node tools/download-textures.js --check
 ```
+
+All textures are from [Polyhaven](https://polyhaven.com) (free, CC0 licensed).
 
 ---
 

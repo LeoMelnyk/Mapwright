@@ -73,6 +73,31 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+:: ── Texture Library ─────────────────────────────────────────────────────────
+echo.
+echo ========================================
+echo  Textures (Optional)
+echo ========================================
+echo  Mapwright supports high-quality PBR textures from Polyhaven
+echo  (free, CC0 licensed). The editor works without them.
+echo  You can re-run install.bat at any time to download textures.
+echo.
+echo  [R] Required only  - ~25 textures used by built-in props
+echo  [A] All textures   - full Polyhaven library (700+)
+echo  [S] Skip for now
+echo.
+set /p "TC=Download textures? [R/A/S]: "
+echo.
+if /i "%TC%"=="R" (
+    call node tools/download-textures.js --required
+    if %errorlevel% neq 0 echo [WARNING] Some downloads failed. Re-run install.bat to retry.
+) else if /i "%TC%"=="A" (
+    call node tools/download-textures.js --all
+    if %errorlevel% neq 0 echo [WARNING] Some downloads failed. Re-run install.bat to retry.
+) else (
+    echo  Skipped. Run install.bat again to download textures later.
+)
+
 echo.
 echo ====================================
 echo  Installation complete!

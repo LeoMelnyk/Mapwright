@@ -68,6 +68,36 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# ── Texture Library ──────────────────────────────────────────────────────────
+echo
+echo '========================================'
+echo ' Textures (Optional)'
+echo '========================================'
+echo ' Mapwright supports high-quality PBR textures from Polyhaven'
+echo ' (free, CC0 licensed). The editor works without them.'
+echo ' You can re-run install.sh at any time to download textures.'
+echo
+echo '  [R] Required only  - ~25 textures used by built-in props'
+echo '  [A] All textures   - full Polyhaven library (700+)'
+echo '  [S] Skip for now'
+echo
+printf 'Download textures? [R/A/S]: '
+read TC
+echo
+case "$TC" in
+  [Rr])
+    node tools/download-textures.js --required
+    if [ $? -ne 0 ]; then echo "[WARNING] Some downloads failed. Re-run install.sh to retry."; fi
+    ;;
+  [Aa])
+    node tools/download-textures.js --all
+    if [ $? -ne 0 ]; then echo "[WARNING] Some downloads failed. Re-run install.sh to retry."; fi
+    ;;
+  *)
+    echo "  Skipped. Run ./install.sh again to download textures later."
+    ;;
+esac
+
 echo
 echo "===================================="
 echo " Installation complete!"
