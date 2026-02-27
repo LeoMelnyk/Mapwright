@@ -1,11 +1,11 @@
 # Dungeon Editor Automation Guide
 
-This guide explains how to programmatically create and edit dungeon maps using the editor's automation API. Claude is the primary intended user of this API.
+This guide explains how to programmatically create and edit maps using the editor's automation API. Claude is the primary intended user of this API.
 
 ## Prerequisites
 
-1. The dev server must be running: `cd dungeon && npm start` (serves on port 3000)
-2. Puppeteer must be installed: `cd dungeon && npm install`
+1. The dev server must be running: `cd mapwright && npm start` (serves on port 3000)
+2. Puppeteer must be installed: `cd mapwright && npm install`
 
 ## Quick Start
 
@@ -528,8 +528,11 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 ### Decorative
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
+| `banner` | Banner | 2×1 | yes |
 | `carpet` | Carpet | 2×3 | no |
 | `chandelier` | Chandelier | 2×2 | no |
+| `display-case` | Display Case | 1×2 | no |
+| `flag-pole` | Flag Pole | 1×1 | no |
 | `mirror` | Mirror | 1×1 | yes |
 | `painting` | Painting | 1×2 | yes |
 | `tapestry` | Tapestry | 2×1 | no |
@@ -540,6 +543,7 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 |------|---------|-----------|--------|
 | `altar` | Altar | 2×1 | yes |
 | `brazier` | Brazier | 1×1 | no |
+| `candle-cluster` | Candle Cluster | 1×1 | no |
 | `fountain` | Fountain | 2×2 | no |
 | `rubble` | Rubble | 1×1 | no |
 | `statue` | Statue | 1×1 | no |
@@ -573,22 +577,35 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 ### Magical
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
+| `arcane-pedestal` | Arcane Pedestal | 1×1 | no |
+| `component-shelf` | Component Shelf | 1×2 | yes |
 | `crystal-ball` | Crystal Ball | 1×1 | no |
 | `crystal-formation` | Crystal Formation | 1×1 | no |
 | `magic-circle` | Magic Circle | 3×3 | no |
 | `ritual-circle` | Ritual Circle | 3×3 | no |
 | `scrying-mirror` | Scrying Mirror | 1×2 | yes |
 | `spell-focus` | Spell Focus | 1×1 | no |
+| `summoning-cage` | Summoning Cage | 2×2 | no |
+| `ward-stone` | Ward Stone | 1×1 | no |
 
 ### Nautical
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
 | `anchor` | Anchor | 1×1 | no |
+| `binnacle` | Binnacle | 1×1 | no |
+| `capstan` | Capstan | 1×1 | no |
+| `dock-cleat` | Dock Cleat | 1×1 | yes |
 | `dock-post` | Dock Post | 1×1 | no |
+| `fish-drying-rack` | Fish Drying Rack | 1×2 | yes |
 | `fishing-net` | Fishing Net | 1×2 | no |
 | `gangplank` | Gangplank | 1×3 | yes |
+| `life-ring` | Life Ring | 1×1 | no |
+| `lighthouse-lens` | Lighthouse Lens | 2×2 | no |
+| `lobster-trap` | Lobster Trap | 1×1 | no |
 | `rope-coil` | Rope Coil | 1×1 | no |
+| `rowboat` | Rowboat | 3×2 | yes |
 | `ship-wheel` | Ship Wheel | 1×1 | no |
+| `ships-hammock` | Ship's Hammock | 1×2 | yes |
 
 ### Prison & Torture
 | Name | Display | Footprint | Facing |
@@ -607,20 +624,27 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
 | `candelabra` | Candelabra | 1×1 | no |
+| `censer` | Censer | 1×1 | no |
 | `holy-font` | Holy Font | 1×1 | no |
 | `idol` | Idol | 1×1 | yes |
+| `kneeling-bench` | Kneeling Bench | 1×2 | yes |
+| `offering-plate` | Offering Plate | 1×1 | no |
+| `reliquary` | Reliquary | 1×1 | yes |
 
 ### Structure
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
 | `archway` | Archway | 1×2 | yes |
+| `chain-hoist` | Chain Hoist | 1×1 | no |
 | `chain-wall` | Chain Wall | 1×3 | yes |
 | `lamp-post` | Lamp Post | 1×1 | no |
 | `obelisk` | Obelisk | 1×1 | no |
 | `pillar` | Pillar | 1×1 | no |
+| `pillar-corner` | Corner Pillar | 1×1 | no |
 | `portcullis` | Portcullis | 1×2 | yes |
 | `stone-column` | Stone Column | 1×1 | no |
 | `torch-sconce` | Torch Sconce | 1×1 | yes |
+| `trophy-head` | Trophy Head | 1×1 | yes |
 | `vault-door` | Vault Door | 2×2 | yes |
 
 ### Terrain & Nature
@@ -643,15 +667,24 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
 | `bone-shrine` | Bone Shrine | 1×2 | no |
+| `bone-throne` | Bone Throne | 2×1 | yes |
+| `burial-urn` | Burial Urn | 1×1 | no |
+| `canopic-jar` | Canopic Jar | 1×1 | no |
 | `corpse` | Corpse | 2×1 | yes |
 | `grave-marker` | Grave Marker | 1×1 | no |
 | `grave-mound` | Grave Mound | 1×2 | no |
+| `necrotic-altar` | Necrotic Altar | 2×2 | yes |
 | `skeleton` | Skeleton | 2×1 | yes |
+| `zombie-pit` | Zombie Pit | 1×1 | no |
 
 ### Misc
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
+| `birdcage` | Birdcage | 1×1 | no |
 | `cart` | Cart | 1×2 | yes |
+| `hourglass` | Hourglass | 1×1 | no |
+| `notice-board` | Notice Board | 1×2 | yes |
+| `telescope` | Telescope | 1×2 | yes |
 
 ### Workshop
 | Name | Display | Footprint | Facing |
@@ -663,12 +696,53 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 | `grinding-wheel` | Grinding Wheel | 1×1 | no |
 | `potter-wheel` | Potter's Wheel | 1×1 | no |
 | `tanning-rack` | Tanning Rack | 1×2 | no |
+| `workbench` | Workbench | 2×1 | yes |
 
 ### Kitchen
 | Name | Display | Footprint | Facing |
 |------|---------|-----------|--------|
 | `cauldron-large` | Cauldron (Large) | 2×2 | no |
+| `chopping-block` | Chopping Block | 1×1 | no |
+| `kitchen-table` | Kitchen Table | 2×2 | no |
+| `pot-rack` | Pot Rack | 1×2 | yes |
+| `spice-shelf` | Spice Shelf | 1×2 | yes |
 | `wood-pile` | Wood Pile | 1×2 | no |
+
+### Alchemy
+| Name | Display | Footprint | Facing |
+|------|---------|-----------|--------|
+| `alembic` | Alembic | 1×1 | no |
+| `alchemy-bench` | Alchemy Bench | 2×2 | yes |
+| `crucible` | Crucible | 1×1 | no |
+| `ingredient-rack` | Ingredient Rack | 1×2 | yes |
+| `mortar-pestle` | Mortar & Pestle | 1×1 | no |
+| `specimen-jar` | Specimen Jar | 1×1 | no |
+
+### Library & Study
+| Name | Display | Footprint | Facing |
+|------|---------|-----------|--------|
+| `book-pile` | Book Pile | 1×1 | no |
+| `globe` | Globe | 1×1 | no |
+| `scroll-case` | Scroll Case | 1×1 | no |
+| `scroll-rack` | Scroll Rack | 1×2 | yes |
+
+### Lighting
+| Name | Display | Footprint | Facing |
+|------|---------|-----------|--------|
+| `crystal-torch` | Crystal Torch | 1×1 | no |
+| `floor-candelabra` | Floor Candelabra | 1×1 | no |
+| `lantern-post` | Lantern Post | 1×1 | no |
+| `signal-fire` | Signal Fire | 1×1 | no |
+| `wall-lantern` | Wall Lantern | 1×1 | yes |
+
+### Traps
+| Name | Display | Footprint | Facing |
+|------|---------|-----------|--------|
+| `arrow-trap` | Arrow Trap | 1×1 | yes |
+| `bear-trap` | Bear Trap | 1×1 | no |
+| `pit-trap` | Pit Trap | 1×1 | no |
+| `pressure-plate` | Pressure Plate | 1×1 | no |
+| `spike-trap` | Spike Trap | 1×1 | no |
 
 ---
 
