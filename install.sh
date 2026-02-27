@@ -26,16 +26,34 @@ echo '        Mapwright - Installation'
 echo '========================================'
 echo
 
-# Check for Node.js
+# Check for Node.js — auto-install if missing
 if ! command -v node &> /dev/null; then
-    echo "[ERROR] Node.js is not installed."
+    echo "Node.js is not installed. Installing automatically..."
     echo
-    echo "Please download and install Node.js from:"
-    echo "  https://nodejs.org/"
+
+    if command -v brew &> /dev/null; then
+        brew install node
+    else
+        # Install via nvm (no admin rights required, works on Mac and Linux)
+        echo "Installing Node.js via nvm..."
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+        nvm install --lts
+    fi
+
+    if ! command -v node &> /dev/null; then
+        echo
+        echo "[ERROR] Could not install Node.js automatically."
+        echo "Please download and install it manually from:"
+        echo "  https://nodejs.org/"
+        echo
+        exit 1
+    fi
+
     echo
-    echo "Choose the \"LTS\" version, install it, then run this script again."
+    echo "[OK] Node.js $(node --version) installed."
     echo
-    exit 1
 fi
 
 # Check Node.js version (need 18+)

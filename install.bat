@@ -27,18 +27,47 @@ echo         Mapwright - Installation
 echo ========================================
 echo.
 
-:: Check for Node.js
+:: Check for Node.js — auto-install via winget if missing
 where node >nul 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] Node.js is not installed.
+    echo Node.js is not installed. Installing automatically...
     echo.
-    echo Please download and install Node.js from:
-    echo   https://nodejs.org/
-    echo.
-    echo Choose the "LTS" version, install it, then run this script again.
-    echo.
-    pause
-    exit /b 1
+    where winget >nul 2>&1
+    if %errorlevel% equ 0 (
+        winget install OpenJS.NodeJS.LTS --accept-source-agreements --accept-package-agreements
+        if %errorlevel% neq 0 (
+            echo.
+            echo [ERROR] Automatic install failed.
+            echo Please download and install Node.js manually from:
+            echo   https://nodejs.org/
+            echo Choose the "LTS" version, install it, then run this script again.
+            echo.
+            pause
+            exit /b 1
+        )
+        :: Inject default install path into this session
+        set "PATH=%PATH%;C:\Program Files\nodejs"
+        where node >nul 2>&1
+        if %errorlevel% neq 0 (
+            echo.
+            echo [OK] Node.js installed. Please close this window and run install.bat again.
+            echo.
+            pause
+            exit /b 0
+        )
+        echo [OK] Node.js installed.
+        echo.
+    ) else (
+        echo [ERROR] Node.js is not installed.
+        echo.
+        echo Please download and install Node.js from:
+        echo   https://nodejs.org/
+        echo.
+        echo Choose the "LTS" version, install it, then run this script again.
+        echo.
+        pause
+        exit /b 1
+    )
 )
 
 :: Check Node.js version (need 18+)
