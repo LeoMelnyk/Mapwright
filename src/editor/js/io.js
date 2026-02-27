@@ -242,7 +242,12 @@ export async function exportPng() {
       showToast('Exported as PNG');
       return;
     }
-    console.warn('Server export returned', res.status, '— falling back to browser render');
+    // Server responded with an error — surface it rather than silently falling back
+    let detail = `HTTP ${res.status}`;
+    try { const body = await res.json(); if (body.error) detail = body.error; } catch (_) {}
+    showToast(`Export failed: ${detail}`);
+    console.error('[export] Server error:', res.status, detail);
+    return;
   } catch (err) {
     if (err.name === 'AbortError') return; // user cancelled save dialog
     console.warn('Server export unavailable — falling back to browser render');

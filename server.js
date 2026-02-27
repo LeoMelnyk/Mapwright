@@ -34,6 +34,16 @@ if (typeof globalThis.OffscreenCanvas === 'undefined') {
   };
 }
 
+// Polyfill document.createElement('canvas') used by the lighting pipeline
+if (typeof globalThis.document === 'undefined') {
+  globalThis.document = {
+    createElement(tag) {
+      if (tag === 'canvas') return createCanvas(1, 1);
+      throw new Error(`document.createElement('${tag}') not supported in Node`);
+    },
+  };
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.argv[2]) || 3000;
 
