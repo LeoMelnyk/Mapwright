@@ -48,11 +48,9 @@ Full AI editor API reference: [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md)
 
 ## Getting Started
 
-You need [Node.js](https://nodejs.org/) (version 18 or newer — download the **LTS** version).
-
 ### Windows
 
-1. Double-click **`install.bat`** — installs dependencies
+1. Double-click **`install.bat`** — installs Node.js (if needed) and dependencies
 2. Double-click **`start.bat`** — starts the editor and opens your browser
 
 ### Mac
@@ -64,6 +62,8 @@ chmod +x install.sh start.sh
 ./install.sh
 ./start.sh
 ```
+
+The install script will install Node.js automatically if it's not already on your system.
 
 The editor opens at **http://localhost:3000/editor/**. Press `Ctrl+C` in the terminal to stop.
 
@@ -207,5 +207,4 @@ Topics covered:
 
 ## Requirements
 
-- Node.js 18 or newer ([nodejs.org](https://nodejs.org/))
-- No other installs needed — all dependencies are bundled via `npm install`
+- No manual installs needed — `install.bat` / `install.sh` handle everything, including Node.js if it's missing
