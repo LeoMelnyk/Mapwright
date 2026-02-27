@@ -69,13 +69,20 @@ The editor opens at **http://localhost:3000/editor/**. Press `Ctrl+C` in the ter
 
 ### Textures (Optional)
 
-The per-cell texture library (~12GB of Polyhaven and TextureCan maps) is not included in the repo. To download it:
+The per-cell texture library is not included in the repo. The editor works fine without textures — this only affects the per-cell texture painting feature.
 
+**Polyhaven textures** — downloaded automatically:
 ```bash
 node tools/polyhaven/download-polyhaven.js
 ```
 
-The editor works fine without textures — this only affects the per-cell texture painting feature.
+**TextureCan textures** — requires manual download:
+1. Download the texture zip archives from [texturecn.com](https://texturecn.com)
+2. Place the zips in `src/textures/texturecan/process/`
+3. Run the processor:
+```bash
+node tools/texturecan/process-texturecan.js
+```
 
 ---
 
