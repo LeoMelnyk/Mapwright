@@ -22,7 +22,7 @@ function applyFill(cell, fillType) {
  * Returns { grid, rooms, diagonals, numRows, numCols }.
  */
 function compileLevel(levelData, levelIndex) {
-  const { name, gridLines, legend, doors, trims, fills, cellFills, props, textures, lights } = levelData;
+  const { name, gridLines, legend, doors, trims, fills, cellFills, props, textures, lights, bridges } = levelData;
   const prefix = name ? `Level ${levelIndex + 1} (${name})` : '';
 
   const { rooms, numRows, numCols } = parseGrid(gridLines, legend);
@@ -147,7 +147,7 @@ function compileLevel(levelData, levelIndex) {
     console.log(`${indent}${doors.length} door(s) placed`);
   }
 
-  return { grid, rooms, diagonals, numRows, numCols, lights };
+  return { grid, rooms, diagonals, numRows, numCols, lights, bridges: bridges || [] };
 }
 
 function compileMap(mapPath) {
@@ -350,6 +350,23 @@ function compileMap(mapPath) {
     }
   }
 
+  // Collect bridges from all levels (offset point rows by rowOffset)
+  const allBridges = [];
+  let nextBridgeId = 0;
+  for (let li = 0; li < compiledLevels.length; li++) {
+    const rowOffset = rowOffsets[li];
+    for (const bridge of compiledLevels[li].bridges) {
+      allBridges.push({
+        id: nextBridgeId++,
+        type: bridge.type,
+        points: bridge.points.map(([r, c]) => [r + rowOffset, c]),
+      });
+    }
+  }
+  if (allBridges.length > 0) {
+    console.log(`  ${allBridges.length} bridge(s) placed`);
+  }
+
   const result = {
     metadata: { ...header, levels: levelsMeta },
     cells: combinedGrid.cells
@@ -359,6 +376,11 @@ function compileMap(mapPath) {
     result.metadata.lights = allLights;
     result.metadata.nextLightId = nextLightId;
     result.metadata.lightingEnabled = true;
+  }
+
+  if (allBridges.length > 0) {
+    result.metadata.bridges = allBridges;
+    result.metadata.nextBridgeId = nextBridgeId;
   }
 
   return result;

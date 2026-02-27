@@ -411,6 +411,7 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
 
         const currentEntry = catalog.textures[cell.texture];
+        if (!currentEntry) continue;
         const neighborEntry = catalog.textures[neighbor.texture];
         if (!neighborEntry?.img?.complete || !neighborEntry.img.naturalWidth) continue;
 
@@ -484,6 +485,7 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
       if (!cell?.texture || !roomCells[row][col]) continue;
       if (cell.trimRound || cell.trimInsideArc) continue; // no blending on trimmed cells
       const currentEntry = catalog.textures[cell.texture];
+      if (!currentEntry) continue;
       const curH = computeBaseHeight(currentEntry);
 
       for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2 } of CORNER_DIRS) {

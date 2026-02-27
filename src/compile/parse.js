@@ -3,7 +3,7 @@ import { RESERVED_CHARS } from './constants.js';
 
 // ── File Parser ──────────────────────────────────────────────────────
 
-const SECTION_KEYWORDS = ['legend:', 'doors:', 'trims:', 'stairs:', 'fills:', 'props:', 'textures:', 'lights:'];
+const SECTION_KEYWORDS = ['legend:', 'doors:', 'trims:', 'stairs:', 'fills:', 'props:', 'textures:', 'lights:', 'bridges:'];
 
 /** Strip inline # comments from a line (e.g. "5,10 east : door  # A1 east wall" → "5,10 east : door"). */
 function stripComment(line) {
@@ -69,6 +69,7 @@ function parseLevelContent(lines, levelLabel, lineOffset = 0) {
   const props = [];
   const textures = [];
   const lights = [];
+  const bridges = [];
 
   while (i < lines.length) {
     const trimmed = lines[i].trim();
@@ -278,12 +279,34 @@ function parseLevelContent(lines, levelLabel, lineOffset = 0) {
           throw new Error(`${prefix}${srcLine(li)}Invalid lights entry: "${line}" (expected: x,y: type:point color:#ff9944 radius:30 intensity:1.0 falloff:smooth)`);
         }
       }
+    } else if (trimmed === 'bridges:') {
+      i++;
+      while (i < lines.length && !SECTION_KEYWORDS.includes(lines[i].trim()) && !LEVEL_MARKER_RE.test(lines[i].trim())) {
+        const line = stripComment(lines[i]).trim();
+        const li = i;
+        i++;
+        if (!line) continue;
+        // Format: type r,c r,c r,c  (3 corner points, level-local row coords)
+        const match = line.match(/^(wood|stone|rope|dock)\s+(\d+)\s*,\s*(\d+)\s+(\d+)\s*,\s*(\d+)\s+(\d+)\s*,\s*(\d+)$/);
+        if (match) {
+          bridges.push({
+            type: match[1],
+            points: [
+              [parseInt(match[2]), parseInt(match[3])],
+              [parseInt(match[4]), parseInt(match[5])],
+              [parseInt(match[6]), parseInt(match[7])],
+            ],
+          });
+        } else {
+          throw new Error(`${prefix}${srcLine(li)}Invalid bridges entry: "${line}" (expected: wood|stone|rope|dock r,c r,c r,c)`);
+        }
+      }
     } else {
       i++;
     }
   }
 
-  return { gridLines, legend, doors, trims, stairs, fills, cellFills, props, textures, lights };
+  return { gridLines, legend, doors, trims, stairs, fills, cellFills, props, textures, lights, bridges };
 }
 
 function parseMapFile(filePath) {

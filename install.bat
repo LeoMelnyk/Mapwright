@@ -82,7 +82,7 @@ echo  Mapwright supports high-quality PBR textures from Polyhaven
 echo  (free, CC0 licensed). The editor works without them.
 echo  You can re-run install.bat at any time to download textures.
 echo.
-echo  [R] Required only  - ~25 textures used by built-in props
+echo  [R] Required only  - textures used by built-in props
 echo  [A] All textures   - full Polyhaven library (700+)
 echo  [S] Skip for now
 echo.

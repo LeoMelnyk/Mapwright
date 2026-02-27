@@ -333,6 +333,17 @@ export function exportDungeonToMapFormat(dungeon) {
       lightLines.push(`  ${light.x},${localY}: ${parts.join(' ')}`);
     }
 
+    // Step 12: Bridges (global corner coords → level-local row coords)
+    const allBridges = dungeon.metadata?.bridges || [];
+    const bridgeLines = [];
+    for (const bridge of allBridges) {
+      // Assign bridge to the level whose row range contains its first point
+      const firstRow = bridge.points[0][0];
+      if (firstRow < levelStartRow || firstRow > levelEndRow) continue;
+      const pts = bridge.points.map(([r, c]) => `${r - levelStartRow},${c}`).join(' ');
+      bridgeLines.push(`  ${bridge.type} ${pts}`);
+    }
+
     // ── Assemble level section ─────────────────────────────────────────────
 
     const lines = [];
@@ -419,6 +430,13 @@ export function exportDungeonToMapFormat(dungeon) {
     if (lightLines.length > 0) {
       lines.push('lights:');
       for (const ll of lightLines) lines.push(ll);
+      lines.push('');
+    }
+
+    // Bridges
+    if (bridgeLines.length > 0) {
+      lines.push('bridges:');
+      for (const bl of bridgeLines) lines.push(bl);
       lines.push('');
     }
 

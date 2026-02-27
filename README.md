@@ -32,14 +32,14 @@ Full AI editor API reference: [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md)
 - **`.map` text format** — describe dungeons in plain ASCII, compile to PNG or SVG
 - **Browser-based visual editor** — draw rooms, place doors, add furniture and lights, undo/redo
 - **16 themes** — stone dungeon, ice cave, underdark, volcanic, arcane, alien, and more
-- **242 props** — furniture, containers, nautical items, arcane objects, structural elements
+- **Hundreds of props** — furniture, containers, nautical items, arcane objects, structural elements
 - **Multi-level dungeons** — towers, multi-floor buildings, stacked cave systems in one file
 - **Doors & secret doors** — single, double, and secret doors with auto-detection
 - **Diagonal & curved walls** — trim room corners with straight diagonals or quarter-circle arcs
 - **Stairs** — up/down stair icons with cross-level linking and reachability validation
 - **Fills** — pit, difficult terrain, and water fills with shallow/medium/deep depth rendering
 - **Point light system** — per-light color, radius, intensity, and falloff
-- **Per-cell textures** — Polyhaven and TextureCan texture libraries
+- **Per-cell textures** — 700+ free CC0 textures from [Polyhaven](https://polyhaven.com), downloadable on demand
 - **Watch mode** — auto-rebuild on save for fast iteration
 - **DM player view** — real-time fog-of-war session mode via WebSocket
 - **Import** — load maps from Donjon and OpenDungeonPlanner
@@ -69,22 +69,20 @@ The editor opens at **http://localhost:3000/editor/**. Press `Ctrl+C` in the ter
 
 ### Textures (Optional)
 
-The per-cell texture library is not included in the repo. The editor works fine without textures — this only affects the per-cell texture painting feature.
+Textures are not included in the repo. The editor works fine without them — textures only affect the per-cell texture painting feature and prop rendering.
 
-The install script prompts you to download textures. You can also run it manually at any time:
+The install script (`install.bat` / `./install.sh`) prompts you to download textures after installing dependencies. You can re-run it at any time to download more. There are two options:
+
+- **Required** — only the textures used by built-in props and example maps
+- **All** — the full [Polyhaven](https://polyhaven.com) library (700+, free CC0)
+
+To download outside the install script:
 
 ```bash
-# Only textures used by built-in props (~25 textures)
 node tools/download-textures.js --required
-
-# Full Polyhaven library (700+ textures)
 node tools/download-textures.js --all
-
-# Check which required textures are missing (no download)
-node tools/download-textures.js --check
+node tools/download-textures.js --check   # check what's missing, no download
 ```
-
-All textures are from [Polyhaven](https://polyhaven.com) (free, CC0 licensed).
 
 ---
 
