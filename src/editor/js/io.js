@@ -268,7 +268,7 @@ export async function exportPng() {
       return;
     }
     await saveBlob(blob, suggestedName);
-    showToast('Exported as PNG (without textures — start server.js for full export)');
+    showToast('Exported as PNG (without textures — run start.bat for full export)');
   } catch (err) {
     if (err.name === 'AbortError') return; // user cancelled save dialog
     console.error('Export PNG failed:', err);
