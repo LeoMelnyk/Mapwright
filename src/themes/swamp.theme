@@ -1,0 +1,40 @@
+{
+  "displayName": "Swamp",
+  "background": "#788a50",
+  "gridLine": "#000000",
+  "wallStroke": "#180e00",
+  "wallFill": "#a09a70",
+  "textColor": "#f0e8b0",
+  "borderColor": "#606028",
+  "doorFill": "#a09a70",
+  "doorStroke": "#180e00",
+  "trapColor": "#cc3300",
+  "secretDoorColor": "#f0e8b0",
+  "compassRoseFill": "#f0e8b0",
+  "compassRoseStroke": "#c8c080",
+  "wallRoughness": 2,
+  "wallShadow": {
+    "color": "rgba(24,14,0,0.32)",
+    "blur": 8,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#180e00",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.22,
+  "bufferShadingOpacity": 0.2,
+  "outerShading": {
+    "color": "#4a5828",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#416437",
+  "waterMediumColor": "#284826",
+  "waterDeepColor": "#143018",
+  "waterCausticColor": "rgba(120,160,90,0.40)",
+  "lavaShallowColor": "#a04010",
+  "lavaMediumColor": "#702808",
+  "lavaDeepColor": "#441404",
+  "lavaCausticColor": "rgba(220,140,50,0.45)"
+}

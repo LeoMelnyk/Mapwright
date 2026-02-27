@@ -1,0 +1,13 @@
+{
+  "displayName": "Stone Tile Wall",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/stone_tile_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stone_tile_wall_disp_1k.png",
+    "nor": "polyhaven/stone_tile_wall_nor_gl_1k.png",
+    "arm": "polyhaven/stone_tile_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

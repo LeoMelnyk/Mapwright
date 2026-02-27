@@ -1,0 +1,13 @@
+{
+  "displayName": "Marble 01",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/marble_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/marble_01_disp_1k.png",
+    "nor": "polyhaven/marble_01_nor_gl_1k.png",
+    "arm": "polyhaven/marble_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

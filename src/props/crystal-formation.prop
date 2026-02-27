@@ -1,0 +1,21 @@
+name: Crystal Formation
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Large central crystal
+poly 0.5,0.15 0.62,0.55 0.5,0.65 0.38,0.55 fill #7755cc 0.6
+poly 0.5,0.15 0.62,0.55 0.5,0.65 0.38,0.55 stroke #5533aa
+# Side crystal (left)
+poly 0.25,0.35 0.35,0.6 0.2,0.7 0.15,0.55 fill #8866dd 0.5
+poly 0.25,0.35 0.35,0.6 0.2,0.7 0.15,0.55 stroke #5533aa
+# Side crystal (right)
+poly 0.75,0.3 0.85,0.58 0.78,0.72 0.65,0.5 fill #7755cc 0.55
+poly 0.75,0.3 0.85,0.58 0.78,0.72 0.65,0.5 stroke #5533aa
+# Small shard
+poly 0.55,0.7 0.62,0.85 0.52,0.88 fill #9977ee 0.45
+poly 0.55,0.7 0.62,0.85 0.52,0.88 stroke #5533aa
+# Glow at base
+ellipse 0.5,0.6 0.3,0.15 fill #aa88ee 0.2

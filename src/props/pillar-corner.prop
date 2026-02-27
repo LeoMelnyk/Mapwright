@@ -1,0 +1,15 @@
+name: Corner Pillar
+category: Structure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+padding: 0.5
+---
+# Stone pillar at grid intersection (centered at cell top-left corner)
+circle 0,0 0.35 texfill polyhaven/granite_tile 0.85
+circle 0,0 0.35 stroke #666666
+# Inner capstone detail
+circle 0,0 0.25 stroke #777777
+# Center crack
+line -0.12,-0.15 0.12,0.15

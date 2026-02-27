@@ -1,0 +1,40 @@
+{
+  "displayName": "Dirt",
+  "background": "#be8e58",
+  "gridLine": "#000000",
+  "wallStroke": "#200c00",
+  "wallFill": "#d4ae7c",
+  "textColor": "#100600",
+  "borderColor": "#705030",
+  "doorFill": "#d4ae7c",
+  "doorStroke": "#200c00",
+  "trapColor": "#cc2200",
+  "secretDoorColor": "#200c00",
+  "compassRoseFill": "#200c00",
+  "compassRoseStroke": "#200c00",
+  "wallRoughness": 2.2,
+  "wallShadow": {
+    "color": "rgba(32,12,0,0.30)",
+    "blur": 8,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#200c00",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.28,
+  "bufferShadingOpacity": 0.18,
+  "outerShading": {
+    "color": "#8a5c30",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#506964",
+  "waterMediumColor": "#374b4b",
+  "waterDeepColor": "#1e3032",
+  "waterCausticColor": "rgba(140,175,170,0.40)",
+  "lavaShallowColor": "#b04818",
+  "lavaMediumColor": "#803010",
+  "lavaDeepColor": "#501808",
+  "lavaCausticColor": "rgba(230,150,60,0.45)"
+}

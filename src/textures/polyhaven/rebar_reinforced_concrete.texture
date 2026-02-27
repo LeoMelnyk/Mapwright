@@ -1,0 +1,13 @@
+{
+  "displayName": "Rebar Reinforced Concrete",
+  "category": "Concrete",
+  "subcategory": "Plaster Concrete",
+  "file": "polyhaven/rebar_reinforced_concrete_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rebar_reinforced_concrete_disp_1k.png",
+    "nor": "polyhaven/rebar_reinforced_concrete_nor_gl_1k.png",
+    "arm": "polyhaven/rebar_reinforced_concrete_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

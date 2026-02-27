@@ -1,0 +1,57 @@
+name: Loom
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Outer frame (dark wood rectangle)
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/dark_wood 0.6
+rect 0.10,0.10 1.80,1.80 stroke #1a1208
+
+# Frame posts (four corner uprights, seen as thick squares from above)
+rect 0.10,0.10 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.10 0.14,0.14 stroke #1a1208
+rect 1.76,0.10 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 1.76,0.10 0.14,0.14 stroke #1a1208
+rect 0.10,1.76 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.10,1.76 0.14,0.14 stroke #1a1208
+rect 1.76,1.76 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 1.76,1.76 0.14,0.14 stroke #1a1208
+
+# Warp beam roller (north, back beam)
+rect 0.24,0.18 1.52,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.24,0.18 1.52,0.10 stroke #2a1f14
+
+# Cloth beam roller (south, front beam)
+rect 0.24,1.72 1.52,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.24,1.72 1.52,0.10 stroke #2a1f14
+
+# Woven textile section (southern half - finished cloth)
+rect 0.30,1.10 1.40,0.60 texfill polyhaven/rough_linen 0.7
+rect 0.30,1.10 1.40,0.60 stroke #8b7355
+
+# Warp threads (running north-south through the open section)
+line 0.40,0.28 0.40,1.10 stroke #c8b898
+line 0.55,0.28 0.55,1.10 stroke #c8b898
+line 0.70,0.28 0.70,1.10 stroke #c8b898
+line 0.85,0.28 0.85,1.10 stroke #c8b898
+line 1.00,0.28 1.00,1.10 stroke #c8b898
+line 1.15,0.28 1.15,1.10 stroke #c8b898
+line 1.30,0.28 1.30,1.10 stroke #c8b898
+line 1.45,0.28 1.45,1.10 stroke #c8b898
+line 1.60,0.28 1.60,1.10 stroke #c8b898
+
+# Heddle bar (horizontal bar that lifts alternating threads)
+rect 0.24,0.65 1.52,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.24,0.65 1.52,0.06 stroke #2a1f14
+
+# Shuttle (sitting on the warp, angled slightly)
+poly 0.55,0.82 1.45,0.78 1.48,0.84 0.58,0.88 texfill polyhaven/dark_wood 0.85
+poly 0.55,0.82 1.45,0.78 1.48,0.84 0.58,0.88 stroke #1a1208
+# Shuttle thread notch
+ellipse 1.00,0.83 0.12,0.02 fill #c8b898 0.7
+
+# Reed/beater bar
+rect 0.24,0.95 1.52,0.05 fill #6b4e2e 0.8
+rect 0.24,0.95 1.52,0.05 stroke #2a1f14

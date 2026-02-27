@@ -1,0 +1,23 @@
+name: Pit Trap
+category: Traps
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Wooden cover planks
+rect 0.08,0.12 0.84,0.20 texfill polyhaven/weathered_planks 0.80
+rect 0.08,0.12 0.84,0.20 stroke #4a2800
+rect 0.08,0.36 0.84,0.20 texfill polyhaven/weathered_planks 0.80
+rect 0.08,0.36 0.84,0.20 stroke #4a2800
+rect 0.08,0.60 0.84,0.20 texfill polyhaven/weathered_planks 0.80
+rect 0.08,0.60 0.84,0.20 stroke #4a2800
+# Dark gaps between planks (void below)
+rect 0.08,0.32 0.84,0.04 fill #111111 0.80
+rect 0.08,0.56 0.84,0.04 fill #111111 0.80
+# Outer frame
+rect 0.08,0.08 0.84,0.76 stroke #3a1f00
+# Hinge marks (north side)
+circle 0.22,0.12 0.04 fill #8b6914 0.70
+circle 0.50,0.12 0.04 fill #8b6914 0.70
+circle 0.78,0.12 0.04 fill #8b6914 0.70

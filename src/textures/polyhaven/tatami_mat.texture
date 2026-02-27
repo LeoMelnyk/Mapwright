@@ -1,0 +1,13 @@
+{
+  "displayName": "Tatami Mat",
+  "category": "Floor",
+  "subcategory": "Woven",
+  "file": "polyhaven/tatami_mat_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/tatami_mat_disp_1k.png",
+    "nor": "polyhaven/tatami_mat_nor_gl_1k.png",
+    "arm": "polyhaven/tatami_mat_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Worn Asphalt",
+  "category": "Floor",
+  "subcategory": "Asphalt",
+  "file": "polyhaven/worn_asphalt_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/worn_asphalt_disp_1k.png",
+    "nor": "polyhaven/worn_asphalt_nor_gl_1k.png",
+    "arm": "polyhaven/worn_asphalt_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

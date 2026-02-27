@@ -1,0 +1,17 @@
+name: Rubble
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+poly 0.12,0.52 0.32,0.35 0.28,0.62 texfill polyhaven/rock_boulder_cracked 0.8
+poly 0.12,0.52 0.32,0.35 0.28,0.62 stroke
+poly 0.38,0.2 0.62,0.12 0.58,0.4 texfill polyhaven/rock_boulder_cracked 0.75
+poly 0.38,0.2 0.62,0.12 0.58,0.4 stroke
+poly 0.58,0.52 0.82,0.42 0.87,0.68 0.68,0.72 texfill polyhaven/rock_boulder_cracked 0.8
+poly 0.58,0.52 0.82,0.42 0.87,0.68 0.68,0.72 stroke
+poly 0.32,0.68 0.52,0.58 0.57,0.82 0.38,0.87 texfill polyhaven/rock_boulder_cracked 0.75
+poly 0.32,0.68 0.52,0.58 0.57,0.82 0.38,0.87 stroke
+poly 0.72,0.18 0.87,0.22 0.82,0.35 texfill polyhaven/rock_boulder_cracked 0.7
+poly 0.72,0.18 0.87,0.22 0.82,0.35 stroke

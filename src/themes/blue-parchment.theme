@@ -1,0 +1,40 @@
+{
+  "displayName": "Blue Parchment",
+  "background": "#f0f4f8",
+  "gridLine": "#000000",
+  "wallStroke": "#2c1810",
+  "wallFill": "#ffffff",
+  "textColor": "#2c1810",
+  "borderColor": "#4a7c9e",
+  "doorFill": "#ffffff",
+  "doorStroke": "#2c1810",
+  "trapColor": "#dc143c",
+  "secretDoorColor": "#2c1810",
+  "compassRoseFill": "#2c1810",
+  "compassRoseStroke": "#2c1810",
+  "wallRoughness": 1.2,
+  "wallShadow": {
+    "color": "rgba(44,24,16,0.18)",
+    "blur": 8,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#2c1810",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.18,
+  "bufferShadingOpacity": 0.1,
+  "outerShading": {
+    "color": "#c5d5e4",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#4b82b9",
+  "waterMediumColor": "#2d5a96",
+  "waterDeepColor": "#0f3273",
+  "waterCausticColor": "rgba(160,215,255,0.55)",
+  "lavaShallowColor": "#cc4400",
+  "lavaMediumColor": "#992200",
+  "lavaDeepColor": "#661100",
+  "lavaCausticColor": "rgba(255,160,60,0.55)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Cliff Side",
+  "category": "Outdoor",
+  "subcategory": "Rock",
+  "file": "polyhaven/cliff_side_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/cliff_side_disp_1k.png",
+    "nor": "polyhaven/cliff_side_nor_gl_1k.png",
+    "arm": "polyhaven/cliff_side_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

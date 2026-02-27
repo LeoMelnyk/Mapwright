@@ -1,0 +1,19 @@
+name: Training Dummy
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Base post
+circle 0.5,0.7 0.12 texfill polyhaven/dark_wood 0.8
+circle 0.5,0.7 0.12 stroke #3a1f00
+# Crossbar (arms)
+rect 0.2,0.35 0.6,0.08 texfill polyhaven/rough_linen 0.75
+rect 0.2,0.35 0.6,0.08 stroke #8b7d6b
+# Torso bag
+ellipse 0.5,0.4 0.15,0.2 texfill polyhaven/rough_linen 0.8
+ellipse 0.5,0.4 0.15,0.2 stroke #8b7d6b
+# Head
+circle 0.5,0.2 0.08 texfill polyhaven/rough_linen 0.75
+circle 0.5,0.2 0.08 stroke #8b7d6b

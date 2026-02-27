@@ -1,0 +1,13 @@
+{
+  "displayName": "Stone Wall 02",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/stone_wall_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stone_wall_02_disp_1k.png",
+    "nor": "polyhaven/stone_wall_02_nor_gl_1k.png",
+    "arm": "polyhaven/stone_wall_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

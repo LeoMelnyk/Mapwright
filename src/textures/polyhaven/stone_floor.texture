@@ -1,0 +1,13 @@
+{
+  "displayName": "Stone Floor",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/stone_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stone_floor_disp_1k.png",
+    "nor": "polyhaven/stone_floor_nor_gl_1k.png",
+    "arm": "polyhaven/stone_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

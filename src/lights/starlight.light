@@ -1,0 +1,10 @@
+{
+  "displayName": "Starlight",
+  "category": "Natural",
+  "description": "The faintest hint of starlight — barely enough to see by",
+  "type": "point",
+  "color": "#ccccdd",
+  "radius": 50,
+  "intensity": 0.2,
+  "falloff": "smooth"
+}

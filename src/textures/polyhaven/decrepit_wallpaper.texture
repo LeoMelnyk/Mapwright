@@ -1,0 +1,13 @@
+{
+  "displayName": "Decrepit Wallpaper",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/decrepit_wallpaper_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/decrepit_wallpaper_disp_1k.png",
+    "nor": "polyhaven/decrepit_wallpaper_nor_gl_1k.png",
+    "arm": "polyhaven/decrepit_wallpaper_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

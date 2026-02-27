@@ -1,0 +1,13 @@
+{
+  "displayName": "White Sandstone Blocks 02",
+  "category": "Brick",
+  "subcategory": "Man Made",
+  "file": "polyhaven/white_sandstone_blocks_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/white_sandstone_blocks_02_disp_1k.png",
+    "nor": "polyhaven/white_sandstone_blocks_02_nor_gl_1k.png",
+    "arm": "polyhaven/white_sandstone_blocks_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

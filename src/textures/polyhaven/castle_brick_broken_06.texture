@@ -1,0 +1,13 @@
+{
+  "displayName": "Castle Brick Broken 06",
+  "category": "Brick",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/castle_brick_broken_06_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/castle_brick_broken_06_disp_1k.png",
+    "nor": "polyhaven/castle_brick_broken_06_nor_gl_1k.png",
+    "arm": "polyhaven/castle_brick_broken_06_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Moon Flat Macro 01",
+  "category": "Outdoor",
+  "subcategory": "Sand",
+  "file": "polyhaven/moon_flat_macro_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/moon_flat_macro_01_disp_1k.png",
+    "nor": "polyhaven/moon_flat_macro_01_nor_gl_1k.png",
+    "arm": "polyhaven/moon_flat_macro_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Grey Cartago 02",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/grey_cartago_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/grey_cartago_02_disp_1k.png",
+    "nor": "polyhaven/grey_cartago_02_nor_gl_1k.png",
+    "arm": "polyhaven/grey_cartago_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

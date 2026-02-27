@@ -1,0 +1,40 @@
+{
+  "displayName": "Grasslands",
+  "background": "#c8e890",
+  "gridLine": "#000000",
+  "wallStroke": "#2a1600",
+  "wallFill": "#e8e0c0",
+  "textColor": "#1a0e00",
+  "borderColor": "#527820",
+  "doorFill": "#e8e0c0",
+  "doorStroke": "#2a1600",
+  "trapColor": "#cc2200",
+  "secretDoorColor": "#2a1600",
+  "compassRoseFill": "#2a1600",
+  "compassRoseStroke": "#2a1600",
+  "wallRoughness": 2,
+  "wallShadow": {
+    "color": "rgba(42,22,0,0.25)",
+    "blur": 8,
+    "offsetX": 3,
+    "offsetY": 4
+  },
+  "hatchColor": "#2a1600",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.22,
+  "bufferShadingOpacity": 0.12,
+  "outerShading": {
+    "color": "#88b840",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#3c829b",
+  "waterMediumColor": "#235f7d",
+  "waterDeepColor": "#0f3c5f",
+  "waterCausticColor": "rgba(140,210,230,0.50)",
+  "lavaShallowColor": "#cc4400",
+  "lavaMediumColor": "#992200",
+  "lavaDeepColor": "#661100",
+  "lavaCausticColor": "rgba(255,160,60,0.55)"
+}

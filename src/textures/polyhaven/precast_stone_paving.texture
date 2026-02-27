@@ -1,0 +1,13 @@
+{
+  "displayName": "Precast Stone Paving",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/precast_stone_paving_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/precast_stone_paving_disp_1k.png",
+    "nor": "polyhaven/precast_stone_paving_nor_gl_1k.png",
+    "arm": "polyhaven/precast_stone_paving_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

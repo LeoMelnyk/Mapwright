@@ -1,0 +1,13 @@
+{
+  "displayName": "Granite Wall",
+  "category": "Wall",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/granite_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/granite_wall_disp_1k.png",
+    "nor": "polyhaven/granite_wall_nor_gl_1k.png",
+    "arm": "polyhaven/granite_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Chinese Cedar Bark",
+  "category": "Natural",
+  "subcategory": "Bark",
+  "file": "polyhaven/chinese_cedar_bark_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/chinese_cedar_bark_disp_1k.png",
+    "nor": "polyhaven/chinese_cedar_bark_nor_gl_1k.png",
+    "arm": "polyhaven/chinese_cedar_bark_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

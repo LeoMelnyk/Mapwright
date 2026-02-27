@@ -1,0 +1,15 @@
+name: Grave Marker
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Stone slab
+rect 0.2,0.15 0.6,0.7 texfill polyhaven/granite_tile 0.8
+rect 0.2,0.15 0.6,0.7 stroke #666666
+# Inner border
+rect 0.28,0.23 0.44,0.54 stroke #777777
+# Cross engraving
+line 0.5,0.3 0.5,0.6
+line 0.38,0.42 0.62,0.42

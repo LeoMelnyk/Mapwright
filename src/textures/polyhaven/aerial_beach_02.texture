@@ -1,0 +1,13 @@
+{
+  "displayName": "Aerial Beach 02",
+  "category": "Terrain",
+  "subcategory": "Sand",
+  "file": "polyhaven/aerial_beach_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/aerial_beach_02_disp_1k.png",
+    "nor": "polyhaven/aerial_beach_02_nor_gl_1k.png",
+    "arm": "polyhaven/aerial_beach_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

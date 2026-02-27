@@ -1,0 +1,26 @@
+name: Campfire
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Stone ring
+circle 0.5,0.5 0.38 stroke #666666
+circle 0.18,0.38 0.05 fill #777777 0.6
+circle 0.22,0.58 0.05 fill #888888 0.5
+circle 0.38,0.18 0.05 fill #777777 0.5
+circle 0.62,0.18 0.05 fill #888888 0.6
+circle 0.82,0.38 0.05 fill #777777 0.5
+circle 0.78,0.58 0.05 fill #888888 0.6
+circle 0.38,0.82 0.05 fill #777777 0.5
+circle 0.62,0.82 0.05 fill #888888 0.6
+# Charred ground
+circle 0.5,0.5 0.3 fill #1a1a1a 0.4
+# Ember glow
+circle 0.5,0.5 0.2 fill #e85500 0.3
+circle 0.5,0.5 0.12 fill #ffaa00 0.4
+circle 0.5,0.5 0.06 fill #ffcc00 0.6
+# Log embers
+line 0.35,0.45 0.55,0.65
+line 0.6,0.4 0.42,0.6

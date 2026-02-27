@@ -1,0 +1,22 @@
+name: Anchor
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Metal body fills
+rect 0.46,0.22 0.08,0.58 fill #666666 0.5
+rect 0.28,0.28 0.44,0.08 fill #666666 0.5
+# Ring at top
+circle 0.5,0.15 0.09 fill #888888 0.3
+circle 0.5,0.15 0.09 stroke #555555
+# Main shaft
+line 0.5,0.24 0.5,0.8
+# Crossbar
+line 0.28,0.32 0.72,0.32
+# Crown arms
+arc 0.5,0.68 0.22 200 340 stroke #555555
+# Fluke tips
+line 0.3,0.82 0.36,0.9
+line 0.7,0.82 0.64,0.9

@@ -1,0 +1,31 @@
+name: Ship Wheel
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Outer rim
+circle 0.5,0.5 0.4 texfill polyhaven/dark_wood 0.8
+circle 0.5,0.5 0.4 stroke #3a1f00
+# Inner rim
+circle 0.5,0.5 0.32 stroke #3a1f00
+# Hub
+circle 0.5,0.5 0.12 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.12 stroke #3a1f00
+# Center bolt
+circle 0.5,0.5 0.04 fill #666666 0.7
+# Spokes (8 directions)
+line 0.5,0.5 0.5,0.08
+line 0.5,0.5 0.5,0.92
+line 0.5,0.5 0.08,0.5
+line 0.5,0.5 0.92,0.5
+line 0.5,0.5 0.2,0.2
+line 0.5,0.5 0.8,0.8
+line 0.5,0.5 0.8,0.2
+line 0.5,0.5 0.2,0.8
+# Handle peg ends
+circle 0.5,0.06 0.03 fill #4a2800 0.7
+circle 0.5,0.94 0.03 fill #4a2800 0.7
+circle 0.06,0.5 0.03 fill #4a2800 0.7
+circle 0.94,0.5 0.03 fill #4a2800 0.7

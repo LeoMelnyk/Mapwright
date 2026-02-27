@@ -1,0 +1,23 @@
+name: Chest
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Wooden body
+rect 0.12,0.15 0.76,0.7 texfill polyhaven/dark_wood 0.85
+rect 0.12,0.15 0.76,0.7 stroke #3a1f00
+# Metal bands
+line 0.12,0.35 0.88,0.35
+line 0.12,0.55 0.88,0.55
+# Metal corner brackets
+rect 0.12,0.15 0.08,0.08 fill #666666 0.7
+rect 0.80,0.15 0.08,0.08 fill #666666 0.7
+rect 0.12,0.77 0.08,0.08 fill #666666 0.7
+rect 0.80,0.77 0.08,0.08 fill #666666 0.7
+# Front clasp (south side)
+rect 0.44,0.78 0.12,0.08 fill #daa520 0.8
+rect 0.44,0.78 0.12,0.08 stroke #8b6914
+# Lid seam
+line 0.15,0.45 0.85,0.45

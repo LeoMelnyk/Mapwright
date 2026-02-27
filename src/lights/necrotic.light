@@ -1,0 +1,10 @@
+{
+  "displayName": "Necrotic",
+  "category": "Magical",
+  "description": "A sickly dark purple glow that seems to drink in surrounding light",
+  "type": "point",
+  "color": "#884488",
+  "radius": 15,
+  "intensity": 0.6,
+  "falloff": "quadratic"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Dark Wooden Planks",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/dark_wooden_planks_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/dark_wooden_planks_disp_1k.png",
+    "nor": "polyhaven/dark_wooden_planks_nor_gl_1k.png",
+    "arm": "polyhaven/dark_wooden_planks_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Stone Embedded Tiles",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/stone_embedded_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stone_embedded_tiles_disp_1k.png",
+    "nor": "polyhaven/stone_embedded_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/stone_embedded_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

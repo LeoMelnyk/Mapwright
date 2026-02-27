@@ -1,0 +1,13 @@
+{
+  "displayName": "Old Wood Floor",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/old_wood_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/old_wood_floor_disp_1k.png",
+    "nor": "polyhaven/old_wood_floor_nor_gl_1k.png",
+    "arm": "polyhaven/old_wood_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

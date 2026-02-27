@@ -1,0 +1,13 @@
+name: Bookshelf
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Top surface
+rect 0.05,0.05 0.9,1.9 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.05,0.05 0.9,1.9 stroke #3a1f00
+# Shelf partition lines
+line 0.08,0.68 0.92,0.68
+line 0.08,1.35 0.92,1.35

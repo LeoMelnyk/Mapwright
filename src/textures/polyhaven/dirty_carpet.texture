@@ -1,0 +1,13 @@
+{
+  "displayName": "Dirty Carpet",
+  "category": "Floor",
+  "subcategory": "Fabric",
+  "file": "polyhaven/dirty_carpet_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/dirty_carpet_disp_1k.png",
+    "nor": "polyhaven/dirty_carpet_nor_gl_1k.png",
+    "arm": "polyhaven/dirty_carpet_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

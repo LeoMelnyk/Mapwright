@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Surface",
+  "category": "Natural",
+  "subcategory": "Rock",
+  "file": "polyhaven/rock_surface_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_surface_disp_1k.png",
+    "nor": "polyhaven/rock_surface_nor_gl_1k.png",
+    "arm": "polyhaven/rock_surface_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

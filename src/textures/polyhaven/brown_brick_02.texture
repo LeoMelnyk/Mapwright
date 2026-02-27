@@ -1,0 +1,13 @@
+{
+  "displayName": "Brown Brick 02",
+  "category": "Brick",
+  "subcategory": "Wall",
+  "file": "polyhaven/brown_brick_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brown_brick_02_disp_1k.png",
+    "nor": "polyhaven/brown_brick_02_nor_gl_1k.png",
+    "arm": "polyhaven/brown_brick_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

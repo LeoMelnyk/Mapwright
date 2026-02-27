@@ -1,0 +1,13 @@
+{
+  "displayName": "Factory Wall",
+  "category": "Metal",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/factory_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/factory_wall_disp_1k.png",
+    "nor": "polyhaven/factory_wall_nor_gl_1k.png",
+    "arm": "polyhaven/factory_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

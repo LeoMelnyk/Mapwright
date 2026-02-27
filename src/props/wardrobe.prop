@@ -1,0 +1,14 @@
+name: Wardrobe
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Top surface
+rect 0.05,0.08 1.9,0.84 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.05,0.08 1.9,0.84 stroke #3a1f00
+# Door seam
+line 1.0,0.12 1.0,0.88
+# Inner border
+rect 0.1,0.12 1.8,0.76 stroke #4a2800

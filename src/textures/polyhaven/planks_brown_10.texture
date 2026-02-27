@@ -1,0 +1,13 @@
+{
+  "displayName": "Planks Brown 10",
+  "category": "Wood",
+  "subcategory": "Wall",
+  "file": "polyhaven/planks_brown_10_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/planks_brown_10_disp_1k.png",
+    "nor": "polyhaven/planks_brown_10_nor_gl_1k.png",
+    "arm": "polyhaven/planks_brown_10_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

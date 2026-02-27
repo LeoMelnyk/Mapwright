@@ -1,0 +1,13 @@
+{
+  "displayName": "Blue Metal Plate",
+  "category": "Metal",
+  "subcategory": "Industrial",
+  "file": "polyhaven/blue_metal_plate_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/blue_metal_plate_disp_1k.png",
+    "nor": "polyhaven/blue_metal_plate_nor_gl_1k.png",
+    "arm": "polyhaven/blue_metal_plate_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

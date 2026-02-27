@@ -1,0 +1,13 @@
+{
+  "displayName": "Peeling Painted Wall",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/peeling_painted_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/peeling_painted_wall_disp_1k.png",
+    "nor": "polyhaven/peeling_painted_wall_nor_gl_1k.png",
+    "arm": "polyhaven/peeling_painted_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Stretch Poplin",
+  "category": "Fabric",
+  "subcategory": "Stretchy",
+  "file": "polyhaven/stretch_poplin_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stretch_poplin_disp_1k.png",
+    "nor": "polyhaven/stretch_poplin_nor_gl_1k.png",
+    "arm": "polyhaven/stretch_poplin_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,20 @@
+name: Oven
+category: Kitchen
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Brick dome base (from above)
+ellipse 0.5,0.7 0.45,0.55 texfill polyhaven/brick_4 0.85
+ellipse 0.5,0.7 0.45,0.55 stroke #8b4513
+# Inner dome shadow
+ellipse 0.5,0.7 0.35,0.42 stroke #6b3410
+# Chimney vent (back/north)
+circle 0.5,0.2 0.1 fill #333333 0.6
+circle 0.5,0.2 0.1 stroke #555555
+# Front opening (south)
+rect 0.3,1.5 0.4,0.45 fill #1a0a00 0.5
+rect 0.3,1.5 0.4,0.45 stroke #8b4513
+# Ember glow inside opening
+ellipse 0.5,1.65 0.12,0.08 fill #e85500 0.35

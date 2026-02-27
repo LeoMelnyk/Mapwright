@@ -1,0 +1,13 @@
+{
+  "displayName": "Brick 4",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/brick_4_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brick_4_disp_1k.png",
+    "nor": "polyhaven/brick_4_nor_gl_1k.png",
+    "arm": "polyhaven/brick_4_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

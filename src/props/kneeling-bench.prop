@@ -1,0 +1,22 @@
+name: Kneeling Bench
+category: Religious
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Prayer ledge (raised, north)
+rect 0.08,0.08 1.84,0.36 texfill polyhaven/dark_wood 0.80
+rect 0.08,0.08 1.84,0.36 stroke #3a1f00
+# Ledge lip
+line 0.08,0.44 1.92,0.44 stroke #5c3a1e
+# Worn hand marks on ledge
+circle 0.45,0.26 0.08 fill #3a1f00 0.15
+circle 1.55,0.26 0.08 fill #3a1f00 0.15
+# Kneeling pad (low upholstered cushion, south)
+rect 0.10,0.54 1.80,0.38 texfill polyhaven/velour_velvet 0.80
+rect 0.10,0.54 1.80,0.38 stroke #3a1f00
+# Cushion tufting marks
+circle 0.40,0.72 0.04 fill #5a3a00 0.60
+circle 1.00,0.72 0.04 fill #5a3a00 0.60
+circle 1.60,0.72 0.04 fill #5a3a00 0.60

@@ -1,0 +1,20 @@
+name: Execution Block
+category: Prison
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Wooden block
+rect 0.15,0.35 0.7,0.55 texfill polyhaven/dark_wood 0.85
+rect 0.15,0.35 0.7,0.55 stroke #3a1f00
+# Head rest groove
+rect 0.32,0.32 0.36,0.1 fill #1a0a00 0.4
+rect 0.32,0.32 0.36,0.1 stroke #3a1f00
+# Axe blade cuts
+line 0.22,0.42 0.3,0.55
+line 0.38,0.42 0.42,0.58
+line 0.78,0.42 0.7,0.55
+# Blood stains
+ellipse 0.5,0.7 0.2,0.1 fill #4a0000 0.3
+circle 0.3,0.75 0.05 fill #4a0000 0.2

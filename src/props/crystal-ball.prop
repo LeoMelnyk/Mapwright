@@ -1,0 +1,17 @@
+name: Crystal Ball
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Stand base
+circle 0.5,0.5 0.2 texfill polyhaven/dark_wood 0.8
+circle 0.5,0.5 0.2 stroke #3a1f00
+# Crystal sphere
+circle 0.5,0.5 0.15 fill #8866cc 0.5
+circle 0.5,0.5 0.15 stroke #6644aa
+# Inner glow
+circle 0.5,0.5 0.08 fill #aa88ee 0.4
+# Highlight
+circle 0.45,0.45 0.03 fill #ddccff 0.6

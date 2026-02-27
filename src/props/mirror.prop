@@ -1,0 +1,28 @@
+name: Mirror
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Wall-mounted mirror seen from directly above
+# Only the top edge of frame and a sliver of reflective surface visible
+# Frame top edge (ornate dark wood strip along north wall)
+rect 0.12,0.06 0.76,0.10 texfill polyhaven/dark_wood 0.9
+rect 0.12,0.06 0.76,0.10 stroke #3a1f00
+# Frame ornamental corners (carved finials on top edge)
+circle 0.14,0.11 0.04 fill #5a3a00 0.7
+circle 0.14,0.11 0.04 stroke #3a1f00
+circle 0.86,0.11 0.04 fill #5a3a00 0.7
+circle 0.86,0.11 0.04 stroke #3a1f00
+# Center decorative crest on frame top
+ellipse 0.50,0.08 0.08,0.04 fill #8b6914 0.6
+ellipse 0.50,0.08 0.08,0.04 stroke #5a3a00
+# Reflective glass surface (thin bright sliver, angled slightly away from wall)
+rect 0.16,0.16 0.68,0.08 fill #c8dce8 0.5
+rect 0.16,0.16 0.68,0.08 stroke #8899aa
+# Highlight gleam on glass
+line 0.28,0.18 0.52,0.18 stroke #e8f0ff
+# Mounting bracket shadow on wall (very subtle)
+rect 0.35,0.02 0.06,0.06 fill #555555 0.3
+rect 0.59,0.02 0.06,0.06 fill #555555 0.3

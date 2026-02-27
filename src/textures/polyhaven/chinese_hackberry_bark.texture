@@ -1,0 +1,13 @@
+{
+  "displayName": "Chinese Hackberry Bark",
+  "category": "Natural",
+  "subcategory": "Bark",
+  "file": "polyhaven/chinese_hackberry_bark_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/chinese_hackberry_bark_disp_1k.png",
+    "nor": "polyhaven/chinese_hackberry_bark_nor_gl_1k.png",
+    "arm": "polyhaven/chinese_hackberry_bark_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

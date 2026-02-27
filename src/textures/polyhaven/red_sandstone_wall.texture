@@ -1,0 +1,13 @@
+{
+  "displayName": "Red Sandstone Wall",
+  "category": "Man Made",
+  "subcategory": "Wall",
+  "file": "polyhaven/red_sandstone_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/red_sandstone_wall_disp_1k.png",
+    "nor": "polyhaven/red_sandstone_wall_nor_gl_1k.png",
+    "arm": "polyhaven/red_sandstone_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

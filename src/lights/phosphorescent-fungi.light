@@ -1,0 +1,10 @@
+{
+  "displayName": "Phosphorescent Fungi",
+  "category": "Natural",
+  "description": "A dim greenish glow from clusters of underground mushrooms",
+  "type": "point",
+  "color": "#66ffaa",
+  "radius": 10,
+  "intensity": 0.4,
+  "falloff": "smooth"
+}

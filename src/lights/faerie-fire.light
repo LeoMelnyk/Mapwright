@@ -1,0 +1,10 @@
+{
+  "displayName": "Faerie Fire",
+  "category": "Magical",
+  "description": "An ethereal violet glow that outlines everything it touches",
+  "type": "point",
+  "color": "#aa55ff",
+  "radius": 15,
+  "intensity": 0.7,
+  "falloff": "smooth"
+}

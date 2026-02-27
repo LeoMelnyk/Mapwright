@@ -1,0 +1,13 @@
+{
+  "displayName": "Patterned Brick Wall 02",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/patterned_brick_wall_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/patterned_brick_wall_02_disp_1k.png",
+    "nor": "polyhaven/patterned_brick_wall_02_nor_gl_1k.png",
+    "arm": "polyhaven/patterned_brick_wall_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

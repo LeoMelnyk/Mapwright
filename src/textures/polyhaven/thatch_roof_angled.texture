@@ -1,0 +1,13 @@
+{
+  "displayName": "Thatch Roof Angled",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/thatch_roof_angled_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/thatch_roof_angled_disp_1k.png",
+    "nor": "polyhaven/thatch_roof_angled_nor_gl_1k.png",
+    "arm": "polyhaven/thatch_roof_angled_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

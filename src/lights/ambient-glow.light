@@ -1,0 +1,10 @@
+{
+  "displayName": "Ambient Glow",
+  "category": "Utility",
+  "description": "A very soft, wide-radius fill light for subtle background illumination",
+  "type": "point",
+  "color": "#eeddcc",
+  "radius": 50,
+  "intensity": 0.3,
+  "falloff": "smooth"
+}

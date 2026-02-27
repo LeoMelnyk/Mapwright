@@ -1,0 +1,13 @@
+{
+  "displayName": "Terry Cloth",
+  "category": "Fabric",
+  "subcategory": "Knitted",
+  "file": "polyhaven/terry_cloth_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/terry_cloth_disp_1k.png",
+    "nor": "polyhaven/terry_cloth_nor_gl_1k.png",
+    "arm": "polyhaven/terry_cloth_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

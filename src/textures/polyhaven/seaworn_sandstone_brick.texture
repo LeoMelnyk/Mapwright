@@ -1,0 +1,13 @@
+{
+  "displayName": "Seaworn Sandstone Brick",
+  "category": "Brick",
+  "subcategory": "Sandstone",
+  "file": "polyhaven/seaworn_sandstone_brick_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/seaworn_sandstone_brick_disp_1k.png",
+    "nor": "polyhaven/seaworn_sandstone_brick_nor_gl_1k.png",
+    "arm": "polyhaven/seaworn_sandstone_brick_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

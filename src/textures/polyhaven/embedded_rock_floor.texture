@@ -1,0 +1,13 @@
+{
+  "displayName": "Embedded Rock Floor",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/embedded_rock_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/embedded_rock_floor_disp_1k.png",
+    "nor": "polyhaven/embedded_rock_floor_nor_gl_1k.png",
+    "arm": "polyhaven/embedded_rock_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

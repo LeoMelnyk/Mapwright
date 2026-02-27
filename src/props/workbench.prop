@@ -1,0 +1,29 @@
+name: Workbench
+category: Workshop
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Bench surface
+rect 0.08,0.10 0.84,1.76 texfill polyhaven/wood_table 0.80
+rect 0.08,0.10 0.84,1.76 stroke #3a1f00
+rect 0.14,0.18 0.72,1.60 stroke #5c3a1e 0.40
+# Leg shadows
+circle 0.18,0.20 0.07 fill #3a1f00 0.55
+circle 0.82,0.20 0.07 fill #3a1f00 0.55
+circle 0.18,1.80 0.07 fill #3a1f00 0.55
+circle 0.82,1.80 0.07 fill #3a1f00 0.55
+# Tool clamp (north edge)
+rect 0.08,0.10 0.84,0.18 fill #555555 0.40
+rect 0.08,0.10 0.84,0.18 stroke #444444
+# Vise jaw (south end)
+rect 0.26,1.70 0.48,0.16 fill #666666 0.80
+rect 0.26,1.70 0.48,0.16 stroke #444444
+# Tool marks/drill holes on surface
+circle 0.30,0.70 0.04 fill #3a1f00 0.60
+circle 0.50,0.90 0.03 fill #3a1f00 0.50
+circle 0.68,0.60 0.04 fill #3a1f00 0.55
+# Saw cut marks
+line 0.18,1.30 0.82,1.30 stroke #3a1f00 0.30
+line 0.18,1.46 0.76,1.46 stroke #3a1f00 0.25

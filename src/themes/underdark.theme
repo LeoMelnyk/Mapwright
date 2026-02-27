@@ -1,0 +1,40 @@
+{
+  "displayName": "Underdark",
+  "background": "#16102a",
+  "gridLine": "#000000",
+  "wallStroke": "#6830a8",
+  "wallFill": "#201430",
+  "textColor": "#c8a0e8",
+  "borderColor": "#3a1880",
+  "doorFill": "#16102a",
+  "doorStroke": "#c8a0e8",
+  "trapColor": "#ff2860",
+  "secretDoorColor": "#8850c0",
+  "compassRoseFill": "#b080d0",
+  "compassRoseStroke": "#8050b0",
+  "wallRoughness": 1,
+  "wallShadow": {
+    "color": "rgba(100,48,168,0.32)",
+    "blur": 14,
+    "offsetX": 5,
+    "offsetY": 7
+  },
+  "hatchColor": "#6830a8",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0,
+  "bufferShadingOpacity": 0.28,
+  "outerShading": {
+    "color": "#180c28",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#19646e",
+  "waterMediumColor": "#0f4150",
+  "waterDeepColor": "#082332",
+  "waterCausticColor": "rgba(60,200,200,0.50)",
+  "lavaShallowColor": "#cc4400",
+  "lavaMediumColor": "#992200",
+  "lavaDeepColor": "#661100",
+  "lavaCausticColor": "rgba(255,140,40,0.50)"
+}

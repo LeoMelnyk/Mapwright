@@ -1,0 +1,10 @@
+{
+  "displayName": "Moonlight",
+  "category": "Natural",
+  "description": "Pale blue-white moonlight filtering in from outside",
+  "type": "point",
+  "color": "#bbccee",
+  "radius": 40,
+  "intensity": 0.4,
+  "falloff": "smooth"
+}

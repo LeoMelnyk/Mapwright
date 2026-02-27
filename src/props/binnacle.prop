@@ -1,0 +1,27 @@
+name: Binnacle
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Binnacle housing (cylindrical)
+circle 0.50,0.50 0.34 texfill polyhaven/dark_wood 0.80
+circle 0.50,0.50 0.34 stroke #3a1f00
+# Brass ring
+circle 0.50,0.50 0.32 stroke #8b6914 0.60
+# Compass interior
+circle 0.50,0.50 0.22 fill #e8dcc8 0.80
+circle 0.50,0.50 0.22 stroke #8b6914
+# Cardinal point marks
+line 0.50,0.34 0.50,0.28 stroke #cc2222
+line 0.50,0.66 0.50,0.72 stroke #333333
+line 0.34,0.50 0.28,0.50 stroke #333333
+line 0.66,0.50 0.72,0.50 stroke #333333
+# Compass needle
+line 0.50,0.50 0.50,0.32 stroke #cc2222
+line 0.50,0.50 0.50,0.68 stroke #333333
+# Center pivot
+circle 0.50,0.50 0.03 fill #333333 0.90
+# Glass dome glint
+circle 0.40,0.40 0.06 fill #ffffff 0.18

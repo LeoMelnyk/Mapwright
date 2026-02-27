@@ -1,0 +1,51 @@
+name: Potter's Wheel
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Kick wheel (large lower disc visible at edges)
+circle 0.50,0.50 0.46 fill #5a4a3a 0.4
+circle 0.50,0.50 0.46 stroke #3d2b1a
+
+# Wooden base platform
+circle 0.50,0.50 0.42 texfill polyhaven/dark_wood 0.8
+circle 0.50,0.50 0.42 stroke #2a1f14
+
+# Base wood grain highlight
+circle 0.50,0.50 0.38 fill #6b4e2e 0.15
+
+# Spinning disc (lighter, smooth turning surface)
+circle 0.50,0.50 0.26 fill #8b7355 0.7
+circle 0.50,0.50 0.26 stroke #5a4a3a
+
+# Disc surface ring
+circle 0.50,0.50 0.22 stroke #9a8565
+circle 0.50,0.50 0.18 stroke #9a8565
+
+# Center pin
+circle 0.50,0.50 0.02 fill #666666 0.9
+
+# Clay lump (irregular blob on the disc)
+ellipse 0.50,0.48 0.09,0.08 fill #a0704a 0.85
+ellipse 0.50,0.48 0.09,0.08 stroke #7a5535
+# Clay top highlight (wet sheen)
+ellipse 0.49,0.46 0.05,0.04 fill #c09060 0.4
+
+# Clay ring marks (throwing lines)
+circle 0.50,0.48 0.06 stroke #8a6040
+
+# Clay splatter on disc
+circle 0.38,0.55 0.015 fill #a0704a 0.5
+circle 0.60,0.42 0.012 fill #a0704a 0.4
+circle 0.55,0.58 0.01 fill #a0704a 0.45
+
+# Kick wheel spokes (visible at edges beyond the base)
+line 0.50,0.06 0.50,0.10 stroke #5a4a3a
+line 0.50,0.90 0.50,0.94 stroke #5a4a3a
+line 0.06,0.50 0.10,0.50 stroke #5a4a3a
+line 0.90,0.50 0.94,0.50 stroke #5a4a3a
+
+# Seat post shadow (implied stool position)
+circle 0.50,0.50 0.03 fill #444444 0.3

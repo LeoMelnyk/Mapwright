@@ -1,0 +1,13 @@
+{
+  "displayName": "Anti Skid Tiles",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/anti_skid_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/anti_skid_tiles_disp_1k.png",
+    "nor": "polyhaven/anti_skid_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/anti_skid_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

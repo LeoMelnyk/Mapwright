@@ -1,0 +1,26 @@
+name: Lobster Trap
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Trap body (wicker weave)
+rect 0.1,0.1 0.8,0.8 texfill polyhaven/weathered_planks 0.7
+rect 0.1,0.1 0.8,0.8 stroke #3a1f00
+# Lattice frame lines
+line 0.37,0.1 0.37,0.9 stroke #3a1f00
+line 0.63,0.1 0.63,0.9 stroke #3a1f00
+line 0.1,0.37 0.9,0.37 stroke #3a1f00
+line 0.1,0.63 0.9,0.63 stroke #3a1f00
+# Funnel entrance (dark central opening)
+ellipse 0.5,0.5 0.12,0.08 fill #1a1a1a 0.55
+ellipse 0.5,0.5 0.12,0.08 stroke #3a1f00
+# Corner posts
+circle 0.12,0.12 0.04 fill #4a2800 0.9
+circle 0.88,0.12 0.04 fill #4a2800 0.9
+circle 0.12,0.88 0.04 fill #4a2800 0.9
+circle 0.88,0.88 0.04 fill #4a2800 0.9
+# Rope tie (top, for hauling)
+circle 0.5,0.18 0.05 fill #8b7355 0.8
+circle 0.5,0.18 0.05 stroke #5c4010

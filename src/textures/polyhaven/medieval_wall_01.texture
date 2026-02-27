@@ -1,0 +1,13 @@
+{
+  "displayName": "Medieval Wall 01",
+  "category": "Plaster Concrete",
+  "subcategory": "Wall",
+  "file": "polyhaven/medieval_wall_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/medieval_wall_01_disp_1k.png",
+    "nor": "polyhaven/medieval_wall_01_nor_gl_1k.png",
+    "arm": "polyhaven/medieval_wall_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

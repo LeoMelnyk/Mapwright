@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Path",
+  "category": "Natural",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/rock_path_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_path_disp_1k.png",
+    "nor": "polyhaven/rock_path_nor_gl_1k.png",
+    "arm": "polyhaven/rock_path_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

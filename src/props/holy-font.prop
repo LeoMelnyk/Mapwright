@@ -1,0 +1,15 @@
+name: Holy Font
+category: Religious
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Stone basin
+circle 0.5,0.5 0.38 texfill polyhaven/marble_01 0.85
+circle 0.5,0.5 0.38 stroke
+# Inner rim
+circle 0.5,0.5 0.3 stroke
+# Holy water
+circle 0.5,0.5 0.25 texfill texturecan/water_waves 0.7
+circle 0.5,0.5 0.25 stroke #6688aa

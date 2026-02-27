@@ -1,0 +1,10 @@
+{
+  "displayName": "Daylight",
+  "category": "Magical",
+  "description": "Brilliant magical sunlight that floods a large area",
+  "type": "point",
+  "color": "#ffffee",
+  "radius": 60,
+  "intensity": 1.5,
+  "falloff": "smooth"
+}

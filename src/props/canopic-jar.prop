@@ -1,0 +1,23 @@
+name: Canopic Jar
+category: Undead & Dark
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Jar body
+circle 0.50,0.56 0.30 texfill polyhaven/marble_01 0.70
+circle 0.50,0.56 0.30 stroke #666655
+# Decorative band
+circle 0.50,0.56 0.28 stroke #8b6914 0.50
+# Animal-head lid (seen from above)
+circle 0.50,0.28 0.20 fill #d4a574 0.75
+circle 0.50,0.28 0.20 stroke #8b5a2b
+# Snout protrusion (north)
+ellipse 0.50,0.16 0.08,0.06 fill #d4a574 0.80
+ellipse 0.50,0.16 0.08,0.06 stroke #8b5a2b
+# Eyes
+circle 0.42,0.26 0.04 fill #111111 0.90
+circle 0.58,0.26 0.04 fill #111111 0.90
+# Ritual marking
+line 0.38,0.30 0.62,0.30 stroke #8b6914 0.50

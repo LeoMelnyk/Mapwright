@@ -1,0 +1,25 @@
+name: Chain Hoist
+category: Structure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Ceiling mount plate
+rect 0.28,0.08 0.44,0.12 texfill polyhaven/metal_plate 0.80
+rect 0.28,0.08 0.44,0.12 stroke #444444
+# Pulley wheel
+circle 0.50,0.32 0.18 texfill polyhaven/metal_plate 0.75
+circle 0.50,0.32 0.18 stroke #444444
+circle 0.50,0.32 0.12 fill #333333 0.80
+circle 0.50,0.32 0.06 fill #888888 0.90
+# Chain links descending
+line 0.46,0.50 0.46,0.88 stroke #777777
+line 0.54,0.50 0.54,0.88 stroke #777777
+circle 0.50,0.54 0.05 fill #888888 0.60
+circle 0.50,0.62 0.05 fill #888888 0.60
+circle 0.50,0.70 0.05 fill #888888 0.60
+circle 0.50,0.78 0.05 fill #888888 0.60
+# Hook at bottom
+circle 0.50,0.86 0.06 fill #888888 0.80
+circle 0.50,0.86 0.06 stroke #555555

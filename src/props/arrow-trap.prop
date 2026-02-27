@@ -1,0 +1,20 @@
+name: Arrow Trap
+category: Traps
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Wall mount (north edge)
+rect 0.10,0.02 0.80,0.16 texfill polyhaven/stone_wall 0.80
+rect 0.10,0.02 0.80,0.16 stroke #555555
+# Trap slot hole (dark opening)
+rect 0.36,0.10 0.28,0.10 fill #111111 0.90
+rect 0.36,0.10 0.28,0.10 stroke #333333
+# Arrow visible in slot
+line 0.50,0.12 0.50,0.60 stroke #5c3a1e
+# Arrowhead
+poly 0.50,0.62 0.44,0.52 0.56,0.52 fill #888888 0.90
+# Spring mechanism flanges
+rect 0.14,0.04 0.10,0.12 fill #666666 0.70
+rect 0.76,0.04 0.10,0.12 fill #666666 0.70

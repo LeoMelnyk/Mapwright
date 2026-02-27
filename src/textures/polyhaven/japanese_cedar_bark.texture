@@ -1,0 +1,13 @@
+{
+  "displayName": "Japanese Cedar Bark",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/japanese_cedar_bark_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/japanese_cedar_bark_disp_1k.png",
+    "nor": "polyhaven/japanese_cedar_bark_nor_gl_1k.png",
+    "arm": "polyhaven/japanese_cedar_bark_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

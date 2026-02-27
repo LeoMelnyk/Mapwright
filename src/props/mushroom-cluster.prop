@@ -1,0 +1,30 @@
+name: Mushroom Cluster
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+---
+# Large mushroom
+circle 0.65,0.7 0.38 fill #8b4513 0.6
+circle 0.65,0.7 0.38 stroke #5a2d0a
+circle 0.65,0.7 0.12 fill #e8dcc8 0.5
+circle 0.52,0.58 0.05 fill #daa520 0.4
+circle 0.78,0.6 0.04 fill #daa520 0.5
+# Medium mushroom (right-top)
+circle 1.45,0.55 0.3 fill #a0522d 0.55
+circle 1.45,0.55 0.3 stroke #5a2d0a
+circle 1.45,0.55 0.09 fill #e8dcc8 0.5
+circle 1.35,0.45 0.04 fill #daa520 0.4
+# Small mushroom (bottom-left)
+circle 0.55,1.5 0.22 fill #cd853f 0.5
+circle 0.55,1.5 0.22 stroke #5a2d0a
+circle 0.55,1.5 0.07 fill #e8dcc8 0.5
+# Medium mushroom (bottom-right)
+circle 1.5,1.35 0.28 fill #8b4513 0.55
+circle 1.5,1.35 0.28 stroke #5a2d0a
+circle 1.5,1.35 0.09 fill #e8dcc8 0.5
+circle 1.42,1.25 0.04 fill #daa520 0.4
+# Tiny mushroom
+circle 1.0,1.15 0.12 fill #cd853f 0.5
+circle 1.0,1.15 0.12 stroke #5a2d0a

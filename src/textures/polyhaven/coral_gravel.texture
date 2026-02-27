@@ -1,0 +1,13 @@
+{
+  "displayName": "Coral Gravel",
+  "category": "Terrain",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/coral_gravel_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/coral_gravel_disp_1k.png",
+    "nor": "polyhaven/coral_gravel_nor_gl_1k.png",
+    "arm": "polyhaven/coral_gravel_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

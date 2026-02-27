@@ -1,0 +1,13 @@
+{
+  "displayName": "Red Slate Roof Tiles 01",
+  "category": "Roofing",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/red_slate_roof_tiles_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/red_slate_roof_tiles_01_disp_1k.png",
+    "nor": "polyhaven/red_slate_roof_tiles_01_nor_gl_1k.png",
+    "arm": "polyhaven/red_slate_roof_tiles_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

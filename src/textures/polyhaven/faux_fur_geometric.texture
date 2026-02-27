@@ -1,0 +1,13 @@
+{
+  "displayName": "Faux Fur Geometric",
+  "category": "Fabric",
+  "subcategory": "Fur",
+  "file": "polyhaven/faux_fur_geometric_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/faux_fur_geometric_disp_1k.png",
+    "nor": "polyhaven/faux_fur_geometric_nor_gl_1k.png",
+    "arm": "polyhaven/faux_fur_geometric_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

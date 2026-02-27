@@ -1,0 +1,33 @@
+name: Notice Board
+category: Misc
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Board frame (wall side, north)
+rect 0.08,0.04 1.84,0.14 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.04 1.84,0.14 stroke #3a1f00
+# Shadow
+rect 0.08,0.18 1.84,0.05 fill #000000 0.12
+# Cork board surface
+rect 0.08,0.04 1.84,0.82 fill #cc9944 0.35
+# Papers (various sizes)
+rect 0.16,0.24 0.36,0.30 fill #e8dcc8 0.90
+rect 0.16,0.24 0.36,0.30 stroke #aaaaaa 0.50
+line 0.18,0.30 0.48,0.30 stroke #888888 0.30
+line 0.18,0.36 0.44,0.36 stroke #888888 0.30
+rect 0.62,0.20 0.44,0.38 fill #e8e8d8 0.90
+rect 0.62,0.20 0.44,0.38 stroke #aaaaaa 0.50
+line 0.64,0.28 1.02,0.28 stroke #888888 0.30
+line 0.64,0.34 0.98,0.34 stroke #888888 0.30
+line 0.64,0.40 1.00,0.40 stroke #888888 0.30
+rect 1.18,0.26 0.34,0.26 fill #d8e8d8 0.90
+rect 1.18,0.26 0.34,0.26 stroke #aaaaaa 0.50
+rect 1.60,0.20 0.28,0.32 fill #e8dcc8 0.90
+rect 1.60,0.20 0.28,0.32 stroke #aaaaaa 0.50
+# Pin marks
+circle 0.22,0.26 0.03 fill #cc2222 0.80
+circle 1.00,0.22 0.03 fill #cc2222 0.80
+circle 1.46,0.28 0.03 fill #2222cc 0.80
+circle 1.72,0.22 0.03 fill #cc2222 0.80

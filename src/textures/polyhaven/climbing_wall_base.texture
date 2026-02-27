@@ -1,0 +1,13 @@
+{
+  "displayName": "Climbing Wall Base",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/climbing_wall_base_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/climbing_wall_base_disp_1k.png",
+    "nor": "polyhaven/climbing_wall_base_nor_gl_1k.png",
+    "arm": "polyhaven/climbing_wall_base_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

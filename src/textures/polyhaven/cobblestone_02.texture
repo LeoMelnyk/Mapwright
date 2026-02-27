@@ -1,0 +1,13 @@
+{
+  "displayName": "Cobblestone 02",
+  "category": "Man Made",
+  "subcategory": "Floor",
+  "file": "polyhaven/cobblestone_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/cobblestone_02_disp_1k.png",
+    "nor": "polyhaven/cobblestone_02_nor_gl_1k.png",
+    "arm": "polyhaven/cobblestone_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

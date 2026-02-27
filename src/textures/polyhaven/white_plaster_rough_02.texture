@@ -1,0 +1,13 @@
+{
+  "displayName": "White Plaster Rough 02",
+  "category": "Plaster Concrete",
+  "subcategory": "Wall",
+  "file": "polyhaven/white_plaster_rough_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/white_plaster_rough_02_disp_1k.png",
+    "nor": "polyhaven/white_plaster_rough_02_nor_gl_1k.png",
+    "arm": "polyhaven/white_plaster_rough_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

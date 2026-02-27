@@ -1,0 +1,13 @@
+{
+  "displayName": "Wood Trunk Wall",
+  "category": "Outdoor",
+  "subcategory": "Wall",
+  "file": "polyhaven/wood_trunk_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wood_trunk_wall_disp_1k.png",
+    "nor": "polyhaven/wood_trunk_wall_nor_gl_1k.png",
+    "arm": "polyhaven/wood_trunk_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

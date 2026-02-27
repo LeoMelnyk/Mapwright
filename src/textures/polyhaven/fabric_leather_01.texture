@@ -1,0 +1,13 @@
+{
+  "displayName": "Fabric Leather 01",
+  "category": "Fabric",
+  "subcategory": "Leather",
+  "file": "polyhaven/fabric_leather_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/fabric_leather_01_disp_1k.png",
+    "nor": "polyhaven/fabric_leather_01_nor_gl_1k.png",
+    "arm": "polyhaven/fabric_leather_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

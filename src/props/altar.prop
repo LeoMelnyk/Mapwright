@@ -1,0 +1,20 @@
+name: Altar
+category: Features
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Stone slab
+rect 0.08,0.08 0.84,1.84 texfill polyhaven/marble_01 0.85
+rect 0.08,0.08 0.84,1.84 stroke
+# Inner border detail
+rect 0.15,0.15 0.7,1.7 stroke
+# Ritual diamond inlay
+poly 0.5,0.5 0.72,1.0 0.5,1.5 0.28,1.0 texfill polyhaven/stone_floor 0.7
+poly 0.5,0.5 0.72,1.0 0.5,1.5 0.3,1.0 stroke
+# Corner candle marks
+circle 0.22,0.22 0.05 fill 0.5
+circle 0.78,0.22 0.05 fill 0.5
+circle 0.22,1.78 0.05 fill 0.5
+circle 0.78,1.78 0.05 fill 0.5

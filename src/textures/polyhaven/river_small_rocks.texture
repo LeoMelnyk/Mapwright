@@ -1,0 +1,13 @@
+{
+  "displayName": "River Small Rocks",
+  "category": "Terrain",
+  "subcategory": "Rock",
+  "file": "polyhaven/river_small_rocks_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/river_small_rocks_disp_1k.png",
+    "nor": "polyhaven/river_small_rocks_nor_gl_1k.png",
+    "arm": "polyhaven/river_small_rocks_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

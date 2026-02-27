@@ -1,0 +1,13 @@
+{
+  "displayName": "Herringbone Brick",
+  "category": "Man Made",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/herringbone_brick_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/herringbone_brick_disp_1k.png",
+    "nor": "polyhaven/herringbone_brick_nor_gl_1k.png",
+    "arm": "polyhaven/herringbone_brick_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

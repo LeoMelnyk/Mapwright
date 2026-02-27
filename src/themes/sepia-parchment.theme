@@ -1,0 +1,40 @@
+{
+  "displayName": "Sepia Parchment",
+  "background": "#f5e6d3",
+  "gridLine": "#000000",
+  "wallStroke": "#3d2817",
+  "wallFill": "#ebe1d5",
+  "textColor": "#3d2817",
+  "borderColor": "#b89968",
+  "doorFill": "#ebe1d5",
+  "doorStroke": "#3d2817",
+  "trapColor": "#dc143c",
+  "secretDoorColor": "#3d2817",
+  "compassRoseFill": "#3d2817",
+  "compassRoseStroke": "#3d2817",
+  "wallRoughness": 2,
+  "wallShadow": {
+    "color": "rgba(61,40,23,0.22)",
+    "blur": 8,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#3d2817",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.28,
+  "bufferShadingOpacity": 0.14,
+  "outerShading": {
+    "color": "#c5b9ac",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#4678a8",
+  "waterMediumColor": "#285084",
+  "waterDeepColor": "#0f2d62",
+  "waterCausticColor": "rgba(150,200,240,0.50)",
+  "lavaShallowColor": "#c04010",
+  "lavaMediumColor": "#8c2808",
+  "lavaDeepColor": "#5c1404",
+  "lavaCausticColor": "rgba(240,150,60,0.50)"
+}

@@ -1,0 +1,30 @@
+name: Necrotic Altar
+category: Undead & Dark
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Stone slab base
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/stone_wall 0.80
+rect 0.08,0.08 1.84,1.84 stroke #333333
+# Inner dark surface
+rect 0.20,0.20 1.60,1.60 fill #1a1a1a 0.60
+# Necrotic energy rune (center)
+circle 1.00,1.00 0.36 stroke #442244 0.80
+circle 1.00,1.00 0.24 fill #2a1a2a 0.70
+circle 1.00,1.00 0.14 fill #553355 0.60
+circle 1.00,1.00 0.08 fill #7a3a7a 0.70
+# Skull corner decorations
+circle 0.24,0.24 0.12 fill #e8dcc8 0.80
+circle 0.24,0.24 0.12 stroke #c8b898
+circle 0.20,0.22 0.04 fill #1a1a1a 0.90
+circle 0.28,0.22 0.04 fill #1a1a1a 0.90
+circle 1.76,0.24 0.12 fill #e8dcc8 0.80
+circle 1.76,0.24 0.12 stroke #c8b898
+circle 1.72,0.22 0.04 fill #1a1a1a 0.90
+circle 1.80,0.22 0.04 fill #1a1a1a 0.90
+circle 0.24,1.76 0.12 fill #e8dcc8 0.80
+circle 0.24,1.76 0.12 stroke #c8b898
+circle 1.76,1.76 0.12 fill #e8dcc8 0.80
+circle 1.76,1.76 0.12 stroke #c8b898

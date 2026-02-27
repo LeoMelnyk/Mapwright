@@ -1,0 +1,13 @@
+{
+  "displayName": "Rectangular Facade Tiles",
+  "category": "Wall",
+  "subcategory": "Tiles",
+  "file": "polyhaven/rectangular_facade_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rectangular_facade_tiles_disp_1k.png",
+    "nor": "polyhaven/rectangular_facade_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/rectangular_facade_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Patterned Paving 02",
+  "category": "Floor",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/patterned_paving_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/patterned_paving_02_disp_1k.png",
+    "nor": "polyhaven/patterned_paving_02_nor_gl_1k.png",
+    "arm": "polyhaven/patterned_paving_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

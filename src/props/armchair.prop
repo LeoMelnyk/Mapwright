@@ -1,0 +1,19 @@
+name: Armchair
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Backrest
+rect 0.15,0.08 0.7,0.15 texfill polyhaven/dark_wood 0.85
+rect 0.15,0.08 0.7,0.15 stroke #4a2800
+# Left armrest
+rect 0.1,0.15 0.12,0.65 texfill polyhaven/dark_wood 0.8
+rect 0.1,0.15 0.12,0.65 stroke #4a2800
+# Right armrest
+rect 0.78,0.15 0.12,0.65 texfill polyhaven/dark_wood 0.8
+rect 0.78,0.15 0.12,0.65 stroke #4a2800
+# Seat cushion
+rect 0.22,0.2 0.56,0.6 texfill polyhaven/brown_leather 0.85
+rect 0.22,0.2 0.56,0.6 stroke #5c3a1e

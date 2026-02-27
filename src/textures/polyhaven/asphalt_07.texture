@@ -1,0 +1,13 @@
+{
+  "displayName": "Asphalt 07",
+  "category": "Floor",
+  "subcategory": "Asphalt",
+  "file": "polyhaven/asphalt_07_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/asphalt_07_disp_1k.png",
+    "nor": "polyhaven/asphalt_07_nor_gl_1k.png",
+    "arm": "polyhaven/asphalt_07_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

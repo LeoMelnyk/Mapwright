@@ -1,0 +1,13 @@
+{
+  "displayName": "Aerial Sand",
+  "category": "Terrain",
+  "subcategory": "Sand",
+  "file": "polyhaven/aerial_sand_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/aerial_sand_disp_1k.png",
+    "nor": "polyhaven/aerial_sand_nor_gl_1k.png",
+    "arm": "polyhaven/aerial_sand_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Plank Flooring",
+  "category": "Floor",
+  "subcategory": "Wood",
+  "file": "polyhaven/plank_flooring_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/plank_flooring_disp_1k.png",
+    "nor": "polyhaven/plank_flooring_nor_gl_1k.png",
+    "arm": "polyhaven/plank_flooring_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

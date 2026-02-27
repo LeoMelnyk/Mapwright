@@ -1,0 +1,13 @@
+{
+  "displayName": "Rabdentse Ruins Wall",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/rabdentse_ruins_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rabdentse_ruins_wall_disp_1k.png",
+    "nor": "polyhaven/rabdentse_ruins_wall_nor_gl_1k.png",
+    "arm": "polyhaven/rabdentse_ruins_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

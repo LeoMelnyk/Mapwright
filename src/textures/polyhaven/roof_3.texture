@@ -1,0 +1,13 @@
+{
+  "displayName": "Roof 3",
+  "category": "Roofing",
+  "subcategory": "Man Made",
+  "file": "polyhaven/roof_3_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/roof_3_disp_1k.png",
+    "nor": "polyhaven/roof_3_nor_gl_1k.png",
+    "arm": "polyhaven/roof_3_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

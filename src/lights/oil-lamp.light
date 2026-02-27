@@ -1,0 +1,10 @@
+{
+  "displayName": "Oil Lamp",
+  "category": "Fire & Flame",
+  "description": "A small oil lamp with a steady amber flame",
+  "type": "point",
+  "color": "#ffaa44",
+  "radius": 15,
+  "intensity": 0.7,
+  "falloff": "smooth"
+}

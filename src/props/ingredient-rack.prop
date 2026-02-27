@@ -1,0 +1,32 @@
+name: Ingredient Rack
+category: Alchemy
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Shelf board (wall side, north)
+rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.04 1.88,0.12 stroke #3a1f00
+# Shadow below shelf
+rect 0.06,0.16 1.88,0.05 fill #000000 0.12
+# Six colorful vials
+circle 0.20,0.54 0.10 fill #4466aa 0.80
+circle 0.20,0.54 0.10 stroke #223355
+circle 0.52,0.54 0.10 fill #44aa66 0.80
+circle 0.52,0.54 0.10 stroke #225533
+circle 0.84,0.54 0.10 fill #aa4444 0.80
+circle 0.84,0.54 0.10 stroke #553322
+circle 1.16,0.54 0.10 fill #884499 0.80
+circle 1.16,0.54 0.10 stroke #442255
+circle 1.48,0.54 0.10 fill #aaaa44 0.80
+circle 1.48,0.54 0.10 stroke #555522
+circle 1.80,0.54 0.10 fill #44aaaa 0.80
+circle 1.80,0.54 0.10 stroke #225555
+# Cork stoppers
+circle 0.20,0.43 0.05 fill #8b6914 0.90
+circle 0.52,0.43 0.05 fill #8b6914 0.90
+circle 0.84,0.43 0.05 fill #8b6914 0.90
+circle 1.16,0.43 0.05 fill #8b6914 0.90
+circle 1.48,0.43 0.05 fill #8b6914 0.90
+circle 1.80,0.43 0.05 fill #8b6914 0.90

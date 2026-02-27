@@ -1,0 +1,13 @@
+{
+  "displayName": "Castle Wall Variation",
+  "category": "Rock",
+  "subcategory": "Wall",
+  "file": "polyhaven/castle_wall_varriation_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/castle_wall_varriation_disp_1k.png",
+    "nor": "polyhaven/castle_wall_varriation_nor_gl_1k.png",
+    "arm": "polyhaven/castle_wall_varriation_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

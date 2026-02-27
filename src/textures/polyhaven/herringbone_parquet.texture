@@ -1,0 +1,13 @@
+{
+  "displayName": "Herringbone Parquet",
+  "category": "Man Made",
+  "subcategory": "Floor",
+  "file": "polyhaven/herringbone_parquet_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/herringbone_parquet_disp_1k.png",
+    "nor": "polyhaven/herringbone_parquet_nor_gl_1k.png",
+    "arm": "polyhaven/herringbone_parquet_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

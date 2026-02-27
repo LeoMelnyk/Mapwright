@@ -1,0 +1,21 @@
+name: Trophy Mount
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Wooden mounting plaque
+rect 0.22,0.5 0.56,0.42 texfill polyhaven/dark_wood 0.85
+rect 0.22,0.5 0.56,0.42 stroke #3a1f00
+# Animal skull
+ellipse 0.5,0.55 0.18,0.14 fill #e8dcc8 0.7
+ellipse 0.5,0.55 0.18,0.14 stroke #b0a090
+# Antler branches (left)
+line 0.35,0.45 0.18,0.2
+line 0.18,0.2 0.08,0.1
+line 0.18,0.2 0.25,0.12
+# Antler branches (right)
+line 0.65,0.45 0.82,0.2
+line 0.82,0.2 0.92,0.1
+line 0.82,0.2 0.75,0.12

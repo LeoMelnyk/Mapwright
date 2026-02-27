@@ -1,0 +1,12 @@
+name: Bench
+category: Furniture
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+---
+# Seat plank
+rect 0.08,0.2 1.84,0.6 texfill polyhaven/wood_table 0.85
+rect 0.08,0.2 1.84,0.6 stroke #5c3a1e
+# Support crossbar
+rect 0.3,0.42 1.4,0.06 fill #3a1f00 0.4

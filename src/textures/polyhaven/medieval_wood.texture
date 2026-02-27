@@ -1,0 +1,13 @@
+{
+  "displayName": "Medieval Wood",
+  "category": "Wood",
+  "subcategory": "Wall",
+  "file": "polyhaven/medieval_wood_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/medieval_wood_disp_1k.png",
+    "nor": "polyhaven/medieval_wood_nor_gl_1k.png",
+    "arm": "polyhaven/medieval_wood_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

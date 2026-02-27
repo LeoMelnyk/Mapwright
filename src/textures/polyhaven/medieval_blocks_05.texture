@@ -1,0 +1,13 @@
+{
+  "displayName": "Medieval Blocks 05",
+  "category": "Wall",
+  "subcategory": "Rock",
+  "file": "polyhaven/medieval_blocks_05_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/medieval_blocks_05_disp_1k.png",
+    "nor": "polyhaven/medieval_blocks_05_nor_gl_1k.png",
+    "arm": "polyhaven/medieval_blocks_05_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Gravel Embedded Concrete",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/gravel_embedded_concrete_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/gravel_embedded_concrete_disp_1k.png",
+    "nor": "polyhaven/gravel_embedded_concrete_nor_gl_1k.png",
+    "arm": "polyhaven/gravel_embedded_concrete_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

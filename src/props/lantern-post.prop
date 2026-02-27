@@ -1,0 +1,25 @@
+name: Lantern Post
+category: Lighting
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Base plate
+rect 0.38,0.78 0.24,0.14 texfill polyhaven/metal_plate 0.75
+rect 0.38,0.78 0.24,0.14 stroke #444444
+# Post shaft
+line 0.50,0.76 0.50,0.36 stroke #666666
+line 0.48,0.76 0.48,0.36 stroke #555555
+# Lantern housing (square from above)
+rect 0.32,0.18 0.36,0.36 fill #444444 0.60
+rect 0.32,0.18 0.36,0.36 stroke #666666
+# Glass warm glow
+rect 0.36,0.20 0.28,0.32 fill #ffcc44 0.25
+# Flame inside
+circle 0.50,0.36 0.08 fill #ffaa00 0.50
+circle 0.50,0.36 0.05 fill #ffcc00 0.70
+circle 0.50,0.36 0.03 fill #ffffff 0.40
+# Cap on top
+rect 0.30,0.16 0.40,0.05 fill #555555 0.90
+rect 0.30,0.16 0.40,0.05 stroke #333333

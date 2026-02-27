@@ -1,0 +1,13 @@
+{
+  "displayName": "Grey Tiles",
+  "category": "Outdoor",
+  "subcategory": "Floor",
+  "file": "polyhaven/grey_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/grey_tiles_disp_1k.png",
+    "nor": "polyhaven/grey_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/grey_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

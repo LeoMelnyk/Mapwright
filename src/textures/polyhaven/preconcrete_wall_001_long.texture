@@ -1,0 +1,13 @@
+{
+  "displayName": "Preconcrete Wall 001 Long",
+  "category": "Wall",
+  "subcategory": "Plaster Concrete",
+  "file": "polyhaven/preconcrete_wall_001_long_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/preconcrete_wall_001_long_disp_1k.png",
+    "nor": "polyhaven/preconcrete_wall_001_long_nor_gl_1k.png",
+    "arm": "polyhaven/preconcrete_wall_001_long_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

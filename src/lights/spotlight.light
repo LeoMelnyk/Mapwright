@@ -1,0 +1,11 @@
+{
+  "displayName": "Spotlight",
+  "category": "Utility",
+  "description": "A focused beam of bright white light",
+  "type": "directional",
+  "color": "#ffffff",
+  "radius": 30,
+  "intensity": 1.5,
+  "falloff": "linear",
+  "spread": 15
+}

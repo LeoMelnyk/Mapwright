@@ -1,0 +1,10 @@
+{
+  "displayName": "Campfire",
+  "category": "Fire & Flame",
+  "description": "A crackling campfire throwing warm orange-red light across a wide area",
+  "type": "point",
+  "color": "#ff6622",
+  "radius": 30,
+  "intensity": 1.2,
+  "falloff": "smooth"
+}

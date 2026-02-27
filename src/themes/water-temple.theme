@@ -1,0 +1,40 @@
+{
+  "displayName": "Water Temple",
+  "background": "#e8f4f8",
+  "gridLine": "#000000",
+  "wallStroke": "#2c3840",
+  "wallFill": "#d0e0e8",
+  "textColor": "#2c3840",
+  "borderColor": "#6090a8",
+  "doorFill": "#d0e0e8",
+  "doorStroke": "#2c3840",
+  "trapColor": "#dc143c",
+  "secretDoorColor": "#2c3840",
+  "compassRoseFill": "#2c3840",
+  "compassRoseStroke": "#2c3840",
+  "wallRoughness": 0.8,
+  "wallShadow": {
+    "color": "rgba(44,56,64,0.20)",
+    "blur": 10,
+    "offsetX": 5,
+    "offsetY": 6
+  },
+  "hatchColor": "#2c3840",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.16,
+  "bufferShadingOpacity": 0.12,
+  "outerShading": {
+    "color": "#a8c4d4",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#328caf",
+  "waterMediumColor": "#196491",
+  "waterDeepColor": "#0a3c6e",
+  "waterCausticColor": "rgba(140,220,245,0.60)",
+  "lavaShallowColor": "#b83c0a",
+  "lavaMediumColor": "#8a2208",
+  "lavaDeepColor": "#5c1004",
+  "lavaCausticColor": "rgba(255,140,50,0.50)"
+}

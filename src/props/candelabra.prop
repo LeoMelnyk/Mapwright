@@ -1,0 +1,24 @@
+name: Candelabra
+category: Religious
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Central post
+circle 0.5,0.5 0.08 texfill polyhaven/rusty_metal 0.85
+circle 0.5,0.5 0.08 stroke #555555
+# Arms
+line 0.5,0.5 0.5,0.18
+line 0.5,0.5 0.2,0.65
+line 0.5,0.5 0.8,0.65
+# Candle holders
+circle 0.5,0.18 0.06 fill #e8dcc8 0.8
+circle 0.2,0.65 0.06 fill #e8dcc8 0.8
+circle 0.8,0.65 0.06 fill #e8dcc8 0.8
+# Flames
+circle 0.5,0.18 0.03 fill #ffaa00 0.8
+circle 0.2,0.65 0.03 fill #ffaa00 0.8
+circle 0.8,0.65 0.03 fill #ffaa00 0.8
+# Base
+circle 0.5,0.5 0.15 stroke #666666

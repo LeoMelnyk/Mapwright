@@ -1,0 +1,25 @@
+name: Spike Trap
+category: Traps
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Metal pressure plate
+rect 0.10,0.10 0.80,0.80 texfill polyhaven/metal_plate 0.65
+rect 0.10,0.10 0.80,0.80 stroke #444444
+# Trigger seam (split plate)
+line 0.50,0.10 0.50,0.90 stroke #222222 0.60
+# Spike tips (3x2 grid, dark cones from above)
+circle 0.28,0.28 0.06 fill #666666 0.90
+circle 0.28,0.28 0.02 fill #bbbbbb 0.80
+circle 0.50,0.28 0.06 fill #666666 0.90
+circle 0.50,0.28 0.02 fill #bbbbbb 0.80
+circle 0.72,0.28 0.06 fill #666666 0.90
+circle 0.72,0.28 0.02 fill #bbbbbb 0.80
+circle 0.28,0.64 0.06 fill #666666 0.90
+circle 0.28,0.64 0.02 fill #bbbbbb 0.80
+circle 0.50,0.64 0.06 fill #666666 0.90
+circle 0.50,0.64 0.02 fill #bbbbbb 0.80
+circle 0.72,0.64 0.06 fill #666666 0.90
+circle 0.72,0.64 0.02 fill #bbbbbb 0.80

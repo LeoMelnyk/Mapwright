@@ -1,0 +1,13 @@
+{
+  "displayName": "Bark Willow",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/bark_willow_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/bark_willow_disp_1k.png",
+    "nor": "polyhaven/bark_willow_nor_gl_1k.png",
+    "arm": "polyhaven/bark_willow_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

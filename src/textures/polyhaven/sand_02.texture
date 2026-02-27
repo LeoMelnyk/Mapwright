@@ -1,0 +1,13 @@
+{
+  "displayName": "Sand 02",
+  "category": "Floor",
+  "subcategory": "Sand",
+  "file": "polyhaven/sand_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/sand_02_disp_1k.png",
+    "nor": "polyhaven/sand_02_nor_gl_1k.png",
+    "arm": "polyhaven/sand_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

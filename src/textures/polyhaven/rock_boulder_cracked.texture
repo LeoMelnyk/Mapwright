@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Boulder Cracked",
+  "category": "Outdoor",
+  "subcategory": "Terrain",
+  "file": "polyhaven/rock_boulder_cracked_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_boulder_cracked_disp_1k.png",
+    "nor": "polyhaven/rock_boulder_cracked_nor_gl_1k.png",
+    "arm": "polyhaven/rock_boulder_cracked_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

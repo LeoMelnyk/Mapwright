@@ -1,0 +1,13 @@
+{
+  "displayName": "Square Cobblestone",
+  "category": "Outdoor",
+  "subcategory": "Rock",
+  "file": "polyhaven/square_cobblestone_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/square_cobblestone_disp_1k.png",
+    "nor": "polyhaven/square_cobblestone_nor_gl_1k.png",
+    "arm": "polyhaven/square_cobblestone_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

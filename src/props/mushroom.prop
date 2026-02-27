@@ -1,0 +1,17 @@
+name: Mushroom
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Mushroom cap
+circle 0.5,0.5 0.35 fill #8b4513 0.6
+circle 0.5,0.5 0.35 stroke #5a2d0a
+# Stem showing through center
+circle 0.5,0.5 0.1 fill #e8dcc8 0.5
+# Spots on cap
+circle 0.35,0.38 0.05 fill #daa520 0.5
+circle 0.62,0.35 0.04 fill #daa520 0.4
+circle 0.58,0.62 0.05 fill #daa520 0.5
+circle 0.38,0.6 0.04 fill #daa520 0.4

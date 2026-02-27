@@ -1,0 +1,13 @@
+{
+  "displayName": "Brick Villa Floor",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/brick_villa_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brick_villa_floor_disp_1k.png",
+    "nor": "polyhaven/brick_villa_floor_nor_gl_1k.png",
+    "arm": "polyhaven/brick_villa_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

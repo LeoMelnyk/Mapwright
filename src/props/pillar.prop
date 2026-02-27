@@ -1,0 +1,14 @@
+name: Pillar
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+---
+# Stone pillar cross-section
+circle 0.5,0.5 0.35 texfill polyhaven/granite_tile 0.85
+circle 0.5,0.5 0.35 stroke #666666
+# Inner capstone detail
+circle 0.5,0.5 0.25 stroke #777777
+# Center crack
+line 0.38,0.35 0.62,0.65

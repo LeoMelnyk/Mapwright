@@ -1,0 +1,39 @@
+name: Scroll Rack
+category: Library & Study
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Rack frame
+rect 0.10,0.08 1.80,0.84 texfill polyhaven/dark_wood 0.75
+rect 0.10,0.08 1.80,0.84 stroke #3a1f00
+# Horizontal divider
+line 0.10,0.50 1.90,0.50 stroke #3a1f00
+# Top row scroll ends (circles = rolled parchment)
+circle 0.28,0.29 0.10 fill #e8dcc8 0.85
+circle 0.28,0.29 0.10 stroke #c8b898
+circle 0.28,0.29 0.05 fill #d4c4a8 0.60
+circle 0.66,0.29 0.10 fill #e8dcc8 0.85
+circle 0.66,0.29 0.10 stroke #c8b898
+circle 0.66,0.29 0.05 fill #d4c4a8 0.60
+circle 1.04,0.29 0.10 fill #e8dcc8 0.85
+circle 1.04,0.29 0.10 stroke #c8b898
+circle 1.04,0.29 0.05 fill #d4c4a8 0.60
+circle 1.42,0.29 0.10 fill #ddd0aa 0.85
+circle 1.42,0.29 0.10 stroke #c8b898
+circle 1.80,0.29 0.08 fill #e8dcc8 0.70
+# Bottom row scroll ends
+circle 0.28,0.71 0.10 fill #ddd0aa 0.85
+circle 0.28,0.71 0.10 stroke #c8b898
+circle 0.28,0.71 0.05 fill #ccbb88 0.60
+circle 0.66,0.71 0.10 fill #ddd0aa 0.85
+circle 0.66,0.71 0.10 stroke #c8b898
+circle 1.04,0.71 0.09 fill #ddd0aa 0.85
+circle 1.04,0.71 0.09 stroke #c8b898
+circle 1.42,0.71 0.10 fill #ddd0aa 0.85
+circle 1.42,0.71 0.10 stroke #c8b898
+circle 1.80,0.71 0.08 fill #ddd0aa 0.70
+# Base
+rect 0.10,0.84 1.80,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.84 1.80,0.10 stroke #3a1f00

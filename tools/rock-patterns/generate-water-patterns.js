@@ -1,0 +1,128 @@
+/**
+ * generate-water-patterns.js
+ *
+ * Generates toroidal Voronoi cell polygons for the dungeon water caustic pattern
+ * and writes them as a baked-in JS constant ready to paste into render.js.
+ *
+ * Usage:
+ *   node tools/rock-patterns/generate-water-patterns.js > tools/rock-patterns/water-patterns-output.js
+ *
+ * Tweak CELL_SIZE (caustic density) and LLOYD_ITERS (uniformity) then re-run.
+ */
+
+import { Delaunay } from 'd3-delaunay';
+
+// ── Parameters ────────────────────────────────────────────────────────────────
+const TILE      = 300;      // coordinate space of one repeating tile (matches WATER_TILE_SIZE)
+const FINE_SIZE = 7;        // base grid spacing — sets the minimum cell size
+const KEEP_PROB = 0.35;     // probability of keeping each seed — lower = more large cells
+const LLOYD_ITERS = 1;      // minimal relaxation to preserve size variation
+const PRECISION = 1;        // decimal places for output coords
+const OVERLAP   = 30;       // extend bounds past [0,TILE] — polygons overlap at tile seams
+
+// ── Seeded LCG RNG (same constants as effects.js for reproducibility) ─────────
+let s = 0x1337beef;
+const rng = () => { s = (Math.imul(s, 1664525) + 1013904223) | 0; return (s >>> 0) / 0x100000000; };
+
+// ── Generate variable-density seeds in [0, TILE) ─────────────────────────────
+// Start with a fine jittered grid, then randomly remove ~half the seeds.
+// Surviving seeds create small cells; gaps from removed seeds create large cells.
+// Result: cell sizes range from ~FINE_SIZE to ~3×FINE_SIZE.
+const gridCols = Math.ceil(TILE / FINE_SIZE);
+const gridRows = Math.ceil(TILE / FINE_SIZE);
+let seeds = [];
+
+for (let gy = 0; gy < gridRows; gy++) {
+  for (let gx = 0; gx < gridCols; gx++) {
+    if (rng() > KEEP_PROB) continue;
+    seeds.push([
+      (gx + 0.2 + rng() * 0.6) * FINE_SIZE,
+      (gy + 0.2 + rng() * 0.6) * FINE_SIZE,
+    ]);
+  }
+}
+
+// ── Toroidal Voronoi builder ──────────────────────────────────────────────────
+// Seeds are mirrored 8 ways around the tile so edge cells connect seamlessly.
+// Index i*9+4 is the "center" (non-mirrored) copy of seed i.
+function buildToroidalVoronoi(seeds, bounds) {
+  const pts = [];
+  for (const [x, y] of seeds) {
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        pts.push(x + dx * TILE, y + dy * TILE);
+      }
+    }
+  }
+  const delaunay = new Delaunay(pts);
+  return delaunay.voronoi(bounds ?? [0, 0, TILE, TILE]);
+}
+
+// ── Lloyd relaxation ──────────────────────────────────────────────────────────
+// Iteratively moves each seed to the centroid of its Voronoi cell,
+// producing more uniform, natural-looking shapes.
+for (let iter = 0; iter < LLOYD_ITERS; iter++) {
+  const voronoi = buildToroidalVoronoi(seeds);
+  const next = [];
+  for (let i = 0; i < seeds.length; i++) {
+    const cell = voronoi.cellPolygon(i * 9 + 4);
+    if (!cell || cell.length < 4) { next.push(seeds[i]); continue; }
+
+    // Shoelace centroid (closed polygon: first == last point)
+    let cx = 0, cy = 0, area = 0;
+    for (let j = 0; j < cell.length - 1; j++) {
+      const [x0, y0] = cell[j], [x1, y1] = cell[j + 1];
+      const a = x0 * y1 - x1 * y0;
+      area += a;
+      cx += (x0 + x1) * a;
+      cy += (y0 + y1) * a;
+    }
+    area /= 2;
+    if (Math.abs(area) < 1e-6) { next.push(seeds[i]); continue; }
+    cx /= 6 * area;
+    cy /= 6 * area;
+
+    // Wrap back into [0, TILE) for toroidal continuity
+    next.push([((cx % TILE) + TILE) % TILE, ((cy % TILE) + TILE) % TILE]);
+  }
+  seeds = next;
+}
+
+// ── Final Voronoi + polygon extraction ───────────────────────────────────────
+// Use extended bounds so polygons near tile edges aren't clipped at the
+// tile boundary. Instead they extend OVERLAP units past it, ensuring that
+// adjacent tiles' polygons overlap — eliminating seam gaps when tiled.
+const voronoi = buildToroidalVoronoi(seeds, [-OVERLAP, -OVERLAP, TILE + OVERLAP, TILE + OVERLAP]);
+const round = (v) => Math.round(v * 10 ** PRECISION) / 10 ** PRECISION;
+
+const patterns = [];
+for (let i = 0; i < seeds.length; i++) {
+  const cell = voronoi.cellPolygon(i * 9 + 4);
+  if (!cell || cell.length < 4) continue;
+
+  // Drop the closing duplicate vertex (cell[0] === cell[last])
+  const verts = cell.slice(0, -1).map(([x, y]) => [round(x), round(y)]);
+  if (verts.length < 3) continue;
+
+  const [sx, sy] = seeds[i];
+  patterns.push({ centre: [round(sx), round(sy)], verts });
+}
+
+// ── Output ────────────────────────────────────────────────────────────────────
+// Compact format: one pattern per line, coords as terse arrays.
+const lines = patterns.map(({ centre, verts }) => {
+  const c = `[${centre.join(',')}]`;
+  const vs = verts.map(v => `[${v.join(',')}]`).join(',');
+  return `  { centre: ${c}, verts: [${vs}] }`;
+});
+
+process.stdout.write(
+`// ── Water Patterns (Voronoi, toroidal, Lloyd-relaxed) ────────────────────────
+// Auto-generated by generate-water-patterns.js — do not edit by hand.
+// Re-generate: node tools/rock-patterns/generate-water-patterns.js > tools/rock-patterns/water-patterns-output.js
+// Parameters: TILE=${TILE}, FINE_SIZE=${FINE_SIZE}, KEEP_PROB=${KEEP_PROB}, seeds=${patterns.length}, LLOYD_ITERS=${LLOYD_ITERS}
+const WATER_TILE_SIZE = ${TILE};
+const WATER_PATTERNS = [
+${lines.join(',\n')},
+];
+`);

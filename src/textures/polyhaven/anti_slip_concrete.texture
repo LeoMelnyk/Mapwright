@@ -1,0 +1,13 @@
+{
+  "displayName": "Anti Slip Concrete",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/anti_slip_concrete_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/anti_slip_concrete_disp_1k.png",
+    "nor": "polyhaven/anti_slip_concrete_nor_gl_1k.png",
+    "arm": "polyhaven/anti_slip_concrete_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

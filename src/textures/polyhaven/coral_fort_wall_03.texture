@@ -1,0 +1,13 @@
+{
+  "displayName": "Coral Fort Wall 03",
+  "category": "Outdoor",
+  "subcategory": "Wall",
+  "file": "polyhaven/coral_fort_wall_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/coral_fort_wall_03_disp_1k.png",
+    "nor": "polyhaven/coral_fort_wall_03_nor_gl_1k.png",
+    "arm": "polyhaven/coral_fort_wall_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

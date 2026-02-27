@@ -1,0 +1,27 @@
+name: Chain Wall
+category: Structure
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Left post
+circle 0.5,0.5 0.22 texfill polyhaven/stone_wall 0.85
+circle 0.5,0.5 0.22 stroke #555555
+# Right post
+circle 2.5,0.5 0.22 texfill polyhaven/stone_wall 0.85
+circle 2.5,0.5 0.22 stroke #555555
+# Chain links
+ellipse 1.0,0.5 0.16,0.08 fill #888888 0.3
+ellipse 1.0,0.5 0.16,0.08 stroke #555555
+ellipse 1.25,0.5 0.08,0.16 fill #888888 0.3
+ellipse 1.25,0.5 0.08,0.16 stroke #555555
+ellipse 1.5,0.5 0.16,0.08 fill #888888 0.3
+ellipse 1.5,0.5 0.16,0.08 stroke #555555
+ellipse 1.75,0.5 0.08,0.16 fill #888888 0.3
+ellipse 1.75,0.5 0.08,0.16 stroke #555555
+ellipse 2.0,0.5 0.16,0.08 fill #888888 0.3
+ellipse 2.0,0.5 0.16,0.08 stroke #555555
+# Connection points
+line 0.72,0.5 0.84,0.5
+line 2.16,0.5 2.28,0.5

@@ -1,0 +1,13 @@
+{
+  "displayName": "Dry Ground 01",
+  "category": "Terrain",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/dry_ground_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/dry_ground_01_disp_1k.png",
+    "nor": "polyhaven/dry_ground_01_nor_gl_1k.png",
+    "arm": "polyhaven/dry_ground_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

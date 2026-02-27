@@ -1,0 +1,87 @@
+// History panel: scrollable undo/redo history list
+import state, { subscribe, undo, redo, jumpToState } from '../state.js';
+import { requestRender } from '../canvas-view.js';
+
+let container = null;
+
+export function initHistoryPanel(el) {
+  container = el;
+  subscribe(update);
+  update();
+}
+
+function update() {
+  if (!container) return;
+
+  const stack = state.undoStack;
+  const redoStack = state.redoStack;
+
+  let html = '<div class="panel-title">History</div>';
+
+  if (stack.length === 0 && redoStack.length === 0) {
+    html += '<div class="history-hint">No history yet</div>';
+    container.innerHTML = html;
+    return;
+  }
+
+  html += '<div class="history-list">';
+
+  // Redo entries (greyed out, most recent redo at top)
+  for (let i = redoStack.length - 1; i >= 0; i--) {
+    const entry = redoStack[i];
+    const label = typeof entry === 'object' ? entry.label : 'Edit';
+    // Skip the 'Current' placeholder labels pushed by undo/jumpToState
+    const displayLabel = label === 'Current' || label === 'Redo' ? 'Edit' : label;
+    html += `<div class="history-item redo" data-redo-index="${i}">`;
+    html += `<span class="history-label">${displayLabel}</span>`;
+    html += `<span class="history-badge">redo</span>`;
+    html += '</div>';
+  }
+
+  // Current state marker
+  html += '<div class="history-item current">';
+  html += '<span class="history-label">Current State</span>';
+  html += '</div>';
+
+  // Undo entries (most recent first)
+  for (let i = stack.length - 1; i >= 0; i--) {
+    const entry = stack[i];
+    const label = typeof entry === 'object' ? entry.label : 'Edit';
+    const num = i + 1;
+    html += `<div class="history-item undo" data-undo-index="${i}">`;
+    html += `<span class="history-num">${num}.</span>`;
+    html += `<span class="history-label">${label}</span>`;
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  // Undo/redo button row
+  html += '<div class="history-actions">';
+  html += `<button class="toolbar-btn history-undo-btn"${stack.length === 0 ? ' disabled' : ''}>Undo</button>`;
+  html += `<button class="toolbar-btn history-redo-btn"${redoStack.length === 0 ? ' disabled' : ''}>Redo</button>`;
+  html += '</div>';
+
+  container.innerHTML = html;
+
+  // Wire click handlers for jumping to a state
+  container.querySelectorAll('.history-item.undo').forEach(item => {
+    item.addEventListener('click', () => {
+      const idx = parseInt(item.dataset.undoIndex, 10);
+      jumpToState(idx);
+    });
+  });
+
+  // Wire redo clicks — each redo click does one redo step
+  container.querySelectorAll('.history-item.redo').forEach(item => {
+    item.addEventListener('click', () => {
+      redo();
+    });
+  });
+
+  // Undo/redo buttons
+  const undoBtn = container.querySelector('.history-undo-btn');
+  if (undoBtn) undoBtn.addEventListener('click', () => undo());
+  const redoBtn = container.querySelector('.history-redo-btn');
+  if (redoBtn) redoBtn.addEventListener('click', () => redo());
+}

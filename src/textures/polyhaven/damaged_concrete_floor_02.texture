@@ -1,0 +1,13 @@
+{
+  "displayName": "Damaged Concrete Floor 02",
+  "category": "Concrete",
+  "subcategory": "Floor",
+  "file": "polyhaven/damaged_concrete_floor_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/damaged_concrete_floor_02_disp_1k.png",
+    "nor": "polyhaven/damaged_concrete_floor_02_nor_gl_1k.png",
+    "arm": "polyhaven/damaged_concrete_floor_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

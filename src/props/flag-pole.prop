@@ -1,0 +1,21 @@
+name: Flag Pole
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Base plate
+circle 0.50,0.78 0.18 fill #888888 0.70
+circle 0.50,0.78 0.18 stroke #555555
+# Pole cross-section
+circle 0.50,0.78 0.06 fill #aaaaaa 0.90
+circle 0.50,0.78 0.06 stroke #666666
+# Flag (extends east from pole)
+rect 0.52,0.16 0.38,0.28 fill #cc2222 0.80
+rect 0.52,0.16 0.38,0.28 stroke #aa1111
+# Flag cross device (heraldic)
+line 0.52,0.30 0.90,0.30 stroke #ffffff 0.70
+line 0.71,0.16 0.71,0.44 stroke #ffffff 0.70
+# Pole line
+line 0.50,0.16 0.50,0.76 stroke #888888

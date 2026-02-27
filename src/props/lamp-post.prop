@@ -1,0 +1,17 @@
+name: Lamp Post
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Warm light glow
+circle 0.5,0.5 0.35 fill #ffaa00 0.15
+# Post shaft
+circle 0.5,0.5 0.12 texfill polyhaven/rusty_metal 0.85
+circle 0.5,0.5 0.12 stroke #444444
+# Lamp housing
+circle 0.5,0.5 0.2 fill #daa520 0.2
+circle 0.5,0.5 0.2 stroke #888888
+# Flame center
+circle 0.5,0.5 0.06 fill #ffcc00 0.9

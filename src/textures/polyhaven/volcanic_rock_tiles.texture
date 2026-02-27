@@ -1,0 +1,13 @@
+{
+  "displayName": "Volcanic Rock Tiles",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/volcanic_rock_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/volcanic_rock_tiles_disp_1k.png",
+    "nor": "polyhaven/volcanic_rock_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/volcanic_rock_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

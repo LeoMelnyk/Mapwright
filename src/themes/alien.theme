@@ -1,0 +1,40 @@
+{
+  "displayName": "Alien",
+  "background": "#101820",
+  "gridLine": "#000000",
+  "wallStroke": "#00d890",
+  "wallFill": "#1a3040",
+  "textColor": "#00d890",
+  "borderColor": "#00a060",
+  "doorFill": "#101820",
+  "doorStroke": "#00d890",
+  "trapColor": "#ff1a44",
+  "secretDoorColor": "#00d890",
+  "compassRoseFill": "#00d890",
+  "compassRoseStroke": "#008058",
+  "wallRoughness": 0.4,
+  "wallShadow": {
+    "color": "rgba(0,216,144,0.22)",
+    "blur": 14,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#00d890",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0,
+  "bufferShadingOpacity": 0.28,
+  "outerShading": {
+    "color": "#0a1c20",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#0a785a",
+  "waterMediumColor": "#055041",
+  "waterDeepColor": "#022d28",
+  "waterCausticColor": "rgba(0,230,170,0.55)",
+  "lavaShallowColor": "#aa55cc",
+  "lavaMediumColor": "#8833aa",
+  "lavaDeepColor": "#661188",
+  "lavaCausticColor": "rgba(200,120,255,0.55)"
+}

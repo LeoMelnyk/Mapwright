@@ -1,0 +1,13 @@
+{
+  "displayName": "Wood Shutter",
+  "category": "Wood",
+  "subcategory": "Raw Wood",
+  "file": "polyhaven/wood_shutter_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wood_shutter_disp_1k.png",
+    "nor": "polyhaven/wood_shutter_nor_gl_1k.png",
+    "arm": "polyhaven/wood_shutter_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

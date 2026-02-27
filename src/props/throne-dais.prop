@@ -1,0 +1,31 @@
+name: Throne Dais
+category: Furniture
+footprint: 2x3
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Outer platform step
+rect 0.05,0.05 2.9,1.9 texfill polyhaven/stone_floor 0.7
+rect 0.05,0.05 2.9,1.9 stroke
+# Middle step
+rect 0.2,0.2 2.6,1.5 texfill polyhaven/stone_floor 0.75
+rect 0.2,0.2 2.6,1.5 stroke
+# Top platform
+rect 0.4,0.35 2.2,1.1 texfill polyhaven/marble_01 0.8
+rect 0.4,0.35 2.2,1.1 stroke
+# Throne seat
+rect 1.1,0.45 0.8,0.5 texfill polyhaven/dark_wood 0.85
+rect 1.1,0.45 0.8,0.5 stroke #4a2800
+# Throne backrest
+rect 1.05,0.38 0.9,0.12 texfill polyhaven/dark_wood 0.85
+rect 1.05,0.38 0.9,0.12 stroke #4a2800
+# Left armrest
+rect 1.05,0.48 0.12,0.42 texfill polyhaven/dark_wood 0.8
+rect 1.05,0.48 0.12,0.42 stroke #4a2800
+# Right armrest
+rect 1.83,0.48 0.12,0.42 texfill polyhaven/dark_wood 0.8
+rect 1.83,0.48 0.12,0.42 stroke #4a2800
+# Seat cushion
+rect 1.17,0.5 0.66,0.38 texfill polyhaven/velour_velvet 0.85
+rect 1.17,0.5 0.66,0.38 stroke #8b0000

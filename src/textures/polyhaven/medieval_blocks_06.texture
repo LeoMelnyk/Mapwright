@@ -1,0 +1,13 @@
+{
+  "displayName": "Medieval Blocks 06",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/medieval_blocks_06_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/medieval_blocks_06_disp_1k.png",
+    "nor": "polyhaven/medieval_blocks_06_nor_gl_1k.png",
+    "arm": "polyhaven/medieval_blocks_06_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

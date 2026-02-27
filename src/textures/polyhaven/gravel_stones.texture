@@ -1,0 +1,13 @@
+{
+  "displayName": "Gravel Stones",
+  "category": "Outdoor",
+  "subcategory": "Gravel",
+  "file": "polyhaven/gravel_stones_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/gravel_stones_disp_1k.png",
+    "nor": "polyhaven/gravel_stones_nor_gl_1k.png",
+    "arm": "polyhaven/gravel_stones_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

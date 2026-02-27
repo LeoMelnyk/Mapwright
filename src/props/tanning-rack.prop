@@ -1,0 +1,50 @@
+name: Tanning Rack
+category: Workshop
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Ground shadow beneath rack
+ellipse 1.00,0.50 0.85,0.38 fill #333333 0.12
+
+# Frame - long side rails (dark wood, running east-west along x-axis)
+rect 0.08,0.08 1.84,0.06 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.08 1.84,0.06 stroke #1a1208
+rect 0.08,0.86 1.84,0.06 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.86 1.84,0.06 stroke #1a1208
+
+# Frame - short end rails (dark wood, running north-south)
+rect 0.08,0.08 0.06,0.84 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.08 0.06,0.84 stroke #1a1208
+rect 1.86,0.08 0.06,0.84 texfill polyhaven/dark_wood 0.85
+rect 1.86,0.08 0.06,0.84 stroke #1a1208
+
+# Corner post caps (visible from above as small squares)
+rect 0.06,0.06 0.10,0.10 texfill polyhaven/dark_wood 0.9
+rect 0.06,0.06 0.10,0.10 stroke #1a1208
+rect 1.84,0.06 0.10,0.10 texfill polyhaven/dark_wood 0.9
+rect 1.84,0.06 0.10,0.10 stroke #1a1208
+rect 0.06,0.84 0.10,0.10 texfill polyhaven/dark_wood 0.9
+rect 0.06,0.84 0.10,0.10 stroke #1a1208
+rect 1.84,0.84 0.10,0.10 texfill polyhaven/dark_wood 0.9
+rect 1.84,0.84 0.10,0.10 stroke #1a1208
+
+# Stretched hide (irregular organic shape)
+poly 0.30,0.20 0.70,0.16 1.30,0.18 1.70,0.22 1.78,0.50 1.72,0.78 1.30,0.84 0.70,0.82 0.30,0.80 0.20,0.50 texfill polyhaven/brown_leather 0.8
+poly 0.30,0.20 0.70,0.16 1.30,0.18 1.70,0.22 1.78,0.50 1.72,0.78 1.30,0.84 0.70,0.82 0.30,0.80 0.20,0.50 stroke #5a3d25
+
+# Hide surface variation (lighter center)
+ellipse 1.00,0.50 0.50,0.22 fill #a08060 0.2
+
+# Tie cords (from hide edge to frame)
+line 0.30,0.20 0.20,0.11 stroke #8b7355
+line 0.70,0.16 0.70,0.11 stroke #8b7355
+line 1.30,0.18 1.30,0.11 stroke #8b7355
+line 1.70,0.22 1.80,0.11 stroke #8b7355
+line 1.78,0.50 1.89,0.50 stroke #8b7355
+line 1.72,0.78 1.80,0.89 stroke #8b7355
+line 1.30,0.84 1.30,0.89 stroke #8b7355
+line 0.70,0.82 0.70,0.89 stroke #8b7355
+line 0.30,0.80 0.20,0.89 stroke #8b7355
+line 0.20,0.50 0.11,0.50 stroke #8b7355

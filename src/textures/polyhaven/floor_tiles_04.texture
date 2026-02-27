@@ -1,0 +1,13 @@
+{
+  "displayName": "Floor Tiles 04",
+  "category": "Floor",
+  "subcategory": "Wall",
+  "file": "polyhaven/floor_tiles_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/floor_tiles_04_disp_1k.png",
+    "nor": "polyhaven/floor_tiles_04_nor_gl_1k.png",
+    "arm": "polyhaven/floor_tiles_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

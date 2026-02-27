@@ -1,0 +1,13 @@
+{
+  "displayName": "Aerial Rocks 02",
+  "category": "Terrain",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/aerial_rocks_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/aerial_rocks_02_disp_1k.png",
+    "nor": "polyhaven/aerial_rocks_02_nor_gl_1k.png",
+    "arm": "polyhaven/aerial_rocks_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Japanese Hackberry Bark",
+  "category": "Outdoor",
+  "subcategory": "Bark",
+  "file": "polyhaven/japanese_hackberry_bark_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/japanese_hackberry_bark_disp_1k.png",
+    "nor": "polyhaven/japanese_hackberry_bark_nor_gl_1k.png",
+    "arm": "polyhaven/japanese_hackberry_bark_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

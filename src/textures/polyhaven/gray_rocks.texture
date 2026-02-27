@@ -1,0 +1,13 @@
+{
+  "displayName": "Gray Rocks",
+  "category": "Outdoor",
+  "subcategory": "Terrain",
+  "file": "polyhaven/gray_rocks_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/gray_rocks_disp_1k.png",
+    "nor": "polyhaven/gray_rocks_nor_gl_1k.png",
+    "arm": "polyhaven/gray_rocks_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

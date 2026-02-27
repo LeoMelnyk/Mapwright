@@ -1,0 +1,36 @@
+name: Chandelier
+category: Decorative
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+---
+# Center hub
+circle 1.0,1.0 0.18 texfill polyhaven/rusty_metal 0.85
+circle 1.0,1.0 0.18 stroke #555555
+# Ornamental ring
+circle 1.0,1.0 0.55 stroke #888888
+# Arms (8 radiating)
+line 0.5,1.0 0.18,1.0
+line 1.5,1.0 1.82,1.0
+line 1.0,0.5 1.0,0.18
+line 1.0,1.5 1.0,1.82
+line 0.65,0.65 0.4,0.4
+line 1.35,0.65 1.6,0.4
+line 0.65,1.35 0.4,1.6
+line 1.35,1.35 1.6,1.6
+# Candle flames (cardinal)
+circle 0.18,1.0 0.06 fill #ffaa00 0.8
+circle 1.82,1.0 0.06 fill #ffaa00 0.8
+circle 1.0,0.18 0.06 fill #ffaa00 0.8
+circle 1.0,1.82 0.06 fill #ffaa00 0.8
+# Candle flames (diagonal)
+circle 0.4,0.4 0.06 fill #ffaa00 0.8
+circle 1.6,0.4 0.06 fill #ffaa00 0.8
+circle 0.4,1.6 0.06 fill #ffaa00 0.8
+circle 1.6,1.6 0.06 fill #ffaa00 0.8
+# Warm glow halos
+circle 0.18,1.0 0.12 fill #ff8800 0.2
+circle 1.82,1.0 0.12 fill #ff8800 0.2
+circle 1.0,0.18 0.12 fill #ff8800 0.2
+circle 1.0,1.82 0.12 fill #ff8800 0.2

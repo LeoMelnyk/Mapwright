@@ -1,0 +1,22 @@
+name: Arcane Pedestal
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+---
+# Pedestal column
+circle 0.50,0.60 0.28 texfill polyhaven/granite_tile 0.80
+circle 0.50,0.60 0.28 stroke #444444
+circle 0.50,0.60 0.22 texfill polyhaven/marble_01 0.70
+# Column fluting lines
+line 0.50,0.38 0.50,0.82 stroke #888888 0.30
+line 0.38,0.44 0.62,0.76 stroke #888888 0.25
+line 0.62,0.44 0.38,0.76 stroke #888888 0.25
+# Glowing top surface
+circle 0.50,0.38 0.22 fill #8866cc 0.30
+circle 0.50,0.38 0.22 stroke #6644aa
+circle 0.50,0.38 0.14 fill #aa88ee 0.50
+circle 0.50,0.38 0.08 fill #ccaaff 0.60
+# Rune ring
+circle 0.50,0.38 0.20 stroke #8866cc 0.60

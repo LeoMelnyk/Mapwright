@@ -1,0 +1,13 @@
+{
+  "displayName": "Crepe Satin",
+  "category": "Fabric",
+  "subcategory": "Crepe",
+  "file": "polyhaven/crepe_satin_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/crepe_satin_disp_1k.png",
+    "nor": "polyhaven/crepe_satin_nor_gl_1k.png",
+    "arm": "polyhaven/crepe_satin_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

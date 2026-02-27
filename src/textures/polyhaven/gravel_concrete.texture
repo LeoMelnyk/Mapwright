@@ -1,0 +1,12 @@
+{
+  "displayName": "Gravel Concrete",
+  "category": "Floor",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/gravel_concrete_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/gravel_concrete_disp_1k.png",
+    "nor": "polyhaven/gravel_concrete_nor_gl_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

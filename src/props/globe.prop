@@ -1,0 +1,26 @@
+name: Globe
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Globe sphere
+circle 0.50,0.46 0.36 fill #446688 0.70
+circle 0.50,0.46 0.36 stroke #334466
+# Landmasses
+circle 0.40,0.36 0.12 fill #558844 0.70
+circle 0.56,0.30 0.08 fill #558844 0.60
+circle 0.62,0.50 0.10 fill #558844 0.65
+circle 0.36,0.56 0.08 fill #558844 0.60
+circle 0.50,0.50 0.06 fill #558844 0.50
+# Latitude rings
+circle 0.50,0.46 0.36 stroke #6699aa 0.30
+circle 0.50,0.46 0.26 stroke #6699aa 0.20
+# Equator band
+circle 0.50,0.46 0.36 stroke #daa520 0.40
+# Stand base
+ellipse 0.50,0.86 0.20,0.06 fill #8b6914 0.80
+ellipse 0.50,0.86 0.20,0.06 stroke #5a3a00
+# Stand pole
+line 0.50,0.82 0.50,0.72 stroke #8b6914

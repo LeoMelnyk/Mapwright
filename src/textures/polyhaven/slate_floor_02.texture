@@ -1,0 +1,13 @@
+{
+  "displayName": "Slate Floor 02",
+  "category": "Floor",
+  "subcategory": "Cobblestone",
+  "file": "polyhaven/slate_floor_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/slate_floor_02_disp_1k.png",
+    "nor": "polyhaven/slate_floor_02_nor_gl_1k.png",
+    "arm": "polyhaven/slate_floor_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

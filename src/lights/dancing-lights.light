@@ -1,0 +1,10 @@
+{
+  "displayName": "Dancing Lights",
+  "category": "Magical",
+  "description": "A small floating mote of soft bluish-white light",
+  "type": "point",
+  "color": "#aaccff",
+  "radius": 10,
+  "intensity": 0.6,
+  "falloff": "smooth"
+}

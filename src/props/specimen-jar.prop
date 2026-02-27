@@ -1,0 +1,22 @@
+name: Specimen Jar
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Jar glass body
+circle 0.50,0.52 0.36 fill #aabbcc 0.30
+circle 0.50,0.52 0.36 stroke #556677
+# Preserving fluid (dark)
+circle 0.50,0.52 0.28 fill #334433 0.60
+# Specimen shape (dark mass)
+circle 0.50,0.56 0.16 fill #1a2a1a 0.70
+circle 0.44,0.50 0.07 fill #2a3a2a 0.60
+circle 0.58,0.48 0.06 fill #223322 0.55
+# Glass glint
+circle 0.35,0.38 0.06 fill #ffffff 0.22
+# Metal lid band
+rect 0.14,0.18 0.72,0.08 fill #8b6914 0.70
+rect 0.14,0.18 0.72,0.08 stroke #5a3a00
+circle 0.50,0.22 0.04 fill #daa520 0.80

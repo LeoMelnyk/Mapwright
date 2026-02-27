@@ -1,0 +1,13 @@
+{
+  "displayName": "Knotted Pine Bark",
+  "category": "Bark",
+  "subcategory": "Natural",
+  "file": "polyhaven/knotted_pine_bark_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/knotted_pine_bark_disp_1k.png",
+    "nor": "polyhaven/knotted_pine_bark_nor_gl_1k.png",
+    "arm": "polyhaven/knotted_pine_bark_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

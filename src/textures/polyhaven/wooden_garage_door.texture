@@ -1,0 +1,13 @@
+{
+  "displayName": "Wooden Garage Door",
+  "category": "Man Made",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/wooden_garage_door_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wooden_garage_door_disp_1k.png",
+    "nor": "polyhaven/wooden_garage_door_nor_gl_1k.png",
+    "arm": "polyhaven/wooden_garage_door_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

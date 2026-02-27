@@ -1,0 +1,13 @@
+{
+  "displayName": "Overgrown Concrete Pavers",
+  "category": "Outdoor",
+  "subcategory": "Floor",
+  "file": "polyhaven/overgrown_concrete_pavers_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/overgrown_concrete_pavers_disp_1k.png",
+    "nor": "polyhaven/overgrown_concrete_pavers_nor_gl_1k.png",
+    "arm": "polyhaven/overgrown_concrete_pavers_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

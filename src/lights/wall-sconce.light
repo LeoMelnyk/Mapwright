@@ -1,0 +1,10 @@
+{
+  "displayName": "Wall Sconce",
+  "category": "Fire & Flame",
+  "description": "A decorative wall-mounted sconce with a warm glow",
+  "type": "point",
+  "color": "#ff9944",
+  "radius": 15,
+  "intensity": 0.8,
+  "falloff": "smooth"
+}

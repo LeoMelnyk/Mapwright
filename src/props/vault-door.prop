@@ -1,0 +1,54 @@
+name: Vault Door
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Thick stone frame (outer border)
+rect 0.0,0.0 2.0,2.0 texfill polyhaven/stone_wall 0.8
+rect 0.0,0.0 2.0,2.0 stroke #444444
+
+# Door recess (slightly inset area where door sits)
+rect 0.2,0.2 1.6,1.6 fill #1a1a1a 0.3
+
+# Heavy iron door slab (rectangular from above)
+rect 0.25,0.25 1.5,1.5 texfill polyhaven/rusty_metal 0.85
+rect 0.25,0.25 1.5,1.5 stroke #333333
+
+# Reinforcing iron bands across door surface
+rect 0.25,0.6 1.5,0.06 texfill polyhaven/metal_plate 0.6
+rect 0.25,1.3 1.5,0.06 texfill polyhaven/metal_plate 0.6
+
+# Heavy hinges on west side (3 hinges)
+rect 0.15,0.4 0.18,0.12 texfill polyhaven/rusty_metal_02 0.9
+rect 0.15,0.4 0.18,0.12 stroke #333333
+rect 0.15,0.92 0.18,0.12 texfill polyhaven/rusty_metal_02 0.9
+rect 0.15,0.92 0.18,0.12 stroke #333333
+rect 0.15,1.44 0.18,0.12 texfill polyhaven/rusty_metal_02 0.9
+rect 0.15,1.44 0.18,0.12 stroke #333333
+
+# Locking bolts extending into frame (east side)
+rect 1.68,0.5 0.22,0.08 texfill polyhaven/metal_plate_02 0.85
+rect 1.68,0.5 0.22,0.08 stroke #333333
+rect 1.68,0.95 0.22,0.08 texfill polyhaven/metal_plate_02 0.85
+rect 1.68,0.95 0.22,0.08 stroke #333333
+rect 1.68,1.4 0.22,0.08 texfill polyhaven/metal_plate_02 0.85
+rect 1.68,1.4 0.22,0.08 stroke #333333
+
+# Center locking wheel (large)
+circle 1.0,1.0 0.28 texfill polyhaven/rusty_metal_02 0.9
+circle 1.0,1.0 0.28 stroke #333333
+
+# Wheel spokes
+line 1.0,0.72 1.0,1.28 stroke #555555
+line 0.72,1.0 1.28,1.0 stroke #555555
+line 0.8,0.8 1.2,1.2 stroke #555555
+line 1.2,0.8 0.8,1.2 stroke #555555
+
+# Center hub of wheel
+circle 1.0,1.0 0.08 texfill polyhaven/metal_plate 0.95
+circle 1.0,1.0 0.08 stroke #222222
+
+# Keyhole below wheel
+ellipse 1.0,1.38 0.03,0.05 fill #0a0a0a 0.8

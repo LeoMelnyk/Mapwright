@@ -1,0 +1,13 @@
+{
+  "displayName": "Stone Tiles 02",
+  "category": "Floor",
+  "subcategory": "Rock",
+  "file": "polyhaven/stone_tiles_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stone_tiles_02_disp_1k.png",
+    "nor": "polyhaven/stone_tiles_02_nor_gl_1k.png",
+    "arm": "polyhaven/stone_tiles_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

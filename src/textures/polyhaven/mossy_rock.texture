@@ -1,0 +1,13 @@
+{
+  "displayName": "Mossy Rock",
+  "category": "Rock",
+  "subcategory": "Natural",
+  "file": "polyhaven/mossy_rock_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/mossy_rock_disp_1k.png",
+    "nor": "polyhaven/mossy_rock_nor_gl_1k.png",
+    "arm": "polyhaven/mossy_rock_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

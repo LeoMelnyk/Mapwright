@@ -1,0 +1,10 @@
+{
+  "displayName": "Light (Cantrip)",
+  "category": "Magical",
+  "description": "The clean white glow of the Light cantrip",
+  "type": "point",
+  "color": "#ffffff",
+  "radius": 20,
+  "intensity": 0.8,
+  "falloff": "smooth"
+}

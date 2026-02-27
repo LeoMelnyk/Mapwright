@@ -1,0 +1,13 @@
+{
+  "displayName": "Worn Patterned Pavers",
+  "category": "Man Made",
+  "subcategory": "Floor",
+  "file": "polyhaven/worn_patterned_pavers_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/worn_patterned_pavers_disp_1k.png",
+    "nor": "polyhaven/worn_patterned_pavers_nor_gl_1k.png",
+    "arm": "polyhaven/worn_patterned_pavers_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Cobblestone Floor 02",
+  "category": "Floor",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/cobblestone_floor_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/cobblestone_floor_02_disp_1k.png",
+    "nor": "polyhaven/cobblestone_floor_02_nor_gl_1k.png",
+    "arm": "polyhaven/cobblestone_floor_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Linoleum Brown",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/linoleum_brown_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/linoleum_brown_disp_1k.png",
+    "nor": "polyhaven/linoleum_brown_nor_gl_1k.png",
+    "arm": "polyhaven/linoleum_brown_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

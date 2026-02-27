@@ -1,0 +1,33 @@
+name: Iron Maiden
+category: Prison
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Outer casing
+rect 0.12,0.1 0.76,1.8 texfill polyhaven/rusty_metal 0.8
+rect 0.12,0.1 0.76,1.8 stroke #444444
+# Top dome
+arc 0.5,0.1 0.38 180 360 fill #666666 0.4
+arc 0.5,0.1 0.38 180 360 stroke #444444
+# Bottom dome
+arc 0.5,1.9 0.38 0 180 fill #666666 0.4
+arc 0.5,1.9 0.38 0 180 stroke #444444
+# Hinge seam
+line 0.5,0.1 0.5,1.9
+# Spike points (left)
+circle 0.22,0.35 0.03 fill #333333 0.8
+circle 0.22,0.65 0.03 fill #333333 0.8
+circle 0.22,0.95 0.03 fill #333333 0.8
+circle 0.22,1.25 0.03 fill #333333 0.8
+circle 0.22,1.55 0.03 fill #333333 0.8
+# Spike points (right)
+circle 0.78,0.35 0.03 fill #333333 0.8
+circle 0.78,0.65 0.03 fill #333333 0.8
+circle 0.78,0.95 0.03 fill #333333 0.8
+circle 0.78,1.25 0.03 fill #333333 0.8
+circle 0.78,1.55 0.03 fill #333333 0.8
+# Face viewport
+rect 0.38,0.3 0.24,0.15 fill #1a1a1a 0.5
+rect 0.38,0.3 0.24,0.15 stroke #555555

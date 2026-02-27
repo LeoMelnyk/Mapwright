@@ -1,0 +1,13 @@
+{
+  "displayName": "Red Bricks 04",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/red_bricks_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/red_bricks_04_disp_1k.png",
+    "nor": "polyhaven/red_bricks_04_nor_gl_1k.png",
+    "arm": "polyhaven/red_bricks_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

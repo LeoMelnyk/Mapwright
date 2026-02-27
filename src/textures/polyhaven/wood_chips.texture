@@ -1,0 +1,13 @@
+{
+  "displayName": "Wood Chips",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/wood_chips_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wood_chips_disp_1k.png",
+    "nor": "polyhaven/wood_chips_nor_gl_1k.png",
+    "arm": "polyhaven/wood_chips_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

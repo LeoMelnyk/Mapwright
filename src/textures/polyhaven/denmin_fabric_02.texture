@@ -1,0 +1,13 @@
+{
+  "displayName": "Denim Fabric 02",
+  "category": "Fabric",
+  "subcategory": "Denim",
+  "file": "polyhaven/denmin_fabric_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/denmin_fabric_02_disp_1k.png",
+    "nor": "polyhaven/denmin_fabric_02_nor_gl_1k.png",
+    "arm": "polyhaven/denmin_fabric_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

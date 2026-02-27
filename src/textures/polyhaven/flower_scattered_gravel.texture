@@ -1,0 +1,13 @@
+{
+  "displayName": "Flower Scattered Gravel",
+  "category": "Floor",
+  "subcategory": "Gravel",
+  "file": "polyhaven/flower_scattered_gravel_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/flower_scattered_gravel_disp_1k.png",
+    "nor": "polyhaven/flower_scattered_gravel_nor_gl_1k.png",
+    "arm": "polyhaven/flower_scattered_gravel_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

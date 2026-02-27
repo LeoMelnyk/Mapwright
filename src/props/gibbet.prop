@@ -1,0 +1,49 @@
+name: Gibbet
+category: Prison
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Wooden post base (thick square seen from above)
+rect 0.35,0.7 0.3,0.3 texfill polyhaven/dark_wood 0.9
+rect 0.35,0.7 0.3,0.3 stroke #2a1400
+
+# Post wood grain detail
+line 0.42,0.72 0.42,0.98 stroke #2a1400
+line 0.58,0.72 0.58,0.98 stroke #2a1400
+
+# Cross arm extending east from post top (overhead beam)
+rect 0.55,0.78 0.4,0.14 texfill polyhaven/dark_wood 0.85
+rect 0.55,0.78 0.4,0.14 stroke #2a1400
+
+# Chain link from arm tip down to cage (visible as small dots)
+circle 0.88,0.85 0.02 fill #666666 0.7
+circle 0.88,0.95 0.02 fill #666666 0.7
+circle 0.88,1.05 0.02 fill #666666 0.7
+
+# Hanging cage — circular ring of iron bars seen from above
+circle 0.88,1.4 0.28 stroke #555555
+circle 0.88,1.4 0.28 texfill polyhaven/rusty_metal 0.3
+
+# Cage inner ring
+circle 0.88,1.4 0.22 stroke #555555
+
+# Cage bars (radial spokes seen from above)
+line 0.88,1.12 0.88,1.68 stroke #555555
+line 0.6,1.4 1.16,1.4 stroke #555555
+line 0.68,1.2 1.08,1.6 stroke #555555
+line 1.08,1.2 0.68,1.6 stroke #555555
+
+# Cage floor grate (dark interior)
+circle 0.88,1.4 0.18 texfill polyhaven/metal_grate_rusty 0.5
+
+# Cage top ring attachment point
+circle 0.88,1.12 0.03 fill #444444 0.8
+
+# Base support / ground plate
+rect 0.25,0.62 0.5,0.06 texfill polyhaven/dark_wood 0.7
+rect 0.25,1.0 0.5,0.06 texfill polyhaven/dark_wood 0.7
+
+# Shadow of cage on ground (subtle)
+ellipse 0.88,1.42 0.32,0.32 fill #000000 0.08

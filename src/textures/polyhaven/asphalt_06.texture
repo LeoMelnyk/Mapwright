@@ -1,0 +1,13 @@
+{
+  "displayName": "Asphalt 06",
+  "category": "Asphalt",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/asphalt_06_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/asphalt_06_disp_1k.png",
+    "nor": "polyhaven/asphalt_06_nor_gl_1k.png",
+    "arm": "polyhaven/asphalt_06_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

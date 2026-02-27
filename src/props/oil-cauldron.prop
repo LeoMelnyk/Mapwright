@@ -1,0 +1,17 @@
+name: Oil Cauldron
+category: Combat
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Iron cauldron
+circle 0.5,0.5 0.35 texfill polyhaven/rusty_metal 0.85
+circle 0.5,0.5 0.35 stroke #555555
+# Inner rim
+circle 0.5,0.5 0.28 stroke #444444
+# Dark oil surface
+circle 0.5,0.5 0.25 fill #1a1a0a 0.7
+# Oil sheen highlights
+circle 0.42,0.42 0.04 fill #3a3a1a 0.4
+circle 0.55,0.48 0.03 fill #3a3a1a 0.3

@@ -1,0 +1,26 @@
+name: Kitchen Table
+category: Kitchen
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Table surface
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/wood_table 0.80
+rect 0.10,0.10 1.80,1.80 stroke #3a1f00
+rect 0.18,0.18 1.64,1.64 stroke #5c3a1e 0.40
+# Leg shadows
+circle 0.20,0.20 0.08 fill #3a1f00 0.55
+circle 1.80,0.20 0.08 fill #3a1f00 0.55
+circle 0.20,1.80 0.08 fill #3a1f00 0.55
+circle 1.80,1.80 0.08 fill #3a1f00 0.55
+# Cutting board on surface
+rect 0.28,0.28 0.46,0.32 texfill polyhaven/worn_planks 0.70
+rect 0.28,0.28 0.46,0.32 stroke #4a2800
+# Large pot on surface
+circle 1.50,0.50 0.20 texfill polyhaven/rusty_metal 0.75
+circle 1.50,0.50 0.20 stroke #333333
+circle 1.50,0.50 0.12 fill #1a1a1a 0.60
+# Food items (round loaves/bowls)
+circle 0.50,1.50 0.18 fill #dd9944 0.60
+circle 0.50,1.50 0.12 fill #cc7722 0.70

@@ -1,0 +1,13 @@
+{
+  "displayName": "Concrete Wall 002",
+  "category": "Brick",
+  "subcategory": "Wall",
+  "file": "polyhaven/t_concrete_wall_002_diffuse_1k.png",
+  "maps": {
+    "disp": "polyhaven/t_concrete_wall_002_height_1k.png",
+    "nor": "polyhaven/t_concrete_wall_002_nor_gl_1k.png",
+    "arm": "polyhaven/t_concrete_wall_002_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

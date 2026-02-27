@@ -1,0 +1,13 @@
+{
+  "displayName": "Roof Slates 03",
+  "category": "Roofing",
+  "subcategory": "Man Made",
+  "file": "polyhaven/roof_slates_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/roof_slates_03_disp_1k.png",
+    "nor": "polyhaven/roof_slates_03_nor_gl_1k.png",
+    "arm": "polyhaven/roof_slates_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

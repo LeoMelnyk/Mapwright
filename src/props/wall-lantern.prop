@@ -1,0 +1,23 @@
+name: Wall Lantern
+category: Lighting
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Wall bracket (north edge)
+rect 0.28,0.02 0.44,0.14 texfill polyhaven/rusty_metal 0.80
+rect 0.28,0.02 0.44,0.14 stroke #444444
+# Bracket arm
+line 0.50,0.14 0.50,0.28 stroke #666666
+# Lantern body (small box)
+rect 0.34,0.28 0.32,0.36 fill #444444 0.70
+rect 0.34,0.28 0.32,0.36 stroke #666666
+# Glass warm glow
+rect 0.36,0.30 0.28,0.32 fill #ffcc44 0.30
+# Flame
+circle 0.50,0.46 0.07 fill #ffaa00 0.70
+circle 0.50,0.46 0.04 fill #ffcc00 0.80
+# Lantern cap
+rect 0.32,0.26 0.36,0.05 fill #555555 0.90
+rect 0.32,0.26 0.36,0.05 stroke #333333

@@ -1,0 +1,13 @@
+{
+  "displayName": "Floor Tiles 09",
+  "category": "Floor",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/floor_tiles_09_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/floor_tiles_09_disp_1k.png",
+    "nor": "polyhaven/floor_tiles_09_nor_gl_1k.png",
+    "arm": "polyhaven/floor_tiles_09_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

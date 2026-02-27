@@ -1,0 +1,29 @@
+name: Spice Shelf
+category: Kitchen
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Shelf board (north wall)
+rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.04 1.88,0.12 stroke #3a1f00
+# Shadow
+rect 0.06,0.16 1.88,0.05 fill #000000 0.12
+# Shelf lipped edge
+line 0.06,0.34 1.94,0.34 stroke #3a1f00 0.50
+# Assorted spice containers
+rect 0.14,0.36 0.22,0.30 fill #cc9944 0.75
+rect 0.14,0.36 0.22,0.30 stroke #8b6914
+circle 0.50,0.52 0.12 fill #aa5522 0.75
+circle 0.50,0.52 0.12 stroke #663311
+rect 0.70,0.36 0.18,0.30 fill #558844 0.75
+rect 0.70,0.36 0.18,0.30 stroke #336622
+circle 1.00,0.52 0.11 fill #ddcc44 0.75
+circle 1.00,0.52 0.11 stroke #998800
+rect 1.20,0.38 0.18,0.28 fill #994422 0.75
+rect 1.20,0.38 0.18,0.28 stroke #662211
+circle 1.50,0.52 0.12 fill #cc6644 0.75
+circle 1.50,0.52 0.12 stroke #884422
+rect 1.68,0.36 0.20,0.30 fill #887755 0.75
+rect 1.68,0.36 0.20,0.30 stroke #554433

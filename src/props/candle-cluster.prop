@@ -1,0 +1,30 @@
+name: Candle Cluster
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Wax pool (melted wax spreading on surface)
+ellipse 0.50,0.55 0.36,0.28 fill #e8e0cc 0.60
+# Individual candle bases (stumps from above = circles)
+circle 0.34,0.60 0.08 fill #e8dcc8 0.90
+circle 0.34,0.60 0.08 stroke #c8b898
+circle 0.54,0.52 0.10 fill #e8dcc8 0.90
+circle 0.54,0.52 0.10 stroke #c8b898
+circle 0.66,0.66 0.07 fill #e8dcc8 0.90
+circle 0.66,0.66 0.07 stroke #c8b898
+circle 0.40,0.42 0.06 fill #e8dcc8 0.85
+# Wicks
+circle 0.34,0.60 0.02 fill #333333 0.90
+circle 0.54,0.52 0.02 fill #333333 0.90
+circle 0.66,0.66 0.02 fill #333333 0.90
+circle 0.40,0.42 0.02 fill #333333 0.90
+# Flames
+circle 0.34,0.55 0.04 fill #ffaa00 0.80
+circle 0.54,0.46 0.05 fill #ffaa00 0.80
+circle 0.66,0.60 0.04 fill #ffaa00 0.80
+circle 0.40,0.36 0.03 fill #ffcc00 0.70
+# Wax drip pools
+circle 0.24,0.64 0.05 fill #e8dcc8 0.50
+circle 0.72,0.52 0.04 fill #e8dcc8 0.50

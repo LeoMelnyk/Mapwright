@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Dungeon — Player View</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="player-canvas"></canvas>
+
+  <!-- Range Detector toolbar (shown during active session) -->
+  <div id="player-toolbar" style="display:none;">
+    <button class="player-tool-btn active" data-range-shape="circle" title="Circle">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+    </button>
+    <button class="player-tool-btn" data-range-shape="cone" title="Cone">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 22,22 2,22"/></svg>
+    </button>
+    <button class="player-tool-btn" data-range-shape="line" title="Line">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="20" x2="20" y2="4"/></svg>
+    </button>
+    <button class="player-tool-btn" data-range-shape="cube" title="Cube">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18"/></svg>
+    </button>
+    <select id="player-range-distance" title="Fixed range">
+      <option value="0">Auto</option>
+    </select>
+  </div>
+
+  <button id="resync-btn">Back to DM View</button>
+  <div id="connection-status">Connecting…</div>
+  <script type="module" src="player-main.js"></script>
+</body>
+</html>

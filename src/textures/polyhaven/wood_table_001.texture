@@ -1,0 +1,13 @@
+{
+  "displayName": "Wood Table 001",
+  "category": "Wood",
+  "subcategory": "Clean",
+  "file": "polyhaven/wood_table_001_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wood_table_001_disp_1k.png",
+    "nor": "polyhaven/wood_table_001_nor_gl_1k.png",
+    "arm": "polyhaven/wood_table_001_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

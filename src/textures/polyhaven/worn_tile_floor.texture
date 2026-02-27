@@ -1,0 +1,13 @@
+{
+  "displayName": "Worn Tile Floor",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/worn_tile_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/worn_tile_floor_disp_1k.png",
+    "nor": "polyhaven/worn_tile_floor_nor_gl_1k.png",
+    "arm": "polyhaven/worn_tile_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

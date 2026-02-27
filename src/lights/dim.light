@@ -1,0 +1,10 @@
+{
+  "displayName": "Dim",
+  "category": "Utility",
+  "description": "A generic dim light source for subtle illumination",
+  "type": "point",
+  "color": "#ffcc88",
+  "radius": 15,
+  "intensity": 0.4,
+  "falloff": "smooth"
+}

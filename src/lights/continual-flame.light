@@ -1,0 +1,10 @@
+{
+  "displayName": "Continual Flame",
+  "category": "Magical",
+  "description": "A permanent magical flame that burns without fuel, warm and steady",
+  "type": "point",
+  "color": "#ffdd88",
+  "radius": 20,
+  "intensity": 1.0,
+  "falloff": "smooth"
+}

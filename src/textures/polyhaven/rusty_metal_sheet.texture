@@ -1,0 +1,13 @@
+{
+  "displayName": "Rusty Metal Sheet",
+  "category": "Man Made",
+  "subcategory": "Metal",
+  "file": "polyhaven/rusty_metal_sheet_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rusty_metal_sheet_disp_1k.png",
+    "nor": "polyhaven/rusty_metal_sheet_nor_gl_1k.png",
+    "arm": "polyhaven/rusty_metal_sheet_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

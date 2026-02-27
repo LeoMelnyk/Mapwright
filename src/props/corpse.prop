@@ -1,0 +1,21 @@
+name: Corpse
+category: Misc
+footprint: 2x1
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Body
+ellipse 0.5,1.0 0.3,0.7 fill #5a4530 0.4
+ellipse 0.5,1.0 0.3,0.7 stroke #3a2a1a
+# Head
+circle 0.5,0.22 0.15 fill #c4a882 0.5
+circle 0.5,0.22 0.15 stroke #8b7d6b
+# Arms outstretched
+line 0.2,0.65 0.02,0.5
+line 0.8,0.65 0.98,0.5
+# Legs
+line 0.35,1.72 0.25,1.95
+line 0.65,1.72 0.75,1.95
+# Blood pool
+ellipse 0.5,0.8 0.25,0.15 fill #4a0000 0.3

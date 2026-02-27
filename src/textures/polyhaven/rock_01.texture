@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock 01",
+  "category": "Rock",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/rock_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_01_disp_1k.png",
+    "nor": "polyhaven/rock_01_nor_gl_1k.png",
+    "arm": "polyhaven/rock_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

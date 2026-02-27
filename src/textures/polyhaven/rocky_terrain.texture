@@ -1,0 +1,13 @@
+{
+  "displayName": "Rocky Terrain",
+  "category": "Outdoor",
+  "subcategory": "Terrain",
+  "file": "polyhaven/rocky_terrain_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rocky_terrain_disp_1k.png",
+    "nor": "polyhaven/rocky_terrain_nor_gl_1k.png",
+    "arm": "polyhaven/rocky_terrain_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

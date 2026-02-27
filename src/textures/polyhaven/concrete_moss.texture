@@ -1,0 +1,13 @@
+{
+  "displayName": "Concrete Moss",
+  "category": "Floor",
+  "subcategory": "Concrete",
+  "file": "polyhaven/concrete_moss_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/concrete_moss_disp_1k.png",
+    "nor": "polyhaven/concrete_moss_nor_gl_1k.png",
+    "arm": "polyhaven/concrete_moss_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

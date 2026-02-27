@@ -1,0 +1,13 @@
+{
+  "displayName": "Riet 01",
+  "category": "Roofing",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/riet_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/riet_01_disp_1k.png",
+    "nor": "polyhaven/riet_01_nor_gl_1k.png",
+    "arm": "polyhaven/riet_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

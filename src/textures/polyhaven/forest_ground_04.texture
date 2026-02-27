@@ -1,0 +1,13 @@
+{
+  "displayName": "Forest Ground 04",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/forest_ground_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/forest_ground_04_disp_1k.png",
+    "nor": "polyhaven/forest_ground_04_nor_gl_1k.png",
+    "arm": "polyhaven/forest_ground_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

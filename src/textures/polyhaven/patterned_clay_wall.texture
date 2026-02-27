@@ -1,0 +1,13 @@
+{
+  "displayName": "Patterned Clay Wall",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/patterned_clay_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/patterned_clay_wall_disp_1k.png",
+    "nor": "polyhaven/patterned_clay_wall_nor_gl_1k.png",
+    "arm": "polyhaven/patterned_clay_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

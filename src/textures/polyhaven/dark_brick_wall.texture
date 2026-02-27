@@ -1,0 +1,13 @@
+{
+  "displayName": "Dark Brick Wall",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/dark_brick_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/dark_brick_wall_disp_1k.png",
+    "nor": "polyhaven/dark_brick_wall_nor_gl_1k.png",
+    "arm": "polyhaven/dark_brick_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

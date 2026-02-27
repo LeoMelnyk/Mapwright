@@ -1,0 +1,13 @@
+{
+  "displayName": "Sandy Seashore",
+  "category": "Earth",
+  "subcategory": "Rocky",
+  "file": "texturecan/sandy_seashore_diff_1k.png",
+  "maps": {
+    "disp": "texturecan/sandy_seashore_disp_1k.png",
+    "nor": "texturecan/sandy_seashore_nor_gl_1k.png",
+    "arm": "texturecan/sandy_seashore_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "TextureCan (CC0)"
+}

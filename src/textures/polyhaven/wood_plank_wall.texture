@@ -1,0 +1,13 @@
+{
+  "displayName": "Wood Plank Wall",
+  "category": "Outdoor",
+  "subcategory": "Wall",
+  "file": "polyhaven/wood_plank_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wood_plank_wall_disp_1k.png",
+    "nor": "polyhaven/wood_plank_wall_nor_gl_1k.png",
+    "arm": "polyhaven/wood_plank_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

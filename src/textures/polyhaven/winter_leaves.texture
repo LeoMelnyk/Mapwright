@@ -1,0 +1,13 @@
+{
+  "displayName": "Winter Leaves",
+  "category": "Outdoor",
+  "subcategory": "Floor",
+  "file": "polyhaven/winter_leaves_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/winter_leaves_disp_1k.png",
+    "nor": "polyhaven/winter_leaves_nor_gl_1k.png",
+    "arm": "polyhaven/winter_leaves_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

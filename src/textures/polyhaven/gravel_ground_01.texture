@@ -1,0 +1,13 @@
+{
+  "displayName": "Gravel Ground 01",
+  "category": "Terrain",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/gravel_ground_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/gravel_ground_01_disp_1k.png",
+    "nor": "polyhaven/gravel_ground_01_nor_gl_1k.png",
+    "arm": "polyhaven/gravel_ground_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

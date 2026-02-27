@@ -1,0 +1,13 @@
+{
+  "displayName": "Beam Wall 01",
+  "category": "Wood",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/beam_wall_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/beam_wall_01_disp_1k.png",
+    "nor": "polyhaven/beam_wall_01_nor_gl_1k.png",
+    "arm": "polyhaven/beam_wall_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

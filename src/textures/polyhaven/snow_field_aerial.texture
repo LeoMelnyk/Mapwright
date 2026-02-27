@@ -1,0 +1,13 @@
+{
+  "displayName": "Snow Field Aerial",
+  "category": "Terrain",
+  "subcategory": "Snow",
+  "file": "polyhaven/snow_field_aerial_col_1k.png",
+  "maps": {
+    "disp": "polyhaven/snow_field_aerial_height_1k.png",
+    "nor": "polyhaven/snow_field_aerial_nor_gl_1k.png",
+    "arm": "polyhaven/snow_field_aerial_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

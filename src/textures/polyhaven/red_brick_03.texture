@@ -1,0 +1,13 @@
+{
+  "displayName": "Red Brick 03",
+  "category": "Outdoor",
+  "subcategory": "Wall",
+  "file": "polyhaven/red_brick_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/red_brick_03_disp_1k.png",
+    "nor": "polyhaven/red_brick_03_nor_gl_1k.png",
+    "arm": "polyhaven/red_brick_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

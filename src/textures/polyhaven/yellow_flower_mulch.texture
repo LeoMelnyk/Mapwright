@@ -1,0 +1,13 @@
+{
+  "displayName": "Yellow Flower Mulch",
+  "category": "Floor",
+  "subcategory": "Bark",
+  "file": "polyhaven/yellow_flower_mulch_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/yellow_flower_mulch_disp_1k.png",
+    "nor": "polyhaven/yellow_flower_mulch_nor_gl_1k.png",
+    "arm": "polyhaven/yellow_flower_mulch_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

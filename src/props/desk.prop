@@ -1,0 +1,15 @@
+name: Desk
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Desktop surface
+rect 0.05,0.08 1.9,0.84 texfill polyhaven/wood_table 0.85
+rect 0.05,0.08 1.9,0.84 stroke #5c3a1e
+# Drawer section (left side)
+rect 0.1,0.15 0.45,0.7 texfill polyhaven/dark_wood 0.6
+rect 0.1,0.15 0.45,0.7 stroke #3a1f00
+# Drawer handle
+circle 0.32,0.82 0.025 fill #8b6914 0.8

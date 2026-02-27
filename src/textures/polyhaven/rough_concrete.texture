@@ -1,0 +1,13 @@
+{
+  "displayName": "Rough Concrete",
+  "category": "Man Made",
+  "subcategory": "Plaster Concrete",
+  "file": "polyhaven/rough_concrete_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rough_concrete_disp_1k.png",
+    "nor": "polyhaven/rough_concrete_nor_gl_1k.png",
+    "arm": "polyhaven/rough_concrete_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

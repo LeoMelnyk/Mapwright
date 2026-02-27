@@ -1,0 +1,13 @@
+{
+  "displayName": "Concrete Floor 01",
+  "category": "Concrete",
+  "subcategory": "Clean",
+  "file": "polyhaven/concrete_floor_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/concrete_floor_01_disp_1k.png",
+    "nor": "polyhaven/concrete_floor_01_nor_gl_1k.png",
+    "arm": "polyhaven/concrete_floor_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

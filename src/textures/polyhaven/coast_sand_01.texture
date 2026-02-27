@@ -1,0 +1,13 @@
+{
+  "displayName": "Coast Sand 01",
+  "category": "Outdoor",
+  "subcategory": "Terrain",
+  "file": "polyhaven/coast_sand_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/coast_sand_01_disp_1k.png",
+    "nor": "polyhaven/coast_sand_01_nor_gl_1k.png",
+    "arm": "polyhaven/coast_sand_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

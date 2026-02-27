@@ -1,0 +1,13 @@
+{
+  "displayName": "Stone Pavers",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/stone_pavers_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stone_pavers_disp_1k.png",
+    "nor": "polyhaven/stone_pavers_nor_gl_1k.png",
+    "arm": "polyhaven/stone_pavers_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

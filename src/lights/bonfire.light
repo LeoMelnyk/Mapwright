@@ -1,0 +1,10 @@
+{
+  "displayName": "Bonfire",
+  "category": "Fire & Flame",
+  "description": "A roaring bonfire illuminating a large area with bright, hot light",
+  "type": "point",
+  "color": "#ff5500",
+  "radius": 40,
+  "intensity": 1.5,
+  "falloff": "smooth"
+}

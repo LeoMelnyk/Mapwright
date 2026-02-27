@@ -1,0 +1,20 @@
+name: Mortar & Pestle
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Mortar outer rim
+circle 0.50,0.56 0.38 texfill polyhaven/granite_tile 0.80
+circle 0.50,0.56 0.38 stroke #444444
+# Inner bowl well
+circle 0.50,0.56 0.27 fill #d0ccbb 0.45
+# Ground contents (powder residue)
+circle 0.52,0.60 0.14 fill #8b7355 0.45
+# Pestle handle (elongated, upright in bowl)
+ellipse 0.50,0.40 0.07,0.18 fill #999999 0.90
+ellipse 0.50,0.40 0.07,0.18 stroke #555555
+# Pestle rounded cap
+circle 0.50,0.23 0.09 fill #aaaaaa 0.90
+circle 0.50,0.23 0.09 stroke #555555

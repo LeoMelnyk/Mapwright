@@ -1,0 +1,13 @@
+{
+  "displayName": "Plastered Wall 05",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/plastered_wall_05_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/plastered_wall_05_disp_1k.png",
+    "nor": "polyhaven/plastered_wall_05_nor_gl_1k.png",
+    "arm": "polyhaven/plastered_wall_05_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

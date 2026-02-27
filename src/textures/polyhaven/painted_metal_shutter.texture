@@ -1,0 +1,13 @@
+{
+  "displayName": "Painted Metal Shutter",
+  "category": "Man Made",
+  "subcategory": "Metal",
+  "file": "polyhaven/painted_metal_shutter_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/painted_metal_shutter_disp_1k.png",
+    "nor": "polyhaven/painted_metal_shutter_nor_gl_1k.png",
+    "arm": "polyhaven/painted_metal_shutter_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

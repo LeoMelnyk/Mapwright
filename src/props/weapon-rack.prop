@@ -1,0 +1,41 @@
+name: Weapon Rack
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Wooden rack base (horizontal bar along north edge, seen from above)
+rect 0.08,0.08 1.84,0.18 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.08 1.84,0.18 stroke #3a1f00
+# Lower support bar (parallel, south of main bar)
+rect 0.08,0.38 1.84,0.10 texfill polyhaven/dark_wood 0.8
+rect 0.08,0.38 1.84,0.10 stroke #3a1f00
+# Rack end posts
+rect 0.08,0.08 0.1,0.42 fill #3a1f00 0.6
+rect 1.82,0.08 0.1,0.42 fill #3a1f00 0.6
+# Slot grooves in the bar (dark lines where weapons sit)
+rect 0.28,0.10 0.04,0.14 fill #1a1a1a 0.5
+rect 0.58,0.10 0.04,0.14 fill #1a1a1a 0.5
+rect 0.88,0.10 0.04,0.14 fill #1a1a1a 0.5
+rect 1.18,0.10 0.04,0.14 fill #1a1a1a 0.5
+rect 1.48,0.10 0.04,0.14 fill #1a1a1a 0.5
+rect 1.72,0.10 0.04,0.14 fill #1a1a1a 0.5
+# Sword pommel 1 (round metal cap from above)
+circle 0.30,0.17 0.06 texfill polyhaven/metal_plate 0.8
+circle 0.30,0.17 0.06 stroke #444444
+# Sword pommel 2
+circle 0.60,0.17 0.06 texfill polyhaven/metal_plate 0.8
+circle 0.60,0.17 0.06 stroke #444444
+# Axe head top (wider oval pommel)
+ellipse 0.90,0.17 0.07,0.05 texfill polyhaven/metal_plate 0.85
+ellipse 0.90,0.17 0.07,0.05 stroke #444444
+# Mace pommel (larger round)
+circle 1.20,0.17 0.07 texfill polyhaven/rusty_metal 0.8
+circle 1.20,0.17 0.07 stroke #444444
+# Sword pommel 3
+circle 1.50,0.17 0.06 texfill polyhaven/metal_plate 0.8
+circle 1.50,0.17 0.06 stroke #444444
+# Spear butt (small circle)
+circle 1.74,0.17 0.04 fill #888888 0.7
+circle 1.74,0.17 0.04 stroke #555555

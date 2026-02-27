@@ -1,0 +1,50 @@
+name: Grinding Wheel
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Water trough (wooden base beneath the wheel)
+ellipse 0.50,0.55 0.42,0.18 texfill polyhaven/dark_wood 0.7
+ellipse 0.50,0.55 0.42,0.18 stroke #2a1f14
+
+# Water in trough
+ellipse 0.50,0.56 0.36,0.13 fill #3a5a7a 0.4
+
+# Frame uprights (two vertical posts)
+rect 0.14,0.28 0.08,0.44 texfill polyhaven/dark_wood 0.85
+rect 0.14,0.28 0.08,0.44 stroke #1a1208
+rect 0.78,0.28 0.08,0.44 texfill polyhaven/dark_wood 0.85
+rect 0.78,0.28 0.08,0.44 stroke #1a1208
+
+# Frame crossbar (top)
+rect 0.14,0.28 0.72,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.14,0.28 0.72,0.06 stroke #1a1208
+
+# Grinding stone wheel (seen from above as oval/edge-on)
+ellipse 0.50,0.46 0.28,0.10 texfill polyhaven/rock_boulder_cracked 0.9
+ellipse 0.50,0.46 0.28,0.10 stroke #555555
+
+# Stone texture highlight
+ellipse 0.50,0.44 0.22,0.06 fill #999999 0.15
+
+# Axle (through center of wheel)
+line 0.18,0.46 0.82,0.46 stroke #555555
+circle 0.50,0.46 0.03 fill #666666 0.9
+
+# Crank handle (extends from right side)
+line 0.86,0.46 0.94,0.36 stroke #555555
+circle 0.94,0.36 0.025 fill #777777 0.9
+circle 0.94,0.36 0.025 stroke #444444
+
+# Foot pedal (at bottom)
+rect 0.35,0.78 0.30,0.08 texfill polyhaven/dark_wood 0.7
+rect 0.35,0.78 0.30,0.08 stroke #2a1f14
+# Pedal linkage
+line 0.50,0.78 0.50,0.68 stroke #555555
+
+# Sparks/grinding dust suggestion
+circle 0.38,0.38 0.01 fill #cccccc 0.5
+circle 0.55,0.36 0.01 fill #cccccc 0.4
+circle 0.62,0.40 0.01 fill #cccccc 0.5

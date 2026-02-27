@@ -1,0 +1,12 @@
+{
+  "displayName": "Rounded Square Tiled Wall",
+  "category": "Wall",
+  "file": "polyhaven/rounded_square_tiled_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rounded_square_tiled_wall_disp_1k.png",
+    "nor": "polyhaven/rounded_square_tiled_wall_nor_gl_1k.png",
+    "arm": "polyhaven/rounded_square_tiled_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

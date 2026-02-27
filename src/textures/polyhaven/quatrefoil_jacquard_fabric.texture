@@ -1,0 +1,13 @@
+{
+  "displayName": "Quatrefoil Jacquard Fabric",
+  "category": "Fabric",
+  "subcategory": "Jacquard",
+  "file": "polyhaven/quatrefoil_jacquard_fabric_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/quatrefoil_jacquard_fabric_disp_1k.png",
+    "nor": "polyhaven/quatrefoil_jacquard_fabric_nor_gl_1k.png",
+    "arm": "polyhaven/quatrefoil_jacquard_fabric_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

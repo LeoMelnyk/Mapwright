@@ -1,0 +1,13 @@
+{
+  "displayName": "Ceramic Roof 01",
+  "category": "Roofing",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/ceramic_roof_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/ceramic_roof_01_disp_1k.png",
+    "nor": "polyhaven/ceramic_roof_01_nor_gl_1k.png",
+    "arm": "polyhaven/ceramic_roof_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Mud Forest",
+  "category": "Outdoor",
+  "subcategory": "Floor",
+  "file": "polyhaven/mud_forest_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/mud_forest_disp_1k.png",
+    "nor": "polyhaven/mud_forest_nor_gl_1k.png",
+    "arm": "polyhaven/mud_forest_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,36 @@
+name: Shield Rack
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Wooden rack bar along north edge (top of frame seen from above)
+rect 0.08,0.06 1.84,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.06 1.84,0.14 stroke #3a1f00
+# Rack support posts (visible from above as small squares)
+rect 0.08,0.06 0.1,0.18 fill #3a1f00 0.6
+rect 1.82,0.06 0.1,0.18 fill #3a1f00 0.6
+# Shield 1 (left) - round shield top peeking south of rack
+circle 0.38,0.48 0.28 texfill polyhaven/metal_plate 0.75
+circle 0.38,0.48 0.28 stroke #555555
+# Shield 1 boss (center rivet)
+circle 0.38,0.48 0.07 fill #daa520 0.6
+circle 0.38,0.48 0.07 stroke #8b6914
+# Shield 2 (center) - slightly larger, overlaps neighbors
+circle 1.0,0.50 0.30 texfill polyhaven/metal_plate 0.8
+circle 1.0,0.50 0.30 stroke #555555
+# Shield 2 boss
+circle 1.0,0.50 0.08 fill #daa520 0.6
+circle 1.0,0.50 0.08 stroke #8b6914
+# Shield 2 rim decoration
+circle 1.0,0.50 0.24 stroke #777777
+# Shield 3 (right) - round shield top
+circle 1.62,0.48 0.28 texfill polyhaven/metal_plate 0.75
+circle 1.62,0.48 0.28 stroke #555555
+# Shield 3 boss
+circle 1.62,0.48 0.07 fill #daa520 0.6
+circle 1.62,0.48 0.07 stroke #8b6914
+# Hanging pegs visible between shields
+circle 0.68,0.15 0.03 fill #5a3a00 0.7
+circle 1.32,0.15 0.03 fill #5a3a00 0.7

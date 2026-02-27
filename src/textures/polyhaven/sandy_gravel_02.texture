@@ -1,0 +1,13 @@
+{
+  "displayName": "Sandy Gravel 02",
+  "category": "Outdoor",
+  "subcategory": "Terrain",
+  "file": "polyhaven/sandy_gravel_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/sandy_gravel_02_disp_1k.png",
+    "nor": "polyhaven/sandy_gravel_02_nor_gl_1k.png",
+    "arm": "polyhaven/sandy_gravel_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

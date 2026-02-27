@@ -1,0 +1,13 @@
+{
+  "displayName": "Frozen Lake",
+  "category": "Water",
+  "subcategory": "Ice",
+  "file": "texturecan/frozen_lake_diff_1k.png",
+  "maps": {
+    "disp": "texturecan/frozen_lake_disp_1k.png",
+    "nor": "texturecan/frozen_lake_nor_gl_1k.png",
+    "arm": "texturecan/frozen_lake_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "TextureCan (CC0)"
+}

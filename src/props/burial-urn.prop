@@ -1,0 +1,22 @@
+name: Burial Urn
+category: Undead & Dark
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Urn body
+circle 0.50,0.54 0.32 texfill polyhaven/stone_wall 0.80
+circle 0.50,0.54 0.32 stroke #444444
+# Inner dark cavity
+circle 0.50,0.54 0.22 fill #1a1a1a 0.70
+# Decorative band rings
+circle 0.50,0.54 0.32 stroke #666666 0.50
+circle 0.50,0.54 0.28 stroke #555555 0.40
+# Lid
+circle 0.50,0.28 0.18 texfill polyhaven/granite_tile 0.75
+circle 0.50,0.28 0.18 stroke #444444
+circle 0.50,0.28 0.10 fill #333333 0.60
+# Lid knob
+circle 0.50,0.18 0.06 fill #888888 0.90
+circle 0.50,0.18 0.06 stroke #555555

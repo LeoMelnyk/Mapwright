@@ -1,0 +1,13 @@
+{
+  "displayName": "Polystyrene",
+  "category": "Man Made",
+  "subcategory": "Dirty",
+  "file": "polyhaven/polystyrene_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/polystyrene_disp_1k.png",
+    "nor": "polyhaven/polystyrene_nor_gl_1k.png",
+    "arm": "polyhaven/polystyrene_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

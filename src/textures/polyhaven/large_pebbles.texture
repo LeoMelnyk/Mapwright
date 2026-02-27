@@ -1,0 +1,13 @@
+{
+  "displayName": "Large Pebbles",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/large_pebbles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/large_pebbles_disp_1k.png",
+    "nor": "polyhaven/large_pebbles_nor_gl_1k.png",
+    "arm": "polyhaven/large_pebbles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

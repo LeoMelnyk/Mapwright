@@ -1,0 +1,13 @@
+{
+  "displayName": "Synthetic Wood",
+  "category": "Man Made",
+  "subcategory": "Wall",
+  "file": "polyhaven/synthetic_wood_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/synthetic_wood_disp_1k.png",
+    "nor": "polyhaven/synthetic_wood_nor_gl_1k.png",
+    "arm": "polyhaven/synthetic_wood_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

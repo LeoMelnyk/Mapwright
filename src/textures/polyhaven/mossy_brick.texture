@@ -1,0 +1,12 @@
+{
+  "displayName": "Mossy Brick",
+  "category": "Brick",
+  "file": "polyhaven/mossy_brick_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/mossy_brick_disp_1k.png",
+    "nor": "polyhaven/mossy_brick_nor_gl_1k.png",
+    "arm": "polyhaven/mossy_brick_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

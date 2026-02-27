@@ -1,0 +1,13 @@
+{
+  "displayName": "Clay Roof Tiles 02",
+  "category": "Man Made",
+  "subcategory": "Roofing",
+  "file": "polyhaven/clay_roof_tiles_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/clay_roof_tiles_02_disp_1k.png",
+    "nor": "polyhaven/clay_roof_tiles_02_nor_gl_1k.png",
+    "arm": "polyhaven/clay_roof_tiles_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

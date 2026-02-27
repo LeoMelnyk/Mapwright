@@ -1,0 +1,13 @@
+{
+  "displayName": "Concrete Pavers 03",
+  "category": "Concrete",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/concrete_pavers_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/concrete_pavers_03_disp_1k.png",
+    "nor": "polyhaven/concrete_pavers_03_nor_gl_1k.png",
+    "arm": "polyhaven/concrete_pavers_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

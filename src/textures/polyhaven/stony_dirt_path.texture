@@ -1,0 +1,13 @@
+{
+  "displayName": "Stony Dirt Path",
+  "category": "Dirty",
+  "subcategory": "Floor",
+  "file": "polyhaven/stony_dirt_path_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stony_dirt_path_disp_1k.png",
+    "nor": "polyhaven/stony_dirt_path_nor_gl_1k.png",
+    "arm": "polyhaven/stony_dirt_path_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

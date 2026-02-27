@@ -1,0 +1,10 @@
+{
+  "displayName": "Lantern",
+  "category": "Fire & Flame",
+  "description": "A hooded lantern casting reliable warm light",
+  "type": "point",
+  "color": "#ffbb55",
+  "radius": 20,
+  "intensity": 0.8,
+  "falloff": "smooth"
+}

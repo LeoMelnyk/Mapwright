@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Wall 14",
+  "category": "Wall",
+  "subcategory": "Rock",
+  "file": "polyhaven/rock_wall_14_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_wall_14_disp_1k.png",
+    "nor": "polyhaven/rock_wall_14_nor_gl_1k.png",
+    "arm": "polyhaven/rock_wall_14_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Wall 07",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/rock_wall_07_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_wall_07_disp_1k.png",
+    "nor": "polyhaven/rock_wall_07_nor_gl_1k.png",
+    "arm": "polyhaven/rock_wall_07_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,11 @@
+{
+  "displayName": "Sunbeam",
+  "category": "Natural",
+  "description": "A shaft of warm sunlight streaming through an opening above",
+  "type": "directional",
+  "color": "#ffeecc",
+  "radius": 40,
+  "intensity": 1.5,
+  "falloff": "linear",
+  "spread": 20
+}

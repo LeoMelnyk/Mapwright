@@ -1,0 +1,26 @@
+name: Ritual Circle
+category: Religious
+footprint: 3x3
+facing: no
+shadow: no
+blocks_light: no
+---
+# Outer circle
+circle 1.5,1.5 1.35 stroke #8b0000
+# Inner circle
+circle 1.5,1.5 1.05 stroke #8b0000
+# Inverted pentagram
+line 1.5,2.8 0.45,0.55
+line 1.5,2.8 2.55,0.55
+line 0.45,0.55 2.35,2.15
+line 2.55,0.55 0.65,2.15
+line 2.35,2.15 0.65,2.15
+# Blood-red candle marks at vertices
+circle 1.5,2.8 0.08 fill #8b0000 0.6
+circle 0.45,0.55 0.08 fill #8b0000 0.6
+circle 2.55,0.55 0.08 fill #8b0000 0.6
+circle 2.35,2.15 0.08 fill #8b0000 0.6
+circle 0.65,2.15 0.08 fill #8b0000 0.6
+# Center dark energy
+circle 1.5,1.5 0.25 fill #1a0000 0.3
+circle 1.5,1.5 0.12 fill #4a0000 0.4

@@ -1,0 +1,13 @@
+{
+  "displayName": "Damaged Plaster",
+  "category": "Wall",
+  "subcategory": "Brick",
+  "file": "polyhaven/damaged_plaster_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/damaged_plaster_disp_1k.png",
+    "nor": "polyhaven/damaged_plaster_nor_gl_1k.png",
+    "arm": "polyhaven/damaged_plaster_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

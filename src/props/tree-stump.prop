@@ -1,0 +1,18 @@
+name: Tree Stump
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Outer bark ring
+circle 0.5,0.5 0.38 texfill polyhaven/bark_brown_02 0.85
+circle 0.5,0.5 0.38 stroke #3a1f00
+# Inner wood surface
+circle 0.5,0.5 0.3 fill #c4a060 0.5
+# Growth rings
+circle 0.5,0.5 0.25 stroke #b09050
+circle 0.5,0.5 0.18 stroke #b09050
+circle 0.5,0.5 0.1 stroke #b09050
+# Center heartwood
+circle 0.5,0.5 0.04 fill #8b6914 0.6

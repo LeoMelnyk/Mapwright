@@ -1,0 +1,13 @@
+{
+  "displayName": "Brown Planks 09",
+  "category": "Wood",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/brown_planks_09_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brown_planks_09_disp_1k.png",
+    "nor": "polyhaven/brown_planks_09_nor_gl_1k.png",
+    "arm": "polyhaven/brown_planks_09_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

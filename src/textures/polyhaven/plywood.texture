@@ -1,0 +1,13 @@
+{
+  "displayName": "Plywood",
+  "category": "Wood",
+  "subcategory": "Clean",
+  "file": "polyhaven/plywood_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/plywood_disp_1k.png",
+    "nor": "polyhaven/plywood_nor_gl_1k.png",
+    "arm": "polyhaven/plywood_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

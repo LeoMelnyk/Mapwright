@@ -1,0 +1,13 @@
+{
+  "displayName": "Terrain Red 01",
+  "category": "Terrain",
+  "subcategory": "Natural",
+  "file": "polyhaven/terrain_red_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/terrain_red_01_disp_1k.png",
+    "nor": "polyhaven/terrain_red_01_nor_gl_1k.png",
+    "arm": "polyhaven/terrain_red_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

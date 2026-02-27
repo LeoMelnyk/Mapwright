@@ -1,0 +1,13 @@
+{
+  "displayName": "Scuffed Cement",
+  "category": "Man Made",
+  "subcategory": "Floor",
+  "file": "polyhaven/scuffed_cement_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/scuffed_cement_disp_1k.png",
+    "nor": "polyhaven/scuffed_cement_nor_gl_1k.png",
+    "arm": "polyhaven/scuffed_cement_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

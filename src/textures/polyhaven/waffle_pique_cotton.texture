@@ -1,0 +1,13 @@
+{
+  "displayName": "Waffle Pique Cotton",
+  "category": "Fabric",
+  "subcategory": "Cotton",
+  "file": "polyhaven/waffle_pique_cotton_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/waffle_pique_cotton_disp_1k.png",
+    "nor": "polyhaven/waffle_pique_cotton_nor_gl_1k.png",
+    "arm": "polyhaven/waffle_pique_cotton_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

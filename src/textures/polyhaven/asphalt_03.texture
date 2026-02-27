@@ -1,0 +1,13 @@
+{
+  "displayName": "Asphalt 03",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/asphalt_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/asphalt_03_disp_1k.png",
+    "nor": "polyhaven/asphalt_03_nor_gl_1k.png",
+    "arm": "polyhaven/asphalt_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

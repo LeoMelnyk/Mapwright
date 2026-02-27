@@ -1,0 +1,13 @@
+{
+  "displayName": "Slate Floor",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/slate_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/slate_floor_disp_1k.png",
+    "nor": "polyhaven/slate_floor_nor_gl_1k.png",
+    "arm": "polyhaven/slate_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

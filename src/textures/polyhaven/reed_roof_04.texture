@@ -1,0 +1,13 @@
+{
+  "displayName": "Reed Roof 04",
+  "category": "Roofing",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/reed_roof_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/reed_roof_04_disp_1k.png",
+    "nor": "polyhaven/reed_roof_04_nor_gl_1k.png",
+    "arm": "polyhaven/reed_roof_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

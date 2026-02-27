@@ -1,0 +1,13 @@
+{
+  "displayName": "Excavated Soil Wall",
+  "category": "Outdoor",
+  "subcategory": "Wall",
+  "file": "polyhaven/excavated_soil_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/excavated_soil_wall_disp_1k.png",
+    "nor": "polyhaven/excavated_soil_wall_nor_gl_1k.png",
+    "arm": "polyhaven/excavated_soil_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

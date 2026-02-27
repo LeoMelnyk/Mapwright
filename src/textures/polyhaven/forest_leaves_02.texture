@@ -1,0 +1,13 @@
+{
+  "displayName": "Forest Leaves 02",
+  "category": "Outdoor",
+  "subcategory": "Terrain",
+  "file": "polyhaven/forest_leaves_02_diffuse_1k.png",
+  "maps": {
+    "disp": "polyhaven/forest_leaves_02_disp_1k.png",
+    "nor": "polyhaven/forest_leaves_02_nor_gl_1k.png",
+    "arm": "polyhaven/forest_leaves_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

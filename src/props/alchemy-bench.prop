@@ -1,0 +1,33 @@
+name: Alchemy Bench
+category: Alchemy
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Work surface
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/wood_table 0.80
+rect 0.10,0.10 1.80,1.80 stroke #3a1f00
+rect 0.20,0.20 1.60,1.60 stroke #5c3a1e 0.40
+# Table legs
+circle 0.20,0.20 0.08 fill #3a1f00 0.60
+circle 1.80,0.20 0.08 fill #3a1f00 0.60
+circle 0.20,1.80 0.08 fill #3a1f00 0.60
+circle 1.80,1.80 0.08 fill #3a1f00 0.60
+# Alembic flask (back right)
+circle 1.55,0.44 0.18 fill #8899bb 0.45
+circle 1.55,0.44 0.18 stroke #445577
+circle 1.55,0.44 0.10 fill #aabbdd 0.25
+# Small vials cluster (left)
+circle 0.40,0.40 0.09 fill #4466aa 0.80
+circle 0.40,0.40 0.09 stroke #223355
+circle 0.58,0.36 0.07 fill #44aa66 0.80
+circle 0.56,0.52 0.07 fill #aa4444 0.80
+# Mortar bowl (center)
+circle 1.00,1.12 0.16 fill #ccccbb 0.70
+circle 1.00,1.12 0.16 stroke #666666
+circle 1.00,1.12 0.08 fill #bbaa99 0.60
+# Open book/notes (south)
+rect 1.30,1.36 0.52,0.40 texfill polyhaven/rough_linen 0.70
+rect 1.30,1.36 0.52,0.40 stroke #3a1f00
+line 1.56,1.36 1.56,1.76 stroke #3a1f00 0.40

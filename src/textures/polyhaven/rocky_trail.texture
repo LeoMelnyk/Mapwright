@@ -1,0 +1,13 @@
+{
+  "displayName": "Rocky Trail",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/rocky_trail_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rocky_trail_disp_1k.png",
+    "nor": "polyhaven/rocky_trail_nor_gl_1k.png",
+    "arm": "polyhaven/rocky_trail_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,12 @@
+name: Boulder
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+---
+# Main rock body
+poly 0.5,0.08 0.82,0.2 0.92,0.55 0.75,0.88 0.35,0.92 0.1,0.65 0.12,0.3 texfill polyhaven/rock_boulder_cracked 0.85
+poly 0.5,0.08 0.82,0.2 0.92,0.55 0.75,0.88 0.35,0.92 0.1,0.65 0.12,0.3 stroke #555555
+# Highlight facet
+poly 0.5,0.15 0.78,0.28 0.72,0.45 0.45,0.5 0.25,0.38 fill #888888 0.2

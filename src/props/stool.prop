@@ -1,0 +1,12 @@
+name: Stool
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Round seat
+circle 0.5,0.5 0.3 texfill polyhaven/wood_table 0.85
+circle 0.5,0.5 0.3 stroke #5c3a1e
+# Center detail
+circle 0.5,0.5 0.05 fill #3a1f00 0.4

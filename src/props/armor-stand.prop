@@ -1,0 +1,19 @@
+name: Armor Stand
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Base
+circle 0.5,0.7 0.2 texfill polyhaven/dark_wood 0.7
+circle 0.5,0.7 0.2 stroke #3a1f00
+# Torso armor shape
+ellipse 0.5,0.4 0.22,0.28 texfill polyhaven/rusty_metal 0.85
+ellipse 0.5,0.4 0.22,0.28 stroke #555555
+# Head/helmet
+circle 0.5,0.18 0.1 texfill polyhaven/rusty_metal 0.8
+circle 0.5,0.18 0.1 stroke #555555
+# Shoulder plates
+ellipse 0.25,0.3 0.08,0.06 fill #888888 0.6
+ellipse 0.75,0.3 0.08,0.06 fill #888888 0.6

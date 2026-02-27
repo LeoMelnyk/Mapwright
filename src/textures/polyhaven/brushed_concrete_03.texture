@@ -1,0 +1,13 @@
+{
+  "displayName": "Brushed Concrete 03",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/brushed_concrete_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brushed_concrete_03_disp_1k.png",
+    "nor": "polyhaven/brushed_concrete_03_nor_gl_1k.png",
+    "arm": "polyhaven/brushed_concrete_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

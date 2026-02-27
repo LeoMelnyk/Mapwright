@@ -1,0 +1,13 @@
+{
+  "displayName": "Curly Teddy Checkered",
+  "category": "Fabric",
+  "subcategory": "Fur",
+  "file": "polyhaven/curly_teddy_checkered_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/curly_teddy_checkered_disp_1k.png",
+    "nor": "polyhaven/curly_teddy_checkered_nor_gl_1k.png",
+    "arm": "polyhaven/curly_teddy_checkered_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

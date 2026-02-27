@@ -1,0 +1,27 @@
+name: Zombie Pit
+category: Undead & Dark
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Pit opening (dark void)
+circle 0.50,0.50 0.40 fill #111111 0.90
+circle 0.50,0.50 0.40 stroke #333333
+# Inner depth
+circle 0.50,0.50 0.30 fill #000000 0.80
+# Clawing hands reaching up (west side)
+line 0.26,0.40 0.20,0.28 stroke #d4a574
+line 0.26,0.40 0.24,0.26 stroke #d4a574
+line 0.26,0.40 0.28,0.27 stroke #d4a574
+# Clawing hands (east side)
+line 0.74,0.58 0.80,0.70 stroke #d4a574
+line 0.74,0.58 0.76,0.72 stroke #d4a574
+line 0.74,0.58 0.72,0.73 stroke #d4a574
+# Rotting patches on rim
+circle 0.36,0.22 0.06 fill #334422 0.50
+circle 0.68,0.28 0.05 fill #334422 0.40
+circle 0.22,0.62 0.06 fill #334422 0.50
+circle 0.72,0.78 0.05 fill #334422 0.40
+# Pit rim rough edge
+circle 0.50,0.50 0.42 stroke #222222 0.50

@@ -1,0 +1,13 @@
+{
+  "displayName": "Rust Coarse 01",
+  "category": "Metal",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/rust_coarse_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rust_coarse_01_disp_1k.png",
+    "nor": "polyhaven/rust_coarse_01_nor_gl_1k.png",
+    "arm": "polyhaven/rust_coarse_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

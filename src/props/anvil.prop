@@ -1,0 +1,46 @@
+name: Anvil
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Base/waist (narrow support column from above)
+rect 0.32,0.30 0.36,0.40 texfill polyhaven/metal_plate 0.7
+rect 0.32,0.30 0.36,0.40 stroke #333333
+
+# Main anvil face (wide top surface)
+rect 0.15,0.32 0.70,0.30 texfill polyhaven/metal_plate 0.85
+rect 0.15,0.32 0.70,0.30 stroke #2a2a2a
+
+# Face surface highlight
+rect 0.18,0.35 0.64,0.24 fill #8899aa 0.2
+
+# Hardy hole (square tool hole)
+rect 0.55,0.42 0.08,0.08 fill #111111 0.9
+
+# Pritchel hole (round punch hole)
+circle 0.68,0.46 0.03 fill #111111 0.9
+
+# Horn (pointed end facing south - toward high Y)
+poly 0.35,0.62 0.65,0.62 0.50,0.88 texfill polyhaven/metal_plate 0.8
+poly 0.35,0.62 0.65,0.62 0.50,0.88 stroke #2a2a2a
+# Horn highlight
+poly 0.42,0.64 0.58,0.64 0.50,0.82 fill #8899aa 0.15
+
+# Heel (flat back end - north side)
+rect 0.22,0.22 0.56,0.12 texfill polyhaven/metal_plate 0.8
+rect 0.22,0.22 0.56,0.12 stroke #2a2a2a
+
+# Heel step (small step down at back)
+rect 0.25,0.18 0.20,0.06 fill #555555 0.5
+rect 0.25,0.18 0.20,0.06 stroke #333333
+
+# Edge wear marks
+line 0.18,0.35 0.82,0.35 stroke #667788
+line 0.18,0.59 0.82,0.59 stroke #667788
+
+# Top face scoring (hammer marks)
+line 0.30,0.40 0.35,0.44 stroke #8899aa
+line 0.42,0.38 0.48,0.42 stroke #8899aa
+line 0.38,0.50 0.44,0.54 stroke #8899aa

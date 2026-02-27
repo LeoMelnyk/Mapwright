@@ -1,0 +1,33 @@
+name: Fish Drying Rack
+category: Nautical
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Top horizontal bar (wall side, north)
+rect 0.04,0.04 1.92,0.09 texfill polyhaven/dark_wood 0.85
+rect 0.04,0.04 1.92,0.09 stroke #3a1f00
+# Lower horizontal bar
+rect 0.04,0.56 1.92,0.09 texfill polyhaven/dark_wood 0.85
+rect 0.04,0.56 1.92,0.09 stroke #3a1f00
+# Left vertical post
+rect 0.04,0.04 0.07,0.61 texfill polyhaven/dark_wood 0.85
+rect 0.04,0.04 0.07,0.61 stroke #3a1f00
+# Right vertical post
+rect 1.89,0.04 0.07,0.61 texfill polyhaven/dark_wood 0.85
+rect 1.89,0.04 0.07,0.61 stroke #3a1f00
+# Hanging strings
+line 0.38,0.09 0.38,0.28 stroke #8b7355
+line 0.72,0.09 0.72,0.28 stroke #8b7355
+line 1.1,0.09 1.1,0.28 stroke #8b7355
+line 1.46,0.09 1.46,0.28 stroke #8b7355
+# Fish bodies (top-down view — oval silhouette of each hanging fish)
+ellipse 0.38,0.35 0.13,0.07 fill #c4a060 0.75
+ellipse 0.38,0.35 0.13,0.07 stroke #8b6914
+ellipse 0.72,0.35 0.13,0.07 fill #c4a060 0.75
+ellipse 0.72,0.35 0.13,0.07 stroke #8b6914
+ellipse 1.1,0.35 0.13,0.07 fill #c4a060 0.75
+ellipse 1.1,0.35 0.13,0.07 stroke #8b6914
+ellipse 1.46,0.35 0.13,0.07 fill #c4a060 0.75
+ellipse 1.46,0.35 0.13,0.07 stroke #8b6914

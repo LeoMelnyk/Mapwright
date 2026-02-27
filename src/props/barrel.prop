@@ -1,0 +1,20 @@
+name: Barrel
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Wooden barrel top
+circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.38 stroke #3a1f00
+# Outer metal band
+circle 0.5,0.5 0.36 stroke #666666
+# Inner metal band
+circle 0.5,0.5 0.22 stroke #666666
+# Plank seam lines
+line 0.22,0.2 0.22,0.8
+line 0.78,0.2 0.78,0.8
+line 0.5,0.12 0.5,0.88
+# Center bung hole
+circle 0.5,0.5 0.04 fill #1a0a00 0.8

@@ -1,0 +1,13 @@
+{
+  "displayName": "Pebble Embedded Concrete 02",
+  "category": "Floor",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/pebble_embedded_concrete_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/pebble_embedded_concrete_02_disp_1k.png",
+    "nor": "polyhaven/pebble_embedded_concrete_02_nor_gl_1k.png",
+    "arm": "polyhaven/pebble_embedded_concrete_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

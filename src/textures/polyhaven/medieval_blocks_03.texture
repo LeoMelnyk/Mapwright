@@ -1,0 +1,13 @@
+{
+  "displayName": "Medieval Blocks 03",
+  "category": "Wall",
+  "subcategory": "Brick",
+  "file": "polyhaven/medieval_blocks_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/medieval_blocks_03_disp_1k.png",
+    "nor": "polyhaven/medieval_blocks_03_nor_gl_1k.png",
+    "arm": "polyhaven/medieval_blocks_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

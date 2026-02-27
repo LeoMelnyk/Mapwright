@@ -1,0 +1,18 @@
+name: Obelisk
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+---
+# Base pedestal
+rect 0.22,0.22 0.56,0.56 texfill polyhaven/granite_tile 0.75
+rect 0.22,0.22 0.56,0.56 stroke #666666
+# Obelisk shaft
+rect 0.3,0.3 0.4,0.4 texfill polyhaven/stone_wall 0.85
+rect 0.3,0.3 0.4,0.4 stroke #777777
+# Pyramidion facets
+poly 0.42,0.42 0.58,0.42 0.5,0.5 fill #999999 0.3
+poly 0.42,0.58 0.58,0.58 0.5,0.5 fill #888888 0.3
+# Rune carving
+circle 0.5,0.5 0.04 fill #333333 0.5

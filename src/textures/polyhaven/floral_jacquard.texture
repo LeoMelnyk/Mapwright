@@ -1,0 +1,13 @@
+{
+  "displayName": "Floral Jacquard",
+  "category": "Fabric",
+  "subcategory": "Jacquard",
+  "file": "polyhaven/floral_jacquard_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/floral_jacquard_disp_1k.png",
+    "nor": "polyhaven/floral_jacquard_nor_gl_1k.png",
+    "arm": "polyhaven/floral_jacquard_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

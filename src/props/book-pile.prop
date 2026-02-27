@@ -1,0 +1,22 @@
+name: Book Pile
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Bottom book (widest)
+rect 0.10,0.58 0.76,0.28 texfill polyhaven/brown_leather 0.80
+rect 0.10,0.58 0.76,0.28 stroke #3a1f00
+line 0.10,0.68 0.86,0.68 stroke #5c3a1e 0.50
+# Middle book (slightly offset)
+rect 0.14,0.36 0.68,0.26 texfill polyhaven/dark_wood 0.70
+rect 0.14,0.36 0.68,0.26 stroke #3a1f00
+line 0.14,0.46 0.82,0.46 stroke #3a1f00 0.50
+# Top book (smallest)
+rect 0.18,0.18 0.60,0.22 fill #334477 0.75
+rect 0.18,0.18 0.60,0.22 stroke #222244
+line 0.18,0.26 0.78,0.26 stroke #446699 0.40
+# Bookmark ribbons
+line 0.72,0.18 0.74,0.10 stroke #cc4444 0.70
+line 0.44,0.36 0.46,0.28 stroke #daa520 0.70

@@ -1,0 +1,13 @@
+{
+  "displayName": "Mud Cracked Dry 03",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/mud_cracked_dry_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/mud_cracked_dry_03_disp_1k.png",
+    "nor": "polyhaven/mud_cracked_dry_03_nor_gl_1k.png",
+    "arm": "polyhaven/mud_cracked_dry_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

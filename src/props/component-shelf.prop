@@ -1,0 +1,33 @@
+name: Component Shelf
+category: Magical
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Shelf board (north wall)
+rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.80
+rect 0.06,0.04 1.88,0.12 stroke #3a1f00
+# Shadow
+rect 0.06,0.16 1.88,0.05 fill #000000 0.12
+# Magical component vials (glowing colors)
+circle 0.20,0.52 0.10 fill #8866cc 0.80
+circle 0.20,0.52 0.10 stroke #6644aa
+circle 0.20,0.52 0.05 fill #ddbbff 0.50
+circle 0.48,0.52 0.10 fill #44aacc 0.80
+circle 0.48,0.52 0.10 stroke #226688
+circle 0.48,0.52 0.05 fill #aaeeff 0.50
+circle 0.76,0.52 0.10 fill #cc8822 0.80
+circle 0.76,0.52 0.10 stroke #885500
+circle 1.04,0.52 0.10 fill #22aa44 0.80
+circle 1.04,0.52 0.10 stroke #116622
+circle 1.04,0.52 0.05 fill #aaffbb 0.50
+circle 1.32,0.52 0.10 fill #cc2244 0.80
+circle 1.32,0.52 0.10 stroke #880022
+circle 1.60,0.52 0.09 fill #dddd22 0.80
+circle 1.60,0.52 0.09 stroke #888800
+circle 1.84,0.52 0.08 fill #8866cc 0.70
+# Glowing stoppers
+circle 0.20,0.42 0.05 fill #ccaaff 0.60
+circle 0.48,0.42 0.05 fill #aaeeff 0.60
+circle 1.04,0.42 0.05 fill #aaffbb 0.60

@@ -1,0 +1,22 @@
+name: Ward Stone
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+---
+# Stone body (rectangular cross-section)
+rect 0.22,0.16 0.56,0.68 texfill polyhaven/stone_wall 0.80
+rect 0.22,0.16 0.56,0.68 stroke #444444
+# Stone inner texture
+rect 0.28,0.22 0.44,0.56 texfill polyhaven/granite_tile 0.60
+# Rune glyphs carved in
+line 0.34,0.30 0.66,0.30 stroke #8866cc 0.70
+line 0.34,0.42 0.66,0.42 stroke #8866cc 0.60
+line 0.34,0.54 0.66,0.54 stroke #8866cc 0.70
+line 0.50,0.28 0.50,0.58 stroke #8866cc 0.50
+# Ward glow aura
+circle 0.50,0.50 0.44 fill #8866cc 0.08
+circle 0.50,0.50 0.38 stroke #6644aa 0.30
+# Stone top bevel
+rect 0.22,0.16 0.56,0.06 fill #888888 0.50

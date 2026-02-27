@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Wall 03",
+  "category": "Outdoor",
+  "subcategory": "Wall",
+  "file": "polyhaven/rock_wall_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_wall_03_disp_1k.png",
+    "nor": "polyhaven/rock_wall_03_nor_gl_1k.png",
+    "arm": "polyhaven/rock_wall_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

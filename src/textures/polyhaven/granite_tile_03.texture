@@ -1,0 +1,13 @@
+{
+  "displayName": "Granite Tile 03",
+  "category": "Wall",
+  "subcategory": "Tiles",
+  "file": "polyhaven/granite_tile_03_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/granite_tile_03_disp_1k.png",
+    "nor": "polyhaven/granite_tile_03_nor_gl_1k.png",
+    "arm": "polyhaven/granite_tile_03_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

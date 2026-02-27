@@ -1,0 +1,10 @@
+{
+  "displayName": "Infernal Flame",
+  "category": "Magical",
+  "description": "Hellfire that burns with a deep, angry red — unnaturally hot",
+  "type": "point",
+  "color": "#ff2200",
+  "radius": 25,
+  "intensity": 1.3,
+  "falloff": "smooth"
+}

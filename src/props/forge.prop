@@ -1,0 +1,56 @@
+name: Forge
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+---
+# Outer forge body (brick structure)
+rect 0.10,0.10 1.80,1.60 texfill polyhaven/brick_4 0.8
+rect 0.10,0.10 1.80,1.60 stroke #3a2a1a
+
+# Inner lip/rim of forge walls
+rect 0.20,0.20 1.60,1.40 stroke #555555
+
+# Fire pit basin (dark interior)
+rect 0.30,0.30 1.40,1.10 fill #1a1008 0.9
+
+# Coal bed
+ellipse 1.00,0.85 0.55,0.40 fill #222222 0.9
+# Scattered coals
+circle 0.65,0.72 0.06 fill #333333 0.8
+circle 0.85,0.90 0.07 fill #2a2a2a 0.8
+circle 1.15,0.78 0.05 fill #333333 0.7
+circle 1.30,0.95 0.06 fill #2a2a2a 0.8
+circle 0.78,1.05 0.05 fill #333333 0.7
+circle 1.10,1.10 0.06 fill #2a2a2a 0.8
+
+# Deep ember glow
+ellipse 1.00,0.85 0.45,0.32 fill #cc3300 0.25
+ellipse 1.00,0.85 0.30,0.22 fill #e85500 0.3
+ellipse 1.00,0.85 0.18,0.14 fill #ff7700 0.35
+ellipse 1.00,0.85 0.08,0.06 fill #ffaa00 0.5
+
+# Chimney hood (stone canopy overhead, shown as shadow)
+rect 0.30,0.15 1.40,0.90 fill #444444 0.2
+rect 0.30,0.15 1.40,0.90 stroke #555555
+
+# South opening (mouth of the forge)
+rect 0.40,1.40 1.20,0.30 fill #1a1008 0.7
+rect 0.40,1.40 1.20,0.30 stroke #3a2a1a
+
+# Fire glow spilling from opening
+ellipse 1.00,1.55 0.35,0.12 fill #e85500 0.15
+ellipse 1.00,1.50 0.25,0.08 fill #ff7700 0.2
+
+# Coal storage bin (left side)
+rect 0.12,1.20 0.20,0.45 fill #222222 0.6
+rect 0.12,1.20 0.20,0.45 stroke #444444
+# Coals in bin
+circle 0.18,1.32 0.03 fill #111111 0.8
+circle 0.25,1.38 0.03 fill #1a1a1a 0.8
+circle 0.20,1.45 0.03 fill #111111 0.8
+
+# Tongs resting on right edge
+line 1.70,0.50 1.85,1.30 stroke #666666
+line 1.72,0.52 1.87,1.28 stroke #555555

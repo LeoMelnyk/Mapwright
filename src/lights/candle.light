@@ -1,0 +1,10 @@
+{
+  "displayName": "Candle",
+  "category": "Fire & Flame",
+  "description": "A single flickering candle, casting a small pool of warm light",
+  "type": "point",
+  "color": "#ff9944",
+  "radius": 10,
+  "intensity": 0.5,
+  "falloff": "smooth"
+}

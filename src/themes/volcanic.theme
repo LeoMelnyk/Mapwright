@@ -1,0 +1,40 @@
+{
+  "displayName": "Volcanic",
+  "background": "#281c10",
+  "gridLine": "#000000",
+  "wallStroke": "#ff5500",
+  "wallFill": "#382818",
+  "textColor": "#ff8840",
+  "borderColor": "#884400",
+  "doorFill": "#281c10",
+  "doorStroke": "#ff5500",
+  "trapColor": "#ff0000",
+  "secretDoorColor": "#ff5500",
+  "compassRoseFill": "#ff6822",
+  "compassRoseStroke": "#cc3300",
+  "wallRoughness": 1.6,
+  "wallShadow": {
+    "color": "rgba(255,85,0,0.25)",
+    "blur": 12,
+    "offsetX": 5,
+    "offsetY": 6
+  },
+  "hatchColor": "#ff5500",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.08,
+  "bufferShadingOpacity": 0.28,
+  "outerShading": {
+    "color": "#241408",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#a53c14",
+  "waterMediumColor": "#78230a",
+  "waterDeepColor": "#4b0f05",
+  "waterCausticColor": "rgba(255,160,60,0.55)",
+  "lavaShallowColor": "#ff6622",
+  "lavaMediumColor": "#cc3300",
+  "lavaDeepColor": "#881100",
+  "lavaCausticColor": "rgba(255,200,80,0.65)"
+}

@@ -1,0 +1,10 @@
+{
+  "displayName": "Eldritch Glow",
+  "category": "Magical",
+  "description": "An unsettling green luminescence from beyond the veil",
+  "type": "point",
+  "color": "#44ff88",
+  "radius": 15,
+  "intensity": 0.8,
+  "falloff": "quadratic"
+}

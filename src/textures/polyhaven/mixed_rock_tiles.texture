@@ -1,0 +1,13 @@
+{
+  "displayName": "Mixed Rock Tiles",
+  "category": "Floor",
+  "subcategory": "Rock",
+  "file": "polyhaven/mixed_rock_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/mixed_rock_tiles_disp_1k.png",
+    "nor": "polyhaven/mixed_rock_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/mixed_rock_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

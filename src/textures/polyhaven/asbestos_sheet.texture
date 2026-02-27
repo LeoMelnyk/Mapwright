@@ -1,0 +1,13 @@
+{
+  "displayName": "Asbestos Sheet",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/asbestos_sheet_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/asbestos_sheet_disp_1k.png",
+    "nor": "polyhaven/asbestos_sheet_nor_gl_1k.png",
+    "arm": "polyhaven/asbestos_sheet_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,10 @@
+{
+  "displayName": "Bright",
+  "category": "Utility",
+  "description": "A strong, bright light source for well-lit areas",
+  "type": "point",
+  "color": "#ffffff",
+  "radius": 30,
+  "intensity": 1.5,
+  "falloff": "smooth"
+}

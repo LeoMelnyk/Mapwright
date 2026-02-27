@@ -1,0 +1,40 @@
+{
+  "displayName": "Crypt",
+  "background": "#d4c8a8",
+  "gridLine": "#000000",
+  "wallStroke": "#1c1408",
+  "wallFill": "#ece4cc",
+  "textColor": "#1c1408",
+  "borderColor": "#604020",
+  "doorFill": "#ece4cc",
+  "doorStroke": "#1c1408",
+  "trapColor": "#a82020",
+  "secretDoorColor": "#1c1408",
+  "compassRoseFill": "#1c1408",
+  "compassRoseStroke": "#1c1408",
+  "wallRoughness": 1.4,
+  "wallShadow": {
+    "color": "rgba(28,20,8,0.30)",
+    "blur": 8,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#1c1408",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.26,
+  "bufferShadingOpacity": 0.16,
+  "outerShading": {
+    "color": "#a89870",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#375a69",
+  "waterMediumColor": "#233c4e",
+  "waterDeepColor": "#122334",
+  "waterCausticColor": "rgba(120,170,190,0.40)",
+  "lavaShallowColor": "#a04010",
+  "lavaMediumColor": "#702808",
+  "lavaDeepColor": "#441404",
+  "lavaCausticColor": "rgba(220,130,40,0.45)"
+}

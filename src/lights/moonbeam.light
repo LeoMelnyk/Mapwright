@@ -1,0 +1,11 @@
+{
+  "displayName": "Moonbeam",
+  "category": "Magical",
+  "description": "A silvery beam of pale moonlight shining down from above",
+  "type": "directional",
+  "color": "#ccddff",
+  "radius": 15,
+  "intensity": 1.0,
+  "falloff": "linear",
+  "spread": 30
+}

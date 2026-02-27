@@ -1,0 +1,13 @@
+{
+  "displayName": "Patterned Concrete Pavers 02",
+  "category": "Man Made",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/patterned_concrete_pavers_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/patterned_concrete_pavers_02_disp_1k.png",
+    "nor": "polyhaven/patterned_concrete_pavers_02_nor_gl_1k.png",
+    "arm": "polyhaven/patterned_concrete_pavers_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

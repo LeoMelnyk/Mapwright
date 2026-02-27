@@ -1,0 +1,13 @@
+{
+  "displayName": "Grass Path 3",
+  "category": "Terrain",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/grass_path_3_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/grass_path_3_disp_1k.png",
+    "nor": "polyhaven/grass_path_3_nor_gl_1k.png",
+    "arm": "polyhaven/grass_path_3_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

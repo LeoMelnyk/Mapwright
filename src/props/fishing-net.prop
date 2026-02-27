@@ -1,0 +1,26 @@
+name: Fishing Net
+category: Nautical
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+---
+# Net mesh (diagonal lines)
+line 0.1,0.1 0.9,0.9
+line 0.55,0.1 1.35,0.9
+line 1.0,0.1 1.8,0.9
+line 0.9,0.1 0.1,0.9
+line 1.35,0.1 0.55,0.9
+line 1.8,0.1 1.0,0.9
+# Horizontal mesh line
+line 0.1,0.5 1.9,0.5
+# Cork floats
+circle 0.1,0.1 0.04 fill #c4a060 0.8
+circle 0.55,0.1 0.04 fill #c4a060 0.8
+circle 1.0,0.1 0.04 fill #c4a060 0.8
+circle 1.45,0.1 0.04 fill #c4a060 0.8
+circle 1.9,0.1 0.04 fill #c4a060 0.8
+# Knot points
+circle 0.5,0.5 0.03 fill #8b6914 0.6
+circle 1.0,0.5 0.03 fill #8b6914 0.6
+circle 1.5,0.5 0.03 fill #8b6914 0.6

@@ -1,0 +1,13 @@
+{
+  "displayName": "Grass Path 2",
+  "category": "Terrain",
+  "subcategory": "Natural",
+  "file": "polyhaven/grass_path_2_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/grass_path_2_disp_1k.png",
+    "nor": "polyhaven/grass_path_2_nor_gl_1k.png",
+    "arm": "polyhaven/grass_path_2_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

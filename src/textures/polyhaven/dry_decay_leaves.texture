@@ -1,0 +1,13 @@
+{
+  "displayName": "Dry Decay Leaves",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/dry_decay_leaves_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/dry_decay_leaves_disp_1k.png",
+    "nor": "polyhaven/dry_decay_leaves_nor_gl_1k.png",
+    "arm": "polyhaven/dry_decay_leaves_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

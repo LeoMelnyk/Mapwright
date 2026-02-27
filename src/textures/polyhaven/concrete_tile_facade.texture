@@ -1,0 +1,13 @@
+{
+  "displayName": "Concrete Tile Facade",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/concrete_tile_facade_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/concrete_tile_facade_disp_1k.png",
+    "nor": "polyhaven/concrete_tile_facade_nor_gl_1k.png",
+    "arm": "polyhaven/concrete_tile_facade_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

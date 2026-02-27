@@ -1,0 +1,13 @@
+{
+  "displayName": "White Bricks",
+  "category": "Brick",
+  "subcategory": "Wall",
+  "file": "polyhaven/white_bricks_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/white_bricks_disp_1k.png",
+    "nor": "polyhaven/white_bricks_nor_gl_1k.png",
+    "arm": "polyhaven/white_bricks_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,10 @@
+{
+  "displayName": "Torch",
+  "category": "Fire & Flame",
+  "description": "A standard wall torch with warm, dancing firelight",
+  "type": "point",
+  "color": "#ff8833",
+  "radius": 20,
+  "intensity": 1.0,
+  "falloff": "smooth"
+}

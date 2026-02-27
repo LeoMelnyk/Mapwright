@@ -1,0 +1,31 @@
+name: Wood Pile
+category: Kitchen
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Log cross-sections (top-down view of stacked logs)
+# Bottom layer
+ellipse 0.3,0.6 0.18,0.25 texfill polyhaven/bark_brown_02 0.85
+ellipse 0.3,0.6 0.18,0.25 stroke #3a1f00
+circle 0.3,0.6 0.1 fill #c4a060 0.5
+ellipse 0.75,0.55 0.2,0.28 texfill polyhaven/bark_brown_02 0.8
+ellipse 0.75,0.55 0.2,0.28 stroke #3a1f00
+circle 0.75,0.55 0.12 fill #c4a060 0.5
+ellipse 1.25,0.6 0.18,0.25 texfill polyhaven/bark_brown_02 0.82
+ellipse 1.25,0.6 0.18,0.25 stroke #3a1f00
+circle 1.25,0.6 0.1 fill #c4a060 0.5
+ellipse 1.7,0.55 0.2,0.28 texfill polyhaven/bark_brown_02 0.85
+ellipse 1.7,0.55 0.2,0.28 stroke #3a1f00
+circle 1.7,0.55 0.12 fill #c4a060 0.5
+# Top layer (slightly offset)
+ellipse 0.5,0.35 0.17,0.22 texfill polyhaven/bark_brown_01 0.88
+ellipse 0.5,0.35 0.17,0.22 stroke #3a1f00
+circle 0.5,0.35 0.09 fill #d4b070 0.5
+ellipse 1.0,0.38 0.18,0.24 texfill polyhaven/bark_brown_01 0.85
+ellipse 1.0,0.38 0.18,0.24 stroke #3a1f00
+circle 1.0,0.38 0.1 fill #d4b070 0.5
+ellipse 1.5,0.35 0.17,0.22 texfill polyhaven/bark_brown_01 0.88
+ellipse 1.5,0.35 0.17,0.22 stroke #3a1f00
+circle 1.5,0.35 0.09 fill #d4b070 0.5

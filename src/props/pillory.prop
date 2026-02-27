@@ -1,0 +1,58 @@
+name: Pillory
+category: Prison
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Left support post (west end)
+rect 0.05,0.2 0.2,0.6 texfill polyhaven/dark_wood 0.9
+rect 0.05,0.2 0.2,0.6 stroke #2a1400
+
+# Right support post (east end)
+rect 1.75,0.2 0.2,0.6 texfill polyhaven/dark_wood 0.9
+rect 1.75,0.2 0.2,0.6 stroke #2a1400
+
+# Top board (north half — hinge side)
+rect 0.2,0.28 1.6,0.17 texfill polyhaven/weathered_planks 0.85
+rect 0.2,0.28 1.6,0.17 stroke #4a2800
+
+# Bottom board (south half — latch side)
+rect 0.2,0.55 1.6,0.17 texfill polyhaven/weathered_planks 0.85
+rect 0.2,0.55 1.6,0.17 stroke #4a2800
+
+# Hinge hardware along north edge
+rect 0.5,0.25 0.08,0.05 fill #555555 0.8
+rect 1.4,0.25 0.08,0.05 fill #555555 0.8
+rect 0.95,0.25 0.08,0.05 fill #555555 0.8
+
+# Latch on south edge (center)
+rect 0.95,0.72 0.1,0.06 fill #555555 0.8
+rect 0.95,0.72 0.1,0.06 stroke #333333
+
+# Head hole — large center (semi-circles from each board)
+arc 1.0,0.45 0.12 3.14159 6.28318 stroke #4a2800
+arc 1.0,0.55 0.12 0 3.14159 stroke #4a2800
+circle 1.0,0.5 0.12 fill #1a1a1a 0.35
+
+# Left hand hole (smaller)
+arc 0.55,0.45 0.07 3.14159 6.28318 stroke #4a2800
+arc 0.55,0.55 0.07 0 3.14159 stroke #4a2800
+circle 0.55,0.5 0.07 fill #1a1a1a 0.35
+
+# Right hand hole (smaller)
+arc 1.45,0.45 0.07 3.14159 6.28318 stroke #4a2800
+arc 1.45,0.55 0.07 0 3.14159 stroke #4a2800
+circle 1.45,0.5 0.07 fill #1a1a1a 0.35
+
+# Gap line between boards (the split where they hinge open)
+line 0.2,0.5 0.48,0.5 stroke #1a1a1a
+line 0.62,0.5 0.88,0.5 stroke #1a1a1a
+line 1.12,0.5 1.38,0.5 stroke #1a1a1a
+line 1.52,0.5 1.8,0.5 stroke #1a1a1a
+
+# Wood grain details
+line 0.3,0.35 0.45,0.35 stroke #3a2010
+line 1.55,0.35 1.7,0.35 stroke #3a2010
+line 0.3,0.63 0.45,0.63 stroke #3a2010
+line 1.55,0.63 1.7,0.63 stroke #3a2010

@@ -1,0 +1,13 @@
+{
+  "displayName": "Moon Dusted 02",
+  "category": "Outdoor",
+  "subcategory": "Sand",
+  "file": "polyhaven/moon_dusted_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/moon_dusted_02_disp_1k.png",
+    "nor": "polyhaven/moon_dusted_02_nor_gl_1k.png",
+    "arm": "polyhaven/moon_dusted_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

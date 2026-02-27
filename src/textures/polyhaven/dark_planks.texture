@@ -1,0 +1,13 @@
+{
+  "displayName": "Dark Planks",
+  "category": "Wood",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/dark_planks_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/dark_planks_disp_1k.png",
+    "nor": "polyhaven/dark_planks_nor_gl_1k.png",
+    "arm": "polyhaven/dark_planks_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

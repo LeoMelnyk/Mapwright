@@ -1,0 +1,21 @@
+name: Crate
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Wooden crate body
+rect 0.08,0.08 0.84,0.84 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.08 0.84,0.84 stroke #4a2800
+# Plank seams
+line 0.08,0.37 0.92,0.37
+line 0.08,0.63 0.92,0.63
+# Cross brace
+line 0.08,0.08 0.92,0.92
+line 0.92,0.08 0.08,0.92
+# Nail marks
+circle 0.15,0.15 0.02 fill #555555 0.6
+circle 0.85,0.15 0.02 fill #555555 0.6
+circle 0.15,0.85 0.02 fill #555555 0.6
+circle 0.85,0.85 0.02 fill #555555 0.6

@@ -1,0 +1,13 @@
+{
+  "displayName": "Beige Wall 002",
+  "category": "Man Made",
+  "subcategory": "Wall",
+  "file": "polyhaven/beige_wall_002_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/beige_wall_002_disp_1k.png",
+    "nor": "polyhaven/beige_wall_002_nor_gl_1k.png",
+    "arm": "polyhaven/beige_wall_002_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

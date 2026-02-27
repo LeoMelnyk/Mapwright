@@ -1,0 +1,16 @@
+name: Idol
+category: Religious
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Stone pedestal
+rect 0.25,0.25 0.5,0.5 texfill polyhaven/granite_tile 0.8
+rect 0.25,0.25 0.5,0.5 stroke
+# Idol figure (angular, demonic/divine)
+poly 0.5,0.2 0.65,0.45 0.6,0.7 0.4,0.7 0.35,0.45 texfill polyhaven/stone_floor 0.85
+poly 0.5,0.2 0.65,0.45 0.6,0.7 0.4,0.7 0.35,0.45 stroke
+# Eyes
+circle 0.45,0.38 0.02 fill #ff0000 0.6
+circle 0.55,0.38 0.02 fill #ff0000 0.6

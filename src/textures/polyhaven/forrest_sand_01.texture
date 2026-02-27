@@ -1,0 +1,13 @@
+{
+  "displayName": "Forest Sand 01",
+  "category": "Terrain",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/forrest_sand_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/forrest_sand_01_disp_1k.png",
+    "nor": "polyhaven/forrest_sand_01_nor_gl_1k.png",
+    "arm": "polyhaven/forrest_sand_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Wall Bricks Plaster",
+  "category": "Plaster Concrete",
+  "subcategory": "Brick",
+  "file": "polyhaven/wall_bricks_plaster_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wall_bricks_plaster_disp_1k.png",
+    "nor": "polyhaven/wall_bricks_plaster_nor_gl_1k.png",
+    "arm": "polyhaven/wall_bricks_plaster_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

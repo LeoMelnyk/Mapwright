@@ -1,0 +1,13 @@
+{
+  "displayName": "Rubberized Track",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/rubberized_track_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rubberized_track_disp_1k.png",
+    "nor": "polyhaven/rubberized_track_nor_gl_1k.png",
+    "arm": "polyhaven/rubberized_track_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Interlocking Concrete Pavers",
+  "category": "Floor",
+  "subcategory": "Concrete",
+  "file": "polyhaven/interlocking_concrete_pavers_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/interlocking_concrete_pavers_disp_1k.png",
+    "nor": "polyhaven/interlocking_concrete_pavers_nor_gl_1k.png",
+    "arm": "polyhaven/interlocking_concrete_pavers_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

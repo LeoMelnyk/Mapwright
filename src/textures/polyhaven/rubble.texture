@@ -1,0 +1,13 @@
+{
+  "displayName": "Rubble",
+  "category": "Floor",
+  "subcategory": "Dirty",
+  "file": "polyhaven/rubble_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rubble_disp_1k.png",
+    "nor": "polyhaven/rubble_nor_gl_1k.png",
+    "arm": "polyhaven/rubble_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Wall 12",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/rock_wall_12_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_wall_12_disp_1k.png",
+    "nor": "polyhaven/rock_wall_12_nor_gl_1k.png",
+    "arm": "polyhaven/rock_wall_12_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Granite Tile",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/granite_tile_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/granite_tile_disp_1k.png",
+    "nor": "polyhaven/granite_tile_nor_gl_1k.png",
+    "arm": "polyhaven/granite_tile_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

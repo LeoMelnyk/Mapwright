@@ -1,0 +1,13 @@
+{
+  "displayName": "Rosewood Veneer1",
+  "category": "Natural",
+  "subcategory": "Wood",
+  "file": "polyhaven/rosewood_veneer1_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rosewood_veneer1_disp_1k.png",
+    "nor": "polyhaven/rosewood_veneer1_nor_gl_1k.png",
+    "arm": "polyhaven/rosewood_veneer1_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

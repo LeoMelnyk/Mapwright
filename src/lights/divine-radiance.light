@@ -1,0 +1,10 @@
+{
+  "displayName": "Divine Radiance",
+  "category": "Magical",
+  "description": "A warm golden radiance emanating from a holy source",
+  "type": "point",
+  "color": "#ffffaa",
+  "radius": 30,
+  "intensity": 1.2,
+  "falloff": "smooth"
+}

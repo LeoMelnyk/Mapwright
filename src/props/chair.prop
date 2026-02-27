@@ -1,0 +1,13 @@
+name: Chair
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Backrest
+rect 0.2,0.1 0.6,0.1 texfill polyhaven/wood_table 0.85
+rect 0.2,0.1 0.6,0.1 stroke #5c3a1e
+# Seat
+rect 0.2,0.25 0.6,0.55 texfill polyhaven/wood_table 0.8
+rect 0.2,0.25 0.6,0.55 stroke #5c3a1e

@@ -1,0 +1,13 @@
+{
+  "displayName": "Wool Boucle",
+  "category": "Fabric",
+  "subcategory": "Wool",
+  "file": "polyhaven/wool_boucle_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wool_boucle_disp_1k.png",
+    "nor": "polyhaven/wool_boucle_nor_gl_1k.png",
+    "arm": "polyhaven/wool_boucle_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

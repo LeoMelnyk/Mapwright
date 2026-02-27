@@ -1,0 +1,13 @@
+{
+  "displayName": "Withered Grass",
+  "category": "Natural",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/withered_grass_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/withered_grass_disp_1k.png",
+    "nor": "polyhaven/withered_grass_nor_gl_1k.png",
+    "arm": "polyhaven/withered_grass_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

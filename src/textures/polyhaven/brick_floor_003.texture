@@ -1,0 +1,13 @@
+{
+  "displayName": "Brick Floor 003",
+  "category": "Floor",
+  "subcategory": "Brick",
+  "file": "polyhaven/brick_floor_003_diffuse_1k.png",
+  "maps": {
+    "disp": "polyhaven/brick_floor_003_displacement_1k.png",
+    "nor": "polyhaven/brick_floor_003_nor_gl_1k.png",
+    "arm": "polyhaven/brick_floor_003_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

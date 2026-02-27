@@ -1,0 +1,26 @@
+name: Life Ring
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Ring body (red)
+circle 0.5,0.5 0.42 fill #cc2200 0.9
+circle 0.5,0.5 0.42 stroke #991100
+# White quarter-panel markings (alternating)
+arc 0.5,0.5 0.32 315 45 stroke #ffffff
+arc 0.5,0.5 0.32 135 225 stroke #ffffff
+# Inner hole
+circle 0.5,0.5 0.22 fill #333333 0.45
+circle 0.5,0.5 0.22 stroke #991100
+# Rope attachment loops (four cardinal points)
+circle 0.5,0.08 0.04 fill #8b7355 0.85
+circle 0.5,0.92 0.04 fill #8b7355 0.85
+circle 0.08,0.5 0.04 fill #8b7355 0.85
+circle 0.92,0.5 0.04 fill #8b7355 0.85
+# Safety rope connecting loops across the ring face
+line 0.5,0.08 0.5,0.28 stroke #8b7355
+line 0.5,0.72 0.5,0.92 stroke #8b7355
+line 0.08,0.5 0.28,0.5 stroke #8b7355
+line 0.72,0.5 0.92,0.5 stroke #8b7355

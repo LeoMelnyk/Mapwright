@@ -1,0 +1,13 @@
+{
+  "displayName": "Wood Cabinet Worn Long",
+  "category": "Man Made",
+  "subcategory": "Wood",
+  "file": "polyhaven/wood_cabinet_worn_long_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/wood_cabinet_worn_long_disp_1k.png",
+    "nor": "polyhaven/wood_cabinet_worn_long_nor_gl_1k.png",
+    "arm": "polyhaven/wood_cabinet_worn_long_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

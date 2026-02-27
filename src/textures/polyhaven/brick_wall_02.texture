@@ -1,0 +1,13 @@
+{
+  "displayName": "Brick Wall 02",
+  "category": "Wall",
+  "subcategory": "Brick",
+  "file": "polyhaven/brick_wall_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brick_wall_02_disp_1k.png",
+    "nor": "polyhaven/brick_wall_02_nor_gl_1k.png",
+    "arm": "polyhaven/brick_wall_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

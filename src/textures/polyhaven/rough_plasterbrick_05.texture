@@ -1,0 +1,13 @@
+{
+  "displayName": "Rough Plasterbrick 05",
+  "category": "Plaster Concrete",
+  "subcategory": "Man Made",
+  "file": "polyhaven/rough_plasterbrick_05_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rough_plasterbrick_05_disp_1k.png",
+    "nor": "polyhaven/rough_plasterbrick_05_nor_gl_1k.png",
+    "arm": "polyhaven/rough_plasterbrick_05_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

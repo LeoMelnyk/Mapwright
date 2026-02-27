@@ -1,0 +1,40 @@
+{
+  "displayName": "Snow Tundra",
+  "background": "#e0ecf4",
+  "gridLine": "#000000",
+  "wallStroke": "#182a3c",
+  "wallFill": "#f0f6fa",
+  "textColor": "#182a3c",
+  "borderColor": "#4888b8",
+  "doorFill": "#f0f6fa",
+  "doorStroke": "#182a3c",
+  "trapColor": "#cc1840",
+  "secretDoorColor": "#182a3c",
+  "compassRoseFill": "#182a3c",
+  "compassRoseStroke": "#182a3c",
+  "wallRoughness": 0.8,
+  "wallShadow": {
+    "color": "rgba(24,42,60,0.18)",
+    "blur": 10,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#182a3c",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.12,
+  "bufferShadingOpacity": 0.1,
+  "outerShading": {
+    "color": "#b0c8dc",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#649bc3",
+  "waterMediumColor": "#3773a5",
+  "waterDeepColor": "#144682",
+  "waterCausticColor": "rgba(180,225,250,0.55)",
+  "lavaShallowColor": "#cc4400",
+  "lavaMediumColor": "#992200",
+  "lavaDeepColor": "#661100",
+  "lavaCausticColor": "rgba(255,140,40,0.55)"
+}

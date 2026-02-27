@@ -1,0 +1,30 @@
+name: Pot Rack
+category: Kitchen
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Horizontal iron rack bar (wall side, north)
+rect 0.06,0.04 1.88,0.12 texfill polyhaven/rusty_metal 0.80
+rect 0.06,0.04 1.88,0.12 stroke #333333
+# Shadow below rack
+rect 0.06,0.16 1.88,0.05 fill #000000 0.12
+# Hook lines
+line 0.26,0.16 0.26,0.30 stroke #555555
+line 0.70,0.16 0.70,0.30 stroke #555555
+line 1.14,0.16 1.14,0.30 stroke #555555
+line 1.58,0.16 1.58,0.30 stroke #555555
+# Hanging pots (circles = pot opening from above)
+circle 0.26,0.52 0.14 texfill polyhaven/rusty_metal 0.80
+circle 0.26,0.52 0.14 stroke #444444
+circle 0.26,0.52 0.08 fill #222222 0.70
+circle 0.70,0.52 0.13 texfill polyhaven/rusty_metal 0.80
+circle 0.70,0.52 0.13 stroke #444444
+circle 0.70,0.52 0.07 fill #222222 0.70
+circle 1.14,0.52 0.14 texfill polyhaven/rusty_metal 0.80
+circle 1.14,0.52 0.14 stroke #444444
+circle 1.14,0.52 0.08 fill #222222 0.70
+circle 1.58,0.52 0.13 texfill polyhaven/rusty_metal 0.80
+circle 1.58,0.52 0.13 stroke #444444
+circle 1.58,0.52 0.07 fill #222222 0.70

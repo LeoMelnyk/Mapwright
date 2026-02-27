@@ -1,0 +1,15 @@
+name: Stalagmite
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+---
+# Base spread
+circle 0.5,0.5 0.38 texfill polyhaven/rock_boulder_cracked 0.75
+circle 0.5,0.5 0.38 stroke #555555
+# Middle ring
+circle 0.5,0.5 0.25 texfill polyhaven/rock_boulder_cracked 0.82
+circle 0.5,0.5 0.25 stroke #666666
+# Tip
+circle 0.5,0.5 0.1 fill #999999 0.6

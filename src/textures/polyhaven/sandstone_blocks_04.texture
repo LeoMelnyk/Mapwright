@@ -1,0 +1,13 @@
+{
+  "displayName": "Sandstone Blocks 04",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/sandstone_blocks_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/sandstone_blocks_04_disp_1k.png",
+    "nor": "polyhaven/sandstone_blocks_04_nor_gl_1k.png",
+    "arm": "polyhaven/sandstone_blocks_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

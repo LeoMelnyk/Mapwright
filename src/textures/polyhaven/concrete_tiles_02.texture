@@ -1,0 +1,13 @@
+{
+  "displayName": "Concrete Tiles 02",
+  "category": "Floor",
+  "subcategory": "Tiles",
+  "file": "polyhaven/concrete_tiles_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/concrete_tiles_02_disp_1k.png",
+    "nor": "polyhaven/concrete_tiles_02_nor_gl_1k.png",
+    "arm": "polyhaven/concrete_tiles_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Pavement 04",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/pavement_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/pavement_04_disp_1k.png",
+    "nor": "polyhaven/pavement_04_nor_gl_1k.png",
+    "arm": "polyhaven/pavement_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

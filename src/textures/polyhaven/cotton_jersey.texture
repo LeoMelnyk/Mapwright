@@ -1,0 +1,13 @@
+{
+  "displayName": "Cotton Jersey",
+  "category": "Fabric",
+  "subcategory": "Cotton",
+  "file": "polyhaven/cotton_jersey_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/cotton_jersey_disp_1k.png",
+    "nor": "polyhaven/cotton_jersey_nor_gl_1k.png",
+    "arm": "polyhaven/cotton_jersey_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

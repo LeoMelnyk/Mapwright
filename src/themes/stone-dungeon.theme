@@ -1,0 +1,40 @@
+{
+  "displayName": "Stone Dungeon",
+  "background": "#48464a",
+  "gridLine": "#000000",
+  "wallStroke": "#20201c",
+  "wallFill": "#585858",
+  "textColor": "#e0e0e0",
+  "borderColor": "#70706c",
+  "doorFill": "#585858",
+  "doorStroke": "#e0e0e0",
+  "trapColor": "#ff6b6b",
+  "secretDoorColor": "#e0e0e0",
+  "compassRoseFill": "#e0e0e0",
+  "compassRoseStroke": "#e0e0e0",
+  "wallRoughness": 0.8,
+  "wallShadow": {
+    "color": "rgba(0,0,0,0.35)",
+    "blur": 12,
+    "offsetX": 5,
+    "offsetY": 7
+  },
+  "hatchColor": "#20201c",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0,
+  "bufferShadingOpacity": 0.2,
+  "outerShading": {
+    "color": "#38363a",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#2d69a5",
+  "waterMediumColor": "#1c4480",
+  "waterDeepColor": "#0c265c",
+  "waterCausticColor": "rgba(160,215,255,0.55)",
+  "lavaShallowColor": "#cc4400",
+  "lavaMediumColor": "#992200",
+  "lavaDeepColor": "#661100",
+  "lavaCausticColor": "rgba(255,160,60,0.55)"
+}

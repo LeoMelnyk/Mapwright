@@ -1,0 +1,13 @@
+{
+  "displayName": "Green Metal Rust",
+  "category": "Metal",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/green_metal_rust_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/green_metal_rust_disp_1k.png",
+    "nor": "polyhaven/green_metal_rust_nor_gl_1k.png",
+    "arm": "polyhaven/green_metal_rust_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

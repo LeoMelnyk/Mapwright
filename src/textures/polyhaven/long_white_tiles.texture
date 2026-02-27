@@ -1,0 +1,13 @@
+{
+  "displayName": "Long White Tiles",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/long_white_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/long_white_tiles_disp_1k.png",
+    "nor": "polyhaven/long_white_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/long_white_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

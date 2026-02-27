@@ -1,0 +1,32 @@
+name: Alembic
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Stand base shadow
+circle 0.50,0.80 0.22 fill #444444 0.25
+# Main flask (round glass body)
+circle 0.40,0.58 0.24 fill #8899bb 0.45
+circle 0.40,0.58 0.24 stroke #445577
+circle 0.40,0.58 0.14 fill #aabbdd 0.25
+# Glass highlight
+circle 0.33,0.51 0.07 fill #ffffff 0.20
+# Flask neck stopper
+rect 0.36,0.32 0.08,0.12 fill #556677 0.85
+rect 0.36,0.32 0.08,0.12 stroke #334455
+# Condenser tube arm
+line 0.44,0.36 0.67,0.25 stroke #445566
+line 0.46,0.38 0.69,0.27 stroke #667788
+# Receiver flask (small)
+circle 0.74,0.23 0.13 fill #8899bb 0.45
+circle 0.74,0.23 0.13 stroke #445577
+circle 0.74,0.23 0.07 fill #aabbdd 0.30
+# Stoppers
+circle 0.40,0.34 0.05 fill #444444 0.90
+circle 0.74,0.12 0.04 fill #444444 0.90
+# Stand legs (3-point)
+circle 0.24,0.82 0.05 fill #666666 0.80
+circle 0.56,0.82 0.05 fill #666666 0.80
+circle 0.40,0.88 0.04 fill #555555 0.80

@@ -1,0 +1,19 @@
+name: Barrel Stack
+category: Containers
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Left barrel
+circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.82
+circle 0.5,0.5 0.38 stroke #3a1f00
+circle 0.5,0.5 0.30 stroke #666666
+circle 0.5,0.5 0.18 stroke #666666
+circle 0.5,0.5 0.04 fill #1a0a00 0.7
+# Right barrel
+circle 1.5,0.5 0.38 texfill polyhaven/brown_planks_09 0.85
+circle 1.5,0.5 0.38 stroke #3a1f00
+circle 1.5,0.5 0.30 stroke #666666
+circle 1.5,0.5 0.18 stroke #666666
+circle 1.5,0.5 0.04 fill #1a0a00 0.7

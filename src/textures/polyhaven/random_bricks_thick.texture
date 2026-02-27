@@ -1,0 +1,13 @@
+{
+  "displayName": "Random Bricks Thick",
+  "category": "Outdoor",
+  "subcategory": "Wall",
+  "file": "polyhaven/random_bricks_thick_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/random_bricks_thick_disp_1k.png",
+    "nor": "polyhaven/random_bricks_thick_nor_gl_1k.png",
+    "arm": "polyhaven/random_bricks_thick_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

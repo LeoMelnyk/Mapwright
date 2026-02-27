@@ -1,0 +1,13 @@
+{
+  "displayName": "Mossy Cobblestone",
+  "category": "Floor",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/mossy_cobblestone_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/mossy_cobblestone_disp_1k.png",
+    "nor": "polyhaven/mossy_cobblestone_nor_gl_1k.png",
+    "arm": "polyhaven/mossy_cobblestone_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,25 @@
+name: Crucible
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Crucible body
+circle 0.50,0.52 0.34 texfill polyhaven/metal_plate 0.75
+circle 0.50,0.52 0.34 stroke #333333
+# Rim highlight ring
+circle 0.50,0.52 0.32 stroke #777777 0.50
+# Molten contents (layered glow)
+circle 0.50,0.52 0.22 fill #e85500 0.55
+circle 0.50,0.52 0.14 fill #ffaa00 0.50
+circle 0.50,0.52 0.08 fill #ffcc00 0.60
+# Handle stubs (east and west)
+rect 0.12,0.44 0.10,0.16 fill #555555 0.90
+rect 0.12,0.44 0.10,0.16 stroke #222222
+rect 0.78,0.44 0.10,0.16 fill #555555 0.90
+rect 0.78,0.44 0.10,0.16 stroke #222222
+# Support legs
+circle 0.28,0.80 0.05 fill #444444 0.85
+circle 0.72,0.80 0.05 fill #444444 0.85
+circle 0.50,0.84 0.04 fill #444444 0.85

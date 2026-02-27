@@ -1,0 +1,16 @@
+name: Map Table
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Table surface
+rect 0.1,0.1 1.8,1.8 texfill polyhaven/wood_table 0.85
+rect 0.1,0.1 1.8,1.8 stroke #5c3a1e
+# Map/parchment
+rect 0.25,0.25 1.5,1.5 fill #e8dcc8 0.6
+rect 0.25,0.25 1.5,1.5 stroke #b0a090
+# Map detail lines
+line 0.4,0.35 1.6,1.65
+line 0.4,1.65 1.6,0.35

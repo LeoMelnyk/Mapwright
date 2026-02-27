@@ -1,0 +1,13 @@
+{
+  "displayName": "Brown Mud Dry",
+  "category": "Terrain",
+  "subcategory": "Natural",
+  "file": "polyhaven/brown_mud_dry_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brown_mud_dry_disp_1k.png",
+    "nor": "polyhaven/brown_mud_dry_nor_gl_1k.png",
+    "arm": "polyhaven/brown_mud_dry_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

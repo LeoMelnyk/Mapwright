@@ -1,0 +1,29 @@
+name: Floor Candelabra
+category: Lighting
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Base ring
+circle 0.50,0.50 0.38 fill #555555 0.30
+circle 0.50,0.50 0.28 texfill polyhaven/metal_plate 0.70
+circle 0.50,0.50 0.28 stroke #444444
+# Central column (small circle)
+circle 0.50,0.50 0.08 fill #888888 0.90
+circle 0.50,0.50 0.08 stroke #555555
+# Four arms radiating out
+line 0.50,0.42 0.50,0.20 stroke #777777
+line 0.50,0.58 0.50,0.80 stroke #777777
+line 0.42,0.50 0.20,0.50 stroke #777777
+line 0.58,0.50 0.80,0.50 stroke #777777
+# Candle cups at arm ends
+circle 0.50,0.20 0.06 fill #888888 0.80
+circle 0.50,0.80 0.06 fill #888888 0.80
+circle 0.20,0.50 0.06 fill #888888 0.80
+circle 0.80,0.50 0.06 fill #888888 0.80
+# Flames at tips
+circle 0.50,0.17 0.04 fill #ffaa00 0.80
+circle 0.50,0.83 0.04 fill #ffaa00 0.80
+circle 0.17,0.50 0.04 fill #ffaa00 0.80
+circle 0.83,0.50 0.04 fill #ffaa00 0.80

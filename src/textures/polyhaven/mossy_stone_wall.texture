@@ -1,0 +1,13 @@
+{
+  "displayName": "Mossy Stone Wall",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/mossy_stone_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/mossy_stone_wall_disp_1k.png",
+    "nor": "polyhaven/mossy_stone_wall_nor_gl_1k.png",
+    "arm": "polyhaven/mossy_stone_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

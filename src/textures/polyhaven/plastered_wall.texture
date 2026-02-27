@@ -1,0 +1,13 @@
+{
+  "displayName": "Plastered Wall",
+  "category": "Wall",
+  "subcategory": "Plaster",
+  "file": "polyhaven/plastered_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/plastered_wall_disp_1k.png",
+    "nor": "polyhaven/plastered_wall_nor_gl_1k.png",
+    "arm": "polyhaven/plastered_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

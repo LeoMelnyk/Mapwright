@@ -1,0 +1,26 @@
+name: Gallows
+category: Prison
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Platform base
+rect 0.1,0.3 1.8,1.6 texfill polyhaven/weathered_planks 0.75
+rect 0.1,0.3 1.8,1.6 stroke #4a2800
+# Trapdoor
+rect 0.5,0.8 1.0,0.9 texfill polyhaven/worn_planks 0.8
+rect 0.5,0.8 1.0,0.9 stroke #3a1f00
+# Vertical post
+rect 1.6,0.3 0.25,0.25 texfill polyhaven/dark_wood 0.85
+rect 1.6,0.3 0.25,0.25 stroke #3a1f00
+# Horizontal beam
+rect 0.4,0.38 1.2,0.1 texfill polyhaven/dark_wood 0.85
+rect 0.4,0.38 1.2,0.1 stroke #3a1f00
+# Noose
+circle 0.6,0.55 0.08 stroke #8b6914
+line 0.6,0.43 0.6,0.48
+# Stairs
+rect 0.1,1.6 0.4,0.3 texfill polyhaven/weathered_planks 0.7
+line 0.1,1.7 0.5,1.7
+line 0.1,1.8 0.5,1.8

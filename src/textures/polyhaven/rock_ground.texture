@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Ground",
+  "category": "Terrain",
+  "subcategory": "Natural",
+  "file": "polyhaven/rock_ground_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_ground_disp_1k.png",
+    "nor": "polyhaven/rock_ground_nor_gl_1k.png",
+    "arm": "polyhaven/rock_ground_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

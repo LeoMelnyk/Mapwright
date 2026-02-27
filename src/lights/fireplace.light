@@ -1,0 +1,10 @@
+{
+  "displayName": "Fireplace",
+  "category": "Fire & Flame",
+  "description": "A stone hearth with a roaring fire, casting cozy reddish light",
+  "type": "point",
+  "color": "#ff7733",
+  "radius": 25,
+  "intensity": 1.0,
+  "falloff": "linear"
+}

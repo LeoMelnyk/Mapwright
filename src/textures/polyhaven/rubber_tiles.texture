@@ -1,0 +1,13 @@
+{
+  "displayName": "Rubber Tiles",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/rubber_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rubber_tiles_disp_1k.png",
+    "nor": "polyhaven/rubber_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/rubber_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

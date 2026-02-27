@@ -1,0 +1,13 @@
+{
+  "displayName": "Aerial Asphalt 01",
+  "category": "Asphalt",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/aerial_asphalt_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/aerial_asphalt_01_disp_1k.png",
+    "nor": "polyhaven/aerial_asphalt_01_nor_gl_1k.png",
+    "arm": "polyhaven/aerial_asphalt_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

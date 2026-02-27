@@ -1,0 +1,33 @@
+name: Archway
+category: Structure
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+---
+# Left (west) pillar top - square stone column seen from above
+rect 0.0,0.15 0.3,0.7 texfill polyhaven/stone_wall 0.85
+rect 0.0,0.15 0.3,0.7 stroke #555555
+# Left pillar top bevel detail
+rect 0.03,0.18 0.24,0.64 stroke #777777
+# Right (east) pillar top - matching stone column
+rect 1.7,0.15 0.3,0.7 texfill polyhaven/stone_wall 0.85
+rect 1.7,0.15 0.3,0.7 stroke #555555
+# Right pillar top bevel detail
+rect 1.73,0.18 0.24,0.64 stroke #777777
+# Stone lintel spanning between pillars (across north side)
+rect 0.0,0.15 2.0,0.18 texfill polyhaven/granite_tile 0.8
+rect 0.0,0.15 2.0,0.18 stroke #666666
+# Keystone detail (center of lintel)
+rect 0.88,0.15 0.24,0.18 fill #999999 0.3
+rect 0.88,0.15 0.24,0.18 stroke #777777
+# Decorative corner caps on pillar tops
+rect 0.0,0.15 0.08,0.08 fill #888888 0.4
+rect 0.22,0.15 0.08,0.08 fill #888888 0.4
+rect 1.7,0.15 0.08,0.08 fill #888888 0.4
+rect 1.92,0.15 0.08,0.08 fill #888888 0.4
+# Stone lintel south edge (back of lintel)
+rect 0.0,0.7 2.0,0.15 texfill polyhaven/granite_tile 0.7
+rect 0.0,0.7 2.0,0.15 stroke #666666
+# Passage floor visible between pillars (open space)
+rect 0.3,0.33 1.4,0.37 fill #2a2a2a 0.15

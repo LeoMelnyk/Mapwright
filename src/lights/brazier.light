@@ -1,0 +1,10 @@
+{
+  "displayName": "Brazier",
+  "category": "Fire & Flame",
+  "description": "A standing iron brazier filled with burning coals",
+  "type": "point",
+  "color": "#ff8844",
+  "radius": 25,
+  "intensity": 1.0,
+  "falloff": "smooth"
+}

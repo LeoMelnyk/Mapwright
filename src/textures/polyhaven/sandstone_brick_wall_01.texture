@@ -1,0 +1,13 @@
+{
+  "displayName": "Sandstone Brick Wall 01",
+  "category": "Wall",
+  "subcategory": "Brick",
+  "file": "polyhaven/sandstone_brick_wall_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/sandstone_brick_wall_01_disp_1k.png",
+    "nor": "polyhaven/sandstone_brick_wall_01_nor_gl_1k.png",
+    "arm": "polyhaven/sandstone_brick_wall_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

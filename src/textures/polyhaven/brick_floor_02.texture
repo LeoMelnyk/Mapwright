@@ -1,0 +1,13 @@
+{
+  "displayName": "Brick Floor 02",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/brick_floor_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brick_floor_02_disp_1k.png",
+    "nor": "polyhaven/brick_floor_02_nor_gl_1k.png",
+    "arm": "polyhaven/brick_floor_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

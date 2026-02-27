@@ -1,0 +1,15 @@
+name: Well
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+---
+# Stone outer ring
+circle 0.5,0.5 0.40 texfill polyhaven/cobblestone_floor_01 0.85
+circle 0.5,0.5 0.40 stroke
+# Inner stone rim detail
+circle 0.5,0.5 0.32 stroke
+# Water center
+circle 0.5,0.5 0.24 texfill texturecan/water_waves 0.85
+circle 0.5,0.5 0.24 stroke

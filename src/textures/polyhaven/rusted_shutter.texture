@@ -1,0 +1,13 @@
+{
+  "displayName": "Rusted Shutter",
+  "category": "Outdoor",
+  "subcategory": "Metal",
+  "file": "polyhaven/rusted_shutter_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rusted_shutter_disp_1k.png",
+    "nor": "polyhaven/rusted_shutter_nor_gl_1k.png",
+    "arm": "polyhaven/rusted_shutter_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

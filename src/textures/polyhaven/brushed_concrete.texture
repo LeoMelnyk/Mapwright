@@ -1,0 +1,13 @@
+{
+  "displayName": "Brushed Concrete ",
+  "category": "Man Made",
+  "subcategory": "Dirty",
+  "file": "polyhaven/brushed_concrete_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brushed_concrete_disp_1k.png",
+    "nor": "polyhaven/brushed_concrete_nor_gl_1k.png",
+    "arm": "polyhaven/brushed_concrete_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

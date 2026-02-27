@@ -1,0 +1,13 @@
+{
+  "displayName": "Bark Brown 02",
+  "category": "Wood",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/bark_brown_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/bark_brown_02_disp_1k.png",
+    "nor": "polyhaven/bark_brown_02_nor_gl_1k.png",
+    "arm": "polyhaven/bark_brown_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

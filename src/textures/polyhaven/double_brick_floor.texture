@@ -1,0 +1,13 @@
+{
+  "displayName": "Double Brick Floor",
+  "category": "Man Made",
+  "subcategory": "Plaster Concrete",
+  "file": "polyhaven/double_brick_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/double_brick_floor_disp_1k.png",
+    "nor": "polyhaven/double_brick_floor_nor_gl_1k.png",
+    "arm": "polyhaven/double_brick_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

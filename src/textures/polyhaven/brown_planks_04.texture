@@ -1,0 +1,13 @@
+{
+  "displayName": "Brown Planks 04",
+  "category": "Wood",
+  "subcategory": "Man Made",
+  "file": "polyhaven/brown_planks_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/brown_planks_04_disp_1k.png",
+    "nor": "polyhaven/brown_planks_04_nor_gl_1k.png",
+    "arm": "polyhaven/brown_planks_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

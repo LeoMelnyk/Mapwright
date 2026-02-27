@@ -1,0 +1,28 @@
+name: Spell Focus
+category: Magical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Central crystal
+circle 0.5,0.5 0.12 fill #8866cc 0.7
+circle 0.5,0.5 0.12 stroke #6644aa
+# Inner glow
+circle 0.5,0.5 0.06 fill #ccaaff 0.5
+# Arcane arms
+line 0.5,0.38 0.5,0.15
+line 0.5,0.62 0.5,0.85
+line 0.38,0.5 0.15,0.5
+line 0.62,0.5 0.85,0.5
+# Rune gems at cardinal points
+circle 0.5,0.12 0.06 fill #7755cc 0.8
+circle 0.5,0.12 0.06 stroke #5533aa
+circle 0.5,0.88 0.06 fill #7755cc 0.8
+circle 0.5,0.88 0.06 stroke #5533aa
+circle 0.12,0.5 0.06 fill #7755cc 0.8
+circle 0.12,0.5 0.06 stroke #5533aa
+circle 0.88,0.5 0.06 fill #7755cc 0.8
+circle 0.88,0.5 0.06 stroke #5533aa
+# Faint connecting ring
+circle 0.5,0.5 0.35 stroke #6644aa

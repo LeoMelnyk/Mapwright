@@ -1,0 +1,8 @@
+node_modules/
+
+# Texture maps — download via tools/polyhaven/download-polyhaven.js
+src/textures/**/*.png
+
+# Generated output files (uncomment if you don't want to commit renders)
+# *.png
+# *.pdf

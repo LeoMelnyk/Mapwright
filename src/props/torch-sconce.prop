@@ -1,0 +1,16 @@
+name: Torch Sconce
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Wall bracket
+rect 0.3,0.0 0.4,0.2 texfill polyhaven/rusty_metal 0.8
+rect 0.3,0.0 0.4,0.2 stroke #444444
+# Torch shaft
+line 0.5,0.2 0.5,0.45
+# Flame glow
+circle 0.5,0.52 0.12 fill #ffaa00 0.3
+circle 0.5,0.52 0.08 fill #ff8800 0.5
+circle 0.5,0.52 0.04 fill #ffcc00 0.8

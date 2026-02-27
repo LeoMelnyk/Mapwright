@@ -1,0 +1,13 @@
+{
+  "displayName": "Castle Brick 02 White",
+  "category": "Brick",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/castle_brick_02_white_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/castle_brick_02_white_disp_1k.png",
+    "nor": "polyhaven/castle_brick_02_white_nor_gl_1k.png",
+    "arm": "polyhaven/castle_brick_02_white_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Stone Wall 05",
+  "category": "Wall",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/stone_wall_05_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stone_wall_05_disp_1k.png",
+    "nor": "polyhaven/stone_wall_05_nor_gl_1k.png",
+    "arm": "polyhaven/stone_wall_05_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

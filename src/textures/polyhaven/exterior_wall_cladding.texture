@@ -1,0 +1,13 @@
+{
+  "displayName": "Exterior Wall Cladding",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/exterior_wall_cladding_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/exterior_wall_cladding_disp_1k.png",
+    "nor": "polyhaven/exterior_wall_cladding_nor_gl_1k.png",
+    "arm": "polyhaven/exterior_wall_cladding_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

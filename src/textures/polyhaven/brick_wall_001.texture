@@ -1,0 +1,13 @@
+{
+  "displayName": "Brick Wall 001",
+  "category": "Brick",
+  "subcategory": "Man Made",
+  "file": "polyhaven/brick_wall_001_diffuse_1k.png",
+  "maps": {
+    "disp": "polyhaven/brick_wall_001_displacement_1k.png",
+    "nor": "polyhaven/brick_wall_001_nor_gl_1k.png",
+    "arm": "polyhaven/brick_wall_001_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

@@ -1,0 +1,13 @@
+{
+  "displayName": "Rock Tile Floor 02",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/rock_tile_floor_02_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rock_tile_floor_02_disp_1k.png",
+    "nor": "polyhaven/rock_tile_floor_02_nor_gl_1k.png",
+    "arm": "polyhaven/rock_tile_floor_02_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

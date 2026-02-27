@@ -1,0 +1,13 @@
+{
+  "displayName": "Box Profile Metal Sheet",
+  "category": "Wall",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/box_profile_metal_sheet_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/box_profile_metal_sheet_disp_1k.png",
+    "nor": "polyhaven/box_profile_metal_sheet_nor_gl_1k.png",
+    "arm": "polyhaven/box_profile_metal_sheet_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

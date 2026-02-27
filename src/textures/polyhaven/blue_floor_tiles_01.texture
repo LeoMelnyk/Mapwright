@@ -1,0 +1,13 @@
+{
+  "displayName": "Blue Floor Tiles 01",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/blue_floor_tiles_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/blue_floor_tiles_01_disp_1k.png",
+    "nor": "polyhaven/blue_floor_tiles_01_nor_gl_1k.png",
+    "arm": "polyhaven/blue_floor_tiles_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

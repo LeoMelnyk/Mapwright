@@ -1,0 +1,40 @@
+{
+  "displayName": "Desert",
+  "background": "#ecd080",
+  "gridLine": "#000000",
+  "wallStroke": "#601800",
+  "wallFill": "#f8e8c0",
+  "textColor": "#381000",
+  "borderColor": "#986018",
+  "doorFill": "#f8e8c0",
+  "doorStroke": "#601800",
+  "trapColor": "#cc2200",
+  "secretDoorColor": "#601800",
+  "compassRoseFill": "#601800",
+  "compassRoseStroke": "#601800",
+  "wallRoughness": 1.6,
+  "wallShadow": {
+    "color": "rgba(96,24,0,0.28)",
+    "blur": 8,
+    "offsetX": 4,
+    "offsetY": 5
+  },
+  "hatchColor": "#601800",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.18,
+  "bufferShadingOpacity": 0.14,
+  "outerShading": {
+    "color": "#c8a840",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#2d91a0",
+  "waterMediumColor": "#196982",
+  "waterDeepColor": "#0a4164",
+  "waterCausticColor": "rgba(120,220,230,0.55)",
+  "lavaShallowColor": "#d04c00",
+  "lavaMediumColor": "#a03200",
+  "lavaDeepColor": "#701800",
+  "lavaCausticColor": "rgba(255,170,70,0.55)"
+}

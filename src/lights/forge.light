@@ -1,0 +1,10 @@
+{
+  "displayName": "Forge",
+  "category": "Fire & Flame",
+  "description": "The intense glow of a blacksmith's forge, white-hot at the center",
+  "type": "point",
+  "color": "#ff4400",
+  "radius": 20,
+  "intensity": 1.3,
+  "falloff": "linear"
+}

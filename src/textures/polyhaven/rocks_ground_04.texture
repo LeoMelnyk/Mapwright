@@ -1,0 +1,13 @@
+{
+  "displayName": "Rocks Ground 04",
+  "category": "Terrain",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/rocks_ground_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rocks_ground_04_disp_1k.png",
+    "nor": "polyhaven/rocks_ground_04_nor_gl_1k.png",
+    "arm": "polyhaven/rocks_ground_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

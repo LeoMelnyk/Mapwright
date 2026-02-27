@@ -1,0 +1,13 @@
+{
+  "displayName": "Dry Mud Field 001",
+  "category": "Outdoor",
+  "subcategory": "Terrain",
+  "file": "polyhaven/dry_mud_field_001_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/dry_mud_field_001_disp_1k.png",
+    "nor": "polyhaven/dry_mud_field_001_nor_gl_1k.png",
+    "arm": "polyhaven/dry_mud_field_001_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

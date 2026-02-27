@@ -1,0 +1,13 @@
+{
+  "displayName": "Bark Blue gum",
+  "category": "Bark",
+  "subcategory": "Natural",
+  "file": "polyhaven/bark_bluegum_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/bark_bluegum_disp_1k.png",
+    "nor": "polyhaven/bark_bluegum_nor_gl_1k.png",
+    "arm": "polyhaven/bark_bluegum_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

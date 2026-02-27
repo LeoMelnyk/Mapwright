@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dungeon Map Editor</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- Menu Bar -->
+    <div id="menubar">
+
+      <!-- File menu -->
+      <div class="menu-item" data-menu="file">
+        <button class="menu-trigger">File</button>
+        <div class="menu-dropdown">
+          <button class="menu-action" id="btn-new">New Map…</button>
+          <button class="menu-action" id="btn-load">Open…</button>
+          <div class="menu-separator"></div>
+          <button class="menu-action" id="btn-save">Save <span class="key-hint-menu">Ctrl+S</span></button>
+          <button class="menu-action" id="btn-save-as">Save As…</button>
+          <div class="menu-separator"></div>
+          <button class="menu-action" id="btn-export-png">Export to PNG…</button>
+          <button class="menu-action" id="btn-export-map">Export to .map…</button>
+          <div class="menu-separator"></div>
+          <div class="menu-submenu">
+            <button class="menu-action menu-submenu-trigger">Import ▸</button>
+            <div class="menu-submenu-dropdown">
+              <button class="menu-action" id="btn-import-opd">From One-Page-Dungeon</button>
+              <button class="menu-action" id="btn-import-donjon">From Donjon</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit menu -->
+      <div class="menu-item" data-menu="edit">
+        <button class="menu-trigger">Edit</button>
+        <div class="menu-dropdown">
+          <button class="menu-action" id="btn-undo">Undo <span class="key-hint-menu">Ctrl+Z</span></button>
+          <button class="menu-action" id="btn-redo">Redo <span class="key-hint-menu">Ctrl+Y</span></button>
+          <div class="menu-separator"></div>
+          <button class="menu-action" id="btn-resize">Resize Canvas…</button>
+          <div class="menu-separator"></div>
+          <button class="menu-action" id="btn-reload-assets">Reload Assets</button>
+        </div>
+      </div>
+
+      <!-- Centered map title -->
+      <div id="map-title-wrap">
+        <span id="map-title"></span>
+      </div>
+
+      <!-- View menu -->
+      <div class="menu-item" data-menu="view">
+        <button class="menu-trigger">View</button>
+        <div class="menu-dropdown">
+          <label class="menu-check-item">
+            <input type="checkbox" id="feat-grid" checked> Grid
+          </label>
+          <label class="menu-check-item">
+            <input type="checkbox" id="feat-compass" checked> Compass
+          </label>
+          <label class="menu-check-item">
+            <input type="checkbox" id="feat-scale" checked> Scale
+          </label>
+          <label class="menu-check-item">
+            <input type="checkbox" id="feat-border" checked> Border
+          </label>
+          <div class="menu-separator"></div>
+          <div class="menu-section-label">Diagnostics</div>
+          <label class="menu-check-item">
+            <input type="checkbox" id="feat-fps"> Draw Time
+          </label>
+          <label class="menu-check-item">
+            <input type="checkbox" id="feat-memory"> Memory
+          </label>
+          <div class="menu-separator"></div>
+          <div class="menu-field">
+            <label>Grid Size</label>
+            <select id="meta-gridsize">
+              <option value="5" selected>5 ft</option>
+              <option value="10">10 ft</option>
+            </select>
+          </div>
+          <div class="menu-field">
+            <label>Labels</label>
+            <select id="meta-labelstyle">
+              <option value="circled">Circled</option>
+              <option value="plain">Plain</option>
+              <option value="bold">Bold</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme toggle (far right) -->
+      <button id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.5 9.5a5.5 5.5 0 01-7-7A5.5 5.5 0 108 14a5.5 5.5 0 005.5-4.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+    </div>
+
+    <!-- Texture loading bar -->
+    <div id="loading-bar">
+      <div id="loading-bar-fill"></div>
+    </div>
+
+    <!-- Sidebar: icon bar + switchable panels -->
+    <div id="sidebar">
+
+      <div id="icon-bar">
+        <button class="icon-btn active" data-panel="themes" title="Themes (F1)">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 2C5.13 2 2 5.13 2 9C2 12.87 5.13 16 9 16C9.55 16 10 15.55 10 15C10 14.78 9.92 14.58 9.79 14.42C9.67 14.26 9.59 14.07 9.59 13.86C9.59 13.31 10.04 12.86 10.59 12.86H12C14.21 12.86 16 11.07 16 8.86C16 5.14 12.87 2 9 2Z" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="5.5" cy="8.5" r="1.2" fill="currentColor"/>
+            <circle cx="8" cy="5.5" r="1.2" fill="currentColor"/>
+            <circle cx="11.5" cy="7" r="1.2" fill="currentColor"/>
+          </svg>
+        </button>
+        <button class="icon-btn" data-panel="levels" title="Levels (F2)">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6l6-3 6 3-6 3-6-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M3 9.5l6 3 6-3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M3 13l6 3 6-3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="icon-btn" data-panel="textures" title="Textures (F3)">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="10" y="2" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="2" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="10" y="10" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+        <button class="icon-btn" data-panel="lighting" title="Lighting (F4)">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 2C6.79 2 5 3.79 5 6c0 1.48.81 2.77 2 3.46V11a1 1 0 001 1h2a1 1 0 001-1V9.46c1.19-.69 2-1.98 2-3.46 0-2.21-1.79-4-4-4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M7 13.5h4M7.5 15h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M9 0v1M2.64 3.64l.7.7M0 9h1M15.36 3.64l-.7.7M18 9h-1" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+          </svg>
+        </button>
+        <button class="icon-btn" data-panel="session" title="Player Session (F5)">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="9" cy="9" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M9 2v2M9 14v2M2 9h2M14 9h2M4.22 4.22l1.42 1.42M12.36 12.36l1.42 1.42M4.22 13.78l1.42-1.42M12.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="side-content">
+        <div id="panel-themes" class="side-panel">
+          <div id="theme-grid-container"></div>
+          <div class="theme-section-divider">Customize <span class="toggle-arrow">▶</span></div>
+          <div id="custom-theme-editor"></div>
+        </div>
+
+        <div id="panel-levels" class="side-panel" data-display="block" style="display:none;">
+          <div class="panel-title">Levels</div>
+          <div id="levels-list"></div>
+          <button class="toolbar-btn" id="btn-add-level">+ Add Level</button>
+        </div>
+
+        <div id="panel-textures" class="side-panel" style="display:none;">
+          <div id="textures-panel-content"></div>
+        </div>
+
+        <div id="panel-lighting" class="side-panel" data-display="block" style="display:none;">
+          <div id="lighting-panel-content"></div>
+        </div>
+
+        <div id="panel-session" class="side-panel" data-display="block" style="display:none;">
+          <div id="session-panel-content"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Canvas -->
+    <div id="canvas-container">
+      <canvas id="editor-canvas"></canvas>
+
+      <!-- Floating Drawing Toolbar -->
+      <div id="drawing-toolbar">
+
+        <!-- Sub-options rows (contextually visible above tools) -->
+        <div id="room-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-room-mode="room">Room</button>
+          <button class="toolbar-btn" data-room-mode="merge">Merge</button>
+        </div>
+
+        <div id="paint-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn" data-paint-mode="texture">Texture</button>
+          <button class="toolbar-btn" data-paint-mode="syringe">Syringe</button>
+          <button class="toolbar-btn active" data-paint-mode="room">Room</button>
+          <button class="toolbar-btn" data-paint-mode="clear-texture">Clear</button>
+          <span id="texture-opacity-row" style="display:none;align-items:center;gap:4px;margin-left:8px;">
+            <span class="toolbar-label" style="margin:0">Opacity:</span>
+            <input type="range" id="texture-opacity-slider" min="10" max="100" step="5" value="100" style="width:70px">
+            <span id="texture-opacity-value" style="font-size:11px;color:var(--text-dim);min-width:30px">100%</span>
+          </span>
+          <label id="texture-secondary-row" style="display:none;align-items:center;gap:4px;margin-left:8px;cursor:pointer;">
+            <input type="checkbox" id="texture-secondary-cb">
+            <span class="toolbar-label" style="margin:0">Secondary</span>
+          </label>
+        </div>
+
+        <div id="fill-options" class="suboptions-bar">
+          <span class="toolbar-label">Fill:</span>
+          <button class="toolbar-btn active" data-fill-mode="water">Water</button>
+          <button class="toolbar-btn" data-fill-mode="lava">Lava</button>
+          <button class="toolbar-btn" data-fill-mode="pit">Pit</button>
+          <button class="toolbar-btn" data-fill-mode="difficult-terrain">Hazard</button>
+          <button class="toolbar-btn" data-fill-mode="clear-fill">Clear</button>
+          <span id="water-depth-row" style="display:none;align-items:center;gap:4px;margin-left:8px;">
+            <span class="toolbar-label" style="margin:0">Depth:</span>
+            <button class="toolbar-btn active" data-water-depth="1">Shallow</button>
+            <button class="toolbar-btn" data-water-depth="2">Medium</button>
+            <button class="toolbar-btn" data-water-depth="3">Deep</button>
+          </span>
+        </div>
+
+        <div id="door-options" class="suboptions-bar">
+          <span class="toolbar-label">Type:</span>
+          <button class="toolbar-btn active" data-door-type="d">Normal</button>
+          <button class="toolbar-btn" data-door-type="s">Secret</button>
+        </div>
+
+        <div id="stairs-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-stairs-mode="place">Place</button>
+          <button class="toolbar-btn" data-stairs-mode="link">Link</button>
+        </div>
+
+        <div id="bridge-options" class="suboptions-bar">
+          <span class="toolbar-label">Type:</span>
+          <button class="toolbar-btn active" data-bridge-type="wood">Wood</button>
+          <button class="toolbar-btn" data-bridge-type="stone">Stone</button>
+          <button class="toolbar-btn" data-bridge-type="rope">Rope</button>
+          <button class="toolbar-btn" data-bridge-type="dock">Dock</button>
+        </div>
+
+        <div id="prop-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-prop-mode="place">Place</button>
+          <button class="toolbar-btn" data-prop-mode="select">Select</button>
+        </div>
+
+        <div id="erase-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Erase:</span>
+          <button class="toolbar-btn active" data-erase-mode="all">All</button>
+          <button class="toolbar-btn" data-erase-mode="texture">Texture Only</button>
+        </div>
+
+        <div id="light-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-light-mode="place">Place</button>
+          <button class="toolbar-btn" data-light-mode="select">Select</button>
+        </div>
+
+        <div id="label-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-label-mode="room">Room Label</button>
+          <button class="toolbar-btn" data-label-mode="dm">Label</button>
+          <span id="dungeon-letter-row" style="display:flex;align-items:center;gap:4px;margin-left:8px;">
+            <span class="toolbar-label" style="margin:0">Dungeon:</span>
+            <select id="dungeon-letter-select" class="toolbar-select"></select>
+          </span>
+        </div>
+
+        <div id="trim-options" class="suboptions-bar">
+          <span class="toolbar-label">Corner:</span>
+          <button class="toolbar-btn active" data-trim-corner="auto">Auto</button>
+          <button class="toolbar-btn" data-trim-corner="nw">NW</button>
+          <button class="toolbar-btn" data-trim-corner="ne">NE</button>
+          <button class="toolbar-btn" data-trim-corner="sw">SW</button>
+          <button class="toolbar-btn" data-trim-corner="se">SE</button>
+          <label style="display:flex;align-items:center;gap:3px;margin-left:8px;font-size:12px;color:var(--text-dim)">
+            <input type="checkbox" id="trim-round"> Round <span class="key-hint">R</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:3px;margin-left:4px;font-size:12px;color:var(--text-dim)">
+            <input type="checkbox" id="trim-inverted"> Inverted <span class="key-hint">I</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:3px;margin-left:4px;font-size:12px;color:var(--text-dim)">
+            <input type="checkbox" id="trim-open"> Open <span class="key-hint">O</span>
+          </label>
+        </div>
+
+        <!-- Session tool row (shown when session tools active) -->
+        <div id="session-tool-row" class="tool-row" style="display:none;">
+          <button class="toolbar-btn active" data-session-tool="doors" data-tooltip="Doors — Open doors and secret doors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20H2"/><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z"/><path d="M11 4H8a2 2 0 0 0-2 2v14"/><path d="M14 12h.01"/><path d="M22 20h-3"/></svg><span class="key-hint">1</span>
+          </button>
+          <button class="toolbar-btn" data-session-tool="range" data-tooltip="Range — Measure spell areas and effects">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg><span class="key-hint">2</span>
+          </button>
+        </div>
+
+        <!-- Range sub-options (shown when Range session tool is active) -->
+        <div id="range-options" class="session-suboptions" style="display:none;">
+          <button class="toolbar-btn" data-range-shape="line" data-tooltip="Line">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/></svg>
+          </button>
+          <button class="toolbar-btn" data-range-shape="cone" data-tooltip="Cone">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 22,22 2,22"/></svg>
+          </button>
+          <button class="toolbar-btn active" data-range-shape="circle" data-tooltip="Circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          </button>
+          <button class="toolbar-btn" data-range-shape="cube" data-tooltip="Cube">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18"/></svg>
+          </button>
+          <span class="toolbar-separator"></span>
+          <select id="range-distance" class="toolbar-select" data-tooltip="Fixed range (Auto = drag distance)">
+            <option value="0">Auto</option>
+          </select>
+        </div>
+
+        <!-- Primary tool row -->
+        <!-- Icons: Lucide (ISC License) — https://lucide.dev/license -->
+        <div id="editor-tool-row" class="tool-row">
+          <button class="toolbar-btn active" data-tool="room" data-tooltip="Room — Draw rectangular rooms on the grid">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><span class="key-hint">1</span>
+          </button>
+          <button class="toolbar-btn" data-tool="paint" data-tooltip="Paint — Apply textures to cells">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.622 17.897-10.68-2.913"/><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/><path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15"/></svg><span class="key-hint">2</span>
+          </button>
+          <button class="toolbar-btn" data-tool="fill" data-tooltip="Fill — Apply water, pit, or terrain fills">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg><span class="key-hint">3</span>
+          </button>
+          <button class="toolbar-btn" data-tool="wall" data-tooltip="Wall — Place walls along cell edges">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 9v6"/><path d="M16 15v6"/><path d="M16 3v6"/><path d="M3 15h18"/><path d="M3 9h18"/><path d="M8 15v6"/><path d="M8 3v6"/></svg><span class="key-hint">4</span>
+          </button>
+          <button class="toolbar-btn" data-tool="door" data-tooltip="Door — Add doors and secret doors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20H2"/><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z"/><path d="M11 4H8a2 2 0 0 0-2 2v14"/><path d="M14 12h.01"/><path d="M22 20h-3"/></svg><span class="key-hint">5</span>
+          </button>
+          <button class="toolbar-btn" data-tool="label" data-tooltip="Label — Add text labels to rooms">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"/><path d="M4 7V5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2"/><path d="M9 20h6"/></svg><span class="key-hint">6</span>
+          </button>
+          <button class="toolbar-btn" data-tool="stairs" data-tooltip="Stairs — Define staircases between levels">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"/><path d="M17 20V4"/><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/></svg><span class="key-hint">S</span>
+          </button>
+          <button class="toolbar-btn" data-tool="bridge" data-tooltip="Bridge — Place bridges and docks (B)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M2 12a10 10 0 0 1 10-10"/><path d="M22 12a10 10 0 0 0-10-10"/><path d="M6 12v4"/><path d="M12 12v4"/><path d="M18 12v4"/></svg><span class="key-hint">B</span>
+          </button>
+          <button class="toolbar-btn" data-tool="trim" data-tooltip="Trim — Cut diagonal corners off rooms">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg><span class="key-hint">T</span>
+          </button>
+          <button class="toolbar-btn" data-tool="select" data-tooltip="Select — Select and inspect cells">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z"/></svg><span class="key-hint">A</span>
+          </button>
+          <button class="toolbar-btn" data-tool="prop" data-tooltip="Prop — Place furniture and objects">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3"/><path d="M3 16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-4 0v1.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V11a2 2 0 0 0-4 0z"/><path d="M5 18v2"/><path d="M19 18v2"/></svg><span class="key-hint">Q</span>
+          </button>
+          <button class="toolbar-btn" data-tool="erase" data-tooltip="Erase — Remove cells, walls, and fills">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21"/><path d="m5.082 11.09 8.828 8.828"/></svg><span class="key-hint">E</span>
+          </button>
+          <button class="toolbar-btn" data-tool="light" data-tooltip="Light — Place and configure light sources">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><span class="key-hint">L</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Sidebar: icon bar + switchable panels -->
+    <div id="right-sidebar">
+      <div id="right-content">
+        <div id="right-panel-properties" class="right-panel">
+          <div id="properties-content"></div>
+        </div>
+        <div id="right-panel-history" class="right-panel" data-display="block" style="display:none;">
+          <div id="history-panel-content"></div>
+        </div>
+      </div>
+      <div id="right-icon-bar">
+        <button class="right-icon-btn active" data-right-panel="properties" title="Properties">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M9 8v5M9 5.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="right-icon-btn" data-right-panel="history" title="History">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 4v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div id="status-bar">
+      <span id="status-left">—</span>
+      <span id="status-center"></span>
+      <span id="status-right"></span>
+    </div>
+
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+  <script>
+    // Load automation API when ?api query param is present
+    if (new URLSearchParams(location.search).has('api')) {
+      const s = document.createElement('script');
+      s.type = 'module';
+      s.src = 'js/editor-api.js';
+      document.head.appendChild(s);
+    }
+  </script>
+</body>
+</html>

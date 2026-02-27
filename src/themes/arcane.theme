@@ -1,0 +1,40 @@
+{
+  "displayName": "Arcane",
+  "background": "#1c1430",
+  "gridLine": "#000000",
+  "wallStroke": "#d0a800",
+  "wallFill": "#281848",
+  "textColor": "#e8c840",
+  "borderColor": "#7050b0",
+  "doorFill": "#1c1430",
+  "doorStroke": "#d0a800",
+  "trapColor": "#ff2878",
+  "secretDoorColor": "#d0a800",
+  "compassRoseFill": "#e8c840",
+  "compassRoseStroke": "#d0a800",
+  "wallRoughness": 0.5,
+  "wallShadow": {
+    "color": "rgba(160,100,220,0.28)",
+    "blur": 14,
+    "offsetX": 4,
+    "offsetY": 6
+  },
+  "hatchColor": "#d0a800",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.05,
+  "bufferShadingOpacity": 0.22,
+  "outerShading": {
+    "color": "#1a1038",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#5037a5",
+  "waterMediumColor": "#371e7d",
+  "waterDeepColor": "#1e0f55",
+  "waterCausticColor": "rgba(180,140,255,0.55)",
+  "lavaShallowColor": "#cc4488",
+  "lavaMediumColor": "#992266",
+  "lavaDeepColor": "#661144",
+  "lavaCausticColor": "rgba(255,120,180,0.55)"
+}

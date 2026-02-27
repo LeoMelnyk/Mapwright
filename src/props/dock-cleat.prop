@@ -1,0 +1,21 @@
+name: Dock Cleat
+category: Nautical
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Mounting base plate
+rect 0.26,0.36 0.48,0.28 fill #666666 0.85
+rect 0.26,0.36 0.48,0.28 stroke #333333
+# Main cleat bar (wider than base)
+rect 0.1,0.42 0.8,0.16 fill #777777 0.85
+rect 0.1,0.42 0.8,0.16 stroke #333333
+# Horn ends (slightly flared tips)
+ellipse 0.16,0.5 0.1,0.14 fill #6a6a6a 0.85
+ellipse 0.16,0.5 0.1,0.14 stroke #333333
+ellipse 0.84,0.5 0.1,0.14 fill #6a6a6a 0.85
+ellipse 0.84,0.5 0.1,0.14 stroke #333333
+# Mounting bolt holes
+circle 0.38,0.5 0.04 fill #222222 0.8
+circle 0.62,0.5 0.04 fill #222222 0.8

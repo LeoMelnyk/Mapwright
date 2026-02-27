@@ -1,0 +1,13 @@
+{
+  "displayName": "Grey Roof Tiles",
+  "category": "Roofing",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/grey_roof_tiles_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/grey_roof_tiles_disp_1k.png",
+    "nor": "polyhaven/grey_roof_tiles_nor_gl_1k.png",
+    "arm": "polyhaven/grey_roof_tiles_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

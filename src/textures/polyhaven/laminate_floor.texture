@@ -1,0 +1,13 @@
+{
+  "displayName": "Laminate Floor",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/laminate_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/laminate_floor_disp_1k.png",
+    "nor": "polyhaven/laminate_floor_nor_gl_1k.png",
+    "arm": "polyhaven/laminate_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

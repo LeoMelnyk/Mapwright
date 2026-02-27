@@ -1,0 +1,13 @@
+{
+  "displayName": "Coast Land Rocks 01",
+  "category": "Outdoor",
+  "subcategory": "Natural",
+  "file": "polyhaven/coast_land_rocks_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/coast_land_rocks_01_disp_1k.png",
+    "nor": "polyhaven/coast_land_rocks_01_nor_gl_1k.png",
+    "arm": "polyhaven/coast_land_rocks_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

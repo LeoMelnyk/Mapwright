@@ -1,0 +1,22 @@
+name: Signal Fire
+category: Lighting
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+---
+# Stone platform base
+rect 0.10,0.10 0.80,0.80 texfill polyhaven/cobblestone_floor_01 0.75
+rect 0.10,0.10 0.80,0.80 stroke #555555
+# Log base (crossed logs)
+line 0.20,0.70 0.80,0.30 stroke #4a2800
+line 0.80,0.70 0.20,0.30 stroke #4a2800
+# Fire glow layers
+circle 0.50,0.50 0.28 fill #cc3300 0.20
+circle 0.50,0.50 0.22 fill #e85500 0.35
+circle 0.50,0.50 0.16 fill #ff7700 0.50
+circle 0.50,0.50 0.10 fill #ffaa00 0.60
+circle 0.50,0.50 0.06 fill #ffcc00 0.70
+circle 0.50,0.50 0.03 fill #ffffff 0.50
+# Platform edge detail
+rect 0.10,0.10 0.80,0.80 stroke #333333 0.40

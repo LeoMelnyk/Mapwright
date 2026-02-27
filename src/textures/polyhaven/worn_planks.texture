@@ -1,0 +1,12 @@
+{
+  "displayName": "Worn Planks",
+  "category": "Wood",
+  "file": "polyhaven/worn_planks_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/worn_planks_disp_1k.png",
+    "nor": "polyhaven/worn_planks_nor_gl_1k.png",
+    "arm": "polyhaven/worn_planks_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

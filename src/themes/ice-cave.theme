@@ -1,0 +1,40 @@
+{
+  "displayName": "Ice Cave",
+  "background": "#e8ecf0",
+  "gridLine": "#000000",
+  "wallStroke": "#1a2530",
+  "wallFill": "#d0d8e0",
+  "textColor": "#1a2530",
+  "borderColor": "#5a8aaa",
+  "doorFill": "#d0d8e0",
+  "doorStroke": "#1a2530",
+  "trapColor": "#dc143c",
+  "secretDoorColor": "#1a2530",
+  "compassRoseFill": "#1a2530",
+  "compassRoseStroke": "#1a2530",
+  "wallRoughness": 0.7,
+  "wallShadow": {
+    "color": "rgba(26,37,48,0.20)",
+    "blur": 10,
+    "offsetX": 5,
+    "offsetY": 6
+  },
+  "hatchColor": "#1a2530",
+  "hatchSize": 0.5,
+  "hatchOpacity": 0.15,
+  "bufferShadingOpacity": 0.12,
+  "outerShading": {
+    "color": "#b8c8d8",
+    "size": 11,
+    "roughness": 0.5
+  },
+  "textureBlendWidth": 0.35,
+  "waterShallowColor": "#5aa0c8",
+  "waterMediumColor": "#3278aa",
+  "waterDeepColor": "#144b87",
+  "waterCausticColor": "rgba(180,225,255,0.55)",
+  "lavaShallowColor": "#cc4400",
+  "lavaMediumColor": "#992200",
+  "lavaDeepColor": "#661100",
+  "lavaCausticColor": "rgba(255,120,40,0.55)"
+}

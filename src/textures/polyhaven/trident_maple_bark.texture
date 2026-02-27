@@ -1,0 +1,13 @@
+{
+  "displayName": "Trident Maple Bark",
+  "category": "Natural",
+  "subcategory": "Bark",
+  "file": "polyhaven/trident_maple_bark_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/trident_maple_bark_disp_1k.png",
+    "nor": "polyhaven/trident_maple_bark_nor_gl_1k.png",
+    "arm": "polyhaven/trident_maple_bark_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

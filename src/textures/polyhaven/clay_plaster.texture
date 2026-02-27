@@ -1,0 +1,13 @@
+{
+  "displayName": "Clay Plaster",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/clay_plaster_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/clay_plaster_disp_1k.png",
+    "nor": "polyhaven/clay_plaster_nor_gl_1k.png",
+    "arm": "polyhaven/clay_plaster_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

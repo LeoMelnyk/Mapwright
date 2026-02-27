@@ -1,0 +1,13 @@
+{
+  "displayName": "Stenciled Brick Floor",
+  "category": "Outdoor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/stenciled_brick_floor_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/stenciled_brick_floor_disp_1k.png",
+    "nor": "polyhaven/stenciled_brick_floor_nor_gl_1k.png",
+    "arm": "polyhaven/stenciled_brick_floor_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

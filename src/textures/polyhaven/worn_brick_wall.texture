@@ -1,0 +1,13 @@
+{
+  "displayName": "Worn Brick Wall",
+  "category": "Wall",
+  "subcategory": "Man Made",
+  "file": "polyhaven/worn_brick_wall_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/worn_brick_wall_disp_1k.png",
+    "nor": "polyhaven/worn_brick_wall_nor_gl_1k.png",
+    "arm": "polyhaven/worn_brick_wall_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

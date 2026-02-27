@@ -1,0 +1,13 @@
+{
+  "displayName": "Painted Worn Brick",
+  "category": "Wall",
+  "subcategory": "Brick",
+  "file": "polyhaven/painted_worn_brick_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/painted_worn_brick_disp_1k.png",
+    "nor": "polyhaven/painted_worn_brick_nor_gl_1k.png",
+    "arm": "polyhaven/painted_worn_brick_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

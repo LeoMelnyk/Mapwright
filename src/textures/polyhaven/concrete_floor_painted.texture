@@ -1,0 +1,13 @@
+{
+  "displayName": "Concrete Floor Painted",
+  "category": "Concrete",
+  "subcategory": "Outdoor",
+  "file": "polyhaven/concrete_floor_painted_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/concrete_floor_painted_disp_1k.png",
+    "nor": "polyhaven/concrete_floor_painted_nor_gl_1k.png",
+    "arm": "polyhaven/concrete_floor_painted_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

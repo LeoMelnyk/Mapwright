@@ -1,0 +1,13 @@
+{
+  "displayName": "Old Linoleum Flooring 01",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/old_linoleum_flooring_01_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/old_linoleum_flooring_01_disp_1k.png",
+    "nor": "polyhaven/old_linoleum_flooring_01_nor_gl_1k.png",
+    "arm": "polyhaven/old_linoleum_flooring_01_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

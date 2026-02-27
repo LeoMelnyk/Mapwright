@@ -1,0 +1,20 @@
+name: Painting
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+---
+# Painting hung on north wall — from above, only the top edge of the frame is visible
+# plus a thin shadow where it stands off the wall
+
+# Top edge of picture frame (dark wood strip along north edge)
+rect 0.25,0.1 1.5,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.25,0.1 1.5,0.08 stroke #2a1400
+
+# Frame corner accents (slightly thicker at corners)
+rect 0.25,0.1 0.06,0.08 fill #2a1400 0.5
+rect 1.69,0.1 0.06,0.08 fill #2a1400 0.5
+
+# Shadow line below the frame (where painting stands off wall)
+rect 0.28,0.18 1.44,0.04 fill #000000 0.15

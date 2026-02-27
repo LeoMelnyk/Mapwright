@@ -1,0 +1,10 @@
+{
+  "displayName": "Lava Glow",
+  "category": "Natural",
+  "description": "The deep red-orange radiance of molten rock",
+  "type": "point",
+  "color": "#ff4400",
+  "radius": 20,
+  "intensity": 1.0,
+  "falloff": "linear"
+}

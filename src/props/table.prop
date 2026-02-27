@@ -1,0 +1,15 @@
+name: Table
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+---
+# Table top
+rect 0.1,0.1 1.8,1.8 texfill polyhaven/wood_table 0.85
+rect 0.1,0.1 1.8,1.8 stroke #5c3a1e
+# Leg shadows in corners
+circle 0.22,0.22 0.06 fill #3a1f00 0.5
+circle 1.78,0.22 0.06 fill #3a1f00 0.5
+circle 0.22,1.78 0.06 fill #3a1f00 0.5
+circle 1.78,1.78 0.06 fill #3a1f00 0.5

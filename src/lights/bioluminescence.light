@@ -1,0 +1,10 @@
+{
+  "displayName": "Bioluminescence",
+  "category": "Natural",
+  "description": "A soft teal-green glow from luminescent cave life",
+  "type": "point",
+  "color": "#44ddaa",
+  "radius": 10,
+  "intensity": 0.5,
+  "falloff": "smooth"
+}

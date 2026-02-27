@@ -1,0 +1,13 @@
+{
+  "displayName": "Japanese Camphor Bark",
+  "category": "Natural",
+  "subcategory": "Bark",
+  "file": "polyhaven/japanese_camphor_bark_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/japanese_camphor_bark_disp_1k.png",
+    "nor": "polyhaven/japanese_camphor_bark_nor_gl_1k.png",
+    "arm": "polyhaven/japanese_camphor_bark_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

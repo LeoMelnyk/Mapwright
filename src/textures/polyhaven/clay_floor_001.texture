@@ -1,0 +1,13 @@
+{
+  "displayName": "Clay Floor 001",
+  "category": "Floor",
+  "subcategory": "Man Made",
+  "file": "polyhaven/clay_floor_001_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/clay_floor_001_disp_1k.png",
+    "nor": "polyhaven/clay_floor_001_nor_gl_1k.png",
+    "arm": "polyhaven/clay_floor_001_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}

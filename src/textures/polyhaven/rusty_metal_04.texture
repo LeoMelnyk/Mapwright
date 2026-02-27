@@ -1,0 +1,13 @@
+{
+  "displayName": "Rusty Metal 04",
+  "category": "Man Made",
+  "subcategory": "Metal",
+  "file": "polyhaven/rusty_metal_04_diff_1k.png",
+  "maps": {
+    "disp": "polyhaven/rusty_metal_04_disp_1k.png",
+    "nor": "polyhaven/rusty_metal_04_nor_gl_1k.png",
+    "arm": "polyhaven/rusty_metal_04_arm_1k.png"
+  },
+  "scale": 2,
+  "credit": "Polyhaven (CC0)"
+}
