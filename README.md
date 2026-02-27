@@ -76,14 +76,6 @@ The per-cell texture library is not included in the repo. The editor works fine 
 node tools/polyhaven/download-polyhaven.js
 ```
 
-**TextureCan textures** — requires manual download:
-1. Download the texture zip archives from [texturecn.com](https://texturecn.com)
-2. Place the zips in `src/textures/texturecan/process/`
-3. Run the processor:
-```bash
-node tools/texturecan/process-texturecan.js
-```
-
 ---
 
 ## Two Ways to Make Maps

@@ -11,5 +11,5 @@ circle 0.5,0.5 0.40 stroke
 # Inner stone rim detail
 circle 0.5,0.5 0.32 stroke
 # Water center
-circle 0.5,0.5 0.24 texfill texturecan/water_waves 0.85
+circle 0.5,0.5 0.24 fill #4a7799 0.75
 circle 0.5,0.5 0.24 stroke

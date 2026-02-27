@@ -9,7 +9,7 @@ blocks_light: no
 ellipse 1.0,0.5 0.88,0.42 texfill polyhaven/marble_01 0.8
 ellipse 1.0,0.5 0.88,0.42 stroke #888888
 # Inner water surface
-ellipse 1.0,0.5 0.72,0.3 texfill texturecan/water_waves 0.75
+ellipse 1.0,0.5 0.72,0.3 fill #4a7799 0.70
 ellipse 1.0,0.5 0.72,0.3 stroke #6688aa
 # Drain
 circle 1.0,0.5 0.05 fill #333333 0.6

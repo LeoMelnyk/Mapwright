@@ -6,7 +6,7 @@ shadow: yes
 blocks_light: yes
 ---
 # Canopy
-circle 1.0,1.0 0.82 texfill texturecan/leafy_forest 0.75
+circle 1.0,1.0 0.82 texfill polyhaven/forest_leaves_02 0.75
 circle 1.0,1.0 0.82 stroke #2d5a1e
 # Canopy lobe details
 circle 0.72,0.75 0.32 fill #3a7a28 0.3

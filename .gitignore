@@ -2,7 +2,6 @@ node_modules/
 
 # Texture maps — see README for download instructions
 src/textures/**/*.png
-src/textures/texturecan/process/
 
 # Generated output files (uncomment if you don't want to commit renders)
 # *.png

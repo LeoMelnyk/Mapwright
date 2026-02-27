@@ -9,7 +9,7 @@ blocks_light: no
 rect 0.05,0.15 1.9,0.7 texfill polyhaven/weathered_planks 0.82
 rect 0.05,0.15 1.9,0.7 stroke #4a2800
 # Inner water area
-rect 0.15,0.25 1.7,0.5 texfill texturecan/water_waves 0.65
+rect 0.15,0.25 1.7,0.5 fill #4a7799 0.65
 rect 0.15,0.25 1.7,0.5 stroke #555555
 # End boards
 rect 0.05,0.15 0.1,0.7 fill #6b4530 0.5

@@ -134,9 +134,8 @@ Commands render in file order (top to bottom). **Draw background/base layers fir
 |---|---|---|
 | `polyhaven/bark_brown_01` | Light bark | Branches, smaller wood |
 | `polyhaven/bark_brown_02` | Dark bark | Tree trunks, logs |
-| `texturecan/leafy_forest` | Green foliage | Tree canopy |
-| `texturecan/water_waves` | Blue water | Wells, pools, troughs, baths |
-| `texturecan/lava` | Orange lava | Lava pools |
+| `polyhaven/forest_leaves_02` | Green foliage | Tree canopy |
+| `polyhaven/volcanic_rock_tiles` | Dark volcanic rock | Lava pools (use with orange fill overlays) |
 
 ## Top-Down Perspective Rules
 

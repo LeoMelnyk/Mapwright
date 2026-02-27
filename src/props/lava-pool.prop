@@ -6,7 +6,7 @@ shadow: no
 blocks_light: no
 ---
 # Lava pool
-ellipse 1.0,1.0 0.88,0.82 texfill texturecan/lava 0.8
+ellipse 1.0,1.0 0.88,0.82 texfill polyhaven/volcanic_rock_tiles 0.8
 ellipse 1.0,1.0 0.88,0.82 stroke #8b0000
 # Hot center
 ellipse 1.0,1.05 0.55,0.45 fill #ff4400 0.3
