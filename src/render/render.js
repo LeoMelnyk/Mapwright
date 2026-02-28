@@ -794,8 +794,9 @@ function renderHazardOverlay(ctx, cells, gridSize, transform) {
 
 /**
  * Draw buffer shading, wall segments (with shadows), non-wall borders, and arc walls.
+ * @param {boolean} [showInvisible=false] - When true, render invisible walls/doors in ghost style.
  */
-function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform) {
+function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible = false) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -837,6 +838,16 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
           const dirIdx = WALL_DIRS.indexOf(dir);
           const seed = (row * 1000 + col) * 6 + dirIdx;
           wallSegments.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, seed });
+        } else if (bt === 'iw') {
+          // Invisible wall: skip unless showInvisible (deduplicate same as 'w')
+          if (!showInvisible) continue;
+          if (dir === 'south' && cells[row + 1]?.[col]?.north === 'iw') continue;
+          if (dir === 'east' && cells[row]?.[col + 1]?.west === 'iw') continue;
+          renderBorder(ctx, x1, y1, x2, y2, bt, orient, theme, gridSize, transform);
+        } else if (bt === 'id') {
+          // Invisible door: skip unless showInvisible
+          if (!showInvisible) continue;
+          renderBorder(ctx, x1, y1, x2, y2, bt, orient, theme, gridSize, transform);
         } else {
           renderBorder(ctx, x1, y1, x2, y2, bt, orient, theme, gridSize, transform);
         }
@@ -860,6 +871,10 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
           const diagIdx = diag === 'nw-se' ? 4 : 5;
           const seed = (row * 1000 + col) * 6 + diagIdx;
           wallSegments.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, seed });
+        } else if (bt === 'iw' || bt === 'id') {
+          // Invisible: skip unless showInvisible
+          if (!showInvisible) continue;
+          renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform);
         } else {
           renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform);
         }
@@ -990,7 +1005,7 @@ function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelSt
 /**
  * Render matrix-based dungeon map — orchestrates all rendering phases.
  */
-export function renderCells(ctx, cells, gridSize, theme, transform, showGrid, labelStyle = 'circled', propCatalog = null, textureOptions = null, metadata = null, skipLabels = false) {
+export function renderCells(ctx, cells, gridSize, theme, transform, showGrid, labelStyle = 'circled', propCatalog = null, textureOptions = null, metadata = null, skipLabels = false, showInvisible = false) {
   const roomCells = getCachedRoomCells(cells);
   const roundedCorners = getCachedRoundedCorners(cells);
   const hasRoundedArcs = roundedCorners.size > 0;
@@ -1221,7 +1236,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, showGrid, la
   renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, true);
 
   // Buffer shading + walls + arc walls
-  renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform);
+  renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible);
 
   // Bridges — rendered above fills and walls but below grid, props, and labels
   const getTextureImageForBridges = textureOptions?.catalog

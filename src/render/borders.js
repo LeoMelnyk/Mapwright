@@ -32,6 +32,55 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
+  } else if (borderType === 'iw') {
+    // Invisible wall: dashed blue ghost line (only shown when wall/door tool is active)
+    ctx.save();
+    ctx.setLineDash([6 * s, 4 * s]);
+    ctx.strokeStyle = 'rgba(80, 130, 255, 0.65)';
+    ctx.lineWidth = 4 * s;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+    ctx.restore();
+  } else if (borderType === 'id') {
+    // Invisible door: ghost door symbol (only shown when wall/door tool is active)
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
+    const doorLength = gridSize * transform.scale * 0.6;
+    const halfDoorLength = doorLength / 2;
+
+    ctx.save();
+    ctx.setLineDash([6 * s, 4 * s]);
+    ctx.strokeStyle = 'rgba(80, 130, 255, 0.65)';
+    ctx.lineWidth = 4 * s;
+    ctx.lineCap = 'round';
+
+    if (orientation === 'horizontal') {
+      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(midX - halfDoorLength, midY); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(midX + halfDoorLength, midY); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(midX, midY - halfDoorLength); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(midX, midY + halfDoorLength); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Ghost door rectangle
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = 'rgba(80, 130, 255, 0.3)';
+    ctx.strokeStyle = 'rgba(80, 130, 255, 0.85)';
+    ctx.lineWidth = 2 * s;
+    const doorThickness = 6 * s;
+    if (orientation === 'horizontal') {
+      ctx.fillRect(midX - halfDoorLength / 2, midY - doorThickness / 2, doorLength / 2 * 1.0, doorThickness);
+      // Draw dashes on door rect to distinguish from normal door
+      ctx.strokeRect(midX - halfDoorLength / 2, midY - doorThickness / 2, doorLength / 2 * 1.0, doorThickness);
+    } else {
+      ctx.fillRect(midX - doorThickness / 2, midY - halfDoorLength / 2, doorThickness, doorLength / 2 * 1.0);
+      ctx.strokeRect(midX - doorThickness / 2, midY - halfDoorLength / 2, doorThickness, doorLength / 2 * 1.0);
+    }
+    ctx.restore();
   } else if (borderType === 'd') {
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
@@ -243,6 +292,51 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
+
+  } else if (borderType === 'iw') {
+    // Invisible diagonal wall: dashed blue ghost line
+    ctx.save();
+    ctx.setLineDash([6 * s, 4 * s]);
+    ctx.strokeStyle = 'rgba(80, 130, 255, 0.65)';
+    ctx.lineWidth = 4 * s;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
+    ctx.restore();
+
+  } else if (borderType === 'id') {
+    // Invisible diagonal door: ghost diagonal door symbol
+    const midX = (p1.x + p2.x) / 2;
+    const midY = (p1.y + p2.y) / 2;
+    const doorLength = gridSize * transform.scale * 0.6;
+    const halfDoorLength = doorLength / 2;
+    const diagonalLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+    const ratio = halfDoorLength / diagonalLength;
+    const dx = (p2.x - p1.x) * ratio;
+    const dy = (p2.y - p1.y) * ratio;
+
+    ctx.save();
+    ctx.setLineDash([6 * s, 4 * s]);
+    ctx.strokeStyle = 'rgba(80, 130, 255, 0.65)';
+    ctx.lineWidth = 4 * s;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(midX - dx, midY - dy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(midX + dx, midY + dy); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Ghost door rectangle at diagonal
+    ctx.translate(midX, midY);
+    if (diagonal === 'nw-se') { ctx.rotate(Math.PI / 4); } else { ctx.rotate(-Math.PI / 4); }
+    const doorThickness = 6 * s;
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = 'rgba(80, 130, 255, 0.3)';
+    ctx.strokeStyle = 'rgba(80, 130, 255, 0.85)';
+    ctx.lineWidth = 2 * s;
+    ctx.fillRect(-halfDoorLength / 2, -doorThickness / 2, doorLength / 2, doorThickness);
+    ctx.strokeRect(-halfDoorLength / 2, -doorThickness / 2, doorLength / 2, doorThickness);
+    ctx.restore();
 
   } else if (borderType === 'd') {
     const midX = (p1.x + p2.x) / 2;

@@ -154,14 +154,20 @@ export class WallTool extends Tool {
   _placeWall(row, col) {
     const cells = state.dungeon.cells;
     const direction = this.lockedDir;
+    const wallType = state.wallType || 'w';
 
     if (!isInBounds(cells, row, col)) return;
 
     // Skip void cells — walls require an existing cell on this side
     if (!cells[row][col]) return;
     const existing = cells[row][col];
-    if (existing[direction] === 'w') return;
-    if (existing[direction] === 'd' || existing[direction] === 's') return;
+    if (existing[direction] === wallType) return;
+    if (existing[direction] === 'd' || existing[direction] === 's' || existing[direction] === 'id') return;
+    // Overwrite the other wall type (normal ↔ invisible) without skipping
+    const otherWall = wallType === 'w' ? 'iw' : 'w';
+    if (existing[direction] === otherWall) {
+      // Allow overwrite — fall through to setEdgeReciprocal
+    }
 
     const before = captureBeforeState(cells, [{ row, col }]);
 
@@ -170,7 +176,7 @@ export class WallTool extends Tool {
       this.undoPushed = true;
     }
 
-    setEdgeReciprocal(cells, row, col, direction, 'w');
+    setEdgeReciprocal(cells, row, col, direction, wallType);
 
     invalidateLightmap();
     smartInvalidate(before, cells);

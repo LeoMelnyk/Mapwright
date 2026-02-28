@@ -48,6 +48,7 @@ export function buildPlayerCells(dungeon, revealedCells, openedDoors) {
       if (pc.center && Object.keys(pc.center).length === 0) delete pc.center;
 
       // Secret doors: unopened → wall, opened → normal door
+      // Invisible walls/doors: always stripped — players never see them
       for (const dir of ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw']) {
         if (pc[dir] === 's') {
           if (openedSet.has(`${r},${c},${dir}`)) {
@@ -55,6 +56,8 @@ export function buildPlayerCells(dungeon, revealedCells, openedDoors) {
           } else {
             pc[dir] = 'w'; // hide as wall
           }
+        } else if (pc[dir] === 'iw' || pc[dir] === 'id') {
+          delete pc[dir]; // invisible to players — no wall, no door symbol
         }
       }
 

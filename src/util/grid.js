@@ -54,10 +54,11 @@ export function isEdgeOpen(cell, neighbor, dir) {
 
 /**
  * Check if the edge between two adjacent cells is passable
- * (walls block, but doors and secret doors are allowed).
+ * (walls and invisible walls block, but doors and secret doors are allowed).
  */
 export function isEdgePassable(cell, neighbor, dir) {
-  return cell?.[dir] !== 'w' && neighbor?.[OPPOSITE[dir]] !== 'w';
+  const a = cell?.[dir], b = neighbor?.[OPPOSITE[dir]];
+  return a !== 'w' && a !== 'iw' && b !== 'w' && b !== 'iw';
 }
 
 // ── Room bounds from cell key set ──────────────────────────────────────────
@@ -212,8 +213,8 @@ export function floodFillRoom(cells, startRow, startCol, options = {}) {
     for (const { dir, dr, dc } of CARDINAL_DIRS) {
       // Check exit edge on current cell
       const edge = cell[dir];
-      if (edge === 'w') continue;                    // wall always blocks
-      if (edge && !traverseDoors) continue;           // doors block unless traverseDoors
+      if (edge === 'w' || edge === 'iw') continue;   // wall and invisible wall always block
+      if (edge && !traverseDoors) continue;           // doors (including 'id') block unless traverseDoors
       if (diagonalBlocked.has(dir)) continue;         // diagonal wall blocks this exit
 
       const nr = r + dr, nc = c + dc;
@@ -229,8 +230,8 @@ export function floodFillRoom(cells, startRow, startCol, options = {}) {
 
       // Check entry edge on neighbor cell
       const nEdge = neighbor[neighborEntryDir];
-      if (nEdge === 'w') continue;                    // wall always blocks
-      if (nEdge && !traverseDoors) continue;           // doors block unless traverseDoors
+      if (nEdge === 'w' || nEdge === 'iw') continue;  // wall and invisible wall always block
+      if (nEdge && !traverseDoors) continue;           // doors (including 'id') block unless traverseDoors
       // Open-trim arch floor cells are fog-of-war boundaries: visible from either side
       // but looking through an arch doesn't auto-reveal the room beyond it.
       if (neighbor.trimInsideArc && !traverseDoors) continue;

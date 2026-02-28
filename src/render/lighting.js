@@ -40,16 +40,16 @@ export function extractWallSegments(cells, gridSize, propCatalog) {
       const cx1 = (col + 1) * gridSize;
       const cy1 = (row + 1) * gridSize;
 
-      // Cardinal walls (w, d, s all block light)
-      if (cell.north) addSeg(cx, cy, cx1, cy);
-      if (cell.south) addSeg(cx, cy1, cx1, cy1);
-      if (cell.west)  addSeg(cx, cy, cx, cy1);
-      if (cell.east)  addSeg(cx1, cy, cx1, cy1);
+      // Cardinal walls (w, d, s all block light; iw and id are invisible — light passes through)
+      if (cell.north && cell.north !== 'iw' && cell.north !== 'id') addSeg(cx, cy, cx1, cy);
+      if (cell.south && cell.south !== 'iw' && cell.south !== 'id') addSeg(cx, cy1, cx1, cy1);
+      if (cell.west  && cell.west  !== 'iw' && cell.west  !== 'id') addSeg(cx, cy, cx, cy1);
+      if (cell.east  && cell.east  !== 'iw' && cell.east  !== 'id') addSeg(cx1, cy, cx1, cy1);
 
       // Diagonal walls — skip for arc-trimmed cells; arc segments provide the boundary instead
       if (!cell.trimRound) {
-        if (cell['nw-se']) addSeg(cx, cy, cx1, cy1);
-        if (cell['ne-sw']) addSeg(cx1, cy, cx, cy1);
+        if (cell['nw-se'] && cell['nw-se'] !== 'iw' && cell['nw-se'] !== 'id') addSeg(cx, cy, cx1, cy1);
+        if (cell['ne-sw'] && cell['ne-sw'] !== 'iw' && cell['ne-sw'] !== 'id') addSeg(cx1, cy, cx, cy1);
       }
     }
   }

@@ -139,7 +139,8 @@ function render() {
     ? { catalog: state.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: state.texturesVersion ?? 0 }
     : null;
   const lightingEnabled = !!metadata.lightingEnabled;
-  renderCells(ctx, cells, gridSize, theme, transform, showGrid, labelStyle, state.propCatalog, textureOptions, metadata, lightingEnabled);
+  const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door';
+  renderCells(ctx, cells, gridSize, theme, transform, showGrid, labelStyle, state.propCatalog, textureOptions, metadata, lightingEnabled, showInvisible);
 
   // Lighting overlay (after cells, before decorations so borders stay visible)
   if (lightingEnabled) {

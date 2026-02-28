@@ -245,7 +245,7 @@ export function openDoor(row, col, dir) {
   const cell = cells[row]?.[col];
   if (!cell) return;
 
-  const doorType = cell[dir]; // 'd' or 's'
+  const doorType = cell[dir]; // 'd', 's', or 'id'
   const wasSecret = doorType === 's';
 
   // Record opened door
@@ -396,14 +396,15 @@ function findRevealableDoors() {
     const cell = cells[r]?.[c];
     if (!cell) continue;
 
-    // Cardinal doors
+    // Cardinal doors (normal, secret, and invisible)
     for (const dir of ['north', 'south', 'east', 'west']) {
-      if (cell[dir] !== 'd' && cell[dir] !== 's') continue;
+      if (cell[dir] !== 'd' && cell[dir] !== 's' && cell[dir] !== 'id') continue;
 
       const dkey = `${r},${c},${dir}`;
       if (seen.has(dkey)) continue;
 
       const isSecret = cell[dir] === 's';
+      const isInvisible = cell[dir] === 'id';
 
       // Secret doors: always show button until opened
       if (isSecret) {
@@ -413,7 +414,7 @@ function findRevealableDoors() {
         continue;
       }
 
-      // Normal doors: only show if neighbor is unrevealed
+      // Normal/invisible doors: only show if neighbor is unrevealed
       const [dr, dc] = OFFSETS[dir];
       const nr = r + dr, nc = c + dc;
       const neighborKey = cellKey(nr, nc);
@@ -422,17 +423,18 @@ function findRevealableDoors() {
       if (!cells[nr]?.[nc]) continue;
 
       seen.add(dkey);
-      doors.push({ row: r, col: c, dir, type: 'd' });
+      doors.push({ row: r, col: c, dir, type: isInvisible ? 'id' : 'd' });
     }
 
     // Diagonal doors (nw-se, ne-sw)
     for (const diagDir of ['nw-se', 'ne-sw']) {
-      if (cell[diagDir] !== 'd' && cell[diagDir] !== 's') continue;
+      if (cell[diagDir] !== 'd' && cell[diagDir] !== 's' && cell[diagDir] !== 'id') continue;
 
       const dkey = `${r},${c},${diagDir}`;
       if (seen.has(dkey)) continue;
 
       const isSecret = cell[diagDir] === 's';
+      const isInvisible = cell[diagDir] === 'id';
 
       // Secret doors: always show button until opened
       if (isSecret) {
@@ -442,7 +444,7 @@ function findRevealableDoors() {
         continue;
       }
 
-      // Normal doors: check if the OTHER half has unrevealed neighbor cells
+      // Normal/invisible doors: check if the OTHER half has unrevealed neighbor cells
       const otherSideDirs = getOtherSideDirs(cell, r, c, diagDir);
       if (!otherSideDirs) continue;
 
@@ -460,7 +462,7 @@ function findRevealableDoors() {
       if (!hasUnrevealed) continue;
 
       seen.add(dkey);
-      doors.push({ row: r, col: c, dir: diagDir, type: 'd' });
+      doors.push({ row: r, col: c, dir: diagDir, type: isInvisible ? 'id' : 'd' });
     }
   }
   return doors;
@@ -557,7 +559,9 @@ export function renderSessionOverlay(ctx, transform, gridSize) {
   const doors = findRevealableDoors();
   for (const { row, col, dir, type } of doors) {
     const p = getDoorMidpoint(row, col, dir, gridSize, transform);
-    const color = type === 's' ? 'rgba(220, 60, 60, 0.85)' : 'rgba(60, 180, 170, 0.85)';
+    const color = type === 's' ? 'rgba(220, 60, 60, 0.85)'
+                : type === 'id' ? 'rgba(80, 130, 255, 0.85)'
+                : 'rgba(60, 180, 170, 0.85)';
     drawDoorIcon(ctx, p.x, p.y, DOOR_BUTTON_RADIUS, color);
   }
 

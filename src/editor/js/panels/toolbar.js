@@ -64,7 +64,8 @@ const toolOptions = {
               }
             } },
   erase:  { key: 'eraseMode',  attr: 'data-erase-mode',  values: ['all', 'texture'] },
-  door:   { key: 'doorType',   attr: 'data-door-type',   values: ['d', 's'] },
+  wall:   { key: 'wallType',   attr: 'data-wall-type',   values: ['w', 'iw'] },
+  door:   { key: 'doorType',   attr: 'data-door-type',   values: ['d', 's', 'id'] },
   stairs: { key: 'stairsMode', attr: 'data-stairs-mode', values: ['place', 'link'],
             cursor: v => v === 'link' ? 'pointer' : 'crosshair' },
   bridge: { key: 'bridgeType', attr: 'data-bridge-type', values: ['wood', 'stone', 'rope', 'dock'] },
