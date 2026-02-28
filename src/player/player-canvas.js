@@ -3,7 +3,7 @@
 import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache } from '../render/index.js';
 import { renderLightmap } from '../render/index.js';
 import { toCanvas } from '../render/index.js';
-import { buildPlayerCells, filterStairsForPlayer } from './fog.js';
+import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer } from './fog.js';
 import playerState from './player-state.js';
 
 const CELL_SIZE = 40; // pixels per cell at zoom=1
@@ -139,7 +139,9 @@ function render(timestamp) {
   const filteredStairs = filterStairsForPlayer(
     metadata.stairs, playerState.revealedCells, playerState.openedStairs
   );
-  const playerMetadata = { ...metadata, stairs: filteredStairs };
+  // Filter bridges: hide bridges whose control point cells haven't been revealed
+  const filteredBridges = filterBridgesForPlayer(metadata.bridges, playerState.revealedCells);
+  const playerMetadata = { ...metadata, stairs: filteredStairs, bridges: filteredBridges };
 
   // Render using existing pipeline
   const showGrid = metadata.features?.showGrid !== false;

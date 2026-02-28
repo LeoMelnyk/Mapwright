@@ -146,6 +146,13 @@ export function buildPlayerCells(dungeon, revealedCells, openedDoors) {
  * - Only include stairs with at least one occupied cell revealed (hatching visible)
  * - For stairs not in openedStairIds, strip the link label (set link: null)
  */
+export function filterBridgesForPlayer(bridges, revealedCells) {
+  if (!bridges || bridges.length === 0) return [];
+  return bridges.filter(bridge =>
+    bridge.points.some(([row, col]) => revealedCells.has(cellKey(row, col)))
+  );
+}
+
 export function filterStairsForPlayer(stairs, revealedCells, openedStairIds) {
   if (!stairs || stairs.length === 0) return [];
 
