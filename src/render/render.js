@@ -1005,7 +1005,16 @@ function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelSt
 /**
  * Render matrix-based dungeon map — orchestrates all rendering phases.
  */
-export function renderCells(ctx, cells, gridSize, theme, transform, showGrid, labelStyle = 'circled', propCatalog = null, textureOptions = null, metadata = null, skipLabels = false, showInvisible = false) {
+export function renderCells(ctx, cells, gridSize, theme, transform, options = {}) {
+  const {
+    showGrid = false,
+    labelStyle = 'circled',
+    propCatalog = null,
+    textureOptions = null,
+    metadata = null,
+    skipLabels = false,
+    showInvisible = false,
+  } = options;
   const roomCells = getCachedRoomCells(cells);
   const roundedCorners = getCachedRoundedCorners(cells);
   const hasRoundedArcs = roundedCorners.size > 0;

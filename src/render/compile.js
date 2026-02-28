@@ -113,7 +113,10 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
 
       const levelTexOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
       const levelLightingEnabled = !!config.metadata.lightingEnabled;
-      renderCells(ctx, levelCells, gridSize, theme, levelTransform, showGridInCorridors, labelStyle, propCatalog, levelTexOpts, config.metadata, levelLightingEnabled);
+      renderCells(ctx, levelCells, gridSize, theme, levelTransform, {
+        showGrid: showGridInCorridors, labelStyle, propCatalog, textureOptions: levelTexOpts,
+        metadata: config.metadata, skipLabels: levelLightingEnabled,
+      });
 
       // Lighting overlay for this level (pixel-perfect for export)
       if (levelLightingEnabled) {
@@ -162,7 +165,10 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
 
     const texOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
     const singleLevelLightingEnabled = !!config.metadata.lightingEnabled;
-    renderCells(ctx, config.cells, gridSize, theme, transform, showGridInCorridors, labelStyle, propCatalog, texOpts, config.metadata, singleLevelLightingEnabled);
+    renderCells(ctx, config.cells, gridSize, theme, transform, {
+      showGrid: showGridInCorridors, labelStyle, propCatalog, textureOptions: texOpts,
+      metadata: config.metadata, skipLabels: singleLevelLightingEnabled,
+    });
 
     // Lighting overlay (pixel-perfect for export)
     if (singleLevelLightingEnabled) {

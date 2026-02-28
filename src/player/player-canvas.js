@@ -151,8 +151,10 @@ function render(timestamp) {
     : null;
 
   const lightingEnabled = !!(playerMetadata.lightingEnabled && playerMetadata.lights?.length > 0);
-  renderCells(ctx, playerCells, gridSize, theme, transform, showGrid, labelStyle,
-    playerState.propCatalog, textureOptions, playerMetadata, lightingEnabled);
+  renderCells(ctx, playerCells, gridSize, theme, transform, {
+    showGrid, labelStyle, propCatalog: playerState.propCatalog, textureOptions,
+    metadata: playerMetadata, skipLabels: lightingEnabled,
+  });
 
   // Lighting overlay
   if (lightingEnabled) {

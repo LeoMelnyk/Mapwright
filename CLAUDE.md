@@ -241,13 +241,25 @@ node puppeteer-bridge.js --load map.json --commands '[...]' --screenshot result.
 
 ### Cell
 ```
-{ north, south, east, west: "w"|"d"|"s"|null,
-  "nw-se", "ne-sw": "w"|null,
+{ north, south, east, west: "w"|"d"|"s"|"iw"|"id"|null,
+  "nw-se", "ne-sw": "w"|"iw"|null,
   fill, texture: {id, opacity},
   trimmed: true|undefined,
   center: {label},
   prop: {type, span, facing, flipped} }
 ```
+
+### Edge value taxonomy
+
+| Value | Name | BFS | Casts shadow | Player sees |
+|-------|------|-----|--------------|-------------|
+| `"w"` | Wall | Blocks always | Yes | Wall |
+| `"d"` | Door | Blocks (passable with `traverseDoors`) | Yes | Door |
+| `"s"` | Secret door | Blocks (passable with `traverseDoors`) | Yes | Wall until opened |
+| `"iw"` | Invisible wall | Blocks always | **No** | Nothing |
+| `"id"` | Invisible door | Blocks (passable with `traverseDoors`) | **No** | Nothing (DM can open) |
+
+Invisible types are stripped from player cells in `player/fog.js` and excluded from shadow geometry in `render/lighting.js` (`extractWallSegments`). **Note:** `render/lighting-hq.js` (export pipeline) imports `extractWallSegments` directly from `lighting.js`, so invisible-type exclusions apply automatically to both real-time and HQ rendering without any additional changes.
 
 ### Metadata
 ```

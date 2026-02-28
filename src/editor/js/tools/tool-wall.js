@@ -163,11 +163,7 @@ export class WallTool extends Tool {
     const existing = cells[row][col];
     if (existing[direction] === wallType) return;
     if (existing[direction] === 'd' || existing[direction] === 's' || existing[direction] === 'id') return;
-    // Overwrite the other wall type (normal ↔ invisible) without skipping
-    const otherWall = wallType === 'w' ? 'iw' : 'w';
-    if (existing[direction] === otherWall) {
-      // Allow overwrite — fall through to setEdgeReciprocal
-    }
+    // 'iw' ↔ 'w' overwrites are allowed — fall through to setEdgeReciprocal
 
     const before = captureBeforeState(cells, [{ row, col }]);
 
