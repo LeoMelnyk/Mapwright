@@ -2,7 +2,12 @@ name: Build Release
 
 on:
   release:
-    types: [published]
+    types: [published, created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the exe to (e.g. v0.2.0)"
+        required: true
 
 permissions:
   contents: write # required to upload assets to the release
@@ -34,4 +39,4 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.event.release.tag_name }}" dist/*.exe
+        run: gh release upload "${{ github.event.release.tag_name || inputs.tag }}" dist/*.exe
