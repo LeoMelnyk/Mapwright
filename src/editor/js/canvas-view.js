@@ -4,6 +4,8 @@ import { renderCells, renderLabels } from '../../render/index.js';
 import { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from '../../render/index.js';
 import { renderLightmap } from '../../render/index.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
+import { initMinimap, updateMinimap } from './minimap.js';
+import { getEditorSettings } from './editor-settings.js';
 
 const CELL_SIZE = 40; // pixels per cell at zoom=1
 const MIN_ZOOM = 0.2;
@@ -63,6 +65,7 @@ export function init(canvasEl) {
 
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
+  initMinimap(canvas);
 
   // Re-render when state changes (theme, features, metadata, etc.)
   subscribe(() => { if (state.dirty) requestRender(); });
@@ -199,15 +202,16 @@ function render() {
 
   // Diagnostics overlay (topmost, fixed to canvas — not affected by pan/zoom)
   lastDrawMs = performance.now() - drawStart;
-  if (features.fpsCounter === true || features.memoryUsage === true) {
+  const editorSettings = getEditorSettings();
+  if (editorSettings.fpsCounter === true || editorSettings.memoryUsage === true) {
     const lines = [];
-    if (features.fpsCounter === true) {
+    if (editorSettings.fpsCounter === true) {
       lines.push({
         text: `Draw: ${lastDrawMs.toFixed(1)}ms`,
         color: lastDrawMs < 8 ? '#4f4' : lastDrawMs < 16 ? '#ff4' : '#f44',
       });
     }
-    if (features.memoryUsage === true) {
+    if (editorSettings.memoryUsage === true) {
       const mem = performance.memory;
       if (mem) {
         const usedMB = (mem.usedJSHeapSize / 1048576).toFixed(1);
@@ -240,6 +244,9 @@ function render() {
     });
     ctx.restore();
   }
+
+  // Minimap overlay (rendered after main canvas, references main canvas dimensions)
+  updateMinimap();
 
   if (state.dirty) {
     state.dirty = false;
@@ -280,6 +287,8 @@ function drawHoverHighlight(ctx, gridSize, transform) {
 }
 
 function drawSelectionHighlight(ctx, gridSize, transform) {
+  // The Select tool draws its own overlay when active — skip double-drawing
+  if (state.activeTool === 'select') return;
   if (!state.selectedCells.length) return;
   ctx.strokeStyle = 'rgba(100, 180, 255, 0.8)';
   ctx.lineWidth = 2;
@@ -431,8 +440,8 @@ function getMousePos(e) {
 function onMouseDown(e) {
   const pos = getMousePos(e);
 
-  // Alt+click: pan
-  if (e.button === 0 && e.altKey) {
+  // Alt+click: pan (unless the active tool handles Alt itself, e.g. paint syringe)
+  if (e.button === 0 && e.altKey && state.activeTool !== 'paint') {
     isPanning = true;
     panStartX = pos.x;
     panStartY = pos.y;
@@ -500,6 +509,7 @@ function onMouseMove(e) {
   if (isPanning) {
     state.panX = panStartPanX + (pos.x - panStartX);
     state.panY = panStartPanY + (pos.y - panStartY);
+    clampPan();
     markDirty();
     requestRender();
     return;
@@ -516,6 +526,7 @@ function onMouseMove(e) {
     if (rightDragged) {
       state.panX = rightStartPanX + dx;
       state.panY = rightStartPanY + dy;
+      clampPan();
       markDirty();
       requestRender();
       return;
@@ -638,6 +649,39 @@ function onWheel(e) {
   markDirty();
   requestRender();
   notify();
+}
+
+/**
+ * Clamp pan so the map can't be scrolled more than ~0.5 viewport widths off screen.
+ */
+function clampPan() {
+  if (!canvas) return;
+  const gridSize = state.dungeon.metadata.gridSize;
+  const scale = CELL_SIZE * state.zoom / gridSize;
+  const numRows = state.dungeon.cells.length;
+  const numCols = state.dungeon.cells[0]?.length || 0;
+  const mapPxW = numCols * gridSize * scale;
+  const mapPxH = numRows * gridSize * scale;
+  const vw = canvas.width;
+  const vh = canvas.height;
+  const leewayX = vw * 0.5;
+  const leewayY = vh * 0.5;
+  state.panX = Math.max(-(mapPxW + leewayX), Math.min(vw + leewayX, state.panX));
+  state.panY = Math.max(-(mapPxH + leewayY), Math.min(vh + leewayY, state.panY));
+}
+
+/**
+ * Zoom to fit the current level in view (H key shortcut).
+ */
+export function zoomToFit() {
+  const levels = state.dungeon.metadata.levels;
+  if (levels?.length) {
+    const level = levels[state.currentLevel] || levels[0];
+    panToLevel(level.startRow, level.numRows);
+  } else {
+    // Single-level map: fit all rows
+    panToLevel(0, state.dungeon.cells.length);
+  }
 }
 
 /**

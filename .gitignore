@@ -1,4 +1,5 @@
 node_modules/
+dist/
 
 # Texture maps — see README for download instructions
 src/textures/**/*.png

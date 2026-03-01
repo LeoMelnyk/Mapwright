@@ -42,13 +42,13 @@ export class LabelTool extends Tool {
 
     if (mode === 'room') {
       if (!cell.center?.label) return;
-      pushUndo();
+      pushUndo('Remove label');
       delete cell.center.label;
       if (cell.center && Object.keys(cell.center).length === 0) delete cell.center;
       markDirty();
     } else {
       if (!cell.center?.dmLabel) return;
-      pushUndo();
+      pushUndo('Remove DM note');
       delete cell.center.dmLabel;
       if (cell.center && Object.keys(cell.center).length === 0) delete cell.center;
       markDirty();
@@ -81,7 +81,7 @@ export class LabelTool extends Tool {
     const nextNum = this._getNextRoomNumber();
     const letter = state.dungeon.metadata.dungeonLetter || 'A';
 
-    pushUndo();
+    pushUndo('Place label');
     if (!cell.center) cell.center = {};
     cell.center.label = letter + nextNum;
     markDirty();
@@ -162,7 +162,7 @@ export class LabelTool extends Tool {
     const cell = cells[this._editRow]?.[this._editCol];
     const text = this._inputEl?.value.trim() || '';
 
-    pushUndo();
+    pushUndo('DM note');
 
     if (text) {
       if (!cell.center) cell.center = {};

@@ -62,11 +62,13 @@ export class StairsTool extends Tool {
 
   onActivate() {
     this._resetPlacement();
+    if (state.stairsMode === 'place') state.statusInstruction = 'Click to place corner 1 of 3';
   }
 
   onDeactivate() {
     this._resetPlacement();
     state.linkSource = null;
+    state.statusInstruction = null;
   }
 
   _resetPlacement() {
@@ -83,6 +85,7 @@ export class StairsTool extends Tool {
   onCancel() {
     if (this._phase !== 'idle') {
       this._resetPlacement();
+      if (state.stairsMode === 'place') state.statusInstruction = 'Click to place corner 1 of 3';
       requestRender();
       return true;
     }
@@ -93,6 +96,7 @@ export class StairsTool extends Tool {
     if (event.key === 'Escape') {
       if (this._phase !== 'idle') {
         this._resetPlacement();
+        if (state.stairsMode === 'place') state.statusInstruction = 'Click to place corner 1 of 3';
         requestRender();
         event.preventDefault();
       }
@@ -104,7 +108,7 @@ export class StairsTool extends Tool {
     const id = stairIdAt(row, col);
     if (id == null) return;
 
-    pushUndo();
+    pushUndo('Remove stairs');
     this._removeStair(id);
     markDirty();
     requestRender();
@@ -134,6 +138,7 @@ export class StairsTool extends Tool {
       this._p1 = [corner.row, corner.col];
       this._phase = 'have_p1';
       state.stairPlacement = { p1: this._p1, p2: null };
+      state.statusInstruction = 'Click corner 2 of 3';
       requestRender();
       return;
     }
@@ -143,12 +148,14 @@ export class StairsTool extends Tool {
       // Same point as P1: cancel
       if (p2[0] === this._p1[0] && p2[1] === this._p1[1]) {
         this._resetPlacement();
+        state.statusInstruction = 'Click to place corner 1 of 3';
         requestRender();
         return;
       }
       this._p2 = p2;
       this._phase = 'have_p2';
       state.stairPlacement = { p1: this._p1, p2: this._p2 };
+      state.statusInstruction = 'Click depth point';
       requestRender();
       return;
     }
@@ -189,11 +196,12 @@ export class StairsTool extends Tool {
       // Commit
       this._commitStair(this._p1, this._p2, p3, occupied);
       this._resetPlacement();
+      state.statusInstruction = 'Click to place corner 1 of 3';
     }
   }
 
   _commitStair(p1, p2, p3, occupiedCells) {
-    pushUndo();
+    pushUndo('Place stairs');
 
     const meta = state.dungeon.metadata;
     if (!meta.stairs) meta.stairs = [];
@@ -265,7 +273,7 @@ export class StairsTool extends Tool {
     if (state.linkSource == null) {
       // If already linked, clicking it unlinks
       if (stairDef.link) {
-        pushUndo();
+        pushUndo('Unlink stairs');
         const partner = (state.dungeon.metadata.stairs || []).find(
           s => s.link === stairDef.link && s.id !== id
         );
@@ -288,7 +296,7 @@ export class StairsTool extends Tool {
     }
 
     // Second click — link the two stairs
-    pushUndo();
+    pushUndo('Link stairs');
     const label = getNextLinkLabel();
     const stairs = state.dungeon.metadata.stairs;
     const src = stairs.find(s => s.id === state.linkSource);

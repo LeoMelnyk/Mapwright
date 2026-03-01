@@ -24,6 +24,7 @@ export class RoomTool extends Tool {
     this.dragStart = null;
     this.dragEnd = null;
     this.mousePos = null;
+    state.statusInstruction = 'Right-click to void cell';
   }
 
   onDeactivate() {
@@ -31,6 +32,7 @@ export class RoomTool extends Tool {
     this.dragStart = null;
     this.dragEnd = null;
     this.mousePos = null;
+    state.statusInstruction = '';
   }
 
   onMouseDown(row, col) {
@@ -84,7 +86,7 @@ export class RoomTool extends Tool {
     if (cells[row][col] === null) return; // already void
 
     const before = captureBeforeState(cells, [{ row, col }]);
-    pushUndo();
+    pushUndo('Void cell');
 
     // Void the cell
     cells[row][col] = null;
@@ -143,7 +145,7 @@ export class RoomTool extends Tool {
     }
     const before = captureBeforeState(cells, coords);
 
-    pushUndo();
+    pushUndo('Draw room');
     const has = (r, c) => selected.has(cellKey(r, c));
 
     for (const key of selected) {

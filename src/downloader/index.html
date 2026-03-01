@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapwright — Download Textures</title>
+  <link rel="stylesheet" href="downloader.css">
+</head>
+<body>
+  <div class="card">
+
+    <div class="header">
+      <div class="wordmark">Mapwright</div>
+      <div class="title">Download Textures</div>
+    </div>
+
+    <!-- Intro (hidden while downloading) -->
+    <div id="intro-section">
+      <p class="intro">
+        Mapwright supports high-quality PBR floor textures from Polyhaven
+        (free, CC0 licensed). The editor works without them — textures are optional.
+      </p>
+      <p class="count-line" id="count-line">Loading catalog…</p>
+
+      <div class="btn-row">
+        <button class="btn-primary"  id="btn-download" disabled>Download All</button>
+        <button class="btn-outline"  id="btn-required" disabled>Required Only</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary" id="btn-skip">Skip for now</button>
+      </div>
+    </div>
+
+    <!-- Shown while downloading instead of the intro buttons -->
+    <div id="downloading-section" style="display:none;">
+      <p class="downloading-msg">
+        Textures are downloading in the background. Close this window and keep
+        using Mapwright — the toolbar will show download progress.
+      </p>
+      <div class="btn-row">
+        <button class="btn-primary" id="btn-background">Continue in Background</button>
+      </div>
+    </div>
+
+    <!-- Progress (shown while downloading) -->
+    <div class="progress-section" id="progress-section">
+      <div class="progress-label">
+        <span class="progress-name" id="texture-name">Fetching catalog…</span>
+        <span class="progress-count" id="texture-count"></span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="bar-overall"></div></div>
+
+      <div class="file-bars">
+        <div class="file-bar-row">
+          <span class="file-label">DIFF</span>
+          <div class="file-bar-track"><div class="file-bar-fill" id="bar-diff"></div></div>
+          <span class="file-size" id="size-diff">—</span>
+        </div>
+        <div class="file-bar-row">
+          <span class="file-label">DISP</span>
+          <div class="file-bar-track"><div class="file-bar-fill" id="bar-disp"></div></div>
+          <span class="file-size" id="size-disp">—</span>
+        </div>
+        <div class="file-bar-row">
+          <span class="file-label">NOR</span>
+          <div class="file-bar-track"><div class="file-bar-fill" id="bar-nor"></div></div>
+          <span class="file-size" id="size-nor">—</span>
+        </div>
+        <div class="file-bar-row">
+          <span class="file-label">ARM</span>
+          <div class="file-bar-track"><div class="file-bar-fill" id="bar-arm"></div></div>
+          <span class="file-size" id="size-arm">—</span>
+        </div>
+      </div>
+
+      <button class="btn-danger" id="btn-cancel">Cancel</button>
+    </div>
+
+    <!-- Complete (shown when done) -->
+    <div class="complete-section" id="complete-section">
+      <div class="complete-icon">✓</div>
+      <div class="complete-text" id="complete-text">Download complete!</div>
+      <button class="btn-primary" id="btn-close">Close</button>
+    </div>
+
+    <div class="error-msg" id="error-msg"></div>
+
+  </div>
+  <script src="downloader.js"></script>
+</body>
+</html>

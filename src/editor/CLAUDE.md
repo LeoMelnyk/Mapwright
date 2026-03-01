@@ -11,32 +11,32 @@ This guide explains how to programmatically create and edit maps using the edito
 
 ```bash
 # Create a simple dungeon and save it
-node puppeteer-bridge.js \
+node tools/puppeteer-bridge.js \
   --commands '[["newMap","My Dungeon",20,30],["createRoom",2,2,8,12],["setDoor",5,12,"east"],["createRoom",2,14,8,22],["setLabel",5,7,"1"],["setLabel",5,18,"2"]]' \
   --screenshot my_dungeon.png \
   --save my_dungeon.json
 
 # Edit an existing map
-node puppeteer-bridge.js \
+node tools/puppeteer-bridge.js \
   --load my_dungeon.json \
   --commands '[["createRoom",10,5,15,10,"merge"],["setDoor",10,7,"north"]]' \
   --screenshot updated.png \
   --save my_dungeon.json
 
 # Inspect a map
-node puppeteer-bridge.js --load my_dungeon.json --info
+node tools/puppeteer-bridge.js --load my_dungeon.json --info
 
 # Load a commands list from file (useful for complex maps)
-node puppeteer-bridge.js --load base.json --commands-file my_commands.json --save out.json
+node tools/puppeteer-bridge.js --load base.json --commands-file my_commands.json --save out.json
 
 # Export map back to .map text format
-node puppeteer-bridge.js --load my_dungeon.json --export-map my_dungeon.map
+node tools/puppeteer-bridge.js --load my_dungeon.json --export-map my_dungeon.map
 ```
 
 ## Bridge CLI Options
 
 ```
-node puppeteer-bridge.js [options]
+node tools/puppeteer-bridge.js [options]
 
 --load <file.json>        Load map before commands
 --commands '<json>'       Inline JSON command array
@@ -436,22 +436,22 @@ After `getLevels`, note `startRow` for Level 2 (e.g. 16). Then continue:
 
 ```bash
 # Get bounds of room labeled "A1"
-node puppeteer-bridge.js --load map.json \
+node tools/puppeteer-bridge.js --load map.json \
   --commands '[["getRoomBounds","A1"]]'
 
 # Find where to put a door between room 1 and room 2
-node puppeteer-bridge.js --load map.json \
+node tools/puppeteer-bridge.js --load map.json \
   --commands '[["findWallBetween","1","2"]]'
 
 # Find the label cell for room "Boss"
-node puppeteer-bridge.js --load map.json \
+node tools/puppeteer-bridge.js --load map.json \
   --commands '[["findCellByLabel","Boss"]]'
 ```
 
 ### Export back to .map format
 
 ```bash
-node puppeteer-bridge.js --load my_dungeon.json --export-map my_dungeon.map
+node tools/puppeteer-bridge.js --load my_dungeon.json --export-map my_dungeon.map
 ```
 The exported `.map` file is a full round-trip — it can be fed directly back to `build_map.js`. It includes:
 - A `# ROOMS` block listing each labeled room with its bounds and center

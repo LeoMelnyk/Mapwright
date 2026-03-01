@@ -5,7 +5,34 @@ import state, { pushUndo, markDirty, invalidateLightmap } from '../state.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
+import { showToast } from '../toast.js';
 import { isInBounds, snapToSquare, normalizeBounds } from '../../../util/index.js';
+
+function _removeStair(meta, cells, id) {
+  const stairs = meta?.stairs;
+  if (!stairs) return;
+  const idx = stairs.findIndex(s => s.id === id);
+  if (idx === -1) return;
+  const stairDef = stairs[idx];
+
+  // Unlink partner
+  if (stairDef.link) {
+    const partner = stairs.find(s => s.link === stairDef.link && s.id !== id);
+    if (partner) partner.link = null;
+  }
+
+  stairs.splice(idx, 1);
+
+  // Clear stair-id from any cells outside the erased region that still reference it
+  for (let r = 0; r < cells.length; r++) {
+    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      if (cells[r]?.[c]?.center?.['stair-id'] === id) {
+        delete cells[r][c].center['stair-id'];
+        if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+      }
+    }
+  }
+}
 
 export class EraseTool extends Tool {
   constructor() {
@@ -78,7 +105,18 @@ export class EraseTool extends Tool {
       }
       const before = captureBeforeState(cells, coords);
 
-      pushUndo();
+      // Collect stair IDs before cells are nulled (stairs span multiple cells)
+      const stairIdsToRemove = new Set();
+      if (eraseMode !== 'texture') {
+        for (let r = r1; r <= r2; r++) {
+          for (let c = c1; c <= c2; c++) {
+            const id = cells[r]?.[c]?.center?.['stair-id'];
+            if (id != null) stairIdsToRemove.add(id);
+          }
+        }
+      }
+
+      pushUndo(eraseMode === 'texture' ? 'Erase texture' : 'Erase cells');
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
           if (eraseMode === 'texture') {
@@ -91,9 +129,30 @@ export class EraseTool extends Tool {
           }
         }
       }
+
+      if (eraseMode !== 'texture') {
+        const meta = state.dungeon.metadata;
+
+        // Remove stair definitions (and unlink partners)
+        for (const id of stairIdsToRemove) {
+          _removeStair(meta, cells, id);
+        }
+
+        // Remove bridges with any point inside the erased region
+        if (meta.bridges?.length) {
+          meta.bridges = meta.bridges.filter(bridge =>
+            !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2)
+          );
+        }
+      }
+
       invalidateLightmap();
       smartInvalidate(before, cells);
       markDirty();
+
+      if (stairIdsToRemove.size > 0) {
+        showToast('Linked stairs were unlinked');
+      }
     }
 
     this.dragStart = null;

@@ -71,16 +71,75 @@ function getSuggestedName() {
     .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.json';
 }
 
-function confirmUnsaved() {
+function showConfirmModal(message) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('modal-confirm');
+    const msg     = document.getElementById('modal-confirm-msg');
+    const btnOk   = document.getElementById('modal-confirm-ok');
+    const btnCancel = document.getElementById('modal-confirm-cancel');
+    msg.textContent = message;
+    overlay.style.display = 'flex';
+    const finish = (result) => {
+      overlay.style.display = 'none';
+      btnOk.removeEventListener('click', onOk);
+      btnCancel.removeEventListener('click', onCancel);
+      resolve(result);
+    };
+    const onOk     = () => finish(true);
+    const onCancel = () => finish(false);
+    btnOk.addEventListener('click', onOk);
+    btnCancel.addEventListener('click', onCancel);
+  });
+}
+
+function showNewMapModal() {
+  return new Promise(resolve => {
+    const overlay  = document.getElementById('modal-new-map');
+    const nameEl   = document.getElementById('modal-map-name');
+    const rowsEl   = document.getElementById('modal-map-rows');
+    const colsEl   = document.getElementById('modal-map-cols');
+    const btnCreate = document.getElementById('modal-new-create');
+    const btnCancel = document.getElementById('modal-new-cancel');
+
+    nameEl.value = 'New Dungeon';
+    rowsEl.value = '20';
+    colsEl.value = '30';
+    overlay.style.display = 'flex';
+    setTimeout(() => nameEl.select(), 0);
+
+    const finish = (result) => {
+      overlay.style.display = 'none';
+      btnCreate.removeEventListener('click', onCreate);
+      btnCancel.removeEventListener('click', onCancel);
+      overlay.removeEventListener('keydown', onKey);
+      resolve(result);
+    };
+    const onCreate = () => finish({
+      name: nameEl.value.trim() || 'New Dungeon',
+      rows: parseInt(rowsEl.value) || 20,
+      cols: parseInt(colsEl.value) || 30,
+    });
+    const onCancel = () => finish(null);
+    const onKey = (e) => {
+      if (e.key === 'Enter')  { e.preventDefault(); onCreate(); }
+      if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
+    };
+    btnCreate.addEventListener('click', onCreate);
+    btnCancel.addEventListener('click', onCancel);
+    overlay.addEventListener('keydown', onKey);
+  });
+}
+
+async function confirmUnsaved() {
   if (!state.unsavedChanges) return true;
-  return confirm('You have unsaved changes. Continue without saving?');
+  return showConfirmModal('You have unsaved changes. Continue without saving?');
 }
 
 /**
  * Load a dungeon JSON via File System Access API (or fallback)
  */
 export async function loadDungeon() {
-  if (!confirmUnsaved()) return;
+  if (!await confirmUnsaved()) return;
 
   // Try File System Access API first
   if (window.showOpenFilePicker) {
@@ -392,17 +451,12 @@ export async function saveDungeonAs() {
 /**
  * Create a new empty dungeon
  */
-export function newDungeon() {
-  if (!confirmUnsaved()) return;
+export async function newDungeon() {
+  if (!await confirmUnsaved()) return;
 
-  const name = prompt('Dungeon name:', 'New Dungeon');
-  if (name === null) return;
-  const rowsStr = prompt('Number of rows:', '20');
-  if (rowsStr === null) return;
-  const colsStr = prompt('Number of columns:', '30');
-  if (colsStr === null) return;
-  const rows = parseInt(rowsStr) || 20;
-  const cols = parseInt(colsStr) || 30;
+  const result = await showNewMapModal();
+  if (!result) return;
+  const { name, rows, cols } = result;
 
   pushUndo();
   state.dungeon = createEmptyDungeon(name, rows, cols);

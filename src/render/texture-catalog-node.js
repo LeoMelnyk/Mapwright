@@ -2,33 +2,51 @@
  * texture-catalog-node.js
  * Node.js-only texture catalog loader for server-side PNG export.
  * Loads texture metadata from .texture files and images via @napi-rs/canvas.
+ *
+ * In Electron mode, textures live in MAPWRIGHT_TEXTURE_PATH (userData/textures/).
  */
 
 import fs from 'fs';
-import { dirname, join } from 'path';
+import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { loadImage } from '@napi-rs/canvas';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEXTURES_DIR = join(__dirname, '../textures');
+
+// Electron sets MAPWRIGHT_TEXTURE_PATH before importing server.js, so this is
+// resolved correctly at module load time.
+const TEXTURES_DIR = process.env.MAPWRIGHT_TEXTURE_PATH
+  ? process.env.MAPWRIGHT_TEXTURE_PATH
+  : join(__dirname, '../textures');
 
 let catalogCache = null;
 const imageCache = new Map();
 
 /**
  * Load texture metadata (not images) from .texture files on disk.
- * Cached after first call.
+ * Cached after first call — call clearCatalogCache() to force a reload.
  */
 export function loadTextureCatalogMetadata() {
   if (catalogCache) return catalogCache;
 
+  // Try manifest.json first (written by the downloader after each session).
+  // Fall back to scanning .texture files directly so rendering works even
+  // if the manifest hasn't been written yet.
   let manifest;
   try {
     manifest = JSON.parse(fs.readFileSync(join(TEXTURES_DIR, 'manifest.json'), 'utf-8'));
   } catch {
-    console.warn('[textures] Could not load texture manifest — textures will not render');
-    catalogCache = { names: [], textures: {} };
-    return catalogCache;
+    try {
+      const polyDir = join(TEXTURES_DIR, 'polyhaven');
+      manifest = fs.readdirSync(polyDir)
+        .filter(f => f.endsWith('.texture'))
+        .map(f => `polyhaven/${basename(f, '.texture')}`)
+        .sort();
+    } catch {
+      console.warn('[textures] No texture catalog found — textures will not render');
+      catalogCache = { names: [], textures: {} };
+      return catalogCache;
+    }
   }
 
   const textures = {};
@@ -52,6 +70,15 @@ export function loadTextureCatalogMetadata() {
   catalogCache = { names: manifest, textures };
   console.log(`[textures] Loaded metadata for ${Object.keys(textures).length} textures`);
   return catalogCache;
+}
+
+/**
+ * Clear the in-memory catalog and image caches so the next render call
+ * reloads from disk. Call this after new textures are downloaded.
+ */
+export function clearCatalogCache() {
+  catalogCache = null;
+  imageCache.clear();
 }
 
 /**

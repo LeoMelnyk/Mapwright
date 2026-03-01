@@ -72,10 +72,12 @@ function update() {
     });
   });
 
-  // Wire redo clicks — each redo click does one redo step
+  // Wire redo clicks — jump to the clicked redo state
   container.querySelectorAll('.history-item.redo').forEach(item => {
     item.addEventListener('click', () => {
-      redo();
+      const redoIdx = parseInt(item.dataset.redoIndex, 10);
+      const steps = state.redoStack.length - redoIdx;
+      for (let i = 0; i < steps; i++) redo();
     });
   });
 

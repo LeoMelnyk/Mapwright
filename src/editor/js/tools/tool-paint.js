@@ -7,7 +7,7 @@ import { Tool } from './tool-base.js';
 import state, { pushUndo, markDirty, notify } from '../state.js';
 import { setCursor, getTransform, requestRender } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
-import { selectTexture } from '../panels/textures.js';
+import { selectTexture } from '../panels/index.js';
 import { loadTextureImages } from '../texture-catalog.js';
 import { invalidateBlendLayerCache, captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, blockedByDiagonal, lockDiagonalHalf, isInBounds, normalizeBounds, snapToSquare } from '../../../util/index.js';
@@ -245,13 +245,27 @@ export class PaintTool extends Tool {
 
     // Bound listeners stored so they can be removed on deactivate
     this._onKeyDown = (e) => {
-      if (e.key === 'Shift' && (state.paintMode === 'texture' || state.paintMode === 'clear-texture')) {
+      if (e.key === 'Alt' && state.paintMode !== 'syringe') {
+        setCursor(SYRINGE_CURSOR);
+      } else if (e.key === 'Shift' && !e.altKey && (state.paintMode === 'texture' || state.paintMode === 'clear-texture')) {
         setCursor(BUCKET_CURSOR);
       }
     };
     this._onKeyUp = (e) => {
-      if (e.key === 'Shift') {
-        setCursor(state.paintMode === 'syringe' ? SYRINGE_CURSOR : 'crosshair');
+      if (e.key === 'Alt') {
+        // Restore: if shift still held in texture mode show bucket, else normal cursor
+        if (e.shiftKey && (state.paintMode === 'texture' || state.paintMode === 'clear-texture')) {
+          setCursor(BUCKET_CURSOR);
+        } else {
+          setCursor(state.paintMode === 'syringe' ? SYRINGE_CURSOR : 'crosshair');
+        }
+      } else if (e.key === 'Shift') {
+        // If alt is still held, keep showing syringe cursor
+        if (e.altKey && state.paintMode !== 'syringe') {
+          setCursor(SYRINGE_CURSOR);
+        } else {
+          setCursor(state.paintMode === 'syringe' ? SYRINGE_CURSOR : 'crosshair');
+        }
       }
     };
   }
@@ -281,6 +295,11 @@ export class PaintTool extends Tool {
   }
 
   onMouseDown(row, col, edge, event) {
+    // Alt+click: syringe pick regardless of current mode
+    if (event.altKey) {
+      this.syringePick(row, col, event);
+      return;
+    }
     // Shift+click: flood fill shortcuts (unchanged)
     if (event.shiftKey && state.paintMode === 'texture') {
       this.floodFill(row, col, event);
@@ -347,7 +366,7 @@ export class PaintTool extends Tool {
     if (!tid) return;
     loadTextureImages(tid); // ensure images are loading (no-op if already started)
 
-    pushUndo();
+    pushUndo('Flood fill');
 
     // Determine which half of the start cell was clicked (for diagonal cells)
     const startCell = cells[startRow][startCol];
@@ -601,7 +620,7 @@ export class PaintTool extends Tool {
     }
     if (!hasTexture) return;
 
-    pushUndo();
+    pushUndo('Clear texture');
     for (const [r, c, halfKey] of toClear) {
       const texKey = forceSecondary ? 'textureSecondary' : (halfKey || 'texture');
       const opKey = texKey + 'Opacity';
@@ -654,12 +673,12 @@ export class PaintTool extends Tool {
       const halfKey = halfKeyFromPos(cell, relX, relY);
       if (halfKey) {
         if (!cell[halfKey]) return;
-        pushUndo();
+        pushUndo('Clear texture');
         delete cell[halfKey];
         delete cell[halfKey + 'Opacity'];
       } else {
         if (!cell.texture) return;
-        pushUndo();
+        pushUndo('Clear texture');
         delete cell.texture;
         delete cell.textureOpacity;
       }
@@ -695,7 +714,7 @@ export class PaintTool extends Tool {
       }
       const before = captureBeforeState(cells, coords);
 
-      pushUndo();
+      pushUndo('Paint room');
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
           if (!cells[r]) continue;
@@ -724,7 +743,7 @@ export class PaintTool extends Tool {
         }
       }
       if (!hasWork) return;
-      pushUndo();
+      pushUndo('Paint texture');
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
           const cell = cells[r]?.[c];
@@ -750,7 +769,7 @@ export class PaintTool extends Tool {
         }
       }
       if (!hasWork) return;
-      pushUndo();
+      pushUndo('Clear texture');
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
           const cell = cells[r]?.[c];

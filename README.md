@@ -11,15 +11,15 @@ A dungeon map editor built for AI-assisted map generation. Describe a dungeon to
 Mapwright is designed from the ground up to be driven by AI. Claude can generate complete, detailed dungeon maps without any manual GUI work:
 
 1. **Write a `.map` file** from a natural language description — a plain-text format that's easy for both humans and AI to author
-2. **Compile to PNG** via `build_map.js` — renders the map to a print-ready image
+2. **Compile to PNG** via `tools/build_map.js` — renders the map to a print-ready image
 3. **Control the visual editor** via the Puppeteer bridge — load maps, issue editor commands, take screenshots, and save programmatically
 
 ```bash
 # Compile a .map file to PNG
-node build_map.js my-dungeon.map
+node tools/build_map.js my-dungeon.map
 
 # Control the editor headlessly (load, command, screenshot, save)
-node puppeteer-bridge.js --load map.json --screenshot output.png
+node tools/puppeteer-bridge.js --load map.json --screenshot output.png
 ```
 
 Full AI editor API reference: [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md)
@@ -48,41 +48,38 @@ Full AI editor API reference: [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md)
 
 ## Getting Started
 
-### Windows
+### Windows — Desktop App
 
-1. Double-click **`install.bat`** — installs Node.js (if needed) and dependencies
-2. Double-click **`start.bat`** — starts the editor and opens your browser
+Download `Mapwright.exe` from the [Releases page](https://github.com/LeoMelnyk/Mapwright/releases) and run it. No installation required.
 
-### Mac
+On first launch, a texture downloader opens automatically. Download textures once and they persist across sessions.
 
-Open Terminal in the project folder, then run:
+### Windows / Mac — From Source
+
+Requires [Node.js](https://nodejs.org/) 18+.
 
 ```bash
-chmod +x install.sh start.sh
-./install.sh
-./start.sh
+git clone https://github.com/LeoMelnyk/Mapwright.git
+cd Mapwright
+npm install
+npm start          # starts the server
 ```
 
-The install script will install Node.js automatically if it's not already on your system.
+Then open **http://localhost:3000/editor/** in your browser. Press `Ctrl+C` to stop.
 
-The editor opens at **http://localhost:3000/editor/**. Press `Ctrl+C` in the terminal to stop.
+On Windows you can also run `npm run electron` to open the app in a desktop window instead of a browser tab.
 
 ### Textures (Optional)
 
-Textures are not included in the repo. The editor works fine without them — textures only affect the per-cell texture painting feature and prop rendering.
-
-The install script (`install.bat` / `./install.sh`) prompts you to download textures after installing dependencies. You can re-run it at any time to download more. There are two options:
-
-- **Required** — only the textures used by built-in props and example maps
-- **All** — the full [Polyhaven](https://polyhaven.com) library (700+, free CC0)
-
-To download outside the install script:
+Textures are not included in the repo. The editor works without them — textures only affect the per-cell texture painting feature and prop rendering.
 
 ```bash
-node tools/download-textures.js --required
-node tools/download-textures.js --all
-node tools/download-textures.js --check   # check what's missing, no download
+node tools/download-textures.js --required   # only textures used by built-in props
+node tools/download-textures.js --all        # full Polyhaven library (700+, free CC0)
+node tools/download-textures.js --check      # check what's missing, no download
 ```
+
+In the desktop app, textures are downloaded through the built-in downloader and stored in your user data folder.
 
 ---
 
@@ -129,14 +126,14 @@ doors:
 Build it:
 
 ```bash
-node build_map.js my-dungeon.map
+node tools/build_map.js my-dungeon.map
 ```
 
 Outputs `my-dungeon.json` and `my-dungeon.png`. Use `--svg` for vector output, `--watch` to auto-rebuild on save.
 
 ### 2. Use the Visual Editor
 
-Start the server (`start.bat` / `./start.sh`) and open **http://localhost:3000/editor/**.
+Start the server (`npm start`) and open **http://localhost:3000/editor/**.
 
 The editor has 14 tools: **Room, Paint, Wall, Door, Label, Stairs, Trim, Select, Prop, Light, Fill, Erase, Border, Bridge** — with full undo/redo, pan/zoom, and multi-level support. Maps save and load as JSON and can be exported back to `.map` format.
 
@@ -178,13 +175,13 @@ A reference map is in [`examples/`](examples/):
 Build it:
 
 ```bash
-node build_map.js examples/island.map
+node tools/build_map.js examples/island.map
 ```
 
 Or render the pre-compiled JSON directly:
 
 ```bash
-node generate_dungeon.js examples/island.json
+node tools/generate_dungeon.js examples/island.json
 ```
 
 See [examples/examples.md](examples/examples.md) for a full breakdown of every feature it demonstrates.
@@ -193,7 +190,7 @@ See [examples/examples.md](examples/examples.md) for a full breakdown of every f
 
 ## Documentation
 
-Full reference for the `.map` format, all options, validation errors, and CLI flags: **[guide.md](guide.md)**
+Full reference for the `.map` format, all options, validation errors, and CLI flags: **[CLAUDE.md — Map Format Reference](CLAUDE.md)**
 
 Topics covered:
 - Complete `.map` file format (header, grid, legend, doors, trims, stairs, fills, props)
@@ -205,6 +202,35 @@ Topics covered:
 
 ---
 
-## Requirements
+## Building from Source
 
-- No manual installs needed — `install.bat` / `install.sh` handle everything, including Node.js if it's missing
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 18 or later
+- Windows (the `.exe` target is Windows-only; the dev server runs on any platform)
+
+### Setup
+
+```bash
+git clone https://github.com/LeoMelnyk/Mapwright.git
+cd Mapwright
+npm install
+```
+
+### Run without building
+
+```bash
+npm run electron
+```
+
+Starts the Express server and opens the Electron window directly from source. Frontend changes (HTML/CSS/JS) take effect on Ctrl+R. Server changes (`server.js`, `electron-main.cjs`) require restarting.
+
+### Build the Windows portable exe
+
+```bash
+npm run electron:build
+```
+
+Outputs `dist/Mapwright 1.0.0.exe` — a single self-contained portable executable, no installation required.
+
+`npm install` automatically patches a bundled tool to handle a Windows symlink limitation. If the build fails with `Cannot create symbolic link`, enable **Developer Mode** in Settings → System → For Developers and re-run.

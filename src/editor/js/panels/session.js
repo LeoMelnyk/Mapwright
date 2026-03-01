@@ -56,13 +56,29 @@ function render() {
           Revealed: ${sessionState.revealedCells.size} cells
         </div>
 
-        <code class="session-ip-link" style="display:block;margin-top:8px;color:var(--accent);font-size:11px;cursor:pointer;" title="Click to copy">http://${localIP || '&lt;your-ip&gt;'}:${location.port || 3000}/player/</code>
+        <div class="session-link-row" data-url="http://${localIP || ''}:${location.port || 3000}/player/">
+          <code class="session-ip-link" title="Click to copy">http://••••••••••:${location.port || 3000}/player/</code>
+          <button class="session-copy-btn" title="Copy player link">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </button>
+        </div>
       </div>
     ` : `
       <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">
         Start a session to enable the player view with fog of war.
         Players can connect at:<br>
-        <code class="session-ip-link" style="color:var(--accent);font-size:11px;cursor:pointer;" title="Click to copy">http://${localIP || '&lt;your-ip&gt;'}:${location.port || 3000}/player/</code>
+        <div class="session-link-row" data-url="http://${localIP || ''}:${location.port || 3000}/player/">
+          <code class="session-ip-link" title="Click to copy">http://••••••••••:${location.port || 3000}/player/</code>
+          <button class="session-copy-btn" title="Copy player link">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </button>
+        </div>
       </div>
     `}
   `;
@@ -94,8 +110,14 @@ function render() {
     window.open(`${location.origin}/player/`, '_blank');
   });
 
-  container.querySelector('.session-ip-link')?.addEventListener('click', (e) => {
-    navigator.clipboard.writeText(e.currentTarget.textContent).then(() => showToast('Copied to clipboard'));
+  container.querySelectorAll('.session-link-row').forEach(row => {
+    const copy = () => {
+      const url = row.dataset.url;
+      if (!url) return;
+      navigator.clipboard.writeText(url).then(() => showToast('Link copied'));
+    };
+    row.querySelector('.session-ip-link')?.addEventListener('click', copy);
+    row.querySelector('.session-copy-btn')?.addEventListener('click', copy);
   });
 }
 

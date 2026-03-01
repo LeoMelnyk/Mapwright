@@ -26,6 +26,9 @@ const state = {
   bridgeType: 'wood',   // 'wood', 'stone', 'rope', 'dock'
   linkSource: null,     // stair ID for pending link source
   hoveredCorner: null,  // { row, col } — nearest grid corner when stairs tool active
+  selectMode: 'select', // 'select' or 'move'
+  clipboard: null,      // { cells: [...], anchorRow, anchorCol } — copy/paste buffer
+  pasteMode: false,     // true when Ctrl+V pressed — paste preview follows cursor
   propMode: 'place',   // 'place' or 'select'
   selectedProp: null,  // string — prop type name from catalog (e.g. 'pillar')
   propRotation: 0,     // 0, 90, 180, 270 — current placement rotation
@@ -65,6 +68,7 @@ const state = {
   // Player session (runtime only, not serialized)
   session: { active: false, playerCount: 0 },
   sessionToolsActive: false,  // true when session toolbar is shown (session panel open + session active)
+  statusInstruction: null,    // string or null — shown in #status-center when set
 };
 
 /**

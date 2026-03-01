@@ -1,0 +1,235 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #1e1e2a;
+  color: #e0d8c8;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card {
+  background: #28283a;
+  border: 1px solid #3a3a50;
+  border-radius: 10px;
+  padding: 28px 32px;
+  width: 460px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.wordmark {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #c8a870;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f0e8d8;
+}
+
+/* ── Intro ───────────────────────────────────────────────── */
+.intro {
+  font-size: 13px;
+  color: #a09880;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.count-line {
+  font-size: 12px;
+  color: #706858;
+  margin-bottom: 16px;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+button {
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+button:disabled { opacity: 0.4; cursor: default; }
+
+.btn-primary {
+  background: #c8a870;
+  color: #1a1410;
+  flex: 1;
+}
+.btn-primary:not(:disabled):hover { background: #d8b880; }
+
+.btn-outline {
+  background: transparent;
+  color: #c8a870;
+  border: 1px solid #c8a870;
+  flex: 1;
+}
+.btn-outline:not(:disabled):hover { background: rgba(200,168,112,0.12); }
+
+.btn-secondary {
+  background: transparent;
+  color: #a09880;
+  border: 1px solid #3a3a50;
+  flex: 1;
+}
+.btn-secondary:not(:disabled):hover { background: #32324a; color: #d0c8b8; }
+
+.btn-danger {
+  background: transparent;
+  color: #c07060;
+  border: 1px solid #5a3a36;
+  width: 100%;
+  margin-top: 12px;
+}
+.btn-danger:not(:disabled):hover { background: #3a2422; }
+
+/* ── Downloading message ─────────────────────────────────── */
+.downloading-msg {
+  font-size: 13px;
+  color: #a09880;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+/* ── Progress section ────────────────────────────────────── */
+.progress-section {
+  display: none;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #3a3a50;
+}
+.progress-section.visible { display: block; }
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.progress-name {
+  font-size: 13px;
+  color: #d0c8b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.progress-count {
+  font-size: 11px;
+  color: #706858;
+  flex-shrink: 0;
+}
+
+.bar-track {
+  background: #18182a;
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  border: 1px solid #2a2a3e;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: #c8a870;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+/* ── Per-file progress bars ──────────────────────────────── */
+.file-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.file-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #706858;
+  width: 30px;
+  flex-shrink: 0;
+}
+
+.file-bar-track {
+  flex: 1;
+  background: #18182a;
+  border-radius: 3px;
+  height: 5px;
+  overflow: hidden;
+  border: 1px solid #2a2a3e;
+}
+
+.file-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #c8a870;
+  transition: width 0.15s ease;
+  width: 0%;
+}
+
+.file-size {
+  font-size: 10px;
+  color: #706858;
+  width: 100px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* ── Complete section ────────────────────────────────────── */
+.complete-section {
+  display: none;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #3a3a50;
+  text-align: center;
+}
+.complete-section.visible { display: block; }
+
+.complete-icon { font-size: 28px; margin-bottom: 6px; }
+.complete-text { font-size: 13px; color: #a0c888; margin-bottom: 14px; }
+
+/* ── Error ───────────────────────────────────────────────── */
+.error-msg {
+  display: none;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #c07060;
+  text-align: center;
+}
+.error-msg.visible { display: block; }

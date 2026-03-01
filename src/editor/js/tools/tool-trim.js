@@ -27,6 +27,16 @@ export class TrimTool extends Tool {
     this.hoverCorner = null;    // resolved corner shown in last hover preview
   }
 
+  onActivate() {
+    state.statusInstruction = 'Click and drag from the corner to set trim size';
+  }
+
+  onDeactivate() {
+    this.dragging = false;
+    this.previewCells = null;
+    state.statusInstruction = null;
+  }
+
   onMouseDown(row, col, edge, event) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
@@ -85,7 +95,7 @@ export class TrimTool extends Tool {
     ];
     const before = captureBeforeState(cells, allCoords);
 
-    pushUndo();
+    pushUndo('Place trim');
     const corner = this.resolvedCorner;
     const isRound = state.trimRound;
     const isInverted = state.trimInverted;
@@ -305,6 +315,32 @@ export class TrimTool extends Tool {
     }
 
     this.previewCells = { hypotenuse, voided, insideArc, arcCenter, size };
+  }
+
+  onRightClick(row, col) {
+    const cells = state.dungeon.cells;
+    if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
+    const cell = cells[row][col];
+    if (!cell || !cell.trimCorner) return;
+
+    const before = captureBeforeState(cells, [{ row, col }]);
+    pushUndo('Remove Trim');
+
+    delete cell.trimCorner;
+    delete cell.trimRound;
+    delete cell.trimArcCenterRow;
+    delete cell.trimArcCenterCol;
+    delete cell.trimArcRadius;
+    delete cell.trimArcInverted;
+    delete cell.trimInsideArc;
+    delete cell.trimOpen;
+    delete cell['nw-se'];
+    delete cell['ne-sw'];
+
+    invalidateLightmap();
+    smartInvalidate(before, cells, { forceGeometry: true });
+    markDirty();
+    requestRender();
   }
 
   onKeyDown(e) {

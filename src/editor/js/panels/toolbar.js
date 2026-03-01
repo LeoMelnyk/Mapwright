@@ -2,8 +2,7 @@
 import state, { undo, redo, notify, subscribe, pushUndo, markDirty } from '../state.js';
 import { loadDungeon, loadDungeonJSON, saveDungeon, saveDungeonAs, newDungeon, exportPng, exportMapFormat, reloadAssets } from '../io.js';
 import { requestRender, setCursor } from '../canvas-view.js';
-import { SYRINGE_CURSOR } from '../tools/tool-paint.js';
-import { STAMP_CURSOR } from '../tools/tool-label.js';
+import { SYRINGE_CURSOR, STAMP_CURSOR } from '../tools/index.js';
 import { convertOnePageDungeon } from '../import-opd.js';
 import { convertDonjonDungeon } from '../import-donjon.js';
 import { showToast } from '../toast.js';
@@ -44,17 +43,17 @@ const toolOptions = {
             values: ['texture', 'syringe', 'room', 'clear-texture'],
             cursor: v => v === 'syringe' ? SYRINGE_CURSOR : 'crosshair',
             onApply: v => {
+              const bar = document.getElementById('paint-texture-options');
+              if (bar) bar.style.display = (v === 'texture' || v === 'clear-texture') ? 'flex' : 'none';
               const r = document.getElementById('texture-opacity-row');
               if (r) r.style.display = v === 'texture' ? 'flex' : 'none';
-              const s = document.getElementById('texture-secondary-row');
-              if (s) s.style.display = (v === 'texture' || v === 'clear-texture') ? 'flex' : 'none';
               if (v === 'texture' || v === 'clear-texture' || v === 'syringe') openSidebarPanel('textures');
             } },
   fill:   { key: 'fillMode',   attr: 'data-fill-mode',
             values: ['water', 'lava', 'pit', 'difficult-terrain', 'clear-fill'],
             onApply: v => {
-              const r = document.getElementById('water-depth-row');
-              if (r) r.style.display = (v === 'water' || v === 'lava') ? 'flex' : 'none';
+              const bar = document.getElementById('fill-depth-options');
+              if (bar) bar.style.display = (v === 'water' || v === 'lava') ? 'flex' : 'none';
               // Sync depth button highlights to the active fluid's current depth
               if (v === 'water' || v === 'lava') {
                 const activeDepth = (v === 'lava' ? state.lavaDepth : state.waterDepth) || 1;
@@ -67,17 +66,23 @@ const toolOptions = {
   wall:   { key: 'wallType',   attr: 'data-wall-type',   values: ['w', 'iw'] },
   door:   { key: 'doorType',   attr: 'data-door-type',   values: ['d', 's', 'id'] },
   stairs: { key: 'stairsMode', attr: 'data-stairs-mode', values: ['place', 'link'],
-            cursor: v => v === 'link' ? 'pointer' : 'crosshair' },
+            cursor: v => v === 'link' ? 'pointer' : 'crosshair',
+            onApply: v => {
+              state.statusInstruction = v === 'place' ? 'Click to place corner 1 of 3' : null;
+            } },
   bridge: { key: 'bridgeType', attr: 'data-bridge-type', values: ['wood', 'stone', 'rope', 'dock'] },
-  trim:   { key: 'trimCorner', attr: 'data-trim-corner', values: ['auto', 'nw', 'ne', 'sw', 'se'],
-            onApply: () => requestRender() },
+  select: { key: 'selectMode', attr: 'data-select-mode', values: ['select', 'move', 'inspect'],
+            cursor: v => v === 'move' ? 'move' : 'default',
+            onApply: v => {
+              state.statusInstruction = v === 'inspect' ? 'Click a cell to inspect it' : null;
+            } },
   prop:   { key: 'propMode',   attr: 'data-prop-mode',   values: ['place', 'select'],
             cursor: v => v === 'select' ? 'default' : 'crosshair' },
   label:  { key: 'labelMode',  attr: 'data-label-mode',  values: ['room', 'dm'],
             cursor: v => v === 'dm' ? 'text' : STAMP_CURSOR,
             onApply: v => {
-              const r = document.getElementById('dungeon-letter-row');
-              if (r) r.style.display = (v === 'room' || !v) ? 'flex' : 'none';
+              const bar = document.getElementById('label-dungeon-options');
+              if (bar) bar.style.display = (v === 'room' || !v) ? 'flex' : 'none';
             } },
   light:  { key: 'lightMode',  attr: 'data-light-mode',  values: ['place', 'select'],
             cursor: v => v === 'select' ? 'default' : 'crosshair' },
@@ -104,6 +109,7 @@ export function setSubMode(toolName, value) {
   });
   if (state.activeTool === toolName && opts.cursor) setCursor(opts.cursor(value));
   if (opts.onApply) opts.onApply(value);
+  updateToolButtons();
 }
 
 /** Cycle the active tool's sub-mode. delta = +1 (Tab) or -1 (Shift+Tab). */
@@ -197,6 +203,11 @@ export function init() {
       btn.addEventListener('click', () => setSubMode(toolName, btn.dataset[dsKey]));
     });
   }
+
+  // ── Tab ↹ cycle badge — click to cycle the active tool's sub-mode ──────
+  document.querySelectorAll('.suboptions-bar .cycle-hint').forEach(badge => {
+    badge.addEventListener('click', () => cycleSubMode(+1));
+  });
 
   // Fluid depth buttons (shared by water and lava)
   document.querySelectorAll('[data-water-depth]').forEach(btn => {
@@ -337,6 +348,27 @@ export function updateToolButtons() {
   for (const toolName of Object.keys(toolOptions)) {
     const bar = document.getElementById(`${toolName}-options`);
     if (bar) bar.style.display = (!state.sessionToolsActive && state.activeTool === toolName) ? 'flex' : 'none';
+  }
+
+  // Trim has no sub-mode bar (only tertiary shape bar)
+  const trimShapeBar = document.getElementById('trim-shape-options');
+  if (trimShapeBar) {
+    trimShapeBar.style.display = (!state.sessionToolsActive && state.activeTool === 'trim') ? 'flex' : 'none';
+  }
+
+  // Mode-dependent tertiary bars: hidden when session active or wrong tool active.
+  // When the tool IS active, onApply (called from applyToolSideEffects) controls visibility.
+  if (state.sessionToolsActive || state.activeTool !== 'paint') {
+    const b = document.getElementById('paint-texture-options');
+    if (b) b.style.display = 'none';
+  }
+  if (state.sessionToolsActive || state.activeTool !== 'fill') {
+    const b = document.getElementById('fill-depth-options');
+    if (b) b.style.display = 'none';
+  }
+  if (state.sessionToolsActive || state.activeTool !== 'label') {
+    const b = document.getElementById('label-dungeon-options');
+    if (b) b.style.display = 'none';
   }
 }
 

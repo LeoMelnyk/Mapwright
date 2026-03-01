@@ -6,7 +6,14 @@ import { getTextureCatalog, loadTextureImages } from '../texture-catalog.js';
 let container = null;
 let searchInput = null;
 let scrollArea = null;
-const collapsed = new Set(); // category names that are collapsed
+let _searchTimer = null;
+
+const TEX_COLLAPSED_KEY = 'mw-texture-collapsed';
+const collapsed = new Set(JSON.parse(localStorage.getItem(TEX_COLLAPSED_KEY) || '[]'));
+
+function saveCollapsed() {
+  localStorage.setItem(TEX_COLLAPSED_KEY, JSON.stringify([...collapsed]));
+}
 
 /**
  * Initialize the textures panel inside the given container element.
@@ -38,7 +45,10 @@ function render() {
   searchInput.type = 'text';
   searchInput.placeholder = 'Search textures…';
   searchInput.className = 'texture-search-input';
-  searchInput.addEventListener('input', () => filterTextures(cat));
+  searchInput.addEventListener('input', () => {
+    clearTimeout(_searchTimer);
+    _searchTimer = setTimeout(() => filterTextures(cat), 200);
+  });
   searchWrap.appendChild(searchInput);
 
   container.appendChild(searchWrap);
@@ -92,6 +102,7 @@ function buildCategoryGrid(cat, parent, filter) {
       } else {
         collapsed.add(category);
       }
+      saveCollapsed();
       filterTextures(cat);
     });
     parent.appendChild(catHeader);
@@ -109,11 +120,21 @@ function buildCategoryGrid(cat, parent, filter) {
         item.title = entry.displayName;
         item.dataset.textureId = id;
 
+        const shimmer = document.createElement('div');
+        shimmer.className = 'texture-thumb-shimmer';
+
         const img = document.createElement('img');
-        img.src = `/textures/${entry.file}`;
         img.alt = entry.displayName;
         img.className = 'texture-thumb-img';
-        img.loading = 'lazy';
+        img.style.display = 'none';
+        const revealImg = () => { shimmer.remove(); img.style.display = ''; };
+        img.addEventListener('load', revealImg);
+        img.addEventListener('error', revealImg);
+        img.src = `/textures/${entry.file}`; // set src AFTER listeners so cached images fire correctly
+        // If already complete (browser cache hit before load event fires), reveal immediately
+        if (img.complete) revealImg();
+
+        item.appendChild(shimmer);
         item.appendChild(img);
 
         const nameEl = document.createElement('span');

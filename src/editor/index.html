@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dungeon Map Editor</title>
+  <title>Mapwright</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -71,13 +71,21 @@
             <input type="checkbox" id="feat-border" checked> Border
           </label>
           <div class="menu-separator"></div>
-          <div class="menu-section-label">Diagnostics</div>
           <label class="menu-check-item">
-            <input type="checkbox" id="feat-fps"> Draw Time
+            <input type="checkbox" id="feat-minimap"> Minimap
           </label>
-          <label class="menu-check-item">
-            <input type="checkbox" id="feat-memory"> Memory
-          </label>
+          <div class="menu-separator"></div>
+          <div class="menu-submenu">
+            <button class="menu-action menu-submenu-trigger">Developer ▸</button>
+            <div class="menu-submenu-dropdown">
+              <label class="menu-check-item">
+                <input type="checkbox" id="feat-fps"> Draw Time
+              </label>
+              <label class="menu-check-item">
+                <input type="checkbox" id="feat-memory"> Memory
+              </label>
+            </div>
+          </div>
           <div class="menu-separator"></div>
           <div class="menu-field">
             <label>Grid Size</label>
@@ -97,16 +105,38 @@
         </div>
       </div>
 
-      <!-- Theme toggle (far right) -->
-      <button id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">
-        <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-        </svg>
-        <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13.5 9.5a5.5 5.5 0 01-7-7A5.5 5.5 0 108 14a5.5 5.5 0 005.5-4.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
-      </button>
+      <!-- Help menu -->
+      <div class="menu-item" data-menu="help">
+        <button class="menu-trigger">Help</button>
+        <div class="menu-dropdown">
+          <button class="menu-action" id="btn-shortcuts">Keyboard Shortcuts <span class="key-hint-menu">?</span></button>
+        </div>
+      </div>
+
+      <!-- Right-side toolbar group (texture alert + theme toggle) -->
+      <div id="toolbar-right">
+
+        <!-- Missing textures alert (shown by JS when count < requiredCount) -->
+        <button id="btn-texture-alert" title="Some required textures are missing — click to download">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.5 1v8M3.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M1.5 11h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <span class="alert-label">Missing Textures</span>
+        </button>
+
+        <!-- Theme toggle -->
+        <button id="theme-toggle" title="Toggle light/dark theme" aria-label="Toggle theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13.5 9.5a5.5 5.5 0 01-7-7A5.5 5.5 0 108 14a5.5 5.5 0 005.5-4.5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+      </div>
 
     </div>
 
@@ -188,155 +218,15 @@
     <!-- Canvas -->
     <div id="canvas-container">
       <canvas id="editor-canvas"></canvas>
+      <canvas id="minimap-canvas" style="display:none; position:absolute; bottom:36px; right:8px; border:1px solid var(--border); border-radius:4px; opacity:0.9; cursor:pointer; z-index:10;"></canvas>
 
       <!-- Floating Drawing Toolbar -->
       <div id="drawing-toolbar">
 
-        <!-- Sub-options rows (contextually visible above tools) -->
-        <div id="room-options" class="suboptions-bar">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-room-mode="room">Room</button>
-          <button class="toolbar-btn" data-room-mode="merge">Merge</button>
-        </div>
-
-        <div id="paint-options" class="suboptions-bar">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn" data-paint-mode="texture">Texture</button>
-          <button class="toolbar-btn" data-paint-mode="syringe">Syringe</button>
-          <button class="toolbar-btn active" data-paint-mode="room">Room</button>
-          <button class="toolbar-btn" data-paint-mode="clear-texture">Clear</button>
-          <span id="texture-opacity-row" style="display:none;align-items:center;gap:4px;margin-left:8px;">
-            <span class="toolbar-label" style="margin:0">Opacity:</span>
-            <input type="range" id="texture-opacity-slider" min="10" max="100" step="5" value="100" style="width:70px">
-            <span id="texture-opacity-value" style="font-size:11px;color:var(--text-dim);min-width:30px">100%</span>
-          </span>
-          <label id="texture-secondary-row" style="display:none;align-items:center;gap:4px;margin-left:8px;cursor:pointer;">
-            <input type="checkbox" id="texture-secondary-cb">
-            <span class="toolbar-label" style="margin:0">Secondary</span>
-          </label>
-        </div>
-
-        <div id="fill-options" class="suboptions-bar">
-          <span class="toolbar-label">Fill:</span>
-          <button class="toolbar-btn active" data-fill-mode="water">Water</button>
-          <button class="toolbar-btn" data-fill-mode="lava">Lava</button>
-          <button class="toolbar-btn" data-fill-mode="pit">Pit</button>
-          <button class="toolbar-btn" data-fill-mode="difficult-terrain">Hazard</button>
-          <button class="toolbar-btn" data-fill-mode="clear-fill">Clear</button>
-          <span id="water-depth-row" style="display:none;align-items:center;gap:4px;margin-left:8px;">
-            <span class="toolbar-label" style="margin:0">Depth:</span>
-            <button class="toolbar-btn active" data-water-depth="1">Shallow</button>
-            <button class="toolbar-btn" data-water-depth="2">Medium</button>
-            <button class="toolbar-btn" data-water-depth="3">Deep</button>
-          </span>
-        </div>
-
-        <div id="wall-options" class="suboptions-bar">
-          <span class="toolbar-label">Type:</span>
-          <button class="toolbar-btn active" data-wall-type="w">Normal</button>
-          <button class="toolbar-btn" data-wall-type="iw">Invisible</button>
-        </div>
-
-        <div id="door-options" class="suboptions-bar">
-          <span class="toolbar-label">Type:</span>
-          <button class="toolbar-btn active" data-door-type="d">Normal</button>
-          <button class="toolbar-btn" data-door-type="s">Secret</button>
-          <button class="toolbar-btn" data-door-type="id">Invisible</button>
-        </div>
-
-        <div id="stairs-options" class="suboptions-bar">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-stairs-mode="place">Place</button>
-          <button class="toolbar-btn" data-stairs-mode="link">Link</button>
-        </div>
-
-        <div id="bridge-options" class="suboptions-bar">
-          <span class="toolbar-label">Type:</span>
-          <button class="toolbar-btn active" data-bridge-type="wood">Wood</button>
-          <button class="toolbar-btn" data-bridge-type="stone">Stone</button>
-          <button class="toolbar-btn" data-bridge-type="rope">Rope</button>
-          <button class="toolbar-btn" data-bridge-type="dock">Dock</button>
-        </div>
-
-        <div id="prop-options" class="suboptions-bar">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-prop-mode="place">Place</button>
-          <button class="toolbar-btn" data-prop-mode="select">Select</button>
-        </div>
-
-        <div id="erase-options" class="suboptions-bar" style="display:none;">
-          <span class="toolbar-label">Erase:</span>
-          <button class="toolbar-btn active" data-erase-mode="all">All</button>
-          <button class="toolbar-btn" data-erase-mode="texture">Texture Only</button>
-        </div>
-
-        <div id="light-options" class="suboptions-bar" style="display:none;">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-light-mode="place">Place</button>
-          <button class="toolbar-btn" data-light-mode="select">Select</button>
-        </div>
-
-        <div id="label-options" class="suboptions-bar" style="display:none;">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-label-mode="room">Room Label</button>
-          <button class="toolbar-btn" data-label-mode="dm">Label</button>
-          <span id="dungeon-letter-row" style="display:flex;align-items:center;gap:4px;margin-left:8px;">
-            <span class="toolbar-label" style="margin:0">Dungeon:</span>
-            <select id="dungeon-letter-select" class="toolbar-select"></select>
-          </span>
-        </div>
-
-        <div id="trim-options" class="suboptions-bar">
-          <span class="toolbar-label">Corner:</span>
-          <button class="toolbar-btn active" data-trim-corner="auto">Auto</button>
-          <button class="toolbar-btn" data-trim-corner="nw">NW</button>
-          <button class="toolbar-btn" data-trim-corner="ne">NE</button>
-          <button class="toolbar-btn" data-trim-corner="sw">SW</button>
-          <button class="toolbar-btn" data-trim-corner="se">SE</button>
-          <label style="display:flex;align-items:center;gap:3px;margin-left:8px;font-size:12px;color:var(--text-dim)">
-            <input type="checkbox" id="trim-round"> Round <span class="key-hint">R</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:3px;margin-left:4px;font-size:12px;color:var(--text-dim)">
-            <input type="checkbox" id="trim-inverted"> Inverted <span class="key-hint">I</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:3px;margin-left:4px;font-size:12px;color:var(--text-dim)">
-            <input type="checkbox" id="trim-open"> Open <span class="key-hint">O</span>
-          </label>
-        </div>
-
-        <!-- Session tool row (shown when session tools active) -->
-        <div id="session-tool-row" class="tool-row" style="display:none;">
-          <button class="toolbar-btn active" data-session-tool="doors" data-tooltip="Doors — Open doors and secret doors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20H2"/><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z"/><path d="M11 4H8a2 2 0 0 0-2 2v14"/><path d="M14 12h.01"/><path d="M22 20h-3"/></svg><span class="key-hint">1</span>
-          </button>
-          <button class="toolbar-btn" data-session-tool="range" data-tooltip="Range — Measure spell areas and effects">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg><span class="key-hint">2</span>
-          </button>
-        </div>
-
-        <!-- Range sub-options (shown when Range session tool is active) -->
-        <div id="range-options" class="session-suboptions" style="display:none;">
-          <button class="toolbar-btn" data-range-shape="line" data-tooltip="Line">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/></svg>
-          </button>
-          <button class="toolbar-btn" data-range-shape="cone" data-tooltip="Cone">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 22,22 2,22"/></svg>
-          </button>
-          <button class="toolbar-btn active" data-range-shape="circle" data-tooltip="Circle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-          </button>
-          <button class="toolbar-btn" data-range-shape="cube" data-tooltip="Cube">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18"/></svg>
-          </button>
-          <span class="toolbar-separator"></span>
-          <select id="range-distance" class="toolbar-select" data-tooltip="Fixed range (Auto = drag distance)">
-            <option value="0">Auto</option>
-          </select>
-        </div>
-
-        <!-- Primary tool row -->
+        <!-- Primary tool row — first in DOM so column-reverse places it at the bottom -->
         <!-- Icons: Lucide (ISC License) — https://lucide.dev/license -->
         <div id="editor-tool-row" class="tool-row">
+          <span id="toolbar-drag-handle" title="Drag to move toolbar">⠿</span>
           <button class="toolbar-btn active" data-tool="room" data-tooltip="Room — Draw rectangular rooms on the grid">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/></svg><span class="key-hint">1</span>
           </button>
@@ -376,7 +266,171 @@
           <button class="toolbar-btn" data-tool="light" data-tooltip="Light — Place and configure light sources">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg><span class="key-hint">L</span>
           </button>
+          <button id="toolbar-lock-btn" class="toolbar-btn" title="Lock/unlock toolbar position">🔒</button>
         </div>
+
+        <!-- Sub-options rows (contextually visible above tools) -->
+        <div id="room-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-room-mode="room">Room</button>
+          <button class="toolbar-btn" data-room-mode="merge">Merge</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="paint-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn" data-paint-mode="texture">Texture</button>
+          <button class="toolbar-btn" data-paint-mode="syringe">Syringe</button>
+          <button class="toolbar-btn active" data-paint-mode="room">Room</button>
+          <button class="toolbar-btn" data-paint-mode="clear-texture">Clear</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="fill-options" class="suboptions-bar">
+          <span class="toolbar-label">Fill:</span>
+          <button class="toolbar-btn active" data-fill-mode="water">Water</button>
+          <button class="toolbar-btn" data-fill-mode="lava">Lava</button>
+          <button class="toolbar-btn" data-fill-mode="pit">Pit</button>
+          <button class="toolbar-btn" data-fill-mode="difficult-terrain">Hazard</button>
+          <button class="toolbar-btn" data-fill-mode="clear-fill">Clear</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="wall-options" class="suboptions-bar">
+          <span class="toolbar-label">Type:</span>
+          <button class="toolbar-btn active" data-wall-type="w">Normal</button>
+          <button class="toolbar-btn" data-wall-type="iw">Invisible</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="door-options" class="suboptions-bar">
+          <span class="toolbar-label">Type:</span>
+          <button class="toolbar-btn active" data-door-type="d">Normal</button>
+          <button class="toolbar-btn" data-door-type="s">Secret</button>
+          <button class="toolbar-btn" data-door-type="id">Invisible</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="stairs-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-stairs-mode="place">Place</button>
+          <button class="toolbar-btn" data-stairs-mode="link">Link</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="bridge-options" class="suboptions-bar">
+          <span class="toolbar-label">Type:</span>
+          <button class="toolbar-btn active" data-bridge-type="wood">Wood</button>
+          <button class="toolbar-btn" data-bridge-type="stone">Stone</button>
+          <button class="toolbar-btn" data-bridge-type="rope">Rope</button>
+          <button class="toolbar-btn" data-bridge-type="dock">Dock</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="select-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-select-mode="select">Select</button>
+          <button class="toolbar-btn" data-select-mode="move">Move</button>
+          <button class="toolbar-btn" data-select-mode="inspect">Inspect</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="prop-options" class="suboptions-bar">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-prop-mode="place">Place</button>
+          <button class="toolbar-btn" data-prop-mode="select">Select</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="erase-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Erase:</span>
+          <button class="toolbar-btn active" data-erase-mode="all">All</button>
+          <button class="toolbar-btn" data-erase-mode="texture">Texture Only</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="light-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-light-mode="place">Place</button>
+          <button class="toolbar-btn" data-light-mode="select">Select</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <div id="label-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Mode:</span>
+          <button class="toolbar-btn active" data-label-mode="room">Room Label</button>
+          <button class="toolbar-btn" data-label-mode="dm">Label</button>
+          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
+        </div>
+
+        <!-- Tertiary bars: mode-specific controls shown above the secondary bar -->
+        <div id="paint-texture-options" class="tertiaryoptions-bar" style="display:none;">
+          <span id="texture-opacity-row" style="display:none;align-items:center;gap:4px;">
+            <span class="toolbar-label" style="margin:0">Opacity:</span>
+            <input type="range" id="texture-opacity-slider" min="10" max="100" step="5" value="100" style="width:70px">
+            <span id="texture-opacity-value" style="font-size:11px;color:var(--text-dim);min-width:30px">100%</span>
+          </span>
+          <label style="display:flex;align-items:center;gap:4px;margin-left:8px;cursor:pointer;">
+            <input type="checkbox" id="texture-secondary-cb">
+            <span class="toolbar-label" style="margin:0">Secondary</span>
+          </label>
+        </div>
+
+        <div id="fill-depth-options" class="tertiaryoptions-bar" style="display:none;">
+          <span class="toolbar-label" style="margin:0">Depth:</span>
+          <button class="toolbar-btn active" data-water-depth="1">Shallow</button>
+          <button class="toolbar-btn" data-water-depth="2">Medium</button>
+          <button class="toolbar-btn" data-water-depth="3">Deep</button>
+        </div>
+
+        <div id="label-dungeon-options" class="tertiaryoptions-bar" style="display:none;">
+          <span class="toolbar-label" style="margin:0">Dungeon:</span>
+          <select id="dungeon-letter-select" class="toolbar-select"></select>
+        </div>
+
+        <!-- Trim shape tertiary bar (shown when trim tool is active) -->
+        <div id="trim-shape-options" class="tertiaryoptions-bar" style="display:none;">
+          <label data-tooltip="Round: curves the corner into an arc (convex)" style="display:flex;align-items:center;gap:3px;font-size:12px;color:var(--text-dim);cursor:pointer;">
+            <input type="checkbox" id="trim-round"> Round <span class="key-hint">R</span>
+          </label>
+          <label data-tooltip="Inverted: cuts the arc inward (concave)" style="display:flex;align-items:center;gap:3px;margin-left:6px;font-size:12px;color:var(--text-dim);cursor:pointer;">
+            <input type="checkbox" id="trim-inverted"> Inverted <span class="key-hint">I</span>
+          </label>
+          <label data-tooltip="Open: keeps the floor under the arc instead of voiding it" style="display:flex;align-items:center;gap:3px;margin-left:6px;font-size:12px;color:var(--text-dim);cursor:pointer;">
+            <input type="checkbox" id="trim-open"> Open <span class="key-hint">O</span>
+          </label>
+        </div>
+
+        <!-- Session tool row (shown when session tools active) -->
+        <div id="session-tool-row" class="tool-row" style="display:none;">
+          <button class="toolbar-btn active" data-session-tool="doors" data-tooltip="Doors — Open doors and secret doors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20H2"/><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z"/><path d="M11 4H8a2 2 0 0 0-2 2v14"/><path d="M14 12h.01"/><path d="M22 20h-3"/></svg><span class="key-hint">1</span>
+          </button>
+          <button class="toolbar-btn" data-session-tool="range" data-tooltip="Range — Measure spell areas and effects">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg><span class="key-hint">2</span>
+          </button>
+        </div>
+
+        <!-- Range sub-options (shown when Range session tool is active) -->
+        <div id="range-options" class="session-suboptions" style="display:none;">
+          <button class="toolbar-btn" data-range-shape="line" data-tooltip="Line">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4"/></svg>
+          </button>
+          <button class="toolbar-btn" data-range-shape="cone" data-tooltip="Cone">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12,2 22,22 2,22"/></svg>
+          </button>
+          <button class="toolbar-btn active" data-range-shape="circle" data-tooltip="Circle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+          </button>
+          <button class="toolbar-btn" data-range-shape="cube" data-tooltip="Cube">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18"/></svg>
+          </button>
+          <span class="toolbar-separator"></span>
+          <select id="range-distance" class="toolbar-select" data-tooltip="Fixed range (Auto = drag distance)">
+            <option value="0">Auto</option>
+          </select>
+        </div>
+
 
       </div>
     </div>
@@ -407,11 +461,175 @@
       </div>
     </div>
 
+    <!-- New Map modal -->
+    <div id="modal-new-map" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal">
+        <div class="mw-modal-title">New Map</div>
+        <div class="mw-modal-field">
+          <label for="modal-map-name">Name</label>
+          <input type="text" id="modal-map-name" value="New Dungeon" autocomplete="off">
+        </div>
+        <div class="mw-modal-row">
+          <div class="mw-modal-field">
+            <label for="modal-map-rows">Rows</label>
+            <input type="number" id="modal-map-rows" value="20" min="1" max="500">
+          </div>
+          <div class="mw-modal-field">
+            <label for="modal-map-cols">Columns</label>
+            <input type="number" id="modal-map-cols" value="30" min="1" max="500">
+          </div>
+        </div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-new-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-primary" id="modal-new-create">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm modal (unsaved changes, etc.) -->
+    <div id="modal-confirm" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal">
+        <div class="mw-modal-body" id="modal-confirm-msg"></div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-confirm-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-danger" id="modal-confirm-ok">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resize Canvas modal -->
+    <div id="modal-resize-canvas" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal">
+        <div class="mw-modal-title">Resize Canvas</div>
+        <div class="mw-modal-row">
+          <div class="mw-modal-field">
+            <label for="modal-resize-rows">Rows</label>
+            <input type="number" id="modal-resize-rows" min="1" max="500">
+          </div>
+          <div class="mw-modal-field">
+            <label for="modal-resize-cols">Columns</label>
+            <input type="number" id="modal-resize-cols" min="1" max="500">
+          </div>
+        </div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-resize-canvas-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-primary" id="modal-resize-canvas-ok">Resize</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resize Level modal -->
+    <div id="modal-resize-level" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal">
+        <div class="mw-modal-title">Resize Level</div>
+        <div class="mw-modal-body" id="modal-resize-level-desc"></div>
+        <div class="mw-modal-field">
+          <label for="modal-resize-level-rows">Row count</label>
+          <input type="number" id="modal-resize-level-rows" min="1" max="500">
+        </div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-resize-level-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-primary" id="modal-resize-level-ok">Resize</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm destructive resize modal -->
+    <div id="modal-resize-level-confirm" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal">
+        <div class="mw-modal-body" id="modal-resize-level-confirm-msg"></div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-resize-level-confirm-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-danger" id="modal-resize-level-confirm-ok">Delete &amp; Resize</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Level modal -->
+    <div id="modal-add-level" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal">
+        <div class="mw-modal-title">Add Level</div>
+        <div class="mw-modal-field">
+          <label for="modal-add-level-name">Name</label>
+          <input type="text" id="modal-add-level-name" autocomplete="off">
+        </div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-add-level-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-primary" id="modal-add-level-ok">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Level modal -->
+    <div id="modal-delete-level" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal">
+        <div class="mw-modal-title">Delete Level</div>
+        <div class="mw-modal-body" id="modal-delete-level-msg"></div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn" id="modal-delete-level-cancel">Cancel</button>
+          <button class="mw-modal-btn mw-modal-btn-danger" id="modal-delete-level-ok">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard Shortcuts modal -->
+    <div id="modal-shortcuts" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal mw-modal-wide">
+        <div class="mw-modal-title">Keyboard Shortcuts</div>
+        <div class="shortcuts-grid">
+          <div class="shortcuts-col">
+            <div class="shortcuts-section">Navigation</div>
+            <div class="shortcut-row"><kbd>H</kbd><span>Zoom to fit current level</span></div>
+            <div class="shortcut-row"><kbd>Scroll</kbd><span>Zoom in / out</span></div>
+            <div class="shortcut-row"><kbd>Alt+Drag</kbd><span>Pan canvas</span></div>
+            <div class="shortcut-row"><kbd>Right+Drag</kbd><span>Pan canvas</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+1–9</kbd><span>Switch to level N</span></div>
+            <div class="shortcuts-section">Canvas</div>
+            <div class="shortcut-row"><kbd>Shift+Drag</kbd><span>Constrain to square</span></div>
+            <div class="shortcut-row"><kbd>Alt+Click</kbd><span>Eyedropper (Paint)</span></div>
+            <div class="shortcuts-section">Sub-modes</div>
+            <div class="shortcut-row"><kbd>Tab</kbd><span>Cycle sub-mode forward</span></div>
+            <div class="shortcut-row"><kbd>Shift+Tab</kbd><span>Cycle sub-mode backward</span></div>
+            <div class="shortcut-row"><kbd>R</kbd><span>Toggle Round (Trim)</span></div>
+            <div class="shortcut-row"><kbd>I</kbd><span>Toggle Inverted (Trim)</span></div>
+            <div class="shortcut-row"><kbd>O</kbd><span>Toggle Open (Trim)</span></div>
+            <div class="shortcut-row"><kbd>R / F</kbd><span>Rotate / Flip prop during drag</span></div>
+          </div>
+          <div class="shortcuts-col">
+            <div class="shortcuts-section">Tools</div>
+            <div class="shortcut-row"><kbd>1</kbd><span>Room</span></div>
+            <div class="shortcut-row"><kbd>2</kbd><span>Paint</span></div>
+            <div class="shortcut-row"><kbd>3</kbd><span>Fill</span></div>
+            <div class="shortcut-row"><kbd>4</kbd><span>Wall</span></div>
+            <div class="shortcut-row"><kbd>5</kbd><span>Door</span></div>
+            <div class="shortcut-row"><kbd>6</kbd><span>Label</span></div>
+            <div class="shortcut-row"><kbd>S</kbd><span>Stairs</span></div>
+            <div class="shortcut-row"><kbd>B</kbd><span>Bridge</span></div>
+            <div class="shortcut-row"><kbd>T</kbd><span>Trim</span></div>
+            <div class="shortcut-row"><kbd>A</kbd><span>Select</span></div>
+            <div class="shortcut-row"><kbd>Q</kbd><span>Prop</span></div>
+            <div class="shortcut-row"><kbd>E</kbd><span>Erase</span></div>
+            <div class="shortcut-row"><kbd>L</kbd><span>Light</span></div>
+            <div class="shortcuts-section">File &amp; Panels</div>
+            <div class="shortcut-row"><kbd>Ctrl+S</kbd><span>Save</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Z</kbd><span>Undo</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Y</kbd><span>Redo</span></div>
+            <div class="shortcut-row"><kbd>F1–F5</kbd><span>Toggle sidebar panels</span></div>
+            <div class="shortcut-row"><kbd>?</kbd><span>This help</span></div>
+          </div>
+        </div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn mw-modal-btn-primary" id="modal-shortcuts-close">Close</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Status Bar -->
     <div id="status-bar">
       <span id="status-left">—</span>
       <span id="status-center"></span>
       <span id="status-right"></span>
+      <span id="status-version"></span>
     </div>
 
   </div>

@@ -4,7 +4,7 @@ import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state
 import { requestRender, getTransform } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
 
-const LIGHT_HIT_RADIUS = 12; // pixels at screen scale for click detection
+const LIGHT_HIT_RADIUS = 8; // pixels at screen scale for click detection
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -60,11 +60,13 @@ export class LightTool extends Tool {
     if (btn && !btn.classList.contains('active')) {
       btn.click();
     }
+    state.statusInstruction = 'Right-click to delete light';
   }
 
   onDeactivate() {
     this.dragging = null;
     this.dragMoved = false;
+    state.statusInstruction = null;
   }
 
   onMouseDown(row, col, edge, event, pos) {
@@ -79,11 +81,22 @@ export class LightTool extends Tool {
     if (this.dragging) {
       this.dragMoved = true;
       const transform = getTransform();
-      const world = fromCanvas(pos.x - this.dragging.offsetX, pos.y - this.dragging.offsetY, transform);
       const light = findLightById(this.dragging.lightId);
       if (light) {
-        light.x = world.x;
-        light.y = world.y;
+        if (event?.ctrlKey && light.type !== 'directional') {
+          // Ctrl+drag: resize radius — measure distance from light center to cursor
+          const world = fromCanvas(pos.x, pos.y, transform);
+          const dx = world.x - light.x;
+          const dy = world.y - light.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const gridSize = state.dungeon.metadata.gridSize || 5;
+          light.radius = Math.max(gridSize, Math.round(dist / gridSize) * gridSize);
+        } else {
+          // Normal drag: move light position
+          const world = fromCanvas(pos.x - this.dragging.offsetX, pos.y - this.dragging.offsetY, transform);
+          light.x = world.x;
+          light.y = world.y;
+        }
         invalidateLightmap();
         markDirty();
         requestRender();
@@ -117,13 +130,14 @@ export class LightTool extends Tool {
     const light = hitTestLight(pos);
     if (!light) return;
 
-    pushUndo();
+    pushUndo('Delete light');
     const lights = getLights();
     const idx = lights.indexOf(light);
     if (idx >= 0) lights.splice(idx, 1);
 
     if (state.selectedLightId === light.id) {
       state.selectedLightId = null;
+      state.statusInstruction = null;
     }
 
     invalidateLightmap();
@@ -137,11 +151,12 @@ export class LightTool extends Tool {
       if (state.selectedLightId != null) {
         const light = findLightById(state.selectedLightId);
         if (light) {
-          pushUndo();
+          pushUndo('Delete light');
           const lights = getLights();
           const idx = lights.indexOf(light);
           if (idx >= 0) lights.splice(idx, 1);
           state.selectedLightId = null;
+          state.statusInstruction = null;
           invalidateLightmap();
           markDirty();
           notify();
@@ -176,7 +191,7 @@ export class LightTool extends Tool {
     const transform = getTransform();
     const world = fromCanvas(pos.x, pos.y, transform);
 
-    pushUndo();
+    pushUndo('Add light');
     ensureLightsArray();
 
     const light = {
@@ -218,11 +233,12 @@ export class LightTool extends Tool {
 
     if (light) {
       state.selectedLightId = light.id;
+      state.statusInstruction = 'Drag to move · Ctrl+drag to resize radius';
 
       // Start drag
       const transform = getTransform();
       const screenPos = toCanvas(light.x, light.y, transform);
-      pushUndo();
+      pushUndo('Move light');
       this.dragging = {
         lightId: light.id,
         offsetX: pos.x - screenPos.x,
@@ -231,6 +247,7 @@ export class LightTool extends Tool {
       this.dragMoved = false;
     } else {
       state.selectedLightId = null;
+      state.statusInstruction = null;
     }
 
     notify();

@@ -262,7 +262,9 @@ export function deselectCell() {
 function updateCellInfo() {
   const fp = getFloatPanel();
 
-  if (!state.selectedCells.length) {
+  // Only show cell info when the inspect sub-mode is active
+  const isInspectMode = state.activeTool === 'select' && state.selectMode === 'inspect';
+  if (!state.selectedCells.length || !isInspectMode) {
     fp.classList.remove('visible');
     return;
   }

@@ -2,6 +2,8 @@
 import state, { pushUndo, markDirty, notify, subscribe } from '../state.js';
 import { THEMES } from '../../../render/index.js';
 import { getThemeCatalog, renderThemePreview } from '../theme-catalog.js';
+import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
+import { requestRender } from '../canvas-view.js';
 
 // Theme property labels for the custom editor
 const THEME_PROPS = [
@@ -38,6 +40,21 @@ function hexAlphaToRgba(hex, alpha) {
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// Custom theme editor — collapsible section state
+const CTE_COLLAPSED_KEY = 'mw-cte-collapsed';
+function loadCteCollapsed() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CTE_COLLAPSED_KEY));
+    if (Array.isArray(saved)) return new Set(saved);
+  } catch {}
+  // Default: Colors expanded, everything else collapsed
+  return new Set(['Walls', 'Shading', 'Hatching', 'Textures', 'Water', 'Lava']);
+}
+const cteCollapsed = loadCteCollapsed();
+function saveCteCollapsed() {
+  localStorage.setItem(CTE_COLLAPSED_KEY, JSON.stringify([...cteCollapsed]));
 }
 
 export function init() {
@@ -87,37 +104,49 @@ export function init() {
       </div>`;
 
     // ── Build HTML ─────────────────────────────────────────────────────────
+
+    // Collapsible section wrapper
+    const section = (name, contentHtml) => {
+      const isCollapsed = cteCollapsed.has(name);
+      return `<div class="cte-section">
+        <div class="cte-section-title cte-section-toggle" data-cte-section="${name}">
+          <span class="cte-toggle-arrow">${isCollapsed ? '▶' : '▼'}</span>${name}
+        </div>
+        <div class="cte-section-body"${isCollapsed ? ' style="display:none"' : ''}>
+          ${contentHtml}
+        </div>
+      </div>`;
+    };
+
     let html = '<div>';
 
     // Colors section
-    html += '<div class="cte-section-title">Colors</div>';
+    let colorsHtml = '';
     for (const [prop, label] of THEME_PROPS) {
-      html += colorRow(label, 'data-theme-prop', prop, theme[prop] || '#000000');
+      colorsHtml += colorRow(label, 'data-theme-prop', prop, theme[prop] || '#000000');
     }
+    html += section('Colors', colorsHtml);
 
     // Walls section
-    html += `<div class="cte-section">
-      <div class="cte-section-title">Walls</div>
+    html += section('Walls', `
       ${sliderRow('Roughness', 'data-wall-prop', 'data-wall-range', 'roughness', wallRoughness, 0, 3, 0.1)}
       ${colorRow('Shadow Color', 'data-wshadow-prop', 'color', parsedShadow.hex)}
       ${sliderRow('Shadow Opacity', 'data-wshadow-prop', 'data-wshadow-range', 'opacity', parsedShadow.alpha, 0, 1, 0.01)}
       ${sliderRow('Shadow Blur', 'data-wshadow-prop', 'data-wshadow-range', 'blur', wallShadow.blur ?? 8, 0, 30, 1)}
       ${sliderRow('Shadow X', 'data-wshadow-prop', 'data-wshadow-range', 'offsetX', wallShadow.offsetX ?? 4, -20, 20, 1)}
       ${sliderRow('Shadow Y', 'data-wshadow-prop', 'data-wshadow-range', 'offsetY', wallShadow.offsetY ?? 4, -20, 20, 1)}
-    </div>`;
+    `);
 
     // Shading section
-    html += `<div class="cte-section">
-      <div class="cte-section-title">Shading</div>
+    html += section('Shading', `
       ${sliderRow('Buffer Opacity', 'data-buf-prop', 'data-buf-range', 'opacity', bufferOpacity, 0, 1, 0.01)}
       ${colorRow('Outer Color', 'data-shading-prop', 'color', shading.color || '#c5b9ac')}
       ${sliderRow('Outer Size', 'data-shading-prop', 'data-shading-range', 'size', shading.size ?? 0, 0, 100, 1)}
       ${sliderRow('Outer Roughness', 'data-shading-prop', 'data-shading-range', 'roughness', shading.roughness ?? 0, 0, 10, 0.5)}
-    </div>`;
+    `);
 
     // Hatching section
-    html += `<div class="cte-section">
-      <div class="cte-section-title">Hatching</div>
+    html += section('Hatching', `
       ${selectRow('Style', 'data-hatch-prop="style"', `
         <option value="lines" ${hatchStyle === 'lines' ? 'selected' : ''}>Lines</option>
         <option value="rocks" ${hatchStyle === 'rocks' ? 'selected' : ''}>Rocks</option>
@@ -127,39 +156,55 @@ export function init() {
       ${sliderRow('Size', 'data-hatch-prop', 'data-hatch-range', 'size', hatchSize, 0, 1, 0.05)}
       ${sliderRow('Opacity', 'data-hatch-prop', 'data-hatch-range', 'opacity', hatchOpacity, 0, 1, 0.01)}
       ${sliderRow('Distance', 'data-hatch-prop', 'data-hatch-range', 'distance', hatchDistance, 1, 8, 1)}
-    </div>`;
+    `);
 
     // Textures section
     const blendWidth = theme.textureBlendWidth ?? 0.35;
-    html += `<div class="cte-section">
-      <div class="cte-section-title">Textures</div>
+    html += section('Textures', `
       ${sliderRow('Edge Blend', 'data-texblend-prop', 'data-texblend-range', 'blendWidth', blendWidth, 0, 1, 0.01)}
-    </div>`;
+    `);
 
     // Water section
     const parsedCaustic = parseRgbaColor(theme.waterCausticColor || 'rgba(160,215,255,0.55)');
-    html += `<div class="cte-section">
-      <div class="cte-section-title">Water</div>
+    html += section('Water', `
       ${colorRow('Shallow', 'data-theme-prop', 'waterShallowColor', theme.waterShallowColor || '#2d69a5')}
       ${colorRow('Medium', 'data-theme-prop', 'waterMediumColor', theme.waterMediumColor || '#1e4b8a')}
       ${colorRow('Deep', 'data-theme-prop', 'waterDeepColor', theme.waterDeepColor || '#0f2d6e')}
       ${colorRow('Caustic Color', 'data-caustic-prop', 'color', parsedCaustic.hex)}
       ${sliderRow('Caustic Opacity', 'data-caustic-prop', 'data-caustic-range', 'opacity', parsedCaustic.alpha, 0, 1, 0.01)}
-    </div>`;
+    `);
 
     // Lava section
     const parsedLavaCaustic = parseRgbaColor(theme.lavaCausticColor || 'rgba(255,160,60,0.55)');
-    html += `<div class="cte-section">
-      <div class="cte-section-title">Lava</div>
+    html += section('Lava', `
       ${colorRow('Shallow', 'data-theme-prop', 'lavaShallowColor', theme.lavaShallowColor || '#cc4400')}
       ${colorRow('Medium', 'data-theme-prop', 'lavaMediumColor', theme.lavaMediumColor || '#992200')}
       ${colorRow('Deep', 'data-theme-prop', 'lavaDeepColor', theme.lavaDeepColor || '#661100')}
       ${colorRow('Caustic Color', 'data-lava-caustic-prop', 'color', parsedLavaCaustic.hex)}
       ${sliderRow('Caustic Opacity', 'data-lava-caustic-prop', 'data-lava-caustic-range', 'opacity', parsedLavaCaustic.alpha, 0, 1, 0.01)}
-    </div>`;
+    `);
 
     html += '</div>';
     customEditor.innerHTML = html;
+
+    // Section collapse/expand toggle
+    customEditor.addEventListener('click', (e) => {
+      const toggle = e.target.closest('[data-cte-section]');
+      if (!toggle) return;
+      const name = toggle.dataset.cteSection;
+      const body = toggle.nextElementSibling;
+      const arrow = toggle.querySelector('.cte-toggle-arrow');
+      if (cteCollapsed.has(name)) {
+        cteCollapsed.delete(name);
+        if (body) body.style.display = '';
+        if (arrow) arrow.textContent = '▼';
+      } else {
+        cteCollapsed.add(name);
+        if (body) body.style.display = 'none';
+        if (arrow) arrow.textContent = '▶';
+      }
+      saveCteCollapsed();
+    });
 
     // Helper: update a color swatch input and its adjacent hex span together
     const setColor = (input, value) => {
@@ -709,7 +754,10 @@ export function init() {
 
   function syncUI() {
     const mapTitleEl = document.getElementById('map-title');
-    if (mapTitleEl) mapTitleEl.textContent = state.dungeon.metadata.dungeonName || 'Untitled';
+    if (mapTitleEl) {
+      const name = state.dungeon.metadata.dungeonName || 'Untitled';
+      mapTitleEl.textContent = state.unsavedChanges ? `${name} *` : name;
+    }
     if (nameInput) nameInput.value = state.dungeon.metadata.dungeonName || '';
     gridSizeSelect.value = state.dungeon.metadata.gridSize || 5;
 
@@ -723,8 +771,10 @@ export function init() {
     document.getElementById('feat-compass').checked = features.compassRose !== false;
     document.getElementById('feat-scale').checked = features.scale !== false;
     document.getElementById('feat-border').checked = features.border !== false;
-    document.getElementById('feat-fps').checked = features.fpsCounter === true;
-    document.getElementById('feat-memory').checked = features.memoryUsage === true;
+    const editorSettings = getEditorSettings();
+    document.getElementById('feat-fps').checked = editorSettings.fpsCounter === true;
+    document.getElementById('feat-memory').checked = editorSettings.memoryUsage === true;
+    document.getElementById('feat-minimap').checked = editorSettings.minimap === true;
   }
   syncUI();
   subscribe(syncUI);
@@ -748,10 +798,9 @@ export function init() {
     }
   }
 
-  // Customize section: collapsible, open by default
+  // Customize section: collapsible, collapsed by default
   const themePanel = document.getElementById('panel-themes');
   const sectionDivider = themePanel?.querySelector('.theme-section-divider');
-  themePanel?.classList.add('customize-open');
   sectionDivider?.addEventListener('click', () => {
     themePanel.classList.toggle('customize-open');
   });
@@ -816,62 +865,77 @@ export function init() {
     notify();
   });
 
-  // Dimensions display (status bar center) + resize
-  const dimSpan = document.getElementById('status-center');
-  function syncDimensions() {
-    const cells = state.dungeon.cells;
-    if (dimSpan) dimSpan.textContent = `${cells.length} × ${cells[0]?.length || 0}`;
-  }
-  syncDimensions();
-  subscribe(syncDimensions);
-
   document.getElementById('btn-resize').addEventListener('click', () => {
     const cells = state.dungeon.cells;
     const oldRows = cells.length;
     const oldCols = cells[0]?.length || 0;
 
-    const rowsStr = prompt(`Rows (currently ${oldRows}):`, oldRows);
-    if (rowsStr === null) return;
-    const colsStr = prompt(`Columns (currently ${oldCols}):`, oldCols);
-    if (colsStr === null) return;
+    const modal = document.getElementById('modal-resize-canvas');
+    const rowInput = document.getElementById('modal-resize-rows');
+    const colInput = document.getElementById('modal-resize-cols');
+    const cancelBtn = document.getElementById('modal-resize-canvas-cancel');
+    const okBtn = document.getElementById('modal-resize-canvas-ok');
+    if (!modal || !rowInput || !colInput) return;
 
-    const newRows = Math.max(1, parseInt(rowsStr) || oldRows);
-    const newCols = Math.max(1, parseInt(colsStr) || oldCols);
-    if (newRows === oldRows && newCols === oldCols) return;
+    rowInput.value = oldRows;
+    colInput.value = oldCols;
+    modal.style.display = 'flex';
+    rowInput.focus();
+    rowInput.select();
 
-    pushUndo();
-
-    if (newCols > oldCols) {
-      for (const row of cells) while (row.length < newCols) row.push(null);
-    } else if (newCols < oldCols) {
-      for (const row of cells) row.length = newCols;
+    function cleanup() {
+      modal.style.display = 'none';
+      cancelBtn.removeEventListener('click', onCancel);
+      okBtn.removeEventListener('click', onOk);
+      modal.removeEventListener('click', onOverlay);
     }
 
-    if (newRows > oldRows) {
-      while (cells.length < newRows) {
-        const row = [];
-        for (let c = 0; c < newCols; c++) row.push(null);
-        cells.push(row);
+    function onCancel() { cleanup(); }
+
+    function onOk() {
+      const newRows = Math.max(1, parseInt(rowInput.value) || oldRows);
+      const newCols = Math.max(1, parseInt(colInput.value) || oldCols);
+      cleanup();
+      if (newRows === oldRows && newCols === oldCols) return;
+
+      pushUndo('Resize canvas');
+
+      if (newCols > oldCols) {
+        for (const row of cells) while (row.length < newCols) row.push(null);
+      } else if (newCols < oldCols) {
+        for (const row of cells) row.length = newCols;
       }
-    } else if (newRows < oldRows) {
-      cells.length = newRows;
+
+      if (newRows > oldRows) {
+        while (cells.length < newRows) {
+          const row = [];
+          for (let c = 0; c < newCols; c++) row.push(null);
+          cells.push(row);
+        }
+      } else if (newRows < oldRows) {
+        cells.length = newRows;
+      }
+
+      const levels = state.dungeon.metadata.levels;
+      if (levels && levels.length === 1) levels[0].numRows = newRows;
+
+      markDirty();
+      notify();
     }
 
-    const levels = state.dungeon.metadata.levels;
-    if (levels && levels.length === 1) levels[0].numRows = newRows;
+    function onOverlay(e) { if (e.target === modal) cleanup(); }
 
-    markDirty();
-    notify();
+    cancelBtn.addEventListener('click', onCancel);
+    okBtn.addEventListener('click', onOk);
+    modal.addEventListener('click', onOverlay);
   });
 
-  // Feature checkboxes
+  // Map feature checkboxes (saved with the dungeon)
   for (const [id, key] of [
     ['feat-grid', 'showGrid'],
     ['feat-compass', 'compassRose'],
     ['feat-scale', 'scale'],
     ['feat-border', 'border'],
-    ['feat-fps', 'fpsCounter'],
-    ['feat-memory', 'memoryUsage'],
   ]) {
     document.getElementById(id).addEventListener('change', (e) => {
       pushUndo();
@@ -879,6 +943,18 @@ export function init() {
       state.dungeon.metadata.features[key] = e.target.checked;
       markDirty();
       notify();
+    });
+  }
+
+  // Editor setting checkboxes (persist across maps, not saved in dungeon)
+  for (const [id, key] of [
+    ['feat-fps', 'fpsCounter'],
+    ['feat-memory', 'memoryUsage'],
+    ['feat-minimap', 'minimap'],
+  ]) {
+    document.getElementById(id).addEventListener('change', (e) => {
+      setEditorSetting(key, e.target.checked);
+      requestRender();
     });
   }
 }

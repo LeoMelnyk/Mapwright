@@ -5,9 +5,7 @@
 import state, { pushUndo, markDirty, notify, undo, redo, invalidateLightmap } from './state.js';
 import { createEmptyDungeon } from './utils.js';
 import { requestRender } from './canvas-view.js';
-import { RoomTool } from './tools/tool-room.js';
-import { TrimTool } from './tools/tool-trim.js';
-import { PaintTool } from './tools/tool-paint.js';
+import { RoomTool, TrimTool, PaintTool } from './tools/index.js';
 import { getThemeCatalog } from './theme-catalog.js';
 import { collectTextureIds, ensureTexturesLoaded, loadTextureImages, getTextureCatalog } from './texture-catalog.js';
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
@@ -16,7 +14,7 @@ import { reloadAssets } from './io.js';
 import { classifyStairShape, isDegenerate, getOccupiedCells } from './stair-geometry.js';
 import { isBridgeDegenerate, getBridgeOccupiedCells } from './bridge-geometry.js';
 import { migrateHalfTextures } from './io.js';
-import { calculateCanvasSize, renderDungeonToCanvas } from '../../render/index.js';
+import { calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches } from '../../render/index.js';
 import { OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom } from '../../util/index.js';
 import { exportDungeonToMapFormat } from './export-map.js';
 
@@ -857,6 +855,7 @@ const api = {
       levels[i].startRow += delta;
     }
 
+    invalidateAllCaches();
     markDirty();
     notify();
     return { success: true };
@@ -891,6 +890,7 @@ const api = {
     });
 
     state.currentLevel = state.dungeon.metadata.levels.length - 1;
+    invalidateAllCaches();
     markDirty();
     notify();
     return { success: true, levelIndex: state.currentLevel };

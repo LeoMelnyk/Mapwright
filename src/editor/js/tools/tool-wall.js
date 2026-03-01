@@ -22,6 +22,14 @@ export class WallTool extends Tool {
     this.startCol = 0;
   }
 
+  onActivate() {
+    state.statusInstruction = 'Right-click to remove wall';
+  }
+
+  onDeactivate() {
+    state.statusInstruction = '';
+  }
+
   onMouseDown(row, col, edge, event) {
     if (!edge) return;
     this.dragging = true;
@@ -91,7 +99,7 @@ export class WallTool extends Tool {
     if (!cells[er][ec][direction]) return; // nothing to clear
 
     const before = captureBeforeState(cells, [{ row: er, col: ec }]);
-    pushUndo();
+    pushUndo('Remove wall');
     deleteEdgeReciprocal(cells, er, ec, direction);
 
     invalidateLightmap();
@@ -168,7 +176,7 @@ export class WallTool extends Tool {
     const before = captureBeforeState(cells, [{ row, col }]);
 
     if (!this.undoPushed) {
-      pushUndo();
+      pushUndo('Add wall');
       this.undoPushed = true;
     }
 

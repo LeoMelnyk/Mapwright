@@ -79,11 +79,16 @@ export class PropTool extends Tool {
     return state.propMode === 'select' ? 'default' : 'crosshair';
   }
 
+  onActivate() {
+    state.statusInstruction = 'Right-click to delete prop';
+  }
+
   onDeactivate() {
     if (this.isDragging) {
       undo(); // restore prop at original position
     }
     this._resetDragState();
+    state.statusInstruction = '';
   }
 
   _resetDragState() {
@@ -210,7 +215,7 @@ export class PropTool extends Tool {
     const cell = cells[anchor.row]?.[anchor.col];
     if (!cell?.prop) return;
 
-    pushUndo();
+    pushUndo('Delete prop');
     delete cell.prop;
 
     // Remove from selection if it was selected
@@ -244,7 +249,7 @@ export class PropTool extends Tool {
 
     if (!isFootprintClear(cells, row, col, spanRows, spanCols)) return;
 
-    pushUndo();
+    pushUndo('Place prop');
     cells[row][col].prop = {
       type: state.selectedProp,
       span: [spanRows, spanCols],
@@ -304,7 +309,7 @@ export class PropTool extends Tool {
           const propDef = catalog?.props?.[cell.prop.type];
           if (propDef) {
             // Enter drag mode
-            pushUndo(); // snapshot state before we remove the prop
+            pushUndo('Move prop'); // snapshot state before we remove the prop
             this.isDragging = true;
             this.dragAnchor = { row: anchor.row, col: anchor.col };
             this.dragOrigProp = { ...cell.prop, span: [...cell.prop.span] };
@@ -518,7 +523,7 @@ export class PropTool extends Tool {
       requestRender();
     } else if (state.propMode === 'select' && state.selectedPropAnchors.length > 0) {
       const cells = state.dungeon.cells;
-      pushUndo();
+      pushUndo('Rotate prop');
 
       for (const anchor of state.selectedPropAnchors) {
         const cell = cells[anchor.row]?.[anchor.col];
@@ -573,7 +578,7 @@ export class PropTool extends Tool {
       requestRender();
     } else if (state.propMode === 'select' && state.selectedPropAnchors.length > 0) {
       const cells = state.dungeon.cells;
-      pushUndo();
+      pushUndo('Flip prop');
       for (const anchor of state.selectedPropAnchors) {
         const cell = cells[anchor.row]?.[anchor.col];
         if (!cell?.prop) continue;
@@ -593,7 +598,7 @@ export class PropTool extends Tool {
     if (state.selectedPropAnchors.length === 0) return;
     const cells = state.dungeon.cells;
 
-    pushUndo();
+    pushUndo('Delete prop');
 
     for (const anchor of state.selectedPropAnchors) {
       const cell = cells[anchor.row]?.[anchor.col];
