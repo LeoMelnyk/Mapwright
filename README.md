@@ -40,8 +40,9 @@ Full AI editor API reference: [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md)
 - **Fills** — pit, difficult terrain, and water fills with shallow/medium/deep depth rendering
 - **Point light system** — per-light color, radius, intensity, and falloff
 - **Per-cell textures** — 700+ free CC0 textures from [Polyhaven](https://polyhaven.com), downloadable on demand
+- **Invisible walls** — walls visible in the editor but hidden from players, for blocking movement without revealing layout
 - **Watch mode** — auto-rebuild on save for fast iteration
-- **DM player view** — real-time fog-of-war session mode via WebSocket
+- **DM player view** — real-time fog-of-war session mode via WebSocket, with a DM fog overlay to visualize unrevealed cells
 - **Import** — load maps from Donjon and OpenDungeonPlanner
 
 ---
@@ -53,6 +54,10 @@ Full AI editor API reference: [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md)
 Download `Mapwright.exe` from the [Releases page](https://github.com/LeoMelnyk/Mapwright/releases) and run it. No installation required.
 
 On first launch, a texture downloader opens automatically. Download textures once and they persist across sessions.
+
+### Mac — Desktop App
+
+Download `Mapwright.dmg` from the [Releases page](https://github.com/LeoMelnyk/Mapwright/releases). The app is unsigned — on first launch, right-click the app and choose **Open** to bypass Gatekeeper.
 
 ### Windows / Mac — From Source
 
@@ -135,7 +140,7 @@ Outputs `my-dungeon.json` and `my-dungeon.png`. Use `--svg` for vector output, `
 
 Start the server (`npm start`) and open **http://localhost:3000/editor/**.
 
-The editor has 14 tools: **Room, Paint, Wall, Door, Label, Stairs, Trim, Select, Prop, Light, Fill, Erase, Border, Bridge** — with full undo/redo, pan/zoom, and multi-level support. Maps save and load as JSON and can be exported back to `.map` format.
+The editor has 14 tools: **Room, Paint, Wall, Door, Label, Stairs, Trim, Select, Prop, Light, Fill, Erase, Range, Bridge** — with full undo/redo, pan/zoom, and multi-level support. Hover over any placed object (prop, light, bridge, label) to select it; drag to move it. Maps save and load as JSON and can be exported back to `.map` format.
 
 ---
 
@@ -171,20 +176,22 @@ A reference map is in [`examples/`](examples/):
 | Example | Description |
 |---|---|
 | `island` | Coastal island encounter — water fills, rounded trims, 40+ props, lights, per-cell textures |
+| `mines` | Underground mine complex — organic cave shapes, diagonal fill bands, burial chamber dressing |
 
-Build it:
+Build one:
 
 ```bash
 node tools/build_map.js examples/island.map
+node tools/build_map.js examples/mines.map
 ```
 
-Or render the pre-compiled JSON directly:
+Or render a pre-compiled JSON directly:
 
 ```bash
 node tools/generate_dungeon.js examples/island.json
 ```
 
-See [examples/examples.md](examples/examples.md) for a full breakdown of every feature it demonstrates.
+See [examples/examples.md](examples/examples.md) for a full feature breakdown of each map.
 
 ---
 
@@ -225,12 +232,15 @@ npm run electron
 
 Starts the Express server and opens the Electron window directly from source. Frontend changes (HTML/CSS/JS) take effect on Ctrl+R. Server changes (`server.js`, `electron-main.cjs`) require restarting.
 
-### Build the Windows portable exe
+### Build the desktop app
 
 ```bash
-npm run electron:build
+npm run electron:build        # Windows portable exe → dist/Mapwright <version>.exe
+npm run electron:build:mac    # Mac DMG → dist/Mapwright-<version>-arm64.dmg
 ```
 
-Outputs `dist/Mapwright 1.0.0.exe` — a single self-contained portable executable, no installation required.
+The Windows build is a single self-contained portable executable, no installation required.
 
-`npm install` automatically patches a bundled tool to handle a Windows symlink limitation. If the build fails with `Cannot create symbolic link`, enable **Developer Mode** in Settings → System → For Developers and re-run.
+`npm install` automatically patches a bundled tool to handle a Windows symlink limitation. If the Windows build fails with `Cannot create symbolic link`, enable **Developer Mode** in Settings → System → For Developers and re-run.
+
+The Mac build is unsigned — users will need to right-click → Open to bypass Gatekeeper on first launch.

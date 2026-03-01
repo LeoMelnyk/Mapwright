@@ -3,13 +3,13 @@
 JSON maps can be loaded directly into the dungeon editor or rendered with:
 
 ```bash
-node generate_dungeon.js examples/<name>.json
+node tools/generate_dungeon.js examples/<name>.json
 ```
 
 Export a JSON map back to `.map` text format with:
 
 ```bash
-node puppeteer-bridge.js --load examples/<name>.json --export-map examples/<name>.map
+node tools/puppeteer-bridge.js --load examples/<name>.json --export-map examples/<name>.map
 ```
 
 ---

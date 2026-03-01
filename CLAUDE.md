@@ -232,15 +232,20 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 
 ### Domain: player-session
 
-**Keywords:** player, DM, session, multiplayer, fog, WebSocket, fog-of-war
+**Keywords:** player, DM, session, multiplayer, fog, WebSocket, fog-of-war, dm-view, reveal
 
 **Root dirs:** `src/player/`, `src/editor/js/`
 
 **Known files:**
-- `player/player-main.js`, `player/player-canvas.js`, `player/player-state.js`, `player/fog.js`
-- `editor/js/dm-session.js` — DM ↔ Player WebSocket relay.
-- `editor/js/panels/session.js` — Session panel UI.
-- `server.js` — Express + WebSocket server.
+- `player/player-main.js` — Player view entry point; connects to WebSocket, drives player canvas.
+- `player/player-canvas.js` — Renders the player's view of the map with fog-of-war applied.
+- `player/player-state.js` — Shared state for the player view (revealed cells, current level).
+- `player/fog.js` — Strips invisible wall/door types (`iw`, `id`) from cells before sending to players; manages reveal state.
+- `editor/js/dm-session.js` — DM session state (`sessionState`), WebSocket relay logic, and the DM fog overlay. Key exports: `toggleDmView()`, `renderDmFogOverlay()`, `renderSessionOverlay()`.
+- `editor/js/panels/session.js` — Session panel UI (start/stop session, reveal controls, player count).
+- `server.js` (`/ws` endpoint) — WebSocket relay: DM sends commands to all players; tracks player count and notifies DM on join/leave.
+
+**DM fog overlay:** `sessionState.dmViewActive` toggles a dark tint over all unrevealed cells in the DM view. Rendered via `renderDmFogOverlay(ctx, transform, gridSize)` — registered with `setDmFogOverlay()` in `canvas-view.js` and called each frame when active.
 
 ---
 
