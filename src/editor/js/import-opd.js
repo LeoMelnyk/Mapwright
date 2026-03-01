@@ -270,7 +270,7 @@ export function convertOnePageDungeon(opd) {
       }
 
       // Rounded arc: filter void cells — cells inside arc become insideArc floor
-      let insideArc = [];
+      const insideArc = [];
       let pivotX, pivotY;
       switch (cn) {
         case 'nw': pivotX = ac.col + sz; pivotY = ac.row + sz; break;

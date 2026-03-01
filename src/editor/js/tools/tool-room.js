@@ -24,7 +24,9 @@ export class RoomTool extends Tool {
     this.dragStart = null;
     this.dragEnd = null;
     this.mousePos = null;
-    state.statusInstruction = 'Right-click to void cell';
+    state.statusInstruction = state.roomMode === 'merge'
+      ? 'Drag over adjacent rooms to merge them into one'
+      : 'Drag to draw room · Shift for square · Right-click to void';
   }
 
   onDeactivate() {

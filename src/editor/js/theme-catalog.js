@@ -1,7 +1,6 @@
 // Theme Catalog — loads .theme files, registers them with the renderer, provides previews.
 // Uses localStorage to cache theme data on subsequent loads.
-import { THEMES } from '../../render/index.js';
-import { renderDungeonToCanvas, calculateCanvasSize } from '../../render/index.js';
+import { THEMES, renderDungeonToCanvas, calculateCanvasSize } from '../../render/index.js';
 
 const BASE_URL = '/themes/';
 const CACHE_KEY = 'theme-catalog';

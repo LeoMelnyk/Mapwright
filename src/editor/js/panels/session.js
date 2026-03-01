@@ -1,7 +1,7 @@
 // Session panel UI: start/stop session, starting room picker, player count, open player view.
 
-import state, { subscribe, notify } from '../state.js';
-import { sessionState, startSession, endSession, setStartingRoom, revealAll, resetFog } from '../dm-session.js';
+import state, { subscribe } from '../state.js';
+import { sessionState, startSession, endSession, setStartingRoom, revealAll, resetFog, toggleDmView } from '../dm-session.js';
 import { showToast } from '../toast.js';
 import { cellKey } from '../../../util/index.js';
 
@@ -56,6 +56,11 @@ function render() {
           Revealed: ${sessionState.revealedCells.size} cells
         </div>
 
+        <div class="panel-field" style="margin-top:8px;display:flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="dm-view-toggle" ${sessionState.dmViewActive ? 'checked' : ''} style="cursor:pointer;">
+          <label for="dm-view-toggle" style="cursor:pointer;font-size:12px;">DM View (fog overlay)</label>
+        </div>
+
         <div class="session-link-row" data-url="http://${localIP || ''}:${location.port || 3000}/player/">
           <code class="session-ip-link" title="Click to copy">http://••••••••••:${location.port || 3000}/player/</code>
           <button class="session-copy-btn" title="Copy player link">
@@ -108,6 +113,10 @@ function render() {
 
   container.querySelector('.session-open-player')?.addEventListener('click', () => {
     window.open(`${location.origin}/player/`, '_blank');
+  });
+
+  container.querySelector('#dm-view-toggle')?.addEventListener('change', () => {
+    toggleDmView();
   });
 
   container.querySelectorAll('.session-link-row').forEach(row => {

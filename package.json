@@ -1,6 +1,6 @@
 {
   "name": "mapwright",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Dungeon map editor for D&D 5e",
   "author": "Mapwright",
   "type": "module",
@@ -11,12 +11,18 @@
     "electron:build": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win portable",
     "postinstall": "node tools/patch-app-builder.cjs",
     "download-textures": "node tools/polyhaven/download-polyhaven.js",
-    "download-textures:test": "node tools/polyhaven/download-polyhaven.js --limit 5 --dry-run"
+    "download-textures:test": "node tools/polyhaven/download-polyhaven.js --limit 5 --dry-run",
+    "lint": "node ./node_modules/eslint/bin/eslint.js src/ tools/",
+    "lint:fix": "node ./node_modules/eslint/bin/eslint.js src/ tools/ --fix",
+    "lint:strict": "node ./node_modules/eslint/bin/eslint.js src/ tools/ --max-warnings 0"
   },
   "devDependencies": {
     "d3-delaunay": "^6.0.4",
     "electron": "^34.0.0",
     "electron-builder": "^25.0.0",
+    "eslint": "^10.0.2",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "globals": "^17.4.0",
     "puppeteer": "^24.2.0"
   },
   "dependencies": {

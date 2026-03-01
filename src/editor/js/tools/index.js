@@ -12,5 +12,4 @@ export { PropTool } from './tool-prop.js';
 export { EraseTool } from './tool-erase.js';
 export { LightTool } from './tool-light.js';
 export { FillTool } from './tool-fill.js';
-export { BorderTool } from './tool-border.js';
 export { RangeTool } from './tool-range.js';

@@ -2,6 +2,7 @@
 import state, { markDirty, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { getLightCatalog } from '../light-catalog.js';
+import { activateTool } from './index.js';
 
 let container = null;
 
@@ -67,6 +68,7 @@ function render() {
     if (preset.type === 'directional' && preset.spread != null) {
       state.lightSpread = preset.spread;
     }
+    activateTool('light');
     notify();
   }));
 
@@ -84,6 +86,7 @@ function render() {
   }
   typeSelect.addEventListener('change', () => {
     state.lightType = typeSelect.value;
+    activateTool('light');
     notify();
   });
   typeRow.appendChild(typeSelect);

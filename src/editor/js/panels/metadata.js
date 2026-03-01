@@ -206,14 +206,6 @@ export function init() {
       saveCteCollapsed();
     });
 
-    // Helper: update a color swatch input and its adjacent hex span together
-    const setColor = (input, value) => {
-      if (!input) return;
-      input.value = value;
-      const hex = input.parentElement?.querySelector('.cte-color-hex');
-      if (hex) hex.textContent = value;
-    };
-
     // Color inputs (theme props)
     customEditor.querySelectorAll('input[data-theme-prop]').forEach(input => {
       input.addEventListener('input', () => {

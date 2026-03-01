@@ -1,8 +1,6 @@
 // Canvas element management, pan/zoom, mouse event routing
-import state, { getTheme, pushUndo, markDirty, notify, subscribe } from './state.js';
-import { renderCells, renderLabels } from '../../render/index.js';
-import { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from '../../render/index.js';
-import { renderLightmap } from '../../render/index.js';
+import state, { getTheme, markDirty, notify, subscribe } from './state.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap } from '../../render/index.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { initMinimap, updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
@@ -31,6 +29,9 @@ let activeTool = null;
 let sessionOverlayFn = null;
 let sessionClickFn = null;
 
+// DM fog overlay callback (always rendered when session active, regardless of active panel)
+let dmFogOverlayFn = null;
+
 // Session tool (e.g., range detector — receives full mouse events in session mode)
 let sessionTool = null;
 // Persistent range tool reference — always rendered when session is active so
@@ -40,6 +41,10 @@ let sessionRangeTool = null;
 export function setSessionOverlay(renderFn, clickFn) {
   sessionOverlayFn = renderFn;
   sessionClickFn = clickFn;
+}
+
+export function setDmFogOverlay(fn) {
+  dmFogOverlayFn = fn;
 }
 
 export function setSessionTool(tool) {
@@ -188,6 +193,9 @@ function render() {
   if (activeTool?.renderOverlay) {
     activeTool.renderOverlay(ctx, transform, gridSize);
   }
+
+  // DM fog overlay — semi-transparent tint over unrevealed cells (persists across panels)
+  if (dmFogOverlayFn) dmFogOverlayFn(ctx, transform, gridSize);
 
   // Session tool overlay (range highlights — rendered below door buttons)
   // Uses persistent sessionRangeTool so player highlights render in any session sub-mode (doors, range, etc.)

@@ -233,12 +233,6 @@ function parseCoord(token) {
   return [parseFloat(parts[0]) || 0, parseFloat(parts[1]) || 0];
 }
 
-/** Parse style token, defaulting to 'fill'. */
-function parseStyle(token) {
-  if (token === 'stroke') return 'stroke';
-  return 'fill';
-}
-
 /** Parse optional opacity value. Returns null if not present. */
 function parseOpacity(token) {
   if (token === undefined || token === null) return null;
@@ -415,7 +409,7 @@ function transformCommand(cmd, rotation, footprint) {
 // Theme changes bust the cache via wallStroke; texture loads via texturesVersion.
 // Prop definition changes (catalog reload) require explicit invalidatePropsCache().
 
-let _propTileCache = new Map();
+const _propTileCache = new Map();
 
 /**
  * Clear all cached prop tiles.

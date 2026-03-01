@@ -216,7 +216,7 @@ export function convertDonjonDungeon(data) {
       }
 
       // For rounded trims: filter void cells — cells inside arc become insideArc
-      let insideArc = [];
+      const insideArc = [];
       if (round && voidCells.length > 0) {
         let pivotX, pivotY;
         switch (cn) {

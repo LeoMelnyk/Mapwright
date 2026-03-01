@@ -1,9 +1,11 @@
-// Select tool: click/drag to select cells; Move mode to nudge or drag selection
+// Select tool: click/drag to select cells; drag selected cells to move them
 import { Tool } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
-import { requestRender } from '../canvas-view.js';
+import { requestRender, setCursor } from '../canvas-view.js';
 import { showToast } from '../toast.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
+
+const MOVE_THRESHOLD = 8; // pixels before a mousedown-on-selection becomes a move drag
 
 const DIRS = [
   { dir: 'north', dr: -1, dc:  0, opp: 'south' },
@@ -19,12 +21,22 @@ export class SelectTool extends Tool {
     this.dragStart = null;
     this.dragEnd = null;
     this.shiftHeld = false;
-    // Move mode drag state
+    // Move drag state
     this.moveDragging = false;
-    this.moveDragStart = null;  // {row, col} canvas grid position at drag start
+    this.moveDragStart = null;  // {row, col} grid position at drag start
     this.moveDragOffset = null; // {dRow, dCol} current ghost offset
+    // Pending move (mousedown on selected cell, waiting for drag threshold)
+    this._pendingMove = false;
+    this._pendingMoveStart = null; // {row, col} grid position at mousedown
+    this._pendingMovePos = null;   // {x, y} pixel position at mousedown
     // Paste mode cursor tracking
     this.pasteHover = null;     // {row, col} — current cursor cell for paste preview
+  }
+
+  onActivate() {
+    state.statusInstruction = state.selectMode === 'inspect'
+      ? 'Click a cell to inspect its properties'
+      : 'Drag to select cells · Shift+drag to add · Arrow keys to move · Ctrl+C to copy · Del to delete';
   }
 
   onDeactivate() {
@@ -34,22 +46,21 @@ export class SelectTool extends Tool {
     this.moveDragging = false;
     this.moveDragStart = null;
     this.moveDragOffset = null;
+    this._pendingMove = false;
+    this._pendingMoveStart = null;
+    this._pendingMovePos = null;
     this.pasteHover = null;
     state.pasteMode = false;
     state.statusInstruction = null;
+    setCursor('default');
   }
 
-  // ── Select mode ─────────────────────────────────────────────────────────
+  // ── Mouse Handlers ───────────────────────────────────────────────────────
 
-  onMouseDown(row, col, edge, event) {
+  onMouseDown(row, col, edge, event, pos) {
     // Paste mode: commit paste at cursor position
     if (state.pasteMode && state.clipboard) {
       this._commitPaste(row, col);
-      return;
-    }
-
-    if (state.selectMode === 'move') {
-      this._onMoveModeMouseDown(row, col, event);
       return;
     }
 
@@ -63,6 +74,17 @@ export class SelectTool extends Tool {
       return;
     }
 
+    // Clicking on a selected cell (without shift) → defer to pending move
+    const onSelected = !event.shiftKey &&
+      state.selectedCells.some(c => c.row === row && c.col === col);
+    if (onSelected) {
+      this._pendingMove = true;
+      this._pendingMoveStart = { row, col };
+      this._pendingMovePos = pos || null;
+      return;
+    }
+
+    // Clicking on unselected space → start box-select
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) {
       state.selectedCells = [];
@@ -76,7 +98,7 @@ export class SelectTool extends Tool {
     markDirty();
   }
 
-  onMouseMove(row, col, edge, event) {
+  onMouseMove(row, col, edge, event, pos) {
     // Paste mode: update hover for preview
     if (state.pasteMode) {
       if (!this.pasteHover || this.pasteHover.row !== row || this.pasteHover.col !== col) {
@@ -86,25 +108,57 @@ export class SelectTool extends Tool {
       return;
     }
 
-    if (state.selectMode === 'move') {
+    // Check if pending move crossed threshold → activate move drag
+    if (this._pendingMove && pos && this._pendingMovePos) {
+      const dx = pos.x - this._pendingMovePos.x;
+      const dy = pos.y - this._pendingMovePos.y;
+      if (Math.sqrt(dx * dx + dy * dy) > MOVE_THRESHOLD) {
+        this.moveDragging = true;
+        this.moveDragStart = this._pendingMoveStart;
+        this.moveDragOffset = { dRow: 0, dCol: 0 };
+        this._pendingMove = false;
+        this._pendingMoveStart = null;
+        this._pendingMovePos = null;
+      }
+    }
+
+    if (this.moveDragging) {
       this._onMoveModeMouseMove(row, col);
       return;
     }
-    if (!this.dragging) return;
-    const cells = state.dungeon.cells;
-    const clampedRow = Math.max(0, Math.min(cells.length - 1, row));
-    const clampedCol = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
-    if (this.dragEnd.row !== clampedRow || this.dragEnd.col !== clampedCol) {
-      this.dragEnd = { row: clampedRow, col: clampedCol };
-      markDirty();
+
+    if (this.dragging) {
+      const cells = state.dungeon.cells;
+      const clampedRow = Math.max(0, Math.min(cells.length - 1, row));
+      const clampedCol = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
+      if (this.dragEnd.row !== clampedRow || this.dragEnd.col !== clampedCol) {
+        this.dragEnd = { row: clampedRow, col: clampedCol };
+        markDirty();
+      }
+      return;
+    }
+
+    // Idle: update cursor based on whether we're hovering over selected cells
+    if (state.selectMode !== 'inspect') {
+      const onSelected = state.selectedCells.some(c => c.row === row && c.col === col);
+      setCursor(onSelected ? 'move' : 'default');
     }
   }
 
-  onMouseUp(row, col, edge, event) {
-    if (state.selectMode === 'move') {
+  onMouseUp(_row, _col, _edge, _event) {
+    if (this.moveDragging) {
       this._onMoveModeMouseUp();
       return;
     }
+
+    // Pending move that never crossed drag threshold → no-op, keep selection
+    if (this._pendingMove) {
+      this._pendingMove = false;
+      this._pendingMoveStart = null;
+      this._pendingMovePos = null;
+      return;
+    }
+
     if (!this.dragging) return;
     this.dragging = false;
 
@@ -142,14 +196,16 @@ export class SelectTool extends Tool {
     notify();
   }
 
-  // ── Move mode ────────────────────────────────────────────────────────────
-
-  _onMoveModeMouseDown(row, col) {
+  onKeyDown(event) {
     if (state.selectedCells.length === 0) return;
-    this.moveDragging = true;
-    this.moveDragStart = { row, col };
-    this.moveDragOffset = { dRow: 0, dCol: 0 };
+    const deltas = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    const d = deltas[event.key];
+    if (!d) return;
+    event.preventDefault();
+    this._applyMove(d[0], d[1]);
   }
+
+  // ── Move helpers ─────────────────────────────────────────────────────────
 
   _onMoveModeMouseMove(row, col) {
     if (!this.moveDragging) return;
@@ -170,15 +226,6 @@ export class SelectTool extends Tool {
     if (dRow !== 0 || dCol !== 0) {
       this._applyMove(dRow, dCol);
     }
-  }
-
-  onKeyDown(event) {
-    if (state.selectMode !== 'move' || state.selectedCells.length === 0) return;
-    const deltas = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
-    const d = deltas[event.key];
-    if (!d) return;
-    event.preventDefault();
-    this._applyMove(d[0], d[1]);
   }
 
   /**
@@ -328,7 +375,7 @@ export class SelectTool extends Tool {
     state.selectedCells = selected.map(({ row, col }) => ({ row: row + dRow, col: col + dCol }));
 
     invalidateLightmap();
-    smartInvalidate(before, cells);
+    smartInvalidate(before, cells, { forceGeometry: true });
     markDirty();
     notify();
     requestRender();
@@ -360,9 +407,8 @@ export class SelectTool extends Tool {
     // Selection highlights
     if (state.selectedCells.length > 0) {
       ctx.save();
-      const isMove = state.selectMode === 'move';
-      ctx.fillStyle = isMove ? 'rgba(255, 165, 50, 0.2)' : 'rgba(100, 160, 255, 0.25)';
-      ctx.strokeStyle = isMove ? 'rgba(255, 165, 50, 0.9)' : 'rgba(100, 160, 255, 0.9)';
+      ctx.fillStyle = 'rgba(100, 160, 255, 0.25)';
+      ctx.strokeStyle = 'rgba(100, 160, 255, 0.9)';
       ctx.lineWidth = 1.5;
       for (const { row, col } of state.selectedCells) {
         const x = transform.offsetX + col * cs;
@@ -373,7 +419,7 @@ export class SelectTool extends Tool {
       ctx.restore();
     }
 
-    // Ghost cells while dragging in Move mode
+    // Ghost cells while dragging selected cells
     if (this.moveDragging && this.moveDragOffset && state.selectedCells.length > 0) {
       const { dRow, dCol } = this.moveDragOffset;
       if (dRow !== 0 || dCol !== 0) {
@@ -393,7 +439,7 @@ export class SelectTool extends Tool {
       }
     }
 
-    // Rubber-band rectangle while dragging in Select mode
+    // Rubber-band rectangle while box-selecting
     if (this.dragging && this.dragStart && this.dragEnd) {
       const minRow = Math.min(this.dragStart.row, this.dragEnd.row);
       const maxRow = Math.max(this.dragStart.row, this.dragEnd.row);

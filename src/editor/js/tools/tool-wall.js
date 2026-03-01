@@ -23,14 +23,16 @@ export class WallTool extends Tool {
   }
 
   onActivate() {
-    state.statusInstruction = 'Right-click to remove wall';
+    state.statusInstruction = state.wallType === 'iw'
+      ? 'Click or drag edge to place invisible wall · Blocks movement but hidden from players · Right-click to remove'
+      : 'Click or drag edge to place wall · Right-click to remove';
   }
 
   onDeactivate() {
-    state.statusInstruction = '';
+    state.statusInstruction = null;
   }
 
-  onMouseDown(row, col, edge, event) {
+  onMouseDown(row, col, edge, _event) {
     if (!edge) return;
     this.dragging = true;
     this.undoPushed = false;
@@ -42,7 +44,7 @@ export class WallTool extends Tool {
     this._placeWall(edge.row, edge.col);
   }
 
-  onMouseMove(row, col, edge, event) {
+  onMouseMove(row, col, edge, _event) {
     if (!this.dragging || this.cancelled) return;
     const dir = this.lockedDir;
     const hoverRow = edge ? edge.row : row;

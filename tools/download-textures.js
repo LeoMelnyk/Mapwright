@@ -108,7 +108,7 @@ async function downloadOne(id, assetInfo) {
   try {
     await sleep(DELAY_MS);
     files = await fetchJSON(`${API}/files/${id}`);
-  } catch (e) {
+  } catch {
     return null;
   }
 
@@ -129,7 +129,7 @@ async function downloadOne(id, assetInfo) {
       await sleep(DELAY_MS);
       await downloadFile(info.url, localPath);
       mapPaths[key] = `polyhaven/${filename}`;
-    } catch (_) { /* non-fatal — best effort per map */ }
+    } catch { /* non-fatal — best effort per map */ }
   }
 
   if (!mapPaths.diff) return null;

@@ -234,7 +234,7 @@ function drawScaleIndicator(ctx, x, y, gridSize, theme) {
 /**
  * Draw decorative border
  */
-function drawBorder(ctx, width, height, theme, borderType) {
+function drawBorder(ctx, width, height, theme, _borderType) {
   ctx.strokeStyle = theme.borderColor;
   ctx.lineWidth = 3;
 

@@ -46,6 +46,13 @@ export function extractWallSegments(cells, gridSize, propCatalog) {
       if (cell.west  && cell.west  !== 'iw' && cell.west  !== 'id') addSeg(cx, cy, cx, cy1);
       if (cell.east  && cell.east  !== 'iw' && cell.east  !== 'id') addSeg(cx1, cy, cx1, cy1);
 
+      // Void-boundary segments — treat the edge between a floor cell and void/out-of-bounds
+      // as an opaque wall so light cannot escape into empty space
+      if (!cells[row - 1]?.[col]) addSeg(cx,  cy,  cx1, cy);
+      if (!cells[row + 1]?.[col]) addSeg(cx,  cy1, cx1, cy1);
+      if (!cells[row]?.[col - 1]) addSeg(cx,  cy,  cx,  cy1);
+      if (!cells[row]?.[col + 1]) addSeg(cx1, cy,  cx1, cy1);
+
       // Diagonal walls — skip for arc-trimmed cells; arc segments provide the boundary instead
       if (!cell.trimRound) {
         if (cell['nw-se'] && cell['nw-se'] !== 'iw' && cell['nw-se'] !== 'id') addSeg(cx, cy, cx1, cy1);
@@ -408,7 +415,7 @@ function renderDirectionalLight(ctx, light, visibility, transform) {
 
 // ─── Visibility Cache ──────────────────────────────────────────────────────
 
-let visibilityCache = new Map();
+const visibilityCache = new Map();
 let cachedWallHash = null;
 let cachedWallSegments = null;
 

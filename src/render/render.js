@@ -7,7 +7,7 @@ import { renderAllProps } from './props.js';
 import { renderAllBridges } from './bridges.js';
 import { drawWallShadow, drawRoughWalls, drawHatching, drawRockShading, drawBufferShading, drawOuterShading, invalidateEffectsCache } from './effects.js';
 import { getFluidPathCache, invalidateFluidCache } from './fluid.js';
-import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, BLEND_BITMAP_SIZE, PDF_EDGE_FALLBACK_OPACITY, PDF_CORNER_FALLBACK_OPACITY, getTexChunk } from './blend.js';
+import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, BLEND_BITMAP_SIZE, PDF_EDGE_FALLBACK_OPACITY, PDF_CORNER_FALLBACK_OPACITY, getTexChunk, invalidateBlendLayerCache } from './blend.js';
 
 // Re-export cache invalidation functions (public API maintained for direct importers)
 export { invalidateFluidCache };
@@ -84,7 +84,7 @@ export function captureBeforeState(cells, coords) {
  *   (e.g. trim metadata edits that don't cause void transitions).
  *
  * Rules:
- *  - Any void↔floor transition → invalidateGeometryCache()
+ *  - Any void↔floor transition → invalidateGeometryCache() + invalidateBlendLayerCache()
  *  - Any cell whose fill/depth/hazard data actually changed → invalidateFluidCache()
  *  - Void transitions near fluid cells → also invalidateFluidCache()
  *  - Wall/metadata changes with no void or fluid involvement → nothing cleared
@@ -118,7 +118,7 @@ export function smartInvalidate(changes, cells, { forceGeometry = false, forceFl
     }
   }
 
-  if (needsGeometry) invalidateGeometryCache();
+  if (needsGeometry) { invalidateGeometryCache(); invalidateBlendLayerCache(); }
   if (needsFluid)    invalidateFluidCache();
 }
 

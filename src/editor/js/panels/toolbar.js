@@ -1,7 +1,7 @@
 // Toolbar: tool buttons, door type, file ops, undo/redo
 import state, { undo, redo, notify, subscribe, pushUndo, markDirty } from '../state.js';
 import { loadDungeon, loadDungeonJSON, saveDungeon, saveDungeonAs, newDungeon, exportPng, exportMapFormat, reloadAssets } from '../io.js';
-import { requestRender, setCursor } from '../canvas-view.js';
+import { setCursor } from '../canvas-view.js';
 import { SYRINGE_CURSOR, STAMP_CURSOR } from '../tools/index.js';
 import { convertOnePageDungeon } from '../import-opd.js';
 import { convertDonjonDungeon } from '../import-donjon.js';
@@ -38,7 +38,12 @@ function openSidebarPanel(panelId) {
 //   click handlers, Tab/Shift+Tab cycling, cursor, and side effects.
 
 const toolOptions = {
-  room:   { key: 'roomMode',   attr: 'data-room-mode',   values: ['room', 'merge'] },
+  room:   { key: 'roomMode',   attr: 'data-room-mode',   values: ['room', 'merge'],
+            onApply: v => {
+              state.statusInstruction = v === 'merge'
+                ? 'Drag over adjacent rooms to merge them into one'
+                : 'Drag to draw room · Shift for square · Right-click to void';
+            } },
   paint:  { key: 'paintMode',  attr: 'data-paint-mode',
             values: ['texture', 'syringe', 'room', 'clear-texture'],
             cursor: v => v === 'syringe' ? SYRINGE_CURSOR : 'crosshair',
@@ -48,6 +53,13 @@ const toolOptions = {
               const r = document.getElementById('texture-opacity-row');
               if (r) r.style.display = v === 'texture' ? 'flex' : 'none';
               if (v === 'texture' || v === 'clear-texture' || v === 'syringe') openSidebarPanel('textures');
+              const statuses = {
+                texture:         'Drag to paint texture · Shift+click to flood fill · Alt+click to sample · Right-click to clear',
+                syringe:         'Click to sample texture from a cell · Switches to Texture mode',
+                room:            'Drag to paint room floor color',
+                'clear-texture': 'Drag to clear texture · Shift+click to flood clear',
+              };
+              state.statusInstruction = statuses[v] || null;
             } },
   fill:   { key: 'fillMode',   attr: 'data-fill-mode',
             values: ['water', 'lava', 'pit', 'difficult-terrain', 'clear-fill'],
@@ -61,31 +73,59 @@ const toolOptions = {
                   b.classList.toggle('active', parseInt(b.dataset.waterDepth, 10) === activeDepth);
                 });
               }
+              const statuses = {
+                water:               'Drag to fill with water · Right-click cell to clear',
+                lava:                'Drag to fill with lava · Right-click cell to clear',
+                pit:                 'Drag to fill with pit · Right-click cell to clear',
+                'difficult-terrain': 'Drag to paint difficult terrain · Right-click cell to clear',
+                'clear-fill':        'Drag to clear fills from cells',
+              };
+              state.statusInstruction = statuses[v] || null;
             } },
-  erase:  { key: 'eraseMode',  attr: 'data-erase-mode',  values: ['all', 'texture'] },
-  wall:   { key: 'wallType',   attr: 'data-wall-type',   values: ['w', 'iw'] },
-  door:   { key: 'doorType',   attr: 'data-door-type',   values: ['d', 's', 'id'] },
+  wall:   { key: 'wallType',   attr: 'data-wall-type',   values: ['w', 'iw'],
+            onApply: v => {
+              state.statusInstruction = v === 'iw'
+                ? 'Click or drag edge to place invisible wall · Blocks movement but hidden from players · Right-click to remove'
+                : 'Click or drag edge to place wall · Right-click to remove';
+            } },
+  door:   { key: 'doorType',   attr: 'data-door-type',   values: ['d', 's', 'id'],
+            onApply: v => {
+              const statuses = {
+                d:  'Click a wall to place door · Click again to toggle off · Right-click to remove',
+                s:  'Click a wall to place secret door · Appears as wall to players until discovered',
+                id: 'Click a wall to place invisible door · Hidden from players; DM can open',
+              };
+              state.statusInstruction = statuses[v] || null;
+            } },
   stairs: { key: 'stairsMode', attr: 'data-stairs-mode', values: ['place', 'link'],
             cursor: v => v === 'link' ? 'pointer' : 'crosshair',
             onApply: v => {
-              state.statusInstruction = v === 'place' ? 'Click to place corner 1 of 3' : null;
+              state.statusInstruction = v === 'place'
+                ? 'Click to place corner 1 of 3'
+                : 'Click a stair to select it · Click another to link · Click a linked stair to unlink · Right-click to delete';
             } },
-  bridge: { key: 'bridgeType', attr: 'data-bridge-type', values: ['wood', 'stone', 'rope', 'dock'] },
-  select: { key: 'selectMode', attr: 'data-select-mode', values: ['select', 'move', 'inspect'],
-            cursor: v => v === 'move' ? 'move' : 'default',
+  bridge: { key: 'bridgeType', attr: 'data-bridge-type', values: ['wood', 'stone', 'rope', 'dock'],
+            onApply: () => {
+              state.statusInstruction = 'Click 3 points to place bridge · Hover to select/move · Del to delete';
+            } },
+  select: { key: 'selectMode', attr: 'data-select-mode', values: ['select', 'inspect'],
+            cursor: () => 'default',
             onApply: v => {
-              state.statusInstruction = v === 'inspect' ? 'Click a cell to inspect it' : null;
+              state.statusInstruction = v === 'inspect'
+                ? 'Click a cell to inspect its properties'
+                : 'Drag to select cells · Shift+drag to add · Arrow keys to move · Ctrl+C to copy · Del to delete';
             } },
-  prop:   { key: 'propMode',   attr: 'data-prop-mode',   values: ['place', 'select'],
-            cursor: v => v === 'select' ? 'default' : 'crosshair' },
   label:  { key: 'labelMode',  attr: 'data-label-mode',  values: ['room', 'dm'],
             cursor: v => v === 'dm' ? 'text' : STAMP_CURSOR,
             onApply: v => {
               const bar = document.getElementById('label-dungeon-options');
               if (bar) bar.style.display = (v === 'room' || !v) ? 'flex' : 'none';
+              const part = document.getElementById('label-dungeon-part');
+              if (part) part.style.display = 'flex';
+              state.statusInstruction = v === 'dm'
+                ? 'Click to place DM annotation · Hover to select/move · Del to delete'
+                : 'Click to place room label · Hover to select/move · Del to delete';
             } },
-  light:  { key: 'lightMode',  attr: 'data-light-mode',  values: ['place', 'select'],
-            cursor: v => v === 'select' ? 'default' : 'crosshair' },
 };
 
 /** Fire onApply side effects for a tool's current sub-mode (e.g., open textures panel). */

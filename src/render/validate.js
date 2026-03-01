@@ -10,8 +10,8 @@ import { floodFillRoom as sharedFloodFillRoom, parseCellKey } from '../util/inde
  */
 function coordinateToFeet(x, y, z, gridSize) {
   // Base position (grid square origin)
-  let feetX = x * gridSize;
-  let feetY = y * gridSize;
+  const feetX = x * gridSize;
+  const feetY = y * gridSize;
 
   // Z-position offsets within the square
   const halfGrid = gridSize / 2;
@@ -493,7 +493,6 @@ function validateRoomLabels(cells, isMultiLevel = false) {
     visited[level] = Array.from({length: numRows}, () => Array(numCols).fill(false));
   }
 
-  let roomNumber = 0;
   const allLabels = new Map();
 
   for (let level = 0; level < numLevels; level++) {
@@ -508,7 +507,6 @@ function validateRoomLabels(cells, isMultiLevel = false) {
         if (!cell) continue;
         if (visited[level][row][col]) continue;
 
-        roomNumber++;
         const labelsInRoom = floodFillRoomLabels(cells, level, row, col, visited, isMultiLevel);
 
         for (const l of labelsInRoom) {

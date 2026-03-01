@@ -302,6 +302,30 @@ html, body {
   flex-shrink: 0;
 }
 
+/* ─── Update Available Alert Button ────────────────────────────────────── */
+
+#btn-update-alert {
+  display: none; /* shown by JS when newer release exists */
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #c8a84e;
+  background: rgba(200, 168, 80, 0.12);
+  border: 1px solid rgba(200, 168, 80, 0.4);
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+#btn-update-alert:hover {
+  background: rgba(200, 168, 80, 0.22);
+  border-color: rgba(200, 168, 80, 0.7);
+}
+
 /* ─── Missing Textures Alert Button ────────────────────────────────────── */
 
 #btn-texture-alert {

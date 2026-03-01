@@ -17,6 +17,7 @@ export const sessionState = {
   openedStairs: [],      // [stairId, ...] — both ends pushed when pair opened
   startingRoom: null,    // cell key of starting room anchor
   playerCount: 0,
+  dmViewActive: false,   // true when DM fog overlay is enabled
 };
 
 // ── WebSocket ───────────────────────────────────────────────────────────────
@@ -121,7 +122,7 @@ export function endSession() {
 // ── Broadcast helpers ───────────────────────────────────────────────────────
 
 function broadcastInit() {
-  const transform = getTransform();
+  const _transform = getTransform();
   const { width, height } = getCanvasSize();
   send({
     type: 'session:init',
@@ -362,6 +363,61 @@ export function resetFog() {
   broadcastInit();
   requestRender();
   notify();
+}
+
+// ── DM fog overlay ───────────────────────────────────────────────────────────
+
+/**
+ * Toggle the DM fog overlay on/off.
+ */
+export function toggleDmView() {
+  sessionState.dmViewActive = !sessionState.dmViewActive;
+  requestRender();
+  notify();
+}
+
+/**
+ * Draw a semi-transparent dark tint over every non-void, unrevealed cell.
+ * Called from the canvas render loop whenever the session is active.
+ */
+export function renderDmFogOverlay(ctx, transform, gridSize) {
+  if (!sessionState.active || !sessionState.dmViewActive) return;
+
+  const cells = state.dungeon.cells;
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
+
+  // Build a single clipping path from all unrevealed cells
+  ctx.save();
+  ctx.beginPath();
+  for (let r = 0; r < numRows; r++) {
+    for (let c = 0; c < numCols; c++) {
+      if (!cells[r]?.[c]) continue;
+      if (sessionState.revealedCells.has(cellKey(r, c))) continue;
+      const { x, y } = toCanvas(c * gridSize, r * gridSize, transform);
+      const size = gridSize * transform.scale;
+      ctx.rect(x, y, size, size);
+    }
+  }
+  ctx.clip();
+
+  // Semi-transparent base tint
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+  // Diagonal hatching — makes this clearly distinct from ambient lighting darkness
+  const spacing = 8;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  const w = ctx.canvas.width, h = ctx.canvas.height;
+  for (let i = -h; i < w; i += spacing) {
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + h, h);
+  }
+  ctx.stroke();
+
+  ctx.restore();
 }
 
 // ── Door overlay (DM canvas) ────────────────────────────────────────────────
@@ -694,7 +750,7 @@ function drawStairIcon(ctx, x, y, radius) {
 /**
  * Test if a click hits a stair overlay button.
  */
-export function hitTestStairButton(px, py, transform, gridSize) {
+export function hitTestStairButton(px, py, transform, _gridSize) {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return null;
 
   const stairs = findRevealableStairs();

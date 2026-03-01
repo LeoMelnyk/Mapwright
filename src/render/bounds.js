@@ -1,4 +1,3 @@
-import { GRID_SCALE } from './constants.js';
 import { coordinateToFeet, getCoordinateBounds } from './validate.js';
 
 /**

@@ -3,7 +3,7 @@ import state, { pushUndo, markDirty, notify } from './state.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
 import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache } from '../../render/index.js';
-import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, loadTextureImages, clearTextureCatalogCache } from './texture-catalog.js';
+import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextureCatalogCache } from './texture-catalog.js';
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
@@ -303,7 +303,7 @@ export async function exportPng() {
     }
     // Server responded with an error — surface it rather than silently falling back
     let detail = `HTTP ${res.status}`;
-    try { const body = await res.json(); if (body.error) detail = body.error; } catch (_) {}
+    try { const body = await res.json(); if (body.error) detail = body.error; } catch {}
     showToast(`Export failed: ${detail}`);
     console.error('[export] Server error:', res.status, detail);
     return;

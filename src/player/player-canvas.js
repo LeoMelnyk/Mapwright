@@ -1,8 +1,6 @@
 // Player view canvas: render loop, pan/zoom, fog overlay, tool interaction.
 
-import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache } from '../render/index.js';
-import { renderLightmap } from '../render/index.js';
-import { toCanvas } from '../render/index.js';
+import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache, renderLightmap } from '../render/index.js';
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer } from './fog.js';
 import playerState from './player-state.js';
 

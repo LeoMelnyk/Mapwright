@@ -94,14 +94,6 @@
               <option value="10">10 ft</option>
             </select>
           </div>
-          <div class="menu-field">
-            <label>Labels</label>
-            <select id="meta-labelstyle">
-              <option value="circled">Circled</option>
-              <option value="plain">Plain</option>
-              <option value="bold">Bold</option>
-            </select>
-          </div>
         </div>
       </div>
 
@@ -113,8 +105,11 @@
         </div>
       </div>
 
-      <!-- Right-side toolbar group (texture alert + theme toggle) -->
+      <!-- Right-side toolbar group (update alert + texture alert + theme toggle) -->
       <div id="toolbar-right">
+
+        <!-- Update available alert (shown by JS when newer GitHub release exists) -->
+        <a id="btn-update-alert" href="#" target="_blank" style="display:none;">↑ Update available</a>
 
         <!-- Missing textures alert (shown by JS when count < requiredCount) -->
         <button id="btn-texture-alert" title="Some required textures are missing — click to download">
@@ -272,94 +267,75 @@
         <!-- Sub-options rows (contextually visible above tools) -->
         <div id="room-options" class="suboptions-bar">
           <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-room-mode="room">Room</button>
-          <button class="toolbar-btn" data-room-mode="merge">Merge</button>
+          <button class="toolbar-btn active" data-room-mode="room" title="Room — Draw a new room">Room</button>
+          <button class="toolbar-btn" data-room-mode="merge" title="Merge — Merge two adjacent rooms into one">Merge</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
         <div id="paint-options" class="suboptions-bar">
           <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn" data-paint-mode="texture">Texture</button>
-          <button class="toolbar-btn" data-paint-mode="syringe">Syringe</button>
-          <button class="toolbar-btn active" data-paint-mode="room">Room</button>
-          <button class="toolbar-btn" data-paint-mode="clear-texture">Clear</button>
+          <button class="toolbar-btn" data-paint-mode="texture" title="Texture — Paint a floor texture onto cells">Texture</button>
+          <button class="toolbar-btn" data-paint-mode="syringe" title="Syringe — Sample the texture from a cell">Syringe</button>
+          <button class="toolbar-btn active" data-paint-mode="room" title="Room — Repaint the floor color of a room">Room</button>
+          <button class="toolbar-btn" data-paint-mode="clear-texture" title="Clear — Remove texture from cells">Clear</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
         <div id="fill-options" class="suboptions-bar">
           <span class="toolbar-label">Fill:</span>
-          <button class="toolbar-btn active" data-fill-mode="water">Water</button>
-          <button class="toolbar-btn" data-fill-mode="lava">Lava</button>
-          <button class="toolbar-btn" data-fill-mode="pit">Pit</button>
-          <button class="toolbar-btn" data-fill-mode="difficult-terrain">Hazard</button>
-          <button class="toolbar-btn" data-fill-mode="clear-fill">Clear</button>
+          <button class="toolbar-btn active" data-fill-mode="water" title="Water — Fill cells with water">Water</button>
+          <button class="toolbar-btn" data-fill-mode="lava" title="Lava — Fill cells with lava">Lava</button>
+          <button class="toolbar-btn" data-fill-mode="pit" title="Pit — Mark cells as a pit (drop hazard)">Pit</button>
+          <button class="toolbar-btn" data-fill-mode="difficult-terrain" title="Hazard — Mark cells as difficult terrain">Hazard</button>
+          <button class="toolbar-btn" data-fill-mode="clear-fill" title="Clear — Remove fill from cells">Clear</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
         <div id="wall-options" class="suboptions-bar">
           <span class="toolbar-label">Type:</span>
-          <button class="toolbar-btn active" data-wall-type="w">Normal</button>
-          <button class="toolbar-btn" data-wall-type="iw">Invisible</button>
+          <button class="toolbar-btn active" data-wall-type="w" title="Normal — Visible wall that blocks movement and light">Normal</button>
+          <button class="toolbar-btn" data-wall-type="iw" title="Invisible — Collision wall hidden from players (DM-only boundary)">Invisible</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
         <div id="door-options" class="suboptions-bar">
           <span class="toolbar-label">Type:</span>
-          <button class="toolbar-btn active" data-door-type="d">Normal</button>
-          <button class="toolbar-btn" data-door-type="s">Secret</button>
-          <button class="toolbar-btn" data-door-type="id">Invisible</button>
+          <button class="toolbar-btn active" data-door-type="d" title="Normal — Standard visible door">Normal</button>
+          <button class="toolbar-btn" data-door-type="s" title="Secret — Hidden door; appears as wall to players until discovered">Secret</button>
+          <button class="toolbar-btn" data-door-type="id" title="Invisible — Door hidden from players; DM can open it">Invisible</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
         <div id="stairs-options" class="suboptions-bar">
           <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-stairs-mode="place">Place</button>
-          <button class="toolbar-btn" data-stairs-mode="link">Link</button>
+          <button class="toolbar-btn active" data-stairs-mode="place" title="Place — Click a cell to place stairs">Place</button>
+          <button class="toolbar-btn" data-stairs-mode="link" title="Link — Connect stairs on different levels">Link</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
         <div id="bridge-options" class="suboptions-bar">
           <span class="toolbar-label">Type:</span>
-          <button class="toolbar-btn active" data-bridge-type="wood">Wood</button>
-          <button class="toolbar-btn" data-bridge-type="stone">Stone</button>
-          <button class="toolbar-btn" data-bridge-type="rope">Rope</button>
-          <button class="toolbar-btn" data-bridge-type="dock">Dock</button>
+          <button class="toolbar-btn active" data-bridge-type="wood" title="Wood — Wooden plank bridge">Wood</button>
+          <button class="toolbar-btn" data-bridge-type="stone" title="Stone — Stone arch bridge">Stone</button>
+          <button class="toolbar-btn" data-bridge-type="rope" title="Rope — Rope suspension bridge">Rope</button>
+          <button class="toolbar-btn" data-bridge-type="dock" title="Dock — Dock / pier extending over water">Dock</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
         <div id="select-options" class="suboptions-bar" style="display:none;">
           <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-select-mode="select">Select</button>
-          <button class="toolbar-btn" data-select-mode="move">Move</button>
-          <button class="toolbar-btn" data-select-mode="inspect">Inspect</button>
+          <button class="toolbar-btn active" data-select-mode="select" title="Select — Drag to select cells for move, copy, or delete">Select</button>
+          <button class="toolbar-btn" data-select-mode="inspect" title="Inspect — Click a cell to view its properties">Inspect</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
-        <div id="prop-options" class="suboptions-bar">
+
+
+
+<div id="label-options" class="suboptions-bar" style="display:none;">
           <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-prop-mode="place">Place</button>
-          <button class="toolbar-btn" data-prop-mode="select">Select</button>
-          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
-        </div>
-
-        <div id="erase-options" class="suboptions-bar" style="display:none;">
-          <span class="toolbar-label">Erase:</span>
-          <button class="toolbar-btn active" data-erase-mode="all">All</button>
-          <button class="toolbar-btn" data-erase-mode="texture">Texture Only</button>
-          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
-        </div>
-
-        <div id="light-options" class="suboptions-bar" style="display:none;">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-light-mode="place">Place</button>
-          <button class="toolbar-btn" data-light-mode="select">Select</button>
-          <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
-        </div>
-
-        <div id="label-options" class="suboptions-bar" style="display:none;">
-          <span class="toolbar-label">Mode:</span>
-          <button class="toolbar-btn active" data-label-mode="room">Room Label</button>
-          <button class="toolbar-btn" data-label-mode="dm">Label</button>
+          <button class="toolbar-btn active" data-label-mode="room" title="Room Label — Place or edit a room's number label">Room Label</button>
+          <button class="toolbar-btn" data-label-mode="dm" title="Label — Place a free-text DM annotation label">Label</button>
           <span class="cycle-hint" title="Tab: cycle sub-mode">↹</span>
         </div>
 
@@ -367,10 +343,10 @@
         <div id="paint-texture-options" class="tertiaryoptions-bar" style="display:none;">
           <span id="texture-opacity-row" style="display:none;align-items:center;gap:4px;">
             <span class="toolbar-label" style="margin:0">Opacity:</span>
-            <input type="range" id="texture-opacity-slider" min="10" max="100" step="5" value="100" style="width:70px">
+            <input type="range" id="texture-opacity-slider" min="10" max="100" step="5" value="100" style="width:70px" title="Texture opacity — how strongly the texture overlays the floor color">
             <span id="texture-opacity-value" style="font-size:11px;color:var(--text-dim);min-width:30px">100%</span>
           </span>
-          <label style="display:flex;align-items:center;gap:4px;margin-left:8px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:4px;margin-left:8px;cursor:pointer;" title="Secondary — paint onto the secondary (accent) floor color slot instead of the primary">
             <input type="checkbox" id="texture-secondary-cb">
             <span class="toolbar-label" style="margin:0">Secondary</span>
           </label>
@@ -378,14 +354,22 @@
 
         <div id="fill-depth-options" class="tertiaryoptions-bar" style="display:none;">
           <span class="toolbar-label" style="margin:0">Depth:</span>
-          <button class="toolbar-btn active" data-water-depth="1">Shallow</button>
-          <button class="toolbar-btn" data-water-depth="2">Medium</button>
-          <button class="toolbar-btn" data-water-depth="3">Deep</button>
+          <button class="toolbar-btn active" data-water-depth="1" title="Shallow — light water shading">Shallow</button>
+          <button class="toolbar-btn" data-water-depth="2" title="Medium — moderate water depth shading">Medium</button>
+          <button class="toolbar-btn" data-water-depth="3" title="Deep — dark, deep water shading">Deep</button>
         </div>
 
         <div id="label-dungeon-options" class="tertiaryoptions-bar" style="display:none;">
-          <span class="toolbar-label" style="margin:0">Dungeon:</span>
-          <select id="dungeon-letter-select" class="toolbar-select"></select>
+          <span class="toolbar-label" style="margin:0">Style:</span>
+          <select id="meta-labelstyle" class="toolbar-select" title="Label style — how room number labels are rendered on the map">
+            <option value="circled">Circled</option>
+            <option value="plain">Plain</option>
+            <option value="bold">Bold</option>
+          </select>
+          <span id="label-dungeon-part" style="display:none; align-items:center; gap:4px;">
+            <span class="toolbar-label" style="margin:0">Dungeon:</span>
+            <select id="dungeon-letter-select" class="toolbar-select" title="Dungeon letter prefix — the letter used to prefix room numbers on multi-dungeon maps"></select>
+          </span>
         </div>
 
         <!-- Trim shape tertiary bar (shown when trim tool is active) -->
@@ -594,6 +578,8 @@
             <div class="shortcut-row"><kbd>I</kbd><span>Toggle Inverted (Trim)</span></div>
             <div class="shortcut-row"><kbd>O</kbd><span>Toggle Open (Trim)</span></div>
             <div class="shortcut-row"><kbd>R / F</kbd><span>Rotate / Flip prop during drag</span></div>
+            <div class="shortcut-row"><kbd>R</kbd><span>Rotate bridge (Bridge tool)</span></div>
+            <div class="shortcut-row"><kbd>D / Shift+D</kbd><span>Cycle depth (Fill, water/lava)</span></div>
           </div>
           <div class="shortcuts-col">
             <div class="shortcuts-section">Tools</div>
@@ -616,6 +602,12 @@
             <div class="shortcut-row"><kbd>Ctrl+Y</kbd><span>Redo</span></div>
             <div class="shortcut-row"><kbd>F1–F5</kbd><span>Toggle sidebar panels</span></div>
             <div class="shortcut-row"><kbd>?</kbd><span>This help</span></div>
+            <div class="shortcuts-section">Editing</div>
+            <div class="shortcut-row"><kbd>Ctrl+C</kbd><span>Copy selection (Select)</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+V</kbd><span>Paste</span></div>
+            <div class="shortcut-row"><kbd>Delete</kbd><span>Delete selected cells</span></div>
+            <div class="shortcut-row"><kbd>↑↓←→</kbd><span>Nudge selection (Select)</span></div>
+            <div class="shortcut-row"><kbd>Esc</kbd><span>Cancel / deselect</span></div>
           </div>
         </div>
         <div class="mw-modal-footer">

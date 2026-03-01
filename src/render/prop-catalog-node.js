@@ -5,7 +5,6 @@
  */
 
 import fs from 'fs';
-import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { parsePropFile } from './props.js';

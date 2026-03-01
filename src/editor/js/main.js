@@ -1,17 +1,15 @@
 // App initialization
-import state, { undo, redo, subscribe, pushUndo, markDirty, loadAutosave } from './state.js';
+import state, { undo, redo, subscribe, pushUndo, markDirty, loadAutosave, notify } from './state.js';
 import { showToast } from './toast.js';
 import * as canvasView from './canvas-view.js';
-import { zoomToFit } from './canvas-view.js';
 import { saveDungeon, reloadAssets } from './io.js';
 import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
 import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool, RangeTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
 import { loadLightCatalog } from './light-catalog.js';
-import { notify } from './state.js';
-import { sessionState, renderSessionOverlay, hitTestDoorButton, hitTestStairButton, openDoor, openStairs, setRangeHighlightCallback } from './dm-session.js';
-import { setSessionOverlay, setSessionTool, setSessionRangeTool } from './canvas-view.js';
+import { sessionState, renderSessionOverlay, renderDmFogOverlay, hitTestDoorButton, hitTestStairButton, openDoor, openStairs, setRangeHighlightCallback } from './dm-session.js';
+import { setSessionOverlay, setSessionTool, setSessionRangeTool, setDmFogOverlay, zoomToFit } from './canvas-view.js';
 import {
   initToolbar, setToolChangeCallback, applyToolSideEffects, cycleSubMode, getToolCursor, updateToolButtons, setSubMode,
   initSidebar, getActivePanel, setPanelChangeCallback, togglePanel,
@@ -114,6 +112,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   fetch('/api/version').then(r => r.json()).then(({ version }) => {
     const el = document.getElementById('status-version');
     if (el) el.textContent = `v${version}`;
+  }).catch(() => {});
+
+  // ── Update check (toolbar) ────────────────────────────────────────────
+  fetch('/api/check-update').then(r => r.json()).then(({ hasUpdate, latestVersion, url }) => {
+    if (!hasUpdate) return;
+    const el = document.getElementById('btn-update-alert');
+    if (!el) return;
+    el.textContent = `↑ v${latestVersion} available`;
+    el.href = url;
+    el.style.display = 'flex';
   }).catch(() => {});
 
   // ── Editor UI theme (light/dark) ───────────────────────────────────────
@@ -305,6 +313,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       return false;
     },
   );
+
+  // Wire DM fog overlay (tints unrevealed cells for the DM's reference)
+  setDmFogOverlay(renderDmFogOverlay);
 
   // ── Range detector (session tool) ────────────────────────────────────────
   const dmRangeTool = new RangeTool(
@@ -801,6 +812,20 @@ function onKeyDown(e) {
     state.selectedCells = [];
     markDirty();
     canvasView.requestRender();
+  }
+
+  // D / Shift+D: cycle water/lava depth (fill tool, water or lava mode only)
+  if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey &&
+      state.activeTool === 'fill' && (state.fillMode === 'water' || state.fillMode === 'lava')) {
+    e.preventDefault();
+    const cur = state.fillMode === 'lava' ? state.lavaDepth : state.waterDepth;
+    const next = e.shiftKey ? (cur === 1 ? 3 : cur - 1) : (cur === 3 ? 1 : cur + 1);
+    if (state.fillMode === 'lava') state.lavaDepth = next;
+    else state.waterDepth = next;
+    document.querySelectorAll('[data-water-depth]').forEach(b => {
+      b.classList.toggle('active', parseInt(b.dataset.waterDepth, 10) === next);
+    });
+    return;
   }
 
   // Forward to active tool

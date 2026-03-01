@@ -120,7 +120,7 @@ function _fillTexture(ctx, texImg, cellPx, transform) {
     ]));
     ctx.fillStyle = pattern;
     return true;
-  } catch (_) {
+  } catch {
     return false;
   }
 }

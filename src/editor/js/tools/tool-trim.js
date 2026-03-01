@@ -28,7 +28,7 @@ export class TrimTool extends Tool {
   }
 
   onActivate() {
-    state.statusInstruction = 'Click and drag from the corner to set trim size';
+    state.statusInstruction = 'Drag from room corner to set trim size · R to round · I to invert · O to open · Right-click to remove';
   }
 
   onDeactivate() {
@@ -37,7 +37,7 @@ export class TrimTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row, col, edge, event) {
+  onMouseDown(row, col, _edge, _event) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
 
@@ -75,7 +75,7 @@ export class TrimTool extends Tool {
     requestRender();
   }
 
-  onMouseUp(row, col, edge, event) {
+  onMouseUp(_row, _col, _edge, _event) {
     if (!this.dragging) return;
     this.dragging = false;
 
@@ -295,7 +295,7 @@ export class TrimTool extends Tool {
     // voided. Cells between the diagonal and the arc remain as room floor,
     // but their existing cardinal/diagonal walls must be cleared (the arc is
     // now the wall).
-    let insideArc = [];
+    const insideArc = [];
     if (state.trimRound && !state.trimInverted && voided.length > 0) {
       let acxGrid, acyGrid;
       switch (corner) {

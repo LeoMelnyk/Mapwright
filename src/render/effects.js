@@ -1,7 +1,7 @@
 import { scaleFactor } from './borders.js';
 import { toCanvas } from './bounds.js';
 import { GRID_SCALE } from './constants.js';
-import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_PATTERNS, WATER_SPATIAL } from './patterns.js';
+import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
 
 // ── Seeded LCG PRNG ─────────────────────────────────────────────────────────
 // Returns a function yielding deterministic floats 0..1 for a given integer seed.
@@ -247,133 +247,6 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
   ctx.restore();
 }
 
-// ── Arc Void Hatching Path2D Cache ──────────────────────────────────────────
-// Caches one Path2D per rounded corner in world coordinates. Each frame sets up
-// the arc clip in canvas space, then uses setTransform to stroke the cached path.
-let _arcVoidCache = null;
-
-export function drawArcVoidHatching(ctx, roundedCorners, gridSize, theme, transform) {
-  if (!theme.hatchOpacity || roundedCorners.size === 0) return;
-  if (theme.hatchStyle === 'rocks') return;
-
-  const size = theme.hatchSize ?? 0.5;
-  const color = theme.hatchColor || theme.wallStroke;
-
-  // Rebuild Path2D cache if corner data or theme params changed
-  const ac = _arcVoidCache;
-  if (!ac || ac.roundedCorners !== roundedCorners ||
-      ac.gridSize !== gridSize || ac.size !== size) {
-
-    const tileWorld = gridSize * (1.5 + size * 3);
-    const patternScale = tileWorld / HATCH_TILE_SIZE;
-
-    const cornerPaths = new Map();
-
-    for (const [key, rc] of roundedCorners.entries()) {
-      if (rc.inverted) continue;
-
-      const R = rc.radius * gridSize;
-      let bboxWorldX, bboxWorldY;
-      switch (rc.corner) {
-        case 'nw': bboxWorldX = rc.centerCol * gridSize;                   bboxWorldY = rc.centerRow * gridSize;                   break;
-        case 'ne': bboxWorldX = (rc.centerCol - rc.radius) * gridSize;     bboxWorldY = rc.centerRow * gridSize;                   break;
-        case 'sw': bboxWorldX = rc.centerCol * gridSize;                   bboxWorldY = (rc.centerRow - rc.radius) * gridSize;     break;
-        case 'se': bboxWorldX = (rc.centerCol - rc.radius) * gridSize;     bboxWorldY = (rc.centerRow - rc.radius) * gridSize;     break;
-      }
-
-      const txMin = Math.floor(bboxWorldX / tileWorld) - 1;
-      const txMax = Math.ceil((bboxWorldX + R) / tileWorld) + 1;
-      const tyMin = Math.floor(bboxWorldY / tileWorld) - 1;
-      const tyMax = Math.ceil((bboxWorldY + R) / tileWorld) + 1;
-
-      const path = new Path2D();
-      for (let ty = tyMin; ty <= tyMax; ty++) {
-        for (let tx = txMin; tx <= txMax; tx++) {
-          const offsetX = tx * tileWorld;
-          const offsetY = ty * tileWorld;
-          for (const p of HATCH_PATTERNS) {
-            const cWorldX = p.centre[0] * patternScale + offsetX;
-            const cWorldY = p.centre[1] * patternScale + offsetY;
-            if (cWorldX < bboxWorldX || cWorldX > bboxWorldX + R) continue;
-            if (cWorldY < bboxWorldY || cWorldY > bboxWorldY + R) continue;
-            for (const line of p.cellLines) {
-              path.moveTo(
-                line[0][0] * patternScale + offsetX,
-                line[0][1] * patternScale + offsetY
-              );
-              path.lineTo(
-                line[1][0] * patternScale + offsetX,
-                line[1][1] * patternScale + offsetY
-              );
-            }
-          }
-        }
-      }
-      cornerPaths.set(key, path);
-    }
-
-    _arcVoidCache = { roundedCorners, gridSize, size, cornerPaths };
-  }
-
-  // Stroke cached Path2D per corner with arc clip
-  ctx.save();
-  ctx.strokeStyle = color;
-  ctx.lineCap = 'round';
-  ctx.globalAlpha = theme.hatchOpacity;
-
-  for (const [key, rc] of roundedCorners.entries()) {
-    if (rc.inverted) continue;
-
-    const path = _arcVoidCache.cornerPaths.get(key);
-    if (!path) continue;
-
-    const R = rc.radius * gridSize;
-    const Rpx = R * transform.scale;
-    const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
-
-    let acx, acy;
-    switch (rc.corner) {
-      case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-      case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-    }
-    const acp = toCanvas(acx, acy, transform);
-
-    // Clip to the arc void shape in canvas coordinates
-    ctx.save();
-    ctx.beginPath();
-    switch (rc.corner) {
-      case 'nw':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, 3 * Math.PI / 2, Math.PI, true);
-        ctx.lineTo(ocp.x, ocp.y); break;
-      case 'ne':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, 3 * Math.PI / 2, 0, false);
-        ctx.lineTo(ocp.x, ocp.y); break;
-      case 'sw':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, Math.PI, false);
-        ctx.lineTo(ocp.x, ocp.y); break;
-      case 'se':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, 0, true);
-        ctx.lineTo(ocp.x, ocp.y); break;
-    }
-    ctx.closePath();
-    ctx.clip();
-
-    // Stroke world-space cached path at screen resolution
-    ctx.setTransform(transform.scale, 0, 0, transform.scale, transform.offsetX, transform.offsetY);
-    ctx.lineWidth = Math.max(0.5 / transform.scale, 1 / GRID_SCALE);
-    ctx.stroke(path);
-    ctx.restore();
-  }
-
-  ctx.restore();
-}
-
 // ── Rock Shading Path2D Cache ────────────────────────────────────────────────
 // Caches Path2D geometry in world coordinates. The expensive work (spatial index
 // lookup, vertex transforms, path construction) is done once; each frame just
@@ -486,62 +359,6 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
     ctx.globalAlpha = theme.hatchOpacity * _rockCache.opacities[d];
     ctx.stroke(_rockCache.paths[d]);
   }
-  ctx.restore();
-}
-
-// ── Arc Void Outer Shading ───────────────────────────────────────────────────
-// Fills the convex arc void corner (the region between the arc wall and the
-// outer room corner that carveRoundedVoid() exposes) with the outer shading
-// colour.  Must be called AFTER carveRoundedVoid so the shading is visible in
-// the carved area, and BEFORE drawArcVoidHatching so hatching sits on top.
-export function drawArcVoidOuterShading(ctx, roundedCorners, gridSize, theme, transform) {
-  if (!theme.outerShading?.color || !(theme.outerShading?.size > 0)) return;
-  if (roundedCorners.size === 0) return;
-
-  const { color } = theme.outerShading;
-  ctx.save();
-  ctx.fillStyle = color;
-
-  for (const rc of roundedCorners.values()) {
-    if (rc.inverted) continue; // inverted arcs have no convex void corner
-
-    const R = rc.radius * gridSize;
-    const Rpx = R * transform.scale;
-    const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
-
-    let acx, acy;
-    switch (rc.corner) {
-      case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-      case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-    }
-    const acp = toCanvas(acx, acy, transform);
-
-    // Fill the void corner shape — identical path to carveRoundedVoid
-    ctx.beginPath();
-    switch (rc.corner) {
-      case 'nw':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, 3 * Math.PI / 2, Math.PI, true);
-        ctx.lineTo(ocp.x, ocp.y); break;
-      case 'ne':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, 3 * Math.PI / 2, 0, false);
-        ctx.lineTo(ocp.x, ocp.y); break;
-      case 'sw':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, Math.PI, false);
-        ctx.lineTo(ocp.x, ocp.y); break;
-      case 'se':
-        ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y);
-        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, 0, true);
-        ctx.lineTo(ocp.x, ocp.y); break;
-    }
-    ctx.closePath();
-    ctx.fill();
-  }
-
   ctx.restore();
 }
 
@@ -682,5 +499,4 @@ export function invalidateEffectsCache() {
   _hatchCache = null;
   _rockCache = null;
   _outerShadingCache = null;
-  _arcVoidCache = null;
 }

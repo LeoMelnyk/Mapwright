@@ -9,11 +9,16 @@ export class DoorTool extends Tool {
   }
 
   onActivate() {
-    state.statusInstruction = 'Right-click to remove door';
+    const statuses = {
+      d:  'Click a wall to place door · Click again to toggle off · Right-click to remove',
+      s:  'Click a wall to place secret door · Appears as wall to players until discovered',
+      id: 'Click a wall to place invisible door · Hidden from players; DM can open',
+    };
+    state.statusInstruction = statuses[state.doorType || 'd'];
   }
 
   onDeactivate() {
-    state.statusInstruction = '';
+    state.statusInstruction = null;
   }
 
   onRightClick(row, col, edge) {
@@ -33,7 +38,7 @@ export class DoorTool extends Tool {
     notify();
   }
 
-  onMouseDown(row, col, edge, event) {
+  onMouseDown(row, col, edge, _event) {
     if (!edge) return;
     const cells = state.dungeon.cells;
     const { direction, row: er, col: ec } = edge;

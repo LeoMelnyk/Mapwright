@@ -1,7 +1,6 @@
 // Central state store
-import { THEMES } from '../../render/index.js';
-import { createEmptyDungeon, deepClone } from './utils.js';
-import { invalidateVisibilityCache } from '../../render/index.js';
+import { THEMES, invalidateVisibilityCache } from '../../render/index.js';
+import { createEmptyDungeon } from './utils.js';
 
 const MAX_UNDO = 100;
 
@@ -24,12 +23,12 @@ const state = {
   stairsMode: 'place',  // 'place' or 'link'
   stairPlacement: { p1: null, p2: null }, // in-progress 3-click placement points
   bridgeType: 'wood',   // 'wood', 'stone', 'rope', 'dock'
+  selectedBridgeId: null, // ID of currently selected bridge
   linkSource: null,     // stair ID for pending link source
   hoveredCorner: null,  // { row, col } — nearest grid corner when stairs tool active
-  selectMode: 'select', // 'select' or 'move'
+  selectMode: 'select', // 'select' or 'inspect'
   clipboard: null,      // { cells: [...], anchorRow, anchorCol } — copy/paste buffer
   pasteMode: false,     // true when Ctrl+V pressed — paste preview follows cursor
-  propMode: 'place',   // 'place' or 'select'
   selectedProp: null,  // string — prop type name from catalog (e.g. 'pillar')
   propRotation: 0,     // 0, 90, 180, 270 — current placement rotation
   propFlipped: false,  // whether the next placed prop is horizontally mirrored
@@ -38,12 +37,10 @@ const state = {
   activeTexture: null,    // string — texture ID from catalog (e.g. 'cobblestone')
   textureOpacity: 1.0,    // 0–1 — opacity applied when painting a texture
   paintSecondary: false,  // when true, texture paints write to textureSecondary slot
-  eraseMode: 'all',     // 'all' (void cell) or 'texture' (clear texture only)
   textureCatalog: null, // TextureCatalog object, loaded at init (runtime only, not serialized)
   texturesVersion: 0,   // incremented when texture images finish loading; invalidates blend cache
   lightCatalog: null,   // LightCatalog object, loaded at init (runtime only, not serialized)
   // Lighting tool state
-  lightMode: 'place',        // 'place' or 'select'
   selectedLightId: null,     // ID of currently selected light
   lightPreset: null,         // string — selected preset ID from catalog (e.g. 'torch')
   lightType: 'point',        // default placement type: 'point' or 'directional'
@@ -176,7 +173,7 @@ function scheduleAutosave() {
         panY: state.panY,
       });
       localStorage.setItem(AUTOSAVE_KEY, payload);
-    } catch (e) {
+    } catch {
       // localStorage full or unavailable — silently ignore
     }
   }, 500);
@@ -195,7 +192,7 @@ export function loadAutosave() {
     state.panX = saved.panX ?? 60;
     state.panY = saved.panY ?? 60;
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

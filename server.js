@@ -189,6 +189,42 @@ app.get('/api/version', (_req, res) => {
   res.json({ version: APP_VERSION });
 });
 
+// ── Update check endpoint ─────────────────────────────────────────────────
+
+function semverGt(a, b) {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) > (pb[i] ?? 0)) return true;
+    if ((pa[i] ?? 0) < (pb[i] ?? 0)) return false;
+  }
+  return false;
+}
+
+let _updateCache = null;
+let _updateCacheTime = 0;
+
+app.get('/api/check-update', async (_req, res) => {
+  const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+  if (_updateCache && Date.now() - _updateCacheTime < CACHE_TTL) {
+    return res.json(_updateCache);
+  }
+  try {
+    const r = await fetch('https://api.github.com/repos/LeoMelnyk/Mapwright/releases/latest', {
+      headers: { 'User-Agent': 'Mapwright-App' }
+    });
+    if (!r.ok) throw new Error(`GitHub API ${r.status}`);
+    const { tag_name, html_url } = await r.json();
+    const latestVersion = tag_name.replace(/^v/, '');
+    const hasUpdate = semverGt(latestVersion, APP_VERSION);
+    _updateCache = { hasUpdate, latestVersion, url: html_url };
+    _updateCacheTime = Date.now();
+    res.json(_updateCache);
+  } catch {
+    res.json({ hasUpdate: false });
+  }
+});
+
 // ── Local IP endpoint (for Player Session panel) ─────────────────────────
 
 app.get('/api/local-ip', (_req, res) => {

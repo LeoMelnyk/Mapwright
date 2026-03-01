@@ -282,6 +282,13 @@ export class PaintTool extends Tool {
     this.dragEnd = null;
     this.mousePos = null;
     if (state.paintMode === 'syringe') setCursor(SYRINGE_CURSOR);
+    const statuses = {
+      texture:         'Drag to paint texture · Shift+click to flood fill · Alt+click to sample · Right-click to clear',
+      syringe:         'Click to sample texture from a cell · Switches to Texture mode',
+      room:            'Drag to paint room floor color',
+      'clear-texture': 'Drag to clear texture · Shift+click to flood clear',
+    };
+    state.statusInstruction = statuses[state.paintMode || 'room'] || null;
   }
 
   onDeactivate() {
@@ -292,6 +299,7 @@ export class PaintTool extends Tool {
     this.dragEnd = null;
     this.mousePos = null;
     setCursor('crosshair'); // reset if shift was held when switching tools
+    state.statusInstruction = null;
   }
 
   onMouseDown(row, col, edge, event) {

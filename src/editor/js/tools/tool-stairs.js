@@ -1,6 +1,6 @@
 // Stairs tool: 3-click corner-point placement, linking
 import { Tool } from './tool-base.js';
-import state, { pushUndo, markDirty, notify } from '../state.js';
+import state, { pushUndo, markDirty } from '../state.js';
 import { requestRender, getTransform } from '../canvas-view.js';
 import { toCanvas, nearestCorner } from '../utils.js';
 import {
@@ -8,7 +8,6 @@ import {
   isDegenerate,
   getOccupiedCells,
   computeHatchLines,
-  stairBoundingBox,
 } from '../stair-geometry.js';
 import { showToast } from '../toast.js';
 
@@ -62,7 +61,9 @@ export class StairsTool extends Tool {
 
   onActivate() {
     this._resetPlacement();
-    if (state.stairsMode === 'place') state.statusInstruction = 'Click to place corner 1 of 3';
+    state.statusInstruction = state.stairsMode === 'link'
+      ? 'Click a stair to select it · Click another to link · Click a linked stair to unlink · Right-click to delete'
+      : 'Click to place corner 1 of 3';
   }
 
   onDeactivate() {
@@ -103,7 +104,7 @@ export class StairsTool extends Tool {
     }
   }
 
-  onRightClick(row, col, edge, event) {
+  onRightClick(row, col, _edge, _event) {
     // Right-click on a cell with stairs: remove the entire stair
     const id = stairIdAt(row, col);
     if (id == null) return;
@@ -127,7 +128,7 @@ export class StairsTool extends Tool {
     }
   }
 
-  onMouseMove(row, col, edge, event, pos) {
+  onMouseMove(_row, _col, _edge, _event, _pos) {
     // Corner hover is already updated in canvas-view.js via state.hoveredCorner
   }
 

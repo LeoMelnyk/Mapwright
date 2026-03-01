@@ -43,6 +43,14 @@ export class EraseTool extends Tool {
     this.mousePos = null;
   }
 
+  onActivate() {
+    state.statusInstruction = 'Drag to erase cells · Shift to constrain to square';
+  }
+
+  onDeactivate() {
+    state.statusInstruction = null;
+  }
+
   onMouseDown(row, col) {
     const cells = state.dungeon.cells;
     if (!isInBounds(cells, row, col)) return;
@@ -85,16 +93,10 @@ export class EraseTool extends Tool {
     const { r1, c1, r2, c2 } = normalizeBounds(
       this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
 
-    const eraseMode = state.eraseMode || 'all';
-
     let hasContent = false;
     for (let r = r1; r <= r2 && !hasContent; r++) {
       for (let c = c1; c <= c2 && !hasContent; c++) {
-        if (eraseMode === 'texture') {
-          if (cells[r][c]?.texture) hasContent = true;
-        } else {
-          if (cells[r][c] !== null) hasContent = true;
-        }
+        if (cells[r][c] !== null) hasContent = true;
       }
     }
 
@@ -107,42 +109,45 @@ export class EraseTool extends Tool {
 
       // Collect stair IDs before cells are nulled (stairs span multiple cells)
       const stairIdsToRemove = new Set();
-      if (eraseMode !== 'texture') {
-        for (let r = r1; r <= r2; r++) {
-          for (let c = c1; c <= c2; c++) {
-            const id = cells[r]?.[c]?.center?.['stair-id'];
-            if (id != null) stairIdsToRemove.add(id);
-          }
-        }
-      }
-
-      pushUndo(eraseMode === 'texture' ? 'Erase texture' : 'Erase cells');
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
-          if (eraseMode === 'texture') {
-            if (cells[r][c]) {
-              delete cells[r][c].texture;
-              delete cells[r][c].textureOpacity;
-            }
-          } else {
-            cells[r][c] = null;
-          }
+          const id = cells[r]?.[c]?.center?.['stair-id'];
+          if (id != null) stairIdsToRemove.add(id);
         }
       }
 
-      if (eraseMode !== 'texture') {
-        const meta = state.dungeon.metadata;
-
-        // Remove stair definitions (and unlink partners)
-        for (const id of stairIdsToRemove) {
-          _removeStair(meta, cells, id);
+      pushUndo('Erase cells');
+      for (let r = r1; r <= r2; r++) {
+        for (let c = c1; c <= c2; c++) {
+          cells[r][c] = null;
         }
+      }
 
-        // Remove bridges with any point inside the erased region
-        if (meta.bridges?.length) {
-          meta.bridges = meta.bridges.filter(bridge =>
-            !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2)
-          );
+      const meta = state.dungeon.metadata;
+
+      // Remove stair definitions (and unlink partners)
+      for (const id of stairIdsToRemove) {
+        _removeStair(meta, cells, id);
+      }
+
+      // Remove bridges with any point inside the erased region
+      if (meta.bridges?.length) {
+        meta.bridges = meta.bridges.filter(bridge =>
+          !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2)
+        );
+      }
+
+      // Remove lights whose world position falls inside the erased region
+      if (meta.lights?.length) {
+        const gridSize = meta.gridSize || 5;
+        meta.lights = meta.lights.filter(light => {
+          const lightRow = Math.floor(light.y / gridSize);
+          const lightCol = Math.floor(light.x / gridSize);
+          return !(lightRow >= r1 && lightRow <= r2 && lightCol >= c1 && lightCol <= c2);
+        });
+        if (state.selectedLightId != null &&
+            !meta.lights.find(l => l.id === state.selectedLightId)) {
+          state.selectedLightId = null;
         }
       }
 

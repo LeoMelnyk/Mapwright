@@ -1,7 +1,7 @@
 // Light tool: place, select, and move light sources
 import { Tool } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
-import { requestRender, getTransform } from '../canvas-view.js';
+import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
 
 const LIGHT_HIT_RADIUS = 8; // pixels at screen scale for click detection
@@ -46,12 +46,14 @@ function hitTestLight(pos) {
 export class LightTool extends Tool {
   constructor() {
     super('light', 'L', 'crosshair');
-    this.dragging = null; // { lightId, offsetX, offsetY } during drag
+    this.dragging = null;    // { lightId, offsetX, offsetY } during drag
     this.dragMoved = false;
+    this.hoveredLightId = null; // light under cursor (for cursor changes)
+    this.hoverPos = null;       // current cursor position (for placement preview)
   }
 
   getCursor() {
-    return state.lightMode === 'select' ? 'default' : 'crosshair';
+    return 'crosshair'; // dynamic cursor updates happen in onMouseMove
   }
 
   onActivate() {
@@ -60,24 +62,30 @@ export class LightTool extends Tool {
     if (btn && !btn.classList.contains('active')) {
       btn.click();
     }
-    state.statusInstruction = 'Right-click to delete light';
+    this._updateStatusInstruction();
   }
 
   onDeactivate() {
     this.dragging = null;
     this.dragMoved = false;
+    this.hoveredLightId = null;
+    this.hoverPos = null;
     state.statusInstruction = null;
   }
 
   onMouseDown(row, col, edge, event, pos) {
-    if (state.lightMode === 'place') {
-      this._placeLight(pos);
-    } else {
+    // Unified: hit-test first — select+drag if over a light, place otherwise
+    const hit = hitTestLight(pos);
+    if (hit) {
       this._startSelectOrDrag(pos, event);
+    } else {
+      this._placeLight(pos);
     }
   }
 
   onMouseMove(row, col, edge, event, pos) {
+    this.hoverPos = pos;
+
     if (this.dragging) {
       this.dragMoved = true;
       const transform = getTransform();
@@ -101,10 +109,27 @@ export class LightTool extends Tool {
         markDirty();
         requestRender();
       }
+      return;
+    }
+
+    // Update hover state and cursor
+    const hit = hitTestLight(pos);
+    if (hit) {
+      if (this.hoveredLightId !== hit.id) {
+        this.hoveredLightId = hit.id;
+        setCursor('grab');
+        requestRender(); // redraw to highlight hovered light
+      }
+    } else {
+      if (this.hoveredLightId !== null) {
+        this.hoveredLightId = null;
+        setCursor('crosshair');
+        requestRender(); // redraw to clear hover highlight
+      }
     }
   }
 
-  onMouseUp(row, col, edge, event, pos) {
+  onMouseUp(_row, _col, _edge, _event, _pos) {
     if (this.dragging) {
       if (this.dragMoved) {
         // Finalize move — undo was already pushed on drag start
@@ -112,6 +137,7 @@ export class LightTool extends Tool {
       }
       this.dragging = null;
       this.dragMoved = false;
+      setCursor(this.hoveredLightId ? 'grab' : 'crosshair');
     }
   }
 
@@ -137,9 +163,13 @@ export class LightTool extends Tool {
 
     if (state.selectedLightId === light.id) {
       state.selectedLightId = null;
-      state.statusInstruction = null;
+    }
+    if (this.hoveredLightId === light.id) {
+      this.hoveredLightId = null;
+      setCursor('crosshair');
     }
 
+    this._updateStatusInstruction();
     invalidateLightmap();
     markDirty();
     notify();
@@ -156,7 +186,11 @@ export class LightTool extends Tool {
           const idx = lights.indexOf(light);
           if (idx >= 0) lights.splice(idx, 1);
           state.selectedLightId = null;
-          state.statusInstruction = null;
+          if (this.hoveredLightId === light.id) {
+            this.hoveredLightId = null;
+            setCursor('crosshair');
+          }
+          this._updateStatusInstruction();
           invalidateLightmap();
           markDirty();
           notify();
@@ -166,26 +200,38 @@ export class LightTool extends Tool {
     }
   }
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx, transform, _gridSize) {
     const lights = getLights();
-    if (lights.length === 0 && state.lightMode !== 'place') return;
 
     for (const light of lights) {
       const px = light.x * transform.scale + transform.offsetX;
       const py = light.y * transform.scale + transform.offsetY;
       const isSelected = light.id === state.selectedLightId;
+      const isHovered = light.id === this.hoveredLightId;
 
       // Draw light icon
-      this._drawLightIcon(ctx, px, py, light, isSelected);
+      this._drawLightIcon(ctx, px, py, light, isSelected, isHovered);
 
       // Draw radius/cone preview for selected light
       if (isSelected) {
         this._drawLightPreview(ctx, px, py, light, transform);
       }
     }
+
+    // Draw placement preview when hovering empty space (no hit, no drag)
+    if (this.hoverPos && !this.dragging && !this.hoveredLightId) {
+      this._drawPlacementPreview(ctx, this.hoverPos, transform);
+    }
   }
 
-  // ── Place Mode ──────────────────────────────────────────────────────────
+  // ── Private Helpers ──────────────────────────────────────────────────────
+
+  _updateStatusInstruction() {
+    const typeName = state.lightType === 'directional' ? 'Directional' : 'Point';
+    state.statusInstruction = `Click to place ${typeName} light · Hover existing to move · Right-click to delete`;
+  }
+
+  // ── Place ────────────────────────────────────────────────────────────────
 
   _placeLight(pos) {
     const transform = getTransform();
@@ -226,14 +272,14 @@ export class LightTool extends Tool {
     requestRender();
   }
 
-  // ── Select Mode ─────────────────────────────────────────────────────────
+  // ── Select + Drag ────────────────────────────────────────────────────────
 
-  _startSelectOrDrag(pos, event) {
+  _startSelectOrDrag(pos, _event) {
     const light = hitTestLight(pos);
 
     if (light) {
       state.selectedLightId = light.id;
-      state.statusInstruction = 'Drag to move · Ctrl+drag to resize radius';
+      state.statusInstruction = 'Drag to move · Ctrl+drag to resize radius · Right-click to delete';
 
       // Start drag
       const transform = getTransform();
@@ -245,25 +291,26 @@ export class LightTool extends Tool {
         offsetY: pos.y - screenPos.y,
       };
       this.dragMoved = false;
+      setCursor('grabbing');
     } else {
       state.selectedLightId = null;
-      state.statusInstruction = null;
+      this._updateStatusInstruction();
     }
 
     notify();
     requestRender();
   }
 
-  // ── Rendering Helpers ───────────────────────────────────────────────────
+  // ── Rendering Helpers ────────────────────────────────────────────────────
 
-  _drawLightIcon(ctx, px, py, light, isSelected) {
-    const size = isSelected ? 10 : 7;
+  _drawLightIcon(ctx, px, py, light, isSelected, isHovered) {
+    const size = isSelected ? 10 : isHovered ? 9 : 7;
 
     ctx.save();
 
     // Outer glow
     ctx.shadowColor = light.color || '#ff9944';
-    ctx.shadowBlur = isSelected ? 12 : 6;
+    ctx.shadowBlur = isSelected ? 14 : isHovered ? 10 : 6;
 
     // Icon circle
     ctx.beginPath();
@@ -274,8 +321,8 @@ export class LightTool extends Tool {
     ctx.shadowBlur = 0;
 
     // Border
-    ctx.strokeStyle = isSelected ? '#ffffff' : 'rgba(255,255,255,0.6)';
-    ctx.lineWidth = isSelected ? 2.5 : 1.5;
+    ctx.strokeStyle = isSelected ? '#ffffff' : isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)';
+    ctx.lineWidth = isSelected ? 2.5 : isHovered ? 2 : 1.5;
     ctx.stroke();
 
     // Inner type indicator
@@ -321,6 +368,46 @@ export class LightTool extends Tool {
       ctx.arc(px, py, rPx, 0, Math.PI * 2);
       ctx.stroke();
     }
+
+    ctx.restore();
+  }
+
+  _drawPlacementPreview(ctx, pos, transform) {
+    const color = state.lightColor || '#ff9944';
+    const { x, y } = pos;
+
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+
+    if (state.lightType === 'directional') {
+      const range = (state.lightRadius || 30) * transform.scale;
+      const angleRad = (state.lightAngle || 0) * Math.PI / 180;
+      const spreadRad = (state.lightSpread || 45) * Math.PI / 180;
+
+      ctx.strokeStyle = color + '80';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.arc(x, y, range, angleRad - spreadRad, angleRad + spreadRad);
+      ctx.closePath();
+      ctx.stroke();
+    } else {
+      const rPx = (state.lightRadius || 30) * transform.scale;
+      ctx.strokeStyle = color + '80';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(x, y, rPx, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Center dot
+    ctx.setLineDash([]);
+    ctx.fillStyle = color + 'c0';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.restore();
   }

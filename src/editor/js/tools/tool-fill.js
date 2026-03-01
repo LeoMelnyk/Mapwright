@@ -21,21 +21,33 @@ export class FillTool extends Tool {
 
   getCursor() { return 'crosshair'; }
 
+  onActivate() {
+    const statuses = {
+      water:               'Drag to fill with water · Right-click cell to clear',
+      lava:                'Drag to fill with lava · Right-click cell to clear',
+      pit:                 'Drag to fill with pit · Right-click cell to clear',
+      'difficult-terrain': 'Drag to paint difficult terrain · Right-click cell to clear',
+      'clear-fill':        'Drag to clear fills from cells',
+    };
+    state.statusInstruction = statuses[state.fillMode || 'water'] || null;
+  }
+
   onDeactivate() {
     this.boxStart = null;
     this.boxEnd   = null;
+    state.statusInstruction = null;
   }
 
-  onMouseDown(row, col, edge, event) {
+  onMouseDown(row, col, _edge, _event) {
     this.boxStart = { row, col };
     this.boxEnd   = { row, col };
   }
 
-  onMouseMove(row, col, edge, event) {
+  onMouseMove(row, col, _edge, _event) {
     if (this.boxStart) this.boxEnd = { row, col };
   }
 
-  onMouseUp(row, col, edge, event) {
+  onMouseUp(row, col, _edge, _event) {
     if (!this.boxStart) return;
     this.boxEnd = { row, col };
     const mode = state.fillMode || 'water';
@@ -48,7 +60,7 @@ export class FillTool extends Tool {
     this.boxEnd   = null;
   }
 
-  onRightClick(row, col, edge, event) {
+  onRightClick(row, col, _edge, _event) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
     if (cells[row][col] === null) return;

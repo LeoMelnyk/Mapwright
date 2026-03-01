@@ -1,6 +1,5 @@
 // History panel: scrollable undo/redo history list
 import state, { subscribe, undo, redo, jumpToState } from '../state.js';
-import { requestRender } from '../canvas-view.js';
 
 let container = null;
 

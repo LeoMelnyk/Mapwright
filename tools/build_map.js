@@ -37,7 +37,7 @@ try {
   const keys = JSON.parse(fs.readFileSync(path.join(themesDir, 'manifest.json'), 'utf-8'));
   for (const key of keys) {
     try {
-      const { displayName, ...themeProps } = JSON.parse(
+      const { displayName: _displayName, ...themeProps } = JSON.parse(
         fs.readFileSync(path.join(themesDir, `${key}.theme`), 'utf-8')
       );
       THEMES[key] = themeProps;
