@@ -39,7 +39,14 @@
     ],
     "asar": false,
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "src/icon.ico",
+      "publisherName": "Leo Melnyk",
+      "azureSignOptions": {
+        "endpoint": "https://eus.codesigning.azure.net/",
+        "codeSigningAccountName": "mapwright",
+        "certificateProfileName": "mapwright-cert"
+      }
     }
   }
 }

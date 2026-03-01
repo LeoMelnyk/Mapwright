@@ -40,3 +40,20 @@ data.copy(out);
 PATCHED.copy(out, idx);
 fs.writeFileSync(binary, out);
 console.log('patched app-builder.exe (-snld → -snl-)');
+
+// Patch 2: windowsSignAzureManager.js — quote all PowerShell param values so that
+// paths containing special characters (e.g. '&' in "D&D") don't break the command.
+const azureManager = path.join(__dirname, '../node_modules/app-builder-lib/out/codeSign/windowsSignAzureManager.js');
+if (fs.existsSync(azureManager)) {
+  const AZURE_NEEDLE  = 'return [...res, `-${field}`, value];';
+  const AZURE_PATCHED = 'const quoted = typeof value === "string" ? `"${value}"` : value;\n            return [...res, `-${field}`, quoted];';
+  let src = fs.readFileSync(azureManager, 'utf8');
+  if (!src.includes(AZURE_PATCHED)) {
+    if (src.includes(AZURE_NEEDLE)) {
+      fs.writeFileSync(azureManager, src.replace(AZURE_NEEDLE, AZURE_PATCHED), 'utf8');
+      console.log('patched windowsSignAzureManager.js (quote PowerShell param values)');
+    } else {
+      console.log('windowsSignAzureManager.js: needle not found, skipping');
+    }
+  }
+}
