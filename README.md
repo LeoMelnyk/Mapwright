@@ -236,7 +236,7 @@ Starts the Express server and opens the Electron window directly from source. Fr
 
 ```bash
 npm run electron:build        # Windows portable exe → dist/Mapwright <version>.exe
-npm run electron:build:mac    # Mac DMG → dist/Mapwright-<version>-arm64.dmg
+npm run electron:build:mac    # Mac DMG → dist/Mapwright-<version>.dmg (universal)
 ```
 
 The Windows build is a single self-contained portable executable, no installation required.
