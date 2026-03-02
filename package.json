@@ -47,7 +47,8 @@
     ],
     "asar": false,
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "x64ArchFiles": "**/@napi-rs/canvas-darwin-*/**"
     },
     "win": {
       "target": "portable",
