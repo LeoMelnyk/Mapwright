@@ -270,6 +270,9 @@
           <button id="toolbar-lock-btn" class="toolbar-btn" title="Lock/unlock toolbar position">🔒</button>
         </div>
 
+        <!-- Sub-options wrapper: expands up/down/left/right depending on dock position -->
+        <div id="toolbar-subbars">
+
         <!-- Sub-options rows (contextually visible above tools) -->
         <div id="room-options" class="suboptions-bar">
           <span class="toolbar-label">Mode:</span>
@@ -338,6 +341,11 @@
 
 
 
+        <div id="light-options" class="suboptions-bar" style="display:none;">
+          <span class="toolbar-label">Preset:</span>
+          <select id="light-preset-select" class="toolbar-select" title="Select a light preset to place"></select>
+        </div>
+
 <div id="label-options" class="suboptions-bar" style="display:none;">
           <span class="toolbar-label">Mode:</span>
           <button class="toolbar-btn active" data-label-mode="room" title="Room Label — Place or edit a room's number label">Room Label</button>
@@ -347,15 +355,18 @@
 
         <!-- Tertiary bars: mode-specific controls shown above the secondary bar -->
         <div id="paint-texture-options" class="tertiaryoptions-bar" style="display:none;">
-          <span id="texture-opacity-row" style="display:none;align-items:center;gap:4px;">
-            <span class="toolbar-label" style="margin:0">Opacity:</span>
+          <span id="texture-opacity-row" style="display:none;align-items:center;gap:6px;">
+            <span class="toolbar-label" style="margin:0">Opacity</span>
             <input type="range" id="texture-opacity-slider" min="10" max="100" step="5" value="100" style="width:70px" title="Texture opacity — how strongly the texture overlays the floor color">
-            <span id="texture-opacity-value" style="font-size:11px;color:var(--text-dim);min-width:30px">100%</span>
+            <span id="texture-opacity-value" style="font-size:11px;color:var(--text-dim)">100%</span>
           </span>
-          <label style="display:flex;align-items:center;gap:4px;margin-left:8px;cursor:pointer;" title="Secondary — paint onto the secondary (accent) floor color slot instead of the primary">
-            <input type="checkbox" id="texture-secondary-cb">
+          <div class="trim-option-row" title="Secondary — paint onto the secondary (accent) floor color slot instead of the primary">
             <span class="toolbar-label" style="margin:0">Secondary</span>
-          </label>
+            <div class="trim-toggle">
+              <button class="toolbar-btn" data-secondary="true">Yes</button>
+              <button class="toolbar-btn active" data-secondary="false">No</button>
+            </div>
+          </div>
         </div>
 
         <div id="fill-depth-options" class="tertiaryoptions-bar" style="display:none;">
@@ -380,16 +391,30 @@
 
         <!-- Trim shape tertiary bar (shown when trim tool is active) -->
         <div id="trim-shape-options" class="tertiaryoptions-bar" style="display:none;">
-          <label data-tooltip="Round: curves the corner into an arc (convex)" style="display:flex;align-items:center;gap:3px;font-size:12px;color:var(--text-dim);cursor:pointer;">
-            <input type="checkbox" id="trim-round"> Round <span class="key-hint">R</span>
-          </label>
-          <label data-tooltip="Inverted: cuts the arc inward (concave)" style="display:flex;align-items:center;gap:3px;margin-left:6px;font-size:12px;color:var(--text-dim);cursor:pointer;">
-            <input type="checkbox" id="trim-inverted"> Inverted <span class="key-hint">I</span>
-          </label>
-          <label data-tooltip="Open: keeps the floor under the arc instead of voiding it" style="display:flex;align-items:center;gap:3px;margin-left:6px;font-size:12px;color:var(--text-dim);cursor:pointer;">
-            <input type="checkbox" id="trim-open"> Open <span class="key-hint">O</span>
-          </label>
+          <div class="trim-option-row" data-tooltip="Round: curves the corner into an arc (convex)">
+            <span class="toolbar-label" style="margin:0">Round</span>
+            <div class="trim-toggle">
+              <button class="toolbar-btn" data-trim="round" data-val="true">Yes</button>
+              <button class="toolbar-btn active" data-trim="round" data-val="false">No</button>
+            </div>
+          </div>
+          <div class="trim-option-row" data-tooltip="Inverted: cuts the arc inward (concave)">
+            <span class="toolbar-label" style="margin:0">Inverted</span>
+            <div class="trim-toggle">
+              <button class="toolbar-btn" data-trim="inverted" data-val="true">Yes</button>
+              <button class="toolbar-btn active" data-trim="inverted" data-val="false">No</button>
+            </div>
+          </div>
+          <div class="trim-option-row" data-tooltip="Open: keeps the floor under the arc instead of voiding it">
+            <span class="toolbar-label" style="margin:0">Open</span>
+            <div class="trim-toggle">
+              <button class="toolbar-btn" data-trim="open" data-val="true">Yes</button>
+              <button class="toolbar-btn active" data-trim="open" data-val="false">No</button>
+            </div>
+          </div>
         </div>
+
+        </div><!-- /#toolbar-subbars -->
 
         <!-- Session tool row (shown when session tools active) -->
         <div id="session-tool-row" class="tool-row" style="display:none;">
@@ -422,6 +447,14 @@
         </div>
 
 
+      </div>
+
+      <!-- Snap point indicators — shown while dragging toolbar -->
+      <div id="snap-indicators">
+        <div class="snap-indicator" data-snap="center-top"></div>
+        <div class="snap-indicator" data-snap="center-bottom"></div>
+        <div class="snap-indicator" data-snap="center-left"></div>
+        <div class="snap-indicator" data-snap="center-right"></div>
       </div>
     </div>
 

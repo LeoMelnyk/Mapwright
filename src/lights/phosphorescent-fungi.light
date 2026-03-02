@@ -5,6 +5,8 @@
   "type": "point",
   "color": "#66ffaa",
   "radius": 10,
+  "dimRadius": 20,
   "intensity": 0.4,
-  "falloff": "smooth"
+  "falloff": "smooth",
+  "animation": { "type": "pulse", "speed": 0.2, "amplitude": 0.15, "radiusVariation": 0 }
 }

@@ -4,6 +4,7 @@ footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
+lights: [{"preset":"lantern","x":0.5,"y":0.5}]
 ---
 # Wall bracket (north edge)
 rect 0.28,0.02 0.44,0.14 texfill polyhaven/rusty_metal 0.80

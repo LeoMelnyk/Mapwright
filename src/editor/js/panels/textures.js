@@ -67,6 +67,34 @@ function render() {
   searchWrap.appendChild(searchInput);
   searchWrap.appendChild(clearBtn);
 
+  // ── Collapse / Expand all (VS Code-style panel actions) ──────────────────
+  const actionSep = document.createElement('span');
+  actionSep.className = 'texture-action-sep';
+
+  const collapseAllBtn = document.createElement('button');
+  collapseAllBtn.className = 'texture-action-btn';
+  collapseAllBtn.title = 'Collapse All';
+  collapseAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>`;
+  collapseAllBtn.addEventListener('click', () => {
+    cat.categoryOrder.forEach(c => collapsed.add(c));
+    saveCollapsed();
+    filterTextures(cat);
+  });
+
+  const expandAllBtn = document.createElement('button');
+  expandAllBtn.className = 'texture-action-btn';
+  expandAllBtn.title = 'Expand All';
+  expandAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg>`;
+  expandAllBtn.addEventListener('click', () => {
+    collapsed.clear();
+    saveCollapsed();
+    filterTextures(cat);
+  });
+
+  searchWrap.appendChild(actionSep);
+  searchWrap.appendChild(collapseAllBtn);
+  searchWrap.appendChild(expandAllBtn);
+
   container.appendChild(searchWrap);
 
   // ── Scrollable texture grid ──────────────────────────────────────────────

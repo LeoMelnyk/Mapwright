@@ -4,6 +4,7 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: yes
+lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
 ---
 # Full stone structure base
 rect 0.0,0.0 1.0,2.0 texfill polyhaven/stone_wall 0.75

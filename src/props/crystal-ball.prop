@@ -4,6 +4,7 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+lights: [{"preset":"eldritch-glow","x":0.5,"y":0.5}]
 ---
 # Stand base
 circle 0.5,0.5 0.2 texfill polyhaven/dark_wood 0.8

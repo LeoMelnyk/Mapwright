@@ -575,6 +575,190 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   cursor: pointer;
 }
 
+/* ─── Toolbar sub-bars wrapper & dock orientations ──────────────────────── */
+
+#toolbar-subbars {
+  display: flex;
+  flex-direction: column-reverse; /* secondary closest to tool row, tertiary further */
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+/* Top dock: horizontal toolbar, sub-bars expand downward */
+#drawing-toolbar.toolbar-docked-top {
+  flex-direction: column;
+}
+#drawing-toolbar.toolbar-docked-top #toolbar-subbars {
+  flex-direction: column;
+}
+
+/* Left dock: vertical toolbar, sub-bars expand rightward */
+#drawing-toolbar.toolbar-docked-left {
+  flex-direction: row;
+  align-items: flex-start;
+}
+#drawing-toolbar.toolbar-docked-left .tool-row {
+  flex-direction: column;
+}
+#drawing-toolbar.toolbar-docked-left #toolbar-drag-handle {
+  padding: 4px 0;
+}
+#drawing-toolbar.toolbar-docked-left #toolbar-subbars {
+  flex-direction: column;
+  align-items: stretch;
+  width: auto;
+  min-width: 88px;
+  gap: 6px;
+  border-left: 1px solid var(--border);
+  padding: 0 0 0 8px;
+}
+#drawing-toolbar.toolbar-docked-left .suboptions-bar,
+#drawing-toolbar.toolbar-docked-left .tertiaryoptions-bar,
+#drawing-toolbar.toolbar-docked-left .session-suboptions {
+  width: auto;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+#drawing-toolbar.toolbar-docked-left .suboptions-bar .toolbar-btn,
+#drawing-toolbar.toolbar-docked-left .tertiaryoptions-bar .toolbar-btn,
+#drawing-toolbar.toolbar-docked-left .session-suboptions .toolbar-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+#drawing-toolbar.toolbar-docked-left .suboptions-bar > .toolbar-label,
+#drawing-toolbar.toolbar-docked-left .tertiaryoptions-bar > .toolbar-label {
+  display: block;
+  margin: 0 0 3px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+#drawing-toolbar.toolbar-docked-left .cycle-hint {
+  display: none;
+}
+#drawing-toolbar.toolbar-docked-left #paint-texture-options label {
+  margin-left: 0 !important;
+}
+
+/* Right dock: vertical toolbar, sub-bars expand leftward */
+#drawing-toolbar.toolbar-docked-right {
+  flex-direction: row-reverse;
+  align-items: flex-start;
+}
+#drawing-toolbar.toolbar-docked-right .tool-row {
+  flex-direction: column;
+}
+#drawing-toolbar.toolbar-docked-right #toolbar-drag-handle {
+  padding: 4px 0;
+}
+#drawing-toolbar.toolbar-docked-right #toolbar-subbars {
+  flex-direction: column;
+  align-items: stretch;
+  width: auto;
+  min-width: 88px;
+  gap: 6px;
+  border-right: 1px solid var(--border);
+  padding: 0 8px 0 0;
+}
+#drawing-toolbar.toolbar-docked-right .suboptions-bar,
+#drawing-toolbar.toolbar-docked-right .tertiaryoptions-bar,
+#drawing-toolbar.toolbar-docked-right .session-suboptions {
+  width: auto;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+#drawing-toolbar.toolbar-docked-right .suboptions-bar .toolbar-btn,
+#drawing-toolbar.toolbar-docked-right .tertiaryoptions-bar .toolbar-btn,
+#drawing-toolbar.toolbar-docked-right .session-suboptions .toolbar-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+#drawing-toolbar.toolbar-docked-right .suboptions-bar > .toolbar-label,
+#drawing-toolbar.toolbar-docked-right .tertiaryoptions-bar > .toolbar-label {
+  display: block;
+  margin: 0 0 3px;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+#drawing-toolbar.toolbar-docked-right .cycle-hint {
+  display: none;
+}
+#drawing-toolbar.toolbar-docked-right #paint-texture-options label {
+  margin-left: 0 !important;
+}
+
+/* Hide the sub-bar panel entirely when no sub-bars are visible (e.g. light/erase/prop tool) */
+#drawing-toolbar.toolbar-docked-left #toolbar-subbars.toolbar-subbars-empty,
+#drawing-toolbar.toolbar-docked-right #toolbar-subbars.toolbar-subbars-empty {
+  display: none;
+}
+
+/* Trim Yes/No option rows */
+.trim-option-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.trim-toggle {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+/* In vertical dock, Yes/No buttons stay compact (override the stretch-to-fill rule) */
+#drawing-toolbar.toolbar-docked-left .trim-toggle .toolbar-btn,
+#drawing-toolbar.toolbar-docked-right .trim-toggle .toolbar-btn {
+  width: auto;
+  justify-content: center;
+  padding: 3px 8px;
+}
+/* In vertical dock, stack label above control for each option row */
+#drawing-toolbar.toolbar-docked-left .trim-option-row,
+#drawing-toolbar.toolbar-docked-right .trim-option-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  border-left: none;
+  padding-left: 0;
+}
+#drawing-toolbar.toolbar-docked-left .trim-option-row .trim-toggle,
+#drawing-toolbar.toolbar-docked-right .trim-option-row .trim-toggle {
+  margin-left: 0;
+}
+/* Dock mode: opacity row becomes a 2-row grid — label|value on top, slider below */
+#drawing-toolbar.toolbar-docked-left #texture-opacity-row,
+#drawing-toolbar.toolbar-docked-right #texture-opacity-row {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "label value" "slider slider";
+  gap: 3px 4px !important;
+  align-items: center;
+}
+#drawing-toolbar.toolbar-docked-left #texture-opacity-row > .toolbar-label,
+#drawing-toolbar.toolbar-docked-right #texture-opacity-row > .toolbar-label {
+  grid-area: label;
+}
+#drawing-toolbar.toolbar-docked-left #texture-opacity-value,
+#drawing-toolbar.toolbar-docked-right #texture-opacity-value {
+  grid-area: value;
+}
+#drawing-toolbar.toolbar-docked-left #texture-opacity-slider,
+#drawing-toolbar.toolbar-docked-right #texture-opacity-slider {
+  grid-area: slider;
+  width: 100% !important;
+}
+
 /* ─── Sidebar ────────────────────────────────────────────────────────────── */
 
 #sidebar {
@@ -1287,7 +1471,7 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 #prop-search-input {
   flex: 1;
   min-width: 0;
-  padding: 4px 6px;
+  padding: 4px 24px 4px 6px;
   border: 1px solid var(--border);
   border-radius: 3px;
   background: var(--btn-bg);
@@ -1304,7 +1488,7 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   color: var(--text-dim);
 }
 
-/* X clear button — shared by prop and texture search */
+/* X clear button — shared by prop and texture search, overlaps the right of the input */
 .search-clear-btn {
   flex-shrink: 0;
   background: none;
@@ -1315,6 +1499,9 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 3px;
+  margin-left: -22px;
+  position: relative;
+  z-index: 1;
 }
 
 .search-clear-btn:hover {
@@ -1624,7 +1811,7 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 .texture-search-input {
   flex: 1;
   min-width: 0;
-  padding: 5px 8px;
+  padding: 5px 24px 5px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--btn-bg);
@@ -1639,6 +1826,33 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 
 .texture-search-input::placeholder {
   color: var(--text-dim);
+}
+
+.texture-action-sep {
+  width: 1px;
+  height: 16px;
+  background: var(--border);
+  flex-shrink: 0;
+  margin: 0 3px;
+}
+.texture-action-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0;
+  transition: color 0.1s, background 0.1s;
+}
+.texture-action-btn:hover {
+  color: var(--text);
+  background: var(--btn-hover);
 }
 
 /* Scrollable grid area */
@@ -1696,6 +1910,7 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   cursor: pointer;
   background: var(--btn-bg);
   transition: border-color 0.1s, background 0.1s;
+  user-select: none;
 }
 
 .texture-thumb-item:hover {
@@ -1714,6 +1929,8 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   object-fit: cover;
   border-radius: 2px;
   display: block;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 .texture-thumb-name {
@@ -1941,6 +2158,17 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   border: 1px solid var(--light-swatch-border);
 }
 
+.light-preset-tag {
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0.45;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
 /* ── Import modal ───────────────────────────────────────────────────── */
 
 .import-modal-overlay {
@@ -2143,11 +2371,16 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   display: none;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 8px;
   width: 100%;
-  padding-bottom: 2px;
+  padding: 0 6px 2px;
   border-bottom: 1px solid var(--border);
   opacity: 0.85;
+}
+/* Separator before Secondary row in horizontal mode */
+#paint-texture-options .trim-option-row {
+  border-left: 1px solid var(--border);
+  padding-left: 8px;
 }
 
 /* ── Status bar instruction ──────────────────────────────────────────── */
@@ -2197,6 +2430,50 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 #drawing-toolbar.toolbar-snapping {
   box-shadow: 0 4px 20px var(--shadow), 0 0 0 2px var(--accent);
   outline: none;
+}
+
+/* ── Snap point indicators ───────────────────────────────────────────────── */
+
+#snap-indicators {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+#snap-indicators.visible {
+  opacity: 1;
+}
+.snap-indicator {
+  position: absolute;
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  opacity: 0.35;
+  transition: opacity 0.12s, background 0.12s, box-shadow 0.12s;
+}
+.snap-indicator.active {
+  opacity: 1;
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+/* Positioning */
+.snap-indicator[data-snap="center-top"] {
+  top: 20px; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 20px;
+}
+.snap-indicator[data-snap="center-bottom"] {
+  bottom: 20px; left: 50%; transform: translateX(-50%);
+  width: 100px; height: 20px;
+}
+.snap-indicator[data-snap="center-left"] {
+  left: 20px; top: 50%; transform: translateY(-50%);
+  width: 20px; height: 100px;
+}
+.snap-indicator[data-snap="center-right"] {
+  right: 20px; top: 50%; transform: translateY(-50%);
+  width: 20px; height: 100px;
 }
 
 #toolbar-lock-btn {

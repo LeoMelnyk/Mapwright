@@ -4,6 +4,7 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: yes
+lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
 ---
 # Full stone base/surround
 rect 0.05,0.05 1.9,0.9 texfill polyhaven/cobblestone_floor_01 0.75

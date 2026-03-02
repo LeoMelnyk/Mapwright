@@ -4,6 +4,7 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+lights: [{"preset":"campfire","x":0.5,"y":0.5}]
 ---
 # Stone ring
 circle 0.5,0.5 0.38 stroke #666666

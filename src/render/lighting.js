@@ -288,6 +288,14 @@ export function falloffMultiplier(dist, radius, falloff) {
   switch (falloff) {
     case 'linear': return t;
     case 'quadratic': return t * t;
+    case 'inverse-square': {
+      // 1/(1+k*d²) normalized so f(0)=1 and f(r)≈0
+      const k = 25;
+      const dNorm = dist / radius;
+      const raw = 1 / (1 + k * dNorm * dNorm);
+      const floor = 1 / (1 + k);
+      return Math.max(0, (raw - floor) / (1 - floor));
+    }
     case 'smooth':
     default:
       return t * t * (3 - 2 * t); // smoothstep
@@ -295,151 +303,240 @@ export function falloffMultiplier(dist, radius, falloff) {
 }
 
 /**
- * Render a single point light's contribution onto a canvas context.
- * Clips to the visibility polygon and fills with a radial gradient.
+ * Return an effective (possibly animated) copy of a light for the given time.
+ * Returns the same object if no animation is set (avoids allocation).
+ *
+ * @param {object} light
+ * @param {number} time - elapsed seconds
+ * @returns {object}
  */
-function renderPointLight(ctx, light, visibility, transform) {
-  if (visibility.length < 3) return;
+export function getEffectiveLight(light, time) {
+  if (!light.animation?.type) return light;
+  const { type, speed = 1.0, amplitude = 0.3, radiusVariation = 0 } = light.animation;
+  const t = (time ?? 0) * speed * 0.4;
 
-  const cx = light.x * transform.scale + transform.offsetX;
-  const cy = light.y * transform.scale + transform.offsetY;
-  const rPx = light.radius * transform.scale;
+  let intensityMult = 1.0;
+  let radiusMult = 1.0;
 
-  const { r, g, b } = parseColor(light.color || '#ff9944');
-  const intensity = light.intensity ?? 1.0;
-
-  // Create radial gradient
-  const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, rPx);
-  const centerAlpha = Math.min(1.0, intensity);
-  gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${centerAlpha})`);
-
-  // Add falloff stops based on curve type
-  const falloff = light.falloff || 'smooth';
-  const numStops = 8;
-  for (let i = 1; i <= numStops; i++) {
-    const frac = i / numStops;
-    const mult = falloffMultiplier(frac * light.radius, light.radius, falloff);
-    const alpha = Math.min(1.0, intensity * mult);
-    gradient.addColorStop(frac, `rgba(${r}, ${g}, ${b}, ${alpha})`);
+  switch (type) {
+    case 'flicker':
+      intensityMult = 1 + amplitude * (
+        0.5 * Math.sin(t * 17.3) +
+        0.3 * Math.sin(t * 31.7) +
+        0.2 * Math.sin(t * 7.1)
+      );
+      if (radiusVariation > 0) radiusMult = 1 + radiusVariation * Math.sin(t * 11.3);
+      break;
+    case 'pulse':
+      intensityMult = 1 + amplitude * Math.sin(2 * Math.PI * t);
+      break;
+    case 'strobe':
+      intensityMult = (t % 1) < 0.5 ? 1 + amplitude : Math.max(0, 1 - amplitude);
+      break;
   }
 
-  ctx.save();
+  const result = { ...light };
+  result.intensity = Math.max(0.01, (light.intensity ?? 1.0) * Math.max(0, intensityMult));
+  if (light.radius && radiusMult !== 1.0) result.radius = Math.max(1, light.radius * Math.max(0.1, radiusMult));
+  if (light.range  && radiusMult !== 1.0) result.range  = Math.max(1, light.range  * Math.max(0.1, radiusMult));
+  return result;
+}
 
-  // Clip to visibility polygon
-  ctx.beginPath();
-  const p0 = visibility[0];
-  ctx.moveTo(
-    p0.x * transform.scale + transform.offsetX,
-    p0.y * transform.scale + transform.offsetY
-  );
-  for (let i = 1; i < visibility.length; i++) {
-    const p = visibility[i];
-    ctx.lineTo(
-      p.x * transform.scale + transform.offsetX,
-      p.y * transform.scale + transform.offsetY
-    );
+// ─── Per-Light Compositing Canvas (GPU shadow mask) ────────────────────────
+// A single reusable OffscreenCanvas is used for all lights — resized as needed.
+// This avoids per-frame allocation while still supporting different light sizes.
+
+let lightRTCanvas = null;
+let lightRTCtx = null;
+
+function ensureLightRTCanvas(w, h) {
+  const cw = Math.ceil(w), ch = Math.ceil(h);
+  if (!lightRTCanvas) {
+    lightRTCanvas = typeof OffscreenCanvas !== 'undefined'
+      ? new OffscreenCanvas(cw, ch)
+      : Object.assign(document.createElement('canvas'), { width: cw, height: ch });
+    lightRTCtx = lightRTCanvas.getContext('2d');
+  } else if (lightRTCanvas.width < cw || lightRTCanvas.height < ch) {
+    lightRTCanvas.width  = Math.max(lightRTCanvas.width,  cw);
+    lightRTCanvas.height = Math.max(lightRTCanvas.height, ch);
   }
-  ctx.closePath();
-  ctx.clip();
-
-  // Fill with gradient
-  ctx.fillStyle = gradient;
-  ctx.fillRect(cx - rPx, cy - rPx, rPx * 2, rPx * 2);
-
-  ctx.restore();
+  return lightRTCtx;
 }
 
 /**
- * Render a single directional (cone) light's contribution.
- * Similar to point light but clipped to a cone defined by angle + spread.
+ * Draw visibility polygon as a white filled shape into gctx,
+ * offset so that world-to-canvas coords are relative to (bbX, bbY).
  */
-function renderDirectionalLight(ctx, light, visibility, transform) {
+function clipToVisibility(gctx, visibility, transform, bbX, bbY) {
+  gctx.beginPath();
+  const p0 = visibility[0];
+  gctx.moveTo(
+    p0.x * transform.scale + transform.offsetX - bbX,
+    p0.y * transform.scale + transform.offsetY - bbY,
+  );
+  for (let i = 1; i < visibility.length; i++) {
+    const p = visibility[i];
+    gctx.lineTo(
+      p.x * transform.scale + transform.offsetX - bbX,
+      p.y * transform.scale + transform.offsetY - bbY,
+    );
+  }
+  gctx.closePath();
+  gctx.fill();
+}
+
+/**
+ * Build gradient stops for a radial gradient from (cx, cy) out to radius rPx,
+ * using gradient center offset within the bounding box at (relCx, relCy).
+ */
+function buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, lightRadius, falloff) {
+  const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, rPx);
+  grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1.0, intensity)})`);
+  const numStops = 8;
+  for (let i = 1; i <= numStops; i++) {
+    const frac = i / numStops;
+    const mult = falloffMultiplier(frac * lightRadius, lightRadius, falloff);
+    grad.addColorStop(frac, `rgba(${r},${g},${b},${Math.min(1.0, intensity * mult)})`);
+  }
+  return grad;
+}
+
+/**
+ * Render a single point light onto the lightmap using GPU-composited shadow mask.
+ * Uses destination-in composite to mask a radial gradient to the visibility polygon —
+ * giving anti-aliased shadow edges without a CPU pixel loop.
+ */
+function renderPointLight(lctx, light, visibility, transform) {
   if (visibility.length < 3) return;
 
   const cx = light.x * transform.scale + transform.offsetX;
   const cy = light.y * transform.scale + transform.offsetY;
+  const rPx   = light.radius * transform.scale;
+  const dimRPx = (light.dimRadius && light.dimRadius > light.radius)
+    ? light.dimRadius * transform.scale : null;
+  const outerRPx = dimRPx || rPx;
+
+  // Clip bounding box to the canvas viewport. Without this, zooming in deeply
+  // makes outerRPx thousands of pixels, causing a massive OffscreenCanvas and
+  // radial gradient to be allocated every frame.
+  const vpW = lctx.canvas.width;
+  const vpH = lctx.canvas.height;
+  const bbX = Math.max(cx - outerRPx, 0);
+  const bbY = Math.max(cy - outerRPx, 0);
+  const bbW = Math.min(cx + outerRPx, vpW) - bbX;
+  const bbH = Math.min(cy + outerRPx, vpH) - bbY;
+  if (bbW <= 0 || bbH <= 0) return; // fully off-screen
+
+  const gctx = ensureLightRTCanvas(bbW, bbH);
+  gctx.clearRect(0, 0, bbW, bbH);
+
+  const { r, g, b } = parseColor(light.color || '#ff9944');
+  const intensity = light.intensity ?? 1.0;
+  const falloff   = light.falloff || 'smooth';
+  const relCx = cx - bbX; // gradient center within the clipped box
+  const relCy = cy - bbY;
+
+  if (dimRPx) {
+    // Unified gradient: bright zone clamped to dimIntensity floor, dim zone fades to 0.
+    // Prevents the brightness jump that occurs when two source-over gradients are layered.
+    const dimIntensity = Math.min(1, intensity * 0.5);
+    const brightFrac = rPx / dimRPx;
+    const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, dimRPx);
+    grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1, intensity)})`);
+    const numStops = 8;
+    for (let i = 1; i < numStops; i++) {
+      const t = i / numStops; // fraction through bright zone
+      const gradFrac = t * brightFrac;
+      const mult = falloffMultiplier(t * light.radius, light.radius, falloff);
+      const alpha = Math.max(dimIntensity, Math.min(1, intensity * mult));
+      grad.addColorStop(gradFrac, `rgba(${r},${g},${b},${alpha.toFixed(4)})`);
+    }
+    grad.addColorStop(brightFrac, `rgba(${r},${g},${b},${dimIntensity})`);
+    grad.addColorStop(1.0,        `rgba(${r},${g},${b},0)`);
+    gctx.fillStyle = grad;
+    gctx.fillRect(0, 0, bbW, bbH);
+  } else {
+    // No dim zone — standard bright gradient
+    gctx.fillStyle = buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, light.radius, falloff);
+    gctx.fillRect(0, 0, bbW, bbH);
+  }
+
+  // Mask gradient to visibility polygon
+  gctx.globalCompositeOperation = 'destination-in';
+  gctx.fillStyle = '#ffffff';
+  clipToVisibility(gctx, visibility, transform, bbX, bbY);
+  gctx.globalCompositeOperation = 'source-over';
+
+  lctx.drawImage(lightRTCanvas, 0, 0, Math.ceil(bbW), Math.ceil(bbH), bbX, bbY, bbW, bbH);
+}
+
+/**
+ * Render a single directional (cone) light using GPU-composited shadow mask.
+ */
+function renderDirectionalLight(lctx, light, visibility, transform) {
+  if (visibility.length < 3) return;
+
+  const cx    = light.x * transform.scale + transform.offsetX;
+  const cy    = light.y * transform.scale + transform.offsetY;
   const range = (light.range || light.radius || 30) * transform.scale;
 
   const { r, g, b } = parseColor(light.color || '#ffffff');
-  const intensity = light.intensity ?? 1.0;
+  const intensity  = light.intensity ?? 1.0;
+  const falloff    = light.falloff || 'smooth';
+  const angleRad   = (light.angle || 0) * Math.PI / 180;
+  const spreadRad  = (light.spread || 45) * Math.PI / 180;
+  const effRadius  = light.range || light.radius || 30;
 
-  // Direction and spread in radians
-  const angleRad = (light.angle || 0) * Math.PI / 180;
-  const spreadRad = (light.spread || 45) * Math.PI / 180;
+  const vpW = lctx.canvas.width;
+  const vpH = lctx.canvas.height;
+  const bbX = Math.max(cx - range, 0);
+  const bbY = Math.max(cy - range, 0);
+  const bbW = Math.min(cx + range, vpW) - bbX;
+  const bbH = Math.min(cy + range, vpH) - bbY;
+  if (bbW <= 0 || bbH <= 0) return;
 
-  ctx.save();
+  const gctx = ensureLightRTCanvas(bbW, bbH);
+  gctx.clearRect(0, 0, bbW, bbH);
 
-  // Build a clipping path: intersection of visibility polygon and cone
-  // First clip to visibility polygon
-  ctx.beginPath();
-  const p0 = visibility[0];
-  ctx.moveTo(
-    p0.x * transform.scale + transform.offsetX,
-    p0.y * transform.scale + transform.offsetY
-  );
-  for (let i = 1; i < visibility.length; i++) {
-    const p = visibility[i];
-    ctx.lineTo(
-      p.x * transform.scale + transform.offsetX,
-      p.y * transform.scale + transform.offsetY
-    );
-  }
-  ctx.closePath();
-  ctx.clip();
+  const relCx = cx - bbX;
+  const relCy = cy - bbY;
 
-  // Then clip to cone
-  ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.arc(cx, cy, range, angleRad - spreadRad, angleRad + spreadRad);
-  ctx.closePath();
-  ctx.clip();
+  // Radial gradient fill
+  gctx.fillStyle = buildRadialGradient(gctx, relCx, relCy, range, r, g, b, intensity, effRadius, falloff);
+  gctx.fillRect(0, 0, bbW, bbH);
 
-  // Radial gradient for falloff within cone
-  const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, range);
-  const falloff = light.falloff || 'smooth';
-  const numStops = 8;
-  gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${Math.min(1.0, intensity)})`);
-  for (let i = 1; i <= numStops; i++) {
-    const frac = i / numStops;
-    const effectiveRadius = light.range || light.radius || 30;
-    const mult = falloffMultiplier(frac * effectiveRadius, effectiveRadius, falloff);
-    const alpha = Math.min(1.0, intensity * mult);
-    gradient.addColorStop(frac, `rgba(${r}, ${g}, ${b}, ${alpha})`);
-  }
+  // Mask: intersection of visibility polygon AND cone
+  gctx.globalCompositeOperation = 'destination-in';
+  gctx.fillStyle = '#ffffff';
 
-  ctx.fillStyle = gradient;
-  ctx.fillRect(cx - range, cy - range, range * 2, range * 2);
+  // Cone shape
+  gctx.beginPath();
+  gctx.moveTo(relCx, relCy);
+  gctx.arc(relCx, relCy, range, angleRad - spreadRad, angleRad + spreadRad);
+  gctx.closePath();
+  gctx.fill();
 
-  ctx.restore();
+  // Visibility polygon (further restricts)
+  gctx.globalCompositeOperation = 'destination-in';
+  gctx.fillStyle = '#ffffff';
+  clipToVisibility(gctx, visibility, transform, bbX, bbY);
+  gctx.globalCompositeOperation = 'source-over';
+
+  lctx.drawImage(lightRTCanvas, 0, 0, Math.ceil(bbW), Math.ceil(bbH), bbX, bbY, bbW, bbH);
 }
 
 // ─── Visibility Cache ──────────────────────────────────────────────────────
 
 const visibilityCache = new Map();
-let cachedWallHash = null;
 let cachedWallSegments = null;
 
 /**
- * Compute a simple hash for wall segment arrays to detect changes.
- */
-function hashWalls(segments) {
-  // Simple checksum: sum of all coordinates, rounded to avoid float issues
-  let h = segments.length;
-  for (const s of segments) {
-    h = (h * 31 + (s.x1 * 1000 | 0)) | 0;
-    h = (h * 31 + (s.y1 * 1000 | 0)) | 0;
-    h = (h * 31 + (s.x2 * 1000 | 0)) | 0;
-    h = (h * 31 + (s.y2 * 1000 | 0)) | 0;
-  }
-  return h;
-}
-
-/**
- * Clear the visibility polygon cache. Call when walls change.
+ * Clear the visibility polygon cache. Call when walls or props change.
+ * All wall-changing tools call invalidateLightmap() → this function,
+ * so per-frame hash recomputation is unnecessary.
  */
 export function invalidateVisibilityCache() {
   visibilityCache.clear();
-  cachedWallHash = null;
   cachedWallSegments = null;
 }
 
@@ -458,20 +555,17 @@ export function invalidateVisibilityCache() {
  * @param {number} ambientLevel - 0.0 (pitch black) to 1.0 (fully lit)
  * @param {object} [textureCatalog] - optional texture catalog for normal maps
  */
-export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog) {
+export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options) {
+  const { ambientColor = '#ffffff', time = 0 } = options || {};
   const activeLights = lights || [];
 
-  // Extract wall segments (cached)
-  const wallSegments = extractWallSegments(cells, gridSize, propCatalog);
-  const wallHash = hashWalls(wallSegments);
-
-  if (wallHash !== cachedWallHash) {
-    visibilityCache.clear();
-    cachedWallHash = wallHash;
-    cachedWallSegments = wallSegments;
+  // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
+  // Every tool that modifies walls/props/lights calls invalidateLightmap() → invalidateVisibilityCache(),
+  // so per-frame extraction and hashing is unnecessary and was causing GC pressure.
+  if (!cachedWallSegments) {
+    cachedWallSegments = extractWallSegments(cells, gridSize, propCatalog);
   }
-
-  const segments = cachedWallSegments || wallSegments;
+  const segments = cachedWallSegments;
 
   // Use an OffscreenCanvas for the lightmap to avoid interfering with main context state
   let lightCanvas;
@@ -484,30 +578,34 @@ export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW,
   }
   const lctx = lightCanvas.getContext('2d');
 
-  // Fill with ambient darkness (white = fully lit, so we start with gray = ambient)
-  // For multiply mode: rgb(ambientLevel*255, ambientLevel*255, ambientLevel*255)
-  const amb = Math.round(Math.max(0, Math.min(1, ambientLevel)) * 255);
-  lctx.fillStyle = `rgb(${amb}, ${amb}, ${amb})`;
+  // Fill with ambient. For multiply mode: ambientColor * ambientLevel.
+  const amb = Math.max(0, Math.min(1, ambientLevel));
+  const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
+  lctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
   lctx.fillRect(0, 0, canvasW, canvasH);
 
   // Additively blend each light's contribution on top of ambient
   lctx.globalCompositeOperation = 'lighter';
 
   for (const light of activeLights) {
-    // Cache key for visibility polygon
-    const cacheKey = `${light.id}:${light.x},${light.y},${light.radius || light.range || 30}`;
+    const eff = getEffectiveLight(light, time);
+
+    // Outer radius for visibility: max of bright radius and dim radius
+    const outerRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0))
+      ? eff.dimRadius : (eff.radius || 30);
+    const effectiveRadius = eff.range || outerRadius;
+    const cacheKey = `${light.id}:${eff.x},${eff.y},${effectiveRadius}`;
     let visibility = visibilityCache.get(cacheKey);
 
     if (!visibility) {
-      const effectiveRadius = light.range || light.radius || 30;
-      visibility = computeVisibility(light.x, light.y, effectiveRadius, segments);
+      visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
       visibilityCache.set(cacheKey, visibility);
     }
 
-    if (light.type === 'directional') {
-      renderDirectionalLight(lctx, light, visibility, transform);
+    if (eff.type === 'directional') {
+      renderDirectionalLight(lctx, eff, visibility, transform);
     } else {
-      renderPointLight(lctx, light, visibility, transform);
+      renderPointLight(lctx, eff, visibility, transform);
     }
   }
 
@@ -644,4 +742,74 @@ function applyNormalMapBump(lctx, lights, cells, gridSize, transform, textureCat
   }
 
   lctx.restore();
+}
+
+// ─── Coverage Heatmap ──────────────────────────────────────────────────────
+
+/**
+ * Render a coverage heatmap overlay showing total light intensity per cell.
+ * Useful during DM prep to identify unlit zones at a glance.
+ *
+ * Color gradient:
+ *   0.00 → 0.25  black → dark blue  (unlit / very dim)
+ *   0.25 → 0.60  dark blue → yellow (moderate coverage)
+ *   0.60 → 1.00  yellow → white     (well-lit, clamped at total ≥ 2.0)
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Array} lights
+ * @param {Array} cells
+ * @param {number} gridSize
+ * @param {object} transform - {offsetX, offsetY, scale}
+ */
+export function renderCoverageHeatmap(ctx, lights, cells, gridSize, transform) {
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
+  const activeLights = lights || [];
+
+  ctx.save();
+  ctx.globalAlpha = 0.65;
+
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      const cell = cells[row][col];
+      if (!cell) continue;
+
+      const cellCenterX = (col + 0.5) * gridSize;
+      const cellCenterY = (row + 0.5) * gridSize;
+
+      // Sum falloff contributions from all lights
+      let total = 0;
+      for (const light of activeLights) {
+        const dx = light.x - cellCenterX;
+        const dy = light.y - cellCenterY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const radius = light.range || light.radius || 30;
+        if (dist > radius) continue;
+        total += falloffMultiplier(dist, radius, light.falloff || 'smooth') * (light.intensity ?? 1.0);
+      }
+
+      // Normalize to [0,1], clamp at total ≥ 2.0
+      const t = Math.min(1, total / 2.0);
+      let cr, cg, cb;
+      if (t < 0.25) {
+        const s = t / 0.25;
+        cr = 0; cg = 0; cb = Math.round(s * 180);
+      } else if (t < 0.60) {
+        const s = (t - 0.25) / 0.35;
+        cr = Math.round(s * 255); cg = Math.round(s * 200); cb = Math.round(180 * (1 - s));
+      } else {
+        const s = (t - 0.60) / 0.40;
+        cr = 255; cg = Math.round(200 + s * 55); cb = Math.round(s * 255);
+      }
+
+      const px = col * gridSize * transform.scale + transform.offsetX;
+      const py = row * gridSize * transform.scale + transform.offsetY;
+      const pSize = gridSize * transform.scale;
+
+      ctx.fillStyle = `rgb(${cr},${cg},${cb})`;
+      ctx.fillRect(px, py, pSize, pSize);
+    }
+  }
+
+  ctx.restore();
 }

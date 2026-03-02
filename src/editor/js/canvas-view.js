@@ -1,6 +1,6 @@
 // Canvas element management, pan/zoom, mouse event routing
 import state, { getTheme, markDirty, notify, subscribe } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap } from '../../render/index.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap } from '../../render/index.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { initMinimap, updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
@@ -11,6 +11,32 @@ const MAX_ZOOM = 5.0;
 
 let canvas, ctx;
 let animFrameId = null;
+let animLoopId = null;  // separate handle for the continuous animation loop
+
+const ANIM_INTERVAL_MS = 50; // 20fps — sufficient for fire/pulse, avoids 60fps render spam
+
+function tickAnimLoop() {
+  animLoopId = null;
+  const { metadata } = state.dungeon;
+  if (!metadata.lightingEnabled) return;
+  if (!(metadata.lights || []).some(l => l.animation?.type)) return;
+  state.animClock = performance.now() / 1000;
+  requestRender();
+  animLoopId = setTimeout(tickAnimLoop, ANIM_INTERVAL_MS);
+}
+
+export function startAnimLoop() {
+  if (animLoopId) return;
+  animLoopId = setTimeout(tickAnimLoop, ANIM_INTERVAL_MS);
+}
+
+export function stopAnimLoop() {
+  if (animLoopId) {
+    clearTimeout(animLoopId);
+    animLoopId = null;
+  }
+}
+
 let isPanning = false;
 let panStartX = 0, panStartY = 0;
 let panStartPanX = 0, panStartPanY = 0;
@@ -157,9 +183,25 @@ function render() {
   if (lightingEnabled) {
     renderLightmap(ctx, metadata.lights, cells, gridSize, transform,
       canvas.width, canvas.height, metadata.ambientLight ?? 0.15,
-      state.textureCatalog, state.propCatalog);
+      state.textureCatalog, state.propCatalog,
+      { ambientColor: metadata.ambientColor || '#ffffff', time: state.animClock ?? 0 });
     // Draw labels after lightmap so they are unaffected by the multiply overlay
     renderLabels(ctx, cells, gridSize, theme, transform, labelStyle);
+    // Coverage heatmap overlay (DM prep tool)
+    if (state.lightCoverageMode) {
+      renderCoverageHeatmap(ctx, metadata.lights, cells, gridSize, transform);
+    }
+    // Auto-manage animation loop based on whether animated lights exist
+    const hasAnimLights = (metadata.lights || []).some(l => l.animation?.type);
+    if (hasAnimLights && !animLoopId) {
+      animLoopId = setTimeout(tickAnimLoop, ANIM_INTERVAL_MS);
+    } else if (!hasAnimLights && animLoopId) {
+      clearTimeout(animLoopId);
+      animLoopId = null;
+    }
+  } else if (animLoopId) {
+    clearTimeout(animLoopId);
+    animLoopId = null;
   }
 
   // Feature decorations (rendered in dungeon coordinate space — pan/zoom with the map)
@@ -189,8 +231,8 @@ function render() {
   drawLinkSourceHighlight(ctx, gridSize, transform);
   drawEdgeHighlight(ctx, gridSize, transform);
 
-  // Tool overlay
-  if (activeTool?.renderOverlay) {
+  // Tool overlay — suppressed while panning (right-drag or Alt+drag)
+  if (activeTool?.renderOverlay && !isPanning && !rightDragged) {
     activeTool.renderOverlay(ctx, transform, gridSize);
   }
 

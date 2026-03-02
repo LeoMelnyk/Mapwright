@@ -137,13 +137,20 @@ export class EraseTool extends Tool {
         );
       }
 
-      // Remove lights whose world position falls inside the erased region
+      // Remove lights whose world position or prop anchor falls inside the erased region
       if (meta.lights?.length) {
         const gridSize = meta.gridSize || 5;
         meta.lights = meta.lights.filter(light => {
+          // Position-based: light center in erased region
           const lightRow = Math.floor(light.y / gridSize);
           const lightCol = Math.floor(light.x / gridSize);
-          return !(lightRow >= r1 && lightRow <= r2 && lightCol >= c1 && lightCol <= c2);
+          if (lightRow >= r1 && lightRow <= r2 && lightCol >= c1 && lightCol <= c2) return false;
+          // PropRef-based: prop anchor in erased region (covers multi-cell props)
+          if (light.propRef) {
+            const { row: pr, col: pc } = light.propRef;
+            if (pr >= r1 && pr <= r2 && pc >= c1 && pc <= c2) return false;
+          }
+          return true;
         });
         if (state.selectedLightId != null &&
             !meta.lights.find(l => l.id === state.selectedLightId)) {

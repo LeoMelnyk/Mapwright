@@ -1,6 +1,7 @@
 // Prop tool: place props from catalog or select/manipulate placed props
 import { Tool } from './tool-base.js';
-import state, { pushUndo, undo, markDirty, notify, getTheme } from '../state.js';
+import state, { pushUndo, undo, markDirty, notify, getTheme, invalidateLightmap } from '../state.js';
+import { getLightCatalog } from '../light-catalog.js';
 import { requestRender, setCursor } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
 import { renderProp } from '../../../render/index.js';
@@ -513,6 +514,56 @@ export class PropTool extends Tool {
       facing: state.propRotation,
       ...(state.propFlipped && { flipped: true }),
     };
+
+    // Create linked lights if the prop defines any
+    if (propDef.lights?.length) {
+      const meta = state.dungeon.metadata;
+      if (!meta.lights) meta.lights = [];
+      if (!meta.nextLightId) meta.nextLightId = 1;
+      const gridSize = meta.gridSize || 5;
+      const lightCatalog = getLightCatalog();
+      const [origRows, origCols] = propDef.footprint;
+
+      for (const entry of propDef.lights) {
+        // Start from normalized footprint coords (unrotated)
+        let nx = entry.x ?? 0.5;
+        let ny = entry.y ?? 0.5;
+
+        // Rotate offset to match prop rotation
+        const rot = state.propRotation;
+        if (rot === 90) {
+          [nx, ny] = [origRows - ny, nx];
+        } else if (rot === 180) {
+          [nx, ny] = [origCols - nx, origRows - ny];
+        } else if (rot === 270) {
+          [nx, ny] = [ny, origCols - nx];
+        }
+
+        const worldX = (col + nx) * gridSize;
+        const worldY = (row + ny) * gridSize;
+
+        // Merge preset defaults with overrides from the prop entry
+        const preset = lightCatalog?.lights?.[entry.preset] || {};
+        const light = {
+          id: meta.nextLightId++,
+          x: worldX,
+          y: worldY,
+          type: preset.type || 'point',
+          radius: preset.radius ?? 20,
+          color: preset.color || '#ff9944',
+          intensity: preset.intensity ?? 1.0,
+          falloff: preset.falloff || 'smooth',
+          presetId: entry.preset,
+          propRef: { row, col },
+        };
+        if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+        if (preset.animation?.type) light.animation = { ...preset.animation };
+
+        meta.lights.push(light);
+      }
+      invalidateLightmap();
+    }
+
     markDirty();
     notify();
     requestRender();

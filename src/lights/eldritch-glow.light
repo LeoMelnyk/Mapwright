@@ -5,6 +5,8 @@
   "type": "point",
   "color": "#44ff88",
   "radius": 15,
+  "dimRadius": 30,
   "intensity": 0.8,
-  "falloff": "quadratic"
+  "falloff": "quadratic",
+  "animation": { "type": "pulse", "speed": 0.4, "amplitude": 0.3, "radiusVariation": 0 }
 }

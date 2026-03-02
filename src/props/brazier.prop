@@ -4,6 +4,7 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+lights: [{"preset":"brazier","x":0.5,"y":0.5}]
 ---
 # Metal bowl
 circle 0.5,0.5 0.32 texfill polyhaven/rusty_metal 0.85

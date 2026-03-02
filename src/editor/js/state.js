@@ -52,6 +52,10 @@ const state = {
   lightFalloff: 'smooth',    // default falloff curve
   lightAngle: 0,             // default directional angle (degrees)
   lightSpread: 45,           // default cone spread (degrees)
+  lightDimRadius: 0,         // default dim radius (0 = disabled)
+  lightAnimation: null,      // default animation ({type,speed,amplitude,radiusVariation} or null)
+  animClock: 0,              // elapsed seconds — updated by animation loop in canvas-view.js
+  lightCoverageMode: false,  // when true, coverage heatmap is rendered over the lightmap
   zoom: 1.0,
   panX: 60,
   panY: 60,

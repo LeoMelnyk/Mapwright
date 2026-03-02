@@ -35,6 +35,7 @@
   "build": {
     "appId": "com.mapwright.editor",
     "productName": "Mapwright",
+    "afterPack": "./tools/after-pack.cjs",
     "files": [
       "electron-main.cjs",
       "server.js",

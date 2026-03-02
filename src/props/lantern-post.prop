@@ -4,6 +4,7 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+lights: [{"preset":"lantern","x":0.5,"y":0.5}]
 ---
 # Base plate
 rect 0.38,0.78 0.24,0.14 texfill polyhaven/metal_plate 0.75

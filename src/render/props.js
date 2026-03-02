@@ -102,6 +102,12 @@ export function parsePropFile(text) {
   // Padding: extra cells of overflow around the footprint (default 0)
   const padding = parseFloat(header.padding) || 0;
 
+  // Prop-bundled lights: inline JSON array of { preset, x, y } (normalized 0–cols, 0–rows)
+  let propLights = null;
+  if (header.lights) {
+    try { propLights = JSON.parse(header.lights); } catch { /* malformed — ignore */ }
+  }
+
   // Parse body (draw commands)
   const commands = [];
   for (const line of bodyText.split('\n')) {
@@ -116,7 +122,7 @@ export function parsePropFile(text) {
     commands.filter(c => c.style === 'texfill' && c.textureId).map(c => c.textureId)
   )];
 
-  return { name, category, footprint, facing, shadow, blocksLight, padding, commands, textures };
+  return { name, category, footprint, facing, shadow, blocksLight, padding, commands, textures, lights: propLights };
 }
 
 /**

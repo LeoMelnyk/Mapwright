@@ -4,6 +4,7 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+lights: [{"preset":"lantern","x":0.5,"y":0.5}]
 ---
 # Warm light glow
 circle 0.5,0.5 0.35 fill #ffaa00 0.15

@@ -2,7 +2,6 @@
 import state, { markDirty, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { getLightCatalog } from '../light-catalog.js';
-import { activateTool } from './index.js';
 
 let container = null;
 
@@ -51,75 +50,48 @@ function render() {
       requestRender();
     }, (v) => `${Math.round(v * 100)}%`)
   );
-  container.appendChild(ambientSection);
-
-  // ── New Light Defaults ─────────────────────────────────────────────────
-  const defaultsSection = el('div', 'lighting-section');
-  defaultsSection.appendChild(sectionLabel('New Light Defaults'));
-
-  // Preset dropdown
-  defaultsSection.appendChild(presetDropdown(state.lightPreset, (preset) => {
-    state.lightPreset = preset.id;
-    state.lightType = preset.type;
-    state.lightColor = preset.color;
-    state.lightRadius = preset.radius;
-    state.lightIntensity = preset.intensity;
-    state.lightFalloff = preset.falloff;
-    if (preset.type === 'directional' && preset.spread != null) {
-      state.lightSpread = preset.spread;
-    }
-    activateTool('light');
-    notify();
-  }));
-
-  // Type selector (defaults only — selected light type is changed via preset)
-  const typeRow = el('div', 'lighting-slider-row');
-  typeRow.appendChild(labelEl('Type'));
-  const typeSelect = document.createElement('select');
-  typeSelect.className = 'lighting-select';
-  for (const [val, lbl] of [['point', 'Point'], ['directional', 'Directional']]) {
-    const opt = document.createElement('option');
-    opt.value = val;
-    opt.textContent = lbl;
-    opt.selected = state.lightType === val;
-    typeSelect.appendChild(opt);
-  }
-  typeSelect.addEventListener('change', () => {
-    state.lightType = typeSelect.value;
-    activateTool('light');
-    notify();
+  // Ambient color picker
+  const ambColorRow = el('div', 'lighting-color-row');
+  ambColorRow.appendChild(labelEl('Ambient Color'));
+  const ambColorInput = document.createElement('input');
+  ambColorInput.type = 'color';
+  ambColorInput.value = metadata.ambientColor || '#ffffff';
+  ambColorInput.addEventListener('input', () => {
+    metadata.ambientColor = ambColorInput.value;
+    markDirty();
+    requestRender();
   });
-  typeRow.appendChild(typeSelect);
-  defaultsSection.appendChild(typeRow);
-
-  // Shared sliders wired to state defaults
-  defaultsSection.appendChild(buildLightSliders(
-    {
-      type: state.lightType,
-      color: state.lightColor,
-      radius: state.lightRadius,
-      intensity: state.lightIntensity,
-      falloff: state.lightFalloff,
-      angle: state.lightAngle,
-      spread: state.lightSpread,
-    },
-    (field, value) => {
-      const key = { color: 'lightColor', radius: 'lightRadius', range: 'lightRadius',
-                    intensity: 'lightIntensity', falloff: 'lightFalloff',
-                    angle: 'lightAngle', spread: 'lightSpread' }[field];
-      if (key) state[key] = value;
-    }
-  ));
-
-  container.appendChild(defaultsSection);
+  ambColorRow.appendChild(ambColorInput);
+  ambientSection.appendChild(ambColorRow);
+  container.appendChild(ambientSection);
 
   // ── Selected Light Properties ──────────────────────────────────────────
   if (selectedLight) {
     const selSection = el('div', 'lighting-section');
-    selSection.appendChild(sectionLabel(`Selected Light #${selectedLight.id}`));
+    selSection.appendChild(sectionLabel(
+      selectedLight.name
+        ? `Selected — ${selectedLight.name}`
+        : `Selected Light #${selectedLight.id}`
+    ));
 
-    // Preset dropdown for selected light
-    selSection.appendChild(presetDropdown(null, (preset) => {
+    // Name input
+    const nameRow = el('div', 'lighting-slider-row');
+    nameRow.appendChild(labelEl('Name'));
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'lighting-name-input';
+    nameInput.value = selectedLight.name || '';
+    nameInput.placeholder = 'Optional label…';
+    nameInput.addEventListener('input', () => {
+      selectedLight.name = nameInput.value || undefined;
+      markDirty();
+      notify();
+    });
+    nameRow.appendChild(nameInput);
+    selSection.appendChild(nameRow);
+
+    // Preset dropdown for selected light — re-applies a preset and restores the presetId link
+    selSection.appendChild(presetDropdown(selectedLight.presetId || null, (preset) => {
       selectedLight.type = preset.type;
       selectedLight.color = preset.color;
       if (preset.type === 'directional') {
@@ -133,6 +105,11 @@ function render() {
       }
       selectedLight.intensity = preset.intensity;
       selectedLight.falloff = preset.falloff;
+      if (preset.dimRadius) selectedLight.dimRadius = preset.dimRadius;
+      else delete selectedLight.dimRadius;
+      if (preset.animation) selectedLight.animation = { ...preset.animation };
+      else delete selectedLight.animation;
+      selectedLight.presetId = preset.id; // restore link
       invalidateLightmap();
       markDirty();
       notify();
@@ -153,6 +130,7 @@ function render() {
         falloff: selectedLight.falloff || 'smooth',
         angle: selectedLight.angle || 0,
         spread: selectedLight.spread || 45,
+        dimRadius: selectedLight.dimRadius ?? 0,
       },
       (field, value) => {
         if (field === 'color') selectedLight.color = value;
@@ -162,11 +140,68 @@ function render() {
         else if (field === 'falloff') selectedLight.falloff = value;
         else if (field === 'angle') selectedLight.angle = value;
         else if (field === 'spread') selectedLight.spread = value;
+        else if (field === 'dimRadius') {
+          if (value > 0) selectedLight.dimRadius = value;
+          else delete selectedLight.dimRadius;
+        }
+        delete selectedLight.presetId; // sever preset link on manual edit
         invalidateLightmap();
         markDirty();
         requestRender();
       }
     ));
+
+    // Animation controls
+    selSection.appendChild(sectionLabel('Animation'));
+    const animTypeRow = el('div', 'lighting-slider-row');
+    animTypeRow.appendChild(labelEl('Type'));
+    const animTypeSelect = document.createElement('select');
+    animTypeSelect.className = 'lighting-select';
+    for (const [val, lbl] of [['none', 'None'], ['flicker', 'Flicker'], ['pulse', 'Pulse'], ['strobe', 'Strobe']]) {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = lbl;
+      opt.selected = (selectedLight.animation?.type || 'none') === val;
+      animTypeSelect.appendChild(opt);
+    }
+    animTypeRow.appendChild(animTypeSelect);
+    selSection.appendChild(animTypeRow);
+
+    const existingAnim = selectedLight.animation || {};
+    const animSpeedRow = sliderRow('Speed', existingAnim.speed ?? 1.0, 0.1, 5.0, 0.1, () => applyAnim(), (v) => `${v.toFixed(1)}×`);
+    const animAmpRow   = sliderRow('Amplitude', existingAnim.amplitude ?? 0.3, 0.0, 1.0, 0.05, () => applyAnim(), (v) => `${v.toFixed(2)}`);
+    const animRadRow   = sliderRow('Radius Var', existingAnim.radiusVariation ?? 0, 0.0, 0.5, 0.05, () => applyAnim(), (v) => `${v.toFixed(2)}`);
+    selSection.appendChild(animSpeedRow);
+    selSection.appendChild(animAmpRow);
+    selSection.appendChild(animRadRow);
+
+    function applyAnim() {
+      const animType = animTypeSelect.value;
+      if (animType === 'none') {
+        delete selectedLight.animation;
+      } else {
+        selectedLight.animation = {
+          type: animType,
+          speed: parseFloat(animSpeedRow.querySelector('input').value),
+          amplitude: parseFloat(animAmpRow.querySelector('input').value),
+          radiusVariation: parseFloat(animRadRow.querySelector('input').value),
+        };
+      }
+      delete selectedLight.presetId; // sever preset link on manual animation edit
+      updateAnimRows();
+      invalidateLightmap();
+      markDirty();
+      requestRender();
+    }
+    animTypeSelect.addEventListener('change', applyAnim);
+
+    function updateAnimRows() {
+      const show = animTypeSelect.value !== 'none';
+      animSpeedRow.style.display = show ? '' : 'none';
+      animAmpRow.style.display   = show ? '' : 'none';
+      animRadRow.style.display   = show ? '' : 'none';
+    }
+    updateAnimRows();
 
     // Delete button
     const deleteBtn = document.createElement('button');
@@ -202,11 +237,15 @@ function render() {
       swatch.style.backgroundColor = light.color || '#ff9944';
       item.appendChild(swatch);
 
-      // Label
-      const label = document.createTextNode(
-        `#${light.id} ${light.type === 'directional' ? 'Dir' : 'Point'} (${Math.round(light.x)}, ${Math.round(light.y)})`
-      );
-      item.appendChild(label);
+      // Label — show name if set, otherwise auto description
+      const labelText = light.name ||
+        `#${light.id} ${light.type === 'directional' ? 'Dir' : 'Point'} (${Math.round(light.x)}, ${Math.round(light.y)})`;
+      item.appendChild(document.createTextNode(labelText));
+      if (light.presetId) {
+        const tag = el('span', 'light-preset-tag');
+        tag.textContent = light.presetId;
+        item.appendChild(tag);
+      }
 
       item.addEventListener('click', () => {
         state.selectedLightId = light.id;
@@ -219,6 +258,62 @@ function render() {
 
     container.appendChild(listSection);
   }
+
+  // ── Resync Preset Lights ───────────────────────────────────────────────
+  const presetLightCount = lights.filter(l => l.presetId).length;
+  if (presetLightCount > 0) {
+    const resyncSection = el('div', 'lighting-section');
+    resyncSection.appendChild(sectionLabel('Presets'));
+    const resyncBtn = document.createElement('button');
+    resyncBtn.className = 'toolbar-btn';
+    resyncBtn.textContent = `Resync ${presetLightCount} Preset Light${presetLightCount !== 1 ? 's' : ''}`;
+    resyncBtn.title = 'Update all preset-based lights to reflect the current state of their source preset (color, radius, dimRadius, animation, etc.)';
+    resyncBtn.addEventListener('click', () => {
+      const catalog = getLightCatalog();
+      if (!catalog) return;
+      let count = 0;
+      for (const light of lights) {
+        if (!light.presetId) continue;
+        const preset = catalog.lights[light.presetId];
+        if (!preset) continue;
+        light.type      = preset.type;
+        light.color     = preset.color;
+        light.intensity = preset.intensity;
+        light.falloff   = preset.falloff;
+        if (preset.type === 'directional') {
+          light.range  = preset.radius;
+          light.spread = preset.spread || 45;
+          delete light.radius;
+        } else {
+          light.radius = preset.radius;
+          delete light.range;
+          delete light.spread;
+        }
+        if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+        else delete light.dimRadius;
+        if (preset.animation?.type) light.animation = { ...preset.animation };
+        else delete light.animation;
+        count++;
+      }
+      if (count > 0) { invalidateLightmap(); markDirty(); notify(); }
+    });
+    resyncSection.appendChild(resyncBtn);
+    container.appendChild(resyncSection);
+  }
+
+  // ── Coverage Map Toggle ────────────────────────────────────────────────
+  const coverageSection = el('div', 'lighting-section');
+  coverageSection.appendChild(sectionLabel('Coverage Map'));
+  const coverageBtn = document.createElement('button');
+  coverageBtn.className = 'toolbar-btn' + (state.lightCoverageMode ? ' active' : '');
+  coverageBtn.textContent = state.lightCoverageMode ? 'Hide Coverage Map' : 'Show Coverage Map';
+  coverageBtn.addEventListener('click', () => {
+    state.lightCoverageMode = !state.lightCoverageMode;
+    requestRender();
+    notify();
+  });
+  coverageSection.appendChild(coverageBtn);
+  container.appendChild(coverageSection);
 }
 
 // ── Shared Light Controls Builder ─────────────────────────────────────────────
@@ -228,7 +323,7 @@ function render() {
 // is called on every input event with the field name and new value.
 
 function buildLightSliders(values, onFieldChange) {
-  const { type, color, radius, intensity, falloff, angle, spread } = values;
+  const { type, color, radius, intensity, falloff, angle, spread, dimRadius } = values;
   const frag = document.createDocumentFragment();
 
   // Color picker
@@ -262,16 +357,25 @@ function buildLightSliders(values, onFieldChange) {
   falloffRowEl.appendChild(labelEl('Falloff'));
   const falloffSelect = document.createElement('select');
   falloffSelect.className = 'lighting-select';
-  for (const val of ['smooth', 'linear', 'quadratic']) {
+  for (const [val, lbl] of [['smooth', 'Smooth'], ['linear', 'Linear'], ['quadratic', 'Quadratic'], ['inverse-square', 'Inverse Square']]) {
     const opt = document.createElement('option');
     opt.value = val;
-    opt.textContent = val.charAt(0).toUpperCase() + val.slice(1);
+    opt.textContent = lbl;
     opt.selected = (falloff || 'smooth') === val;
     falloffSelect.appendChild(opt);
   }
   falloffSelect.addEventListener('change', () => onFieldChange('falloff', falloffSelect.value));
   falloffRowEl.appendChild(falloffSelect);
   frag.appendChild(falloffRowEl);
+
+  // Dim Radius slider (point lights only)
+  if (type !== 'directional') {
+    frag.appendChild(
+      sliderRow('Dim Radius', dimRadius ?? 0, 0, 120, 5,
+        (v) => onFieldChange('dimRadius', v),
+        (v) => v === 0 ? 'Off' : `${v} ft`)
+    );
+  }
 
   // Angle + Spread (directional lights only)
   if (type === 'directional') {

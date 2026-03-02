@@ -5,7 +5,7 @@
  * The editor's real-time renderer continues using lighting.js.
  */
 
-import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor } from './lighting.js';
+import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor, getEffectiveLight } from './lighting.js';
 
 // ─── Normal Map Cache ─────────────────────────────────────────────────────────
 
@@ -139,7 +139,8 @@ function rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH) {
  * Render pixel-perfect lightmap for PNG export.
  * Same signature as renderLightmap() from lighting.js but with per-pixel precision.
  */
-export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog) {
+export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options) {
+  const { ambientColor = '#ffffff', time = 0 } = options || {};
   const activeLights = lights || [];
 
   // Float32 accumulator for light contributions (RGB, no alpha)
@@ -163,15 +164,18 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
   const CHUNK_SIZE = 256;
 
   for (const light of activeLights) {
-    const effectiveRadius = light.range || light.radius || 30;
+    const eff = getEffectiveLight(light, time);
+    const brightRadius = eff.range || eff.radius || 30;
+    const dimRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0)) ? eff.dimRadius : null;
+    const effectiveRadius = dimRadius || brightRadius;
 
-    // Compute visibility polygon
-    const visibility = computeVisibility(light.x, light.y, effectiveRadius, segments);
+    // Compute visibility polygon at outer radius
+    const visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     if (visibility.length < 3) continue;
 
-    // Light center and radius in pixel coords
-    const cxPx = light.x * transform.scale + offX;
-    const cyPx = light.y * transform.scale + offY;
+    // Light center and outer radius in pixel coords
+    const cxPx = eff.x * transform.scale + offX;
+    const cyPx = eff.y * transform.scale + offY;
     const rPx = effectiveRadius * transform.scale;
 
     // Bounding box in pixels (clamped to canvas)
@@ -187,21 +191,21 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
     const shadowMask = rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH);
 
     // Parse light color to [0,1]
-    const { r, g, b } = parseColor(light.color || '#ff9944');
+    const { r, g, b } = parseColor(eff.color || '#ff9944');
     const rNorm = r / 255;
     const gNorm = g / 255;
     const bNorm = b / 255;
-    const intensity = light.intensity ?? 1.0;
-    const falloff = light.falloff || 'smooth';
+    const intensity = eff.intensity ?? 1.0;
+    const falloff = eff.falloff || 'smooth';
 
     // Precompute directional cone parameters
-    const isDirectional = light.type === 'directional';
+    const isDirectional = eff.type === 'directional';
     let coneDirX = 0, coneDirY = 0, cosSpread = 0;
     if (isDirectional) {
-      const angleRad = (light.angle || 0) * Math.PI / 180;
+      const angleRad = (eff.angle || 0) * Math.PI / 180;
       coneDirX = Math.cos(angleRad);
       coneDirY = Math.sin(angleRad);
-      cosSpread = Math.cos((light.spread || 45) * Math.PI / 180);
+      cosSpread = Math.cos((eff.spread || 45) * Math.PI / 180);
     }
 
     // Light height above floor for 3D normal map direction
@@ -222,11 +226,10 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
         const worldY = (py - offY) * invScale;
 
         // Distance from light center
-        const dx = worldX - light.x;
-        const dy = worldY - light.y;
+        const dx = worldX - eff.x;
+        const dy = worldY - eff.y;
         const distSq = dx * dx + dy * dy;
-        const radiusSq = effectiveRadius * effectiveRadius;
-        if (distSq > radiusSq) continue;
+        if (distSq > effectiveRadius * effectiveRadius) continue;
         const dist = Math.sqrt(distSq);
 
         // Cone test for directional lights
@@ -237,79 +240,76 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
           }
         }
 
-        // Exact per-pixel falloff
-        const falloffVal = falloffMultiplier(dist, effectiveRadius, falloff);
-        if (falloffVal < 0.001) continue;
-
-        // Normal map bump
-        let bumpFactor = 1.0;
-        const cellCol = Math.floor(worldX / gridSize);
-        const cellRow = Math.floor(worldY / gridSize);
-
-        if (cellRow >= 0 && cellRow < numRows && cellCol >= 0 && cellCol < numCols) {
-          const cell = cells[cellRow][cellCol];
-          const texId = cell?.texture;
-          if (texId) {
-            const norData = normalCache.get(texId);
+        // Bright zone vs dim zone
+        let contribution;
+        if (dist <= brightRadius) {
+          const falloffVal = falloffMultiplier(dist, brightRadius, falloff);
+          const dimFloor = dimRadius ? intensity * 0.5 : 0;
+          if (falloffVal < 0.001 && dimFloor < 0.001) continue;
+          // Normal map bump
+          let bumpFactor = 1.0;
+          const cellCol = Math.floor(worldX / gridSize);
+          const cellRow = Math.floor(worldY / gridSize);
+          if (cellRow >= 0 && cellRow < numRows && cellCol >= 0 && cellCol < numCols) {
+            const cell = cells[cellRow][cellCol];
+            const norData = cell?.texture ? normalCache.get(cell.texture) : null;
             if (norData) {
-              // UV mapping matching getTexChunk() from render.js
               const norW = norData.width;
               const norH = norData.height;
               const cw = Math.max(1, Math.floor(norW / CHUNK_SIZE));
               const ch = Math.max(1, Math.floor(norH / CHUNK_SIZE));
               const srcW = norW / cw;
               const srcH = norH / ch;
-
               const chunkX = ((cellCol % cw) + cw) % cw;
               const chunkY = ((cellRow % ch) + ch) % ch;
-
               const fracX = (worldX / gridSize) - cellCol;
               const fracY = (worldY / gridSize) - cellRow;
-
               const sampleX = Math.min(norW - 1, Math.floor(chunkX * srcW + fracX * srcW));
               const sampleY = Math.min(norH - 1, Math.floor(chunkY * srcH + fracY * srcH));
               const nIdx = (sampleY * norW + sampleX) * 4;
-
-              // Decode normal from RGB
-              const nx = (norData.data[nIdx] / 255) * 2 - 1;
+              const nx = (norData.data[nIdx]     / 255) * 2 - 1;
               const ny = (norData.data[nIdx + 1] / 255) * 2 - 1;
               const nz = (norData.data[nIdx + 2] / 255) * 2 - 1;
-
-              // 3D light direction (from surface to light)
-              const lx3 = dx;
-              const ly3 = dy;
-              const lz3 = lightHeight;
-              const lLen = Math.sqrt(lx3 * lx3 + ly3 * ly3 + lz3 * lz3);
-
+              const lLen = Math.sqrt(dx * dx + dy * dy + lightHeight * lightHeight);
               if (lLen > 0.001) {
-                const ndotl = (nx * lx3 + ny * ly3 + nz * lz3) / lLen;
-                const clampedDot = Math.max(0, ndotl);
-                // Blend between 1.0 (no bump) and the N·L value
-                bumpFactor = 1.0 + (clampedDot - 1.0) * 0.4; // bumpStrength = 0.4
+                const ndotl = (nx * dx + ny * dy + nz * lightHeight) / lLen;
+                bumpFactor = 1.0 + (Math.max(0, ndotl) - 1.0) * 0.4;
               }
             }
           }
+          const brightContrib = intensity * falloffVal;
+          contribution = Math.max(brightContrib, dimFloor) * shadowFrac * bumpFactor;
+        } else if (dimRadius) {
+          // Dim zone: linear falloff from half-intensity at bright edge to zero at dim edge
+          const dimT = 1 - (dist - brightRadius) / (dimRadius - brightRadius);
+          if (dimT < 0.001) continue;
+          contribution = intensity * 0.5 * dimT * shadowFrac;
+        } else {
+          continue;
         }
 
-        // Accumulate
-        const contribution = intensity * falloffVal * shadowFrac * bumpFactor;
         const accIdx = (py * canvasW + px) * 3;
-        lightAccum[accIdx] += rNorm * contribution;
+        lightAccum[accIdx]     += rNorm * contribution;
         lightAccum[accIdx + 1] += gNorm * contribution;
         lightAccum[accIdx + 2] += bNorm * contribution;
       }
     }
   }
 
-  // Convert accumulator to final lightmap ImageData
+  // Convert accumulator to final lightmap ImageData (colored ambient)
   const ambient = Math.max(0, Math.min(1, ambientLevel));
+  const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
+  const ambR = (ar / 255) * ambient;
+  const ambG = (ag / 255) * ambient;
+  const ambB = (ab / 255) * ambient;
+
   const imageData = ctx.createImageData(canvasW, canvasH);
   const out = imageData.data;
 
   for (let i = 0, j = 0; i < out.length; i += 4, j += 3) {
-    out[i]     = Math.min(255, Math.round((ambient + lightAccum[j])     * 255));
-    out[i + 1] = Math.min(255, Math.round((ambient + lightAccum[j + 1]) * 255));
-    out[i + 2] = Math.min(255, Math.round((ambient + lightAccum[j + 2]) * 255));
+    out[i]     = Math.min(255, Math.round((ambR + lightAccum[j])     * 255));
+    out[i + 1] = Math.min(255, Math.round((ambG + lightAccum[j + 1]) * 255));
+    out[i + 2] = Math.min(255, Math.round((ambB + lightAccum[j + 2]) * 255));
     out[i + 3] = 255;
   }
 

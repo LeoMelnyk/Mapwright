@@ -5,6 +5,7 @@
   "type": "point",
   "color": "#bbccee",
   "radius": 40,
+  "dimRadius": 80,
   "intensity": 0.4,
   "falloff": "smooth"
 }

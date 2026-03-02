@@ -307,34 +307,30 @@ export function init() {
     });
   }
 
-  // Secondary texture checkbox
-  const secondaryCb = document.getElementById('texture-secondary-cb');
-  if (secondaryCb) {
-    secondaryCb.checked = !!state.paintSecondary;
-    secondaryCb.addEventListener('change', () => {
-      state.paintSecondary = secondaryCb.checked;
+  // Secondary texture Yes/No buttons
+  document.querySelectorAll('#paint-texture-options [data-secondary]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.secondary === 'true';
+      state.paintSecondary = val;
+      document.querySelectorAll('#paint-texture-options [data-secondary]').forEach(b => {
+        b.classList.toggle('active', b.dataset.secondary === String(val));
+      });
     });
-  }
+  });
 
-  // Trim round/inverted checkboxes
-  const trimRoundCb = document.getElementById('trim-round');
-  if (trimRoundCb) {
-    trimRoundCb.addEventListener('change', () => {
-      state.trimRound = trimRoundCb.checked;
+  // Trim Yes/No toggle buttons (Round, Inverted, Open)
+  document.querySelectorAll('#trim-shape-options [data-trim]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const prop = btn.dataset.trim;            // 'round' | 'inverted' | 'open'
+      const val = btn.dataset.val === 'true';   // boolean
+      const stateKey = 'trim' + prop.charAt(0).toUpperCase() + prop.slice(1);
+      state[stateKey] = val;
+      // Sync active class within this Yes/No pair
+      document.querySelectorAll(`#trim-shape-options [data-trim="${prop}"]`).forEach(b => {
+        b.classList.toggle('active', b.dataset.val === String(val));
+      });
     });
-  }
-  const trimInvertedCb = document.getElementById('trim-inverted');
-  if (trimInvertedCb) {
-    trimInvertedCb.addEventListener('change', () => {
-      state.trimInverted = trimInvertedCb.checked;
-    });
-  }
-  const trimOpenCb = document.getElementById('trim-open');
-  if (trimOpenCb) {
-    trimOpenCb.addEventListener('change', () => {
-      state.trimOpen = trimOpenCb.checked;
-    });
-  }
+  });
 
   updateToolButtons();
   // Initialize all sub-mode button highlights from current state (no side effects)
@@ -409,6 +405,15 @@ export function updateToolButtons() {
   if (state.sessionToolsActive || state.activeTool !== 'label') {
     const b = document.getElementById('label-dungeon-options');
     if (b) b.style.display = 'none';
+  }
+
+  // Hide the sub-bar panel border/space when no bars are visible (e.g. light, erase, prop)
+  const toolbarSubbars = document.getElementById('toolbar-subbars');
+  if (toolbarSubbars) {
+    const anyVisible = [...toolbarSubbars.querySelectorAll(
+      '.suboptions-bar, .tertiaryoptions-bar, .session-suboptions'
+    )].some(el => el.style.display && el.style.display !== 'none');
+    toolbarSubbars.classList.toggle('toolbar-subbars-empty', !anyVisible);
   }
 }
 

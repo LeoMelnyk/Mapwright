@@ -344,20 +344,22 @@ export class TrimTool extends Tool {
   }
 
   onKeyDown(e) {
+    const syncTrimButtons = (prop, val) => {
+      document.querySelectorAll(`#trim-shape-options [data-trim="${prop}"]`).forEach(b => {
+        b.classList.toggle('active', b.dataset.val === String(val));
+      });
+    };
     if (e.key === 'r' || e.key === 'R') {
       state.trimRound = !state.trimRound;
-      const cb = document.getElementById('trim-round');
-      if (cb) cb.checked = state.trimRound;
+      syncTrimButtons('round', state.trimRound);
     }
     if (e.key === 'i' || e.key === 'I') {
       state.trimInverted = !state.trimInverted;
-      const cb = document.getElementById('trim-inverted');
-      if (cb) cb.checked = state.trimInverted;
+      syncTrimButtons('inverted', state.trimInverted);
     }
     if (e.key === 'o' || e.key === 'O') {
       state.trimOpen = !state.trimOpen;
-      const cb = document.getElementById('trim-open');
-      if (cb) cb.checked = state.trimOpen;
+      syncTrimButtons('open', state.trimOpen);
     }
   }
 

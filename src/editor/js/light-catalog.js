@@ -47,6 +47,8 @@ function buildFromMetadata(entries) {
     if (data.type === 'directional' && data.spread != null) {
       entry.spread = data.spread;
     }
+    if (data.dimRadius != null) entry.dimRadius = data.dimRadius;
+    if (data.animation?.type)   entry.animation = { ...data.animation };
 
     lights[key] = entry;
     names.push(key);
@@ -113,6 +115,8 @@ export async function loadLightCatalog() {
         intensity: data.intensity ?? 1.0,
         falloff: data.falloff || 'smooth',
         spread: data.spread ?? null,
+        dimRadius: data.dimRadius ?? null,
+        animation: data.animation ?? null,
       });
     }
 

@@ -3,6 +3,7 @@ import { Tool } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
+import { getLightCatalog } from '../light-catalog.js';
 
 const LIGHT_HIT_RADIUS = 8; // pixels at screen scale for click detection
 
@@ -62,6 +63,7 @@ export class LightTool extends Tool {
     if (btn && !btn.classList.contains('active')) {
       btn.click();
     }
+    this._syncPresetBar();
     this._updateStatusInstruction();
   }
 
@@ -71,6 +73,58 @@ export class LightTool extends Tool {
     this.hoveredLightId = null;
     this.hoverPos = null;
     state.statusInstruction = null;
+    const bar = document.getElementById('light-options');
+    if (bar) bar.style.display = 'none';
+  }
+
+  /** Populate and show the preset select in the suboptions bar. */
+  _syncPresetBar() {
+    const bar = document.getElementById('light-options');
+    const select = document.getElementById('light-preset-select');
+    if (!bar || !select) return;
+
+    const catalog = getLightCatalog();
+    if (catalog && select.childElementCount === 0) {
+      // Populate once — grouped by category
+      const empty = document.createElement('option');
+      empty.value = '';
+      empty.textContent = '— select preset —';
+      select.appendChild(empty);
+
+      for (const category of catalog.categoryOrder) {
+        const group = document.createElement('optgroup');
+        group.label = category;
+        for (const id of catalog.byCategory[category]) {
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = catalog.lights[id].displayName;
+          group.appendChild(opt);
+        }
+        select.appendChild(group);
+      }
+
+      select.addEventListener('change', () => {
+        const catalog = getLightCatalog();
+        const preset = catalog?.lights[select.value];
+        if (!preset) return;
+        state.lightPreset  = select.value;
+        state.lightType    = preset.type || 'point';
+        state.lightColor   = preset.color;
+        state.lightRadius  = preset.radius;
+        state.lightIntensity = preset.intensity;
+        state.lightFalloff = preset.falloff;
+        state.lightDimRadius = preset.dimRadius ?? 0;
+        state.lightAnimation = preset.animation ? { ...preset.animation } : null;
+        if (preset.type === 'directional' && preset.spread != null) {
+          state.lightSpread = preset.spread;
+        }
+        this._updateStatusInstruction();
+      });
+    }
+
+    // Reflect current state
+    select.value = state.lightPreset || '';
+    bar.style.display = 'flex';
   }
 
   onMouseDown(row, col, edge, event, pos) {
@@ -79,7 +133,7 @@ export class LightTool extends Tool {
     if (hit) {
       this._startSelectOrDrag(pos, event);
     } else {
-      this._placeLight(pos);
+      this._placeLight(pos, event);
     }
   }
 
@@ -228,14 +282,23 @@ export class LightTool extends Tool {
 
   _updateStatusInstruction() {
     const typeName = state.lightType === 'directional' ? 'Directional' : 'Point';
-    state.statusInstruction = `Click to place ${typeName} light · Hover existing to move · Right-click to delete`;
+    state.statusInstruction = `Click to place ${typeName} light · Shift+click to snap to grid · Hover existing to move · Right-click to delete`;
   }
 
   // ── Place ────────────────────────────────────────────────────────────────
 
-  _placeLight(pos) {
+  _placeLight(pos, event) {
     const transform = getTransform();
-    const world = fromCanvas(pos.x, pos.y, transform);
+    const gridSize = state.dungeon.metadata.gridSize || 5;
+    let world = fromCanvas(pos.x, pos.y, transform);
+
+    // Shift+click: snap position to grid intersection
+    if (event?.shiftKey) {
+      world = {
+        x: Math.round(world.x / gridSize) * gridSize,
+        y: Math.round(world.y / gridSize) * gridSize,
+      };
+    }
 
     pushUndo('Add light');
     ensureLightsArray();
@@ -250,6 +313,15 @@ export class LightTool extends Tool {
       intensity: state.lightIntensity,
       falloff: state.lightFalloff,
     };
+
+    // Dim radius
+    if (state.lightDimRadius > 0) light.dimRadius = state.lightDimRadius;
+
+    // Track which preset this light was created from (enables Resync Preset Lights)
+    if (state.lightPreset) light.presetId = state.lightPreset;
+
+    // Animation
+    if (state.lightAnimation?.type) light.animation = { ...state.lightAnimation };
 
     // Add directional-specific properties
     if (state.lightType === 'directional') {
@@ -362,11 +434,20 @@ export class LightTool extends Tool {
       ctx.lineTo(px + Math.cos(angleRad) * range * 0.3, py + Math.sin(angleRad) * range * 0.3);
       ctx.stroke();
     } else {
-      // Point light — draw radius circle
+      // Point light — draw bright radius circle
       const rPx = (light.radius || 30) * transform.scale;
       ctx.beginPath();
       ctx.arc(px, py, rPx, 0, Math.PI * 2);
       ctx.stroke();
+
+      // Dim radius circle (if set and larger than bright radius)
+      if (light.dimRadius && light.dimRadius > (light.radius || 0)) {
+        const dimRPx = light.dimRadius * transform.scale;
+        ctx.strokeStyle = 'rgba(255, 200, 50, 0.35)';
+        ctx.beginPath();
+        ctx.arc(px, py, dimRPx, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
 
     ctx.restore();
@@ -398,6 +479,15 @@ export class LightTool extends Tool {
       ctx.beginPath();
       ctx.arc(x, y, rPx, 0, Math.PI * 2);
       ctx.stroke();
+
+      // Dim radius preview circle
+      if (state.lightDimRadius > 0 && state.lightDimRadius > state.lightRadius) {
+        const dimRPx = state.lightDimRadius * transform.scale;
+        ctx.strokeStyle = 'rgba(255, 200, 50, 0.35)';
+        ctx.beginPath();
+        ctx.arc(x, y, dimRPx, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
 
     // Center dot

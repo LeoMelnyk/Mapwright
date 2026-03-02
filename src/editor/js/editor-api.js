@@ -973,6 +973,43 @@ const api = {
     const cell = ensureCell(row, col);
     pushUndo();
     cell.prop = { type: propType, span, facing };
+
+    // Create linked lights from propDef.lights
+    if (def.lights?.length) {
+      const meta = state.dungeon.metadata;
+      if (!meta.lights) meta.lights = [];
+      if (!meta.nextLightId) meta.nextLightId = 1;
+      const gridSize = meta.gridSize || 5;
+      const lightCatalog = getLightCatalog();
+      const [origRows, origCols] = def.footprint;
+
+      for (const entry of def.lights) {
+        let nx = entry.x ?? 0.5;
+        let ny = entry.y ?? 0.5;
+        if (facing === 90)  { [nx, ny] = [origRows - ny, nx]; }
+        else if (facing === 180) { [nx, ny] = [origCols - nx, origRows - ny]; }
+        else if (facing === 270) { [nx, ny] = [ny, origCols - nx]; }
+
+        const preset = lightCatalog?.lights?.[entry.preset] || {};
+        const light = {
+          id: meta.nextLightId++,
+          x: (col + nx) * gridSize,
+          y: (row + ny) * gridSize,
+          type: preset.type || 'point',
+          radius: preset.radius ?? 20,
+          color: preset.color || '#ff9944',
+          intensity: preset.intensity ?? 1.0,
+          falloff: preset.falloff || 'smooth',
+          presetId: entry.preset,
+          propRef: { row, col },
+        };
+        if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+        if (preset.animation?.type) light.animation = { ...preset.animation };
+        meta.lights.push(light);
+      }
+      invalidateLightmap();
+    }
+
     markDirty();
     notify();
     return { success: true };
@@ -984,6 +1021,23 @@ const api = {
     if (!cell?.prop) return { success: true };
     pushUndo();
     delete cell.prop;
+    // Remove linked lights
+    const meta = state.dungeon.metadata;
+    if (meta.lights?.length) {
+      meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef?.col === col));
+      invalidateLightmap();
+    }
+    markDirty();
+    notify();
+    return { success: true };
+  },
+
+  setLightName(id, name) {
+    const meta = state.dungeon.metadata;
+    const light = (meta.lights || []).find(l => l.id === id);
+    if (!light) throw new Error(`No light with id ${id}`);
+    if (name) light.name = name;
+    else delete light.name;
     markDirty();
     notify();
     return { success: true };

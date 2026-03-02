@@ -4,6 +4,7 @@ footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
+lights: [{"preset":"torch","x":0.5,"y":0.5}]
 ---
 # Wall bracket
 rect 0.3,0.0 0.4,0.2 texfill polyhaven/rusty_metal 0.8

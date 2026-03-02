@@ -5,6 +5,8 @@
   "type": "point",
   "color": "#ffbb55",
   "radius": 20,
+  "dimRadius": 40,
   "intensity": 0.8,
-  "falloff": "smooth"
+  "falloff": "smooth",
+  "animation": { "type": "flicker", "speed": 0.8, "amplitude": 0.15, "radiusVariation": 0 }
 }
