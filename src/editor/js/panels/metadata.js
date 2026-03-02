@@ -952,8 +952,41 @@ export function init() {
   }
 
   // Claude AI toggle — requires reload to add/remove UI elements
+  // When enabling, show a warning modal first; disabling proceeds immediately.
   document.getElementById('feat-claude').addEventListener('change', (e) => {
-    setEditorSetting('claude', e.target.checked);
-    location.reload();
+    if (!e.target.checked) {
+      setEditorSetting('claude', false);
+      location.reload();
+      return;
+    }
+
+    // Revert checkbox — only commit if the user confirms in the modal
+    e.target.checked = false;
+
+    const modal = document.getElementById('modal-claude-agent-warning');
+    if (!modal) return;
+    modal.style.display = 'flex';
+
+    const onCancel = () => {
+      modal.style.display = 'none';
+      cleanup();
+    };
+    const onEnable = () => {
+      modal.style.display = 'none';
+      cleanup();
+      setEditorSetting('claude', true);
+      location.reload();
+    };
+    const onOverlay = (ev) => { if (ev.target === modal) onCancel(); };
+
+    function cleanup() {
+      document.getElementById('modal-claude-warning-cancel').removeEventListener('click', onCancel);
+      document.getElementById('modal-claude-warning-enable').removeEventListener('click', onEnable);
+      modal.removeEventListener('click', onOverlay);
+    }
+
+    document.getElementById('modal-claude-warning-cancel').addEventListener('click', onCancel);
+    document.getElementById('modal-claude-warning-enable').addEventListener('click', onEnable);
+    modal.addEventListener('click', onOverlay);
   });
 }
