@@ -1037,8 +1037,39 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 }
 
 #right-panel-properties {
+  overflow: hidden;
+  padding: 0;
+}
+
+#properties-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#prop-explorer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Pinned search bar */
+.prop-search-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 8px 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Scrollable prop categories */
+.prop-scroll-area {
+  flex: 1;
   overflow-y: auto;
-  padding: 8px;
+  padding: 6px 8px 8px;
 }
 
 /* ─── History Panel ──────────────────────────────────────────────────────── */
@@ -1254,14 +1285,41 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 }
 
 #prop-search-input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 4px 6px;
   border: 1px solid var(--border);
   border-radius: 3px;
   background: var(--btn-bg);
   color: var(--text);
   font-size: 12px;
-  margin-bottom: 6px;
+}
+
+#prop-search-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#prop-search-input::placeholder {
+  color: var(--text-dim);
+}
+
+/* X clear button — shared by prop and texture search */
+.search-clear-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.search-clear-btn:hover {
+  color: var(--text);
+  background: var(--btn-hover);
 }
 
 /* ─── Cell Info Floating Panel ───────────────────────────────────────────── */
@@ -1556,12 +1614,16 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 /* Sticky search bar */
 .texture-search-wrap {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   padding: 8px 8px 6px;
   border-bottom: 1px solid var(--border);
 }
 
 .texture-search-input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 5px 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -2226,4 +2288,322 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 .shortcut-row span {
   color: var(--text-dim);
   font-size: 11px;
+}
+
+/* ─── Claude AI Panel ────────────────────────────────────────────────────── */
+
+#right-panel-claude {
+  padding: 0;
+  overflow: hidden;
+}
+
+#claude-panel-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.claude-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.claude-message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.claude-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 8px;
+  padding: 20px 12px;
+  text-align: center;
+}
+
+.claude-empty-icon {
+  font-size: 22px;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.claude-empty-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.claude-empty-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.claude-message {
+  display: flex;
+  flex-direction: column;
+}
+
+.claude-message-user {
+  align-items: flex-end;
+}
+
+.claude-message-assistant {
+  align-items: flex-start;
+}
+
+.claude-bubble {
+  max-width: 90%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.claude-message-user .claude-bubble {
+  background: var(--accent);
+  color: #1e1e2e;
+  border-bottom-right-radius: 3px;
+}
+
+.claude-message-assistant .claude-bubble {
+  background: var(--btn-bg);
+  color: var(--text);
+  border-bottom-left-radius: 3px;
+}
+
+.claude-bubble code {
+  background: rgba(0,0,0,0.25);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 11px;
+}
+
+/* Animated thinking indicator */
+.claude-thinking {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.claude-thinking-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-right: 2px;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.claude-thinking span:not(.claude-thinking-label) {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  animation: claude-bounce 1.2s infinite ease-in-out;
+}
+
+/* Dots are now children 2–4 (label is child 1) */
+.claude-thinking span:nth-child(3) { animation-delay: 0.2s; }
+.claude-thinking span:nth-child(4) { animation-delay: 0.4s; }
+
+.claude-undo-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin: 4px 8px;
+  border-radius: 6px;
+  background: var(--panel-bg, #2a2a2a);
+  border: 1px solid var(--border, #444);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.claude-undo-all-btn {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--accent, #7c6fcd);
+  background: transparent;
+  color: var(--accent, #7c6fcd);
+  font-size: 11px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.claude-undo-all-btn:hover {
+  background: var(--accent, #7c6fcd);
+  color: #fff;
+}
+
+@keyframes claude-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+.claude-input-row {
+  display: flex;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid var(--border);
+  align-items: flex-end;
+}
+
+.claude-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  padding: 6px 8px;
+  resize: none;
+  line-height: 1.4;
+  max-height: 80px;
+}
+
+.claude-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.claude-input:disabled {
+  opacity: 0.5;
+}
+
+.claude-send-btn {
+  background: var(--accent);
+  color: #1e1e2e;
+  border: none;
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.claude-send-btn:hover { opacity: 0.85; }
+.claude-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.claude-send-btn.claude-btn-stop {
+  background: #c0392b;
+  color: #fff;
+  transition: background 0.15s;
+}
+.claude-send-btn.claude-btn-stop:hover { background: #e74c3c; opacity: 1; }
+
+.claude-token-bar {
+  padding: 3px 10px;
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: right;
+  border-top: 1px solid var(--border, #333);
+  user-select: none;
+}
+
+.claude-stopped {
+  opacity: 0.5;
+  font-style: italic;
+}
+
+/* ─── Claude Settings Modal ──────────────────────────────────────────────── */
+
+.claude-settings-intro {
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.claude-settings-intro p {
+  color: var(--text);
+}
+
+.claude-settings-intro ol {
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.claude-settings-intro strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.claude-settings-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.claude-settings-link:hover {
+  text-decoration: underline;
+}
+
+.mw-modal-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.claude-api-key-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.claude-api-key-row input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 5px 8px;
+}
+
+.claude-api-key-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.claude-api-key-toggle {
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.claude-api-key-toggle:hover {
+  background: var(--btn-hover);
 }

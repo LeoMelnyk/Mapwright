@@ -49,10 +49,43 @@ function buildPropExplorer(container) {
     explorer.id = 'prop-explorer';
     container.prepend(explorer);
   }
+  explorer.innerHTML = '';
 
-  let html = '<div class="panel-title">Props</div>';
-  html += '<input type="text" id="prop-search-input" placeholder="Search props...">';
+  // ── Pinned search bar ────────────────────────────────────────────────────
+  const searchWrap = document.createElement('div');
+  searchWrap.className = 'prop-search-wrap';
 
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.id = 'prop-search-input';
+  searchInput.placeholder = 'Search props…';
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'search-clear-btn';
+  clearBtn.title = 'Clear search';
+  clearBtn.textContent = '×';
+  clearBtn.style.display = 'none';
+
+  searchInput.addEventListener('input', () => {
+    clearBtn.style.display = searchInput.value ? '' : 'none';
+    filterProps(searchInput.value.trim().toLowerCase());
+  });
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    filterProps('');
+    searchInput.focus();
+  });
+
+  searchWrap.appendChild(searchInput);
+  searchWrap.appendChild(clearBtn);
+  explorer.appendChild(searchWrap);
+
+  // ── Scrollable categories area ───────────────────────────────────────────
+  const scrollArea = document.createElement('div');
+  scrollArea.className = 'prop-scroll-area';
+
+  let html = '';
   for (const category of catalog.categories) {
     const propNames = catalog.byCategory[category];
     if (!propNames || propNames.length === 0) continue;
@@ -72,22 +105,15 @@ function buildPropExplorer(container) {
     html += '</div>';
   }
 
-  explorer.innerHTML = html;
-
-  // Bind search
-  const searchInput = explorer.querySelector('#prop-search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
-      filterProps(searchInput.value.trim().toLowerCase());
-    });
-  }
+  scrollArea.innerHTML = html;
+  explorer.appendChild(scrollArea);
 
   // Bind click on category titles (collapse/expand) and thumbnails
-  explorer.addEventListener('click', (e) => {
+  scrollArea.addEventListener('click', (e) => {
     const catTitle = e.target.closest('.prop-category-title');
     if (catTitle) {
       const cat = catTitle.dataset.category;
-      const grid = explorer.querySelector(`.prop-grid[data-cat-grid="${cat}"]`);
+      const grid = scrollArea.querySelector(`.prop-grid[data-cat-grid="${cat}"]`);
       if (collapsedCategories.has(cat)) {
         collapsedCategories.delete(cat);
         catTitle.classList.add('open');

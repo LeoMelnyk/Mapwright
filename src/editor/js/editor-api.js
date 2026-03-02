@@ -1648,6 +1648,163 @@ const api = {
     if (typeof result === 'object' && result.success !== undefined) return result;
     return { success: true, result };
   },
+
+  // ── Claude AI helpers ────────────────────────────────────────────────────
+
+  /** Return current undo stack depth. Used by Claude chat to support "undo all" after a build. */
+  getUndoDepth() {
+    return state.undoStack.length;
+  },
+
+  /** Undo back to a previously recorded depth, reversing all changes made since then. */
+  undoToDepth(targetDepth) {
+    const depth = Math.max(0, targetDepth);
+    let count = 0;
+    while (state.undoStack.length > depth) {
+      undo();
+      count++;
+    }
+    return { success: true, undid: count };
+  },
+
+  /** Return the contents of a labeled room: props, fills, doors, textures. */
+  getRoomContents(label) {
+    const bounds = this.getRoomBounds(label);
+    if (!bounds) return { error: `Room "${label}" not found` };
+    const result = { label, bounds, props: [], fills: [], doors: [], textures: [] };
+    for (let r = bounds.r1; r <= bounds.r2; r++) {
+      for (let c = bounds.c1; c <= bounds.c2; c++) {
+        const cell = state.dungeon.cells[r]?.[c];
+        if (!cell) continue;
+        if (cell.prop) result.props.push({ row: r, col: c, type: cell.prop.type, facing: cell.prop.facing });
+        if (cell.fill) result.fills.push({ row: r, col: c, type: cell.fill, depth: cell.fillDepth ?? 1 });
+        if (cell.texture) result.textures.push({ row: r, col: c, id: cell.texture, opacity: cell.textureOpacity ?? 1 });
+        for (const dir of ['north', 'south', 'east', 'west']) {
+          if (cell[dir] === 'd' || cell[dir] === 's')
+            result.doors.push({ row: r, col: c, direction: dir, type: cell[dir] });
+        }
+      }
+    }
+    return result;
+  },
+
+  /**
+   * Find a free rectangular area of the given size, optionally adjacent to an existing room.
+   * Returns { r1, c1, r2, c2 } of the suggested placement, or { error } if no space found.
+   */
+  suggestPlacement(rows, cols, adjacentTo = null) {
+    const info = this.getMapInfo();
+    if (!info) return { error: 'Map not available' };
+    const { rows: gridRows, cols: gridCols } = info;
+    const margin = 1;
+
+    const isFree = (r1, c1, r2, c2) => {
+      if (r1 < margin || c1 < margin) return false;
+      if (r2 > gridRows - 1 - margin || c2 > gridCols - 1 - margin) return false;
+      for (let r = r1; r <= r2; r++) {
+        for (let c = c1; c <= c2; c++) {
+          const cell = state.dungeon.cells[r]?.[c];
+          if (cell !== null && cell !== undefined) return false;
+        }
+      }
+      return true;
+    };
+
+    // Try positions adjacent to a reference room first
+    if (adjacentTo) {
+      const b = this.getRoomBounds(adjacentTo);
+      if (b) {
+        const hc = b.centerCol - Math.floor(cols / 2);
+        const hr = b.centerRow - Math.floor(rows / 2);
+        for (const [r, c] of [
+          [b.r2 + 2, hc],           // south
+          [b.r1 - rows - 1, hc],    // north
+          [hr, b.c2 + 2],            // east
+          [hr, b.c1 - cols - 1],     // west
+        ]) {
+          if (isFree(r, c, r + rows - 1, c + cols - 1))
+            return { r1: r, c1: c, r2: r + rows - 1, c2: c + cols - 1 };
+        }
+      }
+    }
+
+    // Systematic left-to-right, top-to-bottom scan
+    for (let r = margin; r <= gridRows - rows - margin; r++) {
+      for (let c = margin; c <= gridCols - cols - margin; c++) {
+        if (isFree(r, c, r + rows - 1, c + cols - 1))
+          return { r1: r, c1: c, r2: r + rows - 1, c2: c + cols - 1 };
+      }
+    }
+    return { error: `No space found for a ${rows}×${cols} room. Map may be full.` };
+  },
+
+  /**
+   * Create a walled corridor connecting two labeled rooms. Rooms must be axis-aligned
+   * with enough perpendicular overlap for the corridor width. Auto-assigns a room label
+   * and places doors at both ends. Returns { corridorLabel, r1, c1, r2, c2 }.
+   */
+  createCorridor(label1, label2, width = 2) {
+    const b1 = this.getRoomBounds(label1);
+    const b2 = this.getRoomBounds(label2);
+    if (!b1) return { error: `Room "${label1}" not found` };
+    if (!b2) return { error: `Room "${label2}" not found` };
+
+    let cr1, cc1, cr2, cc2;
+
+    const vOverlap = Math.min(b1.c2, b2.c2) - Math.max(b1.c1, b2.c1) + 1;
+    const hOverlap = Math.min(b1.r2, b2.r2) - Math.max(b1.r1, b2.r1) + 1;
+
+    if (b1.c2 < b2.c1 && vOverlap >= width) {        // b1 left of b2
+      cc1 = b1.c2 + 1; cc2 = b2.c1 - 1;
+      const mid = Math.floor((Math.max(b1.r1, b2.r1) + Math.min(b1.r2, b2.r2)) / 2);
+      cr1 = mid - Math.floor(width / 2); cr2 = cr1 + width - 1;
+    } else if (b2.c2 < b1.c1 && vOverlap >= width) { // b2 left of b1
+      cc1 = b2.c2 + 1; cc2 = b1.c1 - 1;
+      const mid = Math.floor((Math.max(b1.r1, b2.r1) + Math.min(b1.r2, b2.r2)) / 2);
+      cr1 = mid - Math.floor(width / 2); cr2 = cr1 + width - 1;
+    } else if (b1.r2 < b2.r1 && hOverlap >= width) { // b1 above b2
+      cr1 = b1.r2 + 1; cr2 = b2.r1 - 1;
+      const mid = Math.floor((Math.max(b1.c1, b2.c1) + Math.min(b1.c2, b2.c2)) / 2);
+      cc1 = mid - Math.floor(width / 2); cc2 = cc1 + width - 1;
+    } else if (b2.r2 < b1.r1 && hOverlap >= width) { // b2 above b1
+      cr1 = b2.r2 + 1; cr2 = b1.r1 - 1;
+      const mid = Math.floor((Math.max(b1.c1, b2.c1) + Math.min(b1.c2, b2.c2)) / 2);
+      cc1 = mid - Math.floor(width / 2); cc2 = cc1 + width - 1;
+    } else {
+      return { error: `Cannot auto-route a corridor between "${label1}" and "${label2}". Rooms must be axis-aligned with at least ${width} cells of shared overlap and a gap between them. Use createRoom manually for L-shaped paths.` };
+    }
+
+    if (cr2 < cr1 || cc2 < cc1)
+      return { error: `"${label1}" and "${label2}" are already touching — use findWallBetween + setDoor to add a door directly.` };
+
+    this.createRoom(cr1, cc1, cr2, cc2, 'merge');
+
+    // Auto-assign next available room label
+    const letter = state.dungeon.metadata.dungeonLetter || 'A';
+    const pat = new RegExp(`^${letter}(\\d+)$`);
+    const used = new Set();
+    for (const row of state.dungeon.cells) {
+      for (const cell of row) {
+        const m = cell?.center?.label?.match(pat);
+        if (m) used.add(parseInt(m[1]));
+      }
+    }
+    let n = 1;
+    while (used.has(n)) n++;
+    const corridorLabel = letter + n;
+    this.setLabel(Math.floor((cr1 + cr2) / 2), Math.floor((cc1 + cc2) / 2), corridorLabel);
+
+    // Place doors at both connection points
+    for (const roomLabel of [label1, label2]) {
+      const walls = this.findWallBetween(roomLabel, corridorLabel);
+      if (walls?.walls?.length) {
+        const mid = walls.walls[Math.floor(walls.walls.length / 2)];
+        this.setDoor(mid.row, mid.col, mid.direction, 'd');
+      }
+    }
+
+    return { success: true, corridorLabel, r1: cr1, c1: cc1, r2: cr2, c2: cc2 };
+  },
 };
 
 // Wait for the editor to fully initialize before exposing the API

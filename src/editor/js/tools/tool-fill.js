@@ -139,7 +139,7 @@ export class FillTool extends Tool {
     const coords = [];
     for (let r = r1; r <= r2; r++) {
       for (let c = c1; c <= c2; c++) {
-        if (cells[r]?.[c]?.fill) coords.push({ row: r, col: c });
+        if (cells[r]?.[c]?.fill || cells[r]?.[c]?.hazard) coords.push({ row: r, col: c });
       }
     }
     if (coords.length === 0) return;
@@ -151,6 +151,7 @@ export class FillTool extends Tool {
       delete cells[r][c].fill;
       delete cells[r][c].waterDepth;
       delete cells[r][c].lavaDepth;
+      delete cells[r][c].hazard;
     }
 
     smartInvalidate(before, cells);

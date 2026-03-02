@@ -45,11 +45,27 @@ function render() {
   searchInput.type = 'text';
   searchInput.placeholder = 'Search textures…';
   searchInput.className = 'texture-search-input';
+
+  const clearBtn = document.createElement('button');
+  clearBtn.className = 'search-clear-btn';
+  clearBtn.title = 'Clear search';
+  clearBtn.textContent = '×';
+  clearBtn.style.display = 'none';
+
   searchInput.addEventListener('input', () => {
+    clearBtn.style.display = searchInput.value ? '' : 'none';
     clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => filterTextures(cat), 200);
   });
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.style.display = 'none';
+    filterTextures(cat);
+    searchInput.focus();
+  });
+
   searchWrap.appendChild(searchInput);
+  searchWrap.appendChild(clearBtn);
 
   container.appendChild(searchWrap);
 

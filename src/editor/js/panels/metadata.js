@@ -767,6 +767,7 @@ export function init() {
     document.getElementById('feat-fps').checked = editorSettings.fpsCounter === true;
     document.getElementById('feat-memory').checked = editorSettings.memoryUsage === true;
     document.getElementById('feat-minimap').checked = editorSettings.minimap === true;
+    document.getElementById('feat-claude').checked = editorSettings.claude === true;
   }
   syncUI();
   subscribe(syncUI);
@@ -949,4 +950,10 @@ export function init() {
       requestRender();
     });
   }
+
+  // Claude AI toggle — requires reload to add/remove UI elements
+  document.getElementById('feat-claude').addEventListener('change', (e) => {
+    setEditorSetting('claude', e.target.checked);
+    location.reload();
+  });
 }

@@ -29,6 +29,8 @@ const state = {
   selectMode: 'select', // 'select' or 'inspect'
   clipboard: null,      // { cells: [...], anchorRow, anchorCol } — copy/paste buffer
   pasteMode: false,     // true when Ctrl+V pressed — paste preview follows cursor
+  propClipboard: null,  // { anchorRow, anchorCol, props: [{dRow, dCol, prop}] } — prop copy buffer
+  propPasteMode: false, // true when Ctrl+V pressed with prop clipboard — paste preview follows cursor
   selectedProp: null,  // string — prop type name from catalog (e.g. 'pillar')
   propRotation: 0,     // 0, 90, 180, 270 — current placement rotation
   propFlipped: false,  // whether the next placed prop is horizontally mirrored

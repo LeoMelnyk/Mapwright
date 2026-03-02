@@ -10,6 +10,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { fileURLToPath } from 'url';
+import Anthropic from '@anthropic-ai/sdk';
 import { createCanvas, Path2D, ImageData } from '@napi-rs/canvas';
 import { calculateCanvasSize, renderDungeonToCanvas } from './src/render/compile.js';
 import { THEMES } from './src/render/themes.js';
@@ -225,6 +226,26 @@ app.get('/api/check-update', async (_req, res) => {
   }
 });
 
+// ── Claude AI proxy endpoint ─────────────────────────────────────────────────
+// Proxies requests to the Anthropic API using the user's own API key.
+// The server never stores the key — it's sent per-request from the client.
+
+app.post('/api/claude', async (req, res) => {
+  const { messages, apiKey, model, tools, system } = req.body;
+  if (!apiKey) return res.status(400).json({ error: 'No API key provided. Open Claude Settings to configure your key.' });
+  try {
+    const client = new Anthropic({ apiKey });
+    const params = { model: model || 'claude-sonnet-4-6', max_tokens: 4096, messages };
+    if (system) params.system = system;
+    if (tools?.length) params.tools = tools;
+    const response = await client.messages.create(params);
+    res.json(response);
+  } catch (err) {
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message || 'Claude API request failed' });
+  }
+});
+
 // ── Local IP endpoint (for Player Session panel) ─────────────────────────
 
 app.get('/api/local-ip', (_req, res) => {
@@ -303,9 +324,9 @@ app.get('/api/textures/status', (_req, res) => {
       ? fs.readdirSync(dir).filter(f => f.endsWith('.texture')).length
       : 0;
     const requiredCount = getRequiredTextureIds().length;
-    res.json({ available: count > 0, count, requiredCount, catalogCount: _catalogCount, downloadInProgress: _downloadInProgress });
+    res.json({ available: count > 0, count, requiredCount, catalogCount: _catalogCount, downloadInProgress: _downloadInProgress, downloadSnapshot: _downloadSnapshot });
   } catch {
-    res.json({ available: false, count: 0, requiredCount: 0, catalogCount: _catalogCount, downloadInProgress: _downloadInProgress });
+    res.json({ available: false, count: 0, requiredCount: 0, catalogCount: _catalogCount, downloadInProgress: _downloadInProgress, downloadSnapshot: _downloadSnapshot });
   }
 });
 

@@ -5,6 +5,7 @@ import { requestRender, setCursor } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
 import { renderProp } from '../../../render/index.js';
 import { getTextureCatalog } from '../texture-catalog.js';
+import { showToast } from '../toast.js';
 
 const BOX_SELECT_THRESHOLD = 8; // pixels before a mousedown-on-empty becomes a box-select drag
 
@@ -84,6 +85,8 @@ export class PropTool extends Tool {
     this.hoveredAnchor = null;    // anchor cell of prop currently under cursor
     this.hoverRow = null;
     this.hoverCol = null;
+    // Paste mode cursor tracking
+    this.pasteHover = null;       // {row, col} — current cursor cell for paste preview
   }
 
   getCursor() {
@@ -91,7 +94,7 @@ export class PropTool extends Tool {
   }
 
   onActivate() {
-    state.statusInstruction = 'Click to place · Hover prop to select/move · Right-click to delete';
+    state.statusInstruction = 'Click to place · Hover prop to select/move · Ctrl+C to copy · Right-click to delete';
   }
 
   onDeactivate() {
@@ -100,6 +103,8 @@ export class PropTool extends Tool {
     }
     this._resetDragState();
     this._resetHoverState();
+    state.propPasteMode = false;
+    this.pasteHover = null;
     state.statusInstruction = '';
   }
 
@@ -126,6 +131,12 @@ export class PropTool extends Tool {
   // ── Mouse Handlers ───────────────────────────────────────────────────────
 
   onMouseDown(row, col, edge, event, pos) {
+    // Paste mode: commit paste at cursor position
+    if (state.propPasteMode && state.propClipboard) {
+      this._commitPropPaste(row, col);
+      return;
+    }
+
     const cells = state.dungeon.cells;
     const anchor = findPropAnchor(cells, row, col);
 
@@ -148,6 +159,15 @@ export class PropTool extends Tool {
   onMouseMove(row, col, edge, event, pos) {
     this.hoverRow = row;
     this.hoverCol = col;
+
+    // Paste mode: update hover for preview
+    if (state.propPasteMode) {
+      if (!this.pasteHover || this.pasteHover.row !== row || this.pasteHover.col !== col) {
+        this.pasteHover = { row, col };
+        requestRender();
+      }
+      return;
+    }
 
     if (this.isDragging) {
       this.dragGhost = { row, col };
@@ -257,6 +277,12 @@ export class PropTool extends Tool {
   onKeyDown(e) {
     // Escape cancels drag, or clears the selected prop template
     if (e.key === 'Escape') {
+      if (state.propPasteMode) {
+        state.propPasteMode = false;
+        this.pasteHover = null;
+        requestRender();
+        return;
+      }
       if (this.isDragging) {
         this._cancelDrag();
       } else if (state.selectedProp) {
@@ -333,6 +359,36 @@ export class PropTool extends Tool {
 
   renderOverlay(ctx, transform, gridSize) {
     const cells = state.dungeon.cells;
+
+    // 0. Paste preview — ghost props following cursor
+    if (state.propPasteMode && state.propClipboard && this.pasteHover) {
+      const { row: tRow, col: tCol } = this.pasteHover;
+      const theme = getTheme();
+      const catalog = state.propCatalog;
+      const allValid = this._allPastePositionsValid(tRow, tCol);
+      const borderColor = allValid ? 'rgba(100, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
+
+      for (const { dRow, dCol, prop } of state.propClipboard.props) {
+        const row = tRow + dRow;
+        const col = tCol + dCol;
+        const propDef = catalog?.props?.[prop.type];
+        if (!propDef) continue;
+
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+        renderProp(ctx, propDef, row, col, prop.facing, gridSize, theme, transform, prop.flipped, getTextureResolver());
+        ctx.restore();
+
+        const [spanRows, spanCols] = prop.span;
+        const topLeft = toCanvas(col * gridSize, row * gridSize, transform);
+        const bottomRight = toCanvas((col + spanCols) * gridSize, (row + spanRows) * gridSize, transform);
+        ctx.save();
+        ctx.strokeStyle = borderColor;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+        ctx.restore();
+      }
+    }
 
     // 1. Drag ghost (when moving props)
     if (this.isDragging && this.dragGhost && this.dragItems.length > 0) {
@@ -917,6 +973,77 @@ export class PropTool extends Tool {
     markDirty();
     notify();
     requestRender();
+  }
+
+  // ── Prop Copy/Paste ──────────────────────────────────────────────────────
+
+  _allPastePositionsValid(targetRow, targetCol) {
+    if (!state.propClipboard) return false;
+    const cells = state.dungeon.cells;
+    const numRows = cells.length;
+    const numCols = cells[0]?.length || 0;
+    const { props } = state.propClipboard;
+
+    // Keys of all paste anchor positions (will be overwritten, so not a collision)
+    const pasteAnchorKeys = new Set(props.map(({ dRow, dCol }) =>
+      `${targetRow + dRow},${targetCol + dCol}`
+    ));
+
+    const claimed = new Set();
+    for (const { dRow, dCol, prop } of props) {
+      const row = targetRow + dRow;
+      const col = targetCol + dCol;
+      const [spanRows, spanCols] = prop.span;
+
+      for (let r = row; r < row + spanRows; r++) {
+        for (let c = col; c < col + spanCols; c++) {
+          if (r < 0 || r >= numRows || c < 0 || c >= numCols) return false;
+          if (cells[r][c] === null) return false;
+          const key = `${r},${c}`;
+          if (claimed.has(key)) return false; // overlapping with another pasted prop
+          claimed.add(key);
+          // Existing prop that's NOT being overwritten → collision
+          const existingAnchor = findPropAnchor(cells, r, c);
+          if (existingAnchor && !pasteAnchorKeys.has(`${existingAnchor.row},${existingAnchor.col}`)) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  _commitPropPaste(targetRow, targetCol) {
+    if (!state.propClipboard) return;
+    if (!this._allPastePositionsValid(targetRow, targetCol)) return;
+
+    const cells = state.dungeon.cells;
+    const { props } = state.propClipboard;
+
+    pushUndo('Paste props');
+
+    // Remove any existing props at paste anchor positions
+    for (const { dRow, dCol } of props) {
+      const cell = cells[targetRow + dRow]?.[targetCol + dCol];
+      if (cell?.prop) delete cell.prop;
+    }
+
+    // Place pasted props
+    const newAnchors = [];
+    for (const { dRow, dCol, prop } of props) {
+      const row = targetRow + dRow;
+      const col = targetCol + dCol;
+      const cell = cells[row]?.[col];
+      if (!cell) continue;
+      cell.prop = JSON.parse(JSON.stringify(prop));
+      newAnchors.push({ row, col });
+    }
+
+    state.selectedPropAnchors = newAnchors;
+    state.propPasteMode = false;
+    this.pasteHover = null;
+    markDirty();
+    notify();
+    requestRender();
+    showToast(`Pasted ${newAnchors.length} prop${newAnchors.length === 1 ? '' : 's'}`);
   }
 
   _drawNameLabel(ctx, name, topLeft, bottomRight) {

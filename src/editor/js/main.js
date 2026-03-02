@@ -21,7 +21,10 @@ import {
   initSessionPanel,
   initTexturesPanel, renderTexturesPanel,
   initRightSidebar,
+  initClaudePanel,
 } from './panels/index.js';
+import { getClaudeSettings, setClaudeSetting } from './claude-settings.js';
+import { getEditorSettings, setEditorSetting } from './editor-settings.js';
 
 // Tool registry
 const tools = {
@@ -145,7 +148,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   //  - otherwise                      → hidden
   const btnTextureAlert = document.getElementById('btn-texture-alert');
 
-  function _updateAlertBtn({ count, requiredCount, catalogCount }) {
+  function _updateAlertBtn({ count, requiredCount, catalogCount, downloadInProgress, downloadSnapshot }) {
+    if (downloadInProgress) {
+      if (!btnTextureAlert.classList.contains('downloading')) {
+        btnTextureAlert.style.display = 'inline-flex';
+        btnTextureAlert.classList.add('downloading');
+        btnTextureAlert.style.setProperty('--dl-pct', '0%');
+        btnTextureAlert.innerHTML = '<span>Downloading 0%</span>';
+      }
+      if (downloadSnapshot?.index !== undefined && downloadSnapshot?.total) {
+        const pct = Math.round((downloadSnapshot.index / downloadSnapshot.total) * 100);
+        btnTextureAlert.style.setProperty('--dl-pct', `${pct}%`);
+        const span = btnTextureAlert.querySelector('span');
+        if (span) span.textContent = `Downloading ${pct}%`;
+      }
+      _startDlPolling();
+      return;
+    }
+    _stopDlPolling();
     btnTextureAlert.classList.remove('new-available');
     const label = btnTextureAlert.querySelector('.alert-label');
     if (count < requiredCount) {
@@ -192,6 +212,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   // in the background, and reload assets automatically when done.
   const _alertBtnOrigHTML = btnTextureAlert.innerHTML;
 
+  let _dlPollInterval = null;
+  function _startDlPolling() {
+    if (_dlPollInterval) return;
+    _dlPollInterval = setInterval(() => {
+      fetch('/api/textures/status')
+        .then(r => r.json())
+        .then(status => { _updateAlertBtn(status); })
+        .catch(() => {});
+    }, 1500);
+  }
+  function _stopDlPolling() {
+    if (_dlPollInterval) { clearInterval(_dlPollInterval); _dlPollInterval = null; }
+  }
+
   function _resetAlertBtn() {
     btnTextureAlert.classList.remove('downloading', 'new-available');
     btnTextureAlert.style.removeProperty('--dl-pct');
@@ -209,6 +243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnTextureAlert.classList.add('downloading');
       btnTextureAlert.style.setProperty('--dl-pct', '0%');
       btnTextureAlert.innerHTML = '<span>Downloading 0%</span>';
+      _startDlPolling();
 
     } else if (data?.type === 'download-progress') {
       const pct = Math.round((data.index / data.total) * 100);
@@ -217,10 +252,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (span) span.textContent = `Downloading ${pct}%`;
 
     } else if (data?.type === 'download-cancelled') {
+      _stopDlPolling();
       _resetAlertBtn();
-      _recheckAlertBtn();
+      // The server may still be finishing the current texture — poll until it confirms
+      // the cancel before updating the button (avoids re-entering downloading mode).
+      const _waitCancel = setInterval(() => {
+        fetch('/api/textures/status')
+          .then(r => r.json())
+          .then(status => {
+            if (!status.downloadInProgress) {
+              clearInterval(_waitCancel);
+              _updateAlertBtn(status);
+            }
+          })
+          .catch(() => {});
+      }, 500);
 
     } else if (data?.type === 'textures-downloaded') {
+      _stopDlPolling();
       _resetAlertBtn();
       await reloadAssets();
       renderTexturesPanel();
@@ -295,6 +344,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Init session panel
   const sessionContainer = document.getElementById('session-panel-content');
   if (sessionContainer) initSessionPanel(sessionContainer);
+
+  // ── Claude AI (experimental) ─────────────────────────────────────────────
+  // Toggle via View → Developer → Claude AI, or visit with ?claude to enable once.
+  if (new URLSearchParams(location.search).has('claude')) {
+    setEditorSetting('claude', true);
+  }
+  const CLAUDE_ENABLED = getEditorSettings().claude === true;
+
+  if (!CLAUDE_ENABLED) {
+    document.querySelector('[data-right-panel="claude"]')?.remove();
+    document.getElementById('right-panel-claude')?.remove();
+    document.getElementById('btn-claude-settings')?.remove();
+    document.getElementById('modal-claude-settings')?.remove();
+  } else {
+    const claudeContainer = document.getElementById('claude-panel-content');
+    if (claudeContainer) initClaudePanel(claudeContainer);
+  }
 
   // Wire session overlay (door/stair-open buttons on DM canvas)
   setSessionOverlay(
@@ -503,6 +569,66 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Expose openShortcutsModal for keydown handler (defined before it, called by name)
   window._openShortcutsModal = openShortcutsModal;
+
+  // Claude Settings modal (only wired when feature is enabled)
+  if (CLAUDE_ENABLED) {
+  const CLAUDE_MODEL_COSTS = {
+    'claude-sonnet-4-6':         'Sonnet 4.6 costs ~$0.003 per message.',
+    'claude-haiku-4-5-20251001': 'Haiku 4.5 costs ~$0.001 per message.',
+    'claude-opus-4-6':           'Opus 4.6 costs ~$0.015 per message.',
+  };
+
+  function updateClaudeCostHint(model) {
+    const hint = document.getElementById('claude-cost-hint');
+    if (!hint) return;
+    const cost = CLAUDE_MODEL_COSTS[model] ?? 'See console.anthropic.com for pricing.';
+    hint.textContent = `API usage is billed to your Anthropic account. ${cost}`;
+  }
+
+  function openClaudeSettingsModal() {
+    const m = document.getElementById('modal-claude-settings');
+    if (!m) return;
+    const settings = getClaudeSettings();
+    const keyInput = document.getElementById('claude-api-key');
+    const modelSelect = document.getElementById('claude-model-select');
+    if (keyInput) keyInput.value = settings.apiKey || '';
+    if (modelSelect) modelSelect.value = settings.model || 'claude-sonnet-4-6';
+    updateClaudeCostHint(modelSelect?.value || 'claude-sonnet-4-6');
+    m.style.display = 'flex';
+  }
+  function closeClaudeSettingsModal() {
+    const m = document.getElementById('modal-claude-settings');
+    if (m) m.style.display = 'none';
+  }
+  document.getElementById('btn-claude-settings')?.addEventListener('click', openClaudeSettingsModal);
+  document.getElementById('claude-settings-cancel')?.addEventListener('click', closeClaudeSettingsModal);
+  document.getElementById('modal-claude-settings')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeClaudeSettingsModal();
+  });
+  document.getElementById('claude-model-select')?.addEventListener('change', (e) => {
+    updateClaudeCostHint(e.target.value);
+  });
+  document.getElementById('claude-settings-save')?.addEventListener('click', () => {
+    const keyInput = document.getElementById('claude-api-key');
+    const modelSelect = document.getElementById('claude-model-select');
+    if (keyInput) setClaudeSetting('apiKey', keyInput.value.trim());
+    if (modelSelect) setClaudeSetting('model', modelSelect.value);
+    closeClaudeSettingsModal();
+    showToast('Claude settings saved.');
+  });
+  document.getElementById('claude-api-key-toggle')?.addEventListener('click', () => {
+    const input = document.getElementById('claude-api-key');
+    const btn = document.getElementById('claude-api-key-toggle');
+    if (!input || !btn) return;
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = 'Hide';
+    } else {
+      input.type = 'password';
+      btn.textContent = 'Show';
+    }
+  });
+  } // end CLAUDE_ENABLED
 });
 
 function initDraggableToolbar() {
@@ -727,6 +853,38 @@ function onKeyDown(e) {
     return;
   }
 
+  // Ctrl+C: copy selected props (Prop tool only)
+  if (e.ctrlKey && e.key === 'c' && state.activeTool === 'prop' && state.selectedPropAnchors.length > 0) {
+    e.preventDefault();
+    const cells = state.dungeon.cells;
+    const anchorRow = Math.min(...state.selectedPropAnchors.map(a => a.row));
+    const anchorCol = Math.min(...state.selectedPropAnchors.map(a => a.col));
+    const props = [];
+    for (const { row, col } of state.selectedPropAnchors) {
+      const cell = cells[row]?.[col];
+      if (cell?.prop) {
+        props.push({
+          dRow: row - anchorRow,
+          dCol: col - anchorCol,
+          prop: JSON.parse(JSON.stringify(cell.prop)),
+        });
+      }
+    }
+    if (props.length > 0) {
+      state.propClipboard = { anchorRow, anchorCol, props };
+      showToast(`Copied ${props.length} prop${props.length === 1 ? '' : 's'}`);
+    }
+    return;
+  }
+
+  // Ctrl+V: enter prop paste mode (Prop tool, when prop clipboard exists)
+  if (e.ctrlKey && e.key === 'v' && state.propClipboard && state.activeTool === 'prop') {
+    e.preventDefault();
+    state.propPasteMode = true;
+    canvasView.requestRender();
+    return;
+  }
+
   // Ctrl+V: enter paste mode (Select tool)
   if (e.ctrlKey && e.key === 'v' && state.clipboard) {
     e.preventDefault();
@@ -741,8 +899,9 @@ function onKeyDown(e) {
   }
 
   // Escape: cancel paste mode
-  if (e.key === 'Escape' && state.pasteMode) {
+  if (e.key === 'Escape' && (state.pasteMode || state.propPasteMode)) {
     state.pasteMode = false;
+    state.propPasteMode = false;
     canvasView.requestRender();
     return;
   }

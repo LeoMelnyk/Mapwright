@@ -1,6 +1,6 @@
 {
   "name": "mapwright",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Dungeon map editor for D&D 5e",
   "author": "Mapwright",
   "type": "module",
@@ -27,6 +27,7 @@
     "puppeteer": "^24.2.0"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@napi-rs/canvas": "^0.1.90",
     "express": "^5.2.1",
     "ws": "^8.19.0"
