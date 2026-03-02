@@ -9,7 +9,7 @@
     "start": "node server.js",
     "electron": "node run-electron.cjs",
     "electron:build": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win portable --publish never",
-    "electron:build:mac": "node ./node_modules/electron-builder/out/cli/cli.js --mac dmg --universal --publish never",
+    "electron:build:mac": "node ./node_modules/electron-builder/out/cli/cli.js --mac dmg --publish never",
     "postinstall": "node tools/patch-app-builder.cjs",
     "download-textures": "node tools/polyhaven/download-polyhaven.js",
     "download-textures:test": "node tools/polyhaven/download-polyhaven.js --limit 5 --dry-run",
@@ -47,8 +47,7 @@
     ],
     "asar": false,
     "mac": {
-      "target": "dmg",
-      "x64ArchFiles": "**/@napi-rs/canvas-darwin-*/**"
+      "target": "dmg"
     },
     "win": {
       "target": "portable",
