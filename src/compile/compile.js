@@ -69,7 +69,8 @@ function compileLevel(levelData, levelIndex) {
   }
 
   const { diagonals, totalVoided, trimDetails } = applyTrims(grid, rooms, resolvedTrims);
-  placeDoors(grid, doors);
+  const warnings = [];
+  placeDoors(grid, doors, warnings);
   placeLabels(grid, rooms, diagonals);
 
   // Apply fills to room cells
@@ -144,10 +145,12 @@ function compileLevel(levelData, levelIndex) {
     }
   }
   if (doors.length > 0) {
-    console.log(`${indent}${doors.length} door(s) placed`);
+    const placed = doors.length - warnings.length;
+    console.log(`${indent}${placed} door(s) placed${warnings.length ? `, ${warnings.length} skipped` : ''}`);
+    for (const w of warnings) console.warn(`${indent}  ⚠ ${w}`);
   }
 
-  return { grid, rooms, diagonals, numRows, numCols, lights, bridges: bridges || [] };
+  return { grid, rooms, diagonals, numRows, numCols, lights, bridges: bridges || [], warnings };
 }
 
 function compileMap(mapPath) {
@@ -367,9 +370,12 @@ function compileMap(mapPath) {
     console.log(`  ${allBridges.length} bridge(s) placed`);
   }
 
+  const allWarnings = compiledLevels.flatMap(l => l.warnings || []);
+
   const result = {
     metadata: { ...header, levels: levelsMeta },
-    cells: combinedGrid.cells
+    cells: combinedGrid.cells,
+    ...(allWarnings.length > 0 && { warnings: allWarnings }),
   };
 
   if (allLights.length > 0) {

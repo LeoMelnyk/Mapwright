@@ -1,9 +1,9 @@
-// Claude AI settings: stored in localStorage, persists across sessions.
+// AI settings (Ollama): stored in localStorage, persists across sessions.
 const KEY = 'mw-claude-settings';
 
 const DEFAULTS = {
-  apiKey: '',
-  model: 'claude-opus-4-6',
+  ollamaBase: 'http://localhost:11434',
+  model: 'qwen3.5:9b',
 };
 
 let _cache = null;

@@ -21,6 +21,7 @@ const fileBars = {
 const btnCancel       = document.getElementById('btn-cancel');
 const completeSection = document.getElementById('complete-section');
 const completeText    = document.getElementById('complete-text');
+const failedList      = document.getElementById('failed-list');
 const btnClose        = document.getElementById('btn-close');
 const errorMsg        = document.getElementById('error-msg');
 
@@ -163,6 +164,11 @@ function openEventSource(url) {
         downloadingSection.style.display = 'none';
         completeText.textContent =
           `Download complete! ${msg.downloaded} downloaded, ${msg.skipped} already existed${msg.failed > 0 ? `, ${msg.failed} failed` : ''}.`;
+        if (msg.failures && msg.failures.length) {
+          console.error('[Textures] Failed textures:', msg.failures);
+          failedList.innerHTML = '<div class="failed-label">Failed textures:</div>' +
+            msg.failures.map(f => `<div class="failed-item">${f.name} — ${f.reason}</div>`).join('');
+        }
         completeSection.classList.add('visible');
         break;
 

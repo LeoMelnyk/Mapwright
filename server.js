@@ -10,12 +10,12 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { fileURLToPath } from 'url';
-import Anthropic from '@anthropic-ai/sdk';
 import { createCanvas, Path2D, ImageData } from '@napi-rs/canvas';
 import { calculateCanvasSize, renderDungeonToCanvas } from './src/render/compile.js';
 import { THEMES } from './src/render/themes.js';
 import { loadPropCatalogSync } from './src/render/prop-catalog-node.js';
 import { loadTextureCatalogMetadata, ensureTexturesForConfig, clearCatalogCache } from './src/render/texture-catalog-node.js';
+import { compileMap } from './src/compile/index.js';
 
 // ── Browser API polyfills (needed by render pipeline in Node.js) ─────────────
 
@@ -226,23 +226,184 @@ app.get('/api/check-update', async (_req, res) => {
   }
 });
 
-// ── Claude AI proxy endpoint ─────────────────────────────────────────────────
-// Proxies requests to the Anthropic API using the user's own API key.
-// The server never stores the key — it's sent per-request from the client.
+// ── AI session log endpoint ─────────────────────────────────────────────────
+// Renderer-side AI logs are written here so they can be read from disk.
+// Each new chat message resets the file (reset:true), preventing unbounded growth.
+
+const AI_LOG_PATH = path.join(__dirname, 'ai-session.log');
+
+app.post('/api/ai-log', (req, res) => {
+  const { line = '', reset = false } = req.body;
+  try {
+    if (reset) {
+      fs.writeFileSync(AI_LOG_PATH, line ? line + '\n' : '');
+    } else {
+      fs.appendFileSync(AI_LOG_PATH, line + '\n');
+    }
+  } catch { /* ignore write errors */ }
+  res.json({ ok: true });
+});
+
+// ── Map compile endpoint ──────────────────────────────────────────────────────
+// Accepts .map text, writes to a temp file, compiles it, and returns { metadata, cells } JSON.
+// Used by the AI assistant to convert generated .map text into a loadable dungeon.
+
+app.post('/api/compile-map', (req, res) => {
+  const { mapText } = req.body;
+  if (!mapText) return res.status(400).json({ success: false, error: 'mapText required' });
+
+  const tmpFile = path.join(os.tmpdir(), `mapwright-ai-${Date.now()}.map`);
+  try {
+    fs.writeFileSync(tmpFile, mapText, 'utf-8');
+    const result = compileMap(tmpFile);
+    const { warnings, ...dungeon } = result;
+    res.json({ success: true, dungeon, ...(warnings?.length && { warnings }) });
+  } catch (err) {
+    console.error('[compile-map] error:', err.message);
+    res.status(400).json({ success: false, error: err.message });
+  } finally {
+    try { fs.unlinkSync(tmpFile); } catch { /* ignore cleanup errors */ }
+  }
+});
+
+// ── Ollama AI proxy endpoint ─────────────────────────────────────────────────
+// Translates Anthropic-format requests (from the editor) to OpenAI format for
+// local Ollama inference, then converts the response back to Anthropic format.
+// No API key required — Ollama runs locally.
+
+function convertToolsToOpenAI(tools) {
+  return tools.map(t => ({
+    type: 'function',
+    function: { name: t.name, description: t.description, parameters: t.input_schema },
+  }));
+}
+
+function convertMessagesToOpenAI(messages, system) {
+  const result = [];
+  if (system) result.push({ role: 'system', content: system });
+  for (const { role, content } of messages) {
+    if (typeof content === 'string') { result.push({ role, content }); continue; }
+    if (!Array.isArray(content)) continue;
+    // Tool results → one role:'tool' message per result block
+    if (content.every(b => b.type === 'tool_result')) {
+      for (const b of content)
+        result.push({ role: 'tool', tool_call_id: b.tool_use_id, content: String(b.content) });
+      continue;
+    }
+    // Assistant turn with tool calls
+    if (content.some(b => b.type === 'tool_use')) {
+      const tool_calls = content.filter(b => b.type === 'tool_use').map(b => ({
+        id: b.id, type: 'function',
+        function: { name: b.name, arguments: typeof b.input === 'string' ? b.input : JSON.stringify(b.input) },
+      }));
+      const text = content.filter(b => b.type === 'text').map(b => b.text).join('') || null;
+      result.push({ role: 'assistant', content: text, tool_calls });
+      continue;
+    }
+    // Plain text (assistant or user)
+    result.push({ role, content: content.filter(b => b.type === 'text').map(b => b.text).join('') });
+  }
+  return result;
+}
+
+// Strip Qwen3 <think>...</think> reasoning blocks from response text.
+// These are internal chain-of-thought tokens that should not appear in the chat UI.
+function stripThinkingBlocks(text) {
+  if (!text) return text;
+  return text.replace(/<think>[\s\S]*?<\/think>\n?/g, '').trim();
+}
+
+function convertResponseToAnthropic(data) {
+  const msg = data.choices[0].message;
+  const content = [];
+  const text = stripThinkingBlocks(msg.content);
+  if (text) content.push({ type: 'text', text });
+  for (const tc of msg.tool_calls ?? []) {
+    content.push({
+      type: 'tool_use', id: tc.id, name: tc.function.name,
+      input: (() => { try { return JSON.parse(tc.function.arguments); } catch { return tc.function.arguments; } })(),
+    });
+  }
+  // Derive stop_reason from content rather than finish_reason — some models
+  // report 'stop' even when they emitted tool calls.
+  return {
+    content,
+    stop_reason: content.some(b => b.type === 'tool_use') ? 'tool_use' : 'end_turn',
+    usage: { input_tokens: data.usage?.prompt_tokens ?? 0, output_tokens: data.usage?.completion_tokens ?? 0 },
+  };
+}
+
+app.get('/api/ollama-status', async (req, res) => {
+  const base = req.query.base || 'http://localhost:11434';
+  try {
+    const r = await fetch(`${base}/api/tags`);
+    if (!r.ok) return res.json({ running: false, models: [] });
+    const data = await r.json();
+    res.json({ running: true, models: (data.models ?? []).map(m => m.name) });
+  } catch {
+    res.json({ running: false, models: [] });
+  }
+});
 
 app.post('/api/claude', async (req, res) => {
-  const { messages, apiKey, model, tools, system } = req.body;
-  if (!apiKey) return res.status(400).json({ error: 'No API key provided. Open Claude Settings to configure your key.' });
+  const { messages, model, tools, system, ollamaBase, stream } = req.body;
+  const base = ollamaBase || 'http://localhost:11434';
+  const useStream = stream === true;
+
+  // Ollama's streaming mode is unreliable with tool-calling (silently falls back to
+  // non-streaming JSON). Always request non-streaming from Ollama for reliability,
+  // then re-emit as SSE to the client when it wants streaming.
   try {
-    const client = new Anthropic({ apiKey });
-    const params = { model: model || 'claude-sonnet-4-6', max_tokens: 4096, messages };
-    if (system) params.system = system;
-    if (tools?.length) params.tools = tools;
-    const response = await client.messages.create(params);
-    res.json(response);
+    const ollamaRes = await fetch(`${base}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: model || 'qwen3.5:9b',
+        messages: convertMessagesToOpenAI(messages, system),
+        tools: tools?.length ? convertToolsToOpenAI(tools) : undefined,
+        temperature: 0.6,      // Qwen3 thinking mode needs higher temp for quality reasoning; 0.1 suppresses exploration
+        max_tokens: 4096,
+        stream: false,         // Always non-streaming from Ollama for reliability
+        options: { num_ctx: 32768 }, // Qwen3.5 supports 32k+ context; 16384 was too tight
+      }),
+    });
+
+    if (!ollamaRes.ok) {
+      const errText = await ollamaRes.text();
+      console.error('[ollama] error', ollamaRes.status, errText);
+      return res.status(ollamaRes.status).json({ error: `Ollama error: ${errText}` });
+    }
+
+    const ollamaData = await ollamaRes.json();
+    console.log('[ollama] finish_reason:', ollamaData.choices?.[0]?.finish_reason,
+      '| content:', JSON.stringify(ollamaData.choices?.[0]?.message).slice(0, 200));
+
+    const anthropicResponse = convertResponseToAnthropic(ollamaData);
+
+    if (!useStream) {
+      res.json(anthropicResponse);
+      return;
+    }
+
+    // Re-emit as SSE so client streaming code works unchanged
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const textBlock = anthropicResponse.content.find(b => b.type === 'text');
+    if (textBlock) {
+      res.write(`data: ${JSON.stringify({ type: 'text_delta', text: textBlock.text })}\n\n`);
+    }
+    const toolBlocks = anthropicResponse.content.filter(b => b.type === 'tool_use');
+    if (toolBlocks.length > 0) {
+      res.write(`data: ${JSON.stringify({ type: 'tool_use', blocks: toolBlocks })}\n\n`);
+    }
+    res.write('data: [DONE]\n\n');
+    res.end();
   } catch (err) {
-    const status = err.status || 500;
-    res.status(status).json({ error: err.message || 'Claude API request failed' });
+    console.error('[ollama] request failed:', err.message);
+    if (!res.headersSent) res.status(500).json({ error: err.message || 'Ollama request failed' });
+    else res.end();
   }
 });
 
@@ -263,8 +424,10 @@ app.get('/api/local-ip', (_req, res) => {
 // ── Texture download endpoints ───────────────────────────────────────────────
 
 const POLYHAVEN_API = 'https://api.polyhaven.com';
+// Some textures (fabric, leather, patterns) use col_01/col1 instead of Diffuse.
+const DIFF_API_KEYS = ['Diffuse', 'diff_png', 'col_01', 'col_1', 'col1', 'coll1', 'Color', 'Albedo'];
 const POLYHAVEN_MAPS = [
-  { key: 'diff', apiKey: 'Diffuse' },
+  { key: 'diff', apiKey: 'Diffuse' },  // overridden below with fallback logic
   { key: 'disp', apiKey: 'Displacement' },
   { key: 'nor',  apiKey: 'nor_gl' },
   { key: 'arm',  apiKey: 'arm' },
@@ -393,6 +556,7 @@ app.get('/api/textures/download', async (req, res) => {
     }
 
     let downloaded = 0, skipped = 0, failed = 0;
+    const failures = [];
 
     for (let i = 0; i < ids.length; i++) {
       if (cancelled) break;
@@ -415,6 +579,7 @@ app.get('/api/textures/download', async (req, res) => {
         files = await fetch(`${POLYHAVEN_API}/files/${id}`).then(r => r.json());
       } catch (e) {
         failed++;
+        failures.push({ id, name, reason: `API error: ${e.message}` });
         send({ type: 'texture_done', index: i, total: ids.length, status: 'failed', error: e.message });
         continue;
       }
@@ -424,7 +589,9 @@ app.get('/api/textures/download', async (req, res) => {
       for (const { key, apiKey } of POLYHAVEN_MAPS) {
         if (cancelled) break;
 
-        const fileInfo = files?.[apiKey]?.['1k']?.png;
+        // For diff, try multiple Polyhaven key names (varies by texture category).
+        const keysToTry = key === 'diff' ? DIFF_API_KEYS : [apiKey];
+        const fileInfo = keysToTry.map(k => files?.[k]?.['1k']?.png).find(f => f?.url);
         if (!fileInfo?.url) {
           send({ type: 'file_done', file: key, status: 'unavailable' });
           continue;
@@ -492,8 +659,14 @@ app.get('/api/textures/download', async (req, res) => {
         send({ type: 'texture_done', index: i, total: ids.length, status: 'downloaded' });
       } else {
         failed++;
+        failures.push({ id, name, reason: 'No diffuse map downloaded' });
         send({ type: 'texture_done', index: i, total: ids.length, status: 'failed' });
       }
+    }
+
+    if (failures.length) {
+      console.error(`[Textures] ${failures.length} texture(s) failed:`);
+      failures.forEach(f => console.error(`  • ${f.name} (${f.id}): ${f.reason}`));
     }
 
     writeManifest(destDir);
@@ -503,7 +676,7 @@ app.get('/api/textures/download', async (req, res) => {
     if (cancelled) {
       send({ type: 'cancelled' });
     } else {
-      send({ type: 'complete', downloaded, skipped, failed });
+      send({ type: 'complete', downloaded, skipped, failed, failures });
     }
   } catch (e) {
     send({ type: 'error', error: e.message });

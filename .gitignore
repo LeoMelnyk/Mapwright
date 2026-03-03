@@ -7,3 +7,5 @@ src/textures/**/*.png
 # Generated output files (uncomment if you don't want to commit renders)
 # *.png
 # *.pdf
+
+ai-session.log

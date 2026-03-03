@@ -222,7 +222,12 @@ button:disabled { opacity: 0.4; cursor: default; }
 .complete-section.visible { display: block; }
 
 .complete-icon { font-size: 28px; margin-bottom: 6px; }
-.complete-text { font-size: 13px; color: #a0c888; margin-bottom: 14px; }
+.complete-text { font-size: 13px; color: #a0c888; margin-bottom: 8px; }
+
+.failed-list:empty { display: none; }
+.failed-list { margin-bottom: 14px; text-align: left; }
+.failed-label { font-size: 11px; color: #c07060; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.failed-item { font-size: 11px; color: #c07060; padding: 1px 0; }
 
 /* ── Error ───────────────────────────────────────────────── */
 .error-msg {

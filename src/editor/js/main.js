@@ -583,61 +583,40 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Claude Settings modal (only wired when feature is enabled)
   if (CLAUDE_ENABLED) {
-  const CLAUDE_MODEL_COSTS = {
-    'claude-sonnet-4-6':         'Sonnet 4.6 costs ~$0.003 per message.',
-    'claude-haiku-4-5-20251001': 'Haiku 4.5 costs ~$0.001 per message.',
-    'claude-opus-4-6':           'Opus 4.6 costs ~$0.015 per message.',
-  };
-
-  function updateClaudeCostHint(model) {
-    const hint = document.getElementById('claude-cost-hint');
-    if (!hint) return;
-    const cost = CLAUDE_MODEL_COSTS[model] ?? 'See console.anthropic.com for pricing.';
-    hint.textContent = `API usage is billed to your Anthropic account. ${cost}`;
+  function updatePullCmd(modelValue) {
+    const cmd = document.getElementById('claude-pull-cmd');
+    if (cmd) cmd.textContent = `ollama pull ${modelValue}`;
   }
-
   function openClaudeSettingsModal() {
     const m = document.getElementById('modal-claude-settings');
     if (!m) return;
     const settings = getClaudeSettings();
-    const keyInput = document.getElementById('claude-api-key');
+    const baseInput = document.getElementById('claude-ollama-base');
     const modelSelect = document.getElementById('claude-model-select');
-    if (keyInput) keyInput.value = settings.apiKey || '';
-    if (modelSelect) modelSelect.value = settings.model || 'claude-sonnet-4-6';
-    updateClaudeCostHint(modelSelect?.value || 'claude-sonnet-4-6');
+    if (baseInput) baseInput.value = settings.ollamaBase || 'http://localhost:11434';
+    if (modelSelect) {
+      modelSelect.value = settings.model || 'qwen3.5:9b';
+      updatePullCmd(modelSelect.value);
+    }
     m.style.display = 'flex';
   }
   function closeClaudeSettingsModal() {
     const m = document.getElementById('modal-claude-settings');
     if (m) m.style.display = 'none';
   }
+  document.getElementById('claude-model-select')?.addEventListener('change', (e) => updatePullCmd(e.target.value));
   document.getElementById('btn-claude-settings')?.addEventListener('click', openClaudeSettingsModal);
   document.getElementById('claude-settings-cancel')?.addEventListener('click', closeClaudeSettingsModal);
   document.getElementById('modal-claude-settings')?.addEventListener('click', (e) => {
     if (e.target === e.currentTarget) closeClaudeSettingsModal();
   });
-  document.getElementById('claude-model-select')?.addEventListener('change', (e) => {
-    updateClaudeCostHint(e.target.value);
-  });
   document.getElementById('claude-settings-save')?.addEventListener('click', () => {
-    const keyInput = document.getElementById('claude-api-key');
+    const baseInput = document.getElementById('claude-ollama-base');
     const modelSelect = document.getElementById('claude-model-select');
-    if (keyInput) setClaudeSetting('apiKey', keyInput.value.trim());
+    if (baseInput) setClaudeSetting('ollamaBase', baseInput.value.trim() || 'http://localhost:11434');
     if (modelSelect) setClaudeSetting('model', modelSelect.value);
     closeClaudeSettingsModal();
-    showToast('Claude settings saved.');
-  });
-  document.getElementById('claude-api-key-toggle')?.addEventListener('click', () => {
-    const input = document.getElementById('claude-api-key');
-    const btn = document.getElementById('claude-api-key-toggle');
-    if (!input || !btn) return;
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.textContent = 'Hide';
-    } else {
-      input.type = 'password';
-      btn.textContent = 'Show';
-    }
+    showToast('AI settings saved.');
   });
   } // end CLAUDE_ENABLED
 });

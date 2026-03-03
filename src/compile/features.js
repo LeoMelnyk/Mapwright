@@ -3,17 +3,22 @@ import { cellKey, parseCellKey } from '../util/index.js';
 
 // ── Place Doors ──────────────────────────────────────────────────────
 
-function placeDoors(grid, doorConfig) {
+// warnings: optional array — invalid doors are pushed here and skipped (non-fatal).
+// Coordinates in messages use "row R, col C" to match the .map file format (row,col order).
+function placeDoors(grid, doorConfig, warnings = []) {
   for (const door of doorConfig) {
     const { col, row, direction, type } = door;
     const borderType = type === 'secret' ? 's' : 'd';
+    const at = `row ${row}, col ${col}`;
 
     if (!grid.inBounds(row, col)) {
-      throw new Error(`Door at ${col},${row}: out of bounds`);
+      warnings.push(`Door at ${at}: out of bounds — skipped`);
+      continue;
     }
 
     if (!grid.cells[row][col]) {
-      throw new Error(`Door at ${col},${row}: cell is void`);
+      warnings.push(`Door at ${at}: cell is void — skipped`);
+      continue;
     }
 
     const myRoom = grid.getRoom(row, col);
@@ -22,23 +27,22 @@ function placeDoors(grid, doorConfig) {
       // Explicit direction
       const dir = DIRECTIONS.find(d => d.name === direction);
       if (!dir) {
-        throw new Error(`Door at ${col},${row}: unknown direction '${direction}'`);
+        warnings.push(`Door at ${at}: unknown direction '${direction}' — skipped`);
+        continue;
       }
 
       const nr = row + dir.dr;
       const nc = col + dir.dc;
 
       if (!grid.inBounds(nr, nc) || !grid.cells[nr][nc]) {
-        throw new Error(
-          `Door at ${col},${row} ${direction}: neighbor cell is void or out of bounds`
-        );
+        warnings.push(`Door at ${at} ${direction}: neighbor cell is void or out of bounds — skipped`);
+        continue;
       }
 
       const neighborRoom = grid.getRoom(nr, nc);
       if (neighborRoom === myRoom) {
-        throw new Error(
-          `Door at ${col},${row} ${direction}: neighbor is the same room`
-        );
+        warnings.push(`Door at ${at} ${direction}: neighbor is the same room — skipped`);
+        continue;
       }
 
       grid.cells[row][col][dir.name] = borderType;
@@ -60,18 +64,18 @@ function placeDoors(grid, doorConfig) {
       }
 
       if (candidates.length === 0) {
-        throw new Error(
-          `Door at ${col},${row}: no wall facing another room. ` +
-          `This cell only borders void or cells in the same room.`
+        warnings.push(
+          `Door at ${at}: no wall facing another room — skipped (only borders void or same room)`
         );
+        continue;
       }
 
       if (candidates.length > 1) {
         const dirs = candidates.map(d => d.name).join(', ');
-        throw new Error(
-          `Door at ${col},${row}: ambiguous — walls face multiple rooms (${dirs}). ` +
-          `Specify direction: ${col},${row} ${candidates[0].name}: ${type}`
+        warnings.push(
+          `Door at ${at}: ambiguous — walls face multiple rooms (${dirs}) — skipped; add direction e.g. "${row},${col} ${candidates[0].name}: ${type}"`
         );
+        continue;
       }
 
       const dir = candidates[0];

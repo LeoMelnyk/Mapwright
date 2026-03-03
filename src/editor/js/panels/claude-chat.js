@@ -4,106 +4,175 @@ import { TOOL_DEFINITIONS, executeTool } from '../claude-tools.js';
 // ── System prompt ────────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `\
-You are an expert dungeon designer embedded in Mapwright, a D&D 5e map editor. \
-You create tactically interesting, atmospheric dungeons that are fun to run at the table.
+You are a dungeon-building tool for Mapwright. Complete every request by calling tools immediately.
 
-## Your capabilities
-You have tools to read and modify the current dungeon map directly. \
-When asked to build or modify a dungeon, use your tools — don't just describe what to do.
+## FORBIDDEN — never do these things
 
-## Coordinate system
-- Grid origin is top-left: row 0 = top edge, col 0 = left edge
-- createRoom(r1, c1, r2, c2): r1,c1 = top-left corner, r2,c2 = bottom-right corner (inclusive)
-- Always leave at least 1 cell of margin from all grid edges
-- Rooms must not overlap each other — use suggestPlacement to find safe coordinates
+- Ask "what would you like to do?" or "what should I…?"
+- Present a numbered or bulleted menu of options for the user to choose from
+- Say "I can help you with…", "Would you like me to…", "Shall I…", "Let me know if…"
+- Describe or summarize the current map state back to the user unless they explicitly asked for it
+- Stop after a read-only tool call and ask for direction — inspection results feed into your next write tool call, not into a question
+- Tell the user what you are about to do instead of doing it
 
-## Room labels — CRITICAL RULE
-- setLabel ONLY accepts {Letter}{Number} format: A1, B3, C12, etc. Any other text is rejected.
-- The map context always shows "Next room label" — use that value. Never invent a label.
-- Descriptive room names (Guard Room, Boss Chamber) go in your summary text, NOT on the map.
-- Corridors also get room labels — createCorridor assigns one automatically.
+## Decision rules
 
-## Dungeon design principles
-**Layout:** Plan the full layout before placing anything. Sketch connections mentally first.
-- Entrance (A1) near the top-left area of the grid
-- Number rooms in exploration order along the main path
-- Boss room furthest from entrance, requiring passage through other rooms
-- Include branching paths and optional areas — avoid pure linearity
-- Dead ends should contain rewards (treasure, lore) to justify exploration
+**For creation requests** ("make me a dungeon", "add a room", "place some lights"): choose a specific design yourself — pick room sizes, shapes, theme, props — then call loadMapText or the appropriate tool. State your design choice in one sentence AFTER the tool calls.
 
-**Room variety:** Every dungeon needs a mix:
-- Guard room / barracks (near entrance)
-- Corridor/antechamber (connects areas, adds tension)
-- Puzzle or trap room (non-combat challenge)
-- Feature room (shrine, chasm, flooded area — use fills)
-- Boss chamber (largest room, dramatic geometry)
+**For ambiguous requests**: make a reasonable creative interpretation, act on it, then briefly explain what you chose and why.
 
-**Room sizing:** Always refer to the "Grid scale" section in the current map context below. \
-Room sizes are given in grid cells — the context tells you exactly how many cells to use \
-for each room type at this map's scale. Corridors are always 2 cells wide.
+**For inspection requests** ("what rooms exist?", "what's at row 3, col 4?"): call the appropriate read tool and report the result concisely.
 
-**Connecting rooms:**
-- Use createCorridor(label1, label2) to connect two rooms — it handles geometry and doors automatically.
-- Only use findWallBetween + setDoor directly when rooms are already touching (no gap).
-- Secret doors (type "s") for hidden passages and optional areas.
+**Inspection → write chain**: if you call suggestPlacement, getRoomBounds, listRooms, getMapInfo, or any read tool to plan a change, you MUST follow it immediately with write tool calls — never with a question.
 
-**Props:** Use props to make rooms feel inhabited and purposeful.
-- Guard rooms: table, chairs, weapon rack, torch
-- Boss rooms: throne, altar, or a dramatic centerpiece prop
-- Storage/utility rooms: barrels, crates, shelves
-- Always call listProps first if unsure of available names
-- Call getRoomContents before adding props to avoid duplicating existing ones
+## Tool strategy
 
-**Textures:** Apply floor/surface textures to cells for visual variety.
-- Use setTextureRect to paint a whole room's floor in one step
-- Always call listTextures first to find valid texture IDs
-- Good uses: stone floor, wood planks, water surface, sand, grass, lava rock
+**Building or rebuilding a dungeon** → call loadMapText with a complete .map file. Design the entire layout — all rooms, corridors, doors, fills, trims, props, stairs — yourself in one shot. Do NOT ask the user to design it.
 
-**Labels:** Place at the cell closest to the room's center, clear of walls.
+**Modifying an existing map** → call exportMapText first, edit the text, then call loadMapText. Do NOT use individual cell tools for structural changes.
 
-## Workflow
-1. Call getMapInfo to understand the grid dimensions and existing content
-2. Note existing rooms from the context; check "Next room label" to know what label to use next
-3. Plan full layout: for each room, call suggestPlacement(rows, cols, adjacentTo?) to get safe coordinates
-4. Create rooms in exploration order (entrance first) using the coordinates from suggestPlacement
-5. Add room labels immediately after each room — use the "Next room label" value
-6. Connect rooms with createCorridor(label1, label2) — it places doors automatically
-7. Add fills (water, pit, difficult terrain) for environmental variety
-8. Apply textures with setTextureRect for floor variety (call listTextures first)
-9. Place props for atmosphere (call listProps first; call getRoomContents to avoid duplicates)
-10. Summarize what you built — room names (from labels), key features, any DM tips
+**Targeted single changes** → use individual tools: setTheme, setName, placeProp, removeProp, placeLight, placeLightInRoom, removeLight, setFill, setTexture, setDoor, addStairs, removeStairs, addBridge, addLevel, setHazard, setHazardRect, etc.
 
-## Response style
-- Be concise after building. One short paragraph describing what was made.
-- Add 1-2 sentence DM tip only when genuinely useful (encounter hook, trap idea).
-- Don't narrate every tool call. Just do the work, then summarize.
-- For questions that don't require map changes, answer conversationally without tools.
+**Do NOT** chain dozens of createRoom/setDoor/setWall calls to build from scratch — use loadMapText instead.
 
-## Few-shot examples
+## .map file format
 
-<example>
-User: Add a small guard room connected to A1
-Assistant: [calls findWallBetween("A1", ...) — but first checks getMapInfo to see what exists, then creates the guard room adjacent to A1 using mode "merge", sets label "A2", calls findWallBetween("A1","A2") to get the shared wall, places a door at the middle position, then places a table and two chairs]
-Summary: Added A2 — Guard Room (5×5) south of the entrance, connected by a door. Two guards are mid-meal at a table. DC 14 Perception to hear them from A1.
-</example>
+### Header
+\`\`\`yaml
+---
+name: Dungeon Name
+theme: stone-dungeon        # see listThemes for full list
+gridSize: 5                 # feet per cell (default 5)
+showGrid: true
+compassRose: true
+scale: true
+border: true
+labelStyle: circled         # circled | plain | bold
+---
+\`\`\`
 
-<example>
-User: Create a 5-room dungeon — abandoned dwarven mine
-Assistant: [calls getMapInfo, plans layout for the grid, creates rooms in this order:
-  A1 Mine Entrance (5×5, top-left area)
-  A2 Collapsed Tunnel/Corridor (3×8, connects east)
-  A3 Ore Processing Chamber (8×7, central, difficult-terrain fill for rubble)
-  A4 Foreman's Office (5×5, branch north from A3, secret door)
-  A5 Collapsed Shaft / Boss Chamber (10×9, south end, pit fill for the shaft)
-Then doors between each, props: mine cart prop in A3, desk in A4, torch sconces throughout]
-Summary: Five-room dwarven mine — entrance leads through a collapsed tunnel into the ore chamber (rough terrain from rubble). A hidden foreman's office branches north. The boss chamber features a collapsed mine shaft (pit) where a cave troll has made its lair. A4 is accessible only via secret door — good loot location.
-</example>`;
+### Grid
+\`\`\`
+# col:  0    5    10   15
+................  #  0
+..AAAA..BBBB....  #  1
+..AAAA..BBBB....  #  2
+..AAAA..BBBB....  #  3
+..AACCC.BBBB....  #  4
+....CCC.BBBB....  #  5
+....CCCDBBB.....  #  6
+.......DDDDD....  #  7
+.......DDDDD....  #  8
+................  #  9
+\`\`\`
+"." = void. Uppercase letter = room cell. Same letter = same room. Corridors are narrow rooms (2 cells wide).
+
+### legend (required)
+\`\`\`
+legend:
+  A: A1
+  B: A2
+  C: A3
+  D: A4
+\`\`\`
+
+### doors
+\`\`\`
+doors:
+  3,7 east: door
+  5,4 south: secret
+\`\`\`
+
+### fills
+\`\`\`
+fills:
+  A4: pit              # fills entire room: pit | water | lava
+  2,5: water           # fills single cell by row,col
+\`\`\`
+
+### trims (diagonal corners)
+\`\`\`
+trims:
+  A1: nw2              # cut northwest corner, 2-cell hypotenuse
+  A2: se3r             # southeast, 3-cell, rounded arc (convex)
+  A3: ne2ri            # northeast, 2-cell, rounded inverted (concave)
+\`\`\`
+Format: \`RoomLabel: {corner}{size}[r][i]\` — corners: nw ne sw se, size = cells, "r" = rounded, "i" = inverted.
+
+### stairs
+\`\`\`
+stairs:
+  A1: up               # auto-placed in room A1
+  A2: down
+  A3 up - A4 down      # linked pair (shown with same letter)
+\`\`\`
+
+### bridges
+\`\`\`
+bridges:
+  wood 0,3 0,7 2,5     # type then 3 corner-points (row,col)
+\`\`\`
+Types: wood | stone | rope | dock.
+
+### props
+\`\`\`
+props:
+  2,3: throne
+  7,9: altar facing:90
+\`\`\`
+
+### textures
+\`\`\`
+textures:
+  2,3: stone-tile
+  4,5: stone-tile 0.6
+\`\`\`
+
+### lights
+\`\`\`
+lights:
+  25,15: preset:torch
+  50,30: type:point color:#4488ff radius:20 intensity:0.8 falloff:smooth
+\`\`\`
+x,y are world-feet (col * gridSize, row * gridSize). Call listLightPresets for preset names.
+
+### Multi-level maps
+\`\`\`
+=== Ground Floor ===
+
+..AAAA..  # 0
+..AAAA..  # 1
+
+legend:
+  A: A1
+stairs:
+  A1: down
+
+=== Basement ===
+
+..BBBB..  # 0
+..BBBB..  # 1
+
+legend:
+  B: B1
+stairs:
+  B1: up
+\`\`\`
+
+## Available themes
+stone-dungeon, crypt, earth-cave, ice-cave, water-temple, underdark, volcanic, swamp, desert, dirt, grasslands, snow-tundra, arcane, alien, blue-parchment, sepia-parchment
+
+If you made changes to the map: write one short paragraph saying what was built or changed, then give 1 DM tip. No questions, no "let me know", no offers to do more.
+If you only answered a question (no writes): respond concisely and stop.`;
+
+
 
 // ── Context builder ──────────────────────────────────────────────────────────
 
 /**
- * Build a rich map context string: basic info + room directory + prop catalog summary.
- * Passed as part of the system prompt each turn so Claude always has current state.
+ * Build a rich map context for the AI.
+ * Uses exportToMapFormat() to provide an ASCII grid + ROOMS block + legend,
+ * then appends scale info, next label, and available props/textures.
  */
 function buildMapContext() {
   if (!window.editorAPI) return null;
@@ -112,82 +181,89 @@ function buildMapContext() {
     if (!info) return null;
 
     const gs = info.gridSize || 5;
-
-    // Compute calibrated room sizes (in cells) so every room hits real D&D dimensions
-    // regardless of grid scale. Target real-world sizes: tiny=10ft, small=20ft,
-    // medium=30ft, large=50ft, huge=70ft. Corridors always 2 cells wide.
-    const cells = (ft) => Math.max(1, Math.round(ft / gs));
-    const scaleNote = [
-      `## Grid scale`,
-      `1 cell = ${gs} ft. Design rooms to hit these real-world sizes:`,
-      `  Tight quarters (closet, alcove): ${cells(10)}×${cells(10)} – ${cells(15)}×${cells(15)} cells (${cells(10)*gs}–${cells(15)*gs} ft)`,
-      `  Guard post / small chamber:      ${cells(20)}×${cells(20)} – ${cells(25)}×${cells(25)} cells (${cells(20)*gs}–${cells(25)*gs} ft)`,
-      `  Standard encounter room:         ${cells(30)}×${cells(30)} – ${cells(40)}×${cells(40)} cells (${cells(30)*gs}–${cells(40)*gs} ft)`,
-      `  Great hall / throne room:        ${cells(50)}×${cells(50)} – ${cells(60)}×${cells(60)} cells (${cells(50)*gs}–${cells(60)*gs} ft)`,
-      `  Boss chamber:                    ${cells(60)}×${cells(60)} – ${cells(70)}×${cells(70)} cells (${cells(60)*gs}–${cells(70)*gs} ft)`,
-      `  Corridor width: 2 cells (${2*gs} ft)`,
-    ].join('\n');
+    const c = (ft) => Math.max(1, Math.round(ft / gs));
 
     const lines = [
       `## Current map: "${info.name}"`,
-      `Grid: ${info.rows} rows × ${info.cols} cols | ${gs} ft/square`,
-      `Theme: ${info.theme} | Labels: ${info.labelCount} | Props: ${info.propCount}`,
-      ``,
-      scaleNote,
+      `Grid: ${info.rows} rows × ${info.cols} cols | ${gs} ft/cell | Theme: ${info.theme}`,
+      '',
+      `## Grid scale (cells at ${gs} ft/cell)`,
+      `  Small room (guard post): ${c(20)}×${c(20)} cells`,
+      `  Medium room (encounter): ${c(30)}×${c(30)} cells`,
+      `  Large room / great hall: ${c(50)}×${c(50)} cells`,
+      `  Boss chamber:            ${c(60)}×${c(60)} cells`,
+      `  Corridor width: 2 cells`,
+      '',
     ];
 
-    // Extract room directory from cells
-    const map = window.editorAPI.getMap();
-    if (map?.cells) {
-      const labels = new Map(); // label text → first cell found
-      for (const [key, cell] of Object.entries(map.cells)) {
-        const label = cell?.center?.label;
-        if (label && !labels.has(label)) {
-          const [r, c] = key.split(',').map(Number);
-          labels.set(label, { r, c });
+    // ── Full .map export (grid + legend + doors + fills + props) ─────────────
+    // Include everything except textures/lights (too verbose) so the model can
+    // directly modify the .map text for the exportMapText → loadMapText workflow.
+    try {
+      const exportResult = window.editorAPI.exportToMapFormat();
+      if (exportResult?.success) {
+        const text = exportResult.mapText;
+        // Strip YAML header — the model already knows the header format
+        const afterHeader = text.replace(/^---[\s\S]*?---\n\n?/, '');
+        // Drop textures and lights sections (too verbose; use tool calls for those)
+        const stopAt = /^(?:textures|lights):/m;
+        const stopMatch = stopAt.exec(afterHeader);
+        const mapBody = (stopMatch ? afterHeader.slice(0, stopMatch.index) : afterHeader).trimEnd();
+        if (mapBody && !/^[\s.#]*$/.test(mapBody)) {
+          lines.push('## Current map (.map format — use exportMapText + loadMapText to modify)');
+          lines.push(mapBody);
+        } else {
+          lines.push('The map is currently empty — no rooms placed yet.');
         }
       }
+    } catch { /* export unavailable */ }
 
-      // Compute next available room label (mirrors tool-label.js _getNextRoomNumber logic)
+    // ── Next room label ───────────────────────────────────────────────────
+    try {
+      const map = window.editorAPI.getMap();
       const dungeonLetter = map?.metadata?.dungeonLetter || 'A';
       const labelPat = new RegExp(`^${dungeonLetter}(\\d+)$`);
       const usedNums = new Set();
-      for (const cell of Object.values(map?.cells ?? {})) {
-        const m = cell?.center?.label?.match(labelPat);
-        if (m) usedNums.add(parseInt(m[1]));
+      for (const row of map?.cells ?? []) {
+        if (!row) continue;
+        for (const cell of row) {
+          const m = cell?.center?.label?.match(labelPat);
+          if (m) usedNums.add(parseInt(m[1]));
+        }
       }
       let nextN = 1;
       while (usedNums.has(nextN)) nextN++;
       lines.push(`\nNext room label: ${dungeonLetter}${nextN}`);
+    } catch { /* label unavailable */ }
 
-      if (labels.size > 0) {
-        lines.push('\n## Existing rooms (label → bounds)');
-        for (const [label, { r, c }] of labels) {
-          try {
-            const bounds = window.editorAPI.getRoomBounds(label);
-            if (bounds) {
-              lines.push(
-                `  ${label}: rows ${bounds.r1}–${bounds.r2}, cols ${bounds.c1}–${bounds.c2}` +
-                ` (center ${bounds.centerRow},${bounds.centerCol})`
-              );
-            } else {
-              lines.push(`  ${label}: label at (${r},${c})`);
-            }
-          } catch {
-            lines.push(`  ${label}: label at (${r},${c})`);
-          }
-        }
-      } else {
-        lines.push('The map is currently empty — no rooms placed yet.');
+    // ── Levels (multi-level maps) ─────────────────────────────────────────
+    try {
+      const levels = window.editorAPI.getLevels();
+      if (levels?.length > 1) {
+        const summary = levels.map((l, i) => `  Level ${i + 1}: "${l.name}" (rows ${l.startRow}–${l.startRow + l.numRows - 1})`).join('\n');
+        lines.push(`\n## Levels (${levels.length} total — use getLevels for full info)`);
+        lines.push(summary);
       }
-    }
+    } catch { /* levels unavailable */ }
 
-    // Available prop categories (names omitted to save tokens — call listProps tool to see them)
+    // ── Lights ────────────────────────────────────────────────────────────
+    try {
+      const lightsResult = window.editorAPI.getLights();
+      const lights = lightsResult?.lights ?? [];
+      if (lights.length > 0) {
+        const enabled = lightsResult?.lightingEnabled ? 'enabled' : 'disabled';
+        const ambient = lightsResult?.ambientLight != null ? `, ambient: ${lightsResult.ambientLight}` : '';
+        lines.push(`\n## Lights: ${lights.length} light(s) on map (lighting ${enabled}${ambient}) — call getLights for full list`);
+      }
+    } catch { /* lights unavailable */ }
+
+    // ── Available props (compact list for .map props: section) ──────────────
     try {
       const propInfo = window.editorAPI.listProps();
-      if (propInfo?.categories?.length) {
-        lines.push(`\n## Available prop categories: ${propInfo.categories.join(', ')}`);
-        lines.push(`(Use the listProps tool to see individual prop names within each category.)`);
+      if (propInfo?.props && Object.keys(propInfo.props).length > 0) {
+        const names = Object.keys(propInfo.props).sort().join(', ');
+        lines.push(`\n## Valid prop names for props: section`);
+        lines.push(names);
       }
     } catch { /* prop catalog unavailable */ }
 
@@ -197,23 +273,64 @@ function buildMapContext() {
   }
 }
 
+// ── AI session logger ────────────────────────────────────────────────────────
+// Mirrors [AI] console logs to ai-session.log on disk so they can be read
+// externally. Each new user message resets the file via resetAILog().
+
+function aiLog(...args) {
+  console.log(...args);
+  const line = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ');
+  fetch('/api/ai-log', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ line }),
+  }).catch(() => {});
+}
+
+function resetAILog() {
+  fetch('/api/ai-log', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reset: true, line: `=== Session ${new Date().toISOString()} ===` }),
+  }).catch(() => {});
+}
+
 // ── Panel state ──────────────────────────────────────────────────────────────
 
 let _container = null;
 let _messages = []; // Anthropic message history
 let _abortController = null; // non-null while a request is in flight
 let _sessionTokens = { input: 0, output: 0 }; // cumulative for current chat session
-
-// Cost per million tokens (USD) — update if Anthropic changes pricing
-const MODEL_COSTS = {
-  'claude-opus-4-6':          { input: 15.00, output: 75.00 },
-  'claude-sonnet-4-6':        { input:  3.00, output: 15.00 },
-  'claude-haiku-4-5-20251001':{ input:  0.80, output:  4.00 },
-};
+let _ollamaStatus = null; // { running, models } — set on init
+let _streamingEl = null; // <span> inside live streaming bubble, null when not streaming
+let _planMode = false;       // true when plan-before-act mode is on
+let _pendingPlanIdx = -1;    // _messages index of the awaiting-execute plan (-1 = none)
+const _hiddenMsgIdxs = new Set(); // indices of injected system messages to hide from UI
 
 export function initClaudePanel(containerEl) {
   _container = containerEl;
   render();
+  checkOllamaStatus();
+}
+
+async function checkOllamaStatus() {
+  const settings = getClaudeSettings();
+  const base = settings.ollamaBase || 'http://localhost:11434';
+  try {
+    const r = await fetch(`/api/ollama-status?base=${encodeURIComponent(base)}`);
+    _ollamaStatus = await r.json();
+  } catch {
+    _ollamaStatus = { running: false, models: [] };
+  }
+  updateStatusDot();
+  if (_messages.length === 0) renderMessages();
+}
+
+function updateStatusDot() {
+  const dot = document.getElementById('claude-status-dot');
+  if (!dot) return;
+  dot.classList.toggle('offline', !_ollamaStatus?.running);
+  dot.title = _ollamaStatus?.running ? 'Ollama running' : 'Ollama not detected';
 }
 
 // ── Rendering ────────────────────────────────────────────────────────────────
@@ -221,10 +338,15 @@ export function initClaudePanel(containerEl) {
 function render() {
   if (!_container) return;
   _container.innerHTML = `<div class="claude-chat">
+    <div class="claude-chat-header">
+      <span class="claude-chat-title">AI Assistant</span>
+      <button id="claude-plan-toggle" class="claude-plan-toggle" title="Plan mode — AI writes a plan before building">Plan</button>
+      <span id="claude-status-dot" class="claude-status-dot offline" title="Checking Ollama…"></span>
+    </div>
     <div class="claude-message-list" id="claude-message-list"></div>
     <div class="claude-token-bar" id="claude-token-bar" style="display:none"></div>
     <div class="claude-input-row">
-      <textarea class="claude-input" id="claude-input" placeholder="Ask Claude to build or modify your dungeon…" rows="2"></textarea>
+      <textarea class="claude-input" id="claude-input" placeholder="Ask me to build or modify your dungeon…" rows="2"></textarea>
       <button class="claude-send-btn" id="claude-send-btn" title="Send">
         <svg class="icon-send" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M2 8L14 2L8 14L7 9L2 8Z" fill="currentColor"/>
@@ -245,18 +367,41 @@ function renderMessages() {
   if (!list) return;
 
   if (_messages.length === 0) {
+    const settings = getClaudeSettings();
+    const model = settings.model || 'qwen3.5:9b';
+    let setupHtml = '';
+    if (_ollamaStatus && !_ollamaStatus.running) {
+      setupHtml = `<div class="claude-setup-card">
+        <div class="claude-setup-title">Ollama not detected</div>
+        <p>Install Ollama to use AI dungeon generation:</p>
+        <ol>
+          <li>Download from <strong>ollama.com</strong></li>
+          <li>Run: <code>ollama pull ${escHtml(model)}</code></li>
+          <li>Restart Mapwright</li>
+        </ol>
+        <p class="claude-setup-hint">Configure the URL in <strong>Help → AI Settings</strong>.</p>
+      </div>`;
+    } else if (_ollamaStatus?.running && _ollamaStatus.models.length > 0) {
+      const baseName = model.split(':')[0];
+      if (!_ollamaStatus.models.some(m => m.startsWith(baseName))) {
+        setupHtml = `<div class="claude-setup-card">
+          <div class="claude-setup-title">Model not pulled</div>
+          <p>Run this command, then refresh:</p>
+          <code>ollama pull ${escHtml(model)}</code>
+        </div>`;
+      }
+    }
     list.innerHTML = `<div class="claude-empty-state">
       <div class="claude-empty-icon">✦</div>
-      <div class="claude-empty-title">Claude AI Assistant</div>
-      <div class="claude-empty-hint">Ask me to create rooms, add doors, place props, change themes — anything about your dungeon.</div>
-      <div class="claude-empty-hint">Make sure your API key is set in <strong>Help → Claude Settings</strong>.</div>
+      <div class="claude-empty-title">AI Dungeon Assistant</div>
+      ${setupHtml || '<div class="claude-empty-hint">Ask me to create rooms, add doors, place props, change themes — anything about your dungeon.</div>'}
     </div>`;
     return;
   }
 
   list.innerHTML = _messages
-    .filter(m => m.role === 'user' || m.role === 'assistant')
-    .map(m => {
+    .map((m, idx) => {
+      if (_hiddenMsgIdxs.has(idx)) return '';
       if (m.role === 'user') {
         const text = Array.isArray(m.content)
           ? m.content.filter(b => b.type === 'text').map(b => b.text).join('')
@@ -269,7 +414,11 @@ function renderMessages() {
         const textBlocks = blocks.filter(b => b.type === 'text');
         if (textBlocks.length === 0) return '';
         const text = textBlocks.map(b => b.text).join('');
-        return `<div class="claude-message claude-message-assistant"><div class="claude-bubble">${formatMarkdown(text)}</div></div>`;
+        const bubble = `<div class="claude-message claude-message-assistant"><div class="claude-bubble">${formatMarkdown(text)}</div></div>`;
+        if (idx === _pendingPlanIdx) {
+          return bubble + `<div class="claude-plan-actions"><button class="claude-execute-btn">Execute Plan</button></div>`;
+        }
+        return bubble;
       }
     })
     .join('');
@@ -293,6 +442,51 @@ function wireEvents() {
       else sendMessage();
     }
   });
+
+  document.getElementById('claude-plan-toggle')
+    ?.addEventListener('click', togglePlanMode);
+
+  // Execute button — event delegation so it survives renderMessages() re-renders
+  document.getElementById('claude-message-list')
+    ?.addEventListener('click', e => {
+      if (e.target.classList.contains('claude-execute-btn')) executePlan();
+    });
+}
+
+// ── Plan mode ─────────────────────────────────────────────────────────────────
+
+function togglePlanMode() {
+  _planMode = !_planMode;
+  _pendingPlanIdx = -1;
+  const btn = document.getElementById('claude-plan-toggle');
+  if (btn) btn.classList.toggle('claude-plan-active', _planMode);
+}
+
+async function executePlan() {
+  _pendingPlanIdx = -1;
+  const wasInPlanMode = _planMode;
+  _planMode = false;   // run execution in normal mode (tools allowed)
+
+  const settings = getClaudeSettings();
+  _abortController = new AbortController();
+  setProcessing(true);
+
+  _messages.push({ role: 'user', content: 'Execute the plan.' });
+  renderMessages();
+  showThinking();
+
+  try {
+    await runConversationLoop(settings, _abortController.signal);
+  } catch (err) {
+    aiLog('[AI] executePlan error:', err.name, err.message);
+    hideThinking();
+    if (err.name !== 'AbortError') appendErrorMessage(`Error: ${err.message}`);
+  } finally {
+    _planMode = wasInPlanMode;
+    _abortController = null;
+    setProcessing(false);
+    document.getElementById('claude-input')?.focus();
+  }
 }
 
 // ── Message handling ─────────────────────────────────────────────────────────
@@ -304,12 +498,9 @@ async function sendMessage() {
   if (!text) return;
 
   const settings = getClaudeSettings();
-  if (!settings.apiKey) {
-    appendErrorMessage('No API key configured. Go to Help → Claude Settings to add your Anthropic API key.');
-    return;
-  }
 
   input.value = '';
+  resetAILog();
   _abortController = new AbortController();
   setProcessing(true);
 
@@ -319,7 +510,20 @@ async function sendMessage() {
 
   try {
     await runConversationLoop(settings, _abortController.signal);
+    // In plan mode, detect if the AI wrote a plan (no tool calls) and show Execute button
+    if (_planMode && _pendingPlanIdx === -1) {
+      const last = _messages[_messages.length - 1];
+      if (last?.role === 'assistant') {
+        const blocks = Array.isArray(last.content)
+          ? last.content : [{ type: 'text', text: last.content }];
+        if (!blocks.some(b => b.type === 'tool_use')) {
+          _pendingPlanIdx = _messages.length - 1;
+          renderMessages();
+        }
+      }
+    }
   } catch (err) {
+    aiLog('[AI] caught error:', err.name, err.message, err);
     hideThinking();
     if (err.name !== 'AbortError') {
       appendErrorMessage(`Error: ${err.message}`);
@@ -331,54 +535,168 @@ async function sendMessage() {
   }
 }
 
+// ── Streaming bubble helpers ──────────────────────────────────────────────────
+
+function showStreamingBubble() {
+  hideThinking();
+  const list = document.getElementById('claude-message-list');
+  if (!list) return;
+  const el = document.createElement('div');
+  el.className = 'claude-message claude-message-assistant';
+  el.innerHTML = '<div class="claude-bubble claude-streaming"><span class="claude-streaming-text"></span><span class="claude-cursor"></span></div>';
+  list.appendChild(el);
+  list.scrollTop = list.scrollHeight;
+  _streamingEl = el.querySelector('.claude-streaming-text');
+}
+
+function updateStreamingBubble(text) {
+  if (!_streamingEl) return;
+  _streamingEl.textContent += text;
+  const list = document.getElementById('claude-message-list');
+  if (list) list.scrollTop = list.scrollHeight;
+}
+
+function finalizeStreamingBubble() {
+  if (!_streamingEl) return;
+  const bubble = _streamingEl.closest('.claude-bubble');
+  if (bubble) {
+    const text = _streamingEl.textContent;
+    bubble.innerHTML = formatMarkdown(text);
+    bubble.classList.remove('claude-streaming');
+  }
+  _streamingEl = null;
+}
+
+// ── Streaming fetch ───────────────────────────────────────────────────────────
+
+async function fetchStreamingResponse(body, signal) {
+  aiLog('[AI] fetch start — model:', body.model, '| tools:', body.tools?.length, '| messages:', body.messages?.length);
+
+  const response = await fetch('/api/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...body, stream: true }),
+    signal,
+  });
+
+  aiLog('[AI] response status:', response.status);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+    aiLog('[AI] response error:', data);
+    throw new Error(data.error || `Request failed (${response.status})`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let sseBuffer = '';
+  let accText = '';
+  let toolUseBlocks = [];
+  let eventCount = 0;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) { aiLog('[AI] stream done (reader exhausted)'); break; }
+
+    sseBuffer += decoder.decode(value, { stream: true });
+    const lines = sseBuffer.split('\n');
+    sseBuffer = lines.pop(); // keep incomplete line
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+      const raw = line.slice(6).trim();
+      if (raw === '[DONE]') { aiLog('[AI] [DONE] received'); break; }
+
+      let parsed;
+      try { parsed = JSON.parse(raw); } catch { continue; }
+
+      eventCount++;
+      if (eventCount <= 5 || parsed.type !== 'text_delta') {
+        aiLog('[AI] event:', JSON.stringify(parsed).slice(0, 120));
+      }
+
+      if (parsed.type === 'text_delta') {
+        if (!_streamingEl) showStreamingBubble();
+        updateStreamingBubble(parsed.text);
+        accText += parsed.text;
+      } else if (parsed.type === 'tool_use') {
+        aiLog('[AI] tool_use blocks:', parsed.blocks?.map(b => b.name));
+        toolUseBlocks = parsed.blocks;
+      }
+    }
+  }
+
+  finalizeStreamingBubble();
+
+  aiLog('[AI] stream complete — accText length:', accText.length, '| tool blocks:', toolUseBlocks.length, '| total events:', eventCount);
+
+  const content = [];
+  if (accText) content.push({ type: 'text', text: accText });
+  for (const b of toolUseBlocks) content.push(b);
+  return {
+    content,
+    stop_reason: toolUseBlocks.length > 0 ? 'tool_use' : 'end_turn',
+    usage: { input_tokens: 0, output_tokens: 0 }, // Ollama streaming doesn't report usage
+  };
+}
+
 async function runConversationLoop(settings, signal) {
   let toolsUsed = 0;
 
   // Build context once per user message, not once per tool iteration.
   // Re-building every loop turn multiplies token usage by the number of tool calls.
   const mapContext = buildMapContext();
-  const system = SYSTEM_PROMPT + (mapContext ? `\n\n${mapContext}` : '');
+  const planInstruction = _planMode
+    ? `\n\nPLAN MODE: You may call read-only tools (getMapInfo, listRooms, exportMapText, etc.) to understand the current map, but do NOT call any write tools. Do NOT ask clarifying questions. Make all creative decisions yourself — choose room sizes, positions, connections, theme, props, and doors. After any tool calls, write a concise numbered plan listing every element you will create. End your plan text with a line containing only "---". The user will click Execute to build it.`
+    : '';
+  const system = SYSTEM_PROMPT + planInstruction + (mapContext ? `\n\n${mapContext}` : '');
 
   // Capture undo depth before any changes so we can offer "Undo all" after.
   const startUndoDepth = window.editorAPI?.getUndoDepth?.() ?? null;
 
-  const readOnlyTools = new Set(['getMapInfo', 'getCellInfo', 'getRoomBounds', 'findWallBetween',
-    'listProps', 'listTextures', 'getBridges', 'getRoomContents', 'suggestPlacement']);
+  const readOnlyTools = new Set(['exportMapText', 'getMapInfo', 'getCellInfo', 'getRoomBounds',
+    'findWallBetween', 'listProps', 'listTextures', 'getBridges', 'getRoomContents', 'suggestPlacement', 'listRooms']);
 
-  const model = settings.model || 'claude-opus-4-6';
+  const model = settings.model || 'qwen3.5:9b';
 
+  const MAX_ITERATIONS = 15;
+  const MAX_PLAN_ITERATIONS = 5; // plan phase should inspect briefly then write
+  let iteration = 0;
+  let planNudgeSent = false;
   while (true) {
-    const response = await fetch('/api/claude', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: _messages,
-        apiKey: settings.apiKey,
-        model,
-        tools: TOOL_DEFINITIONS,
-        system,
-      }),
-      signal,
-    });
+    iteration++;
+    aiLog(`[AI] loop iteration ${iteration}`);
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || `Request failed (${response.status})`);
+    if (iteration > MAX_ITERATIONS) {
+      hideThinking();
+      appendErrorMessage(`Stopped after ${MAX_ITERATIONS} tool calls — the map may be incomplete. Try a simpler request or use "Undo all".`);
+      renderMessages();
+      return;
     }
 
-    // Accumulate token usage from every API response
-    if (data.usage) {
-      _sessionTokens.input  += data.usage.input_tokens  ?? 0;
-      _sessionTokens.output += data.usage.output_tokens ?? 0;
-      updateTokenDisplay(model);
+    // In plan mode: after MAX_PLAN_ITERATIONS read-only calls, nudge the AI to write the plan
+    if (_planMode && !planNudgeSent && iteration > MAX_PLAN_ITERATIONS) {
+      planNudgeSent = true;
+      _messages.push({ role: 'user', content: "You've gathered enough information. Write your complete plan now — do not call any more tools." });
+      _hiddenMsgIdxs.add(_messages.length - 1);
     }
 
+    const data = await fetchStreamingResponse({
+      messages: _messages,
+      ollamaBase: settings.ollamaBase,
+      model,
+      tools: _planMode ? TOOL_DEFINITIONS.filter(t => readOnlyTools.has(t.name)) : TOOL_DEFINITIONS,
+      system,
+    }, signal);
+
+    aiLog('[AI] stop_reason:', data.stop_reason, '| content blocks:', data.content.length);
     _messages.push({ role: 'assistant', content: data.content });
 
     if (data.stop_reason === 'end_turn') {
       hideThinking();
       renderMessages();
+      updateTokenDisplay(model);
       if (toolsUsed > 0 && startUndoDepth !== null) {
         showUndoToast(startUndoDepth);
       }
@@ -389,13 +707,51 @@ async function runConversationLoop(settings, signal) {
       const toolUseBlocks = data.content.filter(b => b.type === 'tool_use');
       const toolResults = [];
 
+      hideThinking(); // clear any existing before re-showing
+      showThinking();
       for (const block of toolUseBlocks) {
+        aiLog('[AI] executing tool:', block.name, JSON.stringify(block.input).slice(0, 80));
         updateThinkingText(block.name);
-        const result = executeTool(block.name, block.input);
+        let result;
+        try {
+          result = await Promise.resolve(executeTool(block.name, block.input));
+        } catch (toolErr) {
+          result = { error: `${block.name} failed: ${toolErr.message}` };
+        }
+        aiLog('[AI] tool result:', JSON.stringify(result).slice(0, 120));
+        // Truncate large tool results to prevent context bloat.
+        // Catalog and export tools are never truncated (bounded or needed in full).
+        // For other tools: try smart array-level truncation before falling back to char-slice.
+        const NO_TRUNCATE = new Set([
+          'exportMapText', 'loadMapText',
+          'listProps', 'listTextures', 'listLightPresets', 'listRooms', 'listThemes',
+        ]);
+        const MAX_RESULT = 3000;
+        let resultStr = JSON.stringify(result);
+        if (!NO_TRUNCATE.has(block.name) && resultStr.length > MAX_RESULT) {
+          // Try trimming arrays at item boundaries before doing a raw char-slice
+          if (result && typeof result === 'object' && !Array.isArray(result)) {
+            const trimmed = { ...result };
+            for (const [k, v] of Object.entries(trimmed)) {
+              if (Array.isArray(v) && JSON.stringify(v).length > 400) {
+                const kept = Math.max(1, Math.ceil(v.length / 2));
+                if (kept < v.length) {
+                  trimmed[k] = v.slice(0, kept);
+                  trimmed[`${k}_note`] = `showing ${kept}/${v.length} items`;
+                }
+              }
+            }
+            const trimmedStr = JSON.stringify(trimmed);
+            if (trimmedStr.length < resultStr.length) resultStr = trimmedStr;
+          }
+          if (resultStr.length > MAX_RESULT) {
+            resultStr = resultStr.slice(0, MAX_RESULT) + '… [truncated]';
+          }
+        }
         toolResults.push({
           type: 'tool_result',
           tool_use_id: block.id,
-          content: JSON.stringify(result),
+          content: resultStr,
         });
         if (!readOnlyTools.has(block.name)) toolsUsed++;
       }
@@ -405,6 +761,7 @@ async function runConversationLoop(settings, signal) {
     }
 
     // Unexpected stop reason
+    aiLog('[AI] unexpected stop_reason:', data.stop_reason);
     hideThinking();
     renderMessages();
     return;
@@ -426,6 +783,7 @@ function setProcessing(active) {
 
 function stopGeneration() {
   _abortController?.abort();
+  finalizeStreamingBubble();
   hideThinking();
   // Add a soft visual indicator that the user stopped the response
   const list = document.getElementById('claude-message-list');
@@ -438,7 +796,7 @@ function stopGeneration() {
   }
 }
 
-function updateTokenDisplay(model) {
+function updateTokenDisplay(_model) {
   const bar = document.getElementById('claude-token-bar');
   if (!bar) return;
   const { input, output } = _sessionTokens;
@@ -446,12 +804,9 @@ function updateTokenDisplay(model) {
   if (total === 0) { bar.style.display = 'none'; return; }
 
   const fmt = n => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
-  const costs = MODEL_COSTS[model] ?? MODEL_COSTS['claude-sonnet-4-6'];
-  const cost = (input / 1e6) * costs.input + (output / 1e6) * costs.output;
-  const costStr = cost < 0.01 ? `<$0.01` : `$${cost.toFixed(2)}`;
 
   bar.style.display = '';
-  bar.textContent = `Session: ↑${fmt(input)} ↓${fmt(output)} ≈ ${costStr}`;
+  bar.textContent = `Session: ↑${fmt(input)} ↓${fmt(output)} (FREE)`;
 }
 
 function showThinking() {
@@ -473,6 +828,7 @@ function updateThinkingText(toolName) {
   const label = document.querySelector('#claude-thinking .claude-thinking-label');
   if (!label) return;
   const LABELS = {
+    loadMapText: 'Building dungeon', exportMapText: 'Exporting map',
     getMapInfo: 'Reading map', getCellInfo: 'Inspecting cell', getRoomBounds: 'Checking room',
     getRoomContents: 'Reading room contents', findWallBetween: 'Finding wall',
     listProps: 'Checking props', listTextures: 'Checking textures', getBridges: 'Checking bridges',
@@ -485,11 +841,21 @@ function updateThinkingText(toolName) {
     setTexture: 'Applying texture', setTextureRect: 'Applying texture',
     floodFillTexture: 'Painting texture', removeTexture: 'Clearing texture', removeTextureRect: 'Clearing texture',
     placeProp: 'Placing prop', rotateProp: 'Rotating prop',
+    removeProp: 'Removing prop', removePropsInRect: 'Clearing props',
     placeLight: 'Placing light', addStairs: 'Adding stairs', linkStairs: 'Linking stairs',
+    removeStairs: 'Removing stairs',
+    getLights: 'Checking lights', removeLight: 'Removing light',
+    setAmbientLight: 'Setting ambient light', setLightingEnabled: 'Toggling lighting',
+    listLightPresets: 'Checking light presets',
     addBridge: 'Adding bridge', removeBridge: 'Removing bridge',
     paintCell: 'Painting cell', paintRect: 'Painting area', eraseCell: 'Erasing cell', eraseRect: 'Erasing area',
     setHazard: 'Marking hazard', setHazardRect: 'Marking hazard', mergeRooms: 'Merging rooms',
     newMap: 'Creating new map',
+    setLabelStyle: 'Setting label style', listThemes: 'Checking themes',
+    getLevels: 'Checking levels', addLevel: 'Adding level',
+    renameLevel: 'Renaming level', resizeLevel: 'Resizing level',
+    findCellByLabel: 'Finding room', shiftCells: 'Repositioning map',
+    listRooms: 'Listing rooms', placeLightInRoom: 'Placing light',
   };
   label.textContent = (LABELS[toolName] ?? toolName) + '…';
 }
@@ -499,7 +865,7 @@ function showUndoToast(startDepth) {
   if (!list) return;
   const toast = document.createElement('div');
   toast.className = 'claude-undo-toast';
-  toast.innerHTML = `<span>Claude made changes.</span><button class="claude-undo-all-btn">Undo all</button>`;
+  toast.innerHTML = `<span>AI made changes.</span><button class="claude-undo-all-btn">Undo all</button>`;
   toast.querySelector('.claude-undo-all-btn').addEventListener('click', () => {
     window.editorAPI?.undoToDepth(startDepth);
     toast.remove();

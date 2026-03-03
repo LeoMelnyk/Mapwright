@@ -98,6 +98,23 @@ const api = {
     return { success: true };
   },
 
+  /**
+   * Compile a .map format text string server-side and load the result.
+   * Used by the AI assistant to load a generated .map file in one step.
+   */
+  async importMapText(mapText) {
+    const r = await fetch('/api/compile-map', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mapText }),
+    });
+    const data = await r.json();
+    if (!r.ok || !data.success) throw new Error(data.error || 'compile-map failed');
+    const loadResult = this.loadMap(data.dungeon);
+    if (data.warnings?.length) loadResult.warnings = data.warnings;
+    return loadResult;
+  },
+
   getMap() {
     return JSON.parse(JSON.stringify(state.dungeon));
   },
@@ -1851,13 +1868,45 @@ const api = {
     // Place doors at both connection points
     for (const roomLabel of [label1, label2]) {
       const walls = this.findWallBetween(roomLabel, corridorLabel);
-      if (walls?.walls?.length) {
-        const mid = walls.walls[Math.floor(walls.walls.length / 2)];
+      if (walls?.length) {
+        const mid = walls[Math.floor(walls.length / 2)];
         this.setDoor(mid.row, mid.col, mid.direction, 'd');
       }
     }
 
     return { success: true, corridorLabel, r1: cr1, c1: cc1, r2: cr2, c2: cc2 };
+  },
+
+  // ── AI convenience methods ─────────────────────────────────────────────────
+
+  /** Return all labeled rooms with bounding boxes and centers. */
+  listRooms() {
+    const cells = state.dungeon.cells;
+    const labels = new Map();
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        const lbl = cells[r]?.[c]?.center?.label;
+        if (lbl) labels.set(lbl, { row: r, col: c });
+      }
+    }
+    const rooms = [];
+    for (const [label] of labels) {
+      const roomCells = this._collectRoomCells(label);
+      const b = roomBoundsFromKeys(roomCells);
+      if (b) rooms.push({ label, r1: b.r1, c1: b.c1, r2: b.r2, c2: b.c2, center: { row: b.centerRow, col: b.centerCol } });
+    }
+    rooms.sort((a, b) => a.label.localeCompare(b.label));
+    return { success: true, rooms };
+  },
+
+  /** Place a light at the center of a labeled room. Handles world-feet conversion automatically. */
+  placeLightInRoom(label, preset, config = {}) {
+    const b = this.getRoomBounds(label);
+    if (!b) return { error: `Room "${label}" not found` };
+    const gs = state.dungeon.metadata.gridSize || 5;
+    const x = b.centerCol * gs + gs / 2;
+    const y = b.centerRow * gs + gs / 2;
+    return this.placeLight(x, y, preset ? { preset, ...config } : config);
   },
 };
 

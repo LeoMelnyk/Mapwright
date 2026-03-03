@@ -2,6 +2,26 @@
 // These let Claude read and modify dungeon maps directly via editorAPI.
 
 export const TOOL_DEFINITIONS = [
+  // ── .map format tools (primary workflow) ─────────────────────────────────
+  {
+    name: 'loadMapText',
+    description: 'Compile and load a complete .map format dungeon. This replaces the entire current map. Use this as the primary method to build or rebuild a dungeon — write the full .map text and call this once instead of calling many individual tools. NOTE: The doors: section uses col,row order (x,y), e.g. "3,7 east: door" means col=3, row=7. This differs from all tool calls which use row,col.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        mapText: {
+          type: 'string',
+          description: 'Complete .map format text including YAML header, ASCII grid, legend, doors, fills, props sections.',
+        },
+      },
+      required: ['mapText'],
+    },
+  },
+  {
+    name: 'exportMapText',
+    description: 'Export the current dungeon as a .map format text string (YAML header + ASCII grid + legend + doors + fills + props + textures). Use this before loadMapText to get the current map state for modification.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
   {
     name: 'getMapInfo',
     description: 'Get current map metadata: name, dimensions, theme, room count, etc. Call this first to understand the current state of the map.',
@@ -185,7 +205,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'addStairs',
-    description: 'Place stairs defined by 3 corner points in grid-corner coordinates. P1→P2 is the base edge; P3 sets the depth/shape.',
+    description: 'PREFER the stairs: section in loadMapText for simple up/down stairs — use this tool only for custom stair geometries. Place stairs using 3 corner points (grid-corner coordinates, not cell centers). P1→P2 = base edge (hatch lines start here); P3 = depth target. Examples: 3-cell rectangle stair facing south — p1r=5,p1c=2, p2r=5,p2c=5, p3r=4,p3c=5. Single-cell stair — p1r=5,p1c=5, p2r=5,p2c=6, p3r=4,p3c=6.',
     input_schema: {
       type: 'object',
       properties: {
@@ -217,7 +237,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'placeLight',
-    description: 'Place a light source at world-feet coordinates (x = col * gridSize, y = row * gridSize). Use preset names like "torch", "candle", "brazier".',
+    description: 'Place a light source at world-feet coordinates. IMPORTANT: x = col × gridSize, y = row × gridSize — NOT raw row/col. For a 5ft grid, cell (row=3, col=5) → x=25, y=15. Use preset names like "torch", "candle", "brazier" — call listLightPresets for all names.',
     input_schema: {
       type: 'object',
       properties: {
@@ -306,7 +326,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'floodFillTexture',
-    description: 'Flood-fill a texture starting from a cell, spreading to all connected cells with the same texture. Useful for painting large areas like dungeon floors or water.',
+    description: 'Flood-fill a texture starting from a cell, spreading to all connected non-void cells that share the same current texture state (including cells with no texture). Click any cell in a room to paint the entire connected floor area in one call. Call listTextures first for valid IDs.',
     input_schema: {
       type: 'object',
       properties: {
@@ -479,7 +499,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'addBridge',
-    description: 'Place a bridge defined by 3 corner points (same coordinate system as addStairs). P1→P2 is the base edge; P3 sets depth. Good for crossing pits, chasms, or water.',
+    description: 'PREFER the bridges: section in loadMapText for common bridges — use this tool only for custom bridge geometries. Place a bridge using 3 corner points (same system as addStairs). P1→P2 = bridge span; P3 = depth (typically 1 row beyond P2). Example: 3-cell wood bridge spanning east across row 5 — type="wood", p1r=5,p1c=3, p2r=5,p2c=6, p3r=4,p3c=6. Good for crossing water, pits, or chasms.',
     input_schema: {
       type: 'object',
       properties: {
@@ -559,31 +579,364 @@ export const TOOL_DEFINITIONS = [
       required: ['label1', 'label2'],
     },
   },
+  // ── Props ─────────────────────────────────────────────────────────────────
+  {
+    name: 'removeProp',
+    description: 'Remove the prop at a cell.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        row: { type: 'integer' },
+        col: { type: 'integer' },
+      },
+      required: ['row', 'col'],
+    },
+  },
+  {
+    name: 'removePropsInRect',
+    description: 'Remove all props from every cell in a rectangle. One undo step.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        r1: { type: 'integer' }, c1: { type: 'integer' },
+        r2: { type: 'integer' }, c2: { type: 'integer' },
+      },
+      required: ['r1', 'c1', 'r2', 'c2'],
+    },
+  },
+  // ── Stairs ────────────────────────────────────────────────────────────────
+  {
+    name: 'removeStairs',
+    description: 'Remove the stairs at or overlapping a given cell.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        row: { type: 'integer' },
+        col: { type: 'integer' },
+      },
+      required: ['row', 'col'],
+    },
+  },
+  // ── Lighting ─────────────────────────────────────────────────────────────
+  {
+    name: 'listLightPresets',
+    description: 'List all available light presets (torch, candle, brazier, lantern, etc.) with their properties. Call this before placeLight to find valid preset names.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'getLights',
+    description: 'List all lights currently on the map with their IDs, positions, colors, and radii.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'removeLight',
+    description: 'Remove a light by its numeric ID (use getLights to find IDs).',
+    input_schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'integer', description: 'Light ID from getLights' },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'setAmbientLight',
+    description: 'Set the ambient light level (0.0 = pitch black, 1.0 = fully lit, 0.1–0.3 typical for a dark dungeon). Only affects maps with lighting enabled.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        level: { type: 'number', description: 'Ambient light 0.0–1.0' },
+      },
+      required: ['level'],
+    },
+  },
+  {
+    name: 'setLightingEnabled',
+    description: 'Enable or disable the lighting system for the map.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        enabled: { type: 'boolean' },
+      },
+      required: ['enabled'],
+    },
+  },
+  // ── Label style ───────────────────────────────────────────────────────────
+  {
+    name: 'setLabelStyle',
+    description: 'Set the room label rendering style.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        style: { type: 'string', enum: ['circled', 'plain', 'bold'], description: '"circled" = number in a circle (default), "plain" = plain text, "bold" = bold text' },
+      },
+      required: ['style'],
+    },
+  },
+  // ── Themes ────────────────────────────────────────────────────────────────
+  {
+    name: 'listThemes',
+    description: 'List all available themes with their display names.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  // ── Levels ────────────────────────────────────────────────────────────────
+  {
+    name: 'getLevels',
+    description: 'List all levels in a multi-level map with their names, startRow, and numRows.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'addLevel',
+    description: 'Add a new level to the map below the existing ones.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Level name, e.g. "Basement"' },
+        numRows: { type: 'integer', description: 'Height of the new level in rows (default 15)' },
+      },
+      required: ['name'],
+    },
+  },
+  {
+    name: 'renameLevel',
+    description: 'Rename an existing level.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        levelIndex: { type: 'integer', description: '0-based level index' },
+        name: { type: 'string', description: 'New level name' },
+      },
+      required: ['levelIndex', 'name'],
+    },
+  },
+  {
+    name: 'resizeLevel',
+    description: 'Change the row height of an existing level, adding or removing void rows at the bottom.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        levelIndex: { type: 'integer', description: '0-based level index' },
+        numRows: { type: 'integer', description: 'New row count' },
+      },
+      required: ['levelIndex', 'numRows'],
+    },
+  },
+  // ── Spatial utilities ─────────────────────────────────────────────────────
+  {
+    name: 'findCellByLabel',
+    description: 'Find the row/col of the cell containing a given room label text (e.g. "A1"). Returns { row, col } or null.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        label: { type: 'string', description: 'Room label text, e.g. "A1"' },
+      },
+      required: ['label'],
+    },
+  },
+  {
+    name: 'shiftCells',
+    description: 'Shift all map content by dr rows and dc cols. Expands the grid if needed. Use this to reposition the entire dungeon on the canvas.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        dr: { type: 'integer', description: 'Row offset (positive = shift down)' },
+        dc: { type: 'integer', description: 'Col offset (positive = shift right)' },
+      },
+      required: ['dr', 'dc'],
+    },
+  },
+  // ── AI convenience tools ──────────────────────────────────────────────────
+  {
+    name: 'listRooms',
+    description: 'List all labeled rooms on the map with their bounding boxes and centers. Returns [{label, r1, c1, r2, c2, center:{row,col}}]. Use this to find room positions before placing props, lights, or routing corridors.',
+    input_schema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'placeLightInRoom',
+    description: 'Place a light at the center of a labeled room. Handles world-feet coordinate conversion automatically — no math needed. Use a preset name like "torch", "candle", "brazier" — call listLightPresets for valid names.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        label: { type: 'string', description: 'Room label, e.g. "A1"' },
+        preset: { type: 'string', description: 'Light preset name: "torch", "candle", "brazier", "lantern", etc.' },
+      },
+      required: ['label', 'preset'],
+    },
+  },
 ];
+
+// All tools are exported as TOOL_DEFINITIONS. CORE_TOOL_DEFINITIONS kept for
+// backwards-compatibility (Puppeteer scripts, tests) but the chat panel now
+// sends the full TOOL_DEFINITIONS set.
+const CORE_TOOL_NAMES = new Set([
+  'loadMapText', 'exportMapText', 'getMapInfo',
+]);
+export const CORE_TOOL_DEFINITIONS = TOOL_DEFINITIONS.filter(t => CORE_TOOL_NAMES.has(t.name));
+
+// ── Tool execution ────────────────────────────────────────────────────────────
+
+/** Validate that required fields are present. Returns an error string or null. */
+function requireFields(input, ...fields) {
+  for (const f of fields) {
+    if (input[f] === undefined || input[f] === null) {
+      return `Missing required argument "${f}". Got: ${JSON.stringify(input)}`;
+    }
+  }
+  return null;
+}
+
+const VALID_DIRECTIONS = new Set(['north', 'south', 'east', 'west']);
+const VALID_FILLS = new Set(['difficult-terrain', 'pit', 'water', 'lava']);
 
 /**
  * Execute a single tool call against window.editorAPI.
- * Returns the API result (or an error object).
+ * Returns the API result (or an error object with a descriptive message).
  */
 export function executeTool(name, input) {
   if (!window.editorAPI) return { error: 'editorAPI not available' };
-  const fn = window.editorAPI[name];
-  if (typeof fn !== 'function') return { error: `Unknown tool: ${name}` };
+  // Some tools are aliased in the switch (loadMapText → importMapText, exportMapText → exportToMapFormat).
+  // Skip the fn-existence guard for those so they don't get a false "Unknown tool" error.
+  const ALIASED = new Set(['loadMapText', 'exportMapText']);
+  const fn = window.editorAPI[name]?.bind(window.editorAPI);
+  if (!ALIASED.has(name) && typeof fn !== 'function') return { error: `Unknown tool: "${name}". Check tool name spelling.` };
+
+  // Per-tool argument validation — gives the model actionable error messages
+  let err;
+  switch (name) {
+    case 'createRoom':
+      err = requireFields(input, 'r1', 'c1', 'r2', 'c2');
+      if (err) return { error: `createRoom: ${err}` };
+      if (input.r1 > input.r2) return { error: `createRoom: r1 (${input.r1}) must be ≤ r2 (${input.r2})` };
+      if (input.c1 > input.c2) return { error: `createRoom: c1 (${input.c1}) must be ≤ c2 (${input.c2})` };
+      break;
+    case 'setLabel':
+      err = requireFields(input, 'row', 'col', 'text');
+      if (err) return { error: `setLabel: ${err}` };
+      if (!/^[A-Z]\d+$/.test(String(input.text))) {
+        return { error: `setLabel: "${input.text}" is not valid. Must be {UppercaseLetter}{Number} format (e.g. A1, B3). Use the "Next room label" value from the map context.` };
+      }
+      break;
+    case 'setDoor': case 'removeDoor':
+      err = requireFields(input, 'row', 'col', 'direction');
+      if (err) return { error: `${name}: ${err}` };
+      if (!VALID_DIRECTIONS.has(input.direction)) {
+        return { error: `${name}: direction must be "north", "south", "east", or "west". Got "${input.direction}".` };
+      }
+      break;
+    case 'setWall': case 'removeWall':
+      err = requireFields(input, 'row', 'col', 'direction');
+      if (err) return { error: `${name}: ${err}` };
+      if (!VALID_DIRECTIONS.has(input.direction) && input.direction !== 'nw-se' && input.direction !== 'ne-sw') {
+        return { error: `${name}: direction must be "north", "south", "east", "west", "nw-se", or "ne-sw". Got "${input.direction}".` };
+      }
+      break;
+    case 'setFill':
+      err = requireFields(input, 'row', 'col', 'fillType');
+      if (err) return { error: `setFill: ${err}` };
+      if (!VALID_FILLS.has(input.fillType)) {
+        return { error: `setFill: fillType must be one of: ${[...VALID_FILLS].join(', ')}. Got "${input.fillType}".` };
+      }
+      break;
+    case 'setFillRect':
+      err = requireFields(input, 'r1', 'c1', 'r2', 'c2', 'fillType');
+      if (err) return { error: `setFillRect: ${err}` };
+      if (!VALID_FILLS.has(input.fillType)) {
+        return { error: `setFillRect: fillType must be one of: ${[...VALID_FILLS].join(', ')}. Got "${input.fillType}".` };
+      }
+      break;
+    case 'setTextureRect': case 'setTexture':
+      err = requireFields(input, 'textureId');
+      if (err) return { error: `${name}: ${err}. Call listTextures first to get valid IDs.` };
+      break;
+    case 'placeProp':
+      err = requireFields(input, 'row', 'col', 'propType');
+      if (err) return { error: `placeProp: ${err}. Call listProps first to get valid prop names.` };
+      break;
+    case 'getRoomBounds': case 'getRoomContents': case 'removeLabel':
+      err = requireFields(input, 'label');
+      if (err) return { error: `${name}: ${err}` };
+      break;
+    case 'findWallBetween': case 'mergeRooms': case 'createCorridor':
+      err = requireFields(input, 'label1', 'label2');
+      if (err) return { error: `${name}: ${err}` };
+      break;
+    case 'suggestPlacement':
+      err = requireFields(input, 'rows', 'cols');
+      if (err) return { error: `suggestPlacement: ${err}` };
+      break;
+    case 'getCellInfo': case 'removeFill': case 'removeTexture': case 'rotateProp':
+    case 'eraseCell': case 'paintCell': case 'removeBridge': case 'removeLabel':
+    case 'removeProp': case 'removeStairs':
+      err = requireFields(input, 'row', 'col');
+      if (err) return { error: `${name}: ${err}` };
+      break;
+    case 'findCellByLabel':
+      err = requireFields(input, 'label');
+      if (err) return { error: `findCellByLabel: ${err}` };
+      break;
+    case 'placeLightInRoom':
+      err = requireFields(input, 'label', 'preset');
+      if (err) return { error: `placeLightInRoom: ${err}` };
+      break;
+    case 'removeLight':
+      err = requireFields(input, 'id');
+      if (err) return { error: `removeLight: ${err}` };
+      break;
+    case 'setAmbientLight':
+      err = requireFields(input, 'level');
+      if (err) return { error: `setAmbientLight: ${err}` };
+      if (typeof input.level !== 'number' || input.level < 0 || input.level > 1)
+        return { error: `setAmbientLight: level must be a number 0.0–1.0. Got ${input.level}` };
+      break;
+    case 'renameLevel':
+      err = requireFields(input, 'levelIndex', 'name');
+      if (err) return { error: `renameLevel: ${err}` };
+      break;
+    case 'resizeLevel':
+      err = requireFields(input, 'levelIndex', 'numRows');
+      if (err) return { error: `resizeLevel: ${err}` };
+      break;
+    case 'addLevel':
+      err = requireFields(input, 'name');
+      if (err) return { error: `addLevel: ${err}` };
+      break;
+    case 'shiftCells':
+      err = requireFields(input, 'dr', 'dc');
+      if (err) return { error: `shiftCells: ${err}` };
+      break;
+  }
 
   try {
-    // Most tools take positional args matching the schema property order.
-    // Reconstruct the call based on known tool signatures.
     switch (name) {
+      case 'loadMapText': {
+        const err2 = requireFields(input, 'mapText');
+        if (err2) return { error: `loadMapText: ${err2}` };
+        // importMapText is async — return the Promise; caller must await
+        return window.editorAPI.importMapText(input.mapText);
+      }
+      case 'exportMapText': {
+        const r = window.editorAPI.exportToMapFormat();
+        return r?.success ? { mapText: r.mapText } : { error: 'Export failed' };
+      }
       case 'getMapInfo':    return fn();
       case 'listProps':     return fn();
+      case 'listTextures':  return fn();
+      case 'getBridges':    return fn();
       case 'newMap':        return fn(input.name, input.rows, input.cols, input.gridSize, input.theme);
-      case 'createRoom':    return fn(input.r1, input.c1, input.r2, input.c2, input.mode);
-      case 'setLabel': {
-        if (!/^[A-Z]\d+$/.test(String(input.text))) {
-          return { error: `setLabel only accepts {Letter}{Number} format (e.g. A1, B3). Got: "${input.text}". Use the "Next room label" shown in the map context.` };
+      case 'createRoom': {
+        const roomResult = fn(input.r1, input.c1, input.r2, input.c2, input.mode);
+        // Honour optional label field — model often passes label directly to createRoom.
+        // Auto-apply at room center so createCorridor can find the room immediately.
+        if (roomResult?.success && input.label && /^[A-Z]\d+$/.test(String(input.label))) {
+          try {
+            const cr = Math.floor((input.r1 + input.r2) / 2);
+            const cc = Math.floor((input.c1 + input.c2) / 2);
+            window.editorAPI.setLabel(cr, cc, String(input.label));
+          } catch { /* room may not have center cell yet — model should call setLabel separately */ }
         }
-        return fn(input.row, input.col, input.text);
+        return roomResult;
       }
+      case 'setLabel':      return fn(input.row, input.col, input.text);
       case 'setDoor':       return fn(input.row, input.col, input.direction, input.type);
       case 'setWall':       return fn(input.row, input.col, input.direction);
       case 'removeWall':    return fn(input.row, input.col, input.direction);
@@ -598,9 +951,8 @@ export function executeTool(name, input) {
       case 'addStairs':     return fn(input.p1r, input.p1c, input.p2r, input.p2c, input.p3r, input.p3c);
       case 'placeProp':     return fn(input.row, input.col, input.propType, input.facing);
       case 'placeLight':    return fn(input.x, input.y, input.config);
-      case 'mergeRooms':       return fn(input.label1, input.label2);
-      case 'createTrim':       return fn(input.r1, input.c1, input.r2, input.c2, input.options);
-      case 'listTextures':      return fn();
+      case 'mergeRooms':    return fn(input.label1, input.label2);
+      case 'createTrim':    return fn(input.r1, input.c1, input.r2, input.c2, input.options);
       case 'setTexture':        return fn(input.row, input.col, input.textureId, input.opacity);
       case 'setTextureRect':    return fn(input.r1, input.c1, input.r2, input.c2, input.textureId, input.opacity);
       case 'floodFillTexture':  return fn(input.row, input.col, input.textureId, input.opacity);
@@ -619,14 +971,39 @@ export function executeTool(name, input) {
       case 'setHazardRect':     return fn(input.r1, input.c1, input.r2, input.c2, input.enabled);
       case 'addBridge':         return fn(input.type, input.p1r, input.p1c, input.p2r, input.p2c, input.p3r, input.p3c);
       case 'removeBridge':      return fn(input.row, input.col);
-      case 'getBridges':        return fn();
       case 'linkStairs':        return fn(input.r1, input.c1, input.r2, input.c2);
       case 'getRoomContents':   return fn(input.label);
       case 'suggestPlacement':  return fn(input.rows, input.cols, input.adjacentTo);
       case 'createCorridor':    return fn(input.label1, input.label2, input.width);
-      default:                  return { error: `No dispatch for tool: ${name}` };
+      // Props
+      case 'removeProp':        return fn(input.row, input.col);
+      case 'removePropsInRect': return fn(input.r1, input.c1, input.r2, input.c2);
+      // Stairs
+      case 'removeStairs':      return fn(input.row, input.col);
+      // Lighting
+      case 'listLightPresets':  return fn();
+      case 'getLights':         return fn();
+      case 'removeLight':       return fn(input.id);
+      case 'setAmbientLight':   return fn(input.level);
+      case 'setLightingEnabled': return fn(input.enabled);
+      // Label style
+      case 'setLabelStyle':     return fn(input.style);
+      // Themes
+      case 'listThemes':        return fn();
+      // Levels
+      case 'getLevels':         return fn();
+      case 'addLevel':          return fn(input.name, input.numRows);
+      case 'renameLevel':       return fn(input.levelIndex, input.name);
+      case 'resizeLevel':       return fn(input.levelIndex, input.numRows);
+      // Spatial
+      case 'findCellByLabel':   return fn(input.label);
+      case 'shiftCells':        return fn(input.dr, input.dc);
+      // AI convenience
+      case 'listRooms':         return fn();
+      case 'placeLightInRoom':  return fn(input.label, input.preset);
+      default:                  return { error: `No dispatch for tool: "${name}". This tool exists but has no handler — report this bug.` };
     }
   } catch (err) {
-    return { error: err.message };
+    return { error: `${name} failed: ${err.message}` };
   }
 }

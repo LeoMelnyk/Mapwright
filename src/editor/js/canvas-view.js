@@ -635,6 +635,7 @@ function onMouseUp(e) {
   // Right-click release: contextual action if click (not a drag)
   if (e.button === 2 && rightDown) {
     rightDown = false;
+    rightDragged = false;
     restoreToolCursor();
     if (!rightDragged) {
       // Quick click — delegate to active tool's contextual right-click
@@ -679,6 +680,7 @@ function onMouseLeave() {
   state.hoveredEdge = null;
   isPanning = false;
   rightDown = false;
+  rightDragged = false;
   canvas.style.cursor = '';
   requestRender();
   notify();
