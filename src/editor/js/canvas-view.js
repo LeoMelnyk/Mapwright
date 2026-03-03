@@ -634,10 +634,11 @@ function onMouseUp(e) {
 
   // Right-click release: contextual action if click (not a drag)
   if (e.button === 2 && rightDown) {
+    const wasDragged = rightDragged;
     rightDown = false;
     rightDragged = false;
     restoreToolCursor();
-    if (!rightDragged) {
+    if (!wasDragged) {
       // Quick click — delegate to active tool's contextual right-click
       const pos = getMousePos(e);
       const transform = getTransform();
