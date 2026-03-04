@@ -1,65 +1,45 @@
 # Mapwright
 
-A dungeon map editor built for AI-assisted map generation. Describe a dungeon to Claude and get a finished, themed map — or draw it yourself in the browser-based visual editor.
+> AI-powered dungeon map editor for D&D 5e. Describe a dungeon, get a polished map — or draw it yourself in the browser.
 
-![Example dungeon map](examples/island.png)
+![Windows](https://img.shields.io/badge/Windows-0078D4?logo=windows)
+![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)
+![Node 18+](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
----
-
-## AI Map Generation
-
-Mapwright is designed from the ground up to be driven by AI. Claude can generate complete, detailed dungeon maps without any manual GUI work:
-
-1. **Write a `.map` file** from a natural language description — a plain-text format that's easy for both humans and AI to author
-2. **Compile to PNG** via `tools/build_map.js` — renders the map to a print-ready image
-3. **Control the visual editor** via the Puppeteer bridge — load maps, issue editor commands, take screenshots, and save programmatically
-
-```bash
-# Compile a .map file to PNG
-node tools/build_map.js my-dungeon.map
-
-# Control the editor headlessly (load, command, screenshot, save)
-node tools/puppeteer-bridge.js --load map.json --screenshot output.png
-```
-
-Full AI editor API reference: [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md)
+[**Download for Windows →**](https://github.com/LeoMelnyk/Mapwright/releases)
+[**Download for Mac →**](https://github.com/LeoMelnyk/Mapwright/releases)
 
 ---
 
-## Features
-
-- **AI-driven generation** — full Puppeteer bridge and text-based `.map` format for programmatic map creation
-- **`.map` text format** — describe dungeons in plain ASCII, compile to PNG or SVG
-- **Browser-based visual editor** — draw rooms, place doors, add furniture and lights, undo/redo
-- **16 themes** — stone dungeon, ice cave, underdark, volcanic, arcane, alien, and more
-- **Hundreds of props** — furniture, containers, nautical items, arcane objects, structural elements
-- **Multi-level dungeons** — towers, multi-floor buildings, stacked cave systems in one file
-- **Doors & secret doors** — single, double, and secret doors with auto-detection
-- **Diagonal & curved walls** — trim room corners with straight diagonals or quarter-circle arcs
-- **Stairs** — up/down stair icons with cross-level linking and reachability validation
-- **Fills** — pit, difficult terrain, and water fills with shallow/medium/deep depth rendering
-- **Point light system** — per-light color, radius, intensity, and falloff
-- **Per-cell textures** — 700+ free CC0 textures from [Polyhaven](https://polyhaven.com), downloadable on demand
-- **Invisible walls** — walls visible in the editor but hidden from players, for blocking movement without revealing layout
-- **Watch mode** — auto-rebuild on save for fast iteration
-- **DM player view** — real-time fog-of-war session mode via WebSocket, with a DM fog overlay to visualize unrevealed cells
-- **Import** — load maps from Donjon and OpenDungeonPlanner
+![Mapwright dungeon map](docs/Hero.png)
 
 ---
 
-## Getting Started
+Mapwright is a dungeon map editor built around three workflows:
 
-### Windows — Desktop App
+- **Write a `.map` text file** — plain ASCII that both humans and Claude can author, compiled to a print-ready PNG or SVG
+- **Draw in the visual editor** — 14 tools, full undo/redo, pan/zoom, multi-level support
+- **Let Claude do it** — a full Puppeteer bridge and `planBrief` command so Claude can plan, layout, and render complete maps without touching the GUI
 
-Download `Mapwright.exe` from the [Releases page](https://github.com/LeoMelnyk/Mapwright/releases) and run it. No installation required.
+All three workflows produce the same output: a polished, themed map ready to drop into your session.
 
-On first launch, a texture downloader opens automatically. Download textures once and they persist across sessions.
+---
 
-### Mac — Desktop App
+## Download
 
-Download `Mapwright.dmg` from the [Releases page](https://github.com/LeoMelnyk/Mapwright/releases). The app is unsigned — on first launch, right-click the app and choose **Open** to bypass Gatekeeper.
+### Standalone Desktop Apps
 
-### Windows / Mac — From Source
+No Node.js or terminal required.
+
+| Platform | Download | Notes |
+|---|---|---|
+| **Windows** | [`Mapwright.exe`](https://github.com/LeoMelnyk/Mapwright/releases) | Portable — no installer, just run it |
+| **Mac** | [`Mapwright.dmg`](https://github.com/LeoMelnyk/Mapwright/releases) | Unsigned — right-click → **Open** on first launch to bypass Gatekeeper |
+
+On first launch, the built-in texture downloader will run. Download textures once and they persist across sessions.
+
+### From Source
 
 Requires [Node.js](https://nodejs.org/) 18+.
 
@@ -67,32 +47,18 @@ Requires [Node.js](https://nodejs.org/) 18+.
 git clone https://github.com/LeoMelnyk/Mapwright.git
 cd Mapwright
 npm install
-npm start          # starts the server
+npm start
 ```
 
-Then open **http://localhost:3000/editor/** in your browser. Press `Ctrl+C` to stop.
-
-On Windows you can also run `npm run electron` to open the app in a desktop window instead of a browser tab.
-
-### Textures (Optional)
-
-Textures are not included in the repo. The editor works without them — textures only affect the per-cell texture painting feature and prop rendering.
-
-```bash
-node tools/download-textures.js --required   # only textures used by built-in props
-node tools/download-textures.js --all        # full Polyhaven library (700+, free CC0)
-node tools/download-textures.js --check      # check what's missing, no download
-```
-
-In the desktop app, textures are downloaded through the built-in downloader and stored in your user data folder.
+Open **http://localhost:3000/editor/** in your browser. Run `npm run electron` to open in a desktop window instead.
 
 ---
 
-## Two Ways to Make Maps
+## Three Ways to Make Maps
 
 ### 1. Write a `.map` File
 
-Describe your dungeon in a plain text file:
+Describe your dungeon in plain text — readable by both you and Claude:
 
 ```
 ---
@@ -106,45 +72,81 @@ border: true
 ....AAA....
 ....AAA....
 ...BBBBB...
-...BBBBB...
 CCCBBBBBDDD
-CCCBBBBBDDD
-CCCEEEEEDDD
-...EEEEE...
 ...EEEEE...
 
 legend:
-  A: A1
-  B: A2
-  C: A3
-  D: A4
-  E: A5
+  A: Entry Hall
+  B: Central Chamber
+  C: West Alcove
+  D: East Alcove
+  E: Inner Sanctum
 
 doors:
   3,4 east: door
   7,4 west: door
-  3,6 east: door
-  7,6 west: door
-  4,2 south: door
+  4,2 south: secret
 ```
 
-Build it:
+Compile to PNG:
 
 ```bash
 node tools/build_map.js my-dungeon.map
+# → my-dungeon.png + my-dungeon.json
 ```
 
-Outputs `my-dungeon.json` and `my-dungeon.png`. Use `--svg` for vector output, `--watch` to auto-rebuild on save.
+Flags: `--svg` for vector output, `--watch` to auto-rebuild on save.
 
-### 2. Use the Visual Editor
+---
+
+### 2. Visual Editor
+
+![Mapwright visual editor](docs/editor.png)
 
 Start the server (`npm start`) and open **http://localhost:3000/editor/**.
 
-The editor has 14 tools: **Room, Paint, Wall, Door, Label, Stairs, Trim, Select, Prop, Light, Fill, Erase, Range, Bridge** — with full undo/redo, pan/zoom, and multi-level support. Hover over any placed object (prop, light, bridge, label) to select it; drag to move it. Maps save and load as JSON and can be exported back to `.map` format.
+**14 tools:** Room · Paint · Wall · Door · Label · Stairs · Trim · Select · Prop · Light · Fill · Erase · Range · Bridge
+
+Full undo/redo, pan/zoom, multi-level dungeons, and JSON save/load. Maps can be exported back to `.map` format.
+
+---
+
+### 3. AI Generation with Claude
+
+Two interfaces for programmatic map creation:
+
+**`planBrief` — describe rooms, Claude computes the layout:**
+
+```js
+// Tell Claude what you want in plain language.
+// planBrief returns ready-to-execute editor commands — no coordinate math required.
+planBrief({
+  rooms: [
+    { id: "A", name: "Entry Hall", size: "small", description: "Guard post" },
+    { id: "B", name: "Main Chamber", size: "large", description: "Throne room" },
+  ],
+  connections: [["A", "B", "door"]]
+})
+```
+
+**Puppeteer bridge — full headless editor control:**
+
+```bash
+node tools/puppeteer-bridge.js \
+  --commands '[["newMap","Dungeon",20,30],["createRoom",2,2,8,12]]' \
+  --screenshot output.png \
+  --save output.json
+```
+
+70+ editor API methods documented in [`src/editor/CLAUDE.md`](src/editor/CLAUDE.md).
 
 ---
 
 ## Themes
+
+16 visual themes, each with unique wall colors, floor textures, and rendering style.
+
+![Theme variety](docs/themes.gif)
 
 | Theme | Best For |
 |---|---|
@@ -169,16 +171,78 @@ Individual colors can be overridden with `themeOverrides` in the `.map` header.
 
 ---
 
-## Examples
+## DM Player View
 
-A reference map is in [`examples/`](examples/):
+![DM and player view side by side](docs/player-view.gif)
+
+Mapwright includes a real-time fog-of-war player view via WebSocket. Open the **Player View** on a second screen or player-facing display, then reveal cells from the DM view. Revealed cells are broadcast live — no third-party VTT required.
+
+- DM sees a semi-transparent fog overlay showing what players can and can't see
+- Players see only revealed areas, with sharp-edged fog of war
+- Session state persists until the DM resets it
+
+---
+
+## Features
+
+**Walls & Geometry**
+- Diagonal and curved wall trims (straight diagonals or quarter-circle arcs)
+- Secret doors (single and double), standard and double doors
+- Invisible walls — block movement in the editor without showing on the player map
+- Bridge tool for connections between non-adjacent rooms
+
+**Terrain & Fills**
+- Pit, difficult terrain, and water fills
+- Water depth rendering (shallow / medium / deep) with distinct visual treatment
+
+**Props & Dressing**
+- 170+ props — furniture, containers, nautical items, arcane objects, structural elements
+- Hover any prop, light, bridge, or label to select; drag to reposition
+
+**Lighting**
+
+![Point lighting](docs/Lighting.gif)
+
+- Per-light color, radius, intensity, falloff, angle, and spread
+- Light sources placed as editor objects — fully repositionable
+
+**Textures**
+- 700+ free CC0 textures from [Polyhaven](https://polyhaven.com), downloaded on demand
+- Applied per-cell using the Paint tool; also used in prop rendering
+
+**Multi-Level**
+- Multiple floors in a single file — towers, multi-story buildings, stacked cave systems
+- Stair icons with cross-level linking and reachability validation
+
+**Import**
+- Load maps from [Donjon](https://donjon.bin.sh/) and OpenDungeonPlanner
+
+**Export**
+- PNG (print-ready) and SVG (vector) output
+- Export to `.map` text format from the visual editor
+
+---
+
+## Textures
+
+Textures are optional — the editor and compiler work without them (textures affect the Paint tool and some prop rendering).
+
+```bash
+node tools/download-textures.js --required   # textures used by built-in props only
+node tools/download-textures.js --all        # full library (700+, CC0)
+node tools/download-textures.js --check      # check what's missing, no download
+```
+
+In the desktop app, textures are managed through the built-in downloader and stored in your user data folder.
+
+---
+
+## Examples
 
 | Example | Description |
 |---|---|
-| `island` | Coastal island encounter — water fills, rounded trims, 40+ props, lights, per-cell textures |
-| `mines` | Underground mine complex — organic cave shapes, diagonal fill bands, burial chamber dressing |
-
-Build one:
+| `island` | Coastal island — water fills, rounded trims, 40+ props, point lights, per-cell textures |
+| `mines` | Underground mine — organic cave shapes, diagonal fill bands, burial chamber dressing |
 
 ```bash
 node tools/build_map.js examples/island.map
@@ -191,21 +255,16 @@ Or render a pre-compiled JSON directly:
 node tools/generate_dungeon.js examples/island.json
 ```
 
-See [examples/examples.md](examples/examples.md) for a full feature breakdown of each map.
+See [examples/examples.md](examples/examples.md) for a feature breakdown of each map.
 
 ---
 
 ## Documentation
 
-Full reference for the `.map` format, all options, validation errors, and CLI flags: **[CLAUDE.md — Map Format Reference](CLAUDE.md)**
+- **`.map` format, all CLI flags, validation errors** → [CLAUDE.md](CLAUDE.md)
+- **AI editor API (70+ methods)** → [src/editor/CLAUDE.md](src/editor/CLAUDE.md)
 
-Topics covered:
-- Complete `.map` file format (header, grid, legend, doors, trims, stairs, fills, props)
-- All 16 theme names and color properties
-- Room sizing for combat encounters
-- Room numbering conventions
-- Multi-level dungeon syntax
-- Compiler validation errors and common mistakes
+Topics in CLAUDE.md: complete `.map` syntax, all 16 theme names and color properties, room sizing for combat encounters, room numbering conventions, multi-level dungeon syntax, compiler validation errors.
 
 ---
 
@@ -214,33 +273,31 @@ Topics covered:
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) 18 or later
-- Windows (the `.exe` target is Windows-only; the dev server runs on any platform)
 
-### Setup
-
-```bash
-git clone https://github.com/LeoMelnyk/Mapwright.git
-cd Mapwright
-npm install
-```
-
-### Run without building
-
-```bash
-npm run electron
-```
-
-Starts the Express server and opens the Electron window directly from source. Frontend changes (HTML/CSS/JS) take effect on Ctrl+R. Server changes (`server.js`, `electron-main.cjs`) require restarting.
-
-### Build the desktop app
+### Desktop App
 
 ```bash
 npm run electron:build        # Windows portable exe → dist/Mapwright <version>.exe
 npm run electron:build:mac    # Mac DMG → dist/Mapwright-<version>.dmg (universal)
 ```
 
-The Windows build is a single self-contained portable executable, no installation required.
+The Windows build is a single portable executable — no installer, no system dependencies.
 
-`npm install` automatically patches a bundled tool to handle a Windows symlink limitation. If the Windows build fails with `Cannot create symbolic link`, enable **Developer Mode** in Settings → System → For Developers and re-run.
+> **Windows build note:** If the build fails with `Cannot create symbolic link`, enable Developer Mode in **Settings → System → For Developers** and re-run.
 
-The Mac build is unsigned — users will need to right-click → Open to bypass Gatekeeper on first launch.
+The Mac build is unsigned. Users will need to right-click → **Open** on first launch to bypass Gatekeeper.
+
+### Dev Server
+
+```bash
+npm run electron    # start Express server + Electron window from source
+```
+
+Frontend changes (HTML/CSS/JS) take effect on Ctrl+R. Server changes (`server.js`, `electron-main.cjs`) require a restart.
+
+---
+
+## License
+
+MIT — [Leo Melnyk](https://github.com/LeoMelnyk), 2026.
+Textures via [Polyhaven](https://polyhaven.com) (CC0).
