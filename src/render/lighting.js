@@ -284,6 +284,7 @@ export function parseColor(hex) {
  * Compute falloff multiplier for a given distance and radius.
  */
 export function falloffMultiplier(dist, radius, falloff) {
+  if (radius <= 0) return 1;
   const t = Math.max(0, 1 - dist / radius);
   switch (falloff) {
     case 'linear': return t;
@@ -830,26 +831,118 @@ export function extractFillLights(cells, gridSize, theme = {}) {
   const color     = theme.lavaLightColor     ?? '#ff6600';
   const intensity = theme.lavaLightIntensity ?? 0.70;
   const lights = [];
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
 
-  for (let row = 0; row < cells.length; row++) {
-    const cellRow = cells[row];
-    if (!cellRow) continue;
-    for (let col = 0; col < cellRow.length; col++) {
-      const cell = cellRow[col];
-      if (cell?.fill === 'lava') {
-        lights.push({
-          id:        `fill-lava-${row}-${col}`,
-          x:         (col + 0.5) * gridSize,
-          y:         (row + 0.5) * gridSize,
-          type:      'point',
-          radius:    gridSize * 3.5,
-          dimRadius: gridSize * 7,
-          color,
-          intensity,
-          falloff:   'smooth',
-        });
+  // ── Step 1: flood-fill connected lava regions ──────────────────────────────
+  const visited = new Set();
+  const regions = [];
+
+  for (let r0 = 0; r0 < numRows; r0++) {
+    for (let c0 = 0; c0 < numCols; c0++) {
+      if (visited.has(`${r0},${c0}`)) continue;
+      if (cells[r0]?.[c0]?.fill !== 'lava') continue;
+
+      const region = [];
+      const queue = [[r0, c0]];
+      visited.add(`${r0},${c0}`);
+      while (queue.length > 0) {
+        const [r, c] = queue.shift();
+        region.push([r, c]);
+        for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+          const nr = r + dr, nc = c + dc;
+          const nk = `${nr},${nc}`;
+          if (visited.has(nk)) continue;
+          if (cells[nr]?.[nc]?.fill !== 'lava') continue;
+          visited.add(nk);
+          queue.push([nr, nc]);
+        }
+      }
+      regions.push(region);
+    }
+  }
+
+  // ── Step 2: place lights for each region ───────────────────────────────────
+  for (const region of regions) {
+    const area = region.length;
+    const regionSet = new Set(region.map(([r, c]) => `${r},${c}`));
+    const placed = new Set();
+
+    // Spacing (cells between light centres): scales with pool area so large
+    // pools don't stack hundreds of overlapping lights.
+    //   area ≤ 4   → single centroid light
+    //   area ≤ 25  → spacing 2
+    //   area ≤ 100 → spacing 3
+    //   area > 100 → spacing 4
+    let spacing;
+    if (area <= 4) {
+      spacing = null;
+    } else if (area <= 25) {
+      spacing = 2;
+    } else if (area <= 100) {
+      spacing = 3;
+    } else {
+      spacing = 4;
+    }
+
+    const pushLight = (r, c) => {
+      const id = `fill-lava-${r}-${c}`;
+      if (placed.has(id)) return;
+      placed.add(id);
+      lights.push({
+        id,
+        x:         (c + 0.5) * gridSize,
+        y:         (r + 0.5) * gridSize,
+        type:      'point',
+        radius:    0,
+        dimRadius: gridSize * 4,
+        color,
+        intensity,
+        falloff:   'smooth',
+      });
+    };
+
+    if (spacing === null) {
+      // Tiny pool: one light at the cell closest to the centroid
+      const avgR = region.reduce((s, [r]) => s + r, 0) / area;
+      const avgC = region.reduce((s, [, c]) => s + c, 0) / area;
+      const [br, bc] = region.reduce((best, [r, c]) => {
+        const d  = (r - avgR) ** 2 + (c - avgC) ** 2;
+        const bd = (best[0] - avgR) ** 2 + (best[1] - avgC) ** 2;
+        return d < bd ? [r, c] : best;
+      }, region[0]);
+      pushLight(br, bc);
+    } else {
+      // Larger pool: regular grid anchored to the bounding box.
+      // Each grid point snaps to the nearest lava cell within spacing/2
+      // so irregular shapes still get full coverage.
+      let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+      for (const [r, c] of region) {
+        if (r < minR) minR = r;  if (r > maxR) maxR = r;
+        if (c < minC) minC = c;  if (c > maxC) maxC = c;
+      }
+
+      // Centre the grid within the bounding box
+      const rowOff = Math.floor(((maxR - minR) % spacing) / 2);
+      const colOff = Math.floor(((maxC - minC) % spacing) / 2);
+      const snap   = Math.ceil(spacing / 2);
+
+      for (let gr = minR + rowOff; gr <= maxR; gr += spacing) {
+        for (let gc = minC + colOff; gc <= maxC; gc += spacing) {
+          // Find the nearest lava cell to this grid point
+          let bestR = -1, bestC = -1, bestD = Infinity;
+          for (let dr = -snap; dr <= snap; dr++) {
+            for (let dc = -snap; dc <= snap; dc++) {
+              if (!regionSet.has(`${gr + dr},${gc + dc}`)) continue;
+              const d = dr * dr + dc * dc;
+              if (d < bestD) { bestD = d; bestR = gr + dr; bestC = gc + dc; }
+            }
+          }
+          if (bestR !== -1) pushLight(bestR, bestC);
+        }
       }
     }
   }
+
   return lights;
 }

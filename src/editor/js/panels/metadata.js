@@ -182,6 +182,8 @@ export function init() {
       ${colorRow('Deep', 'data-theme-prop', 'lavaDeepColor', theme.lavaDeepColor || '#661100')}
       ${colorRow('Caustic Color', 'data-lava-caustic-prop', 'color', parsedLavaCaustic.hex)}
       ${sliderRow('Caustic Opacity', 'data-lava-caustic-prop', 'data-lava-caustic-range', 'opacity', parsedLavaCaustic.alpha, 0, 1, 0.01)}
+      ${colorRow('Light Color', 'data-theme-prop', 'lavaLightColor', theme.lavaLightColor || '#ff6600')}
+      ${sliderRow('Light Strength', 'data-lava-light-prop', 'data-lava-light-range', 'intensity', theme.lavaLightIntensity ?? 0.70, 0, 1, 0.01)}
     `);
 
     html += '</div>';
@@ -490,6 +492,24 @@ export function init() {
         rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
       }
     }
+
+    // Lava light intensity (paired number + range)
+    {
+      const numInput = customEditor.querySelector('[data-lava-light-prop="intensity"]');
+      const rangeInput = customEditor.querySelector('[data-lava-light-range="intensity"]');
+      if (numInput && rangeInput) {
+        const sync = (value, source) => {
+          const t = ensureCustomThemeObject();
+          t.lavaLightIntensity = Number(value);
+          if (numInput !== source) numInput.value = value;
+          if (rangeInput !== source) rangeInput.value = value;
+        };
+        numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
+        numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
+        rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
+        rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+      }
+    }
   }
 
   function getCustomThemeBase() {
@@ -603,6 +623,13 @@ export function init() {
     const lavaCausticOpR = customEditor.querySelector('[data-lava-caustic-range="opacity"]');
     if (lavaCausticOpN) lavaCausticOpN.value = parsedLavaCausticSync.alpha;
     if (lavaCausticOpR) lavaCausticOpR.value = parsedLavaCausticSync.alpha;
+
+    // Lava light intensity
+    const lavaLightIntN = customEditor.querySelector('[data-lava-light-prop="intensity"]');
+    const lavaLightIntR = customEditor.querySelector('[data-lava-light-range="intensity"]');
+    const lavaLightIntVal = theme.lavaLightIntensity ?? 0.70;
+    if (lavaLightIntN) lavaLightIntN.value = lavaLightIntVal;
+    if (lavaLightIntR) lavaLightIntR.value = lavaLightIntVal;
   }
 
   function renderCustomThumb() {
