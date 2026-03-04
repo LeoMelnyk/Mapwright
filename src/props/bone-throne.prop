@@ -3,7 +3,7 @@ category: Undead & Dark
 footprint: 2x1
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Throne seat
 rect 0.12,0.80 0.76,1.06 texfill polyhaven/stone_wall 0.65

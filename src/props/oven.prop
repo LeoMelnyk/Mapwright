@@ -3,7 +3,7 @@ category: Kitchen
 footprint: 2x1
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Brick dome base (from above)
 ellipse 0.5,0.7 0.45,0.55 texfill polyhaven/brick_4 0.85

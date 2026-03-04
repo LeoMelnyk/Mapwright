@@ -3,7 +3,7 @@ category: Terrain
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Base spread
 circle 0.5,0.5 0.38 texfill polyhaven/rock_boulder_cracked 0.75

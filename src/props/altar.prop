@@ -3,7 +3,7 @@ category: Features
 footprint: 2x1
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Stone slab
 rect 0.08,0.08 0.84,1.84 texfill polyhaven/marble_01 0.85

@@ -12,6 +12,7 @@
 //   --screenshot <out.png>    Save screenshot after commands
 //   --save <file.json>        Save map after commands
 //   --info                    Print map info and exit
+//   --dry-run                 Execute commands but skip all file I/O (screenshot, save, export)
 //   --port <number>           Editor port (default: 3000)
 //
 // Command format: [["methodName", arg1, arg2, ...], ...]
@@ -32,6 +33,7 @@ function parseArgs(argv) {
     exportPng: null,
     info: false,
     continueOnError: false,
+    dryRun: false,
     port: 3000,
   };
 
@@ -46,6 +48,7 @@ function parseArgs(argv) {
       case '--export-png': args.exportPng = argv[++i]; break;
       case '--info': args.info = true; break;
       case '--continue-on-error': args.continueOnError = true; break;
+      case '--dry-run': args.dryRun = true; break;
       case '--port': args.port = parseInt(argv[++i], 10); break;
     }
   }
@@ -133,42 +136,46 @@ async function main() {
       console.log(JSON.stringify(info, null, 2));
     }
 
-    // Take screenshot
-    if (args.screenshot) {
-      const dataURL = await page.evaluate(async () => {
-        return await window.editorAPI.getScreenshot();
-      });
-      const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
-      const outPath = path.resolve(args.screenshot);
-      await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
-      console.log(`Screenshot: ${outPath}`);
-    }
+    if (args.dryRun) {
+      console.log('[dry-run] Skipping all file I/O (screenshot, save, export)');
+    } else {
+      // Take screenshot
+      if (args.screenshot) {
+        const dataURL = await page.evaluate(async () => {
+          return await window.editorAPI.getScreenshot();
+        });
+        const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
+        const outPath = path.resolve(args.screenshot);
+        await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
+        console.log(`Screenshot: ${outPath}`);
+      }
 
-    // Save map
-    if (args.save) {
-      const map = await page.evaluate(() => window.editorAPI.getMap());
-      const outPath = path.resolve(args.save);
-      await fs.writeFile(outPath, JSON.stringify(map, null, 2));
-      console.log(`Saved: ${outPath}`);
-    }
+      // Save map
+      if (args.save) {
+        const map = await page.evaluate(() => window.editorAPI.getMap());
+        const outPath = path.resolve(args.save);
+        await fs.writeFile(outPath, JSON.stringify(map, null, 2));
+        console.log(`Saved: ${outPath}`);
+      }
 
-    // Export PNG via compile pipeline (HQ lighting)
-    if (args.exportPng) {
-      const dataURL = await page.evaluate(async () => {
-        return await window.editorAPI.exportPng();
-      });
-      const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
-      const outPath = path.resolve(args.exportPng);
-      await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
-      console.log(`Export PNG: ${outPath}`);
-    }
+      // Export PNG via compile pipeline (HQ lighting)
+      if (args.exportPng) {
+        const dataURL = await page.evaluate(async () => {
+          return await window.editorAPI.exportPng();
+        });
+        const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
+        const outPath = path.resolve(args.exportPng);
+        await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
+        console.log(`Export PNG: ${outPath}`);
+      }
 
-    // Export .map text
-    if (args.exportMap) {
-      const result = await page.evaluate(() => window.editorAPI.exportToMapFormat());
-      const outPath = path.resolve(args.exportMap);
-      await fs.writeFile(outPath, result.mapText, 'utf-8');
-      console.log(`Exported .map: ${outPath}`);
+      // Export .map text
+      if (args.exportMap) {
+        const result = await page.evaluate(() => window.editorAPI.exportToMapFormat());
+        const outPath = path.resolve(args.exportMap);
+        await fs.writeFile(outPath, result.mapText, 'utf-8');
+        console.log(`Exported .map: ${outPath}`);
+      }
     }
 
   } catch (err) {

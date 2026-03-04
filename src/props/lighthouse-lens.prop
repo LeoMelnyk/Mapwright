@@ -3,7 +3,7 @@ category: Nautical
 footprint: 2x2
 facing: no
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Outer metal housing ring
 circle 1.0,1.0 0.92 fill #555555 0.3

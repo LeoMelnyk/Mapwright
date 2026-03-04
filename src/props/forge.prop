@@ -3,7 +3,7 @@ category: Workshop
 footprint: 2x2
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 lights: [{"preset":"forge","x":1.0,"y":1.0}]
 ---
 # Outer forge body (brick structure)

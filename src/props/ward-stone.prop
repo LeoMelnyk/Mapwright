@@ -3,7 +3,7 @@ category: Magical
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Stone body (rectangular cross-section)
 rect 0.22,0.16 0.56,0.68 texfill polyhaven/stone_wall 0.80

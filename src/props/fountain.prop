@@ -3,7 +3,7 @@ category: Misc
 footprint: 2x2
 facing: no
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Outer stone basin
 circle 1.0,1.0 0.88 texfill polyhaven/cobblestone_floor_01 0.82

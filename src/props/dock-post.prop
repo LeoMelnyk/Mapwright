@@ -3,7 +3,7 @@ category: Nautical
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Base shadow
 ellipse 0.5,0.72 0.22,0.1 fill #333333 0.2

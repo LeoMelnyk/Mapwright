@@ -3,7 +3,7 @@ category: Features
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Stone outer ring
 circle 0.5,0.5 0.40 texfill polyhaven/cobblestone_floor_01 0.85

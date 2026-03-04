@@ -3,7 +3,7 @@ category: Kitchen
 footprint: 2x1
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
 ---
 # Full stone structure base

@@ -47,8 +47,55 @@ node tools/puppeteer-bridge.js [options]
 --export-png <out.png>    Export high-quality PNG via full render pipeline (HQ lighting)
 --info                    Print map info to stdout (see format below)
 --continue-on-error       Don't stop on failed command (still exits 1 if any failed)
+--dry-run                 Execute commands but skip all file I/O (screenshot, save, export)
 --port <number>           Editor port (default: 3000)
 ```
+
+## Claude Workflow: Recommended Dungeon Generation Process
+
+Use this 3-step process to build dungeons efficiently, offloading all coordinate math to the editor.
+
+### Step 1 — Plan with `planBrief`
+
+Call `planBrief` with a high-level description of rooms and connections. The editor computes all coordinates and returns ready-to-execute commands.
+
+```json
+["planBrief", {
+  "name": "The Keep",
+  "theme": "stone-dungeon",
+  "gridSize": 5,
+  "corridorWidth": 3,
+  "rooms": [
+    { "label": "A1", "width": 12, "height": 8, "entrance": true },
+    { "label": "A2", "width": 10, "height": 8 },
+    { "label": "A3", "width": 8, "height": 6 }
+  ],
+  "connections": [
+    { "from": "A1", "to": "A2", "direction": "north" },
+    { "from": "A2", "to": "A3", "direction": "west", "type": "secret" }
+  ]
+}]
+```
+
+The result contains a `commands` array you can save to a file and pass to `--commands-file`.
+
+### Step 2 — Validate with `--dry-run`
+
+Run the commands without writing any files to check for failures:
+
+```bash
+node tools/puppeteer-bridge.js --commands-file plan.json --dry-run --continue-on-error
+```
+
+### Step 3 — Execute
+
+Once the dry run passes, run without `--dry-run` to produce the final map:
+
+```bash
+node tools/puppeteer-bridge.js --commands-file plan.json --save dungeon.json --export-png dungeon.png
+```
+
+---
 
 ## Command Format
 
@@ -118,6 +165,7 @@ Call `getLevels()` first. Each level has `startRow`. A cell at row 3 of Level 2 
 |--------|------|-------------|
 | `newMap` | `name, rows, cols, [gridSize=5], [theme="stone-dungeon"]` | Create empty dungeon |
 | `loadMap` | `json` | Load from JSON string or object |
+| `importMapText` | `mapText` | Parse and import a `.map` text string directly (full round-trip from `exportToMapFormat`) |
 | `getMap` | — | Export dungeon as JSON |
 | `getMapInfo` | — | Get map metadata (see --info format above) |
 | `setName` | `name` | Set dungeon name |
@@ -198,6 +246,16 @@ addStairs(5,5, 5,6, 4,5)   → 1-cell triangle (converges to far edge midpoint)
 
 **Data model:** Stairs are stored in `metadata.stairs[]` as `{ id, points: [[r,c],[r,c],[r,c]], link: "A"|null }`. Each occupied cell stores `center["stair-id"]` referencing the stair ID.
 
+### Bridges
+
+Bridges span over void or water using 3 corner points (same geometry as stairs).
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `addBridge` | `type, p1r, p1c, p2r, p2c, p3r, p3c` | Place a bridge. Types: `"wood"`, `"stone"`, `"rope"`, `"dock"`. Same 3-point geometry as `addStairs`. Returns `{ success, id }` |
+| `removeBridge` | `row, col` | Remove the bridge occupying cell (row, col) |
+| `getBridges` | — | Return all bridge definitions: `[{ id, type, points }]` |
+
 ### Trim (Diagonal Corners)
 
 | Method | Args | Description |
@@ -215,10 +273,12 @@ Options object:
 
 | Method | Args | Description |
 |--------|------|-------------|
-| `setFill` | `row, col, fillType, [depth=1]` | Set cell fill: `"difficult-terrain"`, `"pit"`, `"water"`, or `"lava"`. Depth (1–3) applies to water/lava only |
+| `setFill` | `row, col, fillType, [depth=1]` | Set cell fill: `"pit"`, `"water"`, or `"lava"`. Depth (1–3) applies to water/lava only |
 | `removeFill` | `row, col` | Remove fill from cell |
 | `setFillRect` | `r1, c1, r2, c2, fillType, [depth=1]` | Set fill on every cell in rectangle (one undo step). Depth (1–3) for water/lava |
 | `removeFillRect` | `r1, c1, r2, c2` | Remove fill from every cell in rectangle |
+| `setHazard` | `row, col, [enabled=true]` | Mark a single cell as hazard/difficult terrain (renders as crosshatch overlay). Pass `false` to remove |
+| `setHazardRect` | `r1, c1, r2, c2, [enabled=true]` | Mark every cell in rectangle as hazard. One undo step |
 
 ### Spatial Queries
 
@@ -234,6 +294,45 @@ Options object:
 |--------|------|-------------|
 | `mergeRooms` | `label1, label2` | Remove all walls on the shared boundary between two rooms, merging them into one open space. Returns `{ success, removed }` |
 | `shiftCells` | `dr, dc` | Shift all cells by (dr, dc). The grid grows to accommodate — no content is lost. Updates level `startRow` values on vertical shift. Returns `{ success, newRows, newCols }` |
+| `createCorridor` | `label1, label2, [width=2]` | Auto-create a corridor between two adjacent, axis-aligned rooms. Computes corridor bounds from shared overlap, creates it with merge mode, auto-assigns the next room label, and places a door at each end. Returns `{ success, corridorLabel, r1, c1, r2, c2 }`. Throws if rooms have insufficient perpendicular overlap or no gap between them |
+
+### AI Helpers
+
+These methods offload coordinate math and spatial reasoning to the editor so Claude doesn't have to do it manually.
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `planBrief` | `brief` | **Flagship.** Compute a full dungeon layout from a high-level brief (room sizes + connection topology) and return ready-to-execute command arrays. See Claude Workflow section above. Returns `{ success, commands, mapSize }` |
+| `createPolygonRoom` | `cellList, [mode='room']` | Create a room from an arbitrary list of `[[row, col], ...]` cells — enables L-shapes, U-shapes, any non-rectangular form. `mode='room'` walls all exterior edges; `mode='merge'` only walls edges facing void. Returns `{ success, count }` |
+| `listRooms` | — | Return all labeled rooms with bounding boxes and centers. Returns `{ success, rooms: [{ label, r1, c1, r2, c2, center: { row, col } }] }` |
+| `listRoomCells` | `label` | Return all floor cells belonging to a room as sorted `[[row, col], ...]`. Returns `{ success, cells }` |
+| `getRoomContents` | `label` | Return all props, fills, doors, and textures within a room's bounding box. Returns `{ label, bounds, props, fills, doors, textures }` |
+| `setDoorBetween` | `label1, label2, [type='d']` | Place a door on the midpoint of the shared wall between two **directly adjacent** rooms (no corridor between them). `type='d'` (normal) or `'s'` (secret). Throws if rooms are not adjacent. Returns `{ success, row, col, direction }` |
+| `getValidPropPositions` | `label, propType, [facing=0]` | Return all valid anchor `[[row, col], ...]` where the prop fits inside the room without overlapping existing props. Returns `{ success, positions }` |
+| `suggestPlacement` | `rows, cols, [adjacentTo]` | Find a free rectangular area of the given size. If `adjacentTo` is a room label, prefers positions adjacent to it. Returns `{ r1, c1, r2, c2 }` or `{ error }` |
+| `getUndoDepth` | — | Return current undo stack depth as a number. Record before a build to enable rollback |
+| `undoToDepth` | `targetDepth` | Undo all changes back to a previously recorded depth. Returns `{ success, undid }` |
+| `placeLightInRoom` | `label, preset, [config]` | Place a light at the center of a labeled room; handles world-feet conversion. Same config as `placeLight`. Returns `{ success, id }` |
+
+**`planBrief` brief format:**
+```json
+{
+  "name": "Dungeon Name",
+  "theme": "stone-dungeon",
+  "gridSize": 5,
+  "corridorWidth": 3,
+  "rooms": [
+    { "label": "A1", "width": 12, "height": 8, "entrance": true }
+  ],
+  "connections": [
+    { "from": "A1", "to": "A2", "direction": "north", "corridorWidth": 3, "type": "door" }
+  ]
+}
+```
+- `direction` is required per connection: `north|south|east|west` (direction from `from` to `to`)
+- `type`: `"door"` (default) or `"secret"`
+- Same-direction siblings from the same parent are placed side-by-side (perpendicular to travel axis)
+- Corridors are placed between rooms using normal room mode; doors at each junction are explicit `setDoor` commands with computed coordinates
 
 ### Levels
 
@@ -279,6 +378,7 @@ Floor textures overlay the room background with tileable PNG images. Textures ar
 | `removeTexture` | `row, col` | Remove texture from a cell |
 | `setTextureRect` | `r1, c1, r2, c2, textureId, [opacity=1.0]` | Apply texture to all non-null cells in rectangle (one undo step) |
 | `removeTextureRect` | `r1, c1, r2, c2` | Remove texture from all cells in rectangle |
+| `floodFillTexture` | `row, col, textureId, [opacity=1.0]` | Flood-fill texture from cell, spreading to all connected floor cells with the same texture (or no texture) |
 | `waitForTextures` | `[timeoutMs=8000]` | Wait for all texture images to finish loading before screenshot. Returns `{ success, count }`. **Always call this before `getScreenshot()` after setTexture commands.** |
 
 Typical texture workflow:
@@ -299,12 +399,31 @@ Edge blending (smooth gradient between adjacent different textures) is controlle
 | `undo` | — | Undo last action |
 | `redo` | — | Redo last undone action |
 
+**Build checkpointing pattern** — record depth before a multi-step build, then roll back everything if something goes wrong:
+```json
+["getUndoDepth"]
+```
+(Returns the depth as a plain number in the result field.) Then if the build needs to be reversed:
+```json
+["undoToDepth", 5]
+```
+This is in the AI Helpers section above.
+
 ### Catalog Queries
 
 | Method | Args | Description |
 |--------|------|-------------|
 | `listTextures` | — | Return all available texture IDs with display names and categories |
 | `listThemes` | — | Return all available theme names. Returns `{ themes: string[] }` |
+
+### Advanced / Operational
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `waitForEditor` | `[timeoutMs=15000]` | Wait for full editor initialization (canvas + catalogs + state). Useful as the first command in Puppeteer scripts if the editor may not be ready yet |
+| `eval` | `code` | Evaluate arbitrary JS in the editor context with access to `state` and `editorAPI`. Use `return <value>` to send a result back. Escape hatch for anything not covered by the API |
+| `clearCaches` | — | Reload all asset caches (themes, textures, catalogs). Use after modifying prop/theme files on disk |
+| `render` | — | Force an immediate re-render of the canvas |
 
 ---
 
@@ -754,7 +873,7 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 | `unknown method: X` | Method name misspelled | Check API reference above; method names are camelCase |
 | `unknown prop type: X` | Prop name misspelled | Run `listProps()` for exact names; use kebab-case (e.g. `"map-table"`) |
 | `out of bounds` | row/col outside grid dimensions | Call `getMapInfo()` to check rows/cols; remember 0-indexed |
-| `invalid fill type` | Bad fill type string | Only `"difficult-terrain"`, `"pit"`, `"water"`, or `"lava"` are valid |
+| `invalid fill type` | Bad fill type string | Only `"pit"`, `"water"`, or `"lava"` are valid for `setFill`/`setFillRect`. For hazard/difficult-terrain, use `setHazard`/`setHazardRect` |
 | `No grid found` | `.map` file parse error | Ensure grid section is not empty and header `---` delimiters are present |
 
 ---
@@ -773,6 +892,17 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 - The `--commands-file` flag is better than inline `--commands` for complex maps with 20+ commands.
 - All methods that modify the map push to the undo stack automatically.
 - `--continue-on-error` is useful for debugging — lets you see how far a command sequence gets before failing.
+- Use `--dry-run` to validate a command sequence executes without errors before committing to file I/O.
 - Use `--export-png` instead of `--screenshot` when you need print-quality output. `--screenshot` captures the editor viewport; `--export-png` renders through the full compile pipeline with HQ lighting.
 - Use `placeLight` with `preset: "torch"` (or `"brazier"`, `"candle"`, etc.) instead of manually specifying color/radius/intensity. Call `listLightPresets()` for all preset names.
 - Use `removePropsInRect` to clear all props from a room in one call instead of calling `removeProp` on each cell.
+- **AI workflow**: Use `planBrief` to generate all room coordinates from a graph description — never manually compute adjacency gaps or room positions.
+- Use `setDoorBetween` instead of `findWallBetween` + `setDoor` when rooms are **directly adjacent** (share a wall). For rooms connected via merge-mode corridors, use explicit `setDoor` with computed coordinates instead — `findWallBetween` won't find walls across a merged-open boundary.
+- Use `listRoomCells` to find valid interior positions for props, labels, or fills without computing bounds manually.
+- Use `getValidPropPositions` to find safe anchor cells for multi-cell props (checks room membership and existing prop overlap).
+- Use `createPolygonRoom` for L-shaped, U-shaped, or irregular rooms — pass the full list of cells, no rectangles required.
+- Use `getRoomContents` to inspect what props, fills, doors, and textures already exist in a room before adding more.
+- Use `suggestPlacement(rows, cols, adjacentTo)` to find free space for a new room without manually scanning the grid.
+- Use `createCorridor(label1, label2)` to auto-create a connecting corridor with label + doors between two adjacent rooms — one call replaces createRoom + setLabel + setDoorBetween.
+- Use `getUndoDepth()` before a multi-step build, then `undoToDepth(depth)` to roll back everything if something goes wrong.
+- `difficult-terrain` is NOT a valid fill type. Use `setHazard` / `setHazardRect` for hazardous/difficult terrain instead.

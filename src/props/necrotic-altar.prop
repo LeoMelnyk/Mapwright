@@ -3,7 +3,7 @@ category: Undead & Dark
 footprint: 2x2
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Stone slab base
 rect 0.08,0.08 1.84,1.84 texfill polyhaven/stone_wall 0.80

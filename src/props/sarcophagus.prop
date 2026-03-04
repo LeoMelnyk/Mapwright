@@ -3,7 +3,7 @@ category: Containers
 footprint: 2x1
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 ---
 # Stone base
 rect 0.05,0.05 0.9,1.9 texfill polyhaven/granite_tile 0.8

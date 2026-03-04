@@ -1,54 +1,60 @@
 name: Vault Door
 category: Structure
-footprint: 2x2
+footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: yes
 ---
-# Thick stone frame (outer border)
-rect 0.0,0.0 2.0,2.0 texfill polyhaven/stone_wall 0.8
-rect 0.0,0.0 2.0,2.0 stroke #444444
+# Stone frame (fills full 2-cell width)
+rect 0.0,0.0 2.0,1.0 texfill polyhaven/stone_wall 0.8
+rect 0.0,0.0 2.0,1.0 stroke #444444
 
-# Door recess (slightly inset area where door sits)
-rect 0.2,0.2 1.6,1.6 fill #1a1a1a 0.3
+# Heavy iron door slab (inset from pillar locks)
+rect 0.22,0.06 1.56,0.88 texfill polyhaven/rusty_metal 0.85
+rect 0.22,0.06 1.56,0.88 stroke #333333
 
-# Heavy iron door slab (rectangular from above)
-rect 0.25,0.25 1.5,1.5 texfill polyhaven/rusty_metal 0.85
-rect 0.25,0.25 1.5,1.5 stroke #333333
+# Reinforcing iron bands (2 horizontal bars across door face)
+rect 0.22,0.36 1.56,0.07 texfill polyhaven/metal_plate 0.65
+rect 0.22,0.57 1.56,0.07 texfill polyhaven/metal_plate 0.65
 
-# Reinforcing iron bands across door surface
-rect 0.25,0.6 1.5,0.06 texfill polyhaven/metal_plate 0.6
-rect 0.25,1.3 1.5,0.06 texfill polyhaven/metal_plate 0.6
+# Left pillar lock column
+rect 0.0,0.0 0.25,1.0 texfill polyhaven/rusty_metal_02 0.92
+rect 0.0,0.0 0.25,1.0 stroke #222222
 
-# Heavy hinges on west side (3 hinges)
-rect 0.15,0.4 0.18,0.12 texfill polyhaven/rusty_metal_02 0.9
-rect 0.15,0.4 0.18,0.12 stroke #333333
-rect 0.15,0.92 0.18,0.12 texfill polyhaven/rusty_metal_02 0.9
-rect 0.15,0.92 0.18,0.12 stroke #333333
-rect 0.15,1.44 0.18,0.12 texfill polyhaven/rusty_metal_02 0.9
-rect 0.15,1.44 0.18,0.12 stroke #333333
+# Right pillar lock column
+rect 1.75,0.0 0.25,1.0 texfill polyhaven/rusty_metal_02 0.92
+rect 1.75,0.0 0.25,1.0 stroke #222222
 
-# Locking bolts extending into frame (east side)
-rect 1.68,0.5 0.22,0.08 texfill polyhaven/metal_plate_02 0.85
-rect 1.68,0.5 0.22,0.08 stroke #333333
-rect 1.68,0.95 0.22,0.08 texfill polyhaven/metal_plate_02 0.85
-rect 1.68,0.95 0.22,0.08 stroke #333333
-rect 1.68,1.4 0.22,0.08 texfill polyhaven/metal_plate_02 0.85
-rect 1.68,1.4 0.22,0.08 stroke #333333
+# Left pillar detail (inset panel to give it depth)
+rect 0.04,0.08 0.17,0.84 fill #1a1a1a 0.25
+rect 0.04,0.08 0.17,0.84 stroke #444444
 
-# Center locking wheel (large)
-circle 1.0,1.0 0.28 texfill polyhaven/rusty_metal_02 0.9
-circle 1.0,1.0 0.28 stroke #333333
+# Right pillar detail
+rect 1.79,0.08 0.17,0.84 fill #1a1a1a 0.25
+rect 1.79,0.08 0.17,0.84 stroke #444444
 
-# Wheel spokes
-line 1.0,0.72 1.0,1.28 stroke #555555
-line 0.72,1.0 1.28,1.0 stroke #555555
-line 0.8,0.8 1.2,1.2 stroke #555555
-line 1.2,0.8 0.8,1.2 stroke #555555
+# Left locking bolts (bars that slide into pillar)
+rect 0.22,0.28 0.14,0.1 texfill polyhaven/metal_plate_02 0.92
+rect 0.22,0.28 0.14,0.1 stroke #333333
+rect 0.22,0.62 0.14,0.1 texfill polyhaven/metal_plate_02 0.92
+rect 0.22,0.62 0.14,0.1 stroke #333333
 
-# Center hub of wheel
-circle 1.0,1.0 0.08 texfill polyhaven/metal_plate 0.95
-circle 1.0,1.0 0.08 stroke #222222
+# Right locking bolts
+rect 1.64,0.28 0.14,0.1 texfill polyhaven/metal_plate_02 0.92
+rect 1.64,0.28 0.14,0.1 stroke #333333
+rect 1.64,0.62 0.14,0.1 texfill polyhaven/metal_plate_02 0.92
+rect 1.64,0.62 0.14,0.1 stroke #333333
 
-# Keyhole below wheel
-ellipse 1.0,1.38 0.03,0.05 fill #0a0a0a 0.8
+# Center locking valve wheel
+circle 1.0,0.5 0.21 texfill polyhaven/rusty_metal_02 0.9
+circle 1.0,0.5 0.21 stroke #333333
+
+# Wheel spokes (8-spoke valve)
+line 1.0,0.29 1.0,0.71 stroke #555555
+line 0.79,0.5 1.21,0.5 stroke #555555
+line 0.851,0.351 1.149,0.649 stroke #555555
+line 1.149,0.351 0.851,0.649 stroke #555555
+
+# Center hub
+circle 1.0,0.5 0.065 texfill polyhaven/metal_plate 0.95
+circle 1.0,0.5 0.065 stroke #222222
