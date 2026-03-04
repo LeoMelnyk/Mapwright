@@ -3,7 +3,7 @@ export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState,
 export { invalidateFluidCache } from './fluid.js';
 // Decorations & lighting
 export { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from './decorations.js';
-export { renderLightmap, renderCoverageHeatmap, invalidateVisibilityCache } from './lighting.js';
+export { renderLightmap, renderCoverageHeatmap, invalidateVisibilityCache, extractFillLights } from './lighting.js';
 // Bounds
 export { toCanvas } from './bounds.js';
 // Props & features

@@ -813,3 +813,43 @@ export function renderCoverageHeatmap(ctx, lights, cells, gridSize, transform) {
 
   ctx.restore();
 }
+
+// ─── Fill-Based Synthetic Lights ───────────────────────────────────────────
+
+/**
+ * Generate synthetic point lights for fill cells that should emit light (e.g. lava).
+ * Called before renderLightmap / renderLightmapHQ whenever lighting is enabled.
+ * Color and intensity are read from the resolved theme so themeOverrides apply automatically.
+ *
+ * @param {Array} cells - 2D cell grid
+ * @param {number} gridSize - World feet per grid square
+ * @param {object} theme - Resolved theme object (including any themeOverrides)
+ * @returns {Array} Light objects ready for renderLightmap / renderLightmapHQ
+ */
+export function extractFillLights(cells, gridSize, theme = {}) {
+  const color     = theme.lavaLightColor     ?? '#ff6600';
+  const intensity = theme.lavaLightIntensity ?? 0.70;
+  const lights = [];
+
+  for (let row = 0; row < cells.length; row++) {
+    const cellRow = cells[row];
+    if (!cellRow) continue;
+    for (let col = 0; col < cellRow.length; col++) {
+      const cell = cellRow[col];
+      if (cell?.fill === 'lava') {
+        lights.push({
+          id:        `fill-lava-${row}-${col}`,
+          x:         (col + 0.5) * gridSize,
+          y:         (row + 0.5) * gridSize,
+          type:      'point',
+          radius:    gridSize * 3.5,
+          dimRadius: gridSize * 7,
+          color,
+          intensity,
+          falloff:   'smooth',
+        });
+      }
+    }
+  }
+  return lights;
+}

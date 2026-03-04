@@ -10,6 +10,7 @@ import { calculateBoundsFromCells } from './bounds.js';
 import { renderCells, renderLabels } from './render.js';
 import { drawBackground, drawDungeonTitle, findCompassRosePosition, drawCompassRose, drawScaleIndicator, drawBorder } from './decorations.js';
 import { renderLightmapHQ } from './lighting-hq.js';
+import { extractFillLights } from './lighting.js';
 
 /**
  * Resolve theme config to a theme object.
@@ -120,13 +121,17 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
 
       // Lighting overlay for this level (pixel-perfect for export)
       if (levelLightingEnabled) {
-        // Filter lights to this level's row range
+        // Filter placed lights to this level's row range, then merge with fill lights
         const levelLights = (config.metadata.lights || []).filter(l => {
           const lightRow = l.y / gridSize;
           return lightRow >= level.startRow && lightRow < level.startRow + level.numRows;
         });
+        const levelFillLights = extractFillLights(levelCells, gridSize, theme);
+        const allLevelLights = levelFillLights.length
+          ? [...levelLights, ...levelFillLights]
+          : levelLights;
         const levelHeight = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE + MARGIN * 2);
-        renderLightmapHQ(ctx, levelLights, levelCells, gridSize, levelTransform,
+        renderLightmapHQ(ctx, allLevelLights, levelCells, gridSize, levelTransform,
           width, levelHeight, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog);
         // Draw labels after lightmap so they are unaffected by the multiply overlay
         renderLabels(ctx, levelCells, gridSize, theme, levelTransform, labelStyle);
@@ -172,7 +177,11 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
 
     // Lighting overlay (pixel-perfect for export)
     if (singleLevelLightingEnabled) {
-      renderLightmapHQ(ctx, config.metadata.lights, config.cells, gridSize, transform,
+      const fillLights = extractFillLights(config.cells, gridSize, theme);
+      const allLights = fillLights.length
+        ? [...(config.metadata.lights || []), ...fillLights]
+        : (config.metadata.lights || []);
+      renderLightmapHQ(ctx, allLights, config.cells, gridSize, transform,
         width, height, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog);
       // Draw labels after lightmap so they are unaffected by the multiply overlay
       renderLabels(ctx, config.cells, gridSize, theme, transform, labelStyle);

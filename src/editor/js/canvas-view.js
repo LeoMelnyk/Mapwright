@@ -1,6 +1,6 @@
 // Canvas element management, pan/zoom, mouse event routing
 import state, { getTheme, markDirty, notify, subscribe } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap } from '../../render/index.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights } from '../../render/index.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { initMinimap, updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
@@ -181,7 +181,11 @@ function render() {
 
   // Lighting overlay (after cells, before decorations so borders stay visible)
   if (lightingEnabled) {
-    renderLightmap(ctx, metadata.lights, cells, gridSize, transform,
+    const fillLights = extractFillLights(cells, gridSize, theme);
+    const allLights = fillLights.length
+      ? [...(metadata.lights || []), ...fillLights]
+      : (metadata.lights || []);
+    renderLightmap(ctx, allLights, cells, gridSize, transform,
       canvas.width, canvas.height, metadata.ambientLight ?? 0.15,
       state.textureCatalog, state.propCatalog,
       { ambientColor: metadata.ambientColor || '#ffffff', time: state.animClock ?? 0 });
