@@ -18,7 +18,7 @@
 
 Mapwright is a dungeon map editor built around three workflows:
 
-- **Write a `.map` text file** — plain ASCII that both humans and Claude can author, compiled to a print-ready PNG or SVG
+- **Write a `.map` text file** — plain ASCII that both humans and Claude can author, compiled to a print-ready PNG
 - **Draw in the visual editor** — 14 tools, full undo/redo, pan/zoom, multi-level support
 - **Let Claude do it** — a full Puppeteer bridge and `planBrief` command so Claude can plan, layout, and render complete maps without touching the GUI
 
@@ -95,7 +95,7 @@ node tools/build_map.js my-dungeon.map
 # → my-dungeon.png + my-dungeon.json
 ```
 
-Flags: `--svg` for vector output, `--watch` to auto-rebuild on save.
+Flags: `--watch` to auto-rebuild on save.
 
 ---
 
@@ -218,7 +218,7 @@ Mapwright includes a real-time fog-of-war player view via WebSocket. Open the **
 - Load maps from [Donjon](https://donjon.bin.sh/) and OpenDungeonPlanner
 
 **Export**
-- PNG (print-ready) and SVG (vector) output
+- PNG (print-ready) output
 - Export to `.map` text format from the visual editor
 
 ---

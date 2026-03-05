@@ -46,7 +46,7 @@ If down, start it: `npm start` (runs in background). If up, use it directly.
 
 Write dungeons as ASCII grids with a legend, doors, and features sections. See the **Map Format Reference** section below for full syntax.
 
-- **Pipeline:** `.map` → `tools/build_map.js` → PNG/SVG
+- **Pipeline:** `.map` → `tools/build_map.js` → PNG
 - **Best for:** Hand-crafted maps where visual ASCII layout is preferred
 
 ```bash
@@ -58,7 +58,7 @@ node tools/generate_dungeon.js my_dungeon.json  # → .png
 
 ### 3. Standalone JSON Rendering
 
-Render an existing compiled JSON dungeon directly to PNG/SVG.
+Render an existing compiled JSON dungeon directly to PNG.
 
 ```bash
 node tools/generate_dungeon.js my_dungeon.json
@@ -119,7 +119,7 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 - `render/bounds.js` — Spatial query helpers: `calculateBoundsFromCells()`, `toCanvas()`, `fromCanvas()`.
 - `render/constants.js` — `GRID_SCALE`, `MARGIN`, and other render constants.
 - `render/validate.js` — Dungeon matrix format validation.
-- `render/compile.js` — Bridge from JSON dungeon → canvas rendering for PNG/SVG export. `renderDungeonToCanvas()`, `calculateCanvasSize()`.
+- `render/compile.js` — Bridge from JSON dungeon → canvas rendering for PNG export. `renderDungeonToCanvas()`, `calculateCanvasSize()`.
 - `render/props.js` — Prop rendering: `parsePropFile()`, `renderProp()`, `renderAllProps()`, `extractPropLightSegments()`.
 - `render/lighting.js` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`. Wall segments from cell grid + props, 2D raycasting visibility polygon.
 - `render/lighting-hq.js` — `renderLightmapHQ()`. Per-pixel falloff, shadow mask rasterization, normal map bump. Used for PNG export only.
@@ -204,9 +204,9 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 - `compile/trims.js` — Diagonal corner and arc trim geometry.
 - `compile/constants.js` — Reserved characters and magic numbers.
 - `render/compile.js` — `renderDungeonToCanvas()`, `calculateCanvasSize()`.
-- `tools/build_map.js` — CLI entry point: `.map` → JSON → PNG/SVG.
+- `tools/build_map.js` — CLI entry point: `.map` → JSON → PNG.
 - `tools/compile_map.js` — Standalone: `.map` → `.json`.
-- `tools/generate_dungeon.js` — Standalone: `.json` → PNG/SVG.
+- `tools/generate_dungeon.js` — Standalone: `.json` → PNG.
 
 ---
 
@@ -316,7 +316,7 @@ When adding a new feature, every layer of the pipeline needs to be considered. N
 
 #### 1. Core: Does the feature work?
 
-The rendering pipeline flows: `.map` file → parser → compiler → JSON → renderer → PNG/SVG.
+The rendering pipeline flows: `.map` file → parser → compiler → JSON → renderer → PNG.
 
 - [ ] **Data model** — Define how the feature is stored in the matrix JSON (cell-level property, metadata field, etc.)
 - [ ] **Parser** (`src/compile/parse.js`) — If the feature is configurable from `.map` files, add a new section keyword or header field. Validate syntax and emit clear errors with line numbers.
@@ -390,9 +390,6 @@ node tools/puppeteer-bridge.js --commands '[["newMethod", args]]' --screenshot t
 ```bash
 # Single command: compile + render (recommended)
 node tools/build_map.js <name>.map
-
-# With SVG output instead of PNG
-node tools/build_map.js <name>.map --svg
 
 # Validate only (no output files)
 node tools/build_map.js <name>.map --check
