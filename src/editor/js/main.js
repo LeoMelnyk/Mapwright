@@ -5,7 +5,7 @@ import * as canvasView from './canvas-view.js';
 import { saveDungeon, reloadAssets } from './io.js';
 import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
-import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool, RangeTool } from './tools/index.js';
+import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool, RangeTool, FogRevealTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
 import { loadLightCatalog } from './light-catalog.js';
 import { sessionState, renderSessionOverlay, renderDmFogOverlay, hitTestDoorButton, hitTestStairButton, openDoor, openStairs, setRangeHighlightCallback } from './dm-session.js';
@@ -398,6 +398,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     () => canvasView.requestRender(),
   );
 
+  // ── Fog reveal (session tool) ─────────────────────────────────────────────
+  const dmFogRevealTool = new FogRevealTool();
+
   // Always render range highlights (including player-sent ones) in any session sub-mode
   setSessionRangeTool(dmRangeTool);
 
@@ -419,6 +422,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         setSessionTool(dmRangeTool);
         canvasView.setCursor('crosshair');
         if (rangeOpts) rangeOpts.style.display = 'flex';
+      } else if (tool === 'fog-reveal') {
+        setSessionTool(dmFogRevealTool);
+        canvasView.setCursor('crosshair');
+        if (rangeOpts) rangeOpts.style.display = 'none';
       } else {
         setSessionTool(null);
         canvasView.setCursor('default');
@@ -982,7 +989,7 @@ function onKeyDown(e) {
   const toolKeys = { '1': 'room', '2': 'paint', '3': 'fill', '4': 'wall', '5': 'door', '6': 'label', 's': 'stairs', 'b': 'bridge', 't': 'trim', 'a': 'select', 'q': 'prop', 'e': 'erase', 'l': 'light' };
   if (state.sessionToolsActive) {
     // 1/2: switch session tools
-    const sessionToolKeys = { '1': 'doors', '2': 'range' };
+    const sessionToolKeys = { '1': 'doors', '2': 'range', '3': 'fog-reveal' };
     if (sessionToolKeys[e.key]) {
       e.preventDefault();
       const toolName = sessionToolKeys[e.key];

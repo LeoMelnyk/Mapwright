@@ -353,6 +353,31 @@ export function revealAll() {
 }
 
 /**
+ * Reveal all non-void cells within a rectangle.
+ */
+export function revealRect(r1, c1, r2, c2) {
+  const cells = state.dungeon.cells;
+  const minRow = Math.min(r1, r2), maxRow = Math.max(r1, r2);
+  const minCol = Math.min(c1, c2), maxCol = Math.max(c1, c2);
+  const newCells = [];
+  for (let r = minRow; r <= maxRow; r++) {
+    for (let c = minCol; c <= maxCol; c++) {
+      if (!cells[r]?.[c]) continue;
+      const key = cellKey(r, c);
+      if (!sessionState.revealedCells.has(key)) {
+        sessionState.revealedCells.add(key);
+        newCells.push(key);
+      }
+    }
+  }
+  if (newCells.length > 0) {
+    send({ type: 'fog:reveal', cells: newCells, duration: 500 });
+  }
+  requestRender();
+  notify();
+}
+
+/**
  * Reset fog — hide everything.
  */
 export function resetFog() {

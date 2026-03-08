@@ -243,10 +243,11 @@ function render() {
   // DM fog overlay — semi-transparent tint over unrevealed cells (persists across panels)
   if (dmFogOverlayFn) dmFogOverlayFn(ctx, transform, gridSize);
 
-  // Session tool overlay (range highlights — rendered below door buttons)
-  // Uses persistent sessionRangeTool so player highlights render in any session sub-mode (doors, range, etc.)
-  if (state.sessionToolsActive && sessionRangeTool?.renderOverlay) {
-    sessionRangeTool.renderOverlay(ctx, transform, gridSize);
+  // Session tool overlays — rendered below door buttons.
+  // sessionRangeTool is persistent so player range highlights render in any session sub-mode.
+  if (state.sessionToolsActive) {
+    if (sessionRangeTool?.renderOverlay) sessionRangeTool.renderOverlay(ctx, transform, gridSize);
+    if (sessionTool?.renderOverlay) sessionTool.renderOverlay(ctx, transform, gridSize);
   }
 
   // Session overlay (door-open buttons — only when session tools active)
