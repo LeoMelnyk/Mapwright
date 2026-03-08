@@ -77,7 +77,7 @@ export function calculateCanvasSize(config) {
  * @param {number} width - canvas pixel width
  * @param {number} height - canvas pixel height
  */
-export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = null, textureCatalog = null) {
+export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = null, textureCatalog = null, bgImageEl = null) {
   const gridSize = config.metadata.gridSize;
   const dungeonName = config.metadata.dungeonName;
   const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides);
@@ -117,6 +117,7 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
       renderCells(ctx, levelCells, gridSize, theme, levelTransform, {
         showGrid: showGridInCorridors, labelStyle, propCatalog, textureOptions: levelTexOpts,
         metadata: config.metadata, skipLabels: levelLightingEnabled,
+        bgImageEl, bgImgConfig: config.metadata.backgroundImage ?? null,
       });
 
       // Lighting overlay for this level (pixel-perfect for export)
@@ -173,6 +174,7 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
     renderCells(ctx, config.cells, gridSize, theme, transform, {
       showGrid: showGridInCorridors, labelStyle, propCatalog, textureOptions: texOpts,
       metadata: config.metadata, skipLabels: singleLevelLightingEnabled,
+      bgImageEl, bgImgConfig: config.metadata.backgroundImage ?? null,
     });
 
     // Lighting overlay (pixel-perfect for export)

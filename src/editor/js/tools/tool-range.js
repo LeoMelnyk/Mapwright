@@ -111,6 +111,12 @@ export class RangeTool extends Tool {
     this.hoverCell = null;
   }
 
+  onRightClick(_row, _col, _edge, _event) {
+    this._clearCommitted();
+    this._clearRemote();
+    this._requestRender();
+  }
+
   onMouseDown(row, col, _edge, _event, pos) {
     const { gridSize, numRows, numCols } = this._gridInfo();
     if (row < 0 || row >= numRows || col < 0 || col >= numCols) return;

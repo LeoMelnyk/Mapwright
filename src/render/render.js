@@ -257,7 +257,7 @@ function withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, f
  * Fill room backgrounds and render per-cell texture overlays.
  * Returns true if any textured cells were drawn.
  */
-function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions) {
+function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl = null, bgImgConfig = null) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   let hasTexturedCells = false;
@@ -292,6 +292,20 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
     }
   }
   ctx.fill();
+
+  // Background image: above floor base color, below texture tiles, clipped to floor cells
+  if (bgImageEl && bgImgConfig && bgImageEl.complete && bgImageEl.naturalWidth > 0) {
+    const cellPx = gridSize * transform.scale;
+    const imgW = bgImageEl.naturalWidth  * cellPx / bgImgConfig.pixelsPerCell;
+    const imgH = bgImageEl.naturalHeight * cellPx / bgImgConfig.pixelsPerCell;
+    const imgX = transform.offsetX + bgImgConfig.offsetX * cellPx;
+    const imgY = transform.offsetY + bgImgConfig.offsetY * cellPx;
+    ctx.save();
+    ctx.clip(); // clip to the Pass 1 floor path — respects fog in player view, trim shapes in both
+    ctx.globalAlpha = bgImgConfig.opacity ?? 0.5;
+    ctx.drawImage(bgImageEl, imgX, imgY, imgW, imgH);
+    ctx.restore();
+  }
 
   // Pass 2: Per-cell texture overlays
   // When DOMMatrix + createPattern are available (browser) we batch all cells
@@ -1014,6 +1028,8 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     metadata = null,
     skipLabels = false,
     showInvisible = false,
+    bgImageEl = null,
+    bgImgConfig = null,
   } = options;
   const roomCells = getCachedRoomCells(cells);
   const roundedCorners = getCachedRoundedCorners(cells);
@@ -1027,7 +1043,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   // Floor backgrounds + textures (clipped to exclude arc voids)
   let hasTexturedCells = false;
   withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-    hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions);
+    hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig);
   });
 
   // Arc secondary post-pass: for each arc wedge, draw textureSecondary inside the void-corner region.

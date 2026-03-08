@@ -13,6 +13,38 @@ let canvas, ctx;
 let animFrameId = null;
 let animLoopId = null;  // separate handle for the continuous animation loop
 
+// Cache for background image HTMLImageElement — avoids recreating every frame
+let _bgImgCache = { dataUrl: null, el: null };
+export function getCachedBgImage(dataUrl) {
+  if (_bgImgCache.dataUrl !== dataUrl) {
+    const img = new Image();
+    img.src = dataUrl;
+    _bgImgCache = { dataUrl, el: img };
+  }
+  return _bgImgCache.el;
+}
+
+// Background cell measure drag state
+let _bgMeasureActive = false;
+let _bgMeasureCallback = null; // (newPixelsPerCell: number) => void
+let _bgMeasureStart = null;    // { x, y } canvas coords
+let _bgMeasureEnd = null;      // { x, y } canvas coords
+
+export function activateBgCellMeasure(callback) {
+  _bgMeasureActive = true;
+  _bgMeasureCallback = callback;
+  _bgMeasureStart = null;
+  _bgMeasureEnd = null;
+  if (canvas) canvas.style.cursor = 'crosshair';
+}
+
+function _cancelBgMeasure() {
+  _bgMeasureActive = false;
+  _bgMeasureCallback = null;
+  _bgMeasureStart = null;
+  _bgMeasureEnd = null;
+}
+
 const ANIM_INTERVAL_MS = 50; // 20fps — sufficient for fire/pulse, avoids 60fps render spam
 
 function tickAnimLoop() {
@@ -174,9 +206,12 @@ function render() {
     : null;
   const lightingEnabled = !!metadata.lightingEnabled;
   const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door';
+  const bgImgConfig = metadata.backgroundImage ?? null;
+  const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
   renderCells(ctx, cells, gridSize, theme, transform, {
     showGrid, labelStyle, propCatalog: state.propCatalog, textureOptions, metadata,
     skipLabels: lightingEnabled, showInvisible,
+    bgImageEl, bgImgConfig,
   });
 
   // Lighting overlay (after cells, before decorations so borders stay visible)
@@ -238,6 +273,35 @@ function render() {
   // Tool overlay — suppressed while panning (right-drag or Alt+drag)
   if (activeTool?.renderOverlay && !isPanning && !rightDragged) {
     activeTool.renderOverlay(ctx, transform, gridSize);
+  }
+
+  // Background cell measure overlay
+  if (_bgMeasureActive && _bgMeasureStart && _bgMeasureEnd) {
+    const x0 = _bgMeasureStart.x;
+    const y0 = _bgMeasureStart.y;
+    const dx = _bgMeasureEnd.x - x0;
+    const dy = _bgMeasureEnd.y - y0;
+    const size = Math.max(Math.abs(dx), Math.abs(dy));
+    const sx = dx >= 0 ? x0 : x0 - size;
+    const sy = dy >= 0 ? y0 : y0 - size;
+    const bi = state.dungeon.metadata.backgroundImage;
+    const cellPx = gridSize * transform.scale;
+    const computed = Math.round(size * (bi?.pixelsPerCell ?? 70) / cellPx);
+    ctx.save();
+    ctx.strokeStyle = '#00d4ff';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 3]);
+    ctx.strokeRect(sx, sy, size, size);
+    ctx.fillStyle = 'rgba(0, 212, 255, 0.08)';
+    ctx.fillRect(sx, sy, size, size);
+    if (size > 20) {
+      ctx.font = 'bold 11px monospace';
+      ctx.fillStyle = '#00d4ff';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(`${computed} px/cell`, sx + 4, sy + 4);
+    }
+    ctx.restore();
   }
 
   // DM fog overlay — semi-transparent tint over unrevealed cells (persists across panels)
@@ -495,6 +559,15 @@ function getMousePos(e) {
 function onMouseDown(e) {
   const pos = getMousePos(e);
 
+  // Background cell measure mode — intercept left click before normal tool routing
+  if (_bgMeasureActive && e.button === 0) {
+    _bgMeasureStart = pos;
+    _bgMeasureEnd = pos;
+    e.preventDefault();
+    requestRender();
+    return;
+  }
+
   // Alt+click: pan (unless the active tool handles Alt itself, e.g. paint syringe)
   if (e.button === 0 && e.altKey && state.activeTool !== 'paint') {
     isPanning = true;
@@ -560,6 +633,13 @@ function onMouseDown(e) {
 
 function onMouseMove(e) {
   const pos = getMousePos(e);
+
+  // Background cell measure mode — update drag end and skip normal routing
+  if (_bgMeasureActive && _bgMeasureStart) {
+    _bgMeasureEnd = pos;
+    requestRender();
+    return;
+  }
 
   if (isPanning) {
     state.panX = panStartPanX + (pos.x - panStartX);
@@ -631,6 +711,25 @@ function restoreToolCursor() {
 }
 
 function onMouseUp(e) {
+  // Background cell measure mode — compute cell size and apply callback
+  if (_bgMeasureActive && e.button === 0 && _bgMeasureStart && _bgMeasureEnd) {
+    const dx = Math.abs(_bgMeasureEnd.x - _bgMeasureStart.x);
+    const dy = Math.abs(_bgMeasureEnd.y - _bgMeasureStart.y);
+    const d = Math.max(dx, dy);
+    if (d > 4) {
+      const { gridSize } = state.dungeon.metadata;
+      const bi = state.dungeon.metadata.backgroundImage;
+      const transform = getTransform();
+      const cellPx = gridSize * transform.scale;
+      const newPixelsPerCell = Math.round(d * (bi?.pixelsPerCell ?? 70) / cellPx);
+      if (_bgMeasureCallback) _bgMeasureCallback(Math.max(1, newPixelsPerCell));
+    }
+    _cancelBgMeasure();
+    restoreToolCursor();
+    requestRender();
+    return;
+  }
+
   if (isPanning) {
     isPanning = false;
     restoreToolCursor();
@@ -682,6 +781,10 @@ function onMouseUp(e) {
 }
 
 function onMouseLeave() {
+  if (_bgMeasureActive) {
+    _cancelBgMeasure();
+    restoreToolCursor();
+  }
   state.hoveredCell = null;
   state.hoveredEdge = null;
   isPanning = false;

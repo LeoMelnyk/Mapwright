@@ -22,6 +22,7 @@ import {
   initTexturesPanel, renderTexturesPanel,
   initRightSidebar,
   initClaudePanel,
+  initBackgroundImagePanel,
 } from './panels/index.js';
 import { getClaudeSettings, setClaudeSetting } from './claude-settings.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
@@ -344,6 +345,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Init session panel
   const sessionContainer = document.getElementById('session-panel-content');
   if (sessionContainer) initSessionPanel(sessionContainer);
+
+  // Init background image panel
+  const bgImageContainer = document.getElementById('background-image-panel-content');
+  if (bgImageContainer) initBackgroundImagePanel(bgImageContainer);
 
   // ── Claude AI (experimental) ─────────────────────────────────────────────
   // Toggle via View → Developer → Claude AI, or visit with ?claude to enable once.

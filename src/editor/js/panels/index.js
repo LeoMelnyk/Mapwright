@@ -9,3 +9,4 @@ export { initSessionPanel } from './session.js';
 export { initTexturesPanel, renderTexturesPanel, selectTexture } from './textures.js';
 export { init as initRightSidebar, setRightPanelChangeCallback, getActiveRightPanel, toggleRightPanel } from './right-sidebar.js';
 export { initClaudePanel } from './claude-chat.js';
+export { initBackgroundImagePanel } from './background-image.js';

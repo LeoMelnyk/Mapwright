@@ -324,7 +324,19 @@ export async function exportPng() {
       return;
     }
 
-    renderDungeonToCanvas(ctx, config, width, height, null, null);
+    // Resolve background image element if present
+    let bgImageEl = null;
+    const bi = config.metadata.backgroundImage;
+    if (bi?.dataUrl) {
+      bgImageEl = new Image();
+      await new Promise(resolve => {
+        bgImageEl.onload = resolve;
+        bgImageEl.onerror = resolve; // fail gracefully — image won't appear but export continues
+        bgImageEl.src = bi.dataUrl;
+      });
+    }
+
+    renderDungeonToCanvas(ctx, config, width, height, null, null, bgImageEl);
 
     const blob = await new Promise(resolve => offscreen.toBlob(resolve, 'image/png'));
     if (!blob) {

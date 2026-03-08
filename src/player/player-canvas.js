@@ -27,6 +27,18 @@ let pinchMidX = 0, pinchMidY = 0;
 let activeTool = null;
 let toolDragging = false; // true when the tool has an active drag
 
+// Cache for background image HTMLImageElement — avoids recreating every frame
+let _bgImgCache = { dataUrl: null, el: null };
+function getCachedBgImage(dataUrl) {
+  if (_bgImgCache.dataUrl !== dataUrl) {
+    const img = new Image();
+    img.onload = () => requestRender();
+    img.src = dataUrl;
+    _bgImgCache = { dataUrl, el: img };
+  }
+  return _bgImgCache.el;
+}
+
 // Memoized player cells — rebuilt only when fog/doors/source cells change
 let _cachedPlayerCells = null;
 let _lastSourceCells = null;
@@ -148,10 +160,14 @@ function render(timestamp) {
     ? { catalog: playerState.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: playerState.texturesVersion ?? 0 }
     : null;
 
+  const bgImgConfig = metadata.backgroundImage ?? null;
+  const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
+
   const lightingEnabled = !!(playerMetadata.lightingEnabled && playerMetadata.lights?.length > 0);
   renderCells(ctx, playerCells, gridSize, theme, transform, {
     showGrid, labelStyle, propCatalog: playerState.propCatalog, textureOptions,
     metadata: playerMetadata, skipLabels: lightingEnabled,
+    bgImageEl, bgImgConfig,
   });
 
   // Lighting overlay
