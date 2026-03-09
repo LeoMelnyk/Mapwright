@@ -593,6 +593,115 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Expose openShortcutsModal for keydown handler (defined before it, called by name)
   window._openShortcutsModal = openShortcutsModal;
 
+  // Release Notes modal
+  function escHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function inlineMd(text) {
+    let s = escHtml(text);
+    s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    return s;
+  }
+  function mdToHtml(md) {
+    const lines = md.split('\n');
+    let html = '';
+    let inList = false;
+    let inTable = false;
+    let inCode = false;
+    for (const line of lines) {
+      if (line.startsWith('```')) {
+        if (!inCode) {
+          if (inList)  { html += '</ul>'; inList = false; }
+          if (inTable) { html += '</tbody></table>'; inTable = false; }
+          html += '<pre class="rn-pre"><code>';
+          inCode = true;
+        } else {
+          html += '</code></pre>';
+          inCode = false;
+        }
+        continue;
+      }
+      if (inCode) { html += escHtml(line) + '\n'; continue; }
+
+      // Table separator row
+      if (/^\|[\s\-:|]+\|$/.test(line.trim())) continue;
+      // Table row
+      if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+        if (!inTable) {
+          if (inList) { html += '</ul>'; inList = false; }
+          html += '<table class="rn-table"><tbody>';
+          inTable = true;
+        }
+        const cells = line.trim().slice(1, -1).split('|')
+          .map(c => `<td>${inlineMd(c.trim())}</td>`).join('');
+        html += `<tr>${cells}</tr>`;
+        continue;
+      }
+      if (inTable) { html += '</tbody></table>'; inTable = false; }
+
+      if (line.startsWith('### ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h4 class="rn-h4">${inlineMd(line.slice(4))}</h4>`;
+        continue;
+      }
+      if (line.startsWith('## ')) {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += `<h3 class="rn-h3">${inlineMd(line.slice(3))}</h3>`;
+        continue;
+      }
+      if (/^  [-*] /.test(line)) {
+        if (!inList) { html += '<ul class="rn-list">'; inList = true; }
+        html += `<li class="rn-li rn-li-nested">${inlineMd(line.slice(4))}</li>`;
+        continue;
+      }
+      if (/^[-*] /.test(line)) {
+        if (!inList) { html += '<ul class="rn-list">'; inList = true; }
+        html += `<li class="rn-li">${inlineMd(line.slice(2))}</li>`;
+        continue;
+      }
+      if (line.trim() === '') {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += '<div class="rn-gap"></div>';
+        continue;
+      }
+      html += `<p class="rn-p">${inlineMd(line)}</p>`;
+    }
+    if (inList)  html += '</ul>';
+    if (inTable) html += '</tbody></table>';
+    if (inCode)  html += '</code></pre>';
+    return html;
+  }
+
+  function openReleaseNotesModal() {
+    const m = document.getElementById('modal-release-notes');
+    if (!m) return;
+    const body = document.getElementById('release-notes-body');
+    const badge = document.getElementById('release-notes-version');
+    if (body && !body.dataset.loaded) {
+      body.textContent = 'Loading…';
+      fetch('/api/changelog')
+        .then(r => r.json())
+        .then(({ version, notes }) => {
+          if (badge) badge.textContent = version;
+          body.innerHTML = mdToHtml(notes);
+          body.dataset.loaded = '1';
+        })
+        .catch(() => { body.textContent = 'Could not load release notes.'; });
+    }
+    m.style.display = 'flex';
+  }
+  function closeReleaseNotesModal() {
+    const m = document.getElementById('modal-release-notes');
+    if (m) m.style.display = 'none';
+  }
+  document.getElementById('btn-release-notes')?.addEventListener('click', openReleaseNotesModal);
+  document.getElementById('modal-release-notes-close')?.addEventListener('click', closeReleaseNotesModal);
+  document.getElementById('modal-release-notes')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeReleaseNotesModal();
+  });
+
   // Claude Settings modal (only wired when feature is enabled)
   if (CLAUDE_ENABLED) {
   function updatePullCmd(modelValue) {

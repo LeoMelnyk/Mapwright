@@ -106,6 +106,7 @@
         <button class="menu-trigger">Help</button>
         <div class="menu-dropdown">
           <button class="menu-action" id="btn-shortcuts">Keyboard Shortcuts <span class="key-hint-menu">?</span></button>
+          <button class="menu-action" id="btn-release-notes">Release Notes</button>
           <div class="menu-separator"></div>
           <button class="menu-action" id="btn-claude-settings">AI Settings…</button>
         </div>
@@ -673,6 +674,17 @@
         </div>
         <div class="mw-modal-footer">
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-shortcuts-close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Release Notes modal -->
+    <div id="modal-release-notes" class="mw-modal-overlay" style="display:none;">
+      <div class="mw-modal mw-modal-wide">
+        <div class="mw-modal-title">Release Notes <span id="release-notes-version" class="release-notes-version-badge"></span></div>
+        <div class="mw-modal-body release-notes-body" id="release-notes-body"></div>
+        <div class="mw-modal-footer">
+          <button class="mw-modal-btn mw-modal-btn-primary" id="modal-release-notes-close">Close</button>
         </div>
       </div>
     </div>

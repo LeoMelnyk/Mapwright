@@ -190,6 +190,21 @@ app.get('/api/version', (_req, res) => {
   res.json({ version: APP_VERSION });
 });
 
+app.get('/api/changelog', (_req, res) => {
+  try {
+    const raw = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'CHANGELOG.md'), 'utf-8');
+    // First section (before the first `\n---\n` separator) is the latest release
+    const latest = raw.split(/\n---\n/)[0].trim();
+    const versionMatch = latest.match(/^## (v[\d.]+)/m);
+    const version = versionMatch ? versionMatch[1] : `v${APP_VERSION}`;
+    // Strip everything up to and including the `## vX.X.X` heading line
+    const notes = latest.replace(/^[\s\S]*?^## v[\d.]+\n+/m, '').trim();
+    res.json({ version, notes });
+  } catch {
+    res.json({ version: `v${APP_VERSION}`, notes: '' });
+  }
+});
+
 // ── Update check endpoint ─────────────────────────────────────────────────
 
 function semverGt(a, b) {
