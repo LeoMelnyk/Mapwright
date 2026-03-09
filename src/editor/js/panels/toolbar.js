@@ -406,6 +406,10 @@ export function updateToolButtons() {
     const b = document.getElementById('label-dungeon-options');
     if (b) b.style.display = 'none';
   }
+  if (state.sessionToolsActive || state.activeTool !== 'light') {
+    const b = document.getElementById('light-options');
+    if (b) b.style.display = 'none';
+  }
 
   // Hide the sub-bar panel border/space when no bars are visible (e.g. light, erase, prop)
   const toolbarSubbars = document.getElementById('toolbar-subbars');
