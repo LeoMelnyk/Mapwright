@@ -1,0 +1,56 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [main]
+    paths: [package.json]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create release on version bump
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect version change
+        id: version
+        run: |
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          OLD_VERSION=$(git show HEAD~1:package.json | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).version")
+          echo "old=$OLD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "new=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract changelog for this version
+        if: steps.version.outputs.changed == 'true'
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.new }}"
+          # Extract the section for this version from CHANGELOG.md
+          # Grab everything between "## vX.Y.Z" and the next "## v" or EOF
+          awk "/^## v${VERSION//./\\.}/{found=1; next} /^## v/{if(found) exit} found{print}" CHANGELOG.md > release_notes.md
+          # Trim leading/trailing blank lines
+          sed -i '/./,$!d' release_notes.md
+          sed -i -e :a -e '/^\n*$/{$d;N;ba' -e '}' release_notes.md
+
+      - name: Create GitHub release
+        if: steps.version.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.new }}"
+          TAG="v${VERSION}"
+          gh release create "$TAG" \
+            --title "Mapwright $TAG" \
+            --notes-file release_notes.md \
+            --target main
