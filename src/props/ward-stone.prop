@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: corner
+room_types: wizard-sanctum, ritual-chamber, vault
+typical_count: few
+clusters_with: magic-circle, summoning-cage
+notes: Protective ward; place at room corners or around ritual circles
 ---
 # Stone body (rectangular cross-section)
 rect 0.22,0.16 0.56,0.68 texfill polyhaven/stone_wall 0.80

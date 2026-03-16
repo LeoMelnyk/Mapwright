@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: library, study, wizard-sanctum
+typical_count: few
+clusters_with: scroll-rack, desk, bookshelf
+notes: Place on or near desks and shelves
 ---
 # Cylindrical case body (oval from above)
 ellipse 0.50,0.50 0.36,0.20 texfill polyhaven/dark_wood 0.85

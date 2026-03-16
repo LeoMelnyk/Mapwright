@@ -4,6 +4,11 @@ footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: alchemist-lab, wizard-sanctum
+typical_count: single
+clusters_with: ingredient-rack, alembic, mortar-pestle, crucible
+notes: Primary workstation; place against wall with supplies nearby
 ---
 # Work surface
 rect 0.10,0.10 1.80,1.80 texfill polyhaven/wood_table 0.80

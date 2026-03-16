@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: wizard-sanctum, alchemist-lab
+typical_count: few
+clusters_with: alchemy-bench, crystal-ball, spell-focus
+notes: Spell component storage; line walls near workbenches
 ---
 # Shelf board (north wall)
 rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.80

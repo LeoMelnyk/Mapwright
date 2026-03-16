@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: graveyard, crypt, memorial
+typical_count: many
+clusters_with: grave-mound
+notes: Headstone; place in rows for graveyard feel
 ---
 # Stone slab
 rect 0.2,0.15 0.6,0.7 texfill polyhaven/granite_tile 0.8

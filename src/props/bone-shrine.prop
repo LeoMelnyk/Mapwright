@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: crypt, ossuary, necromancer-lair
+typical_count: few
+clusters_with: bone-pile, burial-urn, candle-cluster
+notes: Place against walls as macabre devotional sites
 ---
 # Stone base
 rect 0.15,0.15 0.7,0.7 texfill polyhaven/stone_floor 0.8

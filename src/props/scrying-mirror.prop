@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: wizard-sanctum, divination-room
+typical_count: single
+clusters_with: crystal-ball, candle-cluster
+notes: Magical viewing device; mount on wall as focal point
 ---
 # Ornate frame
 ellipse 1.0,0.5 0.85,0.4 texfill polyhaven/dark_wood 0.85

@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: wall
+room_types: prison, dungeon, torture-chamber
+typical_count: many
+clusters_with: chain-wall, pillory
+notes: Wall-mounted restraints; line prison walls
 ---
 # Wall mount ring
 circle 0.5,0.15 0.08 fill #666666 0.4

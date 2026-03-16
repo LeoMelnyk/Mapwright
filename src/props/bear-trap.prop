@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: dungeon, cave, wilderness, trap-room
+typical_count: few
+notes: Hidden trap; place in doorways or narrow passages
 ---
 # Spring coil base
 circle 0.50,0.50 0.14 fill #666666 0.80

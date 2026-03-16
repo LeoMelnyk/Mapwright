@@ -5,6 +5,11 @@ facing: no
 shadow: yes
 blocks_light: no
 lights: [{"preset":"brazier","x":0.5,"y":0.5}]
+placement: floor
+room_types: any
+typical_count: few
+clusters_with: pillar
+notes: Light source and heat; place symmetrically flanking doors, thrones, or altars
 ---
 # Metal bowl
 circle 0.5,0.5 0.32 texfill polyhaven/rusty_metal 0.85

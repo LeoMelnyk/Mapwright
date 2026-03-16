@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: temple, shrine, ritual-chamber
+typical_count: few
+clusters_with: altar, candelabra, kneeling-bench
+notes: Incense burner; place near altars or along processional aisles
 ---
 # Hanging chain attachment (top)
 circle 0.50,0.14 0.04 fill #888888 0.80

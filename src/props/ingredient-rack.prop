@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: alchemist-lab, kitchen, wizard-sanctum
+typical_count: few
+clusters_with: alchemy-bench, spice-shelf
+notes: Supply storage; line walls near workbenches
 ---
 # Shelf board (wall side, north)
 rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.85

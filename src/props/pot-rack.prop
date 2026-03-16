@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: kitchen, tavern
+typical_count: single
+clusters_with: hearth, kitchen-table, oven
+notes: Hang on wall near cooking area
 ---
 # Horizontal iron rack bar (wall side, north)
 rect 0.06,0.04 1.88,0.12 texfill polyhaven/rusty_metal 0.80

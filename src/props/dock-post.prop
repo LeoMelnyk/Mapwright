@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: corner
+room_types: dock, harbor
+typical_count: many
+notes: Structural support; place at dock corners and edges
 ---
 # Base shadow
 ellipse 0.5,0.72 0.22,0.1 fill #333333 0.2

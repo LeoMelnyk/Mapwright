@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: yes
+placement: wall
+room_types: vault, bank, treasury
+typical_count: single
+notes: Heavy secure door; place spanning a doorway or wall section
 ---
 # Stone frame (fills full 2-cell width)
 rect 0.0,0.0 2.0,1.0 texfill polyhaven/stone_wall 0.8

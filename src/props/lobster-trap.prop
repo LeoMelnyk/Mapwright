@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: dock, fishing-village
+typical_count: few
+clusters_with: fishing-net, rope-coil
+notes: Place stacked near docks
 ---
 # Trap body (wicker weave)
 rect 0.1,0.1 0.8,0.8 texfill polyhaven/weathered_planks 0.7

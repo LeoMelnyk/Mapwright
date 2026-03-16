@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: wilderness, forest, garden
+typical_count: few
+clusters_with: fallen-log
+notes: Seat or obstacle; scatter in outdoor areas
 ---
 # Outer bark ring
 circle 0.5,0.5 0.38 texfill polyhaven/bark_brown_02 0.85

@@ -298,8 +298,10 @@ export function falloffMultiplier(dist, radius, falloff) {
       return Math.max(0, (raw - floor) / (1 - floor));
     }
     case 'smooth':
-    default:
-      return t * t * (3 - 2 * t); // smoothstep
+    default: {
+      const sm = t * t * (3 - 2 * t); // smoothstep
+      return sm * sm; // squared: steeper outer falloff (0.18% at 87.5% radius vs 4.3% before)
+    }
   }
 }
 
@@ -393,7 +395,7 @@ function clipToVisibility(gctx, visibility, transform, bbX, bbY) {
 function buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, lightRadius, falloff) {
   const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, rPx);
   grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1.0, intensity)})`);
-  const numStops = 8;
+  const numStops = 16;
   for (let i = 1; i <= numStops; i++) {
     const frac = i / numStops;
     const mult = falloffMultiplier(frac * lightRadius, lightRadius, falloff);
@@ -428,8 +430,15 @@ function renderPointLight(lctx, light, visibility, transform) {
   const bbH = Math.min(cy + outerRPx, vpH) - bbY;
   if (bbW <= 0 || bbH <= 0) return; // fully off-screen
 
-  const gctx = ensureLightRTCanvas(bbW, bbH);
-  gctx.clearRect(0, 0, bbW, bbH);
+  // Use ceiled integer dimensions consistently. The RT canvas is reused across
+  // lights, so fractional bbW/bbH can leave a thin strip of stale pixels from
+  // the previous light that drawImage (which reads Math.ceil pixels) picks up,
+  // creating a visible line at the light's bounding box edge.
+  const cw = Math.ceil(bbW);
+  const ch = Math.ceil(bbH);
+
+  const gctx = ensureLightRTCanvas(cw, ch);
+  gctx.clearRect(0, 0, cw, ch);
 
   const { r, g, b } = parseColor(light.color || '#ff9944');
   const intensity = light.intensity ?? 1.0;
@@ -468,7 +477,7 @@ function renderPointLight(lctx, light, visibility, transform) {
   clipToVisibility(gctx, visibility, transform, bbX, bbY);
   gctx.globalCompositeOperation = 'source-over';
 
-  lctx.drawImage(lightRTCanvas, 0, 0, Math.ceil(bbW), Math.ceil(bbH), bbX, bbY, bbW, bbH);
+  lctx.drawImage(lightRTCanvas, 0, 0, cw, ch, bbX, bbY, cw, ch);
 }
 
 /**
@@ -496,8 +505,11 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
   const bbH = Math.min(cy + range, vpH) - bbY;
   if (bbW <= 0 || bbH <= 0) return;
 
-  const gctx = ensureLightRTCanvas(bbW, bbH);
-  gctx.clearRect(0, 0, bbW, bbH);
+  const cw = Math.ceil(bbW);
+  const ch = Math.ceil(bbH);
+
+  const gctx = ensureLightRTCanvas(cw, ch);
+  gctx.clearRect(0, 0, cw, ch);
 
   const relCx = cx - bbX;
   const relCy = cy - bbY;
@@ -523,7 +535,7 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
   clipToVisibility(gctx, visibility, transform, bbX, bbY);
   gctx.globalCompositeOperation = 'source-over';
 
-  lctx.drawImage(lightRTCanvas, 0, 0, Math.ceil(bbW), Math.ceil(bbH), bbX, bbY, bbW, bbH);
+  lctx.drawImage(lightRTCanvas, 0, 0, cw, ch, bbX, bbY, cw, ch);
 }
 
 // ─── Visibility Cache ──────────────────────────────────────────────────────

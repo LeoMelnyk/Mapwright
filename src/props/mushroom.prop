@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: cave, underdark, swamp, forest
+typical_count: many
+clusters_with: mushroom-cluster, stalagmite
+notes: Scatter on floor for organic cave atmosphere
 ---
 # Mushroom cap
 circle 0.5,0.5 0.35 fill #8b4513 0.6

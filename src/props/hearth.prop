@@ -5,6 +5,11 @@ facing: yes
 shadow: no
 blocks_light: no
 lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
+placement: wall
+room_types: kitchen, common-room, tavern
+typical_count: single
+clusters_with: fireplace, pot-rack, cauldron-large
+notes: Cooking fire; place against wall, often in kitchen
 ---
 # Full stone base/surround
 rect 0.05,0.05 1.9,0.9 texfill polyhaven/cobblestone_floor_01 0.75

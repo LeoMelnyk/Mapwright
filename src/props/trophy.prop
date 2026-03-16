@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: trophy-room, great-hall, hunter-lodge
+typical_count: few
+notes: Wall-mounted trophy; place on walls at eye height
 ---
 # Wooden mounting plaque
 rect 0.22,0.5 0.56,0.42 texfill polyhaven/dark_wood 0.85

@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: bedroom, ship, storage
+typical_count: few
+clusters_with: bed, chest
+notes: Storage container; place against walls or at foot of bed
 ---
 # Trunk body
 rect 0.1,0.1 1.8,0.8 texfill polyhaven/dark_wood 0.85

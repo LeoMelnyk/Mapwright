@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: throne-room, court
+typical_count: single
+clusters_with: carpet, brazier, banner, pillar
+notes: Ruler's seat; place prominently against back wall, facing room entrance
 ---
 # High backrest
 rect 0.1,0.05 0.8,0.2 texfill polyhaven/dark_wood 0.85

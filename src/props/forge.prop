@@ -5,6 +5,11 @@ facing: yes
 shadow: yes
 blocks_light: no
 lights: [{"preset":"forge","x":1.0,"y":1.0}]
+placement: wall
+room_types: forge, smithy
+typical_count: single
+clusters_with: anvil, bellows, trough, workbench
+notes: Primary heat source for smithing; place against wall with working space in front
 ---
 # Outer forge body (brick structure)
 rect 0.10,0.10 1.80,1.60 texfill polyhaven/brick_4 0.8

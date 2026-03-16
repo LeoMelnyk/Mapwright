@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: dock, harbor
+typical_count: many
+clusters_with: rope-coil
+notes: Mooring point; place along dock edges
 ---
 # Mounting base plate
 rect 0.26,0.36 0.48,0.28 fill #666666 0.85

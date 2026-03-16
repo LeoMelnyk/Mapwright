@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: ship, harbor
+typical_count: single
+clusters_with: ship-wheel
+notes: Navigation instrument; place on deck near helm
 ---
 # Binnacle housing (cylindrical)
 circle 0.50,0.50 0.34 texfill polyhaven/dark_wood 0.80

@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: fortification, ship, battlements
+typical_count: few
+notes: Heavy weapon; point toward expected threats, needs loading space behind
 ---
 # Wheeled carriage
 rect 0.2,0.35 1.6,0.3 texfill polyhaven/dark_wood 0.85

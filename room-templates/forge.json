@@ -1,0 +1,49 @@
+[
+  ["newMap", "Forge / Smithy", 16, 18, 5, "stone-dungeon"],
+  ["setFeature", "grid", false],
+  ["setFeature", "compass", true],
+  ["setFeature", "border", true],
+
+  ["createRoom", 2, 2, 13, 15],
+  ["setLabel", 9, 13, "A1"],
+
+  ["setTextureRect", 3, 3, 12, 14, "cobblestone", 0.55],
+  ["setTextureRect", 3, 3, 7, 9,   "dirt", 0.5],
+
+  ["setDoor", 13, 11, "south"],
+
+  ["setHazardRect", 5, 3, 8, 9],
+
+  ["placeProp", 3, 3, "forge", 180],
+
+  ["placeProp", 6, 5, "anvil", 0],
+  ["placeProp", 5, 7, "bellows", 90],
+  ["placeProp", 6, 3, "trough", 0],
+
+  ["placeProp", 3, 8, "workbench", 180],
+  ["placeProp", 4, 11, "weapon-rack", 180],
+  ["placeProp", 4, 13, "weapon-rack", 180],
+  ["placeProp", 6, 13, "armor-stand", 0],
+  ["placeProp", 8, 13, "armor-stand", 0],
+
+  ["placeProp", 10, 3, "barrel"],
+  ["placeProp", 10, 5, "barrel"],
+  ["placeProp", 10, 7, "crate"],
+  ["placeProp", 11, 3, "barrel-stack"],
+
+  ["placeProp", 12, 11, "grinding-wheel"],
+  ["placeProp", 12, 13, "chest", 0],
+
+  ["placeProp", 9, 3, "torch-sconce", 90],
+  ["placeProp", 9, 14, "torch-sconce", 270],
+
+  ["setLightingEnabled", true],
+  ["setAmbientLight", 0.2],
+
+  ["placeLight", 17, 17, { "color": "#ff5500", "radius": 28, "intensity": 1.0, "falloff": "smooth" }],
+  ["placeLight", 32, 27, { "color": "#ff7700", "radius": 15, "intensity": 0.8, "falloff": "smooth" }],
+  ["placeLight", 47, 17, { "preset": "torch",  "color": "#ff9944", "radius": 14, "intensity": 0.7 }],
+  ["placeLight", 47, 72, { "preset": "torch",  "color": "#ff9944", "radius": 14, "intensity": 0.7 }],
+
+  ["waitForTextures", 5000]
+]

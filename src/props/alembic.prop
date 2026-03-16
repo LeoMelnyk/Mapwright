@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: alchemist-lab, wizard-sanctum
+typical_count: few
+clusters_with: alchemy-bench, crucible, mortar-pestle
+notes: Small apparatus; place on or near alchemy bench
 ---
 # Stand base shadow
 circle 0.50,0.80 0.22 fill #444444 0.25

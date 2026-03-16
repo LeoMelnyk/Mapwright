@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: no
 blocks_light: no
+placement: wall
+room_types: tavern, common-room, guard-room, corridor
+typical_count: few
+clusters_with: table
+notes: Seating; place along walls or flanking tables
 ---
 # Seat plank
 rect 0.08,0.2 1.84,0.6 texfill polyhaven/wood_table 0.85

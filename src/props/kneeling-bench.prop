@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: temple, shrine, chapel
+typical_count: few
+clusters_with: altar, candelabra, holy-font
+notes: Prayer bench; place in rows facing altar. Use lineProps for rows
 ---
 # Prayer ledge (raised, north)
 rect 0.08,0.08 1.84,0.36 texfill polyhaven/dark_wood 0.80

@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: cave, underdark
+typical_count: many
+clusters_with: boulder, rock-cluster, crystal-formation
+notes: Natural cave formation; scatter on floor near walls for realistic growth
 ---
 # Base spread
 circle 0.5,0.5 0.38 texfill polyhaven/rock_boulder_cracked 0.75

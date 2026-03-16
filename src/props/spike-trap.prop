@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: dungeon, corridor, trap-room
+typical_count: few
+notes: Deadly floor trap; place in narrow passages or guard rooms
 ---
 # Metal pressure plate
 rect 0.10,0.10 0.80,0.80 texfill polyhaven/metal_plate 0.65

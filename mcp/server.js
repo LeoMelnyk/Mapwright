@@ -140,6 +140,16 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
             description: 'Editor server port (default: 3000)',
             default: 3000,
           },
+          visible: {
+            type: 'boolean',
+            description: 'Show the browser window while commands execute (headed mode). Use for live debugging so the user can watch changes happen in real time.',
+            default: false,
+          },
+          slow_mo: {
+            type: 'number',
+            description: 'Delay in milliseconds between commands when visible=true (default: 0). Use e.g. 300 to make each command visibly animate.',
+            default: 0,
+          },
         },
         required: ['commands'],
       },
@@ -237,6 +247,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (args.dry_run)         bridgeArgs.push('--dry-run');
     if (args.continue_on_error) bridgeArgs.push('--continue-on-error');
     if (args.port)            bridgeArgs.push('--port', String(args.port));
+    if (args.visible)         bridgeArgs.push('--visible');
+    if (args.slow_mo)         bridgeArgs.push('--slow-mo', String(args.slow_mo));
 
     const { isError, text } = await runBridge(bridgeArgs);
     await unlink(tmpFile).catch(() => {});

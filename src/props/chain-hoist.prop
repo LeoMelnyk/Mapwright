@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: center
+room_types: warehouse, dock, mine, industrial
+typical_count: single
+notes: Overhead lifting mechanism; place above work area
 ---
 # Ceiling mount plate
 rect 0.28,0.08 0.44,0.12 texfill polyhaven/metal_plate 0.80

@@ -152,6 +152,65 @@ const api = {
     };
   },
 
+  /**
+   * Comprehensive map state: everything in getMapInfo plus full room list,
+   * all prop positions, all doors, lights, stairs, and bridges.
+   */
+  getFullMapInfo() {
+    const base = this.getMapInfo();
+    const cells = state.dungeon.cells;
+    const meta = state.dungeon.metadata;
+
+    const rooms = [];
+    const seenLabels = new Set();
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        const label = cells[r]?.[c]?.center?.label;
+        if (label != null && !seenLabels.has(String(label))) {
+          seenLabels.add(String(label));
+          const bounds = this.getRoomBounds(String(label));
+          rooms.push({ label: String(label), labelRow: r, labelCol: c, bounds });
+        }
+      }
+    }
+
+    const props = [];
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        const prop = cells[r]?.[c]?.prop;
+        if (prop) props.push({ row: r, col: c, type: prop.type, facing: prop.facing, span: [...prop.span] });
+      }
+    }
+
+    const doors = [];
+    const seen = new Set();
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        const cell = cells[r]?.[c];
+        if (!cell) continue;
+        for (const dir of CARDINAL_DIRS) {
+          if (cell[dir] !== 'd' && cell[dir] !== 's') continue;
+          const key = `${r},${c},${dir}`;
+          const [dr, dc] = OFFSETS[dir];
+          const recipKey = `${r + dr},${c + dc},${OPPOSITE[dir]}`;
+          if (seen.has(recipKey)) continue;
+          seen.add(key);
+          doors.push({ row: r, col: c, direction: dir, type: cell[dir] });
+        }
+      }
+    }
+
+    return {
+      ...base,
+      rooms,
+      props,
+      doors,
+      lights: meta.lights ? JSON.parse(JSON.stringify(meta.lights)) : [],
+      stairs: meta.stairs ? JSON.parse(JSON.stringify(meta.stairs)) : [],
+      bridges: meta.bridges ? JSON.parse(JSON.stringify(meta.bridges)) : [],
+    };
+  },
+
   setName(name) {
     if (!name || typeof name !== 'string') {
       throw new Error('Name must be a non-empty string');
@@ -638,9 +697,19 @@ const api = {
 
   // ── Trim (reuses TrimTool._updatePreview + apply logic) ──────────────────
 
-  createTrim(r1, c1, r2, c2, options = {}) {
+  createTrim(r1, c1, r2, c2, cornerOrOptions = {}, extraOptions = {}) {
     validateBounds(r1, c1);
     validateBounds(r2, c2);
+
+    // Support both calling conventions:
+    //   createTrim(r1, c1, r2, c2, { corner, round, ... })
+    //   createTrim(r1, c1, r2, c2, "nw", { round: true })
+    let options;
+    if (typeof cornerOrOptions === 'string') {
+      options = { ...extraOptions, corner: cornerOrOptions };
+    } else {
+      options = cornerOrOptions || {};
+    }
 
     const corner = options.corner || 'auto';
     const round = !!options.round;
@@ -803,6 +872,58 @@ const api = {
     return { success: true };
   },
 
+  /**
+   * Round all 4 corners of a labeled room with curved arc trims.
+   * Automatically computes the correct corner direction, trim region,
+   * and arc parameters — no manual coordinate math needed.
+   *
+   * @param {string} label - Room label (e.g. "A10")
+   * @param {number} trimSize - Number of cells to trim from each corner (default: 3)
+   * @param {object} [options] - { inverted: false }
+   * @returns {{ success, corners: string[] }}
+   */
+  roundRoomCorners(label, trimSize = 3, options = {}) {
+    if (typeof label === 'string' && typeof trimSize === 'object') {
+      // roundRoomCorners("A10", { trimSize: 4 })
+      options = trimSize;
+      trimSize = options.trimSize || 3;
+    }
+
+    const bounds = this.getRoomBounds(label);
+    if (!bounds) throw new Error(`Room "${label}" not found`);
+
+    const { r1, c1, r2, c2 } = bounds;
+    const roomHeight = r2 - r1 + 1;
+    const roomWidth = c2 - c1 + 1;
+
+    if (trimSize * 2 > roomHeight || trimSize * 2 > roomWidth) {
+      throw new Error(
+        `Trim size ${trimSize} is too large for room "${label}" (${roomWidth}×${roomHeight}). ` +
+        `Max trim size: ${Math.floor(Math.min(roomHeight, roomWidth) / 2)}`
+      );
+    }
+
+    const inverted = !!options.inverted;
+    // createTrim expects (tip, extent) where tip is the corner's outermost cell
+    // and extent is the opposite corner of the trim region.
+    // tip = the actual room corner cell, extent = trimSize cells inward.
+    const s = trimSize - 1;
+    const corners = [
+      { corner: 'nw', tipR: r1, tipC: c1, extR: r1 + s, extC: c1 + s },
+      { corner: 'ne', tipR: r1, tipC: c2, extR: r1 + s, extC: c2 - s },
+      { corner: 'sw', tipR: r2, tipC: c1, extR: r2 - s, extC: c1 + s },
+      { corner: 'se', tipR: r2, tipC: c2, extR: r2 - s, extC: c2 - s },
+    ];
+
+    const applied = [];
+    for (const { corner, tipR, tipC, extR, extC } of corners) {
+      this.createTrim(tipR, tipC, extR, extC, corner, { round: true, inverted });
+      applied.push(corner);
+    }
+
+    return { success: true, corners: applied, trimSize, bounds: { r1, c1, r2, c2 } };
+  },
+
   // ── Level Management ────────────────────────────────────────────────────
 
   getLevels() {
@@ -909,6 +1030,34 @@ const api = {
     markDirty();
     notify();
     return { success: true, levelIndex: state.currentLevel };
+  },
+
+  /**
+   * Define level boundaries on existing rows (no rows added).
+   * levels: [{ name, startRow, numRows }, ...]
+   */
+  defineLevels(levels) {
+    if (!Array.isArray(levels) || levels.length === 0) {
+      throw new Error('levels must be a non-empty array of { name, startRow, numRows }');
+    }
+    const maxRow = state.dungeon.cells.length;
+    for (const lvl of levels) {
+      if (!lvl.name || typeof lvl.name !== 'string') throw new Error('Each level needs a name string');
+      if (!Number.isInteger(lvl.startRow) || lvl.startRow < 0) throw new Error(`Invalid startRow: ${lvl.startRow}`);
+      if (!Number.isInteger(lvl.numRows) || lvl.numRows < 1) throw new Error(`Invalid numRows: ${lvl.numRows}`);
+      if (lvl.startRow + lvl.numRows > maxRow) {
+        throw new Error(`Level "${lvl.name}" exceeds grid: startRow=${lvl.startRow} + numRows=${lvl.numRows} > ${maxRow} total rows`);
+      }
+    }
+    pushUndo();
+    state.dungeon.metadata.levels = levels.map(l => ({
+      name: l.name.trim(),
+      startRow: l.startRow,
+      numRows: l.numRows,
+    }));
+    markDirty();
+    notify();
+    return { success: true };
   },
 
   // ── Fill Operations ─────────────────────────────────────────────────────
@@ -1095,9 +1244,52 @@ const api = {
           category: v.category,
           footprint: v.footprint,
           facing: v.facing,
+          placement: v.placement || null,
+          roomTypes: v.roomTypes || [],
+          typicalCount: v.typicalCount || null,
+          clustersWith: v.clustersWith || [],
+          notes: v.notes || null,
         }])
       ),
     };
+  },
+
+  /**
+   * Return all props that belong in a specific room type.
+   * Returns { props: [{ name, category, footprint, facing, placement, ... }] }
+   */
+  getPropsForRoomType(roomType) {
+    const catalog = state.propCatalog;
+    if (!catalog) return { props: [] };
+    const results = [];
+    for (const [key, v] of Object.entries(catalog.props)) {
+      if (v.roomTypes?.includes(roomType) || v.roomTypes?.includes('any')) {
+        results.push({
+          name: key,
+          displayName: v.name,
+          category: v.category,
+          footprint: v.footprint,
+          facing: v.facing,
+          placement: v.placement || null,
+          typicalCount: v.typicalCount || null,
+          clustersWith: v.clustersWith || [],
+          notes: v.notes || null,
+        });
+      }
+    }
+    return { success: true, props: results };
+  },
+
+  /** Remove the prop whose anchor cell is exactly (row, col). */
+  removePropAt(row, col) {
+    validateBounds(row, col);
+    const cell = state.dungeon.cells[row]?.[col];
+    if (!cell?.prop) return { success: false, error: 'no prop at that cell' };
+    pushUndo();
+    delete cell.prop;
+    markDirty();
+    notify();
+    return { success: true };
   },
 
   /** Remove all props with anchor cells in the given rectangle. */
@@ -1172,6 +1364,46 @@ const api = {
   },
 
   /**
+   * Return ordered wall cells along a specific side of a room.
+   * Wall: 'north', 'south', 'east', 'west'.
+   * Returns [[row, col], ...] sorted along the wall axis.
+   */
+  _getWallCells(roomCellSet, wall) {
+    if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
+    const result = [];
+    const [dr, dc] = OFFSETS[wall];
+    for (const key of roomCellSet) {
+      const [r, c] = parseCellKey(key);
+      if (!roomCellSet.has(cellKey(r + dr, c + dc))) {
+        result.push([r, c]);
+      }
+    }
+    if (wall === 'north' || wall === 'south') {
+      result.sort((a, b) => a[1] - b[1]);
+    } else {
+      result.sort((a, b) => a[0] - b[0]);
+    }
+    return result;
+  },
+
+  /**
+   * Check whether cell (r, c) is covered by any existing prop (anchor or spanned).
+   * Read-only helper — does not modify state.
+   */
+  _isCellCoveredByProp(r, c) {
+    const cells = state.dungeon.cells;
+    if (cells[r]?.[c]?.prop) return true;
+    const searchRadius = 4;
+    for (let pr = Math.max(0, r - searchRadius); pr <= r; pr++) {
+      for (let pc = Math.max(0, c - searchRadius); pc <= c; pc++) {
+        const existing = cells[pr]?.[pc]?.prop;
+        if (existing && pr + existing.span[0] > r && pc + existing.span[1] > c) return true;
+      }
+    }
+    return false;
+  },
+
+  /**
    * BFS from the label cell through open edges to find the full room extent.
    * Returns { r1, c1, r2, c2, centerRow, centerCol } or null if label not found.
    * Read-only.
@@ -1207,6 +1439,57 @@ const api = {
     }
 
     return results.length > 0 ? results : null;
+  },
+
+  /**
+   * Add an internal wall partition across a room.
+   * direction: 'horizontal' (wall across rows) or 'vertical' (wall across cols).
+   * position: the absolute row (horizontal) or col (vertical) where the wall goes.
+   * wallType: 'w' (wall) or 'iw' (invisible wall). Default 'w'.
+   * options: { doorAt: number } — col (horizontal) or row (vertical) to place a door instead of wall.
+   */
+  partitionRoom(roomLabel, direction, position, wallType = 'w', options = {}) {
+    if (!['horizontal', 'vertical'].includes(direction)) {
+      throw new Error('direction must be "horizontal" or "vertical"');
+    }
+    if (!['w', 'iw'].includes(wallType)) {
+      throw new Error('wallType must be "w" or "iw"');
+    }
+
+    const roomCells = this._collectRoomCells(roomLabel);
+    if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+
+    pushUndo();
+    const cells = state.dungeon.cells;
+    let count = 0;
+
+    if (direction === 'horizontal') {
+      for (const key of roomCells) {
+        const [r, c] = parseCellKey(key);
+        if (r !== position) continue;
+        if (!roomCells.has(cellKey(r + 1, c))) continue;
+        const val = (options.doorAt === c) ? 'd' : wallType;
+        cells[r][c].south = val;
+        setReciprocal(r, c, 'south', val);
+        count++;
+      }
+    } else {
+      for (const key of roomCells) {
+        const [r, c] = parseCellKey(key);
+        if (c !== position) continue;
+        if (!roomCells.has(cellKey(r, c + 1))) continue;
+        const val = (options.doorAt === r) ? 'd' : wallType;
+        cells[r][c].east = val;
+        setReciprocal(r, c, 'east', val);
+        count++;
+      }
+    }
+
+    if (count === 0) throw new Error(`No cells at ${direction} position ${position} in room "${roomLabel}"`);
+
+    markDirty();
+    notify();
+    return { success: true, wallsPlaced: count };
   },
 
   // ── Bulk Fill ─────────────────────────────────────────────────────────────
@@ -1456,6 +1739,203 @@ const api = {
     markDirty();
     notify();
     return { success: true, newRows, newCols };
+  },
+
+  /**
+   * Normalize the dungeon grid so that every level has exactly `targetMargin`
+   * empty (void) cells of margin around all structural content on all four sides.
+   * Shrinks where margins are too large, expands where too small.
+   *
+   * Columns are treated globally (shared across all levels).
+   * Rows are treated per-level (each level gets its own top/bottom margin).
+   *
+   * Updates: cells, level metadata, lights, bridges, stairs in metadata.
+   * One undo step.
+   *
+   * @param {number} [targetMargin=2]  Desired empty-cell border width.
+   * @returns {{ success, before, after, targetMargin, adjustments }}
+   */
+  normalizeMargin(targetMargin = 2) {
+    if (!Number.isInteger(targetMargin) || targetMargin < 0) {
+      throw new Error('targetMargin must be a non-negative integer');
+    }
+
+    const cells = state.dungeon.cells;
+    const meta = state.dungeon.metadata;
+    const numRows = cells.length;
+    const numCols = cells[0]?.length || 0;
+    const gridSize = meta.gridSize || 5;
+
+    // Resolve level list — fall back to whole-grid single level if no levels metadata.
+    // When addLevel() is used, meta.levels only contains explicitly-added levels —
+    // the initial map area (rows before the first explicit level) is an implied level.
+    const hasMeta = Array.isArray(meta.levels) && meta.levels.length > 0;
+    const allLevels = [];
+    if (hasMeta) {
+      const firstStart = meta.levels[0].startRow;
+      if (firstStart > 1) {
+        // Implied first level: rows 0 to (firstStart - 2), separator at (firstStart - 1)
+        allLevels.push({ name: null, startRow: 0, numRows: firstStart - 1 });
+      }
+      for (const l of meta.levels) allLevels.push(l);
+    } else {
+      allLevels.push({ name: 'Level 1', startRow: 0, numRows: numRows });
+    }
+    const rawLevels = allLevels;
+
+    // ── 1. Global column bounds ──────────────────────────────────────────────
+    let globalMinCol = numCols;
+    let globalMaxCol = -1;
+    for (let r = 0; r < numRows; r++) {
+      for (let c = 0; c < numCols; c++) {
+        if (cells[r]?.[c] != null) {
+          if (c < globalMinCol) globalMinCol = c;
+          if (c > globalMaxCol) globalMaxCol = c;
+        }
+      }
+    }
+
+    if (globalMaxCol < 0) {
+      return { success: true, message: 'No structural content found — nothing to normalize' };
+    }
+
+    const contentWidth = globalMaxCol - globalMinCol + 1;
+    const colShift = targetMargin - globalMinCol; // +ve = move right, -ve = move left
+    const newNumCols = 2 * targetMargin + contentWidth;
+
+    // ── 2. Per-level row bounds ──────────────────────────────────────────────
+    // Capture original startRow/numRows before any mutation
+    const levelAdjustments = rawLevels.map((level, li) => {
+      const origStartRow = level.startRow;
+      const origNumRows = level.numRows;
+      const rowEnd = origStartRow + origNumRows - 1;
+      let minRow = rowEnd + 1;
+      let maxRow = origStartRow - 1;
+
+      for (let r = origStartRow; r <= rowEnd; r++) {
+        for (let c = 0; c < numCols; c++) {
+          if (cells[r]?.[c] != null) {
+            if (r < minRow) minRow = r;
+            if (r > maxRow) maxRow = r;
+          }
+        }
+      }
+
+      const hasContent = maxRow >= minRow;
+      let topShift, newNumRows;
+      if (hasContent) {
+        const relMinRow = minRow - origStartRow; // current top margin within this level
+        const contentHeight = maxRow - minRow + 1;
+        topShift = targetMargin - relMinRow;     // +ve = content moves down, -ve = moves up
+        newNumRows = 2 * targetMargin + contentHeight;
+      } else {
+        topShift = 0;
+        newNumRows = 2 * targetMargin;           // empty level: preserve margin-only footprint
+      }
+
+      return { origStartRow, origNumRows, li, hasContent, topShift, newNumRows };
+    });
+
+    // ── 3. Compute new level start rows ──────────────────────────────────────
+    let newTotalRows = 0;
+    const newLevelStartRows = [];
+    for (let i = 0; i < levelAdjustments.length; i++) {
+      if (i > 0) newTotalRows += 1; // void separator row between levels
+      newLevelStartRows.push(newTotalRows);
+      newTotalRows += levelAdjustments[i].newNumRows;
+    }
+
+    // Helper: compute absolute-row delta for a given original row value
+    const getRowDelta = (r) => {
+      for (let i = 0; i < levelAdjustments.length; i++) {
+        const { origStartRow, origNumRows, topShift } = levelAdjustments[i];
+        if (r >= origStartRow && r < origStartRow + origNumRows) {
+          return (newLevelStartRows[i] - origStartRow) + topShift;
+        }
+      }
+      return 0; // separator row — no structural content expected here
+    };
+
+    pushUndo();
+
+    // ── 4. Build new cells array ─────────────────────────────────────────────
+    const newCells = Array.from({ length: newTotalRows }, () => Array(newNumCols).fill(null));
+    for (const { origStartRow, origNumRows, li, topShift, newNumRows } of levelAdjustments) {
+      const newStartRow = newLevelStartRows[li];
+      for (let r = origStartRow; r < origStartRow + origNumRows; r++) {
+        const newRelRow = (r - origStartRow) + topShift;
+        if (newRelRow < 0 || newRelRow >= newNumRows) continue;
+        const newAbsRow = newStartRow + newRelRow;
+        for (let c = 0; c < numCols; c++) {
+          if (cells[r]?.[c] == null) continue;
+          const newCol = c + colShift;
+          if (newCol < 0 || newCol >= newNumCols) continue;
+          newCells[newAbsRow][newCol] = cells[r][c];
+        }
+      }
+    }
+    state.dungeon.cells = newCells;
+
+    // ── 5. Update lights (world-feet x/y) ────────────────────────────────────
+    if (meta.lights) {
+      for (const light of meta.lights) {
+        const lightRow = light.y / gridSize;
+        light.y += getRowDelta(lightRow) * gridSize;
+        light.x += colShift * gridSize;
+      }
+    }
+
+    // ── 6. Update bridges (row/col point arrays) ──────────────────────────────
+    if (meta.bridges) {
+      for (const bridge of meta.bridges) {
+        for (const pt of bridge.points) {
+          pt[0] += getRowDelta(pt[0]);
+          pt[1] += colShift;
+        }
+      }
+    }
+
+    // ── 7. Update stair corner points in metadata ─────────────────────────────
+    if (meta.stairs) {
+      for (const stair of meta.stairs) {
+        if (!stair.points) continue;
+        for (const pt of stair.points) {
+          pt[0] += getRowDelta(pt[0]);
+          pt[1] += colShift;
+        }
+      }
+    }
+
+    // ── 8. Update level metadata ──────────────────────────────────────────────
+    // Replace meta.levels with the complete list (including any implied first level)
+    if (allLevels.length > 0) {
+      meta.levels = allLevels.map((l, i) => ({
+        name: l.name || `Level ${i + 1}`,
+        startRow: newLevelStartRows[i],
+        numRows: levelAdjustments[i].newNumRows,
+      }));
+    }
+
+    invalidateAllCaches();
+    markDirty();
+    notify();
+
+    return {
+      success: true,
+      before: { rows: numRows, cols: numCols },
+      after: { rows: newTotalRows, cols: newNumCols },
+      targetMargin,
+      adjustments: {
+        colShift,
+        levels: levelAdjustments.map(({ li, topShift, newNumRows }) => ({
+          index: li,
+          name: rawLevels[li].name,
+          topShift,
+          newNumRows,
+          newStartRow: newLevelStartRows[li],
+        })),
+      },
+    };
   },
 
   // ── Lighting Operations ─────────────────────────────────────────────────
@@ -2002,6 +2482,30 @@ const api = {
   },
 
   /**
+   * Return the cells a prop occupies relative to its anchor at [0,0] for a given facing.
+   * Footprint is R×C (rows × cols). At 90°/270° the dimensions swap.
+   * Returns { success, spanRows, spanCols, cells: [[dr, dc], ...] }.
+   */
+  getPropFootprint(propType, facing = 0) {
+    const catalog = state.propCatalog;
+    if (!catalog?.props[propType]) {
+      return { success: false, error: `Unknown prop type: ${propType}` };
+    }
+    if (![0, 90, 180, 270].includes(facing)) {
+      return { success: false, error: `Invalid facing: ${facing}. Use 0, 90, 180, or 270.` };
+    }
+    const def = catalog.props[propType];
+    const [spanRows, spanCols] = (facing === 90 || facing === 270)
+      ? [def.footprint[1], def.footprint[0]]
+      : [...def.footprint];
+    const cells = [];
+    for (let r = 0; r < spanRows; r++) {
+      for (let c = 0; c < spanCols; c++) cells.push([r, c]);
+    }
+    return { success: true, spanRows, spanCols, cells };
+  },
+
+  /**
    * Return all valid anchor positions where propType can be placed in a labeled room.
    * Checks that the full footprint fits within the room and doesn't overlap existing props.
    * Returns { success, positions: [[row, col], ...] }.
@@ -2054,6 +2558,296 @@ const api = {
 
     positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
     return { success: true, positions };
+  },
+
+  // ── Bulk Prop Placement ─────────────────────────────────────────────────
+
+  /**
+   * Fill a wall of a room with repeated copies of a prop.
+   * wall: 'north', 'south', 'east', 'west'.
+   * options: { facing, gap, inset, skipDoors }
+   *   facing: prop rotation (0/90/180/270). Default 0.
+   *   gap: cells between each prop along the wall. Default 0.
+   *   inset: cells inward from the wall edge. Default 0.
+   *   skipDoors: skip cells adjacent to doors. Default true.
+   */
+  fillWallWithProps(roomLabel, propType, wall, options = {}) {
+    if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
+
+    const catalog = state.propCatalog;
+    if (!catalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
+
+    const def = catalog.props[propType];
+
+    // Auto-compute facing for wall-mounted props: front faces south at rotation 0,
+    // so north wall → 0, south → 180, east → 270, west → 90
+    const WALL_FACINGS = { north: 0, south: 180, east: 270, west: 90 };
+    const autoFacing = (def.facing && (def.placement === 'wall' || def.placement === 'corner'))
+      ? WALL_FACINGS[wall]
+      : 0;
+    const facing = options.facing ?? autoFacing;
+    const gap = options.gap ?? 0;
+    const inset = options.inset ?? 0;
+    const skipDoors = options.skipDoors !== false;
+
+    if (![0, 90, 180, 270].includes(facing)) throw new Error(`Invalid facing: ${facing}`);
+
+    const [spanRows, spanCols] = (facing === 90 || facing === 270)
+      ? [def.footprint[1], def.footprint[0]]
+      : [...def.footprint];
+
+    const roomCells = this._collectRoomCells(roomLabel);
+    if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+
+    const wallCells = this._getWallCells(roomCells, wall);
+    if (!wallCells.length) return { success: true, placed: [] };
+
+    const cells = state.dungeon.cells;
+    const stride = (wall === 'north' || wall === 'south') ? spanCols + gap : spanRows + gap;
+
+    const placed = [];
+    let i = 0;
+    while (i < wallCells.length) {
+      const [wr, wc] = wallCells[i];
+
+      if (skipDoors) {
+        const cell = cells[wr]?.[wc];
+        if (cell?.[wall] === 'd' || cell?.[wall] === 's') { i++; continue; }
+      }
+
+      let ar, ac;
+      if (wall === 'north')      { ar = wr + inset; ac = wc; }
+      else if (wall === 'south') { ar = wr - inset - spanRows + 1; ac = wc; }
+      else if (wall === 'west')  { ar = wr; ac = wc + inset; }
+      else                       { ar = wr; ac = wc - inset - spanCols + 1; }
+
+      let canPlace = true;
+      for (let dr = 0; dr < spanRows && canPlace; dr++) {
+        for (let dc = 0; dc < spanCols && canPlace; dc++) {
+          if (!roomCells.has(cellKey(ar + dr, ac + dc))) canPlace = false;
+          else if (this._isCellCoveredByProp(ar + dr, ac + dc)) canPlace = false;
+        }
+      }
+
+      if (canPlace) {
+        try {
+          this.placeProp(ar, ac, propType, facing);
+          placed.push([ar, ac]);
+          i += stride;
+        } catch { i++; }
+      } else {
+        i++;
+      }
+    }
+
+    return { success: true, placed };
+  },
+
+  /**
+   * Place props in a straight line starting at (startRow, startCol).
+   * direction: 'east' or 'south' — axis to advance along.
+   * count: max number of props to place.
+   * options: { facing, gap }
+   */
+  lineProps(roomLabel, propType, startRow, startCol, direction, count, options = {}) {
+    if (!['east', 'south'].includes(direction)) throw new Error('direction must be "east" or "south"');
+
+    const catalog = state.propCatalog;
+    if (!catalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
+
+    const facing = options.facing ?? 0;
+    const gap = options.gap ?? 0;
+    if (![0, 90, 180, 270].includes(facing)) throw new Error(`Invalid facing: ${facing}`);
+
+    const def = catalog.props[propType];
+    const [spanRows, spanCols] = (facing === 90 || facing === 270)
+      ? [def.footprint[1], def.footprint[0]]
+      : [...def.footprint];
+
+    const roomCells = this._collectRoomCells(roomLabel);
+    if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+
+    const [dr, dc] = direction === 'south' ? [spanRows + gap, 0] : [0, spanCols + gap];
+
+    const placed = [];
+    let r = startRow, c = startCol;
+
+    for (let i = 0; i < count; i++) {
+      let canPlace = true;
+      for (let pr = 0; pr < spanRows && canPlace; pr++) {
+        for (let pc = 0; pc < spanCols && canPlace; pc++) {
+          if (!roomCells.has(cellKey(r + pr, c + pc))) canPlace = false;
+          else if (this._isCellCoveredByProp(r + pr, c + pc)) canPlace = false;
+        }
+      }
+
+      if (canPlace) {
+        try {
+          this.placeProp(r, c, propType, facing);
+          placed.push([r, c]);
+        } catch { /* skip failed */ }
+      }
+      r += dr;
+      c += dc;
+    }
+
+    return { success: true, placed };
+  },
+
+  /**
+   * Scatter props at random valid positions within a room.
+   * count: max number to place (may place fewer if not enough room).
+   * options: { facing, avoidWalls (number of cells margin from walls, default 0) }
+   */
+  scatterProps(roomLabel, propType, count, options = {}) {
+    const facing = options.facing ?? 0;
+    const result = this.getValidPropPositions(roomLabel, propType, facing);
+    if (!result.success || !result.positions?.length) return { success: true, placed: [] };
+
+    let positions = [...result.positions];
+
+    if (options.avoidWalls) {
+      const roomCells = this._collectRoomCells(roomLabel);
+      const bounds = roomBoundsFromKeys(roomCells);
+      if (bounds) {
+        const margin = typeof options.avoidWalls === 'number' ? options.avoidWalls : 1;
+        positions = positions.filter(([r, c]) =>
+          r >= bounds.r1 + margin && r <= bounds.r2 - margin &&
+          c >= bounds.c1 + margin && c <= bounds.c2 - margin
+        );
+      }
+    }
+
+    // Fisher-Yates shuffle
+    for (let i = positions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [positions[i], positions[j]] = [positions[j], positions[i]];
+    }
+
+    const placed = [];
+    for (const [r, c] of positions) {
+      if (placed.length >= count) break;
+      if (this._isCellCoveredByProp(r, c)) continue;
+      try {
+        this.placeProp(r, c, propType, facing);
+        placed.push([r, c]);
+      } catch { continue; }
+    }
+
+    return { success: true, placed };
+  },
+
+  /**
+   * Place a cluster of props at relative offsets from an anchor point.
+   * props: [{ type, dr, dc, facing }] — offsets relative to (anchorRow, anchorCol).
+   * Returns { placed, failed } arrays.
+   */
+  clusterProps(roomLabel, props, anchorRow, anchorCol) {
+    const roomCells = this._collectRoomCells(roomLabel);
+    if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+
+    const placed = [];
+    const failed = [];
+
+    for (const p of props) {
+      const r = anchorRow + (p.dr || 0);
+      const c = anchorCol + (p.dc || 0);
+      const facing = p.facing || 0;
+      try {
+        this.placeProp(r, c, p.type, facing);
+        placed.push({ type: p.type, row: r, col: c });
+      } catch (e) {
+        failed.push({ type: p.type, row: r, col: c, error: e.message });
+      }
+    }
+
+    return { success: true, placed, failed };
+  },
+
+  // ── Validation ──────────────────────────────────────────────────────────
+
+  /**
+   * Check for props blocking door cells or their approach cells.
+   * Returns { clear: bool, issues: [...] }.
+   */
+  validateDoorClearance() {
+    const cells = state.dungeon.cells;
+    const issues = [];
+
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        const cell = cells[r]?.[c];
+        if (!cell) continue;
+        for (const dir of CARDINAL_DIRS) {
+          if (cell[dir] !== 'd' && cell[dir] !== 's') continue;
+          if (this._isCellCoveredByProp(r, c)) {
+            issues.push({ row: r, col: c, direction: dir, doorType: cell[dir], problem: 'prop blocking door cell' });
+          }
+          const [dr, dc] = OFFSETS[dir];
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < cells.length && nc >= 0 && nc < (cells[nr]?.length || 0)) {
+            if (this._isCellCoveredByProp(nr, nc)) {
+              issues.push({ row: nr, col: nc, direction: OPPOSITE[dir], doorType: cell[dir], problem: 'prop blocking door approach' });
+            }
+          }
+        }
+      }
+    }
+
+    return { success: true, clear: issues.length === 0, issues };
+  },
+
+  /**
+   * BFS from entranceLabel through open edges and doors to verify all labeled rooms are reachable.
+   * Returns { connected, reachable, unreachable, totalRooms, visitedCells }.
+   */
+  validateConnectivity(entranceLabel) {
+    const start = this.findCellByLabel(entranceLabel);
+    if (!start) throw new Error(`Room "${entranceLabel}" not found`);
+
+    const cells = state.dungeon.cells;
+    const visited = new Set();
+    const queue = [[start.row, start.col]];
+    visited.add(cellKey(start.row, start.col));
+
+    while (queue.length) {
+      const [r, c] = queue.shift();
+      const cell = cells[r]?.[c];
+      if (!cell) continue;
+      for (const dir of CARDINAL_DIRS) {
+        const edge = cell[dir];
+        if (edge === 'w' || edge === 'iw') continue;
+        const [dr, dc] = OFFSETS[dir];
+        const nr = r + dr, nc = c + dc;
+        const key = cellKey(nr, nc);
+        if (visited.has(key)) continue;
+        if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[nr]?.length || 0)) continue;
+        if (!cells[nr]?.[nc]) continue;
+        visited.add(key);
+        queue.push([nr, nc]);
+      }
+    }
+
+    const reachable = [];
+    const unreachable = [];
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        const label = cells[r]?.[c]?.center?.label;
+        if (label == null) continue;
+        const labelStr = String(label);
+        if (visited.has(cellKey(r, c))) reachable.push(labelStr);
+        else unreachable.push(labelStr);
+      }
+    }
+
+    return {
+      success: true,
+      connected: unreachable.length === 0,
+      reachable,
+      unreachable,
+      totalRooms: reachable.length + unreachable.length,
+      visitedCells: visited.size,
+    };
   },
 
   /**

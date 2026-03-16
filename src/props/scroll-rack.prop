@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: library, study, wizard-sanctum, archive
+typical_count: few
+clusters_with: bookshelf, scroll-case, desk
+notes: Wall-mounted storage; line walls like bookshelves
 ---
 # Rack frame
 rect 0.10,0.08 1.80,0.84 texfill polyhaven/dark_wood 0.75

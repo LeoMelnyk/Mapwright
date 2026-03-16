@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: forge, smithy, workshop
+typical_count: single
+clusters_with: forge, bellows, trough
+notes: Place near forge with working space around it
 ---
 # Base/waist (narrow support column from above)
 rect 0.32,0.30 0.36,0.40 texfill polyhaven/metal_plate 0.7

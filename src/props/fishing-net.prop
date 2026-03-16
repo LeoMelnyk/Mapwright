@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: no
 blocks_light: no
+placement: wall
+room_types: dock, harbor, fishing-village
+typical_count: few
+clusters_with: fish-drying-rack, lobster-trap
+notes: Draped against walls or on ground near docks
 ---
 # Net mesh (diagonal lines)
 line 0.1,0.1 0.9,0.9

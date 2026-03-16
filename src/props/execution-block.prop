@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: prison, courtyard, execution-ground
+typical_count: single
+clusters_with: gallows
+notes: Place centrally in execution areas
 ---
 # Wooden block
 rect 0.15,0.35 0.7,0.55 texfill polyhaven/dark_wood 0.85

@@ -5,6 +5,11 @@ facing: no
 shadow: yes
 blocks_light: no
 lights: [{"preset":"candle","x":0.5,"y":0.5}]
+placement: floor
+room_types: temple, shrine, crypt, throne-room
+typical_count: few
+clusters_with: altar, kneeling-bench, censer
+notes: Light source; place flanking altars or along processional paths
 ---
 # Central post
 circle 0.5,0.5 0.08 texfill polyhaven/rusty_metal 0.85

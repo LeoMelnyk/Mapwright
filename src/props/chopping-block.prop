@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: kitchen, butcher
+typical_count: single
+clusters_with: kitchen-table, pot-rack
+notes: Food prep; place near kitchen table with working space
 ---
 # Block surface
 rect 0.12,0.12 0.76,0.76 texfill polyhaven/wood_table 0.85

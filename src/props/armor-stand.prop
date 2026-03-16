@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: armory, barracks, throne-room, guard-room
+typical_count: few
+clusters_with: weapon-rack, shield-rack
+notes: Display armor; line along walls in armories
 ---
 # Base
 circle 0.5,0.7 0.2 texfill polyhaven/dark_wood 0.7

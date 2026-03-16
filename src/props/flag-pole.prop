@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: corner
+room_types: fortification, throne-room, battlements
+typical_count: few
+notes: Place at room corners or entrance flanking positions
 ---
 # Base plate
 circle 0.50,0.78 0.18 fill #888888 0.70

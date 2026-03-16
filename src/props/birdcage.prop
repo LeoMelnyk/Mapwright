@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: study, wizard-sanctum, market
+typical_count: single
+notes: Decorative; place on tables or in corners
 ---
 # Cage outer ring (dome from above)
 circle 0.50,0.50 0.36 stroke #888888

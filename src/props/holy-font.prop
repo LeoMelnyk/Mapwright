@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: temple, shrine, chapel
+typical_count: single
+clusters_with: altar, kneeling-bench
+notes: Blessing font; place near entrance or before altar
 ---
 # Stone basin
 circle 0.5,0.5 0.38 texfill polyhaven/marble_01 0.85

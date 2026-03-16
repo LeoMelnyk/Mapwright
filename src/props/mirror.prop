@@ -4,6 +4,10 @@ footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: bedroom, bathhouse, wizard-sanctum, dressing-room
+typical_count: single
+notes: Wall-mounted; place on walls opposite entrances
 ---
 # Wall-mounted mirror seen from directly above
 # Only the top edge of frame and a sliver of reflective surface visible

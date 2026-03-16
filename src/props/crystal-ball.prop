@@ -5,6 +5,11 @@ facing: no
 shadow: yes
 blocks_light: no
 lights: [{"preset":"eldritch-glow","x":0.5,"y":0.5}]
+placement: center
+room_types: wizard-sanctum, fortune-teller, divination-room
+typical_count: single
+clusters_with: arcane-pedestal, desk, candle-cluster
+notes: Scrying focus; place prominently on pedestal or desk
 ---
 # Stand base
 circle 0.5,0.5 0.2 texfill polyhaven/dark_wood 0.8

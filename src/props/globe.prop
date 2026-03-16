@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: study, library, wizard-sanctum, captain-cabin
+typical_count: single
+clusters_with: desk, bookshelf, telescope
+notes: Decorative; place near desk or in study corner
 ---
 # Globe sphere
 circle 0.50,0.46 0.36 fill #446688 0.70

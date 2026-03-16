@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: armory, barracks, guard-room, training-room
+typical_count: few
+clusters_with: shield-rack, armor-stand, spear-stand
+notes: Wall-mounted weapon display; line armory walls. Use fillWallWithProps
 ---
 # Wooden rack base (horizontal bar along north edge, seen from above)
 rect 0.08,0.08 1.84,0.18 texfill polyhaven/dark_wood 0.9

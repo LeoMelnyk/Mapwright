@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: fortification, gatehouse, dungeon
+typical_count: few
+notes: Heavy gate; place spanning doorways or corridor entrances
 ---
 # West stone channel (groove where gate slides)
 rect 0.0,0.0 0.18,1.0 texfill polyhaven/stone_wall 0.85

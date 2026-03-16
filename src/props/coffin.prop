@@ -4,6 +4,11 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: crypt, funeral-parlor, vampire-lair
+typical_count: few
+clusters_with: candle-cluster, grave-marker
+notes: Place against walls or in alcoves; leave space to open
 ---
 # Coffin body
 poly 0.5,0.1 0.15,0.38 0.1,1.0 0.25,1.88 0.75,1.88 0.9,1.0 0.85,0.38 texfill polyhaven/dark_wood 0.82

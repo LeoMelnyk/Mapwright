@@ -5,6 +5,10 @@ facing: no
 shadow: no
 blocks_light: no
 lights: [{"preset":"torch","x":1.0,"y":1.0}]
+placement: center
+room_types: throne-room, great-hall, ballroom, temple
+typical_count: single
+notes: Overhead lighting; place at room center. Implies high ceiling
 ---
 # Center hub
 circle 1.0,1.0 0.18 texfill polyhaven/rusty_metal 0.85

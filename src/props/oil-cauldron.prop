@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: fortification, battlements, gatehouse
+typical_count: few
+notes: Defensive weapon; place above gates or on battlements
 ---
 # Iron cauldron
 circle 0.5,0.5 0.35 texfill polyhaven/rusty_metal 0.85

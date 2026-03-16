@@ -4,6 +4,11 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: workshop, forge, craft-room
+typical_count: single
+clusters_with: stool, grinding-wheel
+notes: Crafting surface; place against wall with stool in front
 ---
 # Bench surface
 rect 0.08,0.10 0.84,1.76 texfill polyhaven/wood_table 0.80

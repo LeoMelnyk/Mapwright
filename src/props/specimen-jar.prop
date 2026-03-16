@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: alchemist-lab, wizard-sanctum, curiosity-shop
+typical_count: many
+clusters_with: component-shelf, ingredient-rack
+notes: Display specimens; place on shelves near alchemy benches
 ---
 # Jar glass body
 circle 0.50,0.52 0.36 fill #aabbcc 0.30

@@ -4,6 +4,11 @@ footprint: 2x1
 facing: yes
 shadow: no
 blocks_light: no
+placement: floor
+room_types: dungeon, crypt, battlefield, cave
+typical_count: few
+clusters_with: bone-pile, skeleton
+notes: Scatter on floor for grim atmosphere; vary rotation for natural look
 ---
 # Body
 ellipse 0.5,1.0 0.3,0.7 fill #5a4530 0.4

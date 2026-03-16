@@ -4,6 +4,11 @@ footprint: 2x1
 facing: yes
 shadow: no
 blocks_light: no
+placement: floor
+room_types: dungeon, crypt, cave, battlefield
+typical_count: few
+clusters_with: bone-pile, corpse
+notes: Remains; scatter on floor. Vary rotation for natural look
 ---
 # Skull
 circle 0.5,0.2 0.14 fill #e8dcc8 0.7

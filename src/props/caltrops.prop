@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: dungeon, corridor, trap-room
+typical_count: few
+notes: Area denial; scatter in front of doors or in narrow passages
 ---
 # Scattered caltrops (small star shapes as dots)
 circle 0.3,0.25 0.04 fill #888888 0.8

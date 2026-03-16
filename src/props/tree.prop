@@ -4,6 +4,10 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+placement: floor
+room_types: garden, courtyard, wilderness, forest
+typical_count: few
+notes: Large tree; needs open space (2x2). Place in outdoor or garden areas
 ---
 # Canopy
 circle 1.0,1.0 0.82 texfill polyhaven/forest_leaves_02 0.75

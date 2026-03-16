@@ -5,41 +5,28 @@
  *
  * Generates grid-based dungeon maps from JSON configuration using Canvas API.
  *
- * Usage: node generate_dungeon.js <path-to-json> [--svg]
+ * Usage: node generate_dungeon.js <path-to-json>
  */
 
 import fs from 'fs';
 import { createCanvas } from '@napi-rs/canvas';
 
-import { validateMatrixFormat } from './src/render/validate.js';
-import { calculateCanvasSize, renderDungeonToCanvas } from './src/render/compile.js';
-import { renderDungeonToSVG } from './src/render/svg-export.js';
+import { validateMatrixFormat } from '../src/render/validate.js';
+import { calculateCanvasSize, renderDungeonToCanvas } from '../src/render/compile.js';
 
 async function main() {
   try {
     const args = process.argv.slice(2);
-    const svgMode = args.includes('--svg');
     const jsonPath = args.find(a => !a.startsWith('--'));
 
     if (!jsonPath) {
       console.error('ERROR: No JSON file specified');
-      console.error('Usage: node generate_dungeon.js <path-to-json> [--svg]');
+      console.error('Usage: node generate_dungeon.js <path-to-json>');
       process.exit(1);
     }
 
     console.log(`Loading dungeon configuration from: ${jsonPath}`);
     const config = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-
-    if (svgMode) {
-      console.log('Rendering dungeon map to SVG...');
-      const svg = renderDungeonToSVG(config);
-      const outputPath = jsonPath.replace(/\.json$/i, '.svg');
-      fs.writeFileSync(outputPath, svg, 'utf8');
-
-      console.log('Done — dungeon map generated successfully');
-      console.log(`  Output: ${outputPath}`);
-      process.exit(0);
-    }
 
     validateMatrixFormat(config);
 

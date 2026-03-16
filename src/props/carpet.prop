@@ -4,6 +4,10 @@ footprint: 2x3
 facing: no
 shadow: no
 blocks_light: no
+placement: center
+room_types: throne-room, bedroom, study, temple
+typical_count: single
+notes: Floor covering; center in room or create path to focal point
 ---
 # Carpet body
 rect 0.05,0.05 2.9,1.9 texfill polyhaven/dirty_carpet 0.85

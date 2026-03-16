@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: torture-chamber, dungeon
+typical_count: few
+clusters_with: iron-maiden, shackles
+notes: Torture device; place against walls
 ---
 # Wooden frame
 rect 0.08,0.08 1.84,0.84 texfill polyhaven/dark_wood 0.8

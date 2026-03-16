@@ -4,6 +4,10 @@ footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: dungeon, corridor, trap-room
+typical_count: few
+notes: Hidden in walls; face toward trigger area or corridor center
 ---
 # Wall mount (north edge)
 rect 0.10,0.02 0.80,0.16 texfill polyhaven/stone_wall 0.80

@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: workshop, forge, smithy
+typical_count: single
+clusters_with: workbench, anvil
+notes: Tool sharpening; place near workbench
 ---
 # Water trough (wooden base beneath the wheel)
 ellipse 0.50,0.55 0.42,0.18 texfill polyhaven/dark_wood 0.7

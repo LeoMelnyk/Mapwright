@@ -4,6 +4,11 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: vault, dragon-lair, treasure-room
+typical_count: few
+clusters_with: chest
+notes: Hoard of treasure; place as room focal point
 ---
 # Gold coin mound
 ellipse 1.0,1.15 0.75,0.35 fill #daa520 0.4

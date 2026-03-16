@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: any
+typical_count: few
+clusters_with: crate, barrel
+notes: Treasure or storage; place against walls or at room focal points
 ---
 # Wooden body
 rect 0.12,0.15 0.76,0.7 texfill polyhaven/dark_wood 0.85

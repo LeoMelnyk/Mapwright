@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: ship, barracks
+typical_count: many
+notes: Sleeping berth; line walls in crew quarters. Use fillWallWithProps
 ---
 # Rope attachment points (each end)
 circle 0.14,0.50 0.08 fill #8b7355 0.80

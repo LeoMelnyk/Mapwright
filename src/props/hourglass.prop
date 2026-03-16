@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: study, wizard-sanctum, any
+typical_count: single
+notes: Decorative timepiece; place on desks or pedestals
 ---
 # Wooden base frame (bottom)
 rect 0.24,0.76 0.52,0.16 texfill polyhaven/dark_wood 0.80

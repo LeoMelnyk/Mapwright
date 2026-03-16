@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: graveyard, crypt
+typical_count: many
+clusters_with: grave-marker
+notes: Burial mound; place in rows with grave-markers
 ---
 # Dirt mound
 ellipse 1.0,0.6 0.82,0.35 texfill polyhaven/brown_mud 0.75

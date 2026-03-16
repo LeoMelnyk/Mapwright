@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: center
+room_types: battlements, watchtower, beacon
+typical_count: single
+notes: Large beacon fire; place at tower tops or signal points
 ---
 # Stone platform base
 rect 0.10,0.10 0.80,0.80 texfill polyhaven/cobblestone_floor_01 0.75

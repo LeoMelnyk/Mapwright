@@ -18,23 +18,71 @@ When beginning work on this codebase, launch focused Explore agents BEFORE makin
 
 ---
 
+## Design Reference
+
+**Before generating any map, read `mapwright/DESIGN.md`.** It contains:
+- Room semantic library (20+ room types → props, fills, lighting specs)
+- Universal spatial rules (anchor-first, hug-walls, door clearance, clustering)
+- Prop density guide, fill usage patterns, lighting design
+- Multi-agent map generation pipeline (5-phase command-list architecture)
+- Anti-patterns to avoid
+
+**Room templates** in `mapwright/room-templates/` are ready-to-run JSON examples for common room types:
+
+| Template | File |
+|---|---|
+| Throne Room | `room-templates/throne-room.json` |
+| Alchemist's Lab | `room-templates/alchemist-lab.json` |
+| Forge / Smithy | `room-templates/forge.json` |
+| Crypt / Ossuary | `room-templates/crypt.json` |
+| Temple / Shrine | `room-templates/temple.json` |
+| Wizard's Sanctum | `room-templates/wizard-sanctum.json` |
+| Prison Block | `room-templates/prison-block.json` |
+
+Run any template: `node tools/puppeteer-bridge.js --commands-file room-templates/throne-room.json --screenshot out.png`
+
+---
+
 ## Map Generation Workflows
 
 Three workflows for generating dungeon maps, from most to least recommended:
 
 ### 1. Editor API (Recommended for Claude)
 
-Build maps programmatically using the Puppeteer automation API.
+Build maps programmatically using the Puppeteer automation API via the `mcp__mapwright__execute_commands` MCP tool.
 
 - **Full API reference:** `src/editor/CLAUDE.md`
-- **Pipeline:** `tools/puppeteer-bridge.js` commands → JSON + PNG screenshot
 - **Supports:** Rooms, walls, doors, stairs, trims, fills, props, textures, lighting, multi-level maps, 16 themes, hundreds of props
 
-```bash
-node tools/puppeteer-bridge.js \
-  --commands '[["newMap","My Dungeon",25,35],["createRoom",2,2,10,12]]' \
-  --screenshot out.png --save out.json
+**CRITICAL: Build iteratively, not in one shot.** Use multiple `execute_commands` calls with `screenshot_file` between phases. Never generate 50+ commands and execute them blind.
+
+**Correct iterative workflow:**
 ```
+Phase 1: planBrief → screenshot → verify layout
+Phase 2: setTextureRect per room → waitForTextures → screenshot
+Phase 3: getValidPropPositions → placeProp per room → screenshot
+Phase 4: placeLightInRoom per room → screenshot
+```
+
+**AI helpers that eliminate coordinate guessing (use these every time):**
+- `planBrief` — compute full layout from room sizes + connection topology
+- `listRooms` — get actual bounds after planBrief (use these, not input estimates)
+- `findWallBetween` — correct door positions between rooms
+- `setDoorBetween` — place door at midpoint of shared wall automatically
+- `getPropFootprint` — exact cells a prop occupies at a given rotation; use before placing any multi-cell prop on a wall
+- `getValidPropPositions` — valid anchor cells for a prop inside a room (free-space query — excludes occupied cells, not structurally invalid ones)
+- `placeLightInRoom` — light at room center, no world-feet math needed
+- `createCorridor` — auto-corridor with doors between adjacent rooms
+- `undoToDepth` — rollback to a checkpoint if something goes wrong
+
+**Texture IDs are full polyhaven paths** — e.g. `polyhaven/cobblestone_floor_03`, `polyhaven/dirt_floor`, `polyhaven/wood_floor`. Short IDs like `"cobblestone"` do NOT exist and silently do nothing. Check `AppData/Roaming/mapwright/textures/manifest.json` for all available IDs. Good defaults: `polyhaven/cobblestone_floor_03` (dungeon stone), `polyhaven/dirt_floor` (cave/cell floors), `polyhaven/wood_floor` (barracks/office floors).
+
+**The server must be started with `MAPWRIGHT_TEXTURE_PATH` set** for textures to appear in the export PNG:
+```bash
+MAPWRIGHT_TEXTURE_PATH="C:\\Users\\leonk\\AppData\\Roaming\\mapwright\\textures" npm start
+```
+
+**Light radius cap:** torch=15, brazier=22, max=28 for any indoor light. Never use radius >30 indoors.
 
 **Server check before using Puppeteer:**
 ```bash

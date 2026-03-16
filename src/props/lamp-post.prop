@@ -5,6 +5,10 @@ facing: no
 shadow: yes
 blocks_light: no
 lights: [{"preset":"lantern","x":0.5,"y":0.5}]
+placement: floor
+room_types: street, courtyard, garden, dock
+typical_count: few
+notes: Outdoor light source; place along paths at regular intervals
 ---
 # Warm light glow
 circle 0.5,0.5 0.35 fill #ffaa00 0.15

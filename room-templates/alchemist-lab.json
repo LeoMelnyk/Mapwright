@@ -1,0 +1,57 @@
+[
+  ["newMap", "Alchemist's Laboratory", 16, 18, 5, "arcane"],
+  ["setFeature", "grid", false],
+  ["setFeature", "compass", true],
+  ["setFeature", "border", true],
+
+  ["createRoom", 2, 2, 13, 15],
+  ["setLabel", 8, 13, "A1"],
+
+  ["setTextureRect", 3, 3, 12, 14, "cobblestone", 0.5],
+  ["setTextureRect", 3, 3, 8,  7,  "dirt", 0.4],
+
+  ["setDoor", 12, 8, "south"],
+
+  ["createTrim", 3, 3, 4, 4, { "corner": "nw", "round": true }],
+  ["createTrim", 3, 14, 4, 13, { "corner": "ne", "round": true }],
+  ["createTrim", 12, 3, 11, 4, { "corner": "sw", "round": true }],
+  ["createTrim", 12, 14, 11, 13, { "corner": "se", "round": true }],
+
+  ["setHazardRect", 4, 3, 8, 7],
+
+  ["placeProp", 3, 3, "alchemy-bench", 180],
+
+  ["placeProp", 5, 3, "alembic"],
+  ["placeProp", 5, 5, "crucible"],
+  ["placeProp", 6, 3, "ingredient-rack", 90],
+  ["placeProp", 7, 3, "mortar-pestle"],
+  ["placeProp", 7, 5, "specimen-jar"],
+
+  ["placeProp", 3, 7, "bookshelf", 180],
+  ["placeProp", 3, 9, "scroll-rack", 180],
+  ["placeProp", 3, 11, "component-shelf", 180],
+  ["placeProp", 3, 13, "arcane-pedestal"],
+
+  ["placeProp", 9, 3, "desk", 90],
+  ["placeProp", 10, 3, "chair", 0],
+  ["placeProp", 9, 5, "candle-cluster"],
+  ["placeProp", 9, 6, "book-pile"],
+
+  ["placeProp", 10, 8, "barrel"],
+  ["placeProp", 10, 10, "crate"],
+
+  ["placeProp", 6, 12, "ward-stone"],
+  ["placeProp", 8, 12, "crystal-torch"],
+  ["placeProp", 11, 12, "floor-candelabra"],
+
+  ["setLightingEnabled", true],
+  ["setAmbientLight", 0.2],
+
+  ["placeLight", 17, 15, { "preset": "candle",  "color": "#ffee88", "radius": 12, "intensity": 0.8  }],
+  ["placeLight", 47, 15, { "preset": "candle",  "color": "#ffee88", "radius": 10, "intensity": 0.75 }],
+  ["placeLight", 17, 67, { "color": "#cc88ff",  "radius": 15, "intensity": 0.6,  "falloff": "smooth" }],
+  ["placeLight", 60, 62, { "color": "#aaffcc",  "radius": 10, "intensity": 0.5,  "falloff": "smooth" }],
+  ["placeLight", 42, 37, { "color": "#cc88ff",  "radius": 20, "intensity": 0.35, "falloff": "smooth" }],
+
+  ["waitForTextures", 5000]
+]

@@ -5,6 +5,10 @@ facing: no
 shadow: yes
 blocks_light: no
 lights: [{"preset":"lantern","x":0.5,"y":0.5}]
+placement: floor
+room_types: street, courtyard, dock, garden
+typical_count: few
+notes: Standing light; place along paths or at intersections
 ---
 # Base plate
 rect 0.38,0.78 0.24,0.14 texfill polyhaven/metal_plate 0.75

@@ -4,6 +4,11 @@ footprint: 2x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: prison, dungeon, entrance
+typical_count: few
+clusters_with: shackles, chain-wall
+notes: Hanging cage; place against walls
 ---
 # Wooden post base (thick square seen from above)
 rect 0.35,0.7 0.3,0.3 texfill polyhaven/dark_wood 0.9

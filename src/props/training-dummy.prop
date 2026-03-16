@@ -4,6 +4,10 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: barracks, training-room, guard-room
+typical_count: few
+notes: Combat practice target; place with space for sparring around it
 ---
 # Base post
 circle 0.5,0.7 0.12 texfill polyhaven/dark_wood 0.8

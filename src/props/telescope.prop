@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: study, wizard-sanctum, observatory, captain-cabin
+typical_count: single
+clusters_with: desk, globe
+notes: Viewing instrument; point toward window or open sky
 ---
 # Main tube body
 rect 0.10,0.32 1.60,0.36 texfill polyhaven/dark_wood 0.75

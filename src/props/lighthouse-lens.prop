@@ -4,6 +4,10 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: lighthouse, beacon-tower
+typical_count: single
+notes: Central light mechanism; place at room center
 ---
 # Outer metal housing ring
 circle 1.0,1.0 0.92 fill #555555 0.3

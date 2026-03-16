@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: alchemist-lab, forge
+typical_count: single
+clusters_with: alchemy-bench, alembic
+notes: Melting container; place near heat source
 ---
 # Crucible body
 circle 0.50,0.52 0.34 texfill polyhaven/metal_plate 0.75

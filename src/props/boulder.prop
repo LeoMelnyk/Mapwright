@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: cave, wilderness, ruin
+typical_count: few
+clusters_with: rock-cluster, stalagmite, rubble
+notes: Natural obstacle; scatter in caves
 ---
 # Main rock body
 poly 0.5,0.08 0.82,0.2 0.92,0.55 0.75,0.88 0.35,0.92 0.1,0.65 0.12,0.3 texfill polyhaven/rock_boulder_cracked 0.85

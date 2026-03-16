@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: bedroom, quarters, bathhouse
+typical_count: single
+notes: Place against wall with space to approach
 ---
 # Outer tub
 ellipse 1.0,0.5 0.88,0.42 texfill polyhaven/marble_01 0.8

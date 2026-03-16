@@ -168,6 +168,7 @@ Call `getLevels()` first. Each level has `startRow`. A cell at row 3 of Level 2 
 | `importMapText` | `mapText` | Parse and import a `.map` text string directly (full round-trip from `exportToMapFormat`) |
 | `getMap` | — | Export dungeon as JSON |
 | `getMapInfo` | — | Get map metadata (see --info format above) |
+| `getFullMapInfo` | — | Comprehensive state: everything in `getMapInfo` plus full room list (with bounds), all props, all doors, lights, stairs, bridges |
 | `setName` | `name` | Set dungeon name |
 | `setTheme` | `theme` | Set theme (e.g. `"stone-dungeon"`) |
 | `setLabelStyle` | `style` | Set label style: `"circled"`, `"plain"`, or `"bold"` |
@@ -246,6 +247,8 @@ addStairs(5,5, 5,6, 4,5)   → 1-cell triangle (converges to far edge midpoint)
 
 **Data model:** Stairs are stored in `metadata.stairs[]` as `{ id, points: [[r,c],[r,c],[r,c]], link: "A"|null }`. Each occupied cell stores `center["stair-id"]` referencing the stair ID.
 
+**`linkStairs` cell coordinates:** The stair cells (for `linkStairs`) are at `row = min(P1_row, P3_row)`, i.e. the shallower (topmost) row of the stair footprint — **not always at P1**. When a stair points downward (P3 below P1), cells are at P1_row. When pointing upward (P3 above P1), cells are at P3_row. Column range starts at P1_col. If `linkStairs` fails with "no stairs to link", inspect the saved JSON: look for cells where `center["stair-id"]` is set — those are the correct coordinates.
+
 ### Bridges
 
 Bridges span over void or water using 3 corner points (same geometry as stairs).
@@ -260,14 +263,41 @@ Bridges span over void or water using 3 corner points (same geometry as stairs).
 
 | Method | Args | Description |
 |--------|------|-------------|
-| `createTrim` | `r1, c1, r2, c2, [options]` | Cut diagonal corner from room |
+| `createTrim` | `r1, c1, r2, c2, corner, [options]` | Cut diagonal corner from room |
+| `roundRoomCorners` | `label, [trimSize=3], [options]` | **Recommended.** Round all 4 corners of a labeled room with curved arcs. No coordinate math needed. |
 
-The first point `(r1, c1)` is the corner tip (where the void starts). The second point `(r2, c2)` determines the size — the trim spans `max(|r2-r1|, |c2-c1|) + 1` cells along the diagonal.
+**`roundRoomCorners`** is the preferred way to create circular/rounded rooms. It automatically computes the correct trim regions and corner directions from the room's bounds.
 
-Options object:
-- `corner`: `"auto"` (default), `"nw"`, `"ne"`, `"sw"`, `"se"` — which corner to trim
-- `round`: `false` (default) — if true, creates a curved arc instead of straight diagonal
-- `inverted`: `false` (default) — flips arc direction (only with round)
+```json
+["roundRoomCorners", "A10", 4]
+["roundRoomCorners", "A10", 4, {"inverted": true}]
+```
+
+Options: `{ inverted: false, trimSize: 3 }` (trimSize can also be the 2nd positional arg).
+
+Returns `{ success, corners, trimSize, bounds }`.
+
+**`createTrim`** for manual control. Two calling conventions:
+```json
+["createTrim", 2, 2, 5, 5, "nw", {"round": true}]
+["createTrim", 2, 2, 5, 5, {"corner": "nw", "round": true}]
+```
+
+**IMPORTANT: `(r1, c1)` is the corner TIP** — the outermost cell that will be voided. `(r2, c2)` is the opposite extent that determines size. For NW, the tip is the top-left cell; for NE, the tip is the top-right cell; for SW, bottom-left; for SE, bottom-right. The `corner` specifies which corner of the room is being cut:
+
+| Corner | Position | Trim direction |
+|--------|----------|---------------|
+| `nw` | Top-left of room | Cuts from top-left inward |
+| `ne` | Top-right of room | Cuts from top-right inward |
+| `sw` | Bottom-left of room | Cuts from bottom-left inward |
+| `se` | Bottom-right of room | Cuts from bottom-right inward |
+
+**The corner label matches the visual position** — use `nw` for the northwest (top-left) corner of the room, `se` for the southeast (bottom-right) corner, etc.
+
+Options: `{ round: false, inverted: false, open: false }`
+- `round`: curved arc instead of straight diagonal
+- `inverted`: concave arc (cuts into room) instead of convex
+- `open`: remove walls without voiding cells
 
 ### Fills
 
@@ -294,7 +324,9 @@ Options object:
 |--------|------|-------------|
 | `mergeRooms` | `label1, label2` | Remove all walls on the shared boundary between two rooms, merging them into one open space. Returns `{ success, removed }` |
 | `shiftCells` | `dr, dc` | Shift all cells by (dr, dc). The grid grows to accommodate — no content is lost. Updates level `startRow` values on vertical shift. Returns `{ success, newRows, newCols }` |
-| `createCorridor` | `label1, label2, [width=2]` | Auto-create a corridor between two adjacent, axis-aligned rooms. Computes corridor bounds from shared overlap, creates it with merge mode, auto-assigns the next room label, and places a door at each end. Returns `{ success, corridorLabel, r1, c1, r2, c2 }`. Throws if rooms have insufficient perpendicular overlap or no gap between them |
+| `normalizeMargin` | `[targetMargin=2]` | Resize the grid so every level has exactly `targetMargin` empty cells of margin around all structural content on all four sides. Columns are normalized globally (shared across levels); rows are normalized per-level. Shrinks excess margin and expands insufficient margin. Updates cells, level metadata, lights, bridges, and stair points. Returns `{ success, before, after, targetMargin, adjustments }` — check `adjustments.colShift` and `adjustments.levels[i].topShift` to see what moved. |
+| `createCorridor` | `label1, label2, [width=2]` | Auto-create a corridor between two adjacent rooms that have a gap between them. **Only use for caves/tunnels/sewers** — for structural buildings (keeps, temples, undercrofts), place rooms flush and use `setDoorBetween` instead. Throws if rooms have insufficient perpendicular overlap or no gap between them |
+| `partitionRoom` | `roomLabel, direction, position, [wallType='w'], [options]` | Add an internal wall partition across a room. `direction`: `'horizontal'` or `'vertical'`. `position`: absolute row (horizontal) or col (vertical). `wallType`: `'w'` or `'iw'`. `options: { doorAt }` — place a door at a specific col (horizontal) or row (vertical). Returns `{ success, wallsPlaced }` |
 
 ### AI Helpers
 
@@ -308,11 +340,55 @@ These methods offload coordinate math and spatial reasoning to the editor so Cla
 | `listRoomCells` | `label` | Return all floor cells belonging to a room as sorted `[[row, col], ...]`. Returns `{ success, cells }` |
 | `getRoomContents` | `label` | Return all props, fills, doors, and textures within a room's bounding box. Returns `{ label, bounds, props, fills, doors, textures }` |
 | `setDoorBetween` | `label1, label2, [type='d']` | Place a door on the midpoint of the shared wall between two **directly adjacent** rooms (no corridor between them). `type='d'` (normal) or `'s'` (secret). Throws if rooms are not adjacent. Returns `{ success, row, col, direction }` |
+| `getPropFootprint` | `propType, [facing=0]` | Return the cells a prop occupies relative to anchor `[0,0]` at the given rotation. Returns `{ success, spanRows, spanCols, cells: [[dr,dc],...] }`. Use this before placing to confirm orientation — especially for multi-cell props on walls. |
 | `getValidPropPositions` | `label, propType, [facing=0]` | Return all valid anchor `[[row, col], ...]` where the prop fits inside the room without overlapping existing props. Returns `{ success, positions }` |
 | `suggestPlacement` | `rows, cols, [adjacentTo]` | Find a free rectangular area of the given size. If `adjacentTo` is a room label, prefers positions adjacent to it. Returns `{ r1, c1, r2, c2 }` or `{ error }` |
 | `getUndoDepth` | — | Return current undo stack depth as a number. Record before a build to enable rollback |
 | `undoToDepth` | `targetDepth` | Undo all changes back to a previously recorded depth. Returns `{ success, undid }` |
+| `roundRoomCorners` | `label, [trimSize=3], [options]` | Round all 4 corners of a labeled room with curved arc trims. Automatically computes correct corner directions and trim regions from room bounds. Options: `{ inverted }`. Returns `{ success, corners, trimSize, bounds }` |
 | `placeLightInRoom` | `label, preset, [config]` | Place a light at the center of a labeled room; handles world-feet conversion. Same config as `placeLight`. Returns `{ success, id }` |
+
+### Bulk Prop Placement
+
+These methods automate common prop placement patterns. Each call may place multiple props (one undo step per prop). Use `getUndoDepth()` before and `undoToDepth()` after if you need atomic rollback.
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `fillWallWithProps` | `roomLabel, propType, wall, [options]` | Line a wall with repeated copies of a prop. `wall`: `'north'`/`'south'`/`'east'`/`'west'`. Options: `{ facing, gap, inset, skipDoors }`. `gap`: cells between props (default 0). `inset`: cells inward from wall (default 0). `skipDoors`: skip door-adjacent cells (default true). Returns `{ success, placed: [[r,c],...] }` |
+| `lineProps` | `roomLabel, propType, startRow, startCol, direction, count, [options]` | Place props in a straight line. `direction`: `'east'` or `'south'`. `count`: max props to place. Options: `{ facing, gap }`. Returns `{ success, placed }` |
+| `scatterProps` | `roomLabel, propType, count, [options]` | Scatter props at random valid positions. Options: `{ facing, avoidWalls }`. `avoidWalls`: number of cells margin from walls. Returns `{ success, placed }` |
+| `clusterProps` | `roomLabel, props, anchorRow, anchorCol` | Place a group of props at relative offsets from an anchor. `props`: `[{ type, dr, dc, facing }, ...]`. Returns `{ success, placed, failed }` |
+
+**Example — bookshelves along the north wall:**
+```json
+["fillWallWithProps", "A3", "bookshelf", "north", {"facing": 0}]
+```
+
+**Example — row of pillars down the center:**
+```json
+["lineProps", "A1", "pillar", 3, 5, "east", 4, {"gap": 2}]
+```
+
+**Example — scatter rubble:**
+```json
+["scatterProps", "A5", "rubble", 3, {"avoidWalls": 1}]
+```
+
+**Example — desk cluster:**
+```json
+["clusterProps", "A2", [
+  {"type": "desk", "dr": 0, "dc": 0, "facing": 0},
+  {"type": "chair", "dr": 0, "dc": 2, "facing": 270},
+  {"type": "book-pile", "dr": 1, "dc": 0}
+], 5, 8]
+```
+
+### Validation
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `validateDoorClearance` | — | Check for props blocking door cells or their approach cells. Returns `{ clear: bool, issues: [{ row, col, direction, doorType, problem }] }` |
+| `validateConnectivity` | `entranceLabel` | BFS from entrance through open edges and doors. Returns `{ connected: bool, reachable: [...], unreachable: [...], totalRooms, visitedCells }` |
 
 **`planBrief` brief format:**
 ```json
@@ -342,6 +418,7 @@ These methods offload coordinate math and spatial reasoning to the editor so Cla
 | `renameLevel` | `levelIndex, newName` | Rename a level |
 | `resizeLevel` | `levelIndex, newRows` | Add or remove rows at the bottom of a level |
 | `addLevel` | `name, [numRows=15]` | Append a new level (with void separator row) |
+| `defineLevels` | `levels` | Set level boundaries on existing rows (no rows added). `levels`: `[{ name, startRow, numRows }, ...]`. Validates that ranges fit within the grid |
 
 ### Props (Furniture & Objects)
 
@@ -349,11 +426,17 @@ These methods offload coordinate math and spatial reasoning to the editor so Cla
 |--------|------|-------------|
 | `placeProp` | `row, col, propType, [facing=0]` | Place prop at anchor cell. Facing: `0`, `90`, `180`, `270` |
 | `removeProp` | `row, col` | Remove prop from anchor cell |
+| `removePropAt` | `row, col` | Remove the prop whose anchor is exactly (row, col). Returns `{ success: false }` if no prop there |
 | `rotateProp` | `row, col` | Rotate prop 90° clockwise |
-| `listProps` | — | Returns `{ categories: string[], props: { [name]: { name, category, footprint: [rows, cols], facing: bool } } }` |
+| `listProps` | — | Returns `{ categories, props: { [name]: { name, category, footprint, facing, placement, roomTypes, typicalCount, clustersWith, notes } } }` |
+| `getPropsForRoomType` | `roomType` | Return all props tagged for a room type (e.g. `"library"`, `"forge"`). Returns `{ success, props: [...] }` |
 | `removePropsInRect` | `r1, c1, r2, c2` | Remove all props with anchor cells in rectangle. Returns `{ success, removed }` |
 
 Prop names must exactly match the filename without `.prop` (e.g. `"map-table"`, `"bone-pile"`). See the full prop catalog below.
+
+**Footprint is R×C (rows × cols) — not W×H.** `1×2` means 1 row tall × 2 cols wide. At rotation 0 a `1×2` prop extends east; at rotation 90 it extends south. Use `getPropFootprint(propType, rotation)` for ground truth before placing.
+
+**Placement metadata:** Every prop has `placement` (wall/corner/center/floor/any), `roomTypes`, `typicalCount`, `clustersWith`, and `notes`. Use `getPropsForRoomType("library")` to find all props suitable for a library. `fillWallWithProps` auto-computes rotation for wall-mounted props — no need to specify `facing` in options.
 
 ### Lighting Operations
 
@@ -455,14 +538,23 @@ This is in the AI Helpers section above.
 ```
 A 1-cell-high room with `"merge"` mode creates a corridor that seamlessly connects to adjacent rooms.
 
-### Trim a corner with rounded arc
+### Round all corners of a room (circular chamber)
 
 ```json
 [
-  ["createTrim", 2, 2, 5, 5, {"corner": "nw", "round": true}]
+  ["roundRoomCorners", "A10", 4]
 ]
 ```
-This trims the northwest corner, starting at (2,2) with a 4-cell diagonal, using a curved arc.
+Rounds all 4 corners of room A10 with 4-cell curved arcs. Use this instead of manual `createTrim` calls — it handles corner directions automatically.
+
+### Trim a single corner with rounded arc
+
+```json
+[
+  ["createTrim", 2, 2, 5, 5, "nw", {"round": true}]
+]
+```
+This trims the northwest (top-left) corner of a room. The corner label matches the visual position — `nw` = top-left, `ne` = top-right, `sw` = bottom-left, `se` = bottom-right.
 
 ### Set map metadata
 
@@ -903,6 +995,96 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 - Use `createPolygonRoom` for L-shaped, U-shaped, or irregular rooms — pass the full list of cells, no rectangles required.
 - Use `getRoomContents` to inspect what props, fills, doors, and textures already exist in a room before adding more.
 - Use `suggestPlacement(rows, cols, adjacentTo)` to find free space for a new room without manually scanning the grid.
-- Use `createCorridor(label1, label2)` to auto-create a connecting corridor with label + doors between two adjacent rooms — one call replaces createRoom + setLabel + setDoorBetween.
+- Use `createCorridor(label1, label2)` for cave/tunnel connections where rooms have a gap between them. **Do NOT use for structural buildings** — place rooms flush (adjacent cols/rows) and use `setDoorBetween` instead. Corridor stubs in buildings look like airlocks.
 - Use `getUndoDepth()` before a multi-step build, then `undoToDepth(depth)` to roll back everything if something goes wrong.
 - `difficult-terrain` is NOT a valid fill type. Use `setHazard` / `setHazardRect` for hazardous/difficult terrain instead.
+- Use `fillWallWithProps` to line a wall with bookshelves, torch-sconces, etc. — no manual coordinate loops needed.
+- Use `lineProps` for rows of pillars or pews — specify start position, direction, and count.
+- Use `scatterProps` for organic placement (rubble, mushrooms, bone piles) — places at random valid positions.
+- Use `clusterProps` for furniture groupings (desk + chair + book-pile) — define relative offsets from an anchor point.
+- Use `partitionRoom` to split a large room with an internal wall — optionally with a door at a specific position.
+- Use `validateDoorClearance()` after placing props to check no props block doors.
+- Use `validateConnectivity("A1")` after building to verify all rooms are reachable from the entrance.
+- Use `getFullMapInfo()` for a comprehensive snapshot of the map state — includes all rooms, props, doors, lights, stairs, and bridges.
+- Use `defineLevels` to set level boundaries on an existing grid without adding rows (useful after manual multi-level setup).
+
+---
+
+## Multi-Agent Map Generation
+
+For complex multi-room dungeons, use a phased pipeline where agents coordinate by **producing command arrays** — never by writing to the map concurrently. This prevents all coordination conflicts.
+
+### Why command arrays, not live edits
+
+The Puppeteer server handles one session at a time. Multiple agents writing to the map in parallel would corrupt state. Instead, agents produce `.json` files of commands. Only the final integration step runs Puppeteer.
+
+### The 5-Phase Pipeline
+
+**Phase 1 — Planner (serial):** Takes adventure context and outputs `room_plan.json` — a list of rooms with semantic types (`"type": "throne-room"`, `"type": "forge"`, etc.), sizes, and connections.
+
+**Phase 2 — Layout (serial):** Calls `planBrief` to compute spatial positions. Outputs `layout_commands.json` + `layout_info.json` (label → bounds, used by decorators).
+
+To generate `layout_info.json` after layout:
+```bash
+node tools/puppeteer-bridge.js \
+  --commands-file layout_commands.json \
+  --save layout_base.json
+node tools/puppeteer-bridge.js \
+  --load layout_base.json \
+  --commands '[["listRooms"]]'
+```
+
+**Phase 3 — Decorators (parallel):** One agent per room. Each reads its room label, type, and bounds from `layout_info.json`, then produces `decorator_A1.json`, `decorator_A2.json`, etc.
+
+**Strict decorator rules:**
+- ONLY use: `placeProp`, `removeProp`, `setFill`, `setFillRect`, `removeFill`, `setHazard`, `setHazardRect`, `setTexture`, `setTextureRect`, `placeLight`, `setLabel`, `createTrim`, `setDoor`
+- NEVER use: `newMap`, `createRoom`, `setTheme`, `setName`, `setFeature`, `addLevel`, or any structural commands
+- ALL coordinates must fall within the assigned room's bounds (from `layout_info.json`)
+- Read `mapwright/DESIGN.md` (Room Semantic Library section) to select props and fills for the room type
+
+**Phase 4 — Integration (serial):** Concatenates all command arrays:
+1. `layout_commands.json` first (structure)
+2. All `decorator_*.json` files in room label order
+3. Final tail: `["setAmbientLight", 0.3]`, `["setLightingEnabled", true]`, `["waitForTextures", 5000]`
+
+Output: `final_commands.json`
+
+**Phase 5 — Execution:**
+```bash
+# Validate first
+node tools/puppeteer-bridge.js \
+  --commands-file final_commands.json \
+  --dry-run --continue-on-error
+
+# Normal headless render
+node tools/puppeteer-bridge.js \
+  --commands-file final_commands.json \
+  --save dungeon.json \
+  --export-png dungeon.png
+
+# Debug mode — visible browser, watch the map build in real time
+node tools/puppeteer-bridge.js \
+  --commands-file final_commands.json \
+  --visible \
+  --slow-mo 150 \
+  --save dungeon.json \
+  --export-png dungeon.png
+```
+
+### Debug Mode (`--visible --slow-mo`)
+
+`--visible` launches a headed (non-headless) browser window. `--slow-mo <ms>` adds a delay between each command so you can watch the map assemble step by step. Use `--slow-mo 0` for fast-but-visible, `--slow-mo 200` to clearly see each prop placement.
+
+### Room Semantic Library
+
+The design rules, room type → prop/fill/lighting specs, spatial arrangement patterns, and multi-agent coordination details are documented in `mapwright/DESIGN.md`. **Read it before generating any map.**
+
+### Room Templates
+
+`mapwright/room-templates/` contains ready-to-run JSON templates for common room types. Run any template with:
+```bash
+node tools/puppeteer-bridge.js \
+  --commands-file room-templates/throne-room.json \
+  --screenshot throne-room.png
+```
+Templates use a standard 14×16 grid with a single 10×12 room. Adapt coordinates by offset from the target room's `r1, c1` corner.

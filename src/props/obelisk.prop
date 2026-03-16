@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: yes
+placement: center
+room_types: temple, courtyard, tomb, magical-chamber
+typical_count: few
+notes: Tall monument; place as focal point or in symmetrical arrangements
 ---
 # Base pedestal
 rect 0.22,0.22 0.56,0.56 texfill polyhaven/granite_tile 0.75

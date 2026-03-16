@@ -4,6 +4,10 @@ footprint: 1x3
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: dock, ship
+typical_count: single
+notes: Bridge between ship and dock; extend from wall edge
 ---
 # Wooden plank surface
 rect 0.1,0.15 2.8,0.7 texfill polyhaven/worn_planks 0.82

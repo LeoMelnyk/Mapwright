@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: tavern, kitchen, workshop, any
+typical_count: few
+clusters_with: table, workbench
+notes: Simple seating; place near work surfaces or tables
 ---
 # Round seat
 circle 0.5,0.5 0.3 texfill polyhaven/wood_table 0.85

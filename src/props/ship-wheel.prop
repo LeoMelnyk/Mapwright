@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: ship, captain-cabin
+typical_count: single
+clusters_with: binnacle
+notes: Helm; place at ship's stern or elevated helm position
 ---
 # Outer rim
 circle 0.5,0.5 0.4 texfill polyhaven/dark_wood 0.8

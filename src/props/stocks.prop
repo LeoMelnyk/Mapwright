@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: prison, market-square, courtyard
+typical_count: single
+notes: Public restraint; place in open areas
 ---
 # Left support post (west end)
 rect 0.05,0.2 0.2,0.6 texfill polyhaven/dark_wood 0.9

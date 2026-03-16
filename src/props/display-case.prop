@@ -4,6 +4,10 @@ footprint: 1x2
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: museum, trophy-room, wizard-sanctum, shop
+typical_count: few
+notes: Showcase items; line along walls
 ---
 # Case frame (outer)
 rect 0.08,0.08 1.84,0.84 texfill polyhaven/dark_wood 0.75

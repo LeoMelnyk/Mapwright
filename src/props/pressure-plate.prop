@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: dungeon, corridor, trap-room
+typical_count: few
+notes: Hidden trigger; place in paths, doorways, or before treasure
 ---
 # Plate flush with floor (subtle)
 rect 0.15,0.15 0.70,0.70 texfill polyhaven/stone_floor 0.60

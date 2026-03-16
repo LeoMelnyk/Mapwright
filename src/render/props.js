@@ -122,7 +122,22 @@ export function parsePropFile(text) {
     commands.filter(c => c.style === 'texfill' && c.textureId).map(c => c.textureId)
   )];
 
-  return { name, category, footprint, facing, shadow, blocksLight, padding, commands, textures, lights: propLights };
+  // Placement metadata (optional fields — gracefully default to null/empty)
+  const placement = header.placement || null;                  // wall, corner, center, floor, any
+  const roomTypes = header.room_types
+    ? header.room_types.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  const typicalCount = header.typical_count || null;           // single, few, many
+  const clustersWith = header.clusters_with
+    ? header.clusters_with.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  const notes = header.notes || null;
+
+  return {
+    name, category, footprint, facing, shadow, blocksLight, padding,
+    commands, textures, lights: propLights,
+    placement, roomTypes, typicalCount, clustersWith, notes,
+  };
 }
 
 /**

@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: temple, shrine
+typical_count: few
+clusters_with: altar, idol, candelabra
+notes: Place near altars or at shrine entrances
 ---
 # Plate rim
 circle 0.50,0.52 0.38 fill #daa520 0.70

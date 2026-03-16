@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: wizard-sanctum, arcane-library, ritual-chamber
+typical_count: few
+clusters_with: crystal-ball, spell-focus, ward-stone
+notes: Display stand for magical items; place in prominent positions
 ---
 # Pedestal column
 circle 0.50,0.60 0.28 texfill polyhaven/granite_tile 0.80

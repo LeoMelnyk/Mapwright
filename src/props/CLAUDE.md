@@ -11,12 +11,36 @@ footprint: AxB
 facing: yes|no
 shadow: yes|no
 blocks_light: yes|no
+placement: wall|corner|center|floor|any
+room_types: comma, separated, room, types
+typical_count: single|few|many
+clusters_with: other-prop, another-prop
+notes: Free-text placement guidance for Claude
 ---
 # Comment describing visual group
 shape x,y w,h style
 ```
 
 The YAML header is separated from draw commands by `---`. Comments start with `#`.
+
+### Placement Metadata
+
+Every prop includes placement metadata that guides the AI during map generation:
+
+| Field | Values | Purpose |
+|-------|--------|---------|
+| `placement` | `wall`, `corner`, `center`, `floor`, `any` | Where the prop typically goes in a room |
+| `room_types` | comma-separated tags | Which room types this prop belongs in (e.g. `library, study, wizard-sanctum`) |
+| `typical_count` | `single`, `few`, `many` | How many per room is typical |
+| `clusters_with` | comma-separated prop names | What other props it commonly groups with |
+| `notes` | free text | Placement guidance and tips |
+
+**Placement conventions:**
+- `wall` — prop is placed against a wall (bookshelf, weapon-rack, torch-sconce). For `facing: yes` wall props, the front faces south at rotation 0; `fillWallWithProps` auto-computes rotation per wall.
+- `corner` — best in room corners (pillar, pillar-corner, ward-stone)
+- `center` — room centerpiece (table, fountain, magic-circle, throne)
+- `floor` — anywhere on the floor (rubble, mushroom, bone-pile, chair)
+- `any` — no strong preference
 
 ## Coordinate System (CRITICAL)
 

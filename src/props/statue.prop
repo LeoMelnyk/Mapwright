@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: temple, throne-room, garden, gallery, memorial
+typical_count: few
+notes: Decorative sculpture; place symmetrically flanking doors, thrones, or along halls
 ---
 # Stone pedestal
 rect 0.22,0.22 0.56,0.56 texfill polyhaven/granite_tile 0.75

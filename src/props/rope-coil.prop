@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: dock, ship, warehouse
+typical_count: few
+clusters_with: dock-cleat, anchor
+notes: Place near dock cleats or on ship decks
 ---
 # Outer coil
 circle 0.5,0.5 0.38 fill #c4a060 0.3

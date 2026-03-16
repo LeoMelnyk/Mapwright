@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: workshop, tannery, leatherworker
+typical_count: few
+clusters_with: loom, workbench
+notes: Leather processing; place against walls
 ---
 # Ground shadow beneath rack
 ellipse 1.00,0.50 0.85,0.38 fill #333333 0.12

@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: dock, harbor, fishing-village
+typical_count: few
+notes: Place near docks or processing areas
 ---
 # Top horizontal bar (wall side, north)
 rect 0.04,0.04 1.92,0.09 texfill polyhaven/dark_wood 0.85

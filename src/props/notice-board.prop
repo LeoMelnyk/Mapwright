@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: tavern, guild-hall, market, guard-room
+typical_count: single
+notes: Information board; mount on wall near entrances
 ---
 # Board frame (wall side, north)
 rect 0.08,0.04 1.84,0.14 texfill polyhaven/dark_wood 0.85

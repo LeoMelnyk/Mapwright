@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: fortification, guard-room, battlements
+typical_count: single
+notes: Siege weapon; needs clear line of sight and operating space
 ---
 # Wheeled base frame
 rect 0.15,0.3 1.7,0.4 texfill polyhaven/dark_wood 0.85

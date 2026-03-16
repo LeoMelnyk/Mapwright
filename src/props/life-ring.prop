@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: wall
+room_types: dock, ship, harbor
+typical_count: few
+notes: Safety equipment; hang on walls near water
 ---
 # Ring body (red)
 circle 0.5,0.5 0.42 fill #cc2200 0.9

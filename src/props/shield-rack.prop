@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: armory, barracks, guard-room
+typical_count: few
+clusters_with: weapon-rack, armor-stand
+notes: Wall-mounted display; line armory walls
 ---
 # Wooden rack bar along north edge (top of frame seen from above)
 rect 0.08,0.06 1.84,0.14 texfill polyhaven/dark_wood 0.9

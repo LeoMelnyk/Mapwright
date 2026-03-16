@@ -4,6 +4,11 @@ footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: workshop, weaver, home
+typical_count: single
+clusters_with: tanning-rack
+notes: Textile production; place against wall with operating space
 ---
 # Outer frame (dark wood rectangle)
 rect 0.10,0.10 1.80,1.80 texfill polyhaven/dark_wood 0.6

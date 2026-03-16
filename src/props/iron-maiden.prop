@@ -4,6 +4,11 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: torture-chamber, dungeon, prison
+typical_count: single
+clusters_with: torture-rack, shackles
+notes: Torture device; place against wall
 ---
 # Outer casing
 rect 0.12,0.1 0.76,1.8 texfill polyhaven/rusty_metal 0.8

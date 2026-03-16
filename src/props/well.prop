@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: center
+room_types: courtyard, village, cave, underground
+typical_count: single
+notes: Water source; place centrally in courtyards or near cave walls
 ---
 # Stone outer ring
 circle 0.5,0.5 0.40 texfill polyhaven/cobblestone_floor_01 0.85

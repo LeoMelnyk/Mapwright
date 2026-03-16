@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: library, study, wizard-sanctum
+typical_count: many
+clusters_with: bookshelf, desk, scroll-case
+notes: Scatter near bookshelves and desks for lived-in feel
 ---
 # Bottom book (widest)
 rect 0.10,0.58 0.76,0.28 texfill polyhaven/brown_leather 0.80

@@ -4,6 +4,10 @@ footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: fortification, siege, battlements
+typical_count: single
+notes: Large siege weapon; needs significant open space
 ---
 # Wooden base platform
 rect 0.15,0.25 1.7,1.6 texfill polyhaven/weathered_planks 0.8

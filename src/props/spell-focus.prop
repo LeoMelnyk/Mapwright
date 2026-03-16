@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: center
+room_types: wizard-sanctum, ritual-chamber
+typical_count: single
+clusters_with: arcane-pedestal, magic-circle
+notes: Magical channeling device; place at focal points
 ---
 # Central crystal
 circle 0.5,0.5 0.12 fill #8866cc 0.7

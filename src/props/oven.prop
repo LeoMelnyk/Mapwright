@@ -4,6 +4,11 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: kitchen, bakery
+typical_count: single
+clusters_with: kitchen-table, wood-pile, chopping-block
+notes: Cooking appliance; build into wall
 ---
 # Brick dome base (from above)
 ellipse 0.5,0.7 0.45,0.55 texfill polyhaven/brick_4 0.85

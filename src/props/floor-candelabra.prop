@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: temple, throne-room, great-hall, ballroom
+typical_count: few
+clusters_with: candelabra
+notes: Tall standing light; place along processional paths or flanking focal points
 ---
 # Base ring
 circle 0.50,0.50 0.38 fill #555555 0.30

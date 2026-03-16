@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: temple, shrine, cult-chamber
+typical_count: single
+clusters_with: altar, offering-plate, candle-cluster
+notes: Object of worship; place prominently as focal point
 ---
 # Stone pedestal
 rect 0.25,0.25 0.5,0.5 texfill polyhaven/granite_tile 0.8

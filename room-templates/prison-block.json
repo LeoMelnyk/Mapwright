@@ -1,0 +1,58 @@
+[
+  ["newMap", "Prison Block", 16, 18, 5, "stone-dungeon"],
+  ["setFeature", "grid", false],
+  ["setFeature", "compass", true],
+  ["setFeature", "border", true],
+
+  ["createRoom", 2, 2, 13, 15],
+  ["setLabel", 8, 13, "A1"],
+
+  ["setTextureRect", 3, 3, 12, 14, "dirt", 0.6],
+
+  ["setDoor", 13, 8, "south"],
+
+  ["setWall", 3, 6, "south"],
+  ["setWall", 4, 6, "south"],
+  ["setWall", 5, 6, "south"],
+  ["setWall", 6, 6, "south"],
+  ["setWall", 7, 6, "east"],
+  ["setWall", 3, 11, "south"],
+  ["setWall", 4, 11, "south"],
+  ["setWall", 5, 11, "south"],
+  ["setWall", 6, 11, "south"],
+  ["setWall", 7, 11, "east"],
+
+  ["setDoor", 7, 6, "east"],
+  ["setDoor", 7, 11, "east"],
+
+  ["placeProp", 3, 3, "shackles"],
+  ["placeProp", 4, 3, "shackles"],
+  ["placeProp", 3, 8, "shackles"],
+  ["placeProp", 4, 8, "shackles"],
+  ["placeProp", 3, 13, "shackles"],
+  ["placeProp", 4, 13, "shackles"],
+
+  ["placeProp", 5, 3, "bone-pile"],
+  ["placeProp", 5, 13, "bone-pile"],
+
+  ["placeProp", 9, 3, "table"],
+  ["placeProp", 10, 3, "stool"],
+  ["placeProp", 9, 6, "weapon-rack", 90],
+  ["placeProp", 10, 6, "chest", 90],
+  ["placeProp", 11, 3, "barrel"],
+
+  ["placeProp", 9, 9, "stocks", 180],
+  ["placeProp", 11, 10, "pillory", 90],
+
+  ["placeProp", 12, 13, "barrel"],
+  ["placeProp", 11, 13, "crate"],
+
+  ["placeProp", 8, 3, "torch-sconce", 90],
+
+  ["setLightingEnabled", true],
+  ["setAmbientLight", 0.1],
+
+  ["placeLight", 47, 17, { "preset": "torch", "color": "#ff9944", "radius": 18, "intensity": 0.75 }],
+
+  ["waitForTextures", 5000]
+]

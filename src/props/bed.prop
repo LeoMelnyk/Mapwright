@@ -4,6 +4,11 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: bedroom, quarters, barracks, inn
+typical_count: few
+clusters_with: wardrobe, desk, chest, stool
+notes: Headboard against wall; leave space at foot for access
 ---
 # Wooden frame
 rect 0.05,0.05 0.9,1.9 texfill polyhaven/dark_wood 0.8

@@ -4,6 +4,10 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+placement: floor
+room_types: swamp, wilderness, graveyard, ruin
+typical_count: few
+notes: Large terrain feature; place in open areas of outdoor maps
 ---
 # Trunk cross-section
 circle 1.0,1.0 0.2 texfill polyhaven/bark_brown_02 0.8

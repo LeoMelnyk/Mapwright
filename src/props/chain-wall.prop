@@ -4,6 +4,11 @@ footprint: 1x3
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: prison, dungeon, torture-chamber
+typical_count: few
+clusters_with: shackles, pillory
+notes: Restraints mounted on walls; line prison walls
 ---
 # Left post
 circle 0.5,0.5 0.22 texfill polyhaven/stone_wall 0.85

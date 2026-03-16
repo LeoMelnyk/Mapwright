@@ -5,6 +5,10 @@ facing: yes
 shadow: no
 blocks_light: no
 lights: [{"preset":"lantern","x":0.5,"y":0.5}]
+placement: wall
+room_types: any
+typical_count: many
+notes: Wall-mounted light; place at regular intervals. Use fillWallWithProps with gap:2-3
 ---
 # Wall bracket (north edge)
 rect 0.28,0.02 0.44,0.14 texfill polyhaven/rusty_metal 0.80

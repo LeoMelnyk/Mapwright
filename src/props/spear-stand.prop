@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: armory, barracks, guard-room
+typical_count: few
+clusters_with: weapon-rack, armor-stand
+notes: Weapon storage; place against walls near weapon racks
 ---
 # Base ring
 circle 0.5,0.5 0.25 texfill polyhaven/dark_wood 0.8

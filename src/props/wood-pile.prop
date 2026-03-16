@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: kitchen, forge, hearth-room, storage
+typical_count: single
+clusters_with: fireplace, hearth, forge
+notes: Fuel storage; place near fireplaces or forges
 ---
 # Log cross-sections (top-down view of stacked logs)
 # Bottom layer

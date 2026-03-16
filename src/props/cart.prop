@@ -4,6 +4,10 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: storage, market, stable, street
+typical_count: single
+notes: Transport; place near walls or doorways
 ---
 # Cart bed
 rect 0.5,0.1 1.35,0.8 texfill polyhaven/weathered_planks 0.82

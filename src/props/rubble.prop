@@ -4,6 +4,11 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: ruin, dungeon, cave, collapsed-area
+typical_count: many
+clusters_with: boulder, bone-pile
+notes: Debris scatter; place randomly for ruined or destroyed areas
 ---
 poly 0.12,0.52 0.32,0.35 0.28,0.62 texfill polyhaven/rock_boulder_cracked 0.8
 poly 0.12,0.52 0.32,0.35 0.28,0.62 stroke

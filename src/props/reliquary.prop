@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: wall
+room_types: temple, shrine, crypt
+typical_count: single
+clusters_with: altar, holy-font
+notes: Sacred container; place prominently near altar
 ---
 # Box body
 rect 0.16,0.22 0.68,0.58 texfill polyhaven/dark_wood 0.80

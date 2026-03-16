@@ -4,6 +4,10 @@ footprint: 1x3
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: siege, armory, fortification
+typical_count: single
+notes: Large siege equipment; needs open space
 ---
 # Main beam
 rect 0.08,0.32 2.84,0.36 texfill polyhaven/dark_wood 0.85

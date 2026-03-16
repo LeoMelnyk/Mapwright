@@ -5,6 +5,10 @@ facing: no
 shadow: no
 blocks_light: no
 padding: 0.5
+placement: corner
+room_types: any
+typical_count: few
+notes: Corner structural support; place in room corners
 ---
 # Stone pillar at grid intersection (centered at cell top-left corner)
 circle 0,0 0.35 texfill polyhaven/granite_tile 0.85

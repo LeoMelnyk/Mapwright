@@ -5,6 +5,11 @@ facing: yes
 shadow: yes
 blocks_light: no
 lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
+placement: wall
+room_types: bedroom, common-room, tavern, great-hall, kitchen
+typical_count: single
+clusters_with: armchair, hearth
+notes: Built into wall; place against wall with seating facing it
 ---
 # Full stone structure base
 rect 0.0,0.0 1.0,2.0 texfill polyhaven/stone_wall 0.75

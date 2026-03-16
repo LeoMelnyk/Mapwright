@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: no
+placement: floor
+room_types: study, bedroom, quarters, tavern, common-room
+typical_count: few
+clusters_with: table, desk, fireplace, bookshelf
+notes: Seating; face toward tables, fireplaces, or room center
 ---
 # Backrest
 rect 0.15,0.08 0.7,0.15 texfill polyhaven/dark_wood 0.85

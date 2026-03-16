@@ -4,6 +4,11 @@ footprint: 2x3
 facing: yes
 shadow: yes
 blocks_light: no
+placement: center
+room_types: throne-room, court
+typical_count: single
+clusters_with: carpet, brazier, banner, pillar
+notes: Raised throne platform; place against back wall as room centerpiece
 ---
 # Outer platform step
 rect 0.05,0.05 2.9,1.9 texfill polyhaven/stone_floor 0.7

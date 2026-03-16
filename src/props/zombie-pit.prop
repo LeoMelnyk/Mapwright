@@ -4,6 +4,10 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: necromancer-lair, crypt, dungeon
+typical_count: few
+notes: Undead containment; place in floor as hazardous terrain
 ---
 # Pit opening (dark void)
 circle 0.50,0.50 0.40 fill #111111 0.90

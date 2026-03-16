@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: no
 blocks_light: no
+placement: floor
+room_types: crypt, dungeon, cave, ossuary
+typical_count: many
+clusters_with: skeleton, corpse
+notes: Scatter on floor for atmosphere; avoid blocking paths
 ---
 # Scattered skull
 circle 0.35,0.35 0.15 fill #e8dcc8 0.6

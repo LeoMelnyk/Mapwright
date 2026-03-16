@@ -4,6 +4,10 @@ footprint: 2x2
 facing: no
 shadow: no
 blocks_light: no
+placement: center
+room_types: volcanic, forge, fire-temple, elemental
+typical_count: few
+notes: Hazardous terrain; leave clearance around edges
 ---
 # Lava pool
 ellipse 1.0,1.0 0.88,0.82 texfill polyhaven/volcanic_rock_tiles 0.8

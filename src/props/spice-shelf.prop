@@ -4,6 +4,11 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: kitchen, tavern, apothecary
+typical_count: few
+clusters_with: pot-rack, ingredient-rack
+notes: Wall-mounted storage; line kitchen walls
 ---
 # Shelf board (north wall)
 rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.85

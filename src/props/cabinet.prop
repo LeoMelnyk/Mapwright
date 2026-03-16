@@ -4,6 +4,11 @@ footprint: 1x1
 facing: yes
 shadow: yes
 blocks_light: yes
+placement: wall
+room_types: kitchen, study, bedroom, office
+typical_count: few
+clusters_with: desk, bookshelf
+notes: Storage furniture; place against walls
 ---
 # Top surface
 rect 0.08,0.08 0.84,0.84 texfill polyhaven/wood_cabinet_worn_long 0.85

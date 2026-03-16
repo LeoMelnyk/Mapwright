@@ -4,6 +4,11 @@ footprint: 1x2
 facing: no
 shadow: yes
 blocks_light: yes
+placement: wall
+room_types: cellar, tavern, kitchen, storage
+typical_count: few
+clusters_with: barrel, barrel-stack
+notes: Wall-mounted wine storage; line cellar walls
 ---
 # Top surface of wine rack (full rectangle)
 rect 0.04,0.04 1.92,0.92 texfill polyhaven/dark_wood 0.85

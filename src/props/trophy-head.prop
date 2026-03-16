@@ -4,6 +4,10 @@ footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
+placement: wall
+room_types: trophy-room, great-hall, hunter-lodge, tavern
+typical_count: few
+notes: Mounted animal head; hang on walls
 ---
 # Wall mount plaque (north edge)
 rect 0.18,0.02 0.64,0.14 texfill polyhaven/dark_wood 0.85
