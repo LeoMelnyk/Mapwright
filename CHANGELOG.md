@@ -1,5 +1,50 @@
 # Changelog
 
+## v0.5.0
+
+### Bulk Prop Placement API
+
+Four new methods for placing props at scale without manual coordinate loops:
+
+- `fillWallWithProps` — line a wall with repeated props (bookshelves, torch-sconces); auto-computes facing per wall
+- `lineProps` — place props in a straight line (pillar colonnades, pew rows)
+- `scatterProps` — randomly scatter props across a room (rubble, mushrooms, bone piles)
+- `clusterProps` — place a furniture grouping at relative offsets from an anchor (desk + chair + book-pile)
+
+### Prop Placement Metadata
+
+All 171 props now carry placement metadata in their `.prop` headers:
+
+| Field | Purpose |
+|-------|---------|
+| `placement` | Where the prop goes: `wall`, `corner`, `center`, `floor`, `any` |
+| `room_types` | Which room types it belongs in (e.g. `library, study, wizard-sanctum`) |
+| `typical_count` | How many per room: `single`, `few`, `many` |
+| `clusters_with` | Props it commonly groups with |
+| `notes` | Free-text placement guidance |
+
+New query methods:
+- `getPropsForRoomType(roomType)` — find all props tagged for a room type
+- `listProps()` now includes all metadata fields
+
+### New Editor API Methods
+
+- `getFullMapInfo` — comprehensive map snapshot (rooms with bounds, all props, doors, lights, stairs, bridges)
+- `defineLevels` — set level boundaries on existing rows without adding new ones
+- `partitionRoom` — add internal wall partitions across a room with optional door
+- `validateDoorClearance` — check for props blocking door cells or approach cells
+- `validateConnectivity` — BFS reachability check from entrance to all rooms
+
+### Room Design Guide (`DESIGN.md`)
+
+New design reference covering room semantic library (20+ room types with prop/fill/lighting specs), universal spatial rules, prop density guide, lighting design, multi-agent pipeline, and anti-patterns.
+
+### Room Templates
+
+Seven ready-to-run JSON templates in `room-templates/`: throne room, alchemist's lab, forge, crypt, temple, wizard's sanctum, prison block.
+
+---
+
 ## v0.4.1
 
 ### New: MCP Server (`mcp/`)

@@ -1,6 +1,6 @@
 {
   "name": "mapwright",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Dungeon map editor for D&D 5e",
   "author": "Mapwright",
   "type": "module",
