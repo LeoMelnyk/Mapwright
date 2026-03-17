@@ -36,10 +36,12 @@ jobs:
           ELECTRON_BUILDER_PUBLISH: never
         run: npm run electron:build
 
-      # electron-builder cleans dist/ on each run, so stash the portable exe
-      - name: Stash portable exe
+      - name: Stash portable exe and clean dist
         shell: bash
-        run: mkdir -p dist-portable && cp dist/*.exe dist-portable/
+        run: |
+          mkdir -p dist-portable
+          cp dist/*.exe dist-portable/
+          rm -rf dist/
 
       - name: Build NSIS installer
         env:
