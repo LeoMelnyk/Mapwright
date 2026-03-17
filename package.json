@@ -75,10 +75,14 @@
         "certificateProfileName": "mapwright-cert"
       }
     },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    },
     "nsis": {
       "oneClick": false,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "${productName}-${version}-setup.${ext}"
     }
   }
 }
