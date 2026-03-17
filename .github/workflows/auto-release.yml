@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   release:
@@ -54,3 +55,11 @@ jobs:
             --title "Mapwright $TAG" \
             --notes-file release_notes.md \
             --target main
+
+      # GITHUB_TOKEN events don't trigger other workflows, so dispatch build manually
+      - name: Trigger build workflow
+        if: steps.version.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run build-release.yml -f tag="v${{ steps.version.outputs.new }}"
