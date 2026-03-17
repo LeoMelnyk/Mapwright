@@ -66,7 +66,7 @@ const state = {
   dirty: true,
   listeners: [],
   fileHandle: null,     // File System Access API handle for save-in-place
-  fileName: null,       // Display name of the current file (e.g. 'my_dungeon.json')
+  fileName: null,       // Display name of the current file (e.g. 'my_dungeon.mapwright')
   unsavedChanges: false, // true when edits exist since last file save
   // Player session (runtime only, not serialized)
   session: { active: false, playerCount: 0 },

@@ -8,7 +8,7 @@
 
 'use strict';
 
-const { app, BrowserWindow, shell, Menu, globalShortcut } = require('electron');
+const { app, BrowserWindow, shell, Menu, globalShortcut, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -27,6 +27,49 @@ Menu.setApplicationMenu(null);
 const PORT = 3000;
 let mainWindow = null;
 
+// ── File association: open .mapwright files ──────────────────────────────────
+
+function getFileFromArgs(argv) {
+  return argv.find(arg =>
+    !arg.startsWith('-') &&
+    (arg.endsWith('.mapwright') || arg.endsWith('.json')) &&
+    arg !== process.execPath &&
+    !arg.includes('electron')
+  );
+}
+
+let pendingFile = getFileFromArgs(process.argv);
+
+// Single-instance lock: if a second instance is launched (e.g., double-clicking
+// another .mapwright file), focus the existing window and load the new file.
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (_event, argv) => {
+    const file = getFileFromArgs(argv);
+    if (file && mainWindow) {
+      mainWindow.loadURL(`http://localhost:${PORT}/editor/?open=${encodeURIComponent(path.resolve(file))}`);
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    } else if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  // macOS: open-file event fires when a .mapwright file is opened via Finder
+  app.on('open-file', (event, filePath) => {
+    event.preventDefault();
+    if (mainWindow) {
+      mainWindow.loadURL(`http://localhost:${PORT}/editor/?open=${encodeURIComponent(filePath)}`);
+    } else {
+      pendingFile = filePath;
+    }
+  });
+}
+
 async function startServer() {
   // Dynamic import loads server.js as ESM, which starts Express + WebSockets
   // as a side effect. Port defaults to 3000 via process.argv fallback in server.js.
@@ -38,6 +81,7 @@ function createWindow() {
     width: 1400,
     height: 900,
     title: 'Mapwright',
+    icon: path.join(__dirname, 'src', 'MapwrightIcon.png'),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -45,7 +89,11 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL(`http://localhost:${PORT}/editor/`);
+  const editorUrl = pendingFile
+    ? `http://localhost:${PORT}/editor/?open=${encodeURIComponent(path.resolve(pendingFile))}`
+    : `http://localhost:${PORT}/editor/`;
+  pendingFile = null;
+  mainWindow.loadURL(editorUrl);
 
   // Allow opening the downloader from the editor toolbar button.
   // All other window.open() calls go to the system browser.
@@ -115,6 +163,53 @@ app.whenReady().then(async () => {
   setTimeout(() => {
     if (!hasTextures(userDataPath)) openDownloaderWindow();
   }, 1500);
+
+  // ── Auto-update (NSIS installs only) ────────────────────────────────────
+  // Portable builds set PORTABLE_EXECUTABLE_DIR; skip auto-updater for those.
+  if (!process.env.PORTABLE_EXECUTABLE_DIR) {
+    try {
+      const { autoUpdater } = require('electron-updater');
+      autoUpdater.autoDownload = false;
+      autoUpdater.autoInstallOnAppQuit = true;
+
+      // Tell the renderer that native auto-update is active
+      process.env.MAPWRIGHT_AUTO_UPDATE = 'true';
+
+      autoUpdater.on('update-available', (info) => {
+        if (!mainWindow) return;
+        dialog.showMessageBox(mainWindow, {
+          type: 'info',
+          title: 'Update Available',
+          message: `Mapwright v${info.version} is available. Would you like to download and install it?`,
+          buttons: ['Download', 'Later'],
+          defaultId: 0,
+        }).then(({ response }) => {
+          if (response === 0) autoUpdater.downloadUpdate();
+        });
+      });
+
+      autoUpdater.on('update-downloaded', () => {
+        if (!mainWindow) return;
+        dialog.showMessageBox(mainWindow, {
+          type: 'info',
+          title: 'Update Ready',
+          message: 'The update has been downloaded. Restart now to install?',
+          buttons: ['Restart', 'Later'],
+          defaultId: 0,
+        }).then(({ response }) => {
+          if (response === 0) autoUpdater.quitAndInstall();
+        });
+      });
+
+      autoUpdater.on('error', (err) => {
+        console.log('Auto-updater error:', err.message);
+      });
+
+      autoUpdater.checkForUpdatesAndNotify();
+    } catch (err) {
+      console.log('Auto-updater not available:', err.message);
+    }
+  }
 
   globalShortcut.register('CommandOrControl+R', () => {
     BrowserWindow.getFocusedWindow()?.webContents.reload();

@@ -1,6 +1,6 @@
 {
   "name": "mapwright",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Dungeon map editor for D&D 5e",
   "author": "Mapwright",
   "type": "module",
@@ -9,6 +9,7 @@
     "start": "node server.js",
     "electron": "node run-electron.cjs",
     "electron:build": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win portable --publish never",
+    "electron:build:installer": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win nsis --publish never",
     "electron:build:mac": "node ./node_modules/electron-builder/out/cli/cli.js --mac dmg --publish never",
     "postinstall": "node tools/patch-app-builder.cjs",
     "download-textures": "node tools/polyhaven/download-polyhaven.js",
@@ -28,13 +29,28 @@
   },
   "dependencies": {
     "@napi-rs/canvas": "^0.1.90",
+    "electron-updater": "^6.8.3",
     "express": "^5.2.1",
     "ws": "^8.19.0"
   },
   "build": {
     "appId": "com.mapwright.editor",
     "productName": "Mapwright",
+    "publish": {
+      "provider": "github",
+      "owner": "LeoMelnyk",
+      "repo": "Mapwright"
+    },
     "afterPack": "./tools/after-pack.cjs",
+    "fileAssociations": [
+      {
+        "ext": "mapwright",
+        "name": "Mapwright Dungeon",
+        "description": "Mapwright Dungeon Map",
+        "mimeType": "application/x-mapwright",
+        "role": "Editor"
+      }
+    ],
     "files": [
       "electron-main.cjs",
       "server.js",
@@ -58,6 +74,11 @@
         "codeSigningAccountName": "mapwright",
         "certificateProfileName": "mapwright-cert"
       }
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }

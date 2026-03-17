@@ -17,11 +17,11 @@
 //   node puppeteer-bridge.js [options]
 //
 // Options:
-//   --load <file.json>        Load map from file before executing commands
+//   --load <file.mapwright>    Load map from file before executing commands
 //   --commands '<json>'       JSON array of commands (inline)
 //   --commands-file <file>    JSON array of commands (from file)
 //   --screenshot <out.png>    Save screenshot after commands
-//   --save <file.json>        Save map after commands
+//   --save <file.mapwright>    Save map after commands
 //   --info                    Print map info and exit
 //   --dry-run                 Execute commands but skip all file I/O (screenshot, save, export)
 //   --port <number>           Editor port (default: 3000)
@@ -272,7 +272,7 @@ async function main() {
       if (args.save) {
         const map = await page.evaluate(() => window.editorAPI.getMap());
         const outPath = path.resolve(args.save);
-        await fs.writeFile(outPath, JSON.stringify(map, null, 2));
+        await fs.writeFile(outPath, JSON.stringify(map));
         console.log(`Saved: ${outPath}`);
       }
 

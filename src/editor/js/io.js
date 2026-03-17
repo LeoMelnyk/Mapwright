@@ -68,7 +68,7 @@ export function migrateHalfTextures(dungeon) {
 
 function getSuggestedName() {
   return (state.dungeon.metadata.dungeonName || 'dungeon')
-    .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.json';
+    .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.mapwright';
 }
 
 function showConfirmModal(message) {
@@ -145,7 +145,7 @@ export async function loadDungeon() {
   if (window.showOpenFilePicker) {
     try {
       const [handle] = await window.showOpenFilePicker({
-        types: [{ description: 'Dungeon JSON', accept: { 'application/json': ['.json'] } }],
+        types: [{ description: 'Mapwright Dungeon', accept: { 'application/json': ['.mapwright', '.json'] } }],
         multiple: false,
       });
       const file = await handle.getFile();
@@ -166,7 +166,7 @@ export async function loadDungeon() {
   // Fallback: classic file input
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = '.json';
+  input.accept = '.mapwright,.json';
   input.onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -192,7 +192,7 @@ export async function loadDungeon() {
  * Save dungeon — writes back to the loaded file, or prompts for location
  */
 export async function saveDungeon() {
-  const json = JSON.stringify(state.dungeon, null, 2);
+  const json = JSON.stringify(state.dungeon);
 
   // If we have an existing file handle, write directly to it
   if (state.fileHandle) {
@@ -216,7 +216,7 @@ export async function saveDungeon() {
     try {
       const handle = await window.showSaveFilePicker({
         suggestedName: getSuggestedName(),
-        types: [{ description: 'Dungeon JSON', accept: { 'application/json': ['.json'] } }],
+        types: [{ description: 'Mapwright Dungeon', accept: { 'application/json': ['.mapwright'] } }],
       });
       const writable = await handle.createWritable();
       await writable.write(json);

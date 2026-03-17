@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.6.0
+
+### `.mapwright` File Format
+
+- Dungeon maps now save as `.mapwright` instead of `.json` — a custom file extension tied to the application
+- Map data is minified (no whitespace) for smaller file sizes
+- All tools accept both `.mapwright` and `.json` for backwards compatibility
+
+### Windows Installer with File Association
+
+- New NSIS installer build alongside the existing portable exe
+- Installing via the installer registers `.mapwright` files with Windows — double-click to open directly in Mapwright
+- Single-instance lock: opening a second `.mapwright` file loads it in the existing window
+- macOS: `open-file` event support for Finder integration
+
+### Auto-Update (Installer Only)
+
+- NSIS installs check for updates on launch via `electron-updater`
+- Native dialog prompts to download and restart when a new version is available
+- Portable builds retain the existing toolbar link to the GitHub release page
+
+### Editor Improvements
+
+- Taskbar and title bar now show the Mapwright icon instead of the default Electron icon
+- `Ctrl+Shift+S` keyboard shortcut for Save As
+
+---
+
 ## v0.5.0
 
 ### Bulk Prop Placement API

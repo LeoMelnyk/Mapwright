@@ -90,6 +90,11 @@ curl -s http://localhost:3000 > /dev/null && echo "up" || echo "down"
 ```
 If down, start it: `npm start` (runs in background). If up, use it directly.
 
+**Stop the server when done — but only if you started it.** If the server was already running before your task, leave it alone (it's likely the user's own session). If you had to start it, kill it after finishing:
+```bash
+netstat -ano | grep ':3000' | grep 'LISTENING' | awk '{print $5}' | head -1 | xargs -I{} taskkill //PID {} //T //F
+```
+
 ### 2. `.map` Text Format (Hand-Authored)
 
 Write dungeons as ASCII grids with a legend, doors, and features sections. See the **Map Format Reference** section below for full syntax.

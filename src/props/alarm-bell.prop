@@ -1,0 +1,34 @@
+name: Alarm Bell
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: guard-room, watchtower, prison, barracks, gatehouse
+typical_count: single
+clusters_with: weapon-rack, shield-rack, torch-sconce
+notes: Wall-mounted iron bell with pull chain; place near entrance of guard rooms. Single per room. Ringing alerts nearby areas within 2 rounds
+---
+# Wall bracket (north edge)
+rect 0.32,0.06 0.36,0.10 texfill polyhaven/rusty_metal 0.85
+rect 0.32,0.06 0.36,0.10 stroke #444444
+# Mounting bolts
+circle 0.36,0.08 0.02 fill #555555
+circle 0.64,0.08 0.02 fill #555555
+# Bell dome from above (brass/iron)
+circle 0.5,0.32 0.20 texfill polyhaven/metal_plate 0.85
+circle 0.5,0.32 0.20 stroke #555555
+# Inner ring detail
+circle 0.5,0.32 0.14 stroke #666666
+# Clapper center
+circle 0.5,0.32 0.04 fill #444444
+# Pull chain hanging south into room
+line 0.5,0.52 0.5,0.88 stroke #666666
+# Chain links
+circle 0.5,0.60 0.02 stroke #555555
+circle 0.5,0.70 0.02 stroke #555555
+circle 0.5,0.80 0.02 stroke #555555
+# Chain pull ring
+circle 0.5,0.90 0.05 stroke #444444
+circle 0.5,0.90 0.03 fill #555555 0.5

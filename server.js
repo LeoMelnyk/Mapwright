@@ -89,6 +89,7 @@ function getRequiredTextureIds() {
   // 3. Example maps (.map text format and .json compiled format)
   const examplesDir = path.join(__dirname, 'examples');
   scanDir(examplesDir, '.map');
+  scanDir(examplesDir, '.mapwright');
   scanDir(examplesDir, '.json');
 
   return [...ids];
@@ -149,6 +150,29 @@ app.use(express.static(path.join(__dirname, 'src')));
 
 // Redirect / → /editor/ (matches old serve.json behavior)
 app.get('/', (_req, res) => res.redirect('/editor/'));
+
+// ── Open file endpoint (for file association / auto-load) ────────────────────
+
+app.get('/api/open-file', (req, res) => {
+  const filePath = req.query.path;
+  if (!filePath) return res.status(400).json({ error: 'path required' });
+
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext !== '.mapwright' && ext !== '.json') {
+    return res.status(403).json({ error: 'Only .mapwright and .json files allowed' });
+  }
+
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const json = JSON.parse(content);
+    if (!json.metadata || !json.cells) {
+      return res.status(400).json({ error: 'Invalid dungeon file: missing metadata or cells' });
+    }
+    res.json(json);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // ── Export PNG endpoint ─────────────────────────────────────────────────────
 
@@ -221,6 +245,11 @@ let _updateCache = null;
 let _updateCacheTime = 0;
 
 app.get('/api/check-update', async (_req, res) => {
+  // NSIS installs handle updates natively via electron-updater dialogs
+  if (process.env.MAPWRIGHT_AUTO_UPDATE === 'true') {
+    return res.json({ hasUpdate: false, autoUpdate: true });
+  }
+
   const CACHE_TTL = 60 * 60 * 1000; // 1 hour
   if (_updateCache && Date.now() - _updateCacheTime < CACHE_TTL) {
     return res.json(_updateCache);

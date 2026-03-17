@@ -3,7 +3,7 @@
 /**
  * Dungeon Map Build Pipeline
  *
- * Combines compilation (.map -> .json) and rendering (.json -> .png)
+ * Combines compilation (.map -> .mapwright) and rendering (.mapwright -> .png)
  * into a single command.
  *
  * Usage:
@@ -73,9 +73,9 @@ if (watchMode && checkMode) {
 
 // ── Derived Paths ───────────────────────────────────────────────────
 
-const jsonPath = inputPath.replace(/\.map$/, '.json') === inputPath
-  ? inputPath + '.json'
-  : inputPath.replace(/\.map$/, '.json');
+const jsonPath = inputPath.replace(/\.map$/, '.mapwright') === inputPath
+  ? inputPath + '.mapwright'
+  : inputPath.replace(/\.map$/, '.mapwright');
 
 const imagePath = explicitOutput
   ? explicitOutput
@@ -100,7 +100,7 @@ function build() {
   }
 
   // Step 2: Write intermediate .json (needed for the editor)
-  fs.writeFileSync(jsonPath, JSON.stringify(result, null, 2));
+  fs.writeFileSync(jsonPath, JSON.stringify(result));
 
   // Step 3: Render to PNG
   validateMatrixFormat(result);

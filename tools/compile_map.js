@@ -24,7 +24,7 @@ const positional = args.filter(a => !a.startsWith('--'));
 
 const inputPath = positional[0];
 if (!inputPath) {
-  console.error('Usage: node compile_map.js <dungeon.map> [output.json]');
+  console.error('Usage: node compile_map.js <dungeon.map> [output.mapwright]');
   console.error('       node compile_map.js <dungeon.map> --check');
   console.error('');
   console.error('Flags:');
@@ -50,13 +50,13 @@ try {
 
   let outputPath = positional[1];
   if (!outputPath) {
-    outputPath = inputPath.replace(/\.map$/, '.json');
+    outputPath = inputPath.replace(/\.map$/, '.mapwright');
     if (outputPath === inputPath) {
-      outputPath = inputPath + '.json';
+      outputPath = inputPath + '.mapwright';
     }
   }
 
-  fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
+  fs.writeFileSync(outputPath, JSON.stringify(result));
   console.log(`\n✓ Compiled → ${outputPath}`);
 } catch (err) {
   console.error(`\n❌ ${err.message}`);

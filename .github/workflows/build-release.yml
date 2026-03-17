@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build:
-    name: Build portable exe
+    name: Build Windows (portable + installer)
     runs-on: windows-latest
 
     steps:
@@ -36,11 +36,29 @@ jobs:
           ELECTRON_BUILDER_PUBLISH: never
         run: npm run electron:build
 
+      # electron-builder cleans dist/ on each run, so stash the portable exe
+      - name: Stash portable exe
+        shell: bash
+        run: mkdir -p dist-portable && cp dist/*.exe dist-portable/
+
+      - name: Build NSIS installer
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          ELECTRON_BUILDER_PUBLISH: never
+        run: npm run electron:build:installer
+
       - name: Upload to release
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.event.release.tag_name || inputs.tag }}" dist/*.exe
+        run: |
+          TAG="${{ github.event.release.tag_name || inputs.tag }}"
+          gh release upload "$TAG" dist-portable/*.exe
+          gh release upload "$TAG" dist/*.exe
+          # latest.yml is needed by electron-updater for NSIS auto-updates
+          if [ -f dist/latest.yml ]; then gh release upload "$TAG" dist/latest.yml; fi
 
   build-mac:
     name: Build Mac dmg

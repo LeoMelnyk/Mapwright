@@ -105,11 +105,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           },
           load_file: {
             type: 'string',
-            description: 'Absolute path to a .json map file to load before running commands',
+            description: 'Absolute path to a .mapwright (or .json) map file to load before running commands',
           },
           save_file: {
             type: 'string',
-            description: 'Absolute path to save the resulting .json map after commands',
+            description: 'Absolute path to save the resulting .mapwright map after commands',
           },
           screenshot_file: {
             type: 'string',
@@ -184,14 +184,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     {
       name: 'render_json',
       description:
-        'Render a compiled dungeon .json file to PNG using the standalone pipeline (no editor server needed). ' +
-        'Output PNG is saved next to the .json file.',
+        'Render a compiled dungeon .mapwright file to PNG using the standalone pipeline (no editor server needed). ' +
+        'Output PNG is saved next to the .mapwright file.',
       inputSchema: {
         type: 'object',
         properties: {
           json_file: {
             type: 'string',
-            description: 'Absolute path to the dungeon .json file',
+            description: 'Absolute path to the dungeon .mapwright (or .json) file',
           },
         },
         required: ['json_file'],

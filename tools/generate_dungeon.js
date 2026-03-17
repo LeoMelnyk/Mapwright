@@ -5,7 +5,7 @@
  *
  * Generates grid-based dungeon maps from JSON configuration using Canvas API.
  *
- * Usage: node generate_dungeon.js <path-to-json>
+ * Usage: node generate_dungeon.js <path-to-mapwright>
  */
 
 import fs from 'fs';
@@ -20,8 +20,8 @@ async function main() {
     const jsonPath = args.find(a => !a.startsWith('--'));
 
     if (!jsonPath) {
-      console.error('ERROR: No JSON file specified');
-      console.error('Usage: node generate_dungeon.js <path-to-json>');
+      console.error('ERROR: No map file specified');
+      console.error('Usage: node generate_dungeon.js <path-to-mapwright>');
       process.exit(1);
     }
 
@@ -39,7 +39,7 @@ async function main() {
     console.log('Rendering dungeon map...');
     renderDungeonToCanvas(ctx, config, width, height);
 
-    const outputPath = jsonPath.replace(/\.json$/i, '.png');
+    const outputPath = jsonPath.replace(/\.(mapwright|json)$/i, '.png');
     const buffer = canvas.toBuffer('image/png');
     fs.writeFileSync(outputPath, buffer);
 

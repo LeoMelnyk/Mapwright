@@ -2,7 +2,7 @@
 import state, { undo, redo, subscribe, pushUndo, markDirty, loadAutosave, notify, invalidateLightmap } from './state.js';
 import { showToast } from './toast.js';
 import * as canvasView from './canvas-view.js';
-import { saveDungeon, reloadAssets } from './io.js';
+import { saveDungeon, saveDungeonAs, reloadAssets, loadDungeonJSON } from './io.js';
 import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
 import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool, RangeTool, FogRevealTool } from './tools/index.js';
@@ -548,6 +548,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // ── Auto-load file from URL (file association / double-click) ─────────────
+  const openParam = new URLSearchParams(window.location.search).get('open');
+  if (openParam) {
+    // Wait for prop catalog so textures load correctly
+    propCatalogPromise.then(() =>
+      fetch(`/api/open-file?path=${encodeURIComponent(openParam)}`)
+        .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
+        .then(json => loadDungeonJSON(json, { fileName: openParam.split(/[/\\]/).pop() }))
+        .catch(err => console.warn('Auto-load failed:', err))
+    );
+  }
+
   // Wire prop selection from explorer panel
   setSelectPropCallback((propType) => {
     state.selectedProp = propType;
@@ -1000,6 +1012,7 @@ function onKeyDown(e) {
 
   if (e.ctrlKey && e.key === 'z') { e.preventDefault(); if (state.undoStack.length) { undo(); showToast('Undo'); } else { showToast('Nothing to undo'); } canvasView.requestRender(); }
   if (e.ctrlKey && e.key === 'y') { e.preventDefault(); if (state.redoStack.length) { redo(); showToast('Redo'); } else { showToast('Nothing to redo'); } canvasView.requestRender(); }
+  if (e.ctrlKey && e.shiftKey && e.key === 'S') { e.preventDefault(); saveDungeonAs(); return; }
   if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveDungeon(); }
 
   // H: zoom to fit current level
