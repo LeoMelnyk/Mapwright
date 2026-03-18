@@ -1,5 +1,8 @@
 import { toCanvas } from './bounds.js';
 
+// ─── Constants ─────
+const COMPASS_ROSE_SIZE = 35;
+
 /**
  * Draw background
  */
@@ -154,7 +157,7 @@ function findCompassRosePosition(cells, gridSize, width, height, transform) {
  * Draw compass rose (decorative 8-pointed design)
  */
 function drawCompassRose(ctx, x, y, theme) {
-  const size = 35;
+  const size = COMPASS_ROSE_SIZE;
   const innerSize = size * 0.6;
 
   const fillColor = theme.compassRoseFill || theme.wallStroke || '#000000';
@@ -348,7 +351,7 @@ function findCompassRosePositionOnMap(cells, gridSize, transform) {
  * Draw compass rose with optional scale factor.
  */
 function drawCompassRoseScaled(ctx, x, y, theme, s = 1) {
-  const size = 35 * s;
+  const size = COMPASS_ROSE_SIZE * s;
   const innerSize = size * 0.6;
 
   const fillColor = theme.compassRoseFill || theme.wallStroke || '#000000';

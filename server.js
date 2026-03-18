@@ -15,7 +15,6 @@ import { calculateCanvasSize, renderDungeonToCanvas } from './src/render/compile
 import { THEMES } from './src/render/themes.js';
 import { loadPropCatalogSync } from './src/render/prop-catalog-node.js';
 import { loadTextureCatalogMetadata, ensureTexturesForConfig, clearCatalogCache } from './src/render/texture-catalog-node.js';
-import { compileMap } from './src/compile/index.js';
 
 // ── Browser API polyfills (needed by render pipeline in Node.js) ─────────────
 
@@ -86,9 +85,8 @@ function getRequiredTextureIds() {
   // 2. Bridge renderer (contains hardcoded TEXTURE_IDS for each bridge type)
   scanFile(path.join(__dirname, 'src', 'render', 'bridges.js'));
 
-  // 3. Example maps (.map text format and .json compiled format)
+  // 3. Example maps (.mapwright and .json compiled format)
   const examplesDir = path.join(__dirname, 'examples');
-  scanDir(examplesDir, '.map');
   scanDir(examplesDir, '.mapwright');
   scanDir(examplesDir, '.json');
 
@@ -116,7 +114,7 @@ function writeManifest(destDir) {
 const propCatalog = loadPropCatalogSync();
 let textureCatalog = loadTextureCatalogMetadata();
 
-// Load themes (same as build_map.js)
+// Load themes
 const themesDir = path.join(__dirname, 'src', 'themes');
 try {
   const keys = JSON.parse(fs.readFileSync(path.join(themesDir, 'manifest.json'), 'utf-8'));
@@ -286,28 +284,6 @@ app.post('/api/ai-log', (req, res) => {
     }
   } catch { /* ignore write errors */ }
   res.json({ ok: true });
-});
-
-// ── Map compile endpoint ──────────────────────────────────────────────────────
-// Accepts .map text, writes to a temp file, compiles it, and returns { metadata, cells } JSON.
-// Used by the AI assistant to convert generated .map text into a loadable dungeon.
-
-app.post('/api/compile-map', (req, res) => {
-  const { mapText } = req.body;
-  if (!mapText) return res.status(400).json({ success: false, error: 'mapText required' });
-
-  const tmpFile = path.join(os.tmpdir(), `mapwright-ai-${Date.now()}.map`);
-  try {
-    fs.writeFileSync(tmpFile, mapText, 'utf-8');
-    const result = compileMap(tmpFile);
-    const { warnings, ...dungeon } = result;
-    res.json({ success: true, dungeon, ...(warnings?.length && { warnings }) });
-  } catch (err) {
-    console.error('[compile-map] error:', err.message);
-    res.status(400).json({ success: false, error: err.message });
-  } finally {
-    try { fs.unlinkSync(tmpFile); } catch { /* ignore cleanup errors */ }
-  }
 });
 
 // ── Ollama AI proxy endpoint ─────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 // File I/O: load, save, new dungeon, export PNG
 import state, { pushUndo, markDirty, notify } from './state.js';
+import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
 import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache } from '../../render/index.js';
@@ -8,7 +9,6 @@ import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
 import { requestRender } from './canvas-view.js';
-import { exportDungeonToMapFormat } from './export-map.js';
 
 /**
  * Load a dungeon JSON object into the editor state.
@@ -19,7 +19,7 @@ import { exportDungeonToMapFormat } from './export-map.js';
 export function loadDungeonJSON(json, opts = {}) {
   pushUndo();
   state.dungeon = json;
-  migrateHalfTextures(json);
+  migrateToLatest(json);
   state.currentLevel = 0;
   state.selectedCells = [];
   state.fileHandle = opts.fileHandle || null;
@@ -192,6 +192,7 @@ export async function loadDungeon() {
  * Save dungeon — writes back to the loaded file, or prompts for location
  */
 export async function saveDungeon() {
+  state.dungeon.metadata.formatVersion = CURRENT_FORMAT_VERSION;
   const json = JSON.stringify(state.dungeon);
 
   // If we have an existing file handle, write directly to it
@@ -350,49 +351,6 @@ export async function exportPng() {
     console.error('Export PNG failed:', err);
     showToast('Export failed: ' + err.message);
   }
-}
-
-/**
- * Export the current dungeon as a .map text file.
- */
-export async function exportMapFormat() {
-  const result = exportDungeonToMapFormat(state.dungeon);
-  if (!result.success) {
-    showToast('Export failed: ' + (result.error || 'unknown error'));
-    return;
-  }
-  const name = (state.dungeon.metadata.dungeonName || 'dungeon')
-    .replace(/[^a-z0-9]+/gi, '_').toLowerCase();
-  const blob = new Blob([result.mapText], { type: 'text/plain' });
-
-  if (window.showSaveFilePicker) {
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: name + '.map',
-        types: [{ description: 'Map file', accept: { 'text/plain': ['.map'] } }],
-      });
-      const writable = await handle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-      showToast('Exported ' + name + '.map');
-      return;
-    } catch (err) {
-      if (err.name === 'AbortError') return;
-      console.warn('showSaveFilePicker failed, falling back to download:', err);
-    }
-  }
-
-  // Fallback: anchor download
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name + '.map';
-  a.style.display = 'none';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
-  showToast('Exported ' + name + '.map');
 }
 
 /**

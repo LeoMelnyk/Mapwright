@@ -16,13 +16,12 @@
 
 ---
 
-Mapwright is a dungeon map editor built around three workflows:
+Mapwright is a dungeon map editor built around two workflows:
 
-- **Write a `.map` text file** — plain ASCII that both humans and Claude can author, compiled to a print-ready PNG
 - **Draw in the visual editor** — 14 tools, full undo/redo, pan/zoom, multi-level support
 - **Let Claude do it** — a full Puppeteer bridge and `planBrief` command so Claude can plan, layout, and render complete maps without touching the GUI
 
-All three workflows produce the same output: a polished, themed map ready to drop into your session.
+Both workflows produce the same output: a polished, themed map ready to drop into your session.
 
 ---
 
@@ -54,52 +53,9 @@ Open **http://localhost:3000/editor/** in your browser. Run `npm run electron` t
 
 ---
 
-## Three Ways to Make Maps
+## Two Ways to Make Maps
 
-### 1. Write a `.map` File
-
-Describe your dungeon in plain text — readable by both you and Claude:
-
-```
----
-name: The Forgotten Crypt
-theme: stone-dungeon
-compassRose: true
-scale: true
-border: true
----
-
-....AAA....
-....AAA....
-...BBBBB...
-CCCBBBBBDDD
-...EEEEE...
-
-legend:
-  A: Entry Hall
-  B: Central Chamber
-  C: West Alcove
-  D: East Alcove
-  E: Inner Sanctum
-
-doors:
-  3,4 east: door
-  7,4 west: door
-  4,2 south: secret
-```
-
-Compile to PNG:
-
-```bash
-node tools/build_map.js my-dungeon.map
-# → my-dungeon.png + my-dungeon.json
-```
-
-Flags: `--watch` to auto-rebuild on save.
-
----
-
-### 2. Visual Editor
+### 1. Visual Editor
 
 ![Mapwright visual editor](docs/editor.png)
 
@@ -107,11 +63,11 @@ Start the server (`npm start`) and open **http://localhost:3000/editor/**.
 
 **14 tools:** Room · Paint · Wall · Door · Label · Stairs · Trim · Select · Prop · Light · Fill · Erase · Range · Bridge
 
-Full undo/redo, pan/zoom, multi-level dungeons, and JSON save/load. Maps can be exported back to `.map` format.
+Full undo/redo, pan/zoom, multi-level dungeons, and JSON save/load.
 
 ---
 
-### 3. AI Generation with Claude
+### 2. AI Generation with Claude
 
 Two interfaces for programmatic map creation:
 
@@ -167,7 +123,7 @@ node tools/puppeteer-bridge.js \
 | `blue-parchment` | Clean architectural style, general purpose |
 | `sepia-parchment` | Aged/historical feel, classic module aesthetic |
 
-Individual colors can be overridden with `themeOverrides` in the `.map` header.
+Individual theme colors can be customized in the editor's theme editor panel.
 
 ---
 
@@ -219,13 +175,12 @@ Mapwright includes a real-time fog-of-war player view via WebSocket. Open the **
 
 **Export**
 - PNG (print-ready) output
-- Export to `.map` text format from the visual editor
 
 ---
 
 ## Textures
 
-Textures are optional — the editor and compiler work without them (textures affect the Paint tool and some prop rendering).
+Textures are optional — the editor works without them (textures affect the Paint tool and some prop rendering).
 
 ```bash
 node tools/download-textures.js --required   # textures used by built-in props only
@@ -237,34 +192,10 @@ In the desktop app, textures are managed through the built-in downloader and sto
 
 ---
 
-## Examples
-
-| Example | Description |
-|---|---|
-| `island` | Coastal island — water fills, rounded trims, 40+ props, point lights, per-cell textures |
-| `mines` | Underground mine — organic cave shapes, diagonal fill bands, burial chamber dressing |
-
-```bash
-node tools/build_map.js examples/island.map
-node tools/build_map.js examples/mines.map
-```
-
-Or render a pre-compiled JSON directly:
-
-```bash
-node tools/generate_dungeon.js examples/island.json
-```
-
-See [examples/examples.md](examples/examples.md) for a feature breakdown of each map.
-
----
-
 ## Documentation
 
-- **`.map` format, all CLI flags, validation errors** → [CLAUDE.md](CLAUDE.md)
+- **Editor architecture, domain routing, feature checklist** → [CLAUDE.md](CLAUDE.md)
 - **AI editor API (70+ methods)** → [src/editor/CLAUDE.md](src/editor/CLAUDE.md)
-
-Topics in CLAUDE.md: complete `.map` syntax, all 16 theme names and color properties, room sizing for combat encounters, room numbering conventions, multi-level dungeon syntax, compiler validation errors.
 
 ---
 

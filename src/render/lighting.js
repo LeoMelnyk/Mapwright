@@ -8,6 +8,13 @@
 
 import { extractPropLightSegments } from './props.js';
 
+// ─── Constants ─────
+const INVERSE_SQUARE_K = 25;
+const RAY_EPSILON = 0.00001;
+const NUM_ARC_SEGS = 12;
+const ANIM_TIME_SCALE = 0.4;
+const GRADIENT_STOPS = 16;
+
 // ─── Wall Geometry Extraction ──────────────────────────────────────────────
 
 /**
@@ -132,8 +139,7 @@ export function extractWallSegments(cells, gridSize, propCatalog) {
     let range = anticlockwise ? startAngle - endAngle : endAngle - startAngle;
     if (range <= 0) range += 2 * Math.PI;
 
-    // Approximate arc as 12 line segments (sufficient for a quarter-circle)
-    const NUM_ARC_SEGS = 12;
+    // Approximate arc as line segments (sufficient for a quarter-circle)
     let prevX = acx + R * Math.cos(startAngle);
     let prevY = acy + R * Math.sin(startAngle);
     for (let i = 1; i <= NUM_ARC_SEGS; i++) {
@@ -152,7 +158,7 @@ export function extractWallSegments(cells, gridSize, propCatalog) {
 
 // ─── 2D Visibility Polygon (Shadow Casting) ────────────────────────────────
 
-const EPSILON = 0.00001;
+const EPSILON = RAY_EPSILON;
 
 /**
  * Compute the intersection of a ray from (ox,oy) in direction (dx,dy)
@@ -291,7 +297,7 @@ export function falloffMultiplier(dist, radius, falloff) {
     case 'quadratic': return t * t;
     case 'inverse-square': {
       // 1/(1+k*d²) normalized so f(0)=1 and f(r)≈0
-      const k = 25;
+      const k = INVERSE_SQUARE_K;
       const dNorm = dist / radius;
       const raw = 1 / (1 + k * dNorm * dNorm);
       const floor = 1 / (1 + k);
@@ -316,7 +322,7 @@ export function falloffMultiplier(dist, radius, falloff) {
 export function getEffectiveLight(light, time) {
   if (!light.animation?.type) return light;
   const { type, speed = 1.0, amplitude = 0.3, radiusVariation = 0 } = light.animation;
-  const t = (time ?? 0) * speed * 0.4;
+  const t = (time ?? 0) * speed * ANIM_TIME_SCALE;
 
   let intensityMult = 1.0;
   let radiusMult = 1.0;
@@ -395,7 +401,7 @@ function clipToVisibility(gctx, visibility, transform, bbX, bbY) {
 function buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, lightRadius, falloff) {
   const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, rPx);
   grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1.0, intensity)})`);
-  const numStops = 16;
+  const numStops = GRADIENT_STOPS;
   for (let i = 1; i <= numStops; i++) {
     const frac = i / numStops;
     const mult = falloffMultiplier(frac * lightRadius, lightRadius, falloff);

@@ -17,7 +17,7 @@ You are a dungeon-building tool for Mapwright. Complete every request by calling
 
 ## Decision rules
 
-**For creation requests** ("make me a dungeon", "add a room", "place some lights"): choose a specific design yourself — pick room sizes, shapes, theme, props — then call loadMapText or the appropriate tool. State your design choice in one sentence AFTER the tool calls.
+**For creation requests** ("make me a dungeon", "add a room", "place some lights"): choose a specific design yourself — pick room sizes, shapes, theme, props — then call the appropriate tool. State your design choice in one sentence AFTER the tool calls.
 
 **For ambiguous requests**: make a reasonable creative interpretation, act on it, then briefly explain what you chose and why.
 
@@ -27,137 +27,11 @@ You are a dungeon-building tool for Mapwright. Complete every request by calling
 
 ## Tool strategy
 
-**Building or rebuilding a dungeon** → call loadMapText with a complete .map file. Design the entire layout — all rooms, corridors, doors, fills, trims, props, stairs — yourself in one shot. Do NOT ask the user to design it.
+**Building or rebuilding a dungeon** → use planBrief to lay out rooms and connections, then furnish with placeProp, setTexture, placeLight tools. Design the entire layout yourself in one shot. Do NOT ask the user to design it.
 
-**Modifying an existing map** → call exportMapText first, edit the text, then call loadMapText. Do NOT use individual cell tools for structural changes.
+**Modifying an existing map** → call listRooms/getMapInfo first to understand the layout, then use individual tools for changes.
 
 **Targeted single changes** → use individual tools: setTheme, setName, placeProp, removeProp, placeLight, placeLightInRoom, removeLight, setFill, setTexture, setDoor, addStairs, removeStairs, addBridge, addLevel, setHazard, setHazardRect, etc.
-
-**Do NOT** chain dozens of createRoom/setDoor/setWall calls to build from scratch — use loadMapText instead.
-
-## .map file format
-
-### Header
-\`\`\`yaml
----
-name: Dungeon Name
-theme: stone-dungeon        # see listThemes for full list
-gridSize: 5                 # feet per cell (default 5)
-showGrid: true
-compassRose: true
-scale: true
-border: true
-labelStyle: circled         # circled | plain | bold
----
-\`\`\`
-
-### Grid
-\`\`\`
-# col:  0    5    10   15
-................  #  0
-..AAAA..BBBB....  #  1
-..AAAA..BBBB....  #  2
-..AAAA..BBBB....  #  3
-..AACCC.BBBB....  #  4
-....CCC.BBBB....  #  5
-....CCCDBBB.....  #  6
-.......DDDDD....  #  7
-.......DDDDD....  #  8
-................  #  9
-\`\`\`
-"." = void. Uppercase letter = room cell. Same letter = same room. Corridors are narrow rooms (2 cells wide).
-
-### legend (required)
-\`\`\`
-legend:
-  A: A1
-  B: A2
-  C: A3
-  D: A4
-\`\`\`
-
-### doors
-\`\`\`
-doors:
-  3,7 east: door
-  5,4 south: secret
-\`\`\`
-
-### fills
-\`\`\`
-fills:
-  A4: pit              # fills entire room: pit | water | lava
-  2,5: water           # fills single cell by row,col
-\`\`\`
-
-### trims (diagonal corners)
-\`\`\`
-trims:
-  A1: nw2              # cut northwest corner, 2-cell hypotenuse
-  A2: se3r             # southeast, 3-cell, rounded arc (convex)
-  A3: ne2ri            # northeast, 2-cell, rounded inverted (concave)
-\`\`\`
-Format: \`RoomLabel: {corner}{size}[r][i]\` — corners: nw ne sw se, size = cells, "r" = rounded, "i" = inverted.
-
-### stairs
-\`\`\`
-stairs:
-  A1: up               # auto-placed in room A1
-  A2: down
-  A3 up - A4 down      # linked pair (shown with same letter)
-\`\`\`
-
-### bridges
-\`\`\`
-bridges:
-  wood 0,3 0,7 2,5     # type then 3 corner-points (row,col)
-\`\`\`
-Types: wood | stone | rope | dock.
-
-### props
-\`\`\`
-props:
-  2,3: throne
-  7,9: altar facing:90
-\`\`\`
-
-### textures
-\`\`\`
-textures:
-  2,3: stone-tile
-  4,5: stone-tile 0.6
-\`\`\`
-
-### lights
-\`\`\`
-lights:
-  25,15: preset:torch
-  50,30: type:point color:#4488ff radius:20 intensity:0.8 falloff:smooth
-\`\`\`
-x,y are world-feet (col * gridSize, row * gridSize). Call listLightPresets for preset names.
-
-### Multi-level maps
-\`\`\`
-=== Ground Floor ===
-
-..AAAA..  # 0
-..AAAA..  # 1
-
-legend:
-  A: A1
-stairs:
-  A1: down
-
-=== Basement ===
-
-..BBBB..  # 0
-..BBBB..  # 1
-
-legend:
-  B: B1
-stairs:
-  B1: up
-\`\`\`
 
 ## Available themes
 stone-dungeon, crypt, earth-cave, ice-cave, water-temple, underdark, volcanic, swamp, desert, dirt, grasslands, snow-tundra, arcane, alien, blue-parchment, sepia-parchment
@@ -171,7 +45,7 @@ If you only answered a question (no writes): respond concisely and stop.`;
 
 /**
  * Build a rich map context for the AI.
- * Uses exportToMapFormat() to provide an ASCII grid + ROOMS block + legend,
+ * Uses getFullMapInfo() to provide room layout, props, doors, and lights,
  * then appends scale info, next label, and available props/textures.
  */
 function buildMapContext() {
@@ -196,27 +70,27 @@ function buildMapContext() {
       '',
     ];
 
-    // ── Full .map export (grid + legend + doors + fills + props) ─────────────
-    // Include everything except textures/lights (too verbose) so the model can
-    // directly modify the .map text for the exportMapText → loadMapText workflow.
+    // ── Room layout summary from getFullMapInfo ───────────────────────────
     try {
-      const exportResult = window.editorAPI.exportToMapFormat();
-      if (exportResult?.success) {
-        const text = exportResult.mapText;
-        // Strip YAML header — the model already knows the header format
-        const afterHeader = text.replace(/^---[\s\S]*?---\n\n?/, '');
-        // Drop textures and lights sections (too verbose; use tool calls for those)
-        const stopAt = /^(?:textures|lights):/m;
-        const stopMatch = stopAt.exec(afterHeader);
-        const mapBody = (stopMatch ? afterHeader.slice(0, stopMatch.index) : afterHeader).trimEnd();
-        if (mapBody && !/^[\s.#]*$/.test(mapBody)) {
-          lines.push('## Current map (.map format — use exportMapText + loadMapText to modify)');
-          lines.push(mapBody);
-        } else {
-          lines.push('The map is currently empty — no rooms placed yet.');
+      const full = window.editorAPI.getFullMapInfo();
+      if (full?.rooms?.length) {
+        lines.push('## Rooms');
+        for (const room of full.rooms) {
+          const b = room.bounds;
+          const dims = b ? `rows ${b.r1}-${b.r2}, cols ${b.c1}-${b.c2}` : 'unknown bounds';
+          lines.push(`  ${room.label}: ${dims}`);
         }
+        if (full.doors?.length) {
+          lines.push('');
+          lines.push(`## Doors: ${full.doors.length}`);
+        }
+        if (full.props?.length) {
+          lines.push(`## Props: ${full.props.length}`);
+        }
+      } else {
+        lines.push('The map is currently empty — no rooms placed yet.');
       }
-    } catch { /* export unavailable */ }
+    } catch { /* info unavailable */ }
 
     // ── Next room label ───────────────────────────────────────────────────
     try {
@@ -298,9 +172,9 @@ function resetAILog() {
 // ── Panel state ──────────────────────────────────────────────────────────────
 
 let _container = null;
-let _messages = []; // Anthropic message history
+const _messages = []; // Anthropic message history
 let _abortController = null; // non-null while a request is in flight
-let _sessionTokens = { input: 0, output: 0 }; // cumulative for current chat session
+const _sessionTokens = { input: 0, output: 0 }; // cumulative for current chat session
 let _ollamaStatus = null; // { running, models } — set on init
 let _streamingEl = null; // <span> inside live streaming bubble, null when not streaming
 let _planMode = false;       // true when plan-before-act mode is on
@@ -594,7 +468,7 @@ async function fetchStreamingResponse(body, signal) {
   let toolUseBlocks = [];
   let eventCount = 0;
 
-  // eslint-disable-next-line no-constant-condition
+   
   while (true) {
     const { done, value } = await reader.read();
     if (done) { aiLog('[AI] stream done (reader exhausted)'); break; }
@@ -648,14 +522,14 @@ async function runConversationLoop(settings, signal) {
   // Re-building every loop turn multiplies token usage by the number of tool calls.
   const mapContext = buildMapContext();
   const planInstruction = _planMode
-    ? `\n\nPLAN MODE: You may call read-only tools (getMapInfo, listRooms, exportMapText, etc.) to understand the current map, but do NOT call any write tools. Do NOT ask clarifying questions. Make all creative decisions yourself — choose room sizes, positions, connections, theme, props, and doors. After any tool calls, write a concise numbered plan listing every element you will create. End your plan text with a line containing only "---". The user will click Execute to build it.`
+    ? `\n\nPLAN MODE: You may call read-only tools (getMapInfo, listRooms, getFullMapInfo, etc.) to understand the current map, but do NOT call any write tools. Do NOT ask clarifying questions. Make all creative decisions yourself — choose room sizes, positions, connections, theme, props, and doors. After any tool calls, write a concise numbered plan listing every element you will create. End your plan text with a line containing only "---". The user will click Execute to build it.`
     : '';
   const system = SYSTEM_PROMPT + planInstruction + (mapContext ? `\n\n${mapContext}` : '');
 
   // Capture undo depth before any changes so we can offer "Undo all" after.
   const startUndoDepth = window.editorAPI?.getUndoDepth?.() ?? null;
 
-  const readOnlyTools = new Set(['exportMapText', 'getMapInfo', 'getCellInfo', 'getRoomBounds',
+  const readOnlyTools = new Set(['getMapInfo', 'getFullMapInfo', 'getCellInfo', 'getRoomBounds',
     'findWallBetween', 'listProps', 'listTextures', 'getBridges', 'getRoomContents', 'suggestPlacement', 'listRooms']);
 
   const model = settings.model || 'qwen3.5:9b';
@@ -723,7 +597,6 @@ async function runConversationLoop(settings, signal) {
         // Catalog and export tools are never truncated (bounded or needed in full).
         // For other tools: try smart array-level truncation before falling back to char-slice.
         const NO_TRUNCATE = new Set([
-          'exportMapText', 'loadMapText',
           'listProps', 'listTextures', 'listLightPresets', 'listRooms', 'listThemes',
         ]);
         const MAX_RESULT = 3000;
@@ -828,8 +701,7 @@ function updateThinkingText(toolName) {
   const label = document.querySelector('#claude-thinking .claude-thinking-label');
   if (!label) return;
   const LABELS = {
-    loadMapText: 'Building dungeon', exportMapText: 'Exporting map',
-    getMapInfo: 'Reading map', getCellInfo: 'Inspecting cell', getRoomBounds: 'Checking room',
+    planBrief: 'Planning layout', getMapInfo: 'Reading map', getCellInfo: 'Inspecting cell', getRoomBounds: 'Checking room',
     getRoomContents: 'Reading room contents', findWallBetween: 'Finding wall',
     listProps: 'Checking props', listTextures: 'Checking textures', getBridges: 'Checking bridges',
     suggestPlacement: 'Finding space',

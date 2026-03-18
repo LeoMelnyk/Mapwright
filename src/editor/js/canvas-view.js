@@ -208,10 +208,22 @@ function render() {
   const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door';
   const bgImgConfig = metadata.backgroundImage ?? null;
   const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
+
+  // Viewport culling: compute visible cell range from pan/zoom transform
+  const cellPxSize = gridSize * transform.scale;
+  const CULL_MARGIN = 2; // extra cells for wall shadows and edge effects
+  const visibleBounds = cellPxSize > 0 ? {
+    minRow: Math.max(0, Math.floor(-transform.offsetY / cellPxSize) - CULL_MARGIN),
+    maxRow: Math.min(numRows - 1, Math.ceil((canvas.height - transform.offsetY) / cellPxSize) + CULL_MARGIN),
+    minCol: Math.max(0, Math.floor(-transform.offsetX / cellPxSize) - CULL_MARGIN),
+    maxCol: Math.min(numCols - 1, Math.ceil((canvas.width - transform.offsetX) / cellPxSize) + CULL_MARGIN),
+  } : null;
+
   renderCells(ctx, cells, gridSize, theme, transform, {
     showGrid, labelStyle, propCatalog: state.propCatalog, textureOptions, metadata,
     skipLabels: lightingEnabled, showInvisible,
     bgImageEl, bgImgConfig,
+    visibleBounds,
   });
 
   // Lighting overlay (after cells, before decorations so borders stay visible)

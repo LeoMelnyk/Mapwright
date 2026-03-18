@@ -1,6 +1,6 @@
 /**
  * prop-catalog-node.js
- * Node.js-only prop catalog loader for the CLI build pipeline (build_map.js).
+ * Node.js-only prop catalog loader for the CLI render pipeline.
  * NOT imported by the browser bundle — uses fs.readFileSync and Node.js path utilities.
  */
 

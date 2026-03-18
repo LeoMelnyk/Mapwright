@@ -1,6 +1,6 @@
 // Toolbar: tool buttons, door type, file ops, undo/redo
 import state, { undo, redo, notify, subscribe, pushUndo, markDirty } from '../state.js';
-import { loadDungeon, loadDungeonJSON, saveDungeon, saveDungeonAs, newDungeon, exportPng, exportMapFormat, reloadAssets } from '../io.js';
+import { loadDungeon, loadDungeonJSON, saveDungeon, saveDungeonAs, newDungeon, exportPng, reloadAssets } from '../io.js';
 import { setCursor } from '../canvas-view.js';
 import { SYRINGE_CURSOR, STAMP_CURSOR } from '../tools/index.js';
 import { convertOnePageDungeon } from '../import-opd.js';
@@ -207,7 +207,6 @@ export function init() {
   document.getElementById('btn-save').addEventListener('click', saveDungeon);
   document.getElementById('btn-save-as').addEventListener('click', saveDungeonAs);
   document.getElementById('btn-export-png').addEventListener('click', exportPng);
-  document.getElementById('btn-export-map').addEventListener('click', exportMapFormat);
   document.getElementById('btn-reload-assets').addEventListener('click', reloadAssets);
 
   // ── Import sub-menu ─────────────────────────────────────────────────

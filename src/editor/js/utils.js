@@ -1,4 +1,5 @@
 // Grid math and coordinate helpers
+import { CURRENT_FORMAT_VERSION } from './migrations.js';
 
 /**
  * Convert feet coordinates to canvas pixels
@@ -77,6 +78,7 @@ export function createEmptyDungeon(name, rows, cols, gridSize = 5, theme = 'ston
   }
   return {
     metadata: {
+      formatVersion: CURRENT_FORMAT_VERSION,
       dungeonName: name,
       gridSize,
       theme,

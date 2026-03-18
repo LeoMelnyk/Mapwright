@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.6.1
+
+### Architecture Refactor
+
+- Split `editor-api.js` (3083 lines) into 18 focused modules under `src/editor/js/api/` — each API category (cells, walls, props, spatial queries, lighting, etc.) is now its own file
+- Standardized all API return values to `{ success: true, ...data }` / `{ success: false, error }` for consistent error handling
+- Split `metadata.js` panel (1019 lines) into core settings (385 lines) + extracted theme editor (644 lines)
+- Extracted `traceArcWedge()` helper in render.js to deduplicate arc void clip geometry
+- Named all hardcoded rendering constants (rough wall spacing, buffer shading depth, compass rose size, etc.) across 5 render files
+
+### Performance
+
+- Added viewport culling to the editor canvas — walls, borders, and props outside the visible area are skipped during rendering, improving performance on large maps when zoomed in
+
+### Save Format
+
+- Added `.mapwright` format versioning — save files now include a `formatVersion` field with migration support for future format changes
+- Existing files without a version are treated as v0 and automatically migrated
+
+### Testing
+
+- Added Vitest test suite: 611 tests across 19 files covering API methods, spatial queries, utilities, and migrations
+- Added GitHub Actions CI workflow to run tests on every push
+
+### Removed
+
+- Removed the `.map` ASCII text format entirely — the editor API with `planBrief` fully supersedes it
+- Removed `src/compile/` pipeline (parser, compiler, grid, trims, features, constants)
+- Removed `tools/build_map.js`, `tools/compile_map.js` CLI tools
+- Removed `importMapText`, `exportToMapFormat` API methods
+- Removed `.map` export button from the editor UI
+- Removed `build_map` MCP tool and `mapwright://map-format` resource
+
+---
+
 ## v0.6.0
 
 ### `.mapwright` File Format

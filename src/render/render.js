@@ -13,6 +13,9 @@ import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, BLEND_BITMAP
 export { invalidateFluidCache };
 export { invalidateBlendLayerCache } from './blend.js';
 
+// ─── Constants ─────
+const HAZARD_COLOR = '#f0c020';
+
 // ── Per-frame caches (invalidated by cells reference change) ─────────
 let _roomCellsCache = { cells: null, result: null };
 let _roundedCornersCache = { cells: null, result: null };
@@ -196,6 +199,44 @@ function collectRoundedCorners(cells) {
 }
 
 /**
+ * Trace a single arc wedge pie-slice subpath for one rounded corner.
+ * Appends to the current path — caller must beginPath/closePath/clip.
+ * Shared by buildArcVoidClip (batch clip) and the secondary texture pass (per-arc clip).
+ */
+function traceArcWedge(ctx, rc, gridSize, transform) {
+  const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
+  const Rpx = rc.radius * gridSize * transform.scale;
+  if (rc.inverted) {
+    let startAngle, endAngle, anticlockwise;
+    switch (rc.corner) {
+      case 'nw': startAngle = Math.PI / 2;   endAngle = 0;               anticlockwise = true;  break;
+      case 'ne': startAngle = Math.PI / 2;   endAngle = Math.PI;         anticlockwise = false; break;
+      case 'sw': startAngle = 0;             endAngle = 3 * Math.PI / 2; anticlockwise = true;  break;
+      case 'se': startAngle = Math.PI;       endAngle = 3 * Math.PI / 2; anticlockwise = false; break;
+    }
+    ctx.moveTo(ocp.x, ocp.y);
+    ctx.lineTo(ocp.x + Rpx * Math.cos(startAngle), ocp.y + Rpx * Math.sin(startAngle));
+    ctx.arc(ocp.x, ocp.y, Rpx, startAngle, endAngle, anticlockwise);
+    ctx.lineTo(ocp.x, ocp.y);
+  } else {
+    let acx, acy;
+    switch (rc.corner) {
+      case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
+      case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
+      case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
+      case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
+    }
+    const acp = toCanvas(acx, acy, transform);
+    switch (rc.corner) {
+      case 'nw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, Math.PI, true);  ctx.lineTo(ocp.x, ocp.y); break;
+      case 'ne': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, 0, false);        ctx.lineTo(ocp.x, ocp.y); break;
+      case 'sw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, Math.PI, false);    ctx.lineTo(ocp.x, ocp.y); break;
+      case 'se': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, 0, true);           ctx.lineTo(ocp.x, ocp.y); break;
+    }
+  }
+}
+
+/**
  * Build a clip path that excludes arc void pie-slice regions.
  * Uses evenodd rule: canvas rect (count=1, drawn) + pie-slices (count=2, excluded).
  */
@@ -203,44 +244,9 @@ function buildArcVoidClip(ctx, roundedCorners, gridSize, transform, skipExterior
   ctx.beginPath();
   ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (const rc of roundedCorners.values()) {
-    // Open arcs (no wall) normally don't need a wedge clip — floor and secondary
-    // textures extend through the wedge freely. But when hideExterior is set
-    // (player fog: interior revealed, exterior not), the wedge must be excluded
-    // so it renders as void instead of showing the primary texture.
     if (rc.isOpen && !rc.hideExterior) continue;
-    // Exterior-only wedges (player fog: exterior revealed, interior not) are
-    // skipped when the caller wants the grid to draw through them at full weight.
     if (skipExteriorOnly && rc.exteriorOnly) continue;
-    const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
-    const Rpx = rc.radius * gridSize * transform.scale;
-    if (rc.inverted) {
-      let startAngle, endAngle, anticlockwise;
-      switch (rc.corner) {
-        case 'nw': startAngle = Math.PI / 2;   endAngle = 0;               anticlockwise = true;  break;
-        case 'ne': startAngle = Math.PI / 2;   endAngle = Math.PI;         anticlockwise = false; break;
-        case 'sw': startAngle = 0;             endAngle = 3 * Math.PI / 2; anticlockwise = true;  break;
-        case 'se': startAngle = Math.PI;       endAngle = 3 * Math.PI / 2; anticlockwise = false; break;
-      }
-      ctx.moveTo(ocp.x, ocp.y);
-      ctx.lineTo(ocp.x + Rpx * Math.cos(startAngle), ocp.y + Rpx * Math.sin(startAngle));
-      ctx.arc(ocp.x, ocp.y, Rpx, startAngle, endAngle, anticlockwise);
-      ctx.lineTo(ocp.x, ocp.y);
-    } else {
-      let acx, acy;
-      switch (rc.corner) {
-        case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-        case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-        case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-        case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-      }
-      const acp = toCanvas(acx, acy, transform);
-      switch (rc.corner) {
-        case 'nw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, Math.PI, true);  ctx.lineTo(ocp.x, ocp.y); break;
-        case 'ne': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, 0, false);        ctx.lineTo(ocp.x, ocp.y); break;
-        case 'sw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, Math.PI, false);    ctx.lineTo(ocp.x, ocp.y); break;
-        case 'se': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, 0, true);           ctx.lineTo(ocp.x, ocp.y); break;
-      }
-    }
+    traceArcWedge(ctx, rc, gridSize, transform);
     ctx.closePath();
   }
   ctx.clip('evenodd');
@@ -774,7 +780,7 @@ function renderHazardOverlay(ctx, cells, gridSize, transform) {
       ctx.lineTo(right.x, right.y);
       ctx.lineTo(left.x, left.y);
       ctx.closePath();
-      ctx.fillStyle = '#f0c020';
+      ctx.fillStyle = HAZARD_COLOR;
       ctx.fill();
       ctx.strokeStyle = '#222222';
       ctx.lineWidth = Math.max(1, cellPx * 0.04);
@@ -810,7 +816,7 @@ function renderHazardOverlay(ctx, cells, gridSize, transform) {
  * Draw buffer shading, wall segments (with shadows), non-wall borders, and arc walls.
  * @param {boolean} [showInvisible=false] - When true, render invisible walls/doors in ghost style.
  */
-function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible = false) {
+function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible = false, visibleBounds = null) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -820,8 +826,13 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
   const wallSegments = [];
   const WALL_DIRS = ['north', 'south', 'east', 'west'];
 
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
+  const startRow = visibleBounds?.minRow ?? 0;
+  const endRow = visibleBounds?.maxRow ?? (numRows - 1);
+  const startCol = visibleBounds?.minCol ?? 0;
+  const endCol = visibleBounds?.maxCol ?? (numCols - 1);
+
+  for (let row = startRow; row <= endRow; row++) {
+    for (let col = startCol; col <= endCol; col++) {
       const cell = cells[row][col];
       if (!cell) continue;
 
@@ -954,7 +965,7 @@ export function renderLabels(ctx, cells, gridSize, theme, transform, labelStyle)
 /**
  * Draw props, room/DM labels, and stairs (both new shape-based and legacy per-cell).
  */
-function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels = false) {
+function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels = false, visibleBounds = null) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -963,7 +974,7 @@ function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelSt
     ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
     : null;
 
-  renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0);
+  renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, visibleBounds);
 
   // Room labels and DM labels — skipped when lighting is enabled so they can be
   // drawn after the lightmap, keeping them unaffected by the multiply overlay.
@@ -1030,6 +1041,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     showInvisible = false,
     bgImageEl = null,
     bgImgConfig = null,
+    visibleBounds = null,
   } = options;
   const roomCells = getCachedRoomCells(cells);
   const roundedCorners = getCachedRoundedCorners(cells);
@@ -1056,39 +1068,10 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     const numRows = cells.length;
     const numCols = cells[0]?.length || 0;
     for (const rc of roundedCorners.values()) {
-      const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
-      const Rpx = rc.radius * gridSize * transform.scale;
       // Build the void-corner wedge clip for this arc
       ctx.save();
       ctx.beginPath();
-      if (!rc.inverted) {
-        let acx, acy;
-        switch (rc.corner) {
-          case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-          case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-          case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-          case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-        }
-        const acp = toCanvas(acx, acy, transform);
-        switch (rc.corner) {
-          case 'nw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, Math.PI, true);  ctx.lineTo(ocp.x, ocp.y); break;
-          case 'ne': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, 0, false);        ctx.lineTo(ocp.x, ocp.y); break;
-          case 'sw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, Math.PI, false);    ctx.lineTo(ocp.x, ocp.y); break;
-          case 'se': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, 0, true);           ctx.lineTo(ocp.x, ocp.y); break;
-        }
-      } else {
-        let startAngle, endAngle, anticlockwise;
-        switch (rc.corner) {
-          case 'nw': startAngle = Math.PI / 2;   endAngle = 0;               anticlockwise = true;  break;
-          case 'ne': startAngle = Math.PI / 2;   endAngle = Math.PI;         anticlockwise = false; break;
-          case 'sw': startAngle = 0;             endAngle = 3 * Math.PI / 2; anticlockwise = true;  break;
-          case 'se': startAngle = Math.PI;       endAngle = 3 * Math.PI / 2; anticlockwise = false; break;
-        }
-        ctx.moveTo(ocp.x, ocp.y);
-        ctx.lineTo(ocp.x + Rpx * Math.cos(startAngle), ocp.y + Rpx * Math.sin(startAngle));
-        ctx.arc(ocp.x, ocp.y, Rpx, startAngle, endAngle, anticlockwise);
-        ctx.lineTo(ocp.x, ocp.y);
-      }
+      traceArcWedge(ctx, rc, gridSize, transform);
       ctx.closePath();
       ctx.clip();
       // Bounding box in cell indices: which cells could overlap this wedge?
@@ -1261,7 +1244,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, true);
 
   // Buffer shading + walls + arc walls
-  renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible);
+  renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible, visibleBounds);
 
   // Bridges — rendered above fills and walls but below grid, props, and labels
   const getTextureImageForBridges = textureOptions?.catalog
@@ -1277,7 +1260,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   }
 
   // Props, labels, stairs
-  renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels);
+  renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels, visibleBounds);
 
   // Hazard overlay — topmost layer, renders above everything
   renderHazardOverlay(ctx, cells, gridSize, transform);

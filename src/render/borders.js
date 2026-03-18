@@ -1,6 +1,13 @@
 import { GRID_SCALE } from './constants.js';
 import { toCanvas } from './bounds.js';
 
+// ─── Constants ─────
+const DOOR_LENGTH_MULT = 0.6;
+const SECRET_FONT_MULT = 0.7;
+const STAIR_NUM_LINES = 6;
+const STAIR_HATCH_MARGIN = 0.08;
+const STAIR_HATCH_LINE_SPACING = 0.2;
+
 /**
  * Compute a scale factor relative to the base GRID_SCALE.
  * Static renderer: transform.scale === GRID_SCALE → s = 1
@@ -48,7 +55,7 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
     // Invisible door: ghost door symbol (only shown when wall/door tool is active)
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
-    const doorLength = gridSize * transform.scale * 0.6;
+    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     ctx.save();
@@ -85,7 +92,7 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * 0.6;
+    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     ctx.strokeStyle = theme.wallStroke;
@@ -118,7 +125,7 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * 0.6;
+    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     ctx.strokeStyle = theme.wallStroke;
@@ -155,7 +162,7 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
  */
 function drawDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, transform) {
   const s = scaleFactor(transform);
-  const doorLength = gridSize * transform.scale * 0.6;
+  const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
   const doorThickness = 6 * s;
 
   ctx.fillStyle = theme.doorFill || '#FFFFFF';
@@ -182,7 +189,7 @@ function drawSecretDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, tra
   ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
   ctx.strokeStyle = theme.secretDoorColor || theme.wallStroke;
 
-  const fontSize = gridSize * transform.scale * 0.7;
+  const fontSize = gridSize * transform.scale * SECRET_FONT_MULT;
   ctx.font = `bold ${fontSize}px sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -212,7 +219,7 @@ function drawStairsInCell(ctx, cx, cy, stairType, theme, gridSize, hasLabel, tra
   const centerX = cx;
   const centerY = cy + yOffset;
 
-  const numLines = 6;
+  const numLines = STAIR_NUM_LINES;
   const lineSpacing = 5 * s;
   const maxLineLength = 32 * s;
   const minLineLength = 6 * s;
@@ -310,7 +317,7 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     // Invisible diagonal door: ghost diagonal door symbol
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
-    const doorLength = gridSize * transform.scale * 0.6;
+    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
     const diagonalLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
     const ratio = halfDoorLength / diagonalLength;
@@ -342,7 +349,7 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * 0.6;
+    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     const diagonalLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
@@ -369,7 +376,7 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * 0.6;
+    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     const diagonalLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
@@ -396,7 +403,7 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
 
 function drawDiagonalDoor(ctx, cx, cy, diagonal, theme, gridSize, transform) {
   const s = scaleFactor(transform);
-  const doorLength = gridSize * transform.scale * 0.6;
+  const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
   const doorThickness = 6 * s;
 
   ctx.save();
@@ -430,7 +437,7 @@ function drawDiagonalSecretDoor(ctx, cx, cy, diagonal, theme, gridSize, transfor
   }
 
   ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
-  const fontSize = gridSize * transform.scale * 0.7;
+  const fontSize = gridSize * transform.scale * SECRET_FONT_MULT;
   ctx.font = `bold ${fontSize}px sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -780,7 +787,7 @@ function drawStairShape(ctx, stairDef, theme, gridSize, transform) {
  * and inward shift (parallel to base toward P1). narrowLen = baseLen - 2 * inward.
  * This naturally handles rectangles (inward=0), trapezoids, and triangles.
  */
-function _computeStairHatchLines(p1, p2, p3, lineSpacing = 0.2) {
+function _computeStairHatchLines(p1, p2, p3, lineSpacing = STAIR_HATCH_LINE_SPACING) {
   // Base vector and length
   const baseR = p2[0] - p1[0];
   const baseC = p2[1] - p1[1];
@@ -817,7 +824,7 @@ function _computeStairHatchLines(p1, p2, p3, lineSpacing = 0.2) {
 
   const numLines = Math.max(1, Math.round(depth / lineSpacing));
   const lines = [];
-  const margin = 0.08;
+  const margin = STAIR_HATCH_MARGIN;
 
   for (let i = 0; i <= numLines; i++) {
     const t = margin + (i / numLines) * (1 - 2 * margin);

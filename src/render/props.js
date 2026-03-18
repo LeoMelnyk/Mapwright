@@ -820,18 +820,22 @@ export function renderProp(ctx, propDef, row, col, rotation, gridSize, theme, tr
  * @param {object|null} propCatalog - { props: { [type]: PropDefinition } }
  * @param {function|null} getTextureImage - (textureId) => HTMLImageElement|null
  */
-export function renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage = null, texturesVersion = 0) {
+export function renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage = null, texturesVersion = 0, visibleBounds = null) {
   if (!propCatalog || !propCatalog.props) return;
 
   const wallStroke = theme?.wallStroke || '';
   const numRows = cells.length;
+  const startRow = visibleBounds?.minRow ?? 0;
+  const endRow = visibleBounds?.maxRow ?? (numRows - 1);
 
-  for (let row = 0; row < numRows; row++) {
+  for (let row = startRow; row <= endRow; row++) {
     const rowCells = cells[row];
     if (!rowCells) continue;
     const numCols = rowCells.length;
+    const startCol = visibleBounds?.minCol ?? 0;
+    const endCol = visibleBounds?.maxCol ?? (numCols - 1);
 
-    for (let col = 0; col < numCols; col++) {
+    for (let col = startCol; col <= endCol; col++) {
       const cell = rowCells[col];
       if (!cell || !cell.prop) continue;
 

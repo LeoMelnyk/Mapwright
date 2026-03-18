@@ -3,6 +3,10 @@ import { toCanvas } from './bounds.js';
 import { GRID_SCALE } from './constants.js';
 import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
 
+// ─── Constants ─────
+const ROUGH_WALL_SPACING = 25;
+const BUFFER_SHADING_DEPTH = 0.35;
+
 // ── Seeded LCG PRNG ─────────────────────────────────────────────────────────
 // Returns a function yielding deterministic floats 0..1 for a given integer seed.
 export function seededLcg(seed) {
@@ -58,7 +62,7 @@ export function drawWallShadow(ctx, wallSegments, theme, transform) {
 export function drawRoughWalls(ctx, wallSegments, theme, transform) {
   const s = scaleFactor(transform);
   const amp = theme.wallRoughness * s * 1.5;
-  const spacing = 25; // pixels between control points
+  const spacing = ROUGH_WALL_SPACING; // pixels between control points
 
   ctx.strokeStyle = theme.wallStroke;
   ctx.lineWidth = 6 * s;
@@ -429,7 +433,7 @@ export function drawBufferShading(ctx, cells, roomCells, gridSize, theme, transf
 
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
-  const depthFraction = 0.35; // gradient extends 35% into the cell
+  const depthFraction = BUFFER_SHADING_DEPTH; // gradient extends 35% into the cell
 
   // Viewport culling: only process cells visible on screen
   const _bvx0 = -transform.offsetX / transform.scale;

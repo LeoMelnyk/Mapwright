@@ -30,7 +30,7 @@ const API          = 'https://api.polyhaven.com';
 const SCAN_SOURCES = [
   { dir: join(ROOT, 'src/props'),   exts: ['.prop'] },
   { dir: join(ROOT, 'src/render'),  exts: ['.js']   },
-  { dir: join(ROOT, 'examples'),    exts: ['.map', '.mapwright', '.json'] },
+  { dir: join(ROOT, 'examples'),    exts: ['.mapwright', '.json'] },
 ];
 
 const MAPS = [

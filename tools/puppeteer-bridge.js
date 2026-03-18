@@ -65,7 +65,6 @@ function parseArgs(argv) {
     commandsFile: null,
     screenshot: null,
     save: null,
-    exportMap: null,
     exportPng: null,
     info: false,
     continueOnError: false,
@@ -82,7 +81,6 @@ function parseArgs(argv) {
       case '--commands-file': args.commandsFile = argv[++i]; break;
       case '--screenshot': args.screenshot = argv[++i]; break;
       case '--save': args.save = argv[++i]; break;
-      case '--export-map': args.exportMap = argv[++i]; break;
       case '--export-png': args.exportPng = argv[++i]; break;
       case '--info': args.info = true; break;
       case '--continue-on-error': args.continueOnError = true; break;
@@ -284,13 +282,6 @@ async function main() {
         const outPath = path.resolve(args.exportPng);
         await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
         console.log(`Export PNG: ${outPath}`);
-      }
-
-      if (args.exportMap) {
-        const result = await page.evaluate(() => window.editorAPI.exportToMapFormat());
-        const outPath = path.resolve(args.exportMap);
-        await fs.writeFile(outPath, result.mapText, 'utf-8');
-        console.log(`Exported .map: ${outPath}`);
       }
     }
 

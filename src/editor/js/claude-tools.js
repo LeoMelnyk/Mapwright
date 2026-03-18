@@ -2,26 +2,6 @@
 // These let Claude read and modify dungeon maps directly via editorAPI.
 
 export const TOOL_DEFINITIONS = [
-  // ── .map format tools (primary workflow) ─────────────────────────────────
-  {
-    name: 'loadMapText',
-    description: 'Compile and load a complete .map format dungeon. This replaces the entire current map. Use this as the primary method to build or rebuild a dungeon — write the full .map text and call this once instead of calling many individual tools. NOTE: The doors: section uses col,row order (x,y), e.g. "3,7 east: door" means col=3, row=7. This differs from all tool calls which use row,col.',
-    input_schema: {
-      type: 'object',
-      properties: {
-        mapText: {
-          type: 'string',
-          description: 'Complete .map format text including YAML header, ASCII grid, legend, doors, fills, props sections.',
-        },
-      },
-      required: ['mapText'],
-    },
-  },
-  {
-    name: 'exportMapText',
-    description: 'Export the current dungeon as a .map format text string (YAML header + ASCII grid + legend + doors + fills + props + textures). Use this before loadMapText to get the current map state for modification.',
-    input_schema: { type: 'object', properties: {}, required: [] },
-  },
   {
     name: 'getMapInfo',
     description: 'Get current map metadata: name, dimensions, theme, room count, etc. Call this first to understand the current state of the map.',
@@ -205,7 +185,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'addStairs',
-    description: 'PREFER the stairs: section in loadMapText for simple up/down stairs — use this tool only for custom stair geometries. Place stairs using 3 corner points (grid-corner coordinates, not cell centers). P1→P2 = base edge (hatch lines start here); P3 = depth target. Examples: 3-cell rectangle stair facing south — p1r=5,p1c=2, p2r=5,p2c=5, p3r=4,p3c=5. Single-cell stair — p1r=5,p1c=5, p2r=5,p2c=6, p3r=4,p3c=6.',
+    description: 'Place stairs using 3 corner points (grid-corner coordinates, not cell centers). P1→P2 = base edge (hatch lines start here); P3 = depth target. Examples: 3-cell rectangle stair facing south — p1r=5,p1c=2, p2r=5,p2c=5, p3r=4,p3c=5. Single-cell stair — p1r=5,p1c=5, p2r=5,p2c=6, p3r=4,p3c=6.',
     input_schema: {
       type: 'object',
       properties: {
@@ -499,7 +479,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'addBridge',
-    description: 'PREFER the bridges: section in loadMapText for common bridges — use this tool only for custom bridge geometries. Place a bridge using 3 corner points (same system as addStairs). P1→P2 = bridge span; P3 = depth (typically 1 row beyond P2). Example: 3-cell wood bridge spanning east across row 5 — type="wood", p1r=5,p1c=3, p2r=5,p2c=6, p3r=4,p3c=6. Good for crossing water, pits, or chasms.',
+    description: 'Place a bridge using 3 corner points (same system as addStairs). P1→P2 = bridge span; P3 = depth (typically 1 row beyond P2). Example: 3-cell wood bridge spanning east across row 5 — type="wood", p1r=5,p1c=3, p2r=5,p2c=6, p3r=4,p3c=6. Good for crossing water, pits, or chasms.',
     input_schema: {
       type: 'object',
       properties: {
@@ -769,7 +749,7 @@ export const TOOL_DEFINITIONS = [
 // backwards-compatibility (Puppeteer scripts, tests) but the chat panel now
 // sends the full TOOL_DEFINITIONS set.
 const CORE_TOOL_NAMES = new Set([
-  'loadMapText', 'exportMapText', 'getMapInfo',
+  'getMapInfo',
 ]);
 export const CORE_TOOL_DEFINITIONS = TOOL_DEFINITIONS.filter(t => CORE_TOOL_NAMES.has(t.name));
 
@@ -794,11 +774,8 @@ const VALID_FILLS = new Set(['difficult-terrain', 'pit', 'water', 'lava']);
  */
 export function executeTool(name, input) {
   if (!window.editorAPI) return { error: 'editorAPI not available' };
-  // Some tools are aliased in the switch (loadMapText → importMapText, exportMapText → exportToMapFormat).
-  // Skip the fn-existence guard for those so they don't get a false "Unknown tool" error.
-  const ALIASED = new Set(['loadMapText', 'exportMapText']);
   const fn = window.editorAPI[name]?.bind(window.editorAPI);
-  if (!ALIASED.has(name) && typeof fn !== 'function') return { error: `Unknown tool: "${name}". Check tool name spelling.` };
+  if (typeof fn !== 'function') return { error: `Unknown tool: "${name}". Check tool name spelling.` };
 
   // Per-tool argument validation — gives the model actionable error messages
   let err;
@@ -908,16 +885,6 @@ export function executeTool(name, input) {
 
   try {
     switch (name) {
-      case 'loadMapText': {
-        const err2 = requireFields(input, 'mapText');
-        if (err2) return { error: `loadMapText: ${err2}` };
-        // importMapText is async — return the Promise; caller must await
-        return window.editorAPI.importMapText(input.mapText);
-      }
-      case 'exportMapText': {
-        const r = window.editorAPI.exportToMapFormat();
-        return r?.success ? { mapText: r.mapText } : { error: 'Export failed' };
-      }
       case 'getMapInfo':    return fn();
       case 'listProps':     return fn();
       case 'listTextures':  return fn();

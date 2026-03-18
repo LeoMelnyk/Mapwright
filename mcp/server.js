@@ -121,10 +121,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
               'Absolute path to save a high-quality exported .png (full HQ lighting pipeline). ' +
               'Prefer this over screenshot_file for final output.',
           },
-          export_map: {
-            type: 'string',
-            description: 'Absolute path to export the dungeon back to .map text format',
-          },
           dry_run: {
             type: 'boolean',
             description: 'Execute commands but skip all file I/O (screenshot, save, export). Useful for validation.',
@@ -152,33 +148,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           },
         },
         required: ['commands'],
-      },
-    },
-    {
-      name: 'build_map',
-      description:
-        'Compile a .map ASCII text file to PNG using the standalone pipeline (no editor server needed). ' +
-        'Output PNG is saved next to the .map file. ' +
-        'See the mapwright://map-format resource for the .map file format reference.',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          map_file: {
-            type: 'string',
-            description: 'Absolute path to the .map file',
-          },
-          check_only: {
-            type: 'boolean',
-            description: 'Validate the .map syntax without producing any output files',
-            default: false,
-          },
-          watch: {
-            type: 'boolean',
-            description: 'Watch the file and auto-rebuild on save (runs indefinitely)',
-            default: false,
-          },
-        },
-        required: ['map_file'],
       },
     },
     {
@@ -243,7 +212,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     if (args.save_file)       bridgeArgs.push('--save',         args.save_file);
     if (args.screenshot_file) bridgeArgs.push('--screenshot',   args.screenshot_file);
     if (args.export_png)      bridgeArgs.push('--export-png',   args.export_png);
-    if (args.export_map)      bridgeArgs.push('--export-map',   args.export_map);
     if (args.dry_run)         bridgeArgs.push('--dry-run');
     if (args.continue_on_error) bridgeArgs.push('--continue-on-error');
     if (args.port)            bridgeArgs.push('--port', String(args.port));
@@ -254,22 +222,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     await unlink(tmpFile).catch(() => {});
 
     return { content: [{ type: 'text', text }], isError };
-  }
-
-  // ---- build_map -----------------------------------------------------------
-  if (name === 'build_map') {
-    const mapFile = path.resolve(args.map_file);
-    const buildArgs = [mapFile];
-    if (args.check_only) buildArgs.push('--check');
-    if (args.watch)      buildArgs.push('--watch');
-
-    const result = await runProcess(
-      process.execPath,
-      [`${MAPWRIGHT_DIR}/tools/build_map.js`, ...buildArgs],
-      MAPWRIGHT_DIR,
-    );
-    const text = [result.stdout, result.stderr].filter(Boolean).join('\n').trim();
-    return { content: [{ type: 'text', text: text || '(no output)' }], isError: result.code !== 0 };
   }
 
   // ---- render_json ---------------------------------------------------------
@@ -314,14 +266,6 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => ({
       mimeType: 'text/markdown',
     },
     {
-      uri: 'mapwright://map-format',
-      name: '.map Text Format Reference',
-      description:
-        'Syntax reference for the hand-authored ASCII .map text format: header fields, grid characters, ' +
-        'legend, doors, trims, stairs, fills, levels, themes, and validation errors.',
-      mimeType: 'text/markdown',
-    },
-    {
       uri: 'mapwright://workflow',
       name: 'AI Workflow Guide',
       description:
@@ -345,13 +289,6 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
 
   if (uri === 'mapwright://editor-api') {
     const text = await readFile(path.join(MAPWRIGHT_DIR, 'src/editor/CLAUDE.md'), 'utf-8');
-    return { contents: [{ uri, mimeType: 'text/markdown', text }] };
-  }
-
-  if (uri === 'mapwright://map-format') {
-    const full = await readFile(path.join(MAPWRIGHT_DIR, 'CLAUDE.md'), 'utf-8');
-    const idx = full.indexOf('## Map Format Reference');
-    const text = idx >= 0 ? full.slice(idx) : full;
     return { contents: [{ uri, mimeType: 'text/markdown', text }] };
   }
 

@@ -29,8 +29,6 @@ node tools/puppeteer-bridge.js --load my_dungeon.json --info
 # Load a commands list from file (useful for complex maps)
 node tools/puppeteer-bridge.js --load base.json --commands-file my_commands.json --save out.json
 
-# Export map back to .map text format
-node tools/puppeteer-bridge.js --load my_dungeon.json --export-map my_dungeon.map
 ```
 
 ## Bridge CLI Options
@@ -43,7 +41,6 @@ node tools/puppeteer-bridge.js [options]
 --commands-file <file>    Commands from a JSON file
 --screenshot <out.png>    Save screenshot after commands
 --save <file.json>        Save map JSON after commands
---export-map <out.map>    Export map as .map text after commands
 --export-png <out.png>    Export high-quality PNG via full render pipeline (HQ lighting)
 --info                    Print map info to stdout (see format below)
 --continue-on-error       Don't stop on failed command (still exits 1 if any failed)
@@ -116,7 +113,7 @@ On failure, output shows the command index: `FAILED [2] [setDoor]: no wall at th
 - **row**: vertical position (0 = top, increases downward)
 - **col**: horizontal position (0 = left, increases rightward)
 - **direction**: `"north"`, `"south"`, `"east"`, `"west"` (cardinal); `"nw-se"`, `"ne-sw"` (diagonal, walls only)
-- All coordinates are 0-indexed cell positions in **row, col** order throughout — both the API and the `.map` file format use the same convention.
+- All coordinates are 0-indexed cell positions in **row, col** order.
 - For multi-level maps, all coordinates are **absolute** row/col in the full grid. Use `startRow` from `getLevels()` to calculate positions within a specific level.
 
 ### Coordinate Tips
@@ -165,7 +162,6 @@ Call `getLevels()` first. Each level has `startRow`. A cell at row 3 of Level 2 
 |--------|------|-------------|
 | `newMap` | `name, rows, cols, [gridSize=5], [theme="stone-dungeon"]` | Create empty dungeon |
 | `loadMap` | `json` | Load from JSON string or object |
-| `importMapText` | `mapText` | Parse and import a `.map` text string directly (full round-trip from `exportToMapFormat`) |
 | `getMap` | — | Export dungeon as JSON |
 | `getMapInfo` | — | Get map metadata (see --info format above) |
 | `getFullMapInfo` | — | Comprehensive state: everything in `getMapInfo` plus full room list (with bounds), all props, all doors, lights, stairs, bridges |
@@ -173,7 +169,7 @@ Call `getLevels()` first. Each level has `startRow`. A cell at row 3 of Level 2 
 | `setTheme` | `theme` | Set theme (e.g. `"stone-dungeon"`) |
 | `setLabelStyle` | `style` | Set label style: `"circled"`, `"plain"`, or `"bold"` |
 | `setFeature` | `feature, enabled` | Toggle feature flag. Names: `"grid"`, `"compass"`, `"scale"`, `"border"` |
-| `exportToMapFormat` | — | Export dungeon as `.map` text. Returns `{ success, mapText }`. Includes `# ROOMS` summary, column rulers, row annotations, doors, trims, stairs, fills, and a `props:` section. Full round-trip — the exported `.map` can be fed back to `build_map.js`. |
+
 
 ### Room Creation
 
@@ -659,24 +655,6 @@ node tools/puppeteer-bridge.js --load map.json \
   --commands '[["findCellByLabel","Boss"]]'
 ```
 
-### Export back to .map format
-
-```bash
-node tools/puppeteer-bridge.js --load my_dungeon.json --export-map my_dungeon.map
-```
-The exported `.map` file is a full round-trip — it can be fed directly back to `build_map.js`. It includes:
-- A `# ROOMS` block listing each labeled room with its bounds and center
-- A column ruler above the grid and row number annotations on each grid row
-- `doors:`, `trims:`, `stairs:`, `fills:`, and `props:` sections reconstructed from cell data
-
-**`props:` format in `.map` files:**
-```
-props:
-  row,col: proptype
-  row,col: proptype facing:N   # N = 0, 90, 180, or 270
-```
-Props are placed at the anchor cell (top-left of the footprint). The prop catalog is loaded automatically by `build_map.js` at render time to resolve footprints and draw commands. Use `listProps()` for valid prop names.
-
 ---
 
 ## Themes
@@ -966,7 +944,7 @@ Footprint is **W×H** (width × height in cells). Facing props rotate with the `
 | `unknown prop type: X` | Prop name misspelled | Run `listProps()` for exact names; use kebab-case (e.g. `"map-table"`) |
 | `out of bounds` | row/col outside grid dimensions | Call `getMapInfo()` to check rows/cols; remember 0-indexed |
 | `invalid fill type` | Bad fill type string | Only `"pit"`, `"water"`, or `"lava"` are valid for `setFill`/`setFillRect`. For hazard/difficult-terrain, use `setHazard`/`setHazardRect` |
-| `No grid found` | `.map` file parse error | Ensure grid section is not empty and header `---` delimiters are present |
+
 
 ---
 
