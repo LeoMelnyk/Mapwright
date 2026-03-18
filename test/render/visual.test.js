@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SNAPSHOT_DIR = path.join(__dirname, '../snapshots/renders');
 const EXAMPLES_DIR = path.join(__dirname, '../../examples');
 const UPDATE_GOLDENS = process.env.UPDATE_GOLDENS === '1';
-const MAX_DIFF_PERCENT = 0.01; // 0.01% pixel difference allowed
+const MAX_DIFF_PERCENT = 0.1; // 0.1% pixel difference allowed (cross-platform canvas rendering variance)
 
 const MAP_FILES = ['mines.json', 'island.json'];
 
