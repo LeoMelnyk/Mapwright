@@ -19,7 +19,9 @@
     "lint:strict": "node ./node_modules/eslint/bin/eslint.js src/ tools/ --max-warnings 0",
     "test": "node node_modules/vitest/vitest.mjs run",
     "test:watch": "node node_modules/vitest/vitest.mjs",
-    "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage"
+    "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage",
+    "test:render": "node node_modules/vitest/vitest.mjs run --config vitest.render.config.js",
+    "test:e2e": "node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.js"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.0",
@@ -29,6 +31,8 @@
     "eslint": "^10.0.2",
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.4.0",
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0",
     "puppeteer": "^24.2.0",
     "vitest": "^4.1.0"
   },

@@ -13,6 +13,7 @@
  */
 
 import { toCanvas } from './bounds.js';
+import { warn } from './warnings.js';
 
 // ── Geometry (duplicated from editor/js/bridge-geometry.js to keep render self-contained) ──
 
@@ -424,7 +425,7 @@ export function renderAllBridges(ctx, bridges, gridSize, theme, transform, getTe
       renderBridge(ctx, bridge, bridges, gridSize, theme, transform, getTextureImage);
     } catch (e) {
       // Don't let a malformed bridge crash the whole render pass
-      console.warn('[bridges] render error:', e);
+      warn(`[bridges] Render error for bridge ${bridge.id}: ${e.message}`);
     }
   }
 }

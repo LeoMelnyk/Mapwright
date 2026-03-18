@@ -2,12 +2,11 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    setupFiles: ['./test/setup.js'],
     environment: 'node',
-    include: ['test/**/*.test.js'],
-    exclude: ['test/render/**', 'test/e2e/**'],
-    testTimeout: 10000,
+    include: ['test/e2e/**/*.test.js'],
+    testTimeout: 60000,
     pool: 'forks',
+    maxConcurrency: 1, // serial — shared server
   },
   resolve: {
     extensions: ['.js', '.json'],

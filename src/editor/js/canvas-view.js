@@ -1,6 +1,7 @@
 // Canvas element management, pan/zoom, mouse event routing
 import state, { getTheme, markDirty, notify, subscribe } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights } from '../../render/index.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings } from '../../render/index.js';
+import { showToast } from './toast.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { initMinimap, updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
@@ -12,6 +13,7 @@ const MAX_ZOOM = 5.0;
 let canvas, ctx;
 let animFrameId = null;
 let animLoopId = null;  // separate handle for the continuous animation loop
+const _shownWarnings = new Set(); // dedup render warnings with 30s cooldown
 
 // Cache for background image HTMLImageElement — avoids recreating every frame
 let _bgImgCache = { dataUrl: null, el: null };
@@ -381,6 +383,16 @@ function render() {
 
   if (state.dirty) {
     state.dirty = false;
+  }
+
+  // Flush render warnings to toasts (deduplicated with 30s cooldown)
+  const renderWarnings = flushRenderWarnings();
+  for (const msg of renderWarnings.slice(0, 3)) {
+    if (!_shownWarnings.has(msg)) {
+      _shownWarnings.add(msg);
+      showToast(msg, 6000);
+      setTimeout(() => _shownWarnings.delete(msg), 30000);
+    }
   }
 }
 

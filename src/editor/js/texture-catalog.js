@@ -1,6 +1,8 @@
 // Texture Catalog — loads .texture metadata and lazily loads PNG images on demand.
 // Mirrors the pattern of theme-catalog.js and prop-catalog.js.
 
+import { showToast } from './toast.js';
+
 const BASE_URL = '/textures/';
 const CACHE_KEY = 'texture-catalog';
 const CACHE_VER_KEY = 'texture-catalog-ver';
@@ -109,8 +111,10 @@ export async function loadTextureCatalog() {
 
     // Build serializable metadata array
     const metadataEntries = [];
+    let textureFailCount = 0;
     for (const result of results) {
       if (result.status === 'rejected') {
+        textureFailCount++;
         console.warn('[texture-catalog] Failed to load texture:', result.reason);
         continue;
       }
@@ -129,6 +133,10 @@ export async function loadTextureCatalog() {
       });
     }
 
+    if (textureFailCount > 0) {
+      showToast(`Failed to load ${textureFailCount} texture(s) — some textures may not render`);
+    }
+
     // Cache metadata to localStorage
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(metadataEntries));
@@ -138,6 +146,7 @@ export async function loadTextureCatalog() {
     catalog = buildFromMetadata(metadataEntries);
   } catch (e) {
     console.warn('[texture-catalog] Could not load textures from server:', e);
+    showToast('Could not load texture catalog — textures unavailable');
     catalog = { names: [], textures: {}, byCategory: {}, categoryOrder: [] };
   }
 

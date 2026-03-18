@@ -7,6 +7,7 @@ import { toCanvas } from '../utils.js';
 import { renderProp } from '../../../render/index.js';
 import { getTextureCatalog } from '../texture-catalog.js';
 import { showToast } from '../toast.js';
+import { lookupPropAt, isPropAt } from '../prop-spatial.js';
 
 const BOX_SELECT_THRESHOLD = 8; // pixels before a mousedown-on-empty becomes a box-select drag
 
@@ -21,21 +22,9 @@ function getEffectiveFootprint(propDef, rotation) {
 function findPropAnchor(cells, row, col) {
   // Check if this cell IS an anchor
   if (cells[row]?.[col]?.prop) return { row, col };
-
-  // Search nearby cells (max 4 cells in any direction for reasonable prop sizes)
-  const searchRadius = 4;
-
-  for (let r = Math.max(0, row - searchRadius); r <= row; r++) {
-    for (let c = Math.max(0, col - searchRadius); c <= col; c++) {
-      const cell = cells[r]?.[c];
-      if (!cell?.prop) continue;
-      const [spanRows, spanCols] = cell.prop.span;
-      if (r + spanRows > row && c + spanCols > col) {
-        // This prop's span covers (row, col)
-        return { row: r, col: c };
-      }
-    }
-  }
+  // O(1) spatial hash lookup
+  const entry = lookupPropAt(row, col, cells);
+  if (entry) return { row: entry.anchorRow, col: entry.anchorCol };
   return null;
 }
 
@@ -47,9 +36,8 @@ function isFootprintClear(cells, anchorRow, anchorCol, spanRows, spanCols) {
     for (let c = anchorCol; c < anchorCol + spanCols; c++) {
       if (r < 0 || r >= numRows || c < 0 || c >= numCols) return false;
       if (cells[r][c] === null) return false; // void cell
-      // Check if another prop covers this cell
-      const existingAnchor = findPropAnchor(cells, r, c);
-      if (existingAnchor) return false;
+      // O(1) spatial hash check
+      if (isPropAt(r, c, cells)) return false;
     }
   }
   return true;

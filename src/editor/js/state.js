@@ -1,6 +1,7 @@
 // Central state store
 import { THEMES, invalidateVisibilityCache } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
+import { markPropSpatialDirty } from './prop-spatial.js';
 
 const MAX_UNDO = 100;
 
@@ -92,6 +93,7 @@ export function pushUndo(label = 'Edit') {
   state.undoStack.push({ json: JSON.stringify(state.dungeon), label });
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack.length = 0;
+  markPropSpatialDirty();
 }
 
 /**
@@ -102,6 +104,7 @@ export function undo() {
   state.redoStack.push({ json: JSON.stringify(state.dungeon), label: 'Current' });
   const entry = state.undoStack.pop();
   state.dungeon = JSON.parse(entry.json);
+  markPropSpatialDirty();
   invalidateLightmap();
   markDirty();
   notify();
@@ -115,6 +118,7 @@ export function redo() {
   state.undoStack.push({ json: JSON.stringify(state.dungeon), label: 'Redo' });
   const entry = state.redoStack.pop();
   state.dungeon = JSON.parse(entry.json);
+  markPropSpatialDirty();
   invalidateLightmap();
   markDirty();
   notify();
@@ -136,6 +140,7 @@ export function jumpToState(targetIndex) {
   // Restore the target entry
   const entry = state.undoStack.pop();
   state.dungeon = JSON.parse(entry.json);
+  markPropSpatialDirty();
   invalidateLightmap();
   markDirty();
   notify();

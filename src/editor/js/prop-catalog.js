@@ -4,6 +4,7 @@
 
 import { parsePropFile } from '../../render/index.js';
 import { loadTextureImages, getTextureCatalog } from './texture-catalog.js';
+import { showToast } from './toast.js';
 
 const MANIFEST_URL = '/props/manifest.json';
 const PROPS_BASE_URL = '/props/';
@@ -78,13 +79,18 @@ export async function loadPropCatalog(onProgress) {
     );
 
     const props = {};
+    let propFailCount = 0;
     for (const result of results) {
       if (result.status === 'rejected') {
+        propFailCount++;
         console.warn('[prop-catalog] Failed to load prop:', result.reason);
         continue;
       }
       const { name, def } = result.value;
       props[name] = def;
+    }
+    if (propFailCount > 0) {
+      showToast(`Failed to load ${propFailCount} prop(s) — some props may not be available`);
     }
 
     // Cache to localStorage
@@ -98,6 +104,7 @@ export async function loadPropCatalog(onProgress) {
     return cachedCatalog;
   } catch (e) {
     console.warn('[prop-catalog] Failed to load catalog:', e);
+    showToast('Could not load prop catalog — props unavailable');
     return buildEmptyCatalog();
   }
 }

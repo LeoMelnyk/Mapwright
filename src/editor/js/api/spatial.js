@@ -4,6 +4,7 @@ import {
   state, pushUndo, markDirty, notify, setReciprocal,
   cellKey, parseCellKey, floodFillRoom, roomBoundsFromKeys,
 } from './_shared.js';
+import { isPropAt } from '../prop-spatial.js';
 
 // ── Spatial Queries ───────────────────────────────────────────────────────
 
@@ -59,16 +60,7 @@ export function _getWallCells(roomCellSet, wall) {
  * Read-only helper — does not modify state.
  */
 export function _isCellCoveredByProp(r, c) {
-  const cells = state.dungeon.cells;
-  if (cells[r]?.[c]?.prop) return true;
-  const searchRadius = 4;
-  for (let pr = Math.max(0, r - searchRadius); pr <= r; pr++) {
-    for (let pc = Math.max(0, c - searchRadius); pc <= c; pc++) {
-      const existing = cells[pr]?.[pc]?.prop;
-      if (existing && pr + existing.span[0] > r && pc + existing.span[1] > c) return true;
-    }
-  }
-  return false;
+  return isPropAt(r, c, state.dungeon.cells);
 }
 
 /**

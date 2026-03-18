@@ -11,6 +11,7 @@
 
 import { GRID_SCALE } from './constants.js';
 import { toCanvas } from './bounds.js';
+import { warn } from './warnings.js';
 
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -105,7 +106,7 @@ export function parsePropFile(text) {
   // Prop-bundled lights: inline JSON array of { preset, x, y } (normalized 0–cols, 0–rows)
   let propLights = null;
   if (header.lights) {
-    try { propLights = JSON.parse(header.lights); } catch { /* malformed — ignore */ }
+    try { propLights = JSON.parse(header.lights); } catch (e) { warn(`[props] Malformed lights JSON in prop "${name}": ${e.message}`); }
   }
 
   // Parse body (draw commands)
@@ -529,6 +530,7 @@ function drawTexFillRect(ctx, cmd, x, y, w, h, getTextureImage) {
   const alpha = cmd.opacity ?? 0.9;
 
   if (!img || !img.complete || !img.naturalWidth) {
+    // No warning here — textures load asynchronously, fallback is expected until ready
     ctx.fillStyle = `rgba(128, 128, 128, ${alpha})`;
     ctx.fillRect(x, y, w, h);
     return;
@@ -843,7 +845,7 @@ export function renderAllProps(ctx, cells, gridSize, theme, transform, propCatal
       const rotation = facing || 0;
 
       const propDef = propCatalog.props[type];
-      if (!propDef) continue;
+      if (!propDef) { warn(`[props] Unknown prop type "${type}" at (${row},${col}) — skipped`); continue; }
 
       const key = _tileCacheKey(type, rotation, flipped || false, wallStroke, texturesVersion);
       let tile = _propTileCache.get(key);

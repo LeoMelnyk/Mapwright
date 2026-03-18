@@ -179,20 +179,99 @@ function raySegmentIntersect(ox, oy, dx, dy, sx1, sy1, sx2, sy2) {
   return { t, u };
 }
 
+// ─── Spatial Grid for Accelerated Ray Casting ─────────────────────────────
+
 /**
- * Cast a ray from origin and find the closest intersection with any wall segment.
- * Returns { x, y, t } or null if no hit.
+ * Bucket wall segments into a 2D grid for O(1) spatial lookups.
+ * Used by castRayGrid to only test segments along the ray path.
  */
-function castRay(ox, oy, angle, segments) {
+class SegmentGrid {
+  constructor(segments, originX, originY, radius, cellSize) {
+    this.cellSize = cellSize;
+    this.ox = originX - radius - 2;
+    this.oy = originY - radius - 2;
+    const span = 2 * (radius + 2);
+    this.w = Math.ceil(span / cellSize) + 1;
+    this.h = Math.ceil(span / cellSize) + 1;
+    this.buckets = new Array(this.w * this.h).fill(null);
+
+    for (const seg of segments) {
+      const minGx = Math.max(0, Math.floor((Math.min(seg.x1, seg.x2) - this.ox) / cellSize));
+      const maxGx = Math.min(this.w - 1, Math.floor((Math.max(seg.x1, seg.x2) - this.ox) / cellSize));
+      const minGy = Math.max(0, Math.floor((Math.min(seg.y1, seg.y2) - this.oy) / cellSize));
+      const maxGy = Math.min(this.h - 1, Math.floor((Math.max(seg.y1, seg.y2) - this.oy) / cellSize));
+      for (let gy = minGy; gy <= maxGy; gy++) {
+        for (let gx = minGx; gx <= maxGx; gx++) {
+          const idx = gy * this.w + gx;
+          if (!this.buckets[idx]) this.buckets[idx] = [];
+          this.buckets[idx].push(seg);
+        }
+      }
+    }
+  }
+
+  getBucket(gx, gy) {
+    if (gx < 0 || gx >= this.w || gy < 0 || gy >= this.h) return null;
+    return this.buckets[gy * this.w + gx];
+  }
+}
+
+/**
+ * Cast a ray using the spatial grid — only tests segments in grid cells along the ray path.
+ * Uses DDA traversal for efficient grid walking.
+ */
+function castRayGrid(ox, oy, angle, grid) {
   const dx = Math.cos(angle);
   const dy = Math.sin(angle);
-  let closest = null;
+  const cs = grid.cellSize;
 
-  for (const seg of segments) {
-    const hit = raySegmentIntersect(ox, oy, dx, dy, seg.x1, seg.y1, seg.x2, seg.y2);
-    if (hit && hit.t > EPSILON && (!closest || hit.t < closest.t)) {
-      closest = hit;
+  let gx = Math.floor((ox - grid.ox) / cs);
+  let gy = Math.floor((oy - grid.oy) / cs);
+
+  const stepX = dx > 0 ? 1 : -1;
+  const stepY = dy > 0 ? 1 : -1;
+
+  const tDeltaX = dx !== 0 ? Math.abs(cs / dx) : Infinity;
+  const tDeltaY = dy !== 0 ? Math.abs(cs / dy) : Infinity;
+
+  let tMaxX = dx !== 0
+    ? ((dx > 0 ? (gx + 1) * cs + grid.ox - ox : gx * cs + grid.ox - ox) / dx)
+    : Infinity;
+  let tMaxY = dy !== 0
+    ? ((dy > 0 ? (gy + 1) * cs + grid.oy - oy : gy * cs + grid.oy - oy) / dy)
+    : Infinity;
+
+  let closest = null;
+  const tested = new Set();
+  const maxSteps = grid.w + grid.h;
+
+  for (let step = 0; step < maxSteps; step++) {
+    const segs = grid.getBucket(gx, gy);
+    if (segs) {
+      for (const seg of segs) {
+        if (tested.has(seg)) continue;
+        tested.add(seg);
+        const hit = raySegmentIntersect(ox, oy, dx, dy, seg.x1, seg.y1, seg.x2, seg.y2);
+        if (hit && hit.t > EPSILON && (!closest || hit.t < closest.t)) {
+          closest = hit;
+        }
+      }
     }
+
+    // If we have a hit within the current cell boundary, we can stop
+    const cellBound = Math.min(tMaxX, tMaxY);
+    if (closest && closest.t <= cellBound) break;
+
+    // Step to next grid cell
+    if (tMaxX < tMaxY) {
+      gx += stepX;
+      tMaxX += tDeltaX;
+    } else {
+      gy += stepY;
+      tMaxY += tDeltaY;
+    }
+
+    if (gx < 0 || gx >= grid.w || gy < 0 || gy >= grid.h) break;
   }
 
   if (!closest) return null;
@@ -239,6 +318,9 @@ export function computeVisibility(lx, ly, radius, segments) {
 
   const allSegments = [...nearSegments, ...bounds];
 
+  // Build spatial grid for accelerated ray casting (cell size = 5 world feet)
+  const grid = new SegmentGrid(allSegments, lx, ly, radius, 5);
+
   // Collect unique endpoints
   const endpoints = new Set();
   for (const seg of allSegments) {
@@ -259,10 +341,10 @@ export function computeVisibility(lx, ly, radius, segments) {
   // Sort by angle
   angles.sort((a, b) => a - b);
 
-  // Build visibility polygon
+  // Build visibility polygon using grid-accelerated ray casting
   const polygon = [];
   for (const angle of angles) {
-    const hit = castRay(lx, ly, angle, allSegments);
+    const hit = castRayGrid(lx, ly, angle, grid);
     if (hit) {
       polygon.push({ x: hit.x, y: hit.y });
     }

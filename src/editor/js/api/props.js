@@ -6,6 +6,7 @@ import {
   getLightCatalog,
   cellKey, roomBoundsFromKeys,
 } from './_shared.js';
+import { lookupPropAt } from '../prop-spatial.js';
 
 // ── Prop Operations ─────────────────────────────────────────────────────
 
@@ -25,20 +26,15 @@ export function placeProp(row, col, propType, facing = 0) {
 
   // Validate all cells in span
   const cells = state.dungeon.cells;
-  const searchRadius = 4;
   for (let r = row; r < row + span[0]; r++) {
     for (let c = col; c < col + span[1]; c++) {
       validateBounds(r, c);
       if (cells[r][c] === null) throw new Error(`Cell (${r}, ${c}) is void — cannot place prop`);
-      // Check if this cell is already occupied by another prop
       if (cells[r][c]?.prop) throw new Error(`Cell (${r}, ${c}) is already occupied by prop "${cells[r][c].prop.type}"`);
-      for (let pr = Math.max(0, r - searchRadius); pr <= r; pr++) {
-        for (let pc = Math.max(0, c - searchRadius); pc <= c; pc++) {
-          const existing = cells[pr]?.[pc]?.prop;
-          if (existing && pr + existing.span[0] > r && pc + existing.span[1] > c) {
-            throw new Error(`Cell (${r}, ${c}) is already covered by prop "${existing.type}" anchored at (${pr}, ${pc})`);
-          }
-        }
+      // O(1) spatial hash check for multi-cell prop overlap
+      const covered = lookupPropAt(r, c, cells);
+      if (covered) {
+        throw new Error(`Cell (${r}, ${c}) is already covered by prop "${covered.propType}" anchored at (${covered.anchorRow}, ${covered.anchorCol})`);
       }
     }
   }

@@ -13,6 +13,15 @@
 ### Performance
 
 - Added viewport culling to the editor canvas — walls, borders, and props outside the visible area are skipped during rendering, improving performance on large maps when zoomed in
+- Replaced O(n²) prop collision detection with a spatial hash map — prop placement, hover, and bulk operations now use O(1) lookups instead of scanning a 4-cell search radius per footprint cell
+- Added spatial grid acceleration to lighting raycasting — `computeVisibility()` now uses DDA grid traversal to test only wall segments along each ray path instead of scanning all segments linearly
+
+### Error Reporting
+
+- Added render warnings system (`src/render/warnings.js`) — collects deduplicated warnings during rendering and surfaces them as toast notifications in the editor
+- Prop catalog and texture catalog load failures now show toast notifications instead of silently returning empty catalogs
+- Unknown prop types and malformed prop light JSON now produce visible warnings instead of being silently skipped
+- Bridge render errors now include bridge ID in the warning message
 
 ### Save Format
 
@@ -22,7 +31,10 @@
 ### Testing
 
 - Added Vitest test suite: 611 tests across 19 files covering API methods, spatial queries, utilities, and migrations
-- Added GitHub Actions CI workflow to run tests on every push
+- Added visual snapshot tests — renders example maps via `@napi-rs/canvas` and compares against golden PNGs with `pixelmatch` (catches rendering regressions without a browser)
+- Added E2E tests — full pipeline tests (create → save → load → modify → export) and room template validation via Puppeteer bridge
+- Expanded GitHub Actions CI to run unit, snapshot, and E2E tests in parallel
+- Added `npm run test:render` and `npm run test:e2e` scripts with separate Vitest configs
 
 ### Removed
 

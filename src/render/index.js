@@ -13,6 +13,8 @@ export { drawDmLabel } from './features.js';
 export { THEMES } from './themes.js';
 // Compile-to-canvas
 export { calculateCanvasSize, renderDungeonToCanvas } from './compile.js';
+// Render warnings
+export { warn as renderWarn, flush as flushRenderWarnings } from './warnings.js';
 
 // Aggregate invalidation — call after any structural change to cells (add/duplicate/resize/delete level)
 import { invalidateGeometryCache, invalidateBlendLayerCache } from './render.js';
