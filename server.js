@@ -146,6 +146,32 @@ if (userTexturePath) {
 // Static files from src/ (same root as old `npx serve src`)
 app.use(express.static(path.join(__dirname, 'src')));
 
+// Serve example maps and their preview images
+app.use('/examples', express.static(path.join(__dirname, 'examples')));
+
+// List available example maps (name + thumbnail URL)
+app.get('/api/examples', (_req, res) => {
+  const dir = path.join(__dirname, 'examples');
+  try {
+    const files = fs.readdirSync(dir);
+    const maps = files
+      .filter(f => f.endsWith('.mapwright') || f.endsWith('.json'))
+      .map(f => {
+        const base = f.replace(/\.(mapwright|json)$/, '');
+        const png = files.find(p => p === `${base}.png`);
+        return {
+          name: toTitleCase(base),
+          file: f,
+          url: `/examples/${f}`,
+          thumbnail: png ? `/examples/${png}` : null,
+        };
+      });
+    res.json(maps);
+  } catch {
+    res.json([]);
+  }
+});
+
 // Redirect / → /editor/ (matches old serve.json behavior)
 app.get('/', (_req, res) => res.redirect('/editor/'));
 

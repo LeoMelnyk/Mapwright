@@ -26,6 +26,7 @@ import {
 } from './panels/index.js';
 import { getClaudeSettings, setClaudeSetting } from './claude-settings.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
+import { initOnboarding, openWelcomeScreen } from './onboarding.js';
 
 // Tool registry
 const tools = {
@@ -580,6 +581,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('keydown', onKeyDown);
   document.addEventListener('keyup', onKeyUp);
 
+  // Onboarding (welcome modal, tutorial, first-use hints)
+  initOnboarding();
+
   // Warn before navigating away with unsaved changes
   window.addEventListener('beforeunload', (e) => {
     if (state.unsavedChanges) {
@@ -708,6 +712,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const m = document.getElementById('modal-release-notes');
     if (m) m.style.display = 'none';
   }
+  document.getElementById('btn-welcome')?.addEventListener('click', openWelcomeScreen);
   document.getElementById('btn-release-notes')?.addEventListener('click', openReleaseNotesModal);
   document.getElementById('modal-release-notes-close')?.addEventListener('click', closeReleaseNotesModal);
   document.getElementById('modal-release-notes')?.addEventListener('click', (e) => {
@@ -1022,8 +1027,8 @@ function onKeyDown(e) {
     return;
   }
 
-  // ?: open keyboard shortcuts modal
-  if (e.key === '?' && !e.ctrlKey) {
+  // ? or /: open keyboard shortcuts modal
+  if ((e.key === '?' || e.key === '/') && !e.ctrlKey) {
     e.preventDefault();
     window._openShortcutsModal?.();
     return;

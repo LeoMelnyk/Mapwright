@@ -3,7 +3,7 @@ import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
-import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache } from '../../render/index.js';
+import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache, invalidateAllCaches } from '../../render/index.js';
 import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextureCatalogCache } from './texture-catalog.js';
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache } from './theme-catalog.js';
@@ -24,6 +24,9 @@ export function loadDungeonJSON(json, opts = {}) {
   state.selectedCells = [];
   state.fileHandle = opts.fileHandle || null;
   state.fileName = opts.fileName || null;
+  // Flush all render caches (geometry, fluid, blend, visibility, props)
+  // so stale data from the previous map doesn't bleed through.
+  invalidateAllCaches();
   markDirty();
   state.unsavedChanges = false;
   notify();

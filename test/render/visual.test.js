@@ -10,7 +10,7 @@ const EXAMPLES_DIR = path.join(__dirname, '../../examples');
 const UPDATE_GOLDENS = process.env.UPDATE_GOLDENS === '1';
 const MAX_DIFF_PERCENT = 0.1; // 0.1% pixel difference allowed (cross-platform canvas rendering variance)
 
-const MAP_FILES = ['mines.json', 'island.json'];
+const MAP_FILES = ['mines.mapwright', 'island.mapwright'];
 
 describe('Visual Snapshot Tests', () => {
   for (const mapFile of MAP_FILES) {
@@ -20,9 +20,9 @@ describe('Visual Snapshot Tests', () => {
         throw new Error(`Example map not found: ${mapPath}`);
       }
 
-      const goldenName = mapFile.replace('.json', '.png');
+      const goldenName = mapFile.replace(/\.(mapwright|json)$/, '.png');
       const goldenPath = path.join(SNAPSHOT_DIR, goldenName);
-      const diffPath = path.join(SNAPSHOT_DIR, mapFile.replace('.json', '-diff.png'));
+      const diffPath = path.join(SNAPSHOT_DIR, mapFile.replace(/\.(mapwright|json)$/, '-diff.png'));
 
       const buffer = await renderMapToBuffer(mapPath);
       expect(buffer.length).toBeGreaterThan(0);
