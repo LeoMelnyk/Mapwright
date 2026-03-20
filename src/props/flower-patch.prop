@@ -1,0 +1,40 @@
+name: Flower Patch
+category: Terrain
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: garden, meadow, courtyard, fey-grove, wilderness
+typical_count: few
+clusters_with: flowers, tall-grass, planter-box
+notes: Larger wildflower area; place along paths or as garden beds
+---
+# Ground leaf cover
+circle 0.30,0.40 0.12 fill #2d6a1e 0.15
+circle 0.65,0.55 0.14 fill #3a7a28 0.12
+circle 0.40,0.85 0.13 fill #2d5a1e 0.15
+circle 0.70,1.10 0.12 fill #3a7a28 0.12
+circle 0.35,1.35 0.14 fill #2d6a1e 0.15
+circle 0.65,1.55 0.13 fill #2d5a1e 0.12
+circle 0.50,1.80 0.12 fill #3a7a28 0.15
+# Flower heads (scattered, varied colors)
+circle 0.25,0.30 0.04 fill #dd4466 0.50
+circle 0.50,0.25 0.05 fill #ffcc44 0.55
+circle 0.75,0.40 0.04 fill #cc44cc 0.45
+circle 0.35,0.60 0.04 fill #4488dd 0.50
+circle 0.60,0.70 0.05 fill #dd4466 0.50
+circle 0.20,0.90 0.04 fill #ffaa44 0.50
+circle 0.55,1.00 0.05 fill #ffcc44 0.55
+circle 0.80,0.95 0.04 fill #cc44cc 0.45
+circle 0.30,1.25 0.05 fill #dd4466 0.50
+circle 0.65,1.30 0.04 fill #4488dd 0.50
+circle 0.45,1.55 0.04 fill #ffaa44 0.50
+circle 0.75,1.60 0.05 fill #dd4466 0.45
+circle 0.30,1.80 0.04 fill #cc44cc 0.45
+circle 0.60,1.85 0.04 fill #ffcc44 0.50
+# Stems (subtle)
+line 0.25,0.42 0.25,0.32 stroke #3a7a28 0.25
+line 0.50,0.38 0.50,0.27 stroke #2d5a1e 0.25
+line 0.55,1.12 0.55,1.02 stroke #3a7a28 0.25
+line 0.30,1.38 0.30,1.27 stroke #2d5a1e 0.25

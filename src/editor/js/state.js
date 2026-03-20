@@ -36,7 +36,8 @@ const state = {
   propRotation: 0,     // 0, 90, 180, 270 — current placement rotation
   propFlipped: false,  // whether the next placed prop is horizontally mirrored
   propCatalog: null,   // PropCatalog object, loaded at init (runtime only, not serialized)
-  selectedPropAnchors: [], // array of {row, col} for selected props in select mode
+  selectedPropAnchors: [], // array of {row, col} for selected props in select mode (legacy)
+  selectedPropIds: [],     // array of overlay prop IDs for selected props (new system)
   activeTexture: null,    // string — texture ID from catalog (e.g. 'cobblestone')
   textureOpacity: 1.0,    // 0–1 — opacity applied when painting a texture
   paintSecondary: false,  // when true, texture paints write to textureSecondary slot
@@ -45,6 +46,8 @@ const state = {
   lightCatalog: null,   // LightCatalog object, loaded at init (runtime only, not serialized)
   // Lighting tool state
   selectedLightId: null,     // ID of currently selected light
+  lightClipboard: null,      // deep-cloned light object for copy/cut/paste
+  lightPasteMode: false,     // true when pasting a light — preview follows cursor
   lightPreset: null,         // string — selected preset ID from catalog (e.g. 'torch')
   lightType: 'point',        // default placement type: 'point' or 'directional'
   lightRadius: 30,           // default radius in feet

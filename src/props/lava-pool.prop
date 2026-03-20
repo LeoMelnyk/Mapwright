@@ -4,6 +4,7 @@ footprint: 2x2
 facing: no
 shadow: no
 blocks_light: no
+lights: [{"preset":"lava-glow","x":1.0,"y":1.0}]
 placement: center
 room_types: volcanic, forge, fire-temple, elemental
 typical_count: few

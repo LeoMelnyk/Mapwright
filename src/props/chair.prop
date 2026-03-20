@@ -2,7 +2,7 @@ name: Chair
 category: Furniture
 footprint: 1x1
 facing: yes
-shadow: no
+shadow: yes
 blocks_light: no
 placement: floor
 room_types: any
@@ -11,8 +11,13 @@ clusters_with: desk, table
 notes: Seating; face toward tables or desks. Tuck into desks
 ---
 # Backrest
-rect 0.2,0.1 0.6,0.1 texfill polyhaven/wood_table 0.85
-rect 0.2,0.1 0.6,0.1 stroke #5c3a1e
+rect 0.2,0.1 0.6,0.12 texfill polyhaven/wood_table 0.85
+rect 0.2,0.1 0.6,0.12 stroke #5c3a1e
 # Seat
-rect 0.2,0.25 0.6,0.55 texfill polyhaven/wood_table 0.8
-rect 0.2,0.25 0.6,0.55 stroke #5c3a1e
+rect 0.2,0.26 0.6,0.54 texfill polyhaven/wood_table 0.8
+rect 0.2,0.26 0.6,0.54 stroke #5c3a1e
+# Leg shadows
+circle 0.26,0.32 0.04 fill #3a1f00 0.4
+circle 0.74,0.32 0.04 fill #3a1f00 0.4
+circle 0.26,0.74 0.04 fill #3a1f00 0.4
+circle 0.74,0.74 0.04 fill #3a1f00 0.4

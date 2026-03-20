@@ -1,0 +1,48 @@
+name: Palm Tree
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: tropical, desert-oasis, beach, dock, paradise
+typical_count: few
+clusters_with: palm-tree, boulder
+notes: Tropical tree; cluster in small groups. Thin trunk doesn't block light
+---
+# Trunk (thin, slightly curved — small circle from above)
+circle 0.50,0.52 0.06 texfill polyhaven/bark_brown_01 0.85
+circle 0.50,0.52 0.06 stroke #3a1f00
+# Frond 1 (north)
+line 0.50,0.52 0.50,0.08 stroke #3a7a28 0.50
+line 0.50,0.08 0.38,0.05 stroke #2d5a1e 0.35
+line 0.50,0.08 0.62,0.05 stroke #2d5a1e 0.35
+# Frond 2 (northeast)
+line 0.50,0.52 0.82,0.18 stroke #4a8a38 0.45
+line 0.82,0.18 0.90,0.10 stroke #2d5a1e 0.30
+line 0.82,0.18 0.78,0.08 stroke #2d5a1e 0.30
+# Frond 3 (east)
+line 0.50,0.52 0.92,0.48 stroke #3a7a28 0.50
+line 0.92,0.48 0.95,0.38 stroke #2d5a1e 0.35
+line 0.92,0.48 0.96,0.56 stroke #2d5a1e 0.35
+# Frond 4 (southeast)
+line 0.50,0.52 0.82,0.85 stroke #4a8a38 0.45
+line 0.82,0.85 0.90,0.92 stroke #2d5a1e 0.30
+# Frond 5 (south)
+line 0.50,0.52 0.48,0.92 stroke #3a7a28 0.50
+line 0.48,0.92 0.38,0.96 stroke #2d5a1e 0.35
+line 0.48,0.92 0.58,0.96 stroke #2d5a1e 0.35
+# Frond 6 (southwest)
+line 0.50,0.52 0.18,0.85 stroke #4a8a38 0.45
+line 0.18,0.85 0.10,0.92 stroke #2d5a1e 0.30
+# Frond 7 (west)
+line 0.50,0.52 0.08,0.48 stroke #3a7a28 0.50
+line 0.08,0.48 0.04,0.38 stroke #2d5a1e 0.35
+line 0.08,0.48 0.04,0.56 stroke #2d5a1e 0.35
+# Frond 8 (northwest)
+line 0.50,0.52 0.18,0.18 stroke #4a8a38 0.45
+line 0.18,0.18 0.10,0.10 stroke #2d5a1e 0.30
+# Coconut cluster at center
+circle 0.46,0.48 0.03 fill #6b4e2e 0.6
+circle 0.54,0.48 0.03 fill #6b4e2e 0.6
+circle 0.50,0.44 0.03 fill #6b4e2e 0.6

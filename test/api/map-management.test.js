@@ -116,9 +116,11 @@ describe('getMapInfo', () => {
   });
 
   it('counts props correctly', () => {
-    const cells = state.dungeon.cells;
-    cells[5][5] = { prop: { type: 'chair', span: [1, 1], facing: 0 } };
-    cells[7][7] = { prop: { type: 'table', span: [2, 2], facing: 0 } };
+    const gs = state.dungeon.metadata.gridSize || 5;
+    state.dungeon.metadata.props = [
+      { id: 1, type: 'chair', x: 5 * gs, y: 5 * gs, rotation: 0 },
+      { id: 2, type: 'table', x: 7 * gs, y: 7 * gs, rotation: 0 },
+    ];
     const info = getMapInfo();
     expect(info.propCount).toBe(2);
   });
@@ -184,11 +186,13 @@ describe('getFullMapInfo', () => {
   });
 
   it('includes props with their metadata', () => {
-    const cells = state.dungeon.cells;
-    cells[5][5] = { prop: { type: 'chair', span: [1, 1], facing: 90 } };
+    const gs = state.dungeon.metadata.gridSize || 5;
+    state.dungeon.metadata.props = [
+      { id: 1, type: 'chair', x: 5 * gs, y: 5 * gs, rotation: 90 },
+    ];
     const info = getFullMapInfo();
     expect(info.props.length).toBe(1);
-    expect(info.props[0]).toEqual({ row: 5, col: 5, type: 'chair', facing: 90, span: [1, 1] });
+    expect(info.props[0]).toEqual({ row: 5, col: 5, type: 'chair', facing: 90, id: 1 });
   });
 
   it('includes doors (deduplicated)', () => {

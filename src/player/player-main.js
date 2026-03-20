@@ -138,15 +138,11 @@ function onSessionInit(msg) {
   // Load textures used in this map (floor + props)
   if (playerState.textureCatalog) {
     const usedIds = collectTextureIds(playerState.dungeon.cells);
-    if (playerState.propCatalog?.props) {
-      for (const row of playerState.dungeon.cells) {
-        if (!row) continue;
-        for (const cell of row) {
-          if (!cell?.prop) continue;
-          const propDef = playerState.propCatalog.props[cell.prop.type];
-          if (propDef?.textures) {
-            for (const id of propDef.textures) usedIds.add(id);
-          }
+    if (playerState.propCatalog?.props && playerState.dungeon.metadata?.props) {
+      for (const op of playerState.dungeon.metadata.props) {
+        const propDef = playerState.propCatalog.props[op.type];
+        if (propDef?.textures) {
+          for (const id of propDef.textures) usedIds.add(id);
         }
       }
     }
@@ -209,15 +205,11 @@ function onDungeonUpdate(msg) {
   // Ensure new textures are loaded (floor + props)
   if (playerState.textureCatalog) {
     const usedIds = collectTextureIds(msg.cells);
-    if (playerState.propCatalog?.props) {
-      for (const row of msg.cells) {
-        if (!row) continue;
-        for (const cell of row) {
-          if (!cell?.prop) continue;
-          const propDef = playerState.propCatalog.props[cell.prop.type];
-          if (propDef?.textures) {
-            for (const id of propDef.textures) usedIds.add(id);
-          }
+    if (playerState.propCatalog?.props && msg.metadata?.props) {
+      for (const op of msg.metadata.props) {
+        const propDef = playerState.propCatalog.props[op.type];
+        if (propDef?.textures) {
+          for (const id of propDef.textures) usedIds.add(id);
         }
       }
     }
@@ -280,15 +272,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   Promise.all([propCatalogPromise, textureCatalogPromise]).then(([propCatalog, textureCatalog]) => {
     if (!textureCatalog || !playerState.dungeon) return;
     const usedIds = collectTextureIds(playerState.dungeon.cells);
-    if (propCatalog?.props) {
-      for (const row of playerState.dungeon.cells) {
-        if (!row) continue;
-        for (const cell of row) {
-          if (!cell?.prop) continue;
-          const propDef = propCatalog.props[cell.prop.type];
-          if (propDef?.textures) {
-            for (const id of propDef.textures) usedIds.add(id);
-          }
+    if (propCatalog?.props && playerState.dungeon.metadata?.props) {
+      for (const op of playerState.dungeon.metadata.props) {
+        const propDef = propCatalog.props[op.type];
+        if (propDef?.textures) {
+          for (const id of propDef.textures) usedIds.add(id);
         }
       }
     }

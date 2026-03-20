@@ -1,0 +1,29 @@
+name: Pond
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: garden, wilderness, forest, courtyard, fey-grove
+typical_count: single
+clusters_with: reed-bed, lily-pads, boulder
+notes: Small natural pool; place as terrain feature in outdoor areas
+---
+# Muddy bank edge
+ellipse 1.00,1.00 0.90,0.82 fill #5a4a30 0.20
+# Water body (irregular shape via overlapping ellipses)
+ellipse 1.00,1.00 0.80,0.72 fill #3a6688 0.45
+ellipse 0.90,0.90 0.65,0.58 fill #4a7799 0.20
+# Water surface sheen
+ellipse 0.85,0.80 0.30,0.18 fill #6699bb 0.20
+ellipse 1.20,1.15 0.20,0.12 fill #6699bb 0.15
+# Shoreline edge
+ellipse 1.00,1.00 0.80,0.72 stroke #3a5a44 0.30
+# Pebbles along edge
+circle 0.25,0.65 0.03 fill #888888 0.25
+circle 0.30,1.40 0.04 fill #777777 0.25
+circle 1.70,0.70 0.03 fill #888888 0.20
+circle 1.65,1.35 0.04 fill #777777 0.25
+# Small ripple
+arc 1.10,0.95 0.12 200 340 stroke #6699bb 0.18

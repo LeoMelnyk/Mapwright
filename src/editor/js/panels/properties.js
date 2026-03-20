@@ -382,12 +382,21 @@ function updateCellInfo() {
     const hasHazard = !!(cell.hazard || cell.fill === 'difficult-terrain');
     bodyHtml += `<div class="prop-row"><span>hazard</span><input type="checkbox" id="prop-hazard-check"${hasHazard ? ' checked' : ''}></div>`;
 
-    // Prop info
-    if (cell.prop) {
+    // Prop info (from overlay)
+    const meta = state.dungeon.metadata;
+    const gs = meta?.gridSize || 5;
+    const overlayProp = meta?.props?.find(p => Math.abs(p.x - col * gs) < 0.01 && Math.abs(p.y - row * gs) < 0.01);
+    if (overlayProp) {
+      const Z_NAMES = { 0: 'floor', 10: 'furniture', 20: 'tall', 30: 'hanging' };
+      const zName = Z_NAMES[overlayProp.zIndex] || '';
+      const scalePercent = Math.round((overlayProp.scale ?? 1.0) * 100);
       bodyHtml += '<div class="prop-section">Prop</div>';
-      bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">${cell.prop.type}</span></div>`;
-      if (cell.prop.facing !== undefined) bodyHtml += `<div class="prop-row"><span>facing</span><span class="prop-val">${cell.prop.facing}\u00b0</span></div>`;
-      if (cell.prop.span) bodyHtml += `<div class="prop-row"><span>span</span><span class="prop-val">${cell.prop.span[0]}\u00d7${cell.prop.span[1]}</span></div>`;
+      bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">${overlayProp.type}</span></div>`;
+      bodyHtml += `<div class="prop-row"><span>rotation</span><span class="prop-val">${overlayProp.rotation ?? 0}\u00b0</span></div>`;
+      bodyHtml += `<div class="prop-row"><span>scale</span><span class="prop-val">${scalePercent}%</span></div>`;
+      bodyHtml += `<div class="prop-row"><span>z-order</span><span class="prop-val">${zName ? zName + ' (' + overlayProp.zIndex + ')' : overlayProp.zIndex}</span></div>`;
+      if (overlayProp.flipped) bodyHtml += `<div class="prop-row"><span>flipped</span><span class="prop-val">true</span></div>`;
+      bodyHtml += `<div class="prop-row"><span>id</span><span class="prop-val">${overlayProp.id}</span></div>`;
     }
 
     // Raw JSON

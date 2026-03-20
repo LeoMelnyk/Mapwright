@@ -1,0 +1,33 @@
+name: Cooking Spit
+category: Kitchen
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+lights: [{"preset":"campfire","x":0.5,"y":1.0}]
+placement: center
+room_types: kitchen, camp, tavern, great-hall
+typical_count: single
+clusters_with: wood-pile, cauldron-large
+notes: Horizontal rod over fire for roasting; place with fire beneath
+---
+# Fire pit base (charred ground)
+circle 0.50,1.00 0.35 fill #1a1a1a 0.4
+# Ember glow
+circle 0.50,1.00 0.25 fill #e85500 0.25
+circle 0.50,1.00 0.15 fill #ffaa00 0.3
+circle 0.50,1.00 0.08 fill #ffcc00 0.4
+# Left Y-support post
+rect 0.08,0.20 0.10,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.20 0.10,0.10 stroke #3a1f00
+line 0.10,0.25 0.18,0.15 stroke #3a1f00
+line 0.16,0.25 0.08,0.15 stroke #3a1f00
+# Right Y-support post
+rect 0.82,0.20 0.10,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.82,0.20 0.10,0.10 stroke #3a1f00
+line 0.84,0.25 0.92,0.15 stroke #3a1f00
+line 0.90,0.25 0.82,0.15 stroke #3a1f00
+# Spit rod (horizontal metal bar)
+line 0.12,0.20 0.88,0.20 stroke #888888
+# Drip tray shadow
+ellipse 0.50,0.90 0.18,0.08 fill #2a1500 0.3

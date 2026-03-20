@@ -359,7 +359,7 @@ Keep texture opacity between **0.6–0.9** for fills (0.85 is the sweet spot). L
 
 ## Current Prop Count
 
-There are **164 props** in the manifest across 20 categories: Alchemy, Combat, Containers, Decorative, Features, Furniture, Kitchen, Library & Study, Lighting, Magical, Misc, Nautical, Prison & Torture, Religious, Structure, Terrain, Traps, Undead & Dark, and Workshop.
+There are **196 props** in the manifest across 20 categories: Alchemy, Combat, Containers, Decorative, Features, Furniture, Kitchen, Library & Study, Lighting, Magical, Misc, Nautical, Prison & Torture, Religious, Structure, Terrain, Traps, Undead & Dark, and Workshop.
 
 ### New Categories (added 2024-02)
 

@@ -1,0 +1,26 @@
+name: Long Table
+category: Furniture
+footprint: 1x3
+facing: no
+shadow: yes
+blocks_light: no
+placement: center
+room_types: great-hall, mess-hall, tavern, feast-hall, meeting-room
+typical_count: few
+clusters_with: chair, bench, stool
+notes: Dining or meeting table; place centrally with seating along both sides
+---
+# Table surface
+rect 0.10,0.10 0.80,2.80 texfill polyhaven/wood_table 0.85
+rect 0.10,0.10 0.80,2.80 stroke #5c3a1e
+# Wood grain accent line
+line 0.50,0.15 0.50,2.85 stroke #4a2800 0.25
+# Leg shadows (6 legs — corners + middle)
+circle 0.20,0.20 0.05 fill #3a1f00 0.5
+circle 0.80,0.20 0.05 fill #3a1f00 0.5
+circle 0.20,1.50 0.05 fill #3a1f00 0.5
+circle 0.80,1.50 0.05 fill #3a1f00 0.5
+circle 0.20,2.80 0.05 fill #3a1f00 0.5
+circle 0.80,2.80 0.05 fill #3a1f00 0.5
+# Table join seam
+line 0.14,1.50 0.86,1.50 stroke #4a2800 0.3

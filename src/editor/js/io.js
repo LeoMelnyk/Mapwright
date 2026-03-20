@@ -8,7 +8,7 @@ import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextu
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
-import { requestRender } from './canvas-view.js';
+import { requestRender, zoomToFit } from './canvas-view.js';
 
 /**
  * Load a dungeon JSON object into the editor state.
@@ -32,19 +32,17 @@ export function loadDungeonJSON(json, opts = {}) {
   notify();
   // Load images for textures used in the loaded map (floor + props)
   const usedIds = collectTextureIds(json.cells);
-  if (state.propCatalog?.props) {
-    for (const row of json.cells) {
-      if (!row) continue;
-      for (const cell of row) {
-        if (!cell?.prop) continue;
-        const propDef = state.propCatalog.props[cell.prop.type];
-        if (propDef?.textures) {
-          for (const id of propDef.textures) usedIds.add(id);
-        }
+  if (state.propCatalog?.props && json.metadata?.props) {
+    for (const op of json.metadata.props) {
+      const propDef = state.propCatalog.props[op.type];
+      if (propDef?.textures) {
+        for (const id of propDef.textures) usedIds.add(id);
       }
     }
   }
   if (usedIds.size > 0) ensureTexturesLoaded(usedIds).then(() => { state.texturesVersion++; notify(); });
+  // Zoom to fit the loaded map in the viewport
+  requestAnimationFrame(() => zoomToFit());
 }
 
 export function migrateHalfTextures(dungeon) {
@@ -196,6 +194,7 @@ export async function loadDungeon() {
  */
 export async function saveDungeon() {
   state.dungeon.metadata.formatVersion = CURRENT_FORMAT_VERSION;
+  if (state.appVersion) state.dungeon.metadata.createdWith = state.appVersion;
   const json = JSON.stringify(state.dungeon);
 
   // If we have an existing file handle, write directly to it
@@ -387,16 +386,12 @@ export async function reloadAssets() {
 
   // Re-load texture images for everything currently on the map
   const usedIds = collectTextureIds(state.dungeon.cells);
-  // Also collect prop-referenced textures
-  if (propCatalog?.props) {
-    for (const row of state.dungeon.cells) {
-      if (!row) continue;
-      for (const cell of row) {
-        if (!cell?.prop) continue;
-        const propDef = propCatalog.props[cell.prop.type];
-        if (propDef?.textures) {
-          for (const id of propDef.textures) usedIds.add(id);
-        }
+  // Also collect prop-referenced textures from overlay
+  if (propCatalog?.props && state.dungeon.metadata?.props) {
+    for (const op of state.dungeon.metadata.props) {
+      const propDef = propCatalog.props[op.type];
+      if (propDef?.textures) {
+        for (const id of propDef.textures) usedIds.add(id);
       }
     }
   }

@@ -1,0 +1,31 @@
+name: Pine Tree
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+placement: floor
+room_types: wilderness, forest, mountain, taiga
+typical_count: many
+clusters_with: pine-tree, boulder, mushroom
+notes: Conifer/evergreen; cluster in groups for forest areas. Compact 1x1 footprint
+---
+# Trunk (visible at center)
+circle 0.50,0.50 0.08 texfill polyhaven/bark_brown_02 0.85
+circle 0.50,0.50 0.08 stroke #3a1f00
+# Branch layers (radial, from largest/lowest to smallest/highest)
+# Bottom branches (wider, darker)
+circle 0.50,0.50 0.40 fill #1a4a12 0.22
+circle 0.50,0.50 0.40 stroke #14380e 0.25
+# Mid branches (medium)
+circle 0.50,0.50 0.30 fill #1e5a16 0.22
+circle 0.50,0.50 0.30 stroke #14380e 0.20
+# Upper branches (smaller, brighter)
+circle 0.50,0.50 0.20 fill #2a6a1e 0.25
+# Top point (bright center)
+circle 0.50,0.50 0.10 fill #3a7a28 0.30
+# Radial branch lines (visible through the layers)
+line 0.50,0.10 0.50,0.90 stroke #14380e 0.20
+line 0.10,0.50 0.90,0.50 stroke #14380e 0.20
+line 0.18,0.18 0.82,0.82 stroke #14380e 0.15
+line 0.82,0.18 0.18,0.82 stroke #14380e 0.15

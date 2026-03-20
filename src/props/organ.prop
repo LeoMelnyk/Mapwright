@@ -1,0 +1,49 @@
+name: Organ
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+placement: wall
+room_types: temple, cathedral, chapel, great-hall
+typical_count: single
+clusters_with: pew, bench
+notes: Pipe organ; place against back wall of temples or cathedrals
+---
+# Main body/case (dark wood)
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.08 1.84,1.84 stroke #2a1400
+# Keyboard strip (front/south edge, seen from above)
+rect 0.20,1.60 1.60,0.20 fill #e8dcc8 0.8
+rect 0.20,1.60 1.60,0.20 stroke #333333
+# Black keys on keyboard
+rect 0.30,1.62 0.06,0.12 fill #222222 0.8
+rect 0.42,1.62 0.06,0.12 fill #222222 0.8
+rect 0.58,1.62 0.06,0.12 fill #222222 0.8
+rect 0.70,1.62 0.06,0.12 fill #222222 0.8
+rect 0.86,1.62 0.06,0.12 fill #222222 0.8
+rect 1.10,1.62 0.06,0.12 fill #222222 0.8
+rect 1.22,1.62 0.06,0.12 fill #222222 0.8
+rect 1.38,1.62 0.06,0.12 fill #222222 0.8
+rect 1.50,1.62 0.06,0.12 fill #222222 0.8
+rect 1.66,1.62 0.06,0.12 fill #222222 0.8
+# Pipe circles (rows of varying diameter, seen from above)
+circle 0.30,0.30 0.10 fill #888888 0.5
+circle 0.30,0.30 0.10 stroke #666666
+circle 0.60,0.30 0.12 fill #888888 0.5
+circle 0.60,0.30 0.12 stroke #666666
+circle 1.00,0.30 0.14 fill #888888 0.5
+circle 1.00,0.30 0.14 stroke #666666
+circle 1.40,0.30 0.12 fill #888888 0.5
+circle 1.40,0.30 0.12 stroke #666666
+circle 1.70,0.30 0.10 fill #888888 0.5
+circle 1.70,0.30 0.10 stroke #666666
+# Smaller pipes behind
+circle 0.45,0.60 0.06 fill #999999 0.4
+circle 0.45,0.60 0.06 stroke #777777
+circle 0.80,0.55 0.08 fill #999999 0.4
+circle 0.80,0.55 0.08 stroke #777777
+circle 1.20,0.55 0.08 fill #999999 0.4
+circle 1.20,0.55 0.08 stroke #777777
+circle 1.55,0.60 0.06 fill #999999 0.4
+circle 1.55,0.60 0.06 stroke #777777

@@ -174,7 +174,8 @@ function render(timestamp) {
   if (lightingEnabled) {
     renderLightmap(ctx, playerMetadata.lights, playerCells, gridSize, transform,
       canvas.width, canvas.height, playerMetadata.ambientLight ?? 0.15,
-      playerState.textureCatalog, playerState.propCatalog);
+      playerState.textureCatalog, playerState.propCatalog,
+      null, playerMetadata);
     // Draw labels after lightmap so they are unaffected by the multiply overlay
     renderLabels(ctx, playerCells, gridSize, theme, transform, labelStyle);
   }

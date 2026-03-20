@@ -4,6 +4,7 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: no
+lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
 placement: wall
 room_types: kitchen, bakery
 typical_count: single

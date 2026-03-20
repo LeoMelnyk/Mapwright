@@ -1,0 +1,24 @@
+name: Dartboard
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: tavern, inn, barracks, common-room
+typical_count: single
+notes: Wall-mounted target; place on wall with open space in front for throwing
+---
+# Wall mount bracket (thin edge at north wall)
+rect 0.30,0.04 0.40,0.08 fill #555555 0.6
+rect 0.30,0.04 0.40,0.08 stroke #444444
+# Board edge (barely visible from above — thin disc)
+circle 0.50,0.20 0.14 fill #2a1400 0.6
+circle 0.50,0.20 0.14 stroke #3a1f00
+# Target rings (concentric, seen at steep angle)
+circle 0.50,0.20 0.12 fill #cc0000 0.4
+circle 0.50,0.20 0.09 fill #e8dcc8 0.4
+circle 0.50,0.20 0.06 fill #cc0000 0.4
+circle 0.50,0.20 0.03 fill #2a5a2a 0.5
+# Shadow below board
+rect 0.36,0.30 0.28,0.04 fill #000000 0.15

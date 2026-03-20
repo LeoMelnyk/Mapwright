@@ -1,0 +1,29 @@
+name: Small Tree
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: garden, courtyard, wilderness, orchard, park
+typical_count: many
+clusters_with: tree-small, planter-box, bench
+notes: Young or small ornamental tree; use where a full 2x2 tree is too large
+---
+# Trunk
+circle 0.50,0.52 0.08 texfill polyhaven/bark_brown_02 0.85
+circle 0.50,0.52 0.08 stroke #3a1f00
+# Canopy lobes (overlapping, organic)
+circle 0.38,0.38 0.20 fill #2d6a1e 0.30
+circle 0.62,0.35 0.18 fill #3a7a28 0.28
+circle 0.35,0.62 0.17 fill #2d5a1e 0.28
+circle 0.65,0.60 0.19 fill #3a7a28 0.30
+circle 0.50,0.30 0.15 fill #357020 0.25
+circle 0.50,0.68 0.14 fill #2d6a1e 0.25
+# Highlight cluster
+circle 0.48,0.42 0.10 fill #4a9a38 0.15
+# Lobe edge outlines
+circle 0.38,0.38 0.20 stroke #1a4a10 0.20
+circle 0.62,0.35 0.18 stroke #1a4a10 0.20
+circle 0.35,0.62 0.17 stroke #1a4a10 0.18
+circle 0.65,0.60 0.19 stroke #1a4a10 0.20

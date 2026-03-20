@@ -1,0 +1,34 @@
+name: Lily Pads
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: swamp, pond, riverside, garden, fey-grove
+typical_count: many
+clusters_with: lily-pads, pond, reed-bed
+notes: Floating water plants; place on water features or swamp terrain
+---
+# Pad 1 (large, with notch)
+circle 0.35,0.40 0.14 fill #2d6a1e 0.35
+circle 0.35,0.40 0.14 stroke #1a4a10 0.25
+line 0.35,0.40 0.35,0.26 stroke #1a4a10 0.20
+# Pad 2 (medium)
+circle 0.65,0.55 0.11 fill #3a7a28 0.30
+circle 0.65,0.55 0.11 stroke #1a4a10 0.22
+line 0.65,0.55 0.65,0.44 stroke #1a4a10 0.18
+# Pad 3 (small)
+circle 0.45,0.70 0.08 fill #2d6a1e 0.30
+circle 0.45,0.70 0.08 stroke #1a4a10 0.20
+# Pad 4 (tiny)
+circle 0.72,0.35 0.06 fill #3a7a28 0.28
+# Flower on pad 1
+circle 0.30,0.35 0.04 fill #ffaacc 0.50
+circle 0.30,0.35 0.02 fill #ffee88 0.55
+# Flower bud on pad 2
+circle 0.68,0.50 0.03 fill #ffccdd 0.40
+# Vein lines on large pad
+line 0.25,0.38 0.35,0.40 stroke #1a4a10 0.12
+line 0.35,0.30 0.35,0.40 stroke #1a4a10 0.12
+line 0.45,0.38 0.35,0.40 stroke #1a4a10 0.12

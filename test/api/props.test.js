@@ -11,6 +11,10 @@ import {
   getPropsForRoomType,
   removePropAt,
   removePropsInRect,
+  setPropZIndex,
+  bringForward,
+  sendBackward,
+  suggestPropPosition,
 } from '../../src/editor/js/api/props.js';
 
 // ── Setup ────────────────────────────────────────────────────────────────────
@@ -45,6 +49,15 @@ function paintCells(r1, c1, r2, c2) {
   }
 }
 
+/** Find overlay prop at grid position. */
+function findOverlay(row, col) {
+  const meta = state.dungeon.metadata;
+  if (!meta?.props) return null;
+  const gs = meta.gridSize || 5;
+  const x = col * gs, y = row * gs;
+  return meta.props.find(p => Math.abs(p.x - x) < 0.01 && Math.abs(p.y - y) < 0.01) ?? null;
+}
+
 // ── placeProp ────────────────────────────────────────────────────────────────
 
 describe('placeProp', () => {
@@ -52,18 +65,19 @@ describe('placeProp', () => {
     paintCells(5, 5, 5, 5);
     const result = placeProp(5, 5, 'chair', 0);
     expect(result.success).toBe(true);
-    const cell = state.dungeon.cells[5][5];
-    expect(cell.prop).toBeDefined();
-    expect(cell.prop.type).toBe('chair');
-    expect(cell.prop.facing).toBe(0);
-    expect(cell.prop.span).toEqual([1, 1]);
+    const overlay = findOverlay(5, 5);
+    expect(overlay).not.toBeNull();
+    expect(overlay.type).toBe('chair');
+    expect(overlay.rotation).toBe(0);
   });
 
   it('places a 2x2 prop occupying multiple cells', () => {
     paintCells(5, 5, 6, 6);
     const result = placeProp(5, 5, 'table', 0);
     expect(result.success).toBe(true);
-    expect(state.dungeon.cells[5][5].prop.span).toEqual([2, 2]);
+    const overlay = findOverlay(5, 5);
+    expect(overlay).not.toBeNull();
+    expect(overlay.type).toBe('table');
   });
 
   it('throws for unknown prop type', () => {
@@ -71,9 +85,27 @@ describe('placeProp', () => {
     expect(() => placeProp(5, 5, 'nonexistent', 0)).toThrow('Unknown prop type');
   });
 
-  it('throws for invalid facing', () => {
+  it('accepts arbitrary rotation angles', () => {
     paintCells(5, 5, 5, 5);
-    expect(() => placeProp(5, 5, 'chair', 45)).toThrow('Invalid facing');
+    const result = placeProp(5, 5, 'chair', 45);
+    expect(result.success).toBe(true);
+    const overlay = findOverlay(5, 5);
+    expect(overlay.rotation).toBe(45);
+  });
+
+  it('accepts scale and zIndex options', () => {
+    paintCells(5, 5, 5, 5);
+    const result = placeProp(5, 5, 'chair', 0, { scale: 2.0, zIndex: 'tall' });
+    expect(result.success).toBe(true);
+    const overlay = findOverlay(5, 5);
+    expect(overlay.scale).toBe(2.0);
+    expect(overlay.zIndex).toBe(20); // 'tall' preset
+  });
+
+  it('clamps scale to valid range', () => {
+    paintCells(5, 5, 5, 5);
+    placeProp(5, 5, 'chair', 0, { scale: 10.0 });
+    expect(findOverlay(5, 5).scale).toBe(4.0);
   });
 
   it('throws for out-of-bounds placement', () => {
@@ -88,7 +120,7 @@ describe('placeProp', () => {
   it('throws when cell is already occupied by a prop', () => {
     paintCells(5, 5, 5, 5);
     placeProp(5, 5, 'chair', 0);
-    expect(() => placeProp(5, 5, 'statue', 0)).toThrow('already occupied');
+    expect(() => placeProp(5, 5, 'statue', 0)).toThrow('already covered');
   });
 
   it('throws when cell is covered by a multi-cell prop', () => {
@@ -102,7 +134,9 @@ describe('placeProp', () => {
     // bookshelf is 1x3 — at 90 degrees should become 3x1
     const result = placeProp(5, 5, 'bookshelf', 90);
     expect(result.success).toBe(true);
-    expect(state.dungeon.cells[5][5].prop.span).toEqual([3, 1]);
+    const overlay = findOverlay(5, 5);
+    expect(overlay).not.toBeNull();
+    expect(overlay.rotation).toBe(90);
   });
 
   it('creates linked lights from prop definition', () => {
@@ -132,13 +166,13 @@ describe('placeProp', () => {
 // ── removeProp ───────────────────────────────────────────────────────────────
 
 describe('removeProp', () => {
-  it('removes a prop from a cell', () => {
+  it('removes a prop from the overlay', () => {
     paintCells(5, 5, 5, 5);
     placeProp(5, 5, 'chair', 0);
-    expect(state.dungeon.cells[5][5].prop).toBeDefined();
+    expect(findOverlay(5, 5)).not.toBeNull();
     const result = removeProp(5, 5);
     expect(result.success).toBe(true);
-    expect(state.dungeon.cells[5][5].prop).toBeUndefined();
+    expect(findOverlay(5, 5)).toBeNull();
   });
 
   it('succeeds silently when no prop at cell', () => {
@@ -179,7 +213,7 @@ describe('rotateProp', () => {
     const result = rotateProp(5, 5);
     expect(result.success).toBe(true);
     expect(result.facing).toBe(90);
-    expect(state.dungeon.cells[5][5].prop.facing).toBe(90);
+    expect(findOverlay(5, 5).rotation).toBe(90);
   });
 
   it('wraps from 270 back to 0', () => {
@@ -189,12 +223,12 @@ describe('rotateProp', () => {
     expect(result.facing).toBe(0);
   });
 
-  it('swaps span dimensions on rotate', () => {
+  it('updates overlay rotation on rotate', () => {
     paintCells(5, 5, 5, 7);
     placeProp(5, 5, 'bookshelf', 0); // 1x3
-    expect(state.dungeon.cells[5][5].prop.span).toEqual([1, 3]);
+    expect(findOverlay(5, 5).rotation).toBe(0);
     rotateProp(5, 5);
-    expect(state.dungeon.cells[5][5].prop.span).toEqual([3, 1]);
+    expect(findOverlay(5, 5).rotation).toBe(90);
   });
 
   it('throws when no prop at the cell', () => {
@@ -305,13 +339,13 @@ describe('removePropAt', () => {
     expect(result.error).toContain('no prop');
   });
 
-  it('does not remove props anchored at different cells', () => {
+  it('removes prop by any covered cell (not just anchor)', () => {
     paintCells(5, 5, 6, 6);
     placeProp(5, 5, 'table', 0); // 2x2
-    // Try removing from (6,6) which is covered but not the anchor
+    // Removing from (6,6) which is covered by the 2x2 table — should succeed
     const result = removePropAt(6, 6);
-    expect(result.success).toBe(false); // no prop anchored here
-    expect(state.dungeon.cells[5][5].prop).toBeDefined(); // anchor still has prop
+    expect(result.success).toBe(true);
+    expect(findOverlay(5, 5)).toBeNull(); // prop is gone
   });
 
   it('throws for out-of-bounds coordinates', () => {
@@ -361,11 +395,159 @@ describe('removePropsInRect', () => {
     // Remove only the area around (6,6)
     const result = removePropsInRect(5, 5, 8, 8);
     expect(result.removed).toBe(1); // only the chair
-    expect(state.dungeon.cells[3][3].prop).toBeDefined(); // table still there
+    expect(findOverlay(3, 3)).not.toBeNull(); // table still there
   });
 
   it('throws for out-of-bounds coordinates', () => {
     expect(() => removePropsInRect(-1, -1, 5, 5)).toThrow('out of bounds');
     expect(() => removePropsInRect(0, 0, 99, 99)).toThrow('out of bounds');
+  });
+});
+
+// ── Dual-Write Consistency ──────────────────────────────────────────────────
+
+describe('overlay dual-write', () => {
+  it('placeProp creates matching overlay entry', () => {
+    paintCells(5, 5, 5, 5);
+    placeProp(5, 5, 'chair', 90);
+
+    const overlay = state.dungeon.metadata.props;
+    expect(overlay).toBeDefined();
+    expect(overlay.length).toBe(1);
+    expect(overlay[0].type).toBe('chair');
+    expect(overlay[0].x).toBe(25); // col 5 * gridSize 5
+    expect(overlay[0].y).toBe(25); // row 5 * gridSize 5
+    expect(overlay[0].rotation).toBe(90);
+    expect(overlay[0].scale).toBe(1.0);
+    expect(overlay[0].id).toMatch(/^prop_/);
+  });
+
+  it('removeProp removes the overlay entry', () => {
+    paintCells(5, 5, 5, 5);
+    placeProp(5, 5, 'chair', 0);
+    expect(state.dungeon.metadata.props.length).toBe(1);
+
+    removeProp(5, 5);
+    expect(state.dungeon.metadata.props.length).toBe(0);
+  });
+
+  it('rotateProp updates overlay rotation', () => {
+    paintCells(5, 5, 5, 5);
+    placeProp(5, 5, 'chair', 0);
+    rotateProp(5, 5);
+
+    const overlay = findOverlay(5, 5);
+    expect(overlay.rotation).toBe(90);
+  });
+
+  it('removePropsInRect removes overlay entries', () => {
+    paintCells(3, 3, 7, 7);
+    placeProp(3, 3, 'chair', 0);
+    placeProp(6, 6, 'chair', 0);
+    expect(state.dungeon.metadata.props.length).toBe(2);
+
+    removePropsInRect(5, 5, 8, 8);
+    expect(state.dungeon.metadata.props.length).toBe(1);
+    expect(state.dungeon.metadata.props[0].x).toBe(15); // col 3 * 5
+  });
+
+  it('multiple placements get unique IDs', () => {
+    paintCells(3, 3, 7, 7);
+    placeProp(3, 3, 'chair', 0);
+    placeProp(4, 4, 'chair', 0);
+    placeProp(5, 5, 'chair', 0);
+
+    const ids = state.dungeon.metadata.props.map(p => p.id);
+    expect(new Set(ids).size).toBe(3);
+  });
+});
+
+// ── Z-Index API ─────────────────────────────────────────────────────────────
+
+describe('setPropZIndex', () => {
+  it('sets z-index by preset name', () => {
+    paintCells(5, 5, 5, 5);
+    placeProp(5, 5, 'chair', 0);
+    const propId = state.dungeon.metadata.props[0].id;
+
+    const result = setPropZIndex(propId, 'floor');
+    expect(result.success).toBe(true);
+    expect(result.zIndex).toBe(0);
+    expect(state.dungeon.metadata.props[0].zIndex).toBe(0);
+  });
+
+  it('sets z-index by raw number', () => {
+    paintCells(5, 5, 5, 5);
+    placeProp(5, 5, 'chair', 0);
+    const propId = state.dungeon.metadata.props[0].id;
+
+    setPropZIndex(propId, 25);
+    expect(state.dungeon.metadata.props[0].zIndex).toBe(25);
+  });
+
+  it('throws for unknown prop ID', () => {
+    expect(() => setPropZIndex('nonexistent', 'floor')).toThrow();
+  });
+});
+
+describe('bringForward / sendBackward', () => {
+  it('moves prop forward in z-order', () => {
+    paintCells(3, 3, 7, 7);
+    placeProp(3, 3, 'chair', 0);
+    placeProp(4, 4, 'chair', 0);
+    const props = state.dungeon.metadata.props;
+    // Both start at z=10 (furniture default)
+    props[0].zIndex = 5;
+    props[1].zIndex = 15;
+
+    bringForward(props[0].id);
+    expect(props[0].zIndex).toBe(15);
+  });
+
+  it('moves prop backward in z-order', () => {
+    paintCells(3, 3, 7, 7);
+    placeProp(3, 3, 'chair', 0);
+    placeProp(4, 4, 'chair', 0);
+    const props = state.dungeon.metadata.props;
+    props[0].zIndex = 5;
+    props[1].zIndex = 15;
+
+    sendBackward(props[1].id);
+    expect(props[1].zIndex).toBe(5);
+  });
+});
+
+// ── suggestPropPosition ─────────────────────────────────────────────────────
+
+describe('suggestPropPosition', () => {
+  beforeEach(() => {
+    // Create a labeled room for testing
+    paintCells(2, 2, 8, 10);
+    const cells = state.dungeon.cells;
+    // Set walls and label
+    cells[5][6] = { ...(cells[5][6] || {}), center: { label: 'A1' } };
+  });
+
+  it('suggests center position for center-placement props', () => {
+    const result = suggestPropPosition('A1', 'chair');
+    expect(result.success).toBe(true);
+    expect(result.row).toBeDefined();
+    expect(result.col).toBeDefined();
+    expect(result.x).toBe(result.col * 5);
+    expect(result.y).toBe(result.row * 5);
+  });
+
+  it('suggests wall position for wall-placement props', () => {
+    const result = suggestPropPosition('A1', 'bookshelf', { preferWall: 'north' });
+    expect(result.success).toBe(true);
+    expect(result.rotation).toBe(0); // north wall → 0° rotation
+  });
+
+  it('throws for unknown prop type', () => {
+    expect(() => suggestPropPosition('A1', 'nonexistent')).toThrow('Unknown prop type');
+  });
+
+  it('throws for unknown room', () => {
+    expect(() => suggestPropPosition('BOGUS', 'chair')).toThrow('not found');
   });
 });

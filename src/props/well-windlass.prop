@@ -1,0 +1,30 @@
+name: Well Windlass
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: center
+room_types: courtyard, village, farm, castle
+typical_count: single
+clusters_with: rope-coil
+notes: Well with winding mechanism; place in open areas
+---
+# Stone well ring
+circle 0.50,0.50 0.40 texfill polyhaven/cobblestone_floor_01 0.8
+circle 0.50,0.50 0.40 stroke #555555
+# Dark well hole
+circle 0.50,0.50 0.28 fill #0a0a0a 0.8
+circle 0.50,0.50 0.28 stroke #333333
+# Crossbar (wooden beam across top)
+rect 0.08,0.46 0.84,0.08 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.46 0.84,0.08 stroke #3a1f00
+# Support posts
+rect 0.10,0.38 0.08,0.24 fill #4a2800 0.6
+rect 0.82,0.38 0.08,0.24 fill #4a2800 0.6
+# Rope coil on beam
+circle 0.50,0.50 0.05 fill #8b7355 0.7
+circle 0.50,0.50 0.05 stroke #5c3a1e
+# Crank handle
+line 0.88,0.50 0.95,0.42 stroke #666666
+circle 0.95,0.42 0.02 fill #888888 0.8

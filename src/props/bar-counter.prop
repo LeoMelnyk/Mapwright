@@ -1,0 +1,29 @@
+name: Bar Counter
+category: Furniture
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: tavern, inn, pub
+typical_count: single
+clusters_with: keg, stool, barrel
+notes: Long serving counter; place against wall with stools on the room side
+---
+# Counter surface
+rect 0.08,0.08 0.84,2.84 texfill polyhaven/wood_table 0.85
+rect 0.08,0.08 0.84,2.84 stroke #3a1f00
+# Brass rail along front edge (south)
+rect 0.10,2.72 0.80,0.10 fill #daa520 0.5
+rect 0.10,2.72 0.80,0.10 stroke #8b6914
+# Counter edge detail
+line 0.12,0.20 0.88,0.20 stroke #5c3a1e
+# Mug rings (water marks)
+circle 0.30,0.50 0.06 stroke #5c3a1e 0.3
+circle 0.55,1.20 0.06 stroke #5c3a1e 0.3
+circle 0.70,2.00 0.06 stroke #5c3a1e 0.3
+# Tap/spigot mark
+circle 0.50,0.40 0.04 fill #888888 0.6
+circle 0.50,0.40 0.04 stroke #555555
+# Counter join line
+line 0.12,1.50 0.88,1.50 stroke #4a2800 0.4

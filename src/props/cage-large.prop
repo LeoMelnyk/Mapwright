@@ -1,0 +1,37 @@
+name: Cage (Large)
+category: Prison & Torture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+placement: center
+room_types: dungeon, arena, prison, menagerie
+typical_count: few
+clusters_with: shackles, torture-rack
+notes: Iron cage for prisoners or beasts; place as room feature
+---
+# Grate floor
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/metal_grate_rusty 0.7
+rect 0.10,0.10 1.80,1.80 stroke #444444
+# Cage bars (vertical grid lines)
+line 0.10,0.10 0.10,1.90 stroke #555555
+line 0.48,0.10 0.48,1.90 stroke #555555
+line 0.86,0.10 0.86,1.90 stroke #555555
+line 1.14,0.10 1.14,1.90 stroke #555555
+line 1.52,0.10 1.52,1.90 stroke #555555
+line 1.90,0.10 1.90,1.90 stroke #555555
+# Cage bars (horizontal grid lines)
+line 0.10,0.10 1.90,0.10 stroke #555555
+line 0.10,0.48 1.90,0.48 stroke #555555
+line 0.10,0.86 1.90,0.86 stroke #555555
+line 0.10,1.14 1.90,1.14 stroke #555555
+line 0.10,1.52 1.90,1.52 stroke #555555
+line 0.10,1.90 1.90,1.90 stroke #555555
+# Corner posts (thicker)
+rect 0.06,0.06 0.10,0.10 fill #444444 0.8
+rect 1.84,0.06 0.10,0.10 fill #444444 0.8
+rect 0.06,1.84 0.10,0.10 fill #444444 0.8
+rect 1.84,1.84 0.10,0.10 fill #444444 0.8
+# Door latch (south side)
+rect 0.90,1.84 0.20,0.10 fill #888888 0.6
+rect 0.90,1.84 0.20,0.10 stroke #555555

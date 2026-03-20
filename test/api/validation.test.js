@@ -7,6 +7,26 @@ import {
   validateDoorClearance,
   validateConnectivity,
 } from '../../src/editor/js/api/validation.js';
+import { markPropSpatialDirty } from '../../src/editor/js/prop-spatial.js';
+
+/** Place a prop via metadata.props[] (overlay) for test setup. */
+function placeOverlayProp(row, col, type) {
+  const meta = state.dungeon.metadata;
+  if (!meta.props) meta.props = [];
+  if (!meta.nextPropId) meta.nextPropId = 1;
+  const gridSize = meta.gridSize || 5;
+  meta.props.push({
+    id: `prop_${meta.nextPropId++}`,
+    type,
+    x: col * gridSize,
+    y: row * gridSize,
+    rotation: 0,
+    scale: 1.0,
+    zIndex: 10,
+    flipped: false,
+  });
+  markPropSpatialDirty();
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -47,6 +67,13 @@ beforeEach(() => {
   state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
   state.undoStack = [];
   state.redoStack = [];
+  state.propCatalog = {
+    categories: ['furniture'],
+    props: {
+      'chair': { name: 'Chair', category: 'furniture', footprint: [1, 1], facing: true },
+    },
+  };
+  markPropSpatialDirty();
 });
 
 // ── validateDoorClearance ────────────────────────────────────────────────────
@@ -84,7 +111,7 @@ describe('validateDoorClearance', () => {
     }
     addDoorBetween(3, 4, 'east');
     // Place prop directly on the door cell
-    cells[3][4].prop = { type: 'chair', span: [1, 1], facing: 0 };
+    placeOverlayProp(3, 4, 'chair');
 
     const result = validateDoorClearance();
     expect(result.clear).toBe(false);
@@ -104,7 +131,7 @@ describe('validateDoorClearance', () => {
     }
     addDoorBetween(3, 4, 'east');
     // Place prop on the approach cell (the cell on the other side of the door)
-    cells[3][5].prop = { type: 'chair', span: [1, 1], facing: 0 };
+    placeOverlayProp(3, 5, 'chair');
 
     const result = validateDoorClearance();
     expect(result.clear).toBe(false);
@@ -131,8 +158,8 @@ describe('validateDoorClearance', () => {
     addDoorBetween(4, 3, 'south');
 
     // Block both doors
-    cells[3][4].prop = { type: 'chair', span: [1, 1], facing: 0 };
-    cells[4][3].prop = { type: 'chair', span: [1, 1], facing: 0 };
+    placeOverlayProp(3, 4, 'chair');
+    placeOverlayProp(4, 3, 'chair');
 
     const result = validateDoorClearance();
     expect(result.clear).toBe(false);
@@ -150,7 +177,7 @@ describe('validateDoorClearance', () => {
     // Secret door
     cells[3][4].east = 's';
     cells[3][5].west = 's';
-    cells[3][4].prop = { type: 'chair', span: [1, 1], facing: 0 };
+    placeOverlayProp(3, 4, 'chair');
 
     const result = validateDoorClearance();
     expect(result.clear).toBe(false);

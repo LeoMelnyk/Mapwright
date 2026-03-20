@@ -12,40 +12,91 @@ const CELL_SIZE = 40; // must match canvas-view.js
 let minimapCanvas = null;
 let minimapCtx = null;
 let mainCanvas = null;
+let minimapWrapper = null;
 
 export function initMinimap(editorCanvas) {
   mainCanvas = editorCanvas;
+  minimapWrapper = document.getElementById('minimap-wrapper');
   minimapCanvas = document.getElementById('minimap-canvas');
-  if (!minimapCanvas) return;
+  if (!minimapCanvas || !minimapWrapper) return;
   minimapCtx = minimapCanvas.getContext('2d');
 
-  // Click or drag on minimap → pan main view to that world position
-  let dragging = false;
+  const header = document.getElementById('minimap-header');
+
+  // ── Click/drag on minimap canvas → pan main view ──
+  let panning = false;
 
   minimapCanvas.addEventListener('mousedown', (e) => {
-    dragging = true;
+    panning = true;
     const rect = minimapCanvas.getBoundingClientRect();
     _panToMinimapPoint(e.clientX - rect.left, e.clientY - rect.top);
   });
 
   minimapCanvas.addEventListener('mousemove', (e) => {
-    if (!dragging) return;
+    if (!panning) return;
     const rect = minimapCanvas.getBoundingClientRect();
     _panToMinimapPoint(e.clientX - rect.left, e.clientY - rect.top);
   });
 
-  minimapCanvas.addEventListener('mouseup', () => { dragging = false; });
-  minimapCanvas.addEventListener('mouseleave', () => { dragging = false; });
+  minimapCanvas.addEventListener('mouseup', () => { panning = false; });
+  minimapCanvas.addEventListener('mouseleave', () => { panning = false; });
+
+  // ── Drag header → reposition minimap ──
+  let dragState = null;
+
+  header.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    const wrapperRect = minimapWrapper.getBoundingClientRect();
+    const containerRect = minimapWrapper.parentElement.getBoundingClientRect();
+    dragState = {
+      startX: e.clientX,
+      startY: e.clientY,
+      // current offset from container edges
+      initLeft: wrapperRect.left - containerRect.left,
+      initTop: wrapperRect.top - containerRect.top,
+      containerW: containerRect.width,
+      containerH: containerRect.height,
+    };
+    minimapWrapper.classList.add('dragging');
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!dragState) return;
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+
+    let newLeft = dragState.initLeft + dx;
+    let newTop = dragState.initTop + dy;
+
+    // Clamp within container
+    const wW = minimapWrapper.offsetWidth;
+    const wH = minimapWrapper.offsetHeight;
+    newLeft = Math.max(0, Math.min(newLeft, dragState.containerW - wW));
+    newTop = Math.max(0, Math.min(newTop, dragState.containerH - wH));
+
+    // Switch from bottom/right to top/left positioning
+    minimapWrapper.style.left = newLeft + 'px';
+    minimapWrapper.style.top = newTop + 'px';
+    minimapWrapper.style.right = 'auto';
+    minimapWrapper.style.bottom = 'auto';
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (dragState) {
+      dragState = null;
+      minimapWrapper.classList.remove('dragging');
+    }
+  });
 }
 
 /**
  * Re-render the minimap. Called after each main render when minimap is visible.
  */
 export function updateMinimap() {
-  if (!minimapCanvas || !minimapCtx || !mainCanvas) return;
+  if (!minimapCanvas || !minimapCtx || !mainCanvas || !minimapWrapper) return;
 
   const visible = getEditorSettings().minimap === true;
-  minimapCanvas.style.display = visible ? 'block' : 'none';
+  minimapWrapper.style.display = visible ? 'block' : 'none';
   if (!visible) return;
 
   const { dungeon } = state;

@@ -1,0 +1,26 @@
+name: Keg
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: tavern, cellar, brewery, kitchen
+typical_count: few
+clusters_with: barrel, bar-counter
+notes: Horizontal barrel on a stand; place behind bar counters or in cellars
+---
+# Support stand legs
+rect 0.15,0.20 0.08,0.60 fill #5c3a1e 0.6
+rect 0.77,0.20 0.08,0.60 fill #5c3a1e 0.6
+# Barrel body (oval from above - horizontal barrel)
+ellipse 0.50,0.50 0.30,0.38 texfill polyhaven/dark_wood 0.85
+ellipse 0.50,0.50 0.30,0.38 stroke #3a1f00
+# Metal bands
+ellipse 0.50,0.50 0.28,0.30 stroke #666666
+ellipse 0.50,0.50 0.28,0.18 stroke #666666
+# Center seam line
+line 0.20,0.50 0.80,0.50 stroke #2a1400 0.5
+# Spigot at south end
+rect 0.46,0.84 0.08,0.08 fill #888888 0.7
+circle 0.50,0.88 0.02 fill #666666 0.8

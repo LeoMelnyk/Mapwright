@@ -10,3 +10,4 @@ export { initTexturesPanel, renderTexturesPanel, selectTexture } from './texture
 export { init as initRightSidebar, setRightPanelChangeCallback, getActiveRightPanel, toggleRightPanel } from './right-sidebar.js';
 export { initClaudePanel } from './claude-chat.js';
 export { initBackgroundImagePanel } from './background-image.js';
+export { initKeybindingsHelper, toggleKeybindingsHelper, refreshKeybindingsHelper } from './keybindings-helper.js';

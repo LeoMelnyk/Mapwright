@@ -73,6 +73,9 @@
           <label class="menu-check-item">
             <input type="checkbox" id="feat-minimap"> Minimap
           </label>
+          <label class="menu-check-item">
+            <input type="checkbox" id="feat-keybindings"> Keybindings Helper
+          </label>
           <div class="menu-separator"></div>
           <div class="menu-submenu">
             <button class="menu-action menu-submenu-trigger">Developer ▸</button>
@@ -231,7 +234,10 @@
     <!-- Canvas -->
     <div id="canvas-container">
       <canvas id="editor-canvas"></canvas>
-      <canvas id="minimap-canvas" style="display:none; position:absolute; bottom:36px; right:8px; border:1px solid var(--border); border-radius:4px; opacity:0.9; cursor:pointer; z-index:10;"></canvas>
+      <div id="minimap-wrapper" style="display:none; position:absolute; bottom:36px; right:8px; z-index:10;">
+        <div id="minimap-header">Minimap</div>
+        <canvas id="minimap-canvas"></canvas>
+      </div>
 
       <!-- Floating Drawing Toolbar -->
       <div id="drawing-toolbar">
@@ -639,9 +645,22 @@
             <div class="shortcut-row"><kbd>R</kbd><span>Toggle Round (Trim)</span></div>
             <div class="shortcut-row"><kbd>I</kbd><span>Toggle Inverted (Trim)</span></div>
             <div class="shortcut-row"><kbd>O</kbd><span>Toggle Open (Trim)</span></div>
-            <div class="shortcut-row"><kbd>R / F</kbd><span>Rotate / Flip prop during drag</span></div>
+            <div class="shortcut-row"><kbd>R / F</kbd><span>Rotate / Flip (Props, Bridge)</span></div>
             <div class="shortcut-row"><kbd>R</kbd><span>Rotate bridge (Bridge tool)</span></div>
             <div class="shortcut-row"><kbd>D / Shift+D</kbd><span>Cycle depth (Fill, water/lava)</span></div>
+            <div class="shortcuts-section">File &amp; Panels</div>
+            <div class="shortcut-row"><kbd>Ctrl+S</kbd><span>Save</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Z</kbd><span>Undo</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Y</kbd><span>Redo</span></div>
+            <div class="shortcut-row"><kbd>F1–F5</kbd><span>Toggle sidebar panels</span></div>
+            <div class="shortcut-row"><kbd>?</kbd><span>This help</span></div>
+            <div class="shortcuts-section">Editing</div>
+            <div class="shortcut-row"><kbd>Ctrl+C</kbd><span>Copy selection (Select)</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+X</kbd><span>Cut selection (Select)</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+V</kbd><span>Paste</span></div>
+            <div class="shortcut-row"><kbd>Delete</kbd><span>Delete selected cells</span></div>
+            <div class="shortcut-row"><kbd>↑↓←→</kbd><span>Nudge selection (Select)</span></div>
+            <div class="shortcut-row"><kbd>Esc</kbd><span>Cancel / deselect</span></div>
           </div>
           <div class="shortcuts-col">
             <div class="shortcuts-section">Tools</div>
@@ -658,18 +677,19 @@
             <div class="shortcut-row"><kbd>Q</kbd><span>Prop</span></div>
             <div class="shortcut-row"><kbd>E</kbd><span>Erase</span></div>
             <div class="shortcut-row"><kbd>L</kbd><span>Light</span></div>
-            <div class="shortcuts-section">File &amp; Panels</div>
-            <div class="shortcut-row"><kbd>Ctrl+S</kbd><span>Save</span></div>
-            <div class="shortcut-row"><kbd>Ctrl+Z</kbd><span>Undo</span></div>
-            <div class="shortcut-row"><kbd>Ctrl+Y</kbd><span>Redo</span></div>
-            <div class="shortcut-row"><kbd>F1–F5</kbd><span>Toggle sidebar panels</span></div>
-            <div class="shortcut-row"><kbd>?</kbd><span>This help</span></div>
-            <div class="shortcuts-section">Editing</div>
-            <div class="shortcut-row"><kbd>Ctrl+C</kbd><span>Copy selection (Select)</span></div>
-            <div class="shortcut-row"><kbd>Ctrl+V</kbd><span>Paste</span></div>
-            <div class="shortcut-row"><kbd>Delete</kbd><span>Delete selected cells</span></div>
-            <div class="shortcut-row"><kbd>↑↓←→</kbd><span>Nudge selection (Select)</span></div>
-            <div class="shortcut-row"><kbd>Esc</kbd><span>Cancel / deselect</span></div>
+            <div class="shortcuts-section">Props</div>
+            <div class="shortcut-row"><kbd>R / Shift+R</kbd><span>Rotate 90° CW / CCW</span></div>
+            <div class="shortcut-row"><kbd>F</kbd><span>Flip horizontally</span></div>
+            <div class="shortcut-row"><kbd>Alt+Scroll</kbd><span>Fine rotate (15° steps)</span></div>
+            <div class="shortcut-row"><kbd>Alt+Shift+Scroll</kbd><span>Scale up / down</span></div>
+            <div class="shortcut-row"><kbd>[ / ]</kbd><span>Z-order backward / forward</span></div>
+            <div class="shortcut-row"><kbd>↑↓←→</kbd><span>Nudge 1 foot</span></div>
+            <div class="shortcut-row"><kbd>Shift+↑↓←→</kbd><span>Nudge 1 cell</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Click</kbd><span>Freeform placement (sub-cell)</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+Drag</kbd><span>Freeform move (sub-cell)</span></div>
+            <div class="shortcut-row"><kbd>Shift+Drag</kbd><span>Snap to grid (clear freeform offset)</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+C / V</kbd><span>Copy / paste props</span></div>
+            <div class="shortcut-row"><kbd>Ctrl+X</kbd><span>Cut props</span></div>
           </div>
         </div>
         <div class="mw-modal-footer">
@@ -748,6 +768,15 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-claude-warning-enable">Enable</button>
         </div>
       </div>
+    </div>
+
+    <!-- Keybindings Helper (floating, draggable) -->
+    <div id="keybindings-helper" style="display:none;">
+      <div class="kb-header">
+        <span class="kb-header-title">Room Tool (1)</span>
+        <button class="kb-close" title="Close">&times;</button>
+      </div>
+      <div class="kb-body"></div>
     </div>
 
     <!-- Status Bar -->

@@ -58,22 +58,25 @@ Free-form placement makes AI authoring harder:
 - Overlap detection becomes geometric (bounding box intersection)
 - Alignment and spacing become subjective
 
-### Mitigation Strategies
+### Mitigation Strategies (Priority Order)
 
-1. **Snap-to-grid mode (default for API):** AI places props at grid centers by default. Free-form is opt-in via `{ snap: false }`.
+1. **Grid-relative coordinates (default, most critical):** `placeProp(row, col, propType, facing)` signature is preserved exactly. The API converts grid coords to world-feet internally (`x = col * gridSize, y = row * gridSize`). AI never needs to think in world-feet unless explicitly opting in via `options.x, options.y`. This makes the refactor invisible to existing AI workflows.
 
-2. **Smart placement helpers:** Keep high-level helpers that return good positions:
-   - `suggestPropPosition(roomLabel, propType)` — returns centered/wall-aligned position
-   - `fillWallWithProps` — still works, outputs world-feet positions
-   - `scatterProps` / `clusterProps` — calculate positions, output world-feet
+2. **Smart placement helpers stay working:** All existing helpers that abstract away coordinates continue to work:
+   - `getValidPropPositions` — returns valid anchor cells (grid-relative), conversion is internal
+   - `fillWallWithProps` — still works, outputs world-feet positions internally
+   - `scatterProps` / `clusterProps` / `lineProps` — calculate positions, output world-feet internally
+   - **NEW:** `suggestPropPosition(roomLabel, propType)` — uses prop `placement` metadata (wall/center/corner/floor) to compute a semantically correct position. Returns `{ x, y, rotation, row, col }` (both coordinate systems). This is the big new AI helper — "put a throne in this room, facing the door" becomes a single call.
 
-3. **Grid-relative coordinates:** API accepts `{ row: 5, col: 8 }` and converts to world-feet internally. AI never needs to think in world-feet unless doing fine-tuning.
-
-4. **Z-order presets:** Instead of raw numbers, use semantic layers:
+3. **Z-order presets:** Instead of raw numbers, use semantic layer names:
    - `"floor"` (z=0) — carpets, rugs, floor markings
    - `"furniture"` (z=10) — tables, chairs, beds
    - `"tall"` (z=20) — bookshelves, pillars, statues
    - `"hanging"` (z=30) — chandeliers, banners, hanging cages
+
+4. **Collision warnings, not failures:** Overlap is opt-in. Default behavior still prevents overlap (backward compat for AI). When `{ allowOverlap: true }` is passed, overlapping props return `{ success: true, warnings: ["overlaps with prop_003"] }` instead of throwing. This lets AI intentionally stack props (book on desk, rug under furniture) without fear.
+
+5. **Snap-to-grid default:** Props snap to grid cell origins by default. Free-form (sub-cell) placement is opt-in via `{ snap: false }`. Combined with strategy 1, this means AI-placed props land exactly where grid-locked props would have.
 
 ## Migration Path
 
@@ -102,9 +105,9 @@ Props with `blocksLight: true` currently contribute wall segments to the lightin
 - Light segments must be computed from the prop's actual rotated/scaled bounding box
 - This is geometrically more complex but well-defined
 
-## Open Questions
+## Resolved Questions
 
-- Should props snap to walls when dragged near them? (wall-mounted props like sconces, banners)
-- Should there be a "lock" toggle to prevent accidental movement?
-- How do we handle the `formatVersion` bump? Auto-migrate on load?
-- Should scale affect light radius for light-emitting props (braziers, torches)?
+- **Wall snapping?** Yes — props with `placement: wall` snap to the nearest wall edge when dragged near one. Ctrl overrides to free placement.
+- **Lock toggle?** Deferred — not needed for initial release. Can add later if accidental movement becomes a problem.
+- **Format version bump?** Yes, auto-migrate on load. `formatVersion` goes from 1 → 2. Migration scans all `cell.prop` entries, creates `metadata.props[]` entries, and deletes `cell.prop`. Old files open seamlessly.
+- **Scale affect light radius?** Yes — linked lights scale proportionally with the prop. A 2x brazier emits a 2x radius light.

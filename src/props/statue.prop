@@ -3,7 +3,7 @@ category: Features
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
 placement: floor
 room_types: temple, throne-room, garden, gallery, memorial
 typical_count: few

@@ -19,8 +19,8 @@ describe('CURRENT_FORMAT_VERSION', () => {
     expect(CURRENT_FORMAT_VERSION).toBeGreaterThan(0);
   });
 
-  it('equals 1 for the current codebase', () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(1);
+  it('equals 2 for the current codebase', () => {
+    expect(CURRENT_FORMAT_VERSION).toBe(2);
   });
 });
 
@@ -31,26 +31,28 @@ describe('migrateToLatest', () => {
     vi.clearAllMocks();
   });
 
-  it('applies v0->v1 migration when formatVersion is absent (v0)', () => {
+  it('applies v0->v1->v2 migration when formatVersion is absent (v0)', () => {
     const json = { metadata: {}, cells: [] };
     const result = migrateToLatest(json);
 
     expect(migrateHalfTextures).toHaveBeenCalledOnce();
     expect(migrateHalfTextures).toHaveBeenCalledWith(json);
-    expect(result.metadata.formatVersion).toBe(1);
+    expect(result.metadata.formatVersion).toBe(2);
+    // v1->v2 creates metadata.props[]
+    expect(result.metadata.props).toEqual([]);
   });
 
-  it('stamps formatVersion=1 after migration from v0', () => {
+  it('stamps current version after migration from v0', () => {
     const json = { metadata: { formatVersion: 0 }, cells: [] };
     migrateToLatest(json);
     expect(json.metadata.formatVersion).toBe(CURRENT_FORMAT_VERSION);
   });
 
   it('does not apply any migration when formatVersion equals current', () => {
-    const json = { metadata: { formatVersion: 1 }, cells: [] };
+    const json = { metadata: { formatVersion: 2, props: [] }, cells: [] };
     migrateToLatest(json);
     expect(migrateHalfTextures).not.toHaveBeenCalled();
-    expect(json.metadata.formatVersion).toBe(1);
+    expect(json.metadata.formatVersion).toBe(2);
   });
 
   it('logs warning and returns json unchanged for future version', () => {
@@ -92,5 +94,74 @@ describe('migrateToLatest', () => {
     expect(json.metadata.dungeonName).toBe('Test');
     expect(json.metadata.gridSize).toBe(5);
     expect(json.metadata.formatVersion).toBe(CURRENT_FORMAT_VERSION);
+  });
+
+  // ── v1 → v2: Props to Overlay ──────────────────────────────────────────
+
+  it('v1->v2 extracts cell.prop into metadata.props[]', () => {
+    const json = {
+      metadata: { formatVersion: 1, gridSize: 5 },
+      cells: [
+        [null, null, null],
+        [null, { prop: { type: 'throne', span: [1, 1], facing: 90, flipped: false } }, null],
+        [null, null, null],
+      ],
+    };
+    migrateToLatest(json);
+
+    expect(json.metadata.formatVersion).toBe(2);
+    expect(json.metadata.props).toHaveLength(1);
+    const p = json.metadata.props[0];
+    expect(p.type).toBe('throne');
+    expect(p.x).toBe(5);   // col=1 * gridSize=5
+    expect(p.y).toBe(5);   // row=1 * gridSize=5
+    expect(p.rotation).toBe(90);
+    expect(p.scale).toBe(1.0);
+    expect(p.zIndex).toBe(10);
+    expect(p.id).toBe('prop_1');
+  });
+
+  it('v1->v2 handles multiple props', () => {
+    const json = {
+      metadata: { formatVersion: 1, gridSize: 10 },
+      cells: [
+        [{ prop: { type: 'pillar', span: [1, 1], facing: 0 } }, null],
+        [null, { prop: { type: 'chair', span: [1, 1], facing: 270, flipped: true } }],
+      ],
+    };
+    migrateToLatest(json);
+
+    expect(json.metadata.props).toHaveLength(2);
+    expect(json.metadata.props[0].type).toBe('pillar');
+    expect(json.metadata.props[0].x).toBe(0);
+    expect(json.metadata.props[0].y).toBe(0);
+    expect(json.metadata.props[1].type).toBe('chair');
+    expect(json.metadata.props[1].x).toBe(10);
+    expect(json.metadata.props[1].y).toBe(10);
+    expect(json.metadata.props[1].flipped).toBe(true);
+    expect(json.metadata.nextPropId).toBe(3);
+  });
+
+  it('v1->v2 skips if metadata.props already exists', () => {
+    const json = {
+      metadata: { formatVersion: 1, props: [{ id: 'existing' }] },
+      cells: [[{ prop: { type: 'throne', span: [1, 1], facing: 0 } }]],
+    };
+    migrateToLatest(json);
+
+    // Should not overwrite existing props
+    expect(json.metadata.props).toHaveLength(1);
+    expect(json.metadata.props[0].id).toBe('existing');
+  });
+
+  it('v1->v2 creates empty array when no props exist', () => {
+    const json = {
+      metadata: { formatVersion: 1, gridSize: 5 },
+      cells: [[null, {}], [null, null]],
+    };
+    migrateToLatest(json);
+
+    expect(json.metadata.props).toEqual([]);
+    expect(json.metadata.nextPropId).toBe(1);
   });
 });

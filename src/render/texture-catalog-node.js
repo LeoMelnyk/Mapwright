@@ -107,16 +107,12 @@ function collectTextureIds(cells) {
 export async function ensureTexturesForConfig(catalog, config, propCatalog) {
   const ids = collectTextureIds(config.cells);
 
-  // Also include textures referenced by props
-  if (propCatalog?.props) {
-    for (const row of config.cells) {
-      if (!row) continue;
-      for (const cell of row) {
-        if (!cell?.prop) continue;
-        const propDef = propCatalog.props[cell.prop.type];
-        if (propDef?.textures) {
-          for (const id of propDef.textures) ids.add(id);
-        }
+  // Also include textures referenced by overlay props
+  if (propCatalog?.props && config.metadata?.props) {
+    for (const op of config.metadata.props) {
+      const propDef = propCatalog.props[op.type];
+      if (propDef?.textures) {
+        for (const id of propDef.textures) ids.add(id);
       }
     }
   }

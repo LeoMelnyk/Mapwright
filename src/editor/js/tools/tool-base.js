@@ -12,6 +12,7 @@ export class Tool {
   onMouseMove(_row, _col, _edge, _event, _pos) {}
   onMouseUp(_row, _col, _edge, _event, _pos) {}
   onKeyDown(_event) {}
+  onWheel(_row, _col, _deltaY, _event) {}
   onRightClick(_row, _col, _edge, _event) {}
   getCursor() { return this.cursor; }
   renderOverlay(_ctx, _transform, _gridSize) {}

@@ -237,7 +237,8 @@ function render() {
     renderLightmap(ctx, allLights, cells, gridSize, transform,
       canvas.width, canvas.height, metadata.ambientLight ?? 0.15,
       state.textureCatalog, state.propCatalog,
-      { ambientColor: metadata.ambientColor || '#ffffff', time: state.animClock ?? 0 });
+      { ambientColor: metadata.ambientColor || '#ffffff', time: state.animClock ?? 0 },
+      metadata);
     // Draw labels after lightmap so they are unaffected by the multiply overlay
     renderLabels(ctx, cells, gridSize, theme, transform, labelStyle);
     // Coverage heatmap overlay (DM prep tool)
@@ -822,6 +823,16 @@ function onMouseLeave() {
 function onWheel(e) {
   e.preventDefault();
   const pos = getMousePos(e);
+
+  // Alt+wheel → dispatch to active tool (rotation/scale)
+  if (e.altKey && activeTool?.onWheel) {
+    const gridSize = state.dungeon.metadata.gridSize;
+    const transform = { scale: CELL_SIZE * state.zoom / gridSize, offsetX: state.panX, offsetY: state.panY };
+    const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
+    activeTool.onWheel(cell.row, cell.col, e.deltaY, e);
+    return;
+  }
+
   const delta = e.deltaY > 0 ? 0.9 : 1.1;
   const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, state.zoom * delta));
 

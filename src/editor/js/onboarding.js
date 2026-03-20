@@ -27,10 +27,10 @@ const TOOL_HINTS = {
   stairs: 'Click 3 corner points to define stair shape · Tab = Place/Link mode',
   bridge: 'Click 3 points to place a bridge · R = rotate · Tab = Wood/Stone/Rope/Dock',
   trim:   'Drag from a room corner to trim · R = Round · I = Invert · O = Open',
-  select: 'Drag to select cells · Ctrl+C/V = copy/paste · Del = delete · Tab = Inspect',
+  select: 'Drag to select cells · Ctrl+C/V = copy/paste · Ctrl+X = cut · Del = delete · Tab = Inspect',
   prop:   'Choose a prop from the sidebar, then click to place · R = rotate · F = flip',
   erase:  'Click or drag to erase cells · Shift = constrain to square',
-  light:  'Choose a preset from the bar, then click to place · Ctrl+drag = resize radius',
+  light:  'Choose a preset from the bar, then click to place · Ctrl+drag = resize radius · Ctrl+C/X/V = copy/cut/paste',
 };
 
 function getSeenHints() {
@@ -266,15 +266,7 @@ class Tutorial {
   }
 
   _countProps() {
-    let count = 0;
-    const cells = state.dungeon.cells;
-    for (const row of cells) {
-      if (!row) continue;
-      for (const cell of row) {
-        if (cell?.prop) count++;
-      }
-    }
-    return count;
+    return state.dungeon.metadata?.props?.length || 0;
   }
 
   _checkCompletion() {

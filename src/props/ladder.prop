@@ -1,0 +1,32 @@
+name: Ladder
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: any
+typical_count: single
+clusters_with: trapdoor
+notes: Access between levels; place against wall or over a trapdoor
+---
+# Dark access hole beneath
+circle 0.50,0.50 0.35 fill #1a1a1a 0.4
+# Left rail
+rect 0.22,0.08 0.08,0.84 texfill polyhaven/dark_wood 0.85
+rect 0.22,0.08 0.08,0.84 stroke #3a1f00
+# Right rail
+rect 0.70,0.08 0.08,0.84 texfill polyhaven/dark_wood 0.85
+rect 0.70,0.08 0.08,0.84 stroke #3a1f00
+# Rung 1
+rect 0.28,0.20 0.44,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.28,0.20 0.44,0.06 stroke #3a1f00
+# Rung 2
+rect 0.28,0.40 0.44,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.28,0.40 0.44,0.06 stroke #3a1f00
+# Rung 3
+rect 0.28,0.60 0.44,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.28,0.60 0.44,0.06 stroke #3a1f00
+# Rung 4
+rect 0.28,0.80 0.44,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.28,0.80 0.44,0.06 stroke #3a1f00

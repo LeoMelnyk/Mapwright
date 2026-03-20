@@ -133,7 +133,8 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
           : levelLights;
         const levelHeight = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE + MARGIN * 2);
         renderLightmapHQ(ctx, allLevelLights, levelCells, gridSize, levelTransform,
-          width, levelHeight, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog);
+          width, levelHeight, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog,
+          null, config.metadata);
         // Draw labels after lightmap so they are unaffected by the multiply overlay
         renderLabels(ctx, levelCells, gridSize, theme, levelTransform, labelStyle);
       }
@@ -184,7 +185,8 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
         ? [...(config.metadata.lights || []), ...fillLights]
         : (config.metadata.lights || []);
       renderLightmapHQ(ctx, allLights, config.cells, gridSize, transform,
-        width, height, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog);
+        width, height, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog,
+        null, config.metadata);
       // Draw labels after lightmap so they are unaffected by the multiply overlay
       renderLabels(ctx, config.cells, gridSize, theme, transform, labelStyle);
     }

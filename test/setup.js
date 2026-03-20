@@ -177,6 +177,11 @@ vi.mock('../src/editor/js/tools/index.js', () => {
   };
 });
 
+// ── Prop spatial hash init (lazy getter to avoid circular import) ─────────
+import { initPropSpatial } from '../src/editor/js/prop-spatial.js';
+import state from '../src/editor/js/state.js';
+initPropSpatial(() => state);
+
 // ── Render pipeline (not needed for API tests) ──────────────────────────────
 
 vi.mock('../src/render/index.js', () => ({

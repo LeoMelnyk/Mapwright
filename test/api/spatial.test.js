@@ -12,6 +12,26 @@ import {
   findWallBetween,
   partitionRoom,
 } from '../../src/editor/js/api/spatial.js';
+import { markPropSpatialDirty } from '../../src/editor/js/prop-spatial.js';
+
+/** Place a prop via metadata.props[] (overlay) for test setup. */
+function placeOverlayProp(row, col, type, span, facing = 0) {
+  const meta = state.dungeon.metadata;
+  if (!meta.props) meta.props = [];
+  if (!meta.nextPropId) meta.nextPropId = 1;
+  const gridSize = meta.gridSize || 5;
+  meta.props.push({
+    id: `prop_${meta.nextPropId++}`,
+    type,
+    x: col * gridSize,
+    y: row * gridSize,
+    rotation: facing,
+    scale: 1.0,
+    zIndex: 10,
+    flipped: false,
+  });
+  markPropSpatialDirty();
+}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -61,6 +81,14 @@ beforeEach(() => {
   state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
   state.undoStack = [];
   state.redoStack = [];
+  state.propCatalog = {
+    categories: ['furniture'],
+    props: {
+      'chair': { name: 'Chair', category: 'furniture', footprint: [1, 1], facing: true },
+      'table': { name: 'Table', category: 'furniture', footprint: [2, 2], facing: false },
+    },
+  };
+  markPropSpatialDirty();
 });
 
 // ── findCellByLabel ──────────────────────────────────────────────────────────
@@ -224,8 +252,8 @@ describe('_getWallCells', () => {
 
 describe('_isCellCoveredByProp', () => {
   it('returns true for a cell with a prop directly on it', () => {
-    const cells = state.dungeon.cells;
-    cells[5][5] = { prop: { type: 'chair', span: [1, 1], facing: 0 } };
+    state.dungeon.cells[5][5] = {};
+    placeOverlayProp(5, 5, 'chair', [1, 1]);
     expect(_isCellCoveredByProp(5, 5)).toBe(true);
   });
 
@@ -240,11 +268,12 @@ describe('_isCellCoveredByProp', () => {
 
   it('detects coverage by a multi-cell prop anchored elsewhere', () => {
     const cells = state.dungeon.cells;
-    // Place a 2x2 prop at (5,5)
-    cells[5][5] = { prop: { type: 'table', span: [2, 2], facing: 0 } };
+    cells[5][5] = {};
     cells[5][6] = {};
     cells[6][5] = {};
     cells[6][6] = {};
+    // Place a 2x2 prop at (5,5)
+    placeOverlayProp(5, 5, 'table', [2, 2]);
     // (6,6) should be covered by the 2x2 prop at (5,5)
     expect(_isCellCoveredByProp(6, 6)).toBe(true);
     // (5,6) should be covered too
@@ -255,9 +284,10 @@ describe('_isCellCoveredByProp', () => {
 
   it('does not false-positive for cells outside prop span', () => {
     const cells = state.dungeon.cells;
-    cells[5][5] = { prop: { type: 'table', span: [2, 2], facing: 0 } };
+    cells[5][5] = {};
     cells[5][7] = {};
     cells[7][5] = {};
+    placeOverlayProp(5, 5, 'table', [2, 2]);
     expect(_isCellCoveredByProp(5, 7)).toBe(false);
     expect(_isCellCoveredByProp(7, 5)).toBe(false);
   });

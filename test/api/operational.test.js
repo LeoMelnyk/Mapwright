@@ -203,8 +203,11 @@ describe('getRoomContents', () => {
       state.dungeon.cells[r][2].west = 'w';
       state.dungeon.cells[r][5].east = 'w';
     }
-    // Add a prop to one cell
-    state.dungeon.cells[3][4] = { prop: { type: 'pillar', facing: 0 } };
+    // Add a prop via overlay
+    const gs = state.dungeon.metadata.gridSize || 5;
+    state.dungeon.metadata.props = [
+      { id: 1, type: 'pillar', x: 4 * gs, y: 3 * gs, rotation: 0 },
+    ];
     // Add a texture to one cell
     state.dungeon.cells[4][3] = { texture: 'cobblestone', textureOpacity: 0.8 };
     // Add a door

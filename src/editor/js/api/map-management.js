@@ -45,13 +45,13 @@ export function getMapInfo() {
   const meta = state.dungeon.metadata;
   const cells = state.dungeon.cells;
 
-  let propCount = 0, labelCount = 0;
+  const propCount = meta.props ? meta.props.length : 0;
+  let labelCount = 0;
   const textureIds = new Set();
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell) continue;
-      if (cell.prop) propCount++;
       if (cell.center?.label != null) labelCount++;
       if (cell.texture?.id) textureIds.add(cell.texture.id);
     }
@@ -94,10 +94,10 @@ export function getFullMapInfo() {
   }
 
   const props = [];
-  for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
-      const prop = cells[r]?.[c]?.prop;
-      if (prop) props.push({ row: r, col: c, type: prop.type, facing: prop.facing, span: [...prop.span] });
+  const gs = meta.gridSize || 5;
+  if (meta.props) {
+    for (const op of meta.props) {
+      props.push({ row: Math.round(op.y / gs), col: Math.round(op.x / gs), type: op.type, facing: op.rotation ?? 0, id: op.id });
     }
   }
 

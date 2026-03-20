@@ -14,5 +14,27 @@ notes: Line along walls; use fillWallWithProps for rows of shelves
 rect 0.05,0.05 0.9,1.9 texfill polyhaven/wood_cabinet_worn_long 0.85
 rect 0.05,0.05 0.9,1.9 stroke #3a1f00
 # Shelf partition lines
-line 0.08,0.68 0.92,0.68
-line 0.08,1.35 0.92,1.35
+line 0.08,0.68 0.92,0.68 stroke #2a1400
+line 0.08,1.35 0.92,1.35 stroke #2a1400
+# Book spines (top shelf)
+rect 0.12,0.12 0.08,0.50 fill #8b0000 0.4
+rect 0.24,0.14 0.06,0.48 fill #1a3a5c 0.4
+rect 0.34,0.12 0.08,0.50 fill #2a5a2a 0.4
+rect 0.46,0.14 0.06,0.48 fill #5c3a1e 0.35
+rect 0.56,0.12 0.10,0.50 fill #4a2800 0.4
+rect 0.70,0.14 0.06,0.48 fill #8b6914 0.35
+rect 0.80,0.12 0.08,0.50 fill #3a1a4a 0.4
+# Book spines (middle shelf)
+rect 0.14,0.74 0.10,0.55 fill #2a5a2a 0.35
+rect 0.28,0.76 0.06,0.53 fill #8b0000 0.35
+rect 0.38,0.74 0.08,0.55 fill #1a3a5c 0.4
+rect 0.50,0.76 0.10,0.53 fill #5a3a00 0.35
+rect 0.64,0.74 0.06,0.55 fill #4a2800 0.4
+rect 0.74,0.76 0.08,0.53 fill #3a1a4a 0.35
+# Book spines (bottom shelf)
+rect 0.12,1.42 0.08,0.48 fill #5c3a1e 0.4
+rect 0.24,1.44 0.10,0.46 fill #8b6914 0.35
+rect 0.38,1.42 0.06,0.48 fill #8b0000 0.35
+rect 0.48,1.44 0.08,0.46 fill #1a3a5c 0.4
+rect 0.60,1.42 0.10,0.48 fill #2a5a2a 0.35
+rect 0.74,1.44 0.06,0.46 fill #3a1a4a 0.35

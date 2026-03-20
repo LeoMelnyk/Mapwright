@@ -1,0 +1,31 @@
+name: Nightstand
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: bedroom, quarters, inn
+typical_count: few
+clusters_with: bed, candle-cluster
+notes: Bedside table; place adjacent to beds
+---
+# Table surface
+rect 0.20,0.20 0.60,0.60 texfill polyhaven/dark_wood 0.85
+rect 0.20,0.20 0.60,0.60 stroke #3a1f00
+# Drawer pull (front/south face)
+rect 0.42,0.68 0.16,0.06 fill #daa520 0.5
+rect 0.42,0.68 0.16,0.06 stroke #8b6914
+# Drawer line
+line 0.24,0.60 0.76,0.60 stroke #2a1400 0.4
+# Candle on top
+circle 0.60,0.38 0.06 fill #e8dcc8 0.8
+circle 0.60,0.38 0.06 stroke #c8b898
+circle 0.60,0.38 0.02 fill #333333 0.8
+# Small flame
+circle 0.60,0.34 0.03 fill #ffaa00 0.6
+# Leg shadows
+circle 0.26,0.26 0.03 fill #2a1400 0.4
+circle 0.74,0.26 0.03 fill #2a1400 0.4
+circle 0.26,0.74 0.03 fill #2a1400 0.4
+circle 0.74,0.74 0.03 fill #2a1400 0.4

@@ -6,7 +6,7 @@
  * No DOM dependencies — works with any CanvasRenderingContext2D.
  */
 
-import { extractPropLightSegments } from './props.js';
+import { extractOverlayPropLightSegments } from './props.js';
 
 // ─── Constants ─────
 const INVERSE_SQUARE_K = 25;
@@ -21,7 +21,7 @@ const GRADIENT_STOPS = 16;
  * Extract wall segments from the cell grid as line segments in world-feet coords.
  * Returns [{x1, y1, x2, y2}, ...] with duplicates removed.
  */
-export function extractWallSegments(cells, gridSize, propCatalog) {
+export function extractWallSegments(cells, gridSize, propCatalog, metadata = null) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const seen = new Set();
@@ -70,20 +70,12 @@ export function extractWallSegments(cells, gridSize, propCatalog) {
 
   // Props that block light: extract actual shape geometry as segments
   if (propCatalog?.props) {
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        const cell = cells[row][col];
-        if (!cell?.prop) continue;
-
-        const propDef = propCatalog.props[cell.prop.type];
+    if (metadata?.props?.length) {
+      for (const op of metadata.props) {
+        const propDef = propCatalog.props[op.type];
         if (!propDef?.blocksLight) continue;
-
-        const rotation = cell.prop.facing || 0;
-        const flipped = cell.prop.flipped || false;
-        const propSegs = extractPropLightSegments(propDef, row, col, rotation, flipped, gridSize);
-        for (const seg of propSegs) {
-          addSeg(seg.x1, seg.y1, seg.x2, seg.y2);
-        }
+        const propSegs = extractOverlayPropLightSegments(propDef, op, gridSize);
+        for (const seg of propSegs) addSeg(seg.x1, seg.y1, seg.x2, seg.y2);
       }
     }
   }
@@ -656,7 +648,7 @@ export function invalidateVisibilityCache() {
  * @param {number} ambientLevel - 0.0 (pitch black) to 1.0 (fully lit)
  * @param {object} [textureCatalog] - optional texture catalog for normal maps
  */
-export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options) {
+export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options, metadata = null) {
   const { ambientColor = '#ffffff', time = 0 } = options || {};
   const activeLights = lights || [];
 
@@ -664,7 +656,7 @@ export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW,
   // Every tool that modifies walls/props/lights calls invalidateLightmap() → invalidateVisibilityCache(),
   // so per-frame extraction and hashing is unnecessary and was causing GC pressure.
   if (!cachedWallSegments) {
-    cachedWallSegments = extractWallSegments(cells, gridSize, propCatalog);
+    cachedWallSegments = extractWallSegments(cells, gridSize, propCatalog, metadata);
   }
   const segments = cachedWallSegments;
 

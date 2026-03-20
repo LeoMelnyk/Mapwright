@@ -1,0 +1,32 @@
+name: Flowers
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: garden, courtyard, wilderness, meadow, fey-grove
+typical_count: many
+clusters_with: flowers, tall-grass, bush
+notes: Small wildflower cluster; scatter freely in outdoor areas
+---
+# Stems and leaves
+line 0.30,0.55 0.30,0.40 stroke #3a7a28 0.35
+line 0.55,0.60 0.55,0.42 stroke #3a7a28 0.35
+line 0.72,0.50 0.72,0.35 stroke #2d5a1e 0.35
+line 0.40,0.75 0.40,0.62 stroke #3a7a28 0.30
+line 0.65,0.72 0.65,0.58 stroke #2d5a1e 0.30
+# Flower heads
+circle 0.30,0.38 0.05 fill #dd4466 0.55
+circle 0.55,0.40 0.06 fill #ffcc44 0.55
+circle 0.72,0.33 0.05 fill #cc44cc 0.50
+circle 0.40,0.60 0.04 fill #ffaa44 0.50
+circle 0.65,0.56 0.05 fill #4488dd 0.50
+# Flower centers
+circle 0.30,0.38 0.02 fill #ffee88 0.60
+circle 0.55,0.40 0.02 fill #885500 0.50
+circle 0.72,0.33 0.02 fill #ffee88 0.55
+# Leaf accents
+circle 0.35,0.50 0.03 fill #3a7a28 0.25
+circle 0.60,0.52 0.03 fill #2d5a1e 0.25
+circle 0.48,0.70 0.03 fill #3a7a28 0.20

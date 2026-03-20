@@ -1,0 +1,27 @@
+name: Bush
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: garden, courtyard, wilderness, forest, hedge-maze
+typical_count: many
+clusters_with: bush, flowers, tree-small
+notes: Round shrub; cluster along walls or paths for hedgerow effect
+---
+# Foliage clusters (overlapping for organic shape)
+circle 0.35,0.38 0.18 fill #2d6a1e 0.30
+circle 0.65,0.35 0.16 fill #3a7a28 0.28
+circle 0.30,0.60 0.15 fill #2d5a1e 0.28
+circle 0.68,0.62 0.17 fill #3a7a28 0.30
+circle 0.50,0.45 0.20 fill #357020 0.25
+circle 0.50,0.65 0.14 fill #2d6a1e 0.25
+# Highlight spots
+circle 0.42,0.40 0.08 fill #4a9a38 0.18
+circle 0.58,0.50 0.06 fill #5aaa48 0.15
+# Outer edge outlines
+circle 0.35,0.38 0.18 stroke #1a4a10 0.20
+circle 0.65,0.35 0.16 stroke #1a4a10 0.18
+circle 0.30,0.60 0.15 stroke #1a4a10 0.18
+circle 0.68,0.62 0.17 stroke #1a4a10 0.20

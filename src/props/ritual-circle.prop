@@ -4,6 +4,7 @@ footprint: 3x3
 facing: no
 shadow: no
 blocks_light: no
+lights: [{"preset":"infernal-flame","x":1.5,"y":1.5}]
 placement: center
 room_types: wizard-sanctum, ritual-chamber, dark-temple, summoning-room
 typical_count: single

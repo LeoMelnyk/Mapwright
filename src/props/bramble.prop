@@ -1,0 +1,38 @@
+name: Bramble
+category: Terrain
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: wilderness, forest, ruin, overgrown, hedge-maze
+typical_count: few
+clusters_with: bramble, rubble, dead-tree
+notes: Thorny thicket; use as natural barrier or overgrown terrain. Difficult terrain
+---
+# Tangled vine mass
+line 0.15,0.30 0.85,0.50 stroke #3a5a20 0.30
+line 0.20,0.80 0.80,0.40 stroke #2d4a18 0.28
+line 0.10,1.20 0.90,1.00 stroke #3a5a20 0.30
+line 0.25,1.60 0.75,1.30 stroke #2d4a18 0.28
+line 0.15,0.60 0.85,1.10 stroke #3a5a20 0.25
+line 0.80,0.20 0.20,1.50 stroke #2d4a18 0.22
+line 0.30,0.15 0.70,1.80 stroke #3a5a20 0.22
+# Leaf clusters along vines
+circle 0.30,0.35 0.06 fill #2d6a1e 0.25
+circle 0.60,0.45 0.07 fill #3a7a28 0.22
+circle 0.45,0.75 0.06 fill #2d5a1e 0.25
+circle 0.70,0.90 0.07 fill #3a7a28 0.22
+circle 0.35,1.15 0.06 fill #2d6a1e 0.25
+circle 0.55,1.40 0.07 fill #2d5a1e 0.22
+circle 0.40,1.65 0.06 fill #3a7a28 0.25
+# Thorns (small sharp marks)
+circle 0.42,0.38 0.02 fill #5c3a1e 0.40
+circle 0.68,0.55 0.02 fill #5c3a1e 0.40
+circle 0.35,0.95 0.02 fill #5c3a1e 0.35
+circle 0.58,1.10 0.02 fill #5c3a1e 0.40
+circle 0.45,1.50 0.02 fill #5c3a1e 0.35
+# Small berries
+circle 0.25,0.55 0.02 fill #2a1a4a 0.45
+circle 0.72,1.25 0.02 fill #2a1a4a 0.45
+circle 0.50,1.70 0.02 fill #2a1a4a 0.40

@@ -4,6 +4,7 @@ import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
 import { getLightCatalog } from '../light-catalog.js';
+import { showToast } from '../toast.js';
 
 const LIGHT_HIT_RADIUS = 8; // pixels at screen scale for click detection
 
@@ -72,6 +73,7 @@ export class LightTool extends Tool {
     this.dragMoved = false;
     this.hoveredLightId = null;
     this.hoverPos = null;
+    state.lightPasteMode = false;
     state.statusInstruction = null;
     const bar = document.getElementById('light-options');
     if (bar) bar.style.display = 'none';
@@ -128,6 +130,12 @@ export class LightTool extends Tool {
   }
 
   onMouseDown(row, col, edge, event, pos) {
+    // Paste mode: place the clipboard light at cursor position
+    if (state.lightPasteMode && state.lightClipboard) {
+      this._commitLightPaste(pos, event);
+      return;
+    }
+
     // Unified: hit-test first — select+drag if over a light, place otherwise
     const hit = hitTestLight(pos);
     if (hit) {
@@ -231,26 +239,50 @@ export class LightTool extends Tool {
   }
 
   onKeyDown(e) {
+    // Delete selected light
     if (e.key === 'Delete' || e.key === 'Backspace') {
       if (state.selectedLightId != null) {
-        const light = findLightById(state.selectedLightId);
-        if (light) {
-          pushUndo('Delete light');
-          const lights = getLights();
-          const idx = lights.indexOf(light);
-          if (idx >= 0) lights.splice(idx, 1);
-          state.selectedLightId = null;
-          if (this.hoveredLightId === light.id) {
-            this.hoveredLightId = null;
-            setCursor('crosshair');
-          }
-          this._updateStatusInstruction();
-          invalidateLightmap();
-          markDirty();
-          notify();
-          requestRender();
-        }
+        this._deleteSelectedLight();
       }
+      return;
+    }
+
+    // Escape: cancel paste mode
+    if (e.key === 'Escape' && state.lightPasteMode) {
+      state.lightPasteMode = false;
+      requestRender();
+      return;
+    }
+
+    // Ctrl+C: copy selected light
+    if (e.ctrlKey && e.key === 'c' && state.selectedLightId != null) {
+      e.preventDefault();
+      const light = findLightById(state.selectedLightId);
+      if (light) {
+        state.lightClipboard = JSON.parse(JSON.stringify(light));
+        showToast('Copied light');
+      }
+      return;
+    }
+
+    // Ctrl+X: cut selected light (copy + delete)
+    if (e.ctrlKey && e.key === 'x' && state.selectedLightId != null) {
+      e.preventDefault();
+      const light = findLightById(state.selectedLightId);
+      if (light) {
+        state.lightClipboard = JSON.parse(JSON.stringify(light));
+        this._deleteSelectedLight();
+        showToast('Cut light');
+      }
+      return;
+    }
+
+    // Ctrl+V: enter light paste mode
+    if (e.ctrlKey && e.key === 'v' && state.lightClipboard) {
+      e.preventDefault();
+      state.lightPasteMode = true;
+      requestRender();
+      return;
     }
   }
 
@@ -272,8 +304,12 @@ export class LightTool extends Tool {
       }
     }
 
+    // Draw paste preview when in light paste mode
+    if (state.lightPasteMode && state.lightClipboard && this.hoverPos) {
+      this._drawPastePreview(ctx, this.hoverPos, transform);
+    }
     // Draw placement preview when hovering empty space (no hit, no drag)
-    if (this.hoverPos && !this.dragging && !this.hoveredLightId) {
+    else if (this.hoverPos && !this.dragging && !this.hoveredLightId) {
       this._drawPlacementPreview(ctx, this.hoverPos, transform);
     }
   }
@@ -283,6 +319,60 @@ export class LightTool extends Tool {
   _updateStatusInstruction() {
     const typeName = state.lightType === 'directional' ? 'Directional' : 'Point';
     state.statusInstruction = `Click to place ${typeName} light · Shift+click to snap to grid · Hover existing to move · Right-click to delete`;
+  }
+
+  // ── Delete / Paste Helpers ───────────────────────────────────────────────
+
+  _deleteSelectedLight() {
+    const light = findLightById(state.selectedLightId);
+    if (!light) return;
+    pushUndo('Delete light');
+    const lights = getLights();
+    const idx = lights.indexOf(light);
+    if (idx >= 0) lights.splice(idx, 1);
+    if (this.hoveredLightId === light.id) {
+      this.hoveredLightId = null;
+      setCursor('crosshair');
+    }
+    state.selectedLightId = null;
+    this._updateStatusInstruction();
+    invalidateLightmap();
+    markDirty();
+    notify();
+    requestRender();
+  }
+
+  _commitLightPaste(pos, event) {
+    const transform = getTransform();
+    const gridSize = state.dungeon.metadata.gridSize || 5;
+    let world = fromCanvas(pos.x, pos.y, transform);
+
+    // Shift+click: snap to grid
+    if (event?.shiftKey) {
+      world = {
+        x: Math.round(world.x / gridSize) * gridSize,
+        y: Math.round(world.y / gridSize) * gridSize,
+      };
+    }
+
+    pushUndo('Paste light');
+    ensureLightsArray();
+
+    const src = state.lightClipboard;
+    const light = JSON.parse(JSON.stringify(src));
+    light.id = state.dungeon.metadata.nextLightId++;
+    light.x = world.x;
+    light.y = world.y;
+
+    state.dungeon.metadata.lights.push(light);
+    state.selectedLightId = light.id;
+    state.lightPasteMode = false;
+
+    invalidateLightmap();
+    markDirty();
+    notify();
+    requestRender();
+    showToast('Pasted light');
   }
 
   // ── Place ────────────────────────────────────────────────────────────────
@@ -497,6 +587,57 @@ export class LightTool extends Tool {
     ctx.shadowBlur = 6;
     ctx.beginPath();
     ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  _drawPastePreview(ctx, pos, transform) {
+    const light = state.lightClipboard;
+    const color = light.color || '#ff9944';
+    const { x, y } = pos;
+
+    ctx.save();
+    ctx.globalAlpha = 0.6;
+    ctx.setLineDash([4, 4]);
+
+    if (light.type === 'directional') {
+      const range = (light.range || light.radius || 30) * transform.scale;
+      const angleRad = (light.angle || 0) * Math.PI / 180;
+      const spreadRad = (light.spread || 45) * Math.PI / 180;
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.arc(x, y, range, angleRad - spreadRad, angleRad + spreadRad);
+      ctx.closePath();
+      ctx.stroke();
+    } else {
+      const rPx = (light.radius || 30) * transform.scale;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(x, y, rPx, 0, Math.PI * 2);
+      ctx.stroke();
+
+      if (light.dimRadius && light.dimRadius > (light.radius || 0)) {
+        const dimRPx = light.dimRadius * transform.scale;
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.arc(x, y, dimRPx, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    // Center dot
+    ctx.globalAlpha = 0.8;
+    ctx.setLineDash([]);
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.restore();

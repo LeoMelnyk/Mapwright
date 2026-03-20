@@ -7,6 +7,7 @@ import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
 import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool, RangeTool, FogRevealTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
+import { initPropSpatial, lookupPropAt, markPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
 import { sessionState, renderSessionOverlay, renderDmFogOverlay, hitTestDoorButton, hitTestStairButton, openDoor, openStairs, setRangeHighlightCallback } from './dm-session.js';
 import { setSessionOverlay, setSessionTool, setSessionRangeTool, setDmFogOverlay, zoomToFit } from './canvas-view.js';
@@ -23,6 +24,7 @@ import {
   initRightSidebar,
   initClaudePanel,
   initBackgroundImagePanel,
+  initKeybindingsHelper, toggleKeybindingsHelper, refreshKeybindingsHelper,
 } from './panels/index.js';
 import { getClaudeSettings, setClaudeSetting } from './claude-settings.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
@@ -61,6 +63,7 @@ function setTool(name) {
   // Use toolbar's mode-aware cursor, falling back to tool default
   const cursor = getToolCursor(name);
   canvasView.setCursor(cursor ?? tool.getCursor());
+  refreshKeybindingsHelper();
 }
 
 // ── Session tools mode ─────────────────────────────────────────────────────
@@ -113,8 +116,12 @@ function exitSessionToolsMode() {
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', async () => {
+  // Wire up prop spatial hash (lazy getter to avoid circular import)
+  initPropSpatial(() => state);
+
   // ── App version (status bar) ───────────────────────────────────────────
   fetch('/api/version').then(r => r.json()).then(({ version }) => {
+    state.appVersion = version;
     const el = document.getElementById('status-version');
     if (el) el.textContent = `v${version}`;
   }).catch(() => {});
@@ -351,6 +358,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bgImageContainer = document.getElementById('background-image-panel-content');
   if (bgImageContainer) initBackgroundImagePanel(bgImageContainer);
 
+  // Keybindings helper (floating panel)
+  initKeybindingsHelper();
+  document.getElementById('feat-keybindings')?.addEventListener('change', (e) => {
+    toggleKeybindingsHelper(e.target.checked);
+  });
+
   // ── Claude AI (experimental) ─────────────────────────────────────────────
   // Toggle via View → Developer → Claude AI, or visit with ?claude to enable once.
   if (new URLSearchParams(location.search).has('claude')) {
@@ -528,15 +541,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!textureCatalog) { onAssetProgress('textures', 1, 1); return; }
 
     const usedIds = collectTextureIds(state.dungeon.cells);
-    if (propCatalog?.props) {
-      for (const row of state.dungeon.cells) {
-        if (!row) continue;
-        for (const cell of row) {
-          if (!cell?.prop) continue;
-          const propDef = propCatalog.props[cell.prop.type];
-          if (propDef?.textures) {
-            for (const id of propDef.textures) usedIds.add(id);
-          }
+    if (propCatalog?.props && state.dungeon.metadata?.props) {
+      for (const op of state.dungeon.metadata.props) {
+        const propDef = propCatalog.props[op.type];
+        if (propDef?.textures) {
+          for (const id of propDef.textures) usedIds.add(id);
         }
       }
     }
@@ -1056,23 +1065,100 @@ function onKeyDown(e) {
   // Ctrl+C: copy selected props (Prop tool only)
   if (e.ctrlKey && e.key === 'c' && state.activeTool === 'prop' && state.selectedPropAnchors.length > 0) {
     e.preventDefault();
-    const cells = state.dungeon.cells;
+    const meta = state.dungeon.metadata;
     const anchorRow = Math.min(...state.selectedPropAnchors.map(a => a.row));
     const anchorCol = Math.min(...state.selectedPropAnchors.map(a => a.col));
     const props = [];
-    for (const { row, col } of state.selectedPropAnchors) {
-      const cell = cells[row]?.[col];
-      if (cell?.prop) {
+    const copiedIds = new Set();
+    for (const a of state.selectedPropAnchors) {
+      // Use propId when available (from box-select/hit-test), else spatial lookup
+      const overlay = a.propId
+        ? meta?.props?.find(p => p.id === a.propId)
+        : (() => { const e = lookupPropAt(a.row, a.col); return e ? meta?.props?.find(p => p.id === e.propId) : null; })();
+      if (overlay && !copiedIds.has(overlay.id)) {
+        copiedIds.add(overlay.id);
+        const { row, col } = a;
         props.push({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
-          prop: JSON.parse(JSON.stringify(cell.prop)),
+          prop: JSON.parse(JSON.stringify(overlay)),
         });
       }
     }
     if (props.length > 0) {
       state.propClipboard = { anchorRow, anchorCol, props };
       showToast(`Copied ${props.length} prop${props.length === 1 ? '' : 's'}`);
+    }
+    return;
+  }
+
+  // Ctrl+X: cut selected cells (Select tool only) — copy + delete
+  if (e.ctrlKey && e.key === 'x' && state.activeTool === 'select' && state.selectedCells.length > 0) {
+    e.preventDefault();
+    const cells = state.dungeon.cells;
+    const anchorRow = Math.min(...state.selectedCells.map(c => c.row));
+    const anchorCol = Math.min(...state.selectedCells.map(c => c.col));
+    state.clipboard = {
+      anchorRow, anchorCol,
+      cells: state.selectedCells.map(({ row, col }) => ({
+        dRow: row - anchorRow,
+        dCol: col - anchorCol,
+        data: cells[row][col] ? JSON.parse(JSON.stringify(cells[row][col])) : null,
+      })),
+    };
+    // Delete the cells
+    pushUndo('Cut cells');
+    for (const { row, col } of state.selectedCells) {
+      cells[row][col] = null;
+    }
+    const n = state.selectedCells.length;
+    state.selectedCells = [];
+    invalidateLightmap();
+    markDirty();
+    canvasView.requestRender();
+    showToast(`Cut ${n} cell${n === 1 ? '' : 's'}`);
+    return;
+  }
+
+  // Ctrl+X: cut selected props (Prop tool only) — copy + delete
+  if (e.ctrlKey && e.key === 'x' && state.activeTool === 'prop' && state.selectedPropAnchors.length > 0) {
+    e.preventDefault();
+    const meta = state.dungeon.metadata;
+    const anchorRow = Math.min(...state.selectedPropAnchors.map(a => a.row));
+    const anchorCol = Math.min(...state.selectedPropAnchors.map(a => a.col));
+    const props = [];
+    const copiedIds = new Set();
+    for (const a of state.selectedPropAnchors) {
+      const overlay = a.propId
+        ? meta?.props?.find(p => p.id === a.propId)
+        : (() => { const e = lookupPropAt(a.row, a.col); return e ? meta?.props?.find(p => p.id === e.propId) : null; })();
+      if (overlay && !copiedIds.has(overlay.id)) {
+        copiedIds.add(overlay.id);
+        const { row, col } = a;
+        props.push({
+          dRow: row - anchorRow,
+          dCol: col - anchorCol,
+          prop: JSON.parse(JSON.stringify(overlay)),
+        });
+      }
+    }
+    if (props.length > 0) {
+      state.propClipboard = { anchorRow, anchorCol, props };
+      // Delete the props
+      pushUndo('Cut props');
+      for (const anchor of state.selectedPropAnchors) {
+        const entry = lookupPropAt(anchor.row, anchor.col);
+        if (entry && meta?.props) {
+          const idx = meta.props.findIndex(p => p.id === entry.propId);
+          if (idx >= 0) meta.props.splice(idx, 1);
+        }
+      }
+      state.selectedPropAnchors = [];
+      markPropSpatialDirty();
+      invalidateLightmap();
+      markDirty();
+      canvasView.requestRender();
+      showToast(`Cut ${props.length} prop${props.length === 1 ? '' : 's'}`);
     }
     return;
   }
@@ -1099,9 +1185,10 @@ function onKeyDown(e) {
   }
 
   // Escape: cancel paste mode
-  if (e.key === 'Escape' && (state.pasteMode || state.propPasteMode)) {
+  if (e.key === 'Escape' && (state.pasteMode || state.propPasteMode || state.lightPasteMode)) {
     state.pasteMode = false;
     state.propPasteMode = false;
+    state.lightPasteMode = false;
     canvasView.requestRender();
     return;
   }

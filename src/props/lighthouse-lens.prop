@@ -4,6 +4,7 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: no
+lights: [{"preset":"bright","x":1.0,"y":1.0}]
 placement: center
 room_types: lighthouse, beacon-tower
 typical_count: single

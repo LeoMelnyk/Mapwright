@@ -1,0 +1,34 @@
+name: Log Pile
+category: Terrain
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: camp, wilderness, cabin, lumber-yard, village
+typical_count: few
+clusters_with: wood-pile, campfire, tree-stump
+notes: Stacked logs; place near camps or against cabin walls
+---
+# Bottom row of logs (3 log cross-sections, spread across x)
+circle 0.20,1.50 0.14 texfill polyhaven/bark_brown_02 0.75
+circle 0.20,1.50 0.14 stroke #3a1f00 0.50
+circle 0.50,1.55 0.14 texfill polyhaven/bark_brown_02 0.75
+circle 0.50,1.55 0.14 stroke #3a1f00 0.50
+circle 0.80,1.50 0.14 texfill polyhaven/bark_brown_02 0.75
+circle 0.80,1.50 0.14 stroke #3a1f00 0.50
+# Middle row (2 logs nestled between bottom)
+circle 0.35,1.18 0.13 texfill polyhaven/bark_brown_02 0.78
+circle 0.35,1.18 0.13 stroke #3a1f00 0.50
+circle 0.65,1.18 0.13 texfill polyhaven/bark_brown_02 0.78
+circle 0.65,1.18 0.13 stroke #3a1f00 0.50
+# Top row (1 log on top)
+circle 0.50,0.88 0.12 texfill polyhaven/bark_brown_02 0.80
+circle 0.50,0.88 0.12 stroke #3a1f00 0.55
+# Cut end grain (lighter inner circles)
+circle 0.20,1.50 0.08 fill #c4a060 0.30
+circle 0.80,1.50 0.08 fill #c4a060 0.30
+circle 0.50,0.88 0.07 fill #c4a060 0.35
+# Growth rings
+circle 0.20,1.50 0.05 stroke #b09050 0.25
+circle 0.50,0.88 0.04 stroke #b09050 0.30

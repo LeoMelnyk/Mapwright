@@ -37,17 +37,12 @@ export async function waitForTextures(timeoutMs = 8000) {
   // Trigger loading for any map-used textures that haven't started yet
   const usedIds = collectTextureIds(state.dungeon.cells);
 
-  // Also include textures referenced by props placed on the map
-  if (state.propCatalog?.props) {
-    const cells = state.dungeon.cells;
-    for (const row of cells) {
-      if (!row) continue;
-      for (const cell of row) {
-        if (!cell?.prop) continue;
-        const propDef = state.propCatalog.props[cell.prop.type];
-        if (propDef?.textures) {
-          for (const id of propDef.textures) usedIds.add(id);
-        }
+  // Also include textures referenced by overlay props
+  if (state.propCatalog?.props && state.dungeon.metadata?.props) {
+    for (const op of state.dungeon.metadata.props) {
+      const propDef = state.propCatalog.props[op.type];
+      if (propDef?.textures) {
+        for (const id of propDef.textures) usedIds.add(id);
       }
     }
   }
@@ -176,16 +171,26 @@ export function getRoomContents(label) {
   const bounds = getApi().getRoomBounds(label);
   if (!bounds) return { success: false, error: `Room "${label}" not found` };
   const result = { label, bounds, props: [], fills: [], doors: [], textures: [] };
+  const gs = state.dungeon.metadata?.gridSize || 5;
   for (let r = bounds.r1; r <= bounds.r2; r++) {
     for (let c = bounds.c1; c <= bounds.c2; c++) {
       const cell = state.dungeon.cells[r]?.[c];
       if (!cell) continue;
-      if (cell.prop) result.props.push({ row: r, col: c, type: cell.prop.type, facing: cell.prop.facing });
       if (cell.fill) result.fills.push({ row: r, col: c, type: cell.fill, depth: cell.fillDepth ?? 1 });
       if (cell.texture) result.textures.push({ row: r, col: c, id: cell.texture, opacity: cell.textureOpacity ?? 1 });
       for (const dir of ['north', 'south', 'east', 'west']) {
         if (cell[dir] === 'd' || cell[dir] === 's')
           result.doors.push({ row: r, col: c, direction: dir, type: cell[dir] });
+      }
+    }
+  }
+  // Collect props from metadata.props[] that fall within room bounds
+  if (state.dungeon.metadata?.props) {
+    for (const op of state.dungeon.metadata.props) {
+      const propRow = Math.round(op.y / gs);
+      const propCol = Math.round(op.x / gs);
+      if (propRow >= bounds.r1 && propRow <= bounds.r2 && propCol >= bounds.c1 && propCol <= bounds.c2) {
+        result.props.push({ row: propRow, col: propCol, type: op.type, facing: op.rotation ?? 0 });
       }
     }
   }

@@ -7,7 +7,7 @@ export { renderLightmap, renderCoverageHeatmap, invalidateVisibilityCache, extra
 // Bounds
 export { toCanvas } from './bounds.js';
 // Props & features
-export { renderProp, parsePropFile, invalidatePropsCache } from './props.js';
+export { renderProp, parsePropFile, invalidatePropsCache, renderOverlayProps, extractOverlayPropLightSegments, hitTestPropPixel } from './props.js';
 export { drawDmLabel } from './features.js';
 // Themes
 export { THEMES } from './themes.js';

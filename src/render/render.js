@@ -974,7 +974,7 @@ function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelSt
     ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
     : null;
 
-  renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, visibleBounds);
+  renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, visibleBounds, metadata);
 
   // Room labels and DM labels — skipped when lighting is enabled so they can be
   // drawn after the lightmap, keeping them unaffected by the multiply overlay.

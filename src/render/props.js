@@ -807,58 +807,184 @@ export function renderProp(ctx, propDef, row, col, rotation, gridSize, theme, tr
 }
 
 /**
- * Render all props found in the cell matrix.
+ * Render all props from the metadata overlay.
  *
- * Iterates every cell; if cell.prop exists, looks up its definition in
- * propCatalog and renders it.
- *
- * cell.prop = { type: string, span: [rows, cols], facing: 0|90|180|270 }
+ * Props are stored in metadata.props[] as overlay entries with world-feet
+ * coordinates. If no overlay props exist, nothing is rendered.
  *
  * @param {CanvasRenderingContext2D} ctx - Canvas 2D context
- * @param {Array<Array<object>>} cells - 2D grid of cell objects
+ * @param {Array<Array<object>>} cells - 2D grid of cell objects (unused, kept for API compat)
  * @param {number} gridSize - Grid cell size in feet
  * @param {object} theme - Theme object
  * @param {object} transform - { scale, offsetX, offsetY }
  * @param {object|null} propCatalog - { props: { [type]: PropDefinition } }
  * @param {function|null} getTextureImage - (textureId) => HTMLImageElement|null
  */
-export function renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage = null, texturesVersion = 0, visibleBounds = null) {
+export function renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage = null, texturesVersion = 0, visibleBounds = null, metadata = null) {
   if (!propCatalog || !propCatalog.props) return;
 
+  // Render from metadata.props[] overlay (v2+). If no overlay props, nothing to render.
+  if (metadata?.props?.length) {
+    renderOverlayProps(ctx, metadata.props, gridSize, theme, transform, propCatalog, getTextureImage, texturesVersion, visibleBounds);
+  }
+}
+
+// ── Pixel Hit Testing ────────────────────────────────────────────────────────
+
+/**
+ * Test if a world-feet point hits a non-transparent pixel of a prop.
+ * Uses the tile cache for grid-aligned props at scale 1.0.
+ * Falls back to true (AABB hit) for arbitrary rotation/scale.
+ *
+ * @param {object} prop - overlay prop entry
+ * @param {number} wx - world-feet x of cursor
+ * @param {number} wy - world-feet y of cursor
+ * @param {object} propCatalog - { props: { [type]: PropDefinition } }
+ * @param {number} gridSize
+ * @param {object} theme
+ * @param {function|null} getTextureImage
+ * @param {number} texturesVersion
+ * @returns {boolean} true if the pixel is non-transparent (or AABB fallback)
+ */
+/**
+ * Test if a world-feet point hits the actual shapes of a prop's draw commands.
+ * Uses geometric math (point-in-circle, point-in-rect, point-in-polygon) on
+ * the transformed draw commands. Ignores shadows — only tests prop geometry.
+ *
+ * Works for any rotation and scale — no tile/canvas dependency.
+ */
+export function hitTestPropPixel(prop, wx, wy, propCatalog, gridSize) {
+  const propDef = propCatalog?.props?.[prop.type];
+  if (!propDef?.commands?.length) return false;
+
+  const rotation = prop.rotation ?? 0;
+  const scale = prop.scale ?? 1.0;
+  const flipped = prop.flipped ?? false;
+
+  // Convert world-feet cursor to prop-local normalized coordinates
+  const [fRows, fCols] = propDef.footprint;
+  const uw = fCols * gridSize;
+  const uh = fRows * gridSize;
+  // Un-scale: map from visual position back to unscaled prop space (scale from center)
+  const pcx = prop.x + uw / 2;
+  const pcy = prop.y + uh / 2;
+  const unscaledX = pcx + (wx - pcx) / scale;
+  const unscaledY = pcy + (wy - pcy) / scale;
+  // To normalized prop coordinates (0..cols, 0..rows)
+  const nx = (unscaledX - prop.x) / gridSize;
+  const ny = (unscaledY - prop.y) / gridSize;
+
+  // Test each draw command's shape (after flip+rotate transform)
+  const r = ((rotation % 360) + 360) % 360;
+  for (const cmd of propDef.commands) {
+    if (cmd.type === 'line') continue; // too thin
+    const flippedCmd = flipped ? flipCommand(cmd, propDef.footprint) : cmd;
+    const tc = (r === 0) ? flippedCmd : transformCommand(flippedCmd, r, propDef.footprint);
+
+    switch (tc.type) {
+      case 'rect':
+        if (nx >= tc.x && nx <= tc.x + tc.w && ny >= tc.y && ny <= tc.y + tc.h) return true;
+        break;
+      case 'circle': {
+        const dx = nx - tc.cx, dy = ny - tc.cy;
+        if (dx * dx + dy * dy <= tc.r * tc.r) return true;
+        break;
+      }
+      case 'ellipse': {
+        const edx = (nx - tc.cx) / tc.rx, edy = (ny - tc.cy) / tc.ry;
+        if (edx * edx + edy * edy <= 1) return true;
+        break;
+      }
+      case 'poly': {
+        if (tc.points?.length >= 3 && _pointInPolygon(nx, ny, tc.points)) return true;
+        break;
+      }
+      case 'arc': {
+        // Treat arc as a filled wedge for hit testing
+        const adx = nx - tc.cx, ady = ny - tc.cy;
+        if (adx * adx + ady * ady <= tc.r * tc.r) return true;
+        break;
+      }
+    }
+  }
+  return false;
+}
+
+/** Ray-casting point-in-polygon test. */
+function _pointInPolygon(px, py, points) {
+  let inside = false;
+  for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+    const [xi, yi] = points[i];
+    const [xj, yj] = points[j];
+    if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+// ── Overlay Prop Rendering ───────────────────────────────────────────────────
+
+/**
+ * Render overlay props from metadata.props[], sorted by zIndex.
+ * Grid-aligned props at scale 1.0 reuse the tile cache for performance.
+ * Arbitrary rotation or non-1.0 scale uses canvas transforms.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Array} overlayProps - metadata.props[] array
+ * @param {number} gridSize
+ * @param {object} theme
+ * @param {object} transform - { scale, offsetX, offsetY }
+ * @param {object} propCatalog - { props: { [type]: PropDefinition } }
+ * @param {function|null} getTextureImage
+ * @param {number} texturesVersion
+ * @param {object|null} visibleBounds - { minRow, maxRow, minCol, maxCol }
+ */
+export function renderOverlayProps(ctx, overlayProps, gridSize, theme, transform, propCatalog, getTextureImage = null, texturesVersion = 0, visibleBounds = null) {
+  if (!overlayProps?.length || !propCatalog?.props) return;
+
   const wallStroke = theme?.wallStroke || '';
-  const numRows = cells.length;
-  const startRow = visibleBounds?.minRow ?? 0;
-  const endRow = visibleBounds?.maxRow ?? (numRows - 1);
 
-  for (let row = startRow; row <= endRow; row++) {
-    const rowCells = cells[row];
-    if (!rowCells) continue;
-    const numCols = rowCells.length;
-    const startCol = visibleBounds?.minCol ?? 0;
-    const endCol = visibleBounds?.maxCol ?? (numCols - 1);
+  // Sort by zIndex (stable: original order preserved for equal z)
+  const sorted = [...overlayProps].sort((a, b) => (a.zIndex ?? 10) - (b.zIndex ?? 10));
 
-    for (let col = startCol; col <= endCol; col++) {
-      const cell = rowCells[col];
-      if (!cell || !cell.prop) continue;
+  for (const prop of sorted) {
+    const propDef = propCatalog.props[prop.type];
+    if (!propDef) { warn(`[props] Unknown overlay prop type "${prop.type}" (${prop.id}) — skipped`); continue; }
 
-      const { type, facing, flipped } = cell.prop;
-      const rotation = facing || 0;
+    const rotation = prop.rotation ?? 0;
+    const scale = prop.scale ?? 1.0;
+    const flipped = prop.flipped ?? false;
+    const r = ((rotation % 360) + 360) % 360;
+    const isGridAligned = (r === 0 || r === 90 || r === 180 || r === 270) && scale === 1.0;
 
-      const propDef = propCatalog.props[type];
-      if (!propDef) { warn(`[props] Unknown prop type "${type}" at (${row},${col}) — skipped`); continue; }
+    // Convert world-feet position to grid row/col
+    const col = prop.x / gridSize;
+    const row = prop.y / gridSize;
 
-      const key = _tileCacheKey(type, rotation, flipped || false, wallStroke, texturesVersion);
+    // Viewport culling
+    if (visibleBounds) {
+      const [fRows, fCols] = propDef.footprint;
+      const isRotated90 = r === 90 || r === 270;
+      const eRows = (isRotated90 ? fCols : fRows) * scale;
+      const eCols = (isRotated90 ? fRows : fCols) * scale;
+      if (row + eRows < visibleBounds.minRow || row > visibleBounds.maxRow) continue;
+      if (col + eCols < visibleBounds.minCol || col > visibleBounds.maxCol) continue;
+    }
+
+    if (isGridAligned) {
+      // Grid-aligned at scale 1.0 — reuse tile cache (same path as renderAllProps)
+      const key = _tileCacheKey(prop.type, r, flipped, wallStroke, texturesVersion);
       let tile = _propTileCache.get(key);
 
       if (tile === undefined) {
-        // Cache miss: build tile (returns null if OffscreenCanvas unavailable)
-        tile = _buildTile(propDef, rotation, flipped || false, gridSize, theme, getTextureImage);
+        tile = _buildTile(propDef, r, flipped, gridSize, theme, getTextureImage);
         _propTileCache.set(key, tile);
       }
 
       if (tile) {
         const [fRows, fCols] = propDef.footprint;
-        const isRotated90 = rotation === 90 || rotation === 270;
+        const isRotated90 = r === 90 || r === 270;
         const eRows = isRotated90 ? fCols : fRows;
         const eCols = isRotated90 ? fRows : fCols;
         const padding = propDef.padding || 0;
@@ -866,11 +992,96 @@ export function renderAllProps(ctx, cells, gridSize, theme, transform, propCatal
         const { x, y } = propToCanvas(-padding, -padding, row, col, gridSize, transform);
         ctx.drawImage(tile, x, y, (eCols + 2 * padding) * cellPx, (eRows + 2 * padding) * cellPx);
       } else {
-        // Fallback: direct render (Node.js / PDF renderer without OffscreenCanvas)
-        renderProp(ctx, propDef, row, col, rotation, gridSize, theme, transform, flipped || false, getTextureImage);
+        renderProp(ctx, propDef, row, col, r, gridSize, theme, transform, flipped, getTextureImage);
       }
+    } else {
+      // Arbitrary rotation or non-1.0 scale — use canvas transforms
+      const [fRows, fCols] = propDef.footprint;
+      const centerNx = fCols / 2;
+      const centerNy = fRows / 2;
+      const { x: cx, y: cy } = propToCanvas(centerNx, centerNy, row, col, gridSize, transform);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      // Negate angle: transformCommand (tile path) rotates CCW for positive angles,
+      // but ctx.rotate rotates CW. Negate to match so both paths agree visually.
+      ctx.rotate((-rotation * Math.PI) / 180);
+      ctx.scale(scale, scale);
+
+      // Render prop centered at origin
+      const cellPx = gridSize * transform.scale;
+      const offsetTransform = {
+        scale: transform.scale,
+        offsetX: -centerNx * cellPx,
+        offsetY: -centerNy * cellPx,
+      };
+      renderProp(ctx, propDef, 0, 0, 0, gridSize, theme, offsetTransform, flipped, getTextureImage);
+      ctx.restore();
     }
   }
+}
+
+// ── Overlay Lighting Geometry ────────────────────────────────────────────────
+
+/**
+ * Extract light-blocking segments from an overlay prop.
+ * Handles arbitrary rotation and scale.
+ *
+ * @param {object} propDef - PropDefinition
+ * @param {object} overlayProp - overlay prop entry { x, y, rotation, scale, flipped }
+ * @param {number} gridSize
+ * @returns {Array<{x1, y1, x2, y2}>} Segments in world-feet
+ */
+export function extractOverlayPropLightSegments(propDef, overlayProp, gridSize) {
+  if (!propDef?.commands) return [];
+
+  const rotation = overlayProp.rotation ?? 0;
+  const scale = overlayProp.scale ?? 1.0;
+  const flipped = overlayProp.flipped ?? false;
+  const r = ((rotation % 360) + 360) % 360;
+
+  // For grid-aligned rotation at scale 1.0, delegate to existing function
+  if ((r === 0 || r === 90 || r === 180 || r === 270) && scale === 1.0) {
+    const row = overlayProp.y / gridSize;
+    const col = overlayProp.x / gridSize;
+    return extractPropLightSegments(propDef, row, col, r, flipped, gridSize);
+  }
+
+  // Arbitrary rotation/scale: extract segments then transform
+  // Get unrotated segments at origin
+  const baseSegments = extractPropLightSegments(propDef, 0, 0, 0, flipped, gridSize);
+
+  // Compute center of the prop in world-feet (rotation pivot)
+  const [fRows, fCols] = propDef.footprint;
+  const cx = (fCols / 2) * gridSize;
+  const cy = (fRows / 2) * gridSize;
+
+  // Apply rotation and scale around center, then translate to actual position
+  // Negate to match transformCommand's CCW convention
+  const rad = (-rotation * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+
+  return baseSegments.map(seg => {
+    function transform(x, y) {
+      // Translate to center-relative
+      const dx = x - cx;
+      const dy = y - cy;
+      // Scale then rotate
+      const sx = dx * scale;
+      const sy = dy * scale;
+      const rx = sx * cos - sy * sin;
+      const ry = sx * sin + sy * cos;
+      // Translate back to world position
+      return {
+        x: rx + cx * scale + overlayProp.x - cx * (scale - 1),
+        y: ry + cy * scale + overlayProp.y - cy * (scale - 1),
+      };
+    }
+    const p1 = transform(seg.x1, seg.y1);
+    const p2 = transform(seg.x2, seg.y2);
+    return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
+  });
 }
 
 // ── Lighting Geometry Extraction ─────────────────────────────────────────────

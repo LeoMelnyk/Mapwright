@@ -1,5 +1,139 @@
 # Changelog
 
+## v0.7.0
+
+### Onboarding
+
+- Welcome modal on first launch with three options: interactive tutorial, example map gallery, or start fresh
+- 5-step interactive tutorial with spotlight overlays that auto-advance as the user completes each action (create room → place door → add fill → place prop → add light)
+- Example map gallery populated from `examples/` directory — thumbnail previews with click-to-load
+- Contextual first-use tool hints — each of the 13 tools shows a dismissible tip toast the first time it's activated (persisted in localStorage)
+- "Welcome Screen" option in the Help menu to re-open the onboarding modal at any time
+- Tooltip hover delay reduced from 0.9s to 0.4s
+
+### Keybindings Helper
+
+- Floating contextual keybindings panel shows shortcuts for the currently active tool
+- Updates instantly on tool switch and sub-mode changes (e.g. fill depth keys only shown in water/lava mode)
+- Draggable — click and drag the header to reposition; position resets to default on close
+- Toggle via View menu → Keybindings Helper checkbox; visibility persists across sessions via localStorage
+- Shown by default on first launch
+
+### Minimap
+
+- Draggable — hover to reveal header, click and drag to reposition anywhere on the canvas
+
+### Keyboard Shortcuts
+
+- `/` now opens the keyboard shortcuts modal (in addition to existing `?`)
+
+### File Format
+
+- Example maps migrated from `.json` to `.mapwright` format
+- Server `/api/examples` endpoint serves example map listing with PNG thumbnails
+
+### Prop System — Free-Form Overlay
+
+Props have been completely migrated from cell-locked grid storage (`cell.prop`) to a free-form overlay layer (`metadata.props[]`). Props are now "stickers" that can be placed at arbitrary positions, rotated to any angle, scaled, overlapped with z-ordering, and nudged with pixel precision.
+
+#### Architecture
+
+- **Overlay data model**: Props stored in `metadata.props[]` as `{ id, type, x, y, rotation, scale, zIndex, flipped }` — world-feet positioned with explicit z-ordering
+- **Format version 2**: `.mapwright` files automatically migrated from v1 → v2 on load; `cell.prop` entries extracted into the overlay array and deleted
+- **`cell.prop` fully removed**: The overlay is the sole source of truth — no dual-write, no cell-level prop storage. All API methods, rendering, lighting, and spatial queries read from `metadata.props[]`
+- **App version stamped**: `.mapwright` files now include `metadata.createdWith` with the Mapwright version that last saved them
+
+#### Free-Form Placement
+
+- **Arbitrary rotation**: Props can be rotated to any angle (0–359°), not just 90° increments
+- **Scaling**: Props can be scaled from 25% to 400% (`0.25x` to `4.0x`)
+- **Freeform placement**: `Ctrl+Click` places props at exact cursor position (sub-cell precision); `Ctrl+Drag` moves props with sub-cell precision
+- **Arrow key nudge**: `↑↓←→` nudges selected props by 1 foot; `Shift+↑↓←→` nudges by 1 full cell
+- **Prop stacking**: Overlapping props are allowed — z-order determines visual layering
+
+#### Z-Order Controls
+
+- `]` key brings selected prop forward, `[` sends backward
+- Z-order presets: `"floor"` (0), `"furniture"` (10), `"tall"` (20), `"hanging"` (30)
+- API: `setPropZIndex(propId, zOrPreset)`, `bringForward(propId)`, `sendBackward(propId)`
+
+#### Scroll-Wheel Controls
+
+- `Alt+Scroll`: Fine rotation in 15° increments
+- `Alt+Shift+Scroll`: Scale up/down in 0.1x increments
+- Undo history debounced at 500ms — one undo reverses the entire scroll gesture
+- Multi-prop: scroll-wheel rotation orbits props around the group's center pivot; scaling maintains relative prop distances
+
+#### Multi-Prop Group Transforms
+
+- **Group rotation** (R key or Alt+Scroll): props orbit around the group center while each prop also rotates individually
+- **Group scaling** (Alt+Shift+Scroll): props scale individually while positions adjust to maintain relative distances from group center
+- **Box-select**: drag from empty space selects all props whose visual bounds overlap the rectangle
+- **Multi-drag**: click and drag any prop in a multi-selection to move the entire group, preserving relative positions and freeform offsets
+
+#### Pixel-Perfect Hit Testing
+
+- Hover and click detection uses geometric shape testing against prop draw commands (circles, rects, polygons) — not bounding boxes
+- Shadows are excluded from hit testing — only actual prop art is clickable
+- When props overlap, the smallest prop at the cursor position is preferred (most specific target)
+
+#### API Enhancements
+
+- `placeProp(row, col, type, facing, options)` now accepts `{ scale, zIndex, allowOverlap, x, y }` options
+- `rotateProp(row, col, degrees)` accepts arbitrary degree values (default 90)
+- `suggestPropPosition(roomLabel, propType)` — smart placement helper using prop `placement` metadata
+
+#### Rendering
+
+- Overlay renderer sorts by z-index before drawing
+- Grid-aligned props at scale 1.0 reuse the tile cache for performance
+- Arbitrary rotation and scale use canvas transforms (`save/translate/rotate/scale/restore`)
+- Light-blocking segments computed from overlay props with full rotation and scale support
+
+### Prop Library Audit & Expansion (164 → 196 props)
+
+Holistic quality pass across the entire prop library — visual audit via Puppeteer screenshots, consistency fixes, and 32 new props.
+
+#### Light Associations
+
+Props that visually emit light now automatically place a light when used: floor-candelabra (candle), signal-fire (bonfire), lava-pool (lava-glow), lighthouse-lens (bright), necrotic-altar (necrotic), magic-circle (eldritch-glow), ritual-circle (infernal-flame), oven (fireplace).
+
+#### Metadata & Drawing Fixes
+
+- **statue**: now blocks light (tall solid object)
+- **brazier**: swapped `rusty_metal` → `metal_plate` (no longer looks woody at small scale)
+- **fountain**: recategorized Misc → Features
+- **fireplace**: recategorized Kitchen → Furniture
+- **altar**: fixed bare `fill 0.5` → explicit bone-white color
+- **chair**: added shadow + leg shadow dots
+- **bookshelf**: added colored book-spine rectangles across 3 shelves
+- **lamp-post**: redrawn as ornate city lamp with octagonal pedestal (now distinct from lantern-post)
+
+#### New Props — General (16)
+
+bar-counter, keg, hay-bale, stable-partition, ladder, trapdoor, vanity-table, nightstand, wash-basin, cooking-spit, planter-box, organ, cage-large, well-windlass, dartboard, long-table
+
+#### New Props — Trees & Nature (16)
+
+Reworked the tree prop from a flat opaque disc to overlapping semi-transparent canopy lobes — floor shows through gaps. Added 4 tree variants and 12 nature/forest props.
+
+- **Trees**: pine-tree, willow-tree, palm-tree, tree-small
+- **Nature**: flowers, flower-patch, tall-grass, bush, fern, pond, lily-pads, reed-bed, bramble, moss-patch, log-pile, roots
+
+### Clipboard Enhancements
+
+- **Cut (Ctrl+X)** for cells (Select tool) and props (Prop tool) — copies to clipboard and deletes originals in one action
+- **Light copy/cut/paste** — Ctrl+C copies the selected light, Ctrl+X cuts it, Ctrl+V enters paste mode with a radius/cone preview following the cursor; click to place, Shift+click to snap to grid
+
+### Bug Fixes
+
+- Loading a new map now fully invalidates all render caches (geometry, fluid, blend, floor, cell-edges, prop spatial hash) — fixes stale rendering artifacts when switching between maps
+- Prop placement, movement, and deletion now always invalidate the lighting cache — fixes stale shadows from `blocksLight` props
+- Right-click during drag or paste mode cancels the action instead of deleting props
+- Fixed rotation direction mismatch between tile cache path and canvas transform path for non-grid-aligned angles
+
+---
+
 ## v0.6.1
 
 ### Architecture Refactor

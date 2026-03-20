@@ -1,0 +1,29 @@
+name: Planter Box
+category: Terrain
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: garden, courtyard, greenhouse, balcony
+typical_count: many
+clusters_with: planter-box, bench
+notes: Raised flower bed; place along walls or paths in garden areas
+---
+# Wooden box frame
+rect 0.06,0.06 0.88,1.88 texfill polyhaven/weathered_planks 0.85
+rect 0.06,0.06 0.88,1.88 stroke #3a1f00
+# Soil inside
+rect 0.12,0.12 0.76,1.76 fill #4a3520 0.6
+# Foliage clusters (green canopy from above)
+circle 0.35,0.40 0.16 fill #2a6a2a 0.5
+circle 0.60,0.65 0.18 fill #3a7a3a 0.45
+circle 0.40,0.90 0.14 fill #2a5a2a 0.5
+circle 0.65,1.15 0.16 fill #3a7a3a 0.45
+circle 0.35,1.40 0.15 fill #2a6a2a 0.5
+circle 0.60,1.65 0.14 fill #3a7a3a 0.45
+# Flower dots
+circle 0.30,0.35 0.03 fill #cc4466 0.6
+circle 0.55,0.80 0.03 fill #ffaa44 0.6
+circle 0.40,1.30 0.03 fill #cc44cc 0.5
+circle 0.65,1.55 0.03 fill #ffcc44 0.6

@@ -1,0 +1,31 @@
+name: Reed Bed
+category: Terrain
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: swamp, riverside, pond, marsh, dock
+typical_count: few
+clusters_with: reed-bed, lily-pads, pond
+notes: Water-edge reeds; place along shorelines or swamp borders
+---
+# Reed stalks (vertical lines, varied heights from base)
+line 0.20,1.60 0.20,0.30 stroke #5a8a38 0.35
+line 0.30,1.55 0.30,0.20 stroke #4a7a28 0.35
+line 0.40,1.65 0.40,0.40 stroke #5a8a38 0.30
+line 0.50,1.50 0.50,0.15 stroke #4a7a28 0.38
+line 0.60,1.60 0.60,0.25 stroke #5a8a38 0.35
+line 0.70,1.55 0.70,0.35 stroke #4a7a28 0.30
+line 0.80,1.65 0.80,0.45 stroke #5a8a38 0.28
+line 0.35,1.58 0.35,0.50 stroke #6a9a48 0.28
+line 0.55,1.62 0.55,0.38 stroke #6a9a48 0.30
+line 0.75,1.58 0.75,0.55 stroke #6a9a48 0.25
+# Reed tops (cattail-like oval tips)
+ellipse 0.20,0.28 0.03,0.06 fill #6b4e2e 0.45
+ellipse 0.30,0.18 0.03,0.06 fill #6b4e2e 0.45
+ellipse 0.50,0.13 0.03,0.07 fill #6b4e2e 0.50
+ellipse 0.60,0.23 0.03,0.06 fill #6b4e2e 0.45
+ellipse 0.70,0.33 0.03,0.06 fill #6b4e2e 0.40
+# Base clump
+ellipse 0.50,1.70 0.35,0.12 fill #3a6a28 0.15

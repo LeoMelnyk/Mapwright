@@ -2,64 +2,109 @@ import {
   getApi,
   CARDINAL_DIRS,
   state, pushUndo, markDirty, notify, invalidateLightmap,
-  validateBounds, ensureCell,
+  validateBounds,
   getLightCatalog,
   cellKey, roomBoundsFromKeys,
 } from './_shared.js';
-import { lookupPropAt } from '../prop-spatial.js';
+import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
+import { createOverlayProp, resolveZIndex } from '../prop-overlay.js';
+
+// ── Overlay Helpers ─────────────────────────────────────────────────────
+
+/** Ensure metadata.props[] array exists. */
+function ensurePropsArray() {
+  const meta = state.dungeon.metadata;
+  if (!meta.props) meta.props = [];
+  if (!meta.nextPropId) meta.nextPropId = 1;
+  return meta;
+}
+
+/** Find the overlay prop at the given grid position (uses spatial hash for freeform compat). */
+function findPropAtGrid(row, col) {
+  const entry = lookupPropAt(row, col);
+  if (!entry) return null;
+  const meta = state.dungeon.metadata;
+  return meta?.props?.find(p => p.id === entry.propId) ?? null;
+}
+
+/** Remove the overlay prop at the given grid position. Returns true if found. */
+function removePropAtGrid(row, col) {
+  const entry = lookupPropAt(row, col);
+  if (!entry) return false;
+  const meta = state.dungeon.metadata;
+  if (!meta?.props) return false;
+  const idx = meta.props.findIndex(p => p.id === entry.propId);
+  if (idx >= 0) { meta.props.splice(idx, 1); return true; }
+  return false;
+}
 
 // ── Prop Operations ─────────────────────────────────────────────────────
 
-export function placeProp(row, col, propType, facing = 0) {
+export function placeProp(row, col, propType, facing = 0, options = {}) {
   validateBounds(row, col);
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
     throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props || {}).join(', ')}`);
   }
-  if (![0, 90, 180, 270].includes(facing)) {
-    throw new Error(`Invalid facing: ${facing}. Use 0, 90, 180, or 270.`);
-  }
+  facing = ((facing % 360) + 360) % 360; // normalize to 0-359
+  const scale = Math.max(0.25, Math.min(4.0, options.scale ?? 1.0));
+  const allowOverlap = !!options.allowOverlap;
   const def = catalog.props[propType];
-  const span = (facing === 90 || facing === 270)
+  const r90 = ((facing % 360) + 360) % 360;
+  const span = (r90 === 90 || r90 === 270)
     ? [def.footprint[1], def.footprint[0]]
     : [...def.footprint];
 
   // Validate all cells in span
+  const warnings = [];
   const cells = state.dungeon.cells;
   for (let r = row; r < row + span[0]; r++) {
     for (let c = col; c < col + span[1]; c++) {
       validateBounds(r, c);
       if (cells[r][c] === null) throw new Error(`Cell (${r}, ${c}) is void — cannot place prop`);
-      if (cells[r][c]?.prop) throw new Error(`Cell (${r}, ${c}) is already occupied by prop "${cells[r][c].prop.type}"`);
-      // O(1) spatial hash check for multi-cell prop overlap
-      const covered = lookupPropAt(r, c, cells);
+      // O(1) spatial hash check for overlap
+      const covered = lookupPropAt(r, c);
       if (covered) {
-        throw new Error(`Cell (${r}, ${c}) is already covered by prop "${covered.propType}" anchored at (${covered.anchorRow}, ${covered.anchorCol})`);
+        if (allowOverlap) {
+          warnings.push(`overlaps with ${covered.propType} (${covered.propId || 'unknown'}) at (${covered.anchorRow}, ${covered.anchorCol})`);
+        } else {
+          throw new Error(`Cell (${r}, ${c}) is already covered by prop "${covered.propType}" anchored at (${covered.anchorRow}, ${covered.anchorCol})`);
+        }
       }
     }
   }
 
-  const cell = ensureCell(row, col);
+  const meta = ensurePropsArray();
+  const gridSize = meta.gridSize || 5;
+
   pushUndo();
-  cell.prop = { type: propType, span, facing };
+
+  // Write to overlay — use exact world-feet coords if provided, otherwise snap to grid
+  const entry = createOverlayProp(meta, propType, row, col, gridSize, {
+    rotation: facing,
+    scale,
+    ...(options.zIndex != null && { zIndex: options.zIndex }),
+  });
+  // Freeform placement: override position with exact world-feet coordinates
+  if (options.x != null) entry.x = options.x;
+  if (options.y != null) entry.y = options.y;
+  meta.props.push(entry);
 
   // Create linked lights from propDef.lights
   if (def.lights?.length) {
-    const meta = state.dungeon.metadata;
     if (!meta.lights) meta.lights = [];
     if (!meta.nextLightId) meta.nextLightId = 1;
-    const gridSize = meta.gridSize || 5;
     const lightCatalog = getLightCatalog();
     const [origRows, origCols] = def.footprint;
 
-    for (const entry of def.lights) {
-      let nx = entry.x ?? 0.5;
-      let ny = entry.y ?? 0.5;
+    for (const lightEntry of def.lights) {
+      let nx = lightEntry.x ?? 0.5;
+      let ny = lightEntry.y ?? 0.5;
       if (facing === 90)  { [nx, ny] = [origRows - ny, nx]; }
       else if (facing === 180) { [nx, ny] = [origCols - nx, origRows - ny]; }
       else if (facing === 270) { [nx, ny] = [ny, origCols - nx]; }
 
-      const preset = lightCatalog?.lights?.[entry.preset] || {};
+      const preset = lightCatalog?.lights?.[lightEntry.preset] || {};
       const light = {
         id: meta.nextLightId++,
         x: (col + nx) * gridSize,
@@ -69,33 +114,35 @@ export function placeProp(row, col, propType, facing = 0) {
         color: preset.color || '#ff9944',
         intensity: preset.intensity ?? 1.0,
         falloff: preset.falloff || 'smooth',
-        presetId: entry.preset,
+        presetId: lightEntry.preset,
         propRef: { row, col },
       };
       if (preset.dimRadius) light.dimRadius = preset.dimRadius;
       if (preset.animation?.type) light.animation = { ...preset.animation };
       meta.lights.push(light);
     }
-    invalidateLightmap();
   }
 
+  markPropSpatialDirty();
+  invalidateLightmap();
   markDirty();
   notify();
-  return { success: true };
+  return warnings.length ? { success: true, warnings } : { success: true };
 }
 
 export function removeProp(row, col) {
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
-  if (!cell?.prop) return { success: true };
+  const overlay = findPropAtGrid(row, col);
+  if (!overlay) return { success: true };
   pushUndo();
-  delete cell.prop;
+  removePropAtGrid(row, col);
   // Remove linked lights
   const meta = state.dungeon.metadata;
   if (meta.lights?.length) {
     meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef?.col === col));
-    invalidateLightmap();
   }
+  markPropSpatialDirty();
+  invalidateLightmap();
   markDirty();
   notify();
   return { success: true };
@@ -112,14 +159,14 @@ export function setLightName(id, name) {
   return { success: true };
 }
 
-export function rotateProp(row, col) {
+export function rotateProp(row, col, degrees = 90) {
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
-  if (!cell?.prop) throw new Error(`No prop at (${row}, ${col})`);
+  const overlay = findPropAtGrid(row, col);
+  if (!overlay) throw new Error(`No prop at (${row}, ${col})`);
   pushUndo();
-  const newFacing = (cell.prop.facing + 90) % 360;
-  cell.prop.facing = newFacing;
-  cell.prop.span = [cell.prop.span[1], cell.prop.span[0]];
+  const newFacing = (((overlay.rotation || 0) + degrees) % 360 + 360) % 360;
+  overlay.rotation = newFacing;
+  markPropSpatialDirty();
   markDirty();
   notify();
   return { success: true, facing: newFacing };
@@ -173,35 +220,39 @@ export function getPropsForRoomType(roomType) {
   return { success: true, props: results };
 }
 
-/** Remove the prop whose anchor cell is exactly (row, col). */
+/** Remove the prop at the given grid position. */
 export function removePropAt(row, col) {
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row]?.[col];
-  if (!cell?.prop) return { success: false, error: 'no prop at that cell' };
+  if (!findPropAtGrid(row, col)) return { success: false, error: 'no prop at that cell' };
   pushUndo();
-  delete cell.prop;
+  removePropAtGrid(row, col);
+  markPropSpatialDirty();
   markDirty();
   notify();
   return { success: true };
 }
 
-/** Remove all props with anchor cells in the given rectangle. */
+/** Remove all props with anchor positions in the given rectangle. */
 export function removePropsInRect(r1, c1, r2, c2) {
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
+  const meta = state.dungeon.metadata;
+  if (!meta?.props) return { success: true, removed: 0 };
+
+  const gridSize = meta.gridSize || 5;
   pushUndo();
-  let removed = 0;
-  const cells = state.dungeon.cells;
-  for (let r = minR; r <= maxR; r++) {
-    for (let c = minC; c <= maxC; c++) {
-      if (cells[r]?.[c]?.prop) {
-        delete cells[r][c].prop;
-        removed++;
-      }
-    }
-  }
+
+  const before = meta.props.length;
+  meta.props = meta.props.filter(p => {
+    const pRow = Math.round(p.y / gridSize);
+    const pCol = Math.round(p.x / gridSize);
+    return pRow < minR || pRow > maxR || pCol < minC || pCol > maxC;
+  });
+  const removed = before - meta.props.length;
+
+  markPropSpatialDirty();
   markDirty();
   notify();
   return { success: true, removed };
@@ -409,4 +460,138 @@ export function clusterProps(roomLabel, props, anchorRow, anchorCol) {
   }
 
   return { success: true, placed, failed };
+}
+
+// ── Overlay Prop Methods (metadata.props[] direct) ──────────────────────
+
+/**
+ * Set the z-index of an overlay prop by ID or preset name.
+ * @param {string} propId - overlay prop ID (e.g. "prop_1")
+ * @param {string|number} zOrPreset - "floor", "furniture", "tall", "hanging", or a raw number
+ */
+export function setPropZIndex(propId, zOrPreset) {
+  const meta = state.dungeon.metadata;
+  if (!meta?.props) throw new Error('No overlay props');
+  const prop = meta.props.find(p => p.id === propId);
+  if (!prop) throw new Error(`No prop with id "${propId}"`);
+
+  pushUndo();
+  prop.zIndex = resolveZIndex(zOrPreset);
+  markDirty();
+  notify();
+  return { success: true, zIndex: prop.zIndex };
+}
+
+/**
+ * Move a prop forward one z-index step (swap with the next higher prop).
+ */
+export function bringForward(propId) {
+  const meta = state.dungeon.metadata;
+  if (!meta?.props) throw new Error('No overlay props');
+  const prop = meta.props.find(p => p.id === propId);
+  if (!prop) throw new Error(`No prop with id "${propId}"`);
+
+  // Find the next prop with a higher z-index
+  const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
+  const idx = sorted.findIndex(p => p.id === propId);
+  if (idx < sorted.length - 1) {
+    pushUndo();
+    const nextZ = sorted[idx + 1].zIndex;
+    prop.zIndex = nextZ === prop.zIndex ? prop.zIndex + 1 : nextZ;
+    markDirty();
+    notify();
+  }
+  return { success: true, zIndex: prop.zIndex };
+}
+
+/**
+ * Move a prop backward one z-index step (swap with the next lower prop).
+ */
+export function sendBackward(propId) {
+  const meta = state.dungeon.metadata;
+  if (!meta?.props) throw new Error('No overlay props');
+  const prop = meta.props.find(p => p.id === propId);
+  if (!prop) throw new Error(`No prop with id "${propId}"`);
+
+  const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
+  const idx = sorted.findIndex(p => p.id === propId);
+  if (idx > 0) {
+    pushUndo();
+    const prevZ = sorted[idx - 1].zIndex;
+    prop.zIndex = prevZ === prop.zIndex ? Math.max(0, prop.zIndex - 1) : prevZ;
+    markDirty();
+    notify();
+  }
+  return { success: true, zIndex: prop.zIndex };
+}
+
+/**
+ * Suggest a good position for a prop in a room based on its placement metadata.
+ * Uses the prop's placement field (wall/center/corner/floor) to compute a
+ * semantically correct position and rotation.
+ *
+ * @param {string} roomLabel - room label to place the prop in
+ * @param {string} propType - prop catalog key
+ * @param {object} [options] - { preferWall: 'north'|'south'|'east'|'west' }
+ * @returns {{ success, x, y, rotation, row, col }}
+ */
+export function suggestPropPosition(roomLabel, propType, options = {}) {
+  const catalog = state.propCatalog;
+  if (!catalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
+
+  const def = catalog.props[propType];
+  const placement = def.placement || 'center';
+  const meta = state.dungeon.metadata;
+  const gridSize = meta.gridSize || 5;
+
+  const roomCells = getApi()._collectRoomCells(roomLabel);
+  if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+  const bounds = roomBoundsFromKeys(roomCells);
+  if (!bounds) throw new Error(`Room "${roomLabel}" has no cells`);
+
+  const centerRow = Math.floor((bounds.r1 + bounds.r2) / 2);
+  const centerCol = Math.floor((bounds.c1 + bounds.c2) / 2);
+
+  let row, col, rotation;
+
+  switch (placement) {
+    case 'center': {
+      row = centerRow;
+      col = centerCol;
+      rotation = 0;
+      break;
+    }
+    case 'wall': {
+      // Pick a wall edge, prefer options.preferWall or default to north
+      const wall = options.preferWall || 'north';
+      const WALL_FACINGS = { north: 0, south: 180, east: 270, west: 90 };
+      rotation = WALL_FACINGS[wall] ?? 0;
+
+      if (wall === 'north')      { row = bounds.r1; col = centerCol; }
+      else if (wall === 'south') { row = bounds.r2; col = centerCol; }
+      else if (wall === 'west')  { row = centerRow; col = bounds.c1; }
+      else                       { row = centerRow; col = bounds.c2; }
+      break;
+    }
+    case 'corner': {
+      row = bounds.r1;
+      col = bounds.c1;
+      rotation = 0;
+      break;
+    }
+    default: { // 'floor', 'any'
+      row = centerRow;
+      col = centerCol;
+      rotation = 0;
+      break;
+    }
+  }
+
+  return {
+    success: true,
+    row, col,
+    x: col * gridSize,
+    y: row * gridSize,
+    rotation,
+  };
 }

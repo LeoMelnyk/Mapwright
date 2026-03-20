@@ -12,7 +12,7 @@ clusters_with: pillar
 notes: Light source and heat; place symmetrically flanking doors, thrones, or altars
 ---
 # Metal bowl
-circle 0.5,0.5 0.32 texfill polyhaven/rusty_metal 0.85
+circle 0.5,0.5 0.32 texfill polyhaven/metal_plate 0.85
 circle 0.5,0.5 0.32 stroke
 # Inner fire glow
 circle 0.5,0.5 0.2 fill #e85500 0.35

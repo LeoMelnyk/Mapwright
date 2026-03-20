@@ -139,7 +139,7 @@ function rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH) {
  * Render pixel-perfect lightmap for PNG export.
  * Same signature as renderLightmap() from lighting.js but with per-pixel precision.
  */
-export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options) {
+export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options, metadata = null) {
   const { ambientColor = '#ffffff', time = 0 } = options || {};
   const activeLights = lights || [];
 
@@ -150,7 +150,7 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
   const normalCache = cacheNormalMaps(cells, textureCatalog);
 
   // Extract wall segments (including light-blocking props)
-  const segments = extractWallSegments(cells, gridSize, propCatalog);
+  const segments = extractWallSegments(cells, gridSize, propCatalog, metadata);
 
   // Precompute inverse transform
   const invScale = 1.0 / transform.scale;
