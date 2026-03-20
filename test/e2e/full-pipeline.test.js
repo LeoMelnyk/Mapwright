@@ -76,7 +76,10 @@ describe('Full Pipeline E2E', () => {
 
     const saved = loadSavedMap(savePath);
     expect(saved.metadata.dungeonName).toBe('E2E Test');
-    expect(saved.cells[3][3].prop.type).toBe('pillar');
+    const gs = saved.metadata.gridSize || 5;
+    const pillar = saved.metadata.props?.find(p => p.x === 3 * gs && p.y === 3 * gs);
+    expect(pillar).toBeDefined();
+    expect(pillar.type).toBe('pillar');
     expect(saved.cells[5][12].east).toBe('d');
 
     // Normalize so --load can read it
