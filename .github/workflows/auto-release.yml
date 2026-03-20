@@ -3,7 +3,6 @@ name: Auto Release
 on:
   push:
     branches: [main]
-    paths: [package.json]
 
 permissions:
   contents: write
