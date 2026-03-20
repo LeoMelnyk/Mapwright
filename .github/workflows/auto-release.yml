@@ -65,20 +65,32 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
-      - name: Detect version change
+      - name: Check if version is ahead of latest release
         id: version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION=$(node -p "require('./package.json').version")
-          OLD_VERSION=$(git show HEAD~1:package.json | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).version")
-          echo "old=$OLD_VERSION" >> "$GITHUB_OUTPUT"
           echo "new=$NEW_VERSION" >> "$GITHUB_OUTPUT"
-          if [ "$NEW_VERSION" != "$OLD_VERSION" ]; then
+
+          # Get latest release tag (strip leading 'v')
+          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName // empty')
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No existing releases found — will create first release"
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            RELEASED_VERSION="${LATEST_TAG#v}"
+            echo "released=$RELEASED_VERSION" >> "$GITHUB_OUTPUT"
+            echo "Package version: $NEW_VERSION, Latest release: $RELEASED_VERSION"
+
+            # Compare with semver: new must be strictly greater
+            if npx --yes semver "$NEW_VERSION" --range ">$RELEASED_VERSION" > /dev/null 2>&1; then
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "Version $NEW_VERSION is not greater than released $RELEASED_VERSION — skipping"
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            fi
           fi
 
       - name: Extract changelog for this version
