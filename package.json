@@ -50,7 +50,6 @@
       "owner": "LeoMelnyk",
       "repo": "Mapwright"
     },
-    "afterPack": "./tools/after-pack.cjs",
     "fileAssociations": [
       {
         "ext": "mapwright",
@@ -72,7 +71,12 @@
     ],
     "asar": false,
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": true
     },
     "win": {
       "target": "portable",
