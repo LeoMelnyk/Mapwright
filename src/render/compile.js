@@ -11,6 +11,7 @@ import { renderCells, renderLabels } from './render.js';
 import { drawBackground, drawDungeonTitle, findCompassRosePosition, drawCompassRose, drawScaleIndicator, drawBorder } from './decorations.js';
 import { renderLightmapHQ } from './lighting-hq.js';
 import { extractFillLights } from './lighting.js';
+import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer } from '../player/fog.js';
 
 /**
  * Resolve theme config to a theme object.
@@ -216,5 +217,65 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
     if (features.border) {
       drawBorder(ctx, width, height, theme, features.border);
     }
+  }
+}
+
+/**
+ * Render a player view of a dungeon with fog-of-war applied.
+ * Applies the same filtering as the live player view: unrevealed cells become void,
+ * secret/invisible doors are hidden, and only revealed props/stairs/bridges are shown.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {object} config - dungeon JSON (metadata + cells)
+ * @param {Set<string>} revealedCells - set of "row,col" keys
+ * @param {object} fogOptions - { openedDoors?, openedStairs? }
+ * @param {number} width - canvas pixel width
+ * @param {number} height - canvas pixel height
+ * @param {object|null} propCatalog
+ * @param {object|null} textureCatalog
+ */
+export function renderPlayerViewToCanvas(ctx, config, revealedCells, fogOptions, width, height, propCatalog = null, textureCatalog = null) {
+  const { openedDoors = [], openedStairs = [] } = fogOptions || {};
+  const gridSize = config.metadata.gridSize;
+  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides);
+  const features = config.metadata.features || {};
+  const showGrid = features.showGrid === true;
+  const labelStyle = config.metadata.labelStyle || 'circled';
+
+  // Apply fog-of-war filtering
+  const playerCells = buildPlayerCells(config, revealedCells, openedDoors);
+  const filteredStairs = filterStairsForPlayer(config.metadata.stairs, revealedCells, openedStairs);
+  const filteredBridges = filterBridgesForPlayer(config.metadata.bridges, revealedCells);
+  const filteredProps = filterPropsForPlayer(config.metadata.props, revealedCells, gridSize, propCatalog);
+  const playerMetadata = { ...config.metadata, stairs: filteredStairs, bridges: filteredBridges, props: filteredProps };
+
+  // Black background (fog)
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, width, height);
+
+  const bounds = calculateBoundsFromCells(config.cells, gridSize);
+  const transform = {
+    offsetX: MARGIN - bounds.minX * GRID_SCALE,
+    offsetY: MARGIN - bounds.minY * GRID_SCALE,
+    scale: GRID_SCALE,
+  };
+
+  const texOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
+  const lightingEnabled = !!(playerMetadata.lightingEnabled && playerMetadata.lights?.length > 0);
+
+  renderCells(ctx, playerCells, gridSize, theme, transform, {
+    showGrid, labelStyle, propCatalog, textureOptions: texOpts,
+    metadata: playerMetadata, skipLabels: lightingEnabled,
+  });
+
+  if (lightingEnabled) {
+    const fillLights = extractFillLights(playerCells, gridSize, theme);
+    const allLights = fillLights.length
+      ? [...(playerMetadata.lights || []), ...fillLights]
+      : (playerMetadata.lights || []);
+    renderLightmapHQ(ctx, allLights, playerCells, gridSize, transform,
+      width, height, playerMetadata.ambientLight ?? 0.15, textureCatalog, propCatalog,
+      null, playerMetadata);
+    renderLabels(ctx, playerCells, gridSize, theme, transform, labelStyle);
   }
 }

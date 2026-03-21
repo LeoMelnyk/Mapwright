@@ -51,7 +51,7 @@ function saveCteCollapsed() {
   localStorage.setItem(CTE_COLLAPSED_KEY, JSON.stringify([...cteCollapsed]));
 }
 
-const idle = window.requestIdleCallback
+const idle = typeof window !== 'undefined' && window.requestIdleCallback
   ? (cb) => window.requestIdleCallback(cb)
   : (cb) => setTimeout(cb, 0);
 

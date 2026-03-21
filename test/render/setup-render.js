@@ -33,3 +33,13 @@ if (typeof globalThis.document === 'undefined') {
 if (typeof globalThis.window === 'undefined') {
   globalThis.window = globalThis;
 }
+
+if (typeof globalThis.localStorage === 'undefined') {
+  const store = new Map();
+  globalThis.localStorage = {
+    getItem(k) { return store.get(k) ?? null; },
+    setItem(k, v) { store.set(k, String(v)); },
+    removeItem(k) { store.delete(k); },
+    clear() { store.clear(); },
+  };
+}

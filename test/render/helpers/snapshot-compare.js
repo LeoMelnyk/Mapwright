@@ -3,7 +3,7 @@ import path from 'path';
 import { createCanvas } from '@napi-rs/canvas';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { calculateCanvasSize, renderDungeonToCanvas } from '../../../src/render/compile.js';
+import { calculateCanvasSize, renderDungeonToCanvas, renderPlayerViewToCanvas } from '../../../src/render/compile.js';
 import { loadPropCatalogSync } from '../../../src/render/prop-catalog-node.js';
 
 let propCatalog = null;
@@ -70,6 +70,23 @@ export function compareSnapshots(actualBuffer, goldenPath, diffOutputPath) {
     totalPixels,
     diffPercent: (diffPixelCount / totalPixels) * 100,
   };
+}
+
+/**
+ * Render a dungeon JSON file as a player view with fog-of-war applied.
+ * @param {string} jsonPath - path to .mapwright/.json file
+ * @param {Set<string>} revealedCells - "row,col" keys for revealed cells
+ * @param {object} fogOptions - { openedDoors?, openedStairs? }
+ */
+export async function renderPlayerViewToBuffer(jsonPath, revealedCells, fogOptions = {}) {
+  const config = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+  const { width, height } = calculateCanvasSize(config);
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+
+  renderPlayerViewToCanvas(ctx, config, revealedCells, fogOptions, width, height, getPropCatalog(), null);
+
+  return canvas.toBuffer('image/png');
 }
 
 /**

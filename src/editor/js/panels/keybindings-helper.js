@@ -80,6 +80,42 @@ const TOOL_BINDS = {
   ],
 };
 
+// ── Session (DM) tool keybindings ────────────────────────────────────────────
+
+const SESSION_GLOBAL_BINDS = [
+  { key: '1', desc: 'Doors tool' },
+  { key: '2', desc: 'Range tool' },
+  { key: '3', desc: 'Fog Reveal tool' },
+  { key: 'H', desc: 'Zoom to fit' },
+  { key: '?', desc: 'All shortcuts' },
+];
+
+const SESSION_TOOL_BINDS = {
+  doors: [
+    { key: 'Click door', desc: 'Open / close door' },
+  ],
+  range: [
+    { key: 'Click+Drag', desc: 'Measure area' },
+    { key: 'Tab', desc: 'Cycle shape' },
+    { key: 'Shift+Tab', desc: 'Cycle shape (reverse)' },
+  ],
+  'fog-reveal': [
+    { key: 'Click+Drag', desc: 'Reveal rectangle' },
+  ],
+};
+
+const SESSION_TOOL_NAMES = {
+  doors: 'Doors',
+  range: 'Range',
+  'fog-reveal': 'Fog Reveal',
+};
+
+const SESSION_TOOL_KEYS = {
+  doors: '1',
+  range: '2',
+  'fog-reveal': '3',
+};
+
 // Mode key for filtering mode-specific bindings
 const TOOL_MODE_KEYS = {
   paint: 'paintMode',
@@ -91,6 +127,8 @@ let headerEl = null;
 let bodyEl = null;
 let lastTool = null;
 let lastMode = null;
+let lastSessionActive = false;
+let lastSessionTool = null;
 
 // Drag state
 let isDragging = false;
@@ -114,7 +152,17 @@ function getToolShortcut(toolName) {
   return keys[toolName] || null;
 }
 
+function getActiveSessionTool() {
+  const btn = document.querySelector('[data-session-tool].active');
+  return btn ? btn.dataset.sessionTool : 'doors';
+}
+
 function buildContent(toolName) {
+  // Session mode: show DM tool binds instead of editor tool binds
+  if (state.sessionToolsActive) {
+    return buildSessionContent(getActiveSessionTool());
+  }
+
   const modeKey = TOOL_MODE_KEYS[toolName];
   const currentMode = modeKey ? state[modeKey] : null;
   const toolBinds = (TOOL_BINDS[toolName] || []).filter(b => {
@@ -141,21 +189,55 @@ function buildContent(toolName) {
   return html;
 }
 
+function buildSessionContent(sessionTool) {
+  const toolBinds = SESSION_TOOL_BINDS[sessionTool] || [];
+  let html = '';
+
+  if (toolBinds.length > 0) {
+    html += '<div class="kb-section">';
+    for (const b of toolBinds) {
+      html += `<div class="kb-row"><kbd>${b.key}</kbd><span>${b.desc}</span></div>`;
+    }
+    html += '</div>';
+  }
+
+  html += '<div class="kb-section kb-section-global">';
+  for (const b of SESSION_GLOBAL_BINDS) {
+    html += `<div class="kb-row"><kbd>${b.key}</kbd><span>${b.desc}</span></div>`;
+  }
+  html += '</div>';
+
+  return html;
+}
+
 export function refreshKeybindingsHelper() {
   refresh();
 }
 
 function refresh() {
   if (!panel || panel.style.display === 'none') return;
+
+  const sessionActive = state.sessionToolsActive;
+  const sessionTool = sessionActive ? getActiveSessionTool() : null;
   const toolName = state.activeTool;
   const modeKey = TOOL_MODE_KEYS[toolName];
   const currentMode = modeKey ? state[modeKey] : null;
-  if (toolName === lastTool && currentMode === lastMode) return;
+
+  // Skip if nothing changed
+  if (sessionActive === lastSessionActive && sessionTool === lastSessionTool &&
+      toolName === lastTool && currentMode === lastMode) return;
+  lastSessionActive = sessionActive;
+  lastSessionTool = sessionTool;
   lastTool = toolName;
   lastMode = currentMode;
 
-  const shortcut = getToolShortcut(toolName);
-  headerEl.textContent = `${getToolDisplayName(toolName)} Tool` + (shortcut ? ` (${shortcut})` : '');
+  if (sessionActive) {
+    const key = SESSION_TOOL_KEYS[sessionTool];
+    headerEl.textContent = `DM: ${SESSION_TOOL_NAMES[sessionTool] || sessionTool}` + (key ? ` (${key})` : '');
+  } else {
+    const shortcut = getToolShortcut(toolName);
+    headerEl.textContent = `${getToolDisplayName(toolName)} Tool` + (shortcut ? ` (${shortcut})` : '');
+  }
   bodyEl.innerHTML = buildContent(toolName);
 }
 
@@ -176,6 +258,8 @@ export function toggleKeybindingsHelper(visible) {
   } else {
     lastTool = null;
     lastMode = null;
+    lastSessionActive = false;
+    lastSessionTool = null;
     refresh();
   }
   // Persist preference
@@ -252,6 +336,15 @@ export function initKeybindingsHelper() {
   const cb = document.getElementById('feat-keybindings');
   if (cb) cb.checked = show;
 
-  // Refresh on state changes (tool switch, mode switch)
+  // Refresh on state changes (tool switch, mode switch, session toggle)
   subscribe(refresh);
+
+  // Session tool buttons don't trigger state.notify(), so listen for clicks directly
+  const sessionToolRow = document.getElementById('session-tool-row');
+  if (sessionToolRow) {
+    sessionToolRow.addEventListener('click', () => {
+      // Small delay so the active class has been toggled before we read it
+      requestAnimationFrame(refresh);
+    });
+  }
 }

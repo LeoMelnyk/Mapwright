@@ -5,7 +5,7 @@ import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
 import { requestRender } from '../canvas-view.js';
 import { buildCustomEditor, syncCustomEditorValues, renderCustomThumb } from './theme-editor.js';
 
-const idle = window.requestIdleCallback
+const idle = typeof window !== 'undefined' && window.requestIdleCallback
   ? (cb) => window.requestIdleCallback(cb)
   : (cb) => setTimeout(cb, 0);
 

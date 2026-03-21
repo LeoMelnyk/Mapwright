@@ -8,12 +8,22 @@ const MAPWRIGHT_DIR = path.resolve(__dirname, '../../..');
 
 let serverProcess = null;
 let serverPort = null;
+let reusedExisting = false;
 
 /**
  * Start the Express server on a random port.
+ * If a server is already running on port 3000 (e.g. started by pre-commit hook),
+ * reuse it instead of spawning a new one.
  * Returns the port number.
  */
 export async function startServer() {
+  // Check if a server is already running on port 3000
+  if (await isPortUp(3000)) {
+    serverPort = 3000;
+    reusedExisting = true;
+    return serverPort;
+  }
+
   serverPort = 3100 + Math.floor(Math.random() * 900);
 
   serverProcess = spawn('node', ['server.js', String(serverPort)], {
@@ -33,6 +43,12 @@ export async function startServer() {
  * Stop the server process.
  */
 export async function stopServer() {
+  if (reusedExisting) {
+    // Don't kill a server we didn't start
+    reusedExisting = false;
+    serverPort = null;
+    return;
+  }
   if (serverProcess) {
     serverProcess.kill('SIGTERM');
     serverProcess = null;
@@ -40,6 +56,21 @@ export async function stopServer() {
     // Brief wait for port release
     await new Promise(r => setTimeout(r, 500));
   }
+}
+
+/**
+ * Quick check if a port is already responding.
+ */
+function isPortUp(port) {
+  return new Promise((resolve) => {
+    const req = http.get(`http://localhost:${port}/`, (res) => {
+      res.resume();
+      resolve(true);
+    });
+    req.on('error', () => resolve(false));
+    req.setTimeout(1000, () => { req.destroy(); resolve(false); });
+    req.end();
+  });
 }
 
 /**

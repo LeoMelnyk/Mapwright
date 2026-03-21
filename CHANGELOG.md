@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.7.1
+
+### Bug Fixes
+
+- Fixed props being visible through fog of war in the player view — props now respect revealed cells, matching the existing behavior of stairs and bridges
+
+### Testing
+
+- Added player view unit tests (18 tests) covering fog-of-war cell filtering, prop/bridge visibility, secret door handling, and invisible wall stripping
+- Added player view visual snapshot tests (6 tests) — fully revealed, partial fog, and fully fogged renders for each example map
+- Added headless `renderPlayerViewToCanvas()` in the compile pipeline for player-view snapshot rendering
+
+### Keybindings Helper
+
+- Keybindings helper panel now shows DM tool shortcuts when in session mode (Doors, Range, Fog Reveal) instead of the editor tool binds
+- Header displays "DM: Doors (1)" / "DM: Range (2)" / "DM: Fog Reveal (3)" with tool-specific actions
+- Automatically switches back to editor keybinds when leaving session mode
+
+---
+
 ## v0.7.0
 
 ### Onboarding

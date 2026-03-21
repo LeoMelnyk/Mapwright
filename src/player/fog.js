@@ -156,6 +156,28 @@ export function filterBridgesForPlayer(bridges, revealedCells) {
   );
 }
 
+export function filterPropsForPlayer(props, revealedCells, gridSize, propCatalog) {
+  if (!props || props.length === 0) return [];
+  return props.filter(prop => {
+    const col = Math.floor(prop.x / gridSize);
+    const row = Math.floor(prop.y / gridSize);
+    const propDef = propCatalog?.props?.[prop.type];
+    if (!propDef) return false;
+
+    const [fRows, fCols] = propDef.footprint;
+    const r = (((prop.rotation ?? 0) % 360) + 360) % 360;
+    const eRows = (r === 90 || r === 270) ? fCols : fRows;
+    const eCols = (r === 90 || r === 270) ? fRows : fCols;
+
+    for (let dr = 0; dr < eRows; dr++) {
+      for (let dc = 0; dc < eCols; dc++) {
+        if (revealedCells.has(cellKey(row + dr, col + dc))) return true;
+      }
+    }
+    return false;
+  });
+}
+
 export function filterStairsForPlayer(stairs, revealedCells, openedStairIds) {
   if (!stairs || stairs.length === 0) return [];
 

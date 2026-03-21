@@ -1,7 +1,7 @@
 // Player view canvas: render loop, pan/zoom, fog overlay, tool interaction.
 
 import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache, renderLightmap } from '../render/index.js';
-import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer } from './fog.js';
+import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer } from './fog.js';
 import playerState from './player-state.js';
 
 const CELL_SIZE = 40; // pixels per cell at zoom=1
@@ -151,7 +151,9 @@ function render(timestamp) {
   );
   // Filter bridges: hide bridges whose control point cells haven't been revealed
   const filteredBridges = filterBridgesForPlayer(metadata.bridges, playerState.revealedCells);
-  const playerMetadata = { ...metadata, stairs: filteredStairs, bridges: filteredBridges };
+  // Filter props: hide props whose footprint cells haven't been revealed
+  const filteredProps = filterPropsForPlayer(metadata.props, playerState.revealedCells, gridSize, playerState.propCatalog);
+  const playerMetadata = { ...metadata, stairs: filteredStairs, bridges: filteredBridges, props: filteredProps };
 
   // Render using existing pipeline
   const showGrid = metadata.features?.showGrid !== false;

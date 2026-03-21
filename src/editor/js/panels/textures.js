@@ -9,7 +9,7 @@ let scrollArea = null;
 let _searchTimer = null;
 
 const TEX_COLLAPSED_KEY = 'mw-texture-collapsed';
-const collapsed = new Set(JSON.parse(localStorage.getItem(TEX_COLLAPSED_KEY) || '[]'));
+const collapsed = new Set(JSON.parse((typeof localStorage !== 'undefined' && localStorage.getItem(TEX_COLLAPSED_KEY)) || '[]'));
 
 function saveCollapsed() {
   localStorage.setItem(TEX_COLLAPSED_KEY, JSON.stringify([...collapsed]));
