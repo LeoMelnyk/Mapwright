@@ -6,6 +6,7 @@
 ![macOS](https://img.shields.io/badge/macOS-000000?logo=apple)
 ![Node 18+](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green)
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github-sponsors)](https://github.com/sponsors/LeoMelnyk)
 
 [**Download for Windows →**](https://github.com/LeoMelnyk/Mapwright/releases)
 [**Download for Mac →**](https://github.com/LeoMelnyk/Mapwright/releases)
@@ -232,3 +233,10 @@ Frontend changes (HTML/CSS/JS) take effect on Ctrl+R. Server changes (`server.js
 
 MIT — [Leo Melnyk](https://github.com/LeoMelnyk), 2026.
 Textures via [Polyhaven](https://polyhaven.com) (CC0).
+
+---
+
+## Support
+
+If Mapwright is useful to you, consider [buying me a coffee](https://github.com/sponsors/LeoMelnyk)!
+
