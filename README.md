@@ -34,7 +34,7 @@ No Node.js or terminal required.
 | Platform | Download | Notes |
 |---|---|---|
 | **Windows** | [`Mapwright.exe`](https://github.com/LeoMelnyk/Mapwright/releases) | Portable — no installer, just run it |
-| **Mac** | [`Mapwright.dmg`](https://github.com/LeoMelnyk/Mapwright/releases) | Unsigned — right-click → **Open** on first launch to bypass Gatekeeper |
+| **Mac** | [`Mapwright.dmg`](https://github.com/LeoMelnyk/Mapwright/releases) | Signed & notarized — double-click to install |
 
 On first launch, the built-in texture downloader will run. Download textures once and they persist across sessions.
 
@@ -216,7 +216,7 @@ The Windows build is a single portable executable — no installer, no system de
 
 > **Windows build note:** If the build fails with `Cannot create symbolic link`, enable Developer Mode in **Settings → System → For Developers** and re-run.
 
-The Mac build is unsigned. Users will need to right-click → **Open** on first launch to bypass Gatekeeper.
+The Mac build is signed and notarized with a Developer ID certificate — it opens without Gatekeeper warnings.
 
 ### Dev Server
 
