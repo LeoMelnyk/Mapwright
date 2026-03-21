@@ -69,7 +69,11 @@
       "!node_modules/puppeteer-core/**",
       "!node_modules/.cache/**"
     ],
-    "asar": false,
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/@napi-rs/**/*.node",
+      "node_modules/@napi-rs/**/index.js"
+    ],
     "mac": {
       "target": "dmg",
       "hardenedRuntime": true,
