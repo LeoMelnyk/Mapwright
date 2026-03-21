@@ -76,6 +76,7 @@
     ],
     "mac": {
       "target": "dmg",
+      "icon": "src/MapwrightIcon.png",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
