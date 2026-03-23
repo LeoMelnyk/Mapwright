@@ -40,6 +40,17 @@ export function loadDungeonJSON(json, opts = {}) {
       }
     }
   }
+  // Bridge textures (hardcoded Polyhaven IDs in bridges.js)
+  if (json.metadata?.bridges?.length) {
+    const bridgeTexIds = {
+      wood: 'polyhaven/weathered_planks', stone: 'polyhaven/stone_wall',
+      rope: 'polyhaven/worn_planks', dock: 'polyhaven/brown_planks_09',
+    };
+    for (const b of json.metadata.bridges) {
+      const tid = bridgeTexIds[b.type];
+      if (tid) usedIds.add(tid);
+    }
+  }
   if (usedIds.size > 0) ensureTexturesLoaded(usedIds).then(() => { state.texturesVersion++; notify(); });
   // Zoom to fit the loaded map in the viewport
   requestAnimationFrame(() => zoomToFit());

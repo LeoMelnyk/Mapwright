@@ -51,6 +51,8 @@ let _mapDirtySeq = 0;   // bumped on any state change that requires re-render
 let _lastAnimClock = -1; // tracks animation clock for lightmap-only redraws
 let _lastContentVersion = 0;  // tracks smartInvalidate() calls for cache invalidation
 let _lastUndoSig = 0;         // tracks undo/redo stack changes for cache invalidation
+let _cellsRebuildCount = 0;   // diagnostic: how many times the cells cache has rebuilt
+let _compositeRebuildCount = 0; // diagnostic: lightmap composite rebuilds
 
 /** Force the offscreen map cache to rebuild on next frame. Call after theme/texture/feature changes. */
 export function invalidateMapCache() { _mapDirtySeq++; }
@@ -178,9 +180,8 @@ export function init(canvasEl) {
 
   // Re-render when state changes (theme, features, metadata, etc.)
   subscribe(() => {
-    if (state.dirty) {
-      requestRender();
-    }
+    // Always re-render on dirty flag (edits) or texturesVersion change (async texture loads)
+    requestRender();
   });
 
   canvas.addEventListener('mousedown', onMouseDown);
@@ -247,12 +248,35 @@ function render() {
 
   const _skip = (typeof window !== 'undefined' && window._skipPhases) || {};
 
+  // Debug: skip ALL rendering (just background fill) to test compositor behavior
+  if (_skip.all) {
+    lastDrawMs = performance.now() - drawStart;
+    _lastFrameEnd = performance.now();
+    // still draw diagnostics below
+    _fpsFrames++;
+    const now = performance.now();
+    if (now - _fpsLastTime >= 1000) { _fpsValue = _fpsFrames; _fpsFrames = 0; _fpsLastTime = now; }
+    const editorSettings = getEditorSettings();
+    if (editorSettings.fpsCounter === true) {
+      const lines = [{ text: `Draw: ${lastDrawMs.toFixed(1)}ms | ${_fpsValue} fps | gap: ${_frameGapMs.toFixed(0)}ms | rAF: ${_rafProbeHz}Hz`, color: '#4f4' },
+        { text: 'SKIP ALL — compositor test', color: '#f84' }];
+      ctx.font = '13px monospace';
+      for (let i = 0; i < lines.length; i++) {
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        ctx.fillRect(4, 4 + i * 17, ctx.measureText(lines[i].text).width + 8, 16);
+        ctx.fillStyle = lines[i].color;
+        ctx.fillText(lines[i].text, 8, 16 + i * 17);
+      }
+    }
+    return;
+  }
+
   // Render the dungeon cells (WYSIWYG)
   const showGrid = metadata.features?.showGrid !== false;
   const labelStyle = metadata.labelStyle || 'circled';
   const textureOptions = state.textureCatalog
     ? { catalog: state.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: state.texturesVersion ?? 0 }
-    : null;
+    : { catalog: null, blendWidth: 0, texturesVersion: state.texturesVersion ?? 0 };
   const lightingEnabled = !!metadata.lightingEnabled;
   const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door';
   const bgImgConfig = metadata.backgroundImage ?? null;
@@ -276,9 +300,13 @@ function render() {
     if (cv !== _lastContentVersion) { _mapDirtySeq++; _lastContentVersion = cv; }
     const undoSig = (state.undoStack?.length || 0) * 10000 + (state.redoStack?.length || 0);
     if (undoSig !== _lastUndoSig) { _mapDirtySeq++; _lastUndoSig = undoSig; }
+    // Debug skip flags bypass cache (force rebuild so flags take effect)
+    const _skipKeys = Object.keys(_skip).filter(k => _skip[k] && k !== 'all');
+    const _skipSig = _skipKeys.join(',');
     const needsCellsRedraw = !_cellsCache || _cellsCache.dirtySeq !== _mapDirtySeq ||
       _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH ||
-      _cellsCache.texturesVersion !== texVer;
+      _cellsCache.texturesVersion !== texVer ||
+      _cellsCache._skipSig !== _skipSig;
 
     const animClock = state.animClock ?? 0;
     const needsLightingRedraw = lightingEnabled && (needsCellsRedraw || animClock !== _lastAnimClock);
@@ -290,15 +318,17 @@ function render() {
 
       // ── Cells cache (expensive — only rebuilds on content changes) ──
       if (needsCellsRedraw) {
+        _cellsRebuildCount++;
         if (!_cellsCache || _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH) {
           const offscreen = document.createElement('canvas');
           offscreen.width = cacheW;
           offscreen.height = cacheH;
-          _cellsCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: true }), dirtySeq: 0, cacheW, cacheH };
+          _cellsCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
         }
 
         const offCtx = _cellsCache.ctx;
-        offCtx.clearRect(0, 0, cacheW, cacheH);
+        offCtx.fillStyle = theme.background;
+        offCtx.fillRect(0, 0, cacheW, cacheH);
 
         if (!_skip.dots) drawEditorDots(offCtx, numRows, numCols, gridSize, theme, cacheTransform);
 
@@ -309,10 +339,12 @@ function render() {
           metadata, skipLabels: lightingEnabled || _skip.labels, showInvisible,
           bgImageEl, bgImgConfig,
           cacheSize: { w: cacheW, h: cacheH },
+          skipPhases: _skipKeys.length ? _skip : null,
         });
 
         _cellsCache.dirtySeq = _mapDirtySeq;
         _cellsCache.texturesVersion = texVer;
+        _cellsCache._skipSig = _skipSig;
       }
 
       // ── Composite cache (cells + lightmap — rebuilds on anim tick too) ──
@@ -320,9 +352,10 @@ function render() {
         const offscreen = document.createElement('canvas');
         offscreen.width = cacheW;
         offscreen.height = cacheH;
-        _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: true }), dirtySeq: 0, cacheW, cacheH };
+        _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
       }
 
+      _compositeRebuildCount++;
       const compCtx = _mapCache.ctx;
       compCtx.clearRect(0, 0, cacheW, cacheH);
       compCtx.drawImage(_cellsCache.canvas, 0, 0);
@@ -518,6 +551,11 @@ function render() {
           color: u.stringify < 5 ? '#8f8' : u.stringify < 15 ? '#ff4' : '#f44',
         });
       }
+      // Cache rebuild diagnostics
+      lines.push({
+        text: `  rebuilds: ${_cellsRebuildCount} cells, ${_compositeRebuildCount} comp | cache: ${cacheW}x${cacheH}`,
+        color: '#aaa',
+      });
       // Per-phase render timings breakdown
       const phases = ['blit', 'cacheRebuild', 'mouseMove', 'dots', 'roomCells', 'shading', 'floors', 'arcs', 'blending', 'fills', 'walls', 'bridges', 'grid', 'props', 'hazard', 'lighting', 'decorations'];
       for (const phase of phases) {

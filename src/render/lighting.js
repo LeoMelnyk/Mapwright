@@ -672,25 +672,10 @@ export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW,
   const lctx = lightCanvas.getContext('2d');
 
   // Fill with ambient. For multiply mode: ambientColor * ambientLevel.
-  // Void cells stay black (multiply with black = black) so ambient doesn't brighten empty space.
   const amb = Math.max(0, Math.min(1, ambientLevel));
   const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
-  const ambStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
-  // Start fully white (multiply-neutral), then paint ambient only onto non-void cells
-  lctx.fillStyle = '#ffffff';
+  lctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
   lctx.fillRect(0, 0, canvasW, canvasH);
-  lctx.fillStyle = ambStyle;
-  const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
-  for (let r = 0; r < numRows; r++) {
-    for (let c = 0; c < numCols; c++) {
-      if (!cells[r][c]) continue;
-      const px = c * gridSize * transform.scale + transform.offsetX;
-      const py = r * gridSize * transform.scale + transform.offsetY;
-      const size = gridSize * transform.scale;
-      lctx.fillRect(px, py, size, size);
-    }
-  }
 
   // Additively blend each light's contribution on top of ambient
   lctx.globalCompositeOperation = 'lighter';

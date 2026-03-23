@@ -297,7 +297,6 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
   }
 
   // Convert accumulator to final lightmap ImageData (colored ambient)
-  // Void cells get no ambient — they stay black so multiply darkens them fully.
   const ambient = Math.max(0, Math.min(1, ambientLevel));
   const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
   const ambR = (ar / 255) * ambient;
@@ -307,34 +306,11 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
   const imageData = ctx.createImageData(canvasW, canvasH);
   const out = imageData.data;
 
-  for (let py = 0; py < canvasH; py++) {
-    // Map pixel row to cell row
-    const worldY = (py - transform.offsetY) * invScale;
-    const row = Math.floor(worldY / gridSize);
-
-    for (let px = 0; px < canvasW; px++) {
-      const idx = (py * canvasW + px) * 4;
-      const j   = (py * canvasW + px) * 3;
-
-      // Map pixel col to cell col
-      const worldX = (px - transform.offsetX) * invScale;
-      const col = Math.floor(worldX / gridSize);
-
-      // Check if this pixel falls on a non-void cell
-      const isVoid = row < 0 || row >= numRows || col < 0 || col >= numCols || !cells[row]?.[col];
-
-      if (isVoid) {
-        // White = multiply-neutral, so void cells pass through unchanged
-        out[idx]     = 255;
-        out[idx + 1] = 255;
-        out[idx + 2] = 255;
-      } else {
-        out[idx]     = Math.min(255, Math.round((ambR + lightAccum[j])     * 255));
-        out[idx + 1] = Math.min(255, Math.round((ambG + lightAccum[j + 1]) * 255));
-        out[idx + 2] = Math.min(255, Math.round((ambB + lightAccum[j + 2]) * 255));
-      }
-      out[idx + 3] = 255;
-    }
+  for (let i = 0, j = 0; i < out.length; i += 4, j += 3) {
+    out[i]     = Math.min(255, Math.round((ambR + lightAccum[j])     * 255));
+    out[i + 1] = Math.min(255, Math.round((ambG + lightAccum[j + 1]) * 255));
+    out[i + 2] = Math.min(255, Math.round((ambB + lightAccum[j + 2]) * 255));
+    out[i + 3] = 255;
   }
 
   // Composite onto target canvas with multiply

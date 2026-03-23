@@ -87,6 +87,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       backgroundThrottling: false,
+      devTools: true,
     },
   });
 
@@ -95,6 +96,14 @@ function createWindow() {
     : `http://localhost:${PORT}/editor/`;
   pendingFile = null;
   mainWindow.loadURL(editorUrl);
+
+  // F12 opens devtools
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F12') {
+      mainWindow.webContents.toggleDevTools();
+      event.preventDefault();
+    }
+  });
 
   // Allow opening the downloader from the editor toolbar button.
   // All other window.open() calls go to the system browser.

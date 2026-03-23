@@ -52,10 +52,6 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - **Backward compatible**: Integer coordinates work identically to before
 - `getMapInfo` returns display dimensions (`rows`, `cols`, `gridSize`) plus new `resolution` field
 
-### Bug Fixes
-
-- **Lighting: void cell ambient bleed** — When the lighting system was enabled, ambient brightness was applied to void cells, darkening areas outside the dungeon. Void cells now receive full brightness (multiply-neutral white) so the lightmap has no effect on them
-
 ### Migration
 
 - Format version bumped to 3 (v2→v3 migration)

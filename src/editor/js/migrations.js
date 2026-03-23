@@ -179,6 +179,7 @@ function migrateToHalfCell(json) {
           const diagCells = diagType === 'ne-sw' ? [tr, bl] : [tl, br];
           for (const dc of diagCells) {
             dc[diagType] = diagVal;
+            dc.trimCorner = inferredCorner; // needed for triangular floor/lighting clipping
           }
         } else {
           // Regular diagonal (not adjacent to void): replicate to sub-cells

@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Restore autosaved state (before canvas init so zoom/pan are set)
-  const restored = loadAutosave();
+  const restored = await loadAutosave();
   // (no migration needed for autosaved state — always current format)
 
   // Init canvas
@@ -550,6 +550,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (propDef?.textures) {
           for (const id of propDef.textures) usedIds.add(id);
         }
+      }
+    }
+    // Bridge textures (hardcoded Polyhaven IDs in bridges.js)
+    if (state.dungeon.metadata?.bridges?.length) {
+      const bridgeTexIds = {
+        wood: 'polyhaven/weathered_planks', stone: 'polyhaven/stone_wall',
+        rope: 'polyhaven/worn_planks', dock: 'polyhaven/brown_planks_09',
+      };
+      for (const b of state.dungeon.metadata.bridges) {
+        const tid = bridgeTexIds[b.type];
+        if (tid) usedIds.add(tid);
       }
     }
 

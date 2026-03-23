@@ -176,31 +176,81 @@ export function subscribe(fn) {
 
 // ─── Auto-save ────────────────────────────────────────────────────────────
 
-const AUTOSAVE_KEY = 'dungeon-editor-autosave';
+// ── Autosave via IndexedDB (async, no main-thread blocking) ──────────────
+const AUTOSAVE_DB = 'mapwright-autosave';
+const AUTOSAVE_STORE = 'state';
+const AUTOSAVE_KEY = 'current';
+const AUTOSAVE_LEGACY_KEY = 'dungeon-editor-autosave';
 let autosaveTimer = null;
+let _autosaveDb = null;
+
+function _openDb() {
+  return new Promise((resolve, reject) => {
+    if (_autosaveDb) { resolve(_autosaveDb); return; }
+    const req = indexedDB.open(AUTOSAVE_DB, 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore(AUTOSAVE_STORE);
+    };
+    req.onsuccess = () => {
+      _autosaveDb = req.result;
+      resolve(_autosaveDb);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// Initialize DB early so it's ready when first autosave fires
+if (typeof indexedDB !== 'undefined') {
+  _openDb().catch(() => { /* IndexedDB unavailable — fallback to localStorage */ });
+}
 
 function scheduleAutosave() {
   if (autosaveTimer) clearTimeout(autosaveTimer);
-  autosaveTimer = setTimeout(() => {
+  autosaveTimer = setTimeout(async () => {
+    const data = {
+      dungeon: state.dungeon,
+      currentLevel: state.currentLevel,
+      activeTool: state.activeTool,
+      zoom: state.zoom,
+      panX: state.panX,
+      panY: state.panY,
+    };
     try {
-      const payload = JSON.stringify({
-        dungeon: state.dungeon,
-        currentLevel: state.currentLevel,
-        activeTool: state.activeTool,
-        zoom: state.zoom,
-        panX: state.panX,
-        panY: state.panY,
-      });
-      localStorage.setItem(AUTOSAVE_KEY, payload);
+      const db = await _openDb();
+      const tx = db.transaction(AUTOSAVE_STORE, 'readwrite');
+      tx.objectStore(AUTOSAVE_STORE).put(data, AUTOSAVE_KEY);
+      // tx completes async — no main thread blocking
     } catch {
-      // localStorage full or unavailable — silently ignore
+      // IndexedDB failed — fall back to localStorage (blocking but rare)
+      try { localStorage.setItem(AUTOSAVE_LEGACY_KEY, JSON.stringify(data)); } catch {}
     }
-  }, 500);
+  }, 1000);
 }
 
-export function loadAutosave() {
+export async function loadAutosave() {
+  // Try IndexedDB first
   try {
-    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    const db = await _openDb();
+    const tx = db.transaction(AUTOSAVE_STORE, 'readonly');
+    const saved = await new Promise((resolve, reject) => {
+      const req = tx.objectStore(AUTOSAVE_STORE).get(AUTOSAVE_KEY);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    if (saved?.dungeon?.metadata && saved?.dungeon?.cells) {
+      state.dungeon = saved.dungeon;
+      state.currentLevel = saved.currentLevel || 0;
+      state.activeTool = saved.activeTool || 'room';
+      state.zoom = saved.zoom || 1.0;
+      state.panX = saved.panX ?? 60;
+      state.panY = saved.panY ?? 60;
+      return true;
+    }
+  } catch {}
+
+  // Fall back to legacy localStorage
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_LEGACY_KEY);
     if (!raw) return false;
     const saved = JSON.parse(raw);
     if (!saved.dungeon?.metadata || !saved.dungeon?.cells) return false;
