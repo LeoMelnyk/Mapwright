@@ -28,11 +28,19 @@ export { invalidateBlendLayerCache } from './blend.js';
 // Bumped by smartInvalidate() on every content mutation. canvas-view.js checks
 // this to know when the map cache needs rebuilding, even when notify() isn't called.
 let _contentVersion = 0;
+let _geometryVersion = 0; // bumped only on void↔floor transitions (needsGeometry)
 export function getContentVersion() { return _contentVersion; }
+export function getGeometryVersion() { return _geometryVersion; }
 export function bumpContentVersion() { _contentVersion++; }
 
 // ─── Constants ─────
 const HAZARD_COLOR = '#f0c020';
+
+// ── Per-phase render layer caches ─────────────────────────────────────────
+// Base layer: shading + floors + arcs — only rebuilds on geometry or texture changes
+let _baseRenderLayer = null; // { canvas, w, h, geometryVersion, texturesVersion }
+// Walls layer: buffer shading + walls + bridges + grid — rebuilds on any cell mutation
+let _wallsRenderLayer = null; // { canvas, w, h, contentVersion }
 
 // ── Per-frame caches (invalidated by cells reference change) ─────────
 let _roomCellsCache = { cells: null, result: null };
@@ -61,6 +69,8 @@ function getCachedRoundedCorners(cells) {
 export function invalidateGeometryCache() {
   _roomCellsCache      = { cells: null, result: null };
   _roundedCornersCache = { cells: null, result: null };
+  _baseRenderLayer     = null;
+  _wallsRenderLayer    = null;
   invalidateEffectsCache();
 }
 
@@ -139,7 +149,7 @@ export function smartInvalidate(changes, cells, { forceGeometry = false, forceFl
     }
   }
 
-  if (needsGeometry) { invalidateGeometryCache(); invalidateBlendLayerCache(); }
+  if (needsGeometry) { invalidateGeometryCache(); invalidateBlendLayerCache(); _geometryVersion++; }
   if (needsFluid)    invalidateFluidCache();
   _contentVersion++;
 }
@@ -1192,27 +1202,66 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   const roundedCorners = getCachedRoundedCorners(cells);
   const hasRoundedArcs = roundedCorners.size > 0;
 
-  // Outer shading + hatching (before floor fills so floor paint covers them)
+  // ── Base layer: shading + floors + arcs ────────────────────────────────
+  // Only rebuilds on geometry changes (void↔floor transitions) or texture changes.
   const _res = metadata?.resolution || 1;
-  _t('shading', () => {
-    drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
-    drawHatching(ctx, cells, roomCells, gridSize, theme, transform);
-    drawRockShading(ctx, cells, roomCells, gridSize, theme, transform);
-  });
-
-  // Floor backgrounds + textures (clipped to exclude arc voids)
+  const texVer = textureOptions?.texturesVersion ?? 0;
   let hasTexturedCells = false;
-  _t('floors', () => {
-    withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-      hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig, visibleBounds, metadata?.resolution || 1);
+
+  if (cacheSize) {
+    const baseValid = _baseRenderLayer &&
+      _baseRenderLayer.w === cacheSize.w && _baseRenderLayer.h === cacheSize.h &&
+      _baseRenderLayer.geometryVersion === _geometryVersion &&
+      _baseRenderLayer.texturesVersion === texVer;
+
+    if (baseValid) {
+      _t('floors', () => { ctx.drawImage(_baseRenderLayer.canvas, 0, 0); });
+      hasTexturedCells = _baseRenderLayer.hasTexturedCells;
+    } else {
+      // Rebuild base layer
+      if (!_baseRenderLayer || _baseRenderLayer.w !== cacheSize.w || _baseRenderLayer.h !== cacheSize.h) {
+        const c = document.createElement('canvas');
+        c.width = cacheSize.w; c.height = cacheSize.h;
+        _baseRenderLayer = { canvas: c, ctx: c.getContext('2d', { alpha: true }), w: cacheSize.w, h: cacheSize.h };
+      }
+      const bCtx = _baseRenderLayer.ctx;
+      bCtx.clearRect(0, 0, cacheSize.w, cacheSize.h);
+
+      _t('shading', () => {
+        drawOuterShading(bCtx, cells, roomCells, gridSize, theme, transform, _res);
+        drawHatching(bCtx, cells, roomCells, gridSize, theme, transform);
+        drawRockShading(bCtx, cells, roomCells, gridSize, theme, transform);
+      });
+      _t('floors', () => {
+        withArcClip(bCtx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+          hasTexturedCells = renderFloors(bCtx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig, visibleBounds, _res);
+        });
+      });
+
+      _baseRenderLayer.geometryVersion = _geometryVersion;
+      _baseRenderLayer.texturesVersion = texVer;
+      _baseRenderLayer.hasTexturedCells = hasTexturedCells;
+      ctx.drawImage(_baseRenderLayer.canvas, 0, 0);
+    }
+  } else {
+    // Direct render path (non-cached, e.g. compile/export)
+    _t('shading', () => {
+      drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
+      drawHatching(ctx, cells, roomCells, gridSize, theme, transform);
+      drawRockShading(ctx, cells, roomCells, gridSize, theme, transform);
     });
-  });
+    _t('floors', () => {
+      withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+        hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig, visibleBounds, _res);
+      });
+    });
+  }
 
   // Arc secondary post-pass: for each arc wedge, draw textureSecondary inside the void-corner region.
+  // Skipped when base layer is cached (arcs were rendered into it during the rebuild).
   const _arcStart = performance.now();
-  // Iterates roundedCorners (not cells) so it catches all cells clipped by each wedge, including
-  // adjacent floor cells that don't have trimRound themselves (happens with larger-radius arcs).
-  if (hasRoundedArcs && textureOptions?.catalog) {
+  const _baseLayerCached = cacheSize && _baseRenderLayer?.geometryVersion === _geometryVersion && _baseRenderLayer?.texturesVersion === texVer;
+  if (!_baseLayerCached && hasRoundedArcs && textureOptions?.catalog) {
     const catalog = textureOptions.catalog;
     const cellPx = gridSize * transform.scale;
     const canBatch = typeof DOMMatrix !== 'undefined' && typeof ctx.createPattern === 'function';
@@ -1398,25 +1447,62 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   // Fill patterns (pit/water/lava) — grid drawn later so bridges sit under it
   _t('fills', () => renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, true, metadata, cacheSize));
 
-  // Buffer shading + walls + arc walls
-  _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible, visibleBounds, _res));
+  // ── Walls layer: buffer shading + walls + bridges + grid ──────────────
+  if (cacheSize) {
+    const wallsValid = _wallsRenderLayer &&
+      _wallsRenderLayer.w === cacheSize.w && _wallsRenderLayer.h === cacheSize.h &&
+      _wallsRenderLayer.contentVersion === _contentVersion;
 
-  // Bridges — rendered above fills and walls but below grid, props, and labels
-  _t('bridges', () => {
-    const getTextureImageForBridges = textureOptions?.catalog
-      ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
-      : null;
-    renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
-  });
+    if (wallsValid) {
+      _t('walls', () => { ctx.drawImage(_wallsRenderLayer.canvas, 0, 0); });
+    } else {
+      if (!_wallsRenderLayer || _wallsRenderLayer.w !== cacheSize.w || _wallsRenderLayer.h !== cacheSize.h) {
+        const c = document.createElement('canvas');
+        c.width = cacheSize.w; c.height = cacheSize.h;
+        _wallsRenderLayer = { canvas: c, ctx: c.getContext('2d', { alpha: true }), w: cacheSize.w, h: cacheSize.h };
+      }
+      const wCtx = _wallsRenderLayer.ctx;
+      wCtx.clearRect(0, 0, cacheSize.w, cacheSize.h);
 
-  // Grid overlay — drawn after bridges so grid lines show on top of bridge surface
-  _t('grid', () => {
-    if (showGrid) {
-      withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-        drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
-      }, true);
+      _t('walls', () => renderWallsAndBorders(wCtx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible, visibleBounds, _res));
+
+      _t('bridges', () => {
+        const getTextureImageForBridges = textureOptions?.catalog
+          ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
+          : null;
+        renderAllBridges(wCtx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
+      });
+
+      _t('grid', () => {
+        if (showGrid) {
+          withArcClip(wCtx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+            drawMatrixGrid(wCtx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
+          }, true);
+        }
+      });
+
+      _wallsRenderLayer.contentVersion = _contentVersion;
+      ctx.drawImage(_wallsRenderLayer.canvas, 0, 0);
     }
-  });
+  } else {
+    // Direct render path
+    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible, visibleBounds, _res));
+
+    _t('bridges', () => {
+      const getTextureImageForBridges = textureOptions?.catalog
+        ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
+        : null;
+      renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
+    });
+
+    _t('grid', () => {
+      if (showGrid) {
+        withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+          drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
+        }, true);
+      }
+    });
+  }
 
   // Props, labels, stairs
   _t('props', () => renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels, visibleBounds, cacheSize));

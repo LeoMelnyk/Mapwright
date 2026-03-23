@@ -80,6 +80,7 @@ function migrateToHalfCell(json) {
   }
 
   // Process each old cell
+  let _trimVoidCount = 0;
   for (let r = 0; r < oldRows; r++) {
     for (let c = 0; c < oldCols; c++) {
       const cell = cells[r]?.[c];
@@ -124,10 +125,10 @@ function migrateToHalfCell(json) {
         const diagVal = cell[diagType] || 'w';
 
         // Mark the corner sub-cell for voiding (applied after cell assignment below)
-        if (corner === 'nw') tl._void = true;
-        else if (corner === 'ne') tr._void = true;
-        else if (corner === 'sw') bl._void = true;
-        else br._void = true;
+        if (corner === 'nw') { tl._void = true; _trimVoidCount++; }
+        else if (corner === 'ne') { tr._void = true; _trimVoidCount++; }
+        else if (corner === 'sw') { bl._void = true; _trimVoidCount++; }
+        else { br._void = true; _trimVoidCount++; }
 
         // Set diagonal + trimCorner on the two diagonal sub-cells
         const diagCells = diagType === 'ne-sw' ? [tr, bl] : [tl, br];
@@ -154,14 +155,41 @@ function migrateToHalfCell(json) {
           target.trimArcRadius = cell.trimArcRadius * 2;
         }
       } else {
-        // Non-trim diagonals: replicate to sub-cells
-        if (cell['nw-se']) {
-          tl['nw-se'] = cell['nw-se'];
-          br['nw-se'] = cell['nw-se'];
-        }
+        // Non-trim diagonals: check if the cell is a trim hypotenuse (adjacent to void)
+        // even without trimCorner — the old trim tool didn't always set trimCorner.
+        const isVoid = (vr, vc) => vr < 0 || vr >= oldRows || vc < 0 || vc >= oldCols || !cells[vr][vc];
+        let inferredCorner = null;
         if (cell['ne-sw']) {
-          tr['ne-sw'] = cell['ne-sw'];
-          bl['ne-sw'] = cell['ne-sw'];
+          if (isVoid(r - 1, c) && isVoid(r, c - 1)) inferredCorner = 'nw';
+          else if (isVoid(r + 1, c) && isVoid(r, c + 1)) inferredCorner = 'se';
+        }
+        if (cell['nw-se']) {
+          if (isVoid(r - 1, c) && isVoid(r, c + 1)) inferredCorner = 'ne';
+          else if (isVoid(r + 1, c) && isVoid(r, c - 1)) inferredCorner = 'sw';
+        }
+
+        if (inferredCorner) {
+          // Treat as straight trim: void the corner sub-cell, set diagonal on the other two
+          const diagType = (inferredCorner === 'nw' || inferredCorner === 'se') ? 'ne-sw' : 'nw-se';
+          const diagVal = cell[diagType] || 'w';
+          if (inferredCorner === 'nw') { tl._void = true; _trimVoidCount++; }
+          else if (inferredCorner === 'ne') { tr._void = true; _trimVoidCount++; }
+          else if (inferredCorner === 'sw') { bl._void = true; _trimVoidCount++; }
+          else { br._void = true; _trimVoidCount++; }
+          const diagCells = diagType === 'ne-sw' ? [tr, bl] : [tl, br];
+          for (const dc of diagCells) {
+            dc[diagType] = diagVal;
+          }
+        } else {
+          // Regular diagonal (not adjacent to void): replicate to sub-cells
+          if (cell['nw-se']) {
+            tl['nw-se'] = cell['nw-se'];
+            br['nw-se'] = cell['nw-se'];
+          }
+          if (cell['ne-sw']) {
+            tr['ne-sw'] = cell['ne-sw'];
+            bl['ne-sw'] = cell['ne-sw'];
+          }
         }
       }
       // Non-corner trim flags (trimRound/trimInsideArc without trimCorner)
@@ -196,6 +224,8 @@ function migrateToHalfCell(json) {
       newCells[nr + 1][nc + 1] = br._void ? null : br;
     }
   }
+
+  if (_trimVoidCount > 0) console.log(`[migration] Voided ${_trimVoidCount} straight-trim sub-cells`);
 
   // ── Fix wall reciprocity between adjacent old cells ──
   // When old cell A had east='w' and old cell B (to the east) had west='w',
