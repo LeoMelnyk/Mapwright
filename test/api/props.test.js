@@ -20,7 +20,7 @@ import {
 // ── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
-  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon', 1);
   state.dungeon.metadata.lights = [];
   state.dungeon.metadata.nextLightId = 1;
   state.undoStack = [];

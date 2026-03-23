@@ -3,6 +3,7 @@ import {
   CARDINAL_DIRS, OFFSETS,
   state, pushUndo, markDirty, notify, setReciprocal,
   cellKey, parseCellKey, floodFillRoom, roomBoundsFromKeys,
+  toInt, toDisp,
 } from './_shared.js';
 import { isPropAt } from '../prop-spatial.js';
 
@@ -16,7 +17,7 @@ export function findCellByLabel(label) {
     const row = cells[r];
     if (!row) continue;
     for (let c = 0; c < row.length; c++) {
-      if (cells[r][c]?.center?.label === target) return { success: true, row: r, col: c };
+      if (cells[r][c]?.center?.label === target) return { success: true, row: toDisp(r), col: toDisp(c) };
     }
   }
   return { success: false, error: `Label "${label}" not found` };
@@ -70,7 +71,13 @@ export function _isCellCoveredByProp(r, c) {
  */
 export function getRoomBounds(label) {
   const roomCells = getApi()._collectRoomCells(label);
-  return roomBoundsFromKeys(roomCells);
+  const bounds = roomBoundsFromKeys(roomCells);
+  if (!bounds) return null;
+  return {
+    r1: toDisp(bounds.r1), c1: toDisp(bounds.c1),
+    r2: toDisp(bounds.r2), c2: toDisp(bounds.c2),
+    centerRow: toDisp(bounds.centerRow), centerCol: toDisp(bounds.centerCol),
+  };
 }
 
 /**
@@ -94,7 +101,7 @@ export function findWallBetween(label1, label2) {
       const [dr, dc] = OFFSETS[dir];
       const nr = r + dr, nc = c + dc;
       if (!room2Cells.has(cellKey(nr, nc))) continue;
-      results.push({ row: r, col: c, direction: dir, type: cell[dir] || 'w' });
+      results.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: cell[dir] || 'w' });
     }
   }
 
@@ -115,6 +122,8 @@ export function partitionRoom(roomLabel, direction, position, wallType = 'w', op
   if (!['w', 'iw'].includes(wallType)) {
     throw new Error('wallType must be "w" or "iw"');
   }
+  position = toInt(position);
+  const doorAt = options.doorAt != null ? toInt(options.doorAt) : undefined;
 
   const roomCells = getApi()._collectRoomCells(roomLabel);
   if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
@@ -128,7 +137,7 @@ export function partitionRoom(roomLabel, direction, position, wallType = 'w', op
       const [r, c] = parseCellKey(key);
       if (r !== position) continue;
       if (!roomCells.has(cellKey(r + 1, c))) continue;
-      const val = (options.doorAt === c) ? 'd' : wallType;
+      const val = (doorAt === c) ? 'd' : wallType;
       cells[r][c].south = val;
       setReciprocal(r, c, 'south', val);
       count++;
@@ -138,7 +147,7 @@ export function partitionRoom(roomLabel, direction, position, wallType = 'w', op
       const [r, c] = parseCellKey(key);
       if (c !== position) continue;
       if (!roomCells.has(cellKey(r, c + 1))) continue;
-      const val = (options.doorAt === r) ? 'd' : wallType;
+      const val = (doorAt === r) ? 'd' : wallType;
       cells[r][c].east = val;
       setReciprocal(r, c, 'east', val);
       count++;

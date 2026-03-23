@@ -1,35 +1,37 @@
 name: Rowboat
 category: Nautical
-footprint: 3x2
+footprint: 8x2
 facing: yes
 shadow: yes
 blocks_light: no
 placement: center
 room_types: dock, harbor, underground-lake
 typical_count: single
-notes: Small vessel; place at water's edge or on dock
+notes: Small vessel; place at water's edge or on dock. 20ft long × 5ft wide
 ---
-# Outer hull (weathered planks, tapered bow at south)
-poly 1.0,0.05 0.15,0.2 0.07,0.7 0.07,1.7 0.15,2.4 0.5,2.8 1.0,2.93 1.5,2.8 1.85,2.4 1.93,1.7 1.93,0.7 1.85,0.2 texfill polyhaven/weathered_planks 0.85
-poly 1.0,0.05 0.15,0.2 0.07,0.7 0.07,1.7 0.15,2.4 0.5,2.8 1.0,2.93 1.5,2.8 1.85,2.4 1.93,1.7 1.93,0.7 1.85,0.2 stroke #3a1f00
-# Interior floor (lighter worn planks)
-poly 1.0,0.2 0.32,0.38 0.22,0.78 0.22,1.68 0.3,2.3 0.65,2.68 1.0,2.8 1.35,2.68 1.7,2.3 1.78,1.68 1.78,0.78 1.68,0.38 texfill polyhaven/worn_planks 0.75
-poly 1.0,0.2 0.32,0.38 0.22,0.78 0.22,1.68 0.3,2.3 0.65,2.68 1.0,2.8 1.35,2.68 1.7,2.3 1.78,1.68 1.78,0.78 1.68,0.38 stroke #5c3a1e
-# Stern transom board (flat north end)
-rect 0.22,0.12 1.56,0.1 texfill polyhaven/dark_wood 0.85
-rect 0.22,0.12 1.56,0.1 stroke #3a1f00
-# Thwarts (rowing seats — three cross-planks)
-rect 0.3,0.65 1.4,0.1 texfill polyhaven/dark_wood 0.85
-rect 0.3,0.65 1.4,0.1 stroke #3a1f00
-rect 0.28,1.44 1.44,0.1 texfill polyhaven/dark_wood 0.85
-rect 0.28,1.44 1.44,0.1 stroke #3a1f00
-rect 0.3,2.2 1.4,0.1 texfill polyhaven/dark_wood 0.85
-rect 0.3,2.2 1.4,0.1 stroke #3a1f00
-# Thole pins (oarlock pegs at middle thwart)
-circle 0.14,1.49 0.05 fill #4a2800 0.9
-circle 1.86,1.49 0.05 fill #4a2800 0.9
-# Gunwale lines (shadow along inner hull edge)
-line 0.12,0.55 0.12,2.3 stroke #2a1400
-line 1.88,0.55 1.88,2.3 stroke #2a1400
+# Outer hull — tapered bow/stern shape
+poly 1.0,0.1 0.2,1.0 0.1,2.5 0.1,5.5 0.2,7.0 1.0,7.9 1.8,7.0 1.9,5.5 1.9,2.5 1.8,1.0 texfill polyhaven/weathered_planks 0.85
+poly 1.0,0.1 0.2,1.0 0.1,2.5 0.1,5.5 0.2,7.0 1.0,7.9 1.8,7.0 1.9,5.5 1.9,2.5 1.8,1.0 stroke #3a1f00
+# Interior floor
+poly 1.0,0.4 0.35,1.2 0.25,2.5 0.25,5.5 0.35,6.8 1.0,7.6 1.65,6.8 1.75,5.5 1.75,2.5 1.65,1.2 texfill polyhaven/worn_planks 0.75
+poly 1.0,0.4 0.35,1.2 0.25,2.5 0.25,5.5 0.35,6.8 1.0,7.6 1.65,6.8 1.75,5.5 1.75,2.5 1.65,1.2 stroke #5c3a1e
+# Thwart 1 (bow seat)
+rect 0.4,2.0 1.2,0.15 texfill polyhaven/dark_wood 0.85
+rect 0.4,2.0 1.2,0.15 stroke #3a1f00
+# Thwart 2 (rowing seat, center)
+rect 0.38,4.0 1.24,0.15 texfill polyhaven/dark_wood 0.85
+rect 0.38,4.0 1.24,0.15 stroke #3a1f00
+# Thwart 3 (stern seat)
+rect 0.4,6.0 1.2,0.15 texfill polyhaven/dark_wood 0.85
+rect 0.4,6.0 1.2,0.15 stroke #3a1f00
+# Thole pins (oarlock pegs at center thwart)
+circle 0.22,4.08 0.06 fill #4a2800 0.9
+circle 1.78,4.08 0.06 fill #4a2800 0.9
+# Gunwale lines (inner hull edge shadow)
+line 0.22,1.5 0.22,6.5 stroke #2a1400
+line 1.78,1.5 1.78,6.5 stroke #2a1400
 # Bow tip accent
-circle 1.0,2.9 0.05 fill #3a1f00 0.8
+circle 1.0,7.8 0.06 fill #3a1f00 0.8
+# Plank seam lines (hull detail)
+line 0.15,2.0 0.15,6.0 stroke #5c3a1e 0.3
+line 1.85,2.0 1.85,6.0 stroke #5c3a1e 0.3

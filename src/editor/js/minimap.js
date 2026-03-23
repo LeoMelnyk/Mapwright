@@ -3,6 +3,7 @@
 import state, { getTheme, markDirty, notify } from './state.js';
 import { renderCells } from '../../render/index.js';
 import { getEditorSettings } from './editor-settings.js';
+import { displayGridSize as _dgs } from '../../util/index.js';
 
 const MINIMAP_MAX_W = 220;
 const MINIMAP_MAX_H = 165;
@@ -149,7 +150,7 @@ export function updateMinimap() {
   });
 
   // Draw viewport rectangle
-  const mainScale = CELL_SIZE * state.zoom / gridSize;
+  const mainScale = CELL_SIZE * state.zoom / _dgs(gridSize, metadata.resolution);
   const vpLeft = (-state.panX / mainScale) * minimapScale + MINIMAP_PAD;
   const vpTop  = (-state.panY / mainScale) * minimapScale + MINIMAP_PAD;
   const vpW    = (mainCanvas.width  / mainScale) * minimapScale;
@@ -184,7 +185,7 @@ function _panToMinimapPoint(mx, my) {
   const wy = (my - MINIMAP_PAD) / minimapScale;
 
   // Center the main view on this world point
-  const mainScale = CELL_SIZE * state.zoom / gridSize;
+  const mainScale = CELL_SIZE * state.zoom / _dgs(gridSize, metadata.resolution);
   state.panX = mainCanvas.width  / 2 - wx * mainScale;
   state.panY = mainCanvas.height / 2 - wy * mainScale;
 

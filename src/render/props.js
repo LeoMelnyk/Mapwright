@@ -438,8 +438,61 @@ const _propTileCache = new Map();
  * Call when prop definitions change (catalog reload).
  * Theme and texture changes are handled automatically via the cache key.
  */
+let _propsVersion = 0;
+/** Clear everything — tile bitmaps + render layer. Use when prop definitions or textures change. */
 export function invalidatePropsCache() {
   _propTileCache.clear();
+  _propsRenderLayer = null;
+  _propsVersion++;
+}
+/** Clear only the full-map render layer. Use when props are moved/added/removed (tiles are still valid). */
+export function invalidatePropsRenderLayer() {
+  _propsRenderLayer = null;
+  _propsVersion++;
+}
+export function getPropsVersion() { return _propsVersion; }
+
+// ── Pre-rendered props layer cache ─────────────────────────────────────────
+// Renders all props to an offscreen canvas at cache resolution. Reused across
+// map cache rebuilds as long as props haven't changed.
+let _propsRenderLayer = null; // { canvas, w, h, propsRef, texturesVersion }
+
+/**
+ * Return a pre-rendered transparent canvas containing all props at cache resolution.
+ * Returns null if no props exist. Cached as long as metadata.props reference
+ * and texturesVersion haven't changed.
+ */
+export function getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, texturesVersion, metadata, cacheW, cacheH) {
+  if (!propCatalog || !metadata?.props?.length) return null;
+
+  if (_propsRenderLayer && _propsRenderLayer.w === cacheW && _propsRenderLayer.h === cacheH &&
+      _propsRenderLayer.propsVersion === _propsVersion && _propsRenderLayer.texturesVersion === texturesVersion) {
+    return _propsRenderLayer.canvas;
+  }
+
+  let offCanvas;
+  if (_propsRenderLayer && _propsRenderLayer.canvas) {
+    offCanvas = _propsRenderLayer.canvas;
+    if (offCanvas.width !== cacheW || offCanvas.height !== cacheH) {
+      offCanvas.width = cacheW;
+      offCanvas.height = cacheH;
+    }
+  } else {
+    offCanvas = document.createElement('canvas');
+    offCanvas.width = cacheW;
+    offCanvas.height = cacheH;
+  }
+
+  const ctx = offCanvas.getContext('2d', { alpha: true });
+  ctx.clearRect(0, 0, cacheW, cacheH);
+
+  const MAP_PX_PER_FOOT = 10;
+  const cacheTransform = { scale: MAP_PX_PER_FOOT, offsetX: 0, offsetY: 0 };
+
+  renderOverlayProps(ctx, metadata.props, gridSize, theme, cacheTransform, propCatalog, getTextureImage, texturesVersion, null);
+
+  _propsRenderLayer = { canvas: offCanvas, w: cacheW, h: cacheH, propsVersion: _propsVersion, texturesVersion };
+  return offCanvas;
 }
 
 // Scale is not part of the key — tiles are rendered once at TILE_BASE_PX per cell

@@ -1,6 +1,6 @@
 name: Sarcophagus
 category: Containers
-footprint: 2x1
+footprint: 3x2
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,15 +11,15 @@ clusters_with: candle-cluster, grave-marker, burial-urn
 notes: Stone coffin; single for boss tomb, rows for mass burial. Place prominently
 ---
 # Stone base
-rect 0.05,0.05 0.9,1.9 texfill polyhaven/granite_tile 0.8
-rect 0.05,0.05 0.9,1.9 stroke #555555
+rect 0.1,0.075 1.8,2.85 texfill polyhaven/granite_tile 0.8
+rect 0.1,0.075 1.8,2.85 stroke #555555
 # Lid slab
-rect 0.1,0.1 0.8,1.8 texfill polyhaven/marble_01 0.85
-rect 0.1,0.1 0.8,1.8 stroke #888888
+rect 0.2,0.15 1.6,2.7 texfill polyhaven/marble_01 0.85
+rect 0.2,0.15 1.6,2.7 stroke #888888
 # Inner border detail
-rect 0.18,0.18 0.64,1.64 stroke #999999
+rect 0.36,0.27 1.28,2.46 stroke #999999
 # Cross carving on lid
-line 0.5,0.35 0.5,1.0
-line 0.3,0.6 0.7,0.6
+line 1,0.525 1,1.5
+line 0.6,0.9 1.4,0.9
 # Face silhouette at head end
-ellipse 0.5,0.4 0.12,0.1 stroke #aaaaaa
+ellipse 1,0.6 0.24,0.15 stroke #aaaaaa

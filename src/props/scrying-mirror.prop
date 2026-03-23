@@ -1,6 +1,6 @@
 name: Scrying Mirror
 category: Magical
-footprint: 1x2
+footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,12 +11,12 @@ clusters_with: crystal-ball, candle-cluster
 notes: Magical viewing device; mount on wall as focal point
 ---
 # Ornate frame
-ellipse 1.0,0.5 0.85,0.4 texfill polyhaven/dark_wood 0.85
-ellipse 1.0,0.5 0.85,0.4 stroke #4a2800
+ellipse 1,1 0.85,0.8 texfill polyhaven/dark_wood 0.85
+ellipse 1,1 0.85,0.8 stroke #4a2800
 # Mirror surface
-ellipse 1.0,0.5 0.7,0.3 fill #2a2a4a 0.7
-ellipse 1.0,0.5 0.7,0.3 stroke #444466
+ellipse 1,1 0.7,0.6 fill #2a2a4a 0.7
+ellipse 1,1 0.7,0.6 stroke #444466
 # Magical glow
-ellipse 1.0,0.5 0.4,0.18 fill #6644aa 0.3
+ellipse 1,1 0.4,0.36 fill #6644aa 0.3
 # Highlight
-ellipse 0.85,0.42 0.1,0.06 fill #8888cc 0.4
+ellipse 0.85,0.84 0.1,0.12 fill #8888cc 0.4

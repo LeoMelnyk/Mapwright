@@ -1,6 +1,6 @@
 name: Necrotic Altar
 category: Undead & Dark
-footprint: 2x2
+footprint: 3x3
 facing: yes
 shadow: yes
 blocks_light: no
@@ -12,25 +12,25 @@ clusters_with: candle-cluster, bone-pile
 notes: Dark ritual focus; place prominently as room centerpiece
 ---
 # Stone slab base
-rect 0.08,0.08 1.84,1.84 texfill polyhaven/stone_wall 0.80
-rect 0.08,0.08 1.84,1.84 stroke #333333
+rect 0.12,0.12 2.76,2.76 texfill polyhaven/stone_wall 0.80
+rect 0.12,0.12 2.76,2.76 stroke #333333
 # Inner dark surface
-rect 0.20,0.20 1.60,1.60 fill #1a1a1a 0.60
+rect 0.3,0.3 2.4,2.4 fill #1a1a1a 0.60
 # Necrotic energy rune (center)
-circle 1.00,1.00 0.36 stroke #442244 0.80
-circle 1.00,1.00 0.24 fill #2a1a2a 0.70
-circle 1.00,1.00 0.14 fill #553355 0.60
-circle 1.00,1.00 0.08 fill #7a3a7a 0.70
+circle 1.5,1.5 0.54 stroke #442244 0.80
+circle 1.5,1.5 0.36 fill #2a1a2a 0.70
+circle 1.5,1.5 0.21 fill #553355 0.60
+circle 1.5,1.5 0.12 fill #7a3a7a 0.70
 # Skull corner decorations
-circle 0.24,0.24 0.12 fill #e8dcc8 0.80
-circle 0.24,0.24 0.12 stroke #c8b898
-circle 0.20,0.22 0.04 fill #1a1a1a 0.90
-circle 0.28,0.22 0.04 fill #1a1a1a 0.90
-circle 1.76,0.24 0.12 fill #e8dcc8 0.80
-circle 1.76,0.24 0.12 stroke #c8b898
-circle 1.72,0.22 0.04 fill #1a1a1a 0.90
-circle 1.80,0.22 0.04 fill #1a1a1a 0.90
-circle 0.24,1.76 0.12 fill #e8dcc8 0.80
-circle 0.24,1.76 0.12 stroke #c8b898
-circle 1.76,1.76 0.12 fill #e8dcc8 0.80
-circle 1.76,1.76 0.12 stroke #c8b898
+circle 0.36,0.36 0.18 fill #e8dcc8 0.80
+circle 0.36,0.36 0.18 stroke #c8b898
+circle 0.3,0.33 0.06 fill #1a1a1a 0.90
+circle 0.42,0.33 0.06 fill #1a1a1a 0.90
+circle 2.64,0.36 0.18 fill #e8dcc8 0.80
+circle 2.64,0.36 0.18 stroke #c8b898
+circle 2.58,0.33 0.06 fill #1a1a1a 0.90
+circle 2.7,0.33 0.06 fill #1a1a1a 0.90
+circle 0.36,2.64 0.18 fill #e8dcc8 0.80
+circle 0.36,2.64 0.18 stroke #c8b898
+circle 2.64,2.64 0.18 fill #e8dcc8 0.80
+circle 2.64,2.64 0.18 stroke #c8b898

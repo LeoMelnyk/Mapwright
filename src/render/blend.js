@@ -271,6 +271,79 @@ function buildBlendBitmaps(edges, corners, gridSize, blendWidth) {
   }
 }
 
+// ── Offscreen map cache blend layer ─────────────────────────────────────────
+// Pre-rendered blend layer at cache resolution. Persists across map cache
+// rebuilds as long as the blend topology hasn't changed. Separate from the
+// viewport L2 layer so they don't invalidate each other.
+let _blendCacheLayer = null; // { canvas, w, h, topoRef }
+
+/**
+ * Return a pre-rendered blend layer for the offscreen map cache.
+ * Returns null if no bitmaps are ready or in Node.js (PDF path).
+ */
+export function getRenderedBlendLayer(topo, gridSize, cacheW, cacheH) {
+  if (typeof OffscreenCanvas === 'undefined') return null;
+  if (!topo.edges?.length && !topo.corners?.length) return null;
+  if (!topo.edges.every(e => e.bitmap) || !topo.corners.every(c => c.bitmap)) return null;
+
+  // Return cached layer if still valid
+  if (_blendCacheLayer && _blendCacheLayer.w === cacheW && _blendCacheLayer.h === cacheH &&
+      _blendCacheLayer.topoRef === topo.edges) {
+    return _blendCacheLayer.canvas;
+  }
+
+  // Build the layer at cache resolution (transform = { scale: 10, offset: 0, 0 })
+  const MAP_PX_PER_FOOT = 10;
+  const sc = MAP_PX_PER_FOOT;
+  const ox = 0, oy = 0;
+  const cellPx = gridSize * sc;
+  const sz = BLEND_BITMAP_SIZE;
+
+  let offCanvas;
+  if (_blendCacheLayer && _blendCacheLayer.canvas) {
+    offCanvas = _blendCacheLayer.canvas;
+    if (offCanvas.width !== cacheW || offCanvas.height !== cacheH) {
+      offCanvas = new OffscreenCanvas(cacheW, cacheH);
+    }
+  } else {
+    offCanvas = new OffscreenCanvas(cacheW, cacheH);
+  }
+
+  const lctx = offCanvas.getContext('2d');
+  lctx.clearRect(0, 0, cacheW, cacheH);
+
+  for (const edge of topo.edges) {
+    if (!edge.bitmap) continue;
+    const screenX = edge.col * gridSize * sc + ox;
+    const screenY = edge.row * gridSize * sc + oy;
+    const cpx = Math.ceil(cellPx);
+    lctx.save();
+    lctx.setTransform(sc, 0, 0, sc, ox, oy);
+    lctx.clip(edge.clipPath);
+    lctx.setTransform(1, 0, 0, 1, 0, 0);
+    lctx.globalAlpha = edge.neighborOpacity;
+    lctx.drawImage(edge.bitmap, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
+    lctx.restore();
+  }
+
+  for (const cn of topo.corners) {
+    if (!cn.bitmap) continue;
+    const screenX = cn.col * gridSize * sc + ox;
+    const screenY = cn.row * gridSize * sc + oy;
+    const cpx = Math.ceil(cellPx);
+    lctx.save();
+    lctx.setTransform(sc, 0, 0, sc, ox, oy);
+    lctx.clip(cn.clipPath);
+    lctx.setTransform(1, 0, 0, 1, 0, 0);
+    lctx.globalAlpha = cn.neighborOpacity;
+    lctx.drawImage(cn.bitmap, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
+    lctx.restore();
+  }
+
+  _blendCacheLayer = { canvas: offCanvas, w: cacheW, h: cacheH, topoRef: topo.edges };
+  return offCanvas;
+}
+
 // ── L2 Viewport blend layer ─────────────────────────────────────────────────
 // A single OffscreenCanvas compositing all visible blended tiles at screen resolution.
 // Valid as long as transform + canvas dimensions + topology haven't changed.
@@ -603,5 +676,6 @@ export function getBlendTopoCache(cells, roomCells, gridSize, textureOptions) {
 export function invalidateBlendLayerCache() {
   closeBlendBitmaps(_blendTopoCache);
   invalidateViewportBlendLayer();
+  _blendCacheLayer = null;
   _blendTopoCache = { cells: null, gridSize: null, blendWidth: null, catalog: null, edges: null, corners: null };
 }

@@ -1,6 +1,6 @@
 name: Fountain
 category: Features
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: yes
 blocks_light: no
@@ -10,17 +10,17 @@ typical_count: single
 notes: Water feature; place at room center as focal point
 ---
 # Outer stone basin
-circle 1.0,1.0 0.88 texfill polyhaven/cobblestone_floor_01 0.82
-circle 1.0,1.0 0.88 stroke #555555
+circle 1.5,1.5 1.32 texfill polyhaven/cobblestone_floor_01 0.82
+circle 1.5,1.5 1.32 stroke #555555
 # Water pool
-circle 1.0,1.0 0.72 fill #4a7799 0.75
-circle 1.0,1.0 0.72 stroke #6688aa
+circle 1.5,1.5 1.08 fill #4a7799 0.75
+circle 1.5,1.5 1.08 stroke #6688aa
 # Inner stone rim
-circle 1.0,1.0 0.3 texfill polyhaven/marble_01 0.85
-circle 1.0,1.0 0.3 stroke #888888
+circle 1.5,1.5 0.45 texfill polyhaven/marble_01 0.85
+circle 1.5,1.5 0.45 stroke #888888
 # Water spout pedestal
-circle 1.0,1.0 0.12 texfill polyhaven/marble_01 0.9
-circle 1.0,1.0 0.12 stroke #999999
+circle 1.5,1.5 0.18 texfill polyhaven/marble_01 0.9
+circle 1.5,1.5 0.18 stroke #999999
 # Water splash ripples
-arc 1.0,0.78 0.14 220 320 stroke #7799bb
-arc 1.22,1.0 0.14 310 50 stroke #7799bb
+arc 1.5,1.17 0.21 220 320 stroke #7799bb
+arc 1.83,1.5 0.21 310 50 stroke #7799bb

@@ -1,6 +1,6 @@
 name: Tree
 category: Terrain
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: yes
 blocks_light: yes
@@ -10,27 +10,27 @@ typical_count: few
 notes: Large deciduous tree; needs open space (2x2). Place in outdoor or garden areas
 ---
 # Trunk (visible through canopy gaps)
-circle 1.00,1.00 0.18 texfill polyhaven/bark_brown_02 0.85
-circle 1.00,1.00 0.18 stroke #3a1f00
+circle 1.5,1.5 0.27 texfill polyhaven/bark_brown_02 0.85
+circle 1.5,1.5 0.27 stroke #3a1f00
 # Main canopy lobes (overlapping clusters — NOT one solid disc)
-circle 0.65,0.60 0.38 fill #2d6a1e 0.30
-circle 1.35,0.55 0.35 fill #3a7a28 0.28
-circle 0.50,1.10 0.32 fill #2d5a1e 0.30
-circle 1.50,1.05 0.36 fill #3a7a28 0.30
-circle 0.70,1.45 0.34 fill #2d6a1e 0.28
-circle 1.30,1.50 0.32 fill #3a7a28 0.30
-circle 1.00,0.45 0.30 fill #357020 0.28
-circle 1.00,1.55 0.28 fill #2d5a1e 0.25
+circle 0.975,0.9 0.57 fill #2d6a1e 0.30
+circle 2.025,0.825 0.525 fill #3a7a28 0.28
+circle 0.75,1.65 0.48 fill #2d5a1e 0.30
+circle 2.25,1.575 0.54 fill #3a7a28 0.30
+circle 1.05,2.175 0.51 fill #2d6a1e 0.28
+circle 1.95,2.25 0.48 fill #3a7a28 0.30
+circle 1.5,0.675 0.45 fill #357020 0.28
+circle 1.5,2.325 0.42 fill #2d5a1e 0.25
 # Canopy highlight clusters (lighter green on top of lobes)
-circle 0.75,0.70 0.20 fill #4a9a38 0.15
-circle 1.25,0.65 0.18 fill #4a9a38 0.12
-circle 0.60,1.20 0.16 fill #4a9a38 0.15
-circle 1.40,1.15 0.20 fill #4a9a38 0.12
-circle 1.00,0.55 0.14 fill #5aaa48 0.12
+circle 1.125,1.05 0.3 fill #4a9a38 0.15
+circle 1.875,0.975 0.27 fill #4a9a38 0.12
+circle 0.9,1.8 0.24 fill #4a9a38 0.15
+circle 2.1,1.725 0.3 fill #4a9a38 0.12
+circle 1.5,0.825 0.21 fill #5aaa48 0.12
 # Canopy lobe edges (dark outlines on the outer clusters)
-circle 0.65,0.60 0.38 stroke #1a4a10 0.25
-circle 1.35,0.55 0.35 stroke #1a4a10 0.22
-circle 0.50,1.10 0.32 stroke #1a4a10 0.22
-circle 1.50,1.05 0.36 stroke #1a4a10 0.25
-circle 0.70,1.45 0.34 stroke #1a4a10 0.22
-circle 1.30,1.50 0.32 stroke #1a4a10 0.25
+circle 0.975,0.9 0.57 stroke #1a4a10 0.25
+circle 2.025,0.825 0.525 stroke #1a4a10 0.22
+circle 0.75,1.65 0.48 stroke #1a4a10 0.22
+circle 2.25,1.575 0.54 stroke #1a4a10 0.25
+circle 1.05,2.175 0.51 stroke #1a4a10 0.22
+circle 1.95,2.25 0.48 stroke #1a4a10 0.25

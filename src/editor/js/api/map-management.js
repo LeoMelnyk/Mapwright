@@ -3,7 +3,7 @@ import {
   createEmptyDungeon, requestRender,
   collectTextureIds, ensureTexturesLoaded,
   migrateToLatest,
-  CARDINAL_DIRS, OFFSETS, OPPOSITE,
+  CARDINAL_DIRS, OFFSETS, OPPOSITE, toDisp,
 } from './_shared.js';
 
 export function newMap(name, rows, cols, gridSize = 5, theme = 'stone-dungeon') {
@@ -57,16 +57,22 @@ export function getMapInfo() {
     }
   }
 
+  const res = meta.resolution || 1;
   return {
     success: true,
     name: meta.dungeonName,
-    rows: cells.length,
-    cols: cells[0]?.length || 0,
-    gridSize: meta.gridSize,
+    rows: toDisp(cells.length),
+    cols: toDisp(cells[0]?.length || 0),
+    gridSize: meta.gridSize * res, // display gridSize
+    resolution: res,
     theme: typeof meta.theme === 'string' ? meta.theme : 'custom',
     labelStyle: meta.labelStyle || 'circled',
     features: { ...meta.features },
-    levels: meta.levels ? [...meta.levels] : [],
+    levels: meta.levels ? meta.levels.map(l => ({
+      ...l,
+      startRow: toDisp(l.startRow),
+      numRows: toDisp(l.numRows),
+    })) : [],
     propCount,
     labelCount,
     textureIds: [...textureIds],
@@ -88,7 +94,7 @@ export function getFullMapInfo() {
       if (label != null && !seenLabels.has(String(label))) {
         seenLabels.add(String(label));
         const bounds = getApi().getRoomBounds(String(label));
-        rooms.push({ label: String(label), labelRow: r, labelCol: c, bounds });
+        rooms.push({ label: String(label), labelRow: toDisp(r), labelCol: toDisp(c), bounds });
       }
     }
   }
@@ -97,7 +103,7 @@ export function getFullMapInfo() {
   const gs = meta.gridSize || 5;
   if (meta.props) {
     for (const op of meta.props) {
-      props.push({ row: Math.round(op.y / gs), col: Math.round(op.x / gs), type: op.type, facing: op.rotation ?? 0, id: op.id });
+      props.push({ row: toDisp(Math.round(op.y / gs)), col: toDisp(Math.round(op.x / gs)), type: op.type, facing: op.rotation ?? 0, id: op.id });
     }
   }
 
@@ -114,7 +120,7 @@ export function getFullMapInfo() {
         const recipKey = `${r + dr},${c + dc},${OPPOSITE[dir]}`;
         if (seen.has(recipKey)) continue;
         seen.add(key);
-        doors.push({ row: r, col: c, direction: dir, type: cell[dir] });
+        doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: cell[dir] });
       }
     }
   }

@@ -1,5 +1,25 @@
 // Shared grid traversal primitives used by the editor tools and renderer.
 
+// ── Half-cell resolution helpers ────────────────────────────────────────────
+
+/** Default resolution (1 = legacy full-cell grid, 2 = half-cell / quarter grid). */
+export const RESOLUTION_DEFAULT = 2;
+
+/** Compute the user-facing grid size from internal gridSize and resolution. */
+export function displayGridSize(gridSize, resolution) {
+  return gridSize * (resolution || 1);
+}
+
+/** Convert a display coordinate (0, 0.5, 1, 1.5 …) to an internal integer index. */
+export function toInternalCoord(displayCoord, resolution) {
+  return Math.round(displayCoord * (resolution || 1));
+}
+
+/** Convert an internal integer index back to a display coordinate. */
+export function toDisplayCoord(internalCoord, resolution) {
+  return internalCoord / (resolution || 1);
+}
+
 export const CARDINAL_DIRS = [
   { dir: 'north', dr: -1, dc:  0 },
   { dir: 'south', dr:  1, dc:  0 },

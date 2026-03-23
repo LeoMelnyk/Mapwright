@@ -1,6 +1,6 @@
 name: Barrier
 category: Combat
-footprint: 1x2
+footprint: 1x3
 facing: yes
 shadow: no
 blocks_light: no
@@ -10,12 +10,12 @@ typical_count: few
 notes: Defensive position; place across corridors or in front of doors
 ---
 # Main barrier planks
-rect 0.05,0.25 1.9,0.5 texfill polyhaven/weathered_planks 0.85
-rect 0.05,0.25 1.9,0.5 stroke #4a2800
+rect 0.075,0.25 2.85,0.5 texfill polyhaven/weathered_planks 0.85
+rect 0.075,0.25 2.85,0.5 stroke #4a2800
 # Plank lines
-line 0.05,0.42 1.95,0.42
-line 0.05,0.58 1.95,0.58
+line 0.075,0.42 2.925,0.42
+line 0.075,0.58 2.925,0.58
 # Support posts
-rect 0.15,0.2 0.1,0.6 fill #3a1f00 0.7
-rect 0.95,0.2 0.1,0.6 fill #3a1f00 0.7
-rect 1.75,0.2 0.1,0.6 fill #3a1f00 0.7
+rect 0.225,0.2 0.15,0.6 fill #3a1f00 0.7
+rect 1.425,0.2 0.15,0.6 fill #3a1f00 0.7
+rect 2.625,0.2 0.15,0.6 fill #3a1f00 0.7

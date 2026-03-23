@@ -11,7 +11,7 @@ import {
 // ── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
-  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon', 1);
   state.currentLevel = 0;
   state.selectedCells = [];
   state.undoStack = [];

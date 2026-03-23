@@ -1,6 +1,6 @@
 name: Anchor
 category: Nautical
-footprint: 1x1
+footprint: 2x1
 facing: no
 shadow: yes
 blocks_light: no
@@ -11,17 +11,17 @@ clusters_with: rope-coil, dock-cleat
 notes: Place near dock edges or ship decks
 ---
 # Metal body fills
-rect 0.46,0.22 0.08,0.58 fill #666666 0.5
-rect 0.28,0.28 0.44,0.08 fill #666666 0.5
+rect 0.46,0.44 0.08,1.16 fill #666666 0.5
+rect 0.28,0.56 0.44,0.16 fill #666666 0.5
 # Ring at top
-circle 0.5,0.15 0.09 fill #888888 0.3
-circle 0.5,0.15 0.09 stroke #555555
+circle 0.5,0.3 0.135 fill #888888 0.3
+circle 0.5,0.3 0.135 stroke #555555
 # Main shaft
-line 0.5,0.24 0.5,0.8
+line 0.5,0.48 0.5,1.6
 # Crossbar
-line 0.28,0.32 0.72,0.32
+line 0.28,0.64 0.72,0.64
 # Crown arms
-arc 0.5,0.68 0.22 200 340 stroke #555555
+arc 0.5,1.36 0.33 200 340 stroke #555555
 # Fluke tips
-line 0.3,0.82 0.36,0.9
-line 0.7,0.82 0.64,0.9
+line 0.3,1.64 0.36,1.8
+line 0.7,1.64 0.64,1.8

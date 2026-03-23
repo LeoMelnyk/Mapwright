@@ -1,6 +1,6 @@
 name: Capstan
 category: Nautical
-footprint: 1x1
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: no
@@ -10,23 +10,23 @@ typical_count: single
 notes: Winch mechanism; place with space for crew to walk around
 ---
 # Capstan drum
-circle 0.50,0.50 0.28 texfill polyhaven/dark_wood 0.80
-circle 0.50,0.50 0.28 stroke #3a1f00
+circle 1,1 0.56 texfill polyhaven/dark_wood 0.80
+circle 1,1 0.56 stroke #3a1f00
 # Drum top detail
-circle 0.50,0.50 0.20 fill #4a2800 0.60
-circle 0.50,0.50 0.10 fill #333333 0.70
+circle 1,1 0.4 fill #4a2800 0.60
+circle 1,1 0.2 fill #333333 0.70
 # Central spindle
-circle 0.50,0.50 0.06 fill #666666 0.90
-circle 0.50,0.50 0.06 stroke #444444
+circle 1,1 0.12 fill #666666 0.90
+circle 1,1 0.12 stroke #444444
 # Spoke bars (4 handles)
-line 0.50,0.22 0.50,0.10 stroke #4a2800
-line 0.50,0.78 0.50,0.90 stroke #4a2800
-line 0.22,0.50 0.10,0.50 stroke #4a2800
-line 0.78,0.50 0.90,0.50 stroke #4a2800
+line 1,0.44 1,0.2 stroke #4a2800
+line 1,1.56 1,1.8 stroke #4a2800
+line 0.44,1 0.2,1 stroke #4a2800
+line 1.56,1 1.8,1 stroke #4a2800
 # Spoke handle ends
-circle 0.50,0.10 0.05 fill #5c3a1e 0.90
-circle 0.50,0.90 0.05 fill #5c3a1e 0.90
-circle 0.10,0.50 0.05 fill #5c3a1e 0.90
-circle 0.90,0.50 0.05 fill #5c3a1e 0.90
+circle 1,0.2 0.1 fill #5c3a1e 0.90
+circle 1,1.8 0.1 fill #5c3a1e 0.90
+circle 0.2,1 0.1 fill #5c3a1e 0.90
+circle 1.8,1 0.1 fill #5c3a1e 0.90
 # Rope coil around drum
-circle 0.50,0.50 0.32 stroke #8b7355 0.50
+circle 1,1 0.64 stroke #8b7355 0.50

@@ -1,6 +1,6 @@
 name: Throne
 category: Furniture
-footprint: 1x1
+footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,16 +11,16 @@ clusters_with: carpet, brazier, banner, pillar
 notes: Ruler's seat; place prominently against back wall, facing room entrance
 ---
 # High backrest
-rect 0.1,0.05 0.8,0.2 texfill polyhaven/dark_wood 0.85
-rect 0.1,0.05 0.8,0.2 stroke #4a2800
+rect 0.2,0.1 1.6,0.4 texfill polyhaven/dark_wood 0.85
+rect 0.2,0.1 1.6,0.4 stroke #4a2800
 # Crown ornament
 poly 0.4,0.05 0.5,0.0 0.6,0.05 fill #daa520 0.6
 # Left armrest
-rect 0.1,0.2 0.15,0.6 texfill polyhaven/dark_wood 0.8
-rect 0.1,0.2 0.15,0.6 stroke #4a2800
+rect 0.2,0.4 0.3,1.2 texfill polyhaven/dark_wood 0.8
+rect 0.2,0.4 0.3,1.2 stroke #4a2800
 # Right armrest
-rect 0.75,0.2 0.15,0.6 texfill polyhaven/dark_wood 0.8
-rect 0.75,0.2 0.15,0.6 stroke #4a2800
+rect 1.5,0.4 0.3,1.2 texfill polyhaven/dark_wood 0.8
+rect 1.5,0.4 0.3,1.2 stroke #4a2800
 # Seat cushion (red velvet)
-rect 0.25,0.22 0.5,0.55 texfill polyhaven/velour_velvet 0.85
-rect 0.25,0.22 0.5,0.55 stroke #8b0000
+rect 0.5,0.44 1,1.1 texfill polyhaven/velour_velvet 0.85
+rect 0.5,0.44 1,1.1 stroke #8b0000

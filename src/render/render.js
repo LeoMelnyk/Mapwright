@@ -1,17 +1,35 @@
 import { toCanvas } from './bounds.js';
+
+// ── Render performance profiling ────────────────────────────────────────────
+// Populated by renderCells on each frame. Read by canvas-view diagnostics overlay.
+export const renderTimings = {};
+
+function _t(label, fn) {
+  const start = performance.now();
+  const result = fn();
+  renderTimings[label] = (performance.now() - start);
+  return result;
+}
 import { determineRoomCells, getDiagonalTrimCorner, drawRoundedWall } from './floors.js';
-import { renderBorder, getDoubleDoorRole, getDoubleDoorDiagonalRole, renderDoubleBorder, renderDiagonalBorder, renderDiagonalDoubleBorder, drawStairsInCell, drawStairsLinkLabel, drawStairShape, drawStairShapeLinkLabel, wallSegmentCoords, diagonalWallSegmentCoords, scaleFactor } from './borders.js';
+import { renderBorder, getDoubleDoorRole, getDoubleDoorDiagonalRole, renderDoubleBorder, renderDiagonalBorder, renderDiagonalDoubleBorder, drawStairsInCell, drawStairsLinkLabel, drawStairShape, drawStairShapeLinkLabel, wallSegmentCoords, scaleFactor } from './borders.js';
 import { drawCellLabel, drawDmLabel } from './features.js';
 import { drawMatrixGrid } from './decorations.js';
-import { renderAllProps } from './props.js';
+import { renderAllProps, getRenderedPropsLayer } from './props.js';
 import { renderAllBridges } from './bridges.js';
 import { drawWallShadow, drawRoughWalls, drawHatching, drawRockShading, drawBufferShading, drawOuterShading, invalidateEffectsCache } from './effects.js';
-import { getFluidPathCache, invalidateFluidCache } from './fluid.js';
-import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, BLEND_BITMAP_SIZE, PDF_EDGE_FALLBACK_OPACITY, PDF_CORNER_FALLBACK_OPACITY, getTexChunk, invalidateBlendLayerCache } from './blend.js';
+import { getFluidPathCache, invalidateFluidCache, getRenderedFluidLayer } from './fluid.js';
+import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, getRenderedBlendLayer, BLEND_BITMAP_SIZE, PDF_EDGE_FALLBACK_OPACITY, PDF_CORNER_FALLBACK_OPACITY, getTexChunk, invalidateBlendLayerCache } from './blend.js';
 
 // Re-export cache invalidation functions (public API maintained for direct importers)
 export { invalidateFluidCache };
 export { invalidateBlendLayerCache } from './blend.js';
+
+// ─── Content mutation counter ─────
+// Bumped by smartInvalidate() on every content mutation. canvas-view.js checks
+// this to know when the map cache needs rebuilding, even when notify() isn't called.
+let _contentVersion = 0;
+export function getContentVersion() { return _contentVersion; }
+export function bumpContentVersion() { _contentVersion++; }
 
 // ─── Constants ─────
 const HAZARD_COLOR = '#f0c020';
@@ -123,6 +141,7 @@ export function smartInvalidate(changes, cells, { forceGeometry = false, forceFl
 
   if (needsGeometry) { invalidateGeometryCache(); invalidateBlendLayerCache(); }
   if (needsFluid)    invalidateFluidCache();
+  _contentVersion++;
 }
 
 // ── Texture pattern cache ─────────────────────────────────────────────────────
@@ -142,17 +161,18 @@ function _getTexPattern(ctx, entry) {
   return entry._pattern;
 }
 
-function _applyPatternTransform(pattern, entry, cellPx, transform) {
+function _applyPatternTransform(pattern, entry, cellPx, transform, resolution = 1) {
   const img = entry.img;
   const cw = Math.max(1, Math.floor(img.naturalWidth  / 256));
   const ch = Math.max(1, Math.floor(img.naturalHeight / 256));
-  // Scale: one chunk (srcW × srcH texture pixels) → one cell (cellPx screen pixels).
-  // Using floor-divided srcW/srcH matches getTexChunk exactly, so the pattern
-  // boundaries align with the same chunk grid used by the drawImage fallback.
+  // Scale: one chunk (srcW × srcH texture pixels) → one display cell.
+  // Multiply cellPx by resolution so the texture tiles at the display-cell size
+  // (5ft) rather than the internal cell size (2.5ft).
+  const displayCellPx = cellPx * resolution;
   const srcW = Math.floor(img.naturalWidth  / cw);
   const srcH = Math.floor(img.naturalHeight / ch);
   pattern.setTransform(new DOMMatrix([
-    cellPx / srcW, 0, 0, cellPx / srcH,
+    displayCellPx / srcW, 0, 0, displayCellPx / srcH,
     transform.offsetX, transform.offsetY,
   ]));
 }
@@ -263,37 +283,76 @@ function withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, f
  * Fill room backgrounds and render per-cell texture overlays.
  * Returns true if any textured cells were drawn.
  */
-function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl = null, bgImgConfig = null) {
+function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl = null, bgImgConfig = null, visibleBounds = null, resolution = 1) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
+  const startRow = visibleBounds?.minRow ?? 0;
+  const endRow = visibleBounds?.maxRow ?? (numRows - 1);
+  const startCol = visibleBounds?.minCol ?? 0;
+  const endCol = visibleBounds?.maxCol ?? (numCols - 1);
   let hasTexturedCells = false;
+  const displayCellFeet = gridSize * resolution;  // size of one display cell in feet
 
-  // Pass 1: Build a single floor path covering all room cells, fill once
+  // Pass 1: Build a single floor path covering all room cells, fill once.
+  // Step by `resolution` to draw display-cell-sized rects — reduces canvas commands by 4x.
+  // Trim corners fall back to per-sub-cell triangular clips.
+  const step = resolution;
+  const cellPxDisplay = displayCellFeet * transform.scale;
+  const cellPxSub = gridSize * transform.scale;
   ctx.fillStyle = theme.wallFill;
   ctx.beginPath();
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      if (!roomCells[row][col]) continue;
-      const cell = cells[row][col];
-      if (cell?.trimShowExteriorOnly) continue; // exterior-only: skip interior face fill
-      const x = col * gridSize;
-      const y = row * gridSize;
-      const trimCorner = cell ? getDiagonalTrimCorner(cell, cells, row, col) : null;
-      if (trimCorner && !cell.trimRound && !cell.trimOpen) {
-        const tl = toCanvas(x, y, transform);
-        const tr = toCanvas(x + gridSize, y, transform);
-        const bl = toCanvas(x, y + gridSize, transform);
-        const br = toCanvas(x + gridSize, y + gridSize, transform);
-        switch (trimCorner) {
-          case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
-          case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
-          case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
-          case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+  // Snap iteration to display-cell boundaries for coalescing
+  const floorStartRow = Math.floor(startRow / step) * step;
+  const floorStartCol = Math.floor(startCol / step) * step;
+  for (let row = floorStartRow; row <= endRow; row += step) {
+    for (let col = floorStartCol; col <= endCol; col += step) {
+      // Check sub-cells in this display cell
+      let floorCount = 0, hasTrim = false;
+      const totalSub = step * step;
+      for (let dr = 0; dr < step && !hasTrim; dr++) {
+        for (let dc = 0; dc < step; dc++) {
+          const sr = row + dr, sc = col + dc;
+          if (!roomCells[sr]?.[sc]) continue;
+          const c = cells[sr]?.[sc];
+          if (c?.trimShowExteriorOnly) continue;
+          floorCount++;
+          if (c && getDiagonalTrimCorner(c, cells, sr, sc)) { hasTrim = true; break; }
         }
-        ctx.closePath();
+      }
+      if (!floorCount) continue;
+
+      if (!hasTrim && floorCount === totalSub) {
+        // Fast path: all sub-cells are floor, draw one display-cell-sized rect
+        const p1 = toCanvas(col * gridSize, row * gridSize, transform);
+        ctx.rect(p1.x, p1.y, cellPxDisplay, cellPxDisplay);
       } else {
-        const p1 = toCanvas(x, y, transform);
-        ctx.rect(p1.x, p1.y, gridSize * transform.scale, gridSize * transform.scale);
+        // Slow path: per-sub-cell for trim corners
+        for (let dr = 0; dr < step; dr++) {
+          for (let dc = 0; dc < step; dc++) {
+            const sr = row + dr, sc = col + dc;
+            if (!roomCells[sr]?.[sc]) continue;
+            const cell = cells[sr]?.[sc];
+            if (!cell || cell.trimShowExteriorOnly) continue;
+            const x = sc * gridSize, y = sr * gridSize;
+            const trimCorner = getDiagonalTrimCorner(cell, cells, sr, sc);
+            if (trimCorner && !cell.trimRound && !cell.trimOpen) {
+              const tl = toCanvas(x, y, transform);
+              const tr = toCanvas(x + gridSize, y, transform);
+              const bl = toCanvas(x, y + gridSize, transform);
+              const br = toCanvas(x + gridSize, y + gridSize, transform);
+              switch (trimCorner) {
+                case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
+                case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
+                case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
+                case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+              }
+              ctx.closePath();
+            } else {
+              const p1 = toCanvas(x, y, transform);
+              ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
+            }
+          }
+        }
       }
     }
   }
@@ -332,9 +391,9 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
     const clippedWork = [];            // { entry, texOp, clipType, tl, tr, bl, br }
 
     const catalog = textureOptions?.catalog;
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        if (!roomCells[row][col]) continue;
+    for (let row = startRow; row <= endRow; row++) {
+      for (let col = startCol; col <= endCol; col++) {
+        if (!roomCells[row]?.[col]) continue;
         const cell = cells[row][col];
         if (!cell) continue;
         if (cell.trimShowExteriorOnly) continue; // exterior-only: skip interior face fill
@@ -394,7 +453,7 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
     // ── Straight batches: one fill per texture group ───────────────────────
     for (const { entry, texOp, rects } of straightBatches.values()) {
       const pattern = _getTexPattern(ctx, entry);
-      _applyPatternTransform(pattern, entry, cellPx, transform);
+      _applyPatternTransform(pattern, entry, cellPx, transform, resolution);
       ctx.globalAlpha = texOp;
       ctx.fillStyle = pattern;
       ctx.beginPath();
@@ -407,7 +466,7 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
     // triangle shape — no ctx.clip() required, so no save/restore overhead.
     for (const { entry, texOp, clipType, tl, tr, bl, br } of clippedWork) {
       const pattern = _getTexPattern(ctx, entry);
-      _applyPatternTransform(pattern, entry, cellPx, transform);
+      _applyPatternTransform(pattern, entry, cellPx, transform, resolution);
       ctx.globalAlpha = texOp;
       ctx.fillStyle = pattern;
       ctx.beginPath();
@@ -516,7 +575,7 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
  *  L2 — Viewport blend layer (screen-res OffscreenCanvas, rebuilt on camera change)
  * Falls back to per-frame scratch canvas rendering for PDF path or missing bitmaps.
  */
-function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, transform, textureOptions) {
+function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, transform, textureOptions, cacheSize = null) {
   const blendWidth = textureOptions?.blendWidth ?? 0.35;
   if (blendWidth <= 0) return;
 
@@ -526,6 +585,17 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
   const { scale: sc, offsetX: ox, offsetY: oy } = transform;
   const canvasW = ctx.canvas.width;
   const canvasH = ctx.canvas.height;
+
+  // ── Cache-mode fast path: pre-rendered blend layer at cache resolution ──
+  if (cacheSize) {
+    const blendLayer = getRenderedBlendLayer(topo, gridSize, cacheSize.w, cacheSize.h);
+    if (blendLayer) {
+      withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+        ctx.drawImage(blendLayer, 0, 0);
+      });
+      return;
+    }
+  }
 
   // ── L2 fast path: all bitmaps ready → single drawImage ──
   const allBitmapsReady = topo.edges.every(e => e.bitmap) && topo.corners.every(c => c.bitmap);
@@ -677,71 +747,79 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
  * composited via ctx.setTransform (same as rock shading) for pixel-perfect
  * output at any zoom level. Also draws the grid overlay.
  */
-function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, skipGrid = false) {
+function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, skipGrid = false, metadata = null, cacheSize = null) {
   const { scale: sc, offsetX: txOff, offsetY: tyOff } = transform;
   const data = getFluidPathCache(cells, gridSize, theme, roomCells);
 
   if (data.pit || data.water || data.lava) {
-    ctx.save();
-    // Arc void clip applied in screen space before switching CTM
-    if (hasRoundedArcs) {
-      buildArcVoidClip(ctx, roundedCorners, gridSize, transform);
-    }
-    // Switch to world-space CTM — all cached Path2D coordinates are in world units.
-    // The arc void clip above is stored in device space and remains active.
-    ctx.setTransform(sc, 0, 0, sc, txOff, tyOff);
+    // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
+    const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h) : null;
 
-    for (const fd of [data.pit, data.water, data.lava]) {
-      if (!fd) continue;
+    if (fluidLayer) {
+      // Blit the cached fluid layer — arc void clip applied here, not in the layer
       ctx.save();
-      ctx.clip(fd.clipPath); // wall-aware clip in world space
-
-      // Batched fill pass — one fill() per colour group
-      for (const [colorKey, path] of fd.fills) {
-        const rv = (colorKey >> 16) & 0xFF;
-        const gv = (colorKey >> 8) & 0xFF;
-        const bv = colorKey & 0xFF;
-        ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
-        ctx.fill(path);
+      if (hasRoundedArcs) {
+        buildArcVoidClip(ctx, roundedCorners, gridSize, transform);
       }
+      ctx.drawImage(fluidLayer, 0, 0);
+      ctx.restore();
+    } else {
+      // Direct render path (viewport mode or first build before cache is ready)
+      ctx.save();
+      if (hasRoundedArcs) {
+        buildArcVoidClip(ctx, roundedCorners, gridSize, transform);
+      }
+      ctx.setTransform(sc, 0, 0, sc, txOff, tyOff);
 
-      if (fd.cracksPath) {
-        // Pit: crack strokes + radial vignette per connected group
-        ctx.strokeStyle = fd.crackColor;
-        ctx.lineWidth = Math.max(0.3 / sc, 0.06); // world units → correct screen px at any zoom
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.stroke(fd.cracksPath);
+      for (const fd of [data.pit, data.water, data.lava]) {
+        if (!fd) continue;
+        ctx.save();
+        ctx.clip(fd.clipPath);
 
-        for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
-          const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
-          grad.addColorStop(0, fd.vignetteColor);
-          grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
-          grad.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = grad;
-          for (const [r2, c2] of group) {
-            ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
-          }
+        for (const [colorKey, path] of fd.fills) {
+          const rv = (colorKey >> 16) & 0xFF;
+          const gv = (colorKey >> 8) & 0xFF;
+          const bv = colorKey & 0xFF;
+          ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
+          ctx.fill(path);
         }
-      } else {
-        // Fluid (water/lava): caustic edge strokes
-        ctx.strokeStyle = fd.causticColor;
-        ctx.lineWidth = Math.max(0.5 / sc, 0.09); // world units → correct screen px at any zoom
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.stroke(fd.causticPath);
+
+        if (fd.cracksPath) {
+          ctx.strokeStyle = fd.crackColor;
+          ctx.lineWidth = Math.max(0.3 / sc, 0.06);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.stroke(fd.cracksPath);
+
+          for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
+            const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
+            grad.addColorStop(0, fd.vignetteColor);
+            grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            for (const [r2, c2] of group) {
+              ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
+            }
+          }
+        } else {
+          ctx.strokeStyle = fd.causticColor;
+          ctx.lineWidth = Math.max(0.5 / sc, 0.09);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.stroke(fd.causticPath);
+        }
+
+        ctx.restore();
       }
 
       ctx.restore();
     }
-
-    ctx.restore();
   }
 
   // Grid overlay — skipped here when caller handles it separately (e.g. to draw bridges first).
   if (!skipGrid && showGrid) {
     withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-      drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid);
+      drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
     }, true);
   }
 }
@@ -816,7 +894,7 @@ function renderHazardOverlay(ctx, cells, gridSize, transform) {
  * Draw buffer shading, wall segments (with shadows), non-wall borders, and arc walls.
  * @param {boolean} [showInvisible=false] - When true, render invisible walls/doors in ghost style.
  */
-function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible = false, visibleBounds = null) {
+function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible = false, visibleBounds = null, _res = 1) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -824,6 +902,7 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
 
   // Collect wall ('w') segments for batched rendering; draw non-wall borders immediately
   const wallSegments = [];
+  const deferredDiagDoors = []; // rendered after wall batch to avoid overdraw
   const WALL_DIRS = ['north', 'south', 'east', 'west'];
 
   const startRow = visibleBounds?.minRow ?? 0;
@@ -847,10 +926,22 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
         const bt = cell[dir];
         if (!bt) continue;
         if (bt === 'd' || bt === 's') {
-          const role = getDoubleDoorRole(cells, row, col, dir);
+          const role = getDoubleDoorRole(cells, row, col, dir, _res);
           if (role === 'partner') continue;
           if (role === 'anchor') {
-            renderDoubleBorder(ctx, cells, row, col, dir, bt, orient, theme, gridSize, transform);
+            renderDoubleBorder(ctx, cells, row, col, dir, bt, orient, theme, gridSize, transform, _res);
+            continue;
+          }
+          if (role === 'single-wide') {
+            // Render a single door spanning one display cell (resolution sub-cells)
+            // Extend the wall segment coordinates to cover the full display cell width
+            const wx1 = x1, wy1 = y1; let wx2 = x2, wy2 = y2;
+            if (orient === 'horizontal') {
+              wx2 = x1 + _res; // extend cols by resolution
+            } else {
+              wy2 = y1 + _res; // extend rows by resolution
+            }
+            renderBorder(ctx, wx1, wy1, wx2, wy2, bt, orient, theme, gridSize, transform);
             continue;
           }
         }
@@ -878,34 +969,69 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
         }
       }
 
-      // Diagonal borders with double door auto-detection
+      // Diagonal borders — collect doors for deferred rendering, walls handled below
       for (const diag of ['nw-se', 'ne-sw']) {
         const bt = cell[diag];
         if (!bt) continue;
         if (cell.trimRound) continue;
         if (bt === 'd' || bt === 's') {
-          const role = getDoubleDoorDiagonalRole(cells, row, col, diag);
+          const role = getDoubleDoorDiagonalRole(cells, row, col, diag, _res);
           if (role === 'partner') continue;
-          if (role === 'anchor') {
-            renderDiagonalDoubleBorder(ctx, cells, row, col, bt, diag, theme, gridSize, transform);
-            continue;
-          }
-        }
-        if (bt === 'w') {
-          const { p1, p2 } = diagonalWallSegmentCoords(col, row, diag, gridSize, transform);
-          const diagIdx = diag === 'nw-se' ? 4 : 5;
-          const seed = (row * 1000 + col) * 6 + diagIdx;
-          wallSegments.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, seed });
+          deferredDiagDoors.push({ role, row, col, bt, diag });
         } else if (bt === 'iw' || bt === 'id') {
-          // Invisible: skip unless showInvisible
           if (!showInvisible) continue;
-          renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform);
-        } else {
-          renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform);
+          renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform, _res);
         }
+        // 'w' walls are handled by the merged diagonal wall pass below
       }
     }
   }
+
+  // Merge diagonal sub-cells into continuous wall segments.
+  // Includes door cells ('d','s') so the wall line is unbroken — doors paint gaps on top.
+  let _diagMergeCount = 0;
+  const diagSeen = new Set();
+  for (let row = startRow; row <= endRow; row++) {
+    for (let col = startCol; col <= endCol; col++) {
+      for (const diag of ['nw-se', 'ne-sw']) {
+        const cell = cells[row]?.[col];
+        const bt = cell?.[diag];
+        if (!bt || cell.trimRound) continue;
+        if (bt !== 'w' && bt !== 'd' && bt !== 's') continue;
+        const key = `${row},${col},${diag}`;
+        if (diagSeen.has(key)) continue;
+
+        // Walk forward along the diagonal to find the full run (walls + doors)
+        const dr = diag === 'nw-se' ? 1 : 1;
+        const dc = diag === 'nw-se' ? 1 : -1;
+        let runLen = 0;
+        let r = row, c = col;
+        while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
+          const v = cells[r]?.[c]?.[diag];
+          if ((v !== 'w' && v !== 'd' && v !== 's') || cells[r]?.[c]?.trimRound) break;
+          diagSeen.add(`${r},${c},${diag}`);
+          runLen++;
+          r += dr; c += dc;
+        }
+
+        // Build one long segment from start to end of run
+        let fx1, fy1, fx2, fy2;
+        if (diag === 'nw-se') {
+          fx1 = col * gridSize;              fy1 = row * gridSize;
+          fx2 = (col + runLen) * gridSize;   fy2 = (row + runLen) * gridSize;
+        } else {
+          fx1 = (col + 1) * gridSize;            fy1 = row * gridSize;
+          fx2 = (col + 1 - runLen) * gridSize;   fy2 = (row + runLen) * gridSize;
+        }
+        const p1 = toCanvas(fx1, fy1, transform);
+        const p2 = toCanvas(fx2, fy2, transform);
+        const seed = (row * 1000 + col) * 6 + (diag === 'nw-se' ? 4 : 5);
+        wallSegments.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, seed });
+        _diagMergeCount++;
+      }
+    }
+  }
+  if (_diagMergeCount > 0) renderTimings._diagMerged = _diagMergeCount;
 
   // Draw all wall segments — shadow pass first, then walls on top
   if (wallSegments.length > 0) {
@@ -925,6 +1051,18 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
         ctx.lineTo(seg.x2, seg.y2);
       }
       ctx.stroke();
+    }
+  }
+
+  // Deferred diagonal doors — drawn after wall batch so walls don't cover door gaps
+  for (const { role, row, col, bt, diag } of deferredDiagDoors) {
+    if (role === 'anchor') {
+      renderDiagonalDoubleBorder(ctx, cells, row, col, bt, diag, theme, gridSize, transform, _res);
+    } else if (role === 'single-wide') {
+      renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform, _res, _res);
+    } else {
+      // null role = single sub-cell door
+      renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform, _res);
     }
   }
 
@@ -965,7 +1103,7 @@ export function renderLabels(ctx, cells, gridSize, theme, transform, labelStyle)
 /**
  * Draw props, room/DM labels, and stairs (both new shape-based and legacy per-cell).
  */
-function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels = false, visibleBounds = null) {
+function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels = false, visibleBounds = null, cacheSize = null) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -974,7 +1112,13 @@ function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelSt
     ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
     : null;
 
-  renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, visibleBounds, metadata);
+  // Try pre-rendered props layer cache
+  const propsLayer = cacheSize ? getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, metadata, cacheSize.w, cacheSize.h) : null;
+  if (propsLayer) {
+    ctx.drawImage(propsLayer, 0, 0);
+  } else {
+    renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, visibleBounds, metadata);
+  }
 
   // Room labels and DM labels — skipped when lighting is enabled so they can be
   // drawn after the lightmap, keeping them unaffected by the multiply overlay.
@@ -1042,23 +1186,30 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     bgImageEl = null,
     bgImgConfig = null,
     visibleBounds = null,
+    cacheSize = null,  // { w, h } — when set, enables per-phase render layer caching
   } = options;
-  const roomCells = getCachedRoomCells(cells);
+  const roomCells = _t('roomCells', () => getCachedRoomCells(cells));
   const roundedCorners = getCachedRoundedCorners(cells);
   const hasRoundedArcs = roundedCorners.size > 0;
 
   // Outer shading + hatching (before floor fills so floor paint covers them)
-  drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform);
-  drawHatching(ctx, cells, roomCells, gridSize, theme, transform);
-  drawRockShading(ctx, cells, roomCells, gridSize, theme, transform);
+  const _res = metadata?.resolution || 1;
+  _t('shading', () => {
+    drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
+    drawHatching(ctx, cells, roomCells, gridSize, theme, transform, _res);
+    drawRockShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
+  });
 
   // Floor backgrounds + textures (clipped to exclude arc voids)
   let hasTexturedCells = false;
-  withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-    hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig);
+  _t('floors', () => {
+    withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+      hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig, visibleBounds, metadata?.resolution || 1);
+    });
   });
 
   // Arc secondary post-pass: for each arc wedge, draw textureSecondary inside the void-corner region.
+  const _arcStart = performance.now();
   // Iterates roundedCorners (not cells) so it catches all cells clipped by each wedge, including
   // adjacent floor cells that don't have trimRound themselves (happens with larger-radius arcs).
   if (hasRoundedArcs && textureOptions?.catalog) {
@@ -1122,7 +1273,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
             if (entry?.img?.complete && entry.img.naturalWidth) {
               if (canBatch) {
                 const pattern = _getTexPattern(ctx, entry);
-                _applyPatternTransform(pattern, entry, cellPx, transform);
+                _applyPatternTransform(pattern, entry, cellPx, transform, _res);
                 ctx.globalAlpha = bgOp;
                 ctx.fillStyle = pattern;
                 ctx.beginPath();
@@ -1164,7 +1315,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
           const texOp = cell.textureSecondaryOpacity ?? 1.0;
           if (canBatch) {
             const pattern = _getTexPattern(ctx, entry);
-            _applyPatternTransform(pattern, entry, cellPx, transform);
+            _applyPatternTransform(pattern, entry, cellPx, transform, _res);
             ctx.globalAlpha = texOp;
             ctx.fillStyle = pattern;
             ctx.beginPath();
@@ -1235,33 +1386,41 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     ctx.globalAlpha = 1.0;
   }
 
+  renderTimings.arcs = performance.now() - _arcStart;
+
   // Texture edge + corner blending
-  if (hasTexturedCells) {
-    renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, transform, textureOptions);
-  }
+  _t('blending', () => {
+    if (hasTexturedCells) {
+      renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, transform, textureOptions, cacheSize);
+    }
+  });
 
   // Fill patterns (pit/water/lava) — grid drawn later so bridges sit under it
-  renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, true);
+  _t('fills', () => renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, true, metadata, cacheSize));
 
   // Buffer shading + walls + arc walls
-  renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible, visibleBounds);
+  _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible, visibleBounds, _res));
 
   // Bridges — rendered above fills and walls but below grid, props, and labels
-  const getTextureImageForBridges = textureOptions?.catalog
-    ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
-    : null;
-  renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
+  _t('bridges', () => {
+    const getTextureImageForBridges = textureOptions?.catalog
+      ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
+      : null;
+    renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
+  });
 
   // Grid overlay — drawn after bridges so grid lines show on top of bridge surface
-  if (showGrid) {
-    withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-      drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid);
-    }, true);
-  }
+  _t('grid', () => {
+    if (showGrid) {
+      withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+        drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
+      }, true);
+    }
+  });
 
   // Props, labels, stairs
-  renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels, visibleBounds);
+  _t('props', () => renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels, visibleBounds, cacheSize));
 
   // Hazard overlay — topmost layer, renders above everything
-  renderHazardOverlay(ctx, cells, gridSize, transform);
+  _t('hazard', () => renderHazardOverlay(ctx, cells, gridSize, transform));
 }

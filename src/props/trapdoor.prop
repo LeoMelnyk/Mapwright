@@ -1,6 +1,6 @@
 name: Trapdoor
 category: Structure
-footprint: 1x1
+footprint: 2x2
 facing: yes
 shadow: no
 blocks_light: no
@@ -11,19 +11,19 @@ clusters_with: ladder
 notes: Floor hatch to lower level; place where vertical access is needed
 ---
 # Hatch frame (stone/metal border)
-rect 0.10,0.10 0.80,0.80 stroke #555555
+rect 0.2,0.2 1.6,1.6 stroke #555555
 # Wooden hatch door
-rect 0.14,0.14 0.72,0.72 texfill polyhaven/weathered_planks 0.85
-rect 0.14,0.14 0.72,0.72 stroke #3a1f00
+rect 0.28,0.28 1.44,1.44 texfill polyhaven/weathered_planks 0.85
+rect 0.28,0.28 1.44,1.44 stroke #3a1f00
 # Plank seam
-line 0.50,0.14 0.50,0.86 stroke #2a1400 0.5
+line 1,0.28 1,1.72 stroke #2a1400 1
 # Hinge line (north edge)
-line 0.18,0.18 0.82,0.18 stroke #666666
+line 0.36,0.36 1.64,0.36 stroke #666666
 # Hinge brackets
-rect 0.28,0.14 0.08,0.08 fill #666666 0.6
-rect 0.64,0.14 0.08,0.08 fill #666666 0.6
+rect 0.56,0.28 0.16,0.16 fill #666666 0.6
+rect 1.28,0.28 0.16,0.16 fill #666666 0.6
 # Iron ring pull (south half)
-circle 0.50,0.65 0.08 stroke #888888
-circle 0.50,0.65 0.03 fill #666666 0.7
+circle 1,1.3 0.16 stroke #888888
+circle 1,1.3 0.06 fill #666666 0.7
 # Dark gap line around edges
-rect 0.12,0.12 0.76,0.76 stroke #1a1a1a 0.3
+rect 0.24,0.24 1.52,1.52 stroke #1a1a1a 0.3

@@ -22,6 +22,7 @@ app.commandLine.appendSwitch('enable-accelerated-2d-canvas', 'true');
 app.commandLine.appendSwitch('enable-gpu-rasterization', 'true');
 app.commandLine.appendSwitch('use-angle', 'gl');               // OpenGL directly, skips ANGLE's DirectX layer
 
+app.setAppUserModelId('com.mapwright.editor');
 Menu.setApplicationMenu(null);
 
 const PORT = 3000;

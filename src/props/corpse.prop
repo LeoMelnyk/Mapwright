@@ -1,6 +1,6 @@
 name: Corpse
 category: Misc
-footprint: 2x1
+footprint: 3x1
 facing: yes
 shadow: no
 blocks_light: no
@@ -11,16 +11,16 @@ clusters_with: bone-pile, skeleton
 notes: Scatter on floor for grim atmosphere; vary rotation for natural look
 ---
 # Body
-ellipse 0.5,1.0 0.3,0.7 fill #5a4530 0.4
-ellipse 0.5,1.0 0.3,0.7 stroke #3a2a1a
+ellipse 0.5,1.5 0.3,1.05 fill #5a4530 0.4
+ellipse 0.5,1.5 0.3,1.05 stroke #3a2a1a
 # Head
-circle 0.5,0.22 0.15 fill #c4a882 0.5
-circle 0.5,0.22 0.15 stroke #8b7d6b
+circle 0.5,0.33 0.1875 fill #c4a882 0.5
+circle 0.5,0.33 0.1875 stroke #8b7d6b
 # Arms outstretched
-line 0.2,0.65 0.02,0.5
-line 0.8,0.65 0.98,0.5
+line 0.2,0.975 0.02,0.75
+line 0.8,0.975 0.98,0.75
 # Legs
-line 0.35,1.72 0.25,1.95
-line 0.65,1.72 0.75,1.95
+line 0.35,2.58 0.25,2.925
+line 0.65,2.58 0.75,2.925
 # Blood pool
-ellipse 0.5,0.8 0.25,0.15 fill #4a0000 0.3
+ellipse 0.5,1.2 0.25,0.225 fill #4a0000 0.3

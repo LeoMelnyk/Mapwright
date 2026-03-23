@@ -1,0 +1,51 @@
+name: Boat
+category: Nautical
+footprint: 8x4
+facing: yes
+shadow: yes
+blocks_light: no
+placement: center
+room_types: dock, harbor, underground-lake
+typical_count: single
+clusters_with: dock-cleat, dock-post, barrel, rope-coil, crate
+notes: Small sailing boat / fishing vessel; 20ft long × 10ft wide. Place at water's edge or moored at dock
+---
+# Outer hull — wide boat shape with pointed bow, broad stern
+poly 2.0,0.3 0.5,1.2 0.15,2.5 0.1,4.0 0.15,5.5 0.5,6.8 2.0,7.7 3.5,6.8 3.85,5.5 3.9,4.0 3.85,2.5 3.5,1.2 texfill polyhaven/weathered_planks 0.85
+poly 2.0,0.3 0.5,1.2 0.15,2.5 0.1,4.0 0.15,5.5 0.5,6.8 2.0,7.7 3.5,6.8 3.85,5.5 3.9,4.0 3.85,2.5 3.5,1.2 stroke #3a1f00
+# Interior floor
+poly 2.0,0.7 0.7,1.4 0.4,2.5 0.35,4.0 0.4,5.5 0.7,6.6 2.0,7.3 3.3,6.6 3.6,5.5 3.65,4.0 3.6,2.5 3.3,1.4 texfill polyhaven/worn_planks 0.75
+poly 2.0,0.7 0.7,1.4 0.4,2.5 0.35,4.0 0.4,5.5 0.7,6.6 2.0,7.3 3.3,6.6 3.6,5.5 3.65,4.0 3.6,2.5 3.3,1.4 stroke #5c3a1e
+# Stern transom (flat back)
+rect 0.65,0.65 2.7,0.2 texfill polyhaven/dark_wood 0.85
+rect 0.65,0.65 2.7,0.2 stroke #3a1f00
+# Stern bench
+rect 0.7,1.0 2.6,0.2 texfill polyhaven/dark_wood 0.8
+rect 0.7,1.0 2.6,0.2 stroke #3a1f00
+# Center thwart (main rowing seat)
+rect 0.6,3.5 2.8,0.2 texfill polyhaven/dark_wood 0.85
+rect 0.6,3.5 2.8,0.2 stroke #3a1f00
+# Bow thwart
+rect 0.8,5.8 2.4,0.2 texfill polyhaven/dark_wood 0.85
+rect 0.8,5.8 2.4,0.2 stroke #3a1f00
+# Mast step (center deck)
+circle 2.0,4.6 0.15 texfill polyhaven/dark_wood 0.9
+circle 2.0,4.6 0.15 stroke #3a1f00
+# Mast (vertical pole, seen as circle from above)
+circle 2.0,4.6 0.08 fill #4a2800 0.9
+# Thole pins / oarlocks at center thwart
+circle 0.32,3.6 0.07 fill #4a2800 0.9
+circle 3.68,3.6 0.07 fill #4a2800 0.9
+# Gunwale lines (inner hull edges)
+line 0.38,1.8 0.38,6.2 stroke #2a1400
+line 3.62,1.8 3.62,6.2 stroke #2a1400
+# Hull plank seam lines
+line 0.2,2.0 0.2,6.0 stroke #5c3a1e 0.3
+line 3.8,2.0 3.8,6.0 stroke #5c3a1e 0.3
+line 1.0,0.9 1.0,7.1 stroke #5c3a1e 0.15
+line 3.0,0.9 3.0,7.1 stroke #5c3a1e 0.15
+# Bow tip
+circle 2.0,7.6 0.07 fill #3a1f00 0.8
+# Rudder/tiller at stern
+line 2.0,0.35 2.0,0.0 stroke #4a2800
+rect 1.85,0.0 0.3,0.15 fill #4a2800 0.7

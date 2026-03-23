@@ -1,6 +1,6 @@
 name: Statue
 category: Features
-footprint: 1x1
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
@@ -10,11 +10,11 @@ typical_count: few
 notes: Decorative sculpture; place symmetrically flanking doors, thrones, or along halls
 ---
 # Stone pedestal
-rect 0.22,0.22 0.56,0.56 texfill polyhaven/granite_tile 0.75
-rect 0.22,0.22 0.56,0.56 stroke
+rect 0.44,0.44 1.12,1.12 texfill polyhaven/granite_tile 0.75
+rect 0.44,0.44 1.12,1.12 stroke
 # Figure on top (shoulders/torso from above)
-ellipse 0.5,0.5 0.2,0.16 texfill polyhaven/marble_01 0.85
-ellipse 0.5,0.5 0.2,0.16 stroke
+ellipse 1,1 0.4,0.32 texfill polyhaven/marble_01 0.85
+ellipse 1,1 0.4,0.32 stroke
 # Head
-circle 0.5,0.42 0.08 texfill polyhaven/marble_01 0.9
-circle 0.5,0.42 0.08 stroke
+circle 1,0.84 0.16 texfill polyhaven/marble_01 0.9
+circle 1,0.84 0.16 stroke

@@ -1,6 +1,6 @@
 name: Carpet
 category: Decorative
-footprint: 2x3
+footprint: 4x6
 facing: no
 shadow: no
 blocks_light: no
@@ -10,18 +10,18 @@ typical_count: single
 notes: Floor covering; center in room or create path to focal point
 ---
 # Carpet body
-rect 0.05,0.05 2.9,1.9 texfill polyhaven/dirty_carpet 0.85
-rect 0.05,0.05 2.9,1.9 stroke #8b4513
+rect 0.1,0.1 5.8,3.8 texfill polyhaven/dirty_carpet 0.85
+rect 0.1,0.1 5.8,3.8 stroke #8b4513
 # Decorative border
-rect 0.15,0.15 2.7,1.7 stroke #6b3410
+rect 0.3,0.3 5.4,3.4 stroke #6b3410
 # Inner field
-rect 0.3,0.3 2.4,1.4 texfill polyhaven/floral_jacquard 0.75
-rect 0.3,0.3 2.4,1.4 stroke #6b3410
+rect 0.6,0.6 4.8,2.8 texfill polyhaven/floral_jacquard 0.75
+rect 0.6,0.6 4.8,2.8 stroke #6b3410
 # Corner ornaments
-circle 0.22,0.22 0.04 fill #daa520 0.5
-circle 2.78,0.22 0.04 fill #daa520 0.5
-circle 0.22,1.78 0.04 fill #daa520 0.5
-circle 2.78,1.78 0.04 fill #daa520 0.5
+circle 0.44,0.44 0.08 fill #daa520 0.5
+circle 5.56,0.44 0.08 fill #daa520 0.5
+circle 0.44,3.56 0.08 fill #daa520 0.5
+circle 5.56,3.56 0.08 fill #daa520 0.5
 # Center medallion
-ellipse 1.5,1.0 0.3,0.2 fill #8b0000 0.3
-ellipse 1.5,1.0 0.3,0.2 stroke #6b3410
+ellipse 3,2 0.6,0.4 fill #8b0000 0.3
+ellipse 3,2 0.6,0.4 stroke #6b3410

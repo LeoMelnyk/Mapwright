@@ -1,6 +1,6 @@
 name: Willow Tree
 category: Terrain
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: yes
 blocks_light: yes
@@ -11,35 +11,35 @@ clusters_with: fountain, mushroom
 notes: Weeping willow with drooping branches; place near water features or as garden centerpiece
 ---
 # Trunk (off-center, slightly gnarled)
-circle 1.00,0.90 0.16 texfill polyhaven/bark_brown_02 0.85
-circle 1.00,0.90 0.16 stroke #3a1f00
+circle 1.5,1.35 0.24 texfill polyhaven/bark_brown_02 0.85
+circle 1.5,1.35 0.24 stroke #3a1f00
 # Main canopy mass (lighter green, wispy)
-circle 1.00,0.90 0.55 fill #3a8a30 0.20
+circle 1.5,1.35 0.825 fill #3a8a30 0.20
 # Drooping branch cascades (lines extending outward and down from canopy)
 # North droops
-line 1.00,0.35 0.70,0.10 stroke #4a8a38 0.40
-line 1.00,0.35 1.00,0.05 stroke #3a7a28 0.35
-line 1.00,0.35 1.30,0.10 stroke #4a8a38 0.40
+line 1.5,0.525 1.05,0.15 stroke #4a8a38 0.6
+line 1.5,0.525 1.5,0.075 stroke #3a7a28 0.525
+line 1.5,0.525 1.95,0.15 stroke #4a8a38 0.6
 # East droops
-line 1.55,0.90 1.85,0.60 stroke #3a7a28 0.35
-line 1.55,0.90 1.90,0.90 stroke #4a8a38 0.40
-line 1.55,0.90 1.85,1.20 stroke #3a7a28 0.35
+line 2.325,1.35 2.775,0.9 stroke #3a7a28 0.525
+line 2.325,1.35 2.85,1.35 stroke #4a8a38 0.6
+line 2.325,1.35 2.775,1.8 stroke #3a7a28 0.525
 # South droops
-line 1.00,1.45 0.70,1.80 stroke #4a8a38 0.40
-line 1.00,1.45 1.00,1.90 stroke #3a7a28 0.35
-line 1.00,1.45 1.30,1.80 stroke #4a8a38 0.40
+line 1.5,2.175 1.05,2.7 stroke #4a8a38 0.6
+line 1.5,2.175 1.5,2.85 stroke #3a7a28 0.525
+line 1.5,2.175 1.95,2.7 stroke #4a8a38 0.6
 # West droops
-line 0.45,0.90 0.15,0.60 stroke #3a7a28 0.35
-line 0.45,0.90 0.10,0.90 stroke #4a8a38 0.40
-line 0.45,0.90 0.15,1.20 stroke #3a7a28 0.35
+line 0.675,1.35 0.225,0.9 stroke #3a7a28 0.525
+line 0.675,1.35 0.15,1.35 stroke #4a8a38 0.6
+line 0.675,1.35 0.225,1.8 stroke #3a7a28 0.525
 # Leaf cluster accents along droop tips
-circle 0.70,0.10 0.08 fill #4a9a38 0.30
-circle 1.30,0.10 0.08 fill #4a9a38 0.30
-circle 1.85,0.60 0.08 fill #4a9a38 0.30
-circle 1.85,1.20 0.08 fill #4a9a38 0.30
-circle 0.70,1.80 0.08 fill #4a9a38 0.30
-circle 1.30,1.80 0.08 fill #4a9a38 0.30
-circle 0.15,0.60 0.08 fill #4a9a38 0.30
-circle 0.15,1.20 0.08 fill #4a9a38 0.30
+circle 1.05,0.15 0.12 fill #4a9a38 0.30
+circle 1.95,0.15 0.12 fill #4a9a38 0.30
+circle 2.775,0.9 0.12 fill #4a9a38 0.30
+circle 2.775,1.8 0.12 fill #4a9a38 0.30
+circle 1.05,2.7 0.12 fill #4a9a38 0.30
+circle 1.95,2.7 0.12 fill #4a9a38 0.30
+circle 0.225,0.9 0.12 fill #4a9a38 0.30
+circle 0.225,1.8 0.12 fill #4a9a38 0.30
 # Inner canopy highlight
-circle 1.00,0.90 0.30 fill #5aaa48 0.12
+circle 1.5,1.35 0.45 fill #5aaa48 0.12

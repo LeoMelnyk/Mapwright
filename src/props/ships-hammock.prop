@@ -1,6 +1,6 @@
 name: Ship's Hammock
 category: Nautical
-footprint: 1x2
+footprint: 1x3
 facing: yes
 shadow: no
 blocks_light: no
@@ -10,20 +10,20 @@ typical_count: many
 notes: Sleeping berth; line walls in crew quarters. Use fillWallWithProps
 ---
 # Rope attachment points (each end)
-circle 0.14,0.50 0.08 fill #8b7355 0.80
-circle 0.14,0.50 0.08 stroke #5c3a1e
-circle 1.86,0.50 0.08 fill #8b7355 0.80
-circle 1.86,0.50 0.08 stroke #5c3a1e
+circle 0.21,0.5 0.1 fill #8b7355 0.80
+circle 0.21,0.5 0.1 stroke #5c3a1e
+circle 2.79,0.5 0.1 fill #8b7355 0.80
+circle 2.79,0.5 0.1 stroke #5c3a1e
 # Hammock body (woven shape)
-ellipse 1.00,0.50 0.70,0.26 texfill polyhaven/rough_linen 0.70
-ellipse 1.00,0.50 0.70,0.26 stroke #8b7355
+ellipse 1.5,0.5 1.05,0.26 texfill polyhaven/rough_linen 0.70
+ellipse 1.5,0.5 1.05,0.26 stroke #8b7355
 # Net weave lines (longitudinal)
-line 0.44,0.44 1.56,0.44 stroke #8b7355 0.50
-line 0.38,0.50 1.62,0.50 stroke #8b7355 0.40
-line 0.44,0.56 1.56,0.56 stroke #8b7355 0.50
+line 0.66,0.44 2.34,0.44 stroke #8b7355 0.625
+line 0.57,0.5 2.43,0.5 stroke #8b7355 0.5
+line 0.66,0.56 2.34,0.56 stroke #8b7355 0.625
 # Net weave lines (transverse)
-line 0.60,0.30 0.60,0.70 stroke #8b7355 0.40
-line 0.80,0.28 0.80,0.72 stroke #8b7355 0.40
-line 1.00,0.28 1.00,0.72 stroke #8b7355 0.40
-line 1.20,0.28 1.20,0.72 stroke #8b7355 0.40
-line 1.40,0.30 1.40,0.70 stroke #8b7355 0.40
+line 0.9,0.3 0.9,0.7 stroke #8b7355 0.5
+line 1.2,0.28 1.2,0.72 stroke #8b7355 0.5
+line 1.5,0.28 1.5,0.72 stroke #8b7355 0.5
+line 1.8,0.28 1.8,0.72 stroke #8b7355 0.5
+line 2.1,0.3 2.1,0.7 stroke #8b7355 0.5

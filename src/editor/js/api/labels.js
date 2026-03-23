@@ -1,9 +1,11 @@
 import {
   state, pushUndo, markDirty, notify,
   validateBounds, ensureCell,
+  toInt,
 } from './_shared.js';
 
 export function setLabel(row, col, text) {
+  row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
   pushUndo();
   if (!cell.center) cell.center = {};
@@ -14,6 +16,7 @@ export function setLabel(row, col, text) {
 }
 
 export function removeLabel(row, col) {
+  row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell?.center?.label) return { success: true };

@@ -1,6 +1,6 @@
 name: Iron Maiden
 category: Prison
-footprint: 2x1
+footprint: 3x2
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,28 +11,28 @@ clusters_with: torture-rack, shackles
 notes: Torture device; place against wall
 ---
 # Outer casing
-rect 0.12,0.1 0.76,1.8 texfill polyhaven/rusty_metal 0.8
-rect 0.12,0.1 0.76,1.8 stroke #444444
+rect 0.24,0.15 1.52,2.7 texfill polyhaven/rusty_metal 0.8
+rect 0.24,0.15 1.52,2.7 stroke #444444
 # Top dome
-arc 0.5,0.1 0.38 180 360 fill #666666 0.4
-arc 0.5,0.1 0.38 180 360 stroke #444444
+arc 1,0.15 0.665 180 360 fill #666666 0.4
+arc 1,0.15 0.665 180 360 stroke #444444
 # Bottom dome
-arc 0.5,1.9 0.38 0 180 fill #666666 0.4
-arc 0.5,1.9 0.38 0 180 stroke #444444
+arc 1,2.85 0.665 0 180 fill #666666 0.4
+arc 1,2.85 0.665 0 180 stroke #444444
 # Hinge seam
-line 0.5,0.1 0.5,1.9
+line 1,0.15 1,2.85
 # Spike points (left)
-circle 0.22,0.35 0.03 fill #333333 0.8
-circle 0.22,0.65 0.03 fill #333333 0.8
-circle 0.22,0.95 0.03 fill #333333 0.8
-circle 0.22,1.25 0.03 fill #333333 0.8
-circle 0.22,1.55 0.03 fill #333333 0.8
+circle 0.44,0.525 0.0525 fill #333333 0.8
+circle 0.44,0.975 0.0525 fill #333333 0.8
+circle 0.44,1.425 0.0525 fill #333333 0.8
+circle 0.44,1.875 0.0525 fill #333333 0.8
+circle 0.44,2.325 0.0525 fill #333333 0.8
 # Spike points (right)
-circle 0.78,0.35 0.03 fill #333333 0.8
-circle 0.78,0.65 0.03 fill #333333 0.8
-circle 0.78,0.95 0.03 fill #333333 0.8
-circle 0.78,1.25 0.03 fill #333333 0.8
-circle 0.78,1.55 0.03 fill #333333 0.8
+circle 1.56,0.525 0.0525 fill #333333 0.8
+circle 1.56,0.975 0.0525 fill #333333 0.8
+circle 1.56,1.425 0.0525 fill #333333 0.8
+circle 1.56,1.875 0.0525 fill #333333 0.8
+circle 1.56,2.325 0.0525 fill #333333 0.8
 # Face viewport
-rect 0.38,0.3 0.24,0.15 fill #1a1a1a 0.5
-rect 0.38,0.3 0.24,0.15 stroke #555555
+rect 0.76,0.45 0.48,0.225 fill #1a1a1a 0.5
+rect 0.76,0.45 0.48,0.225 stroke #555555

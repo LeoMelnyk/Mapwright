@@ -1,6 +1,6 @@
 name: Torture Rack
 category: Prison
-footprint: 1x2
+footprint: 2x3
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,22 +11,22 @@ clusters_with: iron-maiden, shackles
 notes: Torture device; place against walls
 ---
 # Wooden frame
-rect 0.08,0.08 1.84,0.84 texfill polyhaven/dark_wood 0.8
-rect 0.08,0.08 1.84,0.84 stroke #3a1f00
+rect 0.12,0.16 2.76,1.68 texfill polyhaven/dark_wood 0.8
+rect 0.12,0.16 2.76,1.68 stroke #3a1f00
 # Rope lines (X pattern)
-line 0.08,0.08 1.92,0.92
-line 1.92,0.08 0.08,0.92
+line 0.12,0.16 2.88,1.84
+line 2.88,0.16 0.12,1.84
 # Corner windlass wheels
-circle 0.08,0.08 0.08 texfill polyhaven/dark_wood 0.85
-circle 0.08,0.08 0.08 stroke #3a1f00
-circle 0.08,0.92 0.08 texfill polyhaven/dark_wood 0.85
-circle 0.08,0.92 0.08 stroke #3a1f00
-circle 1.92,0.08 0.08 texfill polyhaven/dark_wood 0.85
-circle 1.92,0.08 0.08 stroke #3a1f00
-circle 1.92,0.92 0.08 texfill polyhaven/dark_wood 0.85
-circle 1.92,0.92 0.08 stroke #3a1f00
+circle 0.12,0.16 0.14 texfill polyhaven/dark_wood 0.85
+circle 0.12,0.16 0.14 stroke #3a1f00
+circle 0.12,1.84 0.14 texfill polyhaven/dark_wood 0.85
+circle 0.12,1.84 0.14 stroke #3a1f00
+circle 2.88,0.16 0.14 texfill polyhaven/dark_wood 0.85
+circle 2.88,0.16 0.14 stroke #3a1f00
+circle 2.88,1.84 0.14 texfill polyhaven/dark_wood 0.85
+circle 2.88,1.84 0.14 stroke #3a1f00
 # Center bolt
-circle 1.0,0.5 0.04 fill #666666 0.6
+circle 1.5,1 0.07 fill #666666 0.6
 # Ratchet mechanism
-rect 0.02,0.3 0.12,0.4 fill #666666 0.5
-rect 0.02,0.3 0.12,0.4 stroke #444444
+rect 0.03,0.6 0.18,0.8 fill #666666 0.5
+rect 0.03,0.6 0.18,0.8 stroke #444444

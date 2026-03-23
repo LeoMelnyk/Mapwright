@@ -1,6 +1,6 @@
 name: Grave Mound
 category: Misc
-footprint: 1x2
+footprint: 2x3
 facing: no
 shadow: no
 blocks_light: no
@@ -11,11 +11,11 @@ clusters_with: grave-marker
 notes: Burial mound; place in rows with grave-markers
 ---
 # Dirt mound
-ellipse 1.0,0.6 0.82,0.35 texfill polyhaven/brown_mud 0.75
-ellipse 1.0,0.6 0.82,0.35 stroke #5a4530
+ellipse 1.5,1.2 1.23,0.7 texfill polyhaven/brown_mud 0.75
+ellipse 1.5,1.2 1.23,0.7 stroke #5a4530
 # Headstone
-rect 0.9,0.05 0.2,0.35 texfill polyhaven/granite_tile 0.8
-rect 0.9,0.05 0.2,0.35 stroke #666666
+rect 1.35,0.1 0.3,0.7 texfill polyhaven/granite_tile 0.8
+rect 1.35,0.1 0.3,0.7 stroke #666666
 # Cross on headstone
-rect 0.82,0.12 0.36,0.08 texfill polyhaven/granite_tile 0.8
-rect 0.82,0.12 0.36,0.08 stroke #666666
+rect 1.23,0.24 0.54,0.16 texfill polyhaven/granite_tile 0.8
+rect 1.23,0.24 0.54,0.16 stroke #666666

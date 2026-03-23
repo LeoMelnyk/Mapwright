@@ -76,11 +76,16 @@ describe('Full Pipeline E2E', () => {
 
     const saved = loadSavedMap(savePath);
     expect(saved.metadata.dungeonName).toBe('E2E Test');
+    const res = saved.metadata.resolution || 1;
     const gs = saved.metadata.gridSize || 5;
-    const pillar = saved.metadata.props?.find(p => p.x === 3 * gs && p.y === 3 * gs);
+    // API display coords (3,3) → internal (3*res, 3*res) → world feet (3*res*gs, 3*res*gs)
+    const expectedX = 3 * res * gs;
+    const expectedY = 3 * res * gs;
+    const pillar = saved.metadata.props?.find(p => p.x === expectedX && p.y === expectedY);
     expect(pillar).toBeDefined();
     expect(pillar.type).toBe('pillar');
-    expect(saved.cells[5][12].east).toBe('d');
+    // Door at display (5,12) → internal (5*res, 12*res)
+    expect(saved.cells[5 * res][12 * res].east).toBe('d');
 
     // Normalize so --load can read it
     normalizeSavedMap(savePath);
@@ -105,8 +110,9 @@ describe('Full Pipeline E2E', () => {
     expect(fs.existsSync(savePath)).toBe(true);
 
     const saved = loadSavedMap(savePath);
-    expect(saved.cells[5][7]?.center?.label).toBe('A1');
-    expect(saved.cells[12][7]?.center?.label).toBe('A3');
+    const res2 = saved.metadata.resolution || 1;
+    expect(saved.cells[5 * res2][7 * res2]?.center?.label).toBe('A1');
+    expect(saved.cells[12 * res2][7 * res2]?.center?.label).toBe('A3');
   });
 
   it('reports map info via --info', async () => {

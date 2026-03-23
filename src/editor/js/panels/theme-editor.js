@@ -51,9 +51,8 @@ function saveCteCollapsed() {
   localStorage.setItem(CTE_COLLAPSED_KEY, JSON.stringify([...cteCollapsed]));
 }
 
-const idle = typeof window !== 'undefined' && window.requestIdleCallback
-  ? (cb) => window.requestIdleCallback(cb)
-  : (cb) => setTimeout(cb, 0);
+// Use setTimeout instead of requestIdleCallback — rIC gets starved by the animated render loop
+const idle = (cb) => setTimeout(cb, 0);
 
 function buildCustomEditor(customEditorEl) {
   const theme = getCustomThemeBase();

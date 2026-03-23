@@ -92,8 +92,13 @@ function ensureBuilt() {
 /**
  * Mark the spatial map as needing rebuild. Call on any prop mutation.
  */
+let _onDirtyCallback = null;
+/** Register a callback to run whenever the prop spatial map is dirtied. */
+export function onPropSpatialDirty(fn) { _onDirtyCallback = fn; }
+
 export function markPropSpatialDirty() {
   dirty = true;
+  if (_onDirtyCallback) _onDirtyCallback();
 }
 
 /**

@@ -7,7 +7,7 @@ import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
 import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool, RangeTool, FogRevealTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
-import { initPropSpatial, lookupPropAt, markPropSpatialDirty } from './prop-spatial.js';
+import { initPropSpatial, onPropSpatialDirty, lookupPropAt, markPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
 import { sessionState, renderSessionOverlay, renderDmFogOverlay, hitTestDoorButton, hitTestStairButton, openDoor, openStairs, setRangeHighlightCallback } from './dm-session.js';
 import { setSessionOverlay, setSessionTool, setSessionRangeTool, setDmFogOverlay, zoomToFit } from './canvas-view.js';
@@ -118,6 +118,9 @@ function exitSessionToolsMode() {
 document.addEventListener('DOMContentLoaded', async () => {
   // Wire up prop spatial hash (lazy getter to avoid circular import)
   initPropSpatial(() => state);
+  // When props change (move/place/remove), invalidate the props render layer cache
+  const { invalidatePropsRenderLayer, bumpContentVersion } = await import('../../render/index.js');
+  onPropSpatialDirty(() => { invalidatePropsRenderLayer(); bumpContentVersion(); });
 
   // ── App version (status bar) ───────────────────────────────────────────
   fetch('/api/version').then(r => r.json()).then(({ version }) => {

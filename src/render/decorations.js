@@ -1,4 +1,5 @@
 import { toCanvas } from './bounds.js';
+import { displayGridSize as _dgs } from '../util/index.js';
 
 // ─── Constants ─────
 const COMPASS_ROSE_SIZE = 35;
@@ -33,34 +34,40 @@ function drawDungeonTitle(ctx, width, dungeonName, fontSize, theme, yOffset = 0)
 /**
  * Draw grid overlay for matrix-based map
  */
-function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGridInCorridors) {
+function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGridInCorridors, metadata) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
+  const resolution = metadata?.resolution || 1;
+  const _showSubGrid = metadata?.features?.showSubGrid !== false; // default true
 
-  ctx.strokeStyle = theme.gridLine;
-  ctx.lineWidth = 1;
   ctx.lineCap = 'butt';
-  ctx.globalAlpha = 0.5;
 
   const shouldDraw = (r, c) => {
     if (r < 0 || r >= numRows || c < 0 || c >= numCols) return false;
     return roomCells[r][c] || (showGridInCorridors && cells[r]?.[c]);
   };
 
+
+  // Draw primary grid lines (at display-cell boundaries)
+  ctx.strokeStyle = theme.gridLine;
+  ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.5;
   ctx.beginPath();
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       if (!shouldDraw(row, col)) continue;
 
-      if (shouldDraw(row + 1, col)) {
+      // Horizontal line below this cell — only at display-cell boundaries
+      if ((row + 1) % resolution === 0 && shouldDraw(row + 1, col)) {
         const p1 = toCanvas(col * gridSize, (row + 1) * gridSize, transform);
         const p2 = toCanvas((col + 1) * gridSize, (row + 1) * gridSize, transform);
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
       }
 
-      if (shouldDraw(row, col + 1)) {
+      // Vertical line to the right — only at display-cell boundaries
+      if ((col + 1) % resolution === 0 && shouldDraw(row, col + 1)) {
         const p1 = toCanvas((col + 1) * gridSize, row * gridSize, transform);
         const p2 = toCanvas((col + 1) * gridSize, (row + 1) * gridSize, transform);
         ctx.moveTo(p1.x, p1.y);
@@ -225,13 +232,13 @@ function drawCompassRose(ctx, x, y, theme) {
 /**
  * Draw scale indicator
  */
-function drawScaleIndicator(ctx, x, y, gridSize, theme) {
+function drawScaleIndicator(ctx, x, y, gridSize, theme, resolution) {
   ctx.fillStyle = theme.textColor;
   ctx.font = 'bold 12px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
-  ctx.fillText(`1 square = ${gridSize} feet`, x, y);
+  ctx.fillText(`1 square = ${_dgs(gridSize, resolution)} feet`, x, y);
 }
 
 /**
@@ -281,7 +288,7 @@ function drawBorderOnMap(ctx, cells, gridSize, theme, transform, padding = 5) {
 /**
  * Draw scale indicator in map space (below the dungeon grid).
  */
-function drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform) {
+function drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform, resolution) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -298,7 +305,7 @@ function drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform) {
   ctx.font = `bold ${fontSize}px serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
-  ctx.fillText(`1 square = ${gridSize} feet`, p.x, p.y);
+  ctx.fillText(`1 square = ${_dgs(gridSize, resolution)} feet`, p.x, p.y);
 }
 
 /**

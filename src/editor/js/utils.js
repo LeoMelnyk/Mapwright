@@ -1,5 +1,6 @@
 // Grid math and coordinate helpers
 import { CURRENT_FORMAT_VERSION } from './migrations.js';
+import { RESOLUTION_DEFAULT } from '../../util/index.js';
 
 /**
  * Convert feet coordinates to canvas pixels
@@ -65,13 +66,22 @@ export function nearestEdge(px, py, transform, gridSize, edgeMarginRatio = 0.25)
 }
 
 /**
- * Create an empty dungeon JSON with given dimensions
+ * Create an empty dungeon JSON with given dimensions.
+ * @param {string} name
+ * @param {number} rows - Display rows (user-facing)
+ * @param {number} cols - Display cols (user-facing)
+ * @param {number} gridSize - Display grid size in feet (default 5)
+ * @param {string} theme
  */
-export function createEmptyDungeon(name, rows, cols, gridSize = 5, theme = 'stone-dungeon') {
+export function createEmptyDungeon(name, rows, cols, gridSize = 5, theme = 'stone-dungeon', resolution = RESOLUTION_DEFAULT) {
+  const internalRows = rows * resolution;
+  const internalCols = cols * resolution;
+  const internalGridSize = gridSize / resolution;
+
   const cells = [];
-  for (let r = 0; r < rows; r++) {
+  for (let r = 0; r < internalRows; r++) {
     const row = [];
-    for (let c = 0; c < cols; c++) {
+    for (let c = 0; c < internalCols; c++) {
       row.push(null);
     }
     cells.push(row);
@@ -80,15 +90,17 @@ export function createEmptyDungeon(name, rows, cols, gridSize = 5, theme = 'ston
     metadata: {
       formatVersion: CURRENT_FORMAT_VERSION,
       dungeonName: name,
-      gridSize,
+      gridSize: internalGridSize,
+      resolution,
       theme,
       features: {
         showGrid: true,
+        showSubGrid: true,
         compassRose: true,
         scale: true,
         border: true,
       },
-      levels: [{ name: 'Level 1', startRow: 0, numRows: rows }],
+      levels: [{ name: 'Level 1', startRow: 0, numRows: internalRows }],
       bridges: [],
       nextBridgeId: 0,
     },

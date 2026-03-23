@@ -1,6 +1,6 @@
 name: Long Table
 category: Furniture
-footprint: 1x3
+footprint: 2x5
 facing: no
 shadow: yes
 blocks_light: no
@@ -11,16 +11,16 @@ clusters_with: chair, bench, stool
 notes: Dining or meeting table; place centrally with seating along both sides
 ---
 # Table surface
-rect 0.10,0.10 0.80,2.80 texfill polyhaven/wood_table 0.85
-rect 0.10,0.10 0.80,2.80 stroke #5c3a1e
+rect 0.1667,0.2 1.3333,5.6 texfill polyhaven/wood_table 0.85
+rect 0.1667,0.2 1.3333,5.6 stroke #5c3a1e
 # Wood grain accent line
-line 0.50,0.15 0.50,2.85 stroke #4a2800 0.25
+line 0.8333,0.3 0.8333,5.7 stroke #4a2800 0.4583
 # Leg shadows (6 legs — corners + middle)
-circle 0.20,0.20 0.05 fill #3a1f00 0.5
-circle 0.80,0.20 0.05 fill #3a1f00 0.5
-circle 0.20,1.50 0.05 fill #3a1f00 0.5
-circle 0.80,1.50 0.05 fill #3a1f00 0.5
-circle 0.20,2.80 0.05 fill #3a1f00 0.5
-circle 0.80,2.80 0.05 fill #3a1f00 0.5
+circle 0.3333,0.4 0.0917 fill #3a1f00 0.5
+circle 1.3333,0.4 0.0917 fill #3a1f00 0.5
+circle 0.3333,3 0.0917 fill #3a1f00 0.5
+circle 1.3333,3 0.0917 fill #3a1f00 0.5
+circle 0.3333,5.6 0.0917 fill #3a1f00 0.5
+circle 1.3333,5.6 0.0917 fill #3a1f00 0.5
 # Table join seam
-line 0.14,1.50 0.86,1.50 stroke #4a2800 0.3
+line 0.2333,3 1.4333,3 stroke #4a2800 0.55

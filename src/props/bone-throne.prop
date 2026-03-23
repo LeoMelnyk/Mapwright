@@ -1,6 +1,6 @@
 name: Bone Throne
 category: Undead & Dark
-footprint: 2x1
+footprint: 3x2
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,25 +11,25 @@ clusters_with: bone-pile, candelabra, necrotic-altar
 notes: Undead ruler's seat; place prominently like a throne
 ---
 # Throne seat
-rect 0.12,0.80 0.76,1.06 texfill polyhaven/stone_wall 0.65
-rect 0.12,0.80 0.76,1.06 stroke #444444
+rect 0.24,1.2 1.52,1.59 texfill polyhaven/stone_wall 0.65
+rect 0.24,1.2 1.52,1.59 stroke #444444
 # High back (north edge, wall side)
-rect 0.08,0.08 0.84,0.76 texfill polyhaven/stone_wall 0.70
-rect 0.08,0.08 0.84,0.76 stroke #333333
+rect 0.16,0.12 1.68,1.14 texfill polyhaven/stone_wall 0.70
+rect 0.16,0.12 1.68,1.14 stroke #333333
 # Back interior shadow
-rect 0.16,0.16 0.68,0.58 fill #1a1a1a 0.50
+rect 0.32,0.24 1.36,0.87 fill #1a1a1a 0.50
 # Bone arm rests (east/west)
-rect 0.08,0.84 0.12,0.50 fill #e8dcc8 0.80
-rect 0.08,0.84 0.12,0.50 stroke #c8b898
-rect 0.80,0.84 0.12,0.50 fill #e8dcc8 0.80
-rect 0.80,0.84 0.12,0.50 stroke #c8b898
+rect 0.16,1.26 0.24,0.75 fill #e8dcc8 0.80
+rect 0.16,1.26 0.24,0.75 stroke #c8b898
+rect 1.6,1.26 0.24,0.75 fill #e8dcc8 0.80
+rect 1.6,1.26 0.24,0.75 stroke #c8b898
 # Skull on arm rests
-circle 0.14,0.88 0.06 fill #e8dcc8 0.90
-circle 0.14,0.88 0.06 stroke #c8b898
-circle 0.86,0.88 0.06 fill #e8dcc8 0.90
-circle 0.86,0.88 0.06 stroke #c8b898
+circle 0.28,1.32 0.105 fill #e8dcc8 0.90
+circle 0.28,1.32 0.105 stroke #c8b898
+circle 1.72,1.32 0.105 fill #e8dcc8 0.90
+circle 1.72,1.32 0.105 stroke #c8b898
 # Skull on back top
-circle 0.50,0.18 0.10 fill #e8dcc8 0.85
-circle 0.50,0.18 0.10 stroke #c8b898
-circle 0.46,0.16 0.03 fill #1a1a1a 0.90
-circle 0.54,0.16 0.03 fill #1a1a1a 0.90
+circle 1,0.27 0.175 fill #e8dcc8 0.85
+circle 1,0.27 0.175 stroke #c8b898
+circle 0.92,0.24 0.0525 fill #1a1a1a 0.90
+circle 1.08,0.24 0.0525 fill #1a1a1a 0.90

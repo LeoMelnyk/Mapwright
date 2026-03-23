@@ -1,6 +1,6 @@
 name: Well
 category: Features
-footprint: 1x1
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: no
@@ -10,10 +10,10 @@ typical_count: single
 notes: Water source; place centrally in courtyards or near cave walls
 ---
 # Stone outer ring
-circle 0.5,0.5 0.40 texfill polyhaven/cobblestone_floor_01 0.85
-circle 0.5,0.5 0.40 stroke
+circle 1,1 0.8 texfill polyhaven/cobblestone_floor_01 0.85
+circle 1,1 0.8 stroke
 # Inner stone rim detail
-circle 0.5,0.5 0.32 stroke
+circle 1,1 0.64 stroke
 # Water center
-circle 0.5,0.5 0.24 fill #4a7799 0.75
-circle 0.5,0.5 0.24 stroke
+circle 1,1 0.48 fill #4a7799 0.75
+circle 1,1 0.48 stroke

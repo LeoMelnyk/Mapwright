@@ -1,6 +1,6 @@
 name: Ritual Circle
 category: Religious
-footprint: 3x3
+footprint: 4x4
 facing: no
 shadow: no
 blocks_light: no
@@ -12,21 +12,21 @@ clusters_with: candle-cluster, arcane-pedestal
 notes: Dark ritual area; place at room center. Similar to magic-circle but sinister
 ---
 # Outer circle
-circle 1.5,1.5 1.35 stroke #8b0000
+circle 2,2 1.8 stroke #8b0000
 # Inner circle
-circle 1.5,1.5 1.05 stroke #8b0000
+circle 2,2 1.4 stroke #8b0000
 # Inverted pentagram
-line 1.5,2.8 0.45,0.55
-line 1.5,2.8 2.55,0.55
-line 0.45,0.55 2.35,2.15
-line 2.55,0.55 0.65,2.15
-line 2.35,2.15 0.65,2.15
+line 2,3.7333 0.6,0.7333
+line 2,3.7333 3.4,0.7333
+line 0.6,0.7333 3.1333,2.8667
+line 3.4,0.7333 0.8667,2.8667
+line 3.1333,2.8667 0.8667,2.8667
 # Blood-red candle marks at vertices
-circle 1.5,2.8 0.08 fill #8b0000 0.6
-circle 0.45,0.55 0.08 fill #8b0000 0.6
-circle 2.55,0.55 0.08 fill #8b0000 0.6
-circle 2.35,2.15 0.08 fill #8b0000 0.6
-circle 0.65,2.15 0.08 fill #8b0000 0.6
+circle 2,3.7333 0.1067 fill #8b0000 0.6
+circle 0.6,0.7333 0.1067 fill #8b0000 0.6
+circle 3.4,0.7333 0.1067 fill #8b0000 0.6
+circle 3.1333,2.8667 0.1067 fill #8b0000 0.6
+circle 0.8667,2.8667 0.1067 fill #8b0000 0.6
 # Center dark energy
-circle 1.5,1.5 0.25 fill #1a0000 0.3
-circle 1.5,1.5 0.12 fill #4a0000 0.4
+circle 2,2 0.3333 fill #1a0000 0.3
+circle 2,2 0.16 fill #4a0000 0.4

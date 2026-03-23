@@ -1,6 +1,6 @@
 name: Summoning Cage
 category: Magical
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: yes
 blocks_light: no
@@ -11,29 +11,29 @@ clusters_with: magic-circle, ward-stone, candle-cluster
 notes: Containment for summoned creatures; place near ritual circles
 ---
 # Outer cage frame
-rect 0.08,0.08 1.84,1.84 texfill polyhaven/rusty_metal 0.70
-rect 0.08,0.08 1.84,1.84 stroke #333333
+rect 0.12,0.12 2.76,2.76 texfill polyhaven/rusty_metal 0.70
+rect 0.12,0.12 2.76,2.76 stroke #333333
 # Cage bars (vertical)
-line 0.52,0.08 0.52,1.92 stroke #555555
-line 0.96,0.08 0.96,1.92 stroke #555555
-line 1.40,0.08 1.40,1.92 stroke #555555
+line 0.78,0.12 0.78,2.88 stroke #555555
+line 1.44,0.12 1.44,2.88 stroke #555555
+line 2.1,0.12 2.1,2.88 stroke #555555
 # Cage bars (horizontal)
-line 0.08,0.52 1.92,0.52 stroke #555555
-line 0.08,0.96 1.92,0.96 stroke #555555
-line 0.08,1.40 1.92,1.40 stroke #555555
+line 0.12,0.78 2.88,0.78 stroke #555555
+line 0.12,1.44 2.88,1.44 stroke #555555
+line 0.12,2.1 2.88,2.1 stroke #555555
 # Inner runic circle
-circle 1.00,1.00 0.60 stroke #6644aa
-circle 1.00,1.00 0.44 stroke #6644aa 0.60
+circle 1.5,1.5 0.9 stroke #6644aa
+circle 1.5,1.5 0.66 stroke #6644aa 0.60
 # Arcane energy center
-circle 1.00,1.00 0.22 fill #442266 0.60
-circle 1.00,1.00 0.14 fill #7744aa 0.50
-circle 1.00,1.00 0.08 fill #aa66dd 0.60
+circle 1.5,1.5 0.33 fill #442266 0.60
+circle 1.5,1.5 0.21 fill #7744aa 0.50
+circle 1.5,1.5 0.12 fill #aa66dd 0.60
 # Corner binding posts
-circle 0.16,0.16 0.08 fill #555555 0.90
-circle 0.16,0.16 0.08 stroke #333333
-circle 1.84,0.16 0.08 fill #555555 0.90
-circle 1.84,0.16 0.08 stroke #333333
-circle 0.16,1.84 0.08 fill #555555 0.90
-circle 0.16,1.84 0.08 stroke #333333
-circle 1.84,1.84 0.08 fill #555555 0.90
-circle 1.84,1.84 0.08 stroke #333333
+circle 0.24,0.24 0.12 fill #555555 0.90
+circle 0.24,0.24 0.12 stroke #333333
+circle 2.76,0.24 0.12 fill #555555 0.90
+circle 2.76,0.24 0.12 stroke #333333
+circle 0.24,2.76 0.12 fill #555555 0.90
+circle 0.24,2.76 0.12 stroke #333333
+circle 2.76,2.76 0.12 fill #555555 0.90
+circle 2.76,2.76 0.12 stroke #333333

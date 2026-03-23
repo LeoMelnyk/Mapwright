@@ -1,6 +1,6 @@
 name: Stone Column
 category: Structure
-footprint: 1x1
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
@@ -10,13 +10,13 @@ typical_count: few
 notes: Heavier structural pillar; place at room corners or symmetrically
 ---
 # Base pedestal
-rect 0.22,0.78 0.56,0.18 texfill polyhaven/granite_tile 0.8
-rect 0.22,0.78 0.56,0.18 stroke #666666
+rect 0.44,1.56 1.12,0.36 texfill polyhaven/granite_tile 0.8
+rect 0.44,1.56 1.12,0.36 stroke #666666
 # Column shaft
-circle 0.5,0.5 0.28 texfill polyhaven/marble_01 0.85
-circle 0.5,0.5 0.28 stroke #888888
+circle 1,1 0.56 texfill polyhaven/marble_01 0.85
+circle 1,1 0.56 stroke #888888
 # Capital
-rect 0.2,0.05 0.6,0.18 texfill polyhaven/marble_01 0.85
-rect 0.2,0.05 0.6,0.18 stroke #888888
+rect 0.4,0.1 1.2,0.36 texfill polyhaven/marble_01 0.85
+rect 0.4,0.1 1.2,0.36 stroke #888888
 # Fluting detail
-circle 0.5,0.5 0.2 stroke #999999
+circle 1,1 0.4 stroke #999999

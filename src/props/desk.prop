@@ -1,6 +1,6 @@
 name: Desk
 category: Furniture
-footprint: 1x2
+footprint: 2x3
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,10 +11,10 @@ clusters_with: chair, book-pile, candle-cluster, scroll-case
 notes: Workspace; place against wall with chair in front
 ---
 # Desktop surface
-rect 0.05,0.08 1.9,0.84 texfill polyhaven/wood_table 0.85
-rect 0.05,0.08 1.9,0.84 stroke #5c3a1e
+rect 0.075,0.16 2.85,1.68 texfill polyhaven/wood_table 0.85
+rect 0.075,0.16 2.85,1.68 stroke #5c3a1e
 # Drawer section (left side)
-rect 0.1,0.15 0.45,0.7 texfill polyhaven/dark_wood 0.6
-rect 0.1,0.15 0.45,0.7 stroke #3a1f00
+rect 0.15,0.3 0.675,1.4 texfill polyhaven/dark_wood 0.6
+rect 0.15,0.3 0.675,1.4 stroke #3a1f00
 # Drawer handle
-circle 0.32,0.82 0.025 fill #8b6914 0.8
+circle 0.48,1.64 0.0438 fill #8b6914 0.8

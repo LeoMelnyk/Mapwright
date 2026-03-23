@@ -1,6 +1,6 @@
 name: Fish Drying Rack
 category: Nautical
-footprint: 1x2
+footprint: 2x3
 facing: yes
 shadow: no
 blocks_light: no
@@ -10,28 +10,28 @@ typical_count: few
 notes: Place near docks or processing areas
 ---
 # Top horizontal bar (wall side, north)
-rect 0.04,0.04 1.92,0.09 texfill polyhaven/dark_wood 0.85
-rect 0.04,0.04 1.92,0.09 stroke #3a1f00
+rect 0.06,0.08 2.88,0.18 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.08 2.88,0.18 stroke #3a1f00
 # Lower horizontal bar
-rect 0.04,0.56 1.92,0.09 texfill polyhaven/dark_wood 0.85
-rect 0.04,0.56 1.92,0.09 stroke #3a1f00
+rect 0.06,1.12 2.88,0.18 texfill polyhaven/dark_wood 0.85
+rect 0.06,1.12 2.88,0.18 stroke #3a1f00
 # Left vertical post
-rect 0.04,0.04 0.07,0.61 texfill polyhaven/dark_wood 0.85
-rect 0.04,0.04 0.07,0.61 stroke #3a1f00
+rect 0.06,0.08 0.105,1.22 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.08 0.105,1.22 stroke #3a1f00
 # Right vertical post
-rect 1.89,0.04 0.07,0.61 texfill polyhaven/dark_wood 0.85
-rect 1.89,0.04 0.07,0.61 stroke #3a1f00
+rect 2.835,0.08 0.105,1.22 texfill polyhaven/dark_wood 0.85
+rect 2.835,0.08 0.105,1.22 stroke #3a1f00
 # Hanging strings
-line 0.38,0.09 0.38,0.28 stroke #8b7355
-line 0.72,0.09 0.72,0.28 stroke #8b7355
-line 1.1,0.09 1.1,0.28 stroke #8b7355
-line 1.46,0.09 1.46,0.28 stroke #8b7355
+line 0.57,0.18 0.57,0.56 stroke #8b7355
+line 1.08,0.18 1.08,0.56 stroke #8b7355
+line 1.65,0.18 1.65,0.56 stroke #8b7355
+line 2.19,0.18 2.19,0.56 stroke #8b7355
 # Fish bodies (top-down view — oval silhouette of each hanging fish)
-ellipse 0.38,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 0.38,0.35 0.13,0.07 stroke #8b6914
-ellipse 0.72,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 0.72,0.35 0.13,0.07 stroke #8b6914
-ellipse 1.1,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 1.1,0.35 0.13,0.07 stroke #8b6914
-ellipse 1.46,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 1.46,0.35 0.13,0.07 stroke #8b6914
+ellipse 0.57,0.7 0.195,0.14 fill #c4a060 0.75
+ellipse 0.57,0.7 0.195,0.14 stroke #8b6914
+ellipse 1.08,0.7 0.195,0.14 fill #c4a060 0.75
+ellipse 1.08,0.7 0.195,0.14 stroke #8b6914
+ellipse 1.65,0.7 0.195,0.14 fill #c4a060 0.75
+ellipse 1.65,0.7 0.195,0.14 stroke #8b6914
+ellipse 2.19,0.7 0.195,0.14 fill #c4a060 0.75
+ellipse 2.19,0.7 0.195,0.14 stroke #8b6914

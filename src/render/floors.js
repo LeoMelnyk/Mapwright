@@ -21,34 +21,32 @@ function determineRoomCells(cells) {
 
   const isOutside = Array.from({length: numRows}, () => Array(numCols).fill(false));
 
-  function floodFillOutside(row, col) {
-    if (row < 0 || row >= numRows || col < 0 || col >= numCols) return;
-    if (isOutside[row][col]) return;
+  // Iterative flood fill to avoid stack overflow on large grids
+  const stack = [];
+  function seedOutside(r, c) {
+    if (r < 0 || r >= numRows || c < 0 || c >= numCols) return;
+    if (!isOutside[r][c]) { isOutside[r][c] = true; stack.push(r, c); }
+  }
 
+  for (let col = 0; col < numCols; col++) { seedOutside(0, col); seedOutside(numRows - 1, col); }
+  for (let row = 0; row < numRows; row++) { seedOutside(row, 0); seedOutside(row, numCols - 1); }
+
+  while (stack.length > 0) {
+    const col = stack.pop();
+    const row = stack.pop();
     const cell = cells[row][col];
-    isOutside[row][col] = true;
-
-    if (row > 0 && isEdgeOpen(cell, cells[row - 1]?.[col], 'north')) {
-      floodFillOutside(row - 1, col);
+    if (row > 0 && !isOutside[row - 1][col] && isEdgeOpen(cell, cells[row - 1]?.[col], 'north')) {
+      isOutside[row - 1][col] = true; stack.push(row - 1, col);
     }
-    if (row < numRows - 1 && isEdgeOpen(cell, cells[row + 1]?.[col], 'south')) {
-      floodFillOutside(row + 1, col);
+    if (row < numRows - 1 && !isOutside[row + 1][col] && isEdgeOpen(cell, cells[row + 1]?.[col], 'south')) {
+      isOutside[row + 1][col] = true; stack.push(row + 1, col);
     }
-    if (col < numCols - 1 && isEdgeOpen(cell, cells[row]?.[col + 1], 'east')) {
-      floodFillOutside(row, col + 1);
+    if (col < numCols - 1 && !isOutside[row][col + 1] && isEdgeOpen(cell, cells[row]?.[col + 1], 'east')) {
+      isOutside[row][col + 1] = true; stack.push(row, col + 1);
     }
-    if (col > 0 && isEdgeOpen(cell, cells[row]?.[col - 1], 'west')) {
-      floodFillOutside(row, col - 1);
+    if (col > 0 && !isOutside[row][col - 1] && isEdgeOpen(cell, cells[row]?.[col - 1], 'west')) {
+      isOutside[row][col - 1] = true; stack.push(row, col - 1);
     }
-  }
-
-  for (let col = 0; col < numCols; col++) {
-    floodFillOutside(0, col);
-    floodFillOutside(numRows - 1, col);
-  }
-  for (let row = 0; row < numRows; row++) {
-    floodFillOutside(row, 0);
-    floodFillOutside(row, numCols - 1);
   }
 
   return isRoom;

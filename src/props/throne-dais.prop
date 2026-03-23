@@ -1,6 +1,6 @@
 name: Throne Dais
 category: Furniture
-footprint: 2x3
+footprint: 3x4
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,26 +11,26 @@ clusters_with: carpet, brazier, banner, pillar
 notes: Raised throne platform; place against back wall as room centerpiece
 ---
 # Outer platform step
-rect 0.05,0.05 2.9,1.9 texfill polyhaven/stone_floor 0.7
-rect 0.05,0.05 2.9,1.9 stroke
+rect 0.0667,0.075 3.8667,2.85 texfill polyhaven/stone_floor 0.7
+rect 0.0667,0.075 3.8667,2.85 stroke
 # Middle step
-rect 0.2,0.2 2.6,1.5 texfill polyhaven/stone_floor 0.75
-rect 0.2,0.2 2.6,1.5 stroke
+rect 0.2667,0.3 3.4667,2.25 texfill polyhaven/stone_floor 0.75
+rect 0.2667,0.3 3.4667,2.25 stroke
 # Top platform
-rect 0.4,0.35 2.2,1.1 texfill polyhaven/marble_01 0.8
-rect 0.4,0.35 2.2,1.1 stroke
+rect 0.5333,0.525 2.9333,1.65 texfill polyhaven/marble_01 0.8
+rect 0.5333,0.525 2.9333,1.65 stroke
 # Throne seat
-rect 1.1,0.45 0.8,0.5 texfill polyhaven/dark_wood 0.85
-rect 1.1,0.45 0.8,0.5 stroke #4a2800
+rect 1.4667,0.675 1.0667,0.75 texfill polyhaven/dark_wood 0.85
+rect 1.4667,0.675 1.0667,0.75 stroke #4a2800
 # Throne backrest
-rect 1.05,0.38 0.9,0.12 texfill polyhaven/dark_wood 0.85
-rect 1.05,0.38 0.9,0.12 stroke #4a2800
+rect 1.4,0.57 1.2,0.18 texfill polyhaven/dark_wood 0.85
+rect 1.4,0.57 1.2,0.18 stroke #4a2800
 # Left armrest
-rect 1.05,0.48 0.12,0.42 texfill polyhaven/dark_wood 0.8
-rect 1.05,0.48 0.12,0.42 stroke #4a2800
+rect 1.4,0.72 0.16,0.63 texfill polyhaven/dark_wood 0.8
+rect 1.4,0.72 0.16,0.63 stroke #4a2800
 # Right armrest
-rect 1.83,0.48 0.12,0.42 texfill polyhaven/dark_wood 0.8
-rect 1.83,0.48 0.12,0.42 stroke #4a2800
+rect 2.44,0.72 0.16,0.63 texfill polyhaven/dark_wood 0.8
+rect 2.44,0.72 0.16,0.63 stroke #4a2800
 # Seat cushion
-rect 1.17,0.5 0.66,0.38 texfill polyhaven/velour_velvet 0.85
-rect 1.17,0.5 0.66,0.38 stroke #8b0000
+rect 1.56,0.75 0.88,0.57 texfill polyhaven/velour_velvet 0.85
+rect 1.56,0.75 0.88,0.57 stroke #8b0000

@@ -15,7 +15,7 @@ import {
 // ---------------------------------------------------------------------------
 
 function freshDungeon(rows = 20, cols = 30) {
-  state.dungeon = createEmptyDungeon('Test', rows, cols, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', rows, cols, 5, 'stone-dungeon', 1);
   state.currentLevel = 0;
   state.selectedCells = [];
   state.undoStack = [];
@@ -196,8 +196,10 @@ describe('resizeLevel', () => {
     expect(() => resizeLevel(0, -5)).toThrow(/positive integer/i);
   });
 
-  it('throws for non-integer rows', () => {
-    expect(() => resizeLevel(0, 3.5)).toThrow(/positive integer/i);
+  it('accepts float rows (rounds via resolution)', () => {
+    // With resolution=1, toInt(3.5) rounds to 4
+    resizeLevel(0, 3.5);
+    expect(state.dungeon.metadata.levels[0].numRows).toBe(4);
   });
 });
 
@@ -270,8 +272,11 @@ describe('addLevel', () => {
     expect(() => addLevel('Bad', 0)).toThrow(/positive integer/i);
   });
 
-  it('throws for non-integer rows', () => {
-    expect(() => addLevel('Bad', 3.5)).toThrow(/positive integer/i);
+  it('accepts float rows (rounds via resolution)', () => {
+    // With resolution=1, toInt(3.5) rounds to 4
+    addLevel('Rounded', 3.5);
+    const levels = state.dungeon.metadata.levels;
+    expect(levels[levels.length - 1].numRows).toBe(4);
   });
 
   it('can add multiple levels sequentially', () => {

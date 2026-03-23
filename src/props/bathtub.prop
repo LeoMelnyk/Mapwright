@@ -1,6 +1,6 @@
 name: Bathtub
 category: Misc
-footprint: 1x2
+footprint: 2x3
 facing: yes
 shadow: yes
 blocks_light: no
@@ -10,15 +10,15 @@ typical_count: single
 notes: Place against wall with space to approach
 ---
 # Outer tub
-ellipse 1.0,0.5 0.88,0.42 texfill polyhaven/marble_01 0.8
-ellipse 1.0,0.5 0.88,0.42 stroke #888888
+ellipse 1.5,1 1.32,0.84 texfill polyhaven/marble_01 0.8
+ellipse 1.5,1 1.32,0.84 stroke #888888
 # Inner water surface
-ellipse 1.0,0.5 0.72,0.3 fill #4a7799 0.70
-ellipse 1.0,0.5 0.72,0.3 stroke #6688aa
+ellipse 1.5,1 1.08,0.6 fill #4a7799 0.70
+ellipse 1.5,1 1.08,0.6 stroke #6688aa
 # Drain
-circle 1.0,0.5 0.05 fill #333333 0.6
+circle 1.5,1 0.0875 fill #333333 0.6
 # Claw feet
-circle 0.15,0.15 0.05 fill #888888 0.6
-circle 1.85,0.15 0.05 fill #888888 0.6
-circle 0.15,0.85 0.05 fill #888888 0.6
-circle 1.85,0.85 0.05 fill #888888 0.6
+circle 0.225,0.3 0.0875 fill #888888 0.6
+circle 2.775,0.3 0.0875 fill #888888 0.6
+circle 0.225,1.7 0.0875 fill #888888 0.6
+circle 2.775,1.7 0.0875 fill #888888 0.6

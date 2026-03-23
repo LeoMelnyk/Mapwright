@@ -3,9 +3,11 @@ import {
   validateBounds, isInBounds,
   classifyStairShape, isDegenerate, getOccupiedCells,
   isBridgeDegenerate, getBridgeOccupiedCells,
+  toInt,
 } from './_shared.js';
 
 export function setStairs(row, col, direction) {
+  // Note: toInt conversion happens inside addStairs, so pass display coords
   if (direction === 'up' || direction === 'down') {
     return getApi().addStairs(row, col, row, col + 1, row + 1, col + 1);
   }
@@ -13,6 +15,9 @@ export function setStairs(row, col, direction) {
 }
 
 export function addStairs(p1r, p1c, p2r, p2c, p3r, p3c) {
+  p1r = toInt(p1r); p1c = toInt(p1c);
+  p2r = toInt(p2r); p2c = toInt(p2c);
+  p3r = toInt(p3r); p3c = toInt(p3c);
   const p1 = [p1r, p1c], p2 = [p2r, p2c], p3 = [p3r, p3c];
   if (isDegenerate(p1, p2, p3)) {
     throw new Error('Degenerate stair shape (zero area)');
@@ -51,6 +56,7 @@ export function addStairs(p1r, p1c, p2r, p2c, p3r, p3c) {
 }
 
 export function removeStairs(row, col) {
+  row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   const id = cell?.center?.['stair-id'];
@@ -98,6 +104,7 @@ export function removeStairs(row, col) {
 }
 
 export function linkStairs(r1, c1, r2, c2) {
+  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   validateBounds(r1, c1);
   validateBounds(r2, c2);
   const id1 = state.dungeon.cells[r1]?.[c1]?.center?.['stair-id'];
@@ -134,6 +141,9 @@ export function addBridge(type, p1r, p1c, p2r, p2c, p3r, p3c) {
   const VALID_TYPES = ['wood', 'stone', 'rope', 'dock'];
   if (!VALID_TYPES.includes(type)) throw new Error(`Invalid bridge type: ${type}`);
 
+  p1r = toInt(p1r); p1c = toInt(p1c);
+  p2r = toInt(p2r); p2c = toInt(p2c);
+  p3r = toInt(p3r); p3c = toInt(p3c);
   const p1 = [p1r, p1c], p2 = [p2r, p2c], p3 = [p3r, p3c];
   if (isBridgeDegenerate(p1, p2, p3)) throw new Error('Degenerate bridge (zero depth)');
 
@@ -169,6 +179,7 @@ export function addBridge(type, p1r, p1c, p2r, p2c, p3r, p3c) {
 }
 
 export function removeBridge(row, col) {
+  row = toInt(row); col = toInt(col);
   const cell = state.dungeon.cells[row]?.[col];
   const id = cell?.center?.['bridge-id'];
   if (id == null) throw new Error(`Cell (${row}, ${col}) has no bridge`);

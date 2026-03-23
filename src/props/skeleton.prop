@@ -1,6 +1,6 @@
 name: Skeleton
 category: Misc
-footprint: 2x1
+footprint: 3x1
 facing: yes
 shadow: no
 blocks_light: no
@@ -11,31 +11,31 @@ clusters_with: bone-pile, corpse
 notes: Remains; scatter on floor. Vary rotation for natural look
 ---
 # Skull
-circle 0.5,0.2 0.14 fill #e8dcc8 0.7
-circle 0.5,0.2 0.14 stroke #b0a090
+circle 0.5,0.3 0.175 fill #e8dcc8 0.7
+circle 0.5,0.3 0.175 stroke #b0a090
 # Eye sockets
-circle 0.44,0.18 0.03 fill #1a1a1a 0.8
-circle 0.56,0.18 0.03 fill #1a1a1a 0.8
+circle 0.44,0.27 0.0375 fill #1a1a1a 0.8
+circle 0.56,0.27 0.0375 fill #1a1a1a 0.8
 # Ribcage
-rect 0.33,0.38 0.34,0.45 fill #e8dcc8 0.4
-rect 0.33,0.38 0.34,0.45 stroke #b0a090
+rect 0.33,0.57 0.34,0.675 fill #e8dcc8 0.4
+rect 0.33,0.57 0.34,0.675 stroke #b0a090
 # Rib lines
-line 0.36,0.45 0.64,0.45
-line 0.36,0.52 0.64,0.52
-line 0.36,0.59 0.64,0.59
-line 0.36,0.66 0.64,0.66
+line 0.36,0.675 0.64,0.675
+line 0.36,0.78 0.64,0.78
+line 0.36,0.885 0.64,0.885
+line 0.36,0.99 0.64,0.99
 # Spine
-line 0.5,0.34 0.5,0.9
+line 0.5,0.51 0.5,1.35
 # Arms
-line 0.33,0.42 0.1,0.62
-line 0.67,0.42 0.9,0.62
+line 0.33,0.63 0.1,0.93
+line 0.67,0.63 0.9,0.93
 # Hand bones
-line 0.1,0.62 0.05,0.68
-line 0.1,0.62 0.12,0.7
-line 0.9,0.62 0.95,0.68
-line 0.9,0.62 0.88,0.7
+line 0.1,0.93 0.05,1.02
+line 0.1,0.93 0.12,1.05
+line 0.9,0.93 0.95,1.02
+line 0.9,0.93 0.88,1.05
 # Leg bones
-line 0.4,0.9 0.32,1.3
-line 0.6,0.9 0.68,1.3
-line 0.32,1.3 0.28,1.85
-line 0.68,1.3 0.72,1.85
+line 0.4,1.35 0.32,1.95
+line 0.6,1.35 0.68,1.95
+line 0.32,1.95 0.28,2.775
+line 0.68,1.95 0.72,2.775

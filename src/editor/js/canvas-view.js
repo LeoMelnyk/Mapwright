@@ -1,8 +1,9 @@
 // Canvas element management, pan/zoom, mouse event routing
 import state, { getTheme, markDirty, notify, subscribe } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings } from '../../render/index.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, getContentVersion } from '../../render/index.js';
 import { showToast } from './toast.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
+import { displayGridSize as _dgs } from '../../util/index.js';
 import { initMinimap, updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
 
@@ -14,6 +15,45 @@ let canvas, ctx;
 let animFrameId = null;
 let animLoopId = null;  // separate handle for the continuous animation loop
 const _shownWarnings = new Set(); // dedup render warnings with 30s cooldown
+
+// FPS tracking
+let _fpsFrames = 0;
+let _fpsLastTime = 0;
+let _fpsValue = 0;
+let _lastFrameEnd = 0;
+let _frameGapMs = 0;
+
+// Raw rAF rate counter (independent of render calls)
+let _rafProbeCount = 0;
+let _rafProbeStart = 0;
+let _rafProbeHz = 0;
+if (typeof requestAnimationFrame === 'function') {
+  (function probeRAF() {
+    _rafProbeCount++;
+    const now = performance.now();
+    if (!_rafProbeStart) _rafProbeStart = now;
+    if (now - _rafProbeStart >= 1000) {
+      _rafProbeHz = _rafProbeCount;
+      _rafProbeCount = 0;
+      _rafProbeStart = now;
+    }
+    requestAnimationFrame(probeRAF);
+  })();
+}
+
+// ── Offscreen map cache ─────────────────────────────────────────────────────
+// renderCells is expensive (thousands of GPU commands). We render it once to an
+// offscreen canvas when the map data changes, then blit the cached image on every
+// frame. Pan/zoom becomes a single drawImage instead of re-rendering all cells.
+let _mapCache = null;   // { canvas, ctx, dirtySeq, cacheW, cacheH, texturesVersion }
+let _cellsCache = null; // { canvas, ctx, dirtySeq, cacheW, cacheH } — cells-only (no lightmap)
+let _mapDirtySeq = 0;   // bumped on any state change that requires re-render
+let _lastAnimClock = -1; // tracks animation clock for lightmap-only redraws
+let _lastContentVersion = 0;  // tracks smartInvalidate() calls for cache invalidation
+let _lastUndoSig = 0;         // tracks undo/redo stack changes for cache invalidation
+
+/** Force the offscreen map cache to rebuild on next frame. Call after theme/texture/feature changes. */
+export function invalidateMapCache() { _mapDirtySeq++; }
 
 // Cache for background image HTMLImageElement — avoids recreating every frame
 let _bgImgCache = { dataUrl: null, el: null };
@@ -124,16 +164,24 @@ export function setActiveTool(tool) {
   activeTool = tool;
 }
 
+// Debug: skip specific render phases to isolate GPU bottleneck.
+// Set via console: window._skipPhases = { shading: true, lighting: true }
+if (typeof window !== 'undefined') window._skipPhases = {};
+
 export function init(canvasEl) {
   canvas = canvasEl;
-  ctx = canvas.getContext('2d');
+  ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
   initMinimap(canvas);
 
   // Re-render when state changes (theme, features, metadata, etc.)
-  subscribe(() => { if (state.dirty) requestRender(); });
+  subscribe(() => {
+    if (state.dirty) {
+      requestRender();
+    }
+  });
 
   canvas.addEventListener('mousedown', onMouseDown);
   canvas.addEventListener('mousemove', onMouseMove);
@@ -164,8 +212,8 @@ function requestRender() {
  * This mirrors the Node renderer's transform but uses our zoom/pan.
  */
 function getTransform() {
-  const gridSize = state.dungeon.metadata.gridSize;
-  const scale = CELL_SIZE * state.zoom / gridSize; // pixels per foot
+  const { gridSize, resolution } = state.dungeon.metadata;
+  const scale = CELL_SIZE * state.zoom / _dgs(gridSize, resolution); // pixels per foot
   return {
     offsetX: state.panX,
     offsetY: state.panY,
@@ -178,8 +226,8 @@ export { getTransform };
 function render() {
   animFrameId = null;
   if (!canvas) return;
-
   const drawStart = performance.now();
+  if (_lastFrameEnd > 0) _frameGapMs = drawStart - _lastFrameEnd;
 
   const { dungeon } = state;
   const { cells, metadata } = dungeon;
@@ -197,8 +245,7 @@ function render() {
   ctx.fillStyle = theme.background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Draw editor corner dots over the full grid area (editor-only, void cells only appear after floor fills cover them)
-  drawEditorDots(ctx, numRows, numCols, gridSize, theme, transform);
+  const _skip = (typeof window !== 'undefined' && window._skipPhases) || {};
 
   // Render the dungeon cells (WYSIWYG)
   const showGrid = metadata.features?.showGrid !== false;
@@ -211,41 +258,142 @@ function render() {
   const bgImgConfig = metadata.backgroundImage ?? null;
   const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
 
-  // Viewport culling: compute visible cell range from pan/zoom transform
-  const cellPxSize = gridSize * transform.scale;
-  const CULL_MARGIN = 2; // extra cells for wall shadows and edge effects
-  const visibleBounds = cellPxSize > 0 ? {
-    minRow: Math.max(0, Math.floor(-transform.offsetY / cellPxSize) - CULL_MARGIN),
-    maxRow: Math.min(numRows - 1, Math.ceil((canvas.height - transform.offsetY) / cellPxSize) + CULL_MARGIN),
-    minCol: Math.max(0, Math.floor(-transform.offsetX / cellPxSize) - CULL_MARGIN),
-    maxCol: Math.min(numCols - 1, Math.ceil((canvas.width - transform.offsetX) / cellPxSize) + CULL_MARGIN),
-  } : null;
+  // ── Offscreen map cache ───────────────────────────────────────────────────
+  // Render the expensive cell pipeline + lighting to a cached bitmap.
+  // Only re-render when map data changes (dirtySeq bump). Pan/zoom just blits.
+  const MAP_PX_PER_FOOT = 10; // fixed render scale for the cache (matches GRID_SCALE)
+  const mapW = numCols * gridSize;
+  const mapH = numRows * gridSize;
+  const cacheW = Math.ceil(mapW * MAP_PX_PER_FOOT);
+  const cacheH = Math.ceil(mapH * MAP_PX_PER_FOOT);
+  // Don't cache if map is huge (>8000px in either dimension) — fallback to direct render
+  const useCache = cacheW <= 8000 && cacheH <= 8000 && !_skip.cells;
 
-  renderCells(ctx, cells, gridSize, theme, transform, {
-    showGrid, labelStyle, propCatalog: state.propCatalog, textureOptions, metadata,
-    skipLabels: lightingEnabled, showInvisible,
-    bgImageEl, bgImgConfig,
-    visibleBounds,
-  });
+  if (useCache) {
+    const texVer = state.texturesVersion ?? 0;
+    // Bump dirty seq on content mutation (smartInvalidate) or undo stack change
+    const cv = getContentVersion();
+    if (cv !== _lastContentVersion) { _mapDirtySeq++; _lastContentVersion = cv; }
+    const undoSig = (state.undoStack?.length || 0) * 10000 + (state.redoStack?.length || 0);
+    if (undoSig !== _lastUndoSig) { _mapDirtySeq++; _lastUndoSig = undoSig; }
+    const needsCellsRedraw = !_cellsCache || _cellsCache.dirtySeq !== _mapDirtySeq ||
+      _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH ||
+      _cellsCache.texturesVersion !== texVer;
 
-  // Lighting overlay (after cells, before decorations so borders stay visible)
-  if (lightingEnabled) {
-    const fillLights = extractFillLights(cells, gridSize, theme);
-    const allLights = fillLights.length
-      ? [...(metadata.lights || []), ...fillLights]
-      : (metadata.lights || []);
-    renderLightmap(ctx, allLights, cells, gridSize, transform,
-      canvas.width, canvas.height, metadata.ambientLight ?? 0.15,
-      state.textureCatalog, state.propCatalog,
-      { ambientColor: metadata.ambientColor || '#ffffff', time: state.animClock ?? 0 },
-      metadata);
-    // Draw labels after lightmap so they are unaffected by the multiply overlay
-    renderLabels(ctx, cells, gridSize, theme, transform, labelStyle);
-    // Coverage heatmap overlay (DM prep tool)
-    if (state.lightCoverageMode) {
-      renderCoverageHeatmap(ctx, metadata.lights, cells, gridSize, transform);
+    const animClock = state.animClock ?? 0;
+    const needsLightingRedraw = lightingEnabled && (needsCellsRedraw || animClock !== _lastAnimClock);
+    const needsRedraw = needsCellsRedraw || needsLightingRedraw;
+
+    if (needsRedraw) {
+      const _cacheStart = performance.now();
+      const cacheTransform = { scale: MAP_PX_PER_FOOT, offsetX: 0, offsetY: 0 };
+
+      // ── Cells cache (expensive — only rebuilds on content changes) ──
+      if (needsCellsRedraw) {
+        if (!_cellsCache || _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH) {
+          const offscreen = document.createElement('canvas');
+          offscreen.width = cacheW;
+          offscreen.height = cacheH;
+          _cellsCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: true }), dirtySeq: 0, cacheW, cacheH };
+        }
+
+        const offCtx = _cellsCache.ctx;
+        offCtx.clearRect(0, 0, cacheW, cacheH);
+
+        if (!_skip.dots) drawEditorDots(offCtx, numRows, numCols, gridSize, theme, cacheTransform);
+
+        renderCells(offCtx, cells, gridSize, theme, cacheTransform, {
+          showGrid: showGrid && !_skip.grid, labelStyle,
+          propCatalog: _skip.props ? null : state.propCatalog,
+          textureOptions: _skip.textures ? null : textureOptions,
+          metadata, skipLabels: lightingEnabled || _skip.labels, showInvisible,
+          bgImageEl, bgImgConfig,
+          cacheSize: { w: cacheW, h: cacheH },
+        });
+
+        _cellsCache.dirtySeq = _mapDirtySeq;
+        _cellsCache.texturesVersion = texVer;
+      }
+
+      // ── Composite cache (cells + lightmap — rebuilds on anim tick too) ──
+      if (!_mapCache || _mapCache.cacheW !== cacheW || _mapCache.cacheH !== cacheH) {
+        const offscreen = document.createElement('canvas');
+        offscreen.width = cacheW;
+        offscreen.height = cacheH;
+        _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: true }), dirtySeq: 0, cacheW, cacheH };
+      }
+
+      const compCtx = _mapCache.ctx;
+      compCtx.clearRect(0, 0, cacheW, cacheH);
+      compCtx.drawImage(_cellsCache.canvas, 0, 0);
+
+      if (lightingEnabled && !_skip.lighting) {
+        const fillLights = extractFillLights(cells, gridSize, theme);
+        const allLights = fillLights.length
+          ? [...(metadata.lights || []), ...fillLights]
+          : (metadata.lights || []);
+        renderLightmap(compCtx, allLights, cells, gridSize, cacheTransform,
+          cacheW, cacheH, metadata.ambientLight ?? 0.15,
+          state.textureCatalog, state.propCatalog,
+          { ambientColor: metadata.ambientColor || '#ffffff', time: animClock },
+          metadata);
+        renderLabels(compCtx, cells, gridSize, theme, cacheTransform, labelStyle);
+      }
+
+      _lastAnimClock = animClock;
+      _mapCache.dirtySeq = _mapDirtySeq;
+      _mapCache.texturesVersion = texVer;
+      renderTimings.cacheRebuild = performance.now() - _cacheStart;
     }
-    // Auto-manage animation loop based on whether animated lights exist
+
+    // Blit cached map with pan/zoom transform — single drawImage, fast GPU op
+    const _blitStart = performance.now();
+    const sx = transform.scale / MAP_PX_PER_FOOT; // scale from cache pixels to screen pixels
+    ctx.drawImage(_mapCache.canvas,
+      transform.offsetX, transform.offsetY,
+      cacheW * sx, cacheH * sx);
+    renderTimings.blit = performance.now() - _blitStart;
+
+  } else {
+    // Fallback: direct render (huge maps or skip mode)
+    const _dotsStart = performance.now();
+    if (!_skip.dots) drawEditorDots(ctx, numRows, numCols, gridSize, theme, transform);
+    renderTimings.dots = performance.now() - _dotsStart;
+
+    const cellPxSize = gridSize * transform.scale;
+    const CULL_MARGIN = 2;
+    const visibleBounds = cellPxSize > 0 ? {
+      minRow: Math.max(0, Math.floor(-transform.offsetY / cellPxSize) - CULL_MARGIN),
+      maxRow: Math.min(numRows - 1, Math.ceil((canvas.height - transform.offsetY) / cellPxSize) + CULL_MARGIN),
+      minCol: Math.max(0, Math.floor(-transform.offsetX / cellPxSize) - CULL_MARGIN),
+      maxCol: Math.min(numCols - 1, Math.ceil((canvas.width - transform.offsetX) / cellPxSize) + CULL_MARGIN),
+    } : null;
+
+    if (!_skip.cells) renderCells(ctx, cells, gridSize, theme, transform, {
+      showGrid: showGrid && !_skip.grid, labelStyle, propCatalog: _skip.props ? null : state.propCatalog, textureOptions: _skip.textures ? null : textureOptions, metadata,
+      skipLabels: lightingEnabled || _skip.labels, showInvisible,
+      bgImageEl, bgImgConfig,
+      visibleBounds,
+    });
+
+    if (lightingEnabled && !_skip.lighting) {
+      const _lightStart = performance.now();
+      const fillLights = extractFillLights(cells, gridSize, theme);
+      const allLights = fillLights.length
+        ? [...(metadata.lights || []), ...fillLights]
+        : (metadata.lights || []);
+      renderLightmap(ctx, allLights, cells, gridSize, transform,
+        canvas.width, canvas.height, metadata.ambientLight ?? 0.15,
+        state.textureCatalog, state.propCatalog,
+        { ambientColor: metadata.ambientColor || '#ffffff', time: state.animClock ?? 0 },
+        metadata);
+      renderTimings.lighting = performance.now() - _lightStart;
+      renderLabels(ctx, cells, gridSize, theme, transform, labelStyle);
+    }
+  }
+
+  // Auto-manage animation loop based on animated lights
+  if (lightingEnabled) {
     const hasAnimLights = (metadata.lights || []).some(l => l.animation?.type);
     if (hasAnimLights && !animLoopId) {
       animLoopId = setTimeout(tickAnimLoop, ANIM_INTERVAL_MS);
@@ -253,12 +401,16 @@ function render() {
       clearTimeout(animLoopId);
       animLoopId = null;
     }
+    if (state.lightCoverageMode) {
+      renderCoverageHeatmap(ctx, metadata.lights, cells, gridSize, transform);
+    }
   } else if (animLoopId) {
     clearTimeout(animLoopId);
     animLoopId = null;
   }
 
   // Feature decorations (rendered in dungeon coordinate space — pan/zoom with the map)
+  const _decoStart = performance.now();
   const features = metadata.features || {};
   if (features.border !== false) {
     drawBorderOnMap(ctx, cells, gridSize, theme, transform);
@@ -268,11 +420,12 @@ function render() {
     if (pos) drawCompassRoseScaled(ctx, pos.x, pos.y, theme, pos.scale);
   }
   if (features.scale !== false) {
-    drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform);
+    drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform, metadata.resolution);
   }
 
   // Draw dungeon title (and per-level titles on multi-level maps)
   drawDungeonTitleOnMap(ctx, cells, gridSize, theme, transform, metadata);
+  renderTimings.decorations = performance.now() - _decoStart;
 
   // Draw level separators
   if (metadata.levels && metadata.levels.length > 1) {
@@ -336,14 +489,46 @@ function render() {
 
   // Diagnostics overlay (topmost, fixed to canvas — not affected by pan/zoom)
   lastDrawMs = performance.now() - drawStart;
+  _lastFrameEnd = performance.now();
+  _fpsFrames++;
+  const now = performance.now();
+  if (now - _fpsLastTime >= 1000) {
+    _fpsValue = _fpsFrames;
+    _fpsFrames = 0;
+    _fpsLastTime = now;
+  }
   const editorSettings = getEditorSettings();
   if (editorSettings.fpsCounter === true || editorSettings.memoryUsage === true) {
     const lines = [];
     if (editorSettings.fpsCounter === true) {
       lines.push({
-        text: `Draw: ${lastDrawMs.toFixed(1)}ms`,
+        text: `Draw: ${lastDrawMs.toFixed(1)}ms | ${_fpsValue} fps | gap: ${_frameGapMs.toFixed(0)}ms | rAF: ${_rafProbeHz}Hz`,
         color: lastDrawMs < 8 ? '#4f4' : lastDrawMs < 16 ? '#ff4' : '#f44',
       });
+      // Grid info
+      const res = metadata.resolution || 1;
+      if (res > 1) {
+        lines.push({ text: `Grid: ${numRows}x${numCols} (res=${res})`, color: '#aaf' });
+      }
+      // Undo/interaction cost
+      if (state._lastPushUndoMs) {
+        const u = state._lastPushUndoMs;
+        lines.push({
+          text: `Undo: ${u.stringify.toFixed(1)}ms str, ${u.total.toFixed(1)}ms tot`,
+          color: u.stringify < 5 ? '#8f8' : u.stringify < 15 ? '#ff4' : '#f44',
+        });
+      }
+      // Per-phase render timings breakdown
+      const phases = ['blit', 'cacheRebuild', 'mouseMove', 'dots', 'roomCells', 'shading', 'floors', 'arcs', 'blending', 'fills', 'walls', 'bridges', 'grid', 'props', 'hazard', 'lighting', 'decorations'];
+      for (const phase of phases) {
+        const ms = renderTimings[phase];
+        if (ms != null && ms > 0.05) {
+          lines.push({
+            text: `  ${phase}: ${ms.toFixed(1)}ms`,
+            color: ms < 2 ? '#8f8' : ms < 5 ? '#ff4' : '#f44',
+          });
+        }
+      }
     }
     if (editorSettings.memoryUsage === true) {
       const mem = performance.memory;
@@ -399,14 +584,29 @@ function render() {
 
 function drawEditorDots(ctx, numRows, numCols, gridSize, theme, transform) {
   const DOT_RADIUS = 1.5;
+  const resolution = state.dungeon?.metadata?.resolution || 1;
+
+  // Only draw dots at display-cell boundaries (every `resolution` internal cells)
+  const step = resolution;
+
+  // Viewport culling: compute visible cell range
+  const cellPx = gridSize * transform.scale;
+  const minRow = cellPx > 0 ? Math.max(0, Math.floor(-transform.offsetY / cellPx) - 1) : 0;
+  const maxRow = cellPx > 0 ? Math.min(numRows, Math.ceil((ctx.canvas.height - transform.offsetY) / cellPx) + 1) : numRows;
+  const minCol = cellPx > 0 ? Math.max(0, Math.floor(-transform.offsetX / cellPx) - 1) : 0;
+  const maxCol = cellPx > 0 ? Math.min(numCols, Math.ceil((ctx.canvas.width - transform.offsetX) / cellPx) + 1) : numCols;
+
+  // Snap to display-cell boundaries
+  const startRow = Math.floor(minRow / step) * step;
+  const startCol = Math.floor(minCol / step) * step;
 
   ctx.save();
   ctx.fillStyle = theme.gridLine || '#888';
   ctx.globalAlpha = 0.5;
   ctx.beginPath();
 
-  for (let row = 0; row <= numRows; row++) {
-    for (let col = 0; col <= numCols; col++) {
+  for (let row = startRow; row <= maxRow; row += step) {
+    for (let col = startCol; col <= maxCol; col += step) {
       const p = toCanvas(col * gridSize, row * gridSize, transform);
       ctx.moveTo(p.x + DOT_RADIUS, p.y);
       ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2);
@@ -657,6 +857,7 @@ function onMouseDown(e) {
 }
 
 function onMouseMove(e) {
+  const _moveStart = performance.now();
   const pos = getMousePos(e);
 
   // Background cell measure mode — update drag end and skip normal routing
@@ -729,6 +930,7 @@ function onMouseMove(e) {
 
   requestRender();
   notify(); // update status bar
+  renderTimings.mouseMove = performance.now() - _moveStart;
 }
 
 function restoreToolCursor() {
@@ -826,8 +1028,8 @@ function onWheel(e) {
 
   // Alt+wheel → dispatch to active tool (rotation/scale)
   if (e.altKey && activeTool?.onWheel) {
-    const gridSize = state.dungeon.metadata.gridSize;
-    const transform = { scale: CELL_SIZE * state.zoom / gridSize, offsetX: state.panX, offsetY: state.panY };
+    const { gridSize, resolution } = state.dungeon.metadata;
+    const transform = { scale: CELL_SIZE * state.zoom / _dgs(gridSize, resolution), offsetX: state.panX, offsetY: state.panY };
     const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
     activeTool.onWheel(cell.row, cell.col, e.deltaY, e);
     return;
@@ -852,8 +1054,8 @@ function onWheel(e) {
  */
 function clampPan() {
   if (!canvas) return;
-  const gridSize = state.dungeon.metadata.gridSize;
-  const scale = CELL_SIZE * state.zoom / gridSize;
+  const { gridSize, resolution } = state.dungeon.metadata;
+  const scale = CELL_SIZE * state.zoom / _dgs(gridSize, resolution);
   const numRows = state.dungeon.cells.length;
   const numCols = state.dungeon.cells[0]?.length || 0;
   const mapPxW = numCols * gridSize * scale;
@@ -885,7 +1087,8 @@ export function zoomToFit() {
  * Falls back to panning Y only if canvas isn't available yet.
  */
 export function panToLevel(startRow, numRows) {
-  const gridSize = state.dungeon.metadata.gridSize;
+  const { gridSize, resolution } = state.dungeon.metadata;
+  const dgs = _dgs(gridSize, resolution);
   const numCols = state.dungeon.cells[0]?.length || 0;
   const margin = 40; // px padding around the level
 
@@ -898,12 +1101,12 @@ export function panToLevel(startRow, numRows) {
   const ch = canvas ? canvas.height : 600;
 
   // Zoom to fit: pick the smaller axis ratio so the whole level fits
-  const zoomX = (cw - margin * 2) / (worldW * (CELL_SIZE / gridSize));
-  const zoomY = (ch - margin * 2) / (worldH * (CELL_SIZE / gridSize));
+  const zoomX = (cw - margin * 2) / (worldW * (CELL_SIZE / dgs));
+  const zoomY = (ch - margin * 2) / (worldH * (CELL_SIZE / dgs));
   state.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.min(zoomX, zoomY)));
 
   // Recompute scale with new zoom
-  const scale = CELL_SIZE * state.zoom / gridSize;
+  const scale = CELL_SIZE * state.zoom / dgs;
 
   // Center the level in the viewport
   const levelPixelW = worldW * scale;

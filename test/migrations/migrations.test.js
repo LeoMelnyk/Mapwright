@@ -19,8 +19,8 @@ describe('CURRENT_FORMAT_VERSION', () => {
     expect(CURRENT_FORMAT_VERSION).toBeGreaterThan(0);
   });
 
-  it('equals 2 for the current codebase', () => {
-    expect(CURRENT_FORMAT_VERSION).toBe(2);
+  it('equals 3 for the current codebase', () => {
+    expect(CURRENT_FORMAT_VERSION).toBe(3);
   });
 });
 
@@ -37,7 +37,7 @@ describe('migrateToLatest', () => {
 
     expect(migrateHalfTextures).toHaveBeenCalledOnce();
     expect(migrateHalfTextures).toHaveBeenCalledWith(json);
-    expect(result.metadata.formatVersion).toBe(2);
+    expect(result.metadata.formatVersion).toBe(3);
     // v1->v2 creates metadata.props[]
     expect(result.metadata.props).toEqual([]);
   });
@@ -49,10 +49,10 @@ describe('migrateToLatest', () => {
   });
 
   it('does not apply any migration when formatVersion equals current', () => {
-    const json = { metadata: { formatVersion: 2, props: [] }, cells: [] };
+    const json = { metadata: { formatVersion: 3, props: [], resolution: 2 }, cells: [] };
     migrateToLatest(json);
     expect(migrateHalfTextures).not.toHaveBeenCalled();
-    expect(json.metadata.formatVersion).toBe(2);
+    expect(json.metadata.formatVersion).toBe(3);
   });
 
   it('logs warning and returns json unchanged for future version', () => {
@@ -109,7 +109,7 @@ describe('migrateToLatest', () => {
     };
     migrateToLatest(json);
 
-    expect(json.metadata.formatVersion).toBe(2);
+    expect(json.metadata.formatVersion).toBe(3);
     expect(json.metadata.props).toHaveLength(1);
     const p = json.metadata.props[0];
     expect(p.type).toBe('throne');

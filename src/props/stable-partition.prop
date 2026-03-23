@@ -1,6 +1,6 @@
 name: Stable Partition
 category: Structure
-footprint: 2x1
+footprint: 3x1
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,17 +11,17 @@ clusters_with: trough, hay-bale
 notes: Low wooden wall dividing stalls; place in rows to create stable stalls
 ---
 # Main partition wall (planks from above)
-rect 0.05,0.08 0.90,0.84 texfill polyhaven/weathered_planks 0.85
-rect 0.05,0.08 0.90,0.84 stroke #3a1f00
+rect 0.05,0.12 0.9,1.26 texfill polyhaven/weathered_planks 0.85
+rect 0.05,0.12 0.9,1.26 stroke #3a1f00
 # Plank seam lines
-line 0.05,0.30 0.95,0.30 stroke #2a1400 0.4
-line 0.05,0.55 0.95,0.55 stroke #2a1400 0.4
+line 0.05,0.45 0.95,0.45 stroke #2a1400 0.5
+line 0.05,0.825 0.95,0.825 stroke #2a1400 0.5
 # Support post left
-rect 0.02,0.05 0.12,0.90 fill #4a2800 0.5
-rect 0.02,0.05 0.12,0.90 stroke #3a1f00
+rect 0.02,0.075 0.12,1.35 fill #4a2800 0.5
+rect 0.02,0.075 0.12,1.35 stroke #3a1f00
 # Support post right
-rect 0.86,0.05 0.12,0.90 fill #4a2800 0.5
-rect 0.86,0.05 0.12,0.90 stroke #3a1f00
+rect 0.86,0.075 0.12,1.35 fill #4a2800 0.5
+rect 0.86,0.075 0.12,1.35 stroke #3a1f00
 # Gate latch (south side)
-rect 0.44,0.78 0.12,0.12 fill #888888 0.6
-rect 0.44,0.78 0.12,0.12 stroke #555555
+rect 0.44,1.17 0.12,0.18 fill #888888 0.6
+rect 0.44,1.17 0.12,0.18 stroke #555555

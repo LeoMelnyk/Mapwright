@@ -1,6 +1,6 @@
 name: Palm Tree
 category: Terrain
-footprint: 1x1
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: no
@@ -11,38 +11,38 @@ clusters_with: palm-tree, boulder
 notes: Tropical tree; cluster in small groups. Thin trunk doesn't block light
 ---
 # Trunk (thin, slightly curved — small circle from above)
-circle 0.50,0.52 0.06 texfill polyhaven/bark_brown_01 0.85
-circle 0.50,0.52 0.06 stroke #3a1f00
+circle 1,1.04 0.12 texfill polyhaven/bark_brown_01 0.85
+circle 1,1.04 0.12 stroke #3a1f00
 # Frond 1 (north)
-line 0.50,0.52 0.50,0.08 stroke #3a7a28 0.50
-line 0.50,0.08 0.38,0.05 stroke #2d5a1e 0.35
-line 0.50,0.08 0.62,0.05 stroke #2d5a1e 0.35
+line 1,1.04 1,0.16 stroke #3a7a28 1
+line 1,0.16 0.76,0.1 stroke #2d5a1e 0.7
+line 1,0.16 1.24,0.1 stroke #2d5a1e 0.7
 # Frond 2 (northeast)
-line 0.50,0.52 0.82,0.18 stroke #4a8a38 0.45
-line 0.82,0.18 0.90,0.10 stroke #2d5a1e 0.30
-line 0.82,0.18 0.78,0.08 stroke #2d5a1e 0.30
+line 1,1.04 1.64,0.36 stroke #4a8a38 0.9
+line 1.64,0.36 1.8,0.2 stroke #2d5a1e 0.6
+line 1.64,0.36 1.56,0.16 stroke #2d5a1e 0.6
 # Frond 3 (east)
-line 0.50,0.52 0.92,0.48 stroke #3a7a28 0.50
-line 0.92,0.48 0.95,0.38 stroke #2d5a1e 0.35
-line 0.92,0.48 0.96,0.56 stroke #2d5a1e 0.35
+line 1,1.04 1.84,0.96 stroke #3a7a28 1
+line 1.84,0.96 1.9,0.76 stroke #2d5a1e 0.7
+line 1.84,0.96 1.92,1.12 stroke #2d5a1e 0.7
 # Frond 4 (southeast)
-line 0.50,0.52 0.82,0.85 stroke #4a8a38 0.45
-line 0.82,0.85 0.90,0.92 stroke #2d5a1e 0.30
+line 1,1.04 1.64,1.7 stroke #4a8a38 0.9
+line 1.64,1.7 1.8,1.84 stroke #2d5a1e 0.6
 # Frond 5 (south)
-line 0.50,0.52 0.48,0.92 stroke #3a7a28 0.50
-line 0.48,0.92 0.38,0.96 stroke #2d5a1e 0.35
-line 0.48,0.92 0.58,0.96 stroke #2d5a1e 0.35
+line 1,1.04 0.96,1.84 stroke #3a7a28 1
+line 0.96,1.84 0.76,1.92 stroke #2d5a1e 0.7
+line 0.96,1.84 1.16,1.92 stroke #2d5a1e 0.7
 # Frond 6 (southwest)
-line 0.50,0.52 0.18,0.85 stroke #4a8a38 0.45
-line 0.18,0.85 0.10,0.92 stroke #2d5a1e 0.30
+line 1,1.04 0.36,1.7 stroke #4a8a38 0.9
+line 0.36,1.7 0.2,1.84 stroke #2d5a1e 0.6
 # Frond 7 (west)
-line 0.50,0.52 0.08,0.48 stroke #3a7a28 0.50
-line 0.08,0.48 0.04,0.38 stroke #2d5a1e 0.35
-line 0.08,0.48 0.04,0.56 stroke #2d5a1e 0.35
+line 1,1.04 0.16,0.96 stroke #3a7a28 1
+line 0.16,0.96 0.08,0.76 stroke #2d5a1e 0.7
+line 0.16,0.96 0.08,1.12 stroke #2d5a1e 0.7
 # Frond 8 (northwest)
-line 0.50,0.52 0.18,0.18 stroke #4a8a38 0.45
-line 0.18,0.18 0.10,0.10 stroke #2d5a1e 0.30
+line 1,1.04 0.36,0.36 stroke #4a8a38 0.9
+line 0.36,0.36 0.2,0.2 stroke #2d5a1e 0.6
 # Coconut cluster at center
-circle 0.46,0.48 0.03 fill #6b4e2e 0.6
-circle 0.54,0.48 0.03 fill #6b4e2e 0.6
-circle 0.50,0.44 0.03 fill #6b4e2e 0.6
+circle 0.92,0.96 0.06 fill #6b4e2e 0.6
+circle 1.08,0.96 0.06 fill #6b4e2e 0.6
+circle 1,0.88 0.06 fill #6b4e2e 0.6

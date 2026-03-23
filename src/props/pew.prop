@@ -1,6 +1,6 @@
 name: Pew
 category: Furniture
-footprint: 1x3
+footprint: 1x4
 facing: no
 shadow: no
 blocks_light: no
@@ -11,12 +11,12 @@ clusters_with: altar, lectern
 notes: Church seating; place in rows facing altar or lectern. Use lineProps for rows
 ---
 # Seat plank
-rect 0.05,0.25 2.9,0.5 texfill polyhaven/dark_wood 0.85
-rect 0.05,0.25 2.9,0.5 stroke #3a1f00
+rect 0.0667,0.25 3.8667,0.5 texfill polyhaven/dark_wood 0.85
+rect 0.0667,0.25 3.8667,0.5 stroke #3a1f00
 # Backrest
-rect 0.05,0.08 2.9,0.14 texfill polyhaven/dark_wood 0.8
-rect 0.05,0.08 2.9,0.14 stroke #3a1f00
+rect 0.0667,0.08 3.8667,0.14 texfill polyhaven/dark_wood 0.8
+rect 0.0667,0.08 3.8667,0.14 stroke #3a1f00
 # Support legs
-rect 0.15,0.22 0.06,0.56 fill #2a1500 0.6
-rect 1.47,0.22 0.06,0.56 fill #2a1500 0.6
-rect 2.79,0.22 0.06,0.56 fill #2a1500 0.6
+rect 0.2,0.22 0.08,0.56 fill #2a1500 0.6
+rect 1.96,0.22 0.08,0.56 fill #2a1500 0.6
+rect 3.72,0.22 0.08,0.56 fill #2a1500 0.6

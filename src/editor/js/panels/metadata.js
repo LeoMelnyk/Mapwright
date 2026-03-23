@@ -5,7 +5,7 @@ import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
 import { requestRender } from '../canvas-view.js';
 import { buildCustomEditor, syncCustomEditorValues, renderCustomThumb } from './theme-editor.js';
 
-const idle = typeof window !== 'undefined' && window.requestIdleCallback
+const idle = typeof window !== 'undefined' && false // bypass requestIdleCallback — starved by animated render loop
   ? (cb) => window.requestIdleCallback(cb)
   : (cb) => setTimeout(cb, 0);
 
@@ -143,7 +143,8 @@ export function init() {
       mapTitleEl.textContent = state.unsavedChanges ? `${name} *` : name;
     }
     if (nameInput) nameInput.value = state.dungeon.metadata.dungeonName || '';
-    gridSizeSelect.value = state.dungeon.metadata.gridSize || 5;
+    const res = state.dungeon.metadata.resolution || 1;
+    gridSizeSelect.value = (state.dungeon.metadata.gridSize || 5) * res;
 
     syncThemePicker();
     syncCustomEditorValues();
@@ -238,7 +239,8 @@ export function init() {
 
   gridSizeSelect.addEventListener('change', () => {
     pushUndo();
-    state.dungeon.metadata.gridSize = parseInt(gridSizeSelect.value);
+    const res = state.dungeon.metadata.resolution || 1;
+    state.dungeon.metadata.gridSize = parseInt(gridSizeSelect.value) / res;
     markDirty();
     notify();
   });

@@ -1,6 +1,6 @@
 name: Bone Shrine
 category: Religious
-footprint: 1x1
+footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,15 +11,15 @@ clusters_with: bone-pile, burial-urn, candle-cluster
 notes: Place against walls as macabre devotional sites
 ---
 # Stone base
-rect 0.15,0.15 0.7,0.7 texfill polyhaven/stone_floor 0.8
-rect 0.15,0.15 0.7,0.7 stroke
+rect 0.15,0.3 0.7,1.4 texfill polyhaven/stone_floor 0.8
+rect 0.15,0.3 0.7,1.4 stroke
 # Skull on top
-circle 0.5,0.4 0.15 fill #e8dcc8 0.85
-circle 0.5,0.4 0.15 stroke #b0a090
+circle 0.5,0.8 0.225 fill #e8dcc8 0.85
+circle 0.5,0.8 0.225 stroke #b0a090
 # Eye sockets
-circle 0.44,0.38 0.03 fill #1a1a1a 0.7
-circle 0.56,0.38 0.03 fill #1a1a1a 0.7
+circle 0.44,0.76 0.045 fill #1a1a1a 0.7
+circle 0.56,0.76 0.045 fill #1a1a1a 0.7
 # Bone fragments around
-line 0.22,0.72 0.38,0.68
-line 0.62,0.7 0.78,0.74
-line 0.3,0.8 0.45,0.78
+line 0.22,1.44 0.38,1.36
+line 0.62,1.4 0.78,1.48
+line 0.3,1.6 0.45,1.56

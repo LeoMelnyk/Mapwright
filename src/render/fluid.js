@@ -10,6 +10,12 @@ let _pitDataCache = { cells: null, pitSet: null, pitCells: null, groups: null, n
 // shading) so output is pixel-perfect at any zoom — no drawImage pixel scaling.
 let _fluidPathCache = { cells: null, gridSize: null, theme: null, data: null };
 
+// ── Rendered fluid layer cache ─────────────────────────────────────────────
+// Pre-rendered offscreen canvas of all fill patterns (pit/water/lava) at cache
+// resolution. Valid as long as _fluidPathCache is valid. Avoids re-rendering
+// thousands of Voronoi Path2D objects on every map cache rebuild.
+let _fluidRenderLayer = null;  // { canvas, w, h }
+
 function getCachedFluidCells(cells, roomCells, fillType) {
   if (_fluidCellsCache.cells !== cells) {
     _fluidCellsCache = { cells, water: null, lava: null };
@@ -452,9 +458,96 @@ export function getFluidPathCache(cells, gridSize, theme, roomCells) {
   return data;
 }
 
+/**
+ * Return a pre-rendered offscreen canvas containing all fluid fills at cache resolution.
+ * Returns null if there are no fluids. The canvas is cached and reused as long as the
+ * fluid path cache is valid and dimensions match.
+ *
+ * Arc void clips are NOT applied here — the caller applies them when blitting this layer
+ * onto the main cache canvas (avoids duplicating complex arc geometry code).
+ */
+export function getRenderedFluidLayer(data, gridSize, cacheW, cacheH) {
+  if (!data.pit && !data.water && !data.lava) return null;
+
+  // Return cached layer if still valid
+  if (_fluidRenderLayer && _fluidRenderLayer.w === cacheW && _fluidRenderLayer.h === cacheH &&
+      _fluidRenderLayer.pathCacheRef === _fluidPathCache) {
+    return _fluidRenderLayer.canvas;
+  }
+
+  // Create or resize the offscreen canvas
+  let offCanvas;
+  if (_fluidRenderLayer && _fluidRenderLayer.canvas) {
+    offCanvas = _fluidRenderLayer.canvas;
+    if (offCanvas.width !== cacheW || offCanvas.height !== cacheH) {
+      offCanvas.width = cacheW;
+      offCanvas.height = cacheH;
+    }
+  } else {
+    offCanvas = document.createElement('canvas');
+    offCanvas.width = cacheW;
+    offCanvas.height = cacheH;
+  }
+
+  const ctx = offCanvas.getContext('2d', { alpha: true });
+  ctx.clearRect(0, 0, cacheW, cacheH);
+
+  const MAP_PX_PER_FOOT = 10;
+  const sc = MAP_PX_PER_FOOT;
+
+  // World-space CTM — all cached Path2D coordinates are in world units
+  ctx.setTransform(sc, 0, 0, sc, 0, 0);
+
+  for (const fd of [data.pit, data.water, data.lava]) {
+    if (!fd) continue;
+    ctx.save();
+    ctx.clip(fd.clipPath);
+
+    // Batched fill pass
+    for (const [colorKey, path] of fd.fills) {
+      const rv = (colorKey >> 16) & 0xFF;
+      const gv = (colorKey >> 8) & 0xFF;
+      const bv = colorKey & 0xFF;
+      ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
+      ctx.fill(path);
+    }
+
+    if (fd.cracksPath) {
+      ctx.strokeStyle = fd.crackColor;
+      ctx.lineWidth = Math.max(0.3 / sc, 0.06);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke(fd.cracksPath);
+
+      for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
+        const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
+        grad.addColorStop(0, fd.vignetteColor);
+        grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        for (const [r2, c2] of group) {
+          ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
+        }
+      }
+    } else {
+      ctx.strokeStyle = fd.causticColor;
+      ctx.lineWidth = Math.max(0.5 / sc, 0.09);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke(fd.causticPath);
+    }
+
+    ctx.restore();
+  }
+
+  _fluidRenderLayer = { canvas: offCanvas, w: cacheW, h: cacheH, pathCacheRef: _fluidPathCache };
+  return offCanvas;
+}
+
 /** Call this whenever fluid/pit cell data is mutated in-place (same cells reference). */
 export function invalidateFluidCache() {
   _fluidPathCache  = { cells: null, gridSize: null, theme: null, data: null };
   _fluidCellsCache = { cells: null, water: null, lava: null };
   _pitDataCache    = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
+  _fluidRenderLayer = null;
 }

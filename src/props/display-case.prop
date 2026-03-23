@@ -1,6 +1,6 @@
 name: Display Case
 category: Decorative
-footprint: 1x2
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: no
@@ -10,21 +10,21 @@ typical_count: few
 notes: Showcase items; line along walls
 ---
 # Case frame (outer)
-rect 0.08,0.08 1.84,0.84 texfill polyhaven/dark_wood 0.75
-rect 0.08,0.08 1.84,0.84 stroke #3a1f00
+rect 0.08,0.16 1.84,1.68 texfill polyhaven/dark_wood 0.75
+rect 0.08,0.16 1.84,1.68 stroke #3a1f00
 # Glass interior
-rect 0.16,0.16 1.68,0.68 fill #aaccdd 0.20
-rect 0.16,0.16 1.68,0.68 stroke #556677 0.50
+rect 0.16,0.32 1.68,1.36 fill #aaccdd 0.20
+rect 0.16,0.32 1.68,1.36 stroke #556677 0.50
 # Glass glint
-line 0.18,0.18 0.40,0.18 stroke #ffffff 0.25
+line 0.18,0.36 0.4,0.36 stroke #ffffff 0.375
 # Velvet liner
-rect 0.18,0.18 1.64,0.64 texfill polyhaven/velour_velvet 0.25
+rect 0.18,0.36 1.64,1.28 texfill polyhaven/velour_velvet 0.25
 # Items on display
-ellipse 0.44,0.50 0.14,0.10 fill #daa520 0.80
-ellipse 0.44,0.50 0.14,0.10 stroke #8b6914
-circle 0.80,0.50 0.12 fill #cc4444 0.70
-circle 0.80,0.50 0.12 stroke #882222
-rect 1.10,0.38 0.16,0.24 fill #8899bb 0.70
-rect 1.10,0.38 0.16,0.24 stroke #445577
-circle 1.56,0.52 0.10 fill #44aa66 0.70
-circle 1.56,0.52 0.10 stroke #226644
+ellipse 0.44,1 0.14,0.2 fill #daa520 0.80
+ellipse 0.44,1 0.14,0.2 stroke #8b6914
+circle 0.8,1 0.18 fill #cc4444 0.70
+circle 0.8,1 0.18 stroke #882222
+rect 1.1,0.76 0.16,0.48 fill #8899bb 0.70
+rect 1.1,0.76 0.16,0.48 stroke #445577
+circle 1.56,1.04 0.15 fill #44aa66 0.70
+circle 1.56,1.04 0.15 stroke #226644

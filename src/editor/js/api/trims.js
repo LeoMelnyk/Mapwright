@@ -4,11 +4,14 @@ import {
   state, pushUndo, markDirty, notify,
   trimTool,
   validateBounds,
+  toInt,
+  captureBeforeState, smartInvalidate,
 } from './_shared.js';
 
 // ── Trim (reuses TrimTool._updatePreview + apply logic) ──────────────────
 
 export function createTrim(r1, c1, r2, c2, cornerOrOptions = {}, extraOptions = {}) {
+  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   validateBounds(r1, c1);
   validateBounds(r2, c2);
 
@@ -70,8 +73,14 @@ export function createTrim(r1, c1, r2, c2, cornerOrOptions = {}, extraOptions = 
   }
 
   // Apply — same logic as TrimTool.onMouseUp
-  pushUndo();
   const cells = state.dungeon.cells;
+  const trimCoords = [
+    ...preview.voided.map(({ row, col }) => ({ row, col })),
+    ...preview.hypotenuse.map(({ row, col }) => ({ row, col })),
+    ...(preview.insideArc || []).map(({ row, col }) => ({ row, col })),
+  ];
+  const before = captureBeforeState(cells, trimCoords);
+  pushUndo();
   const size = preview.hypotenuse.length;
 
   // Void interior (or clear walls in open mode)
@@ -178,6 +187,7 @@ export function createTrim(r1, c1, r2, c2, cornerOrOptions = {}, extraOptions = 
   state.trimOpen = prevOpen;
   trimTool.previewCells = null;
 
+  smartInvalidate(before, cells, { forceGeometry: true });
   markDirty();
   notify();
   return { success: true };

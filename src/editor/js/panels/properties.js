@@ -221,11 +221,11 @@ function renderThumbnails(catalog) {
 
   const theme = getTheme();
   const CANVAS_SIZE = 60;
-  const schedule = window.requestIdleCallback || ((fn) => setTimeout(fn, 0));
-
   let index = 0;
+  const BATCH_SIZE = 6; // render at least this many per tick regardless of idle budget
 
-  function renderBatch(deadline) {
+  function renderBatch() {
+    let rendered = 0;
     while (index < allThumbs.length) {
       const thumb = allThumbs[index];
       index++;
@@ -269,15 +269,16 @@ function renderThumbnails(catalog) {
         shimmer.replaceWith(canvas);
       }
 
-      // Yield if deadline expired (requestIdleCallback)
-      if (deadline && typeof deadline.timeRemaining === 'function' && deadline.timeRemaining() < 1) {
-        schedule(renderBatch);
+      rendered++;
+      // Yield after BATCH_SIZE to avoid blocking the main thread too long
+      if (rendered >= BATCH_SIZE) {
+        setTimeout(renderBatch, 0);
         return;
       }
     }
   }
 
-  schedule(renderBatch);
+  setTimeout(renderBatch, 0);
 }
 
 function updateSelectedThumb() {

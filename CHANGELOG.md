@@ -1,5 +1,69 @@
 # Changelog
 
+## v0.8.0
+
+### Half-Cell Resolution
+
+The grid system now supports half-cell precision. Internally, each display cell (5ft) is divided into 4 sub-cells (2.5ft each), allowing walls, doors, rooms, and features to be placed at half-cell boundaries. This gives map authors the same kind of freedom found in other map editors that divide cells into quarters.
+
+- **Coordinate system**: The API uses half-step coordinates (0, 0.5, 1, 1.5, ...) — existing integer coordinates remain fully compatible
+- **Internal storage**: Grid dimensions are doubled internally (`metadata.resolution = 2`, `gridSize` halved to 2.5ft) while the display grid stays at 5ft
+- **Auto-migration**: Existing `.mapwright` files seamlessly upgrade from format v2 to v3 on load — each cell splits into 4 sub-cells with walls, fills, textures, trims, stairs, and bridges correctly replicated
+- **Grid lines**: Primary grid drawn at 5ft display-cell boundaries; lighter sub-grid lines at 2.5ft internal-cell boundaries, toggleable via `features.showSubGrid` (enabled by default in editor, always hidden in player view)
+- **Scale indicator**: Correctly shows "1 square = 5 feet" (display grid size)
+
+### Rendering Performance
+
+- **Per-phase render layer caching**: Fills (water/lava/pit), texture blending, and props are each rendered to dedicated offscreen canvases that persist across map cache rebuilds. Only re-rendered when their specific inputs change (e.g. fluid cells, texture topology, prop list). Reduces cache rebuild from ~6500ms to ~25ms on complex 100×100 maps — a 99.6% reduction
+- **Content-driven cache invalidation**: Map cache rebuilds are now driven by `smartInvalidate()` content versioning instead of undo stack signatures, ensuring every cell mutation (including mid-drag wall placement) triggers an immediate visual update
+- **Offscreen map cache**: The expensive `renderCells` + lighting pipeline is rendered once to a cached offscreen canvas, then blitted to screen on pan/zoom/hover via a single `drawImage` — eliminates thousands of redundant GPU draw commands per frame
+- **Iterative flood fill**: Converted recursive `floodFillOutside` in floor rendering to an iterative stack-based approach, fixing stack overflow crashes on large grids (100×100+)
+- **Viewport culling**: Floor rendering and editor dots now skip off-screen cells
+- **Display-cell coalescing**: Floor base fill draws one display-cell-sized rect instead of 4 sub-cell rects where possible (4x fewer GPU commands)
+- **Editor dots**: Only drawn at display-cell boundaries with viewport culling (was iterating every internal cell)
+- **Outer shading Path2D**: Steps by resolution — ~2,500 arcs instead of ~10,000 for a 50x50 map
+- **Canvas context**: Uses `{ alpha: false, desynchronized: true }` for reduced compositor overhead
+- **GPU flags**: Electron configured with `ignore-gpu-blocklist`, `enable-accelerated-2d-canvas`, `enable-gpu-rasterization`, and `use-angle=gl` for maximum GPU utilization
+
+### Performance Diagnostics
+
+- **FPS counter enhanced**: Now shows actual fps, frame gap (time between frames), and canvas dimensions
+- **Per-phase render timings**: When FPS counter is enabled, displays timing breakdown for every render phase: dots, roomCells, shading, floors, arcs, blending, fills, walls, bridges, grid, props, hazard, lighting, decorations
+- **Interaction timing**: Shows `mouseMove` handler cost and `pushUndo` serialization time
+- **Cache status**: Shows `blit` (cached frame) vs `cacheRebuild` (full re-render) timing
+- **Phase skip debugging**: `window._skipPhases = { cells: true }` in console to disable render phases and isolate GPU bottlenecks
+
+### Prop Sizing Overhaul
+
+All 204 props reviewed and resized for the 2.5ft cell grid using real-world reference dimensions:
+
+- **84 props scaled up** to correct real-world proportions (e.g. throne 1x1→2x2, bed 2x1→3x2, forge 2x2→3x3, fountain 2x2→3x3, tree 2x2→3x3)
+- **120 props unchanged** — small items that fit naturally at 2.5ft (pillar, brazier, chair, candle, barrel, caltrops, etc.)
+- **Rowboat redesigned**: New 8x2 hull (20ft×5ft) with proper tapered shape, thwarts, oarlocks, and gunwale detail
+- **New prop: Boat** — 8x4 (20ft×10ft) sailing/fishing vessel with stern transom, mast step, rudder, and hull plank seams
+- Automated resize script (`tools/resize-props.js`) scales both footprints and draw commands proportionally
+
+### API Coordinate Translation
+
+All ~20 API methods now accept half-step display coordinates and convert to internal indices transparently:
+
+- **Input conversion**: `createRoom(2, 2, 4.5, 6.5)` creates a room with half-cell precision
+- **Output conversion**: `getRoomBounds`, `findWallBetween`, `listRooms`, `getMapInfo`, `getLevels` etc. return display coordinates
+- **Backward compatible**: Integer coordinates work identically to before
+- `getMapInfo` returns display dimensions (`rows`, `cols`, `gridSize`) plus new `resolution` field
+
+### Bug Fixes
+
+- **Lighting: void cell ambient bleed** — When the lighting system was enabled, ambient brightness was applied to void cells, darkening areas outside the dungeon. Void cells now receive full brightness (multiply-neutral white) so the lightmap has no effect on them
+
+### Migration
+
+- Format version bumped to 3 (v2→v3 migration)
+- Migration splits each cell into 4 sub-cells: replicates fill/texture/hazard, distributes outer walls to correct sub-cell edges, handles diagonal walls, trims, arc metadata, labels, stairs, and bridges
+- Props and lights unchanged (already stored in world-feet coordinates)
+
+---
+
 ## v0.7.1
 
 ### Bug Fixes

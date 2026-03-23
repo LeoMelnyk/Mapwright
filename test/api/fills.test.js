@@ -16,7 +16,7 @@ import {
 // ---------------------------------------------------------------------------
 
 function freshDungeon(rows = 20, cols = 30) {
-  state.dungeon = createEmptyDungeon('Test', rows, cols, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', rows, cols, 5, 'stone-dungeon', 1);
   state.currentLevel = 0;
   state.selectedCells = [];
   state.undoStack = [];

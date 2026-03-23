@@ -168,7 +168,7 @@ function buildDistMap(cells, roomCells, maxDist) {
 // canvas transform and strokes the cached paths at screen resolution.
 let _hatchCache = null;
 
-export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) {
+export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform, _resolution = 1) {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle === 'rocks') return;
 
@@ -176,7 +176,7 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
   const numCols = cells[0]?.length || 0;
   if (!numRows || !numCols) return;
 
-  const MAX_DIST = Math.round(theme.hatchDistance ?? 1);
+  const MAX_DIST = Math.round((theme.hatchDistance ?? 1) * 2);
   const size = theme.hatchSize ?? 0.5;
   const color = theme.hatchColor || theme.wallStroke;
   const mapW = numCols * gridSize, mapH = numRows * gridSize;
@@ -189,10 +189,10 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
       hc.maxDist !== MAX_DIST) {
 
     const dist = buildDistMap(cells, roomCells, MAX_DIST);
-    const tileWorld = gridSize * (1.5 + size * 3);
+    const tileWorld = gridSize * 2 * (1.5 + size * 3);
     const patternScale = tileWorld / HATCH_TILE_SIZE;
 
-    const bucketPaths = Array.from({ length: MAX_DIST + 1 }, () => new Path2D());
+    const hatchPath = new Path2D();
     const txMax = Math.ceil(mapW / tileWorld);
     const tyMax = Math.ceil(mapH / tileWorld);
 
@@ -208,13 +208,12 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
           if (cellRow < 0 || cellRow >= numRows || cellCol < 0 || cellCol >= numCols) continue;
           const d = dist[cellRow][cellCol];
           if (d > MAX_DIST) continue;
-          const path = bucketPaths[d];
           for (const line of p.cellLines) {
-            path.moveTo(
+            hatchPath.moveTo(
               line[0][0] * patternScale + offsetX,
               line[0][1] * patternScale + offsetY
             );
-            path.lineTo(
+            hatchPath.lineTo(
               line[1][0] * patternScale + offsetX,
               line[1][1] * patternScale + offsetY
             );
@@ -223,14 +222,7 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
       }
     }
 
-    const paths = [];
-    const opacities = [];
-    for (let d = 0; d <= MAX_DIST; d++) {
-      paths.push(bucketPaths[d]);
-      opacities.push(d === 0 ? 1.0 : Math.pow((MAX_DIST - d + 1) / MAX_DIST, 1.5));
-    }
-
-    _hatchCache = { cells, gridSize, size, maxDist: MAX_DIST, paths, opacities };
+    _hatchCache = { cells, gridSize, size, maxDist: MAX_DIST, path: hatchPath };
   }
 
   // Stroke cached Path2D objects at screen resolution
@@ -244,10 +236,8 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
   ctx.strokeStyle = color;
   ctx.lineWidth = Math.max(0.5 / transform.scale, 1 / GRID_SCALE);
   ctx.lineCap = 'round';
-  for (let d = 0; d <= MAX_DIST; d++) {
-    ctx.globalAlpha = theme.hatchOpacity * _hatchCache.opacities[d];
-    ctx.stroke(_hatchCache.paths[d]);
-  }
+  ctx.globalAlpha = theme.hatchOpacity;
+  ctx.stroke(_hatchCache.path);
   ctx.restore();
 }
 
@@ -257,7 +247,7 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
 // sets the canvas transform and strokes the cached paths at screen resolution.
 let _rockCache = null;
 
-export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transform) {
+export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transform, _resolution = 1) {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle !== 'rocks' && theme.hatchStyle !== 'both') return;
 
@@ -265,7 +255,7 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
   const numCols = cells[0]?.length || 0;
   if (!numRows || !numCols) return;
 
-  const MAX_DIST = Math.round(theme.hatchDistance ?? 1);
+  const MAX_DIST = Math.round((theme.hatchDistance ?? 1) * 2);
   const size = theme.hatchSize ?? 0.5;
   const color = theme.hatchColor || theme.wallStroke || '#000000';
   const mapW = numCols * gridSize, mapH = numRows * gridSize;
@@ -281,10 +271,7 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
     const tileWorld = gridSize * (8 + size * 8);
     const patternScale = tileWorld / WATER_TILE_SIZE;
 
-    // Build one Path2D per distance bucket in world coordinates
-    const paths = [];
-    const opacities = [];
-    const bucketPaths = Array.from({ length: MAX_DIST + 1 }, () => new Path2D());
+    const rockPath = new Path2D();
 
     const { bins: spatialBins, N: binCount, binSize } = WATER_SPATIAL;
     const txMax = Math.ceil(mapW / tileWorld);
@@ -304,6 +291,7 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
           for (let col = colMin; col <= colMax; col++) {
             const d = dist[r][col];
             if (d > MAX_DIST) continue;
+
             const txl0 = (col * gridSize - offsetX) / patternScale;
             const txl1 = ((col + 1) * gridSize - offsetX) / patternScale;
             const tyl0 = (r * gridSize - offsetY) / patternScale;
@@ -314,7 +302,6 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
             const byMax = Math.min(binCount - 1, Math.ceil(tyl1 / binSize) - 1);
             if (bxMin > bxMax || byMin > byMax) continue;
 
-            const path = bucketPaths[d];
             for (let by = byMin; by <= byMax; by++) {
               for (let bx = bxMin; bx <= bxMax; bx++) {
                 for (const p of spatialBins[by * binCount + bx]) {
@@ -323,14 +310,14 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
                   const verts = p.verts;
                   const wx0 = verts[0][0] * patternScale + offsetX;
                   const wy0 = verts[0][1] * patternScale + offsetY;
-                  path.moveTo(wx0, wy0);
+                  rockPath.moveTo(wx0, wy0);
                   for (let vi = 1; vi < verts.length; vi++) {
-                    path.lineTo(
+                    rockPath.lineTo(
                       verts[vi][0] * patternScale + offsetX,
                       verts[vi][1] * patternScale + offsetY
                     );
                   }
-                  path.closePath();
+                  rockPath.closePath();
                 }
               }
             }
@@ -339,12 +326,7 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
       }
     }
 
-    for (let d = 0; d <= MAX_DIST; d++) {
-      paths.push(bucketPaths[d]);
-      opacities.push(d === 0 ? 1.0 : Math.pow((MAX_DIST - d + 1) / MAX_DIST, 1.5));
-    }
-
-    _rockCache = { cells, gridSize, size, maxDist: MAX_DIST, paths, opacities };
+    _rockCache = { cells, gridSize, size, maxDist: MAX_DIST, path: rockPath };
   }
 
   // Stroke cached Path2D objects at screen resolution
@@ -359,10 +341,8 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
   ctx.lineWidth = (1.5 + size * 0.5) / GRID_SCALE;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  for (let d = 0; d <= MAX_DIST; d++) {
-    ctx.globalAlpha = theme.hatchOpacity * _rockCache.opacities[d];
-    ctx.stroke(_rockCache.paths[d]);
-  }
+  ctx.globalAlpha = theme.hatchOpacity;
+  ctx.stroke(_rockCache.path);
   ctx.restore();
 }
 
@@ -374,28 +354,36 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
 // The floor fills that follow paint over the room interior, leaving only the halo.
 let _outerShadingCache = null;
 
-export function drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform) {
+export function drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, resolution = 1) {
   if (!theme.outerShading?.color || !(theme.outerShading?.size > 0)) return;
 
   const { color, size, roughness = 0 } = theme.outerShading;
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
+  const step = resolution;
+  const displayGs = gridSize * step;
 
   // Rebuild Path2D cache if map data or shading params changed
   const oc = _outerShadingCache;
   if (!oc || oc.cells !== cells || oc.gridSize !== gridSize ||
-      oc.size !== size || oc.roughness !== roughness) {
+      oc.size !== size || oc.roughness !== roughness || oc.resolution !== resolution) {
 
     const path = new Path2D();
-    const worldRadius = gridSize * (0.5 + size / 10);
-    const roughAmp = roughness * 0.2 * gridSize;
+    const worldRadius = displayGs * (0.5 + size / 10);
+    const roughAmp = roughness * 0.2 * displayGs;
 
-    for (let row = 0; row < numRows; row++) {
-      for (let col = 0; col < numCols; col++) {
-        if (!roomCells[row][col]) continue;
+    // Step by resolution — one arc per display cell, not per sub-cell
+    for (let row = 0; row < numRows; row += step) {
+      for (let col = 0; col < numCols; col += step) {
+        // Check if any sub-cell is a room cell
+        let isRoom = false;
+        for (let dr = 0; dr < step && !isRoom; dr++)
+          for (let dc = 0; dc < step && !isRoom; dc++)
+            if (roomCells[row + dr]?.[col + dc]) isRoom = true;
+        if (!isRoom) continue;
 
-        const cx = (col + 0.5) * gridSize;
-        const cy = (row + 0.5) * gridSize;
+        const cx = (col + step * 0.5) * gridSize;
+        const cy = (row + step * 0.5) * gridSize;
 
         let radius = worldRadius;
         if (roughAmp > 0) {
@@ -409,7 +397,7 @@ export function drawOuterShading(ctx, cells, roomCells, gridSize, theme, transfo
       }
     }
 
-    _outerShadingCache = { cells, gridSize, size, roughness, path };
+    _outerShadingCache = { cells, gridSize, size, roughness, resolution, path };
   }
 
   // Fill cached path at screen resolution

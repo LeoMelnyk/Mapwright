@@ -3,6 +3,7 @@ import { toCanvas } from './bounds.js';
 
 // ─── Constants ─────
 const DOOR_LENGTH_MULT = 0.6;
+const DIAG_DOOR_LENGTH_MULT = 0.80 * Math.SQRT2; // Compensate for sqrt(2) diagonal length so door fills 80% of the diagonal
 const SECRET_FONT_MULT = 0.7;
 const STAIR_NUM_LINES = 6;
 const STAIR_HATCH_MARGIN = 0.08;
@@ -22,6 +23,9 @@ function scaleFactor(transform) {
  */
 function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridSize, transform) {
   const s = scaleFactor(transform);
+  // Compute wall span in grid units — normally 1, but resolution-aware calls may pass wider spans
+  const wallSpan = orientation === 'horizontal' ? Math.abs(x2 - x1) : Math.abs(y2 - y1);
+  const doorGridSize = wallSpan * gridSize; // use wall length for door sizing, not raw gridSize
   const fx1 = x1 * gridSize;
   const fy1 = y1 * gridSize;
   const fx2 = x2 * gridSize;
@@ -55,7 +59,7 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
     // Invisible door: ghost door symbol (only shown when wall/door tool is active)
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
-    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
+    const doorLength = doorGridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     ctx.save();
@@ -81,7 +85,6 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
     const doorThickness = 6 * s;
     if (orientation === 'horizontal') {
       ctx.fillRect(midX - halfDoorLength / 2, midY - doorThickness / 2, doorLength / 2 * 1.0, doorThickness);
-      // Draw dashes on door rect to distinguish from normal door
       ctx.strokeRect(midX - halfDoorLength / 2, midY - doorThickness / 2, doorLength / 2 * 1.0, doorThickness);
     } else {
       ctx.fillRect(midX - doorThickness / 2, midY - halfDoorLength / 2, doorThickness, doorLength / 2 * 1.0);
@@ -92,7 +95,7 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
+    const doorLength = doorGridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     ctx.strokeStyle = theme.wallStroke;
@@ -120,12 +123,12 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
       ctx.stroke();
     }
 
-    drawDoorAtPosition(ctx, midX, midY, orientation, theme, gridSize, transform);
+    drawDoorAtPosition(ctx, midX, midY, orientation, theme, doorGridSize, transform);
   } else if (borderType === 's') {
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
+    const doorLength = doorGridSize * transform.scale * DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     ctx.strokeStyle = theme.wallStroke;
@@ -153,7 +156,7 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
       ctx.stroke();
     }
 
-    drawSecretDoorAtPosition(ctx, midX, midY, orientation, theme, gridSize, transform);
+    drawSecretDoorAtPosition(ctx, midX, midY, orientation, theme, doorGridSize, transform);
   }
 }
 
@@ -271,21 +274,23 @@ function drawStairsInCell(ctx, cx, cy, stairType, theme, gridSize, hasLabel, tra
 /**
  * Render a diagonal border (wall, door, or secret door)
  */
-function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSize, transform) {
+function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSize, transform, _resolution = 1, span = 1) {
   const s = scaleFactor(transform);
   let fx1, fy1, fx2, fy2;
 
   if (diagonal === 'nw-se') {
     fx1 = col * gridSize;
     fy1 = row * gridSize;
-    fx2 = (col + 1) * gridSize;
-    fy2 = (row + 1) * gridSize;
+    fx2 = (col + span) * gridSize;
+    fy2 = (row + span) * gridSize;
   } else {
     fx1 = (col + 1) * gridSize;
     fy1 = row * gridSize;
-    fx2 = col * gridSize;
-    fy2 = (row + 1) * gridSize;
+    fx2 = (col + 1 - span) * gridSize;
+    fy2 = (row + span) * gridSize;
   }
+  // Scale door length to match the span
+  const doorGs = gridSize * span;
 
   const p1 = toCanvas(fx1, fy1, transform);
   const p2 = toCanvas(fx2, fy2, transform);
@@ -317,7 +322,7 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     // Invisible diagonal door: ghost diagonal door symbol
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
-    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
+    const doorLength = doorGs * transform.scale * DIAG_DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
     const diagonalLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
     const ratio = halfDoorLength / diagonalLength;
@@ -349,7 +354,7 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
+    const doorLength = doorGs * transform.scale * DIAG_DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     const diagonalLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
@@ -370,13 +375,13 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
 
-    drawDiagonalDoor(ctx, midX, midY, diagonal, theme, gridSize, transform);
+    drawDiagonalDoor(ctx, midX, midY, diagonal, theme, doorGs, transform);
 
   } else if (borderType === 's') {
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
 
-    const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
+    const doorLength = doorGs * transform.scale * DIAG_DOOR_LENGTH_MULT;
     const halfDoorLength = doorLength / 2;
 
     const diagonalLength = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
@@ -397,7 +402,7 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
 
-    drawDiagonalSecretDoor(ctx, midX, midY, diagonal, theme, gridSize, transform);
+    drawDiagonalSecretDoor(ctx, midX, midY, diagonal, theme, doorGs, transform);
   }
 }
 
@@ -448,83 +453,105 @@ function drawDiagonalSecretDoor(ctx, cx, cy, diagonal, theme, gridSize, transfor
 
 // ── Double Door Auto-Detection ──────────────────────────────────────────────
 
-function getDoubleDoorRole(cells, row, col, borderDirection) {
+function getDoubleDoorRole(cells, row, col, borderDirection, resolution = 1) {
+  return _getDoorRole(cells, row, col, borderDirection, resolution, 'cardinal');
+}
+
+/**
+ * Unified door role logic for both cardinal and diagonal directions.
+ *
+ * Groups sub-cells into display doors (pairs of `resolution`), then groups
+ * display doors into double doors (pairs of 2).
+ *
+ * Returns:
+ *   'anchor'      — first sub-cell of a double door (renders the double door)
+ *   'single-wide' — first sub-cell of a lone display door (renders single door at display scale)
+ *   'partner'     — skip (already rendered by an anchor or single-wide)
+ *   null          — leftover sub-cell, render at sub-cell scale
+ */
+function _getDoorRole(cells, row, col, direction, resolution, mode) {
   const cell = cells[row]?.[col];
   if (!cell) return null;
-  const bt = cell[borderDirection];
+  const bt = cell[direction];
   if (bt !== 'd' && bt !== 's') return null;
 
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
-  let prevR, prevC, nextR, nextC;
-  if (borderDirection === 'north' || borderDirection === 'south') {
-    prevR = row; prevC = col - 1;
-    nextR = row; nextC = col + 1;
+  // Step direction along the run
+  let dr, dc;
+  if (mode === 'cardinal') {
+    if (direction === 'north' || direction === 'south') { dr = 0; dc = 1; }
+    else { dr = 1; dc = 0; }
   } else {
-    prevR = row - 1; prevC = col;
-    nextR = row + 1; nextC = col;
+    // diagonal
+    if (direction === 'nw-se') { dr = 1; dc = 1; }
+    else { dr = 1; dc = -1; }
   }
 
-  const prevCell = (prevR >= 0 && prevR < numRows && prevC >= 0 && prevC < numCols)
-    ? cells[prevR]?.[prevC] : null;
-  if (prevCell && prevCell[borderDirection] === bt) {
-    return 'partner';
+  // Walk backwards to find run start
+  let startR = row, startC = col;
+  while (true) {
+    const pr = startR - dr, pc = startC - dc;
+    if (pr < 0 || pr >= numRows || pc < 0 || pc >= numCols) break;
+    if (cells[pr]?.[pc]?.[direction] !== bt) break;
+    startR = pr; startC = pc;
   }
 
-  const nextCell = (nextR >= 0 && nextR < numRows && nextC >= 0 && nextC < numCols)
-    ? cells[nextR]?.[nextC] : null;
-  if (nextCell && nextCell[borderDirection] === bt) {
-    return 'anchor';
+  // Count total run length
+  let runLen = 0;
+  let r = startR, c = startC;
+  while (r >= 0 && r < numRows && c >= 0 && c < numCols && cells[r]?.[c]?.[direction] === bt) {
+    runLen++;
+    r += dr; c += dc;
   }
 
+  // Position = number of steps from run start (not Manhattan distance)
+  const posInRun = dr !== 0 ? Math.abs(row - startR) : Math.abs(col - startC);
+
+  // Group into display doors, then pair display doors into doubles
+  const numDisplayDoors = Math.floor(runLen / resolution);
+  const numDoublePairs = Math.floor(numDisplayDoors / 2);
+  const leftoverDisplayDoors = numDisplayDoors % 2;
+
+  // Zone boundaries (in sub-cell positions from run start)
+  const doubleZoneEnd = numDoublePairs * 2 * resolution;
+  const singleWideZoneEnd = doubleZoneEnd + leftoverDisplayDoors * resolution;
+  // Anything past singleWideZoneEnd is leftover sub-cells → null
+
+  if (posInRun < doubleZoneEnd) {
+    // Inside a double-door zone
+    // Each double door spans 2*resolution sub-cells
+    const posInDouble = posInRun % (2 * resolution);
+    return posInDouble === 0 ? 'anchor' : 'partner';
+  }
+
+  if (posInRun < singleWideZoneEnd) {
+    // Inside a single-wide (display door) zone
+    const posInSingle = posInRun - doubleZoneEnd;
+    return posInSingle === 0 ? 'single-wide' : 'partner';
+  }
+
+  // Leftover sub-cell — render at sub-cell scale
   return null;
 }
 
-function getDoubleDoorDiagonalRole(cells, row, col, diagonal) {
-  const cell = cells[row]?.[col];
-  if (!cell) return null;
-  const bt = cell[diagonal];
-  if (bt !== 'd' && bt !== 's') return null;
-
-  const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
-
-  let prevR, prevC, nextR, nextC;
-  if (diagonal === 'nw-se') {
-    prevR = row - 1; prevC = col - 1;
-    nextR = row + 1; nextC = col + 1;
-  } else {
-    prevR = row - 1; prevC = col + 1;
-    nextR = row + 1; nextC = col - 1;
-  }
-
-  const prevCell = (prevR >= 0 && prevR < numRows && prevC >= 0 && prevC < numCols)
-    ? cells[prevR]?.[prevC] : null;
-  if (prevCell && prevCell[diagonal] === bt) {
-    return 'partner';
-  }
-
-  const nextCell = (nextR >= 0 && nextR < numRows && nextC >= 0 && nextC < numCols)
-    ? cells[nextR]?.[nextC] : null;
-  if (nextCell && nextCell[diagonal] === bt) {
-    return 'anchor';
-  }
-
-  return null;
+function getDoubleDoorDiagonalRole(cells, row, col, diagonal, resolution = 1) {
+  return _getDoorRole(cells, row, col, diagonal, resolution, 'diagonal');
 }
 
-function renderDoubleBorder(ctx, cells, row, col, borderDirection, borderType, orientation, theme, gridSize, transform) {
+function renderDoubleBorder(ctx, cells, row, col, borderDirection, borderType, orientation, theme, gridSize, transform, resolution = 1) {
   const s = scaleFactor(transform);
+  const span = 2 * resolution; // double door spans 2 display cells = 2*resolution sub-cells
   let gx1, gy1, gx2, gy2;
   if (borderDirection === 'north') {
-    gx1 = col; gy1 = row; gx2 = col + 2; gy2 = row;
+    gx1 = col; gy1 = row; gx2 = col + span; gy2 = row;
   } else if (borderDirection === 'south') {
-    gx1 = col; gy1 = row + 1; gx2 = col + 2; gy2 = row + 1;
+    gx1 = col; gy1 = row + 1; gx2 = col + span; gy2 = row + 1;
   } else if (borderDirection === 'west') {
-    gx1 = col; gy1 = row; gx2 = col; gy2 = row + 2;
+    gx1 = col; gy1 = row; gx2 = col; gy2 = row + span;
   } else if (borderDirection === 'east') {
-    gx1 = col + 1; gy1 = row; gx2 = col + 1; gy2 = row + 2;
+    gx1 = col + 1; gy1 = row; gx2 = col + 1; gy2 = row + span;
   }
 
   const p1 = toCanvas(gx1 * gridSize, gy1 * gridSize, transform);
@@ -533,7 +560,7 @@ function renderDoubleBorder(ctx, cells, row, col, borderDirection, borderType, o
   const midX = (p1.x + p2.x) / 2;
   const midY = (p1.y + p2.y) / 2;
 
-  const doubleDoorLength = gridSize * transform.scale * 1.6;
+  const doubleDoorLength = gridSize * (resolution || 1) * transform.scale * 1.6;
   const halfDoorLength = doubleDoorLength / 2;
 
   ctx.strokeStyle = theme.wallStroke;
@@ -562,29 +589,25 @@ function renderDoubleBorder(ctx, cells, row, col, borderDirection, borderType, o
     ctx.stroke();
   }
 
+  const displayGs = gridSize * (resolution || 1);
   if (borderType === 'd') {
-    drawDoubleDoorAtPosition(ctx, midX, midY, orientation, theme, gridSize, transform);
+    drawDoubleDoorAtPosition(ctx, midX, midY, orientation, theme, displayGs, transform);
   } else if (borderType === 's') {
-    drawDoubleSecretDoorAtPosition(ctx, midX, midY, orientation, theme, gridSize, transform);
+    drawDoubleSecretDoorAtPosition(ctx, midX, midY, orientation, theme, displayGs, transform);
   }
 }
 
-function renderDiagonalDoubleBorder(ctx, cells, row, col, borderType, diagonal, theme, gridSize, transform) {
+function renderDiagonalDoubleBorder(ctx, cells, row, col, borderType, diagonal, theme, gridSize, transform, resolution = 1) {
   const s = scaleFactor(transform);
-  let partnerRow, partnerCol;
-  if (diagonal === 'nw-se') {
-    partnerRow = row + 1; partnerCol = col + 1;
-  } else {
-    partnerRow = row + 1; partnerCol = col - 1;
-  }
+  const span = 2 * resolution; // double door spans 2 display cells
 
   let fx1, fy1, fx2, fy2;
   if (diagonal === 'nw-se') {
-    fx1 = col * gridSize;              fy1 = row * gridSize;
-    fx2 = (partnerCol + 1) * gridSize; fy2 = (partnerRow + 1) * gridSize;
+    fx1 = col * gridSize;            fy1 = row * gridSize;
+    fx2 = (col + span) * gridSize;   fy2 = (row + span) * gridSize;
   } else {
-    fx1 = (col + 1) * gridSize;        fy1 = row * gridSize;
-    fx2 = partnerCol * gridSize;        fy2 = (partnerRow + 1) * gridSize;
+    fx1 = (col + 1) * gridSize;          fy1 = row * gridSize;
+    fx2 = (col + 1 - span) * gridSize;   fy2 = (row + span) * gridSize;
   }
 
   const p1 = toCanvas(fx1, fy1, transform);
@@ -592,7 +615,7 @@ function renderDiagonalDoubleBorder(ctx, cells, row, col, borderType, diagonal, 
   const midX = (p1.x + p2.x) / 2;
   const midY = (p1.y + p2.y) / 2;
 
-  const doubleDoorLength = gridSize * transform.scale * 1.6;
+  const doubleDoorLength = gridSize * (resolution || 1) * transform.scale * (2 * DIAG_DOOR_LENGTH_MULT);
   const halfDoorLength = doubleDoorLength / 2;
 
   const diagLen = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
@@ -614,10 +637,11 @@ function renderDiagonalDoubleBorder(ctx, cells, row, col, borderType, diagonal, 
   ctx.lineTo(p2.x, p2.y);
   ctx.stroke();
 
+  const displayGs = gridSize * (resolution || 1);
   if (borderType === 'd') {
-    drawDiagonalDoubleDoor(ctx, midX, midY, diagonal, theme, gridSize, transform);
+    drawDiagonalDoubleDoor(ctx, midX, midY, diagonal, theme, displayGs, transform);
   } else if (borderType === 's') {
-    drawDiagonalDoubleSecretDoor(ctx, midX, midY, diagonal, theme, gridSize, transform);
+    drawDiagonalDoubleSecretDoor(ctx, midX, midY, diagonal, theme, displayGs, transform);
   }
 }
 
@@ -670,7 +694,7 @@ function drawDoubleSecretDoorAtPosition(ctx, cx, cy, orientation, theme, gridSiz
 
 function drawDiagonalDoubleDoor(ctx, cx, cy, diagonal, theme, gridSize, transform) {
   const s = scaleFactor(transform);
-  const totalLength = gridSize * transform.scale * 1.6;
+  const totalLength = gridSize * transform.scale * (2 * DIAG_DOOR_LENGTH_MULT);
   const doorThickness = 6 * s;
   const panelLength = totalLength / 2;
   const gap = 2 * s;

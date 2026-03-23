@@ -149,7 +149,7 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
     }
 
     if (features.scale) {
-      drawScaleIndicator(ctx, width / 2, height - 20, gridSize, theme);
+      drawScaleIndicator(ctx, width / 2, height - 20, gridSize, theme, config.metadata.resolution);
     }
     if (features.border) {
       drawBorder(ctx, width, height, theme, features.border);
@@ -212,7 +212,7 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
       if (compassPos) drawCompassRose(ctx, compassPos.x, compassPos.y, theme);
     }
     if (features.scale) {
-      drawScaleIndicator(ctx, width / 2, height - 20, gridSize, theme);
+      drawScaleIndicator(ctx, width / 2, height - 20, gridSize, theme, config.metadata.resolution);
     }
     if (features.border) {
       drawBorder(ctx, width, height, theme, features.border);

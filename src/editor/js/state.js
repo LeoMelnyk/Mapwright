@@ -93,10 +93,15 @@ export function getTheme() {
  * @param {string} [label='Edit'] — description shown in the history panel.
  */
 export function pushUndo(label = 'Edit') {
-  state.undoStack.push({ json: JSON.stringify(state.dungeon), label });
+  const _t0 = performance.now();
+  const json = JSON.stringify(state.dungeon);
+  const _t1 = performance.now();
+  state.undoStack.push({ json, label });
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack.length = 0;
   markPropSpatialDirty();
+  const _t2 = performance.now();
+  state._lastPushUndoMs = { stringify: _t1 - _t0, total: _t2 - _t0 };
 }
 
 /**

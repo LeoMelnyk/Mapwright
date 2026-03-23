@@ -16,7 +16,7 @@ import {
 // ── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
-  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon', 1);
   state.currentLevel = 0;
   state.selectedCells = [];
   state.undoStack = [];
@@ -222,7 +222,7 @@ describe('addBridge', () => {
   it('accepts all valid types', () => {
     for (const type of ['wood', 'stone', 'rope', 'dock']) {
       // Reset state for each
-      state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
+      state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon', 1);
       for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 5; c++) {
           state.dungeon.cells[r][c] = {};

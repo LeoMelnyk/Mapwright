@@ -1,6 +1,6 @@
 name: Cabinet
 category: Furniture
-footprint: 1x1
+footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: yes
@@ -11,7 +11,7 @@ clusters_with: desk, bookshelf
 notes: Storage furniture; place against walls
 ---
 # Top surface
-rect 0.08,0.08 0.84,0.84 texfill polyhaven/wood_cabinet_worn_long 0.85
-rect 0.08,0.08 0.84,0.84 stroke #3a1f00
+rect 0.08,0.16 0.84,1.68 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.08,0.16 0.84,1.68 stroke #3a1f00
 # Door seam
-line 0.5,0.12 0.5,0.88
+line 0.5,0.24 0.5,1.76

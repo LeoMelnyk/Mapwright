@@ -1577,6 +1577,12 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   align-items: center;
 }
 
+#status-left {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 #status-center {
   text-align: center;
 }

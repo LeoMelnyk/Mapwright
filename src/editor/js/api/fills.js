@@ -1,13 +1,17 @@
 import {
   state, pushUndo, markDirty, notify,
   validateBounds, ensureCell,
+  toInt,
+  captureBeforeState, smartInvalidate,
 } from './_shared.js';
 
 export function setFill(row, col, fillType, depth) {
+  row = toInt(row); col = toInt(col);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
     throw new Error(`Invalid fill type: ${fillType}. Use 'pit', 'water', or 'lava'. For hazard, use setHazard().`);
   }
   const cell = ensureCell(row, col);
+  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
   cell.fill = fillType;
   const d = (depth >= 1 && depth <= 3) ? depth : 1;
@@ -21,24 +25,30 @@ export function setFill(row, col, fillType, depth) {
     delete cell.waterDepth;
     delete cell.lavaDepth;
   }
+  smartInvalidate(before, state.dungeon.cells);
   markDirty();
   notify();
   return { success: true };
 }
 
 export function removeFill(row, col) {
+  row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell?.fill) return { success: true };
+  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
   delete cell.fill;
+  smartInvalidate(before, state.dungeon.cells);
   markDirty();
   notify();
   return { success: true };
 }
 
 export function setHazard(row, col, enabled = true) {
+  row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
+  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
   if (enabled) {
     cell.hazard = true;
@@ -46,12 +56,14 @@ export function setHazard(row, col, enabled = true) {
   } else {
     delete cell.hazard;
   }
+  smartInvalidate(before, state.dungeon.cells);
   markDirty();
   notify();
   return { success: true };
 }
 
 export function setFillRect(r1, c1, r2, c2, fillType, depth) {
+  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
     throw new Error(`Invalid fill type: "${fillType}" (expected: pit, water, lava). For hazard, use setHazardRect().`);
   }
@@ -59,6 +71,9 @@ export function setFillRect(r1, c1, r2, c2, fillType, depth) {
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
+  const coords = [];
+  for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
+  const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
   const wd = (depth >= 1 && depth <= 3) ? depth : 1;
   for (let r = minR; r <= maxR; r++) {
@@ -79,16 +94,21 @@ export function setFillRect(r1, c1, r2, c2, fillType, depth) {
       }
     }
   }
+  smartInvalidate(before, state.dungeon.cells);
   markDirty();
   notify();
   return { success: true };
 }
 
 export function setHazardRect(r1, c1, r2, c2, enabled = true) {
+  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
+  const coords = [];
+  for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
+  const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
   for (let r = minR; r <= maxR; r++) {
     for (let c = minC; c <= maxC; c++) {
@@ -103,16 +123,21 @@ export function setHazardRect(r1, c1, r2, c2, enabled = true) {
       }
     }
   }
+  smartInvalidate(before, state.dungeon.cells);
   markDirty();
   notify();
   return { success: true };
 }
 
 export function removeFillRect(r1, c1, r2, c2) {
+  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
+  const coords = [];
+  for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
+  const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
   for (let r = minR; r <= maxR; r++) {
     for (let c = minC; c <= maxC; c++) {
@@ -120,6 +145,7 @@ export function removeFillRect(r1, c1, r2, c2) {
       if (cell) delete cell.fill;
     }
   }
+  smartInvalidate(before, state.dungeon.cells);
   markDirty();
   notify();
   return { success: true };

@@ -1,6 +1,6 @@
 name: Vanity Table
 category: Furniture
-footprint: 1x1
+footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: no
@@ -11,21 +11,21 @@ clusters_with: chair, stool
 notes: Dressing table with mirror; place against wall with chair in front
 ---
 # Table surface
-rect 0.10,0.20 0.80,0.65 texfill polyhaven/wood_table 0.85
-rect 0.10,0.20 0.80,0.65 stroke #5c3a1e
+rect 0.2,0.2 1.6,0.65 texfill polyhaven/wood_table 0.85
+rect 0.2,0.2 1.6,0.65 stroke #5c3a1e
 # Mirror frame (thin edge along north wall)
-rect 0.15,0.06 0.70,0.12 texfill polyhaven/dark_wood 0.9
-rect 0.15,0.06 0.70,0.12 stroke #3a1f00
+rect 0.3,0.06 1.4,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.3,0.06 1.4,0.12 stroke #3a1f00
 # Mirror glass reflection (barely visible from above)
-rect 0.18,0.08 0.64,0.08 fill #aaccdd 0.3
+rect 0.36,0.08 1.28,0.08 fill #aaccdd 0.3
 # Cosmetics on table
-circle 0.30,0.45 0.04 fill #cc6688 0.5
-circle 0.45,0.40 0.05 fill #aaaacc 0.4
-circle 0.62,0.48 0.03 fill #daa520 0.5
+circle 0.6,0.45 0.06 fill #cc6688 0.5
+circle 0.9,0.4 0.075 fill #aaaacc 0.4
+circle 1.24,0.48 0.045 fill #daa520 0.5
 # Brush
-line 0.68,0.35 0.78,0.50 stroke #5c3a1e
+line 1.36,0.35 1.56,0.5 stroke #5c3a1e
 # Leg shadows
-circle 0.18,0.28 0.04 fill #3a1f00 0.4
-circle 0.82,0.28 0.04 fill #3a1f00 0.4
-circle 0.18,0.78 0.04 fill #3a1f00 0.4
-circle 0.82,0.78 0.04 fill #3a1f00 0.4
+circle 0.36,0.28 0.06 fill #3a1f00 0.4
+circle 1.64,0.28 0.06 fill #3a1f00 0.4
+circle 0.36,0.78 0.06 fill #3a1f00 0.4
+circle 1.64,0.78 0.06 fill #3a1f00 0.4
