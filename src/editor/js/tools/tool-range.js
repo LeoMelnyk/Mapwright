@@ -111,7 +111,7 @@ export class RangeTool extends Tool {
     this.hoverCell = null;
   }
 
-  onRightClick(_row, _col, _edge, _event) {
+  onRightClick() {
     this._clearCommitted();
     this._clearRemote();
     this._requestRender();

@@ -152,7 +152,7 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
       drawScaleIndicator(ctx, width / 2, height - 20, gridSize, theme, config.metadata.resolution);
     }
     if (features.border) {
-      drawBorder(ctx, width, height, theme, features.border);
+      drawBorder(ctx, width, height, theme);
     }
 
   } else {
@@ -215,7 +215,7 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
       drawScaleIndicator(ctx, width / 2, height - 20, gridSize, theme, config.metadata.resolution);
     }
     if (features.border) {
-      drawBorder(ctx, width, height, theme, features.border);
+      drawBorder(ctx, width, height, theme);
     }
   }
 }

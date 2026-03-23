@@ -38,7 +38,6 @@ function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showG
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const resolution = metadata?.resolution || 1;
-  const _showSubGrid = metadata?.features?.showSubGrid !== false; // default true
 
   ctx.lineCap = 'butt';
 
@@ -244,7 +243,7 @@ function drawScaleIndicator(ctx, x, y, gridSize, theme, resolution) {
 /**
  * Draw decorative border
  */
-function drawBorder(ctx, width, height, theme, _borderType) {
+function drawBorder(ctx, width, height, theme) {
   ctx.strokeStyle = theme.borderColor;
   ctx.lineWidth = 3;
 

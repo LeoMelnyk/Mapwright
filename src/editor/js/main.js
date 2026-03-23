@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setSessionOverlay(
     renderSessionOverlay,
     (px, py, transform, gridSize) => {
-      const stair = hitTestStairButton(px, py, transform, gridSize);
+      const stair = hitTestStairButton(px, py, transform);
       if (stair) {
         openStairs(stair.stairId, stair.partnerId);
         return true;
@@ -785,7 +785,6 @@ function initDraggableToolbar() {
   let dragContainerWidth = 0;
   let dragContainerHeight = 0;
 
-  const _SNAP_THRESHOLD = 40; // reserved for future snap-distance tuning
   const SNAP_EDGE = 20; // margin from container edge for snap positions
   const DOCK_CLASSES = ['toolbar-docked-top', 'toolbar-docked-left', 'toolbar-docked-right'];
 

@@ -32,7 +32,7 @@ export class WallTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row, col, edge, _event) {
+  onMouseDown(row, col, edge) {
     if (!edge) return;
     this.dragging = true;
     this.undoPushed = false;
@@ -44,7 +44,7 @@ export class WallTool extends Tool {
     this._placeWall(edge.row, edge.col);
   }
 
-  onMouseMove(row, col, edge, _event) {
+  onMouseMove(row, col, edge) {
     if (!this.dragging || this.cancelled) return;
     const dir = this.lockedDir;
     const hoverRow = edge ? edge.row : row;

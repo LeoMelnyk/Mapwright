@@ -104,7 +104,7 @@ export class StairsTool extends Tool {
     }
   }
 
-  onRightClick(row, col, _edge, _event) {
+  onRightClick(row, col) {
     // Right-click on a cell with stairs: remove the entire stair
     const id = stairIdAt(row, col);
     if (id == null) return;
@@ -128,7 +128,7 @@ export class StairsTool extends Tool {
     }
   }
 
-  onMouseMove(_row, _col, _edge, _event, _pos) {
+  onMouseMove() {
     // Corner hover is already updated in canvas-view.js via state.hoveredCorner
   }
 

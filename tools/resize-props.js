@@ -54,7 +54,7 @@ for (const [propName, info] of Object.entries(plan.props)) {
   );
 
   // Scale draw commands
-  let body = parts.slice(1).join('---');
+  const body = parts.slice(1).join('---');
   const lines = body.split('\n');
   const scaledLines = lines.map(line => scalePropCommand(line, scaleX, scaleY));
 

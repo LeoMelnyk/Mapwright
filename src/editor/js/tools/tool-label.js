@@ -148,7 +148,7 @@ export class LabelTool extends Tool {
     }
   }
 
-  onMouseUp(_row, _col, _edge, _event) {
+  onMouseUp() {
     if (this._isDragging) {
       this._commitDrag();
       setCursor(this.hoveredLabelCell ? 'grab' : (state.labelMode === 'dm' ? 'text' : STAMP_CURSOR));

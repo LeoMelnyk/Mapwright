@@ -191,7 +191,7 @@ export class LightTool extends Tool {
     }
   }
 
-  onMouseUp(_row, _col, _edge, _event, _pos) {
+  onMouseUp() {
     if (this.dragging) {
       if (this.dragMoved) {
         // Finalize move — undo was already pushed on drag start
@@ -286,7 +286,7 @@ export class LightTool extends Tool {
     }
   }
 
-  renderOverlay(ctx, transform, _gridSize) {
+  renderOverlay(ctx, transform) {
     const lights = getLights();
 
     for (const light of lights) {
@@ -436,7 +436,7 @@ export class LightTool extends Tool {
 
   // ── Select + Drag ────────────────────────────────────────────────────────
 
-  _startSelectOrDrag(pos, _event) {
+  _startSelectOrDrag(pos) {
     const light = hitTestLight(pos);
 
     if (light) {

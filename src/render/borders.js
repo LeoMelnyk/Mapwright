@@ -274,7 +274,7 @@ function drawStairsInCell(ctx, cx, cy, stairType, theme, gridSize, hasLabel, tra
 /**
  * Render a diagonal border (wall, door, or secret door)
  */
-function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSize, transform, _resolution = 1, span = 1) {
+function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSize, transform, span = 1) {
   const s = scaleFactor(transform);
   let fx1, fy1, fx2, fy2;
 

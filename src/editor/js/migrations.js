@@ -123,11 +123,11 @@ function migrateToHalfCell(json) {
         const diagType = (corner === 'nw' || corner === 'se') ? 'ne-sw' : 'nw-se';
         const diagVal = cell[diagType] || 'w';
 
-        // Void the corner sub-cell
-        if (corner === 'nw') newCells[nr][nc] = null;
-        else if (corner === 'ne') newCells[nr][nc + 1] = null;
-        else if (corner === 'sw') newCells[nr + 1][nc] = null;
-        else newCells[nr + 1][nc + 1] = null;
+        // Mark the corner sub-cell for voiding (applied after cell assignment below)
+        if (corner === 'nw') tl._void = true;
+        else if (corner === 'ne') tr._void = true;
+        else if (corner === 'sw') bl._void = true;
+        else br._void = true;
 
         // Set diagonal + trimCorner on the two diagonal sub-cells
         const diagCells = diagType === 'ne-sw' ? [tr, bl] : [tl, br];
@@ -190,10 +190,10 @@ function migrateToHalfCell(json) {
       // Internal edges between sub-cells: leave empty (no walls)
       // This is the default — we just don't set north/south/east/west between them.
 
-      newCells[nr][nc] = tl;
-      newCells[nr][nc + 1] = tr;
-      newCells[nr + 1][nc] = bl;
-      newCells[nr + 1][nc + 1] = br;
+      newCells[nr][nc] = tl._void ? null : tl;
+      newCells[nr][nc + 1] = tr._void ? null : tr;
+      newCells[nr + 1][nc] = bl._void ? null : bl;
+      newCells[nr + 1][nc + 1] = br._void ? null : br;
     }
   }
 

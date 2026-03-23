@@ -636,7 +636,7 @@ export class PropTool extends Tool {
     return false;
   }
 
-  onRightClick(row, col, _edge, _event) {
+  onRightClick(row, col) {
     // If dragging or pasting, right-click cancels the action instead of deleting
     if (this.isDragging) {
       this._cancelDrag();

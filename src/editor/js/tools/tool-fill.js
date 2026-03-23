@@ -38,16 +38,16 @@ export class FillTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row, col, _edge, _event) {
+  onMouseDown(row, col) {
     this.boxStart = { row, col };
     this.boxEnd   = { row, col };
   }
 
-  onMouseMove(row, col, _edge, _event) {
+  onMouseMove(row, col) {
     if (this.boxStart) this.boxEnd = { row, col };
   }
 
-  onMouseUp(row, col, _edge, _event) {
+  onMouseUp(row, col) {
     if (!this.boxStart) return;
     this.boxEnd = { row, col };
     const mode = state.fillMode || 'water';
@@ -60,7 +60,7 @@ export class FillTool extends Tool {
     this.boxEnd   = null;
   }
 
-  onRightClick(row, col, _edge, _event) {
+  onRightClick(row, col) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
     if (cells[row][col] === null) return;

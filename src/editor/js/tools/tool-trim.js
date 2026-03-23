@@ -37,7 +37,7 @@ export class TrimTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row, col, _edge, _event) {
+  onMouseDown(row, col) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
 
@@ -75,7 +75,7 @@ export class TrimTool extends Tool {
     requestRender();
   }
 
-  onMouseUp(_row, _col, _edge, _event) {
+  onMouseUp() {
     if (!this.dragging) return;
     this.dragging = false;
 

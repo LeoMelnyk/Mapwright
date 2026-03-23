@@ -145,7 +145,7 @@ export class SelectTool extends Tool {
     }
   }
 
-  onMouseUp(_row, _col, _edge, _event) {
+  onMouseUp() {
     if (this.moveDragging) {
       this._onMoveModeMouseUp();
       return;

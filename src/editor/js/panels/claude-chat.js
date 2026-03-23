@@ -570,7 +570,7 @@ async function runConversationLoop(settings, signal) {
     if (data.stop_reason === 'end_turn') {
       hideThinking();
       renderMessages();
-      updateTokenDisplay(model);
+      updateTokenDisplay();
       if (toolsUsed > 0 && startUndoDepth !== null) {
         showUndoToast(startUndoDepth);
       }
@@ -669,7 +669,7 @@ function stopGeneration() {
   }
 }
 
-function updateTokenDisplay(_model) {
+function updateTokenDisplay() {
   const bar = document.getElementById('claude-token-bar');
   if (!bar) return;
   const { input, output } = _sessionTokens;

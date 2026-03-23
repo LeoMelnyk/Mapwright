@@ -61,7 +61,7 @@ export function _getWallCells(roomCellSet, wall) {
  * Read-only helper — does not modify state.
  */
 export function _isCellCoveredByProp(r, c) {
-  return isPropAt(r, c, state.dungeon.cells);
+  return isPropAt(r, c);
 }
 
 /**

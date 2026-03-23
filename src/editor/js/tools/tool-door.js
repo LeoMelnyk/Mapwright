@@ -38,7 +38,7 @@ export class DoorTool extends Tool {
     notify();
   }
 
-  onMouseDown(row, col, edge, _event) {
+  onMouseDown(row, col, edge) {
     if (!edge) return;
     const cells = state.dungeon.cells;
     const { direction, row: er, col: ec } = edge;

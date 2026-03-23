@@ -980,7 +980,7 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
           deferredDiagDoors.push({ role, row, col, bt, diag });
         } else if (bt === 'iw' || bt === 'id') {
           if (!showInvisible) continue;
-          renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform, _res);
+          renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform);
         }
         // 'w' walls are handled by the merged diagonal wall pass below
       }
@@ -1059,10 +1059,10 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
     if (role === 'anchor') {
       renderDiagonalDoubleBorder(ctx, cells, row, col, bt, diag, theme, gridSize, transform, _res);
     } else if (role === 'single-wide') {
-      renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform, _res, _res);
+      renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform, _res);
     } else {
       // null role = single sub-cell door
-      renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform, _res);
+      renderDiagonalBorder(ctx, col, row, bt, diag, theme, gridSize, transform);
     }
   }
 
@@ -1196,8 +1196,8 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   const _res = metadata?.resolution || 1;
   _t('shading', () => {
     drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
-    drawHatching(ctx, cells, roomCells, gridSize, theme, transform, _res);
-    drawRockShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
+    drawHatching(ctx, cells, roomCells, gridSize, theme, transform);
+    drawRockShading(ctx, cells, roomCells, gridSize, theme, transform);
   });
 
   // Floor backgrounds + textures (clipped to exclude arc voids)

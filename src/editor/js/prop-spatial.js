@@ -105,7 +105,7 @@ export function markPropSpatialDirty() {
  * Look up the topmost prop covering (row, col).
  * Returns { anchorRow, anchorCol, propType, propId, zIndex } or null.
  */
-export function lookupPropAt(row, col, _cells) {
+export function lookupPropAt(row, col) {
   ensureBuilt();
   const stack = spatialMap.get(`${row},${col}`);
   return stack?.[0] || null;
@@ -123,7 +123,7 @@ export function lookupAllPropsAt(row, col) {
 /**
  * Check if (row, col) is covered by any prop. O(1).
  */
-export function isPropAt(row, col, _cells) {
+export function isPropAt(row, col) {
   ensureBuilt();
   return spatialMap.has(`${row},${col}`);
 }

@@ -168,7 +168,7 @@ function buildDistMap(cells, roomCells, maxDist) {
 // canvas transform and strokes the cached paths at screen resolution.
 let _hatchCache = null;
 
-export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform, _resolution = 1) {
+export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle === 'rocks') return;
 
@@ -247,7 +247,7 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform, 
 // sets the canvas transform and strokes the cached paths at screen resolution.
 let _rockCache = null;
 
-export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transform, _resolution = 1) {
+export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transform) {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle !== 'rocks' && theme.hatchStyle !== 'both') return;
 

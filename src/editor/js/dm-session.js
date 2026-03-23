@@ -1,7 +1,7 @@
 // DM-side session manager: WebSocket connection, reveal state, viewport broadcast.
 
 import state, { subscribe, markDirty, notify, getTheme } from './state.js';
-import { getTransform, getCanvasSize, requestRender, panToLevel } from './canvas-view.js';
+import { getCanvasSize, requestRender, panToLevel } from './canvas-view.js';
 import { showToast } from './toast.js';
 import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, floodFillRoom } from '../../util/index.js';
 import { toCanvas } from './utils.js';
@@ -122,7 +122,6 @@ export function endSession() {
 // ── Broadcast helpers ───────────────────────────────────────────────────────
 
 function broadcastInit() {
-  const _transform = getTransform();
   const { width, height } = getCanvasSize();
   send({
     type: 'session:init',
@@ -531,7 +530,7 @@ function findRevealableDoors() {
 
       let hasUnrevealed = false;
       for (const exitDir of otherSideDirs) {
-        const { dir: _, dr, dc } = CARDINAL_DIRS.find(d => d.dir === exitDir);
+        const { dr, dc } = CARDINAL_DIRS.find(d => d.dir === exitDir);
         const nr = r + dr, nc = c + dc;
         if (!isInBounds(cells, nr, nc)) continue;
         if (!cells[nr]?.[nc]) continue;
@@ -775,7 +774,7 @@ function drawStairIcon(ctx, x, y, radius) {
 /**
  * Test if a click hits a stair overlay button.
  */
-export function hitTestStairButton(px, py, transform, _gridSize) {
+export function hitTestStairButton(px, py, transform) {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return null;
 
   const stairs = findRevealableStairs();

@@ -265,7 +265,7 @@ export class BridgeTool extends Tool {
     }
   }
 
-  onMouseUp(_row, _col, _edge, _event) {
+  onMouseUp() {
     if (this._isDragging) {
       this._commitDrag();
       setCursor(this.hoveredBridgeId != null ? 'grab' : 'crosshair');
