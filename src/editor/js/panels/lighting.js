@@ -8,7 +8,7 @@ let container = null;
 export function initLightingPanel(el) {
   container = el;
   render();
-  subscribe(() => render());
+  subscribe(() => render(), 'lighting');
 }
 
 function render() {

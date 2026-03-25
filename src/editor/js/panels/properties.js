@@ -13,7 +13,7 @@ const collapsedCategories = new Set();
 export function setSelectPropCallback(fn) { onSelectProp = fn; }
 
 export function init() {
-  subscribe(update);
+  subscribe(update, 'properties');
   update();
 }
 

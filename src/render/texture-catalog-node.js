@@ -10,6 +10,7 @@ import fs from 'fs';
 import { dirname, join, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { loadImage } from '@napi-rs/canvas';
+import { BRIDGE_TEXTURE_IDS } from './bridges.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -106,6 +107,14 @@ function collectTextureIds(cells) {
  */
 export async function ensureTexturesForConfig(catalog, config, propCatalog) {
   const ids = collectTextureIds(config.cells);
+
+  // Include bridge textures (hardcoded IDs in bridges.js)
+  if (config.metadata?.bridges?.length) {
+    for (const b of config.metadata.bridges) {
+      const texId = BRIDGE_TEXTURE_IDS[b.type] || BRIDGE_TEXTURE_IDS.wood;
+      ids.add(texId);
+    }
+  }
 
   // Also include textures referenced by overlay props
   if (propCatalog?.props && config.metadata?.props) {

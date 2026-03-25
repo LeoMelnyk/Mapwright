@@ -51,6 +51,10 @@ The grid system now supports half-cell precision. Internally, each display cell 
 - **Editor dots**: Only drawn at display-cell boundaries with viewport culling (was iterating every internal cell)
 - **Outer shading Path2D**: Steps by resolution — ~2,500 arcs instead of ~10,000 for a 50×50 map
 - **Diagonal wall merging**: Consecutive diagonal wall sub-cells are merged into single long segments, reducing GPU draw commands and eliminating visible joints between sub-cell diagonals
+- **Static/animated lightmap split**: Lightmap rendering now separates static lights (cached once) from animated lights (re-rendered per frame). Static light contributions, ambient fill, and normal map bump are cached and reused — only animated light intensities update each frame
+- **Screen-resolution animated lighting**: When animated lights exist, the lightmap is rendered at screen resolution and composited directly onto the viewport instead of rebuilding the full 5000×5000 offscreen composite every animation tick. Eliminates the per-frame 25-megapixel cache rebuild that was dropping frame rate from 240Hz to 13Hz
+- **Configurable light quality**: New "Light Quality" dropdown in the View menu (Low 5 / Medium 10 / High 15 / Ultra 20 px/ft). Controls lightmap rendering resolution independently from the cell cache. Lower settings dramatically improve animated lighting performance on large maps with minimal visual impact (lightmaps are smooth gradients)
+- **Reusable lightmap canvas**: The lightmap OffscreenCanvas is cached and reused across frames instead of allocating a new 100MB+ VRAM buffer every frame
 - **Canvas context**: Uses `{ alpha: false, desynchronized: true }` for reduced compositor overhead
 - **GPU flags**: Electron configured with `ignore-gpu-blocklist`, `enable-accelerated-2d-canvas`, `enable-gpu-rasterization`, and `use-angle=gl` for maximum GPU utilization
 
@@ -64,6 +68,9 @@ The grid system now supports half-cell precision. Internally, each display cell 
 - **Cache diagnostics**: Cache dimensions, cells rebuild count, composite rebuild count, rebuild time
 - **Undo diagnostics**: Serialize time, total time, undo/redo stack depth
 - **Interaction timing**: `mouseMove` handler cost
+- **Subscriber timing (Notify section)**: Per-subscriber callback cost breakdown — every `notify()` listener is labeled and timed, sorted by cost descending. Identifies expensive panel updates at a glance
+- **Frame total**: Shows previous frame's complete render time including diagnostics, minimap, and post-draw work — reveals hidden per-frame costs not captured by individual phase timers
+- **Post-frame busy probe**: `setTimeout(0)` probe measures main-thread blocking after `render()` returns, distinguishing JS bottlenecks from GPU compositor latency
 - **Phase skip debugging**: `window._skipPhases = { cells: true }` in console to disable render phases and isolate GPU bottlenecks
 
 ### Prop Sizing Overhaul
@@ -104,6 +111,8 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - Fixed bridge textures missing in PNG export — bridge texture IDs weren't collected by the texture loader, and `DOMMatrix` (needed for pattern scaling) wasn't available in the Node.js render path
 - **Export quality doubled**: `GRID_SCALE` increased from 10 to 20 px/ft — exported PNGs are now 4× the pixels for sharper prints and VTT use
 - **Texture loading bar never completing**: Fixed race condition where `loadTextureImages()` returned an instantly-resolved promise for textures already in flight, causing `ensureTexturesLoaded()` to resolve before images finished loading. The progress bar also failed to track images started by `preloadPropTextures()`, leaving the loading overlay stuck indefinitely on maps with many props
+- **Unknown prop type spam**: Props with unrecognized types (e.g. from removed or renamed props) now get purged from the map data on first encounter instead of logging a warning every frame
+- **Prop-linked lights cleaned up on deletion**: Deleting a prop with a built-in light source (via `removePropAt` or `removePropsInRect`) now also removes the associated lights. Previously only `removeProp` cleaned up linked lights; the other two deletion paths left orphaned lights in the metadata
 
 ### Migration
 

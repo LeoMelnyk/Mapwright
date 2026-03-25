@@ -231,7 +231,13 @@ export function removePropAt(row, col) {
   if (!findPropAtGrid(row, col)) return { success: false, error: 'no prop at that cell' };
   pushUndo();
   removePropAtGrid(row, col);
+  // Remove linked lights
+  const meta = state.dungeon.metadata;
+  if (meta.lights?.length) {
+    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef?.col === col));
+  }
   markPropSpatialDirty();
+  invalidateLightmap();
   markDirty();
   notify();
   return { success: true };
@@ -258,7 +264,17 @@ export function removePropsInRect(r1, c1, r2, c2) {
   });
   const removed = before - meta.props.length;
 
+  // Remove linked lights for deleted props
+  if (removed > 0 && meta.lights?.length) {
+    meta.lights = meta.lights.filter(l => {
+      if (!l.propRef) return true;
+      const { row, col } = l.propRef;
+      return row < minR || row > maxR || col < minC || col > maxC;
+    });
+  }
+
   markPropSpatialDirty();
+  invalidateLightmap();
   markDirty();
   notify();
   return { success: true, removed };

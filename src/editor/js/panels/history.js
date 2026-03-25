@@ -5,7 +5,7 @@ let container = null;
 
 export function initHistoryPanel(el) {
   container = el;
-  subscribe(update);
+  subscribe(update, 'history');
   update();
 }
 

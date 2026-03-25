@@ -8,7 +8,8 @@ import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextu
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
-import { requestRender, zoomToFit } from './canvas-view.js';
+import { requestRender, zoomToFit, invalidateMapCache } from './canvas-view.js';
+import { markPropSpatialDirty } from './prop-spatial.js';
 
 /**
  * Load a dungeon JSON object into the editor state.
@@ -409,6 +410,11 @@ export async function reloadAssets() {
   if (usedIds.size > 0) {
     await ensureTexturesLoaded(usedIds);
   }
+
+  // Invalidate all render and spatial caches so the canvas rebuilds from fresh assets
+  invalidateAllCaches();
+  invalidateMapCache();
+  markPropSpatialDirty();
 
   requestRender();
   showToast('Assets reloaded');

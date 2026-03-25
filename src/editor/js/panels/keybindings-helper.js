@@ -337,7 +337,7 @@ export function initKeybindingsHelper() {
   if (cb) cb.checked = show;
 
   // Refresh on state changes (tool switch, mode switch, session toggle)
-  subscribe(refresh);
+  subscribe(refresh, 'keybindings');
 
   // Session tool buttons don't trigger state.notify(), so listen for clicks directly
   const sessionToolRow = document.getElementById('session-tool-row');

@@ -15,6 +15,10 @@ let minimapCtx = null;
 let mainCanvas = null;
 let minimapWrapper = null;
 
+// Offscreen cache for the minimap cell rendering (expensive).
+// Only rebuilt when map data changes. Pan/zoom just redraws the viewport rect.
+let _mmCache = null; // { canvas, dirtySeq, canvasW, canvasH }
+
 export function initMinimap(editorCanvas) {
   mainCanvas = editorCanvas;
   minimapWrapper = document.getElementById('minimap-wrapper');
@@ -130,24 +134,41 @@ export function updateMinimap() {
 
   const ctx = minimapCtx;
 
-  // Background
-  ctx.fillStyle = theme.background;
-  ctx.fillRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+  // ── Cached cell rendering ──
+  // Only rebuild when map data changes (undoStack/redoStack length as proxy).
+  const dirtySig = (state.undoStack?.length || 0) * 10000 + (state.redoStack?.length || 0);
+  const cacheW = Math.ceil(canvasW);
+  const cacheH = Math.ceil(canvasH);
+  if (!_mmCache || _mmCache.dirtySeq !== dirtySig || _mmCache.canvasW !== cacheW || _mmCache.canvasH !== cacheH) {
+    if (!_mmCache || _mmCache.canvasW !== cacheW || _mmCache.canvasH !== cacheH) {
+      const offscreen = document.createElement('canvas');
+      offscreen.width = cacheW;
+      offscreen.height = cacheH;
+      _mmCache = { canvas: offscreen, ctx: offscreen.getContext('2d'), dirtySeq: 0, canvasW: cacheW, canvasH: cacheH };
+    }
+    const offCtx = _mmCache.ctx;
+    offCtx.clearRect(0, 0, cacheW, cacheH);
+    offCtx.fillStyle = theme.background;
+    offCtx.fillRect(0, 0, cacheW, cacheH);
+    const minimapTransform = {
+      offsetX: MINIMAP_PAD,
+      offsetY: MINIMAP_PAD,
+      scale: minimapScale,
+    };
+    renderCells(offCtx, cells, gridSize, theme, minimapTransform, {
+      showGrid: false,
+      propCatalog: null,
+      textureOptions: null,
+      metadata,
+      skipLabels: true,
+      showInvisible: false,
+    });
+    _mmCache.dirtySeq = dirtySig;
+  }
 
-  // Render cells (no textures, no labels, no grid for performance)
-  const minimapTransform = {
-    offsetX: MINIMAP_PAD,
-    offsetY: MINIMAP_PAD,
-    scale: minimapScale,
-  };
-  renderCells(ctx, cells, gridSize, theme, minimapTransform, {
-    showGrid: false,
-    propCatalog: null,
-    textureOptions: null,
-    metadata,
-    skipLabels: true,
-    showInvisible: false,
-  });
+  // Blit cached cells
+  ctx.clearRect(0, 0, minimapCanvas.width, minimapCanvas.height);
+  ctx.drawImage(_mmCache.canvas, 0, 0);
 
   // Draw viewport rectangle
   const mainScale = CELL_SIZE * state.zoom / _dgs(gridSize, metadata.resolution);
@@ -165,6 +186,11 @@ export function updateMinimap() {
   ctx.fillRect(vpLeft, vpTop, vpW, vpH);
   ctx.setLineDash([]);
   ctx.restore();
+}
+
+/** Force minimap to rebuild its cached cells on next render. */
+export function invalidateMinimapCache() {
+  _mmCache = null;
 }
 
 function _panToMinimapPoint(mx, my) {

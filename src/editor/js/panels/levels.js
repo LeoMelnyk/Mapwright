@@ -8,7 +8,7 @@ let isEditing = false; // guard: prevent update() from destroying inline input
 let dragFromIdx = null;
 
 export function init() {
-  subscribe(update);
+  subscribe(update, 'levels');
   update();
 
   document.getElementById('btn-add-level').addEventListener('click', addLevel);

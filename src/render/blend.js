@@ -281,7 +281,7 @@ let _blendCacheLayer = null; // { canvas, w, h, topoRef }
  * Return a pre-rendered blend layer for the offscreen map cache.
  * Returns null if no bitmaps are ready or in Node.js (PDF path).
  */
-export function getRenderedBlendLayer(topo, gridSize, cacheW, cacheH) {
+export function getRenderedBlendLayer(topo, gridSize, cacheW, cacheH, cacheScale = 10) {
   if (typeof OffscreenCanvas === 'undefined') return null;
   if (!topo.edges?.length && !topo.corners?.length) return null;
   if (!topo.edges.every(e => e.bitmap) || !topo.corners.every(c => c.bitmap)) return null;
@@ -292,9 +292,8 @@ export function getRenderedBlendLayer(topo, gridSize, cacheW, cacheH) {
     return _blendCacheLayer.canvas;
   }
 
-  // Build the layer at cache resolution (transform = { scale: 10, offset: 0, 0 })
-  const MAP_PX_PER_FOOT = 10;
-  const sc = MAP_PX_PER_FOOT;
+  // Build the layer at cache resolution
+  const sc = cacheScale;
   const ox = 0, oy = 0;
   const cellPx = gridSize * sc;
   const sz = BLEND_BITMAP_SIZE;

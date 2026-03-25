@@ -355,7 +355,7 @@ export function init() {
     const sel = document.getElementById('dungeon-letter-select');
     if (sel) sel.value = meta.dungeonLetter || 'A';
     updateToolButtons();
-  });
+  }, 'toolbar');
 }
 
 export function updateToolButtons() {

@@ -160,7 +160,11 @@ export async function loadTextureCatalog() {
  */
 export function loadTextureImages(id) {
   const entry = catalog?.textures[id];
-  if (!entry || entry.img) return Promise.resolve();
+  if (!entry) return Promise.resolve();
+
+  // If already started, return the existing loading promise
+  // (don't return Promise.resolve() — the images may still be loading)
+  if (entry._loadPromise) return entry._loadPromise;
 
   // Diffuse — always present
   const img = new Image();
@@ -194,7 +198,8 @@ export function loadTextureImages(id) {
       image.addEventListener('error', resolve, { once: true });
     });
   }
-  return Promise.all([awaitImage(img), awaitImage(dispImg)]);
+  entry._loadPromise = Promise.all([awaitImage(img), awaitImage(dispImg)]);
+  return entry._loadPromise;
 }
 
 /**
@@ -205,36 +210,41 @@ export function loadTextureImages(id) {
  */
 export function ensureTexturesLoaded(ids, onProgress) {
   const promises = [];
-  const allImages = [];
+  const pendingImages = [];
 
   for (const id of ids) {
-    const entry = catalog?.textures[id];
-    // Track images that will be started by loadTextureImages (those not yet loaded)
-    if (entry && !entry.img) {
-      // These will be created by loadTextureImages — count diffuse + displacement
-      allImages.push(id); // placeholder — we'll attach listeners after calling loadTextureImages
-    }
     promises.push(loadTextureImages(id));
+    // Track ALL images that aren't complete yet (including ones already started
+    // by preloadPropTextures) — not just freshly kicked off ones
+    const entry = catalog?.textures[id];
+    if (entry && entry.img) {
+      pendingImages.push(id);
+    }
   }
 
-  // Wire up progress tracking on the actual Image elements now that they exist
-  if (onProgress && allImages.length > 0) {
-    let loaded = 0;
-    // Count diffuse + disp per texture = 2 images each
-    const total = allImages.length * 2;
-    onProgress(0, total);
-    for (const id of allImages) {
-      const entry = catalog?.textures[id];
-      if (!entry) continue;
-      for (const img of [entry.img, entry.dispImg]) {
-        if (!img) { loaded++; continue; }
-        if (img.complete) { loaded++; continue; }
-        const bump = () => { loaded++; onProgress(loaded, total); };
-        img.addEventListener('load', bump, { once: true });
-        img.addEventListener('error', bump, { once: true });
+  // Wire up progress tracking on all Image elements that need loading
+  if (onProgress) {
+    if (pendingImages.length === 0) {
+      // Nothing to load — report complete immediately
+      onProgress(1, 1);
+    } else {
+      let loaded = 0;
+      // Count diffuse + disp per texture = 2 images each
+      const total = pendingImages.length * 2;
+      onProgress(0, total);
+      for (const id of pendingImages) {
+        const entry = catalog?.textures[id];
+        if (!entry) continue;
+        for (const img of [entry.img, entry.dispImg]) {
+          if (!img) { loaded++; continue; }
+          if (img.complete) { loaded++; continue; }
+          const bump = () => { loaded++; onProgress(loaded, total); };
+          img.addEventListener('load', bump, { once: true });
+          img.addEventListener('error', bump, { once: true });
+        }
       }
+      if (loaded > 0) onProgress(loaded, total);
     }
-    if (loaded > 0) onProgress(loaded, total);
   }
 
   return Promise.all(promises);

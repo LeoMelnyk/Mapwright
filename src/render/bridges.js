@@ -15,6 +15,12 @@
 import { toCanvas } from './bounds.js';
 import { warn } from './warnings.js';
 
+// DOMMatrix: browser global, or imported from @napi-rs/canvas in Node.js
+let _DOMMatrix = typeof DOMMatrix !== 'undefined' ? DOMMatrix : null;
+if (!_DOMMatrix) {
+  try { _DOMMatrix = (await import('@napi-rs/canvas')).DOMMatrix; } catch { /* browser — not needed, already global */ }
+}
+
 // ── Geometry (duplicated from editor/js/bridge-geometry.js to keep render self-contained) ──
 
 function _getBridgeCorners(p1, p2, p3) {
@@ -61,12 +67,13 @@ function _pointOnPolygonEdge(r, c, polygon, eps = 0.01) {
 
 // ── Style constants ────────────────────────────────────────────────────────────
 
-const TEXTURE_IDS = {
+export const BRIDGE_TEXTURE_IDS = {
   wood:  'polyhaven/weathered_planks',
   stone: 'polyhaven/stone_wall',
   rope:  'polyhaven/worn_planks',
   dock:  'polyhaven/brown_planks_09',
 };
+const TEXTURE_IDS = BRIDGE_TEXTURE_IDS;
 
 const FALLBACK_COLORS = {
   wood:  '#c8a065',
@@ -113,15 +120,17 @@ function _fillTexture(ctx, texImg, cellPx, transform) {
     const pattern = ctx.createPattern(texImg, 'repeat');
     if (!pattern) return false;
     // Align texture to the world grid so it doesn't slide on pan/zoom
-    const scale = cellPx / texImg.naturalWidth;
-    pattern.setTransform(new DOMMatrix([
+    const imgW = texImg.naturalWidth || texImg.width;
+    const scale = cellPx / imgW;
+    pattern.setTransform(new _DOMMatrix([
       scale, 0, 0, scale,
       transform.offsetX % cellPx,
       transform.offsetY % cellPx,
     ]));
     ctx.fillStyle = pattern;
     return true;
-  } catch {
+  } catch (err) {
+    console.warn('[bridge-tex] _fillTexture failed:', err?.message || err);
     return false;
   }
 }

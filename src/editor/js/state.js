@@ -170,9 +170,13 @@ export function clearDirty() {
   state.dirty = false;
 }
 
-export function subscribe(fn) {
-  state.listeners.push(fn);
+export function subscribe(fn, label) {
+  state.listeners.push({ fn, label: label || 'unknown' });
 }
+
+/** Latest per-subscriber timing data from the most recent notify() call. */
+export const notifyTimings = { total: 0, subscribers: [], frame: 0 };
+let _notifyFrame = 0;
 
 // ─── Auto-save ────────────────────────────────────────────────────────────
 
@@ -267,7 +271,17 @@ export async function loadAutosave() {
 }
 
 export function notify() {
-  for (const fn of state.listeners) fn(state);
+  const t0 = performance.now();
+  _notifyFrame++;
+  const subs = [];
+  for (const entry of state.listeners) {
+    const s = performance.now();
+    entry.fn(state);
+    subs.push({ label: entry.label, ms: performance.now() - s });
+  }
+  notifyTimings.total = performance.now() - t0;
+  notifyTimings.subscribers = subs;
+  notifyTimings.frame = _notifyFrame;
   scheduleAutosave();
 }
 

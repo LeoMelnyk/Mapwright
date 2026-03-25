@@ -8,7 +8,7 @@ let container = null;
 export function initBackgroundImagePanel(el) {
   container = el;
   render();
-  subscribe(() => render());
+  subscribe(() => render(), 'bg-image');
 }
 
 function render() {

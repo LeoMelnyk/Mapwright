@@ -1,7 +1,7 @@
 // Constants
-const GRID_SCALE = 10; // pixels per foot
-const MARGIN = 50; // pixels around the dungeon
-const LINE_WIDTH = 6; // Thick walls to match SimpleDungeonMap.jpg
+const GRID_SCALE = 20; // pixels per foot (export resolution)
+const MARGIN = 100; // pixels around the dungeon (scales with GRID_SCALE)
+const LINE_WIDTH = 6;
 
 // Z-position constants for coordinate system
 const Z_POSITIONS = {

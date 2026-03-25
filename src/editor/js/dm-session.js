@@ -167,7 +167,7 @@ function startViewportBroadcast() {
         });
       });
     }
-  });
+  }, 'dm-viewport');
 }
 
 // Dungeon broadcast (debounced 1s after edits)
@@ -186,7 +186,7 @@ function startDungeonBroadcast() {
         resolvedTheme: getTheme(),
       });
     }, 1000);
-  });
+  }, 'dm-dungeon');
 }
 
 // ── Fog of war: room reveal ─────────────────────────────────────────────────

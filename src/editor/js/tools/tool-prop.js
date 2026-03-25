@@ -38,6 +38,10 @@ function _removeOverlayAt(row, col) {
   if (!meta?.props) return;
   const idx = meta.props.findIndex(p => p.id === entry.propId);
   if (idx >= 0) meta.props.splice(idx, 1);
+  // Remove linked lights
+  if (meta.lights?.length) {
+    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef?.col === col));
+  }
 }
 
 function _addOverlayAt(row, col, propType, facing, flipped = false) {
@@ -193,6 +197,9 @@ export class PropTool extends Tool {
     this.hoveredAnchor = null;    // anchor cell of prop currently under cursor
     this.hoverRow = null;
     this.hoverCol = null;
+    this.hoverFreeform = false;   // true when Ctrl held during hover (freeform ghost)
+    this.hoverWorldX = null;      // world-feet X when freeform hover
+    this.hoverWorldY = null;      // world-feet Y when freeform hover
     // Paste mode cursor tracking
     this.pasteHover = null;       // {row, col} — current cursor cell for paste preview
   }
@@ -234,6 +241,9 @@ export class PropTool extends Tool {
     this.hoveredAnchor = null;
     this.hoverRow = null;
     this.hoverCol = null;
+    this.hoverFreeform = false;
+    this.hoverWorldX = null;
+    this.hoverWorldY = null;
   }
 
   // ── Mouse Handlers ───────────────────────────────────────────────────────
@@ -340,13 +350,27 @@ export class PropTool extends Tool {
     if (anchor) {
       if (!this.hoveredAnchor || this.hoveredAnchor.row !== anchor.row || this.hoveredAnchor.col !== anchor.col) {
         this.hoveredAnchor = anchor;
+        this.hoverFreeform = false;
         setCursor('grab');
         requestRender();
       }
     } else {
+      // Track freeform hover when Ctrl held (for placement ghost)
+      const wantsFreeform = (event.ctrlKey || event.metaKey) && pos;
+      if (wantsFreeform) {
+        this.hoverFreeform = true;
+        this.hoverWorldX = (pos.x - hoverTransform.offsetX) / hoverTransform.scale;
+        this.hoverWorldY = (pos.y - hoverTransform.offsetY) / hoverTransform.scale;
+      } else if (this.hoverFreeform) {
+        this.hoverFreeform = false;
+        this.hoverWorldX = null;
+        this.hoverWorldY = null;
+      }
       if (this.hoveredAnchor !== null) {
         this.hoveredAnchor = null;
         setCursor('crosshair');
+        requestRender();
+      } else if (state.selectedProp) {
         requestRender();
       }
     }
@@ -829,8 +853,16 @@ export class PropTool extends Tool {
       const catalog = state.propCatalog;
       const prevDef = catalog?.props?.[state.selectedProp];
       if (prevDef) {
-        const anchor = centeredAnchor(this.hoverRow, this.hoverCol, prevDef, state.propRotation);
-        this._renderPlacePreview(ctx, transform, gridSize, anchor.row, anchor.col);
+        if (this.hoverFreeform && this.hoverWorldX != null) {
+          // Freeform: ghost follows exact cursor position (sub-cell)
+          const [spanRows, spanCols] = getEffectiveFootprint(prevDef, state.propRotation);
+          const freeRow = this.hoverWorldY / gridSize - spanRows / 2;
+          const freeCol = this.hoverWorldX / gridSize - spanCols / 2;
+          this._renderPlacePreview(ctx, transform, gridSize, freeRow, freeCol);
+        } else {
+          const anchor = centeredAnchor(this.hoverRow, this.hoverCol, prevDef, state.propRotation);
+          this._renderPlacePreview(ctx, transform, gridSize, anchor.row, anchor.col);
+        }
       }
     }
 
@@ -888,13 +920,16 @@ export class PropTool extends Tool {
     pushUndo('Place prop');
     const entry = _addOverlayAt(row, col, state.selectedProp, state.propRotation, state.propFlipped || false);
 
-    // Freeform: Ctrl+click places at exact pixel position (sub-cell)
+    // Freeform: Ctrl+click places at exact pixel position (sub-cell),
+    // centering the prop on the cursor (matching the ghost preview)
     if (freeform && pixelPos) {
       const transform = getTransform();
       if (transform) {
-        // Convert pixel pos to world-feet
-        entry.x = (pixelPos.x - transform.offsetX) / transform.scale;
-        entry.y = (pixelPos.y - transform.offsetY) / transform.scale;
+        const gs = state.dungeon.metadata.gridSize || 5;
+        const cursorWorldX = (pixelPos.x - transform.offsetX) / transform.scale;
+        const cursorWorldY = (pixelPos.y - transform.offsetY) / transform.scale;
+        entry.x = cursorWorldX - (spanCols * gs) / 2;
+        entry.y = cursorWorldY - (spanRows * gs) / 2;
       }
     }
 
@@ -907,10 +942,10 @@ export class PropTool extends Tool {
       const lightCatalog = getLightCatalog();
       const [origRows, origCols] = propDef.footprint;
 
-      for (const entry of propDef.lights) {
+      for (const lightDef of propDef.lights) {
         // Start from normalized footprint coords (unrotated)
-        let nx = entry.x ?? 0.5;
-        let ny = entry.y ?? 0.5;
+        let nx = lightDef.x ?? 0.5;
+        let ny = lightDef.y ?? 0.5;
 
         // Rotate offset to match prop rotation
         const rot = state.propRotation;
@@ -922,11 +957,12 @@ export class PropTool extends Tool {
           [nx, ny] = [ny, origCols - nx];
         }
 
-        const worldX = (col + nx) * gridSize;
-        const worldY = (row + ny) * gridSize;
+        // Use the prop's actual world position (accounts for freeform offset)
+        const worldX = entry.x + nx * gridSize;
+        const worldY = entry.y + ny * gridSize;
 
         // Merge preset defaults with overrides from the prop entry
-        const preset = lightCatalog?.lights?.[entry.preset] || {};
+        const preset = lightCatalog?.lights?.[lightDef.preset] || {};
         const light = {
           id: meta.nextLightId++,
           x: worldX,
@@ -936,7 +972,7 @@ export class PropTool extends Tool {
           color: preset.color || '#ff9944',
           intensity: preset.intensity ?? 1.0,
           falloff: preset.falloff || 'smooth',
-          presetId: entry.preset,
+          presetId: lightDef.preset,
           propRef: { row, col },
         };
         if (preset.dimRadius) light.dimRadius = preset.dimRadius;
@@ -961,7 +997,7 @@ export class PropTool extends Tool {
     const propDef = catalog.props[state.selectedProp];
     const [spanRows, spanCols] = getEffectiveFootprint(propDef, state.propRotation);
     const cells = state.dungeon.cells;
-    const valid = isFootprintClear(cells, row, col, spanRows, spanCols);
+    const valid = isFootprintClear(cells, Math.floor(row), Math.floor(col), spanRows, spanCols);
     const theme = getTheme();
 
     ctx.save();

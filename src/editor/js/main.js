@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         _rangeLastGridSize = gs;
         populateRangeOptions();
       }
-    });
+    }, 'range-grid');
   }
 
   // Wire session tools mode + auto-tool-switch on panel change
@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateToolButtons();
     }
   });
-  subscribe(() => updateSessionToolsMode());
+  subscribe(() => updateSessionToolsMode(), 'session-tools');
 
   // Load light preset catalog (metadata only, fast)
   loadLightCatalog().then(catalog => {
@@ -597,7 +597,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.showToast = showToast;
 
   // Status bar updates
-  subscribe(updateStatusBar);
+  subscribe(updateStatusBar, 'status-bar');
   updateStatusBar();
 
   // Keyboard shortcuts

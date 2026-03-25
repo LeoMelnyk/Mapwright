@@ -2,7 +2,8 @@
 import state, { pushUndo, markDirty, notify, subscribe } from '../state.js';
 import { getThemeCatalog, renderThemePreview } from '../theme-catalog.js';
 import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
-import { requestRender } from '../canvas-view.js';
+import { requestRender, invalidateMapCache } from '../canvas-view.js';
+import { invalidateLightmapCaches } from '../../../render/index.js';
 import { buildCustomEditor, syncCustomEditorValues, renderCustomThumb } from './theme-editor.js';
 
 const idle = typeof window !== 'undefined' && false // bypass requestIdleCallback — starved by animated render loop
@@ -161,9 +162,13 @@ export function init() {
     document.getElementById('feat-memory').checked = editorSettings.memoryUsage === true;
     document.getElementById('feat-minimap').checked = editorSettings.minimap === true;
     document.getElementById('feat-claude').checked = editorSettings.claude === true;
+    const rqSelect = document.getElementById('setting-render-quality');
+    if (rqSelect) rqSelect.value = String(editorSettings.renderQuality || 20);
+    const lqSelect = document.getElementById('setting-light-quality');
+    if (lqSelect) lqSelect.value = String(editorSettings.lightQuality || 10);
   }
   syncUI();
-  subscribe(syncUI);
+  subscribe(syncUI, 'metadata');
 
   // Build theme picker and custom editor after syncUI
   buildThemePicker();
@@ -341,6 +346,26 @@ export function init() {
   ]) {
     document.getElementById(id).addEventListener('change', (e) => {
       setEditorSetting(key, e.target.checked);
+      requestRender();
+    });
+  }
+
+  // Render quality dropdown (editor setting, persists across maps)
+  const rqSelect = document.getElementById('setting-render-quality');
+  if (rqSelect) {
+    rqSelect.addEventListener('change', () => {
+      setEditorSetting('renderQuality', parseInt(rqSelect.value));
+      requestRender();
+    });
+  }
+
+  // Light quality dropdown (editor setting, persists across maps)
+  const lqSelect = document.getElementById('setting-light-quality');
+  if (lqSelect) {
+    lqSelect.addEventListener('change', () => {
+      setEditorSetting('lightQuality', parseInt(lqSelect.value));
+      invalidateLightmapCaches(); // tear down old lightmap canvases so they rebuild at new resolution
+      invalidateMapCache();
       requestRender();
     });
   }

@@ -12,7 +12,7 @@ export function initSessionPanel(containerEl) {
   container = containerEl;
   fetch('/api/local-ip').then(r => r.json()).then(d => { localIP = d.ip; render(); }).catch(() => {});
   render();
-  subscribe(() => render());
+  subscribe(() => render(), 'session');
 }
 
 function render() {

@@ -623,6 +623,43 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
 const visibilityCache = new Map();
 let cachedWallSegments = null;
 
+// ─── Reusable Lightmap Canvases ───────────────────────────────────────────
+// _lmCanvas: final lightmap (static + animated, composited each frame)
+// _staticLmCanvas: cached static-only lightmap (rebuilt only when lights/walls change)
+let _lmCanvas = null;
+let _lmW = 0, _lmH = 0;
+let _staticLmCanvas = null;
+let _staticLmValid = false;
+
+function _getLightmapCanvas(w, h) {
+  if (_lmCanvas && _lmW === w && _lmH === h) return _lmCanvas;
+  if (typeof OffscreenCanvas !== 'undefined') {
+    _lmCanvas = new OffscreenCanvas(w, h);
+  } else {
+    _lmCanvas = document.createElement('canvas');
+    _lmCanvas.width = w;
+    _lmCanvas.height = h;
+  }
+  _lmW = w;
+  _lmH = h;
+  _staticLmCanvas = null; // force rebuild of static cache too
+  _staticLmValid = false;
+  return _lmCanvas;
+}
+
+function _getStaticLmCanvas(w, h) {
+  if (_staticLmCanvas && _staticLmCanvas.width === w && _staticLmCanvas.height === h) return _staticLmCanvas;
+  if (typeof OffscreenCanvas !== 'undefined') {
+    _staticLmCanvas = new OffscreenCanvas(w, h);
+  } else {
+    _staticLmCanvas = document.createElement('canvas');
+    _staticLmCanvas.width = w;
+    _staticLmCanvas.height = h;
+  }
+  _staticLmValid = false;
+  return _staticLmCanvas;
+}
+
 /**
  * Clear the visibility polygon cache. Call when walls or props change.
  * All wall-changing tools call invalidateLightmap() → this function,
@@ -631,6 +668,16 @@ let cachedWallSegments = null;
 export function invalidateVisibilityCache() {
   visibilityCache.clear();
   cachedWallSegments = null;
+  _staticLmValid = false; // static lightmap depends on wall segments + light positions
+}
+
+/** Force full lightmap cache teardown (call when lightmap resolution changes). */
+export function invalidateLightmapCaches() {
+  _staticLmCanvas = null;
+  _staticLmValid = false;
+  _lmCanvas = null;
+  _lmW = 0;
+  _lmH = 0;
 }
 
 // ─── Main Entry Point ──────────────────────────────────────────────────────
@@ -649,69 +696,122 @@ export function invalidateVisibilityCache() {
  * @param {object} [textureCatalog] - optional texture catalog for normal maps
  */
 export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options, metadata = null) {
-  const { ambientColor = '#ffffff', time = 0 } = options || {};
+  const { ambientColor = '#ffffff', time = 0, lightPxPerFoot = 0, destX = 0, destY = 0, destW = 0, destH = 0 } = options || {};
   const activeLights = lights || [];
 
   // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
-  // Every tool that modifies walls/props/lights calls invalidateLightmap() → invalidateVisibilityCache(),
-  // so per-frame extraction and hashing is unnecessary and was causing GC pressure.
   if (!cachedWallSegments) {
     cachedWallSegments = extractWallSegments(cells, gridSize, propCatalog, metadata);
   }
   const segments = cachedWallSegments;
 
-  // Use an OffscreenCanvas for the lightmap to avoid interfering with main context state
-  let lightCanvas;
-  if (typeof OffscreenCanvas !== 'undefined') {
-    lightCanvas = new OffscreenCanvas(canvasW, canvasH);
-  } else {
-    lightCanvas = document.createElement('canvas');
-    lightCanvas.width = canvasW;
-    lightCanvas.height = canvasH;
+  // Lightmap resolution: if lightPxPerFoot is set and smaller than the cache
+  // resolution, render at reduced size and upscale. Lightmaps are smooth
+  // gradients so lower resolution is visually imperceptible.
+  const cacheScale = transform.scale; // px/ft of the full cache
+  const lmScale = (lightPxPerFoot > 0 && lightPxPerFoot < cacheScale)
+    ? lightPxPerFoot : cacheScale;
+  const lmW = Math.ceil(canvasW * lmScale / cacheScale);
+  const lmH = Math.ceil(canvasH * lmScale / cacheScale);
+  const lmTransform = { scale: lmScale, offsetX: 0, offsetY: 0 };
+
+  // Split lights into static (no animation) and animated
+  const staticLights = [];
+  const animatedLights = [];
+  for (const light of activeLights) {
+    if (light.animation?.type) {
+      animatedLights.push(light);
+    } else {
+      staticLights.push(light);
+    }
   }
+  const hasAnimated = animatedLights.length > 0;
+
+  // ── Static lightmap (ambient + all non-animated lights) ──
+  // Only rebuilt when visibility cache is invalidated (wall/light changes).
+  const staticCanvas = _getStaticLmCanvas(lmW, lmH);
+  if (!_staticLmValid) {
+    const slctx = staticCanvas.getContext('2d');
+    slctx.globalCompositeOperation = 'source-over';
+
+    // Fill with ambient
+    const amb = Math.max(0, Math.min(1, ambientLevel));
+    const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
+    slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
+    slctx.fillRect(0, 0, lmW, lmH);
+
+    // Additively blend each static light
+    slctx.globalCompositeOperation = 'lighter';
+    for (const light of staticLights) {
+      _renderOneLight(slctx, light, time, segments, lmTransform);
+    }
+
+    // Normal map bump uses all lights for direction, but only apply on static pass
+    if (textureCatalog) {
+      applyNormalMapBump(slctx, activeLights, cells, gridSize, lmTransform, textureCatalog);
+    }
+
+    _staticLmValid = true;
+  }
+
+  // Determine where to draw the lightmap on the target canvas.
+  // When destW/destH are set, the lightmap covers a sub-region of the target (screen overlay).
+  // Otherwise it covers the full target (cache-space rendering).
+  const useDest = destW > 0 && destH > 0;
+  const dx = useDest ? destX : 0;
+  const dy = useDest ? destY : 0;
+  const dw = useDest ? destW : canvasW;
+  const dh = useDest ? destH : canvasH;
+
+  if (!hasAnimated) {
+    // Fast path: no animated lights — composite static lightmap directly
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(staticCanvas, dx, dy, dw, dh);
+    ctx.restore();
+    return;
+  }
+
+  // ── Animated lights: blit static cache + render animated lights ──
+  const lightCanvas = _getLightmapCanvas(lmW, lmH);
   const lctx = lightCanvas.getContext('2d');
 
-  // Fill with ambient. For multiply mode: ambientColor * ambientLevel.
-  const amb = Math.max(0, Math.min(1, ambientLevel));
-  const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
-  lctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
-  lctx.fillRect(0, 0, canvasW, canvasH);
+  // Start from the cached static lightmap
+  lctx.globalCompositeOperation = 'source-over';
+  lctx.drawImage(staticCanvas, 0, 0);
 
-  // Additively blend each light's contribution on top of ambient
+  // Additively blend animated lights
   lctx.globalCompositeOperation = 'lighter';
-
-  for (const light of activeLights) {
-    const eff = getEffectiveLight(light, time);
-
-    // Outer radius for visibility: max of bright radius and dim radius
-    const outerRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0))
-      ? eff.dimRadius : (eff.radius || 30);
-    const effectiveRadius = eff.range || outerRadius;
-    const cacheKey = `${light.id}:${eff.x},${eff.y},${effectiveRadius}`;
-    let visibility = visibilityCache.get(cacheKey);
-
-    if (!visibility) {
-      visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
-      visibilityCache.set(cacheKey, visibility);
-    }
-
-    if (eff.type === 'directional') {
-      renderDirectionalLight(lctx, eff, visibility, transform);
-    } else {
-      renderPointLight(lctx, eff, visibility, transform);
-    }
-  }
-
-  // Apply simplified normal map bump effect
-  if (textureCatalog) {
-    applyNormalMapBump(lctx, activeLights, cells, gridSize, transform, textureCatalog);
+  for (const light of animatedLights) {
+    _renderOneLight(lctx, light, time, segments, lmTransform);
   }
 
   // Composite lightmap onto main canvas with multiply
   ctx.save();
   ctx.globalCompositeOperation = 'multiply';
-  ctx.drawImage(lightCanvas, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(lightCanvas, dx, dy, dw, dh);
   ctx.restore();
+}
+
+/** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
+function _renderOneLight(lctx, light, time, segments, transform) {
+  const eff = getEffectiveLight(light, time);
+  const outerRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0))
+    ? eff.dimRadius : (eff.radius || 30);
+  const effectiveRadius = eff.range || outerRadius;
+  const cacheKey = `${light.id}:${eff.x},${eff.y},${effectiveRadius}`;
+  let visibility = visibilityCache.get(cacheKey);
+  if (!visibility) {
+    visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
+    visibilityCache.set(cacheKey, visibility);
+  }
+  if (eff.type === 'directional') {
+    renderDirectionalLight(lctx, eff, visibility, transform);
+  } else {
+    renderPointLight(lctx, eff, visibility, transform);
+  }
 }
 
 // ─── Simplified Normal Map Bump Effect ─────────────────────────────────────

@@ -466,7 +466,7 @@ export function getFluidPathCache(cells, gridSize, theme, roomCells) {
  * Arc void clips are NOT applied here — the caller applies them when blitting this layer
  * onto the main cache canvas (avoids duplicating complex arc geometry code).
  */
-export function getRenderedFluidLayer(data, gridSize, cacheW, cacheH) {
+export function getRenderedFluidLayer(data, gridSize, cacheW, cacheH, cacheScale = 10) {
   if (!data.pit && !data.water && !data.lava) return null;
 
   // Return cached layer if still valid
@@ -492,8 +492,7 @@ export function getRenderedFluidLayer(data, gridSize, cacheW, cacheH) {
   const ctx = offCanvas.getContext('2d', { alpha: true });
   ctx.clearRect(0, 0, cacheW, cacheH);
 
-  const MAP_PX_PER_FOOT = 10;
-  const sc = MAP_PX_PER_FOOT;
+  const sc = cacheScale;
 
   // World-space CTM — all cached Path2D coordinates are in world units
   ctx.setTransform(sc, 0, 0, sc, 0, 0);

@@ -3,11 +3,15 @@ import { toCanvas } from './bounds.js';
 // ── Render performance profiling ────────────────────────────────────────────
 // Populated by renderCells on each frame. Read by canvas-view diagnostics overlay.
 export const renderTimings = {};
+// Frame stamp: incremented each frame by canvas-view. Used to detect stale timings.
+let _timingFrame = 0;
+export function bumpTimingFrame() { return ++_timingFrame; }
+export function getTimingFrame() { return _timingFrame; }
 
 function _t(label, fn) {
   const start = performance.now();
   const result = fn();
-  renderTimings[label] = (performance.now() - start);
+  renderTimings[label] = { ms: performance.now() - start, frame: _timingFrame };
   return result;
 }
 import { determineRoomCells, getDiagonalTrimCorner, drawRoundedWall } from './floors.js';
@@ -596,7 +600,7 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
 
   // ── Cache-mode fast path: pre-rendered blend layer at cache resolution ──
   if (cacheSize) {
-    const blendLayer = getRenderedBlendLayer(topo, gridSize, cacheSize.w, cacheSize.h);
+    const blendLayer = getRenderedBlendLayer(topo, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale);
     if (blendLayer) {
       withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
         ctx.drawImage(blendLayer, 0, 0);
@@ -761,7 +765,7 @@ function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRou
 
   if (data.pit || data.water || data.lava) {
     // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
-    const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h) : null;
+    const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
 
     if (fluidLayer) {
       // Blit the cached fluid layer — arc void clip applied here, not in the layer
@@ -1039,7 +1043,7 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
       }
     }
   }
-  if (_diagMergeCount > 0) renderTimings._diagMerged = _diagMergeCount;
+  if (_diagMergeCount > 0) renderTimings._diagMerged = { ms: _diagMergeCount, frame: _timingFrame };
 
   // Draw all wall segments — shadow pass first, then walls on top
   if (wallSegments.length > 0) {
@@ -1121,7 +1125,7 @@ function renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelSt
     : null;
 
   // Try pre-rendered props layer cache
-  const propsLayer = cacheSize ? getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, metadata, cacheSize.w, cacheSize.h) : null;
+  const propsLayer = cacheSize ? getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, metadata, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
   if (propsLayer) {
     ctx.drawImage(propsLayer, 0, 0);
   } else {
@@ -1398,7 +1402,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     ctx.globalAlpha = 1.0;
   }
 
-  renderTimings.arcs = performance.now() - _arcStart;
+  renderTimings.arcs = { ms: performance.now() - _arcStart, frame: _timingFrame };
 
   // Texture edge + corner blending
   if (!skipPhases?.blending) {
@@ -1422,7 +1426,7 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   if (!skipPhases?.bridges) {
     _t('bridges', () => {
       const getTextureImageForBridges = textureOptions?.catalog
-        ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
+        ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img && (e.img.complete !== false) ? e.img : null; }
         : null;
       renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
     });
