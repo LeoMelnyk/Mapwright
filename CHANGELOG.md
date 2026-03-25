@@ -22,6 +22,7 @@ New drawing primitives for richer prop artwork:
 - **Elliptical ring**: `ering` command for non-circular donut/annulus shapes
 - **Clipping masks**: `clip-begin`/`clip-end` blocks to restrict rendering to a shaped region
 - All new primitives support rotation, flipping, fill/stroke/texfill styles, and the `width` modifier
+- **Hitbox commands**: `hitbox rect/circle/poly` defines custom lighting occlusion shapes; `selection rect/circle/poly` defines custom click-detection shapes. Both are optional — auto-generated convex hulls are used as defaults
 
 ### Prop Tooling
 
@@ -55,6 +56,10 @@ The grid system now supports half-cell precision. Internally, each display cell 
 - **Screen-resolution animated lighting**: When animated lights exist, the lightmap is rendered at screen resolution and composited directly onto the viewport instead of rebuilding the full 5000×5000 offscreen composite every animation tick. Eliminates the per-frame 25-megapixel cache rebuild that was dropping frame rate from 240Hz to 13Hz
 - **Configurable light quality**: New "Light Quality" dropdown in the View menu (Low 5 / Medium 10 / High 15 / Ultra 20 px/ft). Controls lightmap rendering resolution independently from the cell cache. Lower settings dramatically improve animated lighting performance on large maps with minimal visual impact (lightmaps are smooth gradients)
 - **Reusable lightmap canvas**: The lightmap OffscreenCanvas is cached and reused across frames instead of allocating a new 100MB+ VRAM buffer every frame
+- **Auto-generated prop hitboxes**: Every prop now has a pre-computed convex hull polygon generated at load time by rasterizing draw commands onto a binary grid and tracing the boundary. Replaces per-query iteration of all draw commands for both click detection (`hitTestPropPixel`) and light occlusion (`extractPropLightSegments`). A prop with 91 draw commands that previously generated 200+ light-blocking segments now produces ~6-10 segments from a single polygon
+- **Separate lighting and selection hitboxes**: Props support independent `hitbox` (lighting occlusion) and `selection` (click detection) shapes. Lighting hitboxes can be manually overridden in `.prop` files for props where the convex hull is too loose. Selection always uses the auto-generated hull unless a manual `selection` command is specified
+- **Subscriber state-diff guards**: All panel `notify()` callbacks now check whether their relevant state actually changed before doing DOM work. Metadata skips if `metadata` ref unchanged; toolbar skips if `activeTool`/`lightingEnabled` unchanged; lighting skips if `lights`/`selectedLightId` unchanged; history skips if stack depths unchanged; properties skips if `selectedProp`/`selectedCells` unchanged; session skips if `sessionState` unchanged; background-image skips if `backgroundImage` ref unchanged. Reduces idle-frame notify cost from ~1ms to ~0.1ms
+- **Raised offscreen cache limit**: Maximum cache canvas dimension increased from 8000px to 16384px, allowing large maps (e.g. 66×84 prop showcase) to use the offscreen cache instead of falling back to expensive per-frame direct rendering
 - **Canvas context**: Uses `{ alpha: false, desynchronized: true }` for reduced compositor overhead
 - **GPU flags**: Electron configured with `ignore-gpu-blocklist`, `enable-accelerated-2d-canvas`, `enable-gpu-rasterization`, and `use-angle=gl` for maximum GPU utilization
 
@@ -72,6 +77,7 @@ The grid system now supports half-cell precision. Internally, each display cell 
 - **Frame total**: Shows previous frame's complete render time including diagnostics, minimap, and post-draw work — reveals hidden per-frame costs not captured by individual phase timers
 - **Post-frame busy probe**: `setTimeout(0)` probe measures main-thread blocking after `render()` returns, distinguishing JS bottlenecks from GPU compositor latency
 - **Phase skip debugging**: `window._skipPhases = { cells: true }` in console to disable render phases and isolate GPU bottlenecks
+- **Debug panel**: New right-sidebar panel (View > Developer > Debug Panel) with toggles to show hitbox overlays (cyan = lighting, yellow = selection) and enable/disable individual render layers without the console. Hitbox visibility persists across reloads
 
 ### Prop Sizing Overhaul
 

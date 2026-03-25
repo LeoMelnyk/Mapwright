@@ -11,12 +11,18 @@ export function initBackgroundImagePanel(el) {
   subscribe(() => render(), 'bg-image');
 }
 
+let _lastBgImage = undefined; // use undefined so null (no image) is a valid "last" state
 function render() {
   if (!container) return;
-  container.innerHTML = '';
 
   const metadata = state.dungeon.metadata;
   const bi = metadata.backgroundImage;
+
+  // Skip rebuild if background image config hasn't changed
+  if (bi === _lastBgImage) return;
+  _lastBgImage = bi;
+
+  container.innerHTML = '';
 
   // ── Upload row ──────────────────────────────────────────────────────────
   const uploadSection = el('div', 'bg-image-section');

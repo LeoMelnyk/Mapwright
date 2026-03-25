@@ -9,6 +9,9 @@ room_types: garden, courtyard, wilderness, forest
 typical_count: few
 notes: Large deciduous tree; needs open space (2x2). Place in outdoor or garden areas
 ---
+# Hitbox: trunk only, canopy doesn't block at ground level
+hitbox circle 1.5,1.55 0.24
+
 # Trunk (visible through canopy gap)
 circle 1.5,1.55 0.24 texfill polyhaven/bark_brown_02 0.85
 circle 1.5,1.55 0.24 stroke #3a1f00

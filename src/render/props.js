@@ -123,13 +123,22 @@ export function parsePropFile(text) {
     try { propLights = JSON.parse(header.lights); } catch (e) { warn(`[props] Malformed lights JSON in prop "${name}": ${e.message}`); }
   }
 
-  // Parse body (draw commands)
+  // Parse body (draw commands + hitbox/selection commands)
   const commands = [];
+  const manualHitboxCmds = [];
+  const manualSelectionCmds = [];
   for (const line of bodyText.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
     const cmd = parseCommand(trimmed);
-    if (cmd) commands.push(cmd);
+    if (!cmd) continue;
+    if (cmd.type === 'hitbox') {
+      manualHitboxCmds.push(cmd);
+    } else if (cmd.type === 'selection') {
+      manualSelectionCmds.push(cmd);
+    } else {
+      commands.push(cmd);
+    }
   }
 
   // Collect unique texture IDs referenced by texfill commands
@@ -151,6 +160,8 @@ export function parsePropFile(text) {
   return {
     name, category, footprint, facing, shadow, blocksLight, padding,
     commands, textures, lights: propLights,
+    manualHitbox: manualHitboxCmds.length > 0 ? manualHitboxCmds : null,
+    manualSelection: manualSelectionCmds.length > 0 ? manualSelectionCmds : null,
     placement, roomTypes, typicalCount, clustersWith, notes,
   };
 }
@@ -382,6 +393,35 @@ function parseCommand(line) {
 
     case 'clip-end': {
       return { type: 'clip-end' };
+    }
+
+    case 'hitbox':
+    case 'selection': {
+      // hitbox rect x,y w,h       — lighting occlusion shape
+      // selection rect x,y w,h    — click/selection shape
+      // Both support: rect, circle, poly
+      const shape = tokens[1]?.toLowerCase();
+      switch (shape) {
+        case 'rect': {
+          const [x, y] = parseCoord(tokens[2]);
+          const [w, h] = parseCoord(tokens[3]);
+          return { type, subShape: 'rect', x, y, w, h };
+        }
+        case 'circle': {
+          const [cx, cy] = parseCoord(tokens[2]);
+          const r = parseFloat(tokens[3]);
+          return { type, subShape: 'circle', cx, cy, r };
+        }
+        case 'poly': {
+          const points = [];
+          for (let i = 2; i < tokens.length; i++) {
+            const [px, py] = parseCoord(tokens[i]);
+            points.push([px, py]);
+          }
+          return { type, subShape: 'poly', points };
+        }
+        default: return null;
+      }
     }
 
     default:
@@ -1553,6 +1593,221 @@ export function renderAllProps(ctx, cells, gridSize, theme, transform, propCatal
  * @param {number} texturesVersion
  * @returns {boolean} true if the pixel is non-transparent (or AABB fallback)
  */
+// ── Hitbox Generation ──────────────────────────────────────────────────────
+
+const HITBOX_PX_PER_CELL = 32; // rasterization resolution per footprint cell
+const HITBOX_SIMPLIFY_EPSILON = 0.08; // Douglas-Peucker tolerance in normalized coords
+
+/**
+ * Generate a simplified hitbox polygon from a prop's draw commands.
+ * Rasterizes all commands onto a binary grid, traces the outer contour
+ * using marching squares, then simplifies with Douglas-Peucker.
+ *
+ * @param {Array} commands - parsed draw commands
+ * @param {number[]} footprint - [rows, cols]
+ * @returns {Array<[number,number]>|null} polygon in prop-local coords (0..cols, 0..rows), or null if empty
+ */
+export function generateHitbox(commands, footprint) {
+  if (!commands?.length) return null;
+  const [fRows, fCols] = footprint;
+  const gw = fCols * HITBOX_PX_PER_CELL;
+  const gh = fRows * HITBOX_PX_PER_CELL;
+  if (gw === 0 || gh === 0) return null;
+
+  // 1. Rasterize commands onto binary grid
+  const grid = new Uint8Array(gw * gh);
+  for (let py = 0; py < gh; py++) {
+    const ny = (py + 0.5) / HITBOX_PX_PER_CELL; // center of pixel in normalized coords
+    for (let px = 0; px < gw; px++) {
+      const nx = (px + 0.5) / HITBOX_PX_PER_CELL;
+      grid[py * gw + px] = _testPointAgainstCommands(nx, ny, commands) ? 1 : 0;
+    }
+  }
+
+  // 2. Collect all boundary pixels (filled with at least one empty cardinal neighbor)
+  const boundary = [];
+  for (let y = 0; y < gh; y++) {
+    for (let x = 0; x < gw; x++) {
+      if (!grid[y * gw + x]) continue;
+      const g = (bx, by) => (bx >= 0 && bx < gw && by >= 0 && by < gh) ? grid[by * gw + bx] : 0;
+      if (!g(x - 1, y) || !g(x + 1, y) || !g(x, y - 1) || !g(x, y + 1)) {
+        boundary.push([x / HITBOX_PX_PER_CELL, y / HITBOX_PX_PER_CELL]);
+      }
+    }
+  }
+  if (boundary.length < 3) return null;
+
+  // 3. Compute convex hull (Graham scan) — handles disconnected shapes (e.g. tree canopy + trunk)
+  const hull = _convexHull(boundary);
+  if (!hull || hull.length < 3) return null;
+
+  // 4. Simplify with Douglas-Peucker
+  const simplified = _douglasPeucker(hull, HITBOX_SIMPLIFY_EPSILON);
+  return simplified.length >= 3 ? simplified : null;
+}
+
+/** Test a point (in prop-local normalized coords) against all commands at rotation=0, no flip. */
+function _testPointAgainstCommands(nx, ny, commands) {
+  let hit = false;
+  for (const cmd of commands) {
+    if (cmd.type === 'line') continue;
+    switch (cmd.type) {
+      case 'rect':
+        if (cmd.rotate != null && cmd.rotate !== 0) {
+          const cx = cmd.x + cmd.w / 2, cy = cmd.y + cmd.h / 2;
+          const rad = (-cmd.rotate * Math.PI) / 180;
+          const cos = Math.cos(rad), sin = Math.sin(rad);
+          const dx = nx - cx, dy = ny - cy;
+          const lx = dx * cos - dy * sin + cx;
+          const ly = dx * sin + dy * cos + cy;
+          if (lx >= cmd.x && lx <= cmd.x + cmd.w && ly >= cmd.y && ly <= cmd.y + cmd.h) hit = true;
+        } else {
+          if (nx >= cmd.x && nx <= cmd.x + cmd.w && ny >= cmd.y && ny <= cmd.y + cmd.h) hit = true;
+        }
+        break;
+      case 'circle': {
+        const dx = nx - cmd.cx, dy = ny - cmd.cy;
+        if (dx * dx + dy * dy <= cmd.r * cmd.r) hit = true;
+        break;
+      }
+      case 'ellipse': {
+        const edx = (nx - cmd.cx) / cmd.rx, edy = (ny - cmd.cy) / cmd.ry;
+        if (edx * edx + edy * edy <= 1) hit = true;
+        break;
+      }
+      case 'poly':
+        if (cmd.points?.length >= 3 && _pointInPolygon(nx, ny, cmd.points)) hit = true;
+        break;
+      case 'arc': {
+        const adx = nx - cmd.cx, ady = ny - cmd.cy;
+        if (adx * adx + ady * ady > cmd.r * cmd.r) break;
+        let angle = Math.atan2(ady, adx) * 180 / Math.PI;
+        if (angle < 0) angle += 360;
+        const start = ((cmd.startDeg % 360) + 360) % 360;
+        const end = ((cmd.endDeg % 360) + 360) % 360;
+        if (start <= end) { if (angle >= start && angle <= end) hit = true; }
+        else { if (angle >= start || angle <= end) hit = true; }
+        break;
+      }
+      case 'cutout': {
+        let inside = false;
+        switch (cmd.subShape) {
+          case 'circle': {
+            const dx = nx - cmd.cx, dy = ny - cmd.cy;
+            inside = dx * dx + dy * dy <= cmd.r * cmd.r;
+            break;
+          }
+          case 'rect':
+            inside = nx >= cmd.x && nx <= cmd.x + cmd.w && ny >= cmd.y && ny <= cmd.y + cmd.h;
+            break;
+          case 'ellipse': {
+            const edx = (nx - cmd.cx) / cmd.rx, edy = (ny - cmd.cy) / cmd.ry;
+            inside = edx * edx + edy * edy <= 1;
+            break;
+          }
+        }
+        if (inside) hit = false;
+        break;
+      }
+      case 'ring': {
+        const dx = nx - cmd.cx, dy = ny - cmd.cy;
+        const dist2 = dx * dx + dy * dy;
+        if (dist2 <= cmd.outerR * cmd.outerR && dist2 >= cmd.innerR * cmd.innerR) hit = true;
+        break;
+      }
+    }
+  }
+  return hit;
+}
+
+/**
+ * Convex hull via Graham scan.
+ * @param {Array<[number,number]>} points
+ * @returns {Array<[number,number]>}
+ */
+function _convexHull(points) {
+  if (points.length < 3) return points;
+
+  // Find lowest point (then leftmost)
+  let pivot = 0;
+  for (let i = 1; i < points.length; i++) {
+    if (points[i][1] < points[pivot][1] || (points[i][1] === points[pivot][1] && points[i][0] < points[pivot][0])) {
+      pivot = i;
+    }
+  }
+  [points[0], points[pivot]] = [points[pivot], points[0]];
+  const p0 = points[0];
+
+  // Sort by polar angle from pivot
+  points.sort((a, b) => {
+    if (a === p0) return -1;
+    if (b === p0) return 1;
+    const cross = (a[0] - p0[0]) * (b[1] - p0[1]) - (a[1] - p0[1]) * (b[0] - p0[0]);
+    if (cross !== 0) return -cross; // CCW order
+    // Collinear: closer first
+    const da = (a[0] - p0[0]) ** 2 + (a[1] - p0[1]) ** 2;
+    const db = (b[0] - p0[0]) ** 2 + (b[1] - p0[1]) ** 2;
+    return da - db;
+  });
+
+  // Build hull
+  const hull = [points[0], points[1]];
+  for (let i = 2; i < points.length; i++) {
+    while (hull.length > 1) {
+      const a = hull[hull.length - 2];
+      const b = hull[hull.length - 1];
+      const c = points[i];
+      const cross = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+      if (cross > 0) break; // left turn — keep
+      hull.pop();
+    }
+    hull.push(points[i]);
+  }
+  return hull;
+}
+
+/**
+ * Douglas-Peucker polyline simplification.
+ * @param {Array<[number,number]>} points
+ * @param {number} epsilon - tolerance
+ * @returns {Array<[number,number]>}
+ */
+function _douglasPeucker(points, epsilon) {
+  if (points.length <= 2) return points;
+
+  // Find point with max distance from the line between first and last
+  let maxDist = 0;
+  let maxIdx = 0;
+  const [x1, y1] = points[0];
+  const [x2, y2] = points[points.length - 1];
+  const dx = x2 - x1, dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+
+  for (let i = 1; i < points.length - 1; i++) {
+    const [px, py] = points[i];
+    let dist;
+    if (lenSq === 0) {
+      dist = Math.sqrt((px - x1) * (px - x1) + (py - y1) * (py - y1));
+    } else {
+      const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lenSq));
+      const projX = x1 + t * dx;
+      const projY = y1 + t * dy;
+      dist = Math.sqrt((px - projX) * (px - projX) + (py - projY) * (py - projY));
+    }
+    if (dist > maxDist) {
+      maxDist = dist;
+      maxIdx = i;
+    }
+  }
+
+  if (maxDist > epsilon) {
+    const left = _douglasPeucker(points.slice(0, maxIdx + 1), epsilon);
+    const right = _douglasPeucker(points.slice(maxIdx), epsilon);
+    return left.slice(0, -1).concat(right);
+  }
+  return [points[0], points[points.length - 1]];
+}
+
 /**
  * Test if a world-feet point hits the actual shapes of a prop's draw commands.
  * Uses geometric math (point-in-circle, point-in-rect, point-in-polygon) on
@@ -1580,10 +1835,38 @@ export function hitTestPropPixel(prop, wx, wy, propCatalog, gridSize) {
   // To normalized prop coordinates (0..cols, 0..rows)
   const nx = (unscaledX - prop.x) / gridSize;
   const ny = (unscaledY - prop.y) / gridSize;
-
-  // Test each draw command's shape (after flip+rotate transform)
-  // Accumulate hit state: regular shapes set hit=true, cutouts set hit=false
   const r = ((rotation % 360) + 360) % 360;
+
+  // Fast path: use selection hitbox (if defined), else auto-generated hitbox
+  // Note: propDef.hitbox (lighting) is intentionally NOT used here — it may be
+  // a manual convex shape that's too loose for accurate click detection.
+  const selHitbox = propDef.selectionHitbox || propDef.autoHitbox;
+  if (selHitbox) {
+    // Inverse-transform the test point back to unrotated/unflipped prop space
+    let hx = nx, hy = ny;
+    if (r !== 0) {
+      const cx = fCols / 2, cy = fRows / 2;
+      const rdx = (fRows - fCols) / 2;
+      const rdy = (fCols - fRows) / 2;
+      switch (r) {
+        case 90:  { const tx = hx - rdx, ty = hy - rdy; hx = cx + (ty - cy); hy = cy - (tx - cx); break; }
+        case 180: { hx = 2 * cx - hx; hy = 2 * cy - hy; break; }
+        case 270: { const tx = hx - rdx, ty = hy - rdy; hx = cx - (ty - cy); hy = cy + (tx - cx); break; }
+        default: {
+          const rad = (r * Math.PI) / 180;
+          const cos = Math.cos(rad), sin = Math.sin(rad);
+          const dx = hx - cx, dy = hy - cy;
+          hx = cx + dx * cos + dy * sin;
+          hy = cy - dx * sin + dy * cos;
+          break;
+        }
+      }
+    }
+    if (flipped) hx = fCols - hx;
+    return _pointInPolygon(hx, hy, selHitbox);
+  }
+
+  // Fallback: test each draw command's shape (after flip+rotate transform)
   let hit = false;
   for (const cmd of propDef.commands) {
     if (cmd.type === 'line') continue; // too thin
@@ -1795,12 +2078,61 @@ export function renderOverlayProps(ctx, overlayProps, gridSize, theme, transform
  * @returns {Array<{x1, y1, x2, y2}>} Segments in world-feet
  */
 export function extractOverlayPropLightSegments(propDef, overlayProp, gridSize) {
-  if (!propDef?.commands) return [];
-
   const rotation = overlayProp.rotation ?? 0;
   const scale = overlayProp.scale ?? 1.0;
   const flipped = overlayProp.flipped ?? false;
+  const [fRows, fCols] = propDef.footprint;
   const r = ((rotation % 360) + 360) % 360;
+
+  // Fast path: use hitbox polygon if available
+  if (propDef.hitbox) {
+    const hitbox = propDef.hitbox;
+    const cx = fCols / 2;
+    const cy = fRows / 2;
+    const rdx = (fRows - fCols) / 2;
+    const rdy = (fCols - fRows) / 2;
+
+    // Transform each hitbox vertex: flip → rotate → scale → world-feet → translate
+    const worldPts = hitbox.map(([hx, hy]) => {
+      let px = flipped ? fCols - hx : hx;
+      let py = hy;
+      // Rotate using rotatePoint logic
+      switch (r) {
+        case 90:  { const nx = cx + (py - cy) + rdx; const ny = cy - (px - cx) + rdy; px = nx; py = ny; break; }
+        case 180: { px = 2 * cx - px; py = 2 * cy - py; break; }
+        case 270: { const nx = cx - (py - cy) + rdx; const ny = cy + (px - cx) + rdy; px = nx; py = ny; break; }
+        case 0: break;
+        default: {
+          const rad = (-r * Math.PI) / 180;
+          const cos = Math.cos(rad), sin = Math.sin(rad);
+          const dx = px - cx, dy = py - cy;
+          px = cx + dx * cos - dy * sin;
+          py = cy + dx * sin + dy * cos;
+          break;
+        }
+      }
+      // To world-feet with scale
+      const wx = px * gridSize;
+      const wy = py * gridSize;
+      const pcx = (r === 90 || r === 270 ? fRows : fCols) * gridSize / 2;
+      const pcy = (r === 90 || r === 270 ? fCols : fRows) * gridSize / 2;
+      return {
+        x: overlayProp.x + pcx + (wx - pcx) * scale,
+        y: overlayProp.y + pcy + (wy - pcy) * scale,
+      };
+    });
+    // Emit closed polygon segments
+    const segments = [];
+    for (let i = 0; i < worldPts.length; i++) {
+      const a = worldPts[i];
+      const b = worldPts[(i + 1) % worldPts.length];
+      segments.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+    }
+    return segments;
+  }
+
+  // Fallback: iterate draw commands
+  if (!propDef?.commands) return [];
 
   // For grid-aligned rotation at scale 1.0, delegate to existing function
   if ((r === 0 || r === 90 || r === 180 || r === 270) && scale === 1.0) {
@@ -1810,31 +2142,22 @@ export function extractOverlayPropLightSegments(propDef, overlayProp, gridSize) 
   }
 
   // Arbitrary rotation/scale: extract segments then transform
-  // Get unrotated segments at origin
   const baseSegments = extractPropLightSegments(propDef, 0, 0, 0, flipped, gridSize);
 
-  // Compute center of the prop in world-feet (rotation pivot)
-  const [fRows, fCols] = propDef.footprint;
   const cx = (fCols / 2) * gridSize;
   const cy = (fRows / 2) * gridSize;
-
-  // Apply rotation and scale around center, then translate to actual position
-  // Negate to match transformCommand's CCW convention
   const rad = (-rotation * Math.PI) / 180;
   const cos = Math.cos(rad);
   const sin = Math.sin(rad);
 
   return baseSegments.map(seg => {
     function transform(x, y) {
-      // Translate to center-relative
       const dx = x - cx;
       const dy = y - cy;
-      // Scale then rotate
       const sx = dx * scale;
       const sy = dy * scale;
       const rx = sx * cos - sy * sin;
       const ry = sx * sin + sy * cos;
-      // Translate back to world position
       return {
         x: rx + cx * scale + overlayProp.x - cx * (scale - 1),
         y: ry + cy * scale + overlayProp.y - cy * (scale - 1),

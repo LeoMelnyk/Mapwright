@@ -11,3 +11,4 @@ export { init as initRightSidebar, setRightPanelChangeCallback, getActiveRightPa
 export { initClaudePanel } from './claude-chat.js';
 export { initBackgroundImagePanel } from './background-image.js';
 export { initKeybindingsHelper, toggleKeybindingsHelper, refreshKeybindingsHelper } from './keybindings-helper.js';
+export { initDebugPanel } from './debug.js';

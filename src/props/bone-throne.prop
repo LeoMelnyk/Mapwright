@@ -3,7 +3,7 @@ category: Undead & Dark
 footprint: 3x2
 facing: yes
 shadow: no
-blocks_light: yes
+blocks_light: no
 placement: center
 room_types: crypt, necromancer-lair, throne-room
 typical_count: single

@@ -268,7 +268,8 @@ async function main() {
       }
 
       if (args.save) {
-        const map = await page.evaluate(() => window.editorAPI.getMap());
+        const result = await page.evaluate(() => window.editorAPI.getMap());
+        const map = result.dungeon || result; // unwrap { success, dungeon } envelope
         const outPath = path.resolve(args.save);
         await fs.writeFile(outPath, JSON.stringify(map));
         console.log(`Saved: ${outPath}`);

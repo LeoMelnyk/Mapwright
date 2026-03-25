@@ -344,6 +344,9 @@ export function init() {
   // Keep dungeon letter dropdown in sync after load/new/undo.
   // Auto-detect the letter from existing labels when a new dungeon is loaded.
   let lastDungeon = null;
+  let _lastTool = null;
+  let _lastLighting = null;
+  let _lastSessionTools = null;
   subscribe(() => {
     const meta = state.dungeon.metadata;
     if (state.dungeon !== lastDungeon) {
@@ -351,10 +354,19 @@ export function init() {
       if (!meta.dungeonLetter) {
         meta.dungeonLetter = detectDungeonLetter(state.dungeon.cells);
       }
+      const sel = document.getElementById('dungeon-letter-select');
+      if (sel) sel.value = meta.dungeonLetter || 'A';
+      // Force toolbar update on dungeon swap
+      _lastTool = null;
     }
-    const sel = document.getElementById('dungeon-letter-select');
-    if (sel) sel.value = meta.dungeonLetter || 'A';
-    updateToolButtons();
+    // Only update toolbar buttons when relevant state changed
+    const lighting = !!meta.lightingEnabled;
+    if (state.activeTool !== _lastTool || lighting !== _lastLighting || state.sessionToolsActive !== _lastSessionTools) {
+      _lastTool = state.activeTool;
+      _lastLighting = lighting;
+      _lastSessionTools = state.sessionToolsActive;
+      updateToolButtons();
+    }
   }, 'toolbar');
 }
 

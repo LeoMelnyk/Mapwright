@@ -9,11 +9,18 @@ export function initHistoryPanel(el) {
   update();
 }
 
+let _lastUndoLen = -1;
+let _lastRedoLen = -1;
 function update() {
   if (!container) return;
 
   const stack = state.undoStack;
   const redoStack = state.redoStack;
+
+  // Skip rebuild if stack depths haven't changed
+  if (stack.length === _lastUndoLen && redoStack.length === _lastRedoLen) return;
+  _lastUndoLen = stack.length;
+  _lastRedoLen = redoStack.length;
 
   let html = '<div class="panel-title">History</div>';
 

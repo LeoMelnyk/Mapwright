@@ -10,6 +10,9 @@ typical_count: single
 clusters_with: fountain, mushroom
 notes: Weeping willow with drooping branches; place near water features or as garden centerpiece
 ---
+# Hitbox: trunk only, drooping branches don't block at ground level
+hitbox circle 1.5,1.5 0.22
+
 # Outer fringe — dense curtain of drooping branch tips touching the ground
 # This is the densest ring, creating the distinctive willow silhouette
 circle 1.5,1.5 1.40 fill #4a8a30 0.18

@@ -11,6 +11,9 @@ export function initLightingPanel(el) {
   subscribe(() => render(), 'lighting');
 }
 
+let _lastLights = null;
+let _lastSelectedLightId = null;
+let _lastLightingEnabled = null;
 function render() {
   if (!container) return;
 
@@ -19,6 +22,12 @@ function render() {
   const selectedLight = state.selectedLightId != null
     ? lights.find(l => l.id === state.selectedLightId)
     : null;
+
+  // Skip rebuild if nothing relevant changed
+  if (lights === _lastLights && state.selectedLightId === _lastSelectedLightId && !!metadata.lightingEnabled === _lastLightingEnabled) return;
+  _lastLights = lights;
+  _lastSelectedLightId = state.selectedLightId;
+  _lastLightingEnabled = !!metadata.lightingEnabled;
 
   container.innerHTML = '';
 

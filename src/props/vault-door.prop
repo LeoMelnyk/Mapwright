@@ -9,6 +9,9 @@ room_types: vault, bank, treasury
 typical_count: single
 notes: Heavy secure door; place spanning a doorway or wall section
 ---
+# Hitbox: entire frame + door blocks light
+hitbox rect 0.0,0.0 2.0,1.0
+
 # Footprint 2x2: x 0-2, y 0-2. Wall at north, room at south.
 
 # === Stone frame walls (the doorway) ===

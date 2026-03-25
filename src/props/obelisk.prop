@@ -9,6 +9,9 @@ room_types: temple, courtyard, tomb, magical-chamber
 typical_count: few
 notes: Tall monument; place as focal point or in symmetrical arrangements
 ---
+# Hitbox: shaft cross-section blocks light (not the ground-level pedestal)
+hitbox rect 0.45,0.45 1.1,1.1
+
 # Ground shadow (height shadow cast by obelisk)
 ellipse 1.15,1.15 0.75,0.75 fill #000000 0.15
 ellipse 1.2,1.2 0.65,0.65 fill #000000 0.18

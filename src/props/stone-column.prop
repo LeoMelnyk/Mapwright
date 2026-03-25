@@ -9,6 +9,9 @@ room_types: any
 typical_count: few
 notes: Heavier structural pillar; place at room corners or symmetrically
 ---
+# Hitbox: shaft blocks light (not the ground-level base)
+hitbox circle 1,1 0.62
+
 # Large circular base (wider than the shaft)
 circle 1,1 0.82 texfill polyhaven/granite_tile 0.7
 circle 1,1 0.82 stroke #666666

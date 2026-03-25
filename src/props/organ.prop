@@ -10,6 +10,9 @@ typical_count: single
 clusters_with: pew, bench
 notes: Pipe organ; place against back wall of temples or cathedrals
 ---
+# Hitbox: pipe case and windchest block light, not the open pedalboard area
+hitbox rect 0.08,0.08 2.84,1.52
+
 # Footprint 4x3: x range 0-3, y range 0-4. Wall at north (y=0), front at south (y=4).
 
 # === Organ case (dark wood frame enclosing the pipes) ===

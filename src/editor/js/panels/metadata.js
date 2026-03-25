@@ -137,12 +137,20 @@ export function init() {
 
   // ── Sync UI ──────────────────────────────────────────────────────────────
 
+  let _lastMeta = null;
+  let _lastUnsaved = null;
   function syncUI() {
-    const mapTitleEl = document.getElementById('map-title');
-    if (mapTitleEl) {
-      const name = state.dungeon.metadata.dungeonName || 'Untitled';
-      mapTitleEl.textContent = state.unsavedChanges ? `${name} *` : name;
+    // Only sync title on unsaved-flag or name change (cheap check every notify)
+    const name = state.dungeon.metadata.dungeonName || 'Untitled';
+    if (state.unsavedChanges !== _lastUnsaved || name !== _lastMeta?.dungeonName) {
+      const mapTitleEl = document.getElementById('map-title');
+      if (mapTitleEl) mapTitleEl.textContent = state.unsavedChanges ? `${name} *` : name;
+      _lastUnsaved = state.unsavedChanges;
     }
+    // Skip full sync if metadata reference hasn't changed
+    if (state.dungeon.metadata === _lastMeta) return;
+    _lastMeta = state.dungeon.metadata;
+
     if (nameInput) nameInput.value = state.dungeon.metadata.dungeonName || '';
     const res = state.dungeon.metadata.resolution || 1;
     gridSizeSelect.value = (state.dungeon.metadata.gridSize || 5) * res;
@@ -162,6 +170,9 @@ export function init() {
     document.getElementById('feat-memory').checked = editorSettings.memoryUsage === true;
     document.getElementById('feat-minimap').checked = editorSettings.minimap === true;
     document.getElementById('feat-claude').checked = editorSettings.claude === true;
+    document.getElementById('feat-debug').checked = editorSettings.debug === true;
+    const debugBtn = document.querySelector('.right-icon-btn[data-right-panel="debug"]');
+    if (debugBtn) debugBtn.style.display = editorSettings.debug ? '' : 'none';
     const rqSelect = document.getElementById('setting-render-quality');
     if (rqSelect) rqSelect.value = String(editorSettings.renderQuality || 20);
     const lqSelect = document.getElementById('setting-light-quality');
@@ -369,6 +380,13 @@ export function init() {
       requestRender();
     });
   }
+
+  // Debug panel toggle — show/hide the debug icon button in the right sidebar
+  document.getElementById('feat-debug').addEventListener('change', (e) => {
+    setEditorSetting('debug', e.target.checked);
+    const debugBtn = document.querySelector('.right-icon-btn[data-right-panel="debug"]');
+    if (debugBtn) debugBtn.style.display = e.target.checked ? '' : 'none';
+  });
 
   // Claude AI toggle — requires reload to add/remove UI elements
   // When enabling, show a warning modal first; disabling proceeds immediately.

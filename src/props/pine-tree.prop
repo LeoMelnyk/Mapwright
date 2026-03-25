@@ -10,6 +10,9 @@ typical_count: many
 clusters_with: pine-tree, boulder, mushroom
 notes: Conifer/evergreen; cluster in groups for forest areas. Compact 1x1 footprint
 ---
+# Hitbox: trunk only, canopy doesn't block at ground level
+hitbox circle 1,1.02 0.08
+
 # Footprint 2x2: x 0-2, y 0-2. Center at (1,1).
 # Pine tree from above: spiky radial branches like a starburst
 

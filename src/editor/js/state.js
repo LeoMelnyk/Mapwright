@@ -76,6 +76,7 @@ const state = {
   session: { active: false, playerCount: 0 },
   sessionToolsActive: false,  // true when session toolbar is shown (session panel open + session active)
   statusInstruction: null,    // string or null — shown in #status-center when set
+  debugShowHitboxes: false,  // when true, render prop hitbox outlines on the canvas
 };
 
 /**

@@ -3,7 +3,7 @@ category: Containers
 footprint: 1x2
 facing: yes
 shadow: yes
-blocks_light: yes
+blocks_light: no
 placement: wall
 room_types: cellar, tavern, kitchen, storage
 typical_count: few

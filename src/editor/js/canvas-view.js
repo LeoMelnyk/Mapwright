@@ -316,8 +316,10 @@ function render() {
   const mapH = numRows * gridSize;
   const cacheW = Math.ceil(mapW * MAP_PX_PER_FOOT);
   const cacheH = Math.ceil(mapH * MAP_PX_PER_FOOT);
-  // Don't cache if map is huge (>8000px in either dimension) — fallback to direct render
-  const useCache = cacheW <= 8000 && cacheH <= 8000 && !_skip.cells;
+  // Don't cache if map exceeds GPU texture limits — fallback to direct render
+  // Most modern GPUs support 16384×16384; Electron with GPU flags can handle more
+  const MAX_CACHE_DIM = 16384;
+  const useCache = cacheW <= MAX_CACHE_DIM && cacheH <= MAX_CACHE_DIM && !_skip.cells;
 
   if (useCache) {
     const texVer = state.texturesVersion ?? 0;
@@ -535,6 +537,67 @@ function render() {
   // Tool overlay — suppressed while panning (right-drag or Alt+drag)
   if (activeTool?.renderOverlay && !isPanning && !rightDragged) {
     activeTool.renderOverlay(ctx, transform, gridSize);
+  }
+
+  // Debug: hitbox overlay — cyan = lighting hitbox, yellow = selection hitbox (when different)
+  if (state.debugShowHitboxes && state.propCatalog && metadata.props?.length) {
+    ctx.save();
+    for (const prop of metadata.props) {
+      const propDef = state.propCatalog.props[prop.type];
+      if (!propDef?.hitbox) continue;
+      const rotation = prop.rotation ?? 0;
+      const scl = prop.scale ?? 1.0;
+      const flipped = prop.flipped ?? false;
+      const [fRows, fCols] = propDef.footprint;
+      const r = ((rotation % 360) + 360) % 360;
+
+      function hitboxToScreen(points) {
+        return points.map(([hx, hy]) => {
+          let px = flipped ? fCols - hx : hx;
+          let py = hy;
+          const cx = fCols / 2, cy = fRows / 2;
+          const rdx = (fRows - fCols) / 2, rdy = (fCols - fRows) / 2;
+          switch (r) {
+            case 90:  { const nx = cx + (py - cy) + rdx, ny = cy - (px - cx) + rdy; px = nx; py = ny; break; }
+            case 180: { px = 2 * cx - px; py = 2 * cy - py; break; }
+            case 270: { const nx = cx - (py - cy) + rdx, ny = cy + (px - cx) + rdy; px = nx; py = ny; break; }
+          }
+          let wx = px * gridSize, wy = py * gridSize;
+          if (scl !== 1.0) {
+            const pcx = (r === 90 || r === 270 ? fRows : fCols) * gridSize / 2;
+            const pcy = (r === 90 || r === 270 ? fCols : fRows) * gridSize / 2;
+            wx = pcx + (wx - pcx) * scl;
+            wy = pcy + (wy - pcy) * scl;
+          }
+          return {
+            x: (prop.x + wx) * transform.scale + transform.offsetX,
+            y: (prop.y + wy) * transform.scale + transform.offsetY,
+          };
+        });
+      }
+
+      function drawPoly(screenPts, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        for (let i = 0; i < screenPts.length; i++) {
+          if (i === 0) ctx.moveTo(screenPts[i].x, screenPts[i].y);
+          else ctx.lineTo(screenPts[i].x, screenPts[i].y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+
+      // Draw lighting hitbox (cyan)
+      drawPoly(hitboxToScreen(propDef.hitbox), '#00ffff');
+
+      // Draw selection hitbox (yellow) if it differs from the lighting hitbox
+      if (propDef.selectionHitbox) {
+        drawPoly(hitboxToScreen(propDef.selectionHitbox), '#ffff00');
+      }
+    }
+    ctx.restore();
   }
 
   // Background cell measure overlay

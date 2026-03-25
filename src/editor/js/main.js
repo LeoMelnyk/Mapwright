@@ -25,6 +25,7 @@ import {
   initClaudePanel,
   initBackgroundImagePanel,
   initKeybindingsHelper, toggleKeybindingsHelper, refreshKeybindingsHelper,
+  initDebugPanel,
 } from './panels/index.js';
 import { getClaudeSettings, setClaudeSetting } from './claude-settings.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
@@ -383,6 +384,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const claudeContainer = document.getElementById('claude-panel-content');
     if (claudeContainer) initClaudePanel(claudeContainer);
   }
+
+  // Debug panel (always init — visibility controlled by feat-debug checkbox)
+  const debugContainer = document.getElementById('debug-panel-content');
+  if (debugContainer) initDebugPanel(debugContainer);
 
   // Wire session overlay (door/stair-open buttons on DM canvas)
   setSessionOverlay(

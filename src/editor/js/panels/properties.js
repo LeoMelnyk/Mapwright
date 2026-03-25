@@ -19,6 +19,9 @@ export function init() {
 
 // ── Update (called on every state change) ───────────────────────────────────
 
+let _lastSelectedProp = null;
+let _lastSelectedCells = null;
+let _lastSelectMode = null;
 function update() {
   const el = panel();
   if (!el) return;
@@ -28,11 +31,20 @@ function update() {
     buildPropExplorer(el);
   }
 
-  // Update selected thumbnail highlight
-  updateSelectedThumb();
+  // Update selected thumbnail highlight only when selectedProp changes
+  if (state.selectedProp !== _lastSelectedProp) {
+    _lastSelectedProp = state.selectedProp;
+    updateSelectedThumb();
+  }
 
-  // Rebuild cell info content
-  updateCellInfo();
+  // Rebuild cell info only when selected cells or inspect mode changes
+  const cellsSig = state.selectedCells.length > 0 ? `${state.selectedCells[0].row},${state.selectedCells[0].col}` : '';
+  const modeSig = state.activeTool + ':' + state.selectMode;
+  if (cellsSig !== _lastSelectedCells || modeSig !== _lastSelectMode) {
+    _lastSelectedCells = cellsSig;
+    _lastSelectMode = modeSig;
+    updateCellInfo();
+  }
 }
 
 // ── Prop Explorer ───────────────────────────────────────────────────────────
