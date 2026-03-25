@@ -3,7 +3,8 @@ category: Undead & Dark
 footprint: 3x3
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 lights: [{"preset":"necrotic","x":1.0,"y":1.0}]
 placement: center
 room_types: necromancer-lair, crypt, dark-temple

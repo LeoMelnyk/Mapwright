@@ -3,7 +3,8 @@ category: Structure
 footprint: 1x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 8
 placement: wall
 room_types: fortification, gatehouse, dungeon
 typical_count: few

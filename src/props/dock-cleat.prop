@@ -3,7 +3,8 @@ category: Nautical
 footprint: 1x1
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 0.5
 placement: wall
 room_types: dock, harbor
 typical_count: many

@@ -3,7 +3,8 @@ category: Combat
 footprint: 2x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 3
 lights: [{"preset":"brazier","x":1.0,"y":1.0}]
 placement: wall
 room_types: fortification, battlements, gatehouse

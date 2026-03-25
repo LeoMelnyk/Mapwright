@@ -3,7 +3,8 @@ category: Combat
 footprint: 1x5
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: center
 room_types: siege, armory, fortification
 typical_count: single

@@ -3,7 +3,8 @@ category: Furniture
 footprint: 6x6
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 5
 placement: center
 room_types: throne-room, court
 typical_count: single

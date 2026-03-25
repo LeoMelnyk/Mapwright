@@ -3,7 +3,8 @@ category: Kitchen
 footprint: 2x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
 placement: wall
 room_types: kitchen, bakery

@@ -3,7 +3,8 @@ category: Prison & Torture
 footprint: 3x3
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 7
 placement: center
 room_types: dungeon, arena, prison, menagerie
 typical_count: few

@@ -3,7 +3,8 @@ category: Combat
 footprint: 1x1
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 6
 placement: wall
 room_types: armory, barracks, throne-room, guard-room
 typical_count: few

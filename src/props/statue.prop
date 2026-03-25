@@ -3,7 +3,7 @@ category: Features
 footprint: 2x2
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
 placement: floor
 room_types: temple, throne-room, garden, gallery, memorial
 typical_count: few
@@ -105,3 +105,9 @@ ellipse 1.00,0.80 0.08,0.06 fill #000000 0.06
 line 0.92,0.70 0.96,0.66 stroke #888888 0.5
 line 0.96,0.66 1.04,0.66 stroke #888888 0.5
 line 1.04,0.66 1.08,0.70 stroke #888888 0.5
+
+# === HITBOX ZONES — z-height shadow projection ===
+# Pedestal base (wide, 0-3ft)
+hitbox rect 0.18,0.18 1.64,1.64 z 0-3
+# Figure body (narrower torso/shoulders, 3-6ft)
+hitbox circle 1.00,0.90 0.35 z 3-6

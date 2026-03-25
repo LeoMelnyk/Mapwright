@@ -3,7 +3,8 @@ category: Misc
 footprint: 3x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1
 placement: floor
 room_types: graveyard, crypt
 typical_count: many

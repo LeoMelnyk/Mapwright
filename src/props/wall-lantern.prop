@@ -3,7 +3,8 @@ category: Lighting
 footprint: 1x1
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1
 lights: [{"preset":"lantern","x":0.5,"y":0.5}]
 placement: wall
 room_types: any

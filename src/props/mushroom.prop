@@ -3,7 +3,8 @@ category: Terrain
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1
 placement: floor
 room_types: cave, underdark, swamp, forest
 typical_count: many

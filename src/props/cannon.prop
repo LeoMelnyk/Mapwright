@@ -3,7 +3,8 @@ category: Combat
 footprint: 3x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: wall
 room_types: fortification, ship, battlements
 typical_count: few

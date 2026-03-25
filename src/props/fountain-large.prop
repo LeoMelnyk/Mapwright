@@ -3,7 +3,8 @@ category: Features
 footprint: 4x4
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: center
 room_types: courtyard, garden, temple, palace, plaza
 typical_count: single

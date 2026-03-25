@@ -3,7 +3,8 @@ category: Nautical
 footprint: 3x3
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 6
 lights: [{"preset":"bright","x":1.0,"y":1.0}]
 placement: center
 room_types: lighthouse, beacon-tower

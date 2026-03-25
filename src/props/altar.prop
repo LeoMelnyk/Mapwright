@@ -3,7 +3,8 @@ category: Features
 footprint: 3x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: center
 room_types: temple, shrine, crypt, ritual-chamber
 typical_count: single

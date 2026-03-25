@@ -3,7 +3,8 @@ category: Features
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 1
 placement: floor
 room_types: vault, dragon-lair, treasure-room, dungeon
 typical_count: many

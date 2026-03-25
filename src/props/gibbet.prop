@@ -3,7 +3,8 @@ category: Prison & Torture
 footprint: 2x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 7
 placement: wall
 room_types: prison, dungeon, entrance, courtyard
 typical_count: few

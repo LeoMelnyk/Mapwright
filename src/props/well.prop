@@ -3,7 +3,8 @@ category: Features
 footprint: 2x2
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: center
 room_types: courtyard, village, cave, underground
 typical_count: single

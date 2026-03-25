@@ -3,7 +3,8 @@ category: Furniture
 footprint: 1x1
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: center
 room_types: library, temple, study, court-room
 typical_count: single

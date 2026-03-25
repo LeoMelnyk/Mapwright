@@ -3,7 +3,8 @@ category: Misc
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: floor
 room_types: study, wizard-sanctum, market
 typical_count: single

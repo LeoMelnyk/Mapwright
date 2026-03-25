@@ -119,6 +119,7 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - **Texture loading bar never completing**: Fixed race condition where `loadTextureImages()` returned an instantly-resolved promise for textures already in flight, causing `ensureTexturesLoaded()` to resolve before images finished loading. The progress bar also failed to track images started by `preloadPropTextures()`, leaving the loading overlay stuck indefinitely on maps with many props
 - **Unknown prop type spam**: Props with unrecognized types (e.g. from removed or renamed props) now get purged from the map data on first encounter instead of logging a warning every frame
 - **Prop-linked lights cleaned up on deletion**: Deleting a prop with a built-in light source (via `removePropAt` or `removePropsInRect`) now also removes the associated lights. Previously only `removeProp` cleaned up linked lights; the other two deletion paths left orphaned lights in the metadata
+- **Viewport not centered on new map**: Creating a new map no longer leaves the viewport at the previous pan/zoom position — the map now auto-centers (zoom-to-fit) after creation, matching the existing behavior when loading a map
 
 ### Migration
 

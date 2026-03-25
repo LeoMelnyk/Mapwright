@@ -3,7 +3,8 @@ category: Workshop
 footprint: 1x1
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: floor
 room_types: forge, smithy
 typical_count: single

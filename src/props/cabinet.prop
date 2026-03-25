@@ -4,6 +4,7 @@ footprint: 1x2
 facing: yes
 shadow: no
 blocks_light: yes
+height: 6
 placement: wall
 room_types: kitchen, study, bedroom, office
 typical_count: few

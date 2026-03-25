@@ -3,7 +3,8 @@ category: Structure
 footprint: 1x3
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: wall
 room_types: prison, dungeon, torture-chamber
 typical_count: few

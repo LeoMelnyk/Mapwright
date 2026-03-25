@@ -3,7 +3,8 @@ category: Combat
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: floor
 room_types: fortification, guard-room, corridor
 typical_count: few

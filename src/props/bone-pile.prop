@@ -3,7 +3,8 @@ category: Terrain
 footprint: 1x2
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1.5
 placement: floor
 room_types: crypt, dungeon, cave, ossuary
 typical_count: many

@@ -3,7 +3,8 @@ category: Religious
 footprint: 2x1
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: wall
 room_types: crypt, ossuary, necromancer-lair
 typical_count: few

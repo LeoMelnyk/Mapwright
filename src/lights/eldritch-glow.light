@@ -8,5 +8,6 @@
   "dimRadius": 30,
   "intensity": 0.8,
   "falloff": "quadratic",
+  "z": 5,
   "animation": { "type": "pulse", "speed": 0.4, "amplitude": 0.3, "radiusVariation": 0 }
 }

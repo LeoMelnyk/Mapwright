@@ -3,7 +3,8 @@ category: Magical
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 lights: [{"preset":"eldritch-glow","x":0.5,"y":0.5}]
 placement: center
 room_types: wizard-sanctum, fortune-teller, divination-room

@@ -3,7 +3,8 @@ category: Furniture
 footprint: 3x3
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: center
 room_types: war-room, command-center, captain-cabin, study
 typical_count: single

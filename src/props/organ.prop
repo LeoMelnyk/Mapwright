@@ -4,6 +4,7 @@ footprint: 4x3
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 8
 placement: wall
 room_types: temple, cathedral, chapel, great-hall
 typical_count: single

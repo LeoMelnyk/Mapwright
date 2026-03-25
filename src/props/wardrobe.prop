@@ -4,6 +4,7 @@ footprint: 3x2
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 6
 placement: wall
 room_types: bedroom, quarters, dressing-room
 typical_count: single

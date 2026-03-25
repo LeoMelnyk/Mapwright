@@ -1,6 +1,6 @@
 // Canvas element management, pan/zoom, mouse event routing
 import state, { getTheme, markDirty, notify, subscribe, notifyTimings } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion } from '../../render/index.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getLightingVersion } from '../../render/index.js';
 import { showToast } from './toast.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
@@ -57,6 +57,7 @@ let _cellsCache = null; // { canvas, ctx, dirtySeq, cacheW, cacheH } — cells-o
 let _mapDirtySeq = 0;   // bumped on any state change that requires re-render
 let _lastContentVersion = 0;  // tracks smartInvalidate() calls for cache invalidation
 let _lastUndoSig = 0;         // tracks undo/redo stack changes for cache invalidation
+let _lastLightingVersion = 0; // tracks lighting invalidations for composite cache
 let _cellsRebuildCount = 0;   // diagnostic: how many times the cells cache has rebuilt
 let _compositeRebuildCount = 0; // diagnostic: lightmap composite rebuilds
 
@@ -328,6 +329,8 @@ function render() {
     if (cv !== _lastContentVersion) { _mapDirtySeq++; _lastContentVersion = cv; }
     const undoSig = (state.undoStack?.length || 0) * 10000 + (state.redoStack?.length || 0);
     if (undoSig !== _lastUndoSig) { _mapDirtySeq++; _lastUndoSig = undoSig; }
+    const lv = getLightingVersion();
+    if (lv !== _lastLightingVersion) { _mapDirtySeq++; _lastLightingVersion = lv; }
     // Debug skip flags bypass cache (force rebuild so flags take effect)
     const _skipKeys = Object.keys(_skip).filter(k => _skip[k] && k !== 'all');
     const _skipSig = _skipKeys.join(',');

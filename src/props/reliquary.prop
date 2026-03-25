@@ -3,7 +3,8 @@ category: Religious
 footprint: 2x3
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: wall
 room_types: temple, shrine, crypt
 typical_count: single

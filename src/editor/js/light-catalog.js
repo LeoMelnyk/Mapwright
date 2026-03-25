@@ -48,6 +48,7 @@ function buildFromMetadata(entries) {
       entry.spread = data.spread;
     }
     if (data.dimRadius != null) entry.dimRadius = data.dimRadius;
+    if (data.z != null)          entry.z = data.z;
     if (data.animation?.type)   entry.animation = { ...data.animation };
 
     lights[key] = entry;

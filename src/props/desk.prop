@@ -3,7 +3,8 @@ category: Furniture
 footprint: 2x3
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: wall
 room_types: study, office, bedroom, guard-room
 typical_count: single

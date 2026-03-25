@@ -3,7 +3,8 @@ category: Terrain
 footprint: 2x2
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1.5
 lights: [{"preset":"campfire","x":1.0,"y":1.0}]
 placement: center
 room_types: cave, wilderness, camp

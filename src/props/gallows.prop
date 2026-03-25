@@ -3,7 +3,8 @@ category: Prison
 footprint: 4x4
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 8
 placement: center
 room_types: prison, courtyard, execution-ground
 typical_count: single

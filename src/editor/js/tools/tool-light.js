@@ -116,6 +116,7 @@ export class LightTool extends Tool {
         state.lightIntensity = preset.intensity;
         state.lightFalloff = preset.falloff;
         state.lightDimRadius = preset.dimRadius ?? 0;
+        state.lightZ = preset.z ?? null;
         state.lightAnimation = preset.animation ? { ...preset.animation } : null;
         if (preset.type === 'directional' && preset.spread != null) {
           state.lightSpread = preset.spread;
@@ -406,6 +407,9 @@ export class LightTool extends Tool {
 
     // Dim radius
     if (state.lightDimRadius > 0) light.dimRadius = state.lightDimRadius;
+
+    // Z-height (height above floor in feet)
+    if (state.lightZ != null) light.z = state.lightZ;
 
     // Track which preset this light was created from (enables Resync Preset Lights)
     if (state.lightPreset) light.presetId = state.lightPreset;

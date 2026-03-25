@@ -3,7 +3,8 @@ category: Misc
 footprint: 1x3
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: stable, forge, smithy, farm
 typical_count: single

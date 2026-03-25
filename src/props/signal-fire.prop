@@ -3,7 +3,8 @@ category: Lighting
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 3
 lights: [{"preset":"bonfire","x":0.5,"y":0.5}]
 placement: center
 room_types: battlements, watchtower, beacon

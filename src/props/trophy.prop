@@ -3,7 +3,8 @@ category: Misc
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: trophy-room, great-hall, hunter-lodge
 typical_count: few

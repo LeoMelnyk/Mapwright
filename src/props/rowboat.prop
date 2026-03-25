@@ -3,7 +3,8 @@ category: Nautical
 footprint: 8x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: center
 room_types: dock, harbor, underground-lake
 typical_count: single

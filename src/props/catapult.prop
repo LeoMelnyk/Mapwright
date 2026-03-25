@@ -3,7 +3,8 @@ category: Combat
 footprint: 3x3
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 5
 placement: center
 room_types: fortification, siege, battlements
 typical_count: single

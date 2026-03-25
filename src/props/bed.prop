@@ -3,7 +3,8 @@ category: Furniture
 footprint: 3x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: bedroom, barracks, inn, quarters, prisoner-cell
 typical_count: few

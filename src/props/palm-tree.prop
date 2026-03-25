@@ -3,7 +3,8 @@ category: Terrain
 footprint: 2x2
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 15
 placement: floor
 room_types: tropical, desert-oasis, beach, dock, paradise
 typical_count: few

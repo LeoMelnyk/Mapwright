@@ -3,7 +3,8 @@ category: Structure
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 10
 padding: 0.5
 placement: corner
 room_types: any

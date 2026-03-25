@@ -3,7 +3,8 @@ category: Workshop
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: floor
 room_types: workshop, pottery
 typical_count: single

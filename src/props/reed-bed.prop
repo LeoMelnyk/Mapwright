@@ -3,7 +3,8 @@ category: Terrain
 footprint: 1x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: wall
 room_types: swamp, riverside, pond, marsh, dock
 typical_count: few

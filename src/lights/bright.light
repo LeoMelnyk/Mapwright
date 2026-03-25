@@ -7,5 +7,6 @@
   "radius": 30,
   "dimRadius": 60,
   "intensity": 1.5,
-  "falloff": "smooth"
+  "falloff": "smooth",
+  "z": 8
 }

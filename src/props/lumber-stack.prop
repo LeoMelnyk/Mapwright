@@ -3,7 +3,8 @@ category: Terrain
 footprint: 4x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: wall
 room_types: lumber-yard, camp, wilderness, cabin, village, sawmill
 typical_count: few

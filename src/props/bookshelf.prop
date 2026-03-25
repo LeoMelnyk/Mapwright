@@ -4,6 +4,7 @@ footprint: 1x3
 facing: yes
 shadow: no
 blocks_light: yes
+height: 6
 placement: wall
 room_types: library, study, wizard-sanctum, office
 typical_count: many

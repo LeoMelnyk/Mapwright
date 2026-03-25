@@ -10,7 +10,7 @@ const MANIFEST_URL = '/props/manifest.json';
 const PROPS_BASE_URL = '/props/';
 const CACHE_KEY = 'prop-catalog';
 const CACHE_VER_KEY = 'prop-catalog-ver';
-const APP_VERSION = '0.8.0'; // bump when prop format or hitbox algorithm changes
+const APP_VERSION = '0.9.0'; // bump when prop format or hitbox algorithm changes
 
 let cachedCatalog = null;
 
@@ -30,6 +30,11 @@ function buildCatalog(props) {
       def.hitbox = def.manualHitbox?.length
         ? manualHitboxToPolygon(def.manualHitbox)
         : def.autoHitbox;
+    }
+    // Build hitbox zones for z-height shadow projection.
+    // Each zone has { polygon, zBottom, zTop } for height-based shadow casting.
+    if (!def.hitboxZones && def.blocksLight) {
+      def.hitboxZones = buildHitboxZones(def);
     }
     // Selection hitbox: manual selection commands only (falls back to autoHitbox at query time)
     if (!def.selectionHitbox && def.manualSelection?.length) {
@@ -69,6 +74,40 @@ function manualHitboxToPolygon(cmds) {
     }
   }
   return points.length >= 3 ? points : null;
+}
+
+/**
+ * Build hitbox zones for z-height shadow projection.
+ * Groups hitbox commands by z-range. If manual hitbox commands have z ranges,
+ * creates one zone per distinct range. Otherwise, creates a single zone using
+ * the prop's height header (or Infinity if no height is set).
+ */
+function buildHitboxZones(def) {
+  // Check if any manual hitbox commands have z ranges
+  const hasZRanges = def.manualHitbox?.some(cmd => cmd.zBottom != null);
+
+  if (hasZRanges) {
+    // Group commands by z range, build a polygon per group
+    const groups = new Map();
+    for (const cmd of def.manualHitbox) {
+      const key = cmd.zBottom != null ? `${cmd.zBottom}-${cmd.zTop}` : 'default';
+      if (!groups.has(key)) groups.set(key, { cmds: [], zBottom: cmd.zBottom ?? 0, zTop: cmd.zTop ?? Infinity });
+      groups.get(key).cmds.push(cmd);
+    }
+    const zones = [];
+    for (const { cmds, zBottom, zTop } of groups.values()) {
+      const polygon = manualHitboxToPolygon(cmds);
+      if (polygon) zones.push({ polygon, zBottom, zTop });
+    }
+    return zones.length > 0 ? zones : null;
+  }
+
+  // No z ranges on hitbox commands — use the single hitbox with prop height
+  const polygon = def.hitbox;
+  if (!polygon) return null;
+
+  const zTop = (def.height != null && isFinite(def.height)) ? def.height : Infinity;
+  return [{ polygon, zBottom: 0, zTop }];
 }
 
 /**

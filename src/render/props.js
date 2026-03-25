@@ -114,6 +114,9 @@ export function parsePropFile(text) {
   // Blocks light: "yes"/"true" -> true (metadata for future lighting integration)
   const blocksLight = header.blocks_light === 'yes' || header.blocks_light === 'true';
 
+  // Height: prop height in feet for z-height shadow projection (default null = infinite)
+  const height = header.height != null ? parseFloat(header.height) : null;
+
   // Padding: extra cells of overflow around the footprint (default 0)
   const padding = parseFloat(header.padding) || 0;
 
@@ -158,7 +161,7 @@ export function parsePropFile(text) {
   const notes = header.notes || null;
 
   return {
-    name, category, footprint, facing, shadow, blocksLight, padding,
+    name, category, footprint, facing, shadow, blocksLight, padding, height,
     commands, textures, lights: propLights,
     manualHitbox: manualHitboxCmds.length > 0 ? manualHitboxCmds : null,
     manualSelection: manualSelectionCmds.length > 0 ? manualSelectionCmds : null,
@@ -397,28 +400,42 @@ function parseCommand(line) {
 
     case 'hitbox':
     case 'selection': {
-      // hitbox rect x,y w,h       — lighting occlusion shape
-      // selection rect x,y w,h    — click/selection shape
+      // hitbox rect x,y w,h [z bottom-top]  — lighting occlusion shape with optional height zone
+      // selection rect x,y w,h              — click/selection shape
       // Both support: rect, circle, poly
       const shape = tokens[1]?.toLowerCase();
+      // Scan for trailing 'z' keyword: "z 0-6" → { zBottom: 0, zTop: 6 }
+      let zBottom = null, zTop = null;
+      for (let zi = 2; zi < tokens.length; zi++) {
+        if (tokens[zi] === 'z' && tokens[zi + 1]) {
+          const parts = tokens[zi + 1].split('-');
+          if (parts.length === 2) {
+            zBottom = parseFloat(parts[0]);
+            zTop = parseFloat(parts[1]);
+          }
+          break;
+        }
+      }
+      const zInfo = zBottom != null ? { zBottom, zTop } : {};
       switch (shape) {
         case 'rect': {
           const [x, y] = parseCoord(tokens[2]);
           const [w, h] = parseCoord(tokens[3]);
-          return { type, subShape: 'rect', x, y, w, h };
+          return { type, subShape: 'rect', x, y, w, h, ...zInfo };
         }
         case 'circle': {
           const [cx, cy] = parseCoord(tokens[2]);
           const r = parseFloat(tokens[3]);
-          return { type, subShape: 'circle', cx, cy, r };
+          return { type, subShape: 'circle', cx, cy, r, ...zInfo };
         }
         case 'poly': {
           const points = [];
-          for (let i = 2; i < tokens.length; i++) {
-            const [px, py] = parseCoord(tokens[i]);
-            points.push([px, py]);
+          for (let pi = 2; pi < tokens.length; pi++) {
+            if (tokens[pi] === 'z') break; // stop before z keyword
+            const coord = parseCoord(tokens[pi]);
+            if (coord) points.push(coord);
           }
-          return { type, subShape: 'poly', points };
+          return { type, subShape: 'poly', points, ...zInfo };
         }
         default: return null;
       }

@@ -3,7 +3,8 @@ category: Library & Study
 footprint: 1x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 5
 placement: wall
 room_types: library, study, wizard-sanctum, archive
 typical_count: few

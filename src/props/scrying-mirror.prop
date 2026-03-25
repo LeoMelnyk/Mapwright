@@ -3,7 +3,8 @@ category: Magical
 footprint: 2x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 6
 placement: wall
 room_types: wizard-sanctum, divination-room
 typical_count: single

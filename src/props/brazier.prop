@@ -3,7 +3,8 @@ category: Features
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 lights: [{"preset":"brazier","x":0.5,"y":0.5}]
 placement: floor
 room_types: any

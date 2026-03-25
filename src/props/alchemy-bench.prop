@@ -3,7 +3,8 @@ category: Alchemy
 footprint: 3x3
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: wall
 room_types: alchemist-lab, wizard-sanctum
 typical_count: single

@@ -118,6 +118,8 @@ function render() {
       else delete selectedLight.dimRadius;
       if (preset.animation) selectedLight.animation = { ...preset.animation };
       else delete selectedLight.animation;
+      if (preset.z != null) selectedLight.z = preset.z;
+      else delete selectedLight.z;
       selectedLight.presetId = preset.id; // restore link
       invalidateLightmap();
       markDirty();
@@ -159,6 +161,17 @@ function render() {
         requestRender();
       }
     ));
+
+    // Z-Height slider (height above floor in feet)
+    selSection.appendChild(
+      sliderRow('Height (ft)', selectedLight.z ?? 8, 0.5, 20, 0.5, (v) => {
+        selectedLight.z = v;
+        delete selectedLight.presetId;
+        invalidateLightmap();
+        markDirty();
+        requestRender();
+      }, (v) => `${v}ft`)
+    );
 
     // Animation controls
     selSection.appendChild(sectionLabel('Animation'));

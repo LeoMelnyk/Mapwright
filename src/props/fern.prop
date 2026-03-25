@@ -3,7 +3,8 @@ category: Terrain
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: floor
 room_types: forest, cave, jungle, greenhouse, fey-grove
 typical_count: many

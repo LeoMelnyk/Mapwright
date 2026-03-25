@@ -3,7 +3,8 @@ category: Lighting
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 7
 lights: [{"preset":"lantern","x":0.5,"y":0.5}]
 placement: floor
 room_types: street, courtyard, dock, garden

@@ -3,7 +3,8 @@ category: Magical
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: corner
 room_types: wizard-sanctum, ritual-chamber, vault
 typical_count: few

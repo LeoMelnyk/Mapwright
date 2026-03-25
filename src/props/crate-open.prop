@@ -3,7 +3,8 @@ category: Containers
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: wall
 room_types: storage, warehouse, dock, cellar
 typical_count: few

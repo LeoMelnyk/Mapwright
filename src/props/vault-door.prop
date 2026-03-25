@@ -4,6 +4,7 @@ footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 8
 placement: wall
 room_types: vault, bank, treasury
 typical_count: single

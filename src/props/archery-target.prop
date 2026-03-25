@@ -3,7 +3,8 @@ category: Misc
 footprint: 2x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 5
 placement: floor
 room_types: training-yard, barracks, guard-room, courtyard
 typical_count: few

@@ -4,6 +4,7 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: yes
+height: 10
 placement: corner
 room_types: any
 typical_count: few

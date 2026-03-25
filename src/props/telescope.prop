@@ -3,7 +3,8 @@ category: Misc
 footprint: 1x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: wall
 room_types: study, wizard-sanctum, observatory, captain-cabin
 typical_count: single

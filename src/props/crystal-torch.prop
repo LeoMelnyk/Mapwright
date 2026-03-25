@@ -3,7 +3,8 @@ category: Lighting
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 5
 lights: [{"preset":"continual-flame","x":0.5,"y":0.5}]
 placement: wall
 room_types: arcane, wizard-sanctum, underdark

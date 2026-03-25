@@ -3,7 +3,8 @@ category: Furniture
 footprint: 1x2
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: bedroom, ship, storage
 typical_count: few

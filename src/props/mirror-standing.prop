@@ -3,7 +3,8 @@ category: Decorative
 footprint: 1x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 6
 placement: wall
 room_types: bedroom, bathhouse, wizard-sanctum, dressing-room, noble-quarters
 typical_count: single

@@ -3,7 +3,8 @@ category: Alchemy
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 1.5
 placement: wall
 room_types: alchemist-lab, wizard-sanctum, curiosity-shop
 typical_count: many

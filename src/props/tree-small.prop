@@ -3,7 +3,8 @@ category: Terrain
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 8
 placement: floor
 room_types: garden, courtyard, wilderness, orchard, park
 typical_count: many

@@ -4,6 +4,7 @@ footprint: 3x3
 facing: no
 shadow: yes
 blocks_light: yes
+height: 15
 placement: floor
 room_types: garden, courtyard, wilderness, forest
 typical_count: few

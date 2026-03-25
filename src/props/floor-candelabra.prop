@@ -3,7 +3,8 @@ category: Lighting
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 5
 lights: [{"preset":"candle","x":0.5,"y":0.5}]
 placement: floor
 room_types: temple, throne-room, great-hall, ballroom

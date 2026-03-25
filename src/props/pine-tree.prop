@@ -4,6 +4,7 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+height: 15
 placement: floor
 room_types: wilderness, forest, mountain, taiga
 typical_count: many

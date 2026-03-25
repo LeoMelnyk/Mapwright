@@ -452,4 +452,5 @@ export async function newDungeon() {
   markDirty();
   state.unsavedChanges = false;
   notify();
+  requestAnimationFrame(() => zoomToFit());
 }

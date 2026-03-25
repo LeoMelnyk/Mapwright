@@ -3,7 +3,8 @@ category: Furniture
 footprint: 1x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: wall
 room_types: bedroom, quarters, noble-quarters
 typical_count: single

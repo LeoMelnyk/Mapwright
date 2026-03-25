@@ -37,6 +37,9 @@ export function placeLight(x, y, config = {}) {
     falloff: config.falloff || 'smooth',
   };
 
+  // Z-height (height above floor in feet) — from preset or explicit config
+  if (config.z != null) light.z = config.z;
+
   if (type === 'directional') {
     light.angle = config.angle ?? 0;
     light.spread = config.spread ?? 45;

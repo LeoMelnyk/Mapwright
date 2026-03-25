@@ -3,7 +3,8 @@ category: Nautical
 footprint: 2x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: floor
 room_types: dock, harbor, ship
 typical_count: single
