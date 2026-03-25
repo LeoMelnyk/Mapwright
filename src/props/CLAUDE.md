@@ -91,6 +91,52 @@ clip-begin ellipse cx,cy rx,ry — Start elliptical clipping region
 clip-end                     — End clipping region (restore previous state)
 ```
 
+### Hitbox & Selection Commands
+
+Props automatically get a convex-hull hitbox generated from their draw commands at load time. This auto-hitbox is used for both mouse click detection and light occlusion. Manual overrides are available for props that need more accurate shapes:
+
+```
+hitbox rect x,y w,h         — Lighting occlusion rectangle
+hitbox circle cx,cy r        — Lighting occlusion circle
+hitbox poly x1,y1 x2,y2 ... — Lighting occlusion polygon (3+ vertices, auto-closed)
+selection rect x,y w,h      — Mouse click detection rectangle
+selection circle cx,cy r     — Mouse click detection circle
+selection poly x1,y1 x2,y2 ...  — Mouse click detection polygon
+```
+
+**How hitboxes work:**
+
+| Purpose | Priority | Fallback |
+|---------|----------|----------|
+| **Light occlusion** (`blocks_light: yes`) | Manual `hitbox` commands | Auto-generated convex hull |
+| **Mouse click detection** | Manual `selection` commands | Auto-generated convex hull |
+
+- **Auto-generated hitbox:** At load time, all draw commands are rasterized to a 32px-per-cell grid, the boundary is traced via Moore neighborhood contour, and the convex hull is computed and simplified with Douglas-Peucker. This produces ~6-20 vertex polygons.
+- **Manual `hitbox`:** Overrides auto-hitbox for **lighting only**. Use when the auto-hull is too loose (e.g. an L-shaped prop that shouldn't cast shadow from its concavity). Multiple hitbox commands are combined into one shape.
+- **Manual `selection`:** Overrides auto-hitbox for **click detection only**. Use when the clickable area should differ from the visual (e.g. a tree where only the trunk should be clickable, not the full canopy). Multiple selection commands are combined.
+- **Rotation/scale:** Hitboxes are defined in prop-local coordinates (same as draw commands) and are automatically rotated, scaled, and flipped at placement time.
+
+**When to add manual hitboxes:**
+
+Most props work fine with auto-generated hitboxes. Add manual overrides when:
+- The prop has concavities that create incorrect shadows (use `hitbox`)
+- The clickable area should be much smaller than the visual (use `selection`)
+- The prop extends significantly beyond its footprint and you want tighter bounds
+
+**Examples:**
+```
+# Bookshelf — rectangular shadow is more accurate than the hull of all shelf details
+hitbox rect 0.05,0.05 1.9,0.9
+
+# Tree — only trunk should be clickable, but full canopy blocks light
+hitbox circle 0.5,0.5 0.45
+selection circle 0.5,0.5 0.15
+
+# L-shaped forge — two rectangles for accurate shadow
+hitbox rect 0.1,0.1 0.8,1.8
+hitbox rect 0.1,0.1 1.8,0.8
+```
+
 ### Styles (appended after shape)
 
 ```
@@ -565,5 +611,7 @@ Always call `waitForTextures` before taking a screenshot to ensure textures have
 - [ ] texfill shapes have matching stroke for definition
 - [ ] Comments grouping visual elements
 - [ ] shadow/blocks_light set appropriately
+- [ ] If `blocks_light: yes`, verify auto-hitbox is reasonable (enable Show Hitboxes in Debug panel)
+- [ ] For complex shapes with `blocks_light: yes`, consider manual `hitbox` commands
 - [ ] 10–25 draw commands (not too sparse, not too busy)
 - [ ] Tested with Puppeteer screenshot at actual render scale

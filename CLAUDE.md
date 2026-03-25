@@ -165,31 +165,31 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/render/`, `src/lights/`
 
 **Known files:**
-- `render/lighting.js` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`.
+- `render/lighting.js` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`, `renderStaticLightmap()`, `renderAnimatedLightOverlay()`.
 - `render/lighting-hq.js` — `renderLightmapHQ()`. PNG export only.
 - `editor/js/tools/tool-light.js` — Light placement tool.
 - `editor/js/panels/lighting.js` — Lighting panel UI.
 - `editor/js/light-catalog.js` — Light preset catalog loading and caching.
 - `lights/manifest.json` — Light preset catalog (candle, torch, brazier, etc.).
 
-**Focus:** Wall extraction → visibility polygon → lightmap pipeline, light object shape (`{id, x, y, type, radius, color, intensity, falloff, angle, spread}`), how props interact with lighting (`blocksLight`, `extractPropLightSegments`).
+**Focus:** Wall extraction → visibility polygon → lightmap pipeline, light object shape (`{id, x, y, type, radius, color, intensity, falloff, angle, spread}`), how props interact with lighting (`blocksLight`, `extractPropLightSegments` using hitbox polygons). Lightmap is split into a cached static layer (ambient + non-animated lights) and a per-frame animated overlay rendered at screen resolution.
 
 ---
 
 ### Domain: props
 
-**Keywords:** prop, furniture, object, place, footprint, blocks_light, shadow, catalog
+**Keywords:** prop, furniture, object, place, footprint, blocks_light, shadow, catalog, hitbox, selection
 
 **Root dirs:** `src/render/`, `src/props/`
 
 **Known files:**
-- `render/props.js` — `parsePropFile()`, `renderProp()`, `renderAllProps()`, `extractPropLightSegments()`.
+- `render/props.js` — `parsePropFile()`, `renderProp()`, `renderAllProps()`, `extractPropLightSegments()`, `generateHitbox()`, `hitTestPropPixel()`.
 - `editor/js/tools/tool-prop.js` — Prop placement tool.
-- `editor/js/prop-catalog.js` — Loads `props/manifest.json` + all `.prop` files.
+- `editor/js/prop-catalog.js` — Loads `props/manifest.json` + all `.prop` files. Auto-generates hitboxes at load time via `generateHitbox()`.
 - `render/prop-catalog-node.js` — Node.js version for CLI rendering.
-- `src/props/CLAUDE.md` — Prop creation guide: footprint conventions, draw command syntax, texture references, design patterns.
+- `src/props/CLAUDE.md` — Prop creation guide: footprint conventions, draw command syntax, hitbox/selection commands, texture references, design patterns.
 
-**Focus:** `.prop` file format (YAML header: name, category, footprint, facing, shadow, blocks_light + draw commands), `PropDefinition` shape, cell.prop shape (`{type, span, facing, flipped}`).
+**Focus:** `.prop` file format (YAML header: name, category, footprint, facing, shadow, blocks_light + draw commands + hitbox/selection overrides), `PropDefinition` shape (includes `hitbox`, `selectionHitbox`, `autoHitbox` polygon arrays), cell.prop shape (`{type, span, facing, flipped}`).
 
 ---
 
@@ -212,7 +212,7 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 `tool-room`, `tool-paint`, `tool-fill`, `tool-erase`, `tool-wall`, `tool-door`, `tool-stairs`, `tool-trim`, `tool-label`, `tool-prop`, `tool-light`, `tool-select`, `tool-border`, `tool-range`
 
 **Known files — Panels** (`editor/js/panels/`):
-`toolbar`, `sidebar`, `right-sidebar`, `history`, `properties`, `metadata`, `textures`, `levels`, `lighting`, `session`
+`toolbar`, `sidebar`, `right-sidebar`, `history`, `properties`, `metadata`, `textures`, `levels`, `lighting`, `session`, `debug`
 
 **Focus:** State shape (dungeon.metadata, dungeon.cells), mutation pattern (`pushUndo → modify → markDirty → notify`), tool interface (`onMouseDown/Move/Up/activate/deactivate`).
 
