@@ -10,16 +10,25 @@ typical_count: single
 clusters_with: alchemy-bench, ingredient-rack
 notes: Grinding tool; place on or near workbenches
 ---
-# Mortar outer rim
-circle 0.50,0.56 0.38 texfill polyhaven/granite_tile 0.80
-circle 0.50,0.56 0.38 stroke #444444
-# Inner bowl well
-circle 0.50,0.56 0.27 fill #d0ccbb 0.45
-# Ground contents (powder residue)
-circle 0.52,0.60 0.14 fill #8b7355 0.45
-# Pestle handle (elongated, upright in bowl)
-ellipse 0.50,0.40 0.07,0.18 fill #999999 0.90
-ellipse 0.50,0.40 0.07,0.18 stroke #555555
-# Pestle rounded cap
-circle 0.50,0.23 0.09 fill #aaaaaa 0.90
-circle 0.50,0.23 0.09 stroke #555555
+# Mortar outer rim (thick stone ring)
+circle 0.48,0.52 0.40 texfill polyhaven/granite_tile 0.85
+circle 0.48,0.52 0.40 stroke #444444
+# Rim highlight arc (light glint on NW edge)
+arc 0.48,0.52 0.38 200 260 stroke #aaaaaa 0.30 width 3
+# Inner bowl well (darker concave interior)
+circle 0.48,0.52 0.28 fill #5a5548 0.50
+circle 0.48,0.52 0.28 stroke #4a4a40 0.40
+# Ground herb residue (earthy powder in bowl)
+circle 0.46,0.55 0.16 fill #6b5e3a 0.35
+circle 0.52,0.48 0.10 fill #4e5a3a 0.25
+# Pestle shaft (diagonal rod lying across bowl, NE handle to SW grinding end)
+poly 0.82,0.14 0.88,0.20 0.28,0.78 0.22,0.72 fill #888888 0.90
+poly 0.82,0.14 0.88,0.20 0.28,0.78 0.22,0.72 stroke #555555
+# Pestle handle end (thinner, sticks past rim to NE)
+ellipse 0.85,0.17 0.06,0.04 fill #999999 0.90
+ellipse 0.85,0.17 0.06,0.04 stroke #555555
+# Pestle grinding bulb (wider rounded end inside bowl, SW)
+ellipse 0.25,0.75 0.08,0.06 texfill polyhaven/granite_tile 0.80
+ellipse 0.25,0.75 0.08,0.06 stroke #555555
+# Pestle center highlight (subtle light streak)
+line 0.60,0.36 0.40,0.58 stroke #aaaaaa 0.30 width 2

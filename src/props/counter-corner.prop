@@ -1,0 +1,29 @@
+name: Counter Corner
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: tavern, inn, kitchen, shop
+typical_count: single
+clusters_with: bar-counter
+notes: 90-degree corner piece for counter tops. Tiles seamlessly with bar-counter props.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# L-shape: west arm across top + south arm down the right side
+# Bottom-left corner is empty floor
+# West arm: full width of cell, matches counter depth y:0.1-0.9
+rect 0.0,0.1 0.9,0.8 texfill polyhaven/wood_table 0.85
+# South arm: right portion below the west arm, down to cell bottom
+rect 0.1,0.9 0.8,0.1 texfill polyhaven/wood_table 0.85
+# Front edge trims (outer L edges)
+rect 0.0,0.78 0.1,0.12 fill #4a2800 0.35
+rect 0.1,0.88 0.8,0.12 fill #4a2800 0.35
+# Border lines — outer L shape
+line 0.0,0.1 0.9,0.1 stroke #3a1f00
+line 0.9,0.1 0.9,1.0 stroke #3a1f00
+line 0.1,1.0 0.9,1.0 stroke #3a1f00
+line 0.1,0.9 0.1,1.0 stroke #3a1f00
+line 0.0,0.9 0.1,0.9 stroke #3a1f00
+line 0.0,0.1 0.0,0.9 stroke #3a1f00

@@ -10,19 +10,44 @@ typical_count: many
 clusters_with: chain-wall, pillory
 notes: Wall-mounted restraints; line prison walls
 ---
-# Wall mount ring
-circle 0.5,0.15 0.08 fill #666666 0.4
-circle 0.5,0.15 0.08 stroke #444444
-# Chain links
-line 0.5,0.23 0.5,0.38
-# Left shackle
-circle 0.3,0.55 0.12 fill #888888 0.2
-circle 0.3,0.55 0.12 stroke #555555
-# Right shackle
-circle 0.7,0.55 0.12 fill #888888 0.2
-circle 0.7,0.55 0.12 stroke #555555
-# Connecting chain
-line 0.42,0.55 0.58,0.55
-# Chains to wall
-line 0.5,0.38 0.3,0.43
-line 0.5,0.38 0.7,0.43
+# Wall mount plate
+rect 0.32,0.04 0.36,0.10 fill #555555 0.8
+rect 0.32,0.04 0.36,0.10 stroke #333333
+# Mount bolt left
+circle 0.38,0.09 0.025 fill #444444 0.9
+# Mount bolt right
+circle 0.62,0.09 0.025 fill #444444 0.9
+# Mount ring
+circle 0.5,0.14 0.05 stroke #555555 width 3
+# Chain from mount — alternating link segments
+# Vertical link
+line 0.5,0.19 0.5,0.25 stroke #555555 width 3
+# Horizontal link
+line 0.47,0.25 0.53,0.25 stroke #555555 width 3
+# Vertical link
+line 0.5,0.25 0.5,0.31 stroke #555555 width 3
+# Horizontal link
+line 0.47,0.31 0.53,0.31 stroke #555555 width 3
+# Vertical link
+line 0.5,0.31 0.5,0.37 stroke #555555 width 3
+# Chain splits to left and right
+# Left chain
+line 0.5,0.37 0.42,0.40 stroke #555555 width 3
+line 0.42,0.40 0.35,0.44 stroke #555555 width 3
+line 0.35,0.44 0.30,0.48 stroke #666666 width 3
+# Right chain
+line 0.5,0.37 0.58,0.40 stroke #555555 width 3
+line 0.58,0.40 0.65,0.44 stroke #555555 width 3
+line 0.65,0.44 0.70,0.48 stroke #666666 width 3
+# Left shackle cuff — open ring with gap
+arc 0.28,0.58 0.10 180 80 stroke #555555 width 3
+# Left shackle hinge
+circle 0.19,0.53 0.02 fill #444444 0.9
+# Right shackle cuff — open ring with gap
+arc 0.72,0.58 0.10 100 360 stroke #555555 width 3
+# Right shackle hinge
+circle 0.81,0.53 0.02 fill #444444 0.9
+# Left shackle inner shadow
+circle 0.28,0.58 0.06 fill #333333 0.2
+# Right shackle inner shadow
+circle 0.72,0.58 0.06 fill #333333 0.2

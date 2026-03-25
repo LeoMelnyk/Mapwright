@@ -1,0 +1,85 @@
+name: Lily Pad Cluster
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: swamp, pond, riverside, garden, fey-grove
+typical_count: few
+clusters_with: lily-pads, lily-pads-flowering, pond, reed-bed
+notes: Dense cluster of overlapping lily pads for large water features; 2x2 footprint
+---
+# Pad 1 (large, center-left, with notch and veins)
+circle 0.65,0.90 0.22 fill #2d6a1e 0.35
+circle 0.65,0.90 0.22 stroke #1a4a10 0.22
+line 0.65,0.90 0.65,0.68 stroke #1a4a10 0.18
+line 0.48,0.87 0.65,0.90 stroke #1a4a10 0.12
+line 0.65,0.78 0.65,0.90 stroke #1a4a10 0.12
+line 0.82,0.87 0.65,0.90 stroke #1a4a10 0.12
+# Pad 2 (large, center-right, with notch and veins)
+circle 1.35,1.05 0.20 fill #3a7a28 0.33
+circle 1.35,1.05 0.20 stroke #1a4a10 0.22
+line 1.35,1.05 1.35,0.85 stroke #1a4a10 0.18
+line 1.20,1.02 1.35,1.05 stroke #1a4a10 0.12
+line 1.50,1.02 1.35,1.05 stroke #1a4a10 0.12
+line 1.35,0.93 1.35,1.05 stroke #1a4a10 0.12
+# Pad 3 (large, lower center, with notch and veins)
+circle 0.95,1.45 0.21 fill #1a5a15 0.35
+circle 0.95,1.45 0.21 stroke #1a4a10 0.22
+line 0.95,1.45 0.82,1.30 stroke #1a4a10 0.18
+line 0.80,1.42 0.95,1.45 stroke #1a4a10 0.12
+line 1.10,1.42 0.95,1.45 stroke #1a4a10 0.12
+# Pad 4 (medium, upper right)
+circle 1.55,0.55 0.15 fill #448833 0.32
+circle 1.55,0.55 0.15 stroke #1a4a10 0.20
+line 1.55,0.55 1.55,0.40 stroke #1a4a10 0.16
+# Pad 5 (medium, upper left)
+circle 0.40,0.45 0.14 fill #2d6a1e 0.30
+circle 0.40,0.45 0.14 stroke #1a4a10 0.20
+line 0.40,0.45 0.40,0.31 stroke #1a4a10 0.16
+# Pad 6 (medium, lower right)
+circle 1.55,1.50 0.13 fill #3a7a28 0.30
+circle 1.55,1.50 0.13 stroke #1a4a10 0.20
+line 1.55,1.50 1.55,1.37 stroke #1a4a10 0.16
+# Pad 7 (small, upper center)
+circle 1.00,0.35 0.10 fill #448833 0.28
+circle 1.00,0.35 0.10 stroke #1a4a10 0.18
+# Pad 8 (small, left edge)
+circle 0.22,1.25 0.09 fill #2d6a1e 0.28
+circle 0.22,1.25 0.09 stroke #1a4a10 0.18
+# Pad 9 (small, lower left)
+circle 0.45,1.70 0.10 fill #3a7a28 0.28
+circle 0.45,1.70 0.10 stroke #1a4a10 0.18
+# Pad 10 (tiny, gap filler upper)
+circle 1.20,0.40 0.06 fill #1a5a15 0.25
+# Pad 11 (tiny, gap filler right)
+circle 1.80,1.00 0.08 fill #448833 0.25
+# Flower 1 on pad 1 — outer petals
+ellipse 0.60,0.85 0.05,0.025 fill #ffddee 0.60
+ellipse 0.70,0.85 0.05,0.025 fill #ffddee 0.60
+ellipse 0.65,0.81 0.025,0.05 fill #ffddee 0.60
+ellipse 0.65,0.92 0.025,0.05 fill #ffddee 0.60
+# Flower 1 — inner petals
+ellipse 0.63,0.84 0.03,0.018 fill #ffffff 0.65
+ellipse 0.67,0.84 0.03,0.018 fill #ffffff 0.65
+# Flower 1 — center
+circle 0.65,0.85 0.018 fill #ffee55 0.70
+# Flower 2 on pad 3 — outer petals
+ellipse 0.90,1.40 0.045,0.022 fill #ffffff 0.55
+ellipse 1.00,1.40 0.045,0.022 fill #ffffff 0.55
+ellipse 0.95,1.36 0.022,0.045 fill #ffffff 0.55
+ellipse 0.95,1.47 0.022,0.045 fill #ffffff 0.55
+# Flower 2 — inner petals
+ellipse 0.93,1.39 0.03,0.015 fill #ffddee 0.60
+ellipse 0.97,1.39 0.03,0.015 fill #ffddee 0.60
+# Flower 2 — center
+circle 0.95,1.40 0.015 fill #ffee55 0.65
+# Small flower on pad 2
+ellipse 1.32,1.00 0.035,0.018 fill #ffccdd 0.50
+ellipse 1.38,1.00 0.035,0.018 fill #ffccdd 0.50
+circle 1.35,1.00 0.015 fill #ffee55 0.55
+# Flower bud on pad 5
+circle 0.42,0.42 0.02 fill #ffbbcc 0.45
+# Flower bud on pad 9
+circle 0.47,1.68 0.02 fill #ffccdd 0.40

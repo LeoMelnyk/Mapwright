@@ -18,14 +18,36 @@ rect 0.3,0.06 1.4,0.12 texfill polyhaven/dark_wood 0.9
 rect 0.3,0.06 1.4,0.12 stroke #3a1f00
 # Mirror glass reflection (barely visible from above)
 rect 0.36,0.08 1.28,0.08 fill #aaccdd 0.3
-# Cosmetics on table
-circle 0.6,0.45 0.06 fill #cc6688 0.5
-circle 0.9,0.4 0.075 fill #aaaacc 0.4
-circle 1.24,0.48 0.045 fill #daa520 0.5
-# Brush
-line 1.36,0.35 1.56,0.5 stroke #5c3a1e
-# Leg shadows
-circle 0.36,0.28 0.06 fill #3a1f00 0.4
-circle 1.64,0.28 0.06 fill #3a1f00 0.4
-circle 0.36,0.78 0.06 fill #3a1f00 0.4
-circle 1.64,0.78 0.06 fill #3a1f00 0.4
+# Hand mirror (small oval with handle)
+ellipse 0.45,0.42 0.07,0.05 fill #aabbcc 0.5
+ellipse 0.45,0.42 0.07,0.05 stroke #888888
+line 0.45,0.47 0.45,0.58 stroke #5c3a1e width 2
+# Perfume bottles (3 tiny circles, different colors)
+circle 0.72,0.38 0.04 fill #cc6688 0.6
+circle 0.72,0.38 0.04 stroke #993355
+circle 0.82,0.42 0.035 fill #aaaadd 0.55
+circle 0.82,0.42 0.035 stroke #7777aa
+circle 0.77,0.48 0.03 fill #88ccaa 0.5
+circle 0.77,0.48 0.03 stroke #559977
+# Jewelry box (tiny rect with gold clasp)
+rect 1.02,0.36 0.16,0.12 texfill polyhaven/dark_wood 0.85
+rect 1.02,0.36 0.16,0.12 stroke #3a1f00
+circle 1.10,0.42 0.015 fill #daa520 0.8
+# Hairbrush (oval head with handle)
+ellipse 1.32,0.40 0.06,0.045 texfill polyhaven/dark_wood 0.8
+ellipse 1.32,0.40 0.06,0.045 stroke #3a1f00
+line 1.38,0.40 1.52,0.40 stroke #5c3a1e width 2
+# Candle (small circle with flame dot)
+circle 1.58,0.34 0.04 fill #e8dcc8 0.7
+circle 1.58,0.34 0.04 stroke #c8b898
+circle 1.58,0.34 0.015 fill #ffaa00 0.7
+# Scattered small items (ribbon, pins, hair ties)
+line 0.55,0.56 0.68,0.60 stroke #cc6688 width 2
+circle 0.95,0.55 0.015 fill #daa520 0.6
+circle 1.20,0.56 0.015 fill #888888 0.6
+circle 1.40,0.54 0.015 fill #daa520 0.6
+# Leg shadows (slightly elongated for depth)
+ellipse 0.30,0.26 0.06,0.07 fill #3a1f00 0.45
+ellipse 1.70,0.26 0.06,0.07 fill #3a1f00 0.45
+ellipse 0.30,0.80 0.06,0.08 fill #3a1f00 0.35
+ellipse 1.70,0.80 0.06,0.08 fill #3a1f00 0.35

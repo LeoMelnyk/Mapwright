@@ -2,7 +2,7 @@ name: Cage (Large)
 category: Prison & Torture
 footprint: 3x3
 facing: no
-shadow: yes
+shadow: no
 blocks_light: no
 placement: center
 room_types: dungeon, arena, prison, menagerie
@@ -10,28 +10,59 @@ typical_count: few
 clusters_with: shackles, torture-rack
 notes: Iron cage for prisoners or beasts; place as room feature
 ---
-# Grate floor
-rect 0.15,0.15 2.7,2.7 texfill polyhaven/metal_grate_rusty 0.7
-rect 0.15,0.15 2.7,2.7 stroke #444444
-# Cage bars (vertical grid lines)
-line 0.15,0.15 0.15,2.85 stroke #555555
-line 0.72,0.15 0.72,2.85 stroke #555555
-line 1.29,0.15 1.29,2.85 stroke #555555
-line 1.71,0.15 1.71,2.85 stroke #555555
-line 2.28,0.15 2.28,2.85 stroke #555555
-line 2.85,0.15 2.85,2.85 stroke #555555
-# Cage bars (horizontal grid lines)
-line 0.15,0.15 2.85,0.15 stroke #555555
-line 0.15,0.72 2.85,0.72 stroke #555555
-line 0.15,1.29 2.85,1.29 stroke #555555
-line 0.15,1.71 2.85,1.71 stroke #555555
-line 0.15,2.28 2.85,2.28 stroke #555555
-line 0.15,2.85 2.85,2.85 stroke #555555
-# Corner posts (thicker)
-rect 0.09,0.09 0.15,0.15 fill #444444 0.8
-rect 2.76,0.09 0.15,0.15 fill #444444 0.8
-rect 0.09,2.76 0.15,0.15 fill #444444 0.8
-rect 2.76,2.76 0.15,0.15 fill #444444 0.8
-# Door latch (south side)
-rect 1.35,2.76 0.3,0.15 fill #888888 0.6
-rect 1.35,2.76 0.3,0.15 stroke #555555
+# footprint 3x3: x range 0-3, y range 0-3
+# Top-down: solid iron bars with open gaps — floor visible through gaps
+# Draw order: bars first, then frame on top
+
+# Roof bars — horizontal (evenly spaced)
+rect 0.18,0.71 2.64,0.05 fill #666666 0.9
+rect 0.18,0.71 2.64,0.05 stroke #444444
+rect 0.18,1.24 2.64,0.05 fill #666666 0.9
+rect 0.18,1.24 2.64,0.05 stroke #444444
+rect 0.18,1.76 2.64,0.05 fill #666666 0.9
+rect 0.18,1.76 2.64,0.05 stroke #444444
+rect 0.18,2.29 2.64,0.05 fill #666666 0.9
+rect 0.18,2.29 2.64,0.05 stroke #444444
+
+# Roof bars — vertical (evenly spaced)
+rect 0.71,0.18 0.05,2.64 fill #666666 0.9
+rect 0.71,0.18 0.05,2.64 stroke #444444
+rect 1.24,0.18 0.05,2.64 fill #666666 0.9
+rect 1.24,0.18 0.05,2.64 stroke #444444
+rect 1.76,0.18 0.05,2.64 fill #666666 0.9
+rect 1.76,0.18 0.05,2.64 stroke #444444
+rect 2.29,0.18 0.05,2.64 fill #666666 0.9
+rect 2.29,0.18 0.05,2.64 stroke #444444
+
+# Frame rails (solid iron perimeter — drawn on top of bars)
+# North
+rect 0.08,0.08 2.84,0.1 texfill polyhaven/metal_plate 0.85
+rect 0.08,0.08 2.84,0.1 stroke #333333
+# South
+rect 0.08,2.82 2.84,0.1 texfill polyhaven/metal_plate 0.85
+rect 0.08,2.82 2.84,0.1 stroke #333333
+# West
+rect 0.08,0.08 0.1,2.84 texfill polyhaven/metal_plate 0.85
+rect 0.08,0.08 0.1,2.84 stroke #333333
+# East
+rect 2.82,0.08 0.1,2.84 texfill polyhaven/metal_plate 0.85
+rect 2.82,0.08 0.1,2.84 stroke #333333
+
+# Corner posts (thick, solid — on top of everything)
+rect 0.04,0.04 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 0.04,0.04 0.18,0.18 stroke #333333
+circle 0.13,0.13 0.03 fill #888888 0.6
+rect 2.78,0.04 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 2.78,0.04 0.18,0.18 stroke #333333
+circle 2.87,0.13 0.03 fill #888888 0.6
+rect 0.04,2.78 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 0.04,2.78 0.18,0.18 stroke #333333
+circle 0.13,2.87 0.03 fill #888888 0.6
+rect 2.78,2.78 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 2.78,2.78 0.18,0.18 stroke #333333
+circle 2.87,2.87 0.03 fill #888888 0.6
+
+# Door latch (south side center)
+rect 1.38,2.82 0.24,0.1 fill #888888 0.8
+rect 1.38,2.82 0.24,0.1 stroke #555555
+circle 1.5,2.87 0.03 fill #aaaaaa 0.7

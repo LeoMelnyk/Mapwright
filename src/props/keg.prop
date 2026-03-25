@@ -10,17 +10,25 @@ typical_count: few
 clusters_with: barrel, bar-counter
 notes: Horizontal barrel on a stand; place behind bar counters or in cellars
 ---
-# Support stand legs
-rect 0.15,0.20 0.08,0.60 fill #5c3a1e 0.6
-rect 0.77,0.20 0.08,0.60 fill #5c3a1e 0.6
-# Barrel body (oval from above - horizontal barrel)
-ellipse 0.50,0.50 0.30,0.38 texfill polyhaven/dark_wood 0.85
-ellipse 0.50,0.50 0.30,0.38 stroke #3a1f00
-# Metal bands
-ellipse 0.50,0.50 0.28,0.30 stroke #666666
-ellipse 0.50,0.50 0.28,0.18 stroke #666666
-# Center seam line
-line 0.20,0.50 0.80,0.50 stroke #2a1400 0.5
-# Spigot at south end
-rect 0.46,0.84 0.08,0.08 fill #888888 0.7
-circle 0.50,0.88 0.02 fill #666666 0.8
+# Wooden cradle/stand — two V-shaped supports visible at sides
+poly 0.10,0.30 0.30,0.50 0.10,0.70 fill #4a2800 0.7
+poly 0.10,0.30 0.30,0.50 0.10,0.70 stroke #3a1f00
+poly 0.90,0.30 0.70,0.50 0.90,0.70 fill #4a2800 0.7
+poly 0.90,0.30 0.70,0.50 0.90,0.70 stroke #3a1f00
+# Barrel body — elongated oval, taller N-S (barrel lying on side facing south)
+ellipse 0.50,0.48 0.30,0.38 texfill polyhaven/dark_wood 0.85
+ellipse 0.50,0.48 0.30,0.38 stroke #3a1f00
+# Edge darkening — darker at east/west edges to show cylindrical curve
+ellipse 0.50,0.48 0.30,0.38 stroke #1a1208 0.4
+ellipse 0.50,0.48 0.26,0.34 stroke #2a1400 0.2
+# Stave seam lines running north-south along barrel top
+line 0.42,0.14 0.42,0.82 stroke #2a1400 0.4
+line 0.50,0.12 0.50,0.84 stroke #2a1400 0.35
+line 0.58,0.14 0.58,0.82 stroke #2a1400 0.4
+# Metal bands — horizontal straps across barrel width
+line 0.26,0.28 0.74,0.28 stroke #666666 0.7
+line 0.22,0.48 0.78,0.48 stroke #666666 0.7
+line 0.26,0.68 0.74,0.68 stroke #666666 0.7
+# Spigot/tap at south end
+rect 0.46,0.82 0.08,0.06 fill #777777 0.8
+circle 0.50,0.90 0.025 fill #666666 0.9

@@ -1,0 +1,25 @@
+name: Barrier Corner
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: fortification, guard-room, corridor
+typical_count: few
+clusters_with: barrier
+notes: 90-degree corner for barriers. Tiles seamlessly with barrier props.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# L-shape: beam from west + beam going south
+# Horizontal beam (from west, stops at post)
+rect 0.0,0.3 0.7,0.4 texfill polyhaven/weathered_planks 0.85
+line 0.0,0.3 0.7,0.3 stroke #3a1f00
+line 0.0,0.7 0.7,0.7 stroke #3a1f00
+# Vertical beam (going south)
+rect 0.3,0.3 0.4,0.7 texfill polyhaven/weathered_planks 0.85
+line 0.3,0.3 0.3,1.0 stroke #3a1f00
+line 0.7,0.3 0.7,1.0 stroke #3a1f00
+# Corner post (on top)
+rect 0.25,0.25 0.5,0.5 texfill polyhaven/dark_wood 0.9
+rect 0.25,0.25 0.5,0.5 stroke #2a1400

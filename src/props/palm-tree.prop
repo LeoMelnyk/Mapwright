@@ -10,39 +10,82 @@ typical_count: few
 clusters_with: palm-tree, boulder
 notes: Tropical tree; cluster in small groups. Thin trunk doesn't block light
 ---
-# Trunk (thin, slightly curved — small circle from above)
-circle 1,1.04 0.12 texfill polyhaven/bark_brown_01 0.85
-circle 1,1.04 0.12 stroke #3a1f00
-# Frond 1 (north)
-line 1,1.04 1,0.16 stroke #3a7a28 1
-line 1,0.16 0.76,0.1 stroke #2d5a1e 0.7
-line 1,0.16 1.24,0.1 stroke #2d5a1e 0.7
-# Frond 2 (northeast)
-line 1,1.04 1.64,0.36 stroke #4a8a38 0.9
-line 1.64,0.36 1.8,0.2 stroke #2d5a1e 0.6
-line 1.64,0.36 1.56,0.16 stroke #2d5a1e 0.6
-# Frond 3 (east)
-line 1,1.04 1.84,0.96 stroke #3a7a28 1
-line 1.84,0.96 1.9,0.76 stroke #2d5a1e 0.7
-line 1.84,0.96 1.92,1.12 stroke #2d5a1e 0.7
-# Frond 4 (southeast)
-line 1,1.04 1.64,1.7 stroke #4a8a38 0.9
-line 1.64,1.7 1.8,1.84 stroke #2d5a1e 0.6
-# Frond 5 (south)
-line 1,1.04 0.96,1.84 stroke #3a7a28 1
-line 0.96,1.84 0.76,1.92 stroke #2d5a1e 0.7
-line 0.96,1.84 1.16,1.92 stroke #2d5a1e 0.7
-# Frond 6 (southwest)
-line 1,1.04 0.36,1.7 stroke #4a8a38 0.9
-line 0.36,1.7 0.2,1.84 stroke #2d5a1e 0.6
-# Frond 7 (west)
-line 1,1.04 0.16,0.96 stroke #3a7a28 1
-line 0.16,0.96 0.08,0.76 stroke #2d5a1e 0.7
-line 0.16,0.96 0.08,1.12 stroke #2d5a1e 0.7
-# Frond 8 (northwest)
-line 1,1.04 0.36,0.36 stroke #4a8a38 0.9
-line 0.36,0.36 0.2,0.2 stroke #2d5a1e 0.6
-# Coconut cluster at center
-circle 0.92,0.96 0.06 fill #6b4e2e 0.6
-circle 1.08,0.96 0.06 fill #6b4e2e 0.6
-circle 1,0.88 0.06 fill #6b4e2e 0.6
+# Footprint 2x2: x 0-2, y 0-2. Center at (1,1).
+
+# === Frond shadows (subtle dark ground shadow under the canopy) ===
+circle 1.0,1.05 0.75 fill #1a2a10 0.12
+
+# === Fronds — each is a rachis (spine) with leaflet lines branching off ===
+
+# Frond 1 — North
+line 1.0,0.95 1.0,0.12 stroke #2d6a1e width 2
+line 1.0,0.30 0.82,0.20 stroke #3a7a28 width 6
+line 1.0,0.30 1.18,0.20 stroke #3a7a28 width 6
+line 1.0,0.45 0.84,0.36 stroke #3a7a28 width 6
+line 1.0,0.45 1.16,0.36 stroke #3a7a28 width 6
+line 1.0,0.60 0.86,0.52 stroke #2d6a1e width 6
+line 1.0,0.60 1.14,0.52 stroke #2d6a1e width 6
+
+# Frond 2 — NE
+line 1.0,0.95 1.65,0.25 stroke #3a7a28 width 2
+line 1.45,0.48 1.52,0.32 stroke #4a8a38 width 6
+line 1.45,0.48 1.58,0.52 stroke #4a8a38 width 6
+line 1.30,0.62 1.36,0.48 stroke #3a7a28 width 6
+line 1.30,0.62 1.42,0.66 stroke #3a7a28 width 6
+
+# Frond 3 — East
+line 1.0,1.0 1.88,1.0 stroke #2d6a1e width 2
+line 1.70,1.0 1.80,0.82 stroke #3a7a28 width 6
+line 1.70,1.0 1.80,1.18 stroke #3a7a28 width 6
+line 1.55,1.0 1.64,0.84 stroke #3a7a28 width 6
+line 1.55,1.0 1.64,1.16 stroke #3a7a28 width 6
+line 1.40,1.0 1.48,0.86 stroke #2d6a1e width 6
+line 1.40,1.0 1.48,1.14 stroke #2d6a1e width 6
+
+# Frond 4 — SE
+line 1.0,1.05 1.65,1.75 stroke #4a8a38 width 2
+line 1.45,1.52 1.58,1.48 stroke #3a7a28 width 6
+line 1.45,1.52 1.52,1.68 stroke #3a7a28 width 6
+line 1.30,1.38 1.42,1.34 stroke #3a7a28 width 6
+line 1.30,1.38 1.36,1.52 stroke #3a7a28 width 6
+
+# Frond 5 — South
+line 1.0,1.05 1.0,1.88 stroke #3a7a28 width 2
+line 1.0,1.70 0.82,1.80 stroke #4a8a38 width 6
+line 1.0,1.70 1.18,1.80 stroke #4a8a38 width 6
+line 1.0,1.55 0.84,1.64 stroke #3a7a28 width 6
+line 1.0,1.55 1.16,1.64 stroke #3a7a28 width 6
+line 1.0,1.40 0.86,1.48 stroke #2d6a1e width 6
+line 1.0,1.40 1.14,1.48 stroke #2d6a1e width 6
+
+# Frond 6 — SW
+line 1.0,1.05 0.35,1.75 stroke #2d6a1e width 2
+line 0.55,1.52 0.42,1.48 stroke #3a7a28 width 6
+line 0.55,1.52 0.48,1.68 stroke #3a7a28 width 6
+line 0.70,1.38 0.58,1.34 stroke #3a7a28 width 6
+line 0.70,1.38 0.64,1.52 stroke #3a7a28 width 6
+
+# Frond 7 — West
+line 1.0,1.0 0.12,1.0 stroke #3a7a28 width 2
+line 0.30,1.0 0.20,0.82 stroke #4a8a38 width 6
+line 0.30,1.0 0.20,1.18 stroke #4a8a38 width 6
+line 0.45,1.0 0.36,0.84 stroke #3a7a28 width 6
+line 0.45,1.0 0.36,1.16 stroke #3a7a28 width 6
+line 0.60,1.0 0.52,0.86 stroke #2d6a1e width 6
+line 0.60,1.0 0.52,1.14 stroke #2d6a1e width 6
+
+# Frond 8 — NW
+line 1.0,0.95 0.35,0.25 stroke #4a8a38 width 2
+line 0.55,0.48 0.48,0.32 stroke #3a7a28 width 6
+line 0.55,0.48 0.42,0.52 stroke #3a7a28 width 6
+line 0.70,0.62 0.64,0.48 stroke #3a7a28 width 6
+line 0.70,0.62 0.58,0.66 stroke #3a7a28 width 6
+
+# === Trunk (small circle at center) ===
+circle 1.0,1.0 0.12 texfill polyhaven/bark_brown_01 0.85
+circle 1.0,1.0 0.12 stroke #3a1f00
+
+# === Coconut cluster ===
+circle 0.90,0.93 0.055 fill #6b4e2e 0.7
+circle 1.10,0.93 0.055 fill #6b4e2e 0.7
+circle 1.0,0.86 0.055 fill #6b4e2e 0.7

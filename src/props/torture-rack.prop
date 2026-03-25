@@ -10,23 +10,125 @@ typical_count: few
 clusters_with: iron-maiden, shackles
 notes: Torture device; place against walls
 ---
-# Wooden frame
-rect 0.12,0.16 2.76,1.68 texfill polyhaven/dark_wood 0.8
-rect 0.12,0.16 2.76,1.68 stroke #3a1f00
-# Rope lines (X pattern)
-line 0.12,0.16 2.88,1.84
-line 2.88,0.16 0.12,1.84
-# Corner windlass wheels
-circle 0.12,0.16 0.14 texfill polyhaven/dark_wood 0.85
-circle 0.12,0.16 0.14 stroke #3a1f00
-circle 0.12,1.84 0.14 texfill polyhaven/dark_wood 0.85
-circle 0.12,1.84 0.14 stroke #3a1f00
-circle 2.88,0.16 0.14 texfill polyhaven/dark_wood 0.85
-circle 2.88,0.16 0.14 stroke #3a1f00
-circle 2.88,1.84 0.14 texfill polyhaven/dark_wood 0.85
-circle 2.88,1.84 0.14 stroke #3a1f00
-# Center bolt
-circle 1.5,1 0.07 fill #666666 0.6
-# Ratchet mechanism
-rect 0.03,0.6 0.18,0.8 fill #666666 0.5
-rect 0.03,0.6 0.18,0.8 stroke #444444
+# footprint 2x3: x range 0-3, y range 0-2. Front faces south.
+
+# === Wooden frame (outer rectangular border) ===
+rect 0.10,0.12 2.80,1.76 texfill polyhaven/dark_wood 0.70
+rect 0.10,0.12 2.80,1.76 stroke #2a1400
+
+# === Plank surface (weathered boards running east-west) ===
+rect 0.18,0.28 2.64,0.22 texfill polyhaven/dark_wood 0.55
+rect 0.18,0.54 2.64,0.22 texfill polyhaven/dark_wood 0.50
+rect 0.18,0.80 2.64,0.22 texfill polyhaven/dark_wood 0.55
+rect 0.18,1.06 2.64,0.22 texfill polyhaven/dark_wood 0.50
+rect 0.18,1.32 2.64,0.22 texfill polyhaven/dark_wood 0.55
+rect 0.18,1.58 2.64,0.22 texfill polyhaven/dark_wood 0.50
+# Plank gap lines
+line 0.18,0.50 2.82,0.50 stroke #1a0a00 0.3
+line 0.18,0.76 2.82,0.76 stroke #1a0a00 0.3
+line 0.18,1.02 2.82,1.02 stroke #1a0a00 0.3
+line 0.18,1.28 2.82,1.28 stroke #1a0a00 0.3
+line 0.18,1.54 2.82,1.54 stroke #1a0a00 0.3
+
+# === Frame rails (thick side beams) ===
+rect 0.10,0.12 0.12,1.76 fill #3a1f00 0.7
+rect 0.10,0.12 0.12,1.76 stroke #2a1400
+rect 2.78,0.12 0.12,1.76 fill #3a1f00 0.7
+rect 2.78,0.12 0.12,1.76 stroke #2a1400
+
+# === North roller mechanism (cylinder at top) ===
+rect 0.20,0.12 2.60,0.18 texfill polyhaven/dark_wood 0.80
+rect 0.20,0.12 2.60,0.18 stroke #2a1400
+# Roller highlight (convex surface catch)
+rect 0.20,0.16 2.60,0.06 fill #5a3a1a 0.25
+# Spoke lines on north roller
+line 0.50,0.12 0.50,0.30 stroke #2a1400 0.4
+line 1.00,0.12 1.00,0.30 stroke #2a1400 0.4
+line 1.50,0.12 1.50,0.30 stroke #2a1400 0.4
+line 2.00,0.12 2.00,0.30 stroke #2a1400 0.4
+line 2.50,0.12 2.50,0.30 stroke #2a1400 0.4
+
+# === South roller mechanism (cylinder at bottom) ===
+rect 0.20,1.70 2.60,0.18 texfill polyhaven/dark_wood 0.80
+rect 0.20,1.70 2.60,0.18 stroke #2a1400
+# Roller highlight
+rect 0.20,1.74 2.60,0.06 fill #5a3a1a 0.25
+# Spoke lines on south roller
+line 0.50,1.70 0.50,1.88 stroke #2a1400 0.4
+line 1.00,1.70 1.00,1.88 stroke #2a1400 0.4
+line 1.50,1.70 1.50,1.88 stroke #2a1400 0.4
+line 2.00,1.70 2.00,1.88 stroke #2a1400 0.4
+line 2.50,1.70 2.50,1.88 stroke #2a1400 0.4
+
+# === Crank handle (extending from south-east roller) ===
+rect 2.82,1.74 0.14,0.04 fill #666666 0.7
+rect 2.82,1.74 0.14,0.04 stroke #444444
+# Crank grip
+circle 2.96,1.76 0.04 fill #888888 0.8
+circle 2.96,1.76 0.04 stroke #555555
+
+# === Ropes/chains from north roller toward center ===
+line 0.50,0.30 0.70,0.70 stroke #8b7355 0.5
+line 2.50,0.30 2.30,0.70 stroke #8b7355 0.5
+# Shackle rings at rope ends (north side)
+circle 0.70,0.70 0.05 stroke #777777 0.7
+circle 0.70,0.70 0.05 fill #888888 0.3
+circle 2.30,0.70 0.05 stroke #777777 0.7
+circle 2.30,0.70 0.05 fill #888888 0.3
+
+# === Ropes/chains from south roller toward center ===
+line 0.50,1.70 0.70,1.30 stroke #8b7355 0.5
+line 2.50,1.70 2.30,1.30 stroke #8b7355 0.5
+# Shackle rings at rope ends (south side)
+circle 0.70,1.30 0.05 stroke #777777 0.7
+circle 0.70,1.30 0.05 fill #888888 0.3
+circle 2.30,1.30 0.05 stroke #777777 0.7
+circle 2.30,1.30 0.05 fill #888888 0.3
+
+# === Leather restraint straps (crossing the frame) ===
+rect 0.16,0.58 2.68,0.05 fill #6b4226 0.45
+rect 0.16,0.58 2.68,0.05 stroke #4a2a10 0.3
+rect 0.16,0.92 2.68,0.05 fill #6b4226 0.40
+rect 0.16,0.92 2.68,0.05 stroke #4a2a10 0.3
+rect 0.16,1.40 2.68,0.05 fill #6b4226 0.45
+rect 0.16,1.40 2.68,0.05 stroke #4a2a10 0.3
+
+# === Strap buckles (small metal rectangles on straps) ===
+rect 0.40,0.56 0.08,0.09 fill #777777 0.6
+rect 0.40,0.56 0.08,0.09 stroke #555555
+rect 2.50,0.56 0.08,0.09 fill #777777 0.6
+rect 2.50,0.56 0.08,0.09 stroke #555555
+rect 0.40,1.38 0.08,0.09 fill #777777 0.6
+rect 0.40,1.38 0.08,0.09 stroke #555555
+rect 2.50,1.38 0.08,0.09 fill #777777 0.6
+rect 2.50,1.38 0.08,0.09 stroke #555555
+
+# === Iron corner brackets ===
+# NW corner
+rect 0.08,0.10 0.14,0.14 fill #666666 0.6
+rect 0.08,0.10 0.14,0.14 stroke #444444
+circle 0.15,0.17 0.02 fill #888888 0.7
+# NE corner
+rect 2.78,0.10 0.14,0.14 fill #666666 0.6
+rect 2.78,0.10 0.14,0.14 stroke #444444
+circle 2.85,0.17 0.02 fill #888888 0.7
+# SW corner
+rect 0.08,1.76 0.14,0.14 fill #666666 0.6
+rect 0.08,1.76 0.14,0.14 stroke #444444
+circle 0.15,1.83 0.02 fill #888888 0.7
+# SE corner
+rect 2.78,1.76 0.14,0.14 fill #666666 0.6
+rect 2.78,1.76 0.14,0.14 stroke #444444
+circle 2.85,1.83 0.02 fill #888888 0.7
+
+# === Rivets along frame rails ===
+circle 0.16,0.40 0.015 fill #888888 0.6
+circle 0.16,0.65 0.015 fill #888888 0.6
+circle 0.16,1.00 0.015 fill #888888 0.6
+circle 0.16,1.35 0.015 fill #888888 0.6
+circle 0.16,1.60 0.015 fill #888888 0.6
+circle 2.84,0.40 0.015 fill #888888 0.6
+circle 2.84,0.65 0.015 fill #888888 0.6
+circle 2.84,1.00 0.015 fill #888888 0.6
+circle 2.84,1.35 0.015 fill #888888 0.6
+circle 2.84,1.60 0.015 fill #888888 0.6

@@ -1,0 +1,26 @@
+name: Carpet (Runner)
+category: Decorative
+footprint: 1x6
+facing: yes
+shadow: no
+blocks_light: no
+placement: center
+room_types: throne-room, temple, corridor, great-hall
+typical_count: single
+notes: Long narrow carpet; use as processional runner or hallway rug
+---
+# footprint 1x6: x range 0-6, y range 0-1
+# Carpet body
+rect 0.0,0.08 6.0,0.84 texfill polyhaven/velour_velvet 0.8
+rect 0.0,0.08 6.0,0.84 stroke #6b1010
+# Decorative border
+rect 0.15,0.18 5.7,0.64 stroke #8b2020
+# Inner field
+rect 0.3,0.25 5.4,0.5 texfill polyhaven/floral_jacquard 0.7
+rect 0.3,0.25 5.4,0.5 stroke #6b1010
+# End tassels (flush edges for optional tiling)
+line 0.0,0.2 0.0,0.8 stroke #daa520 0.4
+line 6.0,0.2 6.0,0.8 stroke #daa520 0.4
+# Gold stripe details
+line 0.3,0.3 5.7,0.3 stroke #daa520 0.3
+line 0.3,0.7 5.7,0.7 stroke #daa520 0.3

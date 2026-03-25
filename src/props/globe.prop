@@ -2,7 +2,7 @@ name: Globe
 category: Library & Study
 footprint: 1x1
 facing: no
-shadow: yes
+shadow: no
 blocks_light: no
 placement: floor
 room_types: study, library, wizard-sanctum, captain-cabin
@@ -10,22 +10,37 @@ typical_count: single
 clusters_with: desk, bookshelf, telescope
 notes: Decorative; place near desk or in study corner
 ---
-# Globe sphere
-circle 0.50,0.46 0.36 fill #446688 0.70
-circle 0.50,0.46 0.36 stroke #334466
-# Landmasses
-circle 0.40,0.36 0.12 fill #558844 0.70
-circle 0.56,0.30 0.08 fill #558844 0.60
-circle 0.62,0.50 0.10 fill #558844 0.65
-circle 0.36,0.56 0.08 fill #558844 0.60
-circle 0.50,0.50 0.06 fill #558844 0.50
-# Latitude rings
-circle 0.50,0.46 0.36 stroke #6699aa 0.30
-circle 0.50,0.46 0.26 stroke #6699aa 0.20
+# Stand base — ornate circular pedestal
+ellipse 0.50,0.82 0.22,0.08 fill #5a3a00 0.85
+ellipse 0.50,0.82 0.22,0.08 stroke #3a1f00
+ellipse 0.50,0.80 0.18,0.06 fill #8b6914 0.75
+ellipse 0.50,0.80 0.18,0.06 stroke #5a3a00
+# Stand pole — vertical support (seen as short line from above)
+rect 0.46,0.68 0.08,0.12 fill #8b6914 0.80
+rect 0.46,0.68 0.08,0.12 stroke #5a3a00
+# Meridian arm — back half (behind the globe)
+ellipse 0.50,0.46 0.34,0.38 stroke #daa520
+arc 0.50,0.46 0.34 3.60 5.82 stroke #8b6914
+# Globe sphere — ocean base
+circle 0.50,0.44 0.28 fill #335577 0.80
+circle 0.50,0.44 0.28 stroke #2a4466
+# Landmasses — irregular continents
+poly 0.34,0.30 0.30,0.36 0.33,0.42 0.40,0.40 0.42,0.34 fill #4a7a3a 0.70
+poly 0.52,0.26 0.48,0.32 0.54,0.38 0.60,0.34 0.58,0.28 fill #4a7a3a 0.65
+poly 0.56,0.44 0.60,0.50 0.66,0.48 0.64,0.42 fill #557744 0.60
+poly 0.36,0.50 0.34,0.56 0.40,0.58 0.44,0.54 0.42,0.48 fill #4a7a3a 0.65
+circle 0.50,0.52 0.04 fill #557744 0.55
+# Latitude line
+ellipse 0.50,0.38 0.26,0.08 stroke #6699aa 0.25
 # Equator band
-circle 0.50,0.46 0.36 stroke #daa520 0.40
-# Stand base
-ellipse 0.50,0.86 0.20,0.06 fill #8b6914 0.80
-ellipse 0.50,0.86 0.20,0.06 stroke #5a3a00
-# Stand pole
-line 0.50,0.82 0.50,0.72 stroke #8b6914
+ellipse 0.50,0.44 0.28,0.10 stroke #daa520 0.30
+# Globe highlight — specular reflection
+circle 0.42,0.36 0.06 fill #ffffff 0.15
+# Meridian arm — front half (over the globe)
+arc 0.50,0.46 0.34 0.46 2.68 stroke #daa520
+# Mounting knob at top of arm
+circle 0.50,0.12 0.03 fill #daa520 0.85
+circle 0.50,0.12 0.03 stroke #8b6914
+# Arm-to-globe pivot knobs (sides)
+circle 0.22,0.50 0.02 fill #daa520 0.80
+circle 0.78,0.50 0.02 fill #daa520 0.80

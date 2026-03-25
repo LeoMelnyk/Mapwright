@@ -2,6 +2,32 @@
 
 ## v0.8.0
 
+### Prop Art Overhaul
+
+Comprehensive visual overhaul of the entire prop library — every prop reviewed, with ~100 props remade or significantly improved:
+
+- **Perspective fixes**: Dozens of props corrected from front-facing to proper top-down perspective (notice board, scroll rack, shield rack, pot rack, portcullis, vault door, wine rack, trophy mount, etc.)
+- **Visual quality improvements**: Props redesigned with richer detail, better textures, and consistent art style (treasure pile, skeleton, sarcophagus, throne, organ, magic circle, ritual circle, well, workbench, wardrobe, etc.)
+- **New props**: Lumber Stack, Standing Mirror, Sarcophagus (Skull), Treasure Pile (Small/Large/Massive)
+- **Removed redundant props**: Stable Partition, Summoning Cage, Zombie Pit, Well Windlass, Tapestry, Wood Pile
+- **Resized props**: Obelisk (1x1→2x2), Training Dummy (1x1→2x2), Organ (3x3→4x3), Reliquary (1x1→2x3), Throne Dais (3x4→6x6), Wardrobe (2x2→3x2), Workbench (2x2→2x3), Ship Wheel (2x2→1x1)
+- **Renamed**: Oil Cauldron → Cauldron (Oil), Stone Column → Column (Stone)
+
+### Prop DSL Enhancements
+
+New drawing primitives for richer prop artwork:
+
+- **Gradient fills**: `gradient-radial` and `gradient-linear` styles on any shape, with configurable start/end colors, opacity, and angle
+- **Bezier curves**: `bezier` (cubic, 2 control points) and `qbezier` (quadratic, 1 control point) for organic shapes and scrollwork
+- **Elliptical ring**: `ering` command for non-circular donut/annulus shapes
+- **Clipping masks**: `clip-begin`/`clip-end` blocks to restrict rendering to a shaped region
+- All new primitives support rotation, flipping, fill/stroke/texfill styles, and the `width` modifier
+
+### Prop Tooling
+
+- **Prop footprint validator** (`tools/validate-props.js`): CLI tool that scans all `.prop` files and reports coordinates exceeding declared footprint bounds. Catches clipping issues before they reach the renderer
+- **Prop preview API** (`renderPropPreview`): Editor API method that renders a single prop to a data URL image — enables agents to visually self-correct prop designs. Accepts catalog names or raw `.prop` text. Callable via puppeteer bridge
+
 ### Half-Cell Resolution
 
 The grid system now supports half-cell precision. Internally, each display cell (5ft) is divided into 4 sub-cells (2.5ft each), allowing walls, doors, rooms, and features to be placed at half-cell boundaries. This gives map authors the same kind of freedom found in other map editors that divide cells into quarters.
@@ -9,28 +35,35 @@ The grid system now supports half-cell precision. Internally, each display cell 
 - **Coordinate system**: The API uses half-step coordinates (0, 0.5, 1, 1.5, ...) — existing integer coordinates remain fully compatible
 - **Internal storage**: Grid dimensions are doubled internally (`metadata.resolution = 2`, `gridSize` halved to 2.5ft) while the display grid stays at 5ft
 - **Auto-migration**: Existing `.mapwright` files seamlessly upgrade from format v2 to v3 on load — each cell splits into 4 sub-cells with walls, fills, textures, trims, stairs, and bridges correctly replicated
-- **Grid lines**: Primary grid drawn at 5ft display-cell boundaries; lighter sub-grid lines at 2.5ft internal-cell boundaries, toggleable via `features.showSubGrid` (enabled by default in editor, always hidden in player view)
+- **Grid lines**: Primary grid drawn at 5ft display-cell boundaries
 - **Scale indicator**: Correctly shows "1 square = 5 feet" (display grid size)
 
 ### Rendering Performance
 
-- **Per-phase render layer caching**: Fills (water/lava/pit), texture blending, and props are each rendered to dedicated offscreen canvases that persist across map cache rebuilds. Only re-rendered when their specific inputs change (e.g. fluid cells, texture topology, prop list). Reduces cache rebuild from ~6500ms to ~25ms on complex 100×100 maps — a 99.6% reduction
-- **Content-driven cache invalidation**: Map cache rebuilds are now driven by `smartInvalidate()` content versioning instead of undo stack signatures, ensuring every cell mutation (including mid-drag wall placement) triggers an immediate visual update
-- **Offscreen map cache**: The expensive `renderCells` + lighting pipeline is rendered once to a cached offscreen canvas, then blitted to screen on pan/zoom/hover via a single `drawImage` — eliminates thousands of redundant GPU draw commands per frame
+- **HiDPI / devicePixelRatio support**: The editor canvas now renders at native physical resolution on high-DPI displays (e.g. 125%, 150%, 200% Windows scaling). Canvas backing store is sized to physical pixels with a DPR transform applied to all drawing operations. Automatically re-renders when moving between monitors with different scaling
+- **Configurable render quality**: New "Render Quality" dropdown in the View menu controls the offscreen cache resolution (Low 10 / Medium 15 / High 20 / Ultra 30 px/ft). Default is High. Setting persists across maps via localStorage. Higher quality gives crisper textures, props, and walls at the cost of more GPU memory
+- **Minimap caching**: The minimap now caches its cell rendering to an offscreen bitmap, only rebuilding on data changes — the single biggest performance win, boosting fps from 37 to 240 on a 100×100 map
+- **Two-tier offscreen map cache**: Cell rendering (floors, walls, props) is cached separately from the composite (cells + lighting). Cell cache persists across animation ticks; composite rebuilds only when lighting animates or data changes
+- **Content-driven cache invalidation**: Map cache rebuilds are driven by `smartInvalidate()` content versioning instead of undo stack signatures, ensuring every cell mutation (including mid-drag wall placement) triggers an immediate visual update
 - **Iterative flood fill**: Converted recursive `floodFillOutside` in floor rendering to an iterative stack-based approach, fixing stack overflow crashes on large grids (100×100+)
 - **Viewport culling**: Floor rendering and editor dots now skip off-screen cells
-- **Display-cell coalescing**: Floor base fill draws one display-cell-sized rect instead of 4 sub-cell rects where possible (4x fewer GPU commands)
+- **Display-cell coalescing**: Floor base fill draws one display-cell-sized rect instead of 4 sub-cell rects where possible (4× fewer GPU commands)
 - **Editor dots**: Only drawn at display-cell boundaries with viewport culling (was iterating every internal cell)
-- **Outer shading Path2D**: Steps by resolution — ~2,500 arcs instead of ~10,000 for a 50x50 map
+- **Outer shading Path2D**: Steps by resolution — ~2,500 arcs instead of ~10,000 for a 50×50 map
+- **Diagonal wall merging**: Consecutive diagonal wall sub-cells are merged into single long segments, reducing GPU draw commands and eliminating visible joints between sub-cell diagonals
 - **Canvas context**: Uses `{ alpha: false, desynchronized: true }` for reduced compositor overhead
 - **GPU flags**: Electron configured with `ignore-gpu-blocklist`, `enable-accelerated-2d-canvas`, `enable-gpu-rasterization`, and `use-angle=gl` for maximum GPU utilization
 
 ### Performance Diagnostics
 
-- **FPS counter enhanced**: Now shows actual fps, frame gap (time between frames), and canvas dimensions
-- **Per-phase render timings**: When FPS counter is enabled, displays timing breakdown for every render phase: dots, roomCells, shading, floors, arcs, blending, fills, walls, bridges, grid, props, hazard, lighting, decorations
-- **Interaction timing**: Shows `mouseMove` handler cost and `pushUndo` serialization time
-- **Cache status**: Shows `blit` (cached frame) vs `cacheRebuild` (full re-render) timing
+- **Collapsible overlay**: Click the header `[+]/[-]` to toggle between compact (Hz/draw/gap) and expanded view
+- **Hz display**: Shows rAF probe rate instead of fps — more meaningful for an on-demand renderer
+- **Categorized sections**: Metrics grouped into Map, Caches, Render, Undo, and Memory categories
+- **Map info**: Cell count, prop count, light count, grid dimensions with display/internal distinction
+- **Per-phase render timings**: Timing breakdown for every render phase: Mouse, Dots, RoomCells, Shading, Floors, Arcs, Blend, Fills, Walls, Bridges, Grid, Props, Hazard, Lighting, Decor
+- **Cache diagnostics**: Cache dimensions, cells rebuild count, composite rebuild count, rebuild time
+- **Undo diagnostics**: Serialize time, total time, undo/redo stack depth
+- **Interaction timing**: `mouseMove` handler cost
 - **Phase skip debugging**: `window._skipPhases = { cells: true }` in console to disable render phases and isolate GPU bottlenecks
 
 ### Prop Sizing Overhaul
@@ -52,10 +85,32 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - **Backward compatible**: Integer coordinates work identically to before
 - `getMapInfo` returns display dimensions (`rows`, `cols`, `gridSize`) plus new `resolution` field
 
+### Door Rendering at Half-Cell Resolution
+
+- **Cardinal doors**: Adjacent sub-cell doors automatically coalesce — 2 sub-cell doors render as one 5ft single door, 4 as a double door. Odd leftovers render as small sub-cell doors
+- **Diagonal doors**: Same coalescing logic with `sqrt(2)` compensation for diagonal length — doors fill 80% of the diagonal segment
+- **Diagonal wall merging**: Continuous diagonal wall lines drawn as single merged segments, with door gaps painted on top — eliminates fragmented wall artifacts between doors
+
+### Trim & Lighting Fixes
+
+- **Rounded trim migration**: Arc trims re-compute void boundaries at sub-cell precision after migration — eliminates chunky 2×2 void blocks, producing smooth arcs. Diagonal walls removed from rounded trim hypotenuse cells (arc wall drawn from metadata)
+- **Straight trim migration**: Correctly voids the corner sub-cell on the void side of diagonal trims; sets `trimCorner` on diagonal sub-cells for proper triangle clipping
+- **Lighting trim cleanup**: After lightmap compositing, void triangles of trim cells are erased with `destination-out` — prevents light brightness from bleeding into the void side of diagonal trims
+
+### Bug Fixes
+
+- Fixed Ctrl+freeform prop placement: the placement ghost now tracks the exact cursor position instead of snapping to cell grid, and the prop is placed where the ghost shows
+- Fixed linked lights on freeform-placed props snapping to the anchor cell instead of following the prop's actual world position
+- Fixed bridge textures missing in PNG export — bridge texture IDs weren't collected by the texture loader, and `DOMMatrix` (needed for pattern scaling) wasn't available in the Node.js render path
+- **Export quality doubled**: `GRID_SCALE` increased from 10 to 20 px/ft — exported PNGs are now 4× the pixels for sharper prints and VTT use
+- **Texture loading bar never completing**: Fixed race condition where `loadTextureImages()` returned an instantly-resolved promise for textures already in flight, causing `ensureTexturesLoaded()` to resolve before images finished loading. The progress bar also failed to track images started by `preloadPropTextures()`, leaving the loading overlay stuck indefinitely on maps with many props
+
 ### Migration
 
 - Format version bumped to 3 (v2→v3 migration)
 - Migration splits each cell into 4 sub-cells: replicates fill/texture/hazard, distributes outer walls to correct sub-cell edges, handles diagonal walls, trims, arc metadata, labels, stairs, and bridges
+- Rounded trims: re-voids cells at sub-cell precision using doubled arc geometry; removes staircase-causing diagonal walls from hypotenuse
+- Straight trims: voids the corner sub-cell in the void zone; preserves diagonal walls on the two hypotenuse sub-cells with correct `trimCorner`
 - Props and lights unchanged (already stored in world-feet coordinates)
 
 ---

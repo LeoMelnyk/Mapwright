@@ -1,0 +1,25 @@
+name: Carpet (Small)
+category: Decorative
+footprint: 2x3
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: bedroom, study, office, inn
+typical_count: single
+notes: Small area rug; place beside beds or under desks
+---
+# footprint 2x3: x range 0-3, y range 0-2
+# Carpet body
+rect 0.08,0.08 2.84,1.84 texfill polyhaven/dirty_carpet 0.85
+rect 0.08,0.08 2.84,1.84 stroke #8b4513
+# Decorative border
+rect 0.22,0.22 2.56,1.56 stroke #6b3410
+# Inner field
+rect 0.4,0.4 2.2,1.2 texfill polyhaven/floral_jacquard 0.75
+rect 0.4,0.4 2.2,1.2 stroke #6b3410
+# Corner ornaments
+circle 0.3,0.3 0.06 fill #daa520 0.5
+circle 2.7,0.3 0.06 fill #daa520 0.5
+circle 0.3,1.7 0.06 fill #daa520 0.5
+circle 2.7,1.7 0.06 fill #daa520 0.5

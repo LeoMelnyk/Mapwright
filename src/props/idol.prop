@@ -10,12 +10,43 @@ typical_count: single
 clusters_with: altar, offering-plate, candle-cluster
 notes: Object of worship; place prominently as focal point
 ---
-# Stone pedestal
-rect 0.25,0.25 0.5,0.5 texfill polyhaven/granite_tile 0.8
-rect 0.25,0.25 0.5,0.5 stroke
-# Idol figure (angular, demonic/divine)
-poly 0.5,0.2 0.65,0.45 0.6,0.7 0.4,0.7 0.35,0.45 texfill polyhaven/stone_floor 0.85
-poly 0.5,0.2 0.65,0.45 0.6,0.7 0.4,0.7 0.35,0.45 stroke
-# Eyes
-circle 0.45,0.38 0.02 fill #ff0000 0.6
-circle 0.55,0.38 0.02 fill #ff0000 0.6
+# === Eerie aura glow (outermost, painted first) ===
+circle 0.50,0.50 0.46 fill #224422 0.10
+circle 0.50,0.50 0.38 fill #336633 0.12
+
+# === Dark stone plinth (octagonal base) ===
+poly 0.22,0.35 0.35,0.22 0.65,0.22 0.78,0.35 0.78,0.65 0.65,0.78 0.35,0.78 0.22,0.65 texfill polyhaven/stone_wall 0.75
+poly 0.22,0.35 0.35,0.22 0.65,0.22 0.78,0.35 0.78,0.65 0.65,0.78 0.35,0.78 0.22,0.65 stroke #2a1400
+
+# === Plinth edge darkening (inner shadow for depth) ===
+poly 0.26,0.38 0.38,0.26 0.62,0.26 0.74,0.38 0.74,0.62 0.62,0.74 0.38,0.74 0.26,0.62 fill #1a1208 0.25
+
+# === Coiled serpent body (top-down spiral) ===
+# Outer coil — thick dark stone serpent wrapping clockwise
+arc 0.50,0.50 0.24 0.0 3.14 texfill polyhaven/stone_floor 0.80
+arc 0.50,0.50 0.24 0.0 3.14 stroke #2a1400
+arc 0.50,0.50 0.24 3.14 6.28 texfill polyhaven/stone_floor 0.80
+arc 0.50,0.50 0.24 3.14 6.28 stroke #2a1400
+# Gold scale highlights on outer coil
+arc 0.50,0.50 0.22 0.5 1.2 stroke #8b6914 0.45
+arc 0.50,0.50 0.22 2.0 2.8 stroke #8b6914 0.45
+arc 0.50,0.50 0.22 3.8 4.6 stroke #8b6914 0.45
+arc 0.50,0.50 0.22 5.2 5.9 stroke #8b6914 0.45
+
+# === Inner coil (tighter spiral toward center) ===
+arc 0.50,0.50 0.15 0.0 6.28 texfill polyhaven/stone_floor 0.75
+arc 0.50,0.50 0.15 0.0 6.28 stroke #2a1400
+# Gold scale highlights on inner coil
+arc 0.50,0.50 0.13 0.8 1.8 stroke #daa520 0.40
+arc 0.50,0.50 0.13 4.0 5.0 stroke #daa520 0.40
+
+# === Serpent head (raised, facing south — center-top of coil) ===
+# Head shape — angular wedge pointing south
+poly 0.43,0.42 0.57,0.42 0.54,0.54 0.50,0.58 0.46,0.54 texfill polyhaven/stone_floor 0.85
+poly 0.43,0.42 0.57,0.42 0.54,0.54 0.50,0.58 0.46,0.54 stroke #2a1400
+
+# === Glowing eyes (eldritch green) ===
+circle 0.47,0.47 0.02 fill #44ff44 0.70
+circle 0.53,0.47 0.02 fill #44ff44 0.70
+circle 0.47,0.47 0.035 fill #22aa22 0.25
+circle 0.53,0.47 0.035 fill #22aa22 0.25

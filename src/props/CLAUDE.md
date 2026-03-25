@@ -72,12 +72,23 @@ Wall-mounted props (mirror, painting, hearth, weapon rack, etc.) have their "wal
 ### Shapes
 
 ```
-rect x,y w,h          — Rectangle at (x,y) with width w, height h
-circle cx,cy r         — Circle centered at (cx,cy) with radius r
-ellipse cx,cy rx,ry    — Ellipse centered at (cx,cy) with x-radius rx, y-radius ry
-poly x1,y1 x2,y2 ...  — Polygon with 3+ vertices (auto-closed)
-line x1,y1 x2,y2      — Line segment from (x1,y1) to (x2,y2)
-arc cx,cy r start end  — Arc centered at (cx,cy), angles in radians
+rect x,y w,h               — Rectangle at (x,y) with width w, height h
+circle cx,cy r              — Circle centered at (cx,cy) with radius r
+ellipse cx,cy rx,ry         — Ellipse centered at (cx,cy) with x-radius rx, y-radius ry
+poly x1,y1 x2,y2 ...       — Polygon with 3+ vertices (auto-closed)
+line x1,y1 x2,y2           — Line segment from (x1,y1) to (x2,y2)
+arc cx,cy r start end       — Arc/wedge centered at (cx,cy), angles in degrees
+ring cx,cy outerR innerR    — Donut/annulus shape (transparent hole in center)
+ering cx,cy outerRx,outerRy innerRx,innerRy — Elliptical ring/donut (non-circular annulus)
+bezier x1,y1 cp1x,cp1y cp2x,cp2y x2,y2 — Cubic bezier curve (2 control points)
+qbezier x1,y1 cpx,cpy x2,y2 — Quadratic bezier curve (1 control point)
+cutout circle cx,cy r       — Punch a transparent hole (erases all pixels beneath)
+cutout rect x,y w,h         — Punch a rectangular transparent hole
+cutout ellipse cx,cy rx,ry  — Punch an elliptical transparent hole
+clip-begin circle cx,cy r   — Start clipping region (only content inside is visible)
+clip-begin rect x,y w,h     — Start rectangular clipping region
+clip-begin ellipse cx,cy rx,ry — Start elliptical clipping region
+clip-end                     — End clipping region (restore previous state)
 ```
 
 ### Styles (appended after shape)
@@ -88,9 +99,47 @@ fill #hexcolor [opacity]    — Fill with custom hex color
 stroke                      — Stroke with theme's wall color
 stroke #hexcolor            — Stroke with custom hex color
 texfill textureId [opacity] — Fill with a texture image
+gradient-radial #start #end [opacity] — Radial gradient fill (center to edge)
+gradient-linear #start #end [opacity] [angle N] — Linear gradient fill (default top-to-bottom)
 ```
 
 If opacity is omitted, it defaults to 1.0.
+
+### Modifiers (appended after style)
+
+```
+width N                     — Stroke line width in pixels (default: 2). Works on any shape with stroke.
+rotate N                    — Rotate a rect by N degrees around its center. Only works on rect.
+angle N                     — Direction for gradient-linear in degrees (0=top-to-bottom, 90=left-to-right).
+```
+
+Examples:
+```
+circle 0.5,0.5 0.3 stroke #ff0000 width 4    — thick red outline
+rect 0.2,0.2 0.6,0.6 fill #8b6914 rotate 45  — diamond shape (rotated square)
+line 0.1,0.5 0.9,0.5 stroke #555555 width 3   — thick iron bar
+```
+
+### Special Shapes
+
+**Ring (donut):** Draws a filled annulus with a transparent center hole. Useful for life rings, wreaths, wheel rims.
+```
+ring 0.5,0.5 0.4 0.2 fill #cc2200 0.9       — red ring, outer r=0.4, inner r=0.2
+ring 0.5,0.5 0.4 0.2 texfill polyhaven/rusty_metal 0.8
+```
+
+**Cutout (transparent eraser):** Punches a hole through everything drawn before it in the prop. The map floor/texture shows through. Use after drawing filled shapes to create windows, holes, or transparent centers.
+```
+circle 0.5,0.5 0.4 fill #cc2200 0.9   — draw red circle
+cutout circle 0.5,0.5 0.2             — punch transparent hole in center
+```
+
+**Arc (wedge/pie slice):** With `fill` or `texfill`, draws a filled pie-slice wedge from center. With `stroke`, draws just the curved arc line. Angles are in degrees (0° = east/right, 90° = south/down).
+```
+arc 0.5,0.5 0.3 0 90 fill #ff0000 0.5        — filled quarter-circle wedge
+arc 0.5,0.5 0.3 315 45 fill #ffffff 0.85      — filled wedge spanning NE
+arc 0.5,0.5 0.3 0 360 stroke #666666          — full circle outline (same as circle stroke)
+```
 
 ### Rendering Order
 
@@ -345,6 +394,84 @@ circle cx,0.5 r fill #1a1a1a 0.35 — dark hole fill
 line 0.2,0.5 0.6,0.5 stroke #1a1a1a
 ```
 
+### Pattern: Transparent hole (life ring, window, keyhole)
+```
+# Draw the solid shape first
+circle 0.5,0.5 0.4 fill #cc2200 0.9
+circle 0.5,0.5 0.4 stroke #991100
+# Punch transparent hole — map floor shows through
+cutout circle 0.5,0.5 0.2
+# Stroke the hole edge (drawn after cutout, so it's visible)
+circle 0.5,0.5 0.2 stroke #991100
+```
+
+### Pattern: Ring/donut (single command alternative to cutout)
+```
+# Simpler than fill + cutout for basic donut shapes
+ring 0.5,0.5 0.4 0.2 fill #cc2200 0.9
+ring 0.5,0.5 0.4 0.2 stroke #991100
+```
+
+### Pattern: Filled wedge (pie slice, decorative panel)
+```
+# Filled quarter-circle wedge (0° to 90°)
+arc 0.5,0.5 0.3 0 90 fill #ffffff 0.85
+# Two opposing wedges (like life ring white panels)
+arc 0.5,0.5 0.4 315 45 fill #ffffff 0.85
+arc 0.5,0.5 0.4 135 225 fill #ffffff 0.85
+```
+
+### Pattern: Thick iron bands / heavy strokes
+```
+# Use width modifier for thick lines instead of faking with filled rects
+line 0.1,0.3 0.9,0.3 stroke #555555 width 4
+circle 0.5,0.5 0.3 stroke #daa520 width 3
+```
+
+### Pattern: Rotated rectangle (diamond, angled plank)
+```
+# 45° diamond shape
+rect 0.2,0.2 0.6,0.6 fill #8b6914 0.7 rotate 45
+# Angled wooden plank
+rect 0.1,0.3 0.8,0.1 texfill polyhaven/dark_wood 0.85 rotate 15
+```
+
+### Pattern: Gradient glow (magical effects, fire, light sources)
+```
+# Radial glow — bright center fading to dark edges
+circle 0.5,0.5 0.4 gradient-radial #ffcc00 #000000 0.6
+# Linear gradient — top-down color transition
+rect 0.1,0.1 0.8,0.8 gradient-linear #4422aa #000000 0.5
+# Angled linear gradient (45° diagonal)
+rect 0.1,0.1 0.8,0.8 gradient-linear #ff0000 #0000ff 0.7 angle 45
+```
+
+### Pattern: Bezier curves (organic shapes, scrollwork, tentacles)
+```
+# Cubic bezier — S-curve
+bezier 0.1,0.5 0.3,0.1 0.7,0.9 0.9,0.5 stroke #5c3a1e width 3
+# Quadratic bezier — simple arc
+qbezier 0.2,0.8 0.5,0.2 0.8,0.8 stroke #4a2800 width 2
+# Filled bezier shape (closes the path before filling)
+bezier 0.2,0.5 0.3,0.2 0.7,0.2 0.8,0.5 fill #3a7a28 0.5
+```
+
+### Pattern: Elliptical ring (oval donut, decorative frames)
+```
+# Oval ring — like ring but with independent x/y radii
+ering 0.5,0.5 0.4,0.3 0.3,0.2 fill #daa520 0.8
+ering 0.5,0.5 0.4,0.3 0.3,0.2 stroke #8b6914
+```
+
+### Pattern: Clipping mask (shaped windows, partial reveals)
+```
+# Only draw inside a circular region
+clip-begin circle 0.5,0.5 0.3
+rect 0.0,0.0 1.0,1.0 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.1 fill #ffcc00 0.8
+clip-end
+```
+
 ## Prop Complexity Guidelines
 
 | Footprint | Draw commands | Notes |
@@ -357,33 +484,58 @@ line 0.2,0.5 0.6,0.5 stroke #1a1a1a
 
 Keep texture opacity between **0.6–0.9** for fills (0.85 is the sweet spot). Lower opacity textures look washed out; 1.0 can look overpowering.
 
-## Current Prop Count
+## Minimum Visible Size Reference
 
-There are **196 props** in the manifest across 20 categories: Alchemy, Combat, Containers, Decorative, Features, Furniture, Kitchen, Library & Study, Lighting, Magical, Misc, Nautical, Prison & Torture, Religious, Structure, Terrain, Traps, Undead & Dark, and Workshop.
+At normal map zoom, very small details become invisible. Use this guide to avoid wasting draw commands on things that won't render visibly:
 
-### New Categories (added 2024-02)
-
-| Category | Count | Props |
+| Element | Minimum visible radius/size | Notes |
 |---|---|---|
-| **Alchemy** | 6 | alchemy-bench, alembic, crucible, ingredient-rack, mortar-pestle, specimen-jar |
-| **Library & Study** | 4 | book-pile, globe, scroll-case, scroll-rack |
-| **Lighting** | 5 | crystal-torch, floor-candelabra, lantern-post, signal-fire, wall-lantern |
-| **Traps** | 5 | arrow-trap, bear-trap, pit-trap, pressure-plate, spike-trap |
-| **Undead & Dark** | 5 | bone-throne, burial-urn, canopic-jar, necrotic-altar, zombie-pit |
+| Circle detail (fill) | r ≥ 0.03 | Below 0.03 it's a sub-pixel dot |
+| Circle detail (stroke) | r ≥ 0.04 | Stroke circles need slightly more |
+| Line length | ≥ 0.08 | Very short lines vanish |
+| Fill opacity | ≥ 0.15 | Below 0.15 it's invisible against most backgrounds |
+| Ember spark / tiny accent | r = 0.015–0.02 | Visible only at high zoom; don't rely on these for key details |
+| Text-like detail (runes, cracks) | Use stroke width ≥ 2 | Default width is fine; width 1 can vanish |
 
-### Additions to Existing Categories (2024-02)
+**Rule of thumb:** If a detail is smaller than 0.03 radius or lower than 0.15 opacity, it's decorative at best and invisible at worst. Key visual identity should use elements ≥ 0.05 radius and ≥ 0.3 opacity.
 
-| Category | New Props |
-|---|---|
-| Decorative | banner, display-case, flag-pole |
-| Features | candle-cluster |
-| Kitchen | chopping-block, kitchen-table, pot-rack, spice-shelf |
-| Magical | arcane-pedestal, component-shelf, summoning-cage, ward-stone |
-| Misc | birdcage, hourglass, notice-board, telescope |
-| Nautical | binnacle, capstan, ships-hammock |
-| Religious | censer, kneeling-bench, offering-plate, reliquary |
-| Structure | chain-hoist, trophy-head |
-| Workshop | workbench |
+## Updating the Manifest
+
+After adding, removing, or renaming props, update the manifest:
+
+```bash
+node mapwright/tools/update-manifest.js
+```
+
+This scans all `.prop` files and regenerates `src/props/manifest.json` automatically.
+
+## Validating Props
+
+Run the bounds validator to check all props have coordinates within their declared footprint:
+
+```bash
+node mapwright/tools/validate-props.js              # Validate all props
+node mapwright/tools/validate-props.js pillar.prop   # Validate specific prop
+```
+
+Output shows `✓` for valid props, `✗` with details for any out-of-bounds coordinates.
+
+## Previewing Props
+
+Use the editor API to render a single prop preview (requires the editor server running):
+
+```bash
+node tools/puppeteer-bridge.js \
+  --commands '[["renderPropPreview", "pillar", {"scale": 256}]]'
+```
+
+Or preview raw prop text (useful during development):
+```bash
+node tools/puppeteer-bridge.js \
+  --commands '[["renderPropPreview", "name: Test\nfootprint: 1x1\n---\ncircle 0.5,0.5 0.3 fill #ff0000", {"scale": 256}]]'
+```
+
+Returns `{ success, dataUrl, name, footprint, warnings }`.
 
 ## Testing Props
 

@@ -10,25 +10,50 @@ typical_count: few
 clusters_with: pot-rack, ingredient-rack
 notes: Wall-mounted storage; line kitchen walls
 ---
-# Shelf board (north wall)
-rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.85
-rect 0.06,0.04 1.88,0.12 stroke #3a1f00
-# Shadow
-rect 0.06,0.16 1.88,0.05 fill #000000 0.12
-# Shelf lipped edge
-line 0.06,0.34 1.94,0.34 stroke #3a1f00 0.50
-# Assorted spice containers
-rect 0.14,0.36 0.22,0.30 fill #cc9944 0.75
-rect 0.14,0.36 0.22,0.30 stroke #8b6914
-circle 0.50,0.52 0.12 fill #aa5522 0.75
-circle 0.50,0.52 0.12 stroke #663311
-rect 0.70,0.36 0.18,0.30 fill #558844 0.75
-rect 0.70,0.36 0.18,0.30 stroke #336622
-circle 1.00,0.52 0.11 fill #ddcc44 0.75
-circle 1.00,0.52 0.11 stroke #998800
-rect 1.20,0.38 0.18,0.28 fill #994422 0.75
-rect 1.20,0.38 0.18,0.28 stroke #662211
-circle 1.50,0.52 0.12 fill #cc6644 0.75
-circle 1.50,0.52 0.12 stroke #884422
-rect 1.68,0.36 0.20,0.30 fill #887755 0.75
-rect 1.68,0.36 0.20,0.30 stroke #554433
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: shelf top covers north portion, jar/bottle tops peek out at front
+
+# Shelf body (recessed, visible behind front edge)
+rect 0.08,0.0 1.84,0.78 fill #2a1400 0.30
+line 0.08,0.0 0.08,0.78 stroke #3a1f00
+line 1.92,0.0 1.92,0.78 stroke #3a1f00
+line 0.08,0.78 1.92,0.78 stroke #3a1f00
+
+# Jar/bottle tops peeking out below shelf plate (varied sizes and colors)
+# Brown ceramic jar — wide
+circle 0.22,0.66 0.07 fill #8b6530 0.80
+circle 0.22,0.66 0.07 stroke #5c3a1e
+circle 0.22,0.66 0.03 fill #6b4520 0.60
+# Amber glass bottle — narrow
+circle 0.42,0.68 0.05 fill #cc8822 0.80
+circle 0.42,0.68 0.05 stroke #885500
+circle 0.42,0.68 0.02 fill #ffcc66 0.45
+# Small green vial
+circle 0.60,0.67 0.04 fill #448844 0.80
+circle 0.60,0.67 0.04 stroke #226622
+# Brown bottle — tall
+circle 0.78,0.66 0.06 fill #7a4422 0.80
+circle 0.78,0.66 0.06 stroke #552211
+circle 0.78,0.66 0.025 fill #aa7744 0.50
+# Amber round jar
+circle 0.98,0.68 0.07 fill #bb8833 0.80
+circle 0.98,0.68 0.07 stroke #886622
+circle 0.98,0.68 0.03 fill #ddaa55 0.45
+# Tiny dark vial
+circle 1.15,0.67 0.035 fill #553322 0.80
+circle 1.15,0.67 0.035 stroke #331100
+# Green glass bottle
+circle 1.32,0.66 0.06 fill #336644 0.80
+circle 1.32,0.66 0.06 stroke #224422
+circle 1.32,0.66 0.025 fill #88cc88 0.45
+# Wide brown crock
+circle 1.52,0.68 0.07 fill #8b6914 0.80
+circle 1.52,0.68 0.07 stroke #664400
+circle 1.52,0.68 0.03 fill #aa8844 0.50
+# Small amber vial
+circle 1.72,0.67 0.04 fill #cc9944 0.75
+circle 1.72,0.67 0.04 stroke #886622
+
+# Shelf plate (dark wood, covers north portion — drawn on top)
+rect 0.0,0.0 2.0,0.58 texfill polyhaven/dark_wood 0.85
+rect 0.0,0.0 2.0,0.58 stroke #3a1f00

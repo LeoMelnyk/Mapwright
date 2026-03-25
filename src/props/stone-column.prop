@@ -1,4 +1,4 @@
-name: Stone Column
+name: Column (Stone)
 category: Structure
 footprint: 2x2
 facing: no
@@ -9,14 +9,44 @@ room_types: any
 typical_count: few
 notes: Heavier structural pillar; place at room corners or symmetrically
 ---
-# Base pedestal
-rect 0.44,1.56 1.12,0.36 texfill polyhaven/granite_tile 0.8
-rect 0.44,1.56 1.12,0.36 stroke #666666
-# Column shaft
-circle 1,1 0.56 texfill polyhaven/marble_01 0.85
-circle 1,1 0.56 stroke #888888
-# Capital
-rect 0.4,0.1 1.2,0.36 texfill polyhaven/marble_01 0.85
-rect 0.4,0.1 1.2,0.36 stroke #888888
-# Fluting detail
-circle 1,1 0.4 stroke #999999
+# Large circular base (wider than the shaft)
+circle 1,1 0.82 texfill polyhaven/granite_tile 0.7
+circle 1,1 0.82 stroke #666666
+
+# Main shaft — stone_wall textured circle
+circle 1,1 0.62 texfill polyhaven/stone_wall 0.85
+circle 1,1 0.62 stroke #666666
+
+# Capital (top piece) — slightly wider than shaft, granite_tile textured
+ring 1,1 0.50 0.36 texfill polyhaven/granite_tile 0.80
+ring 1,1 0.50 0.36 stroke #666666
+
+# Fluting marks (12 radial lines at 30-degree intervals, from outer shaft to capital ring)
+# 0°
+line 1.0,0.18 1.0,0.32 stroke #666666
+# 30°
+line 1.31,0.24 1.25,0.36 stroke #666666
+# 60°
+line 1.54,0.49 1.44,0.52 stroke #666666
+# 90°
+line 1.62,0.82 1.50,0.82 stroke #666666
+# 120° (using symmetry: mirror of 60°)
+line 1.54,1.51 1.44,1.48 stroke #666666
+# 150°
+line 1.31,1.76 1.25,1.64 stroke #666666
+# 180°
+line 1.0,1.82 1.0,1.68 stroke #666666
+# 210°
+line 0.69,1.76 0.75,1.64 stroke #666666
+# 240°
+line 0.46,1.51 0.56,1.48 stroke #666666
+# 270°
+line 0.38,0.82 0.50,0.82 stroke #666666
+# 300°
+line 0.46,0.49 0.56,0.52 stroke #666666
+# 330°
+line 0.69,0.24 0.75,0.36 stroke #666666
+
+# Column core (center detail)
+circle 1,1 0.10 fill #888888 0.5
+circle 1,1 0.10 stroke #666666

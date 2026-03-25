@@ -2,7 +2,7 @@ name: Crate
 category: Containers
 footprint: 1x1
 facing: no
-shadow: yes
+shadow: no
 blocks_light: no
 placement: wall
 room_types: storage, warehouse, dock, cellar
@@ -10,17 +10,38 @@ typical_count: many
 clusters_with: crate-stack, barrel, barrel-stack
 notes: Basic storage; cluster against walls and in corners
 ---
-# Wooden crate body
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: wooden crate with plank lid, X-brace, corner nails
+
+# Crate body (plank lid)
 rect 0.08,0.08 0.84,0.84 texfill polyhaven/weathered_planks 0.85
-rect 0.08,0.08 0.84,0.84 stroke #4a2800
-# Plank seams
-line 0.08,0.37 0.92,0.37
-line 0.08,0.63 0.92,0.63
-# Cross brace
-line 0.08,0.08 0.92,0.92
-line 0.92,0.08 0.08,0.92
-# Nail marks
-circle 0.15,0.15 0.02 fill #555555 0.6
-circle 0.85,0.15 0.02 fill #555555 0.6
-circle 0.15,0.85 0.02 fill #555555 0.6
-circle 0.85,0.85 0.02 fill #555555 0.6
+rect 0.08,0.08 0.84,0.84 stroke #3a1f00
+
+# Plank seams (subtle, running east-west)
+line 0.1,0.3 0.9,0.3 stroke #4a2800 0.35
+line 0.1,0.5 0.9,0.5 stroke #4a2800 0.35
+line 0.1,0.7 0.9,0.7 stroke #4a2800 0.35
+
+# X-brace planks (thicker, darker wood on top of lid)
+poly 0.08,0.08 0.14,0.08 0.92,0.86 0.92,0.92 0.86,0.92 0.08,0.14 fill #5c3a1e 0.5
+poly 0.08,0.08 0.14,0.08 0.92,0.86 0.92,0.92 0.86,0.92 0.08,0.14 stroke #3a1f00 0.6
+poly 0.86,0.08 0.92,0.08 0.92,0.14 0.14,0.92 0.08,0.92 0.08,0.86 fill #5c3a1e 0.5
+poly 0.86,0.08 0.92,0.08 0.92,0.14 0.14,0.92 0.08,0.92 0.08,0.86 stroke #3a1f00 0.6
+
+# Edge frame (visible border planks on top)
+rect 0.08,0.08 0.84,0.07 texfill polyhaven/dark_wood 0.8
+rect 0.08,0.08 0.84,0.07 stroke #2a1400
+rect 0.08,0.85 0.84,0.07 texfill polyhaven/dark_wood 0.8
+rect 0.08,0.85 0.84,0.07 stroke #2a1400
+rect 0.08,0.08 0.07,0.84 texfill polyhaven/dark_wood 0.8
+rect 0.08,0.08 0.07,0.84 stroke #2a1400
+rect 0.85,0.08 0.07,0.84 texfill polyhaven/dark_wood 0.8
+rect 0.85,0.08 0.07,0.84 stroke #2a1400
+
+# Corner nails
+circle 0.13,0.13 0.02 fill #666666 0.7
+circle 0.87,0.13 0.02 fill #666666 0.7
+circle 0.13,0.87 0.02 fill #666666 0.7
+circle 0.87,0.87 0.02 fill #666666 0.7
+# Center nail (where braces cross)
+circle 0.5,0.5 0.02 fill #666666 0.6

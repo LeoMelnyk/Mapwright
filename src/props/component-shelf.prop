@@ -10,29 +10,46 @@ typical_count: few
 clusters_with: alchemy-bench, crystal-ball, spell-focus
 notes: Spell component storage; line walls near workbenches
 ---
-# Shelf board (north wall)
-rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.80
-rect 0.06,0.04 1.88,0.12 stroke #3a1f00
-# Shadow
-rect 0.06,0.16 1.88,0.05 fill #000000 0.12
-# Magical component vials (glowing colors)
-circle 0.20,0.52 0.10 fill #8866cc 0.80
-circle 0.20,0.52 0.10 stroke #6644aa
-circle 0.20,0.52 0.05 fill #ddbbff 0.50
-circle 0.48,0.52 0.10 fill #44aacc 0.80
-circle 0.48,0.52 0.10 stroke #226688
-circle 0.48,0.52 0.05 fill #aaeeff 0.50
-circle 0.76,0.52 0.10 fill #cc8822 0.80
-circle 0.76,0.52 0.10 stroke #885500
-circle 1.04,0.52 0.10 fill #22aa44 0.80
-circle 1.04,0.52 0.10 stroke #116622
-circle 1.04,0.52 0.05 fill #aaffbb 0.50
-circle 1.32,0.52 0.10 fill #cc2244 0.80
-circle 1.32,0.52 0.10 stroke #880022
-circle 1.60,0.52 0.09 fill #dddd22 0.80
-circle 1.60,0.52 0.09 stroke #888800
-circle 1.84,0.52 0.08 fill #8866cc 0.70
-# Glowing stoppers
-circle 0.20,0.42 0.05 fill #ccaaff 0.60
-circle 0.48,0.42 0.05 fill #aaeeff 0.60
-circle 1.04,0.42 0.05 fill #aaffbb 0.60
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: flat wooden shelf top with bottle caps/stoppers peeking at front
+
+# Shelf body (recessed, visible at front and sides)
+rect 0.1,0.0 1.8,0.85 fill #2a1400 0.35
+line 0.1,0.0 0.1,0.85 stroke #3a1f00
+line 1.9,0.0 1.9,0.85 stroke #3a1f00
+line 0.1,0.85 1.9,0.85 stroke #3a1f00
+
+# Bottle tops peeking out at front edge (colorful stoppers/caps)
+# Tall bottle — purple
+circle 0.25,0.72 0.06 fill #8866cc 0.8
+circle 0.25,0.72 0.06 stroke #6644aa
+circle 0.25,0.72 0.025 fill #ddbbff 0.5
+# Wide bottle — teal
+circle 0.48,0.74 0.07 fill #44aacc 0.8
+circle 0.48,0.74 0.07 stroke #226688
+circle 0.48,0.74 0.03 fill #aaeeff 0.5
+# Small vial — amber
+circle 0.7,0.73 0.05 fill #cc8822 0.8
+circle 0.7,0.73 0.05 stroke #885500
+# Tall bottle — green
+circle 0.9,0.72 0.06 fill #22aa44 0.8
+circle 0.9,0.72 0.06 stroke #116622
+circle 0.9,0.72 0.025 fill #aaffbb 0.5
+# Round flask — red
+circle 1.12,0.74 0.07 fill #cc2244 0.8
+circle 1.12,0.74 0.07 stroke #880022
+circle 1.12,0.74 0.03 fill #ff8899 0.4
+# Small vial — yellow
+circle 1.32,0.73 0.05 fill #dddd22 0.8
+circle 1.32,0.73 0.05 stroke #888800
+# Tall bottle — blue
+circle 1.52,0.72 0.06 fill #3344aa 0.8
+circle 1.52,0.72 0.06 stroke #222266
+circle 1.52,0.72 0.025 fill #8899ff 0.5
+# Tiny vial — pink
+circle 1.7,0.73 0.04 fill #cc66aa 0.75
+circle 1.7,0.73 0.04 stroke #884466
+
+# Wooden shelf top (drawn on top, covers most of the bottles)
+rect 0.0,0.0 2.0,0.65 texfill polyhaven/dark_wood 0.85
+rect 0.0,0.0 2.0,0.65 stroke #3a1f00

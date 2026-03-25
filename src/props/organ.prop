@@ -1,6 +1,6 @@
 name: Organ
 category: Furniture
-footprint: 3x3
+footprint: 4x3
 facing: yes
 shadow: yes
 blocks_light: yes
@@ -10,40 +10,119 @@ typical_count: single
 clusters_with: pew, bench
 notes: Pipe organ; place against back wall of temples or cathedrals
 ---
-# Main body/case (dark wood)
-rect 0.12,0.12 2.76,2.76 texfill polyhaven/dark_wood 0.85
-rect 0.12,0.12 2.76,2.76 stroke #2a1400
-# Keyboard strip (front/south edge, seen from above)
-rect 0.3,2.4 2.4,0.3 fill #e8dcc8 0.8
-rect 0.3,2.4 2.4,0.3 stroke #333333
-# Black keys on keyboard
-rect 0.45,2.43 0.09,0.18 fill #222222 0.8
-rect 0.63,2.43 0.09,0.18 fill #222222 0.8
-rect 0.87,2.43 0.09,0.18 fill #222222 0.8
-rect 1.05,2.43 0.09,0.18 fill #222222 0.8
-rect 1.29,2.43 0.09,0.18 fill #222222 0.8
-rect 1.65,2.43 0.09,0.18 fill #222222 0.8
-rect 1.83,2.43 0.09,0.18 fill #222222 0.8
-rect 2.07,2.43 0.09,0.18 fill #222222 0.8
-rect 2.25,2.43 0.09,0.18 fill #222222 0.8
-rect 2.49,2.43 0.09,0.18 fill #222222 0.8
-# Pipe circles (rows of varying diameter, seen from above)
-circle 0.45,0.45 0.15 fill #888888 0.5
-circle 0.45,0.45 0.15 stroke #666666
-circle 0.9,0.45 0.18 fill #888888 0.5
-circle 0.9,0.45 0.18 stroke #666666
-circle 1.5,0.45 0.21 fill #888888 0.5
-circle 1.5,0.45 0.21 stroke #666666
-circle 2.1,0.45 0.18 fill #888888 0.5
-circle 2.1,0.45 0.18 stroke #666666
-circle 2.55,0.45 0.15 fill #888888 0.5
-circle 2.55,0.45 0.15 stroke #666666
-# Smaller pipes behind
-circle 0.675,0.9 0.09 fill #999999 0.4
-circle 0.675,0.9 0.09 stroke #777777
-circle 1.2,0.825 0.12 fill #999999 0.4
-circle 1.2,0.825 0.12 stroke #777777
-circle 1.8,0.825 0.12 fill #999999 0.4
-circle 1.8,0.825 0.12 stroke #777777
-circle 2.325,0.9 0.09 fill #999999 0.4
-circle 2.325,0.9 0.09 stroke #777777
+# Footprint 4x3: x range 0-3, y range 0-4. Wall at north (y=0), front at south (y=4).
+
+# === Organ case (dark wood frame enclosing the pipes) ===
+rect 0.08,0.08 2.84,3.20 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.08 2.84,3.20 stroke #2a1400
+
+# === Large display pipes — back row (north), symmetric arch pattern ===
+# From top-down these are circles (pipe cross-sections). Largest center, smaller at sides.
+# Outer pair (smallest)
+circle 0.35,0.45 0.12 texfill polyhaven/metal_plate 0.7
+circle 0.35,0.45 0.12 stroke #555555
+circle 2.65,0.45 0.12 texfill polyhaven/metal_plate 0.7
+circle 2.65,0.45 0.12 stroke #555555
+# Second pair
+circle 0.68,0.42 0.14 texfill polyhaven/metal_plate 0.7
+circle 0.68,0.42 0.14 stroke #555555
+circle 2.32,0.42 0.14 texfill polyhaven/metal_plate 0.7
+circle 2.32,0.42 0.14 stroke #555555
+# Third pair
+circle 1.0,0.40 0.16 texfill polyhaven/metal_plate 0.75
+circle 1.0,0.40 0.16 stroke #555555
+circle 2.0,0.40 0.16 texfill polyhaven/metal_plate 0.75
+circle 2.0,0.40 0.16 stroke #555555
+# Center pipe (largest)
+circle 1.5,0.38 0.20 texfill polyhaven/metal_plate 0.75
+circle 1.5,0.38 0.20 stroke #555555
+# Pipe interiors (dark holes)
+circle 0.35,0.45 0.06 fill #1a1a1a 0.6
+circle 2.65,0.45 0.06 fill #1a1a1a 0.6
+circle 0.68,0.42 0.07 fill #1a1a1a 0.6
+circle 2.32,0.42 0.07 fill #1a1a1a 0.6
+circle 1.0,0.40 0.08 fill #1a1a1a 0.6
+circle 2.0,0.40 0.08 fill #1a1a1a 0.6
+circle 1.5,0.38 0.10 fill #1a1a1a 0.6
+
+# === Second rank of pipes (smaller, behind the console) ===
+circle 0.45,0.85 0.08 texfill polyhaven/metal_plate 0.65
+circle 0.45,0.85 0.08 stroke #666666
+circle 0.75,0.82 0.09 texfill polyhaven/metal_plate 0.65
+circle 0.75,0.82 0.09 stroke #666666
+circle 1.10,0.80 0.10 texfill polyhaven/metal_plate 0.65
+circle 1.10,0.80 0.10 stroke #666666
+circle 1.50,0.78 0.11 texfill polyhaven/metal_plate 0.65
+circle 1.50,0.78 0.11 stroke #666666
+circle 1.90,0.80 0.10 texfill polyhaven/metal_plate 0.65
+circle 1.90,0.80 0.10 stroke #666666
+circle 2.25,0.82 0.09 texfill polyhaven/metal_plate 0.65
+circle 2.25,0.82 0.09 stroke #666666
+circle 2.55,0.85 0.08 texfill polyhaven/metal_plate 0.65
+circle 2.55,0.85 0.08 stroke #666666
+
+# === Windchest / mechanism housing ===
+rect 0.20,1.10 2.60,0.50 texfill polyhaven/dark_wood 0.80
+rect 0.20,1.10 2.60,0.50 stroke #2a1400
+
+# === Stop knob rows (small circles on each side of console) ===
+# Left stops
+circle 0.35,1.80 0.04 fill #e8dcc8 0.7
+circle 0.35,1.95 0.04 fill #e8dcc8 0.7
+circle 0.35,2.10 0.04 fill #e8dcc8 0.7
+circle 0.35,2.25 0.04 fill #e8dcc8 0.7
+# Right stops
+circle 2.65,1.80 0.04 fill #e8dcc8 0.7
+circle 2.65,1.95 0.04 fill #e8dcc8 0.7
+circle 2.65,2.10 0.04 fill #e8dcc8 0.7
+circle 2.65,2.25 0.04 fill #e8dcc8 0.7
+
+# === Music desk / sheet music rack ===
+rect 0.55,1.72 1.90,0.12 texfill polyhaven/dark_wood 0.75
+rect 0.55,1.72 1.90,0.12 stroke #3a1f00
+# Sheet music (pale rectangle on the desk)
+rect 0.70,1.74 1.60,0.08 fill #e8dcc8 0.5
+
+# === Upper manual (keyboard) ===
+rect 0.50,1.95 2.00,0.25 fill #e8dcc8 0.8
+rect 0.50,1.95 2.00,0.25 stroke #333333
+# Black keys upper manual
+rect 0.62,1.97 0.06,0.15 fill #222222 0.8
+rect 0.76,1.97 0.06,0.15 fill #222222 0.8
+rect 0.96,1.97 0.06,0.15 fill #222222 0.8
+rect 1.10,1.97 0.06,0.15 fill #222222 0.8
+rect 1.30,1.97 0.06,0.15 fill #222222 0.8
+rect 1.56,1.97 0.06,0.15 fill #222222 0.8
+rect 1.70,1.97 0.06,0.15 fill #222222 0.8
+rect 1.90,1.97 0.06,0.15 fill #222222 0.8
+rect 2.04,1.97 0.06,0.15 fill #222222 0.8
+rect 2.24,1.97 0.06,0.15 fill #222222 0.8
+
+# === Lower manual (keyboard) ===
+rect 0.50,2.28 2.00,0.25 fill #e8dcc8 0.8
+rect 0.50,2.28 2.00,0.25 stroke #333333
+# Black keys lower manual
+rect 0.62,2.30 0.06,0.15 fill #222222 0.8
+rect 0.76,2.30 0.06,0.15 fill #222222 0.8
+rect 0.96,2.30 0.06,0.15 fill #222222 0.8
+rect 1.10,2.30 0.06,0.15 fill #222222 0.8
+rect 1.30,2.30 0.06,0.15 fill #222222 0.8
+rect 1.56,2.30 0.06,0.15 fill #222222 0.8
+rect 1.70,2.30 0.06,0.15 fill #222222 0.8
+rect 1.90,2.30 0.06,0.15 fill #222222 0.8
+rect 2.04,2.30 0.06,0.15 fill #222222 0.8
+rect 2.24,2.30 0.06,0.15 fill #222222 0.8
+
+# === Pedalboard (at organist's feet, south edge of case) ===
+rect 0.55,2.65 1.90,0.45 texfill polyhaven/dark_wood 0.7
+rect 0.55,2.65 1.90,0.45 stroke #3a1f00
+# Pedal key divisions
+line 0.75,2.67 0.75,3.08 stroke #2a1400 0.4
+line 0.95,2.67 0.95,3.08 stroke #2a1400 0.4
+line 1.15,2.67 1.15,3.08 stroke #2a1400 0.4
+line 1.35,2.67 1.35,3.08 stroke #2a1400 0.4
+line 1.55,2.67 1.55,3.08 stroke #2a1400 0.4
+line 1.75,2.67 1.75,3.08 stroke #2a1400 0.4
+line 1.95,2.67 1.95,3.08 stroke #2a1400 0.4
+line 2.15,2.67 2.15,3.08 stroke #2a1400 0.4
+line 2.35,2.67 2.35,3.08 stroke #2a1400 0.4

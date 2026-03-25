@@ -10,17 +10,50 @@ typical_count: few
 clusters_with: bone-pile, skeleton
 notes: Scatter on floor for grim atmosphere; vary rotation for natural look
 ---
-# Body
-ellipse 0.5,1.5 0.3,1.05 fill #5a4530 0.4
-ellipse 0.5,1.5 0.3,1.05 stroke #3a2a1a
-# Head
-circle 0.5,0.33 0.1875 fill #c4a882 0.5
-circle 0.5,0.33 0.1875 stroke #8b7d6b
-# Arms outstretched
-line 0.2,0.975 0.02,0.75
-line 0.8,0.975 0.98,0.75
-# Legs
-line 0.35,2.58 0.25,2.925
-line 0.65,2.58 0.75,2.925
-# Blood pool
-ellipse 0.5,1.2 0.25,0.225 fill #4a0000 0.3
+# footprint 3x1: x range 0-1, y range 0-3
+# Top-down: body lying face down, head north, feet south
+
+# Blood pool (underneath everything)
+ellipse 0.55,1.2 0.3,0.35 fill #4a0000 0.25
+ellipse 0.45,1.4 0.2,0.2 fill #4a0000 0.15
+
+# === Legs (south end) ===
+# Left leg
+poly 0.3,1.7 0.35,1.7 0.38,2.6 0.28,2.6 fill #3a3020 0.6
+poly 0.3,1.7 0.35,1.7 0.38,2.6 0.28,2.6 stroke #2a2018
+# Left boot
+poly 0.26,2.55 0.4,2.55 0.4,2.7 0.26,2.72 fill #2a1a10 0.7
+poly 0.26,2.55 0.4,2.55 0.4,2.7 0.26,2.72 stroke #1a1008
+# Right leg (slightly splayed)
+poly 0.6,1.7 0.65,1.7 0.72,2.55 0.62,2.55 fill #3a3020 0.6
+poly 0.6,1.7 0.65,1.7 0.72,2.55 0.62,2.55 stroke #2a2018
+# Right boot
+poly 0.6,2.5 0.74,2.5 0.76,2.65 0.6,2.67 fill #2a1a10 0.7
+poly 0.6,2.5 0.74,2.5 0.76,2.65 0.6,2.67 stroke #1a1008
+
+# === Torso (center) ===
+poly 0.25,0.7 0.7,0.7 0.72,1.7 0.65,1.75 0.3,1.75 0.22,1.7 fill #4a3a28 0.65
+poly 0.25,0.7 0.7,0.7 0.72,1.7 0.65,1.75 0.3,1.75 0.22,1.7 stroke #2a2018
+# Belt
+rect 0.25,1.55 0.45,0.08 fill #2a1a10 0.6
+rect 0.25,1.55 0.45,0.08 stroke #1a1008
+# Belt buckle
+rect 0.44,1.55 0.08,0.08 fill #8b6914 0.5
+
+# === Arms ===
+# Left arm (sprawled out west)
+poly 0.25,0.85 0.22,0.9 0.05,1.3 0.0,1.25 0.12,0.85 fill #4a3a28 0.6
+poly 0.25,0.85 0.22,0.9 0.05,1.3 0.0,1.25 0.12,0.85 stroke #2a2018
+# Left hand
+circle 0.02,1.28 0.05 fill #c4a882 0.45
+# Right arm (bent, closer to body)
+poly 0.7,0.9 0.75,0.85 0.9,1.15 0.88,1.25 0.72,1.0 fill #4a3a28 0.6
+poly 0.7,0.9 0.75,0.85 0.9,1.15 0.88,1.25 0.72,1.0 stroke #2a2018
+# Right hand
+circle 0.89,1.2 0.05 fill #c4a882 0.45
+
+# === Head (north end, face down) ===
+ellipse 0.48,0.5 0.18,0.22 fill #c4a882 0.55
+ellipse 0.48,0.5 0.18,0.22 stroke #8b7d6b
+# Hair
+ellipse 0.48,0.42 0.16,0.15 fill #3a2a1a 0.5

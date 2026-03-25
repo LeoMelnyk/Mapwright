@@ -1,0 +1,59 @@
+name: Flowers (Red)
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: garden, courtyard, wilderness, meadow, fey-grove
+typical_count: many
+clusters_with: flowers, tall-grass, bush
+notes: Red wildflower cluster; scatter freely in outdoor areas
+---
+# Stems and leaves
+line 0.25,0.72 0.25,0.42 stroke #3a7a28 0.5
+line 0.55,0.78 0.55,0.45 stroke #3a7a28 0.5
+line 0.78,0.70 0.78,0.38 stroke #2d5a1e 0.5
+
+# Leaf — between flowers
+ellipse 0.38,0.62 0.06,0.03 fill #3a7a28 0.6
+ellipse 0.42,0.68 0.05,0.03 fill #2d5a1e 0.5
+
+# Leaf — near dark red flower
+ellipse 0.70,0.58 0.06,0.03 fill #3a7a28 0.55
+ellipse 0.85,0.52 0.05,0.03 fill #2d5a1e 0.45
+
+# Leaf — lower area
+ellipse 0.50,0.80 0.05,0.03 fill #3a7a28 0.5
+
+# Crimson flower — 5 petals around center
+circle 0.25,0.36 0.055 fill #cc2222 0.7
+circle 0.19,0.40 0.055 fill #bb1a1a 0.65
+circle 0.31,0.40 0.055 fill #bb1a1a 0.65
+circle 0.21,0.47 0.055 fill #cc2222 0.6
+circle 0.29,0.47 0.055 fill #cc2222 0.6
+# Crimson flower center
+circle 0.25,0.42 0.03 fill #1a1a1a 0.85
+
+# Scarlet flower — 5 petals around center
+circle 0.55,0.39 0.06 fill #dd3333 0.7
+circle 0.49,0.44 0.06 fill #cc2828 0.65
+circle 0.61,0.44 0.06 fill #cc2828 0.65
+circle 0.50,0.51 0.055 fill #dd3333 0.6
+circle 0.60,0.51 0.055 fill #dd3333 0.6
+# Scarlet flower center
+circle 0.55,0.45 0.03 fill #2a1a0a 0.85
+
+# Dark red flower — 4 petals around center
+circle 0.78,0.32 0.055 fill #aa1818 0.7
+circle 0.72,0.37 0.055 fill #991414 0.65
+circle 0.84,0.37 0.055 fill #991414 0.65
+circle 0.78,0.42 0.055 fill #aa1818 0.6
+# Dark red flower center
+circle 0.78,0.37 0.025 fill #1a1a1a 0.85
+
+# Small red bud — lower left
+circle 0.18,0.65 0.035 fill #bb2020 0.5
+circle 0.14,0.68 0.035 fill #aa1818 0.45
+circle 0.22,0.68 0.035 fill #aa1818 0.45
+circle 0.18,0.68 0.02 fill #1a1a1a 0.7

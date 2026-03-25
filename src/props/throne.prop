@@ -10,17 +10,84 @@ typical_count: single
 clusters_with: carpet, brazier, banner, pillar
 notes: Ruler's seat; place prominently against back wall, facing room entrance
 ---
-# High backrest
-rect 0.2,0.1 1.6,0.4 texfill polyhaven/dark_wood 0.85
-rect 0.2,0.1 1.6,0.4 stroke #4a2800
-# Crown ornament
-poly 0.4,0.05 0.5,0.0 0.6,0.05 fill #daa520 0.6
-# Left armrest
-rect 0.2,0.4 0.3,1.2 texfill polyhaven/dark_wood 0.8
-rect 0.2,0.4 0.3,1.2 stroke #4a2800
-# Right armrest
-rect 1.5,0.4 0.3,1.2 texfill polyhaven/dark_wood 0.8
-rect 1.5,0.4 0.3,1.2 stroke #4a2800
-# Seat cushion (red velvet)
-rect 0.5,0.44 1,1.1 texfill polyhaven/velour_velvet 0.85
-rect 0.5,0.44 1,1.1 stroke #8b0000
+# Footprint 2x2: x 0-2, y 0-2. Front faces south.
+
+# === Leg shadows (behind everything) ===
+rect 0.22,1.55 0.18,0.18 fill #1a0a00 0.4
+rect 1.60,1.55 0.18,0.18 fill #1a0a00 0.4
+rect 0.22,0.42 0.18,0.12 fill #1a0a00 0.3
+rect 1.60,0.42 0.18,0.12 fill #1a0a00 0.3
+
+# === High backrest (north) ===
+# Main backrest panel — tall dark wood
+rect 0.20,0.06 1.60,0.52 texfill polyhaven/dark_wood 0.88
+rect 0.20,0.06 1.60,0.52 stroke #3a1e00
+
+# Ornate peaked top edge — crown shape
+poly 0.20,0.06 0.55,0.06 0.70,0.00 0.85,0.04 1.00,0.00 1.15,0.04 1.30,0.00 1.45,0.06 1.80,0.06 fill #3a1e00 0.9
+poly 0.20,0.06 0.55,0.06 0.70,0.00 0.85,0.04 1.00,0.00 1.15,0.04 1.30,0.00 1.45,0.06 1.80,0.06 stroke #2a1200
+
+# Gold crown trim along the peaked top
+poly 0.22,0.08 0.55,0.08 0.70,0.02 0.85,0.06 1.00,0.02 1.15,0.06 1.30,0.02 1.45,0.08 1.78,0.08 stroke #daa520 width 2
+
+# Gold horizontal trim line across backrest upper
+line 0.22,0.16 1.78,0.16 stroke #daa520 width 2
+# Gold horizontal trim line across backrest lower
+line 0.22,0.50 1.78,0.50 stroke #c49520 width 1
+
+# Central medallion on backrest
+circle 1.00,0.32 0.12 fill #daa520 0.3
+circle 1.00,0.32 0.12 stroke #daa520
+circle 1.00,0.32 0.07 stroke #c49520
+
+# === Back cushion (against the backrest) ===
+rect 0.48,0.38 1.04,0.20 texfill polyhaven/velour_velvet 0.7
+rect 0.48,0.38 1.04,0.20 stroke #6b0015
+
+# === Left armrest ===
+rect 0.20,0.50 0.28,1.10 texfill polyhaven/dark_wood 0.82
+rect 0.20,0.50 0.28,1.10 stroke #3a1e00
+# Gold trim along left armrest top edge
+line 0.20,0.50 0.48,0.50 stroke #daa520 width 2
+# Gold trim along left armrest outer edge
+line 0.20,0.50 0.20,1.60 stroke #c49520 width 1
+# Carved scroll detail at front (south) end of left armrest
+circle 0.34,1.50 0.08 stroke #4a2800
+circle 0.34,1.50 0.04 fill #daa520 0.4
+# Gold stud on left armrest
+circle 0.34,0.70 0.03 fill #daa520 0.6
+circle 0.34,0.95 0.03 fill #daa520 0.6
+circle 0.34,1.20 0.03 fill #daa520 0.6
+
+# === Right armrest ===
+rect 1.52,0.50 0.28,1.10 texfill polyhaven/dark_wood 0.82
+rect 1.52,0.50 0.28,1.10 stroke #3a1e00
+# Gold trim along right armrest top edge
+line 1.52,0.50 1.80,0.50 stroke #daa520 width 2
+# Gold trim along right armrest outer edge
+line 1.80,0.50 1.80,1.60 stroke #c49520 width 1
+# Carved scroll detail at front (south) end of right armrest
+circle 1.66,1.50 0.08 stroke #4a2800
+circle 1.66,1.50 0.04 fill #daa520 0.4
+# Gold studs on right armrest
+circle 1.66,0.70 0.03 fill #daa520 0.6
+circle 1.66,0.95 0.03 fill #daa520 0.6
+circle 1.66,1.20 0.03 fill #daa520 0.6
+
+# === Seat cushion (rich velvet, inset between armrests) ===
+rect 0.48,0.58 1.04,1.00 texfill polyhaven/velour_velvet 0.88
+rect 0.48,0.58 1.04,1.00 stroke #8b0000
+# Cushion tuft detail — subtle diamond pattern
+line 0.70,0.70 1.00,0.95 stroke #7a0015 0.3
+line 1.30,0.70 1.00,0.95 stroke #7a0015 0.3
+line 0.70,1.45 1.00,1.20 stroke #7a0015 0.3
+line 1.30,1.45 1.00,1.20 stroke #7a0015 0.3
+
+# === Gold accent rivets on backrest corners ===
+circle 0.30,0.14 0.03 fill #daa520 0.7
+circle 1.70,0.14 0.03 fill #daa520 0.7
+circle 0.30,0.48 0.03 fill #daa520 0.7
+circle 1.70,0.48 0.03 fill #daa520 0.7
+
+# === Front edge of seat (south face, slightly darker for depth) ===
+line 0.48,1.58 1.52,1.58 stroke #5a0000 width 2

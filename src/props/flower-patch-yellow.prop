@@ -1,0 +1,89 @@
+name: Flower Patch (Yellow)
+category: Terrain
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: garden, meadow, courtyard, fey-grove, wilderness
+typical_count: few
+clusters_with: flowers, tall-grass, planter-box
+notes: Yellow wildflower area; place along paths or as garden beds
+---
+# Ground greenery / leaf patches
+ellipse 0.25,0.35 0.14,0.08 fill #2d6a1e 0.25
+ellipse 0.80,0.20 0.10,0.06 fill #2a5e1a 0.22
+ellipse 1.20,0.60 0.12,0.07 fill #2d6a1e 0.20
+ellipse 0.55,0.75 0.11,0.07 fill #336b22 0.22
+ellipse 1.60,0.35 0.13,0.08 fill #2a5e1a 0.25
+ellipse 0.95,0.85 0.10,0.06 fill #2d6a1e 0.20
+ellipse 1.45,0.80 0.12,0.07 fill #336b22 0.22
+
+# --- Flower 1: Gold at (0.30, 0.25) ---
+ellipse 0.30,0.17 0.04,0.06 fill #ffd740 0.70
+ellipse 0.38,0.22 0.06,0.04 fill #ffd740 0.70
+ellipse 0.30,0.33 0.04,0.06 fill #ffd740 0.70
+ellipse 0.22,0.22 0.06,0.04 fill #ffd740 0.70
+ellipse 0.36,0.30 0.05,0.04 fill #f0c830 0.65
+circle 0.30,0.25 0.035 fill #dd6600 0.85
+
+# --- Flower 2: Bright yellow at (0.70, 0.45) ---
+ellipse 0.70,0.37 0.04,0.055 fill #ffee44 0.70
+ellipse 0.77,0.42 0.055,0.04 fill #ffee44 0.70
+ellipse 0.70,0.53 0.04,0.055 fill #ffee44 0.70
+ellipse 0.63,0.42 0.055,0.04 fill #ffee44 0.70
+ellipse 0.76,0.50 0.04,0.045 fill #f5dd33 0.65
+circle 0.70,0.45 0.03 fill #e07020 0.85
+
+# --- Flower 3: Amber at (1.10, 0.22) ---
+ellipse 1.10,0.14 0.04,0.055 fill #e8b020 0.70
+ellipse 1.17,0.19 0.055,0.04 fill #e8b020 0.70
+ellipse 1.10,0.30 0.04,0.055 fill #d4a018 0.65
+ellipse 1.03,0.19 0.055,0.04 fill #e8b020 0.70
+ellipse 1.15,0.27 0.04,0.04 fill #d4a018 0.60
+circle 1.10,0.22 0.03 fill #cc5500 0.85
+
+# --- Flower 4: Warm yellow at (0.45, 0.60) ---
+ellipse 0.45,0.52 0.04,0.055 fill #ffd030 0.70
+ellipse 0.52,0.57 0.055,0.04 fill #ffd030 0.70
+ellipse 0.45,0.68 0.04,0.055 fill #f0c020 0.65
+ellipse 0.38,0.57 0.055,0.04 fill #ffd030 0.70
+ellipse 0.50,0.65 0.04,0.04 fill #f0c020 0.60
+circle 0.45,0.60 0.03 fill #dd6600 0.85
+
+# --- Flower 5: Deep gold at (1.50, 0.55) ---
+ellipse 1.50,0.47 0.04,0.055 fill #e8b820 0.70
+ellipse 1.57,0.52 0.055,0.04 fill #e8b820 0.70
+ellipse 1.50,0.63 0.04,0.055 fill #d4a818 0.65
+ellipse 1.43,0.52 0.055,0.04 fill #e8b820 0.70
+ellipse 1.55,0.60 0.04,0.04 fill #d4a818 0.60
+circle 1.50,0.55 0.03 fill #cc5500 0.85
+
+# --- Flower 6: Pale yellow at (1.75, 0.25) ---
+ellipse 1.75,0.17 0.035,0.05 fill #ffee55 0.65
+ellipse 1.81,0.22 0.05,0.035 fill #ffee55 0.65
+ellipse 1.75,0.33 0.035,0.05 fill #f5dd44 0.65
+ellipse 1.69,0.22 0.05,0.035 fill #ffee55 0.65
+circle 1.75,0.25 0.03 fill #e07020 0.85
+
+# --- Flower 7: Dark amber at (0.90,0.40) ---
+ellipse 0.90,0.33 0.04,0.05 fill #d4a010 0.70
+ellipse 0.96,0.37 0.05,0.04 fill #d4a010 0.70
+ellipse 0.90,0.47 0.04,0.05 fill #c09008 0.65
+ellipse 0.84,0.37 0.05,0.04 fill #d4a010 0.70
+circle 0.90,0.40 0.03 fill #cc5500 0.70
+
+# --- Flower 8: Small gold at (1.35, 0.18) ---
+ellipse 1.35,0.12 0.03,0.045 fill #ffcc22 0.65
+ellipse 1.40,0.16 0.045,0.03 fill #ffcc22 0.65
+ellipse 1.35,0.24 0.03,0.045 fill #f0bb18 0.60
+ellipse 1.30,0.16 0.045,0.03 fill #ffcc22 0.65
+circle 1.35,0.18 0.025 fill #dd6600 0.80
+
+# Scattered leaf accents between flowers
+ellipse 0.52,0.35 0.07,0.035 fill #2d6a1e 0.30
+ellipse 1.30,0.45 0.06,0.03 fill #2a5e1a 0.28
+ellipse 0.15,0.55 0.06,0.035 fill #336b22 0.25
+ellipse 1.05,0.15 0.05,0.03 fill #2d6a1e 0.25
+ellipse 0.68,0.70 0.07,0.035 fill #2a5e1a 0.28
+ellipse 1.65,0.70 0.06,0.03 fill #336b22 0.25

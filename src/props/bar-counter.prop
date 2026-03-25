@@ -1,29 +1,23 @@
-name: Bar Counter
+name: Counter Top
 category: Furniture
-footprint: 2x4
+footprint: 1x2
 facing: yes
-shadow: yes
+shadow: no
 blocks_light: no
 placement: wall
-room_types: tavern, inn, pub
+room_types: tavern, inn, kitchen, shop
 typical_count: single
-clusters_with: keg, stool, barrel
-notes: Long serving counter; place against wall with stools on the room side
+clusters_with: stool, barrel, keg
+notes: Simple counter surface; place against wall. Tiles seamlessly side-by-side.
 ---
-# Counter surface
-rect 0.1067,0.16 1.12,5.68 texfill polyhaven/wood_table 0.85
-rect 0.1067,0.16 1.12,5.68 stroke #3a1f00
-# Brass rail along front edge (south)
-rect 0.1333,5.44 1.0667,0.2 fill #daa520 0.5
-rect 0.1333,5.44 1.0667,0.2 stroke #8b6914
-# Counter edge detail
-line 0.16,0.4 1.1733,0.4 stroke #5c3a1e
-# Mug rings (water marks)
-circle 0.4,1 0.1 stroke #5c3a1e 0.3
-circle 0.7333,2.4 0.1 stroke #5c3a1e 0.3
-circle 0.9333,4 0.1 stroke #5c3a1e 0.3
-# Tap/spigot mark
-circle 0.6667,0.8 0.0667 fill #888888 0.6
-circle 0.6667,0.8 0.0667 stroke #555555
-# Counter join line
-line 0.16,3 1.1733,3 stroke #4a2800 0.6667
+# footprint 1x2: x range 0-2, y range 0-1
+# Flush left/right edges so adjacent counters tile seamlessly
+# Counter surface — full width, small margin top/bottom
+rect 0.0,0.1 2.0,0.8 texfill polyhaven/wood_table 0.85
+# Front edge trim (south/room side)
+rect 0.0,0.78 2.0,0.12 fill #4a2800 0.35
+# Back edge trim (north/wall side)
+rect 0.0,0.1 2.0,0.08 fill #4a2800 0.25
+# Top and bottom border lines only (no left/right so tiling is seamless)
+line 0.0,0.1 2.0,0.1 stroke #3a1f00
+line 0.0,0.9 2.0,0.9 stroke #3a1f00

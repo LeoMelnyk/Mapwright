@@ -1,6 +1,6 @@
 name: Training Dummy
 category: Combat
-footprint: 1x1
+footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: no
@@ -9,15 +9,38 @@ room_types: barracks, training-room, guard-room
 typical_count: few
 notes: Combat practice target; place with space for sparring around it
 ---
-# Base post
-circle 0.5,0.7 0.12 texfill polyhaven/dark_wood 0.8
-circle 0.5,0.7 0.12 stroke #3a1f00
-# Crossbar (arms)
-rect 0.2,0.35 0.6,0.08 texfill polyhaven/rough_linen 0.75
-rect 0.2,0.35 0.6,0.08 stroke #8b7d6b
-# Torso bag
-ellipse 0.5,0.4 0.15,0.2 texfill polyhaven/rough_linen 0.8
-ellipse 0.5,0.4 0.15,0.2 stroke #8b7d6b
-# Head
-circle 0.5,0.2 0.08 texfill polyhaven/rough_linen 0.75
-circle 0.5,0.2 0.08 stroke #8b7d6b
+# Shadow beneath the whole thing
+ellipse 1.0,1.1 0.55,0.45 fill #000000 0.12
+
+# Base — circular wooden platform on the ground
+circle 1.0,1.15 0.4 texfill polyhaven/dark_wood 0.6
+circle 1.0,1.15 0.4 stroke #3a1f00
+
+# Central post — wood cross-section at center
+circle 1.0,0.95 0.14 texfill polyhaven/dark_wood 0.85
+circle 1.0,0.95 0.14 stroke #3a1f00
+
+# Straw/padding — rough linen torso wrapping
+ellipse 1.0,0.95 0.22,0.28 texfill polyhaven/rough_linen 0.75
+ellipse 1.0,0.95 0.22,0.28 stroke #8b7d6b
+
+# Crossbar arms — thick wooden bar running east-west
+rect 0.3,0.88 1.4,0.14 texfill polyhaven/dark_wood 0.85
+rect 0.3,0.88 1.4,0.14 stroke #3a1f00
+# Rounded arm tips (circles at each end)
+circle 0.3,0.95 0.08 texfill polyhaven/dark_wood 0.85
+circle 0.3,0.95 0.08 stroke #3a1f00
+circle 1.7,0.95 0.08 texfill polyhaven/dark_wood 0.85
+circle 1.7,0.95 0.08 stroke #3a1f00
+
+# Shield target — small round shield on the west arm
+circle 0.45,0.92 0.15 texfill polyhaven/metal_plate 0.7
+circle 0.45,0.92 0.15 stroke #555555
+circle 0.45,0.92 0.08 stroke #666666
+circle 0.45,0.92 0.03 fill #555555 0.8
+
+# Head — round wooden ball, slightly forward (south) of center
+circle 1.0,0.6 0.16 texfill polyhaven/dark_wood 0.85
+circle 1.0,0.6 0.16 stroke #3a1f00
+# Head highlight
+circle 0.96,0.56 0.04 fill #6b4e2e 0.4

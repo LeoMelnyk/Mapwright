@@ -7,15 +7,19 @@ blocks_light: no
 placement: floor
 room_types: fortification, guard-room, corridor
 typical_count: few
-notes: Defensive position; place across corridors or in front of doors
+notes: Defensive position; tiles seamlessly end-to-end
 ---
-# Main barrier planks
-rect 0.075,0.25 2.85,0.5 texfill polyhaven/weathered_planks 0.85
-rect 0.075,0.25 2.85,0.5 stroke #4a2800
-# Plank lines
-line 0.075,0.42 2.925,0.42
-line 0.075,0.58 2.925,0.58
-# Support posts
-rect 0.225,0.2 0.15,0.6 fill #3a1f00 0.7
-rect 1.425,0.2 0.15,0.6 fill #3a1f00 0.7
-rect 2.625,0.2 0.15,0.6 fill #3a1f00 0.7
+# footprint 1x3: x range 0-3, y range 0-1
+# Flush left/right edges for seamless tiling
+# Main beam
+rect 0.0,0.3 3.0,0.4 texfill polyhaven/weathered_planks 0.85
+# Top/bottom border only (no left/right for tiling)
+line 0.0,0.3 3.0,0.3 stroke #3a1f00
+line 0.0,0.7 3.0,0.7 stroke #3a1f00
+# Support post tops
+rect 0.15,0.25 0.2,0.5 texfill polyhaven/dark_wood 0.9
+rect 0.15,0.25 0.2,0.5 stroke #2a1400
+rect 1.4,0.25 0.2,0.5 texfill polyhaven/dark_wood 0.9
+rect 1.4,0.25 0.2,0.5 stroke #2a1400
+rect 2.65,0.25 0.2,0.5 texfill polyhaven/dark_wood 0.9
+rect 2.65,0.25 0.2,0.5 stroke #2a1400

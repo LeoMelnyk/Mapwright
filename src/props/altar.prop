@@ -16,8 +16,8 @@ rect 0.16,0.12 1.68,2.76 stroke
 # Inner border detail
 rect 0.3,0.225 1.4,2.55 stroke
 # Ritual diamond inlay
-poly 0.5,0.5 0.72,1.0 0.5,1.5 0.28,1.0 texfill polyhaven/stone_floor 0.7
-poly 0.5,0.5 0.72,1.0 0.5,1.5 0.3,1.0 stroke
+poly 1.0,0.95 1.22,1.5 1.0,2.05 0.78,1.5 texfill polyhaven/stone_floor 0.7
+poly 1.0,0.95 1.22,1.5 1.0,2.05 0.78,1.5 stroke
 # Corner candle marks
 circle 0.44,0.33 0.0875 fill #e8dcc8 0.5
 circle 1.56,0.33 0.0875 fill #e8dcc8 0.5

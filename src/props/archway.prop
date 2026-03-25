@@ -2,7 +2,7 @@ name: Archway
 category: Structure
 footprint: 1x2
 facing: yes
-shadow: yes
+shadow: no
 blocks_light: no
 placement: wall
 room_types: any

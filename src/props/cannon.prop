@@ -1,26 +1,73 @@
 name: Cannon
 category: Combat
-footprint: 2x3
+footprint: 3x2
 facing: yes
-shadow: yes
+shadow: no
 blocks_light: no
 placement: wall
 room_types: fortification, ship, battlements
 typical_count: few
 notes: Heavy weapon; point toward expected threats, needs loading space behind
 ---
-# Wheeled carriage
-rect 0.3,0.7 2.4,0.6 texfill polyhaven/dark_wood 0.85
-rect 0.3,0.7 2.4,0.6 stroke #3a1f00
-# Left wheel
-circle 0.45,1 0.35 fill #4a2800 0.7
-circle 0.45,1 0.35 stroke #3a1f00
-# Right wheel
-circle 2.55,1 0.35 fill #4a2800 0.7
-circle 2.55,1 0.35 stroke #3a1f00
-# Cannon barrel
-rect 1.05,0.2 0.9,1.6 texfill polyhaven/rusty_metal 0.85
-rect 1.05,0.2 0.9,1.6 stroke #555555
-# Muzzle
-circle 1.5,0.24 0.21 fill #333333 0.7
-circle 1.5,0.24 0.21 stroke #555555
+# footprint 3x2: x range 0-2, y range 0-3
+# Top-down: two wooden carriage rails, barrel on top, wheels at rear
+
+# === Carriage rails (two parallel wooden beams) ===
+# Left rail
+rect 0.25,0.5 0.25,2.3 texfill polyhaven/dark_wood 0.85
+rect 0.25,0.5 0.25,2.3 stroke #2a1400
+# Right rail
+rect 1.5,0.5 0.25,2.3 texfill polyhaven/dark_wood 0.85
+rect 1.5,0.5 0.25,2.3 stroke #2a1400
+
+# Cross beams connecting rails
+rect 0.5,0.8 1.0,0.1 texfill polyhaven/dark_wood 0.8
+rect 0.5,0.8 1.0,0.1 stroke #2a1400
+rect 0.5,1.5 1.0,0.1 texfill polyhaven/dark_wood 0.8
+rect 0.5,1.5 1.0,0.1 stroke #2a1400
+rect 0.5,2.2 1.0,0.1 texfill polyhaven/dark_wood 0.8
+rect 0.5,2.2 1.0,0.1 stroke #2a1400
+
+# === Front wheels (smaller) ===
+ellipse 0.2,0.7 0.1,0.16 fill #4a2800 0.8
+ellipse 0.2,0.7 0.1,0.16 stroke #2a1400
+ellipse 0.2,0.7 0.07,0.12 fill #3a2000 0.5
+ellipse 1.8,0.7 0.1,0.16 fill #4a2800 0.8
+ellipse 1.8,0.7 0.1,0.16 stroke #2a1400
+ellipse 1.8,0.7 0.07,0.12 fill #3a2000 0.5
+# Front axle
+rect 0.2,0.67 1.6,0.06 fill #444444 0.6
+rect 0.2,0.67 1.6,0.06 stroke #333333
+
+# === Rear wheels (larger) ===
+ellipse 0.2,2.6 0.1,0.2 fill #4a2800 0.8
+ellipse 0.2,2.6 0.1,0.2 stroke #2a1400
+ellipse 0.2,2.6 0.07,0.16 fill #3a2000 0.5
+ellipse 1.8,2.6 0.1,0.2 fill #4a2800 0.8
+ellipse 1.8,2.6 0.1,0.2 stroke #2a1400
+ellipse 1.8,2.6 0.07,0.16 fill #3a2000 0.5
+# Rear axle
+rect 0.2,2.57 1.6,0.06 fill #444444 0.6
+rect 0.2,2.57 1.6,0.06 stroke #333333
+
+# === Cannon barrel (on top of carriage, pointing north) ===
+# Barrel body — tapers from breech (south) to muzzle (north)
+poly 0.75,2.3 0.78,0.8 0.85,0.3 1.15,0.3 1.22,0.8 1.25,2.3 fill #333333 0.9
+poly 0.75,2.3 0.78,0.8 0.85,0.3 1.15,0.3 1.22,0.8 1.25,2.3 stroke #222222
+# Barrel highlight (reflection)
+poly 0.88,2.2 0.9,0.9 0.93,0.35 1.07,0.35 1.1,0.9 1.12,2.2 fill #555555 0.25
+# Metal reinforcement bands
+rect 0.77,0.7 0.46,0.06 fill #444444 0.7
+rect 0.77,0.7 0.46,0.06 stroke #333333
+rect 0.76,1.1 0.48,0.06 fill #444444 0.7
+rect 0.76,1.1 0.48,0.06 stroke #333333
+rect 0.75,1.6 0.5,0.06 fill #444444 0.7
+rect 0.75,1.6 0.5,0.06 stroke #333333
+rect 0.75,2.05 0.5,0.06 fill #444444 0.7
+rect 0.75,2.05 0.5,0.06 stroke #333333
+# Muzzle tip (rounded end of barrel, no bore visible from above)
+ellipse 1.0,0.28 0.15,0.08 fill #444444 0.8
+ellipse 1.0,0.28 0.15,0.08 stroke #333333
+# Breech knob (south end, ball shape)
+circle 1.0,2.35 0.08 fill #444444 0.8
+circle 1.0,2.35 0.08 stroke #333333

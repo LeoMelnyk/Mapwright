@@ -10,8 +10,22 @@ typical_count: few
 clusters_with: table, workbench
 notes: Simple seating; place near work surfaces or tables
 ---
-# Round seat
-circle 0.5,0.5 0.3 texfill polyhaven/wood_table 0.85
-circle 0.5,0.5 0.3 stroke #5c3a1e
-# Center detail
-circle 0.5,0.5 0.05 fill #3a1f00 0.4
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: round wooden seat with leg shadows beneath
+
+# Leg shadows peeking out from under the seat (four legs)
+rect 0.22,0.18 0.06,0.14 fill #000000 0.18
+rect 0.72,0.18 0.06,0.14 fill #000000 0.18
+rect 0.22,0.68 0.06,0.14 fill #000000 0.18
+rect 0.72,0.68 0.06,0.14 fill #000000 0.18
+
+# Round wooden seat
+circle 0.5,0.5 0.28 texfill polyhaven/wood_table 0.88
+circle 0.5,0.5 0.28 stroke #5c3a1e
+
+# Subtle wood grain line across seat
+line 0.28,0.46 0.72,0.46 stroke #5c3a1e 0.25
+line 0.30,0.54 0.70,0.54 stroke #5c3a1e 0.20
+
+# Slight edge highlight (rim catch)
+arc 0.5,0.5 0.27 220 320 stroke #8b7355 0.25 width 1

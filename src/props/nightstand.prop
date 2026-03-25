@@ -11,21 +11,29 @@ clusters_with: bed, candle-cluster
 notes: Bedside table; place adjacent to beds
 ---
 # Table surface
-rect 0.20,0.20 0.60,0.60 texfill polyhaven/dark_wood 0.85
-rect 0.20,0.20 0.60,0.60 stroke #3a1f00
-# Drawer pull (front/south face)
-rect 0.42,0.68 0.16,0.06 fill #daa520 0.5
-rect 0.42,0.68 0.16,0.06 stroke #8b6914
-# Drawer line
-line 0.24,0.60 0.76,0.60 stroke #2a1400 0.4
-# Candle on top
-circle 0.60,0.38 0.06 fill #e8dcc8 0.8
-circle 0.60,0.38 0.06 stroke #c8b898
-circle 0.60,0.38 0.02 fill #333333 0.8
-# Small flame
-circle 0.60,0.34 0.03 fill #ffaa00 0.6
+rect 0.18,0.18 0.64,0.64 texfill polyhaven/dark_wood 0.85
+rect 0.18,0.18 0.64,0.64 stroke #3a1f00
+# Beveled edge detail (inner border)
+rect 0.22,0.22 0.56,0.56 stroke #4a2800 0.3
+# Drawer seam — subtle dark line across front half
+line 0.22,0.58 0.78,0.58 stroke #2a1400 0.35
+# Drawer pull — tiny dark metallic knob
+circle 0.50,0.62 0.025 fill #555555 0.7
+circle 0.50,0.62 0.025 stroke #333333 0.6
+# Small book resting on top
+rect 0.28,0.28 0.18,0.14 fill #5c3a3a 0.55
+rect 0.28,0.28 0.18,0.14 stroke #3a2020 0.4
+# Book spine line
+line 0.37,0.28 0.37,0.42 stroke #2a1400 0.3
+# Candle base on top-right area
+circle 0.64,0.36 0.05 fill #e8dcc8 0.7
+circle 0.64,0.36 0.05 stroke #c8b898 0.5
+# Candle wick
+circle 0.64,0.36 0.015 fill #333333 0.7
+# Tiny warm glow around candle
+circle 0.64,0.36 0.08 fill #ffaa00 0.1
 # Leg shadows
-circle 0.26,0.26 0.03 fill #2a1400 0.4
-circle 0.74,0.26 0.03 fill #2a1400 0.4
-circle 0.26,0.74 0.03 fill #2a1400 0.4
-circle 0.74,0.74 0.03 fill #2a1400 0.4
+circle 0.24,0.24 0.03 fill #2a1400 0.4
+circle 0.76,0.24 0.03 fill #2a1400 0.4
+circle 0.24,0.76 0.03 fill #2a1400 0.4
+circle 0.76,0.76 0.03 fill #2a1400 0.4

@@ -7,20 +7,99 @@ blocks_light: no
 placement: center
 room_types: vault, dragon-lair, treasure-room
 typical_count: few
-clusters_with: chest
+clusters_with: chest, treasure-pile-small
 notes: Hoard of treasure; place as room focal point
 ---
-# Gold coin mound
-ellipse 1.0,1.15 0.75,0.35 fill #daa520 0.4
-ellipse 1.0,1.15 0.75,0.35 stroke #8b6914
-# Scattered coins
-circle 0.55,1.05 0.1 fill #ffd700 0.6
-circle 0.8,0.95 0.08 fill #daa520 0.65
-circle 1.2,0.9 0.1 fill #ffd700 0.55
-circle 1.45,1.0 0.09 fill #daa520 0.6
-circle 0.65,1.2 0.08 fill #ffd700 0.65
-circle 1.35,1.25 0.1 fill #daa520 0.55
-circle 1.0,0.85 0.12 fill #ffd700 0.5
-# Wooden chest
-rect 0.7,0.75 0.6,0.25 texfill polyhaven/dark_wood 0.85
-rect 0.7,0.75 0.6,0.25 stroke #4a2800
+# footprint 2x2: x range 0-2, y range 0-2
+# === Base layer — gold coin mound ===
+# Outer mound shadow/dark edge
+ellipse 1.0,1.1 0.85,0.55 fill #8b6914 0.35
+# Main gold mound
+ellipse 1.0,1.05 0.78,0.48 fill #c49520 0.5
+# Brighter center heap
+ellipse 1.0,1.0 0.6,0.38 fill #daa520 0.55
+# Highlight on top
+ellipse 1.0,0.95 0.35,0.22 fill #ffd700 0.45
+# === Scattered individual coins at edges ===
+circle 0.25,1.25 0.07 fill #ffd700 0.7
+circle 0.25,1.25 0.07 stroke #8b6914
+circle 0.38,0.85 0.06 fill #daa520 0.7
+circle 0.38,0.85 0.06 stroke #8b6914
+circle 1.72,1.18 0.07 fill #ffd700 0.65
+circle 1.72,1.18 0.07 stroke #8b6914
+circle 1.58,0.72 0.06 fill #daa520 0.7
+circle 1.58,0.72 0.06 stroke #8b6914
+circle 0.55,1.48 0.06 fill #ffd700 0.65
+circle 0.55,1.48 0.06 stroke #8b6914
+circle 1.45,1.50 0.07 fill #daa520 0.7
+circle 1.45,1.50 0.07 stroke #8b6914
+circle 0.18,1.02 0.05 fill #ffd700 0.6
+circle 1.82,0.95 0.05 fill #daa520 0.6
+circle 0.75,1.60 0.06 fill #ffd700 0.65
+circle 1.30,1.62 0.05 fill #daa520 0.6
+# === Chest 1 — half-buried in coins (left side) ===
+rect 0.30,0.65 0.52,0.30 texfill polyhaven/dark_wood 0.85
+rect 0.30,0.65 0.52,0.30 stroke #4a2800
+# Chest clasp
+rect 0.50,0.65 0.12,0.08 fill #daa520 0.8
+rect 0.50,0.65 0.12,0.08 stroke #8b6914
+# Iron bands on chest
+line 0.30,0.75 0.82,0.75 stroke #555555 width 2
+line 0.30,0.88 0.82,0.88 stroke #555555 width 2
+# === Chest 2 — smaller, tilted right side ===
+rect 1.22,0.80 0.48,0.25 texfill polyhaven/dark_wood 0.8
+rect 1.22,0.80 0.48,0.25 stroke #4a2800
+# Clasp
+rect 1.40,0.80 0.10,0.06 fill #daa520 0.75
+rect 1.40,0.80 0.10,0.06 stroke #8b6914
+# Iron band
+line 1.22,0.92 1.70,0.92 stroke #555555 width 2
+# === Gemstones scattered among coins ===
+# Ruby
+circle 0.70,0.88 0.06 fill #cc2244 0.85
+circle 0.70,0.88 0.06 stroke #881133
+# Inner facet highlight
+circle 0.69,0.87 0.025 fill #ff4466 0.5
+# Emerald
+circle 1.15,1.20 0.055 fill #22aa44 0.85
+circle 1.15,1.20 0.055 stroke #116622
+circle 1.14,1.19 0.02 fill #44cc66 0.5
+# Sapphire
+circle 0.55,1.10 0.05 fill #2244cc 0.85
+circle 0.55,1.10 0.05 stroke #112266
+circle 0.54,1.09 0.02 fill #4466ee 0.5
+# Small ruby near edge
+circle 1.55,1.05 0.04 fill #cc2244 0.8
+circle 1.55,1.05 0.04 stroke #881133
+# Amethyst
+circle 1.0,1.38 0.05 fill #aa22cc 0.8
+circle 1.0,1.38 0.05 stroke #661188
+circle 0.99,1.37 0.02 fill #cc55ee 0.45
+# === Goblet sitting on top of mound ===
+# Cup body (oval from above)
+ellipse 1.0,0.75 0.12,0.09 texfill polyhaven/metal_plate 0.8
+ellipse 1.0,0.75 0.12,0.09 stroke #555555
+# Cup interior (dark)
+ellipse 1.0,0.75 0.08,0.06 fill #333333 0.6
+# Stem base visible below
+ellipse 1.0,0.82 0.06,0.04 fill #888888 0.5
+# === Sword hilt poking out (right side) ===
+# Blade tip visible
+line 1.60,1.30 1.78,1.55 stroke #8899aa width 3
+# Cross-guard
+line 1.55,1.28 1.65,1.32 stroke #666666 width 3
+# Pommel
+circle 1.52,1.27 0.035 fill #daa520 0.8
+circle 1.52,1.27 0.035 stroke #8b6914
+# === Crown resting on mound peak ===
+# Crown band (oval from above)
+ellipse 0.72,1.02 0.14,0.10 fill #daa520 0.85
+ellipse 0.72,1.02 0.14,0.10 stroke #8b6914
+# Crown interior dark
+ellipse 0.72,1.02 0.10,0.07 fill #8b6914 0.4
+# Crown points (small triangles poking up around rim)
+poly 0.60,1.02 0.58,0.96 0.62,0.98 fill #ffd700 0.8
+poly 0.72,0.92 0.70,0.86 0.74,0.88 fill #ffd700 0.8
+poly 0.84,1.02 0.82,0.96 0.86,0.98 fill #ffd700 0.8
+# Gem on crown front
+circle 0.72,1.10 0.03 fill #cc2244 0.9

@@ -10,10 +10,25 @@ room_types: any
 typical_count: few
 notes: Corner structural support; place in room corners
 ---
-# Stone pillar at grid intersection (centered at cell top-left corner)
-circle 0,0 0.35 texfill polyhaven/granite_tile 0.85
-circle 0,0 0.35 stroke #666666
-# Inner capstone detail
-circle 0,0 0.25 stroke #777777
-# Center crack
-line -0.12,-0.15 0.12,0.15
+# Main stone shaft (outer circle) centered at grid corner
+circle 0,0 0.38 texfill polyhaven/stone_wall 0.85
+circle 0,0 0.38 stroke #666666
+# Capital / top piece (lighter inner ring)
+ring 0,0 0.30 0.22 texfill polyhaven/granite_tile 0.80
+ring 0,0 0.30 0.22 stroke #666666
+# Fluting marks (12 radial lines at 30-degree intervals)
+line 0,-0.38 0,-0.30 stroke #666666
+line 0.24,-0.34 0.19,-0.27 stroke #666666
+line 0.38,-0.14 0.30,-0.12 stroke #666666
+line 0.38,0.14 0.30,0.12 stroke #666666
+line 0.24,0.34 0.19,0.27 stroke #666666
+line 0,0.38 0,0.30 stroke #666666
+line -0.24,0.34 -0.19,0.27 stroke #666666
+line -0.38,0.14 -0.30,0.12 stroke #666666
+line -0.38,-0.14 -0.30,-0.12 stroke #666666
+line -0.24,-0.34 -0.19,-0.27 stroke #666666
+line 0.19,-0.27 0.14,-0.22 stroke #666666
+line -0.19,-0.27 -0.14,-0.22 stroke #666666
+# Column core (center detail)
+circle 0,0 0.06 fill #888888 0.5
+circle 0,0 0.06 stroke #666666

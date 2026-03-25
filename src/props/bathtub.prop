@@ -2,7 +2,7 @@ name: Bathtub
 category: Misc
 footprint: 2x3
 facing: yes
-shadow: yes
+shadow: no
 blocks_light: no
 placement: wall
 room_types: bedroom, quarters, bathhouse
@@ -17,8 +17,3 @@ ellipse 1.5,1 1.08,0.6 fill #4a7799 0.70
 ellipse 1.5,1 1.08,0.6 stroke #6688aa
 # Drain
 circle 1.5,1 0.0875 fill #333333 0.6
-# Claw feet
-circle 0.225,0.3 0.0875 fill #888888 0.6
-circle 2.775,0.3 0.0875 fill #888888 0.6
-circle 0.225,1.7 0.0875 fill #888888 0.6
-circle 2.775,1.7 0.0875 fill #888888 0.6

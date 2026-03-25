@@ -2,7 +2,7 @@ name: Fallen Log
 category: Terrain
 footprint: 1x4
 facing: no
-shadow: yes
+shadow: no
 blocks_light: no
 placement: floor
 room_types: wilderness, forest, swamp

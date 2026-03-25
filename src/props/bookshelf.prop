@@ -1,8 +1,8 @@
 name: Bookshelf
 category: Furniture
-footprint: 3x1
+footprint: 1x3
 facing: yes
-shadow: yes
+shadow: no
 blocks_light: yes
 placement: wall
 room_types: library, study, wizard-sanctum, office
@@ -10,31 +10,15 @@ typical_count: many
 clusters_with: book-pile, desk, lectern, scroll-rack
 notes: Line along walls; use fillWallWithProps for rows of shelves
 ---
-# Top surface
-rect 0.05,0.075 0.9,2.85 texfill polyhaven/wood_cabinet_worn_long 0.85
-rect 0.05,0.075 0.9,2.85 stroke #3a1f00
-# Shelf partition lines
-line 0.08,1.02 0.92,1.02 stroke #2a1400
-line 0.08,2.025 0.92,2.025 stroke #2a1400
-# Book spines (top shelf)
-rect 0.12,0.18 0.08,0.75 fill #8b0000 0.4
-rect 0.24,0.21 0.06,0.72 fill #1a3a5c 0.4
-rect 0.34,0.18 0.08,0.75 fill #2a5a2a 0.4
-rect 0.46,0.21 0.06,0.72 fill #5c3a1e 0.35
-rect 0.56,0.18 0.1,0.75 fill #4a2800 0.4
-rect 0.7,0.21 0.06,0.72 fill #8b6914 0.35
-rect 0.8,0.18 0.08,0.75 fill #3a1a4a 0.4
-# Book spines (middle shelf)
-rect 0.14,1.11 0.1,0.825 fill #2a5a2a 0.35
-rect 0.28,1.14 0.06,0.795 fill #8b0000 0.35
-rect 0.38,1.11 0.08,0.825 fill #1a3a5c 0.4
-rect 0.5,1.14 0.1,0.795 fill #5a3a00 0.35
-rect 0.64,1.11 0.06,0.825 fill #4a2800 0.4
-rect 0.74,1.14 0.08,0.795 fill #3a1a4a 0.35
-# Book spines (bottom shelf)
-rect 0.12,2.13 0.08,0.72 fill #5c3a1e 0.4
-rect 0.24,2.16 0.1,0.69 fill #8b6914 0.35
-rect 0.38,2.13 0.06,0.72 fill #8b0000 0.35
-rect 0.48,2.16 0.08,0.69 fill #1a3a5c 0.4
-rect 0.6,2.13 0.1,0.72 fill #2a5a2a 0.35
-rect 0.74,2.16 0.06,0.69 fill #3a1a4a 0.35
+# footprint 1x3: x range 0-3, y range 0-1
+# Top-down: wooden top overhangs the shelf body on left, right, and front
+
+# Shelf body (recessed on left, right, and front)
+rect 0.1,0.05 2.8,0.75 fill #2a1400 0.35
+line 0.1,0.05 0.1,0.8 stroke #3a1f00
+line 2.9,0.05 2.9,0.8 stroke #3a1f00
+line 0.1,0.8 2.9,0.8 stroke #3a1f00
+
+# Wooden top surface (overhangs the body)
+rect 0.0,0.0 3.0,0.7 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.0,0.0 3.0,0.7 stroke #3a1f00

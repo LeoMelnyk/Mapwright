@@ -1,6 +1,6 @@
 name: Throne Dais
 category: Furniture
-footprint: 3x4
+footprint: 6x6
 facing: yes
 shadow: yes
 blocks_light: no
@@ -10,27 +10,139 @@ typical_count: single
 clusters_with: carpet, brazier, banner, pillar
 notes: Raised throne platform; place against back wall as room centerpiece
 ---
-# Outer platform step
-rect 0.0667,0.075 3.8667,2.85 texfill polyhaven/stone_floor 0.7
-rect 0.0667,0.075 3.8667,2.85 stroke
-# Middle step
-rect 0.2667,0.3 3.4667,2.25 texfill polyhaven/stone_floor 0.75
-rect 0.2667,0.3 3.4667,2.25 stroke
-# Top platform
-rect 0.5333,0.525 2.9333,1.65 texfill polyhaven/marble_01 0.8
-rect 0.5333,0.525 2.9333,1.65 stroke
-# Throne seat
-rect 1.4667,0.675 1.0667,0.75 texfill polyhaven/dark_wood 0.85
-rect 1.4667,0.675 1.0667,0.75 stroke #4a2800
-# Throne backrest
-rect 1.4,0.57 1.2,0.18 texfill polyhaven/dark_wood 0.85
-rect 1.4,0.57 1.2,0.18 stroke #4a2800
+# Footprint 6x6: x 0-6, y 0-6. Front faces south.
+
+# ============================================================
+# OUTER STEP (widest, ground level)
+# ============================================================
+rect 0.08,0.08 5.84,5.84 texfill polyhaven/stone_floor 0.7
+rect 0.08,0.08 5.84,5.84 stroke #555555
+
+line 0.08,0.08 0.45,0.50 stroke #777777
+line 5.92,0.08 5.55,0.50 stroke #777777
+line 0.08,5.92 0.45,5.50 stroke #777777
+line 5.92,5.92 5.55,5.50 stroke #777777
+
+line 0.08,5.92 5.92,5.92 stroke #888888 width 2
+line 0.08,0.08 0.08,5.92 stroke #888888 width 2
+line 0.08,0.08 5.92,0.08 stroke #444444 width 2
+line 5.92,0.08 5.92,5.92 stroke #444444 width 2
+
+# ============================================================
+# MIDDLE STEP
+# ============================================================
+rect 0.45,0.50 5.10,5.00 texfill polyhaven/stone_floor 0.76
+rect 0.45,0.50 5.10,5.00 stroke #555555
+
+line 0.45,0.50 0.90,1.00 stroke #888888
+line 5.55,0.50 5.10,1.00 stroke #888888
+line 0.45,5.50 0.90,5.00 stroke #888888
+line 5.55,5.50 5.10,5.00 stroke #888888
+
+line 0.45,5.50 5.55,5.50 stroke #999999 width 2
+line 0.45,0.50 0.45,5.50 stroke #999999 width 2
+line 0.45,0.50 5.55,0.50 stroke #444444 width 2
+line 5.55,0.50 5.55,5.50 stroke #444444 width 2
+
+# ============================================================
+# TOP PLATFORM
+# ============================================================
+rect 0.90,1.00 4.20,4.00 texfill polyhaven/marble_01 0.82
+rect 0.90,1.00 4.20,4.00 stroke #666666
+
+line 0.90,1.00 1.08,1.20 stroke #aaaaaa
+line 5.10,1.00 4.92,1.20 stroke #aaaaaa
+line 0.90,5.00 1.08,4.80 stroke #aaaaaa
+line 5.10,5.00 4.92,4.80 stroke #aaaaaa
+
+line 0.90,5.00 5.10,5.00 stroke #bbbbbb width 2
+line 0.90,1.00 0.90,5.00 stroke #bbbbbb width 2
+line 0.90,1.00 5.10,1.00 stroke #555555 width 2
+line 5.10,1.00 5.10,5.00 stroke #555555 width 2
+
+# ============================================================
+# CARPET RUNNER
+# ============================================================
+rect 2.55,1.02 0.90,3.96 texfill polyhaven/velour_velvet 0.6
+rect 2.55,4.98 0.90,0.52 texfill polyhaven/velour_velvet 0.55
+rect 2.55,5.48 0.90,0.44 texfill polyhaven/velour_velvet 0.5
+line 2.55,1.02 2.55,5.92 stroke #6b0015 0.5
+line 3.45,1.02 3.45,5.92 stroke #6b0015 0.5
+# Fringe
+line 2.58,5.88 2.66,5.80 stroke #daa520 0.5
+line 2.76,5.88 2.84,5.80 stroke #daa520 0.5
+line 2.94,5.88 3.02,5.80 stroke #daa520 0.5
+line 3.12,5.88 3.20,5.80 stroke #daa520 0.5
+line 3.30,5.88 3.38,5.80 stroke #daa520 0.5
+
+# ============================================================
+# THRONE (centered on top platform, in the northern portion)
+# ============================================================
+
+# Leg shadows
+rect 2.16,3.10 0.18,0.18 fill #1a0a00 0.35
+rect 3.66,3.10 0.18,0.18 fill #1a0a00 0.35
+rect 2.16,1.30 0.18,0.14 fill #1a0a00 0.25
+rect 3.66,1.30 0.18,0.14 fill #1a0a00 0.25
+
+# High backrest
+rect 2.10,1.10 1.80,0.54 texfill polyhaven/dark_wood 0.88
+rect 2.10,1.10 1.80,0.54 stroke #3a1e00
+
+# Peaked crown
+poly 2.10,1.10 2.43,1.10 2.61,1.02 2.79,1.07 3.00,1.02 3.21,1.07 3.39,1.02 3.57,1.10 3.90,1.10 fill #3a1e00 0.9
+poly 2.10,1.10 2.43,1.10 2.61,1.02 2.79,1.07 3.00,1.02 3.21,1.07 3.39,1.02 3.57,1.10 3.90,1.10 stroke #2a1200
+poly 2.13,1.13 2.43,1.13 2.61,1.05 2.79,1.10 3.00,1.05 3.21,1.10 3.39,1.05 3.57,1.13 3.87,1.13 stroke #daa520 width 2
+
+# Gold trim on backrest
+line 2.13,1.21 3.87,1.21 stroke #daa520 width 2
+line 2.13,1.55 3.87,1.55 stroke #c49520 width 1
+
+# Medallion
+circle 3.00,1.37 0.12 fill #daa520 0.3
+circle 3.00,1.37 0.12 stroke #daa520
+circle 3.00,1.37 0.07 stroke #c49520
+
+# Back cushion
+rect 2.43,1.45 1.14,0.19 texfill polyhaven/velour_velvet 0.7
+rect 2.43,1.45 1.14,0.19 stroke #6b0015
+
 # Left armrest
-rect 1.4,0.72 0.16,0.63 texfill polyhaven/dark_wood 0.8
-rect 1.4,0.72 0.16,0.63 stroke #4a2800
+rect 2.10,1.55 0.33,1.52 texfill polyhaven/dark_wood 0.82
+rect 2.10,1.55 0.33,1.52 stroke #3a1e00
+line 2.10,1.55 2.43,1.55 stroke #daa520 width 2
+line 2.10,1.55 2.10,3.07 stroke #c49520 width 1
+circle 2.27,2.94 0.08 stroke #4a2800
+circle 2.27,2.94 0.04 fill #daa520 0.4
+circle 2.27,1.85 0.025 fill #daa520 0.6
+circle 2.27,2.20 0.025 fill #daa520 0.6
+circle 2.27,2.55 0.025 fill #daa520 0.6
+
 # Right armrest
-rect 2.44,0.72 0.16,0.63 texfill polyhaven/dark_wood 0.8
-rect 2.44,0.72 0.16,0.63 stroke #4a2800
+rect 3.57,1.55 0.33,1.52 texfill polyhaven/dark_wood 0.82
+rect 3.57,1.55 0.33,1.52 stroke #3a1e00
+line 3.57,1.55 3.90,1.55 stroke #daa520 width 2
+line 3.90,1.55 3.90,3.07 stroke #c49520 width 1
+circle 3.73,2.94 0.08 stroke #4a2800
+circle 3.73,2.94 0.04 fill #daa520 0.4
+circle 3.73,1.85 0.025 fill #daa520 0.6
+circle 3.73,2.20 0.025 fill #daa520 0.6
+circle 3.73,2.55 0.025 fill #daa520 0.6
+
 # Seat cushion
-rect 1.56,0.75 0.88,0.57 texfill polyhaven/velour_velvet 0.85
-rect 1.56,0.75 0.88,0.57 stroke #8b0000
+rect 2.43,1.64 1.14,1.40 texfill polyhaven/velour_velvet 0.88
+rect 2.43,1.64 1.14,1.40 stroke #8b0000
+# Tufting
+line 2.67,1.76 3.00,2.14 stroke #7a0015 0.3
+line 3.33,1.76 3.00,2.14 stroke #7a0015 0.3
+line 2.67,2.92 3.00,2.54 stroke #7a0015 0.3
+line 3.33,2.92 3.00,2.54 stroke #7a0015 0.3
+
+# Backrest corner rivets
+circle 2.22,1.18 0.025 fill #daa520 0.7
+circle 3.78,1.18 0.025 fill #daa520 0.7
+circle 2.22,1.53 0.025 fill #daa520 0.7
+circle 3.78,1.53 0.025 fill #daa520 0.7
+
+# Front seat edge shadow
+line 2.43,3.04 3.57,3.04 stroke #5a0000 width 2

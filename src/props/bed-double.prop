@@ -1,0 +1,32 @@
+name: Bed (Double)
+category: Furniture
+footprint: 3x3
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: bedroom, quarters, inn
+typical_count: single
+clusters_with: nightstand, wardrobe, desk, chest
+notes: Large double bed; headboard against wall
+---
+# footprint 3x3: x range 0-3, y range 0-3
+# Wooden frame
+rect 0.1,0.075 2.8,2.85 texfill polyhaven/dark_wood 0.8
+rect 0.1,0.075 2.8,2.85 stroke #3a1f00
+# Sheet area (top portion near headboard)
+rect 0.22,0.18 2.56,0.72 texfill polyhaven/rough_linen 0.85
+# Blanket (covers most of the bed)
+rect 0.22,0.82 2.56,2.0 texfill polyhaven/velour_velvet 0.8
+rect 0.22,0.82 2.56,2.0 stroke #4a3a5a 0.4
+# Blanket fold edge
+rect 0.22,0.78 2.56,0.12 fill #3a2a4a 0.3
+line 0.22,0.78 2.78,0.78 stroke #4a3a5a 0.5
+line 0.22,0.9 2.78,0.9 stroke #4a3a5a 0.3
+# Two pillows side by side
+rect 0.4,0.24 0.9,0.34 fill #e8dcc8 0.9
+rect 0.4,0.24 0.9,0.34 stroke #b0a090
+rect 1.7,0.24 0.9,0.34 fill #e8dcc8 0.9
+rect 1.7,0.24 0.9,0.34 stroke #b0a090
+# Mattress outline
+rect 0.22,0.18 2.56,2.64 stroke #8b7d6b

@@ -10,19 +10,37 @@ room_types: any
 typical_count: many
 notes: Wall-mounted light; place at regular intervals. Use fillWallWithProps with gap:2-3
 ---
-# Wall bracket (north edge)
-rect 0.28,0.02 0.44,0.14 texfill polyhaven/rusty_metal 0.80
-rect 0.28,0.02 0.44,0.14 stroke #444444
-# Bracket arm
-line 0.50,0.14 0.50,0.28 stroke #666666
-# Lantern body (small box)
-rect 0.34,0.28 0.32,0.36 fill #444444 0.70
-rect 0.34,0.28 0.32,0.36 stroke #666666
-# Glass warm glow
-rect 0.36,0.30 0.28,0.32 fill #ffcc44 0.30
-# Flame
-circle 0.50,0.46 0.07 fill #ffaa00 0.70
-circle 0.50,0.46 0.04 fill #ffcc00 0.80
-# Lantern cap
-rect 0.32,0.26 0.36,0.05 fill #555555 0.90
-rect 0.32,0.26 0.36,0.05 stroke #333333
+# Light spill (warm glow extending south from lantern)
+ellipse 0.50,0.65 0.35,0.30 fill #ffaa44 0.06
+ellipse 0.50,0.60 0.25,0.22 fill #ffcc66 0.08
+# Wall mount plate with rivets
+rect 0.30,0.02 0.40,0.14 texfill polyhaven/rusty_metal 0.85
+rect 0.30,0.02 0.40,0.14 stroke #333333
+# Rivet top-left
+circle 0.36,0.06 0.025 fill #555555 0.90
+# Rivet top-right
+circle 0.64,0.06 0.025 fill #555555 0.90
+# Rivet bottom-left
+circle 0.36,0.12 0.025 fill #555555 0.90
+# Rivet bottom-right
+circle 0.64,0.12 0.025 fill #555555 0.90
+# Iron arm extending from wall
+rect 0.46,0.14 0.08,0.16 fill #555555 0.90
+rect 0.46,0.14 0.08,0.16 stroke #333333
+# Lantern cap/top
+rect 0.34,0.28 0.32,0.05 fill #555555 0.90
+rect 0.34,0.28 0.32,0.05 stroke #333333
+# Cap finial (tiny knob on top)
+circle 0.50,0.29 0.03 fill #666666 0.80
+# Lantern body
+rect 0.36,0.33 0.28,0.30 fill #444444 0.75
+rect 0.36,0.33 0.28,0.30 stroke #333333
+# Glass panel left (lighter strip)
+rect 0.38,0.35 0.06,0.26 fill #ffdd88 0.20
+# Glass panel right (lighter strip)
+rect 0.56,0.35 0.06,0.26 fill #ffdd88 0.20
+# Flame glow layers
+circle 0.50,0.48 0.12 fill #ff8800 0.25
+circle 0.50,0.48 0.08 fill #ffaa00 0.45
+circle 0.50,0.48 0.05 fill #ffcc00 0.65
+circle 0.50,0.48 0.025 fill #ffee88 0.80

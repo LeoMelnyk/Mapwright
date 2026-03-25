@@ -10,18 +10,21 @@ typical_count: few
 clusters_with: scroll-rack, desk, bookshelf
 notes: Place on or near desks and shelves
 ---
-# Cylindrical case body (oval from above)
-ellipse 0.50,0.50 0.36,0.20 texfill polyhaven/dark_wood 0.85
-ellipse 0.50,0.50 0.36,0.20 stroke #3a1f00
-# Metal end caps
-ellipse 0.14,0.50 0.06,0.18 fill #8b6914 0.85
-ellipse 0.14,0.50 0.06,0.18 stroke #5a3a00
-ellipse 0.86,0.50 0.06,0.18 fill #8b6914 0.85
-ellipse 0.86,0.50 0.06,0.18 stroke #5a3a00
-# Wood grain lines
-line 0.22,0.38 0.78,0.38 stroke #3a1f00 0.30
-line 0.22,0.50 0.78,0.50 stroke #3a1f00 0.25
-line 0.22,0.62 0.78,0.62 stroke #3a1f00 0.30
-# Wax seal
-circle 0.50,0.50 0.06 fill #cc2200 0.80
-circle 0.50,0.50 0.04 stroke #ff4400 0.40
+# Simple cylinder lying on its side — elongated oval from above
+
+# Case body (dark wood tube)
+ellipse 0.50,0.50 0.40,0.18 texfill polyhaven/dark_wood 0.85
+ellipse 0.50,0.50 0.40,0.18 stroke #3a1f00
+
+# Highlight along the top of the cylinder (catches light)
+line 0.18,0.42 0.82,0.42 stroke #6b4e2e 0.3
+
+# Metal end caps (brass rings at each end)
+ellipse 0.10,0.50 0.06,0.17 fill #8b6914 0.8
+ellipse 0.10,0.50 0.06,0.17 stroke #5a3a00
+ellipse 0.90,0.50 0.06,0.17 fill #8b6914 0.8
+ellipse 0.90,0.50 0.06,0.17 stroke #5a3a00
+
+# Small wax seal on the tube
+circle 0.50,0.54 0.05 fill #cc2200 0.8
+circle 0.50,0.54 0.05 stroke #881100

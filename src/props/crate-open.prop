@@ -1,0 +1,45 @@
+name: Crate (Open)
+category: Containers
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: wall
+room_types: storage, warehouse, dock, cellar
+typical_count: few
+clusters_with: crate, crate-stack, barrel
+notes: Open crate; place near work areas or as looted container
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: open crate showing interior walls and dark inside
+
+# Outer walls of crate (seen from above as a frame)
+rect 0.08,0.08 0.84,0.84 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.08 0.84,0.84 stroke #3a1f00
+
+# Dark interior (recessed)
+rect 0.16,0.16 0.68,0.68 fill #1a1208 0.5
+
+# Inner wall plank lines (vertical, visible inside)
+line 0.16,0.16 0.16,0.84 stroke #3a1f00 0.5
+line 0.84,0.16 0.84,0.84 stroke #3a1f00 0.5
+line 0.16,0.16 0.84,0.16 stroke #3a1f00 0.5
+line 0.16,0.84 0.84,0.84 stroke #3a1f00 0.5
+
+
+# Edge frame (top of walls, thicker)
+rect 0.08,0.08 0.84,0.08 fill #4a2800 0.4
+rect 0.08,0.84 0.84,0.08 fill #4a2800 0.4
+rect 0.08,0.08 0.08,0.84 fill #4a2800 0.4
+rect 0.84,0.08 0.08,0.84 fill #4a2800 0.4
+
+# Corner nails on frame
+circle 0.12,0.12 0.02 fill #666666 0.7
+circle 0.88,0.12 0.02 fill #666666 0.7
+circle 0.12,0.88 0.02 fill #666666 0.7
+circle 0.88,0.88 0.02 fill #666666 0.7
+
+# Some straw/packing inside
+line 0.3,0.3 0.5,0.45 stroke #8b7355 0.3
+line 0.55,0.35 0.7,0.55 stroke #8b7355 0.25
+line 0.35,0.6 0.55,0.7 stroke #8b7355 0.25

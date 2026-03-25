@@ -10,26 +10,33 @@ typical_count: single
 clusters_with: hearth, kitchen-table, oven
 notes: Hang on wall near cooking area
 ---
-# Horizontal iron rack bar (wall side, north)
-rect 0.06,0.04 1.88,0.12 texfill polyhaven/rusty_metal 0.80
-rect 0.06,0.04 1.88,0.12 stroke #333333
+# Footprint 1x2: x 0-2, y 0-1. Wall at north (y=0).
+
+# Iron rack bar mounted to wall
+rect 0.08,0.04 1.84,0.10 texfill polyhaven/rusty_metal 0.80
+rect 0.08,0.04 1.84,0.10 stroke #333333
+
+# Wall mounting brackets
+rect 0.30,0.0 0.08,0.06 fill #444444 0.7
+rect 1.0,0.0 0.08,0.06 fill #444444 0.7
+rect 1.62,0.0 0.08,0.06 fill #444444 0.7
+
+# Hook dots along the bar
+circle 0.24,0.12 0.02 fill #555555 0.7
+circle 0.52,0.12 0.02 fill #555555 0.7
+circle 0.80,0.12 0.02 fill #555555 0.7
+circle 1.10,0.12 0.02 fill #555555 0.7
+circle 1.42,0.12 0.02 fill #555555 0.7
+circle 1.72,0.12 0.02 fill #555555 0.7
+
 # Shadow below rack
-rect 0.06,0.16 1.88,0.05 fill #000000 0.12
-# Hook lines
-line 0.26,0.16 0.26,0.30 stroke #555555
-line 0.70,0.16 0.70,0.30 stroke #555555
-line 1.14,0.16 1.14,0.30 stroke #555555
-line 1.58,0.16 1.58,0.30 stroke #555555
-# Hanging pots (circles = pot opening from above)
-circle 0.26,0.52 0.14 texfill polyhaven/rusty_metal 0.80
-circle 0.26,0.52 0.14 stroke #444444
-circle 0.26,0.52 0.08 fill #222222 0.70
-circle 0.70,0.52 0.13 texfill polyhaven/rusty_metal 0.80
-circle 0.70,0.52 0.13 stroke #444444
-circle 0.70,0.52 0.07 fill #222222 0.70
-circle 1.14,0.52 0.14 texfill polyhaven/rusty_metal 0.80
-circle 1.14,0.52 0.14 stroke #444444
-circle 1.14,0.52 0.08 fill #222222 0.70
-circle 1.58,0.52 0.13 texfill polyhaven/rusty_metal 0.80
-circle 1.58,0.52 0.13 stroke #444444
-circle 1.58,0.52 0.07 fill #222222 0.70
+rect 0.10,0.14 1.80,0.04 fill #000000 0.12
+
+# Pot rims peeking out below bar (just the top edges visible from above)
+# These are semicircular arcs — the top of each pot rim visible below the bar
+arc 0.24,0.18 0.12 0 180 stroke #555555 width 2
+arc 0.52,0.18 0.09 0 180 stroke #555555 width 2
+arc 0.80,0.18 0.14 0 180 stroke #444444 width 2
+arc 1.10,0.18 0.10 0 180 stroke #555555 width 2
+arc 1.42,0.18 0.13 0 180 stroke #444444 width 2
+arc 1.72,0.18 0.08 0 180 stroke #555555 width 2

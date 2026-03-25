@@ -9,12 +9,99 @@ room_types: temple, throne-room, garden, gallery, memorial
 typical_count: few
 notes: Decorative sculpture; place symmetrically flanking doors, thrones, or along halls
 ---
-# Stone pedestal
-rect 0.44,0.44 1.12,1.12 texfill polyhaven/granite_tile 0.75
-rect 0.44,0.44 1.12,1.12 stroke
-# Figure on top (shoulders/torso from above)
-ellipse 1,1 0.4,0.32 texfill polyhaven/marble_01 0.85
-ellipse 1,1 0.4,0.32 stroke
-# Head
-circle 1,0.84 0.16 texfill polyhaven/marble_01 0.9
-circle 1,0.84 0.16 stroke
+# Footprint 2x2: x 0-2, y 0-2. No facing.
+
+# === PEDESTAL — Stone base with beveled edges ===
+
+# Outermost base slab
+rect 0.18,0.18 1.64,1.64 texfill polyhaven/granite_tile 0.7
+rect 0.18,0.18 1.64,1.64 stroke #555555
+
+# Bevel lines — base to step 1 (depth illusion)
+line 0.18,0.18 0.30,0.30 stroke #666666
+line 1.82,0.18 1.70,0.30 stroke #666666
+line 0.18,1.82 0.30,1.70 stroke #666666
+line 1.82,1.82 1.70,1.70 stroke #666666
+
+# Step 1 — raised pedestal surface
+rect 0.30,0.30 1.40,1.40 texfill polyhaven/granite_tile 0.78
+rect 0.30,0.30 1.40,1.40 stroke #666666
+
+# Bevel lines — step 1 to top platform
+line 0.30,0.30 0.40,0.40 stroke #888888
+line 1.70,0.30 1.60,0.40 stroke #888888
+line 0.30,1.70 0.40,1.60 stroke #888888
+line 1.70,1.70 1.60,1.60 stroke #888888
+
+# Top platform surface
+rect 0.40,0.40 1.20,1.20 texfill polyhaven/granite_tile 0.85
+rect 0.40,0.40 1.20,1.20 stroke #777777
+
+# Pedestal edge highlights (light top-left, shadow bottom-right)
+line 0.30,0.30 1.70,0.30 stroke #999999 width 1.5
+line 0.30,0.30 0.30,1.70 stroke #999999 width 1.5
+line 0.30,1.70 1.70,1.70 stroke #444444 width 1.5
+line 1.70,0.30 1.70,1.70 stroke #444444 width 1.5
+
+# Decorative trim line around pedestal edge
+rect 0.24,0.24 1.52,1.52 stroke #555555
+
+# === SHADOW — statue shadow on pedestal (southeast cast) ===
+ellipse 1.12,1.12 0.42,0.36 fill #000000 0.08
+ellipse 1.10,1.10 0.36,0.30 fill #000000 0.06
+
+# === FIGURE — Robed figure seen from above ===
+
+# Robe draping — subtle radiating lines suggesting flowing fabric from above
+# Front drape lines
+line 1.00,0.62 0.94,0.50 stroke #888888 0.5
+line 1.00,0.62 1.06,0.50 stroke #888888 0.5
+# Back drape lines (longer, trailing robes)
+line 1.00,1.18 0.88,1.42 stroke #888888 0.45
+line 1.00,1.18 1.00,1.44 stroke #888888 0.45
+line 1.00,1.18 1.12,1.42 stroke #888888 0.45
+# Side drape — left
+line 0.72,0.96 0.56,1.06 stroke #888888 0.4
+line 0.72,1.00 0.54,1.14 stroke #888888 0.4
+# Side drape — right
+line 1.28,0.96 1.44,1.06 stroke #888888 0.4
+line 1.28,1.00 1.46,1.14 stroke #888888 0.4
+
+# Torso/shoulders — wide oval (marble texture, seen from above)
+ellipse 1.00,0.98 0.30,0.22 texfill polyhaven/marble_01 0.85
+ellipse 1.00,0.98 0.30,0.22 stroke #666666
+
+# Shoulder highlight (light catches the top)
+ellipse 1.00,0.94 0.24,0.10 fill #ffffff 0.08
+
+# Left arm — extends from torso, resting at side
+rect 0.62,0.88 0.12,0.32 texfill polyhaven/marble_01 0.8
+rect 0.62,0.88 0.12,0.32 stroke #777777
+# Left hand
+ellipse 0.68,1.20 0.06,0.05 texfill polyhaven/marble_01 0.85
+ellipse 0.68,1.20 0.06,0.05 stroke #777777
+
+# Right arm — raised, holding a staff
+rect 1.26,0.78 0.12,0.28 texfill polyhaven/marble_01 0.8
+rect 1.26,0.78 0.12,0.28 stroke #777777
+# Right hand (gripping staff)
+ellipse 1.32,0.76 0.06,0.05 texfill polyhaven/marble_01 0.85
+ellipse 1.32,0.76 0.06,0.05 stroke #777777
+
+# === HELD OBJECT — Staff (thin line with orb on top) ===
+line 1.32,0.76 1.32,0.48 stroke #666666 width 2
+# Staff orb
+circle 1.32,0.46 0.05 texfill polyhaven/marble_01 0.9
+circle 1.32,0.46 0.05 stroke #666666
+# Orb gleam highlight
+circle 1.31,0.45 0.02 fill #ffffff 0.25
+
+# === HEAD — circle above the torso ===
+circle 1.00,0.78 0.13 texfill polyhaven/marble_01 0.9
+circle 1.00,0.78 0.13 stroke #666666
+# Face shadow (subtle depth)
+ellipse 1.00,0.80 0.08,0.06 fill #000000 0.06
+# Hair/crown detail — small arc lines on top of head
+line 0.92,0.70 0.96,0.66 stroke #888888 0.5
+line 0.96,0.66 1.04,0.66 stroke #888888 0.5
+line 1.04,0.66 1.08,0.70 stroke #888888 0.5

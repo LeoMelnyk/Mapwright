@@ -10,53 +10,47 @@ typical_count: single
 clusters_with: tanning-rack
 notes: Textile production; place against wall with operating space
 ---
-# Outer frame (dark wood rectangle)
-rect 0.15,0.1 2.7,1.8 texfill polyhaven/dark_wood 0.6
-rect 0.15,0.1 2.7,1.8 stroke #1a1208
+# Left frame rail (trapezoid — converges toward north/low Y)
+poly 0.35,0.12 0.15,1.88 0.30,1.88 0.48,0.12 texfill polyhaven/dark_wood 0.85
+poly 0.35,0.12 0.15,1.88 0.30,1.88 0.48,0.12 stroke #2a1400
 
-# Frame posts (four corner uprights, seen as thick squares from above)
-rect 0.15,0.1 0.21,0.14 texfill polyhaven/dark_wood 0.9
-rect 0.15,0.1 0.21,0.14 stroke #1a1208
-rect 2.64,0.1 0.21,0.14 texfill polyhaven/dark_wood 0.9
-rect 2.64,0.1 0.21,0.14 stroke #1a1208
-rect 0.15,1.76 0.21,0.14 texfill polyhaven/dark_wood 0.9
-rect 0.15,1.76 0.21,0.14 stroke #1a1208
-rect 2.64,1.76 0.21,0.14 texfill polyhaven/dark_wood 0.9
-rect 2.64,1.76 0.21,0.14 stroke #1a1208
+# Right frame rail (trapezoid — converges toward north/low Y)
+poly 2.52,0.12 2.70,1.88 2.85,1.88 2.65,0.12 texfill polyhaven/dark_wood 0.85
+poly 2.52,0.12 2.70,1.88 2.85,1.88 2.65,0.12 stroke #2a1400
 
-# Warp beam roller (north, back beam)
-rect 0.36,0.18 2.28,0.1 texfill polyhaven/dark_wood 0.85
-rect 0.36,0.18 2.28,0.1 stroke #2a1f14
+# Back beam / warp beam (north roller)
+rect 0.35,0.10 2.30,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.35,0.10 2.30,0.12 stroke #3a1f00
 
-# Cloth beam roller (south, front beam)
-rect 0.36,1.72 2.28,0.1 texfill polyhaven/dark_wood 0.85
-rect 0.36,1.72 2.28,0.1 stroke #2a1f14
+# Cloth beam / front roller (south)
+rect 0.15,1.76 2.70,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.15,1.76 2.70,0.12 stroke #3a1f00
 
-# Woven textile section (southern half - finished cloth)
-rect 0.45,1.1 2.1,0.6 texfill polyhaven/rough_linen 0.7
-rect 0.45,1.1 2.1,0.6 stroke #8b7355
+# Finished cloth on cloth beam (linen strip, slightly wider than warp)
+rect 0.32,1.52 2.36,0.26 texfill polyhaven/rough_linen 0.7
+rect 0.32,1.52 2.36,0.26 stroke #8b7355
 
-# Warp threads (running north-south through the open section)
-line 0.6,0.28 0.6,1.1 stroke #c8b898
-line 0.825,0.28 0.825,1.1 stroke #c8b898
-line 1.05,0.28 1.05,1.1 stroke #c8b898
-line 1.275,0.28 1.275,1.1 stroke #c8b898
-line 1.5,0.28 1.5,1.1 stroke #c8b898
-line 1.725,0.28 1.725,1.1 stroke #c8b898
-line 1.95,0.28 1.95,1.1 stroke #c8b898
-line 2.175,0.28 2.175,1.1 stroke #c8b898
-line 2.4,0.28 2.4,1.1 stroke #c8b898
+# Warp threads (lines from back beam to cloth area, converging slightly)
+line 0.60,0.22 0.50,1.52 stroke #c8b898
+line 0.85,0.22 0.72,1.52 stroke #c8b898
+line 1.10,0.22 0.95,1.52 stroke #c8b898
+line 1.35,0.22 1.27,1.52 stroke #c8b898
+line 1.50,0.22 1.50,1.52 stroke #c8b898
+line 1.65,0.22 1.73,1.52 stroke #c8b898
+line 1.90,0.22 2.05,1.52 stroke #c8b898
+line 2.15,0.22 2.28,1.52 stroke #c8b898
+line 2.40,0.22 2.50,1.52 stroke #c8b898
 
-# Heddle bar (horizontal bar that lifts alternating threads)
-rect 0.36,0.65 2.28,0.06 texfill polyhaven/dark_wood 0.8
-rect 0.36,0.65 2.28,0.06 stroke #2a1f14
+# Heddle frame bar (horizontal, crosses the warp)
+rect 0.38,0.72 2.24,0.08 texfill polyhaven/dark_wood 0.8
+rect 0.38,0.72 2.24,0.08 stroke #3a1f00
 
-# Shuttle (sitting on the warp, angled slightly)
-poly 0.55,0.82 1.45,0.78 1.48,0.84 0.58,0.88 texfill polyhaven/dark_wood 0.85
-poly 0.55,0.82 1.45,0.78 1.48,0.84 0.58,0.88 stroke #1a1208
-# Shuttle thread notch
-ellipse 1.5,0.83 0.18,0.02 fill #c8b898 0.7
+# Reed / beater bar (south of heddle)
+rect 0.33,1.10 2.34,0.06 fill #6b4e2e 0.8
+rect 0.33,1.10 2.34,0.06 stroke #2a1400
 
-# Reed/beater bar
-rect 0.36,0.95 2.28,0.05 fill #6b4e2e 0.8
-rect 0.36,0.95 2.28,0.05 stroke #2a1f14
+# Shuttle resting on the warp (small elongated shape, angled slightly)
+poly 0.70,0.92 1.55,0.88 1.58,0.96 0.73,1.00 texfill polyhaven/dark_wood 0.85
+poly 0.70,0.92 1.55,0.88 1.58,0.96 0.73,1.00 stroke #2a1400
+# Shuttle thread hole
+ellipse 1.14,0.94 0.06,0.02 fill #c8b898 0.6

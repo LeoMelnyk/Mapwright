@@ -1,0 +1,36 @@
+name: Fallen Log (Hollow)
+category: Terrain
+footprint: 1x3
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: wilderness, forest, swamp
+typical_count: few
+clusters_with: fallen-log, mushroom, fern
+notes: Hollow rotting log; creatures could hide inside
+---
+# footprint 1x3: x range 0-3, y range 0-1
+# Left cross-section (hollow — large dark opening)
+ellipse 0.18,0.5 0.16,0.3 texfill polyhaven/bark_brown_02 0.85
+ellipse 0.18,0.5 0.16,0.3 stroke #3a1f00
+# Thin ring of wood (the hollow shell)
+circle 0.18,0.5 0.175 fill #c4a060 0.4
+# Big dark hollow interior
+circle 0.18,0.5 0.14 fill #0a0805 0.8
+# Main body
+rect 0.18,0.2 2.64,0.6 texfill polyhaven/bark_brown_02 0.82
+rect 0.18,0.2 2.64,0.6 stroke #3a1f00
+# Right end (broken/splintered, no clean cross-section)
+poly 2.82,0.22 2.92,0.3 2.95,0.5 2.9,0.7 2.82,0.78 fill #5a4a30 0.7
+poly 2.82,0.22 2.92,0.3 2.95,0.5 2.9,0.7 2.82,0.78 stroke #3a1f00
+# Splintered edges
+poly 2.88,0.28 2.95,0.35 2.92,0.32 fill #6b5a40 0.5
+poly 2.9,0.62 2.98,0.6 2.92,0.65 fill #6b5a40 0.5
+# Bark lines
+line 0.8,0.2 0.8,0.8 stroke #3a1f00 0.4
+line 1.5,0.2 1.5,0.8 stroke #3a1f00 0.4
+line 2.2,0.2 2.2,0.8 stroke #3a1f00 0.4
+# Rotting/dark patches
+ellipse 1.0,0.45 0.2,0.12 fill #2a1a0a 0.25
+ellipse 2.0,0.5 0.15,0.1 fill #2a1a0a 0.2

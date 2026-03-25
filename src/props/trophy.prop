@@ -9,17 +9,30 @@ room_types: trophy-room, great-hall, hunter-lodge
 typical_count: few
 notes: Wall-mounted trophy; place on walls at eye height
 ---
-# Wooden mounting plaque
-rect 0.22,0.5 0.56,0.42 texfill polyhaven/dark_wood 0.85
-rect 0.22,0.5 0.56,0.42 stroke #3a1f00
-# Animal skull
-ellipse 0.5,0.55 0.18,0.14 fill #e8dcc8 0.7
-ellipse 0.5,0.55 0.18,0.14 stroke #b0a090
-# Antler branches (left)
-line 0.35,0.45 0.18,0.2
-line 0.18,0.2 0.08,0.1
-line 0.18,0.2 0.25,0.12
-# Antler branches (right)
-line 0.65,0.45 0.82,0.2
-line 0.82,0.2 0.92,0.1
-line 0.82,0.2 0.75,0.12
+# Dark wood mounting plaque — thin strip along north wall
+rect 0.20,0.05 0.60,0.14 texfill polyhaven/dark_wood 0.85
+rect 0.20,0.05 0.60,0.14 stroke #3a1f00
+# Plaque shield shape accent
+ellipse 0.50,0.12 0.22,0.06 fill #2a1400 0.3
+# Antler tips poking south from the plaque (seen from above as short lines)
+# Left antler main tine
+line 0.30,0.18 0.22,0.35 stroke #e8dcc8 width 2
+# Left antler outer tine
+line 0.26,0.25 0.15,0.32 stroke #e8dcc8 width 2
+# Left antler inner tine
+line 0.28,0.28 0.32,0.38 stroke #d4c4a8 width 2
+# Right antler main tine
+line 0.70,0.18 0.78,0.35 stroke #e8dcc8 width 2
+# Right antler outer tine
+line 0.74,0.25 0.85,0.32 stroke #e8dcc8 width 2
+# Right antler inner tine
+line 0.72,0.28 0.68,0.38 stroke #d4c4a8 width 2
+# Antler tip dots (points seen from directly above)
+circle 0.22,0.35 0.025 fill #e8dcc8 0.9
+circle 0.15,0.32 0.02 fill #d4c4a8 0.8
+circle 0.32,0.38 0.02 fill #d4c4a8 0.8
+circle 0.78,0.35 0.025 fill #e8dcc8 0.9
+circle 0.85,0.32 0.02 fill #d4c4a8 0.8
+circle 0.68,0.38 0.02 fill #d4c4a8 0.8
+# Shadow cast below the mount on the wall
+ellipse 0.50,0.28 0.30,0.10 fill #000000 0.12

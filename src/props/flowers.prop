@@ -11,22 +11,49 @@ clusters_with: flowers, tall-grass, bush
 notes: Small wildflower cluster; scatter freely in outdoor areas
 ---
 # Stems and leaves
-line 0.30,0.55 0.30,0.40 stroke #3a7a28 0.35
-line 0.55,0.60 0.55,0.42 stroke #3a7a28 0.35
-line 0.72,0.50 0.72,0.35 stroke #2d5a1e 0.35
-line 0.40,0.75 0.40,0.62 stroke #3a7a28 0.30
-line 0.65,0.72 0.65,0.58 stroke #2d5a1e 0.30
-# Flower heads
-circle 0.30,0.38 0.05 fill #dd4466 0.55
-circle 0.55,0.40 0.06 fill #ffcc44 0.55
-circle 0.72,0.33 0.05 fill #cc44cc 0.50
-circle 0.40,0.60 0.04 fill #ffaa44 0.50
-circle 0.65,0.56 0.05 fill #4488dd 0.50
-# Flower centers
-circle 0.30,0.38 0.02 fill #ffee88 0.60
-circle 0.55,0.40 0.02 fill #885500 0.50
-circle 0.72,0.33 0.02 fill #ffee88 0.55
-# Leaf accents
-circle 0.35,0.50 0.03 fill #3a7a28 0.25
-circle 0.60,0.52 0.03 fill #2d5a1e 0.25
-circle 0.48,0.70 0.03 fill #3a7a28 0.20
+line 0.25,0.72 0.25,0.42 stroke #3a7a28 0.5
+line 0.55,0.78 0.55,0.45 stroke #3a7a28 0.5
+line 0.78,0.70 0.78,0.38 stroke #2d5a1e 0.5
+
+# Leaf — between white and pink flower
+ellipse 0.38,0.62 0.06,0.03 fill #3a7a28 0.6
+ellipse 0.42,0.68 0.05,0.03 fill #2d5a1e 0.5
+
+# Leaf — near purple flower
+ellipse 0.70,0.58 0.06,0.03 fill #3a7a28 0.55
+ellipse 0.85,0.52 0.05,0.03 fill #2d5a1e 0.45
+
+# Leaf — lower area
+ellipse 0.50,0.80 0.05,0.03 fill #3a7a28 0.5
+
+# White flower — 5 petals around center
+circle 0.25,0.36 0.055 fill #f0f0f0 0.7
+circle 0.19,0.40 0.055 fill #e8e8e8 0.65
+circle 0.31,0.40 0.055 fill #e8e8e8 0.65
+circle 0.21,0.47 0.055 fill #f0f0f0 0.6
+circle 0.29,0.47 0.055 fill #f0f0f0 0.6
+# White flower center
+circle 0.25,0.42 0.03 fill #f0c030 0.85
+
+# Pink flower — 5 petals around center
+circle 0.55,0.39 0.06 fill #e87aa0 0.7
+circle 0.49,0.44 0.06 fill #dd6690 0.65
+circle 0.61,0.44 0.06 fill #dd6690 0.65
+circle 0.50,0.51 0.055 fill #e87aa0 0.6
+circle 0.60,0.51 0.055 fill #e87aa0 0.6
+# Pink flower center
+circle 0.55,0.45 0.03 fill #ffaa30 0.85
+
+# Purple flower — 4 petals around center
+circle 0.78,0.32 0.055 fill #9966cc 0.7
+circle 0.72,0.37 0.055 fill #8855bb 0.65
+circle 0.84,0.37 0.055 fill #8855bb 0.65
+circle 0.78,0.42 0.055 fill #9966cc 0.6
+# Purple flower center
+circle 0.78,0.37 0.025 fill #ffcc44 0.85
+
+# Small white bud — lower left
+circle 0.18,0.65 0.035 fill #f0f0f0 0.5
+circle 0.14,0.68 0.035 fill #e8e8e8 0.45
+circle 0.22,0.68 0.035 fill #e8e8e8 0.45
+circle 0.18,0.68 0.02 fill #f0c030 0.7

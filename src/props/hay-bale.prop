@@ -2,7 +2,7 @@ name: Hay Bale
 category: Terrain
 footprint: 1x1
 facing: no
-shadow: yes
+shadow: no
 blocks_light: no
 placement: floor
 room_types: stable, barn, farm, countryside
@@ -10,17 +10,52 @@ typical_count: many
 clusters_with: trough, hay-bale
 notes: Straw storage; scatter in stables and barns, cluster against walls
 ---
-# Bale body
-rect 0.12,0.12 0.76,0.76 fill #c8a848 0.7
-rect 0.12,0.12 0.76,0.76 stroke #8b7530
-# Straw texture lines (individual straws poking out)
-line 0.15,0.25 0.85,0.25 stroke #d4b860 0.5
-line 0.15,0.50 0.85,0.50 stroke #d4b860 0.5
-line 0.15,0.75 0.85,0.75 stroke #d4b860 0.5
-# Binding twine
-line 0.35,0.10 0.35,0.90 stroke #8b7355
-line 0.65,0.10 0.65,0.90 stroke #8b7355
-# Loose straw wisps
-line 0.08,0.18 0.15,0.12 stroke #d4b860 0.4
-line 0.85,0.80 0.92,0.85 stroke #d4b860 0.4
-line 0.10,0.70 0.05,0.68 stroke #d4b860 0.4
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: rectangular hay bale with binding twine
+
+# Loose straw wisps on ground (underneath)
+line 0.05,0.2 0.14,0.15 stroke #c8a848 0.4
+line 0.88,0.78 0.95,0.82 stroke #c8a848 0.4
+line 0.08,0.72 0.02,0.7 stroke #d4b860 0.35
+line 0.92,0.22 0.97,0.18 stroke #d4b860 0.35
+line 0.4,0.05 0.45,0.0 stroke #c8a848 0.3
+line 0.6,0.95 0.55,1.0 stroke #c8a848 0.3
+
+# Bale body — base layer (darker)
+rect 0.1,0.1 0.8,0.8 fill #a88830 0.75
+
+# Straw texture — horizontal layers
+rect 0.1,0.12 0.8,0.12 fill #c8a848 0.5
+rect 0.1,0.28 0.8,0.12 fill #d4b860 0.45
+rect 0.1,0.44 0.8,0.12 fill #c8a848 0.5
+rect 0.1,0.60 0.8,0.12 fill #d4b860 0.45
+rect 0.1,0.76 0.8,0.1 fill #c8a848 0.5
+
+# Top surface highlight (center is slightly raised)
+rect 0.2,0.2 0.6,0.6 fill #d4b860 0.2
+
+# Individual straw strand lines
+line 0.15,0.18 0.85,0.2 stroke #d4b860 0.35
+line 0.12,0.35 0.88,0.33 stroke #c8a848 0.3
+line 0.15,0.52 0.85,0.5 stroke #d4b860 0.35
+line 0.12,0.68 0.88,0.66 stroke #c8a848 0.3
+line 0.15,0.82 0.85,0.84 stroke #d4b860 0.3
+
+# Bale outline
+rect 0.1,0.1 0.8,0.8 stroke #8b7530
+
+# Binding twine (two vertical ropes)
+line 0.33,0.08 0.33,0.92 stroke #6b5335
+line 0.33,0.08 0.33,0.92 stroke #8b7355 0.7
+line 0.67,0.08 0.67,0.92 stroke #6b5335
+line 0.67,0.08 0.67,0.92 stroke #8b7355 0.7
+
+# Twine knots
+circle 0.33,0.5 0.02 fill #6b5335 0.8
+circle 0.67,0.5 0.02 fill #6b5335 0.8
+
+# Edge darkening (sides of bale are slightly shadowed)
+rect 0.1,0.1 0.08,0.8 fill #8a7020 0.2
+rect 0.82,0.1 0.08,0.8 fill #8a7020 0.2
+rect 0.1,0.1 0.8,0.06 fill #8a7020 0.2
+rect 0.1,0.84 0.8,0.06 fill #8a7020 0.2

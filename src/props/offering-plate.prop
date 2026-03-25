@@ -10,18 +10,43 @@ typical_count: few
 clusters_with: altar, idol, candelabra
 notes: Place near altars or at shrine entrances
 ---
-# Plate rim
-circle 0.50,0.52 0.38 fill #daa520 0.70
-circle 0.50,0.52 0.38 stroke #8b6914
-# Plate inner surface
-circle 0.50,0.52 0.30 fill #d4a020 0.60
-circle 0.50,0.52 0.22 fill #cc9900 0.50
-# Coins scattered on plate
-circle 0.38,0.44 0.06 fill #ffd700 0.90
-circle 0.38,0.44 0.04 stroke #daa520
-circle 0.56,0.40 0.07 fill #ffd700 0.90
-circle 0.56,0.40 0.05 stroke #daa520
-circle 0.44,0.58 0.06 fill #ffd700 0.90
-circle 0.44,0.58 0.04 stroke #daa520
-circle 0.62,0.56 0.05 fill #ffd700 0.90
-circle 0.34,0.60 0.05 fill #cc8800 0.80
+# Plate rim (thick gold band)
+ring 0.50,0.50 0.42 0.34 fill #b8960c 0.85
+ring 0.50,0.50 0.42 0.34 stroke #8b6914 width 2
+# Rim decoration — embossed dots around the rim
+circle 0.50,0.10 0.025 fill #ddc050 0.5
+circle 0.72,0.14 0.025 fill #ddc050 0.5
+circle 0.87,0.30 0.025 fill #ddc050 0.5
+circle 0.90,0.50 0.025 fill #ddc050 0.5
+circle 0.87,0.70 0.025 fill #ddc050 0.5
+circle 0.72,0.86 0.025 fill #ddc050 0.5
+circle 0.50,0.90 0.025 fill #ddc050 0.5
+circle 0.28,0.86 0.025 fill #ddc050 0.5
+circle 0.13,0.70 0.025 fill #ddc050 0.5
+circle 0.10,0.50 0.025 fill #ddc050 0.5
+circle 0.13,0.30 0.025 fill #ddc050 0.5
+circle 0.28,0.14 0.025 fill #ddc050 0.5
+# Inner plate surface (recessed center)
+circle 0.50,0.50 0.30 fill #a08008 0.7
+circle 0.50,0.50 0.30 stroke #907010
+# Center medallion — engraved religious emblem
+circle 0.50,0.50 0.10 fill #907010 0.5
+circle 0.50,0.50 0.10 stroke #8b6914 width 2
+line 0.50,0.42 0.50,0.58 stroke #8b6914 width 2
+line 0.42,0.50 0.58,0.50 stroke #8b6914 width 2
+# Gold coins
+circle 0.36,0.42 0.06 fill #ffd700 0.9
+circle 0.36,0.42 0.06 stroke #daa520
+circle 0.36,0.42 0.03 stroke #daa520 width 1
+circle 0.58,0.38 0.065 fill #ffd700 0.9
+circle 0.58,0.38 0.065 stroke #daa520
+circle 0.58,0.38 0.035 stroke #daa520 width 1
+circle 0.44,0.62 0.055 fill #ffd700 0.85
+circle 0.44,0.62 0.055 stroke #daa520
+circle 0.44,0.62 0.03 stroke #daa520 width 1
+# Small ruby gemstone
+circle 0.62,0.58 0.04 fill #cc2244 0.9
+circle 0.62,0.58 0.04 stroke #881133
+circle 0.62,0.58 0.02 fill #ff4466 0.4
+# Metallic sheen highlight on rim
+arc 0.50,0.50 0.39 200 260 stroke #ddc050 0.4 width 3

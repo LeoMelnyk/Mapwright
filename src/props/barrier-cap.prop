@@ -1,0 +1,21 @@
+name: Barrier Cap
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: fortification, guard-room, corridor
+typical_count: few
+clusters_with: barrier
+notes: End cap for barriers. Tiles seamlessly with barrier props.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Beam coming from the west, capped with a post on the right
+# Beam stub (flush left edge, stops at post)
+rect 0.0,0.3 0.7,0.4 texfill polyhaven/weathered_planks 0.85
+line 0.0,0.3 0.7,0.3 stroke #3a1f00
+line 0.0,0.7 0.7,0.7 stroke #3a1f00
+# End post (caps it off)
+rect 0.25,0.25 0.5,0.5 texfill polyhaven/dark_wood 0.9
+rect 0.25,0.25 0.5,0.5 stroke #2a1400

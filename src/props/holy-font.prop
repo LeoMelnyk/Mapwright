@@ -10,11 +10,71 @@ typical_count: single
 clusters_with: altar, kneeling-bench
 notes: Blessing font; place near entrance or before altar
 ---
-# Stone basin
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: ornate marble basin on a pedestal, filled with glowing holy water
+
+# === Pedestal base (wider, visible beneath the basin) ===
+circle 0.5,0.5 0.44 texfill polyhaven/granite_tile 0.6
+circle 0.5,0.5 0.44 stroke #555555
+# Base edge darkening
+circle 0.5,0.5 0.44 fill #3a3530 0.15
+
+# === Basin outer wall (marble bowl) ===
 circle 0.5,0.5 0.38 texfill polyhaven/marble_01 0.85
-circle 0.5,0.5 0.38 stroke
-# Inner rim
-circle 0.5,0.5 0.3 stroke
-# Holy water
-circle 0.5,0.5 0.25 fill #4a7799 0.70
-circle 0.5,0.5 0.25 stroke #6688aa
+circle 0.5,0.5 0.38 stroke #888888
+# Edge darkening — rim appears raised
+circle 0.5,0.5 0.38 fill #4a4540 0.12
+circle 0.5,0.5 0.33 fill #ffffff 0.06
+
+# === Gold inlay ring around the lip ===
+circle 0.5,0.5 0.36 stroke #daa520
+circle 0.5,0.5 0.34 stroke #8b6914
+
+# === Sunburst rays carved into the rim (radiating from center) ===
+# 8 rays between the gold rings — subtle carved lines
+line 0.5,0.16 0.5,0.28 stroke #8b6914
+line 0.5,0.84 0.5,0.72 stroke #8b6914
+line 0.16,0.5 0.28,0.5 stroke #8b6914
+line 0.84,0.5 0.72,0.5 stroke #8b6914
+line 0.26,0.26 0.35,0.35 stroke #8b6914
+line 0.74,0.26 0.65,0.35 stroke #8b6914
+line 0.26,0.74 0.35,0.65 stroke #8b6914
+line 0.74,0.74 0.65,0.65 stroke #8b6914
+
+# === Basin interior (recessed dark shadow) ===
+circle 0.5,0.5 0.28 fill #1a2a3a 0.4
+
+# === Holy water ===
+circle 0.5,0.5 0.25 fill #3a6688 0.7
+circle 0.5,0.5 0.25 stroke #4a7799
+# Depth — darker toward edges, lighter center
+circle 0.5,0.5 0.25 fill #2a4a66 0.2
+circle 0.5,0.5 0.18 fill #5588aa 0.15
+
+# === Glowing sigil beneath the water (4-pointed star — boosted visibility) ===
+# Glow halo behind the sigil
+circle 0.5,0.5 0.18 fill #88ccff 0.15
+# Vertical beam
+poly 0.47,0.36 0.5,0.3 0.53,0.36 0.53,0.64 0.5,0.7 0.47,0.64 fill #aaddff 0.45
+# Horizontal beam
+poly 0.36,0.47 0.3,0.5 0.36,0.53 0.64,0.53 0.7,0.5 0.64,0.47 fill #aaddff 0.45
+# Bright center where beams cross
+circle 0.5,0.5 0.05 fill #ddeeff 0.6
+
+# === Votive candles at cardinal points (on the rim, bigger) ===
+# North candle — wax body + bright flame
+circle 0.5,0.12 0.04 fill #e8dcc8 0.8
+circle 0.5,0.12 0.025 fill #ffaa00 0.7
+circle 0.5,0.12 0.012 fill #ffeecc 0.6
+# East candle
+circle 0.88,0.5 0.04 fill #e8dcc8 0.8
+circle 0.88,0.5 0.025 fill #ffaa00 0.7
+circle 0.88,0.5 0.012 fill #ffeecc 0.6
+# South candle
+circle 0.5,0.88 0.04 fill #e8dcc8 0.8
+circle 0.5,0.88 0.025 fill #ffaa00 0.7
+circle 0.5,0.88 0.012 fill #ffeecc 0.6
+# West candle
+circle 0.12,0.5 0.04 fill #e8dcc8 0.8
+circle 0.12,0.5 0.025 fill #ffaa00 0.7
+circle 0.12,0.5 0.012 fill #ffeecc 0.6

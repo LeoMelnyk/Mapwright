@@ -26,21 +26,49 @@ rect 0.88,0.10 0.04,0.14 fill #1a1a1a 0.5
 rect 1.18,0.10 0.04,0.14 fill #1a1a1a 0.5
 rect 1.48,0.10 0.04,0.14 fill #1a1a1a 0.5
 rect 1.72,0.10 0.04,0.14 fill #1a1a1a 0.5
-# Sword pommel 1 (round metal cap from above)
+# --- Weapon shafts leaning south from the rack ---
+# Sword blade (thin metal line, slight left lean)
+line 0.30,0.26 0.26,0.78 stroke #8899aa width 2
+# Sword crossguard
+line 0.23,0.72 0.29,0.72 stroke #666666 width 2
+# Sword pommel at rack
 circle 0.30,0.17 0.06 texfill polyhaven/metal_plate 0.8
 circle 0.30,0.17 0.06 stroke #444444
-# Sword pommel 2
+# Axe shaft (leaning slightly right)
+line 0.60,0.26 0.64,0.82 stroke #6b4e2e width 2
+# Axe head (wedge shape at end)
+poly 0.56,0.72 0.64,0.82 0.72,0.72 texfill polyhaven/metal_plate 0.85
+poly 0.56,0.72 0.64,0.82 0.72,0.72 stroke #444444
+# Axe pommel at rack
 circle 0.60,0.17 0.06 texfill polyhaven/metal_plate 0.8
 circle 0.60,0.17 0.06 stroke #444444
-# Axe head top (wider oval pommel)
-ellipse 0.90,0.17 0.07,0.05 texfill polyhaven/metal_plate 0.85
-ellipse 0.90,0.17 0.07,0.05 stroke #444444
-# Mace pommel (larger round)
+# Spear shaft (long, slight right lean)
+line 0.90,0.26 0.94,0.92 stroke #6b4e2e width 2
+# Spear tip (small triangle)
+poly 0.91,0.86 0.94,0.92 0.97,0.86 fill #8899aa 0.9
+poly 0.91,0.86 0.94,0.92 0.97,0.86 stroke #555555
+# Spear butt at rack
+circle 0.90,0.17 0.04 fill #888888 0.7
+circle 0.90,0.17 0.04 stroke #555555
+# Mace shaft (slight left lean)
+line 1.20,0.26 1.16,0.76 stroke #6b4e2e width 2
+# Mace head (circle at end)
+circle 1.16,0.76 0.07 texfill polyhaven/rusty_metal 0.8
+circle 1.16,0.76 0.07 stroke #444444
+# Mace flanges (small bumps around head)
+circle 1.10,0.74 0.025 fill #555555 0.7
+circle 1.22,0.74 0.025 fill #555555 0.7
+circle 1.14,0.70 0.025 fill #555555 0.7
+circle 1.18,0.82 0.025 fill #555555 0.7
+# Mace pommel at rack
 circle 1.20,0.17 0.07 texfill polyhaven/rusty_metal 0.8
 circle 1.20,0.17 0.07 stroke #444444
-# Sword pommel 3
+# Sword 2 blade (second sword, leaning right)
+line 1.50,0.26 1.54,0.80 stroke #8899aa width 2
+# Sword 2 crossguard
+line 1.50,0.74 1.58,0.74 stroke #666666 width 2
+# Sword 2 pommel at rack
 circle 1.50,0.17 0.06 texfill polyhaven/metal_plate 0.8
 circle 1.50,0.17 0.06 stroke #444444
-# Spear butt (small circle)
-circle 1.74,0.17 0.04 fill #888888 0.7
-circle 1.74,0.17 0.04 stroke #555555
+# Empty slot pommel (no weapon shaft — just the slot)
+rect 1.72,0.10 0.04,0.14 fill #1a1a1a 0.3

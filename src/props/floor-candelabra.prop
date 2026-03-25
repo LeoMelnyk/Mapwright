@@ -2,7 +2,7 @@ name: Floor Candelabra
 category: Lighting
 footprint: 1x1
 facing: no
-shadow: yes
+shadow: no
 blocks_light: no
 lights: [{"preset":"candle","x":0.5,"y":0.5}]
 placement: floor
@@ -11,25 +11,58 @@ typical_count: few
 clusters_with: candelabra
 notes: Tall standing light; place along processional paths or flanking focal points
 ---
-# Base ring
-circle 0.50,0.50 0.38 fill #555555 0.30
-circle 0.50,0.50 0.28 texfill polyhaven/metal_plate 0.70
-circle 0.50,0.50 0.28 stroke #444444
-# Central column (small circle)
-circle 0.50,0.50 0.08 fill #888888 0.90
-circle 0.50,0.50 0.08 stroke #555555
-# Four arms radiating out
-line 0.50,0.42 0.50,0.20 stroke #777777
-line 0.50,0.58 0.50,0.80 stroke #777777
-line 0.42,0.50 0.20,0.50 stroke #777777
-line 0.58,0.50 0.80,0.50 stroke #777777
-# Candle cups at arm ends
-circle 0.50,0.20 0.06 fill #888888 0.80
-circle 0.50,0.80 0.06 fill #888888 0.80
-circle 0.20,0.50 0.06 fill #888888 0.80
-circle 0.80,0.50 0.06 fill #888888 0.80
-# Flames at tips
-circle 0.50,0.17 0.04 fill #ffaa00 0.80
-circle 0.50,0.83 0.04 fill #ffaa00 0.80
-circle 0.17,0.50 0.04 fill #ffaa00 0.80
-circle 0.83,0.50 0.04 fill #ffaa00 0.80
+# Wide ornate base (visible floor ring)
+circle 0.50,0.50 0.42 fill #444444 0.25
+circle 0.50,0.50 0.38 texfill polyhaven/metal_plate 0.50
+circle 0.50,0.50 0.38 stroke #333333
+# Inner decorative ring on base
+circle 0.50,0.50 0.30 stroke #555555
+# Ornamental notches on base (4 cardinal bumps)
+circle 0.50,0.10 0.04 fill #555555 0.40
+circle 0.50,0.90 0.04 fill #555555 0.40
+circle 0.10,0.50 0.04 fill #555555 0.40
+circle 0.90,0.50 0.04 fill #555555 0.40
+# Thick central pole cross-section
+circle 0.50,0.50 0.12 texfill polyhaven/metal_plate 0.75
+circle 0.50,0.50 0.12 stroke #333333
+# Five branching arms (center + 4 diagonal)
+line 0.50,0.50 0.24,0.24 stroke #666666
+line 0.50,0.50 0.76,0.24 stroke #666666
+line 0.50,0.50 0.24,0.76 stroke #666666
+line 0.50,0.50 0.76,0.76 stroke #666666
+# Candle cups at arm ends (5 total)
+circle 0.50,0.50 0.07 fill #777777 0.85
+circle 0.50,0.50 0.07 stroke #444444
+circle 0.24,0.24 0.06 fill #777777 0.85
+circle 0.24,0.24 0.06 stroke #444444
+circle 0.76,0.24 0.06 fill #777777 0.85
+circle 0.76,0.24 0.06 stroke #444444
+circle 0.24,0.76 0.06 fill #777777 0.85
+circle 0.24,0.76 0.06 stroke #444444
+circle 0.76,0.76 0.06 fill #777777 0.85
+circle 0.76,0.76 0.06 stroke #444444
+# Center flame
+circle 0.50,0.50 0.05 fill #cc3300 0.3
+poly 0.47,0.50 0.50,0.42 0.53,0.50 fill #e85500 0.5
+poly 0.48,0.50 0.50,0.44 0.52,0.50 fill #ff8800 0.55
+poly 0.49,0.49 0.50,0.45 0.51,0.49 fill #ffcc00 0.6
+# NW flame
+circle 0.24,0.24 0.05 fill #cc3300 0.3
+poly 0.21,0.24 0.24,0.16 0.27,0.24 fill #e85500 0.5
+poly 0.22,0.24 0.24,0.18 0.26,0.24 fill #ff8800 0.55
+poly 0.23,0.23 0.24,0.19 0.25,0.23 fill #ffcc00 0.6
+# NE flame
+circle 0.76,0.24 0.05 fill #cc3300 0.3
+poly 0.73,0.24 0.76,0.16 0.79,0.24 fill #e85500 0.5
+poly 0.74,0.24 0.76,0.18 0.78,0.24 fill #ff8800 0.55
+poly 0.75,0.23 0.76,0.19 0.77,0.23 fill #ffcc00 0.6
+# SW flame
+circle 0.24,0.76 0.05 fill #cc3300 0.3
+poly 0.21,0.76 0.24,0.68 0.27,0.76 fill #e85500 0.5
+poly 0.22,0.76 0.24,0.70 0.26,0.76 fill #ff8800 0.55
+poly 0.23,0.75 0.24,0.71 0.25,0.75 fill #ffcc00 0.6
+# SE flame
+circle 0.76,0.76 0.05 fill #cc3300 0.3
+poly 0.73,0.76 0.76,0.68 0.79,0.76 fill #e85500 0.5
+poly 0.74,0.76 0.76,0.70 0.78,0.76 fill #ff8800 0.55
+poly 0.75,0.75 0.76,0.71 0.77,0.75 fill #ffcc00 0.6

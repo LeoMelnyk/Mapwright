@@ -10,13 +10,26 @@ typical_count: many
 clusters_with: mushroom-cluster, stalagmite
 notes: Scatter on floor for organic cave atmosphere
 ---
-# Mushroom cap
-circle 0.5,0.5 0.35 fill #8b4513 0.6
-circle 0.5,0.5 0.35 stroke #5a2d0a
-# Stem showing through center
-circle 0.5,0.5 0.1 fill #e8dcc8 0.5
-# Spots on cap
-circle 0.35,0.38 0.05 fill #daa520 0.5
-circle 0.62,0.35 0.04 fill #daa520 0.4
-circle 0.58,0.62 0.05 fill #daa520 0.5
-circle 0.38,0.6 0.04 fill #daa520 0.4
+# Ground shadow (cap overhang casts shadow)
+circle 0.52,0.54 0.37 fill #3a1800 0.25
+# Cap outer edge (darkest ring)
+circle 0.5,0.5 0.35 fill #6b3510 0.85
+# Cap main surface
+circle 0.5,0.5 0.30 fill #8b4513 0.9
+# Cap lighter inner zone
+circle 0.5,0.5 0.22 fill #a05a28 0.7
+# Cap center highlight (dome apex)
+circle 0.5,0.5 0.12 fill #b87040 0.6
+# Gill ring (lighter ring peeking under cap edge)
+ring 0.5,0.5 0.35 0.31 fill #d4c4a8 0.35
+# Cap outline for definition
+circle 0.5,0.5 0.35 stroke #3a1800 width 2
+# Cap spots
+circle 0.38,0.38 0.05 fill #c8a070 0.55
+circle 0.6,0.36 0.04 fill #c8a070 0.5
+circle 0.58,0.6 0.045 fill #c8a070 0.5
+circle 0.36,0.58 0.035 fill #c8a070 0.45
+circle 0.5,0.37 0.03 fill #c8a070 0.4
+# Stem peek (tiny light circle at very center)
+circle 0.5,0.5 0.06 fill #e8dcc8 0.5
+circle 0.5,0.5 0.06 stroke #d4c4a8 0.6

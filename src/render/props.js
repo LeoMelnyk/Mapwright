@@ -5,7 +5,8 @@
  * rotating/transforming draw commands for different facings,
  * and rendering props onto a canvas context.
  *
- * Supports texture-filled shapes (texfill), custom hex colors,
+ * Supports texture-filled shapes (texfill), gradient fills
+ * (gradient-radial, gradient-linear), custom hex colors,
  * drop shadows, and blocks_light metadata.
  */
 
@@ -37,6 +38,19 @@ function parseHexColor(hex) {
     g: parseInt(h.substring(2, 4), 16),
     b: parseInt(h.substring(4, 6), 16),
   };
+}
+
+/**
+ * Scan tokens for a keyword followed by a numeric value.
+ * Returns the parsed float value, or null if the keyword is not found.
+ */
+function scanKeyword(tokens, keyword) {
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i] === keyword && tokens[i + 1] != null) {
+      return parseFloat(tokens[i + 1]);
+    }
+  }
+  return null;
 }
 
 // ── Parsing ─────────────────────────────────────────────────────────────────
@@ -144,16 +158,32 @@ export function parsePropFile(text) {
 /**
  * Parse extended style tokens starting at the given index.
  *
- * Handles three style modes:
- *   texfill textureId [opacity]     — fill shape with texture image
- *   fill|stroke [#hexcolor] [opacity] — custom color fill/stroke
- *   fill|stroke [opacity]           — theme color (existing behavior)
+ * Handles five style modes:
+ *   gradient-radial #start #end [opacity]          — radial gradient fill
+ *   gradient-linear #start #end [opacity] [angle N] — linear gradient fill
+ *   texfill textureId [opacity]                     — fill shape with texture image
+ *   fill|stroke [#hexcolor] [opacity]               — custom color fill/stroke
+ *   fill|stroke [opacity]                           — theme color (existing behavior)
  *
- * @returns {{ style: string, color: string|null, textureId: string|null, opacity: number|null }}
+ * @returns {{ style: string, color: string|null, textureId: string|null, opacity: number|null, gradientEnd?: string }}
  */
 function parseStyleExtended(tokens, startIndex) {
   const styleToken = tokens[startIndex];
   if (!styleToken) return { style: 'fill', color: null, textureId: null, opacity: null };
+
+  if (styleToken === 'gradient-radial') {
+    const startColor = tokens[startIndex + 1] || '#ffffff';
+    const endColor = tokens[startIndex + 2] || '#000000';
+    const opacity = parseOpacity(tokens[startIndex + 3]);
+    return { style: 'gradient-radial', color: startColor, textureId: null, opacity, gradientEnd: endColor };
+  }
+
+  if (styleToken === 'gradient-linear') {
+    const startColor = tokens[startIndex + 1] || '#ffffff';
+    const endColor = tokens[startIndex + 2] || '#000000';
+    const opacity = parseOpacity(tokens[startIndex + 3]);
+    return { style: 'gradient-linear', color: startColor, textureId: null, opacity, gradientEnd: endColor };
+  }
 
   if (styleToken === 'texfill') {
     const textureId = tokens[startIndex + 1] || null;
@@ -178,12 +208,14 @@ function parseStyleExtended(tokens, startIndex) {
  * Parse a single draw command line into a command object.
  *
  * Supported:
- *   rect x,y w,h [fill|stroke|texfill] [#color|textureId] [opacity]
- *   circle cx,cy r [fill|stroke|texfill] [#color|textureId] [opacity]
- *   ellipse cx,cy rx,ry [fill|stroke|texfill] [#color|textureId] [opacity]
- *   line x1,y1 x2,y2 [lineWidth]
- *   poly x1,y1 x2,y2 ... [fill|stroke|texfill] [#color|textureId] [opacity]
- *   arc cx,cy r startDeg endDeg [fill|stroke|texfill] [#color|textureId] [opacity]
+ *   rect x,y w,h [fill|stroke|texfill|gradient-radial|gradient-linear] [#color|textureId] [opacity] [width N] [rotate N] [angle N]
+ *   circle cx,cy r [fill|stroke|texfill|gradient-radial|gradient-linear] [#color|textureId] [opacity] [width N] [angle N]
+ *   ellipse cx,cy rx,ry [fill|stroke|texfill|gradient-radial|gradient-linear] [#color|textureId] [opacity] [width N] [angle N]
+ *   line x1,y1 x2,y2 [lineWidth] [width N]
+ *   poly x1,y1 x2,y2 ... [fill|stroke|texfill|gradient-radial|gradient-linear] [#color|textureId] [opacity] [width N] [angle N]
+ *   arc cx,cy r startDeg endDeg [fill|stroke|texfill|gradient-radial|gradient-linear] [#color|textureId] [opacity] [width N] [angle N]
+ *   cutout circle cx,cy r | cutout rect x,y w,h | cutout ellipse cx,cy rx,ry
+ *   ring cx,cy outerR innerR [fill|stroke|texfill|gradient-radial|gradient-linear] [#color|textureId] [opacity] [width N] [angle N]
  */
 function parseCommand(line) {
   const tokens = line.split(/\s+/);
@@ -193,30 +225,48 @@ function parseCommand(line) {
     case 'rect': {
       const [x, y] = parseCoord(tokens[1]);
       const [w, h] = parseCoord(tokens[2]);
-      const { style, color, textureId, opacity } = parseStyleExtended(tokens, 3);
-      return { type: 'rect', x, y, w, h, style, color, textureId, opacity };
+      const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 3);
+      const width = scanKeyword(tokens, 'width');
+      const rotate = scanKeyword(tokens, 'rotate');
+      const angle = scanKeyword(tokens, 'angle');
+      return { type: 'rect', x, y, w, h, style, color, textureId, opacity, gradientEnd, width, rotate, angle };
     }
 
     case 'circle': {
       const [cx, cy] = parseCoord(tokens[1]);
       const r = parseFloat(tokens[2]);
-      const { style, color, textureId, opacity } = parseStyleExtended(tokens, 3);
-      return { type: 'circle', cx, cy, r, style, color, textureId, opacity };
+      const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 3);
+      const width = scanKeyword(tokens, 'width');
+      const angle = scanKeyword(tokens, 'angle');
+      return { type: 'circle', cx, cy, r, style, color, textureId, opacity, gradientEnd, width, angle };
     }
 
     case 'ellipse': {
       const [cx, cy] = parseCoord(tokens[1]);
       const [rx, ry] = parseCoord(tokens[2]);
-      const { style, color, textureId, opacity } = parseStyleExtended(tokens, 3);
-      return { type: 'ellipse', cx, cy, rx, ry, style, color, textureId, opacity };
+      const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 3);
+      const width = scanKeyword(tokens, 'width');
+      const angle = scanKeyword(tokens, 'angle');
+      return { type: 'ellipse', cx, cy, rx, ry, style, color, textureId, opacity, gradientEnd, width, angle };
     }
 
     case 'line': {
-      // line x1,y1 x2,y2 [lineWidth]
+      // line x1,y1 x2,y2 [stroke [#color] [opacity]]
+      // Legacy: line x1,y1 x2,y2 [lineWidth]
       const [x1, y1] = parseCoord(tokens[1]);
       const [x2, y2] = parseCoord(tokens[2]);
-      const lineWidth = tokens[3] ? parseFloat(tokens[3]) : null;
-      return { type: 'line', x1, y1, x2, y2, lineWidth };
+      let lineWidth = null;
+      let color = null;
+      let opacity = null;
+      if (tokens[3] === 'stroke') {
+        const parsed = parseStyleExtended(tokens, 3);
+        color = parsed.color;
+        opacity = parsed.opacity;
+      } else if (tokens[3]) {
+        lineWidth = parseFloat(tokens[3]);
+      }
+      const width = scanKeyword(tokens, 'width');
+      return { type: 'line', x1, y1, x2, y2, lineWidth, color, opacity, width };
     }
 
     case 'poly': {
@@ -224,14 +274,16 @@ function parseCommand(line) {
       const points = [];
       let ext = { style: 'fill', color: null, textureId: null, opacity: null };
       for (let i = 1; i < tokens.length; i++) {
-        if (tokens[i] === 'fill' || tokens[i] === 'stroke' || tokens[i] === 'texfill') {
+        if (tokens[i] === 'fill' || tokens[i] === 'stroke' || tokens[i] === 'texfill' || tokens[i] === 'gradient-radial' || tokens[i] === 'gradient-linear') {
           ext = parseStyleExtended(tokens, i);
           break;
         }
         const coord = parseCoord(tokens[i]);
         if (coord) points.push(coord);
       }
-      return { type: 'poly', points, ...ext };
+      const polyWidth = scanKeyword(tokens, 'width');
+      const polyAngle = scanKeyword(tokens, 'angle');
+      return { type: 'poly', points, ...ext, width: polyWidth, angle: polyAngle };
     }
 
     case 'arc': {
@@ -239,8 +291,97 @@ function parseCommand(line) {
       const r = parseFloat(tokens[2]);
       const startDeg = parseFloat(tokens[3]);
       const endDeg = parseFloat(tokens[4]);
+      const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 5);
+      const width = scanKeyword(tokens, 'width');
+      const angle = scanKeyword(tokens, 'angle');
+      return { type: 'arc', cx, cy, r, startDeg, endDeg, style, color, textureId, opacity, gradientEnd, width, angle };
+    }
+
+    case 'cutout': {
+      const subShape = tokens[1]?.toLowerCase();
+      switch (subShape) {
+        case 'circle': {
+          const [cx, cy] = parseCoord(tokens[2]);
+          const r = parseFloat(tokens[3]);
+          return { type: 'cutout', subShape: 'circle', cx, cy, r };
+        }
+        case 'rect': {
+          const [x, y] = parseCoord(tokens[2]);
+          const [w, h] = parseCoord(tokens[3]);
+          return { type: 'cutout', subShape: 'rect', x, y, w, h };
+        }
+        case 'ellipse': {
+          const [cx, cy] = parseCoord(tokens[2]);
+          const [rx, ry] = parseCoord(tokens[3]);
+          return { type: 'cutout', subShape: 'ellipse', cx, cy, rx, ry };
+        }
+        default:
+          return null;
+      }
+    }
+
+    case 'ring': {
+      const [cx, cy] = parseCoord(tokens[1]);
+      const outerR = parseFloat(tokens[2]);
+      const innerR = parseFloat(tokens[3]);
+      const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 4);
+      const width = scanKeyword(tokens, 'width');
+      const angle = scanKeyword(tokens, 'angle');
+      return { type: 'ring', cx, cy, outerR, innerR, style, color, textureId, opacity, gradientEnd, width, angle };
+    }
+
+    case 'bezier': {
+      const [x1, y1] = parseCoord(tokens[1]);
+      const [cp1x, cp1y] = parseCoord(tokens[2]);
+      const [cp2x, cp2y] = parseCoord(tokens[3]);
+      const [x2, y2] = parseCoord(tokens[4]);
       const { style, color, textureId, opacity } = parseStyleExtended(tokens, 5);
-      return { type: 'arc', cx, cy, r, startDeg, endDeg, style, color, textureId, opacity };
+      const width = scanKeyword(tokens, 'width');
+      return { type: 'bezier', x1, y1, cp1x, cp1y, cp2x, cp2y, x2, y2, style, color, textureId, opacity, width };
+    }
+
+    case 'qbezier': {
+      const [x1, y1] = parseCoord(tokens[1]);
+      const [cpx, cpy] = parseCoord(tokens[2]);
+      const [x2, y2] = parseCoord(tokens[3]);
+      const { style, color, textureId, opacity } = parseStyleExtended(tokens, 4);
+      const width = scanKeyword(tokens, 'width');
+      return { type: 'qbezier', x1, y1, cpx, cpy, x2, y2, style, color, textureId, opacity, width };
+    }
+
+    case 'ering': {
+      const [cx, cy] = parseCoord(tokens[1]);
+      const [outerRx, outerRy] = parseCoord(tokens[2]);
+      const [innerRx, innerRy] = parseCoord(tokens[3]);
+      const { style, color, textureId, opacity } = parseStyleExtended(tokens, 4);
+      const width = scanKeyword(tokens, 'width');
+      return { type: 'ering', cx, cy, outerRx, outerRy, innerRx, innerRy, style, color, textureId, opacity, width };
+    }
+
+    case 'clip-begin': {
+      const subShape = tokens[1]?.toLowerCase();
+      switch (subShape) {
+        case 'circle': {
+          const [cx, cy] = parseCoord(tokens[2]);
+          const r = parseFloat(tokens[3]);
+          return { type: 'clip-begin', subShape: 'circle', cx, cy, r };
+        }
+        case 'rect': {
+          const [x, y] = parseCoord(tokens[2]);
+          const [w, h] = parseCoord(tokens[3]);
+          return { type: 'clip-begin', subShape: 'rect', x, y, w, h };
+        }
+        case 'ellipse': {
+          const [cx, cy] = parseCoord(tokens[2]);
+          const [rx, ry] = parseCoord(tokens[3]);
+          return { type: 'clip-begin', subShape: 'ellipse', cx, cy, rx, ry };
+        }
+        default: return null;
+      }
+    }
+
+    case 'clip-end': {
+      return { type: 'clip-end' };
     }
 
     default:
@@ -312,31 +453,80 @@ function rotatePoint(x, y, rotation, footprint) {
 function flipCommand(cmd, footprint) {
   const cols = footprint[1];
 
+  // For linear gradients, horizontal flip negates the angle
+  function flipAngle(result) {
+    if (result.angle != null && result.style === 'gradient-linear') {
+      return { ...result, angle: -result.angle };
+    }
+    return result;
+  }
+
   switch (cmd.type) {
     case 'rect':
-      return { ...cmd, x: cols - cmd.x - cmd.w };
+      return flipAngle({ ...cmd, x: cols - cmd.x - cmd.w, rotate: cmd.rotate != null ? -cmd.rotate : cmd.rotate });
 
     case 'circle':
-      return { ...cmd, cx: cols - cmd.cx };
+      return flipAngle({ ...cmd, cx: cols - cmd.cx });
 
     case 'ellipse':
-      return { ...cmd, cx: cols - cmd.cx };
+      return flipAngle({ ...cmd, cx: cols - cmd.cx });
 
     case 'line':
       return { ...cmd, x1: cols - cmd.x1, x2: cols - cmd.x2 };
 
     case 'poly':
-      return { ...cmd, points: cmd.points.map(([px, py]) => [cols - px, py]) };
+      return flipAngle({ ...cmd, points: cmd.points.map(([px, py]) => [cols - px, py]) });
 
     case 'arc':
       // Reflecting angles over the vertical axis: θ → 180° - θ
       // Swap start/end to preserve clockwise winding.
-      return {
+      return flipAngle({
         ...cmd,
         cx: cols - cmd.cx,
         startDeg: 180 - cmd.endDeg,
         endDeg: 180 - cmd.startDeg,
-      };
+      });
+
+    case 'cutout': {
+      switch (cmd.subShape) {
+        case 'circle':
+          return { ...cmd, cx: cols - cmd.cx };
+        case 'rect':
+          return { ...cmd, x: cols - cmd.x - cmd.w };
+        case 'ellipse':
+          return { ...cmd, cx: cols - cmd.cx };
+        default:
+          return cmd;
+      }
+    }
+
+    case 'ring':
+      return flipAngle({ ...cmd, cx: cols - cmd.cx });
+
+    case 'bezier':
+      return { ...cmd, x1: cols - cmd.x1, cp1x: cols - cmd.cp1x, cp2x: cols - cmd.cp2x, x2: cols - cmd.x2 };
+
+    case 'qbezier':
+      return { ...cmd, x1: cols - cmd.x1, cpx: cols - cmd.cpx, x2: cols - cmd.x2 };
+
+    case 'ering':
+      return { ...cmd, cx: cols - cmd.cx };
+
+    case 'clip-begin': {
+      switch (cmd.subShape) {
+        case 'circle':
+          return { ...cmd, cx: cols - cmd.cx };
+        case 'rect':
+          return { ...cmd, x: cols - cmd.x - cmd.w };
+        case 'ellipse':
+          return { ...cmd, cx: cols - cmd.cx };
+        default:
+          return cmd;
+      }
+    }
+
+    case 'clip-end':
+      return cmd;
 
     default:
       return cmd;
@@ -359,9 +549,25 @@ function flipCommand(cmd, footprint) {
 function transformCommand(cmd, rotation, footprint) {
   if (rotation === 0) return cmd;
 
+  // For linear gradients, rotate the angle by the same amount as the shape
+  const rotatedAngle = (cmd.angle != null && cmd.style === 'gradient-linear')
+    ? cmd.angle + rotation
+    : cmd.angle;
+
   switch (cmd.type) {
     case 'rect': {
-      // Rotate all four corners and compute the new bounding box
+      if (cmd.rotate != null) {
+        // Rotated rect: rotate center point and accumulate angle
+        const cx = cmd.x + cmd.w / 2;
+        const cy = cmd.y + cmd.h / 2;
+        const [ncx, ncy] = rotatePoint(cx, cy, rotation, footprint);
+        // For 90/270, swap w/h
+        const swap = rotation === 90 || rotation === 270;
+        const nw = swap ? cmd.h : cmd.w;
+        const nh = swap ? cmd.w : cmd.h;
+        return { ...cmd, x: ncx - nw / 2, y: ncy - nh / 2, w: nw, h: nh, rotate: cmd.rotate + rotation, angle: rotatedAngle };
+      }
+      // Non-rotated rect: AABB approach
       const corners = [
         [cmd.x, cmd.y],
         [cmd.x + cmd.w, cmd.y],
@@ -375,12 +581,12 @@ function transformCommand(cmd, rotation, footprint) {
       const minY = Math.min(...ys);
       const maxX = Math.max(...xs);
       const maxY = Math.max(...ys);
-      return { ...cmd, x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+      return { ...cmd, x: minX, y: minY, w: maxX - minX, h: maxY - minY, angle: rotatedAngle };
     }
 
     case 'circle': {
       const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
-      return { ...cmd, cx: ncx, cy: ncy };
+      return { ...cmd, cx: ncx, cy: ncy, angle: rotatedAngle };
     }
 
     case 'ellipse': {
@@ -393,6 +599,7 @@ function transformCommand(cmd, rotation, footprint) {
         cy: ncy,
         rx: swapRadii ? cmd.ry : cmd.rx,
         ry: swapRadii ? cmd.rx : cmd.ry,
+        angle: rotatedAngle,
       };
     }
 
@@ -404,7 +611,7 @@ function transformCommand(cmd, rotation, footprint) {
 
     case 'poly': {
       const newPoints = cmd.points.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
-      return { ...cmd, points: newPoints };
+      return { ...cmd, points: newPoints, angle: rotatedAngle };
     }
 
     case 'arc': {
@@ -415,8 +622,102 @@ function transformCommand(cmd, rotation, footprint) {
         cy: ncy,
         startDeg: cmd.startDeg + rotation,
         endDeg: cmd.endDeg + rotation,
+        angle: rotatedAngle,
       };
     }
+
+    case 'cutout': {
+      switch (cmd.subShape) {
+        case 'circle': {
+          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          return { ...cmd, cx: ncx, cy: ncy };
+        }
+        case 'rect': {
+          const corners = [
+            [cmd.x, cmd.y],
+            [cmd.x + cmd.w, cmd.y],
+            [cmd.x + cmd.w, cmd.y + cmd.h],
+            [cmd.x, cmd.y + cmd.h],
+          ];
+          const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
+          const xs = rotated.map(p => p[0]);
+          const ys = rotated.map(p => p[1]);
+          return { ...cmd, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+        }
+        case 'ellipse': {
+          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          const swapRadii = rotation === 90 || rotation === 270;
+          return { ...cmd, cx: ncx, cy: ncy, rx: swapRadii ? cmd.ry : cmd.rx, ry: swapRadii ? cmd.rx : cmd.ry };
+        }
+        default:
+          return cmd;
+      }
+    }
+
+    case 'ring': {
+      const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+      return { ...cmd, cx: ncx, cy: ncy, angle: rotatedAngle };
+    }
+
+    case 'bezier': {
+      const [nx1, ny1] = rotatePoint(cmd.x1, cmd.y1, rotation, footprint);
+      const [ncp1x, ncp1y] = rotatePoint(cmd.cp1x, cmd.cp1y, rotation, footprint);
+      const [ncp2x, ncp2y] = rotatePoint(cmd.cp2x, cmd.cp2y, rotation, footprint);
+      const [nx2, ny2] = rotatePoint(cmd.x2, cmd.y2, rotation, footprint);
+      return { ...cmd, x1: nx1, y1: ny1, cp1x: ncp1x, cp1y: ncp1y, cp2x: ncp2x, cp2y: ncp2y, x2: nx2, y2: ny2 };
+    }
+
+    case 'qbezier': {
+      const [nx1, ny1] = rotatePoint(cmd.x1, cmd.y1, rotation, footprint);
+      const [ncpx, ncpy] = rotatePoint(cmd.cpx, cmd.cpy, rotation, footprint);
+      const [nx2, ny2] = rotatePoint(cmd.x2, cmd.y2, rotation, footprint);
+      return { ...cmd, x1: nx1, y1: ny1, cpx: ncpx, cpy: ncpy, x2: nx2, y2: ny2 };
+    }
+
+    case 'ering': {
+      const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+      const swapRadii = rotation === 90 || rotation === 270;
+      return {
+        ...cmd,
+        cx: ncx,
+        cy: ncy,
+        outerRx: swapRadii ? cmd.outerRy : cmd.outerRx,
+        outerRy: swapRadii ? cmd.outerRx : cmd.outerRy,
+        innerRx: swapRadii ? cmd.innerRy : cmd.innerRx,
+        innerRy: swapRadii ? cmd.innerRx : cmd.innerRy,
+      };
+    }
+
+    case 'clip-begin': {
+      switch (cmd.subShape) {
+        case 'circle': {
+          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          return { ...cmd, cx: ncx, cy: ncy };
+        }
+        case 'rect': {
+          const corners = [
+            [cmd.x, cmd.y],
+            [cmd.x + cmd.w, cmd.y],
+            [cmd.x + cmd.w, cmd.y + cmd.h],
+            [cmd.x, cmd.y + cmd.h],
+          ];
+          const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
+          const xs = rotated.map(p => p[0]);
+          const ys = rotated.map(p => p[1]);
+          return { ...cmd, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+        }
+        case 'ellipse': {
+          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          const swapRadii = rotation === 90 || rotation === 270;
+          return { ...cmd, cx: ncx, cy: ncy, rx: swapRadii ? cmd.ry : cmd.rx, ry: swapRadii ? cmd.rx : cmd.ry };
+        }
+        default:
+          return cmd;
+      }
+    }
+
+    case 'clip-end':
+      return cmd;
 
     default:
       return cmd;
@@ -462,7 +763,7 @@ let _propsRenderLayer = null; // { canvas, w, h, propsRef, texturesVersion }
  * Returns null if no props exist. Cached as long as metadata.props reference
  * and texturesVersion haven't changed.
  */
-export function getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, texturesVersion, metadata, cacheW, cacheH) {
+export function getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, texturesVersion, metadata, cacheW, cacheH, cacheScale = 10) {
   if (!propCatalog || !metadata?.props?.length) return null;
 
   if (_propsRenderLayer && _propsRenderLayer.w === cacheW && _propsRenderLayer.h === cacheH &&
@@ -486,8 +787,7 @@ export function getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTe
   const ctx = offCanvas.getContext('2d', { alpha: true });
   ctx.clearRect(0, 0, cacheW, cacheH);
 
-  const MAP_PX_PER_FOOT = 10;
-  const cacheTransform = { scale: MAP_PX_PER_FOOT, offsetX: 0, offsetY: 0 };
+  const cacheTransform = { scale: cacheScale, offsetX: 0, offsetY: 0 };
 
   renderOverlayProps(ctx, metadata.props, gridSize, theme, cacheTransform, propCatalog, getTextureImage, texturesVersion, null);
 
@@ -575,6 +875,45 @@ function applyStyle(ctx, cmd, theme) {
 }
 
 /**
+ * Create a Canvas gradient (radial or linear) for gradient-fill styles.
+ *
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {object} cmd - Parsed command with style, color, gradientEnd, opacity, angle
+ * @param {number} cx - Center x in canvas pixels
+ * @param {number} cy - Center y in canvas pixels
+ * @param {number} rx - Half-width (or radius) in canvas pixels
+ * @param {number} ry - Half-height (or radius) in canvas pixels
+ * @returns {CanvasGradient}
+ */
+function createGradient(ctx, cmd, cx, cy, rx, ry) {
+  const { r: r1, g: g1, b: b1 } = parseHexColor(cmd.color || '#ffffff');
+  const { r: r2, g: g2, b: b2 } = parseHexColor(cmd.gradientEnd || '#000000');
+  const alpha = cmd.opacity ?? 0.8;
+
+  let grad;
+  if (cmd.style === 'gradient-radial') {
+    grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
+  } else {
+    // Linear gradient — use the 'angle' modifier (degrees, 0 = top-to-bottom)
+    const angle = cmd.angle ?? 0;
+    const rad = (angle * Math.PI) / 180;
+    const len = Math.max(rx, ry);
+    const dx = Math.sin(rad) * len;
+    const dy = -Math.cos(rad) * len;
+    grad = ctx.createLinearGradient(cx - dx, cy - dy, cx + dx, cy + dy);
+  }
+
+  grad.addColorStop(0, `rgba(${r1}, ${g1}, ${b1}, ${alpha})`);
+  grad.addColorStop(1, `rgba(${r2}, ${g2}, ${b2}, ${alpha})`);
+  return grad;
+}
+
+/** Helper to check if a command uses a gradient style. */
+function isGradient(cmd) {
+  return cmd.style === 'gradient-radial' || cmd.style === 'gradient-linear';
+}
+
+/**
  * Fill a rectangular canvas region with a texture image.
  * Falls back to solid grey fill if the texture is not available.
  */
@@ -621,7 +960,7 @@ function drawTexFillPath(ctx, cmd, bbox, getTextureImage) {
  * Draw a soft drop shadow under a prop.
  * Rendered as a radial-gradient ellipse matching the footprint, offset slightly.
  */
-function drawPropShadow(ctx, propDef, row, col, rotation, gridSize, transform) {
+function _drawPropShadow(ctx, propDef, row, col, rotation, gridSize, transform) { // eslint-disable-line unused-imports/no-unused-vars
   const [fRows, fCols] = propDef.footprint;
   // Effective footprint after rotation
   const isRotated90 = rotation === 90 || rotation === 270;
@@ -675,6 +1014,36 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
 
   switch (cmd.type) {
     case 'rect': {
+      if (cmd.rotate != null && cmd.rotate !== 0) {
+        // Rotated rect: translate to center, rotate, draw centered
+        const cx = cmd.x + cmd.w / 2;
+        const cy = cmd.y + cmd.h / 2;
+        const center = propToCanvas(cx, cy, row, col, gridSize, transform);
+        const halfW = (cmd.w / 2) * gridSize * transform.scale;
+        const halfH = (cmd.h / 2) * gridSize * transform.scale;
+
+        ctx.save();
+        ctx.translate(center.x, center.y);
+        ctx.rotate((cmd.rotate * Math.PI) / 180);
+
+        if (cmd.style === 'texfill') {
+          drawTexFillRect(ctx, cmd, -halfW, -halfH, halfW * 2, halfH * 2, getTextureImage);
+        } else if (isGradient(cmd)) {
+          ctx.fillStyle = createGradient(ctx, cmd, 0, 0, halfW, halfH);
+          ctx.fillRect(-halfW, -halfH, halfW * 2, halfH * 2);
+        } else {
+          applyStyle(ctx, cmd, theme);
+          if (cmd.style === 'stroke') {
+            ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
+            ctx.strokeRect(-halfW, -halfH, halfW * 2, halfH * 2);
+          } else {
+            ctx.fillRect(-halfW, -halfH, halfW * 2, halfH * 2);
+          }
+        }
+        ctx.restore();
+        break;
+      }
+
       const topLeft = propToCanvas(cmd.x, cmd.y, row, col, gridSize, transform);
       const bottomRight = propToCanvas(cmd.x + cmd.w, cmd.y + cmd.h, row, col, gridSize, transform);
       const w = bottomRight.x - topLeft.x;
@@ -682,10 +1051,13 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
 
       if (cmd.style === 'texfill') {
         drawTexFillRect(ctx, cmd, topLeft.x, topLeft.y, w, h, getTextureImage);
+      } else if (isGradient(cmd)) {
+        ctx.fillStyle = createGradient(ctx, cmd, topLeft.x + w / 2, topLeft.y + h / 2, w / 2, h / 2);
+        ctx.fillRect(topLeft.x, topLeft.y, w, h);
       } else {
         applyStyle(ctx, cmd, theme);
         if (cmd.style === 'stroke') {
-          ctx.lineWidth = strokeWidth;
+          ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
           ctx.strokeRect(topLeft.x, topLeft.y, w, h);
         } else {
           ctx.fillRect(topLeft.x, topLeft.y, w, h);
@@ -707,10 +1079,13 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
         drawTexFillPath(ctx, cmd, {
           x: center.x - rPx, y: center.y - rPx, w: rPx * 2, h: rPx * 2
         }, getTextureImage);
+      } else if (isGradient(cmd)) {
+        ctx.fillStyle = createGradient(ctx, cmd, center.x, center.y, rPx, rPx);
+        ctx.fill();
       } else {
         applyStyle(ctx, cmd, theme);
         if (cmd.style === 'stroke') {
-          ctx.lineWidth = strokeWidth;
+          ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
           ctx.stroke();
         } else {
           ctx.fill();
@@ -736,11 +1111,14 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
         drawTexFillPath(ctx, cmd, {
           x: center.x - rxPx, y: center.y - ryPx, w: rxPx * 2, h: ryPx * 2
         }, getTextureImage);
+      } else if (isGradient(cmd)) {
+        ctx.fillStyle = createGradient(ctx, cmd, center.x, center.y, rxPx, ryPx);
+        ctx.fill();
       } else {
         applyStyle(ctx, cmd, theme);
         // Fill/stroke after restoring the transform so line width isn't scaled
         if (cmd.style === 'stroke') {
-          ctx.lineWidth = strokeWidth;
+          ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
           ctx.stroke();
         } else {
           ctx.fill();
@@ -753,12 +1131,15 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
       const p1 = propToCanvas(cmd.x1, cmd.y1, row, col, gridSize, transform);
       const p2 = propToCanvas(cmd.x2, cmd.y2, row, col, gridSize, transform);
 
-      ctx.strokeStyle = cmd.color || theme.wallStroke || '#000000';
-      ctx.lineWidth = cmd.lineWidth !== null ? cmd.lineWidth * s : strokeWidth;
+      const prevAlpha = ctx.globalAlpha;
+      if (cmd.opacity != null) ctx.globalAlpha = cmd.opacity;
+      ctx.strokeStyle = cmd.color || '#000000';
+      ctx.lineWidth = cmd.width != null ? cmd.width * s : (cmd.lineWidth !== null ? cmd.lineWidth * s : strokeWidth);
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);
       ctx.stroke();
+      ctx.globalAlpha = prevAlpha;
       break;
     }
 
@@ -787,10 +1168,19 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
           w: Math.max(...xs) - minX,
           h: Math.max(...ys) - minY
         }, getTextureImage);
+      } else if (isGradient(cmd)) {
+        const xs = canvasPoints.map(p => p.x);
+        const ys = canvasPoints.map(p => p.y);
+        const minX = Math.min(...xs);
+        const minY = Math.min(...ys);
+        const maxX = Math.max(...xs);
+        const maxY = Math.max(...ys);
+        ctx.fillStyle = createGradient(ctx, cmd, (minX + maxX) / 2, (minY + maxY) / 2, (maxX - minX) / 2, (maxY - minY) / 2);
+        ctx.fill();
       } else {
         applyStyle(ctx, cmd, theme);
         if (cmd.style === 'stroke') {
-          ctx.lineWidth = strokeWidth;
+          ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
           ctx.stroke();
         } else {
           ctx.fill();
@@ -805,23 +1195,239 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
       const startRad = (cmd.startDeg * Math.PI) / 180;
       const endRad = (cmd.endDeg * Math.PI) / 180;
 
-      ctx.beginPath();
-      ctx.arc(center.x, center.y, rPx, startRad, endRad);
-
-      if (cmd.style === 'texfill') {
-        ctx.closePath();
-        drawTexFillPath(ctx, cmd, {
-          x: center.x - rPx, y: center.y - rPx, w: rPx * 2, h: rPx * 2
-        }, getTextureImage);
-      } else {
+      if (cmd.style === 'stroke') {
+        // Stroke: just the arc curve, no center lines
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, rPx, startRad, endRad);
         applyStyle(ctx, cmd, theme);
-        if (cmd.style === 'stroke') {
-          ctx.lineWidth = strokeWidth;
-          ctx.stroke();
+        ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
+        ctx.stroke();
+      } else {
+        // Fill/texfill/gradient: wedge/pie slice path
+        ctx.beginPath();
+        ctx.moveTo(center.x, center.y);
+        ctx.arc(center.x, center.y, rPx, startRad, endRad);
+        ctx.lineTo(center.x, center.y);
+        ctx.closePath();
+
+        if (cmd.style === 'texfill') {
+          drawTexFillPath(ctx, cmd, {
+            x: center.x - rPx, y: center.y - rPx, w: rPx * 2, h: rPx * 2
+          }, getTextureImage);
+        } else if (isGradient(cmd)) {
+          ctx.fillStyle = createGradient(ctx, cmd, center.x, center.y, rPx, rPx);
+          ctx.fill();
         } else {
+          applyStyle(ctx, cmd, theme);
           ctx.fill();
         }
       }
+      break;
+    }
+
+    case 'cutout': {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.fillStyle = 'rgba(0,0,0,1)';
+
+      switch (cmd.subShape) {
+        case 'circle': {
+          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
+          const rPx = cmd.r * gridSize * transform.scale;
+          ctx.beginPath();
+          ctx.arc(center.x, center.y, rPx, 0, Math.PI * 2);
+          ctx.fill();
+          break;
+        }
+        case 'rect': {
+          const topLeft = propToCanvas(cmd.x, cmd.y, row, col, gridSize, transform);
+          const bottomRight = propToCanvas(cmd.x + cmd.w, cmd.y + cmd.h, row, col, gridSize, transform);
+          ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+          break;
+        }
+        case 'ellipse': {
+          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
+          const rxPx = cmd.rx * gridSize * transform.scale;
+          const ryPx = cmd.ry * gridSize * transform.scale;
+          ctx.save();
+          ctx.translate(center.x, center.y);
+          ctx.scale(rxPx, ryPx);
+          ctx.beginPath();
+          ctx.arc(0, 0, 1, 0, Math.PI * 2);
+          ctx.restore();
+          ctx.fill();
+          break;
+        }
+      }
+      break;
+    }
+
+    case 'ring': {
+      const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
+      const outerPx = cmd.outerR * gridSize * transform.scale;
+      const innerPx = cmd.innerR * gridSize * transform.scale;
+
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, outerPx, 0, Math.PI * 2);
+      ctx.arc(center.x, center.y, innerPx, 0, Math.PI * 2, true);
+
+      if (cmd.style === 'texfill') {
+        const img = getTextureImage?.(cmd.textureId);
+        const alpha = cmd.opacity ?? 0.9;
+        if (img && img.complete && img.naturalWidth) {
+          ctx.save();
+          ctx.clip('evenodd');
+          ctx.globalAlpha = alpha;
+          ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight,
+            center.x - outerPx, center.y - outerPx, outerPx * 2, outerPx * 2);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = `rgba(128, 128, 128, ${alpha})`;
+          ctx.fill('evenodd');
+        }
+      } else if (isGradient(cmd)) {
+        ctx.fillStyle = createGradient(ctx, cmd, center.x, center.y, outerPx, outerPx);
+        ctx.fill('evenodd');
+      } else {
+        applyStyle(ctx, cmd, theme);
+        if (cmd.style === 'stroke') {
+          ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
+          ctx.stroke();
+        } else {
+          ctx.fill('evenodd');
+        }
+      }
+      break;
+    }
+
+    case 'bezier': {
+      const p1 = propToCanvas(cmd.x1, cmd.y1, row, col, gridSize, transform);
+      const cp1 = propToCanvas(cmd.cp1x, cmd.cp1y, row, col, gridSize, transform);
+      const cp2 = propToCanvas(cmd.cp2x, cmd.cp2y, row, col, gridSize, transform);
+      const p2 = propToCanvas(cmd.x2, cmd.y2, row, col, gridSize, transform);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y);
+      if (cmd.style === 'fill' || cmd.style === 'texfill') {
+        ctx.closePath();
+        if (cmd.style === 'texfill') {
+          const xs = [p1.x, cp1.x, cp2.x, p2.x];
+          const ys = [p1.y, cp1.y, cp2.y, p2.y];
+          const minX = Math.min(...xs), minY = Math.min(...ys);
+          drawTexFillPath(ctx, cmd, { x: minX, y: minY, w: Math.max(...xs) - minX, h: Math.max(...ys) - minY }, getTextureImage);
+        } else {
+          applyStyle(ctx, cmd, theme);
+          ctx.fill();
+        }
+      } else {
+        applyStyle(ctx, cmd, theme);
+        ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
+        ctx.stroke();
+      }
+      break;
+    }
+
+    case 'qbezier': {
+      const p1 = propToCanvas(cmd.x1, cmd.y1, row, col, gridSize, transform);
+      const cp = propToCanvas(cmd.cpx, cmd.cpy, row, col, gridSize, transform);
+      const p2 = propToCanvas(cmd.x2, cmd.y2, row, col, gridSize, transform);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.quadraticCurveTo(cp.x, cp.y, p2.x, p2.y);
+      if (cmd.style === 'fill' || cmd.style === 'texfill') {
+        ctx.closePath();
+        if (cmd.style === 'texfill') {
+          const xs = [p1.x, cp.x, p2.x];
+          const ys = [p1.y, cp.y, p2.y];
+          const minX = Math.min(...xs), minY = Math.min(...ys);
+          drawTexFillPath(ctx, cmd, { x: minX, y: minY, w: Math.max(...xs) - minX, h: Math.max(...ys) - minY }, getTextureImage);
+        } else {
+          applyStyle(ctx, cmd, theme);
+          ctx.fill();
+        }
+      } else {
+        applyStyle(ctx, cmd, theme);
+        ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
+        ctx.stroke();
+      }
+      break;
+    }
+
+    case 'ering': {
+      const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
+      const outerRxPx = cmd.outerRx * gridSize * transform.scale;
+      const outerRyPx = cmd.outerRy * gridSize * transform.scale;
+      const innerRxPx = cmd.innerRx * gridSize * transform.scale;
+      const innerRyPx = cmd.innerRy * gridSize * transform.scale;
+      ctx.beginPath();
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.scale(outerRxPx, outerRyPx);
+      ctx.arc(0, 0, 1, 0, Math.PI * 2);
+      ctx.restore();
+      ctx.save();
+      ctx.translate(center.x, center.y);
+      ctx.scale(innerRxPx, innerRyPx);
+      ctx.arc(0, 0, 1, 0, Math.PI * 2, true);
+      ctx.restore();
+      if (cmd.style === 'texfill') {
+        const img = getTextureImage?.(cmd.textureId);
+        const alpha = cmd.opacity ?? 0.9;
+        if (img && img.complete && img.naturalWidth) {
+          ctx.save();
+          ctx.clip('evenodd');
+          ctx.globalAlpha = alpha;
+          ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, center.x - outerRxPx, center.y - outerRyPx, outerRxPx * 2, outerRyPx * 2);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = `rgba(128, 128, 128, ${alpha})`;
+          ctx.fill('evenodd');
+        }
+      } else {
+        applyStyle(ctx, cmd, theme);
+        if (cmd.style === 'stroke') {
+          ctx.lineWidth = cmd.width != null ? cmd.width * s : strokeWidth;
+          ctx.stroke();
+        } else {
+          ctx.fill('evenodd');
+        }
+      }
+      break;
+    }
+
+    case 'clip-begin': {
+      ctx.save();
+      ctx.beginPath();
+      switch (cmd.subShape) {
+        case 'circle': {
+          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
+          const rPx = cmd.r * gridSize * transform.scale;
+          ctx.arc(center.x, center.y, rPx, 0, Math.PI * 2);
+          break;
+        }
+        case 'rect': {
+          const topLeft = propToCanvas(cmd.x, cmd.y, row, col, gridSize, transform);
+          const bottomRight = propToCanvas(cmd.x + cmd.w, cmd.y + cmd.h, row, col, gridSize, transform);
+          ctx.rect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+          break;
+        }
+        case 'ellipse': {
+          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
+          const rxPx = cmd.rx * gridSize * transform.scale;
+          const ryPx = cmd.ry * gridSize * transform.scale;
+          ctx.save();
+          ctx.translate(center.x, center.y);
+          ctx.scale(rxPx, ryPx);
+          ctx.arc(0, 0, 1, 0, Math.PI * 2);
+          ctx.restore();
+          break;
+        }
+      }
+      ctx.clip();
+      break;
+    }
+
+    case 'clip-end': {
+      ctx.restore();
       break;
     }
   }
@@ -846,9 +1452,14 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
 export function renderProp(ctx, propDef, row, col, rotation, gridSize, theme, transform, flipped = false, getTextureImage = null) {
   if (!propDef || !propDef.commands || propDef.commands.length === 0) return;
 
-  // Draw drop shadow before prop commands
-  if (propDef.shadow) {
-    drawPropShadow(ctx, propDef, row, col, rotation, gridSize, transform);
+  // Drop shadow disabled — looked bad at map scale
+
+  // If the prop has cutout commands, we must render to an isolated canvas first.
+  // destination-out on the main canvas would erase floor pixels, not just prop pixels.
+  const hasCutout = propDef.commands.some(c => c.type === 'cutout');
+  if (hasCutout) {
+    _renderPropIsolated(ctx, propDef, row, col, rotation, gridSize, theme, transform, flipped, getTextureImage);
+    return;
   }
 
   for (const cmd of propDef.commands) {
@@ -857,6 +1468,49 @@ export function renderProp(ctx, propDef, row, col, rotation, gridSize, theme, tr
     const transformed = transformCommand(flippedCmd, rotation, propDef.footprint);
     drawCommand(ctx, transformed, row, col, gridSize, theme, transform, getTextureImage);
   }
+}
+
+/**
+ * Render a prop with cutout commands to a temporary canvas, then composite back.
+ * This ensures destination-out only affects the prop's own pixels.
+ */
+function _renderPropIsolated(ctx, propDef, row, col, rotation, gridSize, theme, transform, flipped, getTextureImage) {
+  const [fRows, fCols] = propDef.footprint;
+  const isRotated90 = rotation === 90 || rotation === 270;
+  const eRows = isRotated90 ? fCols : fRows;
+  const eCols = isRotated90 ? fRows : fCols;
+  const padding = propDef.padding || 0;
+
+  const cellPx = gridSize * transform.scale;
+  const w = Math.ceil((eCols + 2 * padding) * cellPx);
+  const h = Math.ceil((eRows + 2 * padding) * cellPx);
+  if (w <= 0 || h <= 0) return;
+
+  // Compute where the prop's top-left would be on the main canvas
+  const origin = propToCanvas(-padding, -padding, row, col, gridSize, transform);
+
+  // Create isolated canvas
+  const createCanvas = (typeof OffscreenCanvas !== 'undefined')
+    ? (w, h) => new OffscreenCanvas(w, h)
+    : (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+  const tmpCanvas = createCanvas(w, h);
+  const tmpCtx = tmpCanvas.getContext('2d');
+
+  // Render into the isolated canvas with an offset transform so coords map correctly
+  const isoTransform = {
+    scale: transform.scale,
+    offsetX: transform.offsetX - origin.x,
+    offsetY: transform.offsetY - origin.y,
+  };
+
+  for (const cmd of propDef.commands) {
+    const flippedCmd = flipped ? flipCommand(cmd, propDef.footprint) : cmd;
+    const transformed = transformCommand(flippedCmd, rotation, propDef.footprint);
+    drawCommand(tmpCtx, transformed, row, col, gridSize, theme, isoTransform, getTextureImage);
+  }
+
+  // Draw the isolated result back onto the main canvas
+  ctx.drawImage(tmpCanvas, origin.x, origin.y);
 }
 
 /**
@@ -928,7 +1582,9 @@ export function hitTestPropPixel(prop, wx, wy, propCatalog, gridSize) {
   const ny = (unscaledY - prop.y) / gridSize;
 
   // Test each draw command's shape (after flip+rotate transform)
+  // Accumulate hit state: regular shapes set hit=true, cutouts set hit=false
   const r = ((rotation % 360) + 360) % 360;
+  let hit = false;
   for (const cmd of propDef.commands) {
     if (cmd.type === 'line') continue; // too thin
     const flippedCmd = flipped ? flipCommand(cmd, propDef.footprint) : cmd;
@@ -936,31 +1592,76 @@ export function hitTestPropPixel(prop, wx, wy, propCatalog, gridSize) {
 
     switch (tc.type) {
       case 'rect':
-        if (nx >= tc.x && nx <= tc.x + tc.w && ny >= tc.y && ny <= tc.y + tc.h) return true;
+        if (tc.rotate != null && tc.rotate !== 0) {
+          const cx = tc.x + tc.w / 2, cy = tc.y + tc.h / 2;
+          const rad = (-tc.rotate * Math.PI) / 180;
+          const cos = Math.cos(rad), sin = Math.sin(rad);
+          const dx = nx - cx, dy = ny - cy;
+          const lx = dx * cos - dy * sin + cx;
+          const ly = dx * sin + dy * cos + cy;
+          if (lx >= tc.x && lx <= tc.x + tc.w && ly >= tc.y && ly <= tc.y + tc.h) hit = true;
+        } else {
+          if (nx >= tc.x && nx <= tc.x + tc.w && ny >= tc.y && ny <= tc.y + tc.h) hit = true;
+        }
         break;
       case 'circle': {
         const dx = nx - tc.cx, dy = ny - tc.cy;
-        if (dx * dx + dy * dy <= tc.r * tc.r) return true;
+        if (dx * dx + dy * dy <= tc.r * tc.r) hit = true;
         break;
       }
       case 'ellipse': {
         const edx = (nx - tc.cx) / tc.rx, edy = (ny - tc.cy) / tc.ry;
-        if (edx * edx + edy * edy <= 1) return true;
+        if (edx * edx + edy * edy <= 1) hit = true;
         break;
       }
       case 'poly': {
-        if (tc.points?.length >= 3 && _pointInPolygon(nx, ny, tc.points)) return true;
+        if (tc.points?.length >= 3 && _pointInPolygon(nx, ny, tc.points)) hit = true;
         break;
       }
       case 'arc': {
-        // Treat arc as a filled wedge for hit testing
         const adx = nx - tc.cx, ady = ny - tc.cy;
-        if (adx * adx + ady * ady <= tc.r * tc.r) return true;
+        if (adx * adx + ady * ady > tc.r * tc.r) break;
+        let angle = Math.atan2(ady, adx) * 180 / Math.PI;
+        if (angle < 0) angle += 360;
+        const start = ((tc.startDeg % 360) + 360) % 360;
+        const end = ((tc.endDeg % 360) + 360) % 360;
+        if (start <= end) {
+          if (angle >= start && angle <= end) hit = true;
+        } else {
+          if (angle >= start || angle <= end) hit = true;
+        }
+        break;
+      }
+      case 'cutout': {
+        // Cutout subtracts from the hit area
+        let inside = false;
+        switch (tc.subShape) {
+          case 'circle': {
+            const dx = nx - tc.cx, dy = ny - tc.cy;
+            inside = dx * dx + dy * dy <= tc.r * tc.r;
+            break;
+          }
+          case 'rect':
+            inside = nx >= tc.x && nx <= tc.x + tc.w && ny >= tc.y && ny <= tc.y + tc.h;
+            break;
+          case 'ellipse': {
+            const edx = (nx - tc.cx) / tc.rx, edy = (ny - tc.cy) / tc.ry;
+            inside = edx * edx + edy * edy <= 1;
+            break;
+          }
+        }
+        if (inside) hit = false;
+        break;
+      }
+      case 'ring': {
+        const dx = nx - tc.cx, dy = ny - tc.cy;
+        const dist2 = dx * dx + dy * dy;
+        if (dist2 <= tc.outerR * tc.outerR && dist2 >= tc.innerR * tc.innerR) hit = true;
         break;
       }
     }
   }
-  return false;
+  return hit;
 }
 
 /** Ray-casting point-in-polygon test. */
@@ -998,12 +1699,20 @@ export function renderOverlayProps(ctx, overlayProps, gridSize, theme, transform
 
   const wallStroke = theme?.wallStroke || '';
 
+  // Purge unknown prop types from the source array so we don't spam warnings every frame
+  for (let i = overlayProps.length - 1; i >= 0; i--) {
+    if (!propCatalog.props[overlayProps[i].type]) {
+      warn(`[props] Unknown overlay prop type "${overlayProps[i].type}" (${overlayProps[i].id}) — removed from map`);
+      overlayProps.splice(i, 1);
+    }
+  }
+  if (!overlayProps.length) return;
+
   // Sort by zIndex (stable: original order preserved for equal z)
   const sorted = [...overlayProps].sort((a, b) => (a.zIndex ?? 10) - (b.zIndex ?? 10));
 
   for (const prop of sorted) {
     const propDef = propCatalog.props[prop.type];
-    if (!propDef) { warn(`[props] Unknown overlay prop type "${prop.type}" (${prop.id}) — skipped`); continue; }
 
     const rotation = prop.rotation ?? 0;
     const scale = prop.scale ?? 1.0;
@@ -1209,6 +1918,8 @@ export function extractPropLightSegments(propDef, row, col, rotation, flipped, g
   for (const cmd of propDef.commands) {
     // Skip lines — too thin to block light
     if (cmd.type === 'line') continue;
+    // Skip cutouts — they remove geometry, not add it
+    if (cmd.type === 'cutout') continue;
 
     // Apply same transform order as renderProp: flip first, then rotate
     const flippedCmd = flipped ? flipCommand(cmd, propDef.footprint) : cmd;
@@ -1216,16 +1927,31 @@ export function extractPropLightSegments(propDef, row, col, rotation, flipped, g
 
     switch (tc.type) {
       case 'rect': {
-        const tl = toWorldFeet(tc.x, tc.y, row, col, gridSize);
-        const tr = toWorldFeet(tc.x + tc.w, tc.y, row, col, gridSize);
-        const br = toWorldFeet(tc.x + tc.w, tc.y + tc.h, row, col, gridSize);
-        const bl = toWorldFeet(tc.x, tc.y + tc.h, row, col, gridSize);
-        segments.push(
-          { x1: tl.x, y1: tl.y, x2: tr.x, y2: tr.y },
-          { x1: tr.x, y1: tr.y, x2: br.x, y2: br.y },
-          { x1: br.x, y1: br.y, x2: bl.x, y2: bl.y },
-          { x1: bl.x, y1: bl.y, x2: tl.x, y2: tl.y },
-        );
+        if (tc.rotate != null && tc.rotate !== 0) {
+          // Rotated rect: compute actual corners
+          const cx = tc.x + tc.w / 2, cy = tc.y + tc.h / 2;
+          const rad = (tc.rotate * Math.PI) / 180;
+          const cos = Math.cos(rad), sin = Math.sin(rad);
+          const hw = tc.w / 2, hh = tc.h / 2;
+          const corners = [
+            [-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]
+          ].map(([lx, ly]) => toWorldFeet(cx + lx * cos - ly * sin, cy + lx * sin + ly * cos, row, col, gridSize));
+          for (let i = 0; i < 4; i++) {
+            const a = corners[i], b = corners[(i + 1) % 4];
+            segments.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
+          }
+        } else {
+          const tl = toWorldFeet(tc.x, tc.y, row, col, gridSize);
+          const tr = toWorldFeet(tc.x + tc.w, tc.y, row, col, gridSize);
+          const br = toWorldFeet(tc.x + tc.w, tc.y + tc.h, row, col, gridSize);
+          const bl = toWorldFeet(tc.x, tc.y + tc.h, row, col, gridSize);
+          segments.push(
+            { x1: tl.x, y1: tl.y, x2: tr.x, y2: tr.y },
+            { x1: tr.x, y1: tr.y, x2: br.x, y2: br.y },
+            { x1: br.x, y1: br.y, x2: bl.x, y2: bl.y },
+            { x1: bl.x, y1: bl.y, x2: tl.x, y2: tl.y },
+          );
+        }
         break;
       }
 
@@ -1269,6 +1995,17 @@ export function extractPropLightSegments(propDef, row, col, rotation, flipped, g
         for (let i = 0; i < pts.length - 1; i++) {
           segments.push({ x1: pts[i].x, y1: pts[i].y, x2: pts[i + 1].x, y2: pts[i + 1].y });
         }
+        break;
+      }
+
+      case 'ring': {
+        // Generate segments for both outer and inner circles
+        const outerPts = circleToPolygon(tc.cx, tc.cy, tc.outerR);
+        const outerWorld = outerPts.map(p => toWorldFeet(p.x, p.y, row, col, gridSize));
+        segments.push(...polygonToSegments(outerWorld));
+        const innerPts = circleToPolygon(tc.cx, tc.cy, tc.innerR);
+        const innerWorld = innerPts.map(p => toWorldFeet(p.x, p.y, row, col, gridSize));
+        segments.push(...polygonToSegments(innerWorld));
         break;
       }
     }

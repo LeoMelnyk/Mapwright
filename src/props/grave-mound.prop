@@ -1,21 +1,46 @@
 name: Grave Mound
 category: Misc
-footprint: 2x3
-facing: no
+footprint: 3x2
+facing: yes
 shadow: no
 blocks_light: no
 placement: floor
 room_types: graveyard, crypt
 typical_count: many
 clusters_with: grave-marker
-notes: Burial mound; place in rows with grave-markers
+notes: Burial mound with headstone; place in rows with grave-markers. Front (south) is the foot of the grave.
 ---
-# Dirt mound
-ellipse 1.5,1.2 1.23,0.7 texfill polyhaven/brown_mud 0.75
-ellipse 1.5,1.2 1.23,0.7 stroke #5a4530
-# Headstone
-rect 1.35,0.1 0.3,0.7 texfill polyhaven/granite_tile 0.8
-rect 1.35,0.1 0.3,0.7 stroke #666666
-# Cross on headstone
-rect 1.23,0.24 0.54,0.16 texfill polyhaven/granite_tile 0.8
-rect 1.23,0.24 0.54,0.16 stroke #666666
+# Disturbed earth border (darker dirt around edges)
+ellipse 1.0,1.6 0.92,1.35 fill #3a2a18 0.35
+# Main dirt mound base
+ellipse 1.0,1.6 0.82,1.2 texfill polyhaven/brown_mud 0.75
+ellipse 1.0,1.6 0.82,1.2 stroke #4a3520
+# Raised center highlight (lighter dirt, slightly smaller)
+ellipse 1.0,1.55 0.55,0.85 texfill polyhaven/dirt_floor 0.4
+# Subtle center ridge
+ellipse 1.0,1.5 0.3,0.6 fill #8b7355 0.15
+# Headstone base (thin rectangle at north end)
+rect 0.6,0.2 0.8,0.3 texfill polyhaven/granite_tile 0.85
+rect 0.6,0.2 0.8,0.3 stroke #555555
+# Headstone top arch (rounded top)
+ellipse 1.0,0.2 0.4,0.15 texfill polyhaven/granite_tile 0.85
+ellipse 1.0,0.2 0.4,0.15 stroke #555555
+# Headstone face detail (carved line)
+line 0.72,0.3 1.28,0.3 stroke #444444
+# Small cross on headstone
+line 1.0,0.15 1.0,0.4 stroke #444444
+line 0.88,0.25 1.12,0.25 stroke #444444
+# Small flowers at head of grave
+circle 0.38,0.55 0.06 fill #884466 0.6
+circle 0.48,0.48 0.05 fill #996677 0.5
+circle 0.42,0.62 0.04 fill #775566 0.5
+# Flower stems
+line 0.38,0.55 0.38,0.7 stroke #3a5a2a
+line 0.48,0.48 0.48,0.65 stroke #3a5a2a
+line 0.42,0.62 0.42,0.75 stroke #3a5a2a
+# Edge dirt clumps (disturbed earth details)
+circle 0.25,1.2 0.08 fill #4a3520 0.3
+circle 1.75,1.0 0.07 fill #4a3520 0.25
+circle 0.2,2.0 0.06 fill #3a2a18 0.3
+circle 1.8,2.2 0.07 fill #3a2a18 0.25
+circle 1.7,1.8 0.05 fill #4a3520 0.2

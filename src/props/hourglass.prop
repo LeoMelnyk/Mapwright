@@ -9,24 +9,25 @@ room_types: study, wizard-sanctum, any
 typical_count: single
 notes: Decorative timepiece; place on desks or pedestals
 ---
-# Wooden base frame (bottom)
-rect 0.24,0.76 0.52,0.16 texfill polyhaven/dark_wood 0.80
-rect 0.24,0.76 0.52,0.16 stroke #3a1f00
-# Wooden top frame
-rect 0.24,0.08 0.52,0.16 texfill polyhaven/dark_wood 0.80
-rect 0.24,0.08 0.52,0.16 stroke #3a1f00
-# Lower glass bulb
-ellipse 0.50,0.68 0.22,0.12 fill #aabbcc 0.40
-ellipse 0.50,0.68 0.22,0.12 stroke #556677
-# Upper glass bulb
-ellipse 0.50,0.32 0.22,0.12 fill #aabbcc 0.40
-ellipse 0.50,0.32 0.22,0.12 stroke #556677
-# Sand (upper bulb - remaining)
-ellipse 0.50,0.34 0.14,0.07 fill #d4a574 0.70
-# Sand (lower bulb - piled up)
-ellipse 0.50,0.72 0.18,0.08 fill #d4a574 0.80
-# Narrow neck
-line 0.46,0.44 0.46,0.56 stroke #556677
-line 0.54,0.44 0.54,0.56 stroke #556677
-# Glass glint
-circle 0.38,0.28 0.04 fill #ffffff 0.20
+# Wooden frame base (square top surface, seen from above)
+rect 0.20,0.20 0.60,0.60 texfill polyhaven/dark_wood 0.85
+rect 0.20,0.20 0.60,0.60 stroke #3a1f00
+# Glass bulb (looking straight down through the top)
+circle 0.50,0.50 0.24 fill #aabbcc 0.25
+circle 0.50,0.50 0.24 stroke #667788
+# Sand visible through glass (settled slightly south — partially drained)
+ellipse 0.50,0.54 0.15,0.13 fill #d4a574 0.55
+# Pinch point — dark circle where the glass necks down at center
+circle 0.50,0.50 0.05 fill #556677 0.50
+# Glass highlight — subtle bright glint on curved surface
+circle 0.42,0.42 0.04 fill #ffffff 0.25
+# Corner posts (four dark wood knobs at frame corners)
+circle 0.24,0.24 0.06 fill #4a2800 0.90
+circle 0.76,0.24 0.06 fill #4a2800 0.90
+circle 0.24,0.76 0.06 fill #4a2800 0.90
+circle 0.76,0.76 0.06 fill #4a2800 0.90
+# Post outlines for definition at all zoom levels
+circle 0.24,0.24 0.06 stroke #2a1400
+circle 0.76,0.24 0.06 stroke #2a1400
+circle 0.24,0.76 0.06 stroke #2a1400
+circle 0.76,0.76 0.06 stroke #2a1400

@@ -1,6 +1,6 @@
 name: Reliquary
 category: Religious
-footprint: 1x1
+footprint: 2x3
 facing: yes
 shadow: yes
 blocks_light: no
@@ -10,21 +10,56 @@ typical_count: single
 clusters_with: altar, holy-font
 notes: Sacred container; place prominently near altar
 ---
-# Box body
-rect 0.16,0.22 0.68,0.58 texfill polyhaven/dark_wood 0.80
-rect 0.16,0.22 0.68,0.58 stroke #3a1f00
-# Gold trim bands
-line 0.16,0.38 0.84,0.38 stroke #daa520
-line 0.16,0.54 0.84,0.54 stroke #daa520
-line 0.50,0.22 0.50,0.80 stroke #daa520
-# Corner mounts
-circle 0.18,0.24 0.05 fill #daa520 0.90
-circle 0.82,0.24 0.05 fill #daa520 0.90
-circle 0.18,0.78 0.05 fill #daa520 0.90
-circle 0.82,0.78 0.05 fill #daa520 0.90
-# Relic window
-rect 0.36,0.34 0.28,0.22 fill #cc8822 0.60
-rect 0.36,0.34 0.28,0.22 stroke #8b6914
-# Lock clasp
-rect 0.44,0.74 0.12,0.08 fill #daa520 0.90
-rect 0.44,0.74 0.12,0.08 stroke #8b6914
+# Chest body — dark wood base
+rect 0.10,0.10 2.80,1.80 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.10 2.80,1.80 stroke #3a1f00 width 2
+# Lid — domed/raised surface
+# Dark border band (edges where lid curves down — visible rim)
+rect 0.20,0.18 2.60,1.64 fill #0a0600 0.5
+rect 0.20,0.18 2.60,1.64 stroke #daa520 width 2
+# Lid surface (raised center area, wood texture showing through)
+rect 0.35,0.32 2.30,1.36 texfill polyhaven/dark_wood 0.7
+rect 0.35,0.32 2.30,1.36 stroke #8b6914
+# Dome highlight — elliptical bright band across the crown
+ellipse 1.50,1.00 1.0,0.55 fill #8b7355 0.2
+ellipse 1.50,1.00 0.6,0.30 fill #a08860 0.15
+# Gold corner mounts — outer circles
+circle 0.28,0.26 0.10 fill #daa520 0.90
+circle 2.72,0.26 0.10 fill #daa520 0.90
+circle 0.28,1.74 0.10 fill #daa520 0.90
+circle 2.72,1.74 0.10 fill #daa520 0.90
+# Gold corner mounts — inner detail dots
+circle 0.28,0.26 0.04 fill #ffd700 0.95
+circle 2.72,0.26 0.04 fill #ffd700 0.95
+circle 0.28,1.74 0.04 fill #ffd700 0.95
+circle 2.72,1.74 0.04 fill #ffd700 0.95
+# Hinge line along north edge
+line 0.30,0.22 2.70,0.22 stroke #8b6914 width 2
+# Gold center clasp at south (front) edge
+rect 1.30,1.68 0.40,0.18 fill #daa520 0.90
+rect 1.30,1.68 0.40,0.18 stroke #8b6914
+circle 1.50,1.77 0.05 fill #ffd700 0.95
+# Lid cross pattern — vertical
+line 1.50,0.35 1.50,1.60 stroke #daa520 width 2
+# Lid cross pattern — horizontal
+line 0.45,1.00 2.55,1.00 stroke #daa520 width 2
+# Gold filigree — diagonal scrollwork lines
+line 0.50,0.45 1.20,0.75 stroke #daa520 width 1
+line 2.50,0.45 1.80,0.75 stroke #daa520 width 1
+line 0.50,1.55 1.20,1.25 stroke #daa520 width 1
+line 2.50,1.55 1.80,1.25 stroke #daa520 width 1
+# Center medallion — outer ring
+circle 1.50,1.00 0.22 fill #daa520 0.85
+circle 1.50,1.00 0.22 stroke #8b6914 width 2
+# Center medallion — inner star/cross pattern
+circle 1.50,1.00 0.12 fill #ffd700 0.90
+line 1.50,0.82 1.50,1.18 stroke #8b6914 width 2
+line 1.32,1.00 1.68,1.00 stroke #8b6914 width 2
+# Jewel inlays — rubies
+circle 0.80,0.55 0.06 fill #cc2244 0.90
+circle 2.20,1.45 0.06 fill #cc2244 0.90
+# Jewel inlays — sapphires
+circle 2.20,0.55 0.06 fill #2244cc 0.90
+circle 0.80,1.45 0.06 fill #2244cc 0.90
+# Jewel inlay — emerald center
+circle 1.50,1.00 0.05 fill #22aa44 0.95

@@ -9,40 +9,53 @@ room_types: fortification, gatehouse, dungeon
 typical_count: few
 notes: Heavy gate; place spanning doorways or corridor entrances
 ---
-# West stone channel (groove where gate slides)
-rect 0.0,0.0 0.18,1.0 texfill polyhaven/stone_wall 0.85
-rect 0.0,0.0 0.18,1.0 stroke #555555
-# West channel groove (dark slot)
-rect 0.06,0.0 0.06,1.0 fill #1a1a1a 0.5
-# East stone channel
-rect 1.82,0.0 0.18,1.0 texfill polyhaven/stone_wall 0.85
-rect 1.82,0.0 0.18,1.0 stroke #555555
-# East channel groove (dark slot)
-rect 1.88,0.0 0.06,1.0 fill #1a1a1a 0.5
-# Iron gate grid - horizontal bars (north-south spanning bars seen from above)
-rect 0.18,0.28 1.64,0.06 texfill polyhaven/metal_grate_rusty 0.8
-rect 0.18,0.28 1.64,0.06 stroke #444444
-rect 0.18,0.48 1.64,0.06 texfill polyhaven/metal_grate_rusty 0.8
-rect 0.18,0.48 1.64,0.06 stroke #444444
-rect 0.18,0.68 1.64,0.06 texfill polyhaven/metal_grate_rusty 0.8
-rect 0.18,0.68 1.64,0.06 stroke #444444
-# Iron gate grid - vertical bars (east-west spanning bars)
-rect 0.38,0.08 0.06,0.84 texfill polyhaven/rusty_metal 0.75
-rect 0.38,0.08 0.06,0.84 stroke #444444
-rect 0.68,0.08 0.06,0.84 texfill polyhaven/rusty_metal 0.75
-rect 0.68,0.08 0.06,0.84 stroke #444444
-rect 0.98,0.08 0.06,0.84 texfill polyhaven/rusty_metal 0.75
-rect 0.98,0.08 0.06,0.84 stroke #444444
-rect 1.28,0.08 0.06,0.84 texfill polyhaven/rusty_metal 0.75
-rect 1.28,0.08 0.06,0.84 stroke #444444
-rect 1.58,0.08 0.06,0.84 texfill polyhaven/rusty_metal 0.75
-rect 1.58,0.08 0.06,0.84 stroke #444444
-# Rivets at bar intersections (select few for detail)
-circle 0.41,0.31 0.02 fill #666666 0.6
-circle 1.01,0.31 0.02 fill #666666 0.6
-circle 1.61,0.31 0.02 fill #666666 0.6
-circle 0.71,0.51 0.02 fill #666666 0.6
-circle 1.31,0.51 0.02 fill #666666 0.6
-circle 0.41,0.71 0.02 fill #666666 0.6
-circle 1.01,0.71 0.02 fill #666666 0.6
-circle 1.61,0.71 0.02 fill #666666 0.6
+# West stone guide channel
+rect 0.0,0.0 0.20,1.0 texfill polyhaven/stone_wall 0.85
+rect 0.0,0.0 0.20,1.0 stroke #555555
+# West channel groove (dark slot where gate slides)
+rect 0.07,0.05 0.06,0.90 fill #1a1a1a 0.55
+# East stone guide channel
+rect 1.80,0.0 0.20,1.0 texfill polyhaven/stone_wall 0.85
+rect 1.80,0.0 0.20,1.0 stroke #555555
+# East channel groove
+rect 1.87,0.05 0.06,0.90 fill #1a1a1a 0.55
+# Gate top edge — thin iron band running east-west between channels
+# This is the TOP of the gate seen from above: a narrow metal strip
+rect 0.20,0.38 1.60,0.10 texfill polyhaven/metal_plate 0.80
+rect 0.20,0.38 1.60,0.10 stroke #444444
+# Slight dark line along the south edge of the gate (the gate drops down below)
+rect 0.20,0.48 1.60,0.04 fill #1a1a1a 0.30
+# Vertical bar cross-sections — small circles along the gate strip
+# These are the tops of the iron bars, seen as circles from above
+circle 0.38,0.43 0.035 fill #555555 0.85
+circle 0.38,0.43 0.035 stroke #333333
+circle 0.56,0.43 0.035 fill #555555 0.85
+circle 0.56,0.43 0.035 stroke #333333
+circle 0.74,0.43 0.035 fill #555555 0.85
+circle 0.74,0.43 0.035 stroke #333333
+circle 0.92,0.43 0.035 fill #555555 0.85
+circle 0.92,0.43 0.035 stroke #333333
+circle 1.10,0.43 0.035 fill #555555 0.85
+circle 1.10,0.43 0.035 stroke #333333
+circle 1.28,0.43 0.035 fill #555555 0.85
+circle 1.28,0.43 0.035 stroke #333333
+circle 1.46,0.43 0.035 fill #555555 0.85
+circle 1.46,0.43 0.035 stroke #333333
+circle 1.64,0.43 0.035 fill #555555 0.85
+circle 1.64,0.43 0.035 stroke #333333
+# Horizontal crossbar cross-section bumps (thicker bars at two points)
+circle 0.38,0.43 0.025 fill #777777 0.5
+circle 0.74,0.43 0.025 fill #777777 0.5
+circle 1.10,0.43 0.025 fill #777777 0.5
+circle 1.46,0.43 0.025 fill #777777 0.5
+# Chain/winch mechanism on east pillar
+circle 1.87,0.30 0.05 fill #444444 0.7
+circle 1.87,0.30 0.05 stroke #333333
+circle 1.87,0.30 0.025 fill #666666 0.6
+# Chain link running from winch to gate
+line 1.80,0.35 1.87,0.30 stroke #555555 width 2
+# Iron rivets on stone channels
+circle 0.10,0.18 0.025 fill #666666 0.5
+circle 0.10,0.82 0.025 fill #666666 0.5
+circle 1.90,0.18 0.025 fill #666666 0.5
+circle 1.90,0.82 0.025 fill #666666 0.5

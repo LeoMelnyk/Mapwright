@@ -12,25 +12,44 @@ clusters_with: candle-cluster, bone-pile
 notes: Dark ritual focus; place prominently as room centerpiece
 ---
 # Stone slab base
-rect 0.12,0.12 2.76,2.76 texfill polyhaven/stone_wall 0.80
-rect 0.12,0.12 2.76,2.76 stroke #333333
-# Inner dark surface
-rect 0.3,0.3 2.4,2.4 fill #1a1a1a 0.60
-# Necrotic energy rune (center)
-circle 1.5,1.5 0.54 stroke #442244 0.80
-circle 1.5,1.5 0.36 fill #2a1a2a 0.70
-circle 1.5,1.5 0.21 fill #553355 0.60
-circle 1.5,1.5 0.12 fill #7a3a7a 0.70
-# Skull corner decorations
-circle 0.36,0.36 0.18 fill #e8dcc8 0.80
-circle 0.36,0.36 0.18 stroke #c8b898
-circle 0.3,0.33 0.06 fill #1a1a1a 0.90
-circle 0.42,0.33 0.06 fill #1a1a1a 0.90
-circle 2.64,0.36 0.18 fill #e8dcc8 0.80
-circle 2.64,0.36 0.18 stroke #c8b898
-circle 2.58,0.33 0.06 fill #1a1a1a 0.90
-circle 2.7,0.33 0.06 fill #1a1a1a 0.90
-circle 0.36,2.64 0.18 fill #e8dcc8 0.80
-circle 0.36,2.64 0.18 stroke #c8b898
-circle 2.64,2.64 0.18 fill #e8dcc8 0.80
-circle 2.64,2.64 0.18 stroke #c8b898
+rect 0.10,0.10 2.80,2.80 texfill polyhaven/stone_wall 0.85
+rect 0.10,0.10 2.80,2.80 stroke #333333 width 2
+# Dark sacrificial inner surface
+rect 0.30,0.30 2.40,2.40 fill #0a0a0a 0.65
+rect 0.30,0.30 2.40,2.40 stroke #1a1a1a
+# Outer necrotic circle carved into surface
+ring 1.50,1.50 0.95 0.85 stroke #442244 width 3
+# Inner concentric ritual rings
+circle 1.50,1.50 0.70 stroke #553355 0.80 width 2
+circle 1.50,1.50 0.50 stroke #3a1a3a 0.70
+# Necrotic glow fill between rings
+ring 1.50,1.50 0.70 0.50 fill #442244 0.20
+# Dark energy center — layered glow
+circle 1.50,1.50 0.35 fill #2a4a2a 0.25
+circle 1.50,1.50 0.22 fill #553355 0.40
+circle 1.50,1.50 0.12 fill #44aa44 0.35
+circle 1.50,1.50 0.06 fill #66cc66 0.50
+# Bone — long bone along west edge
+rect 0.18,0.80 0.08,0.70 fill #c8b898 0.70
+circle 0.22,0.80 0.06 fill #d4c4a8 0.70
+circle 0.22,1.50 0.06 fill #d4c4a8 0.70
+# Bone — long bone along east edge
+rect 2.74,1.20 0.08,0.70 fill #c8b898 0.70
+circle 2.78,1.20 0.06 fill #d4c4a8 0.70
+circle 2.78,1.90 0.06 fill #d4c4a8 0.70
+# Skull at north edge (wall side)
+poly 1.33,0.46 1.36,0.38 1.41,0.34 1.49,0.34 1.54,0.38 1.57,0.46 1.55,0.53 1.52,0.56 1.38,0.56 1.35,0.53 fill #e8dcc8 0.90
+circle 1.41,0.44 0.035 fill #1a1010 0.85
+circle 1.49,0.44 0.035 fill #1a1010 0.85
+# Candle — NW position
+circle 0.55,0.55 0.08 fill #1a1a1a 0.70
+circle 0.55,0.55 0.03 fill #44aa44 0.80
+# Candle — NE position
+circle 2.45,0.55 0.08 fill #1a1a1a 0.70
+circle 2.45,0.55 0.03 fill #44aa44 0.80
+# Candle — SW position
+circle 0.55,2.45 0.08 fill #1a1a1a 0.70
+circle 0.55,2.45 0.03 fill #44aa44 0.80
+# Candle — SE position
+circle 2.45,2.45 0.08 fill #1a1a1a 0.70
+circle 2.45,2.45 0.03 fill #44aa44 0.80

@@ -9,21 +9,48 @@ room_types: ship, barracks
 typical_count: many
 notes: Sleeping berth; line walls in crew quarters. Use fillWallWithProps
 ---
-# Rope attachment points (each end)
-circle 0.21,0.5 0.1 fill #8b7355 0.80
-circle 0.21,0.5 0.1 stroke #5c3a1e
-circle 2.79,0.5 0.1 fill #8b7355 0.80
-circle 2.79,0.5 0.1 stroke #5c3a1e
-# Hammock body (woven shape)
-ellipse 1.5,0.5 1.05,0.26 texfill polyhaven/rough_linen 0.70
-ellipse 1.5,0.5 1.05,0.26 stroke #8b7355
-# Net weave lines (longitudinal)
-line 0.66,0.44 2.34,0.44 stroke #8b7355 0.625
-line 0.57,0.5 2.43,0.5 stroke #8b7355 0.5
-line 0.66,0.56 2.34,0.56 stroke #8b7355 0.625
-# Net weave lines (transverse)
-line 0.9,0.3 0.9,0.7 stroke #8b7355 0.5
-line 1.2,0.28 1.2,0.72 stroke #8b7355 0.5
-line 1.5,0.28 1.5,0.72 stroke #8b7355 0.5
-line 1.8,0.28 1.8,0.72 stroke #8b7355 0.5
-line 2.1,0.3 2.1,0.7 stroke #8b7355 0.5
+# Left rope attachment knot (layered coil detail)
+circle 0.21,0.5 0.13 fill #6b4e2e 0.60
+circle 0.21,0.5 0.13 stroke #3a1f00
+circle 0.21,0.5 0.09 fill #8b7355 0.75
+circle 0.21,0.5 0.09 stroke #5c3a1e
+circle 0.21,0.5 0.05 fill #6b4e2e 0.80
+circle 0.21,0.5 0.05 stroke #3a1f00
+# Right rope attachment knot (layered coil detail)
+circle 2.79,0.5 0.13 fill #6b4e2e 0.60
+circle 2.79,0.5 0.13 stroke #3a1f00
+circle 2.79,0.5 0.09 fill #8b7355 0.75
+circle 2.79,0.5 0.09 stroke #5c3a1e
+circle 2.79,0.5 0.05 fill #6b4e2e 0.80
+circle 2.79,0.5 0.05 stroke #3a1f00
+# Rope lines from knots to hammock body
+line 0.34,0.42 0.55,0.38 stroke #8b7355 width 2
+line 0.34,0.5 0.50,0.5 stroke #8b7355 width 2
+line 0.34,0.58 0.55,0.62 stroke #8b7355 width 2
+line 2.66,0.42 2.45,0.38 stroke #8b7355 width 2
+line 2.66,0.5 2.50,0.5 stroke #8b7355 width 2
+line 2.66,0.58 2.45,0.62 stroke #8b7355 width 2
+# Hammock body (wider in middle, narrower at rope ends — linen drape)
+ellipse 1.5,0.5 1.10,0.30 texfill polyhaven/rough_linen 0.72
+ellipse 1.5,0.5 1.10,0.30 stroke #8b7355
+# Sag lines showing fabric drape (curves wider in center)
+line 0.60,0.36 1.00,0.30 stroke #8b7355 0.40
+line 1.00,0.30 1.50,0.28 stroke #8b7355 0.40
+line 1.50,0.28 2.00,0.30 stroke #8b7355 0.40
+line 2.00,0.30 2.40,0.36 stroke #8b7355 0.40
+line 0.60,0.64 1.00,0.70 stroke #8b7355 0.40
+line 1.00,0.70 1.50,0.72 stroke #8b7355 0.40
+line 1.50,0.72 2.00,0.70 stroke #8b7355 0.40
+line 2.00,0.70 2.40,0.64 stroke #8b7355 0.40
+# Center sag line
+line 0.65,0.50 2.35,0.50 stroke #8b7355 0.30
+# Blanket (folded, draped over lower half of hammock)
+ellipse 1.90,0.52 0.50,0.22 fill #5a4a3a 0.35
+ellipse 1.90,0.52 0.50,0.22 stroke #4a3a2a 0.50
+# Blanket fold line
+line 1.50,0.44 2.30,0.44 stroke #4a3a2a 0.30
+# Pillow (small darker ellipse near left/head end)
+ellipse 0.75,0.50 0.15,0.12 fill #c8b898 0.65
+ellipse 0.75,0.50 0.15,0.12 stroke #8b7355 0.60
+# Pillow crease line
+line 0.65,0.50 0.85,0.50 stroke #8b7355 0.30

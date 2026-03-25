@@ -10,32 +10,35 @@ typical_count: few
 clusters_with: weapon-rack, armor-stand
 notes: Wall-mounted display; line armory walls
 ---
-# Wooden rack bar along north edge (top of frame seen from above)
-rect 0.08,0.06 1.84,0.14 texfill polyhaven/dark_wood 0.9
-rect 0.08,0.06 1.84,0.14 stroke #3a1f00
-# Rack support posts (visible from above as small squares)
-rect 0.08,0.06 0.1,0.18 fill #3a1f00 0.6
-rect 1.82,0.06 0.1,0.18 fill #3a1f00 0.6
-# Shield 1 (left) - round shield top peeking south of rack
-circle 0.38,0.48 0.28 texfill polyhaven/metal_plate 0.75
-circle 0.38,0.48 0.28 stroke #555555
-# Shield 1 boss (center rivet)
-circle 0.38,0.48 0.07 fill #daa520 0.6
-circle 0.38,0.48 0.07 stroke #8b6914
-# Shield 2 (center) - slightly larger, overlaps neighbors
-circle 1.0,0.50 0.30 texfill polyhaven/metal_plate 0.8
-circle 1.0,0.50 0.30 stroke #555555
-# Shield 2 boss
-circle 1.0,0.50 0.08 fill #daa520 0.6
-circle 1.0,0.50 0.08 stroke #8b6914
-# Shield 2 rim decoration
-circle 1.0,0.50 0.24 stroke #777777
-# Shield 3 (right) - round shield top
-circle 1.62,0.48 0.28 texfill polyhaven/metal_plate 0.75
-circle 1.62,0.48 0.28 stroke #555555
-# Shield 3 boss
-circle 1.62,0.48 0.07 fill #daa520 0.6
-circle 1.62,0.48 0.07 stroke #8b6914
-# Hanging pegs visible between shields
-circle 0.68,0.15 0.03 fill #5a3a00 0.7
-circle 1.32,0.15 0.03 fill #5a3a00 0.7
+# Footprint 1x2: x 0-2, y 0-1. Wall at north.
+
+# Dark wood rack bar along north wall
+rect 0.06,0.04 1.88,0.10 texfill polyhaven/dark_wood 0.9
+rect 0.06,0.04 1.88,0.10 stroke #3a1f00
+
+# Rack support brackets
+rect 0.06,0.04 0.10,0.14 fill #3a1f00 0.6
+rect 1.84,0.04 0.10,0.14 fill #3a1f00 0.6
+
+# Shadow below rack
+rect 0.10,0.14 1.80,0.04 fill #000000 0.1
+
+# Shield edges — just curved arcs peeking below the rack bar
+# Shield 1 (left, small)
+arc 0.36,0.14 0.20 20 160 stroke #777777 width 3
+arc 0.36,0.14 0.17 30 150 stroke #999999 width 1
+
+# Shield 2 (center, large)
+arc 1.00,0.14 0.28 15 165 stroke #888888 width 3
+arc 1.00,0.14 0.24 25 155 stroke #aaaaaa width 1
+# Boss barely visible
+circle 1.00,0.22 0.04 fill #daa520 0.5
+circle 1.00,0.22 0.04 stroke #8b6914
+
+# Shield 3 (right, medium)
+arc 1.62,0.14 0.24 18 162 stroke #6a6a6a width 3
+arc 1.62,0.14 0.20 28 152 stroke #999999 width 1
+
+# Hanging pegs
+circle 0.66,0.10 0.025 fill #5a3a00 0.7
+circle 1.32,0.10 0.025 fill #5a3a00 0.7

@@ -10,31 +10,80 @@ typical_count: few
 clusters_with: flowers, tall-grass, planter-box
 notes: Larger wildflower area; place along paths or as garden beds
 ---
-# Ground leaf cover
-circle 0.30,0.40 0.12 fill #2d6a1e 0.15
-circle 0.65,0.55 0.14 fill #3a7a28 0.12
-circle 0.40,0.85 0.13 fill #2d5a1e 0.15
-circle 0.70,1.10 0.12 fill #3a7a28 0.12
-circle 0.35,1.35 0.14 fill #2d6a1e 0.15
-circle 0.65,1.55 0.13 fill #2d5a1e 0.12
-circle 0.50,1.80 0.12 fill #3a7a28 0.15
-# Flower heads (scattered, varied colors)
-circle 0.25,0.30 0.04 fill #dd4466 0.50
-circle 0.50,0.25 0.05 fill #ffcc44 0.55
-circle 0.75,0.40 0.04 fill #cc44cc 0.45
-circle 0.35,0.60 0.04 fill #4488dd 0.50
-circle 0.60,0.70 0.05 fill #dd4466 0.50
-circle 0.20,0.90 0.04 fill #ffaa44 0.50
-circle 0.55,1.00 0.05 fill #ffcc44 0.55
-circle 0.80,0.95 0.04 fill #cc44cc 0.45
-circle 0.30,1.25 0.05 fill #dd4466 0.50
-circle 0.65,1.30 0.04 fill #4488dd 0.50
-circle 0.45,1.55 0.04 fill #ffaa44 0.50
-circle 0.75,1.60 0.05 fill #dd4466 0.45
-circle 0.30,1.80 0.04 fill #cc44cc 0.45
-circle 0.60,1.85 0.04 fill #ffcc44 0.50
-# Stems (subtle)
-line 0.25,0.42 0.25,0.32 stroke #3a7a28 0.25
-line 0.50,0.38 0.50,0.27 stroke #2d5a1e 0.25
-line 0.55,1.12 0.55,1.02 stroke #3a7a28 0.25
-line 0.30,1.38 0.30,1.27 stroke #2d5a1e 0.25
+# Ground greenery / leaf patches
+ellipse 0.25,0.35 0.14,0.08 fill #2d6a1e 0.25
+ellipse 0.80,0.20 0.10,0.06 fill #2a5e1a 0.22
+ellipse 1.20,0.60 0.12,0.07 fill #2d6a1e 0.20
+ellipse 0.55,0.75 0.11,0.07 fill #336b22 0.22
+ellipse 1.60,0.35 0.13,0.08 fill #2a5e1a 0.25
+ellipse 0.95,0.85 0.10,0.06 fill #2d6a1e 0.20
+ellipse 1.45,0.80 0.12,0.07 fill #336b22 0.22
+
+# --- Flower 1: White daisy at (0.30, 0.25) ---
+ellipse 0.30,0.17 0.04,0.06 fill #f0f0f0 0.70
+ellipse 0.38,0.22 0.06,0.04 fill #f0f0f0 0.70
+ellipse 0.30,0.33 0.04,0.06 fill #f0f0f0 0.70
+ellipse 0.22,0.22 0.06,0.04 fill #f0f0f0 0.70
+ellipse 0.36,0.30 0.05,0.04 fill #e8e8e8 0.65
+circle 0.30,0.25 0.035 fill #f0c030 0.85
+
+# --- Flower 2: Yellow buttercup at (0.70, 0.45) ---
+ellipse 0.70,0.37 0.04,0.055 fill #ffd740 0.70
+ellipse 0.77,0.42 0.055,0.04 fill #ffd740 0.70
+ellipse 0.70,0.53 0.04,0.055 fill #ffd740 0.70
+ellipse 0.63,0.42 0.055,0.04 fill #ffd740 0.70
+ellipse 0.76,0.50 0.04,0.045 fill #f5c800 0.65
+circle 0.70,0.45 0.03 fill #e09020 0.85
+
+# --- Flower 3: Purple violet at (1.10, 0.22) ---
+ellipse 1.10,0.14 0.04,0.055 fill #9055cc 0.70
+ellipse 1.17,0.19 0.055,0.04 fill #9055cc 0.70
+ellipse 1.10,0.30 0.04,0.055 fill #8045bb 0.65
+ellipse 1.03,0.19 0.055,0.04 fill #9055cc 0.70
+ellipse 1.15,0.27 0.04,0.04 fill #8045bb 0.60
+circle 1.10,0.22 0.03 fill #f0c030 0.85
+
+# --- Flower 4: Pink/red at (0.45, 0.60) ---
+ellipse 0.45,0.52 0.04,0.055 fill #e05080 0.70
+ellipse 0.52,0.57 0.055,0.04 fill #e05080 0.70
+ellipse 0.45,0.68 0.04,0.055 fill #d04070 0.65
+ellipse 0.38,0.57 0.055,0.04 fill #e05080 0.70
+ellipse 0.50,0.65 0.04,0.04 fill #d04070 0.60
+circle 0.45,0.60 0.03 fill #f0c030 0.85
+
+# --- Flower 5: Blue cornflower at (1.50, 0.55) ---
+ellipse 1.50,0.47 0.04,0.055 fill #5588dd 0.70
+ellipse 1.57,0.52 0.055,0.04 fill #5588dd 0.70
+ellipse 1.50,0.63 0.04,0.055 fill #4478cc 0.65
+ellipse 1.43,0.52 0.055,0.04 fill #5588dd 0.70
+ellipse 1.55,0.60 0.04,0.04 fill #4478cc 0.60
+circle 1.50,0.55 0.03 fill #f0c030 0.85
+
+# --- Flower 6: White daisy at (1.75, 0.25) ---
+ellipse 1.75,0.17 0.035,0.05 fill #f0f0f0 0.65
+ellipse 1.81,0.22 0.05,0.035 fill #f0f0f0 0.65
+ellipse 1.75,0.33 0.035,0.05 fill #e8e8e8 0.65
+ellipse 1.69,0.22 0.05,0.035 fill #f0f0f0 0.65
+circle 1.75,0.25 0.03 fill #e8a020 0.85
+
+# --- Flower 7: Red poppy at (0.90,0.40) ---
+ellipse 0.90,0.33 0.04,0.05 fill #dd3344 0.70
+ellipse 0.96,0.37 0.05,0.04 fill #dd3344 0.70
+ellipse 0.90,0.47 0.04,0.05 fill #cc2838 0.65
+ellipse 0.84,0.37 0.05,0.04 fill #dd3344 0.70
+circle 0.90,0.40 0.03 fill #1a1a1a 0.70
+
+# --- Flower 8: Small purple at (1.35, 0.18) ---
+ellipse 1.35,0.12 0.03,0.045 fill #aa66dd 0.65
+ellipse 1.40,0.16 0.045,0.03 fill #aa66dd 0.65
+ellipse 1.35,0.24 0.03,0.045 fill #9955cc 0.60
+ellipse 1.30,0.16 0.045,0.03 fill #aa66dd 0.65
+circle 1.35,0.18 0.025 fill #f0c030 0.80
+
+# Scattered leaf accents between flowers
+ellipse 0.52,0.35 0.07,0.035 fill #2d6a1e 0.30
+ellipse 1.30,0.45 0.06,0.03 fill #2a5e1a 0.28
+ellipse 0.15,0.55 0.06,0.035 fill #336b22 0.25
+ellipse 1.05,0.15 0.05,0.03 fill #2d6a1e 0.25
+ellipse 0.68,0.70 0.07,0.035 fill #2a5e1a 0.28
+ellipse 1.65,0.70 0.06,0.03 fill #336b22 0.25

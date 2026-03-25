@@ -9,28 +9,53 @@ room_types: garden, courtyard, wilderness, forest
 typical_count: few
 notes: Large deciduous tree; needs open space (2x2). Place in outdoor or garden areas
 ---
-# Trunk (visible through canopy gaps)
-circle 1.5,1.5 0.27 texfill polyhaven/bark_brown_02 0.85
-circle 1.5,1.5 0.27 stroke #3a1f00
-# Main canopy lobes (overlapping clusters — NOT one solid disc)
-circle 0.975,0.9 0.57 fill #2d6a1e 0.30
-circle 2.025,0.825 0.525 fill #3a7a28 0.28
-circle 0.75,1.65 0.48 fill #2d5a1e 0.30
-circle 2.25,1.575 0.54 fill #3a7a28 0.30
-circle 1.05,2.175 0.51 fill #2d6a1e 0.28
-circle 1.95,2.25 0.48 fill #3a7a28 0.30
-circle 1.5,0.675 0.45 fill #357020 0.28
-circle 1.5,2.325 0.42 fill #2d5a1e 0.25
-# Canopy highlight clusters (lighter green on top of lobes)
-circle 1.125,1.05 0.3 fill #4a9a38 0.15
-circle 1.875,0.975 0.27 fill #4a9a38 0.12
-circle 0.9,1.8 0.24 fill #4a9a38 0.15
-circle 2.1,1.725 0.3 fill #4a9a38 0.12
-circle 1.5,0.825 0.21 fill #5aaa48 0.12
-# Canopy lobe edges (dark outlines on the outer clusters)
-circle 0.975,0.9 0.57 stroke #1a4a10 0.25
-circle 2.025,0.825 0.525 stroke #1a4a10 0.22
-circle 0.75,1.65 0.48 stroke #1a4a10 0.22
-circle 2.25,1.575 0.54 stroke #1a4a10 0.25
-circle 1.05,2.175 0.51 stroke #1a4a10 0.22
-circle 1.95,2.25 0.48 stroke #1a4a10 0.25
+# Trunk (visible through canopy gap)
+circle 1.5,1.55 0.24 texfill polyhaven/bark_brown_02 0.85
+circle 1.5,1.55 0.24 stroke #3a1f00
+# Trunk roots peeking out
+circle 1.32,1.72 0.09 fill #4a2800 0.35
+circle 1.68,1.70 0.08 fill #4a2800 0.30
+# Dark shadow patches (between lobes where shadow collects)
+circle 1.5,1.2 0.35 fill #0a2a06 0.20
+circle 1.0,1.35 0.28 fill #0a2a06 0.18
+circle 2.0,1.30 0.30 fill #0a2a06 0.18
+circle 1.25,2.0 0.25 fill #0a2a06 0.16
+circle 1.75,1.95 0.27 fill #0a2a06 0.18
+circle 1.5,0.85 0.22 fill #0a2a06 0.15
+# Main canopy lobes (overlapping clusters)
+circle 0.95,0.85 0.58 fill #2d6a1e 0.30
+circle 2.05,0.80 0.54 fill #3a7a28 0.28
+circle 0.72,1.60 0.50 fill #2d5a1e 0.30
+circle 2.28,1.55 0.55 fill #3a7a28 0.30
+circle 1.05,2.20 0.52 fill #2d6a1e 0.28
+circle 1.95,2.28 0.50 fill #3a7a28 0.30
+circle 1.50,0.62 0.47 fill #357020 0.28
+circle 1.50,2.38 0.44 fill #2d5a1e 0.25
+# Secondary canopy lobes (fill gaps, add density)
+circle 0.65,1.10 0.38 fill #306820 0.22
+circle 2.35,1.10 0.40 fill #2e6e20 0.22
+circle 1.50,1.15 0.42 fill #2d6a1e 0.18
+circle 0.85,2.45 0.35 fill #2d5a1e 0.20
+circle 2.15,2.40 0.37 fill #357020 0.20
+# Canopy highlight clusters (lighter green on sunlit tops)
+circle 1.10,1.00 0.30 fill #4a9a38 0.15
+circle 1.90,0.95 0.28 fill #4a9a38 0.13
+circle 0.88,1.75 0.25 fill #4a9a38 0.15
+circle 2.12,1.70 0.30 fill #4a9a38 0.13
+circle 1.50,0.78 0.22 fill #5aaa48 0.13
+circle 1.20,2.10 0.22 fill #4a9a38 0.12
+circle 2.00,2.15 0.20 fill #4a9a38 0.12
+# Bright accent highlights (small sun-catch spots)
+circle 1.05,0.82 0.12 fill #5cb848 0.12
+circle 2.10,0.85 0.11 fill #5cb848 0.10
+circle 0.80,1.90 0.10 fill #5cb848 0.10
+circle 1.55,0.68 0.10 fill #5cb848 0.10
+# Canopy lobe edge outlines (outer definition)
+circle 0.95,0.85 0.58 stroke #1a4a10 0.25
+circle 2.05,0.80 0.54 stroke #1a4a10 0.22
+circle 0.72,1.60 0.50 stroke #1a4a10 0.22
+circle 2.28,1.55 0.55 stroke #1a4a10 0.25
+circle 1.05,2.20 0.52 stroke #1a4a10 0.22
+circle 1.95,2.28 0.50 stroke #1a4a10 0.25
+circle 0.65,1.10 0.38 stroke #1a4a10 0.18
+circle 2.35,1.10 0.40 stroke #1a4a10 0.18

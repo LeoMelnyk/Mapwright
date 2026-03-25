@@ -9,47 +9,59 @@ room_types: prison, market-square, courtyard
 typical_count: single
 notes: Public restraint; place in open areas
 ---
-# Left support post (west end)
-rect 0.05,0.2 0.2,0.6 texfill polyhaven/dark_wood 0.9
-rect 0.05,0.2 0.2,0.6 stroke #2a1400
+# Seat / bench area (behind the ankle boards, south side)
+rect 0.25,0.65 1.5,0.55 texfill polyhaven/dark_wood 0.85
+rect 0.25,0.65 1.5,0.55 stroke #2a1400
+# Bench plank grain
+line 0.35,0.75 0.65,0.75 stroke #3a2010
+line 1.1,0.85 1.5,0.85 stroke #3a2010
+line 0.5,0.95 0.9,0.95 stroke #3a2010
 
-# Right support post (east end)
-rect 1.75,0.2 0.2,0.6 texfill polyhaven/dark_wood 0.9
-rect 1.75,0.2 0.2,0.6 stroke #2a1400
+# Left support post
+rect 0.1,0.15 0.18,0.85 texfill polyhaven/dark_wood 0.9
+rect 0.1,0.15 0.18,0.85 stroke #2a1400
 
-# Top board (north half — hinged side)
-rect 0.2,0.3 1.6,0.15 texfill polyhaven/weathered_planks 0.85
-rect 0.2,0.3 1.6,0.15 stroke #4a2800
+# Right support post
+rect 1.72,0.15 0.18,0.85 texfill polyhaven/dark_wood 0.9
+rect 1.72,0.15 0.18,0.85 stroke #2a1400
 
-# Bottom board (south half — latch side)
-rect 0.2,0.55 1.6,0.15 texfill polyhaven/weathered_planks 0.85
-rect 0.2,0.55 1.6,0.15 stroke #4a2800
+# Top board (north half — hinge side, left)
+rect 0.25,0.25 1.5,0.16 texfill polyhaven/weathered_planks 0.85
+rect 0.25,0.25 1.5,0.16 stroke #4a2800
 
-# Hinge hardware along north edge (connecting the two boards)
-rect 0.55,0.28 0.08,0.04 fill #555555 0.8
-rect 1.35,0.28 0.08,0.04 fill #555555 0.8
+# Bottom board (south half — latch side, right)
+rect 0.25,0.44 1.5,0.16 texfill polyhaven/weathered_planks 0.85
+rect 0.25,0.44 1.5,0.16 stroke #4a2800
 
-# Latch on south edge
-rect 0.95,0.7 0.1,0.06 fill #555555 0.8
-rect 0.95,0.7 0.1,0.06 stroke #333333
+# Gap line between the two boards (the split where they hinge open)
+line 0.25,0.41 0.55,0.41 stroke #1a1a1a
+line 0.85,0.41 1.15,0.41 stroke #1a1a1a
+line 1.45,0.41 1.75,0.41 stroke #1a1a1a
 
-# Foot hole — left (semi-circles from each board meet to form circle)
-arc 0.7,0.45 0.1 3.14159 6.28318 stroke #4a2800
-arc 0.7,0.55 0.1 0 3.14159 stroke #4a2800
-ellipse 0.7,0.5 0.1,0.1 fill #1a1a1a 0.35
+# Ankle hole — left (dark interior first, then semicircle outlines)
+ellipse 0.7,0.41 0.12,0.12 fill #1a1a1a 0.4
+arc 0.7,0.41 0.12 3.14159 6.28318 stroke #4a2800
+arc 0.7,0.41 0.12 0 3.14159 stroke #4a2800
 
-# Foot hole — right
-arc 1.3,0.45 0.1 3.14159 6.28318 stroke #4a2800
-arc 1.3,0.55 0.1 0 3.14159 stroke #4a2800
-ellipse 1.3,0.5 0.1,0.1 fill #1a1a1a 0.35
+# Ankle hole — right
+ellipse 1.3,0.41 0.12,0.12 fill #1a1a1a 0.4
+arc 1.3,0.41 0.12 3.14159 6.28318 stroke #4a2800
+arc 1.3,0.41 0.12 0 3.14159 stroke #4a2800
+
+# Hinge hardware on left side of boards
+rect 0.25,0.33 0.06,0.16 fill #555555 0.8
+rect 0.25,0.33 0.06,0.16 stroke #333333
+rect 0.45,0.33 0.06,0.16 fill #555555 0.8
+rect 0.45,0.33 0.06,0.16 stroke #333333
+
+# Latch hardware on right side of boards
+rect 1.55,0.35 0.12,0.12 fill #555555 0.8
+rect 1.55,0.35 0.12,0.12 stroke #333333
+# Latch arm
+line 1.61,0.41 1.72,0.41 stroke #333333
 
 # Wood grain detail on boards
-line 0.3,0.37 0.5,0.37 stroke #3a2010
-line 1.5,0.37 1.7,0.37 stroke #3a2010
-line 0.3,0.63 0.5,0.63 stroke #3a2010
-line 1.5,0.63 1.7,0.63 stroke #3a2010
-
-# Gap line between boards (the split where they hinge open)
-line 0.2,0.5 0.6,0.5 stroke #1a1a1a
-line 0.8,0.5 1.2,0.5 stroke #1a1a1a
-line 1.4,0.5 1.8,0.5 stroke #1a1a1a
+line 0.9,0.30 1.1,0.30 stroke #3a2010
+line 1.5,0.32 1.7,0.32 stroke #3a2010
+line 0.9,0.50 1.1,0.50 stroke #3a2010
+line 0.35,0.52 0.55,0.52 stroke #3a2010

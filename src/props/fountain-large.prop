@@ -1,0 +1,112 @@
+name: Fountain (Large)
+category: Features
+footprint: 4x4
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: courtyard, garden, temple, palace, plaza
+typical_count: single
+notes: Grand water feature; place at room center as dramatic focal point
+---
+# Outer basin — thick stone rim (outer ring)
+circle 2.0,2.0 1.88 texfill polyhaven/stone_wall 0.82
+circle 2.0,2.0 1.88 stroke #555555
+# Basin inner wall
+circle 2.0,2.0 1.68 texfill polyhaven/stone_wall 0.78
+circle 2.0,2.0 1.68 stroke #666666
+# Inner lip of basin rim
+circle 2.0,2.0 1.55 texfill polyhaven/stone_wall 0.72
+circle 2.0,2.0 1.55 stroke #777777
+
+# Decorative notches on the basin rim — 16 evenly spaced
+# Cardinal positions (N, E, S, W)
+circle 2.0,0.12 0.10 texfill polyhaven/granite_tile 0.7
+circle 3.88,2.0 0.10 texfill polyhaven/granite_tile 0.7
+circle 2.0,3.88 0.10 texfill polyhaven/granite_tile 0.7
+circle 0.12,2.0 0.10 texfill polyhaven/granite_tile 0.7
+# Diagonal positions (NE, SE, SW, NW)
+circle 3.33,0.67 0.09 texfill polyhaven/granite_tile 0.7
+circle 3.33,3.33 0.09 texfill polyhaven/granite_tile 0.7
+circle 0.67,3.33 0.09 texfill polyhaven/granite_tile 0.7
+circle 0.67,0.67 0.09 texfill polyhaven/granite_tile 0.7
+# Intermediate positions (8 more between cardinals and diagonals)
+circle 2.95,0.28 0.07 texfill polyhaven/granite_tile 0.65
+circle 3.72,1.05 0.07 texfill polyhaven/granite_tile 0.65
+circle 3.72,2.95 0.07 texfill polyhaven/granite_tile 0.65
+circle 2.95,3.72 0.07 texfill polyhaven/granite_tile 0.65
+circle 1.05,3.72 0.07 texfill polyhaven/granite_tile 0.65
+circle 0.28,2.95 0.07 texfill polyhaven/granite_tile 0.65
+circle 0.28,1.05 0.07 texfill polyhaven/granite_tile 0.65
+circle 1.05,0.28 0.07 texfill polyhaven/granite_tile 0.65
+
+# Water pool inside the basin
+circle 2.0,2.0 1.50 fill #3a6688 0.80
+
+# Water depth gradient — darker toward center
+circle 2.0,2.0 1.20 fill #2d5577 0.25
+circle 2.0,2.0 0.90 fill #254a6a 0.20
+circle 2.0,2.0 0.60 fill #1f3f5e 0.18
+
+# Ripple rings — concentric water disturbances
+circle 2.0,2.0 1.42 stroke #5599bb
+circle 2.0,2.0 1.28 stroke #5599bb
+circle 2.0,2.0 1.12 stroke #6aaacc
+circle 2.0,2.0 0.96 stroke #6aaacc
+circle 2.0,2.0 0.80 stroke #5599bb
+
+# Subtle secondary ripple arcs (offset for realism)
+arc 1.60,1.65 0.35 0.3 2.8 stroke #6aaccb
+arc 2.50,2.40 0.30 1.0 4.0 stroke #6aaccb
+arc 1.40,2.50 0.25 2.0 5.0 stroke #6aaccb
+arc 2.60,1.40 0.28 0.5 3.5 stroke #6aaccb
+
+# Central pedestal — large stone column rising from water
+circle 2.0,2.0 0.48 texfill polyhaven/marble_01 0.88
+circle 2.0,2.0 0.48 stroke #888888
+# Pedestal highlight ring
+circle 2.0,2.0 0.43 stroke #aaaaaa
+
+# Upper basin — catch basin on pedestal
+circle 2.0,2.0 0.36 texfill polyhaven/granite_tile 0.85
+circle 2.0,2.0 0.36 stroke #777777
+
+# Water in upper basin
+circle 2.0,2.0 0.28 fill #4a88aa 0.70
+
+# Statue/figure base on top of pedestal
+circle 2.0,2.0 0.18 texfill polyhaven/marble_01 0.92
+circle 2.0,2.0 0.18 stroke #999999
+# Statue torso/body (slightly elongated)
+ellipse 2.0,2.0 0.10,0.13 texfill polyhaven/marble_01 0.95
+ellipse 2.0,2.0 0.10,0.13 stroke #aaaaaa
+# Statue head
+circle 2.0,1.85 0.06 texfill polyhaven/marble_01 0.95
+circle 2.0,1.85 0.06 stroke #bbbbbb
+# Outstretched arms (thin lines radiating from torso)
+line 1.88,1.95 1.74,1.88 stroke #cccccc
+line 2.12,1.95 2.26,1.88 stroke #cccccc
+
+# Water spray / splash droplets around the pedestal — generous spread
+circle 1.50,1.40 0.04 fill #88ccee 0.45
+circle 2.55,1.50 0.05 fill #88ccee 0.40
+circle 2.60,2.45 0.04 fill #88ccee 0.45
+circle 1.40,2.55 0.05 fill #88ccee 0.40
+circle 1.70,1.25 0.035 fill #99ddff 0.35
+circle 2.35,2.70 0.035 fill #99ddff 0.35
+circle 2.65,1.90 0.035 fill #99ddff 0.38
+circle 1.35,2.10 0.035 fill #99ddff 0.38
+circle 1.85,1.30 0.025 fill #aaddee 0.30
+circle 2.20,2.65 0.025 fill #aaddee 0.30
+circle 2.55,2.05 0.025 fill #aaddee 0.32
+circle 1.45,1.90 0.025 fill #aaddee 0.32
+circle 1.60,2.60 0.03 fill #88ccee 0.38
+circle 2.40,1.35 0.03 fill #88ccee 0.38
+circle 1.30,1.60 0.02 fill #99ddff 0.30
+circle 2.70,2.35 0.02 fill #99ddff 0.30
+
+# Water sheen highlights on the pool surface
+ellipse 1.35,1.55 0.14,0.07 fill #aaddee 0.18
+ellipse 2.65,2.30 0.12,0.06 fill #aaddee 0.18
+ellipse 1.70,2.65 0.10,0.05 fill #bbddee 0.15
+ellipse 2.40,1.30 0.11,0.05 fill #bbddee 0.15

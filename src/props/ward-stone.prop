@@ -10,18 +10,30 @@ typical_count: few
 clusters_with: magic-circle, summoning-cage
 notes: Protective ward; place at room corners or around ritual circles
 ---
-# Stone body (rectangular cross-section)
-rect 0.22,0.16 0.56,0.68 texfill polyhaven/stone_wall 0.80
-rect 0.22,0.16 0.56,0.68 stroke #444444
-# Stone inner texture
-rect 0.28,0.22 0.44,0.56 texfill polyhaven/granite_tile 0.60
-# Rune glyphs carved in
-line 0.34,0.30 0.66,0.30 stroke #8866cc 0.70
-line 0.34,0.42 0.66,0.42 stroke #8866cc 0.60
-line 0.34,0.54 0.66,0.54 stroke #8866cc 0.70
-line 0.50,0.28 0.50,0.58 stroke #8866cc 0.50
-# Ward glow aura
-circle 0.50,0.50 0.44 fill #8866cc 0.08
-circle 0.50,0.50 0.38 stroke #6644aa 0.30
-# Stone top bevel
-rect 0.22,0.16 0.56,0.06 fill #888888 0.50
+# Outer arcane aura glow
+circle 0.50,0.50 0.48 fill #8866cc 0.05
+circle 0.50,0.50 0.42 fill #9977dd 0.07
+circle 0.50,0.50 0.36 stroke #7755bb 0.20
+# Stone pillar body (circular cross-section)
+circle 0.50,0.50 0.26 texfill polyhaven/stone_wall 0.85
+circle 0.50,0.50 0.26 stroke #444444
+# Inner stone texture ring
+circle 0.50,0.50 0.20 texfill polyhaven/granite_tile 0.50
+# Carved rune lines on stone surface (glowing purple)
+line 0.38,0.35 0.62,0.35 stroke #aa77ff 0.70 width 2
+line 0.38,0.65 0.62,0.65 stroke #aa77ff 0.70 width 2
+line 0.50,0.30 0.50,0.70 stroke #aa77ff 0.60 width 2
+line 0.38,0.50 0.62,0.50 stroke #aa77ff 0.50 width 2
+# Diagonal rune marks
+line 0.40,0.38 0.50,0.50 stroke #9966ee 0.55 width 2
+line 0.60,0.38 0.50,0.50 stroke #9966ee 0.55 width 2
+# Flat carved top surface with sigil
+circle 0.50,0.50 0.14 fill #777777 0.40
+circle 0.50,0.50 0.14 stroke #9977dd 0.60
+# Central sigil rune (small star pattern)
+line 0.50,0.40 0.50,0.60 stroke #cc99ff 0.80 width 2
+line 0.42,0.46 0.58,0.54 stroke #cc99ff 0.80 width 2
+line 0.42,0.54 0.58,0.46 stroke #cc99ff 0.80 width 2
+# Central glow point
+circle 0.50,0.50 0.05 fill #cc99ff 0.50
+circle 0.50,0.50 0.03 fill #eeddff 0.70

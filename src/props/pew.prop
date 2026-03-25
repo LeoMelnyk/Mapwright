@@ -10,13 +10,21 @@ typical_count: many
 clusters_with: altar, lectern
 notes: Church seating; place in rows facing altar or lectern. Use lineProps for rows
 ---
-# Seat plank
-rect 0.0667,0.25 3.8667,0.5 texfill polyhaven/dark_wood 0.85
-rect 0.0667,0.25 3.8667,0.5 stroke #3a1f00
-# Backrest
-rect 0.0667,0.08 3.8667,0.14 texfill polyhaven/dark_wood 0.8
-rect 0.0667,0.08 3.8667,0.14 stroke #3a1f00
-# Support legs
-rect 0.2,0.22 0.08,0.56 fill #2a1500 0.6
-rect 1.96,0.22 0.08,0.56 fill #2a1500 0.6
-rect 3.72,0.22 0.08,0.56 fill #2a1500 0.6
+# Leg shadows (subtle dark circles under supports)
+circle 0.24,0.55 0.06 fill #000000 0.18
+circle 1.96,0.55 0.06 fill #000000 0.18
+circle 3.76,0.55 0.06 fill #000000 0.18
+# Seat plank (wide, main surface)
+rect 0.06,0.22 3.88,0.62 texfill polyhaven/wood_table 0.85
+rect 0.06,0.22 3.88,0.62 stroke #3a1f00
+# Wood grain line along seat
+line 0.2,0.50 3.8,0.50 stroke #3a1f00 width 1
+# Backrest strip (thin, along north edge)
+rect 0.06,0.06 3.88,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.06 3.88,0.12 stroke #2a1400
+# Left armrest cap
+rect 0.04,0.06 0.14,0.78 texfill polyhaven/dark_wood 0.9
+rect 0.04,0.06 0.14,0.78 stroke #2a1400
+# Right armrest cap
+rect 3.82,0.06 0.14,0.78 texfill polyhaven/dark_wood 0.9
+rect 3.82,0.06 0.14,0.78 stroke #2a1400

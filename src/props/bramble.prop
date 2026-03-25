@@ -1,38 +1,47 @@
 name: Bramble
 category: Terrain
-footprint: 1x2
-facing: yes
+footprint: 1x1
+facing: no
 shadow: no
 blocks_light: no
 placement: floor
 room_types: wilderness, forest, ruin, overgrown, hedge-maze
-typical_count: few
+typical_count: many
 clusters_with: bramble, rubble, dead-tree
-notes: Thorny thicket; use as natural barrier or overgrown terrain. Difficult terrain
+notes: Thorny thicket; tiles seamlessly for larger patches. Difficult terrain
 ---
-# Tangled vine mass
-line 0.15,0.30 0.85,0.50 stroke #3a5a20 0.30
-line 0.20,0.80 0.80,0.40 stroke #2d4a18 0.28
-line 0.10,1.20 0.90,1.00 stroke #3a5a20 0.30
-line 0.25,1.60 0.75,1.30 stroke #2d4a18 0.28
-line 0.15,0.60 0.85,1.10 stroke #3a5a20 0.25
-line 0.80,0.20 0.20,1.50 stroke #2d4a18 0.22
-line 0.30,0.15 0.70,1.80 stroke #3a5a20 0.22
-# Leaf clusters along vines
-circle 0.30,0.35 0.06 fill #2d6a1e 0.25
-circle 0.60,0.45 0.07 fill #3a7a28 0.22
-circle 0.45,0.75 0.06 fill #2d5a1e 0.25
-circle 0.70,0.90 0.07 fill #3a7a28 0.22
-circle 0.35,1.15 0.06 fill #2d6a1e 0.25
-circle 0.55,1.40 0.07 fill #2d5a1e 0.22
-circle 0.40,1.65 0.06 fill #3a7a28 0.25
-# Thorns (small sharp marks)
-circle 0.42,0.38 0.02 fill #5c3a1e 0.40
-circle 0.68,0.55 0.02 fill #5c3a1e 0.40
-circle 0.35,0.95 0.02 fill #5c3a1e 0.35
-circle 0.58,1.10 0.02 fill #5c3a1e 0.40
-circle 0.45,1.50 0.02 fill #5c3a1e 0.35
-# Small berries
-circle 0.25,0.55 0.02 fill #2a1a4a 0.45
-circle 0.72,1.25 0.02 fill #2a1a4a 0.45
-circle 0.50,1.70 0.02 fill #2a1a4a 0.40
+# footprint 1x1: x range 0-1, y range 0-1
+# Flush all edges for seamless tiling
+
+# === Base — woody vine mass ===
+poly 0.0,0.35 0.15,0.3 0.35,0.42 0.55,0.32 0.75,0.4 1.0,0.35 1.0,0.42 0.8,0.47 0.6,0.38 0.4,0.48 0.2,0.38 0.0,0.42 fill #3a2a10 0.6
+poly 0.0,0.58 0.2,0.65 0.4,0.55 0.6,0.68 0.8,0.58 1.0,0.58 1.0,0.65 0.8,0.65 0.55,0.74 0.35,0.62 0.15,0.72 0.0,0.65 fill #3a2a10 0.55
+
+# === Leaf clusters ===
+ellipse 0.15,0.4 0.12,0.1 fill #2d5a1e 0.55
+ellipse 0.5,0.48 0.13,0.1 fill #3a6a28 0.5
+ellipse 0.85,0.42 0.12,0.1 fill #2d6a1e 0.5
+ellipse 0.3,0.6 0.1,0.09 fill #3a7a28 0.45
+ellipse 0.65,0.55 0.11,0.09 fill #2d5a1e 0.45
+ellipse 0.0,0.5 0.08,0.1 fill #3a6a28 0.4
+ellipse 1.0,0.5 0.08,0.1 fill #3a6a28 0.4
+
+# === Vine tendrils ===
+line 0.0,0.38 0.25,0.5 stroke #2d4a18
+line 0.25,0.5 0.5,0.35 stroke #2d4a18
+line 0.5,0.35 0.75,0.5 stroke #2d4a18
+line 0.75,0.5 1.0,0.4 stroke #2d4a18
+line 0.0,0.65 0.3,0.45 stroke #3a5a20
+line 0.7,0.65 1.0,0.48 stroke #3a5a20
+
+# === Thorns ===
+poly 0.18,0.42 0.20,0.37 0.22,0.42 fill #5c3a1e 0.6
+poly 0.45,0.37 0.47,0.32 0.49,0.37 fill #5c3a1e 0.55
+poly 0.72,0.45 0.74,0.40 0.76,0.45 fill #5c3a1e 0.6
+poly 0.35,0.55 0.33,0.51 0.37,0.53 fill #5c3a1e 0.5
+poly 0.62,0.58 0.60,0.54 0.64,0.56 fill #5c3a1e 0.5
+
+# === Berries ===
+circle 0.28,0.52 0.02 fill #3a1a4a 0.6
+circle 0.58,0.62 0.02 fill #4a2a5a 0.55
+circle 0.82,0.55 0.02 fill #3a1a4a 0.55
