@@ -121,7 +121,7 @@ function render() {
       if (preset.z != null) selectedLight.z = preset.z;
       else delete selectedLight.z;
       selectedLight.presetId = preset.id; // restore link
-      invalidateLightmap();
+      invalidateLightmap(false);
       markDirty();
       notify();
       requestRender();
@@ -156,7 +156,7 @@ function render() {
           else delete selectedLight.dimRadius;
         }
         delete selectedLight.presetId; // sever preset link on manual edit
-        invalidateLightmap();
+        invalidateLightmap(false);
         markDirty();
         requestRender();
       }
@@ -167,7 +167,7 @@ function render() {
       sliderRow('Height (ft)', selectedLight.z ?? 8, 0.5, 20, 0.5, (v) => {
         selectedLight.z = v;
         delete selectedLight.presetId;
-        invalidateLightmap();
+        invalidateLightmap(false);
         markDirty();
         requestRender();
       }, (v) => `${v}ft`)
@@ -211,7 +211,7 @@ function render() {
       }
       delete selectedLight.presetId; // sever preset link on manual animation edit
       updateAnimRows();
-      invalidateLightmap();
+      invalidateLightmap(false);
       markDirty();
       requestRender();
     }
@@ -235,7 +235,7 @@ function render() {
       if (idx >= 0) {
         lights.splice(idx, 1);
         state.selectedLightId = null;
-        invalidateLightmap();
+        invalidateLightmap(false);
         markDirty();
         notify();
       }
@@ -317,7 +317,7 @@ function render() {
         else delete light.animation;
         count++;
       }
-      if (count > 0) { invalidateLightmap(); markDirty(); notify(); }
+      if (count > 0) { invalidateLightmap(false); markDirty(); notify(); }
     });
     resyncSection.appendChild(resyncBtn);
     container.appendChild(resyncSection);

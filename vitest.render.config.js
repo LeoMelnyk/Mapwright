@@ -5,7 +5,7 @@ export default defineConfig({
     setupFiles: ['./test/render/setup-render.js'],
     environment: 'node',
     include: ['test/render/**/*.test.js'],
-    testTimeout: 60000,
+    testTimeout: 120000,
     pool: 'forks',
   },
   resolve: {

@@ -329,18 +329,26 @@ function render() {
     if (cv !== _lastContentVersion) { _mapDirtySeq++; _lastContentVersion = cv; }
     const undoSig = (state.undoStack?.length || 0) * 10000 + (state.redoStack?.length || 0);
     if (undoSig !== _lastUndoSig) { _mapDirtySeq++; _lastUndoSig = undoSig; }
-    const lv = getLightingVersion();
-    if (lv !== _lastLightingVersion) { _mapDirtySeq++; _lastLightingVersion = lv; }
     // Debug skip flags bypass cache (force rebuild so flags take effect)
     const _skipKeys = Object.keys(_skip).filter(k => _skip[k] && k !== 'all');
     const _skipSig = _skipKeys.join(',');
+
+    const animClock = state.animClock ?? 0;
+    const hasAnimLights = lightingEnabled && (metadata.lights || []).some(l => l.animation?.type);
+
+    // Only bump composite dirty seq for lighting changes when lighting is baked into
+    // the composite (no animated lights). When animated lights exist, lighting renders
+    // as a separate overlay each frame — no composite rebuild needed.
+    const lv = getLightingVersion();
+    if (lv !== _lastLightingVersion) {
+      if (!hasAnimLights) _mapDirtySeq++;
+      _lastLightingVersion = lv;
+    }
+
     const needsCellsRedraw = !_cellsCache || _cellsCache.dirtySeq !== _mapDirtySeq ||
       _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH ||
       _cellsCache.texturesVersion !== texVer ||
       _cellsCache._skipSig !== _skipSig;
-
-    const animClock = state.animClock ?? 0;
-    const hasAnimLights = lightingEnabled && (metadata.lights || []).some(l => l.animation?.type);
 
     // When animated lights exist, the composite stores cells + labels only (no lighting).
     // Lighting is applied every frame at screen resolution — much cheaper than rebuilding

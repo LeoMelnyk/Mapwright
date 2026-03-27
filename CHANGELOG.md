@@ -2,6 +2,21 @@
 
 ## v0.8.0
 
+### Z-Height Shadow Projection
+
+Lights and props now have a vertical height dimension (`z` in feet above floor), enabling physically-based shadow projection:
+
+- **Height-proportional shadows**: A 7ft torch casts short shadows from a 2ft chest, medium from a 3ft barrel, and long from a 6ft bookshelf. Shadow length = `zTop / |lightZ - zTop|`, capped at 20×
+- **Three shadow cases**: Light above prop → short finite shadow with penumbra from the far face. Light within prop height range → long shadow from the far face, front of prop is lit. Light below prop bottom → no shadow (light passes underneath)
+- **Multi-zone hitboxes**: Props can define multiple height zones with `hitbox rect x,y w,h z bottom-top` syntax. The statue demonstrates this with a wide pedestal (0–3ft) and narrower figure (3–6ft), each casting independently shaped shadows
+- **All props assigned heights**: 206 light-blocking props have height values (0.5ft books to 15ft trees). 30 flat-on-floor props (carpets, magic circles, traps) remain non-blocking
+- **All light presets have z values**: 30 presets with appropriate heights (1ft ground fires, 3ft braziers, 7ft torches, 20ft overhead/celestial lights)
+- **Height slider in lighting panel**: New "Height (ft)" control for adjusting light z interactively
+- **Prop scale affects height**: A 2× scaled pillar casts shadows as a 20ft prop instead of 10ft
+- **Radius culling**: Props outside a light's effective radius are skipped during shadow computation
+- **Light drag performance**: Light-only changes skip expensive wall segment and prop shadow zone recomputation; composite cache rebuilds are skipped when animated lights handle the overlay. Deferred undo snapshot — clicking a light to select it no longer triggers a cache rebuild
+- **Cancellable light drag**: Escape or right-click during a light drag restores the original position with no undo entry
+
 ### Prop Art Overhaul
 
 Comprehensive visual overhaul of the entire prop library — every prop reviewed, with ~100 props remade or significantly improved:

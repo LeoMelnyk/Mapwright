@@ -47,7 +47,7 @@ export function placeLight(x, y, config = {}) {
 
   meta.lights.push(light);
   if (!meta.lightingEnabled) meta.lightingEnabled = true;
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();
@@ -62,7 +62,7 @@ export function removeLight(id) {
 
   pushUndo();
   meta.lights.splice(idx, 1);
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();
@@ -80,7 +80,7 @@ export function setAmbientLight(level) {
   }
   pushUndo();
   state.dungeon.metadata.ambientLight = level;
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();
@@ -90,7 +90,7 @@ export function setAmbientLight(level) {
 export function setLightingEnabled(enabled) {
   pushUndo();
   state.dungeon.metadata.lightingEnabled = !!enabled;
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();

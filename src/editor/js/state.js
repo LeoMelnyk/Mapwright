@@ -93,9 +93,9 @@ export function getTheme() {
  * Push current dungeon state to undo stack.
  * @param {string} [label='Edit'] — description shown in the history panel.
  */
-export function pushUndo(label = 'Edit') {
+export function pushUndo(label = 'Edit', preSerializedJson = null) {
   const _t0 = performance.now();
-  const json = JSON.stringify(state.dungeon);
+  const json = preSerializedJson || JSON.stringify(state.dungeon);
   const _t1 = performance.now();
   state.undoStack.push({ json, label });
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
@@ -162,9 +162,11 @@ export function markDirty() {
 
 /**
  * Invalidate the lighting visibility cache (call when walls change or on undo/redo).
+ * @param {boolean} [structuralChange=true] - Pass false for light-only changes
+ *   (position/config) to skip expensive wall segment and prop shadow zone recomputation.
  */
-export function invalidateLightmap() {
-  invalidateVisibilityCache();
+export function invalidateLightmap(structuralChange = true) {
+  invalidateVisibilityCache(structuralChange);
 }
 
 export function clearDirty() {

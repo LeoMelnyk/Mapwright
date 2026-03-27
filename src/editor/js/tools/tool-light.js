@@ -168,7 +168,7 @@ export class LightTool extends Tool {
           light.x = world.x;
           light.y = world.y;
         }
-        invalidateLightmap();
+        invalidateLightmap(false); // light-only change — skip prop zone recomputation
         markDirty();
         requestRender();
       }
@@ -195,7 +195,8 @@ export class LightTool extends Tool {
   onMouseUp() {
     if (this.dragging) {
       if (this.dragMoved) {
-        // Finalize move — undo was already pushed on drag start
+        // Commit: push undo with the original position, then notify
+        pushUndo('Move light', this.dragging.undoSnapshot);
         notify();
       }
       this.dragging = null;
@@ -206,14 +207,31 @@ export class LightTool extends Tool {
 
   onCancel() {
     if (this.dragging) {
+      // Restore original position — no undo entry created
+      const light = findLightById(this.dragging.lightId);
+      if (light && this.dragMoved) {
+        light.x = this.dragging.origX;
+        light.y = this.dragging.origY;
+        if (this.dragging.origRadius != null) light.radius = this.dragging.origRadius;
+        invalidateLightmap(false);
+        markDirty();
+        requestRender();
+      }
       this.dragging = null;
       this.dragMoved = false;
+      setCursor(this.hoveredLightId ? 'grab' : 'crosshair');
       return true;
     }
     return false;
   }
 
   onRightClick(row, col, edge, event) {
+    // Right-click during drag cancels the move
+    if (this.dragging) {
+      this.onCancel();
+      return;
+    }
+
     // Delete light under cursor
     const pos = { x: event.offsetX ?? event.layerX, y: event.offsetY ?? event.layerY };
     const light = hitTestLight(pos);
@@ -233,7 +251,7 @@ export class LightTool extends Tool {
     }
 
     this._updateStatusInstruction();
-    invalidateLightmap();
+    invalidateLightmap(false);
     markDirty();
     notify();
     requestRender();
@@ -248,7 +266,11 @@ export class LightTool extends Tool {
       return;
     }
 
-    // Escape: cancel paste mode
+    // Escape: cancel drag or paste mode
+    if (e.key === 'Escape' && this.dragging) {
+      this.onCancel();
+      return;
+    }
     if (e.key === 'Escape' && state.lightPasteMode) {
       state.lightPasteMode = false;
       requestRender();
@@ -337,7 +359,7 @@ export class LightTool extends Tool {
     }
     state.selectedLightId = null;
     this._updateStatusInstruction();
-    invalidateLightmap();
+    invalidateLightmap(false);
     markDirty();
     notify();
     requestRender();
@@ -369,7 +391,7 @@ export class LightTool extends Tool {
     state.selectedLightId = light.id;
     state.lightPasteMode = false;
 
-    invalidateLightmap();
+    invalidateLightmap(false);
     markDirty();
     notify();
     requestRender();
@@ -432,7 +454,7 @@ export class LightTool extends Tool {
     this.dragging = { lightId: light.id, offsetX: 0, offsetY: 0 };
     this.dragMoved = false;
 
-    invalidateLightmap();
+    invalidateLightmap(false);
     markDirty();
     notify();
     requestRender();
@@ -447,14 +469,18 @@ export class LightTool extends Tool {
       state.selectedLightId = light.id;
       state.statusInstruction = 'Drag to move · Ctrl+drag to resize radius · Right-click to delete';
 
-      // Start drag
+      // Start drag — save original position for cancel/restore.
+      // Snapshot state now so we can push undo on commit (mouse-up).
       const transform = getTransform();
       const screenPos = toCanvas(light.x, light.y, transform);
-      pushUndo('Move light');
       this.dragging = {
         lightId: light.id,
         offsetX: pos.x - screenPos.x,
         offsetY: pos.y - screenPos.y,
+        origX: light.x,
+        origY: light.y,
+        origRadius: light.radius,
+        undoSnapshot: JSON.stringify(state.dungeon),
       };
       this.dragMoved = false;
       setCursor('grabbing');

@@ -186,8 +186,14 @@ export function extractPropShadowZones(propCatalog, metadata, gridSize) {
     const propScale = op.scale ?? 1.0;
     const zones = finiteZones.map(zone => {
       const worldPoly = transformHitboxToWorld(zone.polygon, propDef, op, gridSize);
+      // Precompute centroid for fast radius culling in _renderOneLight
+      let cx = 0, cy = 0;
+      for (const [px, py] of worldPoly) { cx += px; cy += py; }
+      const n = worldPoly.length || 1;
       return {
         worldPolygon: worldPoly,
+        centroidX: cx / n,
+        centroidY: cy / n,
         zBottom: zone.zBottom * propScale,
         zTop: zone.zTop * propScale,
       };
@@ -928,11 +934,17 @@ function _getStaticLmCanvas(w, h) {
  * Clear the visibility polygon cache. Call when walls or props change.
  * All wall-changing tools call invalidateLightmap() → this function,
  * so per-frame hash recomputation is unnecessary.
+ *
+ * @param {boolean} [structuralChange=true] - If true, also clears wall segments
+ *   and prop shadow zones (use when walls/props are added/removed/moved).
+ *   If false, only clears per-light caches (use when only light position/config changes).
  */
-export function invalidateVisibilityCache() {
+export function invalidateVisibilityCache(structuralChange = true) {
   visibilityCache.clear();
-  cachedWallSegments = null;
-  cachedPropShadowZones = null;
+  if (structuralChange) {
+    cachedWallSegments = null;
+    cachedPropShadowZones = null;
+  }
   _staticLmValid = false; // static lightmap depends on wall segments + light positions
   _lightingVersion++;
 }
@@ -1084,8 +1096,16 @@ function _renderOneLight(lctx, light, time, segments, transform, propShadowZones
   const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
   const propShadows = [];
   if (propShadowZones?.length) {
+    const rSq = effectiveRadius * effectiveRadius;
     for (const { zones } of propShadowZones) {
       for (const zone of zones) {
+        // Cull props outside the light's radius — use centroid distance check
+        const cx = zone.centroidX;
+        const cy = zone.centroidY;
+        const dx = cx - eff.x;
+        const dy = cy - eff.y;
+        if (dx * dx + dy * dy > rSq) continue;
+
         const shadow = computePropShadowPolygon(
           eff.x, eff.y, lightZ, zone.worldPolygon, zone.zBottom, zone.zTop, effectiveRadius
         );
