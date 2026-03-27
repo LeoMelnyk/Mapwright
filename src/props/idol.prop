@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: altar, offering-plate, candle-cluster
 notes: Object of worship; place prominently as focal point
 ---
+# === HITBOX ===
+hitbox poly 0.22,0.35 0.35,0.22 0.65,0.22 0.78,0.35 0.78,0.65 0.65,0.78 0.35,0.78 0.22,0.65 z 0-3
+
 # === Eerie aura glow (outermost, painted first) ===
 circle 0.50,0.50 0.46 fill #224422 0.10
 circle 0.50,0.50 0.38 fill #336633 0.12

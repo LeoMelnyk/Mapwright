@@ -10,6 +10,10 @@ room_types: fortification, throne-room, battlements, courtyard, barracks
 typical_count: few
 notes: Place at room corners or entrance flanking positions. Flag extends south (front) from pole.
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.22 z 0-1
+hitbox circle 0.50,0.50 0.08 z 1-8
+
 # Stone pedestal base
 circle 0.50,0.50 0.22 texfill polyhaven/granite_tile 0.75
 circle 0.50,0.50 0.22 stroke #555555

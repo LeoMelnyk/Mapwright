@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: alchemy-bench, spice-shelf
 notes: Supply storage; line walls near workbenches
 ---
+# === HITBOX ===
+hitbox rect 0.04,0.04 1.92,0.92 z 0-6
+
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: open wooden rack frame with raw ingredients visible inside
 # Two side rails + cross-brace form the frame; contents sit between rails

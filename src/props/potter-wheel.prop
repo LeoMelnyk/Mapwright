@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: workbench
 notes: Crafting station; needs working space around it
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.46 z 0-2
+
 # Kick wheel (large bottom disc — darkest, biggest element)
 circle 0.50,0.50 0.46 texfill polyhaven/dark_wood 0.9
 circle 0.50,0.50 0.46 stroke #2a1400

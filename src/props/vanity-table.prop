@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: chair, stool
 notes: Dressing table with mirror; place against wall with chair in front
 ---
+# === HITBOX ===
+# Tabletop surface
+hitbox rect 0.2,0.2 1.6,0.65 z 2.5-3
+
 # Table surface
 rect 0.2,0.2 1.6,0.65 texfill polyhaven/wood_table 0.85
 rect 0.2,0.2 1.6,0.65 stroke #5c3a1e

@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: alchemy-bench, ingredient-rack
 notes: Grinding tool; place on or near workbenches
 ---
+# === HITBOX ===
+hitbox circle 0.48,0.52 0.40 z 0-1
+
 # Mortar outer rim (thick stone ring)
 circle 0.48,0.52 0.40 texfill polyhaven/granite_tile 0.85
 circle 0.48,0.52 0.40 stroke #444444

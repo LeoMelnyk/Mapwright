@@ -107,7 +107,7 @@ poly 0.70,0.80 0.75,0.72 0.52,0.15 0.45,0.22 texfill polyhaven/bark_brown_02 0.6
 poly 0.70,0.80 0.75,0.72 0.52,0.15 0.45,0.22 stroke #2a1a0a 0.6
 
 # Hitbox: just the trunk area (branches overhang but don't block)
-hitbox circle 1.50,1.50 0.40
+hitbox circle 1.50,1.50 0.40 z 0-12
 
 # === Trunk (drawn last, on top of branch bases) ===
 circle 1.50,1.50 0.40 texfill polyhaven/bark_brown_02 0.92

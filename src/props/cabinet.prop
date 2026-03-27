@@ -12,7 +12,7 @@ clusters_with: desk, bookshelf
 notes: Storage furniture; place against walls
 ---
 # Hitbox: solid cabinet body
-hitbox rect 0.1,0.0 1.8,0.85
+hitbox rect 0.1,0.0 1.8,0.85 z 0-6
 
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: flat wooden top with recessed body visible on front and sides

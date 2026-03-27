@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: tall-grass, flowers, mushroom
 notes: Grass tuft; scatter densely to create overgrown areas
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.36 z 0-2
+
 # Base green cluster — overlapping ellipses like moss-patch but brighter
 ellipse 0.48,0.52 0.36,0.30 fill #2d6a1e 0.35
 ellipse 0.56,0.46 0.30,0.26 fill #2d6a1e 0.30

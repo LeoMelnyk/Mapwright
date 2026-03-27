@@ -11,6 +11,9 @@ room_types: any
 typical_count: many
 notes: Wall-mounted light; place at regular intervals along walls. Use fillWallWithProps with gap:2-3
 ---
+# === HITBOX ===
+hitbox rect 0.25,0.02 0.50,0.42 z 0-1
+
 # footprint 1x1: x range 0-1, y range 0-1. Facing south, mounted on north wall.
 
 # === Wall mounting bracket (metal plate flush against north edge) ===

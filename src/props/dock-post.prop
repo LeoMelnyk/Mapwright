@@ -10,6 +10,9 @@ room_types: dock, harbor
 typical_count: many
 notes: Structural support; place at dock corners and edges
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-4
+
 # footprint 1x1: x range 0-1, y range 0-1
 
 # Rope coiled around base (drawn first, behind post)

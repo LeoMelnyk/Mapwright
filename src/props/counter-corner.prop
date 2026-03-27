@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: bar-counter
 notes: 90-degree corner piece for counter tops. Tiles seamlessly with bar-counter props.
 ---
+# === HITBOX ===
+hitbox rect 0.0,0.1 0.9,0.8 z 0-3
+hitbox rect 0.1,0.9 0.8,0.1 z 0-3
+
 # footprint 1x1: x range 0-1, y range 0-1
 # L-shape: west arm across top + south arm down the right side
 # Bottom-left corner is empty floor

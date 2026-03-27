@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: grave-marker
 notes: Burial mound with headstone; place in rows with grave-markers. Front (south) is the foot of the grave.
 ---
+# === HITBOX ===
+hitbox rect 0.60,0.20 0.80,0.30 z 0-1
+
 # Disturbed earth border (darker dirt around edges)
 ellipse 1.0,1.6 0.92,1.35 fill #3a2a18 0.35
 # Main dirt mound base

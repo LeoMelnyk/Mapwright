@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: scroll-rack, desk, bookshelf
 notes: Place on or near desks and shelves
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.32 0.80,0.36 z 0-1
+
 # Simple cylinder lying on its side — elongated oval from above
 
 # Case body (dark wood tube)

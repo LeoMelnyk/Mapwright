@@ -10,6 +10,16 @@ room_types: barracks, training-room, guard-room
 typical_count: few
 notes: Combat practice target; place with space for sparring around it
 ---
+# === HITBOX ===
+# Wooden base platform
+hitbox circle 1.0,1.15 0.4 z 0-1
+# Padded torso (center post + straw wrapping)
+hitbox ellipse 1.0,0.95 0.22,0.28 z 1-3
+# Crossbar arms (wide horizontal bar at shoulder height)
+hitbox rect 0.30,0.88 1.40,0.14 z 3-4
+# Head
+hitbox circle 1.0,0.6 0.16 z 4-6
+
 # Shadow beneath the whole thing
 ellipse 1.0,1.1 0.55,0.45 fill #000000 0.12
 

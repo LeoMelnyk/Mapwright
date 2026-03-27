@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: bush, flowers, tree-small
 notes: Round shrub; cluster along walls or paths for hedgerow effect
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.15 z 0-3
+
 # Shadow/base layer (dark ground shadow under the bush)
 circle 0.5,0.55 0.32 fill #1a2a10 0.25
 # Main foliage mass — overlapping circles, dark to light

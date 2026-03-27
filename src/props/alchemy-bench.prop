@@ -11,6 +11,8 @@ typical_count: single
 clusters_with: ingredient-rack, alembic, mortar-pestle, crucible
 notes: Primary workstation; place against wall with supplies nearby
 ---
+# === HITBOX ===
+hitbox rect 0.15,0.15 2.7,2.7 z 0-3
 # Work surface
 rect 0.15,0.15 2.7,2.7 texfill polyhaven/wood_table 0.80
 rect 0.15,0.15 2.7,2.7 stroke #3a1f00

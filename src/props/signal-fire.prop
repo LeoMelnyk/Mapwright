@@ -11,6 +11,9 @@ room_types: battlements, watchtower, beacon
 typical_count: single
 notes: Large beacon fire; place at tower tops or signal points
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.44 z 0-3
+
 # Stone brazier base (octagonal pedestal)
 poly 0.30,0.12 0.70,0.12 0.88,0.30 0.88,0.70 0.70,0.88 0.30,0.88 0.12,0.70 0.12,0.30 texfill polyhaven/stone_wall 0.80
 poly 0.30,0.12 0.70,0.12 0.88,0.30 0.88,0.70 0.70,0.88 0.30,0.88 0.12,0.70 0.12,0.30 stroke #444444

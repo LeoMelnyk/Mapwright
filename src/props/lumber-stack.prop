@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: log-pile, tree-stump, wood-pile, campfire
 notes: Long stacked tree trunks; place against walls or in lumber yards
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.05 1.82,3.90 z 0-4
+
 # Bottom layer — 3 full-length trunks stacked across x, running along y
 # East trunk (visible at east edge)
 rect 1.50,0.05 0.42,3.90 texfill polyhaven/bark_brown_02 0.75

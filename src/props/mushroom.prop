@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: mushroom-cluster, stalagmite
 notes: Scatter on floor for organic cave atmosphere
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.35 z 0-1
+
 # Ground shadow (cap overhang casts shadow)
 circle 0.52,0.54 0.37 fill #3a1800 0.25
 # Cap outer edge (darkest ring)

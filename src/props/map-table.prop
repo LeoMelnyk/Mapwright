@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: chair, candle-cluster, globe
 notes: Strategy planning surface; place centrally with chairs around
 ---
+# === HITBOX ===
+# Tabletop surface only — open space underneath, light passes under
+hitbox rect 0.1,0.1 2.8,2.8 z 2-2.5
+
 # Table surface
 rect 0.1,0.1 2.8,2.8 texfill polyhaven/wood_table 0.85
 rect 0.1,0.1 2.8,2.8 stroke #5c3a1e

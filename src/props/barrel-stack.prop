@@ -11,6 +11,10 @@ typical_count: few
 clusters_with: barrel, crate, crate-stack
 notes: Larger storage; place against walls
 ---
+# === HITBOX ===
+hitbox circle 0.55,1.25 0.42 z 0-3
+hitbox circle 1.45,1.25 0.42 z 0-3
+hitbox circle 1.0,0.6 0.42 z 3-5
 # Three barrels in a triangle: two at the bottom, one on top
 # Bottom-left barrel
 circle 0.55,1.25 0.42 texfill polyhaven/dark_wood 0.85

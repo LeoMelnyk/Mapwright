@@ -12,6 +12,9 @@ typical_count: single
 clusters_with: candle-cluster, bone-pile
 notes: Dark ritual focus; place prominently as room centerpiece
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.10 2.80,2.80 z 0-4
+
 # Stone slab base
 rect 0.10,0.10 2.80,2.80 texfill polyhaven/stone_wall 0.85
 rect 0.10,0.10 2.80,2.80 stroke #333333 width 2

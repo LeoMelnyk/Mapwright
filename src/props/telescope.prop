@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: desk, globe
 notes: Viewing instrument; point toward window or open sky
 ---
+# === HITBOX ===
+hitbox rect 0.86,0.10 0.28,0.78 z 0-4
+
 # Footprint 1x2: x 0-2, y 0-1. Front south, tube points north.
 
 # === Tripod legs (underneath the tube) ===

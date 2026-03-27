@@ -11,6 +11,10 @@ typical_count: few
 clusters_with: loom, workbench
 notes: Leather processing; place against walls
 ---
+# === HITBOX ===
+hitbox rect 0.30,0.42 1.40,0.07 z 0-6
+hitbox poly 0.42,0.66 1.58,0.66 1.55,1.32 1.0,1.38 0.45,1.32 z 0-5
+
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: tilted A-frame stand with hide stretched on it (like archery target)
 

@@ -10,6 +10,10 @@ room_types: courtyard, garden, temple, palace, plaza
 typical_count: single
 notes: Grand water feature; place at room center as dramatic focal point
 ---
+# === HITBOX ===
+hitbox circle 2.0,2.0 1.88 z 0-2
+hitbox circle 2.0,2.0 0.48 z 2-4
+
 # Outer basin — thick stone rim (outer ring)
 circle 2.0,2.0 1.88 texfill polyhaven/stone_wall 0.82
 circle 2.0,2.0 1.88 stroke #555555

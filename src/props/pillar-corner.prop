@@ -11,6 +11,9 @@ room_types: any
 typical_count: few
 notes: Corner structural support; place in room corners
 ---
+# === HITBOX ===
+hitbox circle 0,0 0.38 z 0-10
+
 # Main stone shaft (outer circle) centered at grid corner
 circle 0,0 0.38 texfill polyhaven/stone_wall 0.85
 circle 0,0 0.38 stroke #666666

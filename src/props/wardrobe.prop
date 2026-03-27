@@ -12,7 +12,7 @@ clusters_with: bed, chest, mirror
 notes: Clothes storage; place against wall near bed
 ---
 # Hitbox: main body blocks light, not the open door swinging south
-hitbox rect 0.06,0.10 1.88,1.70
+hitbox rect 0.06,0.10 1.88,1.70 z 0-6
 
 # Footprint 3x2: x 0-2, y 0-3. Front south, wall at north.
 

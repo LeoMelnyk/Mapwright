@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: crate-stack, barrel, barrel-stack
 notes: Basic storage; cluster against walls and in corners
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.08 0.84,0.84 z 0-3
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: wooden crate with plank lid, X-brace, corner nails
 

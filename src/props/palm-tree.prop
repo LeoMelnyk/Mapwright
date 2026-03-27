@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: palm-tree, boulder
 notes: Tropical tree; cluster in small groups. Thin trunk doesn't block light
 ---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.12 z 0-15
+
 # Footprint 2x2: x 0-2, y 0-2. Center at (1,1).
 
 # === Frond shadows (subtle dark ground shadow under the canopy) ===

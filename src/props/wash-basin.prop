@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: mirror, towel-rack
 notes: Bowl on a stand for washing; place near walls or beside beds
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.32 z 0-3
+
 # Tripod stand legs radiating from center
 line 0.50,0.50 0.50,0.85 stroke #555555 width 2
 line 0.50,0.50 0.25,0.28 stroke #555555 width 2

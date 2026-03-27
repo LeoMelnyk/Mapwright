@@ -378,6 +378,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!CLAUDE_ENABLED) {
     document.querySelector('[data-right-panel="claude"]')?.remove();
     document.getElementById('right-panel-claude')?.remove();
+    document.getElementById('sep-claude-settings')?.remove();
     document.getElementById('btn-claude-settings')?.remove();
     document.getElementById('modal-claude-settings')?.remove();
   } else {
@@ -1096,10 +1097,24 @@ function onKeyDown(e) {
       if (overlay && !copiedIds.has(overlay.id)) {
         copiedIds.add(overlay.id);
         const { row, col } = a;
+        // Capture linked lights (via propRef matching this prop's anchor)
+        const gs = meta.gridSize || 5;
+        const propAnchorRow = Math.round(overlay.y / gs);
+        const propAnchorCol = Math.round(overlay.x / gs);
+        const linkedLights = (meta.lights || [])
+          .filter(l => l.propRef?.row === propAnchorRow && l.propRef?.col === propAnchorCol)
+          .map(l => {
+            const clone = JSON.parse(JSON.stringify(l));
+            // Store light offset relative to the prop's world position
+            clone._offsetX = l.x - overlay.x;
+            clone._offsetY = l.y - overlay.y;
+            return clone;
+          });
         props.push({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
           prop: JSON.parse(JSON.stringify(overlay)),
+          lights: linkedLights.length > 0 ? linkedLights : undefined,
         });
       }
     }
@@ -1153,10 +1168,23 @@ function onKeyDown(e) {
       if (overlay && !copiedIds.has(overlay.id)) {
         copiedIds.add(overlay.id);
         const { row, col } = a;
+        // Capture linked lights (via propRef matching this prop's anchor)
+        const gs = meta.gridSize || 5;
+        const propAnchorRow = Math.round(overlay.y / gs);
+        const propAnchorCol = Math.round(overlay.x / gs);
+        const linkedLights = (meta.lights || [])
+          .filter(l => l.propRef?.row === propAnchorRow && l.propRef?.col === propAnchorCol)
+          .map(l => {
+            const clone = JSON.parse(JSON.stringify(l));
+            clone._offsetX = l.x - overlay.x;
+            clone._offsetY = l.y - overlay.y;
+            return clone;
+          });
         props.push({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
           prop: JSON.parse(JSON.stringify(overlay)),
+          lights: linkedLights.length > 0 ? linkedLights : undefined,
         });
       }
     }
@@ -1184,6 +1212,15 @@ function onKeyDown(e) {
   // Ctrl+V: enter prop paste mode (Prop tool, when prop clipboard exists)
   if (e.ctrlKey && e.key === 'v' && state.propClipboard && state.activeTool === 'prop') {
     e.preventDefault();
+    // Cancel any in-progress drag
+    tools.prop.onCancel();
+    // Deselect the prop template (stop placing new props)
+    if (state.selectedProp) {
+      state.selectedProp = null;
+      state.propRotation = 0;
+      state.propScale = 1.0;
+      notify();
+    }
     state.propPasteMode = true;
     canvasView.requestRender();
     return;

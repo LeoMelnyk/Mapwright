@@ -11,6 +11,11 @@ typical_count: many
 clusters_with: boulder, rock-cluster, crystal-formation
 notes: Natural cave formation; scatter on floor near walls for realistic growth
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-2
+hitbox circle 0.5,0.5 0.28 z 2-4
+hitbox circle 0.48,0.48 0.18 z 4-5
+
 # Ground shadow ring (soft dark halo on the floor)
 circle 0.5,0.5 0.46 fill #000000 0.12
 circle 0.5,0.5 0.42 fill #000000 0.08

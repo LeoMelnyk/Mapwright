@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: chopping-block, stool, pot-rack
 notes: Long rectangular prep table; place centrally with working space on both sides
 ---
+# === HITBOX ===
+# Tabletop surface
+hitbox rect 0.12,0.12 1.76,2.76 z 2-2.5
+
 # Table surface
 rect 0.12,0.12 1.76,2.76 texfill polyhaven/wood_table 0.82
 rect 0.12,0.12 1.76,2.76 stroke #3a1f00

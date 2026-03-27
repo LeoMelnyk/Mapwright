@@ -11,6 +11,8 @@ typical_count: single
 clusters_with: candelabra, holy-font, kneeling-bench, censer
 notes: Focal point of religious rooms; place centered with kneeling benches in front
 ---
+# === HITBOX ===
+hitbox rect 0.16,0.12 1.68,2.76 z 0-4
 # Stone slab
 rect 0.16,0.12 1.68,2.76 texfill polyhaven/marble_01 0.85
 rect 0.16,0.12 1.68,2.76 stroke

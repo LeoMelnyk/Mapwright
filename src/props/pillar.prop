@@ -12,7 +12,7 @@ clusters_with: brazier
 notes: Structural support; place symmetrically at room corners or flanking doors. 2-3 cells from walls for interior colonnades
 ---
 # Hitbox: stone shaft blocks light
-hitbox circle 0.5,0.5 0.38
+hitbox circle 0.5,0.5 0.38 z 0-10
 
 # Main stone shaft (outer circle)
 circle 0.5,0.5 0.38 texfill polyhaven/stone_wall 0.85

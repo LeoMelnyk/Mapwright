@@ -10,6 +10,8 @@ room_types: fortification, guard-room, corridor
 typical_count: few
 notes: Defensive position; tiles seamlessly end-to-end
 ---
+# === HITBOX ===
+hitbox rect 0.0,0.25 3.0,0.5 z 0-3
 # footprint 1x3: x range 0-3, y range 0-1
 # Flush left/right edges for seamless tiling
 # Main beam

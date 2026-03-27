@@ -10,6 +10,9 @@ room_types: dock, harbor, underground-lake
 typical_count: single
 notes: Small vessel; place at water's edge or on dock. 20ft long × 5ft wide
 ---
+# === HITBOX ===
+hitbox poly 1.0,0.1 0.2,1.0 0.1,2.5 0.1,5.5 0.2,7.0 1.0,7.9 1.8,7.0 1.9,5.5 1.9,2.5 1.8,1.0 z 0-2
+
 # Outer hull — tapered bow/stern shape
 poly 1.0,0.1 0.2,1.0 0.1,2.5 0.1,5.5 0.2,7.0 1.0,7.9 1.8,7.0 1.9,5.5 1.9,2.5 1.8,1.0 texfill polyhaven/weathered_planks 0.85
 poly 1.0,0.1 0.2,1.0 0.1,2.5 0.1,5.5 0.2,7.0 1.0,7.9 1.8,7.0 1.9,5.5 1.9,2.5 1.8,1.0 stroke #3a1f00

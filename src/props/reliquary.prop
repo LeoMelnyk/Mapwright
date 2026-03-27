@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: altar, holy-font
 notes: Sacred container; place prominently near altar
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.10 2.80,1.80 z 0-3
+
 # Chest body — dark wood base
 rect 0.10,0.10 2.80,1.80 texfill polyhaven/dark_wood 0.85
 rect 0.10,0.10 2.80,1.80 stroke #3a1f00 width 2

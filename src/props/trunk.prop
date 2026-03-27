@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: bed, chest
 notes: Storage container; place against walls or at foot of bed
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.84 z 0-2
+
 # Trunk body — dark wood base
 rect 0.08,0.08 1.84,0.84 texfill polyhaven/dark_wood 0.85
 rect 0.08,0.08 1.84,0.84 stroke #3a1f00 width 2

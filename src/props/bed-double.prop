@@ -11,6 +11,8 @@ typical_count: single
 clusters_with: nightstand, wardrobe, desk, chest
 notes: Large double bed; headboard against wall
 ---
+# === HITBOX ===
+hitbox rect 0.1,0.075 2.8,2.85 z 0-2
 # footprint 3x3: x range 0-3, y range 0-3
 # Wooden frame
 rect 0.1,0.075 2.8,2.85 texfill polyhaven/dark_wood 0.8

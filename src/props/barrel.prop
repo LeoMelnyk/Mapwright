@@ -11,6 +11,8 @@ typical_count: many
 clusters_with: barrel-stack, crate, crate-stack
 notes: Storage; cluster against walls or in corners
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-3
 # Wooden barrel top
 circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.85
 circle 0.5,0.5 0.38 stroke #3a1f00

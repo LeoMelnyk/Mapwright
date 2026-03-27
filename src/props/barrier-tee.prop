@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: barrier
 notes: T-junction for barriers. Tiles seamlessly with barrier props.
 ---
+# === HITBOX ===
+hitbox rect 0.0,0.25 1.0,0.5 z 0-3
+hitbox rect 0.25,0.25 0.5,0.75 z 0-3
 # footprint 1x1: x range 0-1, y range 0-1
 # T-shape: beam across full width + beam going south
 # Horizontal beam (full width, flush edges)

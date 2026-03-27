@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: forge, anvil
 notes: Water or feed container; place against wall near forge for quenching
 ---
+# === HITBOX ===
+hitbox rect 0.075,0.15 2.85,0.7 z 0-2
+
 # Support legs/stands — shadow rectangles underneath
 rect 0.30,0.72 0.18,0.12 fill #000000 0.2
 rect 1.10,0.72 0.18,0.12 fill #000000 0.2

@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: binnacle
 notes: Helm; place at ship's stern or elevated helm position
 ---
+# === HITBOX ===
+hitbox rect 0.43,0.60 0.14,0.34 z 0-2
+hitbox ellipse 0.50,0.42 0.42,0.17 z 2-4
+
 # Footprint 1x1: x 0-1, y 0-1. Front south.
 
 # Post

@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: boulder, bone-pile
 notes: Debris scatter; place randomly for ruined or destroyed areas
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.42 z 0-1.5
+
 # Dust/debris base layer (subtle ground scatter)
 circle 0.50,0.50 0.42 fill #8b7355 0.12
 circle 0.40,0.55 0.30 fill #6b5530 0.10

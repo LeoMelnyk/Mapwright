@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: chest, treasure-pile-small
 notes: Hoard of treasure; place as room focal point
 ---
+# === HITBOX ===
+hitbox ellipse 1.0,1.05 0.78,0.48 z 0-2
+
 # footprint 2x2: x range 0-2, y range 0-2
 # === Base layer — gold coin mound ===
 # Outer mound shadow/dark edge

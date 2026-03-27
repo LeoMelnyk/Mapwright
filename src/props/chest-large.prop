@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: chest, crate, treasure-pile
 notes: Large treasure chest; place as focal point or against walls
 ---
+# === HITBOX ===
+hitbox rect 0.1,0.12 1.8,0.76 z 0-2.5
+
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: large rounded lid chest with metal bands, hinges, clasp, handles
 

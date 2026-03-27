@@ -11,7 +11,7 @@ typical_count: few
 notes: Large deciduous tree; needs open space (2x2). Place in outdoor or garden areas
 ---
 # Hitbox: trunk only, canopy doesn't block at ground level
-hitbox circle 1.5,1.55 0.24
+hitbox circle 1.5,1.55 0.24 z 0-15
 
 # Trunk (visible through canopy gap)
 circle 1.5,1.55 0.24 texfill polyhaven/bark_brown_02 0.85

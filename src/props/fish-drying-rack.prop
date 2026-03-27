@@ -10,6 +10,10 @@ room_types: dock, harbor, fishing-village
 typical_count: few
 notes: Place near docks or processing areas
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.25 0.10,0.53 z 0-5
+hitbox rect 1.82,0.25 0.10,0.53 z 0-5
+
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: A-frame stand with crossbar, fish hanging below visible at an angle
 # Like the archery target — you see the top of the stand frame and the fish

@@ -11,6 +11,9 @@ room_types: arcane, wizard-sanctum, underdark
 typical_count: many
 notes: Magical light source; place along walls at regular intervals like torches
 ---
+# === HITBOX ===
+hitbox poly 0.50,0.18 0.72,0.30 0.72,0.54 0.50,0.66 0.28,0.54 0.28,0.30 z 0-5
+
 # Arcane glow (outer)
 circle 0.50,0.50 0.38 fill #6644aa 0.15
 circle 0.50,0.50 0.30 fill #8866cc 0.20

@@ -175,19 +175,19 @@ export class LightTool extends Tool {
       return;
     }
 
-    // Update hover state and cursor
+    // Update hover state and cursor — only request render on actual state transitions
     const hit = hitTestLight(pos);
     if (hit) {
       if (this.hoveredLightId !== hit.id) {
         this.hoveredLightId = hit.id;
         setCursor('grab');
-        requestRender(); // redraw to highlight hovered light
+        requestRender();
       }
     } else {
       if (this.hoveredLightId !== null) {
         this.hoveredLightId = null;
         setCursor('crosshair');
-        requestRender(); // redraw to clear hover highlight
+        requestRender();
       }
     }
   }
@@ -311,10 +311,17 @@ export class LightTool extends Tool {
 
   renderOverlay(ctx, transform) {
     const lights = getLights();
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
 
     for (const light of lights) {
       const px = light.x * transform.scale + transform.offsetX;
       const py = light.y * transform.scale + transform.offsetY;
+
+      // Cull off-screen lights (with generous margin for glow/radius preview)
+      const margin = 50;
+      if (px < -margin || px > w + margin || py < -margin || py > h + margin) continue;
+
       const isSelected = light.id === state.selectedLightId;
       const isHovered = light.id === this.hoveredLightId;
 
@@ -499,18 +506,20 @@ export class LightTool extends Tool {
     const size = isSelected ? 10 : isHovered ? 9 : 7;
 
     ctx.save();
+    const color = light.color || '#ff9944';
 
-    // Outer glow
-    ctx.shadowColor = light.color || '#ff9944';
-    ctx.shadowBlur = isSelected ? 14 : isHovered ? 10 : 6;
+    // Outer glow — use a larger translucent circle instead of expensive shadowBlur
+    const glowSize = isSelected ? 18 : isHovered ? 15 : 11;
+    ctx.beginPath();
+    ctx.arc(px, py, glowSize, 0, Math.PI * 2);
+    ctx.fillStyle = color + (isSelected ? '40' : isHovered ? '30' : '20');
+    ctx.fill();
 
     // Icon circle
     ctx.beginPath();
     ctx.arc(px, py, size, 0, Math.PI * 2);
-    ctx.fillStyle = light.color || '#ff9944';
+    ctx.fillStyle = color;
     ctx.fill();
-
-    ctx.shadowBlur = 0;
 
     // Border
     ctx.strokeStyle = isSelected ? '#ffffff' : isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)';
@@ -519,7 +528,7 @@ export class LightTool extends Tool {
 
     // Inner type indicator
     ctx.fillStyle = '#fff';
-    ctx.font = `bold ${size}px sans-serif`;
+    ctx.font = size >= 10 ? 'bold 10px sans-serif' : size >= 9 ? 'bold 9px sans-serif' : 'bold 7px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(light.type === 'directional' ? 'D' : 'P', px, py);

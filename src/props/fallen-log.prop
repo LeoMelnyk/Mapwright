@@ -10,6 +10,9 @@ room_types: wilderness, forest, swamp
 typical_count: few
 notes: Natural obstacle; place across paths or in clearings
 ---
+# === HITBOX ===
+hitbox rect 0.04,0.2 3.92,0.6 z 0-2
+
 # Left cross-section
 ellipse 0.2,0.5 0.16,0.3 texfill polyhaven/bark_brown_02 0.85
 ellipse 0.2,0.5 0.16,0.3 stroke #3a1f00

@@ -11,6 +11,18 @@ typical_count: few
 clusters_with: shackles, torture-rack
 notes: Iron cage for prisoners or beasts; place as room feature
 ---
+# === HITBOX — bars let light through; only solid frame/posts block ===
+# Corner posts (4 solid squares)
+hitbox rect 0.04,0.04 0.18,0.18 z 0-7
+hitbox rect 2.78,0.04 0.18,0.18 z 0-7
+hitbox rect 0.04,2.78 0.18,0.18 z 0-7
+hitbox rect 2.78,2.78 0.18,0.18 z 0-7
+# Frame rails (perimeter)
+hitbox rect 0.22,0.08 2.56,0.1 z 0-7
+hitbox rect 0.22,2.82 2.56,0.1 z 0-7
+hitbox rect 0.08,0.22 0.1,2.56 z 0-7
+hitbox rect 2.82,0.22 0.1,2.56 z 0-7
+
 # footprint 3x3: x range 0-3, y range 0-3
 # Top-down: solid iron bars with open gaps — floor visible through gaps
 # Draw order: bars first, then frame on top

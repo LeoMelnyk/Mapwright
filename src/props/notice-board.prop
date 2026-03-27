@@ -10,6 +10,9 @@ room_types: tavern, guild-hall, market, guard-room
 typical_count: single
 notes: Information board; mount on wall near entrances
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.03 1.84,0.19 z 0-6
+
 # Shadow below board (stands off wall slightly)
 rect 0.15,0.16 1.70,0.06 fill #000000 0.10
 # Board face sliver (thin strip of cork peeking out)

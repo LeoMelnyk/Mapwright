@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: magic-circle, summoning-cage
 notes: Protective ward; place at room corners or around ritual circles
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.26 z 0-3
+
 # Outer arcane aura glow
 circle 0.50,0.50 0.48 fill #8866cc 0.05
 circle 0.50,0.50 0.42 fill #9977dd 0.07

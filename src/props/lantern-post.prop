@@ -12,6 +12,11 @@ typical_count: few
 clusters_with:
 notes: Standing light; place along paths or at intersections
 ---
+# === HITBOX ===
+hitbox poly 0.50,0.68 0.62,0.72 0.70,0.80 0.66,0.90 0.50,0.94 0.34,0.90 0.30,0.80 0.38,0.72 z 0-1
+hitbox circle 0.50,0.62 0.06 z 1-5
+hitbox poly 0.50,0.18 0.64,0.22 0.72,0.34 0.72,0.50 0.64,0.62 0.50,0.66 0.36,0.62 0.28,0.50 0.28,0.34 0.36,0.22 z 5-7
+
 # Warm glow halo (ground level, drawn first)
 circle 0.50,0.42 0.44 fill #ffaa00 0.06
 circle 0.50,0.42 0.32 fill #ffcc44 0.08

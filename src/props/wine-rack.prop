@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: barrel, barrel-stack
 notes: Wall-mounted wine storage; line cellar walls
 ---
+# === HITBOX ===
+hitbox rect 0.05,0.02 1.90,0.62 z 0-6
+
 # Footprint 1x2: x 0-2, y 0-1. Wall at north.
 
 # Wine bottles lying on their sides — drawn FIRST so the shelf clips them

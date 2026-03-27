@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: trough, hay-bale
 notes: Straw storage; scatter in stables and barns, cluster against walls
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.10 0.80,0.80 z 0-3
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: rectangular hay bale with binding twine
 

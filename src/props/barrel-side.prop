@@ -11,6 +11,8 @@ typical_count: few
 clusters_with: barrel, barrel-stack, crate
 notes: Barrel on its side; place against walls or in storage areas
 ---
+# === HITBOX ===
+hitbox rect 0.2,0.12 1.6,0.76 z 0-1.5
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: barrel on its side, flat ends, slight belly bulge
 # Barrel body — polygon with flat ends and curved belly

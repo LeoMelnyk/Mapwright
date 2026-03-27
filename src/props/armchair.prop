@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: table, desk, fireplace, bookshelf
 notes: Seating; face toward tables, fireplaces, or room center
 ---
+# === HITBOX ===
+hitbox rect 0.1,0.08 0.8,0.72 z 0-2
+hitbox rect 0.15,0.08 0.7,0.15 z 2-3.5
 # Backrest
 rect 0.15,0.08 0.7,0.15 texfill polyhaven/dark_wood 0.85
 rect 0.15,0.08 0.7,0.15 stroke #4a2800

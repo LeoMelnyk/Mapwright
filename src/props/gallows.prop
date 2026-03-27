@@ -11,6 +11,16 @@ typical_count: single
 clusters_with: execution-block, pillory, stocks
 notes: Execution structure; place prominently with viewing space. Steps face south.
 ---
+# === HITBOX ===
+# Raised platform + steps (wide, low)
+hitbox rect 0.2,0.2 3.6,3.7 z 0-3
+# Left upright post
+hitbox rect 0.6,0.45 0.32,0.32 z 3-8
+# Right upright post
+hitbox rect 3.08,0.45 0.32,0.32 z 3-8
+# Crossbeam connecting posts at top
+hitbox rect 0.76,0.52 2.48,0.18 z 6-8
+
 # Platform base (raised wooden stage)
 rect 0.2,0.2 3.6,3.1 texfill polyhaven/weathered_planks 0.78
 rect 0.2,0.2 3.6,3.1 stroke #4a2800

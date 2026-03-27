@@ -11,6 +11,8 @@ typical_count: single
 clusters_with: forge, anvil
 notes: Place directly adjacent to forge
 ---
+# === HITBOX ===
+hitbox poly 0.10,0.18 0.90,0.18 0.72,0.62 0.28,0.62 z 0-2
 # Leather body (accordion/fan shape from above, wide at back, narrow toward nozzle)
 poly 0.10,0.18 0.90,0.18 0.72,0.62 0.28,0.62 texfill polyhaven/brown_leather 0.85
 poly 0.10,0.18 0.90,0.18 0.72,0.62 0.28,0.62 stroke #3d2b1a

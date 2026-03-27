@@ -107,7 +107,11 @@ line 0.96,0.66 1.04,0.66 stroke #888888 0.5
 line 1.04,0.66 1.08,0.70 stroke #888888 0.5
 
 # === HITBOX ZONES — z-height shadow projection ===
-# Pedestal base (wide, 0-3ft)
+# Pedestal base (wide stepped stone, 0-3ft)
 hitbox rect 0.18,0.18 1.64,1.64 z 0-3
-# Figure body (narrower torso/shoulders, 3-6ft)
-hitbox circle 1.00,0.90 0.35 z 3-6
+# Figure body — polygon tracing torso, arms, and robe (3-5ft)
+#   left arm top → left shoulder → right shoulder → right arm top →
+#   right arm bottom → right hip → left hip → left hand bottom
+hitbox poly 0.62,0.88 0.70,0.76 1.30,0.76 1.38,0.78 1.38,1.06 1.30,1.20 0.70,1.20 0.62,1.25 z 3-5
+# Head (5-6ft)
+hitbox circle 1.00,0.78 0.13 z 5-6

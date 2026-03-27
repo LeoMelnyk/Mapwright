@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: tanning-rack
 notes: Textile production; place against wall, tilted like archery target
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.04 2.80,0.70 z 0-5
+
 # footprint 1x3: x 0-3, y 0-1
 # Top-down: loom leaning against wall (north), tilted toward south
 # Similar perspective to archery target — foreshortened face visible

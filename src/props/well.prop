@@ -10,6 +10,9 @@ room_types: courtyard, village, cave, underground
 typical_count: single
 notes: Water source; place centrally in courtyards or near cave walls
 ---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.82 z 0-3
+
 # --- Stone ring wall ---
 # Outer stone ring with cobblestone texture
 ring 1.0,1.0 0.82 0.58 texfill polyhaven/cobblestone_floor_01 0.85

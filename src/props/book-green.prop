@@ -3,14 +3,16 @@ category: Library & Study
 footprint: 1x1
 facing: yes
 shadow: no
-blocks_light: yes
-height: 0.5
+blocks_light: no
 placement: floor
 room_types: library, study, wizard-sanctum
 typical_count: many
 clusters_with: book-pile, bookshelf, desk, scroll-case
 notes: Single green book lying flat; scatter on desks and tables
 ---
+# === HITBOX ===
+hitbox rect 0.2,0.25 0.6,0.5 z 0-0.5
+
 # footprint 1x1: x range 0-1, y range 0-1
 rect 0.2,0.25 0.6,0.5 fill #2a5a2a 0.85
 rect 0.2,0.25 0.6,0.5 stroke #1a3a1a

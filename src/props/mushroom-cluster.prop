@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: mushroom, crystal-formation
 notes: Large fungal growth; place in open cave areas
 ---
+# === HITBOX ===
+hitbox rect 0.15,0.20 1.70,1.65 z 0-1.5
+
 # === Small mushroom 1 (back-left) ===
 # Shadow
 circle 0.42,0.47 0.17 fill #3a1800 0.2

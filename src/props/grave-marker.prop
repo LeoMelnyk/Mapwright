@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: grave-mound
 notes: Headstone only; place in rows for graveyard feel.
 ---
+# === HITBOX ===
+hitbox rect 0.22,0.35 0.56,0.20 z 0-3
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: just the headstone — thin stone slab, top edge visible
 

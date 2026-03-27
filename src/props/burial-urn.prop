@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: bone-shrine, grave-marker, sarcophagus
 notes: Place on shelves or along walls in burial chambers
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.54 0.32 z 0-2
+
 # Urn body
 circle 0.50,0.54 0.32 texfill polyhaven/stone_wall 0.80
 circle 0.50,0.54 0.32 stroke #444444

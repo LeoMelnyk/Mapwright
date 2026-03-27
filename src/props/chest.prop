@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: crate, barrel
 notes: Treasure or storage; place against walls or at room focal points
 ---
+# === HITBOX ===
+hitbox rect 0.14,0.15 0.72,0.7 z 0-2
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: rounded lid chest with metal bands, hinges, clasp, corner brackets
 

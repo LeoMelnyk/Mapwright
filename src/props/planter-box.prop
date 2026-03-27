@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: planter-box, bench
 notes: Raised flower bed; place along walls or paths in garden areas
 ---
+# === HITBOX ===
+hitbox rect 0.04,0.04 1.92,0.92 z 0-2
+
 # Wooden box frame
 rect 0.04,0.04 1.92,0.92 texfill polyhaven/weathered_planks 0.85
 rect 0.04,0.04 1.92,0.92 stroke #3a1f00

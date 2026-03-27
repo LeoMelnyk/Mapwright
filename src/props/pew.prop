@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: altar, lectern
 notes: Church seating; place in rows facing altar or lectern. Use lineProps for rows
 ---
+# === HITBOX ===
+hitbox rect 0.04,0.06 3.92,0.78 z 0-3
+
 # Leg shadows (subtle dark circles under supports)
 circle 0.24,0.55 0.06 fill #000000 0.18
 circle 1.96,0.55 0.06 fill #000000 0.18

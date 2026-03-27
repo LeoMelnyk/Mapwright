@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: arcane-pedestal, magic-circle
 notes: Magical channeling device; place at focal points
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.24 z 0-2
+
 # Arcane glow (outermost - subtle radial emanation)
 circle 0.50,0.50 0.42 fill #8866cc 0.08
 circle 0.50,0.50 0.35 fill #aa88ee 0.10

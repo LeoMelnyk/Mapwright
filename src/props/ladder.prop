@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: trapdoor
 notes: Access between levels; place against wall or over a trapdoor
 ---
+# === HITBOX ===
+hitbox poly 0.18,0.88 0.82,0.88 0.57,0.15 0.43,0.15 z 0-8
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: ladder leaning against north wall, heavily foreshortened
 # The ladder goes mostly UP, so from above it's compressed into a short depth

@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: stool, grinding-wheel
 notes: Crafting surface; place against wall with stool in front
 ---
+# === HITBOX ===
+hitbox rect 0.16,0.1 2.68,1.76 z 0-3
+
 # Heavy wood surface
 rect 0.16,0.1 2.68,1.76 texfill polyhaven/wood_table 0.80
 # Thick edge trim

@@ -10,6 +10,10 @@ room_types: any
 typical_count: few
 notes: Decorative entrance framing; place spanning doorways or transitions
 ---
+# === HITBOX ===
+hitbox rect 0.0,0.15 0.3,0.7 z 0-8
+hitbox rect 1.7,0.15 0.3,0.7 z 0-8
+hitbox rect 0.0,0.15 2.0,0.18 z 6-8
 # Left (west) pillar top - square stone column seen from above
 rect 0.0,0.15 0.3,0.7 texfill polyhaven/stone_wall 0.85
 rect 0.0,0.15 0.3,0.7 stroke #555555

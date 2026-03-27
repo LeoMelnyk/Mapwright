@@ -10,6 +10,9 @@ room_types: dock, ship
 typical_count: single
 notes: Bridge between ship and dock; extend from wall edge
 ---
+# === HITBOX ===
+hitbox rect 0.07,0.12 3.87,0.76 z 0-1
+
 # Wooden plank surface
 rect 0.1333,0.15 3.7333,0.7 texfill polyhaven/worn_planks 0.82
 rect 0.1333,0.15 3.7333,0.7 stroke #4a2800

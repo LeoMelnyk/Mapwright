@@ -167,7 +167,6 @@ export function init() {
     document.getElementById('feat-border').checked = features.border !== false;
     const editorSettings = getEditorSettings();
     document.getElementById('feat-fps').checked = editorSettings.fpsCounter === true;
-    document.getElementById('feat-memory').checked = editorSettings.memoryUsage === true;
     document.getElementById('feat-minimap').checked = editorSettings.minimap === true;
     document.getElementById('feat-claude').checked = editorSettings.claude === true;
     document.getElementById('feat-debug').checked = editorSettings.debug === true;
@@ -352,7 +351,6 @@ export function init() {
   // Editor setting checkboxes (persist across maps, not saved in dungeon)
   for (const [id, key] of [
     ['feat-fps', 'fpsCounter'],
-    ['feat-memory', 'memoryUsage'],
     ['feat-minimap', 'minimap'],
   ]) {
     document.getElementById(id).addEventListener('change', (e) => {

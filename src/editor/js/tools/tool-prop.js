@@ -1,6 +1,6 @@
 // Prop tool: place props from catalog or select/manipulate placed props
 import { Tool } from './tool-base.js';
-import state, { pushUndo, undo, markDirty, notify, getTheme, invalidateLightmap } from '../state.js';
+import state, { pushUndo, markDirty, notify, getTheme, invalidateLightmap } from '../state.js';
 import { getLightCatalog } from '../light-catalog.js';
 import { requestRender, setCursor, getTransform } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
@@ -214,7 +214,7 @@ export class PropTool extends Tool {
 
   onDeactivate() {
     if (this.isDragging) {
-      undo(); // restore prop at original position
+      this._restoreDragItems();
     }
     this._resetDragState();
     this._resetHoverState();
@@ -466,6 +466,8 @@ export class PropTool extends Tool {
         this._cancelDrag();
       } else if (state.selectedProp) {
         state.selectedProp = null;
+        state.propRotation = 0;
+        state.propScale = 1.0;
         notify();
         requestRender();
       }
@@ -526,7 +528,7 @@ export class PropTool extends Tool {
         return { row: newRow, col: newCol };
       });
       markPropSpatialDirty();
-      invalidateLightmap();
+      invalidateLightmap('props');
       markDirty();
       notify();
       requestRender();
@@ -534,19 +536,65 @@ export class PropTool extends Tool {
     }
 
     // Z-order: [ = send backward, ] = bring forward
-    if ((e.key === '[' || e.key === ']') && state.selectedPropAnchors.length > 0) {
-      const anchor = state.selectedPropAnchors[0];
-      const overlay = _findOverlayAt(anchor.row, anchor.col);
-      if (overlay) {
-        if (e.key === ']') bringForward(overlay.id);
-        else sendBackward(overlay.id);
+    if (e.key === '[' || e.key === ']') {
+      if (this.isDragging && this.dragItems.length > 0) {
+        const step = e.key === ']' ? 1 : -1;
+        for (const item of this.dragItems) {
+          item.zIndex = Math.max(0, (item.zIndex ?? 10) + step);
+        }
         requestRender();
+        return;
+      }
+      if (state.selectedPropAnchors.length > 0) {
+        const anchor = state.selectedPropAnchors[0];
+        const overlay = _findOverlayAt(anchor.row, anchor.col);
+        if (overlay) {
+          if (e.key === ']') bringForward(overlay.id);
+          else sendBackward(overlay.id);
+          requestRender();
+        }
       }
     }
   }
 
   onWheel(row, col, deltaY, event) {
     // Alt+scroll = rotate, Alt+Shift+scroll = scale
+
+    // ── Drag ghost: adjust ghost items directly (no undo, no state mutation) ──
+    if (this.isDragging && this.dragItems.length > 0) {
+      if (event.shiftKey) {
+        const step = deltaY > 0 ? -0.1 : 0.1;
+        for (const item of this.dragItems) {
+          item.scale = Math.max(0.25, Math.min(4.0, (item.scale ?? 1.0) + step));
+          item.scale = Math.round(item.scale * 100) / 100;
+        }
+      } else {
+        const step = deltaY > 0 ? 15 : -15;
+        if (this.dragItems.length === 1) {
+          this.dragItems[0].facing = (((this.dragItems[0].facing || 0) + step) % 360 + 360) % 360;
+        } else {
+          this._rotateDragGroup(step);
+        }
+      }
+      requestRender();
+      return;
+    }
+
+    // ── Placement ghost: adjust placement defaults (no undo needed) ──
+    if (!this.hoveredAnchor && state.selectedProp && this.hoverRow != null) {
+      if (event.shiftKey) {
+        const step = deltaY > 0 ? -0.1 : 0.1;
+        state.propScale = Math.max(0.25, Math.min(4.0, (state.propScale ?? 1.0) + step));
+        state.propScale = Math.round(state.propScale * 100) / 100;
+      } else {
+        const step = deltaY > 0 ? 15 : -15;
+        state.propRotation = (((state.propRotation || 0) + step) % 360 + 360) % 360;
+      }
+      requestRender();
+      return;
+    }
+
+    // ── Placed/selected props: mutate overlays with undo ──
     // Debounce undo: only push a new undo entry if >500ms since last wheel tick
     const now = Date.now();
     const WHEEL_UNDO_DEBOUNCE = 500;
@@ -641,7 +689,7 @@ export class PropTool extends Tool {
     }));
 
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
     notify();
     requestRender();
@@ -694,7 +742,7 @@ export class PropTool extends Tool {
     );
 
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
     notify();
     requestRender();
@@ -822,7 +870,12 @@ export class PropTool extends Tool {
         // Draw name label only for the lead prop
         if (item.offsetRow === 0 && item.offsetCol === 0) {
           const name = item.propDef.name || item.origType || '';
-          if (name) this._drawNameLabel(ctx, name, topLeft, bottomRight);
+          if (name) {
+            let label = name + ` ${item.facing}°`;
+            if (scl !== 1.0) label += ` ${Math.round(scl * 100)}%`;
+            if ((item.zIndex ?? 10) !== 10) label += ` z${item.zIndex}`;
+            this._drawNameLabel(ctx, label, topLeft, bottomRight);
+          }
         }
       }
     }
@@ -899,8 +952,11 @@ export class PropTool extends Tool {
       const propDef = state.propCatalog?.props?.[selOverlay.type];
       const rot = selOverlay.rotation ?? 0;
       const selScale = selOverlay.scale ?? 1.0;
-      const name = (propDef?.name || selOverlay.type) + ` ${rot}°` + (selScale !== 1.0 ? ` ${Math.round(selScale * 100)}%` : '');
-      this._drawNameLabel(ctx, name, topLeft, bottomRight);
+      const selZ = selOverlay.zIndex ?? 10;
+      let label = (propDef?.name || selOverlay.type) + ` ${rot}°`;
+      if (selScale !== 1.0) label += ` ${Math.round(selScale * 100)}%`;
+      if (selZ !== 10) label += ` z${selZ}`;
+      this._drawNameLabel(ctx, label, topLeft, bottomRight);
     }
   }
 
@@ -919,6 +975,7 @@ export class PropTool extends Tool {
 
     pushUndo('Place prop');
     const entry = _addOverlayAt(row, col, state.selectedProp, state.propRotation, state.propFlipped || false);
+    if ((state.propScale ?? 1.0) !== 1.0) entry.scale = state.propScale;
 
     // Freeform: Ctrl+click places at exact pixel position (sub-cell),
     // centering the prop on the cursor (matching the ghost preview)
@@ -984,7 +1041,7 @@ export class PropTool extends Tool {
 
     // Always invalidate — any prop may block light
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
     notify();
     requestRender();
@@ -995,24 +1052,47 @@ export class PropTool extends Tool {
     if (!catalog?.props?.[state.selectedProp]) return;
 
     const propDef = catalog.props[state.selectedProp];
-    const [spanRows, spanCols] = getEffectiveFootprint(propDef, state.propRotation);
+    const rot = state.propRotation;
+    const scl = state.propScale ?? 1.0;
+    const [spanRows, spanCols] = getEffectiveFootprint(propDef, rot);
     const cells = state.dungeon.cells;
     const valid = isFootprintClear(cells, Math.floor(row), Math.floor(col), spanRows, spanCols);
     const theme = getTheme();
+    const needsTransform = scl !== 1.0 || (rot !== 0 && rot !== 90 && rot !== 180 && rot !== 270);
 
     ctx.save();
     ctx.globalAlpha = 0.4;
-    renderProp(ctx, propDef, row, col, state.propRotation, gridSize, theme, transform, state.propFlipped, getTextureResolver());
+    if (needsTransform) {
+      const [fRows, fCols] = propDef.footprint;
+      const centerNx = fCols / 2, centerNy = fRows / 2;
+      const { x: cx, y: cy } = toCanvas((col + centerNx) * gridSize, (row + centerNy) * gridSize, transform);
+      ctx.translate(cx, cy);
+      ctx.rotate((-rot * Math.PI) / 180);
+      ctx.scale(scl, scl);
+      const cellPx = gridSize * transform.scale;
+      const offsetTransform = { scale: transform.scale, offsetX: -centerNx * cellPx, offsetY: -centerNy * cellPx };
+      renderProp(ctx, propDef, 0, 0, 0, gridSize, theme, offsetTransform, state.propFlipped, getTextureResolver());
+    } else {
+      renderProp(ctx, propDef, row, col, rot, gridSize, theme, transform, state.propFlipped, getTextureResolver());
+    }
     ctx.restore();
 
+    const w = spanCols * gridSize, h = spanRows * gridSize;
+    const bCx = col * gridSize + w / 2, bCy = row * gridSize + h / 2;
+    const topLeft = toCanvas(bCx - (w * scl) / 2, bCy - (h * scl) / 2, transform);
+    const bottomRight = toCanvas(bCx + (w * scl) / 2, bCy + (h * scl) / 2, transform);
     const borderColor = valid ? 'rgba(100, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
     ctx.save();
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = 2;
-    const topLeft = toCanvas(col * gridSize, row * gridSize, transform);
-    const bottomRight = toCanvas((col + spanCols) * gridSize, (row + spanRows) * gridSize, transform);
     ctx.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
     ctx.restore();
+
+    // Tooltip label
+    const name = propDef.name || state.selectedProp;
+    let label = name + ` ${rot}°`;
+    if (scl !== 1.0) label += ` ${Math.round(scl * 100)}%`;
+    this._drawNameLabel(ctx, label, topLeft, bottomRight);
   }
 
   // ── Select + Drag ────────────────────────────────────────────────────────
@@ -1094,7 +1174,6 @@ export class PropTool extends Tool {
     }
     if (items.length === 0) return;
 
-    pushUndo(items.length > 1 ? 'Move props' : 'Move prop');
     for (const item of items) {
       // Remove by ID for reliability
       if (meta?.props) {
@@ -1103,9 +1182,10 @@ export class PropTool extends Tool {
       }
     }
 
-    // Props removed from overlay — update spatial hash and lighting immediately
+    // Props removed from overlay — update spatial hash and prop shadows,
+    // but keep cached wall segments (expensive) since walls haven't changed.
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
 
     this.isDragging = true;
     this.dragItems = items;
@@ -1134,6 +1214,7 @@ export class PropTool extends Tool {
     }
 
     if (this._allPositionsValid()) {
+      pushUndo(this.dragItems.length > 1 ? 'Move props' : 'Move prop');
       const gs = state.dungeon.metadata.gridSize || 5;
       const isFreeform = this.dragFreeform && this.dragGhost.worldX != null;
       const newAnchors = [];
@@ -1173,11 +1254,11 @@ export class PropTool extends Tool {
       }
       state.selectedPropAnchors = newAnchors;
       markPropSpatialDirty();
-      invalidateLightmap();
+      invalidateLightmap('props');
       markDirty();
       notify();
     } else {
-      undo();
+      this._restoreDragItems();
     }
 
     this.isDragging = false;
@@ -1190,7 +1271,7 @@ export class PropTool extends Tool {
   }
 
   _cancelDrag() {
-    if (this.isDragging) undo();
+    if (this.isDragging) this._restoreDragItems();
     this.isDragging = false;
     this.dragFreeform = false;
     this.dragItems = [];
@@ -1198,6 +1279,24 @@ export class PropTool extends Tool {
     this.dragGhost = null;
     setCursor('crosshair');
     requestRender();
+  }
+
+  /** Re-insert dragged props at their original positions (no undo deserialize). */
+  _restoreDragItems() {
+    const restoredAnchors = [];
+    for (const item of this.dragItems) {
+      const entry = _addOverlayAt(item.anchor.row, item.anchor.col, item.origType, item.facing, item.flipped);
+      entry.scale = item.scale;
+      entry.zIndex = item.zIndex;
+      // Restore exact original world-feet position
+      entry.x = item.origX;
+      entry.y = item.origY;
+      restoredAnchors.push({ row: item.anchor.row, col: item.anchor.col, propId: entry.id });
+    }
+    state.selectedPropAnchors = restoredAnchors;
+    markPropSpatialDirty();
+    invalidateLightmap('props');
+    notify();
   }
 
   // ── Key Handlers ────────────────────────────────────────────────────────
@@ -1216,7 +1315,7 @@ export class PropTool extends Tool {
         overlay.rotation = (((overlay.rotation || 0) + degrees) % 360 + 360) % 360;
       }
       markPropSpatialDirty();
-      invalidateLightmap();
+      invalidateLightmap('props');
       markDirty();
       notify();
       requestRender();
@@ -1241,7 +1340,7 @@ export class PropTool extends Tool {
         overlay.flipped = !overlay.flipped;
       }
       markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
       notify();
       requestRender();
@@ -1370,7 +1469,7 @@ export class PropTool extends Tool {
       propId: o.id,
     }));
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
     notify();
     requestRender();
@@ -1433,7 +1532,7 @@ export class PropTool extends Tool {
     }
     state.selectedPropAnchors = newAnchors;
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
     notify();
     requestRender();
@@ -1450,7 +1549,7 @@ export class PropTool extends Tool {
 
     state.selectedPropAnchors = [];
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
     notify();
     requestRender();
@@ -1500,9 +1599,14 @@ export class PropTool extends Tool {
       _removeOverlayAt(r, c);
     }
 
-    // Place pasted props
+    // Place pasted props (and their associated lights)
+    const meta = state.dungeon.metadata;
+    const gs = meta.gridSize || 5;
+    if (!meta.lights) meta.lights = [];
+    if (!meta.nextLightId) meta.nextLightId = 1;
     const newAnchors = [];
-    for (const { dRow, dCol, prop } of props) {
+    let lightsCreated = 0;
+    for (const { dRow, dCol, prop, lights } of props) {
       const row = targetRow + dRow;
       const col = targetCol + dCol;
       const cell = cells[row]?.[col];
@@ -1511,7 +1615,6 @@ export class PropTool extends Tool {
       if (prop.scale != null) entry.scale = prop.scale;
       if (prop.zIndex != null) entry.zIndex = prop.zIndex;
       // Preserve freeform sub-cell offset from the original prop
-      const gs = state.dungeon.metadata.gridSize || 5;
       const origAnchorRow = Math.round(prop.y / gs);
       const origAnchorCol = Math.round(prop.x / gs);
       const offsetX = prop.x - origAnchorCol * gs;
@@ -1521,17 +1624,42 @@ export class PropTool extends Tool {
         entry.y = row * gs + offsetY;
       }
       newAnchors.push({ row, col });
+
+      // Create associated lights at the pasted prop's new position
+      if (lights?.length) {
+        const newPropRefRow = Math.round(entry.y / gs);
+        const newPropRefCol = Math.round(entry.x / gs);
+        for (const light of lights) {
+          const newLight = {
+            id: meta.nextLightId++,
+            x: entry.x + light._offsetX,
+            y: entry.y + light._offsetY,
+            type: light.type || 'point',
+            radius: light.radius ?? 20,
+            color: light.color || '#ff9944',
+            intensity: light.intensity ?? 1.0,
+            falloff: light.falloff || 'smooth',
+            propRef: { row: newPropRefRow, col: newPropRefCol },
+          };
+          if (light.presetId) newLight.presetId = light.presetId;
+          if (light.dimRadius) newLight.dimRadius = light.dimRadius;
+          if (light.animation) newLight.animation = { ...light.animation };
+          meta.lights.push(newLight);
+          lightsCreated++;
+        }
+      }
     }
 
     state.selectedPropAnchors = newAnchors;
     state.propPasteMode = false;
     this.pasteHover = null;
     markPropSpatialDirty();
-    invalidateLightmap();
+    invalidateLightmap('props');
     markDirty();
     notify();
     requestRender();
-    showToast(`Pasted ${newAnchors.length} prop${newAnchors.length === 1 ? '' : 's'}`);
+    const lightMsg = lightsCreated > 0 ? ` with ${lightsCreated} light${lightsCreated === 1 ? '' : 's'}` : '';
+    showToast(`Pasted ${newAnchors.length} prop${newAnchors.length === 1 ? '' : 's'}${lightMsg}`);
   }
 
   _drawNameLabel(ctx, name, topLeft, bottomRight) {

@@ -10,6 +10,8 @@ room_types: bedroom, quarters, bathhouse
 typical_count: single
 notes: Place against wall with space to approach
 ---
+# === HITBOX ===
+hitbox ellipse 1.5,1.0 1.32,0.84 z 0-2
 # Outer tub
 ellipse 1.5,1 1.32,0.84 texfill polyhaven/marble_01 0.8
 ellipse 1.5,1 1.32,0.84 stroke #888888

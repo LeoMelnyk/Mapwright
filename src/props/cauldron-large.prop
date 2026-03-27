@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: wood-pile, chopping-block, spice-shelf
 notes: Cooking centerpiece; needs fire source and prep space nearby
 ---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.82 z 0-3
+
 # footprint 2x2: x range 0-2, y range 0-2
 
 # Iron body (outer)

@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: hearth, kitchen-table, oven
 notes: Hang on wall near cooking area
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.04 1.84,0.14 z 0-6
+
 # Footprint 1x2: x 0-2, y 0-1. Wall at north (y=0).
 
 # Iron rack bar mounted to wall

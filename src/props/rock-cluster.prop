@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: boulder, stalagmite
 notes: Natural rock formation; place in open cave areas
 ---
+# === HITBOX ===
+hitbox poly 0.6,0.15 1.05,0.3 1.85,0.55 1.85,0.95 1.80,1.65 1.55,1.85 0.55,1.85 0.10,1.35 0.15,0.7 0.18,0.35 z 0-2
+
 # Large rock
 poly 0.6,0.15 0.95,0.3 1.05,0.65 0.85,0.9 0.45,0.95 0.15,0.7 0.18,0.35 texfill polyhaven/rock_boulder_cracked 0.82
 poly 0.6,0.15 0.95,0.3 1.05,0.65 0.85,0.9 0.45,0.95 0.15,0.7 0.18,0.35 stroke #555555

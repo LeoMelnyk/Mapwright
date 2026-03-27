@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: tree-small, planter-box, bench
 notes: Young or small ornamental tree; use where a full 2x2 tree is too large
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.53 0.07 z 0-8
+
 # Trunk
 circle 0.50,0.53 0.07 texfill polyhaven/bark_brown_02 0.85
 circle 0.50,0.53 0.07 stroke #3a1f00

@@ -11,6 +11,10 @@ typical_count: few
 clusters_with: shackles, pillory
 notes: Restraints mounted on walls; line prison walls
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-4
+hitbox circle 2.5,0.5 0.22 z 0-4
+
 # footprint 1x3: x range 0-3, y range 0-1
 # Posts at dead center of first and last cell (0.5 and 2.5)
 

@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: bone-pile, skeleton, corpse
 notes: Small scatter of bones; use to fill corners and edges
 ---
+# === HITBOX ===
+hitbox rect 0.1,0.15 0.8,0.7 z 0-1
+
 # footprint 1x1: x range 0-1, y range 0-1
 # === Long bones ===
 # Femur 1

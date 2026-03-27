@@ -11,6 +11,10 @@ typical_count: few
 clusters_with: chair, stool, bench
 notes: Gathering surface; place centrally with seating around
 ---
+# === HITBOX ===
+# Tabletop surface
+hitbox rect 0.15,0.1 2.7,1.8 z 2-2.5
+
 # Table top
 rect 0.15,0.1 2.7,1.8 texfill polyhaven/wood_table 0.85
 rect 0.15,0.1 2.7,1.8 stroke #5c3a1e

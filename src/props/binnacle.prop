@@ -11,6 +11,8 @@ typical_count: single
 clusters_with: ship-wheel
 notes: Navigation instrument; place on deck near helm
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.34 z 0-3.5
 # Binnacle housing (cylindrical)
 circle 0.50,0.50 0.34 texfill polyhaven/dark_wood 0.80
 circle 0.50,0.50 0.34 stroke #3a1f00

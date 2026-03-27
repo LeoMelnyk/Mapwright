@@ -12,6 +12,9 @@ typical_count: single
 clusters_with: kitchen-table, wood-pile, chopping-block
 notes: Cooking appliance; build into wall
 ---
+# === HITBOX ===
+hitbox circle 1.0,0.85 0.78 z 0-4
+
 # Footprint 2x2: x 0-2, y 0-2. Wall at north, front at south.
 
 # Stone platform base

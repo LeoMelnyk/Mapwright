@@ -11,6 +11,9 @@ room_types: lighthouse, beacon-tower
 typical_count: single
 notes: Central light mechanism; place at room center
 ---
+# === HITBOX ===
+hitbox circle 1.5,1.5 1.38 z 0-6
+
 # Outer metal housing ring
 circle 1.5,1.5 1.38 fill #555555 0.3
 circle 1.5,1.5 1.38 stroke #444444

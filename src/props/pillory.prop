@@ -10,6 +10,9 @@ room_types: prison, courtyard, market-square
 typical_count: single
 notes: Public punishment device; place in open areas
 ---
+# === HITBOX ===
+hitbox rect 0.02,0.2 1.96,0.65 z 0-5
+
 # Left support post (west end) — chunky
 rect 0.02,0.2 0.28,0.6 texfill polyhaven/dark_wood 0.9
 rect 0.02,0.2 0.28,0.6 stroke #2a1400

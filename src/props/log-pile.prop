@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: wood-pile, campfire, tree-stump
 notes: Stacked logs; place near camps or against cabin walls
 ---
+# === HITBOX ===
+hitbox rect 0.05,0.10 1.90,1.82 z 0-3
+
 # Bottom layer — 3 logs spread across full footprint height
 # South log (bottom of pyramid, visible at south edge)
 rect 0.05,1.50 1.90,0.42 texfill polyhaven/bark_brown_02 0.75

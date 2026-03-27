@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: bone-pile, burial-urn, candle-cluster
 notes: Macabre devotional site; place against walls
 ---
+# === HITBOX ===
+hitbox rect 0.05,0.1 0.9,1.8 z 0-4
+
 # footprint 2x1: x range 0-1, y range 0-2
 # Top-down: stone altar slab with bones arranged ritualistically
 

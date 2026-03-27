@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: crate, crate-stack, barrel
 notes: Open crate; place near work areas or as looted container
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.08 0.84,0.84 z 0-2.5
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: open crate showing interior walls and dark inside
 

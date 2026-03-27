@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: fallen-log, tree-stump, mushroom
 notes: Short fallen log; scatter in forests
 ---
+# === HITBOX ===
+hitbox rect 0.04,0.22 1.92,0.56 z 0-1.5
+
 # footprint 1x2: x range 0-2, y range 0-1
 # Left cross-section
 ellipse 0.18,0.5 0.14,0.28 texfill polyhaven/bark_brown_02 0.85

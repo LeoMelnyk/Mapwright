@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: chair, book-pile, candle-cluster, scroll-case
 notes: Workspace; place against wall with chair in front
 ---
+# === HITBOX ===
+# Desktop surface
+hitbox rect 0.08,0.1 2.84,1.7 z 2-2.5
+
 # footprint 2x3: x range 0-3, y range 0-2
 # Top-down: wooden desk surface with drawer unit on left, open leg space on right
 

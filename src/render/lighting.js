@@ -757,20 +757,20 @@ function renderPointLight(lctx, light, visibility, transform) {
   // Clip bounding box to the canvas viewport. Without this, zooming in deeply
   // makes outerRPx thousands of pixels, causing a massive OffscreenCanvas and
   // radial gradient to be allocated every frame.
+  //
+  // Snap to integer pixel coordinates: fractional bbX/bbY cause drawImage to
+  // sub-pixel interpolate, blending gradient edge pixels with transparent ones
+  // and producing a faint visible line at the bounding box edge.
   const vpW = lctx.canvas.width;
   const vpH = lctx.canvas.height;
-  const bbX = Math.max(cx - outerRPx, 0);
-  const bbY = Math.max(cy - outerRPx, 0);
-  const bbW = Math.min(cx + outerRPx, vpW) - bbX;
-  const bbH = Math.min(cy + outerRPx, vpH) - bbY;
+  const bbX = Math.floor(Math.max(cx - outerRPx, 0));
+  const bbY = Math.floor(Math.max(cy - outerRPx, 0));
+  const bbW = Math.ceil(Math.min(cx + outerRPx, vpW)) - bbX;
+  const bbH = Math.ceil(Math.min(cy + outerRPx, vpH)) - bbY;
   if (bbW <= 0 || bbH <= 0) return; // fully off-screen
 
-  // Use ceiled integer dimensions consistently. The RT canvas is reused across
-  // lights, so fractional bbW/bbH can leave a thin strip of stale pixels from
-  // the previous light that drawImage (which reads Math.ceil pixels) picks up,
-  // creating a visible line at the light's bounding box edge.
-  const cw = Math.ceil(bbW);
-  const ch = Math.ceil(bbH);
+  const cw = bbW;
+  const ch = bbH;
 
   const gctx = ensureLightRTCanvas(cw, ch);
   gctx.clearRect(0, 0, cw, ch);
@@ -839,14 +839,14 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
 
   const vpW = lctx.canvas.width;
   const vpH = lctx.canvas.height;
-  const bbX = Math.max(cx - range, 0);
-  const bbY = Math.max(cy - range, 0);
-  const bbW = Math.min(cx + range, vpW) - bbX;
-  const bbH = Math.min(cy + range, vpH) - bbY;
+  const bbX = Math.floor(Math.max(cx - range, 0));
+  const bbY = Math.floor(Math.max(cy - range, 0));
+  const bbW = Math.ceil(Math.min(cx + range, vpW)) - bbX;
+  const bbH = Math.ceil(Math.min(cy + range, vpH)) - bbY;
   if (bbW <= 0 || bbH <= 0) return;
 
-  const cw = Math.ceil(bbW);
-  const ch = Math.ceil(bbH);
+  const cw = bbW;
+  const ch = bbH;
 
   const gctx = ensureLightRTCanvas(cw, ch);
   gctx.clearRect(0, 0, cw, ch);
@@ -941,8 +941,11 @@ function _getStaticLmCanvas(w, h) {
  */
 export function invalidateVisibilityCache(structuralChange = true) {
   visibilityCache.clear();
-  if (structuralChange) {
+  if (structuralChange === true) {
     cachedWallSegments = null;
+    cachedPropShadowZones = null;
+  } else if (structuralChange === 'props') {
+    // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
     cachedPropShadowZones = null;
   }
   _staticLmValid = false; // static lightmap depends on wall segments + light positions

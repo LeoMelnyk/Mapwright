@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: kitchen-table, pot-rack
 notes: Food prep; place near kitchen table with working space
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-2.5
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: thick tree trunk cross-section with rings and cut marks
 

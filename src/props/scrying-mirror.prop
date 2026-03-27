@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: crystal-ball, candle-cluster
 notes: Magical viewing device; mount on wall as focal point
 ---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.75 z 0-6
+
 # Pedestal base
 circle 1.0,1.0 0.3 texfill polyhaven/granite_tile 0.8
 circle 1.0,1.0 0.3 stroke #444444

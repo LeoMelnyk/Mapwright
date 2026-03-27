@@ -10,6 +10,10 @@ room_types: fortification, gatehouse, dungeon
 typical_count: few
 notes: Heavy gate; place spanning doorways or corridor entrances
 ---
+# === HITBOX ===
+hitbox rect 0.0,0.0 0.20,1.0 z 0-8
+hitbox rect 1.80,0.0 0.20,1.0 z 0-8
+
 # West stone guide channel
 rect 0.0,0.0 0.20,1.0 texfill polyhaven/stone_wall 0.85
 rect 0.0,0.0 0.20,1.0 stroke #555555

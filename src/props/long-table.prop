@@ -11,6 +11,10 @@ typical_count: few
 clusters_with: chair, bench, stool
 notes: Dining or meeting table; place centrally with seating along both sides
 ---
+# === HITBOX ===
+# Tabletop surface
+hitbox rect 0.2,0.2 4.6,1.6 z 2-2.5
+
 # Table surface
 rect 0.2,0.2 4.6,1.6 texfill polyhaven/wood_table 0.85
 rect 0.2,0.2 4.6,1.6 stroke #5c3a1e

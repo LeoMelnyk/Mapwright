@@ -35,6 +35,7 @@ const state = {
   selectedProp: null,  // string — prop type name from catalog (e.g. 'pillar')
   propRotation: 0,     // 0, 90, 180, 270 — current placement rotation
   propFlipped: false,  // whether the next placed prop is horizontally mirrored
+  propScale: 1.0,      // scale for next placed prop
   propCatalog: null,   // PropCatalog object, loaded at init (runtime only, not serialized)
   selectedPropAnchors: [], // array of {row, col} for selected props in select mode (legacy)
   selectedPropIds: [],     // array of overlay prop IDs for selected props (new system)
@@ -93,7 +94,12 @@ export function getTheme() {
  * Push current dungeon state to undo stack.
  * @param {string} [label='Edit'] — description shown in the history panel.
  */
+/** Set to true to skip all undo stack pushes (for testing). */
+export let undoDisabled = false;
+export function setUndoDisabled(v) { undoDisabled = v; }
+
 export function pushUndo(label = 'Edit', preSerializedJson = null) {
+  if (undoDisabled) return;
   const _t0 = performance.now();
   const json = preSerializedJson || JSON.stringify(state.dungeon);
   const _t1 = performance.now();
@@ -162,8 +168,8 @@ export function markDirty() {
 
 /**
  * Invalidate the lighting visibility cache (call when walls change or on undo/redo).
- * @param {boolean} [structuralChange=true] - Pass false for light-only changes
- *   (position/config) to skip expensive wall segment and prop shadow zone recomputation.
+ * @param {boolean|'props'} [structuralChange=true] - Pass false for light-only changes,
+ *   'props' to clear prop shadow zones but keep cached wall segments.
  */
 export function invalidateLightmap(structuralChange = true) {
   invalidateVisibilityCache(structuralChange);

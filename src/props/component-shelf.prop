@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: alchemy-bench, crystal-ball, spell-focus
 notes: Spell component storage; line walls near workbenches
 ---
+# === HITBOX ===
+hitbox rect 0.0,0.0 2.0,0.85 z 0-5
+
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: flat wooden shelf top with bottle caps/stoppers peeking at front
 

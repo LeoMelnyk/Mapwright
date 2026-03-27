@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: reed-bed, lily-pads, pond
 notes: Water-edge reeds; place along shorelines or swamp borders
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.25 1.80,0.65 z 0-3
+
 # Water edge tint along north (wall side)
 ellipse 1.00,0.12 0.85,0.10 fill #2a5a4a 0.12
 ellipse 0.70,0.08 0.50,0.07 fill #1a4a3a 0.10

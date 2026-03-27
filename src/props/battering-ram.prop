@@ -10,6 +10,8 @@ room_types: siege, armory, fortification
 typical_count: single
 notes: Large siege equipment; needs open space
 ---
+# === HITBOX ===
+hitbox rect 0.1333,0.32 4.7333,0.36 z 0-3
 # Main beam
 rect 0.1333,0.32 4.7333,0.36 texfill polyhaven/dark_wood 0.85
 rect 0.1333,0.32 4.7333,0.36 stroke #3a1f00

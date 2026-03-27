@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: weapon-rack, armor-stand
 notes: Weapon storage; place against walls near weapon racks
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.38 z 0-6
+
 # Open barrel base (from above — circular wooden barrel)
 circle 0.50,0.50 0.38 texfill polyhaven/weathered_planks 0.75
 circle 0.50,0.50 0.38 stroke #3a1f00

@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: bookshelf, scroll-case, desk
 notes: Wall-mounted storage; line walls like bookshelves
 ---
+# === HITBOX ===
+hitbox rect 0.06,0.04 1.88,0.50 z 0-5
+
 # Footprint 1x2: x 0-2, y 0-1. Wall at north.
 # Scrolls lie horizontally in shelves, poking out toward the room (south)
 

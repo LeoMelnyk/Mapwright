@@ -10,6 +10,9 @@ room_types: study, wizard-sanctum, any
 typical_count: single
 notes: Decorative timepiece; place on desks or pedestals
 ---
+# === HITBOX ===
+hitbox rect 0.20,0.20 0.60,0.60 z 0-1.5
+
 # Wooden frame base (square top surface, seen from above)
 rect 0.20,0.20 0.60,0.60 texfill polyhaven/dark_wood 0.85
 rect 0.20,0.20 0.60,0.60 stroke #3a1f00

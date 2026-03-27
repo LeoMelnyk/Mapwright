@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: iron-maiden, shackles
 notes: Torture device; place against walls
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.12 2.80,1.76 z 0-5
+
 # footprint 2x3: x range 0-3, y range 0-2. Front faces south.
 
 # === Wooden frame (outer rectangular border) ===

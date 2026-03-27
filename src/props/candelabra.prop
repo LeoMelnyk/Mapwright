@@ -12,6 +12,9 @@ typical_count: few
 clusters_with: altar, kneeling-bench, censer
 notes: Light source; place flanking altars or along processional paths
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.15 z 0-4
+
 # Central post
 circle 0.5,0.5 0.08 texfill polyhaven/rusty_metal 0.85
 circle 0.5,0.5 0.08 stroke #555555

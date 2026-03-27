@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: component-shelf, ingredient-rack
 notes: Display specimens; place on shelves near alchemy benches
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.34 z 0-1.5
+
 # Glass jar body (subtle hint around edges)
 circle 0.50,0.50 0.34 fill #aabbcc 0.20
 circle 0.50,0.50 0.34 stroke #778899 width 2

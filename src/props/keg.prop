@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: barrel, bar-counter
 notes: Horizontal barrel on a stand; place behind bar counters or in cellars
 ---
+# === HITBOX ===
+hitbox ellipse 0.50,0.48 0.30,0.38 z 0-2
+
 # Wooden cradle/stand — two V-shaped supports visible at sides
 poly 0.10,0.30 0.30,0.50 0.10,0.70 fill #4a2800 0.7
 poly 0.10,0.30 0.30,0.50 0.10,0.70 stroke #3a1f00

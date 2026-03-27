@@ -10,6 +10,8 @@ room_types: dungeon, corridor, trap-room
 typical_count: few
 notes: Hidden in walls; face toward trigger area or corridor center
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.02 0.80,0.16 z 0-2
 # Wall mount (north edge)
 rect 0.10,0.02 0.80,0.16 texfill polyhaven/stone_wall 0.80
 rect 0.10,0.02 0.80,0.16 stroke #555555

@@ -11,6 +11,9 @@ room_types: any
 typical_count: many
 notes: Wall-mounted light; place at regular intervals. Use fillWallWithProps with gap:2-3
 ---
+# === HITBOX ===
+hitbox rect 0.30,0.02 0.40,0.61 z 0-1
+
 # Light spill (warm glow extending south from lantern)
 ellipse 0.50,0.65 0.35,0.30 fill #ffaa44 0.06
 ellipse 0.50,0.60 0.25,0.22 fill #ffcc66 0.08

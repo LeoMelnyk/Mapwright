@@ -11,6 +11,14 @@ typical_count: single
 clusters_with: bone-pile, candelabra, necrotic-altar
 notes: Undead ruler's seat; place prominently like a throne
 ---
+# === HITBOX — U-shaped: high back + two armrests, open seat ===
+# High back (full height wall of bones)
+hitbox rect 0.15,0.1 1.7,0.8 z 0-5
+# Left armrest
+hitbox rect 0.15,0.9 0.3,1.5 z 0-3
+# Right armrest
+hitbox rect 1.55,0.9 0.3,1.5 z 0-3
+
 # footprint 3x2: x range 0-2, y range 0-3
 # Top-down: throne made of bones — high back, seat, armrests
 

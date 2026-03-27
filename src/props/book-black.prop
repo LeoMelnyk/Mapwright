@@ -3,14 +3,16 @@ category: Library & Study
 footprint: 1x1
 facing: yes
 shadow: no
-blocks_light: yes
-height: 0.5
+blocks_light: no
 placement: floor
 room_types: library, study, wizard-sanctum, necromancer-lair
 typical_count: few
 clusters_with: book-pile, bookshelf, desk, scroll-case
 notes: Ominous dark tome; great for necromancer lairs and dark rituals
 ---
+# === HITBOX ===
+hitbox rect 0.2,0.25 0.6,0.5 z 0-0.5
+
 # footprint 1x1: x range 0-1, y range 0-1
 rect 0.2,0.25 0.6,0.5 fill #1a1a1a 0.9
 rect 0.2,0.25 0.6,0.5 stroke #0a0a0a

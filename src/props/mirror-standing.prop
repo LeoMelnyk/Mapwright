@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: wardrobe, dresser, vanity
 notes: Full-length mirror leaning against wall; place with back (north) toward wall
 ---
+# === HITBOX ===
+hitbox rect 0.40,0.12 1.20,0.66 z 0-6
+
 # Tilted mirror seen from above — leaning back against wall (north)
 # From top-down the tilt exposes the reflective face as a foreshortened rectangle
 # The bottom (south) edge is further from the wall, top (north) is close to wall

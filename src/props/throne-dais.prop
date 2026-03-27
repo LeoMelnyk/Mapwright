@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: carpet, brazier, banner, pillar
 notes: Raised throne platform; place against back wall as room centerpiece
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.08 5.84,5.84 z 0-1
+hitbox rect 2.10,1.10 1.80,1.97 z 1-5
+
 # Footprint 6x6: x 0-6, y 0-6. Front faces south.
 
 # ============================================================

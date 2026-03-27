@@ -11,6 +11,10 @@ typical_count: single
 clusters_with: carpet, brazier, banner, pillar
 notes: Ruler's seat; place prominently against back wall, facing room entrance
 ---
+# === HITBOX ===
+hitbox rect 0.20,0.58 1.60,1.02 z 0-2
+hitbox rect 0.20,0.06 1.60,0.52 z 2-5
+
 # Footprint 2x2: x 0-2, y 0-2. Front faces south.
 
 # === Leg shadows (behind everything) ===

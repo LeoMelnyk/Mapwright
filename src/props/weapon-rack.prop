@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: shield-rack, armor-stand, spear-stand
 notes: Wall-mounted weapon display; line armory walls. Use fillWallWithProps
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.42 z 0-5
+
 # Wooden rack base (horizontal bar along north edge, seen from above)
 rect 0.08,0.08 1.84,0.18 texfill polyhaven/dark_wood 0.9
 rect 0.08,0.08 1.84,0.18 stroke #3a1f00

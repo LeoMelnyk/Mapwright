@@ -11,6 +11,10 @@ typical_count: few
 clusters_with: barrel, barrel-side, barrel-stack, crate
 notes: Three barrels on their sides stacked in a pyramid; place against walls
 ---
+# === HITBOX ===
+hitbox rect 0.1,0.05 1.8,0.85 z 0-1.5
+hitbox rect 0.1,1.05 1.8,0.8 z 0-1.5
+hitbox rect 0.15,0.45 1.7,0.8 z 1.5-3
 # footprint 2x2: x range 0-2, y range 0-2
 # Barrels lying on sides (long axis east-west), stacked vertically:
 # Two on bottom (north and south), one on top centered overlapping both

@@ -10,6 +10,9 @@ room_types: prison, market-square, courtyard
 typical_count: single
 notes: Public restraint; place in open areas
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.15 1.80,0.85 z 0-3
+
 # Seat / bench area (behind the ankle boards, south side)
 rect 0.25,0.65 1.5,0.55 texfill polyhaven/dark_wood 0.85
 rect 0.25,0.65 1.5,0.55 stroke #2a1400

@@ -10,6 +10,10 @@ room_types: courtyard, garden, temple, palace, hall
 typical_count: single
 notes: Square basin water feature; formal/geometric alternative to round fountain
 ---
+# === HITBOX ===
+hitbox rect 0.05,0.05 1.90,1.90 z 0-1.5
+hitbox rect 0.82,0.82 0.36,0.36 z 1.5-3
+
 # Outer basin — square stone walls
 rect 0.05,0.05 1.90,1.90 texfill polyhaven/stone_wall 0.82
 rect 0.05,0.05 1.90,1.90 stroke #555555

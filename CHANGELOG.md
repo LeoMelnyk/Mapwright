@@ -125,8 +125,15 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - **Straight trim migration**: Correctly voids the corner sub-cell on the void side of diagonal trims; sets `trimCorner` on diagonal sub-cells for proper triangle clipping
 - **Lighting trim cleanup**: After lightmap compositing, void triangles of trim cells are erased with `destination-out` — prevents light brightness from bleeding into the void side of diagonal trims
 
+### Prop Ghost Improvements
+
+- **Rotate and scale ghosts**: Alt+Scroll fine-rotates (15° steps) and Alt+Shift+Scroll scales both placement ghosts and drag ghosts. `[`/`]` adjusts z-order during drag. Changes apply directly to ghost state with no undo overhead
+- **Ghost tooltip**: Placement and drag ghosts now show a name label with rotation, scale (when non-default), and z-height (when non-default) — matching the existing selection label format
+- **Placement scale**: New `propScale` state allows pre-scaling props before placement. Scale and rotation reset on Escape
+
 ### Bug Fixes
 
+- **Prop drag hitch eliminated**: Picking up, cancelling, or dropping a prop no longer causes a visible frame hitch. Previously, drag start serialized the entire dungeon for the undo stack, forced a full wall segment + lightmap rebuild, and cancel/drop deserialized the whole snapshot back. Now drag operates without undo snapshots — props are removed from state on pickup, re-inserted directly on cancel (no deserialization), and `pushUndo` only fires on successful drop. Lightmap invalidation during prop operations skips wall segment extraction (only prop shadow zones are cleared, since walls don't change)
 - Fixed Ctrl+freeform prop placement: the placement ghost now tracks the exact cursor position instead of snapping to cell grid, and the prop is placed where the ghost shows
 - Fixed linked lights on freeform-placed props snapping to the anchor cell instead of following the prop's actual world position
 - Fixed bridge textures missing in PNG export — bridge texture IDs weren't collected by the texture loader, and `DOMMatrix` (needed for pattern scaling) wasn't available in the Node.js render path

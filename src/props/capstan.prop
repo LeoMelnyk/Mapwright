@@ -10,6 +10,9 @@ room_types: ship, dock
 typical_count: single
 notes: Winch mechanism; place with space for crew to walk around
 ---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.56 z 0-3
+
 # Capstan drum
 circle 1,1 0.56 texfill polyhaven/dark_wood 0.80
 circle 1,1 0.56 stroke #3a1f00

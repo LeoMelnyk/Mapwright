@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: fallen-log, mushroom, fern
 notes: Hollow rotting log; creatures could hide inside
 ---
+# === HITBOX ===
+hitbox rect 0.02,0.2 2.93,0.6 z 0-2
+
 # footprint 1x3: x range 0-3, y range 0-1
 # Left cross-section (hollow — large dark opening)
 ellipse 0.18,0.5 0.16,0.3 texfill polyhaven/bark_brown_02 0.85

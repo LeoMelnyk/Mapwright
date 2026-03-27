@@ -56,8 +56,8 @@ let _mapCache = null;   // { canvas, ctx, dirtySeq, cacheW, cacheH, texturesVers
 let _cellsCache = null; // { canvas, ctx, dirtySeq, cacheW, cacheH } — cells-only (no lightmap)
 let _mapDirtySeq = 0;   // bumped on any state change that requires re-render
 let _lastContentVersion = 0;  // tracks smartInvalidate() calls for cache invalidation
-let _lastUndoSig = 0;         // tracks undo/redo stack changes for cache invalidation
 let _lastLightingVersion = 0; // tracks lighting invalidations for composite cache
+let _lastHoveredCell = null;  // tracks hovered cell to avoid redundant renders on mouse-move
 let _cellsRebuildCount = 0;   // diagnostic: how many times the cells cache has rebuilt
 let _compositeRebuildCount = 0; // diagnostic: lightmap composite rebuilds
 
@@ -327,8 +327,8 @@ function render() {
     // Bump dirty seq on content mutation (smartInvalidate) or undo stack change
     const cv = getContentVersion();
     if (cv !== _lastContentVersion) { _mapDirtySeq++; _lastContentVersion = cv; }
-    const undoSig = (state.undoStack?.length || 0) * 10000 + (state.redoStack?.length || 0);
-    if (undoSig !== _lastUndoSig) { _mapDirtySeq++; _lastUndoSig = undoSig; }
+    // Note: undo/redo bumps content version via markPropSpatialDirty → bumpContentVersion,
+    // so no separate undoSig check is needed here.
     // Debug skip flags bypass cache (force rebuild so flags take effect)
     const _skipKeys = Object.keys(_skip).filter(k => _skip[k] && k !== 'all');
     const _skipSig = _skipKeys.join(',');
@@ -566,20 +566,20 @@ function render() {
         return points.map(([hx, hy]) => {
           let px = flipped ? fCols - hx : hx;
           let py = hy;
+          // Rotate around footprint center using general rotation math
+          // Note: prop rotation is CCW in the data model (negative ctx.rotate),
+          // so negate the angle to match visual rendering
           const cx = fCols / 2, cy = fRows / 2;
-          const rdx = (fRows - fCols) / 2, rdy = (fCols - fRows) / 2;
-          switch (r) {
-            case 90:  { const nx = cx + (py - cy) + rdx, ny = cy - (px - cx) + rdy; px = nx; py = ny; break; }
-            case 180: { px = 2 * cx - px; py = 2 * cy - py; break; }
-            case 270: { const nx = cx - (py - cy) + rdx, ny = cy + (px - cx) + rdy; px = nx; py = ny; break; }
+          if (r !== 0) {
+            const rad = (-rotation * Math.PI) / 180;
+            const cosA = Math.cos(rad), sinA = Math.sin(rad);
+            const dx = px - cx, dy = py - cy;
+            px = cx + dx * cosA - dy * sinA;
+            py = cy + dx * sinA + dy * cosA;
           }
-          let wx = px * gridSize, wy = py * gridSize;
-          if (scl !== 1.0) {
-            const pcx = (r === 90 || r === 270 ? fRows : fCols) * gridSize / 2;
-            const pcy = (r === 90 || r === 270 ? fCols : fRows) * gridSize / 2;
-            wx = pcx + (wx - pcx) * scl;
-            wy = pcy + (wy - pcy) * scl;
-          }
+          // Scale from footprint center, then convert to world feet
+          let wx = cx * gridSize + (px - cx) * gridSize * scl;
+          let wy = cy * gridSize + (py - cy) * gridSize * scl;
           return {
             x: (prop.x + wx) * transform.scale + transform.offsetX,
             y: (prop.y + wy) * transform.scale + transform.offsetY,
@@ -665,7 +665,7 @@ function render() {
     _fpsLastTime = now;
   }
   const editorSettings = getEditorSettings();
-  if (editorSettings.fpsCounter === true || editorSettings.memoryUsage === true) {
+  if (editorSettings.fpsCounter === true) {
     const lines = [];
     const res = metadata.resolution || 1;
     const expanded = editorSettings.diagExpanded !== false;
@@ -770,7 +770,7 @@ function render() {
       }
 
       // ── Memory ──
-      if (editorSettings.memoryUsage === true) {
+      {
         lines.push({ text: '', color: '#666' });
         lines.push({ text: '── Memory ──', color: '#666' });
         const mem = performance.memory;
@@ -1042,7 +1042,7 @@ function onMouseDown(e) {
 
   // Diagnostics overlay click — toggle expand/collapse
   const es = getEditorSettings();
-  if ((es.fpsCounter || es.memoryUsage) && e.button === 0 && pos.x < 300 && pos.y < 30) {
+  if (es.fpsCounter && e.button === 0 && pos.x < 300 && pos.y < 30) {
     setEditorSetting('diagExpanded', !es.diagExpanded);
     requestRender();
     return;
@@ -1192,7 +1192,15 @@ function onMouseMove(e) {
     activeTool.onMouseMove(cell.row, cell.col, edge, e, pos);
   }
 
-  requestRender();
+  // Only re-render if hovered cell changed (for hover highlight, edge highlight, etc.)
+  // Tools that need per-pixel cursor tracking (e.g. placement preview) call
+  // requestRender() from their own onMouseMove handler.
+  const prevHover = _lastHoveredCell;
+  const curHover = state.hoveredCell;
+  if (!prevHover || !curHover || prevHover.row !== curHover.row || prevHover.col !== curHover.col) {
+    requestRender();
+  }
+  _lastHoveredCell = curHover ? { row: curHover.row, col: curHover.col } : null;
   notify(); // update status bar
   renderTimings.mouseMove = { ms: performance.now() - _moveStart, frame: getTimingFrame() };
 }

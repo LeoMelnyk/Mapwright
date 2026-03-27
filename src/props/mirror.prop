@@ -10,6 +10,9 @@ room_types: bedroom, bathhouse, wizard-sanctum, dressing-room
 typical_count: single
 notes: Wall-mounted; place on walls opposite entrances
 ---
+# === HITBOX ===
+hitbox rect 0.12,0.06 0.76,0.18 z 0-5
+
 # Wall-mounted mirror seen from directly above
 # Only the top edge of frame and a sliver of reflective surface visible
 # Frame top edge (ornate dark wood strip along north wall)

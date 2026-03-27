@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: torture-rack, shackles
 notes: Torture device; place against wall. Hinge at wall (north), opens toward room (south).
 ---
+# === HITBOX ===
+hitbox rect 0.07,0.08 1.86,0.72 z 0-6
+
 # Blood seepage beneath the base (ground stain)
 ellipse 1.0,0.58 0.72,0.32 fill #4a0a0a 0.15
 ellipse 1.0,0.62 0.5,0.22 fill #3a0505 0.2

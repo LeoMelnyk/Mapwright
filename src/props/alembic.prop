@@ -11,6 +11,8 @@ typical_count: few
 clusters_with: alchemy-bench, crucible, mortar-pestle
 notes: Small apparatus; place on or near alchemy bench
 ---
+# === HITBOX ===
+hitbox circle 0.40,0.58 0.24 z 0-2.5
 # Stand base shadow
 circle 0.50,0.80 0.22 fill #444444 0.25
 # Main flask (round glass body)

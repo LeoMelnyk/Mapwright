@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: bed, candle-cluster
 notes: Bedside table; place adjacent to beds
 ---
+# === HITBOX ===
+hitbox rect 0.18,0.18 0.64,0.64 z 0-2
+
 # Table surface
 rect 0.18,0.18 0.64,0.64 texfill polyhaven/dark_wood 0.85
 rect 0.18,0.18 0.64,0.64 stroke #3a1f00

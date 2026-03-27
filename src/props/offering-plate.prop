@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: altar, idol, candelabra
 notes: Place near altars or at shrine entrances
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.42 z 0-1
+
 # Plate rim (thick gold band)
 ring 0.50,0.50 0.42 0.34 fill #b8960c 0.85
 ring 0.50,0.50 0.42 0.34 stroke #8b6914 width 2

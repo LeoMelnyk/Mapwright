@@ -1,5 +1,5 @@
 // Debug panel: render layer toggles and hitbox visualization
-import state from '../state.js';
+import state, { undoDisabled, setUndoDisabled } from '../state.js';
 import { invalidateMapCache, requestRender } from '../canvas-view.js';
 import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
 
@@ -29,6 +29,7 @@ function build() {
 
   let html = '<div class="debug-section"><span class="debug-section-title">Overlays</span>';
   html += `<label class="debug-toggle"><input type="checkbox" data-debug="hitboxes" ${state.debugShowHitboxes ? 'checked' : ''}> Show Hitboxes</label>`;
+  html += `<label class="debug-toggle"><input type="checkbox" data-debug="disable-undo" ${undoDisabled ? 'checked' : ''}> Disable Undo Stack</label>`;
   html += '</div>';
 
   html += '<div class="debug-section"><span class="debug-section-title">Render Layers</span>';
@@ -64,6 +65,11 @@ function build() {
       state.debugShowHitboxes = input.checked;
       setEditorSetting('debugShowHitboxes', input.checked);
       requestRender();
+      return;
+    }
+
+    if (input.dataset.debug === 'disable-undo') {
+      setUndoDisabled(input.checked);
       return;
     }
 

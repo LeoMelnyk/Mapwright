@@ -10,6 +10,9 @@ room_types: museum, trophy-room, wizard-sanctum, shop
 typical_count: few
 notes: Showcase items; line along walls
 ---
+# === HITBOX ===
+hitbox rect 0.0,0.0 2.0,1.75 z 0-5
+
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: wooden frame with glass top, items visible inside
 
