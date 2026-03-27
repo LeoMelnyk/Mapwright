@@ -1,6 +1,6 @@
 // Metadata panel: dungeon name, gridSize, theme, features
 import state, { pushUndo, markDirty, notify, subscribe } from '../state.js';
-import { getThemeCatalog, renderThemePreview } from '../theme-catalog.js';
+import { getThemeCatalog, renderThemePreview, deleteUserTheme, renameUserTheme } from '../theme-catalog.js';
 import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
 import { requestRender, invalidateMapCache } from '../canvas-view.js';
 import { invalidateLightmapCaches } from '../../../render/index.js';
@@ -51,6 +51,7 @@ export function init() {
       if (!saved) return;
       pushUndo();
       state.dungeon.metadata.theme = saved;
+      syncThemePicker();
       syncCustomEditorValues();
       markDirty();
       notify();
@@ -68,6 +69,124 @@ export function init() {
       markDirty();
       notify();
     });
+
+    // User-saved themes — between Custom and built-ins
+    for (const uKey of catalog.userNames || []) {
+      const userTheme = catalog.userThemes[uKey];
+      const fullKey = `user:${uKey}`;
+      const item = document.createElement('div');
+      item.className = 'theme-thumb theme-thumb-user';
+      item.dataset.themeKey = fullKey;
+
+      const thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 64;
+      thumbCanvas.height = 64;
+
+      const label = document.createElement('span');
+      label.textContent = userTheme.displayName || uKey;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'theme-thumb-delete';
+      deleteBtn.textContent = '\u00D7';
+      deleteBtn.title = 'Delete saved theme';
+
+      const renameBtn = document.createElement('button');
+      renameBtn.className = 'theme-thumb-rename';
+      renameBtn.textContent = '\u270E';
+      renameBtn.title = 'Rename theme';
+
+      item.appendChild(thumbCanvas);
+      item.appendChild(label);
+      item.appendChild(deleteBtn);
+      item.appendChild(renameBtn);
+      grid.appendChild(item);
+
+      item.addEventListener('click', () => {
+        pushUndo();
+        const current = state.dungeon.metadata.theme;
+        if (typeof current === 'object' && current !== null) {
+          state.dungeon.metadata.customTheme = current;
+        }
+        state.dungeon.metadata.theme = fullKey;
+        state.dungeon.metadata.savedThemeData = {
+          name: userTheme.displayName || uKey,
+          theme: { ...userTheme },
+        };
+        delete state.dungeon.metadata.savedThemeData.theme.displayName;
+        syncThemePicker();
+        syncCustomEditorValues();
+        markDirty();
+        notify();
+      });
+
+      deleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        pushUndo();
+        await deleteUserTheme(uKey);
+        const isActive = state.dungeon.metadata.theme === fullKey;
+        if (isActive) {
+          state.dungeon.metadata.theme = catalog.names[0];
+          delete state.dungeon.metadata.savedThemeData;
+          syncCustomEditorValues();
+        }
+        buildThemePicker();
+        syncThemePicker();
+        markDirty();
+        notify();
+      });
+
+      renameBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const currentName = userTheme.displayName || uKey;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'theme-thumb-rename-input';
+        input.value = currentName;
+        label.replaceWith(input);
+        input.focus();
+        input.select();
+
+        function revert() { input.replaceWith(label); }
+
+        async function commit() {
+          const newName = input.value.trim();
+          if (!newName || newName === currentName) { revert(); return; }
+          pushUndo();
+          try {
+            const newKey = await renameUserTheme(uKey, newName);
+            const isActive = state.dungeon.metadata.theme === fullKey;
+            if (isActive) {
+              state.dungeon.metadata.theme = `user:${newKey}`;
+              state.dungeon.metadata.savedThemeData = { name: newName, theme: { ...userTheme } };
+              delete state.dungeon.metadata.savedThemeData.theme.displayName;
+            }
+            buildThemePicker();
+            syncThemePicker();
+            markDirty();
+            notify();
+          } catch {
+            input.style.borderColor = '#a02030';
+          }
+        }
+
+        input.addEventListener('blur', commit);
+        input.addEventListener('keydown', (ev) => {
+          ev.stopPropagation();
+          if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
+          if (ev.key === 'Escape') { ev.preventDefault(); input.removeEventListener('blur', commit); revert(); }
+        });
+      });
+
+      idle(() => {
+        try {
+          const preview = renderThemePreview(fullKey);
+          const ctx = thumbCanvas.getContext('2d');
+          ctx.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
+        } catch (err) {
+          console.warn('[theme-picker] Preview failed for', fullKey, err);
+        }
+      });
+    }
 
     for (const key of catalog.names) {
       const item = document.createElement('div');
@@ -93,6 +212,8 @@ export function init() {
           state.dungeon.metadata.customTheme = current;
         }
         state.dungeon.metadata.theme = key;
+        delete state.dungeon.metadata.savedThemeData;
+        syncThemePicker();
         syncCustomEditorValues();
         markDirty();
         notify();
@@ -133,12 +254,19 @@ export function init() {
       customThumb.style.display = hasCustom ? '' : 'none';
       customThumb.classList.toggle('active', isCustom);
     }
+
+    // Auto-expand the customize panel when a custom theme is active
+    const themePanel = document.getElementById('panel-themes');
+    if (themePanel && isCustom) {
+      themePanel.classList.add('customize-open');
+    }
   }
 
   // ── Sync UI ──────────────────────────────────────────────────────────────
 
   let _lastMeta = null;
   let _lastUnsaved = null;
+  let _lastTheme = null;
   function syncUI() {
     // Only sync title on unsaved-flag or name change (cheap check every notify)
     const name = state.dungeon.metadata.dungeonName || 'Untitled';
@@ -146,6 +274,13 @@ export function init() {
       const mapTitleEl = document.getElementById('map-title');
       if (mapTitleEl) mapTitleEl.textContent = state.unsavedChanges ? `${name} *` : name;
       _lastUnsaved = state.unsavedChanges;
+    }
+    // Theme can change from string→object without metadata ref changing,
+    // so always check for theme type changes to keep the picker in sync
+    const currentTheme = state.dungeon.metadata.theme;
+    if (currentTheme !== _lastTheme) {
+      _lastTheme = currentTheme;
+      syncThemePicker();
     }
     // Skip full sync if metadata reference hasn't changed
     if (state.dungeon.metadata === _lastMeta) return;
@@ -179,6 +314,12 @@ export function init() {
   }
   syncUI();
   subscribe(syncUI, 'metadata');
+
+  // Rebuild theme picker when user themes change (save/delete/rename from theme-editor)
+  window.addEventListener('user-themes-changed', () => {
+    buildThemePicker();
+    syncThemePicker();
+  });
 
   // Build theme picker and custom editor after syncUI
   buildThemePicker();

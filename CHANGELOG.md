@@ -2,6 +2,25 @@
 
 ## v0.8.0
 
+### User-Saved Themes
+
+Custom themes can now be saved, reused across maps, and shared between machines:
+
+- **Save as Theme**: After customizing colors in the theme editor, click "Save as Theme" to persist the theme to disk with a name. Saved themes appear in the theme picker alongside built-in presets
+- **Live editing**: Edits to a saved theme update the file on disk automatically — no need to re-save
+- **Rename and delete**: Hover over a saved theme thumbnail to reveal rename (pencil) and delete (×) buttons
+- **Cross-machine portability**: Maps embed the full theme data when a saved theme is active. Opening a map on a machine without the theme auto-installs it from the embedded data
+- **Storage**: Saved themes live in `{userData}/themes/` (Electron) or `user-themes/` (dev mode), using the same `.theme` JSON format as built-in themes
+
+### Label System Overhaul
+
+Room labels are now freely positionable and visually prominent:
+
+- **Free placement**: Labels can be placed at any position on the map, no longer snapped to cell centers. Click anywhere to place; drag to reposition freely
+- **Doubled size**: Label circles, text, and backgrounds are all 2× larger for better readability at any zoom level (circled radius 15→30, font 14→28px)
+- **Theme-controlled colors**: Labels now read `borderColor`, `fontColor`, and `backgroundColor` from a new `labels` block in each theme file. Default across all themes: black border, black font, white background
+- **Proximity-based interaction**: Hover and selection highlights are now circles centered on the label's actual position instead of full-cell rectangles
+
 ### Z-Height Shadow Projection
 
 Lights and props now have a vertical height dimension (`z` in feet above floor), enabling physically-based shadow projection:
@@ -75,6 +94,11 @@ The grid system now supports half-cell precision. Internally, each display cell 
 - **Separate lighting and selection hitboxes**: Props support independent `hitbox` (lighting occlusion) and `selection` (click detection) shapes. Lighting hitboxes can be manually overridden in `.prop` files for props where the convex hull is too loose. Selection always uses the auto-generated hull unless a manual `selection` command is specified
 - **Subscriber state-diff guards**: All panel `notify()` callbacks now check whether their relevant state actually changed before doing DOM work. Metadata skips if `metadata` ref unchanged; toolbar skips if `activeTool`/`lightingEnabled` unchanged; lighting skips if `lights`/`selectedLightId` unchanged; history skips if stack depths unchanged; properties skips if `selectedProp`/`selectedCells` unchanged; session skips if `sessionState` unchanged; background-image skips if `backgroundImage` ref unchanged. Reduces idle-frame notify cost from ~1ms to ~0.1ms
 - **Raised offscreen cache limit**: Maximum cache canvas dimension increased from 8000px to 16384px, allowing large maps (e.g. 66×84 prop showcase) to use the offscreen cache instead of falling back to expensive per-frame direct rendering
+- **Incremental cell cache updates**: Changing a cell's texture, fill, or erasing a cell no longer rebuilds the entire offscreen map cache. A dirty-region tracker in `smartInvalidate()` records which cells changed, and the cells cache redraws only a padded bounding rect around them — reducing cache rebuild cost from O(all cells) to O(dirty region) for single-cell edits
+- **Incremental blend topology updates**: Texture changes now patch only the affected blend edges/corners via `patchBlendRegion()` instead of rebuilding the full blend topology and all ImageBitmaps. Single-cell texture edits drop from ~70ms to <2ms
+- **Incremental fluid layer updates**: Fill removal patches the rendered fluid layer in-place — clears the dirty region and locally rebuilds Voronoi geometry for just the surrounding cells. Fill addition does the same local rebuild. Eliminates the full-map Voronoi tessellation that previously caused multi-second hitches on large maps
+- **Stale blend cache fix**: The blend topology cache key now properly invalidates on in-place cell texture mutations. Previously the `cells` reference equality check allowed stale blend edges to persist after texture reassignment
+- **Fill light invalidation**: Adding or removing fills (especially lava) now invalidates the static lightmap so fill-emitted lights update immediately in the dirty region
 - **Canvas context**: Uses `{ alpha: false, desynchronized: true }` for reduced compositor overhead
 - **GPU flags**: Electron configured with `ignore-gpu-blocklist`, `enable-accelerated-2d-canvas`, `enable-gpu-rasterization`, and `use-angle=gl` for maximum GPU utilization
 
@@ -131,6 +155,10 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - **Ghost tooltip**: Placement and drag ghosts now show a name label with rotation, scale (when non-default), and z-height (when non-default) — matching the existing selection label format
 - **Placement scale**: New `propScale` state allows pre-scaling props before placement. Scale and rotation reset on Escape
 
+### UX
+
+- **PNG export progress overlay**: Exporting to PNG now shows a full-screen overlay with a spinner and status message ("Rendering PNG...") instead of freezing the UI with no feedback. The overlay dismisses automatically when the render completes or on error
+
 ### Bug Fixes
 
 - **Prop drag hitch eliminated**: Picking up, cancelling, or dropping a prop no longer causes a visible frame hitch. Previously, drag start serialized the entire dungeon for the undo stack, forced a full wall segment + lightmap rebuild, and cancel/drop deserialized the whole snapshot back. Now drag operates without undo snapshots — props are removed from state on pickup, re-inserted directly on cancel (no deserialization), and `pushUndo` only fires on successful drop. Lightmap invalidation during prop operations skips wall segment extraction (only prop shadow zones are cleared, since walls don't change)
@@ -142,6 +170,7 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - **Unknown prop type spam**: Props with unrecognized types (e.g. from removed or renamed props) now get purged from the map data on first encounter instead of logging a warning every frame
 - **Prop-linked lights cleaned up on deletion**: Deleting a prop with a built-in light source (via `removePropAt` or `removePropsInRect`) now also removes the associated lights. Previously only `removeProp` cleaned up linked lights; the other two deletion paths left orphaned lights in the metadata
 - **Viewport not centered on new map**: Creating a new map no longer leaves the viewport at the previous pan/zoom position — the map now auto-centers (zoom-to-fit) after creation, matching the existing behavior when loading a map
+- **Erase tool not removing props**: The erase tool now removes overlay props (`metadata.props[]`) whose anchor falls within the erased rectangle. Previously only cell data was nulled — overlay prop entries persisted and continued rendering
 
 ### Migration
 

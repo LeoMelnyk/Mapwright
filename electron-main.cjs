@@ -161,9 +161,10 @@ function openDownloaderWindow() {
 }
 
 app.whenReady().then(async () => {
-  // Set texture path BEFORE starting the server so server.js picks it up
+  // Set asset paths BEFORE starting the server so server.js picks them up
   const userDataPath = app.getPath('userData');
   process.env.MAPWRIGHT_TEXTURE_PATH = path.join(userDataPath, 'textures');
+  process.env.MAPWRIGHT_THEME_PATH = path.join(userDataPath, 'themes');
 
   await startServer();
   createWindow();

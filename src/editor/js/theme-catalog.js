@@ -6,7 +6,7 @@ const BASE_URL = '/themes/';
 const CACHE_KEY = 'theme-catalog';
 const CACHE_VER_KEY = 'theme-catalog-ver';
 
-let catalog = null; // { names: string[], themes: { [key]: themeObj & { displayName } } }
+let catalog = null; // { names: string[], themes: {}, userNames: string[], userThemes: {} }
 
 // Minimal dungeon used for preview renders — a plain 3×3 room
 const PREVIEW_CELLS = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]];
@@ -28,6 +28,7 @@ function buildFromData(themeMap) {
 
 /**
  * Load all themes from /themes/manifest.json + individual .theme files.
+ * Also loads user-saved themes from /api/user-themes.
  * Caches parsed results in localStorage for fast subsequent loads.
  * @param {function} [onProgress] — called with (loaded, total) as theme files are fetched
  */
@@ -48,6 +49,8 @@ export async function loadThemeCatalog(onProgress) {
         if (cached && Object.keys(cached).length) {
           if (onProgress) onProgress(keys.length, keys.length);
           catalog = buildFromData(cached);
+          // Still need to load user themes (not cached with built-ins)
+          await _loadUserThemes();
           return catalog;
         }
       } catch { /* cache corrupt, fall through */ }
@@ -89,7 +92,35 @@ export async function loadThemeCatalog(onProgress) {
     catalog = { names: [], themes: {} };
   }
 
+  // Load user-saved themes
+  await _loadUserThemes();
+
   return catalog;
+}
+
+/**
+ * Fetch user-saved themes from the server and register them.
+ */
+async function _loadUserThemes() {
+  catalog.userNames = [];
+  catalog.userThemes = {};
+  try {
+    const res = await fetch('/api/user-themes');
+    if (!res.ok) return;
+    const entries = await res.json();
+    for (const entry of entries) {
+      try {
+        const r = await fetch(`/user-themes/${entry.filename}`);
+        if (!r.ok) continue;
+        const data = await r.json();
+        const { displayName, ...themeProps } = data;
+        const fullKey = `user:${entry.key}`;
+        catalog.userNames.push(entry.key);
+        catalog.userThemes[entry.key] = { ...themeProps, displayName: displayName || entry.key };
+        THEMES[fullKey] = themeProps;
+      } catch { /* skip individual failures */ }
+    }
+  } catch { /* no user themes endpoint available */ }
 }
 
 /**
@@ -102,6 +133,76 @@ export function getThemeCatalog() {
 /** Clear the in-memory catalog cache so the next load re-fetches from server. */
 export function clearThemeCatalogCache() {
   catalog = null;
+}
+
+// ── User theme CRUD wrappers ──────────────────────────────────────────────
+
+/**
+ * Save a new user theme. Returns the slug key.
+ */
+export async function saveUserTheme(name, themeObj) {
+  const res = await fetch('/api/user-themes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, theme: themeObj }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Save failed (HTTP ${res.status})`);
+  }
+  const { key } = await res.json();
+  // Register locally
+  const fullKey = `user:${key}`;
+  THEMES[fullKey] = { ...themeObj };
+  if (catalog) {
+    catalog.userNames.push(key);
+    catalog.userThemes[key] = { ...themeObj, displayName: name };
+  }
+  return key;
+}
+
+/**
+ * Delete a user theme by slug key.
+ */
+export async function deleteUserTheme(key) {
+  await fetch(`/api/user-themes/${key}`, { method: 'DELETE' });
+  delete THEMES[`user:${key}`];
+  if (catalog) {
+    catalog.userNames = catalog.userNames.filter(k => k !== key);
+    delete catalog.userThemes[key];
+  }
+}
+
+/**
+ * Rename a user theme. Returns the new slug key.
+ */
+export async function renameUserTheme(oldKey, newName) {
+  const res = await fetch(`/api/user-themes/${oldKey}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: newName }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Rename failed (HTTP ${res.status})`);
+  }
+  const { key: newKey } = await res.json();
+  // Update local registry
+  const oldTheme = THEMES[`user:${oldKey}`];
+  if (oldKey !== newKey) {
+    delete THEMES[`user:${oldKey}`];
+    THEMES[`user:${newKey}`] = oldTheme;
+  }
+  if (catalog) {
+    const idx = catalog.userNames.indexOf(oldKey);
+    if (idx >= 0) catalog.userNames[idx] = newKey;
+    const themeData = catalog.userThemes[oldKey];
+    if (themeData) {
+      delete catalog.userThemes[oldKey];
+      catalog.userThemes[newKey] = { ...themeData, displayName: newName };
+    }
+  }
+  return newKey;
 }
 
 /**

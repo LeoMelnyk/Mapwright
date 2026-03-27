@@ -85,7 +85,14 @@ const state = {
  */
 export function getTheme() {
   const t = state.dungeon.metadata.theme;
-  if (typeof t === 'string') return THEMES[t] || THEMES['blue-parchment'];
+  if (typeof t === 'string') {
+    if (THEMES[t]) return THEMES[t];
+    // Fallback: user theme not installed locally — use embedded data
+    if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
+      return state.dungeon.metadata.savedThemeData.theme;
+    }
+    return THEMES['blue-parchment'];
+  }
   if (typeof t === 'object' && t !== null) return t;
   return THEMES['blue-parchment'];
 }

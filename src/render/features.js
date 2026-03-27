@@ -9,39 +9,47 @@ function drawCellLabel(ctx, cx, cy, label, theme, labelStyle = 'circled', scale 
   const isRoomLabel = /^[A-Z]\d+$/.test(label);
   const s = scale / GRID_SCALE;
 
+  // Theme-controlled label colors (default: black border, black font, white background)
+  const labelColors = theme.labels || {};
+  const borderColor = labelColors.borderColor || '#000000';
+  const fontColor = labelColors.fontColor || '#000000';
+  const bgColor = labelColors.backgroundColor || '#FFFFFF';
+
   if (isRoomLabel && labelStyle === 'circled') {
-    // Circled style: white circle with border, bold text inside
-    const radius = 15 * s;
-    ctx.fillStyle = theme.background || '#F5F5DC';
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2 * s;
+    // Circled style: background circle with border, bold text inside
+    const radius = 30 * s;
+    ctx.fillStyle = bgColor;
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 3 * s;
 
     ctx.beginPath();
     ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
     ctx.fill();
     ctx.stroke();
 
-    ctx.font = `bold ${14 * s}px Arial`;
-    ctx.fillStyle = '#000000';
+    ctx.font = `bold ${28 * s}px Arial`;
+    ctx.fillStyle = fontColor;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, cx, cy);
   } else if (isRoomLabel && labelStyle === 'bold') {
-    // Bold style: bold text with semi-transparent background rectangle
-    ctx.font = `bold ${14 * s}px Arial`;
+    // Bold style: bold text with background rectangle
+    ctx.font = `bold ${28 * s}px Arial`;
     const metrics = ctx.measureText(label);
-    const padX = 5 * s;
-    const padY = 3 * s;
+    const padX = 10 * s;
+    const padY = 6 * s;
     const textWidth = metrics.width;
-    const textHeight = 14 * s;
+    const textHeight = 28 * s;
     const rectX = cx - textWidth / 2 - padX;
     const rectY = cy - textHeight / 2 - padY;
     const rectW = textWidth + padX * 2;
     const rectH = textHeight + padY * 2;
-    const cornerRadius = 4 * s;
+    const cornerRadius = 6 * s;
 
-    // Semi-transparent background
-    ctx.fillStyle = (theme.background || '#F5F5DC') + 'CC';
+    // Background
+    ctx.fillStyle = bgColor;
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 3 * s;
     ctx.beginPath();
     ctx.moveTo(rectX + cornerRadius, rectY);
     ctx.lineTo(rectX + rectW - cornerRadius, rectY);
@@ -54,31 +62,32 @@ function drawCellLabel(ctx, cx, cy, label, theme, labelStyle = 'circled', scale 
     ctx.quadraticCurveTo(rectX, rectY, rectX + cornerRadius, rectY);
     ctx.closePath();
     ctx.fill();
+    ctx.stroke();
 
     // Bold text
-    ctx.fillStyle = theme.textColor || '#000000';
+    ctx.fillStyle = fontColor;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, cx, cy);
   } else if (isRoomLabel && labelStyle === 'plain') {
     // Plain style: just text with subtle shadow for readability
-    ctx.font = `bold ${14 * s}px Arial`;
+    ctx.font = `bold ${28 * s}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     // Subtle text shadow/outline for readability against floor
     ctx.save();
-    ctx.shadowColor = (theme.background || '#F5F5DC');
-    ctx.shadowBlur = 4 * s;
+    ctx.shadowColor = bgColor;
+    ctx.shadowBlur = 6 * s;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
-    ctx.fillStyle = theme.textColor || '#000000';
+    ctx.fillStyle = fontColor;
     ctx.fillText(label, cx, cy);
     ctx.restore();
   } else {
-    // Non-room labels always render as plain text
-    ctx.font = `bold ${12 * s}px Arial`;
-    ctx.fillStyle = theme.textColor || '#000000';
+    // Non-room labels always render as plain text (also doubled)
+    ctx.font = `bold ${24 * s}px Arial`;
+    ctx.fillStyle = fontColor;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, cx, cy);

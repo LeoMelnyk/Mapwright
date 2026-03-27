@@ -3,10 +3,10 @@ import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
-import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache, invalidateAllCaches } from '../../render/index.js';
+import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache, invalidateAllCaches, THEMES } from '../../render/index.js';
 import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextureCatalogCache } from './texture-catalog.js';
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
-import { loadThemeCatalog, clearThemeCatalogCache } from './theme-catalog.js';
+import { loadThemeCatalog, clearThemeCatalogCache, saveUserTheme } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
 import { requestRender, zoomToFit, invalidateMapCache } from './canvas-view.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
@@ -21,6 +21,16 @@ export function loadDungeonJSON(json, opts = {}) {
   pushUndo();
   state.dungeon = json;
   migrateToLatest(json);
+
+  // Auto-install embedded user theme if not locally available
+  const _theme = json.metadata?.theme;
+  if (typeof _theme === 'string' && _theme.startsWith('user:') && !THEMES[_theme] && json.metadata.savedThemeData?.theme) {
+    // Register in memory for immediate use
+    THEMES[_theme] = json.metadata.savedThemeData.theme;
+    // Persist to disk for future sessions (fire-and-forget)
+    saveUserTheme(json.metadata.savedThemeData.name || _theme.slice(5), json.metadata.savedThemeData.theme).catch(() => {});
+  }
+
   state.currentLevel = 0;
   state.selectedCells = [];
   state.fileHandle = opts.fileHandle || null;
@@ -207,6 +217,20 @@ export async function loadDungeon() {
 export async function saveDungeon() {
   state.dungeon.metadata.formatVersion = CURRENT_FORMAT_VERSION;
   if (state.appVersion) state.dungeon.metadata.createdWith = state.appVersion;
+
+  // Embed user theme data for cross-machine portability
+  const _saveTheme = state.dungeon.metadata.theme;
+  if (typeof _saveTheme === 'string' && _saveTheme.startsWith('user:') && THEMES[_saveTheme]) {
+    const themeObj = THEMES[_saveTheme];
+    state.dungeon.metadata.savedThemeData = {
+      name: themeObj.displayName || _saveTheme.slice(5),
+      theme: { ...themeObj },
+    };
+    delete state.dungeon.metadata.savedThemeData.theme.displayName;
+  } else if (typeof _saveTheme === 'string' && !_saveTheme.startsWith('user:')) {
+    delete state.dungeon.metadata.savedThemeData;
+  }
+
   const json = JSON.stringify(state.dungeon);
 
   // If we have an existing file handle, write directly to it
@@ -298,10 +322,39 @@ async function saveBlob(blob, suggestedName) {
  * Falls back to browser-side rendering (without textures) if the server
  * endpoint is unavailable (e.g. when using npx serve instead of server.js).
  */
+let exportOverlay = null;
+
+function showExportOverlay() {
+  if (!exportOverlay) {
+    exportOverlay = document.createElement('div');
+    exportOverlay.className = 'export-overlay';
+    exportOverlay.innerHTML = `
+      <div class="export-overlay-content">
+        <div class="export-spinner"></div>
+        <div class="export-overlay-label">Rendering PNG\u2026</div>
+        <div class="export-overlay-sublabel">This may take a minute for large maps</div>
+      </div>`;
+    document.body.appendChild(exportOverlay);
+  }
+  exportOverlay.style.display = 'flex';
+  exportOverlay.offsetHeight; // force reflow
+  exportOverlay.classList.add('visible');
+}
+
+function hideExportOverlay() {
+  if (!exportOverlay) return;
+  exportOverlay.classList.remove('visible');
+  exportOverlay.addEventListener('transitionend', () => {
+    exportOverlay.style.display = 'none';
+  }, { once: true });
+}
+
 export async function exportPng() {
   const config = state.dungeon;
   const suggestedName = (config.metadata.dungeonName || 'dungeon')
     .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.png';
+
+  showExportOverlay();
 
   // Try server-side rendering first (handles textures without browser memory issues)
   try {
@@ -312,18 +365,20 @@ export async function exportPng() {
     });
     if (res.ok) {
       const blob = await res.blob();
+      hideExportOverlay();
       await saveBlob(blob, suggestedName);
       showToast('Exported as PNG');
       return;
     }
     // Server responded with an error — surface it rather than silently falling back
+    hideExportOverlay();
     let detail = `HTTP ${res.status}`;
     try { const body = await res.json(); if (body.error) detail = body.error; } catch {}
     showToast(`Export failed: ${detail}`);
     console.error('[export] Server error:', res.status, detail);
     return;
   } catch (err) {
-    if (err.name === 'AbortError') return; // user cancelled save dialog
+    if (err.name === 'AbortError') { hideExportOverlay(); return; }
     console.warn('Server export unavailable — falling back to browser render');
   }
 
@@ -335,6 +390,7 @@ export async function exportPng() {
     offscreen.height = height;
     const ctx = offscreen.getContext('2d');
     if (!ctx) {
+      hideExportOverlay();
       showToast('Export failed: canvas too large');
       return;
     }
@@ -355,12 +411,15 @@ export async function exportPng() {
 
     const blob = await new Promise(resolve => offscreen.toBlob(resolve, 'image/png'));
     if (!blob) {
+      hideExportOverlay();
       showToast('Export failed: could not encode PNG');
       return;
     }
+    hideExportOverlay();
     await saveBlob(blob, suggestedName);
     showToast('Exported as PNG (without textures — run start.bat for full export)');
   } catch (err) {
+    hideExportOverlay();
     if (err.name === 'AbortError') return; // user cancelled save dialog
     console.error('Export PNG failed:', err);
     showToast('Export failed: ' + err.message);

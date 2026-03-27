@@ -21,12 +21,22 @@ import { drawMatrixGrid } from './decorations.js';
 import { renderAllProps, getRenderedPropsLayer } from './props.js';
 import { renderAllBridges } from './bridges.js';
 import { drawWallShadow, drawRoughWalls, drawHatching, drawRockShading, drawBufferShading, drawOuterShading, invalidateEffectsCache } from './effects.js';
-import { getFluidPathCache, invalidateFluidCache, getRenderedFluidLayer } from './fluid.js';
-import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, getRenderedBlendLayer, BLEND_BITMAP_SIZE, PDF_EDGE_FALLBACK_OPACITY, PDF_CORNER_FALLBACK_OPACITY, getTexChunk, invalidateBlendLayerCache } from './blend.js';
+import { getFluidPathCache, invalidateFluidCache, getRenderedFluidLayer, patchFluidRegion, getFluidCacheParams } from './fluid.js';
+import { invalidateVisibilityCache } from './lighting.js';
+import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, getRenderedBlendLayer, BLEND_BITMAP_SIZE, PDF_EDGE_FALLBACK_OPACITY, PDF_CORNER_FALLBACK_OPACITY, getTexChunk, patchBlendRegion, getBlendCacheParams } from './blend.js';
 
 // Re-export cache invalidation functions (public API maintained for direct importers)
 export { invalidateFluidCache };
 export { invalidateBlendLayerCache } from './blend.js';
+
+/**
+ * Incremental blend patch — rebuilds only blend edges/corners touching a dirty region.
+ * Uses cached roomCells so the caller doesn't need to compute them.
+ */
+export function patchBlendForDirtyRegion(region, cells, gridSize, textureOptions) {
+  const roomCells = getCachedRoomCells(cells);
+  patchBlendRegion(region, cells, roomCells, gridSize, textureOptions);
+}
 
 // ─── Content mutation counter ─────
 // Bumped by smartInvalidate() on every content mutation. canvas-view.js checks
@@ -36,6 +46,32 @@ let _geometryVersion = 0; // bumped only on void↔floor transitions (needsGeome
 export function getContentVersion() { return _contentVersion; }
 export function getGeometryVersion() { return _geometryVersion; }
 export function bumpContentVersion() { _contentVersion++; }
+
+// ─── Dirty region tracking ─────
+// Accumulated bounding rect of cells changed since the last cache rebuild.
+// canvas-view.js reads this to decide whether a partial redraw is possible.
+let _dirtyRegion = null;      // { minRow, maxRow, minCol, maxCol } or null
+let _dirtyFullRebuild = false; // true → must do full rebuild (geometry change, undo, etc.)
+
+export function getDirtyRegion() {
+  if (_dirtyFullRebuild) return null;
+  return _dirtyRegion;
+}
+export function consumeDirtyRegion() {
+  _dirtyRegion = null;
+  _dirtyFullRebuild = false;
+}
+/** Accumulate a rect of changed cells into the dirty region (for callers that bypass smartInvalidate). */
+export function accumulateDirtyRect(minRow, minCol, maxRow, maxCol) {
+  if (!_dirtyRegion) {
+    _dirtyRegion = { minRow, maxRow, minCol, maxCol };
+  } else {
+    if (minRow < _dirtyRegion.minRow) _dirtyRegion.minRow = minRow;
+    if (maxRow > _dirtyRegion.maxRow) _dirtyRegion.maxRow = maxRow;
+    if (minCol < _dirtyRegion.minCol) _dirtyRegion.minCol = minCol;
+    if (maxCol > _dirtyRegion.maxCol) _dirtyRegion.maxCol = maxCol;
+  }
+}
 
 // ─── Constants ─────
 const HAZARD_COLOR = '#f0c020';
@@ -140,8 +176,7 @@ export function smartInvalidate(changes, cells, { forceGeometry = false, forceFl
           needsFluid = true;
         }
       }
-    } else if (!wasVoid && !isVoid && !needsFluid) {
-      // Non-void: only clear fluid cache if fill data actually changed
+    } else if (!wasVoid && !isVoid) {
       if (beforeFill !== afterCell.fill ||
           beforeWD   !== afterCell.waterDepth ||
           beforeLD   !== afterCell.lavaDepth ||
@@ -151,9 +186,55 @@ export function smartInvalidate(changes, cells, { forceGeometry = false, forceFl
     }
   }
 
-  if (needsGeometry) { invalidateGeometryCache(); invalidateBlendLayerCache(); _geometryVersion++; }
-  if (needsFluid)    invalidateFluidCache();
+  if (needsGeometry) { invalidateGeometryCache(); _geometryVersion++; }
+
+  // Accumulate dirty region for partial cache redraws.
+  // Must be computed BEFORE the blend/fluid patches so the region is available.
+  for (const { row, col } of changes) {
+    if (!_dirtyRegion) {
+      _dirtyRegion = { minRow: row, maxRow: row, minCol: col, maxCol: col };
+    } else {
+      if (row < _dirtyRegion.minRow) _dirtyRegion.minRow = row;
+      if (row > _dirtyRegion.maxRow) _dirtyRegion.maxRow = row;
+      if (col < _dirtyRegion.minCol) _dirtyRegion.minCol = col;
+      if (col > _dirtyRegion.maxCol) _dirtyRegion.maxCol = col;
+    }
+  }
+
+  // Fluid cache: locally rebuild just the dirty region on the existing render
+  // layer — works for both adding and removing fills.
+  if (needsFluid) {
+    if (!forceFluid && _dirtyRegion && getFluidCacheParams()) {
+      const fp = getFluidCacheParams();
+      const roomCells = getCachedRoomCells(cells);
+      patchFluidRegion(_dirtyRegion, cells, roomCells, fp.gridSize, fp.theme);
+    } else {
+      invalidateFluidCache();
+    }
+    // Lava emits light — invalidate the static lightmap so fill lights
+    // are re-extracted and rendered during the composite update.
+    invalidateVisibilityCache(false);
+  }
+
+  // Patch blend edges for the dirty region if a blend cache already exists.
+  if (needsGeometry && _dirtyRegion) {
+    _patchBlendFromCache(cells, _dirtyRegion);
+  }
+
   _contentVersion++;
+}
+
+/** Patch blend topology for a dirty region using parameters from the existing blend cache. */
+function _patchBlendFromCache(cells, region) {
+  // Grab the blend cache's stored catalog + settings (set during the last full build)
+  const cached = getBlendCacheParams();
+  if (!cached) return; // no blend cache exists yet — nothing to patch
+  const roomCells = getCachedRoomCells(cells);
+  patchBlendRegion(region, cells, roomCells, cached.gridSize, {
+    catalog: cached.catalog,
+    blendWidth: cached.blendWidth,
+    texturesVersion: cached.texturesVersion,
+  });
 }
 
 // ── Texture pattern cache ─────────────────────────────────────────────────────
@@ -761,6 +842,7 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
  */
 function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, skipGrid = false, metadata = null, cacheSize = null) {
   const { scale: sc, offsetX: txOff, offsetY: tyOff } = transform;
+
   const data = getFluidPathCache(cells, gridSize, theme, roomCells);
 
   if (data.pit || data.water || data.lava) {
@@ -1097,15 +1179,21 @@ export function renderLabels(ctx, cells, gridSize, theme, transform, labelStyle)
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row][col];
       if (cell?.center?.label || cell?.center?.dmLabel) {
-        const centerX = (col + 0.5) * gridSize;
-        const centerY = (row + 0.5) * gridSize;
-        const p = toCanvas(centerX, centerY, transform);
+        // Use labelX/labelY (world feet) if set, otherwise default to cell center
+        const labelX = cell.center.labelX ?? (col + 0.5) * gridSize;
+        const labelY = cell.center.labelY ?? (row + 0.5) * gridSize;
+        const p = toCanvas(labelX, labelY, transform);
 
         if (cell.center.label) {
           drawCellLabel(ctx, p.x, p.y, cell.center.label, theme, style, transform.scale);
         }
+
+        // DM labels: use dmLabelX/dmLabelY if set, otherwise same position
         if (cell.center.dmLabel) {
-          drawDmLabel(ctx, p.x, p.y, cell.center.dmLabel, transform.scale);
+          const dmX = cell.center.dmLabelX ?? (col + 0.5) * gridSize;
+          const dmY = cell.center.dmLabelY ?? (row + 0.5) * gridSize;
+          const dp = toCanvas(dmX, dmY, transform);
+          drawDmLabel(ctx, dp.x, dp.y, cell.center.dmLabel, transform.scale);
         }
       }
     }

@@ -2,16 +2,63 @@
 import { Tool } from './tool-base.js';
 import state, { pushUndo, markDirty } from '../state.js';
 import { getTransform, requestRender, setCursor } from '../canvas-view.js';
-import { toCanvas } from '../utils.js';
+import { toCanvas, fromCanvas } from '../utils.js';
 import { drawDmLabel } from '../../../render/index.js';
 
 
 // Rubber stamp cursor — hotspot at bottom center of the stamp head
 export const STAMP_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect x='6' y='2' width='12' height='8' rx='2' fill='white' stroke='%23333' stroke-width='1.2'/%3E%3Crect x='10' y='10' width='4' height='5' fill='white' stroke='%23333' stroke-width='1.2'/%3E%3Cpath d='M5 17 C5 15 8 15 8 15 L16 15 C16 15 19 15 19 17 L19 19 L5 19 Z' fill='white' stroke='%23333' stroke-width='1.2'/%3E%3Cline x1='5' y1='21' x2='19' y2='21' stroke='%23333' stroke-width='1.5'/%3E%3C/svg%3E") 12 22, crosshair`;
 
-function hasLabel(row, col) {
+/** Hit radius in world feet for label proximity detection */
+const LABEL_HIT_RADIUS = 2;
+
+/**
+ * Get the world-feet position of a label on a cell.
+ * Uses labelX/labelY if set, otherwise cell center.
+ */
+function getLabelWorldPos(row, col, gridSize) {
   const center = state.dungeon.cells[row]?.[col]?.center;
-  return !!(center?.label != null || center?.dmLabel != null);
+  if (!center) return null;
+  return {
+    x: center.labelX ?? (col + 0.5) * gridSize,
+    y: center.labelY ?? (row + 0.5) * gridSize,
+  };
+}
+
+/**
+ * Find the nearest label to a world-feet position within LABEL_HIT_RADIUS.
+ * Returns { row, col, dist } or null.
+ */
+function findNearestLabel(worldX, worldY, gridSize) {
+  const cells = state.dungeon.cells;
+  let best = null;
+  for (let r = 0; r < cells.length; r++) {
+    const row = cells[r];
+    if (!row) continue;
+    for (let c = 0; c < row.length; c++) {
+      const center = cells[r][c]?.center;
+      if (!center?.label && !center?.dmLabel) continue;
+      const lx = center.labelX ?? (c + 0.5) * gridSize;
+      const ly = center.labelY ?? (r + 0.5) * gridSize;
+      const dx = worldX - lx;
+      const dy = worldY - ly;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist <= LABEL_HIT_RADIUS && (!best || dist < best.dist)) {
+        best = { row: r, col: c, dist };
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Remove label position overrides and clean up empty center objects.
+ */
+function cleanupLabelPos(center) {
+  delete center.labelX;
+  delete center.labelY;
+  delete center.dmLabelX;
+  delete center.dmLabelY;
 }
 
 export class LabelTool extends Tool {
@@ -28,7 +75,7 @@ export class LabelTool extends Tool {
     this._pendingDrag = null;      // { row, col } — source cell at mousedown
     this._pendingDragPos = null;   // { x, y } — pixel pos at mousedown (threshold)
     this._isDragging = false;
-    this._dragGhostCell = null;    // { row, col } — target cell during drag
+    this._dragWorldPos = null;     // { x, y } — current drag position in world feet
   }
 
   getCursor() {
@@ -53,7 +100,7 @@ export class LabelTool extends Tool {
     this._isDragging = false;
     this._pendingDrag = null;
     this._pendingDragPos = null;
-    this._dragGhostCell = null;
+    this._dragWorldPos = null;
   }
 
   onRightClick(row, col) {
@@ -67,27 +114,38 @@ export class LabelTool extends Tool {
       return;
     }
 
-    const cell = cells[row][col];
+    // Find nearest label to click position (use cell center as approximation for right-click)
+    const gridSize = state.dungeon.metadata.gridSize;
+    const hit = findNearestLabel((col + 0.5) * gridSize, (row + 0.5) * gridSize, gridSize);
+    if (!hit) return;
+
+    const cell = cells[hit.row][hit.col];
     const mode = state.labelMode || 'room';
 
     if (mode === 'room') {
       if (!cell.center?.label) return;
       pushUndo('Remove label');
       delete cell.center.label;
-      if (cell.center && Object.keys(cell.center).length === 0) delete cell.center;
+      cleanupLabelPos(cell.center);
+      if (Object.keys(cell.center).length === 0) delete cell.center;
       markDirty();
     } else {
       if (!cell.center?.dmLabel) return;
       pushUndo('Remove DM note');
       delete cell.center.dmLabel;
-      if (cell.center && Object.keys(cell.center).length === 0) delete cell.center;
+      cleanupLabelPos(cell.center);
+      if (Object.keys(cell.center).length === 0) delete cell.center;
       markDirty();
     }
   }
 
   onMouseMove(row, col, edge, event, pos) {
+    const gridSize = state.dungeon.metadata.gridSize;
+    const transform = getTransform();
+    const world = fromCanvas(pos.x, pos.y, transform);
+
     if (this._isDragging) {
-      this._dragGhostCell = { row, col };
+      this._dragWorldPos = { x: world.x, y: world.y };
       requestRender();
       return;
     }
@@ -99,15 +157,17 @@ export class LabelTool extends Tool {
         this._isDragging = true;
         this._pendingDragPos = null;
         setCursor('grabbing');
-        this._dragGhostCell = { row, col };
+        this._dragWorldPos = { x: world.x, y: world.y };
         requestRender();
       }
       return;
     }
 
-    if (hasLabel(row, col)) {
-      if (!this.hoveredLabelCell || this.hoveredLabelCell.row !== row || this.hoveredLabelCell.col !== col) {
-        this.hoveredLabelCell = { row, col };
+    // Proximity-based hover detection
+    const hit = findNearestLabel(world.x, world.y, gridSize);
+    if (hit) {
+      if (!this.hoveredLabelCell || this.hoveredLabelCell.row !== hit.row || this.hoveredLabelCell.col !== hit.col) {
+        this.hoveredLabelCell = { row: hit.row, col: hit.col };
         requestRender();
       }
       setCursor('grab');
@@ -129,8 +189,8 @@ export class LabelTool extends Tool {
 
     if (this.hoveredLabelCell) {
       // Select and start pending drag
-      this.selectedLabelCell = { row, col };
-      this._pendingDrag = { row, col };
+      this.selectedLabelCell = { row: this.hoveredLabelCell.row, col: this.hoveredLabelCell.col };
+      this._pendingDrag = { row: this.hoveredLabelCell.row, col: this.hoveredLabelCell.col };
       this._pendingDragPos = { x: pos.x, y: pos.y };
       requestRender();
       return;
@@ -140,11 +200,14 @@ export class LabelTool extends Tool {
     this.selectedLabelCell = null;
     if (!cells[row][col]) cells[row][col] = {};
 
+    const transform = getTransform();
+    const world = fromCanvas(pos.x, pos.y, transform);
+
     const mode = state.labelMode || 'room';
     if (mode === 'room') {
-      this._placeRoomLabel(row, col);
+      this._placeRoomLabel(row, col, world.x, world.y);
     } else {
-      this._startDmEdit(row, col);
+      this._startDmEdit(row, col, world.x, world.y);
     }
   }
 
@@ -169,6 +232,7 @@ export class LabelTool extends Tool {
         pushUndo('Remove label');
         delete cell.center.label;
         delete cell.center.dmLabel;
+        cleanupLabelPos(cell.center);
         if (Object.keys(cell.center).length === 0) delete cell.center;
         this.selectedLabelCell = null;
         markDirty();
@@ -186,7 +250,7 @@ export class LabelTool extends Tool {
 
   // ── Room Label mode: auto-increment, single click ──────────────────────
 
-  _placeRoomLabel(row, col) {
+  _placeRoomLabel(row, col, worldX, worldY) {
     const cell = state.dungeon.cells[row][col];
     const nextNum = this._getNextRoomNumber();
     const letter = state.dungeon.metadata.dungeonLetter || 'A';
@@ -194,6 +258,8 @@ export class LabelTool extends Tool {
     pushUndo('Place label');
     if (!cell.center) cell.center = {};
     cell.center.label = letter + nextNum;
+    cell.center.labelX = worldX;
+    cell.center.labelY = worldY;
     markDirty();
   }
 
@@ -217,18 +283,19 @@ export class LabelTool extends Tool {
 
   // ── DM Label mode: inline text editing ─────────────────────────────────
 
-  _startDmEdit(row, col) {
+  _startDmEdit(row, col, worldX, worldY) {
     const cell = state.dungeon.cells[row][col];
     const currentLabel = cell.center?.dmLabel || '';
 
     this._editRow = row;
     this._editCol = col;
+    this._editWorldX = worldX;
+    this._editWorldY = worldY;
     this._editing = true;
 
-    // Calculate screen position of cell center
-    const gridSize = state.dungeon.metadata.gridSize;
+    // Calculate screen position from world position
     const transform = getTransform();
-    const screenPos = toCanvas((col + 0.5) * gridSize, (row + 0.5) * gridSize, transform);
+    const screenPos = toCanvas(worldX, worldY, transform);
 
     // Create the input element inside canvas-container
     const container = document.getElementById('canvas-container');
@@ -280,9 +347,13 @@ export class LabelTool extends Tool {
     if (text) {
       if (!cell.center) cell.center = {};
       cell.center.dmLabel = text;
+      cell.center.dmLabelX = this._editWorldX;
+      cell.center.dmLabelY = this._editWorldY;
     } else {
       if (cell?.center) {
         delete cell.center.dmLabel;
+        delete cell.center.dmLabelX;
+        delete cell.center.dmLabelY;
         if (Object.keys(cell.center).length === 0) delete cell.center;
       }
     }
@@ -307,14 +378,16 @@ export class LabelTool extends Tool {
     }
     this._editRow = -1;
     this._editCol = -1;
+    this._editWorldX = undefined;
+    this._editWorldY = undefined;
   }
 
   // ── Drag-to-move ─────────────────────────────────────────────────────────
 
   _commitDrag() {
     const src = this._pendingDrag;
-    const dst = this._dragGhostCell;
-    if (!src || !dst || (src.row === dst.row && src.col === dst.col)) {
+    const worldPos = this._dragWorldPos;
+    if (!src || !worldPos) {
       this._resetDrag();
       requestRender();
       return;
@@ -324,16 +397,55 @@ export class LabelTool extends Tool {
     const srcCell = cells[src.row]?.[src.col];
     if (!srcCell?.center) { this._resetDrag(); return; }
 
+    const gridSize = state.dungeon.metadata.gridSize;
+    // Find destination cell from world position
+    const dstRow = Math.floor(worldPos.y / gridSize);
+    const dstCol = Math.floor(worldPos.x / gridSize);
+
+    // Clamp to grid bounds
+    const numRows = cells.length;
+    const numCols = cells[0]?.length || 0;
+    const clampedRow = Math.max(0, Math.min(numRows - 1, dstRow));
+    const clampedCol = Math.max(0, Math.min(numCols - 1, dstCol));
+
     pushUndo('Move label');
-    if (!cells[dst.row][dst.col]) cells[dst.row][dst.col] = {};
-    if (!cells[dst.row][dst.col].center) cells[dst.row][dst.col].center = {};
-    const dstCenter = cells[dst.row][dst.col].center;
 
-    if (srcCell.center.label != null)   { dstCenter.label   = srcCell.center.label;   delete srcCell.center.label; }
-    if (srcCell.center.dmLabel != null) { dstCenter.dmLabel = srcCell.center.dmLabel; delete srcCell.center.dmLabel; }
-    if (Object.keys(srcCell.center).length === 0) delete srcCell.center;
+    if (clampedRow === src.row && clampedCol === src.col) {
+      // Same cell — just update position
+      if (srcCell.center.label != null) {
+        srcCell.center.labelX = worldPos.x;
+        srcCell.center.labelY = worldPos.y;
+      }
+      if (srcCell.center.dmLabel != null) {
+        srcCell.center.dmLabelX = worldPos.x;
+        srcCell.center.dmLabelY = worldPos.y;
+      }
+    } else {
+      // Different cell — move label data and set position
+      if (!cells[clampedRow][clampedCol]) cells[clampedRow][clampedCol] = {};
+      if (!cells[clampedRow][clampedCol].center) cells[clampedRow][clampedCol].center = {};
+      const dstCenter = cells[clampedRow][clampedCol].center;
 
-    this.selectedLabelCell = { row: dst.row, col: dst.col };
+      if (srcCell.center.label != null) {
+        dstCenter.label = srcCell.center.label;
+        dstCenter.labelX = worldPos.x;
+        dstCenter.labelY = worldPos.y;
+        delete srcCell.center.label;
+        delete srcCell.center.labelX;
+        delete srcCell.center.labelY;
+      }
+      if (srcCell.center.dmLabel != null) {
+        dstCenter.dmLabel = srcCell.center.dmLabel;
+        dstCenter.dmLabelX = worldPos.x;
+        dstCenter.dmLabelY = worldPos.y;
+        delete srcCell.center.dmLabel;
+        delete srcCell.center.dmLabelX;
+        delete srcCell.center.dmLabelY;
+      }
+      if (Object.keys(srcCell.center).length === 0) delete srcCell.center;
+    }
+
+    this.selectedLabelCell = { row: clampedRow, col: clampedCol };
     markDirty();
     this._resetDrag();
     requestRender();
@@ -344,20 +456,20 @@ export class LabelTool extends Tool {
   renderOverlay(ctx, transform, gridSize) {
     // DM edit scroll preview
     if (this._editing) {
-      const row = this._editRow;
-      const col = this._editCol;
-      const { x, y } = toCanvas((col + 0.5) * gridSize, (row + 0.5) * gridSize, transform);
+      const wx = this._editWorldX ?? (this._editCol + 0.5) * gridSize;
+      const wy = this._editWorldY ?? (this._editRow + 0.5) * gridSize;
+      const { x, y } = toCanvas(wx, wy, transform);
       const text = this._inputEl?.value || ' ';
       drawDmLabel(ctx, x, y, text, transform.scale);
     }
 
-    // Hover highlight (dashed, when not also the selected cell)
+    // Hover highlight (dashed circle at label position)
     if (this.hoveredLabelCell && !this._isDragging) {
       const { row, col } = this.hoveredLabelCell;
       const notSelected = !this.selectedLabelCell ||
         this.selectedLabelCell.row !== row || this.selectedLabelCell.col !== col;
       if (notSelected) {
-        this._drawCellHighlight(ctx, transform, gridSize, row, col, {
+        this._drawLabelHighlight(ctx, transform, gridSize, row, col, {
           fill: 'rgba(150, 220, 255, 0.12)', stroke: 'rgba(150, 220, 255, 0.7)',
           lineWidth: 1.5, dash: [4, 3],
         });
@@ -367,7 +479,7 @@ export class LabelTool extends Tool {
     // Selection highlight (solid; dashed during drag to indicate "moving")
     if (this.selectedLabelCell) {
       const { row, col } = this.selectedLabelCell;
-      this._drawCellHighlight(ctx, transform, gridSize, row, col, {
+      this._drawLabelHighlight(ctx, transform, gridSize, row, col, {
         fill:   this._isDragging ? 'rgba(60, 140, 255, 0.08)' : 'rgba(60, 140, 255, 0.15)',
         stroke: 'rgba(60, 140, 255, 0.9)',
         lineWidth: 2,
@@ -375,23 +487,41 @@ export class LabelTool extends Tool {
       });
     }
 
-    // Drag ghost target (blue fill at drop target)
-    if (this._isDragging && this._dragGhostCell) {
-      const { row, col } = this._dragGhostCell;
-      this._drawCellHighlight(ctx, transform, gridSize, row, col, {
-        fill: 'rgba(100, 200, 255, 0.25)', stroke: 'rgba(100, 200, 255, 0.9)',
-        lineWidth: 2,
-      });
+    // Drag ghost (circle at drag position)
+    if (this._isDragging && this._dragWorldPos) {
+      const p = toCanvas(this._dragWorldPos.x, this._dragWorldPos.y, transform);
+      const radius = LABEL_HIT_RADIUS * transform.scale;
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(100, 200, 255, 0.25)';
+      ctx.strokeStyle = 'rgba(100, 200, 255, 0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.stroke();
     }
   }
 
-  _drawCellHighlight(ctx, transform, gridSize, row, col, { fill, stroke, lineWidth = 2, dash = [] } = {}) {
-    const tl = toCanvas(col * gridSize, row * gridSize, transform);
-    const br = toCanvas((col + 1) * gridSize, (row + 1) * gridSize, transform);
-    const w = br.x - tl.x, h = br.y - tl.y;
+  /** Draw a highlight circle around a label's world position */
+  _drawLabelHighlight(ctx, transform, gridSize, row, col, { fill, stroke, lineWidth = 2, dash = [] } = {}) {
+    const pos = getLabelWorldPos(row, col, gridSize);
+    if (!pos) return;
+    const p = toCanvas(pos.x, pos.y, transform);
+    const radius = LABEL_HIT_RADIUS * transform.scale;
     ctx.setLineDash(dash);
-    if (fill)   { ctx.fillStyle   = fill;                                      ctx.fillRect(tl.x, tl.y, w, h); }
-    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth; ctx.strokeRect(tl.x, tl.y, w, h); }
+    if (fill) {
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+    if (stroke) {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
     ctx.setLineDash([]);
   }
 }

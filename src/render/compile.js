@@ -17,13 +17,18 @@ import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filter
  * Resolve theme config to a theme object.
  * If themeOverrides is provided, start with the base theme and spread overrides on top.
  */
-function resolveTheme(themeConfig, themeOverrides) {
+function resolveTheme(themeConfig, themeOverrides, metadata) {
   let theme;
   if (typeof themeConfig === 'object' && themeConfig !== null) {
     theme = themeConfig;
   } else {
     const name = typeof themeConfig === 'string' ? themeConfig : 'blue-parchment';
-    theme = THEMES[name] || THEMES['blue-parchment'];
+    theme = THEMES[name];
+    // Fallback: user theme not in registry — use embedded data from map file
+    if (!theme && name.startsWith('user:') && metadata?.savedThemeData?.theme) {
+      theme = metadata.savedThemeData.theme;
+    }
+    if (!theme) theme = THEMES['blue-parchment'];
   }
   if (themeOverrides && typeof themeOverrides === 'object') {
     return { ...theme, ...themeOverrides };
@@ -81,7 +86,7 @@ export function calculateCanvasSize(config) {
 export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = null, textureCatalog = null, bgImageEl = null) {
   const gridSize = config.metadata.gridSize;
   const dungeonName = config.metadata.dungeonName;
-  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides);
+  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides, config.metadata);
   const features = config.metadata.features || {};
   const showGridInCorridors = features.showGrid === true;
   const labelStyle = config.metadata.labelStyle || 'circled';
@@ -237,7 +242,7 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
 export function renderPlayerViewToCanvas(ctx, config, revealedCells, fogOptions, width, height, propCatalog = null, textureCatalog = null) {
   const { openedDoors = [], openedStairs = [] } = fogOptions || {};
   const gridSize = config.metadata.gridSize;
-  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides);
+  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides, config.metadata);
   const features = config.metadata.features || {};
   const showGrid = features.showGrid === true;
   const labelStyle = config.metadata.labelStyle || 'circled';
