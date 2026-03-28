@@ -174,8 +174,25 @@ export function convertOnePageDungeon(opd) {
     }
   }
 
-  // ── 7. Columns → pillar props ──────────────────────────────────────
-  // OPD columns are at grid intersections (corners where 4 cells meet).
+  // ── 7. Props (columns, archways, portcullis) → metadata.props[] ────
+  const gridSize = 5;
+  const props = [];
+  let nextPropId = 1;
+
+  function addProp(row, col, type, rotation = 0) {
+    props.push({
+      id: `prop_${nextPropId++}`,
+      type,
+      x: col * gridSize,
+      y: row * gridSize,
+      rotation,
+      scale: 1.0,
+      zIndex: 10,
+      flipped: false,
+    });
+  }
+
+  // Columns: OPD columns are at grid intersections (corners where 4 cells meet).
   // Only place a pillar if all 4 surrounding cells are open floor with
   // no walls at the shared corner — i.e. it's a room-interior column.
   for (const col of (opd.columns || [])) {
@@ -200,7 +217,22 @@ export function convertOnePageDungeon(opd) {
     // Don't place on stair cells
     if (se.center?.['stair-id'] != null) continue;
 
-    se.prop = { type: 'pillar-corner', span: [1, 1], facing: 0 };
+    addProp(r, c, 'pillar-corner');
+  }
+
+  // Archways and portcullis: place visual props on door cells
+  for (const door of (opd.doors || [])) {
+    if (door.type !== 2 && door.type !== 4) continue; // archway=2, portcullis=4
+
+    const r = toRow(door.y);
+    const c = toCol(door.x);
+    if (!cells[r]?.[c]) continue;
+
+    // Rotation: horizontal passage = 0, vertical = 90
+    const rotation = door.dir.x !== 0 ? 90 : 0;
+
+    if (door.type === 2) addProp(r, c, 'archway', rotation);
+    else if (door.type === 4) addProp(r, c, 'portcullis', rotation);
   }
 
   // ── 8. Water fills ─────────────────────────────────────────────────
@@ -286,21 +318,25 @@ export function convertOnePageDungeon(opd) {
         return outside;
       });
 
-      // Apply: void cells
+      // Apply: void cells (skip cells with doors — they connect to adjacent rooms)
       for (const { row, col } of voidCells) {
-        if (cells[row]?.[col]) cells[row][col] = null;
+        const vc = cells[row]?.[col];
+        if (!vc) continue;
+        const hasDoor = ['north','south','east','west'].some(d => vc[d] === 'd' || vc[d] === 's');
+        if (hasDoor) continue;
+        cells[row][col] = null;
       }
 
-      // Helper: clear all cardinal walls on cell + reciprocals
+      // Helper: clear cardinal walls on cell + reciprocals, but preserve doors
       function clearWalls(r, c) {
         const cell = cells[r]?.[c];
         if (!cell) return;
         for (const dir of ['north', 'south', 'east', 'west']) {
-          if (cell[dir]) {
+          if (cell[dir] && cell[dir] !== 'd' && cell[dir] !== 's') {
             delete cell[dir];
             const [dr, dc] = OFFS[dir];
             const nb = cells[r + dr]?.[c + dc];
-            if (nb) delete nb[OPP[dir]];
+            if (nb && nb[OPP[dir]] !== 'd' && nb[OPP[dir]] !== 's') delete nb[OPP[dir]];
           }
         }
         delete cell['nw-se'];
@@ -336,10 +372,11 @@ export function convertOnePageDungeon(opd) {
     }
   }
 
-  // ── 10. Assemble dungeon JSON ──────────────────────────────────────
+  // ── 10. Assemble dungeon JSON (v2 format — overlay props) ─────────
   const metadata = {
+    formatVersion: 2,
     dungeonName: opd.title || 'Imported Dungeon',
-    gridSize: 5,
+    gridSize,
     theme: 'sepia-parchment',
     labelStyle: 'circled',
     features: {
@@ -350,6 +387,8 @@ export function convertOnePageDungeon(opd) {
     },
     dungeonLetter: dungeonLetter,
     levels: [{ name: null, startRow: 0, numRows: rows }],
+    props,
+    nextPropId,
   };
 
   if (stairs.length > 0) {

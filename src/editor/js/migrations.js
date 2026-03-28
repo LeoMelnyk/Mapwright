@@ -113,7 +113,7 @@ function migrateToHalfCell(json) {
       if (cell.east)  { tr.east = cell.east;  br.east = cell.east; }
 
       // ── Diagonal walls + Trim ──
-      if (cell.trimCorner && !cell.trimRound) {
+      if (cell.trimCorner && !cell.trimRound && !cell.trimInsideArc) {
         // Straight trim hypotenuse: the diagonal cuts the cell into void + floor triangles.
         // One sub-cell is entirely void, two get the diagonal, one is entirely floor.
         //   NW corner (ne-sw): void=TL, diag=TR+BL, floor=BR
@@ -153,6 +153,19 @@ function migrateToHalfCell(json) {
           target.trimArcCenterRow = cell.trimArcCenterRow * 2;
           target.trimArcCenterCol = cell.trimArcCenterCol * 2;
           target.trimArcRadius = cell.trimArcRadius * 2;
+        }
+      } else if (cell.trimInsideArc) {
+        // InsideArc cells are full floor cells — just propagate metadata to all sub-cells.
+        // Do NOT treat as straight trims (no voiding, no diagonal walls).
+        for (const sub of [tl, tr, bl, br]) {
+          sub.trimInsideArc = true;
+          sub.trimCorner = cell.trimCorner;
+          if (cell.trimArcInverted) sub.trimArcInverted = true;
+          if (cell.trimArcCenterRow != null) {
+            sub.trimArcCenterRow = cell.trimArcCenterRow * 2;
+            sub.trimArcCenterCol = cell.trimArcCenterCol * 2;
+            sub.trimArcRadius = cell.trimArcRadius * 2;
+          }
         }
       } else {
         // Non-trim diagonals: check if the cell is a trim hypotenuse (adjacent to void)
@@ -243,6 +256,12 @@ function migrateToHalfCell(json) {
 
   json.cells = newCells;
 
+  // ── Center mid-wall doors ──
+  // Door cells with doors on opposing sides (north+south or east+west) are
+  // passageways. Move their doors from the outer edges to the internal sub-cell
+  // boundary, placing the wall at the center of the original 5ft cell.
+  _centerMidwallDoors(newCells, newRows, newCols);
+
   // ── Fix rounded trim arcs at doubled resolution ──
   // 1. Remove diagonal walls from trimRound cells — the arc wall is drawn from
   //    metadata (smooth curve), diagonal walls just create ugly staircase artifacts.
@@ -295,6 +314,55 @@ function migrateToHalfCell(json) {
  * - Remove diagonal walls from trimRound cells (arc wall rendered from metadata)
  * - Refine void boundary at sub-cell precision
  */
+
+/**
+ * Center mid-wall doors after grid doubling.
+ * Passageway cells (doors on opposing sides) get their doors moved from the
+ * outer edges to the internal sub-cell boundary — placing the wall at the
+ * midpoint of the original 5ft cell.
+ */
+function _centerMidwallDoors(cells, numRows, numCols) {
+  const isDoor = v => v === 'd' || v === 's';
+
+  for (let r = 0; r < numRows; r += 2) {
+    for (let c = 0; c < numCols; c += 2) {
+      const tl = cells[r]?.[c], tr = cells[r]?.[c + 1];
+      const bl = cells[r + 1]?.[c], br = cells[r + 1]?.[c + 1];
+      if (!tl || !tr || !bl || !br) continue;
+
+      // N-S passageway: doors on north and south outer edges
+      if (isDoor(tl.north) && isDoor(bl.south)) {
+        const doorN = tl.north, doorS = bl.south;
+        // Remove from outer edges + reciprocals on neighbors
+        delete tl.north; delete tr.north;
+        delete bl.south; delete br.south;
+        if (cells[r - 1]?.[c]) delete cells[r - 1][c].south;
+        if (cells[r - 1]?.[c + 1]) delete cells[r - 1][c + 1].south;
+        if (cells[r + 2]?.[c]) delete cells[r + 2][c].north;
+        if (cells[r + 2]?.[c + 1]) delete cells[r + 2][c + 1].north;
+        // Place at internal boundary (center of original cell)
+        tl.south = doorN; tr.south = doorN;
+        bl.north = doorS; br.north = doorS;
+      }
+
+      // E-W passageway: doors on west and east outer edges
+      if (isDoor(tl.west) && isDoor(tr.east)) {
+        const doorW = tl.west, doorE = tr.east;
+        // Remove from outer edges + reciprocals on neighbors
+        delete tl.west; delete bl.west;
+        delete tr.east; delete br.east;
+        if (cells[r]?.[c - 1]) delete cells[r][c - 1].east;
+        if (cells[r + 1]?.[c - 1]) delete cells[r + 1][c - 1].east;
+        if (cells[r]?.[c + 2]) delete cells[r][c + 2].west;
+        if (cells[r + 1]?.[c + 2]) delete cells[r + 1][c + 2].west;
+        // Place at internal boundary
+        tl.east = doorW; bl.east = doorW;
+        tr.west = doorE; br.west = doorE;
+      }
+    }
+  }
+}
+
 function _fixArcTrims(cells) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
@@ -350,30 +418,39 @@ function _fixArcTrims(cells) {
       case 'se': r1 = cr - R - 1; c1 = cc - R - 1; r2 = cr; c2 = cc; break;
     }
 
+    // Arc circle center: for non-inverted arcs the circle center is offset
+    // from the stored corner point by ±R (matching traceArcWedge in render.js).
+    // Inverted arcs are centered at the corner point itself.
+    let acr = cr, acc = cc;
+    if (!inverted) {
+      switch (corner) {
+        case 'nw': acr = cr + R; acc = cc + R; break;
+        case 'ne': acr = cr + R; acc = cc - R; break;
+        case 'sw': acr = cr - R; acc = cc + R; break;
+        case 'se': acr = cr - R; acc = cc - R; break;
+      }
+    }
+
     for (let r = Math.max(0, r1); r <= Math.min(numRows - 1, r2); r++) {
       for (let c = Math.max(0, c1); c <= Math.min(numCols - 1, c2); c++) {
         const cell = cells[r]?.[c];
         // Never touch hypotenuse or trimInsideArc cells
         if (cell?.trimRound || cell?.trimInsideArc || cell?.trimCorner) continue;
 
-        const dr = r + 0.5 - cr;
-        const dc = c + 0.5 - cc;
+        const dr = r + 0.5 - acr;
+        const dc = c + 0.5 - acc;
         const dist = Math.sqrt(dr * dr + dc * dc);
 
+        // Only RESTORE voided cells that should be floor (inside the arc).
+        // We do NOT void floor cells here — the arc clip in the renderer
+        // already masks the void region visually, and voiding can destroy
+        // adjacent corridor/room cells that happen to be near the arc boundary.
         if (!inverted) {
-          // Normal arc: outside = dist > R
-          if (dist > R + 0.9 && cell != null) {
-            // Clearly outside — void it
-            cells[r][c] = null;
-          } else if (dist < R - 0.9 && cell === null) {
-            // Clearly inside but was voided by 2×2 block — restore as floor
+          if (dist < R - 0.9 && cell === null) {
             cells[r][c] = {};
           }
         } else {
-          // Inverted arc: outside = dist < R
-          if (dist < R - 0.9 && cell != null) {
-            cells[r][c] = null;
-          } else if (dist > R + 0.9 && cell === null) {
+          if (dist > R + 0.9 && cell === null) {
             cells[r][c] = {};
           }
         }

@@ -234,31 +234,42 @@ export function convertDonjonDungeon(data) {
         });
       }
 
-      // Helper: clear all cardinal walls on cell + reciprocals
+      // Helper: clear cardinal walls on cell + reciprocals, but preserve doors
       function clearWalls(r, c) {
         const cell = cells[r]?.[c];
         if (!cell) return;
         for (const dir of ['north', 'south', 'east', 'west']) {
-          if (cell[dir]) {
+          if (cell[dir] && cell[dir] !== 'd' && cell[dir] !== 's') {
             delete cell[dir];
             const [dr, dc] = OFFS[dir];
             const nb = cells[r + dr]?.[c + dc];
-            if (nb) delete nb[OPP[dir]];
+            if (nb && nb[OPP[dir]] !== 'd' && nb[OPP[dir]] !== 's') delete nb[OPP[dir]];
           }
         }
         delete cell['nw-se'];
         delete cell['ne-sw'];
       }
 
-      // Apply: void cells
+      // Apply: void cells (skip cells with doors — they connect to adjacent rooms)
       for (const { row, col } of voidCells) {
-        if (cells[row]?.[col]) cells[row][col] = null;
+        const vc = cells[row]?.[col];
+        if (!vc) continue;
+        const hasDoor = ['north','south','east','west'].some(d => vc[d] === 'd' || vc[d] === 's');
+        if (hasDoor) continue;
+        cells[row][col] = null;
       }
 
       // Apply: hypotenuse cells
       for (const { row: r, col: c } of hyp) {
-        if (!cells[r]?.[c]) continue;
+        if (!cells[r]) continue;
+        if (!cells[r][c]) cells[r][c] = {};  // Donjon circles leave corner cells void — create them
         clearWalls(r, c);
+        // Clear inbound walls from neighbors (set in step 2 when this cell was void)
+        for (const dir of ['north', 'south', 'east', 'west']) {
+          const [dr, dc] = OFFS[dir];
+          const nb = cells[r + dr]?.[c + dc];
+          if (nb?.[OPP[dir]]) delete nb[OPP[dir]];
+        }
         const cell = cells[r][c];
         cell.trimCorner = cn;
         cell[cn === 'nw' || cn === 'se' ? 'ne-sw' : 'nw-se'] = 'w';
@@ -273,8 +284,15 @@ export function convertDonjonDungeon(data) {
 
       // Apply: insideArc cells (rounded trims only)
       for (const { row: r, col: c } of insideArc) {
-        if (!cells[r]?.[c]) continue;
+        if (!cells[r]) continue;
+        if (!cells[r][c]) cells[r][c] = {};  // Donjon circles leave corner cells void — create them
         clearWalls(r, c);
+        // Clear inbound walls from neighbors (set in step 2 when this cell was void)
+        for (const dir of ['north', 'south', 'east', 'west']) {
+          const [dr, dc] = OFFS[dir];
+          const nb = cells[r + dr]?.[c + dc];
+          if (nb?.[OPP[dir]]) delete nb[OPP[dir]];
+        }
         const cell = cells[r][c];
         cell.trimInsideArc = true;
         cell.trimCorner = cn;
@@ -286,8 +304,9 @@ export function convertDonjonDungeon(data) {
     }
   }
 
-  // ── 8. Assemble dungeon JSON ────────────────────────────────────────
+  // ── 8. Assemble dungeon JSON (v2 format — overlay props) ────────────
   const metadata = {
+    formatVersion: 2,
     dungeonName: data.settings?.name || 'Imported Dungeon',
     gridSize: 5,
     theme: 'sepia-parchment',
@@ -300,6 +319,8 @@ export function convertDonjonDungeon(data) {
     },
     dungeonLetter,
     levels: [{ name: null, startRow: 0, numRows: rows }],
+    props: [],
+    nextPropId: 1,
   };
 
   if (stairs.length > 0) {
