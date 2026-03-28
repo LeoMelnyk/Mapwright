@@ -672,9 +672,292 @@ export function getBlendTopoCache(cells, roomCells, gridSize, textureOptions) {
   return _blendTopoCache;
 }
 
+/** Return the stored parameters from the current blend topo cache (or null if no cache). */
+export function getBlendCacheParams() {
+  if (!_blendTopoCache.edges) return null;
+  return {
+    gridSize: _blendTopoCache.gridSize,
+    blendWidth: _blendTopoCache.blendWidth,
+    catalog: _blendTopoCache.catalog,
+    texturesVersion: _blendTopoCache.texturesVersion,
+  };
+}
+
 export function invalidateBlendLayerCache() {
   closeBlendBitmaps(_blendTopoCache);
   invalidateViewportBlendLayer();
   _blendCacheLayer = null;
   _blendTopoCache = { cells: null, gridSize: null, blendWidth: null, catalog: null, edges: null, corners: null };
+}
+
+/**
+ * Incremental blend update — rebuild only edges/corners touching a dirty region.
+ * Much cheaper than invalidateBlendLayerCache() for single-cell texture changes.
+ *
+ * @param {{ minRow: number, maxRow: number, minCol: number, maxCol: number }} region
+ * @param {Array} cells
+ * @param {Array} roomCells
+ * @param {number} gridSize
+ * @param {object} textureOptions
+ */
+export function patchBlendRegion(region, cells, roomCells, gridSize, textureOptions) {
+  if (!_blendTopoCache.edges) {
+    // No existing topology — need a full build
+    invalidateBlendLayerCache();
+    return;
+  }
+
+  const blendWidth = textureOptions?.blendWidth ?? 0.35;
+
+  // Expand region by 1 cell — neighbors of dirty cells may gain/lose blend edges
+  const PAD = 1;
+  const minR = Math.max(0, region.minRow - PAD);
+  const maxR = Math.min(cells.length - 1, region.maxRow + PAD);
+  const minC = Math.max(0, region.minCol - PAD);
+  const maxC = Math.min((cells[0]?.length || 0) - 1, region.maxCol + PAD);
+
+  // Remove old edges/corners in the region (close their bitmaps)
+  const oldEdges = _blendTopoCache.edges;
+  const oldCorners = _blendTopoCache.corners;
+  const keptEdges = [];
+  const keptCorners = [];
+
+  for (const edge of oldEdges) {
+    if (edge.row >= minR && edge.row <= maxR && edge.col >= minC && edge.col <= maxC) {
+      if (edge.bitmap) { edge.bitmap.close(); edge.bitmap = null; }
+    } else {
+      keptEdges.push(edge);
+    }
+  }
+  for (const corner of oldCorners) {
+    if (corner.row >= minR && corner.row <= maxR && corner.col >= minC && corner.col <= maxC) {
+      if (corner.bitmap) { corner.bitmap.close(); corner.bitmap = null; }
+    } else {
+      keptCorners.push(corner);
+    }
+  }
+
+  // Rebuild edges/corners for just the dirty region using buildBlendTopology
+  // with a restricted scan area
+  const regionTopo = _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions, minR, maxR, minC, maxC);
+
+  // Build bitmaps for only the new edges/corners
+  buildBlendBitmaps(regionTopo.edges, regionTopo.corners, gridSize, blendWidth);
+
+  // Merge into the kept topology
+  _blendTopoCache.edges = keptEdges.concat(regionTopo.edges);
+  _blendTopoCache.corners = keptCorners.concat(regionTopo.corners);
+
+  // Patch the blend cache layer for the dirty region
+  if (_blendCacheLayer && _blendCacheLayer.canvas) {
+    const sc = _blendCacheLayer.w / (cells[0].length * gridSize) || 10;
+    const lctx = _blendCacheLayer.canvas.getContext('2d');
+    const sz = BLEND_BITMAP_SIZE;
+    const cellPx = gridSize * sc;
+
+    // Clear the dirty region on the cache layer
+    const px1 = minC * gridSize * sc;
+    const py1 = minR * gridSize * sc;
+    const pw = (maxC - minC + 1) * gridSize * sc;
+    const ph = (maxR - minR + 1) * gridSize * sc;
+    lctx.save();
+    lctx.beginPath();
+    lctx.rect(px1, py1, pw, ph);
+    lctx.clip();
+    lctx.clearRect(px1, py1, pw, ph);
+
+    // Re-render only the new edges/corners in the region
+    for (const edge of regionTopo.edges) {
+      if (!edge.bitmap) continue;
+      const screenX = edge.col * gridSize * sc;
+      const screenY = edge.row * gridSize * sc;
+      const cpx = Math.ceil(cellPx);
+      lctx.save();
+      lctx.setTransform(sc, 0, 0, sc, 0, 0);
+      lctx.clip(edge.clipPath);
+      lctx.setTransform(1, 0, 0, 1, 0, 0);
+      lctx.globalAlpha = edge.neighborOpacity;
+      lctx.drawImage(edge.bitmap, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
+      lctx.restore();
+    }
+    for (const cn of regionTopo.corners) {
+      if (!cn.bitmap) continue;
+      const screenX = cn.col * gridSize * sc;
+      const screenY = cn.row * gridSize * sc;
+      const cpx = Math.ceil(cellPx);
+      lctx.save();
+      lctx.setTransform(sc, 0, 0, sc, 0, 0);
+      lctx.clip(cn.clipPath);
+      lctx.setTransform(1, 0, 0, 1, 0, 0);
+      lctx.globalAlpha = cn.neighborOpacity;
+      lctx.drawImage(cn.bitmap, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
+      lctx.restore();
+    }
+
+    lctx.restore();
+  }
+
+  // Invalidate the viewport blend layer (it's cheap to rebuild from topo+bitmaps)
+  invalidateViewportBlendLayer();
+}
+
+/**
+ * Build blend topology for a restricted cell region only.
+ * Same logic as buildBlendTopology but limited to [minR..maxR, minC..maxC].
+ */
+function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions, minR, maxR, minC, maxC) {
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
+  const blendWidth = textureOptions?.blendWidth ?? 0.35;
+  const catalog = textureOptions.catalog;
+  const blendWorld = blendWidth * gridSize;
+  const edges = [];
+  const corners = [];
+
+  // ── Edge scan (restricted) ──
+  for (let row = minR; row <= maxR; row++) {
+    for (let col = minC; col <= maxC; col++) {
+      const cell = cells[row]?.[col];
+      if (!cell?.texture || !roomCells[row]?.[col]) continue;
+      if (cell.trimRound || cell.trimInsideArc) continue;
+
+      for (const { dr, dc, dir } of CARDINAL_DIRS) {
+        const nr = row + dr, nc = col + dc;
+        if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+        const neighbor = cells[nr]?.[nc];
+        if (!neighbor?.texture || !roomCells[nr]?.[nc]) continue;
+        if (neighbor.trimRound || neighbor.trimInsideArc) continue;
+        if (neighbor.texture === cell.texture) continue;
+        if (!isEdgeOpen(cell, neighbor, dir)) continue;
+
+        const currentEntry = catalog.textures[cell.texture];
+        if (!currentEntry) continue;
+        const neighborEntry = catalog.textures[neighbor.texture];
+        if (!neighborEntry?.img?.complete || !neighborEntry.img.naturalWidth) continue;
+
+        const curH = computeBaseHeight(currentEntry);
+        const nbrH = computeBaseHeight(neighborEntry);
+        if (curH < nbrH + 0.05) continue;
+
+        const h_cur = sampleEdgeHeights(currentEntry, row, col, dir);
+        const h_nbr = sampleEdgeHeights(neighborEntry, nr, nc, OPPOSITE[dir]);
+        const pen = new Float32Array(N_SAMPLES);
+        for (let i = 0; i < N_SAMPLES; i++) {
+          pen[i] = splatPenetration(h_cur ? h_cur[i] : 0.5, h_nbr ? h_nbr[i] : 0.5, blendWorld);
+        }
+
+        const wx = col * gridSize, wy = row * gridSize, gs = gridSize;
+        const clipPath = new Path2D();
+        switch (dir) {
+          case 'north':
+            clipPath.moveTo(wx, wy);
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + i * gs / (N_SAMPLES - 1), wy + pen[i]);
+            clipPath.lineTo(wx + gs, wy); break;
+          case 'south':
+            clipPath.moveTo(wx, wy + gs);
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + i * gs / (N_SAMPLES - 1), wy + gs - pen[i]);
+            clipPath.lineTo(wx + gs, wy + gs); break;
+          case 'west':
+            clipPath.moveTo(wx, wy);
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + pen[i], wy + i * gs / (N_SAMPLES - 1));
+            clipPath.lineTo(wx, wy + gs); break;
+          case 'east':
+            clipPath.moveTo(wx + gs, wy);
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + gs - pen[i], wy + i * gs / (N_SAMPLES - 1));
+            clipPath.lineTo(wx + gs, wy + gs); break;
+        }
+        clipPath.closePath();
+
+        const { srcX, srcY, srcW, srcH } = getTexChunk(neighborEntry, row, col);
+        edges.push({ row, col, direction: dir, neighborEntry, neighborOpacity: neighbor.textureOpacity ?? 1.0, srcX, srcY, srcW, srcH, clipPath, bitmap: null });
+      }
+    }
+  }
+
+  // ── Corner scan (restricted) ──
+  for (let row = minR; row <= maxR; row++) {
+    for (let col = minC; col <= maxC; col++) {
+      const cell = cells[row]?.[col];
+      if (!cell?.texture || !roomCells[row]?.[col]) continue;
+      if (cell.trimRound || cell.trimInsideArc) continue;
+      const currentEntry = catalog.textures[cell.texture];
+      if (!currentEntry) continue;
+      const curH = computeBaseHeight(currentEntry);
+
+      for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2 } of CORNER_DIRS) {
+        const n1r = row + dr1, n1c = col + dc1;
+        const n2r = row + dr2, n2c = col + dc2;
+        const n1Cell = cells[n1r]?.[n1c];
+        const n2Cell = cells[n2r]?.[n2c];
+        if (n1Cell?.trimRound || n1Cell?.trimInsideArc) continue;
+        if (n2Cell?.trimRound || n2Cell?.trimInsideArc) continue;
+        if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
+        const diagR = row + dr1 + dr2, diagC = col + dc1 + dc2;
+        if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
+        const diagCell = cells[diagR]?.[diagC];
+        if (!diagCell?.texture) continue;
+        if (diagCell.trimRound || diagCell.trimInsideArc) continue;
+
+        let softTexture, softSampleR, softSampleC, softOpacity;
+        if (diagCell.texture === cell.texture) {
+          if (!n1Cell?.texture || !n2Cell?.texture) continue;
+          if (n1Cell.texture === cell.texture || n2Cell.texture === cell.texture) continue;
+          if (n1Cell.texture !== n2Cell.texture) continue;
+          if (!roomCells[n1r]?.[n1c] || !roomCells[n2r]?.[n2c]) continue;
+          softTexture = n1Cell.texture;
+          softSampleR = n1r; softSampleC = n1c;
+          softOpacity = n1Cell.textureOpacity ?? 1.0;
+        } else {
+          if (!roomCells[diagR]?.[diagC]) continue;
+          softTexture = diagCell.texture;
+          softSampleR = diagR; softSampleC = diagC;
+          softOpacity = diagCell.textureOpacity ?? 1.0;
+        }
+
+        const adjEntry = catalog.textures[softTexture];
+        if (!adjEntry?.img?.complete || !adjEntry.img.naturalWidth) continue;
+        if (curH < computeBaseHeight(adjEntry) + 0.05) continue;
+
+        let localCX, localCY;
+        switch (corner) {
+          case 'nw': localCX = 0;       localCY = 0;        break;
+          case 'ne': localCX = gridSize; localCY = 0;        break;
+          case 'sw': localCX = 0;       localCY = gridSize;  break;
+          case 'se': localCX = gridSize; localCY = gridSize;  break;
+        }
+        let startAngle;
+        switch (corner) {
+          case 'nw': startAngle = 0;               break;
+          case 'ne': startAngle = Math.PI / 2;     break;
+          case 'sw': startAngle = 3 * Math.PI / 2; break;
+          case 'se': startAngle = Math.PI;         break;
+        }
+
+        const radii = new Float32Array(8);
+        for (let i = 0; i < 8; i++) {
+          const angle = startAngle + (Math.PI / 2) * i / 7;
+          const sampleLX = localCX + (blendWorld * 0.5) * Math.cos(angle);
+          const sampleLY = localCY + (blendWorld * 0.5) * Math.sin(angle);
+          const hc = sampleHeightAtPoint(currentEntry, row, col, sampleLX, sampleLY, gridSize);
+          const hn = sampleHeightAtPoint(adjEntry, softSampleR, softSampleC, sampleLX, sampleLY, gridSize);
+          radii[i] = splatPenetration(hc, hn, blendWorld);
+        }
+
+        const wx = col * gridSize, wy = row * gridSize;
+        const worldCX = wx + localCX, worldCY = wy + localCY;
+        const clipPath = new Path2D();
+        clipPath.moveTo(worldCX, worldCY);
+        for (let i = 0; i < 8; i++) {
+          const angle = startAngle + (Math.PI / 2) * i / 7;
+          clipPath.lineTo(worldCX + radii[i] * Math.cos(angle), worldCY + radii[i] * Math.sin(angle));
+        }
+        clipPath.closePath();
+
+        const { srcX, srcY, srcW, srcH } = getTexChunk(adjEntry, row, col);
+        corners.push({ row, col, corner, neighborEntry: adjEntry, neighborOpacity: softOpacity, srcX, srcY, srcW, srcH, clipPath, localCX, localCY, bitmap: null });
+      }
+    }
+  }
+
+  return { edges, corners };
 }

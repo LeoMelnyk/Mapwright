@@ -1,5 +1,5 @@
 // Core rendering
-export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion } from './render.js';
+export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion, getDirtyRegion, consumeDirtyRegion, accumulateDirtyRect, patchBlendForDirtyRegion } from './render.js';
 export { invalidateFluidCache } from './fluid.js';
 // Decorations & lighting
 export { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from './decorations.js';

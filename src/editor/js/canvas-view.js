@@ -1,6 +1,6 @@
 // Canvas element management, pan/zoom, mouse event routing
 import state, { getTheme, markDirty, notify, subscribe, notifyTimings } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getLightingVersion } from '../../render/index.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getLightingVersion, getDirtyRegion, consumeDirtyRegion } from '../../render/index.js';
 import { showToast } from './toast.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
@@ -359,69 +359,158 @@ function render() {
       const _cacheStart = performance.now();
       const cacheTransform = { scale: MAP_PX_PER_FOOT, offsetX: 0, offsetY: 0 };
 
-      // ── Cells cache (expensive — only rebuilds on content changes) ──
-      _cellsRebuildCount++;
-      if (!_cellsCache || _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH) {
-        const offscreen = document.createElement('canvas');
-        offscreen.width = cacheW;
-        offscreen.height = cacheH;
-        _cellsCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
+      // ── Check for partial redraw eligibility ──
+      // If only a small region changed (no geometry/undo), clip and redraw just that area.
+      const dirtyRegion = getDirtyRegion();
+      const canPartial = dirtyRegion && _cellsCache &&
+        _cellsCache.cacheW === cacheW && _cellsCache.cacheH === cacheH &&
+        _cellsCache.texturesVersion === texVer &&
+        _cellsCache._skipSig === _skipSig;
+
+      if (canPartial) {
+        // ── Partial cells cache redraw ──
+        // Pad by 3 cells for blend/shading overlap at edges
+        const PAD = 3;
+        const padded = {
+          minRow: Math.max(0, dirtyRegion.minRow - PAD),
+          maxRow: Math.min(numRows - 1, dirtyRegion.maxRow + PAD),
+          minCol: Math.max(0, dirtyRegion.minCol - PAD),
+          maxCol: Math.min(numCols - 1, dirtyRegion.maxCol + PAD),
+        };
+        const px1 = padded.minCol * gridSize * MAP_PX_PER_FOOT;
+        const py1 = padded.minRow * gridSize * MAP_PX_PER_FOOT;
+        const px2 = (padded.maxCol + 1) * gridSize * MAP_PX_PER_FOOT;
+        const py2 = (padded.maxRow + 1) * gridSize * MAP_PX_PER_FOOT;
+        const pw = px2 - px1, ph = py2 - py1;
+
+        const offCtx = _cellsCache.ctx;
+        offCtx.save();
+        offCtx.beginPath();
+        offCtx.rect(px1, py1, pw, ph);
+        offCtx.clip();
+
+        // Clear dirty region and re-fill with background
+        offCtx.fillStyle = theme.background;
+        offCtx.fillRect(px1, py1, pw, ph);
+
+        if (!_skip.dots) drawEditorDots(offCtx, numRows, numCols, gridSize, theme, cacheTransform);
+
+        renderCells(offCtx, cells, gridSize, theme, cacheTransform, {
+          showGrid: showGrid && !_skip.grid, labelStyle,
+          propCatalog: _skip.props ? null : state.propCatalog,
+          textureOptions: _skip.textures ? null : textureOptions,
+          metadata, skipLabels: lightingEnabled || _skip.labels, showInvisible,
+          bgImageEl, bgImgConfig,
+          cacheSize: { w: cacheW, h: cacheH, scale: MAP_PX_PER_FOOT },
+          skipPhases: _skipKeys.length ? _skip : null,
+          visibleBounds: padded,
+        });
+
+        offCtx.restore();
+        _cellsCache.dirtySeq = _mapDirtySeq;
+
+        // ── Partial composite update ──
+        if (!_mapCache || _mapCache.cacheW !== cacheW || _mapCache.cacheH !== cacheH) {
+          const offscreen = document.createElement('canvas');
+          offscreen.width = cacheW;
+          offscreen.height = cacheH;
+          _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
+        }
+
+        _compositeRebuildCount++;
+        const compCtx = _mapCache.ctx;
+        compCtx.save();
+        compCtx.beginPath();
+        compCtx.rect(px1, py1, pw, ph);
+        compCtx.clip();
+        compCtx.globalCompositeOperation = 'source-over';
+        compCtx.drawImage(_cellsCache.canvas, 0, 0);
+
+        if (lightingEnabled && !_skip.lighting && !hasAnimLights) {
+          const fillLights = extractFillLights(cells, gridSize, theme);
+          const allLights = fillLights.length
+            ? [...(metadata.lights || []), ...fillLights]
+            : (metadata.lights || []);
+          const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
+          renderLightmap(compCtx, allLights, cells, gridSize, cacheTransform,
+            cacheW, cacheH, metadata.ambientLight ?? 0.15,
+            state.textureCatalog, state.propCatalog,
+            { ambientColor: metadata.ambientColor || '#ffffff', time: animClock, lightPxPerFoot: LIGHT_PX_PER_FOOT },
+            metadata);
+        }
+
+        if (lightingEnabled) {
+          renderLabels(compCtx, cells, gridSize, theme, cacheTransform, labelStyle);
+        }
+
+        compCtx.restore();
+        _mapCache.dirtySeq = _mapDirtySeq;
+        _mapCache.texturesVersion = texVer;
+      } else {
+        // ── Full cells cache rebuild ──
+        _cellsRebuildCount++;
+        if (!_cellsCache || _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH) {
+          const offscreen = document.createElement('canvas');
+          offscreen.width = cacheW;
+          offscreen.height = cacheH;
+          _cellsCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
+        }
+
+        const offCtx = _cellsCache.ctx;
+        offCtx.fillStyle = theme.background;
+        offCtx.fillRect(0, 0, cacheW, cacheH);
+
+        if (!_skip.dots) drawEditorDots(offCtx, numRows, numCols, gridSize, theme, cacheTransform);
+
+        renderCells(offCtx, cells, gridSize, theme, cacheTransform, {
+          showGrid: showGrid && !_skip.grid, labelStyle,
+          propCatalog: _skip.props ? null : state.propCatalog,
+          textureOptions: _skip.textures ? null : textureOptions,
+          metadata, skipLabels: lightingEnabled || _skip.labels, showInvisible,
+          bgImageEl, bgImgConfig,
+          cacheSize: { w: cacheW, h: cacheH, scale: MAP_PX_PER_FOOT },
+          skipPhases: _skipKeys.length ? _skip : null,
+        });
+
+        _cellsCache.dirtySeq = _mapDirtySeq;
+        _cellsCache.texturesVersion = texVer;
+        _cellsCache._skipSig = _skipSig;
+
+        // ── Composite cache (cells + lightmap + labels) ──
+        if (!_mapCache || _mapCache.cacheW !== cacheW || _mapCache.cacheH !== cacheH) {
+          const offscreen = document.createElement('canvas');
+          offscreen.width = cacheW;
+          offscreen.height = cacheH;
+          _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
+        }
+
+        _compositeRebuildCount++;
+        const compCtx = _mapCache.ctx;
+        compCtx.globalCompositeOperation = 'source-over';
+        compCtx.drawImage(_cellsCache.canvas, 0, 0);
+
+        if (lightingEnabled && !_skip.lighting && !hasAnimLights) {
+          const fillLights = extractFillLights(cells, gridSize, theme);
+          const allLights = fillLights.length
+            ? [...(metadata.lights || []), ...fillLights]
+            : (metadata.lights || []);
+          const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
+          renderLightmap(compCtx, allLights, cells, gridSize, cacheTransform,
+            cacheW, cacheH, metadata.ambientLight ?? 0.15,
+            state.textureCatalog, state.propCatalog,
+            { ambientColor: metadata.ambientColor || '#ffffff', time: animClock, lightPxPerFoot: LIGHT_PX_PER_FOOT },
+            metadata);
+        }
+
+        if (lightingEnabled) {
+          renderLabels(compCtx, cells, gridSize, theme, cacheTransform, labelStyle);
+        }
+
+        _mapCache.dirtySeq = _mapDirtySeq;
+        _mapCache.texturesVersion = texVer;
       }
 
-      const offCtx = _cellsCache.ctx;
-      offCtx.fillStyle = theme.background;
-      offCtx.fillRect(0, 0, cacheW, cacheH);
-
-      if (!_skip.dots) drawEditorDots(offCtx, numRows, numCols, gridSize, theme, cacheTransform);
-
-      renderCells(offCtx, cells, gridSize, theme, cacheTransform, {
-        showGrid: showGrid && !_skip.grid, labelStyle,
-        propCatalog: _skip.props ? null : state.propCatalog,
-        textureOptions: _skip.textures ? null : textureOptions,
-        metadata, skipLabels: lightingEnabled || _skip.labels, showInvisible,
-        bgImageEl, bgImgConfig,
-        cacheSize: { w: cacheW, h: cacheH, scale: MAP_PX_PER_FOOT },
-        skipPhases: _skipKeys.length ? _skip : null,
-      });
-
-      _cellsCache.dirtySeq = _mapDirtySeq;
-      _cellsCache.texturesVersion = texVer;
-      _cellsCache._skipSig = _skipSig;
-
-      // ── Composite cache (cells + lightmap + labels) ──
-      if (!_mapCache || _mapCache.cacheW !== cacheW || _mapCache.cacheH !== cacheH) {
-        const offscreen = document.createElement('canvas');
-        offscreen.width = cacheW;
-        offscreen.height = cacheH;
-        _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
-      }
-
-      _compositeRebuildCount++;
-      const compCtx = _mapCache.ctx;
-      compCtx.globalCompositeOperation = 'source-over';
-      compCtx.drawImage(_cellsCache.canvas, 0, 0);
-
-      if (lightingEnabled && !_skip.lighting && !hasAnimLights) {
-        // Static lights only — bake lighting into the composite cache
-        const fillLights = extractFillLights(cells, gridSize, theme);
-        const allLights = fillLights.length
-          ? [...(metadata.lights || []), ...fillLights]
-          : (metadata.lights || []);
-        const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
-        renderLightmap(compCtx, allLights, cells, gridSize, cacheTransform,
-          cacheW, cacheH, metadata.ambientLight ?? 0.15,
-          state.textureCatalog, state.propCatalog,
-          { ambientColor: metadata.ambientColor || '#ffffff', time: animClock, lightPxPerFoot: LIGHT_PX_PER_FOOT },
-          metadata);
-      }
-
-      if (lightingEnabled) {
-        renderLabels(compCtx, cells, gridSize, theme, cacheTransform, labelStyle);
-      }
-
-
-      _mapCache.dirtySeq = _mapDirtySeq;
-      _mapCache.texturesVersion = texVer;
+      consumeDirtyRegion();
       renderTimings.cacheRebuild = { ms: performance.now() - _cacheStart, frame: _currentFrame };
     }
 

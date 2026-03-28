@@ -4,7 +4,22 @@ import {
   loadTextureImages, paintTool,
   toInt,
   captureBeforeState, smartInvalidate,
+  patchBlendForDirtyRegion,
 } from './_shared.js';
+
+function _blendPatch(minRow, minCol, maxRow, maxCol) {
+  const catalog = state.textureCatalog;
+  if (!catalog) return;
+  const theme = state.dungeon.metadata.theme;
+  const themeObj = typeof theme === 'string' ? null : theme;
+  const blendWidth = themeObj?.textureBlendWidth ?? 0.35;
+  patchBlendForDirtyRegion(
+    { minRow, maxRow, minCol, maxCol },
+    state.dungeon.cells,
+    state.dungeon.metadata.gridSize || 5,
+    { catalog, blendWidth, texturesVersion: state.texturesVersion ?? 0 },
+  );
+}
 
 export function setTexture(row, col, textureId, opacity = 1.0) {
   row = toInt(row); col = toInt(col);
@@ -15,6 +30,7 @@ export function setTexture(row, col, textureId, opacity = 1.0) {
   cell.texture = textureId;
   cell.textureOpacity = Math.max(0, Math.min(1, opacity));
   smartInvalidate(before, state.dungeon.cells);
+  _blendPatch(row, col, row, col);
   markDirty();
   notify();
   return { success: true };
@@ -30,6 +46,7 @@ export function removeTexture(row, col) {
   delete cell.texture;
   delete cell.textureOpacity;
   smartInvalidate(before, state.dungeon.cells);
+  _blendPatch(row, col, row, col);
   markDirty();
   notify();
   return { success: true };
@@ -57,6 +74,7 @@ export function setTextureRect(r1, c1, r2, c2, textureId, opacity = 1.0) {
     }
   }
   smartInvalidate(before, state.dungeon.cells);
+  _blendPatch(minR, minC, maxR, maxC);
   markDirty();
   notify();
   return { success: true };
@@ -82,6 +100,7 @@ export function removeTextureRect(r1, c1, r2, c2) {
     }
   }
   smartInvalidate(before, state.dungeon.cells);
+  _blendPatch(minR, minC, maxR, maxC);
   markDirty();
   notify();
   return { success: true };

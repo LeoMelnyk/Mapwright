@@ -539,8 +539,14 @@ export function getRenderedFluidLayer(data, gridSize, cacheW, cacheH, cacheScale
     ctx.restore();
   }
 
-  _fluidRenderLayer = { canvas: offCanvas, w: cacheW, h: cacheH, pathCacheRef: _fluidPathCache };
+  _fluidRenderLayer = { canvas: offCanvas, w: cacheW, h: cacheH, pathCacheRef: _fluidPathCache, cacheScale, gridSize };
   return offCanvas;
+}
+
+/** Return stored parameters from the current fluid path cache (or null if no cache). */
+export function getFluidCacheParams() {
+  if (!_fluidPathCache.data) return null;
+  return { gridSize: _fluidPathCache.gridSize, theme: _fluidPathCache.theme };
 }
 
 /** Call this whenever fluid/pit cell data is mutated in-place (same cells reference). */
@@ -549,4 +555,264 @@ export function invalidateFluidCache() {
   _fluidCellsCache = { cells: null, water: null, lava: null };
   _pitDataCache    = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
   _fluidRenderLayer = null;
+}
+
+/**
+ * Incremental fluid update — rebuild geometry for just the dirty region and
+ * re-render that area on the existing fluid layer canvas.
+ *
+ * @param {{ minRow: number, maxRow: number, minCol: number, maxCol: number }} region
+ * @param {Array} cells  Current cell grid
+ * @param {Array} roomCells  Room cell mask
+ * @param {number} gridSize
+ * @param {object} theme
+ */
+export function patchFluidRegion(region, cells, roomCells, gridSize, theme) {
+  if (!_fluidRenderLayer || !_fluidRenderLayer.canvas) return;
+  const { canvas, cacheScale: sc } = _fluidRenderLayer;
+  if (!sc) return;
+
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
+
+  // Clear area: 1 cell padding around dirty region (wipes bleed pixels)
+  // Scan area: 2 cells padding (re-renders neighbors whose patterns bleed in)
+  const CLEAR_PAD = 1;
+  const SCAN_PAD = 2;
+  const clearMinR = Math.max(0, region.minRow - CLEAR_PAD);
+  const clearMaxR = Math.min(numRows - 1, region.maxRow + CLEAR_PAD);
+  const clearMinC = Math.max(0, region.minCol - CLEAR_PAD);
+  const clearMaxC = Math.min(numCols - 1, region.maxCol + CLEAR_PAD);
+  const minR = Math.max(0, region.minRow - SCAN_PAD);
+  const maxR = Math.min(numRows - 1, region.maxRow + SCAN_PAD);
+  const minC = Math.max(0, region.minCol - SCAN_PAD);
+  const maxC = Math.min(numCols - 1, region.maxCol + SCAN_PAD);
+
+  // Clear the dirty region on the render layer
+  const px = clearMinC * gridSize * sc;
+  const py = clearMinR * gridSize * sc;
+  const pw = (clearMaxC - clearMinC + 1) * gridSize * sc;
+  const ph = (clearMaxR - clearMinR + 1) * gridSize * sc;
+  const ctx = canvas.getContext('2d', { alpha: true });
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(px, py, pw, ph);
+
+  // Rebuild geometry for fluid cells in the dirty region and render them
+  const tileWorld = gridSize * 8;
+  const patternScale = tileWorld / WATER_TILE_SIZE;
+  const { bins: spatialBins, N: binCount, binSize } = WATER_SPATIAL;
+  const bleedDirs = [[-1, 0, 'north'], [1, 0, 'south'], [0, -1, 'west'], [0, 1, 'east']];
+
+  const toRgb = h => {
+    if (Array.isArray(h)) return h;
+    const x = h.replace('#', '');
+    return [parseInt(x.substring(0, 2), 16), parseInt(x.substring(2, 4), 16), parseInt(x.substring(4, 6), 16)];
+  };
+
+  // Clip rendering to the dirty region
+  ctx.beginPath();
+  ctx.rect(px, py, pw, ph);
+  ctx.clip();
+  ctx.setTransform(sc, 0, 0, sc, 0, 0);
+
+  for (const fillType of ['pit', 'water', 'lava']) {
+    // Collect fluid cells in the dirty region
+    const depthKey = fillType + 'Depth';
+    const fluidCells = [];
+    const fluidSet = new Set();
+    const depthMap = new Map();
+
+    // Scan the dirty region for fluid cells
+    for (let row = minR; row <= maxR; row++) {
+      for (let col = minC; col <= maxC; col++) {
+        const cell = cells[row]?.[col];
+        if (cell?.fill === fillType && roomCells[row]?.[col]) {
+          const key = row * numCols + col;
+          fluidSet.add(key);
+          fluidCells.push([row, col]);
+          depthMap.set(key, cell[depthKey] ?? 1);
+        }
+      }
+    }
+    // Also collect immediate neighbors outside the region for edge detection
+    for (let row = Math.max(0, minR - 1); row <= Math.min(numRows - 1, maxR + 1); row++) {
+      for (let col = Math.max(0, minC - 1); col <= Math.min(numCols - 1, maxC + 1); col++) {
+        if (row >= minR && row <= maxR && col >= minC && col <= maxC) continue;
+        const cell = cells[row]?.[col];
+        if (cell?.fill === fillType && roomCells[row]?.[col]) {
+          fluidSet.add(row * numCols + col);
+        }
+      }
+    }
+
+    if (fluidCells.length === 0) continue;
+
+    const isPit = fillType === 'pit';
+    const defaults = isPit ? PIT_DEFAULTS : (FLUID_DEFAULTS[fillType] || FLUID_DEFAULTS.water);
+    const fluidColors = isPit
+      ? [toRgb(theme.pitBaseColor || defaults.base)]
+      : [
+          toRgb(theme[fillType + 'ShallowColor'] || defaults.shallow),
+          toRgb(theme[fillType + 'MediumColor']  || defaults.medium),
+          toRgb(theme[fillType + 'DeepColor']    || defaults.deep),
+        ];
+
+    // Build clip path for this region's cells
+    const clipPath = new Path2D();
+    for (const [row, col] of fluidCells) {
+      clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
+      const cell = cells[row][col];
+      for (const [dr, dc, dir] of bleedDirs) {
+        const nr = row + dr, nc = col + dc;
+        if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+        if (fluidSet.has(nr * numCols + nc)) continue;
+        if (cell[dir] === 'w' || cell[dir] === 'd') continue;
+        clipPath.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
+      }
+    }
+
+    ctx.save();
+    ctx.clip(clipPath);
+
+    // Interior cells: solid base fill
+    for (const [row, col] of fluidCells) {
+      let isEdge = false;
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        if (!fluidSet.has((row + dr) * numCols + (col + dc))) { isEdge = true; break; }
+      }
+      if (isEdge) continue;
+      const baseC = isPit ? fluidColors[0] : fluidColors[Math.min((depthMap.get(row * numCols + col) ?? 1), 3) - 1];
+      ctx.fillStyle = `rgb(${baseC[0]},${baseC[1]},${baseC[2]})`;
+      ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
+    }
+
+    // Voronoi polygons for edge cells
+    const txMin = Math.floor((minC * gridSize) / tileWorld) - 1;
+    const txMax = Math.ceil(((maxC + 1) * gridSize) / tileWorld) + 1;
+    const tyMin = Math.floor((minR * gridSize) / tileWorld) - 1;
+    const tyMax = Math.ceil(((maxR + 1) * gridSize) / tileWorld) + 1;
+
+    for (let ty = tyMin; ty <= tyMax; ty++) {
+      for (let tx = txMin; tx <= txMax; tx++) {
+        const offX = tx * tileWorld;
+        const offY = ty * tileWorld;
+        const cMin = Math.max(minC, Math.floor(offX / gridSize));
+        const cMax = Math.min(maxC, Math.floor((offX + tileWorld) / gridSize));
+        const rMin2 = Math.max(minR, Math.floor(offY / gridSize));
+        const rMax2 = Math.min(maxR, Math.floor((offY + tileWorld) / gridSize));
+        if (cMin > cMax || rMin2 > rMax2) continue;
+
+        for (let r = rMin2; r <= rMax2; r++) {
+          for (let col = cMin; col <= cMax; col++) {
+            const key = r * numCols + col;
+            if (!fluidSet.has(key)) continue;
+
+            const depth = depthMap.get(key) ?? 1;
+            const baseC = isPit ? fluidColors[0] : fluidColors[Math.min(depth, 3) - 1];
+
+            const txl0 = (col * gridSize - offX) / patternScale;
+            const txl1 = ((col + 1) * gridSize - offX) / patternScale;
+            const tyl0 = (r * gridSize - offY) / patternScale;
+            const tyl1 = ((r + 1) * gridSize - offY) / patternScale;
+            const bxMin = Math.max(0, Math.floor(txl0 / binSize));
+            const bxMax = Math.min(binCount - 1, Math.ceil(txl1 / binSize) - 1);
+            const byMin = Math.max(0, Math.floor(tyl0 / binSize));
+            const byMax = Math.min(binCount - 1, Math.ceil(tyl1 / binSize) - 1);
+            if (bxMin > bxMax || byMin > byMax) continue;
+
+            for (let by = byMin; by <= byMax; by++) {
+              for (let bx = bxMin; bx <= bxMax; bx++) {
+                for (const p of spatialBins[by * binCount + bx]) {
+                  if (Math.floor((p.centre[0] * patternScale + offX) / gridSize) !== col) continue;
+                  if (Math.floor((p.centre[1] * patternScale + offY) / gridSize) !== r) continue;
+
+                  let js = ((r * 997 + col * 1009 + p.idx * 31) >>> 0) || 1;
+                  js = (Math.imul(js, 1664525) + 1013904223) >>> 0;
+                  const jitter = Math.round((js / 0x100000000 - 0.5) * 7) * 2;
+
+                  const rv = Math.max(0, Math.min(255, Math.round(baseC[0] + jitter)));
+                  const gv = Math.max(0, Math.min(255, Math.round(baseC[1] + jitter)));
+                  const bv = Math.max(0, Math.min(255, Math.round(baseC[2] + jitter)));
+
+                  ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
+                  const verts = p.verts;
+                  ctx.beginPath();
+                  ctx.moveTo(verts[0][0] * patternScale + offX, verts[0][1] * patternScale + offY);
+                  for (let i = 1; i < verts.length; i++) {
+                    ctx.lineTo(verts[i][0] * patternScale + offX, verts[i][1] * patternScale + offY);
+                  }
+                  ctx.closePath();
+                  ctx.fill();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Caustic/crack stroke
+    if (isPit) {
+      const crackColor = theme.pitCrackColor || defaults.crack;
+      ctx.strokeStyle = crackColor;
+      ctx.lineWidth = Math.max(0.3 / sc, 0.06);
+    } else {
+      const causticColor = theme[fillType + 'CausticColor'] || defaults.caustic;
+      ctx.strokeStyle = causticColor;
+      ctx.lineWidth = Math.max(0.5 / sc, 0.09);
+    }
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // Re-stroke Voronoi edges for the dirty region
+    for (let ty = tyMin; ty <= tyMax; ty++) {
+      for (let tx = txMin; tx <= txMax; tx++) {
+        const offX = tx * tileWorld;
+        const offY = ty * tileWorld;
+        const cMin = Math.max(minC, Math.floor(offX / gridSize));
+        const cMax = Math.min(maxC, Math.floor((offX + tileWorld) / gridSize));
+        const rMin2 = Math.max(minR, Math.floor(offY / gridSize));
+        const rMax2 = Math.min(maxR, Math.floor((offY + tileWorld) / gridSize));
+        if (cMin > cMax || rMin2 > rMax2) continue;
+
+        for (let r = rMin2; r <= rMax2; r++) {
+          for (let col = cMin; col <= cMax; col++) {
+            if (!fluidSet.has(r * numCols + col)) continue;
+
+            const txl0 = (col * gridSize - offX) / patternScale;
+            const txl1 = ((col + 1) * gridSize - offX) / patternScale;
+            const tyl0 = (r * gridSize - offY) / patternScale;
+            const tyl1 = ((r + 1) * gridSize - offY) / patternScale;
+            const bxMin = Math.max(0, Math.floor(txl0 / binSize));
+            const bxMax = Math.min(binCount - 1, Math.ceil(txl1 / binSize) - 1);
+            const byMin = Math.max(0, Math.floor(tyl0 / binSize));
+            const byMax = Math.min(binCount - 1, Math.ceil(tyl1 / binSize) - 1);
+            if (bxMin > bxMax || byMin > byMax) continue;
+
+            for (let by = byMin; by <= byMax; by++) {
+              for (let bx = bxMin; bx <= bxMax; bx++) {
+                for (const p of spatialBins[by * binCount + bx]) {
+                  if (Math.floor((p.centre[0] * patternScale + offX) / gridSize) !== col) continue;
+                  if (Math.floor((p.centre[1] * patternScale + offY) / gridSize) !== r) continue;
+                  const verts = p.verts;
+                  ctx.beginPath();
+                  ctx.moveTo(verts[0][0] * patternScale + offX, verts[0][1] * patternScale + offY);
+                  for (let i = 1; i < verts.length; i++) {
+                    ctx.lineTo(verts[i][0] * patternScale + offX, verts[i][1] * patternScale + offY);
+                  }
+                  ctx.closePath();
+                  ctx.stroke();
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    ctx.restore();
+  }
+
+  ctx.restore();
 }

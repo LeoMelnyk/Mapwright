@@ -4,12 +4,12 @@
 // Shift+drag in room mode: constrain selection to a square.
 // Syringe mode: click to pick up a cell's texture, then auto-switch to texture paint.
 import { Tool } from './tool-base.js';
-import state, { pushUndo, markDirty, notify } from '../state.js';
+import state, { pushUndo, markDirty, notify, getTheme } from '../state.js';
 import { setCursor, getTransform, requestRender } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
 import { selectTexture } from '../panels/index.js';
 import { loadTextureImages } from '../texture-catalog.js';
-import { invalidateBlendLayerCache, captureBeforeState, smartInvalidate } from '../../../render/index.js';
+import { invalidateBlendLayerCache, captureBeforeState, smartInvalidate, accumulateDirtyRect, patchBlendForDirtyRegion } from '../../../render/index.js';
 import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, blockedByDiagonal, lockDiagonalHalf, isInBounds, normalizeBounds, snapToSquare } from '../../../util/index.js';
 
 // SVG paint bucket cursor — hotspot at the drip tip (bottom-left of bucket)
@@ -19,6 +19,17 @@ const BUCKET_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 export const SYRINGE_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='white' stroke='%23333' stroke-width='1.2' d='M20.71 5.63l-2.34-2.34a1 1 0 0 0-1.41 0l-3.54 3.54 1.41 1.41L13.41 9.66l-5.66 5.66-1.41-1.41-1.41 1.41 1.41 1.41L4.59 18.5 3 20.08 3.92 21l1.5-1.59 1.76-1.76 1.41 1.41 1.41-1.41-1.41-1.41 5.66-5.66 1.41 1.41 1.42-1.42-1.42-1.41 3.54-3.54a1 1 0 0 0 0-1.41z'/%3E%3C/svg%3E") 1 23, crosshair`;
 
 const FILL_DIRS = CARDINAL_DIRS;
+
+/** Incrementally patch blend edges/corners for a dirty region instead of full rebuild. */
+function _patchBlend(region) {
+  const theme = getTheme();
+  const textureOptions = state.textureCatalog
+    ? { catalog: state.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: state.texturesVersion ?? 0 }
+    : null;
+  if (textureOptions) {
+    patchBlendForDirtyRegion(region, state.dungeon.cells, state.dungeon.metadata.gridSize || 5, textureOptions);
+  }
+}
 
 // Room-side directions for each trim corner.  For a trimRound hypotenuse cell,
 // the room interior is on the opposite side from the voided corner.
@@ -506,14 +517,20 @@ export class PaintTool extends Tool {
     correctArcCells(cells, filledCells, toFill, mainFillCells, arcVisited);
 
     const opacity = state.textureOpacity ?? 1.0;
+    let fMinR = Infinity, fMaxR = -Infinity, fMinC = Infinity, fMaxC = -Infinity;
     for (const [r, c, halfKey] of toFill) {
       const texKey = forceSecondary ? 'textureSecondary' : (halfKey || 'texture');
       const opKey = texKey + 'Opacity';
       cells[r][c][texKey] = tid;
       cells[r][c][opKey] = opacity;
+      if (r < fMinR) fMinR = r; if (r > fMaxR) fMaxR = r;
+      if (c < fMinC) fMinC = c; if (c > fMaxC) fMaxC = c;
+    }
+    if (fMinR <= fMaxR) {
+      accumulateDirtyRect(fMinR, fMinC, fMaxR, fMaxC);
+      _patchBlend({ minRow: fMinR, maxRow: fMaxR, minCol: fMinC, maxCol: fMaxC });
     }
 
-    invalidateBlendLayerCache();
     markDirty();
     notify();
   }
@@ -629,14 +646,20 @@ export class PaintTool extends Tool {
     if (!hasTexture) return;
 
     pushUndo('Clear texture');
+    let cMinR = Infinity, cMaxR = -Infinity, cMinC = Infinity, cMaxC = -Infinity;
     for (const [r, c, halfKey] of toClear) {
       const texKey = forceSecondary ? 'textureSecondary' : (halfKey || 'texture');
       const opKey = texKey + 'Opacity';
       delete cells[r][c][texKey];
       delete cells[r][c][opKey];
+      if (r < cMinR) cMinR = r; if (r > cMaxR) cMaxR = r;
+      if (c < cMinC) cMinC = c; if (c > cMaxC) cMaxC = c;
+    }
+    if (cMinR <= cMaxR) {
+      accumulateDirtyRect(cMinR, cMinC, cMaxR, cMaxC);
+      _patchBlend({ minRow: cMinR, maxRow: cMaxR, minCol: cMinC, maxCol: cMaxC });
     }
 
-    invalidateBlendLayerCache();
     markDirty();
     notify();
   }
@@ -690,8 +713,10 @@ export class PaintTool extends Tool {
         delete cell.texture;
         delete cell.textureOpacity;
       }
-      invalidateBlendLayerCache();
+      accumulateDirtyRect(row, col, row, col);
+      _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
       markDirty();
+      notify();
     }
   }
 
@@ -760,7 +785,8 @@ export class PaintTool extends Tool {
           cell[opKey] = opacity;
         }
       }
-      invalidateBlendLayerCache();
+      accumulateDirtyRect(r1, c1, r2, c2);
+      _patchBlend({ minRow: r1, maxRow: r2, minCol: c1, maxCol: c2 });
       markDirty();
       notify();
 
@@ -785,6 +811,7 @@ export class PaintTool extends Tool {
           for (const k of clearKeys) delete cell[k];
         }
       }
+      accumulateDirtyRect(r1, c1, r2, c2);
       invalidateBlendLayerCache();
       markDirty();
       notify();
