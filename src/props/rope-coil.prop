@@ -10,14 +10,40 @@ typical_count: few
 clusters_with: dock-cleat, anchor
 notes: Place near dock cleats or on ship decks
 ---
-# Outer coil
-circle 0.5,0.5 0.38 fill #c4a060 0.3
-circle 0.5,0.5 0.38 stroke #8b6914
-# Middle coil
-circle 0.5,0.5 0.28 stroke #8b6914
+# Ground shadow
+circle 0.50,0.50 0.42 fill #3a2a1a 0.12
+
+# Coil loops — each ring is one wrap of rope with visible thickness
+# Outermost coil
+ring 0.50,0.50 0.42 0.36 texfill polyhaven/rough_linen 0.6
+ring 0.50,0.50 0.42 0.36 stroke #5c4a32
+# Second coil
+ring 0.50,0.50 0.34 0.28 texfill polyhaven/rough_linen 0.6
+ring 0.50,0.50 0.34 0.28 stroke #5c4a32
+# Third coil
+ring 0.50,0.50 0.26 0.20 texfill polyhaven/rough_linen 0.6
+ring 0.50,0.50 0.26 0.20 stroke #5c4a32
 # Inner coil
-circle 0.5,0.5 0.18 stroke #8b6914
+ring 0.50,0.50 0.18 0.12 texfill polyhaven/rough_linen 0.6
+ring 0.50,0.50 0.18 0.12 stroke #5c4a32
+
 # Center hole
-circle 0.5,0.5 0.08 fill #333333 0.3
-# Rope end trailing out
-line 0.88,0.5 0.92,0.62
+circle 0.50,0.50 0.10 fill #2a2a2a 0.25
+
+# Highlight along top of each coil (rope catching light)
+arc 0.50,0.50 0.39 200 320 stroke #9a8868 width 2
+arc 0.50,0.50 0.31 210 310 stroke #9a8868 width 2
+arc 0.50,0.50 0.23 220 300 stroke #9a8868 width 2
+
+# Shadow between coils (depth)
+circle 0.50,0.50 0.36 stroke #3a2a1a 0.3
+circle 0.50,0.50 0.28 stroke #3a2a1a 0.3
+circle 0.50,0.50 0.20 stroke #3a2a1a 0.3
+
+# Trailing rope end
+line 0.86,0.55 0.90,0.64 stroke #7a6a4a width 5
+line 0.90,0.64 0.87,0.74 stroke #7a6a4a width 4
+line 0.87,0.74 0.82,0.80 stroke #7a6a4a width 3
+# Rope end outline
+line 0.86,0.55 0.90,0.64 stroke #5c4a32 width 2
+line 0.90,0.64 0.87,0.74 stroke #5c4a32 width 2

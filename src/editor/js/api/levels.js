@@ -1,6 +1,7 @@
 import {
   state, pushUndo, markDirty, notify,
   invalidateAllCaches,
+  toInt, toDisp,
 } from './_shared.js';
 
 export function getLevels() {
@@ -10,8 +11,8 @@ export function getLevels() {
     levels: levels.map((l, i) => ({
       index: i,
       name: l.name,
-      startRow: l.startRow,
-      numRows: l.numRows,
+      startRow: toDisp(l.startRow),
+      numRows: toDisp(l.numRows),
     })),
   };
 }
@@ -32,11 +33,12 @@ export function renameLevel(levelIndex, newName) {
 }
 
 export function resizeLevel(levelIndex, newRows) {
+  newRows = toInt(newRows);
   const levels = state.dungeon.metadata.levels;
   if (!levels || levelIndex < 0 || levelIndex >= levels.length) {
     throw new Error(`Level index ${levelIndex} out of range (${levels?.length || 0} levels)`);
   }
-  if (!Number.isInteger(newRows) || newRows < 1) {
+  if (newRows < 1) {
     throw new Error('Row count must be a positive integer');
   }
 
@@ -75,10 +77,11 @@ export function resizeLevel(levelIndex, newRows) {
 }
 
 export function addLevel(name, numRows = 15) {
+  numRows = toInt(numRows);
   if (!name || typeof name !== 'string') {
     throw new Error('Level name must be a non-empty string');
   }
-  if (!Number.isInteger(numRows) || numRows < 1) {
+  if (numRows < 1) {
     throw new Error('Row count must be a positive integer');
   }
 
@@ -115,17 +118,19 @@ export function defineLevels(levels) {
   const maxRow = state.dungeon.cells.length;
   for (const lvl of levels) {
     if (!lvl.name || typeof lvl.name !== 'string') throw new Error('Each level needs a name string');
-    if (!Number.isInteger(lvl.startRow) || lvl.startRow < 0) throw new Error(`Invalid startRow: ${lvl.startRow}`);
-    if (!Number.isInteger(lvl.numRows) || lvl.numRows < 1) throw new Error(`Invalid numRows: ${lvl.numRows}`);
-    if (lvl.startRow + lvl.numRows > maxRow) {
-      throw new Error(`Level "${lvl.name}" exceeds grid: startRow=${lvl.startRow} + numRows=${lvl.numRows} > ${maxRow} total rows`);
+    const sr = toInt(lvl.startRow);
+    const nr = toInt(lvl.numRows);
+    if (sr < 0) throw new Error(`Invalid startRow: ${lvl.startRow}`);
+    if (nr < 1) throw new Error(`Invalid numRows: ${lvl.numRows}`);
+    if (sr + nr > maxRow) {
+      throw new Error(`Level "${lvl.name}" exceeds grid: startRow=${lvl.startRow} + numRows=${lvl.numRows} > ${toDisp(maxRow)} total rows`);
     }
   }
   pushUndo();
   state.dungeon.metadata.levels = levels.map(l => ({
     name: l.name.trim(),
-    startRow: l.startRow,
-    numRows: l.numRows,
+    startRow: toInt(l.startRow),
+    numRows: toInt(l.numRows),
   }));
   markDirty();
   notify();

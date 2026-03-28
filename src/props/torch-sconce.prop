@@ -3,19 +3,51 @@ category: Structure
 footprint: 1x1
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1
 lights: [{"preset":"torch","x":0.5,"y":0.5}]
 placement: wall
 room_types: any
 typical_count: many
 notes: Wall-mounted light; place at regular intervals along walls. Use fillWallWithProps with gap:2-3
 ---
-# Wall bracket
-rect 0.3,0.0 0.4,0.2 texfill polyhaven/rusty_metal 0.8
-rect 0.3,0.0 0.4,0.2 stroke #444444
-# Torch shaft
-line 0.5,0.2 0.5,0.45
-# Flame glow
-circle 0.5,0.52 0.12 fill #ffaa00 0.3
-circle 0.5,0.52 0.08 fill #ff8800 0.5
-circle 0.5,0.52 0.04 fill #ffcc00 0.8
+# === HITBOX ===
+hitbox rect 0.25,0.02 0.50,0.42 z 0-1
+
+# footprint 1x1: x range 0-1, y range 0-1. Facing south, mounted on north wall.
+
+# === Wall mounting bracket (metal plate flush against north edge) ===
+rect 0.25,0.02 0.50,0.12 texfill polyhaven/rusty_metal 0.85
+rect 0.25,0.02 0.50,0.12 stroke #3a3a3a
+# Rivet top-left
+circle 0.32,0.06 0.02 fill #666666 0.8
+# Rivet top-right
+circle 0.68,0.06 0.02 fill #666666 0.8
+# Rivet bottom-left
+circle 0.32,0.11 0.02 fill #666666 0.8
+# Rivet bottom-right
+circle 0.68,0.11 0.02 fill #666666 0.8
+
+# === Subtle shadow of arm on wall ===
+rect 0.44,0.10 0.16,0.28 fill #000000 0.08
+ellipse 0.50,0.52 0.14,0.10 fill #000000 0.06
+
+# === Iron arm extending south from bracket ===
+rect 0.44,0.12 0.12,0.26 texfill polyhaven/rusty_metal 0.75
+rect 0.44,0.12 0.12,0.26 stroke #444444
+
+# === Torch holder ring (circular cradle at end of arm) ===
+circle 0.50,0.42 0.09 fill #555555 0.6
+circle 0.50,0.42 0.09 stroke #3a3a3a
+
+# === Torch head (top-down: round wooden shaft wrapped in pitch) ===
+circle 0.50,0.42 0.06 fill #4a3020 0.9
+circle 0.50,0.42 0.06 stroke #2a1a10
+
+# === Flame glow (layered outward: soft warm light) ===
+circle 0.50,0.44 0.22 fill #ff6600 0.10
+circle 0.50,0.44 0.16 fill #ff8800 0.18
+circle 0.50,0.44 0.11 fill #ffaa00 0.30
+circle 0.50,0.44 0.07 fill #ffcc00 0.50
+# Bright flame core
+circle 0.50,0.44 0.035 fill #ffee88 0.85

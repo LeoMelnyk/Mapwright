@@ -11,8 +11,8 @@ import { reloadAssets, migrateHalfTextures } from '../io.js';
 import { migrateToLatest } from '../migrations.js';
 import { classifyStairShape, isDegenerate, getOccupiedCells } from '../stair-geometry.js';
 import { isBridgeDegenerate, getBridgeOccupiedCells } from '../bridge-geometry.js';
-import { calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches } from '../../../render/index.js';
-import { OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom } from '../../../util/index.js';
+import { calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches, captureBeforeState, smartInvalidate, patchBlendForDirtyRegion } from '../../../render/index.js';
+import { OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom, toInternalCoord, toDisplayCoord } from '../../../util/index.js';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -75,6 +75,23 @@ function deleteReciprocal(row, col, direction) {
   setReciprocal(row, col, direction, null);
 }
 
+// ─── Resolution coordinate conversion ───────────────────────────────────────
+
+/** Get the current resolution (defaults to 1 for legacy maps). */
+function getResolution() {
+  return state.dungeon?.metadata?.resolution || 1;
+}
+
+/** Convert a display coordinate (0, 0.5, 1, …) to internal grid index. */
+function toInt(displayCoord) {
+  return toInternalCoord(displayCoord, getResolution());
+}
+
+/** Convert an internal grid index to a display coordinate. */
+function toDisp(internalCoord) {
+  return toDisplayCoord(internalCoord, getResolution());
+}
+
 // ─── Re-exports ──────────────────────────────────────────────────────────────
 // Grouped by source so each API module can import exactly what it needs.
 
@@ -107,7 +124,11 @@ export {
 
   // Render
   calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches,
+  captureBeforeState, smartInvalidate, patchBlendForDirtyRegion,
 
   // Grid utils
   OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom,
+
+  // Resolution helpers
+  getResolution, toInt, toDisp,
 };

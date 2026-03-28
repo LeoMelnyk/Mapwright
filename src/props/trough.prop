@@ -1,21 +1,60 @@
 name: Trough
 category: Misc
-footprint: 1x2
+footprint: 1x3
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: stable, forge, smithy, farm
 typical_count: single
 clusters_with: forge, anvil
 notes: Water or feed container; place against wall near forge for quenching
 ---
+# === HITBOX ===
+hitbox rect 0.075,0.15 2.85,0.7 z 0-2
+
+# Support legs/stands — shadow rectangles underneath
+rect 0.30,0.72 0.18,0.12 fill #000000 0.2
+rect 1.10,0.72 0.18,0.12 fill #000000 0.2
+rect 1.72,0.72 0.18,0.12 fill #000000 0.2
+rect 2.52,0.72 0.18,0.12 fill #000000 0.2
 # Wooden outer structure
-rect 0.05,0.15 1.9,0.7 texfill polyhaven/weathered_planks 0.82
-rect 0.05,0.15 1.9,0.7 stroke #4a2800
+rect 0.075,0.15 2.85,0.7 texfill polyhaven/weathered_planks 0.82
+rect 0.075,0.15 2.85,0.7 stroke #4a2800
+# Wood grain lines on planks
+line 0.15,0.18 0.15,0.82 stroke #4a2800 width 1
+line 0.60,0.16 0.60,0.83 stroke #4a2800 width 1
+line 1.05,0.17 1.05,0.82 stroke #4a2800 width 1
+line 1.50,0.16 1.50,0.83 stroke #4a2800 width 1
+line 1.95,0.18 1.95,0.82 stroke #4a2800 width 1
+line 2.40,0.16 2.40,0.83 stroke #4a2800 width 1
+line 2.85,0.17 2.85,0.82 stroke #4a2800 width 1
+# End boards (thicker end caps)
+rect 0.075,0.15 0.15,0.7 fill #6b4530 0.5
+rect 2.775,0.15 0.15,0.7 fill #6b4530 0.5
+# Iron band straps across the trough
+rect 0.50,0.15 0.08,0.7 fill #555555 0.6
+rect 0.50,0.15 0.08,0.7 stroke #333333
+rect 1.46,0.15 0.08,0.7 fill #555555 0.6
+rect 1.46,0.15 0.08,0.7 stroke #333333
+rect 2.42,0.15 0.08,0.7 fill #555555 0.6
+rect 2.42,0.15 0.08,0.7 stroke #333333
+# Iron band rivet dots
+circle 0.54,0.20 0.02 fill #777777 0.8
+circle 0.54,0.80 0.02 fill #777777 0.8
+circle 1.50,0.20 0.02 fill #777777 0.8
+circle 1.50,0.80 0.02 fill #777777 0.8
+circle 2.46,0.20 0.02 fill #777777 0.8
+circle 2.46,0.80 0.02 fill #777777 0.8
 # Inner water area
-rect 0.15,0.25 1.7,0.5 fill #4a7799 0.65
-rect 0.15,0.25 1.7,0.5 stroke #555555
-# End boards
-rect 0.05,0.15 0.1,0.7 fill #6b4530 0.5
-rect 1.85,0.15 0.1,0.7 fill #6b4530 0.5
+rect 0.225,0.25 2.55,0.5 fill #4a7799 0.65
+rect 0.225,0.25 2.55,0.5 stroke #555555
+# Water ripple highlights
+ellipse 0.70,0.45 0.25,0.08 fill #6699bb 0.3
+ellipse 1.50,0.52 0.35,0.06 fill #7aaabb 0.25
+ellipse 2.30,0.42 0.20,0.07 fill #6699bb 0.3
+# Water sheen — bright specular spots
+ellipse 0.90,0.48 0.10,0.04 fill #aaccdd 0.25
+ellipse 1.80,0.44 0.12,0.04 fill #aaccdd 0.2
+ellipse 2.50,0.50 0.08,0.03 fill #aaccdd 0.25

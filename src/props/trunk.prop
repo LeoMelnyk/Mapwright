@@ -3,18 +3,65 @@ category: Furniture
 footprint: 1x2
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: bedroom, ship, storage
 typical_count: few
 clusters_with: bed, chest
 notes: Storage container; place against walls or at foot of bed
 ---
-# Trunk body
-rect 0.1,0.1 1.8,0.8 texfill polyhaven/dark_wood 0.85
-rect 0.1,0.1 1.8,0.8 stroke #3a1f00
-# Metal bands
-rect 0.1,0.3 1.8,0.06 fill #666666 0.6
-rect 0.1,0.64 1.8,0.06 fill #666666 0.6
-# Lock/latch
-circle 1.0,0.5 0.04 fill #8b6914 0.8
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.84 z 0-2
+
+# Trunk body — dark wood base
+rect 0.08,0.08 1.84,0.84 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.08 1.84,0.84 stroke #3a1f00 width 2
+# Metal corner reinforcements — L-shaped brackets at each corner
+# Top-left corner
+line 0.08,0.08 0.25,0.08 stroke #666666 width 3
+line 0.08,0.08 0.08,0.25 stroke #666666 width 3
+poly 0.08,0.08 0.22,0.08 0.08,0.22 fill #555555 0.5
+# Top-right corner
+line 1.75,0.08 1.92,0.08 stroke #666666 width 3
+line 1.92,0.08 1.92,0.25 stroke #666666 width 3
+poly 1.92,0.08 1.78,0.08 1.92,0.22 fill #555555 0.5
+# Bottom-left corner
+line 0.08,0.92 0.25,0.92 stroke #666666 width 3
+line 0.08,0.75 0.08,0.92 stroke #666666 width 3
+poly 0.08,0.92 0.22,0.92 0.08,0.78 fill #555555 0.5
+# Bottom-right corner
+line 1.75,0.92 1.92,0.92 stroke #666666 width 3
+line 1.92,0.75 1.92,0.92 stroke #666666 width 3
+poly 1.92,0.92 1.78,0.92 1.92,0.78 fill #555555 0.5
+# Domed lid — dark rim band (edges where lid curves down)
+rect 0.16,0.14 1.68,0.72 fill #0a0600 0.45
+rect 0.16,0.14 1.68,0.72 stroke #3a1f00
+# Lid surface — raised center (lighter wood showing dome crown)
+rect 0.28,0.24 1.44,0.52 texfill polyhaven/dark_wood 0.7
+rect 0.28,0.24 1.44,0.52 stroke #4a2800
+# Dome highlight — elliptical bright band across the crown
+ellipse 1.00,0.50 0.55,0.18 fill #8b7355 0.2
+ellipse 1.00,0.50 0.30,0.10 fill #a08860 0.15
+# Metal bands across the lid
+rect 0.16,0.32 1.68,0.05 fill #666666 0.6
+rect 0.16,0.32 1.68,0.05 stroke #444444
+rect 0.16,0.63 1.68,0.05 fill #666666 0.6
+rect 0.16,0.63 1.68,0.05 stroke #444444
+# Hinge line along north edge
+line 0.25,0.18 1.75,0.18 stroke #555555 width 2
+# Hinge dots
+circle 0.50,0.18 0.03 fill #777777 0.8
+circle 1.00,0.18 0.03 fill #777777 0.8
+circle 1.50,0.18 0.03 fill #777777 0.8
+# Iron handles on each end — small ellipses
+ellipse 0.12,0.50 0.04,0.08 fill #666666 0.7
+ellipse 0.12,0.50 0.04,0.08 stroke #444444
+ellipse 1.88,0.50 0.04,0.08 fill #666666 0.7
+ellipse 1.88,0.50 0.04,0.08 stroke #444444
+# Lock/clasp at front (south edge) — plate and keyhole
+rect 0.88,0.78 0.24,0.12 fill #8b6914 0.85
+rect 0.88,0.78 0.24,0.12 stroke #5a3a00
+# Keyhole
+ellipse 1.00,0.82 0.03,0.03 fill #1a1a1a 0.9
+line 1.00,0.83 1.00,0.88 stroke #1a1a1a width 2

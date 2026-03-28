@@ -37,6 +37,9 @@ export function placeLight(x, y, config = {}) {
     falloff: config.falloff || 'smooth',
   };
 
+  // Z-height (height above floor in feet) — from preset or explicit config
+  if (config.z != null) light.z = config.z;
+
   if (type === 'directional') {
     light.angle = config.angle ?? 0;
     light.spread = config.spread ?? 45;
@@ -44,7 +47,7 @@ export function placeLight(x, y, config = {}) {
 
   meta.lights.push(light);
   if (!meta.lightingEnabled) meta.lightingEnabled = true;
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();
@@ -59,7 +62,7 @@ export function removeLight(id) {
 
   pushUndo();
   meta.lights.splice(idx, 1);
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();
@@ -77,7 +80,7 @@ export function setAmbientLight(level) {
   }
   pushUndo();
   state.dungeon.metadata.ambientLight = level;
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();
@@ -87,7 +90,7 @@ export function setAmbientLight(level) {
 export function setLightingEnabled(enabled) {
   pushUndo();
   state.dungeon.metadata.lightingEnabled = !!enabled;
-  invalidateLightmap();
+  invalidateLightmap(false);
   markDirty();
   notify();
   requestRender();

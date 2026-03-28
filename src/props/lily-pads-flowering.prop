@@ -1,0 +1,54 @@
+name: Lily Pads (Flowering)
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: swamp, pond, riverside, garden, fey-grove
+typical_count: many
+clusters_with: lily-pads, pond, reed-bed
+notes: Flowering lily pads with prominent water lily blooms; place on water features
+---
+# Pad 1 (large, with notch and veins)
+circle 0.35,0.42 0.16 fill #2d6a1e 0.35
+circle 0.35,0.42 0.16 stroke #1a4a10 0.25
+line 0.35,0.42 0.35,0.26 stroke #1a4a10 0.20
+line 0.23,0.40 0.35,0.42 stroke #1a4a10 0.12
+line 0.35,0.32 0.35,0.42 stroke #1a4a10 0.12
+line 0.47,0.40 0.35,0.42 stroke #1a4a10 0.12
+# Pad 2 (medium, with notch)
+circle 0.70,0.58 0.13 fill #3a7a28 0.33
+circle 0.70,0.58 0.13 stroke #1a4a10 0.22
+line 0.70,0.58 0.70,0.45 stroke #1a4a10 0.18
+# Pad 3 (small)
+circle 0.50,0.78 0.09 fill #448833 0.30
+circle 0.50,0.78 0.09 stroke #1a4a10 0.20
+# Water lily flower 1 on pad 1 — outer petals
+ellipse 0.30,0.38 0.06,0.03 fill #ffddee 0.65
+ellipse 0.40,0.38 0.06,0.03 fill #ffddee 0.65
+ellipse 0.35,0.33 0.03,0.06 fill #ffddee 0.65
+ellipse 0.35,0.47 0.03,0.06 fill #ffddee 0.65
+ellipse 0.31,0.34 0.05,0.03 fill #ffddee 0.60
+ellipse 0.39,0.46 0.05,0.03 fill #ffddee 0.60
+# Flower 1 — inner petals
+ellipse 0.33,0.37 0.04,0.02 fill #ffffff 0.70
+ellipse 0.37,0.37 0.04,0.02 fill #ffffff 0.70
+ellipse 0.35,0.35 0.02,0.04 fill #ffffff 0.70
+ellipse 0.35,0.41 0.02,0.04 fill #ffffff 0.70
+# Flower 1 — center stamens
+circle 0.35,0.38 0.025 fill #ffee55 0.75
+# Water lily flower 2 on pad 2 — outer petals
+ellipse 0.65,0.55 0.05,0.025 fill #ffffff 0.60
+ellipse 0.75,0.55 0.05,0.025 fill #ffffff 0.60
+ellipse 0.70,0.51 0.025,0.05 fill #ffffff 0.60
+ellipse 0.70,0.62 0.025,0.05 fill #ffffff 0.60
+ellipse 0.66,0.51 0.04,0.025 fill #ffffff 0.55
+# Flower 2 — inner petals
+ellipse 0.68,0.55 0.035,0.018 fill #ffddee 0.65
+ellipse 0.72,0.55 0.035,0.018 fill #ffddee 0.65
+ellipse 0.70,0.53 0.018,0.035 fill #ffddee 0.65
+# Flower 2 — center stamens
+circle 0.70,0.55 0.02 fill #ffee55 0.70
+# Small bud on pad 3
+circle 0.52,0.76 0.025 fill #ffccdd 0.50

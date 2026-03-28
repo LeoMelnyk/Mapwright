@@ -1,45 +1,73 @@
 name: Willow Tree
 category: Terrain
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: yes
 blocks_light: yes
+height: 12
 placement: floor
 room_types: garden, swamp, riverside, courtyard, fey-grove
 typical_count: single
 clusters_with: fountain, mushroom
 notes: Weeping willow with drooping branches; place near water features or as garden centerpiece
 ---
-# Trunk (off-center, slightly gnarled)
-circle 1.00,0.90 0.16 texfill polyhaven/bark_brown_02 0.85
-circle 1.00,0.90 0.16 stroke #3a1f00
-# Main canopy mass (lighter green, wispy)
-circle 1.00,0.90 0.55 fill #3a8a30 0.20
-# Drooping branch cascades (lines extending outward and down from canopy)
-# North droops
-line 1.00,0.35 0.70,0.10 stroke #4a8a38 0.40
-line 1.00,0.35 1.00,0.05 stroke #3a7a28 0.35
-line 1.00,0.35 1.30,0.10 stroke #4a8a38 0.40
-# East droops
-line 1.55,0.90 1.85,0.60 stroke #3a7a28 0.35
-line 1.55,0.90 1.90,0.90 stroke #4a8a38 0.40
-line 1.55,0.90 1.85,1.20 stroke #3a7a28 0.35
-# South droops
-line 1.00,1.45 0.70,1.80 stroke #4a8a38 0.40
-line 1.00,1.45 1.00,1.90 stroke #3a7a28 0.35
-line 1.00,1.45 1.30,1.80 stroke #4a8a38 0.40
-# West droops
-line 0.45,0.90 0.15,0.60 stroke #3a7a28 0.35
-line 0.45,0.90 0.10,0.90 stroke #4a8a38 0.40
-line 0.45,0.90 0.15,1.20 stroke #3a7a28 0.35
-# Leaf cluster accents along droop tips
-circle 0.70,0.10 0.08 fill #4a9a38 0.30
-circle 1.30,0.10 0.08 fill #4a9a38 0.30
-circle 1.85,0.60 0.08 fill #4a9a38 0.30
-circle 1.85,1.20 0.08 fill #4a9a38 0.30
-circle 0.70,1.80 0.08 fill #4a9a38 0.30
-circle 1.30,1.80 0.08 fill #4a9a38 0.30
-circle 0.15,0.60 0.08 fill #4a9a38 0.30
-circle 0.15,1.20 0.08 fill #4a9a38 0.30
-# Inner canopy highlight
-circle 1.00,0.90 0.30 fill #5aaa48 0.12
+# Hitbox: trunk only, drooping branches don't block at ground level
+hitbox circle 1.5,1.5 0.22 z 0-12
+
+# Outer fringe — dense curtain of drooping branch tips touching the ground
+# This is the densest ring, creating the distinctive willow silhouette
+circle 1.5,1.5 1.40 fill #4a8a30 0.18
+circle 1.5,1.5 1.30 fill #4a8a30 0.15
+# Radial fringe lobes — overlapping ellipses around the perimeter
+# North
+ellipse 1.5,0.30 0.55,0.40 fill #4a8a30 0.25
+ellipse 1.5,0.25 0.40,0.30 fill #5a9a40 0.20
+# NE
+ellipse 2.30,0.50 0.45,0.40 fill #4a8a30 0.25
+ellipse 2.35,0.55 0.35,0.30 fill #5a9a40 0.18
+# East
+ellipse 2.70,1.5 0.40,0.55 fill #4a8a30 0.25
+ellipse 2.75,1.5 0.30,0.40 fill #5a9a40 0.20
+# SE
+ellipse 2.30,2.50 0.45,0.40 fill #4a8a30 0.25
+ellipse 2.35,2.45 0.35,0.30 fill #5a9a40 0.18
+# South
+ellipse 1.5,2.70 0.55,0.40 fill #4a8a30 0.25
+ellipse 1.5,2.75 0.40,0.30 fill #5a9a40 0.20
+# SW
+ellipse 0.70,2.50 0.45,0.40 fill #4a8a30 0.25
+ellipse 0.65,2.45 0.35,0.30 fill #5a9a40 0.18
+# West
+ellipse 0.30,1.5 0.40,0.55 fill #4a8a30 0.25
+ellipse 0.25,1.5 0.30,0.40 fill #5a9a40 0.20
+# NW
+ellipse 0.70,0.50 0.45,0.40 fill #4a8a30 0.25
+ellipse 0.65,0.55 0.35,0.30 fill #5a9a40 0.18
+# Mid canopy mass — the main drooping foliage body
+circle 1.5,1.5 1.10 fill #5a9a40 0.20
+circle 1.5,1.5 1.00 fill #6aaa50 0.18
+# Secondary canopy lobes — layered curtain effect mid-radius
+ellipse 1.5,0.65 0.50,0.35 fill #6aaa50 0.20
+ellipse 2.35,1.5 0.35,0.50 fill #6aaa50 0.20
+ellipse 1.5,2.35 0.50,0.35 fill #6aaa50 0.20
+ellipse 0.65,1.5 0.35,0.50 fill #6aaa50 0.20
+ellipse 2.10,0.75 0.40,0.35 fill #5a9a40 0.18
+ellipse 2.10,2.25 0.40,0.35 fill #5a9a40 0.18
+ellipse 0.90,2.25 0.40,0.35 fill #5a9a40 0.18
+ellipse 0.90,0.75 0.40,0.35 fill #5a9a40 0.18
+# Inner gap — lighter area near trunk where branches arch before drooping
+circle 1.5,1.5 0.55 fill #7aba60 0.15
+circle 1.5,1.5 0.45 fill #8aca70 0.12
+# Trunk — bark textured circle at center
+circle 1.5,1.5 0.22 texfill polyhaven/bark_brown_02 0.85
+circle 1.5,1.5 0.22 stroke #3a1f00
+# Trunk texture detail — visible bark lines
+circle 1.5,1.5 0.18 stroke #3a1f00 0.25
+circle 1.5,1.5 0.13 stroke #3a1f00 0.15
+# Canopy highlight wisps — bright tips catching light
+ellipse 1.80,0.70 0.20,0.12 fill #8aca70 0.18
+ellipse 2.20,1.20 0.12,0.20 fill #8aca70 0.18
+ellipse 1.20,2.30 0.20,0.12 fill #8aca70 0.18
+ellipse 0.80,1.10 0.12,0.20 fill #8aca70 0.18
+# Outer edge definition — subtle dark ring at canopy boundary
+circle 1.5,1.5 1.35 stroke #3a7a28 0.12

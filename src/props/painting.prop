@@ -3,12 +3,16 @@ category: Furniture
 footprint: 1x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: wall
 room_types: bedroom, study, gallery, throne-room, great-hall
 typical_count: few
 notes: Wall art; hang at regular intervals along walls
 ---
+# === HITBOX ===
+hitbox rect 0.25,0.1 1.5,0.12 z 0-4
+
 # Painting hung on north wall — from above, only the top edge of the frame is visible
 # plus a thin shadow where it stands off the wall
 

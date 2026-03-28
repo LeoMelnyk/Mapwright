@@ -3,6 +3,7 @@ import {
   CARDINAL_DIRS, OFFSETS, OPPOSITE,
   state,
   cellKey,
+  toInt, toDisp,
 } from './_shared.js';
 
 // ── Validation ──────────────────────────────────────────────────────────
@@ -22,13 +23,13 @@ export function validateDoorClearance() {
       for (const dir of CARDINAL_DIRS) {
         if (cell[dir] !== 'd' && cell[dir] !== 's') continue;
         if (getApi()._isCellCoveredByProp(r, c)) {
-          issues.push({ row: r, col: c, direction: dir, doorType: cell[dir], problem: 'prop blocking door cell' });
+          issues.push({ row: toDisp(r), col: toDisp(c), direction: dir, doorType: cell[dir], problem: 'prop blocking door cell' });
         }
         const [dr, dc] = OFFSETS[dir];
         const nr = r + dr, nc = c + dc;
         if (nr >= 0 && nr < cells.length && nc >= 0 && nc < (cells[nr]?.length || 0)) {
           if (getApi()._isCellCoveredByProp(nr, nc)) {
-            issues.push({ row: nr, col: nc, direction: OPPOSITE[dir], doorType: cell[dir], problem: 'prop blocking door approach' });
+            issues.push({ row: toDisp(nr), col: toDisp(nc), direction: OPPOSITE[dir], doorType: cell[dir], problem: 'prop blocking door approach' });
           }
         }
       }
@@ -48,8 +49,10 @@ export function validateConnectivity(entranceLabel) {
 
   const cells = state.dungeon.cells;
   const visited = new Set();
-  const queue = [[start.row, start.col]];
-  visited.add(cellKey(start.row, start.col));
+  // findCellByLabel returns display coords — convert to internal
+  const startR = toInt(start.row), startC = toInt(start.col);
+  const queue = [[startR, startC]];
+  visited.add(cellKey(startR, startC));
 
   while (queue.length) {
     const [r, c] = queue.shift();

@@ -3,25 +3,38 @@ category: Lighting
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 3
 lights: [{"preset":"bonfire","x":0.5,"y":0.5}]
 placement: center
 room_types: battlements, watchtower, beacon
 typical_count: single
 notes: Large beacon fire; place at tower tops or signal points
 ---
-# Stone platform base
-rect 0.10,0.10 0.80,0.80 texfill polyhaven/cobblestone_floor_01 0.75
-rect 0.10,0.10 0.80,0.80 stroke #555555
-# Log base (crossed logs)
-line 0.20,0.70 0.80,0.30 stroke #4a2800
-line 0.80,0.70 0.20,0.30 stroke #4a2800
-# Fire glow layers
-circle 0.50,0.50 0.28 fill #cc3300 0.20
-circle 0.50,0.50 0.22 fill #e85500 0.35
-circle 0.50,0.50 0.16 fill #ff7700 0.50
-circle 0.50,0.50 0.10 fill #ffaa00 0.60
-circle 0.50,0.50 0.06 fill #ffcc00 0.70
-circle 0.50,0.50 0.03 fill #ffffff 0.50
-# Platform edge detail
-rect 0.10,0.10 0.80,0.80 stroke #333333 0.40
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.44 z 0-3
+
+# Stone brazier base (octagonal pedestal)
+poly 0.30,0.12 0.70,0.12 0.88,0.30 0.88,0.70 0.70,0.88 0.30,0.88 0.12,0.70 0.12,0.30 texfill polyhaven/stone_wall 0.80
+poly 0.30,0.12 0.70,0.12 0.88,0.30 0.88,0.70 0.70,0.88 0.30,0.88 0.12,0.70 0.12,0.30 stroke #444444
+# Inner stone rim (raised edge of the brazier bowl)
+poly 0.34,0.18 0.66,0.18 0.82,0.34 0.82,0.66 0.66,0.82 0.34,0.82 0.18,0.66 0.18,0.34 stroke #555555 width 2
+# Dark pitch/oil staining around inner rim
+poly 0.34,0.18 0.66,0.18 0.82,0.34 0.82,0.66 0.66,0.82 0.34,0.82 0.18,0.66 0.18,0.34 fill #1a0800 0.30
+# Coal/fuel bed inside brazier
+circle 0.50,0.50 0.24 fill #1a0800 0.60
+circle 0.50,0.50 0.24 stroke #111111 0.40
+# Charred pitch residue — dark irregular stains on rim
+circle 0.35,0.20 0.04 fill #0a0400 0.40
+circle 0.75,0.25 0.035 fill #0a0400 0.35
+circle 0.82,0.55 0.04 fill #0a0400 0.40
+circle 0.40,0.80 0.035 fill #0a0400 0.35
+# Fire glow layers (large, intense beacon flame)
+circle 0.50,0.50 0.28 fill #cc3300 0.25
+circle 0.50,0.50 0.22 fill #e85500 0.40
+circle 0.50,0.50 0.16 fill #ff7700 0.55
+circle 0.50,0.50 0.11 fill #ffaa00 0.65
+circle 0.50,0.50 0.07 fill #ffcc00 0.75
+circle 0.50,0.50 0.04 fill #ffffff 0.60
+# Outer brazier edge detail (stone weathering)
+poly 0.30,0.12 0.70,0.12 0.88,0.30 0.88,0.70 0.70,0.88 0.30,0.88 0.12,0.70 0.12,0.30 stroke #333333 0.50

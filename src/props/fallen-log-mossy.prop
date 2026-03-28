@@ -1,0 +1,44 @@
+name: Fallen Log (Mossy)
+category: Terrain
+footprint: 1x4
+facing: no
+shadow: no
+blocks_light: yes
+height: 2
+placement: floor
+room_types: wilderness, forest, swamp
+typical_count: few
+clusters_with: fallen-log, mushroom, moss-patch
+notes: Moss-covered fallen log; great for swamps and old forests
+---
+# === HITBOX ===
+hitbox rect 0.04,0.2 3.92,0.6 z 0-2
+
+# footprint 1x4: x range 0-4, y range 0-1
+# Left cross-section
+ellipse 0.2,0.5 0.16,0.3 texfill polyhaven/bark_brown_02 0.85
+ellipse 0.2,0.5 0.16,0.3 stroke #3a1f00
+circle 0.2,0.5 0.175 fill #c4a060 0.4
+# Main log body
+rect 0.2,0.2 3.6,0.6 texfill polyhaven/bark_brown_02 0.82
+rect 0.2,0.2 3.6,0.6 stroke #3a1f00
+# Right cross-section
+ellipse 3.8,0.5 0.16,0.3 texfill polyhaven/bark_brown_02 0.85
+ellipse 3.8,0.5 0.16,0.3 stroke #3a1f00
+circle 3.8,0.5 0.175 fill #c4a060 0.4
+# Bark lines
+line 0.9,0.2 0.9,0.8 stroke #3a1f00 0.4
+line 1.8,0.2 1.8,0.8 stroke #3a1f00 0.4
+line 2.7,0.2 2.7,0.8 stroke #3a1f00 0.4
+line 3.4,0.2 3.4,0.8 stroke #3a1f00 0.4
+# Moss patches (green, growing on top)
+ellipse 0.8,0.4 0.25,0.12 fill #2d5a1e 0.4
+ellipse 1.5,0.45 0.3,0.15 fill #3a6a28 0.35
+ellipse 2.2,0.38 0.2,0.1 fill #2d6a1e 0.38
+ellipse 3.0,0.42 0.28,0.14 fill #3a7a28 0.35
+ellipse 3.5,0.5 0.18,0.1 fill #2d5a1e 0.4
+# Small mushrooms growing on log
+circle 1.2,0.3 0.05 fill #c8b898 0.5
+circle 1.25,0.35 0.04 fill #c8b898 0.45
+circle 2.5,0.28 0.05 fill #c8b898 0.5
+circle 2.55,0.32 0.04 fill #c8b898 0.45

@@ -1,0 +1,50 @@
+name: Treasure Pile (Small)
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1
+placement: floor
+room_types: vault, dragon-lair, treasure-room, dungeon
+typical_count: many
+clusters_with: chest, treasure-pile
+notes: Small coin scatter; place around larger treasure hoards
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.52 0.32,0.22 z 0-1
+
+# footprint 1x1: x range 0-1, y range 0-1
+# === Small gold coin mound ===
+# Shadow/dark base
+ellipse 0.5,0.55 0.38,0.28 fill #8b6914 0.3
+# Main mound
+ellipse 0.5,0.52 0.32,0.22 fill #c49520 0.5
+# Bright center
+ellipse 0.5,0.48 0.2,0.14 fill #daa520 0.55
+# Highlight
+ellipse 0.5,0.45 0.1,0.08 fill #ffd700 0.4
+# === Scattered coins at edges ===
+circle 0.15,0.62 0.05 fill #ffd700 0.7
+circle 0.15,0.62 0.05 stroke #8b6914
+circle 0.82,0.58 0.05 fill #daa520 0.65
+circle 0.82,0.58 0.05 stroke #8b6914
+circle 0.35,0.72 0.04 fill #ffd700 0.6
+circle 0.68,0.70 0.045 fill #daa520 0.65
+circle 0.68,0.70 0.045 stroke #8b6914
+circle 0.22,0.42 0.04 fill #ffd700 0.6
+circle 0.78,0.40 0.04 fill #daa520 0.55
+# === Single gemstone — emerald ===
+circle 0.58,0.42 0.04 fill #22aa44 0.85
+circle 0.58,0.42 0.04 stroke #116622
+circle 0.57,0.41 0.015 fill #44cc66 0.45
+# === Small coin pouch ===
+# Pouch body (from above — round soft shape)
+ellipse 0.30,0.35 0.12,0.10 texfill polyhaven/brown_leather 0.75
+ellipse 0.30,0.35 0.12,0.10 stroke #4a2800
+# Drawstring gathered top
+circle 0.30,0.28 0.04 fill #8b7355 0.6
+# Coins spilling from pouch
+circle 0.18,0.38 0.035 fill #ffd700 0.7
+circle 0.22,0.44 0.03 fill #daa520 0.65
+circle 0.40,0.40 0.03 fill #ffd700 0.6

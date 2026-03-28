@@ -1,31 +1,46 @@
 name: Kitchen Table
 category: Kitchen
-footprint: 2x2
+footprint: 3x2
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: center
 room_types: kitchen, mess-hall, tavern
 typical_count: single
 clusters_with: chopping-block, stool, pot-rack
-notes: Food prep surface; place centrally with working space
+notes: Long rectangular prep table; place centrally with working space on both sides
 ---
+# === HITBOX ===
+# Tabletop surface
+hitbox rect 0.12,0.12 1.76,2.76 z 2-2.5
+
 # Table surface
-rect 0.10,0.10 1.80,1.80 texfill polyhaven/wood_table 0.80
-rect 0.10,0.10 1.80,1.80 stroke #3a1f00
-rect 0.18,0.18 1.64,1.64 stroke #5c3a1e 0.40
+rect 0.12,0.12 1.76,2.76 texfill polyhaven/wood_table 0.82
+rect 0.12,0.12 1.76,2.76 stroke #3a1f00
+rect 0.22,0.22 1.56,2.56 stroke #5c3a1e 0.35
 # Leg shadows
-circle 0.20,0.20 0.08 fill #3a1f00 0.55
-circle 1.80,0.20 0.08 fill #3a1f00 0.55
-circle 0.20,1.80 0.08 fill #3a1f00 0.55
-circle 1.80,1.80 0.08 fill #3a1f00 0.55
-# Cutting board on surface
-rect 0.28,0.28 0.46,0.32 texfill polyhaven/worn_planks 0.70
-rect 0.28,0.28 0.46,0.32 stroke #4a2800
-# Large pot on surface
-circle 1.50,0.50 0.20 texfill polyhaven/rusty_metal 0.75
-circle 1.50,0.50 0.20 stroke #333333
-circle 1.50,0.50 0.12 fill #1a1a1a 0.60
-# Food items (round loaves/bowls)
-circle 0.50,1.50 0.18 fill #dd9944 0.60
-circle 0.50,1.50 0.12 fill #cc7722 0.70
+circle 0.26,0.26 0.10 fill #3a1f00 0.55
+circle 1.74,0.26 0.10 fill #3a1f00 0.55
+circle 0.26,2.74 0.10 fill #3a1f00 0.55
+circle 1.74,2.74 0.10 fill #3a1f00 0.55
+# Cutting board (upper left area)
+rect 0.32,0.38 0.58,0.42 texfill polyhaven/worn_planks 0.70
+rect 0.32,0.38 0.58,0.42 stroke #4a2800
+# Knife next to cutting board
+line 1.05,0.44 1.05,0.78 stroke #666666
+line 1.02,0.78 1.08,0.82 stroke #4a2800
+# Large pot (upper right area)
+circle 1.45,1.15 0.28 texfill polyhaven/rusty_metal 0.75
+circle 1.45,1.15 0.28 stroke #333333
+circle 1.45,1.15 0.16 fill #1a1a1a 0.55
+# Bread loaf (lower left)
+ellipse 0.55,2.10 0.22,0.16 fill #dd9944 0.65
+ellipse 0.55,2.10 0.15,0.10 fill #cc7722 0.70
+# Small bowl with vegetables (lower right)
+circle 1.40,2.25 0.20 fill #8b6914 0.40
+circle 1.40,2.25 0.20 stroke #5a3a00
+circle 1.40,2.25 0.08 fill #558833 0.60
+# Scattered onion/turnip near center
+circle 0.55,1.45 0.10 fill #d4a574 0.55
+circle 0.55,1.45 0.06 fill #c8b898 0.40

@@ -1,33 +1,37 @@
 name: Lighthouse Lens
 category: Nautical
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 6
 lights: [{"preset":"bright","x":1.0,"y":1.0}]
 placement: center
 room_types: lighthouse, beacon-tower
 typical_count: single
 notes: Central light mechanism; place at room center
 ---
+# === HITBOX ===
+hitbox circle 1.5,1.5 1.38 z 0-6
+
 # Outer metal housing ring
-circle 1.0,1.0 0.92 fill #555555 0.3
-circle 1.0,1.0 0.92 stroke #444444
+circle 1.5,1.5 1.38 fill #555555 0.3
+circle 1.5,1.5 1.38 stroke #444444
 # Fresnel glass prism rings (outermost to innermost)
-circle 1.0,1.0 0.80 fill #aaddff 0.35
-circle 1.0,1.0 0.80 stroke #88aacc
-circle 1.0,1.0 0.62 fill #bbddff 0.4
-circle 1.0,1.0 0.62 stroke #88aacc
-circle 1.0,1.0 0.44 fill #cceeff 0.45
-circle 1.0,1.0 0.44 stroke #88aacc
+circle 1.5,1.5 1.2 fill #aaddff 0.35
+circle 1.5,1.5 1.2 stroke #88aacc
+circle 1.5,1.5 0.93 fill #bbddff 0.4
+circle 1.5,1.5 0.93 stroke #88aacc
+circle 1.5,1.5 0.66 fill #cceeff 0.45
+circle 1.5,1.5 0.66 stroke #88aacc
 # Radial support bars (structural spokes)
-line 1.0,0.2 1.0,1.8 stroke #666666
-line 0.2,1.0 1.8,1.0 stroke #666666
-line 0.44,0.44 1.56,1.56 stroke #666666
-line 1.56,0.44 0.44,1.56 stroke #666666
+line 1.5,0.3 1.5,2.7 stroke #666666
+line 0.3,1.5 2.7,1.5 stroke #666666
+line 0.66,0.66 2.34,2.34 stroke #666666
+line 2.34,0.66 0.66,2.34 stroke #666666
 # Central lamp (bright beacon point)
-circle 1.0,1.0 0.22 fill #ffee88 0.9
-circle 1.0,1.0 0.22 stroke #daa520
-circle 1.0,1.0 0.1 fill #ffffff 0.95
+circle 1.5,1.5 0.33 fill #ffee88 0.9
+circle 1.5,1.5 0.33 stroke #daa520
+circle 1.5,1.5 0.15 fill #ffffff 0.95
 # Outer frame accent ring
-circle 1.0,1.0 0.95 stroke #333333
+circle 1.5,1.5 1.425 stroke #333333

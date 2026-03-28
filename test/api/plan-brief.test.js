@@ -8,7 +8,7 @@ import { planBrief } from '../../src/editor/js/api/plan-brief.js';
 // ── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
-  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon', 1);
   state.undoStack = [];
   state.redoStack = [];
 });

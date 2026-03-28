@@ -3,13 +3,17 @@ category: Undead & Dark
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 1.5
 placement: wall
 room_types: crypt, tomb, temple
 typical_count: few
 clusters_with: sarcophagus, burial-urn
 notes: Place on shelves or near sarcophagi in Egyptian-style tombs
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.56 0.30 z 0-1.5
+
 # Jar body
 circle 0.50,0.56 0.30 texfill polyhaven/marble_01 0.70
 circle 0.50,0.56 0.30 stroke #666655

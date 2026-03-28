@@ -3,28 +3,46 @@ category: Lighting
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 7
 lights: [{"preset":"lantern","x":0.5,"y":0.5}]
 placement: floor
 room_types: street, courtyard, dock, garden
 typical_count: few
+clusters_with:
 notes: Standing light; place along paths or at intersections
 ---
-# Base plate
-rect 0.38,0.78 0.24,0.14 texfill polyhaven/metal_plate 0.75
-rect 0.38,0.78 0.24,0.14 stroke #444444
-# Post shaft
-line 0.50,0.76 0.50,0.36 stroke #666666
-line 0.48,0.76 0.48,0.36 stroke #555555
-# Lantern housing (square from above)
-rect 0.32,0.18 0.36,0.36 fill #444444 0.60
-rect 0.32,0.18 0.36,0.36 stroke #666666
-# Glass warm glow
-rect 0.36,0.20 0.28,0.32 fill #ffcc44 0.25
-# Flame inside
-circle 0.50,0.36 0.08 fill #ffaa00 0.50
-circle 0.50,0.36 0.05 fill #ffcc00 0.70
-circle 0.50,0.36 0.03 fill #ffffff 0.40
-# Cap on top
-rect 0.30,0.16 0.40,0.05 fill #555555 0.90
-rect 0.30,0.16 0.40,0.05 stroke #333333
+# === HITBOX ===
+hitbox poly 0.50,0.68 0.62,0.72 0.70,0.80 0.66,0.90 0.50,0.94 0.34,0.90 0.30,0.80 0.38,0.72 z 0-1
+hitbox circle 0.50,0.62 0.06 z 1-5
+hitbox poly 0.50,0.18 0.64,0.22 0.72,0.34 0.72,0.50 0.64,0.62 0.50,0.66 0.36,0.62 0.28,0.50 0.28,0.34 0.36,0.22 z 5-7
+
+# Warm glow halo (ground level, drawn first)
+circle 0.50,0.42 0.44 fill #ffaa00 0.06
+circle 0.50,0.42 0.32 fill #ffcc44 0.08
+# Decorative octagonal base plate (ground level)
+poly 0.50,0.68 0.62,0.72 0.70,0.80 0.66,0.90 0.50,0.94 0.34,0.90 0.30,0.80 0.38,0.72 texfill polyhaven/metal_plate 0.80
+poly 0.50,0.68 0.62,0.72 0.70,0.80 0.66,0.90 0.50,0.94 0.34,0.90 0.30,0.80 0.38,0.72 stroke #444444
+# Base plate inner bevel
+poly 0.50,0.72 0.58,0.75 0.64,0.81 0.61,0.88 0.50,0.90 0.39,0.88 0.36,0.81 0.42,0.75 stroke #555555
+# Post cross-section (circle from above, mid-height)
+circle 0.50,0.62 0.06 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.62 0.06 stroke #444444
+# Lantern housing — outer octagonal frame (tallest, closest to eye)
+poly 0.50,0.18 0.64,0.22 0.72,0.34 0.72,0.50 0.64,0.62 0.50,0.66 0.36,0.62 0.28,0.50 0.28,0.34 0.36,0.22 texfill polyhaven/metal_plate 0.80
+poly 0.50,0.18 0.64,0.22 0.72,0.34 0.72,0.50 0.64,0.62 0.50,0.66 0.36,0.62 0.28,0.50 0.28,0.34 0.36,0.22 stroke #444444
+# Glass panels (warm amber glow between frame struts)
+poly 0.50,0.22 0.60,0.25 0.66,0.34 0.66,0.50 0.60,0.58 0.50,0.62 0.40,0.58 0.34,0.50 0.34,0.34 0.40,0.25 fill #ffcc44 0.20
+# Frame struts (cross-bars across glass)
+line 0.50,0.18 0.50,0.66 stroke #555555
+line 0.28,0.42 0.72,0.42 stroke #555555
+# Flame glow layers (center of lantern)
+circle 0.50,0.42 0.14 fill #e85500 0.25
+circle 0.50,0.42 0.10 fill #ffaa00 0.40
+circle 0.50,0.42 0.06 fill #ffcc00 0.60
+circle 0.50,0.42 0.03 fill #ffffff 0.50
+# Decorative cap / finial (very top, drawn last)
+circle 0.50,0.42 0.05 texfill polyhaven/metal_plate 0.90
+circle 0.50,0.42 0.05 stroke #444444
+# Finial point
+circle 0.50,0.42 0.02 fill #8899aa 0.70

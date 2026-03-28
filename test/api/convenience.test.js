@@ -55,7 +55,7 @@ function setupVerticallyAdjacentRooms() {
 // ── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
-  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon', 1);
   state.dungeon.metadata.lights = [];
   state.dungeon.metadata.nextLightId = 1;
   state.undoStack = [];
@@ -305,8 +305,12 @@ describe('normalizeMargin', () => {
     expect(() => normalizeMargin(-1)).toThrow('non-negative integer');
   });
 
-  it('throws for non-integer margin', () => {
-    expect(() => normalizeMargin(1.5)).toThrow('non-negative integer');
+  it('accepts float margin (rounds via resolution)', () => {
+    // With resolution=1, toInt(1.5) rounds to 2 — valid
+    // Just verify it doesn't throw
+    buildRoom(5, 5, 7, 7, 'N2', 6, 6);
+    const result = normalizeMargin(1.5);
+    expect(result.success).toBe(true);
   });
 
   it('handles margin of 0', () => {

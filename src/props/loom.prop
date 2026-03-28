@@ -1,62 +1,77 @@
 name: Loom
 category: Workshop
-footprint: 2x2
+footprint: 1x3
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 5
 placement: wall
 room_types: workshop, weaver, home
 typical_count: single
 clusters_with: tanning-rack
-notes: Textile production; place against wall with operating space
+notes: Textile production; place against wall, tilted like archery target
 ---
-# Outer frame (dark wood rectangle)
-rect 0.10,0.10 1.80,1.80 texfill polyhaven/dark_wood 0.6
-rect 0.10,0.10 1.80,1.80 stroke #1a1208
+# === HITBOX ===
+hitbox rect 0.10,0.04 2.80,0.70 z 0-5
 
-# Frame posts (four corner uprights, seen as thick squares from above)
-rect 0.10,0.10 0.14,0.14 texfill polyhaven/dark_wood 0.9
-rect 0.10,0.10 0.14,0.14 stroke #1a1208
-rect 1.76,0.10 0.14,0.14 texfill polyhaven/dark_wood 0.9
-rect 1.76,0.10 0.14,0.14 stroke #1a1208
-rect 0.10,1.76 0.14,0.14 texfill polyhaven/dark_wood 0.9
-rect 0.10,1.76 0.14,0.14 stroke #1a1208
-rect 1.76,1.76 0.14,0.14 texfill polyhaven/dark_wood 0.9
-rect 1.76,1.76 0.14,0.14 stroke #1a1208
+# footprint 1x3: x 0-3, y 0-1
+# Top-down: loom leaning against wall (north), tilted toward south
+# Similar perspective to archery target — foreshortened face visible
 
-# Warp beam roller (north, back beam)
-rect 0.24,0.18 1.52,0.10 texfill polyhaven/dark_wood 0.85
-rect 0.24,0.18 1.52,0.10 stroke #2a1f14
+# === Stand legs (behind/under the frame, angled south) ===
+# Left leg
+poly 0.15,0.12 0.20,0.12 0.28,0.80 0.23,0.80 fill #4a2800 0.6
+poly 0.15,0.12 0.20,0.12 0.28,0.80 0.23,0.80 stroke #2a1400
 
-# Cloth beam roller (south, front beam)
-rect 0.24,1.72 1.52,0.10 texfill polyhaven/dark_wood 0.85
-rect 0.24,1.72 1.52,0.10 stroke #2a1f14
+# Right leg
+poly 2.80,0.12 2.85,0.12 2.77,0.80 2.72,0.80 fill #4a2800 0.6
+poly 2.80,0.12 2.85,0.12 2.77,0.80 2.72,0.80 stroke #2a1400
 
-# Woven textile section (southern half - finished cloth)
-rect 0.30,1.10 1.40,0.60 texfill polyhaven/rough_linen 0.7
-rect 0.30,1.10 1.40,0.60 stroke #8b7355
+# Cross brace between legs
+rect 0.25,0.60 2.50,0.04 fill #4a2800 0.5
+rect 0.25,0.60 2.50,0.04 stroke #2a1400
 
-# Warp threads (running north-south through the open section)
-line 0.40,0.28 0.40,1.10 stroke #c8b898
-line 0.55,0.28 0.55,1.10 stroke #c8b898
-line 0.70,0.28 0.70,1.10 stroke #c8b898
-line 0.85,0.28 0.85,1.10 stroke #c8b898
-line 1.00,0.28 1.00,1.10 stroke #c8b898
-line 1.15,0.28 1.15,1.10 stroke #c8b898
-line 1.30,0.28 1.30,1.10 stroke #c8b898
-line 1.45,0.28 1.45,1.10 stroke #c8b898
-line 1.60,0.28 1.60,1.10 stroke #c8b898
+# === Top frame rail (nearest wall, visible from above) ===
+rect 0.10,0.04 2.80,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.04 2.80,0.08 stroke #2a1400
 
-# Heddle bar (horizontal bar that lifts alternating threads)
-rect 0.24,0.65 1.52,0.06 texfill polyhaven/dark_wood 0.8
-rect 0.24,0.65 1.52,0.06 stroke #2a1f14
+# === Frame side rails (converging toward wall) ===
+# Left rail
+poly 0.10,0.04 0.22,0.55 0.28,0.55 0.18,0.04 texfill polyhaven/dark_wood 0.85
+poly 0.10,0.04 0.22,0.55 0.28,0.55 0.18,0.04 stroke #2a1400
 
-# Shuttle (sitting on the warp, angled slightly)
-poly 0.55,0.82 1.45,0.78 1.48,0.84 0.58,0.88 texfill polyhaven/dark_wood 0.85
-poly 0.55,0.82 1.45,0.78 1.48,0.84 0.58,0.88 stroke #1a1208
-# Shuttle thread notch
-ellipse 1.00,0.83 0.12,0.02 fill #c8b898 0.7
+# Right rail
+poly 2.82,0.04 2.78,0.55 2.72,0.55 2.90,0.04 texfill polyhaven/dark_wood 0.85
+poly 2.82,0.04 2.78,0.55 2.72,0.55 2.90,0.04 stroke #2a1400
 
-# Reed/beater bar
-rect 0.24,0.95 1.52,0.05 fill #6b4e2e 0.8
-rect 0.24,0.95 1.52,0.05 stroke #2a1f14
+# === Warp threads on the tilted face ===
+line 0.40,0.12 0.45,0.50 stroke #c8b898 0.5
+line 0.65,0.12 0.68,0.50 stroke #c8b898 0.5
+line 0.90,0.12 0.92,0.50 stroke #c8b898 0.5
+line 1.15,0.12 1.16,0.50 stroke #c8b898 0.5
+line 1.40,0.12 1.40,0.50 stroke #c8b898 0.5
+line 1.65,0.12 1.64,0.50 stroke #c8b898 0.5
+line 1.90,0.12 1.88,0.50 stroke #c8b898 0.5
+line 2.15,0.12 2.12,0.50 stroke #c8b898 0.5
+line 2.40,0.12 2.35,0.50 stroke #c8b898 0.5
+line 2.65,0.12 2.58,0.50 stroke #c8b898 0.5
+
+# Heddle bar (horizontal across warp)
+rect 0.22,0.25 2.56,0.04 texfill polyhaven/dark_wood 0.8
+rect 0.22,0.25 2.56,0.04 stroke #3a1f00
+
+# Beater bar
+rect 0.24,0.38 2.52,0.04 fill #6b4e2e 0.8
+rect 0.24,0.38 2.52,0.04 stroke #2a1400
+
+# === Finished cloth hanging below the frame ===
+rect 0.35,0.50 2.30,0.20 texfill polyhaven/rough_linen 0.5
+rect 0.35,0.50 2.30,0.20 stroke #8b7355 0.4
+
+# Bottom roller (cloth beam)
+rect 0.30,0.68 2.40,0.06 texfill polyhaven/dark_wood 0.85
+rect 0.30,0.68 2.40,0.06 stroke #2a1400
+
+# Shuttle resting on warp (small, angled slightly)
+poly 0.80,0.30 1.40,0.28 1.42,0.34 0.82,0.36 texfill polyhaven/dark_wood 0.8
+poly 0.80,0.30 1.40,0.28 1.42,0.34 0.82,0.36 stroke #2a1400

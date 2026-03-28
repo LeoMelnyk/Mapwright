@@ -1,40 +1,28 @@
 name: Bookshelf
 category: Furniture
-footprint: 2x1
+footprint: 1x3
 facing: yes
-shadow: yes
+shadow: no
 blocks_light: yes
+height: 6
 placement: wall
 room_types: library, study, wizard-sanctum, office
 typical_count: many
 clusters_with: book-pile, desk, lectern, scroll-rack
 notes: Line along walls; use fillWallWithProps for rows of shelves
 ---
-# Top surface
-rect 0.05,0.05 0.9,1.9 texfill polyhaven/wood_cabinet_worn_long 0.85
-rect 0.05,0.05 0.9,1.9 stroke #3a1f00
-# Shelf partition lines
-line 0.08,0.68 0.92,0.68 stroke #2a1400
-line 0.08,1.35 0.92,1.35 stroke #2a1400
-# Book spines (top shelf)
-rect 0.12,0.12 0.08,0.50 fill #8b0000 0.4
-rect 0.24,0.14 0.06,0.48 fill #1a3a5c 0.4
-rect 0.34,0.12 0.08,0.50 fill #2a5a2a 0.4
-rect 0.46,0.14 0.06,0.48 fill #5c3a1e 0.35
-rect 0.56,0.12 0.10,0.50 fill #4a2800 0.4
-rect 0.70,0.14 0.06,0.48 fill #8b6914 0.35
-rect 0.80,0.12 0.08,0.50 fill #3a1a4a 0.4
-# Book spines (middle shelf)
-rect 0.14,0.74 0.10,0.55 fill #2a5a2a 0.35
-rect 0.28,0.76 0.06,0.53 fill #8b0000 0.35
-rect 0.38,0.74 0.08,0.55 fill #1a3a5c 0.4
-rect 0.50,0.76 0.10,0.53 fill #5a3a00 0.35
-rect 0.64,0.74 0.06,0.55 fill #4a2800 0.4
-rect 0.74,0.76 0.08,0.53 fill #3a1a4a 0.35
-# Book spines (bottom shelf)
-rect 0.12,1.42 0.08,0.48 fill #5c3a1e 0.4
-rect 0.24,1.44 0.10,0.46 fill #8b6914 0.35
-rect 0.38,1.42 0.06,0.48 fill #8b0000 0.35
-rect 0.48,1.44 0.08,0.46 fill #1a3a5c 0.4
-rect 0.60,1.42 0.10,0.48 fill #2a5a2a 0.35
-rect 0.74,1.44 0.06,0.46 fill #3a1a4a 0.35
+# Hitbox: solid shelf body (not overhangs)
+hitbox rect 0.1,0.05 2.8,0.75 z 0-6
+
+# footprint 1x3: x range 0-3, y range 0-1
+# Top-down: wooden top overhangs the shelf body on left, right, and front
+
+# Shelf body (recessed on left, right, and front)
+rect 0.1,0.05 2.8,0.75 fill #2a1400 0.35
+line 0.1,0.05 0.1,0.8 stroke #3a1f00
+line 2.9,0.05 2.9,0.8 stroke #3a1f00
+line 0.1,0.8 2.9,0.8 stroke #3a1f00
+
+# Wooden top surface (overhangs the body)
+rect 0.0,0.0 3.0,0.7 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.0,0.0 3.0,0.7 stroke #3a1f00

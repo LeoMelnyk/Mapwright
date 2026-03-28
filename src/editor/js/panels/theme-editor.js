@@ -1,7 +1,7 @@
 // Custom theme editor — extracted from metadata.js
 import state, { pushUndo, markDirty, notify } from '../state.js';
 import { THEMES } from '../../../render/index.js';
-import { renderThemePreview } from '../theme-catalog.js';
+import { renderThemePreview, saveUserTheme } from '../theme-catalog.js';
 
 // Theme property labels for the custom editor
 const THEME_PROPS = [
@@ -44,16 +44,15 @@ function loadCteCollapsed() {
     if (Array.isArray(saved)) return new Set(saved);
   } catch {}
   // Default: Colors expanded, everything else collapsed
-  return new Set(['Walls', 'Shading', 'Hatching', 'Textures', 'Water', 'Lava']);
+  return new Set(['Walls', 'Shading', 'Hatching', 'Textures', 'Water', 'Lava', 'Labels']);
 }
 const cteCollapsed = loadCteCollapsed();
 function saveCteCollapsed() {
   localStorage.setItem(CTE_COLLAPSED_KEY, JSON.stringify([...cteCollapsed]));
 }
 
-const idle = typeof window !== 'undefined' && window.requestIdleCallback
-  ? (cb) => window.requestIdleCallback(cb)
-  : (cb) => setTimeout(cb, 0);
+// Use setTimeout instead of requestIdleCallback — rIC gets starved by the animated render loop
+const idle = (cb) => setTimeout(cb, 0);
 
 function buildCustomEditor(customEditorEl) {
   const theme = getCustomThemeBase();
@@ -176,8 +175,77 @@ function buildCustomEditor(customEditorEl) {
     ${sliderRow('Light Strength', 'data-lava-light-prop', 'data-lava-light-range', 'intensity', theme.lavaLightIntensity ?? 0.70, 0, 1, 0.01)}
   `);
 
+  // Labels section
+  const labels = theme.labels || {};
+  html += section('Labels', `
+    ${colorRow('Border', 'data-label-prop', 'borderColor', labels.borderColor || '#000000')}
+    ${colorRow('Font', 'data-label-prop', 'fontColor', labels.fontColor || '#000000')}
+    ${colorRow('Background', 'data-label-prop', 'backgroundColor', labels.backgroundColor || '#FFFFFF')}
+  `);
+
+  html += '<button id="btn-save-user-theme" class="cte-save-btn">Save as Theme</button>';
+
   html += '</div>';
   customEditorEl.innerHTML = html;
+
+  // "Save as Theme" button — shows inline name input on click
+  const saveBtn = customEditorEl.querySelector('#btn-save-user-theme');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      // Replace button with inline input
+      const wrapper = document.createElement('div');
+      wrapper.className = 'cte-save-inline';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'cte-save-input';
+      input.placeholder = 'Theme name…';
+      const okBtn = document.createElement('button');
+      okBtn.className = 'cte-save-ok';
+      okBtn.textContent = '✓';
+      const cancelBtn = document.createElement('button');
+      cancelBtn.className = 'cte-save-cancel';
+      cancelBtn.textContent = '✕';
+      wrapper.appendChild(input);
+      wrapper.appendChild(okBtn);
+      wrapper.appendChild(cancelBtn);
+      saveBtn.replaceWith(wrapper);
+      input.focus();
+
+      function revert() {
+        wrapper.replaceWith(saveBtn);
+      }
+
+      async function commit() {
+        const name = input.value.trim();
+        if (!name) { revert(); return; }
+        const t = state.dungeon.metadata.theme;
+        if (typeof t !== 'object' || t === null) { revert(); return; }
+        try {
+          const themeObj = { ...t };
+          delete themeObj.displayName;
+          const key = await saveUserTheme(name, themeObj);
+          pushUndo();
+          state.dungeon.metadata.theme = `user:${key}`;
+          state.dungeon.metadata.savedThemeData = { name, theme: themeObj };
+          markDirty();
+          notify();
+          window.dispatchEvent(new CustomEvent('user-themes-changed'));
+          revert();
+        } catch (err) {
+          input.style.borderColor = '#a02030';
+          input.value = err.message;
+          input.select();
+        }
+      }
+
+      okBtn.addEventListener('click', commit);
+      cancelBtn.addEventListener('click', revert);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); commit(); }
+        if (e.key === 'Escape') { e.preventDefault(); revert(); }
+      });
+    });
+  }
 
   // Section collapse/expand toggle
   customEditorEl.addEventListener('click', (e) => {
@@ -500,6 +568,31 @@ function buildCustomEditor(customEditorEl) {
       rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
     }
   }
+
+  // Label color pickers (borderColor, fontColor, backgroundColor)
+  customEditorEl.querySelectorAll('input[data-label-prop]').forEach(input => {
+    input.addEventListener('input', () => {
+      const prop = input.dataset.labelProp;
+      const t = ensureCustomThemeObject();
+      if (!t.labels) t.labels = {};
+      t.labels[prop] = input.value;
+      const hex = input.parentElement?.querySelector('.cte-color-hex');
+      if (hex) hex.textContent = input.value;
+      markDirty();
+      notify();
+    });
+    input.addEventListener('change', () => {
+      pushUndo();
+      const prop = input.dataset.labelProp;
+      const t = ensureCustomThemeObject();
+      if (!t.labels) t.labels = {};
+      t.labels[prop] = input.value;
+      state.dungeon.metadata.customTheme = t;
+      markDirty();
+      notify();
+      renderCustomThumb();
+    });
+  });
 }
 
 function getCustomThemeBase() {
@@ -509,18 +602,55 @@ function getCustomThemeBase() {
   return JSON.parse(JSON.stringify(base));
 }
 
+/**
+ * Returns a mutable theme object for the custom editor to modify.
+ * - If the active theme is already an inline custom object, returns it directly.
+ * - If it's a user-saved theme (user:xxx), returns the THEMES registry entry
+ *   so edits mutate the saved theme in place (persisted via _persistUserTheme).
+ * - If it's a built-in preset, clones it into an inline custom object.
+ */
 function ensureCustomThemeObject() {
   let t = state.dungeon.metadata.theme;
-  if (typeof t !== 'object' || t === null) {
-    t = getCustomThemeBase();
-    state.dungeon.metadata.theme = t;
+  // Inline custom object — edit directly
+  if (typeof t === 'object' && t !== null) return t;
+  // User-saved theme — edit the registry entry in place
+  if (typeof t === 'string' && t.startsWith('user:') && THEMES[t]) {
+    return THEMES[t];
   }
+  // Built-in preset — clone into inline custom
+  t = getCustomThemeBase();
+  state.dungeon.metadata.theme = t;
   return t;
+}
+
+/** Debounced persist of a user theme to disk after edits. */
+let _persistTimer = null;
+function _persistUserTheme() {
+  const t = state.dungeon.metadata.theme;
+  if (typeof t !== 'string' || !t.startsWith('user:')) return;
+  const key = t.slice(5);
+  const themeObj = THEMES[t];
+  if (!themeObj) return;
+  clearTimeout(_persistTimer);
+  _persistTimer = setTimeout(() => {
+    fetch(`/api/user-themes/${key}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ theme: themeObj }),
+    }).catch(() => {});
+  }, 500);
 }
 
 function syncCustomEditorValues() {
   const customEditor = document.getElementById('custom-theme-editor');
   const theme = getCustomThemeBase();
+
+  // Only show "Save as Theme" when the active theme is a custom object (not a preset or saved user theme)
+  const saveBtn = customEditor?.querySelector('#btn-save-user-theme');
+  if (saveBtn) {
+    const isCustomObj = typeof state.dungeon.metadata.theme === 'object' && state.dungeon.metadata.theme !== null;
+    saveBtn.style.display = isCustomObj ? '' : 'none';
+  }
 
   // Helper: set a color swatch input + its hex span
   const syncColor = (input, value) => {
@@ -621,9 +751,18 @@ function syncCustomEditorValues() {
   const lavaLightIntVal = theme.lavaLightIntensity ?? 0.70;
   if (lavaLightIntN) lavaLightIntN.value = lavaLightIntVal;
   if (lavaLightIntR) lavaLightIntR.value = lavaLightIntVal;
+
+  // Label colors
+  const labelColors = theme.labels || {};
+  syncColor(customEditor.querySelector('[data-label-prop="borderColor"]'), labelColors.borderColor || '#000000');
+  syncColor(customEditor.querySelector('[data-label-prop="fontColor"]'), labelColors.fontColor || '#000000');
+  syncColor(customEditor.querySelector('[data-label-prop="backgroundColor"]'), labelColors.backgroundColor || '#FFFFFF');
 }
 
 function renderCustomThumb() {
+  // If editing a user-saved theme, persist changes to disk (debounced)
+  _persistUserTheme();
+
   const customThumb = document.getElementById('theme-thumb-custom');
   if (!customThumb) return;
   const isCustom = typeof state.dungeon.metadata.theme === 'object' && state.dungeon.metadata.theme !== null;

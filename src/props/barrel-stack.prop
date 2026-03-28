@@ -1,24 +1,36 @@
 name: Barrel Stack
 category: Containers
-footprint: 1x2
+footprint: 2x2
 facing: no
-shadow: yes
-blocks_light: no
+shadow: no
+blocks_light: yes
+height: 5
 placement: wall
 room_types: storage, tavern, kitchen, cellar, dock
 typical_count: few
 clusters_with: barrel, crate, crate-stack
 notes: Larger storage; place against walls
 ---
-# Left barrel
-circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.82
-circle 0.5,0.5 0.38 stroke #3a1f00
-circle 0.5,0.5 0.30 stroke #666666
-circle 0.5,0.5 0.18 stroke #666666
-circle 0.5,0.5 0.04 fill #1a0a00 0.7
-# Right barrel
-circle 1.5,0.5 0.38 texfill polyhaven/brown_planks_09 0.85
-circle 1.5,0.5 0.38 stroke #3a1f00
-circle 1.5,0.5 0.30 stroke #666666
-circle 1.5,0.5 0.18 stroke #666666
-circle 1.5,0.5 0.04 fill #1a0a00 0.7
+# === HITBOX ===
+hitbox circle 0.55,1.25 0.42 z 0-3
+hitbox circle 1.45,1.25 0.42 z 0-3
+hitbox circle 1.0,0.6 0.42 z 3-5
+# Three barrels in a triangle: two at the bottom, one on top
+# Bottom-left barrel
+circle 0.55,1.25 0.42 texfill polyhaven/dark_wood 0.85
+circle 0.55,1.25 0.42 stroke #3a1f00
+circle 0.55,1.25 0.34 stroke #666666
+circle 0.55,1.25 0.2 stroke #666666
+circle 0.55,1.25 0.04 fill #1a0a00 0.7
+# Bottom-right barrel
+circle 1.45,1.25 0.42 texfill polyhaven/brown_planks_09 0.85
+circle 1.45,1.25 0.42 stroke #3a1f00
+circle 1.45,1.25 0.34 stroke #666666
+circle 1.45,1.25 0.2 stroke #666666
+circle 1.45,1.25 0.04 fill #1a0a00 0.7
+# Top barrel (sits between/on top of the other two)
+circle 1.0,0.6 0.42 texfill polyhaven/weathered_planks 0.85
+circle 1.0,0.6 0.42 stroke #3a1f00
+circle 1.0,0.6 0.34 stroke #666666
+circle 1.0,0.6 0.2 stroke #666666
+circle 1.0,0.6 0.04 fill #1a0a00 0.7

@@ -13,12 +13,15 @@ const collapsedCategories = new Set();
 export function setSelectPropCallback(fn) { onSelectProp = fn; }
 
 export function init() {
-  subscribe(update);
+  subscribe(update, 'properties');
   update();
 }
 
 // ── Update (called on every state change) ───────────────────────────────────
 
+let _lastSelectedProp = null;
+let _lastSelectedCells = null;
+let _lastSelectMode = null;
 function update() {
   const el = panel();
   if (!el) return;
@@ -28,11 +31,20 @@ function update() {
     buildPropExplorer(el);
   }
 
-  // Update selected thumbnail highlight
-  updateSelectedThumb();
+  // Update selected thumbnail highlight only when selectedProp changes
+  if (state.selectedProp !== _lastSelectedProp) {
+    _lastSelectedProp = state.selectedProp;
+    updateSelectedThumb();
+  }
 
-  // Rebuild cell info content
-  updateCellInfo();
+  // Rebuild cell info only when selected cells or inspect mode changes
+  const cellsSig = state.selectedCells.length > 0 ? `${state.selectedCells[0].row},${state.selectedCells[0].col}` : '';
+  const modeSig = state.activeTool + ':' + state.selectMode;
+  if (cellsSig !== _lastSelectedCells || modeSig !== _lastSelectMode) {
+    _lastSelectedCells = cellsSig;
+    _lastSelectMode = modeSig;
+    updateCellInfo();
+  }
 }
 
 // ── Prop Explorer ───────────────────────────────────────────────────────────
@@ -221,11 +233,11 @@ function renderThumbnails(catalog) {
 
   const theme = getTheme();
   const CANVAS_SIZE = 60;
-  const schedule = window.requestIdleCallback || ((fn) => setTimeout(fn, 0));
-
   let index = 0;
+  const BATCH_SIZE = 6; // render at least this many per tick regardless of idle budget
 
-  function renderBatch(deadline) {
+  function renderBatch() {
+    let rendered = 0;
     while (index < allThumbs.length) {
       const thumb = allThumbs[index];
       index++;
@@ -269,15 +281,16 @@ function renderThumbnails(catalog) {
         shimmer.replaceWith(canvas);
       }
 
-      // Yield if deadline expired (requestIdleCallback)
-      if (deadline && typeof deadline.timeRemaining === 'function' && deadline.timeRemaining() < 1) {
-        schedule(renderBatch);
+      rendered++;
+      // Yield after BATCH_SIZE to avoid blocking the main thread too long
+      if (rendered >= BATCH_SIZE) {
+        setTimeout(renderBatch, 0);
         return;
       }
     }
   }
 
-  schedule(renderBatch);
+  setTimeout(renderBatch, 0);
 }
 
 function updateSelectedThumb() {

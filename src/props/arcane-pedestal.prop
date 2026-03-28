@@ -3,13 +3,17 @@ category: Magical
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3.5
 placement: center
 room_types: wizard-sanctum, arcane-library, ritual-chamber
 typical_count: few
 clusters_with: crystal-ball, spell-focus, ward-stone
 notes: Display stand for magical items; place in prominent positions
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.60 0.28 z 0-3
+hitbox circle 0.50,0.38 0.22 z 3-3.5
 # Pedestal column
 circle 0.50,0.60 0.28 texfill polyhaven/granite_tile 0.80
 circle 0.50,0.60 0.28 stroke #444444

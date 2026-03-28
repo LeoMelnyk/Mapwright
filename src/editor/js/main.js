@@ -7,7 +7,7 @@ import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
 import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool, RangeTool, FogRevealTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
-import { initPropSpatial, lookupPropAt, markPropSpatialDirty } from './prop-spatial.js';
+import { initPropSpatial, onPropSpatialDirty, lookupPropAt, markPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
 import { sessionState, renderSessionOverlay, renderDmFogOverlay, hitTestDoorButton, hitTestStairButton, openDoor, openStairs, setRangeHighlightCallback } from './dm-session.js';
 import { setSessionOverlay, setSessionTool, setSessionRangeTool, setDmFogOverlay, zoomToFit } from './canvas-view.js';
@@ -25,6 +25,7 @@ import {
   initClaudePanel,
   initBackgroundImagePanel,
   initKeybindingsHelper, toggleKeybindingsHelper, refreshKeybindingsHelper,
+  initDebugPanel,
 } from './panels/index.js';
 import { getClaudeSettings, setClaudeSetting } from './claude-settings.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
@@ -118,6 +119,9 @@ function exitSessionToolsMode() {
 document.addEventListener('DOMContentLoaded', async () => {
   // Wire up prop spatial hash (lazy getter to avoid circular import)
   initPropSpatial(() => state);
+  // When props change (move/place/remove), invalidate the props render layer cache
+  const { invalidatePropsRenderLayer, bumpContentVersion } = await import('../../render/index.js');
+  onPropSpatialDirty(() => { invalidatePropsRenderLayer(); bumpContentVersion(); });
 
   // ── App version (status bar) ───────────────────────────────────────────
   fetch('/api/version').then(r => r.json()).then(({ version }) => {
@@ -287,7 +291,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Restore autosaved state (before canvas init so zoom/pan are set)
-  const restored = loadAutosave();
+  const restored = await loadAutosave();
   // (no migration needed for autosaved state — always current format)
 
   // Init canvas
@@ -374,6 +378,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!CLAUDE_ENABLED) {
     document.querySelector('[data-right-panel="claude"]')?.remove();
     document.getElementById('right-panel-claude')?.remove();
+    document.getElementById('sep-claude-settings')?.remove();
     document.getElementById('btn-claude-settings')?.remove();
     document.getElementById('modal-claude-settings')?.remove();
   } else {
@@ -381,11 +386,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (claudeContainer) initClaudePanel(claudeContainer);
   }
 
+  // Debug panel (always init — visibility controlled by feat-debug checkbox)
+  const debugContainer = document.getElementById('debug-panel-content');
+  if (debugContainer) initDebugPanel(debugContainer);
+
   // Wire session overlay (door/stair-open buttons on DM canvas)
   setSessionOverlay(
     renderSessionOverlay,
     (px, py, transform, gridSize) => {
-      const stair = hitTestStairButton(px, py, transform, gridSize);
+      const stair = hitTestStairButton(px, py, transform);
       if (stair) {
         openStairs(stair.stairId, stair.partnerId);
         return true;
@@ -489,7 +498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         _rangeLastGridSize = gs;
         populateRangeOptions();
       }
-    });
+    }, 'range-grid');
   }
 
   // Wire session tools mode + auto-tool-switch on panel change
@@ -501,7 +510,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateToolButtons();
     }
   });
-  subscribe(() => updateSessionToolsMode());
+  subscribe(() => updateSessionToolsMode(), 'session-tools');
 
   // Load light preset catalog (metadata only, fast)
   loadLightCatalog().then(catalog => {
@@ -549,6 +558,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
     }
+    // Bridge textures (hardcoded Polyhaven IDs in bridges.js)
+    if (state.dungeon.metadata?.bridges?.length) {
+      const bridgeTexIds = {
+        wood: 'polyhaven/weathered_planks', stone: 'polyhaven/stone_wall',
+        rope: 'polyhaven/worn_planks', dock: 'polyhaven/brown_planks_09',
+      };
+      for (const b of state.dungeon.metadata.bridges) {
+        const tid = bridgeTexIds[b.type];
+        if (tid) usedIds.add(tid);
+      }
+    }
 
     if (usedIds.size > 0) {
       ensureTexturesLoaded(usedIds, (loaded, total) => onAssetProgress('textures', loaded, total))
@@ -583,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.showToast = showToast;
 
   // Status bar updates
-  subscribe(updateStatusBar);
+  subscribe(updateStatusBar, 'status-bar');
   updateStatusBar();
 
   // Keyboard shortcuts
@@ -782,7 +802,6 @@ function initDraggableToolbar() {
   let dragContainerWidth = 0;
   let dragContainerHeight = 0;
 
-  const _SNAP_THRESHOLD = 40; // reserved for future snap-distance tuning
   const SNAP_EDGE = 20; // margin from container edge for snap positions
   const DOCK_CLASSES = ['toolbar-docked-top', 'toolbar-docked-left', 'toolbar-docked-right'];
 
@@ -1078,10 +1097,24 @@ function onKeyDown(e) {
       if (overlay && !copiedIds.has(overlay.id)) {
         copiedIds.add(overlay.id);
         const { row, col } = a;
+        // Capture linked lights (via propRef matching this prop's anchor)
+        const gs = meta.gridSize || 5;
+        const propAnchorRow = Math.round(overlay.y / gs);
+        const propAnchorCol = Math.round(overlay.x / gs);
+        const linkedLights = (meta.lights || [])
+          .filter(l => l.propRef?.row === propAnchorRow && l.propRef?.col === propAnchorCol)
+          .map(l => {
+            const clone = JSON.parse(JSON.stringify(l));
+            // Store light offset relative to the prop's world position
+            clone._offsetX = l.x - overlay.x;
+            clone._offsetY = l.y - overlay.y;
+            return clone;
+          });
         props.push({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
           prop: JSON.parse(JSON.stringify(overlay)),
+          lights: linkedLights.length > 0 ? linkedLights : undefined,
         });
       }
     }
@@ -1135,10 +1168,23 @@ function onKeyDown(e) {
       if (overlay && !copiedIds.has(overlay.id)) {
         copiedIds.add(overlay.id);
         const { row, col } = a;
+        // Capture linked lights (via propRef matching this prop's anchor)
+        const gs = meta.gridSize || 5;
+        const propAnchorRow = Math.round(overlay.y / gs);
+        const propAnchorCol = Math.round(overlay.x / gs);
+        const linkedLights = (meta.lights || [])
+          .filter(l => l.propRef?.row === propAnchorRow && l.propRef?.col === propAnchorCol)
+          .map(l => {
+            const clone = JSON.parse(JSON.stringify(l));
+            clone._offsetX = l.x - overlay.x;
+            clone._offsetY = l.y - overlay.y;
+            return clone;
+          });
         props.push({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
           prop: JSON.parse(JSON.stringify(overlay)),
+          lights: linkedLights.length > 0 ? linkedLights : undefined,
         });
       }
     }
@@ -1166,6 +1212,15 @@ function onKeyDown(e) {
   // Ctrl+V: enter prop paste mode (Prop tool, when prop clipboard exists)
   if (e.ctrlKey && e.key === 'v' && state.propClipboard && state.activeTool === 'prop') {
     e.preventDefault();
+    // Cancel any in-progress drag
+    tools.prop.onCancel();
+    // Deselect the prop template (stop placing new props)
+    if (state.selectedProp) {
+      state.selectedProp = null;
+      state.propRotation = 0;
+      state.propScale = 1.0;
+      notify();
+    }
     state.propPasteMode = true;
     canvasView.requestRender();
     return;

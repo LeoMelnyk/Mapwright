@@ -1,43 +1,96 @@
 name: Catapult
 category: Combat
-footprint: 2x2
+footprint: 3x3
 facing: yes
-shadow: yes
-blocks_light: no
+shadow: no
+blocks_light: yes
+height: 5
 placement: center
 room_types: fortification, siege, battlements
 typical_count: single
 notes: Large siege weapon; needs significant open space
 ---
-# Wooden base platform
-rect 0.15,0.25 1.7,1.6 texfill polyhaven/weathered_planks 0.8
-rect 0.15,0.25 1.7,1.6 stroke #4a2800
-# Cross-beam reinforcements on platform
-rect 0.15,0.65 1.7,0.08 fill #3a1f00 0.4
-rect 0.15,1.35 1.7,0.08 fill #3a1f00 0.4
-# Arm track (central channel running N-S)
-rect 0.8,0.3 0.4,1.5 texfill polyhaven/dark_wood 0.85
-rect 0.8,0.3 0.4,1.5 stroke #3a1f00
-# Track groove
-rect 0.92,0.35 0.16,1.4 fill #1a1a1a 0.3
-# Throwing arm (resting, runs N-S)
-rect 0.88,0.2 0.24,1.3 fill #6b4226 0.7
-rect 0.88,0.2 0.24,1.3 stroke #3a1f00
-# Sling bucket at north end
-circle 1.0,0.25 0.18 fill #8b6914 0.6
-circle 1.0,0.25 0.18 stroke #5a3a00
-# Rope coils on bucket
-circle 1.0,0.25 0.12 stroke #8b7355
-# Torsion mechanism (center crossbar)
-rect 0.3,0.95 1.4,0.14 texfill polyhaven/dark_wood 0.9
-rect 0.3,0.95 1.4,0.14 stroke #3a1f00
-# Torsion rope bundles (left and right)
-ellipse 0.45,1.02 0.12,0.06 fill #8b7355 0.7
-ellipse 0.45,1.02 0.12,0.06 stroke #6b5335
-ellipse 1.55,1.02 0.12,0.06 fill #8b7355 0.7
-ellipse 1.55,1.02 0.12,0.06 stroke #6b5335
+# === HITBOX — open frame: two side rails + throwing arm + winch ===
+# Left rail
+hitbox rect 0.55,0.5 0.25,2.2 z 0-3
+# Right rail
+hitbox rect 2.20,0.5 0.25,2.2 z 0-3
+# Throwing arm (center, extends full height when cocked)
+hitbox rect 1.35,0.35 0.30,2.05 z 0-5
 # Winch mechanism at south end
-rect 0.7,1.6 0.6,0.2 texfill polyhaven/dark_wood 0.85
-rect 0.7,1.6 0.6,0.2 stroke #3a1f00
-circle 0.85,1.7 0.06 fill #888888 0.6
-circle 1.15,1.7 0.06 fill #888888 0.6
+hitbox rect 1.15,2.4 0.7,0.35 z 0-3
+
+# footprint 3x3: x range 0-3, y range 0-3
+# Top-down: wooden frame, 4 wheels, throwing arm pointing north, bucket at south
+
+# === Four wheels (tall ovals, aligned with travel) ===
+# Front-left
+ellipse 0.35,0.6 0.1,0.25 fill #4a2800 0.8
+ellipse 0.35,0.6 0.1,0.25 stroke #2a1400
+ellipse 0.35,0.6 0.07,0.18 fill #3a2000 0.5
+# Front-right
+ellipse 2.65,0.6 0.1,0.25 fill #4a2800 0.8
+ellipse 2.65,0.6 0.1,0.25 stroke #2a1400
+ellipse 2.65,0.6 0.07,0.18 fill #3a2000 0.5
+# Rear-left
+ellipse 0.35,2.6 0.1,0.25 fill #4a2800 0.8
+ellipse 0.35,2.6 0.1,0.25 stroke #2a1400
+ellipse 0.35,2.6 0.07,0.18 fill #3a2000 0.5
+# Rear-right
+ellipse 2.65,2.6 0.1,0.25 fill #4a2800 0.8
+ellipse 2.65,2.6 0.1,0.25 stroke #2a1400
+ellipse 2.65,2.6 0.07,0.18 fill #3a2000 0.5
+
+# Front axle
+rect 0.35,0.57 2.3,0.06 fill #444444 0.5
+rect 0.35,0.57 2.3,0.06 stroke #333333
+# Rear axle
+rect 0.35,2.57 2.3,0.06 fill #444444 0.5
+rect 0.35,2.57 2.3,0.06 stroke #333333
+
+# === Wooden base frame (two side rails + cross beams) ===
+# Left rail
+rect 0.55,0.5 0.25,2.2 texfill polyhaven/dark_wood 0.85
+rect 0.55,0.5 0.25,2.2 stroke #2a1400
+# Right rail
+rect 2.2,0.5 0.25,2.2 texfill polyhaven/dark_wood 0.85
+rect 2.2,0.5 0.25,2.2 stroke #2a1400
+# Cross beams
+rect 0.8,0.8 1.4,0.12 texfill polyhaven/dark_wood 0.8
+rect 0.8,0.8 1.4,0.12 stroke #2a1400
+rect 0.8,1.5 1.4,0.12 texfill polyhaven/dark_wood 0.8
+rect 0.8,1.5 1.4,0.12 stroke #2a1400
+rect 0.8,2.2 1.4,0.12 texfill polyhaven/dark_wood 0.8
+rect 0.8,2.2 1.4,0.12 stroke #2a1400
+
+# === Torsion crossbar (where the arm pivots) ===
+rect 0.5,1.4 2.0,0.2 texfill polyhaven/weathered_planks 0.85
+rect 0.5,1.4 2.0,0.2 stroke #2a1400
+# Torsion rope bundles
+ellipse 0.7,1.5 0.12,0.08 fill #8b7355 0.7
+ellipse 0.7,1.5 0.12,0.08 stroke #6b5335
+ellipse 2.3,1.5 0.12,0.08 fill #8b7355 0.7
+ellipse 2.3,1.5 0.12,0.08 stroke #6b5335
+
+# === Throwing arm (extends north from winch at south) ===
+poly 1.35,2.4 1.42,0.35 1.58,0.35 1.65,2.4 fill #6b4226 0.8
+poly 1.35,2.4 1.42,0.35 1.58,0.35 1.65,2.4 stroke #3a1f00
+poly 1.42,2.3 1.46,0.45 1.54,0.45 1.58,2.3 fill #8b6040 0.3
+
+# === Sling/bucket (just past front axle, within bounds) ===
+line 1.4,0.42 1.35,0.38 stroke #8b7355 0.6
+line 1.6,0.42 1.65,0.38 stroke #8b7355 0.6
+ellipse 1.5,0.35 0.2,0.25 fill #6b5335 0.6
+ellipse 1.5,0.35 0.2,0.25 stroke #4a3a20
+# Rope netting on bucket
+line 1.38,0.18 1.45,0.5 stroke #8b7355 0.35
+line 1.5,0.12 1.5,0.5 stroke #8b7355 0.35
+line 1.62,0.18 1.55,0.5 stroke #8b7355 0.35
+
+# === Winch mechanism (south end) ===
+rect 1.15,2.4 0.7,0.35 texfill polyhaven/dark_wood 0.85
+rect 1.15,2.4 0.7,0.35 stroke #2a1400
+circle 1.3,2.58 0.06 fill #555555 0.7
+circle 1.3,2.58 0.06 stroke #333333
+circle 1.7,2.58 0.06 fill #555555 0.7
+circle 1.7,2.58 0.06 stroke #333333

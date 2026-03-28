@@ -3,25 +3,39 @@ category: Furniture
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: floor
 room_types: bedroom, bathroom, barracks, inn
 typical_count: single
 clusters_with: mirror, towel-rack
 notes: Bowl on a stand for washing; place near walls or beside beds
 ---
-# Stand base ring
-circle 0.50,0.50 0.35 fill #555555 0.25
-circle 0.50,0.50 0.35 stroke #444444
-# Stand column
-circle 0.50,0.50 0.08 fill #666666 0.7
-circle 0.50,0.50 0.08 stroke #444444
-# Basin bowl (outer)
-circle 0.50,0.50 0.30 texfill polyhaven/metal_plate 0.75
-circle 0.50,0.50 0.30 stroke #555555
-# Water inside
-circle 0.50,0.50 0.24 fill #6699bb 0.5
-# Water sheen/reflection
-ellipse 0.45,0.42 0.10,0.06 fill #88bbdd 0.3
-# Basin rim highlight
-circle 0.50,0.50 0.28 stroke #777777 0.4
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.32 z 0-3
+
+# Tripod stand legs radiating from center
+line 0.50,0.50 0.50,0.85 stroke #555555 width 2
+line 0.50,0.50 0.25,0.28 stroke #555555 width 2
+line 0.50,0.50 0.75,0.28 stroke #555555 width 2
+# Tripod feet (small circles at leg ends)
+circle 0.50,0.85 0.03 fill #444444 0.7
+circle 0.25,0.28 0.03 fill #444444 0.7
+circle 0.75,0.28 0.03 fill #444444 0.7
+# Basin bowl — ring with metal rim
+ring 0.50,0.50 0.32 0.24 texfill polyhaven/metal_plate 0.8
+ring 0.50,0.50 0.32 0.24 stroke #555555
+# Water inside the basin
+circle 0.50,0.50 0.23 fill #6699bb 0.5
+# Water depth — darker center
+circle 0.50,0.50 0.14 fill #557799 0.25
+# Water reflection sheen
+ellipse 0.44,0.44 0.10,0.06 fill #88bbdd 0.35
+# Rim highlight
+circle 0.50,0.50 0.31 stroke #888888 0.3
+# Towel draped over right edge
+poly 0.72,0.40 0.88,0.36 0.90,0.52 0.74,0.56 texfill polyhaven/rough_linen 0.75
+poly 0.72,0.40 0.88,0.36 0.90,0.52 0.74,0.56 stroke #c8b898
+# Soap bar on the rim (north side)
+rect 0.42,0.20 0.08,0.06 fill #d4d4aa 0.7
+rect 0.42,0.20 0.08,0.06 stroke #aaa880

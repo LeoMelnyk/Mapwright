@@ -2,27 +2,68 @@ name: Chest
 category: Containers
 footprint: 1x1
 facing: yes
-shadow: yes
-blocks_light: no
+shadow: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: any
 typical_count: few
 clusters_with: crate, barrel
 notes: Treasure or storage; place against walls or at room focal points
 ---
-# Wooden body
-rect 0.12,0.15 0.76,0.7 texfill polyhaven/dark_wood 0.85
-rect 0.12,0.15 0.76,0.7 stroke #3a1f00
-# Metal bands
-line 0.12,0.35 0.88,0.35
-line 0.12,0.55 0.88,0.55
-# Metal corner brackets
-rect 0.12,0.15 0.08,0.08 fill #666666 0.7
-rect 0.80,0.15 0.08,0.08 fill #666666 0.7
-rect 0.12,0.77 0.08,0.08 fill #666666 0.7
-rect 0.80,0.77 0.08,0.08 fill #666666 0.7
-# Front clasp (south side)
-rect 0.44,0.78 0.12,0.08 fill #daa520 0.8
-rect 0.44,0.78 0.12,0.08 stroke #8b6914
-# Lid seam
-line 0.15,0.45 0.85,0.45
+# === HITBOX ===
+hitbox rect 0.14,0.15 0.72,0.7 z 0-2
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: rounded lid chest with metal bands, hinges, clasp, corner brackets
+
+# Chest body — slightly rounded shape (wider in middle than ends)
+poly 0.14,0.2 0.18,0.15 0.82,0.15 0.86,0.2 0.86,0.8 0.82,0.85 0.18,0.85 0.14,0.8 texfill polyhaven/dark_wood 0.85
+poly 0.14,0.2 0.18,0.15 0.82,0.15 0.86,0.2 0.86,0.8 0.82,0.85 0.18,0.85 0.14,0.8 stroke #2a1400
+
+# Plank lines on lid (running east-west)
+line 0.18,0.28 0.82,0.28 stroke #2a1400 0.4
+line 0.16,0.4 0.84,0.4 stroke #2a1400 0.35
+line 0.16,0.52 0.84,0.52 stroke #2a1400 0.4
+line 0.16,0.64 0.84,0.64 stroke #2a1400 0.35
+line 0.18,0.76 0.82,0.76 stroke #2a1400 0.4
+
+# Metal bands (dark iron, running north-south across the lid)
+rect 0.3,0.15 0.06,0.7 fill #333333 0.7
+rect 0.3,0.15 0.06,0.7 stroke #222222
+rect 0.64,0.15 0.06,0.7 fill #333333 0.7
+rect 0.64,0.15 0.06,0.7 stroke #222222
+
+# Metal corner brackets (L-shaped at each corner)
+# NW
+rect 0.14,0.15 0.1,0.04 fill #444444 0.75
+rect 0.14,0.15 0.04,0.1 fill #444444 0.75
+# NE
+rect 0.76,0.15 0.1,0.04 fill #444444 0.75
+rect 0.82,0.15 0.04,0.1 fill #444444 0.75
+# SW
+rect 0.14,0.81 0.1,0.04 fill #444444 0.75
+rect 0.14,0.75 0.04,0.1 fill #444444 0.75
+# SE
+rect 0.76,0.81 0.1,0.04 fill #444444 0.75
+rect 0.82,0.75 0.04,0.1 fill #444444 0.75
+
+# Rivets on metal bands
+circle 0.33,0.22 0.015 fill #555555 0.7
+circle 0.33,0.5 0.015 fill #555555 0.7
+circle 0.33,0.78 0.015 fill #555555 0.7
+circle 0.67,0.22 0.015 fill #555555 0.7
+circle 0.67,0.5 0.015 fill #555555 0.7
+circle 0.67,0.78 0.015 fill #555555 0.7
+
+# Hinges (north edge, back of lid)
+rect 0.28,0.13 0.1,0.06 fill #444444 0.7
+rect 0.28,0.13 0.1,0.06 stroke #333333
+rect 0.62,0.13 0.1,0.06 fill #444444 0.7
+rect 0.62,0.13 0.1,0.06 stroke #333333
+
+# Front clasp/latch (south edge)
+rect 0.44,0.82 0.12,0.06 fill #daa520 0.8
+rect 0.44,0.82 0.12,0.06 stroke #8b6914
+# Keyhole
+circle 0.5,0.85 0.015 fill #333333 0.8

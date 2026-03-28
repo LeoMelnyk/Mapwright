@@ -1,31 +1,76 @@
 name: Pine Tree
 category: Terrain
-footprint: 1x1
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+height: 15
 placement: floor
 room_types: wilderness, forest, mountain, taiga
 typical_count: many
 clusters_with: pine-tree, boulder, mushroom
 notes: Conifer/evergreen; cluster in groups for forest areas. Compact 1x1 footprint
 ---
-# Trunk (visible at center)
-circle 0.50,0.50 0.08 texfill polyhaven/bark_brown_02 0.85
-circle 0.50,0.50 0.08 stroke #3a1f00
-# Branch layers (radial, from largest/lowest to smallest/highest)
-# Bottom branches (wider, darker)
-circle 0.50,0.50 0.40 fill #1a4a12 0.22
-circle 0.50,0.50 0.40 stroke #14380e 0.25
-# Mid branches (medium)
-circle 0.50,0.50 0.30 fill #1e5a16 0.22
-circle 0.50,0.50 0.30 stroke #14380e 0.20
-# Upper branches (smaller, brighter)
-circle 0.50,0.50 0.20 fill #2a6a1e 0.25
-# Top point (bright center)
-circle 0.50,0.50 0.10 fill #3a7a28 0.30
-# Radial branch lines (visible through the layers)
-line 0.50,0.10 0.50,0.90 stroke #14380e 0.20
-line 0.10,0.50 0.90,0.50 stroke #14380e 0.20
-line 0.18,0.18 0.82,0.82 stroke #14380e 0.15
-line 0.82,0.18 0.18,0.82 stroke #14380e 0.15
+# Hitbox: trunk only, canopy doesn't block at ground level
+hitbox circle 1,1.02 0.08 z 0-15
+
+# Footprint 2x2: x 0-2, y 0-2. Center at (1,1).
+# Pine tree from above: spiky radial branches like a starburst
+
+# Ground shadow
+circle 1,1.05 0.8 fill #0a2008 0.15
+
+# === Outer branch spikes (longest, darkest — 12 pointed branches radiating out) ===
+# Each branch is a narrow pointed triangle (poly) from near-center to tip
+# North
+poly 0.82,0.68 1.0,0.10 1.18,0.68 fill #0e380a 0.7
+poly 0.82,0.68 1.0,0.10 1.18,0.68 stroke #082606 0.4
+# NNE
+poly 1.05,0.68 1.45,0.18 1.25,0.85 fill #123c0e 0.65
+poly 1.05,0.68 1.45,0.18 1.25,0.85 stroke #082606 0.35
+# ENE
+poly 1.25,0.75 1.82,0.42 1.30,1.02 fill #0e380a 0.65
+poly 1.25,0.75 1.82,0.42 1.30,1.02 stroke #082606 0.35
+# East
+poly 1.32,0.82 1.90,1.0 1.32,1.18 fill #123c0e 0.7
+poly 1.32,0.82 1.90,1.0 1.32,1.18 stroke #082606 0.4
+# ESE
+poly 1.30,1.02 1.82,1.58 1.22,1.25 fill #0e380a 0.65
+poly 1.30,1.02 1.82,1.58 1.22,1.25 stroke #082606 0.35
+# SSE
+poly 1.22,1.18 1.45,1.82 1.02,1.32 fill #123c0e 0.65
+poly 1.22,1.18 1.45,1.82 1.02,1.32 stroke #082606 0.35
+# South
+poly 1.18,1.32 1.0,1.90 0.82,1.32 fill #0e380a 0.7
+poly 1.18,1.32 1.0,1.90 0.82,1.32 stroke #082606 0.4
+# SSW
+poly 0.98,1.32 0.55,1.82 0.78,1.18 fill #123c0e 0.65
+poly 0.98,1.32 0.55,1.82 0.78,1.18 stroke #082606 0.35
+# WSW
+poly 0.70,1.25 0.18,1.58 0.75,1.02 fill #0e380a 0.65
+poly 0.70,1.25 0.18,1.58 0.75,1.02 stroke #082606 0.35
+# West
+poly 0.68,1.18 0.10,1.0 0.68,0.82 fill #123c0e 0.7
+poly 0.68,1.18 0.10,1.0 0.68,0.82 stroke #082606 0.4
+# WNW
+poly 0.70,0.98 0.18,0.42 0.75,0.78 fill #0e380a 0.65
+poly 0.70,0.98 0.18,0.42 0.75,0.78 stroke #082606 0.35
+# NNW
+poly 0.78,0.75 0.55,0.18 0.98,0.68 fill #123c0e 0.65
+poly 0.78,0.75 0.55,0.18 0.98,0.68 stroke #082606 0.35
+
+# === Inner canopy mass (lighter green, covers the branch bases) ===
+circle 1,1 0.45 fill #1a4a12 0.6
+circle 1,1 0.45 stroke #0e380a 0.3
+circle 0.92,0.92 0.30 fill #1e5a16 0.4
+circle 1.08,0.95 0.28 fill #1e5216 0.35
+circle 1.0,1.08 0.25 fill #1a4a12 0.35
+
+# === Highlight clusters (brightest at center-top) ===
+circle 0.95,0.88 0.18 fill #2a6a1e 0.3
+circle 1.08,0.92 0.14 fill #327222 0.25
+circle 1.0,0.82 0.10 fill #3a7a28 0.3
+
+# === Trunk (barely visible) ===
+circle 1,1.02 0.08 texfill polyhaven/bark_brown_02 0.5
+circle 1,1.02 0.08 stroke #3a1f00 0.3

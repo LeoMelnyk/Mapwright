@@ -1,27 +1,31 @@
 name: Fallen Log
 category: Terrain
-footprint: 1x3
+footprint: 1x4
 facing: no
-shadow: yes
-blocks_light: no
+shadow: no
+blocks_light: yes
+height: 2
 placement: floor
 room_types: wilderness, forest, swamp
 typical_count: few
 notes: Natural obstacle; place across paths or in clearings
 ---
+# === HITBOX ===
+hitbox rect 0.04,0.2 3.92,0.6 z 0-2
+
 # Left cross-section
-ellipse 0.15,0.5 0.12,0.3 texfill polyhaven/bark_brown_02 0.85
-ellipse 0.15,0.5 0.12,0.3 stroke #3a1f00
-circle 0.15,0.5 0.15 fill #c4a060 0.4
+ellipse 0.2,0.5 0.16,0.3 texfill polyhaven/bark_brown_02 0.85
+ellipse 0.2,0.5 0.16,0.3 stroke #3a1f00
+circle 0.2,0.5 0.175 fill #c4a060 0.4
 # Main log body
-rect 0.15,0.2 2.7,0.6 texfill polyhaven/bark_brown_02 0.82
-rect 0.15,0.2 2.7,0.6 stroke #3a1f00
+rect 0.2,0.2 3.6,0.6 texfill polyhaven/bark_brown_02 0.82
+rect 0.2,0.2 3.6,0.6 stroke #3a1f00
 # Right cross-section
-ellipse 2.85,0.5 0.12,0.3 texfill polyhaven/bark_brown_02 0.85
-ellipse 2.85,0.5 0.12,0.3 stroke #3a1f00
-circle 2.85,0.5 0.15 fill #c4a060 0.4
+ellipse 3.8,0.5 0.16,0.3 texfill polyhaven/bark_brown_02 0.85
+ellipse 3.8,0.5 0.16,0.3 stroke #3a1f00
+circle 3.8,0.5 0.175 fill #c4a060 0.4
 # Bark texture lines
-line 0.5,0.2 0.5,0.8
-line 1.2,0.2 1.2,0.8
-line 1.9,0.2 1.9,0.8
-line 2.5,0.2 2.5,0.8
+line 0.6667,0.2 0.6667,0.8
+line 1.6,0.2 1.6,0.8
+line 2.5333,0.2 2.5333,0.8
+line 3.3333,0.2 3.3333,0.8

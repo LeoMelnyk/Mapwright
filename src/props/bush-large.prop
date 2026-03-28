@@ -1,0 +1,55 @@
+name: Bush (Large)
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: yes
+height: 4
+placement: floor
+room_types: garden, courtyard, wilderness, forest
+typical_count: few
+clusters_with: bush, tree-small, flowers
+notes: Large ornamental shrub
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.2 z 0-4
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Shadow
+circle 1.0,1.1 0.75 fill #1a2a10 0.2
+# Outer foliage (dark ring)
+circle 0.6,0.7 0.45 fill #1e4a12 0.7
+circle 1.4,0.7 0.45 fill #1e4a12 0.7
+circle 0.6,1.3 0.45 fill #1e4a12 0.7
+circle 1.4,1.3 0.45 fill #1e4a12 0.7
+circle 1.0,0.55 0.4 fill #204e14 0.65
+circle 1.0,1.45 0.4 fill #204e14 0.65
+circle 0.5,1.0 0.38 fill #204e14 0.65
+circle 1.5,1.0 0.38 fill #204e14 0.65
+# Middle layer
+circle 1.0,1.0 0.65 fill #2a6018 0.7
+circle 0.7,0.8 0.35 fill #2d6a1e 0.65
+circle 1.3,0.8 0.35 fill #2d6a1e 0.65
+circle 0.7,1.2 0.35 fill #2a6018 0.65
+circle 1.3,1.2 0.35 fill #2d6a1e 0.65
+# Top layer
+circle 1.0,0.95 0.5 fill #357020 0.6
+circle 0.75,0.85 0.25 fill #3a7a28 0.55
+circle 1.25,0.85 0.25 fill #3a7a28 0.55
+circle 0.85,1.1 0.25 fill #357020 0.55
+circle 1.15,1.1 0.25 fill #3a7a28 0.55
+# Bright highlights
+circle 0.85,0.85 0.15 fill #4a8a30 0.45
+circle 1.15,0.9 0.14 fill #4a9a38 0.4
+circle 1.0,1.0 0.16 fill #4a8a30 0.4
+circle 0.9,1.15 0.12 fill #4a9a38 0.35
+# Sun-catching tops
+circle 0.95,0.88 0.08 fill #5aaa48 0.3
+circle 1.1,0.95 0.07 fill #5aaa48 0.28
+# Leaf texture (dark spots)
+circle 0.65,0.95 0.05 fill #1a4a10 0.3
+circle 1.0,0.7 0.045 fill #1a4a10 0.25
+circle 1.35,1.0 0.05 fill #1a4a10 0.28
+circle 0.8,1.25 0.045 fill #1a4a10 0.25
+circle 1.2,1.3 0.05 fill #1a4a10 0.3
+circle 1.0,1.35 0.04 fill #1a4a10 0.25

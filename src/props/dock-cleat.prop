@@ -10,6 +10,9 @@ typical_count: many
 clusters_with: rope-coil
 notes: Mooring point; place along dock edges
 ---
+# === HITBOX ===
+hitbox rect 0.1,0.36 0.8,0.28 z 0-0.5
+
 # Mounting base plate
 rect 0.26,0.36 0.48,0.28 fill #666666 0.85
 rect 0.26,0.36 0.48,0.28 stroke #333333

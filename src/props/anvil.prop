@@ -3,13 +3,17 @@ category: Workshop
 footprint: 1x1
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: center
 room_types: forge, smithy, workshop
 typical_count: single
 clusters_with: forge, bellows, trough
 notes: Place near forge with working space around it
 ---
+# === HITBOX ===
+hitbox rect 0.32,0.30 0.36,0.40 z 0-1.5
+hitbox rect 0.15,0.22 0.70,0.46 z 1.5-2.5
 # Base/waist (narrow support column from above)
 rect 0.32,0.30 0.36,0.40 texfill polyhaven/metal_plate 0.7
 rect 0.32,0.30 0.36,0.40 stroke #333333

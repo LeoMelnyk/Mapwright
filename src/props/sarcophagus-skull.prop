@@ -1,0 +1,102 @@
+name: Sarcophagus (Skull)
+category: Containers
+footprint: 3x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: crypt, tomb, burial-chamber, necromancer-lair
+typical_count: few
+clusters_with: candle-cluster, grave-marker, burial-urn, bone-pile
+notes: Dark stone coffin with skull motif; place prominently in crypts
+---
+# === HITBOX ===
+hitbox rect 0.04,0.04 1.92,2.92 z 0-3
+
+# Footprint 3x2: x 0-2, y 0-3. Front south.
+
+# === Stone base (outermost layer) ===
+rect 0.04,0.04 1.92,2.92 texfill polyhaven/granite_tile 0.75
+rect 0.04,0.04 1.92,2.92 stroke #444444
+
+# === Beveled step 1 ===
+line 0.04,0.04 0.16,0.16 stroke #666666
+line 1.96,0.04 1.84,0.16 stroke #666666
+line 0.04,2.96 0.16,2.84 stroke #666666
+line 1.96,2.96 1.84,2.84 stroke #666666
+rect 0.16,0.16 1.68,2.68 texfill polyhaven/granite_tile 0.8
+rect 0.16,0.16 1.68,2.68 stroke #555555
+
+# === Beveled step 2 ===
+line 0.16,0.16 0.28,0.28 stroke #777777
+line 1.84,0.16 1.72,0.28 stroke #777777
+line 0.16,2.84 0.28,2.72 stroke #777777
+line 1.84,2.84 1.72,2.72 stroke #777777
+rect 0.28,0.28 1.44,2.44 texfill polyhaven/stone_wall 0.75
+rect 0.28,0.28 1.44,2.44 stroke #666666
+
+# === Lid surface (topmost) ===
+line 0.28,0.28 0.38,0.38 stroke #666666
+line 1.72,0.28 1.62,0.38 stroke #666666
+line 0.28,2.72 0.38,2.62 stroke #666666
+line 1.72,2.72 1.62,2.62 stroke #666666
+rect 0.38,0.38 1.24,2.24 texfill polyhaven/stone_wall 0.8
+rect 0.38,0.38 1.24,2.24 stroke #888888
+
+# === Lid edge highlights ===
+line 0.38,0.38 1.62,0.38 stroke #aaaaaa width 2
+line 0.38,0.38 0.38,2.62 stroke #aaaaaa width 2
+line 0.38,2.62 1.62,2.62 stroke #555555 width 2
+line 1.62,0.38 1.62,2.62 stroke #555555 width 2
+
+# === Decorative trim ===
+rect 0.46,0.46 1.08,2.08 stroke #666666
+
+# === Carved skull (upper portion of lid) ===
+# Cranium
+poly 0.78,1.15 0.82,0.95 0.88,0.82 1.0,0.78 1.12,0.82 1.18,0.95 1.22,1.15 1.18,1.30 1.12,1.35 0.88,1.35 0.82,1.30 fill #888888 0.25
+poly 0.78,1.15 0.82,0.95 0.88,0.82 1.0,0.78 1.12,0.82 1.18,0.95 1.22,1.15 1.18,1.30 1.12,1.35 0.88,1.35 0.82,1.30 stroke #666666
+# Eye sockets
+circle 0.92,1.08 0.06 fill #555555 0.3
+circle 0.92,1.08 0.06 stroke #888888
+circle 1.08,1.08 0.06 fill #555555 0.3
+circle 1.08,1.08 0.06 stroke #888888
+# Nose
+poly 0.98,1.18 1.02,1.18 1.0,1.24 fill #555555 0.25
+# Jaw line
+line 0.86,1.30 1.14,1.30 stroke #666666
+# Teeth
+line 0.90,1.30 0.90,1.35 stroke #aaaaaa 0.4
+line 0.95,1.30 0.95,1.35 stroke #aaaaaa 0.4
+line 1.0,1.30 1.0,1.35 stroke #aaaaaa 0.4
+line 1.05,1.30 1.05,1.35 stroke #aaaaaa 0.4
+line 1.10,1.30 1.10,1.35 stroke #aaaaaa 0.4
+
+# === Crossed bones beneath skull ===
+# Bone 1 (SW to NE)
+rect 0.58,1.55 0.80,0.08 fill #888888 0.25 rotate 25
+rect 0.58,1.55 0.80,0.08 stroke #666666 rotate 25
+# Bone 1 knobs
+circle 0.60,1.72 0.06 fill #888888 0.25
+circle 0.60,1.72 0.06 stroke #666666
+circle 1.38,1.42 0.06 fill #888888 0.25
+circle 1.38,1.42 0.06 stroke #666666
+# Bone 2 (NW to SE)
+rect 0.58,1.42 0.80,0.08 fill #888888 0.25 rotate -25
+rect 0.58,1.42 0.80,0.08 stroke #666666 rotate -25
+# Bone 2 knobs
+circle 0.60,1.42 0.06 fill #888888 0.25
+circle 0.60,1.42 0.06 stroke #666666
+circle 1.38,1.72 0.06 fill #888888 0.25
+circle 1.38,1.72 0.06 stroke #666666
+
+# === Corner rosettes ===
+circle 0.46,0.46 0.06 stroke #666666
+circle 0.46,0.46 0.03 fill #777777 0.5
+circle 1.54,0.46 0.06 stroke #666666
+circle 1.54,0.46 0.03 fill #777777 0.5
+circle 0.46,2.54 0.06 stroke #666666
+circle 0.46,2.54 0.03 fill #777777 0.5
+circle 1.54,2.54 0.06 stroke #666666
+circle 1.54,2.54 0.03 fill #777777 0.5

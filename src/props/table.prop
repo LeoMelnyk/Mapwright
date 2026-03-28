@@ -1,20 +1,25 @@
 name: Table
 category: Furniture
-footprint: 2x2
+footprint: 2x3
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: center
 room_types: tavern, mess-hall, common-room, meeting-room
 typical_count: few
 clusters_with: chair, stool, bench
 notes: Gathering surface; place centrally with seating around
 ---
+# === HITBOX ===
+# Tabletop surface
+hitbox rect 0.15,0.1 2.7,1.8 z 2-2.5
+
 # Table top
-rect 0.1,0.1 1.8,1.8 texfill polyhaven/wood_table 0.85
-rect 0.1,0.1 1.8,1.8 stroke #5c3a1e
+rect 0.15,0.1 2.7,1.8 texfill polyhaven/wood_table 0.85
+rect 0.15,0.1 2.7,1.8 stroke #5c3a1e
 # Leg shadows in corners
-circle 0.22,0.22 0.06 fill #3a1f00 0.5
-circle 1.78,0.22 0.06 fill #3a1f00 0.5
-circle 0.22,1.78 0.06 fill #3a1f00 0.5
-circle 1.78,1.78 0.06 fill #3a1f00 0.5
+circle 0.33,0.22 0.075 fill #3a1f00 0.5
+circle 2.67,0.22 0.075 fill #3a1f00 0.5
+circle 0.33,1.78 0.075 fill #3a1f00 0.5
+circle 2.67,1.78 0.075 fill #3a1f00 0.5

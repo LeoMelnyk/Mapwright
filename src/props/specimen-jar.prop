@@ -3,25 +3,40 @@ category: Alchemy
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 1.5
 placement: wall
 room_types: alchemist-lab, wizard-sanctum, curiosity-shop
 typical_count: many
 clusters_with: component-shelf, ingredient-rack
 notes: Display specimens; place on shelves near alchemy benches
 ---
-# Jar glass body
-circle 0.50,0.52 0.36 fill #aabbcc 0.30
-circle 0.50,0.52 0.36 stroke #556677
-# Preserving fluid (dark)
-circle 0.50,0.52 0.28 fill #334433 0.60
-# Specimen shape (dark mass)
-circle 0.50,0.56 0.16 fill #1a2a1a 0.70
-circle 0.44,0.50 0.07 fill #2a3a2a 0.60
-circle 0.58,0.48 0.06 fill #223322 0.55
-# Glass glint
-circle 0.35,0.38 0.06 fill #ffffff 0.22
-# Metal lid band
-rect 0.14,0.18 0.72,0.08 fill #8b6914 0.70
-rect 0.14,0.18 0.72,0.08 stroke #5a3a00
-circle 0.50,0.22 0.04 fill #daa520 0.80
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.34 z 0-1.5
+
+# Glass jar body (subtle hint around edges)
+circle 0.50,0.50 0.34 fill #aabbcc 0.20
+circle 0.50,0.50 0.34 stroke #778899 width 2
+# Preserving fluid (barely visible through lid gap)
+circle 0.50,0.52 0.28 fill #334433 0.25
+# Metal lid (dominant element - what you see from above)
+circle 0.50,0.50 0.30 texfill polyhaven/metal_plate 0.80
+circle 0.50,0.50 0.30 stroke #555555
+# Lid rim ring (raised edge)
+circle 0.50,0.50 0.28 stroke #666666 width 2
+# Lid center knob/handle
+circle 0.50,0.50 0.08 fill #888888 0.9
+circle 0.50,0.50 0.08 stroke #444444
+# Knob top highlight
+circle 0.50,0.48 0.03 fill #bbbbbb 0.6
+# Clasp detail (small latch on one side)
+rect 0.46,0.78 0.08,0.06 fill #777777 0.8
+rect 0.46,0.78 0.08,0.06 stroke #444444
+# Hinge detail (opposite side)
+rect 0.47,0.18 0.06,0.04 fill #666666 0.7
+rect 0.47,0.18 0.06,0.04 stroke #444444
+# Glass rim visible around lid edge (subtle transparency)
+circle 0.50,0.50 0.33 stroke #99aabb 0.4
+# Glass glint highlight
+circle 0.38,0.38 0.04 fill #ffffff 0.25
+circle 0.62,0.40 0.03 fill #ffffff 0.15

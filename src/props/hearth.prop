@@ -1,48 +1,119 @@
 name: Hearth
 category: Furniture
-footprint: 1x2
+footprint: 2x2
 facing: yes
 shadow: no
-blocks_light: no
-lights: [{"preset":"fireplace","x":0.5,"y":1.0}]
+blocks_light: yes
+height: 1.5
+lights: [{"preset":"fireplace","x":1.0,"y":1.0}]
 placement: wall
 room_types: kitchen, common-room, tavern
 typical_count: single
 clusters_with: fireplace, pot-rack, cauldron-large
-notes: Cooking fire; place against wall, often in kitchen
+notes: Open cooking fire; place against wall, often in kitchen
 ---
-# Full stone base/surround
-rect 0.05,0.05 1.9,0.9 texfill polyhaven/cobblestone_floor_01 0.75
-rect 0.05,0.05 1.9,0.9 stroke #555555
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.85 z 0-1.5
 
-# Back wall (north side — thickest stone)
-rect 0.05,0.05 1.9,0.2 texfill polyhaven/stone_wall 0.9
-rect 0.05,0.05 1.9,0.2 stroke #444444
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: open stone hearth — wider and flatter than a fireplace, for cooking
+# Differentiated from fireplace: irregular stone ring, cooking grate, hanging pot, low spread embers
 
-# Left side wall
-rect 0.05,0.05 0.25,0.85 texfill polyhaven/stone_wall 0.85
-rect 0.05,0.05 0.25,0.85 stroke #444444
+# === Ash/soot scatter (extends beyond the stone ring — messy working fire) ===
+ellipse 1.0,1.05 1.0,0.95 fill #2a2020 0.15
+circle 0.35,1.55 0.08 fill #2a2020 0.12
+circle 1.7,1.45 0.06 fill #2a2020 0.1
+circle 0.5,0.35 0.05 fill #2a2020 0.1
 
-# Right side wall
-rect 1.7,0.05 0.25,0.85 texfill polyhaven/stone_wall 0.85
-rect 1.7,0.05 0.25,0.85 stroke #444444
+# === Stone ring (irregular stones forming the rim) ===
+# Large stones around the perimeter — polygons, not circles
+# North stones
+poly 0.55,0.25 0.75,0.18 0.85,0.28 0.72,0.42 0.52,0.38 texfill polyhaven/stone_wall 0.7
+poly 0.55,0.25 0.75,0.18 0.85,0.28 0.72,0.42 0.52,0.38 stroke #555555
+poly 0.88,0.2 1.12,0.15 1.2,0.25 1.1,0.4 0.9,0.38 texfill polyhaven/stone_wall 0.65
+poly 0.88,0.2 1.12,0.15 1.2,0.25 1.1,0.4 0.9,0.38 stroke #555555
+poly 1.22,0.22 1.45,0.2 1.52,0.35 1.38,0.45 1.2,0.4 texfill polyhaven/stone_wall 0.7
+poly 1.22,0.22 1.45,0.2 1.52,0.35 1.38,0.45 1.2,0.4 stroke #555555
+# East stones
+poly 1.55,0.48 1.7,0.55 1.78,0.72 1.65,0.82 1.5,0.7 texfill polyhaven/stone_wall 0.65
+poly 1.55,0.48 1.7,0.55 1.78,0.72 1.65,0.82 1.5,0.7 stroke #555555
+poly 1.62,0.85 1.78,0.95 1.82,1.15 1.7,1.25 1.55,1.1 texfill polyhaven/stone_wall 0.7
+poly 1.62,0.85 1.78,0.95 1.82,1.15 1.7,1.25 1.55,1.1 stroke #555555
+poly 1.58,1.28 1.72,1.4 1.7,1.6 1.55,1.65 1.45,1.5 texfill polyhaven/stone_wall 0.65
+poly 1.58,1.28 1.72,1.4 1.7,1.6 1.55,1.65 1.45,1.5 stroke #555555
+# South stones
+poly 1.35,1.62 1.2,1.75 1.0,1.78 0.9,1.65 1.05,1.55 texfill polyhaven/stone_wall 0.7
+poly 1.35,1.62 1.2,1.75 1.0,1.78 0.9,1.65 1.05,1.55 stroke #555555
+poly 0.85,1.65 0.65,1.78 0.45,1.72 0.42,1.58 0.6,1.52 texfill polyhaven/stone_wall 0.65
+poly 0.85,1.65 0.65,1.78 0.45,1.72 0.42,1.58 0.6,1.52 stroke #555555
+# West stones
+poly 0.4,1.5 0.25,1.38 0.2,1.18 0.32,1.08 0.48,1.22 texfill polyhaven/stone_wall 0.7
+poly 0.4,1.5 0.25,1.38 0.2,1.18 0.32,1.08 0.48,1.22 stroke #555555
+poly 0.3,1.05 0.18,0.9 0.22,0.7 0.38,0.62 0.48,0.78 texfill polyhaven/stone_wall 0.65
+poly 0.3,1.05 0.18,0.9 0.22,0.7 0.38,0.62 0.48,0.78 stroke #555555
+poly 0.35,0.58 0.28,0.42 0.4,0.3 0.55,0.42 0.48,0.55 texfill polyhaven/stone_wall 0.7
+poly 0.35,0.58 0.28,0.42 0.4,0.3 0.55,0.42 0.48,0.55 stroke #555555
 
-# Fire pit floor (brick)
-rect 0.3,0.25 1.4,0.55 texfill polyhaven/brick_4 0.7
-rect 0.3,0.25 1.4,0.55 stroke #3a2010
+# === Fire pit interior (recessed dark area inside the stone ring) ===
+ellipse 1.0,0.95 0.52,0.5 fill #1a0800 0.6
+ellipse 1.0,0.95 0.52,0.5 stroke #333333
 
-# Fire pit dark base
-ellipse 1.0,0.52 0.45,0.18 fill #1a0800 0.5
+# === Ash bed (spread wide — cooking hearth) ===
+ellipse 1.0,0.95 0.45,0.42 fill #2a2020 0.35
 
-# Fire glow — hot embers from above
-ellipse 1.0,0.5 0.35,0.14 fill #cc3300 0.3
-ellipse 1.0,0.48 0.22,0.1 fill #e85500 0.35
+# === Embers and coals (low, spread out — cooking heat, not tall flames) ===
+# Wide ember base
+ellipse 1.0,0.95 0.38,0.35 fill #8b1a00 0.25
+# Scattered hot coals
+ellipse 0.85,0.88 0.1,0.08 fill #cc3300 0.4
+ellipse 1.15,1.0 0.09,0.07 fill #cc3300 0.35
+ellipse 1.0,1.05 0.12,0.08 fill #cc3300 0.4
+ellipse 0.92,0.95 0.08,0.06 fill #e85500 0.4
+# Bright hot spots (glowing coals, not flame tips)
+circle 0.88,0.92 0.04 fill #ff8800 0.5
+circle 1.08,0.98 0.035 fill #ff8800 0.45
+circle 0.98,0.88 0.03 fill #ffaa00 0.5
+circle 1.15,0.93 0.025 fill #ffcc00 0.45
+# A few low licking flames (short, not tall like fireplace)
+poly 0.9,0.98 0.93,0.85 0.96,0.95 fill #e85500 0.4
+poly 1.02,1.0 1.05,0.88 1.08,0.97 fill #ff8800 0.45
+poly 0.96,0.92 0.99,0.82 1.02,0.9 fill #ffcc00 0.4
+# White-hot core spots
+circle 0.97,0.9 0.02 fill #ffeecc 0.35
+circle 1.05,0.95 0.015 fill #ffeecc 0.3
 
-# Individual embers
-circle 0.8,0.48 0.04 fill #ffaa00 0.65
-circle 1.1,0.52 0.035 fill #ff6600 0.6
-circle 0.95,0.45 0.03 fill #ffcc00 0.55
-circle 1.2,0.48 0.025 fill #ff8800 0.5
+# === Cooking grate (iron bars across the fire pit) ===
+line 0.6,0.75 1.4,0.75 stroke #555555
+line 0.58,0.9 1.42,0.9 stroke #555555
+line 0.58,1.05 1.42,1.05 stroke #555555
+line 0.6,1.2 1.4,1.2 stroke #555555
+# Cross bars for structure
+line 0.75,0.7 0.75,1.25 stroke #444444
+line 1.25,0.7 1.25,1.25 stroke #444444
 
-# Open hearth mouth (south edge — opening into room)
-rect 0.3,0.8 1.4,0.1 fill #2a1500 0.2
+# === Pot hook (iron arm swinging over fire from north wall) ===
+# Iron post base (north edge, set into the stone ring)
+rect 0.28,0.15 0.14,0.14 texfill polyhaven/metal_plate 0.7
+rect 0.28,0.15 0.14,0.14 stroke #333333
+# Swing arm (extends from post over the fire)
+line 0.35,0.22 1.05,0.7 stroke #555555
+# Hook chain links
+line 1.05,0.7 1.05,0.78 stroke #555555
+line 1.05,0.78 1.05,0.82 stroke #444444
+
+# === Hanging pot (iron cauldron dangling from the hook) ===
+# Pot rim (seen from above — a circle)
+ellipse 1.05,0.88 0.14,0.12 texfill polyhaven/rusty_metal 0.6
+ellipse 1.05,0.88 0.14,0.12 stroke #333333
+# Pot interior (dark liquid/stew inside)
+ellipse 1.05,0.88 0.1,0.08 fill #1a1208 0.7
+# Pot handle (arches over the top — thin arc)
+arc 1.05,0.88 0.12 3.6 5.8 stroke #444444
+
+# === Ember sparks (scattered beyond the pit — messier than fireplace) ===
+circle 0.45,0.55 0.012 fill #ffaa00 0.4
+circle 1.55,0.65 0.01 fill #ffcc00 0.35
+circle 0.5,1.45 0.012 fill #ff8800 0.3
+circle 1.5,1.5 0.01 fill #ffaa00 0.35
+circle 1.3,1.55 0.008 fill #ffcc00 0.3
+circle 0.65,0.38 0.01 fill #ff8800 0.3

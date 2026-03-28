@@ -8,6 +8,7 @@ import {
   reloadAssets,
   calculateCanvasSize, renderDungeonToCanvas,
   cellKey, parseCellKey, roomBoundsFromKeys,
+  toInt, toDisp,
 } from './_shared.js';
 
 // ── Undo / Redo ──────────────────────────────────────────────────────────
@@ -172,15 +173,18 @@ export function getRoomContents(label) {
   if (!bounds) return { success: false, error: `Room "${label}" not found` };
   const result = { label, bounds, props: [], fills: [], doors: [], textures: [] };
   const gs = state.dungeon.metadata?.gridSize || 5;
-  for (let r = bounds.r1; r <= bounds.r2; r++) {
-    for (let c = bounds.c1; c <= bounds.c2; c++) {
+  // Convert display bounds to internal for iteration
+  const ir1 = toInt(bounds.r1), ic1 = toInt(bounds.c1);
+  const ir2 = toInt(bounds.r2), ic2 = toInt(bounds.c2);
+  for (let r = ir1; r <= ir2; r++) {
+    for (let c = ic1; c <= ic2; c++) {
       const cell = state.dungeon.cells[r]?.[c];
       if (!cell) continue;
-      if (cell.fill) result.fills.push({ row: r, col: c, type: cell.fill, depth: cell.fillDepth ?? 1 });
-      if (cell.texture) result.textures.push({ row: r, col: c, id: cell.texture, opacity: cell.textureOpacity ?? 1 });
+      if (cell.fill) result.fills.push({ row: toDisp(r), col: toDisp(c), type: cell.fill, depth: cell.fillDepth ?? 1 });
+      if (cell.texture) result.textures.push({ row: toDisp(r), col: toDisp(c), id: cell.texture, opacity: cell.textureOpacity ?? 1 });
       for (const dir of ['north', 'south', 'east', 'west']) {
         if (cell[dir] === 'd' || cell[dir] === 's')
-          result.doors.push({ row: r, col: c, direction: dir, type: cell[dir] });
+          result.doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: cell[dir] });
       }
     }
   }
@@ -189,8 +193,8 @@ export function getRoomContents(label) {
     for (const op of state.dungeon.metadata.props) {
       const propRow = Math.round(op.y / gs);
       const propCol = Math.round(op.x / gs);
-      if (propRow >= bounds.r1 && propRow <= bounds.r2 && propCol >= bounds.c1 && propCol <= bounds.c2) {
-        result.props.push({ row: propRow, col: propCol, type: op.type, facing: op.rotation ?? 0 });
+      if (propRow >= ir1 && propRow <= ir2 && propCol >= ic1 && propCol <= ic2) {
+        result.props.push({ row: toDisp(propRow), col: toDisp(propCol), type: op.type, facing: op.rotation ?? 0 });
       }
     }
   }
@@ -210,8 +214,10 @@ export function suggestPlacement(rows, cols, adjacentTo = null) {
   const isFree = (r1, c1, r2, c2) => {
     if (r1 < margin || c1 < margin) return false;
     if (r2 > gridRows - 1 - margin || c2 > gridCols - 1 - margin) return false;
-    for (let r = r1; r <= r2; r++) {
-      for (let c = c1; c <= c2; c++) {
+    // Convert display coords to internal for cell access
+    const ir1 = toInt(r1), ic1 = toInt(c1), ir2 = toInt(r2), ic2 = toInt(c2);
+    for (let r = ir1; r <= ir2; r++) {
+      for (let c = ic1; c <= ic2; c++) {
         const cell = state.dungeon.cells[r]?.[c];
         if (cell !== null && cell !== undefined) return false;
       }
@@ -285,7 +291,7 @@ export function listRooms() {
   for (const [label] of labels) {
     const roomCells = getApi()._collectRoomCells(label);
     const b = roomBoundsFromKeys(roomCells);
-    if (b) rooms.push({ label, r1: b.r1, c1: b.c1, r2: b.r2, c2: b.c2, center: { row: b.centerRow, col: b.centerCol } });
+    if (b) rooms.push({ label, r1: toDisp(b.r1), c1: toDisp(b.c1), r2: toDisp(b.r2), c2: toDisp(b.c2), center: { row: toDisp(b.centerRow), col: toDisp(b.centerCol) } });
   }
   rooms.sort((a, b) => a.label.localeCompare(b.label));
   return { success: true, rooms };
@@ -295,13 +301,13 @@ export function listRooms() {
 export function listRoomCells(label) {
   const roomCells = getApi()._collectRoomCells(label);
   if (!roomCells.size) return { success: false, error: `Room "${label}" not found or empty` };
-  const cells = [];
+  const cellList = [];
   for (const key of roomCells) {
     const [r, c] = parseCellKey(key);
-    cells.push([r, c]);
+    cellList.push([toDisp(r), toDisp(c)]);
   }
-  cells.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  return { success: true, cells };
+  cellList.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  return { success: true, cells: cellList };
 }
 
 /**
@@ -376,7 +382,7 @@ export function getValidPropPositions(label, propType, facing = 0) {
         if (isCovered(r + dr, c + dc)) { valid = false; break outer; }
       }
     }
-    if (valid) positions.push([r, c]);
+    if (valid) positions.push([toDisp(r), toDisp(c)]);
   }
 
   positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]);

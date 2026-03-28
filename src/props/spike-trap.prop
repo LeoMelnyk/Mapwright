@@ -9,21 +9,53 @@ room_types: dungeon, corridor, trap-room
 typical_count: few
 notes: Deadly floor trap; place in narrow passages or guard rooms
 ---
-# Metal pressure plate
-rect 0.10,0.10 0.80,0.80 texfill polyhaven/metal_plate 0.65
-rect 0.10,0.10 0.80,0.80 stroke #444444
-# Trigger seam (split plate)
-line 0.50,0.10 0.50,0.90 stroke #222222 0.60
-# Spike tips (3x2 grid, dark cones from above)
-circle 0.28,0.28 0.06 fill #666666 0.90
-circle 0.28,0.28 0.02 fill #bbbbbb 0.80
-circle 0.50,0.28 0.06 fill #666666 0.90
-circle 0.50,0.28 0.02 fill #bbbbbb 0.80
-circle 0.72,0.28 0.06 fill #666666 0.90
-circle 0.72,0.28 0.02 fill #bbbbbb 0.80
-circle 0.28,0.64 0.06 fill #666666 0.90
-circle 0.28,0.64 0.02 fill #bbbbbb 0.80
-circle 0.50,0.64 0.06 fill #666666 0.90
-circle 0.50,0.64 0.02 fill #bbbbbb 0.80
-circle 0.72,0.64 0.06 fill #666666 0.90
-circle 0.72,0.64 0.02 fill #bbbbbb 0.80
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: recessed stone plate with spike holes and a few tips poking up
+
+# Recessed floor section (slightly darker than surrounding stone)
+rect 0.08,0.08 0.84,0.84 fill #5a5550 0.50
+rect 0.08,0.08 0.84,0.84 stroke #333333
+
+# Dark seam line around edges (separate floor section)
+rect 0.08,0.08 0.84,0.84 stroke #222222 width 2
+
+# Inner recess shadow (subtle depth)
+rect 0.12,0.12 0.76,0.76 fill #3a3835 0.30
+
+# Spike holes — 4x4 grid of dark dots
+# Row 1
+circle 0.25,0.25 0.035 fill #1a1a1a 0.85
+circle 0.42,0.25 0.035 fill #1a1a1a 0.85
+circle 0.58,0.25 0.035 fill #1a1a1a 0.85
+circle 0.75,0.25 0.035 fill #1a1a1a 0.85
+# Row 2
+circle 0.25,0.42 0.035 fill #1a1a1a 0.85
+circle 0.42,0.42 0.035 fill #1a1a1a 0.85
+circle 0.58,0.42 0.035 fill #1a1a1a 0.85
+circle 0.75,0.42 0.035 fill #1a1a1a 0.85
+# Row 3
+circle 0.25,0.58 0.035 fill #1a1a1a 0.85
+circle 0.42,0.58 0.035 fill #1a1a1a 0.85
+circle 0.58,0.58 0.035 fill #1a1a1a 0.85
+circle 0.75,0.58 0.035 fill #1a1a1a 0.85
+# Row 4
+circle 0.25,0.75 0.035 fill #1a1a1a 0.85
+circle 0.42,0.75 0.035 fill #1a1a1a 0.85
+circle 0.58,0.75 0.035 fill #1a1a1a 0.85
+circle 0.75,0.75 0.035 fill #1a1a1a 0.85
+
+# A few spike tips partially visible (metallic glint)
+circle 0.42,0.25 0.015 fill #aaaaaa 0.70
+circle 0.75,0.42 0.015 fill #bbbbbb 0.65
+circle 0.25,0.58 0.015 fill #aaaaaa 0.70
+circle 0.58,0.75 0.015 fill #bbbbbb 0.65
+
+# Corner bolts (holding the plate down)
+circle 0.14,0.14 0.025 fill #555555 0.70
+circle 0.14,0.14 0.01 fill #888888 0.50
+circle 0.86,0.14 0.025 fill #555555 0.70
+circle 0.86,0.14 0.01 fill #888888 0.50
+circle 0.14,0.86 0.025 fill #555555 0.70
+circle 0.14,0.86 0.01 fill #888888 0.50
+circle 0.86,0.86 0.025 fill #555555 0.70
+circle 0.86,0.86 0.01 fill #888888 0.50

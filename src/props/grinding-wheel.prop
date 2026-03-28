@@ -1,55 +1,59 @@
 name: Grinding Wheel
 category: Workshop
 footprint: 1x1
-facing: no
-shadow: yes
-blocks_light: no
+facing: yes
+shadow: no
+blocks_light: yes
+height: 3
 placement: floor
 room_types: workshop, forge, smithy
 typical_count: single
 clusters_with: workbench, anvil
 notes: Tool sharpening; place near workbench
 ---
-# Water trough (wooden base beneath the wheel)
-ellipse 0.50,0.55 0.42,0.18 texfill polyhaven/dark_wood 0.7
-ellipse 0.50,0.55 0.42,0.18 stroke #2a1f14
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-3
 
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: looking straight down at the grinding wheel
+
+# === Water trough underneath (drawn first) ===
+ellipse 0.5,0.55 0.4,0.2 texfill polyhaven/dark_wood 0.7
+ellipse 0.5,0.55 0.4,0.2 stroke #2a1400
 # Water in trough
-ellipse 0.50,0.56 0.36,0.13 fill #3a5a7a 0.4
+ellipse 0.5,0.56 0.34,0.15 fill #3a5a7a 0.35
 
-# Frame uprights (two vertical posts)
-rect 0.14,0.28 0.08,0.44 texfill polyhaven/dark_wood 0.85
-rect 0.14,0.28 0.08,0.44 stroke #1a1208
-rect 0.78,0.28 0.08,0.44 texfill polyhaven/dark_wood 0.85
-rect 0.78,0.28 0.08,0.44 stroke #1a1208
+# === Frame (two side posts + crossbars) ===
+# Left post
+rect 0.12,0.3 0.08,0.4 texfill polyhaven/dark_wood 0.85
+rect 0.12,0.3 0.08,0.4 stroke #2a1400
+# Right post
+rect 0.8,0.3 0.08,0.4 texfill polyhaven/dark_wood 0.85
+rect 0.8,0.3 0.08,0.4 stroke #2a1400
 
-# Frame crossbar (top)
-rect 0.14,0.28 0.72,0.06 texfill polyhaven/dark_wood 0.8
-rect 0.14,0.28 0.72,0.06 stroke #1a1208
+# === Grinding stone (full circle from above) ===
+circle 0.5,0.5 0.28 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.5,0.5 0.28 stroke #555555
+# Stone rings (grinding grooves)
+circle 0.5,0.5 0.22 stroke #666666
+circle 0.5,0.5 0.15 stroke #666666
+circle 0.5,0.5 0.08 stroke #666666
+# Center axle hole
+circle 0.5,0.5 0.04 fill #444444 0.8
+circle 0.5,0.5 0.04 stroke #333333
+# Stone highlight (lighter on one side)
+ellipse 0.45,0.44 0.12,0.1 fill #aaaaaa 0.12
 
-# Grinding stone wheel (seen from above as oval/edge-on)
-ellipse 0.50,0.46 0.28,0.10 texfill polyhaven/rock_boulder_cracked 0.9
-ellipse 0.50,0.46 0.28,0.10 stroke #555555
+# === Axle (metal rod through center) ===
+line 0.16,0.5 0.84,0.5 stroke #555555
 
-# Stone texture highlight
-ellipse 0.50,0.44 0.22,0.06 fill #999999 0.15
+# === Crank handle (extends south from axle) ===
+line 0.5,0.5 0.5,0.78 stroke #555555
+line 0.5,0.78 0.62,0.82 stroke #555555
+# Handle grip
+circle 0.62,0.82 0.03 fill #777777 0.8
+circle 0.62,0.82 0.03 stroke #444444
 
-# Axle (through center of wheel)
-line 0.18,0.46 0.82,0.46 stroke #555555
-circle 0.50,0.46 0.03 fill #666666 0.9
-
-# Crank handle (extends from right side)
-line 0.86,0.46 0.94,0.36 stroke #555555
-circle 0.94,0.36 0.025 fill #777777 0.9
-circle 0.94,0.36 0.025 stroke #444444
-
-# Foot pedal (at bottom)
-rect 0.35,0.78 0.30,0.08 texfill polyhaven/dark_wood 0.7
-rect 0.35,0.78 0.30,0.08 stroke #2a1f14
-# Pedal linkage
-line 0.50,0.78 0.50,0.68 stroke #555555
-
-# Sparks/grinding dust suggestion
-circle 0.38,0.38 0.01 fill #cccccc 0.5
-circle 0.55,0.36 0.01 fill #cccccc 0.4
-circle 0.62,0.40 0.01 fill #cccccc 0.5
+# === Foot pedal (south) ===
+rect 0.3,0.88 0.4,0.07 texfill polyhaven/dark_wood 0.7
+rect 0.3,0.88 0.4,0.07 stroke #2a1400

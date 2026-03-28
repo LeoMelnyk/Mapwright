@@ -3,29 +3,48 @@ category: Nautical
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 1.5
 placement: floor
 room_types: dock, fishing-village
 typical_count: few
 clusters_with: fishing-net, rope-coil
 notes: Place stacked near docks
 ---
-# Trap body (wicker weave)
-rect 0.1,0.1 0.8,0.8 texfill polyhaven/weathered_planks 0.7
-rect 0.1,0.1 0.8,0.8 stroke #3a1f00
-# Lattice frame lines
-line 0.37,0.1 0.37,0.9 stroke #3a1f00
-line 0.63,0.1 0.63,0.9 stroke #3a1f00
-line 0.1,0.37 0.9,0.37 stroke #3a1f00
-line 0.1,0.63 0.9,0.63 stroke #3a1f00
-# Funnel entrance (dark central opening)
-ellipse 0.5,0.5 0.12,0.08 fill #1a1a1a 0.55
-ellipse 0.5,0.5 0.12,0.08 stroke #3a1f00
-# Corner posts
-circle 0.12,0.12 0.04 fill #4a2800 0.9
-circle 0.88,0.12 0.04 fill #4a2800 0.9
-circle 0.12,0.88 0.04 fill #4a2800 0.9
-circle 0.88,0.88 0.04 fill #4a2800 0.9
-# Rope tie (top, for hauling)
-circle 0.5,0.18 0.05 fill #8b7355 0.8
-circle 0.5,0.18 0.05 stroke #5c4010
+# === HITBOX ===
+hitbox rect 0.08,0.06 0.84,0.72 z 0-1.5
+
+# Dark interior visible through mesh
+rect 0.13,0.10 0.74,0.68 fill #1a1208 0.7
+# Wooden frame rails (weathered plank border)
+rect 0.08,0.06 0.84,0.05 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.06 0.84,0.05 stroke #3a1f00
+rect 0.08,0.73 0.84,0.05 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.73 0.84,0.05 stroke #3a1f00
+rect 0.08,0.11 0.05,0.62 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.11 0.05,0.62 stroke #3a1f00
+rect 0.87,0.11 0.05,0.62 texfill polyhaven/weathered_planks 0.85
+rect 0.87,0.11 0.05,0.62 stroke #3a1f00
+# Center spine (lengthwise divider rail)
+rect 0.13,0.38 0.74,0.04 texfill polyhaven/weathered_planks 0.8
+rect 0.13,0.38 0.74,0.04 stroke #3a1f00
+# Mesh netting — diagonal crosshatch (top half)
+line 0.16,0.13 0.50,0.36 stroke #8b7355 0.4 width 1
+line 0.50,0.13 0.84,0.36 stroke #8b7355 0.4 width 1
+line 0.84,0.13 0.50,0.36 stroke #8b7355 0.4 width 1
+line 0.50,0.13 0.16,0.36 stroke #8b7355 0.4 width 1
+# Mesh netting — diagonal crosshatch (bottom half)
+line 0.16,0.44 0.50,0.70 stroke #8b7355 0.4 width 1
+line 0.50,0.44 0.84,0.70 stroke #8b7355 0.4 width 1
+line 0.84,0.44 0.50,0.70 stroke #8b7355 0.4 width 1
+line 0.50,0.44 0.16,0.70 stroke #8b7355 0.4 width 1
+# Funnel entrance (dark cone in lower half)
+ellipse 0.50,0.57 0.12,0.08 fill #0d0a04 0.6
+ellipse 0.50,0.57 0.12,0.08 stroke #5c3a1e 0.5
+# Corner lashings
+circle 0.10,0.08 0.03 fill #8b7355 0.75
+circle 0.90,0.08 0.03 fill #8b7355 0.75
+circle 0.10,0.76 0.03 fill #8b7355 0.75
+circle 0.90,0.76 0.03 fill #8b7355 0.75
+# Buoy rope trailing off north end
+line 0.50,0.06 0.38,0.00 stroke #8b7355 0.7 width 2

@@ -2,14 +2,17 @@ name: Barrel
 category: Containers
 footprint: 1x1
 facing: no
-shadow: yes
-blocks_light: no
+shadow: no
+blocks_light: yes
+height: 3
 placement: wall
 room_types: storage, tavern, kitchen, cellar, dock
 typical_count: many
 clusters_with: barrel-stack, crate, crate-stack
 notes: Storage; cluster against walls or in corners
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-3
 # Wooden barrel top
 circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.85
 circle 0.5,0.5 0.38 stroke #3a1f00
@@ -17,9 +20,9 @@ circle 0.5,0.5 0.38 stroke #3a1f00
 circle 0.5,0.5 0.36 stroke #666666
 # Inner metal band
 circle 0.5,0.5 0.22 stroke #666666
-# Plank seam lines
-line 0.22,0.2 0.22,0.8
-line 0.78,0.2 0.78,0.8
-line 0.5,0.12 0.5,0.88
+# Plank seam lines (subtle, within barrel bounds)
+line 0.25,0.22 0.25,0.78 stroke #3a1f00 0.4
+line 0.75,0.22 0.75,0.78 stroke #3a1f00 0.4
+line 0.5,0.13 0.5,0.87 stroke #3a1f00 0.4
 # Center bung hole
 circle 0.5,0.5 0.04 fill #1a0a00 0.8

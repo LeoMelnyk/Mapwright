@@ -10,21 +10,57 @@ typical_count: few
 clusters_with: tree, tree-small, moss-patch, mushroom
 notes: Exposed tree roots; place near trees or breaking through dungeon floors
 ---
-# Main root tendrils (radiating from center)
-line 0.50,0.50 0.10,0.15 stroke #5c3a1e 0.40
-line 0.50,0.50 0.85,0.10 stroke #4a2800 0.38
-line 0.50,0.50 0.05,0.60 stroke #5c3a1e 0.35
-line 0.50,0.50 0.92,0.55 stroke #4a2800 0.38
-line 0.50,0.50 0.15,0.90 stroke #5c3a1e 0.35
-line 0.50,0.50 0.88,0.85 stroke #4a2800 0.35
-line 0.50,0.50 0.50,0.92 stroke #5c3a1e 0.30
-# Root forks at tips
-line 0.10,0.15 0.02,0.08 stroke #4a2800 0.25
-line 0.10,0.15 0.15,0.05 stroke #4a2800 0.25
-line 0.85,0.10 0.92,0.02 stroke #5c3a1e 0.25
-line 0.05,0.60 0.00,0.50 stroke #4a2800 0.22
-line 0.15,0.90 0.05,0.95 stroke #4a2800 0.22
-line 0.88,0.85 0.95,0.92 stroke #5c3a1e 0.22
-# Central root mass / base
-circle 0.50,0.50 0.10 fill #4a2800 0.25
-circle 0.50,0.50 0.10 stroke #3a1f00 0.30
+# Central root mass (large, prominent)
+circle 0.50,0.50 0.16 texfill polyhaven/bark_brown_01 0.85
+circle 0.50,0.50 0.16 stroke #3a1f00
+circle 0.50,0.50 0.11 texfill polyhaven/bark_brown_02 0.75
+circle 0.50,0.50 0.11 stroke #4a2800
+
+# Major root tendrils (thick, radiating outward)
+line 0.50,0.50 0.08,0.12 stroke #5c3a1e width 4
+line 0.50,0.50 0.90,0.08 stroke #4a2800 width 4
+line 0.50,0.50 0.04,0.55 stroke #5c3a1e width 4
+line 0.50,0.50 0.95,0.50 stroke #4a2800 width 3
+line 0.50,0.50 0.12,0.92 stroke #6b4e2e width 4
+line 0.50,0.50 0.88,0.88 stroke #3a1f00 width 4
+line 0.50,0.50 0.50,0.95 stroke #5c3a1e width 3
+line 0.50,0.50 0.92,0.25 stroke #6b4e2e width 3
+
+# Secondary roots (crossing over major roots for tangled look)
+line 0.25,0.30 0.75,0.65 stroke #4a2800 width 3
+line 0.70,0.25 0.30,0.75 stroke #5c3a1e width 3
+line 0.20,0.50 0.80,0.40 stroke #3a1f00 width 3
+
+# Root forks at tips — NW root
+line 0.08,0.12 0.02,0.04 stroke #4a2800 width 3
+line 0.08,0.12 0.00,0.18 stroke #5c3a1e width 2
+
+# Root forks — NE root
+line 0.90,0.08 0.98,0.02 stroke #5c3a1e width 3
+line 0.90,0.08 0.95,0.16 stroke #3a1f00 width 2
+
+# Root forks — W root
+line 0.04,0.55 0.00,0.48 stroke #4a2800 width 2
+line 0.04,0.55 0.00,0.65 stroke #6b4e2e width 2
+
+# Root forks — E root
+line 0.95,0.50 0.99,0.42 stroke #5c3a1e width 2
+line 0.95,0.50 0.99,0.58 stroke #4a2800 width 2
+
+# Root forks — SW root
+line 0.12,0.92 0.04,0.98 stroke #3a1f00 width 3
+line 0.12,0.92 0.08,0.85 stroke #6b4e2e width 2
+
+# Root forks — SE root
+line 0.88,0.88 0.96,0.95 stroke #5c3a1e width 3
+line 0.88,0.88 0.92,0.80 stroke #4a2800 width 2
+
+# Root forks — S root
+line 0.50,0.95 0.42,0.99 stroke #6b4e2e width 2
+line 0.50,0.95 0.58,0.99 stroke #3a1f00 width 2
+
+# Thin tertiary tendrils for density
+line 0.35,0.35 0.15,0.20 stroke #6b4e2e width 2
+line 0.60,0.40 0.80,0.30 stroke #5c3a1e width 2
+line 0.40,0.60 0.20,0.72 stroke #4a2800 width 2
+line 0.65,0.60 0.82,0.72 stroke #3a1f00 width 2

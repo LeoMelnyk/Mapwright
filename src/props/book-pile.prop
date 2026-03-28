@@ -3,13 +3,17 @@ category: Library & Study
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 1.5
 placement: floor
 room_types: library, study, wizard-sanctum
 typical_count: many
 clusters_with: bookshelf, desk, scroll-case
 notes: Scatter near bookshelves and desks for lived-in feel
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.18 0.76,0.68 z 0-1.5
+
 # Bottom book (widest)
 rect 0.10,0.58 0.76,0.28 texfill polyhaven/brown_leather 0.80
 rect 0.10,0.58 0.76,0.28 stroke #3a1f00

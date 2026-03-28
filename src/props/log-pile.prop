@@ -1,34 +1,48 @@
 name: Log Pile
 category: Terrain
-footprint: 2x1
+footprint: 2x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: wall
 room_types: camp, wilderness, cabin, lumber-yard, village
 typical_count: few
 clusters_with: wood-pile, campfire, tree-stump
 notes: Stacked logs; place near camps or against cabin walls
 ---
-# Bottom row of logs (3 log cross-sections, spread across x)
-circle 0.20,1.50 0.14 texfill polyhaven/bark_brown_02 0.75
-circle 0.20,1.50 0.14 stroke #3a1f00 0.50
-circle 0.50,1.55 0.14 texfill polyhaven/bark_brown_02 0.75
-circle 0.50,1.55 0.14 stroke #3a1f00 0.50
-circle 0.80,1.50 0.14 texfill polyhaven/bark_brown_02 0.75
-circle 0.80,1.50 0.14 stroke #3a1f00 0.50
-# Middle row (2 logs nestled between bottom)
-circle 0.35,1.18 0.13 texfill polyhaven/bark_brown_02 0.78
-circle 0.35,1.18 0.13 stroke #3a1f00 0.50
-circle 0.65,1.18 0.13 texfill polyhaven/bark_brown_02 0.78
-circle 0.65,1.18 0.13 stroke #3a1f00 0.50
-# Top row (1 log on top)
-circle 0.50,0.88 0.12 texfill polyhaven/bark_brown_02 0.80
-circle 0.50,0.88 0.12 stroke #3a1f00 0.55
-# Cut end grain (lighter inner circles)
-circle 0.20,1.50 0.08 fill #c4a060 0.30
-circle 0.80,1.50 0.08 fill #c4a060 0.30
-circle 0.50,0.88 0.07 fill #c4a060 0.35
-# Growth rings
-circle 0.20,1.50 0.05 stroke #b09050 0.25
-circle 0.50,0.88 0.04 stroke #b09050 0.30
+# === HITBOX ===
+hitbox rect 0.05,0.10 1.90,1.82 z 0-3
+
+# Bottom layer — 3 logs spread across full footprint height
+# South log (bottom of pyramid, visible at south edge)
+rect 0.05,1.50 1.90,0.42 texfill polyhaven/bark_brown_02 0.75
+rect 0.05,1.50 1.90,0.42 stroke #3a1f00 0.45
+line 0.10,1.71 1.90,1.71 stroke #6b4e2e 0.20
+# Center log (mostly hidden by upper layers)
+rect 0.05,0.80 1.90,0.42 texfill polyhaven/bark_brown_02 0.75
+rect 0.05,0.80 1.90,0.42 stroke #3a1f00 0.45
+line 0.10,1.01 1.90,1.01 stroke #6b4e2e 0.20
+# North log (visible at north edge)
+rect 0.05,0.10 1.90,0.42 texfill polyhaven/bark_brown_02 0.75
+rect 0.05,0.10 1.90,0.42 stroke #3a1f00 0.45
+line 0.10,0.31 1.90,0.31 stroke #6b4e2e 0.20
+# Shadows under middle layer
+rect 0.20,1.36 1.60,0.10 fill #000000 0.25
+rect 0.20,0.66 1.60,0.10 fill #000000 0.25
+# Middle layer — 2 logs centered on gaps between bottom 3
+# South middle log (centered on gap at y=1.36)
+rect 0.18,1.16 1.64,0.40 texfill polyhaven/bark_brown_02 0.82
+rect 0.18,1.16 1.64,0.40 stroke #3a1f00 0.50
+line 0.22,1.36 1.78,1.36 stroke #6b4e2e 0.22
+# North middle log (centered on gap at y=0.66)
+rect 0.18,0.46 1.64,0.40 texfill polyhaven/bark_brown_02 0.82
+rect 0.18,0.46 1.64,0.40 stroke #3a1f00 0.50
+line 0.22,0.66 1.78,0.66 stroke #6b4e2e 0.22
+# Shadow under top layer
+rect 0.38,0.91 1.24,0.10 fill #000000 0.28
+# Top layer — 1 log centered on gap between middle 2 (y=1.01)
+rect 0.35,0.82 1.30,0.38 texfill polyhaven/bark_brown_02 0.85
+rect 0.35,0.82 1.30,0.38 stroke #3a1f00 0.55
+line 0.40,1.01 1.60,1.01 stroke #6b4e2e 0.25
+line 0.44,0.98 1.56,0.98 stroke #8b7355 0.15

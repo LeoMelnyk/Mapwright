@@ -1,0 +1,111 @@
+name: Campfire (Stone)
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: yes
+height: 1
+lights: [{"preset":"campfire","x":1.0,"y":1.0}]
+placement: center
+room_types: cave, wilderness, camp, tavern
+typical_count: single
+clusters_with: stool, bench, log-pile
+notes: Stone-ringed fire pit; central gathering point
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.7 z 0-1
+
+# footprint 2x2: x range 0-2, y range 0-2
+
+# Stone ring (individual stones in a circle)
+circle 0.52,0.52 0.12 fill #777777 0.65
+circle 0.52,0.52 0.12 stroke #555555
+circle 0.8,0.38 0.11 fill #888888 0.6
+circle 0.8,0.38 0.11 stroke #555555
+circle 1.12,0.36 0.12 fill #777777 0.65
+circle 1.12,0.36 0.12 stroke #555555
+circle 1.42,0.46 0.11 fill #888888 0.6
+circle 1.42,0.46 0.11 stroke #555555
+circle 1.58,0.76 0.12 fill #777777 0.65
+circle 1.58,0.76 0.12 stroke #555555
+circle 1.62,1.1 0.11 fill #888888 0.6
+circle 1.62,1.1 0.11 stroke #555555
+circle 1.48,1.42 0.12 fill #777777 0.65
+circle 1.48,1.42 0.12 stroke #555555
+circle 1.2,1.6 0.11 fill #888888 0.6
+circle 1.2,1.6 0.11 stroke #555555
+circle 0.88,1.62 0.12 fill #777777 0.65
+circle 0.88,1.62 0.12 stroke #555555
+circle 0.56,1.48 0.11 fill #888888 0.6
+circle 0.56,1.48 0.11 stroke #555555
+circle 0.4,1.18 0.12 fill #777777 0.65
+circle 0.4,1.18 0.12 stroke #555555
+circle 0.38,0.84 0.11 fill #888888 0.6
+circle 0.38,0.84 0.11 stroke #555555
+
+# Charred ground inside ring
+circle 1.0,1.0 0.5 fill #1a1208 0.3
+
+# Log 1 — SW to NE (thick)
+poly 0.6,1.35 0.67,1.28 1.33,0.72 1.4,0.79 1.33,0.86 0.67,1.42 fill #3a2000 0.8
+poly 0.6,1.35 0.67,1.28 1.33,0.72 1.4,0.79 1.33,0.86 0.67,1.42 stroke #2a1400
+line 0.8,1.22 0.88,1.14 stroke #2a1400 0.4
+line 1.05,1.0 1.13,0.92 stroke #2a1400 0.4
+ellipse 0.63,1.38 0.05,0.07 fill #8b7355 0.6
+ellipse 0.63,1.38 0.05,0.07 stroke #5c3a1e
+
+# Log 2 — NW to SE (thick)
+poly 0.6,0.65 0.67,0.58 1.33,1.14 1.4,1.21 1.33,1.28 0.67,0.72 fill #4a2800 0.75
+poly 0.6,0.65 0.67,0.58 1.33,1.14 1.4,1.21 1.33,1.28 0.67,0.72 stroke #2a1400
+line 0.82,0.72 0.9,0.8 stroke #2a1400 0.4
+line 1.08,0.95 1.16,1.03 stroke #2a1400 0.4
+ellipse 0.63,0.65 0.05,0.07 fill #8b7355 0.6
+ellipse 0.63,0.65 0.05,0.07 stroke #5c3a1e
+
+# Log 3 — horizontal (thick)
+poly 0.55,0.92 0.55,1.08 1.45,1.08 1.45,0.92 fill #3a2000 0.7
+poly 0.55,0.92 0.55,1.08 1.45,1.08 1.45,0.92 stroke #2a1400
+line 0.7,0.93 0.7,1.07 stroke #2a1400 0.35
+line 0.95,0.93 0.95,1.07 stroke #2a1400 0.35
+line 1.2,0.93 1.2,1.07 stroke #2a1400 0.35
+ellipse 0.57,1.0 0.04,0.08 fill #8b7355 0.6
+ellipse 0.57,1.0 0.04,0.08 stroke #5c3a1e
+
+# Charred center
+circle 1.0,1.0 0.33 fill #1a0800 0.4
+
+# === Fire — layered from base glow to flame tips ===
+# Base ember glow
+circle 1.0,1.0 0.45 fill #8b1a00 0.3
+
+# Flame shapes — deep orange base layer
+poly 0.73,1.23 0.82,0.78 1.0,0.55 1.18,0.73 1.27,1.18 1.08,1.38 fill #cc3300 0.5
+poly 0.67,1.0 0.78,0.67 0.93,0.52 1.12,0.63 1.0,1.12 0.82,1.23 fill #cc3300 0.45
+poly 1.0,1.3 1.15,0.85 1.33,0.7 1.38,1.08 1.23,1.33 fill #cc3300 0.4
+
+# Flame shapes — bright orange mid layer
+poly 0.82,1.15 0.88,0.82 1.0,0.64 1.12,0.82 1.18,1.12 1.0,1.27 fill #e85500 0.5
+poly 0.78,0.97 0.85,0.73 1.0,0.61 1.15,0.78 1.08,1.08 0.88,1.12 fill #e85500 0.45
+poly 1.03,1.23 1.12,0.88 1.27,0.73 1.3,1.0 1.15,1.23 fill #e85500 0.4
+
+# Flame shapes — yellow-orange inner layer
+poly 0.88,1.08 0.93,0.85 1.0,0.7 1.08,0.85 1.12,1.03 1.0,1.15 fill #ff8800 0.5
+poly 0.85,0.97 0.91,0.78 1.03,0.67 1.12,0.82 1.06,1.03 fill #ff8800 0.45
+
+# Flame tips — bright yellow
+poly 0.94,0.93 1.0,0.67 1.06,0.88 fill #ffaa00 0.6
+poly 0.91,1.0 0.97,0.76 1.0,0.94 fill #ffcc00 0.5
+poly 1.0,0.97 1.06,0.73 1.09,0.93 fill #ffaa00 0.55
+poly 1.03,1.06 1.09,0.82 1.12,1.0 fill #ffcc00 0.45
+
+# Hot white core
+circle 1.0,0.93 0.07 fill #ffeecc 0.4
+circle 1.0,0.88 0.04 fill #ffffff 0.3
+
+# Ember sparks
+circle 0.73,0.67 0.02 fill #ffaa00 0.6
+circle 1.3,0.63 0.015 fill #ffcc00 0.55
+circle 0.63,1.15 0.02 fill #ff8800 0.5
+circle 1.38,1.23 0.015 fill #ffaa00 0.5
+circle 0.85,0.55 0.012 fill #ffcc00 0.45
+circle 1.23,0.58 0.012 fill #ffaa00 0.4

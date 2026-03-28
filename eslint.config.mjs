@@ -16,8 +16,8 @@ export default [
     rules: {
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': ['error', {
-        vars: 'all', varsIgnorePattern: '^_',
-        args: 'after-used', argsIgnorePattern: '^_',
+        vars: 'all',
+        args: 'after-used',
       }],
 
       // Catches typos in variable/function names (e.g. `ctx` vs `context`, `rol` vs `col`)

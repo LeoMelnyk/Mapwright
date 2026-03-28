@@ -1,6 +1,6 @@
 name: Pond
 category: Terrain
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: no
 blocks_light: no
@@ -10,20 +10,69 @@ typical_count: single
 clusters_with: reed-bed, lily-pads, boulder
 notes: Small natural pool; place as terrain feature in outdoor areas
 ---
-# Muddy bank edge
-ellipse 1.00,1.00 0.90,0.82 fill #5a4a30 0.20
-# Water body (irregular shape via overlapping ellipses)
-ellipse 1.00,1.00 0.80,0.72 fill #3a6688 0.45
-ellipse 0.90,0.90 0.65,0.58 fill #4a7799 0.20
-# Water surface sheen
-ellipse 0.85,0.80 0.30,0.18 fill #6699bb 0.20
-ellipse 1.20,1.15 0.20,0.12 fill #6699bb 0.15
-# Shoreline edge
-ellipse 1.00,1.00 0.80,0.72 stroke #3a5a44 0.30
-# Pebbles along edge
-circle 0.25,0.65 0.03 fill #888888 0.25
-circle 0.30,1.40 0.04 fill #777777 0.25
-circle 1.70,0.70 0.03 fill #888888 0.20
-circle 1.65,1.35 0.04 fill #777777 0.25
-# Small ripple
-arc 1.10,0.95 0.12 200 340 stroke #6699bb 0.18
+# === Muddy/rocky shoreline — irregular edge ===
+# Large overlapping brown ellipses forming uneven bank
+ellipse 1.50,1.50 1.42,1.35 fill #5a4a30 0.25
+ellipse 1.30,1.20 1.35,1.20 fill #5a4a30 0.20
+ellipse 1.70,1.80 1.30,1.25 fill #5a4a30 0.20
+ellipse 1.10,1.60 1.20,1.15 fill #5a4a30 0.18
+ellipse 1.85,1.30 1.15,1.10 fill #5a4a30 0.18
+# Sandy/tan patches along shore
+ellipse 0.55,1.50 0.30,0.50 fill #8a7a58 0.18
+ellipse 2.50,1.40 0.28,0.55 fill #8a7a58 0.16
+ellipse 1.50,0.50 0.55,0.25 fill #8a7a58 0.16
+ellipse 1.40,2.55 0.50,0.22 fill #8a7a58 0.18
+# === Water body — layered blues, dark edge to light center ===
+# Outer water (darkest)
+ellipse 1.50,1.50 1.22,1.12 fill #2a4e6a 0.55
+# Mid water
+ellipse 1.48,1.48 1.05,0.95 fill #3a6888 0.45
+# Inner water (lighter)
+ellipse 1.50,1.48 0.85,0.78 fill #4a7a9a 0.35
+# Central highlight
+ellipse 1.45,1.42 0.55,0.48 fill #5a8aaa 0.25
+# Shoreline stroke for definition
+ellipse 1.50,1.50 1.22,1.12 stroke #3a5a44 0.35
+# === Water reflections — subtle lighter sheens ===
+ellipse 1.20,1.15 0.40,0.22 fill #7aaabb 0.18
+ellipse 1.80,1.65 0.30,0.16 fill #7aaabb 0.15
+ellipse 1.10,1.70 0.22,0.12 fill #6a99aa 0.12
+# === Pebbles along shore edge ===
+circle 0.50,1.00 0.055 fill #888888 0.30
+circle 0.45,1.10 0.04 fill #777777 0.28
+circle 0.60,2.15 0.06 fill #888888 0.28
+circle 0.55,2.00 0.04 fill #777777 0.25
+circle 2.50,0.95 0.05 fill #888888 0.25
+circle 2.55,1.10 0.04 fill #777777 0.22
+circle 2.45,2.10 0.06 fill #888888 0.28
+circle 2.40,1.95 0.04 fill #777777 0.25
+circle 1.10,0.50 0.045 fill #888888 0.25
+circle 1.90,0.48 0.05 fill #777777 0.22
+circle 1.20,2.55 0.05 fill #888888 0.25
+circle 1.80,2.52 0.045 fill #777777 0.22
+# === Lily pads — small green circles on the surface ===
+# Pad 1
+circle 1.15,1.25 0.10 fill #2a6a2a 0.50
+circle 1.15,1.25 0.10 stroke #1e4a1e 0.35
+circle 1.15,1.25 0.04 fill #3a7a3a 0.35
+# Pad 2
+circle 1.75,1.60 0.08 fill #2a6a2a 0.45
+circle 1.75,1.60 0.08 stroke #1e4a1e 0.30
+circle 1.75,1.60 0.03 fill #3a7a3a 0.30
+# Pad 3
+circle 1.35,1.75 0.09 fill #2e6e2e 0.48
+circle 1.35,1.75 0.09 stroke #1e4a1e 0.30
+circle 1.35,1.75 0.035 fill #3a7a3a 0.32
+# Tiny flower on pad 1
+circle 1.18,1.22 0.025 fill #ffaacc 0.6
+# === Ripple arcs ===
+arc 1.55,1.35 0.20 200 340 stroke #7aaabb 0.18
+arc 1.30,1.55 0.15 30 170 stroke #7aaabb 0.15
+arc 1.65,1.75 0.12 250 360 stroke #6a99aa 0.12
+# === Reed tuft at north-east edge ===
+line 2.15,0.70 2.18,0.45 stroke #3a5a20 0.5 width 2
+line 2.20,0.72 2.25,0.42 stroke #3a5a20 0.55 width 2
+line 2.25,0.74 2.30,0.48 stroke #3a5a20 0.5 width 2
+line 2.10,0.73 2.08,0.50 stroke #4a6a2a 0.45 width 2
+circle 2.18,0.73 0.06 fill #2a5a1a 0.45
+circle 2.22,0.75 0.05 fill #3a6a2a 0.40

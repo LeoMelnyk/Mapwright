@@ -961,6 +961,116 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   border-color: #a02030;
 }
 
+/* User-saved theme thumbs — hover buttons for delete and rename */
+.theme-thumb-user {
+  position: relative;
+}
+
+.theme-thumb-user .theme-thumb-delete,
+.theme-thumb-user .theme-thumb-rename {
+  display: none;
+  position: absolute;
+  top: 2px;
+  width: 15px;
+  height: 15px;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: 11px;
+  line-height: 13px;
+  text-align: center;
+  cursor: pointer;
+  z-index: 1;
+  padding: 0;
+}
+
+.theme-thumb-user .theme-thumb-delete { right: 2px; }
+.theme-thumb-user .theme-thumb-rename { right: 20px; }
+
+.theme-thumb-user:hover .theme-thumb-delete,
+.theme-thumb-user:hover .theme-thumb-rename {
+  display: block;
+}
+
+.theme-thumb-user .theme-thumb-delete:hover {
+  background: #a02030;
+  color: #fff;
+  border-color: #a02030;
+}
+
+.theme-thumb-user .theme-thumb-rename:hover {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* Save as Theme button in the custom editor */
+.cte-save-btn {
+  width: 100%;
+  padding: 6px;
+  margin-top: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.cte-save-btn:hover {
+  opacity: 0.85;
+}
+
+/* Inline name input for save-as-theme */
+.cte-save-inline {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.cte-save-input {
+  flex: 1;
+  padding: 4px 6px;
+  background: var(--input-bg, #2a2a2a);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  outline: none;
+}
+
+.cte-save-input:focus {
+  border-color: var(--accent);
+}
+
+.cte-save-ok,
+.cte-save-cancel {
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--btn-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.cte-save-ok:hover { background: var(--accent); color: #fff; }
+.cte-save-cancel:hover { background: #a02030; color: #fff; }
+
+/* Inline rename input on user theme thumb */
+.theme-thumb-rename-input {
+  width: 100%;
+  padding: 1px 3px;
+  background: var(--input-bg, #2a2a2a);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  font-size: 10px;
+  outline: none;
+  text-align: center;
+}
+
 .theme-thumb.active span { color: var(--accent); }
 
 .theme-thumb-custom {
@@ -1575,6 +1685,12 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   display: grid;
   grid-template-columns: 1fr auto 1fr auto;
   align-items: center;
+}
+
+#status-left {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #status-center {
@@ -2286,6 +2402,54 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   font-weight: 400;
   opacity: 0.55;
   margin-left: 6px;
+}
+
+/* ─── Export Progress Overlay ──────────────────────────────────────────── */
+
+.export-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.export-overlay.visible { opacity: 1; }
+
+.export-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text);
+}
+
+.export-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: export-spin 0.8s linear infinite;
+}
+
+@keyframes export-spin {
+  to { transform: rotate(360deg); }
+}
+
+.export-overlay-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.export-overlay-sublabel {
+  font-size: 12px;
+  color: var(--text-dim);
 }
 
 .release-notes-body {
@@ -3726,4 +3890,59 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 #minimap-canvas {
   display: block;
   cursor: pointer;
+}
+
+/* ── Debug Panel ─────────────────────────────────────────────────────────── */
+
+#right-panel-debug {
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.debug-section {
+  margin-bottom: 10px;
+}
+
+.debug-section-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #888;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #333;
+}
+
+.debug-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  font-size: 12px;
+  color: #ccc;
+  cursor: pointer;
+}
+
+.debug-toggle input[type="checkbox"] {
+  margin: 0;
+}
+
+.debug-btn {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  margin: 3px 0;
+  font-size: 11px;
+  color: #ccc;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.debug-btn:hover {
+  background: #444;
+  color: #fff;
 }

@@ -3,7 +3,8 @@ category: Features
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 lights: [{"preset":"brazier","x":0.5,"y":0.5}]
 placement: floor
 room_types: any
@@ -11,6 +12,9 @@ typical_count: few
 clusters_with: pillar
 notes: Light source and heat; place symmetrically flanking doors, thrones, or altars
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-3
+
 # Metal bowl
 circle 0.5,0.5 0.32 texfill polyhaven/metal_plate 0.85
 circle 0.5,0.5 0.32 stroke

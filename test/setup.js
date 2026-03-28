@@ -81,7 +81,7 @@ vi.mock('../src/editor/js/io.js', () => ({
 }));
 
 vi.mock('../src/editor/js/migrations.js', () => ({
-  CURRENT_FORMAT_VERSION: 1,
+  CURRENT_FORMAT_VERSION: 3,
   migrateToLatest: vi.fn((json) => json),
 }));
 

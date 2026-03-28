@@ -12,13 +12,22 @@ export function initSessionPanel(containerEl) {
   container = containerEl;
   fetch('/api/local-ip').then(r => r.json()).then(d => { localIP = d.ip; render(); }).catch(() => {});
   render();
-  subscribe(() => render());
+  subscribe(() => render(), 'session');
 }
 
+let _lastSessionActive = null;
+let _lastSessionCells = null;
+let _lastPlayerCount = null;
 function render() {
   if (!container) return;
 
   const active = sessionState.active;
+  // Skip rebuild if nothing relevant changed
+  if (active === _lastSessionActive && state.dungeon.cells === _lastSessionCells && sessionState.playerCount === _lastPlayerCount) return;
+  _lastSessionActive = active;
+  _lastSessionCells = state.dungeon.cells;
+  _lastPlayerCount = sessionState.playerCount;
+
   const labels = findRoomLabels();
 
   container.innerHTML = `

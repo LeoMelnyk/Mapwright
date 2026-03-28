@@ -3,29 +3,55 @@ category: Misc
 footprint: 1x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: wall
 room_types: study, wizard-sanctum, observatory, captain-cabin
 typical_count: single
 clusters_with: desk, globe
 notes: Viewing instrument; point toward window or open sky
 ---
-# Main tube body
-rect 0.10,0.32 1.60,0.36 texfill polyhaven/dark_wood 0.75
-rect 0.10,0.32 1.60,0.36 stroke #3a1f00
-# Brass bands
-line 0.42,0.32 0.42,0.68 stroke #8b6914
-line 0.78,0.32 0.78,0.68 stroke #8b6914
-line 1.14,0.32 1.14,0.68 stroke #8b6914
-# Objective lens (large end, east)
-circle 1.74,0.50 0.20 fill #334455 0.60
-circle 1.74,0.50 0.20 stroke #8b6914
-circle 1.74,0.50 0.14 fill #556677 0.50
-circle 1.74,0.50 0.08 fill #aabbcc 0.40
-# Eyepiece (small end, west)
-circle 0.12,0.50 0.10 fill #222222 0.80
-circle 0.12,0.50 0.10 stroke #8b6914
-circle 0.12,0.50 0.05 fill #334455 0.60
-# Brass tube highlights
-rect 0.10,0.34 1.60,0.04 fill #daa520 0.20
-rect 0.10,0.62 1.60,0.04 fill #daa520 0.20
+# === HITBOX ===
+hitbox rect 0.86,0.10 0.28,0.78 z 0-4
+
+# Footprint 1x2: x 0-2, y 0-1. Front south, tube points north.
+
+# === Tripod legs (underneath the tube) ===
+# Left leg
+line 1.0,0.55 0.15,0.92 stroke #4a2800 width 3
+# Right leg
+line 1.0,0.55 1.85,0.92 stroke #4a2800 width 3
+# Back leg
+line 1.0,0.55 1.0,0.08 stroke #4a2800 width 3
+# Leg feet
+circle 0.14,0.92 0.03 fill #8b6914 0.7
+circle 1.86,0.92 0.03 fill #8b6914 0.7
+circle 1.0,0.07 0.03 fill #8b6914 0.7
+
+# === Telescope tube (long, dominant element) ===
+# The tube runs roughly north-south, tilted upward so foreshortened
+# Main tube body — long dark wood cylinder
+rect 0.90,0.14 0.20,0.72 texfill polyhaven/dark_wood 0.8
+rect 0.90,0.14 0.20,0.72 stroke #3a1f00
+# Tube highlight (light catching the top)
+line 0.96,0.16 0.96,0.84 stroke #6b4e2e 0.25
+
+# Brass band fittings
+rect 0.88,0.28 0.24,0.04 fill #8b6914 0.7
+rect 0.88,0.28 0.24,0.04 stroke #5a3a00
+rect 0.88,0.54 0.24,0.04 fill #8b6914 0.7
+rect 0.88,0.54 0.24,0.04 stroke #5a3a00
+
+# === Objective lens (north end — large) ===
+rect 0.86,0.10 0.28,0.06 fill #334455 0.6
+rect 0.86,0.10 0.28,0.06 stroke #8b6914
+# Lens glint
+line 0.92,0.12 1.04,0.12 stroke #667799 0.4
+
+# === Eyepiece (south end — small) ===
+rect 0.92,0.82 0.16,0.06 fill #222222 0.7
+rect 0.92,0.82 0.16,0.06 stroke #5a3a00
+
+# === Mount pivot (where tube meets tripod) ===
+circle 1.0,0.55 0.06 fill #555555 0.6
+circle 1.0,0.55 0.06 stroke #444444

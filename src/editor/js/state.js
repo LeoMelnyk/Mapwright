@@ -35,6 +35,7 @@ const state = {
   selectedProp: null,  // string — prop type name from catalog (e.g. 'pillar')
   propRotation: 0,     // 0, 90, 180, 270 — current placement rotation
   propFlipped: false,  // whether the next placed prop is horizontally mirrored
+  propScale: 1.0,      // scale for next placed prop
   propCatalog: null,   // PropCatalog object, loaded at init (runtime only, not serialized)
   selectedPropAnchors: [], // array of {row, col} for selected props in select mode (legacy)
   selectedPropIds: [],     // array of overlay prop IDs for selected props (new system)
@@ -76,6 +77,7 @@ const state = {
   session: { active: false, playerCount: 0 },
   sessionToolsActive: false,  // true when session toolbar is shown (session panel open + session active)
   statusInstruction: null,    // string or null — shown in #status-center when set
+  debugShowHitboxes: false,  // when true, render prop hitbox outlines on the canvas
 };
 
 /**
@@ -83,7 +85,14 @@ const state = {
  */
 export function getTheme() {
   const t = state.dungeon.metadata.theme;
-  if (typeof t === 'string') return THEMES[t] || THEMES['blue-parchment'];
+  if (typeof t === 'string') {
+    if (THEMES[t]) return THEMES[t];
+    // Fallback: user theme not installed locally — use embedded data
+    if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
+      return state.dungeon.metadata.savedThemeData.theme;
+    }
+    return THEMES['blue-parchment'];
+  }
   if (typeof t === 'object' && t !== null) return t;
   return THEMES['blue-parchment'];
 }
@@ -92,11 +101,21 @@ export function getTheme() {
  * Push current dungeon state to undo stack.
  * @param {string} [label='Edit'] — description shown in the history panel.
  */
-export function pushUndo(label = 'Edit') {
-  state.undoStack.push({ json: JSON.stringify(state.dungeon), label });
+/** Set to true to skip all undo stack pushes (for testing). */
+export let undoDisabled = false;
+export function setUndoDisabled(v) { undoDisabled = v; }
+
+export function pushUndo(label = 'Edit', preSerializedJson = null) {
+  if (undoDisabled) return;
+  const _t0 = performance.now();
+  const json = preSerializedJson || JSON.stringify(state.dungeon);
+  const _t1 = performance.now();
+  state.undoStack.push({ json, label });
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack.length = 0;
   markPropSpatialDirty();
+  const _t2 = performance.now();
+  state._lastPushUndoMs = { stringify: _t1 - _t0, total: _t2 - _t0 };
 }
 
 /**
@@ -156,46 +175,102 @@ export function markDirty() {
 
 /**
  * Invalidate the lighting visibility cache (call when walls change or on undo/redo).
+ * @param {boolean|'props'} [structuralChange=true] - Pass false for light-only changes,
+ *   'props' to clear prop shadow zones but keep cached wall segments.
  */
-export function invalidateLightmap() {
-  invalidateVisibilityCache();
+export function invalidateLightmap(structuralChange = true) {
+  invalidateVisibilityCache(structuralChange);
 }
 
 export function clearDirty() {
   state.dirty = false;
 }
 
-export function subscribe(fn) {
-  state.listeners.push(fn);
+export function subscribe(fn, label) {
+  state.listeners.push({ fn, label: label || 'unknown' });
 }
+
+/** Latest per-subscriber timing data from the most recent notify() call. */
+export const notifyTimings = { total: 0, subscribers: [], frame: 0 };
+let _notifyFrame = 0;
 
 // ─── Auto-save ────────────────────────────────────────────────────────────
 
-const AUTOSAVE_KEY = 'dungeon-editor-autosave';
+// ── Autosave via IndexedDB (async, no main-thread blocking) ──────────────
+const AUTOSAVE_DB = 'mapwright-autosave';
+const AUTOSAVE_STORE = 'state';
+const AUTOSAVE_KEY = 'current';
+const AUTOSAVE_LEGACY_KEY = 'dungeon-editor-autosave';
 let autosaveTimer = null;
+let _autosaveDb = null;
+
+function _openDb() {
+  return new Promise((resolve, reject) => {
+    if (_autosaveDb) { resolve(_autosaveDb); return; }
+    const req = indexedDB.open(AUTOSAVE_DB, 1);
+    req.onupgradeneeded = () => {
+      req.result.createObjectStore(AUTOSAVE_STORE);
+    };
+    req.onsuccess = () => {
+      _autosaveDb = req.result;
+      resolve(_autosaveDb);
+    };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+// Initialize DB early so it's ready when first autosave fires
+if (typeof indexedDB !== 'undefined') {
+  _openDb().catch(() => { /* IndexedDB unavailable — fallback to localStorage */ });
+}
 
 function scheduleAutosave() {
   if (autosaveTimer) clearTimeout(autosaveTimer);
-  autosaveTimer = setTimeout(() => {
+  autosaveTimer = setTimeout(async () => {
+    const data = {
+      dungeon: state.dungeon,
+      currentLevel: state.currentLevel,
+      activeTool: state.activeTool,
+      zoom: state.zoom,
+      panX: state.panX,
+      panY: state.panY,
+    };
     try {
-      const payload = JSON.stringify({
-        dungeon: state.dungeon,
-        currentLevel: state.currentLevel,
-        activeTool: state.activeTool,
-        zoom: state.zoom,
-        panX: state.panX,
-        panY: state.panY,
-      });
-      localStorage.setItem(AUTOSAVE_KEY, payload);
+      const db = await _openDb();
+      const tx = db.transaction(AUTOSAVE_STORE, 'readwrite');
+      tx.objectStore(AUTOSAVE_STORE).put(data, AUTOSAVE_KEY);
+      // tx completes async — no main thread blocking
     } catch {
-      // localStorage full or unavailable — silently ignore
+      // IndexedDB failed — fall back to localStorage (blocking but rare)
+      try { localStorage.setItem(AUTOSAVE_LEGACY_KEY, JSON.stringify(data)); } catch {}
     }
-  }, 500);
+  }, 1000);
 }
 
-export function loadAutosave() {
+export async function loadAutosave() {
+  // Try IndexedDB first
   try {
-    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    const db = await _openDb();
+    const tx = db.transaction(AUTOSAVE_STORE, 'readonly');
+    const saved = await new Promise((resolve, reject) => {
+      const req = tx.objectStore(AUTOSAVE_STORE).get(AUTOSAVE_KEY);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    if (saved?.dungeon?.metadata && saved?.dungeon?.cells) {
+      state.dungeon = saved.dungeon;
+      state.currentLevel = saved.currentLevel || 0;
+      state.activeTool = saved.activeTool || 'room';
+      state.zoom = saved.zoom || 1.0;
+      state.panX = saved.panX ?? 60;
+      state.panY = saved.panY ?? 60;
+      return true;
+    }
+  } catch {}
+
+  // Fall back to legacy localStorage
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_LEGACY_KEY);
     if (!raw) return false;
     const saved = JSON.parse(raw);
     if (!saved.dungeon?.metadata || !saved.dungeon?.cells) return false;
@@ -212,7 +287,17 @@ export function loadAutosave() {
 }
 
 export function notify() {
-  for (const fn of state.listeners) fn(state);
+  const t0 = performance.now();
+  _notifyFrame++;
+  const subs = [];
+  for (const entry of state.listeners) {
+    const s = performance.now();
+    entry.fn(state);
+    subs.push({ label: entry.label, ms: performance.now() - s });
+  }
+  notifyTimings.total = performance.now() - t0;
+  notifyTimings.subscribers = subs;
+  notifyTimings.frame = _notifyFrame;
   scheduleAutosave();
 }
 

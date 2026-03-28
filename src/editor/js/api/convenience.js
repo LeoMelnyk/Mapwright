@@ -6,6 +6,8 @@ import {
   state, pushUndo, markDirty, notify,
   setReciprocal,
   invalidateAllCaches,
+  toInt,
+  captureBeforeState, smartInvalidate,
 } from './_shared.js';
 
 // ── Convenience ───────────────────────────────────────────────────────────
@@ -20,13 +22,17 @@ export function mergeRooms(label1, label2) {
   if (!walls) {
     throw new Error(`No shared boundary found between '${label1}' and '${label2}'`);
   }
+  const coords = walls.map(({ row, col }) => ({ row: toInt(row), col: toInt(col) }));
+  const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
   for (const { row, col, direction } of walls) {
-    const cell = state.dungeon.cells[row]?.[col];
+    const iRow = toInt(row), iCol = toInt(col);
+    const cell = state.dungeon.cells[iRow]?.[iCol];
     if (!cell) continue;
     delete cell[direction];
-    setReciprocal(row, col, direction, null);
+    setReciprocal(iRow, iCol, direction, null);
   }
+  smartInvalidate(before, state.dungeon.cells);
   markDirty();
   notify();
   return { success: true, removed: walls.length };
@@ -39,6 +45,7 @@ export function mergeRooms(label1, label2) {
  * One undo step.
  */
 export function shiftCells(dr, dc) {
+  dr = toInt(dr); dc = toInt(dc);
   const cells = state.dungeon.cells;
   const rows = cells.length;
   const cols = cells[0]?.length || 0;
@@ -101,7 +108,8 @@ export function shiftCells(dr, dc) {
  * @returns {{ success, before, after, targetMargin, adjustments }}
  */
 export function normalizeMargin(targetMargin = 2) {
-  if (!Number.isInteger(targetMargin) || targetMargin < 0) {
+  targetMargin = toInt(targetMargin);
+  if (targetMargin < 0) {
     throw new Error('targetMargin must be a non-negative integer');
   }
 
@@ -369,8 +377,12 @@ export function setDoorBetween(label1, label2, type = 'd') {
 export function placeLightInRoom(label, preset, config = {}) {
   const b = getApi().getRoomBounds(label);
   if (!b) return { success: false, error: `Room "${label}" not found` };
-  const gs = state.dungeon.metadata.gridSize || 5;
-  const x = b.centerCol * gs + gs / 2;
-  const y = b.centerRow * gs + gs / 2;
+  const meta = state.dungeon.metadata;
+  const gs = meta.gridSize || 5;
+  const res = meta.resolution || 1;
+  const dgs = gs * res; // display grid size in feet
+  // b.centerCol/Row are display coords — multiply by display gridSize for world-feet
+  const x = b.centerCol * dgs + dgs / 2;
+  const y = b.centerRow * dgs + dgs / 2;
   return getApi().placeLight(x, y, preset ? { preset, ...config } : config);
 }

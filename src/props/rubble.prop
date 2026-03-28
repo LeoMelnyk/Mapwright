@@ -3,20 +3,61 @@ category: Features
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1.5
 placement: floor
 room_types: ruin, dungeon, cave, collapsed-area
 typical_count: many
 clusters_with: boulder, bone-pile
 notes: Debris scatter; place randomly for ruined or destroyed areas
 ---
-poly 0.12,0.52 0.32,0.35 0.28,0.62 texfill polyhaven/rock_boulder_cracked 0.8
-poly 0.12,0.52 0.32,0.35 0.28,0.62 stroke
-poly 0.38,0.2 0.62,0.12 0.58,0.4 texfill polyhaven/rock_boulder_cracked 0.75
-poly 0.38,0.2 0.62,0.12 0.58,0.4 stroke
-poly 0.58,0.52 0.82,0.42 0.87,0.68 0.68,0.72 texfill polyhaven/rock_boulder_cracked 0.8
-poly 0.58,0.52 0.82,0.42 0.87,0.68 0.68,0.72 stroke
-poly 0.32,0.68 0.52,0.58 0.57,0.82 0.38,0.87 texfill polyhaven/rock_boulder_cracked 0.75
-poly 0.32,0.68 0.52,0.58 0.57,0.82 0.38,0.87 stroke
-poly 0.72,0.18 0.87,0.22 0.82,0.35 texfill polyhaven/rock_boulder_cracked 0.7
-poly 0.72,0.18 0.87,0.22 0.82,0.35 stroke
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.42 z 0-1.5
+
+# Dust/debris base layer (subtle ground scatter)
+circle 0.50,0.50 0.42 fill #8b7355 0.12
+circle 0.40,0.55 0.30 fill #6b5530 0.10
+
+# Large stone chunk — NW
+poly 0.08,0.22 0.25,0.15 0.32,0.28 0.28,0.42 0.12,0.38 texfill polyhaven/rock_boulder_cracked 0.80
+poly 0.08,0.22 0.25,0.15 0.32,0.28 0.28,0.42 0.12,0.38 stroke #555555
+
+# Large stone chunk — E (different texture for variety)
+poly 0.58,0.30 0.82,0.22 0.88,0.42 0.80,0.55 0.62,0.48 texfill polyhaven/stone_wall 0.75
+poly 0.58,0.30 0.82,0.22 0.88,0.42 0.80,0.55 0.62,0.48 stroke #555555
+
+# Medium chunk — S center
+poly 0.35,0.60 0.55,0.55 0.60,0.72 0.48,0.80 0.32,0.75 texfill polyhaven/rock_boulder_cracked 0.75
+poly 0.35,0.60 0.55,0.55 0.60,0.72 0.48,0.80 0.32,0.75 stroke #555555
+
+# Medium chunk — NE
+poly 0.42,0.12 0.55,0.08 0.58,0.22 0.45,0.25 texfill polyhaven/rock_boulder_cracked 0.70
+poly 0.42,0.12 0.55,0.08 0.58,0.22 0.45,0.25 stroke #666666
+
+# Small chunk — SW
+poly 0.10,0.68 0.22,0.62 0.28,0.72 0.18,0.78 texfill polyhaven/stone_wall 0.70
+poly 0.10,0.68 0.22,0.62 0.28,0.72 0.18,0.78 stroke #666666
+
+# Small chunk — SE
+poly 0.72,0.65 0.85,0.62 0.88,0.75 0.75,0.78 texfill polyhaven/rock_boulder_cracked 0.65
+poly 0.72,0.65 0.85,0.62 0.88,0.75 0.75,0.78 stroke #666666
+
+# Small triangular shard — far south
+poly 0.60,0.82 0.72,0.78 0.68,0.90 texfill polyhaven/stone_wall 0.65
+poly 0.60,0.82 0.72,0.78 0.68,0.90 stroke #777777
+
+# Tiny shard — near center
+poly 0.38,0.42 0.48,0.38 0.50,0.48 texfill polyhaven/rock_boulder_cracked 0.70
+poly 0.38,0.42 0.48,0.38 0.50,0.48 stroke #777777
+
+# Scattered pebbles between chunks
+circle 0.30,0.50 0.03 fill #888888 0.50
+circle 0.52,0.48 0.025 fill #777777 0.45
+circle 0.68,0.55 0.03 fill #999999 0.40
+circle 0.22,0.55 0.025 fill #888888 0.45
+circle 0.75,0.42 0.02 fill #777777 0.50
+circle 0.45,0.35 0.02 fill #999999 0.40
+circle 0.15,0.50 0.025 fill #888888 0.35
+circle 0.85,0.52 0.02 fill #777777 0.45
+circle 0.55,0.90 0.025 fill #888888 0.40
+circle 0.25,0.85 0.02 fill #999999 0.35

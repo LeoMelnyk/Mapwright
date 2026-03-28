@@ -3,6 +3,7 @@
 import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache, renderLightmap } from '../render/index.js';
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer } from './fog.js';
 import playerState from './player-state.js';
+import { displayGridSize as _dgs } from '../util/index.js';
 
 const CELL_SIZE = 40; // pixels per cell at zoom=1
 const MIN_ZOOM = 0.2;
@@ -87,8 +88,8 @@ export function requestRender() {
 
 export function getTransform() {
   if (!playerState.dungeon) return { offsetX: 0, offsetY: 0, scale: 1 };
-  const gridSize = playerState.dungeon.metadata.gridSize;
-  const scale = CELL_SIZE * playerState.zoom / gridSize;
+  const { gridSize, resolution } = playerState.dungeon.metadata;
+  const scale = CELL_SIZE * playerState.zoom / _dgs(gridSize, resolution);
   return { offsetX: playerState.panX, offsetY: playerState.panY, scale };
 }
 
@@ -153,7 +154,11 @@ function render(timestamp) {
   const filteredBridges = filterBridgesForPlayer(metadata.bridges, playerState.revealedCells);
   // Filter props: hide props whose footprint cells haven't been revealed
   const filteredProps = filterPropsForPlayer(metadata.props, playerState.revealedCells, gridSize, playerState.propCatalog);
-  const playerMetadata = { ...metadata, stairs: filteredStairs, bridges: filteredBridges, props: filteredProps };
+  const playerMetadata = {
+    ...metadata,
+    stairs: filteredStairs, bridges: filteredBridges, props: filteredProps,
+    features: { ...metadata.features, showSubGrid: false }, // never show sub-grid in player view
+  };
 
   // Render using existing pipeline
   const showGrid = metadata.features?.showGrid !== false;

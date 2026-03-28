@@ -42,9 +42,13 @@ export function buildPlayerCells(dungeon, revealedCells, openedDoors) {
       // Deep clone
       const pc = JSON.parse(JSON.stringify(cell));
 
-      // Strip room labels and DM labels
+      // Strip room labels, DM labels, and their position overrides
       if (pc.center?.label) delete pc.center.label;
       if (pc.center?.dmLabel) delete pc.center.dmLabel;
+      delete pc.center?.labelX;
+      delete pc.center?.labelY;
+      delete pc.center?.dmLabelX;
+      delete pc.center?.dmLabelY;
       if (pc.center && Object.keys(pc.center).length === 0) delete pc.center;
 
       // Secret doors: unopened → wall, opened → normal door

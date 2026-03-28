@@ -92,15 +92,20 @@ function ensureBuilt() {
 /**
  * Mark the spatial map as needing rebuild. Call on any prop mutation.
  */
+let _onDirtyCallback = null;
+/** Register a callback to run whenever the prop spatial map is dirtied. */
+export function onPropSpatialDirty(fn) { _onDirtyCallback = fn; }
+
 export function markPropSpatialDirty() {
   dirty = true;
+  if (_onDirtyCallback) _onDirtyCallback();
 }
 
 /**
  * Look up the topmost prop covering (row, col).
  * Returns { anchorRow, anchorCol, propType, propId, zIndex } or null.
  */
-export function lookupPropAt(row, col, _cells) {
+export function lookupPropAt(row, col) {
   ensureBuilt();
   const stack = spatialMap.get(`${row},${col}`);
   return stack?.[0] || null;
@@ -118,7 +123,7 @@ export function lookupAllPropsAt(row, col) {
 /**
  * Check if (row, col) is covered by any prop. O(1).
  */
-export function isPropAt(row, col, _cells) {
+export function isPropAt(row, col) {
   ensureBuilt();
   return spatialMap.has(`${row},${col}`);
 }

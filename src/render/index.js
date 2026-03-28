@@ -1,13 +1,13 @@
 // Core rendering
-export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache } from './render.js';
+export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion, getDirtyRegion, consumeDirtyRegion, accumulateDirtyRect, patchBlendForDirtyRegion } from './render.js';
 export { invalidateFluidCache } from './fluid.js';
 // Decorations & lighting
 export { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from './decorations.js';
-export { renderLightmap, renderCoverageHeatmap, invalidateVisibilityCache, extractFillLights } from './lighting.js';
+export { renderLightmap, renderCoverageHeatmap, invalidateVisibilityCache, invalidateLightmapCaches, extractFillLights, getLightingVersion } from './lighting.js';
 // Bounds
 export { toCanvas } from './bounds.js';
 // Props & features
-export { renderProp, parsePropFile, invalidatePropsCache, renderOverlayProps, extractOverlayPropLightSegments, hitTestPropPixel } from './props.js';
+export { renderProp, parsePropFile, generateHitbox, invalidatePropsCache, invalidatePropsRenderLayer, renderOverlayProps, extractOverlayPropLightSegments, hitTestPropPixel } from './props.js';
 export { drawDmLabel } from './features.js';
 // Themes
 export { THEMES } from './themes.js';
@@ -17,7 +17,7 @@ export { calculateCanvasSize, renderDungeonToCanvas } from './compile.js';
 export { warn as renderWarn, flush as flushRenderWarnings } from './warnings.js';
 
 // Aggregate invalidation — call after any structural change to cells (add/duplicate/resize/delete level)
-import { invalidateGeometryCache, invalidateBlendLayerCache } from './render.js';
+import { invalidateGeometryCache, invalidateBlendLayerCache, bumpContentVersion } from './render.js';
 import { invalidateFluidCache } from './fluid.js';
 import { invalidateVisibilityCache } from './lighting.js';
 import { invalidatePropsCache } from './props.js';
@@ -27,4 +27,5 @@ export function invalidateAllCaches() {
   invalidateBlendLayerCache();
   invalidateVisibilityCache();
   invalidatePropsCache();
+  bumpContentVersion();
 }

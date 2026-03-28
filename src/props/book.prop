@@ -1,0 +1,26 @@
+name: Book
+category: Library & Study
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: library, study, wizard-sanctum
+typical_count: many
+clusters_with: book-pile, bookshelf, desk, scroll-case
+notes: Single book lying flat; scatter on desks and tables
+---
+# === HITBOX ===
+hitbox rect 0.2,0.25 0.6,0.5 z 0-0.5
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Brown leather book lying flat
+rect 0.2,0.25 0.6,0.5 texfill polyhaven/brown_leather 0.85
+rect 0.2,0.25 0.6,0.5 stroke #3a1f00
+# Spine (left edge, slightly raised)
+rect 0.2,0.25 0.06,0.5 fill #2a1400 0.5
+# Page edges visible (thin light line inside)
+rect 0.28,0.28 0.48,0.44 fill #e8e0d0 0.15
+rect 0.28,0.28 0.48,0.44 stroke #c8b898 0.3
+# Cover detail line
+line 0.3,0.3 0.3,0.7 stroke #4a2800 0.3

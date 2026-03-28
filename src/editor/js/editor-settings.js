@@ -6,6 +6,10 @@ const DEFAULTS = {
   fpsCounter: false,
   memoryUsage: false,
   minimap: false,
+  diagExpanded: true,
+  renderQuality: 20,  // cache px/ft: 10=Low, 15=Medium, 20=High, 30=Ultra
+  lightQuality: 10,   // lightmap px/ft: 5=Low, 10=Medium, 15=High, 20=Ultra
+  debug: false,       // show debug panel in right sidebar
 };
 
 let _cache = null;

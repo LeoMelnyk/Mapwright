@@ -1,22 +1,42 @@
 name: Scrying Mirror
 category: Magical
-footprint: 1x2
+footprint: 2x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 6
 placement: wall
 room_types: wizard-sanctum, divination-room
 typical_count: single
 clusters_with: crystal-ball, candle-cluster
 notes: Magical viewing device; mount on wall as focal point
 ---
-# Ornate frame
-ellipse 1.0,0.5 0.85,0.4 texfill polyhaven/dark_wood 0.85
-ellipse 1.0,0.5 0.85,0.4 stroke #4a2800
-# Mirror surface
-ellipse 1.0,0.5 0.7,0.3 fill #2a2a4a 0.7
-ellipse 1.0,0.5 0.7,0.3 stroke #444466
-# Magical glow
-ellipse 1.0,0.5 0.4,0.18 fill #6644aa 0.3
-# Highlight
-ellipse 0.85,0.42 0.1,0.06 fill #8888cc 0.4
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.75 z 0-6
+
+# Pedestal base
+circle 1.0,1.0 0.3 texfill polyhaven/granite_tile 0.8
+circle 1.0,1.0 0.3 stroke #444444
+# Bowl outer rim
+ring 1.0,1.0 0.75 0.55 texfill polyhaven/granite_tile 0.85
+ring 1.0,1.0 0.75 0.55 stroke #555555
+# Bowl inner shadow (depth illusion)
+circle 1.0,1.0 0.55 fill #1a0a2a 0.6
+# Purple water surface — deep edges
+circle 1.0,1.0 0.52 fill #2a1a4a 0.85
+# Purple water surface — mid layer
+circle 1.0,1.0 0.42 fill #4422aa 0.5
+# Purple water surface — lighter center
+circle 1.0,1.0 0.30 fill #6644aa 0.4
+# Bright inner glow
+circle 1.0,1.0 0.18 fill #8866cc 0.35
+# Arcane glow ring around water surface
+circle 1.0,1.0 0.53 stroke #8866cc width 2
+circle 1.0,1.0 0.54 stroke #aa88ee width 1
+# Mystical highlight — star-like glint
+circle 0.85,0.85 0.05 fill #aa88ee 0.6
+circle 0.85,0.85 0.03 fill #ddbbff 0.7
+# Secondary subtle reflection
+circle 1.15,1.1 0.035 fill #aa88ee 0.4
+# Thin highlight arc on water
+arc 1.0,1.0 0.38 200 250 stroke #aa88ee width 2

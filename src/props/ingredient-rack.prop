@@ -3,35 +3,90 @@ category: Alchemy
 footprint: 1x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 6
 placement: wall
 room_types: alchemist-lab, kitchen, wizard-sanctum
 typical_count: few
 clusters_with: alchemy-bench, spice-shelf
 notes: Supply storage; line walls near workbenches
 ---
-# Shelf board (wall side, north)
-rect 0.06,0.04 1.88,0.12 texfill polyhaven/dark_wood 0.85
-rect 0.06,0.04 1.88,0.12 stroke #3a1f00
-# Shadow below shelf
-rect 0.06,0.16 1.88,0.05 fill #000000 0.12
-# Six colorful vials
-circle 0.20,0.54 0.10 fill #4466aa 0.80
-circle 0.20,0.54 0.10 stroke #223355
-circle 0.52,0.54 0.10 fill #44aa66 0.80
-circle 0.52,0.54 0.10 stroke #225533
-circle 0.84,0.54 0.10 fill #aa4444 0.80
-circle 0.84,0.54 0.10 stroke #553322
-circle 1.16,0.54 0.10 fill #884499 0.80
-circle 1.16,0.54 0.10 stroke #442255
-circle 1.48,0.54 0.10 fill #aaaa44 0.80
-circle 1.48,0.54 0.10 stroke #555522
-circle 1.80,0.54 0.10 fill #44aaaa 0.80
-circle 1.80,0.54 0.10 stroke #225555
-# Cork stoppers
-circle 0.20,0.43 0.05 fill #8b6914 0.90
-circle 0.52,0.43 0.05 fill #8b6914 0.90
-circle 0.84,0.43 0.05 fill #8b6914 0.90
-circle 1.16,0.43 0.05 fill #8b6914 0.90
-circle 1.48,0.43 0.05 fill #8b6914 0.90
-circle 1.80,0.43 0.05 fill #8b6914 0.90
+# === HITBOX ===
+hitbox rect 0.04,0.04 1.92,0.92 z 0-6
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: open wooden rack frame with raw ingredients visible inside
+# Two side rails + cross-brace form the frame; contents sit between rails
+
+# Shadow beneath the rack (ground level)
+rect 0.12,0.08 1.76,0.84 fill #000000 0.08
+
+# Left side rail (weathered plank, runs wall-to-room)
+rect 0.04,0.04 0.14,0.92 texfill polyhaven/weathered_planks 0.80
+rect 0.04,0.04 0.14,0.92 stroke #4a2800
+
+# Right side rail
+rect 1.82,0.04 0.14,0.92 texfill polyhaven/weathered_planks 0.80
+rect 1.82,0.04 0.14,0.92 stroke #4a2800
+
+# Cross-brace near wall (north)
+rect 0.04,0.06 1.92,0.10 texfill polyhaven/weathered_planks 0.80
+rect 0.04,0.06 1.92,0.10 stroke #4a2800
+
+# Front cross-brace (south, lip of rack)
+rect 0.04,0.86 1.92,0.10 texfill polyhaven/weathered_planks 0.75
+rect 0.04,0.86 1.92,0.10 stroke #4a2800
+
+# --- Contents on the rack ---
+
+# Cloth bag 1 — cream, tied with string (left side)
+ellipse 0.38,0.35 0.12,0.10 fill #d4c4a8 0.85
+ellipse 0.38,0.35 0.12,0.10 stroke #8b7355
+circle 0.38,0.28 0.03 fill #c8b898 0.70
+
+# Dried herb bundle — sage green cluster
+ellipse 0.70,0.38 0.14,0.09 fill #6b7a4a 0.75
+ellipse 0.70,0.38 0.14,0.09 stroke #3d4a28
+# Twine binding
+line 0.62,0.38 0.78,0.38 stroke #8b7355
+
+# Small ceramic crock — terracotta with lid
+circle 1.00,0.36 0.10 fill #b5704a 0.80
+circle 1.00,0.36 0.10 stroke #7a3d22
+circle 1.00,0.36 0.06 fill #c48860 0.60
+
+# Cloth bag 2 — darker, burlap-like
+ellipse 1.30,0.34 0.11,0.09 fill #8b7355 0.80
+ellipse 1.30,0.34 0.11,0.09 stroke #5c3a1e
+circle 1.30,0.27 0.03 fill #6b4e2e 0.65
+
+# Dried herb bundle 2 — brownish-green, smaller
+ellipse 1.60,0.36 0.11,0.08 fill #5a6b3a 0.70
+ellipse 1.60,0.36 0.11,0.08 stroke #3a4a1e
+line 1.53,0.36 1.67,0.36 stroke #8b7355
+
+# --- Second row of contents (closer to front) ---
+
+# Small stone mortar
+circle 0.44,0.64 0.09 texfill polyhaven/granite_tile 0.75
+circle 0.44,0.64 0.09 stroke #666666
+circle 0.44,0.64 0.05 fill #555555 0.30
+
+# Ceramic jar — pale cream with cork
+circle 0.76,0.66 0.08 fill #ddd4b8 0.80
+circle 0.76,0.66 0.08 stroke #a09070
+circle 0.76,0.66 0.04 fill #8b6914 0.70
+
+# Loose herb sprigs — dark green scatter
+ellipse 1.06,0.65 0.10,0.06 fill #4a6a32 0.65
+ellipse 1.10,0.62 0.08,0.05 fill #5a7a3e 0.55
+
+# Cloth bag 3 — reddish-brown, small
+ellipse 1.36,0.66 0.09,0.08 fill #8b5a3a 0.75
+ellipse 1.36,0.66 0.09,0.08 stroke #5c3218
+circle 1.36,0.60 0.025 fill #6b4e2e 0.60
+
+# Small sealed pot — dark clay
+circle 1.64,0.64 0.08 fill #6b4a3a 0.80
+circle 1.64,0.64 0.08 stroke #3a2818
+circle 1.64,0.64 0.04 fill #4a3228 0.50

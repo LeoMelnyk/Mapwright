@@ -1,0 +1,167 @@
+name: Treasure Pile (Large)
+category: Features
+footprint: 3x4
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: vault, dragon-lair, treasure-room
+typical_count: single
+clusters_with: chest, treasure-pile
+notes: Major treasure hoard; place as room focal point
+---
+# === HITBOX ===
+hitbox ellipse 2.0,1.5 1.5,1.0 z 0-3
+
+# footprint 3x4: x range 0-4, y range 0-3
+# === Base layer — multiple overlapping gold mounds ===
+# Large shadow base
+ellipse 2.0,1.6 1.7,1.2 fill #8b6914 0.25
+# Main mound (center)
+ellipse 2.0,1.5 1.5,1.0 fill #c49520 0.45
+# Secondary mound (left)
+ellipse 1.1,1.7 0.8,0.6 fill #c49520 0.4
+# Secondary mound (right)
+ellipse 2.9,1.4 0.75,0.55 fill #c49520 0.4
+# Bright center layer
+ellipse 2.0,1.4 1.1,0.75 fill #daa520 0.5
+# Left bright
+ellipse 1.1,1.6 0.55,0.4 fill #daa520 0.45
+# Right bright
+ellipse 2.9,1.3 0.5,0.35 fill #daa520 0.45
+# Highlight peaks
+ellipse 2.0,1.3 0.6,0.4 fill #ffd700 0.4
+ellipse 1.1,1.5 0.3,0.2 fill #ffd700 0.35
+ellipse 2.9,1.2 0.28,0.2 fill #ffd700 0.35
+# === Scattered coins at edges ===
+circle 0.30,1.90 0.07 fill #ffd700 0.7
+circle 0.30,1.90 0.07 stroke #8b6914
+circle 0.50,2.30 0.06 fill #daa520 0.65
+circle 0.50,2.30 0.06 stroke #8b6914
+circle 3.70,1.60 0.07 fill #ffd700 0.7
+circle 3.70,1.60 0.07 stroke #8b6914
+circle 3.55,0.90 0.06 fill #daa520 0.65
+circle 3.55,0.90 0.06 stroke #8b6914
+circle 1.50,2.50 0.06 fill #ffd700 0.6
+circle 2.50,2.45 0.07 fill #daa520 0.65
+circle 2.50,2.45 0.07 stroke #8b6914
+circle 0.25,1.30 0.05 fill #ffd700 0.6
+circle 3.75,2.10 0.05 fill #daa520 0.55
+circle 1.0,0.70 0.06 fill #ffd700 0.6
+circle 3.0,2.55 0.06 fill #daa520 0.6
+# === Chest 1 — large open chest (center-left) ===
+# Chest body
+rect 0.60,0.80 0.75,0.45 texfill polyhaven/dark_wood 0.85
+rect 0.60,0.80 0.75,0.45 stroke #4a2800
+# Open lid (hinged north, flipped open)
+rect 0.60,0.55 0.75,0.25 texfill polyhaven/dark_wood 0.75
+rect 0.60,0.55 0.75,0.25 stroke #4a2800
+# Gold visible inside open chest
+ellipse 0.97,1.0 0.28,0.12 fill #ffd700 0.6
+# Iron bands
+line 0.60,0.95 1.35,0.95 stroke #555555 width 2
+line 0.60,1.18 1.35,1.18 stroke #555555 width 2
+# Clasp (open)
+rect 0.90,0.80 0.14,0.06 fill #daa520 0.7
+# === Chest 2 — closed chest (right side) ===
+rect 2.70,0.65 0.65,0.35 texfill polyhaven/dark_wood 0.85
+rect 2.70,0.65 0.65,0.35 stroke #4a2800
+# Clasp
+rect 2.95,0.65 0.12,0.06 fill #daa520 0.8
+rect 2.95,0.65 0.12,0.06 stroke #8b6914
+# Iron bands
+line 2.70,0.80 3.35,0.80 stroke #555555 width 2
+line 2.70,0.93 3.35,0.93 stroke #555555 width 2
+# === Chest 3 — small chest half-buried (far right) ===
+rect 3.15,1.70 0.50,0.28 texfill polyhaven/dark_wood 0.8
+rect 3.15,1.70 0.50,0.28 stroke #4a2800
+rect 3.33,1.70 0.10,0.06 fill #daa520 0.75
+line 3.15,1.82 3.65,1.82 stroke #555555 width 2
+# === Many gemstones ===
+# Rubies
+circle 1.60,1.10 0.065 fill #cc2244 0.85
+circle 1.60,1.10 0.065 stroke #881133
+circle 1.59,1.09 0.025 fill #ff4466 0.5
+circle 2.80,1.80 0.05 fill #cc2244 0.8
+circle 2.80,1.80 0.05 stroke #881133
+# Sapphires
+circle 2.30,1.15 0.06 fill #2244cc 0.85
+circle 2.30,1.15 0.06 stroke #112266
+circle 2.29,1.14 0.02 fill #4466ee 0.45
+circle 0.90,1.90 0.05 fill #2244cc 0.8
+circle 0.90,1.90 0.05 stroke #112266
+# Emeralds
+circle 1.20,1.50 0.055 fill #22aa44 0.85
+circle 1.20,1.50 0.055 stroke #116622
+circle 1.19,1.49 0.02 fill #44cc66 0.45
+circle 3.10,1.20 0.05 fill #22aa44 0.8
+circle 3.10,1.20 0.05 stroke #116622
+# Amethysts
+circle 2.50,1.70 0.055 fill #aa22cc 0.8
+circle 2.50,1.70 0.055 stroke #661188
+circle 1.80,2.10 0.04 fill #aa22cc 0.75
+# === Weapons and armor pieces sticking out ===
+# Sword blade (angled, poking up-right)
+line 3.20,2.20 3.60,2.65 stroke #8899aa width 3
+# Cross-guard
+line 3.15,2.18 3.25,2.24 stroke #666666 width 3
+# Pommel
+circle 3.12,2.16 0.04 fill #daa520 0.8
+circle 3.12,2.16 0.04 stroke #8b6914
+# Battle axe head (left side)
+# Axe handle
+line 0.40,1.30 0.40,1.75 stroke #5c3a1e width 3
+# Axe blade (crescent from above)
+arc 0.40,1.35 0.18 220 320 fill #8899aa 0.7
+arc 0.40,1.35 0.18 220 320 stroke #555555
+# Shield (partially buried, oval visible)
+ellipse 1.75,0.75 0.22,0.16 texfill polyhaven/metal_plate 0.7
+ellipse 1.75,0.75 0.22,0.16 stroke #555555
+# Shield boss (center dome)
+circle 1.75,0.75 0.06 fill #888888 0.6
+circle 1.75,0.75 0.06 stroke #555555
+# === Crown on the mound peak ===
+# Crown band
+ellipse 2.0,1.20 0.18,0.13 fill #daa520 0.85
+ellipse 2.0,1.20 0.18,0.13 stroke #8b6914
+# Crown interior
+ellipse 2.0,1.20 0.13,0.09 fill #8b6914 0.4
+# Crown points
+poly 1.84,1.20 1.81,1.12 1.87,1.15 fill #ffd700 0.8
+poly 2.0,1.08 1.97,1.00 2.03,1.02 fill #ffd700 0.8
+poly 2.16,1.20 2.13,1.12 2.19,1.15 fill #ffd700 0.8
+# Crown gems
+circle 2.0,1.31 0.035 fill #cc2244 0.9
+circle 1.88,1.26 0.025 fill #2244cc 0.85
+circle 2.12,1.26 0.025 fill #22aa44 0.85
+# === Scepter lying on coins ===
+# Shaft
+line 2.40,1.90 3.05,2.20 stroke #daa520 width 3
+# Orb at top
+circle 2.38,1.88 0.06 fill #aa22cc 0.8
+circle 2.38,1.88 0.06 stroke #661188
+circle 2.37,1.87 0.025 fill #cc55ee 0.45
+# === Goblets ===
+# Goblet 1 (near center)
+ellipse 1.50,1.80 0.10,0.07 texfill polyhaven/metal_plate 0.8
+ellipse 1.50,1.80 0.10,0.07 stroke #555555
+ellipse 1.50,1.80 0.06,0.04 fill #333333 0.55
+# Goblet 2 (tipped over, right)
+ellipse 3.40,1.40 0.09,0.06 texfill polyhaven/metal_plate 0.75
+ellipse 3.40,1.40 0.09,0.06 stroke #555555
+ellipse 3.40,1.40 0.05,0.035 fill #333333 0.5
+# Spilled coins from tipped goblet
+circle 3.52,1.45 0.035 fill #ffd700 0.65
+circle 3.48,1.50 0.03 fill #daa520 0.6
+# === Jewelry — necklace draped on mound ===
+circle 1.85,1.65 0.025 fill #daa520 0.7
+circle 1.90,1.62 0.025 fill #daa520 0.7
+circle 1.95,1.60 0.025 fill #daa520 0.7
+circle 2.00,1.59 0.025 fill #daa520 0.7
+circle 2.05,1.60 0.025 fill #daa520 0.7
+circle 2.10,1.62 0.025 fill #daa520 0.7
+circle 2.15,1.65 0.025 fill #daa520 0.7
+# Pendant
+circle 2.00,1.65 0.04 fill #cc2244 0.8
+circle 2.00,1.65 0.04 stroke #881133

@@ -1,0 +1,43 @@
+name: Bush (Hedge)
+category: Terrain
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: yes
+height: 4
+placement: wall
+room_types: garden, courtyard, hedge-maze
+typical_count: many
+clusters_with: bush, bush-hedge, flowers
+notes: Rectangular hedge segment; tiles seamlessly end-to-end for hedgerows
+---
+# === HITBOX ===
+hitbox rect 0.05,0.15 1.9,0.7 z 0-4
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Flush left/right for seamless tiling
+# Shadow
+ellipse 1.0,0.55 0.95,0.32 fill #1a2a10 0.2
+# Outer foliage (dark, defines shape)
+ellipse 1.0,0.5 0.98,0.35 fill #1e4a12 0.7
+ellipse 0.4,0.5 0.45,0.33 fill #204e14 0.65
+ellipse 1.6,0.5 0.45,0.33 fill #204e14 0.65
+# Middle foliage
+ellipse 1.0,0.48 0.9,0.3 fill #2a6018 0.7
+ellipse 0.5,0.48 0.4,0.28 fill #2d6a1e 0.65
+ellipse 1.5,0.48 0.4,0.28 fill #2d6a1e 0.65
+# Top highlights
+ellipse 1.0,0.46 0.75,0.22 fill #357020 0.6
+ellipse 0.5,0.44 0.3,0.18 fill #3a7a28 0.5
+ellipse 1.0,0.44 0.3,0.18 fill #3a7a28 0.5
+ellipse 1.5,0.44 0.3,0.18 fill #3a7a28 0.5
+# Bright spots
+circle 0.4,0.42 0.08 fill #4a8a30 0.4
+circle 1.0,0.42 0.09 fill #4a9a38 0.38
+circle 1.6,0.42 0.08 fill #4a8a30 0.4
+# Leaf texture spots
+circle 0.25,0.5 0.04 fill #1a4a10 0.3
+circle 0.7,0.52 0.035 fill #1a4a10 0.25
+circle 1.15,0.5 0.04 fill #1a4a10 0.28
+circle 1.55,0.52 0.035 fill #1a4a10 0.25
+circle 1.85,0.48 0.04 fill #1a4a10 0.3

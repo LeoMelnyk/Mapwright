@@ -3,18 +3,43 @@ category: Terrain
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 5
 placement: floor
 room_types: cave, underdark
 typical_count: many
 clusters_with: boulder, rock-cluster, crystal-formation
 notes: Natural cave formation; scatter on floor near walls for realistic growth
 ---
-# Base spread
-circle 0.5,0.5 0.38 texfill polyhaven/rock_boulder_cracked 0.75
-circle 0.5,0.5 0.38 stroke #555555
-# Middle ring
-circle 0.5,0.5 0.25 texfill polyhaven/rock_boulder_cracked 0.82
-circle 0.5,0.5 0.25 stroke #666666
-# Tip
-circle 0.5,0.5 0.1 fill #999999 0.6
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-2
+hitbox circle 0.5,0.5 0.28 z 2-4
+hitbox circle 0.48,0.48 0.18 z 4-5
+
+# Ground shadow ring (soft dark halo on the floor)
+circle 0.5,0.5 0.46 fill #000000 0.12
+circle 0.5,0.5 0.42 fill #000000 0.08
+
+# Dark base spread — textured rock foundation
+circle 0.5,0.5 0.38 texfill polyhaven/rock_boulder_cracked 0.70
+circle 0.5,0.5 0.38 stroke #3a3a3a 0.6
+
+# Radial ridge lines (striated surface, subtle)
+line 0.5,0.12 0.48,0.88 stroke #4a4a4a 0.18
+line 0.88,0.5 0.12,0.5 stroke #4a4a4a 0.18
+line 0.22,0.22 0.78,0.78 stroke #4a4a4a 0.15
+line 0.78,0.22 0.22,0.78 stroke #4a4a4a 0.15
+line 0.5,0.15 0.35,0.85 stroke #444444 0.12
+line 0.85,0.5 0.15,0.42 stroke #444444 0.12
+
+# Medium outer ring — lighter rocky layer
+circle 0.5,0.5 0.28 texfill polyhaven/rock_boulder_cracked 0.80
+circle 0.5,0.5 0.28 stroke #555555 0.5
+
+# Lighter inner ring — narrowing cone
+circle 0.48,0.48 0.18 fill #777777 0.65
+circle 0.48,0.48 0.18 stroke #666666 0.4
+
+# Bright tip — slightly off-center for natural asymmetry
+circle 0.47,0.46 0.08 fill #999999 0.75
+circle 0.47,0.46 0.04 fill #aaaaaa 0.6

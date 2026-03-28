@@ -3,35 +3,79 @@ category: Nautical
 footprint: 1x2
 facing: yes
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 5
 placement: wall
 room_types: dock, harbor, fishing-village
 typical_count: few
 notes: Place near docks or processing areas
 ---
-# Top horizontal bar (wall side, north)
-rect 0.04,0.04 1.92,0.09 texfill polyhaven/dark_wood 0.85
-rect 0.04,0.04 1.92,0.09 stroke #3a1f00
-# Lower horizontal bar
-rect 0.04,0.56 1.92,0.09 texfill polyhaven/dark_wood 0.85
-rect 0.04,0.56 1.92,0.09 stroke #3a1f00
-# Left vertical post
-rect 0.04,0.04 0.07,0.61 texfill polyhaven/dark_wood 0.85
-rect 0.04,0.04 0.07,0.61 stroke #3a1f00
-# Right vertical post
-rect 1.89,0.04 0.07,0.61 texfill polyhaven/dark_wood 0.85
-rect 1.89,0.04 0.07,0.61 stroke #3a1f00
-# Hanging strings
-line 0.38,0.09 0.38,0.28 stroke #8b7355
-line 0.72,0.09 0.72,0.28 stroke #8b7355
-line 1.1,0.09 1.1,0.28 stroke #8b7355
-line 1.46,0.09 1.46,0.28 stroke #8b7355
-# Fish bodies (top-down view — oval silhouette of each hanging fish)
-ellipse 0.38,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 0.38,0.35 0.13,0.07 stroke #8b6914
-ellipse 0.72,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 0.72,0.35 0.13,0.07 stroke #8b6914
-ellipse 1.1,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 1.1,0.35 0.13,0.07 stroke #8b6914
-ellipse 1.46,0.35 0.13,0.07 fill #c4a060 0.75
-ellipse 1.46,0.35 0.13,0.07 stroke #8b6914
+# === HITBOX ===
+hitbox rect 0.08,0.25 0.10,0.53 z 0-5
+hitbox rect 1.82,0.25 0.10,0.53 z 0-5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: A-frame stand with crossbar, fish hanging below visible at an angle
+# Like the archery target — you see the top of the stand frame and the fish
+# bodies angling south (toward viewer) below the bar
+
+# === Stand legs (A-frame, visible from above) ===
+# Left leg pair
+poly 0.08,0.3 0.12,0.25 0.18,0.75 0.14,0.78 fill #4a2800 0.65
+poly 0.08,0.3 0.12,0.25 0.18,0.75 0.14,0.78 stroke #2a1400
+# Right leg pair
+poly 1.88,0.25 1.92,0.3 1.86,0.78 1.82,0.75 fill #4a2800 0.65
+poly 1.88,0.25 1.92,0.3 1.86,0.78 1.82,0.75 stroke #2a1400
+
+# === Fish bodies (hanging below bar, visible from above as foreshortened shapes) ===
+# Fish are oriented east-west (along the bar), bodies angle south
+
+# Fish 1
+poly 0.28,0.38 0.55,0.35 0.58,0.42 0.55,0.48 0.28,0.5 0.25,0.44 fill #a8b4b8 0.75
+poly 0.28,0.38 0.55,0.35 0.58,0.42 0.55,0.48 0.28,0.5 0.25,0.44 stroke #6a7a80
+# Tail
+poly 0.25,0.4 0.18,0.35 0.2,0.44 0.18,0.52 0.25,0.48 fill #8a9a9e 0.6
+# Eye
+circle 0.52,0.41 0.015 fill #1a1a1a 0.8
+# Dorsal stripe
+poly 0.3,0.42 0.52,0.4 0.52,0.44 0.3,0.46 fill #7a8a90 0.35
+
+# Fish 2
+poly 0.72,0.36 0.98,0.34 1.02,0.4 0.98,0.47 0.72,0.48 0.68,0.42 fill #a0acb0 0.75
+poly 0.72,0.36 0.98,0.34 1.02,0.4 0.98,0.47 0.72,0.48 0.68,0.42 stroke #6a7a80
+# Tail
+poly 0.68,0.38 0.62,0.33 0.63,0.42 0.62,0.5 0.68,0.46 fill #8a9a9e 0.6
+# Eye
+circle 0.96,0.39 0.015 fill #1a1a1a 0.8
+# Dorsal stripe
+poly 0.74,0.4 0.95,0.38 0.95,0.42 0.74,0.44 fill #7a8a90 0.35
+
+# Fish 3
+poly 1.18,0.37 1.48,0.35 1.52,0.42 1.48,0.49 1.18,0.5 1.14,0.43 fill #acb8bc 0.75
+poly 1.18,0.37 1.48,0.35 1.52,0.42 1.48,0.49 1.18,0.5 1.14,0.43 stroke #6a7a80
+# Tail
+poly 1.14,0.39 1.08,0.34 1.1,0.43 1.08,0.52 1.14,0.47 fill #8a9a9e 0.6
+# Eye
+circle 1.46,0.4 0.015 fill #1a1a1a 0.8
+# Dorsal stripe
+poly 1.2,0.41 1.45,0.39 1.45,0.43 1.2,0.45 fill #7a8a90 0.35
+
+# Fish 4
+poly 1.55,0.38 1.78,0.36 1.82,0.43 1.78,0.49 1.55,0.5 1.52,0.44 fill #a4b0b4 0.75
+poly 1.55,0.38 1.78,0.36 1.82,0.43 1.78,0.49 1.55,0.5 1.52,0.44 stroke #6a7a80
+# Tail
+poly 1.52,0.4 1.46,0.35 1.48,0.44 1.46,0.52 1.52,0.48 fill #8a9a9e 0.6
+# Eye
+circle 1.76,0.41 0.015 fill #1a1a1a 0.8
+# Dorsal stripe
+poly 1.57,0.42 1.75,0.4 1.75,0.44 1.57,0.45 fill #7a8a90 0.35
+
+# === Crossbar (on top, the bar they hang from) ===
+rect 0.1,0.28 1.8,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.1,0.28 1.8,0.08 stroke #2a1400
+
+# Hanging strings (short, from bar to fish)
+line 0.4,0.36 0.4,0.38 stroke #8b7355
+line 0.85,0.36 0.85,0.38 stroke #8b7355
+line 1.32,0.36 1.32,0.38 stroke #8b7355
+line 1.68,0.36 1.68,0.38 stroke #8b7355

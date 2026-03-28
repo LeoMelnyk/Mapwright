@@ -1,0 +1,26 @@
+name: Carpet (Round)
+category: Decorative
+footprint: 3x3
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: study, bedroom, parlor, wizard-sanctum
+typical_count: single
+notes: Circular rug; center under tables or in sitting areas
+---
+# footprint 3x3: x range 0-3, y range 0-3
+# Outer ring
+circle 1.5,1.5 1.35 texfill polyhaven/dirty_carpet 0.8
+circle 1.5,1.5 1.35 stroke #8b4513
+# Border ring
+circle 1.5,1.5 1.2 stroke #6b3410
+# Inner field
+circle 1.5,1.5 1.1 texfill polyhaven/floral_jacquard 0.75
+circle 1.5,1.5 1.1 stroke #6b3410
+# Inner border
+circle 1.5,1.5 0.7 stroke #8b4513 0.5
+# Center medallion
+circle 1.5,1.5 0.35 fill #8b0000 0.3
+circle 1.5,1.5 0.35 stroke #6b3410
+circle 1.5,1.5 0.15 fill #daa520 0.3

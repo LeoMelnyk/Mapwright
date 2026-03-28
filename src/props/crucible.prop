@@ -3,13 +3,17 @@ category: Alchemy
 footprint: 1x1
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: floor
 room_types: alchemist-lab, forge
 typical_count: single
 clusters_with: alchemy-bench, alembic
 notes: Melting container; place near heat source
 ---
+# === HITBOX ===
+hitbox circle 0.50,0.52 0.34 z 0-2
+
 # Crucible body
 circle 0.50,0.52 0.34 texfill polyhaven/metal_plate 0.75
 circle 0.50,0.52 0.34 stroke #333333

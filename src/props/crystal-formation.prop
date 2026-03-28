@@ -2,8 +2,9 @@ name: Crystal Formation
 category: Magical
 footprint: 1x1
 facing: no
-shadow: yes
-blocks_light: no
+shadow: no
+blocks_light: yes
+height: 4
 lights: [{"preset":"bioluminescence","x":0.5,"y":0.5}]
 placement: floor
 room_types: cave, underdark, crystal-cave, magical-chamber
@@ -11,17 +12,59 @@ typical_count: many
 clusters_with: stalagmite, mushroom
 notes: Natural magical growth; scatter in caves for magical atmosphere
 ---
-# Large central crystal
-poly 0.5,0.15 0.62,0.55 0.5,0.65 0.38,0.55 fill #7755cc 0.6
-poly 0.5,0.15 0.62,0.55 0.5,0.65 0.38,0.55 stroke #5533aa
-# Side crystal (left)
-poly 0.25,0.35 0.35,0.6 0.2,0.7 0.15,0.55 fill #8866dd 0.5
-poly 0.25,0.35 0.35,0.6 0.2,0.7 0.15,0.55 stroke #5533aa
-# Side crystal (right)
-poly 0.75,0.3 0.85,0.58 0.78,0.72 0.65,0.5 fill #7755cc 0.55
-poly 0.75,0.3 0.85,0.58 0.78,0.72 0.65,0.5 stroke #5533aa
-# Small shard
-poly 0.55,0.7 0.62,0.85 0.52,0.88 fill #9977ee 0.45
-poly 0.55,0.7 0.62,0.85 0.52,0.88 stroke #5533aa
-# Glow at base
-ellipse 0.5,0.6 0.3,0.15 fill #aa88ee 0.2
+# === HITBOX ===
+hitbox ellipse 0.5,0.55 0.35,0.3 z 0-4
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: cluster of crystal points poking up, seen from above as faceted tops
+
+# Rocky base
+ellipse 0.5,0.55 0.35,0.3 fill #444455 0.35
+ellipse 0.5,0.55 0.35,0.3 stroke #333344 0.4
+
+# Glow emanating from base
+circle 0.5,0.5 0.3 fill #8866cc 0.12
+
+# === Crystal points (hexagonal faceted tops, various sizes) ===
+
+# Large crystal (center) — hexagonal top facet
+poly 0.5,0.32 0.58,0.38 0.58,0.5 0.5,0.56 0.42,0.5 0.42,0.38 fill #9977ee 0.7
+poly 0.5,0.32 0.58,0.38 0.58,0.5 0.5,0.56 0.42,0.5 0.42,0.38 stroke #6644bb
+# Light facet
+poly 0.5,0.32 0.58,0.38 0.58,0.5 0.5,0.44 fill #bbaaff 0.3
+# Center highlight
+circle 0.5,0.44 0.03 fill #ddccff 0.4
+
+# Medium crystal (left) — pentagon top
+poly 0.25,0.42 0.32,0.38 0.37,0.45 0.33,0.55 0.24,0.52 fill #8866dd 0.65
+poly 0.25,0.42 0.32,0.38 0.37,0.45 0.33,0.55 0.24,0.52 stroke #5533aa
+poly 0.25,0.42 0.32,0.38 0.37,0.45 0.32,0.46 fill #aa99ee 0.25
+circle 0.3,0.46 0.02 fill #ccbbff 0.35
+
+# Medium crystal (right)
+poly 0.68,0.38 0.76,0.4 0.78,0.5 0.72,0.56 0.65,0.48 fill #7755cc 0.65
+poly 0.68,0.38 0.76,0.4 0.78,0.5 0.72,0.56 0.65,0.48 stroke #5533aa
+poly 0.68,0.38 0.76,0.4 0.78,0.5 0.74,0.46 fill #9988dd 0.25
+circle 0.72,0.45 0.02 fill #ccbbff 0.3
+
+# Small crystal (front-left)
+poly 0.32,0.62 0.38,0.6 0.4,0.67 0.35,0.72 0.3,0.68 fill #9977ee 0.6
+poly 0.32,0.62 0.38,0.6 0.4,0.67 0.35,0.72 0.3,0.68 stroke #6644bb
+circle 0.35,0.66 0.015 fill #ddccff 0.35
+
+# Small crystal (front-right)
+poly 0.6,0.58 0.66,0.56 0.68,0.63 0.64,0.68 0.58,0.64 fill #8866dd 0.6
+poly 0.6,0.58 0.66,0.56 0.68,0.63 0.64,0.68 0.58,0.64 stroke #5533aa
+circle 0.63,0.62 0.015 fill #ccbbff 0.3
+
+# Tiny crystal (back)
+poly 0.42,0.25 0.46,0.23 0.47,0.28 0.43,0.3 fill #aa88ee 0.55
+poly 0.42,0.25 0.46,0.23 0.47,0.28 0.43,0.3 stroke #6644bb
+
+# Tiny crystal (far right)
+poly 0.78,0.52 0.82,0.5 0.83,0.55 0.79,0.57 fill #9977ee 0.5
+poly 0.78,0.52 0.82,0.5 0.83,0.55 0.79,0.57 stroke #6644bb
+
+# Tiny shard (bottom)
+poly 0.48,0.7 0.52,0.68 0.53,0.73 0.49,0.75 fill #8866dd 0.5
+poly 0.48,0.7 0.52,0.68 0.53,0.73 0.49,0.75 stroke #5533aa

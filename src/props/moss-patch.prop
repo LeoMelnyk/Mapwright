@@ -10,15 +10,30 @@ typical_count: many
 clusters_with: moss-patch, mushroom, fern, stalagmite
 notes: Ground moss; scatter on cave floors and forest undergrowth
 ---
-# Moss blobs (irregular, very transparent)
-ellipse 0.40,0.40 0.22,0.16 fill #2d6a1e 0.18
-ellipse 0.62,0.55 0.18,0.20 fill #3a7a28 0.15
-ellipse 0.35,0.65 0.20,0.14 fill #2d5a1e 0.18
-ellipse 0.55,0.35 0.14,0.12 fill #357020 0.15
-ellipse 0.48,0.58 0.16,0.18 fill #2d6a1e 0.12
-# Slightly brighter center patches
-circle 0.42,0.42 0.06 fill #4a9a38 0.12
-circle 0.58,0.55 0.05 fill #4a9a38 0.10
-# Subtle edge darkening
-ellipse 0.40,0.40 0.22,0.16 stroke #1a4a10 0.10
-ellipse 0.62,0.55 0.18,0.20 stroke #1a4a10 0.08
+# Base layer — darkest moss spread across most of cell
+ellipse 0.45,0.50 0.38,0.30 fill #1a3a10 0.35
+ellipse 0.55,0.58 0.32,0.28 fill #1a3a10 0.30
+# Dark moss patches — irregular overlapping shapes
+ellipse 0.30,0.42 0.22,0.18 fill #224a16 0.45
+ellipse 0.65,0.55 0.24,0.17 fill #224a16 0.45
+ellipse 0.48,0.68 0.26,0.16 fill #224a16 0.40
+ellipse 0.38,0.30 0.18,0.14 fill #224a16 0.35
+# Medium moss — central mass and spreading tendrils
+ellipse 0.45,0.48 0.25,0.20 fill #2a5a1a 0.45
+ellipse 0.58,0.42 0.18,0.15 fill #2a5a1a 0.40
+ellipse 0.35,0.60 0.16,0.13 fill #2a5a1a 0.40
+ellipse 0.70,0.38 0.12,0.10 fill #2a5a1a 0.35
+# Lighter moss highlights — raised patches
+ellipse 0.42,0.46 0.16,0.12 fill #306820 0.40
+ellipse 0.60,0.50 0.13,0.10 fill #306820 0.38
+ellipse 0.33,0.55 0.10,0.08 fill #306820 0.35
+# Bright highlight patches
+circle 0.44,0.44 0.08 fill #3a7828 0.35
+circle 0.62,0.48 0.06 fill #3a7828 0.32
+circle 0.36,0.58 0.05 fill #3a7828 0.30
+# Tiny dew/moisture spots — brightest accents
+circle 0.40,0.42 0.03 fill #4a8a38 0.45
+circle 0.58,0.46 0.025 fill #4a8a38 0.40
+circle 0.48,0.52 0.025 fill #4a8a38 0.40
+circle 0.34,0.56 0.02 fill #4a8a38 0.35
+circle 0.65,0.52 0.02 fill #4a8a38 0.35

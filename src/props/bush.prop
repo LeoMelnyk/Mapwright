@@ -2,26 +2,41 @@ name: Bush
 category: Terrain
 footprint: 1x1
 facing: no
-shadow: yes
-blocks_light: no
+shadow: no
+blocks_light: yes
+height: 3
 placement: floor
 room_types: garden, courtyard, wilderness, forest, hedge-maze
 typical_count: many
 clusters_with: bush, flowers, tree-small
 notes: Round shrub; cluster along walls or paths for hedgerow effect
 ---
-# Foliage clusters (overlapping for organic shape)
-circle 0.35,0.38 0.18 fill #2d6a1e 0.30
-circle 0.65,0.35 0.16 fill #3a7a28 0.28
-circle 0.30,0.60 0.15 fill #2d5a1e 0.28
-circle 0.68,0.62 0.17 fill #3a7a28 0.30
-circle 0.50,0.45 0.20 fill #357020 0.25
-circle 0.50,0.65 0.14 fill #2d6a1e 0.25
-# Highlight spots
-circle 0.42,0.40 0.08 fill #4a9a38 0.18
-circle 0.58,0.50 0.06 fill #5aaa48 0.15
-# Outer edge outlines
-circle 0.35,0.38 0.18 stroke #1a4a10 0.20
-circle 0.65,0.35 0.16 stroke #1a4a10 0.18
-circle 0.30,0.60 0.15 stroke #1a4a10 0.18
-circle 0.68,0.62 0.17 stroke #1a4a10 0.20
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.15 z 0-3
+
+# Shadow/base layer (dark ground shadow under the bush)
+circle 0.5,0.55 0.32 fill #1a2a10 0.25
+# Main foliage mass — overlapping circles, dark to light
+# Bottom layer (darker, outer edges)
+circle 0.3,0.6 0.2 fill #1e4a12 0.7
+circle 0.7,0.58 0.19 fill #1e4a12 0.7
+circle 0.5,0.35 0.2 fill #1e4a12 0.7
+circle 0.35,0.4 0.17 fill #204e14 0.65
+circle 0.65,0.4 0.18 fill #204e14 0.65
+# Middle layer (medium green)
+circle 0.45,0.52 0.22 fill #2a6018 0.7
+circle 0.55,0.42 0.2 fill #2d6a1e 0.65
+circle 0.4,0.45 0.16 fill #2a6018 0.65
+circle 0.6,0.55 0.17 fill #2d6a1e 0.65
+# Top layer (brighter highlights in center)
+circle 0.5,0.48 0.18 fill #357020 0.6
+circle 0.45,0.42 0.12 fill #3a7a28 0.55
+circle 0.55,0.5 0.12 fill #3a7a28 0.55
+# Brightest highlights (sun-catching tops)
+circle 0.48,0.44 0.08 fill #4a8a30 0.45
+circle 0.54,0.48 0.07 fill #4a9a38 0.4
+# Subtle leaf texture — small darker spots
+circle 0.35,0.48 0.04 fill #1a4a10 0.3
+circle 0.58,0.38 0.035 fill #1a4a10 0.25
+circle 0.42,0.58 0.04 fill #1a4a10 0.25
+circle 0.62,0.52 0.035 fill #1a4a10 0.3

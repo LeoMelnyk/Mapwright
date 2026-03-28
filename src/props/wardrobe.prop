@@ -1,19 +1,70 @@
 name: Wardrobe
 category: Furniture
-footprint: 1x2
+footprint: 3x2
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 6
 placement: wall
 room_types: bedroom, quarters, dressing-room
 typical_count: single
 clusters_with: bed, chest, mirror
 notes: Clothes storage; place against wall near bed
 ---
-# Top surface
-rect 0.05,0.08 1.9,0.84 texfill polyhaven/wood_cabinet_worn_long 0.85
-rect 0.05,0.08 1.9,0.84 stroke #3a1f00
-# Door seam
-line 1.0,0.12 1.0,0.88
-# Inner border
-rect 0.1,0.12 1.8,0.76 stroke #4a2800
+# Hitbox: main body blocks light, not the open door swinging south
+hitbox rect 0.06,0.10 1.88,1.70 z 0-6
+
+# Footprint 3x2: x 0-2, y 0-3. Front south, wall at north.
+
+# Shadow/gap at wall (north edge)
+rect 0.04,0.06 1.92,0.06 fill #000000 0.18
+
+# Crown molding overhang (slightly wider than body)
+rect 0.02,0.10 1.96,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.02,0.10 1.96,0.14 stroke #1a1208
+
+# Main top surface
+rect 0.06,0.22 1.88,1.56 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.06,0.22 1.88,1.56 stroke #2a1400
+
+# Wood grain lines across the top
+line 0.12,0.50 1.88,0.50 stroke #3a1f00 0.2
+line 0.12,0.90 1.88,0.90 stroke #3a1f00 0.15
+line 0.12,1.30 1.88,1.30 stroke #3a1f00 0.2
+
+# Door seam barely visible on top (where the two doors meet inside)
+line 1.00,0.24 1.00,1.76 stroke #2a1400 0.25
+
+# Subtle dust/shadow at the back of the top surface (near wall)
+rect 0.08,0.24 1.84,0.15 fill #000000 0.06
+
+# Front edge lip (south) — slight overhang/trim
+rect 0.06,1.72 1.88,0.08 fill #3a1f00 0.4
+rect 0.06,1.72 1.88,0.08 stroke #2a1400
+
+# === Open door (right door, hinged at east-south corner, swung south) ===
+# Dark interior visible through the open right side
+rect 1.02,0.24 0.86,1.52 fill #0a0806 0.5
+# Clothes visible inside — hanging garments seen from above
+# Red robe/cloak
+rect 1.10,0.40 0.18,0.90 texfill polyhaven/velour_velvet 0.5
+rect 1.10,0.40 0.18,0.90 stroke #4a0020 0.4
+# Blue tunic
+rect 1.32,0.35 0.16,0.95 fill #2a3a6a 0.45
+rect 1.32,0.35 0.16,0.95 stroke #1a2a4a 0.4
+# Brown cloak
+rect 1.52,0.42 0.18,0.85 fill #5a4030 0.45
+rect 1.52,0.42 0.18,0.85 stroke #3a2a1a 0.4
+# White shirt
+rect 1.72,0.38 0.14,0.88 fill #ccccbb 0.35
+rect 1.72,0.38 0.14,0.88 stroke #999988 0.3
+
+# Door — thin line swinging south from the east hinge point
+# Hinge at (1.94, 1.80), door swings south to about (1.94, 2.70)
+poly 1.88,1.80 1.96,1.80 1.96,2.70 1.88,2.70 texfill polyhaven/wood_cabinet_worn_long 0.85
+poly 1.88,1.80 1.96,1.80 1.96,2.70 1.88,2.70 stroke #2a1400
+# Hinge
+circle 1.92,1.80 0.03 fill #555555 0.7
+# Door handle (small knob near the far end)
+circle 1.92,2.58 0.03 fill #777777 0.7
+circle 1.92,2.58 0.03 stroke #444444

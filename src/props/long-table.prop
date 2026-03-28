@@ -1,26 +1,32 @@
 name: Long Table
 category: Furniture
-footprint: 1x3
+footprint: 2x5
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: center
 room_types: great-hall, mess-hall, tavern, feast-hall, meeting-room
 typical_count: few
 clusters_with: chair, bench, stool
 notes: Dining or meeting table; place centrally with seating along both sides
 ---
+# === HITBOX ===
+# Tabletop surface
+hitbox rect 0.2,0.2 4.6,1.6 z 2-2.5
+
 # Table surface
-rect 0.10,0.10 0.80,2.80 texfill polyhaven/wood_table 0.85
-rect 0.10,0.10 0.80,2.80 stroke #5c3a1e
-# Wood grain accent line
-line 0.50,0.15 0.50,2.85 stroke #4a2800 0.25
-# Leg shadows (6 legs — corners + middle)
-circle 0.20,0.20 0.05 fill #3a1f00 0.5
-circle 0.80,0.20 0.05 fill #3a1f00 0.5
-circle 0.20,1.50 0.05 fill #3a1f00 0.5
-circle 0.80,1.50 0.05 fill #3a1f00 0.5
-circle 0.20,2.80 0.05 fill #3a1f00 0.5
-circle 0.80,2.80 0.05 fill #3a1f00 0.5
-# Table join seam
-line 0.14,1.50 0.86,1.50 stroke #4a2800 0.3
+rect 0.2,0.2 4.6,1.6 texfill polyhaven/wood_table 0.85
+rect 0.2,0.2 4.6,1.6 stroke #5c3a1e
+# Wood grain accent line (lengthwise along x)
+line 0.3,1.0 4.7,1.0 stroke #4a2800 0.4
+# Table join seam (vertical line at midpoint)
+line 2.5,0.25 2.5,1.75 stroke #4a2800 0.55
+# Leg shadows — corners
+circle 0.4,0.4 0.09 fill #3a1f00 0.5
+circle 4.6,0.4 0.09 fill #3a1f00 0.5
+circle 0.4,1.6 0.09 fill #3a1f00 0.5
+circle 4.6,1.6 0.09 fill #3a1f00 0.5
+# Leg shadows — midway on long sides
+circle 2.5,0.4 0.09 fill #3a1f00 0.5
+circle 2.5,1.6 0.09 fill #3a1f00 0.5

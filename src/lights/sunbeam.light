@@ -7,5 +7,6 @@
   "radius": 40,
   "intensity": 1.5,
   "falloff": "linear",
+  "z": 20,
   "spread": 20
 }

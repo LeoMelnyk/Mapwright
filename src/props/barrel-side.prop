@@ -1,0 +1,37 @@
+name: Barrel (Side)
+category: Containers
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 1.5
+placement: wall
+room_types: storage, tavern, cellar, dock
+typical_count: few
+clusters_with: barrel, barrel-stack, crate
+notes: Barrel on its side; place against walls or in storage areas
+---
+# === HITBOX ===
+hitbox rect 0.2,0.12 1.6,0.76 z 0-1.5
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: barrel on its side, flat ends, slight belly bulge
+# Barrel body — polygon with flat ends and curved belly
+# Top edge bows outward (lower y = wider at center)
+# Bottom edge bows outward (higher y = wider at center)
+poly 0.2,0.18 0.5,0.14 1.0,0.12 1.5,0.14 1.8,0.18 1.8,0.82 1.5,0.86 1.0,0.88 0.5,0.86 0.2,0.82 texfill polyhaven/dark_wood 0.85
+poly 0.2,0.18 0.5,0.14 1.0,0.12 1.5,0.14 1.8,0.18 1.8,0.82 1.5,0.86 1.0,0.88 0.5,0.86 0.2,0.82 stroke #2a1400
+# Flat end caps
+line 0.2,0.18 0.2,0.82 stroke #2a1400
+line 1.8,0.18 1.8,0.82 stroke #2a1400
+# End cap shading (slightly darker at ends)
+rect 0.2,0.18 0.08,0.64 fill #1a0a00 0.15
+rect 1.72,0.18 0.08,0.64 fill #1a0a00 0.15
+# Stave seam lines running lengthwise (subtle)
+line 0.22,0.5 1.78,0.5 stroke #2a1400 0.3
+line 0.22,0.36 1.78,0.36 stroke #2a1400 0.15
+line 0.22,0.64 1.78,0.64 stroke #2a1400 0.15
+# Thick metal bands — straight across the barrel
+rect 0.35,0.15 0.08,0.70 fill #222222 0.7
+rect 0.7,0.13 0.08,0.74 fill #222222 0.7
+rect 1.22,0.13 0.08,0.74 fill #222222 0.7
+rect 1.57,0.15 0.08,0.70 fill #222222 0.7

@@ -50,7 +50,7 @@ function addDoor(r, c, direction) {
 // ── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
-  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon');
+  state.dungeon = createEmptyDungeon('Test', 20, 30, 5, 'stone-dungeon', 1);
   state.dungeon.metadata.lights = [];
   state.dungeon.metadata.nextLightId = 1;
   state.undoStack = [];
@@ -62,11 +62,12 @@ beforeEach(() => {
 describe('newMap', () => {
   it('creates an empty dungeon with specified dimensions', () => {
     const result = newMap('My Dungeon', 15, 25, 5, 'blue-parchment');
+    const res = state.dungeon.metadata.resolution || 1;
     expect(result.success).toBe(true);
-    expect(state.dungeon.cells.length).toBe(15);
-    expect(state.dungeon.cells[0].length).toBe(25);
+    expect(state.dungeon.cells.length).toBe(15 * res);
+    expect(state.dungeon.cells[0].length).toBe(25 * res);
     expect(state.dungeon.metadata.dungeonName).toBe('My Dungeon');
-    expect(state.dungeon.metadata.gridSize).toBe(5);
+    expect(state.dungeon.metadata.gridSize).toBe(5 / res);
     expect(state.dungeon.metadata.theme).toBe('blue-parchment');
   });
 
@@ -80,7 +81,8 @@ describe('newMap', () => {
 
   it('defaults gridSize to 5 and theme to stone-dungeon', () => {
     newMap('Default', 10, 10);
-    expect(state.dungeon.metadata.gridSize).toBe(5);
+    const res = state.dungeon.metadata.resolution || 1;
+    expect(state.dungeon.metadata.gridSize).toBe(5 / res);
     expect(state.dungeon.metadata.theme).toBe('stone-dungeon');
   });
 
@@ -110,7 +112,7 @@ describe('getMapInfo', () => {
     expect(info.rows).toBe(20);
     expect(info.cols).toBe(30);
     expect(info.gridSize).toBe(5);
-    expect(info.theme).toBe('stone-dungeon');
+    expect(info.theme).toBe('stone-dungeon', 1);
     expect(info.propCount).toBe(0);
     expect(info.labelCount).toBe(0);
   });

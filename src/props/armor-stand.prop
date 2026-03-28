@@ -3,13 +3,18 @@ category: Combat
 footprint: 1x1
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 6
 placement: wall
 room_types: armory, barracks, throne-room, guard-room
 typical_count: few
 clusters_with: weapon-rack, shield-rack
 notes: Display armor; line along walls in armories
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.7 0.2 z 0-1
+hitbox ellipse 0.5,0.4 0.22,0.28 z 1-5
+hitbox circle 0.5,0.18 0.1 z 5-6
 # Base
 circle 0.5,0.7 0.2 texfill polyhaven/dark_wood 0.7
 circle 0.5,0.7 0.2 stroke #3a1f00

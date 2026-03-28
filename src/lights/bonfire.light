@@ -8,5 +8,6 @@
   "dimRadius": 80,
   "intensity": 1.5,
   "falloff": "smooth",
+  "z": 2,
   "animation": { "type": "flicker", "speed": 0.8, "amplitude": 0.4, "radiusVariation": 0.2 }
 }

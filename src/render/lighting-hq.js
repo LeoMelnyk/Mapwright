@@ -5,7 +5,7 @@
  * The editor's real-time renderer continues using lighting.js.
  */
 
-import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor, getEffectiveLight } from './lighting.js';
+import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor, getEffectiveLight, extractPropShadowZones, computePropShadowPolygon, DEFAULT_LIGHT_Z } from './lighting.js';
 
 // ─── Normal Map Cache ─────────────────────────────────────────────────────────
 
@@ -149,8 +149,11 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
   // Cache normal map pixel data once
   const normalCache = cacheNormalMaps(cells, textureCatalog);
 
-  // Extract wall segments (including light-blocking props)
+  // Extract wall segments (including infinite-height light-blocking props)
   const segments = extractWallSegments(cells, gridSize, propCatalog, metadata);
+
+  // Extract prop shadow zones for z-height projection
+  const propShadowZones = extractPropShadowZones(propCatalog, metadata, gridSize);
 
   // Precompute inverse transform
   const invScale = 1.0 / transform.scale;
@@ -172,6 +175,20 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
     // Compute visibility polygon at outer radius
     const visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     if (visibility.length < 3) continue;
+
+    // Compute z-height prop shadow polygons for this light
+    const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
+    const propShadows = [];
+    if (propShadowZones.length) {
+      for (const { zones } of propShadowZones) {
+        for (const zone of zones) {
+          const shadow = computePropShadowPolygon(
+            eff.x, eff.y, lightZ, zone.worldPolygon, zone.zBottom, zone.zTop, effectiveRadius
+          );
+          if (shadow) propShadows.push(shadow);
+        }
+      }
+    }
 
     // Light center and outer radius in pixel coords
     const cxPx = eff.x * transform.scale + offX;
@@ -288,6 +305,34 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
           continue;
         }
 
+        // Z-height prop shadow attenuation
+        if (propShadows.length > 0) {
+          let propShadowFactor = 1.0;
+          for (const { shadowPoly, nearCenter, farCenter, opacity, hard } of propShadows) {
+            if (_pointInPolygon(worldX, worldY, shadowPoly)) {
+              let shadowStrength;
+              if (hard) {
+                // Hard shadow: full opacity, no gradient (light at prop level)
+                shadowStrength = opacity;
+              } else {
+                // Soft shadow: gradient position (0 = near edge, 1 = far edge)
+                const gradDx = farCenter[0] - nearCenter[0];
+                const gradDy = farCenter[1] - nearCenter[1];
+                const gradLenSq = gradDx * gradDx + gradDy * gradDy;
+                let t = 0;
+                if (gradLenSq > 0.001) {
+                  t = Math.max(0, Math.min(1,
+                    ((worldX - nearCenter[0]) * gradDx + (worldY - nearCenter[1]) * gradDy) / gradLenSq
+                  ));
+                }
+                shadowStrength = opacity * (1 - t); // fades from opacity at near to 0 at far
+              }
+              propShadowFactor = Math.min(propShadowFactor, 1 - shadowStrength);
+            }
+          }
+          contribution *= propShadowFactor;
+        }
+
         const accIdx = (py * canvasW + px) * 3;
         lightAccum[accIdx]     += rNorm * contribution;
         lightAccum[accIdx + 1] += gNorm * contribution;
@@ -329,4 +374,20 @@ export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvas
   ctx.globalCompositeOperation = 'multiply';
   ctx.drawImage(lightCanvas, 0, 0);
   ctx.restore();
+}
+
+/**
+ * Ray-casting point-in-polygon test. Returns true if (px, py) is inside the polygon.
+ * Polygon is [[x,y], ...] in world-feet coordinates.
+ */
+function _pointInPolygon(px, py, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+      inside = !inside;
+    }
+  }
+  return inside;
 }

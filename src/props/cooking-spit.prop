@@ -1,33 +1,91 @@
 name: Cooking Spit
 category: Kitchen
-footprint: 1x2
+footprint: 2x3
 facing: yes
 shadow: no
-blocks_light: no
-lights: [{"preset":"campfire","x":0.5,"y":1.0}]
+blocks_light: yes
+height: 3
+lights: [{"preset":"campfire","x":1.5,"y":1.0}]
 placement: center
 room_types: kitchen, camp, tavern, great-hall
 typical_count: single
 clusters_with: wood-pile, cauldron-large
 notes: Horizontal rod over fire for roasting; place with fire beneath
 ---
-# Fire pit base (charred ground)
-circle 0.50,1.00 0.35 fill #1a1a1a 0.4
-# Ember glow
-circle 0.50,1.00 0.25 fill #e85500 0.25
-circle 0.50,1.00 0.15 fill #ffaa00 0.3
-circle 0.50,1.00 0.08 fill #ffcc00 0.4
-# Left Y-support post
-rect 0.08,0.20 0.10,0.10 texfill polyhaven/dark_wood 0.85
-rect 0.08,0.20 0.10,0.10 stroke #3a1f00
-line 0.10,0.25 0.18,0.15 stroke #3a1f00
-line 0.16,0.25 0.08,0.15 stroke #3a1f00
-# Right Y-support post
-rect 0.82,0.20 0.10,0.10 texfill polyhaven/dark_wood 0.85
-rect 0.82,0.20 0.10,0.10 stroke #3a1f00
-line 0.84,0.25 0.92,0.15 stroke #3a1f00
-line 0.90,0.25 0.82,0.15 stroke #3a1f00
-# Spit rod (horizontal metal bar)
-line 0.12,0.20 0.88,0.20 stroke #888888
-# Drip tray shadow
-ellipse 0.50,0.90 0.18,0.08 fill #2a1500 0.3
+# === HITBOX ===
+hitbox rect 0.2,0.75 0.3,0.5 z 0-3
+hitbox rect 2.5,0.75 0.3,0.5 z 0-3
+
+# footprint 2x3: x range 0-3, y range 0-2
+# Top-down: two Y-posts on left and right, spit rod across, fire in center
+
+# === Fire in the center ===
+circle 1.5,1.0 0.5 fill #1a0800 0.3
+
+# Logs under fire
+poly 1.0,1.25 1.03,1.18 1.97,0.82 2.0,0.88 fill #3a2000 0.75
+poly 1.0,1.25 1.03,1.18 1.97,0.82 2.0,0.88 stroke #2a1400
+poly 1.0,0.75 1.03,0.82 1.97,1.18 2.0,1.12 fill #4a2800 0.7
+poly 1.0,0.75 1.03,0.82 1.97,1.18 2.0,1.12 stroke #2a1400
+poly 1.1,0.95 1.1,1.05 1.9,1.05 1.9,0.95 fill #3a2000 0.65
+poly 1.1,0.95 1.1,1.05 1.9,1.05 1.9,0.95 stroke #2a1400
+
+# Charred log ends
+circle 1.03,1.22 0.04 fill #cc3300 0.4
+circle 1.97,0.85 0.04 fill #cc3300 0.35
+circle 1.03,0.78 0.04 fill #cc3300 0.35
+circle 1.97,1.15 0.04 fill #cc3300 0.4
+
+# Flames (layered)
+poly 1.3,1.1 1.4,0.7 1.5,1.05 fill #cc3300 0.45
+poly 1.45,1.08 1.5,0.6 1.58,1.0 fill #e85500 0.5
+poly 1.55,1.05 1.62,0.7 1.7,1.0 fill #cc3300 0.4
+poly 1.4,1.0 1.5,0.65 1.6,0.95 fill #ff8800 0.5
+poly 1.45,0.98 1.5,0.72 1.55,0.95 fill #ffcc00 0.55
+circle 1.5,0.88 0.06 fill #ffeecc 0.35
+
+# === Left Y-support post ===
+rect 0.2,0.75 0.3,0.5 texfill polyhaven/dark_wood 0.85
+rect 0.2,0.75 0.3,0.5 stroke #2a1400
+# Y-fork prongs (V shape cradling the rod)
+poly 0.22,0.78 0.1,0.65 0.15,0.62 0.28,0.78 fill #3a2000 0.7
+poly 0.22,0.78 0.1,0.65 0.15,0.62 0.28,0.78 stroke #2a1400
+poly 0.42,0.78 0.55,0.65 0.5,0.62 0.37,0.78 fill #3a2000 0.7
+poly 0.42,0.78 0.55,0.65 0.5,0.62 0.37,0.78 stroke #2a1400
+# Same for south side
+poly 0.22,1.22 0.1,1.35 0.15,1.38 0.28,1.22 fill #3a2000 0.7
+poly 0.22,1.22 0.1,1.35 0.15,1.38 0.28,1.22 stroke #2a1400
+poly 0.42,1.22 0.55,1.35 0.5,1.38 0.37,1.22 fill #3a2000 0.7
+poly 0.42,1.22 0.55,1.35 0.5,1.38 0.37,1.22 stroke #2a1400
+
+# === Right Y-support post ===
+rect 2.5,0.75 0.3,0.5 texfill polyhaven/dark_wood 0.85
+rect 2.5,0.75 0.3,0.5 stroke #2a1400
+# Y-fork prongs
+poly 2.52,0.78 2.4,0.65 2.45,0.62 2.58,0.78 fill #3a2000 0.7
+poly 2.52,0.78 2.4,0.65 2.45,0.62 2.58,0.78 stroke #2a1400
+poly 2.72,0.78 2.85,0.65 2.8,0.62 2.67,0.78 fill #3a2000 0.7
+poly 2.72,0.78 2.85,0.65 2.8,0.62 2.67,0.78 stroke #2a1400
+poly 2.52,1.22 2.4,1.35 2.45,1.38 2.58,1.22 fill #3a2000 0.7
+poly 2.52,1.22 2.4,1.35 2.45,1.38 2.58,1.22 stroke #2a1400
+poly 2.72,1.22 2.85,1.35 2.8,1.38 2.67,1.22 fill #3a2000 0.7
+poly 2.72,1.22 2.85,1.35 2.8,1.38 2.67,1.22 stroke #2a1400
+
+# === Spit rod (metal bar spanning between posts) ===
+rect 0.35,0.97 2.3,0.06 fill #888888 0.85
+rect 0.35,0.97 2.3,0.06 stroke #555555
+
+# Handle crank (right end)
+rect 2.82,0.88 0.1,0.24 fill #666666 0.7
+rect 2.82,0.88 0.1,0.24 stroke #444444
+circle 2.87,0.9 0.03 fill #888888 0.6
+
+# Meat on spit (center, over fire)
+ellipse 1.5,1.0 0.3,0.22 fill #6b4226 0.65
+ellipse 1.5,1.0 0.3,0.22 stroke #4a2800
+# Browning/char marks
+ellipse 1.4,0.95 0.08,0.06 fill #4a2000 0.3
+ellipse 1.6,1.05 0.07,0.05 fill #4a2000 0.25
+# Drip beneath
+circle 1.45,1.2 0.03 fill #4a2800 0.2
+circle 1.55,1.22 0.025 fill #4a2800 0.18

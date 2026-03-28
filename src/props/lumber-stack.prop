@@ -1,0 +1,48 @@
+name: Lumber Stack
+category: Terrain
+footprint: 4x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: lumber-yard, camp, wilderness, cabin, village, sawmill
+typical_count: few
+clusters_with: log-pile, tree-stump, wood-pile, campfire
+notes: Long stacked tree trunks; place against walls or in lumber yards
+---
+# === HITBOX ===
+hitbox rect 0.10,0.05 1.82,3.90 z 0-4
+
+# Bottom layer — 3 full-length trunks stacked across x, running along y
+# East trunk (visible at east edge)
+rect 1.50,0.05 0.42,3.90 texfill polyhaven/bark_brown_02 0.75
+rect 1.50,0.05 0.42,3.90 stroke #3a1f00 0.45
+line 1.71,0.10 1.71,3.90 stroke #6b4e2e 0.20
+# Center trunk (mostly hidden by upper layers)
+rect 0.80,0.05 0.42,3.90 texfill polyhaven/bark_brown_02 0.75
+rect 0.80,0.05 0.42,3.90 stroke #3a1f00 0.45
+line 1.01,0.10 1.01,3.90 stroke #6b4e2e 0.20
+# West trunk (visible at west edge)
+rect 0.10,0.05 0.42,3.90 texfill polyhaven/bark_brown_02 0.75
+rect 0.10,0.05 0.42,3.90 stroke #3a1f00 0.45
+line 0.31,0.10 0.31,3.90 stroke #6b4e2e 0.20
+# Shadows under middle layer
+rect 1.36,0.20 0.10,3.60 fill #000000 0.25
+rect 0.66,0.20 0.10,3.60 fill #000000 0.25
+# Middle layer — 2 trunks centered on gaps between bottom 3
+# East middle trunk (centered on gap at x=1.36)
+rect 1.16,0.18 0.40,3.64 texfill polyhaven/bark_brown_02 0.82
+rect 1.16,0.18 0.40,3.64 stroke #3a1f00 0.50
+line 1.36,0.22 1.36,3.78 stroke #6b4e2e 0.22
+# West middle trunk (centered on gap at x=0.66)
+rect 0.46,0.18 0.40,3.64 texfill polyhaven/bark_brown_02 0.82
+rect 0.46,0.18 0.40,3.64 stroke #3a1f00 0.50
+line 0.66,0.22 0.66,3.78 stroke #6b4e2e 0.22
+# Shadow under top layer
+rect 0.91,0.38 0.10,3.24 fill #000000 0.28
+# Top layer — 1 trunk centered on gap between middle 2 (x=1.01)
+rect 0.82,0.35 0.38,3.30 texfill polyhaven/bark_brown_02 0.85
+rect 0.82,0.35 0.38,3.30 stroke #3a1f00 0.55
+line 1.01,0.40 1.01,3.60 stroke #6b4e2e 0.25
+line 0.98,0.44 0.98,3.56 stroke #8b7355 0.15

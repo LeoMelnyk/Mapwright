@@ -1,9 +1,10 @@
-name: Candle Cluster
+name: Candle (Cluster)
 category: Features
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1
 lights: [{"preset":"candle","x":0.5,"y":0.5}]
 placement: floor
 room_types: crypt, shrine, ritual-chamber, study
@@ -11,26 +12,70 @@ typical_count: many
 clusters_with: altar, ritual-circle, bone-shrine
 notes: Atmospheric lighting; scatter around ritual areas or shrines
 ---
-# Wax pool (melted wax spreading on surface)
-ellipse 0.50,0.55 0.36,0.28 fill #e8e0cc 0.60
-# Individual candle bases (stumps from above = circles)
-circle 0.34,0.60 0.08 fill #e8dcc8 0.90
-circle 0.34,0.60 0.08 stroke #c8b898
-circle 0.54,0.52 0.10 fill #e8dcc8 0.90
-circle 0.54,0.52 0.10 stroke #c8b898
-circle 0.66,0.66 0.07 fill #e8dcc8 0.90
-circle 0.66,0.66 0.07 stroke #c8b898
-circle 0.40,0.42 0.06 fill #e8dcc8 0.85
-# Wicks
-circle 0.34,0.60 0.02 fill #333333 0.90
-circle 0.54,0.52 0.02 fill #333333 0.90
-circle 0.66,0.66 0.02 fill #333333 0.90
-circle 0.40,0.42 0.02 fill #333333 0.90
-# Flames
-circle 0.34,0.55 0.04 fill #ffaa00 0.80
-circle 0.54,0.46 0.05 fill #ffaa00 0.80
-circle 0.66,0.60 0.04 fill #ffaa00 0.80
-circle 0.40,0.36 0.03 fill #ffcc00 0.70
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.25 z 0-1
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Cluster of standing candles seen from above — circles with flames
+
+# Candle 1 — tall (center, largest)
+circle 0.50,0.50 0.09 fill #e8dcc8 0.9
+circle 0.50,0.50 0.09 stroke #c8b898
+circle 0.50,0.50 0.02 fill #333333 0.9
+# Flame
+circle 0.50,0.50 0.06 fill #cc3300 0.3
+poly 0.47,0.50 0.50,0.42 0.53,0.50 fill #e85500 0.5
+poly 0.48,0.50 0.50,0.44 0.52,0.50 fill #ff8800 0.55
+poly 0.49,0.49 0.50,0.45 0.51,0.49 fill #ffcc00 0.6
+
+# Candle 2 — medium (left)
+circle 0.30,0.58 0.07 fill #e8dcc8 0.9
+circle 0.30,0.58 0.07 stroke #c8b898
+circle 0.30,0.58 0.015 fill #333333 0.9
+# Flame
+circle 0.30,0.58 0.05 fill #cc3300 0.3
+poly 0.28,0.58 0.30,0.52 0.32,0.58 fill #e85500 0.5
+poly 0.29,0.58 0.30,0.53 0.31,0.58 fill #ff8800 0.55
+poly 0.295,0.57 0.30,0.54 0.305,0.57 fill #ffcc00 0.6
+
+# Candle 3 — medium (right)
+circle 0.68,0.55 0.07 fill #e8dcc8 0.9
+circle 0.68,0.55 0.07 stroke #c8b898
+circle 0.68,0.55 0.015 fill #333333 0.9
+# Flame
+circle 0.68,0.55 0.05 fill #cc3300 0.3
+poly 0.66,0.55 0.68,0.49 0.70,0.55 fill #e85500 0.5
+poly 0.67,0.55 0.68,0.50 0.69,0.55 fill #ff8800 0.55
+poly 0.675,0.54 0.68,0.51 0.685,0.54 fill #ffcc00 0.6
+
+# Candle 4 — short (back-left)
+circle 0.38,0.36 0.06 fill #e8dcc8 0.85
+circle 0.38,0.36 0.06 stroke #c8b898
+circle 0.38,0.36 0.015 fill #333333 0.85
+# Flame
+circle 0.38,0.36 0.04 fill #cc3300 0.25
+poly 0.37,0.36 0.38,0.31 0.39,0.36 fill #e85500 0.45
+poly 0.375,0.36 0.38,0.32 0.385,0.36 fill #ffcc00 0.5
+
+# Candle 5 — short (back-right)
+circle 0.62,0.38 0.06 fill #e8dcc8 0.85
+circle 0.62,0.38 0.06 stroke #c8b898
+circle 0.62,0.38 0.015 fill #333333 0.85
+# Flame
+circle 0.62,0.38 0.04 fill #cc3300 0.25
+poly 0.61,0.38 0.62,0.33 0.63,0.38 fill #e85500 0.45
+poly 0.615,0.38 0.62,0.34 0.625,0.38 fill #ffcc00 0.5
+
+# Candle 6 — stub (front)
+circle 0.48,0.68 0.055 fill #e8dcc8 0.85
+circle 0.48,0.68 0.055 stroke #c8b898
+circle 0.48,0.68 0.015 fill #333333 0.85
+# Flame
+circle 0.48,0.68 0.04 fill #cc3300 0.25
+poly 0.47,0.68 0.48,0.63 0.49,0.68 fill #e85500 0.45
+poly 0.475,0.68 0.48,0.64 0.485,0.68 fill #ffcc00 0.5
+
 # Wax drip pools
-circle 0.24,0.64 0.05 fill #e8dcc8 0.50
-circle 0.72,0.52 0.04 fill #e8dcc8 0.50
+ellipse 0.22,0.62 0.05,0.04 fill #e8dcc8 0.35
+ellipse 0.76,0.48 0.04,0.03 fill #e8dcc8 0.35
+ellipse 0.42,0.74 0.04,0.03 fill #e8dcc8 0.3

@@ -3,20 +3,24 @@ category: Nautical
 footprint: 1x1
 facing: no
 shadow: no
-blocks_light: no
+blocks_light: yes
+height: 1
 placement: wall
 room_types: dock, ship, harbor
 typical_count: few
 notes: Safety equipment; hang on walls near water
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.42 z 0-1
+
 # Ring body (red)
 circle 0.5,0.5 0.42 fill #cc2200 0.9
 circle 0.5,0.5 0.42 stroke #991100
-# White quarter-panel markings (alternating)
-arc 0.5,0.5 0.32 315 45 stroke #ffffff
-arc 0.5,0.5 0.32 135 225 stroke #ffffff
-# Inner hole
-circle 0.5,0.5 0.22 fill #333333 0.45
+# White quarter-panel markings (filled wedges)
+arc 0.5,0.5 0.40 315 45 fill #ffffff 0.85
+arc 0.5,0.5 0.40 135 225 fill #ffffff 0.85
+# Inner hole (transparent — floor shows through)
+cutout circle 0.5,0.5 0.22
 circle 0.5,0.5 0.22 stroke #991100
 # Rope attachment loops (four cardinal points)
 circle 0.5,0.08 0.04 fill #8b7355 0.85

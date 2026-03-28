@@ -22,6 +22,7 @@ app.commandLine.appendSwitch('enable-accelerated-2d-canvas', 'true');
 app.commandLine.appendSwitch('enable-gpu-rasterization', 'true');
 app.commandLine.appendSwitch('use-angle', 'gl');               // OpenGL directly, skips ANGLE's DirectX layer
 
+app.setAppUserModelId('com.mapwright.editor');
 Menu.setApplicationMenu(null);
 
 const PORT = 3000;
@@ -86,6 +87,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       backgroundThrottling: false,
+      devTools: true,
     },
   });
 
@@ -94,6 +96,14 @@ function createWindow() {
     : `http://localhost:${PORT}/editor/`;
   pendingFile = null;
   mainWindow.loadURL(editorUrl);
+
+  // F12 opens devtools
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F12') {
+      mainWindow.webContents.toggleDevTools();
+      event.preventDefault();
+    }
+  });
 
   // Allow opening the downloader from the editor toolbar button.
   // All other window.open() calls go to the system browser.
@@ -151,9 +161,10 @@ function openDownloaderWindow() {
 }
 
 app.whenReady().then(async () => {
-  // Set texture path BEFORE starting the server so server.js picks it up
+  // Set asset paths BEFORE starting the server so server.js picks them up
   const userDataPath = app.getPath('userData');
   process.env.MAPWRIGHT_TEXTURE_PATH = path.join(userDataPath, 'textures');
+  process.env.MAPWRIGHT_THEME_PATH = path.join(userDataPath, 'themes');
 
   await startServer();
   createWindow();

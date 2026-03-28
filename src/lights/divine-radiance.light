@@ -8,5 +8,6 @@
   "dimRadius": 60,
   "intensity": 1.2,
   "falloff": "smooth",
+  "z": 10,
   "animation": { "type": "pulse", "speed": 0.3, "amplitude": 0.15, "radiusVariation": 0 }
 }

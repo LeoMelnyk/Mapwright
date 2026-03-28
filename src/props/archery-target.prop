@@ -1,0 +1,70 @@
+name: Archery Target
+category: Misc
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 5
+placement: floor
+room_types: training-yard, barracks, guard-room, courtyard
+typical_count: few
+clusters_with: weapon-rack, training-dummy
+notes: Freestanding archery target; place with clear shooting lane to the south
+---
+# === HITBOX ===
+hitbox rect 0.3,0.5 1.4,0.15 z 0-2
+hitbox ellipse 1.0,0.75 0.7,0.4 z 2-5
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: tilted hay bale on stand — oval shape, target rings partially visible
+
+# === Stand legs (behind/under the bale) ===
+# Left leg
+poly 0.3,0.5 0.35,0.5 0.45,1.7 0.4,1.7 fill #4a2800 0.6
+poly 0.3,0.5 0.35,0.5 0.45,1.7 0.4,1.7 stroke #2a1400
+# Right leg
+poly 1.65,0.5 1.7,0.5 1.6,1.7 1.55,1.7 fill #4a2800 0.6
+poly 1.65,0.5 1.7,0.5 1.6,1.7 1.55,1.7 stroke #2a1400
+# Cross brace
+rect 0.4,1.35 1.2,0.06 fill #4a2800 0.5
+rect 0.4,1.35 1.2,0.06 stroke #2a1400
+
+# === Hay bale (foreshortened oval — tilted toward south) ===
+# Back edge of bale (straw, further from viewer)
+ellipse 1.0,0.55 0.7,0.35 fill #a89050 0.6
+ellipse 1.0,0.55 0.7,0.35 stroke #8a7040
+
+# Bale thickness (side visible between front and back)
+rect 0.32,0.55 1.36,0.4 fill #b8a060 0.5
+# Straw texture on side
+line 0.4,0.65 0.6,0.6 stroke #9a8050 0.3
+line 0.8,0.7 1.0,0.62 stroke #9a8050 0.25
+line 1.2,0.68 1.4,0.6 stroke #9a8050 0.3
+line 1.5,0.65 1.6,0.7 stroke #9a8050 0.25
+
+# === Target face (front of bale, visible because it's tilted) ===
+# Outer ring — white
+ellipse 1.0,0.95 0.65,0.35 fill #eeeeee 0.7
+ellipse 1.0,0.95 0.65,0.35 stroke #cccccc
+# Black ring
+ellipse 1.0,0.95 0.55,0.28 fill #222222 0.6
+# Blue ring
+ellipse 1.0,0.95 0.45,0.22 fill #2288cc 0.65
+# Red ring
+ellipse 1.0,0.95 0.32,0.16 fill #cc2222 0.65
+# Yellow center (bullseye)
+ellipse 1.0,0.95 0.18,0.09 fill #ddcc22 0.7
+# Inner bullseye
+ellipse 1.0,0.95 0.08,0.04 fill #ddcc22 0.9
+
+# === Arrows (small shafts sticking out of target face) ===
+# Arrow 1 — near bullseye
+rect 0.98,0.92 0.04,0.25 fill #5c3a1e 0.7
+poly 0.95,1.12 1.0,1.17 1.05,1.12 fill #cc2222 0.6
+
+# Arrow 2 — blue ring, left
+rect 0.72,0.88 0.04,0.22 fill #5c3a1e 0.65
+poly 0.69,1.05 0.74,1.1 0.79,1.05 fill #22aa44 0.55
+
+# Arrow 3 — red ring, right
+rect 1.18,0.9 0.04,0.23 fill #5c3a1e 0.65
+poly 1.15,1.08 1.2,1.13 1.25,1.08 fill #eeee22 0.55

@@ -68,12 +68,18 @@ export function extractWallSegments(cells, gridSize, propCatalog, metadata = nul
     }
   }
 
-  // Props that block light: extract actual shape geometry as segments
+  // Props that block light: extract actual shape geometry as segments.
+  // Props with finite-height hitbox zones are excluded here — they are handled
+  // separately by the z-height shadow projection system (computePropShadowPolygon).
+  // Only props with infinite height (no height set) go into the wall segment list.
   if (propCatalog?.props) {
     if (metadata?.props?.length) {
       for (const op of metadata.props) {
         const propDef = propCatalog.props[op.type];
         if (!propDef?.blocksLight) continue;
+        // If this prop has hitboxZones with finite height, skip it here — it will
+        // cast projected shadows instead of infinite occlusion.
+        if (propDef.hitboxZones?.some(z => isFinite(z.zTop))) continue;
         const propSegs = extractOverlayPropLightSegments(propDef, op, gridSize);
         for (const seg of propSegs) addSeg(seg.x1, seg.y1, seg.x2, seg.y2);
       }
@@ -146,6 +152,213 @@ export function extractWallSegments(cells, gridSize, propCatalog, metadata = nul
   }
 
   return segments;
+}
+
+// ─── Z-Height Prop Shadow Zones ─────────────────────────────────────────────
+
+/** Default light height in feet when no z is specified */
+export const DEFAULT_LIGHT_Z = 8;
+
+/**
+ * Extract prop shadow zones for z-height shadow projection.
+ * Returns an array of { propId, overlayProp, zones: [{ worldPolygon, zBottom, zTop }] }
+ * for each light-blocking prop with finite-height hitbox zones.
+ *
+ * @param {object} propCatalog
+ * @param {object} metadata
+ * @param {number} gridSize
+ * @returns {Array}
+ */
+export function extractPropShadowZones(propCatalog, metadata, gridSize) {
+  const result = [];
+  if (!propCatalog?.props || !metadata?.props?.length) return result;
+
+  for (const op of metadata.props) {
+    const propDef = propCatalog.props[op.type];
+    if (!propDef?.blocksLight || !propDef.hitboxZones) continue;
+
+    // Only include props that have at least one finite-height zone
+    const finiteZones = propDef.hitboxZones.filter(z => isFinite(z.zTop));
+    if (finiteZones.length === 0) continue;
+
+    // Transform each zone's polygon to world-feet coordinates.
+    // Scale the z-height by the prop's scale factor (a 2× scaled pillar is twice as tall).
+    const propScale = op.scale ?? 1.0;
+    const zones = finiteZones.map(zone => {
+      const worldPoly = transformHitboxToWorld(zone.polygon, propDef, op, gridSize);
+      // Precompute centroid for fast radius culling in _renderOneLight
+      let cx = 0, cy = 0;
+      for (const [px, py] of worldPoly) { cx += px; cy += py; }
+      const n = worldPoly.length || 1;
+      return {
+        worldPolygon: worldPoly,
+        centroidX: cx / n,
+        centroidY: cy / n,
+        zBottom: zone.zBottom * propScale,
+        zTop: zone.zTop * propScale,
+      };
+    });
+
+    result.push({ propId: op.id, overlayProp: op, zones });
+  }
+  return result;
+}
+
+/**
+ * Transform a hitbox polygon from prop-local normalized coordinates to world-feet.
+ * Reuses the same transform logic as extractOverlayPropLightSegments (flip → rotate → scale → translate).
+ */
+function transformHitboxToWorld(polygon, propDef, overlayProp, gridSize) {
+  const rotation = overlayProp.rotation ?? 0;
+  const scale = overlayProp.scale ?? 1.0;
+  const flipped = overlayProp.flipped ?? false;
+  const [fRows, fCols] = propDef.footprint;
+  const r = ((rotation % 360) + 360) % 360;
+  const cx = fCols / 2;
+  const cy = fRows / 2;
+  const rdx = (fRows - fCols) / 2;
+  const rdy = (fCols - fRows) / 2;
+
+  return polygon.map(([hx, hy]) => {
+    let px = flipped ? fCols - hx : hx;
+    let py = hy;
+    switch (r) {
+      case 90:  { const nx = cx + (py - cy) + rdx; const ny = cy - (px - cx) + rdy; px = nx; py = ny; break; }
+      case 180: { px = 2 * cx - px; py = 2 * cy - py; break; }
+      case 270: { const nx = cx - (py - cy) + rdx; const ny = cy + (px - cx) + rdy; px = nx; py = ny; break; }
+      case 0: break;
+      default: {
+        const rad = (-r * Math.PI) / 180;
+        const cos = Math.cos(rad), sin = Math.sin(rad);
+        const dx = px - cx, dy = py - cy;
+        px = cx + dx * cos - dy * sin;
+        py = cy + dx * sin + dy * cos;
+        break;
+      }
+    }
+    const wx = px * gridSize;
+    const wy = py * gridSize;
+    const pcx = (r === 90 || r === 270 ? fRows : fCols) * gridSize / 2;
+    const pcy = (r === 90 || r === 270 ? fCols : fRows) * gridSize / 2;
+    return [
+      overlayProp.x + pcx + (wx - pcx) * scale,
+      overlayProp.y + pcy + (wy - pcy) * scale,
+    ];
+  });
+}
+
+/**
+ * Compute the projected shadow polygon for a single prop hitbox zone cast by a single light.
+ *
+ * The shadow is a trapezoid-like shape projected from the prop silhouette (as seen
+ * from the light position) outward to a distance determined by the height ratio.
+ *
+ * @param {number} lx - Light x in world-feet
+ * @param {number} ly - Light y in world-feet
+ * @param {number} lz - Light z (height in feet)
+ * @param {Array} worldPoly - Convex polygon in world-feet [[x,y], ...]
+ * @param {number} zBottom - Bottom of the hitbox zone in feet
+ * @param {number} zTop - Top of the hitbox zone in feet
+ * @param {number} lightRadius - Light's effective radius in world-feet
+ * @returns {{ shadowPoly: number[][], nearCenter: number[], farCenter: number[], opacity: number, hard: boolean } | null}
+ */
+export function computePropShadowPolygon(lx, ly, lz, worldPoly, zBottom, zTop, lightRadius) {
+  // Shadow projection based on light height vs prop zone:
+  //   lightZ < zBottom  → light passes underneath, no shadow
+  //   lightZ >= zBottom → finite shadow from far face, length based on height ratio
+  //
+  // The shadow always projects from the FAR face (away from light) outward.
+  // When lightZ is within the zone, the front of the prop is lit and only the
+  // portion above the light casts a shadow behind the prop.
+  // When lightZ is above the zone, the shadow is shorter (light looks down).
+
+  // Light is below the prop — no shadow (light passes underneath)
+  if (lz < zBottom) return null;
+
+  // Height difference between light and prop top. When near zero, shadow is very long.
+  const heightDiff = Math.abs(lz - zTop);
+  // Cap ratio to avoid extreme/infinite shadows when light ≈ prop top height
+  const MAX_RATIO = 20;
+  const projRatio = heightDiff < 0.1 ? MAX_RATIO : Math.min(MAX_RATIO, zTop / heightDiff);
+
+  // Find the silhouette edges: vertices on the shadow-facing side of the polygon
+  // as seen from the light position. We find the two tangent vertices.
+  const n = worldPoly.length;
+  if (n < 3) return null;
+
+  // Compute cross-product signs for each edge relative to the light
+  const signs = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const [ax, ay] = worldPoly[i];
+    const [bx, by] = worldPoly[(i + 1) % n];
+    const cross = (ax - lx) * (by - ly) - (ay - ly) * (bx - lx);
+    signs[i] = cross;
+  }
+
+  // Find tangent transitions (sign changes)
+  let tangent1 = -1, tangent2 = -1;
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    if (signs[i] >= 0 && signs[j] < 0) tangent1 = j;
+    if (signs[i] < 0 && signs[j] >= 0) tangent2 = j;
+  }
+
+  // If we couldn't find tangent points (light is inside polygon), no shadow
+  if (tangent1 === -1 || tangent2 === -1) return null;
+
+  // Shadow always projects from the FAR face (away from light).
+  // tangent2→tangent1 traverses the back-facing edges.
+  const shadowFace = [];
+  let idx = tangent2;
+  while (true) {
+    shadowFace.push(worldPoly[idx]);
+    if (idx === tangent1) break;
+    idx = (idx + 1) % n;
+  }
+
+  if (shadowFace.length < 2) return null;
+
+  // Project each shadow-face vertex outward from the light
+  const farVertices = [];
+  let maxShadowLen = 0;
+
+  for (const [vx, vy] of shadowFace) {
+    const dx = vx - lx;
+    const dy = vy - ly;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const shadowLen = dist * projRatio;
+    if (shadowLen > maxShadowLen) maxShadowLen = shadowLen;
+    const maxExt = Math.max(0, lightRadius - dist);
+    const clampedLen = Math.min(shadowLen, maxExt);
+
+    if (dist < 0.001) {
+      farVertices.push([vx, vy]);
+    } else {
+      const nx = dx / dist;
+      const ny = dy / dist;
+      farVertices.push([vx + nx * clampedLen, vy + ny * clampedLen]);
+    }
+  }
+
+  // Skip tiny shadows (less than half a foot)
+  if (maxShadowLen < 0.5) return null;
+
+  // Build the shadow polygon: near edge (shadow face) + far edge (projected, reversed)
+  const shadowPoly = [...shadowFace, ...farVertices.reverse()];
+
+  // Near and far centers for gradient direction
+  const nearCenter = shadowFace.reduce(([sx, sy], [x, y]) => [sx + x, sy + y], [0, 0])
+    .map(v => v / shadowFace.length);
+  const farCenter = farVertices.reduce(([sx, sy], [x, y]) => [sx + x, sy + y], [0, 0])
+    .map(v => v / farVertices.length);
+
+  // Opacity: higher when light is within or near the zone (more occlusion),
+  // lower when light is well above (only the top edge casts a faint shadow)
+  const occlusionFraction = lz <= zTop
+    ? 0.7 + 0.3 * ((zTop - lz) / (zTop - zBottom || 1)) // within zone: 0.7–1.0
+    : Math.min(0.85, 0.4 + 0.45 * (zTop / lz));          // above zone: 0.4–0.85
+  const opacity = occlusionFraction;
+  return { shadowPoly, nearCenter, farCenter, opacity, hard: false };
 }
 
 // ─── 2D Visibility Polygon (Shadow Casting) ────────────────────────────────
@@ -447,6 +660,48 @@ function ensureLightRTCanvas(w, h) {
 }
 
 /**
+ * Apply z-height prop shadows to the per-light RT canvas.
+ * Uses 'destination-out' to subtract shadow areas from the light's gradient,
+ * with a linear gradient from near (opaque) to far (transparent) for penumbra.
+ */
+function _applyPropShadowsToRT(gctx, light, transform, bbX, bbY) {
+  for (const { shadowPoly, nearCenter, farCenter, opacity, hard } of light._propShadows) {
+    // Convert world-feet shadow polygon to pixel coordinates relative to the RT canvas
+    const pxPoly = shadowPoly.map(([wx, wy]) => [
+      wx * transform.scale + transform.offsetX - bbX,
+      wy * transform.scale + transform.offsetY - bbY,
+    ]);
+
+    // Subtract shadow from the light using destination-out
+    gctx.save();
+    gctx.globalCompositeOperation = 'destination-out';
+
+    if (hard) {
+      // Hard shadow: full opacity, no gradient (light is at prop level → infinite occlusion)
+      gctx.fillStyle = `rgba(0,0,0,${opacity.toFixed(3)})`;
+    } else {
+      // Soft shadow: linear gradient penumbra from near edge → far edge
+      const ncx = nearCenter[0] * transform.scale + transform.offsetX - bbX;
+      const ncy = nearCenter[1] * transform.scale + transform.offsetY - bbY;
+      const fcx = farCenter[0] * transform.scale + transform.offsetX - bbX;
+      const fcy = farCenter[1] * transform.scale + transform.offsetY - bbY;
+      const grad = gctx.createLinearGradient(ncx, ncy, fcx, fcy);
+      grad.addColorStop(0, `rgba(0,0,0,${opacity.toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      gctx.fillStyle = grad;
+    }
+    gctx.beginPath();
+    gctx.moveTo(pxPoly[0][0], pxPoly[0][1]);
+    for (let i = 1; i < pxPoly.length; i++) {
+      gctx.lineTo(pxPoly[i][0], pxPoly[i][1]);
+    }
+    gctx.closePath();
+    gctx.fill();
+    gctx.restore();
+  }
+}
+
+/**
  * Draw visibility polygon as a white filled shape into gctx,
  * offset so that world-to-canvas coords are relative to (bbX, bbY).
  */
@@ -502,20 +757,20 @@ function renderPointLight(lctx, light, visibility, transform) {
   // Clip bounding box to the canvas viewport. Without this, zooming in deeply
   // makes outerRPx thousands of pixels, causing a massive OffscreenCanvas and
   // radial gradient to be allocated every frame.
+  //
+  // Snap to integer pixel coordinates: fractional bbX/bbY cause drawImage to
+  // sub-pixel interpolate, blending gradient edge pixels with transparent ones
+  // and producing a faint visible line at the bounding box edge.
   const vpW = lctx.canvas.width;
   const vpH = lctx.canvas.height;
-  const bbX = Math.max(cx - outerRPx, 0);
-  const bbY = Math.max(cy - outerRPx, 0);
-  const bbW = Math.min(cx + outerRPx, vpW) - bbX;
-  const bbH = Math.min(cy + outerRPx, vpH) - bbY;
+  const bbX = Math.floor(Math.max(cx - outerRPx, 0));
+  const bbY = Math.floor(Math.max(cy - outerRPx, 0));
+  const bbW = Math.ceil(Math.min(cx + outerRPx, vpW)) - bbX;
+  const bbH = Math.ceil(Math.min(cy + outerRPx, vpH)) - bbY;
   if (bbW <= 0 || bbH <= 0) return; // fully off-screen
 
-  // Use ceiled integer dimensions consistently. The RT canvas is reused across
-  // lights, so fractional bbW/bbH can leave a thin strip of stale pixels from
-  // the previous light that drawImage (which reads Math.ceil pixels) picks up,
-  // creating a visible line at the light's bounding box edge.
-  const cw = Math.ceil(bbW);
-  const ch = Math.ceil(bbH);
+  const cw = bbW;
+  const ch = bbH;
 
   const gctx = ensureLightRTCanvas(cw, ch);
   gctx.clearRect(0, 0, cw, ch);
@@ -557,6 +812,11 @@ function renderPointLight(lctx, light, visibility, transform) {
   clipToVisibility(gctx, visibility, transform, bbX, bbY);
   gctx.globalCompositeOperation = 'source-over';
 
+  // Apply z-height prop shadows (subtract from the lit area on the RT canvas)
+  if (light._propShadows?.length) {
+    _applyPropShadowsToRT(gctx, light, transform, bbX, bbY);
+  }
+
   lctx.drawImage(lightRTCanvas, 0, 0, cw, ch, bbX, bbY, cw, ch);
 }
 
@@ -579,14 +839,14 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
 
   const vpW = lctx.canvas.width;
   const vpH = lctx.canvas.height;
-  const bbX = Math.max(cx - range, 0);
-  const bbY = Math.max(cy - range, 0);
-  const bbW = Math.min(cx + range, vpW) - bbX;
-  const bbH = Math.min(cy + range, vpH) - bbY;
+  const bbX = Math.floor(Math.max(cx - range, 0));
+  const bbY = Math.floor(Math.max(cy - range, 0));
+  const bbW = Math.ceil(Math.min(cx + range, vpW)) - bbX;
+  const bbH = Math.ceil(Math.min(cy + range, vpH)) - bbY;
   if (bbW <= 0 || bbH <= 0) return;
 
-  const cw = Math.ceil(bbW);
-  const ch = Math.ceil(bbH);
+  const cw = bbW;
+  const ch = bbH;
 
   const gctx = ensureLightRTCanvas(cw, ch);
   gctx.clearRect(0, 0, cw, ch);
@@ -615,6 +875,11 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
   clipToVisibility(gctx, visibility, transform, bbX, bbY);
   gctx.globalCompositeOperation = 'source-over';
 
+  // Apply z-height prop shadows
+  if (light._propShadows?.length) {
+    _applyPropShadowsToRT(gctx, light, transform, bbX, bbY);
+  }
+
   lctx.drawImage(lightRTCanvas, 0, 0, cw, ch, bbX, bbY, cw, ch);
 }
 
@@ -622,15 +887,78 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
 
 const visibilityCache = new Map();
 let cachedWallSegments = null;
+let cachedPropShadowZones = null;
+let _lightingVersion = 0;
+
+/** Return the current lighting version counter. Bumped on every invalidation. */
+export function getLightingVersion() { return _lightingVersion; }
+
+// ─── Reusable Lightmap Canvases ───────────────────────────────────────────
+// _lmCanvas: final lightmap (static + animated, composited each frame)
+// _staticLmCanvas: cached static-only lightmap (rebuilt only when lights/walls change)
+let _lmCanvas = null;
+let _lmW = 0, _lmH = 0;
+let _staticLmCanvas = null;
+let _staticLmValid = false;
+
+function _getLightmapCanvas(w, h) {
+  if (_lmCanvas && _lmW === w && _lmH === h) return _lmCanvas;
+  if (typeof OffscreenCanvas !== 'undefined') {
+    _lmCanvas = new OffscreenCanvas(w, h);
+  } else {
+    _lmCanvas = document.createElement('canvas');
+    _lmCanvas.width = w;
+    _lmCanvas.height = h;
+  }
+  _lmW = w;
+  _lmH = h;
+  _staticLmCanvas = null; // force rebuild of static cache too
+  _staticLmValid = false;
+  return _lmCanvas;
+}
+
+function _getStaticLmCanvas(w, h) {
+  if (_staticLmCanvas && _staticLmCanvas.width === w && _staticLmCanvas.height === h) return _staticLmCanvas;
+  if (typeof OffscreenCanvas !== 'undefined') {
+    _staticLmCanvas = new OffscreenCanvas(w, h);
+  } else {
+    _staticLmCanvas = document.createElement('canvas');
+    _staticLmCanvas.width = w;
+    _staticLmCanvas.height = h;
+  }
+  _staticLmValid = false;
+  return _staticLmCanvas;
+}
 
 /**
  * Clear the visibility polygon cache. Call when walls or props change.
  * All wall-changing tools call invalidateLightmap() → this function,
  * so per-frame hash recomputation is unnecessary.
+ *
+ * @param {boolean} [structuralChange=true] - If true, also clears wall segments
+ *   and prop shadow zones (use when walls/props are added/removed/moved).
+ *   If false, only clears per-light caches (use when only light position/config changes).
  */
-export function invalidateVisibilityCache() {
+export function invalidateVisibilityCache(structuralChange = true) {
   visibilityCache.clear();
-  cachedWallSegments = null;
+  if (structuralChange === true) {
+    cachedWallSegments = null;
+    cachedPropShadowZones = null;
+  } else if (structuralChange === 'props') {
+    // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
+    cachedPropShadowZones = null;
+  }
+  _staticLmValid = false; // static lightmap depends on wall segments + light positions
+  _lightingVersion++;
+}
+
+/** Force full lightmap cache teardown (call when lightmap resolution changes). */
+export function invalidateLightmapCaches() {
+  _staticLmCanvas = null;
+  _staticLmValid = false;
+  _lmCanvas = null;
+  _lmW = 0;
+  _lmH = 0;
 }
 
 // ─── Main Entry Point ──────────────────────────────────────────────────────
@@ -649,69 +977,153 @@ export function invalidateVisibilityCache() {
  * @param {object} [textureCatalog] - optional texture catalog for normal maps
  */
 export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options, metadata = null) {
-  const { ambientColor = '#ffffff', time = 0 } = options || {};
+  const { ambientColor = '#ffffff', time = 0, lightPxPerFoot = 0, destX = 0, destY = 0, destW = 0, destH = 0 } = options || {};
   const activeLights = lights || [];
 
   // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
-  // Every tool that modifies walls/props/lights calls invalidateLightmap() → invalidateVisibilityCache(),
-  // so per-frame extraction and hashing is unnecessary and was causing GC pressure.
   if (!cachedWallSegments) {
     cachedWallSegments = extractWallSegments(cells, gridSize, propCatalog, metadata);
   }
   const segments = cachedWallSegments;
 
-  // Use an OffscreenCanvas for the lightmap to avoid interfering with main context state
-  let lightCanvas;
-  if (typeof OffscreenCanvas !== 'undefined') {
-    lightCanvas = new OffscreenCanvas(canvasW, canvasH);
-  } else {
-    lightCanvas = document.createElement('canvas');
-    lightCanvas.width = canvasW;
-    lightCanvas.height = canvasH;
+  // Prop shadow zones for z-height projection (cached alongside wall segments)
+  if (!cachedPropShadowZones) {
+    cachedPropShadowZones = extractPropShadowZones(propCatalog, metadata, gridSize);
   }
+  const propShadowZones = cachedPropShadowZones;
+
+  // Lightmap resolution: if lightPxPerFoot is set and smaller than the cache
+  // resolution, render at reduced size and upscale. Lightmaps are smooth
+  // gradients so lower resolution is visually imperceptible.
+  const cacheScale = transform.scale; // px/ft of the full cache
+  const lmScale = (lightPxPerFoot > 0 && lightPxPerFoot < cacheScale)
+    ? lightPxPerFoot : cacheScale;
+  const lmW = Math.ceil(canvasW * lmScale / cacheScale);
+  const lmH = Math.ceil(canvasH * lmScale / cacheScale);
+  const lmTransform = { scale: lmScale, offsetX: 0, offsetY: 0 };
+
+  // Split lights into static (no animation) and animated
+  const staticLights = [];
+  const animatedLights = [];
+  for (const light of activeLights) {
+    if (light.animation?.type) {
+      animatedLights.push(light);
+    } else {
+      staticLights.push(light);
+    }
+  }
+  const hasAnimated = animatedLights.length > 0;
+
+  // ── Static lightmap (ambient + all non-animated lights) ──
+  // Only rebuilt when visibility cache is invalidated (wall/light changes).
+  const staticCanvas = _getStaticLmCanvas(lmW, lmH);
+  if (!_staticLmValid) {
+    const slctx = staticCanvas.getContext('2d');
+    slctx.globalCompositeOperation = 'source-over';
+
+    // Fill with ambient
+    const amb = Math.max(0, Math.min(1, ambientLevel));
+    const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
+    slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
+    slctx.fillRect(0, 0, lmW, lmH);
+
+    // Additively blend each static light
+    slctx.globalCompositeOperation = 'lighter';
+    for (const light of staticLights) {
+      _renderOneLight(slctx, light, time, segments, lmTransform, propShadowZones);
+    }
+
+    // Normal map bump uses all lights for direction, but only apply on static pass
+    if (textureCatalog) {
+      applyNormalMapBump(slctx, activeLights, cells, gridSize, lmTransform, textureCatalog);
+    }
+
+    _staticLmValid = true;
+  }
+
+  // Determine where to draw the lightmap on the target canvas.
+  // When destW/destH are set, the lightmap covers a sub-region of the target (screen overlay).
+  // Otherwise it covers the full target (cache-space rendering).
+  const useDest = destW > 0 && destH > 0;
+  const dx = useDest ? destX : 0;
+  const dy = useDest ? destY : 0;
+  const dw = useDest ? destW : canvasW;
+  const dh = useDest ? destH : canvasH;
+
+  if (!hasAnimated) {
+    // Fast path: no animated lights — composite static lightmap directly
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(staticCanvas, dx, dy, dw, dh);
+    ctx.restore();
+    return;
+  }
+
+  // ── Animated lights: blit static cache + render animated lights ──
+  const lightCanvas = _getLightmapCanvas(lmW, lmH);
   const lctx = lightCanvas.getContext('2d');
 
-  // Fill with ambient. For multiply mode: ambientColor * ambientLevel.
-  const amb = Math.max(0, Math.min(1, ambientLevel));
-  const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
-  lctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
-  lctx.fillRect(0, 0, canvasW, canvasH);
+  // Start from the cached static lightmap
+  lctx.globalCompositeOperation = 'source-over';
+  lctx.drawImage(staticCanvas, 0, 0);
 
-  // Additively blend each light's contribution on top of ambient
+  // Additively blend animated lights
   lctx.globalCompositeOperation = 'lighter';
-
-  for (const light of activeLights) {
-    const eff = getEffectiveLight(light, time);
-
-    // Outer radius for visibility: max of bright radius and dim radius
-    const outerRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0))
-      ? eff.dimRadius : (eff.radius || 30);
-    const effectiveRadius = eff.range || outerRadius;
-    const cacheKey = `${light.id}:${eff.x},${eff.y},${effectiveRadius}`;
-    let visibility = visibilityCache.get(cacheKey);
-
-    if (!visibility) {
-      visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
-      visibilityCache.set(cacheKey, visibility);
-    }
-
-    if (eff.type === 'directional') {
-      renderDirectionalLight(lctx, eff, visibility, transform);
-    } else {
-      renderPointLight(lctx, eff, visibility, transform);
-    }
-  }
-
-  // Apply simplified normal map bump effect
-  if (textureCatalog) {
-    applyNormalMapBump(lctx, activeLights, cells, gridSize, transform, textureCatalog);
+  for (const light of animatedLights) {
+    _renderOneLight(lctx, light, time, segments, lmTransform, propShadowZones);
   }
 
   // Composite lightmap onto main canvas with multiply
   ctx.save();
   ctx.globalCompositeOperation = 'multiply';
-  ctx.drawImage(lightCanvas, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(lightCanvas, dx, dy, dw, dh);
   ctx.restore();
+}
+
+/** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
+function _renderOneLight(lctx, light, time, segments, transform, propShadowZones) {
+  const eff = getEffectiveLight(light, time);
+  const outerRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0))
+    ? eff.dimRadius : (eff.radius || 30);
+  const effectiveRadius = eff.range || outerRadius;
+  const cacheKey = `${light.id}:${eff.x},${eff.y},${effectiveRadius}`;
+  let visibility = visibilityCache.get(cacheKey);
+  if (!visibility) {
+    visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
+    visibilityCache.set(cacheKey, visibility);
+  }
+
+  // Compute z-height prop shadow polygons for this light
+  const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
+  const propShadows = [];
+  if (propShadowZones?.length) {
+    const rSq = effectiveRadius * effectiveRadius;
+    for (const { zones } of propShadowZones) {
+      for (const zone of zones) {
+        // Cull props outside the light's radius — use centroid distance check
+        const cx = zone.centroidX;
+        const cy = zone.centroidY;
+        const dx = cx - eff.x;
+        const dy = cy - eff.y;
+        if (dx * dx + dy * dy > rSq) continue;
+
+        const shadow = computePropShadowPolygon(
+          eff.x, eff.y, lightZ, zone.worldPolygon, zone.zBottom, zone.zTop, effectiveRadius
+        );
+        if (shadow) propShadows.push(shadow);
+      }
+    }
+  }
+  // Attach shadow data to the effective light so render functions can use it
+  eff._propShadows = propShadows;
+
+  if (eff.type === 'directional') {
+    renderDirectionalLight(lctx, eff, visibility, transform);
+  } else {
+    renderPointLight(lctx, eff, visibility, transform);
+  }
 }
 
 // ─── Simplified Normal Map Bump Effect ─────────────────────────────────────

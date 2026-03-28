@@ -1,25 +1,28 @@
 name: Altar
 category: Features
-footprint: 2x1
+footprint: 3x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: center
 room_types: temple, shrine, crypt, ritual-chamber
 typical_count: single
 clusters_with: candelabra, holy-font, kneeling-bench, censer
 notes: Focal point of religious rooms; place centered with kneeling benches in front
 ---
+# === HITBOX ===
+hitbox rect 0.16,0.12 1.68,2.76 z 0-4
 # Stone slab
-rect 0.08,0.08 0.84,1.84 texfill polyhaven/marble_01 0.85
-rect 0.08,0.08 0.84,1.84 stroke
+rect 0.16,0.12 1.68,2.76 texfill polyhaven/marble_01 0.85
+rect 0.16,0.12 1.68,2.76 stroke
 # Inner border detail
-rect 0.15,0.15 0.7,1.7 stroke
+rect 0.3,0.225 1.4,2.55 stroke
 # Ritual diamond inlay
-poly 0.5,0.5 0.72,1.0 0.5,1.5 0.28,1.0 texfill polyhaven/stone_floor 0.7
-poly 0.5,0.5 0.72,1.0 0.5,1.5 0.3,1.0 stroke
+poly 1.0,0.95 1.22,1.5 1.0,2.05 0.78,1.5 texfill polyhaven/stone_floor 0.7
+poly 1.0,0.95 1.22,1.5 1.0,2.05 0.78,1.5 stroke
 # Corner candle marks
-circle 0.22,0.22 0.05 fill #e8dcc8 0.5
-circle 0.78,0.22 0.05 fill #e8dcc8 0.5
-circle 0.22,1.78 0.05 fill #e8dcc8 0.5
-circle 0.78,1.78 0.05 fill #e8dcc8 0.5
+circle 0.44,0.33 0.0875 fill #e8dcc8 0.5
+circle 1.56,0.33 0.0875 fill #e8dcc8 0.5
+circle 0.44,2.67 0.0875 fill #e8dcc8 0.5
+circle 1.56,2.67 0.0875 fill #e8dcc8 0.5

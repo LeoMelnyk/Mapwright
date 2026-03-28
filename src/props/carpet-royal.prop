@@ -1,0 +1,41 @@
+name: Carpet (Royal)
+category: Decorative
+footprint: 4x6
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: throne-room, temple, great-hall
+typical_count: single
+notes: Grand ornate carpet; centerpiece for throne rooms
+---
+# footprint 4x6: x range 0-6, y range 0-4
+# Rich velvet body
+rect 0.1,0.1 5.8,3.8 texfill polyhaven/velour_velvet 0.85
+rect 0.1,0.1 5.8,3.8 stroke #4a0a0a
+# Outer border (gold)
+rect 0.25,0.25 5.5,3.5 stroke #daa520 0.6
+rect 0.35,0.35 5.3,3.3 stroke #daa520 0.4
+# Inner field
+rect 0.5,0.5 5.0,3.0 texfill polyhaven/floral_jacquard 0.7
+rect 0.5,0.5 5.0,3.0 stroke #4a0a0a
+# Corner ornaments (larger, ornate)
+circle 0.4,0.4 0.12 fill #daa520 0.5
+circle 0.4,0.4 0.06 fill #8b0000 0.4
+circle 5.6,0.4 0.12 fill #daa520 0.5
+circle 5.6,0.4 0.06 fill #8b0000 0.4
+circle 0.4,3.6 0.12 fill #daa520 0.5
+circle 0.4,3.6 0.06 fill #8b0000 0.4
+circle 5.6,3.6 0.12 fill #daa520 0.5
+circle 5.6,3.6 0.06 fill #8b0000 0.4
+# Center medallion (large, ornate)
+ellipse 3,2 0.8,0.6 fill #8b0000 0.35
+ellipse 3,2 0.8,0.6 stroke #daa520 0.5
+ellipse 3,2 0.5,0.35 fill #4a0a0a 0.3
+ellipse 3,2 0.5,0.35 stroke #daa520 0.4
+ellipse 3,2 0.2,0.15 fill #daa520 0.4
+# Gold accent lines
+line 0.5,2.0 1.5,2.0 stroke #daa520 0.25
+line 4.5,2.0 5.5,2.0 stroke #daa520 0.25
+line 3.0,0.5 3.0,1.2 stroke #daa520 0.25
+line 3.0,2.8 3.0,3.5 stroke #daa520 0.25

@@ -1,6 +1,6 @@
 name: Magic Circle
 category: Magical
-footprint: 3x3
+footprint: 4x4
 facing: no
 shadow: no
 blocks_light: no
@@ -11,22 +11,59 @@ typical_count: single
 clusters_with: candle-cluster, arcane-pedestal, ward-stone
 notes: Ritual focus; place at room center. Needs significant floor space (3x3)
 ---
-# Outer circle
-circle 1.5,1.5 1.35 stroke #6644aa
-# Inner circle
-circle 1.5,1.5 1.05 stroke #6644aa
-# Pentagram lines
-line 1.5,0.2 0.45,2.45
-line 1.5,0.2 2.55,2.45
-line 0.45,2.45 2.35,0.85
-line 2.55,2.45 0.65,0.85
-line 2.35,0.85 0.65,0.85
-# Rune circles at vertices
-circle 1.5,0.2 0.08 fill #7755cc 0.5
-circle 0.45,2.45 0.08 fill #7755cc 0.5
-circle 2.55,2.45 0.08 fill #7755cc 0.5
-circle 2.35,0.85 0.08 fill #7755cc 0.5
-circle 0.65,0.85 0.08 fill #7755cc 0.5
-# Center glow
-circle 1.5,1.5 0.25 fill #aa88ee 0.3
-circle 1.5,1.5 0.12 fill #ccaaff 0.4
+# Outer containment ring — thick band with glow
+circle 2,2 1.95 fill #332266 0.15
+ring 2,2 1.9 1.7 fill #4422aa 0.35
+ring 2,2 1.9 1.7 stroke #6644aa width 2
+# Decorative arc segments between outer and inner rings (protective wards)
+arc 2,2 1.8 0 30 stroke #7755cc 0.5 width 2
+arc 2,2 1.8 60 90 stroke #7755cc 0.5 width 2
+arc 2,2 1.8 120 150 stroke #7755cc 0.5 width 2
+arc 2,2 1.8 180 210 stroke #7755cc 0.5 width 2
+arc 2,2 1.8 240 270 stroke #7755cc 0.5 width 2
+arc 2,2 1.8 300 330 stroke #7755cc 0.5 width 2
+# Inner ritual circle
+circle 2,2 1.5 stroke #6644aa width 2
+# Rune tick marks radiating outward at 30-degree intervals
+line 2,0.1 2,0.35 stroke #7755cc 0.6 width 2
+line 3.65,1.05 3.428,1.177 stroke #7755cc 0.6 width 2
+line 3.65,2.95 3.428,2.823 stroke #7755cc 0.6 width 2
+line 2,3.9 2,3.65 stroke #7755cc 0.6 width 2
+line 0.35,2.95 0.572,2.823 stroke #7755cc 0.6 width 2
+line 0.35,1.05 0.572,1.177 stroke #7755cc 0.6 width 2
+line 2.95,0.35 2.823,0.572 stroke #7755cc 0.6 width 2
+line 3.9,2 3.65,2 stroke #7755cc 0.6 width 2
+line 2.95,3.65 2.823,3.428 stroke #7755cc 0.6 width 2
+line 1.05,3.65 1.177,3.428 stroke #7755cc 0.6 width 2
+line 0.1,2 0.35,2 stroke #7755cc 0.6 width 2
+line 1.05,0.35 1.177,0.572 stroke #7755cc 0.6 width 2
+# Inner pentagon fill (subtle glow) — vertices at r=0.573 from center
+poly 2.337,1.536 2.545,2.177 2.0,2.573 1.455,2.177 1.663,1.536 fill #aa88ee 0.12
+# Pentagram star lines — vertices at r=1.5, angles 270/342/54/126/198 deg
+line 2,0.5 2.882,3.214 stroke #6644aa width 3
+line 2,0.5 1.118,3.214 stroke #6644aa width 3
+line 0.573,1.536 2.882,3.214 stroke #6644aa width 3
+line 3.427,1.536 1.118,3.214 stroke #6644aa width 3
+line 0.573,1.536 3.427,1.536 stroke #6644aa width 3
+# Vertex rune stones — outer ring + inner glow
+circle 2,0.5 0.16 fill #332266 0.7
+circle 2,0.5 0.16 stroke #7755cc width 2
+circle 2,0.5 0.09 fill #aa88ee 0.6
+circle 3.427,1.536 0.16 fill #332266 0.7
+circle 3.427,1.536 0.16 stroke #7755cc width 2
+circle 3.427,1.536 0.09 fill #aa88ee 0.6
+circle 2.882,3.214 0.16 fill #332266 0.7
+circle 2.882,3.214 0.16 stroke #7755cc width 2
+circle 2.882,3.214 0.09 fill #aa88ee 0.6
+circle 1.118,3.214 0.16 fill #332266 0.7
+circle 1.118,3.214 0.16 stroke #7755cc width 2
+circle 1.118,3.214 0.09 fill #aa88ee 0.6
+circle 0.573,1.536 0.16 fill #332266 0.7
+circle 0.573,1.536 0.16 stroke #7755cc width 2
+circle 0.573,1.536 0.09 fill #aa88ee 0.6
+# Center focal point — concentric glow layers (dim outer to bright inner)
+circle 2,2 0.5 fill #332266 0.2
+circle 2,2 0.38 fill #4422aa 0.25
+circle 2,2 0.26 fill #7755cc 0.3
+circle 2,2 0.16 fill #aa88ee 0.45
+circle 2,2 0.08 fill #ccaaff 0.6

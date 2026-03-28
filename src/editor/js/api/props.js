@@ -5,6 +5,7 @@ import {
   validateBounds,
   getLightCatalog,
   cellKey, roomBoundsFromKeys,
+  toInt,
 } from './_shared.js';
 import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
 import { createOverlayProp, resolveZIndex } from '../prop-overlay.js';
@@ -41,6 +42,7 @@ function removePropAtGrid(row, col) {
 // ── Prop Operations ─────────────────────────────────────────────────────
 
 export function placeProp(row, col, propType, facing = 0, options = {}) {
+  row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
@@ -131,6 +133,7 @@ export function placeProp(row, col, propType, facing = 0, options = {}) {
 }
 
 export function removeProp(row, col) {
+  row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const overlay = findPropAtGrid(row, col);
   if (!overlay) return { success: true };
@@ -160,6 +163,7 @@ export function setLightName(id, name) {
 }
 
 export function rotateProp(row, col, degrees = 90) {
+  row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const overlay = findPropAtGrid(row, col);
   if (!overlay) throw new Error(`No prop at (${row}, ${col})`);
@@ -222,11 +226,18 @@ export function getPropsForRoomType(roomType) {
 
 /** Remove the prop at the given grid position. */
 export function removePropAt(row, col) {
+  row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   if (!findPropAtGrid(row, col)) return { success: false, error: 'no prop at that cell' };
   pushUndo();
   removePropAtGrid(row, col);
+  // Remove linked lights
+  const meta = state.dungeon.metadata;
+  if (meta.lights?.length) {
+    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef?.col === col));
+  }
   markPropSpatialDirty();
+  invalidateLightmap();
   markDirty();
   notify();
   return { success: true };
@@ -234,6 +245,7 @@ export function removePropAt(row, col) {
 
 /** Remove all props with anchor positions in the given rectangle. */
 export function removePropsInRect(r1, c1, r2, c2) {
+  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
@@ -252,7 +264,17 @@ export function removePropsInRect(r1, c1, r2, c2) {
   });
   const removed = before - meta.props.length;
 
+  // Remove linked lights for deleted props
+  if (removed > 0 && meta.lights?.length) {
+    meta.lights = meta.lights.filter(l => {
+      if (!l.propRef) return true;
+      const { row, col } = l.propRef;
+      return row < minR || row > maxR || col < minC || col > maxC;
+    });
+  }
+
   markPropSpatialDirty();
+  invalidateLightmap();
   markDirty();
   notify();
   return { success: true, removed };
@@ -348,6 +370,7 @@ export function fillWallWithProps(roomLabel, propType, wall, options = {}) {
  * options: { facing, gap }
  */
 export function lineProps(roomLabel, propType, startRow, startCol, direction, count, options = {}) {
+  startRow = toInt(startRow); startCol = toInt(startCol);
   if (!['east', 'south'].includes(direction)) throw new Error('direction must be "east" or "south"');
 
   const catalog = state.propCatalog;
@@ -441,6 +464,7 @@ export function scatterProps(roomLabel, propType, count, options = {}) {
  * Returns { placed, failed } arrays.
  */
 export function clusterProps(roomLabel, props, anchorRow, anchorCol) {
+  anchorRow = toInt(anchorRow); anchorCol = toInt(anchorCol);
   const roomCells = getApi()._collectRoomCells(roomLabel);
   if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
 

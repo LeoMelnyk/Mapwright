@@ -1,19 +1,68 @@
 name: Well
 category: Features
-footprint: 1x1
+footprint: 2x2
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 3
 placement: center
 room_types: courtyard, village, cave, underground
 typical_count: single
 notes: Water source; place centrally in courtyards or near cave walls
 ---
-# Stone outer ring
-circle 0.5,0.5 0.40 texfill polyhaven/cobblestone_floor_01 0.85
-circle 0.5,0.5 0.40 stroke
-# Inner stone rim detail
-circle 0.5,0.5 0.32 stroke
-# Water center
-circle 0.5,0.5 0.24 fill #4a7799 0.75
-circle 0.5,0.5 0.24 stroke
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.82 z 0-3
+
+# --- Stone ring wall ---
+# Outer stone ring with cobblestone texture
+ring 1.0,1.0 0.82 0.58 texfill polyhaven/cobblestone_floor_01 0.85
+ring 1.0,1.0 0.82 0.58 stroke #444444
+# Inner rim edge
+circle 1.0,1.0 0.58 stroke #555555
+# Stone block detail lines (radial mortar lines on the ring)
+line 1.0,0.18 1.0,0.42 stroke #3a3a3a 0.4
+line 1.0,1.82 1.0,1.58 stroke #3a3a3a 0.4
+line 0.18,1.0 0.42,1.0 stroke #3a3a3a 0.4
+line 1.82,1.0 1.58,1.0 stroke #3a3a3a 0.4
+# Diagonal mortar lines
+line 0.42,0.42 0.58,0.58 stroke #3a3a3a 0.35
+line 1.58,0.42 1.42,0.58 stroke #3a3a3a 0.35
+line 0.42,1.58 0.58,1.42 stroke #3a3a3a 0.35
+line 1.58,1.58 1.42,1.42 stroke #3a3a3a 0.35
+# Additional stone block mortar lines (between the main ones)
+line 0.26,0.68 0.44,0.62 stroke #3a3a3a 0.3
+line 1.74,0.68 1.56,0.62 stroke #3a3a3a 0.3
+line 0.26,1.32 0.44,1.38 stroke #3a3a3a 0.3
+line 1.74,1.32 1.56,1.38 stroke #3a3a3a 0.3
+# --- Dark water (layered depth) ---
+# Outer water ring — slightly lighter
+circle 1.0,1.0 0.56 fill #3a5566 0.8
+# Middle water — darker
+circle 1.0,1.0 0.42 fill #2a4455 0.7
+# Deep center — darkest
+circle 1.0,1.0 0.28 fill #1a2a33 0.8
+# Subtle water reflection
+ellipse 0.88,0.88 0.14,0.08 fill #5588aa 0.2
+# --- Roof support posts (two small square posts on east and west) ---
+# West post
+rect 0.12,0.88 0.16,0.24 texfill polyhaven/dark_wood 0.85
+rect 0.12,0.88 0.16,0.24 stroke #3a1f00
+# East post
+rect 1.72,0.88 0.16,0.24 texfill polyhaven/dark_wood 0.85
+rect 1.72,0.88 0.16,0.24 stroke #3a1f00
+# --- Crossbar connecting posts ---
+rect 0.22,0.94 1.56,0.12 texfill polyhaven/dark_wood 0.8
+rect 0.22,0.94 1.56,0.12 stroke #3a1f00
+# --- Rope from crossbar down to water ---
+line 1.0,1.0 0.82,1.24 stroke #8b7355 width 2
+line 0.82,1.24 0.78,1.40 stroke #8b7355 width 2
+# Rope wrapping on crossbar
+circle 1.0,1.0 0.04 fill #8b7355 0.6
+# --- Bucket at water surface ---
+# Bucket body (small rect)
+rect 0.72,1.34 0.14,0.12 texfill polyhaven/dark_wood 0.75
+rect 0.72,1.34 0.14,0.12 stroke #3a1f00
+# Bucket handle arc
+arc 0.79,1.34 0.06 180 360 stroke #666666 width 2
+# Bucket metal band
+line 0.72,1.38 0.86,1.38 stroke #555555 width 2

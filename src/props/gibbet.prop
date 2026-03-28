@@ -1,54 +1,64 @@
 name: Gibbet
-category: Prison
-footprint: 2x1
-facing: no
-shadow: yes
-blocks_light: no
+category: Prison & Torture
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 7
 placement: wall
-room_types: prison, dungeon, entrance
+room_types: prison, dungeon, entrance, courtyard
 typical_count: few
-clusters_with: shackles, chain-wall
-notes: Hanging cage; place against walls
+clusters_with: shackles, chain-wall, stocks
+notes: Hanging cage on wooden post; place against walls.
 ---
-# Wooden post base (thick square seen from above)
-rect 0.35,0.7 0.3,0.3 texfill polyhaven/dark_wood 0.9
-rect 0.35,0.7 0.3,0.3 stroke #2a1400
+# === HITBOX ===
+hitbox rect 0.18,0.72 0.50,0.56 z 0-7
+hitbox rect 0.55,0.88 0.90,0.24 z 5-7
 
-# Post wood grain detail
-line 0.42,0.72 0.42,0.98 stroke #2a1400
-line 0.58,0.72 0.58,0.98 stroke #2a1400
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: post at left, arm extending right, cage directly under arm tip
+# From above, the cage overlaps the arm end (it hangs below it)
 
-# Cross arm extending east from post top (overhead beam)
-rect 0.55,0.78 0.4,0.14 texfill polyhaven/dark_wood 0.85
-rect 0.55,0.78 0.4,0.14 stroke #2a1400
-
-# Chain link from arm tip down to cage (visible as small dots)
-circle 0.88,0.85 0.02 fill #666666 0.7
-circle 0.88,0.95 0.02 fill #666666 0.7
-circle 0.88,1.05 0.02 fill #666666 0.7
-
-# Hanging cage — circular ring of iron bars seen from above
-circle 0.88,1.4 0.28 stroke #555555
-circle 0.88,1.4 0.28 texfill polyhaven/rusty_metal 0.3
-
+# === Cage (drawn first — it's below the arm) ===
+# Cage outer ring
+circle 1.35,1.0 0.5 fill #444444 0.15
+circle 1.35,1.0 0.5 stroke #555555
 # Cage inner ring
-circle 0.88,1.4 0.22 stroke #555555
+circle 1.35,1.0 0.42 stroke #555555
+# Cage floor grate
+circle 1.35,1.0 0.36 texfill polyhaven/metal_grate_rusty 0.4
+# Cage cross bars
+line 1.35,0.5 1.35,1.5 stroke #555555
+line 0.85,1.0 1.85,1.0 stroke #555555
+line 0.98,0.63 1.72,1.37 stroke #555555
+line 1.72,0.63 0.98,1.37 stroke #555555
+# Rivets on cage ring
+circle 1.35,0.5 0.025 fill #777777 0.6
+circle 1.35,1.5 0.025 fill #777777 0.6
+circle 0.85,1.0 0.025 fill #777777 0.6
+circle 1.85,1.0 0.025 fill #777777 0.6
 
-# Cage bars (radial spokes seen from above)
-line 0.88,1.12 0.88,1.68 stroke #555555
-line 0.6,1.4 1.16,1.4 stroke #555555
-line 0.68,1.2 1.08,1.6 stroke #555555
-line 1.08,1.2 0.68,1.6 stroke #555555
+# === Horizontal arm (on top of cage — it's above) ===
+rect 0.55,0.88 0.9,0.24 texfill polyhaven/dark_wood 0.88
+rect 0.55,0.88 0.9,0.24 stroke #2a1400
+# Arm grain
+line 0.58,0.96 1.42,0.96 stroke #2a1400
+line 0.58,1.04 1.42,1.04 stroke #2a1400
 
-# Cage floor grate (dark interior)
-circle 0.88,1.4 0.18 texfill polyhaven/metal_grate_rusty 0.5
+# Chain attachment point (where arm meets cage top)
+circle 1.35,1.0 0.05 fill #555555 0.8
+circle 1.35,1.0 0.05 stroke #333333
 
-# Cage top ring attachment point
-circle 0.88,1.12 0.03 fill #444444 0.8
+# === Post (on top of everything — it's the tallest element) ===
+# Ground plate
+rect 0.1,0.65 0.65,0.7 stroke #3a1f00 0.4
+# Post cross-section
+rect 0.18,0.72 0.5,0.56 texfill polyhaven/dark_wood 0.92
+rect 0.18,0.72 0.5,0.56 stroke #2a1400
+# Post grain detail
+line 0.35,0.74 0.35,1.26 stroke #2a1400
+line 0.52,0.74 0.52,1.26 stroke #2a1400
 
-# Base support / ground plate
-rect 0.25,0.62 0.5,0.06 texfill polyhaven/dark_wood 0.7
-rect 0.25,1.0 0.5,0.06 texfill polyhaven/dark_wood 0.7
-
-# Shadow of cage on ground (subtle)
-ellipse 0.88,1.42 0.32,0.32 fill #000000 0.08
+# Iron bracket at junction
+rect 0.55,0.82 0.15,0.36 fill #555555 0.7
+rect 0.55,0.82 0.15,0.36 stroke #444444

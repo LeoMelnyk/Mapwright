@@ -3,27 +3,75 @@ category: Terrain
 footprint: 1x2
 facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2
 placement: wall
 room_types: garden, courtyard, greenhouse, balcony
 typical_count: many
 clusters_with: planter-box, bench
 notes: Raised flower bed; place along walls or paths in garden areas
 ---
+# === HITBOX ===
+hitbox rect 0.04,0.04 1.92,0.92 z 0-2
+
 # Wooden box frame
-rect 0.06,0.06 0.88,1.88 texfill polyhaven/weathered_planks 0.85
-rect 0.06,0.06 0.88,1.88 stroke #3a1f00
-# Soil inside
-rect 0.12,0.12 0.76,1.76 fill #4a3520 0.6
-# Foliage clusters (green canopy from above)
-circle 0.35,0.40 0.16 fill #2a6a2a 0.5
-circle 0.60,0.65 0.18 fill #3a7a3a 0.45
-circle 0.40,0.90 0.14 fill #2a5a2a 0.5
-circle 0.65,1.15 0.16 fill #3a7a3a 0.45
-circle 0.35,1.40 0.15 fill #2a6a2a 0.5
-circle 0.60,1.65 0.14 fill #3a7a3a 0.45
-# Flower dots
-circle 0.30,0.35 0.03 fill #cc4466 0.6
-circle 0.55,0.80 0.03 fill #ffaa44 0.6
-circle 0.40,1.30 0.03 fill #cc44cc 0.5
-circle 0.65,1.55 0.03 fill #ffcc44 0.6
+rect 0.04,0.04 1.92,0.92 texfill polyhaven/weathered_planks 0.85
+rect 0.04,0.04 1.92,0.92 stroke #3a1f00
+# Inner rim highlight
+rect 0.10,0.10 1.80,0.80 stroke #4a2800 0.4
+# Dark soil visible between plants
+rect 0.12,0.12 1.76,0.76 fill #3a2518 0.65
+rect 0.14,0.14 1.72,0.72 fill #2e1c10 0.3
+# Soil texture patches
+ellipse 0.50,0.50 0.20,0.12 fill #4a3520 0.25
+ellipse 1.40,0.55 0.18,0.10 fill #4a3520 0.20
+# === Left bush cluster (overflows slightly) ===
+# Dark base layer
+circle 0.38,0.48 0.26 fill #1e4a12 0.7
+circle 0.22,0.38 0.18 fill #1e4a12 0.65
+# Medium green
+circle 0.35,0.45 0.21 fill #2a6018 0.7
+circle 0.20,0.42 0.14 fill #2a6018 0.6
+# Highlight layer
+circle 0.32,0.42 0.15 fill #357020 0.6
+circle 0.18,0.38 0.10 fill #357020 0.5
+# Bright spots
+circle 0.30,0.38 0.08 fill #4a8a30 0.45
+circle 0.42,0.50 0.07 fill #4a8a30 0.4
+# === Center bush cluster ===
+# Dark base
+circle 1.00,0.50 0.28 fill #1e4a12 0.7
+circle 0.82,0.42 0.18 fill #1e4a12 0.65
+circle 1.18,0.44 0.16 fill #1e4a12 0.6
+# Medium green
+circle 1.00,0.48 0.22 fill #2a6018 0.7
+circle 0.85,0.40 0.14 fill #2a6018 0.65
+circle 1.15,0.42 0.13 fill #2a6018 0.6
+# Highlight
+circle 0.98,0.44 0.16 fill #357020 0.6
+circle 1.12,0.40 0.10 fill #357020 0.55
+# Bright spots
+circle 0.96,0.40 0.09 fill #4a8a30 0.45
+circle 1.08,0.46 0.07 fill #4a8a30 0.4
+# === Right bush cluster (overflows slightly) ===
+# Dark base
+circle 1.62,0.46 0.25 fill #1e4a12 0.7
+circle 1.80,0.40 0.19 fill #1e4a12 0.65
+# Medium green
+circle 1.65,0.44 0.20 fill #2a6018 0.7
+circle 1.78,0.38 0.15 fill #2a6018 0.6
+# Highlight
+circle 1.68,0.40 0.14 fill #357020 0.6
+circle 1.82,0.42 0.10 fill #357020 0.5
+# Bright spots
+circle 1.70,0.38 0.08 fill #4a8a30 0.45
+circle 1.58,0.48 0.06 fill #4a8a30 0.4
+# === Flower dots scattered on top ===
+circle 0.30,0.42 0.035 fill #cc4466 0.7
+circle 0.45,0.35 0.03 fill #ffaa44 0.7
+circle 0.95,0.38 0.035 fill #cc44cc 0.65
+circle 1.10,0.50 0.03 fill #ff6688 0.7
+circle 1.55,0.40 0.035 fill #ffcc44 0.7
+circle 1.75,0.48 0.03 fill #cc4466 0.65
+circle 0.68,0.44 0.03 fill #ffaa44 0.6
+circle 1.35,0.42 0.03 fill #cc44cc 0.6

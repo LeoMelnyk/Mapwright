@@ -47,9 +47,10 @@ if (typeof globalThis.document === 'undefined') {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = parseInt(process.argv[2]) || 3000;
 
-// Electron sets this to app.getPath('userData')/textures so downloaded textures
-// are stored outside the bundle. Unset in standalone Node.js mode.
+// Electron sets these to app.getPath('userData')/{dir} so user data
+// is stored outside the bundle. Unset in standalone Node.js mode.
 const userTexturePath = process.env.MAPWRIGHT_TEXTURE_PATH || null;
+const userThemePath = process.env.MAPWRIGHT_THEME_PATH || path.join(__dirname, 'user-themes');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function toTitleCase(str) {
@@ -130,6 +131,21 @@ try {
   console.warn('Warning: could not load themes:', e.message);
 }
 
+// Load user-saved themes
+try {
+  fs.mkdirSync(userThemePath, { recursive: true });
+  for (const file of fs.readdirSync(userThemePath)) {
+    if (!file.endsWith('.theme')) continue;
+    const key = `user:${path.basename(file, '.theme')}`;
+    try {
+      const { displayName, ...themeProps } = JSON.parse(
+        fs.readFileSync(path.join(userThemePath, file), 'utf-8')
+      );
+      THEMES[key] = themeProps;
+    } catch { /* skip malformed */ }
+  }
+} catch { /* ignore — directory may not be writable */ }
+
 // ── Express ─────────────────────────────────────────────────────────────────
 
 const app = express();
@@ -142,6 +158,9 @@ app.use('/api', express.json({ limit: '10mb' }));
 if (userTexturePath) {
   app.use('/textures', express.static(userTexturePath));
 }
+
+// Serve user-saved themes
+app.use('/user-themes', express.static(userThemePath));
 
 // Static files from src/ (same root as old `npx serve src`)
 app.use(express.static(path.join(__dirname, 'src')));
@@ -236,6 +255,91 @@ const { version: APP_VERSION } = JSON.parse(fs.readFileSync(path.join(path.dirna
 
 app.get('/api/version', (_req, res) => {
   res.json({ version: APP_VERSION });
+});
+
+// ── User-Saved Themes CRUD ────────────────────────────────────────────────
+
+function slugify(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 64) || 'untitled';
+}
+
+app.get('/api/user-themes', (_req, res) => {
+  try {
+    const results = [];
+    if (fs.existsSync(userThemePath)) {
+      for (const file of fs.readdirSync(userThemePath)) {
+        if (!file.endsWith('.theme')) continue;
+        const key = path.basename(file, '.theme');
+        try {
+          const data = JSON.parse(fs.readFileSync(path.join(userThemePath, file), 'utf-8'));
+          results.push({ key, displayName: data.displayName || key, filename: file });
+        } catch { results.push({ key, displayName: key, filename: file }); }
+      }
+    }
+    res.json(results);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/user-themes', (req, res) => {
+  try {
+    const { name, theme } = req.body;
+    if (!name || !theme) return res.status(400).json({ error: 'name and theme are required' });
+    const slug = slugify(name);
+    const filePath = path.join(userThemePath, `${slug}.theme`);
+    if (fs.existsSync(filePath)) return res.status(409).json({ error: `Theme "${name}" already exists` });
+    fs.mkdirSync(userThemePath, { recursive: true });
+    const data = { displayName: name, ...theme };
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    const { displayName, ...themeProps } = data;
+    THEMES[`user:${slug}`] = themeProps;
+    res.json({ key: slug });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/user-themes/:key', (req, res) => {
+  try {
+    const { key } = req.params;
+    const { name, theme } = req.body;
+    if (!name && !theme) return res.status(400).json({ error: 'name or theme is required' });
+    const oldPath = path.join(userThemePath, `${key}.theme`);
+    if (!fs.existsSync(oldPath)) return res.status(404).json({ error: 'Theme not found' });
+    const data = JSON.parse(fs.readFileSync(oldPath, 'utf-8'));
+
+    // Content update (theme properties changed)
+    if (theme) {
+      const updated = { displayName: name || data.displayName, ...theme };
+      fs.writeFileSync(oldPath, JSON.stringify(updated, null, 2));
+      const { displayName: _dn, ...themeProps } = updated;
+      THEMES[`user:${key}`] = themeProps;
+      return res.json({ key });
+    }
+
+    // Rename only
+    const newSlug = slugify(name);
+    const newPath = path.join(userThemePath, `${newSlug}.theme`);
+    if (newSlug !== key && fs.existsSync(newPath)) return res.status(409).json({ error: `Theme "${name}" already exists` });
+    data.displayName = name;
+    if (newSlug !== key) {
+      fs.writeFileSync(newPath, JSON.stringify(data, null, 2));
+      fs.unlinkSync(oldPath);
+      const { displayName, ...themeProps } = data;
+      delete THEMES[`user:${key}`];
+      THEMES[`user:${newSlug}`] = themeProps;
+    } else {
+      fs.writeFileSync(oldPath, JSON.stringify(data, null, 2));
+    }
+    res.json({ key: newSlug });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/user-themes/:key', (req, res) => {
+  try {
+    const { key } = req.params;
+    const filePath = path.join(userThemePath, `${key}.theme`);
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    delete THEMES[`user:${key}`];
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
 app.get('/api/changelog', (_req, res) => {

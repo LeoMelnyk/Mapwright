@@ -38,5 +38,10 @@
   "lavaDeepColor": "#5c1004",
   "lavaCausticColor": "rgba(255,140,50,0.50)",
   "lavaLightColor": "#e04a10",
-  "lavaLightIntensity": 0.65
+  "lavaLightIntensity": 0.65,
+  "labels": {
+    "borderColor": "#000000",
+    "fontColor": "#000000",
+    "backgroundColor": "#FFFFFF"
+  }
 }

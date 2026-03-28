@@ -8,9 +8,12 @@ let container = null;
 export function initLightingPanel(el) {
   container = el;
   render();
-  subscribe(() => render());
+  subscribe(() => render(), 'lighting');
 }
 
+let _lastLights = null;
+let _lastSelectedLightId = null;
+let _lastLightingEnabled = null;
 function render() {
   if (!container) return;
 
@@ -19,6 +22,12 @@ function render() {
   const selectedLight = state.selectedLightId != null
     ? lights.find(l => l.id === state.selectedLightId)
     : null;
+
+  // Skip rebuild if nothing relevant changed
+  if (lights === _lastLights && state.selectedLightId === _lastSelectedLightId && !!metadata.lightingEnabled === _lastLightingEnabled) return;
+  _lastLights = lights;
+  _lastSelectedLightId = state.selectedLightId;
+  _lastLightingEnabled = !!metadata.lightingEnabled;
 
   container.innerHTML = '';
 
@@ -109,8 +118,10 @@ function render() {
       else delete selectedLight.dimRadius;
       if (preset.animation) selectedLight.animation = { ...preset.animation };
       else delete selectedLight.animation;
+      if (preset.z != null) selectedLight.z = preset.z;
+      else delete selectedLight.z;
       selectedLight.presetId = preset.id; // restore link
-      invalidateLightmap();
+      invalidateLightmap(false);
       markDirty();
       notify();
       requestRender();
@@ -145,11 +156,22 @@ function render() {
           else delete selectedLight.dimRadius;
         }
         delete selectedLight.presetId; // sever preset link on manual edit
-        invalidateLightmap();
+        invalidateLightmap(false);
         markDirty();
         requestRender();
       }
     ));
+
+    // Z-Height slider (height above floor in feet)
+    selSection.appendChild(
+      sliderRow('Height (ft)', selectedLight.z ?? 8, 0.5, 20, 0.5, (v) => {
+        selectedLight.z = v;
+        delete selectedLight.presetId;
+        invalidateLightmap(false);
+        markDirty();
+        requestRender();
+      }, (v) => `${v}ft`)
+    );
 
     // Animation controls
     selSection.appendChild(sectionLabel('Animation'));
@@ -189,7 +211,7 @@ function render() {
       }
       delete selectedLight.presetId; // sever preset link on manual animation edit
       updateAnimRows();
-      invalidateLightmap();
+      invalidateLightmap(false);
       markDirty();
       requestRender();
     }
@@ -213,7 +235,7 @@ function render() {
       if (idx >= 0) {
         lights.splice(idx, 1);
         state.selectedLightId = null;
-        invalidateLightmap();
+        invalidateLightmap(false);
         markDirty();
         notify();
       }
@@ -295,7 +317,7 @@ function render() {
         else delete light.animation;
         count++;
       }
-      if (count > 0) { invalidateLightmap(); markDirty(); notify(); }
+      if (count > 0) { invalidateLightmap(false); markDirty(); notify(); }
     });
     resyncSection.appendChild(resyncBtn);
     container.appendChild(resyncSection);

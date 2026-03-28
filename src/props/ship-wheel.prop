@@ -1,36 +1,83 @@
 name: Ship Wheel
 category: Nautical
 footprint: 1x1
-facing: no
+facing: yes
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 4
 placement: center
 room_types: ship, captain-cabin
 typical_count: single
 clusters_with: binnacle
 notes: Helm; place at ship's stern or elevated helm position
 ---
-# Outer rim
-circle 0.5,0.5 0.4 texfill polyhaven/dark_wood 0.8
-circle 0.5,0.5 0.4 stroke #3a1f00
-# Inner rim
-circle 0.5,0.5 0.32 stroke #3a1f00
-# Hub
-circle 0.5,0.5 0.12 texfill polyhaven/dark_wood 0.85
-circle 0.5,0.5 0.12 stroke #3a1f00
+# === HITBOX ===
+hitbox rect 0.43,0.60 0.14,0.34 z 0-2
+hitbox ellipse 0.50,0.42 0.42,0.17 z 2-4
+
+# Footprint 1x1: x 0-1, y 0-1. Front south.
+
+# Post
+rect 0.43,0.60 0.14,0.34 texfill polyhaven/dark_wood 0.8
+rect 0.43,0.60 0.14,0.34 stroke #3a1f00
+
+# Axle block
+rect 0.41,0.54 0.18,0.08 fill #555555 0.5
+rect 0.41,0.54 0.18,0.08 stroke #444444
+
+# === Wheel (heavily foreshortened oval) ===
+
+# Outer rim — thick ellipse strokes
+ellipse 0.50,0.42 0.38,0.13 stroke #8b6914 width 6
+ellipse 0.50,0.42 0.38,0.13 stroke #5a3a00 width 2
+# Inner rim highlight
+ellipse 0.50,0.42 0.34,0.10 stroke #a07a20 width 1
+
+# === Spokes (thick lines from hub to rim) ===
+# Cardinal spokes (thickest)
+line 0.50,0.42 0.50,0.28 stroke #8b6914 width 4
+line 0.50,0.42 0.50,0.56 stroke #8b6914 width 4
+line 0.50,0.42 0.12,0.42 stroke #8b6914 width 4
+line 0.50,0.42 0.88,0.42 stroke #8b6914 width 4
+# Diagonal spokes
+line 0.50,0.42 0.20,0.33 stroke #8b6914 width 3
+line 0.50,0.42 0.80,0.33 stroke #8b6914 width 3
+line 0.50,0.42 0.20,0.51 stroke #8b6914 width 3
+line 0.50,0.42 0.80,0.51 stroke #8b6914 width 3
+
+# Spoke outlines (darker stroke on top for definition)
+line 0.50,0.42 0.50,0.28 stroke #5a3a00 width 2
+line 0.50,0.42 0.50,0.56 stroke #5a3a00 width 2
+line 0.50,0.42 0.12,0.42 stroke #5a3a00 width 2
+line 0.50,0.42 0.88,0.42 stroke #5a3a00 width 2
+line 0.50,0.42 0.20,0.33 stroke #5a3a00 width 1
+line 0.50,0.42 0.80,0.33 stroke #5a3a00 width 1
+line 0.50,0.42 0.20,0.51 stroke #5a3a00 width 1
+line 0.50,0.42 0.80,0.51 stroke #5a3a00 width 1
+
+# === Handle pegs (extending past the rim) ===
+# Cardinal handles (larger, extend further)
+ellipse 0.50,0.24 0.03,0.04 fill #8b6914 0.85
+ellipse 0.50,0.24 0.03,0.04 stroke #5a3a00
+ellipse 0.50,0.60 0.03,0.04 fill #8b6914 0.85
+ellipse 0.50,0.60 0.03,0.04 stroke #5a3a00
+ellipse 0.08,0.42 0.03,0.025 fill #8b6914 0.85
+ellipse 0.08,0.42 0.03,0.025 stroke #5a3a00
+ellipse 0.92,0.42 0.03,0.025 fill #8b6914 0.85
+ellipse 0.92,0.42 0.03,0.025 stroke #5a3a00
+# Diagonal handles
+ellipse 0.16,0.31 0.025,0.02 fill #8b6914 0.8
+ellipse 0.16,0.31 0.025,0.02 stroke #5a3a00
+ellipse 0.84,0.31 0.025,0.02 fill #8b6914 0.8
+ellipse 0.84,0.31 0.025,0.02 stroke #5a3a00
+ellipse 0.16,0.53 0.025,0.02 fill #8b6914 0.8
+ellipse 0.16,0.53 0.025,0.02 stroke #5a3a00
+ellipse 0.84,0.53 0.025,0.02 fill #8b6914 0.8
+ellipse 0.84,0.53 0.025,0.02 stroke #5a3a00
+
+# === Hub (brass center plate) ===
+ellipse 0.50,0.42 0.08,0.05 fill #daa520 0.8
+ellipse 0.50,0.42 0.08,0.05 stroke #8b6914
 # Center bolt
-circle 0.5,0.5 0.04 fill #666666 0.7
-# Spokes (8 directions)
-line 0.5,0.5 0.5,0.08
-line 0.5,0.5 0.5,0.92
-line 0.5,0.5 0.08,0.5
-line 0.5,0.5 0.92,0.5
-line 0.5,0.5 0.2,0.2
-line 0.5,0.5 0.8,0.8
-line 0.5,0.5 0.8,0.2
-line 0.5,0.5 0.2,0.8
-# Handle peg ends
-circle 0.5,0.06 0.03 fill #4a2800 0.7
-circle 0.5,0.94 0.03 fill #4a2800 0.7
-circle 0.06,0.5 0.03 fill #4a2800 0.7
-circle 0.94,0.5 0.03 fill #4a2800 0.7
+circle 0.50,0.42 0.02 fill #ffd700 0.7
+circle 0.50,0.42 0.02 stroke #8b6914

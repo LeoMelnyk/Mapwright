@@ -1,21 +1,60 @@
 name: Map Table
 category: Furniture
-footprint: 2x2
+footprint: 3x3
 facing: no
 shadow: yes
-blocks_light: no
+blocks_light: yes
+height: 2.5
 placement: center
 room_types: war-room, command-center, captain-cabin, study
 typical_count: single
 clusters_with: chair, candle-cluster, globe
 notes: Strategy planning surface; place centrally with chairs around
 ---
+# === HITBOX ===
+# Tabletop surface only — open space underneath, light passes under
+hitbox rect 0.1,0.1 2.8,2.8 z 2-2.5
+
 # Table surface
-rect 0.1,0.1 1.8,1.8 texfill polyhaven/wood_table 0.85
-rect 0.1,0.1 1.8,1.8 stroke #5c3a1e
-# Map/parchment
-rect 0.25,0.25 1.5,1.5 fill #e8dcc8 0.6
-rect 0.25,0.25 1.5,1.5 stroke #b0a090
-# Map detail lines
-line 0.4,0.35 1.6,1.65
-line 0.4,1.65 1.6,0.35
+rect 0.1,0.1 2.8,2.8 texfill polyhaven/wood_table 0.85
+rect 0.1,0.1 2.8,2.8 stroke #5c3a1e
+# Parchment map — main sheet
+rect 0.35,0.35 2.2,2.3 fill #e8dcc8 0.65
+rect 0.35,0.35 2.2,2.3 stroke #d4c4a8
+# Curled corner — triangle of wood showing through at bottom-right
+poly 2.25,2.65 2.55,2.65 2.55,2.35 fill #e8dcc8 0.65
+poly 2.25,2.65 2.55,2.35 2.25,2.35 texfill polyhaven/wood_table 0.85
+poly 2.25,2.65 2.55,2.65 2.55,2.35 stroke #d4c4a8
+# Parchment edge shadow along bottom and right
+line 0.35,2.65 2.25,2.65 stroke #d4c4a8
+line 2.55,0.35 2.55,2.35 stroke #d4c4a8
+# River — wavy blue line curving across map
+line 0.55,0.7 0.9,1.1 stroke #4477aa 0.5 width 3
+line 0.9,1.1 1.3,0.95 stroke #4477aa 0.5 width 3
+line 1.3,0.95 1.7,1.4 stroke #4477aa 0.5 width 3
+line 1.7,1.4 2.1,1.2 stroke #4477aa 0.5 width 3
+line 2.1,1.2 2.4,1.6 stroke #4477aa 0.5 width 3
+# Mountains — small filled triangles in upper area
+poly 0.7,0.55 0.8,0.42 0.9,0.55 fill #445566 0.35
+poly 1.0,0.5 1.1,0.38 1.2,0.5 fill #445566 0.35
+poly 0.85,0.6 0.95,0.48 1.05,0.6 fill #445566 0.3
+# Settlement — small rectangles suggesting buildings
+rect 1.6,1.7 0.12,0.15 fill #445566 0.4
+rect 1.78,1.72 0.1,0.12 fill #445566 0.35
+rect 1.65,1.88 0.15,0.1 fill #445566 0.35
+# Route path — dashed line from settlement toward red X
+line 1.85,1.85 2.0,2.05 stroke #445566 0.4 width 2
+line 2.05,2.1 2.15,2.2 stroke #445566 0.4 width 2
+line 2.2,2.25 2.3,2.35 stroke #445566 0.4 width 2
+# Red X — target/destination
+line 2.2,2.3 2.4,2.5 stroke #cc3333 0.6 width 3
+line 2.4,2.3 2.2,2.5 stroke #cc3333 0.6 width 3
+# Compass weight — small dark disc holding down top-left corner
+circle 0.5,0.5 0.1 fill #333333 0.5
+circle 0.5,0.5 0.1 stroke #222222 0.6
+circle 0.5,0.5 0.04 fill #667788 0.5
+# Table leg shadows
+circle 0.22,0.22 0.06 fill #3a1f00 0.5
+circle 2.78,0.22 0.06 fill #3a1f00 0.5
+circle 0.22,2.78 0.06 fill #3a1f00 0.5
+circle 2.78,2.78 0.06 fill #3a1f00 0.5

@@ -1,25 +1,33 @@
 name: Flag Pole
 category: Decorative
 footprint: 1x1
-facing: no
-shadow: yes
-blocks_light: no
+facing: yes
+shadow: no
+blocks_light: yes
+height: 8
 placement: corner
-room_types: fortification, throne-room, battlements
+room_types: fortification, throne-room, battlements, courtyard, barracks
 typical_count: few
-notes: Place at room corners or entrance flanking positions
+notes: Place at room corners or entrance flanking positions. Flag extends south (front) from pole.
 ---
-# Base plate
-circle 0.50,0.78 0.18 fill #888888 0.70
-circle 0.50,0.78 0.18 stroke #555555
-# Pole cross-section
-circle 0.50,0.78 0.06 fill #aaaaaa 0.90
-circle 0.50,0.78 0.06 stroke #666666
-# Flag (extends east from pole)
-rect 0.52,0.16 0.38,0.28 fill #cc2222 0.80
-rect 0.52,0.16 0.38,0.28 stroke #aa1111
-# Flag cross device (heraldic)
-line 0.52,0.30 0.90,0.30 stroke #ffffff 0.70
-line 0.71,0.16 0.71,0.44 stroke #ffffff 0.70
-# Pole line
-line 0.50,0.16 0.50,0.76 stroke #888888
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.22 z 0-1
+hitbox circle 0.50,0.50 0.08 z 1-8
+
+# Stone pedestal base
+circle 0.50,0.50 0.22 texfill polyhaven/granite_tile 0.75
+circle 0.50,0.50 0.22 stroke #555555
+# Flag banner draped southward from pole (velvet fabric)
+poly 0.42,0.46 0.58,0.46 0.60,0.62 0.56,0.72 0.62,0.82 0.58,0.92 0.42,0.92 0.38,0.82 0.44,0.72 0.40,0.62 texfill polyhaven/velour_velvet 0.80
+poly 0.42,0.46 0.58,0.46 0.60,0.62 0.56,0.72 0.62,0.82 0.58,0.92 0.42,0.92 0.38,0.82 0.44,0.72 0.40,0.62 stroke #661111
+# Flag heraldic stripe (center line detail)
+line 0.50,0.50 0.50,0.88 stroke #ffcc00
+# Flag edge highlight (left wave)
+line 0.42,0.46 0.40,0.62 stroke #aa2222 0.50
+line 0.40,0.62 0.44,0.72 stroke #aa2222 0.50
+line 0.44,0.72 0.38,0.82 stroke #aa2222 0.50
+# Pole cross-section (metal, on top of everything)
+circle 0.50,0.50 0.08 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.50 0.08 stroke #444444
+# Pole cap highlight
+circle 0.50,0.48 0.03 fill #8899aa 0.40

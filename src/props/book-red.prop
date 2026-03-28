@@ -1,0 +1,28 @@
+name: Book (Red)
+category: Library & Study
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: library, study, wizard-sanctum
+typical_count: many
+clusters_with: book-pile, bookshelf, desk, scroll-case
+notes: Single red book lying flat; scatter on desks and tables
+---
+# === HITBOX ===
+hitbox rect 0.2,0.25 0.6,0.5 z 0-0.5
+
+# footprint 1x1: x range 0-1, y range 0-1
+rect 0.2,0.25 0.6,0.5 fill #8b2020 0.85
+rect 0.2,0.25 0.6,0.5 stroke #5a1010
+# Spine
+rect 0.2,0.25 0.06,0.5 fill #6a1515 0.5
+# Page edges
+rect 0.28,0.28 0.48,0.44 fill #e8e0d0 0.15
+rect 0.28,0.28 0.48,0.44 stroke #c8b898 0.3
+# Gold title detail
+rect 0.35,0.4 0.35,0.04 fill #daa520 0.5
+rect 0.35,0.5 0.25,0.04 fill #daa520 0.4
+# Cover detail line
+line 0.3,0.3 0.3,0.7 stroke #6a1515 0.3

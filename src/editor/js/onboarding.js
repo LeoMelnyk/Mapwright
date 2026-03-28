@@ -207,7 +207,7 @@ class Tutorial {
 
     // Subscribe to state changes for auto-advance
     this._listener = () => this._checkCompletion();
-    subscribe(this._listener);
+    subscribe(this._listener, 'onboarding');
   }
 
   _snapshot() {
@@ -422,7 +422,7 @@ class Tutorial {
   end() {
     // Remove state listener
     if (this._listener) {
-      const idx = state.listeners.indexOf(this._listener);
+      const idx = state.listeners.findIndex(e => e.fn === this._listener);
       if (idx !== -1) state.listeners.splice(idx, 1);
       this._listener = null;
     }
@@ -463,7 +463,7 @@ export function initOnboarding() {
       lastTool = state.activeTool;
       showToolHint(lastTool);
     }
-  });
+  }, 'tool-hints');
 
   // ── First-launch welcome ───────────────────────────────────────────────────
   // Don't show welcome if a file was opened via URL param (file association)
