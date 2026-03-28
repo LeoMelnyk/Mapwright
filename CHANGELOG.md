@@ -171,6 +171,7 @@ All ~20 API methods now accept half-step display coordinates and convert to inte
 - **Prop-linked lights cleaned up on deletion**: Deleting a prop with a built-in light source (via `removePropAt` or `removePropsInRect`) now also removes the associated lights. Previously only `removeProp` cleaned up linked lights; the other two deletion paths left orphaned lights in the metadata
 - **Viewport not centered on new map**: Creating a new map no longer leaves the viewport at the previous pan/zoom position — the map now auto-centers (zoom-to-fit) after creation, matching the existing behavior when loading a map
 - **Erase tool not removing props**: The erase tool now removes overlay props (`metadata.props[]`) whose anchor falls within the erased rectangle. Previously only cell data was nulled — overlay prop entries persisted and continued rendering
+- **Trim tool drag not cancellable**: Right-click or Escape during a trim drag now cancels the operation without applying any changes, matching the existing behavior of the light drag tool
 
 ### Migration
 

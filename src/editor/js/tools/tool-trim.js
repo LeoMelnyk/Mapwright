@@ -37,6 +37,18 @@ export class TrimTool extends Tool {
     state.statusInstruction = null;
   }
 
+  /**
+   * Cancel an in-progress drag. Called by canvas-view on right-click during drag.
+   * Returns true if a drag was cancelled, false otherwise.
+   */
+  onCancel() {
+    if (!this.dragging) return false;
+    this.dragging = false;
+    this.previewCells = null;
+    this.resolvedCorner = null;
+    return true;
+  }
+
   onMouseDown(row, col) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
@@ -344,6 +356,11 @@ export class TrimTool extends Tool {
   }
 
   onKeyDown(e) {
+    if (e.key === 'Escape' && this.dragging) {
+      this.onCancel();
+      requestRender();
+      return;
+    }
     const syncTrimButtons = (prop, val) => {
       document.querySelectorAll(`#trim-shape-options [data-trim="${prop}"]`).forEach(b => {
         b.classList.toggle('active', b.dataset.val === String(val));
