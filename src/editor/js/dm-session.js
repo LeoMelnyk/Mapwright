@@ -280,9 +280,12 @@ export function openDoor(row, col, dir, mergedCells) {
     }
   }
 
-  // Broadcast (use first cell for the message)
-  const wasSecret = cells[row]?.[col]?.[dir] === 's';
-  send({ type: 'door:open', row, col, dir, wasSecret });
+  // Broadcast each door cell so the player marks both sides as opened
+  for (const dc of doorCells) {
+    const doorType = cells[dc.row]?.[dc.col]?.[dir];
+    const cellWasSecret = doorType === 's';
+    send({ type: 'door:open', row: dc.row, col: dc.col, dir, wasSecret: cellWasSecret });
+  }
   if (newCells.length > 0) {
     send({ type: 'fog:reveal', cells: newCells, duration: 500 });
   }

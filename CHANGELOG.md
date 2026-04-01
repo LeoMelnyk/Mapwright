@@ -45,7 +45,34 @@ The player view rendering pipeline has been rebuilt with a layered compositing a
 
 **Walls overlay**: Walls and doors render above the fog and hatching layers so boundary walls are always visible. Uses a filtered cells grid containing only revealed cells — walls from unrevealed cells never render. Updated incrementally on reveal (dirty-region render); full rebuild on conceal.
 
+**Bug fix — secret doors visible in player view**: The walls overlay was copying raw cell data without filtering secret door types, causing the "S" marker to appear on the player view before the door was opened. The overlay now applies the same filtering as the full-map cache — unopened secret doors render as plain walls, opened secret doors render as normal doors. Additionally, opening a multi-cell (double-width) secret door now correctly broadcasts all constituent cells to the player, so both halves update to show a door.
+
 **Performance**: Hatching and shading layers build once and are keyed by a theme-property signature — only a mid-session theme change triggers a rebuild. The fog-edge mask (shared by both composites) is the only work done per reveal. The walls overlay uses incremental dirty-region rendering. Fog reset and starting room selection no longer trigger a full map cache rebuild on the player — fog reset sends a lightweight `fog:reset` message that clears only the fog-related layers, and starting room reveal sends an incremental `fog:reveal` instead of a full `session:init`.
+
+### Donjon Importer Upgrade to v4
+
+The Donjon random dungeon importer has been rewritten to output format version 4 natively (half-cell resolution + per-cell arc trims), bypassing the migration pipeline entirely.
+
+**Half-cell resolution:**
+- Each Donjon cell expands to a 2x2 subcell block (gridSize 2.5), matching the OPD importer's resolution
+- Walls, doors, and stairs use subcell-aware edge helpers (`setEdge`/`clearEdge`) for correct placement across 2-subcell-wide boundaries
+
+**True inscribed circles:**
+- Circle rooms use per-cell `computeArcCellData()` for every boundary cell, producing pixel-perfect arcs instead of the old 4-corner diagonal approach
+- Each quadrant is scanned independently; every cell the arc passes through gets its own `trimClip`/`trimWall`/`trimCrossing` data
+
+**Corridor punch-through:**
+- Doors punch corridor-width lanes from the room edge to the halfway mark, preventing arc/diagonal trims from blocking passage openings
+- Circle rooms punch to center; polygon rooms compute punch depth from the trim diagonal geometry
+- Side walls are added on punch-through cells where they face void or the void side of a trim cell (no end caps)
+
+**Polygon trim improvements:**
+- Polygon (hexagon, pentagon) trims computed at subcell scale with diagonal walls
+- Voiding respects room ownership via `room_id` bitmask — a shaped room's trim never voids cells belonging to an adjacent room
+
+**Archway props:**
+- Donjon archway cells get an `archway` prop placed at the center of the 5ft cell with correct rotation (0 for N-S, 90 for E-W passages)
+- Invisible doors (`'id'`) placed at the subcell center via `setCenterDoor` for fog/BFS control
 
 ### Improvements
 

@@ -613,6 +613,42 @@ function buildHatchingLayer(fullCells, gridSize, theme) {
 // Persistent transparent canvas containing only walls/doors from revealed cells.
 // Updated incrementally on reveal; full rebuild on conceal or structure change.
 
+const _BORDER_DIRS = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'];
+const _OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
+const _OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+
+/** Clone a cell for the walls overlay, converting secret doors to walls/doors. */
+function _wallsCellForPlayer(cell, r, c) {
+  if (!cell) return null;
+  const pc = JSON.parse(JSON.stringify(cell));
+  const openedSet = _wallsOpenedSet();
+  for (const dir of _BORDER_DIRS) {
+    if (pc[dir] === 's') {
+      pc[dir] = openedSet.has(`${r},${c},${dir}`) ? 'd' : 'w';
+    } else if (pc[dir] === 'iw' || pc[dir] === 'id') {
+      delete pc[dir];
+    }
+  }
+  return pc;
+}
+
+/** Build the opened-door lookup set (cached per content version). */
+let _wallsOpenedVersion = -1;
+let _wallsOpenedCache = new Set();
+function _wallsOpenedSet() {
+  if (_wallsOpenedVersion === _playerContentVersion) return _wallsOpenedCache;
+  _wallsOpenedCache = new Set();
+  for (const d of playerState.openedDoors) {
+    _wallsOpenedCache.add(`${d.row},${d.col},${d.dir}`);
+    if (_OFFSETS[d.dir]) {
+      const [dr, dc] = _OFFSETS[d.dir];
+      _wallsOpenedCache.add(`${d.row + dr},${d.col + dc},${_OPPOSITE[d.dir]}`);
+    }
+  }
+  _wallsOpenedVersion = _playerContentVersion;
+  return _wallsOpenedCache;
+}
+
 const _wallsSkipPhases = {
   shading: true, hatching: true, floors: true, blending: true,
   fills: true, bridges: true, grid: true, props: true, hazard: true,
@@ -640,7 +676,7 @@ function initWallsLayer() {
     for (const key of playerState.revealedCells) {
       const [r, c] = key.split(',').map(Number);
       if (r >= 0 && r < numRows && c >= 0 && c < numCols) {
-        _wallsCells[r][c] = cells[r][c];
+        _wallsCells[r][c] = _wallsCellForPlayer(cells[r][c], r, c);
       }
     }
     const theme = resolveTheme();
@@ -668,7 +704,7 @@ function revealWallsCells(cellKeys) {
   for (const key of cellKeys) {
     const [r, c] = key.split(',').map(Number);
     if (r >= 0 && r < numRows && c >= 0 && c < numCols) {
-      _wallsCells[r][c] = cells[r][c];
+      _wallsCells[r][c] = _wallsCellForPlayer(cells[r][c], r, c);
       if (r < minR) minR = r;
       if (r > maxR) maxR = r;
       if (c < minC) minC = c;

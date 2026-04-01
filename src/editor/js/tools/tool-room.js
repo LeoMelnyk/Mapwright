@@ -82,7 +82,19 @@ export class RoomTool extends Tool {
     requestRender();
   }
 
+  onKeyDown(event) {
+    if (event.key === 'Escape' && this.dragging) {
+      this._cancelDrag();
+      event.preventDefault();
+    }
+  }
+
   onRightClick(row, col) {
+    if (this.dragging) {
+      this._cancelDrag();
+      return;
+    }
+
     const cells = state.dungeon.cells;
     if (!isInBounds(cells, row, col)) return;
     if (cells[row][col] === null) return; // already void
@@ -112,6 +124,14 @@ export class RoomTool extends Tool {
     invalidateLightmap();
     smartInvalidate(before, cells);
     markDirty();
+  }
+
+  _cancelDrag() {
+    this.dragging = false;
+    this.dragStart = null;
+    this.dragEnd = null;
+    this.mousePos = null;
+    requestRender();
   }
 
   /**

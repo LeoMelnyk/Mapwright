@@ -360,8 +360,21 @@ export function convertOnePageDungeon(opd) {
     // Rotation: horizontal passage = 0, vertical = 90
     const rotation = door.dir.x !== 0 ? 90 : 0;
 
-    if (door.type === 2) addProp(r, c, 'archway', rotation);
-    else if (door.type === 4) addProp(r, c, 'portcullis', rotation);
+    if (door.type === 2) {
+      // Center the archway prop in the 2×2 block (offset 0.5 perpendicular to passage)
+      if (rotation === 0) {
+        // Horizontal archway (1×2): center vertically
+        addProp(r + 0.5, c, 'archway', 0);
+      } else {
+        // Vertical archway (2×1): center horizontally
+        addProp(r, c + 0.5, 'archway', 90);
+      }
+      // Place invisible door at center of 2×2 block for fog/BFS control
+      const doorAxis = door.dir.x !== 0 ? 'ew' : 'ns';
+      setCenterDoor(cells, r, c, doorAxis, 'id');
+    } else if (door.type === 4) {
+      addProp(r, c, 'portcullis', rotation);
+    }
   }
 
   // ── 9. Water fills (each OPD water cell → 2×2 subcells) ────────────
