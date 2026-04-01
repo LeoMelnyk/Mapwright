@@ -10,7 +10,7 @@
 // Outputs at resolution=2 (half-cell grid) and formatVersion=4 natively,
 // bypassing the migration pipeline entirely.
 
-import { computeCircleCenter, computeArcCellData, computeTrimCells } from '../../util/trim-geometry.js';
+import { computeCircleCenter, computeArcCellData } from '../../util/trim-geometry.js';
 
 const RES = 2;             // half-cell resolution: each Donjon cell → 2×2 subcells
 const FORMAT_VERSION = 4;  // current format (half-cell + per-cell arcs)
