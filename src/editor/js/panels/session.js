@@ -18,15 +18,19 @@ export function initSessionPanel(containerEl) {
 let _lastSessionActive = null;
 let _lastSessionCells = null;
 let _lastPlayerCount = null;
+let _lastDmViewActive = null;
+let _lastDmViewForced = null;
 function render() {
   if (!container) return;
 
   const active = sessionState.active;
   // Skip rebuild if nothing relevant changed and DOM is still populated
-  if (active === _lastSessionActive && state.dungeon.cells === _lastSessionCells && sessionState.playerCount === _lastPlayerCount && container.children.length > 0) return;
+  if (active === _lastSessionActive && state.dungeon.cells === _lastSessionCells && sessionState.playerCount === _lastPlayerCount && sessionState.dmViewActive === _lastDmViewActive && sessionState.dmViewForced === _lastDmViewForced && container.children.length > 0) return;
   _lastSessionActive = active;
   _lastSessionCells = state.dungeon.cells;
   _lastPlayerCount = sessionState.playerCount;
+  _lastDmViewActive = sessionState.dmViewActive;
+  _lastDmViewForced = sessionState.dmViewForced;
 
   const labels = findRoomLabels();
 
@@ -66,7 +70,7 @@ function render() {
         </div>
 
         <div class="panel-field" style="margin-top:8px;display:flex;align-items:center;gap:6px;">
-          <input type="checkbox" id="dm-view-toggle" ${sessionState.dmViewActive ? 'checked' : ''} style="cursor:pointer;">
+          <input type="checkbox" id="dm-view-toggle" ${(sessionState.dmViewActive || sessionState.dmViewForced) ? 'checked' : ''} ${sessionState.dmViewForced ? 'disabled' : ''} style="cursor:pointer;">
           <label for="dm-view-toggle" style="cursor:pointer;font-size:12px;">DM View (fog overlay)</label>
         </div>
 

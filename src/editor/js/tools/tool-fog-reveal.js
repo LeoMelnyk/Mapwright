@@ -18,6 +18,7 @@ export class FogRevealTool extends Tool {
   onActivate() {
     this._prevDmView = sessionState.dmViewActive;
     sessionState.dmViewActive = true;
+    sessionState.dmViewForced = true;
     state.statusInstruction = 'Drag to reveal cells, right-click to re-fog';
     requestRender();
     notify();
@@ -26,6 +27,7 @@ export class FogRevealTool extends Tool {
   onDeactivate() {
     this.dragging = false;
     this.dragStart = this.dragEnd = null;
+    sessionState.dmViewForced = false;
     sessionState.dmViewActive = this._prevDmView;
     state.statusInstruction = null;
     requestRender();

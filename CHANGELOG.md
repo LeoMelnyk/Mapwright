@@ -55,6 +55,8 @@ The player view rendering pipeline has been rebuilt with a layered compositing a
 
 - **Fixed double door buttons in DM session**: Adjacent doors that visually merge into a single double door now show one "open door" button instead of two separate buttons. Clicking the merged button opens all doors in the group at once.
 - **Fixed blank right-sidebar panels**: Panels with render caching (Background Image, Lighting, Session, History) appeared completely empty when switching tabs, because the cache skipped DOM rebuilds even when the container had been cleared. Panels now detect an empty container and force a rebuild regardless of cached state.
+- **Fixed room tool lacking cancel**: Right-clicking or pressing Escape while dragging a room now cancels the placement instead of committing it. Right-click on a non-dragging cell still voids it as before.
+- **Fixed Fog Reveal tool DM overlay**: The DM fog overlay is now forced on (and the checkbox disabled) while the Fog Reveal tool is active, preventing the toggle from getting out of sync. Switching away from the Player Session panel now correctly hides the overlay and deactivates the session tool.
 
 ## v0.8.0
 

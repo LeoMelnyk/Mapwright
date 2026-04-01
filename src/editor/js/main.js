@@ -101,6 +101,9 @@ function enterSessionToolsMode() {
 }
 
 function exitSessionToolsMode() {
+  // Deactivate current session tool (e.g. fog reveal) so it cleans up state
+  setSessionTool(null);
+
   // Hide session toolbar + range sub-options, show normal toolbar
   document.getElementById('session-tool-row').style.display = 'none';
   const rangeOpts = document.getElementById('range-options');

@@ -20,6 +20,7 @@ export const sessionState = {
   startingRoom: null,    // cell key of starting room anchor
   playerCount: 0,
   dmViewActive: false,   // true when DM fog overlay is enabled
+  dmViewForced: false,   // true when a tool (e.g. fog reveal) forces the overlay on
 };
 
 // ── WebSocket ───────────────────────────────────────────────────────────────
@@ -431,7 +432,9 @@ export function toggleDmView() {
  * Called from the canvas render loop whenever the session is active.
  */
 export function renderDmFogOverlay(ctx, transform, gridSize) {
-  if (!sessionState.active || !sessionState.dmViewActive) return;
+  if (!sessionState.active) return;
+  // Show overlay when: forced by a tool (e.g. fog reveal), OR manually enabled while session panel is open
+  if (!sessionState.dmViewForced && !(sessionState.dmViewActive && state.sessionToolsActive)) return;
 
   const cells = state.dungeon.cells;
   const numRows = cells.length;
