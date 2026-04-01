@@ -923,60 +923,62 @@ function renderFillPatternsAndGrid(ctx, cells, roomCells, gridSize, theme, trans
   const data = getFluidPathCache(cells, gridSize, theme, roomCells);
 
   if (data.pit || data.water || data.lava) {
-    // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
-    const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
+    withTrimVoidClip(ctx, cells, gridSize, transform, () => {
+      // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
+      const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
 
-    if (fluidLayer) {
-      // Blit the cached fluid layer
-      ctx.drawImage(fluidLayer, 0, 0);
-    } else {
-      // Direct render path (viewport mode or first build before cache is ready)
-      ctx.save();
-      ctx.setTransform(sc, 0, 0, sc, txOff, tyOff);
-
-      for (const fd of [data.pit, data.water, data.lava]) {
-        if (!fd) continue;
+      if (fluidLayer) {
+        // Blit the cached fluid layer
+        ctx.drawImage(fluidLayer, 0, 0);
+      } else {
+        // Direct render path (viewport mode or first build before cache is ready)
         ctx.save();
-        ctx.clip(fd.clipPath);
+        ctx.setTransform(sc, 0, 0, sc, txOff, tyOff);
 
-        for (const [colorKey, path] of fd.fills) {
-          const rv = (colorKey >> 16) & 0xFF;
-          const gv = (colorKey >> 8) & 0xFF;
-          const bv = colorKey & 0xFF;
-          ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
-          ctx.fill(path);
-        }
+        for (const fd of [data.pit, data.water, data.lava]) {
+          if (!fd) continue;
+          ctx.save();
+          ctx.clip(fd.clipPath);
 
-        if (fd.cracksPath) {
-          ctx.strokeStyle = fd.crackColor;
-          ctx.lineWidth = Math.max(0.3 / sc, 0.06);
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-          ctx.stroke(fd.cracksPath);
-
-          for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
-            const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
-            grad.addColorStop(0, fd.vignetteColor);
-            grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = grad;
-            for (const [r2, c2] of group) {
-              ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
-            }
+          for (const [colorKey, path] of fd.fills) {
+            const rv = (colorKey >> 16) & 0xFF;
+            const gv = (colorKey >> 8) & 0xFF;
+            const bv = colorKey & 0xFF;
+            ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
+            ctx.fill(path);
           }
-        } else {
-          ctx.strokeStyle = fd.causticColor;
-          ctx.lineWidth = Math.max(0.5 / sc, 0.09);
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-          ctx.stroke(fd.causticPath);
+
+          if (fd.cracksPath) {
+            ctx.strokeStyle = fd.crackColor;
+            ctx.lineWidth = Math.max(0.3 / sc, 0.06);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke(fd.cracksPath);
+
+            for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
+              const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
+              grad.addColorStop(0, fd.vignetteColor);
+              grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.fillStyle = grad;
+              for (const [r2, c2] of group) {
+                ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
+              }
+            }
+          } else {
+            ctx.strokeStyle = fd.causticColor;
+            ctx.lineWidth = Math.max(0.5 / sc, 0.09);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke(fd.causticPath);
+          }
+
+          ctx.restore();
         }
 
         ctx.restore();
       }
-
-      ctx.restore();
-    }
+    });
   }
 
   // Grid overlay — skipped here when caller handles it separately (e.g. to draw bridges first).
