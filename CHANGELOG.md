@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.8.1
+
+### Bug Fixes
+
+- **Fixed blank right-sidebar panels**: Panels with render caching (Background Image, Lighting, Session, History) appeared completely empty when switching tabs, because the cache skipped DOM rebuilds even when the container had been cleared. Panels now detect an empty container and force a rebuild regardless of cached state.
+
 ## v0.8.0
 
 ### User-Saved Themes

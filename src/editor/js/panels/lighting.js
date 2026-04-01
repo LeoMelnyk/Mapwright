@@ -23,8 +23,8 @@ function render() {
     ? lights.find(l => l.id === state.selectedLightId)
     : null;
 
-  // Skip rebuild if nothing relevant changed
-  if (lights === _lastLights && state.selectedLightId === _lastSelectedLightId && !!metadata.lightingEnabled === _lastLightingEnabled) return;
+  // Skip rebuild if nothing relevant changed and DOM is still populated
+  if (lights === _lastLights && state.selectedLightId === _lastSelectedLightId && !!metadata.lightingEnabled === _lastLightingEnabled && container.children.length > 0) return;
   _lastLights = lights;
   _lastSelectedLightId = state.selectedLightId;
   _lastLightingEnabled = !!metadata.lightingEnabled;

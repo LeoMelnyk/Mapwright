@@ -17,8 +17,8 @@ function update() {
   const stack = state.undoStack;
   const redoStack = state.redoStack;
 
-  // Skip rebuild if stack depths haven't changed
-  if (stack.length === _lastUndoLen && redoStack.length === _lastRedoLen) return;
+  // Skip rebuild if stack depths haven't changed and DOM is still populated
+  if (stack.length === _lastUndoLen && redoStack.length === _lastRedoLen && container.children.length > 0) return;
   _lastUndoLen = stack.length;
   _lastRedoLen = redoStack.length;
 

@@ -22,8 +22,8 @@ function render() {
   if (!container) return;
 
   const active = sessionState.active;
-  // Skip rebuild if nothing relevant changed
-  if (active === _lastSessionActive && state.dungeon.cells === _lastSessionCells && sessionState.playerCount === _lastPlayerCount) return;
+  // Skip rebuild if nothing relevant changed and DOM is still populated
+  if (active === _lastSessionActive && state.dungeon.cells === _lastSessionCells && sessionState.playerCount === _lastPlayerCount && container.children.length > 0) return;
   _lastSessionActive = active;
   _lastSessionCells = state.dungeon.cells;
   _lastPlayerCount = sessionState.playerCount;
