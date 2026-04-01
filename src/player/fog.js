@@ -2,23 +2,57 @@
 import { cellKey } from '../util/index.js';
 import { classifyStairShape, getOccupiedCells } from '../editor/js/index.js';
 
-// Which cardinal neighbors are on the exterior side for each trimCorner
+// Which neighbors are on the exterior side for each trimCorner.
+// Includes cardinal + the corner diagonal to handle large arcs where
+// cardinals traverse 3+ trim cells before reaching a non-trim cell.
 const _EXTERIOR_DIRS = {
-  nw: [[-1, 0], [0, -1]],  // north, west
-  ne: [[-1, 0], [0,  1]],  // north, east
-  sw: [[ 1, 0], [0, -1]],  // south, west
-  se: [[ 1, 0], [0,  1]],  // south, east
+  nw: [[-1, 0], [0, -1], [-1, -1]],  // north, west, nw diagonal
+  ne: [[-1, 0], [0,  1], [-1,  1]],  // north, east, ne diagonal
+  sw: [[ 1, 0], [0, -1], [ 1, -1]],  // south, west, sw diagonal
+  se: [[ 1, 0], [0,  1], [ 1,  1]],  // south, east, se diagonal
 };
 const _INTERIOR_DIRS = {
-  nw: [[ 1, 0], [0,  1]],  // south, east
-  ne: [[ 1, 0], [0, -1]],  // south, west
-  sw: [[-1, 0], [0,  1]],  // north, east
-  se: [[-1, 0], [0, -1]],  // north, west
+  nw: [[ 1, 0], [0,  1], [ 1,  1]],  // south, east, se diagonal
+  ne: [[ 1, 0], [0, -1], [ 1, -1]],  // south, west, sw diagonal
+  sw: [[-1, 0], [0,  1], [-1,  1]],  // north, east, ne diagonal
+  se: [[-1, 0], [0, -1], [-1, -1]],  // north, west, nw diagonal
 };
 
 /**
+ * Ray-casting point-in-polygon test.
+ */
+function _pip(px, py, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/**
+ * Check whether a direction exits through the interior (trimClip) side
+ * of the cell.  Used to validate direction-array candidates against the
+ * actual arc geometry.
+ */
+function _exitsInterior(dr, dc, clip) {
+  // Exit point on cell boundary, nudged toward center to avoid edge ambiguity
+  const px = (dc + 1) / 2 * 0.96 + 0.02;
+  const py = (dr + 1) / 2 * 0.96 + 0.02;
+  return _pip(px, py, clip);
+}
+
+/**
  * Classify all trim cells in a revealed set.
- * Uses trimCorner to determine which neighbors are exterior vs interior.
+ *
+ * For each trim cell, direction arrays (based on trimCorner) provide candidate
+ * search directions for the interior and exterior sides.  Each candidate is
+ * validated against the cell's trimClip polygon — if the exit point lands on
+ * the wrong side of the arc wall, the direction is skipped.  This handles
+ * inverted arcs where the fixed direction mapping can be inaccurate.
+ *
  * Returns a Map of "r,c" → 'roomOnly' | 'exteriorOnly' | 'both'.
  */
 export function classifyAllTrimFog(revealedCells, cells) {
@@ -29,26 +63,36 @@ export function classifyAllTrimFog(revealedCells, cells) {
     const cell = cells[r]?.[c];
     if (!cell?.trimClip || !cell.trimCorner) continue;
 
+    const clip = cell.trimClip;
+
     // Check 1–2 cells out in each direction for a non-trim revealed cell.
-    // Limited to 2 cells to avoid crossing through the arc boundary and
-    // finding revealed cells on the opposite side of the circle.
-    const _sideRevealed = (dirs) => {
+    // Each direction is validated against the trimClip polygon to ensure it
+    // exits on the expected side of the arc wall.
+    const _sideRevealed = (dirs, wantInterior) => {
       for (const [dr, dc] of dirs) {
+        // Validate: does this direction actually exit on the expected side?
+        const isInterior = _exitsInterior(dr, dc, clip);
+        if (isInterior !== wantInterior) continue;
+
         for (let dist = 1; dist <= 2; dist++) {
           const nr = r + dr * dist, nc = c + dc * dist;
           const neighbor = cells[nr]?.[nc];
-          if (!neighbor) break; // void or out of bounds — try next direction
+          if (!neighbor) break; // void or out of bounds
           if (!neighbor.trimClip) {
             if (revealedCells.has(cellKey(nr, nc))) return true;
-            break; // non-trim but not revealed — try next direction
+            break; // non-trim but not revealed
           }
+          // Intermediate trim cell: verify the direction still exits on the
+          // expected side.  Large/inverted arcs can curve so that a direction
+          // that starts on the exterior flips to interior at the next cell.
+          if (_exitsInterior(dr, dc, neighbor.trimClip) !== wantInterior) break;
         }
       }
       return false;
     };
 
-    const extRevealed = _sideRevealed(_EXTERIOR_DIRS[cell.trimCorner]);
-    const intRevealed = _sideRevealed(_INTERIOR_DIRS[cell.trimCorner]);
+    const extRevealed = _sideRevealed(_EXTERIOR_DIRS[cell.trimCorner], false);
+    const intRevealed = _sideRevealed(_INTERIOR_DIRS[cell.trimCorner], true);
 
     if (intRevealed && extRevealed) results.set(key, 'both');
     else if (intRevealed) results.set(key, 'roomOnly');
