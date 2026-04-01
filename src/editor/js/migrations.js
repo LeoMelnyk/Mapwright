@@ -539,6 +539,30 @@ function _repairArcFloodBoundary(cells) {
   if (repaired > 0) console.log(`[migration] Repaired ${repaired} arc flood-boundary cells`);
 }
 
+/** Check if a point is in the corner's quadrant relative to arc center. */
+function _inCornerQuad(x, y, cx, cy, corner) {
+  switch (corner) {
+    case 'nw': return x <= cx && y <= cy;
+    case 'ne': return x >= cx && y <= cy;
+    case 'sw': return x <= cx && y >= cy;
+    case 'se': return x >= cx && y >= cy;
+  }
+}
+
+/**
+ * Check if a cell is inside the room from the arc corner's perspective.
+ * Arc corner coords are grid intersections: NW is at the first cell (inclusive),
+ * while NE/SW/SE are one past the last cell in their respective directions.
+ */
+function _inTrimZone(r, c, cornerRow, cornerCol, corner) {
+  switch (corner) {
+    case 'nw': return r >= cornerRow && c >= cornerCol;
+    case 'ne': return r >= cornerRow && c < cornerCol;
+    case 'sw': return r < cornerRow && c >= cornerCol;
+    case 'se': return r < cornerRow && c < cornerCol;
+  }
+}
+
 /**
  * v3→v4: Convert old-format arc trim cells (trimRound, trimInsideArc, trimArcCenter*)
  * to new per-cell format (trimClip, trimWall, trimPassable).
@@ -609,6 +633,10 @@ function _migrateArcToPerCell(cells) {
             cell.trimCrossing = data.trimCrossing;
             if (arc.open) cell.trimOpen = true;
             if (arc.inverted) cell.trimInverted = true;
+          } else {
+            // Arc doesn't intersect this cell — clean stale corner marker
+            delete cell.trimCorner;
+            delete cell.trimOpen;
           }
           converted++;
         } else if (cell.trimInsideArc && isThisArc) {
@@ -633,6 +661,55 @@ function _migrateArcToPerCell(cells) {
             if (arc.open) cell.trimOpen = true;
             if (arc.inverted) cell.trimInverted = true;
             converted++;
+          }
+        }
+      }
+    }
+
+    // Second pass: scan the arc's bounding box for cells the arc passes
+    // through that weren't marked in the old format. The old format only
+    // tagged hypotenuse-diagonal cells with trimRound, but the circular arc
+    // extends beyond those into neighboring cells.
+    const rMin = Math.max(0, Math.floor(cy - R) - 1);
+    const rMax = Math.min(numRows - 1, Math.ceil(cy + R) + 1);
+    const cMin = Math.max(0, Math.floor(cx - R) - 1);
+    const cMax = Math.min(numCols - 1, Math.ceil(cx + R) + 1);
+
+    for (let r = rMin; r <= rMax; r++) {
+      for (let c = cMin; c <= cMax; c++) {
+        const cell = cells[r]?.[c];
+        if (!cell || cell.trimClip) continue; // skip void or already-processed
+        const data = computeArcCellData(r, c, cx, cy, R, arc.corner, arc.inverted);
+        if (data) {
+          cell.trimCorner = arc.corner;
+          cell.trimClip = data.trimClip;
+          cell.trimWall = data.trimWall;
+          cell.trimCrossing = data.trimCrossing;
+          if (arc.open) cell.trimOpen = true;
+          if (arc.inverted) cell.trimInverted = true;
+          converted++;
+        } else {
+          if (cell.trimCorner === arc.corner && !cell.trimWall) {
+            // Stale trimCorner from old format — clean up
+            delete cell.trimCorner;
+            delete cell.trimOpen;
+          }
+          // Promote secondary texture on cells outside the arc (void side).
+          // For open trims these stay as floor but should show the outer texture.
+          // Only apply within the arc's own quadrant to avoid cross-corner overlap.
+          if (cell.textureSecondary && arc.open) {
+            const d2 = (c + 0.5 - cx) ** 2 + (r + 0.5 - cy) ** 2;
+            const outside = arc.inverted ? d2 < R * R : d2 > R * R;
+            const inQuad = arc.inverted
+              ? !_inCornerQuad(c + 0.5, r + 0.5, cx, cy, arc.corner)
+              : _inCornerQuad(c + 0.5, r + 0.5, cx, cy, arc.corner);
+            const inZone = arc.inverted
+              ? !_inTrimZone(r, c, arc.centerRow, arc.centerCol, arc.corner)
+              : _inTrimZone(r, c, arc.centerRow, arc.centerCol, arc.corner);
+            if (outside && inQuad && inZone) {
+              cell.texture = cell.textureSecondary;
+              cell.textureOpacity = 1;
+            }
           }
         }
       }
