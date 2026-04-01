@@ -28,6 +28,14 @@
     </select>
   </div>
 
+  <!-- Loading overlay (shown while full-map cache is building) -->
+  <div id="loading-overlay" class="hidden">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-label">Loading map…</div>
+    </div>
+  </div>
+
   <button id="resync-btn">Back to DM View</button>
   <div id="connection-status">Connecting…</div>
   <script type="module" src="player-main.js"></script>

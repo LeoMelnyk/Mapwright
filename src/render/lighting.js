@@ -11,7 +11,6 @@ import { extractOverlayPropLightSegments } from './props.js';
 // ─── Constants ─────
 const INVERSE_SQUARE_K = 25;
 const RAY_EPSILON = 0.00001;
-const NUM_ARC_SEGS = 12;
 const ANIM_TIME_SCALE = 0.4;
 const GRADIENT_STOPS = 16;
 
@@ -60,8 +59,8 @@ export function extractWallSegments(cells, gridSize, propCatalog, metadata = nul
       if (!cells[row]?.[col - 1]) addSeg(cx,  cy,  cx,  cy1);
       if (!cells[row]?.[col + 1]) addSeg(cx1, cy,  cx1, cy1);
 
-      // Diagonal walls — skip for arc-trimmed cells; arc segments provide the boundary instead
-      if (!cell.trimRound) {
+      // Diagonal walls — skip for arc-trimmed cells; trimWall polylines provide the boundary instead
+      if (!cell.trimWall) {
         if (cell['nw-se'] && cell['nw-se'] !== 'iw' && cell['nw-se'] !== 'id') addSeg(cx, cy, cx1, cy1);
         if (cell['ne-sw'] && cell['ne-sw'] !== 'iw' && cell['ne-sw'] !== 'id') addSeg(cx1, cy, cx, cy1);
       }
@@ -86,68 +85,20 @@ export function extractWallSegments(cells, gridSize, propCatalog, metadata = nul
     }
   }
 
-  // Arc trim segments — approximate circular room boundaries with polylines.
-  // Uses the same geometry as buildArcVoidClip() in render.js so that light
-  // is blocked at the arc wall, matching how textures are clipped there.
-  const arcMap = new Map();
+  // Arc trim wall segments — read per-cell trimWall polylines and convert to
+  // world-feet line segments for the shadow/visibility system.
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      const cell = cells[row][col];
-      if (!cell?.trimRound) continue;
-      const key = `${cell.trimArcCenterRow},${cell.trimArcCenterCol}`;
-      if (!arcMap.has(key)) {
-        arcMap.set(key, {
-          centerRow: cell.trimArcCenterRow,
-          centerCol: cell.trimArcCenterCol,
-          radius:    cell.trimArcRadius,
-          corner:    cell.trimCorner,
-          inverted:  !!cell.trimArcInverted,
-        });
+      const cell = cells[row]?.[col];
+      if (!cell?.trimWall) continue;
+      const wall = cell.trimWall;
+      const ox = col * gridSize, oy = row * gridSize;
+      for (let i = 0; i < wall.length - 1; i++) {
+        addSeg(
+          ox + wall[i][0] * gridSize, oy + wall[i][1] * gridSize,
+          ox + wall[i + 1][0] * gridSize, oy + wall[i + 1][1] * gridSize
+        );
       }
-    }
-  }
-
-  for (const rc of arcMap.values()) {
-    const R = rc.radius * gridSize;
-    let acx, acy, startAngle, endAngle, anticlockwise;
-
-    if (rc.inverted) {
-      // Inverted arc: center is the trim block origin (same as ocp in render.js)
-      acx = rc.centerCol * gridSize;
-      acy = rc.centerRow * gridSize;
-      switch (rc.corner) {
-        case 'nw': startAngle = Math.PI / 2;   endAngle = 0;               anticlockwise = true;  break;
-        case 'ne': startAngle = Math.PI / 2;   endAngle = Math.PI;         anticlockwise = false; break;
-        case 'sw': startAngle = 0;             endAngle = 3 * Math.PI / 2; anticlockwise = true;  break;
-        case 'se': startAngle = Math.PI;       endAngle = 3 * Math.PI / 2; anticlockwise = false; break;
-        default: continue;
-      }
-    } else {
-      // Non-inverted arc: center is offset inward by radius (same as acp in render.js)
-      switch (rc.corner) {
-        case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; startAngle = 3*Math.PI/2; endAngle = Math.PI;         anticlockwise = true;  break;
-        case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; startAngle = 3*Math.PI/2; endAngle = 0;               anticlockwise = false; break;
-        case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; startAngle = Math.PI/2;   endAngle = Math.PI;         anticlockwise = false; break;
-        case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; startAngle = Math.PI/2;   endAngle = 0;               anticlockwise = true;  break;
-        default: continue;
-      }
-    }
-
-    // Compute angular span (always positive)
-    let range = anticlockwise ? startAngle - endAngle : endAngle - startAngle;
-    if (range <= 0) range += 2 * Math.PI;
-
-    // Approximate arc as line segments (sufficient for a quarter-circle)
-    let prevX = acx + R * Math.cos(startAngle);
-    let prevY = acy + R * Math.sin(startAngle);
-    for (let i = 1; i <= NUM_ARC_SEGS; i++) {
-      const t = i / NUM_ARC_SEGS;
-      const angle = anticlockwise ? startAngle - t * range : startAngle + t * range;
-      const x = acx + R * Math.cos(angle);
-      const y = acy + R * Math.sin(angle);
-      addSeg(prevX, prevY, x, y);
-      prevX = x;
-      prevY = y;
     }
   }
 

@@ -365,12 +365,15 @@ function updateCellInfo() {
     }
 
     // Trim
-    if (cell.trimCorner) {
+    if (cell.trimCorner || cell.trimWall || cell.trimClip) {
       bodyHtml += '<div class="prop-section">Trim</div>';
-      bodyHtml += `<div class="prop-row"><span>corner</span><span class="prop-val">${cell.trimCorner}</span></div>`;
-      if (cell.trimRound) bodyHtml += `<div class="prop-row"><span>round</span><span class="prop-val">true</span></div>`;
-      if (cell.trimArcInverted) bodyHtml += `<div class="prop-row"><span>inverted</span><span class="prop-val">true</span></div>`;
-      if (cell.trimArcRadius) bodyHtml += `<div class="prop-row"><span>radius</span><span class="prop-val">${cell.trimArcRadius}</span></div>`;
+      if (cell.trimCorner) bodyHtml += `<div class="prop-row"><span>corner</span><span class="prop-val">${cell.trimCorner}</span></div>`;
+      if (cell.trimWall) bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">round arc</span></div>`;
+      else if (cell['ne-sw'] || cell['nw-se']) bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">straight diagonal</span></div>`;
+      if (cell.trimOpen) bodyHtml += `<div class="prop-row"><span>open</span><span class="prop-val">true</span></div>`;
+      if (cell.trimInverted) bodyHtml += `<div class="prop-row"><span>inverted</span><span class="prop-val">true</span></div>`;
+      if (cell.trimWall) bodyHtml += `<div class="prop-row"><span>wall pts</span><span class="prop-val">${cell.trimWall.length}</span></div>`;
+      if (cell.trimClip) bodyHtml += `<div class="prop-row"><span>clip pts</span><span class="prop-val">${cell.trimClip.length}</span></div>`;
     }
 
     // Fill
@@ -412,9 +415,16 @@ function updateCellInfo() {
       bodyHtml += `<div class="prop-row"><span>id</span><span class="prop-val">${overlayProp.id}</span></div>`;
     }
 
-    // Raw JSON
-    bodyHtml += '<div class="prop-section">Raw JSON</div>';
-    bodyHtml += `<pre class="prop-json">${JSON.stringify(cell, null, 2)}</pre>`;
+    // Texture
+    if (cell.texture || cell.textureSecondary) {
+      bodyHtml += '<div class="prop-section">Texture</div>';
+      if (cell.texture) bodyHtml += `<div class="prop-row"><span>primary</span><span class="prop-val" title="${cell.texture}">${cell.texture.split('/').pop()}</span></div>`;
+      if (cell.textureSecondary) bodyHtml += `<div class="prop-row"><span>secondary</span><span class="prop-val" title="${cell.textureSecondary}">${cell.textureSecondary.split('/').pop()}</span></div>`;
+    }
+
+    // Raw JSON (collapsed by default)
+    bodyHtml += '<details class="prop-raw-details"><summary class="prop-section" style="cursor:pointer">Raw JSON \u25B6</summary>';
+    bodyHtml += `<pre class="prop-json">${JSON.stringify(cell, null, 2)}</pre></details>`;
   }
 
   fp.innerHTML = `

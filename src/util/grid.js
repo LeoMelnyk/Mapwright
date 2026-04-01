@@ -177,19 +177,6 @@ export function lockDiagonalHalf(visited, r, c, entryDir, cell) {
   }
 }
 
-// For each trimCorner, the cardinal directions that point toward the room interior.
-// Used by the arc post-pass to distinguish interior-seeded fills from exterior-seeded fills.
-// NW void corner → interior is SE half (south + east exits from the hypotenuse cell)
-// NE void corner → interior is SW half (south + west exits)
-// SW void corner → interior is NE half (north + east exits)
-// SE void corner → interior is NW half (north + west exits)
-const ARC_INTERIOR_DIRS = {
-  nw: new Set(['south', 'east']),
-  ne: new Set(['south', 'west']),
-  sw: new Set(['north', 'east']),
-  se: new Set(['north', 'west']),
-};
-
 /**
  * Diagonal-aware BFS that floods a connected room region.
  * Returns a Set of "row,col" cell keys for the room.
@@ -230,12 +217,21 @@ export function floodFillRoom(cells, startRow, startCol, options = {}) {
     if (!cell) continue;
 
     const diagonalBlocked = blockedByDiagonal(cell, entryDir);
+
+    // Arc wall exit blocking: 3×3 sub-grid crossing matrix determines which
+    // exits are reachable from the entry direction without crossing the arc.
+    let arcExits = null;
+    if (cell.trimCrossing) {
+      arcExits = cell.trimCrossing[entryDir?.[0]] ?? '';
+    }
+
     for (const { dir, dr, dc } of CARDINAL_DIRS) {
       // Check exit edge on current cell
       const edge = cell[dir];
       if (edge === 'w' || edge === 'iw') continue;   // wall and invisible wall always block
       if (edge && !traverseDoors) continue;           // doors (including 'id') block unless traverseDoors
       if (diagonalBlocked.has(dir)) continue;         // diagonal wall blocks this exit
+      if (arcExits !== null && !arcExits.includes(dir[0])) continue; // arc wall blocks this exit
 
       const nr = r + dr, nc = c + dc;
       if (nr < rowMin || nr > rowMax) continue;       // row-range constraint
@@ -252,101 +248,71 @@ export function floodFillRoom(cells, startRow, startCol, options = {}) {
       const nEdge = neighbor[neighborEntryDir];
       if (nEdge === 'w' || nEdge === 'iw') continue;  // wall and invisible wall always block
       if (nEdge && !traverseDoors) continue;           // doors (including 'id') block unless traverseDoors
-      // Open-trim arch floor cells are fog-of-war boundaries: visible from either side
-      // but looking through an arch doesn't auto-reveal the room beyond it.
-      if (neighbor.trimInsideArc && !traverseDoors) continue;
 
+      // Lock arc cell to the side it's first reached from (like lockDiagonalHalf).
+      // Uses crossing matrix: lock entry directions whose reachable set differs.
+      if (neighbor.trimCrossing) {
+        const tc = neighbor.trimCrossing;
+        const myExits = tc[neighborEntryDir[0]] ?? '';
+        for (const ld of ['north', 'south', 'east', 'west']) {
+          if (ld === neighborEntryDir) continue;
+          const otherExits = tc[ld[0]] ?? '';
+          if (otherExits !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
+        }
+      }
       lockDiagonalHalf(visitedTraversal, nr, nc, neighborEntryDir, neighbor);
       queue.push([nr, nc, neighborEntryDir]);
+
+      // Skip trimWall cells in the main BFS — the arc post-pass handles them.
+      // The main BFS still traverses THROUGH arc cells (they're in the queue)
+      // so non-arc cells on the far side are reachable, but arc cells themselves
+      // are claimed by adjacency in the post-pass to avoid corner-clip misses.
+      if (neighbor.trimWall) continue;
+
       filledCells.add(cellKey(nr, nc));
     }
   }
 
-  // Arc post-pass: include trimRound cells adjacent to the filled region, and
-  // trimInsideArc cells only when the adjacent trimRound cell was seeded from the
-  // room-interior side of the arc.
-  //
-  // For open round trims, trimInsideArc cells are arch-floor cells that sit inside
-  // the arc curve with all walls cleared. When the DM reveals exterior cells, those
-  // exterior cells are wall-adjacent to trimInsideArc cells (the open trim cleared
-  // the boundary walls). Without interior-gating, the post-pass would flood through
-  // the arch into the room interior. We prevent this by checking which side of the
-  // diagonal the fill originated from before including trimInsideArc cells.
-  //
-  // checkInterior: returns true if any interior-direction (non-trimRound) neighbor
-  // of a trimRound cell is already in filledCells — meaning the fill came from
-  // the room side of the arc, not the exterior.
-  const checkInterior = (r, c, trimCorner) => {
-    const dirs = ARC_INTERIOR_DIRS[trimCorner];
-    if (!dirs) return false;
-    for (const { dir, dr, dc } of CARDINAL_DIRS) {
-      if (!dirs.has(dir)) continue;
-      const nr = r + dr, nc = c + dc;
-      const nCell = cells[nr]?.[nc];
-      if (nCell && !nCell.trimRound && filledCells.has(cellKey(nr, nc))) return true;
-    }
-    return false;
-  };
+  // Arc post-pass: claim all trimWall cells adjacent to any filled cell,
+  // then propagate through connected trimWall cells. Mirrors the paint tool's
+  // arc post-pass (tool-paint.js lines 517-608).
+  {
+    const arcVisited = new Set();
+    const arcQueue = [];
 
-  // arcQueue entries: [r, c, interior]
-  // arcVisited tracks cells added to the queue (prevents re-processing).
-  // Key property: trimInsideArc cells are used as stepping stones for traversal
-  // (to reach all connected trimRound cells), but are only added to filledCells
-  // when interior=true. This ensures the complete circular arc wall is visible from
-  // exterior reveals, while the arch-floor cells (trimInsideArc) remain hidden.
-  const arcQueue = [];
-  const arcVisited = new Set();
-
-  // Snapshot the BFS fill so newly added arc cells don't re-enter the first scan.
-  const filledSnapshot = new Set(filledCells);
-  for (const k of filledSnapshot) {
-    const [fr, fc] = parseCellKey(k);
-    const fCell = cells[fr]?.[fc];
-    if (fCell?.trimRound && !arcVisited.has(k)) {
-      arcVisited.add(k);
-      arcQueue.push([fr, fc, checkInterior(fr, fc, fCell.trimCorner)]);
-    }
-    for (const { dr, dc } of CARDINAL_DIRS) {
-      const nr = fr + dr, nc = fc + dc;
-      if (nr < rowMin || nr > rowMax) continue;
-      const neighbor = cells[nr]?.[nc];
-      if (!neighbor) continue;
-      const nKey = cellKey(nr, nc);
-      if (arcVisited.has(nKey)) continue;
-      if (neighbor.trimRound) {
+    // Seed: non-arc filled cells adjacent to arc cells.
+    // Skip cells sandwiched between arc cells (gap between circles).
+    for (const k of filledCells) {
+      const [fr, fc] = k.split(',').map(Number);
+      const fCell = cells[fr]?.[fc];
+      if (fCell?.trimWall) continue;
+      const hasArcN = !!cells[fr - 1]?.[fc]?.trimWall;
+      const hasArcS = !!cells[fr + 1]?.[fc]?.trimWall;
+      const hasArcE = !!cells[fr]?.[fc + 1]?.trimWall;
+      const hasArcW = !!cells[fr]?.[fc - 1]?.trimWall;
+      if ((hasArcN && hasArcS) || (hasArcE && hasArcW)) continue;
+      for (const { dr, dc } of CARDINAL_DIRS) {
+        const nr = fr + dr, nc = fc + dc;
+        if (!cells[nr]?.[nc]?.trimWall) continue;
+        const nKey = cellKey(nr, nc);
+        if (arcVisited.has(nKey)) continue;
         arcVisited.add(nKey);
         filledCells.add(nKey);
-        arcQueue.push([nr, nc, checkInterior(nr, nc, neighbor.trimCorner)]);
-      }
-      if (neighbor.trimInsideArc) {
-        arcVisited.add(nKey);
-        // Reveal immediately if interior-seeded; otherwise queue as stepping stone only.
-        const fInterior = fCell?.trimInsideArc ||
-          (fCell?.trimRound && checkInterior(fr, fc, fCell.trimCorner));
-        if (fInterior) filledCells.add(nKey);
-        arcQueue.push([nr, nc, fInterior]);
+        arcQueue.push([nr, nc]);
       }
     }
-  }
-  while (arcQueue.length > 0) {
-    const [ar, ac, interior] = arcQueue.shift();
-    for (const { dr, dc } of CARDINAL_DIRS) {
-      const nr = ar + dr, nc = ac + dc;
-      if (nr < rowMin || nr > rowMax) continue;
-      const neighbor = cells[nr]?.[nc];
-      if (!neighbor) continue;
-      const nKey = cellKey(nr, nc);
-      if (arcVisited.has(nKey)) continue;
-      arcVisited.add(nKey);
-      if (neighbor.trimRound) {
-        // trimRound cells are always added — they form the visible arc wall.
+
+    // Propagate through connected arc cells.
+    while (arcQueue.length > 0) {
+      const [ar, ac] = arcQueue.shift();
+      for (const { dr, dc } of CARDINAL_DIRS) {
+        const nr = ar + dr, nc = ac + dc;
+        if (!cells[nr]?.[nc]?.trimWall) continue;
+        const nKey = cellKey(nr, nc);
+        if (arcVisited.has(nKey)) continue;
+        arcVisited.add(nKey);
         filledCells.add(nKey);
-        const newInterior = checkInterior(nr, nc, neighbor.trimCorner);
-        arcQueue.push([nr, nc, interior || newInterior]);
-      } else if (neighbor.trimInsideArc) {
-        // trimInsideArc: reveal only when interior; always traverse for wall continuity.
-        if (interior) filledCells.add(nKey);
-        arcQueue.push([nr, nc, interior]);
+        arcQueue.push([nr, nc]);
       }
     }
   }

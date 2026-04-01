@@ -7,6 +7,7 @@ import {
   toInt,
   captureBeforeState, smartInvalidate,
 } from './_shared.js';
+import { computeTrimCells } from '../../../util/index.js';
 
 // ── Trim (reuses TrimTool._updatePreview + apply logic) ──────────────────
 
@@ -81,103 +82,112 @@ export function createTrim(r1, c1, r2, c2, cornerOrOptions = {}, extraOptions = 
   ];
   const before = captureBeforeState(cells, trimCoords);
   pushUndo();
-  const size = preview.hypotenuse.length;
 
-  // Void interior (or clear walls in open mode)
-  if (!open) {
-    for (const { row, col } of preview.voided) {
-      cells[row][col] = null;
+  // Helper: clear all walls and reciprocals from a cell
+  const clearWalls = (cell, r, c) => {
+    for (const dir of CARDINAL_DIRS) {
+      if (cell[dir]) {
+        delete cell[dir];
+        const [dr, dc] = OFFSETS[dir];
+        const neighbor = cells[r + dr]?.[c + dc];
+        if (neighbor) delete neighbor[OPPOSITE[dir]];
+      }
+    }
+    delete cell['nw-se'];
+    delete cell['ne-sw'];
+  };
+
+  const clearOldTrimFlags = (cell) => {
+    delete cell.trimRound;
+    delete cell.trimArcCenterRow;
+    delete cell.trimArcCenterCol;
+    delete cell.trimArcRadius;
+    delete cell.trimArcInverted;
+    delete cell.trimInsideArc;
+    delete cell.trimCorner;
+    delete cell.trimOpen;
+    delete cell.trimInverted;
+    delete cell.trimClip;
+    delete cell.trimWall;
+    delete cell.trimPassable;
+    delete cell.trimCrossing;
+  };
+
+  if (round) {
+    // ── Round trim: per-cell data from computeTrimCells ──
+    const trimData = computeTrimCells(preview, resolvedCorner, inverted, open);
+    const numRows = cells.length;
+    const numCols = cells[0]?.length || 0;
+
+    // Only clear walls on cells in the original trim zone, not buffer-ring neighbors
+    const trimZone = new Set([
+      ...preview.voided.map(c => `${c.row},${c.col}`),
+      ...preview.hypotenuse.map(c => `${c.row},${c.col}`),
+      ...(preview.insideArc || []).map(c => `${c.row},${c.col}`),
+    ]);
+
+    for (const [key, val] of trimData) {
+      const [r, c] = key.split(',').map(Number);
+      if (r < 0 || r >= numRows || c < 0 || c >= numCols) continue;
+      const inZone = trimZone.has(key);
+
+      if (val === null) {
+        cells[r][c] = null;
+      } else if (val === 'interior') {
+        if (inZone) {
+          if (!cells[r][c]) cells[r][c] = {};
+          const cell = cells[r][c];
+          clearWalls(cell, r, c);
+          clearOldTrimFlags(cell);
+        }
+      } else if (val === 'diagonal') {
+        // Inverted hypotenuse: straight diagonal wall (like straight trims)
+        if (!cells[r][c]) cells[r][c] = {};
+        const cell = cells[r][c];
+        if (inZone) clearWalls(cell, r, c);
+        clearOldTrimFlags(cell);
+        cell.trimCorner = resolvedCorner;
+        if (resolvedCorner === 'nw' || resolvedCorner === 'se') cell['ne-sw'] = 'w';
+        else cell['nw-se'] = 'w';
+        if (open) cell.trimOpen = true;
+      } else {
+        if (!cells[r][c]) cells[r][c] = {};
+        const cell = cells[r][c];
+        if (inZone) clearWalls(cell, r, c);
+        clearOldTrimFlags(cell);
+        Object.assign(cell, val);
+      }
     }
   } else {
-    for (const { row: r, col: c } of preview.voided) {
-      const cell = cells[r]?.[c];
-      if (!cell) continue;
-      for (const dir of CARDINAL_DIRS) {
-        if (cell[dir]) {
-          delete cell[dir];
-          const [dr, dc] = OFFSETS[dir];
-          const neighbor = cells[r + dr]?.[c + dc];
-          if (neighbor) delete neighbor[OPPOSITE[dir]];
-        }
+    // ── Straight trim: original logic (unchanged) ──
+    if (!open) {
+      for (const { row, col } of preview.voided) {
+        cells[row][col] = null;
       }
-      delete cell['nw-se'];
-      delete cell['ne-sw'];
-      delete cell.trimCorner;
-      delete cell.trimRound;
-      delete cell.trimArcCenterRow;
-      delete cell.trimArcCenterCol;
-      delete cell.trimArcRadius;
-      delete cell.trimArcInverted;
-      delete cell.trimOpen;
-    }
-  }
-
-  // Set hypotenuse cells
-  for (const { row: r, col: c } of preview.hypotenuse) {
-    if (!cells[r][c]) cells[r][c] = {};
-    const cell = cells[r][c];
-
-    cell.trimCorner = resolvedCorner;
-
-    // Clear all cardinal walls + reciprocals
-    for (const dir of CARDINAL_DIRS) {
-      if (cell[dir]) {
-        delete cell[dir];
-        const [dr, dc] = OFFSETS[dir];
-        const neighbor = cells[r + dr]?.[c + dc];
-        if (neighbor) delete neighbor[OPPOSITE[dir]];
+    } else {
+      for (const { row: r, col: c } of preview.voided) {
+        const cell = cells[r]?.[c];
+        if (!cell) continue;
+        clearWalls(cell, r, c);
+        clearOldTrimFlags(cell);
       }
     }
-    delete cell['nw-se'];
-    delete cell['ne-sw'];
 
-    // Set diagonal border
-    if (resolvedCorner === 'nw' || resolvedCorner === 'se') {
-      cell['ne-sw'] = 'w';
-    } else {
-      cell['nw-se'] = 'w';
-    }
+    for (const { row: r, col: c } of preview.hypotenuse) {
+      if (!cells[r][c]) cells[r][c] = {};
+      const cell = cells[r][c];
+      cell.trimCorner = resolvedCorner;
+      clearWalls(cell, r, c);
 
-    if (round) {
-      cell.trimRound = true;
-      cell.trimArcInverted = inverted;
-      cell.trimArcCenterRow = preview.arcCenter.row;
-      cell.trimArcCenterCol = preview.arcCenter.col;
-      cell.trimArcRadius = size;
-      if (open) cell.trimOpen = true;
-      else delete cell.trimOpen;
-    } else {
-      delete cell.trimRound;
-      delete cell.trimArcCenterRow;
-      delete cell.trimArcCenterCol;
-      delete cell.trimArcRadius;
-      delete cell.trimArcInverted;
+      if (resolvedCorner === 'nw' || resolvedCorner === 'se') {
+        cell['ne-sw'] = 'w';
+      } else {
+        cell['nw-se'] = 'w';
+      }
+
       if (open) cell.trimOpen = true;
       else delete cell.trimOpen;
     }
-  }
-
-  // Clear walls from insideArc cells and mark with metadata for BFS detection
-  for (const { row: r, col: c } of (preview.insideArc || [])) {
-    const cell = cells[r]?.[c];
-    if (!cell) continue;
-    for (const dir of CARDINAL_DIRS) {
-      if (cell[dir]) {
-        delete cell[dir];
-        const [dr, dc] = OFFSETS[dir];
-        const neighbor = cells[r + dr]?.[c + dc];
-        if (neighbor) delete neighbor[OPPOSITE[dir]];
-      }
-    }
-    delete cell['nw-se'];
-    delete cell['ne-sw'];
-    delete cell.trimRound;
-    cell.trimInsideArc = true;
-    cell.trimCorner = resolvedCorner;
-    cell.trimArcCenterRow = preview.arcCenter.row;
-    cell.trimArcCenterCol = preview.arcCenter.col;
-    cell.trimArcRadius = size;
-    cell.trimArcInverted = inverted;
   }
 
   // Restore state
@@ -238,7 +248,7 @@ export function roundRoomCorners(label, trimSize = 3, options = {}) {
 
   const applied = [];
   for (const { corner, tipR, tipC, extR, extC } of corners) {
-    getApi().createTrim(tipR, tipC, extR, extC, corner, { round: true, inverted });
+    getApi().createTrim(tipR, tipC, extR, extC, corner, { round: true, inverted, open: !!options.open });
     applied.push(corner);
   }
 

@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       const door = hitTestDoorButton(px, py, transform, gridSize);
       if (door) {
-        openDoor(door.row, door.col, door.dir);
+        openDoor(door.row, door.col, door.dir, door.cells);
         return true;
       }
       return false;

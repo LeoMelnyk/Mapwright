@@ -2,6 +2,7 @@
 
 import playerState from './player-state.js';
 import * as playerCanvas from './player-canvas.js';
+import { invalidateFullMapCache, revealFogCells, concealFogCells, resetFogLayers, markAssetsReady } from './player-canvas.js';
 import { loadPropCatalog, loadTextureCatalog, collectTextureIds, ensureTexturesLoaded, RangeTool } from '../editor/js/index.js';
 
 let ws = null;
@@ -59,6 +60,45 @@ function setStatus(cls, text) {
   el.textContent = text;
 }
 
+// ── Texture loading helper ──────────────────────────────────────────────────
+
+/** Load all textures used by the current dungeon (floor + prop textures).
+ *  Resolves immediately if catalogs aren't ready yet or no textures needed. */
+async function loadMapTextures() {
+  if (!playerState.textureCatalog || !playerState.dungeon) return;
+  const usedIds = collectTextureIds(playerState.dungeon.cells);
+  if (playerState.propCatalog?.props && playerState.dungeon.metadata?.props) {
+    for (const op of playerState.dungeon.metadata.props) {
+      const propDef = playerState.propCatalog.props[op.type];
+      if (propDef?.textures) {
+        for (const id of propDef.textures) usedIds.add(id);
+      }
+    }
+  }
+  if (usedIds.size > 0) {
+    await ensureTexturesLoaded(usedIds);
+    playerState.texturesVersion++;
+  }
+}
+
+// ── Asset convergence ───────────────────────────────────────────────────────
+// Both catalogs + dungeon must be available before we can load textures and
+// build the initial cache.  Two async paths race: catalog loading (DOMContentLoaded)
+// and session init (WebSocket).  This function is called from both; it only
+// proceeds when all prerequisites are met, and only runs once.
+let _initDone = false;
+
+async function tryInitialBuild() {
+  if (_initDone) return;
+  if (!playerState.dungeon || !playerState.propCatalog || !playerState.textureCatalog) return;
+  _initDone = true;
+
+  await loadMapTextures();
+  markAssetsReady();
+  invalidateFullMapCache();
+  playerCanvas.requestRender();
+}
+
 // ── Range tool ──────────────────────────────────────────────────────────────
 
 function initRangeTool() {
@@ -92,6 +132,14 @@ function handleMessage(msg) {
       onFogReveal(msg);
       break;
 
+    case 'fog:conceal':
+      onFogConceal(msg);
+      break;
+
+    case 'fog:reset':
+      onFogReset();
+      break;
+
     case 'door:open':
       onDoorOpen(msg);
       break;
@@ -120,6 +168,7 @@ function handleMessage(msg) {
 function onSessionInit(msg) {
   playerState.dungeon = msg.dungeon;
   playerState.resolvedTheme = msg.resolvedTheme || null;
+  playerState.renderQuality = msg.renderQuality || 20;
 
   // Restore revealed cells
   playerState.revealedCells = new Set(msg.revealedCells || []);
@@ -135,21 +184,15 @@ function onSessionInit(msg) {
     playerCanvas.snapToDMViewport();
   }
 
-  // Load textures used in this map (floor + props)
-  if (playerState.textureCatalog) {
-    const usedIds = collectTextureIds(playerState.dungeon.cells);
-    if (playerState.propCatalog?.props && playerState.dungeon.metadata?.props) {
-      for (const op of playerState.dungeon.metadata.props) {
-        const propDef = playerState.propCatalog.props[op.type];
-        if (propDef?.textures) {
-          for (const id of propDef.textures) usedIds.add(id);
-        }
-      }
-    }
-    if (usedIds.size > 0) {
-      ensureTexturesLoaded(usedIds).then(() => { playerState.texturesVersion++; playerCanvas.requestRender(); });
-    }
-  }
+  // Reset for a fresh initial build (handles reconnects / new sessions)
+  _initDone = false;
+
+  // Invalidate the full-map cache — the actual build is deferred until assets are ready
+  invalidateFullMapCache();
+
+  // Try to kick off the initial build (no-op if catalogs aren't loaded yet —
+  // the DOMContentLoaded path will call tryInitialBuild again when they are)
+  tryInitialBuild();
 
   // Show range toolbar and init tool
   const toolbar = document.getElementById('player-toolbar');
@@ -176,6 +219,25 @@ function onFogReveal(msg) {
   for (const key of msg.cells) {
     playerState.revealedCells.add(key);
   }
+  // Incrementally punch holes in the existing fog mask — no full rebuild
+  revealFogCells(msg.cells);
+  playerCanvas.requestRender();
+}
+
+function onFogConceal(msg) {
+  for (const key of msg.cells) {
+    playerState.revealedCells.delete(key);
+  }
+  // Incrementally paint black back over concealed cells — no full rebuild
+  concealFogCells(msg.cells);
+  playerCanvas.requestRender();
+}
+
+function onFogReset() {
+  playerState.revealedCells.clear();
+  playerState.openedDoors = [];
+  playerState.openedStairs = [];
+  resetFogLayers();
   playerCanvas.requestRender();
 }
 
@@ -186,6 +248,20 @@ function onDoorOpen(msg) {
     dir: msg.dir,
     wasSecret: msg.wasSecret,
   });
+  if (msg.wasSecret) {
+    // Secret door rendered as wall → now a door — rebuild the affected region only
+    const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+    const [dr, dc] = OFFSETS[msg.dir] || [0, 0];
+    const rows = [msg.row, msg.row + dr];
+    const cols = [msg.col, msg.col + dc];
+    invalidateFullMapCache({
+      minRow: Math.min(...rows),
+      maxRow: Math.max(...rows),
+      minCol: Math.min(...cols),
+      maxCol: Math.max(...cols),
+    });
+  }
+  // Normal doors don't change the rendered content — player already sees them as doors
   playerCanvas.requestRender();
 }
 
@@ -193,6 +269,24 @@ function onStairsOpen(msg) {
   for (const id of msg.stairIds) {
     playerState.openedStairs.push(id);
   }
+  // Stair link labels changed — rebuild only the affected stair regions
+  const stairs = playerState.dungeon?.metadata?.stairs || [];
+  let region = null;
+  for (const id of msg.stairIds) {
+    const stair = stairs.find(s => s.id === id);
+    if (!stair?.points) continue;
+    for (const [r, c] of stair.points) {
+      if (!region) {
+        region = { minRow: r, maxRow: r, minCol: c, maxCol: c };
+      } else {
+        region.minRow = Math.min(region.minRow, r);
+        region.maxRow = Math.max(region.maxRow, r);
+        region.minCol = Math.min(region.minCol, c);
+        region.maxCol = Math.max(region.maxCol, c);
+      }
+    }
+  }
+  invalidateFullMapCache(region);
   playerCanvas.requestRender();
 }
 
@@ -202,21 +296,11 @@ function onDungeonUpdate(msg) {
   playerState.dungeon.metadata = msg.metadata;
   if (msg.resolvedTheme) playerState.resolvedTheme = msg.resolvedTheme;
 
-  // Ensure new textures are loaded (floor + props)
-  if (playerState.textureCatalog) {
-    const usedIds = collectTextureIds(msg.cells);
-    if (playerState.propCatalog?.props && msg.metadata?.props) {
-      for (const op of msg.metadata.props) {
-        const propDef = playerState.propCatalog.props[op.type];
-        if (propDef?.textures) {
-          for (const id of propDef.textures) usedIds.add(id);
-        }
-      }
-    }
-    if (usedIds.size > 0) {
-      ensureTexturesLoaded(usedIds).then(() => { playerState.texturesVersion++; playerCanvas.requestRender(); });
-    }
-  }
+  // DM edited the map — load any new textures, then rebuild cache
+  loadMapTextures().then(() => {
+    invalidateFullMapCache();
+    playerCanvas.requestRender();
+  });
 
   playerCanvas.requestRender();
 }
@@ -255,35 +339,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Load catalogs (async, non-blocking)
+  // Load catalogs, then try the initial build (no-op if session init
+  // hasn't arrived yet — onSessionInit will call tryInitialBuild again)
   const propCatalogPromise = loadPropCatalog().then(catalog => {
     playerState.propCatalog = catalog;
-    playerCanvas.requestRender();
     return catalog;
   }).catch(err => { console.warn('Player: failed to load prop catalog:', err); return null; });
 
   const textureCatalogPromise = loadTextureCatalog().then(catalog => {
     playerState.textureCatalog = catalog;
-    playerCanvas.requestRender();
     return catalog;
   }).catch(err => { console.warn('Player: failed to load texture catalog:', err); return null; });
 
-  // After both catalogs are ready, preload textures for any dungeon already received (floor + props)
-  Promise.all([propCatalogPromise, textureCatalogPromise]).then(([propCatalog, textureCatalog]) => {
-    if (!textureCatalog || !playerState.dungeon) return;
-    const usedIds = collectTextureIds(playerState.dungeon.cells);
-    if (propCatalog?.props && playerState.dungeon.metadata?.props) {
-      for (const op of playerState.dungeon.metadata.props) {
-        const propDef = propCatalog.props[op.type];
-        if (propDef?.textures) {
-          for (const id of propDef.textures) usedIds.add(id);
-        }
-      }
-    }
-    if (usedIds.size > 0) {
-      ensureTexturesLoaded(usedIds).then(() => { playerState.texturesVersion++; playerCanvas.requestRender(); });
-    }
-  });
+  Promise.all([propCatalogPromise, textureCatalogPromise]).then(() => tryInitialBuild());
 
   // Connect to DM
   connect();

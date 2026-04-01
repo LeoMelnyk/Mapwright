@@ -1,6 +1,7 @@
-// Tool: drag to reveal a rectangular region of cells to players.
+// Tool: drag to reveal cells (left-click), right-click to re-fog a single cell.
+// Shift+drag: dump cell data + fog state to console instead of revealing.
 import { Tool } from './tool-base.js';
-import { sessionState, revealRect } from '../dm-session.js';
+import { sessionState, revealRect, concealRect, dumpFogRegion } from '../dm-session.js';
 import { requestRender } from '../canvas-view.js';
 import state, { notify } from '../state.js';
 import { toCanvas } from '../utils.js';
@@ -17,7 +18,7 @@ export class FogRevealTool extends Tool {
   onActivate() {
     this._prevDmView = sessionState.dmViewActive;
     sessionState.dmViewActive = true;
-    state.statusInstruction = 'Drag to reveal cells to players';
+    state.statusInstruction = 'Drag to reveal cells, right-click to re-fog';
     requestRender();
     notify();
   }
@@ -31,8 +32,9 @@ export class FogRevealTool extends Tool {
     notify();
   }
 
-  onMouseDown(row, col) {
+  onMouseDown(row, col, dir, e) {
     this.dragging = true;
+    this._shiftDrag = e?.shiftKey || false;
     this.dragStart = { row, col };
     this.dragEnd   = { row, col };
     requestRender();
@@ -49,8 +51,18 @@ export class FogRevealTool extends Tool {
     this.dragging = false;
     const { row: r1, col: c1 } = this.dragStart;
     this.dragStart = this.dragEnd = null;
-    revealRect(r1, c1, row, col);
+    if (this._shiftDrag) {
+      // Shift+drag: dump cell data to console instead of revealing
+      dumpFogRegion(r1, c1, row, col);
+    } else {
+      revealRect(r1, c1, row, col);
+    }
+    this._shiftDrag = false;
     notify();
+  }
+
+  onRightClick(row, col) {
+    concealRect(row, col, row, col);
   }
 
   renderOverlay(ctx, transform, gridSize) {

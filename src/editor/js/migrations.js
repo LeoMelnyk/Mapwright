@@ -1,8 +1,9 @@
 // Format versioning and migration registry for .mapwright save files.
 
 import { migrateHalfTextures } from './io.js';
+import { computeCircleCenter, computeArcCellData, computeTrimCrossing } from '../../util/trim-geometry.js';
 
-export const CURRENT_FORMAT_VERSION = 3;
+export const CURRENT_FORMAT_VERSION = 4;
 
 // Migration registry: each entry upgrades from one version to the next.
 // Migrations are applied in sequence: 0→1, 1→2, etc.
@@ -13,6 +14,8 @@ const migrations = [
   { from: 1, to: 2, migrate: (json) => migratePropsToOverlay(json) },
   // v2 → v3: double grid resolution (half-cell coordinates)
   { from: 2, to: 3, migrate: (json) => migrateToHalfCell(json) },
+  // v3 → v4: convert old arc trim format to per-cell trimClip/trimWall/trimPassable
+  { from: 3, to: 4, migrate: (json) => _migrateArcToPerCell(json.cells) },
 ];
 
 /**
@@ -457,6 +460,205 @@ function _fixArcTrims(cells) {
       }
     }
   }
+
+  // Step 3: Repair arc flood-fill boundary gaps.
+  // After step 1 deleted diagonal walls from trimRound cells, sub-cells of the
+  // original trimRound cell that didn't get the trimRound flag are now regular
+  // cells with no walls — the flood fill BFS passes right through them.
+  // Mark them as trimInsideArc so the flood fill treats them as arc boundary.
+  _repairArcFloodBoundary(cells);
+}
+
+/**
+ * Mark non-flagged cells adjacent to trimRound cells with `fogBoundary` when
+ * they fall inside the arc boundary. This closes gaps in the flood-fill
+ * boundary caused by the v2→v3 migration only setting trimRound on one
+ * sub-cell per original hypotenuse cell.
+ *
+ * Uses `fogBoundary` instead of `trimInsideArc` to avoid affecting rendering —
+ * trimInsideArc changes floor clipping behavior, while fogBoundary only
+ * affects the flood-fill BFS and arc post-pass in grid.js.
+ *
+ * Safe to run multiple times (idempotent) and on maps created at half-cell
+ * resolution (no-op since those maps have correct per-cell trim flags).
+ */
+function _repairArcFloodBoundary(cells) {
+  if (!cells || cells.length === 0) return;
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
+  const DIRS = [{ dr: -1, dc: 0 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: 0, dc: 1 }];
+
+  // Collect all trimRound cells with arc metadata
+  const trimRoundCells = [];
+  for (let r = 0; r < numRows; r++) {
+    for (let c = 0; c < numCols; c++) {
+      const cell = cells[r]?.[c];
+      if (cell?.trimRound && cell.trimArcRadius != null) {
+        trimRoundCells.push({ r, c, cell });
+      }
+    }
+  }
+
+  let repaired = 0;
+  for (const { r, c, cell: trc } of trimRoundCells) {
+    // Compute the actual arc circle center (same logic as _fixArcTrims step 2)
+    let acr = trc.trimArcCenterRow;
+    let acc = trc.trimArcCenterCol;
+    const R = trc.trimArcRadius;
+    const inverted = !!trc.trimArcInverted;
+    const corner = trc.trimCorner;
+
+    if (!inverted) {
+      switch (corner) {
+        case 'nw': acr += R; acc += R; break;
+        case 'ne': acr += R; acc -= R; break;
+        case 'sw': acr -= R; acc += R; break;
+        case 'se': acr -= R; acc -= R; break;
+      }
+    }
+
+    for (const { dr, dc } of DIRS) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+      const neighbor = cells[nr]?.[nc];
+      if (!neighbor || neighbor.trimRound || neighbor.trimInsideArc || neighbor.fogBoundary) continue;
+
+      // Check if this neighbor is inside the arc (room side)
+      const drr = nr + 0.5 - acr;
+      const dcc = nc + 0.5 - acc;
+      const dist = Math.sqrt(drr * drr + dcc * dcc);
+      const isInside = inverted ? (dist > R) : (dist < R);
+
+      if (isInside) {
+        neighbor.fogBoundary = true;
+        repaired++;
+      }
+    }
+  }
+
+  if (repaired > 0) console.log(`[migration] Repaired ${repaired} arc flood-boundary cells`);
+}
+
+/**
+ * v3→v4: Convert old-format arc trim cells (trimRound, trimInsideArc, trimArcCenter*)
+ * to new per-cell format (trimClip, trimWall, trimPassable).
+ * Also cleans up fogBoundary markers and stale trimInsideArc from earlier migrations.
+ */
+function _migrateArcToPerCell(cells) {
+  if (!cells || cells.length === 0) return;
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
+
+  // 1. Collect all unique arcs by scanning trimRound cells
+  const arcs = new Map(); // key -> { centerRow, centerCol, radius, corner, inverted, open }
+  for (let r = 0; r < numRows; r++) {
+    for (let c = 0; c < numCols; c++) {
+      const cell = cells[r]?.[c];
+      if (!cell?.trimRound || cell.trimArcRadius == null) continue;
+      const key = `${cell.trimArcCenterRow},${cell.trimArcCenterCol},${cell.trimCorner}`;
+      if (!arcs.has(key)) {
+        arcs.set(key, {
+          centerRow: cell.trimArcCenterRow,
+          centerCol: cell.trimArcCenterCol,
+          radius: cell.trimArcRadius,
+          corner: cell.trimCorner,
+          inverted: !!cell.trimArcInverted,
+          open: !!cell.trimOpen,
+        });
+      }
+    }
+  }
+
+  if (arcs.size === 0) return; // no arcs to migrate
+
+  // 2. For each arc, compute circle center and process all cells in its zone
+  let converted = 0;
+  for (const arc of arcs.values()) {
+    const { cx, cy } = computeCircleCenter(arc.centerRow, arc.centerCol, arc.radius, arc.corner, arc.inverted);
+    const R = arc.radius;
+
+    // Scan all cells that have this arc's metadata
+    for (let r = 0; r < numRows; r++) {
+      for (let c = 0; c < numCols; c++) {
+        const cell = cells[r]?.[c];
+        if (!cell) continue;
+
+        const isThisArc = cell.trimArcCenterRow === arc.centerRow &&
+                          cell.trimArcCenterCol === arc.centerCol &&
+                          cell.trimCorner === arc.corner;
+        if (!isThisArc && !cell.fogBoundary) continue;
+
+        if (cell.trimRound && isThisArc) {
+          // Arc boundary cell: compute per-cell clip/wall
+          const data = computeArcCellData(r, c, cx, cy, R, arc.corner, arc.inverted);
+          // Remove old properties
+          delete cell.trimRound;
+          delete cell.trimArcCenterRow;
+          delete cell.trimArcCenterCol;
+          delete cell.trimArcRadius;
+          delete cell.trimArcInverted;
+          delete cell['ne-sw'];
+          delete cell['nw-se'];
+          delete cell.fogBoundary;
+
+          if (data) {
+            // Stamp new properties
+            cell.trimCorner = arc.corner;
+            cell.trimClip = data.trimClip;
+            cell.trimWall = data.trimWall;
+            cell.trimCrossing = data.trimCrossing;
+            if (arc.open) cell.trimOpen = true;
+            if (arc.inverted) cell.trimInverted = true;
+          }
+          converted++;
+        } else if (cell.trimInsideArc && isThisArc) {
+          // Interior cell: make it regular floor
+          delete cell.trimInsideArc;
+          delete cell.trimCorner;
+          delete cell.trimArcCenterRow;
+          delete cell.trimArcCenterCol;
+          delete cell.trimArcRadius;
+          delete cell.trimArcInverted;
+          delete cell.fogBoundary;
+          converted++;
+        } else if (cell.fogBoundary) {
+          // fogBoundary marker from earlier migration: check if arc passes through
+          const data = computeArcCellData(r, c, cx, cy, R, arc.corner, arc.inverted);
+          delete cell.fogBoundary;
+          if (data) {
+            cell.trimCorner = arc.corner;
+            cell.trimClip = data.trimClip;
+            cell.trimWall = data.trimWall;
+            cell.trimCrossing = data.trimCrossing;
+            if (arc.open) cell.trimOpen = true;
+            if (arc.inverted) cell.trimInverted = true;
+            converted++;
+          }
+        }
+      }
+    }
+  }
+
+  if (converted > 0) console.log(`[migration] Converted ${converted} arc trim cells to per-cell format`);
+}
+
+/**
+ * Repair: add trimCrossing to arc cells from intermediate code versions
+ * that stored trimWall/trimClip but not trimCrossing.
+ */
+function _repairMissingCrossing(cells) {
+  let repaired = 0;
+  for (let r = 0; r < cells.length; r++) {
+    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      const cell = cells[r]?.[c];
+      if (!cell?.trimWall || cell.trimCrossing) continue;
+      if (cell.trimClip) {
+        cell.trimCrossing = computeTrimCrossing(cell.trimClip, cell.trimWall);
+        repaired++;
+      }
+    }
+  }
+  if (repaired > 0) console.log(`[migration] Repaired ${repaired} arc cells with missing trimCrossing`);
 }
 
 /**
@@ -485,6 +687,23 @@ export function migrateToLatest(json) {
       version = m.to;
       json.metadata.formatVersion = version;
     }
+  }
+
+  // Repair pass: convert any remaining old-format arc cells (handles pre-release v4 files
+  // that had the old trimRound/trimInsideArc format before the per-cell overhaul).
+  if (json.cells) {
+    let hasOldFormat = false;
+    let hasMissingCrossing = false;
+    outer: for (let r = 0; r < json.cells.length; r++) {
+      for (let c = 0; c < (json.cells[r]?.length || 0); c++) {
+        const cell = json.cells[r]?.[c];
+        if (cell?.trimRound) { hasOldFormat = true; break outer; }
+        if (cell?.trimWall && !cell.trimCrossing) hasMissingCrossing = true;
+      }
+    }
+    if (hasOldFormat) _migrateArcToPerCell(json.cells);
+    // Repair: add trimCrossing/trimCorner to cells from intermediate code versions
+    if (hasMissingCrossing && !hasOldFormat) _repairMissingCrossing(json.cells);
   }
 
   // Stamp current version if not yet set
