@@ -29,32 +29,29 @@ export function classifyAllTrimFog(revealedCells, cells) {
     const cell = cells[r]?.[c];
     if (!cell?.trimClip || !cell.trimCorner) continue;
 
-    // 'both': all 4 immediate cardinal neighbors are revealed
-    const ALL_DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-    let allRevealed = true;
-    for (const [dr, dc] of ALL_DIRS) {
-      if (!revealedCells.has(cellKey(r + dr, c + dc))) { allRevealed = false; break; }
-    }
-    if (allRevealed) {
-      results.set(key, 'both');
-      continue;
-    }
-
-    // Check 2 cells out (past adjacent trim) with non-trim requirement for side detection
-    const _isRevealed2 = (dr, dc) => {
-      const nr = r + dr * 2, nc = c + dc * 2;
-      return revealedCells.has(cellKey(nr, nc)) && !cells[nr]?.[nc]?.trimClip;
+    // Check 1–2 cells out in each direction for a non-trim revealed cell.
+    // Limited to 2 cells to avoid crossing through the arc boundary and
+    // finding revealed cells on the opposite side of the circle.
+    const _sideRevealed = (dirs) => {
+      for (const [dr, dc] of dirs) {
+        for (let dist = 1; dist <= 2; dist++) {
+          const nr = r + dr * dist, nc = c + dc * dist;
+          const neighbor = cells[nr]?.[nc];
+          if (!neighbor) break; // void or out of bounds — try next direction
+          if (!neighbor.trimClip) {
+            if (revealedCells.has(cellKey(nr, nc))) return true;
+            break; // non-trim but not revealed — try next direction
+          }
+        }
+      }
+      return false;
     };
 
-    let extRevealed = false, intRevealed = false;
-    for (const [dr, dc] of _EXTERIOR_DIRS[cell.trimCorner]) {
-      if (_isRevealed2(dr, dc)) { extRevealed = true; break; }
-    }
-    for (const [dr, dc] of _INTERIOR_DIRS[cell.trimCorner]) {
-      if (_isRevealed2(dr, dc)) { intRevealed = true; break; }
-    }
+    const extRevealed = _sideRevealed(_EXTERIOR_DIRS[cell.trimCorner]);
+    const intRevealed = _sideRevealed(_INTERIOR_DIRS[cell.trimCorner]);
 
-    if (intRevealed) results.set(key, 'roomOnly');
+    if (intRevealed && extRevealed) results.set(key, 'both');
+    else if (intRevealed) results.set(key, 'roomOnly');
     else if (extRevealed) results.set(key, 'exteriorOnly');
   }
 
