@@ -14,7 +14,7 @@ function _t(label, fn) {
   renderTimings[label] = { ms: performance.now() - start, frame: _timingFrame };
   return result;
 }
-import { determineRoomCells, getDiagonalTrimCorner, drawRoundedWall } from './floors.js';
+import { determineRoomCells, getDiagonalTrimCorner } from './floors.js';
 import { renderBorder, getDoubleDoorRole, getDoubleDoorDiagonalRole, renderDoubleBorder, renderDiagonalBorder, renderDiagonalDoubleBorder, drawStairsInCell, drawStairsLinkLabel, drawStairShape, drawStairShapeLinkLabel, wallSegmentCoords, scaleFactor } from './borders.js';
 import { drawCellLabel, drawDmLabel } from './features.js';
 import { drawMatrixGrid } from './decorations.js';
@@ -84,22 +84,12 @@ const HAZARD_COLOR = '#f0c020';
 
 // ── Per-frame caches (invalidated by cells reference change) ─────────
 let _roomCellsCache = { cells: null, result: null };
-let _roundedCornersCache = { cells: null, result: null };
-
 function getCachedRoomCells(cells) {
   if (_roomCellsCache.cells === cells) return _roomCellsCache.result;
   const result = determineRoomCells(cells);
   _roomCellsCache = { cells, result };
   return result;
 }
-
-function getCachedRoundedCorners(cells) {
-  if (_roundedCornersCache.cells === cells) return _roundedCornersCache.result;
-  const result = collectRoundedCorners(cells);
-  _roundedCornersCache = { cells, result };
-  return result;
-}
-
 
 /**
  * Call this whenever cell geometry changes in-place (rooms created/destroyed, walls/trims modified).
@@ -108,7 +98,6 @@ function getCachedRoundedCorners(cells) {
  */
 export function invalidateGeometryCache() {
   _roomCellsCache      = { cells: null, result: null };
-  _roundedCornersCache = { cells: null, result: null };
   invalidateEffectsCache();
 }
 
@@ -275,11 +264,9 @@ function _applyPatternTransform(pattern, entry, cellPx, transform, resolution = 
  * Keyed by arc center — all trimRound cells sharing a center contribute to one entry.
  *
  * Entry flags (set by fog.js for player view, aggregated via OR across all cells):
- *   isOpen        — Decorative arc (no wall). buildArcVoidClip skips these by default.
- *   exteriorOnly  — Player fog: only exterior revealed. Rounded corner pass draws exterior
- *                   texture; buildArcVoidClip skips when skipExteriorOnly=true (grid pass).
- *   hideExterior  — Player fog: only interior revealed. Rounded corner pass skips entirely;
- *                   buildArcVoidClip includes even open arcs so renderFloors is clipped.
+ *   isOpen        — Decorative arc (no wall).
+ *   exteriorOnly  — Player fog: only exterior revealed.
+ *   hideExterior  — Player fog: only interior revealed.
  */
 function collectRoundedCorners(cells) {
   const roundedCorners = new Map();
@@ -314,8 +301,9 @@ function collectRoundedCorners(cells) {
 /**
  * Trace a single arc wedge pie-slice subpath for one rounded corner.
  * Appends to the current path — caller must beginPath/closePath/clip.
- * Shared by buildArcVoidClip (batch clip) and the secondary texture pass (per-arc clip).
+ * Used by the player fog overlay (arc-aware fog masking).
  */
+export { traceArcWedge, collectRoundedCorners };
 function traceArcWedge(ctx, rc, gridSize, transform) {
   const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
   const Rpx = rc.radius * gridSize * transform.scale;
@@ -349,27 +337,43 @@ function traceArcWedge(ctx, rc, gridSize, transform) {
   }
 }
 
+
 /**
- * Build a clip path that excludes arc void pie-slice regions.
- * Uses evenodd rule: canvas rect (count=1, drawn) + pie-slices (count=2, excluded).
+ * Run `fn` inside a clip that excludes the void portions of trimClip cells.
+ * Uses evenodd: canvas rect (odd=visible) + per-cell [cellRect + clipPoly] (even=void, odd=floor).
+ * No-op if no trimClip cells exist in the grid.
  */
-function buildArcVoidClip(ctx, roundedCorners, gridSize, transform, skipExteriorOnly = false) {
+function withTrimVoidClip(ctx, cells, gridSize, transform, fn) {
+  // Quick scan: bail early if no closed trimClip cells exist
+  let hasTrimClip = false;
+  for (let r = 0; !hasTrimClip && r < cells.length; r++)
+    for (let c = 0; !hasTrimClip && c < (cells[r]?.length || 0); c++)
+      if (cells[r]?.[c]?.trimClip && !cells[r][c].trimOpen) hasTrimClip = true;
+
+  if (!hasTrimClip) { fn(); return; }
+
+  ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  for (const rc of roundedCorners.values()) {
-    if (rc.isOpen && !rc.hideExterior) continue;
-    if (skipExteriorOnly && rc.exteriorOnly) continue;
-    traceArcWedge(ctx, rc, gridSize, transform);
-    ctx.closePath();
+  for (let r = 0; r < cells.length; r++) {
+    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      const cell = cells[r]?.[c];
+      if (!cell?.trimClip || cell.trimOpen) continue; // Open trims render fully
+      const clip = cell.trimClip;
+      const tl = toCanvas(c * gridSize, r * gridSize, transform);
+      const gs = gridSize * transform.scale;
+      // Cell rect (adds even count over void)
+      ctx.rect(tl.x, tl.y, gs, gs);
+      // Clip polygon (adds odd count back over floor area)
+      ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
+      for (let i = 1; i < clip.length; i++)
+        ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
+      ctx.closePath();
+    }
   }
   ctx.clip('evenodd');
-}
-
-/** Save/clip helper for arc void regions. Restores with ctx.restore(). */
-function withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, fn, skipExteriorOnly = false) {
-  if (hasRoundedArcs) { ctx.save(); buildArcVoidClip(ctx, roundedCorners, gridSize, transform, skipExteriorOnly); }
   fn();
-  if (hasRoundedArcs) ctx.restore();
+  ctx.restore();
 }
 
 /**
@@ -409,7 +413,7 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
           const c = cells[sr]?.[sc];
           if (c?.trimShowExteriorOnly) continue;
           floorCount++;
-          if (c && getDiagonalTrimCorner(c, cells, sr, sc)) { hasTrim = true; break; }
+          if (c && (getDiagonalTrimCorner(c, cells, sr, sc) || c.trimClip)) { hasTrim = true; break; }
         }
       }
       if (!floorCount) continue;
@@ -428,7 +432,7 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
             if (!cell || cell.trimShowExteriorOnly) continue;
             const x = sc * gridSize, y = sr * gridSize;
             const trimCorner = getDiagonalTrimCorner(cell, cells, sr, sc);
-            if (trimCorner && !cell.trimRound && !cell.trimOpen) {
+            if (trimCorner && !cell.trimWall && !cell.trimOpen) {
               const tl = toCanvas(x, y, transform);
               const tr = toCanvas(x + gridSize, y, transform);
               const bl = toCanvas(x, y + gridSize, transform);
@@ -440,6 +444,26 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
                 case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
               }
               ctx.closePath();
+            } else if (cell.trimClip) {
+              if (cell.trimOpen && !cell.trimHideExterior && !cell.trimShowExteriorOnly) {
+                // Open trim, both sides visible — draw full cell rect
+                const p1 = toCanvas(x, y, transform);
+                ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
+              } else if ((cell.textureSecondary || cell.trimOpen) && !cell.trimHideExterior && !cell.trimShowExteriorOnly) {
+                // Closed trim with secondary texture: both halves need floor base color
+                const p1 = toCanvas(x, y, transform);
+                ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
+              } else {
+                // Closed trim, room side only
+                const clip = cell.trimClip;
+                const gs = cellPxSub;
+                const px = toCanvas(x, y, transform);
+                ctx.moveTo(px.x + clip[0][0] * gs, px.y + clip[0][1] * gs);
+                for (let i = 1; i < clip.length; i++) {
+                  ctx.lineTo(px.x + clip[i][0] * gs, px.y + clip[i][1] * gs);
+                }
+                ctx.closePath();
+              }
             } else {
               const p1 = toCanvas(x, y, transform);
               ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
@@ -529,12 +553,36 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
           }
         }
         const texEntry = texId ? catalog?.textures[texId] : null;
-        if (!texEntry?.img?.complete || !texEntry.img.naturalWidth) continue;
+        const secId = cell.textureSecondary;
+        const secEntry = secId ? catalog?.textures[secId] : null;
+        const hasPrimary = texEntry?.img?.complete && texEntry.img.naturalWidth;
+        const hasSecondary = secEntry?.img?.complete && secEntry.img.naturalWidth;
+        if (!hasPrimary && !hasSecondary) continue;
         hasTexturedCells = true;
 
-        if (trimCorner && !cell.trimRound && !cell.trimOpen) {
-          clippedWork.push({ entry: texEntry, texOp, clipType: trimCorner, tl, tr, bl, br });
-        } else {
+        if (trimCorner && !cell.trimWall && !cell.trimOpen) {
+          // Straight diagonal trim
+          if (hasPrimary) clippedWork.push({ entry: texEntry, texOp, clipType: trimCorner, tl, tr, bl, br });
+        } else if (cell.trimClip) {
+          // Arc cell: if both textures exist, split at the arc curve.
+          // For open trims with only one texture, draw as full rect.
+          const showInterior = !cell.trimShowExteriorOnly;
+          const showExterior = !cell.trimHideExterior;
+          if (hasPrimary && hasSecondary) {
+            if (showInterior) clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
+            if (showExterior) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: 'trimClipInvert', trimClip: cell.trimClip, tl, tr, bl, br });
+          } else {
+            // Closed trim: clip to room side only
+            if (hasPrimary && showInterior) clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
+            if (hasSecondary && showExterior) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: 'trimClipInvert', trimClip: cell.trimClip, tl, tr, bl, br });
+          }
+        } else if (cell.trimWall && cell.trimCorner && (hasPrimary || hasSecondary)) {
+          // Fallback for arc cells missing trimClip (old format or pre-reload): triangle approximation
+          const voidCorner = cell.trimCorner;
+          const roomCorner = { nw: 'se', ne: 'sw', sw: 'ne', se: 'nw' }[voidCorner];
+          if (hasPrimary) clippedWork.push({ entry: texEntry, texOp, clipType: roomCorner, tl, tr, bl, br });
+          if (hasSecondary) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: voidCorner, tl, tr, bl, br });
+        } else if (hasPrimary) {
           const batchKey = `${texId}\x00${texOp}`;
           let batch = straightBatches.get(batchKey);
           if (!batch) { batch = { entry: texEntry, texOp, rects: [] }; straightBatches.set(batchKey, batch); }
@@ -557,17 +605,40 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
     // ── Clipped cells: triangular pattern fill, no save/restore needed ─────
     // ctx.fill() on the triangle path naturally restricts the pattern to the
     // triangle shape — no ctx.clip() required, so no save/restore overhead.
-    for (const { entry, texOp, clipType, tl, tr, bl, br } of clippedWork) {
+    for (const item of clippedWork) {
+      const { entry, texOp, clipType, tl, tr, bl, br } = item;
       const pattern = _getTexPattern(ctx, entry);
       _applyPatternTransform(pattern, entry, cellPx, transform, resolution);
       ctx.globalAlpha = texOp;
       ctx.fillStyle = pattern;
       ctx.beginPath();
-      switch (clipType) {
-        case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
-        case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
-        case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
-        case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+      if (clipType === 'trimClip') {
+        const clip = item.trimClip;
+        const gs = cellPx;
+        ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
+        for (let i = 1; i < clip.length; i++) {
+          ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
+        }
+      } else if (clipType === 'trimClipInvert') {
+        // Void side: cell rect minus trimClip polygon (using evenodd)
+        const clip = item.trimClip;
+        const gs = cellPx;
+        ctx.rect(tl.x, tl.y, gs, gs);
+        ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
+        for (let i = 1; i < clip.length; i++) {
+          ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
+        }
+        ctx.closePath();
+        ctx.fill('evenodd');
+        ctx.beginPath(); // reset — skip the normal fill below
+        continue;
+      } else {
+        switch (clipType) {
+          case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
+          case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
+          case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
+          case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+        }
       }
       ctx.closePath();
       ctx.fill();
@@ -638,7 +709,17 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
             const { srcX, srcY, srcW, srcH } = getTexChunk(texEntry, row, col);
             ctx.save();
             ctx.globalAlpha = texOp;
-            if (trimCorner && !cell.trimRound) {
+            if (cell.trimClip) {
+              const clip = cell.trimClip;
+              const gs = cellPx;
+              ctx.beginPath();
+              ctx.moveTo(p1.x + clip[0][0] * gs, p1.y + clip[0][1] * gs);
+              for (let i = 1; i < clip.length; i++) {
+                ctx.lineTo(p1.x + clip[i][0] * gs, p1.y + clip[i][1] * gs);
+              }
+              ctx.closePath();
+              ctx.clip();
+            } else if (trimCorner && !cell.trimWall) {
               ctx.beginPath();
               switch (trimCorner) {
                 case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
@@ -668,7 +749,7 @@ function renderFloors(ctx, cells, roomCells, gridSize, theme, transform, texture
  *  L2 — Viewport blend layer (screen-res OffscreenCanvas, rebuilt on camera change)
  * Falls back to per-frame scratch canvas rendering for PDF path or missing bitmaps.
  */
-function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, transform, textureOptions, cacheSize = null) {
+function renderTextureBlending(ctx, cells, roomCells, gridSize, transform, textureOptions, cacheSize = null) {
   const blendWidth = textureOptions?.blendWidth ?? 0.35;
   if (blendWidth <= 0) return;
 
@@ -683,9 +764,7 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
   if (cacheSize) {
     const blendLayer = getRenderedBlendLayer(topo, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale);
     if (blendLayer) {
-      withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-        ctx.drawImage(blendLayer, 0, 0);
-      });
+      ctx.drawImage(blendLayer, 0, 0);
       return;
     }
   }
@@ -695,9 +774,7 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
   if (allBitmapsReady) {
     const layer = getViewportBlendLayer(canvasW, canvasH, transform, topo, gridSize);
     if (layer) {
-      withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-        ctx.drawImage(layer, 0, 0);
-      });
+      ctx.drawImage(layer, 0, 0);
       return;
     }
   }
@@ -718,7 +795,7 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
   const blendPx = blendWidth * cellPx;
   const bsz = BLEND_BITMAP_SIZE;
 
-  withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+  {
     // ── Edge pass ──
     for (const edge of topo.edges) {
       if (edge.row < rowMin || edge.row > rowMax || edge.col < colMin || edge.col > colMax) continue;
@@ -832,7 +909,7 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
         }
       }
     }
-  });
+  }
 }
 
 /**
@@ -840,81 +917,75 @@ function renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRounded
  * composited via ctx.setTransform (same as rock shading) for pixel-perfect
  * output at any zoom level. Also draws the grid overlay.
  */
-function renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, skipGrid = false, metadata = null, cacheSize = null) {
+function renderFillPatternsAndGrid(ctx, cells, roomCells, gridSize, theme, transform, showGrid, skipGrid = false, metadata = null, cacheSize = null) {
   const { scale: sc, offsetX: txOff, offsetY: tyOff } = transform;
 
   const data = getFluidPathCache(cells, gridSize, theme, roomCells);
 
   if (data.pit || data.water || data.lava) {
-    // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
-    const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
+    withTrimVoidClip(ctx, cells, gridSize, transform, () => {
+      // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
+      const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
 
-    if (fluidLayer) {
-      // Blit the cached fluid layer — arc void clip applied here, not in the layer
-      ctx.save();
-      if (hasRoundedArcs) {
-        buildArcVoidClip(ctx, roundedCorners, gridSize, transform);
-      }
-      ctx.drawImage(fluidLayer, 0, 0);
-      ctx.restore();
-    } else {
-      // Direct render path (viewport mode or first build before cache is ready)
-      ctx.save();
-      if (hasRoundedArcs) {
-        buildArcVoidClip(ctx, roundedCorners, gridSize, transform);
-      }
-      ctx.setTransform(sc, 0, 0, sc, txOff, tyOff);
-
-      for (const fd of [data.pit, data.water, data.lava]) {
-        if (!fd) continue;
+      if (fluidLayer) {
+        // Blit the cached fluid layer
+        ctx.drawImage(fluidLayer, 0, 0);
+      } else {
+        // Direct render path (viewport mode or first build before cache is ready)
         ctx.save();
-        ctx.clip(fd.clipPath);
+        ctx.setTransform(sc, 0, 0, sc, txOff, tyOff);
 
-        for (const [colorKey, path] of fd.fills) {
-          const rv = (colorKey >> 16) & 0xFF;
-          const gv = (colorKey >> 8) & 0xFF;
-          const bv = colorKey & 0xFF;
-          ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
-          ctx.fill(path);
-        }
+        for (const fd of [data.pit, data.water, data.lava]) {
+          if (!fd) continue;
+          ctx.save();
+          ctx.clip(fd.clipPath);
 
-        if (fd.cracksPath) {
-          ctx.strokeStyle = fd.crackColor;
-          ctx.lineWidth = Math.max(0.3 / sc, 0.06);
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-          ctx.stroke(fd.cracksPath);
-
-          for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
-            const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
-            grad.addColorStop(0, fd.vignetteColor);
-            grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = grad;
-            for (const [r2, c2] of group) {
-              ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
-            }
+          for (const [colorKey, path] of fd.fills) {
+            const rv = (colorKey >> 16) & 0xFF;
+            const gv = (colorKey >> 8) & 0xFF;
+            const bv = colorKey & 0xFF;
+            ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
+            ctx.fill(path);
           }
-        } else {
-          ctx.strokeStyle = fd.causticColor;
-          ctx.lineWidth = Math.max(0.5 / sc, 0.09);
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-          ctx.stroke(fd.causticPath);
+
+          if (fd.cracksPath) {
+            ctx.strokeStyle = fd.crackColor;
+            ctx.lineWidth = Math.max(0.3 / sc, 0.06);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke(fd.cracksPath);
+
+            for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
+              const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
+              grad.addColorStop(0, fd.vignetteColor);
+              grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.fillStyle = grad;
+              for (const [r2, c2] of group) {
+                ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
+              }
+            }
+          } else {
+            ctx.strokeStyle = fd.causticColor;
+            ctx.lineWidth = Math.max(0.5 / sc, 0.09);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke(fd.causticPath);
+          }
+
+          ctx.restore();
         }
 
         ctx.restore();
       }
-
-      ctx.restore();
-    }
+    });
   }
 
   // Grid overlay — skipped here when caller handles it separately (e.g. to draw bridges first).
   if (!skipGrid && showGrid) {
-    withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+    withTrimVoidClip(ctx, cells, gridSize, transform, () => {
       drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
-    }, true);
+    });
   }
 }
 
@@ -988,7 +1059,7 @@ function renderHazardOverlay(ctx, cells, gridSize, transform) {
  * Draw buffer shading, wall segments (with shadows), non-wall borders, and arc walls.
  * @param {boolean} [showInvisible=false] - When true, render invisible walls/doors in ghost style.
  */
-function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible = false, visibleBounds = null, _res = 1) {
+function renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible = false, visibleBounds = null, _res = 1) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -1067,7 +1138,7 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
       for (const diag of ['nw-se', 'ne-sw']) {
         const bt = cell[diag];
         if (!bt) continue;
-        if (cell.trimRound) continue;
+        if (cell.trimWall) continue;
         if (bt === 'd' || bt === 's') {
           const role = getDoubleDoorDiagonalRole(cells, row, col, diag, _res);
           if (role === 'partner') continue;
@@ -1090,7 +1161,7 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
       for (const diag of ['nw-se', 'ne-sw']) {
         const cell = cells[row]?.[col];
         const bt = cell?.[diag];
-        if (!bt || cell.trimRound) continue;
+        if (!bt || cell.trimWall) continue;
         if (bt !== 'w' && bt !== 'd' && bt !== 's') continue;
         const key = `${row},${col},${diag}`;
         if (diagSeen.has(key)) continue;
@@ -1102,7 +1173,7 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
         let r = row, c = col;
         while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
           const v = cells[r]?.[c]?.[diag];
-          if ((v !== 'w' && v !== 'd' && v !== 's') || cells[r]?.[c]?.trimRound) break;
+          if ((v !== 'w' && v !== 'd' && v !== 's') || cells[r]?.[c]?.trimWall) break;
           diagSeen.add(`${r},${c},${diag}`);
           runLen++;
           r += dr; c += dc;
@@ -1160,9 +1231,48 @@ function renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, 
     }
   }
 
-  // Arc walls for rounded trims
-  for (const rc of roundedCorners.values()) {
-    drawRoundedWall(ctx, rc, theme, gridSize, transform);
+  // Per-cell arc walls
+  for (let row = startRow; row <= endRow; row++) {
+    for (let col = startCol; col <= endCol; col++) {
+      const cell = cells[row]?.[col];
+      if (!cell?.trimWall) continue;
+      const wall = cell.trimWall;
+      const cx = col * gridSize, cy = row * gridSize;
+      const s = scaleFactor(transform);
+
+      // Shadow pass
+      if (theme.wallShadow) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.lineWidth = 8 * s;
+        ctx.lineCap = 'round';
+        const sx = 2 * s, sy = 2 * s;
+        ctx.beginPath();
+        const p0s = toCanvas(cx + wall[0][0] * gridSize + sx / transform.scale, cy + wall[0][1] * gridSize + sy / transform.scale, transform);
+        ctx.moveTo(p0s.x, p0s.y);
+        for (let i = 1; i < wall.length; i++) {
+          const p = toCanvas(cx + wall[i][0] * gridSize + sx / transform.scale, cy + wall[i][1] * gridSize + sy / transform.scale, transform);
+          ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Wall stroke
+      ctx.save();
+      ctx.strokeStyle = theme.wallStroke;
+      ctx.lineWidth = 6 * s;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      const p0 = toCanvas(cx + wall[0][0] * gridSize, cy + wall[0][1] * gridSize, transform);
+      ctx.moveTo(p0.x, p0.y);
+      for (let i = 1; i < wall.length; i++) {
+        const p = toCanvas(cx + wall[i][0] * gridSize, cy + wall[i][1] * gridSize, transform);
+        ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
   }
 }
 
@@ -1290,225 +1400,45 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     skipPhases = null,  // { shading, floors, blending, fills, walls, props, ... } — debug skip flags
   } = options;
   const roomCells = _t('roomCells', () => getCachedRoomCells(cells));
-  const roundedCorners = getCachedRoundedCorners(cells);
-  const hasRoundedArcs = roundedCorners.size > 0;
 
-  // ── Base layer: shading + floors + arcs ────────────────────────────────
-  // Only rebuilds on geometry changes (void↔floor transitions) or texture changes.
   // ── Base phases: shading + floors (rendered directly, no layer canvas) ──
   const _res = metadata?.resolution || 1;
   let hasTexturedCells = false;
 
   if (!skipPhases?.shading) {
     _t('shading', () => {
-      drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
-      drawHatching(ctx, cells, roomCells, gridSize, theme, transform);
-      drawRockShading(ctx, cells, roomCells, gridSize, theme, transform);
+      if (!skipPhases?.outerShading) {
+        drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
+      }
+      if (!skipPhases?.hatching) {
+        drawHatching(ctx, cells, roomCells, gridSize, theme, transform);
+        drawRockShading(ctx, cells, roomCells, gridSize, theme, transform);
+      }
     });
   }
   if (!skipPhases?.floors) {
     _t('floors', () => {
-      withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
-        hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig, visibleBounds, _res);
-      });
+      hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig, visibleBounds, _res);
     });
   }
-
-  // Arc secondary post-pass: for each arc wedge, draw textureSecondary inside the void-corner region.
-  const _arcStart = performance.now();
-  if (hasRoundedArcs && textureOptions?.catalog) {
-    const catalog = textureOptions.catalog;
-    const cellPx = gridSize * transform.scale;
-    const canBatch = typeof DOMMatrix !== 'undefined' && typeof ctx.createPattern === 'function';
-    const numRows = cells.length;
-    const numCols = cells[0]?.length || 0;
-    for (const rc of roundedCorners.values()) {
-      // Build the void-corner wedge clip for this arc
-      ctx.save();
-      ctx.beginPath();
-      traceArcWedge(ctx, rc, gridSize, transform);
-      ctx.closePath();
-      ctx.clip();
-      // Bounding box in cell indices: which cells could overlap this wedge?
-      const R = rc.radius;
-      let r0, r1, c0, c1;
-      switch (rc.corner) {
-        case 'nw': r0 = rc.centerRow;     r1 = rc.centerRow + R; c0 = rc.centerCol;     c1 = rc.centerCol + R; break;
-        case 'ne': r0 = rc.centerRow;     r1 = rc.centerRow + R; c0 = rc.centerCol - R; c1 = rc.centerCol;     break;
-        case 'sw': r0 = rc.centerRow - R; r1 = rc.centerRow;     c0 = rc.centerCol;     c1 = rc.centerCol + R; break;
-        case 'se': r0 = rc.centerRow - R; r1 = rc.centerRow;     c0 = rc.centerCol - R; c1 = rc.centerCol;     break;
-      }
-      r0 = Math.max(0, Math.floor(r0));
-      r1 = Math.min(numRows - 1, Math.ceil(r1));
-      c0 = Math.max(0, Math.floor(c0));
-      c1 = Math.min(numCols - 1, Math.ceil(c1));
-      // Interior-only: exterior not revealed — skip the entire wedge texture pass.
-      // The arc void clip already prevents renderFloors from drawing here;
-      // this skip prevents the per-cell textureSecondary loop from drawing too.
-      if (rc.hideExterior) {
-        ctx.restore();
-        continue;
-      }
-      // Void-corner background fill for player fog exterior-only reveal:
-      // trimInsideArc cells in the corner are null in playerCells (not in revealedCells)
-      // and are skipped by the per-cell loop below. Fill the entire clip region first
-      // using the terrain texture synthesized by fog.js onto any trimRound cell.
-      let hasExteriorOnly = false;
-      {
-        let bgTex = null, bgOp = 1.0;
-        for (let row = r0; row <= r1; row++) {
-          for (let col = c0; col <= c1; col++) {
-            const cell = cells[row]?.[col];
-            if (cell?.trimShowExteriorOnly) {
-              hasExteriorOnly = true;
-              if (cell.textureSecondary && !bgTex) {
-                bgTex = cell.textureSecondary;
-                bgOp = cell.textureSecondaryOpacity ?? 1.0;
-              }
-            }
-          }
-        }
-        if (hasExteriorOnly) {
-          const tl0 = toCanvas(c0 * gridSize, r0 * gridSize, transform);
-          const br1 = toCanvas((c1 + 1) * gridSize, (r1 + 1) * gridSize, transform);
-          const bw = br1.x - tl0.x, bh = br1.y - tl0.y;
-          if (bgTex) {
-            const entry = catalog.textures[bgTex];
-            if (entry?.img?.complete && entry.img.naturalWidth) {
-              if (canBatch) {
-                const pattern = _getTexPattern(ctx, entry);
-                _applyPatternTransform(pattern, entry, cellPx, transform, _res);
-                ctx.globalAlpha = bgOp;
-                ctx.fillStyle = pattern;
-                ctx.beginPath();
-                ctx.rect(tl0.x, tl0.y, bw, bh);
-                ctx.fill();
-              } else {
-                for (let row = r0; row <= r1; row++) {
-                  for (let col = c0; col <= c1; col++) {
-                    const tl = toCanvas(col * gridSize, row * gridSize, transform);
-                    const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
-                    ctx.globalAlpha = bgOp;
-                    ctx.drawImage(entry.img, srcX, srcY, srcW, srcH, tl.x, tl.y, cellPx, cellPx);
-                  }
-                }
-              }
-            }
-          } else {
-            ctx.fillStyle = theme.wallFill;
-            ctx.globalAlpha = 1.0;
-            ctx.beginPath();
-            ctx.rect(tl0.x, tl0.y, bw, bh);
-            ctx.fill();
-          }
-        }
-      }
-      for (let row = r0; row <= r1; row++) {
-        for (let col = c0; col <= c1; col++) {
-          if (!roomCells[row]?.[col]) continue;
-          const cell = cells[row]?.[col];
-          if (!cell?.textureSecondary) {
-            // Background fill already covered the full bbox with bgTex terrain texture.
-            // No per-cell wallFill needed — that would overwrite the terrain with dark stone,
-            // making subsequent grid lines invisible (black-on-black).
-            continue;
-          }
-          const entry = catalog.textures[cell.textureSecondary];
-          if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
-          const tl = toCanvas(col * gridSize, row * gridSize, transform);
-          const texOp = cell.textureSecondaryOpacity ?? 1.0;
-          if (canBatch) {
-            const pattern = _getTexPattern(ctx, entry);
-            _applyPatternTransform(pattern, entry, cellPx, transform, _res);
-            ctx.globalAlpha = texOp;
-            ctx.fillStyle = pattern;
-            ctx.beginPath();
-            ctx.rect(tl.x, tl.y, cellPx, cellPx);
-            ctx.fill();
-          } else {
-            const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
-            ctx.globalAlpha = texOp;
-            ctx.drawImage(entry.img, srcX, srcY, srcW, srcH, tl.x, tl.y, cellPx, cellPx);
-          }
-        }
-      }
-      ctx.restore();
-
-      // Supplemental grid for null cells in the wedge that drawMatrixGrid
-      // cannot reach (it only draws between adjacent room cells). Drawn
-      // WITHOUT the curved wedge clip so lines match the main grid weight.
-      // Only draws edges where at least one side is NOT a room cell, so
-      // there is no overlap with the main grid pass.
-      if (hasExteriorOnly && showGrid) {
-        ctx.strokeStyle = theme.gridLine;
-        ctx.lineWidth = 1;
-        ctx.lineCap = 'butt';
-        ctx.globalAlpha = 0.5;
-        ctx.beginPath();
-        for (let row = r0; row <= r1; row++) {
-          for (let col = c0; col <= c1; col++) {
-            const here = !!roomCells[row]?.[col];
-            const south = !!roomCells[row + 1]?.[col];
-            const east  = !!roomCells[row]?.[col + 1];
-            // Bottom edge — skip if main grid already draws it (both room cells)
-            if (!here || !south) {
-              const p1 = toCanvas(col * gridSize, (row + 1) * gridSize, transform);
-              const p2 = toCanvas((col + 1) * gridSize, (row + 1) * gridSize, transform);
-              ctx.moveTo(p1.x, p1.y);
-              ctx.lineTo(p2.x, p2.y);
-            }
-            // Right edge — skip if main grid already draws it (both room cells)
-            if (!here || !east) {
-              const p1 = toCanvas((col + 1) * gridSize, row * gridSize, transform);
-              const p2 = toCanvas((col + 1) * gridSize, (row + 1) * gridSize, transform);
-              ctx.moveTo(p1.x, p1.y);
-              ctx.lineTo(p2.x, p2.y);
-            }
-          }
-        }
-        // Top edge of first row and left edge of first column
-        for (let col = c0; col <= c1; col++) {
-          if (!roomCells[r0 - 1]?.[col] || !roomCells[r0]?.[col]) {
-            const p1 = toCanvas(col * gridSize, r0 * gridSize, transform);
-            const p2 = toCanvas((col + 1) * gridSize, r0 * gridSize, transform);
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-          }
-        }
-        for (let row = r0; row <= r1; row++) {
-          if (!roomCells[row]?.[c0 - 1] || !roomCells[row]?.[c0]) {
-            const p1 = toCanvas(c0 * gridSize, row * gridSize, transform);
-            const p2 = toCanvas(c0 * gridSize, (row + 1) * gridSize, transform);
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-          }
-        }
-        ctx.stroke();
-        ctx.globalAlpha = 1.0;
-      }
-    }
-    ctx.globalAlpha = 1.0;
-  }
-
-  renderTimings.arcs = { ms: performance.now() - _arcStart, frame: _timingFrame };
 
   // Texture edge + corner blending
   if (!skipPhases?.blending) {
     _t('blending', () => {
       if (hasTexturedCells) {
-        renderTextureBlending(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, transform, textureOptions, cacheSize);
+        renderTextureBlending(ctx, cells, roomCells, gridSize, transform, textureOptions, cacheSize);
       }
     });
   }
 
   // Fill patterns (pit/water/lava) — grid drawn later so bridges sit under it
   if (!skipPhases?.fills) {
-    _t('fills', () => renderFillPatternsAndGrid(ctx, cells, roomCells, roundedCorners, hasRoundedArcs, gridSize, theme, transform, showGrid, true, metadata, cacheSize));
+    _t('fills', () => renderFillPatternsAndGrid(ctx, cells, roomCells, gridSize, theme, transform, showGrid, true, metadata, cacheSize));
   }
 
   // ── Walls, bridges, grid (rendered directly, no layer canvas) ──────────
   if (!skipPhases?.walls) {
-    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, roundedCorners, gridSize, theme, transform, showInvisible, visibleBounds, _res));
+    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible, visibleBounds, _res));
   }
 
   if (!skipPhases?.bridges) {
@@ -1523,9 +1453,9 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
   if (!skipPhases?.grid) {
     _t('grid', () => {
       if (showGrid) {
-        withArcClip(ctx, hasRoundedArcs, roundedCorners, gridSize, transform, () => {
+        withTrimVoidClip(ctx, cells, gridSize, transform, () => {
           drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
-        }, true);
+        });
       }
     });
   }

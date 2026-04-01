@@ -2,6 +2,106 @@
 import { cellKey } from '../util/index.js';
 import { classifyStairShape, getOccupiedCells } from '../editor/js/index.js';
 
+// Which neighbors are on the exterior side for each trimCorner.
+// Includes cardinal + the corner diagonal to handle large arcs where
+// cardinals traverse 3+ trim cells before reaching a non-trim cell.
+const _EXTERIOR_DIRS = {
+  nw: [[-1, 0], [0, -1], [-1, -1]],  // north, west, nw diagonal
+  ne: [[-1, 0], [0,  1], [-1,  1]],  // north, east, ne diagonal
+  sw: [[ 1, 0], [0, -1], [ 1, -1]],  // south, west, sw diagonal
+  se: [[ 1, 0], [0,  1], [ 1,  1]],  // south, east, se diagonal
+};
+const _INTERIOR_DIRS = {
+  nw: [[ 1, 0], [0,  1], [ 1,  1]],  // south, east, se diagonal
+  ne: [[ 1, 0], [0, -1], [ 1, -1]],  // south, west, sw diagonal
+  sw: [[-1, 0], [0,  1], [-1,  1]],  // north, east, ne diagonal
+  se: [[-1, 0], [0, -1], [-1, -1]],  // north, west, nw diagonal
+};
+
+/**
+ * Ray-casting point-in-polygon test.
+ */
+function _pip(px, py, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/**
+ * Check whether a direction exits through the interior (trimClip) side
+ * of the cell.  Used to validate direction-array candidates against the
+ * actual arc geometry.
+ */
+function _exitsInterior(dr, dc, clip) {
+  // Exit point on cell boundary, nudged toward center to avoid edge ambiguity
+  const px = (dc + 1) / 2 * 0.96 + 0.02;
+  const py = (dr + 1) / 2 * 0.96 + 0.02;
+  return _pip(px, py, clip);
+}
+
+/**
+ * Classify all trim cells in a revealed set.
+ *
+ * For each trim cell, direction arrays (based on trimCorner) provide candidate
+ * search directions for the interior and exterior sides.  Each candidate is
+ * validated against the cell's trimClip polygon — if the exit point lands on
+ * the wrong side of the arc wall, the direction is skipped.  This handles
+ * inverted arcs where the fixed direction mapping can be inaccurate.
+ *
+ * Returns a Map of "r,c" → 'roomOnly' | 'exteriorOnly' | 'both'.
+ */
+export function classifyAllTrimFog(revealedCells, cells) {
+  const results = new Map();
+
+  for (const key of revealedCells) {
+    const [r, c] = key.split(',').map(Number);
+    const cell = cells[r]?.[c];
+    if (!cell?.trimClip || !cell.trimCorner) continue;
+
+    const clip = cell.trimClip;
+
+    // Check 1–2 cells out in each direction for a non-trim revealed cell.
+    // Each direction is validated against the trimClip polygon to ensure it
+    // exits on the expected side of the arc wall.
+    const _sideRevealed = (dirs, wantInterior) => {
+      for (const [dr, dc] of dirs) {
+        // Validate: does this direction actually exit on the expected side?
+        const isInterior = _exitsInterior(dr, dc, clip);
+        if (isInterior !== wantInterior) continue;
+
+        for (let dist = 1; dist <= 2; dist++) {
+          const nr = r + dr * dist, nc = c + dc * dist;
+          const neighbor = cells[nr]?.[nc];
+          if (!neighbor) break; // void or out of bounds
+          if (!neighbor.trimClip) {
+            if (revealedCells.has(cellKey(nr, nc))) return true;
+            break; // non-trim but not revealed
+          }
+          // Intermediate trim cell: verify the direction still exits on the
+          // expected side.  Large/inverted arcs can curve so that a direction
+          // that starts on the exterior flips to interior at the next cell.
+          if (_exitsInterior(dr, dc, neighbor.trimClip) !== wantInterior) break;
+        }
+      }
+      return false;
+    };
+
+    const extRevealed = _sideRevealed(_EXTERIOR_DIRS[cell.trimCorner], false);
+    const intRevealed = _sideRevealed(_INTERIOR_DIRS[cell.trimCorner], true);
+
+    if (intRevealed && extRevealed) results.set(key, 'both');
+    else if (intRevealed) results.set(key, 'roomOnly');
+    else if (extRevealed) results.set(key, 'exteriorOnly');
+  }
+
+  return results;
+}
+
 /**
  * Build a filtered cells array for the player view.
  * - Unrevealed cells → null (void — renderer skips them, hatching handles edges)
@@ -65,86 +165,23 @@ export function buildPlayerCells(dungeon, revealedCells, openedDoors) {
         }
       }
 
-      // Exterior-only trimRound: if none of the interior-facing neighbors are revealed,
-      // the cell was reached from the exterior side only. Flag it so renderFloors skips
-      // the primary (interior-face) floor fill, leaving the canvas black. The arc
-      // secondary post-pass still draws the void-corner (exterior) texture correctly.
-      if (pc.trimRound && pc.trimCorner) {
-        const INTERIOR_OFFSETS = {
-          nw: [{ dr: 1, dc: 0 }, { dr: 0, dc: 1 }],
-          ne: [{ dr: 1, dc: 0 }, { dr: 0, dc: -1 }],
-          sw: [{ dr: -1, dc: 0 }, { dr: 0, dc: 1 }],
-          se: [{ dr: -1, dc: 0 }, { dr: 0, dc: -1 }],
-        };
-        const offsets = INTERIOR_OFFSETS[pc.trimCorner];
-        if (offsets) {
-          const interiorRevealed = offsets.some(({ dr, dc }) =>
-            revealedCells.has(cellKey(r + dr, c + dc))
-          );
-          if (!interiorRevealed) {
-            pc.trimShowExteriorOnly = true;
-
-            // Synthesize textureSecondary from an exterior-direction neighbor so the
-            // arc secondary post-pass can draw terrain in the void-corner.
-            // trimRound cells often don't have textureSecondary set; we inherit the
-            // primary texture of the nearest revealed exterior cell instead.
-            if (!pc.textureSecondary) {
-              const EXTERIOR_DIRS = {
-                nw: [{ dr: -1, dc: 0 }, { dr: 0, dc: -1 }],
-                ne: [{ dr: -1, dc: 0 }, { dr: 0, dc:  1 }],
-                sw: [{ dr:  1, dc: 0 }, { dr: 0, dc: -1 }],
-                se: [{ dr:  1, dc: 0 }, { dr: 0, dc:  1 }],
-              };
-              const maxSteps = (pc.trimArcRadius ?? 3) + 1;
-              outer: for (const { dr, dc } of EXTERIOR_DIRS[pc.trimCorner] ?? []) {
-                for (let k = 1; k <= maxSteps; k++) {
-                  const nr = r + dr * k, nc = c + dc * k;
-                  const neighbor = cells[nr]?.[nc];
-                  if (neighbor?.texture && revealedCells.has(cellKey(nr, nc))) {
-                    pc.textureSecondary = neighbor.texture;
-                    pc.textureSecondaryOpacity = neighbor.textureOpacity ?? 1.0;
-                    break outer;
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        // Interior-only: if interior IS revealed but exterior terrain near the
-        // arc center is NOT, flag the cell so the rounded corner pass skips the
-        // entire wedge texture fill (including non-trimRound cells in the bbox).
-        // Check cells diagonally outside the arc center — these are definitively
-        // outside the building and represent the exterior terrain.
-        if (!pc.trimShowExteriorOnly) {
-          const EXTERIOR_DIAG = {
-            nw: [{ dr: -1, dc: -1 }, { dr: -1, dc: 0 }, { dr: 0, dc: -1 }],
-            ne: [{ dr: -1, dc:  1 }, { dr: -1, dc: 0 }, { dr: 0, dc:  1 }],
-            sw: [{ dr:  1, dc: -1 }, { dr:  1, dc: 0 }, { dr: 0, dc: -1 }],
-            se: [{ dr:  1, dc:  1 }, { dr:  1, dc: 0 }, { dr: 0, dc:  1 }],
-          };
-          let exteriorRevealed = false;
-          for (const { dr, dc } of EXTERIOR_DIAG[pc.trimCorner] ?? []) {
-            const er = pc.trimArcCenterRow + dr;
-            const ec = pc.trimArcCenterCol + dc;
-            if (er >= 0 && er < numRows && ec >= 0 && ec < numCols) {
-              const extCell = cells[er]?.[ec];
-              if (extCell) {
-                exteriorRevealed = revealedCells.has(cellKey(er, ec));
-                break;
-              }
-            }
-          }
-          if (!exteriorRevealed) {
-            pc.trimHideExterior = true;
-          }
-        }
-      }
-
       row.push(pc);
     }
     playerCells.push(row);
   }
+
+  // ── Trim fog flags: hide exterior/interior of arc boundary cells ──
+  // When only one side of a circular arc boundary is revealed, set flags
+  // so the renderer only draws that side's floor/texture.
+  const trimSides = classifyAllTrimFog(revealedCells, cells);
+  for (const [key, side] of trimSides) {
+    const [r, c] = key.split(',').map(Number);
+    const pc = playerCells[r]?.[c];
+    if (!pc) continue;
+    if (side === 'roomOnly') pc.trimHideExterior = true;
+    else if (side === 'exteriorOnly') pc.trimShowExteriorOnly = true;
+  }
+
   return playerCells;
 }
 

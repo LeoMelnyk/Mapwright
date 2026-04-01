@@ -1,5 +1,4 @@
 import { toCanvas } from './bounds.js';
-import { seededLcg } from './effects.js';
 import { isEdgeOpen } from '../util/index.js';
 
 /**
@@ -56,9 +55,8 @@ function determineRoomCells(cells) {
  * Get the void corner for a cell with a diagonal wall.
  */
 function getDiagonalTrimCorner(cell, cells, row, col) {
-  // insideArc cells are full floor cells rendered as rectangles — their trimCorner
-  // is metadata for BFS, not a diagonal clip indicator.
-  if (cell.trimInsideArc) return null;
+  // Arc boundary cells with trimClip use polygon clipping, not diagonal trimming.
+  if (cell.trimClip) return null;
   if (cell.trimCorner) return cell.trimCorner;
 
   const hasDiag = cell['ne-sw'] || cell['nw-se'];
@@ -128,129 +126,9 @@ function fillRoomSquare(ctx, x, y, size, fillColor, transform) {
   ctx.fillRect(p1.x, p1.y, pixelSize, pixelSize);
 }
 
-/**
- * Sample N points along an arc with radial noise for a hand-drawn look.
- * The first point is moved-to (no noise), interior points have radial jitter,
- * and the final endpoint is exact so it joins cleanly to adjacent straight walls.
- */
-function drawRoughArc(ctx, cx, cy, radius, startAngle, endAngle, anticlockwise, roughness, rand) {
-  // Compute signed angular span in the direction of travel
-  let span = endAngle - startAngle;
-  if (anticlockwise) {
-    if (span > 0) span -= 2 * Math.PI;
-  } else {
-    if (span < 0) span += 2 * Math.PI;
-  }
-
-  const arcLen = Math.abs(span) * radius;
-  const spacing = 25;
-  const numCtrl = Math.max(1, Math.ceil(arcLen / spacing));
-
-  // Generate control points with radial offsets along the arc
-  const pts = [];
-  for (let i = 0; i <= numCtrl; i++) {
-    const t = i / numCtrl;
-    const angle = startAngle + span * t;
-    const noise = (i > 0 && i < numCtrl) ? (rand() - 0.5) * 2 * roughness : 0;
-    const r = radius + noise;
-    pts.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
-  }
-
-  // Smooth curve through control points using quadratic Bézier
-  ctx.moveTo(pts[0].x, pts[0].y);
-  if (pts.length === 2) {
-    ctx.lineTo(pts[1].x, pts[1].y);
-  } else {
-    for (let i = 1; i < pts.length - 1; i++) {
-      const xMid = (pts[i].x + pts[i + 1].x) / 2;
-      const yMid = (pts[i].y + pts[i + 1].y) / 2;
-      ctx.quadraticCurveTo(pts[i].x, pts[i].y, xMid, yMid);
-    }
-    ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
-  }
-}
-
-/**
- * Draw a quarter-circle arc wall for a rounded trim corner.
- * Applies the same rough-line and drop-shadow effects as straight walls.
- */
-function drawRoundedWall(ctx, rc, theme, gridSize, transform) {
-  const R = rc.radius * gridSize;
-  const Rpx = R * transform.scale;
-  const s = transform.scale / 10;
-
-  const useRough = (theme.wallRoughness || 0) > 0;
-  const amp = (theme.wallRoughness || 0) * s * 1.5;
-  const seed = (rc.centerRow * 1000 + rc.centerCol) * 17 + 99991;
-  const rand = useRough ? seededLcg(seed) : null;
-
-  // Resolve arc center and angle parameters
-  let cx, cy, startAngle, endAngle, anticlockwise;
-  if (rc.inverted) {
-    const op = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
-    cx = op.x; cy = op.y;
-    switch (rc.corner) {
-      case 'nw': startAngle = Math.PI / 2;     endAngle = 0;               anticlockwise = true;  break;
-      case 'ne': startAngle = Math.PI / 2;     endAngle = Math.PI;         anticlockwise = false; break;
-      case 'sw': startAngle = 0;               endAngle = 3 * Math.PI / 2; anticlockwise = true;  break;
-      case 'se': startAngle = Math.PI;         endAngle = 3 * Math.PI / 2; anticlockwise = false; break;
-    }
-  } else {
-    let acx, acy;
-    switch (rc.corner) {
-      case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-      case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-    }
-    const acp = toCanvas(acx, acy, transform);
-    cx = acp.x; cy = acp.y;
-    switch (rc.corner) {
-      case 'nw': startAngle = 3 * Math.PI / 2; endAngle = Math.PI;         anticlockwise = true;  break;
-      case 'ne': startAngle = 3 * Math.PI / 2; endAngle = 0;               anticlockwise = false; break;
-      case 'sw': startAngle = Math.PI / 2;     endAngle = Math.PI;         anticlockwise = false; break;
-      case 'se': startAngle = Math.PI / 2;     endAngle = 0;               anticlockwise = true;  break;
-    }
-  }
-
-  // Shadow pass — clean arc, same shadow settings as straight walls
-  if (theme.wallShadow) {
-    const { color, blur, offsetX, offsetY } = theme.wallShadow;
-    ctx.save();
-    ctx.strokeStyle = theme.wallStroke;
-    ctx.lineWidth = 6 * s;
-    ctx.lineCap = 'butt';
-    ctx.shadowColor = color;
-    ctx.shadowBlur = blur * s;
-    ctx.shadowOffsetX = offsetX * s;
-    ctx.shadowOffsetY = offsetY * s;
-    ctx.beginPath();
-    ctx.arc(cx, cy, Rpx, startAngle, endAngle, anticlockwise);
-    ctx.stroke();
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-    ctx.restore();
-  }
-
-  // Wall stroke pass — rough or clean
-  ctx.strokeStyle = theme.wallStroke;
-  ctx.lineWidth = 6 * s;
-  ctx.lineCap = useRough ? 'round' : 'butt';
-  ctx.beginPath();
-  if (useRough) {
-    drawRoughArc(ctx, cx, cy, Rpx, startAngle, endAngle, anticlockwise, amp, rand);
-  } else {
-    ctx.arc(cx, cy, Rpx, startAngle, endAngle, anticlockwise);
-  }
-  ctx.stroke();
-}
-
 export {
   determineRoomCells,
   getDiagonalTrimCorner,
   fillTrimmedCell,
   fillRoomSquare,
-  drawRoundedWall
 };

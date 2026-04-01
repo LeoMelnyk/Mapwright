@@ -1,5 +1,5 @@
 // Core rendering
-export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion, getDirtyRegion, consumeDirtyRegion, accumulateDirtyRect, patchBlendForDirtyRegion } from './render.js';
+export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion, getDirtyRegion, consumeDirtyRegion, accumulateDirtyRect, patchBlendForDirtyRegion, traceArcWedge, collectRoundedCorners } from './render.js';
 export { invalidateFluidCache } from './fluid.js';
 // Decorations & lighting
 export { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from './decorations.js';
@@ -15,6 +15,13 @@ export { THEMES } from './themes.js';
 export { calculateCanvasSize, renderDungeonToCanvas } from './compile.js';
 // Render warnings
 export { warn as renderWarn, flush as flushRenderWarnings } from './warnings.js';
+// Effects (shading / hatching) — used by player fog overlay
+export { drawHatching, drawRockShading, drawOuterShading, drawBufferShading, invalidateEffectsCache } from './effects.js';
+// Room cell detection — used by player fog overlay for hatching
+export { determineRoomCells } from './floors.js';
+
+// Shared map cache
+export { MapCache } from './map-cache.js';
 
 // Aggregate invalidation — call after any structural change to cells (add/duplicate/resize/delete level)
 import { invalidateGeometryCache, invalidateBlendLayerCache, bumpContentVersion } from './render.js';

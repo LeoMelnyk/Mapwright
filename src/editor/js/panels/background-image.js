@@ -18,8 +18,8 @@ function render() {
   const metadata = state.dungeon.metadata;
   const bi = metadata.backgroundImage;
 
-  // Skip rebuild if background image config hasn't changed
-  if (bi === _lastBgImage) return;
+  // Skip rebuild if background image config hasn't changed and DOM is still populated
+  if (bi === _lastBgImage && container.children.length > 0) return;
   _lastBgImage = bi;
 
   container.innerHTML = '';

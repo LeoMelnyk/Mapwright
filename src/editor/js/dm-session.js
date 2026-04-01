@@ -6,6 +6,8 @@ import { showToast } from './toast.js';
 import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, floodFillRoom } from '../../util/index.js';
 import { toCanvas } from './utils.js';
 import { classifyStairShape, getOccupiedCells, stairBoundingBox } from './stair-geometry.js';
+import { getEditorSettings } from './editor-settings.js';
+import { getContentVersion } from '../../render/index.js';
 
 // ── Session state (runtime only, not serialized) ────────────────────────────
 
@@ -18,6 +20,7 @@ export const sessionState = {
   startingRoom: null,    // cell key of starting room anchor
   playerCount: 0,
   dmViewActive: false,   // true when DM fog overlay is enabled
+  dmViewForced: false,   // true when a tool (e.g. fog reveal) forces the overlay on
 };
 
 // ── WebSocket ───────────────────────────────────────────────────────────────
@@ -127,6 +130,7 @@ function broadcastInit() {
     type: 'session:init',
     dungeon: state.dungeon,
     resolvedTheme: getTheme(),
+    renderQuality: getEditorSettings().renderQuality || 20,
     revealedCells: [...sessionState.revealedCells],
     openedDoors: sessionState.openedDoors,
     openedStairs: sessionState.openedStairs,
@@ -170,13 +174,18 @@ function startViewportBroadcast() {
   }, 'dm-viewport');
 }
 
-// Dungeon broadcast (debounced 1s after edits)
+// Dungeon broadcast (debounced 1s after structural edits)
+// Uses content version from the render pipeline — immune to pan/zoom/resize
+// which set state.dirty but don't change dungeon content.
 let dungeonTimer = null;
+let _lastBroadcastContentVersion = 0;
 
 function startDungeonBroadcast() {
   subscribe(() => {
     if (!sessionState.active) return;
-    if (!state.dirty) return;
+    const cv = getContentVersion();
+    if (cv === _lastBroadcastContentVersion) return; // no content change
+    _lastBroadcastContentVersion = cv;
     if (dungeonTimer) clearTimeout(dungeonTimer);
     dungeonTimer = setTimeout(() => {
       send({
@@ -214,23 +223,10 @@ export function setStartingRoom(row, col) {
   sessionState.startingRoom = cellKey(row, col);
   const newCells = revealRoom(row, col);
 
-  // Broadcast initial reveal (no fade for starting room)
-  const { width: sw, height: sh } = getCanvasSize();
-  send({
-    type: 'session:init',
-    dungeon: state.dungeon,
-    resolvedTheme: getTheme(),
-    revealedCells: [...sessionState.revealedCells],
-    openedDoors: sessionState.openedDoors,
-    openedStairs: sessionState.openedStairs,
-    viewport: {
-      panX: state.panX,
-      panY: state.panY,
-      zoom: state.zoom,
-      canvasWidth: sw,
-      canvasHeight: sh,
-    },
-  });
+  // Broadcast as a fog reveal — no full session rebuild needed
+  if (newCells.length > 0) {
+    send({ type: 'fog:reveal', cells: newCells });
+  }
 
   requestRender();
   notify();
@@ -240,47 +236,56 @@ export function setStartingRoom(row, col) {
 /**
  * Open a door and reveal the room on the other side.
  */
-export function openDoor(row, col, dir) {
+export function openDoor(row, col, dir, mergedCells) {
   const cells = state.dungeon.cells;
-  const cell = cells[row]?.[col];
-  if (!cell) return;
 
-  const doorType = cell[dir]; // 'd', 's', or 'id'
-  const wasSecret = doorType === 's';
+  // Collect all door cells to open (merged or single)
+  const doorCells = mergedCells && mergedCells.length > 1
+    ? mergedCells
+    : [{ row, col }];
 
-  // Record opened door
-  sessionState.openedDoors.push({ row, col, dir, wasSecret });
+  const newCells = [];
 
-  let newCells;
+  for (const dc of doorCells) {
+    const cell = cells[dc.row]?.[dc.col];
+    if (!cell) continue;
 
-  if (dir === 'nw-se' || dir === 'ne-sw') {
-    // Diagonal door: BFS from the OTHER half of the same cell.
-    // Determine which entry direction reaches the unrevealed half.
-    const otherEntry = getDiagonalOtherEntry(cell, row, col, dir);
-    newCells = revealRoomFrom(row, col, otherEntry);
+    const doorType = cell[dir]; // 'd', 's', or 'id'
+    const wasSecret = doorType === 's';
 
-    // Also re-reveal from this side
-    const thisSideCells = revealRoom(row, col);
-    for (const key of thisSideCells) {
-      if (!newCells.includes(key)) newCells.push(key);
-    }
-  } else {
-    // Cardinal door: BFS from the neighbor on the other side
-    const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
-    const [dr, dc] = OFFSETS[dir];
-    const otherRow = row + dr, otherCol = col + dc;
+    // Record opened door
+    sessionState.openedDoors.push({ row: dc.row, col: dc.col, dir, wasSecret });
 
-    newCells = revealRoom(otherRow, otherCol);
-
-    // Also reveal from this side (in case the door is in a corridor between two rooms)
-    const thisSideCells = revealRoom(row, col);
-    for (const key of thisSideCells) {
-      if (!newCells.includes(key)) newCells.push(key);
+    if (dir === 'nw-se' || dir === 'ne-sw') {
+      const otherEntry = getDiagonalOtherEntry(cell, dc.row, dc.col, dir);
+      const revealed = revealRoomFrom(dc.row, dc.col, otherEntry);
+      for (const key of revealed) {
+        if (!newCells.includes(key)) newCells.push(key);
+      }
+      const thisSide = revealRoom(dc.row, dc.col);
+      for (const key of thisSide) {
+        if (!newCells.includes(key)) newCells.push(key);
+      }
+    } else {
+      const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+      const [dr, dcc] = OFFSETS[dir];
+      const revealed = revealRoom(dc.row + dr, dc.col + dcc);
+      for (const key of revealed) {
+        if (!newCells.includes(key)) newCells.push(key);
+      }
+      const thisSide = revealRoom(dc.row, dc.col);
+      for (const key of thisSide) {
+        if (!newCells.includes(key)) newCells.push(key);
+      }
     }
   }
 
-  // Broadcast
-  send({ type: 'door:open', row, col, dir, wasSecret });
+  // Broadcast each door cell so the player marks both sides as opened
+  for (const dc of doorCells) {
+    const doorType = cells[dc.row]?.[dc.col]?.[dir];
+    const cellWasSecret = doorType === 's';
+    send({ type: 'door:open', row: dc.row, col: dc.col, dir, wasSecret: cellWasSecret });
+  }
   if (newCells.length > 0) {
     send({ type: 'fog:reveal', cells: newCells, duration: 500 });
   }
@@ -377,6 +382,31 @@ export function revealRect(r1, c1, r2, c2) {
 }
 
 /**
+ * Re-fog all revealed cells within a rectangle.
+ */
+export function concealRect(r1, c1, r2, c2) {
+  const cells = state.dungeon.cells;
+  const minRow = Math.min(r1, r2), maxRow = Math.max(r1, r2);
+  const minCol = Math.min(c1, c2), maxCol = Math.max(c1, c2);
+  const hiddenCells = [];
+  for (let r = minRow; r <= maxRow; r++) {
+    for (let c = minCol; c <= maxCol; c++) {
+      if (!cells[r]?.[c]) continue;
+      const key = cellKey(r, c);
+      if (sessionState.revealedCells.has(key)) {
+        sessionState.revealedCells.delete(key);
+        hiddenCells.push(key);
+      }
+    }
+  }
+  if (hiddenCells.length > 0) {
+    send({ type: 'fog:conceal', cells: hiddenCells });
+  }
+  requestRender();
+  notify();
+}
+
+/**
  * Reset fog — hide everything.
  */
 export function resetFog() {
@@ -384,7 +414,7 @@ export function resetFog() {
   sessionState.openedDoors = [];
   sessionState.openedStairs = [];
   sessionState.startingRoom = null;
-  broadcastInit();
+  send({ type: 'fog:reset' });
   requestRender();
   notify();
 }
@@ -405,7 +435,9 @@ export function toggleDmView() {
  * Called from the canvas render loop whenever the session is active.
  */
 export function renderDmFogOverlay(ctx, transform, gridSize) {
-  if (!sessionState.active || !sessionState.dmViewActive) return;
+  if (!sessionState.active) return;
+  // Show overlay when: forced by a tool (e.g. fog reveal), OR manually enabled while session panel is open
+  if (!sessionState.dmViewForced && !(sessionState.dmViewActive && state.sessionToolsActive)) return;
 
   const cells = state.dungeon.cells;
   const numRows = cells.length;
@@ -442,6 +474,61 @@ export function renderDmFogOverlay(ctx, transform, gridSize) {
   ctx.stroke();
 
   ctx.restore();
+}
+
+// ── Debug: dump cell data + fog state for a region ──────────────────────────
+
+/**
+ * Dump cell data and fog state for a rectangular region.
+ * Call from console: dumpFogRegion(r1, c1, r2, c2)
+ * Or Shift+drag with the fog reveal tool (requires debug panel enabled).
+ */
+export function dumpFogRegion(r1, c1, r2, c2) {
+  if (!getEditorSettings().debug) {
+    console.log('[dumpFogRegion] Enable the debug panel first (View > Developer > Debug Panel)');
+    return null;
+  }
+  const cells = state.dungeon.cells;
+  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+
+  const result = [];
+  for (let r = minR; r <= maxR; r++) {
+    const row = [];
+    for (let c = minC; c <= maxC; c++) {
+      const cell = cells[r]?.[c];
+      const revealed = sessionState.revealedCells.has(cellKey(r, c));
+      if (!cell) {
+        row.push({ r, c, type: 'null', revealed });
+      } else {
+        // Full deep clone of cell data — don't cherry-pick properties
+        const entry = JSON.parse(JSON.stringify(cell));
+        entry.r = r;
+        entry.c = c;
+        entry.revealed = revealed;
+        entry.type = cell.trimClip ? 'trimArc' : 'floor';
+        row.push(entry);
+      }
+    }
+    result.push(row);
+  }
+
+  // Download as JSON file
+  const json = JSON.stringify({ r1: minR, c1: minC, r2: maxR, c2: maxC, cells: result }, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fog-debug-${minR}-${minC}-${maxR}-${maxC}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  console.log(`[dumpFogRegion] Downloaded fog-debug-${minR}-${minC}-${maxR}-${maxC}.json`);
+  return result;
+}
+
+// Expose on window for console access
+if (typeof window !== 'undefined') {
+  window.dumpFogRegion = dumpFogRegion;
 }
 
 // ── Door overlay (DM canvas) ────────────────────────────────────────────────
@@ -545,7 +632,72 @@ function findRevealableDoors() {
       doors.push({ row: r, col: c, dir: diagDir, type: isInvisible ? 'id' : 'd' });
     }
   }
-  return doors;
+  return mergeDoorRuns(doors);
+}
+
+/**
+ * Group adjacent cardinal doors of the same direction and type into merged runs.
+ * Each merged run produces a single door entry with a `cells` array.
+ * Diagonal doors pass through unchanged.
+ */
+function mergeDoorRuns(doors) {
+  // Step direction for grouping: north/south doors run along columns, east/west along rows
+  const STEP = { north: [0, 1], south: [0, 1], east: [1, 0], west: [1, 0] };
+
+  const cardinalDoors = [];
+  const otherDoors = [];
+  for (const d of doors) {
+    if (STEP[d.dir]) cardinalDoors.push(d);
+    else otherDoors.push(d);
+  }
+
+  // Group by direction + type + fixed coordinate (row for N/S, col for E/W)
+  const groups = {};
+  for (const door of cardinalDoors) {
+    const [dr] = STEP[door.dir];
+    const fixedCoord = dr === 0 ? door.row : door.col;
+    const key = `${door.dir}:${door.type}:${fixedCoord}`;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(door);
+  }
+
+  const merged = [];
+  for (const key of Object.keys(groups)) {
+    const group = groups[key];
+    const dir = group[0].dir;
+    const [dr] = STEP[dir];
+
+    // Sort by step coordinate
+    group.sort((a, b) => (dr === 0 ? a.col - b.col : a.row - b.row));
+
+    // Find consecutive runs
+    let runStart = 0;
+    for (let i = 1; i <= group.length; i++) {
+      const prev = group[i - 1];
+      const curr = group[i];
+      const prevStep = dr === 0 ? prev.col : prev.row;
+      const currStep = curr ? (dr === 0 ? curr.col : curr.row) : -999;
+
+      if (currStep !== prevStep + 1) {
+        const run = group.slice(runStart, i);
+        if (run.length === 1) {
+          merged.push(run[0]);
+        } else {
+          merged.push({
+            row: run[0].row,
+            col: run[0].col,
+            dir: run[0].dir,
+            type: run[0].type,
+            cells: run.map(d => ({ row: d.row, col: d.col })),
+          });
+        }
+        runStart = i;
+      }
+    }
+  }
+
+  merged.push(...otherDoors);
+  return merged;
 }
 
 /**
@@ -574,9 +726,9 @@ function getOtherSideDirs(cell, r, c, diagDir) {
 }
 
 /**
- * Get the canvas pixel position of a door midpoint.
+ * Get the canvas pixel position of a single cell's door midpoint.
  */
-function getDoorMidpoint(row, col, dir, gridSize, transform) {
+function getSingleDoorMidpoint(row, col, dir, gridSize, transform) {
   const x = col * gridSize, y = row * gridSize;
   switch (dir) {
     case 'north': return toCanvas(x + gridSize / 2, y, transform);
@@ -586,6 +738,21 @@ function getDoorMidpoint(row, col, dir, gridSize, transform) {
     case 'nw-se': return toCanvas(x + gridSize / 2, y + gridSize / 2, transform);
     case 'ne-sw': return toCanvas(x + gridSize / 2, y + gridSize / 2, transform);
   }
+}
+
+/**
+ * Get the canvas pixel position of a door midpoint.
+ * For merged doors (with a `cells` array), returns the center of the full run.
+ */
+function getDoorMidpoint(door, gridSize, transform) {
+  if (door.cells && door.cells.length > 1) {
+    const first = door.cells[0];
+    const last = door.cells[door.cells.length - 1];
+    const p1 = getSingleDoorMidpoint(first.row, first.col, door.dir, gridSize, transform);
+    const p2 = getSingleDoorMidpoint(last.row, last.col, door.dir, gridSize, transform);
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+  }
+  return getSingleDoorMidpoint(door.row, door.col, door.dir, gridSize, transform);
 }
 
 /**
@@ -637,10 +804,10 @@ export function renderSessionOverlay(ctx, transform, gridSize) {
 
   // Door buttons
   const doors = findRevealableDoors();
-  for (const { row, col, dir, type } of doors) {
-    const p = getDoorMidpoint(row, col, dir, gridSize, transform);
-    const color = type === 's' ? 'rgba(220, 60, 60, 0.85)'
-                : type === 'id' ? 'rgba(80, 130, 255, 0.85)'
+  for (const door of doors) {
+    const p = getDoorMidpoint(door, gridSize, transform);
+    const color = door.type === 's' ? 'rgba(220, 60, 60, 0.85)'
+                : door.type === 'id' ? 'rgba(80, 130, 255, 0.85)'
                 : 'rgba(60, 180, 170, 0.85)';
     drawDoorIcon(ctx, p.x, p.y, DOOR_BUTTON_RADIUS, color);
   }
@@ -662,7 +829,7 @@ export function hitTestDoorButton(px, py, transform, gridSize) {
 
   const doors = findRevealableDoors();
   for (const door of doors) {
-    const p = getDoorMidpoint(door.row, door.col, door.dir, gridSize, transform);
+    const p = getDoorMidpoint(door, gridSize, transform);
     const dx = px - p.x, dy = py - p.y;
     if (dx * dx + dy * dy <= DOOR_BUTTON_RADIUS * DOOR_BUTTON_RADIUS) {
       return door;

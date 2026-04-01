@@ -1,5 +1,91 @@
 # Changelog
 
+## v0.9.0
+
+### Round Trim System Overhaul
+
+The round trim (arc wall) system has been completely rewritten. Each arc boundary cell now stores its own geometry data instead of referencing a shared arc center, eliminating an entire class of rendering, BFS, and texture bugs.
+
+**New cell data model:**
+- `trimClip` — floor polygon in cell-local coordinates (defines room vs void boundary)
+- `trimWall` — arc polyline for wall rendering
+- `trimCrossing` — 3x3 sub-grid crossing matrix for precise BFS traversal
+- `trimCorner` — corner orientation (nw/ne/sw/se)
+
+**What changed:**
+- **Rendering**: Per-cell arc clipping replaces the old global canvas clip path. Each cell renders its own arc wall segment and floor polygon. Textures split precisely at the arc boundary (primary on room side, secondary on void side)
+- **BFS / Flood Fill**: Arc walls use a per-cell crossing matrix instead of the old 200-line arc post-pass. The crossing matrix determines which exits are reachable from each entry direction, preventing leaking through the arc boundary
+- **Texture flood fill**: Arc boundary cells correctly receive primary or secondary texture based on which side the fill originated from. Works consistently regardless of fill start position, handles multiple adjacent circles, and supports both inside and outside fills
+- **Open trims**: Decorative arcs that don't void cells. The arc wall blocks texture flood fill but not structural BFS (fog reveal, room detection). Floor renders fully on both sides
+- **Inverted trims**: Concave arcs that curve into the room. Void region extends beyond the original triangle into the room interior
+- **Cell inspector**: Updated to show trim type, corner, wall points, clip points, and texture state. Raw JSON collapsed by default
+
+**Removed:**
+- `trimRound`, `trimArcCenterRow/Col`, `trimArcRadius`, `trimArcInverted`, `trimInsideArc`, `fogBoundary` cell properties
+- `collectRoundedCorners()`, `buildArcVoidClip()`, `withArcClip()` render functions
+- ~200 lines of arc geometry helpers and post-pass BFS in `grid.js`
+- Arc bleed fix in player fog overlay
+
+**Migration**: Old maps are automatically converted on load. The v3-to-v4 migration computes per-cell geometry from the old arc center/radius metadata.
+
+### Player View Fog-of-War Overhaul
+
+The player view rendering pipeline has been rebuilt with a layered compositing architecture. Fog, shading, hatching, and walls are now independent cached layers instead of being baked into a single map image.
+
+**New layer stack (bottom to top):**
+1. Full map cache (floors, props, lighting — no shading or hatching)
+2. Fog overlay (theme-coloured, not black)
+3. Outer shading composite (fog-edge masked)
+4. Hatching composite (fog-edge masked)
+5. Walls + doors overlay (revealed cells only)
+
+**Fog-edge mask**: Shading and hatching appear in a band around revealed cells, using a Minkowski-sum (rolling ball) approach that produces naturally rounded outer edges instead of blocky cell-aligned rectangles. The mask rebuilds when fog changes; the shading and hatching canvases themselves are cached once per session and never recalculated.
+
+**Theme-coloured fog**: The fog overlay and canvas background now use the theme's background colour instead of black, so the void around the dungeon matches the theme aesthetic.
+
+**Walls overlay**: Walls and doors render above the fog and hatching layers so boundary walls are always visible. Uses a filtered cells grid containing only revealed cells — walls from unrevealed cells never render. Updated incrementally on reveal (dirty-region render); full rebuild on conceal.
+
+**Bug fix — secret doors visible in player view**: The walls overlay was copying raw cell data without filtering secret door types, causing the "S" marker to appear on the player view before the door was opened. The overlay now applies the same filtering as the full-map cache — unopened secret doors render as plain walls, opened secret doors render as normal doors. Additionally, opening a multi-cell (double-width) secret door now correctly broadcasts all constituent cells to the player, so both halves update to show a door.
+
+**Performance**: Hatching and shading layers build once and are keyed by a theme-property signature — only a mid-session theme change triggers a rebuild. The fog-edge mask (shared by both composites) is the only work done per reveal. The walls overlay uses incremental dirty-region rendering. Fog reset and starting room selection no longer trigger a full map cache rebuild on the player — fog reset sends a lightweight `fog:reset` message that clears only the fog-related layers, and starting room reveal sends an incremental `fog:reveal` instead of a full `session:init`.
+
+### Donjon Importer Upgrade to v4
+
+The Donjon random dungeon importer has been rewritten to output format version 4 natively (half-cell resolution + per-cell arc trims), bypassing the migration pipeline entirely.
+
+**Half-cell resolution:**
+- Each Donjon cell expands to a 2x2 subcell block (gridSize 2.5), matching the OPD importer's resolution
+- Walls, doors, and stairs use subcell-aware edge helpers (`setEdge`/`clearEdge`) for correct placement across 2-subcell-wide boundaries
+
+**True inscribed circles:**
+- Circle rooms use per-cell `computeArcCellData()` for every boundary cell, producing pixel-perfect arcs instead of the old 4-corner diagonal approach
+- Each quadrant is scanned independently; every cell the arc passes through gets its own `trimClip`/`trimWall`/`trimCrossing` data
+
+**Corridor punch-through:**
+- Doors punch corridor-width lanes from the room edge to the halfway mark, preventing arc/diagonal trims from blocking passage openings
+- Circle rooms punch to center; polygon rooms compute punch depth from the trim diagonal geometry
+- Side walls are added on punch-through cells where they face void or the void side of a trim cell (no end caps)
+
+**Polygon trim improvements:**
+- Polygon (hexagon, pentagon) trims computed at subcell scale with diagonal walls
+- Voiding respects room ownership via `room_id` bitmask — a shaped room's trim never voids cells belonging to an adjacent room
+
+**Archway props:**
+- Donjon archway cells get an `archway` prop placed at the center of the 5ft cell with correct rotation (0 for N-S, 90 for E-W passages)
+- Invisible doors (`'id'`) placed at the subcell center via `setCenterDoor` for fog/BFS control
+
+### Improvements
+
+- **Fog Reveal Tool: right-click to re-fog**: Right-clicking a cell with the Fog Reveal tool (F) now re-applies fog of war to that cell, hiding it from players again. Left-click drag to reveal remains unchanged.
+
+### Bug Fixes
+
+- **Fixed double door buttons in DM session**: Adjacent doors that visually merge into a single double door now show one "open door" button instead of two separate buttons. Clicking the merged button opens all doors in the group at once.
+- **Fixed blank right-sidebar panels**: Panels with render caching (Background Image, Lighting, Session, History) appeared completely empty when switching tabs, because the cache skipped DOM rebuilds even when the container had been cleared. Panels now detect an empty container and force a rebuild regardless of cached state.
+- **Fixed room tool lacking cancel**: Right-clicking or pressing Escape while dragging a room now cancels the placement instead of committing it. Right-click on a non-dragging cell still voids it as before.
+- **Fixed Fog Reveal tool DM overlay**: The DM fog overlay is now forced on (and the checkbox disabled) while the Fog Reveal tool is active, preventing the toggle from getting out of sync. Switching away from the Player Session panel now correctly hides the overlay and deactivates the session tool.
+- **Fixed fluid fills bleeding into trim voids**: Water, lava, and pit fills no longer render in the voided regions of arc wall trims. The fluid clip path now skips bleed into null (voided) cells and trims boundary cells to their floor polygon instead of the full cell rect.
+
 ## v0.8.0
 
 ### User-Saved Themes

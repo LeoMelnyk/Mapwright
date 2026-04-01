@@ -217,8 +217,19 @@ function getRelPos(event, row, col) {
  * nw-se diagonal: NE half if relY < relX, else SW.
  * ne-sw diagonal: NW half if relX+relY < 1, else SE.
  */
+// Room-side directions for each trim corner (the side the room floor is on).
+const TRIM_ROOM_DIRS = {
+  nw: new Set(['south', 'east']),
+  ne: new Set(['south', 'west']),
+  sw: new Set(['north', 'east']),
+  se: new Set(['north', 'west']),
+};
+
+
 function halfKeyFromPos(cell, relX, relY) {
-  if (cell.trimRound) return null; // arc clip handles shaping — use whole-cell texture
+  if (cell.trimWall || cell.trimRound) return null; // arc clip handles shaping — use whole-cell texture
+  // Straight trimmed cells: BFS only reaches the room-side half
+  if (cell.trimCorner && !cell.trimWall) return 'texture';
   if (cell['nw-se']) return relY < relX ? 'texture' : 'textureSecondary';
   if (cell['ne-sw']) return relX + relY < 1 ? 'texture' : 'textureSecondary';
   return null;
@@ -226,11 +237,35 @@ function halfKeyFromPos(cell, relX, relY) {
 
 /**
  * Returns the half-texture key based on the BFS entry direction into the cell.
- * nw-se: entry N/E → NE half; entry S/W → SW half.
- * ne-sw: entry N/W → NW half; entry S/E → SE half.
+ * For arc wall cells: room-side entry → 'texture', void-side entry → 'textureSecondary'.
+ * For straight trims: always 'texture' (void side is null, unreachable).
+ * For diagonal cells: entry direction determines which half.
  */
 function halfKeyFromEntry(cell, entryDir) {
-  if (cell.trimRound) return null; // arc clip handles shaping — use whole-cell texture
+  // Arc wall cells: use trimCrossing to determine side. If entry exits reach
+  // room-side edges, it's primary; otherwise secondary. For corner-clip cells
+  // where crossing is all-reachable, fall back to trimCorner.
+  if (cell.trimWall && cell.trimCorner) {
+    if (cell.trimCrossing) {
+      const exits = cell.trimCrossing[entryDir?.[0]] ?? '';
+      const roomDirs = TRIM_ROOM_DIRS[cell.trimCorner];
+      const reachesRoom = [...roomDirs].some(d => exits.includes(d[0]));
+      const reachesVoid = ['north','south','east','west']
+        .filter(d => !roomDirs.has(d))
+        .some(d => exits.includes(d[0]));
+      // If exits reach BOTH sides (corner-clip cell), use trimCorner as tiebreaker
+      if (reachesRoom && reachesVoid) {
+        return roomDirs.has(entryDir) ? 'texture' : 'textureSecondary';
+      }
+      return reachesRoom ? 'texture' : 'textureSecondary';
+    }
+    // No crossing data: use trimCorner directly
+    const roomDirs = TRIM_ROOM_DIRS[cell.trimCorner];
+    return roomDirs.has(entryDir) ? 'texture' : 'textureSecondary';
+  }
+  if (cell.trimRound) return null;
+  // Straight trimmed cells: only reachable from room side
+  if (cell.trimCorner) return 'texture';
   if (cell['nw-se']) return (entryDir === 'north' || entryDir === 'east') ? 'texture' : 'textureSecondary';
   if (cell['ne-sw']) return (entryDir === 'north' || entryDir === 'west') ? 'texture' : 'textureSecondary';
   return null;
@@ -425,9 +460,17 @@ export class PaintTool extends Tool {
       if (!cell) continue;
 
       const diagonalBlocked = blockedByDiagonal(cell, entryDir);
+
+      // Arc wall exit blocking: 3×3 sub-grid crossing matrix.
+      let arcExits = null;
+      if (cell.trimCrossing) {
+        arcExits = cell.trimCrossing[entryDir?.[0]] ?? '';
+      }
+
       for (const { dir, dr, dc } of FILL_DIRS) {
         if (cell[dir]) continue; // wall, door, or secret door — don't cross
         if (diagonalBlocked.has(dir)) continue; // diagonal wall blocks this exit
+        if (arcExits !== null && !arcExits.includes(dir[0])) continue; // arc wall blocks this exit
 
         const nr = r + dr, nc = c + dc;
         const neighborEntryDir = OPPOSITE[dir];
@@ -439,10 +482,22 @@ export class PaintTool extends Tool {
         const neighborCell = cells[nr][nc];
         if (neighborCell[neighborEntryDir]) continue; // wall on the entry side of neighbor
 
-        // Lock diagonal neighbor cells to the first half they're reached from,
-        // preventing the BFS from re-entering them from the opposite half.
+        // Lock arc cells to the side they're first reached from
+        if (neighborCell.trimCrossing) {
+          const tc = neighborCell.trimCrossing;
+          const myExits = tc[neighborEntryDir[0]] ?? '';
+          for (const ld of ['north', 'south', 'east', 'west']) {
+            if (ld === neighborEntryDir) continue;
+            if ((tc[ld[0]] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
+          }
+        }
+        // Lock diagonal neighbor cells to the first half they're reached from
         lockDiagonalHalf(visitedTraversal, nr, nc, neighborEntryDir, neighborCell);
         queue.push([nr, nc, neighborEntryDir]);
+
+        // Skip arc cells entirely in the main BFS — the post-pass handles them.
+        // This prevents BFS leaking through corner-clip arc cells into other circles.
+        if (neighborCell.trimWall) continue;
 
         const fillKey = cellKey(nr, nc);
         if (!filledCells.has(fillKey)) {
@@ -459,62 +514,99 @@ export class PaintTool extends Tool {
     // determine which side of the arc the fill originated from.
     const mainFillCells = new Set(filledCells);
 
-    // Arc post-pass: paint all trimRound ring cells connected to the filled region.
-    // Two-phase approach:
-    //   Phase 1 — seed: collect trimRound cells already in the main BFS fill, plus any
-    //             trimRound cells adjacent to filled cells. No direction check is needed
-    //             here because trimRound cells always use halfKey=null, so the write loop
-    //             below selects texture vs textureSecondary solely via forceSecondary.
-    //   Phase 2 — propagate: spread freely through adjacent trimRound cells so that
-    //             large-radius arcs with many ring cells are fully claimed even when the
-    //             main BFS diagonal-blocking stops short of propagating through them.
-    const arcQueue = [];
-    const arcVisited = new Set();
-
-    for (const k of filledCells) {
-      const [fr, fc] = k.split(',').map(Number);
-      // Seed 1a: trimRound cells already reached by the main BFS
-      if (cells[fr]?.[fc]?.trimRound && !arcVisited.has(k)) {
-        arcVisited.add(k);
-        arcQueue.push([fr, fc]);
-      }
-      // Seed 1b: trimRound cells adjacent to any filled cell
-      for (const { dr, dc } of FILL_DIRS) {
-        const nr = fr + dr, nc = fc + dc;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.trimRound) continue;
-        const nKey = cellKey(nr, nc);
-        if (arcVisited.has(nKey)) continue;
-        arcVisited.add(nKey);
-        if (!filledCells.has(nKey)) {
-          filledCells.add(nKey);
-          toFill.push([nr, nc, null]);
+    // Arc post-pass: determine the fill side ONCE from the first non-arc cell
+    // adjacent to an arc cell, then apply to ALL arc cells uniformly.
+    // During a single flood fill, all reached cells are on the same side of the arc.
+    {
+      // Step 1: determine the halfKey by checking if the fill reached the CENTER
+      // of the NEARBY arc region. Only consider arc cells adjacent to the filled area.
+      let arcMinR = Infinity, arcMaxR = 0, arcMinC = Infinity, arcMaxC = 0;
+      let hasNearbyArc = false;
+      for (const k of mainFillCells) {
+        const [fr, fc] = k.split(',').map(Number);
+        for (const { dr, dc } of FILL_DIRS) {
+          const nr = fr + dr, nc = fc + dc;
+          if (cells[nr]?.[nc]?.trimWall) {
+            hasNearbyArc = true;
+            arcMinR = Math.min(arcMinR, nr); arcMaxR = Math.max(arcMaxR, nr);
+            arcMinC = Math.min(arcMinC, nc); arcMaxC = Math.max(arcMaxC, nc);
+          }
         }
-        arcQueue.push([nr, nc]);
       }
-    }
-    // Phase 2: free propagation within the arc ring (handles large circles, multi-hop)
-    while (arcQueue.length > 0) {
-      const [ar, ac] = arcQueue.shift();
-      for (const { dr, dc } of FILL_DIRS) {
-        const nr = ar + dr, nc = ac + dc;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.trimRound) continue;
-        const nKey = cellKey(nr, nc);
-        if (arcVisited.has(nKey)) continue;
-        arcVisited.add(nKey);
-        if (!filledCells.has(nKey)) {
-          filledCells.add(nKey);
-          toFill.push([nr, nc, null]);
-        }
-        arcQueue.push([nr, nc]);
+      let arcHalfKey = 'texture'; // default for fills with no adjacent arcs
+      if (hasNearbyArc) {
+        const centerR = Math.floor((arcMinR + arcMaxR) / 2);
+        const centerC = Math.floor((arcMinC + arcMaxC) / 2);
+        // Only count the center as "inside" if it's a non-arc cell that was filled.
+        // Arc cells at the center can be reached by BFS leaking through corner clips.
+        const centerCell = cells[centerR]?.[centerC];
+        const centerIsInside = mainFillCells.has(cellKey(centerR, centerC))
+          && centerCell && !centerCell.trimWall;
+        arcHalfKey = centerIsInside ? 'texture' : 'textureSecondary';
       }
-    }
 
-    // Phase 3: correct trimInsideArc cells — add if fill is from room side,
-    // remove if fill is from void side (since they have no walls, the main BFS
-    // may have incorrectly claimed them from the exterior).
-    correctArcCells(cells, filledCells, toFill, mainFillCells, arcVisited);
+      // Step 2: claim all arc cells adjacent to any filled cell, then propagate
+      const arcVisited = new Set();
+      const arcQueue = [];
+
+      // Seed from non-arc filled cells adjacent to arc cells.
+      // Skip cells sandwiched between arc cells (they're in a gap between circles).
+      for (const k of mainFillCells) {
+        const [fr, fc] = k.split(',').map(Number);
+        const fCell = cells[fr]?.[fc];
+        if (fCell?.trimWall) continue;
+        // Check if this cell is sandwiched: arc neighbors on opposing axes
+        const hasArcN = !!cells[fr - 1]?.[fc]?.trimWall;
+        const hasArcS = !!cells[fr + 1]?.[fc]?.trimWall;
+        const hasArcE = !!cells[fr]?.[fc + 1]?.trimWall;
+        const hasArcW = !!cells[fr]?.[fc - 1]?.trimWall;
+        if ((hasArcN && hasArcS) || (hasArcE && hasArcW)) continue; // sandwiched → skip
+        for (const { dr, dc } of FILL_DIRS) {
+          const nr = fr + dr, nc = fc + dc;
+          const arcCell = cells[nr]?.[nc];
+          if (!arcCell?.trimWall) continue;
+          const nKey = cellKey(nr, nc);
+          if (arcVisited.has(nKey)) continue;
+          arcVisited.add(nKey);
+          if (!filledCells.has(nKey)) {
+            filledCells.add(nKey);
+            toFill.push([nr, nc, arcHalfKey]);
+          }
+          arcQueue.push([nr, nc]);
+        }
+      }
+
+      // Propagate through connected arc cells. Allow free propagation but stop
+      // at cells where a non-arc mainFillCells neighbor gives the WRONG halfKey
+      // (indicates crossing into a different circle's boundary).
+      while (arcQueue.length > 0) {
+        const [ar, ac] = arcQueue.shift();
+        for (const { dr, dc } of FILL_DIRS) {
+          const nr = ar + dr, nc = ac + dc;
+          const arcCell = cells[nr]?.[nc];
+          if (!arcCell?.trimWall) continue;
+          const nKey = cellKey(nr, nc);
+          if (arcVisited.has(nKey)) continue;
+          // Block if any non-arc mainFillCells neighbor gives opposite halfKey
+          let blocked = false;
+          for (const { dir: d2, dr: dr2, dc: dc2 } of FILL_DIRS) {
+            const mr = nr + dr2, mc = nc + dc2;
+            if (!mainFillCells.has(cellKey(mr, mc))) continue;
+            if (cells[mr]?.[mc]?.trimWall) continue;
+            const hk = halfKeyFromEntry(arcCell, d2);
+            if (hk && hk !== arcHalfKey) { blocked = true; break; }
+          }
+          if (blocked) continue;
+          arcVisited.add(nKey);
+          if (!filledCells.has(nKey)) {
+            filledCells.add(nKey);
+            toFill.push([nr, nc, arcHalfKey]);
+          }
+          arcQueue.push([nr, nc]);
+        }
+      }
+
+    }
 
     const opacity = state.textureOpacity ?? 1.0;
     let fMinR = Infinity, fMaxR = -Infinity, fMinC = Infinity, fMaxC = -Infinity;
@@ -560,9 +652,16 @@ export class PaintTool extends Tool {
       if (!cell) continue;
 
       const diagonalBlocked = blockedByDiagonal(cell, entryDir);
+
+      let arcExits = null;
+      if (cell.trimCrossing) {
+        arcExits = cell.trimCrossing[entryDir?.[0]] ?? '';
+      }
+
       for (const { dir, dr, dc } of FILL_DIRS) {
         if (cell[dir]) continue;
         if (diagonalBlocked.has(dir)) continue;
+        if (arcExits !== null && !arcExits.includes(dir[0])) continue;
 
         const nr = r + dr, nc = c + dc;
         const neighborEntryDir = OPPOSITE[dir];
@@ -574,6 +673,14 @@ export class PaintTool extends Tool {
         const neighborCell = cells[nr][nc];
         if (neighborCell[neighborEntryDir]) continue;
 
+        if (neighborCell.trimCrossing) {
+          const tc = neighborCell.trimCrossing;
+          const myExits = tc[neighborEntryDir[0]] ?? '';
+          for (const ld of ['north', 'south', 'east', 'west']) {
+            if (ld === neighborEntryDir) continue;
+            if ((tc[ld[0]] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
+          }
+        }
         lockDiagonalHalf(visitedTraversal, nr, nc, neighborEntryDir, neighborCell);
         queue.push([nr, nc, neighborEntryDir]);
 

@@ -471,14 +471,14 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
       if (!cell?.texture || !roomCells[row][col]) continue;
-      if (cell.trimRound || cell.trimInsideArc) continue; // no blending on trimmed cells
+      if (cell.trimClip) continue; // no blending on trimmed cells
 
       for (const { dr, dc, dir } of CARDINAL_DIRS) {
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         const neighbor = cells[nr]?.[nc];
         if (!neighbor?.texture || !roomCells[nr][nc]) continue;
-        if (neighbor.trimRound || neighbor.trimInsideArc) continue;
+        if (neighbor.trimClip) continue;
         if (neighbor.texture === cell.texture) continue;
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
 
@@ -555,7 +555,7 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
       if (!cell?.texture || !roomCells[row][col]) continue;
-      if (cell.trimRound || cell.trimInsideArc) continue; // no blending on trimmed cells
+      if (cell.trimClip) continue; // no blending on trimmed cells
       const currentEntry = catalog.textures[cell.texture];
       if (!currentEntry) continue;
       const curH = computeBaseHeight(currentEntry);
@@ -565,15 +565,15 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
         const n2r = row + dr2, n2c = col + dc2;
         const n1Cell = cells[n1r]?.[n1c];
         const n2Cell = cells[n2r]?.[n2c];
-        if (n1Cell?.trimRound || n1Cell?.trimInsideArc) continue; // no blending from trimmed cells
-        if (n2Cell?.trimRound || n2Cell?.trimInsideArc) continue;
+        if (n1Cell?.trimClip) continue; // no blending from trimmed cells
+        if (n2Cell?.trimClip) continue;
         if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
         const diagR = row + dr1 + dr2;
         const diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
         const diagCell = cells[diagR]?.[diagC];
         if (!diagCell?.texture) continue;
-        if (diagCell.trimRound || diagCell.trimInsideArc) continue; // no blending from trimmed cells
+        if (diagCell.trimClip) continue; // no blending from trimmed cells
 
         let softTexture, softSampleR, softSampleC, softOpacity;
         if (diagCell.texture === cell.texture) {
@@ -819,14 +819,14 @@ function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions
     for (let col = minC; col <= maxC; col++) {
       const cell = cells[row]?.[col];
       if (!cell?.texture || !roomCells[row]?.[col]) continue;
-      if (cell.trimRound || cell.trimInsideArc) continue;
+      if (cell.trimClip) continue;
 
       for (const { dr, dc, dir } of CARDINAL_DIRS) {
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         const neighbor = cells[nr]?.[nc];
         if (!neighbor?.texture || !roomCells[nr]?.[nc]) continue;
-        if (neighbor.trimRound || neighbor.trimInsideArc) continue;
+        if (neighbor.trimClip) continue;
         if (neighbor.texture === cell.texture) continue;
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
 
@@ -879,7 +879,7 @@ function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions
     for (let col = minC; col <= maxC; col++) {
       const cell = cells[row]?.[col];
       if (!cell?.texture || !roomCells[row]?.[col]) continue;
-      if (cell.trimRound || cell.trimInsideArc) continue;
+      if (cell.trimClip) continue;
       const currentEntry = catalog.textures[cell.texture];
       if (!currentEntry) continue;
       const curH = computeBaseHeight(currentEntry);
@@ -889,14 +889,14 @@ function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions
         const n2r = row + dr2, n2c = col + dc2;
         const n1Cell = cells[n1r]?.[n1c];
         const n2Cell = cells[n2r]?.[n2c];
-        if (n1Cell?.trimRound || n1Cell?.trimInsideArc) continue;
-        if (n2Cell?.trimRound || n2Cell?.trimInsideArc) continue;
+        if (n1Cell?.trimClip) continue;
+        if (n2Cell?.trimClip) continue;
         if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
         const diagR = row + dr1 + dr2, diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
         const diagCell = cells[diagR]?.[diagC];
         if (!diagCell?.texture) continue;
-        if (diagCell.trimRound || diagCell.trimInsideArc) continue;
+        if (diagCell.trimClip) continue;
 
         let softTexture, softSampleR, softSampleC, softOpacity;
         if (diagCell.texture === cell.texture) {

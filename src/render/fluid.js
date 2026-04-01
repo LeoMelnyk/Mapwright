@@ -146,16 +146,30 @@ function buildFluidGeometry(cells, gridSize, theme, roomCells) {
     ];
     const causticColor = theme[fillType + 'CausticColor'] || defaults.caustic;
 
-    // Wall-aware clip path in world space — includes bleed cells adjacent to fluid
+    // Wall-aware clip path in world space — includes bleed cells adjacent to fluid.
+    // For trim boundary cells, clip to the floor polygon (trimClip) instead of the full cell rect.
     const clipPath = new Path2D();
     for (const [row, col] of fluidCells) {
-      clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
       const cell = cells[row][col];
+      if (cell.trimClip && !cell.trimOpen) {
+        // Add only the floor polygon (trimClip is in cell-local [0,1] coords)
+        const ox = col * gridSize, oy = row * gridSize;
+        const clip = cell.trimClip;
+        clipPath.moveTo(ox + clip[0][0] * gridSize, oy + clip[0][1] * gridSize);
+        for (let i = 1; i < clip.length; i++)
+          clipPath.lineTo(ox + clip[i][0] * gridSize, oy + clip[i][1] * gridSize);
+        clipPath.closePath();
+      } else {
+        clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
+      }
       for (const [dr, dc, dir] of bleedDirs) {
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         if (fluidSet.has(nr * numCols + nc)) continue;
         if (cell[dir] === 'w' || cell[dir] === 'd') continue;
+        const neighbor = cells[nr]?.[nc];
+        if (!neighbor) continue; // don't bleed into void cells (trimmed away)
+        if (neighbor.trimClip && !neighbor.trimOpen) continue;
         clipPath.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
       }
     }
@@ -296,16 +310,28 @@ function buildFluidGeometry(cells, gridSize, theme, roomCells) {
     const crackColor = theme.pitCrackColor || PIT_DEFAULTS.crack;
     const vignetteColor = theme.pitVignetteColor || PIT_DEFAULTS.vignette;
 
-    // Wall-aware clip in world space
+    // Wall-aware clip in world space — respects trim boundaries
     const clipPath = new Path2D();
     for (const [row, col] of pitCells) {
-      clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
       const cell = cells[row][col];
+      if (cell.trimClip && !cell.trimOpen) {
+        const ox = col * gridSize, oy = row * gridSize;
+        const clip = cell.trimClip;
+        clipPath.moveTo(ox + clip[0][0] * gridSize, oy + clip[0][1] * gridSize);
+        for (let i = 1; i < clip.length; i++)
+          clipPath.lineTo(ox + clip[i][0] * gridSize, oy + clip[i][1] * gridSize);
+        clipPath.closePath();
+      } else {
+        clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
+      }
       for (const [dr, dc, dir] of bleedDirs) {
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         if (pitSet.has(nr * numCols + nc)) continue;
         if (cell[dir] === 'w' || cell[dir] === 'd') continue;
+        const neighbor = cells[nr]?.[nc];
+        if (!neighbor) continue; // don't bleed into void cells (trimmed away)
+        if (neighbor.trimClip && !neighbor.trimOpen) continue;
         clipPath.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
       }
     }
@@ -658,16 +684,28 @@ export function patchFluidRegion(region, cells, roomCells, gridSize, theme) {
           toRgb(theme[fillType + 'DeepColor']    || defaults.deep),
         ];
 
-    // Build clip path for this region's cells
+    // Build clip path for this region's cells — respects trim boundaries
     const clipPath = new Path2D();
     for (const [row, col] of fluidCells) {
-      clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
       const cell = cells[row][col];
+      if (cell.trimClip && !cell.trimOpen) {
+        const ox = col * gridSize, oy = row * gridSize;
+        const clip = cell.trimClip;
+        clipPath.moveTo(ox + clip[0][0] * gridSize, oy + clip[0][1] * gridSize);
+        for (let i = 1; i < clip.length; i++)
+          clipPath.lineTo(ox + clip[i][0] * gridSize, oy + clip[i][1] * gridSize);
+        clipPath.closePath();
+      } else {
+        clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
+      }
       for (const [dr, dc, dir] of bleedDirs) {
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         if (fluidSet.has(nr * numCols + nc)) continue;
         if (cell[dir] === 'w' || cell[dir] === 'd') continue;
+        const neighbor = cells[nr]?.[nc];
+        if (!neighbor) continue; // don't bleed into void cells (trimmed away)
+        if (neighbor.trimClip && !neighbor.trimOpen) continue;
         clipPath.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
       }
     }

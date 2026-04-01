@@ -14,6 +14,7 @@ import state, { pushUndo, markDirty, invalidateLightmap } from '../state.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
+import { computeTrimCells } from '../../../util/index.js';
 
 export class TrimTool extends Tool {
   constructor() {
@@ -111,114 +112,125 @@ export class TrimTool extends Tool {
     const corner = this.resolvedCorner;
     const isRound = state.trimRound;
     const isInverted = state.trimInverted;
-    const size = preview.hypotenuse.length;
 
     const reciprocals = { north: 'south', south: 'north', east: 'west', west: 'east' };
     const offsets = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
     const allDirs = ['north', 'south', 'east', 'west'];
 
-    // Void interior cells, or in Open mode clear their walls so they read as floor
-    if (!state.trimOpen) {
-      for (const { row: r, col: c } of preview.voided) {
-        cells[r][c] = null;
+    // Helper: clear all cardinal/diagonal walls and their reciprocals
+    const clearWalls = (cell, r, c) => {
+      for (const dir of allDirs) {
+        if (cell[dir]) {
+          delete cell[dir];
+          const [dr, dc] = offsets[dir];
+          const neighbor = cells[r + dr]?.[c + dc];
+          if (neighbor) delete neighbor[reciprocals[dir]];
+        }
+      }
+      delete cell['nw-se'];
+      delete cell['ne-sw'];
+    };
+
+    // Helper: remove all old-format trim flags from a cell
+    const clearOldTrimFlags = (cell) => {
+      delete cell.trimRound;
+      delete cell.trimArcCenterRow;
+      delete cell.trimArcCenterCol;
+      delete cell.trimArcRadius;
+      delete cell.trimArcInverted;
+      delete cell.trimInsideArc;
+      delete cell.trimCorner;
+      delete cell.trimOpen;
+      delete cell.trimInverted;
+      delete cell.trimClip;
+      delete cell.trimWall;
+      delete cell.trimPassable;
+    delete cell.trimCrossing;
+    };
+
+    if (isRound) {
+      // ── Round trim: per-cell data from computeTrimCells ──
+      const trimData = computeTrimCells(preview, corner, isInverted, state.trimOpen);
+      const numRows = cells.length;
+      const numCols = cells[0]?.length || 0;
+
+      // Track which cells are in the original trim zone (walls should be cleared).
+      // Buffer-ring neighbors that get arc data should NOT have their walls cleared.
+      const trimZone = new Set([
+        ...preview.voided.map(c => `${c.row},${c.col}`),
+        ...preview.hypotenuse.map(c => `${c.row},${c.col}`),
+        ...(preview.insideArc || []).map(c => `${c.row},${c.col}`),
+      ]);
+
+      for (const [key, val] of trimData) {
+        const [r, c] = key.split(',').map(Number);
+        if (r < 0 || r >= numRows || c < 0 || c >= numCols) continue;
+        const inZone = trimZone.has(key);
+
+        if (val === null) {
+          // Void cell
+          cells[r][c] = null;
+        } else if (val === 'interior') {
+          // Regular floor — only clear walls/flags if in the trim zone
+          if (inZone) {
+            if (!cells[r][c]) cells[r][c] = {};
+            const cell = cells[r][c];
+            clearWalls(cell, r, c);
+            clearOldTrimFlags(cell);
+          }
+        } else if (val === 'diagonal') {
+          // Inverted hypotenuse: straight diagonal wall (like straight trims)
+          if (!cells[r][c]) cells[r][c] = {};
+          const cell = cells[r][c];
+          if (inZone) clearWalls(cell, r, c);
+          clearOldTrimFlags(cell);
+          cell.trimCorner = corner;
+          if (corner === 'nw' || corner === 'se') cell['ne-sw'] = 'w';
+          else cell['nw-se'] = 'w';
+          if (state.trimOpen) cell.trimOpen = true;
+        } else {
+          // Arc boundary cell — stamp new properties
+          if (!cells[r][c]) cells[r][c] = {};
+          const cell = cells[r][c];
+          if (inZone) clearWalls(cell, r, c);
+          clearOldTrimFlags(cell);
+          Object.assign(cell, val);
+        }
       }
     } else {
-      // Open mode: clear all walls/diagonals from outside cells so they blend as floor
-      for (const { row: r, col: c } of preview.voided) {
-        const cell = cells[r]?.[c];
-        if (!cell) continue;
-        for (const dir of allDirs) {
-          if (cell[dir]) {
-            delete cell[dir];
-            const [dr, dc] = offsets[dir];
-            const neighbor = cells[r + dr]?.[c + dc];
-            if (neighbor) delete neighbor[reciprocals[dir]];
-          }
+      // ── Straight trim: original logic (unchanged) ──
+
+      // Void interior cells, or in Open mode clear their walls
+      if (!state.trimOpen) {
+        for (const { row: r, col: c } of preview.voided) {
+          cells[r][c] = null;
         }
-        delete cell['nw-se'];
-        delete cell['ne-sw'];
-        delete cell.trimCorner;
-        delete cell.trimRound;
-        delete cell.trimArcCenterRow;
-        delete cell.trimArcCenterCol;
-        delete cell.trimArcRadius;
-        delete cell.trimArcInverted;
-        delete cell.trimOpen;
-      }
-    }
-
-    // Set hypotenuse cells
-    for (const { row: r, col: c } of preview.hypotenuse) {
-      if (!cells[r][c]) cells[r][c] = {};
-      const cell = cells[r][c];
-
-      cell.trimCorner = corner;
-
-      // Clear ALL walls and reciprocals, then the trim will set only what's needed
-      for (const dir of allDirs) {
-        if (cell[dir]) {
-          delete cell[dir];
-          const [dr, dc] = offsets[dir];
-          const neighbor = cells[r + dr]?.[c + dc];
-          if (neighbor) delete neighbor[reciprocals[dir]];
+      } else {
+        for (const { row: r, col: c } of preview.voided) {
+          const cell = cells[r]?.[c];
+          if (!cell) continue;
+          clearWalls(cell, r, c);
+          clearOldTrimFlags(cell);
         }
       }
-      delete cell['nw-se'];
-      delete cell['ne-sw'];
 
-      // Set diagonal border
-      if (corner === 'nw' || corner === 'se') {
-        cell['ne-sw'] = 'w';
-        delete cell['nw-se'];
-      } else {
-        cell['nw-se'] = 'w';
-        delete cell['ne-sw'];
-      }
+      // Set hypotenuse cells
+      for (const { row: r, col: c } of preview.hypotenuse) {
+        if (!cells[r][c]) cells[r][c] = {};
+        const cell = cells[r][c];
+        cell.trimCorner = corner;
+        clearWalls(cell, r, c);
 
-      if (isRound) {
-        cell.trimRound = true;
-        cell.trimArcInverted = !!isInverted;
-        cell.trimArcCenterRow = preview.arcCenter.row;
-        cell.trimArcCenterCol = preview.arcCenter.col;
-        cell.trimArcRadius = size;
-        if (state.trimOpen) cell.trimOpen = true;
-        else delete cell.trimOpen;
-      } else {
-        delete cell.trimRound;
-        delete cell.trimArcCenterRow;
-        delete cell.trimArcCenterCol;
-        delete cell.trimArcRadius;
-        delete cell.trimArcInverted;
+        // Set diagonal border
+        if (corner === 'nw' || corner === 'se') {
+          cell['ne-sw'] = 'w';
+        } else {
+          cell['nw-se'] = 'w';
+        }
+
         if (state.trimOpen) cell.trimOpen = true;
         else delete cell.trimOpen;
       }
-    }
-
-    // Clear all walls from cells inside the arc (saved from voiding).
-    // These are room cells the arc passes over — the arc wall replaces any
-    // cardinal or diagonal borders they previously had.
-    // Mark them with trimInsideArc so the BFS flood fill can identify them.
-    for (const { row: r, col: c } of (preview.insideArc || [])) {
-      const cell = cells[r]?.[c];
-      if (!cell) continue;
-      for (const dir of allDirs) {
-        if (cell[dir]) {
-          delete cell[dir];
-          const [dr, dc] = offsets[dir];
-          const neighbor = cells[r + dr]?.[c + dc];
-          if (neighbor) delete neighbor[reciprocals[dir]];
-        }
-      }
-      delete cell['nw-se'];
-      delete cell['ne-sw'];
-      delete cell.trimRound;
-      // Mark as inside-arc cell with arc metadata for BFS detection
-      cell.trimInsideArc = true;
-      cell.trimCorner = corner;
-      cell.trimArcCenterRow = preview.arcCenter.row;
-      cell.trimArcCenterCol = preview.arcCenter.col;
-      cell.trimArcRadius = size;
-      cell.trimArcInverted = !!isInverted;
     }
 
     this.previewCells = null;
@@ -338,6 +350,7 @@ export class TrimTool extends Tool {
     const before = captureBeforeState(cells, [{ row, col }]);
     pushUndo('Remove Trim');
 
+    // Clear both old-format and new-format trim properties
     delete cell.trimCorner;
     delete cell.trimRound;
     delete cell.trimArcCenterRow;
@@ -346,6 +359,11 @@ export class TrimTool extends Tool {
     delete cell.trimArcInverted;
     delete cell.trimInsideArc;
     delete cell.trimOpen;
+    delete cell.trimInverted;
+    delete cell.trimClip;
+    delete cell.trimWall;
+    delete cell.trimPassable;
+    delete cell.trimCrossing;
     delete cell['nw-se'];
     delete cell['ne-sw'];
 

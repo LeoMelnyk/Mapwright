@@ -1,6 +1,6 @@
 // Canvas element management, pan/zoom, mouse event routing
 import state, { getTheme, markDirty, notify, subscribe, notifyTimings } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getLightingVersion, getDirtyRegion, consumeDirtyRegion } from '../../render/index.js';
+import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getLightingVersion, getDirtyRegion, consumeDirtyRegion, MapCache } from '../../render/index.js';
 import { showToast } from './toast.js';
 import { toCanvas, pixelToCell, nearestEdge, nearestCorner } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
@@ -52,17 +52,16 @@ if (typeof requestAnimationFrame === 'function') {
 // renderCells is expensive (thousands of GPU commands). We render it once to an
 // offscreen canvas when the map data changes, then blit the cached image on every
 // frame. Pan/zoom becomes a single drawImage instead of re-rendering all cells.
-let _mapCache = null;   // { canvas, ctx, dirtySeq, cacheW, cacheH, texturesVersion } — final composite (blitted to screen)
-let _cellsCache = null; // { canvas, ctx, dirtySeq, cacheW, cacheH } — cells-only (no lightmap)
-let _mapDirtySeq = 0;   // bumped on any state change that requires re-render
-let _lastContentVersion = 0;  // tracks smartInvalidate() calls for cache invalidation
-let _lastLightingVersion = 0; // tracks lighting invalidations for composite cache
+let _mapCache = null; // created lazily on first use (avoids module init order issues)
 let _lastHoveredCell = null;  // tracks hovered cell to avoid redundant renders on mouse-move
-let _cellsRebuildCount = 0;   // diagnostic: how many times the cells cache has rebuilt
-let _compositeRebuildCount = 0; // diagnostic: lightmap composite rebuilds
+
+function getMapCache() {
+  if (!_mapCache) _mapCache = new MapCache({ pxPerFoot: 20, maxCacheDim: 16384 });
+  return _mapCache;
+}
 
 /** Force the offscreen map cache to rebuild on next frame. Call after theme/texture/feature changes. */
-export function invalidateMapCache() { _mapDirtySeq++; }
+export function invalidateMapCache() { getMapCache().invalidate(); }
 
 // Cache for background image HTMLImageElement — avoids recreating every frame
 let _bgImgCache = { dataUrl: null, el: null };
@@ -310,216 +309,52 @@ function render() {
 
   // ── Offscreen map cache ───────────────────────────────────────────────────
   // Render the expensive cell pipeline + lighting to a cached bitmap.
-  // Only re-render when map data changes (dirtySeq bump). Pan/zoom just blits.
+  // Only re-render when map data changes (version bump). Pan/zoom just blits.
   // Cache resolution from editor settings (10=Low, 15=Medium, 20=High, 30=Ultra)
   const MAP_PX_PER_FOOT = getEditorSettings().renderQuality || 20;
-  const mapW = numCols * gridSize;
-  const mapH = numRows * gridSize;
-  const cacheW = Math.ceil(mapW * MAP_PX_PER_FOOT);
-  const cacheH = Math.ceil(mapH * MAP_PX_PER_FOOT);
-  // Don't cache if map exceeds GPU texture limits — fallback to direct render
-  // Most modern GPUs support 16384×16384; Electron with GPU flags can handle more
-  const MAX_CACHE_DIM = 16384;
-  const useCache = cacheW <= MAX_CACHE_DIM && cacheH <= MAX_CACHE_DIM && !_skip.cells;
+  const mapCache = getMapCache();
+  mapCache.pxPerFoot = MAP_PX_PER_FOOT;
+  const useCache = mapCache.canCache(numRows, numCols, gridSize) && !_skip.cells;
+
+  const animClock = state.animClock ?? 0;
+  const hasAnimLights = lightingEnabled && (metadata.lights || []).some(l => l.animation?.type);
 
   if (useCache) {
-    const texVer = state.texturesVersion ?? 0;
-    // Bump dirty seq on content mutation (smartInvalidate) or undo stack change
-    const cv = getContentVersion();
-    if (cv !== _lastContentVersion) { _mapDirtySeq++; _lastContentVersion = cv; }
-    // Note: undo/redo bumps content version via markPropSpatialDirty → bumpContentVersion,
-    // so no separate undoSig check is needed here.
-    // Debug skip flags bypass cache (force rebuild so flags take effect)
-    const _skipKeys = Object.keys(_skip).filter(k => _skip[k] && k !== 'all');
-    const _skipSig = _skipKeys.join(',');
+    const _cacheStart = performance.now();
+    const rebuilt = mapCache.update({
+      contentVersion: getContentVersion(),
+      lightingVersion: getLightingVersion(),
+      texturesVersion: state.texturesVersion ?? 0,
+      cells, gridSize, theme,
+      showGrid: showGrid && !_skip.grid,
+      labelStyle,
+      propCatalog: state.propCatalog,
+      textureOptions,
+      metadata,
+      showInvisible,
+      bgImageEl, bgImgConfig,
+      lightingEnabled,
+      hasAnimLights,
+      lights: metadata.lights,
+      animClock,
+      lightPxPerFoot: getEditorSettings().lightQuality || 10,
+      ambientLight: metadata.ambientLight ?? 0.15,
+      ambientColor: metadata.ambientColor || '#ffffff',
+      textureCatalog: state.textureCatalog,
+      dirtyRegion: getDirtyRegion(),
+      preRenderHook: _skip.dots ? null : (offCtx, t) => drawEditorDots(offCtx, numRows, numCols, gridSize, theme, t),
+      skipPhases: Object.keys(_skip).some(k => _skip[k] && k !== 'all') ? _skip : null,
+      skipLabels: lightingEnabled || !!_skip.labels,
+    });
 
-    const animClock = state.animClock ?? 0;
-    const hasAnimLights = lightingEnabled && (metadata.lights || []).some(l => l.animation?.type);
-
-    // Only bump composite dirty seq for lighting changes when lighting is baked into
-    // the composite (no animated lights). When animated lights exist, lighting renders
-    // as a separate overlay each frame — no composite rebuild needed.
-    const lv = getLightingVersion();
-    if (lv !== _lastLightingVersion) {
-      if (!hasAnimLights) _mapDirtySeq++;
-      _lastLightingVersion = lv;
-    }
-
-    const needsCellsRedraw = !_cellsCache || _cellsCache.dirtySeq !== _mapDirtySeq ||
-      _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH ||
-      _cellsCache.texturesVersion !== texVer ||
-      _cellsCache._skipSig !== _skipSig;
-
-    // When animated lights exist, the composite stores cells + labels only (no lighting).
-    // Lighting is applied every frame at screen resolution — much cheaper than rebuilding
-    // the full 5000x5000 composite on every animation tick.
-    const needsRedraw = needsCellsRedraw;
-
-    if (needsRedraw) {
-      const _cacheStart = performance.now();
-      const cacheTransform = { scale: MAP_PX_PER_FOOT, offsetX: 0, offsetY: 0 };
-
-      // ── Check for partial redraw eligibility ──
-      // If only a small region changed (no geometry/undo), clip and redraw just that area.
-      const dirtyRegion = getDirtyRegion();
-      const canPartial = dirtyRegion && _cellsCache &&
-        _cellsCache.cacheW === cacheW && _cellsCache.cacheH === cacheH &&
-        _cellsCache.texturesVersion === texVer &&
-        _cellsCache._skipSig === _skipSig;
-
-      if (canPartial) {
-        // ── Partial cells cache redraw ──
-        // Pad by 3 cells for blend/shading overlap at edges
-        const PAD = 3;
-        const padded = {
-          minRow: Math.max(0, dirtyRegion.minRow - PAD),
-          maxRow: Math.min(numRows - 1, dirtyRegion.maxRow + PAD),
-          minCol: Math.max(0, dirtyRegion.minCol - PAD),
-          maxCol: Math.min(numCols - 1, dirtyRegion.maxCol + PAD),
-        };
-        const px1 = padded.minCol * gridSize * MAP_PX_PER_FOOT;
-        const py1 = padded.minRow * gridSize * MAP_PX_PER_FOOT;
-        const px2 = (padded.maxCol + 1) * gridSize * MAP_PX_PER_FOOT;
-        const py2 = (padded.maxRow + 1) * gridSize * MAP_PX_PER_FOOT;
-        const pw = px2 - px1, ph = py2 - py1;
-
-        const offCtx = _cellsCache.ctx;
-        offCtx.save();
-        offCtx.beginPath();
-        offCtx.rect(px1, py1, pw, ph);
-        offCtx.clip();
-
-        // Clear dirty region and re-fill with background
-        offCtx.fillStyle = theme.background;
-        offCtx.fillRect(px1, py1, pw, ph);
-
-        if (!_skip.dots) drawEditorDots(offCtx, numRows, numCols, gridSize, theme, cacheTransform);
-
-        renderCells(offCtx, cells, gridSize, theme, cacheTransform, {
-          showGrid: showGrid && !_skip.grid, labelStyle,
-          propCatalog: _skip.props ? null : state.propCatalog,
-          textureOptions: _skip.textures ? null : textureOptions,
-          metadata, skipLabels: lightingEnabled || _skip.labels, showInvisible,
-          bgImageEl, bgImgConfig,
-          cacheSize: { w: cacheW, h: cacheH, scale: MAP_PX_PER_FOOT },
-          skipPhases: _skipKeys.length ? _skip : null,
-          visibleBounds: padded,
-        });
-
-        offCtx.restore();
-        _cellsCache.dirtySeq = _mapDirtySeq;
-
-        // ── Partial composite update ──
-        if (!_mapCache || _mapCache.cacheW !== cacheW || _mapCache.cacheH !== cacheH) {
-          const offscreen = document.createElement('canvas');
-          offscreen.width = cacheW;
-          offscreen.height = cacheH;
-          _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
-        }
-
-        _compositeRebuildCount++;
-        const compCtx = _mapCache.ctx;
-        compCtx.save();
-        compCtx.beginPath();
-        compCtx.rect(px1, py1, pw, ph);
-        compCtx.clip();
-        compCtx.globalCompositeOperation = 'source-over';
-        compCtx.drawImage(_cellsCache.canvas, 0, 0);
-
-        if (lightingEnabled && !_skip.lighting && !hasAnimLights) {
-          const fillLights = extractFillLights(cells, gridSize, theme);
-          const allLights = fillLights.length
-            ? [...(metadata.lights || []), ...fillLights]
-            : (metadata.lights || []);
-          const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
-          renderLightmap(compCtx, allLights, cells, gridSize, cacheTransform,
-            cacheW, cacheH, metadata.ambientLight ?? 0.15,
-            state.textureCatalog, state.propCatalog,
-            { ambientColor: metadata.ambientColor || '#ffffff', time: animClock, lightPxPerFoot: LIGHT_PX_PER_FOOT },
-            metadata);
-        }
-
-        if (lightingEnabled) {
-          renderLabels(compCtx, cells, gridSize, theme, cacheTransform, labelStyle);
-        }
-
-        compCtx.restore();
-        _mapCache.dirtySeq = _mapDirtySeq;
-        _mapCache.texturesVersion = texVer;
-      } else {
-        // ── Full cells cache rebuild ──
-        _cellsRebuildCount++;
-        if (!_cellsCache || _cellsCache.cacheW !== cacheW || _cellsCache.cacheH !== cacheH) {
-          const offscreen = document.createElement('canvas');
-          offscreen.width = cacheW;
-          offscreen.height = cacheH;
-          _cellsCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
-        }
-
-        const offCtx = _cellsCache.ctx;
-        offCtx.fillStyle = theme.background;
-        offCtx.fillRect(0, 0, cacheW, cacheH);
-
-        if (!_skip.dots) drawEditorDots(offCtx, numRows, numCols, gridSize, theme, cacheTransform);
-
-        renderCells(offCtx, cells, gridSize, theme, cacheTransform, {
-          showGrid: showGrid && !_skip.grid, labelStyle,
-          propCatalog: _skip.props ? null : state.propCatalog,
-          textureOptions: _skip.textures ? null : textureOptions,
-          metadata, skipLabels: lightingEnabled || _skip.labels, showInvisible,
-          bgImageEl, bgImgConfig,
-          cacheSize: { w: cacheW, h: cacheH, scale: MAP_PX_PER_FOOT },
-          skipPhases: _skipKeys.length ? _skip : null,
-        });
-
-        _cellsCache.dirtySeq = _mapDirtySeq;
-        _cellsCache.texturesVersion = texVer;
-        _cellsCache._skipSig = _skipSig;
-
-        // ── Composite cache (cells + lightmap + labels) ──
-        if (!_mapCache || _mapCache.cacheW !== cacheW || _mapCache.cacheH !== cacheH) {
-          const offscreen = document.createElement('canvas');
-          offscreen.width = cacheW;
-          offscreen.height = cacheH;
-          _mapCache = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), dirtySeq: 0, cacheW, cacheH };
-        }
-
-        _compositeRebuildCount++;
-        const compCtx = _mapCache.ctx;
-        compCtx.globalCompositeOperation = 'source-over';
-        compCtx.drawImage(_cellsCache.canvas, 0, 0);
-
-        if (lightingEnabled && !_skip.lighting && !hasAnimLights) {
-          const fillLights = extractFillLights(cells, gridSize, theme);
-          const allLights = fillLights.length
-            ? [...(metadata.lights || []), ...fillLights]
-            : (metadata.lights || []);
-          const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
-          renderLightmap(compCtx, allLights, cells, gridSize, cacheTransform,
-            cacheW, cacheH, metadata.ambientLight ?? 0.15,
-            state.textureCatalog, state.propCatalog,
-            { ambientColor: metadata.ambientColor || '#ffffff', time: animClock, lightPxPerFoot: LIGHT_PX_PER_FOOT },
-            metadata);
-        }
-
-        if (lightingEnabled) {
-          renderLabels(compCtx, cells, gridSize, theme, cacheTransform, labelStyle);
-        }
-
-        _mapCache.dirtySeq = _mapDirtySeq;
-        _mapCache.texturesVersion = texVer;
-      }
-
+    if (rebuilt) {
       consumeDirtyRegion();
       renderTimings.cacheRebuild = { ms: performance.now() - _cacheStart, frame: _currentFrame };
     }
 
     // Blit cached map with pan/zoom transform — single drawImage, fast GPU op
     const _blitStart = performance.now();
-    const sx = transform.scale / MAP_PX_PER_FOOT;
-    ctx.drawImage(_mapCache.canvas,
-      transform.offsetX, transform.offsetY,
-      cacheW * sx, cacheH * sx);
+    mapCache.blit(ctx, transform);
     renderTimings.blit = { ms: performance.now() - _blitStart, frame: _currentFrame };
 
     // ── Animated light overlay (screen-resolution, every frame) ──
@@ -527,27 +362,28 @@ function render() {
     // Instead, apply the full lightmap (static cached + animated) at screen
     // resolution every frame. This avoids the expensive 5000x5000 composite rebuild.
     if (hasAnimLights && !_skip.lighting) {
-
-      const fillLights = extractFillLights(cells, gridSize, theme);
-      const allLights = fillLights.length
-        ? [...(metadata.lights || []), ...fillLights]
-        : (metadata.lights || []);
-      const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
-      // The lightmap renders the full map in world space (offset 0,0).
-      // We tell it where to draw on screen via destX/Y/W/H (same position as the map blit).
-      const mapScreenW = cacheW * sx;
-      const mapScreenH = cacheH * sx;
-      renderLightmap(ctx, allLights, cells, gridSize,
-        { scale: transform.scale, offsetX: 0, offsetY: 0 },
-        Math.ceil(mapScreenW), Math.ceil(mapScreenH), metadata.ambientLight ?? 0.15,
-        state.textureCatalog, state.propCatalog,
-        {
-          ambientColor: metadata.ambientColor || '#ffffff', time: animClock,
-          lightPxPerFoot: LIGHT_PX_PER_FOOT,
-          destX: transform.offsetX, destY: transform.offsetY,
-          destW: mapScreenW, destH: mapScreenH,
-        },
-        metadata);
+      const composite = mapCache.getComposite();
+      if (composite) {
+        const fillLights = extractFillLights(cells, gridSize, theme);
+        const allLights = fillLights.length
+          ? [...(metadata.lights || []), ...fillLights]
+          : (metadata.lights || []);
+        const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
+        const sx = transform.scale / MAP_PX_PER_FOOT;
+        const mapScreenW = composite.cacheW * sx;
+        const mapScreenH = composite.cacheH * sx;
+        renderLightmap(ctx, allLights, cells, gridSize,
+          { scale: transform.scale, offsetX: 0, offsetY: 0 },
+          Math.ceil(mapScreenW), Math.ceil(mapScreenH), metadata.ambientLight ?? 0.15,
+          state.textureCatalog, state.propCatalog,
+          {
+            ambientColor: metadata.ambientColor || '#ffffff', time: animClock,
+            lightPxPerFoot: LIGHT_PX_PER_FOOT,
+            destX: transform.offsetX, destY: transform.offsetY,
+            destW: mapScreenW, destH: mapScreenH,
+          },
+          metadata);
+      }
     }
 
   } else {
@@ -667,8 +503,8 @@ function render() {
             py = cy + dx * sinA + dy * cosA;
           }
           // Scale from footprint center, then convert to world feet
-          let wx = cx * gridSize + (px - cx) * gridSize * scl;
-          let wy = cy * gridSize + (py - cy) * gridSize * scl;
+          const wx = cx * gridSize + (px - cx) * gridSize * scl;
+          const wy = cy * gridSize + (py - cy) * gridSize * scl;
           return {
             x: (prop.x + wx) * transform.scale + transform.offsetX,
             y: (prop.y + wy) * transform.scale + transform.offsetY,
@@ -800,7 +636,7 @@ function render() {
       lines.push({ text: '', color: '#666' });
       lines.push({ text: '── Caches ──', color: '#666' });
       lines.push({
-        text: `Map: ${cacheW}x${cacheH} | Rebuilds: ${_cellsRebuildCount} cells, ${_compositeRebuildCount} comp`,
+        text: `Map: ${getMapCache().stats.cacheW}x${getMapCache().stats.cacheH} | Rebuilds: ${getMapCache().stats.cellsRebuilds} cells, ${getMapCache().stats.compositeRebuilds} comp`,
         color: '#aaa',
       });
       const rebuild = _rt('cacheRebuild');
@@ -1331,13 +1167,15 @@ function onMouseUp(e) {
     rightDragged = false;
     restoreToolCursor();
     if (!wasDragged) {
-      // Quick click — delegate to active tool's contextual right-click
+      // Quick click — delegate to session tool or active tool's contextual right-click
       const pos = getMousePos(e);
       const transform = getTransform();
       const gridSize = state.dungeon.metadata.gridSize;
       const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
       const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
-      if (activeTool?.onRightClick) {
+      if (state.sessionToolsActive && sessionTool?.onRightClick) {
+        sessionTool.onRightClick(cell.row, cell.col, edge, e);
+      } else if (activeTool?.onRightClick) {
         activeTool.onRightClick(cell.row, cell.col, edge, e);
       }
       requestRender();
