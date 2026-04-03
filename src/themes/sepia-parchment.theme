@@ -1,7 +1,7 @@
 {
   "displayName": "Sepia Parchment",
   "background": "#f5e6d3",
-  "gridLine": "#000000",
+  "gridLine": "#b89968",
   "wallStroke": "#3d2817",
   "wallFill": "#ebe1d5",
   "textColor": "#3d2817",
@@ -43,5 +43,8 @@
     "borderColor": "#000000",
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
-  }
+  },
+  "gridStyle": "lines",
+  "gridLineWidth": 2,
+  "gridOpacity": 0.2
 }

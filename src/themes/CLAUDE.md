@@ -39,6 +39,11 @@ Theme files are JSON files in `src/themes/` that control the visual appearance o
 | `displayName` | string | Name shown in the editor theme picker |
 | `background` | hex color | Canvas background / void area color |
 | `gridLine` | hex color | Grid line color |
+| `gridStyle` | string | Grid style: `"lines"`, `"dotted"`, `"corners-x"`, `"corners-dot"` |
+| `gridLineWidth` | number | Grid line/dot width in pixels (1-8) |
+| `gridOpacity` | 0-1 | Grid overlay opacity |
+| `gridCornerLength` | number | Cross arm length as fraction of cell size (corners-x only) |
+| `gridNoise` | 0-1 | Wobble amount for hand-drawn feel (lines/dotted only) |
 | `wallStroke` | hex color | Wall line color |
 | `wallFill` | hex color | Room floor background color |
 | `textColor` | hex color | Room label text color |

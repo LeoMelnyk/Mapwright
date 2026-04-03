@@ -1,6 +1,7 @@
 // Stairs tool: 3-click corner-point placement, linking
 import { Tool } from './tool-base.js';
-import state, { pushUndo, markDirty } from '../state.js';
+import state, { pushUndo, markDirty, notify } from '../state.js';
+import { accumulateDirtyRect } from '../../../render/index.js';
 import { requestRender, getTransform } from '../canvas-view.js';
 import { toCanvas, nearestCorner } from '../utils.js';
 import {
@@ -112,6 +113,7 @@ export class StairsTool extends Tool {
     pushUndo('Remove stairs');
     this._removeStair(id);
     markDirty();
+    notify();
     requestRender();
   }
 
@@ -212,13 +214,20 @@ export class StairsTool extends Tool {
     meta.stairs.push({ id, points: [p1, p2, p3], link: null });
 
     const cells = state.dungeon.cells;
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
     for (const { row, col } of occupiedCells) {
       if (!cells[row][col]) cells[row][col] = {};
       if (!cells[row][col].center) cells[row][col].center = {};
       cells[row][col].center['stair-id'] = id;
+      if (row < minR) minR = row;
+      if (row > maxR) maxR = row;
+      if (col < minC) minC = col;
+      if (col > maxC) maxC = col;
     }
 
+    accumulateDirtyRect(minR, minC, maxR, maxC);
     markDirty();
+    notify();
     requestRender();
   }
 
@@ -241,16 +250,22 @@ export class StairsTool extends Tool {
     // Remove from array
     stairs.splice(idx, 1);
 
-    // Clear cell references
+    // Clear cell references and track dirty region
     const cells = state.dungeon.cells;
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
     for (let r = 0; r < cells.length; r++) {
       for (let c = 0; c < (cells[r]?.length || 0); c++) {
         if (cells[r]?.[c]?.center?.['stair-id'] === id) {
           delete cells[r][c].center['stair-id'];
           if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+          if (r < minR) minR = r;
+          if (r > maxR) maxR = r;
+          if (c < minC) minC = c;
+          if (c > maxC) maxC = c;
         }
       }
     }
+    if (minR <= maxR) accumulateDirtyRect(minR, minC, maxR, maxC);
 
     // Clear link source if it pointed to this stair
     if (state.linkSource === id) state.linkSource = null;
@@ -281,6 +296,7 @@ export class StairsTool extends Tool {
         if (partner) partner.link = null;
         stairDef.link = null;
         markDirty();
+        notify();
         requestRender();
         return;
       }
@@ -318,6 +334,7 @@ export class StairsTool extends Tool {
 
     state.linkSource = null;
     markDirty();
+    notify();
     requestRender();
   }
 

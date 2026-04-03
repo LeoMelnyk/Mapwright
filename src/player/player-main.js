@@ -2,8 +2,9 @@
 
 import playerState from './player-state.js';
 import * as playerCanvas from './player-canvas.js';
-import { invalidateFullMapCache, revealFogCells, concealFogCells, resetFogLayers, markAssetsReady } from './player-canvas.js';
+import { invalidateFullMapCache, invalidateLightingOnly, invalidatePropsChange, patchOpenedDoor, revealFogCells, concealFogCells, resetFogLayers, markAssetsReady } from './player-canvas.js';
 import { loadPropCatalog, loadTextureCatalog, collectTextureIds, ensureTexturesLoaded, RangeTool } from '../editor/js/index.js';
+import { BRIDGE_TEXTURE_IDS } from '../render/index.js';
 
 let ws = null;
 let reconnectTimer = null;
@@ -75,9 +76,25 @@ async function loadMapTextures() {
       }
     }
   }
+  // Include bridge textures (hardcoded IDs in bridges.js)
+  if (playerState.dungeon.metadata?.bridges?.length) {
+    for (const b of playerState.dungeon.metadata.bridges) {
+      const texId = BRIDGE_TEXTURE_IDS[b.type] || BRIDGE_TEXTURE_IDS.wood;
+      usedIds.add(texId);
+    }
+  }
   if (usedIds.size > 0) {
+    // Only bump texturesVersion if new textures were actually loaded (not already cached).
+    // Check _loadPromise — if it exists, the texture was already loading/loaded before this call.
+    const catalog = playerState.textureCatalog;
+    const hadNew = [...usedIds].some(id => {
+      const entry = catalog?.textures?.[id];
+      return entry && !entry._loadPromise;
+    });
     await ensureTexturesLoaded(usedIds);
-    playerState.texturesVersion++;
+    if (hadNew) {
+      playerState.texturesVersion++;
+    }
   }
 }
 
@@ -166,6 +183,9 @@ function handleMessage(msg) {
 }
 
 function onSessionInit(msg) {
+  // Clear all old caches before loading the new map
+  playerCanvas.clearAll();
+
   playerState.dungeon = msg.dungeon;
   playerState.resolvedTheme = msg.resolvedTheme || null;
   playerState.renderQuality = msg.renderQuality || 20;
@@ -249,6 +269,8 @@ function onDoorOpen(msg) {
     wasSecret: msg.wasSecret,
   });
   if (msg.wasSecret) {
+    // Patch cached cells to convert 's' → 'd' before the partial rebuild
+    patchOpenedDoor(msg.row, msg.col, msg.dir);
     // Secret door rendered as wall → now a door — rebuild the affected region only
     const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
     const [dr, dc] = OFFSETS[msg.dir] || [0, 0];
@@ -259,7 +281,7 @@ function onDoorOpen(msg) {
       maxRow: Math.max(...rows),
       minCol: Math.min(...cols),
       maxCol: Math.max(...cols),
-    });
+    }, { structural: true });
   }
   // Normal doors don't change the rendered content — player already sees them as doors
   playerCanvas.requestRender();
@@ -294,13 +316,50 @@ function onDungeonUpdate(msg) {
   if (!playerState.dungeon) return;
   playerState.dungeon.cells = msg.cells;
   playerState.dungeon.metadata = msg.metadata;
-  if (msg.resolvedTheme) playerState.resolvedTheme = msg.resolvedTheme;
+  // Only replace resolvedTheme when it actually changed (preserves reference for render caches)
+  if (msg.changeHints?.themeChanged && msg.resolvedTheme) {
+    playerState.resolvedTheme = msg.resolvedTheme;
+  } else if (!playerState.resolvedTheme && msg.resolvedTheme) {
+    playerState.resolvedTheme = msg.resolvedTheme;
+  }
 
-  // DM edited the map — load any new textures, then rebuild cache
-  loadMapTextures().then(() => {
+  const hints = msg.changeHints;
+
+  // Route to the cheapest rebuild based on what changed
+  if (!hints || hints.gridResized) {
+    // No hints (legacy) or grid resized — full rebuild with texture loading
+    loadMapTextures().then(() => {
+      invalidateFullMapCache();
+      playerCanvas.requestRender();
+    });
+  } else if (hints.dirtyRegion && !hints.themeChanged) {
+    // Partial cell change — use dirty region for targeted rebuild
+    const structural = !!hints.lightingChanged;
+    loadMapTextures().then(() => {
+      invalidateFullMapCache(hints.dirtyRegion, { structural });
+      playerCanvas.requestRender();
+    });
+  } else if (hints.propsChanged && !hints.themeChanged && !hints.dirtyRegion) {
+    // Props-only change (may include lighting from prop lights) — needs cells rebuild for props layer
+    // but preserves cached cells array so fluid/blend caches stay valid
+    invalidatePropsChange();
+    playerCanvas.requestRender();
+  } else if (hints.lightingChanged && !hints.themeChanged && !hints.dirtyRegion && !hints.propsChanged) {
+    // Lighting-only change — composite rebuild only (cells layer stays cached)
+    invalidateLightingOnly();
+    playerCanvas.requestRender();
+  } else if (hints.themeChanged && !hints.dirtyRegion) {
+    // Theme change — clear all caches and do a full rebuild (theme colors affect every layer)
+    playerCanvas.clearAll();
     invalidateFullMapCache();
     playerCanvas.requestRender();
-  });
+  } else {
+    // Multiple change types or theme+cells — full rebuild
+    loadMapTextures().then(() => {
+      invalidateFullMapCache(hints.dirtyRegion || null);
+      playerCanvas.requestRender();
+    });
+  }
 
   playerCanvas.requestRender();
 }
@@ -310,6 +369,15 @@ function onSessionEnd() {
   statusEl()?.classList.remove('hidden');
   const toolbar = document.getElementById('player-toolbar');
   if (toolbar) toolbar.style.display = 'none';
+
+  // Clear all state and caches
+  playerState.dungeon = null;
+  playerState.resolvedTheme = null;
+  playerState.revealedCells = new Set();
+  playerState.openedDoors = [];
+  playerState.openedStairs = [];
+  playerCanvas.clearAll();
+  _initDone = false;
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────

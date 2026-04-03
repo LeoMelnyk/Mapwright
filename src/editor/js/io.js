@@ -10,6 +10,7 @@ import { loadThemeCatalog, clearThemeCatalogCache, saveUserTheme } from './theme
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
 import { requestRender, zoomToFit, invalidateMapCache } from './canvas-view.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
+import { onMapLoaded } from './dm-session.js';
 
 /**
  * Load a dungeon JSON object into the editor state.
@@ -38,6 +39,8 @@ export function loadDungeonJSON(json, opts = {}) {
   // Flush all render caches (geometry, fluid, blend, visibility, props)
   // so stale data from the previous map doesn't bleed through.
   invalidateAllCaches();
+  // If a player session is active, reset fog and re-init the player with the new map
+  onMapLoaded();
   markDirty();
   state.unsavedChanges = false;
   notify();

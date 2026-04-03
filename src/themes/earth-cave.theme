@@ -1,7 +1,7 @@
 {
   "displayName": "Earth Cave",
   "background": "#6b5344",
-  "gridLine": "#000000",
+  "gridLine": "#2c1810",
   "wallStroke": "#2c1810",
   "wallFill": "#8a7060",
   "textColor": "#f0e8d8",
@@ -43,5 +43,8 @@
     "borderColor": "#000000",
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
-  }
+  },
+  "gridStyle": "corners-dot",
+  "gridLineWidth": 2,
+  "gridOpacity": 0.3
 }

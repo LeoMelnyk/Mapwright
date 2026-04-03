@@ -182,6 +182,43 @@ export function buildPlayerCells(dungeon, revealedCells, openedDoors) {
     else if (side === 'exteriorOnly') pc.trimShowExteriorOnly = true;
   }
 
+  // ── Open diagonal trims: strip walls on the unrevealed side ──
+  // When only one side of a diagonal wall is revealed, remove cardinal
+  // walls on the unrevealed side so they don't render through the fog.
+  for (const key of revealedCells) {
+    const [r, c] = key.split(',').map(Number);
+    const pc = playerCells[r]?.[c];
+    if (!pc || pc.trimCorner || pc.trimClip) continue;
+    const hasNWSE = !!pc['nw-se'];
+    const hasNESW = !!pc['ne-sw'];
+    if (!hasNWSE && !hasNESW) continue;
+
+    // Determine which side's neighbors are revealed
+    // nw-se diagonal: sideA=NE (north,east), sideB=SW (south,west)
+    // ne-sw diagonal: sideA=NW (north,west), sideB=SE (south,east)
+    let sideARevealed, sideBRevealed;
+    if (hasNWSE) {
+      sideARevealed = revealedCells.has(cellKey(r - 1, c)) || revealedCells.has(cellKey(r, c + 1));
+      sideBRevealed = revealedCells.has(cellKey(r + 1, c)) || revealedCells.has(cellKey(r, c - 1));
+    } else {
+      sideARevealed = revealedCells.has(cellKey(r - 1, c)) || revealedCells.has(cellKey(r, c - 1));
+      sideBRevealed = revealedCells.has(cellKey(r + 1, c)) || revealedCells.has(cellKey(r, c + 1));
+    }
+    if (sideARevealed && sideBRevealed) continue;
+    if (!sideARevealed && !sideBRevealed) continue;
+
+    // Strip walls on the unrevealed side
+    if (hasNWSE) {
+      // NE side walls: north, east; SW side walls: south, west
+      if (!sideARevealed) { delete pc.north; delete pc.east; }
+      else                { delete pc.south; delete pc.west; }
+    } else {
+      // NW side walls: north, west; SE side walls: south, east
+      if (!sideARevealed) { delete pc.north; delete pc.west; }
+      else                { delete pc.south; delete pc.east; }
+    }
+  }
+
   return playerCells;
 }
 

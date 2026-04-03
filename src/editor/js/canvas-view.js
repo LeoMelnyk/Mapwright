@@ -62,6 +62,7 @@ function getMapCache() {
 
 /** Force the offscreen map cache to rebuild on next frame. Call after theme/texture/feature changes. */
 export function invalidateMapCache() { getMapCache().invalidate(); }
+export function invalidateGridCache() { getMapCache().invalidateGrid(); }
 
 // Cache for background image HTMLImageElement — avoids recreating every frame
 let _bgImgCache = { dataUrl: null, el: null };

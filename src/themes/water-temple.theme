@@ -1,7 +1,7 @@
 {
   "displayName": "Water Temple",
   "background": "#e8f4f8",
-  "gridLine": "#000000",
+  "gridLine": "#6090a8",
   "wallStroke": "#2c3840",
   "wallFill": "#d0e0e8",
   "textColor": "#2c3840",
@@ -43,5 +43,8 @@
     "borderColor": "#000000",
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
-  }
+  },
+  "gridStyle": "lines",
+  "gridLineWidth": 2,
+  "gridOpacity": 0.15
 }

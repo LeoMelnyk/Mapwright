@@ -1,7 +1,7 @@
 {
   "displayName": "Crypt",
   "background": "#d4c8a8",
-  "gridLine": "#000000",
+  "gridLine": "#604020",
   "wallStroke": "#1c1408",
   "wallFill": "#ece4cc",
   "textColor": "#1c1408",
@@ -43,5 +43,8 @@
     "borderColor": "#000000",
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
-  }
+  },
+  "gridStyle": "lines",
+  "gridLineWidth": 2,
+  "gridOpacity": 0.2
 }

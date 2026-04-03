@@ -38,6 +38,11 @@ export function patchBlendForDirtyRegion(region, cells, gridSize, textureOptions
   patchBlendRegion(region, cells, roomCells, gridSize, textureOptions);
 }
 
+export function patchFluidForDirtyRegion(region, cells, gridSize, theme) {
+  const roomCells = getCachedRoomCells(cells);
+  patchFluidRegion(region, cells, roomCells, gridSize, theme);
+}
+
 // ─── Content mutation counter ─────
 // Bumped by smartInvalidate() on every content mutation. canvas-view.js checks
 // this to know when the map cache needs rebuilding, even when notify() isn't called.
@@ -53,6 +58,11 @@ export function bumpContentVersion() { _contentVersion++; }
 let _dirtyRegion = null;      // { minRow, maxRow, minCol, maxCol } or null
 let _dirtyFullRebuild = false; // true → must do full rebuild (geometry change, undo, etc.)
 
+// Parallel broadcast accumulator — tracks changes since last WebSocket broadcast.
+// Not consumed by the editor render loop, only by dm-session.js.
+let _broadcastDirtyRegion = null;
+let _broadcastFullRebuild = false;
+
 export function getDirtyRegion() {
   if (_dirtyFullRebuild) return null;
   return _dirtyRegion;
@@ -61,6 +71,17 @@ export function consumeDirtyRegion() {
   _dirtyRegion = null;
   _dirtyFullRebuild = false;
 }
+export function getBroadcastDirtyRegion() {
+  if (_broadcastFullRebuild) return null;
+  return _broadcastDirtyRegion;
+}
+export function consumeBroadcastDirtyRegion() {
+  const r = _broadcastFullRebuild ? null : _broadcastDirtyRegion;
+  _broadcastDirtyRegion = null;
+  _broadcastFullRebuild = false;
+  return r;
+}
+
 /** Accumulate a rect of changed cells into the dirty region (for callers that bypass smartInvalidate). */
 export function accumulateDirtyRect(minRow, minCol, maxRow, maxCol) {
   if (!_dirtyRegion) {
@@ -70,6 +91,15 @@ export function accumulateDirtyRect(minRow, minCol, maxRow, maxCol) {
     if (maxRow > _dirtyRegion.maxRow) _dirtyRegion.maxRow = maxRow;
     if (minCol < _dirtyRegion.minCol) _dirtyRegion.minCol = minCol;
     if (maxCol > _dirtyRegion.maxCol) _dirtyRegion.maxCol = maxCol;
+  }
+  // Mirror to broadcast accumulator
+  if (!_broadcastDirtyRegion) {
+    _broadcastDirtyRegion = { minRow, maxRow, minCol, maxCol };
+  } else {
+    if (minRow < _broadcastDirtyRegion.minRow) _broadcastDirtyRegion.minRow = minRow;
+    if (maxRow > _broadcastDirtyRegion.maxRow) _broadcastDirtyRegion.maxRow = maxRow;
+    if (minCol < _broadcastDirtyRegion.minCol) _broadcastDirtyRegion.minCol = minCol;
+    if (maxCol > _broadcastDirtyRegion.maxCol) _broadcastDirtyRegion.maxCol = maxCol;
   }
 }
 
@@ -187,6 +217,15 @@ export function smartInvalidate(changes, cells, { forceGeometry = false, forceFl
       if (row > _dirtyRegion.maxRow) _dirtyRegion.maxRow = row;
       if (col < _dirtyRegion.minCol) _dirtyRegion.minCol = col;
       if (col > _dirtyRegion.maxCol) _dirtyRegion.maxCol = col;
+    }
+    // Mirror to broadcast accumulator
+    if (!_broadcastDirtyRegion) {
+      _broadcastDirtyRegion = { minRow: row, maxRow: row, minCol: col, maxCol: col };
+    } else {
+      if (row < _broadcastDirtyRegion.minRow) _broadcastDirtyRegion.minRow = row;
+      if (row > _broadcastDirtyRegion.maxRow) _broadcastDirtyRegion.maxRow = row;
+      if (col < _broadcastDirtyRegion.minCol) _broadcastDirtyRegion.minCol = col;
+      if (col > _broadcastDirtyRegion.maxCol) _broadcastDirtyRegion.maxCol = col;
     }
   }
 
@@ -339,18 +378,22 @@ function traceArcWedge(ctx, rc, gridSize, transform) {
 
 
 /**
- * Run `fn` inside a clip that excludes the void portions of trimClip cells.
- * Uses evenodd: canvas rect (odd=visible) + per-cell [cellRect + clipPoly] (even=void, odd=floor).
- * No-op if no trimClip cells exist in the grid.
+ * Run `fn` inside a clip that excludes the void portions of trim cells
+ * (both arc trimClip and straight diagonal trims).
+ * Uses evenodd: canvas rect (odd=visible) + per-cell [cellRect + roomPoly] (even=void, odd=floor).
+ * No-op if no trim cells exist in the grid.
  */
 function withTrimVoidClip(ctx, cells, gridSize, transform, fn) {
-  // Quick scan: bail early if no closed trimClip cells exist
-  let hasTrimClip = false;
-  for (let r = 0; !hasTrimClip && r < cells.length; r++)
-    for (let c = 0; !hasTrimClip && c < (cells[r]?.length || 0); c++)
-      if (cells[r]?.[c]?.trimClip && !cells[r][c].trimOpen) hasTrimClip = true;
+  // Quick scan: bail early if no closed trim cells exist
+  let hasTrim = false;
+  for (let r = 0; !hasTrim && r < cells.length; r++)
+    for (let c = 0; !hasTrim && c < (cells[r]?.length || 0); c++) {
+      const cell = cells[r]?.[c];
+      if (cell?.trimClip && !cell.trimOpen) hasTrim = true;
+      else if (cell?.trimCorner && !cell.trimClip && !cell.trimOpen) hasTrim = true;
+    }
 
-  if (!hasTrimClip) { fn(); return; }
+  if (!hasTrim) { fn(); return; }
 
   ctx.save();
   ctx.beginPath();
@@ -358,17 +401,31 @@ function withTrimVoidClip(ctx, cells, gridSize, transform, fn) {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       const cell = cells[r]?.[c];
-      if (!cell?.trimClip || cell.trimOpen) continue; // Open trims render fully
-      const clip = cell.trimClip;
+      if (!cell) continue;
       const tl = toCanvas(c * gridSize, r * gridSize, transform);
       const gs = gridSize * transform.scale;
-      // Cell rect (adds even count over void)
-      ctx.rect(tl.x, tl.y, gs, gs);
-      // Clip polygon (adds odd count back over floor area)
-      ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
-      for (let i = 1; i < clip.length; i++)
-        ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
-      ctx.closePath();
+      if (cell.trimClip && !cell.trimOpen) {
+        // Arc trim: cell rect + trimClip polygon
+        const clip = cell.trimClip;
+        ctx.rect(tl.x, tl.y, gs, gs);
+        ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
+        for (let i = 1; i < clip.length; i++)
+          ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
+        ctx.closePath();
+      } else if (cell.trimCorner && !cell.trimClip && !cell.trimOpen) {
+        // Diagonal trim: cell rect + room triangle (excludes void corner)
+        const tr = { x: tl.x + gs, y: tl.y };
+        const bl = { x: tl.x, y: tl.y + gs };
+        const br = { x: tl.x + gs, y: tl.y + gs };
+        ctx.rect(tl.x, tl.y, gs, gs);
+        switch (cell.trimCorner) {
+          case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
+          case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
+          case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
+          case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+        }
+        ctx.closePath();
+      }
     }
   }
   ctx.clip('evenodd');
@@ -1431,16 +1488,12 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     });
   }
 
-  // Fill patterns (pit/water/lava) — grid drawn later so bridges sit under it
+  // Fill patterns (pit/water/lava)
   if (!skipPhases?.fills) {
     _t('fills', () => renderFillPatternsAndGrid(ctx, cells, roomCells, gridSize, theme, transform, showGrid, true, metadata, cacheSize));
   }
 
-  // ── Walls, bridges, grid (rendered directly, no layer canvas) ──────────
-  if (!skipPhases?.walls) {
-    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible, visibleBounds, _res));
-  }
-
+  // ── Bridges, grid, hatching, walls ──────────
   if (!skipPhases?.bridges) {
     _t('bridges', () => {
       const getTextureImageForBridges = textureOptions?.catalog
@@ -1458,6 +1511,10 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
         });
       }
     });
+  }
+
+  if (!skipPhases?.walls) {
+    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible, visibleBounds, _res));
   }
 
   // Props, labels, stairs

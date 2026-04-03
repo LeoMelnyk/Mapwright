@@ -1,5 +1,113 @@
 # Changelog
 
+## v0.9.1
+
+### Grid Customization
+
+The grid overlay is now fully customizable per-theme via a new **Grid** section in the theme editor.
+
+**New grid styles:**
+- **Lines** — solid grid lines (default)
+- **Dotted Lines** — dashed grid lines
+- **Corner Crosses** — small + marks at grid intersections
+- **Corner Dots** — dots at grid intersections
+
+**New grid settings:**
+- **Color** — grid line color (moved from the Colors section)
+- **Width** — line/dot thickness (1–8px)
+- **Opacity** — grid overlay transparency (0–1)
+- **Corner Length** — cross arm length as fraction of cell size (Corner Crosses only)
+- **Noise** — deterministic wobble for a hand-drawn feel (Lines/Dotted only)
+
+**Per-theme defaults:** All 16 built-in themes now ship with custom grid settings tuned to their aesthetic — clean lines for architectural themes, corner dots for caves, corner crosses for magical/alien themes, dotted lines with noise for outdoor environments.
+
+**Rendering changes:**
+- Grid renders before walls (walls always above grid)
+- Grid skips voided areas (corner crosses/dots require all 4 adjacent cells to be drawable)
+- Grid-only setting changes use a snapshot-based rebuild that skips expensive floor/texture/blending phases
+
+### Player View Incremental Cache Updates
+
+Map changes from the DM now trigger targeted partial rebuilds on the player view instead of a full 6-second cache rebuild. This eliminates the GPU context loss (browser tab crash) that occurred on large maps when the DM made frequent edits.
+
+**Change hint system:** The DM broadcast now includes `changeHints` — a typed diff describing what changed since the last broadcast:
+- `dirtyRegion` — bounding box of changed cells (enables partial cell-layer redraws)
+- `themeChanged` — theme colors/styles differ
+- `lightingChanged` — light positions/properties changed
+- `propsChanged` — props added/removed/moved
+- `gridResized` — map dimensions changed
+
+**Rebuild routing by change type:**
+
+| Change | Cells layer | Composite | Shading/Hatching | Fog | Walls |
+|--------|------------|-----------|-----------------|-----|-------|
+| Cell edit (small) | Partial (dirty region) | Partial | Skip | Skip | Skip |
+| Theme change | Full | Full | Check sig | Rebuild | Rebuild |
+| Lighting only | Skip | Rebuild | Skip | Skip | Skip |
+| Props only | Full (preserved cells) | Full | Skip | Skip | Skip |
+| Grid resize | Full | Full | Full | Full | Full |
+
+**Cached cells array:** The player now reuses a cached `fullCells` array across partial rebuilds, preserving reference-based caches (fluid geometry, texture blending, room topology). Only dirty-region cells are patched in-place.
+
+**Fluid/blend patching:** Partial rebuilds patch the fluid render layer and blend topology cache for just the dirty region, avoiding a full 6-second fluid geometry rebuild.
+
+**Props render layer:** The player now invalidates the props render layer and visibility cache on every update, ensuring new props and their shadows appear immediately.
+
+**Broadcast baseline:** The DM session snapshots theme, lighting, props, and grid dimensions at session init, so the first `dungeon:update` correctly diffs against the initial state instead of treating everything as changed.
+
+**Tool broadcast fixes:** The stairs and bridge tools now call `notify()` and accumulate dirty regions, which were previously missing — changes from these tools never reached the player view.
+
+### Player View Diagnostics
+
+The player diagnostics overlay (press `D`) now shows detailed cache rebuild information:
+
+- **Build type** — full / partial / props / composite
+- **Per-layer timing** — MapCache, shading layer, hatching layer, walls layer
+- **renderCells phase breakdown** — roomCells, shading, floors, blending, fills, bridges, grid, walls, props, hazard
+- **MapCache internal stats** — cells rebuilds, composite rebuilds, last rebuild type
+
+### Map Cache Architecture
+
+**Composite-only rebuilds:** `MapCache` now tracks cells-dirty and composite-dirty sequences separately. Lighting-only changes trigger a composite rebuild without touching the cells layer (the lightmap has its own internal cache).
+
+**Grid snapshot mechanism:** The editor's `MapCache` captures a pre-grid snapshot of the cells layer after the base phases (floors, textures, fills, bridges). Grid setting changes restore from this snapshot and re-render only the cheap top phases (grid, walls, props), skipping the expensive base phases entirely. The snapshot is allocated lazily — only after the first grid setting change — so the player view incurs no extra memory.
+
+### Player View — Partial Rebuild Fixes
+
+**Fluid/blend cache preservation:** Partial rebuilds now reuse the cached `fullCells` array so reference-based caches (fluid geometry, texture blending, room topology) stay valid. Only dirty-region cells are patched in-place, with proper secret door (`'s'` → `'w'`/`'d'`) and invisible wall/door filtering applied during the patch.
+
+**Secret door opening:** Opening a secret door now patches the cached player cells to convert `'w'` → `'d'` and triggers a partial rebuild with structural flag (walls layer rebuild + lighting invalidation). Previously, the cached cells retained the old `'w'` value, causing the `'S'` marker to persist alongside the opened door.
+
+**Texture version tracking:** The player no longer unconditionally bumps `texturesVersion` on every update — only when genuinely new texture images are loaded. This prevents the `canPartial` check from failing due to version mismatches on texture-only cell edits.
+
+**Props rendering:** Props changes now correctly invalidate the props render layer and visibility cache on the player side, and the DM broadcast includes a `propsChanged` hint. Previously, new props never appeared on the player view because the props layer cache never invalidated.
+
+**Fill/fluid patching:** Partial rebuilds now patch the fluid render layer for the dirty region (via `patchFluidForDirtyRegion`), so water/lava/pit fills update correctly without a full 6-second fluid geometry rebuild.
+
+**Blend topology patching:** Partial rebuilds patch the blend topology cache for the dirty region, so texture edge blending updates correctly on cell texture changes.
+
+### Session Management
+
+**Map load during active session:** Loading a new map while a player session is active now resets all fog state (revealed cells, opened doors, opened stairs) and re-sends `session:init` to the player. The player fully clears all caches (MapCache, fluid, blend, geometry, visibility, props, lightmap, fog, shading, hatching, walls) before loading the new map.
+
+**Session end cleanup:** When the DM ends the session, the player now clears all dungeon data, caches, and the canvas. Previously, stale map content remained visible after the session ended.
+
+**Theme change during session:** Theme changes now trigger a full cache clear and rebuild on the player view, ensuring all layers (shading, hatching, fog, walls) pick up the new theme colors.
+
+### Player View — Diagonal Trim & Bridge Fixes
+
+**Diagonal trim void clipping:** The `withTrimVoidClip` function now clips diagonal trim cells (cells with `trimCorner` but no `trimClip`) in addition to arc trims. Previously, grid lines and fill patterns bled into the void side of diagonal walls.
+
+**Diagonal trim fog masking:** The player fog overlay now paints fog back over the void triangle of diagonal trim cells. Previously, revealing a diagonal trim cell cleared the full rectangle, exposing the void side to the player.
+
+**Open diagonal trim fog:** Open diagonal trims (diagonal walls separating two rooms) now hide the unrevealed side's floor, texture, and walls in the player view. When only one side of a diagonal wall is revealed, the other side is treated as voided space. When both sides become revealed, all content is restored. This matches the existing behavior for open arc trims.
+
+**Bridge textures in player view:** Bridge texture IDs are now included in the player view's texture loading, so bridges render with their proper textures instead of flat fallback colors.
+
+### Removed
+
+**Snapshot render tests:** Removed the visual regression snapshot tests (`test/render/visual.test.js`, `test/render/player-view.test.js`) and their golden images. These were not catching real regressions — golden files were overwritten on every intentional visual change. Removed from CI workflow and pre-commit hook. The `test:render` npm script and `vitest.render.config.js` have been removed. Non-snapshot render tests (`player-fog-layers.test.js`) are preserved.
+
 ## v0.9.0
 
 ### Round Trim System Overhaul

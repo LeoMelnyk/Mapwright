@@ -31,6 +31,19 @@ function drawDungeonTitle(ctx, width, dungeonName, fontSize, theme, yOffset = 0)
   ctx.restore();
 }
 
+// ─── Grid noise helper ─────
+// Deterministic hash-based noise for grid wobble (no randomness per frame)
+function _gridNoise(row, col, dir, noiseAmount, gridSize) {
+  if (!noiseAmount) return 0;
+  // Simple hash from coordinates + direction seed
+  let h = (row * 7919 + col * 104729 + dir * 31) | 0;
+  h = ((h >> 16) ^ h) * 0x45d9f3b;
+  h = ((h >> 16) ^ h) * 0x45d9f3b;
+  h = (h >> 16) ^ h;
+  // Map to [-1, 1] range, scale by noise amount and gridSize
+  return ((h & 0xffff) / 0x8000 - 1) * noiseAmount * gridSize * 0.15;
+}
+
 /**
  * Draw grid overlay for matrix-based map
  */
@@ -39,6 +52,12 @@ function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showG
   const numCols = cells[0]?.length || 0;
   const resolution = metadata?.resolution || 1;
 
+  const style = theme.gridStyle || 'lines';
+  const lineWidth = theme.gridLineWidth ?? 4;
+  const noise = theme.gridNoise ?? 0;
+  const cornerFrac = theme.gridCornerLength ?? 0.3;
+  const opacity = theme.gridOpacity ?? 0.5;
+
   ctx.lineCap = 'butt';
 
   const shouldDraw = (r, c) => {
@@ -46,36 +65,84 @@ function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showG
     return roomCells[r][c] || (showGridInCorridors && cells[r]?.[c]);
   };
 
-
-  // Draw primary grid lines (at display-cell boundaries)
   ctx.strokeStyle = theme.gridLine;
-  ctx.lineWidth = 1;
-  ctx.globalAlpha = 0.5;
-  ctx.beginPath();
+  ctx.fillStyle = theme.gridLine;
+  ctx.lineWidth = lineWidth;
+  ctx.globalAlpha = opacity;
 
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      if (!shouldDraw(row, col)) continue;
+  if (style === 'lines' || style === 'dotted') {
+    // Full lines or dashed lines between cells
+    if (style === 'dotted') {
+      const dashLen = lineWidth * 2;
+      ctx.setLineDash([dashLen, dashLen]);
+    }
+    ctx.beginPath();
 
-      // Horizontal line below this cell — only at display-cell boundaries
-      if ((row + 1) % resolution === 0 && shouldDraw(row + 1, col)) {
-        const p1 = toCanvas(col * gridSize, (row + 1) * gridSize, transform);
-        const p2 = toCanvas((col + 1) * gridSize, (row + 1) * gridSize, transform);
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-      }
+    for (let row = 0; row < numRows; row++) {
+      for (let col = 0; col < numCols; col++) {
+        if (!shouldDraw(row, col)) continue;
 
-      // Vertical line to the right — only at display-cell boundaries
-      if ((col + 1) % resolution === 0 && shouldDraw(row, col + 1)) {
-        const p1 = toCanvas((col + 1) * gridSize, row * gridSize, transform);
-        const p2 = toCanvas((col + 1) * gridSize, (row + 1) * gridSize, transform);
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
+        // Horizontal line below this cell
+        if ((row + 1) % resolution === 0 && shouldDraw(row + 1, col)) {
+          const n1 = _gridNoise(row + 1, col, 0, noise, gridSize);
+          const n2 = _gridNoise(row + 1, col + 1, 0, noise, gridSize);
+          const p1 = toCanvas(col * gridSize, (row + 1) * gridSize + n1, transform);
+          const p2 = toCanvas((col + 1) * gridSize, (row + 1) * gridSize + n2, transform);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+
+        // Vertical line to the right
+        if ((col + 1) % resolution === 0 && shouldDraw(row, col + 1)) {
+          const n1 = _gridNoise(row, col + 1, 1, noise, gridSize);
+          const n2 = _gridNoise(row + 1, col + 1, 1, noise, gridSize);
+          const p1 = toCanvas((col + 1) * gridSize + n1, row * gridSize, transform);
+          const p2 = toCanvas((col + 1) * gridSize + n2, (row + 1) * gridSize, transform);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
       }
     }
+
+    ctx.stroke();
+    if (style === 'dotted') ctx.setLineDash([]);
+
+  } else if (style === 'corners-x' || style === 'corners-dot') {
+    // Iterate over intersection points (corners of the grid)
+    // Intersection (r, c) is shared by cells (r-1,c-1), (r-1,c), (r,c-1), (r,c)
+    const armLen = gridSize * cornerFrac;
+    const dotRadius = lineWidth;
+    ctx.beginPath();
+
+    for (let r = 0; r <= numRows; r++) {
+      if (r % resolution !== 0) continue;
+      for (let c = 0; c <= numCols; c++) {
+        if (c % resolution !== 0) continue;
+
+        // Only draw at fully interior intersections (all 4 adjacent cells must be drawable)
+        if (!shouldDraw(r, c) || !shouldDraw(r - 1, c) ||
+            !shouldDraw(r, c - 1) || !shouldDraw(r - 1, c - 1)) continue;
+
+        const n = _gridNoise(r, c, style === 'corners-x' ? 2 : 3, noise, gridSize);
+        const p = toCanvas(c * gridSize + n, r * gridSize + n, transform);
+
+        if (style === 'corners-x') {
+          const arm = armLen * transform.scale;
+          ctx.moveTo(p.x - arm, p.y);
+          ctx.lineTo(p.x + arm, p.y);
+          ctx.moveTo(p.x, p.y - arm);
+          ctx.lineTo(p.x, p.y + arm);
+        } else {
+          ctx.moveTo(p.x + dotRadius, p.y);
+          ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2);
+        }
+      }
+    }
+
+    if (style === 'corners-x') ctx.stroke();
+    else ctx.fill();
   }
 
-  ctx.stroke();
   ctx.globalAlpha = 1.0;
 }
 
@@ -84,28 +151,90 @@ function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showG
  */
 function drawGrid(ctx, config, bounds, transform, theme) {
   const gridSize = config.gridSize;
+  const style = theme.gridStyle || 'lines';
+  const lineWidth = theme.gridLineWidth ?? 4;
+  const noise = theme.gridNoise ?? 0;
+  const cornerFrac = theme.gridCornerLength ?? 0.3;
+  const opacity = theme.gridOpacity ?? 0.5;
+
   ctx.strokeStyle = theme.gridLine;
-  ctx.lineWidth = 1;
-  ctx.globalAlpha = 0.5;
+  ctx.fillStyle = theme.gridLine;
+  ctx.lineWidth = lineWidth;
+  ctx.globalAlpha = opacity;
 
   const startX = Math.floor(bounds.minX / gridSize) * gridSize;
   const endX = Math.ceil(bounds.maxX / gridSize) * gridSize;
-  for (let x = startX; x <= endX; x += gridSize) {
-    const px = toCanvas(x, 0, transform);
-    ctx.beginPath();
-    ctx.moveTo(px.x, 0);
-    ctx.lineTo(px.x, ctx.canvas.height);
-    ctx.stroke();
-  }
-
   const startY = Math.floor(bounds.minY / gridSize) * gridSize;
   const endY = Math.ceil(bounds.maxY / gridSize) * gridSize;
-  for (let y = startY; y <= endY; y += gridSize) {
-    const py = toCanvas(0, y, transform);
+
+  if (style === 'lines' || style === 'dotted') {
+    if (style === 'dotted') {
+      const dashLen = lineWidth * 2;
+      ctx.setLineDash([dashLen, dashLen]);
+    }
+
+    for (let x = startX; x <= endX; x += gridSize) {
+      const col = Math.round(x / gridSize);
+      ctx.beginPath();
+      const n1 = _gridNoise(0, col, 1, noise, gridSize);
+      const n2 = _gridNoise(999, col, 1, noise, gridSize);
+      const p1 = toCanvas(x + n1, bounds.minY, transform);
+      const p2 = toCanvas(x + n2, bounds.maxY, transform);
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
+
+    for (let y = startY; y <= endY; y += gridSize) {
+      const row = Math.round(y / gridSize);
+      ctx.beginPath();
+      const n1 = _gridNoise(row, 0, 0, noise, gridSize);
+      const n2 = _gridNoise(row, 999, 0, noise, gridSize);
+      const p1 = toCanvas(bounds.minX, y + n1, transform);
+      const p2 = toCanvas(bounds.maxX, y + n2, transform);
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
+    }
+
+    if (style === 'dotted') ctx.setLineDash([]);
+
+  } else if (style === 'corners-x') {
+    const armLen = gridSize * cornerFrac;
     ctx.beginPath();
-    ctx.moveTo(0, py.y);
-    ctx.lineTo(ctx.canvas.width, py.y);
+
+    for (let x = startX; x <= endX; x += gridSize) {
+      for (let y = startY; y <= endY; y += gridSize) {
+        const row = Math.round(y / gridSize);
+        const col = Math.round(x / gridSize);
+        const n = _gridNoise(row, col, 2, noise, gridSize);
+        const p = toCanvas(x + n, y + n, transform);
+        const arm = armLen * transform.scale;
+        ctx.moveTo(p.x - arm, p.y);
+        ctx.lineTo(p.x + arm, p.y);
+        ctx.moveTo(p.x, p.y - arm);
+        ctx.lineTo(p.x, p.y + arm);
+      }
+    }
+
     ctx.stroke();
+
+  } else if (style === 'corners-dot') {
+    const dotRadius = lineWidth;
+    ctx.beginPath();
+
+    for (let x = startX; x <= endX; x += gridSize) {
+      for (let y = startY; y <= endY; y += gridSize) {
+        const row = Math.round(y / gridSize);
+        const col = Math.round(x / gridSize);
+        const n = _gridNoise(row, col, 3, noise, gridSize);
+        const p = toCanvas(x + n, y + n, transform);
+        ctx.moveTo(p.x + dotRadius, p.y);
+        ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2);
+      }
+    }
+
+    ctx.fill();
   }
 
   ctx.globalAlpha = 1.0;
