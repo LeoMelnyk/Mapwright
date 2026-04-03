@@ -74,6 +74,9 @@ function render() {
           <label for="dm-view-toggle" style="cursor:pointer;font-size:12px;">DM View (fog overlay)</label>
         </div>
 
+        <div style="font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.4;">
+          Share this link with players on your local network:
+        </div>
         <div class="session-link-row" data-url="http://${localIP || ''}:${location.port || 3000}/player/">
           <code class="session-ip-link" title="Click to copy">http://••••••••••:${location.port || 3000}/player/</code>
           <button class="session-copy-btn" title="Copy player link">
@@ -87,7 +90,7 @@ function render() {
     ` : `
       <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">
         Start a session to enable the player view with fog of war.
-        Players can connect at:<br>
+        <div style="margin-top:6px;">Share this link with players on your local network:</div>
         <div class="session-link-row" data-url="http://${localIP || ''}:${location.port || 3000}/player/">
           <code class="session-ip-link" title="Click to copy">http://••••••••••:${location.port || 3000}/player/</code>
           <button class="session-copy-btn" title="Copy player link">

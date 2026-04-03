@@ -378,18 +378,22 @@ function traceArcWedge(ctx, rc, gridSize, transform) {
 
 
 /**
- * Run `fn` inside a clip that excludes the void portions of trimClip cells.
- * Uses evenodd: canvas rect (odd=visible) + per-cell [cellRect + clipPoly] (even=void, odd=floor).
- * No-op if no trimClip cells exist in the grid.
+ * Run `fn` inside a clip that excludes the void portions of trim cells
+ * (both arc trimClip and straight diagonal trims).
+ * Uses evenodd: canvas rect (odd=visible) + per-cell [cellRect + roomPoly] (even=void, odd=floor).
+ * No-op if no trim cells exist in the grid.
  */
 function withTrimVoidClip(ctx, cells, gridSize, transform, fn) {
-  // Quick scan: bail early if no closed trimClip cells exist
-  let hasTrimClip = false;
-  for (let r = 0; !hasTrimClip && r < cells.length; r++)
-    for (let c = 0; !hasTrimClip && c < (cells[r]?.length || 0); c++)
-      if (cells[r]?.[c]?.trimClip && !cells[r][c].trimOpen) hasTrimClip = true;
+  // Quick scan: bail early if no closed trim cells exist
+  let hasTrim = false;
+  for (let r = 0; !hasTrim && r < cells.length; r++)
+    for (let c = 0; !hasTrim && c < (cells[r]?.length || 0); c++) {
+      const cell = cells[r]?.[c];
+      if (cell?.trimClip && !cell.trimOpen) hasTrim = true;
+      else if (cell?.trimCorner && !cell.trimClip && !cell.trimOpen) hasTrim = true;
+    }
 
-  if (!hasTrimClip) { fn(); return; }
+  if (!hasTrim) { fn(); return; }
 
   ctx.save();
   ctx.beginPath();
@@ -397,17 +401,31 @@ function withTrimVoidClip(ctx, cells, gridSize, transform, fn) {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       const cell = cells[r]?.[c];
-      if (!cell?.trimClip || cell.trimOpen) continue; // Open trims render fully
-      const clip = cell.trimClip;
+      if (!cell) continue;
       const tl = toCanvas(c * gridSize, r * gridSize, transform);
       const gs = gridSize * transform.scale;
-      // Cell rect (adds even count over void)
-      ctx.rect(tl.x, tl.y, gs, gs);
-      // Clip polygon (adds odd count back over floor area)
-      ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
-      for (let i = 1; i < clip.length; i++)
-        ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
-      ctx.closePath();
+      if (cell.trimClip && !cell.trimOpen) {
+        // Arc trim: cell rect + trimClip polygon
+        const clip = cell.trimClip;
+        ctx.rect(tl.x, tl.y, gs, gs);
+        ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
+        for (let i = 1; i < clip.length; i++)
+          ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
+        ctx.closePath();
+      } else if (cell.trimCorner && !cell.trimClip && !cell.trimOpen) {
+        // Diagonal trim: cell rect + room triangle (excludes void corner)
+        const tr = { x: tl.x + gs, y: tl.y };
+        const bl = { x: tl.x, y: tl.y + gs };
+        const br = { x: tl.x + gs, y: tl.y + gs };
+        ctx.rect(tl.x, tl.y, gs, gs);
+        switch (cell.trimCorner) {
+          case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
+          case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
+          case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
+          case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+        }
+        ctx.closePath();
+      }
     }
   }
   ctx.clip('evenodd');

@@ -94,6 +94,16 @@ The player diagnostics overlay (press `D`) now shows detailed cache rebuild info
 
 **Theme change during session:** Theme changes now trigger a full cache clear and rebuild on the player view, ensuring all layers (shading, hatching, fog, walls) pick up the new theme colors.
 
+### Player View — Diagonal Trim & Bridge Fixes
+
+**Diagonal trim void clipping:** The `withTrimVoidClip` function now clips diagonal trim cells (cells with `trimCorner` but no `trimClip`) in addition to arc trims. Previously, grid lines and fill patterns bled into the void side of diagonal walls.
+
+**Diagonal trim fog masking:** The player fog overlay now paints fog back over the void triangle of diagonal trim cells. Previously, revealing a diagonal trim cell cleared the full rectangle, exposing the void side to the player.
+
+**Open diagonal trim fog:** Open diagonal trims (diagonal walls separating two rooms) now hide the unrevealed side's floor, texture, and walls in the player view. When only one side of a diagonal wall is revealed, the other side is treated as voided space. When both sides become revealed, all content is restored. This matches the existing behavior for open arc trims.
+
+**Bridge textures in player view:** Bridge texture IDs are now included in the player view's texture loading, so bridges render with their proper textures instead of flat fallback colors.
+
 ### Removed
 
 **Snapshot render tests:** Removed the visual regression snapshot tests (`test/render/visual.test.js`, `test/render/player-view.test.js`) and their golden images. These were not catching real regressions — golden files were overwritten on every intentional visual change. Removed from CI workflow and pre-commit hook. The `test:render` npm script and `vitest.render.config.js` have been removed. Non-snapshot render tests (`player-fog-layers.test.js`) are preserved.

@@ -11,6 +11,8 @@ export { renderProp, parsePropFile, generateHitbox, invalidatePropsCache, invali
 export { drawDmLabel } from './features.js';
 // Themes
 export { THEMES } from './themes.js';
+// Bridges
+export { BRIDGE_TEXTURE_IDS } from './bridges.js';
 // Compile-to-canvas
 export { calculateCanvasSize, renderDungeonToCanvas } from './compile.js';
 // Render warnings

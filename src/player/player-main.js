@@ -4,6 +4,7 @@ import playerState from './player-state.js';
 import * as playerCanvas from './player-canvas.js';
 import { invalidateFullMapCache, invalidateLightingOnly, invalidatePropsChange, patchOpenedDoor, revealFogCells, concealFogCells, resetFogLayers, markAssetsReady } from './player-canvas.js';
 import { loadPropCatalog, loadTextureCatalog, collectTextureIds, ensureTexturesLoaded, RangeTool } from '../editor/js/index.js';
+import { BRIDGE_TEXTURE_IDS } from '../render/index.js';
 
 let ws = null;
 let reconnectTimer = null;
@@ -73,6 +74,13 @@ async function loadMapTextures() {
       if (propDef?.textures) {
         for (const id of propDef.textures) usedIds.add(id);
       }
+    }
+  }
+  // Include bridge textures (hardcoded IDs in bridges.js)
+  if (playerState.dungeon.metadata?.bridges?.length) {
+    for (const b of playerState.dungeon.metadata.bridges) {
+      const texId = BRIDGE_TEXTURE_IDS[b.type] || BRIDGE_TEXTURE_IDS.wood;
+      usedIds.add(texId);
     }
   }
   if (usedIds.size > 0) {

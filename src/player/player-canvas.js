@@ -58,6 +58,56 @@ let touchMode = null; // null | 'pan' | 'tool' | 'pinch'
 let lastPinchDist = 0;
 let pinchMidX = 0, pinchMidY = 0;
 
+/**
+ * For an open diagonal cell (diagonal wall, no trimCorner), determine which
+ * half(s) should be fogged based on whether neighbors on each side are revealed.
+ * Returns null if both sides revealed, or the half name ('ne','sw','nw','se') to fog.
+ */
+function _openDiagFogHalf(cell, r, c, revealedCells) {
+  const hasNWSE = !!cell['nw-se'];
+  const hasNESW = !!cell['ne-sw'];
+  if (!hasNWSE && !hasNESW) return null;
+
+  // For nw-se diagonal: halves are 'ne' (upper-right) and 'sw' (lower-left)
+  // For ne-sw diagonal: halves are 'nw' (upper-left) and 'se' (lower-right)
+  let sideA, sideB, aDirs, bDirs;
+  if (hasNWSE) {
+    sideA = 'ne'; sideB = 'sw';
+    aDirs = [[-1, 0], [0, 1]]; // neighbors on the NE side
+    bDirs = [[1, 0], [0, -1]]; // neighbors on the SW side
+  } else {
+    sideA = 'nw'; sideB = 'se';
+    aDirs = [[-1, 0], [0, -1]]; // neighbors on the NW side
+    bDirs = [[1, 0], [0, 1]];   // neighbors on the SE side
+  }
+
+  const aRevealed = aDirs.some(([dr, dc]) => revealedCells.has(cellKey(r + dr, c + dc)));
+  const bRevealed = bDirs.some(([dr, dc]) => revealedCells.has(cellKey(r + dr, c + dc)));
+
+  if (aRevealed && bRevealed) return null;    // both sides revealed
+  if (!aRevealed && !bRevealed) return null;  // neither — full cell fogged anyway
+  return aRevealed ? sideB : sideA;           // fog the unrevealed half
+}
+
+/**
+ * Trace the void triangle of a diagonal trim cell onto a canvas context.
+ * The void corner determines which triangle to draw:
+ *   nw → tl, tr, bl;  ne → tl, tr, br;  sw → tl, bl, br;  se → tr, bl, br
+ */
+function _traceDiagVoidTriangle(ctx, voidCorner, px, py, size) {
+  const tl_x = px,        tl_y = py;
+  const tr_x = px + size,  tr_y = py;
+  const bl_x = px,        bl_y = py + size;
+  const br_x = px + size,  br_y = py + size;
+  switch (voidCorner) {
+    case 'nw': ctx.moveTo(tl_x, tl_y); ctx.lineTo(tr_x, tr_y); ctx.lineTo(bl_x, bl_y); break;
+    case 'ne': ctx.moveTo(tl_x, tl_y); ctx.lineTo(tr_x, tr_y); ctx.lineTo(br_x, br_y); break;
+    case 'sw': ctx.moveTo(tl_x, tl_y); ctx.lineTo(bl_x, bl_y); ctx.lineTo(br_x, br_y); break;
+    case 'se': ctx.moveTo(tr_x, tr_y); ctx.lineTo(bl_x, bl_y); ctx.lineTo(br_x, br_y); break;
+  }
+  ctx.closePath();
+}
+
 // Active tool (e.g., range detector)
 let activeTool = null;
 let toolDragging = false; // true when the tool has an active drag
@@ -253,13 +303,48 @@ export function resetFogLayers() {
 export function revealFogCells(cellKeys) {
   const _t0 = performance.now();
   if (!_fogOverlay || !playerState.dungeon) return;
-  const gridSize = playerState.dungeon.metadata.gridSize;
+  const { cells, metadata } = playerState.dungeon;
+  const gridSize = metadata.gridSize;
   const cellPx = gridSize * getMapPxPerFoot();
+  const numRows = cells.length;
+  const numCols = cells[0]?.length || 0;
   const fCtx = _fogOverlay.ctx;
+  const theme = resolveTheme();
+  const fogColor = theme?.background || '#000000';
+
   for (const key of cellKeys) {
     const [r, c] = key.split(',').map(Number);
     fCtx.clearRect(c * cellPx, r * cellPx, cellPx, cellPx);
   }
+
+  // Refresh fog masks on neighboring open diagonal cells whose revealed state changed.
+  // When both sides become revealed, the fog triangle is cleared; if still one-sided,
+  // repaint the correct half.
+  const refreshed = new Set();
+  for (const key of cellKeys) {
+    const [r, c] = key.split(',').map(Number);
+    for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+      const nk = cellKey(nr, nc);
+      if (refreshed.has(nk) || !playerState.revealedCells.has(nk)) continue;
+      const cell = cells[nr]?.[nc];
+      if (!cell || cell.trimCorner || cell.trimClip) continue;
+      if (!cell['nw-se'] && !cell['ne-sw']) continue;
+      refreshed.add(nk);
+      const px = nc * cellPx, py = nr * cellPx;
+      // Reclear the whole cell, then re-fog the unrevealed half if needed
+      fCtx.clearRect(px, py, cellPx, cellPx);
+      const fogHalf = _openDiagFogHalf(cell, nr, nc, playerState.revealedCells);
+      if (fogHalf) {
+        fCtx.fillStyle = fogColor;
+        fCtx.beginPath();
+        _traceDiagVoidTriangle(fCtx, fogHalf, px, py, cellPx);
+        fCtx.fill();
+      }
+    }
+  }
+
   _fogBuiltVersion = _fogVersion;
   _fogEdgeMaskDirty++;
   revealWallsCells(cellKeys);
@@ -675,6 +760,7 @@ function rebuildFogOverlay() {
   }
 
   // Step 2: Paint fog color BACK over the unrevealed side of trim cells.
+  // 2a: Arc trims (trimClip cells)
   const trimSides = classifyAllTrimFog(playerState.revealedCells, cells);
   for (const [key, side] of trimSides) {
     if (side === 'both' || side === 'neither') continue;
@@ -705,6 +791,31 @@ function rebuildFogOverlay() {
       fCtx.fill();
     }
     fCtx.restore();
+  }
+
+  // 2b: Diagonal trims (trimCorner without trimClip) — always fog the void triangle
+  fCtx.fillStyle = fogColor;
+  for (const key of playerState.revealedCells) {
+    const [r, c] = key.split(',').map(Number);
+    const cell = cells[r]?.[c];
+    if (!cell?.trimCorner || cell.trimClip) continue;
+    const px = c * cellPx, py = r * cellPx;
+    fCtx.beginPath();
+    _traceDiagVoidTriangle(fCtx, cell.trimCorner, px, py, cellPx);
+    fCtx.fill();
+  }
+
+  // 2c: Open diagonal trims (diagonal wall, no trimCorner) — fog the unrevealed half
+  for (const key of playerState.revealedCells) {
+    const [r, c] = key.split(',').map(Number);
+    const cell = cells[r]?.[c];
+    if (!cell || cell.trimCorner || cell.trimClip) continue;
+    const fogHalf = _openDiagFogHalf(cell, r, c, playerState.revealedCells);
+    if (!fogHalf) continue;
+    const px = c * cellPx, py = r * cellPx;
+    fCtx.beginPath();
+    _traceDiagVoidTriangle(fCtx, fogHalf, px, py, cellPx);
+    fCtx.fill();
   }
 
   _fogBuiltVersion = _fogVersion;
@@ -792,7 +903,8 @@ const _BORDER_DIRS = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'];
 const _OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
 const _OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
 
-/** Clone a cell for the walls overlay, converting secret doors to walls/doors. */
+/** Clone a cell for the walls overlay, converting secret doors to walls/doors
+ *  and stripping walls on the unrevealed side of open diagonal trims. */
 function _wallsCellForPlayer(cell, r, c) {
   if (!cell) return null;
   const pc = JSON.parse(JSON.stringify(cell));
@@ -804,6 +916,31 @@ function _wallsCellForPlayer(cell, r, c) {
       delete pc[dir];
     }
   }
+
+  // Open diagonal trims: strip walls on the unrevealed side
+  const hasNWSE = !!pc['nw-se'];
+  const hasNESW = !!pc['ne-sw'];
+  if ((hasNWSE || hasNESW) && !pc.trimCorner && !pc.trimClip) {
+    const revealed = playerState.revealedCells;
+    let sideARevealed, sideBRevealed;
+    if (hasNWSE) {
+      sideARevealed = revealed.has(cellKey(r - 1, c)) || revealed.has(cellKey(r, c + 1));
+      sideBRevealed = revealed.has(cellKey(r + 1, c)) || revealed.has(cellKey(r, c - 1));
+    } else {
+      sideARevealed = revealed.has(cellKey(r - 1, c)) || revealed.has(cellKey(r, c - 1));
+      sideBRevealed = revealed.has(cellKey(r + 1, c)) || revealed.has(cellKey(r, c + 1));
+    }
+    if (sideARevealed !== sideBRevealed) {
+      if (hasNWSE) {
+        if (!sideARevealed) { delete pc.north; delete pc.east; }
+        else                { delete pc.south; delete pc.west; }
+      } else {
+        if (!sideARevealed) { delete pc.north; delete pc.west; }
+        else                { delete pc.south; delete pc.east; }
+      }
+    }
+  }
+
   return pc;
 }
 
@@ -888,6 +1025,22 @@ function revealWallsCells(cellKeys) {
   }
   if (minR > maxR) return;
 
+  // Re-process neighboring open diagonal cells whose revealed state may have changed
+  // (e.g. walls need restoring now that both sides are revealed)
+  for (const key of cellKeys) {
+    const [r, c] = key.split(',').map(Number);
+    for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+      const nr = r + dr, nc = c + dc;
+      if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+      if (!_wallsCells[nr]?.[nc]) continue;
+      const src = cells[nr]?.[nc];
+      if (!src) continue;
+      if ((src['nw-se'] || src['ne-sw']) && !src.trimCorner && !src.trimClip) {
+        _wallsCells[nr][nc] = _wallsCellForPlayer(src, nr, nc);
+      }
+    }
+  }
+
   // Render walls for dirty region (padded by 1 cell for wall strokes)
   const bounds = {
     minRow: Math.max(0, minR - 1),
@@ -954,6 +1107,7 @@ function applyFogEdgeMask(ctx, sourceCanvas, cacheW, cacheH, cellPx, ballRadius)
   // Paint hatching/shading BACK over the unrevealed side of trim cells
   const cells = playerState.dungeon?.cells;
   ctx.globalCompositeOperation = 'source-over';
+  // Arc trims (trimClip cells)
   const trimSides = classifyAllTrimFog(playerState.revealedCells, cells);
   for (const [key, side] of trimSides) {
     if (side === 'both' || side === 'neither') continue;
@@ -985,6 +1139,36 @@ function applyFogEdgeMask(ctx, sourceCanvas, cacheW, cacheH, cellPx, ballRadius)
       ctx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
       ctx.restore();
     }
+  }
+
+  // Diagonal trims (trimCorner without trimClip) — paint shading back over void triangle
+  for (const key of playerState.revealedCells) {
+    const [r, c] = key.split(',').map(Number);
+    const cell = cells?.[r]?.[c];
+    if (!cell?.trimCorner || cell.trimClip) continue;
+    const px = c * cellPx, py = r * cellPx;
+    ctx.save();
+    ctx.beginPath();
+    _traceDiagVoidTriangle(ctx, cell.trimCorner, px, py, cellPx);
+    ctx.clip();
+    ctx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
+    ctx.restore();
+  }
+
+  // Open diagonal trims — paint shading back over the unrevealed half
+  for (const key of playerState.revealedCells) {
+    const [r, c] = key.split(',').map(Number);
+    const cell = cells?.[r]?.[c];
+    if (!cell || cell.trimCorner || cell.trimClip) continue;
+    const fogHalf = _openDiagFogHalf(cell, r, c, playerState.revealedCells);
+    if (!fogHalf) continue;
+    const px = c * cellPx, py = r * cellPx;
+    ctx.save();
+    ctx.beginPath();
+    _traceDiagVoidTriangle(ctx, fogHalf, px, py, cellPx);
+    ctx.clip();
+    ctx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
+    ctx.restore();
   }
 }
 
