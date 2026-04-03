@@ -1,12 +1,12 @@
 // Custom theme editor — extracted from metadata.js
 import state, { pushUndo, markDirty, notify } from '../state.js';
 import { THEMES } from '../../../render/index.js';
+import { invalidateGridCache } from '../canvas-view.js';
 import { renderThemePreview, saveUserTheme } from '../theme-catalog.js';
 
 // Theme property labels for the custom editor
 const THEME_PROPS = [
   ['background', 'Background'],
-  ['gridLine', 'Grid Lines'],
   ['wallStroke', 'Wall Stroke'],
   ['wallFill', 'Wall Fill'],
   ['textColor', 'Text'],
@@ -62,6 +62,11 @@ function buildCustomEditor(customEditorEl) {
   const hatchOpacity = theme.hatchOpacity ?? 0;
   const hatchDistance = theme.hatchDistance ?? 1;
   const hatchStyle = theme.hatchStyle ?? 'lines';
+  const gridStyle = theme.gridStyle ?? 'lines';
+  const gridLineWidth = theme.gridLineWidth ?? 4;
+  const gridCornerLength = theme.gridCornerLength ?? 0.3;
+  const gridNoise = theme.gridNoise ?? 0;
+  const gridOpacity = theme.gridOpacity ?? 0.5;
   const wallRoughness = theme.wallRoughness ?? 0;
   const wallShadow = theme.wallShadow || {};
   const parsedShadow = parseRgbaColor(wallShadow.color || 'rgba(0,0,0,0.2)');
@@ -115,6 +120,25 @@ function buildCustomEditor(customEditorEl) {
     colorsHtml += colorRow(label, 'data-theme-prop', prop, theme[prop] || '#000000');
   }
   html += section('Colors', colorsHtml);
+
+  // Grid section
+  html += section('Grid', `
+    ${colorRow('Color', 'data-grid-prop', 'color', theme.gridLine || '#000000')}
+    ${selectRow('Style', 'data-grid-prop="style"', `
+      <option value="lines" ${gridStyle === 'lines' ? 'selected' : ''}>Lines</option>
+      <option value="dotted" ${gridStyle === 'dotted' ? 'selected' : ''}>Dotted Lines</option>
+      <option value="corners-x" ${gridStyle === 'corners-x' ? 'selected' : ''}>Corner Crosses</option>
+      <option value="corners-dot" ${gridStyle === 'corners-dot' ? 'selected' : ''}>Corner Dots</option>
+    `)}
+    ${sliderRow('Width', 'data-grid-prop', 'data-grid-range', 'lineWidth', gridLineWidth, 1, 8, 1)}
+    ${sliderRow('Opacity', 'data-grid-prop', 'data-grid-range', 'opacity', gridOpacity, 0, 1, 0.05)}
+    <div data-grid-cond="corners-x" style="${gridStyle === 'corners-x' ? '' : 'display:none'}">
+      ${sliderRow('Corner Length', 'data-grid-prop', 'data-grid-range', 'cornerLength', gridCornerLength, 0.05, 0.5, 0.05)}
+    </div>
+    <div data-grid-cond="lines,dotted" style="${gridStyle === 'lines' || gridStyle === 'dotted' ? '' : 'display:none'}">
+      ${sliderRow('Noise', 'data-grid-prop', 'data-grid-range', 'noise', gridNoise, 0, 1, 0.05)}
+    </div>
+  `);
 
   // Walls section
   html += section('Walls', `
@@ -287,6 +311,68 @@ function buildCustomEditor(customEditorEl) {
       renderCustomThumb();
     });
   });
+
+  // Grid color picker
+  const gridColorInput = customEditorEl.querySelector('[data-grid-prop="color"]');
+  if (gridColorInput) {
+    gridColorInput.addEventListener('input', () => {
+      const t = ensureCustomThemeObject();
+      t.gridLine = gridColorInput.value;
+      const hex = gridColorInput.parentElement?.querySelector('.cte-color-hex');
+      if (hex) hex.textContent = gridColorInput.value;
+      invalidateGridCache();
+      markDirty();
+      notify();
+    });
+    gridColorInput.addEventListener('change', () => {
+      pushUndo();
+      const t = ensureCustomThemeObject();
+      t.gridLine = gridColorInput.value;
+      invalidateGridCache();
+      markDirty();
+      notify();
+      renderCustomThumb();
+    });
+  }
+
+  // Grid style selector
+  const gridStyleSelect = customEditorEl.querySelector('[data-grid-prop="style"]');
+  if (gridStyleSelect) {
+    const syncGridConditions = (val) => {
+      customEditorEl.querySelectorAll('[data-grid-cond]').forEach(el => {
+        const allowed = el.dataset.gridCond.split(',');
+        el.style.display = allowed.includes(val) ? '' : 'none';
+      });
+    };
+    gridStyleSelect.addEventListener('change', () => {
+      pushUndo();
+      const t = ensureCustomThemeObject();
+      t.gridStyle = gridStyleSelect.value;
+      syncGridConditions(gridStyleSelect.value);
+      invalidateGridCache();
+      markDirty();
+      notify();
+      renderCustomThumb();
+    });
+  }
+
+  // Grid numeric + range controls (lineWidth, cornerLength, noise)
+  for (const prop of ['lineWidth', 'opacity', 'cornerLength', 'noise']) {
+    const numInput = customEditorEl.querySelector(`[data-grid-prop="${prop}"]`);
+    const rangeInput = customEditorEl.querySelector(`[data-grid-range="${prop}"]`);
+    if (!numInput || !rangeInput) continue;
+    const keyMap = { lineWidth: 'gridLineWidth', opacity: 'gridOpacity', cornerLength: 'gridCornerLength', noise: 'gridNoise' };
+    const sync = (value, source) => {
+      const t = ensureCustomThemeObject();
+      t[keyMap[prop]] = Number(value);
+      if (numInput !== source) numInput.value = value;
+      if (rangeInput !== source) rangeInput.value = value;
+    };
+    numInput.addEventListener('input', () => { sync(numInput.value, numInput); invalidateGridCache(); markDirty(); notify(); });
+    numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); invalidateGridCache(); renderCustomThumb(); });
+    rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); invalidateGridCache(); markDirty(); notify(); });
+    rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); invalidateGridCache(); renderCustomThumb(); });
+  }
 
   // Shading color picker
   const shadingColorInput = customEditorEl.querySelector('[data-shading-prop="color"]');
@@ -665,6 +751,27 @@ function syncCustomEditorValues() {
     const prop = input.dataset.themeProp;
     if (theme[prop]) syncColor(input, theme[prop]);
   });
+
+  // Grid controls
+  syncColor(customEditor.querySelector('[data-grid-prop="color"]'), theme.gridLine || '#000000');
+  const gridStyleSel = customEditor.querySelector('[data-grid-prop="style"]');
+  const gridStyleVal = theme.gridStyle ?? 'lines';
+  if (gridStyleSel) gridStyleSel.value = gridStyleVal;
+  customEditor.querySelectorAll('[data-grid-cond]').forEach(el => {
+    const allowed = el.dataset.gridCond.split(',');
+    el.style.display = allowed.includes(gridStyleVal) ? '' : 'none';
+  });
+  for (const [prop, val] of [
+    ['lineWidth', theme.gridLineWidth ?? 4],
+    ['opacity', theme.gridOpacity ?? 0.5],
+    ['cornerLength', theme.gridCornerLength ?? 0.3],
+    ['noise', theme.gridNoise ?? 0],
+  ]) {
+    const ni = customEditor.querySelector(`[data-grid-prop="${prop}"]`);
+    const ri = customEditor.querySelector(`[data-grid-range="${prop}"]`);
+    if (ni) ni.value = val;
+    if (ri) ri.value = val;
+  }
 
   // Wall controls
   const wrNum = customEditor.querySelector('[data-wall-prop="roughness"]');

@@ -7,7 +7,7 @@ import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, floodFillRo
 import { toCanvas } from './utils.js';
 import { classifyStairShape, getOccupiedCells, stairBoundingBox } from './stair-geometry.js';
 import { getEditorSettings } from './editor-settings.js';
-import { getContentVersion } from '../../render/index.js';
+import { getContentVersion, consumeBroadcastDirtyRegion, getLightingVersion, getPropsVersion } from '../../render/index.js';
 
 // ── Session state (runtime only, not serialized) ────────────────────────────
 
@@ -124,7 +124,18 @@ export function endSession() {
 
 // ── Broadcast helpers ───────────────────────────────────────────────────────
 
+function snapshotBroadcastBaseline() {
+  _lastBroadcastThemeJSON = JSON.stringify(getTheme());
+  _lastBroadcastLightingVersion = getLightingVersion();
+  _lastBroadcastPropsVersion = getPropsVersion();
+  _lastBroadcastGridRows = state.dungeon.cells.length;
+  _lastBroadcastGridCols = state.dungeon.cells[0]?.length || 0;
+  _lastBroadcastContentVersion = getContentVersion();
+  consumeBroadcastDirtyRegion(); // clear any accumulated region
+}
+
 function broadcastInit() {
+  snapshotBroadcastBaseline();
   const { width, height } = getCanvasSize();
   send({
     type: 'session:init',
@@ -179,6 +190,11 @@ function startViewportBroadcast() {
 // which set state.dirty but don't change dungeon content.
 let dungeonTimer = null;
 let _lastBroadcastContentVersion = 0;
+let _lastBroadcastLightingVersion = 0;
+let _lastBroadcastThemeJSON = null;
+let _lastBroadcastPropsVersion = 0;
+let _lastBroadcastGridRows = 0;
+let _lastBroadcastGridCols = 0;
 
 function startDungeonBroadcast() {
   subscribe(() => {
@@ -188,11 +204,34 @@ function startDungeonBroadcast() {
     _lastBroadcastContentVersion = cv;
     if (dungeonTimer) clearTimeout(dungeonTimer);
     dungeonTimer = setTimeout(() => {
+      // Compute change hints for the player
+      const resolvedTheme = getTheme();
+      const themeJSON = JSON.stringify(resolvedTheme);
+      const lv = getLightingVersion();
+      const pv = getPropsVersion();
+      const numRows = state.dungeon.cells.length;
+      const numCols = state.dungeon.cells[0]?.length || 0;
+
+      const changeHints = {
+        dirtyRegion: consumeBroadcastDirtyRegion(),
+        themeChanged: themeJSON !== _lastBroadcastThemeJSON,
+        lightingChanged: lv !== _lastBroadcastLightingVersion,
+        propsChanged: pv !== _lastBroadcastPropsVersion,
+        gridResized: numRows !== _lastBroadcastGridRows || numCols !== _lastBroadcastGridCols,
+      };
+
+      _lastBroadcastThemeJSON = themeJSON;
+      _lastBroadcastLightingVersion = lv;
+      _lastBroadcastPropsVersion = pv;
+      _lastBroadcastGridRows = numRows;
+      _lastBroadcastGridCols = numCols;
+
       send({
         type: 'dungeon:update',
         cells: state.dungeon.cells,
         metadata: state.dungeon.metadata,
-        resolvedTheme: getTheme(),
+        resolvedTheme,
+        changeHints,
       });
     }, 1000);
   }, 'dm-dungeon');
@@ -409,6 +448,22 @@ export function concealRect(r1, c1, r2, c2) {
 /**
  * Reset fog — hide everything.
  */
+/**
+ * Call when a new map is loaded while a session is active.
+ * Resets fog state and re-sends session:init so the player reloads from scratch.
+ */
+export function onMapLoaded() {
+  if (!sessionState.active) return;
+  sessionState.revealedCells.clear();
+  sessionState.openedDoors = [];
+  sessionState.openedStairs = [];
+  sessionState.startingRoom = null;
+  snapshotBroadcastBaseline();
+  broadcastInit();
+  requestRender();
+  notify();
+}
+
 export function resetFog() {
   sessionState.revealedCells.clear();
   sessionState.openedDoors = [];

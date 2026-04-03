@@ -15,7 +15,7 @@
 //
 // Each frame = three drawImage calls: full map → fog overlay → tool overlay.
 
-import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache, renderLightmap, extractFillLights, MapCache, drawHatching, drawRockShading, drawOuterShading } from '../render/index.js';
+import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache, invalidateVisibilityCache, invalidatePropsRenderLayer, invalidateAllCaches, invalidateLightmapCaches, renderLightmap, extractFillLights, MapCache, drawHatching, drawRockShading, drawOuterShading, renderTimings, patchBlendForDirtyRegion, patchFluidForDirtyRegion } from '../render/index.js';
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer, classifyAllTrimFog } from './fog.js';
 import playerState from './player-state.js';
 import { cellKey, displayGridSize as _dgs } from '../util/index.js';
@@ -42,6 +42,8 @@ let _frameGapMs = 0;
 let _lastFogRebuildMs = 0;
 let _lastCacheBuildMs = 0;
 let _cacheBuildCount = 0;
+let _lastBuildType = 'none';       // 'full' | 'partial' | 'composite' | 'none'
+let _lastBuildTimings = {};        // { cells, composite, shading, hatching, walls, total }
 let _fogRebuildCount = 0;
 let _lastRevealMs = 0;       // time for the last revealFogCells call
 let _lastRevealCellCount = 0;
@@ -92,9 +94,14 @@ function getMapCache() {
   if (!_mapCache) _mapCache = new MapCache({ pxPerFoot: getMapPxPerFoot() });
   return _mapCache;
 }
-let _playerContentVersion = 0;       // bumped on structural changes to trigger cache rebuild
+let _playerContentVersion = 0;       // bumped on structural changes to trigger cells + composite rebuild
+let _playerLightingVersion = 0;      // bumped on lighting changes to trigger composite-only rebuild
 let _cacheBuiltVersion = -1;         // tracks whether initial build has completed
+let _cacheBuiltLightingVersion = -1;
 let _pendingDirtyRegion = null;      // { minRow, maxRow, minCol, maxCol } or null (null = full)
+let _pendingStructuralChange = false; // true when walls/geometry changed (needs lighting + walls layer rebuild)
+let _pendingPreserveCells = false;   // true when cells array hasn't changed (props-only, lighting-only)
+let _cachedFullCells = null;         // reused across partial rebuilds to preserve reference-based caches
 
 let _fogOverlay = null;              // { canvas, ctx, cacheW, cacheH }
 let _fogVersion = 0;                 // bumped to trigger fog overlay rebuild
@@ -120,9 +127,12 @@ let _wallsCells = null;              // filtered cells grid (null for unrevealed
  *   If provided, only the affected region is redrawn (partial rebuild).
  *   If null, the entire cache is rebuilt.
  */
-export function invalidateFullMapCache(dirtyRegion = null) {
+export function invalidateFullMapCache(dirtyRegion = null, { structural = false } = {}) {
   _playerContentVersion++;
+  _playerLightingVersion++;
   _fogVersion++;
+  if (structural) _pendingStructuralChange = true;
+  if (!dirtyRegion) _cachedFullCells = null;
   // Clear stale composites immediately so they don't render during the
   // deferred cache rebuild (e.g., after fog reset with empty revealedCells)
   _shadingComposite = null;
@@ -140,6 +150,84 @@ export function invalidateFullMapCache(dirtyRegion = null) {
   } else {
     // null region = full rebuild; wipes any pending partial
     _pendingDirtyRegion = null;
+  }
+}
+
+/** Theme-only change — full map rebuild but skip fog and texture loading. */
+export function invalidateThemeChange() {
+  _playerContentVersion++;
+  _playerLightingVersion++;
+  _cachedFullCells = null;
+  _shadingComposite = null;
+  _hatchComposite = null;
+  _pendingDirtyRegion = null; // full rebuild
+}
+
+/** Props-only change — cells rebuild needed (for props layer) but preserve cached cells/fluid. */
+export function invalidatePropsChange() {
+  _playerContentVersion++;
+  _playerLightingVersion++;
+  _pendingPreserveCells = true;
+  // Don't clear _cachedFullCells — props don't change cell data, only metadata.props
+}
+
+/** Lighting-only change — composite rebuild only (cells layer stays cached). */
+export function invalidateLightingOnly() {
+  _playerLightingVersion++;
+  // MapCache detects lightingVersion change → composite-only rebuild (no cells rebuild)
+}
+
+/**
+ * Patch a secret door → normal door in the cached player cells.
+ * In the cached cells, unopened secrets were converted to 'w' by buildPlayerCells.
+ * We verify against the raw dungeon cells to confirm it was actually a secret door.
+ * Call this BEFORE invalidateFullMapCache so the partial rebuild picks up the change.
+ */
+export function patchOpenedDoor(row, col, dir) {
+  if (!_cachedFullCells || !playerState.dungeon) return;
+  const rawCells = playerState.dungeon.cells;
+  const OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
+  const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+  const cell = _cachedFullCells[row]?.[col];
+  if (cell && rawCells[row]?.[col]?.[dir] === 's') cell[dir] = 'd';
+  const [dr, dc] = OFFSETS[dir] || [0, 0];
+  const nr = row + dr, nc = col + dc;
+  const opp = OPPOSITE[dir];
+  const neighbor = _cachedFullCells[nr]?.[nc];
+  if (neighbor && rawCells[nr]?.[nc]?.[opp] === 's') neighbor[opp] = 'd';
+}
+
+/**
+ * Clear all caches and the canvas. Called when the DM ends the session.
+ */
+export function clearAll() {
+  // Flush all shared render-pipeline caches (geometry, fluid, blend, visibility, props, lightmap)
+  invalidateAllCaches();
+  invalidateLightmapCaches();
+  invalidatePropsRenderLayer();
+  getMapCache().dispose();
+  _cachedFullCells = null;
+  _playerContentVersion = 0;
+  _playerLightingVersion = 0;
+  _cacheBuiltVersion = -1;
+  _cacheBuiltLightingVersion = -1;
+  _pendingDirtyRegion = null;
+  _pendingStructuralChange = false;
+  _pendingPreserveCells = false;
+  _fogOverlay = null;
+  _fogVersion = 0;
+  _fogBuiltVersion = -1;
+  _fogEdgeMaskVersion = 0;
+  _fogEdgeMaskDirty = 0;
+  _shadingLayer = null;
+  _hatchLayer = null;
+  _shadingComposite = null;
+  _hatchComposite = null;
+  _wallsLayer = null;
+  _wallsCells = null;
+  _cacheBuilding = false;
+  if (canvas && ctx) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 }
 
@@ -385,27 +473,98 @@ function buildFullMapCache() {
   getMapCache().pxPerFoot = getMapPxPerFoot();
   if (!getMapCache().canCache(numRows, numCols, gridSize)) return;
 
-  // Build player cells with ALL cells revealed (full map pre-render)
-  const allKeys = new Set();
+  const isPartial = !!_pendingDirtyRegion;
+
+  // For partial rebuilds, reuse the cached fullCells so reference-based caches
+  // (fluid, geometry, blend) stay valid. Patch only the dirty cells in-place.
+  if (isPartial && _cachedFullCells && _cachedFullCells.length === numRows) {
+    const dr = _pendingDirtyRegion;
+    const PAD = 3;
+    const rMin = Math.max(0, dr.minRow - PAD), rMax = Math.min(numRows - 1, dr.maxRow + PAD);
+    const cMin = Math.max(0, dr.minCol - PAD), cMax = Math.min(numCols - 1, dr.maxCol + PAD);
+    // Build opened-door lookup for secret door conversion
+    const _OPP = { north: 'south', south: 'north', east: 'west', west: 'east' };
+    const _OFF = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+    const openedSet = new Set();
+    for (const d of playerState.openedDoors) {
+      openedSet.add(`${d.row},${d.col},${d.dir}`);
+      if (_OFF[d.dir]) {
+        const [ddr, ddc] = _OFF[d.dir];
+        openedSet.add(`${d.row + ddr},${d.col + ddc},${_OPP[d.dir]}`);
+      }
+    }
+
+    for (let r = rMin; r <= rMax; r++) {
+      for (let c = cMin; c <= cMax; c++) {
+        const src = cells[r]?.[c];
+        if (!src) { _cachedFullCells[r][c] = null; continue; }
+        const pc = JSON.parse(JSON.stringify(src));
+        // Apply same filtering as buildPlayerCells: secret doors, invisible walls
+        for (const dir of ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw']) {
+          if (pc[dir] === 's') {
+            pc[dir] = openedSet.has(`${r},${c},${dir}`) ? 'd' : 'w';
+          } else if (pc[dir] === 'iw' || pc[dir] === 'id') {
+            delete pc[dir];
+          }
+        }
+        // Strip labels (same as buildPlayerCells)
+        if (pc.center?.label) delete pc.center.label;
+        if (pc.center?.dmLabel) delete pc.center.dmLabel;
+        delete pc.center?.labelX; delete pc.center?.labelY;
+        delete pc.center?.dmLabelX; delete pc.center?.dmLabelY;
+        if (pc.center && Object.keys(pc.center).length === 0) delete pc.center;
+        _cachedFullCells[r][c] = pc;
+      }
+    }
+  } else if (_pendingPreserveCells && _cachedFullCells && _cachedFullCells.length === numRows) {
+    // Props/lighting-only change — reuse cached cells, skip geometry/fluid invalidation
+  } else {
+    // Full rebuild — create new cells array
+    const allKeys = new Set();
+    for (let r = 0; r < numRows; r++)
+      for (let c = 0; c < numCols; c++)
+        allKeys.add(cellKey(r, c));
+    _cachedFullCells = buildPlayerCells(dungeon, allKeys, playerState.openedDoors);
+    invalidateGeometryCache();
+    invalidateFluidCache();
+  }
+  const fullCells = _cachedFullCells;
+
+  // Always invalidate props + lighting caches (cheap flag resets — actual rebuild is lazy)
+  invalidatePropsRenderLayer();
+  invalidateVisibilityCache('props');
+
+  if (isPartial) {
+    // Patch render caches for dirty region (avoids full rebuild)
+    const textureOptions = playerState.textureCatalog
+      ? { catalog: playerState.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: playerState.texturesVersion ?? 0 }
+      : null;
+    if (textureOptions) {
+      patchBlendForDirtyRegion(_pendingDirtyRegion, fullCells, gridSize, textureOptions);
+    }
+    patchFluidForDirtyRegion(_pendingDirtyRegion, fullCells, gridSize, theme);
+    // Structural changes (room placement, wall edits) need full lighting + geometry invalidation
+    if (_pendingStructuralChange) {
+      invalidateGeometryCache();
+      invalidateVisibilityCache();
+    }
+  }
+
+  // Build all-keys set for filter functions (all cells revealed in full map pre-render)
+  const allKeys2 = new Set();
   for (let r = 0; r < numRows; r++)
     for (let c = 0; c < numCols; c++)
-      allKeys.add(cellKey(r, c));
-
-  const fullCells = buildPlayerCells(dungeon, allKeys, playerState.openedDoors);
+      allKeys2.add(cellKey(r, c));
 
   // Include all stairs/bridges/props (everything visible)
-  const fullStairs = filterStairsForPlayer(metadata.stairs, allKeys, playerState.openedStairs);
-  const fullBridges = filterBridgesForPlayer(metadata.bridges, allKeys);
-  const fullProps = filterPropsForPlayer(metadata.props, allKeys, gridSize, playerState.propCatalog);
+  const fullStairs = filterStairsForPlayer(metadata.stairs, allKeys2, playerState.openedStairs);
+  const fullBridges = filterBridgesForPlayer(metadata.bridges, allKeys2);
+  const fullProps = filterPropsForPlayer(metadata.props, allKeys2, gridSize, playerState.propCatalog);
   const fullMetadata = {
     ...metadata,
     stairs: fullStairs, bridges: fullBridges, props: fullProps,
     features: { ...metadata.features, showSubGrid: false },
   };
-
-  // Invalidate render-pipeline caches before the full render
-  invalidateGeometryCache();
-  invalidateFluidCache();
 
   const textureOptions = playerState.textureCatalog
     ? { catalog: playerState.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: playerState.texturesVersion ?? 0 }
@@ -416,9 +575,10 @@ function buildFullMapCache() {
 
   const lightingEnabled = !!(fullMetadata.lightingEnabled && fullMetadata.lights?.length > 0);
 
+  const _tCache0 = performance.now();
   getMapCache().update({
     contentVersion: _playerContentVersion,
-    lightingVersion: _playerContentVersion,  // player doesn't separate these
+    lightingVersion: _playerLightingVersion,
     texturesVersion: playerState.texturesVersion ?? 0,
     cells: fullCells,
     gridSize,
@@ -438,26 +598,41 @@ function buildFullMapCache() {
     ambientLight: fullMetadata.ambientLight ?? 0.15,
     ambientColor: null,
     textureCatalog: playerState.textureCatalog,
-    dirtyRegion: _pendingDirtyRegion,  // null = full rebuild, object = partial
+    dirtyRegion: _pendingDirtyRegion,
     preRenderHook: null,
     skipPhases: { hatching: true, outerShading: true },
     skipLabels: lightingEnabled,
   });
+  const _tCache1 = performance.now();
 
   _cacheBuiltVersion = _playerContentVersion;
-  _pendingDirtyRegion = null;          // consumed — reset for next invalidation
-  _lastCacheBuildMs = performance.now() - _t0;
+  _cacheBuiltLightingVersion = _playerLightingVersion;
+  const wasStructural = _pendingStructuralChange;
+  const wasPreserveCells = _pendingPreserveCells;
+  _pendingDirtyRegion = null;
+  _pendingStructuralChange = false;
+  _pendingPreserveCells = false;
   _cacheBuildCount++;
 
-  // Build the shading + hatching offscreen canvases (build-once per session)
-  buildShadingLayer(fullCells, gridSize, theme);
-  buildHatchingLayer(fullCells, gridSize, theme);
+  const timings = { mapCache: _tCache1 - _tCache0 };
+  _lastBuildType = isPartial ? 'partial' : wasPreserveCells ? 'props' : 'full';
 
-  // Also rebuild fog overlay since dimensions may have changed
-  _fogVersion++;
+  if (!isPartial && !wasPreserveCells) {
+    let _t;
+    _t = performance.now(); buildShadingLayer(fullCells, gridSize, theme);   timings.shading = performance.now() - _t;
+    _t = performance.now(); buildHatchingLayer(fullCells, gridSize, theme);   timings.hatching = performance.now() - _t;
+    _fogVersion++;
+    _t = performance.now(); initWallsLayer();                                 timings.walls = performance.now() - _t;
+  } else if (wasStructural) {
+    // Structural partial change (room/wall edit) — rebuild walls overlay
+    const _t = performance.now();
+    initWallsLayer();
+    timings.walls = performance.now() - _t;
+  }
 
-  // Build the walls overlay (walls + doors from revealed cells only)
-  initWallsLayer();
+  timings.total = performance.now() - _t0;
+  _lastCacheBuildMs = timings.total;
+  _lastBuildTimings = timings;
 }
 
 // ── Fog overlay builder ─────────────────────────────────────────────────────
@@ -887,7 +1062,7 @@ function render(timestamp) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Ensure the full-map cache is up to date (expensive — loading screen on first build)
-  if (_cacheBuiltVersion !== _playerContentVersion) {
+  if (_cacheBuiltVersion !== _playerContentVersion || _cacheBuiltLightingVersion !== _playerLightingVersion) {
     scheduleCacheBuild();
     // If we don't have an existing cache yet (initial build), bail — loading overlay is showing
     const composite = getMapCache().getComposite();
@@ -1069,8 +1244,33 @@ function drawDiagnostics(gridSize) {
   if (cacheStats.cacheW) {
     lines.push({ text: `Map cache: ${cacheStats.cacheW}x${cacheStats.cacheH}px`, color: '#aaa' });
   }
-  lines.push({ text: `Cache builds: ${_cacheBuildCount}`, color: '#aaa' });
-  lines.push({ text: `Last build: ${_lastCacheBuildMs.toFixed(0)}ms`, color: _col(_lastCacheBuildMs) });
+  lines.push({ text: `Builds: ${_cacheBuildCount} (${cacheStats.cellsRebuilds} cells, ${cacheStats.compositeRebuilds} comp)`, color: '#aaa' });
+  const typeColor = { full: '#f44', partial: '#ff4', composite: '#8f8', grid: '#8f8', none: '#666' };
+  lines.push({ text: `Last: ${_lastBuildType} ${_lastCacheBuildMs.toFixed(0)}ms`, color: typeColor[_lastBuildType] || '#aaa' });
+  if (cacheStats.lastRebuildType !== 'none') {
+    lines.push({ text: `  MapCache: ${cacheStats.lastRebuildType} ${cacheStats.lastRebuildMs.toFixed(0)}ms`, color: typeColor[cacheStats.lastRebuildType] || '#aaa' });
+  }
+  const t = _lastBuildTimings;
+  if (t.mapCache != null) {
+    lines.push({ text: `  MapCache: ${t.mapCache.toFixed(0)}ms`, color: _col(t.mapCache) });
+  }
+  if (t.shading != null) lines.push({ text: `  shading layer: ${t.shading.toFixed(0)}ms`, color: _col(t.shading) });
+  if (t.hatching != null) lines.push({ text: `  hatching layer: ${t.hatching.toFixed(0)}ms`, color: _col(t.hatching) });
+  if (t.walls != null) lines.push({ text: `  walls layer: ${t.walls.toFixed(0)}ms`, color: _col(t.walls) });
+
+  // Per-phase renderCells breakdown (from render pipeline timings)
+  const phases = ['roomCells', 'shading', 'floors', 'blending', 'fills', 'bridges', 'grid', 'walls', 'props', 'hazard'];
+  const hasPhaseData = phases.some(p => renderTimings[p]?.ms > 0);
+  if (hasPhaseData) {
+    lines.push({ text: '', color: '#666' });
+    lines.push({ text: '── renderCells ──', color: '#666' });
+    for (const phase of phases) {
+      const pt = renderTimings[phase];
+      if (!pt) continue;
+      const ms = pt.ms;
+      lines.push({ text: `  ${phase}: ${ms.toFixed(ms < 1 ? 1 : 0)}ms`, color: _col(ms) });
+    }
+  }
 
   // Fog overlay
   lines.push({ text: '', color: '#666' });

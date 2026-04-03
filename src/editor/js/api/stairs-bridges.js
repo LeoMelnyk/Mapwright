@@ -4,6 +4,7 @@ import {
   classifyStairShape, isDegenerate, getOccupiedCells,
   isBridgeDegenerate, getBridgeOccupiedCells,
   toInt,
+  accumulateDirtyRect,
 } from './_shared.js';
 
 export function setStairs(row, col, direction) {
@@ -44,12 +45,18 @@ export function addStairs(p1r, p1c, p2r, p2c, p3r, p3c) {
   const id = meta.nextStairId++;
   meta.stairs.push({ id, points: [p1, p2, p3], link: null });
 
+  let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
   for (const { row, col } of occupied) {
     if (!cells[row][col]) cells[row][col] = {};
     if (!cells[row][col].center) cells[row][col].center = {};
     cells[row][col].center['stair-id'] = id;
+    if (row < minR) minR = row;
+    if (row > maxR) maxR = row;
+    if (col < minC) minC = col;
+    if (col > maxC) maxC = col;
   }
 
+  accumulateDirtyRect(minR, minC, maxR, maxC);
   markDirty();
   notify();
   return { success: true, id };
@@ -68,6 +75,7 @@ export function removeStairs(row, col) {
       delete cell.center['stairs-down'];
       delete cell.center['stairs-link'];
       if (Object.keys(cell.center).length === 0) delete cell.center;
+      accumulateDirtyRect(row, col, row, col);
       markDirty();
       notify();
     }
@@ -89,15 +97,21 @@ export function removeStairs(row, col) {
   }
 
   const cells = state.dungeon.cells;
+  let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['stair-id'] === id) {
         delete cells[r][c].center['stair-id'];
         if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
       }
     }
   }
 
+  if (minR <= maxR) accumulateDirtyRect(minR, minC, maxR, maxC);
   markDirty();
   notify();
   return { success: true };

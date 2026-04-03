@@ -38,6 +38,11 @@ export function patchBlendForDirtyRegion(region, cells, gridSize, textureOptions
   patchBlendRegion(region, cells, roomCells, gridSize, textureOptions);
 }
 
+export function patchFluidForDirtyRegion(region, cells, gridSize, theme) {
+  const roomCells = getCachedRoomCells(cells);
+  patchFluidRegion(region, cells, roomCells, gridSize, theme);
+}
+
 // ─── Content mutation counter ─────
 // Bumped by smartInvalidate() on every content mutation. canvas-view.js checks
 // this to know when the map cache needs rebuilding, even when notify() isn't called.
@@ -53,6 +58,11 @@ export function bumpContentVersion() { _contentVersion++; }
 let _dirtyRegion = null;      // { minRow, maxRow, minCol, maxCol } or null
 let _dirtyFullRebuild = false; // true → must do full rebuild (geometry change, undo, etc.)
 
+// Parallel broadcast accumulator — tracks changes since last WebSocket broadcast.
+// Not consumed by the editor render loop, only by dm-session.js.
+let _broadcastDirtyRegion = null;
+let _broadcastFullRebuild = false;
+
 export function getDirtyRegion() {
   if (_dirtyFullRebuild) return null;
   return _dirtyRegion;
@@ -61,6 +71,17 @@ export function consumeDirtyRegion() {
   _dirtyRegion = null;
   _dirtyFullRebuild = false;
 }
+export function getBroadcastDirtyRegion() {
+  if (_broadcastFullRebuild) return null;
+  return _broadcastDirtyRegion;
+}
+export function consumeBroadcastDirtyRegion() {
+  const r = _broadcastFullRebuild ? null : _broadcastDirtyRegion;
+  _broadcastDirtyRegion = null;
+  _broadcastFullRebuild = false;
+  return r;
+}
+
 /** Accumulate a rect of changed cells into the dirty region (for callers that bypass smartInvalidate). */
 export function accumulateDirtyRect(minRow, minCol, maxRow, maxCol) {
   if (!_dirtyRegion) {
@@ -70,6 +91,15 @@ export function accumulateDirtyRect(minRow, minCol, maxRow, maxCol) {
     if (maxRow > _dirtyRegion.maxRow) _dirtyRegion.maxRow = maxRow;
     if (minCol < _dirtyRegion.minCol) _dirtyRegion.minCol = minCol;
     if (maxCol > _dirtyRegion.maxCol) _dirtyRegion.maxCol = maxCol;
+  }
+  // Mirror to broadcast accumulator
+  if (!_broadcastDirtyRegion) {
+    _broadcastDirtyRegion = { minRow, maxRow, minCol, maxCol };
+  } else {
+    if (minRow < _broadcastDirtyRegion.minRow) _broadcastDirtyRegion.minRow = minRow;
+    if (maxRow > _broadcastDirtyRegion.maxRow) _broadcastDirtyRegion.maxRow = maxRow;
+    if (minCol < _broadcastDirtyRegion.minCol) _broadcastDirtyRegion.minCol = minCol;
+    if (maxCol > _broadcastDirtyRegion.maxCol) _broadcastDirtyRegion.maxCol = maxCol;
   }
 }
 
@@ -187,6 +217,15 @@ export function smartInvalidate(changes, cells, { forceGeometry = false, forceFl
       if (row > _dirtyRegion.maxRow) _dirtyRegion.maxRow = row;
       if (col < _dirtyRegion.minCol) _dirtyRegion.minCol = col;
       if (col > _dirtyRegion.maxCol) _dirtyRegion.maxCol = col;
+    }
+    // Mirror to broadcast accumulator
+    if (!_broadcastDirtyRegion) {
+      _broadcastDirtyRegion = { minRow: row, maxRow: row, minCol: col, maxCol: col };
+    } else {
+      if (row < _broadcastDirtyRegion.minRow) _broadcastDirtyRegion.minRow = row;
+      if (row > _broadcastDirtyRegion.maxRow) _broadcastDirtyRegion.maxRow = row;
+      if (col < _broadcastDirtyRegion.minCol) _broadcastDirtyRegion.minCol = col;
+      if (col > _broadcastDirtyRegion.maxCol) _broadcastDirtyRegion.maxCol = col;
     }
   }
 
@@ -1431,16 +1470,12 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
     });
   }
 
-  // Fill patterns (pit/water/lava) — grid drawn later so bridges sit under it
+  // Fill patterns (pit/water/lava)
   if (!skipPhases?.fills) {
     _t('fills', () => renderFillPatternsAndGrid(ctx, cells, roomCells, gridSize, theme, transform, showGrid, true, metadata, cacheSize));
   }
 
-  // ── Walls, bridges, grid (rendered directly, no layer canvas) ──────────
-  if (!skipPhases?.walls) {
-    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible, visibleBounds, _res));
-  }
-
+  // ── Bridges, grid, hatching, walls ──────────
   if (!skipPhases?.bridges) {
     _t('bridges', () => {
       const getTextureImageForBridges = textureOptions?.catalog
@@ -1458,6 +1493,10 @@ export function renderCells(ctx, cells, gridSize, theme, transform, options = {}
         });
       }
     });
+  }
+
+  if (!skipPhases?.walls) {
+    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible, visibleBounds, _res));
   }
 
   // Props, labels, stairs

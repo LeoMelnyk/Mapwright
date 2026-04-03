@@ -1,8 +1,12 @@
 // Shared offscreen map cache used by both the editor and player views.
 //
-// Two internal layers:
-//   1. _cellsLayer  — cells-only render (renderCells output, no lightmap)
-//   2. _compositeLayer — cells + static lightmap + labels (final blit source)
+// Two internal layers + snapshot:
+//   1. _cellsLayer       — renderCells output (floors, grid, walls, bridges, props — no lightmap)
+//   2. _compositeLayer   — cells + static lightmap + labels (final blit source)
+//   3. _preGridSnapshot  — cells layer state before grid+walls+bridges+props
+//
+// Grid setting changes restore the snapshot and re-render only the cheap top
+// phases (grid, walls, bridges, props), skipping expensive floors/textures/blending.
 //
 // Supports partial dirty-region redraws when only a small area changed.
 // State-agnostic — receives all data through update() parameters.
@@ -20,11 +24,15 @@ export class MapCache {
     this._maxCacheDim = maxCacheDim;
 
     // Internal layers
-    this._cellsLayer = null;   // { canvas, ctx, dirtySeq, cacheW, cacheH, texturesVersion, skipSig }
+    this._cellsLayer = null;     // { canvas, ctx, dirtySeq, cacheW, cacheH, texturesVersion, skipSig }
     this._compositeLayer = null; // { canvas, ctx, dirtySeq, cacheW, cacheH, texturesVersion }
+    this._preGridSnapshot = null; // { canvas, cacheW, cacheH } — cells layer state before grid+walls+bridges+props
 
     // Version tracking — compared against caller-supplied versions
-    this._dirtySeq = 0;
+    this._dirtySeq = 0;          // bumped on content changes — triggers cells + composite rebuild
+    this._compositeDirtySeq = 0; // bumped on lighting/theme changes — triggers composite-only rebuild
+    this._gridDirtySeq = 0;      // bumped when grid settings change (triggers grid-only rebuild)
+    this._gridRedrawEnabled = false; // set true on first invalidateGrid() — enables two-pass rendering + snapshot
     this._lastContentVersion = 0;
     this._lastLightingVersion = 0;
 
@@ -32,6 +40,7 @@ export class MapCache {
     this._cellsRebuildCount = 0;
     this._compositeRebuildCount = 0;
     this._lastRebuildMs = 0;
+    this._lastRebuildType = 'none';  // 'full' | 'partial' | 'composite' | 'grid'
   }
 
   get pxPerFoot() { return this._pxPerFoot; }
@@ -48,6 +57,7 @@ export class MapCache {
       cellsRebuilds: this._cellsRebuildCount,
       compositeRebuilds: this._compositeRebuildCount,
       lastRebuildMs: this._lastRebuildMs,
+      lastRebuildType: this._lastRebuildType,
       cacheW: this._compositeLayer?.cacheW ?? 0,
       cacheH: this._compositeLayer?.cacheH ?? 0,
     };
@@ -63,12 +73,19 @@ export class MapCache {
   }
 
   /** Force a full rebuild on the next update(). */
-  invalidate() { this._dirtySeq++; }
+  invalidate() { this._dirtySeq++; this._compositeDirtySeq++; }
+
+  /** Invalidate only the composite layer (lighting/theme change — cells layer stays cached). */
+  invalidateComposite() { this._compositeDirtySeq++; }
+
+  /** Invalidate only the grid overlay — triggers grid-only rebuild, no cells or composite touch. */
+  invalidateGrid() { this._gridDirtySeq++; this._gridRedrawEnabled = true; }
 
   /** Free GPU memory. */
   dispose() {
     this._cellsLayer = null;
     this._compositeLayer = null;
+    this._preGridSnapshot = null;
   }
 
   /**
@@ -142,13 +159,14 @@ export class MapCache {
     const cv = p.contentVersion;
     if (cv !== this._lastContentVersion) {
       this._dirtySeq++;
+      this._compositeDirtySeq++;
       this._lastContentVersion = cv;
     }
 
     const lv = p.lightingVersion;
     if (lv !== this._lastLightingVersion) {
-      // Only bump dirty seq for lighting when it's baked into the composite
-      if (!p.hasAnimLights) this._dirtySeq++;
+      // Lighting changes only need composite rebuild (lightmap is baked there)
+      if (!p.hasAnimLights) this._compositeDirtySeq++;
       this._lastLightingVersion = lv;
     }
 
@@ -163,10 +181,39 @@ export class MapCache {
       this._cellsLayer.texturesVersion !== texVer ||
       this._cellsLayer.skipSig !== skipSig;
 
-    if (!needsCellsRedraw) return false;
+    const needsCompositeOnly = !needsCellsRedraw &&
+      this._compositeLayer &&
+      this._compositeLayer.compositeDirtySeq !== this._compositeDirtySeq;
+
+    const needsGridOnly = !needsCellsRedraw && !needsCompositeOnly &&
+      this._gridRedrawEnabled && this._preGridSnapshot &&
+      this._cellsLayer.gridDirtySeq !== this._gridDirtySeq;
+
+    if (!needsCellsRedraw && !needsCompositeOnly && !needsGridOnly) return false;
 
     const _cacheStart = performance.now();
     const cacheTransform = { scale: pxPerFoot, offsetX: 0, offsetY: 0 };
+
+    // Composite-only change (lighting/theme) — skip cells layer, just recomposite.
+    // The lightmap has its own internal cache so this is cheap.
+    if (needsCompositeOnly) {
+      this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer);
+      this._lastRebuildMs = performance.now() - _cacheStart;
+      this._lastRebuildType = 'composite';
+      return true;
+    }
+
+    // Grid-only change — restore pre-grid snapshot and re-render grid + walls + props.
+    // Skips expensive shading/floors/textures/blending phases entirely.
+    if (needsGridOnly) {
+      if (this._preGridSnapshot) {
+        this._rebuildFromSnapshot(p, cacheTransform, cacheW, cacheH, texVer);
+        this._lastRebuildMs = performance.now() - _cacheStart;
+        this._lastRebuildType = 'grid';
+        return true;
+      }
+      // No snapshot yet — fall through to full rebuild which will capture one
+    }
 
     // ── Check for partial redraw eligibility ──
     const canPartial = p.dirtyRegion && this._cellsLayer &&
@@ -181,6 +228,7 @@ export class MapCache {
     }
 
     this._lastRebuildMs = performance.now() - _cacheStart;
+    this._lastRebuildType = canPartial ? 'partial' : 'full';
     return true;
   }
 
@@ -203,21 +251,46 @@ export class MapCache {
 
     if (p.preRenderHook) p.preRenderHook(offCtx, cacheTransform);
 
-    renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
-      showGrid: p.showGrid,
-      labelStyle: p.labelStyle,
-      propCatalog: p.skipPhases?.props ? null : p.propCatalog,
-      textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
-      metadata: p.metadata,
-      skipLabels: p.skipLabels ?? (p.lightingEnabled || !!p.skipPhases?.labels),
-      showInvisible: p.showInvisible,
-      bgImageEl: p.bgImageEl,
-      bgImgConfig: p.bgImgConfig,
-      cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
-      skipPhases: p.skipPhases || null,
-    });
+    if (this._gridRedrawEnabled) {
+      // Two-pass: render base phases, capture snapshot, then render grid+walls+props.
+      // Snapshot enables cheap grid-only redraws later.
+      const baseSkipPhases = { ...(p.skipPhases || {}), grid: true, walls: true, props: true, hazard: true };
+      renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+        showGrid: p.showGrid, labelStyle: p.labelStyle, propCatalog: null,
+        textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+        metadata: p.metadata, skipLabels: true, showInvisible: p.showInvisible,
+        bgImageEl: p.bgImageEl, bgImgConfig: p.bgImgConfig,
+        cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+        skipPhases: baseSkipPhases,
+      });
+      this._savePreGridSnapshot(cacheW, cacheH);
+      const topSkipPhases = { ...(p.skipPhases || {}), shading: true, floors: true, blending: true, fills: true, bridges: true };
+      renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+        showGrid: p.showGrid, labelStyle: p.labelStyle,
+        propCatalog: p.skipPhases?.props ? null : p.propCatalog,
+        textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+        metadata: p.metadata,
+        skipLabels: p.skipLabels ?? (p.lightingEnabled || !!p.skipPhases?.labels),
+        showInvisible: p.showInvisible, bgImageEl: p.bgImageEl, bgImgConfig: p.bgImgConfig,
+        cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+        skipPhases: topSkipPhases,
+      });
+    } else {
+      // Single-pass: normal rendering (player view, or before first grid edit)
+      renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+        showGrid: p.showGrid, labelStyle: p.labelStyle,
+        propCatalog: p.skipPhases?.props ? null : p.propCatalog,
+        textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+        metadata: p.metadata,
+        skipLabels: p.skipLabels ?? (p.lightingEnabled || !!p.skipPhases?.labels),
+        showInvisible: p.showInvisible, bgImageEl: p.bgImageEl, bgImgConfig: p.bgImgConfig,
+        cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+        skipPhases: p.skipPhases || null,
+      });
+    }
 
     this._cellsLayer.dirtySeq = this._dirtySeq;
+    this._cellsLayer.gridDirtySeq = this._gridDirtySeq;
     this._cellsLayer.texturesVersion = texVer;
     this._cellsLayer.skipSig = skipSig;
 
@@ -274,6 +347,48 @@ export class MapCache {
     this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer, { px1, py1, pw, ph });
   }
 
+  // ── Internal: snapshot / restore for grid-only redraws ──
+
+  _savePreGridSnapshot(cacheW, cacheH) {
+    if (!this._preGridSnapshot || this._preGridSnapshot.cacheW !== cacheW || this._preGridSnapshot.cacheH !== cacheH) {
+      const offscreen = document.createElement('canvas');
+      offscreen.width = cacheW;
+      offscreen.height = cacheH;
+      this._preGridSnapshot = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false }), cacheW, cacheH };
+    }
+    this._preGridSnapshot.ctx.drawImage(this._cellsLayer.canvas, 0, 0);
+  }
+
+  _rebuildFromSnapshot(p, cacheTransform, cacheW, cacheH, texVer) {
+    // Restore cells layer to pre-grid state
+    const offCtx = this._cellsLayer.ctx;
+    offCtx.drawImage(this._preGridSnapshot.canvas, 0, 0);
+
+    // Re-render only grid + shading + walls + props (skip expensive base phases)
+    const topSkipPhases = {
+      ...(p.skipPhases || {}),
+      shading: true, floors: true, blending: true, fills: true, bridges: true,
+    };
+    renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+      showGrid: p.showGrid,
+      labelStyle: p.labelStyle,
+      propCatalog: p.skipPhases?.props ? null : p.propCatalog,
+      textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+      metadata: p.metadata,
+      skipLabels: p.skipLabels ?? (p.lightingEnabled || !!p.skipPhases?.labels),
+      showInvisible: p.showInvisible,
+      bgImageEl: p.bgImageEl,
+      bgImgConfig: p.bgImgConfig,
+      cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+      skipPhases: topSkipPhases,
+    });
+
+    this._cellsLayer.gridDirtySeq = this._gridDirtySeq;
+
+    // Recomposite (cells changed, need to re-blit into composite)
+    this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer);
+  }
+
   // ── Internal: build composite layer (cells + static lightmap + labels) ──
 
   _buildComposite(p, cacheTransform, cacheW, cacheH, texVer, clipRect = null) {
@@ -319,6 +434,7 @@ export class MapCache {
     if (clipRect) compCtx.restore();
 
     this._compositeLayer.dirtySeq = this._dirtySeq;
+    this._compositeLayer.compositeDirtySeq = this._compositeDirtySeq;
     this._compositeLayer.texturesVersion = texVer;
   }
 }

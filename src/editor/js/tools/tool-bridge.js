@@ -1,7 +1,8 @@
 // Bridge tool: 3-click corner-point placement + hover/select/move/rotate
 // P1 → P2: entrance width.  P3: depth direction (always rectangular).
 import { Tool } from './tool-base.js';
-import state, { pushUndo, markDirty } from '../state.js';
+import state, { pushUndo, markDirty, notify } from '../state.js';
+import { accumulateDirtyRect } from '../../../render/index.js';
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { toCanvas, nearestCorner } from '../utils.js';
 import { isBridgeDegenerate, getBridgeCorners, getBridgeOccupiedCells } from '../bridge-geometry.js';
@@ -120,6 +121,7 @@ export class BridgeTool extends Tool {
         this._removeBridge(state.selectedBridgeId);
         state.selectedBridgeId = null;
         markDirty();
+        notify();
         requestRender();
       }
       return;
@@ -163,10 +165,13 @@ export class BridgeTool extends Tool {
         }
 
         pushUndo('Rotate Bridge');
+        this._dirtyFromBridge(bridge.id);
         this._clearCellMarkers(bridge.id);
         bridge.points = rotated;
         this._setCellMarkers(bridge.id, occupied);
+        this._dirtyFromCells(occupied);
         markDirty();
+        notify();
         requestRender();
       }
       return;
@@ -181,6 +186,7 @@ export class BridgeTool extends Tool {
     if (state.selectedBridgeId === id) state.selectedBridgeId = null;
     this._removeBridge(id);
     markDirty();
+    notify();
     requestRender();
   }
 
@@ -351,7 +357,9 @@ export class BridgeTool extends Tool {
     meta.bridges.push({ id, type, points: [p1, p2, p3] });
 
     this._setCellMarkers(id, occupiedCells);
+    this._dirtyFromCells(occupiedCells);
     markDirty();
+    notify();
     requestRender();
   }
 
@@ -387,20 +395,54 @@ export class BridgeTool extends Tool {
     }
 
     pushUndo('Move Bridge');
+    this._dirtyFromBridge(id);
     this._clearCellMarkers(id);
     bridge.points = ghostPts;
     this._setCellMarkers(id, occupied);
+    this._dirtyFromCells(occupied);
     markDirty();
+    notify();
     this._resetDrag();
     requestRender();
   }
 
   _removeBridge(id) {
+    // Accumulate dirty rect before clearing markers
+    this._dirtyFromBridge(id);
     this._clearCellMarkers(id);
     const bridges = state.dungeon.metadata?.bridges;
     if (!bridges) return;
     const idx = bridges.findIndex(b => b.id === id);
     if (idx !== -1) bridges.splice(idx, 1);
+  }
+
+  /** Accumulate dirty rect from a bridge's occupied cells. */
+  _dirtyFromBridge(id) {
+    const cells = state.dungeon.cells;
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
+          if (r < minR) minR = r;
+          if (r > maxR) maxR = r;
+          if (c < minC) minC = c;
+          if (c > maxC) maxC = c;
+        }
+      }
+    }
+    if (minR <= maxR) accumulateDirtyRect(minR, minC, maxR, maxC);
+  }
+
+  /** Accumulate dirty rect from a list of occupied cells. */
+  _dirtyFromCells(occupiedCells) {
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    for (const { row, col } of occupiedCells) {
+      if (row < minR) minR = row;
+      if (row > maxR) maxR = row;
+      if (col < minC) minC = col;
+      if (col > maxC) maxC = col;
+    }
+    if (minR <= maxR) accumulateDirtyRect(minR, minC, maxR, maxC);
   }
 
   _clearCellMarkers(id) {

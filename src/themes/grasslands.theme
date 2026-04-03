@@ -1,7 +1,7 @@
 {
   "displayName": "Grasslands",
   "background": "#c8e890",
-  "gridLine": "#000000",
+  "gridLine": "#527820",
   "wallStroke": "#2a1600",
   "wallFill": "#e8e0c0",
   "textColor": "#1a0e00",
@@ -43,5 +43,9 @@
     "borderColor": "#000000",
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
-  }
+  },
+  "gridStyle": "dotted",
+  "gridLineWidth": 2,
+  "gridOpacity": 0.15,
+  "gridNoise": 0.2
 }

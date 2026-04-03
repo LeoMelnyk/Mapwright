@@ -198,4 +198,7 @@ vi.mock('../src/render/index.js', () => ({
   THEMES: { 'stone-dungeon': {}, 'blue-parchment': {} },
   captureBeforeState: vi.fn(() => ({})),
   smartInvalidate: vi.fn(),
+  accumulateDirtyRect: vi.fn(),
+  patchBlendForDirtyRegion: vi.fn(),
+  patchFluidForDirtyRegion: vi.fn(),
 }));

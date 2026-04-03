@@ -1,5 +1,5 @@
 // Core rendering
-export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion, getDirtyRegion, consumeDirtyRegion, accumulateDirtyRect, patchBlendForDirtyRegion, traceArcWedge, collectRoundedCorners } from './render.js';
+export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion, getDirtyRegion, consumeDirtyRegion, accumulateDirtyRect, patchBlendForDirtyRegion, patchFluidForDirtyRegion, traceArcWedge, collectRoundedCorners, getBroadcastDirtyRegion, consumeBroadcastDirtyRegion } from './render.js';
 export { invalidateFluidCache } from './fluid.js';
 // Decorations & lighting
 export { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from './decorations.js';
@@ -7,7 +7,7 @@ export { renderLightmap, renderCoverageHeatmap, invalidateVisibilityCache, inval
 // Bounds
 export { toCanvas } from './bounds.js';
 // Props & features
-export { renderProp, parsePropFile, generateHitbox, invalidatePropsCache, invalidatePropsRenderLayer, renderOverlayProps, extractOverlayPropLightSegments, hitTestPropPixel } from './props.js';
+export { renderProp, parsePropFile, generateHitbox, invalidatePropsCache, invalidatePropsRenderLayer, getPropsVersion, renderOverlayProps, extractOverlayPropLightSegments, hitTestPropPixel } from './props.js';
 export { drawDmLabel } from './features.js';
 // Themes
 export { THEMES } from './themes.js';

@@ -20,7 +20,6 @@
     "test": "node node_modules/vitest/vitest.mjs run",
     "test:watch": "node node_modules/vitest/vitest.mjs",
     "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage",
-    "test:render": "node node_modules/vitest/vitest.mjs run --config vitest.render.config.js",
     "test:e2e": "node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.js"
   },
   "devDependencies": {

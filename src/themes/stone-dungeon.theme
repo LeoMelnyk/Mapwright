@@ -1,7 +1,7 @@
 {
   "displayName": "Stone Dungeon",
   "background": "#48464a",
-  "gridLine": "#000000",
+  "gridLine": "#808080",
   "wallStroke": "#20201c",
   "wallFill": "#585858",
   "textColor": "#e0e0e0",
@@ -43,5 +43,8 @@
     "borderColor": "#000000",
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
-  }
+  },
+  "gridStyle": "lines",
+  "gridLineWidth": 2,
+  "gridOpacity": 0.25
 }
