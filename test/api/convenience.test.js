@@ -9,6 +9,7 @@ import {
   setDoorBetween,
   placeLightInRoom,
   normalizeMargin,
+  createCorridor,
 } from '../../src/editor/js/api/convenience.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -319,5 +320,108 @@ describe('normalizeMargin', () => {
     expect(result.success).toBe(true);
     // With 0 margin, grid should be exactly the content size
     expect(result.after.cols).toBe(3); // 0 + 3 + 0
+  });
+
+  it('shifts lights when normalizing margin', () => {
+    buildRoom(5, 5, 7, 7, 'N3', 6, 6);
+    const gs = state.dungeon.metadata.gridSize || 5;
+    state.dungeon.metadata.lights = [{ x: 6 * gs + 2.5, y: 6 * gs + 2.5, radius: 20 }];
+    const before = { x: state.dungeon.metadata.lights[0].x, y: state.dungeon.metadata.lights[0].y };
+    const result = normalizeMargin(1);
+    expect(result.success).toBe(true);
+    // Light coordinates should have shifted
+    const light = state.dungeon.metadata.lights[0];
+    // The content was at row/col 5-7, target margin is 1, so content shifts to row/col 1-3
+    expect(light.x).not.toBe(before.x);
+  });
+
+  it('returns before and after dimensions', () => {
+    buildRoom(5, 5, 7, 7, 'N4', 6, 6);
+    const result = normalizeMargin(2);
+    expect(result.before).toBeDefined();
+    expect(result.before.rows).toBeDefined();
+    expect(result.before.cols).toBeDefined();
+    expect(result.after).toBeDefined();
+    expect(result.after.rows).toBeDefined();
+    expect(result.after.cols).toBeDefined();
+  });
+
+  it('returns adjustments info', () => {
+    buildRoom(5, 5, 7, 7, 'N5', 6, 6);
+    const result = normalizeMargin(2);
+    expect(result.adjustments).toBeDefined();
+    expect(result.adjustments.colShift).toBeDefined();
+    expect(Array.isArray(result.adjustments.levels)).toBe(true);
+  });
+});
+
+// ── createCorridor ──────────────────────────────────────────────────────────
+
+// createCorridor calls createRoom internally which depends on RoomTool._applyWalls
+// (mocked as no-op in tests). Only error paths that run before room creation are testable.
+describe('createCorridor', () => {
+  it('returns error for a nonexistent first room', () => {
+    buildRoom(2, 2, 4, 4, 'X1', 3, 3);
+    const result = createCorridor('Missing', 'X1');
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('not found');
+  });
+
+  it('returns error for a nonexistent second room', () => {
+    buildRoom(2, 2, 4, 4, 'X1', 3, 3);
+    const result = createCorridor('X1', 'Missing');
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('not found');
+  });
+
+  it('returns error when rooms have no perpendicular overlap', () => {
+    buildRoom(2, 2, 4, 4, 'O1', 3, 3);
+    buildRoom(8, 8, 10, 10, 'O2', 9, 9);
+    const result = createCorridor('O1', 'O2');
+    expect(result.success).toBe(false);
+    expect(result.error).toContain('Cannot auto-route');
+  });
+
+  it('returns error when rooms are directly adjacent (no gap)', () => {
+    setupTwoAdjacentRooms();
+    const result = createCorridor('A1', 'A2');
+    expect(result.success).toBe(false);
+    // Adjacent rooms with no gap between them cannot have a corridor routed
+    expect(result.error).toBeDefined();
+  });
+});
+
+// ── placeLightInRoom additional ─────────────────────────────────────────────
+
+describe('placeLightInRoom additional', () => {
+  it('increments light id for multiple lights', () => {
+    buildRoom(2, 2, 4, 4, 'ML1', 3, 3);
+    const r1 = placeLightInRoom('ML1', 'torch');
+    const r2 = placeLightInRoom('ML1', 'torch');
+    expect(r1.id).not.toBe(r2.id);
+    expect(state.dungeon.metadata.lights.length).toBe(2);
+  });
+
+  it('uses preset from light catalog', () => {
+    buildRoom(2, 2, 4, 4, 'PL1', 3, 3);
+    const result = placeLightInRoom('PL1', 'torch');
+    expect(result.success).toBe(true);
+    const light = state.dungeon.metadata.lights[0];
+    // Light catalog mock provides torch with color '#ff8833'
+    expect(light.color).toBe('#ff8833');
+  });
+});
+
+// ── setDoorBetween additional ───────────────────────────────────────────────
+
+describe('setDoorBetween additional', () => {
+  it('throws for nonexistent first room', () => {
+    buildRoom(2, 2, 4, 4, 'A1', 3, 3);
+    expect(() => setDoorBetween('Missing', 'A1')).toThrow('No shared wall');
+  });
+
+  it('throws for nonexistent second room', () => {
+    buildRoom(2, 2, 4, 4, 'A1', 3, 3);
+    expect(() => setDoorBetween('A1', 'Missing')).toThrow('No shared wall');
   });
 });

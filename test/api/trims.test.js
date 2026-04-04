@@ -136,4 +136,70 @@ describe('roundRoomCorners', () => {
     // This will still throw because the room doesn't exist
     expect(() => roundRoomCorners('NoRoom', { trimSize: 2 })).toThrow('not found');
   });
+
+  // ── Success cases with a properly built room ───────────────────────────
+
+  function buildLabeledRoom(r1, c1, r2, c2, label) {
+    const cells = state.dungeon.cells;
+    for (let r = r1; r <= r2; r++) {
+      for (let c = c1; c <= c2; c++) {
+        cells[r][c] = {};
+      }
+    }
+    const lr = Math.floor((r1 + r2) / 2);
+    const lc = Math.floor((c1 + c2) / 2);
+    cells[lr][lc].center = { label };
+    for (let c = c1; c <= c2; c++) {
+      cells[r1][c].north = 'w';
+      cells[r2][c].south = 'w';
+    }
+    for (let r = r1; r <= r2; r++) {
+      cells[r][c1].west = 'w';
+      cells[r][c2].east = 'w';
+    }
+  }
+
+  it('rounds all 4 corners of a labeled room', () => {
+    // 8x8 room with trimSize 2 (2*2=4 < 8)
+    buildLabeledRoom(2, 2, 9, 9, 'R1');
+    const result = roundRoomCorners('R1');
+    expect(result.success).toBe(true);
+    expect(result.corners).toEqual(['nw', 'ne', 'sw', 'se']);
+    expect(result.trimSize).toBe(3); // default
+    expect(result.bounds).toBeDefined();
+    expect(result.bounds.r1).toBe(2);
+    expect(result.bounds.c1).toBe(2);
+  });
+
+  it('accepts a custom trimSize', () => {
+    buildLabeledRoom(2, 2, 9, 9, 'R2');
+    const result = roundRoomCorners('R2', 2);
+    expect(result.success).toBe(true);
+    expect(result.trimSize).toBe(2);
+    expect(result.corners).toEqual(['nw', 'ne', 'sw', 'se']);
+  });
+
+  it('accepts the inverted option', () => {
+    buildLabeledRoom(2, 2, 11, 11, 'R3');
+    const result = roundRoomCorners('R3', 2, { inverted: true });
+    expect(result.success).toBe(true);
+    expect(result.corners).toEqual(['nw', 'ne', 'sw', 'se']);
+  });
+
+  it('accepts object options with trimSize and inverted', () => {
+    buildLabeledRoom(2, 2, 11, 11, 'R4');
+    const result = roundRoomCorners('R4', { trimSize: 2, inverted: true });
+    expect(result.success).toBe(true);
+    expect(result.trimSize).toBe(2);
+    expect(result.corners).toEqual(['nw', 'ne', 'sw', 'se']);
+  });
+
+  it('returns correct bounds from the room', () => {
+    buildLabeledRoom(3, 4, 8, 10, 'R5');
+    const result = roundRoomCorners('R5', 2);
+    expect(result.bounds.r1).toBe(3);
+    expect(result.bounds.c1).toBe(4);
+    expect(result.bounds.r2).toBe(8);
+    expect(result.bounds.c2).toBe(10);
+  });
 });

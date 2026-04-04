@@ -14,6 +14,10 @@ import {
   getRoomContents,
   suggestPlacement,
   getPropFootprint,
+  getValidPropPositions,
+  listRooms,
+  listRoomCells,
+  render,
 } from '../../src/editor/js/api/operational.js';
 
 // ── Setup ────────────────────────────────────────────────────────────────────
@@ -357,5 +361,212 @@ describe('getPropFootprint', () => {
   it('generates cells relative to anchor at [0,0]', () => {
     const result = getPropFootprint('bed', 0); // 2x1
     expect(result.cells).toEqual([[0, 0], [1, 0]]);
+  });
+});
+
+// ── Helper ─────────────────────────────────────────────────────────────────
+
+function buildRoom(r1, c1, r2, c2, label, labelRow, labelCol) {
+  const cells = state.dungeon.cells;
+  for (let r = r1; r <= r2; r++) {
+    for (let c = c1; c <= c2; c++) {
+      cells[r][c] = {};
+      if (r === r1) cells[r][c].north = 'w';
+      if (r === r2) cells[r][c].south = 'w';
+      if (c === c1) cells[r][c].west = 'w';
+      if (c === c2) cells[r][c].east = 'w';
+    }
+  }
+  if (label) {
+    const lr = labelRow ?? Math.floor((r1 + r2) / 2);
+    const lc = labelCol ?? Math.floor((c1 + c2) / 2);
+    if (!cells[lr][lc]) cells[lr][lc] = {};
+    cells[lr][lc].center = { label };
+  }
+}
+
+// ── render ──────────────────────────────────────────────────────────────────
+
+describe('render', () => {
+  it('returns success', () => {
+    const result = render();
+    expect(result.success).toBe(true);
+  });
+});
+
+// ── listTextures (with catalog) ─────────────────────────────────────────────
+
+describe('listTextures with catalog', () => {
+  it('returns texture entries when catalog is available', () => {
+    // getTextureCatalog is mocked to return null, so we get empty array
+    const result = listTextures();
+    expect(result.success).toBe(true);
+    expect(Array.isArray(result.textures)).toBe(true);
+  });
+});
+
+// ── listThemes ──────────────────────────────────────────────────────────────
+
+describe('listThemes additional', () => {
+  it('returns an array type', () => {
+    const result = listThemes();
+    expect(Array.isArray(result.themes)).toBe(true);
+  });
+
+  it('includes stone-dungeon theme', () => {
+    const result = listThemes();
+    expect(result.themes).toContain('stone-dungeon');
+  });
+});
+
+// ── listRooms ───────────────────────────────────────────────────────────────
+
+describe('listRooms', () => {
+  it('returns empty array when no rooms exist', () => {
+    const result = listRooms();
+    expect(result.success).toBe(true);
+    expect(result.rooms).toEqual([]);
+  });
+
+  it('returns labeled rooms sorted alphabetically', () => {
+    buildRoom(2, 2, 4, 4, 'B1', 3, 3);
+    buildRoom(6, 2, 8, 4, 'A1', 7, 3);
+    const result = listRooms();
+    expect(result.success).toBe(true);
+    expect(result.rooms.length).toBe(2);
+    expect(result.rooms[0].label).toBe('A1');
+    expect(result.rooms[1].label).toBe('B1');
+  });
+
+  it('returns bounds and center for each room', () => {
+    buildRoom(2, 2, 4, 4, 'R1', 3, 3);
+    const result = listRooms();
+    const room = result.rooms[0];
+    expect(room.r1).toBeDefined();
+    expect(room.c1).toBeDefined();
+    expect(room.r2).toBeDefined();
+    expect(room.c2).toBeDefined();
+    expect(room.center).toBeDefined();
+    expect(room.center.row).toBeDefined();
+    expect(room.center.col).toBeDefined();
+  });
+});
+
+// ── listRoomCells ───────────────────────────────────────────────────────────
+
+describe('listRoomCells', () => {
+  it('throws for nonexistent room', () => {
+    // _collectRoomCells returns null for nonexistent rooms, causing a TypeError
+    expect(() => listRoomCells('ZZZ')).toThrow();
+  });
+
+  it('returns sorted cell coordinates for a room', () => {
+    buildRoom(2, 2, 4, 4, 'C1', 3, 3);
+    const result = listRoomCells('C1');
+    expect(result.success).toBe(true);
+    expect(result.cells.length).toBe(9); // 3x3 room
+    // Check sorted order
+    for (let i = 1; i < result.cells.length; i++) {
+      const [pr, pc] = result.cells[i - 1];
+      const [cr, cc] = result.cells[i];
+      expect(pr < cr || (pr === cr && pc <= cc)).toBe(true);
+    }
+  });
+});
+
+// ── getValidPropPositions ───────────────────────────────────────────────────
+
+describe('getValidPropPositions', () => {
+  beforeEach(() => {
+    state.propCatalog = {
+      props: {
+        pillar: { footprint: [1, 1] },
+        table: { footprint: [2, 3] },
+      },
+    };
+  });
+
+  it('returns positions for a 1x1 prop in a room', () => {
+    buildRoom(2, 2, 4, 4, 'P1', 3, 3);
+    const result = getValidPropPositions('P1', 'pillar');
+    expect(result.success).toBe(true);
+    expect(result.positions.length).toBeGreaterThan(0);
+  });
+
+  it('returns fewer positions for a larger prop', () => {
+    buildRoom(2, 2, 6, 6, 'P2', 4, 4);
+    const small = getValidPropPositions('P2', 'pillar');
+    const large = getValidPropPositions('P2', 'table');
+    expect(large.positions.length).toBeLessThan(small.positions.length);
+  });
+
+  it('throws for unknown prop type', () => {
+    buildRoom(2, 2, 4, 4, 'P3', 3, 3);
+    expect(() => getValidPropPositions('P3', 'nonexistent')).toThrow('Unknown prop type');
+  });
+
+  it('throws for invalid facing', () => {
+    buildRoom(2, 2, 4, 4, 'P4', 3, 3);
+    expect(() => getValidPropPositions('P4', 'pillar', 45)).toThrow('Invalid facing');
+  });
+
+  it('throws for nonexistent room', () => {
+    // _collectRoomCells returns null for nonexistent rooms, causing a TypeError
+    expect(() => getValidPropPositions('ZZZ', 'pillar')).toThrow();
+  });
+});
+
+// ── suggestPlacement additional ─────────────────────────────────────────────
+
+describe('suggestPlacement additional', () => {
+  it('finds space adjacent to a labeled room when adjacentTo is provided', () => {
+    buildRoom(5, 5, 8, 8, 'Adj1', 6, 6);
+    const result = suggestPlacement(3, 3, 'Adj1');
+    expect(result.r1).toBeDefined();
+    expect(result.r2 - result.r1 + 1).toBe(3);
+    expect(result.c2 - result.c1 + 1).toBe(3);
+  });
+
+  it('falls back to scan when adjacentTo room does not exist', () => {
+    const result = suggestPlacement(2, 2, 'NonExistent');
+    // Should still find space via fallback scan
+    expect(result.r1).toBeDefined();
+  });
+
+  it('returns correct dimensions for non-square request', () => {
+    const result = suggestPlacement(4, 6);
+    expect(result.r2 - result.r1 + 1).toBe(4);
+    expect(result.c2 - result.c1 + 1).toBe(6);
+  });
+});
+
+// ── getRoomContents additional ──────────────────────────────────────────────
+
+describe('getRoomContents additional', () => {
+  it('returns empty arrays when room has no props, doors, or textures', () => {
+    buildRoom(2, 2, 4, 4, 'E1', 3, 3);
+    const result = getRoomContents('E1');
+    expect(result.label).toBe('E1');
+    expect(result.props).toEqual([]);
+    expect(result.doors).toEqual([]);
+    expect(result.textures).toEqual([]);
+  });
+
+  it('detects fills in a room', () => {
+    buildRoom(2, 2, 4, 4, 'F1', 3, 3);
+    state.dungeon.cells[3][3].fill = 'water';
+    state.dungeon.cells[3][3].fillDepth = 2;
+    const result = getRoomContents('F1');
+    expect(result.fills.length).toBeGreaterThanOrEqual(1);
+    expect(result.fills[0].type).toBe('water');
+    expect(result.fills[0].depth).toBe(2);
+  });
+
+  it('detects secret doors', () => {
+    buildRoom(2, 2, 4, 4, 'S1', 3, 3);
+    state.dungeon.cells[2][3].north = 's';
+    const result = getRoomContents('S1');
+    expect(result.doors.length).toBeGreaterThanOrEqual(1);
+    expect(result.doors[0].type).toBe('s');
   });
 });

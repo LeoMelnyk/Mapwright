@@ -2,11 +2,10 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    setupFiles: ['./test/setup.js'],
     environment: 'node',
-    include: ['test/**/*.test.js'],
-    exclude: ['test/render/**', 'test/e2e/**', 'test/server.test.js'],
-    testTimeout: 10000,
+    include: ['test/render/**/*.test.js'],
+    setupFiles: ['./test/render/setup-render.js'],
+    testTimeout: 120000,
     pool: 'forks',
   },
   resolve: {

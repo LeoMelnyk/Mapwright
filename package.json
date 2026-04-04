@@ -20,7 +20,8 @@
     "test": "node node_modules/vitest/vitest.mjs run",
     "test:watch": "node node_modules/vitest/vitest.mjs",
     "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage",
-    "test:e2e": "node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.js"
+    "test:e2e": "node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.js",
+    "test:server": "node node_modules/vitest/vitest.mjs run --config vitest.server.config.js"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.0",

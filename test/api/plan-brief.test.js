@@ -377,4 +377,117 @@ describe('planBrief layout properties', () => {
     const doorDirs = doorCmds.map(c => c[3]);
     expect(doorDirs.every(d => d === 'north' || d === 'south')).toBe(true);
   });
+
+  it('handles default corridorWidth from brief level', () => {
+    const result = planBrief({
+      name: 'Global CW',
+      corridorWidth: 5,
+      rooms: [
+        { label: 'A1', width: 8, height: 8, entrance: true },
+        { label: 'A2', width: 8, height: 8 },
+      ],
+      connections: [
+        { from: 'A1', to: 'A2', direction: 'east' },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    const createRoomCmds = result.commands.filter(c => c[0] === 'createRoom');
+    // Third createRoom is the corridor
+    const corridorCmd = createRoomCmds[2];
+    const corridorHeight = corridorCmd[3] - corridorCmd[1] + 1;
+    expect(corridorHeight).toBe(5);
+  });
+
+  it('handles 4 rooms in a cross layout', () => {
+    const result = planBrief({
+      name: 'Cross',
+      rooms: [
+        { label: 'Center', width: 5, height: 5, entrance: true },
+        { label: 'N1', width: 4, height: 4 },
+        { label: 'E1', width: 4, height: 4 },
+        { label: 'S1', width: 4, height: 4 },
+      ],
+      connections: [
+        { from: 'Center', to: 'N1', direction: 'north' },
+        { from: 'Center', to: 'E1', direction: 'east' },
+        { from: 'Center', to: 'S1', direction: 'south' },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    const createRoomCmds = result.commands.filter(c => c[0] === 'createRoom');
+    // 4 rooms + 3 corridors = 7
+    expect(createRoomCmds.length).toBe(7);
+    const setLabelCmds = result.commands.filter(c => c[0] === 'setLabel');
+    expect(setLabelCmds.length).toBe(4);
+    const doorCmds = result.commands.filter(c => c[0] === 'setDoor');
+    expect(doorCmds.length).toBe(6); // 3 connections * 2 doors
+  });
+
+  it('handles connection type defaulting to normal door', () => {
+    const result = planBrief({
+      name: 'Default Door',
+      rooms: [
+        { label: 'A1', width: 4, height: 4, entrance: true },
+        { label: 'A2', width: 4, height: 4 },
+      ],
+      connections: [
+        { from: 'A1', to: 'A2', direction: 'east' },
+      ],
+    });
+
+    const doorCmds = result.commands.filter(c => c[0] === 'setDoor');
+    for (const cmd of doorCmds) {
+      expect(cmd[4]).toBe('d');
+    }
+  });
+
+  it('uses default theme and gridSize when not specified', () => {
+    const result = planBrief({
+      name: 'Defaults',
+      rooms: [{ label: 'A1', width: 3, height: 3 }],
+      connections: [],
+    });
+
+    const newMapCmd = result.commands.find(c => c[0] === 'newMap');
+    expect(newMapCmd[4]).toBe(5); // default gridSize
+    expect(newMapCmd[5]).toBe('stone-dungeon'); // default theme
+  });
+
+  it('handles multiple rooms branching from one parent in same direction', () => {
+    const result = planBrief({
+      name: 'Branch',
+      rooms: [
+        { label: 'Hub', width: 6, height: 6, entrance: true },
+        { label: 'E1', width: 4, height: 4 },
+        { label: 'E2', width: 4, height: 4 },
+      ],
+      connections: [
+        { from: 'Hub', to: 'E1', direction: 'east' },
+        { from: 'Hub', to: 'E2', direction: 'east' },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    // 3 rooms + 2 corridors = 5 createRoom commands
+    const createRoomCmds = result.commands.filter(c => c[0] === 'createRoom');
+    expect(createRoomCmds.length).toBe(5);
+    const setLabelCmds = result.commands.filter(c => c[0] === 'setLabel');
+    expect(setLabelCmds.length).toBe(3);
+  });
+
+  it('handles single room with no connections', () => {
+    const result = planBrief({
+      name: 'Solo',
+      rooms: [{ label: 'A1', width: 5, height: 5 }],
+      connections: [],
+    });
+
+    expect(result.success).toBe(true);
+    const createRoomCmds = result.commands.filter(c => c[0] === 'createRoom');
+    expect(createRoomCmds.length).toBe(1);
+    const doorCmds = result.commands.filter(c => c[0] === 'setDoor');
+    expect(doorCmds.length).toBe(0);
+  });
 });

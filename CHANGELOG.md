@@ -53,6 +53,29 @@ Added `@param` and `@returns` type annotations to all exported functions across 
 - **Theme key sanitization** — PUT/DELETE theme endpoints use `path.basename()` to prevent directory traversal
 - **Security headers** — Added `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY` middleware
 
+### Test Suite Expansion
+
+Expanded test coverage from 734 tests to 1,105+ tests across 4 test suites, preparing the codebase for a TypeScript migration.
+
+**New test files:**
+- `test/render/parse-props.test.js` — 136 tests for prop file parsing, coordinate transforms, command parsing
+- `test/state.test.js` — 71 tests for undo/redo, subscribe/notify, dirty tracking, autosave
+- `test/render/export-dd2vtt.test.js` — 34 tests for Universal VTT export format validation
+- `test/render/bounds.test.js` — 23 tests for coordinate math and canvas sizing
+- `test/server.test.js` — 47 tests for all server endpoints including security validation
+- `test/e2e/extended-pipeline.test.js` — 20+ E2E tests covering multi-level dungeons, lighting, textures, fills, trims, validation, bridges, corridors, and large maps
+
+**Expanded existing tests:**
+- `trims.test.js` — Added `roundRoomCorners` coverage
+- `operational.test.js` — Added `listRooms`, `listRoomCells`, `getValidPropPositions`, `suggestPlacement`, `getRoomContents`
+- `convenience.test.js` — Added `normalizeMargin`, `placeLightInRoom`, `createCorridor` edge cases
+- `plan-brief.test.js` — Added 3+ room layouts, cross-shaped dungeons, default handling
+- `migrations.test.js` — Added v1→v2, v2→v3 migration path tests
+
+**Infrastructure:**
+- `vitest.server.config.js` — Dedicated config for server integration tests (`npm run test:server`)
+- `vitest.render.config.js` — Fixed missing `setupFiles` reference (resolved 7 pre-existing test failures)
+
 ---
 
 ## v0.9.1
