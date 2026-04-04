@@ -38,7 +38,8 @@ function resolveTheme(themeConfig, themeOverrides, metadata) {
 
 /**
  * Calculate the required canvas pixel dimensions for a dungeon config.
- * @returns {{ width: number, height: number }}
+ * @param {Object} config - Dungeon config with metadata and cells
+ * @returns {{ width: number, height: number }} Required canvas dimensions in pixels
  */
 export function calculateCanvasSize(config) {
   const gridSize = config.metadata.gridSize;
@@ -78,10 +79,14 @@ export function calculateCanvasSize(config) {
 
 /**
  * Render a complete dungeon map onto a canvas 2D context.
- * @param {CanvasRenderingContext2D} ctx
- * @param {object} config - dungeon JSON (metadata + cells)
- * @param {number} width - canvas pixel width
- * @param {number} height - canvas pixel height
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Object} config - Dungeon JSON (metadata + cells)
+ * @param {number} width - Canvas pixel width
+ * @param {number} height - Canvas pixel height
+ * @param {Object|null} [propCatalog] - Prop catalog with definitions
+ * @param {Object|null} [textureCatalog] - Texture catalog with loaded images
+ * @param {HTMLImageElement|null} [bgImageEl] - Background image element
+ * @returns {void}
  */
 export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = null, textureCatalog = null, bgImageEl = null) {
   const gridSize = config.metadata.gridSize;
@@ -237,7 +242,8 @@ export function renderDungeonToCanvas(ctx, config, width, height, propCatalog = 
  * @param {number} width - canvas pixel width
  * @param {number} height - canvas pixel height
  * @param {object|null} propCatalog
- * @param {object|null} textureCatalog
+ * @param {Object|null} [textureCatalog] - Texture catalog with loaded images
+ * @returns {void}
  */
 export function renderPlayerViewToCanvas(ctx, config, revealedCells, fogOptions, width, height, propCatalog = null, textureCatalog = null) {
   const { openedDoors = [], openedStairs = [] } = fogOptions || {};

@@ -34,9 +34,11 @@ function coordinateToFeet(x, y, z, gridSize) {
 }
 
 /**
- * Validate coordinate structure
+ * Validate coordinate structure.
  * @param {Array} coord - Coordinate in [x, y, z] format
  * @param {string} context - Context for error message
+ * @returns {void}
+ * @throws {Error} If coordinate format is invalid
  */
 function validateCoordinate(coord, context) {
   if (!Array.isArray(coord) || coord.length !== 3) {
@@ -76,7 +78,9 @@ function getCoordinateBounds(coordinates, gridSize) {
 }
 
 /**
- * Validate coordinate-based configuration
+ * Validate coordinate-based configuration for grid alignment.
+ * @param {Object} config - Dungeon config with rooms and gridSize
+ * @returns {{ valid: boolean, errors: string[] }} Validation result
  */
 function validateGridAlignment(config) {
   const errors = [];
@@ -196,7 +200,13 @@ function validateGridAlignment(config) {
 }
 
 /**
- * Validate a single cell
+ * Validate a single cell's structure and border types.
+ * @param {Object|null} cell - Cell object to validate
+ * @param {number} level - Level index
+ * @param {number} row - Cell row
+ * @param {number} col - Cell column
+ * @param {string[]} errors - Array to push error messages into
+ * @returns {void}
  */
 function validateCell(cell, level, row, col, errors) {
   const cellId = level !== null ? `Level ${level}, Cell [${row}][${col}]` : `Cell [${row}][${col}]`;
@@ -259,7 +269,9 @@ function validateCell(cell, level, row, col, errors) {
 }
 
 /**
- * Validate matrix-based configuration
+ * Validate matrix-based configuration structure and cell data.
+ * @param {Object} config - Dungeon config with metadata and cells
+ * @returns {{ valid: boolean, errors: string[], warnings: string[] }} Validation result
  */
 function validateMatrixFormat(config) {
   const errors = [];
@@ -1090,7 +1102,9 @@ function reportValidationErrors(errors, title) {
 }
 
 /**
- * Validate dungeon configuration (legacy coordinate-based)
+ * Validate dungeon configuration (legacy coordinate-based).
+ * @param {Object} config - Dungeon config to validate
+ * @returns {{ valid: boolean, errors: string[] }} Validation result
  */
 function validateConfig(config) {
   if (!config.dungeonName) throw new Error('Missing required field: dungeonName');

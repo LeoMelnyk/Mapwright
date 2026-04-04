@@ -4,6 +4,15 @@ import {
   toInt,
 } from './_shared.js';
 
+/**
+ * Set a room label on a cell, optionally at a specific world-feet position.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} text - Label text (e.g. "A1")
+ * @param {number} [worldX] - World-feet X override for label position
+ * @param {number} [worldY] - World-feet Y override for label position
+ * @returns {{ success: boolean }}
+ */
 export function setLabel(row, col, text, worldX, worldY) {
   row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
@@ -23,6 +32,12 @@ export function setLabel(row, col, text, worldX, worldY) {
   return { success: true };
 }
 
+/**
+ * Remove the label from a cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function removeLabel(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);

@@ -10,6 +10,10 @@ import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
 import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, snapToSquare, normalizeBounds } from '../../../util/index.js';
 
+/**
+ * Room tool: click+drag to paint cells and auto-wall the boundary rectangle.
+ * Supports 'room' mode (walls on all edges) and 'merge' mode (walls only facing void).
+ */
 export class RoomTool extends Tool {
   constructor() {
     super('room', 'R', 'crosshair');

@@ -14,6 +14,10 @@ const DIRS = [
   { dir: 'west',  dr:  0, dc: -1, opp: 'east'  },
 ];
 
+/**
+ * Select tool: click/drag to select cells, drag selected cells to move them.
+ * Supports copy/paste, arrow-key movement, and inspect mode for cell properties.
+ */
 export class SelectTool extends Tool {
   constructor() {
     super('select', 'V', 'default');

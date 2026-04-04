@@ -10,6 +10,10 @@ import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { requestRender } from '../canvas-view.js';
 import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../util/index.js';
 
+/**
+ * Wall tool: click/drag on cell edges to paint walls in a constrained straight line.
+ * Supports cardinal and diagonal wall directions.
+ */
 export class WallTool extends Tool {
   constructor() {
     super('wall', 'W', 'pointer');

@@ -7,6 +7,7 @@ import { drawDmLabel } from '../../../render/index.js';
 
 
 // Rubber stamp cursor — hotspot at bottom center of the stamp head
+/** SVG rubber stamp cursor data URL with bottom-center hotspot. */
 export const STAMP_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Crect x='6' y='2' width='12' height='8' rx='2' fill='white' stroke='%23333' stroke-width='1.2'/%3E%3Crect x='10' y='10' width='4' height='5' fill='white' stroke='%23333' stroke-width='1.2'/%3E%3Cpath d='M5 17 C5 15 8 15 8 15 L16 15 C16 15 19 15 19 17 L19 19 L5 19 Z' fill='white' stroke='%23333' stroke-width='1.2'/%3E%3Cline x1='5' y1='21' x2='19' y2='21' stroke='%23333' stroke-width='1.5'/%3E%3C/svg%3E") 12 22, crosshair`;
 
 /** Hit radius in world feet for label proximity detection */
@@ -61,6 +62,10 @@ function cleanupLabelPos(center) {
   delete center.dmLabelY;
 }
 
+/**
+ * Label tool: place auto-incrementing room labels or DM text annotations.
+ * Supports drag-to-move and proximity-based hover/selection.
+ */
 export class LabelTool extends Tool {
   constructor() {
     super('label', 'L', 'crosshair');

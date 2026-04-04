@@ -5,6 +5,14 @@ import {
   captureBeforeState, smartInvalidate,
 } from './_shared.js';
 
+/**
+ * Set a fill type (pit, water, lava) on a single cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} fillType - 'pit', 'water', or 'lava'
+ * @param {number} [depth] - Depth level 1-3 (for water/lava)
+ * @returns {{ success: boolean }}
+ */
 export function setFill(row, col, fillType, depth) {
   row = toInt(row); col = toInt(col);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
@@ -31,6 +39,12 @@ export function setFill(row, col, fillType, depth) {
   return { success: true };
 }
 
+/**
+ * Remove any fill from a single cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function removeFill(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -45,6 +59,13 @@ export function removeFill(row, col) {
   return { success: true };
 }
 
+/**
+ * Set or remove the hazard (difficult terrain) flag on a cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {boolean} [enabled=true] - Whether to enable or disable the hazard
+ * @returns {{ success: boolean }}
+ */
 export function setHazard(row, col, enabled = true) {
   row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
@@ -62,6 +83,16 @@ export function setHazard(row, col, enabled = true) {
   return { success: true };
 }
 
+/**
+ * Set a fill type on all cells in a rectangular region.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @param {string} fillType - 'pit', 'water', or 'lava'
+ * @param {number} [depth] - Depth level 1-3 (for water/lava)
+ * @returns {{ success: boolean }}
+ */
 export function setFillRect(r1, c1, r2, c2, fillType, depth) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
@@ -100,6 +131,15 @@ export function setFillRect(r1, c1, r2, c2, fillType, depth) {
   return { success: true };
 }
 
+/**
+ * Set or remove hazard flag on all cells in a rectangular region.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @param {boolean} [enabled=true] - Whether to enable or disable hazard
+ * @returns {{ success: boolean }}
+ */
 export function setHazardRect(r1, c1, r2, c2, enabled = true) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
@@ -129,6 +169,14 @@ export function setHazardRect(r1, c1, r2, c2, enabled = true) {
   return { success: true };
 }
 
+/**
+ * Remove fills from all cells in a rectangular region.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @returns {{ success: boolean }}
+ */
 export function removeFillRect(r1, c1, r2, c2) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);

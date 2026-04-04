@@ -19,6 +19,10 @@ const REMOTE_SHADOW = 'rgba(0, 80, 140, 0.8)';
 const SHAPE_LINE_COLOR = 'rgba(255, 220, 100, 0.9)';
 const CLEAR_TIMEOUT = 20000;
 
+/**
+ * Range detector tool: click+drag to measure spell/effect areas (line, cone, circle, cube).
+ * Shared by DM (session mode) and player views via dependency injection.
+ */
 export class RangeTool extends Tool {
   /**
    * @param {Function} sendFn       - (msg) => void, broadcasts to server

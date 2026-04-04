@@ -75,9 +75,8 @@ function buildFromMetadata(entries) {
 }
 
 /**
- * Load all textures from /textures/manifest.json + individual .texture files.
- * Uses localStorage to cache metadata — subsequent loads skip all .texture fetches.
- * Images are NOT loaded here — call loadTextureImages() or ensureTexturesLoaded() on demand.
+ * Load texture metadata from server. Uses localStorage cache for subsequent loads.
+ * @returns {Promise<Object>} The texture catalog with names, textures, byCategory, categoryOrder.
  */
 export async function loadTextureCatalog() {
   if (catalog) return catalog;
@@ -155,8 +154,8 @@ export async function loadTextureCatalog() {
 
 /**
  * Load PNG images for a single texture entry on demand.
- * Returns a promise that resolves when diffuse + displacement images are ready.
- * No-op if already loaded or loading.
+ * @param {string} id - Texture catalog ID.
+ * @returns {Promise<void>} Resolves when diffuse + displacement images are ready.
  */
 export function loadTextureImages(id) {
   const entry = catalog?.textures[id];
@@ -204,9 +203,9 @@ export function loadTextureImages(id) {
 
 /**
  * Batch-load images for multiple texture IDs.
- * Returns a promise that resolves when all diffuse + displacement images are ready.
- * @param {Iterable<string>} ids — texture IDs to load
- * @param {function} [onProgress] — called with (loaded, total) as images finish loading
+ * @param {Iterable<string>} ids - Texture IDs to load.
+ * @param {Function} [onProgress] - Called with (loaded, total) as images finish loading.
+ * @returns {Promise<void>} Resolves when all diffuse + displacement images are ready.
  */
 export function ensureTexturesLoaded(ids, onProgress) {
   const promises = [];
@@ -252,6 +251,8 @@ export function ensureTexturesLoaded(ids, onProgress) {
 
 /**
  * Scan a cell grid and return a Set of all texture IDs referenced.
+ * @param {Array<Array>} cells - The dungeon cells grid.
+ * @returns {Set<string>} Set of texture IDs used in the grid.
  */
 export function collectTextureIds(cells) {
   const ids = new Set();
@@ -269,13 +270,17 @@ export function collectTextureIds(cells) {
 }
 
 /**
- * Synchronous getter — returns null until loadTextureCatalog() has resolved.
+ * Synchronous getter for the texture catalog.
+ * @returns {Object|null} The texture catalog or null if not yet loaded.
  */
 export function getTextureCatalog() {
   return catalog;
 }
 
-/** Clear the in-memory catalog cache so the next load re-fetches from server. */
+/**
+ * Clear the in-memory catalog cache so the next load re-fetches from server.
+ * @returns {void}
+ */
 export function clearTextureCatalogCache() {
   catalog = null;
 }

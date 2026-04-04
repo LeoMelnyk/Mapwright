@@ -34,6 +34,10 @@ function _removeStair(meta, cells, id) {
   }
 }
 
+/**
+ * Erase tool: drag a selection box to void all cells within it on release.
+ * Also removes associated stairs, bridges, props, and lights.
+ */
 export class EraseTool extends Tool {
   constructor() {
     super('erase', 'E', 'crosshair');

@@ -192,6 +192,7 @@ export async function loadPropCatalog(onProgress) {
 
 /**
  * Get the cached catalog synchronously (null if not yet loaded).
+ * @returns {Object|null} The prop catalog or null.
  */
 export function getPropCatalog() {
   return cachedCatalog;
@@ -199,6 +200,7 @@ export function getPropCatalog() {
 
 /**
  * Clear the in-memory catalog cache so the next loadPropCatalog() re-fetches from server.
+ * @returns {void}
  */
 export function clearPropCatalogCache() {
   cachedCatalog = null;

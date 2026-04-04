@@ -1,7 +1,7 @@
 {
   "displayName": "Arcane",
   "background": "#1c1430",
-  "gridLine": "#d0a800",
+  "gridLine": "#000000",
   "wallStroke": "#d0a800",
   "wallFill": "#281848",
   "textColor": "#e8c840",
@@ -44,8 +44,7 @@
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
   },
-  "gridStyle": "corners-x",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.15,
-  "gridCornerLength": 0.2
+  "gridStyle": "lines",
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

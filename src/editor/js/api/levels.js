@@ -4,6 +4,10 @@ import {
   toInt, toDisp,
 } from './_shared.js';
 
+/**
+ * Get all level definitions with display coordinates.
+ * @returns {{ success: boolean, levels: Array<Object> }}
+ */
 export function getLevels() {
   const levels = state.dungeon.metadata.levels || [];
   return {
@@ -17,6 +21,12 @@ export function getLevels() {
   };
 }
 
+/**
+ * Rename a level by index.
+ * @param {number} levelIndex - Zero-based level index
+ * @param {string} newName - New name for the level
+ * @returns {{ success: boolean }}
+ */
 export function renameLevel(levelIndex, newName) {
   const levels = state.dungeon.metadata.levels;
   if (!levels || levelIndex < 0 || levelIndex >= levels.length) {
@@ -32,6 +42,12 @@ export function renameLevel(levelIndex, newName) {
   return { success: true };
 }
 
+/**
+ * Resize a level to a new row count (adds or removes rows at the end).
+ * @param {number} levelIndex - Zero-based level index
+ * @param {number} newRows - New number of rows for the level
+ * @returns {{ success: boolean }}
+ */
 export function resizeLevel(levelIndex, newRows) {
   newRows = toInt(newRows);
   const levels = state.dungeon.metadata.levels;
@@ -76,6 +92,12 @@ export function resizeLevel(levelIndex, newRows) {
   return { success: true };
 }
 
+/**
+ * Add a new level below the current ones with a void separator row.
+ * @param {string} name - Level name
+ * @param {number} [numRows=15] - Number of rows for the new level
+ * @returns {{ success: boolean, levelIndex: number }}
+ */
 export function addLevel(name, numRows = 15) {
   numRows = toInt(numRows);
   if (!name || typeof name !== 'string') {
@@ -111,6 +133,11 @@ export function addLevel(name, numRows = 15) {
   return { success: true, levelIndex: state.currentLevel };
 }
 
+/**
+ * Replace all level definitions with a new set (must fit within the existing grid).
+ * @param {Array<{ name: string, startRow: number, numRows: number }>} levels - Level definitions
+ * @returns {{ success: boolean }}
+ */
 export function defineLevels(levels) {
   if (!Array.isArray(levels) || levels.length === 0) {
     throw new Error('levels must be a non-empty array of { name, startRow, numRows }');

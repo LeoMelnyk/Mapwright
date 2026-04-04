@@ -138,6 +138,19 @@ function rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH) {
 /**
  * Render pixel-perfect lightmap for PNG export.
  * Same signature as renderLightmap() from lighting.js but with per-pixel precision.
+ * @param {CanvasRenderingContext2D} ctx - Target canvas context
+ * @param {Array} lights - Array of light definitions
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} gridSize - Feet per cell
+ * @param {Object} transform - Transform with offsetX, offsetY, scale
+ * @param {number} canvasW - Canvas pixel width
+ * @param {number} canvasH - Canvas pixel height
+ * @param {number} ambientLevel - Ambient light level (0.0 to 1.0)
+ * @param {Object|null} textureCatalog - Texture catalog for normal maps
+ * @param {Object|null} propCatalog - Prop catalog for shadow extraction
+ * @param {Object|null} options - Options with ambientColor, time
+ * @param {Object|null} [metadata] - Dungeon metadata
+ * @returns {void}
  */
 export function renderLightmapHQ(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options, metadata = null) {
   const { ambientColor = '#ffffff', time = 0 } = options || {};

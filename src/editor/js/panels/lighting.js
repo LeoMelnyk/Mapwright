@@ -5,6 +5,10 @@ import { getLightCatalog } from '../light-catalog.js';
 
 let container = null;
 
+/**
+ * Initialize the lighting panel: toggle lighting, adjust ambient, configure light properties.
+ * @param {HTMLElement} el - Container element for the panel
+ */
 export function initLightingPanel(el) {
   container = el;
   render();

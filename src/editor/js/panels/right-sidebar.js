@@ -3,20 +3,33 @@ import { resizeCanvas } from '../canvas-view.js';
 
 let panelChangeCb = null;
 
+/**
+ * Register a callback invoked when the active right panel changes.
+ * @param {Function} cb - Callback receiving the panel ID or null
+ */
 export function setRightPanelChangeCallback(cb) { panelChangeCb = cb; }
 
-/** Return the currently active right panel ID, or null if collapsed. */
+/**
+ * Return the currently active right panel ID, or null if collapsed.
+ * @returns {string|null} Panel ID
+ */
 export function getActiveRightPanel() {
   const active = document.querySelector('.right-icon-btn.active');
   return active?.dataset.rightPanel || null;
 }
 
-/** Toggle a right panel by ID. If already active, collapse it. */
+/**
+ * Toggle a right panel by ID. If already active, collapse it.
+ * @param {string} panelId - Panel identifier
+ */
 export function toggleRightPanel(panelId) {
   const btn = document.querySelector(`.right-icon-btn[data-right-panel="${panelId}"]`);
   if (btn) btn.click();
 }
 
+/**
+ * Initialize the right sidebar: bind icon buttons for panel switching.
+ */
 export function init() {
   const iconBtns = document.querySelectorAll('.right-icon-btn');
   const rightContent = document.getElementById('right-content');

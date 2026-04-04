@@ -17,7 +17,8 @@
  * type: 'door' (default) or 'secret'.
  * Same-direction siblings are placed side-by-side perpendicular to the travel axis.
  *
- * Returns { success, commands, mapSize: { rows, cols } }.
+ * @param {Object} brief - Layout brief with rooms, connections, and map settings
+ * @returns {{ success: boolean, commands: Array<Array>, mapSize: { rows: number, cols: number } }}
  */
 export function planBrief(brief) {
   const {

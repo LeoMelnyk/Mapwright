@@ -3,11 +3,20 @@
 
 const warnings = new Set();
 
+/**
+ * Log a deduplicated warning during a render frame.
+ * @param {string} msg - Warning message
+ * @returns {void}
+ */
 export function warn(msg) {
   warnings.add(msg);
   console.warn(msg);
 }
 
+/**
+ * Flush and return all accumulated warnings, clearing the internal set.
+ * @returns {string[]} Array of warning messages
+ */
 export function flush() {
   const w = [...warnings];
   warnings.clear();

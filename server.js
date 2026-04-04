@@ -15,6 +15,7 @@ import { calculateCanvasSize, renderDungeonToCanvas } from './src/render/compile
 import { THEMES } from './src/render/themes.js';
 import { loadPropCatalogSync } from './src/render/prop-catalog-node.js';
 import { loadTextureCatalogMetadata, ensureTexturesForConfig, clearCatalogCache } from './src/render/texture-catalog-node.js';
+import { buildDd2vtt } from './src/render/export-dd2vtt.js';
 
 // ── Browser API polyfills (needed by render pipeline in Node.js) ─────────────
 
@@ -150,6 +151,14 @@ try {
 
 const app = express();
 
+// Security headers
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws://localhost:* wss://localhost:* https://api.github.com");
+  next();
+});
+
 // JSON body parser with generous limit for large dungeon configs
 app.use('/api', express.json({ limit: '10mb' }));
 
@@ -205,8 +214,18 @@ app.get('/api/open-file', (req, res) => {
     return res.status(403).json({ error: 'Only .mapwright and .json files allowed' });
   }
 
+  // Resolve to absolute path and block path traversal outside known directories
+  const resolved = path.resolve(filePath);
+  const allowedRoots = [
+    path.join(__dirname, 'examples'),
+    os.homedir(),
+  ];
+  if (!allowedRoots.some(root => resolved.startsWith(root + path.sep) || resolved === root)) {
+    return res.status(403).json({ error: 'Access denied: path outside allowed directories' });
+  }
+
   try {
-    const content = fs.readFileSync(filePath, 'utf-8');
+    const content = fs.readFileSync(resolved, 'utf-8');
     const json = JSON.parse(content);
     if (!json.metadata || !json.cells) {
       return res.status(400).json({ error: 'Invalid dungeon file: missing metadata or cells' });
@@ -245,6 +264,42 @@ app.post('/api/export-png', async (req, res) => {
     res.send(buffer);
   } catch (err) {
     console.error('[export] Failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Export dd2vtt (Universal VTT) endpoint ──────────────────────────────
+
+app.post('/api/export-dd2vtt', async (req, res) => {
+  const start = performance.now();
+  try {
+    const config = req.body;
+    if (!config?.metadata || !config?.cells) {
+      return res.status(400).json({ error: 'Invalid dungeon config' });
+    }
+
+    await ensureTexturesForConfig(textureCatalog, config, propCatalog);
+
+    const { width, height } = calculateCanvasSize(config);
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    renderDungeonToCanvas(ctx, config, width, height, propCatalog, textureCatalog);
+
+    const pngBuffer = canvas.toBuffer('image/png');
+    const dd2vtt = buildDd2vtt(pngBuffer, config, width, height);
+
+    const elapsed = (performance.now() - start).toFixed(0);
+    const jsonStr = JSON.stringify(dd2vtt);
+    console.log(`[export] dd2vtt ${width}x${height}, ${(jsonStr.length / 1024).toFixed(0)}KB in ${elapsed}ms`);
+
+    const filename = (config.metadata.dungeonName || 'dungeon')
+      .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.dd2vtt';
+    res.set('Content-Type', 'application/json');
+    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(jsonStr);
+  } catch (err) {
+    console.error('[export] dd2vtt failed:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -298,7 +353,7 @@ app.post('/api/user-themes', (req, res) => {
 
 app.put('/api/user-themes/:key', (req, res) => {
   try {
-    const { key } = req.params;
+    const key = path.basename(req.params.key);
     const { name, theme } = req.body;
     if (!name && !theme) return res.status(400).json({ error: 'name or theme is required' });
     const oldPath = path.join(userThemePath, `${key}.theme`);
@@ -334,7 +389,7 @@ app.put('/api/user-themes/:key', (req, res) => {
 
 app.delete('/api/user-themes/:key', (req, res) => {
   try {
-    const { key } = req.params;
+    const key = path.basename(req.params.key);
     const filePath = path.join(userThemePath, `${key}.theme`);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     delete THEMES[`user:${key}`];
@@ -463,6 +518,19 @@ function stripThinkingBlocks(text) {
   return text.replace(/<think>[\s\S]*?<\/think>\n?/g, '').trim();
 }
 
+/** Validate that a URL points to localhost/loopback only (prevents SSRF). */
+function validateLocalUrl(urlString) {
+  try {
+    const u = new URL(urlString);
+    const host = u.hostname.toLowerCase();
+    const allowed = ['localhost', '127.0.0.1', '::1', '[::1]'];
+    if (!allowed.includes(host)) return null;
+    return u.origin;
+  } catch {
+    return null;
+  }
+}
+
 function convertResponseToAnthropic(data) {
   const msg = data.choices[0].message;
   const content = [];
@@ -484,7 +552,8 @@ function convertResponseToAnthropic(data) {
 }
 
 app.get('/api/ollama-status', async (req, res) => {
-  const base = req.query.base || 'http://localhost:11434';
+  const base = validateLocalUrl(req.query.base || 'http://localhost:11434');
+  if (!base) return res.status(400).json({ running: false, models: [], error: 'Invalid base URL: must be localhost' });
   try {
     const r = await fetch(`${base}/api/tags`);
     if (!r.ok) return res.json({ running: false, models: [] });
@@ -497,7 +566,8 @@ app.get('/api/ollama-status', async (req, res) => {
 
 app.post('/api/claude', async (req, res) => {
   const { messages, model, tools, system, ollamaBase, stream } = req.body;
-  const base = ollamaBase || 'http://localhost:11434';
+  const base = validateLocalUrl(ollamaBase || 'http://localhost:11434');
+  if (!base) return res.status(400).json({ error: 'Invalid base URL: must be localhost' });
   const useStream = stream === true;
 
   // Ollama's streaming mode is unreliable with tool-calling (silently falls back to

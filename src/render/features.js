@@ -1,9 +1,15 @@
 import { GRID_SCALE } from './constants.js';
 
 /**
- * Draw a cell label (room number/name or plain text)
+ * Draw a cell label (room number/name or plain text).
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} label - Label text to draw
+ * @param {Object} theme - Theme object with label color config
  * @param {string} labelStyle - 'circled' (default), 'plain', or 'bold'
  * @param {number} scale - transform.scale (pixels per foot); sizes are relative to GRID_SCALE
+ * @returns {void}
  */
 function drawCellLabel(ctx, cx, cy, label, theme, labelStyle = 'circled', scale = GRID_SCALE) {
   const isRoomLabel = /^[A-Z]\d+$/.test(label);
@@ -97,7 +103,12 @@ function drawCellLabel(ctx, cx, cy, label, theme, labelStyle = 'circled', scale 
 /**
  * Draw a DM-only label with a parchment scroll backdrop.
  * Auto-sizes to text width.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} text - DM label text
  * @param {number} scale - transform.scale (pixels per foot); sizes are relative to GRID_SCALE
+ * @returns {void}
  */
 function drawDmLabel(ctx, cx, cy, text, scale = GRID_SCALE) {
   const s = scale / GRID_SCALE;

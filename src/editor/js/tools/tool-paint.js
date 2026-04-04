@@ -16,6 +16,7 @@ import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, blockedByDiagonal, lock
 const BUCKET_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='white' stroke='%23333' stroke-width='1.2' d='M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15a1.49 1.49 0 0 0 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z'/%3E%3C/svg%3E") 2 22, crosshair`;
 
 // SVG eyedropper/syringe cursor — hotspot at the tip (bottom-left)
+/** SVG eyedropper/syringe cursor data URL with bottom-left hotspot. */
 export const SYRINGE_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='white' stroke='%23333' stroke-width='1.2' d='M20.71 5.63l-2.34-2.34a1 1 0 0 0-1.41 0l-3.54 3.54 1.41 1.41L13.41 9.66l-5.66 5.66-1.41-1.41-1.41 1.41 1.41 1.41L4.59 18.5 3 20.08 3.92 21l1.5-1.59 1.76-1.76 1.41 1.41 1.41-1.41-1.41-1.41 5.66-5.66 1.41 1.41 1.42-1.42-1.42-1.41 3.54-3.54a1 1 0 0 0 0-1.41z'/%3E%3C/svg%3E") 1 23, crosshair`;
 
 const FILL_DIRS = CARDINAL_DIRS;
@@ -281,6 +282,10 @@ function syntheticEntryFromHalfKey(halfKey) {
   return null;
 }
 
+/**
+ * Paint tool: click+drag to box-select, then apply texture/room floor paint.
+ * Supports flood-fill (shift+click), syringe/eyedropper, and clear-texture modes.
+ */
 export class PaintTool extends Tool {
   constructor() {
     super('paint', 'P', 'crosshair');

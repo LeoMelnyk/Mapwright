@@ -18,8 +18,15 @@ function inBounds(row, col, numRows, numCols) {
 }
 
 /**
- * Line: collect every cell a ray from start center to end center passes through.
- * Uses a grid-traversal (DDA) algorithm.
+ * Compute a line area of effect from start cell to end cell using grid-traversal (DDA).
+ * @param {number} startRow - Origin row
+ * @param {number} startCol - Origin column
+ * @param {number} endRow - Target row
+ * @param {number} endCol - Target column
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {number} numRows - Total grid rows
+ * @param {number} numCols - Total grid columns
+ * @returns {{ cells: Array<{ row: number, col: number }>, distanceFt: number }}
  */
 export function computeLine(startRow, startCol, endRow, endCol, gridSize, numRows, numCols) {
   const distanceFt = cellDistance(startRow, startCol, endRow, endCol, gridSize);
@@ -61,9 +68,15 @@ export function computeLine(startRow, startCol, endRow, endCol, gridSize, numRow
 }
 
 /**
- * Cone: 90-degree included angle (5e PHB rules) from start toward end.
- * Straight far edge — the cone is a triangle (origin, left tip, right tip).
- * A cell is included if the triangle overlaps any part of it.
+ * Compute a 90-degree cone area of effect (5e PHB rules) from start toward end.
+ * @param {number} startRow - Origin row
+ * @param {number} startCol - Origin column
+ * @param {number} endRow - Target row
+ * @param {number} endCol - Target column
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {number} numRows - Total grid rows
+ * @param {number} numCols - Total grid columns
+ * @returns {{ cells: Array<{ row: number, col: number }>, distanceFt: number }}
  */
 export function computeCone(startRow, startCol, endRow, endCol, gridSize, numRows, numCols) {
   const dr = endRow - startRow;
@@ -186,7 +199,15 @@ function triangleOverlapsAABB(t0x, t0y, t1x, t1y, t2x, t2y, minX, minY, maxX, ma
 }
 
 /**
- * Circle: all cells whose center is within radius of start cell center.
+ * Compute a circle area of effect -- all cells within radius of the start cell center.
+ * @param {number} startRow - Origin row
+ * @param {number} startCol - Origin column
+ * @param {number} endRow - Edge row (determines radius)
+ * @param {number} endCol - Edge column (determines radius)
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {number} numRows - Total grid rows
+ * @param {number} numCols - Total grid columns
+ * @returns {{ cells: Array<{ row: number, col: number }>, distanceFt: number }}
  */
 export function computeCircle(startRow, startCol, endRow, endCol, gridSize, numRows, numCols) {
   const distanceFt = cellDistance(startRow, startCol, endRow, endCol, gridSize);
@@ -215,8 +236,15 @@ export function computeCircle(startRow, startCol, endRow, endCol, gridSize, numR
 }
 
 /**
- * Cube: placed with origin as one corner, extending toward the mouse.
- * Side = max(|dr|, |dc|) + 1 cells. A 20ft cube at 5ft/cell = 4x4 = 16 cells.
+ * Compute a cube area of effect -- origin as one corner, extending toward the target.
+ * @param {number} startRow - Origin row
+ * @param {number} startCol - Origin column
+ * @param {number} endRow - Target row (determines side length)
+ * @param {number} endCol - Target column (determines side length)
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {number} numRows - Total grid rows
+ * @param {number} numCols - Total grid columns
+ * @returns {{ cells: Array<{ row: number, col: number }>, distanceFt: number }}
  */
 export function computeCube(startRow, startCol, endRow, endCol, gridSize, numRows, numCols) {
   const dr = endRow - startRow;

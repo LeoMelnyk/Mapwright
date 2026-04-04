@@ -3,6 +3,10 @@ import state, { subscribe, undo, redo, jumpToState } from '../state.js';
 
 let container = null;
 
+/**
+ * Initialize the history panel with undo/redo list.
+ * @param {HTMLElement} el - Container element for the panel
+ */
 export function initHistoryPanel(el) {
   container = el;
   subscribe(update, 'history');

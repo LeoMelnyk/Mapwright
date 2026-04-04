@@ -15,7 +15,9 @@ import {
 /**
  * Merge two adjacent rooms by removing all walls on their shared boundary.
  * Uses findWallBetween internally. One undo step.
- * Returns { success, removed } where removed is the count of walls cleared.
+ * @param {string} label1 - First room label
+ * @param {string} label2 - Second room label
+ * @returns {{ success: boolean, removed: number }} Count of walls cleared
  */
 export function mergeRooms(label1, label2) {
   const walls = getApi().findWallBetween(label1, label2);
@@ -40,9 +42,11 @@ export function mergeRooms(label1, label2) {
 
 /**
  * Shift all cells in the dungeon by (dr, dc).
- * The grid grows to accommodate the shift — no content is lost.
+ * The grid grows to accommodate the shift -- no content is lost.
  * For multi-level maps, updates level startRow values when shifting vertically.
- * One undo step.
+ * @param {number} dr - Row offset (positive = down)
+ * @param {number} dc - Column offset (positive = right)
+ * @returns {{ success: boolean, newRows: number, newCols: number }}
  */
 export function shiftCells(dr, dc) {
   dr = toInt(dr); dc = toInt(dc);
@@ -294,7 +298,11 @@ export function normalizeMargin(targetMargin = 2) {
 /**
  * Create a walled corridor connecting two labeled rooms. Rooms must be axis-aligned
  * with enough perpendicular overlap for the corridor width. Auto-assigns a room label
- * and places doors at both ends. Returns { corridorLabel, r1, c1, r2, c2 }.
+ * and places doors at both ends.
+ * @param {string} label1 - First room label
+ * @param {string} label2 - Second room label
+ * @param {number} [width=2] - Corridor width in cells
+ * @returns {{ success: boolean, corridorLabel: string, r1: number, c1: number, r2: number, c2: number }}
  */
 export function createCorridor(label1, label2, width = 2) {
   const b1 = getApi().getRoomBounds(label1);
@@ -361,7 +369,11 @@ export function createCorridor(label1, label2, width = 2) {
 
 /**
  * Place a door on the shared wall between two adjacent labeled rooms.
- * Picks the midpoint of the shared boundary. type='d' (normal) or 's' (secret).
+ * Picks the midpoint of the shared boundary.
+ * @param {string} label1 - First room label
+ * @param {string} label2 - Second room label
+ * @param {string} [type='d'] - Door type: 'd' (normal) or 's' (secret)
+ * @returns {{ success: boolean, row: number, col: number, direction: string }}
  */
 export function setDoorBetween(label1, label2, type = 'd') {
   const walls = getApi().findWallBetween(label1, label2);
@@ -373,7 +385,13 @@ export function setDoorBetween(label1, label2, type = 'd') {
   return { success: true, row: mid.row, col: mid.col, direction: mid.direction };
 }
 
-/** Place a light at the center of a labeled room. Handles world-feet conversion automatically. */
+/**
+ * Place a light at the center of a labeled room. Handles world-feet conversion automatically.
+ * @param {string} label - Room label
+ * @param {string} [preset] - Light preset name from the catalog
+ * @param {Object} [config] - Additional light configuration overrides
+ * @returns {{ success: boolean, id: number }}
+ */
 export function placeLightInRoom(label, preset, config = {}) {
   const b = getApi().getRoomBounds(label);
   if (!b) return { success: false, error: `Room "${label}" not found` };

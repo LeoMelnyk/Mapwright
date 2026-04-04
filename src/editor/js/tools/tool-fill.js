@@ -12,6 +12,10 @@ const OVERLAY_COLORS = {
   'clear-fill':       { fill: 'rgba(220,60,60,0.10)',  stroke: 'rgba(220,60,60,0.85)'  },
 };
 
+/**
+ * Fill tool: click-drag box selection to apply cell fills (water, lava, pit, difficult-terrain)
+ * or to clear fills. Right-click clears fills/hazard on a single cell.
+ */
 export class FillTool extends Tool {
   constructor() {
     super('fill', '3', 'crosshair');

@@ -45,6 +45,10 @@ function hitTestLight(pos) {
 
 // ── Tool ────────────────────────────────────────────────────────────────────
 
+/**
+ * Light tool: place, select, move, resize, copy/paste, and delete light sources.
+ * Supports point and directional lights with preset catalog integration.
+ */
 export class LightTool extends Tool {
   constructor() {
     super('light', 'L', 'crosshair');

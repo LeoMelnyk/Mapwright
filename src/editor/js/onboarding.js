@@ -455,6 +455,10 @@ function loadExampleMap(url, name) {
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
+/**
+ * Initialize onboarding: first-use tool hints and welcome modal on first launch.
+ * @returns {void}
+ */
 export function initOnboarding() {
   // ── First-use tool hints ───────────────────────────────────────────────────
   let lastTool = state.activeTool;
@@ -476,7 +480,10 @@ export function initOnboarding() {
   }
 }
 
-/** Open the welcome screen (called on first launch and from Help menu). */
+/**
+ * Open the welcome screen (called on first launch and from Help menu).
+ * @returns {void}
+ */
 export function openWelcomeScreen() {
   showWelcome(
     // Tutorial

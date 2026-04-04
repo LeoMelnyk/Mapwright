@@ -475,6 +475,14 @@ function buildFluidGeometry(cells, gridSize, theme, roomCells) {
   };
 }
 
+/**
+ * Get or rebuild the world-space fluid Path2D geometry cache.
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme object with fluid color settings
+ * @param {Array<Array<boolean>>} roomCells - Room cell mask
+ * @returns {{ pit: Object|null, water: Object|null, lava: Object|null }} Cached fluid geometry data
+ */
 export function getFluidPathCache(cells, gridSize, theme, roomCells) {
   if (_fluidPathCache.cells === cells && _fluidPathCache.gridSize === gridSize && _fluidPathCache.theme === theme) {
     return _fluidPathCache.data;
@@ -491,6 +499,12 @@ export function getFluidPathCache(cells, gridSize, theme, roomCells) {
  *
  * Arc void clips are NOT applied here — the caller applies them when blitting this layer
  * onto the main cache canvas (avoids duplicating complex arc geometry code).
+ * @param {Object} data - Fluid geometry data from getFluidPathCache
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {number} cacheW - Cache canvas width in pixels
+ * @param {number} cacheH - Cache canvas height in pixels
+ * @param {number} [cacheScale=10] - Pixels per foot at cache resolution
+ * @returns {HTMLCanvasElement|null} Pre-rendered fluid canvas, or null
  */
 export function getRenderedFluidLayer(data, gridSize, cacheW, cacheH, cacheScale = 10) {
   if (!data.pit && !data.water && !data.lava) return null;
@@ -569,13 +583,19 @@ export function getRenderedFluidLayer(data, gridSize, cacheW, cacheH, cacheScale
   return offCanvas;
 }
 
-/** Return stored parameters from the current fluid path cache (or null if no cache). */
+/**
+ * Return stored parameters from the current fluid path cache (or null if no cache).
+ * @returns {{ gridSize: number, theme: Object }|null} Cached parameters, or null
+ */
 export function getFluidCacheParams() {
   if (!_fluidPathCache.data) return null;
   return { gridSize: _fluidPathCache.gridSize, theme: _fluidPathCache.theme };
 }
 
-/** Call this whenever fluid/pit cell data is mutated in-place (same cells reference). */
+/**
+ * Call this whenever fluid/pit cell data is mutated in-place (same cells reference).
+ * @returns {void}
+ */
 export function invalidateFluidCache() {
   _fluidPathCache  = { cells: null, gridSize: null, theme: null, data: null };
   _fluidCellsCache = { cells: null, water: null, lava: null };
@@ -591,7 +611,8 @@ export function invalidateFluidCache() {
  * @param {Array} cells  Current cell grid
  * @param {Array} roomCells  Room cell mask
  * @param {number} gridSize
- * @param {object} theme
+ * @param {Object} theme - Theme object with fluid color settings
+ * @returns {void}
  */
 export function patchFluidRegion(region, cells, roomCells, gridSize, theme) {
   if (!_fluidRenderLayer || !_fluidRenderLayer.canvas) return;

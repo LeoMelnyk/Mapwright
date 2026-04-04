@@ -13,7 +13,11 @@ let dirty = true;
 let lastPropsRef = null;
 let _getState = null;
 
-/** Set the state accessor. Called once by main.js at init. */
+/**
+ * Set the state accessor function. Called once by main.js at init.
+ * @param {Function} stateFn - Returns the current editor state object.
+ * @returns {void}
+ */
 export function initPropSpatial(stateFn) {
   _getState = stateFn;
 }
@@ -89,13 +93,18 @@ function ensureBuilt() {
   }
 }
 
-/**
- * Mark the spatial map as needing rebuild. Call on any prop mutation.
- */
 let _onDirtyCallback = null;
-/** Register a callback to run whenever the prop spatial map is dirtied. */
+/**
+ * Register a callback to run whenever the prop spatial map is dirtied.
+ * @param {Function} fn - Callback invoked on spatial map invalidation.
+ * @returns {void}
+ */
 export function onPropSpatialDirty(fn) { _onDirtyCallback = fn; }
 
+/**
+ * Mark the spatial map as needing rebuild. Call on any prop mutation.
+ * @returns {void}
+ */
 export function markPropSpatialDirty() {
   dirty = true;
   if (_onDirtyCallback) _onDirtyCallback();
@@ -103,7 +112,9 @@ export function markPropSpatialDirty() {
 
 /**
  * Look up the topmost prop covering (row, col).
- * Returns { anchorRow, anchorCol, propType, propId, zIndex } or null.
+ * @param {number} row - Grid row.
+ * @param {number} col - Grid column.
+ * @returns {{ anchorRow: number, anchorCol: number, propType: string, propId: string, zIndex: number }|null} Prop entry or null.
  */
 export function lookupPropAt(row, col) {
   ensureBuilt();
@@ -113,7 +124,9 @@ export function lookupPropAt(row, col) {
 
 /**
  * Look up ALL props covering (row, col), sorted topmost-first.
- * Returns array of { anchorRow, anchorCol, propType, propId, zIndex }.
+ * @param {number} row - Grid row.
+ * @param {number} col - Grid column.
+ * @returns {Array<{ anchorRow: number, anchorCol: number, propType: string, propId: string, zIndex: number }>} Prop stack.
  */
 export function lookupAllPropsAt(row, col) {
   ensureBuilt();
@@ -122,6 +135,9 @@ export function lookupAllPropsAt(row, col) {
 
 /**
  * Check if (row, col) is covered by any prop. O(1).
+ * @param {number} row - Grid row.
+ * @param {number} col - Grid column.
+ * @returns {boolean} True if at least one prop covers this cell.
  */
 export function isPropAt(row, col) {
   ensureBuilt();

@@ -17,6 +17,10 @@ const LAYERS = [
   ['lighting', 'Lighting'],
 ];
 
+/**
+ * Initialize the debug panel: render layer toggles and hitbox visualization.
+ * @param {HTMLElement} el - Container element for the panel
+ */
 export function initDebugPanel(el) {
   container = el;
   // Restore persisted debug state

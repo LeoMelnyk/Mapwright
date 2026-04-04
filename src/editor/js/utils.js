@@ -3,7 +3,11 @@ import { CURRENT_FORMAT_VERSION } from './migrations.js';
 import { RESOLUTION_DEFAULT } from '../../util/index.js';
 
 /**
- * Convert feet coordinates to canvas pixels
+ * Convert feet coordinates to canvas pixels.
+ * @param {number} x - X position in feet.
+ * @param {number} y - Y position in feet.
+ * @param {Object} transform - The pan/zoom transform ({ scale, offsetX, offsetY }).
+ * @returns {{ x: number, y: number }} Canvas pixel coordinates.
  */
 export function toCanvas(x, y, transform) {
   return {
@@ -13,7 +17,11 @@ export function toCanvas(x, y, transform) {
 }
 
 /**
- * Convert canvas pixels back to feet coordinates
+ * Convert canvas pixels back to feet coordinates.
+ * @param {number} px - Canvas pixel X.
+ * @param {number} py - Canvas pixel Y.
+ * @param {Object} transform - The pan/zoom transform ({ scale, offsetX, offsetY }).
+ * @returns {{ x: number, y: number }} Position in feet.
  */
 export function fromCanvas(px, py, transform) {
   return {
@@ -23,7 +31,12 @@ export function fromCanvas(px, py, transform) {
 }
 
 /**
- * Convert canvas pixel position to grid cell (row, col)
+ * Convert canvas pixel position to grid cell (row, col).
+ * @param {number} px - Canvas pixel X.
+ * @param {number} py - Canvas pixel Y.
+ * @param {Object} transform - The pan/zoom transform.
+ * @param {number} gridSize - Grid cell size in feet.
+ * @returns {{ row: number, col: number }} Grid cell coordinates.
  */
 export function pixelToCell(px, py, transform, gridSize) {
   const feet = fromCanvas(px, py, transform);
@@ -35,7 +48,12 @@ export function pixelToCell(px, py, transform, gridSize) {
 
 /**
  * Detect which edge of a cell the mouse is nearest to.
- * Returns { direction, row, col } or null.
+ * @param {number} px - Canvas pixel X.
+ * @param {number} py - Canvas pixel Y.
+ * @param {Object} transform - The pan/zoom transform.
+ * @param {number} gridSize - Grid cell size in feet.
+ * @param {number} [edgeMarginRatio=0.25] - Fraction of cell width considered "near" an edge.
+ * @returns {{ direction: string, row: number, col: number }|null} Edge info or null if not near an edge.
  */
 export function nearestEdge(px, py, transform, gridSize, edgeMarginRatio = 0.25) {
   const feet = fromCanvas(px, py, transform);
@@ -67,11 +85,13 @@ export function nearestEdge(px, py, transform, gridSize, edgeMarginRatio = 0.25)
 
 /**
  * Create an empty dungeon JSON with given dimensions.
- * @param {string} name
- * @param {number} rows - Display rows (user-facing)
- * @param {number} cols - Display cols (user-facing)
- * @param {number} gridSize - Display grid size in feet (default 5)
- * @param {string} theme
+ * @param {string} name - Dungeon display name.
+ * @param {number} rows - Display rows (user-facing).
+ * @param {number} cols - Display cols (user-facing).
+ * @param {number} [gridSize=5] - Display grid size in feet.
+ * @param {string} [theme='stone-dungeon'] - Theme identifier.
+ * @param {number} [resolution] - Internal subdivision factor.
+ * @returns {Object} A dungeon JSON object with metadata and empty cells grid.
  */
 export function createEmptyDungeon(name, rows, cols, gridSize = 5, theme = 'stone-dungeon', resolution = RESOLUTION_DEFAULT) {
   const internalRows = rows * resolution;
@@ -126,7 +146,9 @@ export function nearestCorner(px, py, transform, gridSize) {
 }
 
 /**
- * Deep clone an object via JSON round-trip
+ * Deep clone an object via JSON round-trip.
+ * @param {Object} obj - The object to clone.
+ * @returns {Object} A deep copy of the input object.
  */
 export function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));

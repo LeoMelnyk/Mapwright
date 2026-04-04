@@ -9,6 +9,11 @@ const BUFFER_SHADING_DEPTH = 0.35;
 
 // ── Seeded LCG PRNG ─────────────────────────────────────────────────────────
 // Returns a function yielding deterministic floats 0..1 for a given integer seed.
+/**
+ * Create a seeded LCG PRNG returning deterministic floats 0..1.
+ * @param {number} seed - Integer seed value
+ * @returns {Function} Generator function returning floats in [0, 1)
+ */
 export function seededLcg(seed) {
   let s = seed >>> 0;
   return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 0x100000000; };
@@ -25,6 +30,14 @@ function hexToRgba(hex, alpha) {
 // ── Wall Drop Shadow ─────────────────────────────────────────────────────────
 // Draws a soft shadow offset below-right of all wall segments.
 // Called BEFORE the actual wall stroke so the shadow sits under the wall.
+/**
+ * Draw soft drop shadows below-right of all wall segments.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Object>} wallSegments - Array of {x1, y1, x2, y2} wall segments in canvas pixels
+ * @param {Object} theme - Theme with wallShadow config
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 export function drawWallShadow(ctx, wallSegments, theme, transform) {
   if (!theme.wallShadow || wallSegments.length === 0) return;
   const s = scaleFactor(transform);
@@ -59,6 +72,14 @@ export function drawWallShadow(ctx, wallSegments, theme, transform) {
 // Hand-drawn wall effect using smooth quadratic Bézier curves through sparse
 // control points with small perpendicular offsets. Deterministic per-segment
 // seeding prevents shimmer during pan/zoom.
+/**
+ * Draw hand-drawn rough wall lines using quadratic Bezier curves.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Object>} wallSegments - Array of wall segment objects with seed
+ * @param {Object} theme - Theme with wallRoughness and wallStroke
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 export function drawRoughWalls(ctx, wallSegments, theme, transform) {
   const s = scaleFactor(transform);
   const amp = theme.wallRoughness * s * 1.5;
@@ -168,6 +189,16 @@ function buildDistMap(cells, roomCells, maxDist) {
 // canvas transform and strokes the cached paths at screen resolution.
 let _hatchCache = null;
 
+/**
+ * Draw line hatching in void areas near room cells.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {Array<Array<boolean>>} roomCells - Room cell mask
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme with hatchOpacity, hatchStyle, hatchSize, hatchColor
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {void}
+ */
 export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle === 'rocks') return;
@@ -247,6 +278,16 @@ export function drawHatching(ctx, cells, roomCells, gridSize, theme, transform) 
 // sets the canvas transform and strokes the cached paths at screen resolution.
 let _rockCache = null;
 
+/**
+ * Draw rock shading (Voronoi-style) in void areas near room cells.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {Array<Array<boolean>>} roomCells - Room cell mask
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme with hatchOpacity, hatchStyle, hatchSize, hatchColor
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {void}
+ */
 export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transform) {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle !== 'rocks' && theme.hatchStyle !== 'both') return;
@@ -354,6 +395,17 @@ export function drawRockShading(ctx, cells, roomCells, gridSize, theme, transfor
 // The floor fills that follow paint over the room interior, leaving only the halo.
 let _outerShadingCache = null;
 
+/**
+ * Draw a filled Minkowski-sum blob around the outside of the dungeon for organic shading.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {Array<Array<boolean>>} roomCells - Room cell mask
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme with outerShading config (color, size, roughness)
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {number} [resolution=1] - Resolution multiplier for sub-cells
+ * @returns {void}
+ */
 export function drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, resolution = 1) {
   if (!theme.outerShading?.color || !(theme.outerShading?.size > 0)) return;
 
@@ -416,6 +468,16 @@ export function drawOuterShading(ctx, cells, roomCells, gridSize, theme, transfo
 // ── Buffer Shading (Inner AO) ────────────────────────────────────────────────
 // Draws a dark gradient along the inside edges of room cells that border walls.
 // Gives depth by simulating the shadow a wall casts onto the floor.
+/**
+ * Draw inner ambient occlusion gradients along room edges bordering walls.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {Array<Array<boolean>>} roomCells - Room cell mask
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme with bufferShadingOpacity and wallStroke
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {void}
+ */
 export function drawBufferShading(ctx, cells, roomCells, gridSize, theme, transform) {
   if (!theme.bufferShadingOpacity) return;
 
@@ -486,6 +548,7 @@ export function drawBufferShading(ctx, cells, roomCells, gridSize, theme, transf
 /**
  * Invalidate all geometry/shading caches in this module.
  * Call whenever cell structure changes in-place (rooms created/destroyed, walls added/removed).
+ * @returns {void}
  */
 export function invalidateEffectsCache() {
   _hatchCache = null;

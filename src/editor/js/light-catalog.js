@@ -65,8 +65,8 @@ function buildFromMetadata(entries) {
 }
 
 /**
- * Load all light presets from /lights/manifest.json + individual .light files.
- * Uses localStorage to cache metadata — subsequent loads skip all .light fetches.
+ * Load all light presets from server. Uses localStorage cache for subsequent loads.
+ * @returns {Promise<Object>} The light catalog with names, lights, byCategory, categoryOrder.
  */
 export async function loadLightCatalog() {
   if (catalog) return catalog;
@@ -137,13 +137,17 @@ export async function loadLightCatalog() {
 }
 
 /**
- * Synchronous getter — returns null until loadLightCatalog() has resolved.
+ * Synchronous getter for the light catalog.
+ * @returns {Object|null} The light catalog or null if not yet loaded.
  */
 export function getLightCatalog() {
   return catalog;
 }
 
-/** Clear the in-memory catalog cache so the next load re-fetches from server. */
+/**
+ * Clear the in-memory catalog cache so the next load re-fetches from server.
+ * @returns {void}
+ */
 export function clearLightCatalogCache() {
   catalog = null;
 }

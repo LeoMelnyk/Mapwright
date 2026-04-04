@@ -3,6 +3,9 @@ import { Tool } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
 import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../util/index.js';
 
+/**
+ * Door tool: click on cell edges to place/toggle doors (normal, secret, or invisible).
+ */
 export class DoorTool extends Tool {
   constructor() {
     super('door', 'D', 'pointer');

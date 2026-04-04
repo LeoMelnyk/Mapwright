@@ -9,7 +9,11 @@ import { isPropAt } from '../prop-spatial.js';
 
 // ── Spatial Queries ───────────────────────────────────────────────────────
 
-/** Find the cell that holds a room's label marker. Returns { row, col } or null. Read-only. */
+/**
+ * Find the cell that holds a room's label marker. Read-only.
+ * @param {string} label - Room label to search for
+ * @returns {{ success: boolean, row?: number, col?: number, error?: string }}
+ */
 export function findCellByLabel(label) {
   const cells = state.dungeon.cells;
   const target = String(label);
@@ -25,7 +29,8 @@ export function findCellByLabel(label) {
 
 /**
  * BFS from a label cell, stopping at walls, doors, secret doors, and diagonal walls.
- * Returns a Set of "row,col" cell keys for the room, or null if label not found.
+ * @param {string} label - Room label
+ * @returns {Set<string>|null} Set of "row,col" cell keys, or null if label not found
  */
 export function _collectRoomCells(label) {
   const start = getApi().findCellByLabel(label);
@@ -35,8 +40,9 @@ export function _collectRoomCells(label) {
 
 /**
  * Return ordered wall cells along a specific side of a room.
- * Wall: 'north', 'south', 'east', 'west'.
- * Returns [[row, col], ...] sorted along the wall axis.
+ * @param {Set<string>} roomCellSet - Set of "row,col" cell keys for the room
+ * @param {string} wall - 'north', 'south', 'east', or 'west'
+ * @returns {Array<[number, number]>} Sorted [[row, col], ...] along the wall axis
  */
 export function _getWallCells(roomCellSet, wall) {
   if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
@@ -58,7 +64,9 @@ export function _getWallCells(roomCellSet, wall) {
 
 /**
  * Check whether cell (r, c) is covered by any existing prop (anchor or spanned).
- * Read-only helper — does not modify state.
+ * @param {number} r - Row index
+ * @param {number} c - Column index
+ * @returns {boolean} True if the cell is covered by a prop
  */
 export function _isCellCoveredByProp(r, c) {
   return isPropAt(r, c);
@@ -66,8 +74,8 @@ export function _isCellCoveredByProp(r, c) {
 
 /**
  * BFS from the label cell through open edges to find the full room extent.
- * Returns { r1, c1, r2, c2, centerRow, centerCol } or null if label not found.
- * Read-only.
+ * @param {string} label - Room label
+ * @returns {{ r1: number, c1: number, r2: number, c2: number, centerRow: number, centerCol: number }|null}
  */
 export function getRoomBounds(label) {
   const roomCells = getApi()._collectRoomCells(label);
@@ -82,8 +90,9 @@ export function getRoomBounds(label) {
 
 /**
  * Find all wall/door positions on the shared boundary between two labeled rooms.
- * Returns [{ row, col, direction, type }] or null if no shared boundary found.
- * Read-only.
+ * @param {string} label1 - First room label
+ * @param {string} label2 - Second room label
+ * @returns {Array<{ row: number, col: number, direction: string, type: string }>|null}
  */
 export function findWallBetween(label1, label2) {
   const room1Cells = getApi()._collectRoomCells(label1);
@@ -113,7 +122,12 @@ export function findWallBetween(label1, label2) {
  * direction: 'horizontal' (wall across rows) or 'vertical' (wall across cols).
  * position: the absolute row (horizontal) or col (vertical) where the wall goes.
  * wallType: 'w' (wall) or 'iw' (invisible wall). Default 'w'.
- * options: { doorAt: number } — col (horizontal) or row (vertical) to place a door instead of wall.
+ * @param {string} roomLabel - Room label
+ * @param {string} direction - 'horizontal' or 'vertical'
+ * @param {number} position - Row (horizontal) or column (vertical) for the partition
+ * @param {string} [wallType='w'] - 'w' (wall) or 'iw' (invisible wall)
+ * @param {Object} [options] - { doorAt: number } to place a door at a specific position
+ * @returns {{ success: boolean, wallsPlaced: number }}
  */
 export function partitionRoom(roomLabel, direction, position, wallType = 'w', options = {}) {
   if (!['horizontal', 'vertical'].includes(direction)) {

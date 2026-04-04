@@ -11,15 +11,28 @@ const STAIR_HATCH_LINE_SPACING = 0.2;
 
 /**
  * Compute a scale factor relative to the base GRID_SCALE.
- * Static renderer: transform.scale === GRID_SCALE → s = 1
- * Editor at zoom 2x: transform.scale === 2*GRID_SCALE → s = 2
+ * Static renderer: transform.scale === GRID_SCALE -> s = 1
+ * Editor at zoom 2x: transform.scale === 2*GRID_SCALE -> s = 2
+ * @param {Object} transform - Transform with scale property
+ * @returns {number} Scale multiplier relative to GRID_SCALE
  */
 function scaleFactor(transform) {
   return transform.scale / GRID_SCALE;
 }
 
 /**
- * Render a border (wall, door, or secret door)
+ * Render a border (wall, door, or secret door).
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} x1 - Start grid X
+ * @param {number} y1 - Start grid Y
+ * @param {number} x2 - End grid X
+ * @param {number} y2 - End grid Y
+ * @param {string} borderType - Border type ('w', 'd', 's', 'iw', 'id')
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {void}
  */
 function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridSize, transform) {
   const s = scaleFactor(transform);
@@ -161,7 +174,15 @@ function renderBorder(ctx, x1, y1, x2, y2, borderType, orientation, theme, gridS
 }
 
 /**
- * Draw a door at a specific position
+ * Draw a door at a specific position.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
  */
 function drawDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, transform) {
   const s = scaleFactor(transform);
@@ -184,7 +205,15 @@ function drawDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, transform
 }
 
 /**
- * Draw a secret door at a specific position
+ * Draw a secret door at a specific position.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
  */
 function drawSecretDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, transform) {
   ctx.save();
@@ -209,7 +238,16 @@ function drawSecretDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, tra
 }
 
 /**
- * Draw stairs icon in a matrix cell center
+ * Draw stairs icon in a matrix cell center.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} stairType - Stair type ('up', 'down', 'both')
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {boolean} hasLabel - Whether the cell has a label
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
  */
 function drawStairsInCell(ctx, cx, cy, stairType, theme, gridSize, hasLabel, transform) {
   const s = transform ? scaleFactor(transform) : 1;
@@ -272,7 +310,17 @@ function drawStairsInCell(ctx, cx, cy, stairType, theme, gridSize, hasLabel, tra
 }
 
 /**
- * Render a diagonal border (wall, door, or secret door)
+ * Render a diagonal border (wall, door, or secret door).
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} col - Cell column
+ * @param {number} row - Cell row
+ * @param {string} borderType - Border type ('w', 'd', 's', 'iw', 'id')
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {number} [span=1] - Number of cells the diagonal spans
+ * @returns {void}
  */
 function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSize, transform, span = 1) {
   const s = scaleFactor(transform);
@@ -406,6 +454,17 @@ function renderDiagonalBorder(ctx, col, row, borderType, diagonal, theme, gridSi
   }
 }
 
+/**
+ * Draw a diagonal door symbol.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 function drawDiagonalDoor(ctx, cx, cy, diagonal, theme, gridSize, transform) {
   const s = scaleFactor(transform);
   const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
@@ -431,6 +490,17 @@ function drawDiagonalDoor(ctx, cx, cy, diagonal, theme, gridSize, transform) {
   ctx.restore();
 }
 
+/**
+ * Draw a diagonal secret door 'S' symbol.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 function drawDiagonalSecretDoor(ctx, cx, cy, diagonal, theme, gridSize, transform) {
   ctx.save();
   ctx.translate(cx, cy);
@@ -453,6 +523,15 @@ function drawDiagonalSecretDoor(ctx, cx, cy, diagonal, theme, gridSize, transfor
 
 // ── Double Door Auto-Detection ──────────────────────────────────────────────
 
+/**
+ * Determine a cell's role in double-door auto-detection for cardinal walls.
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} row - Cell row
+ * @param {number} col - Cell column
+ * @param {string} borderDirection - Cardinal direction ('north', 'south', 'east', 'west')
+ * @param {number} [resolution=1] - Resolution multiplier
+ * @returns {string|null} Role: 'anchor', 'partner', 'single-wide', or null
+ */
 function getDoubleDoorRole(cells, row, col, borderDirection, resolution = 1) {
   return _getDoorRole(cells, row, col, borderDirection, resolution, 'cardinal');
 }
@@ -536,10 +615,34 @@ function _getDoorRole(cells, row, col, direction, resolution, mode) {
   return null;
 }
 
+/**
+ * Determine a cell's role in double-door auto-detection for diagonal walls.
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} row - Cell row
+ * @param {number} col - Cell column
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {number} [resolution=1] - Resolution multiplier
+ * @returns {string|null} Role: 'anchor', 'partner', or null
+ */
 function getDoubleDoorDiagonalRole(cells, row, col, diagonal, resolution = 1) {
   return _getDoorRole(cells, row, col, diagonal, resolution, 'diagonal');
 }
 
+/**
+ * Render a double-width border (door or secret door) spanning two cells.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} row - Anchor cell row
+ * @param {number} col - Anchor cell column
+ * @param {string} borderDirection - Cardinal direction
+ * @param {string} borderType - Border type ('d' or 's')
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {number} [resolution=1] - Resolution multiplier
+ * @returns {void}
+ */
 function renderDoubleBorder(ctx, cells, row, col, borderDirection, borderType, orientation, theme, gridSize, transform, resolution = 1) {
   const s = scaleFactor(transform);
   const span = 2 * resolution; // double door spans 2 display cells = 2*resolution sub-cells
@@ -597,6 +700,20 @@ function renderDoubleBorder(ctx, cells, row, col, borderDirection, borderType, o
   }
 }
 
+/**
+ * Render a double-width diagonal border (door or secret door) spanning two cells.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} row - Anchor cell row
+ * @param {number} col - Anchor cell column
+ * @param {string} borderType - Border type ('d' or 's')
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {number} [resolution=1] - Resolution multiplier
+ * @returns {void}
+ */
 function renderDiagonalDoubleBorder(ctx, cells, row, col, borderType, diagonal, theme, gridSize, transform, resolution = 1) {
   const s = scaleFactor(transform);
   const span = 2 * resolution; // double door spans 2 display cells
@@ -645,6 +762,17 @@ function renderDiagonalDoubleBorder(ctx, cells, row, col, borderType, diagonal, 
   }
 }
 
+/**
+ * Draw a double door symbol at a specific position.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 function drawDoubleDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, transform) {
   const s = scaleFactor(transform);
   const totalLength = gridSize * transform.scale * 1.6;
@@ -672,6 +800,17 @@ function drawDoubleDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, tra
   }
 }
 
+/**
+ * Draw a double secret door symbol at a specific position.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} orientation - 'horizontal' or 'vertical'
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 function drawDoubleSecretDoorAtPosition(ctx, cx, cy, orientation, theme, gridSize, transform) {
   ctx.save();
   ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
@@ -692,6 +831,17 @@ function drawDoubleSecretDoorAtPosition(ctx, cx, cy, orientation, theme, gridSiz
   ctx.restore();
 }
 
+/**
+ * Draw a diagonal double door symbol.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 function drawDiagonalDoubleDoor(ctx, cx, cy, diagonal, theme, gridSize, transform) {
   const s = scaleFactor(transform);
   const totalLength = gridSize * transform.scale * (2 * DIAG_DOOR_LENGTH_MULT);
@@ -723,6 +873,17 @@ function drawDiagonalDoubleDoor(ctx, cx, cy, diagonal, theme, gridSize, transfor
   ctx.restore();
 }
 
+/**
+ * Draw a diagonal double secret door symbol.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
+ */
 function drawDiagonalDoubleSecretDoor(ctx, cx, cy, diagonal, theme, gridSize, transform) {
   ctx.save();
   ctx.translate(cx, cy);
@@ -744,7 +905,14 @@ function drawDiagonalDoubleSecretDoor(ctx, cx, cy, diagonal, theme, gridSize, tr
 }
 
 /**
- * Draw a stairs link label badge (circled letter) near the stairs icon
+ * Draw a stairs link label badge (circled letter) near the stairs icon.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} cx - Center X in canvas pixels
+ * @param {number} cy - Center Y in canvas pixels
+ * @param {string} label - Link label text (e.g. 'A')
+ * @param {Object} theme - Theme object
+ * @param {Object} transform - Transform with scale
+ * @returns {void}
  */
 function drawStairsLinkLabel(ctx, cx, cy, label, theme, transform) {
   const s = transform ? scaleFactor(transform) : 1;
@@ -774,10 +942,11 @@ function drawStairsLinkLabel(ctx, cx, cy, label, theme, transform) {
  * Renders parallel hatching lines within the polygon defined by the 3 corner points.
  *
  * @param {CanvasRenderingContext2D} ctx
- * @param {{ id: number, points: number[][], link: string|null }} stairDef
- * @param {object} theme
- * @param {number} gridSize
- * @param {object} transform
+ * @param {{ id: number, points: number[][], link: string|null }} stairDef - Stair shape definition
+ * @param {Object} theme - Theme object
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {void}
  */
 function drawStairShape(ctx, stairDef, theme, gridSize, transform) {
   const [p1, p2, p3] = stairDef.points;
@@ -869,8 +1038,9 @@ function _computeStairHatchLines(p1, p2, p3, lineSpacing = STAIR_HATCH_LINE_SPAC
  * @param {number} worldX - World feet X position
  * @param {number} worldY - World feet Y position
  * @param {string} label - Letter label (A-Z)
- * @param {object} theme
- * @param {object} transform
+ * @param {Object} theme - Theme object
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {void}
  */
 function drawStairShapeLinkLabel(ctx, worldX, worldY, label, theme, transform) {
   const s = scaleFactor(transform);
@@ -899,6 +1069,13 @@ function drawStairShapeLinkLabel(ctx, worldX, worldY, label, theme, transform) {
 
 /**
  * Return canvas-space endpoints for a cardinal wall segment (without drawing).
+ * @param {number} x1 - Start grid X
+ * @param {number} y1 - Start grid Y
+ * @param {number} x2 - End grid X
+ * @param {number} y2 - End grid Y
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {{ p1: { x: number, y: number }, p2: { x: number, y: number } }} Canvas pixel endpoints
  */
 function wallSegmentCoords(x1, y1, x2, y2, gridSize, transform) {
   const fx1 = x1 * gridSize;
@@ -912,6 +1089,12 @@ function wallSegmentCoords(x1, y1, x2, y2, gridSize, transform) {
 
 /**
  * Return canvas-space endpoints for a diagonal wall segment (without drawing).
+ * @param {number} col - Cell column
+ * @param {number} row - Cell row
+ * @param {string} diagonal - Diagonal direction ('nw-se' or 'ne-sw')
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {{ p1: { x: number, y: number }, p2: { x: number, y: number } }} Canvas pixel endpoints
  */
 function diagonalWallSegmentCoords(col, row, diagonal, gridSize, transform) {
   let fx1, fy1, fx2, fy2;

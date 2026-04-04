@@ -7,6 +7,9 @@ import { showToast } from '../toast.js';
 let isEditing = false; // guard: prevent update() from destroying inline input
 let dragFromIdx = null;
 
+/**
+ * Initialize the levels panel: subscribe to state, render levels list, bind add-level button.
+ */
 export function init() {
   subscribe(update, 'levels');
   update();
@@ -109,6 +112,10 @@ function update() {
 
 /**
  * Select a level: set it as current and zoom/pan viewport to fit it.
+ */
+/**
+ * Switch to a level by index and pan the viewport to show it.
+ * @param {number} idx - Zero-based level index
  */
 export function selectLevel(idx) {
   const levels = state.dungeon.metadata.levels || [];

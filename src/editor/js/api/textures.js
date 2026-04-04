@@ -21,6 +21,14 @@ function _blendPatch(minRow, minCol, maxRow, maxCol) {
   );
 }
 
+/**
+ * Apply a texture to a single cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} textureId - Texture catalog ID
+ * @param {number} [opacity=1.0] - Texture opacity (0-1)
+ * @returns {{ success: boolean }}
+ */
 export function setTexture(row, col, textureId, opacity = 1.0) {
   row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
@@ -36,6 +44,12 @@ export function setTexture(row, col, textureId, opacity = 1.0) {
   return { success: true };
 }
 
+/**
+ * Remove the texture from a single cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function removeTexture(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -52,6 +66,16 @@ export function removeTexture(row, col) {
   return { success: true };
 }
 
+/**
+ * Apply a texture to all cells in a rectangular region.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @param {string} textureId - Texture catalog ID
+ * @param {number} [opacity=1.0] - Texture opacity (0-1)
+ * @returns {{ success: boolean }}
+ */
 export function setTextureRect(r1, c1, r2, c2, textureId, opacity = 1.0) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
@@ -80,6 +104,14 @@ export function setTextureRect(r1, c1, r2, c2, textureId, opacity = 1.0) {
   return { success: true };
 }
 
+/**
+ * Remove textures from all cells in a rectangular region.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @returns {{ success: boolean }}
+ */
 export function removeTextureRect(r1, c1, r2, c2) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
@@ -106,6 +138,14 @@ export function removeTextureRect(r1, c1, r2, c2) {
   return { success: true };
 }
 
+/**
+ * Flood-fill a texture starting from a cell, spreading through the connected room.
+ * @param {number} row - Starting row
+ * @param {number} col - Starting column
+ * @param {string} textureId - Texture catalog ID
+ * @param {number} [opacity=1.0] - Texture opacity (0-1)
+ * @returns {{ success: boolean }}
+ */
 export function floodFillTexture(row, col, textureId, opacity = 1.0) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);

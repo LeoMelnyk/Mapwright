@@ -16,6 +16,10 @@ import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
 import { computeTrimCells } from '../../../util/index.js';
 
+/**
+ * Trim tool: click+drag to create multi-cell diagonal or arc trims on room corners.
+ * Auto-detects corner direction from drag gesture.
+ */
 export class TrimTool extends Tool {
   constructor() {
     super('trim', 'T', 'crosshair');

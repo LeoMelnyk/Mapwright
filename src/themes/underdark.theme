@@ -1,7 +1,7 @@
 {
   "displayName": "Underdark",
   "background": "#16102a",
-  "gridLine": "#6830a8",
+  "gridLine": "#000000",
   "wallStroke": "#6830a8",
   "wallFill": "#201430",
   "textColor": "#c8a0e8",
@@ -44,7 +44,7 @@
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
   },
-  "gridStyle": "corners-dot",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.25
+  "gridStyle": "lines",
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

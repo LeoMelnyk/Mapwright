@@ -7,6 +7,13 @@ import {
   accumulateDirtyRect,
 } from './_shared.js';
 
+/**
+ * Place stairs at a cell using legacy direction mode (delegates to addStairs).
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - 'up' or 'down'
+ * @returns {{ success: boolean, id: number }}
+ */
 export function setStairs(row, col, direction) {
   // Note: toInt conversion happens inside addStairs, so pass display coords
   if (direction === 'up' || direction === 'down') {
@@ -15,6 +22,16 @@ export function setStairs(row, col, direction) {
   throw new Error(`Invalid stairs direction: ${direction}. Use 'up' or 'down' for legacy, or use addStairs().`);
 }
 
+/**
+ * Add stairs defined by 3 corner points (arbitrary polygon shape).
+ * @param {number} p1r - Point 1 row
+ * @param {number} p1c - Point 1 column
+ * @param {number} p2r - Point 2 row
+ * @param {number} p2c - Point 2 column
+ * @param {number} p3r - Point 3 row (depth point)
+ * @param {number} p3c - Point 3 column (depth point)
+ * @returns {{ success: boolean, id: number }}
+ */
 export function addStairs(p1r, p1c, p2r, p2c, p3r, p3c) {
   p1r = toInt(p1r); p1c = toInt(p1c);
   p2r = toInt(p2r); p2c = toInt(p2c);
@@ -62,6 +79,12 @@ export function addStairs(p1r, p1c, p2r, p2c, p3r, p3c) {
   return { success: true, id };
 }
 
+/**
+ * Remove the stair that covers the given cell position.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function removeStairs(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -117,6 +140,14 @@ export function removeStairs(row, col) {
   return { success: true };
 }
 
+/**
+ * Link two stairs together with a shared A-Z label.
+ * @param {number} r1 - First stair row
+ * @param {number} c1 - First stair column
+ * @param {number} r2 - Second stair row
+ * @param {number} c2 - Second stair column
+ * @returns {{ success: boolean, label: string }}
+ */
 export function linkStairs(r1, c1, r2, c2) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   validateBounds(r1, c1);
@@ -151,6 +182,17 @@ export function linkStairs(r1, c1, r2, c2) {
   return { success: true, label };
 }
 
+/**
+ * Add a bridge defined by type and 3 corner points.
+ * @param {string} type - Bridge type: 'wood', 'stone', 'rope', or 'dock'
+ * @param {number} p1r - Point 1 row
+ * @param {number} p1c - Point 1 column
+ * @param {number} p2r - Point 2 row
+ * @param {number} p2c - Point 2 column
+ * @param {number} p3r - Point 3 row (depth point)
+ * @param {number} p3c - Point 3 column (depth point)
+ * @returns {{ success: boolean, id: number }}
+ */
 export function addBridge(type, p1r, p1c, p2r, p2c, p3r, p3c) {
   const VALID_TYPES = ['wood', 'stone', 'rope', 'dock'];
   if (!VALID_TYPES.includes(type)) throw new Error(`Invalid bridge type: ${type}`);
@@ -192,6 +234,12 @@ export function addBridge(type, p1r, p1c, p2r, p2c, p3r, p3c) {
   return { success: true, id };
 }
 
+/**
+ * Remove the bridge that covers the given cell position.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function removeBridge(row, col) {
   row = toInt(row); col = toInt(col);
   const cell = state.dungeon.cells[row]?.[col];
@@ -220,6 +268,10 @@ export function removeBridge(row, col) {
   return { success: true };
 }
 
+/**
+ * Get all bridge definitions from metadata.
+ * @returns {{ success: boolean, bridges: Array<Object> }}
+ */
 export function getBridges() {
   return { success: true, bridges: state.dungeon.metadata?.bridges || [] };
 }

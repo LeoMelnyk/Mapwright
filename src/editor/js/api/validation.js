@@ -10,7 +10,7 @@ import {
 
 /**
  * Check for props blocking door cells or their approach cells.
- * Returns { clear: bool, issues: [...] }.
+ * @returns {{ success: boolean, clear: boolean, issues: Array<Object> }}
  */
 export function validateDoorClearance() {
   const cells = state.dungeon.cells;
@@ -41,7 +41,8 @@ export function validateDoorClearance() {
 
 /**
  * BFS from entranceLabel through open edges and doors to verify all labeled rooms are reachable.
- * Returns { connected, reachable, unreachable, totalRooms, visitedCells }.
+ * @param {string} entranceLabel - Room label to start BFS from
+ * @returns {{ success: boolean, connected: boolean, reachable: Array<string>, unreachable: Array<string>, totalRooms: number, visitedCells: number }}
  */
 export function validateConnectivity(entranceLabel) {
   const start = getApi().findCellByLabel(entranceLabel);

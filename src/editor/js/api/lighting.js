@@ -4,6 +4,13 @@ import {
   getLightCatalog,
 } from './_shared.js';
 
+/**
+ * Place a light source at world-feet coordinates.
+ * @param {number} x - World-feet X position
+ * @param {number} y - World-feet Y position
+ * @param {Object} [config] - Light configuration (preset, radius, color, intensity, etc.)
+ * @returns {{ success: boolean, id: number }}
+ */
 export function placeLight(x, y, config = {}) {
   if (config.preset) {
     const catalog = getLightCatalog();
@@ -54,6 +61,11 @@ export function placeLight(x, y, config = {}) {
   return { success: true, id: light.id };
 }
 
+/**
+ * Remove a light source by ID.
+ * @param {number} id - Light ID
+ * @returns {{ success: boolean }}
+ */
 export function removeLight(id) {
   const meta = state.dungeon.metadata;
   if (!meta.lights) return { success: true };
@@ -69,11 +81,20 @@ export function removeLight(id) {
   return { success: true };
 }
 
+/**
+ * Get a deep copy of all placed lights.
+ * @returns {{ success: boolean, lights: Array<Object> }}
+ */
 export function getLights() {
   const lights = state.dungeon.metadata?.lights || [];
   return { success: true, lights: JSON.parse(JSON.stringify(lights)) };
 }
 
+/**
+ * Set the global ambient light level.
+ * @param {number} level - Ambient light between 0 (dark) and 1 (full bright)
+ * @returns {{ success: boolean }}
+ */
 export function setAmbientLight(level) {
   if (typeof level !== 'number' || level < 0 || level > 1) {
     throw new Error(`Ambient light must be a number between 0 and 1, got: ${level}`);
@@ -87,6 +108,11 @@ export function setAmbientLight(level) {
   return { success: true };
 }
 
+/**
+ * Enable or disable the lighting system.
+ * @param {boolean} enabled - Whether lighting is enabled
+ * @returns {{ success: boolean }}
+ */
 export function setLightingEnabled(enabled) {
   pushUndo();
   state.dungeon.metadata.lightingEnabled = !!enabled;
@@ -97,6 +123,10 @@ export function setLightingEnabled(enabled) {
   return { success: true };
 }
 
+/**
+ * List all available light presets grouped by category.
+ * @returns {{ success: boolean, categories: Array<string>, presets: Object }}
+ */
 export function listLightPresets() {
   const catalog = getLightCatalog();
   if (!catalog) return { success: true, categories: [], presets: {} };

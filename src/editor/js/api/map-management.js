@@ -6,6 +6,15 @@ import {
   CARDINAL_DIRS, OFFSETS, OPPOSITE, toDisp,
 } from './_shared.js';
 
+/**
+ * Create a new empty map, replacing the current one.
+ * @param {string} name - Map name
+ * @param {number} rows - Number of rows
+ * @param {number} cols - Number of columns
+ * @param {number} [gridSize=5] - Grid size in feet
+ * @param {string} [theme='stone-dungeon'] - Theme name
+ * @returns {{ success: boolean }}
+ */
 export function newMap(name, rows, cols, gridSize = 5, theme = 'stone-dungeon') {
   pushUndo();
   state.dungeon = createEmptyDungeon(name, rows, cols, gridSize, theme);
@@ -16,6 +25,11 @@ export function newMap(name, rows, cols, gridSize = 5, theme = 'stone-dungeon') 
   return { success: true };
 }
 
+/**
+ * Load a dungeon from a JSON object or string, replacing the current map.
+ * @param {Object|string} json - Dungeon JSON data
+ * @returns {{ success: boolean }}
+ */
 export function loadMap(json) {
   if (typeof json === 'string') json = JSON.parse(json);
   if (!json.metadata || !json.cells) {
@@ -37,10 +51,18 @@ export function loadMap(json) {
   return { success: true };
 }
 
+/**
+ * Get a deep copy of the entire dungeon JSON.
+ * @returns {{ success: boolean, dungeon: Object }}
+ */
 export function getMap() {
   return { success: true, dungeon: JSON.parse(JSON.stringify(state.dungeon)) };
 }
 
+/**
+ * Get a summary of the current map (dimensions, theme, feature flags, counts).
+ * @returns {{ success: boolean, name: string, rows: number, cols: number, gridSize: number, theme: string, levels: Array, propCount: number, labelCount: number, lightCount: number }}
+ */
 export function getMapInfo() {
   const meta = state.dungeon.metadata;
   const cells = state.dungeon.cells;
@@ -81,6 +103,10 @@ export function getMapInfo() {
   };
 }
 
+/**
+ * Get complete map info including rooms, props, doors, lights, stairs, and bridges.
+ * @returns {{ success: boolean, rooms: Array, props: Array, doors: Array, lights: Array, stairs: Array, bridges: Array }}
+ */
 export function getFullMapInfo() {
   const base = getApi().getMapInfo();
   const cells = state.dungeon.cells;
@@ -137,6 +163,11 @@ export function getFullMapInfo() {
   };
 }
 
+/**
+ * Set the dungeon name.
+ * @param {string} name - New dungeon name
+ * @returns {{ success: boolean }}
+ */
 export function setName(name) {
   if (!name || typeof name !== 'string') {
     throw new Error('Name must be a non-empty string');
@@ -148,6 +179,11 @@ export function setName(name) {
   return { success: true };
 }
 
+/**
+ * Set the map theme.
+ * @param {string} theme - Theme name
+ * @returns {{ success: boolean }}
+ */
 export function setTheme(theme) {
   if (!theme || typeof theme !== 'string') {
     throw new Error('Theme must be a non-empty string');
@@ -159,6 +195,11 @@ export function setTheme(theme) {
   return { success: true };
 }
 
+/**
+ * Set the label rendering style.
+ * @param {string} style - 'circled', 'plain', or 'bold'
+ * @returns {{ success: boolean }}
+ */
 export function setLabelStyle(style) {
   if (!['circled', 'plain', 'bold'].includes(style)) {
     throw new Error(`Invalid label style: ${style}. Use 'circled', 'plain', or 'bold'.`);
@@ -170,6 +211,12 @@ export function setLabelStyle(style) {
   return { success: true };
 }
 
+/**
+ * Enable or disable a map display feature (grid, compass, scale, border).
+ * @param {string} feature - Feature name
+ * @param {boolean} enabled - Whether to enable the feature
+ * @returns {{ success: boolean }}
+ */
 export function setFeature(feature, enabled) {
   const validFeatures = ['grid', 'compass', 'scale', 'border'];
   if (!validFeatures.includes(feature)) {

@@ -31,10 +31,20 @@ function save() {
   } catch { /* localStorage unavailable */ }
 }
 
+/**
+ * Get the current editor settings (persisted in localStorage).
+ * @returns {Object} Settings object with keys like fpsCounter, renderQuality, etc.
+ */
 export function getEditorSettings() {
   return load();
 }
 
+/**
+ * Update a single editor setting and persist to localStorage.
+ * @param {string} key - Setting key (e.g. 'fpsCounter', 'renderQuality').
+ * @param {*} value - New value for the setting.
+ * @returns {void}
+ */
 export function setEditorSetting(key, value) {
   load()[key] = value;
   save();

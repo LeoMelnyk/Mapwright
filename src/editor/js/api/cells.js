@@ -7,6 +7,12 @@ import {
   captureBeforeState, smartInvalidate,
 } from './_shared.js';
 
+/**
+ * Get a deep copy of the cell data at the given position.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean, cell: Object|null }} Cell data or null if void
+ */
 export function getCellInfo(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -14,6 +20,12 @@ export function getCellInfo(row, col) {
   return { success: true, cell: cell ? JSON.parse(JSON.stringify(cell)) : null };
 }
 
+/**
+ * Paint a single cell (make it non-void).
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function paintCell(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -27,6 +39,14 @@ export function paintCell(row, col) {
   return { success: true };
 }
 
+/**
+ * Paint all cells in a rectangular region.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @returns {{ success: boolean }}
+ */
 export function paintRect(r1, c1, r2, c2) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
@@ -49,6 +69,12 @@ export function paintRect(r1, c1, r2, c2) {
   return { success: true };
 }
 
+/**
+ * Erase (void) a single cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function eraseCell(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -62,6 +88,14 @@ export function eraseCell(row, col) {
   return { success: true };
 }
 
+/**
+ * Erase (void) all cells in a rectangular region.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @returns {{ success: boolean }}
+ */
 export function eraseRect(r1, c1, r2, c2) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
@@ -84,6 +118,15 @@ export function eraseRect(r1, c1, r2, c2) {
   return { success: true };
 }
 
+/**
+ * Create a walled room from a rectangular region using the RoomTool.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @param {string} [mode='room'] - 'room' (walls on all edges) or 'merge' (walls only facing void)
+ * @returns {{ success: boolean }}
+ */
 export function createRoom(r1, c1, r2, c2, mode = 'room') {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
@@ -115,6 +158,12 @@ export function createRoom(r1, c1, r2, c2, mode = 'room') {
   return { success: true };
 }
 
+/**
+ * Create a walled room from an arbitrary list of cells (non-rectangular shapes).
+ * @param {Array<[number, number]>} cellList - Array of [row, col] pairs
+ * @param {string} [mode='room'] - 'room' or 'merge'
+ * @returns {{ success: boolean, count: number }}
+ */
 export function createPolygonRoom(cellList, mode = 'room') {
   if (!Array.isArray(cellList) || cellList.length === 0) {
     throw new Error('cellList must be a non-empty array of [row, col] pairs');

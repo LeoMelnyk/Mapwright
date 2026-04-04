@@ -5,17 +5,32 @@
 /** Default resolution (1 = legacy full-cell grid, 2 = half-cell / quarter grid). */
 export const RESOLUTION_DEFAULT = 2;
 
-/** Compute the user-facing grid size from internal gridSize and resolution. */
+/**
+ * Compute the user-facing grid size from internal gridSize and resolution.
+ * @param {number} gridSize - Internal grid size in feet
+ * @param {number} resolution - Resolution multiplier (1 or 2)
+ * @returns {number} Display grid size in feet
+ */
 export function displayGridSize(gridSize, resolution) {
   return gridSize * (resolution || 1);
 }
 
-/** Convert a display coordinate (0, 0.5, 1, 1.5 …) to an internal integer index. */
+/**
+ * Convert a display coordinate (0, 0.5, 1, 1.5...) to an internal integer index.
+ * @param {number} displayCoord - Display coordinate
+ * @param {number} resolution - Resolution multiplier
+ * @returns {number} Internal grid index
+ */
 export function toInternalCoord(displayCoord, resolution) {
   return Math.round(displayCoord * (resolution || 1));
 }
 
-/** Convert an internal integer index back to a display coordinate. */
+/**
+ * Convert an internal integer index back to a display coordinate.
+ * @param {number} internalCoord - Internal grid index
+ * @param {number} resolution - Resolution multiplier
+ * @returns {number} Display coordinate
+ */
 export function toDisplayCoord(internalCoord, resolution) {
   return internalCoord / (resolution || 1);
 }
@@ -29,20 +44,40 @@ export const CARDINAL_DIRS = [
 
 export const OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
 
-/** Create a "row,col" string key for Set/Map lookups. */
+/**
+ * Create a "row,col" string key for Set/Map lookups.
+ * @param {number} r - Row index
+ * @param {number} c - Column index
+ * @returns {string} Cell key string
+ */
 export function cellKey(r, c) { return `${r},${c}`; }
 
-/** Parse a "row,col" string key back into [row, col] integers. */
+/**
+ * Parse a "row,col" string key back into [row, col] integers.
+ * @param {string} key - Cell key string
+ * @returns {[number, number]} [row, col]
+ */
 export function parseCellKey(key) { return key.split(',').map(Number); }
 
-/** Check if (row, col) is within the grid bounds. */
+/**
+ * Check if (row, col) is within the grid bounds.
+ * @param {Array} cells - 2D cells grid
+ * @param {number} r - Row index
+ * @param {number} c - Column index
+ * @returns {boolean} True if in bounds
+ */
 export function isInBounds(cells, r, c) {
   return r >= 0 && r < cells.length && c >= 0 && c < (cells[0]?.length || 0);
 }
 
 /**
  * Constrain a drag endpoint to form a square from the start point.
- * Returns { row, col } clamped to grid bounds.
+ * @param {number} row - Current drag row
+ * @param {number} col - Current drag column
+ * @param {number} startRow - Drag start row
+ * @param {number} startCol - Drag start column
+ * @param {Array} cells - 2D cells grid (for bounds clamping)
+ * @returns {{ row: number, col: number }} Clamped square endpoint
  */
 export function snapToSquare(row, col, startRow, startCol, cells) {
   const dr = row - startRow;
@@ -56,6 +91,11 @@ export function snapToSquare(row, col, startRow, startCol, cells) {
 
 /**
  * Normalize two corner coordinates into a top-left / bottom-right bounding box.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @returns {{ r1: number, c1: number, r2: number, c2: number }}
  */
 export function normalizeBounds(r1, c1, r2, c2) {
   return {
@@ -65,16 +105,22 @@ export function normalizeBounds(r1, c1, r2, c2) {
 }
 
 /**
- * Check if the edge between two adjacent cells is completely open
- * (no wall, door, or secret door on either side).
+ * Check if the edge between two adjacent cells is completely open.
+ * @param {Object} cell - Source cell object
+ * @param {Object} neighbor - Adjacent cell object
+ * @param {string} dir - Cardinal direction from cell to neighbor
+ * @returns {boolean} True if no wall, door, or secret door on either side
  */
 export function isEdgeOpen(cell, neighbor, dir) {
   return !cell?.[dir] && !neighbor?.[OPPOSITE[dir]];
 }
 
 /**
- * Check if the edge between two adjacent cells is passable
- * (walls and invisible walls block, but doors and secret doors are allowed).
+ * Check if the edge between two adjacent cells is passable (doors allowed, walls block).
+ * @param {Object} cell - Source cell object
+ * @param {Object} neighbor - Adjacent cell object
+ * @param {string} dir - Cardinal direction from cell to neighbor
+ * @returns {boolean} True if passable
  */
 export function isEdgePassable(cell, neighbor, dir) {
   const a = cell?.[dir], b = neighbor?.[OPPOSITE[dir]];
@@ -85,7 +131,8 @@ export function isEdgePassable(cell, neighbor, dir) {
 
 /**
  * Given a Set of "row,col" cell keys, compute the bounding box and center.
- * Returns { r1, c1, r2, c2, centerRow, centerCol } or null if empty.
+ * @param {Set<string>} cellKeySet - Set of cell key strings
+ * @returns {{ r1: number, c1: number, r2: number, c2: number, centerRow: number, centerCol: number }|null}
  */
 export function roomBoundsFromKeys(cellKeySet) {
   if (!cellKeySet || cellKeySet.size === 0) return null;
@@ -105,9 +152,12 @@ export function roomBoundsFromKeys(cellKeySet) {
 const DIR_OFFSET = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
 
 /**
- * Set `cells[row][col][direction] = value` and the reciprocal on the neighbor.
- * Only applies to cardinal directions (diagonal walls have no neighbor reciprocal).
- * Creates the neighbor cell if it doesn't exist but is in bounds.
+ * Set a wall/door value on a cell edge and its reciprocal on the neighbor.
+ * @param {Array} cells - 2D cells grid
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Edge direction
+ * @param {string} value - Edge value ('w', 'd', 's', 'iw', etc.)
  */
 export function setEdgeReciprocal(cells, row, col, direction, value) {
   cells[row][col][direction] = value;
@@ -120,7 +170,11 @@ export function setEdgeReciprocal(cells, row, col, direction, value) {
 }
 
 /**
- * Delete `cells[row][col][direction]` and the reciprocal on the neighbor.
+ * Delete a cell edge value and its reciprocal on the neighbor.
+ * @param {Array} cells - 2D cells grid
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Edge direction
  */
 export function deleteEdgeReciprocal(cells, row, col, direction) {
   delete cells[row][col][direction];
@@ -136,8 +190,9 @@ export function deleteEdgeReciprocal(cells, row, col, direction) {
 
 /**
  * Returns a Set of exit directions blocked by a diagonal wall, given the entry direction.
- * nw-se diagonal separates {north,east} from {south,west}.
- * ne-sw diagonal separates {north,west} from {south,east}.
+ * @param {Object} cell - Cell object with potential 'nw-se' or 'ne-sw' diagonal walls
+ * @param {string|null} entryDir - Direction the cell was entered from
+ * @returns {Set<string>} Blocked exit directions
  */
 export function blockedByDiagonal(cell, entryDir) {
   const blocked = new Set();
@@ -161,8 +216,12 @@ export function blockedByDiagonal(cell, entryDir) {
 }
 
 /**
- * When a diagonal cell is first reached from one half, pre-mark all entry directions
- * belonging to the OTHER half as visited so the BFS cannot cross the diagonal wall.
+ * When a diagonal cell is first reached from one half, lock the other half as visited.
+ * @param {Set<string>} visited - BFS visited set (mutated)
+ * @param {number} r - Row index
+ * @param {number} c - Column index
+ * @param {string|null} entryDir - Direction the cell was entered from
+ * @param {Object} cell - Cell object
  */
 export function lockDiagonalHalf(visited, r, c, entryDir, cell) {
   if (!entryDir) return;

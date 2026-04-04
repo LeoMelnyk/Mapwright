@@ -181,6 +181,10 @@ let _planMode = false;       // true when plan-before-act mode is on
 let _pendingPlanIdx = -1;    // _messages index of the awaiting-execute plan (-1 = none)
 const _hiddenMsgIdxs = new Set(); // indices of injected system messages to hide from UI
 
+/**
+ * Initialize the Claude AI chat panel for in-editor dungeon building conversations.
+ * @param {HTMLElement} containerEl - Container element for the panel
+ */
 export function initClaudePanel(containerEl) {
   _container = containerEl;
   render();

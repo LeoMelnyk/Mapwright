@@ -201,8 +201,9 @@ function filterTextures(cat) {
 }
 
 /**
- * Select a texture by ID — sets activeTexture on state, switches paint tool
+ * Select a texture by ID -- sets activeTexture on state, switches paint tool
  * to texture mode, and updates panel highlight.
+ * @param {string} id - Texture catalog ID
  */
 export function selectTexture(id) {
   state.activeTexture = id;

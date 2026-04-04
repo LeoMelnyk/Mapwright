@@ -1,5 +1,60 @@
 # Changelog
 
+## v0.10.0
+
+### Universal VTT Export
+
+Maps can now be exported as `.dd2vtt` files (Universal VTT format) for use in Foundry VTT, Roll20, and other virtual tabletop platforms.
+
+- **File > Export to Universal VTT** menu item in the editor
+- Embeds a full-quality PNG render alongside line-of-sight walls, door portals, and lights
+- Walls extracted from the cell grid with proper deduplication; invisible walls/doors excluded
+- Doors exported as portals with closed state and rotation
+- Lights converted with position, range, intensity, and color in grid-unit coordinates
+- Ambient light level included in environment settings
+- Server endpoint: `POST /api/export-dd2vtt`
+- Compatible with Foundry VTT (via Universal Battlemap Import module)
+
+### Codebase Refactoring
+
+Major restructuring of the four largest files into focused, single-responsibility modules. No behavioral changes — all 724 tests pass, all existing imports work unchanged.
+
+**render/props.js (2,355 lines) split into 3 modules:**
+- `parse-props.js` — .prop file parsing and coordinate transformation
+- `render-props.js` — Canvas rendering and tile caching
+- `hitbox-props.js` — Hitbox generation, hit testing, and light segment extraction
+
+**render/render.js (1,529 lines) split into 4 modules:**
+- `render-state.js` — Timing, versioning, dirty region tracking
+- `render-cache.js` — Smart cache invalidation and geometry helpers
+- `render-phases.js` — All visual render phase functions
+- `render-cells.js` — Main render orchestrator
+
+**editor/js/canvas-view.js (1,331 lines) split into 4 modules:**
+- `canvas-view-state.js` — Shared mutable state and constants
+- `canvas-view-render.js` — Render pipeline and overlay drawing
+- `canvas-view-input.js` — Mouse and wheel event handlers
+- `canvas-view-viewport.js` — Pan, zoom, and viewport control
+
+**editor/js/main.js (1,346 lines) split into 4 modules:**
+- `app-init.js` — Application bootstrap and catalog loading
+- `texture-alerts.js` — Texture download status UI
+- `keyboard-shortcuts.js` — Keyboard event routing
+- `ui-components.js` — Draggable toolbar, status bar, modals, markdown parser
+
+### JSDoc Annotations
+
+Added `@param` and `@returns` type annotations to all exported functions across ~86 source files, covering the render pipeline, editor core, API modules, tools, panels, and utilities.
+
+### Security Hardening
+
+- **Path traversal fix** — `/api/open-file` now validates resolved paths against an allowlist (user home directory and examples directory)
+- **SSRF fix** — Ollama proxy endpoints (`/api/ollama-status`, `/api/claude`) validate base URLs are localhost/loopback only
+- **Theme key sanitization** — PUT/DELETE theme endpoints use `path.basename()` to prevent directory traversal
+- **Security headers** — Added `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY` middleware
+
+---
+
 ## v0.9.1
 
 ### Grid Customization

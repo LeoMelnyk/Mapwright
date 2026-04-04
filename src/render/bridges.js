@@ -67,6 +67,7 @@ function _pointOnPolygonEdge(r, c, polygon, eps = 0.01) {
 
 // ── Style constants ────────────────────────────────────────────────────────────
 
+/** @type {Object.<string, string>} Map of bridge type to texture ID */
 export const BRIDGE_TEXTURE_IDS = {
   wood:  'polyhaven/weathered_planks',
   stone: 'polyhaven/stone_wall',
@@ -426,6 +427,7 @@ function renderBridge(ctx, bridge, allBridges, gridSize, theme, transform, getTe
  * @param {object} theme - Current theme object
  * @param {object} transform - { scale, offsetX, offsetY }
  * @param {Function|null} getTextureImage - (textureId: string) => HTMLImageElement|null
+ * @returns {void}
  */
 export function renderAllBridges(ctx, bridges, gridSize, theme, transform, getTextureImage) {
   if (!bridges || bridges.length === 0) return;

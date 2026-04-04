@@ -1,6 +1,6 @@
 // Toolbar: tool buttons, door type, file ops, undo/redo
 import state, { undo, redo, notify, subscribe, pushUndo, markDirty } from '../state.js';
-import { loadDungeon, loadDungeonJSON, saveDungeon, saveDungeonAs, newDungeon, exportPng, reloadAssets } from '../io.js';
+import { loadDungeon, loadDungeonJSON, saveDungeon, saveDungeonAs, newDungeon, exportPng, exportDd2vtt, reloadAssets } from '../io.js';
 import { setCursor } from '../canvas-view.js';
 import { SYRINGE_CURSOR, STAMP_CURSOR } from '../tools/index.js';
 import { convertOnePageDungeon } from '../import-opd.js';
@@ -9,11 +9,18 @@ import { showToast } from '../toast.js';
 
 let onToolChange = null;
 
+/**
+ * Register a callback invoked when the active tool changes.
+ * @param {Function} cb - Callback receiving the new tool name
+ */
 export function setToolChangeCallback(cb) {
   onToolChange = cb;
 }
 
-/** Programmatically activate a tool (triggers the same callback as toolbar clicks). */
+/**
+ * Programmatically activate a tool (triggers the same callback as toolbar clicks).
+ * @param {string} name - Tool name to activate
+ */
 export function activateTool(name) {
   if (onToolChange) onToolChange(name);
 }
@@ -128,7 +135,10 @@ const toolOptions = {
             } },
 };
 
-/** Fire onApply side effects for a tool's current sub-mode (e.g., open textures panel). */
+/**
+ * Fire onApply side effects for a tool's current sub-mode (e.g., open textures panel).
+ * @param {string} toolName - Tool identifier
+ */
 export function applyToolSideEffects(toolName) {
   const opts = toolOptions[toolName];
   if (opts?.onApply) opts.onApply(state[opts.key] || opts.values[0]);
@@ -139,7 +149,11 @@ function attrToDatasetKey(attr) {
   return attr.replace(/^data-/, '').replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 }
 
-/** Set a sub-mode for a tool. Updates state, button highlights, cursor, and side effects. */
+/**
+ * Set a sub-mode for a tool. Updates state, button highlights, cursor, and side effects.
+ * @param {string} toolName - Tool identifier (e.g. 'paint', 'fill')
+ * @param {string} value - Sub-mode value
+ */
 export function setSubMode(toolName, value) {
   const opts = toolOptions[toolName];
   if (!opts) return;
@@ -152,7 +166,11 @@ export function setSubMode(toolName, value) {
   updateToolButtons();
 }
 
-/** Cycle the active tool's sub-mode. delta = +1 (Tab) or -1 (Shift+Tab). */
+/**
+ * Cycle the active tool's sub-mode forward or backward.
+ * @param {number} delta - +1 (Tab) or -1 (Shift+Tab)
+ * @returns {boolean} True if a sub-mode was cycled
+ */
 export function cycleSubMode(delta) {
   const opts = toolOptions[state.activeTool];
   if (!opts) return false;
@@ -162,12 +180,19 @@ export function cycleSubMode(delta) {
   return true;
 }
 
-/** Get mode-aware cursor for a tool, or null if no cursor config in registry. */
+/**
+ * Get mode-aware cursor for a tool, or null if no cursor config in registry.
+ * @param {string} toolName - Tool identifier
+ * @returns {string|null} CSS cursor string
+ */
 export function getToolCursor(toolName) {
   const opts = toolOptions[toolName];
   return opts?.cursor ? opts.cursor(state[opts.key]) : null;
 }
 
+/**
+ * Initialize the toolbar: bind menu dropdowns, tool buttons, sub-mode toggles, and keyboard shortcuts.
+ */
 export function init() {
   // ── Menu bar dropdowns ─────────────────────────────────────────────────
   const menuItems = document.querySelectorAll('.menu-item');
@@ -207,6 +232,7 @@ export function init() {
   document.getElementById('btn-save').addEventListener('click', saveDungeon);
   document.getElementById('btn-save-as').addEventListener('click', saveDungeonAs);
   document.getElementById('btn-export-png').addEventListener('click', exportPng);
+  document.getElementById('btn-export-dd2vtt').addEventListener('click', exportDd2vtt);
   document.getElementById('btn-reload-assets').addEventListener('click', reloadAssets);
 
   // ── Import sub-menu ─────────────────────────────────────────────────
@@ -370,6 +396,9 @@ export function init() {
   }, 'toolbar');
 }
 
+/**
+ * Refresh toolbar button state (active highlights, visibility based on features).
+ */
 export function updateToolButtons() {
   const lightingEnabled = !!state.dungeon.metadata.lightingEnabled;
 

@@ -41,6 +41,15 @@ function removePropAtGrid(row, col) {
 
 // ── Prop Operations ─────────────────────────────────────────────────────
 
+/**
+ * Place a prop from the catalog at the given grid position.
+ * @param {number} row - Anchor row
+ * @param {number} col - Anchor column
+ * @param {string} propType - Prop catalog key
+ * @param {number} [facing=0] - Rotation in degrees (0, 90, 180, 270)
+ * @param {Object} [options] - Additional options (scale, allowOverlap, x, y, zIndex)
+ * @returns {{ success: boolean, warnings?: Array<string> }}
+ */
 export function placeProp(row, col, propType, facing = 0, options = {}) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -132,6 +141,12 @@ export function placeProp(row, col, propType, facing = 0, options = {}) {
   return warnings.length ? { success: true, warnings } : { success: true };
 }
 
+/**
+ * Remove the prop covering the given grid position.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function removeProp(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -151,6 +166,12 @@ export function removeProp(row, col) {
   return { success: true };
 }
 
+/**
+ * Set or clear the display name of a light by ID.
+ * @param {number} id - Light ID
+ * @param {string|null} name - Display name, or falsy to remove
+ * @returns {{ success: boolean }}
+ */
 export function setLightName(id, name) {
   const meta = state.dungeon.metadata;
   const light = (meta.lights || []).find(l => l.id === id);
@@ -162,6 +183,13 @@ export function setLightName(id, name) {
   return { success: true };
 }
 
+/**
+ * Rotate the prop at the given position by the specified degrees.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {number} [degrees=90] - Degrees to rotate (added to current facing)
+ * @returns {{ success: boolean, facing: number }}
+ */
 export function rotateProp(row, col, degrees = 90) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -176,6 +204,10 @@ export function rotateProp(row, col, degrees = 90) {
   return { success: true, facing: newFacing };
 }
 
+/**
+ * List all prop types from the catalog with metadata.
+ * @returns {{ success: boolean, categories: Array<string>, props: Object }}
+ */
 export function listProps() {
   const catalog = state.propCatalog;
   if (!catalog) return { success: true, categories: [], props: {} };
@@ -200,7 +232,8 @@ export function listProps() {
 
 /**
  * Return all props that belong in a specific room type.
- * Returns { props: [{ name, category, footprint, facing, placement, ... }] }
+ * @param {string} roomType - Room type tag (e.g. 'tavern', 'library')
+ * @returns {{ success: boolean, props: Array<Object> }}
  */
 export function getPropsForRoomType(roomType) {
   const catalog = state.propCatalog;
@@ -224,7 +257,12 @@ export function getPropsForRoomType(roomType) {
   return { success: true, props: results };
 }
 
-/** Remove the prop at the given grid position. */
+/**
+ * Remove the prop at the given grid position.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {{ success: boolean }}
+ */
 export function removePropAt(row, col) {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
@@ -243,7 +281,14 @@ export function removePropAt(row, col) {
   return { success: true };
 }
 
-/** Remove all props with anchor positions in the given rectangle. */
+/**
+ * Remove all props with anchor positions in the given rectangle.
+ * @param {number} r1 - First corner row
+ * @param {number} c1 - First corner column
+ * @param {number} r2 - Second corner row
+ * @param {number} c2 - Second corner column
+ * @returns {{ success: boolean, removed: number }}
+ */
 export function removePropsInRect(r1, c1, r2, c2) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
@@ -285,11 +330,11 @@ export function removePropsInRect(r1, c1, r2, c2) {
 /**
  * Fill a wall of a room with repeated copies of a prop.
  * wall: 'north', 'south', 'east', 'west'.
- * options: { facing, gap, inset, skipDoors }
- *   facing: prop rotation (0/90/180/270). Default 0.
- *   gap: cells between each prop along the wall. Default 0.
- *   inset: cells inward from the wall edge. Default 0.
- *   skipDoors: skip cells adjacent to doors. Default true.
+ * @param {string} roomLabel - Room label
+ * @param {string} propType - Prop catalog key
+ * @param {string} wall - Wall side: 'north', 'south', 'east', or 'west'
+ * @param {Object} [options] - { facing, gap, inset, skipDoors }
+ * @returns {{ success: boolean, placed: Array<[number, number]> }}
  */
 export function fillWallWithProps(roomLabel, propType, wall, options = {}) {
   if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
@@ -367,7 +412,14 @@ export function fillWallWithProps(roomLabel, propType, wall, options = {}) {
  * Place props in a straight line starting at (startRow, startCol).
  * direction: 'east' or 'south' — axis to advance along.
  * count: max number of props to place.
- * options: { facing, gap }
+ * @param {string} roomLabel - Room label
+ * @param {string} propType - Prop catalog key
+ * @param {number} startRow - Starting row
+ * @param {number} startCol - Starting column
+ * @param {string} direction - 'east' or 'south'
+ * @param {number} count - Maximum number of props to place
+ * @param {Object} [options] - { facing, gap }
+ * @returns {{ success: boolean, placed: Array<[number, number]> }}
  */
 export function lineProps(roomLabel, propType, startRow, startCol, direction, count, options = {}) {
   startRow = toInt(startRow); startCol = toInt(startCol);
@@ -418,7 +470,11 @@ export function lineProps(roomLabel, propType, startRow, startCol, direction, co
 /**
  * Scatter props at random valid positions within a room.
  * count: max number to place (may place fewer if not enough room).
- * options: { facing, avoidWalls (number of cells margin from walls, default 0) }
+ * @param {string} roomLabel - Room label
+ * @param {string} propType - Prop catalog key
+ * @param {number} count - Maximum number of props to place
+ * @param {Object} [options] - { facing, avoidWalls }
+ * @returns {{ success: boolean, placed: Array<[number, number]> }}
  */
 export function scatterProps(roomLabel, propType, count, options = {}) {
   const facing = options.facing ?? 0;
@@ -460,8 +516,11 @@ export function scatterProps(roomLabel, propType, count, options = {}) {
 
 /**
  * Place a cluster of props at relative offsets from an anchor point.
- * props: [{ type, dr, dc, facing }] — offsets relative to (anchorRow, anchorCol).
- * Returns { placed, failed } arrays.
+ * @param {string} roomLabel - Room label
+ * @param {Array<{ type: string, dr: number, dc: number, facing?: number }>} props - Prop offsets relative to anchor
+ * @param {number} anchorRow - Anchor row
+ * @param {number} anchorCol - Anchor column
+ * @returns {{ success: boolean, placed: Array<Object>, failed: Array<Object> }}
  */
 export function clusterProps(roomLabel, props, anchorRow, anchorCol) {
   anchorRow = toInt(anchorRow); anchorCol = toInt(anchorCol);

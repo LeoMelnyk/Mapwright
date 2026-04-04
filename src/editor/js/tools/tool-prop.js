@@ -174,6 +174,10 @@ function getTextureResolver() {
 
 // ── Tool ────────────────────────────────────────────────────────────────────
 
+/**
+ * Prop tool: place props from catalog, select/move/rotate/flip placed props,
+ * and manage prop z-ordering. Supports box-select and copy/paste.
+ */
 export class PropTool extends Tool {
   constructor() {
     super('prop', '9', 'crosshair');

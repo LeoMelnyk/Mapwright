@@ -1,7 +1,7 @@
 {
   "displayName": "Blue Parchment",
   "background": "#f0f4f8",
-  "gridLine": "#4a7c9e",
+  "gridLine": "#000000",
   "wallStroke": "#2c1810",
   "wallFill": "#ffffff",
   "textColor": "#2c1810",
@@ -45,6 +45,6 @@
     "backgroundColor": "#FFFFFF"
   },
   "gridStyle": "lines",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.15
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

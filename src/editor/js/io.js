@@ -14,9 +14,9 @@ import { onMapLoaded } from './dm-session.js';
 
 /**
  * Load a dungeon JSON object into the editor state.
- * This is the shared core used by Open, Import, etc.
- * @param {object} json - A valid dungeon JSON with metadata + cells.
- * @param {object} [opts] - Options: fileHandle, fileName.
+ * @param {Object} json - A valid dungeon JSON with metadata + cells.
+ * @param {Object} [opts] - Options: fileHandle, fileName.
+ * @returns {void}
  */
 export function loadDungeonJSON(json, opts = {}) {
   pushUndo();
@@ -70,6 +70,11 @@ export function loadDungeonJSON(json, opts = {}) {
   requestAnimationFrame(() => zoomToFit());
 }
 
+/**
+ * Migrate legacy half-cell texture properties to the unified primary/secondary format.
+ * @param {Object} dungeon - The dungeon object with cells to migrate.
+ * @returns {void}
+ */
 export function migrateHalfTextures(dungeon) {
   for (const row of dungeon.cells) {
     for (const cell of row) {
@@ -162,7 +167,8 @@ async function confirmUnsaved() {
 }
 
 /**
- * Load a dungeon JSON via File System Access API (or fallback)
+ * Load a dungeon JSON via File System Access API (or fallback file input).
+ * @returns {Promise<void>}
  */
 export async function loadDungeon() {
   if (!await confirmUnsaved()) return;
@@ -215,7 +221,8 @@ export async function loadDungeon() {
 }
 
 /**
- * Save dungeon — writes back to the loaded file, or prompts for location
+ * Save the dungeon — writes back to the loaded file, or prompts for a save location.
+ * @returns {Promise<void>}
  */
 export async function saveDungeon() {
   state.dungeon.metadata.formatVersion = CURRENT_FORMAT_VERSION;
@@ -320,10 +327,8 @@ async function saveBlob(blob, suggestedName) {
 }
 
 /**
- * Export the current dungeon as a PNG image.
- * Renders server-side via @napi-rs/canvas to avoid browser memory limits.
- * Falls back to browser-side rendering (without textures) if the server
- * endpoint is unavailable (e.g. when using npx serve instead of server.js).
+ * Export the current dungeon as a PNG image (server-side or browser fallback).
+ * @returns {Promise<void>}
  */
 let exportOverlay = null;
 
@@ -430,7 +435,45 @@ export async function exportPng() {
 }
 
 /**
+ * Export the current dungeon as Universal VTT (.dd2vtt) format.
+ * Sends the full config to the server which renders the PNG and builds the dd2vtt JSON.
+ * @returns {Promise<void>}
+ */
+export async function exportDd2vtt() {
+  const config = state.dungeon;
+  const suggestedName = (config.metadata.dungeonName || 'dungeon')
+    .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.dd2vtt';
+
+  showExportOverlay();
+
+  try {
+    const res = await fetch('/api/export-dd2vtt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    });
+    if (!res.ok) {
+      hideExportOverlay();
+      let detail = `HTTP ${res.status}`;
+      try { const body = await res.json(); if (body.error) detail = body.error; } catch {}
+      showToast(`Export failed: ${detail}`);
+      return;
+    }
+    const blob = await res.blob();
+    hideExportOverlay();
+    await saveBlob(blob, suggestedName);
+    showToast('Exported as Universal VTT (.dd2vtt)');
+  } catch (err) {
+    hideExportOverlay();
+    if (err.name === 'AbortError') return;
+    console.error('Export dd2vtt failed:', err);
+    showToast('Export failed: ' + err.message);
+  }
+}
+
+/**
  * Clear all cached assets from localStorage + memory and reload from server.
+ * @returns {Promise<void>}
  */
 export async function reloadAssets() {
   // Clear localStorage
@@ -483,7 +526,8 @@ export async function reloadAssets() {
 }
 
 /**
- * Save As — forces a new file picker regardless of existing handle
+ * Save As — forces a new file picker regardless of existing handle.
+ * @returns {Promise<void>}
  */
 export async function saveDungeonAs() {
   const savedHandle = state.fileHandle;
@@ -496,7 +540,8 @@ export async function saveDungeonAs() {
 }
 
 /**
- * Create a new empty dungeon
+ * Create a new empty dungeon (prompts for name and dimensions).
+ * @returns {Promise<void>}
  */
 export async function newDungeon() {
   if (!await confirmUnsaved()) return;

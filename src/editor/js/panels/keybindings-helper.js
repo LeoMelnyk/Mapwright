@@ -210,6 +210,9 @@ function buildSessionContent(sessionTool) {
   return html;
 }
 
+/**
+ * Refresh the keybindings helper panel content for the current tool/mode.
+ */
 export function refreshKeybindingsHelper() {
   refresh();
 }
@@ -241,6 +244,10 @@ function refresh() {
   bodyEl.innerHTML = buildContent(toolName);
 }
 
+/**
+ * Show or hide the keybindings helper overlay panel.
+ * @param {boolean} [visible] - Explicit visibility, or toggle if omitted
+ */
 export function toggleKeybindingsHelper(visible) {
   if (!panel) return;
   const show = visible !== undefined ? visible : panel.style.display === 'none';
@@ -304,6 +311,9 @@ function onDragEnd() {
   } catch {}
 }
 
+/**
+ * Initialize the keybindings helper: build panel, restore position, and subscribe to tool changes.
+ */
 export function initKeybindingsHelper() {
   panel = document.getElementById('keybindings-helper');
   if (!panel) return;

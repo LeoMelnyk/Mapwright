@@ -1,7 +1,7 @@
 {
   "displayName": "Swamp",
   "background": "#788a50",
-  "gridLine": "#2a2010",
+  "gridLine": "#000000",
   "wallStroke": "#180e00",
   "wallFill": "#a09a70",
   "textColor": "#f0e8b0",
@@ -44,7 +44,7 @@
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
   },
-  "gridStyle": "corners-dot",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.3
+  "gridStyle": "lines",
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

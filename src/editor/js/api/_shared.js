@@ -32,16 +32,29 @@ const paintTool = new PaintTool();
 
 let _api = null;
 
+/**
+ * Get the assembled editor API object for cross-module method calls.
+ * @returns {Object} The editor API
+ */
 function getApi() {
   return _api;
 }
 
+/**
+ * Set the API reference (called once by the assembler after construction).
+ * @param {Object} api - The assembled editor API
+ */
 function _setApi(api) {
   _api = api;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+/**
+ * Throw if (row, col) is outside the dungeon grid bounds.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ */
 function validateBounds(row, col) {
   const cells = state.dungeon.cells;
   if (!isInBounds(cells, row, col)) {
@@ -49,6 +62,12 @@ function validateBounds(row, col) {
   }
 }
 
+/**
+ * Ensure the cell at (row, col) exists (create empty object if null). Validates bounds.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @returns {Object} The cell object
+ */
 function ensureCell(row, col) {
   validateBounds(row, col);
   if (!state.dungeon.cells[row][col]) {
@@ -57,6 +76,13 @@ function ensureCell(row, col) {
   return state.dungeon.cells[row][col];
 }
 
+/**
+ * Set a wall/door value on the neighbor cell's reciprocal edge.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Cardinal direction
+ * @param {string|null} value - Edge value ('w', 'd', 's', etc.) or null to delete
+ */
 function setReciprocal(row, col, direction, value) {
   if (!OPPOSITE[direction]) return;
   const [dr, dc] = OFFSETS[direction];
@@ -71,6 +97,12 @@ function setReciprocal(row, col, direction, value) {
   }
 }
 
+/**
+ * Delete the reciprocal edge value on the neighbor cell.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Cardinal direction
+ */
 function deleteReciprocal(row, col, direction) {
   setReciprocal(row, col, direction, null);
 }

@@ -8,6 +8,10 @@ import { cellKey } from '../../../util/index.js';
 let container = null;
 let localIP = null;
 
+/**
+ * Initialize the session panel: start/stop session, fog controls, player view links.
+ * @param {HTMLElement} containerEl - Container element for the panel
+ */
 export function initSessionPanel(containerEl) {
   container = containerEl;
   fetch('/api/local-ip').then(r => r.json()).then(d => { localIP = d.ip; render(); }).catch(() => {});

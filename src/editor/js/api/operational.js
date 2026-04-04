@@ -13,12 +13,20 @@ import {
 
 // ── Undo / Redo ──────────────────────────────────────────────────────────
 
+/**
+ * Undo the last action.
+ * @returns {{ success: boolean }}
+ */
 export function undo() {
   undoFn();
   requestRender();
   return { success: true };
 }
 
+/**
+ * Redo the last undone action.
+ * @returns {{ success: boolean }}
+ */
 export function redo() {
   redoFn();
   requestRender();
@@ -30,7 +38,9 @@ export function redo() {
 /**
  * Ensure all textures used in the current map have their images loaded,
  * then wait for them to finish. Call before getScreenshot() to guarantee
- * textures are rendered. Returns { success, count } when all images ready.
+ * textures are rendered.
+ * @param {number} [timeoutMs=8000] - Maximum wait time in milliseconds
+ * @returns {Promise<{ success: boolean, count: number }>}
  */
 export async function waitForTextures(timeoutMs = 8000) {
   if (!state.textureCatalog?.textures) return { success: true, count: 0 };
@@ -73,6 +83,10 @@ export async function waitForTextures(timeoutMs = 8000) {
   return { success: true, count: entries.length };
 }
 
+/**
+ * Capture the current editor canvas as a PNG data URL.
+ * @returns {Promise<string>} Base64 PNG data URL
+ */
 export async function getScreenshot() {
   // Ensure map-used textures are loaded before capturing
   await getApi().waitForTextures();
@@ -85,7 +99,10 @@ export async function getScreenshot() {
   });
 }
 
-/** Export the map as a PNG using the compile pipeline (HQ lighting). Returns data URL. */
+/**
+ * Export the map as a PNG using the compile pipeline (HQ lighting).
+ * @returns {Promise<string>} Base64 PNG data URL
+ */
 export async function exportPng() {
   await getApi().waitForTextures();
   const config = state.dungeon;
@@ -100,12 +117,17 @@ export async function exportPng() {
 
 /**
  * Clear all caches (props, textures, themes, lights) and reload from server.
+ * @returns {Promise<{ success: boolean }>}
  */
 export async function clearCaches() {
   await reloadAssets();
   return { success: true };
 }
 
+/**
+ * Trigger a canvas re-render.
+ * @returns {{ success: boolean }}
+ */
 export function render() {
   requestRender();
   return { success: true };
@@ -115,6 +137,8 @@ export function render() {
  * Wait for the editor to be fully initialized: all catalogs loaded,
  * canvas ready, and textures resolved. Useful as a first command in
  * Puppeteer scripts to ensure the editor is ready before interacting.
+ * @param {number} [timeoutMs=15000] - Maximum wait time in milliseconds
+ * @returns {Promise<{ success: boolean }>}
  */
 export async function waitForEditor(timeoutMs = 15000) {
   const deadline = Date.now() + timeoutMs;
@@ -140,6 +164,8 @@ export async function waitForEditor(timeoutMs = 15000) {
  * The code string is wrapped in an async function with access to `state`, `editorAPI`, and `document`.
  * Use `return <value>` to send a result back.
  * Example: editorAPI.eval('return document.querySelector(".menu-trigger").textContent')
+ * @param {string} code - JavaScript code to evaluate
+ * @returns {Promise<{ success: boolean, result?: * }>}
  */
 export async function eval_(code) {
   const fn = new Function('state', 'editorAPI', `return (async () => { ${code} })();`);
@@ -151,12 +177,19 @@ export async function eval_(code) {
 
 // ── Claude AI helpers ────────────────────────────────────────────────────
 
-/** Return current undo stack depth. Used by Claude chat to support "undo all" after a build. */
+/**
+ * Return current undo stack depth. Used by Claude chat to support "undo all" after a build.
+ * @returns {{ success: boolean, depth: number }}
+ */
 export function getUndoDepth() {
   return { success: true, depth: state.undoStack.length };
 }
 
-/** Undo back to a previously recorded depth, reversing all changes made since then. */
+/**
+ * Undo back to a previously recorded depth, reversing all changes made since then.
+ * @param {number} targetDepth - Target undo stack depth
+ * @returns {{ success: boolean, undid: number }}
+ */
 export function undoToDepth(targetDepth) {
   const depth = Math.max(0, targetDepth);
   let count = 0;
@@ -167,7 +200,11 @@ export function undoToDepth(targetDepth) {
   return { success: true, undid: count };
 }
 
-/** Return the contents of a labeled room: props, fills, doors, textures. */
+/**
+ * Return the contents of a labeled room: props, fills, doors, textures.
+ * @param {string} label - Room label
+ * @returns {{ label: string, bounds: Object, props: Array, fills: Array, doors: Array, textures: Array }}
+ */
 export function getRoomContents(label) {
   const bounds = getApi().getRoomBounds(label);
   if (!bounds) return { success: false, error: `Room "${label}" not found` };
@@ -203,7 +240,10 @@ export function getRoomContents(label) {
 
 /**
  * Find a free rectangular area of the given size, optionally adjacent to an existing room.
- * Returns { r1, c1, r2, c2 } of the suggested placement, or { error } if no space found.
+ * @param {number} rows - Desired room height in cells
+ * @param {number} cols - Desired room width in cells
+ * @param {string|null} [adjacentTo=null] - Room label to try placing adjacent to
+ * @returns {{ r1: number, c1: number, r2: number, c2: number } | { success: boolean, error: string }}
  */
 export function suggestPlacement(rows, cols, adjacentTo = null) {
   const info = getApi().getMapInfo();
@@ -255,6 +295,10 @@ export function suggestPlacement(rows, cols, adjacentTo = null) {
 
 // ── Catalog queries ──────────────────────────────────────────────────────
 
+/**
+ * List all available floor textures from the catalog.
+ * @returns {{ success: boolean, textures: Array<{ id: string, displayName: string, category: string }> }}
+ */
 export function listTextures() {
   const catalog = getTextureCatalog();
   if (!catalog) return { success: true, textures: [] };
@@ -268,7 +312,10 @@ export function listTextures() {
   };
 }
 
-/** Return all available theme names. */
+/**
+ * Return all available theme names.
+ * @returns {{ success: boolean, themes: Array<string> }}
+ */
 export function listThemes() {
   const catalog = getThemeCatalog();
   if (!catalog) return { success: true, themes: [] };
@@ -277,7 +324,10 @@ export function listThemes() {
 
 // ── Room queries ─────────────────────────────────────────────────────────
 
-/** Return all labeled rooms with bounding boxes and centers. */
+/**
+ * Return all labeled rooms with bounding boxes and centers.
+ * @returns {{ success: boolean, rooms: Array<Object> }}
+ */
 export function listRooms() {
   const cells = state.dungeon.cells;
   const labels = new Map();
@@ -298,6 +348,11 @@ export function listRooms() {
 }
 
 /** Return all floor cells belonging to a labeled room as sorted [[row, col], ...]. */
+/**
+ * Return all floor cells belonging to a labeled room as sorted [[row, col], ...].
+ * @param {string} label - Room label (e.g. "A1")
+ * @returns {{ success: boolean, cells: Array<[number, number]> }}
+ */
 export function listRoomCells(label) {
   const roomCells = getApi()._collectRoomCells(label);
   if (!roomCells.size) return { success: false, error: `Room "${label}" not found or empty` };

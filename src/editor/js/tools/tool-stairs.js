@@ -48,6 +48,9 @@ function getNextLinkLabel() {
 
 // ── Tool ─────────────────────────────────────────────────────────────────────
 
+/**
+ * Stairs tool: 3-click corner-point placement and A-Z linking between stair pairs.
+ */
 export class StairsTool extends Tool {
   constructor() {
     super('stairs', 'S', 'crosshair');

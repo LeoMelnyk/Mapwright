@@ -6,6 +6,13 @@ import {
   captureBeforeState, smartInvalidate,
 } from './_shared.js';
 
+/**
+ * Place a wall on a cell edge (with reciprocal on neighbor).
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Edge direction (north, south, east, west, nw-se, ne-sw)
+ * @returns {{ success: boolean }}
+ */
 export function setWall(row, col, direction) {
   row = toInt(row); col = toInt(col);
   if (!ALL_DIRS.includes(direction)) {
@@ -24,6 +31,13 @@ export function setWall(row, col, direction) {
   return { success: true };
 }
 
+/**
+ * Remove a wall from a cell edge (and its reciprocal).
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Edge direction
+ * @returns {{ success: boolean }}
+ */
 export function removeWall(row, col, direction) {
   row = toInt(row); col = toInt(col);
   if (!ALL_DIRS.includes(direction)) {
@@ -44,6 +58,14 @@ export function removeWall(row, col, direction) {
   return { success: true };
 }
 
+/**
+ * Place a door on a cell edge (with reciprocal on neighbor).
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Cardinal direction (north, south, east, west)
+ * @param {string} [type='d'] - Door type: 'd' (normal) or 's' (secret)
+ * @returns {{ success: boolean }}
+ */
 export function setDoor(row, col, direction, type = 'd') {
   row = toInt(row); col = toInt(col);
   if (!CARDINAL_DIRS.includes(direction)) {
@@ -63,6 +85,13 @@ export function setDoor(row, col, direction, type = 'd') {
   return { success: true };
 }
 
+/**
+ * Remove a door, reverting the edge back to a wall.
+ * @param {number} row - Row index
+ * @param {number} col - Column index
+ * @param {string} direction - Cardinal direction (north, south, east, west)
+ * @returns {{ success: boolean }}
+ */
 export function removeDoor(row, col, direction) {
   row = toInt(row); col = toInt(col);
   if (!CARDINAL_DIRS.includes(direction)) {

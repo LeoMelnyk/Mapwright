@@ -10,7 +10,9 @@ let _blendTopoCache = {
 };
 
 // ── Renderer-specific constants ───────────────────────────────────────────────
+/** @type {number} Fallback opacity for blend edges in PDF rendering */
 export const PDF_EDGE_FALLBACK_OPACITY = 0.6;
+/** @type {number} Fallback opacity for blend corners in PDF rendering */
 export const PDF_CORNER_FALLBACK_OPACITY = 0.5;
 
 // ── Blend bitmap cache (Level 1) ─────────────────────────────────────────────
@@ -24,6 +26,13 @@ export { BLEND_BITMAP_SIZE };
  * samples a 256×256 chunk of the texture for world cell (row, col).
  * Different cells get different chunks — the visual repeat period is
  * (imgWidth/256) × (imgHeight/256) cells, so a 2K image repeats every 64 cells.
+ */
+/**
+ * Returns the source rect for a drawImage call that samples a 256x256 chunk of a texture.
+ * @param {Object} entry - Texture catalog entry with img property
+ * @param {number} row - Cell row for chunk selection
+ * @param {number} col - Cell column for chunk selection
+ * @returns {{ srcX: number, srcY: number, srcW: number, srcH: number }} Source rectangle
  */
 export function getTexChunk(entry, row, col) {
   const img = entry.img;
@@ -178,6 +187,11 @@ function sampleHeightAtPoint(entry, row, col, localX, localY, cellPx) {
 let blendScratch = null;
 let blendScratchPx = 0;
 
+/**
+ * Get or create a scratch OffscreenCanvas for blend gradient masking.
+ * @param {number} px - Required canvas size in pixels
+ * @returns {OffscreenCanvas|null} Scratch canvas, or null if OffscreenCanvas unavailable
+ */
 export function getBlendScratch(px) {
   const p = Math.ceil(px);
   if (!blendScratch) {
@@ -280,6 +294,12 @@ let _blendCacheLayer = null; // { canvas, w, h, topoRef }
 /**
  * Return a pre-rendered blend layer for the offscreen map cache.
  * Returns null if no bitmaps are ready or in Node.js (PDF path).
+ * @param {Object} topo - Blend topology cache with edges and corners
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {number} cacheW - Cache canvas width in pixels
+ * @param {number} cacheH - Cache canvas height in pixels
+ * @param {number} [cacheScale=10] - Pixels per foot at cache resolution
+ * @returns {HTMLCanvasElement|OffscreenCanvas|null} Pre-rendered blend canvas, or null
  */
 export function getRenderedBlendLayer(topo, gridSize, cacheW, cacheH, cacheScale = 10) {
   if (typeof OffscreenCanvas === 'undefined') return null;
@@ -363,6 +383,12 @@ function invalidateViewportBlendLayer() {
 /**
  * Returns the cached viewport blend layer, rebuilding it if the camera or topology changed.
  * Returns null in Node.js (PDF path).
+ * @param {number} canvasW - Canvas width in pixels
+ * @param {number} canvasH - Canvas height in pixels
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {Object} topo - Blend topology cache with edges and corners
+ * @param {number} gridSize - Grid cell size in feet
+ * @returns {OffscreenCanvas|null} Viewport blend canvas, or null
  */
 export function getViewportBlendLayer(canvasW, canvasH, transform, topo, gridSize) {
   if (typeof OffscreenCanvas === 'undefined') return null;
@@ -647,6 +673,14 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
   return { edges, corners };
 }
 
+/**
+ * Get or rebuild the blend topology cache (edge/corner descriptors and bitmaps).
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {Array<Array<boolean>>} roomCells - Room cell mask
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} textureOptions - Texture catalog and blend settings
+ * @returns {Object} Blend topology cache with edges and corners arrays
+ */
 export function getBlendTopoCache(cells, roomCells, gridSize, textureOptions) {
   const blendWidth = textureOptions?.blendWidth ?? 0.35;
   const catalog = textureOptions?.catalog;
@@ -672,7 +706,10 @@ export function getBlendTopoCache(cells, roomCells, gridSize, textureOptions) {
   return _blendTopoCache;
 }
 
-/** Return the stored parameters from the current blend topo cache (or null if no cache). */
+/**
+ * Return the stored parameters from the current blend topo cache (or null if no cache).
+ * @returns {{ gridSize: number, blendWidth: number, catalog: Object, texturesVersion: number }|null}
+ */
 export function getBlendCacheParams() {
   if (!_blendTopoCache.edges) return null;
   return {
@@ -683,6 +720,10 @@ export function getBlendCacheParams() {
   };
 }
 
+/**
+ * Invalidate and dispose all blend layer caches and bitmaps.
+ * @returns {void}
+ */
 export function invalidateBlendLayerCache() {
   closeBlendBitmaps(_blendTopoCache);
   invalidateViewportBlendLayer();
@@ -698,7 +739,8 @@ export function invalidateBlendLayerCache() {
  * @param {Array} cells
  * @param {Array} roomCells
  * @param {number} gridSize
- * @param {object} textureOptions
+ * @param {Object} textureOptions - Texture catalog and blend settings
+ * @returns {void}
  */
 export function patchBlendRegion(region, cells, roomCells, gridSize, textureOptions) {
   if (!_blendTopoCache.edges) {

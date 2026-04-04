@@ -10,6 +10,9 @@ const idle = typeof window !== 'undefined' && false // bypass requestIdleCallbac
   ? (cb) => window.requestIdleCallback(cb)
   : (cb) => setTimeout(cb, 0);
 
+/**
+ * Initialize the metadata panel: dungeon name, grid size, theme, label style, and feature toggles.
+ */
 export function init() {
   const nameInput = document.getElementById('meta-name');
   const gridSizeSelect = document.getElementById('meta-gridsize');

@@ -1,7 +1,10 @@
 import { coordinateToFeet, getCoordinateBounds } from './validate.js';
 
 /**
- * Calculate bounds from matrix-based cells
+ * Calculate bounds from matrix-based cells.
+ * @param {Array<Array<Object>>} cells - 2D grid of cell objects
+ * @param {number} gridSize - Grid cell size in feet
+ * @returns {{ minX: number, minY: number, maxX: number, maxY: number }} Bounding box in feet
  */
 function calculateBoundsFromCells(cells, gridSize) {
   const numRows = cells.length;
@@ -16,7 +19,9 @@ function calculateBoundsFromCells(cells, gridSize) {
 }
 
 /**
- * Calculate bounds (legacy coordinate-based system)
+ * Calculate bounds (legacy coordinate-based system).
+ * @param {Object} config - Dungeon config with rooms and gridSize
+ * @returns {{ minX: number, minY: number, maxX: number, maxY: number }} Bounding box in feet
  */
 function calculateBounds(config) {
   let minX = Infinity, minY = Infinity;
@@ -94,7 +99,11 @@ function calculateBounds(config) {
 }
 
 /**
- * Convert feet coordinates to canvas pixels
+ * Convert feet coordinates to canvas pixels.
+ * @param {number} x - X coordinate in feet
+ * @param {number} y - Y coordinate in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {{ x: number, y: number }} Canvas pixel coordinates
  */
 function toCanvas(x, y, transform) {
   return {

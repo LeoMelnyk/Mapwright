@@ -54,6 +54,11 @@ function connectWS() {
 
 // Range highlight callback (set by main.js)
 let rangeHighlightCallback = null;
+/**
+ * Set the callback for incoming range highlights from players.
+ * @param {Function} fn - Callback receiving the range highlight message.
+ * @returns {void}
+ */
 export function setRangeHighlightCallback(fn) { rangeHighlightCallback = fn; }
 
 function handleMessage(msg) {
@@ -84,6 +89,10 @@ function send(msg) {
 
 // ── Session lifecycle ───────────────────────────────────────────────────────
 
+/**
+ * Start a DM session — connects WebSocket, reveals starting room, begins broadcasts.
+ * @returns {void}
+ */
 export function startSession() {
   if (sessionState.active) return;
   sessionState.active = true;
@@ -102,6 +111,10 @@ export function startSession() {
   notify();
 }
 
+/**
+ * End the active DM session — disconnects WebSocket and clears session state.
+ * @returns {void}
+ */
 export function endSession() {
   if (!sessionState.active) return;
   send({ type: 'session:end' });
@@ -240,8 +253,10 @@ function startDungeonBroadcast() {
 // ── Fog of war: room reveal ─────────────────────────────────────────────────
 
 /**
- * Reveal a room starting from the given cell. Returns the set of newly revealed cells.
- * Uses the shared diagonal-aware floodFillRoom BFS from util/grid.js.
+ * Reveal a room starting from the given cell via flood-fill BFS.
+ * @param {number} startRow - Starting cell row.
+ * @param {number} startCol - Starting cell column.
+ * @returns {Array<string>} Array of newly revealed cell keys.
  */
 export function revealRoom(startRow, startCol) {
   const roomCells = floodFillRoom(state.dungeon.cells, startRow, startCol);
@@ -257,6 +272,9 @@ export function revealRoom(startRow, startCol) {
 
 /**
  * Set the starting room and reveal it. Called when DM picks a starting room.
+ * @param {number} row - Cell row.
+ * @param {number} col - Cell column.
+ * @returns {Array<string>} Array of newly revealed cell keys.
  */
 export function setStartingRoom(row, col) {
   sessionState.startingRoom = cellKey(row, col);
@@ -274,6 +292,11 @@ export function setStartingRoom(row, col) {
 
 /**
  * Open a door and reveal the room on the other side.
+ * @param {number} row - Door cell row.
+ * @param {number} col - Door cell column.
+ * @param {string} dir - Door direction (e.g. 'north', 'east', 'nw-se').
+ * @param {Array|undefined} mergedCells - Optional array of merged door cells for wide doors.
+ * @returns {void}
  */
 export function openDoor(row, col, dir, mergedCells) {
   const cells = state.dungeon.cells;
@@ -373,7 +396,8 @@ function revealRoomFrom(startRow, startCol, entryDir) {
 }
 
 /**
- * Reveal all cells (DM override).
+ * Reveal all non-void cells on the map (DM override).
+ * @returns {void}
  */
 export function revealAll() {
   const cells = state.dungeon.cells;
@@ -397,6 +421,11 @@ export function revealAll() {
 
 /**
  * Reveal all non-void cells within a rectangle.
+ * @param {number} r1 - First corner row.
+ * @param {number} c1 - First corner column.
+ * @param {number} r2 - Second corner row.
+ * @param {number} c2 - Second corner column.
+ * @returns {void}
  */
 export function revealRect(r1, c1, r2, c2) {
   const cells = state.dungeon.cells;
@@ -422,6 +451,11 @@ export function revealRect(r1, c1, r2, c2) {
 
 /**
  * Re-fog all revealed cells within a rectangle.
+ * @param {number} r1 - First corner row.
+ * @param {number} c1 - First corner column.
+ * @param {number} r2 - Second corner row.
+ * @param {number} c2 - Second corner column.
+ * @returns {void}
  */
 export function concealRect(r1, c1, r2, c2) {
   const cells = state.dungeon.cells;
@@ -446,11 +480,9 @@ export function concealRect(r1, c1, r2, c2) {
 }
 
 /**
- * Reset fog — hide everything.
- */
-/**
  * Call when a new map is loaded while a session is active.
  * Resets fog state and re-sends session:init so the player reloads from scratch.
+ * @returns {void}
  */
 export function onMapLoaded() {
   if (!sessionState.active) return;
@@ -464,6 +496,10 @@ export function onMapLoaded() {
   notify();
 }
 
+/**
+ * Reset fog — hide everything and clear all opened doors/stairs.
+ * @returns {void}
+ */
 export function resetFog() {
   sessionState.revealedCells.clear();
   sessionState.openedDoors = [];
@@ -478,6 +514,7 @@ export function resetFog() {
 
 /**
  * Toggle the DM fog overlay on/off.
+ * @returns {void}
  */
 export function toggleDmView() {
   sessionState.dmViewActive = !sessionState.dmViewActive;
@@ -487,7 +524,10 @@ export function toggleDmView() {
 
 /**
  * Draw a semi-transparent dark tint over every non-void, unrevealed cell.
- * Called from the canvas render loop whenever the session is active.
+ * @param {CanvasRenderingContext2D} ctx - The canvas 2D context.
+ * @param {Object} transform - The pan/zoom transform.
+ * @param {number} gridSize - Grid cell size in feet.
+ * @returns {void}
  */
 export function renderDmFogOverlay(ctx, transform, gridSize) {
   if (!sessionState.active) return;
@@ -534,9 +574,12 @@ export function renderDmFogOverlay(ctx, transform, gridSize) {
 // ── Debug: dump cell data + fog state for a region ──────────────────────────
 
 /**
- * Dump cell data and fog state for a rectangular region.
- * Call from console: dumpFogRegion(r1, c1, r2, c2)
- * Or Shift+drag with the fog reveal tool (requires debug panel enabled).
+ * Dump cell data and fog state for a rectangular region (debug helper).
+ * @param {number} r1 - First corner row.
+ * @param {number} c1 - First corner column.
+ * @param {number} r2 - Second corner row.
+ * @param {number} c2 - Second corner column.
+ * @returns {Array|null} 2D array of cell debug info, or null if debug panel is disabled.
  */
 export function dumpFogRegion(r1, c1, r2, c2) {
   if (!getEditorSettings().debug) {
@@ -851,8 +894,11 @@ function drawDoorIcon(ctx, x, y, radius, color) {
 }
 
 /**
- * Render door-open overlay buttons on the DM canvas.
- * Called from canvas-view.js during the render pass.
+ * Render door-open and stair overlay buttons on the DM canvas.
+ * @param {CanvasRenderingContext2D} ctx - The canvas 2D context.
+ * @param {Object} transform - The pan/zoom transform.
+ * @param {number} gridSize - Grid cell size in feet.
+ * @returns {void}
  */
 export function renderSessionOverlay(ctx, transform, gridSize) {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return;
@@ -877,7 +923,11 @@ export function renderSessionOverlay(ctx, transform, gridSize) {
 
 /**
  * Test if a click hits a door overlay button.
- * Returns the door object if hit, null otherwise.
+ * @param {number} px - Canvas pixel X.
+ * @param {number} py - Canvas pixel Y.
+ * @param {Object} transform - The pan/zoom transform.
+ * @param {number} gridSize - Grid cell size in feet.
+ * @returns {Object|null} The door object if hit, or null.
  */
 export function hitTestDoorButton(px, py, transform, gridSize) {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return null;
@@ -995,6 +1045,10 @@ function drawStairIcon(ctx, x, y, radius) {
 
 /**
  * Test if a click hits a stair overlay button.
+ * @param {number} px - Canvas pixel X.
+ * @param {number} py - Canvas pixel Y.
+ * @param {Object} transform - The pan/zoom transform.
+ * @returns {Object|null} The stair object if hit, or null.
  */
 export function hitTestStairButton(px, py, transform) {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return null;
@@ -1012,6 +1066,9 @@ export function hitTestStairButton(px, py, transform) {
 
 /**
  * Open a linked stair pair and reveal the room at the partner's end.
+ * @param {number} stairId - ID of the stair being opened.
+ * @param {number} partnerId - ID of the linked partner stair.
+ * @returns {void}
  */
 export function openStairs(stairId, partnerId) {
   const stairs = state.dungeon.metadata?.stairs || [];

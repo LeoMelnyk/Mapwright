@@ -3,20 +3,33 @@ import { resizeCanvas } from '../canvas-view.js';
 
 let panelChangeCb = null;
 
+/**
+ * Register a callback invoked when the active sidebar panel changes.
+ * @param {Function} cb - Callback receiving the panel ID or null
+ */
 export function setPanelChangeCallback(cb) { panelChangeCb = cb; }
 
-/** Return the currently active sidebar panel ID, or null if collapsed. */
+/**
+ * Return the currently active sidebar panel ID, or null if collapsed.
+ * @returns {string|null} Panel ID
+ */
 export function getActivePanel() {
   const active = document.querySelector('.icon-btn.active');
   return active?.dataset.panel || null;
 }
 
-/** Toggle a panel by ID. If already active, collapse it. */
+/**
+ * Toggle a panel by ID. If already active, collapse it.
+ * @param {string} panelId - Panel identifier
+ */
 export function togglePanel(panelId) {
   const btn = document.querySelector(`.icon-btn[data-panel="${panelId}"]`);
   if (btn) btn.click();
 }
 
+/**
+ * Initialize the left sidebar: bind icon buttons for panel switching.
+ */
 export function init() {
   const iconBtns = document.querySelectorAll('.icon-btn');
   const sideContent = document.getElementById('side-content');

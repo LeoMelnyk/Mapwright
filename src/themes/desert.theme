@@ -1,7 +1,7 @@
 {
   "displayName": "Desert",
   "background": "#ecd080",
-  "gridLine": "#986018",
+  "gridLine": "#000000",
   "wallStroke": "#601800",
   "wallFill": "#f8e8c0",
   "textColor": "#381000",
@@ -44,8 +44,7 @@
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
   },
-  "gridStyle": "dotted",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.2,
-  "gridNoise": 0.3
+  "gridStyle": "lines",
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

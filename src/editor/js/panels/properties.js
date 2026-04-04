@@ -10,8 +10,15 @@ let explorerBuilt = false;
 let onSelectProp = null;
 const collapsedCategories = new Set();
 
+/**
+ * Register a callback invoked when a prop is selected in the explorer.
+ * @param {Function} fn - Callback receiving the prop type key
+ */
 export function setSelectPropCallback(fn) { onSelectProp = fn; }
 
+/**
+ * Initialize the properties panel: subscribe to state changes and render initial content.
+ */
 export function init() {
   subscribe(update, 'properties');
   update();
@@ -321,6 +328,9 @@ function getFloatPanel() {
   return fp;
 }
 
+/**
+ * Clear the current cell selection and hide the cell info panel.
+ */
 export function deselectCell() {
   state.selectedCells = [];
   notify();

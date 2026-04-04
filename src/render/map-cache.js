@@ -18,7 +18,17 @@ import { renderLightmap, extractFillLights } from './lighting.js';
 
 const DEFAULT_MAX_CACHE_DIM = 16384;
 
+/**
+ * Shared offscreen map cache for editor and player views.
+ * Manages cells layer, composite layer, and pre-grid snapshot for efficient redraws.
+ */
 export class MapCache {
+  /**
+   * Create a new MapCache instance.
+   * @param {Object} [options] - Configuration options
+   * @param {number} [options.pxPerFoot=20] - Pixels per foot at cache resolution
+   * @param {number} [options.maxCacheDim=16384] - Maximum cache dimension in pixels
+   */
   constructor({ pxPerFoot = 20, maxCacheDim = DEFAULT_MAX_CACHE_DIM } = {}) {
     this._pxPerFoot = pxPerFoot;
     this._maxCacheDim = maxCacheDim;
@@ -65,6 +75,10 @@ export class MapCache {
 
   /**
    * Check whether the map fits within GPU texture limits at current pxPerFoot.
+   * @param {number} numRows - Number of grid rows
+   * @param {number} numCols - Number of grid columns
+   * @param {number} gridSize - Grid cell size in feet
+   * @returns {boolean} True if the map fits within the maximum cache dimension
    */
   canCache(numRows, numCols, gridSize) {
     const cacheW = Math.ceil(numCols * gridSize * this._pxPerFoot);
@@ -72,16 +86,28 @@ export class MapCache {
     return cacheW <= this._maxCacheDim && cacheH <= this._maxCacheDim;
   }
 
-  /** Force a full rebuild on the next update(). */
+  /**
+   * Force a full rebuild on the next update().
+   * @returns {void}
+   */
   invalidate() { this._dirtySeq++; this._compositeDirtySeq++; }
 
-  /** Invalidate only the composite layer (lighting/theme change — cells layer stays cached). */
+  /**
+   * Invalidate only the composite layer (lighting/theme change -- cells layer stays cached).
+   * @returns {void}
+   */
   invalidateComposite() { this._compositeDirtySeq++; }
 
-  /** Invalidate only the grid overlay — triggers grid-only rebuild, no cells or composite touch. */
+  /**
+   * Invalidate only the grid overlay -- triggers grid-only rebuild, no cells or composite touch.
+   * @returns {void}
+   */
   invalidateGrid() { this._gridDirtySeq++; this._gridRedrawEnabled = true; }
 
-  /** Free GPU memory. */
+  /**
+   * Free GPU memory by releasing all cached canvases.
+   * @returns {void}
+   */
   dispose() {
     this._cellsLayer = null;
     this._compositeLayer = null;
@@ -91,6 +117,7 @@ export class MapCache {
   /**
    * Get the composite canvas for external use (e.g., animated light overlay).
    * Returns null if cache is not built yet.
+   * @returns {{ canvas: HTMLCanvasElement, cacheW: number, cacheH: number }|null}
    */
   getComposite() {
     if (!this._compositeLayer) return null;
@@ -103,8 +130,9 @@ export class MapCache {
 
   /**
    * Blit the cached map to a destination context at the given transform.
-   * @param {CanvasRenderingContext2D} destCtx
-   * @param {{ offsetX: number, offsetY: number, scale: number }} transform
+   * @param {CanvasRenderingContext2D} destCtx - Destination canvas context
+   * @param {{ offsetX: number, offsetY: number, scale: number }} transform - View transform
+   * @returns {void}
    */
   blit(destCtx, transform) {
     if (!this._compositeLayer) return;
@@ -143,8 +171,9 @@ export class MapCache {
    * @param {object|null} p.textureCatalog   — for lighting wall segment extraction
    * @param {object|null} p.dirtyRegion      — { minRow, maxRow, minCol, maxCol } or null
    * @param {Function|null} p.preRenderHook  — (ctx, cacheTransform) called before renderCells
-   * @param {object|null} p.skipPhases       — editor debug skip flags
+   * @param {Object|null} p.skipPhases       — editor debug skip flags
    * @param {boolean}     p.skipLabels       — skip label rendering in renderCells (rendered after lightmap)
+   * @returns {boolean} True if a rebuild occurred
    */
   update(p) {
     const pxPerFoot = this._pxPerFoot;

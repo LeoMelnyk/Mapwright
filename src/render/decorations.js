@@ -5,7 +5,12 @@ import { displayGridSize as _dgs } from '../util/index.js';
 const COMPASS_ROSE_SIZE = 35;
 
 /**
- * Draw background
+ * Draw background fill for the entire canvas.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} width - Canvas width in pixels
+ * @param {number} height - Canvas height in pixels
+ * @param {Object} theme - Theme object with background color
+ * @returns {void}
  */
 function drawBackground(ctx, width, height, theme) {
   ctx.fillStyle = theme.background;
@@ -13,7 +18,14 @@ function drawBackground(ctx, width, height, theme) {
 }
 
 /**
- * Draw dungeon title at the top of the map
+ * Draw dungeon title at the top of the map.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} width - Canvas width in pixels
+ * @param {string} dungeonName - Title text to draw
+ * @param {number} fontSize - Font size in pixels
+ * @param {Object} theme - Theme object with textColor
+ * @param {number} [yOffset=0] - Vertical offset from the top
+ * @returns {void}
  */
 function drawDungeonTitle(ctx, width, dungeonName, fontSize, theme, yOffset = 0) {
   ctx.save();
@@ -45,7 +57,16 @@ function _gridNoise(row, col, dir, noiseAmount, gridSize) {
 }
 
 /**
- * Draw grid overlay for matrix-based map
+ * Draw grid overlay for matrix-based map.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {Array<Array<boolean>>} roomCells - Room cell mask
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {Object} theme - Theme with grid style config
+ * @param {boolean} showGridInCorridors - Whether to show grid in corridor cells
+ * @param {Object} metadata - Dungeon metadata with resolution
+ * @returns {void}
  */
 function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGridInCorridors, metadata) {
   const numRows = cells.length;
@@ -147,7 +168,13 @@ function drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showG
 }
 
 /**
- * Draw grid overlay (legacy coordinate-based)
+ * Draw grid overlay (legacy coordinate-based).
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Object} config - Dungeon config with gridSize
+ * @param {Object} bounds - Bounding box {minX, minY, maxX, maxY}
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {Object} theme - Theme with gridLine color
+ * @returns {void}
  */
 function drawGrid(ctx, config, bounds, transform, theme) {
   const gridSize = config.gridSize;
@@ -241,7 +268,13 @@ function drawGrid(ctx, config, bounds, transform, theme) {
 }
 
 /**
- * Find the best position for compass rose
+ * Find the best position for compass rose in export canvas space.
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {number} width - Canvas width in pixels
+ * @param {number} height - Canvas height in pixels
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {{ x: number, y: number }|null} Canvas position, or null if no space
  */
 function findCompassRosePosition(cells, gridSize, width, height, transform) {
   const numRows = cells.length;
@@ -289,7 +322,12 @@ function findCompassRosePosition(cells, gridSize, width, height, transform) {
 }
 
 /**
- * Draw compass rose (decorative 8-pointed design)
+ * Draw compass rose (decorative 8-pointed design).
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} x - Center X in canvas pixels
+ * @param {number} y - Center Y in canvas pixels
+ * @param {Object} theme - Theme with compassRose colors
+ * @returns {void}
  */
 function drawCompassRose(ctx, x, y, theme) {
   const size = COMPASS_ROSE_SIZE;
@@ -358,7 +396,14 @@ function drawCompassRose(ctx, x, y, theme) {
 }
 
 /**
- * Draw scale indicator
+ * Draw scale indicator bar.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} x - Center X in canvas pixels
+ * @param {number} y - Y position in canvas pixels
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme with textColor
+ * @param {number} resolution - Resolution multiplier
+ * @returns {void}
  */
 function drawScaleIndicator(ctx, x, y, gridSize, theme, resolution) {
   ctx.fillStyle = theme.textColor;
@@ -370,7 +415,12 @@ function drawScaleIndicator(ctx, x, y, gridSize, theme, resolution) {
 }
 
 /**
- * Draw decorative border
+ * Draw decorative border around the export canvas.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} width - Canvas width in pixels
+ * @param {number} height - Canvas height in pixels
+ * @param {Object} theme - Theme with borderColor
+ * @returns {void}
  */
 function drawBorder(ctx, width, height, theme) {
   ctx.strokeStyle = theme.borderColor;
@@ -387,7 +437,13 @@ function drawBorder(ctx, width, height, theme) {
 
 /**
  * Draw decorative border around the dungeon grid in map space.
- * @param {number} padding - padding in grid-feet outside the dungeon bounds
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme with borderColor
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {number} [padding=5] - Padding in grid-feet outside the dungeon bounds
+ * @returns {void}
  */
 function drawBorderOnMap(ctx, cells, gridSize, theme, transform, padding = 5) {
   const numRows = cells.length;
@@ -415,6 +471,13 @@ function drawBorderOnMap(ctx, cells, gridSize, theme, transform, padding = 5) {
 
 /**
  * Draw scale indicator in map space (below the dungeon grid).
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} theme - Theme with textColor
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {number} resolution - Resolution multiplier
+ * @returns {void}
  */
 function drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform, resolution) {
   const numRows = cells.length;
@@ -438,6 +501,10 @@ function drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform, resolut
 
 /**
  * Find compass rose position in map space (corners of the dungeon grid).
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {{ x: number, y: number }|null} Canvas position, or null if no space
  */
 function findCompassRosePositionOnMap(cells, gridSize, transform) {
   const numRows = cells.length;
@@ -484,6 +551,12 @@ function findCompassRosePositionOnMap(cells, gridSize, transform) {
 
 /**
  * Draw compass rose with optional scale factor.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} x - Center X in canvas pixels
+ * @param {number} y - Center Y in canvas pixels
+ * @param {Object} theme - Theme with compassRose colors
+ * @param {number} [s=1] - Scale factor
+ * @returns {void}
  */
 function drawCompassRoseScaled(ctx, x, y, theme, s = 1) {
   const size = COMPASS_ROSE_SIZE * s;

@@ -5,6 +5,10 @@ import { invalidateAllCaches } from '../../../render/index.js';
 
 let container = null;
 
+/**
+ * Initialize the background image panel: upload, scale, offset, and opacity controls.
+ * @param {HTMLElement} el - Container element for the panel
+ */
 export function initBackgroundImagePanel(el) {
   container = el;
   render();

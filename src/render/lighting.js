@@ -18,7 +18,11 @@ const GRADIENT_STOPS = 16;
 
 /**
  * Extract wall segments from the cell grid as line segments in world-feet coords.
- * Returns [{x1, y1, x2, y2}, ...] with duplicates removed.
+ * @param {Array<Array<Object>>} cells - 2D cell grid
+ * @param {number} gridSize - Grid cell size in feet
+ * @param {Object|null} propCatalog - Prop catalog for light-blocking props
+ * @param {Object|null} [metadata=null] - Dungeon metadata with overlay props
+ * @returns {Array<{x1: number, y1: number, x2: number, y2: number}>} Wall segments with duplicates removed
  */
 export function extractWallSegments(cells, gridSize, propCatalog, metadata = null) {
   const numRows = cells.length;
@@ -107,7 +111,7 @@ export function extractWallSegments(cells, gridSize, propCatalog, metadata = nul
 
 // ─── Z-Height Prop Shadow Zones ─────────────────────────────────────────────
 
-/** Default light height in feet when no z is specified */
+/** @type {number} Default light height in feet when no z is specified */
 export const DEFAULT_LIGHT_Z = 8;
 
 /**
@@ -514,6 +518,8 @@ export function computeVisibility(lx, ly, radius, segments) {
 
 /**
  * Parse a hex color string into {r, g, b} (0-255).
+ * @param {string} hex - Hex color string (e.g. '#FF9944')
+ * @returns {{ r: number, g: number, b: number }} Parsed RGB values (0-255)
  */
 export function parseColor(hex) {
   const h = hex.replace('#', '');
@@ -526,6 +532,10 @@ export function parseColor(hex) {
 
 /**
  * Compute falloff multiplier for a given distance and radius.
+ * @param {number} dist - Distance from light center in feet
+ * @param {number} radius - Light radius in feet
+ * @param {string} falloff - Falloff type ('linear', 'quadratic', 'inverse-square', 'smooth')
+ * @returns {number} Falloff multiplier (0.0 to 1.0)
  */
 export function falloffMultiplier(dist, radius, falloff) {
   if (radius <= 0) return 1;
@@ -554,8 +564,8 @@ export function falloffMultiplier(dist, radius, falloff) {
  * Returns the same object if no animation is set (avoids allocation).
  *
  * @param {object} light
- * @param {number} time - elapsed seconds
- * @returns {object}
+ * @param {number} time - Elapsed seconds
+ * @returns {Object} Effective light with animated properties applied
  */
 export function getEffectiveLight(light, time) {
   if (!light.animation?.type) return light;
@@ -841,7 +851,10 @@ let cachedWallSegments = null;
 let cachedPropShadowZones = null;
 let _lightingVersion = 0;
 
-/** Return the current lighting version counter. Bumped on every invalidation. */
+/**
+ * Return the current lighting version counter. Bumped on every invalidation.
+ * @returns {number} Lighting version
+ */
 export function getLightingVersion() { return _lightingVersion; }
 
 // ─── Reusable Lightmap Canvases ───────────────────────────────────────────
@@ -889,6 +902,7 @@ function _getStaticLmCanvas(w, h) {
  * @param {boolean} [structuralChange=true] - If true, also clears wall segments
  *   and prop shadow zones (use when walls/props are added/removed/moved).
  *   If false, only clears per-light caches (use when only light position/config changes).
+ * @returns {void}
  */
 export function invalidateVisibilityCache(structuralChange = true) {
   visibilityCache.clear();
@@ -903,7 +917,10 @@ export function invalidateVisibilityCache(structuralChange = true) {
   _lightingVersion++;
 }
 
-/** Force full lightmap cache teardown (call when lightmap resolution changes). */
+/**
+ * Force full lightmap cache teardown (call when lightmap resolution changes).
+ * @returns {void}
+ */
 export function invalidateLightmapCaches() {
   _staticLmCanvas = null;
   _staticLmValid = false;
@@ -925,7 +942,11 @@ export function invalidateLightmapCaches() {
  * @param {number} canvasW - canvas pixel width
  * @param {number} canvasH - canvas pixel height
  * @param {number} ambientLevel - 0.0 (pitch black) to 1.0 (fully lit)
- * @param {object} [textureCatalog] - optional texture catalog for normal maps
+ * @param {Object|null} [textureCatalog] - Optional texture catalog for normal maps
+ * @param {Object|null} [propCatalog] - Prop catalog for shadow extraction
+ * @param {Object|null} [options] - Options with ambientColor, time, lightPxPerFoot
+ * @param {Object|null} [metadata=null] - Dungeon metadata
+ * @returns {void}
  */
 export function renderLightmap(ctx, lights, cells, gridSize, transform, canvasW, canvasH, ambientLevel, textureCatalog, propCatalog, options, metadata = null) {
   const { ambientColor = '#ffffff', time = 0, lightPxPerFoot = 0, destX = 0, destY = 0, destW = 0, destH = 0 } = options || {};
@@ -1215,7 +1236,8 @@ function applyNormalMapBump(lctx, lights, cells, gridSize, transform, textureCat
  * @param {Array} lights
  * @param {Array} cells
  * @param {number} gridSize
- * @param {object} transform - {offsetX, offsetY, scale}
+ * @param {Object} transform - {offsetX, offsetY, scale}
+ * @returns {void}
  */
 export function renderCoverageHeatmap(ctx, lights, cells, gridSize, transform) {
   const numRows = cells.length;

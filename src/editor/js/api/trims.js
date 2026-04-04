@@ -11,6 +11,16 @@ import { computeTrimCells } from '../../../util/index.js';
 
 // ── Trim (reuses TrimTool._updatePreview + apply logic) ──────────────────
 
+/**
+ * Create a diagonal trim (corner cut) between two points.
+ * @param {number} r1 - Tip row (corner to cut)
+ * @param {number} c1 - Tip column
+ * @param {number} r2 - Extent row (opposite corner of trim region)
+ * @param {number} c2 - Extent column
+ * @param {string|Object} [cornerOrOptions] - Corner direction or options object
+ * @param {Object} [extraOptions] - Additional options when first arg is a string corner
+ * @returns {{ success: boolean }}
+ */
 export function createTrim(r1, c1, r2, c2, cornerOrOptions = {}, extraOptions = {}) {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   validateBounds(r1, c1);

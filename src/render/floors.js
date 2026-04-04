@@ -2,7 +2,9 @@ import { toCanvas } from './bounds.js';
 import { isEdgeOpen } from '../util/index.js';
 
 /**
- * Determine which cells should have room backgrounds (including flood fill for enclosed areas)
+ * Determine which cells should have room backgrounds (including flood fill for enclosed areas).
+ * @param {Array<Array<Object>>} cells - 2D grid of cell objects
+ * @returns {Array<Array<boolean>>} 2D boolean grid where true = room cell
  */
 function determineRoomCells(cells) {
   const numRows = cells.length;
@@ -53,6 +55,11 @@ function determineRoomCells(cells) {
 
 /**
  * Get the void corner for a cell with a diagonal wall.
+ * @param {Object} cell - Cell object to check
+ * @param {Array<Array<Object>>} cells - 2D cell grid for neighbor lookups
+ * @param {number} row - Cell row index
+ * @param {number} col - Cell column index
+ * @returns {string|null} Corner direction ('nw', 'ne', 'sw', 'se') or null
  */
 function getDiagonalTrimCorner(cell, cells, row, col) {
   // Arc boundary cells with trimClip use polygon clipping, not diagonal trimming.
@@ -79,7 +86,15 @@ function getDiagonalTrimCorner(cell, cells, row, col) {
 }
 
 /**
- * Fill only the floor triangle of a trimmed cell
+ * Fill only the floor triangle of a trimmed cell.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} x - Cell X in feet
+ * @param {number} y - Cell Y in feet
+ * @param {number} size - Cell size in feet
+ * @param {string} fillColor - CSS fill color
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @param {string} voidCorner - Corner direction ('nw', 'ne', 'sw', 'se')
+ * @returns {void}
  */
 function fillTrimmedCell(ctx, x, y, size, fillColor, transform, voidCorner) {
   const tl = toCanvas(x, y, transform);
@@ -117,6 +132,16 @@ function fillTrimmedCell(ctx, x, y, size, fillColor, transform, voidCorner) {
   ctx.fill();
 }
 
+/**
+ * Fill a full room square cell.
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {number} x - Cell X in feet
+ * @param {number} y - Cell Y in feet
+ * @param {number} size - Cell size in feet
+ * @param {string} fillColor - CSS fill color
+ * @param {Object} transform - Transform with scale, offsetX, offsetY
+ * @returns {void}
+ */
 function fillRoomSquare(ctx, x, y, size, fillColor, transform) {
   const p1 = toCanvas(x, y, transform);
   const p2 = toCanvas(x + size, y + size, transform);

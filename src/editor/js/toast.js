@@ -9,6 +9,12 @@ function getContainer() {
   return container;
 }
 
+/**
+ * Show a transient toast notification message.
+ * @param {string} message - Text to display.
+ * @param {number} [duration=4000] - How long the toast stays visible in milliseconds.
+ * @returns {void}
+ */
 export function showToast(message, duration = 4000) {
   const c = getContainer();
   const toast = document.createElement('div');

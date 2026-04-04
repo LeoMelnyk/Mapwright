@@ -81,7 +81,8 @@ const state = {
 };
 
 /**
- * Get the resolved theme object
+ * Get the resolved theme object for the current dungeon.
+ * @returns {Object} The active theme configuration.
  */
 export function getTheme() {
   const t = state.dungeon.metadata.theme;
@@ -97,14 +98,21 @@ export function getTheme() {
   return THEMES['blue-parchment'];
 }
 
-/**
- * Push current dungeon state to undo stack.
- * @param {string} [label='Edit'] — description shown in the history panel.
- */
 /** Set to true to skip all undo stack pushes (for testing). */
 export let undoDisabled = false;
+/**
+ * Enable or disable the undo stack (for testing).
+ * @param {boolean} v - Whether to disable undo.
+ * @returns {void}
+ */
 export function setUndoDisabled(v) { undoDisabled = v; }
 
+/**
+ * Push current dungeon state onto the undo stack.
+ * @param {string} [label='Edit'] - Description shown in the history panel.
+ * @param {string|null} [preSerializedJson=null] - Pre-serialized JSON to avoid double-serialization.
+ * @returns {void}
+ */
 export function pushUndo(label = 'Edit', preSerializedJson = null) {
   if (undoDisabled) return;
   const _t0 = performance.now();
@@ -119,7 +127,8 @@ export function pushUndo(label = 'Edit', preSerializedJson = null) {
 }
 
 /**
- * Undo last action
+ * Undo the last action by restoring the previous dungeon state.
+ * @returns {void}
  */
 export function undo() {
   if (!state.undoStack.length) return;
@@ -133,7 +142,8 @@ export function undo() {
 }
 
 /**
- * Redo last undone action
+ * Redo the last undone action.
+ * @returns {void}
  */
 export function redo() {
   if (!state.redoStack.length) return;
@@ -147,8 +157,9 @@ export function redo() {
 }
 
 /**
- * Jump to a specific point in the undo stack.
- * Entries above targetIndex move to the redo stack.
+ * Jump to a specific point in the undo stack. Entries above targetIndex move to redo.
+ * @param {number} targetIndex - Index in the undo stack to restore.
+ * @returns {void}
  */
 export function jumpToState(targetIndex) {
   if (targetIndex < 0 || targetIndex >= state.undoStack.length) return;
@@ -168,6 +179,10 @@ export function jumpToState(targetIndex) {
   notify();
 }
 
+/**
+ * Mark the dungeon state as dirty (needs re-render and has unsaved changes).
+ * @returns {void}
+ */
 export function markDirty() {
   state.dirty = true;
   state.unsavedChanges = true;
@@ -177,15 +192,26 @@ export function markDirty() {
  * Invalidate the lighting visibility cache (call when walls change or on undo/redo).
  * @param {boolean|'props'} [structuralChange=true] - Pass false for light-only changes,
  *   'props' to clear prop shadow zones but keep cached wall segments.
+ * @returns {void}
  */
 export function invalidateLightmap(structuralChange = true) {
   invalidateVisibilityCache(structuralChange);
 }
 
+/**
+ * Clear the dirty flag (called after a render pass).
+ * @returns {void}
+ */
 export function clearDirty() {
   state.dirty = false;
 }
 
+/**
+ * Subscribe to state change notifications.
+ * @param {Function} fn - Callback invoked with the state object on each notify().
+ * @param {string} [label] - Debug label for timing diagnostics.
+ * @returns {void}
+ */
 export function subscribe(fn, label) {
   state.listeners.push({ fn, label: label || 'unknown' });
 }
@@ -247,6 +273,10 @@ function scheduleAutosave() {
   }, 1000);
 }
 
+/**
+ * Load the autosaved dungeon state from IndexedDB (or localStorage fallback).
+ * @returns {Promise<boolean>} True if a valid autosave was restored.
+ */
 export async function loadAutosave() {
   // Try IndexedDB first
   try {
@@ -286,6 +316,10 @@ export async function loadAutosave() {
   }
 }
 
+/**
+ * Notify all subscribers of a state change and schedule autosave.
+ * @returns {void}
+ */
 export function notify() {
   const t0 = performance.now();
   _notifyFrame++;
