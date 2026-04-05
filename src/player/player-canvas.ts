@@ -1480,7 +1480,7 @@ function drawDiagnostics(gridSize: number): void {
 
   // Per-phase renderCells breakdown (from render pipeline timings)
   const phases = ['roomCells', 'shading', 'floors', 'blending', 'fills', 'bridges', 'grid', 'walls', 'props', 'hazard'];
-  const hasPhaseData = phases.some(p => (renderTimings as Record<string, { ms?: number }>)[p]?.ms! > 0);
+  const hasPhaseData = phases.some(p => ((renderTimings as Record<string, { ms?: number }>)[p]?.ms ?? 0) > 0);
   if (hasPhaseData) {
     lines.push({ text: '', color: '#666' });
     lines.push({ text: '── renderCells ──', color: '#666' });

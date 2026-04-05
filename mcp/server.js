@@ -51,6 +51,20 @@ function isServerRunning(port = 3000) {
   });
 }
 
+/**
+ * Validate that a file path is within allowed directories.
+ */
+function validateFilePath(filePath, allowedDirs) {
+  const resolved = path.resolve(filePath);
+  const isAllowed = allowedDirs.some(dir =>
+    resolved.startsWith(dir + path.sep) || resolved === dir
+  );
+  if (!isAllowed) {
+    throw new Error(`File path "${resolved}" is outside allowed directories: ${allowedDirs.join(', ')}`);
+  }
+  return resolved;
+}
+
 /** Spawn a subprocess and capture stdout + stderr. */
 function runProcess(command, args, cwd) {
   return new Promise((resolve) => {
@@ -203,6 +217,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
 
+    // Validate file paths against allowed directories
+    const allowedDirs = [MAPWRIGHT_DIR, os.tmpdir(), os.homedir()];
+    try {
+      if (args.load_file)       validateFilePath(args.load_file, allowedDirs);
+      if (args.save_file)       validateFilePath(args.save_file, allowedDirs);
+      if (args.screenshot_file) validateFilePath(args.screenshot_file, allowedDirs);
+      if (args.export_png)      validateFilePath(args.export_png, allowedDirs);
+    } catch (err) {
+      return { content: [{ type: 'text', text: `Path validation error: ${err.message}` }], isError: true };
+    }
+
     // Write commands to a temp file to avoid shell arg-length limits
     const tmpFile = path.join(os.tmpdir(), `mapwright-cmds-${Date.now()}.json`);
     await writeFile(tmpFile, JSON.stringify(args.commands));
@@ -226,7 +251,13 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   // ---- render_json ---------------------------------------------------------
   if (name === 'render_json') {
-    const jsonFile = path.resolve(args.json_file);
+    const allowedRenderDirs = [MAPWRIGHT_DIR, os.tmpdir(), os.homedir()];
+    let jsonFile;
+    try {
+      jsonFile = validateFilePath(args.json_file, allowedRenderDirs);
+    } catch (err) {
+      return { content: [{ type: 'text', text: `Path validation error: ${err.message}` }], isError: true };
+    }
     const result = await runProcess(
       process.execPath,
       [`${MAPWRIGHT_DIR}/tools/generate_dungeon.js`, jsonFile],

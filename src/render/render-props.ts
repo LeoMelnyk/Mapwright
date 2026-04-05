@@ -266,7 +266,7 @@ function drawTexFillPath(ctx, cmd, bbox, getTextureImage) {
  * Draw a soft drop shadow under a prop.
  * Rendered as a radial-gradient ellipse matching the footprint, offset slightly.
  */
-function _drawPropShadow(ctx, propDef, row, col, rotation, gridSize, transform) { // eslint-disable-line unused-imports/no-unused-vars
+function _drawPropShadow(ctx, propDef, row, col, rotation, gridSize, transform) {
   const [fRows, fCols] = propDef.footprint;
   // Effective footprint after rotation
   const isRotated90 = rotation === 90 || rotation === 270;

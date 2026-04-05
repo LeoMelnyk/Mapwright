@@ -126,7 +126,8 @@ export class EraseTool extends Tool {
       }
 
       // Expand dirty region to cover multi-cell props that extend beyond the erase box
-      let dirtyR1 = r1, dirtyC1 = c1, dirtyR2 = r2, dirtyC2 = c2;
+      const dirtyR1 = r1, dirtyC1 = c1;
+      let dirtyR2 = r2, dirtyC2 = c2;
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
           const prop = cells[r]?.[c]?.prop;

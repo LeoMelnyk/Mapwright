@@ -43,6 +43,11 @@ function resolveTheme(themeConfig: any, themeOverrides: any, metadata: any): The
  * @returns {{ width: number, height: number }} Required canvas dimensions in pixels
  */
 export function calculateCanvasSize(config: any): { width: number; height: number } {
+  // Guard against empty or missing cell grids
+  if (!config.cells || !config.cells.length || (!Array.isArray(config.cells[0]) || !config.cells[0].length)) {
+    return { width: 100, height: 100 };
+  }
+
   const gridSize = config.metadata.gridSize;
 
   const isMultiLevel = config.metadata.levels > 1 &&
