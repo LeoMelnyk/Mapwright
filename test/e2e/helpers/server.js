@@ -26,7 +26,7 @@ export async function startServer() {
 
   serverPort = 3100 + Math.floor(Math.random() * 900);
 
-  serverProcess = spawn('node', ['server.js', String(serverPort)], {
+  serverProcess = spawn('node', ['--import', 'tsx', 'server.js', String(serverPort)], {
     cwd: MAPWRIGHT_DIR,
     stdio: 'pipe',
   });

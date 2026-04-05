@@ -53,9 +53,37 @@ Added `@param` and `@returns` type annotations to all exported functions across 
 - **Theme key sanitization** — PUT/DELETE theme endpoints use `path.basename()` to prevent directory traversal
 - **Security headers** — Added `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY` middleware
 
+### TypeScript + SCSS Migration
+
+Full migration of the entire `src/` directory from JavaScript to TypeScript and CSS to SCSS, with Vite as the new build system.
+
+**TypeScript (124 files converted):**
+- All `src/` modules converted from `.js` to `.ts` with type annotations on exported functions
+- Core type definitions in `src/types.ts`: `Cell`, `CellGrid`, `Metadata`, `Dungeon`, `Theme`, `PropDefinition`, `Light`, `RenderTransform`, `OverlayProp`, `Dd2vttFormat`, and 40+ more interfaces
+- `moduleResolution: "bundler"` enables incremental migration — `.js` import specifiers resolve to `.ts` files
+- `allowJs: true`, `strict: false` for migration phase — strictness can be ratcheted up incrementally
+
+**SCSS (3 files converted):**
+- `editor/style.css` → `editor/style.scss`
+- `player/style.css` → `player/style.scss`
+- `downloader/downloader.css` → `downloader/downloader.scss`
+
+**Vite build system:**
+- `vite.config.ts` — Multi-page build (editor, player, downloader) with Vite
+- `dist/` output served by Express in production; Vite dev server proxies API calls in development
+- `npm run dev` — Concurrent Vite HMR + Express API server
+- `npm run build` — Production build (321ms, code-split chunks)
+- Build output: 80KB editor JS, 30KB player JS, 59KB editor CSS (gzipped: 25KB, 10KB, 10KB)
+
+**Infrastructure changes:**
+- `server.js` serves `dist/` (Vite build output) when available, with explicit routes for data assets (`/props`, `/lights`, `/themes`)
+- `npm start` uses `tsx` for TypeScript module resolution
+- ESLint updated with `typescript-eslint` parser
+- `tsconfig.json` and `tsconfig.node.json` for editor and server respectively
+
 ### Test Suite Expansion
 
-Expanded test coverage from 734 tests to 1,105+ tests across 4 test suites, preparing the codebase for a TypeScript migration.
+Expanded test coverage from 734 tests to 1,105+ tests across 4 test suites.
 
 **New test files:**
 - `test/render/parse-props.test.js` — 136 tests for prop file parsing, coordinate transforms, command parsing

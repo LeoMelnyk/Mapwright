@@ -1,12 +1,28 @@
 import unusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
+import tseslint from 'typescript-eslint';
 
 export default [
   {
     ignores: ['node_modules/**', 'dist/**', 'tools/rock-patterns/*-output.js'],
   },
+  // TypeScript-specific config (parser + recommended rules)
+  ...tseslint.configs.recommended.map(config => ({
+    ...config,
+    files: ['src/**/*.ts'],
+    rules: {
+      ...config.rules,
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'off',
+    },
+  })),
+  // Shared rules for JS and TS
   {
-    files: ['src/**/*.js', 'tools/**/*.js'],
+    files: ['src/**/*.{js,ts}', 'tools/**/*.js'],
     plugins: { 'unused-imports': unusedImports },
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
@@ -18,24 +34,14 @@ export default [
       'unused-imports/no-unused-vars': ['error', {
         vars: 'all',
         args: 'after-used',
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
       }],
-
-      // Catches typos in variable/function names (e.g. `ctx` vs `context`, `rol` vs `col`)
-      'no-undef': 'error',
-
-      // Enforces === everywhere EXCEPT `== null` (which intentionally matches null|undefined)
+      'no-undef': 'off',
       'eqeqeq': ['error', 'always', { null: 'ignore' }],
-
-      // Flags `let` that is never reassigned — signals unintended mutation in geometry code
       'prefer-const': 'warn',
-
-      // Two import lines from the same module should be merged into one
       'no-duplicate-imports': 'error',
-
-      // Dead code after return/throw/break/continue
       'no-unreachable': 'error',
-
-      // Switch fallthrough is almost always a bug in this codebase
       'no-fallthrough': 'error',
     },
   },

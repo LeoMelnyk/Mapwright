@@ -171,8 +171,20 @@ if (userTexturePath) {
 // Serve user-saved themes
 app.use('/user-themes', express.static(userThemePath));
 
-// Static files from src/ (same root as old `npx serve src`)
-app.use(express.static(path.join(__dirname, 'src')));
+// Data assets (props, lights, themes) always served from src/ — they're not code
+app.use('/props', express.static(path.join(__dirname, 'src', 'props')));
+app.use('/lights', express.static(path.join(__dirname, 'src', 'lights')));
+app.use('/themes', express.static(path.join(__dirname, 'src', 'themes')));
+
+// Serve Vite build output (dist/) if it exists, otherwise fall back to src/
+// In production/Electron, dist/ contains the compiled TS+SCSS assets.
+// In dev, use `npm run dev` (Vite dev server) instead of `npm start`.
+const distDir = path.join(__dirname, 'dist');
+if (fs.existsSync(distDir)) {
+  app.use(express.static(distDir));
+} else {
+  app.use(express.static(path.join(__dirname, 'src')));
+}
 
 // Serve example maps and their preview images
 app.use('/examples', express.static(path.join(__dirname, 'examples')));
