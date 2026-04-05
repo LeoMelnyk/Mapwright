@@ -72,9 +72,31 @@ if (!gotTheLock) {
 }
 
 async function startServer() {
-  // Dynamic import loads server.js as ESM, which starts Express + WebSockets
-  // as a side effect. Port defaults to 3000 via process.argv fallback in server.js.
-  await import('./server.js');
+  // server.js imports from .ts files — spawn it as a child process with tsx
+  // rather than importing directly (Electron's Node doesn't support tsx register)
+  const { spawn } = require('child_process');
+  const serverPath = path.join(__dirname, 'server.js');
+  const child = spawn('node', ['--import', 'tsx', serverPath, String(PORT)], {
+    cwd: __dirname,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      MAPWRIGHT_TEXTURE_PATH: process.env.MAPWRIGHT_TEXTURE_PATH || path.join(app.getPath('userData'), 'textures'),
+      MAPWRIGHT_THEME_PATH: process.env.MAPWRIGHT_THEME_PATH || path.join(app.getPath('userData'), 'themes'),
+    },
+  });
+  // Store reference so we can clean up on quit
+  app._serverChild = child;
+  // Wait for server to be ready
+  const http = require('http');
+  await new Promise((resolve) => {
+    const check = () => {
+      const req = http.get(`http://localhost:${PORT}/`, () => resolve());
+      req.on('error', () => setTimeout(check, 200));
+      req.end();
+    };
+    check();
+  });
 }
 
 function createWindow() {
@@ -233,4 +255,11 @@ app.whenReady().then(async () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.exit(0);
+});
+
+app.on('before-quit', () => {
+  if (app._serverChild) {
+    app._serverChild.kill();
+    app._serverChild = null;
+  }
 });
