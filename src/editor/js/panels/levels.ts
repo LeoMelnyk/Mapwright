@@ -5,7 +5,7 @@ import { panToLevel } from '../canvas-view.js';
 import { showToast } from '../toast.js';
 
 let isEditing = false; // guard: prevent update() from destroying inline input
-let dragFromIdx = null;
+let dragFromIdx: any = null;
 
 /**
  * Initialize the levels panel: subscribe to state, render levels list, bind add-level button.
@@ -14,7 +14,7 @@ export function init(): void {
   subscribe(update, 'levels');
   update();
 
-  document.getElementById('btn-add-level').addEventListener('click', addLevel);
+  document!.getElementById('btn-add-level').addEventListener('click', addLevel);
 }
 
 function update() {
@@ -44,14 +44,14 @@ function update() {
 
     // Click: select level + pan viewport to it
     el.addEventListener('click', (e) => {
-      if (e.target.closest('.level-btn')) return;
+      if (e.target!.closest('.level-btn')) return;
       if (isEditing) return;
       selectLevel(levelIdx);
     });
 
     // Drag-and-drop reorder
     el.addEventListener('dragstart', (e) => {
-      if (e.target.closest('.level-btn, .level-rename-input')) { e.preventDefault(); return; }
+      if (e.target!.closest('.level-btn, .level-rename-input')) { e.preventDefault(); return; }
       dragFromIdx = levelIdx;
       e.dataTransfer.effectAllowed = 'move';
       setTimeout(() => el.classList.add('dragging'), 0);
@@ -85,25 +85,25 @@ function update() {
     });
 
     // Rename button
-    el.querySelector('[data-action="rename"]').addEventListener('click', (e) => {
+    el!.querySelector('[data-action="rename"]').addEventListener('click', (e) => {
       e.stopPropagation();
       startRename(el, levelIdx);
     });
 
     // Duplicate button
-    el.querySelector('[data-action="duplicate"]').addEventListener('click', (e) => {
+    el!.querySelector('[data-action="duplicate"]').addEventListener('click', (e) => {
       e.stopPropagation();
       duplicateLevel(levelIdx);
     });
 
     // Resize button
-    el.querySelector('[data-action="resize"]').addEventListener('click', (e) => {
+    el!.querySelector('[data-action="resize"]').addEventListener('click', (e) => {
       e.stopPropagation();
       resizeLevel(levelIdx);
     });
 
     // Delete button
-    el.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+    el!.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
       e.stopPropagation();
       deleteLevel(levelIdx);
     });
@@ -128,7 +128,7 @@ export function selectLevel(idx: number): void {
 /**
  * Inline rename: replace the name span with an input.
  */
-function startRename(el, levelIdx) {
+function startRename(el: any, levelIdx: any) {
   if (isEditing) return;
   const level = state.dungeon.metadata.levels[levelIdx];
   if (!level) return;
@@ -169,7 +169,7 @@ function startRename(el, levelIdx) {
 /**
  * Resize a level: show styled modal, then add/remove rows.
  */
-function resizeLevel(levelIdx) {
+function resizeLevel(levelIdx: any) {
   const levels = state.dungeon.metadata.levels;
   if (!levels || levelIdx < 0 || levelIdx >= levels.length) return;
 
@@ -183,24 +183,24 @@ function resizeLevel(levelIdx) {
 
   if (descEl) descEl.textContent = `"${level.name}" currently has ${level.numRows} rows.`;
   rowInput.value = level.numRows;
-  modal.style.display = 'flex';
+  (modal as HTMLDialogElement).showModal();
   rowInput.focus();
   rowInput.select();
 
   function cleanup() {
-    modal.style.display = 'none';
-    cancelBtn.removeEventListener('click', onCancel);
-    okBtn.removeEventListener('click', onOk);
-    rowInput.removeEventListener('keydown', onKey);
-    modal.removeEventListener('click', onOverlay);
+    (modal as HTMLDialogElement).close();
+    cancelBtn!.removeEventListener('click', onCancel);
+    okBtn!.removeEventListener('click', onOk);
+    rowInput!.removeEventListener('keydown', onKey);
+    modal!.removeEventListener('click', onOverlay);
   }
 
   function onCancel() { cleanup(); }
 
   function onOk() {
-    const newRows = parseInt(rowInput.value, 10);
+    const newRows = parseInt(rowInput!.value, 10);
     if (isNaN(newRows) || newRows < 1) {
-      rowInput.focus();
+      rowInput!.focus();
       return;
     }
     cleanup();
@@ -229,20 +229,20 @@ function resizeLevel(levelIdx) {
     _applyResize(levelIdx, levels, cells, numCols, delta, newRows, levelEnd);
   }
 
-  function onKey(ke) {
+  function onKey(ke: any) {
     if (ke.key === 'Enter') onOk();
     if (ke.key === 'Escape') cleanup();
   }
 
-  function onOverlay(e) { if (e.target === modal) cleanup(); }
+  function onOverlay(e: any) { if (e.target === modal) cleanup(); }
 
-  cancelBtn.addEventListener('click', onCancel);
-  okBtn.addEventListener('click', onOk);
+  cancelBtn!.addEventListener('click', onCancel);
+  okBtn!.addEventListener('click', onOk);
   rowInput.addEventListener('keydown', onKey);
   modal.addEventListener('click', onOverlay);
 }
 
-function _confirmDestructiveResize(level, removeCount, onConfirm) {
+function _confirmDestructiveResize(level: any, removeCount: any, onConfirm: any) {
   const confirmModal = document.getElementById('modal-resize-level-confirm');
   const msgEl = document.getElementById('modal-resize-level-confirm-msg');
   const cancelBtn = document.getElementById('modal-resize-level-confirm-cancel');
@@ -250,20 +250,20 @@ function _confirmDestructiveResize(level, removeCount, onConfirm) {
   if (!confirmModal) { onConfirm(); return; }
 
   if (msgEl) msgEl.textContent = `This will delete ${removeCount} row(s) at the bottom of "${level.name}" that contain cell data. Continue?`;
-  confirmModal.style.display = 'flex';
+  (confirmModal as HTMLDialogElement).showModal();
 
   function cleanup() {
-    confirmModal.style.display = 'none';
-    cancelBtn.removeEventListener('click', onCancel);
-    okBtn.removeEventListener('click', onOk);
-    confirmModal.removeEventListener('click', onOverlay);
+    (confirmModal as HTMLDialogElement).close();
+    cancelBtn!.removeEventListener('click', onCancel);
+    okBtn!.removeEventListener('click', onOk);
+    confirmModal!.removeEventListener('click', onOverlay);
   }
   function onCancel() { cleanup(); }
   function onOk() { cleanup(); onConfirm(); }
-  function onOverlay(e) { if (e.target === confirmModal) cleanup(); }
+  function onOverlay(e: any) { if (e.target === confirmModal) cleanup(); }
 
-  cancelBtn.addEventListener('click', onCancel);
-  okBtn.addEventListener('click', onOk);
+  cancelBtn!.addEventListener('click', onCancel);
+  okBtn!.addEventListener('click', onOk);
   confirmModal.addEventListener('click', onOverlay);
 }
 
@@ -272,13 +272,13 @@ function _confirmDestructiveResize(level, removeCount, onConfirm) {
  * in rows >= rowEnd by shiftRows. Returns the Set of removed bridge IDs so callers
  * can scrub stale bridge-id references from remaining cells.
  */
-function _cleanupAndShiftLightsBridges(meta, gridSize, rowStart, rowEnd, shiftRows) {
+function _cleanupAndShiftLightsBridges(meta: any, gridSize: any, rowStart: any, rowEnd: any, shiftRows: any) {
   const yStart = rowStart * gridSize;
   const yEnd   = rowEnd   * gridSize;
   const removedBridgeIds = new Set();
 
   if (meta.lights) {
-    meta.lights = meta.lights.filter(l => {
+    meta.lights = meta.lights.filter((l: any) => {
       if (l.y >= yStart && l.y < yEnd) return false;
       return true;
     });
@@ -290,7 +290,7 @@ function _cleanupAndShiftLightsBridges(meta, gridSize, rowStart, rowEnd, shiftRo
   }
 
   if (meta.bridges) {
-    meta.bridges = meta.bridges.filter(b => {
+    meta.bridges = meta.bridges.filter((b: any) => {
       if (b.points.some(([r]) => r >= rowStart && r < rowEnd)) {
         removedBridgeIds.add(b.id);
         return false;
@@ -308,7 +308,7 @@ function _cleanupAndShiftLightsBridges(meta, gridSize, rowStart, rowEnd, shiftRo
 }
 
 /** Scrub stale bridge-id references from all remaining cells. */
-function _scrubBridgeRefs(cells, removedBridgeIds) {
+function _scrubBridgeRefs(cells: any, removedBridgeIds: any) {
   if (!removedBridgeIds.size) return;
   for (const row of cells) {
     for (const cell of row) {
@@ -319,7 +319,7 @@ function _scrubBridgeRefs(cells, removedBridgeIds) {
   }
 }
 
-function _applyResize(levelIdx, levels, cells, numCols, delta, newRows, levelEnd) {
+function _applyResize(levelIdx: any, levels: any, cells: any, numCols: any, delta: any, newRows: any, levelEnd: any) {
   pushUndo('Resize level');
 
   const meta = state.dungeon.metadata;
@@ -354,7 +354,7 @@ function _applyResize(levelIdx, levels, cells, numCols, delta, newRows, levelEnd
   notify();
 }
 
-function duplicateLevel(idx) {
+function duplicateLevel(idx: any) {
   const levels = state.dungeon.metadata.levels;
   if (!levels || idx < 0 || idx >= levels.length) return;
 
@@ -468,7 +468,7 @@ function duplicateLevel(idx) {
  * Move a level from fromIdx to toIdx, physically relocating its cell rows and
  * updating all level metadata. toIdx is the final index in the output array.
  */
-function moveLevelToIndex(fromIdx, toIdx) {
+function moveLevelToIndex(fromIdx: any, toIdx: any) {
   if (fromIdx === toIdx) return;
   const levels = state.dungeon.metadata.levels;
   if (!levels || fromIdx < 0 || fromIdx >= levels.length) return;
@@ -524,7 +524,7 @@ function moveLevelToIndex(fromIdx, toIdx) {
   notify();
 }
 
-function deleteLevel(idx) {
+function deleteLevel(idx: any) {
   const levels = state.dungeon.metadata.levels;
   if (!levels || idx < 0 || idx >= levels.length) return;
 
@@ -541,13 +541,13 @@ function deleteLevel(idx) {
   if (!modal) return;
 
   if (msgEl) msgEl.textContent = `Delete "${level.name}" and all its content?`;
-  modal.style.display = 'flex';
+  (modal as HTMLDialogElement).showModal();
 
   function cleanup() {
-    modal.style.display = 'none';
-    cancelBtn.removeEventListener('click', onCancel);
-    okBtn.removeEventListener('click', onOk);
-    modal.removeEventListener('click', onOverlay);
+    (modal as HTMLDialogElement).close();
+    cancelBtn!.removeEventListener('click', onCancel);
+    okBtn!.removeEventListener('click', onOk);
+    modal!.removeEventListener('click', onOverlay);
   }
   function onCancel() { cleanup(); }
   function onOk() {
@@ -583,10 +583,10 @@ function deleteLevel(idx) {
     notify();
     showToast('Level deleted');
   }
-  function onOverlay(e) { if (e.target === modal) cleanup(); }
+  function onOverlay(e: any) { if (e.target === modal) cleanup(); }
 
-  cancelBtn.addEventListener('click', onCancel);
-  okBtn.addEventListener('click', onOk);
+  cancelBtn!.addEventListener('click', onCancel);
+  okBtn!.addEventListener('click', onOk);
   modal.addEventListener('click', onOverlay);
 }
 
@@ -599,23 +599,23 @@ function addLevel() {
 
   const defaultName = `Level ${(state.dungeon.metadata.levels?.length || 0) + 1}`;
   nameInput.value = defaultName;
-  modal.style.display = 'flex';
+  (modal as HTMLDialogElement).showModal();
   nameInput.focus();
   nameInput.select();
 
   function cleanup() {
-    modal.style.display = 'none';
-    cancelBtn.removeEventListener('click', onCancel);
-    okBtn.removeEventListener('click', onOk);
-    nameInput.removeEventListener('keydown', onKey);
-    modal.removeEventListener('click', onOverlay);
+    (modal as HTMLDialogElement).close();
+    cancelBtn!.removeEventListener('click', onCancel);
+    okBtn!.removeEventListener('click', onOk);
+    nameInput!.removeEventListener('keydown', onKey);
+    modal!.removeEventListener('click', onOverlay);
   }
 
   function onCancel() { cleanup(); }
 
   function onOk() {
-    const name = nameInput.value.trim();
-    if (!name) { nameInput.focus(); return; }
+    const name = nameInput!.value.trim();
+    if (!name) { nameInput!.focus(); return; }
     cleanup();
 
     pushUndo('Add level');
@@ -646,15 +646,15 @@ function addLevel() {
     showToast('Level added');
   }
 
-  function onKey(ke) {
+  function onKey(ke: any) {
     if (ke.key === 'Enter') onOk();
     if (ke.key === 'Escape') cleanup();
   }
 
-  function onOverlay(e) { if (e.target === modal) cleanup(); }
+  function onOverlay(e: any) { if (e.target === modal) cleanup(); }
 
-  cancelBtn.addEventListener('click', onCancel);
-  okBtn.addEventListener('click', onOk);
+  cancelBtn!.addEventListener('click', onCancel);
+  okBtn!.addEventListener('click', onOk);
   nameInput.addEventListener('keydown', onKey);
   modal.addEventListener('click', onOverlay);
 }

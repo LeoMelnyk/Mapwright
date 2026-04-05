@@ -26,42 +26,42 @@ export function initDraggableToolbar(): void {
   let dragging = false;
   let startMouseX = 0, startMouseY = 0;
   let startLeft = 0, startBottom = 0;
-  let activeSnap = null;
+  let activeSnap: any = null;
   let dragContainerWidth = 0;
   let dragContainerHeight = 0;
 
   const SNAP_EDGE = 20; // margin from container edge for snap positions
   const DOCK_CLASSES = ['toolbar-docked-top', 'toolbar-docked-left', 'toolbar-docked-right'];
 
-  function applySnap(snapId) {
-    toolbar.classList.remove(...DOCK_CLASSES);
+  function applySnap(snapId: any) {
+    toolbar!.classList.remove(...DOCK_CLASSES);
     // Use 'auto'/'none' not '' — clearing with '' exposes base CSS values
     // (base CSS has bottom: 20px and left: 50% which would create conflicts)
-    toolbar.style.left = 'auto';
-    toolbar.style.right = 'auto';
-    toolbar.style.top = 'auto';
-    toolbar.style.bottom = 'auto';
-    toolbar.style.transform = 'none';
+    toolbar!.style.left = 'auto';
+    toolbar!.style.right = 'auto';
+    toolbar!.style.top = 'auto';
+    toolbar!.style.bottom = 'auto';
+    toolbar!.style.transform = 'none';
 
     if (snapId === 'center-bottom') {
-      toolbar.style.left = '50%';
-      toolbar.style.transform = 'translateX(-50%)';
-      toolbar.style.bottom = `${SNAP_EDGE}px`;
+      toolbar!.style.left = '50%';
+      toolbar!.style.transform = 'translateX(-50%)';
+      toolbar!.style.bottom = `${SNAP_EDGE}px`;
     } else if (snapId === 'center-top') {
-      toolbar.style.left = '50%';
-      toolbar.style.transform = 'translateX(-50%)';
-      toolbar.style.top = `${SNAP_EDGE}px`;
-      toolbar.classList.add('toolbar-docked-top');
+      toolbar!.style.left = '50%';
+      toolbar!.style.transform = 'translateX(-50%)';
+      toolbar!.style.top = `${SNAP_EDGE}px`;
+      toolbar!.classList.add('toolbar-docked-top');
     } else if (snapId === 'center-left') {
-      toolbar.style.left = `${SNAP_EDGE}px`;
-      toolbar.style.top = '50%';
-      toolbar.style.transform = 'translateY(-50%)';
-      toolbar.classList.add('toolbar-docked-left');
+      toolbar!.style.left = `${SNAP_EDGE}px`;
+      toolbar!.style.top = '50%';
+      toolbar!.style.transform = 'translateY(-50%)';
+      toolbar!.classList.add('toolbar-docked-left');
     } else if (snapId === 'center-right') {
-      toolbar.style.right = `${SNAP_EDGE}px`;
-      toolbar.style.top = '50%';
-      toolbar.style.transform = 'translateY(-50%)';
-      toolbar.classList.add('toolbar-docked-right');
+      toolbar!.style.right = `${SNAP_EDGE}px`;
+      toolbar!.style.top = '50%';
+      toolbar!.style.transform = 'translateY(-50%)';
+      toolbar!.classList.add('toolbar-docked-right');
     }
   }
 
@@ -76,11 +76,11 @@ export function initDraggableToolbar(): void {
       }
       const { left, bottom } = pos;
       if (isNaN(left) || isNaN(bottom)) return; // discard legacy { left, top } format
-      toolbar.style.left = `${left}px`;
-      toolbar.style.right = 'auto';
-      toolbar.style.bottom = `${bottom}px`;
-      toolbar.style.top = 'auto';
-      toolbar.style.transform = 'none';
+      toolbar!.style.left = `${left}px`;
+      toolbar!.style.right = 'auto';
+      toolbar!.style.bottom = `${bottom}px`;
+      toolbar!.style.top = 'auto';
+      toolbar!.style.transform = 'none';
     } catch {}
   }
 
@@ -113,7 +113,7 @@ export function initDraggableToolbar(): void {
     if (locked) return;
     e.preventDefault();
     const container = toolbar.parentElement;
-    const containerRect = container.getBoundingClientRect();
+    const containerRect = container!.getBoundingClientRect();
     dragContainerWidth = containerRect.width;
     dragContainerHeight = containerRect.height;
     // Switch to horizontal layout first, then measure — so handle offsets
@@ -380,12 +380,12 @@ export function mdToHtml(md: string): string {
  */
 export function initShortcutsModal(): void {
   function openShortcutsModal() {
-    const m = document.getElementById('modal-shortcuts');
-    if (m) m.style.display = 'flex';
+    const m = document.getElementById('modal-shortcuts') as HTMLDialogElement;
+    if (m) m.showModal();
   }
   function closeShortcutsModal() {
-    const m = document.getElementById('modal-shortcuts');
-    if (m) m.style.display = 'none';
+    const m = document.getElementById('modal-shortcuts') as HTMLDialogElement;
+    if (m) m.close();
   }
   document.getElementById('btn-shortcuts')?.addEventListener('click', openShortcutsModal);
   document.getElementById('modal-shortcuts-close')?.addEventListener('click', closeShortcutsModal);
@@ -420,11 +420,11 @@ export function initReleaseNotesModal(): void {
         })
         .catch(() => { body.textContent = 'Could not load release notes.'; });
     }
-    m.style.display = 'flex';
+    (m as HTMLDialogElement).showModal();
   }
   function closeReleaseNotesModal() {
-    const m = document.getElementById('modal-release-notes');
-    if (m) m.style.display = 'none';
+    const m = document.getElementById('modal-release-notes') as HTMLDialogElement;
+    if (m) m.close();
   }
   document.getElementById('btn-welcome')?.addEventListener('click', openWelcomeScreen);
   document.getElementById('btn-release-notes')?.addEventListener('click', openReleaseNotesModal);
@@ -441,7 +441,7 @@ export function initReleaseNotesModal(): void {
  * @returns {void}
  */
 export function initClaudeSettingsModal(): void {
-  function updatePullCmd(modelValue) {
+  function updatePullCmd(modelValue: any) {
     const cmd = document.getElementById('claude-pull-cmd');
     if (cmd) cmd.textContent = `ollama pull ${modelValue}`;
   }
@@ -456,13 +456,13 @@ export function initClaudeSettingsModal(): void {
       modelSelect.value = settings.model || 'qwen3.5:9b';
       updatePullCmd(modelSelect.value);
     }
-    m.style.display = 'flex';
+    (m as HTMLDialogElement).showModal();
   }
   function closeClaudeSettingsModal() {
-    const m = document.getElementById('modal-claude-settings');
-    if (m) m.style.display = 'none';
+    const m = document.getElementById('modal-claude-settings') as HTMLDialogElement;
+    if (m) m.close();
   }
-  document.getElementById('claude-model-select')?.addEventListener('change', (e) => updatePullCmd(e.target.value));
+  document.getElementById('claude-model-select')?.addEventListener('change', (e) => updatePullCmd(e.target!.value));
   document.getElementById('btn-claude-settings')?.addEventListener('click', openClaudeSettingsModal);
   document.getElementById('claude-settings-cancel')?.addEventListener('click', closeClaudeSettingsModal);
   document.getElementById('modal-claude-settings')?.addEventListener('click', (e) => {

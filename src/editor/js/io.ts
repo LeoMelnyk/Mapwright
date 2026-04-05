@@ -103,24 +103,27 @@ function getSuggestedName() {
     .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.mapwright';
 }
 
-function showConfirmModal(message) {
+function showConfirmModal(message: any) {
   return new Promise(resolve => {
     const overlay = document.getElementById('modal-confirm');
     const msg     = document.getElementById('modal-confirm-msg');
     const btnOk   = document.getElementById('modal-confirm-ok');
     const btnCancel = document.getElementById('modal-confirm-cancel');
-    msg.textContent = message;
-    overlay.style.display = 'flex';
-    const finish = (result) => {
-      overlay.style.display = 'none';
-      btnOk.removeEventListener('click', onOk);
-      btnCancel.removeEventListener('click', onCancel);
+    msg!.textContent = message;
+    (overlay as HTMLDialogElement).showModal();
+    const finish = (result: any) => {
+      (overlay as HTMLDialogElement).close();
+      btnOk!.removeEventListener('click', onOk);
+      btnCancel!.removeEventListener('click', onCancel);
+      overlay!.removeEventListener('cancel', onNativeCancel);
       resolve(result);
     };
     const onOk     = () => finish(true);
     const onCancel = () => finish(false);
-    btnOk.addEventListener('click', onOk);
-    btnCancel.addEventListener('click', onCancel);
+    const onNativeCancel = (e: Event) => { e.preventDefault(); finish(false); };
+    btnOk!.addEventListener('click', onOk);
+    btnCancel!.addEventListener('click', onCancel);
+    overlay!.addEventListener('cancel', onNativeCancel);
   });
 }
 
@@ -133,32 +136,32 @@ function showNewMapModal() {
     const btnCreate = document.getElementById('modal-new-create');
     const btnCancel = document.getElementById('modal-new-cancel');
 
-    nameEl.value = 'New Dungeon';
-    rowsEl.value = '20';
-    colsEl.value = '30';
-    overlay.style.display = 'flex';
-    setTimeout(() => nameEl.select(), 0);
+    nameEl!.value = 'New Dungeon';
+    rowsEl!.value = '20';
+    colsEl!.value = '30';
+    (overlay as HTMLDialogElement).showModal();
+    setTimeout(() => nameEl!.select(), 0);
 
-    const finish = (result) => {
-      overlay.style.display = 'none';
-      btnCreate.removeEventListener('click', onCreate);
-      btnCancel.removeEventListener('click', onCancel);
-      overlay.removeEventListener('keydown', onKey);
+    const finish = (result: any) => {
+      (overlay as HTMLDialogElement).close();
+      btnCreate!.removeEventListener('click', onCreate);
+      btnCancel!.removeEventListener('click', onCancel);
+      overlay!.removeEventListener('keydown', onKey);
       resolve(result);
     };
     const onCreate = () => finish({
-      name: nameEl.value.trim() || 'New Dungeon',
-      rows: parseInt(rowsEl.value) || 20,
-      cols: parseInt(colsEl.value) || 30,
+      name: nameEl!.value.trim() || 'New Dungeon',
+      rows: parseInt(rowsEl!.value) || 20,
+      cols: parseInt(colsEl!.value) || 30,
     });
     const onCancel = () => finish(null);
-    const onKey = (e) => {
+    const onKey = (e: any) => {
       if (e.key === 'Enter')  { e.preventDefault(); onCreate(); }
       if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
     };
-    btnCreate.addEventListener('click', onCreate);
-    btnCancel.addEventListener('click', onCancel);
-    overlay.addEventListener('keydown', onKey);
+    btnCreate!.addEventListener('click', onCreate);
+    btnCancel!.addEventListener('click', onCancel);
+    overlay!.addEventListener('keydown', onKey);
   });
 }
 
@@ -191,7 +194,7 @@ export async function loadDungeon(): Promise<void> {
       loadDungeonJSON(json, { fileHandle: handle, fileName: file.name });
       return;
     } catch (err) {
-      if (err.name === 'AbortError') return; // user cancelled
+      if ((err as any).name === 'AbortError') return; // user cancelled
       console.warn('File System Access API failed, falling back:', err);
     }
   }
@@ -201,19 +204,19 @@ export async function loadDungeon(): Promise<void> {
   input.type = 'file';
   input.accept = '.mapwright,.json';
   input.onchange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target!.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
-        const json = JSON.parse(ev.target.result);
+        const json = JSON.parse(ev.target!.result);
         if (!json.metadata || !json.cells) {
           showToast('Invalid dungeon JSON: missing metadata or cells');
           return;
         }
         loadDungeonJSON(json, { fileName: file.name });
       } catch (err) {
-        showToast('Failed to parse JSON: ' + err.message);
+        showToast('Failed to parse JSON: ' + (err as any).message);
       }
     };
     reader.readAsText(file);
@@ -237,7 +240,7 @@ export async function saveDungeon(): Promise<void> {
       name: themeObj.displayName || _saveTheme.slice(5),
       theme: { ...themeObj },
     };
-    delete state.dungeon.metadata.savedThemeData.theme.displayName;
+    delete state.dungeon.metadata.savedThemeData!.theme.displayName;
   } else if (typeof _saveTheme === 'string' && !_saveTheme.startsWith('user:')) {
     delete state.dungeon.metadata.savedThemeData;
   }
@@ -255,7 +258,7 @@ export async function saveDungeon(): Promise<void> {
       showToast('Saved');
       return;
     } catch (err) {
-      if (err.name === 'AbortError') return;
+      if ((err as any).name === 'AbortError') return;
       console.warn('Failed to write to file handle, falling back to Save As:', err);
       // Fall through to Save As
     }
@@ -278,7 +281,7 @@ export async function saveDungeon(): Promise<void> {
       showToast('Saved');
       return;
     } catch (err) {
-      if (err.name === 'AbortError') return;
+      if ((err as any).name === 'AbortError') return;
       console.warn('showSaveFilePicker failed, falling back to download:', err);
     }
   }
@@ -298,7 +301,7 @@ export async function saveDungeon(): Promise<void> {
 /**
  * Save a blob to disk — uses native file picker when available, falls back to anchor download.
  */
-async function saveBlob(blob, suggestedName) {
+async function saveBlob(blob: any, suggestedName: any) {
   if (window.showSaveFilePicker) {
     try {
       const handle = await window.showSaveFilePicker({
@@ -310,7 +313,7 @@ async function saveBlob(blob, suggestedName) {
       await writable.close();
       return;
     } catch (err) {
-      if (err.name === 'AbortError') throw err; // user cancelled
+      if ((err as any).name === 'AbortError') throw err; // user cancelled
       console.warn('showSaveFilePicker failed, falling back to download:', err);
     }
   }
@@ -331,7 +334,7 @@ async function saveBlob(blob, suggestedName) {
  * Export the current dungeon as a PNG image (server-side or browser fallback).
  * @returns {Promise<void>}
  */
-let exportOverlay = null;
+let exportOverlay: any = null;
 
 function showExportOverlay() {
   if (!exportOverlay) {
@@ -387,7 +390,7 @@ export async function exportPng(): Promise<void> {
     console.error('[export] Server error:', res.status, detail);
     return;
   } catch (err) {
-    if (err.name === 'AbortError') { hideExportOverlay(); return; }
+    if ((err as any).name === 'AbortError') { hideExportOverlay(); return; }
     console.warn('Server export unavailable — falling back to browser render');
   }
 
@@ -405,7 +408,7 @@ export async function exportPng(): Promise<void> {
     }
 
     // Resolve background image element if present
-    let bgImageEl = null;
+    let bgImageEl: any = null;
     const bi = config.metadata.backgroundImage;
     if (bi?.dataUrl) {
       bgImageEl = new Image();
@@ -429,9 +432,9 @@ export async function exportPng(): Promise<void> {
     showToast('Exported as PNG (without textures — run start.bat for full export)');
   } catch (err) {
     hideExportOverlay();
-    if (err.name === 'AbortError') return; // user cancelled save dialog
+    if ((err as any).name === 'AbortError') return; // user cancelled save dialog
     console.error('Export PNG failed:', err);
-    showToast('Export failed: ' + err.message);
+    showToast('Export failed: ' + (err as any).message);
   }
 }
 
@@ -466,9 +469,9 @@ export async function exportDd2vtt(): Promise<void> {
     showToast('Exported as Universal VTT (.dd2vtt)');
   } catch (err) {
     hideExportOverlay();
-    if (err.name === 'AbortError') return;
+    if ((err as any).name === 'AbortError') return;
     console.error('Export dd2vtt failed:', err);
-    showToast('Export failed: ' + err.message);
+    showToast('Export failed: ' + (err as any).message);
   }
 }
 

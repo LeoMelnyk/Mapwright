@@ -26,7 +26,7 @@ export function activateTool(name: string): void {
 }
 
 /** Open a named sidebar panel (by panel ID) and activate its icon button. */
-function openSidebarPanel(panelId) {
+function openSidebarPanel(panelId: any) {
   const btn = document.querySelector(`.icon-btn[data-panel="${panelId}"]`);
   const panel = document.getElementById(`panel-${panelId}`);
   const sideContent = document.getElementById('side-content');
@@ -66,7 +66,7 @@ const toolOptions = {
                 room:            'Drag to paint room floor color',
                 'clear-texture': 'Drag to clear texture · Shift+click to flood clear',
               };
-              state.statusInstruction = statuses[v] || null;
+              state.statusInstruction = (statuses as any)[v] || null;
             } },
   fill:   { key: 'fillMode',   attr: 'data-fill-mode',
             values: ['water', 'lava', 'pit', 'difficult-terrain', 'clear-fill'],
@@ -87,7 +87,7 @@ const toolOptions = {
                 'difficult-terrain': 'Drag to paint difficult terrain · Right-click cell to clear',
                 'clear-fill':        'Drag to clear fills from cells',
               };
-              state.statusInstruction = statuses[v] || null;
+              state.statusInstruction = (statuses as any)[v] || null;
             } },
   wall:   { key: 'wallType',   attr: 'data-wall-type',   values: ['w', 'iw'],
             onApply: v => {
@@ -102,7 +102,7 @@ const toolOptions = {
                 s:  'Click a wall to place secret door · Appears as wall to players until discovered',
                 id: 'Click a wall to place invisible door · Hidden from players; DM can open',
               };
-              state.statusInstruction = statuses[v] || null;
+              state.statusInstruction = (statuses as any)[v] || null;
             } },
   stairs: { key: 'stairsMode', attr: 'data-stairs-mode', values: ['place', 'link'],
             cursor: v => v === 'link' ? 'pointer' : 'crosshair',
@@ -140,13 +140,13 @@ const toolOptions = {
  * @param {string} toolName - Tool identifier
  */
 export function applyToolSideEffects(toolName: string): void {
-  const opts = toolOptions[toolName];
+  const opts = (toolOptions as any)[toolName];
   if (opts?.onApply) opts.onApply(state[opts.key] || opts.values[0]);
 }
 
 /** Convert a data attribute name to its dataset key, e.g. 'data-paint-mode' → 'paintMode'. */
-function attrToDatasetKey(attr) {
-  return attr.replace(/^data-/, '').replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+function attrToDatasetKey(attr: any) {
+  return attr.replace(/^data-/, '').replace(/-([a-z])/g, (_: any, c: any) => c.toUpperCase());
 }
 
 /**
@@ -155,7 +155,7 @@ function attrToDatasetKey(attr) {
  * @param {string} value - Sub-mode value
  */
 export function setSubMode(toolName: string, value?: string): void {
-  const opts = toolOptions[toolName];
+  const opts = (toolOptions as any)[toolName];
   if (!opts) return;
   state[opts.key] = value;
   document.querySelectorAll(`[${opts.attr}]`).forEach(btn => {
@@ -172,7 +172,7 @@ export function setSubMode(toolName: string, value?: string): void {
  * @returns {boolean} True if a sub-mode was cycled
  */
 export function cycleSubMode(delta?: number): void {
-  const opts = toolOptions[state.activeTool];
+  const opts = (toolOptions as any)[state.activeTool];
   if (!opts) return false;
   const idx = opts.values.indexOf(state[opts.key]);
   const next = opts.values[(idx + delta + opts.values.length) % opts.values.length];
@@ -186,7 +186,7 @@ export function cycleSubMode(delta?: number): void {
  * @returns {string|null} CSS cursor string
  */
 export function getToolCursor(toolName: string): string {
-  const opts = toolOptions[toolName];
+  const opts = (toolOptions as any)[toolName];
   return opts?.cursor ? opts.cursor(state[opts.key]) : null;
 }
 
@@ -196,20 +196,57 @@ export function getToolCursor(toolName: string): string {
 export function init(): void {
   // ── Menu bar dropdowns ─────────────────────────────────────────────────
   const menuItems = document.querySelectorAll('.menu-item');
+  const menubar = document.getElementById('menubar')!;
+
+  /** Update aria-expanded on all triggers to match the open state. */
+  function syncAriaExpanded() {
+    menuItems.forEach(mi => {
+      const isOpen = mi.classList.contains('open');
+      const trigger = mi.querySelector('.menu-trigger');
+      if (trigger) trigger.setAttribute('aria-expanded', String(isOpen));
+    });
+    // Submenu triggers
+    document.querySelectorAll('.menu-submenu-trigger').forEach(t => {
+      const submenu = t.closest('.menu-submenu');
+      const isOpen = submenu?.classList.contains('open') || submenu?.querySelector('.menu-submenu-dropdown:hover') !== null;
+      t.setAttribute('aria-expanded', String(isOpen));
+    });
+  }
+
+  /** Open a specific top-level menu item and focus its first action. */
+  function openMenu(item: Element) {
+    menuItems.forEach(mi => mi.classList.remove('open'));
+    item.classList.add('open');
+    syncAriaExpanded();
+    // Focus first menu-action in the dropdown
+    const firstAction = item.querySelector('.menu-dropdown > .menu-action, .menu-dropdown > label, .menu-dropdown > .menu-submenu > .menu-submenu-trigger') as HTMLElement;
+    if (firstAction) firstAction.focus();
+  }
+
+  /** Close all menus. */
+  function closeAllMenus() {
+    menuItems.forEach(mi => mi.classList.remove('open'));
+    syncAriaExpanded();
+  }
+
+  /** Get all focusable items in the currently open dropdown (buttons, labels, submenu triggers). */
+  function getFocusableItems(dropdown: Element): HTMLElement[] {
+    return Array.from(dropdown.querySelectorAll(':scope > .menu-action, :scope > label, :scope > .menu-field, :scope > .menu-submenu > .menu-submenu-trigger')) as HTMLElement[];
+  }
 
   menuItems.forEach(item => {
-    const trigger = item.querySelector('.menu-trigger');
+    const trigger = item.querySelector('.menu-trigger') as HTMLElement;
     trigger.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = item.classList.contains('open');
-      menuItems.forEach(mi => mi.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
+      closeAllMenus();
+      if (!isOpen) openMenu(item);
     });
   });
 
   // Close menus on outside click
   document.addEventListener('click', () => {
-    menuItems.forEach(mi => mi.classList.remove('open'));
+    closeAllMenus();
   });
 
   // Clicks inside dropdowns don't propagate to document (keeps menu open),
@@ -218,22 +255,133 @@ export function init(): void {
     dd.addEventListener('click', (e) => e.stopPropagation());
   });
 
+  // Set role="menuitem" and tabindex on all menu-action buttons
+  document.querySelectorAll('.menu-action').forEach(action => {
+    action.setAttribute('role', 'menuitem');
+    action.setAttribute('tabindex', '-1');
+  });
+
   // Close menu after a menu-action is invoked (but not submenu triggers)
   document.querySelectorAll('.menu-action').forEach(action => {
     if (action.classList.contains('menu-submenu-trigger')) return;
     action.addEventListener('click', () => {
-      menuItems.forEach(mi => mi.classList.remove('open'));
+      closeAllMenus();
     });
   });
 
+  // ── Keyboard navigation for menus ─────────────────────────────────────
+  menubar.addEventListener('keydown', (e: KeyboardEvent) => {
+    const openItem = menubar.querySelector('.menu-item.open');
+    if (!openItem) return; // No menu open — let default behavior handle it
+
+    const menuItemsArr = Array.from(menuItems);
+    const openIdx = menuItemsArr.indexOf(openItem);
+    const dropdown = openItem.querySelector('.menu-dropdown');
+    if (!dropdown) return;
+
+    // Check if we're inside a submenu
+    const activeEl = document.activeElement as HTMLElement;
+    const activeSubmenu = activeEl?.closest('.menu-submenu-dropdown');
+
+    // Determine which list of items to navigate
+    const itemsContainer = activeSubmenu || dropdown;
+    const items = getFocusableItems(itemsContainer);
+    const currentIdx = items.indexOf(activeEl);
+
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        const nextIdx = currentIdx < items.length - 1 ? currentIdx + 1 : 0;
+        items[nextIdx]?.focus();
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        const prevIdx = currentIdx > 0 ? currentIdx - 1 : items.length - 1;
+        items[prevIdx]?.focus();
+        break;
+      }
+      case 'ArrowRight': {
+        e.preventDefault();
+        // If on a submenu trigger, open the submenu and focus first item
+        if (activeEl?.classList.contains('menu-submenu-trigger')) {
+          const submenuDropdown = activeEl.closest('.menu-submenu')?.querySelector('.menu-submenu-dropdown');
+          if (submenuDropdown) {
+            // CSS :focus-within or hover shows submenu — we just need to focus into it
+            const subItems = getFocusableItems(submenuDropdown);
+            if (subItems.length) { subItems[0].focus(); break; }
+          }
+        }
+        // Otherwise, move to next top-level menu
+        const nextMenuIdx = (openIdx + 1) % menuItemsArr.length;
+        openMenu(menuItemsArr[nextMenuIdx]);
+        break;
+      }
+      case 'ArrowLeft': {
+        e.preventDefault();
+        // If inside a submenu, go back to the submenu trigger
+        if (activeSubmenu) {
+          const submenuTrigger = activeSubmenu.closest('.menu-submenu')?.querySelector('.menu-submenu-trigger') as HTMLElement;
+          if (submenuTrigger) { submenuTrigger.focus(); break; }
+        }
+        // Otherwise, move to previous top-level menu
+        const prevMenuIdx = (openIdx - 1 + menuItemsArr.length) % menuItemsArr.length;
+        openMenu(menuItemsArr[prevMenuIdx]);
+        break;
+      }
+      case 'Home': {
+        e.preventDefault();
+        if (items.length) items[0].focus();
+        break;
+      }
+      case 'End': {
+        e.preventDefault();
+        if (items.length) items[items.length - 1].focus();
+        break;
+      }
+      case 'Enter':
+      case ' ': {
+        // If focused on a submenu trigger, open it
+        if (activeEl?.classList.contains('menu-submenu-trigger')) {
+          e.preventDefault();
+          const submenuDropdown = activeEl.closest('.menu-submenu')?.querySelector('.menu-submenu-dropdown');
+          if (submenuDropdown) {
+            const subItems = getFocusableItems(submenuDropdown);
+            if (subItems.length) subItems[0].focus();
+          }
+          break;
+        }
+        // For other items, let the native click fire (don't prevent default for Enter on buttons)
+        if (e.key === ' ') {
+          e.preventDefault();
+          activeEl?.click();
+        }
+        break;
+      }
+      case 'Escape': {
+        e.preventDefault();
+        // If inside a submenu, go back to the trigger
+        if (activeSubmenu) {
+          const submenuTrigger = activeSubmenu.closest('.menu-submenu')?.querySelector('.menu-submenu-trigger') as HTMLElement;
+          if (submenuTrigger) { submenuTrigger.focus(); break; }
+        }
+        // Otherwise close the menu entirely
+        const trigger = openItem.querySelector('.menu-trigger') as HTMLElement;
+        closeAllMenus();
+        trigger?.focus();
+        break;
+      }
+    }
+  });
+
   // ── File operations ────────────────────────────────────────────────────
-  document.getElementById('btn-new').addEventListener('click', newDungeon);
-  document.getElementById('btn-load').addEventListener('click', loadDungeon);
-  document.getElementById('btn-save').addEventListener('click', saveDungeon);
-  document.getElementById('btn-save-as').addEventListener('click', saveDungeonAs);
-  document.getElementById('btn-export-png').addEventListener('click', exportPng);
-  document.getElementById('btn-export-dd2vtt').addEventListener('click', exportDd2vtt);
-  document.getElementById('btn-reload-assets').addEventListener('click', reloadAssets);
+  document!.getElementById('btn-new').addEventListener('click', newDungeon);
+  document!.getElementById('btn-load').addEventListener('click', loadDungeon);
+  document!.getElementById('btn-save').addEventListener('click', saveDungeon);
+  document!.getElementById('btn-save-as').addEventListener('click', saveDungeonAs);
+  document!.getElementById('btn-export-png').addEventListener('click', exportPng);
+  document!.getElementById('btn-export-dd2vtt').addEventListener('click', exportDd2vtt);
+  document!.getElementById('btn-reload-assets').addEventListener('click', reloadAssets);
 
   // ── Import sub-menu ─────────────────────────────────────────────────
   document.getElementById('btn-import-opd')?.addEventListener('click', () => {
@@ -246,8 +394,8 @@ export function init(): void {
   });
 
   // ── Undo/redo ──────────────────────────────────────────────────────────
-  document.getElementById('btn-undo').addEventListener('click', undo);
-  document.getElementById('btn-redo').addEventListener('click', redo);
+  document!.getElementById('btn-undo').addEventListener('click', undo);
+  document!.getElementById('btn-redo').addEventListener('click', redo);
 
   // ── Tool buttons ───────────────────────────────────────────────────────
   const toolButtons = document.querySelectorAll('[data-tool]');
@@ -369,10 +517,10 @@ export function init(): void {
 
   // Keep dungeon letter dropdown in sync after load/new/undo.
   // Auto-detect the letter from existing labels when a new dungeon is loaded.
-  let lastDungeon = null;
-  let _lastTool = null;
-  let _lastLighting = null;
-  let _lastSessionTools = null;
+  let lastDungeon: any = null;
+  let _lastTool: any = null;
+  let _lastLighting: any = null;
+  let _lastSessionTools: any = null;
   subscribe(() => {
     const meta = state.dungeon.metadata;
     if (state.dungeon !== lastDungeon) {
@@ -462,14 +610,14 @@ export function updateToolButtons(): void {
 }
 
 /** Scan cells for room labels and return the most common letter prefix, or 'A'. */
-function detectDungeonLetter(cells) {
+function detectDungeonLetter(cells: any) {
   const counts = {};
   const pattern = /^([A-Z])\d+$/;
   for (const row of cells) {
     for (const cell of row) {
       if (cell?.center?.label) {
         const m = cell.center.label.match(pattern);
-        if (m) counts[m[1]] = (counts[m[1]] || 0) + 1;
+        if (m) (counts as any)[m[1]] = (counts[m[1]] || 0) + 1;
       }
     }
   }
@@ -482,11 +630,12 @@ function detectDungeonLetter(cells) {
 
 // ── Import modal ──────────────────────────────────────────────────────
 
-function showImportModal(siteName, siteUrl) {
+function showImportModal(siteName: any, siteUrl: any) {
   // Remove any existing modal
+  (document.getElementById('import-modal-overlay') as HTMLDialogElement)?.close();
   document.getElementById('import-modal-overlay')?.remove();
 
-  const overlay = document.createElement('div');
+  const overlay = document.createElement('dialog') as HTMLDialogElement;
   overlay.id = 'import-modal-overlay';
   overlay.className = 'import-modal-overlay';
 
@@ -534,12 +683,12 @@ function showImportModal(siteName, siteUrl) {
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
+    const file = e.dataTransfer!.files[0];
     if (file) handleImportFile(file, siteName);
   });
 
   fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
+    const file = fileInput.files![0];
     if (file) handleImportFile(file, siteName);
   });
 
@@ -547,18 +696,17 @@ function showImportModal(siteName, siteUrl) {
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'import-modal-cancel';
   cancelBtn.textContent = 'Cancel';
-  cancelBtn.addEventListener('click', () => overlay.remove());
+  function closeImportModal() { overlay.close(); overlay.remove(); }
+
+  cancelBtn.addEventListener('click', closeImportModal);
 
   // Close on overlay click
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay) closeImportModal();
   });
 
-  // Close on Escape
-  const onKey = (e) => {
-    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', onKey); }
-  };
-  document.addEventListener('keydown', onKey);
+  // Close on Escape (dialog handles Escape natively, but clean up the DOM)
+  overlay.addEventListener('close', () => overlay.remove());
 
   modal.appendChild(steps);
   modal.appendChild(dropZone);
@@ -566,9 +714,10 @@ function showImportModal(siteName, siteUrl) {
   modal.appendChild(cancelBtn);
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+  overlay.showModal();
 }
 
-function handleImportFile(file, siteName) {
+function handleImportFile(file: any, siteName: any) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
@@ -585,11 +734,12 @@ function handleImportFile(file, siteName) {
       }
 
       loadDungeonJSON(dungeon, { fileName: file.name });
-      document.getElementById('import-modal-overlay')?.remove();
+      const importDialog = document.getElementById('import-modal-overlay') as HTMLDialogElement;
+      if (importDialog) { importDialog.close(); importDialog.remove(); }
       showToast(`Imported from ${siteName}`);
     } catch (err) {
       console.error('Import failed:', err);
-      showToast('Import failed: ' + err.message);
+      showToast('Import failed: ' + (err as any).message);
     }
   };
   reader.readAsText(file);

@@ -2287,14 +2287,24 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 
 /* ── Import modal ───────────────────────────────────────────────────── */
 
-.import-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+dialog.import-modal-overlay {
+  border: none;
+  padding: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+}
+
+dialog.import-modal-overlay[open] {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+}
+
+dialog.import-modal-overlay::backdrop {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .import-modal {
@@ -2364,14 +2374,24 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 
 /* ── General-purpose modals ─────────────────────────────────────────── */
 
-.mw-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+dialog.mw-modal-overlay {
+  border: none;
+  padding: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+}
+
+dialog.mw-modal-overlay[open] {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+}
+
+dialog.mw-modal-overlay::backdrop {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .mw-modal {

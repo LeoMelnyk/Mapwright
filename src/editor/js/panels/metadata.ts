@@ -7,8 +7,8 @@ import { invalidateLightmapCaches } from '../../../render/index.js';
 import { buildCustomEditor, syncCustomEditorValues, renderCustomThumb } from './theme-editor.js';
 
 const idle = typeof window !== 'undefined' && false // bypass requestIdleCallback — starved by animated render loop
-  ? (cb) => window.requestIdleCallback(cb)
-  : (cb) => setTimeout(cb, 0);
+  ? (cb: any) => window.requestIdleCallback(cb)
+  : (cb: any) => setTimeout(cb, 0);
 
 /**
  * Initialize the metadata panel: dungeon name, grid size, theme, label style, and feature toggles.
@@ -115,7 +115,7 @@ export function init(): void {
           name: userTheme.displayName || uKey,
           theme: { ...userTheme },
         };
-        delete state.dungeon.metadata.savedThemeData.theme.displayName;
+        delete state.dungeon.metadata.savedThemeData!.theme.displayName;
         syncThemePicker();
         syncCustomEditorValues();
         markDirty();
@@ -161,7 +161,7 @@ export function init(): void {
             if (isActive) {
               state.dungeon.metadata.theme = `user:${newKey}`;
               state.dungeon.metadata.savedThemeData = { name: newName, theme: { ...userTheme } };
-              delete state.dungeon.metadata.savedThemeData.theme.displayName;
+              delete state.dungeon.metadata.savedThemeData!.theme.displayName;
             }
             buildThemePicker();
             syncThemePicker();
@@ -184,7 +184,7 @@ export function init(): void {
         try {
           const preview = renderThemePreview(fullKey);
           const ctx = thumbCanvas.getContext('2d');
-          ctx.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
+          ctx!.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
         } catch (err) {
           console.warn('[theme-picker] Preview failed for', fullKey, err);
         }
@@ -227,7 +227,7 @@ export function init(): void {
         try {
           const preview = renderThemePreview(key);
           const ctx = thumbCanvas.getContext('2d');
-          ctx.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
+          ctx!.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
         } catch (err) {
           console.warn('[theme-picker] Preview failed for', key, err);
         }
@@ -267,9 +267,9 @@ export function init(): void {
 
   // ── Sync UI ──────────────────────────────────────────────────────────────
 
-  let _lastMeta = null;
-  let _lastUnsaved = null;
-  let _lastTheme = null;
+  let _lastMeta: any = null;
+  let _lastUnsaved: any = null;
+  let _lastTheme: any = null;
   function syncUI() {
     // Only sync title on unsaved-flag or name change (cheap check every notify)
     const name = state.dungeon.metadata.dungeonName || 'Untitled';
@@ -291,23 +291,23 @@ export function init(): void {
 
     if (nameInput) nameInput.value = state.dungeon.metadata.dungeonName || '';
     const res = state.dungeon.metadata.resolution || 1;
-    gridSizeSelect.value = (state.dungeon.metadata.gridSize || 5) * res;
+    gridSizeSelect!.value = (state.dungeon.metadata.gridSize || 5) * res;
 
     syncThemePicker();
     syncCustomEditorValues();
 
-    labelStyleSelect.value = state.dungeon.metadata.labelStyle || 'circled';
+    labelStyleSelect!.value = state.dungeon.metadata.labelStyle || 'circled';
 
     const features = state.dungeon.metadata.features || {};
-    document.getElementById('feat-grid').checked = features.showGrid !== false;
-    document.getElementById('feat-compass').checked = features.compassRose !== false;
-    document.getElementById('feat-scale').checked = features.scale !== false;
-    document.getElementById('feat-border').checked = features.border !== false;
+    document!.getElementById('feat-grid').checked = features.showGrid !== false;
+    document!.getElementById('feat-compass').checked = features.compassRose !== false;
+    document!.getElementById('feat-scale').checked = features.scale !== false;
+    document!.getElementById('feat-border').checked = features.border !== false;
     const editorSettings = getEditorSettings();
-    document.getElementById('feat-fps').checked = editorSettings.fpsCounter === true;
-    document.getElementById('feat-minimap').checked = editorSettings.minimap === true;
-    document.getElementById('feat-claude').checked = editorSettings.claude === true;
-    document.getElementById('feat-debug').checked = editorSettings.debug === true;
+    document!.getElementById('feat-fps').checked = editorSettings.fpsCounter === true;
+    document!.getElementById('feat-minimap').checked = editorSettings.minimap === true;
+    document!.getElementById('feat-claude').checked = editorSettings.claude === true;
+    document!.getElementById('feat-debug').checked = editorSettings.debug === true;
     const debugBtn = document.querySelector('.right-icon-btn[data-right-panel="debug"]');
     if (debugBtn) debugBtn.style.display = editorSettings.debug ? '' : 'none';
     const rqSelect = document.getElementById('setting-render-quality');
@@ -347,7 +347,7 @@ export function init(): void {
   const themePanel = document.getElementById('panel-themes');
   const sectionDivider = themePanel?.querySelector('.theme-section-divider');
   sectionDivider?.addEventListener('click', () => {
-    themePanel.classList.toggle('customize-open');
+    themePanel!.classList.toggle('customize-open');
   });
 
   // ── Menubar title: click to rename ───────────────────────────────────────
@@ -396,22 +396,22 @@ export function init(): void {
     });
   }
 
-  gridSizeSelect.addEventListener('change', () => {
+  gridSizeSelect!.addEventListener('change', () => {
     pushUndo();
     const res = state.dungeon.metadata.resolution || 1;
-    state.dungeon.metadata.gridSize = parseInt(gridSizeSelect.value) / res;
+    state.dungeon.metadata.gridSize = parseInt(gridSizeSelect!.value) / res;
     markDirty();
     notify();
   });
 
-  labelStyleSelect.addEventListener('change', () => {
+  labelStyleSelect!.addEventListener('change', () => {
     pushUndo();
-    state.dungeon.metadata.labelStyle = labelStyleSelect.value;
+    state.dungeon.metadata.labelStyle = labelStyleSelect!.value;
     markDirty();
     notify();
   });
 
-  document.getElementById('btn-resize').addEventListener('click', () => {
+  document!.getElementById('btn-resize').addEventListener('click', () => {
     const cells = state.dungeon.cells;
     const oldRows = cells.length;
     const oldCols = cells[0]?.length || 0;
@@ -425,22 +425,22 @@ export function init(): void {
 
     rowInput.value = oldRows;
     colInput.value = oldCols;
-    modal.style.display = 'flex';
+    (modal as HTMLDialogElement).showModal();
     rowInput.focus();
     rowInput.select();
 
     function cleanup() {
-      modal.style.display = 'none';
-      cancelBtn.removeEventListener('click', onCancel);
-      okBtn.removeEventListener('click', onOk);
-      modal.removeEventListener('click', onOverlay);
+      (modal as HTMLDialogElement).close();
+      cancelBtn!.removeEventListener('click', onCancel);
+      okBtn!.removeEventListener('click', onOk);
+      modal!.removeEventListener('click', onOverlay);
     }
 
     function onCancel() { cleanup(); }
 
     function onOk() {
-      const newRows = Math.max(1, parseInt(rowInput.value) || oldRows);
-      const newCols = Math.max(1, parseInt(colInput.value) || oldCols);
+      const newRows = Math.max(1, parseInt(rowInput!.value) || oldRows);
+      const newCols = Math.max(1, parseInt(colInput!.value) || oldCols);
       cleanup();
       if (newRows === oldRows && newCols === oldCols) return;
 
@@ -469,10 +469,10 @@ export function init(): void {
       notify();
     }
 
-    function onOverlay(e) { if (e.target === modal) cleanup(); }
+    function onOverlay(e: any) { if (e.target === modal) cleanup(); }
 
-    cancelBtn.addEventListener('click', onCancel);
-    okBtn.addEventListener('click', onOk);
+    cancelBtn!.addEventListener('click', onCancel);
+    okBtn!.addEventListener('click', onOk);
     modal.addEventListener('click', onOverlay);
   });
 
@@ -483,10 +483,10 @@ export function init(): void {
     ['feat-scale', 'scale'],
     ['feat-border', 'border'],
   ]) {
-    document.getElementById(id).addEventListener('change', (e) => {
+    document!.getElementById(id).addEventListener('change', (e) => {
       pushUndo();
       if (!state.dungeon.metadata.features) state.dungeon.metadata.features = {};
-      state.dungeon.metadata.features[key] = e.target.checked;
+      state.dungeon.metadata.features[key] = e.target!.checked;
       markDirty();
       notify();
     });
@@ -497,8 +497,8 @@ export function init(): void {
     ['feat-fps', 'fpsCounter'],
     ['feat-minimap', 'minimap'],
   ]) {
-    document.getElementById(id).addEventListener('change', (e) => {
-      setEditorSetting(key, e.target.checked);
+    document!.getElementById(id).addEventListener('change', (e) => {
+      setEditorSetting(key, e.target!.checked);
       requestRender();
     });
   }
@@ -524,48 +524,48 @@ export function init(): void {
   }
 
   // Debug panel toggle — show/hide the debug icon button in the right sidebar
-  document.getElementById('feat-debug').addEventListener('change', (e) => {
-    setEditorSetting('debug', e.target.checked);
+  document!.getElementById('feat-debug').addEventListener('change', (e) => {
+    setEditorSetting('debug', e.target!.checked);
     const debugBtn = document.querySelector('.right-icon-btn[data-right-panel="debug"]');
-    if (debugBtn) debugBtn.style.display = e.target.checked ? '' : 'none';
+    if (debugBtn) debugBtn.style.display = e.target!.checked ? '' : 'none';
   });
 
   // Claude AI toggle — requires reload to add/remove UI elements
   // When enabling, show a warning modal first; disabling proceeds immediately.
-  document.getElementById('feat-claude').addEventListener('change', (e) => {
-    if (!e.target.checked) {
+  document!.getElementById('feat-claude').addEventListener('change', (e) => {
+    if (!e.target!.checked) {
       setEditorSetting('claude', false);
       location.reload();
       return;
     }
 
     // Revert checkbox — only commit if the user confirms in the modal
-    e.target.checked = false;
+    e.target!.checked = false;
 
     const modal = document.getElementById('modal-claude-agent-warning');
     if (!modal) return;
-    modal.style.display = 'flex';
+    (modal as HTMLDialogElement).showModal();
 
     const onCancel = () => {
-      modal.style.display = 'none';
+      (modal as HTMLDialogElement).close();
       cleanup();
     };
     const onEnable = () => {
-      modal.style.display = 'none';
+      (modal as HTMLDialogElement).close();
       cleanup();
       setEditorSetting('claude', true);
       location.reload();
     };
-    const onOverlay = (ev) => { if (ev.target === modal) onCancel(); };
+    const onOverlay = (ev: any) => { if (ev.target === modal) onCancel(); };
 
     function cleanup() {
-      document.getElementById('modal-claude-warning-cancel').removeEventListener('click', onCancel);
-      document.getElementById('modal-claude-warning-enable').removeEventListener('click', onEnable);
-      modal.removeEventListener('click', onOverlay);
+      document!.getElementById('modal-claude-warning-cancel').removeEventListener('click', onCancel);
+      document!.getElementById('modal-claude-warning-enable').removeEventListener('click', onEnable);
+      modal!.removeEventListener('click', onOverlay);
     }
 
-    document.getElementById('modal-claude-warning-cancel').addEventListener('click', onCancel);
-    document.getElementById('modal-claude-warning-enable').addEventListener('click', onEnable);
+    document!.getElementById('modal-claude-warning-cancel').addEventListener('click', onCancel);
+    document!.getElementById('modal-claude-warning-enable').addEventListener('click', onEnable);
     modal.addEventListener('click', onOverlay);
   });
 }
