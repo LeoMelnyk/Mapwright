@@ -21,37 +21,37 @@ export function initTextureAlerts(reloadAssets: () => Promise<void>, renderTextu
   //  - otherwise                      → hidden
   const btnTextureAlert = document.getElementById('btn-texture-alert');
 
-  function _updateAlertBtn({ count, requiredCount, catalogCount, downloadInProgress, downloadSnapshot }) {
+  function _updateAlertBtn({ count, requiredCount, catalogCount, downloadInProgress, downloadSnapshot }: any) {
     if (downloadInProgress) {
-      if (!btnTextureAlert.classList.contains('downloading')) {
-        btnTextureAlert.style.display = 'inline-flex';
-        btnTextureAlert.classList.add('downloading');
-        btnTextureAlert.style.setProperty('--dl-pct', '0%');
-        btnTextureAlert.innerHTML = '<span>Downloading 0%</span>';
+      if (!btnTextureAlert!.classList.contains('downloading')) {
+        btnTextureAlert!.style.display = 'inline-flex';
+        btnTextureAlert!.classList.add('downloading');
+        btnTextureAlert!.style.setProperty('--dl-pct', '0%');
+        btnTextureAlert!.innerHTML = '<span>Downloading 0%</span>';
       }
       if (downloadSnapshot?.index !== undefined && downloadSnapshot?.total) {
         const pct = Math.round((downloadSnapshot.index / downloadSnapshot.total) * 100);
-        btnTextureAlert.style.setProperty('--dl-pct', `${pct}%`);
-        const span = btnTextureAlert.querySelector('span');
+        btnTextureAlert!.style.setProperty('--dl-pct', `${pct}%`);
+        const span = btnTextureAlert!.querySelector('span');
         if (span) span.textContent = `Downloading ${pct}%`;
       }
       _startDlPolling();
       return;
     }
     _stopDlPolling();
-    btnTextureAlert.classList.remove('new-available');
-    const label = btnTextureAlert.querySelector('.alert-label');
+    btnTextureAlert!.classList.remove('new-available');
+    const label = btnTextureAlert!.querySelector('.alert-label');
     if (count < requiredCount) {
-      btnTextureAlert.title = 'Some required textures are missing — click to download';
+      btnTextureAlert!.title = 'Some required textures are missing — click to download';
       if (label) label.textContent = 'Missing Textures';
-      btnTextureAlert.style.display = 'inline-flex';
+      btnTextureAlert!.style.display = 'inline-flex';
     } else if (catalogCount !== null && count < catalogCount) {
-      btnTextureAlert.classList.add('new-available');
-      btnTextureAlert.title = 'New textures are available on Polyhaven — click to download';
+      btnTextureAlert!.classList.add('new-available');
+      btnTextureAlert!.title = 'New textures are available on Polyhaven — click to download';
       if (label) label.textContent = 'New Textures Available';
-      btnTextureAlert.style.display = 'inline-flex';
+      btnTextureAlert!.style.display = 'inline-flex';
     } else {
-      btnTextureAlert.style.display = 'none';
+      btnTextureAlert!.style.display = 'none';
     }
   }
 
@@ -71,7 +71,7 @@ export function initTextureAlerts(reloadAssets: () => Promise<void>, renderTextu
 
   _fetchAndUpdateAlert();
 
-  btnTextureAlert.addEventListener('click', () => {
+  btnTextureAlert!.addEventListener('click', () => {
     // Named target — if the downloader window is already open it gets focused
     // instead of opening a new one.
     window.open(
@@ -83,9 +83,9 @@ export function initTextureAlerts(reloadAssets: () => Promise<void>, renderTextu
 
   // Transform the toolbar button into a live progress bar while downloading
   // in the background, and reload assets automatically when done.
-  const _alertBtnOrigHTML = btnTextureAlert.innerHTML;
+  const _alertBtnOrigHTML = btnTextureAlert!.innerHTML;
 
-  let _dlPollInterval = null;
+  let _dlPollInterval: any = null;
   function _startDlPolling() {
     if (_dlPollInterval) return;
     _dlPollInterval = setInterval(() => {
@@ -100,28 +100,29 @@ export function initTextureAlerts(reloadAssets: () => Promise<void>, renderTextu
   }
 
   function _resetAlertBtn() {
-    btnTextureAlert.classList.remove('downloading', 'new-available');
-    btnTextureAlert.style.removeProperty('--dl-pct');
-    btnTextureAlert.innerHTML = _alertBtnOrigHTML;
+    btnTextureAlert!.classList.remove('downloading', 'new-available');
+    btnTextureAlert!.style.removeProperty('--dl-pct');
+    btnTextureAlert!.innerHTML = _alertBtnOrigHTML;
   }
 
   function _recheckAlertBtn() {
+    // @ts-expect-error — strict-mode migration
     _fetchAndUpdateAlert(true);
   }
 
   const _bc = new BroadcastChannel('mapwright');
   _bc.addEventListener('message', async ({ data }) => {
     if (data?.type === 'download-start') {
-      btnTextureAlert.style.display = 'inline-flex';
-      btnTextureAlert.classList.add('downloading');
-      btnTextureAlert.style.setProperty('--dl-pct', '0%');
-      btnTextureAlert.innerHTML = '<span>Downloading 0%</span>';
+      btnTextureAlert!.style.display = 'inline-flex';
+      btnTextureAlert!.classList.add('downloading');
+      btnTextureAlert!.style.setProperty('--dl-pct', '0%');
+      btnTextureAlert!.innerHTML = '<span>Downloading 0%</span>';
       _startDlPolling();
 
     } else if (data?.type === 'download-progress') {
       const pct = Math.round((data.index / data.total) * 100);
-      btnTextureAlert.style.setProperty('--dl-pct', `${pct}%`);
-      const span = btnTextureAlert.querySelector('span');
+      btnTextureAlert!.style.setProperty('--dl-pct', `${pct}%`);
+      const span = btnTextureAlert!.querySelector('span');
       if (span) span.textContent = `Downloading ${pct}%`;
 
     } else if (data?.type === 'download-cancelled') {

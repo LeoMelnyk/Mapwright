@@ -25,14 +25,14 @@ const tools = {
   light: new LightTool(),
 };
 
-function setTool(name) {
+function setTool(name: any) {
   // Deactivate previous tool (read state.activeTool before updating it)
-  const prevTool = tools[state.activeTool];
+  const prevTool = (tools as any)[state.activeTool];
   if (prevTool?.onDeactivate) prevTool.onDeactivate();
 
   state.activeTool = name;
 
-  const tool = tools[name];
+  const tool = (tools as any)[name];
   if (!tool) return;
 
   // Activate new tool
@@ -46,7 +46,7 @@ function setTool(name) {
 
 // ── Session tools mode ─────────────────────────────────────────────────────
 
-let savedTool = null;
+let savedTool: any = null;
 
 function updateSessionToolsMode() {
   const shouldBeActive = getActivePanel() === 'session' && sessionState.active;
@@ -65,15 +65,17 @@ function enterSessionToolsMode() {
   savedTool = state.activeTool;
 
   // Deactivate current editor tool
-  const prevTool = tools[state.activeTool];
+  const prevTool = (tools as any)[state.activeTool];
   if (prevTool?.onDeactivate) prevTool.onDeactivate();
   canvasView.setActiveTool(null);
   canvasView.setCursor('default');
 
   // Hide normal toolbar, show session toolbar
-  document.getElementById('editor-tool-row').style.display = 'none';
-  document.querySelectorAll('.suboptions-bar, .tertiaryoptions-bar').forEach(el => el.style.display = 'none');
-  document.getElementById('session-tool-row').style.display = 'flex';
+  // @ts-expect-error — strict-mode migration
+  document!.getElementById('editor-tool-row').style.display = 'none';
+  document.querySelectorAll('.suboptions-bar, .tertiaryoptions-bar').forEach(el => (el as HTMLElement).style.display = 'none');
+  // @ts-expect-error — strict-mode migration
+  document!.getElementById('session-tool-row').style.display = 'flex';
   document.getElementById('drawing-toolbar')?.classList.add('session-active');
 }
 
@@ -82,14 +84,16 @@ function exitSessionToolsMode() {
   setSessionTool(null);
 
   // Hide session toolbar + range sub-options, show normal toolbar
-  document.getElementById('session-tool-row').style.display = 'none';
+  // @ts-expect-error — strict-mode migration
+  document!.getElementById('session-tool-row').style.display = 'none';
   const rangeOpts = document.getElementById('range-options');
   if (rangeOpts) rangeOpts.style.display = 'none';
-  document.getElementById('editor-tool-row').style.display = 'flex';
+  // @ts-expect-error — strict-mode migration
+  document!.getElementById('editor-tool-row').style.display = 'flex';
   document.getElementById('drawing-toolbar')?.classList.remove('session-active');
 
   // Restore previous editor tool
-  const toolToRestore = savedTool && tools[savedTool] ? savedTool : 'room';
+  const toolToRestore = savedTool && (tools as any)[savedTool] ? savedTool : 'room';
   setTool(toolToRestore);
   updateToolButtons();
   savedTool = null;

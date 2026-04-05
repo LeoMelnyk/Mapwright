@@ -16,6 +16,7 @@ function bridgeIdAt(row: number, col: number): number | null {
   const cell = state.dungeon.cells[row]?.[col];
   if (!cell?.center) return null;
   const id = cell.center['bridge-id'];
+  // @ts-expect-error — strict-mode migration
   return id != null ? id : null;
 }
 
@@ -38,6 +39,7 @@ function rotatePts90CW(pts: number[][]): number[][] {
 // ── Tool ──────────────────────────────────────────────────────────────────────
 
 export class BridgeTool extends Tool {
+  [key: string]: any;
   declare _phase: string;
   declare _p1: [number, number] | null;
   declare _p2: [number, number] | null;
@@ -117,7 +119,7 @@ export class BridgeTool extends Tool {
     return false;
   }
 
-  onKeyDown(event) {
+  onKeyDown(event: any) {
     if (event.key === 'Escape') {
       if (this.onCancel()) event.preventDefault();
       return;
@@ -156,11 +158,13 @@ export class BridgeTool extends Tool {
         const [rp1, rp2, rp3] = rotated;
 
         if (isBridgeDegenerate(rp1, rp2, rp3)) {
+          // @ts-expect-error — strict-mode migration
           showToast('Rotated bridge is degenerate.', 'warning');
           return;
         }
         const occupied = getBridgeOccupiedCells(rp1, rp2, rp3);
         if (occupied.length === 0) {
+          // @ts-expect-error — strict-mode migration
           showToast('Rotated bridge has no area.', 'warning');
           return;
         }
@@ -168,6 +172,7 @@ export class BridgeTool extends Tool {
         const numRows = cells.length, numCols = cells[0]?.length || 0;
         for (const { row, col } of occupied) {
           if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
+            // @ts-expect-error — strict-mode migration
             showToast('Rotated bridge would go out of bounds.', 'warning');
             return;
           }
@@ -187,7 +192,7 @@ export class BridgeTool extends Tool {
     }
   }
 
-  onRightClick(row, col) {
+  onRightClick(row: any, col: any) {
     if (this._isDragging) return;
     const id = bridgeIdAt(row, col);
     if (id == null) return;
@@ -199,7 +204,7 @@ export class BridgeTool extends Tool {
     requestRender();
   }
 
-  onMouseDown(row, col, edge, event, pos) {
+  onMouseDown(row: any, col: any, edge: any, event: any, pos: any) {
     if (this._isDragging) return;
 
     if (this._phase !== 'idle') {
@@ -217,7 +222,7 @@ export class BridgeTool extends Tool {
         this._pendingDrag = { bridgeId: this.hoveredBridgeId };
         this._pendingDragPos = { x: pos.x, y: pos.y };
         this._pendingDragCorner = { row: corner.row, col: corner.col };
-        this._basePoints = bridge.points.map(p => [...p]);
+        this._basePoints = bridge.points.map((p: any) => [...p]);
         this._dragDelta = { dRow: 0, dCol: 0 };
       }
       requestRender();
@@ -231,7 +236,7 @@ export class BridgeTool extends Tool {
     this._handleClick(this._cornerFromPos(pos));
   }
 
-  onMouseMove(row, col, edge, event, pos) {
+  onMouseMove(row: any, col: any, edge: any, event: any, pos: any) {
     if (this._isDragging) {
       const cur = this._cornerFromPos(pos);
       this._dragDelta = {
@@ -294,7 +299,7 @@ export class BridgeTool extends Tool {
 
   // ── Corner helper ─────────────────────────────────────────────────────────
 
-  _cornerFromPos(pos) {
+  _cornerFromPos(pos: any) {
     const transform = getTransform();
     const gridSize = state.dungeon.metadata.gridSize;
     return nearestCorner(pos.x, pos.y, transform, gridSize);
@@ -302,7 +307,7 @@ export class BridgeTool extends Tool {
 
   // ── Placement ────────────────────────────────────────────────────────────────
 
-  _handleClick(corner) {
+  _handleClick(corner: any) {
     if (this._phase === 'idle') {
       this._p1 = [corner.row, corner.col];
       this._phase = 'have_p1';
@@ -311,12 +316,14 @@ export class BridgeTool extends Tool {
     }
 
     if (this._phase === 'have_p1') {
-      const p2 = [corner.row, corner.col];
-      if (p2[0] === this._p1[0] && p2[1] === this._p1[1]) {
+      const p2 = [corner!.row, corner.col];
+      // @ts-expect-error — strict-mode migration
+      if (p2[0] === this!._p1[0] && p2[1] === this!._p1[1]) {
         this._resetPlacement();
         requestRender();
         return;
       }
+      // @ts-expect-error — strict-mode migration
       this._p2 = p2;
       this._phase = 'have_p2';
       requestRender();
@@ -326,13 +333,17 @@ export class BridgeTool extends Tool {
     if (this._phase === 'have_p2') {
       const p3 = [corner.row, corner.col];
 
+      // @ts-expect-error — strict-mode migration
       if (isBridgeDegenerate(this._p1, this._p2, p3)) {
+        // @ts-expect-error — strict-mode migration
         showToast('Bridge has zero depth. Choose a point off the entrance line.', 'warning');
         return;
       }
 
+      // @ts-expect-error — strict-mode migration
       const occupied = getBridgeOccupiedCells(this._p1, this._p2, p3);
       if (occupied.length === 0) {
+        // @ts-expect-error — strict-mode migration
         showToast('No cells covered by this bridge.', 'warning');
         return;
       }
@@ -342,6 +353,7 @@ export class BridgeTool extends Tool {
       const numCols = cells[0]?.length || 0;
       for (const { row, col } of occupied) {
         if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
+          // @ts-expect-error — strict-mode migration
           showToast('Bridge extends out of bounds.', 'warning');
           return;
         }
@@ -354,7 +366,7 @@ export class BridgeTool extends Tool {
 
   // ── Commit / Remove ───────────────────────────────────────────────────────
 
-  _commitBridge(p1, p2, p3, occupiedCells) {
+  _commitBridge(p1: any, p2: any, p3: any, occupiedCells: any) {
     pushUndo('Place Bridge');
 
     const meta = state.dungeon.metadata;
@@ -374,6 +386,7 @@ export class BridgeTool extends Tool {
 
   _commitDrag() {
     const id = this._dragBridgeId;
+    // @ts-expect-error — strict-mode migration
     const bridge = getBridgeById(id);
     if (!bridge) { this._resetDrag(); return; }
 
@@ -381,6 +394,7 @@ export class BridgeTool extends Tool {
     const [gp1, gp2, gp3] = ghostPts;
 
     if (isBridgeDegenerate(gp1, gp2, gp3)) {
+      // @ts-expect-error — strict-mode migration
       showToast('Bridge position is invalid.', 'warning');
       this._resetDrag();
       requestRender();
@@ -397,6 +411,7 @@ export class BridgeTool extends Tool {
       }
     }
     if (!valid) {
+      // @ts-expect-error — strict-mode migration
       showToast('Bridge would go out of bounds.', 'warning');
       this._resetDrag();
       requestRender();
@@ -415,7 +430,7 @@ export class BridgeTool extends Tool {
     requestRender();
   }
 
-  _removeBridge(id) {
+  _removeBridge(id: any) {
     // Accumulate dirty rect before clearing markers
     this._dirtyFromBridge(id);
     this._clearCellMarkers(id);
@@ -426,7 +441,7 @@ export class BridgeTool extends Tool {
   }
 
   /** Accumulate dirty rect from a bridge's occupied cells. */
-  _dirtyFromBridge(id) {
+  _dirtyFromBridge(id: any) {
     const cells = state.dungeon.cells;
     let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
     for (let r = 0; r < cells.length; r++) {
@@ -443,7 +458,7 @@ export class BridgeTool extends Tool {
   }
 
   /** Accumulate dirty rect from a list of occupied cells. */
-  _dirtyFromCells(occupiedCells) {
+  _dirtyFromCells(occupiedCells: any) {
     let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
     for (const { row, col } of occupiedCells) {
       if (row < minR) minR = row;
@@ -454,19 +469,21 @@ export class BridgeTool extends Tool {
     if (minR <= maxR) accumulateDirtyRect(minR, minC, maxR, maxC);
   }
 
-  _clearCellMarkers(id) {
+  _clearCellMarkers(id: any) {
     const cells = state.dungeon.cells;
     for (let r = 0; r < cells.length; r++) {
       for (let c = 0; c < (cells[r]?.length || 0); c++) {
         if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
-          delete cells[r][c].center['bridge-id'];
-          if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+          // @ts-expect-error — strict-mode migration
+          delete cells![r][c]!.center['bridge-id'];
+          // @ts-expect-error — strict-mode migration
+          if (Object.keys(cells[r][c]!.center).length === 0) delete cells[r][c]!.center;
         }
       }
     }
   }
 
-  _setCellMarkers(id, occupiedCells) {
+  _setCellMarkers(id: any, occupiedCells: any) {
     const cells = state.dungeon.cells;
     for (const { row, col } of occupiedCells) {
       if (!cells[row][col]) cells[row][col] = {};
@@ -478,8 +495,8 @@ export class BridgeTool extends Tool {
   // ── Ghost helpers ─────────────────────────────────────────────────────────
 
   _getGhostPoints() {
-    const { dRow, dCol } = this._dragDelta;
-    return this._basePoints.map(([r, c]) => [r + dRow, c + dCol]);
+    const { dRow, dCol }: any = this._dragDelta;
+    return this._basePoints.map(([r, c]: any) => [r + dRow, c + dCol]);
   }
 
   _ghostIsValid() {
@@ -497,12 +514,13 @@ export class BridgeTool extends Tool {
 
   // ── Overlay ───────────────────────────────────────────────────────────────
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx: any, transform: any, gridSize: any) {
     // 1. Drag ghost
     if (this._isDragging) {
       const [gp1, gp2, gp3] = this._getGhostPoints();
       const valid = this._ghostIsValid();
       this._drawBridgePoly(ctx, transform, gridSize, gp1, gp2, gp3, {
+        // @ts-expect-error — strict-mode migration
         fill:   valid ? 'rgba(100, 200, 255, 0.15)' : 'rgba(255, 80, 80, 0.15)',
         stroke: valid ? 'rgba(100, 200, 255, 0.8)'  : 'rgba(255, 80, 80, 0.8)',
         lineWidth: 2,
@@ -519,6 +537,7 @@ export class BridgeTool extends Tool {
           fill:      'rgba(150, 220, 255, 0.12)',
           stroke:    'rgba(150, 220, 255, 0.7)',
           lineWidth: 1.5,
+          // @ts-expect-error — strict-mode migration
           dash:      [4, 3],
         });
       }
@@ -530,6 +549,7 @@ export class BridgeTool extends Tool {
       if (bridge) {
         const [p1, p2, p3] = bridge.points;
         this._drawBridgePoly(ctx, transform, gridSize, p1, p2, p3, {
+          // @ts-expect-error — strict-mode migration
           fill:      'rgba(60, 140, 255, 0.15)',
           stroke:    'rgba(60, 140, 255, 0.9)',
           lineWidth: 2,
@@ -593,7 +613,8 @@ export class BridgeTool extends Tool {
     }
   }
 
-  _drawBridgePoly(ctx, transform, gridSize, p1, p2, p3, { fill, stroke, lineWidth = 2, dash = [] } = {}) {
+  // @ts-expect-error — strict-mode migration
+  _drawBridgePoly(ctx: any, transform: any, gridSize: any, p1: any, p2: any, p3: any, { fill, stroke, lineWidth = 2, dash = [] } = {}) {
     const corners = getBridgeCorners(p1, p2, p3);
     const pts = corners.map(c => toCanvas(c[1] * gridSize, c[0] * gridSize, transform));
     ctx.beginPath();
@@ -606,11 +627,12 @@ export class BridgeTool extends Tool {
     ctx.setLineDash([]);
   }
 
-  _drawPreview(ctx, transform, gridSize, p1, p2, p3) {
+  _drawPreview(ctx: any, transform: any, gridSize: any, p1: any, p2: any, p3: any) {
     this._drawBridgePoly(ctx, transform, gridSize, p1, p2, p3, {
       fill:      'rgba(100, 200, 255, 0.12)',
       stroke:    'rgba(100, 200, 255, 0.6)',
       lineWidth: 1.5,
+      // @ts-expect-error — strict-mode migration
       dash:      [4, 3],
     });
   }

@@ -68,7 +68,7 @@ const SPLAT_DEPTH = 0.2; // smoothing zone (from the splatting article)
  * @param {number} blendPx - Maximum blend distance in pixels
  * @returns {number} Penetration depth in pixels
  */
-function splatPenetration(hCurrent, hNeighbor, blendPx) {
+function splatPenetration(hCurrent: any, hNeighbor: any, blendPx: any) {
   const cc = hCurrent + 0.5, cn = hNeighbor + 0.5;
   const ma = Math.max(cc, cn) - SPLAT_DEPTH;
   const b1 = Math.max(cc - ma, 0);
@@ -82,7 +82,7 @@ function splatPenetration(hCurrent, hNeighbor, blendPx) {
  * Used to determine blend direction: the harder cell accepts the soft fade, never the reverse.
  * Result is cached on entry._baseHeight. Returns 0.5 if the displacement map is unavailable.
  */
-function computeBaseHeight(entry) {
+function computeBaseHeight(entry: any) {
   if ('_baseHeight' in entry) return entry._baseHeight;
   if (typeof OffscreenCanvas === 'undefined') { entry._baseHeight = 0.5; return 0.5; }
   if (!entry.dispImg?.complete || !entry.dispImg.naturalWidth) {
@@ -94,9 +94,9 @@ function computeBaseHeight(entry) {
   const sz = 64;
   const oc = new OffscreenCanvas(sz, sz);
   const octx = oc.getContext('2d');
-  octx.drawImage(entry.dispImg, 0, 0, sz, sz);
+  octx!.drawImage(entry.dispImg, 0, 0, sz, sz);
   try {
-    const px = octx.getImageData(0, 0, sz, sz).data;
+    const px = octx!.getImageData(0, 0, sz, sz).data;
     let sum = 0;
     for (let i = 0; i < sz * sz; i++)
       sum += (px[i*4]*0.299 + px[i*4+1]*0.587 + px[i*4+2]*0.114) / 255;
@@ -113,7 +113,7 @@ function computeBaseHeight(entry) {
  * Cached on entry._hmap. Returns null in environments without OffscreenCanvas
  * (Node.js PDF renderer), which gracefully degrades to a uniform blend.
  */
-function extractHeightMap(entry) {
+function extractHeightMap(entry: any) {
   if ('_hmap' in entry) return entry._hmap;
   if (typeof OffscreenCanvas === 'undefined') { entry._hmap = null; return null; }
 
@@ -125,9 +125,9 @@ function extractHeightMap(entry) {
   const h = Math.max(1, Math.floor(img.naturalHeight / HMAP_SCALE));
   const oc = new OffscreenCanvas(w, h);
   const octx = oc.getContext('2d');
-  octx.drawImage(img, 0, 0, w, h);
+  octx!.drawImage(img, 0, 0, w, h);
   try {
-    const px = octx.getImageData(0, 0, w, h).data;
+    const px = octx!.getImageData(0, 0, w, h).data;
     const hmap = new Float32Array(w * h);
     for (let i = 0; i < w * h; i++)
       hmap[i] = (px[i*4]*0.299 + px[i*4+1]*0.587 + px[i*4+2]*0.114) / 255;
@@ -142,7 +142,7 @@ function extractHeightMap(entry) {
  * ('north' = top row, 'south' = bottom row, 'west' = left col, 'east' = right col).
  * Returns null if hmap unavailable (fallback: treat all heights as 0.5).
  */
-function sampleEdgeHeights(entry, row, col, edgeDir) {
+function sampleEdgeHeights(entry: any, row: any, col: any, edgeDir: any) {
   const hmap = extractHeightMap(entry);
   if (!hmap) return null;
   // Map chunk coordinates (in diffuse space) to hmap space using the hmap's source dimensions
@@ -162,6 +162,7 @@ function sampleEdgeHeights(entry, row, col, edgeDir) {
       case 'west':  hx = hmX;           hy = hmY + Math.round(t*(hmH-1)); break;
       case 'east':  hx = hmX + hmW - 1; hy = hmY + Math.round(t*(hmH-1)); break;
     }
+    // @ts-expect-error — strict-mode migration
     out[i] = hmap.data[Math.min(hy, hmap.h-1) * hmap.w + Math.min(hx, hmap.w-1)];
   }
   return out;
@@ -172,7 +173,7 @@ function sampleEdgeHeights(entry, row, col, edgeDir) {
  * (localX, localY) are in [0..cellPx] coordinates within the cell.
  * Returns 0.5 if height map is unavailable.
  */
-function sampleHeightAtPoint(entry, row, col, localX, localY, cellPx) {
+function sampleHeightAtPoint(entry: any, row: any, col: any, localX: any, localY: any, cellPx: any) {
   const hmap = extractHeightMap(entry);
   if (!hmap) return 0.5;
   const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
@@ -185,7 +186,7 @@ function sampleHeightAtPoint(entry, row, col, localX, localY, cellPx) {
 
 // Scratch OffscreenCanvas for blending — destination-out gradient applied here so it
 // never punches holes through the main canvas's existing dungeon content.
-let blendScratch = null;
+let blendScratch: any = null;
 let blendScratchPx = 0;
 
 /**
@@ -210,7 +211,7 @@ export function getBlendScratch(px: number): any {
 // ── L1 Bitmap cache builders ────────────────────────────────────────────────
 
 /** Close all ImageBitmaps in a topo cache to free GPU memory. */
-function closeBlendBitmaps(cache) {
+function closeBlendBitmaps(cache: any) {
   if (cache.edges) {
     for (const edge of cache.edges) {
       if (edge.bitmap) { edge.bitmap.close(); edge.bitmap = null; }
@@ -228,7 +229,7 @@ function closeBlendBitmaps(cache) {
  * Uses the shared scratch OffscreenCanvas + transferToImageBitmap() for each descriptor.
  * Skipped entirely in Node.js (PDF path, no OffscreenCanvas).
  */
-function buildBlendBitmaps(edges, corners, gridSize, blendWidth) {
+function buildBlendBitmaps(edges: any, corners: any, gridSize: any, blendWidth: any) {
   if (typeof OffscreenCanvas === 'undefined') return;
 
   const sz = BLEND_BITMAP_SIZE;
@@ -290,7 +291,7 @@ function buildBlendBitmaps(edges, corners, gridSize, blendWidth) {
 // Pre-rendered blend layer at cache resolution. Persists across map cache
 // rebuilds as long as the blend topology hasn't changed. Separate from the
 // viewport L2 layer so they don't invalidate each other.
-let _blendCacheLayer = null; // { canvas, w, h, topoRef }
+let _blendCacheLayer: any = null; // { canvas, w, h, topoRef }
 
 /**
  * Return a pre-rendered blend layer for the offscreen map cache.
@@ -305,7 +306,7 @@ let _blendCacheLayer = null; // { canvas, w, h, topoRef }
 export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: number, cacheH: number, cacheScale: number = 10): any {
   if (typeof OffscreenCanvas === 'undefined') return null;
   if (!topo.edges?.length && !topo.corners?.length) return null;
-  if (!topo.edges.every(e => e.bitmap) || !topo.corners.every(c => c.bitmap)) return null;
+  if (!topo.edges.every((e: any) => e.bitmap) || !topo.corners.every((c: any) => c.bitmap)) return null;
 
   // Return cached layer if still valid
   if (_blendCacheLayer && _blendCacheLayer.w === cacheW && _blendCacheLayer.h === cacheH &&
@@ -368,14 +369,14 @@ export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: numbe
 // A single OffscreenCanvas compositing all visible blended tiles at screen resolution.
 // Valid as long as transform + canvas dimensions + topology haven't changed.
 
-let _blendLayer = null;
+let _blendLayer: any = null;
 let _blendLayerValid = false;
 let _blendLayerOx = 0;
 let _blendLayerOy = 0;
 let _blendLayerSc = 0;
 let _blendLayerW = 0;
 let _blendLayerH = 0;
-let _blendLayerTopoRef = null; // identity ref to edges array
+let _blendLayerTopoRef: any = null; // identity ref to edges array
 
 function invalidateViewportBlendLayer() {
   _blendLayerValid = false;
@@ -484,7 +485,7 @@ const CORNER_DIRS = [
   { dr1:  1, dc1: 0, dr2: 0, dc2:  1, corner: 'se', dir1: 'south', dir2: 'east' },
 ];
 
-function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
+function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOptions: any) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const blendWidth = textureOptions?.blendWidth ?? 0.35;
@@ -594,6 +595,7 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
         const n2Cell = cells[n2r]?.[n2c];
         if (n1Cell?.trimClip) continue; // no blending from trimmed cells
         if (n2Cell?.trimClip) continue;
+        // @ts-expect-error — strict-mode migration
         if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
         const diagR = row + dr1 + dr2;
         const diagC = col + dc1 + dc2;
@@ -633,6 +635,7 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
 
         const radii = new Float32Array(8); // N_ARC = 8
         for (let i = 0; i < 8; i++) {
+          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           const sampleLX = localCX + (blendWorld * 0.5) * Math.cos(angle);
           const sampleLY = localCY + (blendWorld * 0.5) * Math.sin(angle);
@@ -648,6 +651,7 @@ function buildBlendTopology(cells, roomCells, gridSize, textureOptions) {
         const clipPath = new Path2D();
         clipPath.moveTo(worldCX, worldCY);
         for (let i = 0; i < 8; i++) {
+          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           clipPath.lineTo(
             worldCX + radii[i] * Math.cos(angle),
@@ -690,7 +694,7 @@ export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridS
       _blendTopoCache.gridSize === gridSize &&
       _blendTopoCache.blendWidth === blendWidth &&
       _blendTopoCache.catalog === catalog &&
-      _blendTopoCache.texturesVersion === texturesVersion) {
+      (_blendTopoCache as any).texturesVersion === texturesVersion) {
     return _blendTopoCache;
   }
 
@@ -703,6 +707,7 @@ export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridS
   // Pre-render blend bitmaps (L1 cache)
   buildBlendBitmaps(edges, corners, gridSize, blendWidth);
 
+  // @ts-expect-error — strict-mode migration
   _blendTopoCache = { cells, gridSize, blendWidth, catalog, texturesVersion, edges, corners };
   return _blendTopoCache;
 }
@@ -717,7 +722,7 @@ export function getBlendCacheParams(): any {
     gridSize: _blendTopoCache.gridSize,
     blendWidth: _blendTopoCache.blendWidth,
     catalog: _blendTopoCache.catalog,
-    texturesVersion: _blendTopoCache.texturesVersion,
+    texturesVersion: (_blendTopoCache as any).texturesVersion,
   };
 }
 
@@ -765,6 +770,7 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
   const keptEdges = [];
   const keptCorners = [];
 
+  // @ts-expect-error — strict-mode migration
   for (const edge of oldEdges) {
     if (edge.row >= minR && edge.row <= maxR && edge.col >= minC && edge.col <= maxC) {
       if (edge.bitmap) { edge.bitmap.close(); edge.bitmap = null; }
@@ -772,7 +778,8 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
       keptEdges.push(edge);
     }
   }
-  for (const corner of oldCorners) {
+  // @ts-expect-error — strict-mode migration
+  for (const corner of oldCorners!) {
     if (corner.row >= minR && corner.row <= maxR && corner.col >= minC && corner.col <= maxC) {
       if (corner.bitmap) { corner.bitmap.close(); corner.bitmap = null; }
     } else {
@@ -788,7 +795,9 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
   buildBlendBitmaps(regionTopo.edges, regionTopo.corners, gridSize, blendWidth);
 
   // Merge into the kept topology
+  // @ts-expect-error — strict-mode migration
   _blendTopoCache.edges = keptEdges.concat(regionTopo.edges);
+  // @ts-expect-error — strict-mode migration
   _blendTopoCache.corners = keptCorners.concat(regionTopo.corners);
 
   // Patch the blend cache layer for the dirty region
@@ -848,7 +857,7 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
  * Build blend topology for a restricted cell region only.
  * Same logic as buildBlendTopology but limited to [minR..maxR, minC..maxC].
  */
-function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions, minR, maxR, minC, maxC) {
+function _buildBlendTopologyForRegion(cells: any, roomCells: any, gridSize: any, textureOptions: any, minR: any, maxR: any, minC: any, maxC: any) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const blendWidth = textureOptions?.blendWidth ?? 0.35;
@@ -934,6 +943,7 @@ function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions
         const n2Cell = cells[n2r]?.[n2c];
         if (n1Cell?.trimClip) continue;
         if (n2Cell?.trimClip) continue;
+        // @ts-expect-error — strict-mode migration
         if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
         const diagR = row + dr1 + dr2, diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
@@ -978,6 +988,7 @@ function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions
 
         const radii = new Float32Array(8);
         for (let i = 0; i < 8; i++) {
+          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           const sampleLX = localCX + (blendWorld * 0.5) * Math.cos(angle);
           const sampleLY = localCY + (blendWorld * 0.5) * Math.sin(angle);
@@ -991,6 +1002,7 @@ function _buildBlendTopologyForRegion(cells, roomCells, gridSize, textureOptions
         const clipPath = new Path2D();
         clipPath.moveTo(worldCX, worldCY);
         for (let i = 0; i < 8; i++) {
+          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           clipPath.lineTo(worldCX + radii[i] * Math.cos(angle), worldCY + radii[i] * Math.sin(angle));
         }

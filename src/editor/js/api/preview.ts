@@ -34,7 +34,7 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
     try {
       propDef = parsePropFile(propTypeOrText);
     } catch (e) {
-      return { success: false, dataUrl: null, name: null, footprint: null, warnings: [e.message] };
+      return { success: false, dataUrl: null, name: null, footprint: null, warnings: [(e as any).message] };
     }
   } else {
     // Catalog lookup
@@ -86,29 +86,29 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
     || {};
 
   if (background) {
-    ctx.fillStyle = background;
-    ctx.fillRect(0, 0, width, height);
+    (ctx! as any).fillStyle = background;
+    (ctx! as any).fillRect(0, 0, width, height);
   } else if (theme.floorColor) {
-    ctx.fillStyle = theme.floorColor;
-    ctx.fillRect(0, 0, width, height);
+    (ctx! as any).fillStyle = theme.floorColor;
+    (ctx! as any).fillRect(0, 0, width, height);
   }
   // else leave transparent
 
   // ── Grid lines ────────────────────────────────────────────────────────────
 
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
-  ctx.lineWidth = 1;
+  (ctx! as any).strokeStyle = 'rgba(0, 0, 0, 0.15)';
+  (ctx! as any).lineWidth = 1;
   for (let c = 1; c < canvasCols; c++) {
-    ctx.beginPath();
-    ctx.moveTo(c * scale, 0);
-    ctx.lineTo(c * scale, height);
-    ctx.stroke();
+    (ctx! as any).beginPath();
+    (ctx! as any).moveTo(c * scale, 0);
+    (ctx! as any).lineTo(c * scale, height);
+    (ctx! as any).stroke();
   }
   for (let r = 1; r < canvasRows; r++) {
-    ctx.beginPath();
-    ctx.moveTo(0, r * scale);
-    ctx.lineTo(width, r * scale);
-    ctx.stroke();
+    (ctx! as any).beginPath();
+    (ctx! as any).moveTo(0, r * scale);
+    (ctx! as any).lineTo(width, r * scale);
+    (ctx! as any).stroke();
   }
 
   // ── Render the prop ───────────────────────────────────────────────────────
@@ -120,9 +120,10 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
   const getTextureImage = state.propCatalog?.getTextureImage || (() => null);
 
   try {
+    // @ts-expect-error — strict-mode migration
     renderProp(ctx, propDef, 0, 0, rotation, gridSize, theme, transform, flipped, getTextureImage);
   } catch (e) {
-    warnings.push(`Render error: ${e.message}`);
+    warnings.push(`Render error: ${(e as any).message}`);
   }
 
   // ── Convert to data URL ───────────────────────────────────────────────────

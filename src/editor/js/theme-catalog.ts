@@ -6,7 +6,7 @@ const BASE_URL = '/themes/';
 const CACHE_KEY = 'theme-catalog';
 const CACHE_VER_KEY = 'theme-catalog-ver';
 
-let catalog = null; // { names: string[], themes: {}, userNames: string[], userThemes: {} }
+let catalog: any = null; // { names: string[], themes: {}, userNames: string[], userThemes: {} }
 
 // Minimal dungeon used for preview renders — a plain 3×3 room
 const PREVIEW_CELLS = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]];
@@ -14,12 +14,13 @@ const PREVIEW_CELLS = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]];
 /**
  * Register themes into the shared THEMES registry and build the catalog.
  */
-function buildFromData(themeMap) {
+function buildFromData(themeMap: any) {
   const names = [];
   const themes = {};
   for (const [key, data] of Object.entries(themeMap)) {
+    // @ts-expect-error — strict-mode migration
     const { displayName, ...themeProps } = data;
-    themes[key] = { ...themeProps, displayName };
+    (themes as any)[key] = { ...themeProps, displayName };
     names.push(key);
     THEMES[key] = themeProps;
   }
@@ -32,7 +33,7 @@ function buildFromData(themeMap) {
  * Caches parsed results in localStorage for fast subsequent loads.
  * @param {function} [onProgress] — called with (loaded, total) as theme files are fetched
  */
-export async function loadThemeCatalog(onProgress) {
+export async function loadThemeCatalog(onProgress: any) {
   if (catalog) return catalog;
 
   try {
@@ -45,6 +46,7 @@ export async function loadThemeCatalog(onProgress) {
     const cachedVer = localStorage.getItem(CACHE_VER_KEY);
     if (cachedVer === version) {
       try {
+        // @ts-expect-error — strict-mode migration
         const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
         if (cached && Object.keys(cached).length) {
           if (onProgress) onProgress(keys.length, keys.length);
@@ -61,7 +63,7 @@ export async function loadThemeCatalog(onProgress) {
     if (onProgress) onProgress(0, keys.length);
 
     const results = await Promise.allSettled(
-      keys.map(async (key) => {
+      keys.map(async (key: any) => {
         const r = await fetch(`${BASE_URL}${key}.theme`, { cache: 'no-cache' });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
@@ -77,7 +79,7 @@ export async function loadThemeCatalog(onProgress) {
         console.warn('[theme-catalog] Failed to load theme:', result.reason);
         continue;
       }
-      themeMap[result.value.key] = result.value.data;
+      (themeMap as any)[result.value.key] = result.value.data;
     }
 
     // Cache to localStorage
@@ -140,7 +142,7 @@ export function clearThemeCatalogCache() {
 /**
  * Save a new user theme. Returns the slug key.
  */
-export async function saveUserTheme(name, themeObj) {
+export async function saveUserTheme(name: any, themeObj: any) {
   const res = await fetch('/api/user-themes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -164,11 +166,11 @@ export async function saveUserTheme(name, themeObj) {
 /**
  * Delete a user theme by slug key.
  */
-export async function deleteUserTheme(key) {
+export async function deleteUserTheme(key: any) {
   await fetch(`/api/user-themes/${key}`, { method: 'DELETE' });
   delete THEMES[`user:${key}`];
   if (catalog) {
-    catalog.userNames = catalog.userNames.filter(k => k !== key);
+    catalog.userNames = catalog.userNames.filter((k: any) => k !== key);
     delete catalog.userThemes[key];
   }
 }
@@ -176,7 +178,7 @@ export async function deleteUserTheme(key) {
 /**
  * Rename a user theme. Returns the new slug key.
  */
-export async function renameUserTheme(oldKey, newName) {
+export async function renameUserTheme(oldKey: any, newName: any) {
   const res = await fetch(`/api/user-themes/${oldKey}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -209,7 +211,7 @@ export async function renameUserTheme(oldKey, newName) {
  * Render a small offscreen canvas preview for a named theme.
  * Uses the full dungeon renderer on a minimal 3×3 room config.
  */
-export function renderThemePreview(themeKey) {
+export function renderThemePreview(themeKey: any) {
   const config = {
     metadata: {
       dungeonName: '',
@@ -224,6 +226,7 @@ export function renderThemePreview(themeKey) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
+  // @ts-expect-error — strict-mode migration
   renderDungeonToCanvas(canvas.getContext('2d'), config, width, height);
   return canvas;
 }

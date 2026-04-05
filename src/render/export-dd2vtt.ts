@@ -21,6 +21,7 @@ import { calculateBoundsFromCells } from './bounds.js';
  * @param {number} canvasHeight - Height of the rendered PNG in pixels
  * @returns {Object} dd2vtt-format JSON object
  */
+// @ts-expect-error — strict-mode migration
 export function buildDd2vtt(pngBuffer: Buffer, config: any, canvasWidth: number, canvasHeight: number): Dd2vttFormat {
   const { metadata, cells } = config;
   const gridSize = metadata.gridSize || 5;
@@ -96,7 +97,7 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
       ];
 
       for (const edge of edges) {
-        const val = cell[edge.dir];
+        const val = (cell as any)[edge.dir];
         if (!val) continue;
 
         // Skip invisible walls/doors — they shouldn't affect VTT line of sight
@@ -152,7 +153,7 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
  */
 function cellToPixelSegment(edge: any, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): { x1: number; y1: number; x2: number; y2: number } {
   // Cell coords → world feet → canvas pixels → grid units
-  const toGridUnits = (cellVal, offset) => {
+  const toGridUnits = (cellVal: any, offset: any) => {
     const worldFeet = cellVal * displayGridSize;
     const canvasPixels = worldFeet * GRID_SCALE + offset;
     return canvasPixels / pixelsPerGrid;
@@ -179,7 +180,7 @@ function cellToPixelSegment(edge: any, displayGridSize: number, offsetX: number,
 function extractLights(metadata: any, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): any[] {
   if (!metadata.lights || !metadata.lightingEnabled) return [];
 
-  return metadata.lights.map(light => {
+  return metadata.lights.map((light: any) => {
     // Light positions are in world feet — convert to canvas pixels, then grid units
     const canvasX = light.x * GRID_SCALE + offsetX;
     const canvasY = light.y * GRID_SCALE + offsetY;

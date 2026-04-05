@@ -21,15 +21,15 @@ export function validateDoorClearance(): { success: true; clear: boolean; issues
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
-        if (cell[dir] !== 'd' && cell[dir] !== 's') continue;
+        if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') continue;
         if (getApi()._isCellCoveredByProp(r, c)) {
-          issues.push({ row: toDisp(r), col: toDisp(c), direction: dir, doorType: cell[dir], problem: 'prop blocking door cell' });
+          issues.push({ row: toDisp(r), col: toDisp(c), direction: dir, doorType: (cell as any)[dir], problem: 'prop blocking door cell' });
         }
         const [dr, dc] = OFFSETS[dir];
         const nr = r + dr, nc = c + dc;
         if (nr >= 0 && nr < cells.length && nc >= 0 && nc < (cells[nr]?.length || 0)) {
           if (getApi()._isCellCoveredByProp(nr, nc)) {
-            issues.push({ row: toDisp(nr), col: toDisp(nc), direction: OPPOSITE[dir], doorType: cell[dir], problem: 'prop blocking door approach' });
+            issues.push({ row: toDisp(nr), col: toDisp(nc), direction: (OPPOSITE as any)[dir], doorType: (cell as any)[dir], problem: 'prop blocking door approach' });
           }
         }
       }
@@ -60,7 +60,7 @@ export function validateConnectivity(entranceLabel: string): { success: true; co
     const cell = cells[r]?.[c];
     if (!cell) continue;
     for (const dir of CARDINAL_DIRS) {
-      const edge = cell[dir];
+      const edge = (cell as any)[dir];
       if (edge === 'w' || edge === 'iw') continue;
       const [dr, dc] = OFFSETS[dir];
       const nr = r + dr, nc = c + dc;

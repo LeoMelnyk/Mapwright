@@ -140,9 +140,9 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
       // Lighting overlay for this level (pixel-perfect for export)
       if (levelLightingEnabled) {
         // Filter placed lights to this level's row range, then merge with fill lights
-        const levelLights = (config.metadata.lights || []).filter(l => {
+        const levelLights = (config.metadata.lights || []).filter((l: any) => {
           const lightRow = l.y / gridSize;
-          return lightRow >= level.startRow && lightRow < level.startRow + level.numRows;
+          return lightRow >= (level as any).startRow && lightRow < (level as any).startRow + (level as any).numRows;
         });
         const levelFillLights = extractFillLights(levelCells, gridSize, theme);
         const allLevelLights = levelFillLights.length
@@ -215,6 +215,7 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
         const nameY = levelTopY - 10;
         ctx.save();
         ctx.font = `italic ${subtitleFontSize}px Georgia, "Times New Roman", serif`;
+        // @ts-expect-error — strict-mode migration
         ctx.fillStyle = theme.textColor;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';

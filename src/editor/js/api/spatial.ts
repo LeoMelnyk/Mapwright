@@ -59,6 +59,7 @@ export function _getWallCells(roomCellSet: Set<string>, wall: string): [number, 
   } else {
     result.sort((a, b) => a[0] - b[0]);
   }
+  // @ts-expect-error — strict-mode migration
   return result;
 }
 
@@ -110,7 +111,7 @@ export function findWallBetween(label1: string, label2: string): Array<{ row: nu
       const [dr, dc] = OFFSETS[dir];
       const nr = r + dr, nc = c + dc;
       if (!room2Cells.has(cellKey(nr, nc))) continue;
-      results.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: cell[dir] || 'w' });
+      results.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as any)[dir] || 'w' });
     }
   }
 
@@ -152,7 +153,9 @@ export function partitionRoom(roomLabel: string, direction: string, position: nu
       if (r !== position) continue;
       if (!roomCells.has(cellKey(r + 1, c))) continue;
       const val = (doorAt === c) ? 'd' : wallType;
-      cells[r][c].south = val;
+      // @ts-expect-error — strict-mode migration
+      cells[r][c]!.south = val;
+      // @ts-expect-error — strict-mode migration
       setReciprocal(r, c, 'south', val);
       count++;
     }
@@ -162,7 +165,9 @@ export function partitionRoom(roomLabel: string, direction: string, position: nu
       if (c !== position) continue;
       if (!roomCells.has(cellKey(r, c + 1))) continue;
       const val = (doorAt === r) ? 'd' : wallType;
-      cells[r][c].east = val;
+      // @ts-expect-error — strict-mode migration
+      cells[r][c]!.east = val;
+      // @ts-expect-error — strict-mode migration
       setReciprocal(r, c, 'east', val);
       count++;
     }

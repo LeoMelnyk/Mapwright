@@ -122,50 +122,50 @@ const TOOL_MODE_KEYS = {
   fill: 'fillMode',
 };
 
-let panel = null;
-let headerEl = null;
-let bodyEl = null;
-let lastTool = null;
-let lastMode = null;
+let panel: any = null;
+let headerEl: any = null;
+let bodyEl: any = null;
+let lastTool: any = null;
+let lastMode: any = null;
 let lastSessionActive = false;
-let lastSessionTool = null;
+let lastSessionTool: any = null;
 
 // Drag state
 let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 
-function getToolDisplayName(toolName) {
+function getToolDisplayName(toolName: any) {
   const names = {
     room: 'Room', paint: 'Paint', fill: 'Fill', wall: 'Wall', door: 'Door',
     label: 'Label', stairs: 'Stairs', bridge: 'Bridge', select: 'Select',
     trim: 'Trim', prop: 'Prop', erase: 'Erase', light: 'Light',
   };
-  return names[toolName] || toolName;
+  return (names as any)[toolName] || toolName;
 }
 
-function getToolShortcut(toolName) {
+function getToolShortcut(toolName: any) {
   const keys = {
     room: '1', paint: '2', fill: '3', wall: '4', door: '5', label: '6',
     stairs: 'S', bridge: 'B', trim: 'T', select: 'A', prop: 'Q', erase: 'E', light: 'L',
   };
-  return keys[toolName] || null;
+  return (keys as any)[toolName] || null;
 }
 
 function getActiveSessionTool() {
   const btn = document.querySelector('[data-session-tool].active');
-  return btn ? btn.dataset.sessionTool : 'doors';
+  return btn ? (btn as HTMLElement).dataset.sessionTool : 'doors';
 }
 
-function buildContent(toolName) {
+function buildContent(toolName: any) {
   // Session mode: show DM tool binds instead of editor tool binds
   if (state.sessionToolsActive) {
     return buildSessionContent(getActiveSessionTool());
   }
 
-  const modeKey = TOOL_MODE_KEYS[toolName];
+  const modeKey = (TOOL_MODE_KEYS as any)[toolName];
   const currentMode = modeKey ? state[modeKey] : null;
-  const toolBinds = (TOOL_BINDS[toolName] || []).filter(b => {
+  const toolBinds = ((TOOL_BINDS as any)[toolName] || []).filter((b: any) => {
     if (!b.modes) return true;
     return b.modes.includes(currentMode);
   });
@@ -189,8 +189,8 @@ function buildContent(toolName) {
   return html;
 }
 
-function buildSessionContent(sessionTool) {
-  const toolBinds = SESSION_TOOL_BINDS[sessionTool] || [];
+function buildSessionContent(sessionTool: any) {
+  const toolBinds = (SESSION_TOOL_BINDS as any)[sessionTool] || [];
   let html = '';
 
   if (toolBinds.length > 0) {
@@ -223,7 +223,7 @@ function refresh() {
   const sessionActive = state.sessionToolsActive;
   const sessionTool = sessionActive ? getActiveSessionTool() : null;
   const toolName = state.activeTool;
-  const modeKey = TOOL_MODE_KEYS[toolName];
+  const modeKey = (TOOL_MODE_KEYS as any)[toolName];
   const currentMode = modeKey ? state[modeKey] : null;
 
   // Skip if nothing changed
@@ -235,8 +235,8 @@ function refresh() {
   lastMode = currentMode;
 
   if (sessionActive) {
-    const key = SESSION_TOOL_KEYS[sessionTool];
-    headerEl.textContent = `DM: ${SESSION_TOOL_NAMES[sessionTool] || sessionTool}` + (key ? ` (${key})` : '');
+    const key = (SESSION_TOOL_KEYS as any)[sessionTool!];
+    headerEl.textContent = `DM: ${(SESSION_TOOL_NAMES as any)[sessionTool!] || sessionTool}` + (key ? ` (${key})` : '');
   } else {
     const shortcut = getToolShortcut(toolName);
     headerEl.textContent = `${getToolDisplayName(toolName)} Tool` + (shortcut ? ` (${shortcut})` : '');
@@ -254,7 +254,7 @@ export function toggleKeybindingsHelper(visible?: boolean): void {
   panel.style.display = show ? '' : 'none';
   // Sync checkbox
   const cb = document.getElementById('feat-keybindings');
-  if (cb) cb.checked = show;
+  if (cb) (cb as HTMLInputElement).checked = show;
   if (!show) {
     // Reset to default CSS position
     panel.style.left = '';
@@ -273,7 +273,7 @@ export function toggleKeybindingsHelper(visible?: boolean): void {
   try { localStorage.setItem('mw-keybindings-helper', show ? '1' : '0'); } catch {}
 }
 
-function onDragStart(e) {
+function onDragStart(e: any) {
   // Only left button
   if (e.button !== 0) return;
   isDragging = true;
@@ -284,7 +284,7 @@ function onDragStart(e) {
   e.preventDefault();
 }
 
-function onDragMove(e) {
+function onDragMove(e: any) {
   if (!isDragging) return;
   const x = e.clientX - dragOffsetX;
   const y = e.clientY - dragOffsetY;
@@ -323,13 +323,14 @@ export function initKeybindingsHelper(): void {
   const closeBtn = panel.querySelector('.kb-close');
   const dragHandle = panel.querySelector('.kb-header');
 
-  closeBtn.addEventListener('click', () => toggleKeybindingsHelper(false));
-  dragHandle.addEventListener('mousedown', onDragStart);
+  closeBtn!.addEventListener('click', () => toggleKeybindingsHelper(false));
+  dragHandle!.addEventListener('mousedown', onDragStart);
   document.addEventListener('mousemove', onDragMove);
   document.addEventListener('mouseup', onDragEnd);
 
   // Restore saved position
   try {
+    // @ts-expect-error — strict-mode migration
     const pos = JSON.parse(localStorage.getItem('mw-keybindings-pos'));
     if (pos?.left && pos?.top) {
       panel.style.left = pos.left;
@@ -344,7 +345,7 @@ export function initKeybindingsHelper(): void {
   const show = pref !== '0';
   panel.style.display = show ? '' : 'none';
   const cb = document.getElementById('feat-keybindings');
-  if (cb) cb.checked = show;
+  if (cb) (cb as HTMLInputElement).checked = show;
 
   // Refresh on state changes (tool switch, mode switch, session toggle)
   subscribe(refresh, 'keybindings');

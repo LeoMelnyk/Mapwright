@@ -38,23 +38,23 @@ function getSeenHints() {
   catch { return new Set(); }
 }
 
-function markHintSeen(tool) {
+function markHintSeen(tool: any) {
   const seen = getSeenHints();
   seen.add(tool);
   localStorage.setItem(HINTS_KEY, JSON.stringify([...seen]));
 }
 
-function showToolHint(tool) {
-  if (!TOOL_HINTS[tool]) return;
+function showToolHint(tool: any) {
+  if (!(TOOL_HINTS as any)[tool]) return;
   const seen = getSeenHints();
   if (seen.has(tool)) return;
   markHintSeen(tool);
-  showToast(`\u{1f4a1} ${TOOL_HINTS[tool]}`, 6000);
+  showToast(`\u{1f4a1} ${(TOOL_HINTS as any)[tool]}`, 6000);
 }
 
 // ─── Welcome Modal ───────────────────────────────────────────────────────────
 
-function showWelcome(onTutorial, onExample, onFresh) {
+function showWelcome(onTutorial: any, onExample: any, onFresh: any) {
   const overlay = document.createElement('div');
   overlay.className = 'onboarding-modal-overlay';
   overlay.innerHTML = `
@@ -115,10 +115,10 @@ function showWelcome(onTutorial, onExample, onFresh) {
     .then(r => r.json())
     .then(examples => {
       if (!examples.length) {
-        grid.innerHTML = '<div class="onboarding-examples-loading">No examples found</div>';
+        grid!.innerHTML = '<div class="onboarding-examples-loading">No examples found</div>';
         return;
       }
-      grid.innerHTML = '';
+      grid!.innerHTML = '';
       for (const ex of examples) {
         const btn = document.createElement('button');
         btn.className = 'onboarding-example-card';
@@ -132,11 +132,11 @@ function showWelcome(onTutorial, onExample, onFresh) {
           close();
           onExample(ex.url, ex.name);
         });
-        grid.appendChild(btn);
+        grid!.appendChild(btn);
       }
     })
     .catch(() => {
-      grid.innerHTML = '<div class="onboarding-examples-loading">Could not load examples</div>';
+      grid!.innerHTML = '<div class="onboarding-examples-loading">Could not load examples</div>';
     });
 
   // Wire non-example buttons
@@ -190,6 +190,7 @@ const TUTORIAL_STEPS = [
 ];
 
 class Tutorial {
+  [key: string]: any;
   constructor() {
     this.step = 0;
     this.overlay = null;
@@ -240,7 +241,7 @@ class Tutorial {
             if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length || 0)) continue;
             if (!cells[nr][nc]) continue;
             // Connected if no wall between them
-            if (!cell[dir] || cell[dir] === 'd' || cell[dir] === 's' || cell[dir] === 'id') {
+            if (!(cell as any)[dir] || (cell as any)[dir] === 'd' || (cell as any)[dir] === 's' || (cell as any)[dir] === 'id') {
               queue.push([nr, nc]);
             }
           }
@@ -258,7 +259,7 @@ class Tutorial {
       for (const cell of row) {
         if (!cell) continue;
         for (const dir of ['north', 'south', 'east', 'west']) {
-          if (cell[dir] === 'd' || cell[dir] === 's' || cell[dir] === 'id') count++;
+          if ((cell as any)[dir] === 'd' || (cell as any)[dir] === 's' || (cell as any)[dir] === 'id') count++;
         }
       }
     }
@@ -266,6 +267,7 @@ class Tutorial {
   }
 
   _countProps() {
+    // @ts-expect-error — strict-mode migration
     return state.dungeon.metadata?.props?.length || 0;
   }
 
@@ -324,14 +326,14 @@ class Tutorial {
     });
 
     // Allow clicking through to the canvas (except the panel)
-    this.overlay.querySelector('.tutorial-backdrop').addEventListener('click', (e) => {
+    this.overlay.querySelector('.tutorial-backdrop').addEventListener('click', (e: any) => {
       e.stopPropagation();
     });
 
     requestAnimationFrame(() => this.overlay.classList.add('visible'));
   }
 
-  _showStep(index) {
+  _showStep(index: any) {
     this.step = index;
     const stepDef = TUTORIAL_STEPS[index];
     const panel = this.overlay.querySelector('.tutorial-panel');
@@ -373,7 +375,7 @@ class Tutorial {
     panel.classList.add('tutorial-panel-enter');
   }
 
-  _positionPanel(panel, targetRect, position) {
+  _positionPanel(panel: any, targetRect: any, position: any) {
     const panelWidth = 320;
     const gap = 16;
 
@@ -438,7 +440,7 @@ class Tutorial {
 
 // ─── Example Map Loader ──────────────────────────────────────────────────────
 
-function loadExampleMap(url, name) {
+function loadExampleMap(url: any, name: any) {
   fetch(url)
     .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
     .then(json => {
@@ -492,7 +494,7 @@ export function openWelcomeScreen(): void {
       tutorial.start();
     },
     // Example map (receives url and name from the clicked card)
-    (url, name) => loadExampleMap(url, name),
+    (url: any, name: any) => loadExampleMap(url, name),
     // Fresh — do nothing
     () => {}
   );

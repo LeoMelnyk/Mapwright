@@ -195,7 +195,7 @@ export function generateHitbox(commands: PropCommand[], footprint: [number, numb
   for (let y = 0; y < gh; y++) {
     for (let x = 0; x < gw; x++) {
       if (!grid[y * gw + x]) continue;
-      const g = (bx, by) => (bx >= 0 && bx < gw && by >= 0 && by < gh) ? grid[by * gw + bx] : 0;
+      const g = (bx: any, by: any) => (bx >= 0 && bx < gw && by >= 0 && by < gh) ? grid[by * gw + bx] : 0;
       if (!g(x - 1, y) || !g(x + 1, y) || !g(x, y - 1) || !g(x, y + 1)) {
         boundary.push([x / HITBOX_PX_PER_CELL, y / HITBOX_PX_PER_CELL]);
       }
@@ -204,6 +204,7 @@ export function generateHitbox(commands: PropCommand[], footprint: [number, numb
   if (boundary.length < 3) return null;
 
   // 3. Compute convex hull (Graham scan) — handles disconnected shapes (e.g. tree canopy + trunk)
+  // @ts-expect-error — strict-mode migration
   const hull = _convexHull(boundary);
   if (!hull || hull.length < 3) return null;
 
@@ -220,36 +221,47 @@ function _testPointAgainstCommands(nx: number, ny: number, commands: PropCommand
     switch (cmd.type) {
       case 'rect':
         if (cmd.rotate != null && cmd.rotate !== 0) {
+          // @ts-expect-error — strict-mode migration
           const cx = cmd.x + cmd.w / 2, cy = cmd.y + cmd.h / 2;
           const rad = (-cmd.rotate * Math.PI) / 180;
           const cos = Math.cos(rad), sin = Math.sin(rad);
           const dx = nx - cx, dy = ny - cy;
           const lx = dx * cos - dy * sin + cx;
           const ly = dx * sin + dy * cos + cy;
+          // @ts-expect-error — strict-mode migration
           if (lx >= cmd.x && lx <= cmd.x + cmd.w && ly >= cmd.y && ly <= cmd.y + cmd.h) hit = true;
         } else {
+          // @ts-expect-error — strict-mode migration
           if (nx >= cmd.x && nx <= cmd.x + cmd.w && ny >= cmd.y && ny <= cmd.y + cmd.h) hit = true;
         }
         break;
       case 'circle': {
+        // @ts-expect-error — strict-mode migration
         const dx = nx - cmd.cx, dy = ny - cmd.cy;
+        // @ts-expect-error — strict-mode migration
         if (dx * dx + dy * dy <= cmd.r * cmd.r) hit = true;
         break;
       }
       case 'ellipse': {
+        // @ts-expect-error — strict-mode migration
         const edx = (nx - cmd.cx) / cmd.rx, edy = (ny - cmd.cy) / cmd.ry;
         if (edx * edx + edy * edy <= 1) hit = true;
         break;
       }
       case 'poly':
+        // @ts-expect-error — strict-mode migration
         if (cmd.points?.length >= 3 && _pointInPolygon(nx, ny, cmd.points)) hit = true;
         break;
       case 'arc': {
+        // @ts-expect-error — strict-mode migration
         const adx = nx - cmd.cx, ady = ny - cmd.cy;
+        // @ts-expect-error — strict-mode migration
         if (adx * adx + ady * ady > cmd.r * cmd.r) break;
         let angle = Math.atan2(ady, adx) * 180 / Math.PI;
         if (angle < 0) angle += 360;
+        // @ts-expect-error — strict-mode migration
         const start = ((cmd.startDeg % 360) + 360) % 360;
+        // @ts-expect-error — strict-mode migration
         const end = ((cmd.endDeg % 360) + 360) % 360;
         if (start <= end) { if (angle >= start && angle <= end) hit = true; }
         else { if (angle >= start || angle <= end) hit = true; }
@@ -259,14 +271,18 @@ function _testPointAgainstCommands(nx: number, ny: number, commands: PropCommand
         let inside = false;
         switch (cmd.subShape) {
           case 'circle': {
+            // @ts-expect-error — strict-mode migration
             const dx = nx - cmd.cx, dy = ny - cmd.cy;
+            // @ts-expect-error — strict-mode migration
             inside = dx * dx + dy * dy <= cmd.r * cmd.r;
             break;
           }
           case 'rect':
+            // @ts-expect-error — strict-mode migration
             inside = nx >= cmd.x && nx <= cmd.x + cmd.w && ny >= cmd.y && ny <= cmd.y + cmd.h;
             break;
           case 'ellipse': {
+            // @ts-expect-error — strict-mode migration
             const edx = (nx - cmd.cx) / cmd.rx, edy = (ny - cmd.cy) / cmd.ry;
             inside = edx * edx + edy * edy <= 1;
             break;
@@ -276,8 +292,10 @@ function _testPointAgainstCommands(nx: number, ny: number, commands: PropCommand
         break;
       }
       case 'ring': {
+        // @ts-expect-error — strict-mode migration
         const dx = nx - cmd.cx, dy = ny - cmd.cy;
         const dist2 = dx * dx + dy * dy;
+        // @ts-expect-error — strict-mode migration
         if (dist2 <= cmd.outerR * cmd.outerR && dist2 >= cmd.innerR * cmd.innerR) hit = true;
         break;
       }
@@ -414,7 +432,7 @@ export function extractOverlayPropLightSegments(propDef: any, overlayProp: any, 
     const rdy = (fCols - fRows) / 2;
 
     // Transform each hitbox vertex: flip → rotate → scale → world-feet → translate
-    const worldPts = hitbox.map(([hx, hy]) => {
+    const worldPts = hitbox.map(([hx, hy]: any) => {
       let px = flipped ? fCols - hx : hx;
       let py = hy;
       // Rotate using rotatePoint logic
@@ -472,7 +490,7 @@ export function extractOverlayPropLightSegments(propDef: any, overlayProp: any, 
   const sin = Math.sin(rad);
 
   return baseSegments.map(seg => {
-    function transform(x, y) {
+    function transform(x: any, y: any) {
       const dx = x - cx;
       const dy = y - cy;
       const sx = dx * scale;
@@ -615,7 +633,7 @@ export function extractPropLightSegments(propDef: any, row: number, col: number,
 
       case 'poly': {
         if (tc.points.length < 2) break;
-        const worldPts = tc.points.map(([px, py]) => toWorldFeet(px, py, row, col, gridSize));
+        const worldPts = tc.points.map(([px, py]: any) => toWorldFeet(px, py, row, col, gridSize));
         segments.push(...polygonToSegments(worldPts));
         break;
       }

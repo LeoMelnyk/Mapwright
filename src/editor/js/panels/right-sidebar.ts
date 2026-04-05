@@ -15,6 +15,7 @@ export function setRightPanelChangeCallback(cb: (panel: string | null) => void):
  */
 export function getActiveRightPanel(): string | null {
   const active = document.querySelector('.right-icon-btn.active');
+  // @ts-expect-error — strict-mode migration
   return active?.dataset.rightPanel || null;
 }
 
@@ -24,6 +25,7 @@ export function getActiveRightPanel(): string | null {
  */
 export function toggleRightPanel(panelId: string): void {
   const btn = document.querySelector(`.right-icon-btn[data-right-panel="${panelId}"]`);
+  // @ts-expect-error — strict-mode migration
   if (btn) btn.click();
 }
 
@@ -36,30 +38,32 @@ export function init(): void {
 
   iconBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+      // @ts-expect-error — strict-mode migration
       const panelId = btn.dataset.rightPanel;
       const isActive = btn.classList.contains('active');
 
       // Deactivate all icons and hide all panels
       iconBtns.forEach(b => b.classList.remove('active'));
+      // @ts-expect-error — strict-mode migration
       document.querySelectorAll('.right-panel').forEach(p => (p.style.display = 'none'));
 
-      const wasCollapsed = rightContent.classList.contains('hidden');
+      const wasCollapsed = rightContent!.classList.contains('hidden');
 
       if (!isActive) {
         // Activate the clicked icon and show its panel
         btn.classList.add('active');
         const panel = document.getElementById(`right-panel-${panelId}`);
         if (panel) panel.style.display = panel.dataset.display || 'flex';
-        rightContent.classList.remove('hidden');
+        rightContent!.classList.remove('hidden');
         if (panelChangeCb) panelChangeCb(panelId);
       } else {
         // Same icon clicked again — collapse
-        rightContent.classList.add('hidden');
+        rightContent!.classList.add('hidden');
         if (panelChangeCb) panelChangeCb(null);
       }
 
       // Resize canvas only when sidebar visibility changed
-      const isCollapsed = rightContent.classList.contains('hidden');
+      const isCollapsed = rightContent!.classList.contains('hidden');
       if (wasCollapsed !== isCollapsed) {
         updateFloatPositions(isCollapsed);
         requestAnimationFrame(() => resizeCanvas());
@@ -69,7 +73,7 @@ export function init(): void {
 }
 
 /** Adjust floating element positions when the right panel collapses/expands. */
-function updateFloatPositions(collapsed) {
+function updateFloatPositions(collapsed: any) {
   const rightOffset = collapsed ? '52px' : '272px';
   const cellFloat = document.getElementById('cell-info-float');
   if (cellFloat) cellFloat.style.right = rightOffset;

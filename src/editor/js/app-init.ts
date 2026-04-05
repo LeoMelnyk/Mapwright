@@ -69,6 +69,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
     const el = document.getElementById('btn-update-alert');
     if (!el) return;
     el.textContent = `↑ v${latestVersion} available`;
+    // @ts-expect-error — strict-mode migration
     el.href = url;
     el.style.display = 'flex';
   }).catch(() => {});
@@ -77,6 +78,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   const savedTheme = localStorage.getItem('editor-ui-theme');
   if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
+  // @ts-expect-error — strict-mode migration
   document.getElementById('theme-toggle').addEventListener('click', () => {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     if (isLight) {
@@ -97,6 +99,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
 
   // Init canvas
   const canvas = document.getElementById('editor-canvas');
+  // @ts-expect-error — strict-mode migration
   canvasView.init(canvas);
 
   // Set initial tool (use restored tool or default)
@@ -113,16 +116,17 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   const progress = { themes: null, props: null, textures: null };
   const toasted = { themes: false, props: false, textures: false };
   const labels = { themes: 'Themes', props: 'Props', textures: 'Textures' };
-  function onAssetProgress(key, loaded, total) {
-    progress[key] = { loaded, total };
+  function onAssetProgress(key: any, loaded: any, total: any) {
+    (progress as any)[key] = { loaded, total };
     // Per-catalog toast
-    if (loaded >= total && total > 0 && !toasted[key]) {
-      toasted[key] = true;
-      showToast(`${labels[key]} loaded`);
+    if (loaded >= total && total > 0 && !(toasted as any)[key]) {
+      (toasted as any)[key] = true;
+      showToast(`${(labels as any)[key]} loaded`);
     }
     // Aggregate bar
     let sumLoaded = 0, sumTotal = 0;
     for (const v of Object.values(progress)) {
+      // @ts-expect-error — strict-mode migration
       if (v) { sumLoaded += v.loaded; sumTotal += v.total; }
     }
     if (loadingFill && sumTotal > 0) {
@@ -135,7 +139,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   }
 
   // Load themes before metadata so the picker has catalog data on first render
-  await loadThemeCatalog((loaded, total) => onAssetProgress('themes', loaded, total));
+  await loadThemeCatalog((loaded: any, total: any) => onAssetProgress('themes', loaded, total));
 
   // Init panels
   initToolbar();
@@ -166,7 +170,8 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   // Keybindings helper (floating panel)
   initKeybindingsHelper();
   document.getElementById('feat-keybindings')?.addEventListener('change', (e) => {
-    toggleKeybindingsHelper(e.target.checked);
+    // @ts-expect-error — strict-mode migration
+    toggleKeybindingsHelper(e.target!.checked);
   });
 
   // ── Claude AI (experimental) ─────────────────────────────────────────────
@@ -214,8 +219,10 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
 
   // ── Range detector (session tool) ────────────────────────────────────────
   const dmRangeTool = new RangeTool(
-    (msg) => {
+    (msg: any) => {
+      // @ts-expect-error — strict-mode migration
       if (sessionState.ws?.readyState === 1) {
+        // @ts-expect-error — strict-mode migration
         sessionState.ws.send(JSON.stringify(msg));
       }
     },
@@ -245,6 +252,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
       document.querySelectorAll('[data-session-tool]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
+      // @ts-expect-error — strict-mode migration
       const tool = btn.dataset.sessionTool;
       const rangeOpts = document.getElementById('range-options');
       if (tool === 'range') {
@@ -269,6 +277,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-range-shape]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      // @ts-expect-error — strict-mode migration
       dmRangeTool.setSubTool(btn.dataset.rangeShape);
     });
   });
@@ -279,16 +288,18 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
     function populateRangeOptions() {
       const gs = state.dungeon?.metadata?.gridSize || 5;
       // Keep "Auto" option, rebuild the rest
-      rangeDistSelect.innerHTML = '<option value="0">Auto</option>';
+      rangeDistSelect!.innerHTML = '<option value="0">Auto</option>';
       for (let ft = gs; ft <= 200; ft += gs) {
         const opt = document.createElement('option');
+        // @ts-expect-error — strict-mode migration
         opt.value = ft;
         opt.textContent = `${ft} ft`;
-        rangeDistSelect.appendChild(opt);
+        rangeDistSelect!.appendChild(opt);
       }
     }
     populateRangeOptions();
     rangeDistSelect.addEventListener('change', () => {
+      // @ts-expect-error — strict-mode migration
       dmRangeTool.setFixedRange(parseInt(rangeDistSelect.value, 10));
     });
     // Re-populate when gridSize changes so ft increments stay accurate
@@ -352,6 +363,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
 
     const usedIds = collectTextureIds(state.dungeon.cells);
     if (propCatalog?.props && state.dungeon.metadata?.props) {
+      // @ts-expect-error — strict-mode migration
       for (const op of state.dungeon.metadata.props) {
         const propDef = propCatalog.props[op.type];
         if (propDef?.textures) {
@@ -401,6 +413,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   });
 
   // Expose toast for use across modules
+  // @ts-expect-error — strict-mode migration
   window.showToast = showToast;
 
   // Status bar updates

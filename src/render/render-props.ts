@@ -56,7 +56,7 @@ export function getPropsVersion(): number { return _propsVersion; }
 // ── Pre-rendered props layer cache ─────────────────────────────────────────
 // Renders all props to an offscreen canvas at cache resolution. Reused across
 // map cache rebuilds as long as props haven't changed.
-let _propsRenderLayer = null; // { canvas, w, h, propsRef, texturesVersion }
+let _propsRenderLayer: any = null; // { canvas, w, h, propsRef, texturesVersion }
 
 /**
  * Return a pre-rendered transparent canvas containing all props at cache resolution.
@@ -109,7 +109,7 @@ export function getRenderedPropsLayer(cells: CellGrid, gridSize: number, theme: 
 // Scale is not part of the key — tiles are rendered once at TILE_BASE_PX per cell
 // and scaled to the current display size via drawImage(tile, x, y, w, h).
 // Props are deterministic vector shapes; browser bilinear scaling is sufficient.
-function _tileCacheKey(type, facing, flipped, wallStroke, texturesVersion) {
+function _tileCacheKey(type: any, facing: any, flipped: any, wallStroke: any, texturesVersion: any) {
   return `${type}|${facing}|${flipped ? 1 : 0}|${wallStroke}|${texturesVersion}`;
 }
 
@@ -120,7 +120,7 @@ const TILE_BASE_PX = 128;
  * Render a prop to an OffscreenCanvas tile at a fixed base resolution.
  * Returns null if OffscreenCanvas is unavailable (Node.js / PDF renderer).
  */
-function _buildTile(propDef, rotation, flipped, gridSize, theme, getTextureImage) {
+function _buildTile(propDef: any, rotation: any, flipped: any, gridSize: any, theme: any, getTextureImage: any) {
   if (typeof OffscreenCanvas === 'undefined') return null;
 
   const [fRows, fCols] = propDef.footprint;
@@ -137,6 +137,7 @@ function _buildTile(propDef, rotation, flipped, gridSize, theme, getTextureImage
   const octx = oc.getContext('2d');
 
   const tileTransform = { scale: tileScale, offsetX: padding * TILE_BASE_PX, offsetY: padding * TILE_BASE_PX };
+  // @ts-expect-error — strict-mode migration
   renderProp(octx, propDef, 0, 0, rotation, gridSize, theme, tileTransform, flipped, getTextureImage);
 
   return oc;
@@ -159,7 +160,7 @@ function _buildTile(propDef, rotation, flipped, gridSize, theme, getTextureImage
  * @param {object} transform - { scale, offsetX, offsetY }
  * @returns {{ x: number, y: number }} Canvas pixel coordinates
  */
-function propToCanvas(nx, ny, row, col, gridSize, transform) {
+function propToCanvas(nx: any, ny: any, row: any, col: any, gridSize: any, transform: any) {
   const feetX = (col + nx) * gridSize;
   const feetY = (row + ny) * gridSize;
   return toCanvas(feetX, feetY, transform);
@@ -172,7 +173,7 @@ function propToCanvas(nx, ny, row, col, gridSize, transform) {
  * - stroke: uses cmd.color or theme.wallStroke
  * - fill: uses cmd.color or theme.wallStroke with semi-transparency (default 0.15 opacity)
  */
-function applyStyle(ctx, cmd, theme) {
+function applyStyle(ctx: any, cmd: any, theme: any) {
   const color = cmd.color || theme.wallStroke || '#000000';
 
   if (cmd.style === 'stroke') {
@@ -196,7 +197,7 @@ function applyStyle(ctx, cmd, theme) {
  * @param {number} ry - Half-height (or radius) in canvas pixels
  * @returns {CanvasGradient}
  */
-function createGradient(ctx, cmd, cx, cy, rx, ry) {
+function createGradient(ctx: any, cmd: any, cx: any, cy: any, rx: any, ry: any) {
   const { r: r1, g: g1, b: b1 } = parseHexColor(cmd.color || '#ffffff');
   const { r: r2, g: g2, b: b2 } = parseHexColor(cmd.gradientEnd || '#000000');
   const alpha = cmd.opacity ?? 0.8;
@@ -223,7 +224,7 @@ function createGradient(ctx, cmd, cx, cy, rx, ry) {
  * Fill a rectangular canvas region with a texture image.
  * Falls back to solid grey fill if the texture is not available.
  */
-function drawTexFillRect(ctx, cmd, x, y, w, h, getTextureImage) {
+function drawTexFillRect(ctx: any, cmd: any, x: any, y: any, w: any, h: any, getTextureImage: any) {
   const img = getTextureImage?.(cmd.textureId);
   const alpha = cmd.opacity ?? 0.9;
 
@@ -245,7 +246,7 @@ function drawTexFillRect(ctx, cmd, x, y, w, h, getTextureImage) {
  * The path must already be defined via beginPath + arc/moveTo/lineTo.
  * @param {object} bbox - { x, y, w, h } bounding box for drawImage
  */
-function drawTexFillPath(ctx, cmd, bbox, getTextureImage) {
+function drawTexFillPath(ctx: any, cmd: any, bbox: any, getTextureImage: any) {
   const img = getTextureImage?.(cmd.textureId);
   const alpha = cmd.opacity ?? 0.9;
 
@@ -266,7 +267,7 @@ function drawTexFillPath(ctx, cmd, bbox, getTextureImage) {
  * Draw a soft drop shadow under a prop.
  * Rendered as a radial-gradient ellipse matching the footprint, offset slightly.
  */
-function _drawPropShadow(ctx, propDef, row, col, rotation, gridSize, transform) {
+function _drawPropShadow(ctx: any, propDef: any, row: any, col: any, rotation: any, gridSize: any, transform: any) {
   const [fRows, fCols] = propDef.footprint;
   // Effective footprint after rotation
   const isRotated90 = rotation === 90 || rotation === 270;
@@ -310,7 +311,7 @@ function _drawPropShadow(ctx, propDef, row, col, rotation, gridSize, transform) 
  *
  * @param {function|null} getTextureImage - (textureId) => HTMLImageElement|null
  */
-function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureImage) {
+function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, theme: any, transform: any, getTextureImage: any) {
   const s = scaleFactor(transform);
   // transform.lineWidth lets callers (e.g. thumbnail renderer) override the
   // computed stroke width so lines don't appear fat at large thumbnail scales.
@@ -452,7 +453,7 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
     case 'poly': {
       if (cmd.points.length < 2) break;
 
-      const canvasPoints = cmd.points.map(([px, py]) =>
+      const canvasPoints = cmd.points.map(([px, py]: any) =>
         propToCanvas(px, py, row, col, gridSize, transform)
       );
 
@@ -465,8 +466,8 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
 
       if (cmd.style === 'texfill') {
         // Compute bounding box of polygon
-        const xs = canvasPoints.map(p => p.x);
-        const ys = canvasPoints.map(p => p.y);
+        const xs = canvasPoints.map((p: any) => p.x);
+        const ys = canvasPoints.map((p: any) => p.y);
         const minX = Math.min(...xs);
         const minY = Math.min(...ys);
         drawTexFillPath(ctx, cmd, {
@@ -475,8 +476,8 @@ function drawCommand(ctx, cmd, row, col, gridSize, theme, transform, getTextureI
           h: Math.max(...ys) - minY
         }, getTextureImage);
       } else if (isGradient(cmd)) {
-        const xs = canvasPoints.map(p => p.x);
-        const ys = canvasPoints.map(p => p.y);
+        const xs = canvasPoints.map((p: any) => p.x);
+        const ys = canvasPoints.map((p: any) => p.y);
         const minX = Math.min(...xs);
         const minY = Math.min(...ys);
         const maxX = Math.max(...xs);
@@ -781,7 +782,7 @@ export function renderProp(ctx: CanvasRenderingContext2D, propDef: PropDefinitio
  * Render a prop with cutout commands to a temporary canvas, then composite back.
  * This ensures destination-out only affects the prop's own pixels.
  */
-function _renderPropIsolated(ctx, propDef, row, col, rotation, gridSize, theme, transform, flipped, getTextureImage) {
+function _renderPropIsolated(ctx: any, propDef: any, row: any, col: any, rotation: any, gridSize: any, theme: any, transform: any, flipped: any, getTextureImage: any) {
   const [fRows, fCols] = propDef.footprint;
   const isRotated90 = rotation === 90 || rotation === 270;
   const eRows = isRotated90 ? fCols : fRows;
@@ -798,8 +799,8 @@ function _renderPropIsolated(ctx, propDef, row, col, rotation, gridSize, theme, 
 
   // Create isolated canvas
   const createCanvas = (typeof OffscreenCanvas !== 'undefined')
-    ? (w, h) => new OffscreenCanvas(w, h)
-    : (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+    ? (w: any, h: any) => new OffscreenCanvas(w, h)
+    : (w: any, h: any) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
   const tmpCanvas = createCanvas(w, h);
   const tmpCtx = tmpCanvas.getContext('2d');
 

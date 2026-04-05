@@ -10,14 +10,14 @@ const MINIMAP_MAX_H = 165;
 const MINIMAP_PAD = 4;
 const CELL_SIZE = 40; // must match canvas-view.js
 
-let minimapCanvas = null;
-let minimapCtx = null;
-let mainCanvas = null;
-let minimapWrapper = null;
+let minimapCanvas: any = null;
+let minimapCtx: any = null;
+let mainCanvas: any = null;
+let minimapWrapper: any = null;
 
 // Offscreen cache for the minimap cell rendering (expensive).
 // Only rebuilt when map data changes. Pan/zoom just redraws the viewport rect.
-let _mmCache = null; // { canvas, dirtySeq, canvasW, canvasH }
+let _mmCache: any = null; // { canvas, dirtySeq, canvasW, canvasH }
 
 export function initMinimap(editorCanvas: HTMLCanvasElement): void {
   mainCanvas = editorCanvas;
@@ -31,13 +31,13 @@ export function initMinimap(editorCanvas: HTMLCanvasElement): void {
   // ── Click/drag on minimap canvas → pan main view ──
   let panning = false;
 
-  minimapCanvas.addEventListener('mousedown', (e) => {
+  minimapCanvas.addEventListener('mousedown', (e: any) => {
     panning = true;
     const rect = minimapCanvas.getBoundingClientRect();
     _panToMinimapPoint(e.clientX - rect.left, e.clientY - rect.top);
   });
 
-  minimapCanvas.addEventListener('mousemove', (e) => {
+  minimapCanvas.addEventListener('mousemove', (e: any) => {
     if (!panning) return;
     const rect = minimapCanvas.getBoundingClientRect();
     _panToMinimapPoint(e.clientX - rect.left, e.clientY - rect.top);
@@ -47,9 +47,9 @@ export function initMinimap(editorCanvas: HTMLCanvasElement): void {
   minimapCanvas.addEventListener('mouseleave', () => { panning = false; });
 
   // ── Drag header → reposition minimap ──
-  let dragState = null;
+  let dragState: any = null;
 
-  header.addEventListener('mousedown', (e) => {
+  header!.addEventListener('mousedown', (e) => {
     e.preventDefault();
     const wrapperRect = minimapWrapper.getBoundingClientRect();
     const containerRect = minimapWrapper.parentElement.getBoundingClientRect();
@@ -155,6 +155,7 @@ export function updateMinimap(): void {
       offsetY: MINIMAP_PAD,
       scale: minimapScale,
     };
+    // @ts-expect-error — strict-mode migration
     renderCells(offCtx, cells, gridSize, theme, minimapTransform, {
       showGrid: false,
       propCatalog: null,
@@ -193,7 +194,7 @@ export function invalidateMinimapCache(): void {
   _mmCache = null;
 }
 
-function _panToMinimapPoint(mx, my) {
+function _panToMinimapPoint(mx: any, my: any) {
   const { dungeon } = state;
   const { cells, metadata } = dungeon;
   const gridSize = metadata.gridSize || 5;

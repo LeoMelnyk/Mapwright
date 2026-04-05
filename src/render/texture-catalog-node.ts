@@ -7,8 +7,11 @@
  */
 
 import type { CellGrid } from '../types.js';
+// @ts-expect-error — strict-mode migration
 import fs from 'fs';
+// @ts-expect-error — strict-mode migration
 import { dirname, join, basename } from 'path';
+// @ts-expect-error — strict-mode migration
 import { fileURLToPath } from 'url';
 import { loadImage } from '@napi-rs/canvas';
 import { BRIDGE_TEXTURE_IDS } from './bridges.js';
@@ -17,11 +20,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Electron sets MAPWRIGHT_TEXTURE_PATH before importing server.js, so this is
 // resolved correctly at module load time.
+// @ts-expect-error — strict-mode migration
 const TEXTURES_DIR = process.env.MAPWRIGHT_TEXTURE_PATH
+  // @ts-expect-error — strict-mode migration
   ? process.env.MAPWRIGHT_TEXTURE_PATH
   : join(__dirname, '../textures');
 
-let catalogCache = null;
+let catalogCache: any = null;
 const imageCache = new Map();
 
 /**
@@ -41,8 +46,8 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
     try {
       const polyDir = join(TEXTURES_DIR, 'polyhaven');
       manifest = fs.readdirSync(polyDir)
-        .filter(f => f.endsWith('.texture'))
-        .map(f => `polyhaven/${basename(f, '.texture')}`)
+        .filter((f: any) => f.endsWith('.texture'))
+        .map((f: any) => `polyhaven/${basename(f, '.texture')}`)
         .sort();
     } catch {
       console.warn('[textures] No texture catalog found — textures will not render');
@@ -55,7 +60,7 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
   for (const id of manifest) {
     try {
       const data = JSON.parse(fs.readFileSync(join(TEXTURES_DIR, `${id}.texture`), 'utf-8'));
-      textures[id] = {
+      (textures as any)[id] = {
         id,
         displayName: data.displayName,
         category: data.category,
@@ -66,7 +71,7 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
         img: null,
         dispImg: null,
       };
-    } catch (e) { console.warn(`[textures] Failed to load ${id}.texture: ${e.message}`); }
+    } catch (e) { console.warn(`[textures] Failed to load ${id}.texture: ${(e as any).message}`); }
   }
 
   catalogCache = { names: manifest, textures };
@@ -94,10 +99,11 @@ function collectTextureIds(cells: CellGrid): Set<string> {
     for (const cell of row) {
       if (!cell) continue;
       for (const key of KEYS) {
-        if (cell[key]) ids.add(cell[key]);
+        if ((cell as any)[key]) ids.add((cell as any)[key]);
       }
     }
   }
+  // @ts-expect-error — strict-mode migration
   return ids;
 }
 
@@ -112,7 +118,7 @@ export async function ensureTexturesForConfig(catalog: any, config: any, propCat
   // Include bridge textures (hardcoded IDs in bridges.js)
   if (config.metadata?.bridges?.length) {
     for (const b of config.metadata.bridges) {
-      const texId = BRIDGE_TEXTURE_IDS[b.type] || BRIDGE_TEXTURE_IDS.wood;
+      const texId = (BRIDGE_TEXTURE_IDS as any)[b.type] || BRIDGE_TEXTURE_IDS.wood;
       ids.add(texId);
     }
   }

@@ -21,7 +21,9 @@ export function setFill(row: number, col: number, fillType: string, depth?: numb
   const cell = ensureCell(row, col);
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
+  // @ts-expect-error — strict-mode migration
   cell.fill = fillType;
+  // @ts-expect-error — strict-mode migration
   const d = (depth >= 1 && depth <= 3) ? depth : 1;
   if (fillType === 'water') {
     cell.waterDepth = d;
@@ -73,6 +75,7 @@ export function setHazard(row: number, col: number, enabled: boolean = true): { 
   pushUndo();
   if (enabled) {
     cell.hazard = true;
+    // @ts-expect-error — strict-mode migration
     if (cell.fill === 'difficult-terrain') delete cell.fill;
   } else {
     delete cell.hazard;
@@ -106,11 +109,13 @@ export function setFillRect(r1: number, c1: number, r2: number, c2: number, fill
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
+  // @ts-expect-error — strict-mode migration
   const wd = (depth >= 1 && depth <= 3) ? depth : 1;
   for (let r = minR; r <= maxR; r++) {
     for (let c = minC; c <= maxC; c++) {
       const cell = state.dungeon.cells[r]?.[c];
       if (cell) {
+        // @ts-expect-error — strict-mode migration
         cell.fill = fillType;
         if (fillType === 'water') {
           cell.waterDepth = wd;
@@ -156,6 +161,7 @@ export function setHazardRect(r1: number, c1: number, r2: number, c2: number, en
       if (cell) {
         if (enabled) {
           cell.hazard = true;
+          // @ts-expect-error — strict-mode migration
           if (cell.fill === 'difficult-terrain') delete cell.fill;
         } else {
           delete cell.hazard;

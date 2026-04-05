@@ -79,7 +79,7 @@ export function stairBoundingBox(points: number[][]): { minRow: number; minCol: 
  * @param {number[][]} polygon - vertices as [row, col] pairs
  * @returns {boolean}
  */
-function pointInPolygon(py, px, polygon) {
+function pointInPolygon(py: any, px: any, polygon: any) {
   let inside = false;
   const n = polygon.length;
   for (let i = 0, j = n - 1; i < n; j = i++) {
@@ -100,7 +100,7 @@ function pointInPolygon(py, px, polygon) {
  * @param {number} eps - tolerance
  * @returns {boolean}
  */
-function pointOnPolygonEdge(py, px, polygon, eps = 0.01) {
+function pointOnPolygonEdge(py: any, px: any, polygon: any, eps = 0.01) {
   const n = polygon.length;
   for (let i = 0, j = n - 1; i < n; j = i++) {
     const yi = polygon[i][0], xi = polygon[i][1];

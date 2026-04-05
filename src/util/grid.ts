@@ -280,6 +280,7 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
     // exits are reachable from the entry direction without crossing the arc.
     let arcExits: string | null = null;
     if ((cell as any).trimCrossing) {
+      // @ts-expect-error — strict-mode migration
       arcExits = (cell as any).trimCrossing[entryDir?.[0]] ?? '';
     }
 

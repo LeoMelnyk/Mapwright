@@ -16,7 +16,8 @@ import { clampPan } from './canvas-view-viewport.js';
  * @returns {{ x: number, y: number }} Canvas-relative pixel coordinates.
  */
 export function getMousePos(e: MouseEvent): { x: number; y: number } {
-  const rect = cvState.canvas.getBoundingClientRect();
+  // @ts-expect-error — strict-mode migration
+  const rect = cvState.canvas!.getBoundingClientRect();
   return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
 
@@ -38,7 +39,9 @@ export function onMouseDown(e: MouseEvent): void {
 
   // Background cell measure mode — intercept left click before normal tool routing
   if (cvState._bgMeasureActive && e.button === 0) {
+    // @ts-expect-error — strict-mode migration
     cvState._bgMeasureStart = pos;
+    // @ts-expect-error — strict-mode migration
     cvState._bgMeasureEnd = pos;
     e.preventDefault();
     requestRender();
@@ -52,7 +55,8 @@ export function onMouseDown(e: MouseEvent): void {
     cvState.panStartY = pos.y;
     cvState.panStartPanX = state.panX;
     cvState.panStartPanY = state.panY;
-    cvState.canvas.style.cursor = 'grabbing';
+    // @ts-expect-error — strict-mode migration
+    cvState.canvas!.style.cursor = 'grabbing';
     e.preventDefault();
     return;
   }
@@ -60,6 +64,7 @@ export function onMouseDown(e: MouseEvent): void {
   // Right-click: start tracking — will become pan (drag) or erase (click)
   if (e.button === 2) {
     // If tool has an active drag, cancel it immediately
+    // @ts-expect-error — strict-mode migration
     if (cvState.activeTool?.onCancel && cvState.activeTool.onCancel()) {
       requestRender();
       return;
@@ -84,6 +89,7 @@ export function onMouseDown(e: MouseEvent): void {
       if (cvState.sessionTool) {
         const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
         const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+        // @ts-expect-error — strict-mode migration
         cvState.sessionTool.onMouseDown(cell.row, cell.col, edge, e, pos);
         requestRender();
         return;
@@ -91,6 +97,7 @@ export function onMouseDown(e: MouseEvent): void {
 
       // Fall through to click-based session handlers (doors, stairs)
       if (cvState.sessionClickFn) {
+        // @ts-expect-error — strict-mode migration
         cvState.sessionClickFn(pos.x, pos.y, transform, gridSize);
       }
       requestRender();
@@ -102,6 +109,7 @@ export function onMouseDown(e: MouseEvent): void {
       const gridSize = state.dungeon.metadata.gridSize;
       const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
       const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+      // @ts-expect-error — strict-mode migration
       cvState.activeTool.onMouseDown(cell.row, cell.col, edge, e, pos);
       requestRender();
     }
@@ -119,6 +127,7 @@ export function onMouseMove(e: MouseEvent): void {
 
   // Background cell measure mode — update drag end and skip normal routing
   if (cvState._bgMeasureActive && cvState._bgMeasureStart) {
+    // @ts-expect-error — strict-mode migration
     cvState._bgMeasureEnd = pos;
     requestRender();
     return;
@@ -139,7 +148,8 @@ export function onMouseMove(e: MouseEvent): void {
     const dy = pos.y - cvState.rightStartY;
     if (!cvState.rightDragged && Math.sqrt(dx * dx + dy * dy) >= PAN_THRESHOLD) {
       cvState.rightDragged = true;
-      cvState.canvas.style.cursor = 'grabbing';
+      // @ts-expect-error — strict-mode migration
+      cvState.canvas!.style.cursor = 'grabbing';
     }
     if (cvState.rightDragged) {
       state.panX = cvState.rightStartPanX + dx;
@@ -157,8 +167,10 @@ export function onMouseMove(e: MouseEvent): void {
   state.hoveredCell = cell;
 
   // Session tool mouse move (e.g., range detector drag)
+  // @ts-expect-error — strict-mode migration
   if (state.sessionToolsActive && cvState.sessionTool?.onMouseMove) {
     const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+    // @ts-expect-error — strict-mode migration
     cvState.sessionTool.onMouseMove(cell.row, cell.col, edge, e, pos);
     requestRender();
     notify();
@@ -167,6 +179,7 @@ export function onMouseMove(e: MouseEvent): void {
 
   if (state.activeTool === 'wall' || state.activeTool === 'door') {
     // During a wall drag, the tool sets hoveredEdge itself (axis-locked preview)
+    // @ts-expect-error — strict-mode migration
     if (!cvState.activeTool?.dragging) {
       state.hoveredEdge = nearestEdge(pos.x, pos.y, transform, gridSize);
     }
@@ -180,8 +193,10 @@ export function onMouseMove(e: MouseEvent): void {
     state.hoveredCorner = null;
   }
 
+  // @ts-expect-error — strict-mode migration
   if (cvState.activeTool?.onMouseMove) {
     const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+    // @ts-expect-error — strict-mode migration
     cvState.activeTool.onMouseMove(cell.row, cell.col, edge, e, pos);
   }
 
@@ -190,9 +205,11 @@ export function onMouseMove(e: MouseEvent): void {
   // requestRender() from their own onMouseMove handler.
   const prevHover = cvState._lastHoveredCell;
   const curHover = state.hoveredCell;
+  // @ts-expect-error — strict-mode migration
   if (!prevHover || !curHover || prevHover.row !== curHover.row || prevHover.col !== curHover.col) {
     requestRender();
   }
+  // @ts-expect-error — strict-mode migration
   cvState._lastHoveredCell = curHover ? { row: curHover.row, col: curHover.col } : null;
   notify(); // update status bar
   renderTimings.mouseMove = { ms: performance.now() - _moveStart, frame: getTimingFrame() };
@@ -203,6 +220,7 @@ export function onMouseMove(e: MouseEvent): void {
  * @returns {void}
  */
 export function restoreToolCursor(): void {
+  // @ts-expect-error — strict-mode migration
   if (cvState.canvas) cvState.canvas.style.cursor = cvState.activeTool?.getCursor() || '';
 }
 
@@ -214,7 +232,9 @@ export function restoreToolCursor(): void {
 export function onMouseUp(e: MouseEvent): void {
   // Background cell measure mode — compute cell size and apply callback
   if (cvState._bgMeasureActive && e.button === 0 && cvState._bgMeasureStart && cvState._bgMeasureEnd) {
+    // @ts-expect-error — strict-mode migration
     const dx = Math.abs(cvState._bgMeasureEnd.x - cvState._bgMeasureStart.x);
+    // @ts-expect-error — strict-mode migration
     const dy = Math.abs(cvState._bgMeasureEnd.y - cvState._bgMeasureStart.y);
     const d = Math.max(dx, dy);
     if (d > 4) {
@@ -222,7 +242,9 @@ export function onMouseUp(e: MouseEvent): void {
       const bi = state.dungeon.metadata.backgroundImage;
       const transform = getTransform();
       const cellPx = gridSize * transform.scale;
+      // @ts-expect-error — strict-mode migration
       const newPixelsPerCell = Math.round(d * (bi?.pixelsPerCell ?? 70) / cellPx);
+      // @ts-expect-error — strict-mode migration
       if (cvState._bgMeasureCallback) cvState._bgMeasureCallback(Math.max(1, newPixelsPerCell));
     }
     _cancelBgMeasure();
@@ -250,9 +272,13 @@ export function onMouseUp(e: MouseEvent): void {
       const gridSize = state.dungeon.metadata.gridSize;
       const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
       const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+      // @ts-expect-error — strict-mode migration
       if (state.sessionToolsActive && cvState.sessionTool?.onRightClick) {
+        // @ts-expect-error — strict-mode migration
         cvState.sessionTool.onRightClick(cell.row, cell.col, edge, e);
+      // @ts-expect-error — strict-mode migration
       } else if (cvState.activeTool?.onRightClick) {
+        // @ts-expect-error — strict-mode migration
         cvState.activeTool.onRightClick(cell.row, cell.col, edge, e);
       }
       requestRender();
@@ -261,23 +287,27 @@ export function onMouseUp(e: MouseEvent): void {
   }
 
   // Session tool mouse up (e.g., range detector drag end)
+  // @ts-expect-error — strict-mode migration
   if (state.sessionToolsActive && cvState.sessionTool?.onMouseUp) {
     const pos = getMousePos(e);
     const transform = getTransform();
     const gridSize = state.dungeon.metadata.gridSize;
     const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
     const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+    // @ts-expect-error — strict-mode migration
     cvState.sessionTool.onMouseUp(cell.row, cell.col, edge, e, pos);
     requestRender();
     return;
   }
 
+  // @ts-expect-error — strict-mode migration
   if (cvState.activeTool?.onMouseUp) {
     const pos = getMousePos(e);
     const transform = getTransform();
     const gridSize = state.dungeon.metadata.gridSize;
     const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
     const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
+    // @ts-expect-error — strict-mode migration
     cvState.activeTool.onMouseUp(cell.row, cell.col, edge, e, pos);
     requestRender();
   }
@@ -297,7 +327,8 @@ export function onMouseLeave(): void {
   cvState.isPanning = false;
   cvState.rightDown = false;
   cvState.rightDragged = false;
-  cvState.canvas.style.cursor = '';
+  // @ts-expect-error — strict-mode migration
+  cvState.canvas!.style.cursor = '';
   requestRender();
   notify();
 }
@@ -312,10 +343,12 @@ export function onWheel(e: WheelEvent): void {
   const pos = getMousePos(e);
 
   // Alt+wheel → dispatch to active tool (rotation/scale)
+  // @ts-expect-error — strict-mode migration
   if (e.altKey && cvState.activeTool?.onWheel) {
     const { gridSize, resolution } = state.dungeon.metadata;
     const transform = { scale: CELL_SIZE * state.zoom / _dgs(gridSize, resolution), offsetX: state.panX, offsetY: state.panY };
     const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
+    // @ts-expect-error — strict-mode migration
     cvState.activeTool.onWheel(cell.row, cell.col, e.deltaY, e);
     return;
   }

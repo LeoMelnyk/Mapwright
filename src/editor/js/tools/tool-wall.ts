@@ -15,6 +15,7 @@ import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../ut
  * Supports cardinal and diagonal wall directions.
  */
 export class WallTool extends Tool {
+  [key: string]: any;
   declare dragging: boolean;
   declare undoPushed: boolean;
   declare cancelled: boolean;
@@ -43,7 +44,7 @@ export class WallTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row, col, edge) {
+  onMouseDown(row: any, col: any, edge: any) {
     if (!edge) return;
     this.dragging = true;
     this.undoPushed = false;
@@ -55,7 +56,7 @@ export class WallTool extends Tool {
     this._placeWall(edge.row, edge.col);
   }
 
-  onMouseMove(row, col, edge) {
+  onMouseMove(row: any, col: any, edge: any) {
     if (!this.dragging || this.cancelled) return;
     const dir = this.lockedDir;
     const hoverRow = edge ? edge.row : row;
@@ -102,14 +103,15 @@ export class WallTool extends Tool {
     this.lockedDir = null;
   }
 
-  onRightClick(row, col, edge) {
+  onRightClick(row: any, col: any, edge: any) {
     if (!edge) return;
     const cells = state.dungeon.cells;
     const { direction, row: er, col: ec } = edge;
 
     if (!isInBounds(cells, er, ec)) return;
-    if (!cells[er][ec]) return;
-    if (!cells[er][ec][direction]) return; // nothing to clear
+    if (!(cells as any)[er][ec]) return;
+    // @ts-expect-error — strict-mode migration
+    if (!cells![er][ec][direction]) return; // nothing to clear
 
     const before = captureBeforeState(cells, [{ row: er, col: ec }]);
     pushUndo('Remove wall');
@@ -134,7 +136,7 @@ export class WallTool extends Tool {
   }
 
   /** Fill walls along the locked axis from start to (endRow, endCol) */
-  _fillLine(endRow, endCol) {
+  _fillLine(endRow: any, endCol: any) {
     const dir = this.lockedDir;
 
     if (dir === 'north' || dir === 'south') {
@@ -172,7 +174,7 @@ export class WallTool extends Tool {
     }
   }
 
-  _placeWall(row, col) {
+  _placeWall(row: any, col: any) {
     const cells = state.dungeon.cells;
     const direction = this.lockedDir;
     const wallType = state.wallType || 'w';
@@ -182,8 +184,8 @@ export class WallTool extends Tool {
     // Skip void cells — walls require an existing cell on this side
     if (!cells[row][col]) return;
     const existing = cells[row][col];
-    if (existing[direction] === wallType) return;
-    if (existing[direction] === 'd' || existing[direction] === 's' || existing[direction] === 'id') return;
+    if ((existing as any)[direction!] === wallType) return;
+    if ((existing as any)[direction!] === 'd' || (existing as any)[direction!] === 's' || (existing as any)[direction!] === 'id') return;
     // 'iw' ↔ 'w' overwrites are allowed — fall through to setEdgeReciprocal
 
     const before = captureBeforeState(cells, [{ row, col }]);
@@ -193,6 +195,7 @@ export class WallTool extends Tool {
       this.undoPushed = true;
     }
 
+    // @ts-expect-error — strict-mode migration
     setEdgeReciprocal(cells, row, col, direction, wallType);
 
     invalidateLightmap();

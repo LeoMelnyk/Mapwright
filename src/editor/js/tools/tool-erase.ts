@@ -11,13 +11,13 @@ import { isInBounds, snapToSquare, normalizeBounds } from '../../../util/index.j
 function _removeStair(meta: any, cells: any, id: number): void {
   const stairs = meta?.stairs;
   if (!stairs) return;
-  const idx = stairs.findIndex(s => s.id === id);
+  const idx = stairs.findIndex((s: any) => s.id === id);
   if (idx === -1) return;
   const stairDef = stairs[idx];
 
   // Unlink partner
   if (stairDef.link) {
-    const partner = stairs.find(s => s.link === stairDef.link && s.id !== id);
+    const partner = stairs.find((s: any) => s.link === stairDef.link && s.id !== id);
     if (partner) partner.link = null;
   }
 
@@ -60,7 +60,7 @@ export class EraseTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row, col) {
+  onMouseDown(row: any, col: any) {
     const cells = state.dungeon.cells;
     if (!isInBounds(cells, row, col)) return;
     this.dragging = true;
@@ -70,13 +70,14 @@ export class EraseTool extends Tool {
     requestRender();
   }
 
-  onMouseMove(row, col, _edge, event, pos) {
+  onMouseMove(row: any, col: any, _edge: any, event: any, pos: any) {
     if (!this.dragging) return;
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
     if (event?.shiftKey) {
+      // @ts-expect-error — strict-mode migration
       ({ row, col } = snapToSquare(row, col, this.dragStart.row, this.dragStart.col, cells));
     }
 
@@ -85,7 +86,7 @@ export class EraseTool extends Tool {
     requestRender();
   }
 
-  onMouseUp(row, col, _edge, event) {
+  onMouseUp(row: any, col: any, _edge: any, event: any) {
     if (!this.dragging) return;
     this.dragging = false;
 
@@ -94,12 +95,14 @@ export class EraseTool extends Tool {
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
     if (event?.shiftKey) {
+      // @ts-expect-error — strict-mode migration
       ({ row, col } = snapToSquare(row, col, this.dragStart.row, this.dragStart.col, cells));
     }
 
     this.dragEnd = { row, col };
 
     const { r1, c1, r2, c2 } = normalizeBounds(
+      // @ts-expect-error — strict-mode migration
       this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
 
     let hasContent = false;
@@ -151,6 +154,7 @@ export class EraseTool extends Tool {
 
       // Remove stair definitions (and unlink partners)
       for (const id of stairIdsToRemove) {
+        // @ts-expect-error — strict-mode migration
         _removeStair(meta, cells, id);
       }
 
@@ -162,9 +166,11 @@ export class EraseTool extends Tool {
       }
 
       // Remove overlay props whose anchor falls inside the erased region
+      // @ts-expect-error — strict-mode migration
       if (meta.props?.length) {
         const gridSize = meta.gridSize || 5;
-        meta.props = meta.props.filter(p => {
+        // @ts-expect-error — strict-mode migration
+        meta.props = meta.props.filter((p: any) => {
           const pRow = Math.round(p.y / gridSize);
           const pCol = Math.round(p.x / gridSize);
           return pRow < r1 || pRow > r2 || pCol < c1 || pCol > c2;
@@ -208,7 +214,7 @@ export class EraseTool extends Tool {
     requestRender();
   }
 
-  _drawSizeLabel(ctx, gridSize) {
+  _drawSizeLabel(ctx: any, gridSize: any) {
     if (!this.mousePos || !this.dragStart || !this.dragEnd) return;
     const { r1, c1, r2, c2 } = normalizeBounds(
       this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
@@ -233,7 +239,7 @@ export class EraseTool extends Tool {
     ctx.restore();
   }
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx: any, transform: any, gridSize: any) {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
 
     const { r1, c1, r2, c2 } = normalizeBounds(

@@ -14,7 +14,7 @@ import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor, 
  * Pre-extract ImageData from each unique normal map used in the cell grid.
  * Returns a Map<textureId, { data, width, height }>.
  */
-function cacheNormalMaps(cells, textureCatalog) {
+function cacheNormalMaps(cells: any, textureCatalog: any) {
   const cache = new Map();
   if (!textureCatalog?.textures) return cache;
 
@@ -35,7 +35,8 @@ function cacheNormalMaps(cells, textureCatalog) {
   let tmpCanvas, tmpCtx;
 
   for (const id of seenIds) {
-    const entry = textureCatalog.textures[id];
+    // @ts-expect-error — strict-mode migration
+    const entry = textureCatalog.textures[id!];
     if (!entry?.norImg?.complete || !entry.norImg.naturalWidth) continue;
 
     const norImg = entry.norImg;
@@ -57,9 +58,9 @@ function cacheNormalMaps(cells, textureCatalog) {
       tmpCanvas.height = h;
     }
 
-    tmpCtx.clearRect(0, 0, w, h);
-    tmpCtx.drawImage(norImg, 0, 0);
-    const imageData = tmpCtx.getImageData(0, 0, w, h);
+    (tmpCtx! as any).clearRect(0, 0, w, h);
+    (tmpCtx! as any).drawImage(norImg, 0, 0);
+    const imageData = (tmpCtx! as any).getImageData(0, 0, w, h);
 
     cache.set(id, { data: imageData.data, width: w, height: h });
   }
@@ -70,8 +71,8 @@ function cacheNormalMaps(cells, textureCatalog) {
 // ─── Shadow Mask Rasterization ────────────────────────────────────────────────
 
 // Reusable mask canvas (resized as needed per light)
-let maskCanvas = null;
-let maskCtx = null;
+let maskCanvas: any = null;
+let maskCtx: any = null;
 
 /**
  * Rasterize a visibility polygon into a Uint8Array shadow mask.
@@ -85,7 +86,7 @@ let maskCtx = null;
  * @param {number} bbH - bounding box height in pixels
  * @returns {Uint8Array} - one byte per pixel: 0=shadow, 255=lit, AA values in between
  */
-function rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH) {
+function rasterizeShadowMask(visibility: any, transform: any, bbX: any, bbY: any, bbW: any, bbH: any) {
   if (!maskCanvas) {
     if (typeof OffscreenCanvas !== 'undefined') {
       maskCanvas = new OffscreenCanvas(bbW, bbH);
@@ -322,6 +323,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
         // Z-height prop shadow attenuation
         if (propShadows.length > 0) {
           let propShadowFactor = 1.0;
+          // @ts-expect-error — strict-mode migration
           for (const { shadowPoly, nearCenter, farCenter, opacity, hard } of propShadows) {
             if (_pointInPolygon(worldX, worldY, shadowPoly)) {
               let shadowStrength;
@@ -382,7 +384,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
     lightCanvas.height = canvasH;
   }
   const lctx = lightCanvas.getContext('2d');
-  lctx.putImageData(imageData, 0, 0);
+  (lctx! as any).putImageData(imageData, 0, 0);
 
   ctx.save();
   ctx.globalCompositeOperation = 'multiply';
@@ -394,7 +396,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
  * Ray-casting point-in-polygon test. Returns true if (px, py) is inside the polygon.
  * Polygon is [[x,y], ...] in world-feet coordinates.
  */
-function _pointInPolygon(px, py, polygon) {
+function _pointInPolygon(px: any, py: any, polygon: any) {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const [xi, yi] = polygon[i];

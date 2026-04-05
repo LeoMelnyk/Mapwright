@@ -362,6 +362,7 @@ export function computeTrimCrossing(clip: number[][], wall: number[][]): TrimCro
       }
       result[dir] = exits;
     }
+    // @ts-expect-error — strict-mode migration
     return result as TrimCrossing;
   }
 
@@ -376,6 +377,7 @@ export function computeTrimCrossing(clip: number[][], wall: number[][]): TrimCro
     result[dir] = exits;
   }
 
+  // @ts-expect-error — strict-mode migration
   return result as TrimCrossing;
 }
 

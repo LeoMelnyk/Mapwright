@@ -28,9 +28,10 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: any; fileNam
   const _theme = json.metadata?.theme;
   if (typeof _theme === 'string' && _theme.startsWith('user:') && !THEMES[_theme] && json.metadata.savedThemeData?.theme) {
     // Register in memory for immediate use
+    // @ts-expect-error — strict-mode migration
     THEMES[_theme] = json.metadata.savedThemeData.theme;
     // Persist to disk for future sessions (fire-and-forget)
-    saveUserTheme(json.metadata.savedThemeData.name || _theme.slice(5), json.metadata.savedThemeData.theme).catch(() => {});
+    saveUserTheme((json.metadata.savedThemeData as any).name || _theme.slice(5), json.metadata.savedThemeData.theme).catch(() => {});
   }
 
   state.currentLevel = 0;
@@ -48,6 +49,7 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: any; fileNam
   // Load images for textures used in the loaded map (floor + props)
   const usedIds = collectTextureIds(json.cells);
   if (state.propCatalog?.props && json.metadata?.props) {
+    // @ts-expect-error — strict-mode migration
     for (const op of json.metadata.props) {
       const propDef = state.propCatalog.props[op.type];
       if (propDef?.textures) {
@@ -136,11 +138,11 @@ function showNewMapModal() {
     const btnCreate = document.getElementById('modal-new-create');
     const btnCancel = document.getElementById('modal-new-cancel');
 
-    nameEl!.value = 'New Dungeon';
-    rowsEl!.value = '20';
-    colsEl!.value = '30';
+    (nameEl! as any).value = 'New Dungeon';
+    (rowsEl! as any).value = '20';
+    (colsEl! as any).value = '30';
     (overlay as HTMLDialogElement).showModal();
-    setTimeout(() => nameEl!.select(), 0);
+    setTimeout(() => (nameEl! as any).select(), 0);
 
     const finish = (result: any) => {
       (overlay as HTMLDialogElement).close();
@@ -150,9 +152,9 @@ function showNewMapModal() {
       resolve(result);
     };
     const onCreate = () => finish({
-      name: nameEl!.value.trim() || 'New Dungeon',
-      rows: parseInt(rowsEl!.value) || 20,
-      cols: parseInt(colsEl!.value) || 30,
+      name: (nameEl! as any).value.trim() || 'New Dungeon',
+      rows: parseInt((rowsEl! as any).value) || 20,
+      cols: parseInt((colsEl! as any).value) || 30,
     });
     const onCancel = () => finish(null);
     const onKey = (e: any) => {
@@ -178,9 +180,9 @@ export async function loadDungeon(): Promise<void> {
   if (!await confirmUnsaved()) return;
 
   // Try File System Access API first
-  if (window.showOpenFilePicker) {
+  if ((window as any).showOpenFilePicker) {
     try {
-      const [handle] = await window.showOpenFilePicker({
+      const [handle] = await (window as any).showOpenFilePicker({
         types: [{ description: 'Mapwright Dungeon', accept: { 'application/json': ['.mapwright', '.json'] } }],
         multiple: false,
       });
@@ -204,11 +206,12 @@ export async function loadDungeon(): Promise<void> {
   input.type = 'file';
   input.accept = '.mapwright,.json';
   input.onchange = (e) => {
-    const file = e.target!.files[0];
+    const file = (e.target! as any).files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
+        // @ts-expect-error — strict-mode migration
         const json = JSON.parse(ev.target!.result);
         if (!json.metadata || !json.cells) {
           showToast('Invalid dungeon JSON: missing metadata or cells');
@@ -237,6 +240,7 @@ export async function saveDungeon(): Promise<void> {
   if (typeof _saveTheme === 'string' && _saveTheme.startsWith('user:') && THEMES[_saveTheme]) {
     const themeObj = THEMES[_saveTheme];
     state.dungeon.metadata.savedThemeData = {
+      // @ts-expect-error — strict-mode migration
       name: themeObj.displayName || _saveTheme.slice(5),
       theme: { ...themeObj },
     };
@@ -265,9 +269,9 @@ export async function saveDungeon(): Promise<void> {
   }
 
   // No file handle — prompt for save location
-  if (window.showSaveFilePicker) {
+  if ((window as any).showSaveFilePicker) {
     try {
-      const handle = await window.showSaveFilePicker({
+      const handle = await (window as any).showSaveFilePicker({
         suggestedName: getSuggestedName(),
         types: [{ description: 'Mapwright Dungeon', accept: { 'application/json': ['.mapwright'] } }],
       });
@@ -302,9 +306,9 @@ export async function saveDungeon(): Promise<void> {
  * Save a blob to disk — uses native file picker when available, falls back to anchor download.
  */
 async function saveBlob(blob: any, suggestedName: any) {
-  if (window.showSaveFilePicker) {
+  if ((window as any).showSaveFilePicker) {
     try {
-      const handle = await window.showSaveFilePicker({
+      const handle = await (window as any).showSaveFilePicker({
         suggestedName,
         types: [{ description: 'PNG Image', accept: { 'image/png': ['.png'] } }],
       });
@@ -503,12 +507,14 @@ export async function reloadAssets(): Promise<void> {
   state.textureCatalog = textureCatalog;
   state.lightCatalog = lightCatalog;
   // Themes register into a shared THEMES object — just reload the catalog
+  // @ts-expect-error — strict-mode migration
   await loadThemeCatalog();
 
   // Re-load texture images for everything currently on the map
   const usedIds = collectTextureIds(state.dungeon.cells);
   // Also collect prop-referenced textures from overlay
   if (propCatalog?.props && state.dungeon.metadata?.props) {
+    // @ts-expect-error — strict-mode migration
     for (const op of state.dungeon.metadata.props) {
       const propDef = propCatalog.props[op.type];
       if (propDef?.textures) {
@@ -552,6 +558,7 @@ export async function newDungeon(): Promise<void> {
 
   const result = await showNewMapModal();
   if (!result) return;
+  // @ts-expect-error — strict-mode migration
   const { name, rows, cols } = result;
 
   pushUndo();

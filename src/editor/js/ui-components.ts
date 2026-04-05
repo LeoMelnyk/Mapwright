@@ -189,7 +189,7 @@ export function initDraggableToolbar(): void {
       const snapIndicators = document.getElementById('snap-indicators');
       if (snapIndicators) {
         snapIndicators.querySelectorAll('.snap-indicator').forEach(el => {
-          el.classList.toggle('active', el.dataset.snap === activeSnap);
+          el.classList.toggle('active', (el as HTMLElement).dataset.snap === activeSnap);
         });
       }
     }
@@ -258,8 +258,8 @@ export function updateStatusBar(): void {
 
   // Wire zoom click on the freshly created element (innerHTML rebuilds DOM each call)
   const zoomEl = document.getElementById('status-zoom');
-  if (zoomEl && !zoomEl._wired) {
-    zoomEl._wired = true;
+  if (zoomEl && (!(zoomEl as HTMLElement) as any)._wired) {
+    ((zoomEl as HTMLElement) as any)._wired = true;
     zoomEl.addEventListener('click', () => {
       state.zoom = 1;
       canvasView.requestRender();
@@ -394,7 +394,7 @@ export function initShortcutsModal(): void {
   });
 
   // Expose openShortcutsModal for keydown handler (defined before it, called by name)
-  window._openShortcutsModal = openShortcutsModal;
+  (window as any)._openShortcutsModal = openShortcutsModal;
 }
 
 // ── Release Notes modal ─────────────────────────────────────────────────────
@@ -451,10 +451,12 @@ export function initClaudeSettingsModal(): void {
     const settings = getClaudeSettings();
     const baseInput = document.getElementById('claude-ollama-base');
     const modelSelect = document.getElementById('claude-model-select');
-    if (baseInput) baseInput.value = settings.ollamaBase || 'http://localhost:11434';
+    // @ts-expect-error — strict-mode migration
+    if (baseInput) (baseInput as HTMLInputElement).value = settings.ollamaBase || 'http://localhost:11434';
     if (modelSelect) {
-      modelSelect.value = settings.model || 'qwen3.5:9b';
-      updatePullCmd(modelSelect.value);
+      // @ts-expect-error — strict-mode migration
+      (modelSelect as HTMLInputElement).value = settings.model || 'qwen3.5:9b';
+      updatePullCmd((modelSelect as HTMLInputElement).value);
     }
     (m as HTMLDialogElement).showModal();
   }
@@ -462,7 +464,7 @@ export function initClaudeSettingsModal(): void {
     const m = document.getElementById('modal-claude-settings') as HTMLDialogElement;
     if (m) m.close();
   }
-  document.getElementById('claude-model-select')?.addEventListener('change', (e) => updatePullCmd(e.target!.value));
+  document.getElementById('claude-model-select')?.addEventListener('change', (e) => updatePullCmd((e.target! as any).value));
   document.getElementById('btn-claude-settings')?.addEventListener('click', openClaudeSettingsModal);
   document.getElementById('claude-settings-cancel')?.addEventListener('click', closeClaudeSettingsModal);
   document.getElementById('modal-claude-settings')?.addEventListener('click', (e) => {
@@ -471,8 +473,8 @@ export function initClaudeSettingsModal(): void {
   document.getElementById('claude-settings-save')?.addEventListener('click', () => {
     const baseInput = document.getElementById('claude-ollama-base');
     const modelSelect = document.getElementById('claude-model-select');
-    if (baseInput) setClaudeSetting('ollamaBase', baseInput.value.trim() || 'http://localhost:11434');
-    if (modelSelect) setClaudeSetting('model', modelSelect.value);
+    if (baseInput) setClaudeSetting('ollamaBase', (baseInput as HTMLInputElement).value.trim() || 'http://localhost:11434');
+    if (modelSelect) setClaudeSetting('model', (modelSelect as HTMLInputElement).value);
     closeClaudeSettingsModal();
     showToast('AI settings saved.');
   });

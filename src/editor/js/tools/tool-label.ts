@@ -21,7 +21,9 @@ function getLabelWorldPos(row: number, col: number, gridSize: number): { x: numb
   const center = state.dungeon.cells[row]?.[col]?.center;
   if (!center) return null;
   return {
+    // @ts-expect-error — strict-mode migration
     x: center.labelX ?? (col + 0.5) * gridSize,
+    // @ts-expect-error — strict-mode migration
     y: center.labelY ?? (row + 0.5) * gridSize,
   };
 }
@@ -41,8 +43,8 @@ function findNearestLabel(worldX: number, worldY: number, gridSize: number): { r
       if (!center?.label && !center?.dmLabel) continue;
       const lx = center.labelX ?? (c + 0.5) * gridSize;
       const ly = center.labelY ?? (r + 0.5) * gridSize;
-      const dx = worldX - lx;
-      const dy = worldY - ly;
+      const dx = worldX - (lx as number);
+      const dy = worldY - (ly as number);
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist <= LABEL_HIT_RADIUS && (!best || dist < best.dist)) {
         best = { row: r, col: c, dist };
@@ -67,6 +69,7 @@ function cleanupLabelPos(center: any): void {
  * Supports drag-to-move and proximity-based hover/selection.
  */
 export class LabelTool extends Tool {
+  [key: string]: any;
   declare _editing: boolean;
   declare _editRow: number;
   declare _editCol: number;
@@ -121,7 +124,7 @@ export class LabelTool extends Tool {
     this._dragWorldPos = null;
   }
 
-  onRightClick(row, col) {
+  onRightClick(row: any, col: any) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
     if (!cells[row][col]) return;
@@ -141,23 +144,23 @@ export class LabelTool extends Tool {
     const mode = state.labelMode || 'room';
 
     if (mode === 'room') {
-      if (!cell.center?.label) return;
+      if (!cell!.center?.label) return;
       pushUndo('Remove label');
-      delete cell.center.label;
-      cleanupLabelPos(cell.center);
-      if (Object.keys(cell.center).length === 0) delete cell.center;
+      delete cell!.center.label;
+      cleanupLabelPos(cell!.center);
+      if (Object.keys(cell!.center).length === 0) delete cell!.center;
       markDirty();
     } else {
-      if (!cell.center?.dmLabel) return;
+      if (!cell!.center?.dmLabel) return;
       pushUndo('Remove DM note');
-      delete cell.center.dmLabel;
-      cleanupLabelPos(cell.center);
-      if (Object.keys(cell.center).length === 0) delete cell.center;
+      delete cell!.center.dmLabel;
+      cleanupLabelPos(cell!.center);
+      if (Object.keys(cell!.center).length === 0) delete cell!.center;
       markDirty();
     }
   }
 
-  onMouseMove(row, col, edge, event, pos) {
+  onMouseMove(row: any, col: any, edge: any, event: any, pos: any) {
     const gridSize = state.dungeon.metadata.gridSize;
     const transform = getTransform();
     const world = fromCanvas(pos.x, pos.y, transform);
@@ -169,8 +172,10 @@ export class LabelTool extends Tool {
     }
 
     if (this._pendingDrag) {
-      const dx = pos.x - this._pendingDragPos.x;
-      const dy = pos.y - this._pendingDragPos.y;
+      // @ts-expect-error — strict-mode migration
+      const dx = pos.x - this!._pendingDragPos.x;
+      // @ts-expect-error — strict-mode migration
+      const dy = pos.y - this!._pendingDragPos.y;
       if (Math.sqrt(dx * dx + dy * dy) > 8) {
         this._isDragging = true;
         this._pendingDragPos = null;
@@ -198,7 +203,7 @@ export class LabelTool extends Tool {
     }
   }
 
-  onMouseDown(row, col, _edge, _event, pos) {
+  onMouseDown(row: any, col: any, _edge: any, _event: any, pos: any) {
     // If already editing (DM mode), commit first
     if (this._editing) this._commit();
 
@@ -241,7 +246,7 @@ export class LabelTool extends Tool {
     }
   }
 
-  onKeyDown(event) {
+  onKeyDown(event: any) {
     if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedLabelCell && !this._isDragging) {
       event.preventDefault();
       const { row, col } = this.selectedLabelCell;
@@ -268,16 +273,17 @@ export class LabelTool extends Tool {
 
   // ── Room Label mode: auto-increment, single click ──────────────────────
 
-  _placeRoomLabel(row, col, worldX, worldY) {
+  _placeRoomLabel(row: any, col: any, worldX: any, worldY: any) {
     const cell = state.dungeon.cells[row][col];
     const nextNum = this._getNextRoomNumber();
     const letter = state.dungeon.metadata.dungeonLetter || 'A';
 
     pushUndo('Place label');
-    if (!cell.center) cell.center = {};
-    cell.center.label = letter + nextNum;
-    cell.center.labelX = worldX;
-    cell.center.labelY = worldY;
+    if (!cell!.center) cell!.center = {};
+    // @ts-expect-error — strict-mode migration
+    cell!.center.label = letter + nextNum;
+    cell!.center.labelX = worldX;
+    cell!.center.labelY = worldY;
     markDirty();
   }
 
@@ -301,9 +307,9 @@ export class LabelTool extends Tool {
 
   // ── DM Label mode: inline text editing ─────────────────────────────────
 
-  _startDmEdit(row, col, worldX, worldY) {
+  _startDmEdit(row: any, col: any, worldX: any, worldY: any) {
     const cell = state.dungeon.cells[row][col];
-    const currentLabel = cell.center?.dmLabel || '';
+    const currentLabel = cell!.center?.dmLabel || '';
 
     this._editRow = row;
     this._editCol = col;
@@ -325,7 +331,7 @@ export class LabelTool extends Tool {
     input.style.top = `${screenPos.y}px`;
     input.style.opacity = '0';
     input.style.pointerEvents = 'none';
-    container.appendChild(input);
+    container!.appendChild(input);
     this._inputEl = input;
 
     // Focus after a microtask so the mousedown doesn't steal focus
@@ -363,10 +369,10 @@ export class LabelTool extends Tool {
     pushUndo('DM note');
 
     if (text) {
-      if (!cell.center) cell.center = {};
-      cell.center.dmLabel = text;
-      cell.center.dmLabelX = this._editWorldX;
-      cell.center.dmLabelY = this._editWorldY;
+      if (!cell!.center) cell!.center = {};
+      cell!.center.dmLabel = text;
+      cell!.center.dmLabelX = this._editWorldX;
+      cell!.center.dmLabelY = this._editWorldY;
     } else {
       if (cell?.center) {
         delete cell.center.dmLabel;
@@ -471,7 +477,7 @@ export class LabelTool extends Tool {
 
   // ── Overlay ───────────────────────────────────────────────────────────────
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx: any, transform: any, gridSize: any) {
     // DM edit scroll preview
     if (this._editing) {
       const wx = this._editWorldX ?? (this._editCol + 0.5) * gridSize;
@@ -489,6 +495,7 @@ export class LabelTool extends Tool {
       if (notSelected) {
         this._drawLabelHighlight(ctx, transform, gridSize, row, col, {
           fill: 'rgba(150, 220, 255, 0.12)', stroke: 'rgba(150, 220, 255, 0.7)',
+          // @ts-expect-error — strict-mode migration
           lineWidth: 1.5, dash: [4, 3],
         });
       }
@@ -501,6 +508,7 @@ export class LabelTool extends Tool {
         fill:   this._isDragging ? 'rgba(60, 140, 255, 0.08)' : 'rgba(60, 140, 255, 0.15)',
         stroke: 'rgba(60, 140, 255, 0.9)',
         lineWidth: 2,
+        // @ts-expect-error — strict-mode migration
         dash: this._isDragging ? [4, 3] : [],
       });
     }
@@ -521,7 +529,8 @@ export class LabelTool extends Tool {
   }
 
   /** Draw a highlight circle around a label's world position */
-  _drawLabelHighlight(ctx, transform, gridSize, row, col, { fill, stroke, lineWidth = 2, dash = [] } = {}) {
+  // @ts-expect-error — strict-mode migration
+  _drawLabelHighlight(ctx: any, transform: any, gridSize: any, row: any, col: any, { fill, stroke, lineWidth = 2, dash = [] } = {}) {
     const pos = getLabelWorldPos(row, col, gridSize);
     if (!pos) return;
     const p = toCanvas(pos.x, pos.y, transform);

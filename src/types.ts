@@ -56,7 +56,35 @@ export interface Cell {
   fillDepth?: number;
   hazard?: boolean;
   texture?: CellTexture;
+  textureOpacity?: number;
+  textureSecondary?: CellTexture;
+  textureSecondaryOpacity?: number;
+  textureNE?: CellTexture;
+  textureNEOpacity?: number;
+  textureSW?: CellTexture;
+  textureSWOpacity?: number;
+  textureNW?: CellTexture;
+  textureNWOpacity?: number;
+  textureSE?: CellTexture;
+  textureSEOpacity?: number;
   trimmed?: boolean;
+  trimWall?: CardinalDirection;
+  trimCorner?: string;
+  trimRound?: boolean;
+  trimInverted?: boolean;
+  trimOpen?: boolean;
+  trimPassable?: boolean;
+  trimClip?: number[][];
+  trimCrossing?: boolean;
+  trimHideExterior?: boolean;
+  trimShowExteriorOnly?: boolean;
+  trimInsideArc?: boolean;
+  trimArcRadius?: number;
+  trimArcCenterRow?: number;
+  trimArcCenterCol?: number;
+  trimArcInverted?: boolean;
+  waterDepth?: number;
+  lavaDepth?: number;
   center?: CellCenter;
   prop?: CellProp;
 }
@@ -83,6 +111,11 @@ export interface Light {
   angle?: number;
   spread?: number;
   animation?: string;
+  name?: string;
+  range?: number;
+  dimRadius?: number;
+  presetId?: string;
+  propRef?: { row: number; col: number };
 }
 
 /** A light preset from the catalog. */
@@ -94,6 +127,9 @@ export interface LightPreset {
   radius: number;
   intensity: number;
   falloff: FalloffType;
+  dimRadius?: number;
+  description?: string;
+  [key: string]: unknown;
 }
 
 // ── Stairs & Bridges ───────────────────────────────────────────────────────
@@ -231,6 +267,7 @@ export interface PropDefinition {
   manualHitbox: PropCommand[] | null;
   manualSelection: PropCommand[] | null;
   hitbox?: number[][];
+  hitboxZones?: Record<string, number[][]>;
   selectionHitbox?: number[][];
   autoHitbox?: number[][];
   placement: PropPlacement;

@@ -86,28 +86,29 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
   // Apply — same logic as TrimTool.onMouseUp
   const cells = state.dungeon.cells;
   const trimCoords = [
-    ...preview.voided.map(({ row, col }) => ({ row, col })),
-    ...preview.hypotenuse.map(({ row, col }) => ({ row, col })),
-    ...(preview.insideArc || []).map(({ row, col }) => ({ row, col })),
+    ...preview.voided.map(({ row, col }: any) => ({ row, col })),
+    ...preview.hypotenuse.map(({ row, col }: any) => ({ row, col })),
+    ...(preview.insideArc || []).map(({ row, col }: any) => ({ row, col })),
   ];
   const before = captureBeforeState(cells, trimCoords);
   pushUndo();
 
   // Helper: clear all walls and reciprocals from a cell
-  const clearWalls = (cell, r, c) => {
+  const clearWalls = (cell: any, r: any, c: any) => {
     for (const dir of CARDINAL_DIRS) {
       if (cell[dir]) {
         delete cell[dir];
         const [dr, dc] = OFFSETS[dir];
         const neighbor = cells[r + dr]?.[c + dc];
-        if (neighbor) delete neighbor[OPPOSITE[dir]];
+        // @ts-expect-error — strict-mode migration
+        if (neighbor) delete (neighbor as any)[OPPOSITE[dir]];
       }
     }
     delete cell['nw-se'];
     delete cell['ne-sw'];
   };
 
-  const clearOldTrimFlags = (cell) => {
+  const clearOldTrimFlags = (cell: any) => {
     delete cell.trimRound;
     delete cell.trimArcCenterRow;
     delete cell.trimArcCenterCol;
@@ -131,9 +132,9 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
 
     // Only clear walls on cells in the original trim zone, not buffer-ring neighbors
     const trimZone = new Set([
-      ...preview.voided.map(c => `${c.row},${c.col}`),
-      ...preview.hypotenuse.map(c => `${c.row},${c.col}`),
-      ...(preview.insideArc || []).map(c => `${c.row},${c.col}`),
+      ...preview.voided.map((c: any) => `${c.row},${c.col}`),
+      ...preview.hypotenuse.map((c: any) => `${c.row},${c.col}`),
+      ...(preview.insideArc || []).map((c: any) => `${c.row},${c.col}`),
     ]);
 
     for (const [key, val] of trimData) {
@@ -150,6 +151,7 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
           clearWalls(cell, r, c);
           clearOldTrimFlags(cell);
         }
+      // @ts-expect-error — strict-mode migration
       } else if (val === 'diagonal') {
         // Inverted hypotenuse: straight diagonal wall (like straight trims)
         if (!cells[r][c]) cells[r][c] = {};
@@ -237,7 +239,7 @@ export function roundRoomCorners(label: string, trimSize: number | Record<string
   const roomHeight = r2 - r1 + 1;
   const roomWidth = c2 - c1 + 1;
 
-  if (trimSize * 2 > roomHeight || trimSize * 2 > roomWidth) {
+  if ((trimSize as number) * 2 > roomHeight || (trimSize as number) * 2 > roomWidth) {
     throw new Error(
       `Trim size ${trimSize} is too large for room "${label}" (${roomWidth}×${roomHeight}). ` +
       `Max trim size: ${Math.floor(Math.min(roomHeight, roomWidth) / 2)}`
@@ -248,7 +250,7 @@ export function roundRoomCorners(label: string, trimSize: number | Record<string
   // createTrim expects (tip, extent) where tip is the corner's outermost cell
   // and extent is the opposite corner of the trim region.
   // tip = the actual room corner cell, extent = trimSize cells inward.
-  const s = trimSize - 1;
+  const s = (trimSize as number) - 1;
   const corners = [
     { corner: 'nw', tipR: r1, tipC: c1, extR: r1 + s, extC: c1 + s },
     { corner: 'ne', tipR: r1, tipC: c2, extR: r1 + s, extC: c2 - s },
@@ -262,5 +264,6 @@ export function roundRoomCorners(label: string, trimSize: number | Record<string
     applied.push(corner);
   }
 
+  // @ts-expect-error — strict-mode migration
   return { success: true, corners: applied, trimSize, bounds: { r1, c1, r2, c2 } };
 }

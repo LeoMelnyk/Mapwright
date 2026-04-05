@@ -15,9 +15,9 @@ export function initLightingPanel(el: HTMLElement): void {
   subscribe(() => render(), 'lighting');
 }
 
-let _lastLights = null;
-let _lastSelectedLightId = null;
-let _lastLightingEnabled = null;
+let _lastLights: any = null;
+let _lastSelectedLightId: any = null;
+let _lastLightingEnabled: any = null;
 function render() {
   if (!container) return;
 
@@ -57,17 +57,18 @@ function render() {
   const ambientSection = el('div', 'lighting-section');
   ambientSection.appendChild(sectionLabel('Ambient'));
   ambientSection.appendChild(
-    sliderRow('Brightness', metadata.ambientLight ?? 0.15, 0, 1, 0.05, (v) => {
+    sliderRow('Brightness', metadata.ambientLight ?? 0.15, 0, 1, 0.05, (v: any) => {
       metadata.ambientLight = v;
       markDirty();
       requestRender();
-    }, (v) => `${Math.round(v * 100)}%`)
+    }, (v: any) => `${Math.round(v * 100)}%`)
   );
   // Ambient color picker
   const ambColorRow = el('div', 'lighting-color-row');
   ambColorRow.appendChild(labelEl('Ambient Color'));
   const ambColorInput = document.createElement('input');
   ambColorInput.type = 'color';
+  // @ts-expect-error — strict-mode migration
   ambColorInput.value = metadata.ambientColor || '#ffffff';
   ambColorInput.addEventListener('input', () => {
     metadata.ambientColor = ambColorInput.value;
@@ -104,12 +105,13 @@ function render() {
     selSection.appendChild(nameRow);
 
     // Preset dropdown for selected light — re-applies a preset and restores the presetId link
-    selSection.appendChild(presetDropdown(selectedLight.presetId || null, (preset) => {
+    selSection.appendChild(presetDropdown(selectedLight.presetId || null, (preset: any) => {
       selectedLight.type = preset.type;
       selectedLight.color = preset.color;
       if (preset.type === 'directional') {
         selectedLight.range = preset.radius;
         selectedLight.spread = preset.spread || 45;
+        // @ts-expect-error — strict-mode migration
         delete selectedLight.radius;
       } else {
         selectedLight.radius = preset.radius;
@@ -147,7 +149,7 @@ function render() {
         spread: selectedLight.spread || 45,
         dimRadius: selectedLight.dimRadius ?? 0,
       },
-      (field, value) => {
+      (field: any, value: any) => {
         if (field === 'color') selectedLight.color = value;
         else if (field === 'radius') selectedLight.radius = value;
         else if (field === 'range') selectedLight.range = value;
@@ -168,13 +170,13 @@ function render() {
 
     // Z-Height slider (height above floor in feet)
     selSection.appendChild(
-      sliderRow('Height (ft)', selectedLight.z ?? 8, 0.5, 20, 0.5, (v) => {
+      sliderRow('Height (ft)', selectedLight.z ?? 8, 0.5, 20, 0.5, (v: any) => {
         selectedLight.z = v;
         delete selectedLight.presetId;
         invalidateLightmap(false);
         markDirty();
         requestRender();
-      }, (v) => `${v}ft`)
+      }, (v: any) => `${v}ft`)
     );
 
     // Animation controls
@@ -187,6 +189,7 @@ function render() {
       const opt = document.createElement('option');
       opt.value = val;
       opt.textContent = lbl;
+      // @ts-expect-error — strict-mode migration
       opt.selected = (selectedLight.animation?.type || 'none') === val;
       animTypeSelect.appendChild(opt);
     }
@@ -194,9 +197,12 @@ function render() {
     selSection.appendChild(animTypeRow);
 
     const existingAnim = selectedLight.animation || {};
-    const animSpeedRow = sliderRow('Speed', existingAnim.speed ?? 1.0, 0.1, 5.0, 0.1, () => applyAnim(), (v) => `${v.toFixed(1)}×`);
-    const animAmpRow   = sliderRow('Amplitude', existingAnim.amplitude ?? 0.3, 0.0, 1.0, 0.05, () => applyAnim(), (v) => `${v.toFixed(2)}`);
-    const animRadRow   = sliderRow('Radius Var', existingAnim.radiusVariation ?? 0, 0.0, 0.5, 0.05, () => applyAnim(), (v) => `${v.toFixed(2)}`);
+    // @ts-expect-error — strict-mode migration
+    const animSpeedRow = sliderRow('Speed', existingAnim.speed ?? 1.0, 0.1, 5.0, 0.1, () => applyAnim(), (v: any) => `${v.toFixed(1)}×`);
+    // @ts-expect-error — strict-mode migration
+    const animAmpRow   = sliderRow('Amplitude', existingAnim.amplitude ?? 0.3, 0.0, 1.0, 0.05, () => applyAnim(), (v: any) => `${v.toFixed(2)}`);
+    // @ts-expect-error — strict-mode migration
+    const animRadRow   = sliderRow('Radius Var', existingAnim.radiusVariation ?? 0, 0.0, 0.5, 0.05, () => applyAnim(), (v: any) => `${v.toFixed(2)}`);
     selSection.appendChild(animSpeedRow);
     selSection.appendChild(animAmpRow);
     selSection.appendChild(animRadRow);
@@ -204,8 +210,10 @@ function render() {
     function applyAnim() {
       const animType = animTypeSelect.value;
       if (animType === 'none') {
+        // @ts-expect-error — strict-mode migration
         delete selectedLight.animation;
       } else {
+        // @ts-expect-error — strict-mode migration
         selectedLight.animation = {
           type: animType,
           speed: parseFloat(animSpeedRow.querySelector('input').value),
@@ -213,6 +221,7 @@ function render() {
           radiusVariation: parseFloat(animRadRow.querySelector('input').value),
         };
       }
+      // @ts-expect-error — strict-mode migration
       delete selectedLight.presetId; // sever preset link on manual animation edit
       updateAnimRows();
       invalidateLightmap(false);
@@ -309,6 +318,7 @@ function render() {
         if (preset.type === 'directional') {
           light.range  = preset.radius;
           light.spread = preset.spread || 45;
+          // @ts-expect-error — strict-mode migration
           delete light.radius;
         } else {
           light.radius = preset.radius;
@@ -348,7 +358,7 @@ function render() {
 // controls. `values` is the current light property values; `onFieldChange(field, value)`
 // is called on every input event with the field name and new value.
 
-function buildLightSliders(values, onFieldChange) {
+function buildLightSliders(values: any, onFieldChange: any) {
   const { type, color, radius, intensity, falloff, angle, spread, dimRadius } = values;
   const frag = document.createDocumentFragment();
 
@@ -367,15 +377,15 @@ function buildLightSliders(values, onFieldChange) {
   const radiusField = type === 'directional' ? 'range' : 'radius';
   frag.appendChild(
     sliderRow(radiusLabel, radius || 30, 5, 100, 5,
-      (v) => onFieldChange(radiusField, v),
-      (v) => `${v} ft`)
+      (v: any) => onFieldChange(radiusField, v),
+      (v: any) => `${v} ft`)
   );
 
   // Intensity slider
   frag.appendChild(
     sliderRow('Intensity', intensity ?? 1.0, 0.1, 2.0, 0.1,
-      (v) => onFieldChange('intensity', v),
-      (v) => `${v.toFixed(1)}×`)
+      (v: any) => onFieldChange('intensity', v),
+      (v: any) => `${v.toFixed(1)}×`)
   );
 
   // Falloff selector
@@ -398,8 +408,8 @@ function buildLightSliders(values, onFieldChange) {
   if (type !== 'directional') {
     frag.appendChild(
       sliderRow('Dim Radius', dimRadius ?? 0, 0, 120, 5,
-        (v) => onFieldChange('dimRadius', v),
-        (v) => v === 0 ? 'Off' : `${v} ft`)
+        (v: any) => onFieldChange('dimRadius', v),
+        (v: any) => v === 0 ? 'Off' : `${v} ft`)
     );
   }
 
@@ -407,13 +417,13 @@ function buildLightSliders(values, onFieldChange) {
   if (type === 'directional') {
     frag.appendChild(
       sliderRow('Angle', angle ?? 0, 0, 359, 1,
-        (v) => onFieldChange('angle', v),
-        (v) => `${v}°`)
+        (v: any) => onFieldChange('angle', v),
+        (v: any) => `${v}°`)
     );
     frag.appendChild(
       sliderRow('Spread', spread ?? 45, 5, 90, 5,
-        (v) => onFieldChange('spread', v),
-        (v) => `${v}°`)
+        (v: any) => onFieldChange('spread', v),
+        (v: any) => `${v}°`)
     );
   }
 
@@ -422,7 +432,7 @@ function buildLightSliders(values, onFieldChange) {
 
 // ── DOM Helpers ──────────────────────────────────────────────────────────────
 
-function presetDropdown(currentValue, onSelect) {
+function presetDropdown(currentValue: any, onSelect: any) {
   const catalog = getLightCatalog();
   const row = el('div', 'lighting-slider-row');
   row.appendChild(labelEl('Preset'));
@@ -461,26 +471,27 @@ function presetDropdown(currentValue, onSelect) {
   return row;
 }
 
-function el(tag, className) {
+function el(tag: any, className: any) {
   const e = document.createElement(tag);
   if (className) e.className = className;
   return e;
 }
 
-function sectionLabel(text) {
+function sectionLabel(text: any) {
   const label = el('div', 'lighting-section-label');
   label.textContent = text;
   return label;
 }
 
-function labelEl(text) {
+function labelEl(text: any) {
+  // @ts-expect-error — strict-mode migration
   const l = el('label');
   l.className = 'lighting-label';
   l.textContent = text;
   return l;
 }
 
-function sliderRow(label, value, min, max, step, onChange, formatValue) {
+function sliderRow(label: any, value: any, min: any, max: any, step: any, onChange: any, formatValue: any) {
   const row = el('div', 'lighting-slider-row');
   row.appendChild(labelEl(label));
 

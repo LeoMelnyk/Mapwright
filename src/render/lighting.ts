@@ -29,9 +29,9 @@ export function extractWallSegments(cells: CellGrid, gridSize: number, propCatal
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const seen = new Set();
-  const segments = [];
+  const segments: any = [];
 
-  function addSeg(x1, y1, x2, y2) {
+  function addSeg(x1: any, y1: any, x2: any, y2: any) {
     // Canonical key: always smaller endpoint first
     const key = x1 < x2 || (x1 === x2 && y1 < y2)
       ? `${x1},${y1}-${x2},${y2}`
@@ -83,7 +83,7 @@ export function extractWallSegments(cells: CellGrid, gridSize: number, propCatal
         if (!propDef?.blocksLight) continue;
         // If this prop has hitboxZones with finite height, skip it here — it will
         // cast projected shadows instead of infinite occlusion.
-        if (propDef.hitboxZones?.some(z => isFinite(z.zTop))) continue;
+        if (propDef.hitboxZones?.some((z: any) => isFinite(z.zTop))) continue;
         const propSegs = extractOverlayPropLightSegments(propDef, op, gridSize);
         for (const seg of propSegs) addSeg(seg.x1, seg.y1, seg.x2, seg.y2);
       }
@@ -100,7 +100,9 @@ export function extractWallSegments(cells: CellGrid, gridSize: number, propCatal
       const ox = col * gridSize, oy = row * gridSize;
       for (let i = 0; i < wall.length - 1; i++) {
         addSeg(
+          // @ts-expect-error — strict-mode migration
           ox + wall[i][0] * gridSize, oy + wall[i][1] * gridSize,
+          // @ts-expect-error — strict-mode migration
           ox + wall[i + 1][0] * gridSize, oy + wall[i + 1][1] * gridSize
         );
       }
@@ -126,7 +128,7 @@ export const DEFAULT_LIGHT_Z: number = 8;
  * @returns {Array}
  */
 export function extractPropShadowZones(propCatalog: any, metadata: any, gridSize: number): any[] {
-  const result = [];
+  const result: any = [];
   if (!propCatalog?.props || !metadata?.props?.length) return result;
 
   for (const op of metadata.props) {
@@ -134,13 +136,13 @@ export function extractPropShadowZones(propCatalog: any, metadata: any, gridSize
     if (!propDef?.blocksLight || !propDef.hitboxZones) continue;
 
     // Only include props that have at least one finite-height zone
-    const finiteZones = propDef.hitboxZones.filter(z => isFinite(z.zTop));
+    const finiteZones = propDef.hitboxZones.filter((z: any) => isFinite(z.zTop));
     if (finiteZones.length === 0) continue;
 
     // Transform each zone's polygon to world-feet coordinates.
     // Scale the z-height by the prop's scale factor (a 2× scaled pillar is twice as tall).
     const propScale = op.scale ?? 1.0;
-    const zones = finiteZones.map(zone => {
+    const zones = finiteZones.map((zone: any) => {
       const worldPoly = transformHitboxToWorld(zone.polygon, propDef, op, gridSize);
       // Precompute centroid for fast radius culling in _renderOneLight
       let cx = 0, cy = 0;
@@ -164,7 +166,7 @@ export function extractPropShadowZones(propCatalog: any, metadata: any, gridSize
  * Transform a hitbox polygon from prop-local normalized coordinates to world-feet.
  * Reuses the same transform logic as extractOverlayPropLightSegments (flip → rotate → scale → translate).
  */
-function transformHitboxToWorld(polygon, propDef, overlayProp, gridSize) {
+function transformHitboxToWorld(polygon: any, propDef: any, overlayProp: any, gridSize: any) {
   const rotation = overlayProp.rotation ?? 0;
   const scale = overlayProp.scale ?? 1.0;
   const flipped = overlayProp.flipped ?? false;
@@ -175,7 +177,7 @@ function transformHitboxToWorld(polygon, propDef, overlayProp, gridSize) {
   const rdx = (fRows - fCols) / 2;
   const rdy = (fCols - fRows) / 2;
 
-  return polygon.map(([hx, hy]) => {
+  return polygon.map(([hx, hy]: any) => {
     let px = flipped ? fCols - hx : hx;
     let py = hy;
     switch (r) {
@@ -314,6 +316,7 @@ export function computePropShadowPolygon(lx: number, ly: number, lz: number, wor
     ? 0.7 + 0.3 * ((zTop - lz) / (zTop - zBottom || 1)) // within zone: 0.7–1.0
     : Math.min(0.85, 0.4 + 0.45 * (zTop / lz));          // above zone: 0.4–0.85
   const opacity = occlusionFraction;
+  // @ts-expect-error — strict-mode migration
   return { shadowPoly, nearCenter, farCenter, opacity, hard: false };
 }
 
@@ -327,7 +330,7 @@ const EPSILON = RAY_EPSILON;
  * Returns { t, u } where t is distance along ray, u is position along segment.
  * Returns null if no intersection.
  */
-function raySegmentIntersect(ox, oy, dx, dy, sx1, sy1, sx2, sy2) {
+function raySegmentIntersect(ox: any, oy: any, dx: any, dy: any, sx1: any, sy1: any, sx2: any, sy2: any) {
   const sdx = sx2 - sx1;
   const sdy = sy2 - sy1;
   const denom = dx * sdy - dy * sdx;
@@ -347,32 +350,47 @@ function raySegmentIntersect(ox, oy, dx, dy, sx1, sy1, sx2, sy2) {
  * Used by castRayGrid to only test segments along the ray path.
  */
 class SegmentGrid {
-  constructor(segments, originX, originY, radius, cellSize) {
+  constructor(segments: any, originX: any, originY: any, radius: any, cellSize: any) {
+    // @ts-expect-error — strict-mode migration
     this.cellSize = cellSize;
+    // @ts-expect-error — strict-mode migration
     this.ox = originX - radius - 2;
+    // @ts-expect-error — strict-mode migration
     this.oy = originY - radius - 2;
     const span = 2 * (radius + 2);
+    // @ts-expect-error — strict-mode migration
     this.w = Math.ceil(span / cellSize) + 1;
+    // @ts-expect-error — strict-mode migration
     this.h = Math.ceil(span / cellSize) + 1;
+    // @ts-expect-error — strict-mode migration
     this.buckets = new Array(this.w * this.h).fill(null);
 
     for (const seg of segments) {
+      // @ts-expect-error — strict-mode migration
       const minGx = Math.max(0, Math.floor((Math.min(seg.x1, seg.x2) - this.ox) / cellSize));
+      // @ts-expect-error — strict-mode migration
       const maxGx = Math.min(this.w - 1, Math.floor((Math.max(seg.x1, seg.x2) - this.ox) / cellSize));
+      // @ts-expect-error — strict-mode migration
       const minGy = Math.max(0, Math.floor((Math.min(seg.y1, seg.y2) - this.oy) / cellSize));
+      // @ts-expect-error — strict-mode migration
       const maxGy = Math.min(this.h - 1, Math.floor((Math.max(seg.y1, seg.y2) - this.oy) / cellSize));
       for (let gy = minGy; gy <= maxGy; gy++) {
         for (let gx = minGx; gx <= maxGx; gx++) {
+          // @ts-expect-error — strict-mode migration
           const idx = gy * this.w + gx;
+          // @ts-expect-error — strict-mode migration
           if (!this.buckets[idx]) this.buckets[idx] = [];
+          // @ts-expect-error — strict-mode migration
           this.buckets[idx].push(seg);
         }
       }
     }
   }
 
-  getBucket(gx, gy) {
+  getBucket(gx: any, gy: any) {
+    // @ts-expect-error — strict-mode migration
     if (gx < 0 || gx >= this.w || gy < 0 || gy >= this.h) return null;
+    // @ts-expect-error — strict-mode migration
     return this.buckets[gy * this.w + gx];
   }
 }
@@ -381,7 +399,7 @@ class SegmentGrid {
  * Cast a ray using the spatial grid — only tests segments in grid cells along the ray path.
  * Uses DDA traversal for efficient grid walking.
  */
-function castRayGrid(ox, oy, angle, grid) {
+function castRayGrid(ox: any, oy: any, angle: any, grid: any) {
   const dx = Math.cos(angle);
   const dy = Math.sin(angle);
   const cs = grid.cellSize;
@@ -492,7 +510,7 @@ export function computeVisibility(lx: number, ly: number, radius: number, segmen
   // Cast rays at each endpoint angle with +/- epsilon
   const angles = [];
   for (const ep of endpoints) {
-    const [ex, ey] = ep.split(',').map(Number);
+    const [ex, ey] = (ep as any).split(',').map(Number);
     const angle = Math.atan2(ey - ly, ex - lx);
     angles.push(angle - EPSILON);
     angles.push(angle);
@@ -543,7 +561,9 @@ export function falloffMultiplier(dist: number, radius: number, falloff: Falloff
   const t = Math.max(0, 1 - dist / radius);
   switch (falloff) {
     case 'linear': return t;
+    // @ts-expect-error — strict-mode migration
     case 'quadratic': return t * t;
+    // @ts-expect-error — strict-mode migration
     case 'inverse-square': {
       // 1/(1+k*d²) normalized so f(0)=1 and f(r)≈0
       const k = INVERSE_SQUARE_K;
@@ -604,10 +624,10 @@ export function getEffectiveLight(light: any, time: number): any {
 // A single reusable OffscreenCanvas is used for all lights — resized as needed.
 // This avoids per-frame allocation while still supporting different light sizes.
 
-let lightRTCanvas = null;
-let lightRTCtx = null;
+let lightRTCanvas: any = null;
+let lightRTCtx: any = null;
 
-function ensureLightRTCanvas(w, h) {
+function ensureLightRTCanvas(w: any, h: any) {
   const cw = Math.ceil(w), ch = Math.ceil(h);
   if (!lightRTCanvas) {
     lightRTCanvas = typeof OffscreenCanvas !== 'undefined'
@@ -626,10 +646,10 @@ function ensureLightRTCanvas(w, h) {
  * Uses 'destination-out' to subtract shadow areas from the light's gradient,
  * with a linear gradient from near (opaque) to far (transparent) for penumbra.
  */
-function _applyPropShadowsToRT(gctx, light, transform, bbX, bbY) {
+function _applyPropShadowsToRT(gctx: any, light: any, transform: any, bbX: any, bbY: any) {
   for (const { shadowPoly, nearCenter, farCenter, opacity, hard } of light._propShadows) {
     // Convert world-feet shadow polygon to pixel coordinates relative to the RT canvas
-    const pxPoly = shadowPoly.map(([wx, wy]) => [
+    const pxPoly = shadowPoly.map(([wx, wy]: any) => [
       wx * transform.scale + transform.offsetX - bbX,
       wy * transform.scale + transform.offsetY - bbY,
     ]);
@@ -667,7 +687,7 @@ function _applyPropShadowsToRT(gctx, light, transform, bbX, bbY) {
  * Draw visibility polygon as a white filled shape into gctx,
  * offset so that world-to-canvas coords are relative to (bbX, bbY).
  */
-function clipToVisibility(gctx, visibility, transform, bbX, bbY) {
+function clipToVisibility(gctx: any, visibility: any, transform: any, bbX: any, bbY: any) {
   gctx.beginPath();
   const p0 = visibility[0];
   gctx.moveTo(
@@ -689,7 +709,7 @@ function clipToVisibility(gctx, visibility, transform, bbX, bbY) {
  * Build gradient stops for a radial gradient from (cx, cy) out to radius rPx,
  * using gradient center offset within the bounding box at (relCx, relCy).
  */
-function buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, lightRadius, falloff) {
+function buildRadialGradient(gctx: any, relCx: any, relCy: any, rPx: any, r: any, g: any, b: any, intensity: any, lightRadius: any, falloff: any) {
   const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, rPx);
   grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1.0, intensity)})`);
   const numStops = GRADIENT_STOPS;
@@ -706,7 +726,7 @@ function buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, lightR
  * Uses destination-in composite to mask a radial gradient to the visibility polygon —
  * giving anti-aliased shadow edges without a CPU pixel loop.
  */
-function renderPointLight(lctx, light, visibility, transform) {
+function renderPointLight(lctx: any, light: any, visibility: any, transform: any) {
   if (visibility.length < 3) return;
 
   const cx = light.x * transform.scale + transform.offsetX;
@@ -785,7 +805,7 @@ function renderPointLight(lctx, light, visibility, transform) {
 /**
  * Render a single directional (cone) light using GPU-composited shadow mask.
  */
-function renderDirectionalLight(lctx, light, visibility, transform) {
+function renderDirectionalLight(lctx: any, light: any, visibility: any, transform: any) {
   if (visibility.length < 3) return;
 
   const cx    = light.x * transform.scale + transform.offsetX;
@@ -848,8 +868,8 @@ function renderDirectionalLight(lctx, light, visibility, transform) {
 // ─── Visibility Cache ──────────────────────────────────────────────────────
 
 const visibilityCache = new Map();
-let cachedWallSegments = null;
-let cachedPropShadowZones = null;
+let cachedWallSegments: any = null;
+let cachedPropShadowZones: any = null;
 let _lightingVersion = 0;
 
 /**
@@ -861,12 +881,12 @@ export function getLightingVersion(): number { return _lightingVersion; }
 // ─── Reusable Lightmap Canvases ───────────────────────────────────────────
 // _lmCanvas: final lightmap (static + animated, composited each frame)
 // _staticLmCanvas: cached static-only lightmap (rebuilt only when lights/walls change)
-let _lmCanvas = null;
+let _lmCanvas: any = null;
 let _lmW = 0, _lmH = 0;
-let _staticLmCanvas = null;
+let _staticLmCanvas: any = null;
 let _staticLmValid = false;
 
-function _getLightmapCanvas(w, h) {
+function _getLightmapCanvas(w: any, h: any) {
   if (_lmCanvas && _lmW === w && _lmH === h) return _lmCanvas;
   if (typeof OffscreenCanvas !== 'undefined') {
     _lmCanvas = new OffscreenCanvas(w, h);
@@ -882,7 +902,7 @@ function _getLightmapCanvas(w, h) {
   return _lmCanvas;
 }
 
-function _getStaticLmCanvas(w, h) {
+function _getStaticLmCanvas(w: any, h: any) {
   if (_staticLmCanvas && _staticLmCanvas.width === w && _staticLmCanvas.height === h) return _staticLmCanvas;
   if (typeof OffscreenCanvas !== 'undefined') {
     _staticLmCanvas = new OffscreenCanvas(w, h);
@@ -910,6 +930,7 @@ export function invalidateVisibilityCache(structuralChange: boolean = true): voi
   if (structuralChange === true) {
     cachedWallSegments = null;
     cachedPropShadowZones = null;
+  // @ts-expect-error — strict-mode migration
   } else if (structuralChange === 'props') {
     // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
     cachedPropShadowZones = null;
@@ -1056,7 +1077,7 @@ export function renderLightmap(ctx: CanvasRenderingContext2D, lights: any[], cel
 }
 
 /** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
-function _renderOneLight(lctx, light, time, segments, transform, propShadowZones) {
+function _renderOneLight(lctx: any, light: any, time: any, segments: any, transform: any, propShadowZones: any) {
   const eff = getEffectiveLight(light, time);
   const outerRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0))
     ? eff.dimRadius : (eff.radius || 30);
@@ -1112,7 +1133,7 @@ function _renderOneLight(lctx, light, time, segments, transform, propShadowZones
 // Reusable temp canvas for normal map sampling (avoids per-cell allocation)
 const BUMP_SAMPLE_SIZE = 4;
 let bumpTmpCanvas = null;
-let bumpTmpCtx = null;
+let bumpTmpCtx: any = null;
 
 function getBumpTmpCtx() {
   if (!bumpTmpCtx) {
@@ -1128,7 +1149,7 @@ function getBumpTmpCtx() {
   return bumpTmpCtx;
 }
 
-function applyNormalMapBump(lctx, lights, cells, gridSize, transform, textureCatalog) {
+function applyNormalMapBump(lctx: any, lights: any, cells: any, gridSize: any, transform: any, textureCatalog: any) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const tmpCtx = getBumpTmpCtx();
@@ -1308,7 +1329,7 @@ export function renderCoverageHeatmap(ctx: CanvasRenderingContext2D, lights: any
 export function extractFillLights(cells: CellGrid, gridSize: number, theme: any = {}): any[] {
   const color     = theme.lavaLightColor     ?? '#ff6600';
   const intensity = theme.lavaLightIntensity ?? 0.70;
-  const lights = [];
+  const lights: any = [];
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -1363,7 +1384,7 @@ export function extractFillLights(cells: CellGrid, gridSize: number, theme: any 
       spacing = 4;
     }
 
-    const pushLight = (r, c) => {
+    const pushLight = (r: any, c: any) => {
       const id = `fill-lava-${r}-${c}`;
       if (placed.has(id)) return;
       placed.add(id);

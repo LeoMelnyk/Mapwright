@@ -15,6 +15,7 @@ import { cvState, CELL_SIZE, ANIM_INTERVAL_MS, getMapCache, getCachedBgImage, _s
  */
 export function requestRender(): void {
   if (cvState.animFrameId) return;
+  // @ts-expect-error — strict-mode migration
   cvState.animFrameId = requestAnimationFrame(render);
 }
 
@@ -24,13 +25,16 @@ export function requestRender(): void {
  */
 export function resizeCanvas(): void {
   const { canvas } = cvState;
-  const rect = canvas.parentElement.getBoundingClientRect();
+  // @ts-expect-error — strict-mode migration
+  const rect = canvas!.parentElement.getBoundingClientRect();
   const prevDpr = cvState._dpr;
   cvState._dpr = window.devicePixelRatio || 1;
   cvState._canvasW = rect.width;
   cvState._canvasH = rect.height;
-  canvas.width = Math.round(cvState._canvasW * cvState._dpr);
-  canvas.height = Math.round(cvState._canvasH * cvState._dpr);
+  // @ts-expect-error — strict-mode migration
+  canvas!.width = Math.round(cvState._canvasW * cvState._dpr);
+  // @ts-expect-error — strict-mode migration
+  canvas!.height = Math.round(cvState._canvasH * cvState._dpr);
   // CSS width:100%;height:100% handles layout sizing — don't override with inline styles
   if (cvState._dpr !== prevDpr) getMapCache().invalidate();
   markDirty();
@@ -73,15 +77,20 @@ export function render(): void {
   const numCols = cells[0]?.length || 0;
 
   // Clear canvas (physical pixel dimensions)
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // @ts-expect-error — strict-mode migration
+  ctx!.clearRect(0, 0, canvas.width, canvas.height);
 
   // Apply DPR scaling — all subsequent drawing uses CSS/logical coordinates
-  ctx.setTransform(cvState._dpr, 0, 0, cvState._dpr, 0, 0);
+  // @ts-expect-error — strict-mode migration
+  ctx!.setTransform(cvState._dpr, 0, 0, cvState._dpr, 0, 0);
 
   // Draw background (entire canvas, logical dimensions)
-  ctx.fillStyle = theme.background;
-  ctx.fillRect(0, 0, cvState._canvasW, cvState._canvasH);
+  // @ts-expect-error — strict-mode migration
+  ctx!.fillStyle = theme.background;
+  // @ts-expect-error — strict-mode migration
+  ctx!.fillRect(0, 0, cvState._canvasW, cvState._canvasH);
 
+  // @ts-expect-error — strict-mode migration
   const _skip = (typeof window !== 'undefined' && window._skipPhases) || {};
 
   // Debug: skip ALL rendering (just background fill) to test compositor behavior
@@ -96,15 +105,21 @@ export function render(): void {
     if (editorSettings.fpsCounter === true) {
       const lines = [{ text: `Draw: ${cvState.lastDrawMs.toFixed(1)}ms | ${fpsState._fpsValue} fps | gap: ${fpsState._frameGapMs.toFixed(0)}ms | rAF: ${rafProbe._rafProbeHz}Hz`, color: '#4f4' },
         { text: 'SKIP ALL — compositor test', color: '#f84' }];
-      ctx.font = '13px monospace';
+      // @ts-expect-error — strict-mode migration
+      ctx!.font = '13px monospace';
       for (let i = 0; i < lines.length; i++) {
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(4, 4 + i * 17, ctx.measureText(lines[i].text).width + 8, 16);
-        ctx.fillStyle = lines[i].color;
-        ctx.fillText(lines[i].text, 8, 16 + i * 17);
+        // @ts-expect-error — strict-mode migration
+        ctx!.fillStyle = 'rgba(0,0,0,0.7)';
+        // @ts-expect-error — strict-mode migration
+        ctx!.fillRect(4, 4 + i * 17, ctx.measureText(lines[i].text).width + 8, 16);
+        // @ts-expect-error — strict-mode migration
+        ctx!.fillStyle = lines[i].color;
+        // @ts-expect-error — strict-mode migration
+        ctx!.fillText(lines[i].text, 8, 16 + i * 17);
       }
     }
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // @ts-expect-error — strict-mode migration
+    ctx!.setTransform(1, 0, 0, 1, 0, 0);
     return;
   }
 
@@ -129,6 +144,7 @@ export function render(): void {
   const useCache = mapCache.canCache(numRows, numCols, gridSize) && !_skip.cells;
 
   const animClock = state.animClock ?? 0;
+  // @ts-expect-error — strict-mode migration
   const hasAnimLights = lightingEnabled && (metadata.lights || []).some(l => l.animation?.type);
 
   if (useCache) {
@@ -154,7 +170,7 @@ export function render(): void {
       ambientColor: metadata.ambientColor || '#ffffff',
       textureCatalog: state.textureCatalog,
       dirtyRegion: getDirtyRegion(),
-      preRenderHook: _skip.dots ? null : (offCtx, t) => drawEditorDots(offCtx, numRows, numCols, gridSize, theme, t),
+      preRenderHook: _skip.dots ? null : (offCtx: any, t: any) => drawEditorDots(offCtx, numRows, numCols, gridSize, theme, t),
       skipPhases: Object.keys(_skip).some(k => _skip[k] && k !== 'all') ? _skip : null,
       skipLabels: lightingEnabled || !!_skip.labels,
     });
@@ -181,9 +197,11 @@ export function render(): void {
           ? [...(metadata.lights || []), ...fillLights]
           : (metadata.lights || []);
         const LIGHT_PX_PER_FOOT = getEditorSettings().lightQuality || 10;
+        // @ts-expect-error — strict-mode migration
         const sx = transform.scale / MAP_PX_PER_FOOT;
         const mapScreenW = composite.cacheW * sx;
         const mapScreenH = composite.cacheH * sx;
+        // @ts-expect-error — strict-mode migration
         renderLightmap(ctx, allLights, cells, gridSize,
           { scale: transform.scale, offsetX: 0, offsetY: 0 },
           Math.ceil(mapScreenW), Math.ceil(mapScreenH), metadata.ambientLight ?? 0.15,
@@ -208,11 +226,14 @@ export function render(): void {
     const CULL_MARGIN = 2;
     const visibleBounds = cellPxSize > 0 ? {
       minRow: Math.max(0, Math.floor(-transform.offsetY / cellPxSize) - CULL_MARGIN),
+      // @ts-expect-error — strict-mode migration
       maxRow: Math.min(numRows - 1, Math.ceil((canvas.height - transform.offsetY) / cellPxSize) + CULL_MARGIN),
       minCol: Math.max(0, Math.floor(-transform.offsetX / cellPxSize) - CULL_MARGIN),
+      // @ts-expect-error — strict-mode migration
       maxCol: Math.min(numCols - 1, Math.ceil((canvas.width - transform.offsetX) / cellPxSize) + CULL_MARGIN),
     } : null;
 
+    // @ts-expect-error — strict-mode migration
     if (!_skip.cells) renderCells(ctx, cells, gridSize, theme, transform, {
       showGrid: showGrid && !_skip.grid, labelStyle, propCatalog: _skip.props ? null : state.propCatalog, textureOptions: _skip.textures ? null : textureOptions, metadata,
       skipLabels: lightingEnabled || _skip.labels, showInvisible,
@@ -226,26 +247,31 @@ export function render(): void {
       const allLights = fillLights.length
         ? [...(metadata.lights || []), ...fillLights]
         : (metadata.lights || []);
+      // @ts-expect-error — strict-mode migration
       renderLightmap(ctx, allLights, cells, gridSize, transform,
         cvState._canvasW, cvState._canvasH, metadata.ambientLight ?? 0.15,
         state.textureCatalog, state.propCatalog,
         { ambientColor: metadata.ambientColor || '#ffffff', time: state.animClock ?? 0 },
         metadata);
       renderTimings.lighting = { ms: performance.now() - _lightStart, frame: _currentFrame };
+      // @ts-expect-error — strict-mode migration
       renderLabels(ctx, cells, gridSize, theme, transform, labelStyle);
     }
   }
 
   // Auto-manage animation loop based on animated lights
   if (lightingEnabled) {
+    // @ts-expect-error — strict-mode migration
     const hasAnimLightsLocal = (metadata.lights || []).some(l => l.animation?.type);
     if (hasAnimLightsLocal && !cvState.animLoopId) {
+      // @ts-expect-error — strict-mode migration
       cvState.animLoopId = setTimeout(_tickAnimLoopRef, ANIM_INTERVAL_MS);
     } else if (!hasAnimLightsLocal && cvState.animLoopId) {
       clearTimeout(cvState.animLoopId);
       cvState.animLoopId = null;
     }
     if (state.lightCoverageMode) {
+      // @ts-expect-error — strict-mode migration
       renderCoverageHeatmap(ctx, metadata.lights, cells, gridSize, transform);
     }
   } else if (cvState.animLoopId) {
@@ -257,13 +283,16 @@ export function render(): void {
   const _decoStart = performance.now();
   const features = metadata.features || {};
   if (features.border !== false) {
+    // @ts-expect-error — strict-mode migration
     drawBorderOnMap(ctx, cells, gridSize, theme, transform);
   }
   if (features.compassRose !== false) {
     const pos = findCompassRosePositionOnMap(cells, gridSize, transform);
+    // @ts-expect-error — strict-mode migration
     if (pos) drawCompassRoseScaled(ctx, pos.x, pos.y, theme, pos.scale);
   }
   if (features.scale !== false) {
+    // @ts-expect-error — strict-mode migration
     drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform, metadata.resolution);
   }
 
@@ -283,13 +312,18 @@ export function render(): void {
   drawEdgeHighlight(ctx, gridSize, transform);
 
   // Tool overlay — suppressed while panning (right-drag or Alt+drag)
+  // @ts-expect-error — strict-mode migration
   if (cvState.activeTool?.renderOverlay && !cvState.isPanning && !cvState.rightDragged) {
+    // @ts-expect-error — strict-mode migration
     cvState.activeTool.renderOverlay(ctx, transform, gridSize);
   }
 
   // Debug: hitbox overlay — cyan = lighting hitbox, yellow = selection hitbox (when different)
+  // @ts-expect-error — strict-mode migration
   if (state.debugShowHitboxes && state.propCatalog && metadata.props?.length) {
-    ctx.save();
+    // @ts-expect-error — strict-mode migration
+    ctx!.save();
+    // @ts-expect-error — strict-mode migration
     for (const prop of metadata.props) {
       const propDef = state.propCatalog.props[prop.type];
       if (!propDef?.hitbox) continue;
@@ -299,8 +333,8 @@ export function render(): void {
       const [fRows, fCols] = propDef.footprint;
       const r = ((rotation % 360) + 360) % 360;
 
-      function hitboxToScreen(points) {
-        return points.map(([hx, hy]) => {
+      function hitboxToScreen(points: any) {
+        return points.map(([hx, hy]: any) => {
           let px = flipped ? fCols - hx : hx;
           let py = hy;
           // Rotate around footprint center using general rotation math
@@ -324,17 +358,25 @@ export function render(): void {
         });
       }
 
-      function drawPoly(screenPts, color) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1.5;
-        ctx.setLineDash([4, 3]);
-        ctx.beginPath();
+      function drawPoly(screenPts: any, color: any) {
+        // @ts-expect-error — strict-mode migration
+        ctx!.strokeStyle = color;
+        // @ts-expect-error — strict-mode migration
+        ctx!.lineWidth = 1.5;
+        // @ts-expect-error — strict-mode migration
+        ctx!.setLineDash([4, 3]);
+        // @ts-expect-error — strict-mode migration
+        ctx!.beginPath();
         for (let i = 0; i < screenPts.length; i++) {
-          if (i === 0) ctx.moveTo(screenPts[i].x, screenPts[i].y);
-          else ctx.lineTo(screenPts[i].x, screenPts[i].y);
+          // @ts-expect-error — strict-mode migration
+          if (i === 0) ctx!.moveTo(screenPts[i].x, screenPts[i].y);
+          // @ts-expect-error — strict-mode migration
+          else ctx!.lineTo(screenPts[i].x, screenPts[i].y);
         }
-        ctx.closePath();
-        ctx.stroke();
+        // @ts-expect-error — strict-mode migration
+        ctx!.closePath();
+        // @ts-expect-error — strict-mode migration
+        ctx!.stroke();
       }
 
       // Draw lighting hitbox (cyan)
@@ -345,50 +387,73 @@ export function render(): void {
         drawPoly(hitboxToScreen(propDef.selectionHitbox), '#ffff00');
       }
     }
-    ctx.restore();
+    // @ts-expect-error — strict-mode migration
+    ctx!.restore();
   }
 
   // Background cell measure overlay
   if (cvState._bgMeasureActive && cvState._bgMeasureStart && cvState._bgMeasureEnd) {
+    // @ts-expect-error — strict-mode migration
     const x0 = cvState._bgMeasureStart.x;
+    // @ts-expect-error — strict-mode migration
     const y0 = cvState._bgMeasureStart.y;
+    // @ts-expect-error — strict-mode migration
     const dx = cvState._bgMeasureEnd.x - x0;
+    // @ts-expect-error — strict-mode migration
     const dy = cvState._bgMeasureEnd.y - y0;
     const size = Math.max(Math.abs(dx), Math.abs(dy));
     const sx = dx >= 0 ? x0 : x0 - size;
     const sy = dy >= 0 ? y0 : y0 - size;
     const bi = state.dungeon.metadata.backgroundImage;
     const cellPx = gridSize * transform.scale;
+    // @ts-expect-error — strict-mode migration
     const computed = Math.round(size * (bi?.pixelsPerCell ?? 70) / cellPx);
-    ctx.save();
-    ctx.strokeStyle = '#00d4ff';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([4, 3]);
-    ctx.strokeRect(sx, sy, size, size);
-    ctx.fillStyle = 'rgba(0, 212, 255, 0.08)';
-    ctx.fillRect(sx, sy, size, size);
+    // @ts-expect-error — strict-mode migration
+    ctx!.save();
+    // @ts-expect-error — strict-mode migration
+    ctx!.strokeStyle = '#00d4ff';
+    // @ts-expect-error — strict-mode migration
+    ctx!.lineWidth = 2;
+    // @ts-expect-error — strict-mode migration
+    ctx!.setLineDash([4, 3]);
+    // @ts-expect-error — strict-mode migration
+    ctx!.strokeRect(sx, sy, size, size);
+    // @ts-expect-error — strict-mode migration
+    ctx!.fillStyle = 'rgba(0, 212, 255, 0.08)';
+    // @ts-expect-error — strict-mode migration
+    ctx!.fillRect(sx, sy, size, size);
     if (size > 20) {
-      ctx.font = 'bold 11px monospace';
-      ctx.fillStyle = '#00d4ff';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillText(`${computed} px/cell`, sx + 4, sy + 4);
+      // @ts-expect-error — strict-mode migration
+      ctx!.font = 'bold 11px monospace';
+      // @ts-expect-error — strict-mode migration
+      ctx!.fillStyle = '#00d4ff';
+      // @ts-expect-error — strict-mode migration
+      ctx!.textAlign = 'left';
+      // @ts-expect-error — strict-mode migration
+      ctx!.textBaseline = 'top';
+      // @ts-expect-error — strict-mode migration
+      ctx!.fillText(`${computed} px/cell`, sx + 4, sy + 4);
     }
-    ctx.restore();
+    // @ts-expect-error — strict-mode migration
+    ctx!.restore();
   }
 
   // DM fog overlay — semi-transparent tint over unrevealed cells (persists across panels)
+  // @ts-expect-error — strict-mode migration
   if (cvState.dmFogOverlayFn) cvState.dmFogOverlayFn(ctx, transform, gridSize);
 
   // Session tool overlays — rendered below door buttons.
   // sessionRangeTool is persistent so player range highlights render in any session sub-mode.
   if (state.sessionToolsActive) {
+    // @ts-expect-error — strict-mode migration
     if (cvState.sessionRangeTool?.renderOverlay) cvState.sessionRangeTool.renderOverlay(ctx, transform, gridSize);
+    // @ts-expect-error — strict-mode migration
     if (cvState.sessionTool?.renderOverlay) cvState.sessionTool.renderOverlay(ctx, transform, gridSize);
   }
 
   // Session overlay (door-open buttons — only when session tools active)
   if (state.sessionToolsActive && cvState.sessionOverlayFn) {
+    // @ts-expect-error — strict-mode migration
     cvState.sessionOverlayFn(ctx, transform, gridSize);
   }
 
@@ -429,20 +494,21 @@ export function render(): void {
       const cellCount = numRows * numCols;
       const displayCells = res > 1 ? `${numRows / res}x${numCols / res} display` : '';
       lines.push({ text: `Grid: ${numRows}x${numCols}${res > 1 ? ` (res=${res}, ${displayCells})` : ''}`, color: '#aaf' });
+      // @ts-expect-error — strict-mode migration
       const propCount = metadata.props?.length || 0;
       const lightCount = metadata.lights?.length || 0;
       lines.push({ text: `Props: ${propCount} | Lights: ${lightCount} | Cells: ${cellCount}`, color: '#aaa' });
 
       // Helper to read timing value and detect staleness
       const _tf = _currentFrame;
-      const _rt = (key) => {
+      const _rt = (key: any) => {
         const t = renderTimings[key];
         if (!t) return { ms: 0, stale: true };
         if (typeof t === 'number') return { ms: t, stale: true }; // legacy format
         return { ms: t.ms, stale: t.frame !== _tf };
       };
-      const _fmt = (ms, stale) => `${ms.toFixed(1)}ms${stale ? ' (stale)' : ''}`;
-      const _col = (ms, stale) => stale ? '#666' : ms < 2 ? '#8f8' : ms < 5 ? '#ff4' : '#f44';
+      const _fmt = (ms: any, stale: any) => `${ms.toFixed(1)}ms${stale ? ' (stale: any)' : ''}`;
+      const _col = (ms: any, stale: any) => stale ? '#666' : ms < 2 ? '#8f8' : ms < 5 ? '#ff4' : '#f44';
 
       // ── Caches ──
       lines.push({ text: '', color: '#666' });
@@ -510,6 +576,7 @@ export function render(): void {
       {
         lines.push({ text: '', color: '#666' });
         lines.push({ text: '── Memory ──', color: '#666' });
+        // @ts-expect-error — strict-mode migration
         const mem = performance.memory;
         if (mem) {
           const usedMB = (mem.usedJSHeapSize / 1048576).toFixed(1);
@@ -525,25 +592,35 @@ export function render(): void {
       }
     }
 
-    ctx.save();
-    ctx.font = 'bold 12px monospace';
+    // @ts-expect-error — strict-mode migration
+    ctx!.save();
+    // @ts-expect-error — strict-mode migration
+    ctx!.font = 'bold 12px monospace';
     const pad = 5;
     const lineH = 18;
     // Filter out spacer lines for width calculation but keep them for layout
     const textLines = lines.filter(l => l.text.length > 0);
-    const boxW = Math.max(...textLines.map(l => ctx.measureText(l.text).width)) + pad * 2;
+    // @ts-expect-error — strict-mode migration
+    const boxW = Math.max(...textLines.map(l => ctx!.measureText(l.text).width)) + pad * 2;
     const boxH = lines.length * lineH + pad;
     const bx = 10, by = 10;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
-    ctx.fillRect(bx, by, boxW, boxH);
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
+    // @ts-expect-error — strict-mode migration
+    ctx!.fillStyle = 'rgba(0,0,0,0.65)';
+    // @ts-expect-error — strict-mode migration
+    ctx!.fillRect(bx, by, boxW, boxH);
+    // @ts-expect-error — strict-mode migration
+    ctx!.textAlign = 'left';
+    // @ts-expect-error — strict-mode migration
+    ctx!.textBaseline = 'middle';
     lines.forEach((line, i) => {
-      ctx.fillStyle = line.color;
-      ctx.fillText(line.text, bx + pad, by + pad / 2 + lineH * i + lineH / 2);
+      // @ts-expect-error — strict-mode migration
+      ctx!.fillStyle = line.color;
+      // @ts-expect-error — strict-mode migration
+      ctx!.fillText(line.text, bx + pad, by + pad / 2 + lineH * i + lineH / 2);
     });
-    ctx.restore();
+    // @ts-expect-error — strict-mode migration
+    ctx!.restore();
   }
 
   // Minimap overlay (rendered after main canvas, references main canvas dimensions)
@@ -564,7 +641,8 @@ export function render(): void {
   }
 
   // Reset DPR transform
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  // @ts-expect-error — strict-mode migration
+  ctx!.setTransform(1, 0, 0, 1, 0, 0);
 
   // True end-of-frame timing (after ALL work including diagnostics, minimap, warnings)
   cvState.lastDrawMs = performance.now() - drawStart;
@@ -588,7 +666,7 @@ export function setTickAnimLoopRef(fn: () => void): void { _tickAnimLoopRef = fn
 
 // ── Overlay drawing helpers ─────────────────────────────────────────────────
 
-function drawEditorDots(ctx, numRows, numCols, gridSize, theme, transform) {
+function drawEditorDots(ctx: any, numRows: any, numCols: any, gridSize: any, theme: any, transform: any) {
   const DOT_RADIUS = 1.5;
   const resolution = state.dungeon?.metadata?.resolution || 1;
 
@@ -623,7 +701,7 @@ function drawEditorDots(ctx, numRows, numCols, gridSize, theme, transform) {
   ctx.restore();
 }
 
-function drawHoverHighlight(ctx, gridSize, transform) {
+function drawHoverHighlight(ctx: any, gridSize: any, transform: any) {
   if (!state.hoveredCell) return;
   const { row, col } = state.hoveredCell;
   const cells = state.dungeon.cells;
@@ -636,7 +714,7 @@ function drawHoverHighlight(ctx, gridSize, transform) {
   ctx.fillRect(p.x, p.y, size, size);
 }
 
-function drawSelectionHighlight(ctx, gridSize, transform) {
+function drawSelectionHighlight(ctx: any, gridSize: any, transform: any) {
   // The Select tool draws its own overlay when active — skip double-drawing
   if (state.activeTool === 'select') return;
   if (!state.selectedCells.length) return;
@@ -651,7 +729,7 @@ function drawSelectionHighlight(ctx, gridSize, transform) {
   }
 }
 
-function drawLinkSourceHighlight(ctx, gridSize, transform) {
+function drawLinkSourceHighlight(ctx: any, gridSize: any, transform: any) {
   if (state.linkSource == null) return;
 
   // New stair system: linkSource is a stair ID (number)
@@ -695,7 +773,7 @@ function drawLinkSourceHighlight(ctx, gridSize, transform) {
   ctx.setLineDash([]);
 }
 
-function drawEdgeHighlight(ctx, gridSize, transform) {
+function drawEdgeHighlight(ctx: any, gridSize: any, transform: any) {
   if ((state.activeTool !== 'wall' && state.activeTool !== 'door') || !state.hoveredEdge) return;
   const { direction, row, col } = state.hoveredEdge;
 
@@ -727,7 +805,7 @@ function drawEdgeHighlight(ctx, gridSize, transform) {
   ctx.stroke();
 }
 
-function drawDungeonTitleOnMap(ctx, cells, gridSize, theme, transform, metadata) {
+function drawDungeonTitleOnMap(ctx: any, cells: any, gridSize: any, theme: any, transform: any, metadata: any) {
   const dungeonName = metadata.dungeonName;
   if (!dungeonName) return;
 
@@ -761,7 +839,7 @@ function drawDungeonTitleOnMap(ctx, cells, gridSize, theme, transform, metadata)
   ctx.restore();
 }
 
-function drawLevelSeparators(ctx, levels, gridSize, transform, theme) {
+function drawLevelSeparators(ctx: any, levels: any, gridSize: any, transform: any, theme: any) {
   ctx.strokeStyle = theme.textColor || '#888';
   ctx.lineWidth = 1;
   ctx.setLineDash([8, 4]);

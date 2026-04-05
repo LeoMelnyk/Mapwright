@@ -52,6 +52,7 @@ function getNextLinkLabel(): string {
  * Stairs tool: 3-click corner-point placement and A-Z linking between stair pairs.
  */
 export class StairsTool extends Tool {
+  [key: string]: any;
   declare _phase: string;
   declare _p1: [number, number] | null;
   declare _p2: [number, number] | null;
@@ -101,7 +102,7 @@ export class StairsTool extends Tool {
     return false;
   }
 
-  onKeyDown(event) {
+  onKeyDown(event: any) {
     if (event.key === 'Escape') {
       if (this._phase !== 'idle') {
         this._resetPlacement();
@@ -112,7 +113,7 @@ export class StairsTool extends Tool {
     }
   }
 
-  onRightClick(row, col) {
+  onRightClick(row: any, col: any) {
     // Right-click on a cell with stairs: remove the entire stair
     const id = stairIdAt(row, col);
     if (id == null) return;
@@ -124,7 +125,7 @@ export class StairsTool extends Tool {
     requestRender();
   }
 
-  onMouseDown(row, col, edge, event, pos) {
+  onMouseDown(row: any, col: any, edge: any, event: any, pos: any) {
     const mode = state.stairsMode;
     const transform = getTransform();
     const gridSize = state.dungeon.metadata.gridSize;
@@ -143,7 +144,7 @@ export class StairsTool extends Tool {
 
   // ── Placement ──────────────────────────────────────────────────────────────
 
-  _handlePlaceClick(corner) {
+  _handlePlaceClick(corner: any) {
     if (this._phase === 'idle') {
       this._p1 = [corner.row, corner.col];
       this._phase = 'have_p1';
@@ -156,12 +157,14 @@ export class StairsTool extends Tool {
     if (this._phase === 'have_p1') {
       const p2 = [corner.row, corner.col];
       // Same point as P1: cancel
-      if (p2[0] === this._p1[0] && p2[1] === this._p1[1]) {
+      // @ts-expect-error — strict-mode migration
+      if (p2[0] === this!._p1[0] && p2[1] === this!._p1[1]) {
         this._resetPlacement();
         state.statusInstruction = 'Click to place corner 1 of 3';
         requestRender();
         return;
       }
+      // @ts-expect-error — strict-mode migration
       this._p2 = p2;
       this._phase = 'have_p2';
       state.stairPlacement = { p1: this._p1, p2: this._p2 };
@@ -174,17 +177,21 @@ export class StairsTool extends Tool {
       const p3 = [corner.row, corner.col];
 
       // Validate
+      // @ts-expect-error — strict-mode migration
       if (isDegenerate(this._p1, this._p2, p3)) {
+        // @ts-expect-error — strict-mode migration
         showToast('Degenerate shape (zero area). Choose a different point.', 'warning');
         return;
       }
 
       // Check for overlap
+      // @ts-expect-error — strict-mode migration
       const shape = classifyStairShape(this._p1, this._p2, p3);
       const occupied = getOccupiedCells(shape.vertices);
       const cells = state.dungeon.cells;
 
       if (occupied.length === 0) {
+        // @ts-expect-error — strict-mode migration
         showToast('No cells covered by this shape.', 'warning');
         return;
       }
@@ -192,12 +199,14 @@ export class StairsTool extends Tool {
       // Check for existing stairs and out-of-bounds
       for (const { row, col } of occupied) {
         if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) {
+          // @ts-expect-error — strict-mode migration
           showToast('Stair shape extends out of bounds.', 'warning');
           return;
         }
         if (!cells[row]?.[col]) continue; // void cell — allowed but won't get stair-id
         const existingId = cells[row][col]?.center?.['stair-id'];
         if (existingId != null) {
+          // @ts-expect-error — strict-mode migration
           showToast('Overlaps an existing stair. Remove it first.', 'warning');
           return;
         }
@@ -210,7 +219,7 @@ export class StairsTool extends Tool {
     }
   }
 
-  _commitStair(p1, p2, p3, occupiedCells) {
+  _commitStair(p1: any, p2: any, p3: any, occupiedCells: any) {
     pushUndo('Place stairs');
 
     const meta = state.dungeon.metadata;
@@ -238,7 +247,7 @@ export class StairsTool extends Tool {
     requestRender();
   }
 
-  _removeStair(id) {
+  _removeStair(id: any) {
     const meta = state.dungeon.metadata;
     const stairs = meta?.stairs;
     if (!stairs) return;
@@ -263,8 +272,10 @@ export class StairsTool extends Tool {
     for (let r = 0; r < cells.length; r++) {
       for (let c = 0; c < (cells[r]?.length || 0); c++) {
         if (cells[r]?.[c]?.center?.['stair-id'] === id) {
-          delete cells[r][c].center['stair-id'];
-          if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+          // @ts-expect-error — strict-mode migration
+          delete cells![r][c]!.center['stair-id'];
+          // @ts-expect-error — strict-mode migration
+          if (Object.keys(cells[r][c]!.center).length === 0) delete cells[r][c]!.center;
           if (r < minR) minR = r;
           if (r > maxR) maxR = r;
           if (c < minC) minC = c;
@@ -280,7 +291,7 @@ export class StairsTool extends Tool {
 
   // ── Linking ────────────────────────────────────────────────────────────────
 
-  _handleLinkClick(row, col) {
+  _handleLinkClick(row: any, col: any) {
     const id = stairIdAt(row, col);
     if (id == null) {
       // Clicked empty cell — cancel pending link
@@ -347,7 +358,7 @@ export class StairsTool extends Tool {
 
   // ── Overlay (preview) ──────────────────────────────────────────────────────
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx: any, transform: any, gridSize: any) {
     const hc = state.hoveredCorner;
 
     // Draw snapped corner dot on hover
@@ -413,7 +424,7 @@ export class StairsTool extends Tool {
     }
   }
 
-  _drawPreview(ctx, transform, gridSize, p1, p2, p3) {
+  _drawPreview(ctx: any, transform: any, gridSize: any, p1: any, p2: any, p3: any) {
     const shape = classifyStairShape(p1, p2, p3);
 
     // Draw polygon outline

@@ -190,7 +190,9 @@ function drawDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: numbe
   const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
   const doorThickness = 6 * s;
 
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.doorFill || '#FFFFFF';
+  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
@@ -219,7 +221,9 @@ function drawDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: numbe
 function drawSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
   ctx.save();
 
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
+  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = theme.secretDoorColor || theme.wallStroke;
 
   const fontSize = gridSize * transform.scale * SECRET_FONT_MULT;
@@ -480,7 +484,9 @@ function drawDiagonalDoor(ctx: CanvasRenderingContext2D, cx: number, cy: number,
     ctx.rotate(-Math.PI / 4);
   }
 
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.doorFill || '#ffffff';
+  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
@@ -512,6 +518,7 @@ function drawDiagonalSecretDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
     ctx.rotate(-Math.PI / 4);
   }
 
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
   const fontSize = gridSize * transform.scale * SECRET_FONT_MULT;
   ctx.font = `bold ${fontSize}px sans-serif`;
@@ -534,6 +541,7 @@ function drawDiagonalSecretDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
  * @returns {string|null} Role: 'anchor', 'partner', 'single-wide', or null
  */
 function getDoubleDoorRole(cells: any, row: number, col: number, borderDirection: string, resolution: number = 1): string {
+  // @ts-expect-error — strict-mode migration
   return _getDoorRole(cells, row, col, borderDirection, resolution, 'cardinal');
 }
 
@@ -549,7 +557,7 @@ function getDoubleDoorRole(cells: any, row: number, col: number, borderDirection
  *   'partner'     — skip (already rendered by an anchor or single-wide)
  *   null          — leftover sub-cell, render at sub-cell scale
  */
-function _getDoorRole(cells, row, col, direction, resolution, mode) {
+function _getDoorRole(cells: any, row: any, col: any, direction: any, resolution: any, mode: any) {
   const cell = cells[row]?.[col];
   if (!cell) return null;
   const bt = cell[direction];
@@ -626,6 +634,7 @@ function _getDoorRole(cells, row, col, direction, resolution, mode) {
  * @returns {string|null} Role: 'anchor', 'partner', or null
  */
 function getDoubleDoorDiagonalRole(cells: any, row: number, col: number, diagonal: string, resolution: number = 1): string {
+  // @ts-expect-error — strict-mode migration
   return _getDoorRole(cells, row, col, diagonal, resolution, 'diagonal');
 }
 
@@ -658,7 +667,9 @@ function renderDoubleBorder(ctx: CanvasRenderingContext2D, cells: any, row: numb
     gx1 = col + 1; gy1 = row; gx2 = col + 1; gy2 = row + span;
   }
 
+  // @ts-expect-error — strict-mode migration
   const p1 = toCanvas(gx1 * gridSize, gy1 * gridSize, transform);
+  // @ts-expect-error — strict-mode migration
   const p2 = toCanvas(gx2 * gridSize, gy2 * gridSize, transform);
 
   const midX = (p1.x + p2.x) / 2;
@@ -781,7 +792,9 @@ function drawDoubleDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy:
   const panelLength = totalLength / 2;
   const gap = 2 * s;
 
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.doorFill || '#FFFFFF';
+  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
@@ -814,6 +827,7 @@ function drawDoubleDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy:
  */
 function drawDoubleSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
   ctx.save();
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
 
   const fontSize = gridSize * transform.scale * 1.0;
@@ -859,7 +873,9 @@ function drawDiagonalDoubleDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
     ctx.rotate(-Math.PI / 4);
   }
 
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.doorFill || '#ffffff';
+  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
@@ -895,6 +911,7 @@ function drawDiagonalDoubleSecretDoor(ctx: CanvasRenderingContext2D, cx: number,
     ctx.rotate(-Math.PI / 4);
   }
 
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
   const fontSize = gridSize * transform.scale * 1.0;
   ctx.font = `bold ${fontSize}px sans-serif`;
@@ -929,6 +946,7 @@ function drawStairsLinkLabel(ctx: CanvasRenderingContext2D, cx: number, cy: numb
   ctx.fill();
 
   // Letter
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.floorFill || '#ffffff';
   ctx.font = `bold ${10 * s}px sans-serif`;
   ctx.textAlign = 'center';
@@ -981,7 +999,7 @@ function drawStairShape(ctx: CanvasRenderingContext2D, stairDef: any, theme: The
  * and inward shift (parallel to base toward P1). narrowLen = baseLen - 2 * inward.
  * This naturally handles rectangles (inward=0), trapezoids, and triangles.
  */
-function _computeStairHatchLines(p1, p2, p3, lineSpacing = STAIR_HATCH_LINE_SPACING) {
+function _computeStairHatchLines(p1: any, p2: any, p3: any, lineSpacing = STAIR_HATCH_LINE_SPACING) {
   // Base vector and length
   const baseR = p2[0] - p1[0];
   const baseC = p2[1] - p1[1];
@@ -1059,6 +1077,7 @@ function drawStairShapeLinkLabel(ctx: CanvasRenderingContext2D, worldX: number, 
   ctx.fill();
 
   // Letter
+  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = theme.floorFill || '#ffffff';
   ctx.font = `bold ${10 * s}px sans-serif`;
   ctx.textAlign = 'center';
@@ -1085,6 +1104,7 @@ function wallSegmentCoords(x1: number, y1: number, x2: number, y2: number, gridS
   const fy2 = y2 * gridSize;
   const p1 = toCanvas(fx1, fy1, transform);
   const p2 = toCanvas(fx2, fy2, transform);
+  // @ts-expect-error — strict-mode migration
   return { p1, p2 };
 }
 
@@ -1112,6 +1132,7 @@ function diagonalWallSegmentCoords(col: number, row: number, diagonal: string, g
   }
   const p1 = toCanvas(fx1, fy1, transform);
   const p2 = toCanvas(fx2, fy2, transform);
+  // @ts-expect-error — strict-mode migration
   return { p1, p2 };
 }
 

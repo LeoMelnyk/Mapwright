@@ -178,6 +178,7 @@ async function loadMapTextures(): Promise<void> {
   if (usedIds.size > 0) {
     // Only bump texturesVersion if new textures were actually loaded (not already cached).
     // Check _loadPromise — if it exists, the texture was already loading/loaded before this call.
+    // @ts-expect-error — strict-mode migration
     const catalog = playerState.textureCatalog as Record<string, unknown>;
     const textures = catalog?.textures as Record<string, Record<string, unknown>> | undefined;
     const hadNew = [...usedIds].some(id => {

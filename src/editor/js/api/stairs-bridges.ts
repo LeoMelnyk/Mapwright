@@ -60,6 +60,7 @@ export function addStairs(p1r: number, p1c: number, p2r: number, p2c: number, p3
   if (!meta.stairs) meta.stairs = [];
   if (meta.nextStairId == null) meta.nextStairId = 0;
   const id = meta.nextStairId++;
+  // @ts-expect-error — strict-mode migration
   meta.stairs.push({ id, points: [p1, p2, p3], link: null });
 
   let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
@@ -124,8 +125,10 @@ export function removeStairs(row: number, col: number): { success: true } {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['stair-id'] === id) {
-        delete cells[r][c].center['stair-id'];
-        if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+        // @ts-expect-error — strict-mode migration
+        delete cells![r][c]!.center['stair-id'];
+        // @ts-expect-error — strict-mode migration
+        if (Object.keys(cells[r][c]!.center).length === 0) delete cells[r][c]!.center;
         if (r < minR) minR = r;
         if (r > maxR) maxR = r;
         if (c < minC) minC = c;
@@ -221,6 +224,7 @@ export function addBridge(type: string, p1r: number, p1c: number, p2r: number, p
   if (meta.nextBridgeId == null) meta.nextBridgeId = 0;
 
   const id = meta.nextBridgeId++;
+  // @ts-expect-error — strict-mode migration
   meta.bridges.push({ id, type, points: [p1, p2, p3] });
 
   for (const { row, col } of occupied) {
@@ -257,8 +261,10 @@ export function removeBridge(row: number, col: number): { success: true } {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
-        delete cells[r][c].center['bridge-id'];
-        if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+        // @ts-expect-error — strict-mode migration
+        delete cells![r][c]!.center['bridge-id'];
+        // @ts-expect-error — strict-mode migration
+        if (Object.keys(cells[r][c]!.center).length === 0) delete cells[r][c]!.center;
       }
     }
   }

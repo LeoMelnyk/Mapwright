@@ -19,11 +19,11 @@ export function initSessionPanel(containerEl: HTMLElement): void {
   subscribe(() => render(), 'session');
 }
 
-let _lastSessionActive = null;
-let _lastSessionCells = null;
-let _lastPlayerCount = null;
-let _lastDmViewActive = null;
-let _lastDmViewForced = null;
+let _lastSessionActive: any = null;
+let _lastSessionCells: any = null;
+let _lastPlayerCount: any = null;
+let _lastDmViewActive: any = null;
+let _lastDmViewForced: any = null;
 function render() {
   if (!container) return;
 
@@ -114,7 +114,7 @@ function render() {
   });
 
   container.querySelector('.session-room-select')?.addEventListener('change', (e) => {
-    const key = e.target.value;
+    const key = (e.target! as any).value;
     if (!key) return;
     const [r, c] = key.split(',').map(Number);
     setStartingRoom(r, c);
@@ -141,7 +141,7 @@ function render() {
 
   container.querySelectorAll('.session-link-row').forEach(row => {
     const copy = () => {
-      const url = row.dataset.url;
+      const url = (row as HTMLElement).dataset.url;
       if (!url) return;
       navigator.clipboard.writeText(url).then(() => showToast('Link copied'));
     };

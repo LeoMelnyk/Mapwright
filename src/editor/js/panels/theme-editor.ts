@@ -19,7 +19,7 @@ const THEME_PROPS = [
   ['compassRoseStroke', 'Compass Stroke'],
 ];
 
-function parseRgbaColor(color) {
+function parseRgbaColor(color: any) {
   const m = color?.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
   if (m) {
     const hex = '#' + [m[1], m[2], m[3]].map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
@@ -29,7 +29,7 @@ function parseRgbaColor(color) {
   return { hex: color || '#000000', alpha: 1 };
 }
 
-function hexAlphaToRgba(hex, alpha) {
+function hexAlphaToRgba(hex: any, alpha: any) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -40,6 +40,7 @@ function hexAlphaToRgba(hex, alpha) {
 const CTE_COLLAPSED_KEY = 'mw-cte-collapsed';
 function loadCteCollapsed() {
   try {
+    // @ts-expect-error — strict-mode migration
     const saved = JSON.parse(localStorage.getItem(CTE_COLLAPSED_KEY));
     if (Array.isArray(saved)) return new Set(saved);
   } catch {}
@@ -52,9 +53,9 @@ function saveCteCollapsed() {
 }
 
 // Use setTimeout instead of requestIdleCallback — rIC gets starved by the animated render loop
-const idle = (cb) => setTimeout(cb, 0);
+const idle = (cb: any) => setTimeout(cb, 0);
 
-function buildCustomEditor(customEditorEl) {
+function buildCustomEditor(customEditorEl: any) {
   const theme = getCustomThemeBase();
   const shading = theme.outerShading || {};
   const hatchColor = theme.hatchColor || theme.wallStroke || '#000000';
@@ -73,7 +74,7 @@ function buildCustomEditor(customEditorEl) {
   const bufferOpacity = theme.bufferShadingOpacity ?? 0;
 
   // ── HTML helpers ───────────────────────────────────────────────────────
-  const colorRow = (label, attrName, attrVal, val) =>
+  const colorRow = (label: any, attrName: any, attrVal: any, val: any) =>
     `<div class="cte-row">
       <span class="cte-label">${label}</span>
       <div class="cte-color-group">
@@ -82,7 +83,7 @@ function buildCustomEditor(customEditorEl) {
       </div>
     </div>`;
 
-  const sliderRow = (label, numAttr, rangeAttr, key, val, min, max, step) =>
+  const sliderRow = (label: any, numAttr: any, rangeAttr: any, key: any, val: any, min: any, max: any, step: any) =>
     `<div class="cte-slider-row">
       <div class="cte-slider-header">
         <span class="cte-label">${label}</span>
@@ -91,7 +92,7 @@ function buildCustomEditor(customEditorEl) {
       <input type="range" ${rangeAttr}="${key}" class="cte-range" value="${val}" min="${min}" max="${max}" step="${step}">
     </div>`;
 
-  const selectRow = (label, attrs, optionsHtml) =>
+  const selectRow = (label: any, attrs: any, optionsHtml: any) =>
     `<div class="cte-row">
       <span class="cte-label">${label}</span>
       <select class="cte-select" ${attrs}>${optionsHtml}</select>
@@ -100,7 +101,7 @@ function buildCustomEditor(customEditorEl) {
   // ── Build HTML ─────────────────────────────────────────────────────────
 
   // Collapsible section wrapper
-  const section = (name, contentHtml) => {
+  const section = (name: any, contentHtml: any) => {
     const isCollapsed = cteCollapsed.has(name);
     return `<div class="cte-section">
       <div class="cte-section-title cte-section-toggle" data-cte-section="${name}">
@@ -245,11 +246,13 @@ function buildCustomEditor(customEditorEl) {
         const t = state.dungeon.metadata.theme;
         if (typeof t !== 'object' || t === null) { revert(); return; }
         try {
+          // @ts-expect-error — strict-mode migration
           const themeObj = { ...t };
           delete themeObj.displayName;
           const key = await saveUserTheme(name, themeObj);
           pushUndo();
           state.dungeon.metadata.theme = `user:${key}`;
+          // @ts-expect-error — strict-mode migration
           state.dungeon.metadata.savedThemeData = { name, theme: themeObj };
           markDirty();
           notify();
@@ -257,7 +260,7 @@ function buildCustomEditor(customEditorEl) {
           revert();
         } catch (err) {
           input.style.borderColor = '#a02030';
-          input.value = err.message;
+          input.value = (err as any).message;
           input.select();
         }
       }
@@ -272,7 +275,7 @@ function buildCustomEditor(customEditorEl) {
   }
 
   // Section collapse/expand toggle
-  customEditorEl.addEventListener('click', (e) => {
+  customEditorEl.addEventListener('click', (e: any) => {
     const toggle = e.target.closest('[data-cte-section]');
     if (!toggle) return;
     const name = toggle.dataset.cteSection;
@@ -291,11 +294,11 @@ function buildCustomEditor(customEditorEl) {
   });
 
   // Color inputs (theme props)
-  customEditorEl.querySelectorAll('input[data-theme-prop]').forEach(input => {
+  customEditorEl.querySelectorAll('input[data-theme-prop]').forEach((input: any) => {
     input.addEventListener('input', () => {
       const prop = input.dataset.themeProp;
       const theme = ensureCustomThemeObject();
-      theme[prop] = input.value;
+      (theme as any)[prop] = input.value;
       const hex = input.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = input.value;
       markDirty();
@@ -304,7 +307,7 @@ function buildCustomEditor(customEditorEl) {
       pushUndo();
       const prop = input.dataset.themeProp;
       const theme = ensureCustomThemeObject();
-      theme[prop] = input.value;
+      (theme as any)[prop] = input.value;
       state.dungeon.metadata.customTheme = theme;
       markDirty();
       notify();
@@ -317,7 +320,7 @@ function buildCustomEditor(customEditorEl) {
   if (gridColorInput) {
     gridColorInput.addEventListener('input', () => {
       const t = ensureCustomThemeObject();
-      t.gridLine = gridColorInput.value;
+      (t as any).gridLine = gridColorInput.value;
       const hex = gridColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = gridColorInput.value;
       invalidateGridCache();
@@ -327,7 +330,7 @@ function buildCustomEditor(customEditorEl) {
     gridColorInput.addEventListener('change', () => {
       pushUndo();
       const t = ensureCustomThemeObject();
-      t.gridLine = gridColorInput.value;
+      (t as any).gridLine = gridColorInput.value;
       invalidateGridCache();
       markDirty();
       notify();
@@ -338,8 +341,8 @@ function buildCustomEditor(customEditorEl) {
   // Grid style selector
   const gridStyleSelect = customEditorEl.querySelector('[data-grid-prop="style"]');
   if (gridStyleSelect) {
-    const syncGridConditions = (val) => {
-      customEditorEl.querySelectorAll('[data-grid-cond]').forEach(el => {
+    const syncGridConditions = (val: any) => {
+      customEditorEl.querySelectorAll('[data-grid-cond]').forEach((el: any) => {
         const allowed = el.dataset.gridCond.split(',');
         el.style.display = allowed.includes(val) ? '' : 'none';
       });
@@ -347,7 +350,7 @@ function buildCustomEditor(customEditorEl) {
     gridStyleSelect.addEventListener('change', () => {
       pushUndo();
       const t = ensureCustomThemeObject();
-      t.gridStyle = gridStyleSelect.value;
+      (t as any).gridStyle = gridStyleSelect.value;
       syncGridConditions(gridStyleSelect.value);
       invalidateGridCache();
       markDirty();
@@ -362,9 +365,10 @@ function buildCustomEditor(customEditorEl) {
     const rangeInput = customEditorEl.querySelector(`[data-grid-range="${prop}"]`);
     if (!numInput || !rangeInput) continue;
     const keyMap = { lineWidth: 'gridLineWidth', opacity: 'gridOpacity', cornerLength: 'gridCornerLength', noise: 'gridNoise' };
-    const sync = (value, source) => {
+    const sync = (value: any, source: any) => {
       const t = ensureCustomThemeObject();
-      t[keyMap[prop]] = Number(value);
+      // @ts-expect-error — strict-mode migration
+      (t as any)[keyMap[prop]] = Number(value);
       if (numInput !== source) numInput.value = value;
       if (rangeInput !== source) rangeInput.value = value;
     };
@@ -379,8 +383,8 @@ function buildCustomEditor(customEditorEl) {
   if (shadingColorInput) {
     shadingColorInput.addEventListener('input', () => {
       const t = ensureCustomThemeObject();
-      if (!t.outerShading) t.outerShading = {};
-      t.outerShading.color = shadingColorInput.value;
+      if (!(t as any).outerShading) (t as any).outerShading = {};
+      (t as any).outerShading.color = shadingColorInput.value;
       const hex = shadingColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = shadingColorInput.value;
       markDirty();
@@ -389,8 +393,8 @@ function buildCustomEditor(customEditorEl) {
     shadingColorInput.addEventListener('change', () => {
       pushUndo();
       const t = ensureCustomThemeObject();
-      if (!t.outerShading) t.outerShading = {};
-      t.outerShading.color = shadingColorInput.value;
+      if (!(t as any).outerShading) (t as any).outerShading = {};
+      (t as any).outerShading.color = shadingColorInput.value;
       markDirty();
       notify();
       renderCustomThumb();
@@ -403,10 +407,10 @@ function buildCustomEditor(customEditorEl) {
     const rangeInput = customEditorEl.querySelector(`[data-shading-range="${prop}"]`);
     if (!numInput || !rangeInput) continue;
 
-    const sync = (value, source) => {
+    const sync = (value: any, source: any) => {
       const t = ensureCustomThemeObject();
-      if (!t.outerShading) t.outerShading = {};
-      t.outerShading[prop] = Number(value);
+      if (!(t as any).outerShading) (t as any).outerShading = {};
+      (t as any).outerShading[prop] = Number(value);
       if (numInput !== source) numInput.value = value;
       if (rangeInput !== source) rangeInput.value = value;
     };
@@ -422,9 +426,9 @@ function buildCustomEditor(customEditorEl) {
     const numInput = customEditorEl.querySelector('[data-wall-prop="roughness"]');
     const rangeInput = customEditorEl.querySelector('[data-wall-range="roughness"]');
     if (numInput && rangeInput) {
-      const sync = (value, source) => {
+      const sync = (value: any, source: any) => {
         const t = ensureCustomThemeObject();
-        t.wallRoughness = Number(value);
+        (t as any).wallRoughness = Number(value);
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
@@ -440,10 +444,10 @@ function buildCustomEditor(customEditorEl) {
   if (wShadowColorInput) {
     wShadowColorInput.addEventListener('input', () => {
       const t = ensureCustomThemeObject();
-      if (!t.wallShadow) t.wallShadow = {};
+      if (!(t as any).wallShadow) (t as any).wallShadow = {};
       const opacityEl = customEditorEl.querySelector('[data-wshadow-prop="opacity"]');
       const alpha = opacityEl ? Number(opacityEl.value) : 0.2;
-      t.wallShadow.color = hexAlphaToRgba(wShadowColorInput.value, alpha);
+      (t as any).wallShadow.color = hexAlphaToRgba(wShadowColorInput.value, alpha);
       const hex = wShadowColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = wShadowColorInput.value;
       markDirty(); notify();
@@ -456,14 +460,14 @@ function buildCustomEditor(customEditorEl) {
     const numInput = customEditorEl.querySelector(`[data-wshadow-prop="${prop}"]`);
     const rangeInput = customEditorEl.querySelector(`[data-wshadow-range="${prop}"]`);
     if (!numInput || !rangeInput) continue;
-    const sync = (value, source) => {
+    const sync = (value: any, source: any) => {
       const t = ensureCustomThemeObject();
-      if (!t.wallShadow) t.wallShadow = {};
+      if (!(t as any).wallShadow) (t as any).wallShadow = {};
       if (prop === 'opacity') {
         const colorInput = customEditorEl.querySelector('[data-wshadow-prop="color"]');
-        t.wallShadow.color = hexAlphaToRgba(colorInput?.value || '#000000', Number(value));
+        (t as any).wallShadow.color = hexAlphaToRgba(colorInput?.value || '#000000', Number(value));
       } else {
-        t.wallShadow[prop] = Number(value);
+        (t as any).wallShadow[prop] = Number(value);
       }
       if (numInput !== source) numInput.value = value;
       if (rangeInput !== source) rangeInput.value = value;
@@ -479,9 +483,9 @@ function buildCustomEditor(customEditorEl) {
     const numInput = customEditorEl.querySelector('[data-buf-prop="opacity"]');
     const rangeInput = customEditorEl.querySelector('[data-buf-range="opacity"]');
     if (numInput && rangeInput) {
-      const sync = (value, source) => {
+      const sync = (value: any, source: any) => {
         const t = ensureCustomThemeObject();
-        t.bufferShadingOpacity = Number(value);
+        (t as any).bufferShadingOpacity = Number(value);
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
@@ -498,7 +502,7 @@ function buildCustomEditor(customEditorEl) {
     hatchStyleSelect.addEventListener('change', () => {
       pushUndo();
       const t = ensureCustomThemeObject();
-      t.hatchStyle = hatchStyleSelect.value;
+      (t as any).hatchStyle = hatchStyleSelect.value;
       markDirty();
       notify();
       renderCustomThumb();
@@ -510,7 +514,7 @@ function buildCustomEditor(customEditorEl) {
   if (hatchColorInput) {
     hatchColorInput.addEventListener('input', () => {
       const t = ensureCustomThemeObject();
-      t.hatchColor = hatchColorInput.value;
+      (t as any).hatchColor = hatchColorInput.value;
       const hex = hatchColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = hatchColorInput.value;
       markDirty();
@@ -519,7 +523,7 @@ function buildCustomEditor(customEditorEl) {
     hatchColorInput.addEventListener('change', () => {
       pushUndo();
       const t = ensureCustomThemeObject();
-      t.hatchColor = hatchColorInput.value;
+      (t as any).hatchColor = hatchColorInput.value;
       markDirty();
       notify();
       renderCustomThumb();
@@ -532,14 +536,14 @@ function buildCustomEditor(customEditorEl) {
     const rangeInput = customEditorEl.querySelector(`[data-hatch-range="${prop}"]`);
     if (!numInput || !rangeInput) continue;
 
-    const sync = (value, source) => {
+    const sync = (value: any, source: any) => {
       const t = ensureCustomThemeObject();
       if (prop === 'opacity') {
-        t.hatchOpacity = Number(value);
+        (t as any).hatchOpacity = Number(value);
       } else if (prop === 'distance') {
-        t.hatchDistance = Number(value);
+        (t as any).hatchDistance = Number(value);
       } else {
-        t.hatchSize = Number(value);
+        (t as any).hatchSize = Number(value);
       }
       if (numInput !== source) numInput.value = value;
       if (rangeInput !== source) rangeInput.value = value;
@@ -556,9 +560,9 @@ function buildCustomEditor(customEditorEl) {
     const numInput = customEditorEl.querySelector('[data-texblend-prop="blendWidth"]');
     const rangeInput = customEditorEl.querySelector('[data-texblend-range="blendWidth"]');
     if (numInput && rangeInput) {
-      const sync = (value, source) => {
+      const sync = (value: any, source: any) => {
         const t = ensureCustomThemeObject();
-        t.textureBlendWidth = Number(value);
+        (t as any).textureBlendWidth = Number(value);
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
@@ -576,7 +580,7 @@ function buildCustomEditor(customEditorEl) {
       const t = ensureCustomThemeObject();
       const opacityEl = customEditorEl.querySelector('[data-caustic-prop="opacity"]');
       const alpha = opacityEl ? Number(opacityEl.value) : 0.55;
-      t.waterCausticColor = hexAlphaToRgba(causticColorInput.value, alpha);
+      (t as any).waterCausticColor = hexAlphaToRgba(causticColorInput.value, alpha);
       const hex = causticColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = causticColorInput.value;
       markDirty(); notify();
@@ -589,10 +593,10 @@ function buildCustomEditor(customEditorEl) {
     const numInput = customEditorEl.querySelector('[data-caustic-prop="opacity"]');
     const rangeInput = customEditorEl.querySelector('[data-caustic-range="opacity"]');
     if (numInput && rangeInput) {
-      const sync = (value, source) => {
+      const sync = (value: any, source: any) => {
         const t = ensureCustomThemeObject();
         const colorInput = customEditorEl.querySelector('[data-caustic-prop="color"]');
-        t.waterCausticColor = hexAlphaToRgba(colorInput?.value || '#a0d7ff', Number(value));
+        (t as any).waterCausticColor = hexAlphaToRgba(colorInput?.value || '#a0d7ff', Number(value));
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
@@ -610,7 +614,7 @@ function buildCustomEditor(customEditorEl) {
       const t = ensureCustomThemeObject();
       const opacityEl = customEditorEl.querySelector('[data-lava-caustic-prop="opacity"]');
       const alpha = opacityEl ? Number(opacityEl.value) : 0.55;
-      t.lavaCausticColor = hexAlphaToRgba(lavaCausticColorInput.value, alpha);
+      (t as any).lavaCausticColor = hexAlphaToRgba(lavaCausticColorInput.value, alpha);
       const hex = lavaCausticColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = lavaCausticColorInput.value;
       markDirty(); notify();
@@ -623,10 +627,10 @@ function buildCustomEditor(customEditorEl) {
     const numInput = customEditorEl.querySelector('[data-lava-caustic-prop="opacity"]');
     const rangeInput = customEditorEl.querySelector('[data-lava-caustic-range="opacity"]');
     if (numInput && rangeInput) {
-      const sync = (value, source) => {
+      const sync = (value: any, source: any) => {
         const t = ensureCustomThemeObject();
         const colorInput = customEditorEl.querySelector('[data-lava-caustic-prop="color"]');
-        t.lavaCausticColor = hexAlphaToRgba(colorInput?.value || '#ffa03c', Number(value));
+        (t as any).lavaCausticColor = hexAlphaToRgba(colorInput?.value || '#ffa03c', Number(value));
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
@@ -642,9 +646,9 @@ function buildCustomEditor(customEditorEl) {
     const numInput = customEditorEl.querySelector('[data-lava-light-prop="intensity"]');
     const rangeInput = customEditorEl.querySelector('[data-lava-light-range="intensity"]');
     if (numInput && rangeInput) {
-      const sync = (value, source) => {
+      const sync = (value: any, source: any) => {
         const t = ensureCustomThemeObject();
-        t.lavaLightIntensity = Number(value);
+        (t as any).lavaLightIntensity = Number(value);
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
@@ -656,12 +660,12 @@ function buildCustomEditor(customEditorEl) {
   }
 
   // Label color pickers (borderColor, fontColor, backgroundColor)
-  customEditorEl.querySelectorAll('input[data-label-prop]').forEach(input => {
+  customEditorEl.querySelectorAll('input[data-label-prop]').forEach((input: any) => {
     input.addEventListener('input', () => {
       const prop = input.dataset.labelProp;
       const t = ensureCustomThemeObject();
-      if (!t.labels) t.labels = {};
-      t.labels[prop] = input.value;
+      if (!(t as any).labels) (t as any).labels = {};
+      (t as any).labels[prop] = input.value;
       const hex = input.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = input.value;
       markDirty();
@@ -671,8 +675,8 @@ function buildCustomEditor(customEditorEl) {
       pushUndo();
       const prop = input.dataset.labelProp;
       const t = ensureCustomThemeObject();
-      if (!t.labels) t.labels = {};
-      t.labels[prop] = input.value;
+      if (!(t as any).labels) (t as any).labels = {};
+      (t as any).labels[prop] = input.value;
       state.dungeon.metadata.customTheme = t;
       markDirty();
       notify();
@@ -710,7 +714,7 @@ function ensureCustomThemeObject() {
 }
 
 /** Debounced persist of a user theme to disk after edits. */
-let _persistTimer = null;
+let _persistTimer: any = null;
 function _persistUserTheme() {
   const t = state.dungeon.metadata.theme;
   if (typeof t !== 'string' || !t.startsWith('user:')) return;
@@ -735,11 +739,11 @@ function syncCustomEditorValues() {
   const saveBtn = customEditor?.querySelector('#btn-save-user-theme');
   if (saveBtn) {
     const isCustomObj = typeof state.dungeon.metadata.theme === 'object' && state.dungeon.metadata.theme !== null;
-    saveBtn.style.display = isCustomObj ? '' : 'none';
+    (saveBtn as HTMLElement).style.display = isCustomObj ? '' : 'none';
   }
 
   // Helper: set a color swatch input + its hex span
-  const syncColor = (input, value) => {
+  const syncColor = (input: any, value: any) => {
     if (!input || !value) return;
     input.value = value;
     const hex = input.parentElement?.querySelector('.cte-color-hex');
@@ -747,19 +751,20 @@ function syncCustomEditorValues() {
   };
 
   // Theme color props
-  customEditor.querySelectorAll('input[data-theme-prop]').forEach(input => {
-    const prop = input.dataset.themeProp;
-    if (theme[prop]) syncColor(input, theme[prop]);
+  customEditor!.querySelectorAll('input[data-theme-prop]').forEach(input => {
+    const prop = (input as HTMLElement).dataset.themeProp;
+    if (theme[prop!]) syncColor(input, theme[prop!]);
   });
 
   // Grid controls
-  syncColor(customEditor.querySelector('[data-grid-prop="color"]'), theme.gridLine || '#000000');
-  const gridStyleSel = customEditor.querySelector('[data-grid-prop="style"]');
+  syncColor(customEditor!.querySelector('[data-grid-prop="color"]'), theme.gridLine || '#000000');
+  const gridStyleSel = customEditor!.querySelector('[data-grid-prop="style"]');
   const gridStyleVal = theme.gridStyle ?? 'lines';
-  if (gridStyleSel) gridStyleSel.value = gridStyleVal;
-  customEditor.querySelectorAll('[data-grid-cond]').forEach(el => {
-    const allowed = el.dataset.gridCond.split(',');
-    el.style.display = allowed.includes(gridStyleVal) ? '' : 'none';
+  if (gridStyleSel) (gridStyleSel as HTMLInputElement).value = gridStyleVal;
+  customEditor!.querySelectorAll('[data-grid-cond]').forEach(el => {
+    // @ts-expect-error — strict-mode migration
+    const allowed = (el as HTMLElement).dataset.gridCond.split(',');
+    (el as HTMLElement).style.display = allowed.includes(gridStyleVal) ? '' : 'none';
   });
   for (const [prop, val] of [
     ['lineWidth', theme.gridLineWidth ?? 4],
@@ -767,55 +772,55 @@ function syncCustomEditorValues() {
     ['cornerLength', theme.gridCornerLength ?? 0.3],
     ['noise', theme.gridNoise ?? 0],
   ]) {
-    const ni = customEditor.querySelector(`[data-grid-prop="${prop}"]`);
-    const ri = customEditor.querySelector(`[data-grid-range="${prop}"]`);
-    if (ni) ni.value = val;
-    if (ri) ri.value = val;
+    const ni = customEditor!.querySelector(`[data-grid-prop="${prop}"]`);
+    const ri = customEditor!.querySelector(`[data-grid-range="${prop}"]`);
+    if (ni) (ni as HTMLInputElement).value = val;
+    if (ri) (ri as HTMLInputElement).value = val;
   }
 
   // Wall controls
-  const wrNum = customEditor.querySelector('[data-wall-prop="roughness"]');
-  const wrRange = customEditor.querySelector('[data-wall-range="roughness"]');
-  if (wrNum) wrNum.value = theme.wallRoughness ?? 0;
-  if (wrRange) wrRange.value = theme.wallRoughness ?? 0;
+  const wrNum = customEditor!.querySelector('[data-wall-prop="roughness"]');
+  const wrRange = customEditor!.querySelector('[data-wall-range="roughness"]');
+  if (wrNum) (wrNum as HTMLInputElement).value = theme.wallRoughness ?? 0;
+  if (wrRange) (wrRange as HTMLInputElement).value = theme.wallRoughness ?? 0;
 
   const ws = theme.wallShadow || {};
   const parsedWS = parseRgbaColor(ws.color || 'rgba(0,0,0,0.2)');
-  syncColor(customEditor.querySelector('[data-wshadow-prop="color"]'), parsedWS.hex);
+  syncColor(customEditor!.querySelector('[data-wshadow-prop="color"]'), parsedWS.hex);
   for (const [prop, fallback] of [
     ['opacity', parsedWS.alpha],
     ['blur', ws.blur ?? 8],
     ['offsetX', ws.offsetX ?? 4],
     ['offsetY', ws.offsetY ?? 4],
   ]) {
-    const ni = customEditor.querySelector(`[data-wshadow-prop="${prop}"]`);
-    const ri = customEditor.querySelector(`[data-wshadow-range="${prop}"]`);
-    if (ni) ni.value = fallback;
-    if (ri) ri.value = fallback;
+    const ni = customEditor!.querySelector(`[data-wshadow-prop="${prop}"]`);
+    const ri = customEditor!.querySelector(`[data-wshadow-range="${prop}"]`);
+    if (ni) (ni as HTMLInputElement).value = fallback;
+    if (ri) (ri as HTMLInputElement).value = fallback;
   }
 
   // Buffer opacity
-  const bufN = customEditor.querySelector('[data-buf-prop="opacity"]');
-  const bufR = customEditor.querySelector('[data-buf-range="opacity"]');
-  if (bufN) bufN.value = theme.bufferShadingOpacity ?? 0;
-  if (bufR) bufR.value = theme.bufferShadingOpacity ?? 0;
+  const bufN = customEditor!.querySelector('[data-buf-prop="opacity"]');
+  const bufR = customEditor!.querySelector('[data-buf-range="opacity"]');
+  if (bufN) (bufN as HTMLInputElement).value = theme.bufferShadingOpacity ?? 0;
+  if (bufR) (bufR as HTMLInputElement).value = theme.bufferShadingOpacity ?? 0;
 
   // Outer shading controls
   const shading = theme.outerShading || {};
-  syncColor(customEditor.querySelector('[data-shading-prop="color"]'), shading.color);
+  syncColor(customEditor!.querySelector('[data-shading-prop="color"]'), shading.color);
   for (const prop of ['size', 'roughness']) {
     const val = shading[prop] ?? 0;
-    const numInput = customEditor.querySelector(`[data-shading-prop="${prop}"]`);
-    const rangeInput = customEditor.querySelector(`[data-shading-range="${prop}"]`);
-    if (numInput) numInput.value = val;
-    if (rangeInput) rangeInput.value = val;
+    const numInput = customEditor!.querySelector(`[data-shading-prop="${prop}"]`);
+    const rangeInput = customEditor!.querySelector(`[data-shading-range="${prop}"]`);
+    if (numInput) (numInput as HTMLInputElement).value = val;
+    if (rangeInput) (rangeInput as HTMLInputElement).value = val;
   }
 
   // Hatching controls
-  const hatchStyleSel = customEditor.querySelector('[data-hatch-prop="style"]');
-  if (hatchStyleSel) hatchStyleSel.value = theme.hatchStyle ?? 'lines';
+  const hatchStyleSel = customEditor!.querySelector('[data-hatch-prop="style"]');
+  if (hatchStyleSel) (hatchStyleSel as HTMLInputElement).value = theme.hatchStyle ?? 'lines';
 
-  syncColor(customEditor.querySelector('[data-hatch-prop="color"]'), theme.hatchColor || theme.wallStroke || '#000000');
+  syncColor(customEditor!.querySelector('[data-hatch-prop="color"]'), theme.hatchColor || theme.wallStroke || '#000000');
 
   const pairs = [
     ['size', theme.hatchSize ?? 0.5],
@@ -823,47 +828,51 @@ function syncCustomEditorValues() {
     ['distance', theme.hatchDistance ?? 1],
   ];
   for (const [prop, val] of pairs) {
-    const numInput = customEditor.querySelector(`[data-hatch-prop="${prop}"]`);
-    const rangeInput = customEditor.querySelector(`[data-hatch-range="${prop}"]`);
-    if (numInput) numInput.value = val;
-    if (rangeInput) rangeInput.value = val;
+    const numInput = customEditor!.querySelector(`[data-hatch-prop="${prop}"]`);
+    const rangeInput = customEditor!.querySelector(`[data-hatch-range="${prop}"]`);
+    if (numInput) (numInput as HTMLInputElement).value = val;
+    if (rangeInput) (rangeInput as HTMLInputElement).value = val;
   }
 
   // Texture blend width
-  const tbNum = customEditor.querySelector('[data-texblend-prop="blendWidth"]');
-  const tbRange = customEditor.querySelector('[data-texblend-range="blendWidth"]');
+  const tbNum = customEditor!.querySelector('[data-texblend-prop="blendWidth"]');
+  const tbRange = customEditor!.querySelector('[data-texblend-range="blendWidth"]');
   const tbVal = theme.textureBlendWidth ?? 0.35;
-  if (tbNum) tbNum.value = tbVal;
-  if (tbRange) tbRange.value = tbVal;
+  if (tbNum) (tbNum as HTMLInputElement).value = tbVal;
+  if (tbRange) (tbRange as HTMLInputElement).value = tbVal;
 
   // Water caustic
   const parsedCausticSync = parseRgbaColor(theme.waterCausticColor || 'rgba(160,215,255,0.55)');
-  syncColor(customEditor.querySelector('[data-caustic-prop="color"]'), parsedCausticSync.hex);
-  const causticOpN = customEditor.querySelector('[data-caustic-prop="opacity"]');
-  const causticOpR = customEditor.querySelector('[data-caustic-range="opacity"]');
-  if (causticOpN) causticOpN.value = parsedCausticSync.alpha;
-  if (causticOpR) causticOpR.value = parsedCausticSync.alpha;
+  syncColor(customEditor!.querySelector('[data-caustic-prop="color"]'), parsedCausticSync.hex);
+  const causticOpN = customEditor!.querySelector('[data-caustic-prop="opacity"]');
+  const causticOpR = customEditor!.querySelector('[data-caustic-range="opacity"]');
+  // @ts-expect-error — strict-mode migration
+  if (causticOpN) (causticOpN as HTMLInputElement).value = parsedCausticSync.alpha;
+  // @ts-expect-error — strict-mode migration
+  if (causticOpR) (causticOpR as HTMLInputElement).value = parsedCausticSync.alpha;
 
   // Lava caustic
   const parsedLavaCausticSync = parseRgbaColor(theme.lavaCausticColor || 'rgba(255,160,60,0.55)');
-  syncColor(customEditor.querySelector('[data-lava-caustic-prop="color"]'), parsedLavaCausticSync.hex);
-  const lavaCausticOpN = customEditor.querySelector('[data-lava-caustic-prop="opacity"]');
-  const lavaCausticOpR = customEditor.querySelector('[data-lava-caustic-range="opacity"]');
-  if (lavaCausticOpN) lavaCausticOpN.value = parsedLavaCausticSync.alpha;
-  if (lavaCausticOpR) lavaCausticOpR.value = parsedLavaCausticSync.alpha;
+  syncColor(customEditor!.querySelector('[data-lava-caustic-prop="color"]'), parsedLavaCausticSync.hex);
+  const lavaCausticOpN = customEditor!.querySelector('[data-lava-caustic-prop="opacity"]');
+  const lavaCausticOpR = customEditor!.querySelector('[data-lava-caustic-range="opacity"]');
+  // @ts-expect-error — strict-mode migration
+  if (lavaCausticOpN) (lavaCausticOpN as HTMLInputElement).value = parsedLavaCausticSync.alpha;
+  // @ts-expect-error — strict-mode migration
+  if (lavaCausticOpR) (lavaCausticOpR as HTMLInputElement).value = parsedLavaCausticSync.alpha;
 
   // Lava light intensity
-  const lavaLightIntN = customEditor.querySelector('[data-lava-light-prop="intensity"]');
-  const lavaLightIntR = customEditor.querySelector('[data-lava-light-range="intensity"]');
+  const lavaLightIntN = customEditor!.querySelector('[data-lava-light-prop="intensity"]');
+  const lavaLightIntR = customEditor!.querySelector('[data-lava-light-range="intensity"]');
   const lavaLightIntVal = theme.lavaLightIntensity ?? 0.70;
-  if (lavaLightIntN) lavaLightIntN.value = lavaLightIntVal;
-  if (lavaLightIntR) lavaLightIntR.value = lavaLightIntVal;
+  if (lavaLightIntN) (lavaLightIntN as HTMLInputElement).value = lavaLightIntVal;
+  if (lavaLightIntR) (lavaLightIntR as HTMLInputElement).value = lavaLightIntVal;
 
   // Label colors
   const labelColors = theme.labels || {};
-  syncColor(customEditor.querySelector('[data-label-prop="borderColor"]'), labelColors.borderColor || '#000000');
-  syncColor(customEditor.querySelector('[data-label-prop="fontColor"]'), labelColors.fontColor || '#000000');
-  syncColor(customEditor.querySelector('[data-label-prop="backgroundColor"]'), labelColors.backgroundColor || '#FFFFFF');
+  syncColor(customEditor!.querySelector('[data-label-prop="borderColor"]'), labelColors.borderColor || '#000000');
+  syncColor(customEditor!.querySelector('[data-label-prop="fontColor"]'), labelColors.fontColor || '#000000');
+  syncColor(customEditor!.querySelector('[data-label-prop="backgroundColor"]'), labelColors.backgroundColor || '#FFFFFF');
 }
 
 function renderCustomThumb() {
@@ -878,9 +887,10 @@ function renderCustomThumb() {
   idle(() => {
     try {
       const preview = renderThemePreview(themeToRender);
-      const ctx = customThumb.querySelector('canvas').getContext('2d');
-      ctx.clearRect(0, 0, 64, 64);
-      ctx.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
+      // @ts-expect-error — strict-mode migration
+      const ctx = customThumb!.querySelector('canvas').getContext('2d');
+      ctx!.clearRect(0, 0, 64, 64);
+      ctx!.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
     } catch (err) {
       console.warn('[theme-picker] Custom preview failed:', err);
     }

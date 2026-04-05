@@ -5,7 +5,7 @@ const BASE_URL = '/lights/';
 const CACHE_KEY = 'light-catalog';
 const CACHE_VER_KEY = 'light-catalog-ver';
 
-let catalog = null; // { names, lights, byCategory, categoryOrder }
+let catalog: any = null; // { names, lights, byCategory, categoryOrder }
 
 /**
  * A light preset entry in the catalog:
@@ -23,7 +23,7 @@ let catalog = null; // { names, lights, byCategory, categoryOrder }
  * }
  */
 
-function buildFromMetadata(entries) {
+function buildFromMetadata(entries: any) {
   const names = [];
   const lights = {};
   const byCategory = {};
@@ -45,20 +45,20 @@ function buildFromMetadata(entries) {
     };
 
     if (data.type === 'directional' && data.spread != null) {
-      entry.spread = data.spread;
+      (entry as any).spread = data.spread;
     }
-    if (data.dimRadius != null) entry.dimRadius = data.dimRadius;
-    if (data.z != null)          entry.z = data.z;
-    if (data.animation?.type)   entry.animation = { ...data.animation };
+    if (data.dimRadius != null) (entry as any).dimRadius = data.dimRadius;
+    if (data.z != null)          (entry as any).z = data.z;
+    if (data.animation?.type)   (entry as any).animation = { ...data.animation };
 
-    lights[key] = entry;
+    (lights as any)[key] = entry;
     names.push(key);
 
-    if (!byCategory[entry.category]) {
-      byCategory[entry.category] = [];
+    if (!(byCategory as any)[entry.category]) {
+      (byCategory as any)[entry.category] = [];
       categoryOrder.push(entry.category);
     }
-    byCategory[entry.category].push(key);
+    (byCategory as any)[entry.category].push(key);
   }
 
   return { names, lights, byCategory, categoryOrder };
@@ -81,6 +81,7 @@ export async function loadLightCatalog(): Promise<any> {
     const cachedVer = localStorage.getItem(CACHE_VER_KEY);
     if (cachedVer === version) {
       try {
+        // @ts-expect-error — strict-mode migration
         const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
         if (cached?.length) {
           catalog = buildFromMetadata(cached);
@@ -91,7 +92,7 @@ export async function loadLightCatalog(): Promise<any> {
 
     // Fresh fetch — load all .light files
     const results = await Promise.allSettled(
-      keys.map(async (key) => {
+      keys.map(async (key: any) => {
         const r = await fetch(`${BASE_URL}${key}.light`, { cache: 'no-cache' });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return { key, data: await r.json() };

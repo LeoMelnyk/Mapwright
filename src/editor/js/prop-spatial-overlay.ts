@@ -7,6 +7,7 @@ import { getOverlayPropAABB } from './prop-overlay.js';
 const DEFAULT_BUCKET_SIZE = 25; // world-feet per bucket (5 cells at gridSize=5)
 
 export class PropSpatialIndex {
+  [key: string]: any;
   constructor(bucketSize = DEFAULT_BUCKET_SIZE) {
     this._bucketSize = bucketSize;
     this._buckets = new Map();    // "bx,by" → Set<propId>
@@ -25,7 +26,7 @@ export class PropSpatialIndex {
    * @param {object} propCatalog - { props: { [type]: PropDefinition } }
    * @param {number} gridSize
    */
-  rebuild(props, propCatalog, gridSize) {
+  rebuild(props: any, propCatalog: any, gridSize: any) {
     this._buckets.clear();
     this._propAABBs.clear();
     this._propMap.clear();
@@ -50,7 +51,7 @@ export class PropSpatialIndex {
    * Insert a single prop into the index.
    * @param {object} prop - overlay prop entry
    */
-  _insertInternal(prop) {
+  _insertInternal(prop: any) {
     const propDef = this._propCatalog?.props?.[prop.type];
     if (!propDef) return;
 
@@ -111,7 +112,7 @@ export class PropSpatialIndex {
    * @param {object} propCatalog
    * @param {number} gridSize
    */
-  ensureBuilt(props, propCatalog, gridSize) {
+  ensureBuilt(props: any, propCatalog: any, gridSize: any) {
     if (this._dirty || this._props !== props) {
       this.rebuild(props, propCatalog, gridSize);
     }
@@ -125,7 +126,7 @@ export class PropSpatialIndex {
    * @param {number} maxY
    * @returns {string[]} array of prop IDs
    */
-  query(minX, minY, maxX, maxY) {
+  query(minX: any, minY: any, maxX: any, maxY: any) {
     const results = new Set();
     const bMinX = Math.floor(minX / this._bucketSize);
     const bMinY = Math.floor(minY / this._bucketSize);
@@ -155,7 +156,7 @@ export class PropSpatialIndex {
    * @param {number} y
    * @returns {string[]} array of prop IDs (topmost last)
    */
-  queryPoint(x, y) {
+  queryPoint(x: any, y: any) {
     return this.query(x, y, x, y);
   }
 
@@ -164,7 +165,7 @@ export class PropSpatialIndex {
    * @param {string} propId
    * @returns {object|null}
    */
-  getProp(propId) {
+  getProp(propId: any) {
     return this._propMap.get(propId) ?? null;
   }
 
@@ -173,7 +174,7 @@ export class PropSpatialIndex {
    * @param {string} propId
    * @returns {{ minX, minY, maxX, maxY }|null}
    */
-  getAABB(propId) {
+  getAABB(propId: any) {
     return this._propAABBs.get(propId) ?? null;
   }
 
@@ -183,14 +184,14 @@ export class PropSpatialIndex {
    * Look up the prop covering (row, col) via the cell grid.
    * Returns { propId, propType, anchorRow, anchorCol } or null.
    */
-  lookupPropAtCell(row, col) {
+  lookupPropAtCell(row: any, col: any) {
     return this._cellGrid.get(`${row},${col}`) ?? null;
   }
 
   /**
    * Check if (row, col) is covered by any prop. O(1).
    */
-  isPropAtCell(row, col) {
+  isPropAtCell(row: any, col: any) {
     return this._cellGrid.has(`${row},${col}`);
   }
 
@@ -201,11 +202,11 @@ export class PropSpatialIndex {
    * @param {number} gridSize
    * @returns {object|null} the overlay prop entry or null
    */
-  findPropAtGrid(row, col, gridSize) {
+  findPropAtGrid(row: any, col: any, gridSize: any) {
     const x = col * gridSize;
     const y = row * gridSize;
     if (!this._props) return null;
-    return this._props.find(p =>
+    return this._props.find((p: any) =>
       Math.abs(p.x - x) < 0.01 && Math.abs(p.y - y) < 0.01
     ) ?? null;
   }

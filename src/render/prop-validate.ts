@@ -19,7 +19,7 @@ const TOLERANCE = 0.02;
  * @param {object} propDef - Parsed prop definition with footprint, padding, commands
  * @returns {{ valid: boolean, warnings: Array<{ line: number, command: string, message: string }> }}
  */
-export function validatePropBounds(propDef) {
+export function validatePropBounds(propDef: any) {
   const { footprint, padding = 0, commands } = propDef;
   const [rows, cols] = footprint;
   const p = padding;
@@ -59,7 +59,7 @@ export function validatePropBounds(propDef) {
    * Extract coordinate checks for a given command.
    * Returns an array of { label, value, bound, side } objects.
    */
-  function getCommandBounds(cmd) {
+  function getCommandBounds(cmd: any) {
     switch (cmd.type) {
       case 'rect':
         return [
@@ -135,7 +135,7 @@ export function validatePropBounds(propDef) {
     }
   }
 
-  function getCutoutBounds(cmd) {
+  function getCutoutBounds(cmd: any) {
     switch (cmd.subShape) {
       case 'circle':
         return [
@@ -170,7 +170,7 @@ export function validatePropBounds(propDef) {
  * @param {string} text - Raw .prop file contents
  * @returns {{ name: string, footprint: number[], valid: boolean, warnings: Array }}
  */
-export function validatePropFile(text) {
+export function validatePropFile(text: any) {
   const propDef = parsePropFile(text);
   const { valid, warnings } = validatePropBounds(propDef);
   return {

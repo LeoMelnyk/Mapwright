@@ -9,20 +9,20 @@ export const CURRENT_FORMAT_VERSION = 4;
 // Migrations are applied in sequence: 0→1, 1→2, etc.
 const migrations = [
   // v0 → v1: half-texture format migration (pre-existing logic from io.js)
-  { from: 0, to: 1, migrate: (json) => migrateHalfTextures(json) },
+  { from: 0, to: 1, migrate: (json: any) => migrateHalfTextures(json) },
   // v1 → v2: extract cell.prop entries into metadata.props[] overlay array
-  { from: 1, to: 2, migrate: (json) => migratePropsToOverlay(json) },
+  { from: 1, to: 2, migrate: (json: any) => migratePropsToOverlay(json) },
   // v2 → v3: double grid resolution (half-cell coordinates)
-  { from: 2, to: 3, migrate: (json) => migrateToHalfCell(json) },
+  { from: 2, to: 3, migrate: (json: any) => migrateToHalfCell(json) },
   // v3 → v4: convert old arc trim format to per-cell trimClip/trimWall/trimPassable
-  { from: 3, to: 4, migrate: (json) => _migrateArcToPerCell(json.cells) },
+  { from: 3, to: 4, migrate: (json: any) => _migrateArcToPerCell(json.cells) },
 ];
 
 /**
  * Extract all cell.prop entries into metadata.props[] overlay format.
  * Cell.prop entries are deleted after copying — the overlay is the sole source of truth.
  */
-function migratePropsToOverlay(json) {
+function migratePropsToOverlay(json: any) {
   if (!json.metadata) return;
   if (json.metadata.props) return; // already migrated
 
@@ -66,7 +66,7 @@ function migratePropsToOverlay(json) {
 /** Properties replicated to all 4 sub-cells (floor appearance). */
 const REPLICATE_KEYS = ['fill', 'texture', 'textureSecondary', 'waterDepth', 'lavaDepth', 'hazard'];
 
-function migrateToHalfCell(json) {
+function migrateToHalfCell(json: any) {
   const { metadata, cells } = json;
   if (!metadata || !cells || cells.length === 0) return;
 
@@ -96,7 +96,7 @@ function migrateToHalfCell(json) {
       for (const key of REPLICATE_KEYS) {
         if (cell[key] !== undefined && cell[key] !== null) {
           // Deep-copy objects (texture), shallow-copy primitives
-          base[key] = typeof cell[key] === 'object' ? JSON.parse(JSON.stringify(cell[key])) : cell[key];
+          (base as any)[key] = typeof cell[key] === 'object' ? JSON.parse(JSON.stringify(cell[key])) : cell[key];
         }
       }
 
@@ -173,7 +173,7 @@ function migrateToHalfCell(json) {
       } else {
         // Non-trim diagonals: check if the cell is a trim hypotenuse (adjacent to void)
         // even without trimCorner — the old trim tool didn't always set trimCorner.
-        const isVoid = (vr, vc) => vr < 0 || vr >= oldRows || vc < 0 || vc >= oldCols || !cells[vr][vc];
+        const isVoid = (vr: any, vc: any) => vr < 0 || vr >= oldRows || vc < 0 || vc >= oldCols || !cells[vr][vc];
         let inferredCorner = null;
         if (cell['ne-sw']) {
           if (isVoid(r - 1, c) && isVoid(r, c - 1)) inferredCorner = 'nw';
@@ -288,10 +288,10 @@ function migrateToHalfCell(json) {
   if (metadata.stairs) {
     for (const stair of metadata.stairs) {
       if (stair.points) {
-        stair.points = stair.points.map(([r, c]) => [r * 2, c * 2]);
+        stair.points = stair.points.map(([r, c]: any) => [r * 2, c * 2]);
       }
       if (stair.corners) {
-        stair.corners = stair.corners.map(([r, c]) => [r * 2, c * 2]);
+        stair.corners = stair.corners.map(([r, c]: any) => [r * 2, c * 2]);
       }
     }
   }
@@ -300,10 +300,10 @@ function migrateToHalfCell(json) {
   if (metadata.bridges) {
     for (const bridge of metadata.bridges) {
       if (bridge.points) {
-        bridge.points = bridge.points.map(([r, c]) => [r * 2, c * 2]);
+        bridge.points = bridge.points.map(([r, c]: any) => [r * 2, c * 2]);
       }
       if (bridge.corners) {
-        bridge.corners = bridge.corners.map(([r, c]) => [r * 2, c * 2]);
+        bridge.corners = bridge.corners.map(([r, c]: any) => [r * 2, c * 2]);
       }
     }
   }
@@ -324,8 +324,8 @@ function migrateToHalfCell(json) {
  * outer edges to the internal sub-cell boundary — placing the wall at the
  * midpoint of the original 5ft cell.
  */
-function _centerMidwallDoors(cells, numRows, numCols) {
-  const isDoor = v => v === 'd' || v === 's';
+function _centerMidwallDoors(cells: any, numRows: any, numCols: any) {
+  const isDoor = (v: any) => v === 'd' || v === 's';
 
   for (let r = 0; r < numRows; r += 2) {
     for (let c = 0; c < numCols; c += 2) {
@@ -366,7 +366,7 @@ function _centerMidwallDoors(cells, numRows, numCols) {
   }
 }
 
-function _fixArcTrims(cells) {
+function _fixArcTrims(cells: any) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -482,7 +482,7 @@ function _fixArcTrims(cells) {
  * Safe to run multiple times (idempotent) and on maps created at half-cell
  * resolution (no-op since those maps have correct per-cell trim flags).
  */
-function _repairArcFloodBoundary(cells) {
+function _repairArcFloodBoundary(cells: any) {
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
@@ -540,7 +540,7 @@ function _repairArcFloodBoundary(cells) {
 }
 
 /** Check if a point is in the corner's quadrant relative to arc center. */
-function _inCornerQuad(x, y, cx, cy, corner) {
+function _inCornerQuad(x: any, y: any, cx: any, cy: any, corner: any) {
   switch (corner) {
     case 'nw': return x <= cx && y <= cy;
     case 'ne': return x >= cx && y <= cy;
@@ -554,7 +554,7 @@ function _inCornerQuad(x, y, cx, cy, corner) {
  * Arc corner coords are grid intersections: NW is at the first cell (inclusive),
  * while NE/SW/SE are one past the last cell in their respective directions.
  */
-function _inTrimZone(r, c, cornerRow, cornerCol, corner) {
+function _inTrimZone(r: any, c: any, cornerRow: any, cornerCol: any, corner: any) {
   switch (corner) {
     case 'nw': return r >= cornerRow && c >= cornerCol;
     case 'ne': return r >= cornerRow && c < cornerCol;
@@ -568,7 +568,7 @@ function _inTrimZone(r, c, cornerRow, cornerCol, corner) {
  * to new per-cell format (trimClip, trimWall, trimPassable).
  * Also cleans up fogBoundary markers and stale trimInsideArc from earlier migrations.
  */
-function _migrateArcToPerCell(cells) {
+function _migrateArcToPerCell(cells: any) {
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
@@ -723,7 +723,7 @@ function _migrateArcToPerCell(cells) {
  * Repair: add trimCrossing to arc cells from intermediate code versions
  * that stored trimWall/trimClip but not trimCrossing.
  */
-function _repairMissingCrossing(cells) {
+function _repairMissingCrossing(cells: any) {
   let repaired = 0;
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {

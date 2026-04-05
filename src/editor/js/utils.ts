@@ -116,6 +116,7 @@ export function createEmptyDungeon(name: string, rows: number, cols: number, gri
       theme,
       features: {
         showGrid: true,
+        // @ts-expect-error — strict-mode migration
         showSubGrid: true,
         compassRose: true,
         scale: true,

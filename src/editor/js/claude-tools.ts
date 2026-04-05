@@ -756,7 +756,7 @@ export const CORE_TOOL_DEFINITIONS = TOOL_DEFINITIONS.filter(t => CORE_TOOL_NAME
 // ── Tool execution ────────────────────────────────────────────────────────────
 
 /** Validate that required fields are present. Returns an error string or null. */
-function requireFields(input, ...fields) {
+function requireFields(input: any, ...fields: any[]) {
   for (const f of fields) {
     if (input[f] === undefined || input[f] === null) {
       return `Missing required argument "${f}". Got: ${JSON.stringify(input)}`;
@@ -773,8 +773,8 @@ const VALID_FILLS = new Set(['difficult-terrain', 'pit', 'water', 'lava']);
  * Returns the API result (or an error object with a descriptive message).
  */
 export function executeTool(name: string, input: Record<string, any>): any {
-  if (!window.editorAPI) return { error: 'editorAPI not available' };
-  const fn = window.editorAPI[name]?.bind(window.editorAPI);
+  if (!(window as any).editorAPI) return { error: 'editorAPI not available' };
+  const fn = (window as any).editorAPI[name]?.bind((window as any).editorAPI);
   if (typeof fn !== 'function') return { error: `Unknown tool: "${name}". Check tool name spelling.` };
 
   // Per-tool argument validation — gives the model actionable error messages
@@ -898,7 +898,7 @@ export function executeTool(name: string, input: Record<string, any>): any {
           try {
             const cr = Math.floor((input.r1 + input.r2) / 2);
             const cc = Math.floor((input.c1 + input.c2) / 2);
-            window.editorAPI.setLabel(cr, cc, String(input.label));
+            (window as any).editorAPI.setLabel(cr, cc, String(input.label));
           } catch { /* room may not have center cell yet — model should call setLabel separately */ }
         }
         return roomResult;
@@ -971,6 +971,6 @@ export function executeTool(name: string, input: Record<string, any>): any {
       default:                  return { error: `No dispatch for tool: "${name}". This tool exists but has no handler — report this bug.` };
     }
   } catch (err) {
-    return { error: `${name} failed: ${err.message}` };
+    return { error: `${name} failed: ${(err as any).message}` };
   }
 }

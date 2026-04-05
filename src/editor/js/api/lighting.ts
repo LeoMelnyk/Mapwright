@@ -45,11 +45,11 @@ export function placeLight(x: number, y: number, config: Record<string, any> = {
   };
 
   // Z-height (height above floor in feet) — from preset or explicit config
-  if (config.z != null) light.z = config.z;
+  if (config.z != null) (light as any).z = config.z;
 
   if (type === 'directional') {
-    light.angle = config.angle ?? 0;
-    light.spread = config.spread ?? 45;
+    (light as any).angle = config.angle ?? 0;
+    (light as any).spread = config.spread ?? 45;
   }
 
   meta.lights.push(light);
@@ -135,13 +135,13 @@ export function listLightPresets(): { success: true; categories: string[]; prese
     categories: catalog.categoryOrder,
     presets: Object.fromEntries(
       Object.entries(catalog.lights).map(([k, v]) => [k, {
-        displayName: v.displayName,
-        category: v.category,
-        type: v.type,
-        color: v.color,
-        radius: v.radius,
-        intensity: v.intensity,
-        falloff: v.falloff,
+        displayName: (v as any).displayName,
+        category: (v as any).category,
+        type: (v as any).type,
+        color: (v as any).color,
+        radius: (v as any).radius,
+        intensity: (v as any).intensity,
+        falloff: (v as any).falloff,
       }])
     ),
   };

@@ -6,7 +6,7 @@ const DEFAULTS = {
   model: 'qwen3.5:9b',
 };
 
-let _cache = null;
+let _cache: any = null;
 
 function load() {
   if (_cache) return _cache;

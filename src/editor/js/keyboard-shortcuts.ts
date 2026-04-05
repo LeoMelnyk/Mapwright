@@ -27,7 +27,7 @@ import {
  */
 export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name: string) => void): { onKeyDown: (e: KeyboardEvent) => void; onKeyUp: (e: KeyboardEvent) => void } {
 
-  function onKeyDown(e) {
+  function onKeyDown(e: any) {
     // Don't intercept when typing in inputs
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
 
@@ -46,6 +46,7 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
     // ? or /: open keyboard shortcuts modal
     if ((e.key === '?' || e.key === '/') && !e.ctrlKey) {
       e.preventDefault();
+      // @ts-expect-error — strict-mode migration
       window._openShortcutsModal?.();
       return;
     }
@@ -54,11 +55,11 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
     if (e.ctrlKey && e.key === 'c' && state.activeTool === 'select' && state.selectedCells.length > 0) {
       e.preventDefault();
       const cells = state.dungeon.cells;
-      const anchorRow = Math.min(...state.selectedCells.map(c => c.row));
-      const anchorCol = Math.min(...state.selectedCells.map(c => c.col));
+      const anchorRow = Math.min(...state.selectedCells.map((c: any) => c.row));
+      const anchorCol = Math.min(...state.selectedCells.map((c: any) => c.col));
       state.clipboard = {
         anchorRow, anchorCol,
-        cells: state.selectedCells.map(({ row, col }) => ({
+        cells: state.selectedCells.map(({ row, col }: any) => ({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
           data: cells[row][col] ? JSON.parse(JSON.stringify(cells[row][col])) : null,
@@ -73,15 +74,17 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
     if (e.ctrlKey && e.key === 'c' && state.activeTool === 'prop' && state.selectedPropAnchors.length > 0) {
       e.preventDefault();
       const meta = state.dungeon.metadata;
-      const anchorRow = Math.min(...state.selectedPropAnchors.map(a => a.row));
-      const anchorCol = Math.min(...state.selectedPropAnchors.map(a => a.col));
+      const anchorRow = Math.min(...state.selectedPropAnchors.map((a: any) => a.row));
+      const anchorCol = Math.min(...state.selectedPropAnchors.map((a: any) => a.col));
       const props = [];
       const copiedIds = new Set();
       for (const a of state.selectedPropAnchors) {
         // Use propId when available (from box-select/hit-test), else spatial lookup
         const overlay = a.propId
-          ? meta?.props?.find(p => p.id === a.propId)
-          : (() => { const e = lookupPropAt(a.row, a.col); return e ? meta?.props?.find(p => p.id === e.propId) : null; })();
+          // @ts-expect-error — strict-mode migration
+          ? meta?.props?.find((p: any) => p.id === a.propId)
+          // @ts-expect-error — strict-mode migration
+          : (() => { const e = lookupPropAt(a.row, a.col); return e ? meta?.props?.find((p: any) => p.id === e.propId) : null; })();
         if (overlay && !copiedIds.has(overlay.id)) {
           copiedIds.add(overlay.id);
           const { row, col } = a;
@@ -117,11 +120,11 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
     if (e.ctrlKey && e.key === 'x' && state.activeTool === 'select' && state.selectedCells.length > 0) {
       e.preventDefault();
       const cells = state.dungeon.cells;
-      const anchorRow = Math.min(...state.selectedCells.map(c => c.row));
-      const anchorCol = Math.min(...state.selectedCells.map(c => c.col));
+      const anchorRow = Math.min(...state.selectedCells.map((c: any) => c.row));
+      const anchorCol = Math.min(...state.selectedCells.map((c: any) => c.col));
       state.clipboard = {
         anchorRow, anchorCol,
-        cells: state.selectedCells.map(({ row, col }) => ({
+        cells: state.selectedCells.map(({ row, col }: any) => ({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
           data: cells[row][col] ? JSON.parse(JSON.stringify(cells[row][col])) : null,
@@ -145,14 +148,16 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
     if (e.ctrlKey && e.key === 'x' && state.activeTool === 'prop' && state.selectedPropAnchors.length > 0) {
       e.preventDefault();
       const meta = state.dungeon.metadata;
-      const anchorRow = Math.min(...state.selectedPropAnchors.map(a => a.row));
-      const anchorCol = Math.min(...state.selectedPropAnchors.map(a => a.col));
+      const anchorRow = Math.min(...state.selectedPropAnchors.map((a: any) => a.row));
+      const anchorCol = Math.min(...state.selectedPropAnchors.map((a: any) => a.col));
       const props = [];
       const copiedIds = new Set();
       for (const a of state.selectedPropAnchors) {
         const overlay = a.propId
-          ? meta?.props?.find(p => p.id === a.propId)
-          : (() => { const e = lookupPropAt(a.row, a.col); return e ? meta?.props?.find(p => p.id === e.propId) : null; })();
+          // @ts-expect-error — strict-mode migration
+          ? meta?.props?.find((p: any) => p.id === a.propId)
+          // @ts-expect-error — strict-mode migration
+          : (() => { const e = lookupPropAt(a.row, a.col); return e ? meta?.props?.find((p: any) => p.id === e.propId) : null; })();
         if (overlay && !copiedIds.has(overlay.id)) {
           copiedIds.add(overlay.id);
           const { row, col } = a;
@@ -183,7 +188,9 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
         for (const anchor of state.selectedPropAnchors) {
           const entry = lookupPropAt(anchor.row, anchor.col);
           if (entry && meta?.props) {
-            const idx = meta.props.findIndex(p => p.id === entry.propId);
+            // @ts-expect-error — strict-mode migration
+            const idx = meta.props.findIndex((p: any) => p.id === entry.propId);
+            // @ts-expect-error — strict-mode migration
             if (idx >= 0) meta.props.splice(idx, 1);
           }
         }
@@ -220,6 +227,7 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
       if (state.activeTool !== 'select') {
         // Switch to select tool first
         const btn = document.querySelector('[data-tool="select"]');
+        // @ts-expect-error — strict-mode migration
         if (btn) btn.click();
       }
       state.pasteMode = true;
@@ -238,7 +246,7 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
 
     // F1–F5: toggle sidebar panels
     const panelKeys = { 'F1': 'themes', 'F2': 'levels', 'F3': 'textures', 'F4': 'lighting', 'F5': 'session' };
-    if (panelKeys[e.key]) { e.preventDefault(); togglePanel(panelKeys[e.key]); return; }
+    if ((panelKeys as any)[e.key]) { e.preventDefault(); togglePanel((panelKeys as any)[e.key]); return; }
 
     // Ctrl+1–9: switch to level by index
     if (e.ctrlKey && /^[1-9]$/.test(e.key)) {
@@ -252,10 +260,11 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
     if (state.sessionToolsActive) {
       // 1/2: switch session tools
       const sessionToolKeys = { '1': 'doors', '2': 'range', '3': 'fog-reveal' };
-      if (sessionToolKeys[e.key]) {
+      if ((sessionToolKeys as any)[e.key]) {
         e.preventDefault();
-        const toolName = sessionToolKeys[e.key];
+        const toolName = (sessionToolKeys as any)[e.key];
         const btn = document.querySelector(`[data-session-tool="${toolName}"]`);
+        // @ts-expect-error — strict-mode migration
         if (btn) btn.click();
         return;
       }
@@ -267,17 +276,18 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
         const activeIdx = shapes.findIndex(b => b.classList.contains('active'));
         const dir = e.shiftKey ? -1 : 1;
         const nextIdx = (activeIdx + dir + shapes.length) % shapes.length;
+        // @ts-expect-error — strict-mode migration
         shapes[nextIdx].click();
         return;
       }
-      if (toolKeys[e.key]) return;
+      if ((toolKeys as any)[e.key]) return;
     }
 
     // Number keys for tools + L for light
-    if (toolKeys[e.key]) {
-      setTool(toolKeys[e.key]);
+    if ((toolKeys as any)[e.key]) {
+      setTool((toolKeys as any)[e.key]);
       updateToolButtons();
-      applyToolSideEffects(toolKeys[e.key]);
+      applyToolSideEffects((toolKeys as any)[e.key]);
     }
 
     // Tab / Shift+Tab: cycle sub-options for current tool
@@ -312,6 +322,7 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
       if (state.fillMode === 'lava') state.lavaDepth = next;
       else state.waterDepth = next;
       document.querySelectorAll('[data-water-depth]').forEach(b => {
+        // @ts-expect-error — strict-mode migration
         b.classList.toggle('active', parseInt(b.dataset.waterDepth, 10) === next);
       });
       return;
@@ -322,7 +333,7 @@ export function initKeyboardShortcuts(tools: Record<string, any>, setTool: (name
     if (tool?.onKeyDown) tool.onKeyDown(e);
   }
 
-  function onKeyUp(e) {
+  function onKeyUp(e: any) {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
 
     // Forward to active tool (needed for room tool shift-release)

@@ -25,7 +25,8 @@ function findPropAtGrid(row: number, col: number): any {
   const entry = lookupPropAt(row, col);
   if (!entry) return null;
   const meta = state.dungeon.metadata;
-  return meta?.props?.find(p => p.id === entry.propId) ?? null;
+  // @ts-expect-error — strict-mode migration
+  return meta?.props?.find((p: any) => p.id === entry.propId) ?? null;
 }
 
 /** Remove the overlay prop at the given grid position. Returns true if found. */
@@ -34,7 +35,9 @@ function removePropAtGrid(row: number, col: number): boolean {
   if (!entry) return false;
   const meta = state.dungeon.metadata;
   if (!meta?.props) return false;
-  const idx = meta.props.findIndex(p => p.id === entry.propId);
+  // @ts-expect-error — strict-mode migration
+  const idx = meta.props.findIndex((p: any) => p.id === entry.propId);
+  // @ts-expect-error — strict-mode migration
   if (idx >= 0) { meta.props.splice(idx, 1); return true; }
   return false;
 }
@@ -128,7 +131,9 @@ export function placeProp(row: number, col: number, propType: string, facing: nu
         presetId: lightEntry.preset,
         propRef: { row, col },
       };
+      // @ts-expect-error — strict-mode migration
       if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+      // @ts-expect-error — strict-mode migration
       if (preset.animation?.type) light.animation = { ...preset.animation };
       meta.lights.push(light);
     }
@@ -216,15 +221,15 @@ export function listProps(): { success: true; categories: string[]; props: Recor
     categories: catalog.categories,
     props: Object.fromEntries(
       Object.entries(catalog.props).map(([k, v]) => [k, {
-        name: v.name,
-        category: v.category,
-        footprint: v.footprint,
-        facing: v.facing,
-        placement: v.placement || null,
-        roomTypes: v.roomTypes || [],
-        typicalCount: v.typicalCount || null,
-        clustersWith: v.clustersWith || [],
-        notes: v.notes || null,
+        name: (v as any).name,
+        category: (v as any).category,
+        footprint: (v as any).footprint,
+        facing: (v as any).facing,
+        placement: (v as any).placement || null,
+        roomTypes: (v as any).roomTypes || [],
+        typicalCount: (v as any).typicalCount || null,
+        clustersWith: (v as any).clustersWith || [],
+        notes: (v as any).notes || null,
       }])
     ),
   };
@@ -240,17 +245,17 @@ export function getPropsForRoomType(roomType: string): { success: boolean; props
   if (!catalog) return { success: false, props: [] };
   const results = [];
   for (const [key, v] of Object.entries(catalog.props)) {
-    if (v.roomTypes?.includes(roomType) || v.roomTypes?.includes('any')) {
+    if ((v as any).roomTypes?.includes(roomType) || (v as any).roomTypes?.includes('any')) {
       results.push({
         name: key,
-        displayName: v.name,
-        category: v.category,
-        footprint: v.footprint,
-        facing: v.facing,
-        placement: v.placement || null,
-        typicalCount: v.typicalCount || null,
-        clustersWith: v.clustersWith || [],
-        notes: v.notes || null,
+        displayName: (v as any).name,
+        category: (v as any).category,
+        footprint: (v as any).footprint,
+        facing: (v as any).facing,
+        placement: (v as any).placement || null,
+        typicalCount: (v as any).typicalCount || null,
+        clustersWith: (v as any).clustersWith || [],
+        notes: (v as any).notes || null,
       });
     }
   }
@@ -301,12 +306,15 @@ export function removePropsInRect(r1: number, c1: number, r2: number, c2: number
   const gridSize = meta.gridSize || 5;
   pushUndo();
 
+  // @ts-expect-error — strict-mode migration
   const before = meta.props.length;
-  meta.props = meta.props.filter(p => {
+  // @ts-expect-error — strict-mode migration
+  meta.props = meta.props.filter((p: any) => {
     const pRow = Math.round(p.y / gridSize);
     const pCol = Math.round(p.x / gridSize);
     return pRow < minR || pRow > maxR || pCol < minC || pCol > maxC;
   });
+  // @ts-expect-error — strict-mode migration
   const removed = before - meta.props.length;
 
   // Remove linked lights for deleted props
@@ -348,7 +356,7 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
   // so north wall -> 0, south -> 180, east -> 270, west -> 90
   const WALL_FACINGS = { north: 0, south: 180, east: 270, west: 90 };
   const autoFacing = (def.facing && (def.placement === 'wall' || def.placement === 'corner'))
-    ? WALL_FACINGS[wall]
+    ? (WALL_FACINGS as any)[wall]
     : 0;
   const facing = options.facing ?? autoFacing;
   const gap = options.gap ?? 0;
@@ -377,6 +385,7 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
 
     if (skipDoors) {
       const cell = cells[wr]?.[wc];
+      // @ts-expect-error — strict-mode migration
       if (cell?.[wall] === 'd' || cell?.[wall] === 's') { i++; continue; }
     }
 
@@ -405,6 +414,7 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
     }
   }
 
+  // @ts-expect-error — strict-mode migration
   return { success: true, placed };
 }
 
@@ -464,6 +474,7 @@ export function lineProps(roomLabel: string, propType: string, startRow: number,
     c += dc;
   }
 
+  // @ts-expect-error — strict-mode migration
   return { success: true, placed };
 }
 
@@ -511,6 +522,7 @@ export function scatterProps(roomLabel: string, propType: string, count: number,
     } catch { continue; }
   }
 
+  // @ts-expect-error — strict-mode migration
   return { success: true, placed };
 }
 
@@ -538,7 +550,7 @@ export function clusterProps(roomLabel: string, props: Array<{ type: string; dr:
       getApi().placeProp(r, c, p.type, facing);
       placed.push({ type: p.type, row: r, col: c });
     } catch (e) {
-      failed.push({ type: p.type, row: r, col: c, error: e.message });
+      failed.push({ type: p.type, row: r, col: c, error: (e as any).message });
     }
   }
 
@@ -555,7 +567,8 @@ export function clusterProps(roomLabel: string, props: Array<{ type: string; dr:
 export function setPropZIndex(propId: string, zOrPreset: string | number): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
   if (!meta?.props) throw new Error('No overlay props');
-  const prop = meta.props.find(p => p.id === propId);
+  // @ts-expect-error — strict-mode migration
+  const prop = meta.props.find((p: any) => p.id === propId);
   if (!prop) throw new Error(`No prop with id "${propId}"`);
 
   pushUndo();
@@ -571,10 +584,12 @@ export function setPropZIndex(propId: string, zOrPreset: string | number): { suc
 export function bringForward(propId: string): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
   if (!meta?.props) throw new Error('No overlay props');
-  const prop = meta.props.find(p => p.id === propId);
+  // @ts-expect-error — strict-mode migration
+  const prop = meta.props.find((p: any) => p.id === propId);
   if (!prop) throw new Error(`No prop with id "${propId}"`);
 
   // Find the next prop with a higher z-index
+  // @ts-expect-error — strict-mode migration
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
   const idx = sorted.findIndex(p => p.id === propId);
   if (idx < sorted.length - 1) {
@@ -593,9 +608,11 @@ export function bringForward(propId: string): { success: true; zIndex: number } 
 export function sendBackward(propId: string): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
   if (!meta?.props) throw new Error('No overlay props');
-  const prop = meta.props.find(p => p.id === propId);
+  // @ts-expect-error — strict-mode migration
+  const prop = meta.props.find((p: any) => p.id === propId);
   if (!prop) throw new Error(`No prop with id "${propId}"`);
 
+  // @ts-expect-error — strict-mode migration
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
   const idx = sorted.findIndex(p => p.id === propId);
   if (idx > 0) {
@@ -648,7 +665,7 @@ export function suggestPropPosition(roomLabel: string, propType: string, options
       // Pick a wall edge, prefer options.preferWall or default to north
       const wall = options.preferWall || 'north';
       const WALL_FACINGS = { north: 0, south: 180, east: 270, west: 90 };
-      rotation = WALL_FACINGS[wall] ?? 0;
+      rotation = (WALL_FACINGS as any)[wall] ?? 0;
 
       if (wall === 'north')      { row = bounds.r1; col = centerCol; }
       else if (wall === 'south') { row = bounds.r2; col = centerCol; }

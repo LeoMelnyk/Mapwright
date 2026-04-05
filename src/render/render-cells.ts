@@ -87,7 +87,7 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
   if (!skipPhases?.bridges) {
     _t('bridges', () => {
       const getTextureImageForBridges = textureOptions?.catalog
-        ? (id) => { const e = textureOptions.catalog.textures[id]; return e?.img && (e.img.complete !== false) ? e.img : null; }
+        ? (id: any) => { const e = textureOptions.catalog.textures[id]; return e?.img && (e.img.complete !== false) ? e.img : null; }
         : null;
       renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
     });

@@ -7,6 +7,7 @@ import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../ut
  * Door tool: click on cell edges to place/toggle doors (normal, secret, or invisible).
  */
 export class DoorTool extends Tool {
+  [key: string]: any;
   constructor() {
     super('door', 'D', 'pointer');
   }
@@ -17,21 +18,22 @@ export class DoorTool extends Tool {
       s:  'Click a wall to place secret door · Appears as wall to players until discovered',
       id: 'Click a wall to place invisible door · Hidden from players; DM can open',
     };
-    state.statusInstruction = statuses[state.doorType || 'd'];
+    state.statusInstruction = (statuses as any)[state.doorType || 'd'];
   }
 
   onDeactivate() {
     state.statusInstruction = null;
   }
 
-  onRightClick(row, col, edge) {
+  onRightClick(row: any, col: any, edge: any) {
     if (!edge) return;
     const cells = state.dungeon.cells;
     const { direction, row: er, col: ec } = edge;
 
     if (!isInBounds(cells, er, ec)) return;
-    if (!cells[er][ec]) return;
-    if (!cells[er][ec][direction]) return; // nothing to clear
+    if (!(cells as any)[er][ec]) return;
+    // @ts-expect-error — strict-mode migration
+    if (!cells![er][ec][direction]) return; // nothing to clear
 
     pushUndo('Remove door');
     deleteEdgeReciprocal(cells, er, ec, direction);
@@ -41,7 +43,7 @@ export class DoorTool extends Tool {
     notify();
   }
 
-  onMouseDown(row, col, edge) {
+  onMouseDown(row: any, col: any, edge: any) {
     if (!edge) return;
     const cells = state.dungeon.cells;
     const { direction, row: er, col: ec } = edge;
@@ -51,7 +53,7 @@ export class DoorTool extends Tool {
 
     const cell = cells[er][ec];
     const doorType = state.doorType || 'd'; // 'd' or 's'
-    const isToggleOff = cell[direction] === doorType;
+    const isToggleOff = (cell as any)[direction] === doorType;
     pushUndo(isToggleOff ? 'Remove door' : (doorType === 's' ? 'Secret door' : 'Add door'));
 
     // Toggle: if clicking same value, clear it (revert to wall)

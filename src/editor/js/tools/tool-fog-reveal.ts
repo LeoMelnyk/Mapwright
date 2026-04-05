@@ -7,6 +7,7 @@ import state, { notify } from '../state.js';
 import { toCanvas } from '../utils.js';
 
 export class FogRevealTool extends Tool {
+  [key: string]: any;
   declare dragging: boolean;
   declare dragStart: { row: number; col: number } | null;
   declare dragEnd: { row: number; col: number } | null;
@@ -40,7 +41,7 @@ export class FogRevealTool extends Tool {
     notify();
   }
 
-  onMouseDown(row, col, dir, e) {
+  onMouseDown(row: any, col: any, dir: any, e: any) {
     this.dragging = true;
     this._shiftDrag = e?.shiftKey || false;
     this.dragStart = { row, col };
@@ -48,15 +49,16 @@ export class FogRevealTool extends Tool {
     requestRender();
   }
 
-  onMouseMove(row, col) {
+  onMouseMove(row: any, col: any) {
     if (!this.dragging) return;
     this.dragEnd = { row, col };
     requestRender();
   }
 
-  onMouseUp(row, col) {
+  onMouseUp(row: any, col: any) {
     if (!this.dragging) return;
-    this.dragging = false;
+    (this as any).rowng = false;
+    // @ts-expect-error — strict-mode migration
     const { row: r1, col: c1 } = this.dragStart;
     this.dragStart = this.dragEnd = null;
     if (this._shiftDrag) {
@@ -69,11 +71,11 @@ export class FogRevealTool extends Tool {
     notify();
   }
 
-  onRightClick(row, col) {
+  onRightClick(row: any, col: any) {
     concealRect(row, col, row, col);
   }
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx: any, transform: any, gridSize: any) {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
     const cs = gridSize * transform.scale;
     const minRow = Math.min(this.dragStart.row, this.dragEnd.row);

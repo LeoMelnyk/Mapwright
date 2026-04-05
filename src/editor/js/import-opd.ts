@@ -18,7 +18,7 @@ const FORMAT_VERSION = 4;  // current format (half-cell + per-cell arcs)
  * Classify an OPD door type.
  * Returns "door", "secret", "open", or "stairs".
  */
-function classifyDoor(type) {
+function classifyDoor(type: any) {
   switch (type) {
     case 0:  return 'open';    // empty / open passage
     case 2:  return 'open';    // archway
@@ -34,7 +34,7 @@ function classifyDoor(type) {
  * Convert OPD direction {x, y} to our cardinal direction names
  * and the reciprocal direction for the neighbouring cell.
  */
-function dirToCardinal(dir) {
+function dirToCardinal(dir: any) {
   if (dir.x ===  1) return { self: 'east',  reciprocal: 'west'  };
   if (dir.x === -1) return { self: 'west',  reciprocal: 'east'  };
   if (dir.y ===  1) return { self: 'south', reciprocal: 'north' };
@@ -51,7 +51,7 @@ function dirToCardinal(dir) {
  * The triangle tapers toward the direction of travel, matching OPD's
  * directional stair arrows.
  */
-function buildStairPoints(row, col, dir) {
+function buildStairPoints(row: any, col: any, dir: any) {
   // Grid-corner coords: cell (r,c) has corners (r,c), (r,c+1), (r+1,c), (r+1,c+1).
   // The base edge is the side the stair enters FROM (opposite to dir).
   // P3 is the midpoint of the far edge so classifyStairShape() → triangle.
@@ -79,7 +79,7 @@ function buildStairPoints(row, col, dir) {
 // ── Subcell helpers ──────────────────────────────────────────────────────────
 
 /** Set a wall/door on both subcells spanning one edge of a 2×2 block. */
-function setEdge(cells, r, c, direction, value) {
+function setEdge(cells: any, r: any, c: any, direction: any, value: any) {
   switch (direction) {
     case 'north':
       if (cells[r]?.[c]) cells[r][c].north = value;
@@ -101,7 +101,7 @@ function setEdge(cells, r, c, direction, value) {
 }
 
 /** Remove a wall/door from both subcells spanning one edge of a 2×2 block. */
-function clearEdge(cells, r, c, direction) {
+function clearEdge(cells: any, r: any, c: any, direction: any) {
   switch (direction) {
     case 'north':
       if (cells[r]?.[c]) delete cells[r][c].north;
@@ -123,7 +123,7 @@ function clearEdge(cells, r, c, direction) {
 }
 
 /** Set a door at the internal subcell boundary (center of a 2×2 block). */
-function setCenterDoor(cells, r, c, axis, value) {
+function setCenterDoor(cells: any, r: any, c: any, axis: any, value: any) {
   if (axis === 'ew') {
     // Internal E-W boundary: between TL/BL and TR/BR
     if (cells[r]?.[c]) cells[r][c].east = value;
@@ -165,8 +165,8 @@ export function convertOnePageDungeon(opd: any): { metadata: any; cells: any[][]
   const rows = opdRows * RES;
 
   // Helper: OPD coords → our internal (row, col) at 2× scale (top-left subcell)
-  const toRow = y => (y - minY) * RES;
-  const toCol = x => (x - minX) * RES;
+  const toRow = (y: any) => (y - minY) * RES;
+  const toCol = (x: any) => (x - minX) * RES;
 
   // ── 2. Blank grid (all void) ───────────────────────────────────────
   const cells = [];
@@ -303,10 +303,10 @@ export function convertOnePageDungeon(opd: any): { metadata: any; cells: any[][]
 
   // ── 8. Props (columns, archways, portcullis) → metadata.props[] ────
   const gridSize = 5 / RES; // internal gridSize = 2.5
-  const props = [];
+  const props: any = [];
   let nextPropId = 1;
 
-  function addProp(row, col, type, rotation = 0) {
+  function addProp(row: any, col: any, type: any, rotation = 0) {
     props.push({
       id: `prop_${nextPropId++}`,
       type,
@@ -450,9 +450,13 @@ export function convertOnePageDungeon(opd: any): { metadata: any; cells: any[][]
       const allCols = hypotenuse.map(c => c.col).concat(voided.map(c => c.col));
       let arcCenter = { row: r0, col: c0 };
       if (allRows.length > 0) {
+        // @ts-expect-error — strict-mode migration
         const minR = Math.min(...allRows);
+        // @ts-expect-error — strict-mode migration
         const maxR = Math.max(...allRows);
+        // @ts-expect-error — strict-mode migration
         const minC = Math.min(...allCols);
+        // @ts-expect-error — strict-mode migration
         const maxC = Math.max(...allCols);
         switch (cn) {
           case 'nw': arcCenter = { row: minR, col: minC }; break;
@@ -463,7 +467,8 @@ export function convertOnePageDungeon(opd: any): { metadata: any; cells: any[][]
       }
 
       // Filter voided → insideArc (cells between diagonal and arc curve)
-      const insideArc = [];
+      const insideArc: any = [];
+      // @ts-expect-error — strict-mode migration
       let acxGrid, acyGrid;
       switch (cn) {
         case 'nw': acxGrid = arcCenter.col + sz; acyGrid = arcCenter.row + sz; break;
@@ -472,7 +477,9 @@ export function convertOnePageDungeon(opd: any): { metadata: any; cells: any[][]
         case 'se': acxGrid = arcCenter.col - sz; acyGrid = arcCenter.row - sz; break;
       }
       voided = voided.filter(({ row: vr, col: vc }) => {
+        // @ts-expect-error — strict-mode migration
         const dx = Math.max(vc - acxGrid, 0, acxGrid - (vc + 1));
+        // @ts-expect-error — strict-mode migration
         const dy = Math.max(vr - acyGrid, 0, acyGrid - (vr + 1));
         const outside = Math.sqrt(dx * dx + dy * dy) > sz;
         if (!outside) insideArc.push({ row: vr, col: vc });
@@ -481,6 +488,7 @@ export function convertOnePageDungeon(opd: any): { metadata: any; cells: any[][]
 
       // Build preview and compute per-cell trim data
       const preview = { hypotenuse, voided, insideArc, arcCenter, size: sz };
+      // @ts-expect-error — strict-mode migration
       const trimData = computeTrimCells(preview, cn, false, false);
 
       // Apply trim data to cells
@@ -528,8 +536,8 @@ export function convertOnePageDungeon(opd: any): { metadata: any; cells: any[][]
   };
 
   if (stairs.length > 0) {
-    metadata.stairs = stairs;
-    metadata.nextStairId = nextStairId;
+    (metadata as any).stairs = stairs;
+    (metadata as any).nextStairId = nextStairId;
   }
 
   return { metadata, cells };
@@ -541,17 +549,17 @@ const OFFS = { north: [-1, 0], south: [1, 0], west: [0, -1], east: [0, 1] };
 const OPP  = { north: 'south', south: 'north', west: 'east', east: 'west' };
 
 /** Clear cardinal walls on cell + reciprocals, preserving doors. */
-function _clearWalls(cells, r, c, numRows, numCols) {
+function _clearWalls(cells: any, r: any, c: any, numRows: any, numCols: any) {
   const cell = cells[r]?.[c];
   if (!cell) return;
   for (const dir of ['north', 'south', 'east', 'west']) {
     if (cell[dir] && cell[dir] !== 'd' && cell[dir] !== 's') {
       delete cell[dir];
-      const [dr, dc] = OFFS[dir];
+      const [dr, dc] = (OFFS as any)[dir];
       const nr = r + dr, nc = c + dc;
       if (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols) {
         const nb = cells[nr]?.[nc];
-        if (nb && nb[OPP[dir]] !== 'd' && nb[OPP[dir]] !== 's') delete nb[OPP[dir]];
+        if (nb && nb[(OPP as any)[dir]] !== 'd' && nb[(OPP as any)[dir]] !== 's') delete nb[(OPP as any)[dir]];
       }
     }
   }

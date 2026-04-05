@@ -20,7 +20,7 @@ export const Z_PRESETS = {
  */
 export function resolveZIndex(z: string | number): number {
   if (typeof z === 'string') {
-    return Z_PRESETS[z] ?? Z_PRESETS.furniture;
+    return (Z_PRESETS as any)[z] ?? Z_PRESETS.furniture;
   }
   return typeof z === 'number' ? z : Z_PRESETS.furniture;
 }

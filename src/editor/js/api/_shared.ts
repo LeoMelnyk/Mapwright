@@ -74,15 +74,17 @@ function ensureCell(row: number, col: number): Cell {
  * Set a wall/door value on the neighbor cell's reciprocal edge.
  */
 function setReciprocal(row: number, col: number, direction: string, value: EdgeValue | null): void {
-  if (!OPPOSITE[direction]) return;
+  if (!(OPPOSITE as any)[direction]) return;
   const [dr, dc] = OFFSETS[direction];
   const nr = row + dr, nc = col + dc;
   const cells = state.dungeon.cells;
   if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length || 0)) return;
   if (!cells[nr][nc]) cells[nr][nc] = {} as Cell;
   if (value === null) {
+    // @ts-expect-error — strict-mode migration
     delete (cells[nr][nc] as any)[OPPOSITE[direction]];
   } else {
+    // @ts-expect-error — strict-mode migration
     (cells[nr][nc] as any)[OPPOSITE[direction]] = value;
   }
 }

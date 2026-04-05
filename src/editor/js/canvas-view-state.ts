@@ -77,7 +77,7 @@ export const cvState = {
 // renderCells is expensive (thousands of GPU commands). We render it once to an
 // offscreen canvas when the map data changes, then blit the cached image on every
 // frame. Pan/zoom becomes a single drawImage instead of re-rendering all cells.
-let _mapCache = null; // created lazily on first use (avoids module init order issues)
+let _mapCache: any = null; // created lazily on first use (avoids module init order issues)
 
 /**
  * Get or lazily create the offscreen map cache singleton.
@@ -99,8 +99,10 @@ export function getCachedBgImage(dataUrl: string): HTMLImageElement {
   if (_bgImgCache.dataUrl !== dataUrl) {
     const img = new Image();
     img.src = dataUrl;
+    // @ts-expect-error — strict-mode migration
     _bgImgCache = { dataUrl, el: img };
   }
+  // @ts-expect-error — strict-mode migration
   return _bgImgCache.el;
 }
 
@@ -140,4 +142,4 @@ if (typeof requestAnimationFrame === 'function') {
 
 // Debug: skip specific render phases to isolate GPU bottleneck.
 // Set via console: window._skipPhases = { shading: true, lighting: true }
-if (typeof window !== 'undefined') window._skipPhases = {};
+if (typeof window !== 'undefined') (window as any)._skipPhases = {};

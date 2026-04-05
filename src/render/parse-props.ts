@@ -101,41 +101,41 @@ export function parsePropFile(text: string): PropDefinition {
     if (colonIdx === -1) continue;
     const key = trimmed.substring(0, colonIdx).trim().toLowerCase();
     const value = trimmed.substring(colonIdx + 1).trim();
-    header[key] = value;
+    (header as any)[key] = value;
   }
 
   // Extract structured fields
-  const name = header.name || 'Unnamed';
-  const category = header.category || 'Misc';
+  const name = (header as any).name || 'Unnamed';
+  const category = (header as any).category || 'Misc';
 
   // Footprint: "RxC" -> [rows, cols]
   let footprint = [1, 1];
-  if (header.footprint) {
-    const parts = header.footprint.toLowerCase().split('x');
+  if ((header as any).footprint) {
+    const parts = (header as any).footprint.toLowerCase().split('x');
     if (parts.length === 2) {
       footprint = [parseInt(parts[0], 10) || 1, parseInt(parts[1], 10) || 1];
     }
   }
 
   // Facing: "yes"/"true" -> true, anything else -> false
-  const facing = header.facing === 'yes' || header.facing === 'true';
+  const facing = (header as any).facing === 'yes' || (header as any).facing === 'true';
 
   // Shadow: "yes"/"true" -> true (draws soft drop shadow under prop)
-  const shadow = header.shadow === 'yes' || header.shadow === 'true';
+  const shadow = (header as any).shadow === 'yes' || (header as any).shadow === 'true';
 
   // Blocks light: "yes"/"true" -> true (metadata for future lighting integration)
-  const blocksLight = header.blocks_light === 'yes' || header.blocks_light === 'true';
+  const blocksLight = (header as any).blocks_light === 'yes' || (header as any).blocks_light === 'true';
 
   // Height: prop height in feet for z-height shadow projection (default null = infinite)
-  const height = header.height != null ? parseFloat(header.height) : null;
+  const height = (header as any).height != null ? parseFloat((header as any).height) : null;
 
   // Padding: extra cells of overflow around the footprint (default 0)
-  const padding = parseFloat(header.padding) || 0;
+  const padding = parseFloat((header as any).padding) || 0;
 
   // Prop-bundled lights: inline JSON array of { preset, x, y } (normalized 0–cols, 0–rows)
   let propLights = null;
-  if (header.lights) {
-    try { propLights = JSON.parse(header.lights); } catch (e) { warn(`[props] Malformed lights JSON in prop "${name}": ${e.message}`); }
+  if ((header as any).lights) {
+    try { propLights = JSON.parse((header as any).lights); } catch (e) { warn(`[props] Malformed lights JSON in prop "${name}": ${(e as any).message}`); }
   }
 
   // Parse body (draw commands + hitbox/selection commands)
@@ -162,18 +162,20 @@ export function parsePropFile(text: string): PropDefinition {
   )];
 
   // Placement metadata (optional fields — gracefully default to null/empty)
-  const placement = header.placement || null;                  // wall, corner, center, floor, any
-  const roomTypes = header.room_types
-    ? header.room_types.split(',').map(s => s.trim()).filter(Boolean)
+  const placement = (header as any).placement || null;                  // wall, corner, center, floor, any
+  const roomTypes = (header as any).room_types
+    ? (header as any).room_types.split(',').map((s: any) => s.trim()).filter(Boolean)
     : [];
-  const typicalCount = header.typical_count || null;           // single, few, many
-  const clustersWith = header.clusters_with
-    ? header.clusters_with.split(',').map(s => s.trim()).filter(Boolean)
+  const typicalCount = (header as any).typical_count || null;           // single, few, many
+  const clustersWith = (header as any).clusters_with
+    ? (header as any).clusters_with.split(',').map((s: any) => s.trim()).filter(Boolean)
     : [];
-  const notes = header.notes || null;
+  const notes = (header as any).notes || null;
 
   return {
+    // @ts-expect-error — strict-mode migration
     name, category, footprint, facing, shadow, blocksLight, padding, height,
+    // @ts-expect-error — strict-mode migration
     commands, textures, lights: propLights,
     manualHitbox: manualHitboxCmds.length > 0 ? manualHitboxCmds : null,
     manualSelection: manualSelectionCmds.length > 0 ? manualSelectionCmds : null,
@@ -536,7 +538,7 @@ export function flipCommand(cmd: any, footprint: [number, number]): any {
   const cols = footprint[1];
 
   // For linear gradients, horizontal flip negates the angle
-  function flipAngle(result) {
+  function flipAngle(result: any) {
     if (result.angle != null && result.style === 'gradient-linear') {
       return { ...result, angle: -result.angle };
     }
@@ -557,7 +559,7 @@ export function flipCommand(cmd: any, footprint: [number, number]): any {
       return { ...cmd, x1: cols - cmd.x1, x2: cols - cmd.x2 };
 
     case 'poly':
-      return flipAngle({ ...cmd, points: cmd.points.map(([px, py]) => [cols - px, py]) });
+      return flipAngle({ ...cmd, points: cmd.points.map(([px, py]: any) => [cols - px, py]) });
 
     case 'arc':
       // Reflecting angles over the vertical axis: θ → 180° - θ
@@ -692,7 +694,7 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
     }
 
     case 'poly': {
-      const newPoints = cmd.points.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
+      const newPoints = cmd.points.map(([px, py]: any) => rotatePoint(px, py, rotation, footprint));
       return { ...cmd, points: newPoints, angle: rotatedAngle };
     }
 

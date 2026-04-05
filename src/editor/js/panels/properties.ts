@@ -26,9 +26,9 @@ export function init(): void {
 
 // ── Update (called on every state change) ───────────────────────────────────
 
-let _lastSelectedProp = null;
-let _lastSelectedCells = null;
-let _lastSelectMode = null;
+let _lastSelectedProp: any = null;
+let _lastSelectedCells: any = null;
+let _lastSelectMode: any = null;
 function update() {
   const el = panel();
   if (!el) return;
@@ -56,7 +56,7 @@ function update() {
 
 // ── Prop Explorer ───────────────────────────────────────────────────────────
 
-function buildPropExplorer(container) {
+function buildPropExplorer(container: any) {
   explorerBuilt = true;
   const catalog = state.propCatalog;
   if (!catalog || !catalog.categories) return;
@@ -108,8 +108,9 @@ function buildPropExplorer(container) {
   collapseAllBtn.title = 'Collapse All';
   collapseAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>`;
   collapseAllBtn.addEventListener('click', () => {
-    catalog.categories.forEach(cat => collapsedCategories.add(cat));
+    catalog.categories.forEach((cat: any) => collapsedCategories.add(cat));
     scrollArea.querySelectorAll('.prop-category-title').forEach(t => t.classList.remove('open'));
+    // @ts-expect-error — strict-mode migration
     scrollArea.querySelectorAll('.prop-grid').forEach(g => { g.style.display = 'none'; });
   });
 
@@ -120,6 +121,7 @@ function buildPropExplorer(container) {
   expandAllBtn.addEventListener('click', () => {
     collapsedCategories.clear();
     scrollArea.querySelectorAll('.prop-category-title').forEach(t => t.classList.add('open'));
+    // @ts-expect-error — strict-mode migration
     scrollArea.querySelectorAll('.prop-grid').forEach(g => { g.style.display = ''; });
   });
 
@@ -158,23 +160,27 @@ function buildPropExplorer(container) {
 
   // Bind click on category titles (collapse/expand) and thumbnails
   scrollArea.addEventListener('click', (e) => {
-    const catTitle = e.target.closest('.prop-category-title');
+    // @ts-expect-error — strict-mode migration
+    const catTitle = e.target!.closest('.prop-category-title');
     if (catTitle) {
       const cat = catTitle.dataset.category;
       const grid = scrollArea.querySelector(`.prop-grid[data-cat-grid="${cat}"]`);
       if (collapsedCategories.has(cat)) {
         collapsedCategories.delete(cat);
         catTitle.classList.add('open');
+        // @ts-expect-error — strict-mode migration
         if (grid) grid.style.display = '';
       } else {
         collapsedCategories.add(cat);
         catTitle.classList.remove('open');
+        // @ts-expect-error — strict-mode migration
         if (grid) grid.style.display = 'none';
       }
       return;
     }
 
-    const thumb = e.target.closest('.prop-thumb');
+    // @ts-expect-error — strict-mode migration
+    const thumb = e.target!.closest('.prop-thumb');
     if (!thumb) return;
     const propType = thumb.dataset.prop;
     if (!propType) return;
@@ -188,7 +194,7 @@ function buildPropExplorer(container) {
   renderThumbnails(catalog);
 }
 
-function filterProps(query) {
+function filterProps(query: any) {
   const el = panel();
   if (!el) return;
   const explorer = el.querySelector('#prop-explorer');
@@ -201,40 +207,48 @@ function filterProps(query) {
   const visibleCategories = new Set();
 
   thumbs.forEach(thumb => {
+    // @ts-expect-error — strict-mode migration
     const propType = thumb.dataset.prop;
     const label = thumb.querySelector('span')?.textContent?.toLowerCase() || '';
     const match = !query || label.includes(query) || propType.includes(query);
+    // @ts-expect-error — strict-mode migration
     thumb.style.display = match ? '' : 'none';
     if (match) {
       const grid = thumb.parentElement;
       const catTitle = grid?.previousElementSibling;
       if (catTitle && catTitle.classList.contains('prop-category-title')) {
+        // @ts-expect-error — strict-mode migration
         visibleCategories.add(catTitle.dataset.category);
       }
     }
   });
 
   categoryTitles.forEach(title => {
+    // @ts-expect-error — strict-mode migration
     const cat = title.dataset.category;
     const hasVisible = visibleCategories.has(cat);
+    // @ts-expect-error — strict-mode migration
     title.style.display = hasVisible ? '' : 'none';
 
     const grid = explorer.querySelector(`.prop-grid[data-cat-grid="${cat}"]`);
     if (!grid) return;
 
     if (!hasVisible) {
+      // @ts-expect-error — strict-mode migration
       grid.style.display = 'none';
     } else if (query) {
       // While searching, always show matching grids regardless of collapse state
+      // @ts-expect-error — strict-mode migration
       grid.style.display = '';
     } else {
       // No query: respect collapse state
+      // @ts-expect-error — strict-mode migration
       grid.style.display = collapsedCategories.has(cat) ? 'none' : '';
     }
   });
 }
 
-function renderThumbnails(catalog) {
+function renderThumbnails(catalog: any) {
   const allThumbs = panel()?.querySelectorAll('.prop-thumb');
   if (!allThumbs) return;
 
@@ -245,10 +259,11 @@ function renderThumbnails(catalog) {
 
   function renderBatch() {
     let rendered = 0;
-    while (index < allThumbs.length) {
-      const thumb = allThumbs[index];
+    while (index < allThumbs!.length) {
+      const thumb = allThumbs![index];
       index++;
 
+      // @ts-expect-error — strict-mode migration
       const propType = thumb.dataset.prop;
       const def = catalog.props[propType];
       if (!def) continue;
@@ -263,8 +278,8 @@ function renderThumbnails(catalog) {
       const ctx = canvas.getContext('2d');
 
       // White background for visibility against the dark panel
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      ctx!.fillStyle = '#ffffff';
+      ctx!.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
       const transform = { scale, offsetX: 0, offsetY: 0, lineWidth: 1.5 };
 
@@ -278,8 +293,9 @@ function renderThumbnails(catalog) {
 
       const texCat = getTextureCatalog();
       const getTexImg = texCat
-        ? (id) => { const e = texCat.textures[id]; return e?.img?.complete ? e.img : null; }
+        ? (id: any) => { const e = texCat.textures[id]; return e?.img?.complete ? e.img : null; }
         : null;
+      // @ts-expect-error — strict-mode migration
       renderProp(ctx, def, 0, 0, 0, 1, theme, transform, false, getTexImg);
 
       // Replace shimmer with canvas
@@ -308,6 +324,7 @@ function updateSelectedThumb() {
 
   const thumbs = explorer.querySelectorAll('.prop-thumb');
   thumbs.forEach(thumb => {
+    // @ts-expect-error — strict-mode migration
     if (thumb.dataset.prop === state.selectedProp) {
       thumb.classList.add('selected');
     } else {
@@ -359,7 +376,7 @@ function updateCellInfo() {
     // Borders
     bodyHtml += '<div class="prop-section">Borders</div>';
     for (const dir of ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw']) {
-      const val = cell[dir] || '\u2014';
+      const val = (cell as any)[dir] || '\u2014';
       bodyHtml += `<div class="prop-row"><span>${dir}</span><span class="prop-val">${val}</span></div>`;
     }
 
@@ -397,7 +414,7 @@ function updateCellInfo() {
     bodyHtml += `</select></div>`;
     if (currentFill === 'water' || currentFill === 'lava') {
       const depthKey = currentFill + 'Depth';
-      const wd = cell[depthKey] ?? 1;
+      const wd = (cell as any)[depthKey] ?? 1;
       bodyHtml += `<div class="prop-row"><span>depth</span><select id="prop-fluid-depth">`;
       bodyHtml += `<option value="1"${wd === 1 ? ' selected' : ''}>Shallow</option>`;
       bodyHtml += `<option value="2"${wd === 2 ? ' selected' : ''}>Medium</option>`;
@@ -405,16 +422,18 @@ function updateCellInfo() {
       bodyHtml += `</select></div>`;
     }
     // Hazard overlay (independent of fill)
+    // @ts-expect-error — strict-mode migration
     const hasHazard = !!(cell.hazard || cell.fill === 'difficult-terrain');
     bodyHtml += `<div class="prop-row"><span>hazard</span><input type="checkbox" id="prop-hazard-check"${hasHazard ? ' checked' : ''}></div>`;
 
     // Prop info (from overlay)
     const meta = state.dungeon.metadata;
     const gs = meta?.gridSize || 5;
-    const overlayProp = meta?.props?.find(p => Math.abs(p.x - col * gs) < 0.01 && Math.abs(p.y - row * gs) < 0.01);
+    // @ts-expect-error — strict-mode migration
+    const overlayProp = meta?.props?.find((p: any) => Math.abs(p.x - col * gs) < 0.01 && Math.abs(p.y - row * gs) < 0.01);
     if (overlayProp) {
       const Z_NAMES = { 0: 'floor', 10: 'furniture', 20: 'tall', 30: 'hanging' };
-      const zName = Z_NAMES[overlayProp.zIndex] || '';
+      const zName = (Z_NAMES as any)[overlayProp.zIndex] || '';
       const scalePercent = Math.round((overlayProp.scale ?? 1.0) * 100);
       bodyHtml += '<div class="prop-section">Prop</div>';
       bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">${overlayProp.type}</span></div>`;
@@ -428,7 +447,9 @@ function updateCellInfo() {
     // Texture
     if (cell.texture || cell.textureSecondary) {
       bodyHtml += '<div class="prop-section">Texture</div>';
+      // @ts-expect-error — strict-mode migration
       if (cell.texture) bodyHtml += `<div class="prop-row"><span>primary</span><span class="prop-val" title="${cell.texture}">${cell.texture.split('/').pop()}</span></div>`;
+      // @ts-expect-error — strict-mode migration
       if (cell.textureSecondary) bodyHtml += `<div class="prop-row"><span>secondary</span><span class="prop-val" title="${cell.textureSecondary}">${cell.textureSecondary.split('/').pop()}</span></div>`;
     }
 
@@ -447,12 +468,14 @@ function updateCellInfo() {
 
   fp.classList.add('visible');
 
+  // @ts-expect-error — strict-mode migration
   fp.querySelector('.cell-info-close').addEventListener('click', deselectCell);
 
   const fillSelect = fp.querySelector('#prop-fill-select');
   if (fillSelect) {
     fillSelect.addEventListener('change', (e) => {
-      const value = e.target.value;
+      // @ts-expect-error — strict-mode migration
+      const value = e.target!.value;
       pushUndo();
       for (const { row: r, col: c } of state.selectedCells) {
         const targetCell = state.dungeon.cells[r]?.[c];
@@ -483,7 +506,8 @@ function updateCellInfo() {
   const depthSelect = fp.querySelector('#prop-fluid-depth');
   if (depthSelect) {
     depthSelect.addEventListener('change', (e) => {
-      const depth = parseInt(e.target.value, 10);
+      // @ts-expect-error — strict-mode migration
+      const depth = parseInt(e.target!.value, 10);
       pushUndo();
       for (const { row: r, col: c } of state.selectedCells) {
         const targetCell = state.dungeon.cells[r]?.[c];
@@ -499,7 +523,8 @@ function updateCellInfo() {
   const hazardCheck = fp.querySelector('#prop-hazard-check');
   if (hazardCheck) {
     hazardCheck.addEventListener('change', (e) => {
-      const checked = e.target.checked;
+      // @ts-expect-error — strict-mode migration
+      const checked = e.target!.checked;
       pushUndo();
       for (const { row: r, col: c } of state.selectedCells) {
         const targetCell = state.dungeon.cells[r]?.[c];
@@ -507,6 +532,7 @@ function updateCellInfo() {
         if (checked) {
           targetCell.hazard = true;
           // Migrate legacy format
+          // @ts-expect-error — strict-mode migration
           if (targetCell.fill === 'difficult-terrain') delete targetCell.fill;
         } else {
           delete targetCell.hazard;

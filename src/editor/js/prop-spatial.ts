@@ -8,10 +8,10 @@
 
 import { isGridAlignedRotation } from './prop-overlay.js';
 
-let spatialMap = null; // Map<"row,col", Array<{ anchorRow, anchorCol, propType, propId, zIndex }>>
+let spatialMap: any = null; // Map<"row,col", Array<{ anchorRow, anchorCol, propType, propId, zIndex }>>
 let dirty = true;
-let lastPropsRef = null;
-let _getState = null;
+let lastPropsRef: any = null;
+let _getState: any = null;
 
 /**
  * Set the state accessor function. Called once by main.js at init.
@@ -77,7 +77,7 @@ function rebuildPropSpatialMap() {
   // Sort each stack by zIndex descending (topmost first) for lookupPropAt
   for (const stack of spatialMap.values()) {
     if (stack.length > 1) {
-      stack.sort((a, b) => (b.zIndex ?? 10) - (a.zIndex ?? 10));
+      stack.sort((a: any, b: any) => (b.zIndex ?? 10) - (a.zIndex ?? 10));
     }
   }
 
@@ -93,7 +93,7 @@ function ensureBuilt() {
   }
 }
 
-let _onDirtyCallback = null;
+let _onDirtyCallback: any = null;
 /**
  * Register a callback to run whenever the prop spatial map is dirtied.
  * @param {Function} fn - Callback invoked on spatial map invalidation.

@@ -12,7 +12,7 @@ const DEFAULTS = {
   debug: false,       // show debug panel in right sidebar
 };
 
-let _cache = null;
+let _cache: any = null;
 
 function load() {
   if (_cache) return _cache;

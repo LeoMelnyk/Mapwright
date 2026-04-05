@@ -14,6 +14,7 @@ export function init(): void {
   subscribe(update, 'levels');
   update();
 
+  // @ts-expect-error — strict-mode migration
   document!.getElementById('btn-add-level').addEventListener('click', addLevel);
 }
 
@@ -39,21 +40,22 @@ function update() {
   `).join('');
 
   list.querySelectorAll('.level-item').forEach(el => {
-    const levelIdx = parseInt(el.dataset.level);
-    el.draggable = true;
+    // @ts-expect-error — strict-mode migration
+    const levelIdx = parseInt((el as HTMLElement).dataset.level);
+    (el as HTMLElement).draggable = true;
 
     // Click: select level + pan viewport to it
     el.addEventListener('click', (e) => {
-      if (e.target!.closest('.level-btn')) return;
+      if ((e.target! as any).closest('.level-btn')) return;
       if (isEditing) return;
       selectLevel(levelIdx);
     });
 
     // Drag-and-drop reorder
     el.addEventListener('dragstart', (e) => {
-      if (e.target!.closest('.level-btn, .level-rename-input')) { e.preventDefault(); return; }
+      if ((e.target! as any).closest('.level-btn, .level-rename-input')) { e.preventDefault(); return; }
       dragFromIdx = levelIdx;
-      e.dataTransfer.effectAllowed = 'move';
+      (e as any).dataTransfer.effectAllowed = 'move';
       setTimeout(() => el.classList.add('dragging'), 0);
     });
 
@@ -66,7 +68,7 @@ function update() {
       e.preventDefault();
       if (dragFromIdx === null) return;
       const rect = el.getBoundingClientRect();
-      const isAbove = e.clientY < rect.top + rect.height / 2;
+      const isAbove = (e as any).clientY < rect.top + rect.height / 2;
       list.querySelectorAll('.level-item').forEach(i => i.classList.remove('drag-above', 'drag-below'));
       el.classList.add(isAbove ? 'drag-above' : 'drag-below');
     });
@@ -76,7 +78,7 @@ function update() {
       if (dragFromIdx === null) return;
       const overIdx = levelIdx;
       const rect = el.getBoundingClientRect();
-      const isAbove = e.clientY < rect.top + rect.height / 2;
+      const isAbove = (e as any).clientY < rect.top + rect.height / 2;
       list.querySelectorAll('.level-item').forEach(i => i.classList.remove('drag-above', 'drag-below'));
       const gap = isAbove ? overIdx : overIdx + 1;
       const n = levels.length;
@@ -85,24 +87,28 @@ function update() {
     });
 
     // Rename button
+    // @ts-expect-error — strict-mode migration
     el!.querySelector('[data-action="rename"]').addEventListener('click', (e) => {
       e.stopPropagation();
       startRename(el, levelIdx);
     });
 
     // Duplicate button
+    // @ts-expect-error — strict-mode migration
     el!.querySelector('[data-action="duplicate"]').addEventListener('click', (e) => {
       e.stopPropagation();
       duplicateLevel(levelIdx);
     });
 
     // Resize button
+    // @ts-expect-error — strict-mode migration
     el!.querySelector('[data-action="resize"]').addEventListener('click', (e) => {
       e.stopPropagation();
       resizeLevel(levelIdx);
     });
 
     // Delete button
+    // @ts-expect-error — strict-mode migration
     el!.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
       e.stopPropagation();
       deleteLevel(levelIdx);
@@ -138,6 +144,7 @@ function startRename(el: any, levelIdx: any) {
   const oldName = level.name;
   const input = document.createElement('input');
   input.type = 'text';
+  // @ts-expect-error — strict-mode migration
   input.value = oldName;
   input.className = 'level-rename-input';
   span.replaceWith(input);
@@ -162,6 +169,7 @@ function startRename(el: any, levelIdx: any) {
   input.addEventListener('blur', commit);
   input.addEventListener('keydown', (ke) => {
     if (ke.key === 'Enter') { ke.preventDefault(); input.blur(); }
+    // @ts-expect-error — strict-mode migration
     if (ke.key === 'Escape') { input.value = oldName; input.blur(); }
   });
 }
@@ -182,10 +190,11 @@ function resizeLevel(levelIdx: any) {
   if (!modal || !rowInput) return;
 
   if (descEl) descEl.textContent = `"${level.name}" currently has ${level.numRows} rows.`;
-  rowInput.value = level.numRows;
+  // @ts-expect-error — strict-mode migration
+  (rowInput as HTMLInputElement).value = level.numRows;
   (modal as HTMLDialogElement).showModal();
   rowInput.focus();
-  rowInput.select();
+  ((rowInput as HTMLElement) as any).select();
 
   function cleanup() {
     (modal as HTMLDialogElement).close();
@@ -198,7 +207,7 @@ function resizeLevel(levelIdx: any) {
   function onCancel() { cleanup(); }
 
   function onOk() {
-    const newRows = parseInt(rowInput!.value, 10);
+    const newRows = parseInt((rowInput! as any).value, 10);
     if (isNaN(newRows) || newRows < 1) {
       rowInput!.focus();
       return;
@@ -291,7 +300,7 @@ function _cleanupAndShiftLightsBridges(meta: any, gridSize: any, rowStart: any, 
 
   if (meta.bridges) {
     meta.bridges = meta.bridges.filter((b: any) => {
-      if (b.points.some(([r]) => r >= rowStart && r < rowEnd)) {
+      if (b.points.some(([r]: any) => r >= rowStart && r < rowEnd)) {
         removedBridgeIds.add(b.id);
         return false;
       }
@@ -299,7 +308,7 @@ function _cleanupAndShiftLightsBridges(meta: any, gridSize: any, rowStart: any, 
     });
     if (shiftRows !== 0) {
       for (const b of meta.bridges) {
-        b.points = b.points.map(([r, c]) => r >= rowEnd ? [r + shiftRows, c] : [r, c]);
+        b.points = b.points.map(([r, c]: any) => r >= rowEnd ? [r + shiftRows, c] : [r, c]);
       }
     }
   }
@@ -410,6 +419,7 @@ function duplicateLevel(idx: any) {
         }
       }
     }
+    // @ts-expect-error — strict-mode migration
     meta.bridges.push(...newBridges);
   }
 
@@ -434,6 +444,7 @@ function duplicateLevel(idx: any) {
   copiedLabels.sort((a, b) => a.origNum - b.origNum);
   let nextLabelNum = maxLabelNum + 1;
   for (const { cell } of copiedLabels) {
+    // @ts-expect-error — strict-mode migration
     cell.center.label = letter + nextLabelNum++;
   }
 
@@ -598,10 +609,10 @@ function addLevel() {
   if (!modal || !nameInput) return;
 
   const defaultName = `Level ${(state.dungeon.metadata.levels?.length || 0) + 1}`;
-  nameInput.value = defaultName;
+  (nameInput as HTMLInputElement).value = defaultName;
   (modal as HTMLDialogElement).showModal();
   nameInput.focus();
-  nameInput.select();
+  ((nameInput as HTMLElement) as any).select();
 
   function cleanup() {
     (modal as HTMLDialogElement).close();
@@ -614,7 +625,7 @@ function addLevel() {
   function onCancel() { cleanup(); }
 
   function onOk() {
-    const name = nameInput!.value.trim();
+    const name = (nameInput! as any).value.trim();
     if (!name) { nameInput!.focus(); return; }
     cleanup();
 

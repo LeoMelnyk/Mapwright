@@ -188,23 +188,23 @@ export function createPolygonRoom(cellList: [number, number][], mode: string = '
       const nr = r + dr, nc = c + dc;
       const inBounds_ = isInBounds(cells, nr, nc);
       const neighborCell = inBounds_ ? cells[nr][nc] : null;
-      const reciprocal = OPPOSITE[dir];
+      const reciprocal = (OPPOSITE as any)[dir];
       const neighborInRoom = cellSet.has(cellKey(nr, nc));
 
       if (mergeMode) {
         if (!inBounds_ || !neighborCell) {
-          if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
+          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') (cell as any)[dir] = 'w';
         } else {
-          if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-          if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
+          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') delete (cell as any)[dir];
+          if ((neighborCell as any)[reciprocal] !== 'd' && (neighborCell as any)[reciprocal] !== 's') delete (neighborCell as any)[reciprocal];
         }
       } else {
         if (neighborInRoom) {
-          if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-          if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
+          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') delete (cell as any)[dir];
+          if (neighborCell && (neighborCell as any)[reciprocal] !== 'd' && (neighborCell as any)[reciprocal] !== 's') delete (neighborCell as any)[reciprocal];
         } else {
-          if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
-          if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') neighborCell[reciprocal] = 'w';
+          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') (cell as any)[dir] = 'w';
+          if (neighborCell && (neighborCell as any)[reciprocal] !== 'd' && (neighborCell as any)[reciprocal] !== 's') (neighborCell as any)[reciprocal] = 'w';
         }
       }
     }

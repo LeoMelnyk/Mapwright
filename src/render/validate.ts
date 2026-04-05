@@ -83,6 +83,7 @@ function getCoordinateBounds(coordinates: any[], gridSize: number): DungeonBound
  * @param {Object} config - Dungeon config with rooms and gridSize
  * @returns {{ valid: boolean, errors: string[] }} Validation result
  */
+// @ts-expect-error — strict-mode migration
 function validateGridAlignment(config: any): { valid: boolean; errors: string[] } {
   const errors = [];
 
@@ -104,7 +105,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
           try {
             validateCoordinate(wallSegment[j], `Room ${room.id} wall ${i} point ${j}`);
           } catch (e) {
-            errors.push(e.message);
+            errors.push((e as any).message);
           }
         }
       }
@@ -117,7 +118,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
       try {
         validateCoordinate(room.center, `Room ${room.id} center`);
       } catch (e) {
-        errors.push(e.message);
+        errors.push((e as any).message);
       }
 
       if (!Number.isInteger(room.radiusSquares) || room.radiusSquares < 1) {
@@ -138,7 +139,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
         try {
           validateCoordinate(door.coordinate, `Room ${room.id} door ${i}`);
         } catch (e) {
-          errors.push(e.message);
+          errors.push((e as any).message);
         }
       }
     }
@@ -154,7 +155,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
         try {
           validateCoordinate(secretDoor.coordinate, `Room ${room.id} secretDoor ${i}`);
         } catch (e) {
-          errors.push(e.message);
+          errors.push((e as any).message);
         }
       }
     }
@@ -170,7 +171,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
         try {
           validateCoordinate(trap.coordinate, `Room ${room.id} trap ${i}`);
         } catch (e) {
-          errors.push(e.message);
+          errors.push((e as any).message);
         }
       }
     }
@@ -183,7 +184,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
           try {
             validateCoordinate(feature.coordinate, `Room ${room.id} feature ${i}`);
           } catch (e) {
-            errors.push(e.message);
+            errors.push((e as any).message);
           }
         }
       }
@@ -274,6 +275,7 @@ function validateCell(cell: any, level: number | null, row: number, col: number,
  * @param {Object} config - Dungeon config with metadata and cells
  * @returns {{ valid: boolean, errors: string[], warnings: string[] }} Validation result
  */
+// @ts-expect-error — strict-mode migration
 function validateMatrixFormat(config: any): { valid: boolean; errors: string[]; warnings: string[] } {
   const errors: string[] = [];
 
@@ -295,6 +297,7 @@ function validateMatrixFormat(config: any): { valid: boolean; errors: string[]; 
     if (errors.length > 0) {
       reportValidationErrors(errors, 'Matrix Format Validation Failed');
     }
+    // @ts-expect-error — strict-mode migration
     return; // Can't continue without cells array
   }
 
@@ -403,7 +406,7 @@ function validateMatrixFormat(config: any): { valid: boolean; errors: string[]; 
 /**
  * Detect border collisions between adjacent cells
  */
-function detectBorderCollisions(cells) {
+function detectBorderCollisions(cells: any) {
   const errors = [];
   const numRows = cells.length;
 
@@ -475,7 +478,7 @@ function detectBorderCollisions(cells) {
  * Flood fill a single room region using the shared diagonal-aware BFS,
  * then collect all labels found within the filled cells.
  */
-function floodFillRoomLabels(cells, startLevel, startRow, startCol, visited, isMultiLevel) {
+function floodFillRoomLabels(cells: any, startLevel: any, startRow: any, startCol: any, visited: any, isMultiLevel: any) {
   const levelCells = isMultiLevel ? cells[startLevel] : cells;
   const cellKeys = sharedFloodFillRoom(levelCells, startRow, startCol);
 
@@ -494,7 +497,7 @@ function floodFillRoomLabels(cells, startLevel, startRow, startCol, visited, isM
 /**
  * Validate that no duplicate labels exist across the dungeon
  */
-function validateRoomLabels(cells, isMultiLevel = false) {
+function validateRoomLabels(cells: any, isMultiLevel = false) {
   const errors = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
@@ -546,7 +549,7 @@ function validateRoomLabels(cells, isMultiLevel = false) {
 /**
  * Validate that walls exist between null and non-null cells
  */
-function validateNullAdjacency(cells, isMultiLevel = false) {
+function validateNullAdjacency(cells: any, isMultiLevel = false) {
   const errors = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
@@ -636,8 +639,8 @@ function validateNullAdjacency(cells, isMultiLevel = false) {
 /**
  * Validate that doors and secret doors don't lead into null/void cells
  */
-function validateDoorAdjacency(cells, isMultiLevel = false) {
-  const errors = [];
+function validateDoorAdjacency(cells: any, isMultiLevel = false) {
+  const errors: any = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
@@ -654,7 +657,7 @@ function validateDoorAdjacency(cells, isMultiLevel = false) {
 
         const levelPrefix = isMultiLevel ? `Level ${level}, ` : '';
 
-        const checkDoor = (dir, adjRow, adjCol) => {
+        const checkDoor = (dir: any, adjRow: any, adjCol: any) => {
           if (cell[dir] === 'd' || cell[dir] === 's') {
             const adjCell = levelCells[adjRow]?.[adjCol];
             if (adjCell === null || adjCell === undefined) {
@@ -683,7 +686,7 @@ function validateDoorAdjacency(cells, isMultiLevel = false) {
 /**
  * Parse room label into components
  */
-function parseRoomLabel(label) {
+function parseRoomLabel(label: any) {
   const match = label.match(/^([A-Z]+)(\d+)$/);
   if (!match) return null;
   return {
@@ -696,7 +699,7 @@ function parseRoomLabel(label) {
 /**
  * Compare room labels for sorting (alphanumeric)
  */
-function compareRoomLabels(labelA, labelB) {
+function compareRoomLabels(labelA: any, labelB: any) {
   if (labelA.letter !== labelB.letter) {
     return labelA.letter.localeCompare(labelB.letter);
   }
@@ -706,7 +709,7 @@ function compareRoomLabels(labelA, labelB) {
 /**
  * Check if we can traverse from one cell to another
  */
-function canTraverse(fromCell, toCell, direction) {
+function canTraverse(fromCell: any, toCell: any, direction: any) {
   const borderMap = {
     'north': {current: 'north', adjacent: 'south'},
     'south': {current: 'south', adjacent: 'north'},
@@ -714,7 +717,7 @@ function canTraverse(fromCell, toCell, direction) {
     'west': {current: 'west', adjacent: 'east'}
   };
 
-  const {current, adjacent} = borderMap[direction];
+  const {current, adjacent} = (borderMap as any)[direction];
 
   const fromBorder = fromCell?.[current];
   if (fromBorder === 'w') return false;
@@ -728,7 +731,7 @@ function canTraverse(fromCell, toCell, direction) {
 /**
  * BFS to find all reachable rooms from starting position
  */
-function bfsReachableRooms(cells, startLevel, startRow, startCol, isMultiLevel) {
+function bfsReachableRooms(cells: any, startLevel: any, startRow: any, startCol: any, isMultiLevel: any) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   const visited = [];
@@ -750,6 +753,7 @@ function bfsReachableRooms(cells, startLevel, startRow, startCol, isMultiLevel) 
   }
 
   while (queue.length > 0) {
+    // @ts-expect-error — strict-mode migration
     const {level, row, col} = queue.shift();
     const levelCells = isMultiLevel ? cells[level] : cells;
     const cell = levelCells[row][col];
@@ -845,7 +849,7 @@ function bfsReachableRooms(cells, startLevel, startRow, startCol, isMultiLevel) 
 /**
  * Detect rooms that are inaccessible from the starting room
  */
-function detectInaccessibleRooms(cells, isMultiLevel = false) {
+function detectInaccessibleRooms(cells: any, isMultiLevel = false) {
   const numLevels = isMultiLevel ? cells.length : 1;
   const errors = [];
 
@@ -926,7 +930,7 @@ function detectInaccessibleRooms(cells, isMultiLevel = false) {
 /**
  * Check if any cells have stair features
  */
-function hasStairFeatures(cells) {
+function hasStairFeatures(cells: any) {
   const isMultiLevel = Array.isArray(cells[0]) && Array.isArray(cells[0][0]);
   const numLevels = isMultiLevel ? cells.length : 1;
 
@@ -952,7 +956,7 @@ function hasStairFeatures(cells) {
 /**
  * Validate a single stair connection
  */
-function validateSingleStair(cells, isMultiLevel, fromLevel, fromRow, fromCol, stairType, reciprocalType, target) {
+function validateSingleStair(cells: any, isMultiLevel: any, fromLevel: any, fromRow: any, fromCol: any, stairType: any, reciprocalType: any, target: any) {
   const errors = [];
 
   let targetLevel, targetRow, targetCol;
@@ -1045,7 +1049,7 @@ function validateSingleStair(cells, isMultiLevel, fromLevel, fromRow, fromCol, s
 /**
  * Validate stair connections across all levels
  */
-function validateStairConnections(cells, isMultiLevel) {
+function validateStairConnections(cells: any, isMultiLevel: any) {
   const errors = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
@@ -1083,21 +1087,21 @@ function validateStairConnections(cells, isMultiLevel) {
 /**
  * Get human-readable name for border value
  */
-function getBorderName(value) {
+function getBorderName(value: any) {
   const names = {
     'w': 'wall',
     'd': 'door',
     's': 'secret door'
   };
-  return names[value] || value;
+  return (names as any)[value] || value;
 }
 
 /**
  * Report validation errors and throw
  */
-function reportValidationErrors(errors, title) {
+function reportValidationErrors(errors: any, title: any) {
   console.error(`\n❌ ${title}:\n`);
-  errors.forEach(e => console.error(`   ${e}`));
+  errors.forEach((e: any) => console.error(`   ${e}`));
   console.error('');
   throw new Error('Validation failed');
 }
@@ -1107,6 +1111,7 @@ function reportValidationErrors(errors, title) {
  * @param {Object} config - Dungeon config to validate
  * @returns {{ valid: boolean, errors: string[] }} Validation result
  */
+// @ts-expect-error — strict-mode migration
 function validateConfig(config: any): { valid: boolean; errors: string[] } {
   if (!config.dungeonName) throw new Error('Missing required field: dungeonName');
   if (!config.gridSize) throw new Error('Missing required field: gridSize');

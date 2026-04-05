@@ -24,14 +24,14 @@ export function mergeRooms(label1: string, label2: string): { success: true; rem
   if (!walls) {
     throw new Error(`No shared boundary found between '${label1}' and '${label2}'`);
   }
-  const coords = walls.map(({ row, col }) => ({ row: toInt(row), col: toInt(col) }));
+  const coords = walls.map(({ row, col }: any) => ({ row: toInt(row), col: toInt(col) }));
   const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
   for (const { row, col, direction } of walls) {
     const iRow = toInt(row), iCol = toInt(col);
     const cell = state.dungeon.cells[iRow]?.[iCol];
     if (!cell) continue;
-    delete cell[direction];
+    delete (cell as any)[direction];
     setReciprocal(iRow, iCol, direction, null);
   }
   smartInvalidate(before, state.dungeon.cells);
@@ -195,7 +195,7 @@ export function normalizeMargin(targetMargin: number = 2): any {
 
   // ── 3. Compute new level start rows ──────────────────────────────────────
   let newTotalRows = 0;
-  const newLevelStartRows = [];
+  const newLevelStartRows: any = [];
   for (let i = 0; i < levelAdjustments.length; i++) {
     if (i > 0) newTotalRows += 1; // void separator row between levels
     newLevelStartRows.push(newTotalRows);
@@ -203,7 +203,7 @@ export function normalizeMargin(targetMargin: number = 2): any {
   }
 
   // Helper: compute absolute-row delta for a given original row value
-  const getRowDelta = (r) => {
+  const getRowDelta = (r: any) => {
     for (let i = 0; i < levelAdjustments.length; i++) {
       const { origStartRow, origNumRows, topShift } = levelAdjustments[i];
       if (r >= origStartRow && r < origStartRow + origNumRows) {
@@ -352,6 +352,7 @@ export function createCorridor(label1: string, label2: string, width: number = 2
   }
   let n = 1;
   while (used.has(n)) n++;
+  // @ts-expect-error — strict-mode migration
   const corridorLabel = letter + n;
   getApi().setLabel(Math.floor((cr1 + cr2) / 2), Math.floor((cc1 + cc2) / 2), corridorLabel);
 

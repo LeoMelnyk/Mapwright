@@ -67,7 +67,7 @@ export function getMapInfo(): any {
   const meta = state.dungeon.metadata;
   const cells = state.dungeon.cells;
 
-  const propCount = meta.props ? meta.props.length : 0;
+  const propCount = meta.props ? (meta.props as any).length : 0;
   let labelCount = 0;
   const textureIds = new Set();
   for (let r = 0; r < cells.length; r++) {
@@ -128,6 +128,7 @@ export function getFullMapInfo(): any {
   const props = [];
   const gs = meta.gridSize || 5;
   if (meta.props) {
+    // @ts-expect-error — strict-mode migration
     for (const op of meta.props) {
       props.push({ row: toDisp(Math.round(op.y / gs)), col: toDisp(Math.round(op.x / gs)), type: op.type, facing: op.rotation ?? 0, id: op.id });
     }
@@ -140,13 +141,13 @@ export function getFullMapInfo(): any {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
-        if (cell[dir] !== 'd' && cell[dir] !== 's') continue;
+        if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') continue;
         const key = `${r},${c},${dir}`;
         const [dr, dc] = OFFSETS[dir];
-        const recipKey = `${r + dr},${c + dc},${OPPOSITE[dir]}`;
+        const recipKey = `${r + dr},${c + dc},${(OPPOSITE as any)[dir]}`;
         if (seen.has(recipKey)) continue;
         seen.add(key);
-        doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: cell[dir] });
+        doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as any)[dir] });
       }
     }
   }
@@ -205,6 +206,7 @@ export function setLabelStyle(style: string): { success: true } {
     throw new Error(`Invalid label style: ${style}. Use 'circled', 'plain', or 'bold'.`);
   }
   pushUndo();
+  // @ts-expect-error — strict-mode migration
   state.dungeon.metadata.labelStyle = style;
   markDirty();
   notify();
@@ -223,7 +225,9 @@ export function setFeature(feature: string, enabled: boolean): { success: true }
     throw new Error(`Invalid feature: ${feature}. Use: ${validFeatures.join(', ')}`);
   }
   pushUndo();
+  // @ts-expect-error — strict-mode migration
   if (!state.dungeon.metadata.features) state.dungeon.metadata.features = {};
+  // @ts-expect-error — strict-mode migration
   state.dungeon.metadata.features[feature] = !!enabled;
   markDirty();
   notify();

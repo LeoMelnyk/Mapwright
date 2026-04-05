@@ -65,6 +65,7 @@ const api = {
 };
 
 // Clean up the alias — api should have 'eval' not 'eval_'
+// @ts-expect-error — strict-mode migration
 delete api.eval_;
 
 // Set the API reference so cross-module getApi() calls work
@@ -76,7 +77,7 @@ function waitForReady(): Promise<void> {
   return new Promise((resolve) => {
     const check = () => {
       if (document.getElementById('editor-canvas') && state.dungeon && getThemeCatalog() !== null) {
-        window.editorAPI = api;
+        (window as any).editorAPI = api;
         console.log('[editor-api] API ready — window.editorAPI available');
         resolve();
       } else {

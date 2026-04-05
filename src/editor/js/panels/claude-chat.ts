@@ -49,13 +49,13 @@ If you only answered a question (no writes): respond concisely and stop.`;
  * then appends scale info, next label, and available props/textures.
  */
 function buildMapContext() {
-  if (!window.editorAPI) return null;
+  if (!(window as any).editorAPI) return null;
   try {
-    const info = window.editorAPI.getMapInfo();
+    const info = (window as any).editorAPI.getMapInfo();
     if (!info) return null;
 
     const gs = info.gridSize || 5;
-    const c = (ft) => Math.max(1, Math.round(ft / gs));
+    const c = (ft: any) => Math.max(1, Math.round(ft / gs));
 
     const lines = [
       `## Current map: "${info.name}"`,
@@ -72,7 +72,7 @@ function buildMapContext() {
 
     // ── Room layout summary from getFullMapInfo ───────────────────────────
     try {
-      const full = window.editorAPI.getFullMapInfo();
+      const full = (window as any).editorAPI.getFullMapInfo();
       if (full?.rooms?.length) {
         lines.push('## Rooms');
         for (const room of full.rooms) {
@@ -94,7 +94,7 @@ function buildMapContext() {
 
     // ── Next room label ───────────────────────────────────────────────────
     try {
-      const map = window.editorAPI.getMap();
+      const map = (window as any).editorAPI.getMap();
       const dungeonLetter = map?.metadata?.dungeonLetter || 'A';
       const labelPat = new RegExp(`^${dungeonLetter}(\\d+)$`);
       const usedNums = new Set();
@@ -112,9 +112,9 @@ function buildMapContext() {
 
     // ── Levels (multi-level maps) ─────────────────────────────────────────
     try {
-      const levels = window.editorAPI.getLevels();
+      const levels = (window as any).editorAPI.getLevels();
       if (levels?.length > 1) {
-        const summary = levels.map((l, i) => `  Level ${i + 1}: "${l.name}" (rows ${l.startRow}–${l.startRow + l.numRows - 1})`).join('\n');
+        const summary = levels.map((l: any, i: any) => `  Level ${i + 1}: "${l.name}" (rows ${l.startRow}–${l.startRow + l.numRows - 1})`).join('\n');
         lines.push(`\n## Levels (${levels.length} total — use getLevels for full info)`);
         lines.push(summary);
       }
@@ -122,7 +122,7 @@ function buildMapContext() {
 
     // ── Lights ────────────────────────────────────────────────────────────
     try {
-      const lightsResult = window.editorAPI.getLights();
+      const lightsResult = (window as any).editorAPI.getLights();
       const lights = lightsResult?.lights ?? [];
       if (lights.length > 0) {
         const enabled = lightsResult?.lightingEnabled ? 'enabled' : 'disabled';
@@ -133,7 +133,7 @@ function buildMapContext() {
 
     // ── Available props (compact list for .map props: section) ──────────────
     try {
-      const propInfo = window.editorAPI.listProps();
+      const propInfo = (window as any).editorAPI.listProps();
       if (propInfo?.props && Object.keys(propInfo.props).length > 0) {
         const names = Object.keys(propInfo.props).sort().join(', ');
         lines.push(`\n## Valid prop names for props: section`);
@@ -151,7 +151,7 @@ function buildMapContext() {
 // Mirrors [AI] console logs to ai-session.log on disk so they can be read
 // externally. Each new user message resets the file via resetAILog().
 
-function aiLog(...args) {
+function aiLog(...args: any[]) {
   console.log(...args);
   const line = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ');
   fetch('/api/ai-log', {
@@ -171,12 +171,12 @@ function resetAILog() {
 
 // ── Panel state ──────────────────────────────────────────────────────────────
 
-let _container = null;
-const _messages = []; // Anthropic message history
-let _abortController = null; // non-null while a request is in flight
+let _container: any = null;
+const _messages: any = []; // Anthropic message history
+let _abortController: any = null; // non-null while a request is in flight
 const _sessionTokens = { input: 0, output: 0 }; // cumulative for current chat session
-let _ollamaStatus = null; // { running, models } — set on init
-let _streamingEl = null; // <span> inside live streaming bubble, null when not streaming
+let _ollamaStatus: any = null; // { running, models } — set on init
+let _streamingEl: any = null; // <span> inside live streaming bubble, null when not streaming
 let _planMode = false;       // true when plan-before-act mode is on
 let _pendingPlanIdx = -1;    // _messages index of the awaiting-execute plan (-1 = none)
 const _hiddenMsgIdxs = new Set(); // indices of injected system messages to hide from UI
@@ -195,6 +195,7 @@ async function checkOllamaStatus() {
   const settings = getClaudeSettings();
   const base = settings.ollamaBase || 'http://localhost:11434';
   try {
+    // @ts-expect-error — strict-mode migration
     const r = await fetch(`/api/ollama-status?base=${encodeURIComponent(base)}`);
     _ollamaStatus = await r.json();
   } catch {
@@ -260,8 +261,8 @@ function renderMessages() {
         <p class="claude-setup-hint">Configure the URL in <strong>Help → AI Settings</strong>.</p>
       </div>`;
     } else if (_ollamaStatus?.running && _ollamaStatus.models.length > 0) {
-      const baseName = model.split(':')[0];
-      if (!_ollamaStatus.models.some(m => m.startsWith(baseName))) {
+      const baseName = (model as any).split(':')[0];
+      if (!_ollamaStatus.models.some((m: any) => m.startsWith(baseName))) {
         setupHtml = `<div class="claude-setup-card">
           <div class="claude-setup-title">Model not pulled</div>
           <p>Run this command, then refresh:</p>
@@ -278,20 +279,20 @@ function renderMessages() {
   }
 
   list.innerHTML = _messages
-    .map((m, idx) => {
+    .map((m: any, idx: any) => {
       if (_hiddenMsgIdxs.has(idx)) return '';
       if (m.role === 'user') {
         const text = Array.isArray(m.content)
-          ? m.content.filter(b => b.type === 'text').map(b => b.text).join('')
+          ? m.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
           : m.content;
         // Skip tool result messages (they look like user messages but are [{type:'tool_result'}])
-        if (Array.isArray(m.content) && m.content.every(b => b.type === 'tool_result')) return '';
+        if (Array.isArray(m.content) && m.content.every((b: any) => b.type === 'tool_result')) return '';
         return `<div class="claude-message claude-message-user"><div class="claude-bubble">${escHtml(text)}</div></div>`;
       } else {
         const blocks = Array.isArray(m.content) ? m.content : [{ type: 'text', text: m.content }];
-        const textBlocks = blocks.filter(b => b.type === 'text');
+        const textBlocks = blocks.filter((b: any) => b.type === 'text');
         if (textBlocks.length === 0) return '';
-        const text = textBlocks.map(b => b.text).join('');
+        const text = textBlocks.map((b: any) => b.text).join('');
         const bubble = `<div class="claude-message claude-message-assistant"><div class="claude-bubble">${formatMarkdown(text)}</div></div>`;
         if (idx === _pendingPlanIdx) {
           return bubble + `<div class="claude-plan-actions"><button class="claude-execute-btn">Execute Plan</button></div>`;
@@ -327,7 +328,7 @@ function wireEvents() {
   // Execute button — event delegation so it survives renderMessages() re-renders
   document.getElementById('claude-message-list')
     ?.addEventListener('click', e => {
-      if (e.target.classList.contains('claude-execute-btn')) executePlan();
+      if ((e.target! as any).classList.contains('claude-execute-btn')) executePlan();
     });
 }
 
@@ -356,9 +357,9 @@ async function executePlan() {
   try {
     await runConversationLoop(settings, _abortController.signal);
   } catch (err) {
-    aiLog('[AI] executePlan error:', err.name, err.message);
+    aiLog('[AI] executePlan error:', (err as any).name, (err as any).message);
     hideThinking();
-    if (err.name !== 'AbortError') appendErrorMessage(`Error: ${err.message}`);
+    if ((err as any).name !== 'AbortError') appendErrorMessage(`Error: ${(err as any).message}`);
   } finally {
     _planMode = wasInPlanMode;
     _abortController = null;
@@ -372,12 +373,12 @@ async function executePlan() {
 async function sendMessage() {
   const input = document.getElementById('claude-input');
   if (!input) return;
-  const text = input.value.trim();
+  const text = (input as HTMLInputElement).value.trim();
   if (!text) return;
 
   const settings = getClaudeSettings();
 
-  input.value = '';
+  (input as HTMLInputElement).value = '';
   resetAILog();
   _abortController = new AbortController();
   setProcessing(true);
@@ -394,17 +395,17 @@ async function sendMessage() {
       if (last?.role === 'assistant') {
         const blocks = Array.isArray(last.content)
           ? last.content : [{ type: 'text', text: last.content }];
-        if (!blocks.some(b => b.type === 'tool_use')) {
+        if (!blocks.some((b: any) => b.type === 'tool_use')) {
           _pendingPlanIdx = _messages.length - 1;
           renderMessages();
         }
       }
     }
   } catch (err) {
-    aiLog('[AI] caught error:', err.name, err.message, err);
+    aiLog('[AI] caught error:', (err as any).name, (err as any).message, err);
     hideThinking();
-    if (err.name !== 'AbortError') {
-      appendErrorMessage(`Error: ${err.message}`);
+    if ((err as any).name !== 'AbortError') {
+      appendErrorMessage(`Error: ${(err as any).message}`);
     }
   } finally {
     _abortController = null;
@@ -427,7 +428,7 @@ function showStreamingBubble() {
   _streamingEl = el.querySelector('.claude-streaming-text');
 }
 
-function updateStreamingBubble(text) {
+function updateStreamingBubble(text: any) {
   if (!_streamingEl) return;
   _streamingEl.textContent += text;
   const list = document.getElementById('claude-message-list');
@@ -447,7 +448,7 @@ function finalizeStreamingBubble() {
 
 // ── Streaming fetch ───────────────────────────────────────────────────────────
 
-async function fetchStreamingResponse(body, signal) {
+async function fetchStreamingResponse(body: any, signal: any) {
   aiLog('[AI] fetch start — model:', body.model, '| tools:', body.tools?.length, '| messages:', body.messages?.length);
 
   const response = await fetch('/api/claude', {
@@ -465,7 +466,7 @@ async function fetchStreamingResponse(body, signal) {
     throw new Error(data.error || `Request failed (${response.status})`);
   }
 
-  const reader = response.body.getReader();
+  const reader = response.body!.getReader();
   const decoder = new TextDecoder();
   let sseBuffer = '';
   let accText = '';
@@ -479,6 +480,7 @@ async function fetchStreamingResponse(body, signal) {
 
     sseBuffer += decoder.decode(value, { stream: true });
     const lines = sseBuffer.split('\n');
+    // @ts-expect-error — strict-mode migration
     sseBuffer = lines.pop(); // keep incomplete line
 
     for (const line of lines) {
@@ -499,7 +501,7 @@ async function fetchStreamingResponse(body, signal) {
         updateStreamingBubble(parsed.text);
         accText += parsed.text;
       } else if (parsed.type === 'tool_use') {
-        aiLog('[AI] tool_use blocks:', parsed.blocks?.map(b => b.name));
+        aiLog('[AI] tool_use blocks:', parsed.blocks?.map((b: any) => b.name));
         toolUseBlocks = parsed.blocks;
       }
     }
@@ -519,7 +521,7 @@ async function fetchStreamingResponse(body, signal) {
   };
 }
 
-async function runConversationLoop(settings, signal) {
+async function runConversationLoop(settings: any, signal: any) {
   let toolsUsed = 0;
 
   // Build context once per user message, not once per tool iteration.
@@ -531,7 +533,7 @@ async function runConversationLoop(settings, signal) {
   const system = SYSTEM_PROMPT + planInstruction + (mapContext ? `\n\n${mapContext}` : '');
 
   // Capture undo depth before any changes so we can offer "Undo all" after.
-  const startUndoDepth = window.editorAPI?.getUndoDepth?.() ?? null;
+  const startUndoDepth = (window as any).editorAPI?.getUndoDepth?.() ?? null;
 
   const readOnlyTools = new Set(['getMapInfo', 'getFullMapInfo', 'getCellInfo', 'getRoomBounds',
     'findWallBetween', 'listProps', 'listTextures', 'getBridges', 'getRoomContents', 'suggestPlacement', 'listRooms']);
@@ -594,7 +596,7 @@ async function runConversationLoop(settings, signal) {
         try {
           result = await Promise.resolve(executeTool(block.name, block.input));
         } catch (toolErr) {
-          result = { error: `${block.name} failed: ${toolErr.message}` };
+          result = { error: `${block.name} failed: ${(toolErr as any).message}` };
         }
         aiLog('[AI] tool result:', JSON.stringify(result).slice(0, 120));
         // Truncate large tool results to prevent context bloat.
@@ -647,15 +649,15 @@ async function runConversationLoop(settings, signal) {
 
 // ── UI helpers ───────────────────────────────────────────────────────────────
 
-function setProcessing(active) {
+function setProcessing(active: any) {
   const btn   = document.getElementById('claude-send-btn');
   const input = document.getElementById('claude-input');
   if (!btn || !input) return;
-  input.disabled = active;
+  (input as HTMLInputElement).disabled = active;
   btn.classList.toggle('claude-btn-stop', active);
   btn.title = active ? 'Stop' : 'Send';
-  btn.querySelector('.icon-send').style.display = active ? 'none' : '';
-  btn.querySelector('.icon-stop').style.display = active ? ''     : 'none';
+  (btn.querySelector('.icon-send') as HTMLElement).style.display = active ? 'none' : '';
+  (btn.querySelector('.icon-stop') as HTMLElement).style.display = active ? ''     : 'none';
 }
 
 function stopGeneration() {
@@ -680,7 +682,7 @@ function updateTokenDisplay() {
   const total = input + output;
   if (total === 0) { bar.style.display = 'none'; return; }
 
-  const fmt = n => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+  const fmt = (n: any) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 
   bar.style.display = '';
   bar.textContent = `Session: ↑${fmt(input)} ↓${fmt(output)} (FREE)`;
@@ -701,7 +703,7 @@ function hideThinking() {
   document.getElementById('claude-thinking')?.remove();
 }
 
-function updateThinkingText(toolName) {
+function updateThinkingText(toolName: any) {
   const label = document.querySelector('#claude-thinking .claude-thinking-label');
   if (!label) return;
   const LABELS = {
@@ -733,31 +735,32 @@ function updateThinkingText(toolName) {
     findCellByLabel: 'Finding room', shiftCells: 'Repositioning map',
     listRooms: 'Listing rooms', placeLightInRoom: 'Placing light',
   };
-  label.textContent = (LABELS[toolName] ?? toolName) + '…';
+  label.textContent = ((LABELS as any)[toolName] ?? toolName) + '…';
 }
 
-function showUndoToast(startDepth) {
+function showUndoToast(startDepth: any) {
   const list = document.getElementById('claude-message-list');
   if (!list) return;
   const toast = document.createElement('div');
   toast.className = 'claude-undo-toast';
   toast.innerHTML = `<span>AI made changes.</span><button class="claude-undo-all-btn">Undo all</button>`;
-  toast.querySelector('.claude-undo-all-btn').addEventListener('click', () => {
-    window.editorAPI?.undoToDepth(startDepth);
+  // @ts-expect-error — strict-mode migration
+  toast!.querySelector('.claude-undo-all-btn').addEventListener('click', () => {
+    (window as any).editorAPI?.undoToDepth(startDepth);
     toast.remove();
-    window.showToast?.('All Claude changes undone.');
+    (window as any).showToast?.('All Claude changes undone.');
   });
   list.appendChild(toast);
   list.scrollTop = list.scrollHeight;
   setTimeout(() => toast.remove(), 15000);
 }
 
-function appendErrorMessage(text) {
+function appendErrorMessage(text: any) {
   _messages.push({ role: 'assistant', content: [{ type: 'text', text: `⚠ ${text}` }] });
   renderMessages();
 }
 
-function escHtml(str) {
+function escHtml(str: any) {
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -765,7 +768,7 @@ function escHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-function formatMarkdown(text) {
+function formatMarkdown(text: any) {
   return escHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')

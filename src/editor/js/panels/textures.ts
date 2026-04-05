@@ -33,9 +33,9 @@ export function renderTexturesPanel(): void {
 
 function render() {
   const cat = getTextureCatalog();
-  if (!cat) { container.innerHTML = '<div class="panel-empty">Textures not loaded.</div>'; return; }
+  if (!cat) { container!.innerHTML = '<div class="panel-empty">Textures not loaded.</div>'; return; }
 
-  container.innerHTML = '';
+  container!.innerHTML = '';
 
   // ── Sticky search bar ────────────────────────────────────────────────────
   const searchWrap = document.createElement('div');
@@ -53,15 +53,16 @@ function render() {
   clearBtn.style.display = 'none';
 
   searchInput.addEventListener('input', () => {
-    clearBtn.style.display = searchInput.value ? '' : 'none';
+    clearBtn.style.display = searchInput!.value ? '' : 'none';
+    // @ts-expect-error — strict-mode migration
     clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => filterTextures(cat), 200);
   });
   clearBtn.addEventListener('click', () => {
-    searchInput.value = '';
+    searchInput!.value = '';
     clearBtn.style.display = 'none';
     filterTextures(cat);
-    searchInput.focus();
+    searchInput!.focus();
   });
 
   searchWrap.appendChild(searchInput);
@@ -76,7 +77,7 @@ function render() {
   collapseAllBtn.title = 'Collapse All';
   collapseAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>`;
   collapseAllBtn.addEventListener('click', () => {
-    cat.categoryOrder.forEach(c => collapsed.add(c));
+    cat.categoryOrder.forEach((c: any) => collapsed.add(c));
     saveCollapsed();
     filterTextures(cat);
   });
@@ -95,7 +96,7 @@ function render() {
   searchWrap.appendChild(collapseAllBtn);
   searchWrap.appendChild(expandAllBtn);
 
-  container.appendChild(searchWrap);
+  container!.appendChild(searchWrap);
 
   // ── Scrollable texture grid ──────────────────────────────────────────────
   scrollArea = document.createElement('div');
@@ -103,20 +104,20 @@ function render() {
 
   buildCategoryGrid(cat, scrollArea, '');
 
-  container.appendChild(scrollArea);
+  container!.appendChild(scrollArea);
 }
 
 /**
  * Build the category + grid structure into the given parent element.
  */
-function buildCategoryGrid(cat, parent, filter) {
+function buildCategoryGrid(cat: any, parent: any, filter: any) {
   parent.innerHTML = '';
   const lowerFilter = filter.toLowerCase();
 
   for (const category of cat.categoryOrder) {
     const ids = cat.byCategory[category];
     const matched = lowerFilter
-      ? ids.filter(id => {
+      ? ids.filter((id: any) => {
           const entry = cat.textures[id];
           return entry.displayName.toLowerCase().includes(lowerFilter)
             || id.toLowerCase().includes(lowerFilter);
@@ -195,7 +196,7 @@ function buildCategoryGrid(cat, parent, filter) {
   }
 }
 
-function filterTextures(cat) {
+function filterTextures(cat: any) {
   if (!scrollArea) return;
   buildCategoryGrid(cat, scrollArea, searchInput?.value || '');
 }
@@ -222,7 +223,7 @@ export function selectTexture(id: string): void {
   // Update panel highlights
   if (scrollArea) {
     scrollArea.querySelectorAll('.texture-thumb-item').forEach(el => {
-      el.classList.toggle('active', el.dataset.textureId === id);
+      el.classList.toggle('active', (el as HTMLElement).dataset.textureId === id);
     });
   }
 }

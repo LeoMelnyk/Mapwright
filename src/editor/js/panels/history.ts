@@ -77,7 +77,8 @@ function update() {
   // Wire click handlers for jumping to a state
   container.querySelectorAll('.history-item.undo').forEach(item => {
     item.addEventListener('click', () => {
-      const idx = parseInt(item.dataset.undoIndex, 10);
+      // @ts-expect-error — strict-mode migration
+      const idx = parseInt((item as HTMLElement).dataset.undoIndex, 10);
       jumpToState(idx);
     });
   });
@@ -85,7 +86,8 @@ function update() {
   // Wire redo clicks — jump to the clicked redo state
   container.querySelectorAll('.history-item.redo').forEach(item => {
     item.addEventListener('click', () => {
-      const redoIdx = parseInt(item.dataset.redoIndex, 10);
+      // @ts-expect-error — strict-mode migration
+      const redoIdx = parseInt((item as HTMLElement).dataset.redoIndex, 10);
       const steps = state.redoStack.length - redoIdx;
       for (let i = 0; i < steps; i++) redo();
     });

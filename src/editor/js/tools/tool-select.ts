@@ -19,6 +19,7 @@ const DIRS = [
  * Supports copy/paste, arrow-key movement, and inspect mode for cell properties.
  */
 export class SelectTool extends Tool {
+  [key: string]: any;
   declare dragging: boolean;
   declare dragStart: { row: number; col: number } | null;
   declare dragEnd: { row: number; col: number } | null;
@@ -73,7 +74,7 @@ export class SelectTool extends Tool {
 
   // ── Mouse Handlers ───────────────────────────────────────────────────────
 
-  onMouseDown(row, col, edge, event, pos) {
+  onMouseDown(row: any, col: any, edge: any, event: any, pos: any) {
     // Paste mode: commit paste at cursor position
     if (state.pasteMode && state.clipboard) {
       this._commitPaste(row, col);
@@ -92,7 +93,7 @@ export class SelectTool extends Tool {
 
     // Clicking on a selected cell (without shift) → defer to pending move
     const onSelected = !event.shiftKey &&
-      state.selectedCells.some(c => c.row === row && c.col === col);
+      state.selectedCells.some((c: any) => c.row === row && c.col === col);
     if (onSelected) {
       this._pendingMove = true;
       this._pendingMoveStart = { row, col };
@@ -114,7 +115,7 @@ export class SelectTool extends Tool {
     markDirty();
   }
 
-  onMouseMove(row, col, edge, event, pos) {
+  onMouseMove(row: any, col: any, edge: any, event: any, pos: any) {
     // Paste mode: update hover for preview
     if (state.pasteMode) {
       if (!this.pasteHover || this.pasteHover.row !== row || this.pasteHover.col !== col) {
@@ -147,7 +148,8 @@ export class SelectTool extends Tool {
       const cells = state.dungeon.cells;
       const clampedRow = Math.max(0, Math.min(cells.length - 1, row));
       const clampedCol = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
-      if (this.dragEnd.row !== clampedRow || this.dragEnd.col !== clampedCol) {
+      // @ts-expect-error — strict-mode migration
+      if (this!.dragEnd.row !== clampedRow || this!.dragEnd.col !== clampedCol) {
         this.dragEnd = { row: clampedRow, col: clampedCol };
         markDirty();
       }
@@ -156,7 +158,7 @@ export class SelectTool extends Tool {
 
     // Idle: update cursor based on whether we're hovering over selected cells
     if (state.selectMode !== 'inspect') {
-      const onSelected = state.selectedCells.some(c => c.row === row && c.col === col);
+      const onSelected = state.selectedCells.some((c: any) => c.row === row && c.col === col);
       setCursor(onSelected ? 'move' : 'default');
     }
   }
@@ -178,10 +180,14 @@ export class SelectTool extends Tool {
     if (!this.dragging) return;
     this.dragging = false;
 
-    const minRow = Math.min(this.dragStart.row, this.dragEnd.row);
-    const maxRow = Math.max(this.dragStart.row, this.dragEnd.row);
-    const minCol = Math.min(this.dragStart.col, this.dragEnd.col);
-    const maxCol = Math.max(this.dragStart.col, this.dragEnd.col);
+    // @ts-expect-error — strict-mode migration
+    const minRow = Math.min(this!.dragStart.row, this!.dragEnd.row);
+    // @ts-expect-error — strict-mode migration
+    const maxRow = Math.max(this!.dragStart.row, this!.dragEnd.row);
+    // @ts-expect-error — strict-mode migration
+    const minCol = Math.min(this!.dragStart.col, this!.dragEnd.col);
+    // @ts-expect-error — strict-mode migration
+    const maxCol = Math.max(this!.dragStart.col, this!.dragEnd.col);
 
     const boxCells = [];
     for (let r = minRow; r <= maxRow; r++) {
@@ -192,14 +198,14 @@ export class SelectTool extends Tool {
 
     if (this.shiftHeld) {
       // Add box cells to existing selection, toggling any already-selected cells
-      const existing = new Set(state.selectedCells.map(c => `${c.row},${c.col}`));
+      const existing = new Set(state.selectedCells.map((c: any) => `${c.row},${c.col}`));
       for (const cell of boxCells) {
         const key = `${cell.row},${cell.col}`;
         if (existing.has(key)) existing.delete(key);
         else existing.add(key);
       }
       state.selectedCells = [...existing].map(k => {
-        const [r, c] = k.split(',').map(Number);
+        const [r, c] = (k as any).split(',').map(Number);
         return { row: r, col: c };
       });
     } else {
@@ -212,10 +218,10 @@ export class SelectTool extends Tool {
     notify();
   }
 
-  onKeyDown(event) {
+  onKeyDown(event: any) {
     if (state.selectedCells.length === 0) return;
     const deltas = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
-    const d = deltas[event.key];
+    const d = (deltas as any)[event.key];
     if (!d) return;
     event.preventDefault();
     this._applyMove(d[0], d[1]);
@@ -223,11 +229,14 @@ export class SelectTool extends Tool {
 
   // ── Move helpers ─────────────────────────────────────────────────────────
 
-  _onMoveModeMouseMove(row, col) {
+  _onMoveModeMouseMove(row: any, col: any) {
     if (!this.moveDragging) return;
-    const dRow = row - this.moveDragStart.row;
-    const dCol = col - this.moveDragStart.col;
-    if (dRow !== this.moveDragOffset.dRow || dCol !== this.moveDragOffset.dCol) {
+    // @ts-expect-error — strict-mode migration
+    const dRow = row - this!.moveDragStart.row;
+    // @ts-expect-error — strict-mode migration
+    const dCol = col - this!.moveDragStart.col;
+    // @ts-expect-error — strict-mode migration
+    if (dRow !== this!.moveDragOffset.dRow || dCol !== this!.moveDragOffset.dCol) {
       this.moveDragOffset = { dRow, dCol };
       markDirty();
     }
@@ -236,6 +245,7 @@ export class SelectTool extends Tool {
   _onMoveModeMouseUp() {
     if (!this.moveDragging) return;
     this.moveDragging = false;
+    // @ts-expect-error — strict-mode migration
     const { dRow, dCol } = this.moveDragOffset;
     this.moveDragOffset = null;
     this.moveDragStart = null;
@@ -247,7 +257,7 @@ export class SelectTool extends Tool {
   /**
    * Commit a paste at (targetRow, targetCol) — top-left anchor of the clipboard.
    */
-  _commitPaste(targetRow, targetCol) {
+  _commitPaste(targetRow: any, targetCol: any) {
     const cells = state.dungeon.cells;
     const numRows = cells.length;
     const numCols = cells[0]?.length || 0;
@@ -259,7 +269,7 @@ export class SelectTool extends Tool {
       if (r < 0 || r >= numRows || c < 0 || c >= numCols) return;
     }
 
-    const destCoords = clipCells.map(({ dRow, dCol }) => ({
+    const destCoords = clipCells.map(({ dRow, dCol }: any) => ({
       row: targetRow + dRow,
       col: targetCol + dCol,
     }));
@@ -268,7 +278,7 @@ export class SelectTool extends Tool {
     pushUndo('Paste');
 
     // Remove any lights sitting on destination cells
-    const destSet = new Set(destCoords.map(({ row, col }) => `${row},${col}`));
+    const destSet = new Set(destCoords.map(({ row, col }: any) => `${row}: any,${col}`));
     const lights = state.dungeon.metadata.lights;
     if (lights?.length) {
       const gridSize = state.dungeon.metadata.gridSize || 5;
@@ -304,7 +314,7 @@ export class SelectTool extends Tool {
    * Boundary walls (facing non-selected neighbors) are removed from both sides.
    * Lights anchored to selected cells move with them.
    */
-  _applyMove(dRow, dCol) {
+  _applyMove(dRow: any, dCol: any) {
     const cells = state.dungeon.cells;
     const numRows = cells.length;
     const numCols = cells[0]?.length || 0;
@@ -316,11 +326,11 @@ export class SelectTool extends Tool {
       if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) return;
     }
 
-    const selectedSet = new Set(selected.map(c => `${c.row},${c.col}`));
-    const destSet = new Set(selected.map(c => `${c.row + dRow},${c.col + dCol}`));
+    const selectedSet = new Set(selected.map((c: any) => `${c.row},${c.col}`));
+    const destSet = new Set(selected.map((c: any) => `${c.row + dRow},${c.col + dCol}`));
 
     // Snapshot cell data (deep clone) before any mutation
-    const snapshots = selected.map(({ row, col }) => ({
+    const snapshots = selected.map(({ row, col }: any) => ({
       row, col,
       data: cells[row][col] ? JSON.parse(JSON.stringify(cells[row][col])) : null,
     }));
@@ -328,7 +338,7 @@ export class SelectTool extends Tool {
     // Capture before state for smart cache invalidation (sources + destinations)
     const affectedCoords = [
       ...selected,
-      ...selected.map(({ row, col }) => ({ row: row + dRow, col: col + dCol })),
+      ...selected.map(({ row, col }: any) => ({ row: row + dRow, col: col + dCol })),
     ];
     const before = captureBeforeState(cells, affectedCoords);
 
@@ -341,7 +351,7 @@ export class SelectTool extends Tool {
         const nr = snap.row + dr, nc = snap.col + dc;
         if (!selectedSet.has(`${nr},${nc}`)) {
           const neighbor = cells[nr]?.[nc];
-          if (neighbor) delete neighbor[opp];
+          if (neighbor) delete (neighbor as any)[opp];
           delete snap.data[dir];
         }
       }
@@ -359,7 +369,7 @@ export class SelectTool extends Tool {
         const nr = dr2 + ndr, nc = dc2 + ndc;
         if (selectedSet.has(`${nr},${nc}`) || destSet.has(`${nr},${nc}`)) continue;
         const neighbor = cells[nr]?.[nc];
-        if (neighbor) delete neighbor[opp];
+        if (neighbor) delete (neighbor as any)[opp];
       }
     }
 
@@ -388,7 +398,7 @@ export class SelectTool extends Tool {
     }
 
     // Update selection to new positions
-    state.selectedCells = selected.map(({ row, col }) => ({ row: row + dRow, col: col + dCol }));
+    state.selectedCells = selected.map(({ row, col }: any) => ({ row: row + dRow, col: col + dCol }));
 
     invalidateLightmap();
     smartInvalidate(before, cells, { forceGeometry: true });
@@ -399,7 +409,7 @@ export class SelectTool extends Tool {
 
   // ── Rendering ────────────────────────────────────────────────────────────
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx: any, transform: any, gridSize: any) {
     const cs = gridSize * transform.scale;
 
     // Paste preview: ghost cells following cursor

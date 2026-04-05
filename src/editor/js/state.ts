@@ -125,7 +125,7 @@ export function pushUndo(label: string = 'Edit', preSerializedJson: string | nul
   const _t0 = performance.now();
   const json = preSerializedJson || JSON.stringify(state.dungeon);
   const _t1 = performance.now();
-  state.undoStack.push({ json, label });
+  state.undoStack.push({ json, label, timestamp: Date.now() });
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
   state.redoStack.length = 0;
   markPropSpatialDirty();
@@ -139,8 +139,8 @@ export function pushUndo(label: string = 'Edit', preSerializedJson: string | nul
  */
 export function undo(): void {
   if (!state.undoStack.length) return;
-  state.redoStack.push({ json: JSON.stringify(state.dungeon), label: 'Current' });
-  const entry = state.undoStack.pop();
+  state.redoStack.push({ json: JSON.stringify(state.dungeon), label: 'Current', timestamp: Date.now() });
+  const entry = state.undoStack.pop()!;
   state.dungeon = JSON.parse(entry.json);
   markPropSpatialDirty();
   invalidateLightmap();
@@ -154,8 +154,8 @@ export function undo(): void {
  */
 export function redo(): void {
   if (!state.redoStack.length) return;
-  state.undoStack.push({ json: JSON.stringify(state.dungeon), label: 'Redo' });
-  const entry = state.redoStack.pop();
+  state.undoStack.push({ json: JSON.stringify(state.dungeon), label: 'Redo', timestamp: Date.now() });
+  const entry = state.redoStack.pop()!;
   state.dungeon = JSON.parse(entry.json);
   markPropSpatialDirty();
   invalidateLightmap();
@@ -171,14 +171,14 @@ export function redo(): void {
 export function jumpToState(targetIndex: number): void {
   if (targetIndex < 0 || targetIndex >= state.undoStack.length) return;
   // Push current state to redo
-  state.redoStack.push({ json: JSON.stringify(state.dungeon), label: 'Current' });
+  state.redoStack.push({ json: JSON.stringify(state.dungeon), label: 'Current', timestamp: Date.now() });
   // Move entries above targetIndex to redo stack
   const toRedo = state.undoStack.splice(targetIndex + 1);
   for (const entry of toRedo) {
     state.redoStack.push(entry);
   }
   // Restore the target entry
-  const entry = state.undoStack.pop();
+  const entry = state.undoStack.pop()!;
   state.dungeon = JSON.parse(entry.json);
   markPropSpatialDirty();
   invalidateLightmap();
@@ -202,6 +202,7 @@ export function markDirty(): void {
  * @returns {void}
  */
 export function invalidateLightmap(structuralChange: boolean | 'props' = true): void {
+  // @ts-expect-error — strict-mode migration
   invalidateVisibilityCache(structuralChange);
 }
 
@@ -224,7 +225,7 @@ export function subscribe(fn: (state: any) => void, label?: string): void {
 }
 
 /** Latest per-subscriber timing data from the most recent notify() call. */
-export const notifyTimings = { total: 0, subscribers: [], frame: 0 };
+export const notifyTimings: { total: number; subscribers: { label: string; ms: number }[]; frame: number } = { total: 0, subscribers: [], frame: 0 };
 let _notifyFrame = 0;
 
 // ─── Auto-save ────────────────────────────────────────────────────────────
@@ -234,11 +235,11 @@ const AUTOSAVE_DB = 'mapwright-autosave';
 const AUTOSAVE_STORE = 'state';
 const AUTOSAVE_KEY = 'current';
 const AUTOSAVE_LEGACY_KEY = 'dungeon-editor-autosave';
-let autosaveTimer = null;
-let _autosaveDb = null;
+let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
+let _autosaveDb: IDBDatabase | null = null;
 
-function _openDb() {
-  return new Promise((resolve, reject) => {
+function _openDb(): Promise<IDBDatabase> {
+  return new Promise<IDBDatabase>((resolve, reject) => {
     if (_autosaveDb) { resolve(_autosaveDb); return; }
     const req = indexedDB.open(AUTOSAVE_DB, 1);
     req.onupgradeneeded = () => {
@@ -269,7 +270,7 @@ function scheduleAutosave() {
       panY: state.panY,
     };
     try {
-      const db = await _openDb();
+      const db: IDBDatabase = await _openDb();
       const tx = db.transaction(AUTOSAVE_STORE, 'readwrite');
       tx.objectStore(AUTOSAVE_STORE).put(data, AUTOSAVE_KEY);
       // tx completes async — no main thread blocking
@@ -287,9 +288,9 @@ function scheduleAutosave() {
 export async function loadAutosave(): Promise<boolean> {
   // Try IndexedDB first
   try {
-    const db = await _openDb();
+    const db: IDBDatabase = await _openDb();
     const tx = db.transaction(AUTOSAVE_STORE, 'readonly');
-    const saved = await new Promise((resolve, reject) => {
+    const saved: any = await new Promise((resolve, reject) => {
       const req = tx.objectStore(AUTOSAVE_STORE).get(AUTOSAVE_KEY);
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);

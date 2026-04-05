@@ -36,9 +36,11 @@ export { getCachedBgImage };
  */
 export function activateBgCellMeasure(callback: (newPixelsPerCell: number) => void): void {
   cvState._bgMeasureActive = true;
+  // @ts-expect-error — strict-mode migration
   cvState._bgMeasureCallback = callback;
   cvState._bgMeasureStart = null;
   cvState._bgMeasureEnd = null;
+  // @ts-expect-error — strict-mode migration
   if (cvState.canvas) cvState.canvas.style.cursor = 'crosshair';
 }
 
@@ -48,9 +50,11 @@ function tickAnimLoop() {
   cvState.animLoopId = null;
   const { metadata } = state.dungeon;
   if (!metadata.lightingEnabled) return;
+  // @ts-expect-error — strict-mode migration
   if (!(metadata.lights || []).some(l => l.animation?.type)) return;
   state.animClock = performance.now() / 1000;
   requestRender();
+  // @ts-expect-error — strict-mode migration
   cvState.animLoopId = setTimeout(tickAnimLoop, ANIM_INTERVAL_MS);
 }
 
@@ -63,6 +67,7 @@ setTickAnimLoopRef(tickAnimLoop);
  */
 export function startAnimLoop(): void {
   if (cvState.animLoopId) return;
+  // @ts-expect-error — strict-mode migration
   cvState.animLoopId = setTimeout(tickAnimLoop, ANIM_INTERVAL_MS);
 }
 
@@ -86,7 +91,9 @@ export function stopAnimLoop(): void {
  * @returns {void}
  */
 export function setSessionOverlay(renderFn: ((...args: any[]) => void) | null, clickFn: ((...args: any[]) => boolean) | null): void {
+  // @ts-expect-error — strict-mode migration
   cvState.sessionOverlayFn = renderFn;
+  // @ts-expect-error — strict-mode migration
   cvState.sessionClickFn = clickFn;
 }
 
@@ -96,6 +103,7 @@ export function setSessionOverlay(renderFn: ((...args: any[]) => void) | null, c
  * @returns {void}
  */
 export function setDmFogOverlay(fn: ((...args: any[]) => void) | null): void {
+  // @ts-expect-error — strict-mode migration
   cvState.dmFogOverlayFn = fn;
 }
 
@@ -105,8 +113,10 @@ export function setDmFogOverlay(fn: ((...args: any[]) => void) | null): void {
  * @returns {void}
  */
 export function setSessionTool(tool: any): void {
+  // @ts-expect-error — strict-mode migration
   if (cvState.sessionTool?.onDeactivate) cvState.sessionTool.onDeactivate();
   cvState.sessionTool = tool;
+  // @ts-expect-error — strict-mode migration
   if (cvState.sessionTool?.onActivate) cvState.sessionTool.onActivate();
 }
 
@@ -144,7 +154,9 @@ function _watchDpr() {
  * @returns {void}
  */
 export function init(canvasEl: HTMLCanvasElement): void {
+  // @ts-expect-error — strict-mode migration
   cvState.canvas = canvasEl;
+  // @ts-expect-error — strict-mode migration
   cvState.ctx = canvasEl.getContext('2d', { alpha: false, desynchronized: true });
 
   resizeCanvas();
@@ -178,6 +190,7 @@ export function init(canvasEl: HTMLCanvasElement): void {
  * @returns {void}
  */
 export function setCursor(cursor: string): void {
+  // @ts-expect-error — strict-mode migration
   if (cvState.canvas) cvState.canvas.style.cursor = cursor;
 }
 
@@ -186,6 +199,7 @@ export function setCursor(cursor: string): void {
  * @returns {{ width: number, height: number }} Canvas width and height in CSS pixels.
  */
 export function getCanvasSize(): { width: number; height: number } {
+  // @ts-expect-error — strict-mode migration
   return { width: cvState._canvasW || cvState.canvas?.width || 0, height: cvState._canvasH || cvState.canvas?.height || 0 };
 }
 

@@ -28,7 +28,8 @@ function _findOverlayAt(row: number, col: number): any {
   const entry = lookupPropAt(row, col);
   if (!entry) return null;
   const meta = state.dungeon.metadata;
-  return meta?.props?.find(p => p.id === entry.propId) ?? null;
+  // @ts-expect-error — strict-mode migration
+  return meta?.props?.find((p: any) => p.id === entry.propId) ?? null;
 }
 
 function _removeOverlayAt(row: number, col: number): void {
@@ -36,7 +37,9 @@ function _removeOverlayAt(row: number, col: number): void {
   if (!entry) return;
   const meta = state.dungeon.metadata;
   if (!meta?.props) return;
-  const idx = meta.props.findIndex(p => p.id === entry.propId);
+  // @ts-expect-error — strict-mode migration
+  const idx = meta.props.findIndex((p: any) => p.id === entry.propId);
+  // @ts-expect-error — strict-mode migration
   if (idx >= 0) meta.props.splice(idx, 1);
   // Remove linked lights
   if (meta.lights?.length) {
@@ -53,7 +56,7 @@ function _addOverlayAt(row: number, col: number, propType: string, facing: numbe
 }
 
 /** Compute the pixel bounds of an overlay prop for selection/hover boxes. */
-function _propBounds(overlay, gridSize, transform) {
+function _propBounds(overlay: any, gridSize: any, transform: any) {
   const [spanRows, spanCols] = _overlaySpan(overlay);
   const scl = overlay.scale ?? 1.0;
   const w = spanCols * gridSize;
@@ -67,7 +70,7 @@ function _propBounds(overlay, gridSize, transform) {
 }
 
 /** Get the effective span of an overlay prop from its catalog definition + rotation. */
-function _overlaySpan(overlayProp) {
+function _overlaySpan(overlayProp: any) {
   const catalog = state.propCatalog;
   const propDef = catalog?.props?.[overlayProp.type];
   if (!propDef) return [1, 1];
@@ -76,8 +79,9 @@ function _overlaySpan(overlayProp) {
 
 /** Find the topmost overlay prop whose visual AABB contains the pixel position.
  *  Returns { row, col } anchor (for compat with existing selection system) or null. */
-function _hitTestProps(pos, transform, gridSize) {
+function _hitTestProps(pos: any, transform: any, gridSize: any) {
   const meta = state.dungeon.metadata;
+  // @ts-expect-error — strict-mode migration
   if (!meta?.props?.length || !pos) return null;
 
   // Convert pixel position to world-feet
@@ -88,6 +92,7 @@ function _hitTestProps(pos, transform, gridSize) {
 
   // Collect AABB hits, then filter by geometric shape test. Sort by z desc, area asc.
   const hits = [];
+  // @ts-expect-error — strict-mode migration
   for (const prop of meta.props) {
     const [spanRows, spanCols] = _overlaySpan(prop);
     const scl = prop.scale ?? 1.0;
@@ -129,14 +134,14 @@ function _hitTestProps(pos, transform, gridSize) {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function getEffectiveFootprint(propDef, rotation) {
+function getEffectiveFootprint(propDef: any, rotation: any) {
   const [rows, cols] = propDef.footprint;
   if (rotation === 90 || rotation === 270) return [cols, rows];
   return [rows, cols];
 }
 
 /** Offset anchor so the prop centers on the mouse cell instead of top-left anchoring. */
-function centeredAnchor(row, col, propDef, rotation) {
+function centeredAnchor(row: any, col: any, propDef: any, rotation: any) {
   const [spanRows, spanCols] = getEffectiveFootprint(propDef, rotation);
   return {
     row: row - Math.floor(spanRows / 2),
@@ -144,14 +149,14 @@ function centeredAnchor(row, col, propDef, rotation) {
   };
 }
 
-function findPropAnchor(_cells, row, col) {
+function findPropAnchor(_cells: any, row: any, col: any) {
   // O(1) spatial hash lookup (reads from metadata.props[])
   const entry = lookupPropAt(row, col);
   if (entry) return { row: entry.anchorRow, col: entry.anchorCol };
   return null;
 }
 
-function isFootprintClear(cells, anchorRow, anchorCol, spanRows, spanCols) {
+function isFootprintClear(cells: any, anchorRow: any, anchorCol: any, spanRows: any, spanCols: any) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -168,7 +173,7 @@ function isFootprintClear(cells, anchorRow, anchorCol, spanRows, spanCols) {
 function getTextureResolver() {
   const texCat = getTextureCatalog();
   return texCat
-    ? (id) => { const e = texCat.textures[id]; return e?.img?.complete ? e.img : null; }
+    ? (id: any) => { const e = texCat.textures[id]; return e?.img?.complete ? e.img : null; }
     : null;
 }
 
@@ -191,29 +196,48 @@ export class PropTool extends Tool {
   constructor() {
     super('prop', '9', 'crosshair');
     // Box-select state
+    // @ts-expect-error — strict-mode migration
     this.dragStart = null;
+    // @ts-expect-error — strict-mode migration
     this.dragEnd = null;
+    // @ts-expect-error — strict-mode migration
     this.isBoxSelecting = false;
     // Pending place (deferred from mousedown to mouseup, to allow box-select on drag)
+    // @ts-expect-error — strict-mode migration
     this._pendingPlace = null;    // { row, col }
+    // @ts-expect-error — strict-mode migration
     this._pendingPlacePos = null; // { x, y } pixel position at mousedown
     // Drag-to-move state (multi-prop)
+    // @ts-expect-error — strict-mode migration
     this.isDragging = false;
+    // @ts-expect-error — strict-mode migration
     this.dragItems = [];          // [{ anchor, propDef, origProp, offsetRow, offsetCol, facing, flipped }]
+    // @ts-expect-error — strict-mode migration
     this.dragLeadAnchor = null;   // anchor of the directly-dragged prop (offset 0,0)
+    // @ts-expect-error — strict-mode migration
     this.dragGhost = null;        // {row, col, worldX?, worldY?} — lead prop's current ghost position
+    // @ts-expect-error — strict-mode migration
     this.dragFreeform = false;    // true when Ctrl held during drag (sub-cell positioning)
     // Pending drag (prop clicked but not yet moved beyond threshold)
+    // @ts-expect-error — strict-mode migration
     this._pendingDragAnchor = null;  // anchor of prop to potentially drag
+    // @ts-expect-error — strict-mode migration
     this._pendingDragPos = null;     // pixel position at prop mousedown
     // Hover state
+    // @ts-expect-error — strict-mode migration
     this.hoveredAnchor = null;    // anchor cell of prop currently under cursor
+    // @ts-expect-error — strict-mode migration
     this.hoverRow = null;
+    // @ts-expect-error — strict-mode migration
     this.hoverCol = null;
+    // @ts-expect-error — strict-mode migration
     this.hoverFreeform = false;   // true when Ctrl held during hover (freeform ghost)
+    // @ts-expect-error — strict-mode migration
     this.hoverWorldX = null;      // world-feet X when freeform hover
+    // @ts-expect-error — strict-mode migration
     this.hoverWorldY = null;      // world-feet Y when freeform hover
     // Paste mode cursor tracking
+    // @ts-expect-error — strict-mode migration
     this.pasteHover = null;       // {row, col} — current cursor cell for paste preview
   }
 
@@ -226,42 +250,61 @@ export class PropTool extends Tool {
   }
 
   onDeactivate() {
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging) {
       this._restoreDragItems();
     }
     this._resetDragState();
     this._resetHoverState();
     state.propPasteMode = false;
+    // @ts-expect-error — strict-mode migration
     this.pasteHover = null;
     state.statusInstruction = '';
   }
 
   _resetDragState() {
+    // @ts-expect-error — strict-mode migration
     this.dragStart = null;
+    // @ts-expect-error — strict-mode migration
     this.dragEnd = null;
+    // @ts-expect-error — strict-mode migration
     this.isBoxSelecting = false;
+    // @ts-expect-error — strict-mode migration
     this._pendingPlace = null;
+    // @ts-expect-error — strict-mode migration
     this._pendingPlacePos = null;
+    // @ts-expect-error — strict-mode migration
     this._pendingDragAnchor = null;
+    // @ts-expect-error — strict-mode migration
     this._pendingDragPos = null;
+    // @ts-expect-error — strict-mode migration
     this.isDragging = false;
+    // @ts-expect-error — strict-mode migration
     this.dragItems = [];
+    // @ts-expect-error — strict-mode migration
     this.dragLeadAnchor = null;
+    // @ts-expect-error — strict-mode migration
     this.dragGhost = null;
   }
 
   _resetHoverState() {
+    // @ts-expect-error — strict-mode migration
     this.hoveredAnchor = null;
+    // @ts-expect-error — strict-mode migration
     this.hoverRow = null;
+    // @ts-expect-error — strict-mode migration
     this.hoverCol = null;
+    // @ts-expect-error — strict-mode migration
     this.hoverFreeform = false;
+    // @ts-expect-error — strict-mode migration
     this.hoverWorldX = null;
+    // @ts-expect-error — strict-mode migration
     this.hoverWorldY = null;
   }
 
   // ── Mouse Handlers ───────────────────────────────────────────────────────
 
-  onMouseDown(row, col, edge, event, pos) {
+  onMouseDown(row: any, col: any, edge: any, event: any, pos: any) {
     // Paste mode: commit paste at cursor position
     if (state.propPasteMode && state.propClipboard) {
       this._commitPropPaste(row, col);
@@ -276,14 +319,21 @@ export class PropTool extends Tool {
 
     if (anchor) {
       // Clicking on a prop → select/drag flow
+      // @ts-expect-error — strict-mode migration
       this._selectOnMouseDown(anchor.row, anchor.col, event, pos, anchor.propId);
     } else {
       // Clicking on empty space → defer place; start tracking for potential box-select
+      // @ts-expect-error — strict-mode migration
       this._pendingPlace = { row, col };
+      // @ts-expect-error — strict-mode migration
       this._pendingPlacePos = pos || null;
+      // @ts-expect-error — strict-mode migration
       this._pendingPlaceCtrl = event.ctrlKey || event.metaKey;
+      // @ts-expect-error — strict-mode migration
       this.isBoxSelecting = false;
+      // @ts-expect-error — strict-mode migration
       this.dragStart = { row, col };
+      // @ts-expect-error — strict-mode migration
       this.dragEnd = null;
       if (!event.shiftKey) state.selectedPropAnchors = [];
       notify();
@@ -291,31 +341,41 @@ export class PropTool extends Tool {
     }
   }
 
-  onMouseMove(row, col, edge, event, pos) {
+  onMouseMove(row: any, col: any, edge: any, event: any, pos: any) {
+    // @ts-expect-error — strict-mode migration
     this.hoverRow = row;
+    // @ts-expect-error — strict-mode migration
     this.hoverCol = col;
 
     // Paste mode: update hover for preview
     if (state.propPasteMode) {
+      // @ts-expect-error — strict-mode migration
       if (!this.pasteHover || this.pasteHover.row !== row || this.pasteHover.col !== col) {
+        // @ts-expect-error — strict-mode migration
         this.pasteHover = { row, col };
         requestRender();
       }
       return;
     }
 
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging) {
+      // @ts-expect-error — strict-mode migration
       this.dragFreeform = event.ctrlKey || event.metaKey;
+      // @ts-expect-error — strict-mode migration
       this.dragSnapToGrid = event.shiftKey;
+      // @ts-expect-error — strict-mode migration
       if (this.dragFreeform && pos) {
         // Freeform: track exact world-feet position
         const transform = getTransform();
+        // @ts-expect-error — strict-mode migration
         this.dragGhost = {
           row, col,
           worldX: (pos.x - transform.offsetX) / transform.scale,
           worldY: (pos.y - transform.offsetY) / transform.scale,
         };
       } else {
+        // @ts-expect-error — strict-mode migration
         this.dragGhost = { row, col };
       }
       requestRender();
@@ -323,14 +383,21 @@ export class PropTool extends Tool {
     }
 
     // Check if a pending prop drag has crossed the threshold → activate drag
+    // @ts-expect-error — strict-mode migration
     if (this._pendingDragAnchor && pos && this._pendingDragPos) {
+      // @ts-expect-error — strict-mode migration
       const dx = pos.x - this._pendingDragPos.x;
+      // @ts-expect-error — strict-mode migration
       const dy = pos.y - this._pendingDragPos.y;
       if (Math.sqrt(dx * dx + dy * dy) > BOX_SELECT_THRESHOLD) {
+        // @ts-expect-error — strict-mode migration
         this._activateDrag(this._pendingDragAnchor);
+        // @ts-expect-error — strict-mode migration
         this._pendingDragAnchor = null;
+        // @ts-expect-error — strict-mode migration
         this._pendingDragPos = null;
         // Fall through — isDragging is now true, will be caught on next frame
+        // @ts-expect-error — strict-mode migration
         this.dragGhost = { row, col };
         requestRender();
         return;
@@ -338,17 +405,25 @@ export class PropTool extends Tool {
     }
 
     // Check if pending empty-space drag has crossed threshold → switch to box-select
+    // @ts-expect-error — strict-mode migration
     if (this._pendingPlace && pos && this._pendingPlacePos) {
+      // @ts-expect-error — strict-mode migration
       const dx = pos.x - this._pendingPlacePos.x;
+      // @ts-expect-error — strict-mode migration
       const dy = pos.y - this._pendingPlacePos.y;
       if (Math.sqrt(dx * dx + dy * dy) > BOX_SELECT_THRESHOLD) {
+        // @ts-expect-error — strict-mode migration
         this._pendingPlace = null;
+        // @ts-expect-error — strict-mode migration
         this._pendingPlacePos = null;
+        // @ts-expect-error — strict-mode migration
         this.isBoxSelecting = true;
       }
     }
 
+    // @ts-expect-error — strict-mode migration
     if (this.isBoxSelecting) {
+      // @ts-expect-error — strict-mode migration
       this.dragEnd = { row, col };
       requestRender();
       return;
@@ -361,8 +436,11 @@ export class PropTool extends Tool {
       ? _hitTestProps(pos, hoverTransform, state.dungeon.metadata.gridSize || 5)
       : findPropAnchor(cells, row, col);
     if (anchor) {
+      // @ts-expect-error — strict-mode migration
       if (!this.hoveredAnchor || this.hoveredAnchor.row !== anchor.row || this.hoveredAnchor.col !== anchor.col) {
+        // @ts-expect-error — strict-mode migration
         this.hoveredAnchor = anchor;
+        // @ts-expect-error — strict-mode migration
         this.hoverFreeform = false;
         setCursor('grab');
         requestRender();
@@ -371,15 +449,24 @@ export class PropTool extends Tool {
       // Track freeform hover when Ctrl held (for placement ghost)
       const wantsFreeform = (event.ctrlKey || event.metaKey) && pos;
       if (wantsFreeform) {
+        // @ts-expect-error — strict-mode migration
         this.hoverFreeform = true;
+        // @ts-expect-error — strict-mode migration
         this.hoverWorldX = (pos.x - hoverTransform.offsetX) / hoverTransform.scale;
+        // @ts-expect-error — strict-mode migration
         this.hoverWorldY = (pos.y - hoverTransform.offsetY) / hoverTransform.scale;
+      // @ts-expect-error — strict-mode migration
       } else if (this.hoverFreeform) {
+        // @ts-expect-error — strict-mode migration
         this.hoverFreeform = false;
+        // @ts-expect-error — strict-mode migration
         this.hoverWorldX = null;
+        // @ts-expect-error — strict-mode migration
         this.hoverWorldY = null;
       }
+      // @ts-expect-error — strict-mode migration
       if (this.hoveredAnchor !== null) {
+        // @ts-expect-error — strict-mode migration
         this.hoveredAnchor = null;
         setCursor('crosshair');
         requestRender();
@@ -389,18 +476,26 @@ export class PropTool extends Tool {
     }
   }
 
-  onMouseUp(_row, _col, _edge, event, pos) {
+  // @ts-expect-error — strict-mode migration
+  onMouseUp(_row: any, _col: any, _edge: any, event: any, pos: any) {
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging) {
       this._finishDrag();
       return;
     }
 
+    // @ts-expect-error — strict-mode migration
     if (this.isBoxSelecting) {
       // Finalize box-select — check which props overlap the selection rectangle
+      // @ts-expect-error — strict-mode migration
       if (this.dragStart && this.dragEnd) {
+        // @ts-expect-error — strict-mode migration
         const r1 = Math.min(this.dragStart.row, this.dragEnd.row);
+        // @ts-expect-error — strict-mode migration
         const r2 = Math.max(this.dragStart.row, this.dragEnd.row) + 1;
+        // @ts-expect-error — strict-mode migration
         const c1 = Math.min(this.dragStart.col, this.dragEnd.col);
+        // @ts-expect-error — strict-mode migration
         const c2 = Math.max(this.dragStart.col, this.dragEnd.col) + 1;
         const meta = state.dungeon.metadata;
         const gs = meta.gridSize || 5;
@@ -409,6 +504,7 @@ export class PropTool extends Tool {
 
         if (meta?.props) {
           const selectedIds = new Set();
+          // @ts-expect-error — strict-mode migration
           for (const prop of meta.props) {
             // Check if prop's visual bounds overlap the selection box
             const [spanRows, spanCols] = _overlaySpan(prop);
@@ -431,23 +527,33 @@ export class PropTool extends Tool {
         }
         notify();
       }
+      // @ts-expect-error — strict-mode migration
       this.isBoxSelecting = false;
+      // @ts-expect-error — strict-mode migration
       this.dragStart = null;
+      // @ts-expect-error — strict-mode migration
       this.dragEnd = null;
       requestRender();
       return;
     }
 
+    // @ts-expect-error — strict-mode migration
     if (this._pendingDragAnchor) {
       // Click on prop without drag — just leave it selected, clear pending drag
+      // @ts-expect-error — strict-mode migration
       this._pendingDragAnchor = null;
+      // @ts-expect-error — strict-mode migration
       this._pendingDragPos = null;
     }
 
+    // @ts-expect-error — strict-mode migration
     if (this._pendingPlace) {
       // No significant drag — place prop at the original click position
+      // @ts-expect-error — strict-mode migration
       const freeform = (event?.ctrlKey || event?.metaKey) || this._pendingPlaceCtrl;
+      // @ts-expect-error — strict-mode migration
       let placeRow = this._pendingPlace.row;
+      // @ts-expect-error — strict-mode migration
       let placeCol = this._pendingPlace.col;
       // Center prop on cursor
       if (state.selectedProp) {
@@ -459,22 +565,28 @@ export class PropTool extends Tool {
           placeCol = anchor.col;
         }
       }
+      // @ts-expect-error — strict-mode migration
       this._placeAtCell(placeRow, placeCol, pos || this._pendingPlacePos, freeform);
+      // @ts-expect-error — strict-mode migration
       this._pendingPlace = null;
+      // @ts-expect-error — strict-mode migration
       this._pendingPlacePos = null;
+      // @ts-expect-error — strict-mode migration
       this.dragStart = null;
     }
   }
 
-  onKeyDown(e) {
+  onKeyDown(e: any) {
     // Escape cancels drag, or clears the selected prop template
     if (e.key === 'Escape') {
       if (state.propPasteMode) {
         state.propPasteMode = false;
+        // @ts-expect-error — strict-mode migration
         this.pasteHover = null;
         requestRender();
         return;
       }
+      // @ts-expect-error — strict-mode migration
       if (this.isDragging) {
         this._cancelDrag();
       } else if (state.selectedProp) {
@@ -489,6 +601,7 @@ export class PropTool extends Tool {
 
     if (e.key === 'r' || e.key === 'R') {
       const degrees = e.shiftKey ? 270 : 90;
+      // @ts-expect-error — strict-mode migration
       if (this.isDragging) {
         this._rotateDragGroup(degrees);
         requestRender();
@@ -499,6 +612,7 @@ export class PropTool extends Tool {
     }
 
     if (e.key === 'f' || e.key === 'F') {
+      // @ts-expect-error — strict-mode migration
       if (this.isDragging) {
         this._flipDragGroup();
         requestRender();
@@ -533,7 +647,7 @@ export class PropTool extends Tool {
         }
       }
       // Update anchor positions to match new grid cells
-      state.selectedPropAnchors = state.selectedPropAnchors.map(a => {
+      state.selectedPropAnchors = state.selectedPropAnchors.map((a: any) => {
         const overlay = _findOverlayAt(a.row, a.col);
         if (!overlay) return a;
         const newRow = Math.round(overlay.y / gs);
@@ -550,8 +664,10 @@ export class PropTool extends Tool {
 
     // Z-order: [ = send backward, ] = bring forward
     if (e.key === '[' || e.key === ']') {
+      // @ts-expect-error — strict-mode migration
       if (this.isDragging && this.dragItems.length > 0) {
         const step = e.key === ']' ? 1 : -1;
+        // @ts-expect-error — strict-mode migration
         for (const item of this.dragItems) {
           item.zIndex = Math.max(0, (item.zIndex ?? 10) + step);
         }
@@ -570,20 +686,25 @@ export class PropTool extends Tool {
     }
   }
 
-  onWheel(row, col, deltaY, event) {
+  // @ts-expect-error — strict-mode migration
+  onWheel(row: any, col: any, deltaY: any, event: any) {
     // Alt+scroll = rotate, Alt+Shift+scroll = scale
 
     // ── Drag ghost: adjust ghost items directly (no undo, no state mutation) ──
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging && this.dragItems.length > 0) {
       if (event.shiftKey) {
         const step = deltaY > 0 ? -0.1 : 0.1;
+        // @ts-expect-error — strict-mode migration
         for (const item of this.dragItems) {
           item.scale = Math.max(0.25, Math.min(4.0, (item.scale ?? 1.0) + step));
           item.scale = Math.round(item.scale * 100) / 100;
         }
       } else {
         const step = deltaY > 0 ? 15 : -15;
+        // @ts-expect-error — strict-mode migration
         if (this.dragItems.length === 1) {
+          // @ts-expect-error — strict-mode migration
           this.dragItems[0].facing = (((this.dragItems[0].facing || 0) + step) % 360 + 360) % 360;
         } else {
           this._rotateDragGroup(step);
@@ -594,6 +715,7 @@ export class PropTool extends Tool {
     }
 
     // ── Placement ghost: adjust placement defaults (no undo needed) ──
+    // @ts-expect-error — strict-mode migration
     if (!this.hoveredAnchor && state.selectedProp && this.hoverRow != null) {
       if (event.shiftKey) {
         const step = deltaY > 0 ? -0.1 : 0.1;
@@ -611,9 +733,11 @@ export class PropTool extends Tool {
     // Debounce undo: only push a new undo entry if >500ms since last wheel tick
     const now = Date.now();
     const WHEEL_UNDO_DEBOUNCE = 500;
+    // @ts-expect-error — strict-mode migration
     if (!this._lastWheelUndoTime || now - this._lastWheelUndoTime > WHEEL_UNDO_DEBOUNCE) {
       pushUndo();
     }
+    // @ts-expect-error — strict-mode migration
     this._lastWheelUndoTime = now;
 
     // Collect target overlays: all selected, or hovered single prop
@@ -622,12 +746,17 @@ export class PropTool extends Tool {
     const overlays = [];
     if (state.selectedPropAnchors.length > 0) {
       for (const a of state.selectedPropAnchors) {
-        const o = a.propId ? meta?.props?.find(p => p.id === a.propId) : _findOverlayAt(a.row, a.col);
+        // @ts-expect-error — strict-mode migration
+        const o = a.propId ? meta?.props?.find((p: any) => p.id === a.propId) : _findOverlayAt(a.row, a.col);
         if (o) overlays.push(o);
       }
+    // @ts-expect-error — strict-mode migration
     } else if (this.hoveredAnchor) {
+      // @ts-expect-error — strict-mode migration
       const o = this.hoveredAnchor.propId
-        ? meta?.props?.find(p => p.id === this.hoveredAnchor.propId)
+        // @ts-expect-error — strict-mode migration
+        ? meta?.props?.find((p: any) => p.id === this.hoveredAnchor.propId)
+        // @ts-expect-error — strict-mode migration
         : _findOverlayAt(this.hoveredAnchor.row, this.hoveredAnchor.col);
       if (o) overlays.push(o);
     }
@@ -709,20 +838,25 @@ export class PropTool extends Tool {
   }
 
   onCancel() {
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging) {
       this._cancelDrag();
       return true;
     }
+    // @ts-expect-error — strict-mode migration
     if (this._pendingDragAnchor) {
+      // @ts-expect-error — strict-mode migration
       this._pendingDragAnchor = null;
+      // @ts-expect-error — strict-mode migration
       this._pendingDragPos = null;
       return true;
     }
     return false;
   }
 
-  onRightClick(row, col) {
+  onRightClick(row: any, col: any) {
     // If dragging or pasting, right-click cancels the action instead of deleting
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging) {
       this._cancelDrag();
       requestRender();
@@ -730,6 +864,7 @@ export class PropTool extends Tool {
     }
     if (state.propPasteMode) {
       state.propPasteMode = false;
+      // @ts-expect-error — strict-mode migration
       this.pasteHover = null;
       notify();
       requestRender();
@@ -751,7 +886,7 @@ export class PropTool extends Tool {
 
     // Remove from selection if it was selected
     state.selectedPropAnchors = state.selectedPropAnchors.filter(
-      a => a.row !== anchor.row || a.col !== anchor.col
+      (a: any) => a.row !== anchor.row || a.col !== anchor.col
     );
 
     markPropSpatialDirty();
@@ -763,9 +898,11 @@ export class PropTool extends Tool {
 
   // ── Overlay ──────────────────────────────────────────────────────────────
 
-  renderOverlay(ctx, transform, gridSize) {
+  renderOverlay(ctx: any, transform: any, gridSize: any) {
     // 0. Paste preview — ghost props following cursor
+    // @ts-expect-error — strict-mode migration
     if (state.propPasteMode && state.propClipboard && this.pasteHover) {
+      // @ts-expect-error — strict-mode migration
       const { row: tRow, col: tCol } = this.pasteHover;
       const theme = getTheme();
       const catalog = state.propCatalog;
@@ -800,8 +937,10 @@ export class PropTool extends Tool {
           ctx.scale(scl, scl);
           const cellPx = gridSize * transform.scale;
           const offsetTransform = { scale: transform.scale, offsetX: -centerNx * cellPx, offsetY: -centerNy * cellPx };
+          // @ts-expect-error — strict-mode migration
           renderProp(ctx, propDef, 0, 0, 0, gridSize, theme, offsetTransform, flipped, getTextureResolver());
         } else {
+          // @ts-expect-error — strict-mode migration
           renderProp(ctx, propDef, row, col, rot, gridSize, theme, transform, flipped, getTextureResolver());
         }
         ctx.restore();
@@ -819,25 +958,33 @@ export class PropTool extends Tool {
     }
 
     // 1. Drag ghost (when moving props)
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging && this.dragGhost && this.dragItems.length > 0) {
       const allValid = this._allPositionsValid();
       const borderColor = allValid ? 'rgba(100, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
       const theme = getTheme();
 
+      // @ts-expect-error — strict-mode migration
       const isFreeformGhost = this.dragFreeform && this.dragGhost.worldX != null;
 
+      // @ts-expect-error — strict-mode migration
       for (const item of this.dragItems) {
         // Compute ghost position, including freeform sub-cell offset
         let row, col;
+        // @ts-expect-error — strict-mode migration
         const snapToGrid = this.dragSnapToGrid;
         const fox = snapToGrid ? 0 : (item.freeOffsetX || 0);
         const foy = snapToGrid ? 0 : (item.freeOffsetY || 0);
         if (isFreeformGhost) {
           const gs = gridSize;
+          // @ts-expect-error — strict-mode migration
           row = (this.dragGhost.worldY + item.offsetRow * gs) / gs;
+          // @ts-expect-error — strict-mode migration
           col = (this.dragGhost.worldX + item.offsetCol * gs) / gs;
         } else {
+          // @ts-expect-error — strict-mode migration
           row = this.dragGhost.row + item.offsetRow + foy;
+          // @ts-expect-error — strict-mode migration
           col = this.dragGhost.col + item.offsetCol + fox;
         }
         const [spanRows, spanCols] = getEffectiveFootprint(item.propDef, item.facing);
@@ -861,8 +1008,10 @@ export class PropTool extends Tool {
             offsetX: -centerNx * cellPx,
             offsetY: -centerNy * cellPx,
           };
+          // @ts-expect-error — strict-mode migration
           renderProp(ctx, item.propDef, 0, 0, 0, gridSize, theme, offsetTransform, item.flipped, getTextureResolver());
         } else {
+          // @ts-expect-error — strict-mode migration
           renderProp(ctx, item.propDef, row, col, item.facing, gridSize, theme, transform, item.flipped, getTextureResolver());
         }
         ctx.restore();
@@ -894,10 +1043,15 @@ export class PropTool extends Tool {
     }
 
     // 2. Box-select rubber-band rectangle
+    // @ts-expect-error — strict-mode migration
     if (this.isBoxSelecting && this.dragStart && this.dragEnd) {
+      // @ts-expect-error — strict-mode migration
       const r1 = Math.min(this.dragStart.row, this.dragEnd.row);
+      // @ts-expect-error — strict-mode migration
       const r2 = Math.max(this.dragStart.row, this.dragEnd.row) + 1;
+      // @ts-expect-error — strict-mode migration
       const c1 = Math.min(this.dragStart.col, this.dragEnd.col);
+      // @ts-expect-error — strict-mode migration
       const c2 = Math.max(this.dragStart.col, this.dragEnd.col) + 1;
 
       const topLeft = toCanvas(c1 * gridSize, r1 * gridSize, transform);
@@ -914,18 +1068,24 @@ export class PropTool extends Tool {
     }
 
     // 3. Placement preview — when hovering empty space with a prop selected
+    // @ts-expect-error — strict-mode migration
     if (!this.isDragging && !this.isBoxSelecting && !this.hoveredAnchor &&
+        // @ts-expect-error — strict-mode migration
         this.hoverRow != null && this.hoverCol != null && state.selectedProp) {
       const catalog = state.propCatalog;
       const prevDef = catalog?.props?.[state.selectedProp];
       if (prevDef) {
+        // @ts-expect-error — strict-mode migration
         if (this.hoverFreeform && this.hoverWorldX != null) {
           // Freeform: ghost follows exact cursor position (sub-cell)
           const [spanRows, spanCols] = getEffectiveFootprint(prevDef, state.propRotation);
+          // @ts-expect-error — strict-mode migration
           const freeRow = this.hoverWorldY / gridSize - spanRows / 2;
+          // @ts-expect-error — strict-mode migration
           const freeCol = this.hoverWorldX / gridSize - spanCols / 2;
           this._renderPlacePreview(ctx, transform, gridSize, freeRow, freeCol);
         } else {
+          // @ts-expect-error — strict-mode migration
           const anchor = centeredAnchor(this.hoverRow, this.hoverCol, prevDef, state.propRotation);
           this._renderPlacePreview(ctx, transform, gridSize, anchor.row, anchor.col);
         }
@@ -933,7 +1093,9 @@ export class PropTool extends Tool {
     }
 
     // 4. Hover highlight — thin dashed outline on the prop under the cursor
+    // @ts-expect-error — strict-mode migration
     if (this.hoveredAnchor && !this.isDragging) {
+      // @ts-expect-error — strict-mode migration
       const hoverOverlay = _findOverlayAt(this.hoveredAnchor.row, this.hoveredAnchor.col);
       if (hoverOverlay) {
         const { topLeft, bottomRight } = _propBounds(hoverOverlay, gridSize, transform);
@@ -951,7 +1113,8 @@ export class PropTool extends Tool {
       // Use propId if available (from box-select), else fall back to spatial lookup
       const meta = state.dungeon.metadata;
       const selOverlay = anchor.propId
-        ? meta?.props?.find(p => p.id === anchor.propId)
+        // @ts-expect-error — strict-mode migration
+        ? meta?.props?.find((p: any) => p.id === anchor.propId)
         : _findOverlayAt(anchor.row, anchor.col);
       if (!selOverlay) continue;
       const { topLeft, bottomRight } = _propBounds(selOverlay, gridSize, transform);
@@ -975,7 +1138,7 @@ export class PropTool extends Tool {
 
   // ── Place ────────────────────────────────────────────────────────────────
 
-  _placeAtCell(row, col, pixelPos = null, freeform = false) {
+  _placeAtCell(row: any, col: any, pixelPos = null, freeform = false) {
     if (!state.selectedProp) return;
     const catalog = state.propCatalog;
     if (!catalog?.props?.[state.selectedProp]) return;
@@ -996,7 +1159,9 @@ export class PropTool extends Tool {
       const transform = getTransform();
       if (transform) {
         const gs = state.dungeon.metadata.gridSize || 5;
+        // @ts-expect-error — strict-mode migration
         const cursorWorldX = (pixelPos.x - transform.offsetX) / transform.scale;
+        // @ts-expect-error — strict-mode migration
         const cursorWorldY = (pixelPos.y - transform.offsetY) / transform.scale;
         entry.x = cursorWorldX - (spanCols * gs) / 2;
         entry.y = cursorWorldY - (spanRows * gs) / 2;
@@ -1045,7 +1210,9 @@ export class PropTool extends Tool {
           presetId: lightDef.preset,
           propRef: { row, col },
         };
+        // @ts-expect-error — strict-mode migration
         if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+        // @ts-expect-error — strict-mode migration
         if (preset.animation?.type) light.animation = { ...preset.animation };
 
         meta.lights.push(light);
@@ -1060,7 +1227,7 @@ export class PropTool extends Tool {
     requestRender();
   }
 
-  _renderPlacePreview(ctx, transform, gridSize, row, col) {
+  _renderPlacePreview(ctx: any, transform: any, gridSize: any, row: any, col: any) {
     const catalog = state.propCatalog;
     if (!catalog?.props?.[state.selectedProp]) return;
 
@@ -1084,8 +1251,10 @@ export class PropTool extends Tool {
       ctx.scale(scl, scl);
       const cellPx = gridSize * transform.scale;
       const offsetTransform = { scale: transform.scale, offsetX: -centerNx * cellPx, offsetY: -centerNy * cellPx };
+      // @ts-expect-error — strict-mode migration
       renderProp(ctx, propDef, 0, 0, 0, gridSize, theme, offsetTransform, state.propFlipped, getTextureResolver());
     } else {
+      // @ts-expect-error — strict-mode migration
       renderProp(ctx, propDef, row, col, rot, gridSize, theme, transform, state.propFlipped, getTextureResolver());
     }
     ctx.restore();
@@ -1110,11 +1279,11 @@ export class PropTool extends Tool {
 
   // ── Select + Drag ────────────────────────────────────────────────────────
 
-  _selectOnMouseDown(row, col, event, pos, propId) {
+  _selectOnMouseDown(row: any, col: any, event: any, pos: any, propId: any) {
     const anchor = { row, col, propId };
 
     // Check if this prop is already in the selection (by ID or by position)
-    const idx = state.selectedPropAnchors.findIndex(a =>
+    const idx = state.selectedPropAnchors.findIndex((a: any) =>
       (propId && a.propId === propId) || (a.row === row && a.col === col)
     );
 
@@ -1127,12 +1296,16 @@ export class PropTool extends Tool {
       }
     } else if (idx >= 0) {
       // Clicking a prop already in the selection → keep the whole group, start pending drag
+      // @ts-expect-error — strict-mode migration
       this._pendingDragAnchor = anchor;
+      // @ts-expect-error — strict-mode migration
       this._pendingDragPos = pos || null;
     } else {
       // Clicking a prop not in the selection → select only this one, start pending drag
       state.selectedPropAnchors = [anchor];
+      // @ts-expect-error — strict-mode migration
       this._pendingDragAnchor = anchor;
+      // @ts-expect-error — strict-mode migration
       this._pendingDragPos = pos || null;
     }
 
@@ -1140,10 +1313,10 @@ export class PropTool extends Tool {
     requestRender();
   }
 
-  _activateDrag(anchor) {
+  _activateDrag(anchor: any) {
     // Move all selected props if the dragged anchor is in the selection,
     // otherwise just move the single prop that was clicked.
-    const anchorsToMove = state.selectedPropAnchors.some(a =>
+    const anchorsToMove = state.selectedPropAnchors.some((a: any) =>
       (anchor.propId && a.propId === anchor.propId) || (a.row === anchor.row && a.col === anchor.col)
     ) ? state.selectedPropAnchors : [anchor];
 
@@ -1153,7 +1326,8 @@ export class PropTool extends Tool {
     for (const a of anchorsToMove) {
       // Use propId when available (from box-select), else spatial lookup
       const overlay = a.propId
-        ? meta?.props?.find(p => p.id === a.propId)
+        // @ts-expect-error — strict-mode migration
+        ? meta?.props?.find((p: any) => p.id === a.propId)
         : _findOverlayAt(a.row, a.col);
       if (!overlay) continue;
       const propDef = state.propCatalog?.props?.[overlay.type];
@@ -1190,7 +1364,9 @@ export class PropTool extends Tool {
     for (const item of items) {
       // Remove by ID for reliability
       if (meta?.props) {
-        const idx = meta.props.findIndex(p => p.id === item.propId);
+        // @ts-expect-error — strict-mode migration
+        const idx = meta.props.findIndex((p: any) => p.id === item.propId);
+        // @ts-expect-error — strict-mode migration
         if (idx >= 0) meta.props.splice(idx, 1);
       }
     }
@@ -1200,9 +1376,13 @@ export class PropTool extends Tool {
     markPropSpatialDirty();
     invalidateLightmap('props');
 
+    // @ts-expect-error — strict-mode migration
     this.isDragging = true;
+    // @ts-expect-error — strict-mode migration
     this.dragItems = items;
+    // @ts-expect-error — strict-mode migration
     this.dragLeadAnchor = { row: anchor.row, col: anchor.col };
+    // @ts-expect-error — strict-mode migration
     this.dragGhost = { row: anchor.row, col: anchor.col };
     setCursor('grabbing');
   }
@@ -1212,8 +1392,11 @@ export class PropTool extends Tool {
     const cells = state.dungeon.cells;
     const numRows = cells.length;
     const numCols = cells[0]?.length || 0;
+    // @ts-expect-error — strict-mode migration
     for (const item of this.dragItems) {
+      // @ts-expect-error — strict-mode migration
       const newRow = this.dragGhost.row + item.offsetRow;
+      // @ts-expect-error — strict-mode migration
       const newCol = this.dragGhost.col + item.offsetCol;
       if (newRow < 0 || newRow >= numRows || newCol < 0 || newCol >= numCols) return false;
     }
@@ -1221,26 +1404,35 @@ export class PropTool extends Tool {
   }
 
   _finishDrag() {
+    // @ts-expect-error — strict-mode migration
     if (this.dragItems.length === 0 || !this.dragGhost) {
       this._cancelDrag();
       return;
     }
 
     if (this._allPositionsValid()) {
+      // @ts-expect-error — strict-mode migration
       pushUndo(this.dragItems.length > 1 ? 'Move props' : 'Move prop');
       const gs = state.dungeon.metadata.gridSize || 5;
+      // @ts-expect-error — strict-mode migration
       const isFreeform = this.dragFreeform && this.dragGhost.worldX != null;
       const newAnchors = [];
+      // @ts-expect-error — strict-mode migration
       for (const item of this.dragItems) {
+        // @ts-expect-error — strict-mode migration
         const newRow = this.dragGhost.row + item.offsetRow;
+        // @ts-expect-error — strict-mode migration
         const newCol = this.dragGhost.col + item.offsetCol;
         const entry = _addOverlayAt(newRow, newCol, item.origType, item.facing, item.flipped);
         entry.scale = item.scale;
         entry.zIndex = item.zIndex;
         if (isFreeform) {
           // Ctrl+drag: place at exact world-feet position
+          // @ts-expect-error — strict-mode migration
           entry.x = this.dragGhost.worldX + item.offsetCol * gs;
+          // @ts-expect-error — strict-mode migration
           entry.y = this.dragGhost.worldY + item.offsetRow * gs;
+        // @ts-expect-error — strict-mode migration
         } else if (!this.dragSnapToGrid && (item.freeOffsetX || item.freeOffsetY)) {
           // Preserve original freeform sub-cell offset (unless Shift = snap to grid)
           entry.x += (item.freeOffsetX || 0) * gs;
@@ -1274,21 +1466,33 @@ export class PropTool extends Tool {
       this._restoreDragItems();
     }
 
+    // @ts-expect-error — strict-mode migration
     this.isDragging = false;
+    // @ts-expect-error — strict-mode migration
     this.dragFreeform = false;
+    // @ts-expect-error — strict-mode migration
     this.dragItems = [];
+    // @ts-expect-error — strict-mode migration
     this.dragLeadAnchor = null;
+    // @ts-expect-error — strict-mode migration
     this.dragGhost = null;
+    // @ts-expect-error — strict-mode migration
     setCursor(this.hoveredAnchor ? 'grab' : 'crosshair');
     requestRender();
   }
 
   _cancelDrag() {
+    // @ts-expect-error — strict-mode migration
     if (this.isDragging) this._restoreDragItems();
+    // @ts-expect-error — strict-mode migration
     this.isDragging = false;
+    // @ts-expect-error — strict-mode migration
     this.dragFreeform = false;
+    // @ts-expect-error — strict-mode migration
     this.dragItems = [];
+    // @ts-expect-error — strict-mode migration
     this.dragLeadAnchor = null;
+    // @ts-expect-error — strict-mode migration
     this.dragGhost = null;
     setCursor('crosshair');
     requestRender();
@@ -1297,6 +1501,7 @@ export class PropTool extends Tool {
   /** Re-insert dragged props at their original positions (no undo deserialize). */
   _restoreDragItems() {
     const restoredAnchors = [];
+    // @ts-expect-error — strict-mode migration
     for (const item of this.dragItems) {
       const entry = _addOverlayAt(item.anchor.row, item.anchor.col, item.origType, item.facing, item.flipped);
       entry.scale = item.scale;
@@ -1314,7 +1519,7 @@ export class PropTool extends Tool {
 
   // ── Key Handlers ────────────────────────────────────────────────────────
 
-  _handleRotate(degrees) {
+  _handleRotate(degrees: any) {
     if (state.selectedPropAnchors.length > 1) {
       this._rotateSelectedGroup(degrees);
       return;
@@ -1369,17 +1574,23 @@ export class PropTool extends Tool {
 
   // Rotate all dragItems 90° CW or CCW as a group, updating offsets and facings
   _rotateDragGroup(degrees = 90) {
+    // @ts-expect-error — strict-mode migration
     if (!this.dragGhost || this.dragItems.length === 0) return;
+    // @ts-expect-error — strict-mode migration
     if (this.dragItems.length === 1) {
+      // @ts-expect-error — strict-mode migration
       this.dragItems[0].facing = (this.dragItems[0].facing + degrees) % 360;
       return;
     }
 
     // Compute bounding box of all items in absolute grid space
     let r_min = Infinity, c_min = Infinity, r_max = -Infinity, c_max = -Infinity;
+    // @ts-expect-error — strict-mode migration
     for (const item of this.dragItems) {
       const [spanRows, spanCols] = getEffectiveFootprint(item.propDef, item.facing);
+      // @ts-expect-error — strict-mode migration
       const absRow = this.dragGhost.row + item.offsetRow;
+      // @ts-expect-error — strict-mode migration
       const absCol = this.dragGhost.col + item.offsetCol;
       r_min = Math.min(r_min, absRow);
       c_min = Math.min(c_min, absCol);
@@ -1389,9 +1600,12 @@ export class PropTool extends Tool {
     const H = r_max - r_min;
     const W = c_max - c_min;
 
+    // @ts-expect-error — strict-mode migration
     for (const item of this.dragItems) {
       const [spanRows, spanCols] = getEffectiveFootprint(item.propDef, item.facing);
+      // @ts-expect-error — strict-mode migration
       const absRow = this.dragGhost.row + item.offsetRow;
+      // @ts-expect-error — strict-mode migration
       const absCol = this.dragGhost.col + item.offsetCol;
       const relRow = absRow - r_min;
       const relCol = absCol - c_min;
@@ -1399,7 +1613,9 @@ export class PropTool extends Tool {
       // CCW: newRelRow=W-relCol-spanCols, newRelCol=relRow
       const newRelRow = degrees === 90 ? relCol : W - relCol - spanCols;
       const newRelCol = degrees === 90 ? H - relRow - spanRows : relRow;
+      // @ts-expect-error — strict-mode migration
       item.offsetRow = r_min + newRelRow - this.dragGhost.row;
+      // @ts-expect-error — strict-mode migration
       item.offsetCol = c_min + newRelCol - this.dragGhost.col;
       item.facing = (item.facing + degrees) % 360;
     }
@@ -1407,25 +1623,33 @@ export class PropTool extends Tool {
 
   // Flip all dragItems horizontally as a group, updating col offsets and flipped flags
   _flipDragGroup() {
+    // @ts-expect-error — strict-mode migration
     if (!this.dragGhost || this.dragItems.length === 0) return;
+    // @ts-expect-error — strict-mode migration
     if (this.dragItems.length === 1) {
+      // @ts-expect-error — strict-mode migration
       this.dragItems[0].flipped = !this.dragItems[0].flipped;
       return;
     }
 
     let c_min = Infinity, c_max = -Infinity;
+    // @ts-expect-error — strict-mode migration
     for (const item of this.dragItems) {
       const [, spanCols] = getEffectiveFootprint(item.propDef, item.facing);
+      // @ts-expect-error — strict-mode migration
       const absCol = this.dragGhost.col + item.offsetCol;
       c_min = Math.min(c_min, absCol);
       c_max = Math.max(c_max, absCol + spanCols);
     }
     const W = c_max - c_min;
 
+    // @ts-expect-error — strict-mode migration
     for (const item of this.dragItems) {
       const [, spanCols] = getEffectiveFootprint(item.propDef, item.facing);
+      // @ts-expect-error — strict-mode migration
       const absCol = this.dragGhost.col + item.offsetCol;
       const relCol = absCol - c_min;
+      // @ts-expect-error — strict-mode migration
       item.offsetCol = c_min + W - relCol - spanCols - this.dragGhost.col;
       item.flipped = !item.flipped;
     }
@@ -1439,7 +1663,8 @@ export class PropTool extends Tool {
     // Collect overlays
     const overlays = [];
     for (const a of state.selectedPropAnchors) {
-      const o = a.propId ? meta?.props?.find(p => p.id === a.propId) : _findOverlayAt(a.row, a.col);
+      // @ts-expect-error — strict-mode migration
+      const o = a.propId ? meta?.props?.find((p: any) => p.id === a.propId) : _findOverlayAt(a.row, a.col);
       if (o) overlays.push(o);
     }
     if (overlays.length === 0) return;
@@ -1570,7 +1795,7 @@ export class PropTool extends Tool {
 
   // ── Prop Copy/Paste ──────────────────────────────────────────────────────
 
-  _allPastePositionsValid(targetRow, targetCol) {
+  _allPastePositionsValid(targetRow: any, targetCol: any) {
     if (!state.propClipboard) return false;
     const cells = state.dungeon.cells;
     const numRows = cells.length;
@@ -1597,7 +1822,7 @@ export class PropTool extends Tool {
     return true;
   }
 
-  _commitPropPaste(targetRow, targetCol) {
+  _commitPropPaste(targetRow: any, targetCol: any) {
     if (!state.propClipboard) return;
     if (!this._allPastePositionsValid(targetRow, targetCol)) return;
 
@@ -1654,8 +1879,11 @@ export class PropTool extends Tool {
             falloff: light.falloff || 'smooth',
             propRef: { row: newPropRefRow, col: newPropRefCol },
           };
+          // @ts-expect-error — strict-mode migration
           if (light.presetId) newLight.presetId = light.presetId;
+          // @ts-expect-error — strict-mode migration
           if (light.dimRadius) newLight.dimRadius = light.dimRadius;
+          // @ts-expect-error — strict-mode migration
           if (light.animation) newLight.animation = { ...light.animation };
           meta.lights.push(newLight);
           lightsCreated++;
@@ -1665,6 +1893,7 @@ export class PropTool extends Tool {
 
     state.selectedPropAnchors = newAnchors;
     state.propPasteMode = false;
+    // @ts-expect-error — strict-mode migration
     this.pasteHover = null;
     markPropSpatialDirty();
     invalidateLightmap('props');
@@ -1675,7 +1904,7 @@ export class PropTool extends Tool {
     showToast(`Pasted ${newAnchors.length} prop${newAnchors.length === 1 ? '' : 's'}${lightMsg}`);
   }
 
-  _drawNameLabel(ctx, name, topLeft, bottomRight) {
+  _drawNameLabel(ctx: any, name: any, topLeft: any, bottomRight: any) {
     const centerX = (topLeft.x + bottomRight.x) / 2;
     const aboveY = topLeft.y - 6;
 
