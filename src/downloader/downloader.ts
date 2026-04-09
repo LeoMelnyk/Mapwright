@@ -97,7 +97,8 @@ function openEventSource(url: string) {
   eventSource = new EventSource(url);
 
   eventSource.onmessage = (e: MessageEvent) => {
-    const msg = JSON.parse(e.data);
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { console.warn('[downloader] malformed SSE message', String(e.data).slice(0, 120)); return; }
 
     switch (msg.type) {
       case 'fetching_catalog':

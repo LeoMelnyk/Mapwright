@@ -9,9 +9,10 @@
  */
 
 /// <reference types="node" />
-import type { CellGrid, Dd2vttFormat, Dd2vttLight, Dd2vttPortal, Light, Metadata } from '../types.js';
+import type { CellGrid, Dd2vttFormat, Dd2vttLight, Dd2vttPortal, Direction, Light, Metadata } from '../types.js';
 import { GRID_SCALE, MARGIN } from './constants.js';
 import { calculateBoundsFromCells } from './bounds.js';
+import { getEdge } from '../util/index.js';
 
 /**
  * Convert mapwright dungeon data to dd2vtt JSON format.
@@ -97,7 +98,7 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
       ];
 
       for (const edge of edges) {
-        const val = cell[edge.dir];
+        const val = getEdge(cell, edge.dir as Direction);
         if (!val) continue;
 
         // Skip invisible walls/doors — they shouldn't affect VTT line of sight
@@ -117,7 +118,7 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
             { x: seg.x1, y: seg.y1 },
             { x: seg.x2, y: seg.y2 },
           ]);
-        } else if (val === 'd' || val === 's') {
+        } else { // val is 'd' | 's' (door or secret door)
           // Door → portal (closed by default, secret doors also closed)
           const rotation = (edge.dir === 'north' || edge.dir === 'south') ? 0 : 90;
           portals.push({

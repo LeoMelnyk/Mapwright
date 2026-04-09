@@ -628,8 +628,8 @@ export class PaintTool extends Tool {
     for (const [r, c, halfKey] of toFill) {
       const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
       const opKey = texKey + 'Opacity';
-      cells[r][c]![texKey] = tid;
-      cells[r][c]![opKey] = opacity;
+      (cells[r][c] as Record<string, unknown>)[texKey] = tid;
+      (cells[r][c] as Record<string, unknown>)[opKey] = opacity;
       if (r < fMinR) fMinR = r; if (r > fMaxR) fMaxR = r;
       if (c < fMinC) fMinC = c; if (c > fMaxC) fMaxC = c;
     }
@@ -764,7 +764,7 @@ export class PaintTool extends Tool {
     let hasTexture = false;
     for (const [r, c, halfKey] of toClear) {
       const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-      if (cells[r][c]![texKey]) { hasTexture = true; break; }
+      if ((cells[r][c] as Record<string, unknown>)[texKey]) { hasTexture = true; break; }
     }
     if (!hasTexture) return;
 
@@ -773,8 +773,8 @@ export class PaintTool extends Tool {
     for (const [r, c, halfKey] of toClear) {
       const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
       const opKey = texKey + 'Opacity';
-      delete cells[r][c]![texKey];
-      delete cells[r][c]![opKey];
+      delete (cells[r][c] as Record<string, unknown>)[texKey];
+      delete (cells[r][c] as Record<string, unknown>)[opKey];
       if (r < cMinR) cMinR = r; if (r > cMaxR) cMaxR = r;
       if (c < cMinC) cMinC = c; if (c > cMaxC) cMaxC = c;
     }

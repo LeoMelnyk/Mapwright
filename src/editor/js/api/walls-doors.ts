@@ -1,11 +1,11 @@
-import type { CardinalDirection } from '../../../types.js';
+import type { CardinalDirection, Direction } from '../../../types.js';
 import {
-  state, pushUndo, markDirty, notify,
+  state, mutate,
   validateBounds, ensureCell, setReciprocal, deleteReciprocal,
   CARDINAL_DIRS, ALL_DIRS, OPPOSITE,
   toInt,
-  captureBeforeState, smartInvalidate,
 } from './_shared.js';
+import { setEdge, deleteEdge } from '../../../util/index.js';
 
 /**
  * Place a wall on a cell edge (with reciprocal on neighbor).
@@ -20,16 +20,13 @@ export function setWall(row: number, col: number, direction: string): { success:
     throw new Error(`Invalid direction: ${direction}. Use: ${ALL_DIRS.join(', ')}`);
   }
   const cell = ensureCell(row, col);
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  (cell as Record<string, unknown>)[direction] = 'w';
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-  if (OPPOSITE[direction as CardinalDirection]) {
-    setReciprocal(row, col, direction, 'w');
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  mutate('Set wall', [{ row, col }], () => {
+    setEdge(cell, direction as Direction, 'w');
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+    if (OPPOSITE[direction as CardinalDirection]) {
+      setReciprocal(row, col, direction, 'w');
+    }
+  }, { topic: 'cells' });
   return { success: true };
 }
 
@@ -48,16 +45,13 @@ export function removeWall(row: number, col: number, direction: string): { succe
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell) return { success: true };
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  delete (cell as Record<string, unknown>)[direction];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-  if (OPPOSITE[direction as CardinalDirection]) {
-    deleteReciprocal(row, col, direction);
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  mutate('Remove wall', [{ row, col }], () => {
+    deleteEdge(cell, direction as Direction);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+    if (OPPOSITE[direction as CardinalDirection]) {
+      deleteReciprocal(row, col, direction);
+    }
+  }, { topic: 'cells' });
   return { success: true };
 }
 
@@ -78,13 +72,10 @@ export function setDoor(row: number, col: number, direction: string, type: strin
     throw new Error(`Invalid door type: ${type}. Use 'd' (normal) or 's' (secret).`);
   }
   const cell = ensureCell(row, col);
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  (cell as Record<string, unknown>)[direction] = type;
-  setReciprocal(row, col, direction, type);
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  mutate('Set door', [{ row, col }], () => {
+    setEdge(cell, direction as Direction, type);
+    setReciprocal(row, col, direction, type);
+  }, { topic: 'cells' });
   return { success: true };
 }
 
@@ -103,12 +94,9 @@ export function removeDoor(row: number, col: number, direction: string): { succe
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell) return { success: true };
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  (cell as Record<string, unknown>)[direction] = 'w';
-  setReciprocal(row, col, direction, 'w');
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  mutate('Remove door', [{ row, col }], () => {
+    setEdge(cell, direction as Direction, 'w');
+    setReciprocal(row, col, direction, 'w');
+  }, { topic: 'cells' });
   return { success: true };
 }

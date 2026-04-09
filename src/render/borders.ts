@@ -1,6 +1,7 @@
-import type { CellGrid, RenderTransform, Stairs, Theme } from '../types.js';
+import type { CellGrid, Direction, RenderTransform, Stairs, Theme } from '../types.js';
 import { GRID_SCALE } from './constants.js';
 import { toCanvas } from './bounds.js';
+import { getEdge } from '../util/index.js';
 
 // ─── Constants ─────
 const DOOR_LENGTH_MULT = 0.6;
@@ -552,7 +553,7 @@ function getDoubleDoorRole(cells: CellGrid, row: number, col: number, borderDire
 function _getDoorRole(cells: CellGrid, row: number, col: number, direction: string, resolution: number, mode: string) {
   const cell = cells[row]?.[col];
   if (!cell) return null;
-  const bt = cell[direction];
+  const bt = getEdge(cell, direction as Direction);
   if (bt !== 'd' && bt !== 's') return null;
 
   const numRows = cells.length;
@@ -574,14 +575,17 @@ function _getDoorRole(cells: CellGrid, row: number, col: number, direction: stri
   for (;;) {
     const pr = startR - dr, pc = startC - dc;
     if (pr < 0 || pr >= numRows || pc < 0 || pc >= numCols) break;
-    if (cells[pr]?.[pc]?.[direction] !== bt) break;
+    const prevCell = cells[pr]?.[pc];
+    if (!prevCell || getEdge(prevCell, direction as Direction) !== bt) break;
     startR = pr; startC = pc;
   }
 
   // Count total run length
   let runLen = 0;
   let r = startR, c = startC;
-  while (r >= 0 && r < numRows && c >= 0 && c < numCols && cells[r]?.[c]?.[direction] === bt) {
+  while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
+    const runCell = cells[r]?.[c];
+    if (!runCell || getEdge(runCell, direction as Direction) !== bt) break;
     runLen++;
     r += dr; c += dc;
   }

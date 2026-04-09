@@ -161,3 +161,25 @@ export function nearestCorner(px: number, py: number, transform: RenderTransform
 export function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
+
+// ── Safe DOM helpers ──────────────────────────────────────────────────────
+
+/**
+ * Get a DOM element by ID, throwing a descriptive error if missing.
+ * Use instead of `document.getElementById(id)!` for better error messages.
+ */
+export function getEl<T extends HTMLElement = HTMLElement>(id: string): T {
+  const el = document.getElementById(id);
+  if (!el) throw new Error(`Missing DOM element: #${id}`);
+  return el as T;
+}
+
+/**
+ * Get a 2D canvas rendering context, throwing if unavailable.
+ * Use instead of `canvas.getContext('2d')!` for better error messages.
+ */
+export function getCtx(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error(`Failed to get 2d context from <canvas id="${canvas.id}">`);
+  return ctx;
+}

@@ -58,7 +58,8 @@ function connectWS() {
   ws.addEventListener('error', () => ws.close());
 
   ws.addEventListener('message', (e) => {
-    const msg = JSON.parse(e.data);
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { console.warn('[dm-session] malformed WebSocket message', String(e.data).slice(0, 120)); return; }
     handleMessage(msg);
   });
 }

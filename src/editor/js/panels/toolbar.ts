@@ -7,6 +7,7 @@ import { SYRINGE_CURSOR, STAMP_CURSOR } from '../tools/index.js';
 import { convertOnePageDungeon } from '../import-opd.js';
 import { convertDonjonDungeon } from '../import-donjon.js';
 import { showToast } from '../toast.js';
+import { getEl } from '../utils.js';
 
 let onToolChange: ((tool: string) => void) | null = null;
 
@@ -30,7 +31,7 @@ export function activateTool(name: string): void {
 function openSidebarPanel(panelId: string) {
   const btn = document.querySelector<HTMLElement>(`.icon-btn[data-panel="${panelId}"]`);
   const panel = document.getElementById(`panel-${panelId}`);
-  const sideContent = document.getElementById('side-content')!;
+  const sideContent = getEl('side-content');
   if (!btn || !panel) return;
 
   document.querySelectorAll<HTMLElement>('.icon-btn').forEach(b => b.classList.remove('active'));
@@ -64,9 +65,9 @@ const toolOptions: Record<string, ToolOption | undefined> = {
             values: ['texture', 'syringe', 'room', 'clear-texture'],
             cursor: (v: string) => v === 'syringe' ? SYRINGE_CURSOR : 'crosshair',
             onApply: (v: string) => {
-              const bar = document.getElementById('paint-texture-options')!;
+              const bar = getEl('paint-texture-options');
               bar.style.display = v === 'texture' || v === 'clear-texture' ? 'flex' : 'none';
-              const r = document.getElementById('texture-opacity-row')!;
+              const r = getEl('texture-opacity-row');
               r.style.display = v === 'texture' ? 'flex' : 'none';
               if (v === 'texture' || v === 'clear-texture' || v === 'syringe') openSidebarPanel('textures');
               const statuses = {
@@ -80,7 +81,7 @@ const toolOptions: Record<string, ToolOption | undefined> = {
   fill:   { key: 'fillMode',   attr: 'data-fill-mode',
             values: ['water', 'lava', 'pit', 'difficult-terrain', 'clear-fill'],
             onApply: (v: string) => {
-              const bar = document.getElementById('fill-depth-options')!;
+              const bar = getEl('fill-depth-options');
               bar.style.display = (v === 'water' || v === 'lava') ? 'flex' : 'none';
               // Sync depth button highlights to the active fluid's current depth
               if (v === 'water' || v === 'lava') {
@@ -134,9 +135,9 @@ const toolOptions: Record<string, ToolOption | undefined> = {
   label:  { key: 'labelMode',  attr: 'data-label-mode',  values: ['room', 'dm'],
             cursor: (v: string) => v === 'dm' ? 'text' : STAMP_CURSOR,
             onApply: (v: string) => {
-              const bar = document.getElementById('label-dungeon-options')!;
+              const bar = getEl('label-dungeon-options');
               bar.style.display = (v === 'room' || !v) ? 'flex' : 'none';
-              const part = document.getElementById('label-dungeon-part')!;
+              const part = getEl('label-dungeon-part');
               part.style.display = 'flex';
               state.statusInstruction = v === 'dm'
                 ? 'Click to place DM annotation · Hover to select/move · Del to delete'
@@ -206,7 +207,7 @@ export function getToolCursor(toolName: string): string | null {
 export function init(): void {
   // ── Menu bar dropdowns ─────────────────────────────────────────────────
   const menuItems = document.querySelectorAll<HTMLElement>('.menu-item');
-  const menubar = document.getElementById('menubar')!;
+  const menubar = getEl('menubar');
 
   /** Update aria-expanded on all triggers to match the open state. */
   function syncAriaExpanded() {
@@ -452,7 +453,7 @@ export function init(): void {
   });
 
   // Dungeon letter dropdown — populate A–Z and wire change
-  const letterSelect = document.getElementById('dungeon-letter-select')!;
+  const letterSelect = getEl('dungeon-letter-select');
   for (let i = 0; i < 26; i++) {
     const ch = String.fromCharCode(65 + i);
     const opt = document.createElement('option');
@@ -482,8 +483,8 @@ export function init(): void {
   });
 
   // Texture opacity slider
-  const opacitySlider = document.getElementById('texture-opacity-slider')!;
-  const opacityValue = document.getElementById('texture-opacity-value')!;
+  const opacitySlider = getEl('texture-opacity-slider');
+  const opacityValue = getEl('texture-opacity-value');
   opacitySlider.addEventListener('input', () => {
     state.textureOpacity = parseInt((opacitySlider as HTMLInputElement).value, 10) / 100;
     opacityValue.textContent = `${(opacitySlider as HTMLInputElement).value}%`;
@@ -536,8 +537,8 @@ export function init(): void {
     if (state.dungeon !== lastDungeon) {
       lastDungeon = state.dungeon;
       meta.dungeonLetter ??= detectDungeonLetter(state.dungeon.cells);
-      const sel = document.getElementById('dungeon-letter-select')!;
-      (sel as HTMLInputElement).value = meta.dungeonLetter || 'A';
+      const sel = getEl<HTMLInputElement>('dungeon-letter-select');
+      sel.value = meta.dungeonLetter || 'A';
       // Force toolbar update on dungeon swap
       _lastTool = null;
     }
@@ -583,30 +584,26 @@ export function updateToolButtons(): void {
   }
 
   // Trim has no sub-mode bar (only tertiary shape bar)
-  const trimShapeBar = document.getElementById('trim-shape-options')!;
+  const trimShapeBar = getEl('trim-shape-options');
   trimShapeBar.style.display = (!state.sessionToolsActive && state.activeTool === 'trim') ? 'flex' : 'none';
 
   // Mode-dependent tertiary bars: hidden when session active or wrong tool active.
   // When the tool IS active, onApply (called from applyToolSideEffects) controls visibility.
   if (state.sessionToolsActive || state.activeTool !== 'paint') {
-    const b = document.getElementById('paint-texture-options')!;
-    b.style.display = 'none';
+    getEl('paint-texture-options').style.display = 'none';
   }
   if (state.sessionToolsActive || state.activeTool !== 'fill') {
-    const b = document.getElementById('fill-depth-options')!;
-    b.style.display = 'none';
+    getEl('fill-depth-options').style.display = 'none';
   }
   if (state.sessionToolsActive || state.activeTool !== 'label') {
-    const b = document.getElementById('label-dungeon-options')!;
-    b.style.display = 'none';
+    getEl('label-dungeon-options').style.display = 'none';
   }
   if (state.sessionToolsActive || state.activeTool !== 'light') {
-    const b = document.getElementById('light-options')!;
-    b.style.display = 'none';
+    getEl('light-options').style.display = 'none';
   }
 
   // Hide the sub-bar panel border/space when no bars are visible (e.g. light, erase, prop)
-  const toolbarSubbars = document.getElementById('toolbar-subbars')!;
+  const toolbarSubbars = getEl('toolbar-subbars');
   const anyVisible = [...toolbarSubbars.querySelectorAll(
     '.suboptions-bar, .tertiaryoptions-bar, .session-suboptions'
   )].some(el => (el as HTMLElement).style.display && (el as HTMLElement).style.display !== 'none');
@@ -636,8 +633,8 @@ function detectDungeonLetter(cells: CellGrid) {
 
 function showImportModal(siteName: string, siteUrl: string) {
   // Remove any existing modal
-  (document.getElementById('import-modal-overlay')! as HTMLDialogElement).close();
-  document.getElementById('import-modal-overlay')?.remove();
+  const existingOverlay = document.getElementById('import-modal-overlay');
+  if (existingOverlay) { (existingOverlay as HTMLDialogElement).close(); existingOverlay.remove(); }
 
   const overlay = document.createElement('dialog');
   overlay.id = 'import-modal-overlay';
@@ -738,7 +735,7 @@ function handleImportFile(file: File, siteName: string) {
       }
 
       loadDungeonJSON(dungeon as unknown as Dungeon, { fileName: file.name });
-      const importDialog = document.getElementById('import-modal-overlay')! as HTMLDialogElement;
+      const importDialog = getEl<HTMLDialogElement>('import-modal-overlay');
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (importDialog) { importDialog.close(); importDialog.remove(); }
       showToast(`Imported from ${siteName}`);

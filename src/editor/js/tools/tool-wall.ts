@@ -4,12 +4,12 @@
 //   east/west edges   → vertical line   (same col, varying row)
 //   nw-se edges       → diagonal line   (row and col change together)
 //   ne-sw edges       → anti-diagonal   (row increases as col decreases)
-import type { EdgeValue } from '../../../types.js';
+import type { Direction, EdgeValue } from '../../../types.js';
 import { Tool, type EdgeInfo } from './tool-base.js';
 import state, { pushUndo, undo, markDirty, invalidateLightmap } from '../state.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { requestRender } from '../canvas-view.js';
-import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../util/index.js';
+import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal, getEdge } from '../../../util/index.js';
 
 /**
  * Wall tool: click/drag on cell edges to paint walls in a constrained straight line.
@@ -110,7 +110,7 @@ export class WallTool extends Tool {
 
     if (!isInBounds(cells, er, ec)) return;
     if (!cells[er]?.[ec]) return;
-    if (!cells[er][ec][direction]) return; // nothing to clear
+    if (!getEdge(cells[er][ec], direction as Direction)) return; // nothing to clear
 
     const before = captureBeforeState(cells, [{ row: er, col: ec }]);
     pushUndo('Remove wall');

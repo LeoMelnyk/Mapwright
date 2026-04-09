@@ -1,7 +1,7 @@
 // Shared helpers, constants, and tool instances for the editor API modules.
 
 import type { CardinalDirection, Cell, EdgeValue, PlaceLightConfig } from '../../../types.js';
-import state, { pushUndo, markDirty, notify, undo as undoFn, redo as redoFn, invalidateLightmap } from '../state.js';
+import state, { pushUndo, markDirty, notify, undo as undoFn, redo as redoFn, invalidateLightmap, mutate } from '../state.js';
 import { createEmptyDungeon } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
 import { RoomTool, TrimTool, PaintTool } from '../tools/index.js';
@@ -148,7 +148,7 @@ export {
   roomTool, trimTool, paintTool,
 
   // State
-  state, pushUndo, markDirty, notify, undoFn, redoFn, invalidateLightmap,
+  state, pushUndo, markDirty, notify, undoFn, redoFn, invalidateLightmap, mutate,
 
   // Utils
   createEmptyDungeon, requestRender,

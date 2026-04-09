@@ -1,4 +1,4 @@
-import type { CardinalDirection, Cell, CreateTrimOptions } from '../../../types.js';
+import type { CardinalDirection, Cell, CreateTrimOptions, Direction } from '../../../types.js';
 import type { TrimCorner } from '../../../util/trim-geometry.js';
 import {
   getApi,
@@ -9,7 +9,7 @@ import {
   toInt,
   captureBeforeState, smartInvalidate,
 } from './_shared.js';
-import { computeTrimCells } from '../../../util/index.js';
+import { computeTrimCells, getEdge, deleteEdge } from '../../../util/index.js';
 
 // ── Trim (reuses TrimTool._updatePreview + apply logic) ──────────────────
 
@@ -98,15 +98,15 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
   // Helper: clear all walls and reciprocals from a cell
   const clearWalls = (cell: Cell, r: number, c: number) => {
     for (const dir of CARDINAL_DIRS) {
-      if (cell[dir]) {
-        delete cell[dir];
+      if (getEdge(cell, dir as Direction)) {
+        deleteEdge(cell, dir as Direction);
         const [dr, dc] = OFFSETS[dir];
         const neighbor = cells[r + dr]?.[c + dc];
-        if (neighbor) delete (neighbor as Record<string, unknown>)[OPPOSITE[dir as CardinalDirection]];
+        if (neighbor) deleteEdge(neighbor, OPPOSITE[dir as CardinalDirection]);
       }
     }
-    delete cell['nw-se'];
-    delete cell['ne-sw'];
+    deleteEdge(cell, 'nw-se');
+    deleteEdge(cell, 'ne-sw');
   };
 
   const clearOldTrimFlags = (cell: Cell) => {

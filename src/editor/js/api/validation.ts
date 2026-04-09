@@ -94,3 +94,97 @@ export function validateConnectivity(entranceLabel: string): { success: true; co
     visitedCells: visited.size,
   };
 }
+
+// ── Batch Validation ──────────────────────────────────────────────────
+
+const VALID_DIRECTIONS = new Set(['north', 'south', 'east', 'west', 'nw-se', 'ne-sw']);
+const VALID_CARDINAL = new Set(['north', 'south', 'east', 'west']);
+
+/**
+ * Validate a batch of commands against current state without mutating.
+ * Performs input-level checks (bounds, direction validity, prop existence)
+ * but does NOT simulate state changes between commands.
+ */
+export function validateBatch(commands: unknown[][]): {
+  success: true;
+  results: { index: number; valid: boolean; error?: string }[];
+} {
+  const cells = state.dungeon.cells;
+  const rows = cells.length;
+  const cols = cells[0]?.length ?? 0;
+  const results: { index: number; valid: boolean; error?: string }[] = [];
+
+  for (let i = 0; i < commands.length; i++) {
+    const cmd = commands[i];
+    if (!Array.isArray(cmd) || cmd.length === 0) {
+      results.push({ index: i, valid: false, error: 'Command must be a non-empty array' });
+      continue;
+    }
+    const [method, ...args] = cmd;
+    try {
+      validateSingleCommand(method as string, args, rows, cols);
+      results.push({ index: i, valid: true });
+    } catch (e) {
+      results.push({ index: i, valid: false, error: (e as Error).message });
+    }
+  }
+
+  return { success: true, results };
+}
+
+function validateSingleCommand(method: string, args: unknown[], rows: number, cols: number): void {
+  switch (method) {
+    case 'paintCell':
+    case 'eraseCell':
+    case 'getCellInfo':
+      checkBounds(args[0] as number, args[1] as number, rows, cols);
+      break;
+    case 'createRoom':
+    case 'paintRect':
+    case 'eraseRect':
+      checkBounds(args[0] as number, args[1] as number, rows, cols);
+      checkBounds(args[2] as number, args[3] as number, rows, cols);
+      break;
+    case 'setWall':
+    case 'removeWall':
+      checkBounds(args[0] as number, args[1] as number, rows, cols);
+      if (!VALID_DIRECTIONS.has(args[2] as string)) throw new Error(`Invalid direction: ${String(args[2])}`);
+      break;
+    case 'setDoor':
+    case 'removeDoor':
+      checkBounds(args[0] as number, args[1] as number, rows, cols);
+      if (!VALID_CARDINAL.has(args[2] as string)) throw new Error(`Invalid cardinal direction: ${String(args[2])}`);
+      break;
+    case 'placeProp': {
+      checkBounds(args[0] as number, args[1] as number, rows, cols);
+      const propType = args[2] as string;
+      if (!state.propCatalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
+      break;
+    }
+    case 'setFill':
+    case 'setFillRect':
+      // Fill type validated at runtime by the API
+      break;
+    case 'placeLight':
+    case 'removeLight':
+    case 'setAmbientLight':
+    case 'setLightingEnabled':
+    case 'setLabel':
+    case 'removeLabel':
+    case 'setTheme':
+    case 'setName':
+    case 'newMap':
+    case 'undo':
+    case 'redo':
+      // These don't need pre-validation
+      break;
+    default:
+      // Unknown methods pass validation — they'll fail at execution time
+      break;
+  }
+}
+
+function checkBounds(row: number, col: number, rows: number, cols: number): void {
+  if (typeof row !== 'number' || typeof col !== 'number') throw new Error(`Row/col must be numbers, got ${typeof row}/${typeof col}`);
+  if (row < 0 || row >= rows || col < 0 || col >= cols) throw new Error(`Cell (${row}, ${col}) out of bounds (${rows}x${cols})`);
+}

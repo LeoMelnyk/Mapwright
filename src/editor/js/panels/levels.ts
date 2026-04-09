@@ -4,6 +4,7 @@ import state, { pushUndo, markDirty, notify, subscribe } from '../state.js';
 import { invalidateAllCaches } from '../../../render/index.js';
 import { panToLevel } from '../canvas-view.js';
 import { showToast } from '../toast.js';
+import { getEl } from '../utils.js';
 
 let isEditing = false; // guard: prevent update() from destroying inline input
 let dragFromIdx: number | null = null;
@@ -21,7 +22,7 @@ export function init(): void {
 function update() {
   if (isEditing) return; // don't rebuild while user is renaming
 
-  const list = document.getElementById('levels-list')!;
+  const list = getEl('levels-list');
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const levels = state.dungeon.metadata.levels || [];
@@ -174,11 +175,11 @@ function resizeLevel(levelIdx: number) {
   const levels = state.dungeon.metadata.levels;
 
   const level = levels[levelIdx];
-  const modal = document.getElementById('modal-resize-level')!;
-  const descEl = document.getElementById('modal-resize-level-desc')!;
-  const rowInput = document.getElementById('modal-resize-level-rows')!;
-  const cancelBtn = document.getElementById('modal-resize-level-cancel')!;
-  const okBtn = document.getElementById('modal-resize-level-ok')!;
+  const modal = getEl('modal-resize-level');
+  const descEl = getEl('modal-resize-level-desc');
+  const rowInput = getEl('modal-resize-level-rows');
+  const cancelBtn = getEl('modal-resize-level-cancel');
+  const okBtn = getEl('modal-resize-level-ok');
 
   descEl.textContent = `"${level.name}" currently has ${level.numRows} rows.`;
   (rowInput as HTMLInputElement).value = String(level.numRows);
@@ -242,10 +243,10 @@ function resizeLevel(levelIdx: number) {
 }
 
 function _confirmDestructiveResize(level: Level, removeCount: number, onConfirm: () => void) {
-  const confirmModal = document.getElementById('modal-resize-level-confirm')!;
-  const msgEl = document.getElementById('modal-resize-level-confirm-msg')!;
-  const cancelBtn = document.getElementById('modal-resize-level-confirm-cancel')!;
-  const okBtn = document.getElementById('modal-resize-level-confirm-ok')!;
+  const confirmModal = getEl('modal-resize-level-confirm');
+  const msgEl = getEl('modal-resize-level-confirm-msg');
+  const cancelBtn = getEl('modal-resize-level-confirm-cancel');
+  const okBtn = getEl('modal-resize-level-confirm-ok');
 
   msgEl.textContent = `This will delete ${removeCount} row(s) at the bottom of "${level.name}" that contain cell data. Continue?`;
   (confirmModal as HTMLDialogElement).showModal();
@@ -525,10 +526,10 @@ function deleteLevel(idx: number) {
   }
 
   const level = levels[idx];
-  const modal = document.getElementById('modal-delete-level')!;
-  const msgEl = document.getElementById('modal-delete-level-msg')!;
-  const cancelBtn = document.getElementById('modal-delete-level-cancel')!;
-  const okBtn = document.getElementById('modal-delete-level-ok')!;
+  const modal = getEl('modal-delete-level');
+  const msgEl = getEl('modal-delete-level-msg');
+  const cancelBtn = getEl('modal-delete-level-cancel');
+  const okBtn = getEl('modal-delete-level-ok');
 
   msgEl.textContent = `Delete "${level.name}" and all its content?`;
   (modal as HTMLDialogElement).showModal();
@@ -581,10 +582,10 @@ function deleteLevel(idx: number) {
 }
 
 function addLevel() {
-  const modal = document.getElementById('modal-add-level')!;
-  const nameInput = document.getElementById('modal-add-level-name')!;
-  const cancelBtn = document.getElementById('modal-add-level-cancel')!;
-  const okBtn = document.getElementById('modal-add-level-ok')!;
+  const modal = getEl('modal-add-level');
+  const nameInput = getEl('modal-add-level-name');
+  const cancelBtn = getEl('modal-add-level-cancel');
+  const okBtn = getEl('modal-add-level-ok');
 
   const defaultName = `Level ${(state.dungeon.metadata.levels.length || 0) + 1}`;
   (nameInput as HTMLInputElement).value = defaultName;

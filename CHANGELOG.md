@@ -2,160 +2,56 @@
 
 ## v0.10.0
 
+### Universal VTT Export
+
+Maps can now be exported as `.dd2vtt` files for use in Foundry VTT, Roll20, and other virtual tabletop platforms.
+
+- **File > Export to Universal VTT** in the toolbar
+- Embeds a full-quality PNG render alongside line-of-sight walls, door portals, and lights
+- Doors exported as portals; invisible walls/doors excluded from line-of-sight data
+- Compatible with Foundry VTT (via Universal Battlemap Import module)
+
 ### Editor Loading Overlay
 
-- Spinner overlay covers the canvas while catalogs and textures load on startup and file open
-- Overlay stays visible until all props, lights, and textures finish loading
-- Fades out with 0.4s transition; supports both dark and light editor themes
-- Matches the player view's loading screen style
+- Loading spinner covers the canvas while textures and catalogs load on startup and file open
+- Prevents interacting with a half-loaded map
 
 ### Stair & Bridge Improvements
 
-- **Stair hover highlight** — placed stairs now highlight on mouse hover with a dashed blue outline (same as bridges)
-- **Stair shape preview** — ghost outline correctly shows rectangle, trapezoid, or triangle for all placement angles (was always drawing a cone for non-axis-aligned stairs)
-- **Angled bridge/stair fix** — fractional cell indices from angled placement no longer cause texture cache corruption or crashes
-- **Bridge placement logging** — console logs geometry details (points, corners, angle, dimensions) for debugging
+- **Stair hover highlight** — placed stairs now highlight on mouse hover (same as bridges)
+- **Stair shape preview** — ghost outline correctly shows rectangle, trapezoid, or triangle for all placement angles
+- **Angled bridge/stair fix** — fractional cell indices from angled placement no longer cause crashes
+
+### File Load Validation
+
+- Corrupted or hand-edited `.mapwright` files are now checked on load for structural issues (invalid edge values, unknown cell properties, malformed metadata)
+- Warnings shown via toast notification; files are never rejected
+
+### New Automation API Methods
+
+- **`getStateDigest()`** — lightweight summary of map state (room count, prop count, light count, undo depth, dirty flag) without full JSON serialization
+- **`validateBatch(commands)`** — pre-validate a batch of commands against current state without executing them; returns which commands would fail and why
 
 ### Electron Fixes
 
-- Server process tree is now properly killed on app close (Windows `taskkill /T`)
-- Renderer console messages forwarded to terminal with `[INFO]`/`[WARN]`/`[ERROR]` tags
-
-### Universal VTT Export
-
-Maps can now be exported as `.dd2vtt` files (Universal VTT format) for use in Foundry VTT, Roll20, and other virtual tabletop platforms.
-
-- **File > Export to Universal VTT** menu item in the editor
-- Embeds a full-quality PNG render alongside line-of-sight walls, door portals, and lights
-- Walls extracted from the cell grid with proper deduplication; invisible walls/doors excluded
-- Doors exported as portals with closed state and rotation
-- Lights converted with position, range, intensity, and color in grid-unit coordinates
-- Ambient light level included in environment settings
-- Server endpoint: `POST /api/export-dd2vtt`
-- Compatible with Foundry VTT (via Universal Battlemap Import module)
-
-### Codebase Refactoring
-
-Major restructuring of the four largest files into focused, single-responsibility modules. No behavioral changes — all 724 tests pass, all existing imports work unchanged.
-
-**render/props.js (2,355 lines) split into 3 modules:**
-- `parse-props.js` — .prop file parsing and coordinate transformation
-- `render-props.js` — Canvas rendering and tile caching
-- `hitbox-props.js` — Hitbox generation, hit testing, and light segment extraction
-
-**render/render.js (1,529 lines) split into 4 modules:**
-- `render-state.js` — Timing, versioning, dirty region tracking
-- `render-cache.js` — Smart cache invalidation and geometry helpers
-- `render-phases.js` — All visual render phase functions
-- `render-cells.js` — Main render orchestrator
-
-**editor/js/canvas-view.js (1,331 lines) split into 4 modules:**
-- `canvas-view-state.js` — Shared mutable state and constants
-- `canvas-view-render.js` — Render pipeline and overlay drawing
-- `canvas-view-input.js` — Mouse and wheel event handlers
-- `canvas-view-viewport.js` — Pan, zoom, and viewport control
-
-**editor/js/main.js (1,346 lines) split into 4 modules:**
-- `app-init.js` — Application bootstrap and catalog loading
-- `texture-alerts.js` — Texture download status UI
-- `keyboard-shortcuts.js` — Keyboard event routing
-- `ui-components.js` — Draggable toolbar, status bar, modals, markdown parser
-
-### JSDoc Annotations
-
-Added `@param` and `@returns` type annotations to all exported functions across ~86 source files, covering the render pipeline, editor core, API modules, tools, panels, and utilities.
+- Server process tree is now properly killed on app close (Windows)
+- Renderer console messages forwarded to terminal
 
 ### Security Hardening
 
-- **Path traversal fix** — `/api/open-file` now validates resolved paths against an allowlist (user home directory and examples directory)
-- **SSRF fix** — Ollama proxy endpoints (`/api/ollama-status`, `/api/claude`) validate base URLs are localhost/loopback only
-- **Theme key sanitization** — PUT/DELETE theme endpoints use `path.basename()` to prevent directory traversal
-- **Security headers** — Added `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY` middleware
+- Path traversal protection on file open and theme endpoints
+- SSRF protection on Ollama proxy endpoints (localhost only)
+- Content Security Policy, `X-Content-Type-Options`, and `X-Frame-Options` headers added
 
-### TypeScript + SCSS Migration
+### Under the Hood
 
-Full migration of the entire `src/` directory from JavaScript to TypeScript and CSS to SCSS, with Vite as the new build system.
-
-**TypeScript (124 files converted):**
-- All `src/` modules converted from `.js` to `.ts` with type annotations on exported functions
-- Core type definitions in `src/types.ts`: `Cell`, `CellGrid`, `Metadata`, `Dungeon`, `Theme`, `PropDefinition`, `Light`, `RenderTransform`, `OverlayProp`, `Dd2vttFormat`, and 40+ more interfaces
-- `moduleResolution: "bundler"` enables incremental migration — `.js` import specifiers resolve to `.ts` files
-- `allowJs: true`, `strict: false` for migration phase — strictness can be ratcheted up incrementally
-
-**SCSS (3 files converted):**
-- `editor/style.css` → `editor/style.scss`
-- `player/style.css` → `player/style.scss`
-- `downloader/downloader.css` → `downloader/downloader.scss`
-
-**Vite build system:**
-- `vite.config.ts` — Multi-page build (editor, player, downloader) with Vite
-- `dist/` output served by Express in production; Vite dev server proxies API calls in development
-- `npm run dev` — Concurrent Vite HMR + Express API server
-- `npm run build` — Production build (321ms, code-split chunks)
-- Build output: 80KB editor JS, 30KB player JS, 59KB editor CSS (gzipped: 25KB, 10KB, 10KB)
-
-**Infrastructure changes:**
-- `server.js` serves `dist/` (Vite build output) when available, with explicit routes for data assets (`/props`, `/lights`, `/themes`)
-- `npm start` uses `tsx` for TypeScript module resolution
-- ESLint updated with `typescript-eslint` parser
-- `tsconfig.json` and `tsconfig.node.json` for editor and server respectively
-
-### Type Safety & Lint Cleanup
-
-Full type-safety pass across 124 TypeScript files, eliminating all suppressions and enabling strict mode with type-checked linting.
-
-**Phase 1 — Zero `: any` type annotations (873 removed):**
-- All function parameters, variables, return types, and callbacks now use domain-specific types
-- Core interfaces expanded: `EditorState` (53+ properties), `Theme` (20+ rendering properties), `PropCommand` (20 geometry fields), `MapCacheParams`, `BlendTopoCache`, `TexEntry`, `FluidData`
-- Every file across render/, editor/, player/, util/ at zero `: any`
-
-**Phase 2 — Zero `as any` casts (473 removed):**
-- All unsafe casts replaced with proper typed casts (`as Error`, `as HTMLInputElement`, `as Record<string, unknown>`, `keyof typeof`, etc.)
-- Structural fixes: `cvState` fully typed, Tool base class signatures corrected, `getTheme()` returns `Theme` instead of `Record<string, unknown>`
-- OffscreenCanvas `getContext('2d')` properly typed across render pipeline
-
-**Phase 3 — Zero `@ts-expect-error` suppressions (1,915 removed):**
-- All 1,915 suppressions eliminated across 86 files in 30+ commits
-- Interface expansions in `types.ts` resolved the vast majority: `Cell` index signature, `Metadata.theme` union, `BackgroundImage` fields, `BlendEdge`/`BlendCorner` runtime fields
-- `ban-ts-comment` rule set to `error` — `@ts-expect-error`, `@ts-ignore`, `@ts-nocheck` all banned
-
-**Phase 4 & 5 — Type-checked linting (1,859 violations fixed):**
-- 17 new ESLint rules enabled via `typescript-eslint` type-checked config
-- 690 violations fixed in Phase 5 initial pass, 1,169 more in final pass
-- Key rules: `no-unnecessary-condition`, `prefer-nullish-coalescing`, `no-unsafe-function-type`, `no-explicit-any`, `consistent-type-imports`, `no-shadow`
-- Zero `eslint-disable` comments in `src/`
-
-**Post-migration runtime fixes:**
-- Fixed `Record<string, T>` types for texture/light catalogs to include `| undefined`, making null guards type-correct instead of lint-suppressed
-- Restored `??` fallbacks for label coordinates lost during migration (`labelX`/`labelY` cast to `number` → `NaN`)
-- Restored `ctx` → `drawCtx`/`maskCtx` parameter renames missed in player fog overlay (diagonal trim void culling broken)
-- Fixed 39 pre-existing TypeScript errors (OffscreenCanvas context types, DOM null checks, gradient assignment)
-- Source maps enabled for dev builds; Electron console-message forwarding for renderer logs
-
-**Final state:** `strict: true`, zero TypeScript errors, zero ESLint errors, zero suppressions, 854 unit tests + 34 E2E tests passing.
-
-### Test Suite Expansion
-
-Expanded test coverage from 734 tests to 1,105+ tests across 4 test suites.
-
-**New test files:**
-- `test/render/parse-props.test.js` — 136 tests for prop file parsing, coordinate transforms, command parsing
-- `test/state.test.js` — 71 tests for undo/redo, subscribe/notify, dirty tracking, autosave
-- `test/render/export-dd2vtt.test.js` — 34 tests for Universal VTT export format validation
-- `test/render/bounds.test.js` — 23 tests for coordinate math and canvas sizing
-- `test/server.test.js` — 47 tests for all server endpoints including security validation
-- `test/e2e/extended-pipeline.test.js` — 20+ E2E tests covering multi-level dungeons, lighting, textures, fills, trims, validation, bridges, corridors, and large maps
-
-**Expanded existing tests:**
-- `trims.test.js` — Added `roundRoomCorners` coverage
-- `operational.test.js` — Added `listRooms`, `listRoomCells`, `getValidPropPositions`, `suggestPlacement`, `getRoomContents`
-- `convenience.test.js` — Added `normalizeMargin`, `placeLightInRoom`, `createCorridor` edge cases
-- `plan-brief.test.js` — Added 3+ room layouts, cross-shaped dungeons, default handling
-- `migrations.test.js` — Added v1→v2, v2→v3 migration path tests
-
-**Infrastructure:**
-- `vitest.server.config.js` — Dedicated config for server integration tests (`npm run test:server`)
-- `vitest.render.config.js` — Fixed missing `setupFiles` reference (resolved 7 pre-existing test failures)
+- **Full TypeScript migration** — entire codebase converted to strict TypeScript with zero type errors and zero lint suppressions
+- **Vite build system** — faster dev server with hot module replacement; production builds in ~300ms
+- **Test suite** — expanded from 734 to 1,111+ tests, now also type-checked via TypeScript
+- **Codebase refactoring** — four largest files split into focused modules for maintainability
+- **Cell type safety** — removed loose index signature from the Cell type; all cell property access is now compile-time checked
+- **Transaction helper** — new `mutate()` function wraps the undo/invalidate/notify ceremony, reducing boilerplate and preventing missed steps in state mutations
+- **Selective subscriptions** — `notify()` now supports topic filtering so UI panels only re-render when relevant state changes
 
 ---
 

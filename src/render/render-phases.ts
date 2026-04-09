@@ -1,4 +1,5 @@
-import type { BackgroundImage, Cell, CellGrid, Metadata, PropCatalog, RenderTransform, TextureOptions, TextureRuntime, Theme, VisibleBounds } from '../types.js';
+import type { BackgroundImage, Cell, CellGrid, Direction, Metadata, PropCatalog, RenderTransform, TextureOptions, TextureRuntime, Theme, VisibleBounds } from '../types.js';
+import { getEdge } from '../util/index.js';
 import { toCanvas } from './bounds.js';
 import { renderTimings, getTimingFrame } from './render-state.js';
 import { withTrimVoidClip } from './render-cache.js';
@@ -873,8 +874,8 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
     for (let col = startCol; col <= endCol; col++) {
       for (const diag of ['nw-se', 'ne-sw']) {
         const cell = cells[row]?.[col];
-        const bt = cell?.[diag];
-        if (!bt || cell.trimWall) continue;
+        const bt = cell ? getEdge(cell, diag as Direction) : undefined;
+        if (!bt || cell!.trimWall) continue;
         if (bt !== 'w' && bt !== 'd' && bt !== 's') continue;
         const key = `${row},${col},${diag}`;
         if (diagSeen.has(key)) continue;

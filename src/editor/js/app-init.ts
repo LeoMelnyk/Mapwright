@@ -42,6 +42,7 @@ import { getEditorSettings, setEditorSetting } from './editor-settings.js';
 import { initOnboarding } from './onboarding.js';
 import { initTextureAlerts } from './texture-alerts.js';
 import { initDraggableToolbar, updateStatusBar, initShortcutsModal, initReleaseNotesModal, initClaudeSettingsModal } from './ui-components.js';
+import { getEl } from './utils.js';
 
 /**
  * Main application bootstrap.
@@ -79,7 +80,7 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   const savedTheme = localStorage.getItem('editor-ui-theme');
   if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
-  document.getElementById('theme-toggle')!.addEventListener('click', () => {
+  getEl('theme-toggle').addEventListener('click', () => {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     if (isLight) {
       document.documentElement.removeAttribute('data-theme');
@@ -98,8 +99,8 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   // (no migration needed for autosaved state — always current format)
 
   // Init canvas
-  const canvas = document.getElementById('editor-canvas')!;
-  canvasView.init(canvas as HTMLCanvasElement);
+  const canvas = getEl<HTMLCanvasElement>('editor-canvas');
+  canvasView.init(canvas);
 
   // Set initial tool (use restored tool or default)
   if (!restored) state.activeTool = 'room';

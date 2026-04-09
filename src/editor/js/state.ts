@@ -1,5 +1,5 @@
 // Central state store
-import type { Dungeon, EditorState, Theme } from '../../types.js';
+import type { Dungeon, EditorState, Theme, CellGrid } from '../../types.js';
 
 interface AutosaveData {
   dungeon: Dungeon;
@@ -9,9 +9,15 @@ interface AutosaveData {
   panX: number;
   panY: number;
 }
-import { THEMES, invalidateVisibilityCache } from '../../render/index.js';
+import { THEMES, invalidateVisibilityCache, captureBeforeState, smartInvalidate } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
+
+// ── Notify topics ─────────────────────────────────────────────────────────
+export type NotifyTopic = 'cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui';
+
+// ── Invalidation flags for mutate() ─────────────────────────────────────
+export type InvalidateFlag = 'geometry' | 'lighting' | 'lighting:props' | 'fluid' | 'props';
 
 const MAX_UNDO = 100;
 
@@ -223,12 +229,19 @@ export function clearDirty(): void {
 
 /**
  * Subscribe to state change notifications.
- * @param {Function} fn - Callback invoked with the state object on each notify().
- * @param {string} [label] - Debug label for timing diagnostics.
- * @returns {void}
+ * @param fn - Callback invoked with the state object on each notify().
+ * @param labelOrOpts - Debug label string, or options with label and topic filter.
  */
-export function subscribe(fn: (state: EditorState) => void, label?: string): void {
-  state.listeners.push({ fn, label: label ?? 'unknown' });
+export function subscribe(
+  fn: (state: EditorState) => void,
+  labelOrOpts?: string | { label?: string; topics?: NotifyTopic[] },
+): void {
+  const opts = typeof labelOrOpts === 'string' ? { label: labelOrOpts } : (labelOrOpts ?? {});
+  state.listeners.push({
+    fn,
+    label: opts.label ?? 'unknown',
+    topics: opts.topics,
+  });
 }
 
 /** Latest per-subscriber timing data from the most recent notify() call. */
@@ -334,14 +347,17 @@ export async function loadAutosave(): Promise<boolean> {
 }
 
 /**
- * Notify all subscribers of a state change and schedule autosave.
- * @returns {void}
+ * Notify subscribers of a state change and schedule autosave.
+ * @param topic - Optional topic filter. When provided, only subscribers
+ *   that either have no topic filter or include this topic are called.
+ *   When omitted, all subscribers are called.
  */
-export function notify(): void {
+export function notify(topic?: NotifyTopic): void {
   const t0 = performance.now();
   _notifyFrame++;
   const subs = [];
   for (const entry of state.listeners) {
+    if (topic && entry.topics?.length && !entry.topics.includes(topic)) continue;
     const s = performance.now();
     entry.fn(state);
     subs.push({ label: entry.label, ms: performance.now() - s });
@@ -350,6 +366,48 @@ export function notify(): void {
   notifyTimings.subscribers = subs;
   notifyTimings.frame = _notifyFrame;
   scheduleAutosave();
+}
+
+// ── Transaction helper ─────────────────────────────────────────────���────
+
+/**
+ * Wrap a state mutation in the standard ceremony: pushUndo → mutate → invalidate → markDirty → notify.
+ *
+ * @param label - Description for the undo history panel.
+ * @param coords - Cells that will be modified (for captureBeforeState / smartInvalidate).
+ *   Pass an empty array for metadata-only changes.
+ * @param fn - Callback that performs the actual mutation on state.dungeon.
+ * @param options - Extra invalidation flags and notify topic.
+ */
+export function mutate(
+  label: string,
+  coords: Array<{ row: number; col: number }>,
+  fn: () => void,
+  options: {
+    invalidate?: InvalidateFlag[];
+    forceGeometry?: boolean;
+    forceFluid?: boolean;
+    topic?: NotifyTopic;
+  } = {},
+): void {
+  const cells: CellGrid = state.dungeon.cells;
+  const before = coords.length > 0 ? captureBeforeState(cells, coords) : [];
+  pushUndo(label);
+  fn();
+  if (before.length > 0) {
+    smartInvalidate(before, cells, {
+      forceGeometry: options.forceGeometry ?? false,
+      forceFluid: options.forceFluid ?? false,
+    });
+  }
+  const flags = options.invalidate;
+  if (flags) {
+    if (flags.includes('lighting')) invalidateLightmap(true);
+    else if (flags.includes('lighting:props')) invalidateLightmap('props');
+    if (flags.includes('props')) markPropSpatialDirty();
+  }
+  markDirty();
+  notify(options.topic);
 }
 
 export default state;

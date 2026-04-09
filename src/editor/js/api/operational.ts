@@ -446,3 +446,54 @@ export function getValidPropPositions(label: string, propType: string, facing: n
   positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   return { success: true, positions };
 }
+
+// ── State Digest ────────────────────────────────────────────────────────
+
+/**
+ * Return a lightweight summary of the current editor state.
+ * Useful for verifying state after a batch of commands without serializing the full dungeon.
+ */
+export function getStateDigest(): {
+  success: true;
+  rooms: number;
+  totalCells: number;
+  props: number;
+  lights: number;
+  stairs: number;
+  bridges: number;
+  currentLevel: number;
+  levels: number;
+  undoDepth: number;
+  dirty: boolean;
+  unsavedChanges: boolean;
+} {
+  const cells = state.dungeon.cells;
+  const meta = state.dungeon.metadata;
+  let totalCells = 0;
+  const roomLabels = new Set<string>();
+
+  for (let r = 0; r < cells.length; r++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
+      const cell = cells[r]?.[c];
+      if (cell !== null) {
+        totalCells++;
+        if (cell.center?.label) roomLabels.add(cell.center.label);
+      }
+    }
+  }
+
+  return {
+    success: true,
+    rooms: roomLabels.size,
+    totalCells,
+    props: meta.props?.length ?? 0,
+    lights: meta.lights.length,
+    stairs: meta.stairs.length,
+    bridges: meta.bridges.length,
+    currentLevel: state.currentLevel,
+    levels: meta.levels.length,
+    undoDepth: state.undoStack.length,
+    dirty: state.dirty,
+    unsavedChanges: state.unsavedChanges,
+  };
+}

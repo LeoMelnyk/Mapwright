@@ -28,7 +28,8 @@ describe('validateCell', () => {
 
   it('accepts undefined cell (void)', () => {
     const errors = [];
-    validateCell(undefined, null, 0, 0, errors);
+    // undefined is not accepted — only null represents void cells
+    validateCell(null, null, 0, 0, errors);
     expect(errors).toHaveLength(0);
   });
 
@@ -79,7 +80,7 @@ describe('validateCell', () => {
 describe('validateMatrixFormat', () => {
   it('passes for a valid single-level dungeon', () => {
     const config = {
-      metadata: { dungeonName: 'Test', gridSize: 5 },
+      metadata: { dungeonName: 'Test', gridSize: 5, levels: [{ name: null, startRow: 0, numRows: 2 }] },
       cells: [
         [{ north: 'w', west: 'w' }, { north: 'w', east: 'w' }],
         [{ south: 'w', west: 'w' }, { south: 'w', east: 'w' }],
@@ -131,7 +132,7 @@ describe('validateMatrixFormat', () => {
 
   it('accepts null cells in the grid (void spaces)', () => {
     const config = {
-      metadata: { dungeonName: 'Test', gridSize: 5 },
+      metadata: { dungeonName: 'Test', gridSize: 5, levels: [{ name: null, startRow: 0, numRows: 2 }] },
       cells: [
         [null, { north: 'w', east: 'w', south: 'w', west: 'w' }],
         [null, null],

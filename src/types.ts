@@ -89,8 +89,6 @@ export interface Cell {
   lavaDepth?: number;
   center?: CellCenter;
   prop?: CellProp;
-  /** Allow dynamic string-key access for direction lookups, trim properties, etc. */
-  [key: string]: EdgeValue | FillType | CellCenter | CellProp | CardinalDirection | boolean | number | number[][] | string | null | undefined;
 }
 
 /** The 2D cell grid. null entries are void (no floor). */
@@ -624,7 +622,7 @@ export interface EditorState {
   wallType: string;
 
   // Infrastructure
-  listeners: { fn: (s: EditorState) => void; label: string }[];
+  listeners: { fn: (s: EditorState) => void; label: string; topics?: ('cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui')[] }[];
   _lastPushUndoMs: { stringify: number; total: number } | null;
 
   /** Allow dynamic string-key access for toolbar/keybindings state binding. */

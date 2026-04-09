@@ -1,6 +1,25 @@
 // Shared grid traversal primitives used by the editor tools and renderer.
 
-import type { Cell, CellGrid, CardinalDirection, EdgeValue } from '../types.js';
+import type { Cell, CellGrid, CardinalDirection, Direction, EdgeValue } from '../types.js';
+
+// ── Typed Cell edge accessors ──────────────────────────────────────────────
+// These centralise the dynamic property access needed for direction-based lookups,
+// avoiding `as Record<string, unknown>` casts scattered across the codebase.
+
+/** Read an edge value from a cell by direction. */
+export function getEdge(cell: Cell, dir: Direction): EdgeValue {
+  return cell[dir];
+}
+
+/** Write an edge value on a cell by direction. */
+export function setEdge(cell: Cell, dir: Direction, value: EdgeValue): void {
+  (cell as Record<Direction, EdgeValue>)[dir] = value;
+}
+
+/** Delete an edge value from a cell by direction. */
+export function deleteEdge(cell: Cell, dir: Direction): void {
+  delete (cell as Record<Direction, EdgeValue | undefined>)[dir];
+}
 
 // ── Half-cell resolution helpers ────────────────────────────────────────────
 

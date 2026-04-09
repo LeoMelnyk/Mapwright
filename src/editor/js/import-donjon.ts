@@ -10,7 +10,8 @@
 // Outputs at resolution=2 (half-cell grid) and formatVersion=4 natively,
 // bypassing the migration pipeline entirely.
 
-import type { Bridge, CellGrid, EdgeValue, Light, Metadata, Stairs } from '../../types.js';
+import type { Bridge, CellGrid, Direction, EdgeValue, Light, Metadata, Stairs } from '../../types.js';
+import { getEdge, deleteEdge } from '../../util/index.js';
 
 /** Donjon JSON export shape. */
 interface DonjonData {
@@ -96,19 +97,21 @@ const OPP  = { north: 'south', south: 'north', west: 'east', east: 'west' };
 function _clearWalls(cells: CellGrid, r: number, c: number, numRows: number, numCols: number) {
   const cell = cells[r]?.[c];
   if (!cell) return;
-  for (const dir of ['north', 'south', 'east', 'west']) {
-    if (cell[dir] && cell[dir] !== 'd' && cell[dir] !== 's') {
-      delete cell[dir];
-      const [dr, dc] = OFFS[dir as keyof typeof OFFS];
+  for (const dir of ['north', 'south', 'east', 'west'] as const) {
+    const edge = getEdge(cell, dir as Direction);
+    if (edge && edge !== 'd' && edge !== 's') {
+      deleteEdge(cell, dir as Direction);
+      const [dr, dc] = OFFS[dir];
       const nr = r + dr, nc = c + dc;
       if (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols) {
         const nb = cells[nr]?.[nc];
-        if (nb && nb[OPP[dir as keyof typeof OPP]] !== 'd' && nb[OPP[dir as keyof typeof OPP]] !== 's') delete nb[OPP[dir as keyof typeof OPP]];
+        const oppDir = OPP[dir] as Direction;
+        if (nb && getEdge(nb, oppDir) !== 'd' && getEdge(nb, oppDir) !== 's') deleteEdge(nb, oppDir);
       }
     }
   }
-  delete cell['nw-se'];
-  delete cell['ne-sw'];
+  deleteEdge(cell, 'nw-se');
+  deleteEdge(cell, 'ne-sw');
 }
 
 /**

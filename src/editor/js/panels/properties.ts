@@ -4,8 +4,9 @@ import state, { getTheme, pushUndo, markDirty, subscribe, notify } from '../stat
 import { requestRender } from '../canvas-view.js';
 import { renderProp } from '../../../render/index.js';
 import { getTextureCatalog } from '../texture-catalog.js';
+import { getEl, getCtx } from '../utils.js';
 
-const panel = () => document.getElementById('properties-content')!;
+const panel = () => getEl('properties-content');
 
 let explorerBuilt = false;
 let onSelectProp: ((propType: string) => void) | null = null;
@@ -257,11 +258,11 @@ function renderThumbnails(catalog: PropCatalog) {
       const canvas = document.createElement('canvas');
       canvas.width = CANVAS_SIZE;
       canvas.height = CANVAS_SIZE;
-      const ctx = canvas.getContext('2d');
+      const ctx = getCtx(canvas);
 
       // White background for visibility against the dark panel
-      ctx!.fillStyle = '#ffffff';
-      ctx!.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
       const transform = { scale, offsetX: 0, offsetY: 0, lineWidth: 1.5 };
 
@@ -277,7 +278,7 @@ function renderThumbnails(catalog: PropCatalog) {
       const getTexImg = texCat
         ? (id: string) => { const e = texCat.textures[id]; return e?.img?.complete ? e.img : null; }
         : null;
-      renderProp(ctx!, def, 0, 0, 0, 1, theme, transform, false, getTexImg);
+      renderProp(ctx, def, 0, 0, 0, 1, theme, transform, false, getTexImg);
 
       // Replace shimmer with canvas
       const shimmer = thumb.querySelector<HTMLElement>('.prop-thumb-shimmer');
@@ -395,7 +396,7 @@ function updateCellInfo() {
     bodyHtml += `</select></div>`;
     if (currentFill === 'water' || currentFill === 'lava') {
       const depthKey = currentFill + 'Depth';
-      const wd = (cell[depthKey] as number | undefined) ?? 1;
+      const wd = ((cell as Record<string, unknown>)[depthKey] as number | undefined) ?? 1;
       bodyHtml += `<div class="prop-row"><span>depth</span><select id="prop-fluid-depth">`;
       bodyHtml += `<option value="1"${wd === 1 ? ' selected' : ''}>Shallow</option>`;
       bodyHtml += `<option value="2"${wd === 2 ? ' selected' : ''}>Medium</option>`;

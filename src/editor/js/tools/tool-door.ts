@@ -1,8 +1,8 @@
 // Door tool: click on cell edges to place/toggle doors (normal or secret)
-import type { EdgeValue } from '../../../types.js';
+import type { Direction, EdgeValue } from '../../../types.js';
 import { Tool, type EdgeInfo } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
-import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../util/index.js';
+import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal, getEdge } from '../../../util/index.js';
 
 /**
  * Door tool: click on cell edges to place/toggle doors (normal, secret, or invisible).
@@ -32,7 +32,7 @@ export class DoorTool extends Tool {
 
     if (!isInBounds(cells, er, ec)) return;
     if (!cells[er]?.[ec]) return;
-    if (!cells[er][ec][direction]) return; // nothing to clear
+    if (!getEdge(cells[er][ec], direction as Direction)) return; // nothing to clear
 
     pushUndo('Remove door');
     deleteEdgeReciprocal(cells, er, ec, direction);

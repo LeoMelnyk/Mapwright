@@ -1,4 +1,4 @@
-import type { LightPreset, Metadata, OverlayProp, PlacePropOptions, FillWallOptions, LinePropsOptions, ScatterPropsOptions, SuggestPropPositionOptions } from '../../../types.js';
+import type { CardinalDirection, LightPreset, Metadata, OverlayProp, PlacePropOptions, FillWallOptions, LinePropsOptions, ScatterPropsOptions, SuggestPropPositionOptions } from '../../../types.js';
 import {
   getApi,
   CARDINAL_DIRS,
@@ -8,6 +8,7 @@ import {
   cellKey, roomBoundsFromKeys,
   toInt,
 } from './_shared.js';
+import { getEdge } from '../../../util/index.js';
 import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
 import { createOverlayProp, resolveZIndex } from '../prop-overlay.js';
 
@@ -377,7 +378,8 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
 
     if (skipDoors) {
       const cell = cells[wr]?.[wc];
-      if (cell?.[wall] === 'd' || cell?.[wall] === 's') { i++; continue; }
+      const edgeVal = cell ? getEdge(cell, wall as CardinalDirection) : undefined;
+      if (edgeVal === 'd' || edgeVal === 's') { i++; continue; }
     }
 
     let ar, ac;

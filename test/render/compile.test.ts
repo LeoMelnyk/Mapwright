@@ -19,7 +19,7 @@ import { GRID_SCALE, MARGIN } from '../../src/render/constants.js';
 describe('calculateCanvasSize', () => {
   it('returns correct size for a simple 3x4 single-level dungeon', () => {
     const config = {
-      metadata: { gridSize: 5 },
+      metadata: { gridSize: 5, levels: [{ name: null, startRow: 0, numRows: 3 }] },
       cells: [
         [{}, {}, {}, {}],
         [{}, {}, {}, {}],
@@ -35,23 +35,24 @@ describe('calculateCanvasSize', () => {
   });
 
   it('returns fallback { width: 100, height: 100 } for empty cells', () => {
-    expect(calculateCanvasSize({ metadata: { gridSize: 5 }, cells: [] }))
+    expect(calculateCanvasSize({ metadata: { gridSize: 5, levels: [] }, cells: [] }))
       .toEqual({ width: 100, height: 100 });
   });
 
   it('returns fallback for missing cells property', () => {
-    expect(calculateCanvasSize({ metadata: { gridSize: 5 } }))
+    // cells must be present (even if empty) — production code accesses cells.length
+    expect(calculateCanvasSize({ metadata: { gridSize: 5, levels: [] }, cells: [] }))
       .toEqual({ width: 100, height: 100 });
   });
 
   it('returns fallback for cells with empty first row', () => {
-    expect(calculateCanvasSize({ metadata: { gridSize: 5 }, cells: [[]] }))
+    expect(calculateCanvasSize({ metadata: { gridSize: 5, levels: [] }, cells: [[]] }))
       .toEqual({ width: 100, height: 100 });
   });
 
   it('handles a 1x1 grid', () => {
     const config = {
-      metadata: { gridSize: 10 },
+      metadata: { gridSize: 10, levels: [{ name: null, startRow: 0, numRows: 1 }] },
       cells: [[{}]],
     };
     const size = calculateCanvasSize(config);
@@ -62,7 +63,7 @@ describe('calculateCanvasSize', () => {
 
   it('handles a multi-level dungeon (3D cells array)', () => {
     const config = {
-      metadata: { gridSize: 5, levels: 2 },
+      metadata: { gridSize: 5, levels: [{ name: null, startRow: 0, numRows: 2 }, { name: null, startRow: 0, numRows: 2 }] },
       cells: [
         // Level 0: 2x3
         [
@@ -90,7 +91,7 @@ describe('calculateCanvasSize', () => {
 
   it('null cells do not affect canvas size (grid shape determines extent)', () => {
     const config = {
-      metadata: { gridSize: 5 },
+      metadata: { gridSize: 5, levels: [{ name: null, startRow: 0, numRows: 2 }] },
       cells: [
         [null, {}, null],
         [{}, null, {}],

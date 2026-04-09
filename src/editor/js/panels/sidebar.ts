@@ -1,5 +1,6 @@
 // Sidebar: icon bar panel switching
 import { resizeCanvas } from '../canvas-view.js';
+import { getEl } from '../utils.js';
 
 let panelChangeCb: ((panel: string | null) => void) | null = null;
 
@@ -32,7 +33,7 @@ export function togglePanel(panelId: string): void {
  */
 export function init(): void {
   const iconBtns = document.querySelectorAll<HTMLElement>('.icon-btn');
-  const sideContent = document.getElementById('side-content')!;
+  const sideContent = getEl('side-content');
 
   iconBtns.forEach(btn => {
     btn.addEventListener('click', () => {

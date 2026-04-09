@@ -263,15 +263,17 @@ function validateCell(cell: Cell | null, level: number | null, row: number, col:
     } else if (key === 'trimCorner') {
       // Compiler-generated metadata for diagonal trim rendering
       const validCorners = ['nw', 'ne', 'sw', 'se'];
-      if (!validCorners.includes(cell[key] as string)) {
-        errors.push(`${cellId}.trimCorner: must be one of ${validCorners.join(', ')}, got '${cell[key]}'`);
+      // Validated dynamic property access — key is checked against known properties above
+      if (!validCorners.includes((cell as Record<string, unknown>)[key] as string)) {
+        errors.push(`${cellId}.trimCorner: must be one of ${validCorners.join(', ')}, got '${(cell as Record<string, unknown>)[key]}'`);
       }
     } else if (key === 'trimRound' || key === 'trimArcCenterRow' || key === 'trimArcCenterCol' || key === 'trimArcRadius' || key === 'trimArcInverted') {
       // Compiler-generated metadata for rounded (arc) trim rendering
     } else if (validBorders.includes(key)) {
       // Validate border value
-      if (!validBorderValues.includes(cell[key] as string)) {
-        errors.push(`${cellId}.${key}: must be 'w', 'd', or 's', got '${cell[key]}'`);
+      // Validated dynamic property access — key is checked against validBorders above
+      if (!validBorderValues.includes((cell as Record<string, unknown>)[key] as string)) {
+        errors.push(`${cellId}.${key}: must be 'w', 'd', or 's', got '${(cell as Record<string, unknown>)[key]}'`);
       }
     } else {
       errors.push(`${cellId}: unknown property '${key}' (valid: north, east, south, west, center, trimCorner)`);
@@ -653,7 +655,8 @@ function validateDoorAdjacency(cells: CellGrid, isMultiLevel = false) {
         const levelPrefix = isMultiLevel ? `Level ${level}, ` : '';
 
         const checkDoor = (dir: string, adjRow: number, adjCol: number) => {
-          const edgeVal = cell[dir] as EdgeValue;
+          // Validated dynamic property access — dir is one of 'north','south','east','west'
+          const edgeVal = (cell as Record<string, unknown>)[dir] as EdgeValue;
           if (edgeVal === 'd' || edgeVal === 's') {
             const adjCell = levelCells[adjRow]?.[adjCol];
             if (adjCell === null) {
@@ -715,10 +718,11 @@ function canTraverse(fromCell: Cell | null, toCell: Cell | null, direction: stri
 
   const {current, adjacent} = borderMap[direction as keyof typeof borderMap];
 
-  const fromBorder = fromCell?.[current];
+  // Validated dynamic property access — current/adjacent are cardinal direction strings from borderMap
+  const fromBorder = (fromCell as Record<string, unknown> | null)?.[current];
   if (fromBorder === 'w') return false;
 
-  const toBorder = toCell?.[adjacent];
+  const toBorder = (toCell as Record<string, unknown> | null)?.[adjacent];
   if (toBorder === 'w') return false;
 
   return true;
@@ -1120,6 +1124,101 @@ function validateConfig(config: { metadata: Metadata; cells: CellGrid; rooms?: V
   }
 }
 
+// ── Lightweight load-time validation ────────────────────────────���─────────────
+
+/** Known Cell property keys (all optional fields from the Cell interface). */
+const KNOWN_CELL_KEYS = new Set([
+  'north', 'south', 'east', 'west', 'nw-se', 'ne-sw',
+  'fill', 'fillDepth', 'hazard',
+  'texture', 'textureOpacity', 'textureSecondary', 'textureSecondaryOpacity',
+  'textureNE', 'textureNEOpacity', 'textureSW', 'textureSWOpacity',
+  'textureNW', 'textureNWOpacity', 'textureSE', 'textureSEOpacity',
+  'trimmed', 'trimWall', 'trimCorner', 'trimRound', 'trimInverted', 'trimOpen',
+  'trimPassable', 'trimClip', 'trimCrossing', 'trimHideExterior', 'trimShowExteriorOnly',
+  'trimInsideArc', 'trimArcRadius', 'trimArcCenterRow', 'trimArcCenterCol', 'trimArcInverted',
+  'waterDepth', 'lavaDepth',
+  'center', 'prop',
+]);
+
+const VALID_EDGE_VALUES = new Set<string | null | undefined>(['w', 'd', 's', 'iw', 'id', null, undefined]);
+const VALID_FILL_TYPES = new Set(['water', 'lava', 'pit']);
+
+/**
+ * Lightweight structural validation for dungeon JSON at load time.
+ * Returns warnings (never throws or rejects the file).
+ */
+function validateDungeonStructure(dungeon: { metadata: Metadata; cells: CellGrid }): string[] {
+  const warnings: string[] = [];
+  const meta = dungeon.metadata;
+
+  // Metadata checks
+  if (typeof meta.gridSize !== 'number' || meta.gridSize <= 0) {
+    warnings.push(`metadata.gridSize should be a positive number, got ${String(meta.gridSize)}`);
+  }
+  if (typeof meta.theme !== 'string' || !meta.theme) {
+    warnings.push(`metadata.theme should be a non-empty string, got ${String(meta.theme)}`);
+  }
+
+  // Cells structure check
+  if (!Array.isArray(dungeon.cells) || dungeon.cells.length === 0) {
+    warnings.push('cells should be a non-empty 2D array');
+    return warnings;
+  }
+
+  const expectedCols = dungeon.cells[0]?.length ?? 0;
+  const edgeDirs = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'];
+
+  // Sample up to 200 cells to avoid slow validation on large maps
+  const totalRows = dungeon.cells.length;
+  const step = Math.max(1, Math.floor(totalRows / 50));
+  let cellsChecked = 0;
+
+  for (let r = 0; r < totalRows && cellsChecked < 200; r += step) {
+    const row = dungeon.cells[r];
+    if (!Array.isArray(row)) {
+      warnings.push(`Row ${r} is not an array`);
+      continue;
+    }
+    if (row.length !== expectedCols) {
+      warnings.push(`Row ${r} has ${row.length} columns, expected ${expectedCols}`);
+    }
+
+    for (let c = 0; c < row.length && cellsChecked < 200; c += step) {
+      const cell = row[c];
+      if (cell === null) continue;
+      if (typeof cell !== 'object') {
+        warnings.push(`Cell [${r}][${c}] is ${typeof cell}, expected object or null`);
+        cellsChecked++;
+        continue;
+      }
+
+      // Check for unknown keys
+      for (const key of Object.keys(cell)) {
+        if (!KNOWN_CELL_KEYS.has(key)) {
+          warnings.push(`Cell [${r}][${c}] has unknown property "${key}"`);
+        }
+      }
+
+      // Validate edge values
+      for (const dir of edgeDirs) {
+        const val = (cell as Record<string, unknown>)[dir];
+        if (val !== undefined && !VALID_EDGE_VALUES.has(val as string | null)) {
+          warnings.push(`Cell [${r}][${c}].${dir} has invalid edge value "${String(val)}"`);
+        }
+      }
+
+      // Validate fill type
+      if (cell.fill !== undefined && !VALID_FILL_TYPES.has(cell.fill as string)) {
+        warnings.push(`Cell [${r}][${c}].fill has invalid type "${cell.fill}"`);
+      }
+
+      cellsChecked++;
+    }
+  }
+
+  return warnings;
+}
+
 export {
   coordinateToFeet,
   validateCoordinate,
@@ -1127,5 +1226,6 @@ export {
   validateGridAlignment,
   validateCell,
   validateMatrixFormat,
-  validateConfig
+  validateConfig,
+  validateDungeonStructure
 };

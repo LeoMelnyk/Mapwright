@@ -12,6 +12,7 @@ import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
 import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache, invalidateAllCaches, THEMES } from '../../render/index.js';
+import { validateDungeonStructure } from '../../render/validate.js';
 import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextureCatalogCache } from './texture-catalog.js';
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache, saveUserTheme } from './theme-catalog.js';
@@ -30,6 +31,13 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFi
   pushUndo();
   state.dungeon = json;
   (migrateToLatest as (j: unknown) => void)(json);
+
+  // Lightweight structural validation — warn but don't reject
+  const loadWarnings = validateDungeonStructure(json);
+  if (loadWarnings.length > 0) {
+    console.warn('[load] Dungeon structure warnings:', loadWarnings);
+    showToast(`Loaded with ${loadWarnings.length} warning(s) — check console for details`);
+  }
 
   // Ensure metadata fields added in later versions exist on old maps
   const meta = json.metadata as Record<string, unknown>;

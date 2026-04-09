@@ -104,9 +104,11 @@ function migrateToHalfCell(json: MigrationJson) {
       // Create the 4 sub-cells with replicated appearance properties
       const base = {};
       for (const key of REPLICATE_KEYS) {
-        if (cell[key] !== undefined && cell[key] !== null) {
+        // Legacy format migration — access non-edge cell properties by dynamic key
+        const val = (cell as Record<string, unknown>)[key];
+        if (val !== undefined && val !== null) {
           // Deep-copy objects (texture), shallow-copy primitives
-          (base as Record<string, unknown>)[key] = typeof cell[key] === 'object' ? JSON.parse(JSON.stringify(cell[key])) : cell[key];
+          (base as Record<string, unknown>)[key] = typeof val === 'object' ? JSON.parse(JSON.stringify(val)) : val;
         }
       }
 
@@ -239,8 +241,9 @@ function migrateToHalfCell(json: MigrationJson) {
       if (cell.center) {
         tl.center = JSON.parse(JSON.stringify(cell.center));
       }
-      if (cell.label) { tl.label = cell.label; }
-      if (cell.dmLabel) { tl.dmLabel = cell.dmLabel; }
+      // Legacy properties moved to cell.center.label in later formats
+      if ((cell as Record<string, unknown>).label) { tl.label = (cell as Record<string, unknown>).label; }
+      if ((cell as Record<string, unknown>).dmLabel) { tl.dmLabel = (cell as Record<string, unknown>).dmLabel; }
 
       // Internal edges between sub-cells: leave empty (no walls)
       // This is the default — we just don't set north/south/east/west between them.
@@ -532,7 +535,8 @@ function _repairArcFloodBoundary(cells: CellGrid) {
       const nr = r + dr, nc = c + dc;
       if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
       const neighbor = cells[nr]?.[nc];
-      if (!neighbor || neighbor.trimRound || neighbor.trimInsideArc || neighbor.fogBoundary) continue;
+      // Legacy property removed in format v4+
+      if (!neighbor || neighbor.trimRound || neighbor.trimInsideArc || (neighbor as Record<string, unknown>).fogBoundary) continue;
 
       // Check if this neighbor is inside the arc (room side)
       const drr = nr + 0.5 - acr;
@@ -541,7 +545,8 @@ function _repairArcFloodBoundary(cells: CellGrid) {
       const isInside = inverted ? (dist > R) : (dist < R);
 
       if (isInside) {
-        neighbor.fogBoundary = true;
+        // Legacy property removed in format v4+
+        (neighbor as Record<string, unknown>).fogBoundary = true;
         repaired++;
       }
     }
@@ -622,7 +627,8 @@ function _migrateArcToPerCell(cells: CellGrid) {
         const isThisArc = cell.trimArcCenterRow === arc.centerRow &&
                           cell.trimArcCenterCol === arc.centerCol &&
                           cell.trimCorner === arc.corner;
-        if (!isThisArc && !cell.fogBoundary) continue;
+        // Legacy property removed in format v4+
+        if (!isThisArc && !(cell as Record<string, unknown>).fogBoundary) continue;
 
         if (cell.trimRound && isThisArc) {
           // Arc boundary cell: compute per-cell clip/wall
@@ -635,7 +641,8 @@ function _migrateArcToPerCell(cells: CellGrid) {
           delete cell.trimArcInverted;
           delete cell['ne-sw'];
           delete cell['nw-se'];
-          delete cell.fogBoundary;
+          // Legacy property removed in format v4+
+          delete (cell as Record<string, unknown>).fogBoundary;
 
           if (data) {
             // Stamp new properties
@@ -659,12 +666,14 @@ function _migrateArcToPerCell(cells: CellGrid) {
           delete cell.trimArcCenterCol;
           delete cell.trimArcRadius;
           delete cell.trimArcInverted;
-          delete cell.fogBoundary;
+          // Legacy property removed in format v4+
+          delete (cell as Record<string, unknown>).fogBoundary;
           converted++;
-        } else if (cell.fogBoundary) {
+        } else if ((cell as Record<string, unknown>).fogBoundary) {
           // fogBoundary marker from earlier migration: check if arc passes through
           const data = computeArcCellData(r, c, cx, cy, R, arc.corner, arc.inverted);
-          delete cell.fogBoundary;
+          // Legacy property removed in format v4+
+          delete (cell as Record<string, unknown>).fogBoundary;
           if (data) {
             cell.trimCorner = arc.corner;
             cell.trimClip = data.trimClip;

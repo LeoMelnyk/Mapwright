@@ -130,7 +130,8 @@ function connect(): void {
   });
 
   ws.addEventListener('message', (e: MessageEvent) => {
-    const msg: WSMessage = JSON.parse(e.data);
+    let msg: WSMessage;
+    try { msg = JSON.parse(e.data) as WSMessage; } catch { console.warn('[player] malformed WebSocket message', String(e.data).slice(0, 120)); return; }
     handleMessage(msg);
   });
 }

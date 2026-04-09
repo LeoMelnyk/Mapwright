@@ -156,7 +156,7 @@ describe('buildDd2vtt', () => {
 
     it('defaults ambientLight to 0.5 when undefined', () => {
       const config = {
-        metadata: { gridSize: 5, resolution: 1, lightingEnabled: false, lights: [] },
+        metadata: { gridSize: 5, resolution: 1, ambientLight: 0.5, lightingEnabled: false, lights: [] },
         cells: [[null]],
       };
       const result = buildDd2vtt(fakePng, config, 500, 500);
@@ -417,7 +417,7 @@ describe('buildDd2vtt', () => {
       const config = singleCellConfig({}, {
         lightingEnabled: true,
         lights: [
-          { x: 0, y: 0, radius: 10, color: '#ff9944' },
+          { x: 0, y: 0, radius: 10, intensity: 1.0, color: '#ff9944' },
         ],
       });
       const result = buildDd2vtt(fakePng, config, 500, 500);

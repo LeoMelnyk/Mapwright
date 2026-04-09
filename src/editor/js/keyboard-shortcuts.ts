@@ -22,8 +22,8 @@ import type { Tool } from './tools/tool-base.js';
  * Initialise keyboard shortcuts.
  *
  * @param {Object}   tools   - Tool registry (keyed by tool name).
- * @param {Function} setTool - Switches the active editor tool.
- * @returns {{ onKeyDown: Function, onKeyUp: Function }}
+ * @param {(name: string) => void} setTool - Switches the active editor tool.
+ * @returns {{ onKeyDown: (e: KeyboardEvent) => void, onKeyUp: (e: KeyboardEvent) => void }}
  */
 export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (name: string) => void): { onKeyDown: (e: KeyboardEvent) => void; onKeyUp: (e: KeyboardEvent) => void } {
 

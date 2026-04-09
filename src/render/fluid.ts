@@ -1,5 +1,6 @@
-import type { CellGrid, Cell, FluidGeometryData, Theme } from '../types.js';
+import type { CellGrid, Cell, Direction, FluidGeometryData, Theme } from '../types.js';
 import { WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
+import { getEdge } from '../util/index.js';
 
 /** Result of collectFluidCells — cached per fill type. */
 interface FluidData {
@@ -196,7 +197,8 @@ function buildFluidGeometry(cells: CellGrid, gridSize: number, theme: Theme, roo
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         if (fluidSet.has(nr * numCols + nc)) continue;
-        if (cell[dir] === 'w' || cell[dir] === 'd') continue;
+        const edgeVal = getEdge(cell, dir as Direction);
+        if (edgeVal === 'w' || edgeVal === 'd') continue;
         const neighbor = cells[nr]?.[nc];
         if (!neighbor) continue; // don't bleed into void cells (trimmed away)
         if (neighbor.trimClip && !neighbor.trimOpen) continue;
@@ -358,7 +360,8 @@ function buildFluidGeometry(cells: CellGrid, gridSize: number, theme: Theme, roo
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         if (pitSet!.has(nr * numCols + nc)) continue;
-        if (cell[dir] === 'w' || cell[dir] === 'd') continue;
+        const edgeVal = getEdge(cell, dir as Direction);
+        if (edgeVal === 'w' || edgeVal === 'd') continue;
         const neighbor = cells[nr]?.[nc];
         if (!neighbor) continue; // don't bleed into void cells (trimmed away)
         if (neighbor.trimClip && !neighbor.trimOpen) continue;
@@ -754,7 +757,8 @@ export function patchFluidRegion(region: { minRow: number; maxRow: number; minCo
         const nr = row + dr, nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         if (fluidSet.has(nr * numCols + nc)) continue;
-        if (cell[dir] === 'w' || cell[dir] === 'd') continue;
+        const edgeVal = getEdge(cell, dir as Direction);
+        if (edgeVal === 'w' || edgeVal === 'd') continue;
         const neighbor = cells[nr]?.[nc];
         if (!neighbor) continue; // don't bleed into void cells (trimmed away)
         if (neighbor.trimClip && !neighbor.trimOpen) continue;

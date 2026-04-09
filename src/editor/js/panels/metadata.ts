@@ -6,6 +6,7 @@ import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
 import { requestRender, invalidateMapCache } from '../canvas-view.js';
 import { invalidateLightmapCaches } from '../../../render/index.js';
 import { buildCustomEditor, syncCustomEditorValues, renderCustomThumb } from './theme-editor.js';
+import { getCtx } from '../utils.js';
 
 // bypass requestIdleCallback — starved by animated render loop
 const idle = (cb: () => void) => setTimeout(cb, 0);
@@ -184,8 +185,8 @@ export function init(): void {
       idle(() => {
         try {
           const preview = renderThemePreview(fullKey);
-          const ctx = thumbCanvas.getContext('2d');
-          ctx!.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
+          const ctx = getCtx(thumbCanvas);
+          ctx.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
         } catch (err) {
           console.warn('[theme-picker] Preview failed for', fullKey, err);
         }
@@ -227,8 +228,8 @@ export function init(): void {
       idle(() => {
         try {
           const preview = renderThemePreview(key);
-          const ctx = thumbCanvas.getContext('2d');
-          ctx!.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
+          const ctx = getCtx(thumbCanvas);
+          ctx.drawImage(preview, 0, 0, preview.width, preview.height, 0, 0, 64, 64);
         } catch (err) {
           console.warn('[theme-picker] Preview failed for', key, err);
         }
