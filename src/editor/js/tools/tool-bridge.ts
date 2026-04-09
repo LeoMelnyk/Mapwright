@@ -366,23 +366,6 @@ export class BridgeTool extends Tool {
     const meta = state.dungeon.metadata;
     const id = meta.nextBridgeId++;
     const type = (state.bridgeType || 'wood') as BridgeType;
-    const corners = getBridgeCorners(p1, p2, p3);
-
-    // Geometry diagnostics for angle-dependent rendering bugs
-    const baseR = p2[0] - p1[0], baseC = p2[1] - p1[1];
-    const baseLen = Math.sqrt(baseR * baseR + baseC * baseC);
-    const angleDeg = Math.atan2(baseC, baseR) * 180 / Math.PI;
-    const depthR = corners[3][0] - p1[0], depthC = corners[3][1] - p1[1];
-    const depthLen = Math.sqrt(depthR * depthR + depthC * depthC);
-    console.log(`[bridge] Placed bridge ${id} (${type})`, {
-      points: { p1, p2, p3 },
-      corners,
-      angleDeg: Math.round(angleDeg * 10) / 10,
-      baseLen: Math.round(baseLen * 100) / 100,
-      depthLen: Math.round(depthLen * 100) / 100,
-      occupiedCells: occupiedCells.length,
-      cells: occupiedCells.map(c => `[${c.row},${c.col}]`).join(' '),
-    });
 
     meta.bridges.push({ id, type, points: [p1, p2, p3] });
 
