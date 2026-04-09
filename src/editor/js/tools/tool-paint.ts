@@ -1,9 +1,10 @@
+import type { CardinalDirection, CellGrid, RenderTransform, Cell } from '../../../types.js';
 // Paint tool: click+drag to box-select a rectangle, then apply fill/texture/room on mouseup.
 // Shift+click in texture mode: flood-fill the entire connected room.
 // Shift+click in clear-texture mode: flood-clear an entire room's textures.
 // Shift+drag in room mode: constrain selection to a square.
 // Syringe mode: click to pick up a cell's texture, then auto-switch to texture paint.
-import { Tool } from './tool-base.js';
+import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, getTheme } from '../state.js';
 import { setCursor, getTransform, requestRender } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
@@ -22,10 +23,10 @@ export const SYRINGE_CURSOR = `url("data:image/svg+xml,%3Csvg xmlns='http://www.
 const FILL_DIRS = CARDINAL_DIRS;
 
 /** Incrementally patch blend edges/corners for a dirty region instead of full rebuild. */
-function _patchBlend(region: any): void {
+function _patchBlend(region: { minRow: number; maxRow: number; minCol: number; maxCol: number }): void {
   const theme = getTheme();
   const textureOptions = state.textureCatalog
-    ? { catalog: state.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: state.texturesVersion ?? 0 }
+    ? { catalog: state.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: state.texturesVersion}
     : null;
   if (textureOptions) {
     patchBlendForDirtyRegion(region, state.dungeon.cells, state.dungeon.metadata.gridSize || 5, textureOptions);
@@ -56,27 +57,24 @@ const ROOM_SIDE_DIRS = {
  * @param {Set}   mainFillCells - Snapshot of filledCells from BEFORE the arc post-pass
  * @param {Set}   arcVisited  - Set of cellKeys for all trimRound cells claimed by arc post-pass
  */
-function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], mainFillCells: Set<string>, arcVisited: Set<string>): void {
+function correctArcCells(cells: CellGrid, filledCells: Set<string>, toFill: [number, number, string | null][], mainFillCells: Set<string>, arcVisited: Set<string>): void {
   // Group arc cells by trimCorner so we can detect fill direction per corner.
-  const cornerGroups = {};
+  const cornerGroups: Record<string, string[]> = {};
   for (const k of arcVisited) {
     const [r, c] = parseCellKey(k);
     const cell = cells[r]?.[c];
     if (!cell?.trimCorner) continue;
     const corner = cell.trimCorner;
-    if (!(cornerGroups as any)[corner]) (cornerGroups as any)[corner] = [];
-    (cornerGroups as any)[corner].push(k);
+    cornerGroups[corner].push(k);
   }
 
   for (const [corner, arcKeys] of Object.entries(cornerGroups)) {
-    const roomDirs = (ROOM_SIDE_DIRS as any)[corner];
-    if (!roomDirs) continue;
+    const roomDirs = (ROOM_SIDE_DIRS as Record<string, string[]>)[corner];
 
     // Check if ANY trimRound cell in this corner has a room-side neighbor
     // in the main BFS fill (before arc post-pass). If so, the fill came
     // from the room interior; otherwise it came from the void/exterior.
     let fromRoomSide = false;
-    // @ts-expect-error — strict-mode migration
     for (const k of arcKeys) {
       const [r, c] = parseCellKey(k);
       for (const dirName of roomDirs) {
@@ -98,8 +96,7 @@ function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], ma
 
     if (fromRoomSide) {
       // Interior fill: keep trimRound cells, ADD insideArc cells
-      const toAdd = new Set();
-      // @ts-expect-error — strict-mode migration
+      const toAdd = new Set<string>();
       for (const k of arcKeys) {
         const [r, c] = parseCellKey(k);
         for (const { dr, dc } of FILL_DIRS) {
@@ -113,8 +110,7 @@ function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], ma
       const addQueue = [...toAdd];
       const addVisited = new Set(toAdd);
       while (addQueue.length > 0) {
-        const nk = addQueue.shift();
-        // @ts-expect-error — strict-mode migration
+        const nk = addQueue.shift()!;
         const [r, c] = parseCellKey(nk);
         for (const { dr, dc } of FILL_DIRS) {
           const nr = r + dr, nc = c + dc;
@@ -128,11 +124,8 @@ function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], ma
         }
       }
       for (const nKey of toAdd) {
-        // @ts-expect-error — strict-mode migration
         if (!filledCells.has(nKey)) {
-          // @ts-expect-error — strict-mode migration
           filledCells.add(nKey);
-          // @ts-expect-error — strict-mode migration
           const [r, c] = parseCellKey(nKey);
           toFill.push([r, c, null]);
         }
@@ -143,14 +136,12 @@ function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], ma
       // the renderer draws textureSecondary in the void-corner region outside
       // the arc curve, so the exterior texture appears correctly there while
       // the room-side primary texture is preserved.
-      const toRemap = new Set();
+      const toRemap = new Set<string>();
 
       // Collect trimRound cells
-      // @ts-expect-error — strict-mode migration
       for (const k of arcKeys) toRemap.add(k);
 
       // Collect insideArc cells adjacent to the arc
-      // @ts-expect-error — strict-mode migration
       for (const k of arcKeys) {
         const [r, c] = parseCellKey(k);
         for (const { dr, dc } of FILL_DIRS) {
@@ -162,14 +153,12 @@ function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], ma
       }
       // Propagate through connected insideArc cells of the same corner
       const remapQueue = [...toRemap].filter(k => {
-        // @ts-expect-error — strict-mode migration
         const [r, c] = parseCellKey(k);
         return cells[r]?.[c]?.trimInsideArc;
       });
       const remapVisited = new Set(remapQueue);
       while (remapQueue.length > 0) {
-        const nk = remapQueue.shift();
-        // @ts-expect-error — strict-mode migration
+        const nk = remapQueue.shift()!;
         const [r, c] = parseCellKey(nk);
         for (const { dr, dc } of FILL_DIRS) {
           const nr = r + dr, nc = c + dc;
@@ -194,7 +183,6 @@ function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], ma
       // trimRound cells added by the arc post-pass may not be in toFill yet
       // (they were added to filledCells but also to toFill during phase 1/2).
       // Ensure they're present with the correct halfKey.
-      // @ts-expect-error — strict-mode migration
       for (const k of arcKeys) {
         let found = false;
         for (let i = 0; i < toFill.length; i++) {
@@ -212,7 +200,7 @@ function correctArcCells(cells: any, filledCells: Set<string>, toFill: any[], ma
 // ── Half-cell texture helpers ─────────────────────────────────────────────────
 
 /** Normalized (0..1) mouse position within the cell (row, col). */
-function getRelPos(event: any, row: any, col: any) {
+function getRelPos(event: MouseEvent, row: number, col: number) {
   const t = getTransform();
   const gs = state.dungeon.metadata.gridSize;
   const worldX = (event.offsetX - t.offsetX) / t.scale;
@@ -238,9 +226,11 @@ const TRIM_ROOM_DIRS = {
 };
 
 
-function halfKeyFromPos(cell: any, relX: any, relY: any) {
+function halfKeyFromPos(cell: Cell | null, relX: number, relY: number) {
+  if (!cell) return null;
   if (cell.trimWall || cell.trimRound) return null; // arc clip handles shaping — use whole-cell texture
   // Straight trimmed cells: BFS only reaches the room-side half
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (cell.trimCorner && !cell.trimWall) return 'texture';
   if (cell['nw-se']) return relY < relX ? 'texture' : 'textureSecondary';
   if (cell['ne-sw']) return relX + relY < 1 ? 'texture' : 'textureSecondary';
@@ -253,27 +243,28 @@ function halfKeyFromPos(cell: any, relX: any, relY: any) {
  * For straight trims: always 'texture' (void side is null, unreachable).
  * For diagonal cells: entry direction determines which half.
  */
-function halfKeyFromEntry(cell: any, entryDir: any) {
+function halfKeyFromEntry(cell: Cell | null, entryDir: string | null): string | null {
+  if (!cell) return null;
   // Arc wall cells: use trimCrossing to determine side. If entry exits reach
   // room-side edges, it's primary; otherwise secondary. For corner-clip cells
   // where crossing is all-reachable, fall back to trimCorner.
   if (cell.trimWall && cell.trimCorner) {
     if (cell.trimCrossing) {
-      const exits = cell.trimCrossing[entryDir?.[0]] ?? '';
-      const roomDirs = (TRIM_ROOM_DIRS as any)[cell.trimCorner];
+      const exits = (cell.trimCrossing as Record<string, string>)[entryDir?.[0] ?? ''] ?? '';
+      const roomDirs = (TRIM_ROOM_DIRS as Record<string, Set<string>>)[cell.trimCorner];
       const reachesRoom = [...roomDirs].some(d => exits.includes(d[0]));
       const reachesVoid = ['north','south','east','west']
         .filter(d => !roomDirs.has(d))
         .some(d => exits.includes(d[0]));
       // If exits reach BOTH sides (corner-clip cell), use trimCorner as tiebreaker
       if (reachesRoom && reachesVoid) {
-        return roomDirs.has(entryDir) ? 'texture' : 'textureSecondary';
+        return roomDirs.has(entryDir!) ? 'texture' : 'textureSecondary';
       }
       return reachesRoom ? 'texture' : 'textureSecondary';
     }
     // No crossing data: use trimCorner directly
-    const roomDirs = (TRIM_ROOM_DIRS as any)[cell.trimCorner];
-    return roomDirs.has(entryDir) ? 'texture' : 'textureSecondary';
+    const roomDirs = (TRIM_ROOM_DIRS as Record<string, Set<string>>)[cell.trimCorner];
+    return roomDirs.has(entryDir!) ? 'texture' : 'textureSecondary';
   }
   if (cell.trimRound) return null;
   // Straight trimmed cells: only reachable from room side
@@ -287,7 +278,7 @@ function halfKeyFromEntry(cell: any, entryDir: any) {
  * Converts a half-texture key back into a synthetic BFS entry direction.
  * Used to give diagonal start cells a proper entry direction so blockedByDiagonal works.
  */
-function syntheticEntryFromHalfKey(halfKey: any) {
+function syntheticEntryFromHalfKey(halfKey: string | null) {
   if (halfKey === 'texture') return 'north';
   if (halfKey === 'textureSecondary') return 'south';
   return null;
@@ -298,10 +289,12 @@ function syntheticEntryFromHalfKey(halfKey: any) {
  * Supports flood-fill (shift+click), syringe/eyedropper, and clear-texture modes.
  */
 export class PaintTool extends Tool {
-  [key: string]: any;
-  declare boxStart: { row: number; col: number } | null;
-  declare boxEnd: { row: number; col: number } | null;
+  dragging: boolean = false;
+  dragStart: { row: number; col: number } | null = null;
+  dragEnd: { row: number; col: number } | null = null;
   declare mousePos: { x: number; y: number } | null;
+  _onKeyDown!: (e: KeyboardEvent) => void;
+  _onKeyUp!: (e: KeyboardEvent) => void;
 
   constructor() {
     super('paint', 'P', 'crosshair');
@@ -311,14 +304,14 @@ export class PaintTool extends Tool {
     this.mousePos = null;   // canvas pixel pos for size label
 
     // Bound listeners stored so they can be removed on deactivate
-    this._onKeyDown = (e: any) => {
+    this._onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Alt' && state.paintMode !== 'syringe') {
         setCursor(SYRINGE_CURSOR);
       } else if (e.key === 'Shift' && !e.altKey && (state.paintMode === 'texture' || state.paintMode === 'clear-texture')) {
         setCursor(BUCKET_CURSOR);
       }
     };
-    this._onKeyUp = (e: any) => {
+    this._onKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'Alt') {
         // Restore: if shift still held in texture mode show bucket, else normal cursor
         if (e.shiftKey && (state.paintMode === 'texture' || state.paintMode === 'clear-texture')) {
@@ -355,7 +348,7 @@ export class PaintTool extends Tool {
       room:            'Drag to paint room floor color',
       'clear-texture': 'Drag to clear texture · Shift+click to flood clear',
     };
-    state.statusInstruction = (statuses as any)[state.paintMode || 'room'] || null;
+    state.statusInstruction = statuses[(state.paintMode || 'room') as keyof typeof statuses] || null;
   }
 
   onDeactivate() {
@@ -369,7 +362,7 @@ export class PaintTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row: any, col: any, edge: any, event: any) {
+  onMouseDown(row: number, col: number, edge: EdgeInfo | null, event: MouseEvent) {
     // Alt+click: syringe pick regardless of current mode
     if (event.altKey) {
       this.syringePick(row, col, event);
@@ -397,22 +390,22 @@ export class PaintTool extends Tool {
     this.mousePos = null;
   }
 
-  onMouseMove(row: any, col: any, _edge: any, event: any, pos: any) {
+  onMouseMove(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent, pos: CanvasPos | null) {
     if (!this.dragging) return;
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
-    if (event?.shiftKey && state.paintMode === 'room') {
-      ({ row, col } = snapToSquare(row, col, this.dragStart.row, this.dragStart.col, cells));
+    if (event.shiftKey && state.paintMode === 'room') {
+      ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
     }
 
     this.dragEnd = { row, col };
-    this.mousePos = pos || null;
+    this.mousePos = pos ?? null;
     requestRender();
   }
 
-  onMouseUp(row: any, col: any, _edge: any, event: any) {
+  onMouseUp(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent) {
     if (!this.dragging) return;
     this.dragging = false;
 
@@ -420,8 +413,8 @@ export class PaintTool extends Tool {
     row = Math.max(0, Math.min(cells.length - 1, row));
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
-    if (event?.shiftKey && state.paintMode === 'room') {
-      ({ row, col } = snapToSquare(row, col, this.dragStart.row, this.dragStart.col, cells));
+    if (event.shiftKey && state.paintMode === 'room') {
+      ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
     }
 
     this.dragEnd = { row, col };
@@ -433,18 +426,19 @@ export class PaintTool extends Tool {
     requestRender();
   }
 
-  floodFill(startRow: any, startCol: any, event: any) {
+  floodFill(startRow: number, startCol: number, event: MouseEvent) {
     const cells = state.dungeon.cells;
     if (!cells[startRow]?.[startCol]) return; // void cell — nothing to fill
 
     const tid = state.activeTexture;
     if (!tid) return;
-    loadTextureImages(tid); // ensure images are loading (no-op if already started)
+    void loadTextureImages(tid); // ensure images are loading (no-op if already started)
 
     pushUndo('Flood fill');
 
     // Determine which half of the start cell was clicked (for diagonal cells)
     const startCell = cells[startRow][startCol];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const { relX: startRelX, relY: startRelY } = event
       ? getRelPos(event, startRow, startCol)
       : { relX: 0.5, relY: 0.5 };
@@ -463,7 +457,7 @@ export class PaintTool extends Tool {
     }
 
     // Queue entries: [r, c, entryDir] — entryDir is the direction we came FROM.
-    const queue = [[startRow, startCol, startEntry]];
+    const queue: [number, number, string | null][] = [[startRow, startCol, startEntry]];
 
     // Visited keyed by (cell + entryDir). For diagonal cells, when a cell is first reached
     // from one half, lockDiagonalHalf pre-marks the other half's entry keys so the BFS
@@ -473,21 +467,19 @@ export class PaintTool extends Tool {
 
     // toFill stores [r, c, halfKey] — halfKey is null for whole-cell, else 'texture' or 'textureSecondary'.
     const filledCells = new Set([cellKey(startRow, startCol)]);
-    const toFill = [[startRow, startCol, startHalfKey]];
+    const toFill: [number, number, string | null][] = [[startRow, startCol, startHalfKey]];
 
     while (queue.length > 0) {
-      // @ts-expect-error — strict-mode migration
-      const [r, c, entryDir] = queue.shift();
+      const [r, c, entryDir] = queue.shift()!;
       const cell = cells[r]?.[c];
       if (!cell) continue;
 
-      const diagonalBlocked = blockedByDiagonal(cell, entryDir);
+      const diagonalBlocked = blockedByDiagonal(cell, entryDir as CardinalDirection | null);
 
       // Arc wall exit blocking: 3×3 sub-grid crossing matrix.
-      let arcExits = null;
-      if (cell.trimCrossing) {
-        // @ts-expect-error — strict-mode migration
-        arcExits = cell.trimCrossing[entryDir?.[0]] ?? '';
+      let arcExits: string | null = null;
+      if (cell.trimCrossing && typeof cell.trimCrossing === 'object') {
+        arcExits = (cell.trimCrossing)[entryDir?.[0] as string] ?? '';
       }
 
       for (const { dir, dr, dc } of FILL_DIRS) {
@@ -506,12 +498,12 @@ export class PaintTool extends Tool {
         if (neighborCell[neighborEntryDir]) continue; // wall on the entry side of neighbor
 
         // Lock arc cells to the side they're first reached from
-        if (neighborCell.trimCrossing) {
+        if (neighborCell.trimCrossing && typeof neighborCell.trimCrossing === 'object') {
           const tc = neighborCell.trimCrossing;
-          const myExits = (tc as any)[neighborEntryDir[0]] ?? '';
+          const myExits = tc[neighborEntryDir[0]] ?? '';
           for (const ld of ['north', 'south', 'east', 'west']) {
             if (ld === neighborEntryDir) continue;
-            if (((tc as any)[ld[0]] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
+            if ((tc[ld[0]] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
           }
         }
         // Lock diagonal neighbor cells to the first half they're reached from
@@ -531,7 +523,7 @@ export class PaintTool extends Tool {
       }
     }
 
-    const forceSecondary = !!state.paintSecondary;
+    const forceSecondary = state.paintSecondary;
 
     // Snapshot the main BFS fill before the arc post-pass so Phase 3 can
     // determine which side of the arc the fill originated from.
@@ -603,11 +595,9 @@ export class PaintTool extends Tool {
       // at cells where a non-arc mainFillCells neighbor gives the WRONG halfKey
       // (indicates crossing into a different circle's boundary).
       while (arcQueue.length > 0) {
-        // @ts-expect-error — strict-mode migration
-        const [ar, ac] = arcQueue.shift();
+        const [ar, ac] = arcQueue.shift()! as [number, number];
         for (const { dr, dc } of FILL_DIRS) {
-          // @ts-expect-error — strict-mode migration
-          const nr: any = ar + dr, nc = ac + dc;
+          const nr = ar + dr, nc = ac + dc;
           const arcCell = cells[nr]?.[nc];
           if (!arcCell?.trimWall) continue;
           const nKey = cellKey(nr, nc);
@@ -633,15 +623,13 @@ export class PaintTool extends Tool {
 
     }
 
-    const opacity = state.textureOpacity ?? 1.0;
+    const opacity = state.textureOpacity;
     let fMinR = Infinity, fMaxR = -Infinity, fMinC = Infinity, fMaxC = -Infinity;
     for (const [r, c, halfKey] of toFill) {
-      const texKey = forceSecondary ? 'textureSecondary' : (halfKey || 'texture');
+      const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
       const opKey = texKey + 'Opacity';
-      // @ts-expect-error — strict-mode migration
-      cells![r][c][texKey] = tid;
-      // @ts-expect-error — strict-mode migration
-      cells![r][c][opKey] = opacity;
+      cells[r][c]![texKey] = tid;
+      cells[r][c]![opKey] = opacity;
       if (r < fMinR) fMinR = r; if (r > fMaxR) fMaxR = r;
       if (c < fMinC) fMinC = c; if (c > fMaxC) fMaxC = c;
     }
@@ -655,35 +643,35 @@ export class PaintTool extends Tool {
   }
 
   /** Shift+click in clear-texture mode: flood-clear all textures in the connected room. */
-  floodFillClear(startRow: any, startCol: any, event: any) {
+  floodFillClear(startRow: number, startCol: number, event: MouseEvent) {
     const cells = state.dungeon.cells;
     if (!cells[startRow]?.[startCol]) return;
 
     const startCell = cells[startRow][startCol];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const { relX: startRelX, relY: startRelY } = event
       ? getRelPos(event, startRow, startCol)
       : { relX: 0.5, relY: 0.5 };
     const startHalfKey = halfKeyFromPos(startCell, startRelX, startRelY);
     const startEntry = syntheticEntryFromHalfKey(startHalfKey);
 
-    const queue = [[startRow, startCol, startEntry]];
+    const queue: [number, number, string | null][] = [[startRow, startCol, startEntry]];
     const visitedTraversal = new Set([`${startRow},${startCol},${startEntry ?? ''}`]);
     lockDiagonalHalf(visitedTraversal, startRow, startCol, startEntry, startCell);
 
     const filledCells = new Set([cellKey(startRow, startCol)]);
-    const toClear = [[startRow, startCol, startHalfKey]];
+    const toClear: [number, number, string | null][] = [[startRow, startCol, startHalfKey]];
 
     while (queue.length > 0) {
-      const [r, c, entryDir] = queue.shift();
+      const [r, c, entryDir] = queue.shift()!;
       const cell = cells[r]?.[c];
       if (!cell) continue;
 
-      const diagonalBlocked = blockedByDiagonal(cell, entryDir);
+      const diagonalBlocked = blockedByDiagonal(cell, entryDir as CardinalDirection | null);
 
-      let arcExits = null;
-      if (cell.trimCrossing) {
-        // @ts-expect-error — strict-mode migration
-        arcExits = cell.trimCrossing[entryDir?.[0]] ?? '';
+      let arcExits: string | null = null;
+      if (cell.trimCrossing && typeof cell.trimCrossing === 'object') {
+        arcExits = (cell.trimCrossing)[entryDir?.[0] as string] ?? '';
       }
 
       for (const { dir, dr, dc } of FILL_DIRS) {
@@ -701,12 +689,12 @@ export class PaintTool extends Tool {
         const neighborCell = cells[nr][nc];
         if (neighborCell[neighborEntryDir]) continue;
 
-        if (neighborCell.trimCrossing) {
+        if (neighborCell.trimCrossing && typeof neighborCell.trimCrossing === 'object') {
           const tc = neighborCell.trimCrossing;
-          const myExits = (tc as any)[neighborEntryDir[0]] ?? '';
+          const myExits = tc[neighborEntryDir[0]] ?? '';
           for (const ld of ['north', 'south', 'east', 'west']) {
             if (ld === neighborEntryDir) continue;
-            if (((tc as any)[ld[0]] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
+            if ((tc[ld[0]] ?? '') !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
           }
         }
         lockDiagonalHalf(visitedTraversal, nr, nc, neighborEntryDir, neighborCell);
@@ -728,9 +716,9 @@ export class PaintTool extends Tool {
     // Same two-phase approach as floodFill: adjacency-seeded + free propagation.
     // No direction check — trimRound cells use halfKey=null so the write loop selects
     // texture vs textureSecondary solely via forceSecondary.
-    const forceSecondary = !!state.paintSecondary;
+    const forceSecondary = state.paintSecondary;
     const arcQueueC = [];
-    const arcVisitedC = new Set();
+    const arcVisitedC = new Set<string>();
 
     for (const k of filledCells) {
       const [fr, fc] = k.split(',').map(Number);
@@ -753,11 +741,9 @@ export class PaintTool extends Tool {
       }
     }
     while (arcQueueC.length > 0) {
-      // @ts-expect-error — strict-mode migration
-      const [ar, ac] = arcQueueC.shift();
+      const [ar, ac] = arcQueueC.shift()! as [number, number];
       for (const { dr, dc } of FILL_DIRS) {
-        // @ts-expect-error — strict-mode migration
-        const nr: any = ar + dr, nc = ac + dc;
+        const nr = ar + dr, nc = ac + dc;
         const neighbor = cells[nr]?.[nc];
         if (!neighbor?.trimRound) continue;
         const nKey = cellKey(nr, nc);
@@ -772,27 +758,23 @@ export class PaintTool extends Tool {
     }
 
     // Phase 3: correct trimInsideArc cells
-    // @ts-expect-error — strict-mode migration
     correctArcCells(cells, filledCells, toClear, mainFillCells, arcVisitedC);
 
     // Only push undo if there's actually something to clear
     let hasTexture = false;
     for (const [r, c, halfKey] of toClear) {
-      const texKey = forceSecondary ? 'textureSecondary' : (halfKey || 'texture');
-      // @ts-expect-error — strict-mode migration
-      if (cells![r][c][texKey]) { hasTexture = true; break; }
+      const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
+      if (cells[r][c]![texKey]) { hasTexture = true; break; }
     }
     if (!hasTexture) return;
 
     pushUndo('Clear texture');
     let cMinR = Infinity, cMaxR = -Infinity, cMinC = Infinity, cMaxC = -Infinity;
     for (const [r, c, halfKey] of toClear) {
-      const texKey = forceSecondary ? 'textureSecondary' : (halfKey || 'texture');
+      const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
       const opKey = texKey + 'Opacity';
-      // @ts-expect-error — strict-mode migration
-      delete cells![r][c][texKey];
-      // @ts-expect-error — strict-mode migration
-      delete cells![r][c][opKey];
+      delete cells[r][c]![texKey];
+      delete cells[r][c]![opKey];
       if (r < cMinR) cMinR = r; if (r > cMaxR) cMaxR = r;
       if (c < cMinC) cMinC = c; if (c > cMaxC) cMaxC = c;
     }
@@ -806,35 +788,33 @@ export class PaintTool extends Tool {
   }
 
   /** Syringe mode: pick up the texture from the clicked cell and switch to texture paint. */
-  syringePick(row: any, col: any, event: any) {
+  syringePick(row: number, col: number, event: MouseEvent) {
     const cells = state.dungeon.cells;
     if (!cells[row]?.[col]) return;
 
     const cell = cells[row][col];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const { relX, relY } = event ? getRelPos(event, row, col) : { relX: 0.5, relY: 0.5 };
     const halfKey = halfKeyFromPos(cell, relX, relY);
-    const texKey = halfKey || 'texture';
+    const texKey = halfKey ?? 'texture';
     const opKey = halfKey ? halfKey + 'Opacity' : 'textureOpacity';
 
     const tid = cell[texKey];
     if (!tid) return; // no texture on this cell
 
     // Pick up opacity too
-    const opacity = (cell as any)[opKey] ?? 1.0;
+    const opacity = (cell[opKey as keyof Cell] as number);
     state.textureOpacity = opacity;
-    const slider = document.getElementById('texture-opacity-slider');
-    const valueEl = document.getElementById('texture-opacity-value');
-    // @ts-expect-error — strict-mode migration
-    if (slider) (slider as HTMLInputElement).value = Math.round(opacity * 100);
-    if (valueEl) valueEl.textContent = `${Math.round(opacity * 100)}%`;
+    const slider = document.getElementById('texture-opacity-slider')!;
+    const valueEl = document.getElementById('texture-opacity-value')!;
+    (slider as HTMLInputElement).value = String(Math.round(opacity * 100));
+    valueEl.textContent = `${Math.round(opacity * 100)}%`;
 
     // selectTexture sets activeTexture, switches to paint+texture mode, and updates the panel
-    // @ts-expect-error — strict-mode migration
     selectTexture(tid);
   }
 
-  // @ts-expect-error — strict-mode migration
-  onRightClick(row: any, col: any, edge: any, event: any) {
+  onRightClick(row: number, col: number, edge: EdgeInfo | null, event: MouseEvent) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
     if (cells[row][col] === null) return;
@@ -844,13 +824,14 @@ export class PaintTool extends Tool {
 
     if (mode === 'texture' || mode === 'clear-texture' || mode === 'syringe') {
       // Clear texture from cell
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const { relX, relY } = event ? getRelPos(event, row, col) : { relX: 0.5, relY: 0.5 };
       const halfKey = halfKeyFromPos(cell, relX, relY);
       if (halfKey) {
         if (!cell[halfKey]) return;
         pushUndo('Clear texture');
         delete cell[halfKey];
-        delete (cell as any)[halfKey + 'Opacity'];
+        delete (cell as Record<string, unknown>)[halfKey + 'Opacity'];
       } else {
         if (!cell.texture) return;
         pushUndo('Clear texture');
@@ -908,15 +889,15 @@ export class PaintTool extends Tool {
     } else if (mode === 'texture') {
       const tid = state.activeTexture;
       if (!tid) return;
-      loadTextureImages(tid);
-      const opacity = state.textureOpacity ?? 1.0;
+      void loadTextureImages(tid);
+      const opacity = state.textureOpacity;
       const texKey = state.paintSecondary ? 'textureSecondary' : 'texture';
       const opKey = texKey + 'Opacity';
       let hasWork = false;
       for (let r = r1; r <= r2 && !hasWork; r++) {
         for (let c = c1; c <= c2 && !hasWork; c++) {
           const cell = cells[r]?.[c];
-          if (cell && (cell[texKey] !== tid || (cell as any)[opKey] !== opacity)) hasWork = true;
+          if (cell && ((cell as Record<string, unknown>)[texKey] !== tid || (cell as Record<string, unknown>)[opKey] !== opacity)) hasWork = true;
         }
       }
       if (!hasWork) return;
@@ -925,8 +906,8 @@ export class PaintTool extends Tool {
         for (let c = c1; c <= c2; c++) {
           const cell = cells[r]?.[c];
           if (!cell) continue;
-          cell[texKey] = tid;
-          (cell as any)[opKey] = opacity;
+          (cell as Record<string, unknown>)[texKey] = tid;
+          (cell as Record<string, unknown>)[opKey] = opacity;
         }
       }
       accumulateDirtyRect(r1, c1, r2, c2);
@@ -943,7 +924,7 @@ export class PaintTool extends Tool {
       for (let r = r1; r <= r2 && !hasWork; r++) {
         for (let c = c1; c <= c2 && !hasWork; c++) {
           const cell = cells[r]?.[c];
-          if (cell && checkKeys.some(k => (cell as any)[k])) hasWork = true;
+          if (cell && checkKeys.some(k => cell[k as keyof Cell])) hasWork = true;
         }
       }
       if (!hasWork) return;
@@ -952,7 +933,7 @@ export class PaintTool extends Tool {
         for (let c = c1; c <= c2; c++) {
           const cell = cells[r]?.[c];
           if (!cell) continue;
-          for (const k of clearKeys) delete (cell as any)[k];
+          for (const k of clearKeys) delete cell[k as keyof Cell];
         }
       }
       accumulateDirtyRect(r1, c1, r2, c2);
@@ -962,7 +943,7 @@ export class PaintTool extends Tool {
     }
   }
 
-  _drawSizeLabel(ctx: any, gridSize: any) {
+  _drawSizeLabel(ctx: CanvasRenderingContext2D, gridSize: number) {
     if (!this.mousePos || !this.dragStart || !this.dragEnd) return;
     const { r1, c1, r2, c2 } = normalizeBounds(
       this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
@@ -987,7 +968,7 @@ export class PaintTool extends Tool {
     ctx.restore();
   }
 
-  renderOverlay(ctx: any, transform: any, gridSize: any) {
+  renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
 
     const { r1, c1, r2, c2 } = normalizeBounds(

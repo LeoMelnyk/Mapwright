@@ -1,5 +1,6 @@
 // Textures panel — sidebar panel for browsing and selecting floor textures.
 // Features: sticky search bar, collapsible categories, click to select.
+import type { TextureCatalog } from '../../../types.js';
 import state from '../state.js';
 import { getTextureCatalog, loadTextureImages } from '../texture-catalog.js';
 
@@ -9,7 +10,7 @@ let scrollArea: HTMLElement | null = null;
 let _searchTimer: ReturnType<typeof setTimeout> | null = null;
 
 const TEX_COLLAPSED_KEY = 'mw-texture-collapsed';
-const collapsed = new Set(JSON.parse((typeof localStorage !== 'undefined' && localStorage.getItem(TEX_COLLAPSED_KEY)) || '[]'));
+const collapsed = new Set(JSON.parse((typeof localStorage !== 'undefined' ? localStorage.getItem(TEX_COLLAPSED_KEY) : null) ?? '[]'));
 
 function saveCollapsed() {
   localStorage.setItem(TEX_COLLAPSED_KEY, JSON.stringify([...collapsed]));
@@ -54,8 +55,7 @@ function render() {
 
   searchInput.addEventListener('input', () => {
     clearBtn.style.display = searchInput!.value ? '' : 'none';
-    // @ts-expect-error — strict-mode migration
-    clearTimeout(_searchTimer);
+    if (_searchTimer !== null) clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => filterTextures(cat), 200);
   });
   clearBtn.addEventListener('click', () => {
@@ -77,7 +77,7 @@ function render() {
   collapseAllBtn.title = 'Collapse All';
   collapseAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>`;
   collapseAllBtn.addEventListener('click', () => {
-    cat.categoryOrder.forEach((c: any) => collapsed.add(c));
+    cat.categoryOrder.forEach((c: string) => collapsed.add(c));
     saveCollapsed();
     filterTextures(cat);
   });
@@ -110,16 +110,17 @@ function render() {
 /**
  * Build the category + grid structure into the given parent element.
  */
-function buildCategoryGrid(cat: any, parent: any, filter: any) {
+function buildCategoryGrid(cat: TextureCatalog, parent: HTMLElement, filter: string) {
   parent.innerHTML = '';
   const lowerFilter = filter.toLowerCase();
 
   for (const category of cat.categoryOrder) {
     const ids = cat.byCategory[category];
     const matched = lowerFilter
-      ? ids.filter((id: any) => {
+      ? ids.filter((id: string) => {
           const entry = cat.textures[id];
-          return entry.displayName.toLowerCase().includes(lowerFilter)
+          if (!entry) return false;
+          return (entry.displayName ?? id).toLowerCase().includes(lowerFilter)
             || id.toLowerCase().includes(lowerFilter);
         })
       : ids;
@@ -159,17 +160,19 @@ function buildCategoryGrid(cat: any, parent: any, filter: any) {
 
       for (const id of matched) {
         const entry = cat.textures[id];
+        if (!entry) continue;
         const item = document.createElement('div');
         item.className = 'texture-thumb-item';
         if (state.activeTexture === id) item.classList.add('active');
-        item.title = entry.displayName;
+        const name = entry.displayName ?? id;
+        item.title = name;
         item.dataset.textureId = id;
 
         const shimmer = document.createElement('div');
         shimmer.className = 'texture-thumb-shimmer';
 
         const img = document.createElement('img');
-        img.alt = entry.displayName;
+        img.alt = name;
         img.className = 'texture-thumb-img';
         img.style.display = 'none';
         const revealImg = () => { shimmer.remove(); img.style.display = ''; };
@@ -184,7 +187,7 @@ function buildCategoryGrid(cat: any, parent: any, filter: any) {
 
         const nameEl = document.createElement('span');
         nameEl.className = 'texture-thumb-name';
-        nameEl.textContent = entry.displayName;
+        nameEl.textContent = name;
         item.appendChild(nameEl);
 
         item.addEventListener('click', () => selectTexture(id));
@@ -196,9 +199,9 @@ function buildCategoryGrid(cat: any, parent: any, filter: any) {
   }
 }
 
-function filterTextures(cat: any) {
+function filterTextures(cat: TextureCatalog) {
   if (!scrollArea) return;
-  buildCategoryGrid(cat, scrollArea, searchInput?.value || '');
+  buildCategoryGrid(cat, scrollArea, searchInput?.value ?? '');
 }
 
 /**
@@ -208,13 +211,13 @@ function filterTextures(cat: any) {
  */
 export function selectTexture(id: string): void {
   state.activeTexture = id;
-  loadTextureImages(id); // pre-load images so they're ready when the user paints
+  void loadTextureImages(id); // pre-load images so they're ready when the user paints
 
   // Auto-switch paint tool to texture mode
   state.activeTool = 'paint';
 
   // Update toolbar buttons and activate the tool on the canvas
-  import('./toolbar.js').then(m => {
+  void import('./toolbar.js').then(m => {
     m.updateToolButtons();
     m.setSubMode('paint', 'texture');
     m.activateTool('paint');

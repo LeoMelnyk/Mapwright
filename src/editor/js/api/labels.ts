@@ -13,11 +13,11 @@ import {
  * @param {number} [worldY] - World-feet Y override for label position
  * @returns {{ success: boolean }}
  */
-export function setLabel(row: number, col: number, text: string, worldX?: number, worldY?: number): { success: true } {
+export function setLabel(row: number, col: number, text: string | number, worldX?: number, worldY?: number): { success: true } {
   row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
   pushUndo();
-  if (!cell.center) cell.center = {};
+  cell.center ??= {};
   cell.center.label = String(text);
   // Store world-feet position if provided, otherwise clear any existing override
   if (worldX != null && worldY != null) {

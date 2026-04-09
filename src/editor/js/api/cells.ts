@@ -1,3 +1,4 @@
+import type { Cell } from '../../../types.js';
 import {
   state, pushUndo, markDirty, notify,
   validateBounds,
@@ -13,7 +14,7 @@ import {
  * @param {number} col - Column index
  * @returns {{ success: boolean, cell: Object|null }} Cell data or null if void
  */
-export function getCellInfo(row: number, col: number): { success: true; cell: any } {
+export function getCellInfo(row: number, col: number): { success: true; cell: Cell | null } {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
@@ -60,7 +61,7 @@ export function paintRect(r1: number, c1: number, r2: number, c2: number): { suc
   const cells = state.dungeon.cells;
   for (let r = minR; r <= maxR; r++) {
     for (let c = minC; c <= maxC; c++) {
-      if (cells[r][c] === null) cells[r][c] = {};
+      cells[r][c] ??= {};
     }
   }
   smartInvalidate(before, cells, { forceGeometry: true });
@@ -180,7 +181,7 @@ export function createPolygonRoom(cellList: [number, number][], mode: string = '
   pushUndo();
 
   for (const [r, c] of cellList) {
-    if (!cells[r][c]) cells[r][c] = {};
+    cells[r][c] ??= {};
     const cell = cells[r][c];
 
     for (const dir of ['north', 'south', 'east', 'west']) {
@@ -188,23 +189,23 @@ export function createPolygonRoom(cellList: [number, number][], mode: string = '
       const nr = r + dr, nc = c + dc;
       const inBounds_ = isInBounds(cells, nr, nc);
       const neighborCell = inBounds_ ? cells[nr][nc] : null;
-      const reciprocal = (OPPOSITE as any)[dir];
+      const reciprocal = OPPOSITE[dir as keyof typeof OPPOSITE];
       const neighborInRoom = cellSet.has(cellKey(nr, nc));
 
       if (mergeMode) {
         if (!inBounds_ || !neighborCell) {
-          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') (cell as any)[dir] = 'w';
+          if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') (cell as Record<string, unknown>)[dir] = 'w';
         } else {
-          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') delete (cell as any)[dir];
-          if ((neighborCell as any)[reciprocal] !== 'd' && (neighborCell as any)[reciprocal] !== 's') delete (neighborCell as any)[reciprocal];
+          if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') delete (cell as Record<string, unknown>)[dir];
+          if ((neighborCell as Record<string, unknown>)[reciprocal] !== 'd' && (neighborCell as Record<string, unknown>)[reciprocal] !== 's') delete (neighborCell as Record<string, unknown>)[reciprocal];
         }
       } else {
         if (neighborInRoom) {
-          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') delete (cell as any)[dir];
-          if (neighborCell && (neighborCell as any)[reciprocal] !== 'd' && (neighborCell as any)[reciprocal] !== 's') delete (neighborCell as any)[reciprocal];
+          if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') delete (cell as Record<string, unknown>)[dir];
+          if (neighborCell && (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' && (neighborCell as Record<string, unknown>)[reciprocal] !== 's') delete (neighborCell as Record<string, unknown>)[reciprocal];
         } else {
-          if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') (cell as any)[dir] = 'w';
-          if (neighborCell && (neighborCell as any)[reciprocal] !== 'd' && (neighborCell as any)[reciprocal] !== 's') (neighborCell as any)[reciprocal] = 'w';
+          if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') (cell as Record<string, unknown>)[dir] = 'w';
+          if (neighborCell && (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' && (neighborCell as Record<string, unknown>)[reciprocal] !== 's') (neighborCell as Record<string, unknown>)[reciprocal] = 'w';
         }
       }
     }

@@ -7,18 +7,20 @@
 // Uses a lazy getter set by main.js at init time.
 
 import { isGridAlignedRotation } from './prop-overlay.js';
+import type { EditorState } from '../../types.js';
 
-let spatialMap: any = null; // Map<"row,col", Array<{ anchorRow, anchorCol, propType, propId, zIndex }>>
+interface SpatialEntry { anchorRow: number; anchorCol: number; propType: string; propId: number | string; zIndex: number }
+let spatialMap: Map<string, SpatialEntry[]> | null = null;
 let dirty = true;
-let lastPropsRef: any = null;
-let _getState: any = null;
+let lastPropsRef: unknown = null;
+let _getState: (() => EditorState) | null = null;
 
 /**
  * Set the state accessor function. Called once by main.js at init.
  * @param {Function} stateFn - Returns the current editor state object.
  * @returns {void}
  */
-export function initPropSpatial(stateFn: () => any): void {
+export function initPropSpatial(stateFn: () => EditorState): void {
   _getState = stateFn;
 }
 
@@ -30,23 +32,22 @@ function getState() {
 function rebuildPropSpatialMap() {
   spatialMap = new Map();
   const st = getState();
-  const meta = st?.dungeon?.metadata;
+  const meta = st?.dungeon.metadata;
   const props = meta?.props;
   if (!props) { dirty = false; return; }
 
   const gridSize = meta.gridSize || 5;
-  const catalog = st.propCatalog;
+  const catalog = st!.propCatalog;
 
   // If the prop catalog hasn't loaded yet, don't build — stay dirty so we rebuild later
   if (!catalog?.props) { return; }
 
   for (const prop of props) {
     const propDef = catalog.props[prop.type];
-    if (!propDef) continue;
 
     const col = Math.round(prop.x / gridSize);
     const row = Math.round(prop.y / gridSize);
-    const rotation = prop.rotation ?? 0;
+    const rotation = prop.rotation;
     const [fRows, fCols] = propDef.footprint;
 
     let spanRows, spanCols;
@@ -59,7 +60,7 @@ function rebuildPropSpatialMap() {
       spanCols = fCols;
     }
 
-    const entry = { anchorRow: row, anchorCol: col, propType: prop.type, propId: prop.id, zIndex: prop.zIndex ?? 10 };
+    const entry = { anchorRow: row, anchorCol: col, propType: prop.type, propId: prop.id, zIndex: prop.zIndex};
 
     for (let r = row; r < row + spanRows; r++) {
       for (let c = col; c < col + spanCols; c++) {
@@ -77,7 +78,7 @@ function rebuildPropSpatialMap() {
   // Sort each stack by zIndex descending (topmost first) for lookupPropAt
   for (const stack of spatialMap.values()) {
     if (stack.length > 1) {
-      stack.sort((a: any, b: any) => (b.zIndex ?? 10) - (a.zIndex ?? 10));
+      stack.sort((a: { zIndex?: number }, b: { zIndex?: number }) => (b.zIndex ?? 10) - (a.zIndex ?? 10));
     }
   }
 
@@ -87,13 +88,13 @@ function rebuildPropSpatialMap() {
 
 function ensureBuilt() {
   const st = getState();
-  const props = st?.dungeon?.metadata?.props;
+  const props = st?.dungeon.metadata.props;
   if (dirty || !spatialMap || props !== lastPropsRef) {
     rebuildPropSpatialMap();
   }
 }
 
-let _onDirtyCallback: any = null;
+let _onDirtyCallback: (() => void) | null = null;
 /**
  * Register a callback to run whenever the prop spatial map is dirtied.
  * @param {Function} fn - Callback invoked on spatial map invalidation.
@@ -116,10 +117,10 @@ export function markPropSpatialDirty(): void {
  * @param {number} col - Grid column.
  * @returns {{ anchorRow: number, anchorCol: number, propType: string, propId: string, zIndex: number }|null} Prop entry or null.
  */
-export function lookupPropAt(row: number, col: number): { anchorRow: number; anchorCol: number; propType: string; propId: string; zIndex: number } | null {
+export function lookupPropAt(row: number, col: number): SpatialEntry | null {
   ensureBuilt();
-  const stack = spatialMap.get(`${row},${col}`);
-  return stack?.[0] || null;
+  const stack = spatialMap!.get(`${row},${col}`);
+  return stack?.[0] ?? null;
 }
 
 /**
@@ -128,9 +129,9 @@ export function lookupPropAt(row: number, col: number): { anchorRow: number; anc
  * @param {number} col - Grid column.
  * @returns {Array<{ anchorRow: number, anchorCol: number, propType: string, propId: string, zIndex: number }>} Prop stack.
  */
-export function lookupAllPropsAt(row: number, col: number): Array<{ anchorRow: number; anchorCol: number; propType: string; propId: string; zIndex: number }> {
+export function lookupAllPropsAt(row: number, col: number): SpatialEntry[] {
   ensureBuilt();
-  return spatialMap.get(`${row},${col}`) || [];
+  return spatialMap!.get(`${row},${col}`) ?? [];
 }
 
 /**
@@ -141,5 +142,5 @@ export function lookupAllPropsAt(row: number, col: number): Array<{ anchorRow: n
  */
 export function isPropAt(row: number, col: number): boolean {
   ensureBuilt();
-  return spatialMap.has(`${row},${col}`);
+  return spatialMap!.has(`${row},${col}`);
 }

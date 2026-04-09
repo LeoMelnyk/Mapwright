@@ -6,7 +6,7 @@
  * and coordinate utility functions shared by render and hitbox modules.
  */
 
-import type { PropDefinition, PropCommand, RenderTransform } from '../types.js';
+import type { PropDefinition, PropCommand, PropPlacement, RenderTransform } from '../types.js';
 import { GRID_SCALE } from './constants.js';
 import { warn } from './warnings.js';
 
@@ -49,6 +49,7 @@ export function parseHexColor(hex: string): { r: number; g: number; b: number } 
  */
 export function scanKeyword(tokens: string[], keyword: string): number | null {
   for (let i = 0; i < tokens.length; i++) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- tokens[i+1] can be out of bounds
     if (tokens[i] === keyword && tokens[i + 1] != null) {
       return parseFloat(tokens[i + 1]);
     }
@@ -93,7 +94,7 @@ export function parsePropFile(text: string): PropDefinition {
   const bodyText = text.substring(separatorIndex + 3);
 
   // Parse header (YAML-like key: value pairs)
-  const header = {};
+  const header: Record<string, string> = {};
   for (const line of headerText.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed) continue;
@@ -101,41 +102,41 @@ export function parsePropFile(text: string): PropDefinition {
     if (colonIdx === -1) continue;
     const key = trimmed.substring(0, colonIdx).trim().toLowerCase();
     const value = trimmed.substring(colonIdx + 1).trim();
-    (header as any)[key] = value;
+    header[key] = value;
   }
 
   // Extract structured fields
-  const name = (header as any).name || 'Unnamed';
-  const category = (header as any).category || 'Misc';
+  const name = header.name || 'Unnamed';
+  const category = header.category || 'Misc';
 
   // Footprint: "RxC" -> [rows, cols]
-  let footprint = [1, 1];
-  if ((header as any).footprint) {
-    const parts = (header as any).footprint.toLowerCase().split('x');
+  let footprint: [number, number] = [1, 1];
+  if (header.footprint) {
+    const parts = header.footprint.toLowerCase().split('x');
     if (parts.length === 2) {
       footprint = [parseInt(parts[0], 10) || 1, parseInt(parts[1], 10) || 1];
     }
   }
 
   // Facing: "yes"/"true" -> true, anything else -> false
-  const facing = (header as any).facing === 'yes' || (header as any).facing === 'true';
+  const facing = header.facing === 'yes' || header.facing === 'true';
 
   // Shadow: "yes"/"true" -> true (draws soft drop shadow under prop)
-  const shadow = (header as any).shadow === 'yes' || (header as any).shadow === 'true';
+  const shadow = header.shadow === 'yes' || header.shadow === 'true';
 
   // Blocks light: "yes"/"true" -> true (metadata for future lighting integration)
-  const blocksLight = (header as any).blocks_light === 'yes' || (header as any).blocks_light === 'true';
+  const blocksLight = header.blocks_light === 'yes' || header.blocks_light === 'true';
 
   // Height: prop height in feet for z-height shadow projection (default null = infinite)
-  const height = (header as any).height != null ? parseFloat((header as any).height) : null;
+  const height = isNaN(parseFloat(header.height)) ? null : parseFloat(header.height);
 
   // Padding: extra cells of overflow around the footprint (default 0)
-  const padding = parseFloat((header as any).padding) || 0;
+  const padding = parseFloat(header.padding) || 0;
 
   // Prop-bundled lights: inline JSON array of { preset, x, y } (normalized 0–cols, 0–rows)
   let propLights = null;
-  if ((header as any).lights) {
-    try { propLights = JSON.parse((header as any).lights); } catch (e) { warn(`[props] Malformed lights JSON in prop "${name}": ${(e as any).message}`); }
+  if (header.lights) {
+    try { propLights = JSON.parse(header.lights); } catch (e) { warn(`[props] Malformed lights JSON in prop "${name}": ${(e as Error).message}`); }
   }
 
   // Parse body (draw commands + hitbox/selection commands)
@@ -158,24 +159,22 @@ export function parsePropFile(text: string): PropDefinition {
 
   // Collect unique texture IDs referenced by texfill commands
   const textures = [...new Set(
-    commands.filter(c => c.style === 'texfill' && c.textureId).map(c => c.textureId)
+    commands.filter(c => c.style === 'texfill' && c.textureId).map(c => c.textureId!)
   )];
 
   // Placement metadata (optional fields — gracefully default to null/empty)
-  const placement = (header as any).placement || null;                  // wall, corner, center, floor, any
-  const roomTypes = (header as any).room_types
-    ? (header as any).room_types.split(',').map((s: any) => s.trim()).filter(Boolean)
+  const placement = (header.placement || null) as PropPlacement;  // wall, corner, center, floor, any
+  const roomTypes = header.room_types
+    ? header.room_types.split(',').map((s: string) => s.trim()).filter(Boolean)
     : [];
-  const typicalCount = (header as any).typical_count || null;           // single, few, many
-  const clustersWith = (header as any).clusters_with
-    ? (header as any).clusters_with.split(',').map((s: any) => s.trim()).filter(Boolean)
+  const typicalCount = header.typical_count || null;           // single, few, many
+  const clustersWith = header.clusters_with
+    ? header.clusters_with.split(',').map((s: string) => s.trim()).filter(Boolean)
     : [];
-  const notes = (header as any).notes || null;
+  const notes = header.notes || null;
 
   return {
-    // @ts-expect-error — strict-mode migration
     name, category, footprint, facing, shadow, blocksLight, padding, height,
-    // @ts-expect-error — strict-mode migration
     commands, textures, lights: propLights,
     manualHitbox: manualHitboxCmds.length > 0 ? manualHitboxCmds : null,
     manualSelection: manualSelectionCmds.length > 0 ? manualSelectionCmds : null,
@@ -197,7 +196,7 @@ export function parsePropFile(text: string): PropDefinition {
  * @param {number} startIndex - Index to start parsing style from
  * @returns {{ style: string, color: string|null, textureId: string|null, opacity: number|null, gradientEnd?: string }}
  */
-export function parseStyleExtended(tokens: string[], startIndex: number): any {
+export function parseStyleExtended(tokens: string[], startIndex: number): { style: string; color: string | null; textureId: string | null; opacity: number | null; gradientEnd?: string } {
   const styleToken = tokens[startIndex];
   if (!styleToken) return { style: 'fill', color: null, textureId: null, opacity: null };
 
@@ -224,7 +223,8 @@ export function parseStyleExtended(tokens: string[], startIndex: number): any {
   const style = styleToken === 'stroke' ? 'stroke' : 'fill';
   const nextToken = tokens[startIndex + 1];
 
-  if (nextToken && nextToken.startsWith('#')) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- nextToken can be undefined (array out of bounds)
+  if (nextToken?.startsWith('#')) {
     const color = nextToken;
     const opacity = parseOpacity(tokens[startIndex + 2]);
     return { style, color, textureId: null, opacity };
@@ -305,13 +305,14 @@ export function parseCommand(line: string): PropCommand | null {
     case 'poly': {
       // poly x1,y1 x2,y2 x3,y3 ... [fill|stroke|texfill] [#color|textureId] [opacity]
       const points = [];
-      let ext = { style: 'fill', color: null, textureId: null, opacity: null };
+      let ext: { style: string; color: string | null; textureId: string | null; opacity: number | null; gradientEnd?: string } = { style: 'fill', color: null, textureId: null, opacity: null };
       for (let i = 1; i < tokens.length; i++) {
         if (tokens[i] === 'fill' || tokens[i] === 'stroke' || tokens[i] === 'texfill' || tokens[i] === 'gradient-radial' || tokens[i] === 'gradient-linear') {
           ext = parseStyleExtended(tokens, i);
           break;
         }
         const coord = parseCoord(tokens[i]);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- parseCoord returns null for unparseable tokens
         if (coord) points.push(coord);
       }
       const polyWidth = scanKeyword(tokens, 'width');
@@ -452,7 +453,7 @@ export function parseCommand(line: string): PropCommand | null {
           for (let pi = 2; pi < tokens.length; pi++) {
             if (tokens[pi] === 'z') break; // stop before z keyword
             const coord = parseCoord(tokens[pi]);
-            if (coord) points.push(coord);
+            points.push(coord);
           }
           return { type, subShape: 'poly', points, ...zInfo };
         }
@@ -482,7 +483,6 @@ export function parseCoord(token: string): [number, number] {
  * @returns {number|null} Parsed opacity value, or null if not present
  */
 export function parseOpacity(token: string): number | null {
-  if (token === undefined || token === null) return null;
   const v = parseFloat(token);
   return isNaN(v) ? null : v;
 }
@@ -534,76 +534,78 @@ export function rotatePoint(x: number, y: number, rotation: number, footprint: [
  * @param {[number, number]} footprint - [rows, cols]
  * @returns {object} New command with mirrored coordinates
  */
-export function flipCommand(cmd: any, footprint: [number, number]): any {
+export function flipCommand(cmd: PropCommand, footprint: [number, number]): PropCommand {
   const cols = footprint[1];
 
   // For linear gradients, horizontal flip negates the angle
-  function flipAngle(result: any) {
+  function flipAngle(result: PropCommand): PropCommand {
     if (result.angle != null && result.style === 'gradient-linear') {
-      return { ...result, angle: -result.angle };
+      return { ...result, angle: -(result.angle) };
     }
     return result;
   }
 
   switch (cmd.type) {
     case 'rect':
-      return flipAngle({ ...cmd, x: cols - cmd.x - cmd.w, rotate: cmd.rotate != null ? -cmd.rotate : cmd.rotate });
+      return flipAngle({ ...cmd, x: cols - cmd.x! - cmd.w!, rotate: cmd.rotate != null ? -cmd.rotate : cmd.rotate });
 
     case 'circle':
-      return flipAngle({ ...cmd, cx: cols - cmd.cx });
+      return flipAngle({ ...cmd, cx: cols - cmd.cx! });
 
     case 'ellipse':
-      return flipAngle({ ...cmd, cx: cols - cmd.cx });
+      return flipAngle({ ...cmd, cx: cols - cmd.cx! });
 
     case 'line':
-      return { ...cmd, x1: cols - cmd.x1, x2: cols - cmd.x2 };
+      return { ...cmd, x1: cols - cmd.x1!, x2: cols - cmd.x2! };
 
     case 'poly':
-      return flipAngle({ ...cmd, points: cmd.points.map(([px, py]: any) => [cols - px, py]) });
+      return flipAngle({ ...cmd, points: cmd.points!.map(([px, py]: number[]) => [cols - px, py]) });
 
     case 'arc':
       // Reflecting angles over the vertical axis: θ → 180° - θ
       // Swap start/end to preserve clockwise winding.
       return flipAngle({
         ...cmd,
-        cx: cols - cmd.cx,
-        startDeg: 180 - cmd.endDeg,
-        endDeg: 180 - cmd.startDeg,
+        cx: cols - cmd.cx!,
+        startDeg: 180 - cmd.endDeg!,
+        endDeg: 180 - cmd.startDeg!,
       });
 
     case 'cutout': {
       switch (cmd.subShape) {
         case 'circle':
-          return { ...cmd, cx: cols - cmd.cx };
+          return { ...cmd, cx: cols - cmd.cx! };
         case 'rect':
-          return { ...cmd, x: cols - cmd.x - cmd.w };
+          return { ...cmd, x: cols - cmd.x! - cmd.w! };
         case 'ellipse':
-          return { ...cmd, cx: cols - cmd.cx };
+          return { ...cmd, cx: cols - cmd.cx! };
+        case undefined:
         default:
           return cmd;
       }
     }
 
     case 'ring':
-      return flipAngle({ ...cmd, cx: cols - cmd.cx });
+      return flipAngle({ ...cmd, cx: cols - cmd.cx! });
 
     case 'bezier':
-      return { ...cmd, x1: cols - cmd.x1, cp1x: cols - cmd.cp1x, cp2x: cols - cmd.cp2x, x2: cols - cmd.x2 };
+      return { ...cmd, x1: cols - cmd.x1!, cp1x: cols - cmd.cp1x!, cp2x: cols - cmd.cp2x!, x2: cols - cmd.x2! };
 
     case 'qbezier':
-      return { ...cmd, x1: cols - cmd.x1, cpx: cols - cmd.cpx, x2: cols - cmd.x2 };
+      return { ...cmd, x1: cols - cmd.x1!, cpx: cols - cmd.cpx!, x2: cols - cmd.x2! };
 
     case 'ering':
-      return { ...cmd, cx: cols - cmd.cx };
+      return { ...cmd, cx: cols - cmd.cx! };
 
     case 'clip-begin': {
       switch (cmd.subShape) {
         case 'circle':
-          return { ...cmd, cx: cols - cmd.cx };
+          return { ...cmd, cx: cols - cmd.cx! };
         case 'rect':
-          return { ...cmd, x: cols - cmd.x - cmd.w };
+          return { ...cmd, x: cols - cmd.x! - cmd.w! };
         case 'ellipse':
-          return { ...cmd, cx: cols - cmd.cx };
+          return { ...cmd, cx: cols - cmd.cx! };
+        case undefined:
         default:
           return cmd;
       }
@@ -630,7 +632,7 @@ export function flipCommand(cmd: any, footprint: [number, number]): any {
  * @param {[number, number]} footprint - [rows, cols]
  * @returns {object} New command with transformed coordinates
  */
-export function transformCommand(cmd: any, rotation: number, footprint: [number, number]): any {
+export function transformCommand(cmd: PropCommand, rotation: number, footprint: [number, number]): PropCommand {
   if (rotation === 0) return cmd;
 
   // For linear gradients, rotate the angle by the same amount as the shape
@@ -642,21 +644,21 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
     case 'rect': {
       if (cmd.rotate != null) {
         // Rotated rect: rotate center point and accumulate angle
-        const cx = cmd.x + cmd.w / 2;
-        const cy = cmd.y + cmd.h / 2;
+        const cx = cmd.x! + cmd.w! / 2;
+        const cy = cmd.y! + cmd.h! / 2;
         const [ncx, ncy] = rotatePoint(cx, cy, rotation, footprint);
         // For 90/270, swap w/h
         const swap = rotation === 90 || rotation === 270;
         const nw = swap ? cmd.h : cmd.w;
         const nh = swap ? cmd.w : cmd.h;
-        return { ...cmd, x: ncx - nw / 2, y: ncy - nh / 2, w: nw, h: nh, rotate: cmd.rotate + rotation, angle: rotatedAngle };
+        return { ...cmd, x: ncx - nw! / 2, y: ncy - nh! / 2, w: nw, h: nh, rotate: cmd.rotate + rotation, angle: rotatedAngle };
       }
       // Non-rotated rect: AABB approach
       const corners = [
-        [cmd.x, cmd.y],
-        [cmd.x + cmd.w, cmd.y],
-        [cmd.x + cmd.w, cmd.y + cmd.h],
-        [cmd.x, cmd.y + cmd.h],
+        [cmd.x!, cmd.y!],
+        [cmd.x! + cmd.w!, cmd.y!],
+        [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
+        [cmd.x!, cmd.y! + cmd.h!],
       ];
       const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
       const xs = rotated.map(p => p[0]);
@@ -669,12 +671,12 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
     }
 
     case 'circle': {
-      const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+      const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
       return { ...cmd, cx: ncx, cy: ncy, angle: rotatedAngle };
     }
 
     case 'ellipse': {
-      const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+      const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
       // Swap rx/ry for 90 and 270 rotations
       const swapRadii = rotation === 90 || rotation === 270;
       return {
@@ -688,24 +690,24 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
     }
 
     case 'line': {
-      const [nx1, ny1] = rotatePoint(cmd.x1, cmd.y1, rotation, footprint);
-      const [nx2, ny2] = rotatePoint(cmd.x2, cmd.y2, rotation, footprint);
+      const [nx1, ny1] = rotatePoint(cmd.x1!, cmd.y1!, rotation, footprint);
+      const [nx2, ny2] = rotatePoint(cmd.x2!, cmd.y2!, rotation, footprint);
       return { ...cmd, x1: nx1, y1: ny1, x2: nx2, y2: ny2 };
     }
 
     case 'poly': {
-      const newPoints = cmd.points.map(([px, py]: any) => rotatePoint(px, py, rotation, footprint));
+      const newPoints = cmd.points!.map(([px, py]: number[]) => rotatePoint(px, py, rotation, footprint));
       return { ...cmd, points: newPoints, angle: rotatedAngle };
     }
 
     case 'arc': {
-      const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+      const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
       return {
         ...cmd,
         cx: ncx,
         cy: ncy,
-        startDeg: cmd.startDeg + rotation,
-        endDeg: cmd.endDeg + rotation,
+        startDeg: cmd.startDeg! + rotation,
+        endDeg: cmd.endDeg! + rotation,
         angle: rotatedAngle,
       };
     }
@@ -713,15 +715,15 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
     case 'cutout': {
       switch (cmd.subShape) {
         case 'circle': {
-          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
           return { ...cmd, cx: ncx, cy: ncy };
         }
         case 'rect': {
           const corners = [
-            [cmd.x, cmd.y],
-            [cmd.x + cmd.w, cmd.y],
-            [cmd.x + cmd.w, cmd.y + cmd.h],
-            [cmd.x, cmd.y + cmd.h],
+            [cmd.x!, cmd.y!],
+            [cmd.x! + cmd.w!, cmd.y!],
+            [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
+            [cmd.x!, cmd.y! + cmd.h!],
           ];
           const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
           const xs = rotated.map(p => p[0]);
@@ -729,37 +731,38 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
           return { ...cmd, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
         }
         case 'ellipse': {
-          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
           const swapRadii = rotation === 90 || rotation === 270;
           return { ...cmd, cx: ncx, cy: ncy, rx: swapRadii ? cmd.ry : cmd.rx, ry: swapRadii ? cmd.rx : cmd.ry };
         }
+        case undefined:
         default:
           return cmd;
       }
     }
 
     case 'ring': {
-      const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+      const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
       return { ...cmd, cx: ncx, cy: ncy, angle: rotatedAngle };
     }
 
     case 'bezier': {
-      const [nx1, ny1] = rotatePoint(cmd.x1, cmd.y1, rotation, footprint);
-      const [ncp1x, ncp1y] = rotatePoint(cmd.cp1x, cmd.cp1y, rotation, footprint);
-      const [ncp2x, ncp2y] = rotatePoint(cmd.cp2x, cmd.cp2y, rotation, footprint);
-      const [nx2, ny2] = rotatePoint(cmd.x2, cmd.y2, rotation, footprint);
+      const [nx1, ny1] = rotatePoint(cmd.x1!, cmd.y1!, rotation, footprint);
+      const [ncp1x, ncp1y] = rotatePoint(cmd.cp1x!, cmd.cp1y!, rotation, footprint);
+      const [ncp2x, ncp2y] = rotatePoint(cmd.cp2x!, cmd.cp2y!, rotation, footprint);
+      const [nx2, ny2] = rotatePoint(cmd.x2!, cmd.y2!, rotation, footprint);
       return { ...cmd, x1: nx1, y1: ny1, cp1x: ncp1x, cp1y: ncp1y, cp2x: ncp2x, cp2y: ncp2y, x2: nx2, y2: ny2 };
     }
 
     case 'qbezier': {
-      const [nx1, ny1] = rotatePoint(cmd.x1, cmd.y1, rotation, footprint);
-      const [ncpx, ncpy] = rotatePoint(cmd.cpx, cmd.cpy, rotation, footprint);
-      const [nx2, ny2] = rotatePoint(cmd.x2, cmd.y2, rotation, footprint);
+      const [nx1, ny1] = rotatePoint(cmd.x1!, cmd.y1!, rotation, footprint);
+      const [ncpx, ncpy] = rotatePoint(cmd.cpx!, cmd.cpy!, rotation, footprint);
+      const [nx2, ny2] = rotatePoint(cmd.x2!, cmd.y2!, rotation, footprint);
       return { ...cmd, x1: nx1, y1: ny1, cpx: ncpx, cpy: ncpy, x2: nx2, y2: ny2 };
     }
 
     case 'ering': {
-      const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+      const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
       const swapRadii = rotation === 90 || rotation === 270;
       return {
         ...cmd,
@@ -775,15 +778,15 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
     case 'clip-begin': {
       switch (cmd.subShape) {
         case 'circle': {
-          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
           return { ...cmd, cx: ncx, cy: ncy };
         }
         case 'rect': {
           const corners = [
-            [cmd.x, cmd.y],
-            [cmd.x + cmd.w, cmd.y],
-            [cmd.x + cmd.w, cmd.y + cmd.h],
-            [cmd.x, cmd.y + cmd.h],
+            [cmd.x!, cmd.y!],
+            [cmd.x! + cmd.w!, cmd.y!],
+            [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
+            [cmd.x!, cmd.y! + cmd.h!],
           ];
           const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
           const xs = rotated.map(p => p[0]);
@@ -791,10 +794,11 @@ export function transformCommand(cmd: any, rotation: number, footprint: [number,
           return { ...cmd, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
         }
         case 'ellipse': {
-          const [ncx, ncy] = rotatePoint(cmd.cx, cmd.cy, rotation, footprint);
+          const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
           const swapRadii = rotation === 90 || rotation === 270;
           return { ...cmd, cx: ncx, cy: ncy, rx: swapRadii ? cmd.ry : cmd.rx, ry: swapRadii ? cmd.rx : cmd.ry };
         }
+        case undefined:
         default:
           return cmd;
       }

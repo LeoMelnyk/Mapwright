@@ -1,4 +1,11 @@
 // File I/O: load, save, new dungeon, export PNG
+
+/** Window with File System Access API (not in lib.dom.d.ts by default). */
+interface FilePickerWindow {
+  showOpenFilePicker?: (options?: Record<string, unknown>) => Promise<FileSystemFileHandle[]>;
+  showSaveFilePicker?: (options?: Record<string, unknown>) => Promise<FileSystemFileHandle>;
+}
+
 import type { Dungeon } from '../../types.js';
 import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
@@ -19,25 +26,32 @@ import { onMapLoaded } from './dm-session.js';
  * @param {Object} [opts] - Options: fileHandle, fileName.
  * @returns {void}
  */
-export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: any; fileName?: string } = {}): void {
+export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFileHandle | null; fileName?: string } = {}): void {
   pushUndo();
   state.dungeon = json;
-  migrateToLatest(json);
+  (migrateToLatest as (j: unknown) => void)(json);
+
+  // Ensure metadata fields added in later versions exist on old maps
+  const meta = json.metadata as Record<string, unknown>;
+  meta.stairs ??= [];
+  meta.bridges ??= [];
+  meta.nextStairId ??= 1;
+  meta.nextBridgeId ??= 1;
 
   // Auto-install embedded user theme if not locally available
-  const _theme = json.metadata?.theme;
+  const _theme = json.metadata.theme;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (typeof _theme === 'string' && _theme.startsWith('user:') && !THEMES[_theme] && json.metadata.savedThemeData?.theme) {
     // Register in memory for immediate use
-    // @ts-expect-error — strict-mode migration
-    THEMES[_theme] = json.metadata.savedThemeData.theme;
+    (THEMES as Record<string, unknown>)[_theme] = json.metadata.savedThemeData.theme;
     // Persist to disk for future sessions (fire-and-forget)
-    saveUserTheme((json.metadata.savedThemeData as any).name || _theme.slice(5), json.metadata.savedThemeData.theme).catch(() => {});
+    saveUserTheme(((json.metadata.savedThemeData as Record<string, unknown>).name as string) || _theme.slice(5), json.metadata.savedThemeData.theme as Record<string, string | number | boolean>).catch(() => {});
   }
 
   state.currentLevel = 0;
   state.selectedCells = [];
-  state.fileHandle = opts.fileHandle || null;
-  state.fileName = opts.fileName || null;
+  state.fileHandle = opts.fileHandle ?? null;
+  state.fileName = opts.fileName ?? null;
   // Flush all render caches (geometry, fluid, blend, visibility, props)
   // so stale data from the previous map doesn't bleed through.
   invalidateAllCaches();
@@ -48,17 +62,17 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: any; fileNam
   notify();
   // Load images for textures used in the loaded map (floor + props)
   const usedIds = collectTextureIds(json.cells);
-  if (state.propCatalog?.props && json.metadata?.props) {
-    // @ts-expect-error — strict-mode migration
+  if (state.propCatalog?.props && json.metadata.props) {
     for (const op of json.metadata.props) {
       const propDef = state.propCatalog.props[op.type];
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
       if (propDef?.textures) {
         for (const id of propDef.textures) usedIds.add(id);
       }
     }
   }
   // Bridge textures (hardcoded Polyhaven IDs in bridges.js)
-  if (json.metadata?.bridges?.length) {
+  if (json.metadata.bridges.length) {
     const bridgeTexIds = {
       wood: 'polyhaven/weathered_planks', stone: 'polyhaven/stone_wall',
       rope: 'polyhaven/worn_planks', dock: 'polyhaven/brown_planks_09',
@@ -68,7 +82,7 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: any; fileNam
       if (tid) usedIds.add(tid);
     }
   }
-  if (usedIds.size > 0) ensureTexturesLoaded(usedIds).then(() => { state.texturesVersion++; notify(); });
+  if (usedIds.size > 0) void ensureTexturesLoaded(usedIds).then(() => { state.texturesVersion++; notify(); });
   // Zoom to fit the loaded map in the viewport
   requestAnimationFrame(() => zoomToFit());
 }
@@ -105,65 +119,65 @@ function getSuggestedName() {
     .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.mapwright';
 }
 
-function showConfirmModal(message: any) {
+function showConfirmModal(message: string) {
   return new Promise(resolve => {
-    const overlay = document.getElementById('modal-confirm');
-    const msg     = document.getElementById('modal-confirm-msg');
-    const btnOk   = document.getElementById('modal-confirm-ok');
-    const btnCancel = document.getElementById('modal-confirm-cancel');
-    msg!.textContent = message;
+    const overlay = document.getElementById('modal-confirm')!;
+    const msg     = document.getElementById('modal-confirm-msg')!;
+    const btnOk   = document.getElementById('modal-confirm-ok')!;
+    const btnCancel = document.getElementById('modal-confirm-cancel')!;
+    msg.textContent = message;
     (overlay as HTMLDialogElement).showModal();
-    const finish = (result: any) => {
+    const finish = (result: boolean) => {
       (overlay as HTMLDialogElement).close();
-      btnOk!.removeEventListener('click', onOk);
-      btnCancel!.removeEventListener('click', onCancel);
-      overlay!.removeEventListener('cancel', onNativeCancel);
+      btnOk.removeEventListener('click', onOk);
+      btnCancel.removeEventListener('click', onCancel);
+      overlay.removeEventListener('cancel', onNativeCancel);
       resolve(result);
     };
     const onOk     = () => finish(true);
     const onCancel = () => finish(false);
     const onNativeCancel = (e: Event) => { e.preventDefault(); finish(false); };
-    btnOk!.addEventListener('click', onOk);
-    btnCancel!.addEventListener('click', onCancel);
-    overlay!.addEventListener('cancel', onNativeCancel);
+    btnOk.addEventListener('click', onOk);
+    btnCancel.addEventListener('click', onCancel);
+    overlay.addEventListener('cancel', onNativeCancel);
   });
 }
 
-function showNewMapModal() {
+function showNewMapModal(): Promise<{ name: string; rows: number; cols: number } | null> {
   return new Promise(resolve => {
-    const overlay  = document.getElementById('modal-new-map');
-    const nameEl   = document.getElementById('modal-map-name');
-    const rowsEl   = document.getElementById('modal-map-rows');
-    const colsEl   = document.getElementById('modal-map-cols');
-    const btnCreate = document.getElementById('modal-new-create');
-    const btnCancel = document.getElementById('modal-new-cancel');
+    const overlay  = document.getElementById('modal-new-map')!;
+    const nameEl   = document.getElementById('modal-map-name')!;
+    const rowsEl   = document.getElementById('modal-map-rows')!;
+    const colsEl   = document.getElementById('modal-map-cols')!;
+    const btnCreate = document.getElementById('modal-new-create')!;
+    const btnCancel = document.getElementById('modal-new-cancel')!;
 
-    (nameEl! as any).value = 'New Dungeon';
-    (rowsEl! as any).value = '20';
-    (colsEl! as any).value = '30';
+    (nameEl as HTMLInputElement).value = 'New Dungeon';
+    (rowsEl as HTMLInputElement).value = '20';
+    (colsEl as HTMLInputElement).value = '30';
     (overlay as HTMLDialogElement).showModal();
-    setTimeout(() => (nameEl! as any).select(), 0);
+    setTimeout(() => (nameEl as HTMLInputElement).select(), 0);
 
-    const finish = (result: any) => {
+    const finish = (result: { name: string; rows: number; cols: number } | null) => {
       (overlay as HTMLDialogElement).close();
-      btnCreate!.removeEventListener('click', onCreate);
-      btnCancel!.removeEventListener('click', onCancel);
-      overlay!.removeEventListener('keydown', onKey);
+      btnCreate.removeEventListener('click', onCreate);
+      btnCancel.removeEventListener('click', onCancel);
+      overlay.removeEventListener('keydown', onKey);
       resolve(result);
     };
     const onCreate = () => finish({
-      name: (nameEl! as any).value.trim() || 'New Dungeon',
-      rows: parseInt((rowsEl! as any).value) || 20,
-      cols: parseInt((colsEl! as any).value) || 30,
+      name: (nameEl as HTMLInputElement).value.trim() || 'New Dungeon',
+      rows: parseInt((rowsEl as HTMLInputElement).value) || 20,
+      cols: parseInt((colsEl as HTMLInputElement).value) || 30,
     });
     const onCancel = () => finish(null);
-    const onKey = (e: any) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter')  { e.preventDefault(); onCreate(); }
       if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
     };
-    btnCreate!.addEventListener('click', onCreate);
-    btnCancel!.addEventListener('click', onCancel);
-    overlay!.addEventListener('keydown', onKey);
+    btnCreate.addEventListener('click', onCreate);
+    btnCancel.addEventListener('click', onCancel);
+    overlay.addEventListener('keydown', onKey);
   });
 }
 
@@ -180,9 +194,9 @@ export async function loadDungeon(): Promise<void> {
   if (!await confirmUnsaved()) return;
 
   // Try File System Access API first
-  if ((window as any).showOpenFilePicker) {
+  if ((window as unknown as FilePickerWindow).showOpenFilePicker) {
     try {
-      const [handle] = await (window as any).showOpenFilePicker({
+      const [handle] = await (window as unknown as FilePickerWindow).showOpenFilePicker!({
         types: [{ description: 'Mapwright Dungeon', accept: { 'application/json': ['.mapwright', '.json'] } }],
         multiple: false,
       });
@@ -196,7 +210,7 @@ export async function loadDungeon(): Promise<void> {
       loadDungeonJSON(json, { fileHandle: handle, fileName: file.name });
       return;
     } catch (err) {
-      if ((err as any).name === 'AbortError') return; // user cancelled
+      if ((err as Error).name === 'AbortError') return; // user cancelled
       console.warn('File System Access API failed, falling back:', err);
     }
   }
@@ -206,20 +220,18 @@ export async function loadDungeon(): Promise<void> {
   input.type = 'file';
   input.accept = '.mapwright,.json';
   input.onchange = (e) => {
-    const file = (e.target! as any).files[0];
-    if (!file) return;
+    const file = ((e.target ?? e.currentTarget) as HTMLInputElement).files![0];
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
-        // @ts-expect-error — strict-mode migration
-        const json = JSON.parse(ev.target!.result);
+        const json = JSON.parse(ev.target!.result as string);
         if (!json.metadata || !json.cells) {
           showToast('Invalid dungeon JSON: missing metadata or cells');
           return;
         }
         loadDungeonJSON(json, { fileName: file.name });
       } catch (err) {
-        showToast('Failed to parse JSON: ' + (err as any).message);
+        showToast('Failed to parse JSON: ' + (err as Error).message);
       }
     };
     reader.readAsText(file);
@@ -237,14 +249,14 @@ export async function saveDungeon(): Promise<void> {
 
   // Embed user theme data for cross-machine portability
   const _saveTheme = state.dungeon.metadata.theme;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (typeof _saveTheme === 'string' && _saveTheme.startsWith('user:') && THEMES[_saveTheme]) {
     const themeObj = THEMES[_saveTheme];
     state.dungeon.metadata.savedThemeData = {
-      // @ts-expect-error — strict-mode migration
-      name: themeObj.displayName || _saveTheme.slice(5),
+      name: (themeObj as Record<string, unknown>).displayName as string || _saveTheme.slice(5),
       theme: { ...themeObj },
     };
-    delete state.dungeon.metadata.savedThemeData!.theme.displayName;
+    delete state.dungeon.metadata.savedThemeData.theme.displayName;
   } else if (typeof _saveTheme === 'string' && !_saveTheme.startsWith('user:')) {
     delete state.dungeon.metadata.savedThemeData;
   }
@@ -262,16 +274,16 @@ export async function saveDungeon(): Promise<void> {
       showToast('Saved');
       return;
     } catch (err) {
-      if ((err as any).name === 'AbortError') return;
+      if ((err as Error).name === 'AbortError') return;
       console.warn('Failed to write to file handle, falling back to Save As:', err);
       // Fall through to Save As
     }
   }
 
   // No file handle — prompt for save location
-  if ((window as any).showSaveFilePicker) {
+  if ((window as unknown as FilePickerWindow).showSaveFilePicker) {
     try {
-      const handle = await (window as any).showSaveFilePicker({
+      const handle = await (window as unknown as FilePickerWindow).showSaveFilePicker!({
         suggestedName: getSuggestedName(),
         types: [{ description: 'Mapwright Dungeon', accept: { 'application/json': ['.mapwright'] } }],
       });
@@ -285,7 +297,7 @@ export async function saveDungeon(): Promise<void> {
       showToast('Saved');
       return;
     } catch (err) {
-      if ((err as any).name === 'AbortError') return;
+      if ((err as Error).name === 'AbortError') return;
       console.warn('showSaveFilePicker failed, falling back to download:', err);
     }
   }
@@ -305,10 +317,10 @@ export async function saveDungeon(): Promise<void> {
 /**
  * Save a blob to disk — uses native file picker when available, falls back to anchor download.
  */
-async function saveBlob(blob: any, suggestedName: any) {
-  if ((window as any).showSaveFilePicker) {
+async function saveBlob(blob: Blob, suggestedName: string) {
+  if ((window as unknown as FilePickerWindow).showSaveFilePicker) {
     try {
-      const handle = await (window as any).showSaveFilePicker({
+      const handle = await (window as unknown as FilePickerWindow).showSaveFilePicker!({
         suggestedName,
         types: [{ description: 'PNG Image', accept: { 'image/png': ['.png'] } }],
       });
@@ -317,7 +329,7 @@ async function saveBlob(blob: any, suggestedName: any) {
       await writable.close();
       return;
     } catch (err) {
-      if ((err as any).name === 'AbortError') throw err; // user cancelled
+      if ((err as Error).name === 'AbortError') throw err; // user cancelled
       console.warn('showSaveFilePicker failed, falling back to download:', err);
     }
   }
@@ -338,7 +350,7 @@ async function saveBlob(blob: any, suggestedName: any) {
  * Export the current dungeon as a PNG image (server-side or browser fallback).
  * @returns {Promise<void>}
  */
-let exportOverlay: any = null;
+let exportOverlay: HTMLElement | null = null;
 
 function showExportOverlay() {
   if (!exportOverlay) {
@@ -361,7 +373,7 @@ function hideExportOverlay() {
   if (!exportOverlay) return;
   exportOverlay.classList.remove('visible');
   exportOverlay.addEventListener('transitionend', () => {
-    exportOverlay.style.display = 'none';
+    exportOverlay!.style.display = 'none';
   }, { once: true });
 }
 
@@ -394,7 +406,7 @@ export async function exportPng(): Promise<void> {
     console.error('[export] Server error:', res.status, detail);
     return;
   } catch (err) {
-    if ((err as any).name === 'AbortError') { hideExportOverlay(); return; }
+    if ((err as Error).name === 'AbortError') { hideExportOverlay(); return; }
     console.warn('Server export unavailable — falling back to browser render');
   }
 
@@ -412,14 +424,14 @@ export async function exportPng(): Promise<void> {
     }
 
     // Resolve background image element if present
-    let bgImageEl: any = null;
+    let bgImageEl: HTMLImageElement | null = null;
     const bi = config.metadata.backgroundImage;
     if (bi?.dataUrl) {
       bgImageEl = new Image();
       await new Promise(resolve => {
-        bgImageEl.onload = resolve;
-        bgImageEl.onerror = resolve; // fail gracefully — image won't appear but export continues
-        bgImageEl.src = bi.dataUrl;
+        bgImageEl!.onload = resolve;
+        bgImageEl!.onerror = resolve; // fail gracefully — image won't appear but export continues
+        bgImageEl!.src = bi.dataUrl!;
       });
     }
 
@@ -432,13 +444,13 @@ export async function exportPng(): Promise<void> {
       return;
     }
     hideExportOverlay();
-    await saveBlob(blob, suggestedName);
+    await saveBlob(blob as Blob, suggestedName);
     showToast('Exported as PNG (without textures — run start.bat for full export)');
   } catch (err) {
     hideExportOverlay();
-    if ((err as any).name === 'AbortError') return; // user cancelled save dialog
+    if ((err as Error).name === 'AbortError') return; // user cancelled save dialog
     console.error('Export PNG failed:', err);
-    showToast('Export failed: ' + (err as any).message);
+    showToast('Export failed: ' + (err as Error).message);
   }
 }
 
@@ -473,9 +485,9 @@ export async function exportDd2vtt(): Promise<void> {
     showToast('Exported as Universal VTT (.dd2vtt)');
   } catch (err) {
     hideExportOverlay();
-    if ((err as any).name === 'AbortError') return;
+    if ((err as Error).name === 'AbortError') return;
     console.error('Export dd2vtt failed:', err);
-    showToast('Export failed: ' + (err as any).message);
+    showToast('Export failed: ' + (err as Error).message);
   }
 }
 
@@ -507,19 +519,15 @@ export async function reloadAssets(): Promise<void> {
   state.textureCatalog = textureCatalog;
   state.lightCatalog = lightCatalog;
   // Themes register into a shared THEMES object — just reload the catalog
-  // @ts-expect-error — strict-mode migration
   await loadThemeCatalog();
 
   // Re-load texture images for everything currently on the map
   const usedIds = collectTextureIds(state.dungeon.cells);
   // Also collect prop-referenced textures from overlay
-  if (propCatalog?.props && state.dungeon.metadata?.props) {
-    // @ts-expect-error — strict-mode migration
+  if (propCatalog?.props && state.dungeon.metadata.props) {
     for (const op of state.dungeon.metadata.props) {
       const propDef = propCatalog.props[op.type];
-      if (propDef?.textures) {
-        for (const id of propDef.textures) usedIds.add(id);
-      }
+      for (const id of propDef.textures) usedIds.add(id);
     }
   }
   if (usedIds.size > 0) {
@@ -544,9 +552,7 @@ export async function saveDungeonAs(): Promise<void> {
   state.fileHandle = null;
   await saveDungeon();
   // If user cancelled (fileHandle still null), restore the old handle
-  if (!state.fileHandle) {
-    state.fileHandle = savedHandle;
-  }
+  state.fileHandle ??= savedHandle;
 }
 
 /**
@@ -558,7 +564,6 @@ export async function newDungeon(): Promise<void> {
 
   const result = await showNewMapModal();
   if (!result) return;
-  // @ts-expect-error — strict-mode migration
   const { name, rows, cols } = result;
 
   pushUndo();

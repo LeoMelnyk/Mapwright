@@ -1,18 +1,18 @@
+import type { RenderTransform } from '../../../types.js';
 // Tool: drag to reveal cells (left-click), right-click to re-fog a single cell.
 // Shift+drag: dump cell data + fog state to console instead of revealing.
-import { Tool } from './tool-base.js';
+import { Tool, type EdgeInfo } from './tool-base.js';
 import { sessionState, revealRect, concealRect, dumpFogRegion } from '../dm-session.js';
 import { requestRender } from '../canvas-view.js';
 import state, { notify } from '../state.js';
 import { toCanvas } from '../utils.js';
 
 export class FogRevealTool extends Tool {
-  [key: string]: any;
-  declare dragging: boolean;
-  declare dragStart: { row: number; col: number } | null;
-  declare dragEnd: { row: number; col: number } | null;
-  declare _prevDmView: boolean;
-  declare _shiftDrag: boolean;
+  dragging: boolean = false;
+  dragStart: { row: number; col: number } | null = null;
+  dragEnd: { row: number; col: number } | null = null;
+  _prevDmView: boolean = false;
+  _shiftDrag: boolean = false;
 
   constructor() {
     super('fog-reveal', 'F', 'crosshair');
@@ -41,25 +41,24 @@ export class FogRevealTool extends Tool {
     notify();
   }
 
-  onMouseDown(row: any, col: any, dir: any, e: any) {
+  onMouseDown(row: number, col: number, _edge: EdgeInfo | null, e: MouseEvent | null) {
     this.dragging = true;
-    this._shiftDrag = e?.shiftKey || false;
+    this._shiftDrag = e?.shiftKey ?? false;
     this.dragStart = { row, col };
     this.dragEnd   = { row, col };
     requestRender();
   }
 
-  onMouseMove(row: any, col: any) {
+  onMouseMove(row: number, col: number) {
     if (!this.dragging) return;
     this.dragEnd = { row, col };
     requestRender();
   }
 
-  onMouseUp(row: any, col: any) {
+  onMouseUp(row: number, col: number) {
     if (!this.dragging) return;
-    (this as any).rowng = false;
-    // @ts-expect-error — strict-mode migration
-    const { row: r1, col: c1 } = this.dragStart;
+    this.dragging = false;
+    const { row: r1, col: c1 } = this.dragStart!;
     this.dragStart = this.dragEnd = null;
     if (this._shiftDrag) {
       // Shift+drag: dump cell data to console instead of revealing
@@ -71,11 +70,11 @@ export class FogRevealTool extends Tool {
     notify();
   }
 
-  onRightClick(row: any, col: any) {
+  onRightClick(row: number, col: number) {
     concealRect(row, col, row, col);
   }
 
-  renderOverlay(ctx: any, transform: any, gridSize: any) {
+  renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
     const cs = gridSize * transform.scale;
     const minRow = Math.min(this.dragStart.row, this.dragEnd.row);

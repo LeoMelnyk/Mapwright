@@ -1,3 +1,11 @@
+import type { CellGrid } from '../../types.js';
+
+/** Loose dungeon JSON shape for migrations (fields may be absent in older formats). */
+interface MigrationJson {
+  metadata: Record<string, unknown> & { formatVersion?: number; gridSize?: number; props?: unknown[]; nextPropId?: number; levels?: unknown[]; bridges?: unknown[]; stairs?: unknown[] };
+  cells: CellGrid;
+  [key: string]: unknown;
+}
 // Format versioning and migration registry for .mapwright save files.
 
 import { migrateHalfTextures } from './io.js';
@@ -9,30 +17,31 @@ export const CURRENT_FORMAT_VERSION = 4;
 // Migrations are applied in sequence: 0→1, 1→2, etc.
 const migrations = [
   // v0 → v1: half-texture format migration (pre-existing logic from io.js)
-  { from: 0, to: 1, migrate: (json: any) => migrateHalfTextures(json) },
+  { from: 0, to: 1, migrate: (json: MigrationJson) => (migrateHalfTextures as (j: unknown) => void)(json) },
   // v1 → v2: extract cell.prop entries into metadata.props[] overlay array
-  { from: 1, to: 2, migrate: (json: any) => migratePropsToOverlay(json) },
+  { from: 1, to: 2, migrate: (json: MigrationJson) => migratePropsToOverlay(json) },
   // v2 → v3: double grid resolution (half-cell coordinates)
-  { from: 2, to: 3, migrate: (json: any) => migrateToHalfCell(json) },
+  { from: 2, to: 3, migrate: (json: MigrationJson) => migrateToHalfCell(json) },
   // v3 → v4: convert old arc trim format to per-cell trimClip/trimWall/trimPassable
-  { from: 3, to: 4, migrate: (json: any) => _migrateArcToPerCell(json.cells) },
+  { from: 3, to: 4, migrate: (json: MigrationJson) => _migrateArcToPerCell(json.cells) },
 ];
 
 /**
  * Extract all cell.prop entries into metadata.props[] overlay format.
  * Cell.prop entries are deleted after copying — the overlay is the sole source of truth.
  */
-function migratePropsToOverlay(json: any) {
+function migratePropsToOverlay(json: MigrationJson) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!json.metadata) return;
   if (json.metadata.props) return; // already migrated
 
   json.metadata.props = [];
-  if (!json.metadata.nextPropId) json.metadata.nextPropId = 1;
-  const gridSize = json.metadata.gridSize || 5;
+  json.metadata.nextPropId ??= 1;
+  const gridSize = json.metadata.gridSize ?? 5;
 
   for (let row = 0; row < json.cells.length; row++) {
     const rowArr = json.cells[row];
-    if (!rowArr) continue;
+    if (!rowArr) continue; // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- legacy data
     for (let col = 0; col < rowArr.length; col++) {
       const cell = rowArr[col];
       if (!cell?.prop) continue;
@@ -66,8 +75,9 @@ function migratePropsToOverlay(json: any) {
 /** Properties replicated to all 4 sub-cells (floor appearance). */
 const REPLICATE_KEYS = ['fill', 'texture', 'textureSecondary', 'waterDepth', 'lavaDepth', 'hazard'];
 
-function migrateToHalfCell(json: any) {
+function migrateToHalfCell(json: MigrationJson) {
   const { metadata, cells } = json;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!metadata || !cells || cells.length === 0) return;
 
   const oldRows = cells.length;
@@ -96,7 +106,7 @@ function migrateToHalfCell(json: any) {
       for (const key of REPLICATE_KEYS) {
         if (cell[key] !== undefined && cell[key] !== null) {
           // Deep-copy objects (texture), shallow-copy primitives
-          (base as any)[key] = typeof cell[key] === 'object' ? JSON.parse(JSON.stringify(cell[key])) : cell[key];
+          (base as Record<string, unknown>)[key] = typeof cell[key] === 'object' ? JSON.parse(JSON.stringify(cell[key])) : cell[key];
         }
       }
 
@@ -125,7 +135,7 @@ function migrateToHalfCell(json: any) {
         //   SE corner (ne-sw): void=BR, diag=TR+BL, floor=TL
         const corner = cell.trimCorner;
         const diagType = (corner === 'nw' || corner === 'se') ? 'ne-sw' : 'nw-se';
-        const diagVal = cell[diagType] || 'w';
+        const diagVal = cell[diagType] ?? 'w';
 
         // Mark the corner sub-cell for voiding (applied after cell assignment below)
         if (corner === 'nw') { tl._void = true; _trimVoidCount++; }
@@ -153,9 +163,9 @@ function migrateToHalfCell(json: any) {
         if (cell.trimArcInverted) target.trimArcInverted = true;
         if (cell.trimInsideArc) target.trimInsideArc = true;
         if (cell.trimArcCenterRow != null) {
-          target.trimArcCenterRow = cell.trimArcCenterRow * 2;
-          target.trimArcCenterCol = cell.trimArcCenterCol * 2;
-          target.trimArcRadius = cell.trimArcRadius * 2;
+          target.trimArcCenterRow = (cell.trimArcCenterRow) * 2;
+          target.trimArcCenterCol = (cell.trimArcCenterCol as number) * 2;
+          target.trimArcRadius = (cell.trimArcRadius as number) * 2;
         }
       } else if (cell.trimInsideArc) {
         // InsideArc cells are full floor cells — just propagate metadata to all sub-cells.
@@ -165,15 +175,15 @@ function migrateToHalfCell(json: any) {
           sub.trimCorner = cell.trimCorner;
           if (cell.trimArcInverted) sub.trimArcInverted = true;
           if (cell.trimArcCenterRow != null) {
-            sub.trimArcCenterRow = cell.trimArcCenterRow * 2;
-            sub.trimArcCenterCol = cell.trimArcCenterCol * 2;
-            sub.trimArcRadius = cell.trimArcRadius * 2;
+            sub.trimArcCenterRow = (cell.trimArcCenterRow) * 2;
+            sub.trimArcCenterCol = (cell.trimArcCenterCol as number) * 2;
+            sub.trimArcRadius = (cell.trimArcRadius as number) * 2;
           }
         }
       } else {
         // Non-trim diagonals: check if the cell is a trim hypotenuse (adjacent to void)
         // even without trimCorner — the old trim tool didn't always set trimCorner.
-        const isVoid = (vr: any, vc: any) => vr < 0 || vr >= oldRows || vc < 0 || vc >= oldCols || !cells[vr][vc];
+        const isVoid = (vr: number, vc: number) => vr < 0 || vr >= oldRows || vc < 0 || vc >= oldCols || !cells[vr][vc];
         let inferredCorner = null;
         if (cell['ne-sw']) {
           if (isVoid(r - 1, c) && isVoid(r, c - 1)) inferredCorner = 'nw';
@@ -187,7 +197,7 @@ function migrateToHalfCell(json: any) {
         if (inferredCorner) {
           // Treat as straight trim: void the corner sub-cell, set diagonal on the other two
           const diagType = (inferredCorner === 'nw' || inferredCorner === 'se') ? 'ne-sw' : 'nw-se';
-          const diagVal = cell[diagType] || 'w';
+          const diagVal = cell[diagType] ?? 'w';
           if (inferredCorner === 'nw') { tl._void = true; _trimVoidCount++; }
           else if (inferredCorner === 'ne') { tr._void = true; _trimVoidCount++; }
           else if (inferredCorner === 'sw') { bl._void = true; _trimVoidCount++; }
@@ -217,9 +227,9 @@ function migrateToHalfCell(json: any) {
         if (cell.trimArcInverted) { tl.trimArcInverted = true; tr.trimArcInverted = true; bl.trimArcInverted = true; br.trimArcInverted = true; }
         if (cell.trimArcCenterRow != null) {
           for (const sub of [tl, tr, bl, br]) {
-            sub.trimArcCenterRow = cell.trimArcCenterRow * 2;
-            sub.trimArcCenterCol = cell.trimArcCenterCol * 2;
-            sub.trimArcRadius = cell.trimArcRadius * 2;
+            sub.trimArcCenterRow = (cell.trimArcCenterRow) * 2;
+            sub.trimArcCenterCol = (cell.trimArcCenterCol as number) * 2;
+            sub.trimArcRadius = (cell.trimArcRadius as number) * 2;
           }
         }
       }
@@ -272,13 +282,13 @@ function migrateToHalfCell(json: any) {
   _fixArcTrims(newCells);
 
   // ── Metadata updates ──
-  const oldGridSize = metadata.gridSize || 5;
+  const oldGridSize = metadata.gridSize ?? 5;
   metadata.gridSize = oldGridSize / 2;
   metadata.resolution = 2;
 
   // Levels: double startRow and numRows
   if (metadata.levels) {
-    for (const level of metadata.levels) {
+    for (const level of metadata.levels as Record<string, number>[]) {
       level.startRow = (level.startRow || 0) * 2;
       level.numRows = (level.numRows || 0) * 2;
     }
@@ -286,24 +296,24 @@ function migrateToHalfCell(json: any) {
 
   // Stairs: double corner point coordinates
   if (metadata.stairs) {
-    for (const stair of metadata.stairs) {
+    for (const stair of metadata.stairs as Record<string, unknown>[]) {
       if (stair.points) {
-        stair.points = stair.points.map(([r, c]: any) => [r * 2, c * 2]);
+        stair.points = (stair.points as [number, number][]).map(([r, c]) => [r * 2, c * 2]);
       }
       if (stair.corners) {
-        stair.corners = stair.corners.map(([r, c]: any) => [r * 2, c * 2]);
+        stair.corners = (stair.corners as [number, number][]).map(([r, c]) => [r * 2, c * 2]);
       }
     }
   }
 
   // Bridges: double corner point coordinates
   if (metadata.bridges) {
-    for (const bridge of metadata.bridges) {
+    for (const bridge of metadata.bridges as Record<string, unknown>[]) {
       if (bridge.points) {
-        bridge.points = bridge.points.map(([r, c]: any) => [r * 2, c * 2]);
+        bridge.points = (bridge.points as [number, number][]).map(([r, c]) => [r * 2, c * 2]);
       }
       if (bridge.corners) {
-        bridge.corners = bridge.corners.map(([r, c]: any) => [r * 2, c * 2]);
+        bridge.corners = (bridge.corners as [number, number][]).map(([r, c]) => [r * 2, c * 2]);
       }
     }
   }
@@ -324,8 +334,8 @@ function migrateToHalfCell(json: any) {
  * outer edges to the internal sub-cell boundary — placing the wall at the
  * midpoint of the original 5ft cell.
  */
-function _centerMidwallDoors(cells: any, numRows: any, numCols: any) {
-  const isDoor = (v: any) => v === 'd' || v === 's';
+function _centerMidwallDoors(cells: CellGrid, numRows: number, numCols: number) {
+  const isDoor = (v: string | null | undefined) => v === 'd' || v === 's';
 
   for (let r = 0; r < numRows; r += 2) {
     for (let c = 0; c < numCols; c += 2) {
@@ -339,10 +349,10 @@ function _centerMidwallDoors(cells: any, numRows: any, numCols: any) {
         // Remove from outer edges + reciprocals on neighbors
         delete tl.north; delete tr.north;
         delete bl.south; delete br.south;
-        if (cells[r - 1]?.[c]) delete cells[r - 1][c].south;
-        if (cells[r - 1]?.[c + 1]) delete cells[r - 1][c + 1].south;
-        if (cells[r + 2]?.[c]) delete cells[r + 2][c].north;
-        if (cells[r + 2]?.[c + 1]) delete cells[r + 2][c + 1].north;
+        if (cells[r - 1]?.[c]) delete cells[r - 1][c]!.south;
+        if (cells[r - 1]?.[c + 1]) delete cells[r - 1][c + 1]!.south;
+        if (cells[r + 2]?.[c]) delete cells[r + 2][c]!.north;
+        if (cells[r + 2]?.[c + 1]) delete cells[r + 2][c + 1]!.north;
         // Place at internal boundary (center of original cell)
         tl.south = doorN; tr.south = doorN;
         bl.north = doorS; br.north = doorS;
@@ -354,10 +364,10 @@ function _centerMidwallDoors(cells: any, numRows: any, numCols: any) {
         // Remove from outer edges + reciprocals on neighbors
         delete tl.west; delete bl.west;
         delete tr.east; delete br.east;
-        if (cells[r]?.[c - 1]) delete cells[r][c - 1].east;
-        if (cells[r + 1]?.[c - 1]) delete cells[r + 1][c - 1].east;
-        if (cells[r]?.[c + 2]) delete cells[r][c + 2].west;
-        if (cells[r + 1]?.[c + 2]) delete cells[r + 1][c + 2].west;
+        if (cells[r]?.[c - 1]) delete cells[r][c - 1]!.east;
+        if (cells[r + 1]?.[c - 1]) delete cells[r + 1][c - 1]!.east;
+        if (cells[r]?.[c + 2]) delete cells[r][c + 2]!.west;
+        if (cells[r + 1]?.[c + 2]) delete cells[r + 1][c + 2]!.west;
         // Place at internal boundary
         tl.east = doorW; bl.east = doorW;
         tr.west = doorE; br.west = doorE;
@@ -366,7 +376,7 @@ function _centerMidwallDoors(cells: any, numRows: any, numCols: any) {
   }
 }
 
-function _fixArcTrims(cells: any) {
+function _fixArcTrims(cells: CellGrid) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -482,7 +492,8 @@ function _fixArcTrims(cells: any) {
  * Safe to run multiple times (idempotent) and on maps created at half-cell
  * resolution (no-op since those maps have correct per-cell trim flags).
  */
-function _repairArcFloodBoundary(cells: any) {
+function _repairArcFloodBoundary(cells: CellGrid) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
@@ -502,11 +513,11 @@ function _repairArcFloodBoundary(cells: any) {
   let repaired = 0;
   for (const { r, c, cell: trc } of trimRoundCells) {
     // Compute the actual arc circle center (same logic as _fixArcTrims step 2)
-    let acr = trc.trimArcCenterRow;
-    let acc = trc.trimArcCenterCol;
-    const R = trc.trimArcRadius;
+    let acr = trc.trimArcCenterRow as number;
+    let acc = trc.trimArcCenterCol as number;
+    const R = trc.trimArcRadius as number;
     const inverted = !!trc.trimArcInverted;
-    const corner = trc.trimCorner;
+    const corner = trc.trimCorner as string;
 
     if (!inverted) {
       switch (corner) {
@@ -540,7 +551,7 @@ function _repairArcFloodBoundary(cells: any) {
 }
 
 /** Check if a point is in the corner's quadrant relative to arc center. */
-function _inCornerQuad(x: any, y: any, cx: any, cy: any, corner: any) {
+function _inCornerQuad(x: number, y: number, cx: number, cy: number, corner: string) {
   switch (corner) {
     case 'nw': return x <= cx && y <= cy;
     case 'ne': return x >= cx && y <= cy;
@@ -554,7 +565,7 @@ function _inCornerQuad(x: any, y: any, cx: any, cy: any, corner: any) {
  * Arc corner coords are grid intersections: NW is at the first cell (inclusive),
  * while NE/SW/SE are one past the last cell in their respective directions.
  */
-function _inTrimZone(r: any, c: any, cornerRow: any, cornerCol: any, corner: any) {
+function _inTrimZone(r: number, c: number, cornerRow: number, cornerCol: number, corner: string) {
   switch (corner) {
     case 'nw': return r >= cornerRow && c >= cornerCol;
     case 'ne': return r >= cornerRow && c < cornerCol;
@@ -568,7 +579,8 @@ function _inTrimZone(r: any, c: any, cornerRow: any, cornerCol: any, corner: any
  * to new per-cell format (trimClip, trimWall, trimPassable).
  * Also cleans up fogBoundary markers and stale trimInsideArc from earlier migrations.
  */
-function _migrateArcToPerCell(cells: any) {
+function _migrateArcToPerCell(cells: CellGrid) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
@@ -630,7 +642,7 @@ function _migrateArcToPerCell(cells: any) {
             cell.trimCorner = arc.corner;
             cell.trimClip = data.trimClip;
             cell.trimWall = data.trimWall;
-            cell.trimCrossing = data.trimCrossing;
+            cell.trimCrossing = data.trimCrossing as unknown as Record<string, string>;
             if (arc.open) cell.trimOpen = true;
             if (arc.inverted) cell.trimInverted = true;
           } else {
@@ -657,7 +669,7 @@ function _migrateArcToPerCell(cells: any) {
             cell.trimCorner = arc.corner;
             cell.trimClip = data.trimClip;
             cell.trimWall = data.trimWall;
-            cell.trimCrossing = data.trimCrossing;
+            cell.trimCrossing = data.trimCrossing as unknown as Record<string, string>;
             if (arc.open) cell.trimOpen = true;
             if (arc.inverted) cell.trimInverted = true;
             converted++;
@@ -684,7 +696,7 @@ function _migrateArcToPerCell(cells: any) {
           cell.trimCorner = arc.corner;
           cell.trimClip = data.trimClip;
           cell.trimWall = data.trimWall;
-          cell.trimCrossing = data.trimCrossing;
+          cell.trimCrossing = data.trimCrossing as unknown as Record<string, string>;
           if (arc.open) cell.trimOpen = true;
           if (arc.inverted) cell.trimInverted = true;
           converted++;
@@ -723,14 +735,14 @@ function _migrateArcToPerCell(cells: any) {
  * Repair: add trimCrossing to arc cells from intermediate code versions
  * that stored trimWall/trimClip but not trimCrossing.
  */
-function _repairMissingCrossing(cells: any) {
+function _repairMissingCrossing(cells: CellGrid) {
   let repaired = 0;
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell?.trimWall || cell.trimCrossing) continue;
       if (cell.trimClip) {
-        cell.trimCrossing = computeTrimCrossing(cell.trimClip, cell.trimWall);
+        cell.trimCrossing = computeTrimCrossing(cell.trimClip, cell.trimWall as number[][]) as unknown as Record<string, string>;
         repaired++;
       }
     }
@@ -744,8 +756,9 @@ function _repairMissingCrossing(cells: any) {
  * @param {object} json - Dungeon JSON with metadata and cells
  * @returns {object} The same json object, migrated
  */
-export function migrateToLatest(json: any): any {
-  if (!json.metadata) return json;
+export function migrateToLatest(json: MigrationJson): Record<string, unknown> {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
+  if (!json.metadata) return json as unknown as Record<string, unknown>;
   let version = json.metadata.formatVersion ?? 0;
 
   // Warn if file is from a newer version than we support
@@ -768,25 +781,21 @@ export function migrateToLatest(json: any): any {
 
   // Repair pass: convert any remaining old-format arc cells (handles pre-release v4 files
   // that had the old trimRound/trimInsideArc format before the per-cell overhaul).
-  if (json.cells) {
-    let hasOldFormat = false;
-    let hasMissingCrossing = false;
-    outer: for (let r = 0; r < json.cells.length; r++) {
-      for (let c = 0; c < (json.cells[r]?.length || 0); c++) {
-        const cell = json.cells[r]?.[c];
-        if (cell?.trimRound) { hasOldFormat = true; break outer; }
-        if (cell?.trimWall && !cell.trimCrossing) hasMissingCrossing = true;
-      }
+  let hasOldFormat = false;
+  let hasMissingCrossing = false;
+  outer: for (let r = 0; r < json.cells.length; r++) {
+    for (let c = 0; c < (json.cells[r]?.length || 0); c++) {
+      const cell = json.cells[r]?.[c];
+      if (cell?.trimRound) { hasOldFormat = true; break outer; }
+      if (cell?.trimWall && !cell.trimCrossing) hasMissingCrossing = true;
     }
-    if (hasOldFormat) _migrateArcToPerCell(json.cells);
-    // Repair: add trimCrossing/trimCorner to cells from intermediate code versions
-    if (hasMissingCrossing && !hasOldFormat) _repairMissingCrossing(json.cells);
   }
+  if (hasOldFormat) _migrateArcToPerCell(json.cells);
+  // Repair: add trimCrossing/trimCorner to cells from intermediate code versions
+  if (hasMissingCrossing && !hasOldFormat) _repairMissingCrossing(json.cells);
 
   // Stamp current version if not yet set
-  if (json.metadata.formatVersion == null) {
-    json.metadata.formatVersion = CURRENT_FORMAT_VERSION;
-  }
+  json.metadata.formatVersion ??= CURRENT_FORMAT_VERSION;
 
   return json;
 }

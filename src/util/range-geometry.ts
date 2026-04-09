@@ -103,18 +103,18 @@ export function computeCone(startRow: number, startCol: number, endRow: number, 
   const cells: CellCoord[] = [];
   const search = Math.ceil(tipDist) + 1;
 
-  for (let dr = -search; dr <= search; dr++) {
-    for (let dc = -search; dc <= search; dc++) {
-      const r = startRow + dr;
-      const c = startCol + dc;
+  for (let sr = -search; sr <= search; sr++) {
+    for (let sc = -search; sc <= search; sc++) {
+      const r = startRow + sr;
+      const c = startCol + sc;
       if (!inBounds(r, c, numRows, numCols)) continue;
-      if (dr === 0 && dc === 0) { cells.push({ row: r, col: c }); continue; } // origin
+      if (sr === 0 && sc === 0) { cells.push({ row: r, col: c }); continue; } // origin
 
       // Cell AABB shrunk by a margin so corner-grazing doesn't count
       const m = 0.1; // 10% inset from each edge
       if (triangleOverlapsAABB(
         t0x, t0y, t1x, t1y, t2x, t2y,
-        dc - 0.5 + m, dr - 0.5 + m, dc + 0.5 - m, dr + 0.5 - m
+        sc - 0.5 + m, sr - 0.5 + m, sc + 0.5 - m, sr + 0.5 - m
       )) {
         cells.push({ row: r, col: c });
       }

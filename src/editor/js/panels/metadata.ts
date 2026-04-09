@@ -1,4 +1,5 @@
 // Metadata panel: dungeon name, gridSize, theme, features
+import type { LabelStyle, Metadata, Theme } from '../../../types.js';
 import state, { pushUndo, markDirty, notify, subscribe } from '../state.js';
 import { getThemeCatalog, renderThemePreview, deleteUserTheme, renameUserTheme } from '../theme-catalog.js';
 import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
@@ -6,9 +7,8 @@ import { requestRender, invalidateMapCache } from '../canvas-view.js';
 import { invalidateLightmapCaches } from '../../../render/index.js';
 import { buildCustomEditor, syncCustomEditorValues, renderCustomThumb } from './theme-editor.js';
 
-const idle = typeof window !== 'undefined' && false // bypass requestIdleCallback — starved by animated render loop
-  ? (cb: any) => window.requestIdleCallback(cb)
-  : (cb: any) => setTimeout(cb, 0);
+// bypass requestIdleCallback — starved by animated render loop
+const idle = (cb: () => void) => setTimeout(cb, 0);
 
 /**
  * Initialize the metadata panel: dungeon name, grid size, theme, label style, and feature toggles.
@@ -50,10 +50,9 @@ export function init(): void {
     customThumbItem.appendChild(customThumbDelete);
     grid.appendChild(customThumbItem);
     customThumbItem.addEventListener('click', () => {
-      const saved = state.dungeon.metadata.customTheme;
+      const saved = state.dungeon.metadata.customTheme as string | Theme | undefined;
       if (!saved) return;
       pushUndo();
-      // @ts-expect-error — strict-mode migration
       state.dungeon.metadata.theme = saved;
       syncThemePicker();
       syncCustomEditorValues();
@@ -63,7 +62,7 @@ export function init(): void {
     customThumbDelete.addEventListener('click', (e) => {
       e.stopPropagation();
       pushUndo();
-      const isCustomActive = typeof state.dungeon.metadata.theme === 'object' && state.dungeon.metadata.theme !== null;
+      const isCustomActive = typeof state.dungeon.metadata.theme === 'object';
       state.dungeon.metadata.customTheme = null;
       if (isCustomActive) {
         state.dungeon.metadata.theme = catalog.names[0];
@@ -75,7 +74,7 @@ export function init(): void {
     });
 
     // User-saved themes — between Custom and built-ins
-    for (const uKey of catalog.userNames || []) {
+    for (const uKey of catalog.userNames) {
       const userTheme = catalog.userThemes[uKey];
       const fullKey = `user:${uKey}`;
       const item = document.createElement('div');
@@ -87,7 +86,7 @@ export function init(): void {
       thumbCanvas.height = 64;
 
       const label = document.createElement('span');
-      label.textContent = userTheme.displayName || uKey;
+      label.textContent = (userTheme.displayName as string) || uKey;
 
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'theme-thumb-delete';
@@ -108,23 +107,22 @@ export function init(): void {
       item.addEventListener('click', () => {
         pushUndo();
         const current = state.dungeon.metadata.theme;
-        if (typeof current === 'object' && current !== null) {
+        if (typeof current === 'object') {
           state.dungeon.metadata.customTheme = current;
         }
         state.dungeon.metadata.theme = fullKey;
         state.dungeon.metadata.savedThemeData = {
-          // @ts-expect-error — strict-mode migration
-          name: userTheme.displayName || uKey,
+          name: (userTheme.displayName as string) || uKey,
           theme: { ...userTheme },
         };
-        delete state.dungeon.metadata.savedThemeData!.theme.displayName;
+        delete state.dungeon.metadata.savedThemeData.theme.displayName;
         syncThemePicker();
         syncCustomEditorValues();
         markDirty();
         notify();
       });
 
-      deleteBtn.addEventListener('click', async (e) => {
+      deleteBtn.addEventListener('click', (e) => { void (async () => {
         e.stopPropagation();
         pushUndo();
         await deleteUserTheme(uKey);
@@ -138,11 +136,11 @@ export function init(): void {
         syncThemePicker();
         markDirty();
         notify();
-      });
+      })(); });
 
       renameBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const currentName = userTheme.displayName || uKey;
+        const currentName = (userTheme.displayName as string) || uKey;
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'theme-thumb-rename-input';
@@ -153,7 +151,7 @@ export function init(): void {
 
         function revert() { input.replaceWith(label); }
 
-        async function commit() {
+        async function commitAsync() {
           const newName = input.value.trim();
           if (!newName || newName === currentName) { revert(); return; }
           pushUndo();
@@ -162,9 +160,8 @@ export function init(): void {
             const isActive = state.dungeon.metadata.theme === fullKey;
             if (isActive) {
               state.dungeon.metadata.theme = `user:${newKey}`;
-              // @ts-expect-error — strict-mode migration
               state.dungeon.metadata.savedThemeData = { name: newName, theme: { ...userTheme } };
-              delete state.dungeon.metadata.savedThemeData!.theme.displayName;
+              delete state.dungeon.metadata.savedThemeData.theme.displayName;
             }
             buildThemePicker();
             syncThemePicker();
@@ -174,6 +171,7 @@ export function init(): void {
             input.style.borderColor = '#a02030';
           }
         }
+        function commit() { void commitAsync(); }
 
         input.addEventListener('blur', commit);
         input.addEventListener('keydown', (ev) => {
@@ -204,7 +202,7 @@ export function init(): void {
       thumbCanvas.height = 64;
 
       const label = document.createElement('span');
-      label.textContent = catalog.themes[key].displayName || key;
+      label.textContent = (catalog.themes[key].displayName as string) || key;
 
       item.appendChild(thumbCanvas);
       item.appendChild(label);
@@ -214,7 +212,7 @@ export function init(): void {
         pushUndo();
         // Save the current custom theme before switching to a preset
         const current = state.dungeon.metadata.theme;
-        if (typeof current === 'object' && current !== null) {
+        if (typeof current === 'object') {
           state.dungeon.metadata.customTheme = current;
         }
         state.dungeon.metadata.theme = key;
@@ -246,7 +244,7 @@ export function init(): void {
     if (!grid) return;
     const current = state.dungeon.metadata.theme;
     const savedCustom = state.dungeon.metadata.customTheme;
-    const isCustom = typeof current === 'object' && current !== null;
+    const isCustom = typeof current === 'object';
 
     // Preset thumbs
     grid.querySelectorAll('.theme-thumb:not(#theme-thumb-custom)').forEach(item => {
@@ -270,13 +268,14 @@ export function init(): void {
 
   // ── Sync UI ──────────────────────────────────────────────────────────────
 
-  let _lastMeta: any = null;
-  let _lastUnsaved: any = null;
-  let _lastTheme: any = null;
+  let _lastMeta: Metadata | null = null;
+  let _lastUnsaved: boolean = false;
+  let _lastTheme: string | Theme | null = null;
   function syncUI() {
     // Only sync title on unsaved-flag or name change (cheap check every notify)
     const name = state.dungeon.metadata.dungeonName || 'Untitled';
-    if (state.unsavedChanges !== _lastUnsaved || name !== _lastMeta?.dungeonName) {
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing -- empty string should also fall back to 'Untitled'
+    if (state.unsavedChanges !== _lastUnsaved || name !== (_lastMeta?.dungeonName || 'Untitled')) {
       const mapTitleEl = document.getElementById('map-title');
       if (mapTitleEl) mapTitleEl.textContent = state.unsavedChanges ? `${name} *` : name;
       _lastUnsaved = state.unsavedChanges;
@@ -294,29 +293,37 @@ export function init(): void {
 
     if (nameInput) (nameInput as HTMLInputElement).value = state.dungeon.metadata.dungeonName || '';
     const res = state.dungeon.metadata.resolution || 1;
-    (gridSizeSelect! as any).value = (state.dungeon.metadata.gridSize || 5) * res;
+    if (gridSizeSelect) (gridSizeSelect as HTMLSelectElement).value = String((state.dungeon.metadata.gridSize || 5) * res);
 
     syncThemePicker();
     syncCustomEditorValues();
 
-    (labelStyleSelect! as any).value = state.dungeon.metadata.labelStyle || 'circled';
+    if (labelStyleSelect) (labelStyleSelect as HTMLSelectElement).value = state.dungeon.metadata.labelStyle;
 
-    const features = state.dungeon.metadata.features || {};
-    (document.getElementById('feat-grid') as HTMLInputElement).checked = features.showGrid !== false;
-    (document.getElementById('feat-compass') as HTMLInputElement).checked = features.compassRose !== false;
-    (document.getElementById('feat-scale') as HTMLInputElement).checked = features.scale !== false;
-    (document.getElementById('feat-border') as HTMLInputElement).checked = features.border !== false;
+    const features = state.dungeon.metadata.features;
+    const elGrid = document.getElementById('feat-grid') as HTMLInputElement | null;
+    if (elGrid) elGrid.checked = features.showGrid;
+    const elCompass = document.getElementById('feat-compass') as HTMLInputElement | null;
+    if (elCompass) elCompass.checked = features.compassRose;
+    const elScale = document.getElementById('feat-scale') as HTMLInputElement | null;
+    if (elScale) elScale.checked = features.scale;
+    const elBorder = document.getElementById('feat-border') as HTMLInputElement | null;
+    if (elBorder) elBorder.checked = features.border;
     const editorSettings = getEditorSettings();
-    (document.getElementById('feat-fps') as HTMLInputElement).checked = editorSettings.fpsCounter === true;
-    (document.getElementById('feat-minimap') as HTMLInputElement).checked = editorSettings.minimap === true;
-    (document.getElementById('feat-claude') as HTMLInputElement).checked = editorSettings.claude === true;
-    (document.getElementById('feat-debug') as HTMLInputElement).checked = editorSettings.debug === true;
+    const elFps = document.getElementById('feat-fps') as HTMLInputElement | null;
+    if (elFps) elFps.checked = editorSettings.fpsCounter === true;
+    const elMinimap = document.getElementById('feat-minimap') as HTMLInputElement | null;
+    if (elMinimap) elMinimap.checked = editorSettings.minimap === true;
+    const elClaude = document.getElementById('feat-claude') as HTMLInputElement | null;
+    if (elClaude) elClaude.checked = editorSettings.claude === true;
+    const elDebug = document.getElementById('feat-debug') as HTMLInputElement | null;
+    if (elDebug) elDebug.checked = editorSettings.debug === true;
     const debugBtn = document.querySelector('.right-icon-btn[data-right-panel="debug"]');
     if (debugBtn) (debugBtn as HTMLElement).style.display = editorSettings.debug ? '' : 'none';
     const rqSelect = document.getElementById('setting-render-quality');
-    if (rqSelect) (rqSelect as HTMLInputElement).value = String(editorSettings.renderQuality || 20);
+    if (rqSelect) (rqSelect as HTMLInputElement).value = String(editorSettings.renderQuality ?? 20);
     const lqSelect = document.getElementById('setting-light-quality');
-    if (lqSelect) (lqSelect as HTMLInputElement).value = String(editorSettings.lightQuality || 10);
+    if (lqSelect) (lqSelect as HTMLInputElement).value = String(editorSettings.lightQuality ?? 10);
   }
   syncUI();
   subscribe(syncUI, 'metadata');
@@ -330,13 +337,13 @@ export function init(): void {
   // Build theme picker and custom editor after syncUI
   buildThemePicker();
   syncThemePicker();
-  buildCustomEditor(customEditor);
+  if (customEditor) buildCustomEditor(customEditor);
 
   // On load: if theme is already a custom object, seed customTheme and render the thumb
   {
     const t = state.dungeon.metadata.theme;
-    if (typeof t === 'object' && t !== null) {
-      if (!state.dungeon.metadata.customTheme) state.dungeon.metadata.customTheme = t;
+    if (typeof t === 'object') {
+      state.dungeon.metadata.customTheme ??= t;
       syncThemePicker();
       renderCustomThumb();
     } else if (state.dungeon.metadata.customTheme) {
@@ -348,10 +355,12 @@ export function init(): void {
 
   // Customize section: collapsible, collapsed by default
   const themePanel = document.getElementById('panel-themes');
-  const sectionDivider = themePanel?.querySelector('.theme-section-divider');
-  sectionDivider?.addEventListener('click', () => {
-    themePanel!.classList.toggle('customize-open');
-  });
+  if (themePanel) {
+    const sectionDivider = themePanel.querySelector('.theme-section-divider');
+    sectionDivider?.addEventListener('click', () => {
+      themePanel.classList.toggle('customize-open');
+    });
+  }
 
   // ── Menubar title: click to rename ───────────────────────────────────────
 
@@ -374,8 +383,7 @@ export function init(): void {
         if (nameInput) (nameInput as HTMLInputElement).value = newName;
         markDirty();
         notify();
-        // @ts-expect-error — strict-mode migration
-        input.replaceWith(mapTitleEl);
+        input.replaceWith(mapTitleEl!);
       }
 
       input.addEventListener('blur', commit);
@@ -400,23 +408,22 @@ export function init(): void {
     });
   }
 
-  gridSizeSelect!.addEventListener('change', () => {
+  gridSizeSelect?.addEventListener('change', () => {
     pushUndo();
     const res = state.dungeon.metadata.resolution || 1;
-    state.dungeon.metadata.gridSize = parseInt((gridSizeSelect! as any).value) / res;
+    state.dungeon.metadata.gridSize = parseInt((gridSizeSelect as HTMLSelectElement).value) / res;
     markDirty();
     notify();
   });
 
-  labelStyleSelect!.addEventListener('change', () => {
+  labelStyleSelect?.addEventListener('change', () => {
     pushUndo();
-    state.dungeon.metadata.labelStyle = (labelStyleSelect! as any).value;
+    state.dungeon.metadata.labelStyle = (labelStyleSelect as HTMLSelectElement).value as LabelStyle;
     markDirty();
     notify();
   });
 
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-resize').addEventListener('click', () => {
+  document.getElementById('btn-resize')?.addEventListener('click', () => {
     const cells = state.dungeon.cells;
     const oldRows = cells.length;
     const oldCols = cells[0]?.length || 0;
@@ -426,15 +433,13 @@ export function init(): void {
     const colInput = document.getElementById('modal-resize-cols');
     const cancelBtn = document.getElementById('modal-resize-canvas-cancel');
     const okBtn = document.getElementById('modal-resize-canvas-ok');
-    if (!modal || !rowInput || !colInput) return;
+    if (!modal || !rowInput || !colInput || !cancelBtn || !okBtn) return;
 
-    // @ts-expect-error — strict-mode migration
-    (rowInput as HTMLInputElement).value = oldRows;
-    // @ts-expect-error — strict-mode migration
-    (colInput as HTMLInputElement).value = oldCols;
+    (rowInput as HTMLInputElement).value = String(oldRows);
+    (colInput as HTMLInputElement).value = String(oldCols);
     (modal as HTMLDialogElement).showModal();
     rowInput.focus();
-    ((rowInput as HTMLElement) as any).select();
+    (rowInput as HTMLInputElement).select();
 
     function cleanup() {
       (modal as HTMLDialogElement).close();
@@ -446,8 +451,8 @@ export function init(): void {
     function onCancel() { cleanup(); }
 
     function onOk() {
-      const newRows = Math.max(1, parseInt((rowInput! as any).value) || oldRows);
-      const newCols = Math.max(1, parseInt((colInput! as any).value) || oldCols);
+      const newRows = Math.max(1, parseInt((rowInput as HTMLInputElement).value) || oldRows);
+      const newCols = Math.max(1, parseInt((colInput as HTMLInputElement).value) || oldCols);
       cleanup();
       if (newRows === oldRows && newCols === oldCols) return;
 
@@ -470,16 +475,16 @@ export function init(): void {
       }
 
       const levels = state.dungeon.metadata.levels;
-      if (levels && levels.length === 1) levels[0].numRows = newRows;
+      if (levels.length === 1) levels[0].numRows = newRows;
 
       markDirty();
       notify();
     }
 
-    function onOverlay(e: any) { if (e.target === modal) cleanup(); }
+    function onOverlay(e: MouseEvent) { if (e.target === modal) cleanup(); }
 
-    cancelBtn!.addEventListener('click', onCancel);
-    okBtn!.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    okBtn.addEventListener('click', onOk);
     modal.addEventListener('click', onOverlay);
   });
 
@@ -490,13 +495,9 @@ export function init(): void {
     ['feat-scale', 'scale'],
     ['feat-border', 'border'],
   ]) {
-    // @ts-expect-error — strict-mode migration
-    document!.getElementById(id).addEventListener('change', (e) => {
+    document.getElementById(id)?.addEventListener('change', (e) => {
       pushUndo();
-      // @ts-expect-error — strict-mode migration
-      if (!state.dungeon.metadata.features) state.dungeon.metadata.features = {};
-      // @ts-expect-error — strict-mode migration
-      state.dungeon.metadata.features[key] = (e.target! as any).checked;
+      (state.dungeon.metadata.features as unknown as Record<string, boolean>)[key] = ((e.target ?? e.currentTarget) as HTMLInputElement).checked;
       markDirty();
       notify();
     });
@@ -507,9 +508,8 @@ export function init(): void {
     ['feat-fps', 'fpsCounter'],
     ['feat-minimap', 'minimap'],
   ]) {
-    // @ts-expect-error — strict-mode migration
-    document!.getElementById(id).addEventListener('change', (e) => {
-      setEditorSetting(key, (e.target! as any).checked);
+    document.getElementById(id)?.addEventListener('change', (e) => {
+      setEditorSetting(key, ((e.target ?? e.currentTarget) as HTMLInputElement).checked);
       requestRender();
     });
   }
@@ -535,25 +535,23 @@ export function init(): void {
   }
 
   // Debug panel toggle — show/hide the debug icon button in the right sidebar
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('feat-debug').addEventListener('change', (e) => {
-    setEditorSetting('debug', (e.target! as any).checked);
-    const debugBtn = document.querySelector('.right-icon-btn[data-right-panel="debug"]');
-    if (debugBtn) (debugBtn as HTMLElement).style.display = (e.target! as any).checked ? '' : 'none';
+  document.getElementById('feat-debug')?.addEventListener('change', (e) => {
+    setEditorSetting('debug', ((e.target ?? e.currentTarget) as HTMLInputElement).checked);
+    const debugBtn = document.querySelector<HTMLElement>('.right-icon-btn[data-right-panel="debug"]');
+    if (debugBtn) debugBtn.style.display = ((e.target ?? e.currentTarget) as HTMLInputElement).checked ? '' : 'none';
   });
 
   // Claude AI toggle — requires reload to add/remove UI elements
   // When enabling, show a warning modal first; disabling proceeds immediately.
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('feat-claude').addEventListener('change', (e) => {
-    if ((!e.target! as any).checked) {
+  document.getElementById('feat-claude')?.addEventListener('change', (e) => {
+    if (!(e.target as HTMLInputElement).checked) {
       setEditorSetting('claude', false);
       location.reload();
       return;
     }
 
     // Revert checkbox — only commit if the user confirms in the modal
-    (e.target! as any).checked = false;
+    ((e.target ?? e.currentTarget) as HTMLInputElement).checked = false;
 
     const modal = document.getElementById('modal-claude-agent-warning');
     if (!modal) return;
@@ -569,20 +567,16 @@ export function init(): void {
       setEditorSetting('claude', true);
       location.reload();
     };
-    const onOverlay = (ev: any) => { if (ev.target === modal) onCancel(); };
+    const onOverlay = (ev: MouseEvent) => { if (ev.target === modal) onCancel(); };
 
     function cleanup() {
-      // @ts-expect-error — strict-mode migration
-      document!.getElementById('modal-claude-warning-cancel').removeEventListener('click', onCancel);
-      // @ts-expect-error — strict-mode migration
-      document!.getElementById('modal-claude-warning-enable').removeEventListener('click', onEnable);
+      document.getElementById('modal-claude-warning-cancel')?.removeEventListener('click', onCancel);
+      document.getElementById('modal-claude-warning-enable')?.removeEventListener('click', onEnable);
       modal!.removeEventListener('click', onOverlay);
     }
 
-    // @ts-expect-error — strict-mode migration
-    document!.getElementById('modal-claude-warning-cancel').addEventListener('click', onCancel);
-    // @ts-expect-error — strict-mode migration
-    document!.getElementById('modal-claude-warning-enable').addEventListener('click', onEnable);
+    document.getElementById('modal-claude-warning-cancel')?.addEventListener('click', onCancel);
+    document.getElementById('modal-claude-warning-enable')?.addEventListener('click', onEnable);
     modal.addEventListener('click', onOverlay);
   });
 }

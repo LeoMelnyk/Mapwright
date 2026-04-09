@@ -12,9 +12,9 @@ const DEFAULTS = {
   debug: false,       // show debug panel in right sidebar
 };
 
-let _cache: any = null;
+let _cache: Record<string, unknown> | null = null;
 
-function load() {
+function load(): Record<string, unknown> {
   if (_cache) return _cache;
   try {
     const raw = localStorage.getItem(EDITOR_SETTINGS_KEY);
@@ -22,7 +22,7 @@ function load() {
   } catch {
     _cache = { ...DEFAULTS };
   }
-  return _cache;
+  return _cache!;
 }
 
 function save() {

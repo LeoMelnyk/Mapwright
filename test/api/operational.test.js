@@ -455,9 +455,10 @@ describe('listRooms', () => {
 // ── listRoomCells ───────────────────────────────────────────────────────────
 
 describe('listRoomCells', () => {
-  it('throws for nonexistent room', () => {
-    // _collectRoomCells returns null for nonexistent rooms, causing a TypeError
-    expect(() => listRoomCells('ZZZ')).toThrow();
+  it('returns error for nonexistent room', () => {
+    const result = listRoomCells('ZZZ');
+    expect(result.success).toBe(false);
+    expect(result.error).toBeTruthy();
   });
 
   it('returns sorted cell coordinates for a room', () => {
@@ -510,9 +511,10 @@ describe('getValidPropPositions', () => {
     expect(() => getValidPropPositions('P4', 'pillar', 45)).toThrow('Invalid facing');
   });
 
-  it('throws for nonexistent room', () => {
-    // _collectRoomCells returns null for nonexistent rooms, causing a TypeError
-    expect(() => getValidPropPositions('ZZZ', 'pillar')).toThrow();
+  it('returns error for nonexistent room', () => {
+    const result = getValidPropPositions('ZZZ', 'pillar');
+    expect(result.success).toBe(false);
+    expect(result.error).toBeTruthy();
   });
 });
 

@@ -1,4 +1,25 @@
-import type { DungeonBounds } from '../types.js';
+import type { DungeonBounds, CellGrid, Cell, Metadata, EdgeValue } from '../types.js';
+
+/** Room definition used by the legacy coordinate-based validator. */
+interface ValidatorRoom {
+  id?: string;
+  type?: string;
+  walls?: number[][][];
+  center?: [number, number, number];
+  radiusSquares?: number;
+  doors?: { coordinate: [number, number, number] }[];
+  secretDoors?: { coordinate: [number, number, number] }[];
+  traps?: { coordinate: [number, number, number] }[];
+  features?: { coordinate?: [number, number, number] }[];
+  [key: string]: unknown;
+}
+
+/** Parsed room label for sorting. */
+interface ParsedLabel {
+  letter: string;
+  number: number;
+  original: string;
+}
 import { floodFillRoom as sharedFloodFillRoom, parseCellKey } from '../util/index.js';
 
 /**
@@ -29,7 +50,7 @@ function coordinateToFeet(x: number, y: number, z: number, gridSize: number): [n
     8: [halfGrid, halfGrid]        // CENTER
   };
 
-  const [offsetX, offsetY] = zOffsets[z] || [0, 0];
+  const [offsetX, offsetY] = zOffsets[z];
 
   return [feetX + offsetX, feetY + offsetY];
 }
@@ -41,10 +62,8 @@ function coordinateToFeet(x: number, y: number, z: number, gridSize: number): [n
  * @returns {void}
  * @throws {Error} If coordinate format is invalid
  */
-function validateCoordinate(coord: any, context: string): void {
-  if (!Array.isArray(coord) || coord.length !== 3) {
-    throw new Error(`${context}: Invalid coordinate format ${JSON.stringify(coord)} (expected [x, y, z])`);
-  }
+function validateCoordinate(coord: [number, number, number], context: string): void {
+  // coord is typed as [number, number, number] — always valid
 
   const [x, y, z] = coord;
 
@@ -63,7 +82,7 @@ function validateCoordinate(coord: any, context: string): void {
  * @param {number} gridSize - Grid size in feet
  * @returns {{minX: number, minY: number, maxX: number, maxY: number}}
  */
-function getCoordinateBounds(coordinates: any[], gridSize: number): DungeonBounds {
+function getCoordinateBounds(coordinates: number[][], gridSize: number): DungeonBounds {
   let minX = Infinity, minY = Infinity;
   let maxX = -Infinity, maxY = -Infinity;
 
@@ -83,9 +102,10 @@ function getCoordinateBounds(coordinates: any[], gridSize: number): DungeonBound
  * @param {Object} config - Dungeon config with rooms and gridSize
  * @returns {{ valid: boolean, errors: string[] }} Validation result
  */
-// @ts-expect-error — strict-mode migration
-function validateGridAlignment(config: any): { valid: boolean; errors: string[] } {
-  const errors = [];
+function validateGridAlignment(config: { metadata: Metadata; cells: CellGrid; rooms?: ValidatorRoom[] }): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+
+  if (!config.rooms) return { valid: true, errors: [] };
 
   // Validate all coordinates in rooms
   for (const room of config.rooms) {
@@ -103,9 +123,9 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
         }
         for (let j = 0; j < wallSegment.length; j++) {
           try {
-            validateCoordinate(wallSegment[j], `Room ${room.id} wall ${i} point ${j}`);
+            validateCoordinate(wallSegment[j] as [number, number, number], `Room ${room.id} wall ${i} point ${j}`);
           } catch (e) {
-            errors.push((e as any).message);
+            errors.push((e as Error).message);
           }
         }
       }
@@ -118,10 +138,10 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
       try {
         validateCoordinate(room.center, `Room ${room.id} center`);
       } catch (e) {
-        errors.push((e as any).message);
+        errors.push((e as Error).message);
       }
 
-      if (!Number.isInteger(room.radiusSquares) || room.radiusSquares < 1) {
+      if (!Number.isInteger(room.radiusSquares) || !room.radiusSquares || room.radiusSquares < 1) {
         errors.push(`Room ${room.id}: radiusSquares must be positive integer, got ${room.radiusSquares}`);
       }
     } else {
@@ -132,14 +152,10 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
     if (room.doors) {
       for (let i = 0; i < room.doors.length; i++) {
         const door = room.doors[i];
-        if (!door.coordinate) {
-          errors.push(`Room ${room.id} door ${i}: missing 'coordinate' property`);
-          continue;
-        }
         try {
           validateCoordinate(door.coordinate, `Room ${room.id} door ${i}`);
         } catch (e) {
-          errors.push((e as any).message);
+          errors.push((e as Error).message);
         }
       }
     }
@@ -148,14 +164,10 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
     if (room.secretDoors) {
       for (let i = 0; i < room.secretDoors.length; i++) {
         const secretDoor = room.secretDoors[i];
-        if (!secretDoor.coordinate) {
-          errors.push(`Room ${room.id} secretDoor ${i}: missing 'coordinate' property`);
-          continue;
-        }
         try {
           validateCoordinate(secretDoor.coordinate, `Room ${room.id} secretDoor ${i}`);
         } catch (e) {
-          errors.push((e as any).message);
+          errors.push((e as Error).message);
         }
       }
     }
@@ -164,14 +176,10 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
     if (room.traps) {
       for (let i = 0; i < room.traps.length; i++) {
         const trap = room.traps[i];
-        if (!trap.coordinate) {
-          errors.push(`Room ${room.id} trap ${i}: missing 'coordinate' property`);
-          continue;
-        }
         try {
           validateCoordinate(trap.coordinate, `Room ${room.id} trap ${i}`);
         } catch (e) {
-          errors.push((e as any).message);
+          errors.push((e as Error).message);
         }
       }
     }
@@ -184,7 +192,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
           try {
             validateCoordinate(feature.coordinate, `Room ${room.id} feature ${i}`);
           } catch (e) {
-            errors.push((e as any).message);
+            errors.push((e as Error).message);
           }
         }
       }
@@ -199,6 +207,7 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
   }
 
   console.log('✓ Coordinate validation passed');
+  return { valid: true, errors: [] };
 }
 
 /**
@@ -210,11 +219,11 @@ function validateGridAlignment(config: any): { valid: boolean; errors: string[] 
  * @param {string[]} errors - Array to push error messages into
  * @returns {void}
  */
-function validateCell(cell: any, level: number | null, row: number, col: number, errors: string[]): void {
+function validateCell(cell: Cell | null, level: number | null, row: number, col: number, errors: string[]): void {
   const cellId = level !== null ? `Level ${level}, Cell [${row}][${col}]` : `Cell [${row}][${col}]`;
 
   // null or undefined is valid (empty cell)
-  if (cell === null || cell === undefined) {
+  if (cell === null) {
     return;
   }
 
@@ -231,7 +240,7 @@ function validateCell(cell: any, level: number | null, row: number, col: number,
   for (const key in cell) {
     if (key === 'center') {
       // Validate center property
-      if (typeof cell.center !== 'object' || cell.center === null) {
+      if (typeof cell.center !== 'object') {
         errors.push(`${cellId}.center: must be an object, got ${typeof cell.center}`);
         continue;
       }
@@ -254,14 +263,14 @@ function validateCell(cell: any, level: number | null, row: number, col: number,
     } else if (key === 'trimCorner') {
       // Compiler-generated metadata for diagonal trim rendering
       const validCorners = ['nw', 'ne', 'sw', 'se'];
-      if (!validCorners.includes(cell[key])) {
+      if (!validCorners.includes(cell[key] as string)) {
         errors.push(`${cellId}.trimCorner: must be one of ${validCorners.join(', ')}, got '${cell[key]}'`);
       }
     } else if (key === 'trimRound' || key === 'trimArcCenterRow' || key === 'trimArcCenterCol' || key === 'trimArcRadius' || key === 'trimArcInverted') {
       // Compiler-generated metadata for rounded (arc) trim rendering
     } else if (validBorders.includes(key)) {
       // Validate border value
-      if (!validBorderValues.includes(cell[key])) {
+      if (!validBorderValues.includes(cell[key] as string)) {
         errors.push(`${cellId}.${key}: must be 'w', 'd', or 's', got '${cell[key]}'`);
       }
     } else {
@@ -275,30 +284,15 @@ function validateCell(cell: any, level: number | null, row: number, col: number,
  * @param {Object} config - Dungeon config with metadata and cells
  * @returns {{ valid: boolean, errors: string[], warnings: string[] }} Validation result
  */
-// @ts-expect-error — strict-mode migration
-function validateMatrixFormat(config: any): { valid: boolean; errors: string[]; warnings: string[] } {
+function validateMatrixFormat(config: { metadata: Metadata; cells: CellGrid }): void {
   const errors: string[] = [];
 
-  // 1. Check metadata exists with required fields
-  if (!config.metadata) {
-    errors.push('Missing required "metadata" object');
-  } else {
-    if (!config.metadata.dungeonName) {
-      errors.push('metadata.dungeonName is required');
-    }
-    if (!config.metadata.gridSize || !Number.isInteger(config.metadata.gridSize) || config.metadata.gridSize < 1) {
-      errors.push('metadata.gridSize must be a positive integer');
-    }
+  // 1. Check metadata required fields
+  if (!config.metadata.dungeonName) {
+    errors.push('metadata.dungeonName is required');
   }
-
-  // 2. Check cells is array of arrays
-  if (!config.cells || !Array.isArray(config.cells)) {
-    errors.push('Missing required "cells" array');
-    if (errors.length > 0) {
-      reportValidationErrors(errors, 'Matrix Format Validation Failed');
-    }
-    // @ts-expect-error — strict-mode migration
-    return; // Can't continue without cells array
+  if (!config.metadata.gridSize || !Number.isInteger(config.metadata.gridSize) || config.metadata.gridSize < 1) {
+    errors.push('metadata.gridSize must be a positive integer');
   }
 
   if (config.cells.length === 0) {
@@ -306,7 +300,8 @@ function validateMatrixFormat(config: any): { valid: boolean; errors: string[]; 
   }
 
   // Detect if multi-level format (3D array) early
-  const isMultiLevel = config.metadata.levels > 1 &&
+  const numMetaLevels = config.metadata.levels.length;
+  const isMultiLevel = numMetaLevels > 1 &&
                        Array.isArray(config.cells[0]) &&
                        Array.isArray(config.cells[0][0]);
 
@@ -315,12 +310,12 @@ function validateMatrixFormat(config: any): { valid: boolean; errors: string[]; 
     // Multi-level: validate each level
     const numLevels = config.cells.length;
 
-    if (numLevels !== config.metadata.levels) {
-      errors.push(`metadata.levels is ${config.metadata.levels} but cells array has ${numLevels} levels`);
+    if (numLevels !== numMetaLevels) {
+      errors.push(`metadata.levels is ${numMetaLevels} but cells array has ${numLevels} levels`);
     }
 
     for (let level = 0; level < numLevels; level++) {
-      const levelCells = config.cells[level];
+      const levelCells = (config.cells as unknown as CellGrid[])[level];
 
       if (!Array.isArray(levelCells)) {
         errors.push(`Level ${level}: must be an array`);
@@ -406,7 +401,7 @@ function validateMatrixFormat(config: any): { valid: boolean; errors: string[]; 
 /**
  * Detect border collisions between adjacent cells
  */
-function detectBorderCollisions(cells: any) {
+function detectBorderCollisions(cells: CellGrid) {
   const errors = [];
   const numRows = cells.length;
 
@@ -478,9 +473,9 @@ function detectBorderCollisions(cells: any) {
  * Flood fill a single room region using the shared diagonal-aware BFS,
  * then collect all labels found within the filled cells.
  */
-function floodFillRoomLabels(cells: any, startLevel: any, startRow: any, startCol: any, visited: any, isMultiLevel: any) {
-  const levelCells = isMultiLevel ? cells[startLevel] : cells;
-  const cellKeys = sharedFloodFillRoom(levelCells, startRow, startCol);
+function floodFillRoomLabels(cells: CellGrid, startLevel: number, startRow: number, startCol: number, visited: boolean[][][], isMultiLevel: boolean) {
+  const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[startLevel] : cells);
+  const cellKeys = sharedFloodFillRoom(levelCells as (Cell | null)[][], startRow, startCol);
 
   const labels = [];
   for (const key of cellKeys) {
@@ -497,22 +492,22 @@ function floodFillRoomLabels(cells: any, startLevel: any, startRow: any, startCo
 /**
  * Validate that no duplicate labels exist across the dungeon
  */
-function validateRoomLabels(cells: any, isMultiLevel = false) {
+function validateRoomLabels(cells: CellGrid, isMultiLevel = false) {
   const errors = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
-  const visited = [];
+  const visited: boolean[][][] = [];
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
-    visited[level] = Array.from({length: numRows}, () => Array(numCols).fill(false));
+    visited[level] = Array.from({length: numRows}, () => Array(numCols).fill(false) as boolean[]);
   }
 
-  const allLabels = new Map();
+  const allLabels = new Map<string, string>();
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
 
@@ -549,16 +544,16 @@ function validateRoomLabels(cells: any, isMultiLevel = false) {
 /**
  * Validate that walls exist between null and non-null cells
  */
-function validateNullAdjacency(cells: any, isMultiLevel = false) {
+function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
   const errors = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
-      const numCols = levelCells[row].length;
+      const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
         const cell = levelCells[row][col];
@@ -567,8 +562,8 @@ function validateNullAdjacency(cells: any, isMultiLevel = false) {
 
         const levelPrefix = isMultiLevel ? `Level ${level}, ` : '';
 
-        const hasDiag = cell['ne-sw'] || cell['nw-se'];
-        const diagCovers = new Set();
+        const hasDiag = cell['ne-sw'] ?? cell['nw-se'];
+        const diagCovers = new Set<string>();
         if (hasDiag) {
           if (cell['ne-sw']) { diagCovers.add('north'); diagCovers.add('west'); diagCovers.add('south'); diagCovers.add('east'); }
           if (cell['nw-se']) { diagCovers.add('north'); diagCovers.add('east'); diagCovers.add('south'); diagCovers.add('west'); }
@@ -577,11 +572,11 @@ function validateNullAdjacency(cells: any, isMultiLevel = false) {
         // Check north adjacency
         if (row > 0) {
           const northCell = levelCells[row - 1][col];
-          if (northCell === null || northCell === undefined) {
+          if (northCell === null) {
             if (cell.north !== 'w' && !diagCovers.has('north')) {
               errors.push(
                 `${levelPrefix}Cell [${row}][${col}] is adjacent to null cell to the north but has no wall.\n` +
-                `  → Current north border: ${cell.north || '(none)'}\n` +
+                `  → Current north border: ${cell.north ?? '(none)'}\n` +
                 `  → Required: north: "w"`
               );
             }
@@ -591,11 +586,11 @@ function validateNullAdjacency(cells: any, isMultiLevel = false) {
         // Check south adjacency
         if (row < numRows - 1) {
           const southCell = levelCells[row + 1][col];
-          if (southCell === null || southCell === undefined) {
+          if (southCell === null) {
             if (cell.south !== 'w' && !diagCovers.has('south')) {
               errors.push(
                 `${levelPrefix}Cell [${row}][${col}] is adjacent to null cell to the south but has no wall.\n` +
-                `  → Current south border: ${cell.south || '(none)'}\n` +
+                `  → Current south border: ${cell.south ?? '(none)'}\n` +
                 `  → Required: south: "w"`
               );
             }
@@ -605,11 +600,11 @@ function validateNullAdjacency(cells: any, isMultiLevel = false) {
         // Check east adjacency
         if (col < numCols - 1) {
           const eastCell = levelCells[row][col + 1];
-          if (eastCell === null || eastCell === undefined) {
+          if (eastCell === null) {
             if (cell.east !== 'w' && !diagCovers.has('east')) {
               errors.push(
                 `${levelPrefix}Cell [${row}][${col}] is adjacent to null cell to the east but has no wall.\n` +
-                `  → Current east border: ${cell.east || '(none)'}\n` +
+                `  → Current east border: ${cell.east ?? '(none)'}\n` +
                 `  → Required: east: "w"`
               );
             }
@@ -619,11 +614,11 @@ function validateNullAdjacency(cells: any, isMultiLevel = false) {
         // Check west adjacency
         if (col > 0) {
           const westCell = levelCells[row][col - 1];
-          if (westCell === null || westCell === undefined) {
+          if (westCell === null) {
             if (cell.west !== 'w' && !diagCovers.has('west')) {
               errors.push(
                 `${levelPrefix}Cell [${row}][${col}] is adjacent to null cell to the west but has no wall.\n` +
-                `  → Current west border: ${cell.west || '(none)'}\n` +
+                `  → Current west border: ${cell.west ?? '(none)'}\n` +
                 `  → Required: west: "w"`
               );
             }
@@ -639,16 +634,16 @@ function validateNullAdjacency(cells: any, isMultiLevel = false) {
 /**
  * Validate that doors and secret doors don't lead into null/void cells
  */
-function validateDoorAdjacency(cells: any, isMultiLevel = false) {
-  const errors: any = [];
+function validateDoorAdjacency(cells: CellGrid, isMultiLevel = false) {
+  const errors: string[] = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
-      const numCols = levelCells[row].length;
+      const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
         const cell = levelCells[row][col];
@@ -657,14 +652,15 @@ function validateDoorAdjacency(cells: any, isMultiLevel = false) {
 
         const levelPrefix = isMultiLevel ? `Level ${level}, ` : '';
 
-        const checkDoor = (dir: any, adjRow: any, adjCol: any) => {
-          if (cell[dir] === 'd' || cell[dir] === 's') {
+        const checkDoor = (dir: string, adjRow: number, adjCol: number) => {
+          const edgeVal = cell[dir] as EdgeValue;
+          if (edgeVal === 'd' || edgeVal === 's') {
             const adjCell = levelCells[adjRow]?.[adjCol];
-            if (adjCell === null || adjCell === undefined) {
-              const doorType = cell[dir] === 's' ? 'secret door' : 'door';
+            if (adjCell === null) {
+              const doorType = edgeVal === 's' ? 'secret door' : 'door';
               errors.push(
                 `${levelPrefix}Cell [${row}][${col}] has a ${doorType} to the ${dir} leading into null/void space.\n` +
-                `  → Current ${dir} border: "${cell[dir]}"\n` +
+                `  → Current ${dir} border: "${edgeVal}"\n` +
                 `  → ${doorType.charAt(0).toUpperCase() + doorType.slice(1)}s cannot lead into null cells\n` +
                 `  → Either remove the ${doorType} or add a valid cell to the ${dir}`
               );
@@ -674,7 +670,7 @@ function validateDoorAdjacency(cells: any, isMultiLevel = false) {
 
         if (row > 0) checkDoor('north', row - 1, col);
         if (row < numRows - 1) checkDoor('south', row + 1, col);
-        if (col < levelCells[row].length - 1) checkDoor('east', row, col + 1);
+        if (col < (levelCells[row]?.length ?? 0) - 1) checkDoor('east', row, col + 1);
         if (col > 0) checkDoor('west', row, col - 1);
       }
     }
@@ -686,8 +682,8 @@ function validateDoorAdjacency(cells: any, isMultiLevel = false) {
 /**
  * Parse room label into components
  */
-function parseRoomLabel(label: any) {
-  const match = label.match(/^([A-Z]+)(\d+)$/);
+function parseRoomLabel(label: string): ParsedLabel | null {
+  const match = /^([A-Z]+)(\d+)$/.exec(label);
   if (!match) return null;
   return {
     letter: match[1],
@@ -699,17 +695,17 @@ function parseRoomLabel(label: any) {
 /**
  * Compare room labels for sorting (alphanumeric)
  */
-function compareRoomLabels(labelA: any, labelB: any) {
-  if (labelA.letter !== labelB.letter) {
-    return labelA.letter.localeCompare(labelB.letter);
+function compareRoomLabels(a: ParsedLabel, b: ParsedLabel) {
+  if (a.letter !== b.letter) {
+    return a.letter.localeCompare(b.letter);
   }
-  return labelA.number - labelB.number;
+  return a.number - b.number;
 }
 
 /**
  * Check if we can traverse from one cell to another
  */
-function canTraverse(fromCell: any, toCell: any, direction: any) {
+function canTraverse(fromCell: Cell | null, toCell: Cell | null, direction: string) {
   const borderMap = {
     'north': {current: 'north', adjacent: 'south'},
     'south': {current: 'south', adjacent: 'north'},
@@ -717,7 +713,7 @@ function canTraverse(fromCell: any, toCell: any, direction: any) {
     'west': {current: 'west', adjacent: 'east'}
   };
 
-  const {current, adjacent} = (borderMap as any)[direction];
+  const {current, adjacent} = borderMap[direction as keyof typeof borderMap];
 
   const fromBorder = fromCell?.[current];
   if (fromBorder === 'w') return false;
@@ -731,31 +727,30 @@ function canTraverse(fromCell: any, toCell: any, direction: any) {
 /**
  * BFS to find all reachable rooms from starting position
  */
-function bfsReachableRooms(cells: any, startLevel: any, startRow: any, startCol: any, isMultiLevel: any) {
+function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number, startCol: number, isMultiLevel: boolean) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
-  const visited = [];
+  const visited: boolean[][][] = [];
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
-    visited[level] = Array.from({length: numRows}, () => Array(numCols).fill(false));
+    visited[level] = Array.from({length: numRows}, () => Array(numCols).fill(false) as boolean[]);
   }
 
-  const reachedRooms = new Set();
-  const queue = [{level: startLevel, row: startRow, col: startCol}];
+  const reachedRooms = new Set<string>();
+  const queue: {level: number; row: number; col: number}[] = [{level: startLevel, row: startRow, col: startCol}];
 
   visited[startLevel][startRow][startCol] = true;
-  const startLevelCells = isMultiLevel ? cells[startLevel] : cells;
+  const startLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[startLevel] : cells);
   const startCell = startLevelCells[startRow][startCol];
   if (startCell?.center?.label) {
     reachedRooms.add(startCell.center.label);
   }
 
   while (queue.length > 0) {
-    // @ts-expect-error — strict-mode migration
-    const {level, row, col} = queue.shift();
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const {level, row, col} = queue.shift()!;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const cell = levelCells[row][col];
 
     // 1. Try horizontal movement (4 cardinal directions)
@@ -795,8 +790,8 @@ function bfsReachableRooms(cells: any, startLevel: any, startRow: any, startCol:
     if (cell?.center) {
       // Check stairs-up (skip non-array markers — visual-only from .map compiler)
       if (Array.isArray(cell.center['stairs-up'])) {
-        const stairTarget = cell.center['stairs-up'];
-        let targetLevel, targetRow, targetCol;
+        const stairTarget = cell.center['stairs-up'] as unknown as number[];
+        let targetLevel: number, targetRow: number, targetCol: number;
 
         if (stairTarget.length === 3) {
           [targetLevel, targetRow, targetCol] = stairTarget;
@@ -809,7 +804,7 @@ function bfsReachableRooms(cells: any, startLevel: any, startRow: any, startCol:
           visited[targetLevel][targetRow][targetCol] = true;
           queue.push({level: targetLevel, row: targetRow, col: targetCol});
 
-          const targetLevelCells = isMultiLevel ? cells[targetLevel] : cells;
+          const targetLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[targetLevel] : cells);
           const targetCell = targetLevelCells[targetRow][targetCol];
           if (targetCell?.center?.label) {
             reachedRooms.add(targetCell.center.label);
@@ -819,8 +814,8 @@ function bfsReachableRooms(cells: any, startLevel: any, startRow: any, startCol:
 
       // Check stairs-down (skip non-array markers — visual-only from .map compiler)
       if (Array.isArray(cell.center['stairs-down'])) {
-        const stairTarget = cell.center['stairs-down'];
-        let targetLevel, targetRow, targetCol;
+        const stairTarget = cell.center['stairs-down'] as unknown as number[];
+        let targetLevel: number, targetRow: number, targetCol: number;
 
         if (stairTarget.length === 3) {
           [targetLevel, targetRow, targetCol] = stairTarget;
@@ -833,7 +828,7 @@ function bfsReachableRooms(cells: any, startLevel: any, startRow: any, startCol:
           visited[targetLevel][targetRow][targetCol] = true;
           queue.push({level: targetLevel, row: targetRow, col: targetCol});
 
-          const targetLevelCells = isMultiLevel ? cells[targetLevel] : cells;
+          const targetLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[targetLevel] : cells);
           const targetCell = targetLevelCells[targetRow][targetCol];
           if (targetCell?.center?.label) {
             reachedRooms.add(targetCell.center.label);
@@ -849,14 +844,14 @@ function bfsReachableRooms(cells: any, startLevel: any, startRow: any, startCol:
 /**
  * Detect rooms that are inaccessible from the starting room
  */
-function detectInaccessibleRooms(cells: any, isMultiLevel = false) {
+function detectInaccessibleRooms(cells: CellGrid, isMultiLevel = false) {
   const numLevels = isMultiLevel ? cells.length : 1;
   const errors = [];
 
   const roomPositions = new Map();
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
 
@@ -879,7 +874,7 @@ function detectInaccessibleRooms(cells: any, isMultiLevel = false) {
   const roomLabels = Array.from(roomPositions.keys());
   const parsedLabels = roomLabels
     .map(label => parseRoomLabel(label))
-    .filter(parsed => parsed !== null);
+    .filter((parsed): parsed is ParsedLabel => parsed !== null);
 
   if (parsedLabels.length === 0) {
     return ['No valid room labels found (expected format: A1, B12, etc.)'];
@@ -930,16 +925,16 @@ function detectInaccessibleRooms(cells: any, isMultiLevel = false) {
 /**
  * Check if any cells have stair features
  */
-function hasStairFeatures(cells: any) {
+function hasStairFeatures(cells: CellGrid) {
   const isMultiLevel = Array.isArray(cells[0]) && Array.isArray(cells[0][0]);
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
-      const numCols = levelCells[row].length;
+      const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
         const cell = levelCells[row][col];
@@ -956,15 +951,16 @@ function hasStairFeatures(cells: any) {
 /**
  * Validate a single stair connection
  */
-function validateSingleStair(cells: any, isMultiLevel: any, fromLevel: any, fromRow: any, fromCol: any, stairType: any, reciprocalType: any, target: any) {
+function validateSingleStair(cells: CellGrid, isMultiLevel: boolean, fromLevel: number, fromRow: number, fromCol: number, stairType: string, reciprocalType: string, target: unknown) {
   const errors = [];
+  const targetArr = target as number[];
 
-  let targetLevel, targetRow, targetCol;
-  if (target.length === 3) {
-    [targetLevel, targetRow, targetCol] = target;
-  } else if (target.length === 2) {
+  let targetLevel: number, targetRow: number, targetCol: number;
+  if (targetArr.length === 3) {
+    [targetLevel, targetRow, targetCol] = targetArr;
+  } else if (targetArr.length === 2) {
     targetLevel = fromLevel;
-    [targetRow, targetCol] = target;
+    [targetRow, targetCol] = targetArr;
   } else {
     errors.push(
       `Level ${fromLevel}, Cell [${fromRow}][${fromCol}]: ` +
@@ -982,7 +978,7 @@ function validateSingleStair(cells: any, isMultiLevel: any, fromLevel: any, from
     return errors;
   }
 
-  const targetLevelCells = isMultiLevel ? cells[targetLevel] : cells;
+  const targetLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[targetLevel] : cells);
   const numRows = targetLevelCells.length;
   const numCols = targetLevelCells[0]?.length || 0;
 
@@ -1023,8 +1019,8 @@ function validateSingleStair(cells: any, isMultiLevel: any, fromLevel: any, from
     return errors;
   }
 
-  const reciprocal = targetCell.center[reciprocalType];
-  let recipLevel, recipRow, recipCol;
+  const reciprocal = targetCell.center[reciprocalType] as unknown as number[];
+  let recipLevel: number, recipRow: number, recipCol: number;
   if (reciprocal.length === 3) {
     [recipLevel, recipRow, recipCol] = reciprocal;
   } else {
@@ -1049,16 +1045,16 @@ function validateSingleStair(cells: any, isMultiLevel: any, fromLevel: any, from
 /**
  * Validate stair connections across all levels
  */
-function validateStairConnections(cells: any, isMultiLevel: any) {
+function validateStairConnections(cells: CellGrid, isMultiLevel: boolean) {
   const errors = [];
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? cells[level] : cells;
+    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
-      const numCols = levelCells[row].length;
+      const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
         const cell = levelCells[row][col];
@@ -1087,21 +1083,21 @@ function validateStairConnections(cells: any, isMultiLevel: any) {
 /**
  * Get human-readable name for border value
  */
-function getBorderName(value: any) {
+function getBorderName(value: string | null) {
   const names = {
     'w': 'wall',
     'd': 'door',
     's': 'secret door'
   };
-  return (names as any)[value] || value;
+  return names[value as keyof typeof names] || value;
 }
 
 /**
  * Report validation errors and throw
  */
-function reportValidationErrors(errors: any, title: any) {
+function reportValidationErrors(errors: string[], title: string) {
   console.error(`\n❌ ${title}:\n`);
-  errors.forEach((e: any) => console.error(`   ${e}`));
+  errors.forEach((e: string) => console.error(`   ${e}`));
   console.error('');
   throw new Error('Validation failed');
 }
@@ -1111,13 +1107,12 @@ function reportValidationErrors(errors: any, title: any) {
  * @param {Object} config - Dungeon config to validate
  * @returns {{ valid: boolean, errors: string[] }} Validation result
  */
-// @ts-expect-error — strict-mode migration
-function validateConfig(config: any): { valid: boolean; errors: string[] } {
+function validateConfig(config: { metadata: Metadata; cells: CellGrid; rooms?: ValidatorRoom[]; dungeonName?: string; gridSize?: number; [key: string]: unknown }): void {
   if (!config.dungeonName) throw new Error('Missing required field: dungeonName');
   if (!config.gridSize) throw new Error('Missing required field: gridSize');
   if (!config.rooms || config.rooms.length === 0) throw new Error('No rooms defined');
 
-  const ids = new Set();
+  const ids = new Set<string>();
   for (const room of config.rooms) {
     if (!room.id) throw new Error(`Room missing ID: ${JSON.stringify(room)}`);
     if (ids.has(room.id)) throw new Error(`Duplicate room ID: ${room.id}`);

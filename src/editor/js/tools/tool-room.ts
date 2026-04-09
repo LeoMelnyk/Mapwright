@@ -1,9 +1,10 @@
+import type { RenderTransform } from '../../../types.js';
 // Room tool: click+drag to select a rectangle of cells, then auto-wall the boundary
 //
 // Basic mode: drag a rectangle → on mouseup, paint cells + wall outer edges + clear inner walls
 // Shift: constrain the drag rectangle to a square (larger dimension wins)
 
-import { Tool } from './tool-base.js';
+import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { pushUndo, markDirty, invalidateLightmap } from '../state.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
@@ -15,11 +16,10 @@ import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, snapToSquar
  * Supports 'room' mode (walls on all edges) and 'merge' mode (walls only facing void).
  */
 export class RoomTool extends Tool {
-  [key: string]: any;
-  declare dragging: boolean;
-  declare dragStart: { row: number; col: number } | null;
-  declare dragEnd: { row: number; col: number } | null;
-  declare mousePos: { x: number; y: number } | null;
+  dragging: boolean = false;
+  dragStart: { row: number; col: number } | null = null;
+  dragEnd: { row: number; col: number } | null = null;
+  mousePos: { x: number; y: number } | null = null;
 
   constructor() {
     super('room', 'R', 'crosshair');
@@ -47,7 +47,7 @@ export class RoomTool extends Tool {
     state.statusInstruction = '';
   }
 
-  onMouseDown(row: any, col: any) {
+  onMouseDown(row: number, col: number) {
     const cells = state.dungeon.cells;
     if (!isInBounds(cells, row, col)) return;
     this.dragging = true;
@@ -56,23 +56,22 @@ export class RoomTool extends Tool {
     this.mousePos = null;
   }
 
-  onMouseMove(row: any, col: any, _edge: any, event: any, pos: any) {
+  onMouseMove(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent, pos: CanvasPos | null) {
     if (!this.dragging) return;
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
-    if (event?.shiftKey) {
-      // @ts-expect-error — strict-mode migration
-      ({ row, col } = snapToSquare(row, col, this!.dragStart.row, this!.dragStart.col, cells));
+    if (event.shiftKey) {
+      ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
     }
 
     this.dragEnd = { row, col };
-    this.mousePos = pos || null;
+    this.mousePos = pos ?? null;
     requestRender();
   }
 
-  onMouseUp(row: any, col: any, _edge: any, event: any) {
+  onMouseUp(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent) {
     if (!this.dragging) return;
     this.dragging = false;
 
@@ -80,9 +79,8 @@ export class RoomTool extends Tool {
     row = Math.max(0, Math.min(cells.length - 1, row));
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
-    if (event?.shiftKey) {
-      // @ts-expect-error — strict-mode migration
-      ({ row, col } = snapToSquare(row, col, this!.dragStart.row, this!.dragStart.col, cells));
+    if (event.shiftKey) {
+      ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
     }
 
     this.dragEnd = { row, col };
@@ -94,14 +92,14 @@ export class RoomTool extends Tool {
     requestRender();
   }
 
-  onKeyDown(event: any) {
+  onKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape' && this.dragging) {
       this._cancelDrag();
       event.preventDefault();
     }
   }
 
-  onRightClick(row: any, col: any) {
+  onRightClick(row: number, col: number) {
     if (this.dragging) {
       this._cancelDrag();
       return;
@@ -129,7 +127,7 @@ export class RoomTool extends Tool {
       const nr = row + dr;
       const nc = col + dc;
       if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
-        (cells as any)[nr][nc][wallDir] = 'w';
+        (cells[nr][nc] as Record<string, unknown>)[wallDir] = 'w';
       }
     }
 
@@ -156,7 +154,7 @@ export class RoomTool extends Tool {
     const { r1, c1, r2, c2 } = normalizeBounds(
       this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
 
-    const selected = new Set();
+    const selected = new Set<string>();
     for (let r = r1; r <= r2; r++) {
       for (let c = c1; c <= c2; c++) {
         selected.add(cellKey(r, c));
@@ -180,13 +178,12 @@ export class RoomTool extends Tool {
     const before = captureBeforeState(cells, coords);
 
     pushUndo('Draw room');
-    const has = (r: any, c: any) => selected.has(cellKey(r, c));
+    const has = (r: number, c: number) => selected.has(cellKey(r, c));
 
     for (const key of selected) {
-      // @ts-expect-error — strict-mode migration
       const [r, c] = parseCellKey(key);
 
-      if (!cells[r][c]) cells[r][c] = {};
+      cells[r][c] ??= {};
       const cell = cells[r][c];
 
       for (const { dir, dr, dc } of CARDINAL_DIRS) {
@@ -224,7 +221,7 @@ export class RoomTool extends Tool {
     markDirty();
   }
 
-  _drawSizeLabel(ctx: any, gridSize: any) {
+  _drawSizeLabel(ctx: CanvasRenderingContext2D, gridSize: number) {
     if (!this.mousePos || !this.dragStart || !this.dragEnd) return;
     const { r1, c1, r2, c2 } = normalizeBounds(
       this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
@@ -249,7 +246,7 @@ export class RoomTool extends Tool {
     ctx.restore();
   }
 
-  renderOverlay(ctx: any, transform: any, gridSize: any) {
+  renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
 
     const { r1, c1, r2, c2 } = normalizeBounds(

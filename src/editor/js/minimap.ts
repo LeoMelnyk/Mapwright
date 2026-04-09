@@ -10,36 +10,36 @@ const MINIMAP_MAX_H = 165;
 const MINIMAP_PAD = 4;
 const CELL_SIZE = 40; // must match canvas-view.js
 
-let minimapCanvas: any = null;
-let minimapCtx: any = null;
-let mainCanvas: any = null;
-let minimapWrapper: any = null;
+let minimapCanvas: HTMLCanvasElement | null = null;
+let minimapCtx: CanvasRenderingContext2D | null = null;
+let mainCanvas: HTMLCanvasElement | null = null;
+let minimapWrapper: HTMLElement | null = null;
 
 // Offscreen cache for the minimap cell rendering (expensive).
 // Only rebuilt when map data changes. Pan/zoom just redraws the viewport rect.
-let _mmCache: any = null; // { canvas, dirtySeq, canvasW, canvasH }
+let _mmCache: { canvas: OffscreenCanvas | HTMLCanvasElement; ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D; dirtySeq: number; canvasW: number; canvasH: number } | null = null;
 
 export function initMinimap(editorCanvas: HTMLCanvasElement): void {
   mainCanvas = editorCanvas;
   minimapWrapper = document.getElementById('minimap-wrapper');
-  minimapCanvas = document.getElementById('minimap-canvas');
+  minimapCanvas = document.getElementById('minimap-canvas') as HTMLCanvasElement | null;
   if (!minimapCanvas || !minimapWrapper) return;
   minimapCtx = minimapCanvas.getContext('2d');
 
-  const header = document.getElementById('minimap-header');
+  const header = document.getElementById('minimap-header')!;
 
   // ── Click/drag on minimap canvas → pan main view ──
   let panning = false;
 
-  minimapCanvas.addEventListener('mousedown', (e: any) => {
+  minimapCanvas.addEventListener('mousedown', (e: MouseEvent) => {
     panning = true;
-    const rect = minimapCanvas.getBoundingClientRect();
+    const rect = minimapCanvas!.getBoundingClientRect();
     _panToMinimapPoint(e.clientX - rect.left, e.clientY - rect.top);
   });
 
-  minimapCanvas.addEventListener('mousemove', (e: any) => {
+  minimapCanvas.addEventListener('mousemove', (e: MouseEvent) => {
     if (!panning) return;
-    const rect = minimapCanvas.getBoundingClientRect();
+    const rect = minimapCanvas!.getBoundingClientRect();
     _panToMinimapPoint(e.clientX - rect.left, e.clientY - rect.top);
   });
 
@@ -47,12 +47,12 @@ export function initMinimap(editorCanvas: HTMLCanvasElement): void {
   minimapCanvas.addEventListener('mouseleave', () => { panning = false; });
 
   // ── Drag header → reposition minimap ──
-  let dragState: any = null;
+  let dragState: { startX: number; startY: number; initLeft: number; initTop: number; containerW: number; containerH: number } | null = null;
 
-  header!.addEventListener('mousedown', (e) => {
+  header.addEventListener('mousedown', (e) => {
     e.preventDefault();
-    const wrapperRect = minimapWrapper.getBoundingClientRect();
-    const containerRect = minimapWrapper.parentElement.getBoundingClientRect();
+    const wrapperRect = minimapWrapper!.getBoundingClientRect();
+    const containerRect = minimapWrapper!.parentElement!.getBoundingClientRect();
     dragState = {
       startX: e.clientX,
       startY: e.clientY,
@@ -62,7 +62,7 @@ export function initMinimap(editorCanvas: HTMLCanvasElement): void {
       containerW: containerRect.width,
       containerH: containerRect.height,
     };
-    minimapWrapper.classList.add('dragging');
+    minimapWrapper!.classList.add('dragging');
   });
 
   window.addEventListener('mousemove', (e) => {
@@ -74,22 +74,22 @@ export function initMinimap(editorCanvas: HTMLCanvasElement): void {
     let newTop = dragState.initTop + dy;
 
     // Clamp within container
-    const wW = minimapWrapper.offsetWidth;
-    const wH = minimapWrapper.offsetHeight;
+    const wW = minimapWrapper!.offsetWidth;
+    const wH = minimapWrapper!.offsetHeight;
     newLeft = Math.max(0, Math.min(newLeft, dragState.containerW - wW));
     newTop = Math.max(0, Math.min(newTop, dragState.containerH - wH));
 
     // Switch from bottom/right to top/left positioning
-    minimapWrapper.style.left = newLeft + 'px';
-    minimapWrapper.style.top = newTop + 'px';
-    minimapWrapper.style.right = 'auto';
-    minimapWrapper.style.bottom = 'auto';
+    minimapWrapper!.style.left = newLeft + 'px';
+    minimapWrapper!.style.top = newTop + 'px';
+    minimapWrapper!.style.right = 'auto';
+    minimapWrapper!.style.bottom = 'auto';
   });
 
   window.addEventListener('mouseup', () => {
     if (dragState) {
       dragState = null;
-      minimapWrapper.classList.remove('dragging');
+      minimapWrapper!.classList.remove('dragging');
     }
   });
 }
@@ -112,7 +112,6 @@ export function updateMinimap(): void {
   if (numRows === 0 || numCols === 0) return;
 
   const theme = getTheme();
-  if (!theme) return;
 
   // Compute minimap scale to fit entire dungeon within max dimensions
   const worldW = numCols * gridSize;
@@ -136,15 +135,15 @@ export function updateMinimap(): void {
 
   // ── Cached cell rendering ──
   // Only rebuild when map data changes (undoStack/redoStack length as proxy).
-  const dirtySig = (state.undoStack?.length || 0) * 10000 + (state.redoStack?.length || 0);
+  const dirtySig = (state.undoStack.length || 0) * 10000 + (state.redoStack.length || 0);
   const cacheW = Math.ceil(canvasW);
   const cacheH = Math.ceil(canvasH);
-  if (!_mmCache || _mmCache.dirtySeq !== dirtySig || _mmCache.canvasW !== cacheW || _mmCache.canvasH !== cacheH) {
-    if (!_mmCache || _mmCache.canvasW !== cacheW || _mmCache.canvasH !== cacheH) {
+  if (_mmCache?.dirtySeq !== dirtySig || _mmCache.canvasW !== cacheW || _mmCache.canvasH !== cacheH) {
+    if (_mmCache?.canvasW !== cacheW || _mmCache.canvasH !== cacheH) {
       const offscreen = document.createElement('canvas');
       offscreen.width = cacheW;
       offscreen.height = cacheH;
-      _mmCache = { canvas: offscreen, ctx: offscreen.getContext('2d'), dirtySeq: 0, canvasW: cacheW, canvasH: cacheH };
+      _mmCache = { canvas: offscreen, ctx: offscreen.getContext('2d')!, dirtySeq: 0, canvasW: cacheW, canvasH: cacheH };
     }
     const offCtx = _mmCache.ctx;
     offCtx.clearRect(0, 0, cacheW, cacheH);
@@ -155,8 +154,7 @@ export function updateMinimap(): void {
       offsetY: MINIMAP_PAD,
       scale: minimapScale,
     };
-    // @ts-expect-error — strict-mode migration
-    renderCells(offCtx, cells, gridSize, theme, minimapTransform, {
+    renderCells(offCtx as CanvasRenderingContext2D, cells, gridSize, theme, minimapTransform, {
       showGrid: false,
       propCatalog: null,
       textureOptions: null,
@@ -194,7 +192,7 @@ export function invalidateMinimapCache(): void {
   _mmCache = null;
 }
 
-function _panToMinimapPoint(mx: any, my: any) {
+function _panToMinimapPoint(mx: number, my: number) {
   const { dungeon } = state;
   const { cells, metadata } = dungeon;
   const gridSize = metadata.gridSize || 5;
@@ -213,8 +211,8 @@ function _panToMinimapPoint(mx: any, my: any) {
 
   // Center the main view on this world point
   const mainScale = CELL_SIZE * state.zoom / _dgs(gridSize, metadata.resolution);
-  state.panX = mainCanvas.width  / 2 - wx * mainScale;
-  state.panY = mainCanvas.height / 2 - wy * mainScale;
+  state.panX = mainCanvas!.width  / 2 - wx * mainScale;
+  state.panY = mainCanvas!.height / 2 - wy * mainScale;
 
   markDirty();
   notify();

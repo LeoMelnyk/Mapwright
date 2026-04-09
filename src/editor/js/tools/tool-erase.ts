@@ -1,6 +1,7 @@
+import type { CellGrid, RenderTransform, Metadata } from '../../../types.js';
 // Erase tool: drag a selection box, then void all cells within it on release
 // Shift: constrain the drag rectangle to a square (larger dimension wins)
-import { Tool } from './tool-base.js';
+import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
 import { captureBeforeState, smartInvalidate, accumulateDirtyRect } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
@@ -8,16 +9,15 @@ import { requestRender } from '../canvas-view.js';
 import { showToast } from '../toast.js';
 import { isInBounds, snapToSquare, normalizeBounds } from '../../../util/index.js';
 
-function _removeStair(meta: any, cells: any, id: number): void {
-  const stairs = meta?.stairs;
-  if (!stairs) return;
-  const idx = stairs.findIndex((s: any) => s.id === id);
+function _removeStair(meta: Metadata, cells: CellGrid, id: number): void {
+  const stairs = meta.stairs;
+  const idx = stairs.findIndex((s: { id: number }) => s.id === id);
   if (idx === -1) return;
   const stairDef = stairs[idx];
 
   // Unlink partner
   if (stairDef.link) {
-    const partner = stairs.find((s: any) => s.link === stairDef.link && s.id !== id);
+    const partner = stairs.find(s => s.link === stairDef.link && s.id !== id);
     if (partner) partner.link = null;
   }
 
@@ -27,8 +27,8 @@ function _removeStair(meta: any, cells: any, id: number): void {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['stair-id'] === id) {
-        delete cells[r][c].center['stair-id'];
-        if (Object.keys(cells[r][c].center).length === 0) delete cells[r][c].center;
+        delete cells[r][c]!.center!['stair-id'];
+        if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
       }
     }
   }
@@ -60,7 +60,7 @@ export class EraseTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row: any, col: any) {
+  onMouseDown(row: number, col: number) {
     const cells = state.dungeon.cells;
     if (!isInBounds(cells, row, col)) return;
     this.dragging = true;
@@ -70,23 +70,22 @@ export class EraseTool extends Tool {
     requestRender();
   }
 
-  onMouseMove(row: any, col: any, _edge: any, event: any, pos: any) {
+  onMouseMove(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent, pos: CanvasPos | null) {
     if (!this.dragging) return;
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
-    if (event?.shiftKey) {
-      // @ts-expect-error — strict-mode migration
-      ({ row, col } = snapToSquare(row, col, this.dragStart.row, this.dragStart.col, cells));
+    if (event.shiftKey) {
+      ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
     }
 
     this.dragEnd = { row, col };
-    this.mousePos = pos || null;
+    this.mousePos = pos ?? null;
     requestRender();
   }
 
-  onMouseUp(row: any, col: any, _edge: any, event: any) {
+  onMouseUp(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent) {
     if (!this.dragging) return;
     this.dragging = false;
 
@@ -94,16 +93,14 @@ export class EraseTool extends Tool {
     row = Math.max(0, Math.min(cells.length - 1, row));
     col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
 
-    if (event?.shiftKey) {
-      // @ts-expect-error — strict-mode migration
-      ({ row, col } = snapToSquare(row, col, this.dragStart.row, this.dragStart.col, cells));
+    if (event.shiftKey) {
+      ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
     }
 
     this.dragEnd = { row, col };
 
     const { r1, c1, r2, c2 } = normalizeBounds(
-      // @ts-expect-error — strict-mode migration
-      this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
+      this.dragStart!.row, this.dragStart!.col, this.dragEnd.row, this.dragEnd.col);
 
     let hasContent = false;
     for (let r = r1; r <= r2 && !hasContent; r++) {
@@ -120,7 +117,7 @@ export class EraseTool extends Tool {
       const before = captureBeforeState(cells, coords);
 
       // Collect stair IDs before cells are nulled (stairs span multiple cells)
-      const stairIdsToRemove = new Set();
+      const stairIdsToRemove = new Set<number>();
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
           const id = cells[r]?.[c]?.center?.['stair-id'];
@@ -154,23 +151,20 @@ export class EraseTool extends Tool {
 
       // Remove stair definitions (and unlink partners)
       for (const id of stairIdsToRemove) {
-        // @ts-expect-error — strict-mode migration
         _removeStair(meta, cells, id);
       }
 
       // Remove bridges with any point inside the erased region
-      if (meta.bridges?.length) {
+      if (meta.bridges.length) {
         meta.bridges = meta.bridges.filter(bridge =>
           !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2)
         );
       }
 
       // Remove overlay props whose anchor falls inside the erased region
-      // @ts-expect-error — strict-mode migration
       if (meta.props?.length) {
         const gridSize = meta.gridSize || 5;
-        // @ts-expect-error — strict-mode migration
-        meta.props = meta.props.filter((p: any) => {
+        meta.props = meta.props.filter(p => {
           const pRow = Math.round(p.y / gridSize);
           const pCol = Math.round(p.x / gridSize);
           return pRow < r1 || pRow > r2 || pCol < c1 || pCol > c2;
@@ -178,7 +172,7 @@ export class EraseTool extends Tool {
       }
 
       // Remove lights whose world position or prop anchor falls inside the erased region
-      if (meta.lights?.length) {
+      if (meta.lights.length) {
         const gridSize = meta.gridSize || 5;
         meta.lights = meta.lights.filter(light => {
           // Position-based: light center in erased region
@@ -214,7 +208,7 @@ export class EraseTool extends Tool {
     requestRender();
   }
 
-  _drawSizeLabel(ctx: any, gridSize: any) {
+  _drawSizeLabel(ctx: CanvasRenderingContext2D, gridSize: number) {
     if (!this.mousePos || !this.dragStart || !this.dragEnd) return;
     const { r1, c1, r2, c2 } = normalizeBounds(
       this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
@@ -239,7 +233,7 @@ export class EraseTool extends Tool {
     ctx.restore();
   }
 
-  renderOverlay(ctx: any, transform: any, gridSize: any) {
+  renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
 
     const { r1, c1, r2, c2 } = normalizeBounds(

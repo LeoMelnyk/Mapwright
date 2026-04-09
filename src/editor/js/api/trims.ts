@@ -1,3 +1,5 @@
+import type { CardinalDirection, Cell, CreateTrimOptions } from '../../../types.js';
+import type { TrimCorner } from '../../../util/trim-geometry.js';
 import {
   getApi,
   CARDINAL_DIRS, OFFSETS, OPPOSITE,
@@ -21,7 +23,7 @@ import { computeTrimCells } from '../../../util/index.js';
  * @param {Object} [extraOptions] - Additional options when first arg is a string corner
  * @returns {{ success: boolean }}
  */
-export function createTrim(r1: number, c1: number, r2: number, c2: number, cornerOrOptions: string | Record<string, any> = {}, extraOptions: Record<string, any> = {}): { success: true; note?: string } {
+export function createTrim(r1: number, c1: number, r2: number, c2: number, cornerOrOptions: string | CreateTrimOptions = {}, extraOptions: CreateTrimOptions = {}): { success: true; note?: string } {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   validateBounds(r1, c1);
   validateBounds(r2, c2);
@@ -33,16 +35,16 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
   if (typeof cornerOrOptions === 'string') {
     options = { ...extraOptions, corner: cornerOrOptions };
   } else {
-    options = cornerOrOptions || {};
+    options = cornerOrOptions;
   }
 
-  const corner = options.corner || 'auto';
+  const corner = options.corner ?? 'auto';
   const round = !!options.round;
   const inverted = !!options.inverted;
   const open = !!options.open;
 
   // Resolve corner from drag direction if auto
-  let resolvedCorner;
+  let resolvedCorner: string;
   if (corner === 'auto') {
     const dr = r2 - r1;
     const dc = c2 - c1;
@@ -70,7 +72,7 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
 
   trimTool.dragStart = { row: r1, col: c1 };
   trimTool.dragEnd = { row: r2, col: c2 };
-  trimTool.resolvedCorner = resolvedCorner;
+  trimTool.resolvedCorner = resolvedCorner as TrimCorner;
   trimTool._updatePreview();
 
   const preview = trimTool.previewCells;
@@ -86,29 +88,28 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
   // Apply — same logic as TrimTool.onMouseUp
   const cells = state.dungeon.cells;
   const trimCoords = [
-    ...preview.voided.map(({ row, col }: any) => ({ row, col })),
-    ...preview.hypotenuse.map(({ row, col }: any) => ({ row, col })),
-    ...(preview.insideArc || []).map(({ row, col }: any) => ({ row, col })),
+    ...preview.voided.map(({ row, col }: { row: number; col: number }) => ({ row, col })),
+    ...preview.hypotenuse.map(({ row, col }: { row: number; col: number }) => ({ row, col })),
+    ...(preview.insideArc ?? []).map(({ row, col }: { row: number; col: number }) => ({ row, col })),
   ];
   const before = captureBeforeState(cells, trimCoords);
   pushUndo();
 
   // Helper: clear all walls and reciprocals from a cell
-  const clearWalls = (cell: any, r: any, c: any) => {
+  const clearWalls = (cell: Cell, r: number, c: number) => {
     for (const dir of CARDINAL_DIRS) {
       if (cell[dir]) {
         delete cell[dir];
         const [dr, dc] = OFFSETS[dir];
         const neighbor = cells[r + dr]?.[c + dc];
-        // @ts-expect-error — strict-mode migration
-        if (neighbor) delete (neighbor as any)[OPPOSITE[dir]];
+        if (neighbor) delete (neighbor as Record<string, unknown>)[OPPOSITE[dir as CardinalDirection]];
       }
     }
     delete cell['nw-se'];
     delete cell['ne-sw'];
   };
 
-  const clearOldTrimFlags = (cell: any) => {
+  const clearOldTrimFlags = (cell: Cell) => {
     delete cell.trimRound;
     delete cell.trimArcCenterRow;
     delete cell.trimArcCenterCol;
@@ -126,15 +127,15 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
 
   if (round) {
     // ── Round trim: per-cell data from computeTrimCells ──
-    const trimData = computeTrimCells(preview, resolvedCorner, inverted, open);
+    const trimData = computeTrimCells(preview, resolvedCorner as TrimCorner, inverted, open);
     const numRows = cells.length;
     const numCols = cells[0]?.length || 0;
 
     // Only clear walls on cells in the original trim zone, not buffer-ring neighbors
     const trimZone = new Set([
-      ...preview.voided.map((c: any) => `${c.row},${c.col}`),
-      ...preview.hypotenuse.map((c: any) => `${c.row},${c.col}`),
-      ...(preview.insideArc || []).map((c: any) => `${c.row},${c.col}`),
+      ...preview.voided.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
+      ...preview.hypotenuse.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
+      ...(preview.insideArc ?? []).map((c: { row: number; col: number }) => `${c.row},${c.col}`),
     ]);
 
     for (const [key, val] of trimData) {
@@ -146,15 +147,14 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
         cells[r][c] = null;
       } else if (val === 'interior') {
         if (inZone) {
-          if (!cells[r][c]) cells[r][c] = {};
+          cells[r][c] ??= {};
           const cell = cells[r][c];
           clearWalls(cell, r, c);
           clearOldTrimFlags(cell);
         }
-      // @ts-expect-error — strict-mode migration
-      } else if (val === 'diagonal') {
+      } else if ((val as unknown as string) === 'diagonal') {
         // Inverted hypotenuse: straight diagonal wall (like straight trims)
-        if (!cells[r][c]) cells[r][c] = {};
+        cells[r][c] ??= {};
         const cell = cells[r][c];
         if (inZone) clearWalls(cell, r, c);
         clearOldTrimFlags(cell);
@@ -163,7 +163,7 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
         else cell['nw-se'] = 'w';
         if (open) cell.trimOpen = true;
       } else {
-        if (!cells[r][c]) cells[r][c] = {};
+        cells[r][c] ??= {};
         const cell = cells[r][c];
         if (inZone) clearWalls(cell, r, c);
         clearOldTrimFlags(cell);
@@ -186,7 +186,7 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
     }
 
     for (const { row: r, col: c } of preview.hypotenuse) {
-      if (!cells[r][c]) cells[r][c] = {};
+      cells[r][c] ??= {};
       const cell = cells[r][c];
       cell.trimCorner = resolvedCorner;
       clearWalls(cell, r, c);
@@ -225,11 +225,11 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
  * @param {object} [options] - { inverted: false }
  * @returns {{ success, corners: string[] }}
  */
-export function roundRoomCorners(label: string, trimSize: number | Record<string, any> = 3, options: Record<string, any> = {}): { success: true; corners: string[]; trimSize: number; bounds: any } {
+export function roundRoomCorners(label: string, trimSize: number | Record<string, number | boolean> = 3, options: Record<string, number | boolean | string> = {}): { success: true; corners: string[]; trimSize: number; bounds: { r1: number; c1: number; r2: number; c2: number } } {
   if (typeof label === 'string' && typeof trimSize === 'object') {
     // roundRoomCorners("A10", { trimSize: 4 })
     options = trimSize;
-    trimSize = options.trimSize || 3;
+    trimSize = (options.trimSize as number) || 3;
   }
 
   const bounds = getApi().getRoomBounds(label);
@@ -264,6 +264,5 @@ export function roundRoomCorners(label: string, trimSize: number | Record<string
     applied.push(corner);
   }
 
-  // @ts-expect-error — strict-mode migration
-  return { success: true, corners: applied, trimSize, bounds: { r1, c1, r2, c2 } };
+  return { success: true, corners: applied, trimSize: trimSize as number, bounds: { r1, c1, r2, c2 } };
 }

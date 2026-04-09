@@ -1,4 +1,4 @@
-import type { Theme, RenderTransform } from '../types.js';
+import type { CellGrid, RenderTransform, Stairs, Theme } from '../types.js';
 import { GRID_SCALE } from './constants.js';
 import { toCanvas } from './bounds.js';
 
@@ -190,10 +190,8 @@ function drawDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: numbe
   const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
   const doorThickness = 6 * s;
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.doorFill || '#FFFFFF';
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
+  ctx.fillStyle = theme.doorFill ?? '#FFFFFF';
+  ctx.strokeStyle = theme.doorStroke ?? theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
   if (orientation === 'horizontal') {
@@ -221,10 +219,8 @@ function drawDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: numbe
 function drawSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
   ctx.save();
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.secretDoorColor || theme.wallStroke;
+  ctx.fillStyle = theme.secretDoorColor ?? theme.wallStroke;
+  ctx.strokeStyle = theme.secretDoorColor ?? theme.wallStroke;
 
   const fontSize = gridSize * transform.scale * SECRET_FONT_MULT;
   ctx.font = `bold ${fontSize}px sans-serif`;
@@ -255,7 +251,7 @@ function drawSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy:
  * @returns {void}
  */
 function drawStairsInCell(ctx: CanvasRenderingContext2D, cx: number, cy: number, stairType: string, theme: Theme, gridSize: number, hasLabel: boolean, transform: RenderTransform): void {
-  const s = transform ? scaleFactor(transform) : 1;
+  const s = scaleFactor(transform);
   ctx.save();
   const color = theme.wallStroke || '#000000';
   ctx.strokeStyle = color;
@@ -484,10 +480,8 @@ function drawDiagonalDoor(ctx: CanvasRenderingContext2D, cx: number, cy: number,
     ctx.rotate(-Math.PI / 4);
   }
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.doorFill || '#ffffff';
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
+  ctx.fillStyle = theme.doorFill ?? '#ffffff';
+  ctx.strokeStyle = theme.doorStroke ?? theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
   const halfLength = doorLength / 2;
@@ -518,8 +512,7 @@ function drawDiagonalSecretDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
     ctx.rotate(-Math.PI / 4);
   }
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
+  ctx.fillStyle = theme.secretDoorColor ?? theme.wallStroke;
   const fontSize = gridSize * transform.scale * SECRET_FONT_MULT;
   ctx.font = `bold ${fontSize}px sans-serif`;
   ctx.textAlign = 'center';
@@ -540,8 +533,7 @@ function drawDiagonalSecretDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {string|null} Role: 'anchor', 'partner', 'single-wide', or null
  */
-function getDoubleDoorRole(cells: any, row: number, col: number, borderDirection: string, resolution: number = 1): string {
-  // @ts-expect-error — strict-mode migration
+function getDoubleDoorRole(cells: CellGrid, row: number, col: number, borderDirection: string, resolution: number = 1): string | null {
   return _getDoorRole(cells, row, col, borderDirection, resolution, 'cardinal');
 }
 
@@ -557,7 +549,7 @@ function getDoubleDoorRole(cells: any, row: number, col: number, borderDirection
  *   'partner'     — skip (already rendered by an anchor or single-wide)
  *   null          — leftover sub-cell, render at sub-cell scale
  */
-function _getDoorRole(cells: any, row: any, col: any, direction: any, resolution: any, mode: any) {
+function _getDoorRole(cells: CellGrid, row: number, col: number, direction: string, resolution: number, mode: string) {
   const cell = cells[row]?.[col];
   if (!cell) return null;
   const bt = cell[direction];
@@ -579,7 +571,7 @@ function _getDoorRole(cells: any, row: any, col: any, direction: any, resolution
 
   // Walk backwards to find run start
   let startR = row, startC = col;
-  while (true) {
+  for (;;) {
     const pr = startR - dr, pc = startC - dc;
     if (pr < 0 || pr >= numRows || pc < 0 || pc >= numCols) break;
     if (cells[pr]?.[pc]?.[direction] !== bt) break;
@@ -633,8 +625,7 @@ function _getDoorRole(cells: any, row: any, col: any, direction: any, resolution
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {string|null} Role: 'anchor', 'partner', or null
  */
-function getDoubleDoorDiagonalRole(cells: any, row: number, col: number, diagonal: string, resolution: number = 1): string {
-  // @ts-expect-error — strict-mode migration
+function getDoubleDoorDiagonalRole(cells: CellGrid, row: number, col: number, diagonal: string, resolution: number = 1): string | null {
   return _getDoorRole(cells, row, col, diagonal, resolution, 'diagonal');
 }
 
@@ -653,10 +644,10 @@ function getDoubleDoorDiagonalRole(cells: any, row: number, col: number, diagona
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {void}
  */
-function renderDoubleBorder(ctx: CanvasRenderingContext2D, cells: any, row: number, col: number, borderDirection: string, borderType: string, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform, resolution: number = 1): void {
+function renderDoubleBorder(ctx: CanvasRenderingContext2D, cells: CellGrid, row: number, col: number, borderDirection: string, borderType: string, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform, resolution: number = 1): void {
   const s = scaleFactor(transform);
   const span = 2 * resolution; // double door spans 2 display cells = 2*resolution sub-cells
-  let gx1, gy1, gx2, gy2;
+  let gx1 = 0, gy1 = 0, gx2 = 0, gy2 = 0;
   if (borderDirection === 'north') {
     gx1 = col; gy1 = row; gx2 = col + span; gy2 = row;
   } else if (borderDirection === 'south') {
@@ -667,9 +658,7 @@ function renderDoubleBorder(ctx: CanvasRenderingContext2D, cells: any, row: numb
     gx1 = col + 1; gy1 = row; gx2 = col + 1; gy2 = row + span;
   }
 
-  // @ts-expect-error — strict-mode migration
   const p1 = toCanvas(gx1 * gridSize, gy1 * gridSize, transform);
-  // @ts-expect-error — strict-mode migration
   const p2 = toCanvas(gx2 * gridSize, gy2 * gridSize, transform);
 
   const midX = (p1.x + p2.x) / 2;
@@ -726,7 +715,7 @@ function renderDoubleBorder(ctx: CanvasRenderingContext2D, cells: any, row: numb
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {void}
  */
-function renderDiagonalDoubleBorder(ctx: CanvasRenderingContext2D, cells: any, row: number, col: number, borderType: string, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform, resolution: number = 1): void {
+function renderDiagonalDoubleBorder(ctx: CanvasRenderingContext2D, cells: CellGrid, row: number, col: number, borderType: string, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform, resolution: number = 1): void {
   const s = scaleFactor(transform);
   const span = 2 * resolution; // double door spans 2 display cells
 
@@ -792,10 +781,8 @@ function drawDoubleDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy:
   const panelLength = totalLength / 2;
   const gap = 2 * s;
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.doorFill || '#FFFFFF';
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
+  ctx.fillStyle = theme.doorFill ?? '#FFFFFF';
+  ctx.strokeStyle = theme.doorStroke ?? theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
   const halfTotal = totalLength / 2;
@@ -827,8 +814,7 @@ function drawDoubleDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy:
  */
 function drawDoubleSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
   ctx.save();
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
+  ctx.fillStyle = theme.secretDoorColor ?? theme.wallStroke;
 
   const fontSize = gridSize * transform.scale * 1.0;
   ctx.font = `bold ${fontSize}px sans-serif`;
@@ -873,10 +859,8 @@ function drawDiagonalDoubleDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
     ctx.rotate(-Math.PI / 4);
   }
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.doorFill || '#ffffff';
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.doorStroke || theme.wallStroke;
+  ctx.fillStyle = theme.doorFill ?? '#ffffff';
+  ctx.strokeStyle = theme.doorStroke ?? theme.wallStroke;
   ctx.lineWidth = 2 * s;
 
   const halfTotal = totalLength / 2;
@@ -911,8 +895,7 @@ function drawDiagonalDoubleSecretDoor(ctx: CanvasRenderingContext2D, cx: number,
     ctx.rotate(-Math.PI / 4);
   }
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.secretDoorColor || theme.wallStroke;
+  ctx.fillStyle = theme.secretDoorColor ?? theme.wallStroke;
   const fontSize = gridSize * transform.scale * 1.0;
   ctx.font = `bold ${fontSize}px sans-serif`;
   ctx.textAlign = 'center';
@@ -933,7 +916,7 @@ function drawDiagonalDoubleSecretDoor(ctx: CanvasRenderingContext2D, cx: number,
  * @returns {void}
  */
 function drawStairsLinkLabel(ctx: CanvasRenderingContext2D, cx: number, cy: number, label: string, theme: Theme, transform: RenderTransform): void {
-  const s = transform ? scaleFactor(transform) : 1;
+  const s = scaleFactor(transform);
   ctx.save();
   const radius = 8 * s;
   const badgeX = cx + 20 * s;
@@ -946,8 +929,7 @@ function drawStairsLinkLabel(ctx: CanvasRenderingContext2D, cx: number, cy: numb
   ctx.fill();
 
   // Letter
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.floorFill || '#ffffff';
+  ctx.fillStyle = theme.floorFill ?? '#ffffff';
   ctx.font = `bold ${10 * s}px sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -967,7 +949,7 @@ function drawStairsLinkLabel(ctx: CanvasRenderingContext2D, cx: number, cy: numb
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-function drawStairShape(ctx: CanvasRenderingContext2D, stairDef: any, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawStairShape(ctx: CanvasRenderingContext2D, stairDef: Stairs, theme: Theme, gridSize: number, transform: RenderTransform): void {
   const [p1, p2, p3] = stairDef.points;
   const lines = _computeStairHatchLines(p1, p2, p3);
   if (lines.length === 0) return;
@@ -999,7 +981,7 @@ function drawStairShape(ctx: CanvasRenderingContext2D, stairDef: any, theme: The
  * and inward shift (parallel to base toward P1). narrowLen = baseLen - 2 * inward.
  * This naturally handles rectangles (inward=0), trapezoids, and triangles.
  */
-function _computeStairHatchLines(p1: any, p2: any, p3: any, lineSpacing = STAIR_HATCH_LINE_SPACING) {
+function _computeStairHatchLines(p1: [number, number], p2: [number, number], p3: [number, number], lineSpacing = STAIR_HATCH_LINE_SPACING) {
   // Base vector and length
   const baseR = p2[0] - p1[0];
   const baseC = p2[1] - p1[1];
@@ -1077,8 +1059,7 @@ function drawStairShapeLinkLabel(ctx: CanvasRenderingContext2D, worldX: number, 
   ctx.fill();
 
   // Letter
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.floorFill || '#ffffff';
+  ctx.fillStyle = theme.floorFill ?? '#ffffff';
   ctx.font = `bold ${10 * s}px sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -1097,14 +1078,13 @@ function drawStairShapeLinkLabel(ctx: CanvasRenderingContext2D, worldX: number, 
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ p1: { x: number, y: number }, p2: { x: number, y: number } }} Canvas pixel endpoints
  */
-function wallSegmentCoords(x1: number, y1: number, x2: number, y2: number, gridSize: number, transform: RenderTransform): { x1: number; y1: number; x2: number; y2: number; seed: number } {
+function wallSegmentCoords(x1: number, y1: number, x2: number, y2: number, gridSize: number, transform: RenderTransform): { p1: { x: number; y: number }; p2: { x: number; y: number } } {
   const fx1 = x1 * gridSize;
   const fy1 = y1 * gridSize;
   const fx2 = x2 * gridSize;
   const fy2 = y2 * gridSize;
   const p1 = toCanvas(fx1, fy1, transform);
   const p2 = toCanvas(fx2, fy2, transform);
-  // @ts-expect-error — strict-mode migration
   return { p1, p2 };
 }
 
@@ -1117,7 +1097,7 @@ function wallSegmentCoords(x1: number, y1: number, x2: number, y2: number, gridS
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ p1: { x: number, y: number }, p2: { x: number, y: number } }} Canvas pixel endpoints
  */
-function diagonalWallSegmentCoords(col: number, row: number, diagonal: string, gridSize: number, transform: RenderTransform): { x1: number; y1: number; x2: number; y2: number; seed: number } {
+function diagonalWallSegmentCoords(col: number, row: number, diagonal: string, gridSize: number, transform: RenderTransform): { p1: { x: number; y: number }; p2: { x: number; y: number } } {
   let fx1, fy1, fx2, fy2;
   if (diagonal === 'nw-se') {
     fx1 = col * gridSize;
@@ -1132,7 +1112,6 @@ function diagonalWallSegmentCoords(col: number, row: number, diagonal: string, g
   }
   const p1 = toCanvas(fx1, fy1, transform);
   const p2 = toCanvas(fx2, fy2, transform);
-  // @ts-expect-error — strict-mode migration
   return { p1, p2 };
 }
 

@@ -1,5 +1,6 @@
 // Door tool: click on cell edges to place/toggle doors (normal or secret)
-import { Tool } from './tool-base.js';
+import type { EdgeValue } from '../../../types.js';
+import { Tool, type EdgeInfo } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
 import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../util/index.js';
 
@@ -7,7 +8,6 @@ import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal } from '../../../ut
  * Door tool: click on cell edges to place/toggle doors (normal, secret, or invisible).
  */
 export class DoorTool extends Tool {
-  [key: string]: any;
   constructor() {
     super('door', 'D', 'pointer');
   }
@@ -18,22 +18,21 @@ export class DoorTool extends Tool {
       s:  'Click a wall to place secret door · Appears as wall to players until discovered',
       id: 'Click a wall to place invisible door · Hidden from players; DM can open',
     };
-    state.statusInstruction = (statuses as any)[state.doorType || 'd'];
+    state.statusInstruction = statuses[(state.doorType || 'd') as keyof typeof statuses];
   }
 
   onDeactivate() {
     state.statusInstruction = null;
   }
 
-  onRightClick(row: any, col: any, edge: any) {
+  onRightClick(row: number, col: number, edge: EdgeInfo | null) {
     if (!edge) return;
     const cells = state.dungeon.cells;
     const { direction, row: er, col: ec } = edge;
 
     if (!isInBounds(cells, er, ec)) return;
-    if (!(cells as any)[er][ec]) return;
-    // @ts-expect-error — strict-mode migration
-    if (!cells![er][ec][direction]) return; // nothing to clear
+    if (!cells[er]?.[ec]) return;
+    if (!cells[er][ec][direction]) return; // nothing to clear
 
     pushUndo('Remove door');
     deleteEdgeReciprocal(cells, er, ec, direction);
@@ -43,24 +42,24 @@ export class DoorTool extends Tool {
     notify();
   }
 
-  onMouseDown(row: any, col: any, edge: any) {
+  onMouseDown(row: number, col: number, edge: EdgeInfo | null) {
     if (!edge) return;
     const cells = state.dungeon.cells;
     const { direction, row: er, col: ec } = edge;
 
     if (!isInBounds(cells, er, ec)) return;
-    if (!cells[er][ec]) cells[er][ec] = {}; // create cell if void
+    cells[er][ec] ??= {}; // create cell if void
 
     const cell = cells[er][ec];
     const doorType = state.doorType || 'd'; // 'd' or 's'
-    const isToggleOff = (cell as any)[direction] === doorType;
+    const isToggleOff = (cell as Record<string, unknown>)[direction] === doorType;
     pushUndo(isToggleOff ? 'Remove door' : (doorType === 's' ? 'Secret door' : 'Add door'));
 
     // Toggle: if clicking same value, clear it (revert to wall)
     if (isToggleOff) {
       setEdgeReciprocal(cells, er, ec, direction, 'w');
     } else {
-      setEdgeReciprocal(cells, er, ec, direction, doorType);
+      setEdgeReciprocal(cells, er, ec, direction, doorType as EdgeValue);
     }
 
     invalidateLightmap();

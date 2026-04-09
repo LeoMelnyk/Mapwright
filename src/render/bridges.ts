@@ -16,16 +16,20 @@ import type { Theme, RenderTransform, Bridge } from '../types.js';
 import { toCanvas } from './bounds.js';
 import { warn } from './warnings.js';
 
+/** A 2D point as [row, col]. */
+type Pt = [number, number];
+/** Canvas-space point. */
+type CPt = { x: number; y: number };
+
 // DOMMatrix: browser global, or imported from @napi-rs/canvas in Node.js
-let _DOMMatrix = typeof DOMMatrix !== 'undefined' ? DOMMatrix : null;
+let _DOMMatrix: typeof DOMMatrix | null = typeof DOMMatrix !== 'undefined' ? DOMMatrix : null;
 if (!_DOMMatrix) {
-  // @ts-expect-error — strict-mode migration
-  try { _DOMMatrix = (await import('@napi-rs/canvas')).DOMMatrix; } catch { /* browser — not needed, already global */ }
+  try { _DOMMatrix = (await import('@napi-rs/canvas')).DOMMatrix as typeof DOMMatrix; } catch { /* browser — not needed, already global */ }
 }
 
 // ── Geometry (duplicated from editor/js/bridge-geometry.js to keep render self-contained) ──
 
-function _getBridgeCorners(p1: any, p2: any, p3: any) {
+function _getBridgeCorners(p1: Pt, p2: Pt, p3: Pt): [Pt, Pt, Pt, Pt] {
   const bR = p2[0] - p1[0], bC = p2[1] - p1[1];
   const bLen2 = bR * bR + bC * bC;
   if (bLen2 < 0.001) return [p1, p2, p2, p1];
@@ -40,7 +44,7 @@ function _getBridgeCorners(p1: any, p2: any, p3: any) {
 
 // ── Point-in-polygon helpers (duplicated from stair-geometry.js — render folder cannot import from editor/js) ──
 
-function _pointInPolygon(r: any, c: any, polygon: any) {
+function _pointInPolygon(r: number, c: number, polygon: Pt[]) {
   let inside = false;
   const n = polygon.length;
   for (let i = 0, j = n - 1; i < n; j = i++) {
@@ -53,7 +57,7 @@ function _pointInPolygon(r: any, c: any, polygon: any) {
   return inside;
 }
 
-function _pointOnPolygonEdge(r: any, c: any, polygon: any, eps = 0.01) {
+function _pointOnPolygonEdge(r: number, c: number, polygon: Pt[], eps = 0.01) {
   const n = polygon.length;
   for (let i = 0, j = n - 1; i < n; j = i++) {
     const ri = polygon[i][0], ci = polygon[i][1];
@@ -105,7 +109,7 @@ const EDGE_COLORS = {
 /**
  * Build the bridge path (4-corner polygon) on ctx.
  */
-function _buildPath(ctx: any, A: any, B: any, C: any, D: any) {
+function _buildPath(ctx: CanvasRenderingContext2D, A: CPt, B: CPt, C: CPt, D: CPt) {
   ctx.beginPath();
   ctx.moveTo(A.x, A.y);
   ctx.lineTo(B.x, B.y);
@@ -118,15 +122,14 @@ function _buildPath(ctx: any, A: any, B: any, C: any, D: any) {
  * Tile a texture image across the bridge.
  * Uses createPattern so the texture repeats naturally.
  */
-function _fillTexture(ctx: any, texImg: any, cellPx: any, transform: any) {
+function _fillTexture(ctx: CanvasRenderingContext2D, texImg: HTMLImageElement, cellPx: number, transform: RenderTransform) {
   try {
     const pattern = ctx.createPattern(texImg, 'repeat');
     if (!pattern) return false;
     // Align texture to the world grid so it doesn't slide on pan/zoom
     const imgW = texImg.naturalWidth || texImg.width;
     const scale = cellPx / imgW;
-    // @ts-expect-error — strict-mode migration
-    pattern.setTransform(new _DOMMatrix([
+    pattern.setTransform(new _DOMMatrix!([
       scale, 0, 0, scale,
       transform.offsetX % cellPx,
       transform.offsetY % cellPx,
@@ -134,8 +137,7 @@ function _fillTexture(ctx: any, texImg: any, cellPx: any, transform: any) {
     ctx.fillStyle = pattern;
     return true;
   } catch (err) {
-    // @ts-expect-error — strict-mode migration
-    console.warn('[bridge-tex] _fillTexture failed:', err?.message || err);
+    console.warn('[bridge-tex] _fillTexture failed:', (err as Error).message || err);
     return false;
   }
 }
@@ -145,7 +147,7 @@ function _fillTexture(ctx: any, texImg: any, cellPx: any, transform: any) {
  * Returns the distance (in feet) from the entry edge (A corner) to the first
  * world-grid-aligned plank, so adjacent end-to-end bridges have seamless lines.
  */
-function _computePhaseOffset(corners: any, gridSize: any, spacingCells: any) {
+function _computePhaseOffset(corners: [Pt, Pt, Pt, Pt], gridSize: number, spacingCells: number) {
   const dep_r = (corners[3][0] - corners[0][0]) * gridSize;
   const dep_c = (corners[3][1] - corners[0][1]) * gridSize;
   const depthFeet = Math.hypot(dep_r, dep_c);
@@ -162,7 +164,7 @@ function _computePhaseOffset(corners: any, gridSize: any, spacingCells: any) {
  * stepping along the depth direction from A→D).
  * phaseOffsetPx anchors the first line to a world-grid position for seamless joins.
  */
-function _drawPlankLines(ctx: any, A: any, B: any, depthDx: any, depthDy: any, depthLen: any, spacingPx: any, lineWidth: any, phaseOffsetPx: any) {
+function _drawPlankLines(ctx: CanvasRenderingContext2D, A: CPt, B: CPt, depthDx: number, depthDy: number, depthLen: number, spacingPx: number, lineWidth: number, phaseOffsetPx: number) {
   if (spacingPx < 1) return;
 
   ctx.lineWidth = lineWidth;
@@ -183,12 +185,12 @@ function _drawPlankLines(ctx: any, A: any, B: any, depthDx: any, depthDy: any, d
  * other bridge footprints. If inside another bridge, that railing is suppressed.
  * Also computes per-corner suppression for dock bollards.
  */
-function _computeRailingSuppression(corners: any, allBridges: any, thisBridgeId: any) {
+function _computeRailingSuppression(corners: [Pt, Pt, Pt, Pt], allBridges: Bridge[], thisBridgeId: number) {
   const noSuppress = { suppressAD: false, suppressBC: false, suppressCorner: [false, false, false, false] };
-  const others = allBridges.filter((b: any) => b.id !== thisBridgeId);
+  const others = allBridges.filter((b: Bridge) => b.id !== thisBridgeId);
   if (!others.length) return noSuppress;
 
-  const otherPolygons = others.map((b: any) => _getBridgeCorners(b.points[0], b.points[1], b.points[2]));
+  const otherPolygons = others.map((b: Bridge) => _getBridgeCorners(b.points[0], b.points[1], b.points[2]));
 
   const bLen = Math.hypot(corners[1][0] - corners[0][0], corners[1][1] - corners[0][1]);
   if (bLen < 0.001) return noSuppress;
@@ -199,16 +201,16 @@ function _computeRailingSuppression(corners: any, allBridges: any, thisBridgeId:
   // A→D side: outward is −base direction (away from B)
   const adR = (corners[0][0] + corners[3][0]) / 2 - off * buR;
   const adC = (corners[0][1] + corners[3][1]) / 2 - off * buC;
-  const suppressAD = otherPolygons.some((p: any) => _pointInPolygon(adR, adC, p));
+  const suppressAD = otherPolygons.some((p: [Pt, Pt, Pt, Pt]) => _pointInPolygon(adR, adC, p));
 
   // B→C side: outward is +base direction (away from A)
   const bcR = (corners[1][0] + corners[2][0]) / 2 + off * buR;
   const bcC = (corners[1][1] + corners[2][1]) / 2 + off * buC;
-  const suppressBC = otherPolygons.some((p: any) => _pointInPolygon(bcR, bcC, p));
+  const suppressBC = otherPolygons.some((p: [Pt, Pt, Pt, Pt]) => _pointInPolygon(bcR, bcC, p));
 
   // Dock corners: suppress bollard if corner is inside or on the edge of another bridge
-  const suppressCorner = corners.map(([cr, cc]: any) =>
-    otherPolygons.some((p: any) => _pointInPolygon(cr, cc, p) || _pointOnPolygonEdge(cr, cc, p, 0.05))
+  const suppressCorner = corners.map(([cr, cc]: [number, number]) =>
+    otherPolygons.some((p: [Pt, Pt, Pt, Pt]) => _pointInPolygon(cr, cc, p) || _pointOnPolygonEdge(cr, cc, p, 0.05))
   );
 
   return { suppressAD, suppressBC, suppressCorner };
@@ -219,7 +221,7 @@ function _computeRailingSuppression(corners: any, allBridges: any, thisBridgeId:
 /**
  * Wood railings: a thin filled strip + post circles along both long sides.
  */
-function _drawWoodRailings(ctx: any, A: any, B: any, C: any, D: any, bux: any, buy: any, baseLen: any, depthDx: any, depthDy: any, depthLen: any, cellPx: any, suppressAD: any, suppressBC: any) {
+function _drawWoodRailings(ctx: CanvasRenderingContext2D, A: CPt, B: CPt, C: CPt, D: CPt, bux: number, buy: number, baseLen: number, depthDx: number, depthDy: number, depthLen: number, cellPx: number, suppressAD: boolean, suppressBC: boolean) {
   const railThick = Math.max(2, cellPx * 0.08); // ~8% of a cell width in pixels
 
   if (depthLen < 1) return;
@@ -229,7 +231,7 @@ function _drawWoodRailings(ctx: any, A: any, B: any, C: any, D: any, bux: any, b
 
   ctx.fillStyle = 'rgba(80, 40, 10, 0.75)';
 
-  for (const [start, end, sign, suppress] of [[A, D, 1, suppressAD], [B, C, -1, suppressBC]]) {
+  for (const [start, end, sign, suppress] of [[A, D, 1, suppressAD], [B, C, -1, suppressBC]] as [CPt, CPt, number, boolean][]) {
     if (suppress) continue;
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
@@ -260,14 +262,14 @@ function _drawWoodRailings(ctx: any, A: any, B: any, C: any, D: any, bux: any, b
 /**
  * Stone railings: solid low parapet strips on both long sides.
  */
-function _drawStoneRailings(ctx: any, A: any, B: any, C: any, D: any, bux: any, buy: any, cellPx: any, suppressAD: any, suppressBC: any) {
+function _drawStoneRailings(ctx: CanvasRenderingContext2D, A: CPt, B: CPt, C: CPt, D: CPt, bux: number, buy: number, cellPx: number, suppressAD: boolean, suppressBC: boolean) {
   const parapetThick = Math.max(3, cellPx * 0.15);
   const innerBux = bux * parapetThick;
   const innerBuy = buy * parapetThick;
 
   ctx.fillStyle = 'rgba(50, 50, 50, 0.70)';
 
-  for (const [start, end, sign, suppress] of [[A, D, 1, suppressAD], [B, C, -1, suppressBC]]) {
+  for (const [start, end, sign, suppress] of [[A, D, 1, suppressAD], [B, C, -1, suppressBC]] as [CPt, CPt, number, boolean][]) {
     if (suppress) continue;
     ctx.beginPath();
     ctx.moveTo(start.x, start.y);
@@ -286,13 +288,13 @@ function _drawStoneRailings(ctx: any, A: any, B: any, C: any, D: any, bux: any, 
 /**
  * Rope railings: two parallel lines on each long side with perpendicular tie marks.
  */
-function _drawRopeRailings(ctx: any, A: any, B: any, C: any, D: any, bux: any, buy: any, depthLen: any, cellPx: any, suppressAD: any, suppressBC: any) {
+function _drawRopeRailings(ctx: CanvasRenderingContext2D, A: CPt, B: CPt, C: CPt, D: CPt, bux: number, buy: number, depthLen: number, cellPx: number, suppressAD: boolean, suppressBC: boolean) {
   const ropeOffset1 = cellPx * 0.06;
   const ropeOffset2 = cellPx * 0.12;
 
   ctx.lineCap = 'round';
 
-  for (const [start, end, sign, suppress] of [[A, D, 1, suppressAD], [B, C, -1, suppressBC]]) {
+  for (const [start, end, sign, suppress] of [[A, D, 1, suppressAD], [B, C, -1, suppressBC]] as [CPt, CPt, number, boolean][]) {
     if (suppress) continue;
     // Two rope lines
     for (const offset of [ropeOffset1, ropeOffset2]) {
@@ -327,7 +329,7 @@ function _drawRopeRailings(ctx: any, A: any, B: any, C: any, D: any, bux: any, b
  * Dock bollards: small circle posts at the 4 corners.
  * suppressCorner[i] skips the bollard at corner i (A=0, B=1, C=2, D=3).
  */
-function _drawDockBollards(ctx: any, A: any, B: any, C: any, D: any, cellPx: any, suppressCorner: any) {
+function _drawDockBollards(ctx: CanvasRenderingContext2D, A: CPt, B: CPt, C: CPt, D: CPt, cellPx: number, suppressCorner: boolean[]) {
   const r = Math.max(3, cellPx * 0.12);
   ctx.fillStyle = '#3a2000';
   ctx.strokeStyle = '#6a4010';
@@ -346,7 +348,7 @@ function _drawDockBollards(ctx: any, A: any, B: any, C: any, D: any, cellPx: any
 /**
  * Render a single bridge onto the canvas.
  */
-function renderBridge(ctx: any, bridge: any, allBridges: any, gridSize: any, theme: any, transform: any, getTextureImage: any) {
+function renderBridge(ctx: CanvasRenderingContext2D, bridge: Bridge, allBridges: Bridge[], gridSize: number, theme: Theme, transform: RenderTransform, getTextureImage: ((id: string) => HTMLImageElement | null) | null) {
   const [p1, p2, p3] = bridge.points;
   const corners = _getBridgeCorners(p1, p2, p3);
 
@@ -369,7 +371,7 @@ function renderBridge(ctx: any, bridge: any, allBridges: any, gridSize: any, the
   const buy = (B.y - A.y) / baseLen;
 
   const cellPx = gridSize * transform.scale;
-  const type = bridge.type || 'wood';
+  const type = bridge.type;
 
   // ── 1. Clip to bridge polygon ──
   ctx.save();
@@ -377,21 +379,21 @@ function renderBridge(ctx: any, bridge: any, allBridges: any, gridSize: any, the
   ctx.clip();
 
   // ── 2. Texture / color base fill ──
-  const texId = (TEXTURE_IDS as any)[type] || TEXTURE_IDS.wood;
+  const texId = TEXTURE_IDS[type as keyof typeof TEXTURE_IDS] || TEXTURE_IDS.wood;
   const texImg = getTextureImage ? getTextureImage(texId) : null;
 
   _buildPath(ctx, A, B, C, D);
   if (texImg && _fillTexture(ctx, texImg, cellPx, transform)) {
     ctx.globalAlpha = 0.85;
   } else {
-    ctx.fillStyle = (FALLBACK_COLORS as any)[type] || FALLBACK_COLORS.wood;
+    ctx.fillStyle = FALLBACK_COLORS[type as keyof typeof FALLBACK_COLORS] || FALLBACK_COLORS.wood;
     ctx.globalAlpha = 0.90;
   }
   ctx.fill();
   ctx.globalAlpha = 1;
 
   // ── 3. Plank / mortar lines (world-anchored, parallel to base AB) ──
-  const style = (PLANK_STYLE as any)[type] || PLANK_STYLE.wood;
+  const style = PLANK_STYLE[type as keyof typeof PLANK_STYLE];
   const spacingPx = style.spacingCells * cellPx;
   const phaseOffset = _computePhaseOffset(corners, gridSize, style.spacingCells);
   const phaseOffsetPx = phaseOffset * transform.scale;
@@ -408,7 +410,7 @@ function renderBridge(ctx: any, bridge: any, allBridges: any, gridSize: any, the
     _drawStoneRailings(ctx, A, B, C, D, bux, buy, cellPx, suppressAD, suppressBC);
   } else if (type === 'rope') {
     _drawRopeRailings(ctx, A, B, C, D, bux, buy, depthLen, cellPx, suppressAD, suppressBC);
-  } else if (type === 'dock') {
+  } else {
     _drawDockBollards(ctx, A, B, C, D, cellPx, suppressCorner);
   }
 
@@ -416,7 +418,7 @@ function renderBridge(ctx: any, bridge: any, allBridges: any, gridSize: any, the
 
   // ── 6. Edge outline (drawn after restore, so it sits on top of the fill) ──
   _buildPath(ctx, A, B, C, D);
-  ctx.strokeStyle = (EDGE_COLORS as any)[type] || EDGE_COLORS.wood;
+  ctx.strokeStyle = EDGE_COLORS[type as keyof typeof EDGE_COLORS] || EDGE_COLORS.wood;
   ctx.lineWidth = Math.max(1, transform.scale / 8);
   ctx.lineJoin = 'round';
   ctx.stroke();
@@ -433,14 +435,14 @@ function renderBridge(ctx: any, bridge: any, allBridges: any, gridSize: any, the
  * @param {Function|null} getTextureImage - (textureId: string) => HTMLImageElement|null
  * @returns {void}
  */
-export function renderAllBridges(ctx: CanvasRenderingContext2D, bridges: Bridge[] | undefined, gridSize: number, theme: Theme, transform: RenderTransform, getTextureImage: any): void {
+export function renderAllBridges(ctx: CanvasRenderingContext2D, bridges: Bridge[] | undefined, gridSize: number, theme: Theme, transform: RenderTransform, getTextureImage: ((id: string) => HTMLImageElement | null) | null): void {
   if (!bridges || bridges.length === 0) return;
   for (const bridge of bridges) {
     try {
       renderBridge(ctx, bridge, bridges, gridSize, theme, transform, getTextureImage);
     } catch (e) {
       // Don't let a malformed bridge crash the whole render pass
-      warn(`[bridges] Render error for bridge ${bridge.id}: ${(e as any).message}`);
+      warn(`[bridges] Render error for bridge ${bridge.id}: ${(e as Error).message}`);
     }
   }
 }

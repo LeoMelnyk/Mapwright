@@ -1,13 +1,28 @@
+import type { CellGrid, TextureCatalog, TextureRuntime } from '../../types.js';
 // Texture Catalog — loads .texture metadata and lazily loads PNG images on demand.
 // Mirrors the pattern of theme-catalog.js and prop-catalog.js.
 
 import { showToast } from './toast.js';
 
+/** Serializable metadata entry (no images). */
+interface TextureMetadata {
+  id: string;
+  displayName: string;
+  category: string;
+  subcategory: string | null;
+  file: string;
+  dispFile: string | null;
+  norFile: string | null;
+  armFile: string | null;
+  scale: number;
+  credit: string;
+}
+
 const BASE_URL = '/textures/';
 const CACHE_KEY = 'texture-catalog';
 const CACHE_VER_KEY = 'texture-catalog-ver';
 
-let catalog: any = null; // { names, textures, byCategory, categoryOrder }
+let catalog: TextureCatalog | null = null; // { names, textures, byCategory, categoryOrder }
 
 /**
  * A texture entry in the catalog:
@@ -35,50 +50,46 @@ let catalog: any = null; // { names, textures, byCategory, categoryOrder }
 /**
  * Build catalog entries from raw metadata array (metadata only, no image loading).
  */
-function buildFromMetadata(entries: any) {
-  const names = [];
-  const textures = {};
-  const byCategory = {};
-  const categoryOrder = [];
+function buildFromMetadata(entries: TextureMetadata[]): TextureCatalog {
+  const names: string[] = [];
+  const textures: Record<string, TextureRuntime> = {};
+  const byCategory: Record<string, string[]> = {};
+  const categoryOrder: string[] = [];
 
   for (const data of entries) {
     const key = data.id;
 
-    const entry = {
-      id: key,
-      displayName: data.displayName || key,
-      category: data.category || 'Uncategorized',
-      subcategory: data.subcategory || null,
+    const entry: TextureRuntime = {
+      displayName: (data.displayName) || key,
       file: data.file,
-      dispFile: data.dispFile || null,
-      norFile: data.norFile || null,
-      armFile: data.armFile || null,
-      scale: data.scale ?? 2.0,
-      credit: data.credit || '',
-      img: null,
+      dispFile: (data.dispFile as string) || undefined,
+      norFile: (data.norFile as string) || undefined,
+      armFile: (data.armFile as string) || undefined,
+      img: undefined,
       dispImg: null,
       norImg: null,
-      armImg: null,
     };
 
-    (textures as any)[key] = entry;
+    textures[key] = entry;
     names.push(key);
 
-    if (!(byCategory as any)[entry.category]) {
-      (byCategory as any)[entry.category] = [];
-      categoryOrder.push(entry.category);
+    const category = entry.displayName ? (data.category) || 'Uncategorized' : 'Uncategorized';
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- byCategory is built dynamically
+    if (!byCategory[category]) {
+      byCategory[category] = [];
+      categoryOrder.push(category);
     }
-    (byCategory as any)[entry.category].push(key);
+    byCategory[category].push(key);
   }
 
-  return { names, textures, byCategory, categoryOrder };
+  return { entries: [], byId: {}, images: {}, names, textures, byCategory, categoryOrder };
 }
 
 /**
  * Load texture metadata from server. Uses localStorage cache for subsequent loads.
  * @returns {Promise<Object>} The texture catalog with names, textures, byCategory, categoryOrder.
  */
-export async function loadTextureCatalog(): Promise<any> {
+export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
   if (catalog) return catalog;
 
   try {
@@ -91,8 +102,7 @@ export async function loadTextureCatalog(): Promise<any> {
     const cachedVer = localStorage.getItem(CACHE_VER_KEY);
     if (cachedVer === version) {
       try {
-        // @ts-expect-error — strict-mode migration
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!) as TextureMetadata[] | null;
         if (cached?.length) {
           catalog = buildFromMetadata(cached);
           return catalog;
@@ -102,7 +112,7 @@ export async function loadTextureCatalog(): Promise<any> {
 
     // Fresh fetch — load all .texture files
     const results = await Promise.allSettled(
-      keys.map(async (key: any) => {
+      keys.map(async (key: string) => {
         const r = await fetch(`${BASE_URL}${key}.texture`, { cache: 'no-cache' });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return { key, data: await r.json() };
@@ -121,15 +131,15 @@ export async function loadTextureCatalog(): Promise<any> {
       const { key, data } = result.value;
       metadataEntries.push({
         id: key,
-        displayName: data.displayName || key,
-        category: data.category || 'Uncategorized',
-        subcategory: data.subcategory || null,
+        displayName: data.displayName ?? key,
+        category: data.category ?? 'Uncategorized',
+        subcategory: data.subcategory ?? null,
         file: data.file,
         scale: data.scale ?? 2.0,
-        credit: data.credit || '',
-        dispFile: data.maps?.disp || null,
-        norFile: data.maps?.nor || null,
-        armFile: data.maps?.arm || null,
+        credit: data.credit ?? '',
+        dispFile: data.maps?.disp ?? null,
+        norFile: data.maps?.nor ?? null,
+        armFile: data.maps?.arm ?? null,
       });
     }
 
@@ -143,11 +153,11 @@ export async function loadTextureCatalog(): Promise<any> {
       localStorage.setItem(CACHE_VER_KEY, version);
     } catch { /* localStorage full or unavailable — ignore */ }
 
-    catalog = buildFromMetadata(metadataEntries);
+    catalog = buildFromMetadata(metadataEntries as TextureMetadata[]);
   } catch (e) {
     console.warn('[texture-catalog] Could not load textures from server:', e);
     showToast('Could not load texture catalog — textures unavailable');
-    catalog = { names: [], textures: {}, byCategory: {}, categoryOrder: [] };
+    catalog = { entries: [], byId: {}, images: {}, names: [], textures: {}, byCategory: {}, categoryOrder: [] };
   }
 
   return catalog;
@@ -164,7 +174,7 @@ export function loadTextureImages(id: string): Promise<void> {
 
   // If already started, return the existing loading promise
   // (don't return Promise.resolve() — the images may still be loading)
-  if (entry._loadPromise) return entry._loadPromise;
+  if (entry._loadPromise) return entry._loadPromise as Promise<void>;
 
   // Diffuse — always present
   const img = new Image();
@@ -174,7 +184,7 @@ export function loadTextureImages(id: string): Promise<void> {
   // Displacement
   const dispSrc = entry.dispFile
     ? `${BASE_URL}${entry.dispFile}`
-    : `${BASE_URL}${entry.file.replace('_diff_', '_disp_')}`;
+    : `${BASE_URL}${entry.file!.replace('_diff_', '_disp_')}`;
   const dispImg = new Image();
   dispImg.src = dispSrc;
   entry.dispImg = dispImg;
@@ -191,7 +201,7 @@ export function loadTextureImages(id: string): Promise<void> {
 
   // Return promise that resolves when diffuse + displacement are ready
   // (both are needed for rendering — displacement drives edge blend ordering)
-  function awaitImage(image: any) {
+  function awaitImage(image: HTMLImageElement) {
     if (!image.src || image.complete) return Promise.resolve();
     return new Promise(resolve => {
       image.addEventListener('load', resolve, { once: true });
@@ -199,7 +209,7 @@ export function loadTextureImages(id: string): Promise<void> {
     });
   }
   entry._loadPromise = Promise.all([awaitImage(img), awaitImage(dispImg)]);
-  return entry._loadPromise;
+  return entry._loadPromise as Promise<void>;
 }
 
 /**
@@ -217,7 +227,7 @@ export function ensureTexturesLoaded(ids: Iterable<string>, onProgress?: (loaded
     // Track ALL images that aren't complete yet (including ones already started
     // by preloadPropTextures) — not just freshly kicked off ones
     const entry = catalog?.textures[id];
-    if (entry && entry.img) {
+    if (entry?.img) {
       pendingImages.push(id);
     }
   }
@@ -255,19 +265,18 @@ export function ensureTexturesLoaded(ids: Iterable<string>, onProgress?: (loaded
  * @param {Array<Array>} cells - The dungeon cells grid.
  * @returns {Set<string>} Set of texture IDs used in the grid.
  */
-export function collectTextureIds(cells: any[][]): Set<string> {
-  const ids = new Set();
-  const KEYS = ['texture', 'textureSecondary'];
+export function collectTextureIds(cells: CellGrid): Set<string> {
+  const ids = new Set<string>();
+  const KEYS = ['texture', 'textureSecondary'] as const;
   for (const row of cells) {
-    if (!row) continue;
     for (const cell of row) {
       if (!cell) continue;
       for (const key of KEYS) {
-        if (cell[key]) ids.add(cell[key]);
+        const val = cell[key];
+        if (val && typeof val === 'string') ids.add(val);
       }
     }
   }
-  // @ts-expect-error — strict-mode migration
   return ids;
 }
 
@@ -275,7 +284,7 @@ export function collectTextureIds(cells: any[][]): Set<string> {
  * Synchronous getter for the texture catalog.
  * @returns {Object|null} The texture catalog or null if not yet loaded.
  */
-export function getTextureCatalog(): any {
+export function getTextureCatalog(): TextureCatalog | null {
   return catalog;
 }
 

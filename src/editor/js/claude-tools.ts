@@ -756,8 +756,9 @@ export const CORE_TOOL_DEFINITIONS = TOOL_DEFINITIONS.filter(t => CORE_TOOL_NAME
 // ── Tool execution ────────────────────────────────────────────────────────────
 
 /** Validate that required fields are present. Returns an error string or null. */
-function requireFields(input: any, ...fields: any[]) {
+function requireFields(input: Record<string, string | number | boolean>, ...fields: string[]) {
   for (const f of fields) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (input[f] === undefined || input[f] === null) {
       return `Missing required argument "${f}". Got: ${JSON.stringify(input)}`;
     }
@@ -772,9 +773,10 @@ const VALID_FILLS = new Set(['difficult-terrain', 'pit', 'water', 'lava']);
  * Execute a single tool call against window.editorAPI.
  * Returns the API result (or an error object with a descriptive message).
  */
-export function executeTool(name: string, input: Record<string, any>): any {
-  if (!(window as any).editorAPI) return { error: 'editorAPI not available' };
-  const fn = (window as any).editorAPI[name]?.bind((window as any).editorAPI);
+export function executeTool(name: string, input: Record<string, string | number | boolean>): Record<string, unknown> {
+  if (!(window as unknown as Record<string, unknown>).editorAPI) return { error: 'editorAPI not available' };
+  const api = (window as unknown as Record<string, unknown>).editorAPI as Record<string, (...args: unknown[]) => Record<string, unknown>>;
+  const fn = api[name].bind(api);
   if (typeof fn !== 'function') return { error: `Unknown tool: "${name}". Check tool name spelling.` };
 
   // Per-tool argument validation — gives the model actionable error messages
@@ -796,28 +798,28 @@ export function executeTool(name: string, input: Record<string, any>): any {
     case 'setDoor': case 'removeDoor':
       err = requireFields(input, 'row', 'col', 'direction');
       if (err) return { error: `${name}: ${err}` };
-      if (!VALID_DIRECTIONS.has(input.direction)) {
+      if (!VALID_DIRECTIONS.has(String(input.direction))) {
         return { error: `${name}: direction must be "north", "south", "east", or "west". Got "${input.direction}".` };
       }
       break;
     case 'setWall': case 'removeWall':
       err = requireFields(input, 'row', 'col', 'direction');
       if (err) return { error: `${name}: ${err}` };
-      if (!VALID_DIRECTIONS.has(input.direction) && input.direction !== 'nw-se' && input.direction !== 'ne-sw') {
+      if (!VALID_DIRECTIONS.has(String(input.direction)) && input.direction !== 'nw-se' && input.direction !== 'ne-sw') {
         return { error: `${name}: direction must be "north", "south", "east", "west", "nw-se", or "ne-sw". Got "${input.direction}".` };
       }
       break;
     case 'setFill':
       err = requireFields(input, 'row', 'col', 'fillType');
       if (err) return { error: `setFill: ${err}` };
-      if (!VALID_FILLS.has(input.fillType)) {
+      if (!VALID_FILLS.has(String(input.fillType))) {
         return { error: `setFill: fillType must be one of: ${[...VALID_FILLS].join(', ')}. Got "${input.fillType}".` };
       }
       break;
     case 'setFillRect':
       err = requireFields(input, 'r1', 'c1', 'r2', 'c2', 'fillType');
       if (err) return { error: `setFillRect: ${err}` };
-      if (!VALID_FILLS.has(input.fillType)) {
+      if (!VALID_FILLS.has(String(input.fillType))) {
         return { error: `setFillRect: fillType must be one of: ${[...VALID_FILLS].join(', ')}. Got "${input.fillType}".` };
       }
       break;
@@ -894,11 +896,11 @@ export function executeTool(name: string, input: Record<string, any>): any {
         const roomResult = fn(input.r1, input.c1, input.r2, input.c2, input.mode);
         // Honour optional label field — model often passes label directly to createRoom.
         // Auto-apply at room center so createCorridor can find the room immediately.
-        if (roomResult?.success && input.label && /^[A-Z]\d+$/.test(String(input.label))) {
+        if (roomResult.success && input.label && /^[A-Z]\d+$/.test(String(input.label))) {
           try {
-            const cr = Math.floor((input.r1 + input.r2) / 2);
-            const cc = Math.floor((input.c1 + input.c2) / 2);
-            (window as any).editorAPI.setLabel(cr, cc, String(input.label));
+            const cr = Math.floor((Number(input.r1) + Number(input.r2)) / 2);
+            const cc = Math.floor((Number(input.c1) + Number(input.c2)) / 2);
+            api.setLabel(cr, cc, String(input.label));
           } catch { /* room may not have center cell yet — model should call setLabel separately */ }
         }
         return roomResult;
@@ -970,7 +972,7 @@ export function executeTool(name: string, input: Record<string, any>): any {
       case 'placeLightInRoom':  return fn(input.label, input.preset);
       default:                  return { error: `No dispatch for tool: "${name}". This tool exists but has no handler — report this bug.` };
     }
-  } catch (err) {
-    return { error: `${name} failed: ${(err as any).message}` };
+  } catch (execErr) {
+    return { error: `${name} failed: ${(execErr as Error).message}` };
   }
 }

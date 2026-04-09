@@ -12,7 +12,7 @@ import {
  * Check for props blocking door cells or their approach cells.
  * @returns {{ success: boolean, clear: boolean, issues: Array<Object> }}
  */
-export function validateDoorClearance(): { success: true; clear: boolean; issues: any[] } {
+export function validateDoorClearance(): { success: true; clear: boolean; issues: { row: number; col: number; direction: string; doorType: string; problem: string }[] } {
   const cells = state.dungeon.cells;
   const issues = [];
 
@@ -21,15 +21,15 @@ export function validateDoorClearance(): { success: true; clear: boolean; issues
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
-        if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') continue;
+        if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') continue;
         if (getApi()._isCellCoveredByProp(r, c)) {
-          issues.push({ row: toDisp(r), col: toDisp(c), direction: dir, doorType: (cell as any)[dir], problem: 'prop blocking door cell' });
+          issues.push({ row: toDisp(r), col: toDisp(c), direction: dir, doorType: (cell as Record<string, unknown>)[dir] as string, problem: 'prop blocking door cell' });
         }
         const [dr, dc] = OFFSETS[dir];
         const nr = r + dr, nc = c + dc;
         if (nr >= 0 && nr < cells.length && nc >= 0 && nc < (cells[nr]?.length || 0)) {
           if (getApi()._isCellCoveredByProp(nr, nc)) {
-            issues.push({ row: toDisp(nr), col: toDisp(nc), direction: (OPPOSITE as any)[dir], doorType: (cell as any)[dir], problem: 'prop blocking door approach' });
+            issues.push({ row: toDisp(nr), col: toDisp(nc), direction: OPPOSITE[dir as keyof typeof OPPOSITE], doorType: (cell as Record<string, unknown>)[dir] as string, problem: 'prop blocking door approach' });
           }
         }
       }
@@ -51,16 +51,16 @@ export function validateConnectivity(entranceLabel: string): { success: true; co
   const cells = state.dungeon.cells;
   const visited = new Set();
   // findCellByLabel returns display coords — convert to internal
-  const startR = toInt(start.row), startC = toInt(start.col);
+  const startR = toInt(start.row!), startC = toInt(start.col!);
   const queue = [[startR, startC]];
   visited.add(cellKey(startR, startC));
 
   while (queue.length) {
-    const [r, c] = queue.shift();
+    const [r, c] = queue.shift()!;
     const cell = cells[r]?.[c];
     if (!cell) continue;
     for (const dir of CARDINAL_DIRS) {
-      const edge = (cell as any)[dir];
+      const edge = (cell as Record<string, unknown>)[dir];
       if (edge === 'w' || edge === 'iw') continue;
       const [dr, dc] = OFFSETS[dir];
       const nr = r + dr, nc = c + dc;
@@ -79,7 +79,7 @@ export function validateConnectivity(entranceLabel: string): { success: true; co
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       const label = cells[r]?.[c]?.center?.label;
       if (label == null) continue;
-      const labelStr = String(label);
+      const labelStr = label;
       if (visited.has(cellKey(r, c))) reachable.push(labelStr);
       else unreachable.push(labelStr);
     }

@@ -18,22 +18,31 @@
  * @param {number[]} p3 - [row, col] third click (depth target)
  * @returns {{ type: 'rectangle'|'triangle', vertices: number[][] }}
  */
-export function classifyStairShape(p1: number[], p2: number[], p3: number[]): { type: 'rectangle' | 'triangle'; vertices: number[][] } {
-  const base = [p2[0] - p1[0], p2[1] - p1[1]];
-  const d2 = [p3[0] - p2[0], p3[1] - p2[1]];
-  const d1 = [p3[0] - p1[0], p3[1] - p1[1]];
+export function classifyStairShape(p1: number[], p2: number[], p3: number[]): { type: 'rectangle' | 'trapezoid' | 'triangle'; vertices: number[][] } {
+  const baseR = p2[0] - p1[0], baseC = p2[1] - p1[1];
+  const baseLen = Math.hypot(baseR, baseC);
+  if (baseLen < 0.01) return { type: 'triangle', vertices: [p1, p2, p3] };
+  const baseUnitR = baseR / baseLen, baseUnitC = baseC / baseLen;
 
-  if (base[0] * d2[0] + base[1] * d2[1] === 0) {
-    // Perpendicular from P2: P4 = P1 + depthVec
-    const p4 = [p1[0] + d2[0], p1[1] + d2[1]];
-    return { type: 'rectangle', vertices: [p1, p2, p3, p4] };
+  // Decompose P3-P2 into base-parallel (inward) and base-perpendicular (depth)
+  const relR = p3[0] - p2[0], relC = p3[1] - p2[1];
+  const inward = -(relR * baseUnitR + relC * baseUnitC);
+  const depthR = relR + inward * baseUnitR;
+  const depthC = relC + inward * baseUnitC;
+
+  const narrowLen = baseLen - 2 * inward;
+  const midR = (p1[0] + p2[0]) / 2, midC = (p1[1] + p2[1]) / 2;
+  const narrowCenterR = midR + depthR, narrowCenterC = midC + depthC;
+
+  if (narrowLen > 0.05) {
+    const halfNarrow = narrowLen / 2;
+    const ns = [narrowCenterR - halfNarrow * baseUnitR, narrowCenterC - halfNarrow * baseUnitC];
+    const ne = [narrowCenterR + halfNarrow * baseUnitR, narrowCenterC + halfNarrow * baseUnitC];
+    const type = Math.abs(narrowLen - baseLen) < 0.05 ? 'rectangle' : 'trapezoid';
+    return { type, vertices: [p1, p2, ne, ns] };
   }
-  if (base[0] * d1[0] + base[1] * d1[1] === 0) {
-    // Perpendicular from P1: P4 = P2 + depthVec
-    const p4 = [p2[0] + d1[0], p2[1] + d1[1]];
-    return { type: 'rectangle', vertices: [p1, p2, p4, p3] };
-  }
-  return { type: 'triangle', vertices: [p1, p2, p3] };
+  // Converges to a point
+  return { type: 'triangle', vertices: [p1, p2, [narrowCenterR, narrowCenterC]] };
 }
 
 /**
@@ -79,7 +88,7 @@ export function stairBoundingBox(points: number[][]): { minRow: number; minCol: 
  * @param {number[][]} polygon - vertices as [row, col] pairs
  * @returns {boolean}
  */
-function pointInPolygon(py: any, px: any, polygon: any) {
+function pointInPolygon(py: number, px: number, polygon: number[][]) {
   let inside = false;
   const n = polygon.length;
   for (let i = 0, j = n - 1; i < n; j = i++) {
@@ -100,7 +109,7 @@ function pointInPolygon(py: any, px: any, polygon: any) {
  * @param {number} eps - tolerance
  * @returns {boolean}
  */
-function pointOnPolygonEdge(py: any, px: any, polygon: any, eps = 0.01) {
+function pointOnPolygonEdge(py: number, px: number, polygon: number[][], eps = 0.01) {
   const n = polygon.length;
   for (let i = 0, j = n - 1; i < n; j = i++) {
     const yi = polygon[i][0], xi = polygon[i][1];
@@ -135,9 +144,11 @@ export function getOccupiedCells(vertices: number[][]): { row: number; col: numb
   }
 
   // Cell rows go from minRow to maxRow-1, cols from minCol to maxCol-1
+  const startR = Math.floor(minRow), startC = Math.floor(minCol);
+  const endR = Math.ceil(maxRow), endC = Math.ceil(maxCol);
   const cells = [];
-  for (let r = minRow; r < maxRow; r++) {
-    for (let c = minCol; c < maxCol; c++) {
+  for (let r = startR; r < endR; r++) {
+    for (let c = startC; c < endC; c++) {
       const cy = r + 0.5;
       const cx = c + 0.5;
       if (pointInPolygon(cy, cx, vertices) || pointOnPolygonEdge(cy, cx, vertices)) {

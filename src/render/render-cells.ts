@@ -1,4 +1,4 @@
-import type { CellGrid, Theme, RenderTransform, Metadata, VisibleBounds } from '../types.js';
+import type { BackgroundImage, CellGrid, Theme, RenderTransform, Metadata, VisibleBounds, PropCatalog, TextureCatalog } from '../types.js';
 import { _t } from './render-state.js';
 import { getCachedRoomCells, withTrimVoidClip } from './render-cache.js';
 import { renderFloors, renderTextureBlending, renderFillPatternsAndGrid, renderHazardOverlay, renderWallsAndBorders, renderLabelsStairsProps } from './render-phases.js';
@@ -19,15 +19,15 @@ import { drawHatching, drawRockShading, drawOuterShading } from './effects.js';
 interface RenderCellsOptions {
   showGrid?: boolean;
   labelStyle?: string;
-  propCatalog?: any;
-  textureOptions?: any;
+  propCatalog?: PropCatalog | null;
+  textureOptions?: { catalog: TextureCatalog; blendWidth: number } | null;
   metadata?: Metadata | null;
   skipLabels?: boolean;
   showInvisible?: boolean;
   bgImageEl?: HTMLImageElement | null;
-  bgImgConfig?: any;
+  bgImgConfig?: BackgroundImage | Record<string, number | string | boolean> | null;
   visibleBounds?: VisibleBounds | null;
-  cacheSize?: { w: number; h: number } | null;
+  cacheSize?: { w: number; h: number; scale?: number } | null;
   skipPhases?: Record<string, boolean> | null;
 }
 
@@ -49,7 +49,7 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
   const roomCells = _t('roomCells', () => getCachedRoomCells(cells));
 
   // ── Base phases: shading + floors (rendered directly, no layer canvas) ──
-  const _res = metadata?.resolution || 1;
+  const _res = metadata?.resolution ?? 1;
   let hasTexturedCells = false;
 
   if (!skipPhases?.shading) {
@@ -87,7 +87,7 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
   if (!skipPhases?.bridges) {
     _t('bridges', () => {
       const getTextureImageForBridges = textureOptions?.catalog
-        ? (id: any) => { const e = textureOptions.catalog.textures[id]; return e?.img && (e.img.complete !== false) ? e.img : null; }
+        ? (id: string) => { const e = textureOptions.catalog.textures[id]; return e?.img && ((e.img as HTMLImageElement).complete) ? e.img : null; }
         : null;
       renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
     });

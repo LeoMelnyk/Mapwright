@@ -8,6 +8,7 @@
 // First-use hints: shows a tip toast the first time each tool is activated.
 // Tutorial: spotlight overlay that walks through creating a basic dungeon.
 
+import type { EditorState } from '../../types.js';
 import state, { subscribe, notify } from './state.js';
 import { showToast } from './toast.js';
 import { loadDungeonJSON } from './io.js';
@@ -34,27 +35,27 @@ const TOOL_HINTS = {
 };
 
 function getSeenHints() {
-  try { return new Set(JSON.parse(localStorage.getItem(HINTS_KEY) || '[]')); }
+  try { return new Set(JSON.parse(localStorage.getItem(HINTS_KEY) ?? '[]')); }
   catch { return new Set(); }
 }
 
-function markHintSeen(tool: any) {
+function markHintSeen(tool: string) {
   const seen = getSeenHints();
   seen.add(tool);
   localStorage.setItem(HINTS_KEY, JSON.stringify([...seen]));
 }
 
-function showToolHint(tool: any) {
-  if (!(TOOL_HINTS as any)[tool]) return;
+function showToolHint(tool: string) {
+  if (!(TOOL_HINTS as Record<string, string>)[tool]) return;
   const seen = getSeenHints();
   if (seen.has(tool)) return;
   markHintSeen(tool);
-  showToast(`\u{1f4a1} ${(TOOL_HINTS as any)[tool]}`, 6000);
+  showToast(`\u{1f4a1} ${(TOOL_HINTS as Record<string, string>)[tool]}`, 6000);
 }
 
 // ─── Welcome Modal ───────────────────────────────────────────────────────────
 
-function showWelcome(onTutorial: any, onExample: any, onFresh: any) {
+function showWelcome(onTutorial: () => void, onExample: (url: string, name: string) => void, onFresh: () => void) {
   const overlay = document.createElement('div');
   overlay.className = 'onboarding-modal-overlay';
   overlay.innerHTML = `
@@ -140,8 +141,8 @@ function showWelcome(onTutorial: any, onExample: any, onFresh: any) {
     });
 
   // Wire non-example buttons
-  overlay.querySelector('[data-action="tutorial"]')?.addEventListener('click', () => { close(); onTutorial(); });
-  overlay.querySelector('[data-action="fresh"]')?.addEventListener('click', () => { close(); onFresh(); });
+  overlay.querySelector<HTMLInputElement>('[data-action="tutorial"]')?.addEventListener('click', () => { close(); onTutorial(); });
+  overlay.querySelector<HTMLInputElement>('[data-action="fresh"]')?.addEventListener('click', () => { close(); onFresh(); });
 }
 
 // ─── Tutorial System ─────────────────────────────────────────────────────────
@@ -190,16 +191,15 @@ const TUTORIAL_STEPS = [
 ];
 
 class Tutorial {
-  [key: string]: any;
-  constructor() {
-    this.step = 0;
-    this.overlay = null;
-    this._listener = null;
-    this._prevUndoLen = 0;
-    this._roomCount = 0;
-    this._doorCount = 0;
-    this._propCount = 0;
-  }
+  step: number = 0;
+  overlay: HTMLElement | null = null;
+  _listener: ((state: EditorState) => void) | null = null;
+  _prevUndoLen: number = 0;
+  _roomCount: number = 0;
+  _doorCount: number = 0;
+  _propCount: number = 0;
+
+  constructor() {}
 
   start() {
     this._snapshot();
@@ -229,19 +229,19 @@ class Tutorial {
         // BFS to mark connected cells
         const queue = [[r, c]];
         while (queue.length) {
-          const [cr, cc] = queue.pop();
+          const [cr, cc] = queue.pop()!;
           const key = `${cr},${cc}`;
           if (visited.has(key)) continue;
           visited.add(key);
           const cell = cells[cr]?.[cc];
           if (!cell) continue;
-          const dirs = [[-1, 0, 'north'], [1, 0, 'south'], [0, -1, 'west'], [0, 1, 'east']];
+          const dirs: [number, number, string][] = [[-1, 0, 'north'], [1, 0, 'south'], [0, -1, 'west'], [0, 1, 'east']];
           for (const [dr, dc, dir] of dirs) {
             const nr = cr + dr, nc = cc + dc;
             if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length || 0)) continue;
             if (!cells[nr][nc]) continue;
             // Connected if no wall between them
-            if (!(cell as any)[dir] || (cell as any)[dir] === 'd' || (cell as any)[dir] === 's' || (cell as any)[dir] === 'id') {
+            if (!(cell as Record<string, unknown>)[dir] || (cell as Record<string, unknown>)[dir] === 'd' || (cell as Record<string, unknown>)[dir] === 's' || (cell as Record<string, unknown>)[dir] === 'id') {
               queue.push([nr, nc]);
             }
           }
@@ -255,11 +255,10 @@ class Tutorial {
     let count = 0;
     const cells = state.dungeon.cells;
     for (const row of cells) {
-      if (!row) continue;
       for (const cell of row) {
         if (!cell) continue;
         for (const dir of ['north', 'south', 'east', 'west']) {
-          if ((cell as any)[dir] === 'd' || (cell as any)[dir] === 's' || (cell as any)[dir] === 'id') count++;
+          if ((cell as Record<string, unknown>)[dir] === 'd' || (cell as Record<string, unknown>)[dir] === 's' || (cell as Record<string, unknown>)[dir] === 'id') count++;
         }
       }
     }
@@ -267,13 +266,12 @@ class Tutorial {
   }
 
   _countProps() {
-    // @ts-expect-error — strict-mode migration
-    return state.dungeon.metadata?.props?.length || 0;
+    return state.dungeon.metadata.props?.length ?? 0;
   }
 
   _checkCompletion() {
     const stepDef = TUTORIAL_STEPS[this.step];
-    if (!stepDef?.waitFor) return;
+    if (!stepDef.waitFor) return;
 
     let advance = false;
     switch (stepDef.waitFor) {
@@ -316,8 +314,8 @@ class Tutorial {
     `;
     document.body.appendChild(this.overlay);
 
-    this.overlay.querySelector('.tutorial-btn-skip').addEventListener('click', () => this.end());
-    this.overlay.querySelector('.tutorial-btn-next').addEventListener('click', () => {
+    this.overlay.querySelector('.tutorial-btn-skip')!.addEventListener('click', () => this.end());
+    this.overlay.querySelector('.tutorial-btn-next')!.addEventListener('click', () => {
       if (this.step >= TUTORIAL_STEPS.length - 1) {
         this.end();
       } else {
@@ -326,26 +324,26 @@ class Tutorial {
     });
 
     // Allow clicking through to the canvas (except the panel)
-    this.overlay.querySelector('.tutorial-backdrop').addEventListener('click', (e: any) => {
+    this.overlay.querySelector('.tutorial-backdrop')!.addEventListener('click', (e: Event) => {
       e.stopPropagation();
     });
 
-    requestAnimationFrame(() => this.overlay.classList.add('visible'));
+    requestAnimationFrame(() => this.overlay!.classList.add('visible'));
   }
 
-  _showStep(index: any) {
+  _showStep(index: number) {
     this.step = index;
     const stepDef = TUTORIAL_STEPS[index];
-    const panel = this.overlay.querySelector('.tutorial-panel');
-    const spotlight = this.overlay.querySelector('.tutorial-spotlight');
+    const panel = this.overlay!.querySelector('.tutorial-panel') as HTMLElement;
+    const spotlight = this.overlay!.querySelector('.tutorial-spotlight') as HTMLElement;
 
     // Update content
-    panel.querySelector('.tutorial-step-counter').textContent = `Step ${index + 1} of ${TUTORIAL_STEPS.length}`;
-    panel.querySelector('.tutorial-title').textContent = stepDef.title;
-    panel.querySelector('.tutorial-text').innerHTML = stepDef.text;
-    panel.querySelector('.tutorial-hint').textContent = stepDef.hint || '';
+    panel.querySelector('.tutorial-step-counter')!.textContent = `Step ${index + 1} of ${TUTORIAL_STEPS.length}`;
+    panel.querySelector('.tutorial-title')!.textContent = stepDef.title;
+    panel.querySelector('.tutorial-text')!.innerHTML = stepDef.text;
+    panel.querySelector('.tutorial-hint')!.textContent = stepDef.hint || '';
 
-    const nextBtn = panel.querySelector('.tutorial-btn-next');
+    const nextBtn = panel.querySelector('.tutorial-btn-next')!;
     nextBtn.textContent = index >= TUTORIAL_STEPS.length - 1 ? 'Finish' : 'Next';
 
     // Position spotlight on target element
@@ -375,7 +373,7 @@ class Tutorial {
     panel.classList.add('tutorial-panel-enter');
   }
 
-  _positionPanel(panel: any, targetRect: any, position: any) {
+  _positionPanel(panel: HTMLElement, targetRect: DOMRect, position: string) {
     const panelWidth = 320;
     const gap = 16;
 
@@ -430,7 +428,7 @@ class Tutorial {
     }
     if (this.overlay) {
       this.overlay.classList.remove('visible');
-      this.overlay.addEventListener('transitionend', () => this.overlay.remove(), { once: true });
+      this.overlay.addEventListener('transitionend', () => this.overlay?.remove(), { once: true });
       // Fallback removal in case transitionend doesn't fire
       setTimeout(() => { if (this.overlay?.parentNode) this.overlay.remove(); }, 500);
     }
@@ -440,7 +438,7 @@ class Tutorial {
 
 // ─── Example Map Loader ──────────────────────────────────────────────────────
 
-function loadExampleMap(url: any, name: any) {
+function loadExampleMap(url: string, name: string) {
   fetch(url)
     .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
     .then(json => {
@@ -494,7 +492,7 @@ export function openWelcomeScreen(): void {
       tutorial.start();
     },
     // Example map (receives url and name from the clicked card)
-    (url: any, name: any) => loadExampleMap(url, name),
+    (url: string, name: string) => loadExampleMap(url, name),
     // Fresh — do nothing
     () => {}
   );

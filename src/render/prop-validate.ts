@@ -1,3 +1,4 @@
+import type { PropCommand, PropDefinition } from '../types.js';
 /**
  * prop-validate.js - Validate that prop draw commands stay within footprint bounds.
  *
@@ -19,7 +20,7 @@ const TOLERANCE = 0.02;
  * @param {object} propDef - Parsed prop definition with footprint, padding, commands
  * @returns {{ valid: boolean, warnings: Array<{ line: number, command: string, message: string }> }}
  */
-export function validatePropBounds(propDef: any) {
+export function validatePropBounds(propDef: PropDefinition) {
   const { footprint, padding = 0, commands } = propDef;
   const [rows, cols] = footprint;
   const p = padding;
@@ -40,13 +41,13 @@ export function validatePropBounds(propDef: any) {
       if (side === 'min' && value < bound - TOLERANCE) {
         warnings.push({
           line: i,
-          command: cmd.type === 'cutout' ? `cutout-${cmd.subShape}` : cmd.type,
-          message: `${label}=${value.toFixed(2)} below ${side === 'min' ? (bound === xMin || bound === yMin ? (bound === xMin ? 'x' : 'y') : '') : ''}${label.startsWith('x') || label.startsWith('cx') ? 'x' : 'y'} min=${bound.toFixed(2)}`,
+          command: cmd.type === 'cutout' ? `cutout-${cmd.subShape as string}` : cmd.type,
+          message: `${label}=${value.toFixed(2)} below ${bound === xMin || bound === yMin ? (bound === xMin ? 'x' : 'y') : ''}${label.startsWith('x') || label.startsWith('cx') ? 'x' : 'y'} min=${bound.toFixed(2)}`,
         });
       } else if (side === 'max' && value > bound + TOLERANCE) {
         warnings.push({
           line: i,
-          command: cmd.type === 'cutout' ? `cutout-${cmd.subShape}` : cmd.type,
+          command: cmd.type === 'cutout' ? `cutout-${cmd.subShape as string}` : cmd.type,
           message: `${label}=${value.toFixed(2)} exceeds ${label.startsWith('x') || label.startsWith('cx') ? 'x' : 'y'} max=${bound.toFixed(2)}`,
         });
       }
@@ -59,42 +60,42 @@ export function validatePropBounds(propDef: any) {
    * Extract coordinate checks for a given command.
    * Returns an array of { label, value, bound, side } objects.
    */
-  function getCommandBounds(cmd: any) {
+  function getCommandBounds(cmd: PropCommand) {
     switch (cmd.type) {
       case 'rect':
         return [
-          { label: 'x', value: cmd.x, bound: xMin, side: 'min' },
-          { label: 'y', value: cmd.y, bound: yMin, side: 'min' },
-          { label: 'x+w', value: cmd.x + cmd.w, bound: xMax, side: 'max' },
-          { label: 'y+h', value: cmd.y + cmd.h, bound: yMax, side: 'max' },
+          { label: 'x', value: cmd.x ?? 0, bound: xMin, side: 'min' },
+          { label: 'y', value: cmd.y ?? 0, bound: yMin, side: 'min' },
+          { label: 'x+w', value: (cmd.x ?? 0) + (cmd.w ?? 0), bound: xMax, side: 'max' },
+          { label: 'y+h', value: (cmd.y ?? 0) + (cmd.h ?? 0), bound: yMax, side: 'max' },
         ];
 
       case 'circle':
         return [
-          { label: 'cx-r', value: cmd.cx - cmd.r, bound: xMin, side: 'min' },
-          { label: 'cy-r', value: cmd.cy - cmd.r, bound: yMin, side: 'min' },
-          { label: 'cx+r', value: cmd.cx + cmd.r, bound: xMax, side: 'max' },
-          { label: 'cy+r', value: cmd.cy + cmd.r, bound: yMax, side: 'max' },
+          { label: 'cx-r', value: (cmd.cx ?? 0) - (cmd.r ?? 0), bound: xMin, side: 'min' },
+          { label: 'cy-r', value: (cmd.cy ?? 0) - (cmd.r ?? 0), bound: yMin, side: 'min' },
+          { label: 'cx+r', value: (cmd.cx ?? 0) + (cmd.r ?? 0), bound: xMax, side: 'max' },
+          { label: 'cy+r', value: (cmd.cy ?? 0) + (cmd.r ?? 0), bound: yMax, side: 'max' },
         ];
 
       case 'ellipse':
         return [
-          { label: 'cx-rx', value: cmd.cx - cmd.rx, bound: xMin, side: 'min' },
-          { label: 'cy-ry', value: cmd.cy - cmd.ry, bound: yMin, side: 'min' },
-          { label: 'cx+rx', value: cmd.cx + cmd.rx, bound: xMax, side: 'max' },
-          { label: 'cy+ry', value: cmd.cy + cmd.ry, bound: yMax, side: 'max' },
+          { label: 'cx-rx', value: (cmd.cx ?? 0) - (cmd.rx ?? 0), bound: xMin, side: 'min' },
+          { label: 'cy-ry', value: (cmd.cy ?? 0) - (cmd.ry ?? 0), bound: yMin, side: 'min' },
+          { label: 'cx+rx', value: (cmd.cx ?? 0) + (cmd.rx ?? 0), bound: xMax, side: 'max' },
+          { label: 'cy+ry', value: (cmd.cy ?? 0) + (cmd.ry ?? 0), bound: yMax, side: 'max' },
         ];
 
       case 'line':
         return [
-          { label: 'x1', value: cmd.x1, bound: xMin, side: 'min' },
-          { label: 'y1', value: cmd.y1, bound: yMin, side: 'min' },
-          { label: 'x1', value: cmd.x1, bound: xMax, side: 'max' },
-          { label: 'y1', value: cmd.y1, bound: yMax, side: 'max' },
-          { label: 'x2', value: cmd.x2, bound: xMin, side: 'min' },
-          { label: 'y2', value: cmd.y2, bound: yMin, side: 'min' },
-          { label: 'x2', value: cmd.x2, bound: xMax, side: 'max' },
-          { label: 'y2', value: cmd.y2, bound: yMax, side: 'max' },
+          { label: 'x1', value: cmd.x1 ?? 0, bound: xMin, side: 'min' },
+          { label: 'y1', value: cmd.y1 ?? 0, bound: yMin, side: 'min' },
+          { label: 'x1', value: cmd.x1 ?? 0, bound: xMax, side: 'max' },
+          { label: 'y1', value: cmd.y1 ?? 0, bound: yMax, side: 'max' },
+          { label: 'x2', value: cmd.x2 ?? 0, bound: xMin, side: 'min' },
+          { label: 'y2', value: cmd.y2 ?? 0, bound: yMin, side: 'min' },
+          { label: 'x2', value: cmd.x2 ?? 0, bound: xMax, side: 'max' },
+          { label: 'y2', value: cmd.y2 ?? 0, bound: yMax, side: 'max' },
         ];
 
       case 'poly':
@@ -113,18 +114,18 @@ export function validatePropBounds(propDef: any) {
 
       case 'arc':
         return [
-          { label: 'cx-r', value: cmd.cx - cmd.r, bound: xMin, side: 'min' },
-          { label: 'cy-r', value: cmd.cy - cmd.r, bound: yMin, side: 'min' },
-          { label: 'cx+r', value: cmd.cx + cmd.r, bound: xMax, side: 'max' },
-          { label: 'cy+r', value: cmd.cy + cmd.r, bound: yMax, side: 'max' },
+          { label: 'cx-r', value: (cmd.cx ?? 0) - (cmd.r ?? 0), bound: xMin, side: 'min' },
+          { label: 'cy-r', value: (cmd.cy ?? 0) - (cmd.r ?? 0), bound: yMin, side: 'min' },
+          { label: 'cx+r', value: (cmd.cx ?? 0) + (cmd.r ?? 0), bound: xMax, side: 'max' },
+          { label: 'cy+r', value: (cmd.cy ?? 0) + (cmd.r ?? 0), bound: yMax, side: 'max' },
         ];
 
       case 'ring':
         return [
-          { label: 'cx-outerR', value: cmd.cx - cmd.outerR, bound: xMin, side: 'min' },
-          { label: 'cy-outerR', value: cmd.cy - cmd.outerR, bound: yMin, side: 'min' },
-          { label: 'cx+outerR', value: cmd.cx + cmd.outerR, bound: xMax, side: 'max' },
-          { label: 'cy+outerR', value: cmd.cy + cmd.outerR, bound: yMax, side: 'max' },
+          { label: 'cx-outerR', value: (cmd.cx ?? 0) - (cmd.outerR ?? 0), bound: xMin, side: 'min' },
+          { label: 'cy-outerR', value: (cmd.cy ?? 0) - (cmd.outerR ?? 0), bound: yMin, side: 'min' },
+          { label: 'cx+outerR', value: (cmd.cx ?? 0) + (cmd.outerR ?? 0), bound: xMax, side: 'max' },
+          { label: 'cy+outerR', value: (cmd.cy ?? 0) + (cmd.outerR ?? 0), bound: yMax, side: 'max' },
         ];
 
       case 'cutout':
@@ -135,28 +136,28 @@ export function validatePropBounds(propDef: any) {
     }
   }
 
-  function getCutoutBounds(cmd: any) {
-    switch (cmd.subShape) {
+  function getCutoutBounds(cmd: PropCommand) {
+    switch (cmd.subShape as string) {
       case 'circle':
         return [
-          { label: 'cx-r', value: cmd.cx - cmd.r, bound: xMin, side: 'min' },
-          { label: 'cy-r', value: cmd.cy - cmd.r, bound: yMin, side: 'min' },
-          { label: 'cx+r', value: cmd.cx + cmd.r, bound: xMax, side: 'max' },
-          { label: 'cy+r', value: cmd.cy + cmd.r, bound: yMax, side: 'max' },
+          { label: 'cx-r', value: (cmd.cx ?? 0) - (cmd.r ?? 0), bound: xMin, side: 'min' },
+          { label: 'cy-r', value: (cmd.cy ?? 0) - (cmd.r ?? 0), bound: yMin, side: 'min' },
+          { label: 'cx+r', value: (cmd.cx ?? 0) + (cmd.r ?? 0), bound: xMax, side: 'max' },
+          { label: 'cy+r', value: (cmd.cy ?? 0) + (cmd.r ?? 0), bound: yMax, side: 'max' },
         ];
       case 'rect':
         return [
-          { label: 'x', value: cmd.x, bound: xMin, side: 'min' },
-          { label: 'y', value: cmd.y, bound: yMin, side: 'min' },
-          { label: 'x+w', value: cmd.x + cmd.w, bound: xMax, side: 'max' },
-          { label: 'y+h', value: cmd.y + cmd.h, bound: yMax, side: 'max' },
+          { label: 'x', value: cmd.x ?? 0, bound: xMin, side: 'min' },
+          { label: 'y', value: cmd.y ?? 0, bound: yMin, side: 'min' },
+          { label: 'x+w', value: (cmd.x ?? 0) + (cmd.w ?? 0), bound: xMax, side: 'max' },
+          { label: 'y+h', value: (cmd.y ?? 0) + (cmd.h ?? 0), bound: yMax, side: 'max' },
         ];
       case 'ellipse':
         return [
-          { label: 'cx-rx', value: cmd.cx - cmd.rx, bound: xMin, side: 'min' },
-          { label: 'cy-ry', value: cmd.cy - cmd.ry, bound: yMin, side: 'min' },
-          { label: 'cx+rx', value: cmd.cx + cmd.rx, bound: xMax, side: 'max' },
-          { label: 'cy+ry', value: cmd.cy + cmd.ry, bound: yMax, side: 'max' },
+          { label: 'cx-rx', value: (cmd.cx ?? 0) - (cmd.rx ?? 0), bound: xMin, side: 'min' },
+          { label: 'cy-ry', value: (cmd.cy ?? 0) - (cmd.ry ?? 0), bound: yMin, side: 'min' },
+          { label: 'cx+rx', value: (cmd.cx ?? 0) + (cmd.rx ?? 0), bound: xMax, side: 'max' },
+          { label: 'cy+ry', value: (cmd.cy ?? 0) + (cmd.ry ?? 0), bound: yMax, side: 'max' },
         ];
       default:
         return null;
@@ -170,7 +171,7 @@ export function validatePropBounds(propDef: any) {
  * @param {string} text - Raw .prop file contents
  * @returns {{ name: string, footprint: number[], valid: boolean, warnings: Array }}
  */
-export function validatePropFile(text: any) {
+export function validatePropFile(text: string) {
   const propDef = parsePropFile(text);
   const { valid, warnings } = validatePropBounds(propDef);
   return {

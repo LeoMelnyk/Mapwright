@@ -1,4 +1,4 @@
-import type { CellGrid, Theme, RenderTransform } from '../types.js';
+import type { CellGrid, Metadata, RenderTransform, Theme } from '../types.js';
 import { toCanvas } from './bounds.js';
 import { displayGridSize as _dgs } from '../util/index.js';
 
@@ -32,8 +32,7 @@ function drawDungeonTitle(ctx: CanvasRenderingContext2D, width: number, dungeonN
   ctx.save();
 
   ctx.font = `bold ${fontSize}px Georgia, "Times New Roman", serif`;
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.textColor;
+  ctx.fillStyle = theme.textColor!;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
 
@@ -47,7 +46,7 @@ function drawDungeonTitle(ctx: CanvasRenderingContext2D, width: number, dungeonN
 
 // ─── Grid noise helper ─────
 // Deterministic hash-based noise for grid wobble (no randomness per frame)
-function _gridNoise(row: any, col: any, dir: any, noiseAmount: any, gridSize: any) {
+function _gridNoise(row: number, col: number, dir: number, noiseAmount: number, gridSize: number) {
   if (!noiseAmount) return 0;
   // Simple hash from coordinates + direction seed
   let h = (row * 7919 + col * 104729 + dir * 31) | 0;
@@ -70,12 +69,12 @@ function _gridNoise(row: any, col: any, dir: any, noiseAmount: any, gridSize: an
  * @param {Object} metadata - Dungeon metadata with resolution
  * @returns {void}
  */
-function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, transform: RenderTransform, theme: Theme, showGridInCorridors: boolean, metadata: any): void {
+function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, transform: RenderTransform, theme: Theme, showGridInCorridors: boolean, metadata: Metadata | null): void {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
-  const resolution = metadata?.resolution || 1;
+  const resolution = metadata?.resolution ?? 1;
 
-  const style = theme.gridStyle || 'lines';
+  const style = theme.gridStyle ?? 'lines';
   const lineWidth = theme.gridLineWidth ?? 4;
   const noise = theme.gridNoise ?? 0;
   const cornerFrac = theme.gridCornerLength ?? 0.3;
@@ -83,24 +82,20 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
 
   ctx.lineCap = 'butt';
 
-  const shouldDraw = (r: any, c: any) => {
+  const shouldDraw = (r: number, c: number) => {
     if (r < 0 || r >= numRows || c < 0 || c >= numCols) return false;
     return roomCells[r][c] || (showGridInCorridors && cells[r]?.[c]);
   };
 
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.gridLine;
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.gridLine;
-  // @ts-expect-error — strict-mode migration
+  ctx.strokeStyle = theme.gridLine!;
+  ctx.fillStyle = theme.gridLine!;
   ctx.lineWidth = lineWidth;
-  // @ts-expect-error — strict-mode migration
   ctx.globalAlpha = opacity;
 
   if (style === 'lines' || style === 'dotted') {
     // Full lines or dashed lines between cells
     if (style === 'dotted') {
-      const dashLen = (lineWidth as number) * 2;
+      const dashLen = (lineWidth) * 2;
       ctx.setLineDash([dashLen, dashLen]);
     }
     ctx.beginPath();
@@ -137,7 +132,7 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
   } else if (style === 'corners-x' || style === 'corners-dot') {
     // Iterate over intersection points (corners of the grid)
     // Intersection (r, c) is shared by cells (r-1,c-1), (r-1,c), (r,c-1), (r,c)
-    const armLen = gridSize * (cornerFrac as number);
+    const armLen = gridSize * (cornerFrac);
     const dotRadius = lineWidth;
     ctx.beginPath();
 
@@ -160,9 +155,7 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
           ctx.moveTo(p.x, p.y - arm);
           ctx.lineTo(p.x, p.y + arm);
         } else {
-          // @ts-expect-error — strict-mode migration
           ctx.moveTo(p.x + dotRadius, p.y);
-          // @ts-expect-error — strict-mode migration
           ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2);
         }
       }
@@ -184,21 +177,17 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
  * @param {Object} theme - Theme with gridLine color
  * @returns {void}
  */
-function drawGrid(ctx: CanvasRenderingContext2D, config: any, bounds: any, transform: RenderTransform, theme: Theme): void {
-  const gridSize = config.gridSize;
-  const style = theme.gridStyle || 'lines';
+function drawGrid(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; cells: CellGrid }, bounds: { minX: number; minY: number; maxX: number; maxY: number }, transform: RenderTransform, theme: Theme): void {
+  const gridSize = config.metadata.gridSize;
+  const style = theme.gridStyle ?? 'lines';
   const lineWidth = theme.gridLineWidth ?? 4;
   const noise = theme.gridNoise ?? 0;
   const cornerFrac = theme.gridCornerLength ?? 0.3;
   const opacity = theme.gridOpacity ?? 0.5;
 
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.gridLine;
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.gridLine;
-  // @ts-expect-error — strict-mode migration
+  ctx.strokeStyle = theme.gridLine!;
+  ctx.fillStyle = theme.gridLine!;
   ctx.lineWidth = lineWidth;
-  // @ts-expect-error — strict-mode migration
   ctx.globalAlpha = opacity;
 
   const startX = Math.floor(bounds.minX / gridSize) * gridSize;
@@ -208,7 +197,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: any, bounds: any, trans
 
   if (style === 'lines' || style === 'dotted') {
     if (style === 'dotted') {
-      const dashLen = (lineWidth as number) * 2;
+      const dashLen = (lineWidth) * 2;
       ctx.setLineDash([dashLen, dashLen]);
     }
 
@@ -239,7 +228,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: any, bounds: any, trans
     if (style === 'dotted') ctx.setLineDash([]);
 
   } else if (style === 'corners-x') {
-    const armLen = gridSize * (cornerFrac as number);
+    const armLen = gridSize * (cornerFrac);
     ctx.beginPath();
 
     for (let x = startX; x <= endX; x += gridSize) {
@@ -268,9 +257,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: any, bounds: any, trans
         const col = Math.round(x / gridSize);
         const n = _gridNoise(row, col, 3, noise, gridSize);
         const p = toCanvas(x + n, y + n, transform);
-        // @ts-expect-error — strict-mode migration
         ctx.moveTo(p.x + dotRadius, p.y);
-        // @ts-expect-error — strict-mode migration
         ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2);
       }
     }
@@ -290,11 +277,11 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: any, bounds: any, trans
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ x: number, y: number }|null} Canvas position, or null if no space
  */
-function findCompassRosePosition(cells: CellGrid, gridSize: number, width: number, height: number, transform: RenderTransform): { x: number; y: number } {
+function findCompassRosePosition(cells: CellGrid, gridSize: number, width: number, height: number, transform: RenderTransform): { x: number; y: number } | null {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
-  const isCornerClear = (canvasX: any, canvasY: any) => {
+  const isCornerClear = (canvasX: number, canvasY: number) => {
     const feetX = (canvasX - transform.offsetX) / transform.scale;
     const feetY = (canvasY - transform.offsetY) / transform.scale;
 
@@ -332,7 +319,6 @@ function findCompassRosePosition(cells: CellGrid, gridSize: number, width: numbe
     }
   }
 
-  // @ts-expect-error — strict-mode migration
   return null;
 }
 
@@ -348,19 +334,18 @@ function drawCompassRose(ctx: CanvasRenderingContext2D, x: number, y: number, th
   const size = COMPASS_ROSE_SIZE;
   const innerSize = size * 0.6;
 
-  const fillColor = theme.compassRoseFill || theme.wallStroke || '#000000';
-  const strokeColor = theme.compassRoseStroke || theme.wallStroke || '#000000';
+  const fillColor = (theme.compassRoseFill ?? theme.wallStroke) || '#000000';
+  const strokeColor = (theme.compassRoseStroke ?? theme.wallStroke) || '#000000';
 
   ctx.save();
 
-  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.arc(x, y, size, 0, Math.PI * 2);
   ctx.stroke();
 
-  const drawPoint = (angle: any, length: any, filled: any) => {
+  const drawPoint = (angle: number, length: number, filled: boolean) => {
     const rad = (angle - 90) * Math.PI / 180;
     const tipX = x + Math.cos(rad) * length;
     const tipY = y + Math.sin(rad) * length;
@@ -376,11 +361,9 @@ function drawCompassRose(ctx: CanvasRenderingContext2D, x: number, y: number, th
     ctx.closePath();
 
     if (filled) {
-      // @ts-expect-error — strict-mode migration
       ctx.fillStyle = fillColor;
       ctx.fill();
     }
-    // @ts-expect-error — strict-mode migration
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = 1.5;
     ctx.stroke();
@@ -398,16 +381,13 @@ function drawCompassRose(ctx: CanvasRenderingContext2D, x: number, y: number, th
 
   ctx.beginPath();
   ctx.arc(x, y, 3, 0, Math.PI * 2);
-  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = fillColor;
   ctx.fill();
-  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.textColor || '#000000';
+  ctx.fillStyle = theme.textColor ?? '#000000';
   ctx.font = 'bold 14px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';
@@ -427,8 +407,7 @@ function drawCompassRose(ctx: CanvasRenderingContext2D, x: number, y: number, th
  * @returns {void}
  */
 function drawScaleIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, gridSize: number, theme: Theme, resolution: number): void {
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.textColor;
+  ctx.fillStyle = theme.textColor!;
   ctx.font = 'bold 12px serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -445,8 +424,7 @@ function drawScaleIndicator(ctx: CanvasRenderingContext2D, x: number, y: number,
  * @returns {void}
  */
 function drawBorder(ctx: CanvasRenderingContext2D, width: number, height: number, theme: Theme): void {
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.borderColor;
+  ctx.strokeStyle = theme.borderColor!;
   ctx.lineWidth = 3;
 
   ctx.strokeRect(5, 5, width - 10, height - 10);
@@ -483,8 +461,7 @@ function drawBorderOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSiz
   const tl = toCanvas(minXf, minYf, transform);
   const br = toCanvas(maxXf, maxYf, transform);
 
-  // @ts-expect-error — strict-mode migration
-  ctx.strokeStyle = theme.borderColor;
+  ctx.strokeStyle = theme.borderColor!;
   ctx.lineWidth = 3 * s;
   ctx.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
 
@@ -516,8 +493,7 @@ function drawScaleIndicatorOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid,
 
   const fontSize = Math.max(8, Math.round(12 * s));
 
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.textColor;
+  ctx.fillStyle = theme.textColor!;
   ctx.font = `bold ${fontSize}px serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
@@ -531,14 +507,14 @@ function drawScaleIndicatorOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid,
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ x: number, y: number }|null} Canvas position, or null if no space
  */
-function findCompassRosePositionOnMap(cells: CellGrid, gridSize: number, transform: RenderTransform): { x: number; y: number } {
+function findCompassRosePositionOnMap(cells: CellGrid, gridSize: number, transform: RenderTransform): { x: number; y: number; scale: number } | null {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
   const s = transform.scale / 10;
 
   // Convert a feet position to cell coordinates and check if area is clear
-  const isAreaClear = (feetX: any, feetY: any) => {
+  const isAreaClear = (feetX: number, feetY: number) => {
     const cellCol = Math.floor(feetX / gridSize);
     const cellRow = Math.floor(feetY / gridSize);
 
@@ -567,12 +543,10 @@ function findCompassRosePositionOnMap(cells: CellGrid, gridSize: number, transfo
   for (const corner of corners) {
     if (isAreaClear(corner.fx, corner.fy)) {
       const p = toCanvas(corner.fx, corner.fy, transform);
-      // @ts-expect-error — strict-mode migration
       return { x: p.x, y: p.y, scale: s };
     }
   }
 
-  // @ts-expect-error — strict-mode migration
   return null;
 }
 
@@ -589,19 +563,18 @@ function drawCompassRoseScaled(ctx: CanvasRenderingContext2D, x: number, y: numb
   const size = COMPASS_ROSE_SIZE * s;
   const innerSize = size * 0.6;
 
-  const fillColor = theme.compassRoseFill || theme.wallStroke || '#000000';
-  const strokeColor = theme.compassRoseStroke || theme.wallStroke || '#000000';
+  const fillColor = (theme.compassRoseFill ?? theme.wallStroke) || '#000000';
+  const strokeColor = (theme.compassRoseStroke ?? theme.wallStroke) || '#000000';
 
   ctx.save();
 
-  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = 2 * s;
   ctx.beginPath();
   ctx.arc(x, y, size, 0, Math.PI * 2);
   ctx.stroke();
 
-  const drawPoint = (angle: any, length: any, filled: any) => {
+  const drawPoint = (angle: number, length: number, filled: boolean) => {
     const rad = (angle - 90) * Math.PI / 180;
     const tipX = x + Math.cos(rad) * length;
     const tipY = y + Math.sin(rad) * length;
@@ -617,11 +590,9 @@ function drawCompassRoseScaled(ctx: CanvasRenderingContext2D, x: number, y: numb
     ctx.closePath();
 
     if (filled) {
-      // @ts-expect-error — strict-mode migration
       ctx.fillStyle = fillColor;
       ctx.fill();
     }
-    // @ts-expect-error — strict-mode migration
     ctx.strokeStyle = strokeColor;
     ctx.lineWidth = 1.5 * s;
     ctx.stroke();
@@ -639,17 +610,14 @@ function drawCompassRoseScaled(ctx: CanvasRenderingContext2D, x: number, y: numb
 
   ctx.beginPath();
   ctx.arc(x, y, 3 * s, 0, Math.PI * 2);
-  // @ts-expect-error — strict-mode migration
   ctx.fillStyle = fillColor;
   ctx.fill();
-  // @ts-expect-error — strict-mode migration
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = 1 * s;
   ctx.stroke();
 
   const fontSize = Math.max(8, Math.round(14 * s));
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.textColor || '#000000';
+  ctx.fillStyle = theme.textColor ?? '#000000';
   ctx.font = `bold ${fontSize}px serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'bottom';

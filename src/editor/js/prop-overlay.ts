@@ -1,3 +1,4 @@
+import type { Metadata, OverlayProp, PropDefinition } from '../../types.js';
 // Overlay prop data types and utilities for the free-form prop system.
 // Props are stored in metadata.props[] as world-feet positioned overlays
 // instead of cell-locked grid entries.
@@ -20,7 +21,7 @@ export const Z_PRESETS = {
  */
 export function resolveZIndex(z: string | number): number {
   if (typeof z === 'string') {
-    return (Z_PRESETS as any)[z] ?? Z_PRESETS.furniture;
+    return (Z_PRESETS as Record<string, number>)[z] ?? Z_PRESETS.furniture;
   }
   return typeof z === 'number' ? z : Z_PRESETS.furniture;
 }
@@ -30,8 +31,8 @@ export function resolveZIndex(z: string | number): number {
  * @param {object} metadata - dungeon metadata (mutated: nextPropId incremented)
  * @returns {string} e.g. "prop_1", "prop_2"
  */
-export function nextPropId(metadata: any): string {
-  if (!metadata.nextPropId) metadata.nextPropId = 1;
+export function nextPropId(metadata: Metadata): string {
+  metadata.nextPropId ??= 1;
   return `prop_${metadata.nextPropId++}`;
 }
 
@@ -76,7 +77,7 @@ export function isGridAlignedRotation(rotation: number): boolean {
  * @param {number} rotation - degrees
  * @returns {[number, number]} [effectiveRows, effectiveCols]
  */
-export function effectiveSpan(propDef: any, rotation: number): [number, number] {
+export function effectiveSpan(propDef: PropDefinition, rotation: number): [number, number] {
   const [fRows, fCols] = propDef.footprint;
   if (isGridAlignedRotation(rotation)) {
     const r = ((rotation % 360) + 360) % 360;
@@ -100,13 +101,13 @@ export function effectiveSpan(propDef: any, rotation: number): [number, number] 
  * @param {number} gridSize
  * @returns {{ minX: number, minY: number, maxX: number, maxY: number }}
  */
-export function getOverlayPropAABB(prop: any, propDef: any, gridSize: number): { minX: number; minY: number; maxX: number; maxY: number } {
-  const scale = prop.scale ?? 1.0;
-  const [eRows, eCols] = effectiveSpan(propDef, prop.rotation ?? 0);
+export function getOverlayPropAABB(prop: OverlayProp, propDef: PropDefinition, gridSize: number): { minX: number; minY: number; maxX: number; maxY: number } {
+  const scale = prop.scale;
+  const [eRows, eCols] = effectiveSpan(propDef, prop.rotation);
   const w = eCols * gridSize * scale;
   const h = eRows * gridSize * scale;
 
-  if (isGridAlignedRotation(prop.rotation ?? 0)) {
+  if (isGridAlignedRotation(prop.rotation)) {
     // Grid-aligned: AABB is simply the scaled footprint at the anchor position
     return {
       minX: prop.x,
@@ -138,7 +139,7 @@ export function getOverlayPropAABB(prop: any, propDef: any, gridSize: number): {
  * @param {object} [options] - { rotation, scale, zIndex, flipped }
  * @returns {object} PropOverlayEntry
  */
-export function createOverlayProp(metadata: any, propType: string, row: number, col: number, gridSize: number, options: { rotation?: number; scale?: number; zIndex?: string | number; flipped?: boolean } = {}): any {
+export function createOverlayProp(metadata: Metadata, propType: string, row: number, col: number, gridSize: number, options: { rotation?: number; scale?: number; zIndex?: string | number; flipped?: boolean } = {}): OverlayProp {
   const { x, y } = gridToWorldFeet(row, col, gridSize);
   return {
     id: nextPropId(metadata),

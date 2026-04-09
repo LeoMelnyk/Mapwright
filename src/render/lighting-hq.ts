@@ -5,7 +5,7 @@
  * The editor's real-time renderer continues using lighting.js.
  */
 
-import type { CellGrid, RenderTransform } from '../types.js';
+import type { CellGrid, Light, Metadata, PropCatalog, RenderTransform, TextureCatalog } from '../types.js';
 import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor, getEffectiveLight, extractPropShadowZones, computePropShadowPolygon, DEFAULT_LIGHT_Z } from './lighting.js';
 
 // ─── Normal Map Cache ─────────────────────────────────────────────────────────
@@ -14,11 +14,11 @@ import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor, 
  * Pre-extract ImageData from each unique normal map used in the cell grid.
  * Returns a Map<textureId, { data, width, height }>.
  */
-function cacheNormalMaps(cells: any, textureCatalog: any) {
+function cacheNormalMaps(cells: CellGrid, textureCatalog: TextureCatalog | null) {
   const cache = new Map();
   if (!textureCatalog?.textures) return cache;
 
-  const seenIds = new Set();
+  const seenIds = new Set<string>();
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -32,11 +32,11 @@ function cacheNormalMaps(cells: any, textureCatalog: any) {
   }
 
   // Create a temp canvas for reading image data
-  let tmpCanvas, tmpCtx;
+  let tmpCanvas: OffscreenCanvas | HTMLCanvasElement | undefined;
+  let tmpCtx: OffscreenCanvasRenderingContext2D | undefined;
 
   for (const id of seenIds) {
-    // @ts-expect-error — strict-mode migration
-    const entry = textureCatalog.textures[id!];
+    const entry = textureCatalog.textures[id];
     if (!entry?.norImg?.complete || !entry.norImg.naturalWidth) continue;
 
     const norImg = entry.norImg;
@@ -49,7 +49,7 @@ function cacheNormalMaps(cells: any, textureCatalog: any) {
       } else {
         tmpCanvas = document.createElement('canvas');
       }
-      tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
+      tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true }) as OffscreenCanvasRenderingContext2D;
     }
 
     // Resize if needed
@@ -58,9 +58,9 @@ function cacheNormalMaps(cells: any, textureCatalog: any) {
       tmpCanvas.height = h;
     }
 
-    (tmpCtx! as any).clearRect(0, 0, w, h);
-    (tmpCtx! as any).drawImage(norImg, 0, 0);
-    const imageData = (tmpCtx! as any).getImageData(0, 0, w, h);
+    tmpCtx!.clearRect(0, 0, w, h);
+    tmpCtx!.drawImage(norImg, 0, 0);
+    const imageData = tmpCtx!.getImageData(0, 0, w, h);
 
     cache.set(id, { data: imageData.data, width: w, height: h });
   }
@@ -71,8 +71,8 @@ function cacheNormalMaps(cells: any, textureCatalog: any) {
 // ─── Shadow Mask Rasterization ────────────────────────────────────────────────
 
 // Reusable mask canvas (resized as needed per light)
-let maskCanvas: any = null;
-let maskCtx: any = null;
+let maskCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
+let maskCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
 
 /**
  * Rasterize a visibility polygon into a Uint8Array shadow mask.
@@ -86,7 +86,7 @@ let maskCtx: any = null;
  * @param {number} bbH - bounding box height in pixels
  * @returns {Uint8Array} - one byte per pixel: 0=shadow, 255=lit, AA values in between
  */
-function rasterizeShadowMask(visibility: any, transform: any, bbX: any, bbY: any, bbW: any, bbH: any) {
+function rasterizeShadowMask(visibility: Array<{x: number; y: number}>, transform: RenderTransform, bbX: number, bbY: number, bbW: number, bbH: number) {
   if (!maskCanvas) {
     if (typeof OffscreenCanvas !== 'undefined') {
       maskCanvas = new OffscreenCanvas(bbW, bbH);
@@ -95,7 +95,7 @@ function rasterizeShadowMask(visibility: any, transform: any, bbX: any, bbY: any
       maskCanvas.width = bbW;
       maskCanvas.height = bbH;
     }
-    maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true });
+    maskCtx = maskCanvas.getContext('2d', { willReadFrequently: true }) as OffscreenCanvasRenderingContext2D;
   }
 
   // Resize if needed
@@ -104,28 +104,28 @@ function rasterizeShadowMask(visibility: any, transform: any, bbX: any, bbY: any
     maskCanvas.height = bbH;
   }
 
-  maskCtx.clearRect(0, 0, bbW, bbH);
-  maskCtx.fillStyle = '#ffffff';
+  maskCtx!.clearRect(0, 0, bbW, bbH);
+  maskCtx!.fillStyle = '#ffffff';
 
   // Draw visibility polygon offset by bounding box origin
-  maskCtx.beginPath();
+  maskCtx!.beginPath();
   const p0 = visibility[0];
-  maskCtx.moveTo(
+  maskCtx!.moveTo(
     p0.x * transform.scale + transform.offsetX - bbX,
     p0.y * transform.scale + transform.offsetY - bbY
   );
   for (let i = 1; i < visibility.length; i++) {
     const p = visibility[i];
-    maskCtx.lineTo(
+    maskCtx!.lineTo(
       p.x * transform.scale + transform.offsetX - bbX,
       p.y * transform.scale + transform.offsetY - bbY
     );
   }
-  maskCtx.closePath();
-  maskCtx.fill();
+  maskCtx!.closePath();
+  maskCtx!.fill();
 
   // Read back R channel as shadow mask
-  const imageData = maskCtx.getImageData(0, 0, bbW, bbH);
+  const imageData = maskCtx!.getImageData(0, 0, bbW, bbH);
   const src = imageData.data;
   const mask = new Uint8Array(bbW * bbH);
   for (let i = 0, j = 0; i < src.length; i += 4, j++) {
@@ -154,9 +154,9 @@ function rasterizeShadowMask(visibility: any, transform: any, bbX: any, bbY: any
  * @param {Object|null} [metadata] - Dungeon metadata
  * @returns {void}
  */
-export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], cells: CellGrid, gridSize: number, transform: RenderTransform, canvasW: number, canvasH: number, ambientLevel: number, textureCatalog: any, propCatalog: any, options: any, metadata: any = null): void {
-  const { ambientColor = '#ffffff', time = 0 } = options || {};
-  const activeLights = lights || [];
+export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[], cells: CellGrid, gridSize: number, transform: RenderTransform, canvasW: number, canvasH: number, ambientLevel: number, textureCatalog: TextureCatalog | null, propCatalog: PropCatalog | null, options: Record<string, unknown> | null, metadata: Metadata | null = null): void {
+  const { ambientColor = '#ffffff', time = 0 } = options ?? {};
+  const activeLights = lights;
 
   // Float32 accumulator for light contributions (RGB, no alpha)
   const lightAccum = new Float32Array(canvasW * canvasH * 3);
@@ -182,10 +182,10 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
   const CHUNK_SIZE = 256;
 
   for (const light of activeLights) {
-    const eff = getEffectiveLight(light, time);
-    const brightRadius = eff.range || eff.radius || 30;
+    const eff = getEffectiveLight(light, time as number);
+    const brightRadius = (eff.range ?? eff.radius) || 30;
     const dimRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0)) ? eff.dimRadius : null;
-    const effectiveRadius = dimRadius || brightRadius;
+    const effectiveRadius = dimRadius ?? brightRadius;
 
     // Compute visibility polygon at outer radius
     const visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
@@ -227,17 +227,17 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
     const rNorm = r / 255;
     const gNorm = g / 255;
     const bNorm = b / 255;
-    const intensity = eff.intensity ?? 1.0;
-    const falloff = eff.falloff || 'smooth';
+    const intensity = eff.intensity;
+    const falloff = eff.falloff;
 
     // Precompute directional cone parameters
     const isDirectional = eff.type === 'directional';
     let coneDirX = 0, coneDirY = 0, cosSpread = 0;
     if (isDirectional) {
-      const angleRad = (eff.angle || 0) * Math.PI / 180;
+      const angleRad = (eff.angle ?? 0) * Math.PI / 180;
       coneDirX = Math.cos(angleRad);
       coneDirY = Math.sin(angleRad);
-      cosSpread = Math.cos((eff.spread || 45) * Math.PI / 180);
+      cosSpread = Math.cos((eff.spread ?? 45) * Math.PI / 180);
     }
 
     // Light height above floor for 3D normal map direction
@@ -323,7 +323,6 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
         // Z-height prop shadow attenuation
         if (propShadows.length > 0) {
           let propShadowFactor = 1.0;
-          // @ts-expect-error — strict-mode migration
           for (const { shadowPoly, nearCenter, farCenter, opacity, hard } of propShadows) {
             if (_pointInPolygon(worldX, worldY, shadowPoly)) {
               let shadowStrength;
@@ -359,7 +358,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
 
   // Convert accumulator to final lightmap ImageData (colored ambient)
   const ambient = Math.max(0, Math.min(1, ambientLevel));
-  const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
+  const { r: ar, g: ag, b: ab } = parseColor(ambientColor as string);
   const ambR = (ar / 255) * ambient;
   const ambG = (ag / 255) * ambient;
   const ambB = (ab / 255) * ambient;
@@ -383,8 +382,8 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
     lightCanvas.width = canvasW;
     lightCanvas.height = canvasH;
   }
-  const lctx = lightCanvas.getContext('2d');
-  (lctx! as any).putImageData(imageData, 0, 0);
+  const lctx = lightCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+  lctx.putImageData(imageData, 0, 0);
 
   ctx.save();
   ctx.globalCompositeOperation = 'multiply';
@@ -396,7 +395,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: any[], c
  * Ray-casting point-in-polygon test. Returns true if (px, py) is inside the polygon.
  * Polygon is [[x,y], ...] in world-feet coordinates.
  */
-function _pointInPolygon(px: any, py: any, polygon: any) {
+function _pointInPolygon(px: number, py: number, polygon: number[][]) {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const [xi, yi] = polygon[i];

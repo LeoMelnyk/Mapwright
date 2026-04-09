@@ -19,7 +19,7 @@ import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCach
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer, classifyAllTrimFog } from './fog.js';
 import playerState from './player-state.js';
 import { cellKey, displayGridSize as _dgs } from '../util/index.js';
-import type { Cell, CellGrid, Theme, RenderTransform, VisibleBounds, OverlayProp } from '../types.js';
+import type { Cell, CellGrid, Metadata, TextureCatalog, Theme, RenderTransform, VisibleBounds, OverlayProp } from '../types.js';
 
 const CELL_SIZE = 40; // pixels per cell at zoom=1
 const MIN_ZOOM = 0.2;
@@ -27,8 +27,8 @@ const MAX_ZOOM = 5.0;
 const LERP_SPEED = 6; // higher = faster interpolation (units/sec style, used as factor per frame)
 const ANIM_INTERVAL_MS = 50; // 20fps — matches editor animation rate
 
-let canvas: HTMLCanvasElement;
-let ctx: CanvasRenderingContext2D;
+let canvas: HTMLCanvasElement | null = null;
+let ctx!: CanvasRenderingContext2D;
 let animFrameId: number | null = null;
 let lastFrameTime: number = 0;
 let _animClock: number = 0;
@@ -45,7 +45,7 @@ let _lastFogRebuildMs: number = 0;
 let _lastCacheBuildMs: number = 0;
 let _cacheBuildCount: number = 0;
 let _lastBuildType: string = 'none';       // 'full' | 'partial' | 'composite' | 'none'
-let _lastBuildTimings: Record<string, number> = {};
+let _lastBuildTimings: Record<string, number | undefined> = {};
 let _fogRebuildCount: number = 0;
 let _lastRevealMs: number = 0;
 let _lastRevealCellCount: number = 0;
@@ -105,18 +105,18 @@ function _openDiagFogHalf(cell: Record<string, unknown>, r: number, c: number, r
  * The void corner determines which triangle to draw:
  *   nw → tl, tr, bl;  ne → tl, tr, br;  sw → tl, bl, br;  se → tr, bl, br
  */
-function _traceDiagVoidTriangle(ctx: CanvasRenderingContext2D, voidCorner: string, px: number, py: number, size: number): void {
+function _traceDiagVoidTriangle(drawCtx: CanvasRenderingContext2D, voidCorner: string, px: number, py: number, size: number): void {
   const tl_x = px,        tl_y = py;
   const tr_x = px + size,  tr_y = py;
   const bl_x = px,        bl_y = py + size;
   const br_x = px + size,  br_y = py + size;
   switch (voidCorner) {
-    case 'nw': ctx.moveTo(tl_x, tl_y); ctx.lineTo(tr_x, tr_y); ctx.lineTo(bl_x, bl_y); break;
-    case 'ne': ctx.moveTo(tl_x, tl_y); ctx.lineTo(tr_x, tr_y); ctx.lineTo(br_x, br_y); break;
-    case 'sw': ctx.moveTo(tl_x, tl_y); ctx.lineTo(bl_x, bl_y); ctx.lineTo(br_x, br_y); break;
-    case 'se': ctx.moveTo(tr_x, tr_y); ctx.lineTo(bl_x, bl_y); ctx.lineTo(br_x, br_y); break;
+    case 'nw': drawCtx.moveTo(tl_x, tl_y); drawCtx.lineTo(tr_x, tr_y); drawCtx.lineTo(bl_x, bl_y); break;
+    case 'ne': drawCtx.moveTo(tl_x, tl_y); drawCtx.lineTo(tr_x, tr_y); drawCtx.lineTo(br_x, br_y); break;
+    case 'sw': drawCtx.moveTo(tl_x, tl_y); drawCtx.lineTo(bl_x, bl_y); drawCtx.lineTo(br_x, br_y); break;
+    case 'se': drawCtx.moveTo(tr_x, tr_y); drawCtx.lineTo(bl_x, bl_y); drawCtx.lineTo(br_x, br_y); break;
   }
-  ctx.closePath();
+  drawCtx.closePath();
 }
 
 // Active tool (e.g., range detector)
@@ -152,7 +152,7 @@ function getMapPxPerFoot(): number { return playerState.renderQuality || 20; }
 
 let _mapCache: MapCache | null = null;
 function getMapCache(): MapCache {
-  if (!_mapCache) _mapCache = new MapCache({ pxPerFoot: getMapPxPerFoot() });
+  _mapCache ??= new MapCache({ pxPerFoot: getMapPxPerFoot() });
   return _mapCache;
 }
 let _playerContentVersion: number = 0;
@@ -270,6 +270,7 @@ export function patchOpenedDoor(row: number, col: number, dir: string): void {
   const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
   const cell = _cachedFullCells[row]?.[col] as Record<string, unknown> | null;
   if (cell && (rawCells[row]?.[col] as Record<string, unknown> | null)?.[dir] === 's') cell[dir] = 'd';
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   const [dr, dc] = OFFSETS[dir] || [0, 0];
   const nr = row + dr, nc = col + dc;
   const opp = OPPOSITE[dir];
@@ -306,7 +307,7 @@ export function clearAll(): void {
   _wallsLayer = null;
   _wallsCells = null;
   _cacheBuilding = false;
-  if (canvas && ctx) {
+  if (canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 }
@@ -340,7 +341,7 @@ export function revealFogCells(cellKeys: string[]): void {
   const numCols = cells[0]?.length || 0;
   const fCtx = _fogOverlay.ctx;
   const theme = resolveTheme();
-  const fogColor = theme?.background || '#000000';
+  const fogColor = theme?.background ?? '#000000';
 
   for (const key of cellKeys) {
     const [r, c] = key.split(',').map(Number);
@@ -392,7 +393,7 @@ export function concealFogCells(cellKeys: string[]): void {
   const cellPx = gridSize * getMapPxPerFoot();
   const fCtx = _fogOverlay.ctx;
   const theme = resolveTheme();
-  fCtx.fillStyle = theme?.background || '#000000';
+  fCtx.fillStyle = theme?.background ?? '#000000';
   for (const key of cellKeys) {
     const [r, c] = key.split(',').map(Number);
     fCtx.fillRect(c * cellPx, r * cellPx, cellPx, cellPx);
@@ -421,13 +422,13 @@ let _loadingEl: HTMLElement | null = null;
 let _cacheBuilding: boolean = false;  // true while an async cache build is in flight
 
 function showLoadingOverlay(): void {
-  if (!_loadingEl) _loadingEl = document.getElementById('loading-overlay');
-  if (_loadingEl) _loadingEl.classList.remove('hidden');
+  _loadingEl ??= document.getElementById('loading-overlay')!;
+  _loadingEl.classList.remove('hidden');
 }
 
 function hideLoadingOverlay(): void {
-  if (!_loadingEl) _loadingEl = document.getElementById('loading-overlay');
-  if (_loadingEl) _loadingEl.classList.add('hidden');
+  _loadingEl ??= document.getElementById('loading-overlay')!;
+  _loadingEl.classList.add('hidden');
 }
 
 /**
@@ -473,7 +474,7 @@ function scheduleCacheBuild(): void {
 export function setActiveTool(tool: ToolLike): void {
   if (activeTool?.onDeactivate) activeTool.onDeactivate();
   activeTool = tool;
-  if (activeTool?.onActivate) activeTool.onActivate();
+  if (activeTool.onActivate) activeTool.onActivate();
 }
 
 export function init(canvasEl: HTMLCanvasElement): void {
@@ -508,6 +509,7 @@ export function init(canvasEl: HTMLCanvasElement): void {
 }
 
 function resizeCanvas(): void {
+  if (!canvas) return;
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   requestRender();
@@ -519,10 +521,9 @@ export function requestRender(): void {
 }
 
 function _hasAnimatedLights(): boolean {
-  const lights = playerState.dungeon?.metadata?.lights;
+  const lights = playerState.dungeon?.metadata.lights;
   if (!lights) return false;
-  // @ts-expect-error — strict-mode migration
-  return lights.some((l: Record<string, unknown>) => (l.animation as Record<string, unknown>)?.type);
+  return lights.some((l) => (l as unknown as Record<string, unknown>).animation && ((l as unknown as Record<string, unknown>).animation as Record<string, unknown>).type);
 }
 
 function _tickAnimLoop(): void {
@@ -564,8 +565,8 @@ function resolveTheme(): Theme | null {
   // Use the resolved theme sent by the DM (avoids empty THEMES lookup)
   if (playerState.resolvedTheme) return playerState.resolvedTheme;
   // Fallback: if dungeon metadata has an inline theme object
-  const t = playerState.dungeon?.metadata?.theme;
-  if (typeof t === 'object' && t !== null) return t as unknown as Theme;
+  const t = playerState.dungeon?.metadata.theme;
+  if (typeof t === 'object') return t as unknown as Theme;
   return null;
 }
 
@@ -593,7 +594,7 @@ function buildFullMapCache(): void {
 
   // For partial rebuilds, reuse the cached fullCells so reference-based caches
   // (fluid, geometry, blend) stay valid. Patch only the dirty cells in-place.
-  if (isPartial && _cachedFullCells && _cachedFullCells.length === numRows) {
+  if (isPartial && _cachedFullCells?.length === numRows) {
     const dr = _pendingDirtyRegion!;
     const PAD = 3;
     const rMin = Math.max(0, dr.minRow - PAD), rMax = Math.min(numRows - 1, dr.maxRow + PAD);
@@ -604,6 +605,7 @@ function buildFullMapCache(): void {
     const openedSet = new Set<string>();
     for (const d of playerState.openedDoors) {
       openedSet.add(`${d.row},${d.col},${d.dir}`);
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
       if (_OFF[d.dir]) {
         const [ddr, ddc] = _OFF[d.dir];
         openedSet.add(`${d.row + ddr},${d.col + ddc},${_OPP[d.dir]}`);
@@ -633,7 +635,7 @@ function buildFullMapCache(): void {
         _cachedFullCells[r][c] = pc as unknown as Cell;
       }
     }
-  } else if (_pendingPreserveCells && _cachedFullCells && _cachedFullCells.length === numRows) {
+  } else if (_pendingPreserveCells && _cachedFullCells?.length === numRows) {
     // Props/lighting-only change — reuse cached cells, skip geometry/fluid invalidation
   } else {
     // Full rebuild — create new cells array
@@ -645,22 +647,21 @@ function buildFullMapCache(): void {
     invalidateGeometryCache();
     invalidateFluidCache();
   }
-  const fullCells = _cachedFullCells!;
+  const fullCells = _cachedFullCells;
 
   // Always invalidate props + lighting caches (cheap flag resets — actual rebuild is lazy)
   invalidatePropsRenderLayer();
-  // @ts-expect-error — strict-mode migration
   invalidateVisibilityCache('props');
 
   if (isPartial) {
     // Patch render caches for dirty region (avoids full rebuild)
     const textureOptions = playerState.textureCatalog
-      ? { catalog: playerState.textureCatalog, blendWidth: (theme as Record<string, unknown>).textureBlendWidth ?? 0.35, texturesVersion: playerState.texturesVersion ?? 0 }
+      ? { catalog: playerState.textureCatalog, blendWidth: ((theme as Record<string, unknown>).textureBlendWidth as number | undefined) ?? 0.35, texturesVersion: playerState.texturesVersion }
       : null;
     if (textureOptions) {
-      patchBlendForDirtyRegion(_pendingDirtyRegion, fullCells, gridSize, textureOptions);
+      patchBlendForDirtyRegion(_pendingDirtyRegion!, fullCells, gridSize, textureOptions);
     }
-    patchFluidForDirtyRegion(_pendingDirtyRegion, fullCells, gridSize, theme);
+    patchFluidForDirtyRegion(_pendingDirtyRegion!, fullCells, gridSize, theme);
     // Structural changes (room placement, wall edits) need full lighting + geometry invalidation
     if (_pendingStructuralChange) {
       invalidateGeometryCache();
@@ -685,35 +686,35 @@ function buildFullMapCache(): void {
   };
 
   const textureOptions = playerState.textureCatalog
-    ? { catalog: playerState.textureCatalog, blendWidth: (theme as Record<string, unknown>).textureBlendWidth ?? 0.35, texturesVersion: playerState.texturesVersion ?? 0 }
+    ? { catalog: playerState.textureCatalog, blendWidth: ((theme as Record<string, unknown>).textureBlendWidth as number | undefined) ?? 0.35, texturesVersion: playerState.texturesVersion }
     : null;
 
   const bgImgConfig = metadata.backgroundImage ?? null;
   const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
 
-  const lightingEnabled = !!(fullMetadata.lightingEnabled && fullMetadata.lights?.length > 0);
+  const lightingEnabled = fullMetadata.lightingEnabled && fullMetadata.lights.length > 0;
 
   const _tCache0 = performance.now();
   getMapCache().update({
     contentVersion: _playerContentVersion,
     lightingVersion: _playerLightingVersion,
-    texturesVersion: playerState.texturesVersion ?? 0,
+    texturesVersion: playerState.texturesVersion,
     cells: fullCells,
     gridSize,
     theme,
-    showGrid: metadata.features?.showGrid !== false,
-    labelStyle: metadata.labelStyle || 'circled',
+    showGrid: metadata.features.showGrid,
+    labelStyle: metadata.labelStyle,
     propCatalog: playerState.propCatalog,
-    textureOptions,
+    textureOptions: textureOptions as { catalog: TextureCatalog; blendWidth: number; texturesVersion?: number } | null,
     metadata: fullMetadata,
     showInvisible: false,
-    bgImageEl, bgImgConfig,
+    bgImageEl: bgImageEl, bgImgConfig: bgImgConfig as Record<string, string | number | boolean> | null,
     lightingEnabled,
     hasAnimLights: lightingEnabled && _hasAnimatedLights(),
     lights: fullMetadata.lights,
     animClock: _animClock,
     lightPxPerFoot: 10,
-    ambientLight: fullMetadata.ambientLight ?? 0.15,
+    ambientLight: fullMetadata.ambientLight,
     ambientColor: null,
     textureCatalog: playerState.textureCatalog,
     dirtyRegion: _pendingDirtyRegion,
@@ -766,7 +767,7 @@ function rebuildFogOverlay(): void {
   const cacheH = composite.cacheH;
 
   // Create / resize fog overlay canvas
-  if (!_fogOverlay || _fogOverlay.cacheW !== cacheW || _fogOverlay.cacheH !== cacheH) {
+  if (_fogOverlay?.cacheW !== cacheW || _fogOverlay.cacheH !== cacheH) {
     const offscreen = document.createElement('canvas');
     offscreen.width = cacheW;
     offscreen.height = cacheH;
@@ -778,7 +779,7 @@ function rebuildFogOverlay(): void {
   // Theme-colored mask with transparent holes — instant to rebuild.
   // Hatching is handled by a separate layer that rebuilds asynchronously.
   const theme = resolveTheme();
-  const fogColor = theme?.background || '#000000';
+  const fogColor = theme?.background ?? '#000000';
   fCtx.globalCompositeOperation = 'source-over';
   fCtx.fillStyle = fogColor;
   fCtx.fillRect(0, 0, cacheW, cacheH);
@@ -796,11 +797,10 @@ function rebuildFogOverlay(): void {
   // 2a: Arc trims (trimClip cells)
   const trimSides = classifyAllTrimFog(playerState.revealedCells, cells);
   for (const [key, side] of trimSides) {
-    // @ts-expect-error — strict-mode migration
-    if (side === 'both' || side === 'neither') continue;
+    if ((side as string) === 'both' || (side as string) === 'neither') continue;
     const [r, c] = key.split(',').map(Number);
     const cell = cells[r]?.[c] as Record<string, unknown> | null;
-    const clip = (cell as Record<string, unknown>)?.trimClip as [number, number][];
+    const clip = cell?.trimClip as [number, number][];
     const px = c * cellPx, py = r * cellPx;
     fCtx.save();
     fCtx.fillStyle = fogColor;
@@ -832,10 +832,10 @@ function rebuildFogOverlay(): void {
   for (const key of playerState.revealedCells) {
     const [r, c] = key.split(',').map(Number);
     const cell = cells[r]?.[c] as Record<string, unknown> | null;
-    if (!(cell as Record<string, unknown>)?.trimCorner || (cell as Record<string, unknown>)?.trimClip) continue;
+    if (!cell?.trimCorner || cell.trimClip) continue;
     const px = c * cellPx, py = r * cellPx;
     fCtx.beginPath();
-    _traceDiagVoidTriangle(fCtx, (cell as Record<string, unknown>).trimCorner as string, px, py, cellPx);
+    _traceDiagVoidTriangle(fCtx, cell.trimCorner as string, px, py, cellPx);
     fCtx.fill();
   }
 
@@ -870,7 +870,7 @@ function shadingSig(theme: Theme, cacheW: number, cacheH: number): string {
 function buildShadingLayer(fullCells: CellGrid, gridSize: number, theme: Theme): void {
   const composite = getMapCache().getComposite();
   const outerShading = (theme as Record<string, unknown>).outerShading as Record<string, unknown> | undefined;
-  if (!composite || !outerShading?.color || !((outerShading?.size as number) > 0)) {
+  if (!composite || !outerShading?.color || !((outerShading.size as number) > 0)) {
     _shadingLayer = null;
     return;
   }
@@ -988,6 +988,7 @@ function _wallsOpenedSet(): Set<string> {
   _wallsOpenedCache = new Set();
   for (const d of playerState.openedDoors) {
     _wallsOpenedCache.add(`${d.row},${d.col},${d.dir}`);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (_OFFSETS[d.dir]) {
       const [dr, dc] = _OFFSETS[d.dir];
       _wallsOpenedCache.add(`${d.row + dr},${d.col + dc},${_OPPOSITE[d.dir]}`);
@@ -1116,67 +1117,66 @@ function rebuildWallsLayer(): void {
 // Rebuilt when fog changes.  The mask is built once per rebuild and applied to
 // each layer canvas that has content.
 
-function applyFogEdgeMask(ctx: CanvasRenderingContext2D, sourceCanvas: HTMLCanvasElement, cacheW: number, cacheH: number, cellPx: number, ballRadius: number): void {
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.clearRect(0, 0, cacheW, cacheH);
-  ctx.drawImage(sourceCanvas, 0, 0);
+function applyFogEdgeMask(maskCtx: CanvasRenderingContext2D, sourceCanvas: HTMLCanvasElement, cacheW: number, cacheH: number, cellPx: number, ballRadius: number): void {
+  maskCtx.globalCompositeOperation = 'source-over';
+  maskCtx.clearRect(0, 0, cacheW, cacheH);
+  maskCtx.drawImage(sourceCanvas, 0, 0);
 
   // Keep content only inside the rounded expanded region (Minkowski sum)
-  ctx.globalCompositeOperation = 'destination-in';
-  ctx.beginPath();
+  maskCtx.globalCompositeOperation = 'destination-in';
+  maskCtx.beginPath();
   for (const key of playerState.revealedCells) {
     const [r, c] = key.split(',').map(Number);
     const cx = (c + 0.5) * cellPx;
     const cy = (r + 0.5) * cellPx;
-    ctx.moveTo(cx + ballRadius, cy);
-    ctx.arc(cx, cy, ballRadius, 0, Math.PI * 2);
+    maskCtx.moveTo(cx + ballRadius, cy);
+    maskCtx.arc(cx, cy, ballRadius, 0, Math.PI * 2);
   }
-  ctx.fill('nonzero');
+  maskCtx.fill('nonzero');
 
   // Cut out revealed cells for a clean inner edge
-  ctx.globalCompositeOperation = 'destination-out';
-  ctx.beginPath();
+  maskCtx.globalCompositeOperation = 'destination-out';
+  maskCtx.beginPath();
   for (const key of playerState.revealedCells) {
     const [r, c] = key.split(',').map(Number);
-    ctx.rect(c * cellPx, r * cellPx, cellPx, cellPx);
+    maskCtx.rect(c * cellPx, r * cellPx, cellPx, cellPx);
   }
-  ctx.fill();
+  maskCtx.fill();
 
   // Paint hatching/shading BACK over the unrevealed side of trim cells
   const cells = playerState.dungeon?.cells;
-  ctx.globalCompositeOperation = 'source-over';
+  maskCtx.globalCompositeOperation = 'source-over';
   // Arc trims (trimClip cells)
   const trimSides = classifyAllTrimFog(playerState.revealedCells, cells!);
   for (const [key, side] of trimSides) {
-    // @ts-expect-error — strict-mode migration
-    if (side === 'both' || side === 'neither') continue;
+    if ((side as string) === 'both' || (side as string) === 'neither') continue;
     const [r, c] = key.split(',').map(Number);
     const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
     const clip = cell?.trimClip as [number, number][];
     const px = c * cellPx, py = r * cellPx;
     if (side === 'roomOnly') {
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(px, py, cellPx, cellPx);
-      ctx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
+      maskCtx.save();
+      maskCtx.beginPath();
+      maskCtx.rect(px, py, cellPx, cellPx);
+      maskCtx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
       for (let i = 1; i < clip.length; i++) {
-        ctx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
+        maskCtx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
       }
-      ctx.closePath();
-      ctx.clip('evenodd');
-      ctx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
-      ctx.restore();
+      maskCtx.closePath();
+      maskCtx.clip('evenodd');
+      maskCtx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
+      maskCtx.restore();
     } else {
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
+      maskCtx.save();
+      maskCtx.beginPath();
+      maskCtx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
       for (let i = 1; i < clip.length; i++) {
-        ctx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
+        maskCtx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
       }
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
-      ctx.restore();
+      maskCtx.closePath();
+      maskCtx.clip();
+      maskCtx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
+      maskCtx.restore();
     }
   }
 
@@ -1186,12 +1186,12 @@ function applyFogEdgeMask(ctx: CanvasRenderingContext2D, sourceCanvas: HTMLCanva
     const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
     if (!cell?.trimCorner || cell.trimClip) continue;
     const px = c * cellPx, py = r * cellPx;
-    ctx.save();
-    ctx.beginPath();
-    _traceDiagVoidTriangle(ctx, cell.trimCorner as string, px, py, cellPx);
-    ctx.clip();
-    ctx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
-    ctx.restore();
+    maskCtx.save();
+    maskCtx.beginPath();
+    _traceDiagVoidTriangle(maskCtx, cell.trimCorner as string, px, py, cellPx);
+    maskCtx.clip();
+    maskCtx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
+    maskCtx.restore();
   }
 
   // Open diagonal trims — paint shading back over the unrevealed half
@@ -1202,17 +1202,17 @@ function applyFogEdgeMask(ctx: CanvasRenderingContext2D, sourceCanvas: HTMLCanva
     const fogHalf = _openDiagFogHalf(cell, r, c, playerState.revealedCells);
     if (!fogHalf) continue;
     const px = c * cellPx, py = r * cellPx;
-    ctx.save();
-    ctx.beginPath();
-    _traceDiagVoidTriangle(ctx, fogHalf, px, py, cellPx);
-    ctx.clip();
-    ctx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
-    ctx.restore();
+    maskCtx.save();
+    maskCtx.beginPath();
+    _traceDiagVoidTriangle(maskCtx, fogHalf, px, py, cellPx);
+    maskCtx.clip();
+    maskCtx.drawImage(sourceCanvas, px, py, cellPx, cellPx, px, py, cellPx, cellPx);
+    maskCtx.restore();
   }
 }
 
 function ensureComposite(existing: OffscreenLayer | null, cacheW: number, cacheH: number): OffscreenLayer {
-  if (existing?.cacheW === cacheW && existing?.cacheH === cacheH) return existing;
+  if (existing?.cacheW === cacheW && existing.cacheH === cacheH) return existing;
   const offscreen = document.createElement('canvas');
   offscreen.width = cacheW;
   offscreen.height = cacheH;
@@ -1235,11 +1235,11 @@ function rebuildFogEdgeComposites(): void {
     return;
   }
 
-  const ref = _hatchLayer || _shadingLayer!;
+  const ref = _hatchLayer ?? _shadingLayer!;
   const { cacheW, cacheH } = ref;
   const gridSize = playerState.dungeon.metadata.gridSize;
   const cellPx = gridSize * getMapPxPerFoot();
-  const MAX_DIST = Math.round(((theme as Record<string, unknown>).hatchDistance as number ?? 1) * 2);
+  const MAX_DIST = Math.round((((theme as Record<string, unknown>).hatchDistance as number | undefined) ?? 1) * 2);
   const ballRadius = cellPx * (0.5 + MAX_DIST);
 
   // Shading composite (below hatching)
@@ -1317,14 +1317,14 @@ function render(timestamp: number): void {
       const fullCells = playerState.dungeon.cells;
       const fillLights = extractFillLights(fullCells, gridSize, theme);
       const allLights = fillLights.length
-        ? [...(fullMetadata.lights || []), ...fillLights]
-        : (fullMetadata.lights || []);
+        ? [...fullMetadata.lights, ...fillLights]
+        : fullMetadata.lights;
       const sx2 = transform.scale / getMapPxPerFoot();
       const mapScreenW = composite.cacheW * sx2;
       const mapScreenH = composite.cacheH * sx2;
       renderLightmap(ctx, allLights, fullCells, gridSize,
         { scale: transform.scale, offsetX: 0, offsetY: 0 },
-        Math.ceil(mapScreenW), Math.ceil(mapScreenH), fullMetadata.ambientLight ?? 0.15,
+        Math.ceil(mapScreenW), Math.ceil(mapScreenH), fullMetadata.ambientLight,
         playerState.textureCatalog, playerState.propCatalog,
         {
           ambientColor: (fullMetadata as Record<string, unknown>).ambientColor as string || '#ffffff', time: _animClock,
@@ -1386,8 +1386,8 @@ function render(timestamp: number): void {
   }
 
   // Auto-manage animation loop based on animated lights
-  const meta = playerState.dungeon?.metadata;
-  if (meta?.lightingEnabled && _hasAnimatedLights()) {
+  const meta = playerState.dungeon.metadata;
+  if (meta.lightingEnabled && _hasAnimatedLights()) {
     if (!_animLoopId) _startAnimLoop();
   } else if (_animLoopId) {
     _stopAnimLoop();
@@ -1403,7 +1403,7 @@ function render(timestamp: number): void {
  */
 function renderFallback(theme: Theme, gridSize: number, transform: RenderTransform): void {
   const { dungeon } = playerState;
-  if (!dungeon) return;
+  if (!dungeon || !canvas) return;
   const { metadata } = dungeon;
 
   const playerCells = buildPlayerCells(dungeon, playerState.revealedCells, playerState.openedDoors);
@@ -1419,26 +1419,27 @@ function renderFallback(theme: Theme, gridSize: number, transform: RenderTransfo
   };
 
   const textureOptions = playerState.textureCatalog
-    ? { catalog: playerState.textureCatalog, blendWidth: (theme as Record<string, unknown>).textureBlendWidth ?? 0.35, texturesVersion: playerState.texturesVersion ?? 0 }
+    ? { catalog: playerState.textureCatalog, blendWidth: (theme as Record<string, unknown>).textureBlendWidth ?? 0.35, texturesVersion: playerState.texturesVersion }
     : null;
   const bgImgConfig = metadata.backgroundImage ?? null;
   const bgImageEl = bgImgConfig?.dataUrl ? getCachedBgImage(bgImgConfig.dataUrl) : null;
-  const lightingEnabled = !!(playerMetadata.lightingEnabled && playerMetadata.lights?.length > 0);
+  const lightingEnabled = playerMetadata.lightingEnabled && playerMetadata.lights.length > 0;
 
   renderCells(ctx, playerCells, gridSize, theme, transform, {
-    showGrid: metadata.features?.showGrid !== false,
-    labelStyle: metadata.labelStyle || 'circled',
-    propCatalog: playerState.propCatalog, textureOptions,
-    metadata: playerMetadata, skipLabels: lightingEnabled,
-    bgImageEl, bgImgConfig,
+    showGrid: metadata.features.showGrid,
+    labelStyle: metadata.labelStyle,
+    propCatalog: playerState.propCatalog,
+    textureOptions: textureOptions as { catalog: TextureCatalog; blendWidth: number } | null,
+    metadata: playerMetadata as Metadata, skipLabels: lightingEnabled,
+    bgImageEl: bgImageEl, bgImgConfig: bgImgConfig as Record<string, string | number | boolean> | null,
   });
 
   if (lightingEnabled) {
     renderLightmap(ctx, playerMetadata.lights, playerCells, gridSize, transform,
-      canvas.width, canvas.height, playerMetadata.ambientLight ?? 0.15,
+      canvas.width, canvas.height, playerMetadata.ambientLight,
       playerState.textureCatalog, playerState.propCatalog,
       { time: _animClock }, playerMetadata);
-    renderLabels(ctx, playerCells, gridSize, theme, transform, metadata.labelStyle || 'circled');
+    renderLabels(ctx, playerCells, gridSize, theme, transform, metadata.labelStyle);
   }
 }
 
@@ -1458,7 +1459,7 @@ function drawDiagnostics(gridSize: number): void {
   lines.push({ text: '', color: '#666' });
   lines.push({ text: '── Map ──', color: '#666' });
   lines.push({ text: `Grid: ${numRows}x${numCols} (${gridSize}ft)`, color: '#aaf' });
-  lines.push({ text: `Props: ${(metadata as Record<string, unknown>).props ? ((metadata as Record<string, unknown>).props as unknown[]).length : 0} | Lights: ${metadata.lights?.length || 0}`, color: '#aaa' });
+  lines.push({ text: `Props: ${(metadata as Record<string, unknown>).props ? ((metadata as Record<string, unknown>).props as unknown[]).length : 0} | Lights: ${metadata.lights.length}`, color: '#aaa' });
   lines.push({ text: `Revealed: ${playerState.revealedCells.size} / ${numRows * numCols} cells`, color: '#aaa' });
 
   // Caches
@@ -1484,14 +1485,14 @@ function drawDiagnostics(gridSize: number): void {
 
   // Per-phase renderCells breakdown (from render pipeline timings)
   const phases = ['roomCells', 'shading', 'floors', 'blending', 'fills', 'bridges', 'grid', 'walls', 'props', 'hazard'];
-  const hasPhaseData = phases.some(p => ((renderTimings as Record<string, { ms?: number }>)[p]?.ms ?? 0) > 0);
+  const hasPhaseData = phases.some(p => ((renderTimings as Record<string, { ms?: number } | undefined>)[p]?.ms ?? 0) > 0);
   if (hasPhaseData) {
     lines.push({ text: '', color: '#666' });
     lines.push({ text: '── renderCells ──', color: '#666' });
     for (const phase of phases) {
-      const pt = (renderTimings as Record<string, { ms?: number }>)[phase];
+      const pt = (renderTimings as Record<string, { ms?: number } | undefined>)[phase];
       if (!pt) continue;
-      const ms = pt.ms!;
+      const ms = pt.ms ?? 0;
       lines.push({ text: `  ${phase}: ${ms.toFixed(ms < 1 ? 1 : 0)}ms`, color: _col(ms) });
     }
   }
@@ -1572,6 +1573,7 @@ function tickViewportLerp(dt: number): boolean {
 }
 
 export function applyDMViewport(panX: number, panY: number, zoom: number, dmCanvasWidth: number, dmCanvasHeight: number): void {
+  if (!canvas) return;
   // Adjust pan so the same world-center on the DM's canvas is centered on ours
   const dmW = dmCanvasWidth || canvas.width;
   const dmH = dmCanvasHeight || canvas.height;
@@ -1635,7 +1637,7 @@ function onMouseDown(e: MouseEvent): void {
     panStartY = e.clientY;
     panStartPanX = playerState.panX;
     panStartPanY = playerState.panY;
-    canvas.style.cursor = 'grabbing';
+    canvas!.style.cursor = 'grabbing';
     e.preventDefault();
     return;
   }
@@ -1649,7 +1651,7 @@ function onMouseDown(e: MouseEvent): void {
       const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
       activeTool.onMouseDown(cell.row, cell.col, null, e, pos);
       toolDragging = true;
-      canvas.style.cursor = 'crosshair';
+      canvas!.style.cursor = 'crosshair';
       e.preventDefault();
       requestRender();
       return;
@@ -1661,7 +1663,7 @@ function onMouseDown(e: MouseEvent): void {
     panStartY = e.clientY;
     panStartPanX = playerState.panX;
     panStartPanY = playerState.panY;
-    canvas.style.cursor = 'grabbing';
+    canvas!.style.cursor = 'grabbing';
     e.preventDefault();
   }
 }
@@ -1695,21 +1697,21 @@ function onMouseUp(e: MouseEvent): void {
     const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
     activeTool.onMouseUp(cell.row, cell.col, null, e, pos);
     toolDragging = false;
-    canvas.style.cursor = '';
+    canvas!.style.cursor = '';
     requestRender();
     return;
   }
 
   if (isPanning) {
     isPanning = false;
-    canvas.style.cursor = '';
+    canvas!.style.cursor = '';
   }
 }
 
 function onMouseLeave(): void {
   isPanning = false;
   toolDragging = false;
-  canvas.style.cursor = '';
+  canvas!.style.cursor = '';
 }
 
 // ── Touch handlers (mobile/tablet pan, pinch-zoom, tool interaction) ─────────
@@ -1824,13 +1826,11 @@ function onTouchEnd(e: TouchEvent): void {
   if (touchMode === 'tool' && activeTool && playerState.dungeon) {
     // Use last known position (changedTouches has the lifted finger)
     const t = e.changedTouches[0];
-    if (t) {
-      const pos = { x: t.clientX, y: t.clientY };
-      const transform = getTransform();
-      const gridSize = playerState.dungeon.metadata.gridSize;
-      const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
-      activeTool.onMouseUp(cell.row, cell.col, null, e, pos);
-    }
+    const pos = { x: t.clientX, y: t.clientY };
+    const transform = getTransform();
+    const gridSize = playerState.dungeon.metadata.gridSize;
+    const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
+    activeTool.onMouseUp(cell.row, cell.col, null, e, pos);
     toolDragging = false;
     touchMode = null;
     requestRender();

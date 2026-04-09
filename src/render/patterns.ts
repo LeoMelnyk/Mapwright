@@ -114,7 +114,13 @@ export const HATCH_PATTERNS: Array<{ cellLines: number[][][]; centre: number[] }
 // Re-generate: node tools/rock-patterns/generate-water-patterns.js > tools/rock-patterns/water-patterns-output.js
 // Parameters: TILE=300, FINE_SIZE=7, KEEP_PROB=0.35, seeds=670, LLOYD_ITERS=1
 export const WATER_TILE_SIZE: number = 300;
-export const WATER_PATTERNS: any[] = [
+export interface WaterPattern {
+  centre: [number, number];
+  verts: number[][];
+  idx?: number;
+}
+
+export const WATER_PATTERNS: WaterPattern[] = [
   { centre: [4.7,3.3], verts: [[11.7,7.5],[-0.8,7.2],[-1.3,2.6],[3.5,-2.7],[13.1,4.8]] },
   { centre: [73.8,3.3], verts: [[78.5,7.6],[68.9,6.2],[66.9,4.4],[66,-0.1],[69.1,-3.7],[80,-4.3],[81.8,-3.8],[81.9,-3.7],[83.9,1.2]] },
   { centre: [117.8,3.9], verts: [[106.1,6],[105.6,5.1],[119.3,-5.9],[128.5,-1.7],[128.4,3.1],[116.6,11.9]] },
@@ -791,13 +797,19 @@ export const WATER_PATTERNS: any[] = [
 // Divides the 300×300 tile into a 30×30 grid of bins (10×10 each).
 // Each bin stores the patterns whose centre falls in that region.
 // Consumers iterate only bins that overlap active cells instead of all patterns.
-export const WATER_SPATIAL: any = (() => {
+export interface WaterSpatialIndex {
+  bins: WaterPattern[][];
+  N: number;
+  binSize: number;
+}
+
+export const WATER_SPATIAL: WaterSpatialIndex = (() => {
   const N = 30, binSize = WATER_TILE_SIZE / N;
-  const bins = new Array(N * N);
+  const bins: WaterPattern[][] = new Array(N * N);
   for (let i = 0; i < bins.length; i++) bins[i] = [];
   for (let i = 0; i < WATER_PATTERNS.length; i++) {
     const p = WATER_PATTERNS[i];
-    p.idx = i; // stable index for deterministic jitter seeds
+    p.idx = i;
     const bx = Math.min(Math.floor(p.centre[0] / binSize), N - 1);
     const by = Math.min(Math.floor(p.centre[1] / binSize), N - 1);
     bins[by * N + bx].push(p);

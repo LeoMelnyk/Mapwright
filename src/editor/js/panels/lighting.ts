@@ -1,4 +1,5 @@
 // Lighting panel: toggle lighting, adjust ambient, configure light properties
+import type { FalloffType, Light, LightAnimationConfig, LightPreset } from '../../../types.js';
 import state, { markDirty, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { getLightCatalog } from '../light-catalog.js';
@@ -9,29 +10,30 @@ let container: HTMLElement | null = null;
  * Initialize the lighting panel: toggle lighting, adjust ambient, configure light properties.
  * @param {HTMLElement} el - Container element for the panel
  */
-export function initLightingPanel(el: HTMLElement): void {
-  container = el;
+export function initLightingPanel(containerEl: HTMLElement): void {
+  container = containerEl;
   render();
   subscribe(() => render(), 'lighting');
 }
 
-let _lastLights: any = null;
-let _lastSelectedLightId: any = null;
-let _lastLightingEnabled: any = null;
+let _lastLights: Light[] | null = null;
+let _lastSelectedLightId: number | null = null;
+let _lastLightingEnabled: boolean | null = null;
 function render() {
   if (!container) return;
 
   const metadata = state.dungeon.metadata;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const lights = metadata.lights || [];
   const selectedLight = state.selectedLightId != null
     ? lights.find(l => l.id === state.selectedLightId)
     : null;
 
   // Skip rebuild if nothing relevant changed and DOM is still populated
-  if (lights === _lastLights && state.selectedLightId === _lastSelectedLightId && !!metadata.lightingEnabled === _lastLightingEnabled && container.children.length > 0) return;
+  if (lights === _lastLights && state.selectedLightId === _lastSelectedLightId && metadata.lightingEnabled === _lastLightingEnabled && container.children.length > 0) return;
   _lastLights = lights;
   _lastSelectedLightId = state.selectedLightId;
-  _lastLightingEnabled = !!metadata.lightingEnabled;
+  _lastLightingEnabled = metadata.lightingEnabled;
 
   container.innerHTML = '';
 
@@ -40,7 +42,7 @@ function render() {
   const toggleRow = el('label', 'lighting-toggle');
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
-  checkbox.checked = !!metadata.lightingEnabled;
+  checkbox.checked = metadata.lightingEnabled;
   checkbox.addEventListener('change', () => {
     metadata.lightingEnabled = checkbox.checked;
     markDirty();
@@ -57,19 +59,18 @@ function render() {
   const ambientSection = el('div', 'lighting-section');
   ambientSection.appendChild(sectionLabel('Ambient'));
   ambientSection.appendChild(
-    sliderRow('Brightness', metadata.ambientLight ?? 0.15, 0, 1, 0.05, (v: any) => {
+    sliderRow('Brightness', metadata.ambientLight, 0, 1, 0.05, (v: number) => {
       metadata.ambientLight = v;
       markDirty();
       requestRender();
-    }, (v: any) => `${Math.round(v * 100)}%`)
+    }, (v: number) => `${Math.round(v * 100)}%`)
   );
   // Ambient color picker
   const ambColorRow = el('div', 'lighting-color-row');
   ambColorRow.appendChild(labelEl('Ambient Color'));
   const ambColorInput = document.createElement('input');
   ambColorInput.type = 'color';
-  // @ts-expect-error — strict-mode migration
-  ambColorInput.value = metadata.ambientColor || '#ffffff';
+  ambColorInput.value = metadata.ambientColor ?? '#ffffff';
   ambColorInput.addEventListener('input', () => {
     metadata.ambientColor = ambColorInput.value;
     markDirty();
@@ -94,7 +95,7 @@ function render() {
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.className = 'lighting-name-input';
-    nameInput.value = selectedLight.name || '';
+    nameInput.value = selectedLight.name ?? '';
     nameInput.placeholder = 'Optional label…';
     nameInput.addEventListener('input', () => {
       selectedLight.name = nameInput.value || undefined;
@@ -105,18 +106,17 @@ function render() {
     selSection.appendChild(nameRow);
 
     // Preset dropdown for selected light — re-applies a preset and restores the presetId link
-    selSection.appendChild(presetDropdown(selectedLight.presetId || null, (preset: any) => {
+    selSection.appendChild(presetDropdown(selectedLight.presetId ?? null, (preset: LightPreset) => {
       selectedLight.type = preset.type;
       selectedLight.color = preset.color;
       if (preset.type === 'directional') {
         selectedLight.range = preset.radius;
-        selectedLight.spread = preset.spread || 45;
-        // @ts-expect-error — strict-mode migration
-        delete selectedLight.radius;
+        selectedLight.spread = preset.spread ?? 45;
+        delete (selectedLight as unknown as Record<string, unknown>).radius;
       } else {
         selectedLight.radius = preset.radius;
-        delete selectedLight.range;
-        delete selectedLight.spread;
+        delete (selectedLight as unknown as Record<string, unknown>).range;
+        delete (selectedLight as unknown as Record<string, unknown>).spread;
       }
       selectedLight.intensity = preset.intensity;
       selectedLight.falloff = preset.falloff;
@@ -135,7 +135,7 @@ function render() {
 
     // Shared sliders wired to the selected light object
     const radiusValue = selectedLight.type === 'directional'
-      ? (selectedLight.range || selectedLight.radius || 30)
+      ? ((selectedLight.range ?? selectedLight.radius) || 30)
       : (selectedLight.radius || 30);
 
     selSection.appendChild(buildLightSliders(
@@ -143,22 +143,23 @@ function render() {
         type: selectedLight.type,
         color: selectedLight.color || '#ff9944',
         radius: radiusValue,
-        intensity: selectedLight.intensity ?? 1.0,
+        intensity: selectedLight.intensity,
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         falloff: selectedLight.falloff || 'smooth',
-        angle: selectedLight.angle || 0,
-        spread: selectedLight.spread || 45,
+        angle: selectedLight.angle ?? 0,
+        spread: selectedLight.spread ?? 45,
         dimRadius: selectedLight.dimRadius ?? 0,
       },
-      (field: any, value: any) => {
-        if (field === 'color') selectedLight.color = value;
-        else if (field === 'radius') selectedLight.radius = value;
-        else if (field === 'range') selectedLight.range = value;
-        else if (field === 'intensity') selectedLight.intensity = value;
-        else if (field === 'falloff') selectedLight.falloff = value;
-        else if (field === 'angle') selectedLight.angle = value;
-        else if (field === 'spread') selectedLight.spread = value;
+      (field: string, value: string | number) => {
+        if (field === 'color') selectedLight.color = value as string;
+        else if (field === 'radius') selectedLight.radius = Number(value);
+        else if (field === 'range') selectedLight.range = Number(value);
+        else if (field === 'intensity') selectedLight.intensity = Number(value);
+        else if (field === 'falloff') selectedLight.falloff = value as FalloffType;
+        else if (field === 'angle') selectedLight.angle = Number(value);
+        else if (field === 'spread') selectedLight.spread = Number(value);
         else if (field === 'dimRadius') {
-          if (value > 0) selectedLight.dimRadius = value;
+          if (Number(value) > 0) selectedLight.dimRadius = Number(value);
           else delete selectedLight.dimRadius;
         }
         delete selectedLight.presetId; // sever preset link on manual edit
@@ -170,13 +171,13 @@ function render() {
 
     // Z-Height slider (height above floor in feet)
     selSection.appendChild(
-      sliderRow('Height (ft)', selectedLight.z ?? 8, 0.5, 20, 0.5, (v: any) => {
+      sliderRow('Height (ft)', selectedLight.z ?? 8, 0.5, 20, 0.5, (v: number) => {
         selectedLight.z = v;
         delete selectedLight.presetId;
         invalidateLightmap(false);
         markDirty();
         requestRender();
-      }, (v: any) => `${v}ft`)
+      }, (v: number) => `${v}ft`)
     );
 
     // Animation controls
@@ -189,20 +190,16 @@ function render() {
       const opt = document.createElement('option');
       opt.value = val;
       opt.textContent = lbl;
-      // @ts-expect-error — strict-mode migration
-      opt.selected = (selectedLight.animation?.type || 'none') === val;
+      opt.selected = (selectedLight.animation?.type ?? 'none') === val;
       animTypeSelect.appendChild(opt);
     }
     animTypeRow.appendChild(animTypeSelect);
     selSection.appendChild(animTypeRow);
 
-    const existingAnim = selectedLight.animation || {};
-    // @ts-expect-error — strict-mode migration
-    const animSpeedRow = sliderRow('Speed', existingAnim.speed ?? 1.0, 0.1, 5.0, 0.1, () => applyAnim(), (v: any) => `${v.toFixed(1)}×`);
-    // @ts-expect-error — strict-mode migration
-    const animAmpRow   = sliderRow('Amplitude', existingAnim.amplitude ?? 0.3, 0.0, 1.0, 0.05, () => applyAnim(), (v: any) => `${v.toFixed(2)}`);
-    // @ts-expect-error — strict-mode migration
-    const animRadRow   = sliderRow('Radius Var', existingAnim.radiusVariation ?? 0, 0.0, 0.5, 0.05, () => applyAnim(), (v: any) => `${v.toFixed(2)}`);
+    const existingAnim = selectedLight.animation ?? {} as Partial<LightAnimationConfig>;
+    const animSpeedRow = sliderRow('Speed', existingAnim.speed ?? 1.0, 0.1, 5.0, 0.1, () => applyAnim(), (v: number) => `${v.toFixed(1)}×`);
+    const animAmpRow   = sliderRow('Amplitude', existingAnim.amplitude ?? 0.3, 0.0, 1.0, 0.05, () => applyAnim(), (v: number) => v.toFixed(2));
+    const animRadRow   = sliderRow('Radius Var', existingAnim.radiusVariation ?? 0, 0.0, 0.5, 0.05, () => applyAnim(), (v: number) => v.toFixed(2));
     selSection.appendChild(animSpeedRow);
     selSection.appendChild(animAmpRow);
     selSection.appendChild(animRadRow);
@@ -210,19 +207,16 @@ function render() {
     function applyAnim() {
       const animType = animTypeSelect.value;
       if (animType === 'none') {
-        // @ts-expect-error — strict-mode migration
-        delete selectedLight.animation;
+        delete selectedLight!.animation;
       } else {
-        // @ts-expect-error — strict-mode migration
-        selectedLight.animation = {
+        selectedLight!.animation = {
           type: animType,
-          speed: parseFloat(animSpeedRow.querySelector('input').value),
-          amplitude: parseFloat(animAmpRow.querySelector('input').value),
-          radiusVariation: parseFloat(animRadRow.querySelector('input').value),
+          speed: parseFloat(animSpeedRow.querySelector('input')!.value),
+          amplitude: parseFloat(animAmpRow.querySelector('input')!.value),
+          radiusVariation: parseFloat(animRadRow.querySelector('input')!.value),
         };
       }
-      // @ts-expect-error — strict-mode migration
-      delete selectedLight.presetId; // sever preset link on manual animation edit
+      delete selectedLight!.presetId; // sever preset link on manual animation edit
       updateAnimRows();
       invalidateLightmap(false);
       markDirty();
@@ -243,10 +237,10 @@ function render() {
     deleteBtn.className = 'toolbar-btn lighting-delete-btn';
     deleteBtn.textContent = 'Delete Light';
     deleteBtn.addEventListener('click', () => {
-      const lights = state.dungeon.metadata.lights;
-      const idx = lights.findIndex(l => l.id === selectedLight.id);
+      const allLights = state.dungeon.metadata.lights;
+      const idx = allLights.findIndex(l => l.id === selectedLight.id);
       if (idx >= 0) {
-        lights.splice(idx, 1);
+        allLights.splice(idx, 1);
         state.selectedLightId = null;
         invalidateLightmap(false);
         markDirty();
@@ -273,7 +267,7 @@ function render() {
       item.appendChild(swatch);
 
       // Label — show name if set, otherwise auto description
-      const labelText = light.name ||
+      const labelText = light.name ??
         `#${light.id} ${light.type === 'directional' ? 'Dir' : 'Point'} (${Math.round(light.x)}, ${Math.round(light.y)})`;
       item.appendChild(document.createTextNode(labelText));
       if (light.presetId) {
@@ -317,13 +311,12 @@ function render() {
         light.falloff   = preset.falloff;
         if (preset.type === 'directional') {
           light.range  = preset.radius;
-          light.spread = preset.spread || 45;
-          // @ts-expect-error — strict-mode migration
-          delete light.radius;
+          light.spread = preset.spread ?? 45;
+          delete (light as unknown as Record<string, unknown>).radius;
         } else {
           light.radius = preset.radius;
-          delete light.range;
-          delete light.spread;
+          delete (light as unknown as Record<string, unknown>).range;
+          delete (light as unknown as Record<string, unknown>).spread;
         }
         if (preset.dimRadius) light.dimRadius = preset.dimRadius;
         else delete light.dimRadius;
@@ -358,8 +351,8 @@ function render() {
 // controls. `values` is the current light property values; `onFieldChange(field, value)`
 // is called on every input event with the field name and new value.
 
-function buildLightSliders(values: any, onFieldChange: any) {
-  const { type, color, radius, intensity, falloff, angle, spread, dimRadius } = values;
+function buildLightSliders(values: Record<string, number | string | boolean>, onFieldChange: (field: string, value: number | string) => void) {
+  const { type, color, radius, intensity, falloff, angle, spread, dimRadius } = values as Record<string, number | string>;
   const frag = document.createDocumentFragment();
 
   // Color picker
@@ -367,7 +360,7 @@ function buildLightSliders(values: any, onFieldChange: any) {
   colorRowEl.appendChild(labelEl('Color'));
   const colorInput = document.createElement('input');
   colorInput.type = 'color';
-  colorInput.value = color || '#ff9944';
+  colorInput.value = (color as string) || '#ff9944';
   colorInput.addEventListener('input', () => onFieldChange('color', colorInput.value));
   colorRowEl.appendChild(colorInput);
   frag.appendChild(colorRowEl);
@@ -377,15 +370,15 @@ function buildLightSliders(values: any, onFieldChange: any) {
   const radiusField = type === 'directional' ? 'range' : 'radius';
   frag.appendChild(
     sliderRow(radiusLabel, radius || 30, 5, 100, 5,
-      (v: any) => onFieldChange(radiusField, v),
-      (v: any) => `${v} ft`)
+      (v: number) => onFieldChange(radiusField, v),
+      (v: number) => `${v} ft`)
   );
 
   // Intensity slider
   frag.appendChild(
-    sliderRow('Intensity', intensity ?? 1.0, 0.1, 2.0, 0.1,
-      (v: any) => onFieldChange('intensity', v),
-      (v: any) => `${v.toFixed(1)}×`)
+    sliderRow('Intensity', intensity, 0.1, 2.0, 0.1,
+      (v: number) => onFieldChange('intensity', v),
+      (v: number) => `${v.toFixed(1)}×`)
   );
 
   // Falloff selector
@@ -407,23 +400,23 @@ function buildLightSliders(values: any, onFieldChange: any) {
   // Dim Radius slider (point lights only)
   if (type !== 'directional') {
     frag.appendChild(
-      sliderRow('Dim Radius', dimRadius ?? 0, 0, 120, 5,
-        (v: any) => onFieldChange('dimRadius', v),
-        (v: any) => v === 0 ? 'Off' : `${v} ft`)
+      sliderRow('Dim Radius', dimRadius, 0, 120, 5,
+        (v: number) => onFieldChange('dimRadius', v),
+        (v: number) => v === 0 ? 'Off' : `${v} ft`)
     );
   }
 
   // Angle + Spread (directional lights only)
   if (type === 'directional') {
     frag.appendChild(
-      sliderRow('Angle', angle ?? 0, 0, 359, 1,
-        (v: any) => onFieldChange('angle', v),
-        (v: any) => `${v}°`)
+      sliderRow('Angle', angle, 0, 359, 1,
+        (v: number) => onFieldChange('angle', v),
+        (v: number) => `${v}°`)
     );
     frag.appendChild(
-      sliderRow('Spread', spread ?? 45, 5, 90, 5,
-        (v: any) => onFieldChange('spread', v),
-        (v: any) => `${v}°`)
+      sliderRow('Spread', spread, 5, 90, 5,
+        (v: number) => onFieldChange('spread', v),
+        (v: number) => `${v}°`)
     );
   }
 
@@ -432,7 +425,7 @@ function buildLightSliders(values: any, onFieldChange: any) {
 
 // ── DOM Helpers ──────────────────────────────────────────────────────────────
 
-function presetDropdown(currentValue: any, onSelect: any) {
+function presetDropdown(currentValue: string | null, onSelect: (preset: LightPreset) => void) {
   const catalog = getLightCatalog();
   const row = el('div', 'lighting-slider-row');
   row.appendChild(labelEl('Preset'));
@@ -451,6 +444,7 @@ function presetDropdown(currentValue: any, onSelect: any) {
       group.label = category;
       for (const id of catalog.byCategory[category]) {
         const preset = catalog.lights[id];
+        if (!preset) continue;
         const opt = document.createElement('option');
         opt.value = id;
         opt.textContent = preset.displayName;
@@ -471,43 +465,44 @@ function presetDropdown(currentValue: any, onSelect: any) {
   return row;
 }
 
-function el(tag: any, className: any) {
+function el(tag: string, className?: string) {
   const e = document.createElement(tag);
   if (className) e.className = className;
   return e;
 }
 
-function sectionLabel(text: any) {
+function sectionLabel(text: string) {
   const label = el('div', 'lighting-section-label');
   label.textContent = text;
   return label;
 }
 
-function labelEl(text: any) {
-  // @ts-expect-error — strict-mode migration
+function labelEl(text: string) {
   const l = el('label');
   l.className = 'lighting-label';
   l.textContent = text;
   return l;
 }
 
-function sliderRow(label: any, value: any, min: any, max: any, step: any, onChange: any, formatValue: any) {
+function sliderRow(label: string, value: number | string, min: number, max: number, step: number, onChange: (v: number) => void, formatValue: (v: number) => string) {
   const row = el('div', 'lighting-slider-row');
   row.appendChild(labelEl(label));
 
   const slider = document.createElement('input');
   slider.type = 'range';
-  slider.min = min;
-  slider.max = max;
-  slider.step = step;
-  slider.value = value;
+  slider.min = String(min);
+  slider.max = String(max);
+  slider.step = String(step);
+  slider.value = String(value);
 
   const valueDisplay = el('span', 'lighting-value');
-  valueDisplay.textContent = formatValue ? formatValue(value) : value;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  valueDisplay.textContent = formatValue ? formatValue(Number(value)) : String(value);
 
   slider.addEventListener('input', () => {
     const v = parseFloat(slider.value);
-    valueDisplay.textContent = formatValue ? formatValue(v) : v;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    valueDisplay.textContent = formatValue ? formatValue(v) : String(v);
     onChange(v);
   });
 

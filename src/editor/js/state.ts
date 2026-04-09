@@ -1,18 +1,21 @@
 // Central state store
-import type { Dungeon, UndoEntry } from '../../types.js';
+import type { Dungeon, EditorState, Theme } from '../../types.js';
+
+interface AutosaveData {
+  dungeon: Dungeon;
+  currentLevel: number;
+  activeTool: string;
+  zoom: number;
+  panX: number;
+  panY: number;
+}
 import { THEMES, invalidateVisibilityCache } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
 
 const MAX_UNDO = 100;
 
-const state: {
-  dungeon: Dungeon;
-  undoStack: UndoEntry[];
-  redoStack: UndoEntry[];
-  listeners: { fn: (s: any) => void; label: string }[];
-  [key: string]: any;
-} = {
+const state: EditorState = {
   dungeon: createEmptyDungeon('New Dungeon', 20, 30),
   currentLevel: 0,
   selectedCells: [],
@@ -23,6 +26,7 @@ const state: {
   waterDepth: 1,           // 1 (shallow), 2 (medium), 3 (deep)
   lavaDepth: 1,            // 1 (shallow), 2 (medium), 3 (deep)
   doorType: 'd',       // 'd' (normal) or 's' (secret)
+  wallType: 'w',       // 'w' (wall) or 'iw' (invisible wall)
   trimCorner: 'auto',  // 'auto', 'nw', 'ne', 'sw', 'se'
   trimRound: false,
   trimInverted: false,
@@ -66,6 +70,7 @@ const state: {
   lightSpread: 45,           // default cone spread (degrees)
   lightDimRadius: 0,         // default dim radius (0 = disabled)
   lightAnimation: null,      // default animation ({type,speed,amplitude,radiusVariation} or null)
+  lightZ: 0,                 // default Z height for lights
   animClock: 0,              // elapsed seconds — updated by animation loop in canvas-view.js
   lightCoverageMode: false,  // when true, coverage heatmap is rendered over the lightmap
   zoom: 1.0,
@@ -85,22 +90,25 @@ const state: {
   sessionToolsActive: false,  // true when session toolbar is shown (session panel open + session active)
   statusInstruction: null,    // string or null — shown in #status-center when set
   debugShowHitboxes: false,  // when true, render prop hitbox outlines on the canvas
+  _lastPushUndoMs: null,
 };
 
 /**
  * Get the resolved theme object for the current dungeon.
  * @returns {Object} The active theme configuration.
  */
-export function getTheme(): Record<string, unknown> {
+export function getTheme(): Theme {
   const t = state.dungeon.metadata.theme;
   if (typeof t === 'string') {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (THEMES[t]) return THEMES[t];
     // Fallback: user theme not installed locally — use embedded data
     if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
-      return state.dungeon.metadata.savedThemeData.theme;
+      return state.dungeon.metadata.savedThemeData.theme as Theme;
     }
     return THEMES['blue-parchment'];
   }
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (typeof t === 'object' && t !== null) return t;
   return THEMES['blue-parchment'];
 }
@@ -123,7 +131,7 @@ export function setUndoDisabled(v: boolean): void { undoDisabled = v; }
 export function pushUndo(label: string = 'Edit', preSerializedJson: string | null = null): void {
   if (undoDisabled) return;
   const _t0 = performance.now();
-  const json = preSerializedJson || JSON.stringify(state.dungeon);
+  const json = preSerializedJson ?? JSON.stringify(state.dungeon);
   const _t1 = performance.now();
   state.undoStack.push({ json, label, timestamp: Date.now() });
   if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
@@ -202,7 +210,6 @@ export function markDirty(): void {
  * @returns {void}
  */
 export function invalidateLightmap(structuralChange: boolean | 'props' = true): void {
-  // @ts-expect-error — strict-mode migration
   invalidateVisibilityCache(structuralChange);
 }
 
@@ -220,8 +227,8 @@ export function clearDirty(): void {
  * @param {string} [label] - Debug label for timing diagnostics.
  * @returns {void}
  */
-export function subscribe(fn: (state: any) => void, label?: string): void {
-  state.listeners.push({ fn, label: label || 'unknown' });
+export function subscribe(fn: (state: EditorState) => void, label?: string): void {
+  state.listeners.push({ fn, label: label ?? 'unknown' });
 }
 
 /** Latest per-subscriber timing data from the most recent notify() call. */
@@ -249,7 +256,7 @@ function _openDb(): Promise<IDBDatabase> {
       _autosaveDb = req.result;
       resolve(_autosaveDb);
     };
-    req.onerror = () => reject(req.error);
+    req.onerror = () => reject(req.error ?? new Error('IndexedDB request failed'));
   });
 }
 
@@ -260,7 +267,7 @@ if (typeof indexedDB !== 'undefined') {
 
 function scheduleAutosave() {
   if (autosaveTimer) clearTimeout(autosaveTimer);
-  autosaveTimer = setTimeout(async () => {
+  autosaveTimer = setTimeout(() => { void (async () => {
     const data = {
       dungeon: state.dungeon,
       currentLevel: state.currentLevel,
@@ -278,7 +285,7 @@ function scheduleAutosave() {
       // IndexedDB failed — fall back to localStorage (blocking but rare)
       try { localStorage.setItem(AUTOSAVE_LEGACY_KEY, JSON.stringify(data)); } catch {}
     }
-  }, 1000);
+  })(); }, 1000);
 }
 
 /**
@@ -290,18 +297,19 @@ export async function loadAutosave(): Promise<boolean> {
   try {
     const db: IDBDatabase = await _openDb();
     const tx = db.transaction(AUTOSAVE_STORE, 'readonly');
-    const saved: any = await new Promise((resolve, reject) => {
+    const saved = await new Promise<AutosaveData | undefined>((resolve, reject) => {
       const req = tx.objectStore(AUTOSAVE_STORE).get(AUTOSAVE_KEY);
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
+      req.onsuccess = () => resolve(req.result as AutosaveData | undefined);
+      req.onerror = () => reject(req.error ?? new Error('IndexedDB request failed'));
     });
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
     if (saved?.dungeon?.metadata && saved?.dungeon?.cells) {
       state.dungeon = saved.dungeon;
       state.currentLevel = saved.currentLevel || 0;
       state.activeTool = saved.activeTool || 'room';
       state.zoom = saved.zoom || 1.0;
-      state.panX = saved.panX ?? 60;
-      state.panY = saved.panY ?? 60;
+      state.panX = saved.panX ?? 60; // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
+      state.panY = saved.panY ?? 60; // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
       return true;
     }
   } catch {}
@@ -310,14 +318,15 @@ export async function loadAutosave(): Promise<boolean> {
   try {
     const raw = localStorage.getItem(AUTOSAVE_LEGACY_KEY);
     if (!raw) return false;
-    const saved = JSON.parse(raw);
+    const saved = JSON.parse(raw) as AutosaveData;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
     if (!saved.dungeon?.metadata || !saved.dungeon?.cells) return false;
     state.dungeon = saved.dungeon;
     state.currentLevel = saved.currentLevel || 0;
     state.activeTool = saved.activeTool || 'room';
     state.zoom = saved.zoom || 1.0;
-    state.panX = saved.panX ?? 60;
-    state.panY = saved.panY ?? 60;
+    state.panX = saved.panX ?? 60; // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
+    state.panY = saved.panY ?? 60; // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
     return true;
   } catch {
     return false;

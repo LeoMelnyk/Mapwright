@@ -1,3 +1,4 @@
+import type { CellGrid, Level, Metadata } from '../../../types.js';
 // Levels panel: add/remove/switch levels, rename, resize
 import state, { pushUndo, markDirty, notify, subscribe } from '../state.js';
 import { invalidateAllCaches } from '../../../render/index.js';
@@ -5,7 +6,7 @@ import { panToLevel } from '../canvas-view.js';
 import { showToast } from '../toast.js';
 
 let isEditing = false; // guard: prevent update() from destroying inline input
-let dragFromIdx: any = null;
+let dragFromIdx: number | null = null;
 
 /**
  * Initialize the levels panel: subscribe to state, render levels list, bind add-level button.
@@ -14,16 +15,15 @@ export function init(): void {
   subscribe(update, 'levels');
   update();
 
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-add-level').addEventListener('click', addLevel);
+  document.getElementById('btn-add-level')?.addEventListener('click', addLevel);
 }
 
 function update() {
   if (isEditing) return; // don't rebuild while user is renaming
 
-  const list = document.getElementById('levels-list');
-  if (!list) return;
+  const list = document.getElementById('levels-list')!;
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const levels = state.dungeon.metadata.levels || [];
   list.innerHTML = levels.map((level, i) => `
     <div class="level-item ${i === state.currentLevel ? 'active' : ''}" data-level="${i}">
@@ -40,22 +40,21 @@ function update() {
   `).join('');
 
   list.querySelectorAll('.level-item').forEach(el => {
-    // @ts-expect-error — strict-mode migration
-    const levelIdx = parseInt((el as HTMLElement).dataset.level);
+    const levelIdx = parseInt((el as HTMLElement).dataset.level ?? '0');
     (el as HTMLElement).draggable = true;
 
     // Click: select level + pan viewport to it
     el.addEventListener('click', (e) => {
-      if ((e.target! as any).closest('.level-btn')) return;
+      if (((e.target ?? e.currentTarget) as HTMLElement).closest('.level-btn')) return;
       if (isEditing) return;
       selectLevel(levelIdx);
     });
 
     // Drag-and-drop reorder
     el.addEventListener('dragstart', (e) => {
-      if ((e.target! as any).closest('.level-btn, .level-rename-input')) { e.preventDefault(); return; }
+      if (((e.target ?? e.currentTarget) as HTMLElement).closest('.level-btn, .level-rename-input')) { e.preventDefault(); return; }
       dragFromIdx = levelIdx;
-      (e as any).dataTransfer.effectAllowed = 'move';
+      (e as DragEvent).dataTransfer!.effectAllowed = 'move';
       setTimeout(() => el.classList.add('dragging'), 0);
     });
 
@@ -68,7 +67,7 @@ function update() {
       e.preventDefault();
       if (dragFromIdx === null) return;
       const rect = el.getBoundingClientRect();
-      const isAbove = (e as any).clientY < rect.top + rect.height / 2;
+      const isAbove = (e as DragEvent).clientY < rect.top + rect.height / 2;
       list.querySelectorAll('.level-item').forEach(i => i.classList.remove('drag-above', 'drag-below'));
       el.classList.add(isAbove ? 'drag-above' : 'drag-below');
     });
@@ -78,7 +77,7 @@ function update() {
       if (dragFromIdx === null) return;
       const overIdx = levelIdx;
       const rect = el.getBoundingClientRect();
-      const isAbove = (e as any).clientY < rect.top + rect.height / 2;
+      const isAbove = (e as DragEvent).clientY < rect.top + rect.height / 2;
       list.querySelectorAll('.level-item').forEach(i => i.classList.remove('drag-above', 'drag-below'));
       const gap = isAbove ? overIdx : overIdx + 1;
       const n = levels.length;
@@ -87,29 +86,25 @@ function update() {
     });
 
     // Rename button
-    // @ts-expect-error — strict-mode migration
-    el!.querySelector('[data-action="rename"]').addEventListener('click', (e) => {
+    el.querySelector<HTMLInputElement>('[data-action="rename"]')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      startRename(el, levelIdx);
+      startRename(el as HTMLElement, levelIdx);
     });
 
     // Duplicate button
-    // @ts-expect-error — strict-mode migration
-    el!.querySelector('[data-action="duplicate"]').addEventListener('click', (e) => {
+    el.querySelector<HTMLInputElement>('[data-action="duplicate"]')?.addEventListener('click', (e) => {
       e.stopPropagation();
       duplicateLevel(levelIdx);
     });
 
     // Resize button
-    // @ts-expect-error — strict-mode migration
-    el!.querySelector('[data-action="resize"]').addEventListener('click', (e) => {
+    el.querySelector<HTMLInputElement>('[data-action="resize"]')?.addEventListener('click', (e) => {
       e.stopPropagation();
       resizeLevel(levelIdx);
     });
 
     // Delete button
-    // @ts-expect-error — strict-mode migration
-    el!.querySelector('[data-action="delete"]').addEventListener('click', (e) => {
+    el.querySelector<HTMLInputElement>('[data-action="delete"]')?.addEventListener('click', (e) => {
       e.stopPropagation();
       deleteLevel(levelIdx);
     });
@@ -124,6 +119,7 @@ function update() {
  * @param {number} idx - Zero-based level index
  */
 export function selectLevel(idx: number): void {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const levels = state.dungeon.metadata.levels || [];
   if (idx < 0 || idx >= levels.length) return;
 
@@ -134,20 +130,18 @@ export function selectLevel(idx: number): void {
 /**
  * Inline rename: replace the name span with an input.
  */
-function startRename(el: any, levelIdx: any) {
+function startRename(el: HTMLElement, levelIdx: number) {
   if (isEditing) return;
   const level = state.dungeon.metadata.levels[levelIdx];
-  if (!level) return;
 
   isEditing = true;
   const span = el.querySelector('.level-name');
   const oldName = level.name;
   const input = document.createElement('input');
   input.type = 'text';
-  // @ts-expect-error — strict-mode migration
-  input.value = oldName;
+  input.value = oldName ?? '';
   input.className = 'level-rename-input';
-  span.replaceWith(input);
+  span!.replaceWith(input);
   input.focus();
   input.select();
 
@@ -169,47 +163,43 @@ function startRename(el: any, levelIdx: any) {
   input.addEventListener('blur', commit);
   input.addEventListener('keydown', (ke) => {
     if (ke.key === 'Enter') { ke.preventDefault(); input.blur(); }
-    // @ts-expect-error — strict-mode migration
-    if (ke.key === 'Escape') { input.value = oldName; input.blur(); }
+    if (ke.key === 'Escape') { input.value = oldName ?? ''; input.blur(); }
   });
 }
 
 /**
  * Resize a level: show styled modal, then add/remove rows.
  */
-function resizeLevel(levelIdx: any) {
+function resizeLevel(levelIdx: number) {
   const levels = state.dungeon.metadata.levels;
-  if (!levels || levelIdx < 0 || levelIdx >= levels.length) return;
 
   const level = levels[levelIdx];
-  const modal = document.getElementById('modal-resize-level');
-  const descEl = document.getElementById('modal-resize-level-desc');
-  const rowInput = document.getElementById('modal-resize-level-rows');
-  const cancelBtn = document.getElementById('modal-resize-level-cancel');
-  const okBtn = document.getElementById('modal-resize-level-ok');
-  if (!modal || !rowInput) return;
+  const modal = document.getElementById('modal-resize-level')!;
+  const descEl = document.getElementById('modal-resize-level-desc')!;
+  const rowInput = document.getElementById('modal-resize-level-rows')!;
+  const cancelBtn = document.getElementById('modal-resize-level-cancel')!;
+  const okBtn = document.getElementById('modal-resize-level-ok')!;
 
-  if (descEl) descEl.textContent = `"${level.name}" currently has ${level.numRows} rows.`;
-  // @ts-expect-error — strict-mode migration
-  (rowInput as HTMLInputElement).value = level.numRows;
+  descEl.textContent = `"${level.name}" currently has ${level.numRows} rows.`;
+  (rowInput as HTMLInputElement).value = String(level.numRows);
   (modal as HTMLDialogElement).showModal();
   rowInput.focus();
-  ((rowInput as HTMLElement) as any).select();
+  (rowInput as HTMLInputElement).select();
 
   function cleanup() {
     (modal as HTMLDialogElement).close();
-    cancelBtn!.removeEventListener('click', onCancel);
-    okBtn!.removeEventListener('click', onOk);
-    rowInput!.removeEventListener('keydown', onKey);
-    modal!.removeEventListener('click', onOverlay);
+    cancelBtn.removeEventListener('click', onCancel);
+    okBtn.removeEventListener('click', onOk);
+    rowInput.removeEventListener('keydown', onKey);
+    modal.removeEventListener('click', onOverlay);
   }
 
   function onCancel() { cleanup(); }
 
   function onOk() {
-    const newRows = parseInt((rowInput! as any).value, 10);
+    const newRows = parseInt((rowInput as HTMLInputElement).value, 10);
     if (isNaN(newRows) || newRows < 1) {
-      rowInput!.focus();
+      rowInput.focus();
       return;
     }
     cleanup();
@@ -238,41 +228,40 @@ function resizeLevel(levelIdx: any) {
     _applyResize(levelIdx, levels, cells, numCols, delta, newRows, levelEnd);
   }
 
-  function onKey(ke: any) {
+  function onKey(ke: KeyboardEvent) {
     if (ke.key === 'Enter') onOk();
     if (ke.key === 'Escape') cleanup();
   }
 
-  function onOverlay(e: any) { if (e.target === modal) cleanup(); }
+  function onOverlay(e: MouseEvent) { if (e.target === modal) cleanup(); }
 
-  cancelBtn!.addEventListener('click', onCancel);
-  okBtn!.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+  okBtn.addEventListener('click', onOk);
   rowInput.addEventListener('keydown', onKey);
   modal.addEventListener('click', onOverlay);
 }
 
-function _confirmDestructiveResize(level: any, removeCount: any, onConfirm: any) {
-  const confirmModal = document.getElementById('modal-resize-level-confirm');
-  const msgEl = document.getElementById('modal-resize-level-confirm-msg');
-  const cancelBtn = document.getElementById('modal-resize-level-confirm-cancel');
-  const okBtn = document.getElementById('modal-resize-level-confirm-ok');
-  if (!confirmModal) { onConfirm(); return; }
+function _confirmDestructiveResize(level: Level, removeCount: number, onConfirm: () => void) {
+  const confirmModal = document.getElementById('modal-resize-level-confirm')!;
+  const msgEl = document.getElementById('modal-resize-level-confirm-msg')!;
+  const cancelBtn = document.getElementById('modal-resize-level-confirm-cancel')!;
+  const okBtn = document.getElementById('modal-resize-level-confirm-ok')!;
 
-  if (msgEl) msgEl.textContent = `This will delete ${removeCount} row(s) at the bottom of "${level.name}" that contain cell data. Continue?`;
+  msgEl.textContent = `This will delete ${removeCount} row(s) at the bottom of "${level.name}" that contain cell data. Continue?`;
   (confirmModal as HTMLDialogElement).showModal();
 
   function cleanup() {
     (confirmModal as HTMLDialogElement).close();
-    cancelBtn!.removeEventListener('click', onCancel);
-    okBtn!.removeEventListener('click', onOk);
-    confirmModal!.removeEventListener('click', onOverlay);
+    cancelBtn.removeEventListener('click', onCancel);
+    okBtn.removeEventListener('click', onOk);
+    confirmModal.removeEventListener('click', onOverlay);
   }
   function onCancel() { cleanup(); }
   function onOk() { cleanup(); onConfirm(); }
-  function onOverlay(e: any) { if (e.target === confirmModal) cleanup(); }
+  function onOverlay(e: MouseEvent) { if (e.target === confirmModal) cleanup(); }
 
-  cancelBtn!.addEventListener('click', onCancel);
-  okBtn!.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+  okBtn.addEventListener('click', onOk);
   confirmModal.addEventListener('click', onOverlay);
 }
 
@@ -281,35 +270,31 @@ function _confirmDestructiveResize(level: any, removeCount: any, onConfirm: any)
  * in rows >= rowEnd by shiftRows. Returns the Set of removed bridge IDs so callers
  * can scrub stale bridge-id references from remaining cells.
  */
-function _cleanupAndShiftLightsBridges(meta: any, gridSize: any, rowStart: any, rowEnd: any, shiftRows: any) {
+function _cleanupAndShiftLightsBridges(meta: Metadata, gridSize: number, rowStart: number, rowEnd: number, shiftRows: number) {
   const yStart = rowStart * gridSize;
   const yEnd   = rowEnd   * gridSize;
-  const removedBridgeIds = new Set();
+  const removedBridgeIds = new Set<number>();
 
-  if (meta.lights) {
-    meta.lights = meta.lights.filter((l: any) => {
-      if (l.y >= yStart && l.y < yEnd) return false;
-      return true;
-    });
-    if (shiftRows !== 0) {
-      for (const l of meta.lights) {
-        if (l.y >= yEnd) l.y += shiftRows * gridSize;
-      }
+  meta.lights = meta.lights.filter((l: { y: number }) => {
+    if (l.y >= yStart && l.y < yEnd) return false;
+    return true;
+  });
+  if (shiftRows !== 0) {
+    for (const l of meta.lights) {
+      if (l.y >= yEnd) l.y += shiftRows * gridSize;
     }
   }
 
-  if (meta.bridges) {
-    meta.bridges = meta.bridges.filter((b: any) => {
-      if (b.points.some(([r]: any) => r >= rowStart && r < rowEnd)) {
-        removedBridgeIds.add(b.id);
-        return false;
-      }
-      return true;
-    });
-    if (shiftRows !== 0) {
-      for (const b of meta.bridges) {
-        b.points = b.points.map(([r, c]: any) => r >= rowEnd ? [r + shiftRows, c] : [r, c]);
-      }
+  meta.bridges = meta.bridges.filter(b => {
+    if (b.points.some(([r]) => r >= rowStart && r < rowEnd)) {
+      removedBridgeIds.add(b.id);
+      return false;
+    }
+    return true;
+  });
+  if (shiftRows !== 0) {
+    for (const b of meta.bridges) {
+      b.points = b.points.map(([r, c]) => r >= rowEnd ? [r + shiftRows, c] as [number, number] : [r, c] as [number, number]) as [[number, number], [number, number], [number, number]];
     }
   }
 
@@ -317,18 +302,18 @@ function _cleanupAndShiftLightsBridges(meta: any, gridSize: any, rowStart: any, 
 }
 
 /** Scrub stale bridge-id references from all remaining cells. */
-function _scrubBridgeRefs(cells: any, removedBridgeIds: any) {
+function _scrubBridgeRefs(cells: CellGrid, removedBridgeIds: Set<number>) {
   if (!removedBridgeIds.size) return;
   for (const row of cells) {
     for (const cell of row) {
-      if (cell?.center?.['bridge-id'] != null && removedBridgeIds.has(cell.center['bridge-id'])) {
+      if (cell?.center?.['bridge-id'] != null && removedBridgeIds.has(cell.center['bridge-id'] as number)) {
         delete cell.center['bridge-id'];
       }
     }
   }
 }
 
-function _applyResize(levelIdx: any, levels: any, cells: any, numCols: any, delta: any, newRows: any, levelEnd: any) {
+function _applyResize(levelIdx: number, levels: { startRow: number; numRows: number; name: string | null }[], cells: CellGrid, numCols: number, delta: number, newRows: number, levelEnd: number) {
   pushUndo('Resize level');
 
   const meta = state.dungeon.metadata;
@@ -363,9 +348,8 @@ function _applyResize(levelIdx: any, levels: any, cells: any, numCols: any, delt
   notify();
 }
 
-function duplicateLevel(idx: any) {
+function duplicateLevel(idx: number) {
   const levels = state.dungeon.metadata.levels;
-  if (!levels || idx < 0 || idx >= levels.length) return;
 
   const source = levels[idx];
   const cells = state.dungeon.cells;
@@ -389,7 +373,7 @@ function duplicateLevel(idx: any) {
   // Copy lights that fall within the source level's y range
   const yStart = source.startRow * gridSize;
   const yEnd = sourceEnd * gridSize;
-  if (meta.lights?.length) {
+  if (meta.lights.length) {
     if (!meta.nextLightId) meta.nextLightId = 1;
     const newLights = meta.lights
       .filter(l => l.y >= yStart && l.y < yEnd)
@@ -399,15 +383,15 @@ function duplicateLevel(idx: any) {
 
   // Copy bridges whose points all fall within the source level's row range.
   // Also remap bridge-id references in the copied cells.
-  if (meta.bridges?.length) {
-    if (meta.nextBridgeId == null) meta.nextBridgeId = 0;
+  if (meta.bridges.length) {
+    meta.nextBridgeId;
     const bridgeIdMap = new Map();
     const newBridges = meta.bridges
       .filter(b => b.points.every(([r]) => r >= source.startRow && r < sourceEnd))
       .map(b => {
         const newId = meta.nextBridgeId++;
         bridgeIdMap.set(b.id, newId);
-        return { ...b, id: newId, points: b.points.map(([r, c]) => [r + rowOffset, c]) };
+        return { ...b, id: newId, points: b.points.map(([r, c]) => [r + rowOffset, c] as [number, number]) as [[number, number], [number, number], [number, number]] };
       });
     if (bridgeIdMap.size > 0) {
       for (const row of newRows) {
@@ -419,13 +403,12 @@ function duplicateLevel(idx: any) {
         }
       }
     }
-    // @ts-expect-error — strict-mode migration
     meta.bridges.push(...newBridges);
   }
 
   // Renumber labels in copied rows: find the highest existing number, then assign
   // new sequential numbers to duplicated labels (sorted by original number to preserve order).
-  const letter = meta.dungeonLetter || 'A';
+  const letter = meta.dungeonLetter ?? 'A';
   const labelPattern = new RegExp(`^${letter}(\\d+)$`);
   let maxLabelNum = 0;
   for (const row of cells) {
@@ -444,7 +427,6 @@ function duplicateLevel(idx: any) {
   copiedLabels.sort((a, b) => a.origNum - b.origNum);
   let nextLabelNum = maxLabelNum + 1;
   for (const { cell } of copiedLabels) {
-    // @ts-expect-error — strict-mode migration
     cell.center.label = letter + nextLabelNum++;
   }
 
@@ -479,10 +461,9 @@ function duplicateLevel(idx: any) {
  * Move a level from fromIdx to toIdx, physically relocating its cell rows and
  * updating all level metadata. toIdx is the final index in the output array.
  */
-function moveLevelToIndex(fromIdx: any, toIdx: any) {
+function moveLevelToIndex(fromIdx: number, toIdx: number) {
   if (fromIdx === toIdx) return;
   const levels = state.dungeon.metadata.levels;
-  if (!levels || fromIdx < 0 || fromIdx >= levels.length) return;
   toIdx = Math.max(0, Math.min(toIdx, levels.length - 1));
   if (fromIdx === toIdx) return;
 
@@ -490,7 +471,7 @@ function moveLevelToIndex(fromIdx: any, toIdx: any) {
 
   const cells = state.dungeon.cells;
 
-  if (cells.some(row => row?.some(cell => cell?.center?.stairsLink))) {
+  if (cells.some(row => row.some(cell => cell?.center?.stairsLink))) {
     console.warn('[levels] Stair cross-level links detected — verify stair connections after reorder.');
   }
 
@@ -535,9 +516,8 @@ function moveLevelToIndex(fromIdx: any, toIdx: any) {
   notify();
 }
 
-function deleteLevel(idx: any) {
+function deleteLevel(idx: number) {
   const levels = state.dungeon.metadata.levels;
-  if (!levels || idx < 0 || idx >= levels.length) return;
 
   if (levels.length === 1) {
     showToast('Cannot delete the only level');
@@ -545,20 +525,19 @@ function deleteLevel(idx: any) {
   }
 
   const level = levels[idx];
-  const modal = document.getElementById('modal-delete-level');
-  const msgEl = document.getElementById('modal-delete-level-msg');
-  const cancelBtn = document.getElementById('modal-delete-level-cancel');
-  const okBtn = document.getElementById('modal-delete-level-ok');
-  if (!modal) return;
+  const modal = document.getElementById('modal-delete-level')!;
+  const msgEl = document.getElementById('modal-delete-level-msg')!;
+  const cancelBtn = document.getElementById('modal-delete-level-cancel')!;
+  const okBtn = document.getElementById('modal-delete-level-ok')!;
 
-  if (msgEl) msgEl.textContent = `Delete "${level.name}" and all its content?`;
+  msgEl.textContent = `Delete "${level.name}" and all its content?`;
   (modal as HTMLDialogElement).showModal();
 
   function cleanup() {
     (modal as HTMLDialogElement).close();
-    cancelBtn!.removeEventListener('click', onCancel);
-    okBtn!.removeEventListener('click', onOk);
-    modal!.removeEventListener('click', onOverlay);
+    cancelBtn.removeEventListener('click', onCancel);
+    okBtn.removeEventListener('click', onOk);
+    modal.removeEventListener('click', onOverlay);
   }
   function onCancel() { cleanup(); }
   function onOk() {
@@ -594,39 +573,38 @@ function deleteLevel(idx: any) {
     notify();
     showToast('Level deleted');
   }
-  function onOverlay(e: any) { if (e.target === modal) cleanup(); }
+  function onOverlay(e: MouseEvent) { if (e.target === modal) cleanup(); }
 
-  cancelBtn!.addEventListener('click', onCancel);
-  okBtn!.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+  okBtn.addEventListener('click', onOk);
   modal.addEventListener('click', onOverlay);
 }
 
 function addLevel() {
-  const modal = document.getElementById('modal-add-level');
-  const nameInput = document.getElementById('modal-add-level-name');
-  const cancelBtn = document.getElementById('modal-add-level-cancel');
-  const okBtn = document.getElementById('modal-add-level-ok');
-  if (!modal || !nameInput) return;
+  const modal = document.getElementById('modal-add-level')!;
+  const nameInput = document.getElementById('modal-add-level-name')!;
+  const cancelBtn = document.getElementById('modal-add-level-cancel')!;
+  const okBtn = document.getElementById('modal-add-level-ok')!;
 
-  const defaultName = `Level ${(state.dungeon.metadata.levels?.length || 0) + 1}`;
+  const defaultName = `Level ${(state.dungeon.metadata.levels.length || 0) + 1}`;
   (nameInput as HTMLInputElement).value = defaultName;
   (modal as HTMLDialogElement).showModal();
   nameInput.focus();
-  ((nameInput as HTMLElement) as any).select();
+  (nameInput as HTMLInputElement).select();
 
   function cleanup() {
     (modal as HTMLDialogElement).close();
-    cancelBtn!.removeEventListener('click', onCancel);
-    okBtn!.removeEventListener('click', onOk);
-    nameInput!.removeEventListener('keydown', onKey);
-    modal!.removeEventListener('click', onOverlay);
+    cancelBtn.removeEventListener('click', onCancel);
+    okBtn.removeEventListener('click', onOk);
+    nameInput.removeEventListener('keydown', onKey);
+    modal.removeEventListener('click', onOverlay);
   }
 
   function onCancel() { cleanup(); }
 
   function onOk() {
-    const name = (nameInput! as any).value.trim();
-    if (!name) { nameInput!.focus(); return; }
+    const name = (nameInput as HTMLInputElement).value.trim();
+    if (!name) { nameInput.focus(); return; }
     cleanup();
 
     pushUndo('Add level');
@@ -642,7 +620,6 @@ function addLevel() {
       cells.push(row);
     }
 
-    if (!state.dungeon.metadata.levels) state.dungeon.metadata.levels = [];
     state.dungeon.metadata.levels.push({
       name,
       startRow: currentRows + 1,
@@ -657,15 +634,15 @@ function addLevel() {
     showToast('Level added');
   }
 
-  function onKey(ke: any) {
+  function onKey(ke: KeyboardEvent) {
     if (ke.key === 'Enter') onOk();
     if (ke.key === 'Escape') cleanup();
   }
 
-  function onOverlay(e: any) { if (e.target === modal) cleanup(); }
+  function onOverlay(e: MouseEvent) { if (e.target === modal) cleanup(); }
 
-  cancelBtn!.addEventListener('click', onCancel);
-  okBtn!.addEventListener('click', onOk);
+  cancelBtn.addEventListener('click', onCancel);
+  okBtn.addEventListener('click', onOk);
   nameInput.addEventListener('keydown', onKey);
   modal.addEventListener('click', onOverlay);
 }

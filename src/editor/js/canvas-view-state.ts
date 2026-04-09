@@ -1,5 +1,6 @@
 // Shared mutable state for the canvas-view module family.
 // All canvas-view-*.js files import this object and mutate it directly.
+import type { Tool } from './tools/tool-base.js';
 import { MapCache } from '../../render/index.js';
 
 export const CELL_SIZE = 40; // pixels per cell at zoom=1
@@ -12,7 +13,39 @@ export const ANIM_INTERVAL_MS = 50; // 20fps — sufficient for fire/pulse, avoi
  * Central mutable state object shared across canvas-view sub-modules.
  * Imported as `cvState` and mutated in place.
  */
-export const cvState = {
+export const cvState: {
+  canvas: HTMLCanvasElement | null;
+  ctx: CanvasRenderingContext2D | null;
+  _dpr: number;
+  _canvasW: number;
+  _canvasH: number;
+  activeTool: Tool | null;
+  sessionTool: Tool | null;
+  sessionRangeTool: Tool | null;
+  sessionOverlayFn: ((ctx: CanvasRenderingContext2D, ...args: unknown[]) => void) | null;
+  sessionClickFn: ((px: number, py: number, transform: unknown, gridSize: number) => boolean) | null;
+  dmFogOverlayFn: ((ctx: CanvasRenderingContext2D, ...args: unknown[]) => void) | null;
+  isPanning: boolean;
+  panStartX: number;
+  panStartY: number;
+  panStartPanX: number;
+  panStartPanY: number;
+  rightDown: boolean;
+  rightStartX: number;
+  rightStartY: number;
+  rightStartPanX: number;
+  rightStartPanY: number;
+  rightDragged: boolean;
+  _lastHoveredCell: { row: number; col: number } | null;
+  animFrameId: number | null;
+  animLoopId: ReturnType<typeof setInterval> | null;
+  _bgMeasureActive: boolean;
+  _bgMeasureCallback: ((newPixelsPerCell: number) => void) | null;
+  _bgMeasureStart: { x: number; y: number } | null;
+  _bgMeasureEnd: { x: number; y: number } | null;
+  _renderScheduled: boolean;
+  lastDrawMs: number;
+} = {
   // Canvas / context
   canvas: null,
   ctx: null,
@@ -77,19 +110,19 @@ export const cvState = {
 // renderCells is expensive (thousands of GPU commands). We render it once to an
 // offscreen canvas when the map data changes, then blit the cached image on every
 // frame. Pan/zoom becomes a single drawImage instead of re-rendering all cells.
-let _mapCache: any = null; // created lazily on first use (avoids module init order issues)
+let _mapCache: MapCache | null = null; // created lazily on first use (avoids module init order issues)
 
 /**
  * Get or lazily create the offscreen map cache singleton.
  * @returns {MapCache} The shared map cache instance.
  */
-export function getMapCache(): any {
-  if (!_mapCache) _mapCache = new MapCache({ pxPerFoot: 20, maxCacheDim: 16384 });
+export function getMapCache(): MapCache {
+  _mapCache ??= new MapCache({ pxPerFoot: 20, maxCacheDim: 16384 });
   return _mapCache;
 }
 
 // Cache for background image HTMLImageElement — avoids recreating every frame
-let _bgImgCache = { dataUrl: null, el: null };
+let _bgImgCache: { dataUrl: string | null; el: HTMLImageElement | null } = { dataUrl: null, el: null };
 /**
  * Get or create a cached HTMLImageElement for the background image data URL.
  * @param {string} dataUrl - The data URL of the background image.
@@ -99,11 +132,9 @@ export function getCachedBgImage(dataUrl: string): HTMLImageElement {
   if (_bgImgCache.dataUrl !== dataUrl) {
     const img = new Image();
     img.src = dataUrl;
-    // @ts-expect-error — strict-mode migration
     _bgImgCache = { dataUrl, el: img };
   }
-  // @ts-expect-error — strict-mode migration
-  return _bgImgCache.el;
+  return _bgImgCache.el!;
 }
 
 // Dedup render warnings with 30s cooldown
@@ -142,4 +173,4 @@ if (typeof requestAnimationFrame === 'function') {
 
 // Debug: skip specific render phases to isolate GPU bottleneck.
 // Set via console: window._skipPhases = { shading: true, lighting: true }
-if (typeof window !== 'undefined') (window as any)._skipPhases = {};
+if (typeof window !== 'undefined') (window as unknown as Record<string, unknown>)._skipPhases = {};

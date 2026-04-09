@@ -6,12 +6,9 @@
  * In Electron mode, textures live in MAPWRIGHT_TEXTURE_PATH (userData/textures/).
  */
 
-import type { CellGrid } from '../types.js';
-// @ts-expect-error — strict-mode migration
+import type { CellGrid, Metadata, PropCatalog, TextureCatalog } from '../types.js';
 import fs from 'fs';
-// @ts-expect-error — strict-mode migration
 import { dirname, join, basename } from 'path';
-// @ts-expect-error — strict-mode migration
 import { fileURLToPath } from 'url';
 import { loadImage } from '@napi-rs/canvas';
 import { BRIDGE_TEXTURE_IDS } from './bridges.js';
@@ -20,20 +17,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Electron sets MAPWRIGHT_TEXTURE_PATH before importing server.js, so this is
 // resolved correctly at module load time.
-// @ts-expect-error — strict-mode migration
-const TEXTURES_DIR = process.env.MAPWRIGHT_TEXTURE_PATH
-  // @ts-expect-error — strict-mode migration
-  ? process.env.MAPWRIGHT_TEXTURE_PATH
-  : join(__dirname, '../textures');
+const TEXTURES_DIR = process.env.MAPWRIGHT_TEXTURE_PATH ?? join(__dirname, '../textures');
 
-let catalogCache: any = null;
+type NodeTextureCatalog = { names: string[]; textures: Record<string, Record<string, unknown>> };
+let catalogCache: NodeTextureCatalog | null = null;
 const imageCache = new Map();
 
 /**
  * Load texture metadata (not images) from .texture files on disk.
  * Cached after first call — call clearCatalogCache() to force a reload.
  */
-export function loadTextureCatalogMetadata(): { names: string[]; textures: Record<string, any> } {
+export function loadTextureCatalogMetadata(): { names: string[]; textures: Record<string, Record<string, unknown>> } {
   if (catalogCache) return catalogCache;
 
   // Try manifest.json first (written by the downloader after each session).
@@ -46,8 +40,8 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
     try {
       const polyDir = join(TEXTURES_DIR, 'polyhaven');
       manifest = fs.readdirSync(polyDir)
-        .filter((f: any) => f.endsWith('.texture'))
-        .map((f: any) => `polyhaven/${basename(f, '.texture')}`)
+        .filter(f => f.endsWith('.texture'))
+        .map(f => `polyhaven/${basename(f, '.texture')}`)
         .sort();
     } catch {
       console.warn('[textures] No texture catalog found — textures will not render');
@@ -60,21 +54,21 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
   for (const id of manifest) {
     try {
       const data = JSON.parse(fs.readFileSync(join(TEXTURES_DIR, `${id}.texture`), 'utf-8'));
-      (textures as any)[id] = {
+      (textures as Record<string, unknown>)[id] = {
         id,
         displayName: data.displayName,
         category: data.category,
-        subcategory: data.subcategory || null,
+        subcategory: data.subcategory ?? null,
         file: data.file,
-        dispFile: data.maps?.disp || null,
-        scale: data.scale || 2,
+        dispFile: data.maps?.disp ?? null,
+        scale: data.scale ?? 2,
         img: null,
         dispImg: null,
       };
-    } catch (e) { console.warn(`[textures] Failed to load ${id}.texture: ${(e as any).message}`); }
+    } catch (e) { console.warn(`[textures] Failed to load ${id}.texture: ${(e as Error).message}`); }
   }
 
-  catalogCache = { names: manifest, textures };
+  catalogCache = { names: manifest, textures: textures as Record<string, Record<string, unknown>> };
   console.log(`[textures] Loaded metadata for ${Object.keys(textures).length} textures`);
   return catalogCache;
 }
@@ -92,18 +86,17 @@ export function clearCatalogCache(): void {
  * Scan a cell grid and return a Set of all texture IDs referenced.
  */
 function collectTextureIds(cells: CellGrid): Set<string> {
-  const ids = new Set();
-  const KEYS = ['texture', 'textureSecondary'];
+  const ids = new Set<string>();
+  const KEYS = ['texture', 'textureSecondary'] as const;
   for (const row of cells) {
-    if (!row) continue;
     for (const cell of row) {
       if (!cell) continue;
       for (const key of KEYS) {
-        if ((cell as any)[key]) ids.add((cell as any)[key]);
+        const val = cell[key];
+        if (val) ids.add(val);
       }
     }
   }
-  // @ts-expect-error — strict-mode migration
   return ids;
 }
 
@@ -112,30 +105,28 @@ function collectTextureIds(cells: CellGrid): Set<string> {
  * Also loads textures referenced by props.
  * Images are cached — subsequent calls for the same textures are instant.
  */
-export async function ensureTexturesForConfig(catalog: any, config: any, propCatalog: any): Promise<void> {
+export async function ensureTexturesForConfig(catalog: TextureCatalog | null, config: { metadata: Metadata; cells: CellGrid }, propCatalog: PropCatalog | null): Promise<void> {
   const ids = collectTextureIds(config.cells);
 
   // Include bridge textures (hardcoded IDs in bridges.js)
-  if (config.metadata?.bridges?.length) {
+  if (config.metadata.bridges.length) {
     for (const b of config.metadata.bridges) {
-      const texId = (BRIDGE_TEXTURE_IDS as any)[b.type] || BRIDGE_TEXTURE_IDS.wood;
+      const texId = BRIDGE_TEXTURE_IDS[b.type as keyof typeof BRIDGE_TEXTURE_IDS] || BRIDGE_TEXTURE_IDS.wood;
       ids.add(texId);
     }
   }
 
   // Also include textures referenced by overlay props
-  if (propCatalog?.props && config.metadata?.props) {
+  if (propCatalog?.props && config.metadata.props) {
     for (const op of config.metadata.props) {
       const propDef = propCatalog.props[op.type];
-      if (propDef?.textures) {
-        for (const id of propDef.textures) ids.add(id);
-      }
+      for (const id of propDef.textures) ids.add(id);
     }
   }
 
   const promises = [];
   for (const id of ids) {
-    const entry = catalog.textures[id];
+    const entry = catalog?.textures[id];
     if (!entry) continue;
 
     // Load diffuse image
@@ -146,14 +137,14 @@ export async function ensureTexturesForConfig(catalog: any, config: any, propCat
       } else {
         promises.push(
           loadImage(filePath)
-            .then(img => { entry.img = img; imageCache.set(filePath, img); })
-            .catch((e) => { console.warn(`[textures] Failed to load diffuse for ${id}: ${e.message}`); })
+            .then(img => { entry.img = img as unknown as HTMLImageElement; imageCache.set(filePath, img); })
+            .catch((e: Error) => { console.warn(`[textures] Failed to load diffuse for ${id}: ${e.message}`); })
         );
       }
     }
 
     // Load displacement image
-    const dispFile = entry.dispFile || entry.file?.replace('_diff_', '_disp_');
+    const dispFile = (entry.dispFile as string) || (entry.file as string).replace('_diff_', '_disp_');
     if (!entry.dispImg && dispFile) {
       const filePath = join(TEXTURES_DIR, dispFile);
       if (imageCache.has(filePath)) {
@@ -161,7 +152,7 @@ export async function ensureTexturesForConfig(catalog: any, config: any, propCat
       } else {
         promises.push(
           loadImage(filePath)
-            .then(img => { entry.dispImg = img; imageCache.set(filePath, img); })
+            .then(img => { entry.dispImg = img as unknown as HTMLImageElement; imageCache.set(filePath, img); })
             .catch(() => { /* displacement maps are optional */ })
         );
       }

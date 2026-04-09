@@ -1,3 +1,4 @@
+import type { FillType } from '../../../types.js';
 import {
   state, pushUndo, markDirty, notify,
   validateBounds, ensureCell,
@@ -13,7 +14,7 @@ import {
  * @param {number} [depth] - Depth level 1-3 (for water/lava)
  * @returns {{ success: boolean }}
  */
-export function setFill(row: number, col: number, fillType: string, depth?: number): { success: true } {
+export function setFill(row: number, col: number, fillType: string, depth: number = 1): { success: true } {
   row = toInt(row); col = toInt(col);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
     throw new Error(`Invalid fill type: ${fillType}. Use 'pit', 'water', or 'lava'. For hazard, use setHazard().`);
@@ -21,9 +22,7 @@ export function setFill(row: number, col: number, fillType: string, depth?: numb
   const cell = ensureCell(row, col);
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
-  // @ts-expect-error — strict-mode migration
-  cell.fill = fillType;
-  // @ts-expect-error — strict-mode migration
+  cell.fill = fillType as FillType;
   const d = (depth >= 1 && depth <= 3) ? depth : 1;
   if (fillType === 'water') {
     cell.waterDepth = d;
@@ -75,8 +74,7 @@ export function setHazard(row: number, col: number, enabled: boolean = true): { 
   pushUndo();
   if (enabled) {
     cell.hazard = true;
-    // @ts-expect-error — strict-mode migration
-    if (cell.fill === 'difficult-terrain') delete cell.fill;
+    if ((cell.fill as string) === 'difficult-terrain') delete cell.fill;
   } else {
     delete cell.hazard;
   }
@@ -96,7 +94,7 @@ export function setHazard(row: number, col: number, enabled: boolean = true): { 
  * @param {number} [depth] - Depth level 1-3 (for water/lava)
  * @returns {{ success: boolean }}
  */
-export function setFillRect(r1: number, c1: number, r2: number, c2: number, fillType: string, depth?: number): { success: true } {
+export function setFillRect(r1: number, c1: number, r2: number, c2: number, fillType: string, depth: number = 1): { success: true } {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
     throw new Error(`Invalid fill type: "${fillType}" (expected: pit, water, lava). For hazard, use setHazardRect().`);
@@ -109,14 +107,12 @@ export function setFillRect(r1: number, c1: number, r2: number, c2: number, fill
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
-  // @ts-expect-error — strict-mode migration
   const wd = (depth >= 1 && depth <= 3) ? depth : 1;
   for (let r = minR; r <= maxR; r++) {
     for (let c = minC; c <= maxC; c++) {
       const cell = state.dungeon.cells[r]?.[c];
       if (cell) {
-        // @ts-expect-error — strict-mode migration
-        cell.fill = fillType;
+        cell.fill = fillType as FillType;
         if (fillType === 'water') {
           cell.waterDepth = wd;
           delete cell.lavaDepth;
@@ -161,8 +157,7 @@ export function setHazardRect(r1: number, c1: number, r2: number, c2: number, en
       if (cell) {
         if (enabled) {
           cell.hazard = true;
-          // @ts-expect-error — strict-mode migration
-          if (cell.fill === 'difficult-terrain') delete cell.fill;
+          if ((cell.fill as string) === 'difficult-terrain') delete cell.fill;
         } else {
           delete cell.hazard;
         }

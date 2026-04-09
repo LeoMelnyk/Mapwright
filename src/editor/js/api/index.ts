@@ -65,8 +65,7 @@ const api = {
 };
 
 // Clean up the alias — api should have 'eval' not 'eval_'
-// @ts-expect-error — strict-mode migration
-delete api.eval_;
+delete (api as Record<string, unknown>).eval_;
 
 // Set the API reference so cross-module getApi() calls work
 _setApi(api);
@@ -76,8 +75,9 @@ _setApi(api);
 function waitForReady(): Promise<void> {
   return new Promise((resolve) => {
     const check = () => {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- catalogs load async; null until ready
       if (document.getElementById('editor-canvas') && state.dungeon && getThemeCatalog() !== null) {
-        (window as any).editorAPI = api;
+        (window as unknown as Record<string, unknown>).editorAPI = api;
         console.log('[editor-api] API ready — window.editorAPI available');
         resolve();
       } else {
@@ -92,4 +92,4 @@ function waitForReady(): Promise<void> {
   });
 }
 
-waitForReady();
+void waitForReady();

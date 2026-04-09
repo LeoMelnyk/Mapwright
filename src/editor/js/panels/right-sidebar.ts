@@ -14,9 +14,8 @@ export function setRightPanelChangeCallback(cb: (panel: string | null) => void):
  * @returns {string|null} Panel ID
  */
 export function getActiveRightPanel(): string | null {
-  const active = document.querySelector('.right-icon-btn.active');
-  // @ts-expect-error — strict-mode migration
-  return active?.dataset.rightPanel || null;
+  const active = document.querySelector<HTMLElement>('.right-icon-btn.active');
+  return active?.dataset.rightPanel ?? null;
 }
 
 /**
@@ -24,8 +23,7 @@ export function getActiveRightPanel(): string | null {
  * @param {string} panelId - Panel identifier
  */
 export function toggleRightPanel(panelId: string): void {
-  const btn = document.querySelector(`.right-icon-btn[data-right-panel="${panelId}"]`);
-  // @ts-expect-error — strict-mode migration
+  const btn = document.querySelector<HTMLElement>(`.right-icon-btn[data-right-panel="${panelId}"]`);
   if (btn) btn.click();
 }
 
@@ -33,37 +31,35 @@ export function toggleRightPanel(panelId: string): void {
  * Initialize the right sidebar: bind icon buttons for panel switching.
  */
 export function init(): void {
-  const iconBtns = document.querySelectorAll('.right-icon-btn');
-  const rightContent = document.getElementById('right-content');
+  const iconBtns = document.querySelectorAll<HTMLElement>('.right-icon-btn');
+  const rightContent = document.getElementById('right-content')!;
 
   iconBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      // @ts-expect-error — strict-mode migration
       const panelId = btn.dataset.rightPanel;
       const isActive = btn.classList.contains('active');
 
       // Deactivate all icons and hide all panels
       iconBtns.forEach(b => b.classList.remove('active'));
-      // @ts-expect-error — strict-mode migration
-      document.querySelectorAll('.right-panel').forEach(p => (p.style.display = 'none'));
+      document.querySelectorAll<HTMLElement>('.right-panel').forEach(p => (p.style.display = 'none'));
 
-      const wasCollapsed = rightContent!.classList.contains('hidden');
+      const wasCollapsed = rightContent.classList.contains('hidden');
 
       if (!isActive) {
         // Activate the clicked icon and show its panel
         btn.classList.add('active');
         const panel = document.getElementById(`right-panel-${panelId}`);
-        if (panel) panel.style.display = panel.dataset.display || 'flex';
-        rightContent!.classList.remove('hidden');
-        if (panelChangeCb) panelChangeCb(panelId);
+        if (panel) panel.style.display = panel.dataset.display ?? 'flex';
+        rightContent.classList.remove('hidden');
+        if (panelChangeCb) panelChangeCb(panelId ?? null);
       } else {
         // Same icon clicked again — collapse
-        rightContent!.classList.add('hidden');
+        rightContent.classList.add('hidden');
         if (panelChangeCb) panelChangeCb(null);
       }
 
       // Resize canvas only when sidebar visibility changed
-      const isCollapsed = rightContent!.classList.contains('hidden');
+      const isCollapsed = rightContent.classList.contains('hidden');
       if (wasCollapsed !== isCollapsed) {
         updateFloatPositions(isCollapsed);
         requestAnimationFrame(() => resizeCanvas());
@@ -73,10 +69,10 @@ export function init(): void {
 }
 
 /** Adjust floating element positions when the right panel collapses/expands. */
-function updateFloatPositions(collapsed: any) {
+function updateFloatPositions(collapsed: boolean) {
   const rightOffset = collapsed ? '52px' : '272px';
-  const cellFloat = document.getElementById('cell-info-float');
-  if (cellFloat) cellFloat.style.right = rightOffset;
-  const toastContainer = document.getElementById('toast-container');
-  if (toastContainer) toastContainer.style.right = rightOffset;
+  const cellFloat = document.getElementById('cell-info-float')!;
+  cellFloat.style.right = rightOffset;
+  const toastContainer = document.getElementById('toast-container')!;
+  toastContainer.style.right = rightOffset;
 }

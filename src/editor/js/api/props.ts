@@ -1,3 +1,4 @@
+import type { LightPreset, Metadata, OverlayProp, PlacePropOptions, FillWallOptions, LinePropsOptions, ScatterPropsOptions, SuggestPropPositionOptions } from '../../../types.js';
 import {
   getApi,
   CARDINAL_DIRS,
@@ -13,20 +14,19 @@ import { createOverlayProp, resolveZIndex } from '../prop-overlay.js';
 // ── Overlay Helpers ─────────────────────────────────────────────────────
 
 /** Ensure metadata.props[] array exists. */
-function ensurePropsArray(): any {
+function ensurePropsArray(): Metadata {
   const meta = state.dungeon.metadata;
-  if (!meta.props) meta.props = [];
-  if (!meta.nextPropId) meta.nextPropId = 1;
+  meta.props ??= [];
+  meta.nextPropId ??= 1;
   return meta;
 }
 
 /** Find the overlay prop at the given grid position (uses spatial hash for freeform compat). */
-function findPropAtGrid(row: number, col: number): any {
+function findPropAtGrid(row: number, col: number): OverlayProp | null {
   const entry = lookupPropAt(row, col);
   if (!entry) return null;
   const meta = state.dungeon.metadata;
-  // @ts-expect-error — strict-mode migration
-  return meta?.props?.find((p: any) => p.id === entry.propId) ?? null;
+  return meta.props?.find((p: { id: string | number }) => p.id === entry.propId) ?? null;
 }
 
 /** Remove the overlay prop at the given grid position. Returns true if found. */
@@ -34,10 +34,8 @@ function removePropAtGrid(row: number, col: number): boolean {
   const entry = lookupPropAt(row, col);
   if (!entry) return false;
   const meta = state.dungeon.metadata;
-  if (!meta?.props) return false;
-  // @ts-expect-error — strict-mode migration
-  const idx = meta.props.findIndex((p: any) => p.id === entry.propId);
-  // @ts-expect-error — strict-mode migration
+  if (!meta.props) return false;
+  const idx = meta.props.findIndex((p: { id: string | number }) => p.id === entry.propId);
   if (idx >= 0) { meta.props.splice(idx, 1); return true; }
   return false;
 }
@@ -53,12 +51,12 @@ function removePropAtGrid(row: number, col: number): boolean {
  * @param {Object} [options] - Additional options (scale, allowOverlap, x, y, zIndex)
  * @returns {{ success: boolean, warnings?: Array<string> }}
  */
-export function placeProp(row: number, col: number, propType: string, facing: number = 0, options: Record<string, any> = {}): { success: true; warnings?: string[] } {
+export function placeProp(row: number, col: number, propType: string, facing: number = 0, options: PlacePropOptions = {}): { success: true; warnings?: string[] } {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
-    throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props || {}).join(', ')}`);
+    throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props ?? {}).join(', ')}`);
   }
   facing = ((facing % 360) + 360) % 360; // normalize to 0-359
   const scale = Math.max(0.25, Math.min(4.0, options.scale ?? 1.0));
@@ -102,40 +100,37 @@ export function placeProp(row: number, col: number, propType: string, facing: nu
   // Freeform placement: override position with exact world-feet coordinates
   if (options.x != null) entry.x = options.x;
   if (options.y != null) entry.y = options.y;
-  meta.props.push(entry);
+  meta.props!.push(entry);
 
   // Create linked lights from propDef.lights
   if (def.lights?.length) {
-    if (!meta.lights) meta.lights = [];
     if (!meta.nextLightId) meta.nextLightId = 1;
     const lightCatalog = getLightCatalog();
     const [origRows, origCols] = def.footprint;
 
     for (const lightEntry of def.lights) {
-      let nx = lightEntry.x ?? 0.5;
-      let ny = lightEntry.y ?? 0.5;
+      let nx = lightEntry.x;
+      let ny = lightEntry.y;
       if (facing === 90)  { [nx, ny] = [origRows - ny, nx]; }
       else if (facing === 180) { [nx, ny] = [origCols - nx, origRows - ny]; }
       else if (facing === 270) { [nx, ny] = [ny, origCols - nx]; }
 
-      const preset = lightCatalog?.lights?.[lightEntry.preset] || {};
-      const light = {
+      const preset = lightCatalog?.lights[lightEntry.preset] ?? {} as Partial<LightPreset>;
+      const light: Record<string, unknown> = {
         id: meta.nextLightId++,
         x: (col + nx) * gridSize,
         y: (row + ny) * gridSize,
-        type: preset.type || 'point',
+        type: preset.type ?? 'point',
         radius: preset.radius ?? 20,
-        color: preset.color || '#ff9944',
+        color: preset.color ?? '#ff9944',
         intensity: preset.intensity ?? 1.0,
-        falloff: preset.falloff || 'smooth',
+        falloff: preset.falloff ?? 'smooth',
         presetId: lightEntry.preset,
         propRef: { row, col },
       };
-      // @ts-expect-error — strict-mode migration
       if (preset.dimRadius) light.dimRadius = preset.dimRadius;
-      // @ts-expect-error — strict-mode migration
       if (preset.animation?.type) light.animation = { ...preset.animation };
-      meta.lights.push(light);
+      meta.lights.push(light as unknown as typeof meta.lights[number]);
     }
   }
 
@@ -161,8 +156,8 @@ export function removeProp(row: number, col: number): { success: true } {
   removePropAtGrid(row, col);
   // Remove linked lights
   const meta = state.dungeon.metadata;
-  if (meta.lights?.length) {
-    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef?.col === col));
+  if (meta.lights.length) {
+    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef.col === col));
   }
   markPropSpatialDirty();
   invalidateLightmap();
@@ -179,7 +174,7 @@ export function removeProp(row: number, col: number): { success: true } {
  */
 export function setLightName(id: number, name: string | null): { success: true } {
   const meta = state.dungeon.metadata;
-  const light = (meta.lights || []).find(l => l.id === id);
+  const light = meta.lights.find(l => l.id === id);
   if (!light) throw new Error(`No light with id ${id}`);
   if (name) light.name = name;
   else delete light.name;
@@ -213,7 +208,7 @@ export function rotateProp(row: number, col: number, degrees: number = 90): { su
  * List all prop types from the catalog with metadata.
  * @returns {{ success: boolean, categories: Array<string>, props: Object }}
  */
-export function listProps(): { success: true; categories: string[]; props: Record<string, any> } {
+export function listProps(): { success: true; categories: string[]; props: Record<string, { name: string; category: string; footprint: [number, number]; facing: boolean; placement: string | null; roomTypes: string[]; typicalCount: string | null; clustersWith: string[]; notes: string | null }> } {
   const catalog = state.propCatalog;
   if (!catalog) return { success: true, categories: [], props: {} };
   return {
@@ -221,15 +216,15 @@ export function listProps(): { success: true; categories: string[]; props: Recor
     categories: catalog.categories,
     props: Object.fromEntries(
       Object.entries(catalog.props).map(([k, v]) => [k, {
-        name: (v as any).name,
-        category: (v as any).category,
-        footprint: (v as any).footprint,
-        facing: (v as any).facing,
-        placement: (v as any).placement || null,
-        roomTypes: (v as any).roomTypes || [],
-        typicalCount: (v as any).typicalCount || null,
-        clustersWith: (v as any).clustersWith || [],
-        notes: (v as any).notes || null,
+        name: (v).name,
+        category: (v).category,
+        footprint: (v).footprint,
+        facing: (v).facing,
+        placement: (v).placement ?? null,
+        roomTypes: (v).roomTypes,
+        typicalCount: (v).typicalCount,
+        clustersWith: (v).clustersWith,
+        notes: (v).notes ?? null,
       }])
     ),
   };
@@ -240,22 +235,22 @@ export function listProps(): { success: true; categories: string[]; props: Recor
  * @param {string} roomType - Room type tag (e.g. 'tavern', 'library')
  * @returns {{ success: boolean, props: Array<Object> }}
  */
-export function getPropsForRoomType(roomType: string): { success: boolean; props: any[] } {
+export function getPropsForRoomType(roomType: string): { success: boolean; props: { name: string; category: string; footprint: [number, number] }[] } {
   const catalog = state.propCatalog;
   if (!catalog) return { success: false, props: [] };
   const results = [];
   for (const [key, v] of Object.entries(catalog.props)) {
-    if ((v as any).roomTypes?.includes(roomType) || (v as any).roomTypes?.includes('any')) {
+    if ((v).roomTypes.includes(roomType) || (v).roomTypes.includes('any')) {
       results.push({
         name: key,
-        displayName: (v as any).name,
-        category: (v as any).category,
-        footprint: (v as any).footprint,
-        facing: (v as any).facing,
-        placement: (v as any).placement || null,
-        typicalCount: (v as any).typicalCount || null,
-        clustersWith: (v as any).clustersWith || [],
-        notes: (v as any).notes || null,
+        displayName: (v).name,
+        category: (v).category,
+        footprint: (v).footprint,
+        facing: (v).facing,
+        placement: (v).placement ?? null,
+        typicalCount: (v).typicalCount ?? null,
+        clustersWith: (v).clustersWith,
+        notes: (v).notes,
       });
     }
   }
@@ -268,7 +263,7 @@ export function getPropsForRoomType(roomType: string): { success: boolean; props
  * @param {number} col - Column index
  * @returns {{ success: boolean }}
  */
-export function removePropAt(row: number, col: number): any {
+export function removePropAt(row: number, col: number): { success: boolean; error?: string } {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   if (!findPropAtGrid(row, col)) return { success: false, error: 'no prop at that cell' };
@@ -276,8 +271,8 @@ export function removePropAt(row: number, col: number): any {
   removePropAtGrid(row, col);
   // Remove linked lights
   const meta = state.dungeon.metadata;
-  if (meta.lights?.length) {
-    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef?.col === col));
+  if (meta.lights.length) {
+    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef.col === col));
   }
   markPropSpatialDirty();
   invalidateLightmap();
@@ -301,24 +296,21 @@ export function removePropsInRect(r1: number, c1: number, r2: number, c2: number
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
   const meta = state.dungeon.metadata;
-  if (!meta?.props) return { success: true, removed: 0 };
+  if (!meta.props) return { success: true, removed: 0 };
 
   const gridSize = meta.gridSize || 5;
   pushUndo();
 
-  // @ts-expect-error — strict-mode migration
   const before = meta.props.length;
-  // @ts-expect-error — strict-mode migration
-  meta.props = meta.props.filter((p: any) => {
+  meta.props = meta.props.filter((p: { x: number; y: number }) => {
     const pRow = Math.round(p.y / gridSize);
     const pCol = Math.round(p.x / gridSize);
     return pRow < minR || pRow > maxR || pCol < minC || pCol > maxC;
   });
-  // @ts-expect-error — strict-mode migration
   const removed = before - meta.props.length;
 
   // Remove linked lights for deleted props
-  if (removed > 0 && meta.lights?.length) {
+  if (removed > 0 && meta.lights.length) {
     meta.lights = meta.lights.filter(l => {
       if (!l.propRef) return true;
       const { row, col } = l.propRef;
@@ -344,7 +336,7 @@ export function removePropsInRect(r1: number, c1: number, r2: number, c2: number
  * @param {Object} [options] - { facing, gap, inset, skipDoors }
  * @returns {{ success: boolean, placed: Array<[number, number]> }}
  */
-export function fillWallWithProps(roomLabel: string, propType: string, wall: string, options: Record<string, any> = {}): { success: true; placed: [number, number][] } {
+export function fillWallWithProps(roomLabel: string, propType: string, wall: string, options: FillWallOptions = {}): { success: true; placed: [number, number][] } {
   if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
 
   const catalog = state.propCatalog;
@@ -356,7 +348,7 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
   // so north wall -> 0, south -> 180, east -> 270, west -> 90
   const WALL_FACINGS = { north: 0, south: 180, east: 270, west: 90 };
   const autoFacing = (def.facing && (def.placement === 'wall' || def.placement === 'corner'))
-    ? (WALL_FACINGS as any)[wall]
+    ? WALL_FACINGS[wall as keyof typeof WALL_FACINGS]
     : 0;
   const facing = options.facing ?? autoFacing;
   const gap = options.gap ?? 0;
@@ -378,14 +370,13 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
   const cells = state.dungeon.cells;
   const stride = (wall === 'north' || wall === 'south') ? spanCols + gap : spanRows + gap;
 
-  const placed = [];
+  const placed: [number, number][] = [];
   let i = 0;
   while (i < wallCells.length) {
     const [wr, wc] = wallCells[i];
 
     if (skipDoors) {
       const cell = cells[wr]?.[wc];
-      // @ts-expect-error — strict-mode migration
       if (cell?.[wall] === 'd' || cell?.[wall] === 's') { i++; continue; }
     }
 
@@ -414,7 +405,6 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
     }
   }
 
-  // @ts-expect-error — strict-mode migration
   return { success: true, placed };
 }
 
@@ -431,7 +421,7 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
  * @param {Object} [options] - { facing, gap }
  * @returns {{ success: boolean, placed: Array<[number, number]> }}
  */
-export function lineProps(roomLabel: string, propType: string, startRow: number, startCol: number, direction: string, count: number, options: Record<string, any> = {}): { success: true; placed: [number, number][] } {
+export function lineProps(roomLabel: string, propType: string, startRow: number, startCol: number, direction: string, count: number, options: LinePropsOptions = {}): { success: true; placed: [number, number][] } {
   startRow = toInt(startRow); startCol = toInt(startCol);
   if (!['east', 'south'].includes(direction)) throw new Error('direction must be "east" or "south"');
 
@@ -452,7 +442,7 @@ export function lineProps(roomLabel: string, propType: string, startRow: number,
 
   const [dr, dc] = direction === 'south' ? [spanRows + gap, 0] : [0, spanCols + gap];
 
-  const placed = [];
+  const placed: [number, number][] = [];
   let r = startRow, c = startCol;
 
   for (let i = 0; i < count; i++) {
@@ -474,7 +464,6 @@ export function lineProps(roomLabel: string, propType: string, startRow: number,
     c += dc;
   }
 
-  // @ts-expect-error — strict-mode migration
   return { success: true, placed };
 }
 
@@ -487,7 +476,7 @@ export function lineProps(roomLabel: string, propType: string, startRow: number,
  * @param {Object} [options] - { facing, avoidWalls }
  * @returns {{ success: boolean, placed: Array<[number, number]> }}
  */
-export function scatterProps(roomLabel: string, propType: string, count: number, options: Record<string, any> = {}): { success: true; placed: [number, number][] } {
+export function scatterProps(roomLabel: string, propType: string, count: number, options: ScatterPropsOptions = {}): { success: true; placed: [number, number][] } {
   const facing = options.facing ?? 0;
   const result = getApi().getValidPropPositions(roomLabel, propType, facing);
   if (!result.success || !result.positions?.length) return { success: true, placed: [] };
@@ -496,7 +485,7 @@ export function scatterProps(roomLabel: string, propType: string, count: number,
 
   if (options.avoidWalls) {
     const roomCells = getApi()._collectRoomCells(roomLabel);
-    const bounds = roomBoundsFromKeys(roomCells);
+    const bounds = roomCells ? roomBoundsFromKeys(roomCells) : null;
     if (bounds) {
       const margin = typeof options.avoidWalls === 'number' ? options.avoidWalls : 1;
       positions = positions.filter(([r, c]) =>
@@ -512,7 +501,7 @@ export function scatterProps(roomLabel: string, propType: string, count: number,
     [positions[i], positions[j]] = [positions[j], positions[i]];
   }
 
-  const placed = [];
+  const placed: [number, number][] = [];
   for (const [r, c] of positions) {
     if (placed.length >= count) break;
     if (getApi()._isCellCoveredByProp(r, c)) continue;
@@ -522,7 +511,6 @@ export function scatterProps(roomLabel: string, propType: string, count: number,
     } catch { continue; }
   }
 
-  // @ts-expect-error — strict-mode migration
   return { success: true, placed };
 }
 
@@ -534,23 +522,23 @@ export function scatterProps(roomLabel: string, propType: string, count: number,
  * @param {number} anchorCol - Anchor column
  * @returns {{ success: boolean, placed: Array<Object>, failed: Array<Object> }}
  */
-export function clusterProps(roomLabel: string, props: Array<{ type: string; dr: number; dc: number; facing?: number }>, anchorRow: number, anchorCol: number): { success: true; placed: any[]; failed: any[] } {
+export function clusterProps(roomLabel: string, props: Array<{ type: string; dr: number; dc: number; facing?: number }>, anchorRow: number, anchorCol: number): { success: true; placed: { type: string; row: number; col: number }[]; failed: { type: string; row: number; col: number; error: string }[] } {
   anchorRow = toInt(anchorRow); anchorCol = toInt(anchorCol);
   const roomCells = getApi()._collectRoomCells(roomLabel);
   if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
 
-  const placed = [];
-  const failed = [];
+  const placed: { type: string; row: number; col: number }[] = [];
+  const failed: { type: string; row: number; col: number; error: string }[] = [];
 
   for (const p of props) {
     const r = anchorRow + (p.dr || 0);
     const c = anchorCol + (p.dc || 0);
-    const facing = p.facing || 0;
+    const facing = p.facing ?? 0;
     try {
       getApi().placeProp(r, c, p.type, facing);
       placed.push({ type: p.type, row: r, col: c });
     } catch (e) {
-      failed.push({ type: p.type, row: r, col: c, error: (e as any).message });
+      failed.push({ type: p.type, row: r, col: c, error: (e as Error).message });
     }
   }
 
@@ -566,9 +554,8 @@ export function clusterProps(roomLabel: string, props: Array<{ type: string; dr:
  */
 export function setPropZIndex(propId: string, zOrPreset: string | number): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
-  if (!meta?.props) throw new Error('No overlay props');
-  // @ts-expect-error — strict-mode migration
-  const prop = meta.props.find((p: any) => p.id === propId);
+  if (!meta.props) throw new Error('No overlay props');
+  const prop = meta.props.find((p: { id: string | number }) => p.id === propId);
   if (!prop) throw new Error(`No prop with id "${propId}"`);
 
   pushUndo();
@@ -583,13 +570,11 @@ export function setPropZIndex(propId: string, zOrPreset: string | number): { suc
  */
 export function bringForward(propId: string): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
-  if (!meta?.props) throw new Error('No overlay props');
-  // @ts-expect-error — strict-mode migration
-  const prop = meta.props.find((p: any) => p.id === propId);
+  if (!meta.props) throw new Error('No overlay props');
+  const prop = meta.props.find(p => p.id === propId);
   if (!prop) throw new Error(`No prop with id "${propId}"`);
 
   // Find the next prop with a higher z-index
-  // @ts-expect-error — strict-mode migration
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
   const idx = sorted.findIndex(p => p.id === propId);
   if (idx < sorted.length - 1) {
@@ -607,12 +592,10 @@ export function bringForward(propId: string): { success: true; zIndex: number } 
  */
 export function sendBackward(propId: string): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
-  if (!meta?.props) throw new Error('No overlay props');
-  // @ts-expect-error — strict-mode migration
-  const prop = meta.props.find((p: any) => p.id === propId);
+  if (!meta.props) throw new Error('No overlay props');
+  const prop = meta.props.find(p => p.id === propId);
   if (!prop) throw new Error(`No prop with id "${propId}"`);
 
-  // @ts-expect-error — strict-mode migration
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
   const idx = sorted.findIndex(p => p.id === propId);
   if (idx > 0) {
@@ -635,12 +618,12 @@ export function sendBackward(propId: string): { success: true; zIndex: number } 
  * @param {object} [options] - { preferWall: 'north'|'south'|'east'|'west' }
  * @returns {{ success, x, y, rotation, row, col }}
  */
-export function suggestPropPosition(roomLabel: string, propType: string, options: Record<string, any> = {}): any {
+export function suggestPropPosition(roomLabel: string, propType: string, options: SuggestPropPositionOptions = {}): { success: boolean; row?: number; col?: number; x?: number; y?: number; rotation?: number; error?: string } {
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
 
   const def = catalog.props[propType];
-  const placement = def.placement || 'center';
+  const placement = def.placement ?? 'center';
   const meta = state.dungeon.metadata;
   const gridSize = meta.gridSize || 5;
 
@@ -663,9 +646,10 @@ export function suggestPropPosition(roomLabel: string, propType: string, options
     }
     case 'wall': {
       // Pick a wall edge, prefer options.preferWall or default to north
-      const wall = options.preferWall || 'north';
+      const wall = options.preferWall ?? 'north';
       const WALL_FACINGS = { north: 0, south: 180, east: 270, west: 90 };
-      rotation = (WALL_FACINGS as any)[wall] ?? 0;
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+      rotation = WALL_FACINGS[wall as keyof typeof WALL_FACINGS] ?? 0;
 
       if (wall === 'north')      { row = bounds.r1; col = centerCol; }
       else if (wall === 'south') { row = bounds.r2; col = centerCol; }
@@ -679,7 +663,9 @@ export function suggestPropPosition(roomLabel: string, propType: string, options
       rotation = 0;
       break;
     }
-    default: { // 'floor', 'any'
+    case 'floor':
+    case 'any':
+    default: {
       row = centerRow;
       col = centerCol;
       rotation = 0;

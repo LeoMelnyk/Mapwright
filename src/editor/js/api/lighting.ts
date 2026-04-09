@@ -1,3 +1,4 @@
+import type { FalloffType, LightPreset, Light, PlaceLightConfig } from '../../../types.js';
 import {
   state, pushUndo, markDirty, notify,
   invalidateLightmap, requestRender,
@@ -11,7 +12,7 @@ import {
  * @param {Object} [config] - Light configuration (preset, radius, color, intensity, etc.)
  * @returns {{ success: boolean, id: number }}
  */
-export function placeLight(x: number, y: number, config: Record<string, any> = {}): { success: true; id: number } {
+export function placeLight(x: number, y: number, config: PlaceLightConfig = {}): { success: true; id: number } {
   if (config.preset) {
     const catalog = getLightCatalog();
     const p = catalog?.lights[config.preset];
@@ -25,31 +26,30 @@ export function placeLight(x: number, y: number, config: Record<string, any> = {
   }
 
   const meta = state.dungeon.metadata;
-  if (!meta.lights) meta.lights = [];
   if (!meta.nextLightId) meta.nextLightId = 1;
 
-  const type = config.type || 'point';
+  const type = config.type ?? 'point';
   if (type !== 'point' && type !== 'directional') {
     throw new Error(`Invalid light type: ${type}. Use 'point' or 'directional'.`);
   }
 
   pushUndo();
 
-  const light = {
+  const light: Light = {
     id: meta.nextLightId++,
     x, y, type,
     radius: config.radius ?? 30,
-    color: config.color || '#ff9944',
+    color: config.color ?? '#ff9944',
     intensity: config.intensity ?? 1.0,
-    falloff: config.falloff || 'smooth',
+    falloff: (config.falloff ?? 'smooth') as FalloffType,
   };
 
   // Z-height (height above floor in feet) — from preset or explicit config
-  if (config.z != null) (light as any).z = config.z;
+  if (config.z != null) light.z = config.z;
 
   if (type === 'directional') {
-    (light as any).angle = config.angle ?? 0;
-    (light as any).spread = config.spread ?? 45;
+    light.angle = config.angle ?? 0;
+    light.spread = config.spread ?? 45;
   }
 
   meta.lights.push(light);
@@ -68,7 +68,7 @@ export function placeLight(x: number, y: number, config: Record<string, any> = {
  */
 export function removeLight(id: number): { success: true } {
   const meta = state.dungeon.metadata;
-  if (!meta.lights) return { success: true };
+  if (meta.lights.length === 0) return { success: true };
   const idx = meta.lights.findIndex(l => l.id === id);
   if (idx === -1) throw new Error(`Light with id ${id} not found`);
 
@@ -85,8 +85,8 @@ export function removeLight(id: number): { success: true } {
  * Get a deep copy of all placed lights.
  * @returns {{ success: boolean, lights: Array<Object> }}
  */
-export function getLights(): { success: true; lights: any[] } {
-  const lights = state.dungeon.metadata?.lights || [];
+export function getLights(): { success: true; lights: Light[] } {
+  const lights = state.dungeon.metadata.lights;
   return { success: true, lights: JSON.parse(JSON.stringify(lights)) };
 }
 
@@ -113,7 +113,7 @@ export function setAmbientLight(level: number): { success: true } {
  * @param {boolean} enabled - Whether lighting is enabled
  * @returns {{ success: boolean }}
  */
-export function setLightingEnabled(enabled: boolean): { success: true } {
+export function setLightingEnabled(enabled: unknown): { success: true } {
   pushUndo();
   state.dungeon.metadata.lightingEnabled = !!enabled;
   invalidateLightmap(false);
@@ -127,21 +127,21 @@ export function setLightingEnabled(enabled: boolean): { success: true } {
  * List all available light presets grouped by category.
  * @returns {{ success: boolean, categories: Array<string>, presets: Object }}
  */
-export function listLightPresets(): { success: true; categories: string[]; presets: Record<string, any> } {
+export function listLightPresets(): { success: true; categories: string[]; presets: Record<string, LightPreset> } {
   const catalog = getLightCatalog();
   if (!catalog) return { success: true, categories: [], presets: {} };
   return {
     success: true,
     categories: catalog.categoryOrder,
     presets: Object.fromEntries(
-      Object.entries(catalog.lights).map(([k, v]) => [k, {
-        displayName: (v as any).displayName,
-        category: (v as any).category,
-        type: (v as any).type,
-        color: (v as any).color,
-        radius: (v as any).radius,
-        intensity: (v as any).intensity,
-        falloff: (v as any).falloff,
+      Object.entries(catalog.lights).filter((e): e is [string, LightPreset] => e[1] != null).map(([k, v]) => [k, {
+        displayName: v.displayName,
+        category: v.category,
+        type: v.type,
+        color: v.color,
+        radius: v.radius,
+        intensity: v.intensity,
+        falloff: v.falloff,
       }])
     ),
   };

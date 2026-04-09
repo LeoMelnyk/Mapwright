@@ -1,3 +1,4 @@
+import type { FillType, RenderTransform } from '../../../types.js';
 // Fill tool: click-drag box selection to apply cell fills (water, lava, pit, difficult-terrain)
 // or to clear fills (clear-fill mode). Right-click clears fills/hazard on a single cell.
 import { Tool } from './tool-base.js';
@@ -17,9 +18,8 @@ const OVERLAY_COLORS = {
  * or to clear fills. Right-click clears fills/hazard on a single cell.
  */
 export class FillTool extends Tool {
-  [key: string]: any;
-  declare boxStart: { row: number; col: number } | null;
-  declare boxEnd: { row: number; col: number } | null;
+  boxStart: { row: number; col: number } | null = null;
+  boxEnd: { row: number; col: number } | null = null;
 
   constructor() {
     super('fill', '3', 'crosshair');
@@ -37,7 +37,7 @@ export class FillTool extends Tool {
       'difficult-terrain': 'Drag to paint difficult terrain · Right-click cell to clear',
       'clear-fill':        'Drag to clear fills from cells',
     };
-    state.statusInstruction = (statuses as any)[state.fillMode || 'water'] || null;
+    state.statusInstruction = statuses[(state.fillMode || 'water') as keyof typeof statuses] || null;
   }
 
   onDeactivate() {
@@ -46,16 +46,16 @@ export class FillTool extends Tool {
     state.statusInstruction = null;
   }
 
-  onMouseDown(row: any, col: any) {
+  onMouseDown(row: number, col: number) {
     this.boxStart = { row, col };
     this.boxEnd   = { row, col };
   }
 
-  onMouseMove(row: any, col: any) {
+  onMouseMove(row: number, col: number) {
     if (this.boxStart) this.boxEnd = { row, col };
   }
 
-  onMouseUp(row: any, col: any) {
+  onMouseUp(row: number, col: number) {
     if (!this.boxStart) return;
     this.boxEnd = { row, col };
     const mode = state.fillMode || 'water';
@@ -68,7 +68,7 @@ export class FillTool extends Tool {
     this.boxEnd   = null;
   }
 
-  onRightClick(row: any, col: any) {
+  onRightClick(row: number, col: number) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
     if (cells[row][col] === null) return;
@@ -96,22 +96,20 @@ export class FillTool extends Tool {
     const numRows = cells.length;
     const numCols = cells[0]?.length || 0;
     return {
-      r1: Math.max(0, Math.min(this!.boxStart!.row, this!.boxEnd!.row)),
-      // @ts-expect-error — strict-mode migration
-      r2: Math.min(numRows - 1, Math.max(this!.boxStart!.row, this!.boxEnd.row)),
-      c1: Math.max(0, Math.min(this!.boxStart!.col, this!.boxEnd!.col)),
-      // @ts-expect-error — strict-mode migration
-      c2: Math.min(numCols - 1, Math.max(this!.boxStart.col, this!.boxEnd.col)),
+      r1: Math.max(0, Math.min(this.boxStart!.row, this.boxEnd!.row)),
+      r2: Math.min(numRows - 1, Math.max(this.boxStart!.row, this.boxEnd!.row)),
+      c1: Math.max(0, Math.min(this.boxStart!.col, this.boxEnd!.col)),
+      c2: Math.min(numCols - 1, Math.max(this.boxStart!.col, this.boxEnd!.col)),
     };
   }
 
-  _applyBox(mode: any) {
+  _applyBox(mode: string) {
     if (!this.boxStart || !this.boxEnd) return;
     const cells = state.dungeon.cells;
     const { r1, r2, c1, c2 } = this._getBoxBounds();
     const isFluid = (mode === 'water' || mode === 'lava');
     const depthKey = mode + 'Depth';
-    const depth = isFluid ? (state[depthKey] || 1) : undefined;
+    const depth = isFluid ? (state[depthKey] ?? 1) : undefined;
 
     // Collect coords that will actually be mutated
     const coords = [];
@@ -130,9 +128,8 @@ export class FillTool extends Tool {
       if (mode === 'difficult-terrain') {
         cell!.hazard = true;
       } else {
-        cell!.fill = mode;
-        // @ts-expect-error — strict-mode migration
-        if (isFluid) cell![depthKey] = depth;
+        cell!.fill = mode as FillType;
+        if (isFluid) (cell as Record<string, unknown>)[depthKey] = depth;
         if (mode !== 'water') delete cell!.waterDepth;
         if (mode !== 'lava')  delete cell!.lavaDepth;
       }
@@ -169,10 +166,11 @@ export class FillTool extends Tool {
     markDirty();
   }
 
-  renderOverlay(ctx: any, transform: any, gridSize: any) {
+  renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {
     if (!this.boxStart || !this.boxEnd) return;
     const mode = state.fillMode || 'water';
-    const color = (OVERLAY_COLORS as any)[mode] || OVERLAY_COLORS['water'];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const color = OVERLAY_COLORS[mode as keyof typeof OVERLAY_COLORS] || OVERLAY_COLORS['water'];
 
     const sc = transform.scale;
     const tx = transform.offsetX;

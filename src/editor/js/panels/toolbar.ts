@@ -1,3 +1,4 @@
+import type { CellGrid, Dungeon } from '../../../types.js';
 // Toolbar: tool buttons, door type, file ops, undo/redo
 import state, { undo, redo, notify, subscribe, pushUndo, markDirty } from '../state.js';
 import { loadDungeon, loadDungeonJSON, saveDungeon, saveDungeonAs, newDungeon, exportPng, exportDd2vtt, reloadAssets } from '../io.js';
@@ -26,17 +27,17 @@ export function activateTool(name: string): void {
 }
 
 /** Open a named sidebar panel (by panel ID) and activate its icon button. */
-function openSidebarPanel(panelId: any) {
-  const btn = document.querySelector(`.icon-btn[data-panel="${panelId}"]`);
+function openSidebarPanel(panelId: string) {
+  const btn = document.querySelector<HTMLElement>(`.icon-btn[data-panel="${panelId}"]`);
   const panel = document.getElementById(`panel-${panelId}`);
-  const sideContent = document.getElementById('side-content');
-  if (!btn || !panel || !sideContent) return;
+  const sideContent = document.getElementById('side-content')!;
+  if (!btn || !panel) return;
 
-  document.querySelectorAll('.icon-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.side-panel').forEach(p => ((p as HTMLElement).style.display = 'none'));
+  document.querySelectorAll<HTMLElement>('.icon-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll<HTMLElement>('.side-panel').forEach(p => ((p).style.display = 'none'));
 
   btn.classList.add('active');
-  panel.style.display = panel.dataset.display || 'flex';
+  panel.style.display = panel.dataset.display ?? 'flex';
   sideContent.classList.remove('hidden');
 }
 
@@ -44,21 +45,29 @@ function openSidebarPanel(panelId: any) {
 // Single source of truth for all tool sub-options. Each entry drives:
 //   click handlers, Tab/Shift+Tab cycling, cursor, and side effects.
 
-const toolOptions = {
+interface ToolOption {
+  key: string;
+  attr: string;
+  values: string[];
+  onApply?: (v: string) => void;
+  cursor?: (v: string) => string;
+}
+
+const toolOptions: Record<string, ToolOption | undefined> = {
   room:   { key: 'roomMode',   attr: 'data-room-mode',   values: ['room', 'merge'],
-            onApply: (v: any) => {
+            onApply: (v: string) => {
               state.statusInstruction = v === 'merge'
                 ? 'Drag over adjacent rooms to merge them into one'
                 : 'Drag to draw room · Shift for square · Right-click to void';
             } },
   paint:  { key: 'paintMode',  attr: 'data-paint-mode',
             values: ['texture', 'syringe', 'room', 'clear-texture'],
-            cursor: (v: any) => v === 'syringe' ? SYRINGE_CURSOR : 'crosshair',
-            onApply: (v: any) => {
-              const bar = document.getElementById('paint-texture-options');
-              if (bar) bar.style.display = (v === 'texture' || v === 'clear-texture') ? 'flex' : 'none';
-              const r = document.getElementById('texture-opacity-row');
-              if (r) r.style.display = v === 'texture' ? 'flex' : 'none';
+            cursor: (v: string) => v === 'syringe' ? SYRINGE_CURSOR : 'crosshair',
+            onApply: (v: string) => {
+              const bar = document.getElementById('paint-texture-options')!;
+              bar.style.display = v === 'texture' || v === 'clear-texture' ? 'flex' : 'none';
+              const r = document.getElementById('texture-opacity-row')!;
+              r.style.display = v === 'texture' ? 'flex' : 'none';
               if (v === 'texture' || v === 'clear-texture' || v === 'syringe') openSidebarPanel('textures');
               const statuses = {
                 texture:         'Drag to paint texture · Shift+click to flood fill · Alt+click to sample · Right-click to clear',
@@ -66,19 +75,18 @@ const toolOptions = {
                 room:            'Drag to paint room floor color',
                 'clear-texture': 'Drag to clear texture · Shift+click to flood clear',
               };
-              state.statusInstruction = (statuses as any)[v] || null;
+              state.statusInstruction = statuses[v as keyof typeof statuses] || null;
             } },
   fill:   { key: 'fillMode',   attr: 'data-fill-mode',
             values: ['water', 'lava', 'pit', 'difficult-terrain', 'clear-fill'],
-            onApply: (v: any) => {
-              const bar = document.getElementById('fill-depth-options');
-              if (bar) bar.style.display = (v === 'water' || v === 'lava') ? 'flex' : 'none';
+            onApply: (v: string) => {
+              const bar = document.getElementById('fill-depth-options')!;
+              bar.style.display = (v === 'water' || v === 'lava') ? 'flex' : 'none';
               // Sync depth button highlights to the active fluid's current depth
               if (v === 'water' || v === 'lava') {
                 const activeDepth = (v === 'lava' ? state.lavaDepth : state.waterDepth) || 1;
-                document.querySelectorAll('[data-water-depth]').forEach(b => {
-                  // @ts-expect-error — strict-mode migration
-                  b.classList.toggle('active', parseInt((b as HTMLElement).dataset.waterDepth, 10) === activeDepth);
+                document.querySelectorAll<HTMLElement>('[data-water-depth]').forEach(b => {
+                  b.classList.toggle('active', parseInt((b).dataset.waterDepth ?? '0', 10) === activeDepth);
                 });
               }
               const statuses = {
@@ -88,26 +96,26 @@ const toolOptions = {
                 'difficult-terrain': 'Drag to paint difficult terrain · Right-click cell to clear',
                 'clear-fill':        'Drag to clear fills from cells',
               };
-              state.statusInstruction = (statuses as any)[v] || null;
+              state.statusInstruction = statuses[v as keyof typeof statuses] || null;
             } },
   wall:   { key: 'wallType',   attr: 'data-wall-type',   values: ['w', 'iw'],
-            onApply: (v: any) => {
+            onApply: (v: string) => {
               state.statusInstruction = v === 'iw'
                 ? 'Click or drag edge to place invisible wall · Blocks movement but hidden from players · Right-click to remove'
                 : 'Click or drag edge to place wall · Right-click to remove';
             } },
   door:   { key: 'doorType',   attr: 'data-door-type',   values: ['d', 's', 'id'],
-            onApply: (v: any) => {
+            onApply: (v: string) => {
               const statuses = {
                 d:  'Click a wall to place door · Click again to toggle off · Right-click to remove',
                 s:  'Click a wall to place secret door · Appears as wall to players until discovered',
                 id: 'Click a wall to place invisible door · Hidden from players; DM can open',
               };
-              state.statusInstruction = (statuses as any)[v] || null;
+              state.statusInstruction = statuses[v as keyof typeof statuses] || null;
             } },
   stairs: { key: 'stairsMode', attr: 'data-stairs-mode', values: ['place', 'link'],
-            cursor: (v: any) => v === 'link' ? 'pointer' : 'crosshair',
-            onApply: (v: any) => {
+            cursor: (v: string) => v === 'link' ? 'pointer' : 'crosshair',
+            onApply: (v: string) => {
               state.statusInstruction = v === 'place'
                 ? 'Click to place corner 1 of 3'
                 : 'Click a stair to select it · Click another to link · Click a linked stair to unlink · Right-click to delete';
@@ -118,18 +126,18 @@ const toolOptions = {
             } },
   select: { key: 'selectMode', attr: 'data-select-mode', values: ['select', 'inspect'],
             cursor: () => 'default',
-            onApply: (v: any) => {
+            onApply: (v: string) => {
               state.statusInstruction = v === 'inspect'
                 ? 'Click a cell to inspect its properties'
                 : 'Drag to select cells · Shift+drag to add · Arrow keys to move · Ctrl+C to copy · Del to delete';
             } },
   label:  { key: 'labelMode',  attr: 'data-label-mode',  values: ['room', 'dm'],
-            cursor: (v: any) => v === 'dm' ? 'text' : STAMP_CURSOR,
-            onApply: (v: any) => {
-              const bar = document.getElementById('label-dungeon-options');
-              if (bar) bar.style.display = (v === 'room' || !v) ? 'flex' : 'none';
-              const part = document.getElementById('label-dungeon-part');
-              if (part) part.style.display = 'flex';
+            cursor: (v: string) => v === 'dm' ? 'text' : STAMP_CURSOR,
+            onApply: (v: string) => {
+              const bar = document.getElementById('label-dungeon-options')!;
+              bar.style.display = (v === 'room' || !v) ? 'flex' : 'none';
+              const part = document.getElementById('label-dungeon-part')!;
+              part.style.display = 'flex';
               state.statusInstruction = v === 'dm'
                 ? 'Click to place DM annotation · Hover to select/move · Del to delete'
                 : 'Click to place room label · Hover to select/move · Del to delete';
@@ -141,13 +149,13 @@ const toolOptions = {
  * @param {string} toolName - Tool identifier
  */
 export function applyToolSideEffects(toolName: string): void {
-  const opts = (toolOptions as any)[toolName];
-  if (opts?.onApply) opts.onApply(state[opts.key] || opts.values[0]);
+  const opts = toolOptions[toolName];
+  if (opts?.onApply) opts.onApply((state[opts.key] as string) || opts.values[0]);
 }
 
 /** Convert a data attribute name to its dataset key, e.g. 'data-paint-mode' → 'paintMode'. */
-function attrToDatasetKey(attr: any) {
-  return attr.replace(/^data-/, '').replace(/-([a-z])/g, (_: any, c: any) => c.toUpperCase());
+function attrToDatasetKey(attr: string) {
+  return attr.replace(/^data-/, '').replace(/-([a-z])/g, (_: string, c: string) => c.toUpperCase());
 }
 
 /**
@@ -156,14 +164,14 @@ function attrToDatasetKey(attr: any) {
  * @param {string} value - Sub-mode value
  */
 export function setSubMode(toolName: string, value?: string): void {
-  const opts = (toolOptions as any)[toolName];
+  const opts = toolOptions[toolName];
   if (!opts) return;
   state[opts.key] = value;
-  document.querySelectorAll(`[${opts.attr}]`).forEach(btn => {
+  document.querySelectorAll<HTMLElement>(`[${opts.attr}]`).forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute(opts.attr) === value);
   });
-  if (state.activeTool === toolName && opts.cursor) setCursor(opts.cursor(value));
-  if (opts.onApply) opts.onApply(value);
+  if (state.activeTool === toolName && opts.cursor) setCursor(opts.cursor(value!));
+  if (opts.onApply) opts.onApply(value!);
   updateToolButtons();
 }
 
@@ -172,14 +180,12 @@ export function setSubMode(toolName: string, value?: string): void {
  * @param {number} delta - +1 (Tab) or -1 (Shift+Tab)
  * @returns {boolean} True if a sub-mode was cycled
  */
-export function cycleSubMode(delta?: number): void {
-  const opts = (toolOptions as any)[state.activeTool];
-  // @ts-expect-error — strict-mode migration
+export function cycleSubMode(delta?: number): boolean {
+  const opts = toolOptions[state.activeTool];
   if (!opts) return false;
-  const idx = opts.values.indexOf(state[opts.key]);
-  const next = opts.values[(idx + delta + opts.values.length) % opts.values.length];
+  const idx = opts.values.indexOf(state[opts.key] as string);
+  const next = opts.values[(idx + (delta ?? 1) + opts.values.length) % opts.values.length];
   setSubMode(state.activeTool, next);
-  // @ts-expect-error — strict-mode migration
   return true;
 }
 
@@ -188,10 +194,10 @@ export function cycleSubMode(delta?: number): void {
  * @param {string} toolName - Tool identifier
  * @returns {string|null} CSS cursor string
  */
-export function getToolCursor(toolName: string): string {
-  const opts = (toolOptions as any)[toolName];
-  // @ts-expect-error — strict-mode migration
-  return opts?.cursor ? opts.cursor(state[opts.key]) : null;
+export function getToolCursor(toolName: string): string | null {
+  const opts = toolOptions[toolName];
+  if (!opts) return null;
+  return opts.cursor ? opts.cursor(state[opts.key] as string) : null;
 }
 
 /**
@@ -199,7 +205,7 @@ export function getToolCursor(toolName: string): string {
  */
 export function init(): void {
   // ── Menu bar dropdowns ─────────────────────────────────────────────────
-  const menuItems = document.querySelectorAll('.menu-item');
+  const menuItems = document.querySelectorAll<HTMLElement>('.menu-item');
   const menubar = document.getElementById('menubar')!;
 
   /** Update aria-expanded on all triggers to match the open state. */
@@ -210,9 +216,9 @@ export function init(): void {
       if (trigger) trigger.setAttribute('aria-expanded', String(isOpen));
     });
     // Submenu triggers
-    document.querySelectorAll('.menu-submenu-trigger').forEach(t => {
+    document.querySelectorAll<HTMLElement>('.menu-submenu-trigger').forEach(t => {
       const submenu = t.closest('.menu-submenu');
-      const isOpen = submenu?.classList.contains('open') || submenu?.querySelector('.menu-submenu-dropdown:hover') !== null;
+      const isOpen = submenu?.classList.contains('open') ?? submenu?.querySelector('.menu-submenu-dropdown:hover') !== null;
       t.setAttribute('aria-expanded', String(isOpen));
     });
   }
@@ -224,7 +230,7 @@ export function init(): void {
     syncAriaExpanded();
     // Focus first menu-action in the dropdown
     const firstAction = item.querySelector('.menu-dropdown > .menu-action, .menu-dropdown > label, .menu-dropdown > .menu-submenu > .menu-submenu-trigger') as HTMLElement;
-    if (firstAction) firstAction.focus();
+    firstAction.focus();
   }
 
   /** Close all menus. */
@@ -235,7 +241,7 @@ export function init(): void {
 
   /** Get all focusable items in the currently open dropdown (buttons, labels, submenu triggers). */
   function getFocusableItems(dropdown: Element): HTMLElement[] {
-    return Array.from(dropdown.querySelectorAll(':scope > .menu-action, :scope > label, :scope > .menu-field, :scope > .menu-submenu > .menu-submenu-trigger')) as HTMLElement[];
+    return Array.from(dropdown.querySelectorAll(':scope > .menu-action, :scope > label, :scope > .menu-field, :scope > .menu-submenu > .menu-submenu-trigger'));
   }
 
   menuItems.forEach(item => {
@@ -255,18 +261,18 @@ export function init(): void {
 
   // Clicks inside dropdowns don't propagate to document (keeps menu open),
   // except menu-action buttons which explicitly close after acting.
-  document.querySelectorAll('.menu-dropdown').forEach(dd => {
+  document.querySelectorAll<HTMLElement>('.menu-dropdown').forEach(dd => {
     dd.addEventListener('click', (e) => e.stopPropagation());
   });
 
   // Set role="menuitem" and tabindex on all menu-action buttons
-  document.querySelectorAll('.menu-action').forEach(action => {
+  document.querySelectorAll<HTMLElement>('.menu-action').forEach(action => {
     action.setAttribute('role', 'menuitem');
     action.setAttribute('tabindex', '-1');
   });
 
   // Close menu after a menu-action is invoked (but not submenu triggers)
-  document.querySelectorAll('.menu-action').forEach(action => {
+  document.querySelectorAll<HTMLElement>('.menu-action').forEach(action => {
     if (action.classList.contains('menu-submenu-trigger')) return;
     action.addEventListener('click', () => {
       closeAllMenus();
@@ -279,16 +285,16 @@ export function init(): void {
     if (!openItem) return; // No menu open — let default behavior handle it
 
     const menuItemsArr = Array.from(menuItems);
-    const openIdx = menuItemsArr.indexOf(openItem);
+    const openIdx = menuItemsArr.indexOf(openItem as HTMLElement);
     const dropdown = openItem.querySelector('.menu-dropdown');
     if (!dropdown) return;
 
     // Check if we're inside a submenu
     const activeEl = document.activeElement as HTMLElement;
-    const activeSubmenu = activeEl?.closest('.menu-submenu-dropdown');
+    const activeSubmenu = activeEl.closest('.menu-submenu-dropdown');
 
     // Determine which list of items to navigate
-    const itemsContainer = activeSubmenu || dropdown;
+    const itemsContainer = activeSubmenu ?? dropdown;
     const items = getFocusableItems(itemsContainer);
     const currentIdx = items.indexOf(activeEl);
 
@@ -308,7 +314,7 @@ export function init(): void {
       case 'ArrowRight': {
         e.preventDefault();
         // If on a submenu trigger, open the submenu and focus first item
-        if (activeEl?.classList.contains('menu-submenu-trigger')) {
+        if (activeEl.classList.contains('menu-submenu-trigger')) {
           const submenuDropdown = activeEl.closest('.menu-submenu')?.querySelector('.menu-submenu-dropdown');
           if (submenuDropdown) {
             // CSS :focus-within or hover shows submenu — we just need to focus into it
@@ -326,6 +332,7 @@ export function init(): void {
         // If inside a submenu, go back to the submenu trigger
         if (activeSubmenu) {
           const submenuTrigger = activeSubmenu.closest('.menu-submenu')?.querySelector('.menu-submenu-trigger') as HTMLElement;
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (submenuTrigger) { submenuTrigger.focus(); break; }
         }
         // Otherwise, move to previous top-level menu
@@ -346,7 +353,7 @@ export function init(): void {
       case 'Enter':
       case ' ': {
         // If focused on a submenu trigger, open it
-        if (activeEl?.classList.contains('menu-submenu-trigger')) {
+        if (activeEl.classList.contains('menu-submenu-trigger')) {
           e.preventDefault();
           const submenuDropdown = activeEl.closest('.menu-submenu')?.querySelector('.menu-submenu-dropdown');
           if (submenuDropdown) {
@@ -358,7 +365,7 @@ export function init(): void {
         // For other items, let the native click fire (don't prevent default for Enter on buttons)
         if (e.key === ' ') {
           e.preventDefault();
-          activeEl?.click();
+          activeEl.click();
         }
         break;
       }
@@ -367,32 +374,26 @@ export function init(): void {
         // If inside a submenu, go back to the trigger
         if (activeSubmenu) {
           const submenuTrigger = activeSubmenu.closest('.menu-submenu')?.querySelector('.menu-submenu-trigger') as HTMLElement;
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (submenuTrigger) { submenuTrigger.focus(); break; }
         }
         // Otherwise close the menu entirely
         const trigger = openItem.querySelector('.menu-trigger') as HTMLElement;
         closeAllMenus();
-        trigger?.focus();
+        trigger.focus();
         break;
       }
     }
   });
 
   // ── File operations ────────────────────────────────────────────────────
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-new').addEventListener('click', newDungeon);
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-load').addEventListener('click', loadDungeon);
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-save').addEventListener('click', saveDungeon);
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-save-as').addEventListener('click', saveDungeonAs);
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-export-png').addEventListener('click', exportPng);
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-export-dd2vtt').addEventListener('click', exportDd2vtt);
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-reload-assets').addEventListener('click', reloadAssets);
+  document.getElementById('btn-new')?.addEventListener('click', () => { void newDungeon(); });
+  document.getElementById('btn-load')?.addEventListener('click', () => { void loadDungeon(); });
+  document.getElementById('btn-save')?.addEventListener('click', () => { void saveDungeon(); });
+  document.getElementById('btn-save-as')?.addEventListener('click', () => { void saveDungeonAs(); });
+  document.getElementById('btn-export-png')?.addEventListener('click', () => { void exportPng(); });
+  document.getElementById('btn-export-dd2vtt')?.addEventListener('click', () => { void exportDd2vtt(); });
+  document.getElementById('btn-reload-assets')?.addEventListener('click', () => { void reloadAssets(); });
 
   // ── Import sub-menu ─────────────────────────────────────────────────
   document.getElementById('btn-import-opd')?.addEventListener('click', () => {
@@ -405,20 +406,16 @@ export function init(): void {
   });
 
   // ── Undo/redo ──────────────────────────────────────────────────────────
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-undo').addEventListener('click', undo);
-  // @ts-expect-error — strict-mode migration
-  document!.getElementById('btn-redo').addEventListener('click', redo);
+  document.getElementById('btn-undo')?.addEventListener('click', undo);
+  document.getElementById('btn-redo')?.addEventListener('click', redo);
 
   // ── Tool buttons ───────────────────────────────────────────────────────
-  const toolButtons = document.querySelectorAll('[data-tool]');
+  const toolButtons = document.querySelectorAll<HTMLElement>('[data-tool]');
   toolButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      const toolName = (btn as HTMLElement).dataset.tool;
-      // @ts-expect-error — strict-mode migration
+      const toolName = (btn).dataset.tool!;
       if (onToolChange) onToolChange(toolName);
       updateToolButtons();
-      // @ts-expect-error — strict-mode migration
       applyToolSideEffects(toolName);
       notify();
     });
@@ -426,98 +423,93 @@ export function init(): void {
 
   // ── Sub-mode buttons (all tools, driven by toolOptions registry) ──────
   for (const [toolName, opts] of Object.entries(toolOptions)) {
+    if (!opts) continue;
     const dsKey = attrToDatasetKey(opts.attr);
-    document.querySelectorAll(`[${opts.attr}]`).forEach(btn => {
-      btn.addEventListener('click', () => setSubMode(toolName, (btn as HTMLElement).dataset[dsKey]));
+    document.querySelectorAll<HTMLElement>(`[${opts.attr}]`).forEach(btn => {
+      btn.addEventListener('click', () => setSubMode(toolName, (btn).dataset[dsKey]));
     });
   }
 
   // ── Tab ↹ cycle badge — click to cycle the active tool's sub-mode ──────
-  document.querySelectorAll('.suboptions-bar .cycle-hint').forEach(badge => {
-    badge.addEventListener('click', () => cycleSubMode(+1));
+  document.querySelectorAll<HTMLElement>('.suboptions-bar .cycle-hint').forEach(badge => {
+    badge.addEventListener('click', () => cycleSubMode(1));
   });
 
   // Fluid depth buttons (shared by water and lava)
-  document.querySelectorAll('[data-water-depth]').forEach(btn => {
+  document.querySelectorAll<HTMLElement>('[data-water-depth]').forEach(btn => {
     btn.addEventListener('click', () => {
-      // @ts-expect-error — strict-mode migration
-      const depth = parseInt((btn as HTMLElement).dataset.waterDepth, 10);
+      const depth = parseInt((btn).dataset.waterDepth ?? '1', 10);
       const mode = state.fillMode || 'water';
       if (mode === 'lava') {
         state.lavaDepth = depth;
       } else {
         state.waterDepth = depth;
       }
-      document.querySelectorAll('[data-water-depth]').forEach(b => {
-        b.classList.toggle('active', (b as HTMLElement).dataset.waterDepth === (btn as HTMLElement).dataset.waterDepth);
+      document.querySelectorAll<HTMLElement>('[data-water-depth]').forEach(b => {
+        b.classList.toggle('active', (b).dataset.waterDepth === (btn).dataset.waterDepth);
       });
     });
   });
 
   // Dungeon letter dropdown — populate A–Z and wire change
-  const letterSelect = document.getElementById('dungeon-letter-select');
-  if (letterSelect) {
-    for (let i = 0; i < 26; i++) {
-      const ch = String.fromCharCode(65 + i);
-      const opt = document.createElement('option');
-      opt.value = ch;
-      opt.textContent = ch;
-      letterSelect.appendChild(opt);
-    }
-    // @ts-expect-error — strict-mode migration
-    (letterSelect as HTMLInputElement).value = state.dungeon.metadata.dungeonLetter || 'A';
-    letterSelect.addEventListener('change', () => {
-      const newLetter = (letterSelect as HTMLInputElement).value;
-      const oldLetter = state.dungeon.metadata.dungeonLetter || 'A';
-      if (newLetter === oldLetter) return;
+  const letterSelect = document.getElementById('dungeon-letter-select')!;
+  for (let i = 0; i < 26; i++) {
+    const ch = String.fromCharCode(65 + i);
+    const opt = document.createElement('option');
+    opt.value = ch;
+    opt.textContent = ch;
+    letterSelect.appendChild(opt);
+  }
+  (letterSelect as HTMLInputElement).value = state.dungeon.metadata.dungeonLetter ?? 'A';
+  letterSelect.addEventListener('change', () => {
+    const newLetter = (letterSelect as HTMLInputElement).value;
+    const oldLetter = state.dungeon.metadata.dungeonLetter ?? 'A';
+    if (newLetter === oldLetter) return;
 
-      pushUndo();
-      // Rename all existing room labels to use the new letter
-      const pattern = /^[A-Z](\d+)$/;
-      for (const row of state.dungeon.cells) {
-        for (const cell of row) {
-          if (cell?.center?.label) {
-            const m = cell.center.label.match(pattern);
-            if (m) cell.center.label = newLetter + m[1];
-          }
+    pushUndo();
+    // Rename all existing room labels to use the new letter
+    const pattern = /^[A-Z](\d+)$/;
+    for (const row of state.dungeon.cells) {
+      for (const cell of row) {
+        if (cell?.center?.label) {
+          const m = pattern.exec(cell.center.label);
+          if (m) cell.center.label = newLetter + m[1];
         }
       }
-      state.dungeon.metadata.dungeonLetter = newLetter;
-      markDirty();
-    });
-  }
+    }
+    state.dungeon.metadata.dungeonLetter = newLetter;
+    markDirty();
+  });
 
   // Texture opacity slider
-  const opacitySlider = document.getElementById('texture-opacity-slider');
-  const opacityValue = document.getElementById('texture-opacity-value');
-  if (opacitySlider) {
-    opacitySlider.addEventListener('input', () => {
-      state.textureOpacity = parseInt((opacitySlider as HTMLInputElement).value, 10) / 100;
-      if (opacityValue) opacityValue.textContent = `${(opacitySlider as HTMLInputElement).value}%`;
-    });
-  }
+  const opacitySlider = document.getElementById('texture-opacity-slider')!;
+  const opacityValue = document.getElementById('texture-opacity-value')!;
+  opacitySlider.addEventListener('input', () => {
+    state.textureOpacity = parseInt((opacitySlider as HTMLInputElement).value, 10) / 100;
+    opacityValue.textContent = `${(opacitySlider as HTMLInputElement).value}%`;
+  });
 
   // Secondary texture Yes/No buttons
-  document.querySelectorAll('#paint-texture-options [data-secondary]').forEach(btn => {
+  document.querySelectorAll<HTMLElement>('#paint-texture-options [data-secondary]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const val = (btn as HTMLElement).dataset.secondary === 'true';
+      const val = (btn).dataset.secondary === 'true';
       state.paintSecondary = val;
-      document.querySelectorAll('#paint-texture-options [data-secondary]').forEach(b => {
-        b.classList.toggle('active', (b as HTMLElement).dataset.secondary === String(val));
+      document.querySelectorAll<HTMLElement>('#paint-texture-options [data-secondary]').forEach(b => {
+        b.classList.toggle('active', (b).dataset.secondary === String(val));
       });
     });
   });
 
   // Trim Yes/No toggle buttons (Round, Inverted, Open)
-  document.querySelectorAll('#trim-shape-options [data-trim]').forEach(btn => {
+  document.querySelectorAll<HTMLElement>('#trim-shape-options [data-trim]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const prop = (btn as HTMLElement).dataset.trim;            // 'round' | 'inverted' | 'open'
-      const val = (btn as HTMLElement).dataset.val === 'true';   // boolean
+      const prop = (btn).dataset.trim;            // 'round' | 'inverted' | 'open'
+      const val = (btn).dataset.val === 'true';   // boolean
       const stateKey = 'trim' + prop!.charAt(0).toUpperCase() + prop!.slice(1);
       state[stateKey] = val;
       // Sync active class within this Yes/No pair
-      document.querySelectorAll(`#trim-shape-options [data-trim="${prop}"]`).forEach(b => {
-        b.classList.toggle('active', (b as HTMLElement).dataset.val === String(val));
+      document.querySelectorAll<HTMLElement>(`#trim-shape-options [data-trim="${prop}"]`).forEach(b => {
+        b.classList.toggle('active', (b).dataset.val === String(val));
       });
     });
   });
@@ -525,8 +517,9 @@ export function init(): void {
   updateToolButtons();
   // Initialize all sub-mode button highlights from current state (no side effects)
   for (const [, opts] of Object.entries(toolOptions)) {
-    document.querySelectorAll(`[${opts.attr}]`).forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute(opts.attr) === (state[opts.key] || opts.values[0]));
+    if (!opts) continue;
+    document.querySelectorAll<HTMLElement>(`[${opts.attr}]`).forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute(opts.attr) === (state[opts.key] ?? opts.values[0]));
     });
   }
   // Apply side effects for the restored active tool (e.g. show depth selector for water/lava)
@@ -534,25 +527,22 @@ export function init(): void {
 
   // Keep dungeon letter dropdown in sync after load/new/undo.
   // Auto-detect the letter from existing labels when a new dungeon is loaded.
-  let lastDungeon: any = null;
-  let _lastTool: any = null;
-  let _lastLighting: any = null;
-  let _lastSessionTools: any = null;
+  let lastDungeon: Dungeon | null = null;
+  let _lastTool: string | null = null;
+  let _lastLighting: boolean | null = null;
+  let _lastSessionTools: boolean | null = null;
   subscribe(() => {
     const meta = state.dungeon.metadata;
     if (state.dungeon !== lastDungeon) {
       lastDungeon = state.dungeon;
-      if (!meta.dungeonLetter) {
-        meta.dungeonLetter = detectDungeonLetter(state.dungeon.cells);
-      }
-      const sel = document.getElementById('dungeon-letter-select');
-      // @ts-expect-error — strict-mode migration
-      if (sel) (sel as HTMLInputElement).value = meta.dungeonLetter || 'A';
+      meta.dungeonLetter ??= detectDungeonLetter(state.dungeon.cells);
+      const sel = document.getElementById('dungeon-letter-select')!;
+      (sel as HTMLInputElement).value = meta.dungeonLetter || 'A';
       // Force toolbar update on dungeon swap
       _lastTool = null;
     }
     // Only update toolbar buttons when relevant state changed
-    const lighting = !!meta.lightingEnabled;
+    const lighting = meta.lightingEnabled;
     if (state.activeTool !== _lastTool || lighting !== _lastLighting || state.sessionToolsActive !== _lastSessionTools) {
       _lastTool = state.activeTool;
       _lastLighting = lighting;
@@ -566,21 +556,21 @@ export function init(): void {
  * Refresh toolbar button state (active highlights, visibility based on features).
  */
 export function updateToolButtons(): void {
-  const lightingEnabled = !!state.dungeon.metadata.lightingEnabled;
+  const lightingEnabled = state.dungeon.metadata.lightingEnabled;
 
-  document.querySelectorAll('[data-tool]').forEach(btn => {
-    btn.classList.toggle('active', (btn as HTMLElement).dataset.tool === state.activeTool);
+  document.querySelectorAll<HTMLElement>('[data-tool]').forEach(btn => {
+    btn.classList.toggle('active', (btn).dataset.tool === state.activeTool);
     // Hide the light tool when lighting is disabled
-    if ((btn as HTMLElement).dataset.tool === 'light') {
-      (btn as HTMLElement).style.display = lightingEnabled ? '' : 'none';
+    if ((btn).dataset.tool === 'light') {
+      (btn).style.display = lightingEnabled ? '' : 'none';
     }
   });
 
   // If lighting was disabled while the light tool was active, switch away
   if (!lightingEnabled && state.activeTool === 'light') {
     state.activeTool = 'room';
-    document.querySelectorAll('[data-tool]').forEach(btn => {
-      btn.classList.toggle('active', (btn as HTMLElement).dataset.tool === state.activeTool);
+    document.querySelectorAll<HTMLElement>('[data-tool]').forEach(btn => {
+      btn.classList.toggle('active', (btn).dataset.tool === state.activeTool);
     });
     if (onToolChange) onToolChange('room');
   }
@@ -593,68 +583,63 @@ export function updateToolButtons(): void {
   }
 
   // Trim has no sub-mode bar (only tertiary shape bar)
-  const trimShapeBar = document.getElementById('trim-shape-options');
-  if (trimShapeBar) {
-    trimShapeBar.style.display = (!state.sessionToolsActive && state.activeTool === 'trim') ? 'flex' : 'none';
-  }
+  const trimShapeBar = document.getElementById('trim-shape-options')!;
+  trimShapeBar.style.display = (!state.sessionToolsActive && state.activeTool === 'trim') ? 'flex' : 'none';
 
   // Mode-dependent tertiary bars: hidden when session active or wrong tool active.
   // When the tool IS active, onApply (called from applyToolSideEffects) controls visibility.
   if (state.sessionToolsActive || state.activeTool !== 'paint') {
-    const b = document.getElementById('paint-texture-options');
-    if (b) b.style.display = 'none';
+    const b = document.getElementById('paint-texture-options')!;
+    b.style.display = 'none';
   }
   if (state.sessionToolsActive || state.activeTool !== 'fill') {
-    const b = document.getElementById('fill-depth-options');
-    if (b) b.style.display = 'none';
+    const b = document.getElementById('fill-depth-options')!;
+    b.style.display = 'none';
   }
   if (state.sessionToolsActive || state.activeTool !== 'label') {
-    const b = document.getElementById('label-dungeon-options');
-    if (b) b.style.display = 'none';
+    const b = document.getElementById('label-dungeon-options')!;
+    b.style.display = 'none';
   }
   if (state.sessionToolsActive || state.activeTool !== 'light') {
-    const b = document.getElementById('light-options');
-    if (b) b.style.display = 'none';
+    const b = document.getElementById('light-options')!;
+    b.style.display = 'none';
   }
 
   // Hide the sub-bar panel border/space when no bars are visible (e.g. light, erase, prop)
-  const toolbarSubbars = document.getElementById('toolbar-subbars');
-  if (toolbarSubbars) {
-    const anyVisible = [...toolbarSubbars.querySelectorAll(
-      '.suboptions-bar, .tertiaryoptions-bar, .session-suboptions'
-    )].some(el => (el as HTMLElement).style.display && (el as HTMLElement).style.display !== 'none');
-    toolbarSubbars.classList.toggle('toolbar-subbars-empty', !anyVisible);
-  }
+  const toolbarSubbars = document.getElementById('toolbar-subbars')!;
+  const anyVisible = [...toolbarSubbars.querySelectorAll(
+    '.suboptions-bar, .tertiaryoptions-bar, .session-suboptions'
+  )].some(el => (el as HTMLElement).style.display && (el as HTMLElement).style.display !== 'none');
+  toolbarSubbars.classList.toggle('toolbar-subbars-empty', !anyVisible);
 }
 
 /** Scan cells for room labels and return the most common letter prefix, or 'A'. */
-function detectDungeonLetter(cells: any) {
+function detectDungeonLetter(cells: CellGrid) {
   const counts = {};
   const pattern = /^([A-Z])\d+$/;
   for (const row of cells) {
     for (const cell of row) {
       if (cell?.center?.label) {
-        const m = cell.center.label.match(pattern);
-        if (m) (counts as any)[m[1]] = ((counts as any)[m[1]] || 0) + 1;
+        const m = pattern.exec(cell.center.label);
+        if (m) (counts as Record<string, number>)[m[1]] = ((counts as Record<string, number>)[m[1]] || 0) + 1;
       }
     }
   }
   let best = 'A', bestCount = 0;
   for (const [letter, count] of Object.entries(counts)) {
-    // @ts-expect-error — strict-mode migration
-    if (count > bestCount) { best = letter; bestCount = count; }
+    if ((count as number) > bestCount) { best = letter; bestCount = count as number; }
   }
   return best;
 }
 
 // ── Import modal ──────────────────────────────────────────────────────
 
-function showImportModal(siteName: any, siteUrl: any) {
+function showImportModal(siteName: string, siteUrl: string) {
   // Remove any existing modal
-  (document.getElementById('import-modal-overlay') as HTMLDialogElement)?.close();
+  (document.getElementById('import-modal-overlay')! as HTMLDialogElement).close();
   document.getElementById('import-modal-overlay')?.remove();
 
-  const overlay = document.createElement('dialog') as HTMLDialogElement;
+  const overlay = document.createElement('dialog');
   overlay.id = 'import-modal-overlay';
   overlay.className = 'import-modal-overlay';
 
@@ -703,12 +688,12 @@ function showImportModal(siteName: any, siteUrl: any) {
     e.preventDefault();
     dropZone.classList.remove('dragover');
     const file = e.dataTransfer!.files[0];
-    if (file) handleImportFile(file, siteName);
+    handleImportFile(file, siteName);
   });
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files![0];
-    if (file) handleImportFile(file, siteName);
+    handleImportFile(file, siteName);
   });
 
   // Cancel button
@@ -736,12 +721,11 @@ function showImportModal(siteName: any, siteUrl: any) {
   overlay.showModal();
 }
 
-function handleImportFile(file: any, siteName: any) {
+function handleImportFile(file: File, siteName: string) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      // @ts-expect-error — strict-mode migration
-      const json = JSON.parse(reader.result);
+      const json = JSON.parse(reader.result as string);
 
       let dungeon;
       if (siteName === 'One-Page-Dungeon') {
@@ -753,13 +737,14 @@ function handleImportFile(file: any, siteName: any) {
         return;
       }
 
-      loadDungeonJSON(dungeon, { fileName: file.name });
-      const importDialog = document.getElementById('import-modal-overlay') as HTMLDialogElement;
+      loadDungeonJSON(dungeon as unknown as Dungeon, { fileName: file.name });
+      const importDialog = document.getElementById('import-modal-overlay')! as HTMLDialogElement;
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (importDialog) { importDialog.close(); importDialog.remove(); }
       showToast(`Imported from ${siteName}`);
     } catch (err) {
       console.error('Import failed:', err);
-      showToast('Import failed: ' + (err as any).message);
+      showToast('Import failed: ' + (err as Error).message);
     }
   };
   reader.readAsText(file);

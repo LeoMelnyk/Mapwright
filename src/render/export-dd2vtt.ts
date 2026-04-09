@@ -8,7 +8,8 @@
  * @module export-dd2vtt
  */
 
-import type { Dd2vttFormat, CellGrid } from '../types.js';
+/// <reference types="node" />
+import type { CellGrid, Dd2vttFormat, Dd2vttLight, Dd2vttPortal, Light, Metadata } from '../types.js';
 import { GRID_SCALE, MARGIN } from './constants.js';
 import { calculateBoundsFromCells } from './bounds.js';
 
@@ -21,8 +22,7 @@ import { calculateBoundsFromCells } from './bounds.js';
  * @param {number} canvasHeight - Height of the rendered PNG in pixels
  * @returns {Object} dd2vtt-format JSON object
  */
-// @ts-expect-error — strict-mode migration
-export function buildDd2vtt(pngBuffer: Buffer, config: any, canvasWidth: number, canvasHeight: number): Dd2vttFormat {
+export function buildDd2vtt(pngBuffer: Buffer, config: { metadata: Metadata; cells: CellGrid }, canvasWidth: number, canvasHeight: number): Dd2vttFormat {
   const { metadata, cells } = config;
   const gridSize = metadata.gridSize || 5;
   const resolution = metadata.resolution || 1;
@@ -57,7 +57,7 @@ export function buildDd2vtt(pngBuffer: Buffer, config: any, canvasWidth: number,
     portals,
     lights,
     environment: {
-      brt: metadata.ambientLight ?? 0.5,
+      brt: metadata.ambientLight,
       exp: 0,
     },
   };
@@ -76,9 +76,9 @@ export function buildDd2vtt(pngBuffer: Buffer, config: any, canvasWidth: number,
  * @param {number} pixelsPerGrid - Pixels per grid square
  * @returns {{ walls: Array, portals: Array }}
  */
-function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): { walls: any[]; portals: any[] } {
-  const walls = [];
-  const portals = [];
+function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): { walls: Array<[{x: number; y: number}, {x: number; y: number}]>; portals: Dd2vttPortal[] } {
+  const walls: Array<[{x: number; y: number}, {x: number; y: number}]> = [];
+  const portals: Dd2vttPortal[] = [];
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const seen = new Set();
@@ -97,7 +97,7 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
       ];
 
       for (const edge of edges) {
-        const val = (cell as any)[edge.dir];
+        const val = cell[edge.dir];
         if (!val) continue;
 
         // Skip invisible walls/doors — they shouldn't affect VTT line of sight
@@ -151,9 +151,9 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
  * @param {number} pixelsPerGrid - Pixels per grid square
  * @returns {{ x1: number, y1: number, x2: number, y2: number }} Edge in grid-unit coords
  */
-function cellToPixelSegment(edge: any, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): { x1: number; y1: number; x2: number; y2: number } {
+function cellToPixelSegment(edge: { x1: number; y1: number; x2: number; y2: number; dir: string }, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): { x1: number; y1: number; x2: number; y2: number } {
   // Cell coords → world feet → canvas pixels → grid units
-  const toGridUnits = (cellVal: any, offset: any) => {
+  const toGridUnits = (cellVal: number, offset: number) => {
     const worldFeet = cellVal * displayGridSize;
     const canvasPixels = worldFeet * GRID_SCALE + offset;
     return canvasPixels / pixelsPerGrid;
@@ -177,10 +177,10 @@ function cellToPixelSegment(edge: any, displayGridSize: number, offsetX: number,
  * @param {number} pixelsPerGrid - Pixels per grid square
  * @returns {Array<Object>} Array of dd2vtt light objects
  */
-function extractLights(metadata: any, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): any[] {
-  if (!metadata.lights || !metadata.lightingEnabled) return [];
+function extractLights(metadata: Metadata | null, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): Dd2vttLight[] {
+  if (!metadata?.lights || !metadata.lightingEnabled) return [];
 
-  return metadata.lights.map((light: any) => {
+  return metadata.lights.map((light: Light) => {
     // Light positions are in world feet — convert to canvas pixels, then grid units
     const canvasX = light.x * GRID_SCALE + offsetX;
     const canvasY = light.y * GRID_SCALE + offsetY;
@@ -199,7 +199,7 @@ function extractLights(metadata: any, displayGridSize: number, offsetX: number, 
     return {
       position: { x: gridX, y: gridY },
       range: radiusGridUnits,
-      intensity: light.intensity ?? 1.0,
+      intensity: light.intensity,
       color: `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)}`,
       shadows: true,
     };

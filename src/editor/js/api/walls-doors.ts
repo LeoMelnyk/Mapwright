@@ -1,3 +1,4 @@
+import type { CardinalDirection } from '../../../types.js';
 import {
   state, pushUndo, markDirty, notify,
   validateBounds, ensureCell, setReciprocal, deleteReciprocal,
@@ -21,8 +22,9 @@ export function setWall(row: number, col: number, direction: string): { success:
   const cell = ensureCell(row, col);
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
-  (cell as any)[direction] = 'w';
-  if ((OPPOSITE as any)[direction]) {
+  (cell as Record<string, unknown>)[direction] = 'w';
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+  if (OPPOSITE[direction as CardinalDirection]) {
     setReciprocal(row, col, direction, 'w');
   }
   smartInvalidate(before, state.dungeon.cells);
@@ -48,8 +50,9 @@ export function removeWall(row: number, col: number, direction: string): { succe
   if (!cell) return { success: true };
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
-  delete (cell as any)[direction];
-  if ((OPPOSITE as any)[direction]) {
+  delete (cell as Record<string, unknown>)[direction];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+  if (OPPOSITE[direction as CardinalDirection]) {
     deleteReciprocal(row, col, direction);
   }
   smartInvalidate(before, state.dungeon.cells);
@@ -77,7 +80,7 @@ export function setDoor(row: number, col: number, direction: string, type: strin
   const cell = ensureCell(row, col);
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
-  (cell as any)[direction] = type;
+  (cell as Record<string, unknown>)[direction] = type;
   setReciprocal(row, col, direction, type);
   smartInvalidate(before, state.dungeon.cells);
   markDirty();
@@ -102,7 +105,7 @@ export function removeDoor(row: number, col: number, direction: string): { succe
   if (!cell) return { success: true };
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
-  (cell as any)[direction] = 'w';
+  (cell as Record<string, unknown>)[direction] = 'w';
   setReciprocal(row, col, direction, 'w');
   smartInvalidate(before, state.dungeon.cells);
   markDirty();

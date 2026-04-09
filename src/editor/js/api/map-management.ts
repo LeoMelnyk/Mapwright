@@ -1,3 +1,4 @@
+import type { Dungeon, LabelStyle } from '../../../types.js';
 import {
   state, pushUndo, markDirty, notify, getApi,
   createEmptyDungeon, requestRender,
@@ -30,22 +31,22 @@ export function newMap(name: string, rows: number, cols: number, gridSize: numbe
  * @param {Object|string} json - Dungeon JSON data
  * @returns {{ success: boolean }}
  */
-export function loadMap(json: any): { success: true } {
+export function loadMap(json: Record<string, unknown>): { success: true } {
   if (typeof json === 'string') json = JSON.parse(json);
   if (!json.metadata || !json.cells) {
     throw new Error('Invalid dungeon JSON: missing metadata or cells');
   }
   pushUndo();
-  state.dungeon = json;
-  migrateToLatest(json);
+  state.dungeon = json as unknown as Dungeon;
+  migrateToLatest(json as Parameters<typeof migrateToLatest>[0]);
   state.currentLevel = 0;
   state.selectedCells = [];
   markDirty();
   notify();
 
-  const usedIds = collectTextureIds(json.cells);
+  const usedIds = collectTextureIds(state.dungeon.cells);
   if (usedIds.size > 0) {
-    ensureTexturesLoaded(usedIds).then(() => { requestRender(); });
+    void ensureTexturesLoaded(usedIds).then(() => { requestRender(); });
   }
 
   return { success: true };
@@ -55,7 +56,7 @@ export function loadMap(json: any): { success: true } {
  * Get a deep copy of the entire dungeon JSON.
  * @returns {{ success: boolean, dungeon: Object }}
  */
-export function getMap(): { success: true; dungeon: any } {
+export function getMap(): { success: true; dungeon: Record<string, unknown> } {
   return { success: true, dungeon: JSON.parse(JSON.stringify(state.dungeon)) };
 }
 
@@ -63,11 +64,11 @@ export function getMap(): { success: true; dungeon: any } {
  * Get a summary of the current map (dimensions, theme, feature flags, counts).
  * @returns {{ success: boolean, name: string, rows: number, cols: number, gridSize: number, theme: string, levels: Array, propCount: number, labelCount: number, lightCount: number }}
  */
-export function getMapInfo(): any {
+export function getMapInfo(): { rows: number; cols: number; gridSize: number; theme: string; name: string; [k: string]: unknown } {
   const meta = state.dungeon.metadata;
   const cells = state.dungeon.cells;
 
-  const propCount = meta.props ? (meta.props as any).length : 0;
+  const propCount = meta.props ? meta.props.length : 0;
   let labelCount = 0;
   const textureIds = new Set();
   for (let r = 0; r < cells.length; r++) {
@@ -75,7 +76,7 @@ export function getMapInfo(): any {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       if (cell.center?.label != null) labelCount++;
-      if (cell.texture?.id) textureIds.add(cell.texture.id);
+      if (cell.texture) textureIds.add(cell.texture);
     }
   }
 
@@ -88,18 +89,18 @@ export function getMapInfo(): any {
     gridSize: meta.gridSize * res, // display gridSize
     resolution: res,
     theme: typeof meta.theme === 'string' ? meta.theme : 'custom',
-    labelStyle: meta.labelStyle || 'circled',
+    labelStyle: meta.labelStyle,
     features: { ...meta.features },
-    levels: meta.levels ? meta.levels.map(l => ({
+    levels: meta.levels.map(l => ({
       ...l,
       startRow: toDisp(l.startRow),
       numRows: toDisp(l.numRows),
-    })) : [],
+    })),
     propCount,
     labelCount,
     textureIds: [...textureIds],
-    lightCount: meta.lights?.length || 0,
-    lightingEnabled: !!meta.lightingEnabled,
+    lightCount: meta.lights.length,
+    lightingEnabled: meta.lightingEnabled,
   };
 }
 
@@ -107,7 +108,7 @@ export function getMapInfo(): any {
  * Get complete map info including rooms, props, doors, lights, stairs, and bridges.
  * @returns {{ success: boolean, rooms: Array, props: Array, doors: Array, lights: Array, stairs: Array, bridges: Array }}
  */
-export function getFullMapInfo(): any {
+export function getFullMapInfo(): Record<string, unknown> {
   const base = getApi().getMapInfo();
   const cells = state.dungeon.cells;
   const meta = state.dungeon.metadata;
@@ -117,10 +118,10 @@ export function getFullMapInfo(): any {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       const label = cells[r]?.[c]?.center?.label;
-      if (label != null && !seenLabels.has(String(label))) {
-        seenLabels.add(String(label));
-        const bounds = getApi().getRoomBounds(String(label));
-        rooms.push({ label: String(label), labelRow: toDisp(r), labelCol: toDisp(c), bounds });
+      if (label != null && !seenLabels.has(label)) {
+        seenLabels.add(label);
+        const bounds = getApi().getRoomBounds(label);
+        rooms.push({ label, labelRow: toDisp(r), labelCol: toDisp(c), bounds });
       }
     }
   }
@@ -128,9 +129,8 @@ export function getFullMapInfo(): any {
   const props = [];
   const gs = meta.gridSize || 5;
   if (meta.props) {
-    // @ts-expect-error — strict-mode migration
     for (const op of meta.props) {
-      props.push({ row: toDisp(Math.round(op.y / gs)), col: toDisp(Math.round(op.x / gs)), type: op.type, facing: op.rotation ?? 0, id: op.id });
+      props.push({ row: toDisp(Math.round(op.y / gs)), col: toDisp(Math.round(op.x / gs)), type: op.type, facing: op.rotation, id: op.id });
     }
   }
 
@@ -141,13 +141,13 @@ export function getFullMapInfo(): any {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
-        if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's') continue;
+        if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') continue;
         const key = `${r},${c},${dir}`;
         const [dr, dc] = OFFSETS[dir];
-        const recipKey = `${r + dr},${c + dc},${(OPPOSITE as any)[dir]}`;
+        const recipKey = `${r + dr},${c + dc},${OPPOSITE[dir as keyof typeof OPPOSITE]}`;
         if (seen.has(recipKey)) continue;
         seen.add(key);
-        doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as any)[dir] });
+        doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as Record<string, unknown>)[dir] });
       }
     }
   }
@@ -158,9 +158,9 @@ export function getFullMapInfo(): any {
     rooms,
     props,
     doors,
-    lights: meta.lights ? JSON.parse(JSON.stringify(meta.lights)) : [],
-    stairs: meta.stairs ? JSON.parse(JSON.stringify(meta.stairs)) : [],
-    bridges: meta.bridges ? JSON.parse(JSON.stringify(meta.bridges)) : [],
+    lights: JSON.parse(JSON.stringify(meta.lights)),
+    stairs: JSON.parse(JSON.stringify(meta.stairs)),
+    bridges: JSON.parse(JSON.stringify(meta.bridges)),
   };
 }
 
@@ -206,8 +206,7 @@ export function setLabelStyle(style: string): { success: true } {
     throw new Error(`Invalid label style: ${style}. Use 'circled', 'plain', or 'bold'.`);
   }
   pushUndo();
-  // @ts-expect-error — strict-mode migration
-  state.dungeon.metadata.labelStyle = style;
+  state.dungeon.metadata.labelStyle = style as LabelStyle;
   markDirty();
   notify();
   return { success: true };
@@ -219,16 +218,15 @@ export function setLabelStyle(style: string): { success: true } {
  * @param {boolean} enabled - Whether to enable the feature
  * @returns {{ success: boolean }}
  */
-export function setFeature(feature: string, enabled: boolean): { success: true } {
+export function setFeature(feature: string, enabled: unknown): { success: true } {
   const validFeatures = ['grid', 'compass', 'scale', 'border'];
   if (!validFeatures.includes(feature)) {
     throw new Error(`Invalid feature: ${feature}. Use: ${validFeatures.join(', ')}`);
   }
   pushUndo();
-  // @ts-expect-error — strict-mode migration
-  if (!state.dungeon.metadata.features) state.dungeon.metadata.features = {};
-  // @ts-expect-error — strict-mode migration
-  state.dungeon.metadata.features[feature] = !!enabled;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
+  if (!state.dungeon.metadata.features) state.dungeon.metadata.features = { showGrid: false, compassRose: false, scale: false, border: false };
+  (state.dungeon.metadata.features as unknown as Record<string, boolean>)[feature] = !!enabled;
   markDirty();
   notify();
   return { success: true };

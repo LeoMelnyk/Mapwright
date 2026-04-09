@@ -17,7 +17,7 @@ function drawCellLabel(ctx: CanvasRenderingContext2D, cx: number, cy: number, la
   const s = scale / GRID_SCALE;
 
   // Theme-controlled label colors (default: black border, black font, white background)
-  const labelColors = (theme as any).labels || {};
+  const labelColors = ((theme as Record<string, unknown>).labels ?? {}) as Record<string, string>;
   const borderColor: string = labelColors.borderColor || '#000000';
   const fontColor: string = labelColors.fontColor || '#000000';
   const bgColor: string = labelColors.backgroundColor || '#FFFFFF';

@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => ({
       ],
     },
     assetsDir: 'assets',
+    sourcemap: !process.env.CI,
   },
 
   optimizeDeps: {

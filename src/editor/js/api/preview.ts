@@ -1,5 +1,6 @@
 // Prop Preview API — renders a single prop to a data URL for agent self-correction.
 
+import type { PropDefinition, RenderPropPreviewOptions, Theme } from '../../../types.js';
 import { state, getThemeCatalog } from './_shared.js';
 import { parsePropFile, renderProp } from '../../../render/props.js';
 
@@ -15,7 +16,7 @@ import { parsePropFile, renderProp } from '../../../render/props.js';
  * @param {string|null} [options.background=null] - Background CSS color, or null for theme floor.
  * @returns {{ success: boolean, dataUrl: string, name: string, footprint: number[], warnings: string[] }}
  */
-export async function renderPropPreview(propTypeOrText: string, options: Record<string, any> = {}): Promise<any> {
+export async function renderPropPreview(propTypeOrText: string, options: RenderPropPreviewOptions = {}): Promise<Record<string, unknown>> {
   const {
     rotation = 0,
     flipped = false,
@@ -27,14 +28,14 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
 
   // ── Resolve prop definition ───────────────────────────────────────────────
 
-  let propDef;
+  let propDef: PropDefinition | undefined;
 
   if (typeof propTypeOrText === 'string' && propTypeOrText.includes('---')) {
     // Raw .prop file text
     try {
       propDef = parsePropFile(propTypeOrText);
     } catch (e) {
-      return { success: false, dataUrl: null, name: null, footprint: null, warnings: [(e as any).message] };
+      return { success: false, dataUrl: null, name: null, footprint: null, warnings: [(e as Error).message] };
     }
   } else {
     // Catalog lookup
@@ -43,14 +44,16 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
       return { success: false, dataUrl: null, name: propTypeOrText, footprint: null, warnings: ['Prop catalog not loaded'] };
     }
 
-    propDef = catalog[propTypeOrText];
+    propDef = catalog.props[propTypeOrText];
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (!propDef) {
       // Try case-insensitive search
-      const key = Object.keys(catalog).find(
-        k => k.toLowerCase() === String(propTypeOrText).toLowerCase()
+      const key = Object.keys(catalog.props).find(
+        k => k.toLowerCase() === propTypeOrText.toLowerCase()
       );
-      if (key) propDef = catalog[key];
+      if (key) propDef = catalog.props[key];
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (!propDef) {
       return { success: false, dataUrl: null, name: propTypeOrText, footprint: null, warnings: [`Prop type "${propTypeOrText}" not found in catalog`] };
     }
@@ -58,7 +61,7 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
 
   // ── Determine canvas size ─────────────────────────────────────────────────
 
-  const [rows, cols] = propDef.footprint || [1, 1];
+  const [rows, cols] = propDef.footprint;
   // Account for rotation: 90/270 swaps rows and cols
   const rotated = (rotation === 90 || rotation === 270);
   const canvasRows = rotated ? cols : rows;
@@ -80,35 +83,37 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
 
   // ── Background ────────────────────────────────────────────────────────────
 
-  const themeCatalog = getThemeCatalog();
-  const theme = themeCatalog?.[state.dungeon?.metadata?.theme]
-    || themeCatalog?.['stone-dungeon']
-    || {};
+  const themeCatalog = getThemeCatalog() as Record<string, Record<string, unknown>> | null;
+  const themeKey = typeof state.dungeon.metadata.theme === 'string' ? state.dungeon.metadata.theme : 'stone-dungeon';
+  const theme = (themeCatalog?.[themeKey]
+    ?? themeCatalog?.['stone-dungeon'])
+    ?? {};
 
+  const drawCtx = ctx as OffscreenCanvasRenderingContext2D;
   if (background) {
-    (ctx! as any).fillStyle = background;
-    (ctx! as any).fillRect(0, 0, width, height);
+    drawCtx.fillStyle = background;
+    drawCtx.fillRect(0, 0, width, height);
   } else if (theme.floorColor) {
-    (ctx! as any).fillStyle = theme.floorColor;
-    (ctx! as any).fillRect(0, 0, width, height);
+    drawCtx.fillStyle = theme.floorColor as string;
+    drawCtx.fillRect(0, 0, width, height);
   }
   // else leave transparent
 
   // ── Grid lines ────────────────────────────────────────────────────────────
 
-  (ctx! as any).strokeStyle = 'rgba(0, 0, 0, 0.15)';
-  (ctx! as any).lineWidth = 1;
+  drawCtx.strokeStyle = 'rgba(0, 0, 0, 0.15)';
+  drawCtx.lineWidth = 1;
   for (let c = 1; c < canvasCols; c++) {
-    (ctx! as any).beginPath();
-    (ctx! as any).moveTo(c * scale, 0);
-    (ctx! as any).lineTo(c * scale, height);
-    (ctx! as any).stroke();
+    drawCtx.beginPath();
+    drawCtx.moveTo(c * scale, 0);
+    drawCtx.lineTo(c * scale, height);
+    drawCtx.stroke();
   }
   for (let r = 1; r < canvasRows; r++) {
-    (ctx! as any).beginPath();
-    (ctx! as any).moveTo(0, r * scale);
-    (ctx! as any).lineTo(width, r * scale);
-    (ctx! as any).stroke();
+    drawCtx.beginPath();
+    drawCtx.moveTo(0, r * scale);
+    drawCtx.lineTo(width, r * scale);
+    drawCtx.stroke();
   }
 
   // ── Render the prop ───────────────────────────────────────────────────────
@@ -117,13 +122,12 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
   // each normalized unit maps to `scale` pixels. So nx → nx * 1 * scale = nx * scale px.
   const gridSize = 1;
   const transform = { scale: scale, offsetX: 0, offsetY: 0 };
-  const getTextureImage = state.propCatalog?.getTextureImage || (() => null);
+  const getTextureImage = state.textureCatalog?.getTextureImage ?? (() => null);
 
   try {
-    // @ts-expect-error — strict-mode migration
-    renderProp(ctx, propDef, 0, 0, rotation, gridSize, theme, transform, flipped, getTextureImage);
+    renderProp(drawCtx, propDef, 0, 0, rotation, gridSize, theme as Theme, transform, flipped, getTextureImage);
   } catch (e) {
-    warnings.push(`Render error: ${(e as any).message}`);
+    warnings.push(`Render error: ${(e as Error).message}`);
   }
 
   // ── Convert to data URL ───────────────────────────────────────────────────
@@ -144,7 +148,7 @@ export async function renderPropPreview(propTypeOrText: string, options: Record<
     success: true,
     dataUrl,
     name: propDef.name || propTypeOrText,
-    footprint: propDef.footprint || [1, 1],
+    footprint: propDef.footprint,
     warnings,
   };
 }

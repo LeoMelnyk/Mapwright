@@ -1,6 +1,6 @@
 // DM-side session manager: WebSocket connection, reveal state, viewport broadcast.
 
-import type { RenderTransform } from '../../types.js';
+import type { CardinalDirection, Cell, RenderTransform } from '../../types.js';
 import state, { subscribe, markDirty, notify, getTheme } from './state.js';
 import { getCanvasSize, requestRender, panToLevel } from './canvas-view.js';
 import { showToast } from './toast.js';
@@ -12,16 +12,26 @@ import { getContentVersion, consumeBroadcastDirtyRegion, getLightingVersion, get
 
 // ── Session state (runtime only, not serialized) ────────────────────────────
 
-export const sessionState = {
+export const sessionState: {
+  active: boolean;
+  ws: WebSocket | null;
+  revealedCells: Set<string>;
+  openedDoors: { row: number; col: number; dir: string; wasSecret: boolean }[];
+  openedStairs: (string | number)[];
+  startingRoom: string | null;
+  playerCount: number;
+  dmViewActive: boolean;
+  dmViewForced: boolean;
+} = {
   active: false,
   ws: null,
   revealedCells: new Set(),
-  openedDoors: [],       // [{ row, col, dir, wasSecret }]
-  openedStairs: [],      // [stairId, ...] — both ends pushed when pair opened
-  startingRoom: null,    // cell key of starting room anchor
+  openedDoors: [],
+  openedStairs: [],
+  startingRoom: null,
   playerCount: 0,
-  dmViewActive: false,   // true when DM fog overlay is enabled
-  dmViewForced: false,   // true when a tool (e.g. fog reveal) forces the overlay on
+  dmViewActive: false,
+  dmViewForced: false,
 };
 
 // ── WebSocket ───────────────────────────────────────────────────────────────
@@ -31,7 +41,6 @@ function connectWS() {
   const url = `${protocol}//${location.host}/ws?role=dm`;
 
   const ws = new WebSocket(url);
-  // @ts-expect-error — strict-mode migration
   sessionState.ws = ws;
 
   ws.addEventListener('open', () => {
@@ -55,15 +64,16 @@ function connectWS() {
 }
 
 // Range highlight callback (set by main.js)
-let rangeHighlightCallback: any = null;
+interface RangeHighlightMsg { cells: { row: number; col: number }[]; distanceFt: number; subTool: string }
+let rangeHighlightCallback: ((msg: RangeHighlightMsg) => void) | null = null;
 /**
  * Set the callback for incoming range highlights from players.
  * @param {Function} fn - Callback receiving the range highlight message.
  * @returns {void}
  */
-export function setRangeHighlightCallback(fn: (msg: any) => void): void { rangeHighlightCallback = fn; }
+export function setRangeHighlightCallback(fn: (msg: RangeHighlightMsg) => void): void { rangeHighlightCallback = fn; }
 
-function handleMessage(msg: any) {
+function handleMessage(msg: Record<string, unknown>) {
   switch (msg.type) {
     case 'player:join':
       // New player connected — send them the current state
@@ -71,22 +81,20 @@ function handleMessage(msg: any) {
       break;
 
     case 'player:count':
-      sessionState.playerCount = msg.count;
-      state.session.playerCount = msg.count;
+      sessionState.playerCount = msg.count as number;
+      state.session.playerCount = msg.count as number;
       notify();
       break;
 
     case 'range:highlight':
       // A player sent a range highlight — apply locally for DM rendering
-      if (rangeHighlightCallback) rangeHighlightCallback(msg);
+      if (rangeHighlightCallback) rangeHighlightCallback(msg as unknown as RangeHighlightMsg);
       break;
   }
 }
 
-function send(msg: any) {
-  // @ts-expect-error — strict-mode migration
+function send(msg: unknown) {
   if (sessionState.ws?.readyState === 1) {
-    // @ts-expect-error — strict-mode migration
     sessionState.ws.send(JSON.stringify(msg));
   }
 }
@@ -103,8 +111,8 @@ export function startSession(): void {
   state.session.active = true;
   connectWS();
   // Pan to first level (same as clicking it in the level selector)
-  const levels = state.dungeon.metadata?.levels;
-  if (levels?.length) {
+  const levels = state.dungeon.metadata.levels;
+  if (levels.length) {
     state.currentLevel = 0;
     panToLevel(levels[0].startRow, levels[0].numRows);
   }
@@ -131,7 +139,6 @@ export function endSession(): void {
   state.session.active = false;
   state.session.playerCount = 0;
   if (sessionState.ws) {
-    // @ts-expect-error — strict-mode migration
     sessionState.ws.close();
     sessionState.ws = null;
   }
@@ -159,7 +166,7 @@ function broadcastInit() {
     type: 'session:init',
     dungeon: state.dungeon,
     resolvedTheme: getTheme(),
-    renderQuality: getEditorSettings().renderQuality || 20,
+    renderQuality: getEditorSettings().renderQuality ?? 20,
     revealedCells: [...sessionState.revealedCells],
     openedDoors: sessionState.openedDoors,
     openedStairs: sessionState.openedStairs,
@@ -206,10 +213,10 @@ function startViewportBroadcast() {
 // Dungeon broadcast (debounced 1s after structural edits)
 // Uses content version from the render pipeline — immune to pan/zoom/resize
 // which set state.dirty but don't change dungeon content.
-let dungeonTimer: any = null;
+let dungeonTimer: ReturnType<typeof setTimeout> | null = null;
 let _lastBroadcastContentVersion = 0;
 let _lastBroadcastLightingVersion = 0;
-let _lastBroadcastThemeJSON: any = null;
+let _lastBroadcastThemeJSON: string | null = null;
 let _lastBroadcastPropsVersion = 0;
 let _lastBroadcastGridRows = 0;
 let _lastBroadcastGridCols = 0;
@@ -282,7 +289,6 @@ export function revealRoom(startRow: number, startCol: number): string[] {
  * @returns {Array<string>} Array of newly revealed cell keys.
  */
 export function setStartingRoom(row: number, col: number): string[] {
-  // @ts-expect-error — strict-mode migration
   sessionState.startingRoom = cellKey(row, col);
   const newCells = revealRoom(row, col);
 
@@ -312,17 +318,16 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
     ? mergedCells
     : [{ row, col }];
 
-  const newCells: any = [];
+  const newCells: string[] = [];
 
   for (const dc of doorCells) {
     const cell = cells[dc.row]?.[dc.col];
     if (!cell) continue;
 
-    const doorType = (cell as any)[dir]; // 'd', 's', or 'id'
+    const doorType = (cell as Record<string, unknown>)[dir]; // 'd', 's', or 'id'
     const wasSecret = doorType === 's';
 
     // Record opened door
-    // @ts-expect-error — strict-mode migration
     sessionState.openedDoors.push({ row: dc.row, col: dc.col, dir, wasSecret });
 
     if (dir === 'nw-se' || dir === 'ne-sw') {
@@ -337,7 +342,7 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
       }
     } else {
       const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
-      const [dr, dcc] = (OFFSETS as any)[dir];
+      const [dr, dcc] = (OFFSETS as unknown as Record<string, [number, number]>)[dir];
       const revealed = revealRoom(dc.row + dr, dc.col + dcc);
       for (const key of revealed) {
         if (!newCells.includes(key)) newCells.push(key);
@@ -351,7 +356,7 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
 
   // Broadcast each door cell so the player marks both sides as opened
   for (const dc of doorCells) {
-    const doorType = (cells as any)[dc.row]?.[dc.col]?.[dir];
+    const doorType = (cells[dc.row]?.[dc.col] as Record<string, unknown>)[dir];
     const cellWasSecret = doorType === 's';
     send({ type: 'door:open', row: dc.row, col: dc.col, dir, wasSecret: cellWasSecret });
   }
@@ -366,12 +371,11 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
 /**
  * Determine which entry direction reaches the unrevealed half of a diagonal cell.
  */
-function getDiagonalOtherEntry(cell: any, r: any, c: any, diagDir: any) {
+function getDiagonalOtherEntry(cell: Cell | null, r: number, c: number, diagDir: string) {
   if (diagDir === 'nw-se') {
     // NE half entered from north/east, SW half entered from south/west
     const neRevealed = ['north', 'east'].some(d => {
-      // @ts-expect-error — strict-mode migration
-      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d);
+      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d)!;
       return sessionState.revealedCells.has(cellKey(r + dr, c + dc));
     });
     return neRevealed ? 'south' : 'north';
@@ -379,8 +383,7 @@ function getDiagonalOtherEntry(cell: any, r: any, c: any, diagDir: any) {
   if (diagDir === 'ne-sw') {
     // NW half entered from north/west, SE half entered from south/east
     const nwRevealed = ['north', 'west'].some(d => {
-      // @ts-expect-error — strict-mode migration
-      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d);
+      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d)!;
       return sessionState.revealedCells.has(cellKey(r + dr, c + dc));
     });
     return nwRevealed ? 'south' : 'north';
@@ -392,7 +395,7 @@ function getDiagonalOtherEntry(cell: any, r: any, c: any, diagDir: any) {
  * Reveal a room starting from the given cell with a specific entry direction.
  * Used for diagonal doors where the BFS must start from a specific half.
  */
-function revealRoomFrom(startRow: any, startCol: any, entryDir: any) {
+function revealRoomFrom(startRow: number, startCol: number, entryDir: string | null) {
   const roomCells = floodFillRoom(state.dungeon.cells, startRow, startCol, { startEntryDir: entryDir });
   const newCells = [];
   for (const key of roomCells) {
@@ -590,7 +593,7 @@ export function renderDmFogOverlay(ctx: CanvasRenderingContext2D, transform: Ren
  * @param {number} c2 - Second corner column.
  * @returns {Array|null} 2D array of cell debug info, or null if debug panel is disabled.
  */
-export function dumpFogRegion(r1: number, c1: number, r2: number, c2: number): any[] | null {
+export function dumpFogRegion(r1: number, c1: number, r2: number, c2: number): Record<string, unknown>[][] | null {
   if (!getEditorSettings().debug) {
     console.log('[dumpFogRegion] Enable the debug panel first (View > Developer > Debug Panel)');
     return null;
@@ -635,8 +638,7 @@ export function dumpFogRegion(r1: number, c1: number, r2: number, c2: number): a
 
 // Expose on window for console access
 if (typeof window !== 'undefined') {
-  // @ts-expect-error — strict-mode migration
-  window.dumpFogRegion = dumpFogRegion;
+  (window as unknown as Record<string, unknown>).dumpFogRegion = dumpFogRegion;
 }
 
 // ── Door overlay (DM canvas) ────────────────────────────────────────────────
@@ -652,39 +654,34 @@ function findRevealableDoors() {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return [];
 
   const cells = state.dungeon.cells;
-  const doors = [];
+  const doors: { row: number; col: number; dir: string; type: string }[] = [];
   const seen = new Set();
-  const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+  const OFFSETS: Record<string, [number, number] | undefined> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
 
   // Build opened-door set for fast lookup (include both sides of cardinal doors)
   const openedSet = new Set();
   for (const d of sessionState.openedDoors) {
-    // @ts-expect-error — strict-mode migration
     openedSet.add(`${d.row},${d.col},${d.dir}`);
-    // @ts-expect-error — strict-mode migration
-    if ((OFFSETS as any)[d.dir]) {
-      // @ts-expect-error — strict-mode migration
-      const [dr, dc] = (OFFSETS as any)[d.dir];
-      // @ts-expect-error — strict-mode migration
-      openedSet.add(`${d.row + dr},${d.col + dc},${(OPPOSITE as any)[d.dir]}`);
-    }
+    const offset = OFFSETS[d.dir];
+    if (!offset) continue;
+    const [dr, dc] = offset;
+    openedSet.add(`${d.row + dr},${d.col + dc},${OPPOSITE[d.dir as CardinalDirection]}`);
   }
 
   for (const key of sessionState.revealedCells) {
-    // @ts-expect-error — strict-mode migration
     const [r, c] = parseCellKey(key);
     const cell = cells[r]?.[c];
     if (!cell) continue;
 
     // Cardinal doors (normal, secret, and invisible)
     for (const dir of ['north', 'south', 'east', 'west']) {
-      if ((cell as any)[dir] !== 'd' && (cell as any)[dir] !== 's' && (cell as any)[dir] !== 'id') continue;
+      if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's' && (cell as Record<string, unknown>)[dir] !== 'id') continue;
 
       const dkey = `${r},${c},${dir}`;
       if (seen.has(dkey)) continue;
 
-      const isSecret = (cell as any)[dir] === 's';
-      const isInvisible = (cell as any)[dir] === 'id';
+      const isSecret = (cell as Record<string, unknown>)[dir] === 's';
+      const isInvisible = (cell as Record<string, unknown>)[dir] === 'id';
 
       // Secret doors: always show button until opened
       if (isSecret) {
@@ -695,7 +692,7 @@ function findRevealableDoors() {
       }
 
       // Normal/invisible doors: only show if neighbor is unrevealed
-      const [dr, dc] = (OFFSETS as any)[dir];
+      const [dr, dc] = (OFFSETS as unknown as Record<string, [number, number]>)[dir];
       const nr = r + dr, nc = c + dc;
       const neighborKey = cellKey(nr, nc);
       if (sessionState.revealedCells.has(neighborKey)) continue;
@@ -708,13 +705,13 @@ function findRevealableDoors() {
 
     // Diagonal doors (nw-se, ne-sw)
     for (const diagDir of ['nw-se', 'ne-sw']) {
-      if ((cell as any)[diagDir] !== 'd' && (cell as any)[diagDir] !== 's' && (cell as any)[diagDir] !== 'id') continue;
+      if ((cell as Record<string, unknown>)[diagDir] !== 'd' && (cell as Record<string, unknown>)[diagDir] !== 's' && (cell as Record<string, unknown>)[diagDir] !== 'id') continue;
 
       const dkey = `${r},${c},${diagDir}`;
       if (seen.has(dkey)) continue;
 
-      const isSecret = (cell as any)[diagDir] === 's';
-      const isInvisible = (cell as any)[diagDir] === 'id';
+      const isSecret = (cell as Record<string, unknown>)[diagDir] === 's';
+      const isInvisible = (cell as Record<string, unknown>)[diagDir] === 'id';
 
       // Secret doors: always show button until opened
       if (isSecret) {
@@ -730,8 +727,7 @@ function findRevealableDoors() {
 
       let hasUnrevealed = false;
       for (const exitDir of otherSideDirs) {
-        // @ts-expect-error — strict-mode migration
-        const { dr, dc } = CARDINAL_DIRS.find(d => d.dir === exitDir);
+        const { dr, dc } = CARDINAL_DIRS.find(d => d.dir === exitDir)!;
         const nr = r + dr, nc = c + dc;
         if (!isInBounds(cells, nr, nc)) continue;
         if (!cells[nr]?.[nc]) continue;
@@ -754,35 +750,38 @@ function findRevealableDoors() {
  * Each merged run produces a single door entry with a `cells` array.
  * Diagonal doors pass through unchanged.
  */
-function mergeDoorRuns(doors: any) {
+function mergeDoorRuns(doors: { row: number; col: number; dir: string; type: string }[]) {
   // Step direction for grouping: north/south doors run along columns, east/west along rows
-  const STEP = { north: [0, 1], south: [0, 1], east: [1, 0], west: [1, 0] };
+  const STEP: Record<string, [number, number]> = { north: [0, 1], south: [0, 1], east: [1, 0], west: [1, 0] };
 
-  const cardinalDoors = [];
-  const otherDoors = [];
+  type DoorEntry = { row: number; col: number; dir: string; type: string };
+  const cardinalDoors: DoorEntry[] = [];
+  const otherDoors: DoorEntry[] = [];
   for (const d of doors) {
-    if ((STEP as any)[d.dir]) cardinalDoors.push(d);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+    if (STEP[d.dir]) cardinalDoors.push(d);
     else otherDoors.push(d);
   }
 
   // Group by direction + type + fixed coordinate (row for N/S, col for E/W)
-  const groups = {};
+  const groups: Record<string, DoorEntry[]> = {};
   for (const door of cardinalDoors) {
-    const [dr] = (STEP as any)[door.dir];
+    const [dr] = STEP[door.dir];
     const fixedCoord = dr === 0 ? door.row : door.col;
     const key = `${door.dir}:${door.type}:${fixedCoord}`;
-    if (!(groups as any)[key]) (groups as any)[key] = [];
-    (groups as any)[key].push(door);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(door);
   }
 
   const merged = [];
   for (const key of Object.keys(groups)) {
-    const group = (groups as any)[key];
+    const group = groups[key];
     const dir = group[0].dir;
-    const [dr] = (STEP as any)[dir];
+    const [dr] = STEP[dir];
 
     // Sort by step coordinate
-    group.sort((a: any, b: any) => (dr === 0 ? a.col - b.col : a.row - b.row));
+    group.sort((a, b) => (dr === 0 ? a.col - b.col : a.row - b.row));
 
     // Find consecutive runs
     let runStart = 0;
@@ -790,6 +789,7 @@ function mergeDoorRuns(doors: any) {
       const prev = group[i - 1];
       const curr = group[i];
       const prevStep = dr === 0 ? prev.col : prev.row;
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const currStep = curr ? (dr === 0 ? curr.col : curr.row) : -999;
 
       if (currStep !== prevStep + 1) {
@@ -802,7 +802,7 @@ function mergeDoorRuns(doors: any) {
             col: run[0].col,
             dir: run[0].dir,
             type: run[0].type,
-            cells: run.map((d: any) => ({ row: d.row, col: d.col })),
+            cells: run.map((d: { row: number; col: number }) => ({ row: d.row, col: d.col })),
           });
         }
         runStart = i;
@@ -818,13 +818,12 @@ function mergeDoorRuns(doors: any) {
  * For a diagonal door in a revealed cell, determine which cardinal exit directions
  * belong to the unrevealed (other) half.
  */
-function getOtherSideDirs(cell: any, r: any, c: any, diagDir: any) {
+function getOtherSideDirs(cell: Cell | null, r: number, c: number, diagDir: string) {
   // Determine which half is revealed by checking which neighbors are revealed
   if (diagDir === 'nw-se') {
     // NE half exits: north, east. SW half exits: south, west.
     const neRevealed = ['north', 'east'].some(d => {
-      // @ts-expect-error — strict-mode migration
-      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d);
+      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d)!;
       return sessionState.revealedCells.has(cellKey(r + dr, c + dc));
     });
     return neRevealed ? ['south', 'west'] : ['north', 'east'];
@@ -832,8 +831,7 @@ function getOtherSideDirs(cell: any, r: any, c: any, diagDir: any) {
   if (diagDir === 'ne-sw') {
     // NW half exits: north, west. SE half exits: south, east.
     const nwRevealed = ['north', 'west'].some(d => {
-      // @ts-expect-error — strict-mode migration
-      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d);
+      const { dr, dc } = CARDINAL_DIRS.find(cd => cd.dir === d)!;
       return sessionState.revealedCells.has(cellKey(r + dr, c + dc));
     });
     return nwRevealed ? ['south', 'east'] : ['north', 'west'];
@@ -844,7 +842,7 @@ function getOtherSideDirs(cell: any, r: any, c: any, diagDir: any) {
 /**
  * Get the canvas pixel position of a single cell's door midpoint.
  */
-function getSingleDoorMidpoint(row: any, col: any, dir: any, gridSize: any, transform: any) {
+function getSingleDoorMidpoint(row: number, col: number, dir: string, gridSize: number, transform: RenderTransform) {
   const x = col * gridSize, y = row * gridSize;
   switch (dir) {
     case 'north': return toCanvas(x + gridSize / 2, y, transform);
@@ -860,14 +858,13 @@ function getSingleDoorMidpoint(row: any, col: any, dir: any, gridSize: any, tran
  * Get the canvas pixel position of a door midpoint.
  * For merged doors (with a `cells` array), returns the center of the full run.
  */
-function getDoorMidpoint(door: any, gridSize: any, transform: any) {
+function getDoorMidpoint(door: { row: number; col: number; dir: string; cells?: { row: number; col: number }[] }, gridSize: number, transform: RenderTransform) {
   if (door.cells && door.cells.length > 1) {
     const first = door.cells[0];
     const last = door.cells[door.cells.length - 1];
     const p1 = getSingleDoorMidpoint(first.row, first.col, door.dir, gridSize, transform);
     const p2 = getSingleDoorMidpoint(last.row, last.col, door.dir, gridSize, transform);
-    // @ts-expect-error — strict-mode migration
-    return { x: (p1!.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+    return { x: (p1!.x + p2!.x) / 2, y: (p1!.y + p2!.y) / 2 };
   }
   return getSingleDoorMidpoint(door.row, door.col, door.dir, gridSize, transform);
 }
@@ -875,7 +872,7 @@ function getDoorMidpoint(door: any, gridSize: any, transform: any) {
 /**
  * Draw a small open-door icon using canvas paths.
  */
-function drawDoorIcon(ctx: any, x: any, y: any, radius: any, color: any) {
+function drawDoorIcon(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string) {
   const r = radius;
 
   // Background circle
@@ -929,8 +926,7 @@ export function renderSessionOverlay(ctx: CanvasRenderingContext2D, transform: R
     const color = door.type === 's' ? 'rgba(220, 60, 60, 0.85)'
                 : door.type === 'id' ? 'rgba(80, 130, 255, 0.85)'
                 : 'rgba(60, 180, 170, 0.85)';
-    // @ts-expect-error — strict-mode migration
-    drawDoorIcon(ctx, p!.x, p.y, DOOR_BUTTON_RADIUS, color);
+    drawDoorIcon(ctx, p!.x, p!.y, DOOR_BUTTON_RADIUS, color);
   }
 
   // Stair buttons
@@ -949,14 +945,13 @@ export function renderSessionOverlay(ctx: CanvasRenderingContext2D, transform: R
  * @param {number} gridSize - Grid cell size in feet.
  * @returns {Object|null} The door object if hit, or null.
  */
-export function hitTestDoorButton(px: number, py: number, transform: RenderTransform, gridSize: number): any {
+export function hitTestDoorButton(px: number, py: number, transform: RenderTransform, gridSize: number): { row: number; col: number; dir: string; cells?: { row: number; col: number }[] } | null {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return null;
 
   const doors = findRevealableDoors();
   for (const door of doors) {
     const p = getDoorMidpoint(door, gridSize, transform);
-    // @ts-expect-error — strict-mode migration
-    const dx = px - p!.x, dy = py - p.y;
+    const dx = px - p!.x, dy = py - p!.y;
     if (dx * dx + dy * dy <= DOOR_BUTTON_RADIUS * DOOR_BUTTON_RADIUS) {
       return door;
     }
@@ -974,14 +969,14 @@ const STAIR_BUTTON_RADIUS = 10;
 function findRevealableStairs() {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return [];
 
-  const stairs = state.dungeon.metadata?.stairs || [];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const stairs = state.dungeon.metadata.stairs || [];
   const gridSize = state.dungeon.metadata.gridSize;
   const result = [];
   const seen = new Set();
 
   for (const stairDef of stairs) {
     if (!stairDef.link) continue;
-    // @ts-expect-error — strict-mode migration
     if (sessionState.openedStairs.includes(stairDef.id)) continue;
 
     // Compute occupied cells
@@ -1027,7 +1022,7 @@ function findRevealableStairs() {
 /**
  * Get canvas position for a stair button (offset from NW corner, matching label badge).
  */
-function getStairButtonPos(stair: any, transform: any) {
+function getStairButtonPos(stair: { worldX: number; worldY: number }, transform: RenderTransform) {
   const p = toCanvas(stair.worldX, stair.worldY, transform);
   const s = transform.scale / 10;
   return { x: p.x + 10 * s, y: p.y + 10 * s };
@@ -1036,7 +1031,7 @@ function getStairButtonPos(stair: any, transform: any) {
 /**
  * Draw an amber stair-open button.
  */
-function drawStairIcon(ctx: any, x: any, y: any, radius: any) {
+function drawStairIcon(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number) {
   const r = radius;
 
   // Background circle
@@ -1072,7 +1067,7 @@ function drawStairIcon(ctx: any, x: any, y: any, radius: any) {
  * @param {Object} transform - The pan/zoom transform.
  * @returns {Object|null} The stair object if hit, or null.
  */
-export function hitTestStairButton(px: number, py: number, transform: RenderTransform): any {
+export function hitTestStairButton(px: number, py: number, transform: RenderTransform): { stairId: number; partnerId: number; worldX: number; worldY: number } | null {
   if (!sessionState.active || sessionState.revealedCells.size === 0) return null;
 
   const stairs = findRevealableStairs();
@@ -1093,15 +1088,15 @@ export function hitTestStairButton(px: number, py: number, transform: RenderTran
  * @returns {void}
  */
 export function openStairs(stairId: number, partnerId: number): void {
-  const stairs = state.dungeon.metadata?.stairs || [];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const stairs = state.dungeon.metadata.stairs || [];
 
   // Record both IDs as opened
-  // @ts-expect-error — strict-mode migration
   sessionState.openedStairs.push(stairId, partnerId);
 
   // BFS reveal from the partner stair's first occupied cell
   const partner = stairs.find(s => s.id === partnerId);
-  let allNewCells: any = [];
+  let allNewCells: string[] = [];
   let partnerRow = null;
   if (partner) {
     const partnerShape = classifyStairShape(partner.points[0], partner.points[1], partner.points[2]);
@@ -1121,7 +1116,7 @@ export function openStairs(stairId: number, partnerId: number): void {
   // Auto-pan to the partner stair's level
   if (partnerRow !== null) {
     const levels = state.dungeon.metadata.levels;
-    if (levels?.length) {
+    if (levels.length) {
       for (let i = levels.length - 1; i >= 0; i--) {
         if (partnerRow >= levels[i].startRow) {
           state.currentLevel = i;

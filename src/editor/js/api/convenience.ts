@@ -1,6 +1,7 @@
 // convenience.js — High-level convenience methods: mergeRooms, shiftCells,
 // normalizeMargin, createCorridor, setDoorBetween, placeLightInRoom.
 
+import type { PlaceLightConfig } from '../../../types.js';
 import {
   getApi,
   state, pushUndo, markDirty, notify,
@@ -24,14 +25,14 @@ export function mergeRooms(label1: string, label2: string): { success: true; rem
   if (!walls) {
     throw new Error(`No shared boundary found between '${label1}' and '${label2}'`);
   }
-  const coords = walls.map(({ row, col }: any) => ({ row: toInt(row), col: toInt(col) }));
+  const coords = walls.map(({ row, col }: { row: number; col: number }) => ({ row: toInt(row), col: toInt(col) }));
   const before = captureBeforeState(state.dungeon.cells, coords);
   pushUndo();
   for (const { row, col, direction } of walls) {
     const iRow = toInt(row), iCol = toInt(col);
     const cell = state.dungeon.cells[iRow]?.[iCol];
     if (!cell) continue;
-    delete (cell as any)[direction];
+    delete (cell as Record<string, unknown>)[direction];
     setReciprocal(iRow, iCol, direction, null);
   }
   smartInvalidate(before, state.dungeon.cells);
@@ -76,14 +77,14 @@ export function shiftCells(dr: number, dc: number): { success: true; newRows: nu
   state.dungeon.cells = newCells;
 
   // Update level startRow values (only affected by vertical shift)
-  if (dr !== 0 && state.dungeon.metadata?.levels) {
+  if (dr !== 0) {
     for (const level of state.dungeon.metadata.levels) {
       level.startRow += rowOffset;
     }
   }
 
   // Shift stair corner points
-  if ((rowOffset || colOffset) && state.dungeon.metadata?.stairs) {
+  if (rowOffset || colOffset) {
     for (const stair of state.dungeon.metadata.stairs) {
       for (const pt of stair.points) {
         pt[0] += rowOffset;
@@ -111,7 +112,7 @@ export function shiftCells(dr: number, dc: number): { success: true; newRows: nu
  * @param {number} [targetMargin=2]  Desired empty-cell border width.
  * @returns {{ success, before, after, targetMargin, adjustments }}
  */
-export function normalizeMargin(targetMargin: number = 2): any {
+export function normalizeMargin(targetMargin: number = 2): Record<string, unknown> {
   targetMargin = toInt(targetMargin);
   if (targetMargin < 0) {
     throw new Error('targetMargin must be a non-negative integer');
@@ -195,7 +196,7 @@ export function normalizeMargin(targetMargin: number = 2): any {
 
   // ── 3. Compute new level start rows ──────────────────────────────────────
   let newTotalRows = 0;
-  const newLevelStartRows: any = [];
+  const newLevelStartRows: number[] = [];
   for (let i = 0; i < levelAdjustments.length; i++) {
     if (i > 0) newTotalRows += 1; // void separator row between levels
     newLevelStartRows.push(newTotalRows);
@@ -203,7 +204,7 @@ export function normalizeMargin(targetMargin: number = 2): any {
   }
 
   // Helper: compute absolute-row delta for a given original row value
-  const getRowDelta = (r: any) => {
+  const getRowDelta = (r: number) => {
     for (let i = 0; i < levelAdjustments.length; i++) {
       const { origStartRow, origNumRows, topShift } = levelAdjustments[i];
       if (r >= origStartRow && r < origStartRow + origNumRows) {
@@ -234,32 +235,25 @@ export function normalizeMargin(targetMargin: number = 2): any {
   state.dungeon.cells = newCells;
 
   // ── 5. Update lights (world-feet x/y) ────────────────────────────────────
-  if (meta.lights) {
-    for (const light of meta.lights) {
-      const lightRow = light.y / gridSize;
-      light.y += getRowDelta(lightRow) * gridSize;
-      light.x += colShift * gridSize;
-    }
+  for (const light of meta.lights) {
+    const lightRow = light.y / gridSize;
+    light.y += getRowDelta(lightRow) * gridSize;
+    light.x += colShift * gridSize;
   }
 
   // ── 6. Update bridges (row/col point arrays) ──────────────────────────────
-  if (meta.bridges) {
-    for (const bridge of meta.bridges) {
-      for (const pt of bridge.points) {
-        pt[0] += getRowDelta(pt[0]);
-        pt[1] += colShift;
-      }
+  for (const bridge of meta.bridges) {
+    for (const pt of bridge.points) {
+      pt[0] += getRowDelta(pt[0]);
+      pt[1] += colShift;
     }
   }
 
   // ── 7. Update stair corner points in metadata ─────────────────────────────
-  if (meta.stairs) {
-    for (const stair of meta.stairs) {
-      if (!stair.points) continue;
-      for (const pt of stair.points) {
-        pt[0] += getRowDelta(pt[0]);
-        pt[1] += colShift;
-      }
+  for (const stair of meta.stairs) {
+    for (const pt of stair.points) {
+      pt[0] += getRowDelta(pt[0]);
+      pt[1] += colShift;
     }
   }
 
@@ -267,7 +261,7 @@ export function normalizeMargin(targetMargin: number = 2): any {
   // Replace meta.levels with the complete list (including any implied first level)
   if (allLevels.length > 0) {
     meta.levels = allLevels.map((l, i) => ({
-      name: l.name || `Level ${i + 1}`,
+      name: l.name ?? `Level ${i + 1}`,
       startRow: newLevelStartRows[i],
       numRows: levelAdjustments[i].newNumRows,
     }));
@@ -304,7 +298,7 @@ export function normalizeMargin(targetMargin: number = 2): any {
  * @param {number} [width=2] - Corridor width in cells
  * @returns {{ success: boolean, corridorLabel: string, r1: number, c1: number, r2: number, c2: number }}
  */
-export function createCorridor(label1: string, label2: string, width: number = 2): any {
+export function createCorridor(label1: string, label2: string, width: number = 2): Record<string, unknown> {
   const b1 = getApi().getRoomBounds(label1);
   const b2 = getApi().getRoomBounds(label2);
   if (!b1) return { success: false, error: `Room "${label1}" not found` };
@@ -341,7 +335,7 @@ export function createCorridor(label1: string, label2: string, width: number = 2
   getApi().createRoom(cr1, cc1, cr2, cc2, 'merge');
 
   // Auto-assign next available room label
-  const letter = state.dungeon.metadata.dungeonLetter || 'A';
+  const letter = state.dungeon.metadata.dungeonLetter ?? 'A';
   const pat = new RegExp(`^${letter}(\\d+)$`);
   const used = new Set();
   for (const row of state.dungeon.cells) {
@@ -352,7 +346,6 @@ export function createCorridor(label1: string, label2: string, width: number = 2
   }
   let n = 1;
   while (used.has(n)) n++;
-  // @ts-expect-error — strict-mode migration
   const corridorLabel = letter + n;
   getApi().setLabel(Math.floor((cr1 + cr2) / 2), Math.floor((cc1 + cc2) / 2), corridorLabel);
 
@@ -393,7 +386,7 @@ export function setDoorBetween(label1: string, label2: string, type: string = 'd
  * @param {Object} [config] - Additional light configuration overrides
  * @returns {{ success: boolean, id: number }}
  */
-export function placeLightInRoom(label: string, preset?: string, config: Record<string, any> = {}): any {
+export function placeLightInRoom(label: string, preset?: string, config: PlaceLightConfig = {}): Record<string, unknown> {
   const b = getApi().getRoomBounds(label);
   if (!b) return { success: false, error: `Room "${label}" not found` };
   const meta = state.dungeon.metadata;

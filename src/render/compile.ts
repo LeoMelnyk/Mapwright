@@ -4,7 +4,8 @@
  * Used by both generate_dungeon.js (CLI) and the editor's Export PNG.
  */
 
-import type { Theme } from '../types.js';
+import type { CellGrid, Metadata, PropCatalog, TextureCatalog, Theme } from '../types.js';
+import type { OpenedDoor } from '../player/player-state.js';
 import { GRID_SCALE, MARGIN } from './constants.js';
 import { THEMES } from './themes.js';
 import { calculateBoundsFromCells } from './bounds.js';
@@ -18,21 +19,16 @@ import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filter
  * Resolve theme config to a theme object.
  * If themeOverrides is provided, start with the base theme and spread overrides on top.
  */
-function resolveTheme(themeConfig: any, themeOverrides: any, metadata: any): Theme {
-  let theme;
-  if (typeof themeConfig === 'object' && themeConfig !== null) {
-    theme = themeConfig;
+function resolveTheme(themeConfig: string | Record<string, unknown>, themeOverrides: Record<string, unknown> | null): Theme {
+  let theme: Theme;
+  if (typeof themeConfig === 'object') {
+    theme = themeConfig as Theme;
   } else {
     const name = typeof themeConfig === 'string' ? themeConfig : 'blue-parchment';
     theme = THEMES[name];
-    // Fallback: user theme not in registry — use embedded data from map file
-    if (!theme && name.startsWith('user:') && metadata?.savedThemeData?.theme) {
-      theme = metadata.savedThemeData.theme;
-    }
-    if (!theme) theme = THEMES['blue-parchment'];
   }
   if (themeOverrides && typeof themeOverrides === 'object') {
-    return { ...theme, ...themeOverrides };
+    return { ...theme, ...themeOverrides } as Theme;
   }
   return theme;
 }
@@ -42,27 +38,28 @@ function resolveTheme(themeConfig: any, themeOverrides: any, metadata: any): The
  * @param {Object} config - Dungeon config with metadata and cells
  * @returns {{ width: number, height: number }} Required canvas dimensions in pixels
  */
-export function calculateCanvasSize(config: any): { width: number; height: number } {
+export function calculateCanvasSize(config: { metadata: Metadata; cells: CellGrid }): { width: number; height: number } {
   // Guard against empty or missing cell grids
-  if (!config.cells || !config.cells.length || (!Array.isArray(config.cells[0]) || !config.cells[0].length)) {
+  if (!config.cells.length || (!Array.isArray(config.cells[0]) || !config.cells[0].length)) {
     return { width: 100, height: 100 };
   }
 
   const gridSize = config.metadata.gridSize;
 
-  const isMultiLevel = config.metadata.levels > 1 &&
+  const isMultiLevel = config.metadata.levels.length > 1 &&
                        Array.isArray(config.cells[0]) &&
                        Array.isArray(config.cells[0][0]);
 
   if (isMultiLevel) {
-    const numLevels = config.cells.length;
+    const multiCells = config.cells as unknown as CellGrid[];
+    const numLevels = multiCells.length;
     let totalHeight = 0;
     let maxWidth = 0;
-    const titleFontSize = config.metadata.titleFontSize || 32;
+    const titleFontSize = (config.metadata.titleFontSize as number) || 32;
     const titleHeight = titleFontSize + 40;
 
     for (let level = 0; level < numLevels; level++) {
-      const levelCells = config.cells[level];
+      const levelCells = multiCells[level];
       const levelBounds = calculateBoundsFromCells(levelCells, gridSize);
       const levelWidth = Math.ceil((levelBounds.maxX - levelBounds.minX) * GRID_SCALE + MARGIN * 2);
       const levelHeight = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE + MARGIN * 2);
@@ -74,7 +71,7 @@ export function calculateCanvasSize(config: any): { width: number; height: numbe
   }
 
   const bounds = calculateBoundsFromCells(config.cells, gridSize);
-  const hasLevelSubtitles = config.metadata.levels && config.metadata.levels.length > 1;
+  const hasLevelSubtitles = config.metadata.levels.length > 1;
   const subtitleHeight = hasLevelSubtitles ? 28 : 0;
 
   return {
@@ -94,27 +91,28 @@ export function calculateCanvasSize(config: any): { width: number; height: numbe
  * @param {HTMLImageElement|null} [bgImageEl] - Background image element
  * @returns {void}
  */
-export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any, width: number, height: number, propCatalog: any = null, textureCatalog: any = null, bgImageEl: any = null): void {
+export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; cells: CellGrid }, width: number, height: number, propCatalog: PropCatalog | null = null, textureCatalog: TextureCatalog | null = null, bgImageEl: HTMLImageElement | null = null): void {
   const gridSize = config.metadata.gridSize;
   const dungeonName = config.metadata.dungeonName;
-  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides, config.metadata);
-  const features = config.metadata.features || {};
-  const showGridInCorridors = features.showGrid === true;
-  const labelStyle = config.metadata.labelStyle || 'circled';
+  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides ?? null);
+  const features = config.metadata.features;
+  const showGridInCorridors = features.showGrid;
+  const labelStyle = config.metadata.labelStyle;
 
-  const isMultiLevel = config.metadata.levels > 1 &&
+  const isMultiLevel = config.metadata.levels.length > 1 &&
                        Array.isArray(config.cells[0]) &&
                        Array.isArray(config.cells[0][0]);
 
   drawBackground(ctx, width, height, theme);
 
   if (isMultiLevel) {
+    const multiCells = config.cells as unknown as CellGrid[];
     let yOffset = 0;
-    const titleFontSize = config.metadata.titleFontSize || 32;
+    const titleFontSize = (config.metadata.titleFontSize as number) || 32;
     const titleHeight = titleFontSize + 40;
 
-    for (let level = 0; level < config.cells.length; level++) {
-      const levelCells = config.cells[level];
+    for (let level = 0; level < multiCells.length; level++) {
+      const levelCells = multiCells[level];
       const levelName = `${dungeonName} - Level ${level}`;
 
       drawDungeonTitle(ctx, width, levelName, titleFontSize, theme, yOffset);
@@ -130,7 +128,7 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
       };
 
       const levelTexOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
-      const levelLightingEnabled = !!config.metadata.lightingEnabled;
+      const levelLightingEnabled = config.metadata.lightingEnabled;
       renderCells(ctx, levelCells, gridSize, theme, levelTransform, {
         showGrid: showGridInCorridors, labelStyle, propCatalog, textureOptions: levelTexOpts,
         metadata: config.metadata, skipLabels: levelLightingEnabled,
@@ -140,17 +138,18 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
       // Lighting overlay for this level (pixel-perfect for export)
       if (levelLightingEnabled) {
         // Filter placed lights to this level's row range, then merge with fill lights
-        const levelLights = (config.metadata.lights || []).filter((l: any) => {
-          const lightRow = l.y / gridSize;
-          return lightRow >= (level as any).startRow && lightRow < (level as any).startRow + (level as any).numRows;
+        const levelDef = config.metadata.levels[level];
+        const levelLights = config.metadata.lights.filter((l) => {
+          const lightRow = (l.y) / gridSize;
+          return lightRow >= levelDef.startRow && lightRow < levelDef.startRow + levelDef.numRows;
         });
         const levelFillLights = extractFillLights(levelCells, gridSize, theme);
         const allLevelLights = levelFillLights.length
           ? [...levelLights, ...levelFillLights]
           : levelLights;
-        const levelHeight = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE + MARGIN * 2);
+        const levelHeight2 = Math.ceil((levelBounds.maxY - levelBounds.minY) * GRID_SCALE + MARGIN * 2);
         renderLightmapHQ(ctx, allLevelLights, levelCells, gridSize, levelTransform,
-          width, levelHeight, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog,
+          width, levelHeight2, config.metadata.ambientLight, textureCatalog, propCatalog,
           null, config.metadata);
         // Draw labels after lightmap so they are unaffected by the multiply overlay
         renderLabels(ctx, levelCells, gridSize, theme, levelTransform, labelStyle);
@@ -173,7 +172,7 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
 
   } else {
     const bounds = calculateBoundsFromCells(config.cells, gridSize);
-    const hasLevelSubtitles = config.metadata.levels && config.metadata.levels.length > 1;
+    const hasLevelSubtitles = config.metadata.levels.length > 1;
     const subtitleHeight = hasLevelSubtitles ? 28 : 0;
 
     const transform = {
@@ -183,12 +182,12 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
     };
 
     if (dungeonName) {
-      const titleFontSize = config.metadata.titleFontSize || 32;
+      const titleFontSize = (config.metadata.titleFontSize as number) || 32;
       drawDungeonTitle(ctx, width, dungeonName, titleFontSize, theme);
     }
 
     const texOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
-    const singleLevelLightingEnabled = !!config.metadata.lightingEnabled;
+    const singleLevelLightingEnabled = config.metadata.lightingEnabled;
     renderCells(ctx, config.cells, gridSize, theme, transform, {
       showGrid: showGridInCorridors, labelStyle, propCatalog, textureOptions: texOpts,
       metadata: config.metadata, skipLabels: singleLevelLightingEnabled,
@@ -199,10 +198,10 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
     if (singleLevelLightingEnabled) {
       const fillLights = extractFillLights(config.cells, gridSize, theme);
       const allLights = fillLights.length
-        ? [...(config.metadata.lights || []), ...fillLights]
-        : (config.metadata.lights || []);
+        ? [...config.metadata.lights, ...fillLights]
+        : config.metadata.lights;
       renderLightmapHQ(ctx, allLights, config.cells, gridSize, transform,
-        width, height, config.metadata.ambientLight ?? 0.15, textureCatalog, propCatalog,
+        width, height, config.metadata.ambientLight, textureCatalog, propCatalog,
         null, config.metadata);
       // Draw labels after lightmap so they are unaffected by the multiply overlay
       renderLabels(ctx, config.cells, gridSize, theme, transform, labelStyle);
@@ -215,11 +214,10 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
         const nameY = levelTopY - 10;
         ctx.save();
         ctx.font = `italic ${subtitleFontSize}px Georgia, "Times New Roman", serif`;
-        // @ts-expect-error — strict-mode migration
-        ctx.fillStyle = theme.textColor;
+        ctx.fillStyle = theme.textColor ?? theme.label;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
-        ctx.fillText(level.name, width / 2, nameY);
+        ctx.fillText(level.name ?? '', width / 2, nameY);
         ctx.restore();
       }
     }
@@ -252,19 +250,20 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: any
  * @param {Object|null} [textureCatalog] - Texture catalog with loaded images
  * @returns {void}
  */
-export function renderPlayerViewToCanvas(ctx: CanvasRenderingContext2D, config: any, revealedCells: any, fogOptions: any, width: number, height: number, propCatalog: any = null, textureCatalog: any = null): void {
-  const { openedDoors = [], openedStairs = [] } = fogOptions || {};
+export function renderPlayerViewToCanvas(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; cells: CellGrid }, revealedCells: Set<string> | boolean[][], fogOptions: { openedDoors?: OpenedDoor[]; openedStairs?: number[] } | null, width: number, height: number, propCatalog: PropCatalog | null = null, textureCatalog: TextureCatalog | null = null): void {
+  const { openedDoors = [], openedStairs = [] } = fogOptions ?? {};
   const gridSize = config.metadata.gridSize;
-  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides, config.metadata);
-  const features = config.metadata.features || {};
-  const showGrid = features.showGrid === true;
-  const labelStyle = config.metadata.labelStyle || 'circled';
+  const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides ?? null);
+  const features = config.metadata.features;
+  const showGrid = features.showGrid;
+  const labelStyle = config.metadata.labelStyle;
 
   // Apply fog-of-war filtering
-  const playerCells = buildPlayerCells(config, revealedCells, openedDoors);
-  const filteredStairs = filterStairsForPlayer(config.metadata.stairs, revealedCells, openedStairs);
-  const filteredBridges = filterBridgesForPlayer(config.metadata.bridges, revealedCells);
-  const filteredProps = filterPropsForPlayer(config.metadata.props, revealedCells, gridSize, propCatalog);
+  const revealedSet = revealedCells instanceof Set ? revealedCells : revealedCells as unknown as Set<string>;
+  const playerCells = buildPlayerCells(config, revealedSet, openedDoors);
+  const filteredStairs = filterStairsForPlayer(config.metadata.stairs, revealedSet, openedStairs);
+  const filteredBridges = filterBridgesForPlayer(config.metadata.bridges, revealedSet);
+  const filteredProps = filterPropsForPlayer(config.metadata.props, revealedSet, gridSize, propCatalog);
   const playerMetadata = { ...config.metadata, stairs: filteredStairs, bridges: filteredBridges, props: filteredProps };
 
   // Black background (fog)
@@ -279,7 +278,7 @@ export function renderPlayerViewToCanvas(ctx: CanvasRenderingContext2D, config: 
   };
 
   const texOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
-  const lightingEnabled = !!(playerMetadata.lightingEnabled && playerMetadata.lights?.length > 0);
+  const lightingEnabled = playerMetadata.lightingEnabled && playerMetadata.lights.length > 0;
 
   renderCells(ctx, playerCells, gridSize, theme, transform, {
     showGrid, labelStyle, propCatalog, textureOptions: texOpts,
@@ -289,10 +288,10 @@ export function renderPlayerViewToCanvas(ctx: CanvasRenderingContext2D, config: 
   if (lightingEnabled) {
     const fillLights = extractFillLights(playerCells, gridSize, theme);
     const allLights = fillLights.length
-      ? [...(playerMetadata.lights || []), ...fillLights]
-      : (playerMetadata.lights || []);
+      ? [...playerMetadata.lights, ...fillLights]
+      : playerMetadata.lights;
     renderLightmapHQ(ctx, allLights, playerCells, gridSize, transform,
-      width, height, playerMetadata.ambientLight ?? 0.15, textureCatalog, propCatalog,
+      width, height, playerMetadata.ambientLight, textureCatalog, propCatalog,
       null, playerMetadata);
     renderLabels(ctx, playerCells, gridSize, theme, transform, labelStyle);
   }

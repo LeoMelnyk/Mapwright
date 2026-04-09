@@ -5,7 +5,7 @@ import * as playerCanvas from './player-canvas.js';
 import { invalidateFullMapCache, invalidateLightingOnly, invalidatePropsChange, patchOpenedDoor, revealFogCells, concealFogCells, resetFogLayers, markAssetsReady } from './player-canvas.js';
 import { loadPropCatalog, loadTextureCatalog, collectTextureIds, ensureTexturesLoaded, RangeTool } from '../editor/js/index.js';
 import { BRIDGE_TEXTURE_IDS } from '../render/index.js';
-import type { Dungeon, Theme, VisibleBounds } from '../types.js';
+import type { Dungeon, PropDefinition, Theme, VisibleBounds } from '../types.js';
 
 // ── WebSocket message types ────────────────────────────────────────────────
 
@@ -100,8 +100,8 @@ type WSMessage =
 let ws: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let playerRangeTool: InstanceType<typeof RangeTool> | null = null;
-const statusEl = (): HTMLElement | null => document.getElementById('connection-status');
-const resyncBtn = (): HTMLElement | null => document.getElementById('resync-btn');
+const statusEl = (): HTMLElement | null => document.getElementById('connection-status')!;
+const resyncBtn = (): HTMLElement | null => document.getElementById('resync-btn')!;
 
 // ── WebSocket ───────────────────────────────────────────────────────────────
 
@@ -162,14 +162,14 @@ async function loadMapTextures(): Promise<void> {
   const metadata = playerState.dungeon.metadata as Record<string, unknown>;
   if (playerState.propCatalog?.props && metadata.props) {
     for (const op of metadata.props as Array<{ type: string }>) {
-      const propDef = playerState.propCatalog.props[op.type];
+      const propDef = playerState.propCatalog.props[op.type] as PropDefinition | undefined;
       if (propDef?.textures) {
         for (const id of propDef.textures) usedIds.add(id);
       }
     }
   }
   // Include bridge textures (hardcoded IDs in bridges.js)
-  if (playerState.dungeon.metadata?.bridges?.length) {
+  if (playerState.dungeon.metadata.bridges.length) {
     for (const b of playerState.dungeon.metadata.bridges) {
       const texId = BRIDGE_TEXTURE_IDS[b.type] || BRIDGE_TEXTURE_IDS.wood;
       usedIds.add(texId);
@@ -178,9 +178,8 @@ async function loadMapTextures(): Promise<void> {
   if (usedIds.size > 0) {
     // Only bump texturesVersion if new textures were actually loaded (not already cached).
     // Check _loadPromise — if it exists, the texture was already loading/loaded before this call.
-    // @ts-expect-error — strict-mode migration
     const catalog = playerState.textureCatalog as Record<string, unknown>;
-    const textures = catalog?.textures as Record<string, Record<string, unknown>> | undefined;
+    const textures = catalog.textures as Record<string, Record<string, unknown>> | undefined;
     const hadNew = [...usedIds].some(id => {
       const entry = textures?.[id];
       return entry && !entry._loadPromise;
@@ -218,13 +217,13 @@ function initRangeTool(): void {
       if (ws?.readyState === 1) ws.send(JSON.stringify(msg));
     },
     () => ({
-      gridSize: playerState.dungeon?.metadata?.gridSize || 5,
-      numRows: playerState.dungeon?.cells?.length || 0,
-      numCols: playerState.dungeon?.cells?.[0]?.length || 0,
+      gridSize: playerState.dungeon?.metadata.gridSize ?? 5,
+      numRows: playerState.dungeon?.cells.length ?? 0,
+      numCols: playerState.dungeon?.cells[0]?.length ?? 0,
     }),
     () => playerCanvas.requestRender(),
   );
-  playerCanvas.setActiveTool(playerRangeTool);
+  playerCanvas.setActiveTool(playerRangeTool as Parameters<typeof playerCanvas.setActiveTool>[0]);
 }
 
 // ── Message handling ────────────────────────────────────────────────────────
@@ -281,13 +280,13 @@ function onSessionInit(msg: SessionInitMessage): void {
   playerCanvas.clearAll();
 
   playerState.dungeon = msg.dungeon;
-  playerState.resolvedTheme = msg.resolvedTheme || null;
-  playerState.renderQuality = msg.renderQuality || 20;
+  playerState.resolvedTheme = msg.resolvedTheme ?? null;
+  playerState.renderQuality = msg.renderQuality ?? 20;
 
   // Restore revealed cells
-  playerState.revealedCells = new Set(msg.revealedCells || []);
-  playerState.openedDoors = msg.openedDoors || [];
-  playerState.openedStairs = msg.openedStairs || [];
+  playerState.revealedCells = new Set(msg.revealedCells ?? []);
+  playerState.openedDoors = msg.openedDoors ?? [];
+  playerState.openedStairs = msg.openedStairs ?? [];
 
   // Apply DM viewport (snap immediately on init — no interpolation)
   if (msg.viewport) {
@@ -306,17 +305,17 @@ function onSessionInit(msg: SessionInitMessage): void {
 
   // Try to kick off the initial build (no-op if catalogs aren't loaded yet —
   // the DOMContentLoaded path will call tryInitialBuild again when they are)
-  tryInitialBuild();
+  void tryInitialBuild();
 
   // Show range toolbar and init tool
-  const toolbar = document.getElementById('player-toolbar');
-  if (toolbar) toolbar.style.display = 'flex';
+  const toolbar = document.getElementById('player-toolbar')!;
+  toolbar.style.display = 'flex';
   if (!playerRangeTool) initRangeTool();
 
   // Populate distance dropdown based on gridSize
-  const distSelect = document.getElementById('player-range-distance') as HTMLSelectElement | null;
+  const distSelect = document.getElementById('player-range-distance')! as HTMLSelectElement | null;
   if (distSelect) {
-    const gs = playerState.dungeon?.metadata?.gridSize || 5;
+    const gs = playerState.dungeon.metadata.gridSize || 5;
     distSelect.innerHTML = '<option value="0">Auto</option>';
     for (let ft = gs; ft <= 200; ft += gs) {
       const opt = document.createElement('option');
@@ -367,6 +366,7 @@ function onDoorOpen(msg: DoorOpenMessage): void {
     patchOpenedDoor(msg.row, msg.col, msg.dir);
     // Secret door rendered as wall → now a door — rebuild the affected region only
     const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     const [dr, dc] = OFFSETS[msg.dir] || [0, 0];
     const rows = [msg.row, msg.row + dr];
     const cols = [msg.col, msg.col + dc];
@@ -386,7 +386,7 @@ function onStairsOpen(msg: StairsOpenMessage): void {
     playerState.openedStairs.push(id);
   }
   // Stair link labels changed — rebuild only the affected stair regions
-  const stairs = playerState.dungeon?.metadata?.stairs || [];
+  const stairs = playerState.dungeon?.metadata.stairs ?? [];
   let region: VisibleBounds | null = null;
   for (const id of msg.stairIds) {
     const stair = stairs.find(s => s.id === id);
@@ -422,15 +422,15 @@ function onDungeonUpdate(msg: DungeonUpdateMessage): void {
   // Route to the cheapest rebuild based on what changed
   if (!hints || hints.gridResized) {
     // No hints (legacy) or grid resized — full rebuild with texture loading
-    loadMapTextures().then(() => {
+    void loadMapTextures().then(() => {
       invalidateFullMapCache();
       playerCanvas.requestRender();
     });
   } else if (hints.dirtyRegion && !hints.themeChanged) {
     // Partial cell change — use dirty region for targeted rebuild
     const structural = !!hints.lightingChanged;
-    loadMapTextures().then(() => {
-      invalidateFullMapCache(hints.dirtyRegion!, { structural });
+    void loadMapTextures().then(() => {
+      invalidateFullMapCache(hints.dirtyRegion, { structural });
       playerCanvas.requestRender();
     });
   } else if (hints.propsChanged && !hints.themeChanged && !hints.dirtyRegion) {
@@ -449,8 +449,8 @@ function onDungeonUpdate(msg: DungeonUpdateMessage): void {
     playerCanvas.requestRender();
   } else {
     // Multiple change types or theme+cells — full rebuild
-    loadMapTextures().then(() => {
-      invalidateFullMapCache(hints.dirtyRegion || null);
+    void loadMapTextures().then(() => {
+      invalidateFullMapCache(hints.dirtyRegion ?? null);
       playerCanvas.requestRender();
     });
   }
@@ -461,8 +461,8 @@ function onDungeonUpdate(msg: DungeonUpdateMessage): void {
 function onSessionEnd(): void {
   setStatus('disconnected', 'Session ended');
   statusEl()?.classList.remove('hidden');
-  const toolbar = document.getElementById('player-toolbar');
-  if (toolbar) toolbar.style.display = 'none';
+  const toolbar = document.getElementById('player-toolbar')!;
+  toolbar.style.display = 'none';
 
   // Clear all state and caches
   playerState.dungeon = null;
@@ -476,8 +476,8 @@ function onSessionEnd(): void {
 
 // ── Init ────────────────────────────────────────────────────────────────────
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const canvas = document.getElementById('player-canvas') as HTMLCanvasElement;
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('player-canvas')! as HTMLCanvasElement;
   playerCanvas.init(canvas);
 
   // Resync button
@@ -485,16 +485,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (btn) btn.addEventListener('click', () => playerCanvas.resyncToDM());
 
   // Range shape sub-tool switching (player toolbar)
-  document.querySelectorAll('#player-toolbar [data-range-shape]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#player-toolbar [data-range-shape]').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      if (playerRangeTool) (playerRangeTool as unknown as { setSubTool(shape: string): void }).setSubTool((btn as HTMLElement).dataset.rangeShape!);
+  document.querySelectorAll<HTMLElement>('#player-toolbar [data-range-shape]').forEach(shapeBtn => {
+    shapeBtn.addEventListener('click', () => {
+      document.querySelectorAll<HTMLElement>('#player-toolbar [data-range-shape]').forEach(b => b.classList.remove('active'));
+      shapeBtn.classList.add('active');
+      if (playerRangeTool) (playerRangeTool as unknown as { setSubTool(shape: string): void }).setSubTool(shapeBtn.dataset.rangeShape!);
     });
   });
 
   // Range distance dropdown (player toolbar)
-  const playerDistSelect = document.getElementById('player-range-distance') as HTMLSelectElement | null;
+  const playerDistSelect = document.getElementById('player-range-distance')! as HTMLSelectElement | null;
   if (playerDistSelect) {
     playerDistSelect.addEventListener('change', () => {
       if (playerRangeTool) (playerRangeTool as unknown as { setFixedRange(val: number): void }).setFixedRange(parseInt(playerDistSelect.value, 10));
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return catalog;
   }).catch((err: unknown) => { console.warn('Player: failed to load texture catalog:', err); return null; });
 
-  Promise.all([propCatalogPromise, textureCatalogPromise]).then(() => tryInitialBuild());
+  void Promise.all([propCatalogPromise, textureCatalogPromise]).then(() => tryInitialBuild());
 
   // Connect to DM
   connect();

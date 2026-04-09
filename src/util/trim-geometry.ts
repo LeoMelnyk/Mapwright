@@ -8,7 +8,7 @@
  *   BFS treats arc walls as virtual diagonals (NW/SE → ne-sw, NE/SW → nw-se)
  */
 
-type TrimCorner = 'nw' | 'ne' | 'sw' | 'se';
+export type TrimCorner = 'nw' | 'ne' | 'sw' | 'se';
 
 interface ArcIntersection {
   x: number;
@@ -38,7 +38,7 @@ interface TrimCellData {
   trimPassable?: boolean;
 }
 
-interface TrimPreview {
+export interface TrimPreview {
   hypotenuse: Array<{ row: number; col: number }>;
   voided: Array<{ row: number; col: number }>;
   insideArc?: Array<{ row: number; col: number }>;
@@ -303,7 +303,7 @@ function _edgeParam(x: number, y: number): number {
  * Returns { n: "nsw", s: "nsw", e: "e", w: "nsw" } — for each entry direction,
  * which exits are reachable without crossing the arc wall.
  */
-export function computeTrimCrossing(clip: number[][], wall: number[][]): TrimCrossing {
+export function computeTrimCrossing(clip: number[][], wall: number[][] | null | undefined): TrimCrossing {
   // Determine arc entry/exit edges from trimWall endpoints
   if (!wall || wall.length < 2) return { n: 'nsew', s: 'nsew', e: 'nsew', w: 'nsew' };
   const startPt = wall[0];
@@ -362,8 +362,7 @@ export function computeTrimCrossing(clip: number[][], wall: number[][]): TrimCro
       }
       result[dir] = exits;
     }
-    // @ts-expect-error — strict-mode migration
-    return result as TrimCrossing;
+    return result as unknown as TrimCrossing;
   }
 
   // Build crossing: entry from dir → can reach all edges on the same side
@@ -377,8 +376,7 @@ export function computeTrimCrossing(clip: number[][], wall: number[][]): TrimCro
     result[dir] = exits;
   }
 
-  // @ts-expect-error — strict-mode migration
-  return result as TrimCrossing;
+  return result as unknown as TrimCrossing;
 }
 
 // ── Single-cell computation (for migration) ────────────────────────────────
@@ -420,7 +418,7 @@ export function computeTrimCells(preview: TrimPreview, corner: TrimCorner, inver
   for (const { row, col } of voided) {
     result.set(`${row},${col}`, open ? 'interior' : null);
   }
-  for (const { row, col } of (insideArc || [])) {
+  for (const { row, col } of (insideArc ?? [])) {
     result.set(`${row},${col}`, 'interior');
   }
   for (const { row, col } of hypotenuse) {
@@ -437,7 +435,7 @@ export function computeTrimCells(preview: TrimPreview, corner: TrimCorner, inver
 
   // ── Gather candidate cells to check for arc intersection ──
   const candidateKeys = new Set<string>();
-  const allCells = [...hypotenuse, ...voided, ...(insideArc || [])];
+  const allCells = [...hypotenuse, ...voided, ...(insideArc ?? [])];
   for (const { row, col } of allCells) {
     candidateKeys.add(`${row},${col}`);
     for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {

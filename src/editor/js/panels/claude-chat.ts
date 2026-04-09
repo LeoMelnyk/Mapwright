@@ -1,6 +1,21 @@
 import { getClaudeSettings } from '../claude-settings.js';
 import { TOOL_DEFINITIONS, executeTool } from '../claude-tools.js';
 
+/** Minimal type for the subset of editorAPI methods used by the chat panel. */
+interface EditorAPIChat {
+  getMapInfo(): { gridSize: number; name: string; rows: number; cols: number; theme: string; [k: string]: unknown } | null;
+  getFullMapInfo(): { rooms?: { label: string; bounds: { r1: number; c1: number; r2: number; c2: number } }[]; doors?: unknown[]; props?: unknown[]; [k: string]: unknown } | null;
+  getMap(): { metadata?: { dungeonLetter?: string }; cells?: ({ center?: { label?: string } } | null)[][] } | null;
+  getLevels(): { name: string; startRow: number; numRows: number }[];
+  getLights(): { lights?: unknown[]; lightingEnabled?: boolean; ambientLight?: number; [k: string]: unknown } | null;
+  listProps(): { props?: Record<string, unknown> } | null;
+  undoToDepth?(d: number): void;
+}
+
+function getEditorAPI(): EditorAPIChat | null {
+  return ((window as unknown as Record<string, unknown>).editorAPI as EditorAPIChat);
+}
+
 // ── System prompt ────────────────────────────────────────────────────────────
 
 const SYSTEM_PROMPT = `\
@@ -49,13 +64,14 @@ If you only answered a question (no writes): respond concisely and stop.`;
  * then appends scale info, next label, and available props/textures.
  */
 function buildMapContext() {
-  if (!(window as any).editorAPI) return null;
+  const api = getEditorAPI();
+  if (!api) return null;
   try {
-    const info = (window as any).editorAPI.getMapInfo();
+    const info = api.getMapInfo();
     if (!info) return null;
 
     const gs = info.gridSize || 5;
-    const c = (ft: any) => Math.max(1, Math.round(ft / gs));
+    const c = (ft: number) => Math.max(1, Math.round(ft / gs));
 
     const lines = [
       `## Current map: "${info.name}"`,
@@ -72,11 +88,12 @@ function buildMapContext() {
 
     // ── Room layout summary from getFullMapInfo ───────────────────────────
     try {
-      const full = (window as any).editorAPI.getFullMapInfo();
+      const full = api.getFullMapInfo();
       if (full?.rooms?.length) {
         lines.push('## Rooms');
         for (const room of full.rooms) {
           const b = room.bounds;
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           const dims = b ? `rows ${b.r1}-${b.r2}, cols ${b.c1}-${b.c2}` : 'unknown bounds';
           lines.push(`  ${room.label}: ${dims}`);
         }
@@ -94,12 +111,11 @@ function buildMapContext() {
 
     // ── Next room label ───────────────────────────────────────────────────
     try {
-      const map = (window as any).editorAPI.getMap();
-      const dungeonLetter = map?.metadata?.dungeonLetter || 'A';
+      const map = api.getMap() as { metadata?: { dungeonLetter?: string }; cells?: ({ center?: { label?: string } } | null)[][] } | null;
+      const dungeonLetter = map?.metadata?.dungeonLetter ?? 'A';
       const labelPat = new RegExp(`^${dungeonLetter}(\\d+)$`);
       const usedNums = new Set();
       for (const row of map?.cells ?? []) {
-        if (!row) continue;
         for (const cell of row) {
           const m = cell?.center?.label?.match(labelPat);
           if (m) usedNums.add(parseInt(m[1]));
@@ -112,9 +128,9 @@ function buildMapContext() {
 
     // ── Levels (multi-level maps) ─────────────────────────────────────────
     try {
-      const levels = (window as any).editorAPI.getLevels();
-      if (levels?.length > 1) {
-        const summary = levels.map((l: any, i: any) => `  Level ${i + 1}: "${l.name}" (rows ${l.startRow}–${l.startRow + l.numRows - 1})`).join('\n');
+      const levels = api.getLevels();
+      if (levels.length > 1) {
+        const summary = levels.map((l: { name: string; startRow: number; numRows: number }, i: number) => `  Level ${i + 1}: "${l.name}" (rows ${l.startRow}–${l.startRow + l.numRows - 1})`).join('\n');
         lines.push(`\n## Levels (${levels.length} total — use getLevels for full info)`);
         lines.push(summary);
       }
@@ -122,7 +138,7 @@ function buildMapContext() {
 
     // ── Lights ────────────────────────────────────────────────────────────
     try {
-      const lightsResult = (window as any).editorAPI.getLights();
+      const lightsResult = api.getLights();
       const lights = lightsResult?.lights ?? [];
       if (lights.length > 0) {
         const enabled = lightsResult?.lightingEnabled ? 'enabled' : 'disabled';
@@ -133,7 +149,7 @@ function buildMapContext() {
 
     // ── Available props (compact list for .map props: section) ──────────────
     try {
-      const propInfo = (window as any).editorAPI.listProps();
+      const propInfo = api.listProps();
       if (propInfo?.props && Object.keys(propInfo.props).length > 0) {
         const names = Object.keys(propInfo.props).sort().join(', ');
         lines.push(`\n## Valid prop names for props: section`);
@@ -151,7 +167,7 @@ function buildMapContext() {
 // Mirrors [AI] console logs to ai-session.log on disk so they can be read
 // externally. Each new user message resets the file via resetAILog().
 
-function aiLog(...args: any[]) {
+function aiLog(...args: unknown[]) {
   console.log(...args);
   const line = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ');
   fetch('/api/ai-log', {
@@ -171,12 +187,12 @@ function resetAILog() {
 
 // ── Panel state ──────────────────────────────────────────────────────────────
 
-let _container: any = null;
-const _messages: any = []; // Anthropic message history
-let _abortController: any = null; // non-null while a request is in flight
+let _container: HTMLElement | null = null;
+const _messages: { role: string; content: string | Record<string, unknown>[] }[] = [];
+let _abortController: AbortController | null = null;
 const _sessionTokens = { input: 0, output: 0 }; // cumulative for current chat session
-let _ollamaStatus: any = null; // { running, models } — set on init
-let _streamingEl: any = null; // <span> inside live streaming bubble, null when not streaming
+let _ollamaStatus: { running: boolean; models: string[] } | null = null;
+let _streamingEl: HTMLSpanElement | null = null;
 let _planMode = false;       // true when plan-before-act mode is on
 let _pendingPlanIdx = -1;    // _messages index of the awaiting-execute plan (-1 = none)
 const _hiddenMsgIdxs = new Set(); // indices of injected system messages to hide from UI
@@ -188,14 +204,13 @@ const _hiddenMsgIdxs = new Set(); // indices of injected system messages to hide
 export function initClaudePanel(containerEl: HTMLElement): void {
   _container = containerEl;
   render();
-  checkOllamaStatus();
+  void checkOllamaStatus();
 }
 
 async function checkOllamaStatus() {
   const settings = getClaudeSettings();
-  const base = settings.ollamaBase || 'http://localhost:11434';
+  const base = String(settings.ollamaBase ?? 'http://localhost:11434');
   try {
-    // @ts-expect-error — strict-mode migration
     const r = await fetch(`/api/ollama-status?base=${encodeURIComponent(base)}`);
     _ollamaStatus = await r.json();
   } catch {
@@ -207,6 +222,7 @@ async function checkOllamaStatus() {
 
 function updateStatusDot() {
   const dot = document.getElementById('claude-status-dot');
+   
   if (!dot) return;
   dot.classList.toggle('offline', !_ollamaStatus?.running);
   dot.title = _ollamaStatus?.running ? 'Ollama running' : 'Ollama not detected';
@@ -242,12 +258,11 @@ function render() {
 }
 
 function renderMessages() {
-  const list = document.getElementById('claude-message-list');
-  if (!list) return;
+  const list = document.getElementById('claude-message-list')!;
 
   if (_messages.length === 0) {
     const settings = getClaudeSettings();
-    const model = settings.model || 'qwen3.5:9b';
+    const model = settings.model ?? 'qwen3.5:9b';
     let setupHtml = '';
     if (_ollamaStatus && !_ollamaStatus.running) {
       setupHtml = `<div class="claude-setup-card">
@@ -255,18 +270,18 @@ function renderMessages() {
         <p>Install Ollama to use AI dungeon generation:</p>
         <ol>
           <li>Download from <strong>ollama.com</strong></li>
-          <li>Run: <code>ollama pull ${escHtml(model)}</code></li>
+          <li>Run: <code>ollama pull ${escHtml(String(model))}</code></li>
           <li>Restart Mapwright</li>
         </ol>
         <p class="claude-setup-hint">Configure the URL in <strong>Help → AI Settings</strong>.</p>
       </div>`;
     } else if (_ollamaStatus?.running && _ollamaStatus.models.length > 0) {
-      const baseName = (model as any).split(':')[0];
-      if (!_ollamaStatus.models.some((m: any) => m.startsWith(baseName))) {
+      const baseName = (model as string).split(':')[0];
+      if (!_ollamaStatus.models.some((m: string) => m.startsWith(baseName))) {
         setupHtml = `<div class="claude-setup-card">
           <div class="claude-setup-title">Model not pulled</div>
           <p>Run this command, then refresh:</p>
-          <code>ollama pull ${escHtml(model)}</code>
+          <code>ollama pull ${escHtml(String(model))}</code>
         </div>`;
       }
     }
@@ -279,20 +294,20 @@ function renderMessages() {
   }
 
   list.innerHTML = _messages
-    .map((m: any, idx: any) => {
+    .map((m: { role: string; content: string | Record<string, unknown>[] }, idx: number) => {
       if (_hiddenMsgIdxs.has(idx)) return '';
       if (m.role === 'user') {
         const text = Array.isArray(m.content)
-          ? m.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('')
+          ? m.content.filter((b: Record<string, unknown>) => b.type === 'text').map((b: Record<string, unknown>) => b.text).join('')
           : m.content;
         // Skip tool result messages (they look like user messages but are [{type:'tool_result'}])
-        if (Array.isArray(m.content) && m.content.every((b: any) => b.type === 'tool_result')) return '';
+        if (Array.isArray(m.content) && m.content.every((b: Record<string, unknown>) => b.type === 'tool_result')) return '';
         return `<div class="claude-message claude-message-user"><div class="claude-bubble">${escHtml(text)}</div></div>`;
       } else {
         const blocks = Array.isArray(m.content) ? m.content : [{ type: 'text', text: m.content }];
-        const textBlocks = blocks.filter((b: any) => b.type === 'text');
+        const textBlocks = blocks.filter((b: Record<string, unknown>) => b.type === 'text');
         if (textBlocks.length === 0) return '';
-        const text = textBlocks.map((b: any) => b.text).join('');
+        const text = textBlocks.map((b: Record<string, unknown>) => b.text).join('');
         const bubble = `<div class="claude-message claude-message-assistant"><div class="claude-bubble">${formatMarkdown(text)}</div></div>`;
         if (idx === _pendingPlanIdx) {
           return bubble + `<div class="claude-plan-actions"><button class="claude-execute-btn">Execute Plan</button></div>`;
@@ -306,19 +321,18 @@ function renderMessages() {
 }
 
 function wireEvents() {
-  const sendBtn = document.getElementById('claude-send-btn');
-  const input = document.getElementById('claude-input');
-  if (!sendBtn || !input) return;
+  const sendBtn = document.getElementById('claude-send-btn')!;
+  const input = document.getElementById('claude-input')!;
 
   sendBtn.addEventListener('click', () => {
     if (_abortController) stopGeneration();
-    else sendMessage();
+    else void sendMessage();
   });
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (_abortController) stopGeneration();
-      else sendMessage();
+      else void sendMessage();
     }
   });
 
@@ -328,7 +342,7 @@ function wireEvents() {
   // Execute button — event delegation so it survives renderMessages() re-renders
   document.getElementById('claude-message-list')
     ?.addEventListener('click', e => {
-      if ((e.target! as any).classList.contains('claude-execute-btn')) executePlan();
+      if ((e.target as HTMLElement).classList.contains('claude-execute-btn')) void executePlan();
     });
 }
 
@@ -338,6 +352,7 @@ function togglePlanMode() {
   _planMode = !_planMode;
   _pendingPlanIdx = -1;
   const btn = document.getElementById('claude-plan-toggle');
+   
   if (btn) btn.classList.toggle('claude-plan-active', _planMode);
 }
 
@@ -355,11 +370,11 @@ async function executePlan() {
   showThinking();
 
   try {
-    await runConversationLoop(settings, _abortController.signal);
+    await runConversationLoop(settings as { ollamaBase: string; model: string }, _abortController.signal);
   } catch (err) {
-    aiLog('[AI] executePlan error:', (err as any).name, (err as any).message);
+    aiLog('[AI] executePlan error:', (err as Error).name, (err as Error).message);
     hideThinking();
-    if ((err as any).name !== 'AbortError') appendErrorMessage(`Error: ${(err as any).message}`);
+    if ((err as Error).name !== 'AbortError') appendErrorMessage(`Error: ${(err as Error).message}`);
   } finally {
     _planMode = wasInPlanMode;
     _abortController = null;
@@ -371,8 +386,7 @@ async function executePlan() {
 // ── Message handling ─────────────────────────────────────────────────────────
 
 async function sendMessage() {
-  const input = document.getElementById('claude-input');
-  if (!input) return;
+  const input = document.getElementById('claude-input')!;
   const text = (input as HTMLInputElement).value.trim();
   if (!text) return;
 
@@ -388,24 +402,24 @@ async function sendMessage() {
   showThinking();
 
   try {
-    await runConversationLoop(settings, _abortController.signal);
+    await runConversationLoop(settings as { ollamaBase: string; model: string }, _abortController.signal);
     // In plan mode, detect if the AI wrote a plan (no tool calls) and show Execute button
     if (_planMode && _pendingPlanIdx === -1) {
       const last = _messages[_messages.length - 1];
-      if (last?.role === 'assistant') {
+      if (last.role === 'assistant') {
         const blocks = Array.isArray(last.content)
           ? last.content : [{ type: 'text', text: last.content }];
-        if (!blocks.some((b: any) => b.type === 'tool_use')) {
+        if (!blocks.some((b: Record<string, unknown>) => b.type === 'tool_use')) {
           _pendingPlanIdx = _messages.length - 1;
           renderMessages();
         }
       }
     }
   } catch (err) {
-    aiLog('[AI] caught error:', (err as any).name, (err as any).message, err);
+    aiLog('[AI] caught error:', (err as Error).name, (err as Error).message, err);
     hideThinking();
-    if ((err as any).name !== 'AbortError') {
-      appendErrorMessage(`Error: ${(err as any).message}`);
+    if ((err as Error).name !== 'AbortError') {
+      appendErrorMessage(`Error: ${(err as Error).message}`);
     }
   } finally {
     _abortController = null;
@@ -418,8 +432,7 @@ async function sendMessage() {
 
 function showStreamingBubble() {
   hideThinking();
-  const list = document.getElementById('claude-message-list');
-  if (!list) return;
+  const list = document.getElementById('claude-message-list')!;
   const el = document.createElement('div');
   el.className = 'claude-message claude-message-assistant';
   el.innerHTML = '<div class="claude-bubble claude-streaming"><span class="claude-streaming-text"></span><span class="claude-cursor"></span></div>';
@@ -428,11 +441,11 @@ function showStreamingBubble() {
   _streamingEl = el.querySelector('.claude-streaming-text');
 }
 
-function updateStreamingBubble(text: any) {
+function updateStreamingBubble(text: string) {
   if (!_streamingEl) return;
   _streamingEl.textContent += text;
-  const list = document.getElementById('claude-message-list');
-  if (list) list.scrollTop = list.scrollHeight;
+  const list = document.getElementById('claude-message-list')!;
+  list.scrollTop = list.scrollHeight;
 }
 
 function finalizeStreamingBubble() {
@@ -448,8 +461,8 @@ function finalizeStreamingBubble() {
 
 // ── Streaming fetch ───────────────────────────────────────────────────────────
 
-async function fetchStreamingResponse(body: any, signal: any) {
-  aiLog('[AI] fetch start — model:', body.model, '| tools:', body.tools?.length, '| messages:', body.messages?.length);
+async function fetchStreamingResponse(body: Record<string, unknown>, signal: AbortSignal) {
+  aiLog('[AI] fetch start — model:', body.model, '| tools:', (body.tools as unknown[] | undefined)?.length, '| messages:', (body.messages as unknown[] | undefined)?.length);
 
   const response = await fetch('/api/claude', {
     method: 'POST',
@@ -463,7 +476,7 @@ async function fetchStreamingResponse(body: any, signal: any) {
   if (!response.ok) {
     const data = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
     aiLog('[AI] response error:', data);
-    throw new Error(data.error || `Request failed (${response.status})`);
+    throw new Error(data.error ?? `Request failed (${response.status})`);
   }
 
   const reader = response.body!.getReader();
@@ -474,14 +487,14 @@ async function fetchStreamingResponse(body: any, signal: any) {
   let eventCount = 0;
 
    
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const { done, value } = await reader.read();
     if (done) { aiLog('[AI] stream done (reader exhausted)'); break; }
 
     sseBuffer += decoder.decode(value, { stream: true });
     const lines = sseBuffer.split('\n');
-    // @ts-expect-error — strict-mode migration
-    sseBuffer = lines.pop(); // keep incomplete line
+    sseBuffer = lines.pop() ?? ''; // keep incomplete line
 
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
@@ -501,7 +514,7 @@ async function fetchStreamingResponse(body: any, signal: any) {
         updateStreamingBubble(parsed.text);
         accText += parsed.text;
       } else if (parsed.type === 'tool_use') {
-        aiLog('[AI] tool_use blocks:', parsed.blocks?.map((b: any) => b.name));
+        aiLog('[AI] tool_use blocks:', parsed.blocks?.map((b: Record<string, unknown>) => b.name));
         toolUseBlocks = parsed.blocks;
       }
     }
@@ -521,7 +534,7 @@ async function fetchStreamingResponse(body: any, signal: any) {
   };
 }
 
-async function runConversationLoop(settings: any, signal: any) {
+async function runConversationLoop(settings: { ollamaBase: string; model: string }, signal: AbortSignal) {
   let toolsUsed = 0;
 
   // Build context once per user message, not once per tool iteration.
@@ -533,7 +546,7 @@ async function runConversationLoop(settings: any, signal: any) {
   const system = SYSTEM_PROMPT + planInstruction + (mapContext ? `\n\n${mapContext}` : '');
 
   // Capture undo depth before any changes so we can offer "Undo all" after.
-  const startUndoDepth = (window as any).editorAPI?.getUndoDepth?.() ?? null;
+  const startUndoDepth = ((window as unknown as Record<string, unknown>).editorAPI as { getUndoDepth?: () => number } | undefined)?.getUndoDepth?.() ?? null;
 
   const readOnlyTools = new Set(['getMapInfo', 'getFullMapInfo', 'getCellInfo', 'getRoomBounds',
     'findWallBetween', 'listProps', 'listTextures', 'getBridges', 'getRoomContents', 'suggestPlacement', 'listRooms']);
@@ -544,6 +557,7 @@ async function runConversationLoop(settings: any, signal: any) {
   const MAX_PLAN_ITERATIONS = 5; // plan phase should inspect briefly then write
   let iteration = 0;
   let planNudgeSent = false;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     iteration++;
     aiLog(`[AI] loop iteration ${iteration}`);
@@ -596,7 +610,7 @@ async function runConversationLoop(settings: any, signal: any) {
         try {
           result = await Promise.resolve(executeTool(block.name, block.input));
         } catch (toolErr) {
-          result = { error: `${block.name} failed: ${(toolErr as any).message}` };
+          result = { error: `${block.name} failed: ${(toolErr as Error).message}` };
         }
         aiLog('[AI] tool result:', JSON.stringify(result).slice(0, 120));
         // Truncate large tool results to prevent context bloat.
@@ -609,20 +623,18 @@ async function runConversationLoop(settings: any, signal: any) {
         let resultStr = JSON.stringify(result);
         if (!NO_TRUNCATE.has(block.name) && resultStr.length > MAX_RESULT) {
           // Try trimming arrays at item boundaries before doing a raw char-slice
-          if (result && typeof result === 'object' && !Array.isArray(result)) {
-            const trimmed = { ...result };
-            for (const [k, v] of Object.entries(trimmed)) {
-              if (Array.isArray(v) && JSON.stringify(v).length > 400) {
-                const kept = Math.max(1, Math.ceil(v.length / 2));
-                if (kept < v.length) {
-                  trimmed[k] = v.slice(0, kept);
-                  trimmed[`${k}_note`] = `showing ${kept}/${v.length} items`;
-                }
+          const trimmed = { ...result };
+          for (const [k, v] of Object.entries(trimmed)) {
+            if (Array.isArray(v) && JSON.stringify(v).length > 400) {
+              const kept = Math.max(1, Math.ceil(v.length / 2));
+              if (kept < v.length) {
+                trimmed[k] = v.slice(0, kept);
+                trimmed[`${k}_note`] = `showing ${kept}/${v.length} items`;
               }
             }
-            const trimmedStr = JSON.stringify(trimmed);
-            if (trimmedStr.length < resultStr.length) resultStr = trimmedStr;
           }
+          const trimmedStr = JSON.stringify(trimmed);
+          if (trimmedStr.length < resultStr.length) resultStr = trimmedStr;
           if (resultStr.length > MAX_RESULT) {
             resultStr = resultStr.slice(0, MAX_RESULT) + '… [truncated]';
           }
@@ -649,10 +661,9 @@ async function runConversationLoop(settings: any, signal: any) {
 
 // ── UI helpers ───────────────────────────────────────────────────────────────
 
-function setProcessing(active: any) {
-  const btn   = document.getElementById('claude-send-btn');
-  const input = document.getElementById('claude-input');
-  if (!btn || !input) return;
+function setProcessing(active: boolean) {
+  const btn   = document.getElementById('claude-send-btn')!;
+  const input = document.getElementById('claude-input')!;
   (input as HTMLInputElement).disabled = active;
   btn.classList.toggle('claude-btn-stop', active);
   btn.title = active ? 'Stop' : 'Send';
@@ -665,32 +676,28 @@ function stopGeneration() {
   finalizeStreamingBubble();
   hideThinking();
   // Add a soft visual indicator that the user stopped the response
-  const list = document.getElementById('claude-message-list');
-  if (list) {
-    const el = document.createElement('div');
-    el.className = 'claude-message claude-message-assistant';
-    el.innerHTML = '<div class="claude-bubble claude-stopped">Stopped.</div>';
-    list.appendChild(el);
-    list.scrollTop = list.scrollHeight;
-  }
+  const list = document.getElementById('claude-message-list')!;
+  const el = document.createElement('div');
+  el.className = 'claude-message claude-message-assistant';
+  el.innerHTML = '<div class="claude-bubble claude-stopped">Stopped.</div>';
+  list.appendChild(el);
+  list.scrollTop = list.scrollHeight;
 }
 
 function updateTokenDisplay() {
-  const bar = document.getElementById('claude-token-bar');
-  if (!bar) return;
+  const bar = document.getElementById('claude-token-bar')!;
   const { input, output } = _sessionTokens;
   const total = input + output;
   if (total === 0) { bar.style.display = 'none'; return; }
 
-  const fmt = (n: any) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+  const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
 
   bar.style.display = '';
   bar.textContent = `Session: ↑${fmt(input)} ↓${fmt(output)} (FREE)`;
 }
 
 function showThinking() {
-  const list = document.getElementById('claude-message-list');
-  if (!list) return;
+  const list = document.getElementById('claude-message-list')!;
   const el = document.createElement('div');
   el.className = 'claude-message claude-message-assistant claude-thinking-row';
   el.id = 'claude-thinking';
@@ -703,7 +710,7 @@ function hideThinking() {
   document.getElementById('claude-thinking')?.remove();
 }
 
-function updateThinkingText(toolName: any) {
+function updateThinkingText(toolName: string) {
   const label = document.querySelector('#claude-thinking .claude-thinking-label');
   if (!label) return;
   const LABELS = {
@@ -735,40 +742,38 @@ function updateThinkingText(toolName: any) {
     findCellByLabel: 'Finding room', shiftCells: 'Repositioning map',
     listRooms: 'Listing rooms', placeLightInRoom: 'Placing light',
   };
-  label.textContent = ((LABELS as any)[toolName] ?? toolName) + '…';
+  label.textContent = (LABELS[toolName as keyof typeof LABELS]) + '…';
 }
 
-function showUndoToast(startDepth: any) {
-  const list = document.getElementById('claude-message-list');
-  if (!list) return;
+function showUndoToast(startDepth: number) {
+  const list = document.getElementById('claude-message-list')!;
   const toast = document.createElement('div');
   toast.className = 'claude-undo-toast';
   toast.innerHTML = `<span>AI made changes.</span><button class="claude-undo-all-btn">Undo all</button>`;
-  // @ts-expect-error — strict-mode migration
-  toast!.querySelector('.claude-undo-all-btn').addEventListener('click', () => {
-    (window as any).editorAPI?.undoToDepth(startDepth);
+  toast.querySelector('.claude-undo-all-btn')!.addEventListener('click', () => {
+    getEditorAPI()?.undoToDepth?.(startDepth);
     toast.remove();
-    (window as any).showToast?.('All Claude changes undone.');
+    ((window as unknown as Record<string, unknown>).showToast as ((msg: string) => void) | undefined)?.('All Claude changes undone.');
   });
   list.appendChild(toast);
   list.scrollTop = list.scrollHeight;
   setTimeout(() => toast.remove(), 15000);
 }
 
-function appendErrorMessage(text: any) {
+function appendErrorMessage(text: string) {
   _messages.push({ role: 'assistant', content: [{ type: 'text', text: `⚠ ${text}` }] });
   renderMessages();
 }
 
-function escHtml(str: any) {
-  return String(str)
+function escHtml(str: string) {
+  return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
 
-function formatMarkdown(text: any) {
+function formatMarkdown(text: string) {
   return escHtml(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')

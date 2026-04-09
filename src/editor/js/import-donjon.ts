@@ -10,6 +10,17 @@
 // Outputs at resolution=2 (half-cell grid) and formatVersion=4 natively,
 // bypassing the migration pipeline entirely.
 
+import type { Bridge, CellGrid, EdgeValue, Light, Metadata, Stairs } from '../../types.js';
+
+/** Donjon JSON export shape. */
+interface DonjonData {
+  cell_bit: Record<string, number>;
+  cells: number[][];
+  rooms: { id: string; north: number; south: number; east: number; west: number; shape?: string; doors?: Record<string, { row: number; col: number }[]> }[];
+  stairs: { row: number; col: number; dir: string; next_row?: number; next_col?: number }[];
+  settings?: Record<string, unknown>;
+  [key: string]: unknown;
+}
 import { computeCircleCenter, computeArcCellData } from '../../util/trim-geometry.js';
 
 const RES = 2;             // half-cell resolution: each Donjon cell → 2×2 subcells
@@ -18,63 +29,63 @@ const FORMAT_VERSION = 4;  // current format (half-cell + per-cell arcs)
 // ── Subcell helpers ──────────────────────────────────────────────────────────
 
 /** Set a wall/door on both subcells spanning one edge of a 2×2 block. */
-function setEdge(cells: any, r: any, c: any, direction: any, value: any) {
+function setEdge(cells: CellGrid, r: number, c: number, direction: string, value: EdgeValue) {
   switch (direction) {
     case 'north':
       if (cells[r]?.[c])     cells[r][c].north     = value;
-      if (cells[r]?.[c + 1]) cells[r][c + 1].north = value;
+      if (cells[r]?.[c + 1]) cells[r][c + 1]!.north = value;
       break;
     case 'south':
-      if (cells[r + 1]?.[c])     cells[r + 1][c].south     = value;
-      if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1].south = value;
+      if (cells[r + 1]?.[c])     cells[r + 1][c]!.south     = value;
+      if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.south = value;
       break;
     case 'west':
       if (cells[r]?.[c])     cells[r][c].west     = value;
-      if (cells[r + 1]?.[c]) cells[r + 1][c].west = value;
+      if (cells[r + 1]?.[c]) cells[r + 1][c]!.west = value;
       break;
     case 'east':
-      if (cells[r]?.[c + 1])     cells[r][c + 1].east     = value;
-      if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1].east = value;
+      if (cells[r]?.[c + 1])     cells[r][c + 1]!.east     = value;
+      if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.east = value;
       break;
   }
 }
 
 /** Remove a wall/door from both subcells spanning one edge of a 2×2 block. */
-function clearEdge(cells: any, r: any, c: any, direction: any) {
+function clearEdge(cells: CellGrid, r: number, c: number, direction: string) {
   switch (direction) {
     case 'north':
       if (cells[r]?.[c])     delete cells[r][c].north;
-      if (cells[r]?.[c + 1]) delete cells[r][c + 1].north;
+      if (cells[r]?.[c + 1]) delete cells[r][c + 1]!.north;
       break;
     case 'south':
-      if (cells[r + 1]?.[c])     delete cells[r + 1][c].south;
-      if (cells[r + 1]?.[c + 1]) delete cells[r + 1][c + 1].south;
+      if (cells[r + 1]?.[c])     delete cells[r + 1][c]!.south;
+      if (cells[r + 1]?.[c + 1]) delete cells[r + 1][c + 1]!.south;
       break;
     case 'west':
       if (cells[r]?.[c])     delete cells[r][c].west;
-      if (cells[r + 1]?.[c]) delete cells[r + 1][c].west;
+      if (cells[r + 1]?.[c]) delete cells[r + 1][c]!.west;
       break;
     case 'east':
-      if (cells[r]?.[c + 1])     delete cells[r][c + 1].east;
-      if (cells[r + 1]?.[c + 1]) delete cells[r + 1][c + 1].east;
+      if (cells[r]?.[c + 1])     delete cells[r][c + 1]!.east;
+      if (cells[r + 1]?.[c + 1]) delete cells[r + 1][c + 1]!.east;
       break;
   }
 }
 
 /** Set a door at the internal subcell boundary (center of a 2×2 block). */
-function setCenterDoor(cells: any, r: any, c: any, axis: any, value: any) {
+function setCenterDoor(cells: CellGrid, r: number, c: number, axis: string, value: EdgeValue) {
   if (axis === 'ns') {
     // Horizontal door at center: between TL/TR and BL/BR
     if (cells[r]?.[c])     cells[r][c].south     = value;
-    if (cells[r]?.[c + 1]) cells[r][c + 1].south = value;
-    if (cells[r + 1]?.[c])     cells[r + 1][c].north     = value;
-    if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1].north = value;
+    if (cells[r]?.[c + 1]) cells[r][c + 1]!.south = value;
+    if (cells[r + 1]?.[c])     cells[r + 1][c]!.north     = value;
+    if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.north = value;
   } else {
     // Vertical door at center: between TL/BL and TR/BR
     if (cells[r]?.[c])     cells[r][c].east     = value;
-    if (cells[r]?.[c + 1]) cells[r][c + 1].west = value;
-    if (cells[r + 1]?.[c])     cells[r + 1][c].east     = value;
-    if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1].west = value;
+    if (cells[r]?.[c + 1]) cells[r][c + 1]!.west = value;
+    if (cells[r + 1]?.[c])     cells[r + 1][c]!.east     = value;
+    if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.west = value;
   }
 }
 
@@ -82,17 +93,17 @@ const OFFS = { north: [-1, 0], south: [1, 0], west: [0, -1], east: [0, 1] };
 const OPP  = { north: 'south', south: 'north', west: 'east', east: 'west' };
 
 /** Clear cardinal walls on cell + reciprocals, preserving doors. */
-function _clearWalls(cells: any, r: any, c: any, numRows: any, numCols: any) {
+function _clearWalls(cells: CellGrid, r: number, c: number, numRows: number, numCols: number) {
   const cell = cells[r]?.[c];
   if (!cell) return;
   for (const dir of ['north', 'south', 'east', 'west']) {
     if (cell[dir] && cell[dir] !== 'd' && cell[dir] !== 's') {
       delete cell[dir];
-      const [dr, dc] = (OFFS as any)[dir];
+      const [dr, dc] = OFFS[dir as keyof typeof OFFS];
       const nr = r + dr, nc = c + dc;
       if (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols) {
         const nb = cells[nr]?.[nc];
-        if (nb && nb[(OPP as any)[dir]] !== 'd' && nb[(OPP as any)[dir]] !== 's') delete nb[(OPP as any)[dir]];
+        if (nb && nb[OPP[dir as keyof typeof OPP]] !== 'd' && nb[OPP[dir as keyof typeof OPP]] !== 's') delete nb[OPP[dir as keyof typeof OPP]];
       }
     }
   }
@@ -104,7 +115,7 @@ function _clearWalls(cells: any, r: any, c: any, numRows: any, numCols: any) {
  * Convert a Donjon dungeon JSON object into our dungeon editor JSON.
  * Returns { metadata, cells } ready to assign to state.dungeon.
  */
-export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][] } {
+export function convertDonjonDungeon(data: DonjonData): { metadata: Metadata; cells: CellGrid[][] } {
   const bits = data.cell_bit;
   const src = data.cells;
   const origRows = src.length;
@@ -239,11 +250,11 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
   };
   const CARDINAL_RECIP = { north: 'south', south: 'north', east: 'west', west: 'east' };
 
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   for (const stair of (data.stairs || [])) {
     const r = stair.row;
     const c = stair.col;
-    const dir = (DIR_TO_VEC as any)[stair.dir];
-    if (!dir) continue;
+    const dir = DIR_TO_VEC[stair.dir as keyof typeof DIR_TO_VEC];
     const sr = r * RES, sc = c * RES;
     if (!cells[sr]?.[sc]) continue;
 
@@ -266,14 +277,14 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
     if (points) {
       const id = nextStairId++;
       stairs.push({ id, points, link: null });
-      if (!cells[sr][sc].center) cells[sr][sc].center = {};
+      cells[sr][sc].center ??= {};
       cells[sr][sc].center['stair-id'] = id;
 
       // Remove wall between stair cell and neighbor in stair direction
       const nr = r + (dir.y || 0);
       const nc = c + (dir.x || 0);
       clearEdge(cells, sr, sc, stair.dir);
-      clearEdge(cells, nr * RES, nc * RES, (CARDINAL_RECIP as any)[stair.dir]);
+      clearEdge(cells, nr * RES, nc * RES, CARDINAL_RECIP[stair.dir as keyof typeof CARDINAL_RECIP]);
     }
   }
 
@@ -281,15 +292,16 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
   // Donjon room metadata coords may be offset from the cell grid (some
   // exports pad the grid). Compute the offset from the first room.
   let roomOffR = 0, roomOffC = 0;
-  const firstRoom = (data.rooms || []).find((r: any) => r);
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const firstRoom = ((data as Record<string, unknown>).rooms as Record<string, unknown>[] || []).find((r: unknown) => r);
   if (firstRoom) {
-    const targetId = parseInt(firstRoom.id);
+    const targetId = parseInt(firstRoom.id as string);
     outer:
     for (let r = 0; r < origRows; r++) {
       for (let c = 0; c < origCols; c++) {
         if (((src[r][c] & bits.room_id) >> 6) === targetId) {
-          roomOffR = r - firstRoom.north;
-          roomOffC = c - firstRoom.west;
+          roomOffR = r - (firstRoom.north as number);
+          roomOffC = c - (firstRoom.west as number);
           break outer;
         }
       }
@@ -298,20 +310,20 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
 
   // ── 6. Room labels ────────────────────────────────────────────────
   const dungeonLetter = 'A';
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   for (const room of (data.rooms || [])) {
-    if (!room) continue;
     const centerR = Math.floor((room.north + room.south) / 2) + roomOffR;
     const centerC = Math.floor((room.west  + room.east)  / 2) + roomOffC;
     const scr = centerR * RES, scc = centerC * RES;
     if (cells[scr]?.[scc]) {
-      if (!cells[scr][scc].center) cells[scr][scc].center = {};
+      cells[scr][scc].center ??= {};
       cells[scr][scc].center.label = dungeonLetter + room.id;
     }
   }
 
   // ── 7. Room shape trims ─────────────────────────────────────────────
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   for (const room of (data.rooms || [])) {
-    if (!room) continue;
     if (room.shape !== 'circle' && room.shape !== 'polygon') continue;
 
     // Compute dimensions in original Donjon cell units
@@ -335,8 +347,7 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
     const punchThrough = new Map();  // key → 'ew'|'ns' (punch axis)
     const punchDepth = Math.round(Math.min(roomW_sub, roomH_sub) / 2);
 
-    for (const [dir, doorList] of Object.entries(room.doors || {})) {
-      // @ts-expect-error — strict-mode migration
+    for (const [dir, doorList] of Object.entries(room.doors ?? {})) {
       for (const door of doorList) {
         // For polygon rooms, skip doors at exact corner edges — those
         // corridors exit straight out, not through the diagonal trim.
@@ -386,11 +397,10 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
       };
 
       for (const cn of ['nw', 'ne', 'sw', 'se']) {
-        const ac = (arcCenters as any)[cn];
-        // @ts-expect-error — strict-mode migration
-        const { cx, cy } = computeCircleCenter(ac.row, ac.col, R, cn, false);
+        const ac = arcCenters[cn as keyof typeof arcCenters];
+        const { cx, cy } = computeCircleCenter(ac.row, ac.col, R, cn as 'nw' | 'ne' | 'sw' | 'se', false);
 
-        let rStart, rEnd, cStart, cEnd;
+        let rStart = 0, rEnd = 0, cStart = 0, cEnd = 0;
         switch (cn) {
           case 'nw': rStart = topR;       rEnd = topR+R-1;     cStart = leftC;        cEnd = leftC+R-1;     break;
           case 'ne': rStart = topR;       rEnd = topR+R-1;     cStart = rightC-R+1;   cEnd = rightC;        break;
@@ -398,47 +408,40 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
           case 'se': rStart = botR-R+1;   rEnd = botR;         cStart = rightC-R+1;   cEnd = rightC;        break;
         }
 
-        // @ts-expect-error — strict-mode migration
         for (let r = rStart; r <= rEnd; r++) {
-          // @ts-expect-error — strict-mode migration
           for (let c = cStart; c <= cEnd; c++) {
-            // @ts-expect-error — strict-mode migration
             if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
 
             // Skip non-room cells
-            // @ts-expect-error — strict-mode migration
             const origR = Math.floor(r / RES);
-            // @ts-expect-error — strict-mode migration
             const origC = Math.floor(c / RES);
             if (!(src[origR]?.[origC] & bits.room)) continue;
 
             // Skip cells in punch-through lanes (corridor openings)
             if (punchThrough.has(`${r},${c}`)) continue;
 
-            // @ts-expect-error — strict-mode migration
-            const data = computeArcCellData(r, c, cx, cy, R, cn, false);
-            if (data) {
+            const arcData = computeArcCellData(r, c, cx, cy, R, cn as 'nw' | 'ne' | 'sw' | 'se', false);
+            if (arcData) {
               // Arc boundary cell — apply per-cell clip/wall
-              if (!cells[r!]?.[c!]) cells[r!][c!] = {};
+              cells[r][c] ??= {};
               _clearWalls(cells, r, c, rows, cols);
               for (const dir of ['north', 'south', 'east', 'west']) {
-                const [dr, dc] = (OFFS as any)[dir];
+                const [dr, dc] = OFFS[dir as keyof typeof OFFS];
                 const nb = cells[r + dr]?.[c + dc];
-                if (nb?.[(OPP as any)[dir]] && nb[(OPP as any)[dir]] !== 'd' && nb[(OPP as any)[dir]] !== 's') delete nb[(OPP as any)[dir]];
+                if (nb?.[OPP[dir as keyof typeof OPP]] && nb[OPP[dir as keyof typeof OPP]] !== 'd' && nb[OPP[dir as keyof typeof OPP]] !== 's') delete nb[OPP[dir as keyof typeof OPP]];
               }
-              cells[r!][c!].trimCorner = cn;
-              cells[r!][c!].trimClip = data.trimClip;
-              cells[r!][c!].trimWall = data.trimWall;
-              cells[r!][c!].trimCrossing = data.trimCrossing;
+              cells[r][c].trimCorner = cn;
+              cells[r][c].trimClip = arcData.trimClip;
+              cells[r][c].trimWall = arcData.trimWall;
+              cells[r][c].trimCrossing = arcData.trimCrossing;
             } else {
               // No arc intersection — void if outside circle
-              // @ts-expect-error — strict-mode migration
               const d2 = (c + 0.5 - cx) ** 2 + (r + 0.5 - cy) ** 2;
               if (d2 >= R * R) {
-                const vc = cells[r!]?.[c!];
+                const vc = cells[r]?.[c];
                 if (vc) {
                   const hasDoor = ['north', 'south', 'east', 'west'].some(d => vc[d] === 'd' || vc[d] === 's');
-                  if (!hasDoor) cells[r!][c!] = null;
+                  if (!hasDoor) cells[r][c] = null;
                 }
               }
               // else: inside circle — leave as-is (walls from step 2 are correct)
@@ -448,7 +451,7 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
       }
     } else {
     // ── Polygon trims (straight diagonal) ─────────────────────────────
-    const sz = Math.max(1, Math.floor(minDim_orig / ((room.polygon || 6) <= 6 ? 3 : 4))) * RES;
+    const sz = Math.max(1, Math.floor(minDim_orig / (((room as Record<string, unknown>).polygon as number || 6) <= 6 ? 3 : 4))) * RES;
     if (sz >= RES) {
 
     const cornerDefs = [
@@ -489,7 +492,7 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
       // Hypotenuse cells: diagonal wall + trimCorner (skip punch-through)
       const hypotenuse = [];
       for (let i = 0; i < sz; i++) {
-        let hr, hc;
+        let hr = 0, hc = 0;
         switch (cn) {
           case 'nw': hr = r0 + far - i; hc = c0 + i; break;
           case 'ne': hr = r0 + far - i; hc = c0 - i; break;
@@ -502,16 +505,16 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
       const diagType = (cn === 'nw' || cn === 'se') ? 'ne-sw' : 'nw-se';
       for (const { row: hr, col: hc } of hypotenuse) {
         if (punchThrough.has(`${hr},${hc}`)) continue;
-        if (!cells[hr!]) continue;
-        if (!cells[hr!][hc!]) cells[hr!][hc!] = {};
+        if (!cells[hr]) continue;
+        cells[hr][hc] ??= {};
         _clearWalls(cells, hr, hc, rows, cols);
         for (const dir of ['north', 'south', 'east', 'west']) {
-          const [dr, dc] = (OFFS as any)[dir];
+          const [dr, dc] = OFFS[dir as keyof typeof OFFS];
           const nb = cells[hr + dr]?.[hc + dc];
-          if (nb?.[(OPP as any)[dir]]) delete nb[(OPP as any)[dir]];
+          if (nb?.[OPP[dir as keyof typeof OPP]]) delete nb[OPP[dir as keyof typeof OPP]];
         }
-        cells[hr!][hc!].trimCorner = cn;
-        cells[hr!][hc!][diagType]  = 'w';
+        cells[hr][hc].trimCorner = cn;
+        cells[hr][hc][diagType]  = 'w';
       }
     }
     } // sz >= RES
@@ -531,11 +534,11 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
       for (const [dir, dr, dc] of sides) {
         const nb = cells[r + dr]?.[c + dc];
         if (!nb) {
-          if (!cell[dir]) cell[dir] = 'w';
+          cell[dir] ??= 'w';
         } else if (nb.trimCorner) {
           // Wall needed if shared edge is on void side of the trim
-          if (nb.trimCorner.includes((FACING as any)[dir])) {
-            if (!cell[dir]) cell[dir] = 'w';
+          if (nb.trimCorner.includes(FACING[dir as keyof typeof FACING])) {
+            cell[dir] ??= 'w';
           }
         }
       }
@@ -577,14 +580,13 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
   // ── 7c. Rebuild walls on restored cells ─────────────────────────────
   // Only restored cells need walls — add where they border void/trim.
   for (const key of restoredCells) {
-    const [r, c] = (key as any).split(',').map(Number);
+    const [r, c] = (key as string).split(',').map(Number);
     const cell = cells[r]?.[c];
     if (!cell) continue;
-    for (const [dir, [dr, dc]] of [['north',[-1,0]],['south',[1,0]],['west',[0,-1]],['east',[0,1]]]) {
+    for (const [dir, [dr, dc]] of [['north',[-1,0]],['south',[1,0]],['west',[0,-1]],['east',[0,1]]] as [string, [number, number]][]) {
       const nr = r + dr, nc = c + dc;
       if (!cells[nr]?.[nc]) {
-        // @ts-expect-error — strict-mode migration
-        if (!cell[dir!]) cell[dir!] = 'w';
+        if (!(cell as Record<string, unknown>)[dir]) (cell as Record<string, unknown>)[dir] = 'w';
       }
     }
   }
@@ -592,11 +594,11 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
   // ── 8. Assemble dungeon JSON (v4 format — half-cell, per-cell arcs) ──
   const metadata = {
     formatVersion: FORMAT_VERSION,
-    dungeonName: data.settings?.name || 'Imported Dungeon',
+    dungeonName: data.settings?.name ?? 'Imported Dungeon',
     gridSize,
     resolution: RES,
     theme: 'sepia-parchment',
-    labelStyle: 'circled',
+    labelStyle: 'circled' as const,
     features: {
       showGrid: true,
       compassRose: true,
@@ -607,12 +609,15 @@ export function convertDonjonDungeon(data: any): { metadata: any; cells: any[][]
     levels: [{ name: null, startRow: 0, numRows: rows }],
     props,
     nextPropId,
+    lightingEnabled: false,
+    ambientLight: 1.0,
+    lights: [] as Light[],
+    stairs: stairs.length > 0 ? stairs : [] as Stairs[],
+    bridges: [] as Bridge[],
+    nextLightId: 0,
+    nextBridgeId: 0,
+    nextStairId: stairs.length > 0 ? nextStairId : 0,
   };
 
-  if (stairs.length > 0) {
-    (metadata as any).stairs = stairs;
-    (metadata as any).nextStairId = nextStairId;
-  }
-
-  return { metadata, cells };
+  return { metadata: metadata as unknown as Metadata, cells: cells as unknown as CellGrid[][] };
 }

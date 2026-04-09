@@ -6,7 +6,7 @@
  * custom hex colors, drop shadows, and tile caching for performance.
  */
 
-import type { CellGrid, Theme, RenderTransform, PropDefinition, VisibleBounds } from '../types.js';
+import type { CellGrid, Theme, RenderTransform, PropDefinition, PropCommand, PropCatalog, OverlayProp, Metadata, VisibleBounds } from '../types.js';
 import { toCanvas } from './bounds.js';
 import { warn } from './warnings.js';
 import {
@@ -56,7 +56,7 @@ export function getPropsVersion(): number { return _propsVersion; }
 // ── Pre-rendered props layer cache ─────────────────────────────────────────
 // Renders all props to an offscreen canvas at cache resolution. Reused across
 // map cache rebuilds as long as props haven't changed.
-let _propsRenderLayer: any = null; // { canvas, w, h, propsRef, texturesVersion }
+let _propsRenderLayer: { canvas: OffscreenCanvas | HTMLCanvasElement; w: number; h: number; propsVersion: number; texturesVersion: number } | null = null;
 
 /**
  * Return a pre-rendered transparent canvas containing all props at cache resolution.
@@ -74,16 +74,16 @@ let _propsRenderLayer: any = null; // { canvas, w, h, propsRef, texturesVersion 
  * @param {number} [cacheScale=10] - Pixels per foot at cache resolution
  * @returns {HTMLCanvasElement|null} Pre-rendered props canvas, or null
  */
-export function getRenderedPropsLayer(cells: CellGrid, gridSize: number, theme: Theme, propCatalog: any, getTextureImage: any, texturesVersion: number, metadata: any, cacheW: number, cacheH: number, cacheScale: number = 10): any {
+export function getRenderedPropsLayer(cells: CellGrid, gridSize: number, theme: Theme, propCatalog: PropCatalog | null, getTextureImage: ((id: string) => HTMLImageElement | null) | null, texturesVersion: number, metadata: Metadata | null, cacheW: number, cacheH: number, cacheScale: number = 10): OffscreenCanvas | HTMLCanvasElement | null {
   if (!propCatalog || !metadata?.props?.length) return null;
 
-  if (_propsRenderLayer && _propsRenderLayer.w === cacheW && _propsRenderLayer.h === cacheH &&
+  if (_propsRenderLayer?.w === cacheW && _propsRenderLayer.h === cacheH &&
       _propsRenderLayer.propsVersion === _propsVersion && _propsRenderLayer.texturesVersion === texturesVersion) {
     return _propsRenderLayer.canvas;
   }
 
   let offCanvas;
-  if (_propsRenderLayer && _propsRenderLayer.canvas) {
+  if (_propsRenderLayer?.canvas) {
     offCanvas = _propsRenderLayer.canvas;
     if (offCanvas.width !== cacheW || offCanvas.height !== cacheH) {
       offCanvas.width = cacheW;
@@ -95,7 +95,7 @@ export function getRenderedPropsLayer(cells: CellGrid, gridSize: number, theme: 
     offCanvas.height = cacheH;
   }
 
-  const ctx = offCanvas.getContext('2d', { alpha: true });
+  const ctx = offCanvas.getContext('2d', { alpha: true }) as OffscreenCanvasRenderingContext2D;
   ctx.clearRect(0, 0, cacheW, cacheH);
 
   const cacheTransform = { scale: cacheScale, offsetX: 0, offsetY: 0 };
@@ -109,7 +109,7 @@ export function getRenderedPropsLayer(cells: CellGrid, gridSize: number, theme: 
 // Scale is not part of the key — tiles are rendered once at TILE_BASE_PX per cell
 // and scaled to the current display size via drawImage(tile, x, y, w, h).
 // Props are deterministic vector shapes; browser bilinear scaling is sufficient.
-function _tileCacheKey(type: any, facing: any, flipped: any, wallStroke: any, texturesVersion: any) {
+function _tileCacheKey(type: string, facing: number, flipped: boolean, wallStroke: string, texturesVersion: number) {
   return `${type}|${facing}|${flipped ? 1 : 0}|${wallStroke}|${texturesVersion}`;
 }
 
@@ -120,7 +120,7 @@ const TILE_BASE_PX = 128;
  * Render a prop to an OffscreenCanvas tile at a fixed base resolution.
  * Returns null if OffscreenCanvas is unavailable (Node.js / PDF renderer).
  */
-function _buildTile(propDef: any, rotation: any, flipped: any, gridSize: any, theme: any, getTextureImage: any) {
+function _buildTile(propDef: PropDefinition, rotation: number, flipped: boolean, gridSize: number, theme: Theme, getTextureImage: ((id: string) => HTMLImageElement | null) | null) {
   if (typeof OffscreenCanvas === 'undefined') return null;
 
   const [fRows, fCols] = propDef.footprint;
@@ -137,7 +137,7 @@ function _buildTile(propDef: any, rotation: any, flipped: any, gridSize: any, th
   const octx = oc.getContext('2d');
 
   const tileTransform = { scale: tileScale, offsetX: padding * TILE_BASE_PX, offsetY: padding * TILE_BASE_PX };
-  // @ts-expect-error — strict-mode migration
+  if (!octx) return null;
   renderProp(octx, propDef, 0, 0, rotation, gridSize, theme, tileTransform, flipped, getTextureImage);
 
   return oc;
@@ -160,7 +160,7 @@ function _buildTile(propDef: any, rotation: any, flipped: any, gridSize: any, th
  * @param {object} transform - { scale, offsetX, offsetY }
  * @returns {{ x: number, y: number }} Canvas pixel coordinates
  */
-function propToCanvas(nx: any, ny: any, row: any, col: any, gridSize: any, transform: any) {
+function propToCanvas(nx: number, ny: number, row: number, col: number, gridSize: number, transform: RenderTransform) {
   const feetX = (col + nx) * gridSize;
   const feetY = (row + ny) * gridSize;
   return toCanvas(feetX, feetY, transform);
@@ -173,15 +173,15 @@ function propToCanvas(nx: any, ny: any, row: any, col: any, gridSize: any, trans
  * - stroke: uses cmd.color or theme.wallStroke
  * - fill: uses cmd.color or theme.wallStroke with semi-transparency (default 0.15 opacity)
  */
-function applyStyle(ctx: any, cmd: any, theme: any) {
-  const color = cmd.color || theme.wallStroke || '#000000';
+function applyStyle(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, cmd: PropCommand, theme: Theme) {
+  const color = (cmd.color ?? theme.wallStroke) || '#000000';
 
   if (cmd.style === 'stroke') {
     ctx.strokeStyle = color;
   } else {
     // Fill: parse hex and apply as rgba with opacity
     const { r, g, b } = parseHexColor(color);
-    const alpha = cmd.opacity !== null && cmd.opacity !== undefined ? cmd.opacity : 0.15;
+    const alpha = cmd.opacity ?? 0.15;
     ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
   }
 }
@@ -197,9 +197,9 @@ function applyStyle(ctx: any, cmd: any, theme: any) {
  * @param {number} ry - Half-height (or radius) in canvas pixels
  * @returns {CanvasGradient}
  */
-function createGradient(ctx: any, cmd: any, cx: any, cy: any, rx: any, ry: any) {
-  const { r: r1, g: g1, b: b1 } = parseHexColor(cmd.color || '#ffffff');
-  const { r: r2, g: g2, b: b2 } = parseHexColor(cmd.gradientEnd || '#000000');
+function createGradient(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, cmd: PropCommand, cx: number, cy: number, rx: number, ry: number) {
+  const { r: r1, g: g1, b: b1 } = parseHexColor(cmd.color ?? '#ffffff');
+  const { r: r2, g: g2, b: b2 } = parseHexColor(cmd.gradientEnd ?? '#000000');
   const alpha = cmd.opacity ?? 0.8;
 
   let grad;
@@ -224,8 +224,8 @@ function createGradient(ctx: any, cmd: any, cx: any, cy: any, rx: any, ry: any) 
  * Fill a rectangular canvas region with a texture image.
  * Falls back to solid grey fill if the texture is not available.
  */
-function drawTexFillRect(ctx: any, cmd: any, x: any, y: any, w: any, h: any, getTextureImage: any) {
-  const img = getTextureImage?.(cmd.textureId);
+function drawTexFillRect(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, cmd: PropCommand, x: number, y: number, w: number, h: number, getTextureImage: ((id: string) => HTMLImageElement | null) | null) {
+  const img = cmd.textureId ? getTextureImage?.(cmd.textureId) : null;
   const alpha = cmd.opacity ?? 0.9;
 
   if (!img || !img.complete || !img.naturalWidth) {
@@ -246,8 +246,8 @@ function drawTexFillRect(ctx: any, cmd: any, x: any, y: any, w: any, h: any, get
  * The path must already be defined via beginPath + arc/moveTo/lineTo.
  * @param {object} bbox - { x, y, w, h } bounding box for drawImage
  */
-function drawTexFillPath(ctx: any, cmd: any, bbox: any, getTextureImage: any) {
-  const img = getTextureImage?.(cmd.textureId);
+function drawTexFillPath(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, cmd: PropCommand, bbox: { x: number; y: number; w: number; h: number }, getTextureImage: ((id: string) => HTMLImageElement | null) | null) {
+  const img = cmd.textureId ? getTextureImage?.(cmd.textureId) : null;
   const alpha = cmd.opacity ?? 0.9;
 
   if (!img || !img.complete || !img.naturalWidth) {
@@ -267,7 +267,7 @@ function drawTexFillPath(ctx: any, cmd: any, bbox: any, getTextureImage: any) {
  * Draw a soft drop shadow under a prop.
  * Rendered as a radial-gradient ellipse matching the footprint, offset slightly.
  */
-function _drawPropShadow(ctx: any, propDef: any, row: any, col: any, rotation: any, gridSize: any, transform: any) {
+function _drawPropShadow(ctx: CanvasRenderingContext2D, propDef: PropDefinition, row: number, col: number, rotation: number, gridSize: number, transform: RenderTransform) {
   const [fRows, fCols] = propDef.footprint;
   // Effective footprint after rotation
   const isRotated90 = rotation === 90 || rotation === 270;
@@ -311,7 +311,7 @@ function _drawPropShadow(ctx: any, propDef: any, row: any, col: any, rotation: a
  *
  * @param {function|null} getTextureImage - (textureId) => HTMLImageElement|null
  */
-function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, theme: any, transform: any, getTextureImage: any) {
+function drawCommand(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, cmd: PropCommand, row: number, col: number, gridSize: number, theme: Theme, transform: RenderTransform, getTextureImage: ((id: string) => HTMLImageElement | null) | null) {
   const s = scaleFactor(transform);
   // transform.lineWidth lets callers (e.g. thumbnail renderer) override the
   // computed stroke width so lines don't appear fat at large thumbnail scales.
@@ -323,11 +323,11 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     case 'rect': {
       if (cmd.rotate != null && cmd.rotate !== 0) {
         // Rotated rect: translate to center, rotate, draw centered
-        const cx = cmd.x + cmd.w / 2;
-        const cy = cmd.y + cmd.h / 2;
+        const cx = cmd.x! + cmd.w! / 2;
+        const cy = cmd.y! + cmd.h! / 2;
         const center = propToCanvas(cx, cy, row, col, gridSize, transform);
-        const halfW = (cmd.w / 2) * gridSize * transform.scale;
-        const halfH = (cmd.h / 2) * gridSize * transform.scale;
+        const halfW = (cmd.w! / 2) * gridSize * transform.scale;
+        const halfH = (cmd.h! / 2) * gridSize * transform.scale;
 
         ctx.save();
         ctx.translate(center.x, center.y);
@@ -351,8 +351,8 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
         break;
       }
 
-      const topLeft = propToCanvas(cmd.x, cmd.y, row, col, gridSize, transform);
-      const bottomRight = propToCanvas(cmd.x + cmd.w, cmd.y + cmd.h, row, col, gridSize, transform);
+      const topLeft = propToCanvas(cmd.x!, cmd.y!, row, col, gridSize, transform);
+      const bottomRight = propToCanvas(cmd.x! + cmd.w!, cmd.y! + cmd.h!, row, col, gridSize, transform);
       const w = bottomRight.x - topLeft.x;
       const h = bottomRight.y - topLeft.y;
 
@@ -374,9 +374,9 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'circle': {
-      const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
+      const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
       // Radius in canvas pixels: r normalized cells * gridSize feet * scale
-      const rPx = cmd.r * gridSize * transform.scale;
+      const rPx = cmd.r! * gridSize * transform.scale;
 
       ctx.beginPath();
       ctx.arc(center.x, center.y, rPx, 0, Math.PI * 2);
@@ -402,9 +402,9 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'ellipse': {
-      const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-      const rxPx = cmd.rx * gridSize * transform.scale;
-      const ryPx = cmd.ry * gridSize * transform.scale;
+      const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+      const rxPx = cmd.rx! * gridSize * transform.scale;
+      const ryPx = cmd.ry! * gridSize * transform.scale;
 
       // Build ellipse path
       ctx.save();
@@ -435,13 +435,13 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'line': {
-      const p1 = propToCanvas(cmd.x1, cmd.y1, row, col, gridSize, transform);
-      const p2 = propToCanvas(cmd.x2, cmd.y2, row, col, gridSize, transform);
+      const p1 = propToCanvas(cmd.x1!, cmd.y1!, row, col, gridSize, transform);
+      const p2 = propToCanvas(cmd.x2!, cmd.y2!, row, col, gridSize, transform);
 
       const prevAlpha = ctx.globalAlpha;
       if (cmd.opacity != null) ctx.globalAlpha = cmd.opacity;
-      ctx.strokeStyle = cmd.color || '#000000';
-      ctx.lineWidth = cmd.width != null ? cmd.width * s : (cmd.lineWidth !== null ? cmd.lineWidth * s : strokeWidth);
+      ctx.strokeStyle = cmd.color ?? '#000000';
+      ctx.lineWidth = cmd.width != null ? cmd.width * s : (cmd.lineWidth != null ? cmd.lineWidth * s : strokeWidth);
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);
@@ -451,9 +451,9 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'poly': {
-      if (cmd.points.length < 2) break;
+      if (!cmd.points || cmd.points.length < 2) break;
 
-      const canvasPoints = cmd.points.map(([px, py]: any) =>
+      const canvasPoints = (cmd.points).map(([px, py]: number[]) =>
         propToCanvas(px, py, row, col, gridSize, transform)
       );
 
@@ -466,8 +466,8 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
 
       if (cmd.style === 'texfill') {
         // Compute bounding box of polygon
-        const xs = canvasPoints.map((p: any) => p.x);
-        const ys = canvasPoints.map((p: any) => p.y);
+        const xs = canvasPoints.map((p: { x: number; y: number }) => p.x);
+        const ys = canvasPoints.map((p: { x: number; y: number }) => p.y);
         const minX = Math.min(...xs);
         const minY = Math.min(...ys);
         drawTexFillPath(ctx, cmd, {
@@ -476,8 +476,8 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
           h: Math.max(...ys) - minY
         }, getTextureImage);
       } else if (isGradient(cmd)) {
-        const xs = canvasPoints.map((p: any) => p.x);
-        const ys = canvasPoints.map((p: any) => p.y);
+        const xs = canvasPoints.map((p: { x: number; y: number }) => p.x);
+        const ys = canvasPoints.map((p: { x: number; y: number }) => p.y);
         const minX = Math.min(...xs);
         const minY = Math.min(...ys);
         const maxX = Math.max(...xs);
@@ -497,10 +497,10 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'arc': {
-      const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-      const rPx = cmd.r * gridSize * transform.scale;
-      const startRad = (cmd.startDeg * Math.PI) / 180;
-      const endRad = (cmd.endDeg * Math.PI) / 180;
+      const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+      const rPx = cmd.r! * gridSize * transform.scale;
+      const startRad = (cmd.startDeg! * Math.PI) / 180;
+      const endRad = (cmd.endDeg! * Math.PI) / 180;
 
       if (cmd.style === 'stroke') {
         // Stroke: just the arc curve, no center lines
@@ -538,23 +538,23 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
 
       switch (cmd.subShape) {
         case 'circle': {
-          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-          const rPx = cmd.r * gridSize * transform.scale;
+          const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+          const rPx = cmd.r! * gridSize * transform.scale;
           ctx.beginPath();
           ctx.arc(center.x, center.y, rPx, 0, Math.PI * 2);
           ctx.fill();
           break;
         }
         case 'rect': {
-          const topLeft = propToCanvas(cmd.x, cmd.y, row, col, gridSize, transform);
-          const bottomRight = propToCanvas(cmd.x + cmd.w, cmd.y + cmd.h, row, col, gridSize, transform);
+          const topLeft = propToCanvas(cmd.x!, cmd.y!, row, col, gridSize, transform);
+          const bottomRight = propToCanvas(cmd.x! + cmd.w!, cmd.y! + cmd.h!, row, col, gridSize, transform);
           ctx.fillRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
           break;
         }
         case 'ellipse': {
-          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-          const rxPx = cmd.rx * gridSize * transform.scale;
-          const ryPx = cmd.ry * gridSize * transform.scale;
+          const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+          const rxPx = cmd.rx! * gridSize * transform.scale;
+          const ryPx = cmd.ry! * gridSize * transform.scale;
           ctx.save();
           ctx.translate(center.x, center.y);
           ctx.scale(rxPx, ryPx);
@@ -564,21 +564,24 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
           ctx.fill();
           break;
         }
+        case undefined:
+        default:
+          break;
       }
       break;
     }
 
     case 'ring': {
-      const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-      const outerPx = cmd.outerR * gridSize * transform.scale;
-      const innerPx = cmd.innerR * gridSize * transform.scale;
+      const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+      const outerPx = cmd.outerR! * gridSize * transform.scale;
+      const innerPx = cmd.innerR! * gridSize * transform.scale;
 
       ctx.beginPath();
       ctx.arc(center.x, center.y, outerPx, 0, Math.PI * 2);
       ctx.arc(center.x, center.y, innerPx, 0, Math.PI * 2, true);
 
       if (cmd.style === 'texfill') {
-        const img = getTextureImage?.(cmd.textureId);
+        const img = getTextureImage?.(cmd.textureId!);
         const alpha = cmd.opacity ?? 0.9;
         if (img && img.complete && img.naturalWidth) {
           ctx.save();
@@ -607,10 +610,10 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'bezier': {
-      const p1 = propToCanvas(cmd.x1, cmd.y1, row, col, gridSize, transform);
-      const cp1 = propToCanvas(cmd.cp1x, cmd.cp1y, row, col, gridSize, transform);
-      const cp2 = propToCanvas(cmd.cp2x, cmd.cp2y, row, col, gridSize, transform);
-      const p2 = propToCanvas(cmd.x2, cmd.y2, row, col, gridSize, transform);
+      const p1 = propToCanvas(cmd.x1!, cmd.y1!, row, col, gridSize, transform);
+      const cp1 = propToCanvas(cmd.cp1x!, cmd.cp1y!, row, col, gridSize, transform);
+      const cp2 = propToCanvas(cmd.cp2x!, cmd.cp2y!, row, col, gridSize, transform);
+      const p2 = propToCanvas(cmd.x2!, cmd.y2!, row, col, gridSize, transform);
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, p2.x, p2.y);
@@ -634,9 +637,9 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'qbezier': {
-      const p1 = propToCanvas(cmd.x1, cmd.y1, row, col, gridSize, transform);
-      const cp = propToCanvas(cmd.cpx, cmd.cpy, row, col, gridSize, transform);
-      const p2 = propToCanvas(cmd.x2, cmd.y2, row, col, gridSize, transform);
+      const p1 = propToCanvas(cmd.x1!, cmd.y1!, row, col, gridSize, transform);
+      const cp = propToCanvas(cmd.cpx!, cmd.cpy!, row, col, gridSize, transform);
+      const p2 = propToCanvas(cmd.x2!, cmd.y2!, row, col, gridSize, transform);
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.quadraticCurveTo(cp.x, cp.y, p2.x, p2.y);
@@ -660,11 +663,11 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
     }
 
     case 'ering': {
-      const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-      const outerRxPx = cmd.outerRx * gridSize * transform.scale;
-      const outerRyPx = cmd.outerRy * gridSize * transform.scale;
-      const innerRxPx = cmd.innerRx * gridSize * transform.scale;
-      const innerRyPx = cmd.innerRy * gridSize * transform.scale;
+      const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+      const outerRxPx = cmd.outerRx! * gridSize * transform.scale;
+      const outerRyPx = cmd.outerRy! * gridSize * transform.scale;
+      const innerRxPx = cmd.innerRx! * gridSize * transform.scale;
+      const innerRyPx = cmd.innerRy! * gridSize * transform.scale;
       ctx.beginPath();
       ctx.save();
       ctx.translate(center.x, center.y);
@@ -677,7 +680,7 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
       ctx.arc(0, 0, 1, 0, Math.PI * 2, true);
       ctx.restore();
       if (cmd.style === 'texfill') {
-        const img = getTextureImage?.(cmd.textureId);
+        const img = getTextureImage?.(cmd.textureId!);
         const alpha = cmd.opacity ?? 0.9;
         if (img && img.complete && img.naturalWidth) {
           ctx.save();
@@ -706,21 +709,21 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
       ctx.beginPath();
       switch (cmd.subShape) {
         case 'circle': {
-          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-          const rPx = cmd.r * gridSize * transform.scale;
+          const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+          const rPx = cmd.r! * gridSize * transform.scale;
           ctx.arc(center.x, center.y, rPx, 0, Math.PI * 2);
           break;
         }
         case 'rect': {
-          const topLeft = propToCanvas(cmd.x, cmd.y, row, col, gridSize, transform);
-          const bottomRight = propToCanvas(cmd.x + cmd.w, cmd.y + cmd.h, row, col, gridSize, transform);
+          const topLeft = propToCanvas(cmd.x!, cmd.y!, row, col, gridSize, transform);
+          const bottomRight = propToCanvas(cmd.x! + cmd.w!, cmd.y! + cmd.h!, row, col, gridSize, transform);
           ctx.rect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
           break;
         }
         case 'ellipse': {
-          const center = propToCanvas(cmd.cx, cmd.cy, row, col, gridSize, transform);
-          const rxPx = cmd.rx * gridSize * transform.scale;
-          const ryPx = cmd.ry * gridSize * transform.scale;
+          const center = propToCanvas(cmd.cx!, cmd.cy!, row, col, gridSize, transform);
+          const rxPx = cmd.rx! * gridSize * transform.scale;
+          const ryPx = cmd.ry! * gridSize * transform.scale;
           ctx.save();
           ctx.translate(center.x, center.y);
           ctx.scale(rxPx, ryPx);
@@ -728,6 +731,9 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
           ctx.restore();
           break;
         }
+        case undefined:
+        default:
+          break;
       }
       ctx.clip();
       break;
@@ -757,8 +763,8 @@ function drawCommand(ctx: any, cmd: any, row: any, col: any, gridSize: any, them
  * @param {Function|null} [getTextureImage=null] - (textureId) => HTMLImageElement|null
  * @returns {void}
  */
-export function renderProp(ctx: CanvasRenderingContext2D, propDef: PropDefinition, row: number, col: number, rotation: number, gridSize: number, theme: Theme, transform: RenderTransform, flipped: boolean = false, getTextureImage: any = null): void {
-  if (!propDef || !propDef.commands || propDef.commands.length === 0) return;
+export function renderProp(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, propDef: PropDefinition, row: number, col: number, rotation: number, gridSize: number, theme: Theme, transform: RenderTransform, flipped: boolean = false, getTextureImage: ((id: string) => HTMLImageElement | null) | null = null): void {
+  if (propDef.commands.length === 0) return;
 
   // Drop shadow disabled — looked bad at map scale
 
@@ -782,7 +788,7 @@ export function renderProp(ctx: CanvasRenderingContext2D, propDef: PropDefinitio
  * Render a prop with cutout commands to a temporary canvas, then composite back.
  * This ensures destination-out only affects the prop's own pixels.
  */
-function _renderPropIsolated(ctx: any, propDef: any, row: any, col: any, rotation: any, gridSize: any, theme: any, transform: any, flipped: any, getTextureImage: any) {
+function _renderPropIsolated(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, propDef: PropDefinition, row: number, col: number, rotation: number, gridSize: number, theme: Theme, transform: RenderTransform, flipped: boolean, getTextureImage: ((id: string) => HTMLImageElement | null) | null) {
   const [fRows, fCols] = propDef.footprint;
   const isRotated90 = rotation === 90 || rotation === 270;
   const eRows = isRotated90 ? fCols : fRows;
@@ -798,11 +804,17 @@ function _renderPropIsolated(ctx: any, propDef: any, row: any, col: any, rotatio
   const origin = propToCanvas(-padding, -padding, row, col, gridSize, transform);
 
   // Create isolated canvas
-  const createCanvas = (typeof OffscreenCanvas !== 'undefined')
-    ? (w: any, h: any) => new OffscreenCanvas(w, h)
-    : (w: any, h: any) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
-  const tmpCanvas = createCanvas(w, h);
-  const tmpCtx = tmpCanvas.getContext('2d');
+  let tmpCanvas: OffscreenCanvas | HTMLCanvasElement;
+  let tmpCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null;
+  if (typeof OffscreenCanvas !== 'undefined') {
+    tmpCanvas = new OffscreenCanvas(w, h);
+    tmpCtx = tmpCanvas.getContext('2d');
+  } else {
+    tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = w; tmpCanvas.height = h;
+    tmpCtx = tmpCanvas.getContext('2d');
+  }
+  if (!tmpCtx) return;
 
   // Render into the isolated canvas with an offset transform so coords map correctly
   const isoTransform = {
@@ -839,8 +851,8 @@ function _renderPropIsolated(ctx: any, propDef: any, row: any, col: any, rotatio
  * @param {Object|null} [metadata=null] - Dungeon metadata with props array
  * @returns {void}
  */
-export function renderAllProps(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, propCatalog: any, getTextureImage: any = null, texturesVersion: number = 0, visibleBounds: VisibleBounds | null = null, metadata: any = null): void {
-  if (!propCatalog || !propCatalog.props) return;
+export function renderAllProps(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, propCatalog: PropCatalog | null, getTextureImage: ((id: string) => HTMLImageElement | null) | null = null, texturesVersion: number = 0, visibleBounds: VisibleBounds | null = null, metadata: Metadata | null = null): void {
+  if (!propCatalog?.props) return;
 
   // Render from metadata.props[] overlay (v2+). If no overlay props, nothing to render.
   if (metadata?.props?.length) {
@@ -866,13 +878,15 @@ export function renderAllProps(ctx: CanvasRenderingContext2D, cells: CellGrid, g
  * @param {Object|null} [visibleBounds=null] - { minRow, maxRow, minCol, maxCol }
  * @returns {void}
  */
-export function renderOverlayProps(ctx: CanvasRenderingContext2D, overlayProps: any[], gridSize: number, theme: Theme, transform: RenderTransform, propCatalog: any, getTextureImage: any = null, texturesVersion: number = 0, visibleBounds: VisibleBounds | null = null): void {
-  if (!overlayProps?.length || !propCatalog?.props) return;
+export function renderOverlayProps(ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, overlayProps: OverlayProp[], gridSize: number, theme: Theme, transform: RenderTransform, propCatalog: PropCatalog | null, getTextureImage: ((id: string) => HTMLImageElement | null) | null = null, texturesVersion: number = 0, visibleBounds: VisibleBounds | null = null): void {
+  if (!overlayProps.length || !propCatalog?.props) return;
 
-  const wallStroke = theme?.wallStroke || '';
+  const wallStroke = theme.wallStroke;
 
-  // Purge unknown prop types from the source array so we don't spam warnings every frame
+  // Purge unknown prop types from the source array so we don't spam warnings every frame.
+  // Record<string, PropDefinition> lies about runtime — missing keys return undefined.
   for (let i = overlayProps.length - 1; i >= 0; i--) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (!propCatalog.props[overlayProps[i].type]) {
       warn(`[props] Unknown overlay prop type "${overlayProps[i].type}" (${overlayProps[i].id}) — removed from map`);
       overlayProps.splice(i, 1);
@@ -881,14 +895,14 @@ export function renderOverlayProps(ctx: CanvasRenderingContext2D, overlayProps: 
   if (!overlayProps.length) return;
 
   // Sort by zIndex (stable: original order preserved for equal z)
-  const sorted = [...overlayProps].sort((a, b) => (a.zIndex ?? 10) - (b.zIndex ?? 10));
+  const sorted = [...overlayProps].sort((a, b) => a.zIndex - b.zIndex);
 
   for (const prop of sorted) {
     const propDef = propCatalog.props[prop.type];
 
-    const rotation = prop.rotation ?? 0;
-    const scale = prop.scale ?? 1.0;
-    const flipped = prop.flipped ?? false;
+    const rotation = prop.rotation;
+    const scale = prop.scale;
+    const flipped = prop.flipped;
     const r = ((rotation % 360) + 360) % 360;
     const isGridAligned = (r === 0 || r === 90 || r === 180 || r === 270) && scale === 1.0;
 

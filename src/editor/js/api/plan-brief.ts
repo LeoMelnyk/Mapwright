@@ -1,6 +1,11 @@
 // plan-brief.js — Compute a complete dungeon layout from a high-level brief
 // and return ready-to-execute command arrays.
 
+interface RoomDef { label: string; width: number; height: number; entrance?: boolean; [k: string]: unknown }
+interface ConnDef { from: string; to: string; direction: string; corridorWidth?: number; type?: string }
+interface Edge { to: string; dir: string; corrW: number; type: string }
+interface Rect { r1: number; c1: number; r2: number; c2: number }
+
 /**
  * Compute a complete dungeon layout from a high-level brief and return ready-to-execute
  * command arrays. Claude provides room sizes and connection topology; this method handles
@@ -20,7 +25,7 @@
  * @param {Object} brief - Layout brief with rooms, connections, and map settings
  * @returns {{ success: boolean, commands: Array<Array>, mapSize: { rows: number, cols: number } }}
  */
-export function planBrief(brief: Record<string, any>): { success: true; commands: any[][]; mapSize: { rows: number; cols: number } } {
+export function planBrief(brief: Record<string, string | number | boolean | Record<string, unknown>[] | Record<string, unknown>>): { success: true; commands: (string | number | boolean)[][]; mapSize: { rows: number; cols: number } } {
   const {
     name = 'Dungeon',
     theme = 'stone-dungeon',
@@ -38,43 +43,47 @@ export function planBrief(brief: Record<string, any>): { success: true; commands
     if (!r.width || !r.height) throw new Error(`Room "${r.label}" must have width and height`);
   }
 
-  const roomMap = Object.fromEntries(roomDefs.map(r => [r.label, r]));
+  const roomMap = Object.fromEntries((roomDefs as RoomDef[]).map(r => [r.label, r]));
   const ODIR = { north: 'south', south: 'north', east: 'west', west: 'east' };
 
   // Build directed adjacency list
-  const adj = Object.fromEntries(roomDefs.map(r => [r.label, []]));
-  for (const conn of connections) {
-    const corrW = conn.corridorWidth ?? defaultCorrW;
+  const adj: Record<string, Edge[]> = Object.fromEntries((roomDefs as RoomDef[]).map(r => [r.label, []]));
+  for (const conn of connections as unknown as ConnDef[]) {
+    const corrW = conn.corridorWidth ?? (defaultCorrW as number);
     const type = conn.type === 'secret' ? 's' : 'd';
     if (!conn.direction) throw new Error(`Connection from "${conn.from}" to "${conn.to}" must specify direction`);
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     (adj[conn.from] = adj[conn.from] || []).push({ to: conn.to, dir: conn.direction, corrW, type });
-    (adj[conn.to] = adj[conn.to] || []).push({ to: conn.from, dir: (ODIR as any)[conn.direction], corrW, type });
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+    (adj[conn.to] = adj[conn.to] || []).push({ to: conn.from, dir: ODIR[conn.direction as keyof typeof ODIR], corrW, type });
   }
 
   // BFS layout
-  const rootLabel = (roomDefs.find(r => r.entrance) || roomDefs[0]).label;
-  const positions = {};
-  const corridorRects = [];
-  const doorCmds = [];
+  const rootLabel = ((roomDefs as RoomDef[]).find(r => r.entrance) ?? (roomDefs as RoomDef[])[0]).label;
+  const positions: Record<string, Rect> = {};
+  const corridorRects: Rect[] = [];
+  const doorCmds: { row: number; col: number; dir: string; type: string }[] = [];
   const visited = new Set([rootLabel]);
 
   const rootDef = roomMap[rootLabel];
-  (positions as any)[rootLabel] = { r1: 1, c1: 1, r2: rootDef.height, c2: rootDef.width };
+  positions[rootLabel] = { r1: 1, c1: 1, r2: rootDef.height, c2: rootDef.width };
 
   const queue = [rootLabel];
   while (queue.length) {
     const pLabel = queue.shift();
-    const pPos = (positions as any)[pLabel];
+    const pPos = positions[pLabel!];
     const pCenterRow = Math.floor((pPos.r1 + pPos.r2) / 2);
     const pCenterCol = Math.floor((pPos.c1 + pPos.c2) / 2);
 
     // Group unvisited children by direction
-    const byDir = {};
-    for (const edge of (adj[pLabel] || [])) {
+    const byDir: Record<string, Edge[]> = {};
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+    for (const edge of (adj[pLabel!] || [])) {
       if (visited.has(edge.to)) continue;
       visited.add(edge.to);
       queue.push(edge.to);
-      ((byDir as any)[edge.dir] = (byDir as any)[edge.dir] || []).push(edge);
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+      (byDir[edge.dir] = byDir[edge.dir] || []).push(edge);
     }
 
     for (const [dir, edges] of Object.entries(byDir)) {
@@ -82,10 +91,9 @@ export function planBrief(brief: Record<string, any>): { success: true; commands
 
       if (isNS) {
         // Side-by-side horizontally, each corridor centered on its child
-        const totalW = (edges as any).reduce((s: any, e: any) => s + roomMap[e.to].width, 0) + ((edges as any).length - 1);
+        const totalW = edges.reduce((s: number, e: Edge) => s + roomMap[e.to].width, 0) + (edges.length - 1);
         let startCol = pCenterCol - Math.floor(totalW / 2);
 
-        // @ts-expect-error — strict-mode migration
         for (const edge of edges) {
           const cDef = roomMap[edge.to];
           const corrW = edge.corrW;
@@ -106,7 +114,7 @@ export function planBrief(brief: Record<string, any>): { success: true; commands
           const corrC2 = corrC1 + corrW - 1;
           const corrMidCol = Math.floor((corrC1 + corrC2) / 2);
 
-          (positions as any)[edge.to] = { r1: cR1, c1: startCol, r2: cR1 + cDef.height - 1, c2: startCol + cDef.width - 1 };
+          positions[edge.to] = { r1: cR1, c1: startCol, r2: cR1 + cDef.height - 1, c2: startCol + cDef.width - 1 };
           corridorRects.push({ r1: corrR1, c1: corrC1, r2: corrR2, c2: corrC2 });
 
           if (dir === 'north') {
@@ -120,10 +128,9 @@ export function planBrief(brief: Record<string, any>): { success: true; commands
         }
       } else {
         // Side-by-side vertically, each corridor centered on its child
-        const totalH = (edges as any).reduce((s: any, e: any) => s + roomMap[e.to].height, 0) + ((edges as any).length - 1);
+        const totalH = edges.reduce((s: number, e: Edge) => s + roomMap[e.to].height, 0) + (edges.length - 1);
         let startRow = pCenterRow - Math.floor(totalH / 2);
 
-        // @ts-expect-error — strict-mode migration
         for (const edge of edges) {
           const cDef = roomMap[edge.to];
           const corrW = edge.corrW;
@@ -144,7 +151,7 @@ export function planBrief(brief: Record<string, any>): { success: true; commands
           const corrR2 = corrR1 + corrW - 1;
           const corrMidRow = Math.floor((corrR1 + corrR2) / 2);
 
-          (positions as any)[edge.to] = { r1: startRow, c1: cC1, r2: startRow + cDef.height - 1, c2: cC1 + cDef.width - 1 };
+          positions[edge.to] = { r1: startRow, c1: cC1, r2: startRow + cDef.height - 1, c2: cC1 + cDef.width - 1 };
           corridorRects.push({ r1: corrR1, c1: corrC1, r2: corrR2, c2: corrC2 });
 
           if (dir === 'east') {
@@ -162,38 +169,38 @@ export function planBrief(brief: Record<string, any>): { success: true; commands
 
   // Place any disconnected rooms to the right of everything, stacked
   let farRight = 1, stackRow = 1;
-  for (const pos of Object.values(positions)) farRight = Math.max(farRight, (pos as any).c2 + 2);
+  for (const pos of Object.values(positions)) farRight = Math.max(farRight, pos.c2 + 2);
   for (const corr of corridorRects) farRight = Math.max(farRight, corr.c2 + 2);
-  for (const rDef of roomDefs) {
+  for (const rDef of roomDefs as RoomDef[]) {
     if (!visited.has(rDef.label)) {
-      (positions as any)[rDef.label] = { r1: stackRow, c1: farRight, r2: stackRow + rDef.height - 1, c2: farRight + rDef.width - 1 };
+      positions[rDef.label] = { r1: stackRow, c1: farRight, r2: stackRow + rDef.height - 1, c2: farRight + rDef.width - 1 };
       stackRow += rDef.height + 1;
     }
   }
 
   // Normalize: shift everything so minimum is at (1, 1)
   let minR = Infinity, minC = Infinity;
-  for (const pos of Object.values(positions)) { minR = Math.min(minR, (pos as any).r1); minC = Math.min(minC, (pos as any).c1); }
+  for (const pos of Object.values(positions)) { minR = Math.min(minR, pos.r1); minC = Math.min(minC, pos.c1); }
   for (const corr of corridorRects) { minR = Math.min(minR, corr.r1); minC = Math.min(minC, corr.c1); }
   for (const d of doorCmds) { minR = Math.min(minR, d.row); minC = Math.min(minC, d.col); }
 
   const or = 1 - minR, oc = 1 - minC;
-  for (const pos of Object.values(positions)) { (pos as any).r1 += or; (pos as any).c1 += oc; (pos as any).r2 += or; (pos as any).c2 += oc; }
+  for (const pos of Object.values(positions)) { pos.r1 += or; pos.c1 += oc; pos.r2 += or; pos.c2 += oc; }
   for (const corr of corridorRects) { corr.r1 += or; corr.c1 += oc; corr.r2 += or; corr.c2 += oc; }
   for (const d of doorCmds) { d.row += or; d.col += oc; }
 
   // Compute map dimensions
   let maxR = 0, maxC = 0;
-  for (const pos of Object.values(positions)) { maxR = Math.max(maxR, (pos as any).r2); maxC = Math.max(maxC, (pos as any).c2); }
+  for (const pos of Object.values(positions)) { maxR = Math.max(maxR, pos.r2); maxC = Math.max(maxC, pos.c2); }
   for (const corr of corridorRects) { maxR = Math.max(maxR, corr.r2); maxC = Math.max(maxC, corr.c2); }
   const mapRows = maxR + 2, mapCols = maxC + 2;
 
   // Assemble commands
-  const commands = [['newMap', name, mapRows, mapCols, gridSize, theme]];
+  const commands: (string | number | boolean)[][] = [['newMap', name as string, mapRows, mapCols, gridSize as number, theme as string]];
 
   // Rooms in input order
-  for (const rDef of roomDefs) {
-    const pos = (positions as any)[rDef.label];
+  for (const rDef of roomDefs as RoomDef[]) {
+    const pos = positions[rDef.label];
     commands.push(['createRoom', pos.r1, pos.c1, pos.r2, pos.c2]);
     commands.push(['setLabel', Math.floor((pos.r1 + pos.r2) / 2), Math.floor((pos.c1 + pos.c2) / 2), rDef.label]);
   }

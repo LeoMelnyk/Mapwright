@@ -1,4 +1,5 @@
 // Background Image panel: upload, scale alignment, offset, and opacity controls
+import type { BackgroundImage } from '../../../types.js';
 import state, { markDirty, notify, pushUndo, subscribe } from '../state.js';
 import { requestRender, activateBgCellMeasure, getCachedBgImage } from '../canvas-view.js';
 import { invalidateAllCaches } from '../../../render/index.js';
@@ -9,13 +10,13 @@ let container: HTMLElement | null = null;
  * Initialize the background image panel: upload, scale, offset, and opacity controls.
  * @param {HTMLElement} el - Container element for the panel
  */
-export function initBackgroundImagePanel(el: HTMLElement): void {
-  container = el;
+export function initBackgroundImagePanel(containerEl: HTMLElement): void {
+  container = containerEl;
   render();
   subscribe(() => render(), 'bg-image');
 }
 
-let _lastBgImage: any = undefined; // use undefined so null (no image) is a valid "last" state
+let _lastBgImage: BackgroundImage | null | undefined = undefined;
 function render() {
   if (!container) return;
 
@@ -48,16 +49,13 @@ function render() {
 
   fileInput.addEventListener('change', () => {
     const file = fileInput.files![0];
-    if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const dataUrl = ev.target!.result;
-      // @ts-expect-error — strict-mode migration
+      const dataUrl = ev.target!.result as string;
       const fallbackPpc = bi?.pixelsPerCell ?? 70;
-      const applyUpload = (offsetX: any, offsetY: any, pixelsPerCell: any) => {
+      const applyUpload = (offsetX: number, offsetY: number, pixelsPerCell: number) => {
         pushUndo();
         metadata.backgroundImage = {
-          // @ts-expect-error — strict-mode migration
           dataUrl,
           filename: file.name,
           offsetX,
@@ -76,7 +74,7 @@ function render() {
         if (r1 <= r2 && c1 <= c2) {
           for (let r = r1; r <= r2; r++) {
             for (let c = c1; c <= c2; c++) {
-              if (!cells[r][c]) cells[r][c] = {};
+              cells[r][c] ??= {};
             }
           }
           invalidateAllCaches();
@@ -110,12 +108,10 @@ function render() {
           applyUpload(offsetX, offsetY, ppc);
         } else {
           // Replace: keep existing offsets; update scale if detection succeeded
-          // @ts-expect-error — strict-mode migration
-          applyUpload(bi.offsetX, bi.offsetY, detected?.pixelsPerCell ?? fallbackPpc);
+          applyUpload(bi.offsetX!, bi.offsetY!, detected?.pixelsPerCell ?? fallbackPpc);
         }
       };
       tmpImg.onerror = () => applyUpload(0, 0, fallbackPpc);
-      // @ts-expect-error — strict-mode migration
       tmpImg.src = dataUrl;
     };
     reader.readAsDataURL(file);
@@ -127,8 +123,7 @@ function render() {
     clearBtn.textContent = 'Clear';
     clearBtn.addEventListener('click', () => {
       pushUndo();
-      // @ts-expect-error — strict-mode migration
-      metadata.backgroundImage = null;
+      metadata.backgroundImage = undefined;
       markDirty();
       notify();
     });
@@ -139,10 +134,8 @@ function render() {
 
   if (bi) {
     const filename = el('div', 'bg-image-filename');
-    // @ts-expect-error — strict-mode migration
-    filename.textContent = bi.filename || 'image';
-    // @ts-expect-error — strict-mode migration
-    filename.title = bi.filename || '';
+    filename.textContent = bi.filename ?? 'image';
+    filename.title = bi.filename ?? '';
     uploadSection.appendChild(filename);
   }
 
@@ -151,9 +144,9 @@ function render() {
   if (!bi) return;
 
   // ── Shared helper: recenter image and fill floor cells under it ──────────
-  // Called after scale changes (Measure / Calc). Mutates bi.offsetX/offsetY
+  // Called after scale changes (Measure / Calc). Mutates bi.offsetX!/offsetY
   // and fills cells in the same undo step already pushed by the caller.
-  const recenterAndFill = (imgEl: any, ppc: any) => {
+  const recenterAndFill = (imgEl: HTMLImageElement, ppc: number) => {
     const { cells } = state.dungeon;
     const totalCols = cells[0]?.length ?? 0;
     const totalRows = cells.length;
@@ -164,22 +157,16 @@ function render() {
     const phase = _detectPhase(imgEl, ppc);
     const phaseX_cells = phase.phaseX / ppc;
     const phaseY_cells = phase.phaseY / ppc;
-    // @ts-expect-error — strict-mode migration
     bi.offsetX = Math.round(rawOffsetX + phaseX_cells) - phaseX_cells;
-    // @ts-expect-error — strict-mode migration
     bi.offsetY = Math.round(rawOffsetY + phaseY_cells) - phaseY_cells;
-    // @ts-expect-error — strict-mode migration
     const r1 = Math.max(0, Math.floor(bi.offsetY) + 1);
-    // @ts-expect-error — strict-mode migration
     const c1 = Math.max(0, Math.floor(bi.offsetX) + 1);
-    // @ts-expect-error — strict-mode migration
     const r2 = Math.min(totalRows - 1, Math.ceil(bi.offsetY + imgH_cells) - 2);
-    // @ts-expect-error — strict-mode migration
     const c2 = Math.min(totalCols - 1, Math.ceil(bi.offsetX + imgW_cells) - 2);
     if (r1 <= r2 && c1 <= c2) {
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
-          if (!cells[r][c]) cells[r][c] = {};
+          cells[r][c] ??= {};
         }
       }
       invalidateAllCaches();
@@ -191,14 +178,11 @@ function render() {
 
   const scaleRow = numericRow(
     'Scale (px / cell)',
-    // @ts-expect-error — strict-mode migration
-    bi.pixelsPerCell,
+    bi.pixelsPerCell!,
     1, null, 1,
     'How many pixels in the source image equal one Mapwright grid cell. Adjust until grid lines overlap.',
-    // @ts-expect-error — strict-mode migration
-    (v: any) => { bi.pixelsPerCell = v; markDirty(); requestRender(); },
-    // @ts-expect-error — strict-mode migration
-    (v: any) => { pushUndo(); bi.pixelsPerCell = v; markDirty(); notify(); }
+    (v: number) => { bi.pixelsPerCell = v; markDirty(); requestRender(); },
+    (v: number) => { pushUndo(); bi.pixelsPerCell = v; markDirty(); notify(); }
   );
 
   // ── Measure Cell drag tool ───────────────────────────────────────────────
@@ -211,7 +195,6 @@ function render() {
     measureBtn.classList.add('active');
     activateBgCellMeasure((newPpc) => {
       pushUndo();
-      // @ts-expect-error — strict-mode migration
       bi.pixelsPerCell = newPpc;
       const imgEl = getCachedBgImage(bi.dataUrl);
       if (imgEl.complete && imgEl.naturalWidth) recenterAndFill(imgEl, newPpc);
@@ -234,10 +217,8 @@ function render() {
   const colsInput = document.createElement('input');
   colsInput.type = 'number';
   colsInput.className = 'bg-image-number';
-  // @ts-expect-error — strict-mode migration
-  colsInput.min = 1;
-  // @ts-expect-error — strict-mode migration
-  colsInput.step = 1;
+  colsInput.min = '1';
+  colsInput.step = '1';
   colsInput.placeholder = '—';
   calcRow.appendChild(colsInput);
 
@@ -248,10 +229,8 @@ function render() {
   const rowsInput = document.createElement('input');
   rowsInput.type = 'number';
   rowsInput.className = 'bg-image-number';
-  // @ts-expect-error — strict-mode migration
-  rowsInput.min = 1;
-  // @ts-expect-error — strict-mode migration
-  rowsInput.step = 1;
+  rowsInput.min = '1';
+  rowsInput.step = '1';
   rowsInput.placeholder = '—';
   calcRow.appendChild(rowsInput);
 
@@ -263,16 +242,13 @@ function render() {
     const cols = parseInt(colsInput.value, 10);
     const rows = parseInt(rowsInput.value, 10);
     const img = getCachedBgImage(bi.dataUrl);
-    if (!img || !img.complete || !img.naturalWidth) return;
     const ppcFromCols = cols > 0 ? img.naturalWidth  / cols : null;
     const ppcFromRows = rows > 0 ? img.naturalHeight / rows : null;
     if (!ppcFromCols && !ppcFromRows) return;
     const ppc = Math.max(1, (ppcFromCols && ppcFromRows)
       ? Math.round((ppcFromCols + ppcFromRows) / 2)
-      // @ts-expect-error — strict-mode migration
-      : Math.round(ppcFromCols ?? ppcFromRows));
+      : Math.round((ppcFromCols ?? ppcFromRows)!));
     pushUndo();
-    // @ts-expect-error — strict-mode migration
     bi.pixelsPerCell = ppc;
     recenterAndFill(img, ppc);
     markDirty();
@@ -287,26 +263,20 @@ function render() {
 
   container.appendChild(numericRow(
     'Offset X (cells)',
-    // @ts-expect-error — strict-mode migration
-    parseFloat(bi.offsetX.toFixed(2)),
+    parseFloat(bi.offsetX!.toFixed(2)),
     null, null, 0.01,
     'Horizontal shift of the image in grid cells. Use to align vertical grid lines.',
-    // @ts-expect-error — strict-mode migration
-    (v: any) => { bi.offsetX = v; markDirty(); requestRender(); },
-    // @ts-expect-error — strict-mode migration
-    (v: any) => { pushUndo(); bi.offsetX = v; markDirty(); notify(); }
+    (v: number) => { bi.offsetX = v; markDirty(); requestRender(); },
+    (v: number) => { pushUndo(); bi.offsetX = v; markDirty(); notify(); }
   ));
 
   container.appendChild(numericRow(
     'Offset Y (cells)',
-    // @ts-expect-error — strict-mode migration
-    parseFloat(bi.offsetY.toFixed(2)),
+    parseFloat(bi.offsetY!.toFixed(2)),
     null, null, 0.01,
     'Vertical shift of the image in grid cells. Use to align horizontal grid lines.',
-    // @ts-expect-error — strict-mode migration
-    (v: any) => { bi.offsetY = v; markDirty(); requestRender(); },
-    // @ts-expect-error — strict-mode migration
-    (v: any) => { pushUndo(); bi.offsetY = v; markDirty(); notify(); }
+    (v: number) => { bi.offsetY = v; markDirty(); requestRender(); },
+    (v: number) => { pushUndo(); bi.offsetY = v; markDirty(); notify(); }
   ));
 
   const centerBtn = document.createElement('button');
@@ -316,8 +286,7 @@ function render() {
   centerBtn.addEventListener('click', () => {
     const imgEl = getCachedBgImage(bi.dataUrl);
     if (!imgEl.complete || !imgEl.naturalWidth) return;
-    // @ts-expect-error — strict-mode migration
-    const ppc = bi.pixelsPerCell;
+    const ppc = bi.pixelsPerCell!;
     const cols = state.dungeon.cells[0]?.length ?? 0;
     const rows = state.dungeon.cells.length;
     const imgW_cells = imgEl.naturalWidth / ppc;
@@ -331,9 +300,7 @@ function render() {
     const offsetX = Math.round(rawOffsetX + phaseX_cells) - phaseX_cells;
     const offsetY = Math.round(rawOffsetY + phaseY_cells) - phaseY_cells;
     pushUndo();
-    // @ts-expect-error — strict-mode migration
     bi.offsetX = offsetX;
-    // @ts-expect-error — strict-mode migration
     bi.offsetY = offsetY;
     markDirty();
     notify();
@@ -350,26 +317,20 @@ function render() {
   fillBtn.addEventListener('click', () => {
     const imgEl = getCachedBgImage(bi.dataUrl);
     if (!imgEl.complete || !imgEl.naturalWidth) return;
-    // @ts-expect-error — strict-mode migration
-    const imgWidthCells = imgEl.naturalWidth / bi.pixelsPerCell;
-    // @ts-expect-error — strict-mode migration
-    const imgHeightCells = imgEl.naturalHeight / bi.pixelsPerCell;
+    const imgWidthCells = imgEl.naturalWidth / bi.pixelsPerCell!;
+    const imgHeightCells = imgEl.naturalHeight / bi.pixelsPerCell!;
     const { cells } = state.dungeon;
     const totalRows = cells.length;
     const totalCols = cells[0]?.length ?? 0;
-    // @ts-expect-error — strict-mode migration
-    const r1 = Math.max(0, Math.floor(bi.offsetY) + 1);
-    // @ts-expect-error — strict-mode migration
-    const c1 = Math.max(0, Math.floor(bi.offsetX) + 1);
-    // @ts-expect-error — strict-mode migration
-    const r2 = Math.min(totalRows - 1, Math.ceil(bi.offsetY + imgHeightCells) - 2);
-    // @ts-expect-error — strict-mode migration
-    const c2 = Math.min(totalCols - 1, Math.ceil(bi.offsetX + imgWidthCells) - 2);
+    const r1 = Math.max(0, Math.floor(bi.offsetY!) + 1);
+    const c1 = Math.max(0, Math.floor(bi.offsetX!) + 1);
+    const r2 = Math.min(totalRows - 1, Math.ceil(bi.offsetY! + imgHeightCells) - 2);
+    const c2 = Math.min(totalCols - 1, Math.ceil(bi.offsetX! + imgWidthCells) - 2);
     if (r1 > r2 || c1 > c2) return;
     pushUndo();
     for (let r = r1; r <= r2; r++) {
       for (let c = c1; c <= c2; c++) {
-        if (!cells[r][c]) cells[r][c] = {};
+        cells[r][c] ??= {};
       }
     }
     invalidateAllCaches();
@@ -381,17 +342,13 @@ function render() {
   // ── Resize warning ───────────────────────────────────────────────────────
   const imgEl = getCachedBgImage(bi.dataUrl);
   if (imgEl.complete && imgEl.naturalWidth > 0) {
-    // @ts-expect-error — strict-mode migration
-    const imgWidthCells = imgEl.naturalWidth / bi.pixelsPerCell;
-    // @ts-expect-error — strict-mode migration
-    const imgHeightCells = imgEl.naturalHeight / bi.pixelsPerCell;
+    const imgWidthCells = imgEl.naturalWidth / bi.pixelsPerCell!;
+    const imgHeightCells = imgEl.naturalHeight / bi.pixelsPerCell!;
     const { cells } = state.dungeon;
     const totalRows = cells.length;
     const totalCols = cells[0]?.length ?? 0;
-    // @ts-expect-error — strict-mode migration
-    const neededCols = Math.max(1, Math.ceil(Math.max(0, bi.offsetX + imgWidthCells)) + 1);
-    // @ts-expect-error — strict-mode migration
-    const neededRows = Math.max(1, Math.ceil(Math.max(0, bi.offsetY + imgHeightCells)) + 1);
+    const neededCols = Math.max(1, Math.ceil(Math.max(0, bi.offsetX! + imgWidthCells)) + 1);
+    const neededRows = Math.max(1, Math.ceil(Math.max(0, bi.offsetY! + imgHeightCells)) + 1);
     if (neededCols > totalCols || neededRows > totalRows) {
       // Canvas too small — image extends beyond the dungeon boundary
       const warnEl = el('div', 'bg-image-resize-warning');
@@ -420,8 +377,7 @@ function render() {
         }
         // Clear all floors, re-center image, re-fill under image
         for (let r = 0; r < c.length; r++) for (let col = 0; col < c[r].length; col++) c[r][col] = null;
-        // @ts-expect-error — strict-mode migration
-        if (imgEl.complete && imgEl.naturalWidth) recenterAndFill(imgEl, bi.pixelsPerCell);
+        if (imgEl.complete && imgEl.naturalWidth) recenterAndFill(imgEl, bi.pixelsPerCell!);
         invalidateAllCaches();
         markDirty();
         notify();
@@ -449,8 +405,7 @@ function render() {
         }
         // Clear all floors, re-center image, re-fill under image
         for (let r = 0; r < c.length; r++) for (let col = 0; col < c[r].length; col++) c[r][col] = null;
-        // @ts-expect-error — strict-mode migration
-        if (imgEl.complete && imgEl.naturalWidth) recenterAndFill(imgEl, bi.pixelsPerCell);
+        if (imgEl.complete && imgEl.naturalWidth) recenterAndFill(imgEl, bi.pixelsPerCell!);
         invalidateAllCaches();
         markDirty();
         notify();
@@ -472,14 +427,10 @@ function render() {
 
   const opacitySlider = document.createElement('input');
   opacitySlider.type = 'range';
-  // @ts-expect-error — strict-mode migration
-  opacitySlider.min = 0;
-  // @ts-expect-error — strict-mode migration
-  opacitySlider.max = 100;
-  // @ts-expect-error — strict-mode migration
-  opacitySlider.step = 5;
-  // @ts-expect-error — strict-mode migration
-  opacitySlider.value = Math.round((bi.opacity ?? 1.0) * 100);
+  opacitySlider.min = '0';
+  opacitySlider.max = '100';
+  opacitySlider.step = '5';
+  opacitySlider.value = String(Math.round((bi.opacity) * 100));
 
   const opacityDisplay = el('span', 'bg-image-value');
   opacityDisplay.textContent = `${opacitySlider.value}%`;
@@ -505,19 +456,19 @@ function render() {
 
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 
-function el(tag: any, className: any) {
+function el(tag: string, className: string) {
   const e = document.createElement(tag);
   if (className) e.className = className;
   return e;
 }
 
-function sectionLabel(text: any) {
+function sectionLabel(text: string) {
   const label = el('div', 'bg-image-section-label');
   label.textContent = text;
   return label;
 }
 
-function numericRow(labelText: any, value: any, min: any, max: any, step: any, title: any, onInput: any, onChange: any) {
+function numericRow(labelText: string, value: number | string, min: number | null, max: number | null, step: number, title: string, onInput: (v: number) => void, onChange: (v: number) => void) {
   const row = el('div', 'bg-image-slider-row');
 
   const labelEl = el('label', 'bg-image-label');
@@ -528,10 +479,10 @@ function numericRow(labelText: any, value: any, min: any, max: any, step: any, t
   const input = document.createElement('input');
   input.type = 'number';
   input.className = 'bg-image-number';
-  input.value = value;
-  if (min !== null) input.min = min;
-  if (max !== null) input.max = max;
-  input.step = step;
+  input.value = String(value);
+  if (min !== null) input.min = String(min);
+  if (max !== null) input.max = String(max);
+  input.step = String(step);
 
   input.addEventListener('input', () => {
     const v = parseFloat(input.value);
@@ -551,13 +502,10 @@ function numericRow(labelText: any, value: any, min: any, max: any, step: any, t
     const delta = e.deltaY < 0 ? step : -step;
     const next = parseFloat((v + delta).toFixed(10));
     if ((min === null || next >= min) && (max === null || next <= max)) {
-      // @ts-expect-error — strict-mode migration
-      input.value = next;
+      input.value = String(next);
       onInput(next);
-      // @ts-expect-error — strict-mode migration
-      clearTimeout(input._wheelTimer);
-      // @ts-expect-error — strict-mode migration
-      input._wheelTimer = setTimeout(() => onChange(next), 400);
+      clearTimeout((input as unknown as { _wheelTimer: ReturnType<typeof setTimeout> })._wheelTimer);
+      (input as unknown as { _wheelTimer: ReturnType<typeof setTimeout> })._wheelTimer = setTimeout(() => onChange(next), 400);
     }
   }, { passive: false });
 
@@ -572,7 +520,7 @@ function numericRow(labelText: any, value: any, min: any, max: any, step: any, t
  * value by computing the autocorrelation of row- and column-gradient signals.
  * Returns null if no clear periodic pattern is found.
  */
-function _analyzeGrid(img: any) {
+function _analyzeGrid(img: HTMLImageElement) {
   const MAX_DIM = 1024;
   const scale = Math.min(1, MAX_DIM / Math.max(img.naturalWidth, img.naturalHeight));
   const w = Math.round(img.naturalWidth * scale);
@@ -605,15 +553,14 @@ function _analyzeGrid(img: any) {
   const rp = _findPeriod(rowSig);
   const cp = _findPeriod(colSig);
   if (!rp && !cp) return null;
-  const avgPeriod = (rp && cp) ? (rp + cp) / 2 : (rp ?? cp);
-  // @ts-expect-error — strict-mode migration
+  const avgPeriod = (rp && cp) ? (rp + cp) / 2 : (rp ?? cp)!;
   const raw = Math.max(4, Math.round(avgPeriod / scale));
   // For larger grid sizes, snap to the nearest multiple of 5 (e.g. 73 → 75)
   const pixelsPerCell = raw > 50 ? Math.round(raw / 5) * 5 : raw;
   // Detect grid phase: position of the first grid line within the image (in image pixels).
   // Fold each signal into period buckets; the peak bucket index is the phase offset.
-  const scaledPhaseX = cp ? _findPhase(colSig, cp) : _findPhase(colSig, rp);
-  const scaledPhaseY = rp ? _findPhase(rowSig, rp) : _findPhase(rowSig, cp);
+  const scaledPhaseX = cp ? _findPhase(colSig, cp) : _findPhase(colSig, rp!);
+  const scaledPhaseY = rp ? _findPhase(rowSig, rp) : _findPhase(rowSig, cp!);
   return { pixelsPerCell, phaseX: scaledPhaseX / scale, phaseY: scaledPhaseY / scale };
 }
 
@@ -621,7 +568,7 @@ function _analyzeGrid(img: any) {
  * Find the dominant period of a 1-D signal using normalised autocorrelation.
  * Checks sub-harmonics to avoid returning a multiple of the true period.
  */
-function _findPeriod(signal: any) {
+function _findPeriod(signal: Float32Array) {
   const n = signal.length;
   const MIN_P = 6;
   const MAX_P = Math.min(Math.floor(n / 3), 400);
@@ -674,7 +621,7 @@ function _findPeriod(signal: any) {
  * Folds the signal into T buckets by accumulating signal[i] into bucket[i % T].
  * The bucket with the highest sum is the dominant phase.
  */
-function _findPhase(signal: any, period: any) {
+function _findPhase(signal: Float32Array, period: number) {
   const T = Math.max(1, Math.round(period));
   const bucket = new Float32Array(T);
   for (let i = 0; i < signal.length; i++) bucket[i % T] += signal[i];
@@ -690,7 +637,7 @@ function _findPhase(signal: any, period: any) {
  * result. Unlike _analyzeGrid, this uses the caller-supplied pixelsPerCell so
  * phase bucketing is correct even when the user has manually set a different scale.
  */
-function _detectPhase(img: any, ppc: any) {
+function _detectPhase(img: HTMLImageElement, ppc: number) {
   const MAX_DIM = 1024;
   const scale = Math.min(1, MAX_DIM / Math.max(img.naturalWidth, img.naturalHeight));
   const w = Math.round(img.naturalWidth * scale);

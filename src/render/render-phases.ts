@@ -1,4 +1,4 @@
-import type { CellGrid, Theme, RenderTransform, VisibleBounds } from '../types.js';
+import type { BackgroundImage, Cell, CellGrid, Metadata, PropCatalog, RenderTransform, TextureOptions, TextureRuntime, Theme, VisibleBounds } from '../types.js';
 import { toCanvas } from './bounds.js';
 import { renderTimings, getTimingFrame } from './render-state.js';
 import { withTrimVoidClip } from './render-cache.js';
@@ -23,16 +23,16 @@ const HAZARD_COLOR = '#f0c020';
 // Patterns are cached on entry._pattern / entry._patternCtx so they survive
 // across frames and are only recreated when the image or context changes.
 
-function _getTexPattern(ctx: any, entry: any) {
+function _getTexPattern(ctx: CanvasRenderingContext2D, entry: TextureRuntime) {
   if (!entry._pattern || entry._patternCtx !== ctx) {
-    entry._pattern = ctx.createPattern(entry.img, 'repeat');
+    entry._pattern = ctx.createPattern(entry.img!, 'repeat');
     entry._patternCtx = ctx;
   }
-  return entry._pattern;
+  return entry._pattern as CanvasPattern;
 }
 
-function _applyPatternTransform(pattern: any, entry: any, cellPx: any, transform: any, resolution = 1) {
-  const img = entry.img;
+function _applyPatternTransform(pattern: CanvasPattern, entry: TextureRuntime, cellPx: number, transform: RenderTransform, resolution = 1) {
+  const img = entry.img!;
   const cw = Math.max(1, Math.floor(img.naturalWidth  / 256));
   const ch = Math.max(1, Math.floor(img.naturalHeight / 256));
   // Scale: one chunk (srcW × srcH texture pixels) → one display cell.
@@ -62,7 +62,7 @@ function _applyPatternTransform(pattern: any, entry: any, cellPx: any, transform
  * @param {number} [resolution=1] - Resolution multiplier for sub-cells
  * @returns {boolean} True if any textured cells were drawn
  */
-export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, textureOptions: any, bgImageEl: any = null, bgImgConfig: any = null, visibleBounds: VisibleBounds | null = null, resolution: number = 1): boolean {
+export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, textureOptions: TextureOptions | null, bgImageEl: HTMLImageElement | null = null, bgImgConfig: BackgroundImage | Record<string, number | string | boolean> | null = null, visibleBounds: VisibleBounds | null = null, resolution: number = 1): boolean {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const startRow = visibleBounds?.minRow ?? 0;
@@ -78,8 +78,7 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
   const step = resolution;
   const cellPxDisplay = displayCellFeet * transform.scale;
   const cellPxSub = gridSize * transform.scale;
-  // @ts-expect-error — strict-mode migration
-  ctx.fillStyle = theme.wallFill;
+  ctx.fillStyle = theme.wallFill ?? theme.wall;
   ctx.beginPath();
   // Snap iteration to display-cell boundaries for coalescing
   const floorStartRow = Math.floor(startRow / step) * step;
@@ -128,12 +127,8 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
               }
               ctx.closePath();
             } else if (cell.trimClip) {
-              if (cell.trimOpen && !cell.trimHideExterior && !cell.trimShowExteriorOnly) {
+              if (!cell.trimHideExterior) {
                 // Open trim, both sides visible — draw full cell rect
-                const p1 = toCanvas(x, y, transform);
-                ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
-              } else if ((cell.textureSecondary || cell.trimOpen) && !cell.trimHideExterior && !cell.trimShowExteriorOnly) {
-                // Closed trim with secondary texture: both halves need floor base color
                 const p1 = toCanvas(x, y, transform);
                 ctx.rect(p1.x, p1.y, cellPxSub, cellPxSub);
               } else {
@@ -161,13 +156,13 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
   // Background image: above floor base color, below texture tiles, clipped to floor cells
   if (bgImageEl && bgImgConfig && bgImageEl.complete && bgImageEl.naturalWidth > 0) {
     const cellPx = gridSize * transform.scale;
-    const imgW = bgImageEl.naturalWidth  * cellPx / bgImgConfig.pixelsPerCell;
-    const imgH = bgImageEl.naturalHeight * cellPx / bgImgConfig.pixelsPerCell;
-    const imgX = transform.offsetX + bgImgConfig.offsetX * cellPx;
-    const imgY = transform.offsetY + bgImgConfig.offsetY * cellPx;
+    const imgW = bgImageEl.naturalWidth  * cellPx / (bgImgConfig.pixelsPerCell as number);
+    const imgH = bgImageEl.naturalHeight * cellPx / (bgImgConfig.pixelsPerCell as number);
+    const imgX = transform.offsetX + (bgImgConfig.offsetX as number) * cellPx;
+    const imgY = transform.offsetY + (bgImgConfig.offsetY as number) * cellPx;
     ctx.save();
     ctx.clip(); // clip to the Pass 1 floor path — respects fog in player view, trim shapes in both
-    ctx.globalAlpha = bgImgConfig.opacity ?? 0.5;
+    ctx.globalAlpha = bgImgConfig.opacity as number;
     ctx.drawImage(bgImageEl, imgX, imgY, imgW, imgH);
     ctx.restore();
   }
@@ -217,11 +212,11 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
             : [{ clipType: 'se', key: 'texture',          opKey: 'textureOpacity' },
                { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' }];
           for (const { clipType, key, opKey } of halves) {
-            const tid = (cell as any)[key] || cell.texture;
+            const tid = ((cell as Record<string, unknown>)[key] ?? cell.texture) as string;
             if (!tid) continue;
             const entry = catalog?.textures[tid];
             if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
-            clippedWork.push({ entry, texOp: (cell as any)[opKey] ?? cell.textureOpacity ?? 1.0, clipType, tl, tr, bl, br });
+            clippedWork.push({ entry, texOp: (cell as Record<string, unknown>)[opKey] as number, clipType, tl, tr, bl, br });
             hasTexturedCells = true;
           }
           continue;
@@ -235,11 +230,9 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
             texOp = cell.textureSecondaryOpacity ?? texOp;
           }
         }
-        // @ts-expect-error — strict-mode migration
-        const texEntry = texId ? catalog?.textures[texId!] : null;
+        const texEntry = texId ? catalog?.textures[texId] : null;
         const secId = cell.textureSecondary;
-        // @ts-expect-error — strict-mode migration
-        const secEntry = secId ? catalog?.textures[secId!] : null;
+        const secEntry = secId ? catalog?.textures[secId] : null;
         const hasPrimary = texEntry?.img?.complete && texEntry.img.naturalWidth;
         const hasSecondary = secEntry?.img?.complete && secEntry.img.naturalWidth;
         if (!hasPrimary && !hasSecondary) continue;
@@ -251,14 +244,13 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
         } else if (cell.trimClip) {
           // Arc cell: if both textures exist, split at the arc curve.
           // For open trims with only one texture, draw as full rect.
-          const showInterior = !cell.trimShowExteriorOnly;
           const showExterior = !cell.trimHideExterior;
           if (hasPrimary && hasSecondary) {
-            if (showInterior) clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
+            clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
             if (showExterior) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: 'trimClipInvert', trimClip: cell.trimClip, tl, tr, bl, br });
           } else {
             // Closed trim: clip to room side only
-            if (hasPrimary && showInterior) clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
+            if (hasPrimary) clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
             if (hasSecondary && showExterior) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: 'trimClipInvert', trimClip: cell.trimClip, tl, tr, bl, br });
           }
         } else if (cell.trimWall && cell.trimCorner && (hasPrimary || hasSecondary)) {
@@ -323,6 +315,7 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
           case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
           case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
           case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+          case undefined: default: break;
         }
       }
       ctx.closePath();
@@ -360,7 +353,7 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
             : [{ clipType: 'se', key: 'texture',          opKey: 'textureOpacity' },
                { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' }];
           for (const { clipType, key, opKey } of halves) {
-            const tid = (cell as any)[key] || cell.texture;
+            const tid = ((cell as Record<string, unknown>)[key] ?? cell.texture) as string;
             if (!tid) continue;
             const entry = catalog?.textures[tid];
             if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
@@ -375,7 +368,7 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
             }
             ctx.closePath();
             ctx.clip();
-            ctx.globalAlpha = (cell as any)[opKey] ?? cell.textureOpacity ?? 1.0;
+            ctx.globalAlpha = (cell as Record<string, unknown>)[opKey] as number;
             ctx.drawImage(entry.img, srcX, srcY, srcW, srcH, p1.x, p1.y, cellPx, cellPx);
             ctx.restore();
             hasTexturedCells = true;
@@ -389,8 +382,7 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
               texOp = cell.textureSecondaryOpacity ?? texOp;
             }
           }
-          // @ts-expect-error — strict-mode migration
-          const texEntry = texId ? catalog?.textures[texId!] : null;
+          const texEntry = texId ? catalog?.textures[texId] : null;
           if (texEntry?.img?.complete && texEntry.img.naturalWidth) {
             const { srcX, srcY, srcW, srcH } = getTexChunk(texEntry, row, col);
             ctx.save();
@@ -443,12 +435,12 @@ export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
  * @param {Object|null} [cacheSize=null] - Cache dimensions {w, h, scale}
  * @returns {void}
  */
-export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, transform: RenderTransform, textureOptions: any, cacheSize: { w: number; h: number } | null = null): void {
+export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, transform: RenderTransform, textureOptions: TextureOptions | null, cacheSize: { w: number; h: number; scale?: number } | null = null): void {
   const blendWidth = textureOptions?.blendWidth ?? 0.35;
   if (blendWidth <= 0) return;
 
-  const topo = getBlendTopoCache(cells, roomCells, gridSize, textureOptions);
-  if (!topo.edges?.length && !topo.corners?.length) return;
+  const topo = getBlendTopoCache(cells, roomCells, gridSize, textureOptions!);
+  if (!topo || (!topo.edges?.length && !topo.corners?.length)) return;
 
   const { scale: sc, offsetX: ox, offsetY: oy } = transform;
   const canvasW = ctx.canvas.width;
@@ -456,7 +448,7 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
 
   // ── Cache-mode fast path: pre-rendered blend layer at cache resolution ──
   if (cacheSize) {
-    const blendLayer = getRenderedBlendLayer(topo, gridSize, cacheSize.w, cacheSize.h, (cacheSize as any).scale);
+    const blendLayer = getRenderedBlendLayer(topo, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale);
     if (blendLayer) {
       ctx.drawImage(blendLayer, 0, 0);
       return;
@@ -464,7 +456,7 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
   }
 
   // ── L2 fast path: all bitmaps ready → single drawImage ──
-  const allBitmapsReady = topo.edges.every((e: any) => e.bitmap) && topo.corners.every((c: any) => c.bitmap);
+  const allBitmapsReady = topo.edges!.every(e => (e as unknown as { bitmap?: unknown }).bitmap) && topo.corners!.every(c => (c as unknown as { bitmap?: unknown }).bitmap);
   if (allBitmapsReady) {
     const layer = getViewportBlendLayer(canvasW, canvasH, transform, topo, gridSize);
     if (layer) {
@@ -491,7 +483,7 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
 
   {
     // ── Edge pass ──
-    for (const edge of topo.edges) {
+    for (const edge of topo.edges!) {
       if (edge.row < rowMin || edge.row > rowMax || edge.col < colMin || edge.col > colMax) continue;
 
       const screenX = edge.col * gridSize * sc + ox;
@@ -511,12 +503,12 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
         const scratch = getBlendScratch(cellPx);
         if (scratch) {
           // Per-frame scratch canvas (texture still loading)
-          const sctx = scratch.getContext('2d');
+          const sctx = scratch.getContext('2d')!;
           sctx.clearRect(0, 0, cellPx, cellPx);
           sctx.globalCompositeOperation = 'source-over';
           sctx.drawImage(edge.neighborEntry.img, edge.srcX, edge.srcY, edge.srcW, edge.srcH, 0, 0, cellPx, cellPx);
 
-          let sg;
+          let sg!: CanvasGradient;
           switch (edge.direction) {
             case 'north': sg = sctx.createLinearGradient(0, 0, 0, blendPx); break;
             case 'south': sg = sctx.createLinearGradient(0, cellPx, 0, cellPx - blendPx); break;
@@ -550,7 +542,7 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
     }
 
     // ── Corner pass ──
-    for (const cn of topo.corners) {
+    for (const cn of topo.corners!) {
       if (cn.row < rowMin || cn.row > rowMax || cn.col < colMin || cn.col > colMax) continue;
 
       const screenX = cn.col * gridSize * sc + ox;
@@ -570,7 +562,7 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
         const scratch = getBlendScratch(cellPx);
         if (scratch) {
           // Per-frame scratch canvas (texture still loading)
-          const sctx = scratch.getContext('2d');
+          const sctx = scratch.getContext('2d')!;
           sctx.clearRect(0, 0, cellPx, cellPx);
           sctx.globalCompositeOperation = 'source-over';
           sctx.drawImage(cn.neighborEntry.img, cn.srcX, cn.srcY, cn.srcW, cn.srcH, 0, 0, cellPx, cellPx);
@@ -581,7 +573,7 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
           sg.addColorStop(0, 'rgba(0,0,0,0)');
           sg.addColorStop(1, 'rgba(0,0,0,1)');
           sctx.globalCompositeOperation = 'destination-out';
-          sctx.fillStyle = sg;
+          sctx.fillStyle = sg!;
           sctx.fillRect(0, 0, cellPx, cellPx);
 
           ctx.save();
@@ -622,15 +614,16 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
  * @param {Object|null} [cacheSize=null] - Cache dimensions {w, h, scale}
  * @returns {void}
  */
-export function renderFillPatternsAndGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, showGrid: boolean, skipGrid: boolean = false, metadata: any = null, cacheSize: { w: number; h: number } | null = null): void {
+export function renderFillPatternsAndGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, showGrid: boolean, skipGrid: boolean = false, metadata: Metadata | null = null, cacheSize: { w: number; h: number; scale?: number } | null = null): void {
   const { scale: sc, offsetX: txOff, offsetY: tyOff } = transform;
 
   const data = getFluidPathCache(cells, gridSize, theme, roomCells);
+  if (!data) return;
 
   if (data.pit || data.water || data.lava) {
     withTrimVoidClip(ctx, cells, gridSize, transform, () => {
       // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
-      const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, (cacheSize as any).scale) : null;
+      const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
 
       if (fluidLayer) {
         // Blit the cached fluid layer
@@ -646,36 +639,37 @@ export function renderFillPatternsAndGrid(ctx: CanvasRenderingContext2D, cells: 
           ctx.clip(fd.clipPath);
 
           for (const [colorKey, path] of fd.fills) {
-            const rv = (colorKey >> 16) & 0xFF;
-            const gv = (colorKey >> 8) & 0xFF;
-            const bv = colorKey & 0xFF;
+            const ck = Number(colorKey);
+            const rv = (ck >> 16) & 0xFF;
+            const gv = (ck >> 8) & 0xFF;
+            const bv = ck & 0xFF;
             ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
             ctx.fill(path);
           }
 
           if (fd.cracksPath) {
-            ctx.strokeStyle = fd.crackColor;
+            ctx.strokeStyle = fd.crackColor!;
             ctx.lineWidth = Math.max(0.3 / sc, 0.06);
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.stroke(fd.cracksPath);
 
-            for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups) {
+            for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups!) {
               const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
-              grad.addColorStop(0, fd.vignetteColor);
+              grad.addColorStop(0, fd.vignetteColor!);
               grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
               grad.addColorStop(1, 'rgba(0,0,0,0)');
               ctx.fillStyle = grad;
-              for (const [r2, c2] of group) {
+              for (const [r2, c2] of group as number[][]) {
                 ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
               }
             }
           } else {
-            ctx.strokeStyle = fd.causticColor;
+            ctx.strokeStyle = fd.causticColor!;
             ctx.lineWidth = Math.max(0.5 / sc, 0.09);
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.stroke(fd.causticPath);
+            ctx.stroke(fd.causticPath!);
           }
 
           ctx.restore();
@@ -711,8 +705,7 @@ export function renderHazardOverlay(ctx: CanvasRenderingContext2D, cells: CellGr
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
       if (!cell) continue;
-      // @ts-expect-error — strict-mode migration
-      if (!cell.hazard && cell.fill !== 'difficult-terrain') continue;
+      if (!cell.hazard && (cell.fill as string) !== 'difficult-terrain') continue;
 
       const x = col * gridSize;
       const y = row * gridSize;
@@ -797,25 +790,23 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
 
   for (let row = startRow; row <= endRow; row++) {
     for (let col = startCol; col <= endCol; col++) {
-      const cell = cells[row][col];
+      const cell = cells[row]?.[col];
       if (!cell) continue;
 
       // Cardinal borders with double door auto-detection
-      const borders = [
+      const borders: [string, number, number, number, number, string][] = [
         ['north', col, row, col + 1, row, 'horizontal'],
         ['south', col, row + 1, col + 1, row + 1, 'horizontal'],
         ['east',  col + 1, row, col + 1, row + 1, 'vertical'],
         ['west',  col, row, col, row + 1, 'vertical'],
       ];
       for (const [dir, x1, y1, x2, y2, orient] of borders) {
-        const bt = (cell as any)[dir];
+        const bt = ((cell as Record<string, unknown>)[dir]) as string;
         if (!bt) continue;
         if (bt === 'd' || bt === 's') {
-          // @ts-expect-error — strict-mode migration
           const role = getDoubleDoorRole(cells, row, col, dir, _res);
           if (role === 'partner') continue;
           if (role === 'anchor') {
-            // @ts-expect-error — strict-mode migration
             renderDoubleBorder(ctx, cells, row, col, dir, bt, orient, theme, gridSize, transform, _res);
             continue;
           }
@@ -824,13 +815,10 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
             // Extend the wall segment coordinates to cover the full display cell width
             const wx1 = x1, wy1 = y1; let wx2 = x2, wy2 = y2;
             if (orient === 'horizontal') {
-              // @ts-expect-error — strict-mode migration
               wx2 = x1 + _res; // extend cols by resolution
             } else {
-              // @ts-expect-error — strict-mode migration
               wy2 = y1 + _res; // extend rows by resolution
             }
-            // @ts-expect-error — strict-mode migration
             renderBorder(ctx, wx1, wy1, wx2, wy2, bt, orient, theme, gridSize, transform);
             continue;
           }
@@ -840,9 +828,7 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
           // as the neighbor's north/west. Skip if neighbor owns the reciprocal.
           if (dir === 'south' && cells[row + 1]?.[col]?.north === 'w') continue;
           if (dir === 'east' && cells[row]?.[col + 1]?.west === 'w') continue;
-          // @ts-expect-error — strict-mode migration
           const { p1, p2 } = wallSegmentCoords(x1, y1, x2, y2, gridSize, transform);
-          // @ts-expect-error — strict-mode migration
           const dirIdx = WALL_DIRS.indexOf(dir);
           const seed = (row * 1000 + col) * 6 + dirIdx;
           wallSegments.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, seed });
@@ -851,22 +837,19 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
           if (!showInvisible) continue;
           if (dir === 'south' && cells[row + 1]?.[col]?.north === 'iw') continue;
           if (dir === 'east' && cells[row]?.[col + 1]?.west === 'iw') continue;
-          // @ts-expect-error — strict-mode migration
           renderBorder(ctx, x1, y1, x2, y2, bt, orient, theme, gridSize, transform);
         } else if (bt === 'id') {
           // Invisible door: skip unless showInvisible
           if (!showInvisible) continue;
-          // @ts-expect-error — strict-mode migration
           renderBorder(ctx, x1, y1, x2, y2, bt, orient, theme, gridSize, transform);
         } else {
-          // @ts-expect-error — strict-mode migration
           renderBorder(ctx, x1, y1, x2, y2, bt, orient, theme, gridSize, transform);
         }
       }
 
       // Diagonal borders — collect doors for deferred rendering, walls handled below
       for (const diag of ['nw-se', 'ne-sw']) {
-        const bt = (cell as any)[diag];
+        const bt = ((cell as Record<string, unknown>)[diag]);
         if (!bt) continue;
         if (cell.trimWall) continue;
         if (bt === 'd' || bt === 's') {
@@ -890,7 +873,6 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
     for (let col = startCol; col <= endCol; col++) {
       for (const diag of ['nw-se', 'ne-sw']) {
         const cell = cells[row]?.[col];
-        // @ts-expect-error — strict-mode migration
         const bt = cell?.[diag];
         if (!bt || cell.trimWall) continue;
         if (bt !== 'w' && bt !== 'd' && bt !== 's') continue;
@@ -903,7 +885,7 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
         let runLen = 0;
         let r = row, c = col;
         while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
-          const v = (cells as any)[r]?.[c]?.[diag];
+          const v = cells[r]?.[c]?.[diag as keyof Cell];
           if ((v !== 'w' && v !== 'd' && v !== 's') || cells[r]?.[c]?.trimWall) break;
           diagSeen.add(`${r},${c},${diag}`);
           runLen++;
@@ -936,8 +918,7 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
 
     ctx.strokeStyle = theme.wallStroke;
     ctx.lineWidth = 6 * s;
-    // @ts-expect-error — strict-mode migration
-    if (theme.wallRoughness > 0) {
+    if (theme.wallRoughness && theme.wallRoughness > 0) {
       drawRoughWalls(ctx, wallSegments, theme, transform);
     } else {
       ctx.lineCap = 'square';
@@ -980,11 +961,9 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
         ctx.lineCap = 'round';
         const sx = 2 * s, sy = 2 * s;
         ctx.beginPath();
-        // @ts-expect-error — strict-mode migration
         const p0s = toCanvas(cx + (wall[0][0] as number) * gridSize + sx / transform.scale, cy + (wall[0][1] as number) * gridSize + sy / transform.scale, transform);
         ctx.moveTo(p0s.x, p0s.y);
         for (let i = 1; i < wall.length; i++) {
-          // @ts-expect-error — strict-mode migration
           const p = toCanvas(cx + (wall[i][0] as number) * gridSize + sx / transform.scale, cy + (wall[i][1] as number) * gridSize + sy / transform.scale, transform);
           ctx.lineTo(p.x, p.y);
         }
@@ -998,11 +977,9 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
       ctx.lineWidth = 6 * s;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      // @ts-expect-error — strict-mode migration
       const p0 = toCanvas(cx + (wall[0][0] as number) * gridSize, cy + (wall[0][1] as number) * gridSize, transform);
       ctx.moveTo(p0.x, p0.y);
       for (let i = 1; i < wall.length; i++) {
-        // @ts-expect-error — strict-mode migration
         const p = toCanvas(cx + (wall[i][0] as number) * gridSize, cy + (wall[i][1] as number) * gridSize, transform);
         ctx.lineTo(p.x, p.y);
       }
@@ -1035,7 +1012,6 @@ export function renderLabels(ctx: CanvasRenderingContext2D, cells: CellGrid, gri
         // Use labelX/labelY (world feet) if set, otherwise default to cell center
         const labelX = cell.center.labelX ?? (col + 0.5) * gridSize;
         const labelY = cell.center.labelY ?? (row + 0.5) * gridSize;
-        // @ts-expect-error — strict-mode migration
         const p = toCanvas(labelX, labelY, transform);
 
         if (cell.center.label) {
@@ -1044,9 +1020,8 @@ export function renderLabels(ctx: CanvasRenderingContext2D, cells: CellGrid, gri
 
         // DM labels: use dmLabelX/dmLabelY if set, otherwise same position
         if (cell.center.dmLabel) {
-          const dmX = cell.center.dmLabelX ?? (col + 0.5) * gridSize;
-          const dmY = cell.center.dmLabelY ?? (row + 0.5) * gridSize;
-          // @ts-expect-error — strict-mode migration
+          const dmX = (cell.center.dmLabelX as number | undefined) ?? (col + 0.5) * gridSize;
+          const dmY = (cell.center.dmLabelY as number | undefined) ?? (row + 0.5) * gridSize;
           const dp = toCanvas(dmX, dmY, transform);
           drawDmLabel(ctx, dp.x, dp.y, cell.center.dmLabel, transform.scale);
         }
@@ -1071,17 +1046,17 @@ export function renderLabels(ctx: CanvasRenderingContext2D, cells: CellGrid, gri
  * @param {Object|null} [cacheSize=null] - Cache dimensions {w, h, scale}
  * @returns {void}
  */
-export function renderLabelsStairsProps(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, labelStyle: string, propCatalog: any, textureOptions: any, metadata: any, skipLabels: boolean = false, visibleBounds: VisibleBounds | null = null, cacheSize: { w: number; h: number } | null = null): void {
+export function renderLabelsStairsProps(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, labelStyle: string, propCatalog: PropCatalog | null, textureOptions: TextureOptions | null, metadata: Metadata | null, skipLabels: boolean = false, visibleBounds: VisibleBounds | null = null, cacheSize: { w: number; h: number; scale?: number } | null = null): void {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
   // Props (furniture, objects)
-  const getTextureImage = textureOptions?.catalog
-    ? (id: any) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img : null; }
+  const getTextureImage: ((id: string) => HTMLImageElement | null) | null = textureOptions?.catalog
+    ? (id: string) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img as HTMLImageElement : null; }
     : null;
 
   // Try pre-rendered props layer cache
-  const propsLayer = cacheSize ? getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, metadata, cacheSize.w, cacheSize.h, (cacheSize as any).scale) : null;
+  const propsLayer = cacheSize ? getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, metadata, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
   if (propsLayer) {
     ctx.drawImage(propsLayer, 0, 0);
   } else {
@@ -1095,7 +1070,7 @@ export function renderLabelsStairsProps(ctx: CanvasRenderingContext2D, cells: Ce
   }
 
   // Stairs — new system: metadata.stairs[] array of shape definitions
-  const stairDefs = metadata?.stairs || [];
+  const stairDefs = metadata?.stairs ?? [];
 
   for (const stairDef of stairDefs) {
     drawStairShape(ctx, stairDef, theme, gridSize, transform);
@@ -1132,8 +1107,7 @@ export function renderLabelsStairsProps(ctx: CanvasRenderingContext2D, cells: Ce
           drawStairsInCell(ctx, p.x + offsetX, p.y + offsetY, 'stairs-down', theme, gridSize, hasLabel, transform);
         }
         if (cell.center['stairs-link']) {
-          // @ts-expect-error — strict-mode migration
-          drawStairsLinkLabel(ctx, p.x, p.y, cell.center['stairs-link'], theme, transform);
+          drawStairsLinkLabel(ctx, p.x, p.y, cell.center['stairs-link'] as string, theme, transform);
         }
       }
     }

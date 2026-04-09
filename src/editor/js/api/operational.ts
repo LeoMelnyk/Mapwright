@@ -49,10 +49,10 @@ export async function waitForTextures(timeoutMs: number = 8000): Promise<{ succe
   const usedIds = collectTextureIds(state.dungeon.cells);
 
   // Also include textures referenced by overlay props
-  if (state.propCatalog?.props && state.dungeon.metadata?.props) {
-    // @ts-expect-error — strict-mode migration
+  if (state.propCatalog?.props && state.dungeon.metadata.props) {
     for (const op of state.dungeon.metadata.props) {
       const propDef = state.propCatalog.props[op.type];
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
       if (propDef?.textures) {
         for (const id of propDef.textures) usedIds.add(id);
       }
@@ -63,23 +63,21 @@ export async function waitForTextures(timeoutMs: number = 8000): Promise<{ succe
 
   // Wait for all in-flight images (map-used + any previously triggered)
   const entries = Object.values(state.textureCatalog.textures);
-  const pending = entries.filter(e => (e as any).img && !(e as any).img.complete);
+  const pending = entries.filter(e => (e as { img?: HTMLImageElement }).img && !(e as { img?: HTMLImageElement }).img!.complete);
   if (!pending.length) { requestRender(); return { success: true, count: entries.length }; }
 
   const deadline = Date.now() + timeoutMs;
-  await Promise.all(pending.map(e => new Promise((resolve) => {
-    // @ts-expect-error — strict-mode migration
-    if ((e as any).img.complete) return resolve();
+  await Promise.all(pending.map(e => new Promise<void>((resolve) => {
+    const img = (e as { img?: HTMLImageElement }).img!;
+    if (img.complete) return resolve();
     const done = () => {
-      (e as any).img.removeEventListener('load', done);
-      (e as any).img.removeEventListener('error', done);
-      // @ts-expect-error — strict-mode migration
+      img.removeEventListener('load', done);
+      img.removeEventListener('error', done);
       resolve();
     };
-    (e as any).img.addEventListener('load', done);
-    (e as any).img.addEventListener('error', done);
-    // @ts-expect-error — strict-mode migration
-    const check = () => { if ((e as any).img.complete || Date.now() >= deadline) resolve(); else setTimeout(check, 100); };
+    img.addEventListener('load', done);
+    img.addEventListener('error', done);
+    const check = () => { if (img.complete || Date.now() >= deadline) resolve(); else setTimeout(check, 100); };
     check();
   })));
 
@@ -97,8 +95,8 @@ export async function getScreenshot(): Promise<string> {
   requestRender();
   return new Promise((resolve) => {
     requestAnimationFrame(() => {
-      const canvas = document.getElementById('editor-canvas');
-      resolve((canvas! as any).toDataURL('image/png'));
+      const canvas = document.getElementById('editor-canvas')!;
+      resolve((canvas as HTMLCanvasElement).toDataURL('image/png'));
     });
   });
 }
@@ -115,8 +113,7 @@ export async function exportPng(): Promise<string> {
   offscreen.width = width;
   offscreen.height = height;
   const ctx = offscreen.getContext('2d');
-  // @ts-expect-error — strict-mode migration
-  renderDungeonToCanvas(ctx, config, width, height, state.propCatalog, state.textureCatalog);
+  renderDungeonToCanvas(ctx!, config, width, height, state.propCatalog, state.textureCatalog);
   return offscreen.toDataURL('image/png');
 }
 
@@ -152,12 +149,11 @@ export async function waitForEditor(timeoutMs: number = 15000): Promise<{ succes
       if (Date.now() >= deadline) return reject(new Error('waitForEditor timed out'));
       const ready = !!(
         document.getElementById('editor-canvas') &&
-        state.dungeon &&
+         
         getThemeCatalog() !== null &&
         state.propCatalog
       );
-      // @ts-expect-error — strict-mode migration
-      if (ready) return resolve();
+      if (ready) return resolve(undefined);
       setTimeout(check, 100);
     };
     check();
@@ -173,9 +169,9 @@ export async function waitForEditor(timeoutMs: number = 15000): Promise<{ succes
  * @param {string} code - JavaScript code to evaluate
  * @returns {Promise<{ success: boolean, result?: * }>}
  */
-export async function eval_(code: string): Promise<{ success: boolean; result?: any }> {
+export async function eval_(code: string): Promise<{ success: boolean; result?: string | number | boolean | Record<string, unknown> | null }> {
   const fn = new Function('state', 'editorAPI', `return (async () => { ${code} })();`);
-  const result = await fn(state, (window as any).editorAPI);
+  const result = await fn(state, (window as unknown as Record<string, unknown>).editorAPI);
   if (result === undefined || result === null) return { success: true };
   if (typeof result === 'object' && result.success !== undefined) return result;
   return { success: true, result };
@@ -211,11 +207,11 @@ export function undoToDepth(targetDepth: number): { success: true; undid: number
  * @param {string} label - Room label
  * @returns {{ label: string, bounds: Object, props: Array, fills: Array, doors: Array, textures: Array }}
  */
-export function getRoomContents(label: string): any {
+export function getRoomContents(label: string): { success?: boolean; error?: string; label?: string; bounds?: { r1: number; c1: number; r2: number; c2: number }; props: { row: number; col: number; type: string; facing: number }[]; fills: { row: number; col: number; type: string; depth: number }[]; doors: { row: number; col: number; direction: string; type: string }[]; textures: { row: number; col: number; id: string; opacity: number }[] } {
   const bounds = getApi().getRoomBounds(label);
-  if (!bounds) return { success: false, error: `Room "${label}" not found` };
-  const result = { label, bounds, props: [], fills: [], doors: [], textures: [] };
-  const gs = state.dungeon.metadata?.gridSize || 5;
+  if (!bounds) return { success: false, error: `Room "${label}" not found`, props: [], fills: [], doors: [], textures: [] };
+  const result: { label: string; bounds: typeof bounds; props: { row: number; col: number; type: string; facing: number }[]; fills: { row: number; col: number; type: string; depth: number }[]; doors: { row: number; col: number; direction: string; type: string }[]; textures: { row: number; col: number; id: string; opacity: number }[] } = { label, bounds, props: [], fills: [], doors: [], textures: [] };
+  const gs = state.dungeon.metadata.gridSize || 5;
   // Convert display bounds to internal for iteration
   const ir1 = toInt(bounds.r1), ic1 = toInt(bounds.c1);
   const ir2 = toInt(bounds.r2), ic2 = toInt(bounds.c2);
@@ -223,26 +219,21 @@ export function getRoomContents(label: string): any {
     for (let c = ic1; c <= ic2; c++) {
       const cell = state.dungeon.cells[r]?.[c];
       if (!cell) continue;
-      // @ts-expect-error — strict-mode migration
-      if (cell.fill) result.fills.push({ row: toDisp(r), col: toDisp(c), type: cell.fill, depth: cell.fillDepth ?? 1 });
-      // @ts-expect-error — strict-mode migration
+      if (cell.fill) result.fills.push({ row: toDisp(r), col: toDisp(c), type: cell.fill as string, depth: cell.fillDepth ?? 1 });
       if (cell.texture) result.textures.push({ row: toDisp(r), col: toDisp(c), id: cell.texture, opacity: cell.textureOpacity ?? 1 });
       for (const dir of ['north', 'south', 'east', 'west']) {
-        if ((cell as any)[dir] === 'd' || (cell as any)[dir] === 's')
-          // @ts-expect-error — strict-mode migration
-          result.doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as any)[dir] });
+        if ((cell as Record<string, unknown>)[dir] === 'd' || (cell as Record<string, unknown>)[dir] === 's')
+          result.doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as Record<string, unknown>)[dir] as string });
       }
     }
   }
   // Collect props from metadata.props[] that fall within room bounds
-  if (state.dungeon.metadata?.props) {
-    // @ts-expect-error — strict-mode migration
+  if (state.dungeon.metadata.props) {
     for (const op of state.dungeon.metadata.props) {
       const propRow = Math.round(op.y / gs);
       const propCol = Math.round(op.x / gs);
       if (propRow >= ir1 && propRow <= ir2 && propCol >= ic1 && propCol <= ic2) {
-        // @ts-expect-error — strict-mode migration
-        result.props.push({ row: toDisp(propRow), col: toDisp(propCol), type: op.type, facing: op.rotation ?? 0 });
+        result.props.push({ row: toDisp(propRow), col: toDisp(propCol), type: op.type, facing: op.rotation });
       }
     }
   }
@@ -256,13 +247,13 @@ export function getRoomContents(label: string): any {
  * @param {string|null} [adjacentTo=null] - Room label to try placing adjacent to
  * @returns {{ r1: number, c1: number, r2: number, c2: number } | { success: boolean, error: string }}
  */
-export function suggestPlacement(rows: number, cols: number, adjacentTo: string | null = null): any {
+export function suggestPlacement(rows: number, cols: number, adjacentTo: string | null = null): { success?: boolean; error?: string; r1?: number; c1?: number; r2?: number; c2?: number } {
   const info = getApi().getMapInfo();
   if (!info) return { success: false, error: 'Map not available' };
   const { rows: gridRows, cols: gridCols } = info;
   const margin = 1;
 
-  const isFree = (r1: any, c1: any, r2: any, c2: any) => {
+  const isFree = (r1: number, c1: number, r2: number, c2: number) => {
     if (r1 < margin || c1 < margin) return false;
     if (r2 > gridRows - 1 - margin || c2 > gridCols - 1 - margin) return false;
     // Convert display coords to internal for cell access
@@ -270,7 +261,7 @@ export function suggestPlacement(rows: number, cols: number, adjacentTo: string 
     for (let r = ir1; r <= ir2; r++) {
       for (let c = ic1; c <= ic2; c++) {
         const cell = state.dungeon.cells[r]?.[c];
-        if (cell !== null && cell !== undefined) return false;
+        if (cell !== null) return false;
       }
     }
     return true;
@@ -315,10 +306,10 @@ export function listTextures(): { success: true; textures: Array<{ id: string; d
   if (!catalog) return { success: true, textures: [] };
   return {
     success: true,
-    textures: Object.values(catalog.textures).map(t => ({
-      id: (t as any).id,
-      displayName: (t as any).displayName,
-      category: (t as any).category,
+    textures: Object.values(catalog.textures).filter(t => t != null).map(t => ({
+      id: (t as Record<string, unknown>).id as string,
+      displayName: (t.displayName ?? ''),
+      category: (t as Record<string, unknown>).category as string,
     })),
   };
 }
@@ -339,7 +330,7 @@ export function listThemes(): { success: true; themes: string[] } {
  * Return all labeled rooms with bounding boxes and centers.
  * @returns {{ success: boolean, rooms: Array<Object> }}
  */
-export function listRooms(): { success: true; rooms: any[] } {
+export function listRooms(): { success: true; rooms: { label: string; r1: number; c1: number; r2: number; c2: number; center: { row: number; col: number } }[] } {
   const cells = state.dungeon.cells;
   const labels = new Map();
   for (let r = 0; r < cells.length; r++) {
@@ -351,6 +342,7 @@ export function listRooms(): { success: true; rooms: any[] } {
   const rooms = [];
   for (const [label] of labels) {
     const roomCells = getApi()._collectRoomCells(label);
+    if (!roomCells) continue;
     const b = roomBoundsFromKeys(roomCells);
     if (b) rooms.push({ label, r1: toDisp(b.r1), c1: toDisp(b.c1), r2: toDisp(b.r2), c2: toDisp(b.c2), center: { row: toDisp(b.centerRow), col: toDisp(b.centerCol) } });
   }
@@ -364,10 +356,10 @@ export function listRooms(): { success: true; rooms: any[] } {
  * @param {string} label - Room label (e.g. "A1")
  * @returns {{ success: boolean, cells: Array<[number, number]> }}
  */
-export function listRoomCells(label: string): any {
+export function listRoomCells(label: string): { success: boolean; cells?: [number, number][]; error?: string } {
   const roomCells = getApi()._collectRoomCells(label);
-  if (!roomCells.size) return { success: false, error: `Room "${label}" not found or empty` };
-  const cellList = [];
+  if (!roomCells?.size) return { success: false, error: `Room "${label}" not found or empty` };
+  const cellList: [number, number][] = [];
   for (const key of roomCells) {
     const [r, c] = parseCellKey(key);
     cellList.push([toDisp(r), toDisp(c)]);
@@ -381,7 +373,7 @@ export function listRoomCells(label: string): any {
  * Footprint is R×C (rows × cols). At 90°/270° the dimensions swap.
  * Returns { success, spanRows, spanCols, cells: [[dr, dc], ...] }.
  */
-export function getPropFootprint(propType: string, facing: number = 0): any {
+export function getPropFootprint(propType: string, facing: number = 0): { success: boolean; spanRows?: number; spanCols?: number; cells?: [number, number][]; error?: string } {
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
     return { success: false, error: `Unknown prop type: ${propType}` };
@@ -393,7 +385,7 @@ export function getPropFootprint(propType: string, facing: number = 0): any {
   const [spanRows, spanCols] = (facing === 90 || facing === 270)
     ? [def.footprint[1], def.footprint[0]]
     : [...def.footprint];
-  const cells = [];
+  const cells: [number, number][] = [];
   for (let r = 0; r < spanRows; r++) {
     for (let c = 0; c < spanCols; c++) cells.push([r, c]);
   }
@@ -405,10 +397,10 @@ export function getPropFootprint(propType: string, facing: number = 0): any {
  * Checks that the full footprint fits within the room and doesn't overlap existing props.
  * Returns { success, positions: [[row, col], ...] }.
  */
-export function getValidPropPositions(label: string, propType: string, facing: number = 0): any {
+export function getValidPropPositions(label: string, propType: string, facing: number = 0): { success: boolean; positions?: [number, number][]; error?: string } {
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
-    throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props || {}).join(', ')}`);
+    throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props ?? {}).join(', ')}`);
   }
   if (![0, 90, 180, 270].includes(facing)) {
     throw new Error(`Invalid facing: ${facing}. Use 0, 90, 180, or 270.`);
@@ -420,13 +412,13 @@ export function getValidPropPositions(label: string, propType: string, facing: n
     : [...def.footprint];
 
   const roomCellSet = getApi()._collectRoomCells(label);
-  if (!roomCellSet.size) return { success: false, error: `Room "${label}" not found` };
+  if (!roomCellSet?.size) return { success: false, error: `Room "${label}" not found` };
 
   const cells = state.dungeon.cells;
   const searchRadius = 4;
 
   // Helper: is cell (r, c) covered by any existing prop?
-  const isCovered = (r: any, c: any) => {
+  const isCovered = (r: number, c: number) => {
     if (cells[r]?.[c]?.prop) return true;
     for (let pr = Math.max(0, r - searchRadius); pr <= r; pr++) {
       for (let pc = Math.max(0, c - searchRadius); pc <= c; pc++) {
@@ -437,7 +429,7 @@ export function getValidPropPositions(label: string, propType: string, facing: n
     return false;
   };
 
-  const positions = [];
+  const positions: [number, number][] = [];
   for (const key of roomCellSet) {
     const [r, c] = parseCellKey(key);
     let valid = true;

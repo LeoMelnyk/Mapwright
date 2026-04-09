@@ -1,11 +1,12 @@
 // Light Catalog — loads .light preset metadata for the lighting panel.
 // Mirrors the pattern of texture-catalog.js (manifest + individual files + localStorage caching).
+import type { LightCatalog } from '../../types.js';
 
 const BASE_URL = '/lights/';
 const CACHE_KEY = 'light-catalog';
 const CACHE_VER_KEY = 'light-catalog-ver';
 
-let catalog: any = null; // { names, lights, byCategory, categoryOrder }
+let catalog: LightCatalog | null = null; // { names, lights, byCategory, categoryOrder }
 
 /**
  * A light preset entry in the catalog:
@@ -23,52 +24,54 @@ let catalog: any = null; // { names, lights, byCategory, categoryOrder }
  * }
  */
 
-function buildFromMetadata(entries: any) {
-  const names = [];
-  const lights = {};
-  const byCategory = {};
-  const categoryOrder = [];
+function buildFromMetadata(entries: Record<string, unknown>[]) {
+  const names: string[] = [];
+  const lights: Record<string, Record<string, unknown>> = {};
+  const byCategory: Record<string, string[]> = {};
+  const categoryOrder: string[] = [];
 
   for (const data of entries) {
-    const key = data.id;
+    const key = data.id as string;
 
-    const entry = {
+    const entry: Record<string, unknown> = {
       id: key,
-      displayName: data.displayName || key,
-      category: data.category || 'Uncategorized',
-      description: data.description || '',
-      type: data.type || 'point',
-      color: data.color || '#ff9944',
+      displayName: data.displayName ?? key,
+      category: data.category ?? 'Uncategorized',
+      description: data.description ?? '',
+      type: data.type ?? 'point',
+      color: data.color ?? '#ff9944',
       radius: data.radius ?? 30,
       intensity: data.intensity ?? 1.0,
-      falloff: data.falloff || 'smooth',
+      falloff: data.falloff ?? 'smooth',
     };
 
     if (data.type === 'directional' && data.spread != null) {
-      (entry as any).spread = data.spread;
+      entry.spread = data.spread;
     }
-    if (data.dimRadius != null) (entry as any).dimRadius = data.dimRadius;
-    if (data.z != null)          (entry as any).z = data.z;
-    if (data.animation?.type)   (entry as any).animation = { ...data.animation };
+    if (data.dimRadius != null) entry.dimRadius = data.dimRadius;
+    if (data.z != null)          entry.z = data.z;
+    if ((data.animation as Record<string, unknown> | null)?.type) entry.animation = { ...(data.animation as Record<string, unknown>) };
 
-    (lights as any)[key] = entry;
+    lights[key] = entry;
     names.push(key);
 
-    if (!(byCategory as any)[entry.category]) {
-      (byCategory as any)[entry.category] = [];
-      categoryOrder.push(entry.category);
+    const cat = entry.category as string;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- byCategory is built dynamically
+    if (!byCategory[cat]) {
+      byCategory[cat] = [];
+      categoryOrder.push(cat);
     }
-    (byCategory as any)[entry.category].push(key);
+    byCategory[cat].push(key);
   }
 
-  return { names, lights, byCategory, categoryOrder };
+  return { names, lights, byCategory, categoryOrder } as unknown as LightCatalog;
 }
 
 /**
  * Load all light presets from server. Uses localStorage cache for subsequent loads.
  * @returns {Promise<Object>} The light catalog with names, lights, byCategory, categoryOrder.
  */
-export async function loadLightCatalog(): Promise<any> {
+export async function loadLightCatalog(): Promise<LightCatalog | null> {
   if (catalog) return catalog;
 
   try {
@@ -81,8 +84,7 @@ export async function loadLightCatalog(): Promise<any> {
     const cachedVer = localStorage.getItem(CACHE_VER_KEY);
     if (cachedVer === version) {
       try {
-        // @ts-expect-error — strict-mode migration
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!);
         if (cached?.length) {
           catalog = buildFromMetadata(cached);
           return catalog;
@@ -92,7 +94,7 @@ export async function loadLightCatalog(): Promise<any> {
 
     // Fresh fetch — load all .light files
     const results = await Promise.allSettled(
-      keys.map(async (key: any) => {
+      keys.map(async (key: string) => {
         const r = await fetch(`${BASE_URL}${key}.light`, { cache: 'no-cache' });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return { key, data: await r.json() };
@@ -108,14 +110,14 @@ export async function loadLightCatalog(): Promise<any> {
       const { key, data } = result.value;
       metadataEntries.push({
         id: key,
-        displayName: data.displayName || key,
-        category: data.category || 'Uncategorized',
-        description: data.description || '',
-        type: data.type || 'point',
-        color: data.color || '#ff9944',
+        displayName: data.displayName ?? key,
+        category: data.category ?? 'Uncategorized',
+        description: data.description ?? '',
+        type: data.type ?? 'point',
+        color: data.color ?? '#ff9944',
         radius: data.radius ?? 30,
         intensity: data.intensity ?? 1.0,
-        falloff: data.falloff || 'smooth',
+        falloff: data.falloff ?? 'smooth',
         spread: data.spread ?? null,
         dimRadius: data.dimRadius ?? null,
         animation: data.animation ?? null,
@@ -141,7 +143,7 @@ export async function loadLightCatalog(): Promise<any> {
  * Synchronous getter for the light catalog.
  * @returns {Object|null} The light catalog or null if not yet loaded.
  */
-export function getLightCatalog(): any {
+export function getLightCatalog(): LightCatalog | null {
   return catalog;
 }
 

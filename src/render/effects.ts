@@ -4,6 +4,25 @@ import { toCanvas } from './bounds.js';
 import { GRID_SCALE } from './constants.js';
 import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
 
+/** Cache for hatch/rock Path2D geometry keyed by map state. */
+interface PathCache {
+  cells: CellGrid;
+  gridSize: number;
+  size: number;
+  maxDist: number;
+  path: Path2D;
+}
+
+/** Cache for outer shading Path2D geometry. */
+interface ShadingCache {
+  cells: CellGrid;
+  gridSize: number;
+  size: number;
+  roughness: number;
+  resolution: number;
+  path: Path2D;
+}
+
 // ─── Constants ─────
 const ROUGH_WALL_SPACING = 25;
 const BUFFER_SHADING_DEPTH = 0.35;
@@ -21,7 +40,7 @@ export function seededLcg(seed: number): () => number {
 }
 
 // ── Hex → rgba helper ───────────────────────────────────────────────────────
-function hexToRgba(hex: any, alpha: any) {
+function hexToRgba(hex: string, alpha: number) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -39,10 +58,9 @@ function hexToRgba(hex: any, alpha: any) {
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-export function drawWallShadow(ctx: CanvasRenderingContext2D, wallSegments: any[], theme: Theme, transform: RenderTransform): void {
+export function drawWallShadow(ctx: CanvasRenderingContext2D, wallSegments: Array<{x1: number; y1: number; x2: number; y2: number}>, theme: Theme, transform: RenderTransform): void {
   if (!theme.wallShadow || wallSegments.length === 0) return;
   const s = scaleFactor(transform);
-  // @ts-expect-error — strict-mode migration
   const { color, blur, offsetX, offsetY } = theme.wallShadow;
 
   ctx.save();
@@ -82,10 +100,9 @@ export function drawWallShadow(ctx: CanvasRenderingContext2D, wallSegments: any[
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-export function drawRoughWalls(ctx: CanvasRenderingContext2D, wallSegments: any[], theme: Theme, transform: RenderTransform): void {
+export function drawRoughWalls(ctx: CanvasRenderingContext2D, wallSegments: Array<{x1: number; y1: number; x2: number; y2: number; seed?: number}>, theme: Theme, transform: RenderTransform): void {
   const s = scaleFactor(transform);
-  // @ts-expect-error — strict-mode migration
-  const amp = theme.wallRoughness * s * 1.5;
+  const amp = (theme.wallRoughness ?? 0) * s * 1.5;
   const spacing = ROUGH_WALL_SPACING; // pixels between control points
 
   ctx.strokeStyle = theme.wallStroke;
@@ -96,7 +113,7 @@ export function drawRoughWalls(ctx: CanvasRenderingContext2D, wallSegments: any[
 
   for (const seg of wallSegments) {
     const { x1, y1, x2, y2, seed } = seg;
-    const rand = seededLcg(seed);
+    const rand = seededLcg(seed ?? 0);
 
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -146,9 +163,9 @@ export function drawRoughWalls(ctx: CanvasRenderingContext2D, wallSegments: any[
 // Cached by (cells, roomCells, maxDist) reference — cells/roomCells are the
 // same object references across all pan/zoom frames and only replaced when the
 // map is edited, so cache hits eliminate the BFS entirely during panning.
-let _distMapCache = { cells: null, roomCells: null, maxDist: -1, dist: null };
+let _distMapCache: { cells: CellGrid | null; roomCells: boolean[][] | null; maxDist: number; dist: Float32Array[] | null } = { cells: null, roomCells: null, maxDist: -1, dist: null };
 
-function buildDistMap(cells: any, roomCells: any, maxDist: any) {
+function buildDistMap(cells: CellGrid, roomCells: boolean[][], maxDist: number) {
   if (_distMapCache.cells === cells &&
       _distMapCache.roomCells === roomCells &&
       _distMapCache.maxDist === maxDist) {
@@ -181,7 +198,6 @@ function buildDistMap(cells: any, roomCells: any, maxDist: any) {
       }
     }
   }
-  // @ts-expect-error — strict-mode migration
   _distMapCache = { cells, roomCells, maxDist, dist };
   return dist;
 }
@@ -191,7 +207,7 @@ function buildDistMap(cells: any, roomCells: any, maxDist: any) {
 // Caches Path2D geometry in world coordinates per distance bucket. The expensive
 // pattern iteration + path construction runs once; each frame just sets the
 // canvas transform and strokes the cached paths at screen resolution.
-let _hatchCache: any = null;
+let _hatchCache: PathCache | null = null;
 
 /**
  * Draw line hatching in void areas near room cells.
@@ -211,21 +227,19 @@ export function drawHatching(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
   const numCols = cells[0]?.length || 0;
   if (!numRows || !numCols) return;
 
-  // @ts-expect-error — strict-mode migration
   const MAX_DIST = Math.round((theme.hatchDistance ?? 1) * 2);
   const size = theme.hatchSize ?? 0.5;
-  const color = theme.hatchColor || theme.wallStroke;
+  const color = theme.hatchColor ?? theme.wallStroke;
   const mapW = numCols * gridSize, mapH = numRows * gridSize;
 
   // Rebuild Path2D cache if map data or relevant theme params changed.
   // roomCells is derived from cells, so cells ref-equality is sufficient.
   const hc = _hatchCache;
-  if (!hc || hc.cells !== cells ||
+  if (hc?.cells !== cells ||
       hc.gridSize !== gridSize || hc.size !== size ||
       hc.maxDist !== MAX_DIST) {
 
     const dist = buildDistMap(cells, roomCells, MAX_DIST);
-    // @ts-expect-error — strict-mode migration
     const tileWorld = gridSize * 2 * (1.5 + size * 3);
     const patternScale = tileWorld / HATCH_TILE_SIZE;
 
@@ -274,7 +288,7 @@ export function drawHatching(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
   ctx.lineWidth = Math.max(0.5 / transform.scale, 1 / GRID_SCALE);
   ctx.lineCap = 'round';
   ctx.globalAlpha = theme.hatchOpacity;
-  ctx.stroke(_hatchCache.path);
+  ctx.stroke(_hatchCache!.path);
   ctx.restore();
 }
 
@@ -282,7 +296,7 @@ export function drawHatching(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
 // Caches Path2D geometry in world coordinates. The expensive work (spatial index
 // lookup, vertex transforms, path construction) is done once; each frame just
 // sets the canvas transform and strokes the cached paths at screen resolution.
-let _rockCache: any = null;
+let _rockCache: PathCache | null = null;
 
 /**
  * Draw rock shading (Voronoi-style) in void areas near room cells.
@@ -302,21 +316,19 @@ export function drawRockShading(ctx: CanvasRenderingContext2D, cells: CellGrid, 
   const numCols = cells[0]?.length || 0;
   if (!numRows || !numCols) return;
 
-  // @ts-expect-error — strict-mode migration
   const MAX_DIST = Math.round((theme.hatchDistance ?? 1) * 2);
   const size = theme.hatchSize ?? 0.5;
-  const color = theme.hatchColor || theme.wallStroke || '#000000';
+  const color = (theme.hatchColor ?? theme.wallStroke) || '#000000';
   const mapW = numCols * gridSize, mapH = numRows * gridSize;
 
   // Rebuild Path2D cache if map data or relevant theme params changed.
   // roomCells is derived from cells, so cells ref-equality is sufficient.
   const rc = _rockCache;
-  if (!rc || rc.cells !== cells ||
+  if (rc?.cells !== cells ||
       rc.gridSize !== gridSize || rc.size !== size ||
       rc.maxDist !== MAX_DIST) {
 
     const dist = buildDistMap(cells, roomCells, MAX_DIST);
-    // @ts-expect-error — strict-mode migration
     const tileWorld = gridSize * (8 + size * 8);
     const patternScale = tileWorld / WATER_TILE_SIZE;
 
@@ -387,12 +399,11 @@ export function drawRockShading(ctx: CanvasRenderingContext2D, cells: CellGrid, 
   ctx.clip();
   ctx.setTransform(transform.scale, 0, 0, transform.scale, transform.offsetX, transform.offsetY);
   ctx.strokeStyle = color;
-  // @ts-expect-error — strict-mode migration
   ctx.lineWidth = (1.5 + size * 0.5) / GRID_SCALE;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.globalAlpha = theme.hatchOpacity;
-  ctx.stroke(_rockCache.path);
+  ctx.stroke(_rockCache!.path);
   ctx.restore();
 }
 
@@ -402,7 +413,7 @@ export function drawRockShading(ctx: CanvasRenderingContext2D, cells: CellGrid, 
 // one pass.  This Minkowski-sum approach gives naturally rounded outer edges at
 // roughness = 0 (no seam artefacts) and organic jagged edges at higher roughness.
 // The floor fills that follow paint over the room interior, leaving only the halo.
-let _outerShadingCache: any = null;
+let _outerShadingCache: ShadingCache | null = null;
 
 /**
  * Draw a filled Minkowski-sum blob around the outside of the dungeon for organic shading.
@@ -416,10 +427,8 @@ let _outerShadingCache: any = null;
  * @returns {void}
  */
 export function drawOuterShading(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, resolution: number = 1): void {
-  // @ts-expect-error — strict-mode migration
-  if (!theme.outerShading?.color || !(theme.outerShading?.size > 0)) return;
+  if (!theme.outerShading?.color || !(theme.outerShading.size > 0)) return;
 
-  // @ts-expect-error — strict-mode migration
   const { color, size, roughness = 0 } = theme.outerShading;
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
@@ -428,7 +437,7 @@ export function drawOuterShading(ctx: CanvasRenderingContext2D, cells: CellGrid,
 
   // Rebuild Path2D cache if map data or shading params changed
   const oc = _outerShadingCache;
-  if (!oc || oc.cells !== cells || oc.gridSize !== gridSize ||
+  if (oc?.cells !== cells || oc.gridSize !== gridSize ||
       oc.size !== size || oc.roughness !== roughness || oc.resolution !== resolution) {
 
     const path = new Path2D();
@@ -472,7 +481,7 @@ export function drawOuterShading(ctx: CanvasRenderingContext2D, cells: CellGrid,
   ctx.clip();
   ctx.setTransform(transform.scale, 0, 0, transform.scale, transform.offsetX, transform.offsetY);
   ctx.fillStyle = color;
-  ctx.fill(_outerShadingCache.path);
+  ctx.fill(_outerShadingCache!.path);
   ctx.restore();
 }
 

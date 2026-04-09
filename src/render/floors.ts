@@ -1,6 +1,6 @@
 import { toCanvas } from './bounds.js';
 import { isEdgeOpen } from '../util/index.js';
-import type { CellGrid, RenderTransform } from '../types.js';
+import type { Cell, CellGrid, RenderTransform } from '../types.js';
 
 /**
  * Determine which cells should have room backgrounds (including flood fill for enclosed areas).
@@ -62,16 +62,17 @@ function determineRoomCells(cells: CellGrid): boolean[][] {
  * @param {number} col - Cell column index
  * @returns {string|null} Corner direction ('nw', 'ne', 'sw', 'se') or null
  */
-function getDiagonalTrimCorner(cell: any, cells: CellGrid, row: number, col: number): string | null {
+function getDiagonalTrimCorner(cell: Cell | null, cells: CellGrid, row: number, col: number): string | null {
+  if (!cell) return null;
   // Arc boundary cells with trimClip use polygon clipping, not diagonal trimming.
   if (cell.trimClip) return null;
   if (cell.trimCorner) return cell.trimCorner;
 
-  const hasDiag = cell['ne-sw'] || cell['nw-se'];
+  const hasDiag = cell['ne-sw'] ?? cell['nw-se'];
   if (!hasDiag) return null;
 
-  const numRows = cells?.length || 0;
-  const numCols = cells?.[0]?.length || 0;
+  const numRows = cells.length || 0;
+  const numCols = cells[0]?.length || 0;
   const isVoid = (r: number, c: number): boolean => r < 0 || r >= numRows || c < 0 || c >= numCols || !cells[r][c];
 
   if (cell['ne-sw']) {

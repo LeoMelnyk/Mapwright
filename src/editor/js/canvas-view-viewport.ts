@@ -17,8 +17,8 @@ export function clampPan(): void {
   const numCols = state.dungeon.cells[0]?.length || 0;
   const mapPxW = numCols * gridSize * scale;
   const mapPxH = numRows * gridSize * scale;
-  const vw = cvState._canvasW || (canvas as any).width;
-  const vh = cvState._canvasH || (canvas as any).height;
+  const vw = cvState._canvasW || canvas.width;
+  const vh = cvState._canvasH || canvas.height;
   const leewayX = vw * 0.5;
   const leewayY = vh * 0.5;
   state.panX = Math.max(-(mapPxW + leewayX), Math.min(vw + leewayX, state.panX));
@@ -31,7 +31,7 @@ export function clampPan(): void {
  */
 export function zoomToFit(): void {
   const levels = state.dungeon.metadata.levels;
-  if (levels?.length) {
+  if (levels.length) {
     const level = levels[state.currentLevel] || levels[0];
     panToLevel(level.startRow, level.numRows);
   } else {
@@ -58,8 +58,8 @@ export function panToLevel(startRow: number, numRows: number): void {
   const worldH = numRows * gridSize;
 
   // Canvas logical pixel size
-  const cw = cvState._canvasW || (canvas ? (canvas as any).width : 800);
-  const ch = cvState._canvasH || (canvas ? (canvas as any).height : 600);
+  const cw = cvState._canvasW || (canvas ? canvas.width : 800);
+  const ch = cvState._canvasH || (canvas ? canvas.height : 600);
 
   // Zoom to fit: pick the smaller axis ratio so the whole level fits
   const zoomX = (cw - margin * 2) / (worldW * (CELL_SIZE / dgs));

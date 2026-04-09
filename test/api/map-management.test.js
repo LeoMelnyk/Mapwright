@@ -164,8 +164,8 @@ describe('getMapInfo', () => {
 
   it('collects texture IDs', () => {
     const cells = state.dungeon.cells;
-    cells[3][3] = { texture: { id: 'cobblestone' } };
-    cells[4][4] = { texture: { id: 'dirt' } };
+    cells[3][3] = { texture: 'cobblestone' };
+    cells[4][4] = { texture: 'dirt' };
     const info = getMapInfo();
     expect(info.textureIds).toContain('cobblestone');
     expect(info.textureIds).toContain('dirt');

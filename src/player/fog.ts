@@ -126,6 +126,7 @@ export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, o
   for (const d of openedDoors) {
     openedSet.add(`${d.row},${d.col},${d.dir}`);
     // Add the mirror key for the adjacent cell's side
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (OFFSETS[d.dir]) {
       const [dr, dc] = OFFSETS[d.dir];
       openedSet.add(`${d.row + dr},${d.col + dc},${OPPOSITE[d.dir]}`);
@@ -250,11 +251,11 @@ export function filterPropsForPlayer(
   return props.filter(prop => {
     const col = Math.floor(prop.x / gridSize);
     const row = Math.floor(prop.y / gridSize);
-    const propDef = propCatalog?.props?.[prop.type];
+    const propDef = propCatalog?.props[prop.type];
     if (!propDef) return false;
 
     const [fRows, fCols] = propDef.footprint;
-    const r = (((prop.rotation ?? 0) % 360) + 360) % 360;
+    const r = ((prop.rotation % 360) + 360) % 360;
     const eRows = (r === 90 || r === 270) ? fCols : fRows;
     const eCols = (r === 90 || r === 270) ? fRows : fCols;
 

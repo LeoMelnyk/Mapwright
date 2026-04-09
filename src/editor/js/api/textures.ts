@@ -1,3 +1,4 @@
+import type { TextureCatalog } from '../../../types.js';
 import {
   state, pushUndo, markDirty, notify,
   validateBounds, ensureCell,
@@ -12,13 +13,12 @@ function _blendPatch(minRow: number, minCol: number, maxRow: number, maxCol: num
   if (!catalog) return;
   const theme = state.dungeon.metadata.theme;
   const themeObj = typeof theme === 'string' ? null : theme;
-  // @ts-expect-error — strict-mode migration
   const blendWidth = themeObj?.textureBlendWidth ?? 0.35;
   patchBlendForDirtyRegion(
     { minRow, maxRow, minCol, maxCol },
     state.dungeon.cells,
     state.dungeon.metadata.gridSize || 5,
-    { catalog, blendWidth, texturesVersion: state.texturesVersion ?? 0 },
+    { catalog, blendWidth, texturesVersion: state.texturesVersion } as { catalog: TextureCatalog; blendWidth: number },
   );
 }
 
@@ -35,8 +35,7 @@ export function setTexture(row: number, col: number, textureId: string, opacity:
   const cell = ensureCell(row, col);
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
   pushUndo();
-  loadTextureImages(textureId);
-  // @ts-expect-error — strict-mode migration
+  void loadTextureImages(textureId);
   cell.texture = textureId;
   cell.textureOpacity = Math.max(0, Math.min(1, opacity));
   smartInvalidate(before, state.dungeon.cells);
@@ -88,13 +87,12 @@ export function setTextureRect(r1: number, c1: number, r2: number, c2: number, t
   const coords = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   const before = captureBeforeState(state.dungeon.cells, coords);
-  loadTextureImages(textureId);
+  void loadTextureImages(textureId);
   pushUndo();
   for (let r = minR; r <= maxR; r++) {
     for (let c = minC; c <= maxC; c++) {
       const cell = state.dungeon.cells[r]?.[c];
       if (cell) {
-        // @ts-expect-error — strict-mode migration
         cell.texture = textureId;
         cell.textureOpacity = clampedOpacity;
       }
@@ -149,10 +147,9 @@ export function removeTextureRect(r1: number, c1: number, r2: number, c2: number
  * @param {number} [opacity=1.0] - Texture opacity (0-1)
  * @returns {{ success: boolean }}
  */
-export function floodFillTexture(row: number, col: number, textureId: string, opacity: number = 1.0): { success: true } {
+export function floodFillTexture(row: number, col: number, textureId: string, opacity: number = 1.0): { success: boolean; error?: string } {
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
-  // @ts-expect-error — strict-mode migration
   if (!state.dungeon.cells[row]?.[col]) return { success: false, error: 'void cell' };
   const prevTexture = state.activeTexture;
   const prevOpacity = state.textureOpacity;
@@ -160,8 +157,8 @@ export function floodFillTexture(row: number, col: number, textureId: string, op
   state.activeTexture = textureId;
   state.textureOpacity = Math.max(0, Math.min(1, opacity));
   state.paintSecondary = false;
-  loadTextureImages(textureId);
-  paintTool.floodFill(row, col, null);
+  void loadTextureImages(textureId);
+  paintTool.floodFill(row, col, null as unknown as MouseEvent);
   state.activeTexture = prevTexture;
   state.textureOpacity = prevOpacity;
   state.paintSecondary = prevSecondary;

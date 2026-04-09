@@ -48,8 +48,7 @@ function build() {
 
   container.innerHTML = html;
 
-  // @ts-expect-error — strict-mode migration
-  container!.querySelector('[data-action="clear-caches"]').addEventListener('click', () => {
+  container.querySelector('[data-action="clear-caches"]')!.addEventListener('click', () => {
     // Clear all mapwright localStorage entries
     const keys = [];
     for (let i = 0; i < localStorage.length; i++) {
@@ -63,26 +62,26 @@ function build() {
   });
 
   container.addEventListener('change', (e) => {
-    const input = e.target;
-    if ((!input! as any).matches('input[type="checkbox"]')) return;
+    const input = e.target as HTMLInputElement;
+    if (!input.matches('input[type="checkbox"]')) return;
 
-    if ((input! as any).dataset.debug === 'hitboxes') {
-      state.debugShowHitboxes = (input! as any).checked;
-      setEditorSetting('debugShowHitboxes', (input! as any).checked);
+    if (input.dataset.debug === 'hitboxes') {
+      state.debugShowHitboxes = input.checked;
+      setEditorSetting('debugShowHitboxes', input.checked);
       requestRender();
       return;
     }
 
-    if ((input! as any).dataset.debug === 'disable-undo') {
-      setUndoDisabled((input! as any).checked);
+    if (input.dataset.debug === 'disable-undo') {
+      setUndoDisabled(input.checked);
       return;
     }
 
-    const layer = (input! as any).dataset.layer;
+    const layer = input.dataset.layer;
     if (layer) {
       if (typeof window !== 'undefined') {
-        if (!(window as any)._skipPhases) (window as any)._skipPhases = {};
-        (window as any)._skipPhases[layer] = (!input! as any).checked;
+        if (!(window as unknown as Record<string, unknown>)._skipPhases) (window as unknown as Record<string, unknown>)._skipPhases = {};
+        ((window as unknown as Record<string, unknown>)._skipPhases as Record<string, boolean>)[layer] = input.checked;
       }
       invalidateMapCache();
       requestRender();

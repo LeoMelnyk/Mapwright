@@ -7,13 +7,15 @@
  * @module app-init
  */
 
+import type { RenderTransform } from '../../types.js';
 import state, { subscribe, loadAutosave, notify, invalidateLightmap } from './state.js';
 import { showToast } from './toast.js';
 import * as canvasView from './canvas-view.js';
 import { reloadAssets, loadDungeonJSON } from './io.js';
 import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
-import { RangeTool, FogRevealTool } from './tools/index.js';
+import type { Tool } from './tools/tool-base.js';
+import { RangeTool, FogRevealTool, type LightTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
 import { initPropSpatial, onPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
@@ -49,7 +51,7 @@ import { initDraggableToolbar, updateStatusBar, initShortcutsModal, initReleaseN
  * @param {Function} updateSessionToolsMode - Syncs session tools active state.
  * @returns {Promise<void>}
  */
-export async function initApp(tools: Record<string, any>, setTool: (name: string) => void, updateSessionToolsMode: () => void): Promise<void> {
+export async function initApp(tools: Record<string, Tool>, setTool: (name: string) => void, updateSessionToolsMode: () => void): Promise<void> {
   // Wire up prop spatial hash (lazy getter to avoid circular import)
   initPropSpatial(() => state);
   // When props change (move/place/remove), invalidate the props render layer cache
@@ -69,8 +71,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
     const el = document.getElementById('btn-update-alert');
     if (!el) return;
     el.textContent = `↑ v${latestVersion} available`;
-    // @ts-expect-error — strict-mode migration
-    el.href = url;
+    (el as HTMLAnchorElement).href = url;
     el.style.display = 'flex';
   }).catch(() => {});
 
@@ -78,8 +79,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   const savedTheme = localStorage.getItem('editor-ui-theme');
   if (savedTheme === 'light') document.documentElement.setAttribute('data-theme', 'light');
 
-  // @ts-expect-error — strict-mode migration
-  document.getElementById('theme-toggle').addEventListener('click', () => {
+  document.getElementById('theme-toggle')!.addEventListener('click', () => {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     if (isLight) {
       document.documentElement.removeAttribute('data-theme');
@@ -98,13 +98,13 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   // (no migration needed for autosaved state — always current format)
 
   // Init canvas
-  const canvas = document.getElementById('editor-canvas');
-  // @ts-expect-error — strict-mode migration
-  canvasView.init(canvas);
+  const canvas = document.getElementById('editor-canvas')!;
+  canvasView.init(canvas as HTMLCanvasElement);
 
   // Set initial tool (use restored tool or default)
   if (!restored) state.activeTool = 'room';
   // Migration: if restored tool was removed, default to room
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (!tools[state.activeTool]) state.activeTool = 'room';
   setTool(state.activeTool);
 
@@ -113,20 +113,19 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   const loadingFill = document.getElementById('loading-bar-fill');
   if (loadingBar) loadingBar.classList.add('active');
 
-  const progress = { themes: null, props: null, textures: null };
+  const progress: Record<string, { loaded: number; total: number } | null> = { themes: null, props: null, textures: null };
   const toasted = { themes: false, props: false, textures: false };
   const labels = { themes: 'Themes', props: 'Props', textures: 'Textures' };
-  function onAssetProgress(key: any, loaded: any, total: any) {
-    (progress as any)[key] = { loaded, total };
+  function onAssetProgress(key: string, loaded: number, total: number) {
+    (progress as Record<string, unknown>)[key] = { loaded, total };
     // Per-catalog toast
-    if (loaded >= total && total > 0 && !(toasted as any)[key]) {
-      (toasted as any)[key] = true;
-      showToast(`${(labels as any)[key]} loaded`);
+    if (loaded >= total && total > 0 && !(toasted as Record<string, boolean>)[key]) {
+      (toasted as Record<string, boolean>)[key] = true;
+      showToast(`${(labels as Record<string, string>)[key]} loaded`);
     }
     // Aggregate bar
     let sumLoaded = 0, sumTotal = 0;
     for (const v of Object.values(progress)) {
-      // @ts-expect-error — strict-mode migration
       if (v) { sumLoaded += v.loaded; sumTotal += v.total; }
     }
     if (loadingFill && sumTotal > 0) {
@@ -139,7 +138,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   }
 
   // Load themes before metadata so the picker has catalog data on first render
-  await loadThemeCatalog((loaded: any, total: any) => onAssetProgress('themes', loaded, total));
+  await loadThemeCatalog((loaded: number, total: number) => onAssetProgress('themes', loaded, total));
 
   // Init panels
   initToolbar();
@@ -170,8 +169,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   // Keybindings helper (floating panel)
   initKeybindingsHelper();
   document.getElementById('feat-keybindings')?.addEventListener('change', (e) => {
-    // @ts-expect-error — strict-mode migration
-    toggleKeybindingsHelper(e.target!.checked);
+    toggleKeybindingsHelper((e.target as HTMLInputElement).checked);
   });
 
   // ── Claude AI (experimental) ─────────────────────────────────────────────
@@ -182,7 +180,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   const CLAUDE_ENABLED = getEditorSettings().claude === true;
 
   if (!CLAUDE_ENABLED) {
-    document.querySelector('[data-right-panel="claude"]')?.remove();
+    document.querySelector<HTMLInputElement>('[data-right-panel="claude"]')?.remove();
     document.getElementById('right-panel-claude')?.remove();
     document.getElementById('sep-claude-settings')?.remove();
     document.getElementById('btn-claude-settings')?.remove();
@@ -198,8 +196,8 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
 
   // Wire session overlay (door/stair-open buttons on DM canvas)
   setSessionOverlay(
-    renderSessionOverlay,
-    (px, py, transform, gridSize) => {
+    renderSessionOverlay as unknown as (...args: unknown[]) => void,
+    ((px: number, py: number, transform: RenderTransform, gridSize: number) => {
       const stair = hitTestStairButton(px, py, transform);
       if (stair) {
         openStairs(stair.stairId, stair.partnerId);
@@ -211,18 +209,16 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
         return true;
       }
       return false;
-    },
+    }) as unknown as (...args: unknown[]) => boolean,
   );
 
   // Wire DM fog overlay (tints unrevealed cells for the DM's reference)
-  setDmFogOverlay(renderDmFogOverlay);
+  setDmFogOverlay(renderDmFogOverlay as unknown as (...args: unknown[]) => void);
 
   // ── Range detector (session tool) ────────────────────────────────────────
   const dmRangeTool = new RangeTool(
-    (msg: any) => {
-      // @ts-expect-error — strict-mode migration
+    (msg: Record<string, unknown>) => {
       if (sessionState.ws?.readyState === 1) {
-        // @ts-expect-error — strict-mode migration
         sessionState.ws.send(JSON.stringify(msg));
       }
     },
@@ -247,12 +243,11 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   });
 
   // Session tool button switching (Doors vs Range)
-  document.querySelectorAll('[data-session-tool]').forEach(btn => {
+  document.querySelectorAll<HTMLElement>('[data-session-tool]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-session-tool]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll<HTMLElement>('[data-session-tool]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
 
-      // @ts-expect-error — strict-mode migration
       const tool = btn.dataset.sessionTool;
       const rangeOpts = document.getElementById('range-options');
       if (tool === 'range') {
@@ -273,39 +268,37 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   });
 
   // Range shape sub-tool switching
-  document.querySelectorAll('[data-range-shape]').forEach(btn => {
+  document.querySelectorAll<HTMLElement>('[data-range-shape]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('[data-range-shape]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll<HTMLElement>('[data-range-shape]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      // @ts-expect-error — strict-mode migration
-      dmRangeTool.setSubTool(btn.dataset.rangeShape);
+      dmRangeTool.setSubTool(btn.dataset.rangeShape!);
     });
   });
 
   // Range distance dropdown — populate with gridSize increments up to 200ft
   const rangeDistSelect = document.getElementById('range-distance');
   if (rangeDistSelect) {
+    const el = rangeDistSelect;
     function populateRangeOptions() {
-      const gs = state.dungeon?.metadata?.gridSize || 5;
+      const gs = state.dungeon.metadata.gridSize || 5;
       // Keep "Auto" option, rebuild the rest
-      rangeDistSelect!.innerHTML = '<option value="0">Auto</option>';
+      el.innerHTML = '<option value="0">Auto</option>';
       for (let ft = gs; ft <= 200; ft += gs) {
         const opt = document.createElement('option');
-        // @ts-expect-error — strict-mode migration
-        opt.value = ft;
+        opt.value = String(ft);
         opt.textContent = `${ft} ft`;
-        rangeDistSelect!.appendChild(opt);
+        el.appendChild(opt);
       }
     }
     populateRangeOptions();
-    rangeDistSelect.addEventListener('change', () => {
-      // @ts-expect-error — strict-mode migration
-      dmRangeTool.setFixedRange(parseInt(rangeDistSelect.value, 10));
+    el.addEventListener('change', () => {
+      dmRangeTool.setFixedRange(parseInt((el as HTMLSelectElement).value, 10));
     });
     // Re-populate when gridSize changes so ft increments stay accurate
-    let _rangeLastGridSize = state.dungeon?.metadata?.gridSize || 5;
+    let _rangeLastGridSize = state.dungeon.metadata.gridSize || 5;
     subscribe(() => {
-      const gs = state.dungeon?.metadata?.gridSize || 5;
+      const gs = state.dungeon.metadata.gridSize || 5;
       if (gs !== _rangeLastGridSize) {
         _rangeLastGridSize = gs;
         populateRangeOptions();
@@ -328,8 +321,9 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   loadLightCatalog().then(catalog => {
     state.lightCatalog = catalog;
     // If the light tool activated before the catalog resolved, populate its preset bar now
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (state.activeTool === 'light' && tools.light) {
-      tools.light._syncPresetBar();
+      (tools.light as LightTool)._syncPresetBar();
     }
     notify();
   }).catch(err => console.warn('Failed to load light catalog:', err));
@@ -341,7 +335,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
     // with full prop data (props can cast shadows; segments cached before this
     // point would exclude prop-based walls, causing animated lights to render
     // without shadows until manually nudged).
-    if (state.dungeon.metadata.lights?.length) {
+    if (state.dungeon.metadata.lights.length) {
       invalidateLightmap();
     }
     notify();
@@ -358,21 +352,21 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   }).catch(err => { console.warn('Failed to load texture catalog:', err); return null; });
 
   // After both catalogs are ready, pre-load textures for the current map (floor + props)
-  Promise.all([propCatalogPromise, textureCatalogPromise]).then(([propCatalog, textureCatalog]) => {
+  void Promise.all([propCatalogPromise, textureCatalogPromise]).then(([propCatalog, textureCatalog]) => {
     if (!textureCatalog) { onAssetProgress('textures', 1, 1); return; }
 
     const usedIds = collectTextureIds(state.dungeon.cells);
-    if (propCatalog?.props && state.dungeon.metadata?.props) {
-      // @ts-expect-error — strict-mode migration
+    if (propCatalog?.props && state.dungeon.metadata.props) {
       for (const op of state.dungeon.metadata.props) {
         const propDef = propCatalog.props[op.type];
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
         if (propDef?.textures) {
           for (const id of propDef.textures) usedIds.add(id);
         }
       }
     }
     // Bridge textures (hardcoded Polyhaven IDs in bridges.js)
-    if (state.dungeon.metadata?.bridges?.length) {
+    if (state.dungeon.metadata.bridges.length) {
       const bridgeTexIds = {
         wood: 'polyhaven/weathered_planks', stone: 'polyhaven/stone_wall',
         rope: 'polyhaven/worn_planks', dock: 'polyhaven/brown_planks_09',
@@ -384,7 +378,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
     }
 
     if (usedIds.size > 0) {
-      ensureTexturesLoaded(usedIds, (loaded, total) => onAssetProgress('textures', loaded, total))
+      void ensureTexturesLoaded(usedIds, (loaded, total) => onAssetProgress('textures', loaded, total))
         .then(() => { state.texturesVersion++; notify(); });
     } else {
       onAssetProgress('textures', 1, 1);
@@ -395,7 +389,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   const openParam = new URLSearchParams(window.location.search).get('open');
   if (openParam) {
     // Wait for prop catalog so textures load correctly
-    propCatalogPromise.then(() =>
+    void propCatalogPromise.then(() =>
       fetch(`/api/open-file?path=${encodeURIComponent(openParam)}`)
         .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
         .then(json => loadDungeonJSON(json, { fileName: openParam.split(/[/\\]/).pop() }))
@@ -413,8 +407,7 @@ export async function initApp(tools: Record<string, any>, setTool: (name: string
   });
 
   // Expose toast for use across modules
-  // @ts-expect-error — strict-mode migration
-  window.showToast = showToast;
+  (window as unknown as Record<string, unknown>).showToast = showToast;
 
   // Status bar updates
   subscribe(updateStatusBar, 'status-bar');

@@ -134,7 +134,7 @@ export function isEdgePassable(cell: Cell | null, neighbor: Cell | null, dir: Ca
  * Given a Set of "row,col" cell keys, compute the bounding box and center.
  * @param cellKeySet - Set of cell key strings
  */
-export function roomBoundsFromKeys(cellKeySet: Set<string>): { r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number } | null {
+export function roomBoundsFromKeys(cellKeySet: Set<string> | null | undefined): { r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number } | null {
   if (!cellKeySet || cellKeySet.size === 0) return null;
   let r1 = Infinity, c1 = Infinity, r2 = -Infinity, c2 = -Infinity;
   for (const key of cellKeySet) {
@@ -160,12 +160,13 @@ const DIR_OFFSET: Record<string, [number, number]> = { north: [-1, 0], south: [1
  * @param value - Edge value ('w', 'd', 's', 'iw', etc.)
  */
 export function setEdgeReciprocal(cells: CellGrid, row: number, col: number, direction: string, value: EdgeValue): void {
-  (cells[row][col] as any)[direction] = value;
+  (cells[row][col] as Record<string, unknown>)[direction] = value;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (!DIR_OFFSET[direction]) return; // diagonal — no reciprocal
   const [dr, dc] = DIR_OFFSET[direction];
   const nr = row + dr, nc = col + dc;
   if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
-    (cells[nr][nc] as any)[OPPOSITE[direction as CardinalDirection]] = value;
+    (cells[nr][nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]] = value;
   }
 }
 
@@ -177,12 +178,13 @@ export function setEdgeReciprocal(cells: CellGrid, row: number, col: number, dir
  * @param direction - Edge direction
  */
 export function deleteEdgeReciprocal(cells: CellGrid, row: number, col: number, direction: string): void {
-  delete (cells[row][col] as any)[direction];
+  delete (cells[row][col] as Record<string, unknown>)[direction];
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (!DIR_OFFSET[direction]) return; // diagonal — no reciprocal
   const [dr, dc] = DIR_OFFSET[direction];
   const nr = row + dr, nc = col + dc;
   if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
-    delete (cells[nr][nc] as any)[OPPOSITE[direction as CardinalDirection]];
+    delete (cells[nr][nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]];
   }
 }
 
@@ -279,9 +281,8 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
     // Arc wall exit blocking: 3×3 sub-grid crossing matrix determines which
     // exits are reachable from the entry direction without crossing the arc.
     let arcExits: string | null = null;
-    if ((cell as any).trimCrossing) {
-      // @ts-expect-error — strict-mode migration
-      arcExits = (cell as any).trimCrossing[entryDir?.[0]] ?? '';
+    if (cell.trimCrossing) {
+      arcExits = (cell.trimCrossing as Record<string, string>)[entryDir?.[0] ?? ''] ?? '';
     }
 
     for (const { dir, dr, dc } of CARDINAL_DIRS) {
@@ -310,12 +311,12 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
 
       // Lock arc cell to the side it's first reached from (like lockDiagonalHalf).
       // Uses crossing matrix: lock entry directions whose reachable set differs.
-      if ((neighbor as any).trimCrossing) {
-        const tc = (neighbor as any).trimCrossing;
-        const myExits: string = tc[neighborEntryDir[0]] ?? '';
+      if (neighbor.trimCrossing) {
+        const tc = neighbor.trimCrossing;
+        const myExits: string = (tc as Record<string, string>)[neighborEntryDir[0]] ?? '';
         for (const ld of ['north', 'south', 'east', 'west']) {
           if (ld === neighborEntryDir) continue;
-          const otherExits: string = tc[ld[0]] ?? '';
+          const otherExits: string = (tc as Record<string, string>)[ld[0]] ?? '';
           if (otherExits !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
         }
       }
@@ -326,7 +327,7 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
       // The main BFS still traverses THROUGH arc cells (they're in the queue)
       // so non-arc cells on the far side are reachable, but arc cells themselves
       // are claimed by adjacency in the post-pass to avoid corner-clip misses.
-      if ((neighbor as any).trimWall) continue;
+      if (neighbor.trimWall) continue;
 
       filledCells.add(cellKey(nr, nc));
     }
@@ -344,15 +345,15 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
     for (const k of filledCells) {
       const [fr, fc] = k.split(',').map(Number);
       const fCell = cells[fr]?.[fc];
-      if ((fCell as any)?.trimWall) continue;
-      const hasArcN = !!(cells[fr - 1]?.[fc] as any)?.trimWall;
-      const hasArcS = !!(cells[fr + 1]?.[fc] as any)?.trimWall;
-      const hasArcE = !!(cells[fr]?.[fc + 1] as any)?.trimWall;
-      const hasArcW = !!(cells[fr]?.[fc - 1] as any)?.trimWall;
+      if (fCell?.trimWall) continue;
+      const hasArcN = !!cells[fr - 1]?.[fc]?.trimWall;
+      const hasArcS = !!cells[fr + 1]?.[fc]?.trimWall;
+      const hasArcE = !!cells[fr]?.[fc + 1]?.trimWall;
+      const hasArcW = !!cells[fr]?.[fc - 1]?.trimWall;
       if ((hasArcN && hasArcS) || (hasArcE && hasArcW)) continue;
       for (const { dr, dc } of CARDINAL_DIRS) {
         const nr = fr + dr, nc = fc + dc;
-        if (!(cells[nr]?.[nc] as any)?.trimWall) continue;
+        if (!cells[nr]?.[nc]?.trimWall) continue;
         const nKey = cellKey(nr, nc);
         if (arcVisited.has(nKey)) continue;
         arcVisited.add(nKey);
@@ -366,7 +367,7 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
       const [ar, ac] = arcQueue.shift()!;
       for (const { dr, dc } of CARDINAL_DIRS) {
         const nr = ar + dr, nc = ac + dc;
-        if (!(cells[nr]?.[nc] as any)?.trimWall) continue;
+        if (!cells[nr]?.[nc]?.trimWall) continue;
         const nKey = cellKey(nr, nc);
         if (arcVisited.has(nKey)) continue;
         arcVisited.add(nKey);

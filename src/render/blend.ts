@@ -1,13 +1,82 @@
-import type { CellGrid, RenderTransform } from '../types.js';
+import type { CardinalDirection, CellGrid, RenderTransform, TextureCatalog, TextureOptions, TextureRuntime } from '../types.js';
+
+/** Height map extracted from a texture's displacement map. */
+interface HeightMap {
+  data: Float32Array;
+  w: number;
+  h: number;
+  srcW: number;
+  srcH: number;
+}
+
+/** Texture entry with loaded image for blend operations. */
+interface TexEntry {
+  img: HTMLImageElement & { naturalWidth: number; naturalHeight: number };
+  dispImg?: HTMLImageElement | null;
+  _heightMap?: Float32Array;
+  _heightMapW?: number;
+  _heightMapH?: number;
+  _baseHeight?: number;
+  _hmap?: HeightMap | null;
+  [key: string]: unknown;
+}
+
+/** Texture catalog with resolved texture entries (extends the base TextureCatalog). */
+interface BlendTextureCatalog extends TextureCatalog {
+  textures: Record<string, TexEntry | undefined>;
+}
+
+/** A blend edge descriptor. */
+interface BlendEdge {
+  row: number;
+  col: number;
+  direction: string;
+  neighborEntry: TexEntry;
+  neighborOpacity: number;
+  srcX: number;
+  srcY: number;
+  srcW: number;
+  srcH: number;
+  clipPath: Path2D;
+  bitmap: ImageBitmap | null;
+}
+
+/** A blend corner descriptor. */
+interface BlendCorner {
+  row: number;
+  col: number;
+  corner: string;
+  neighborEntry: TexEntry;
+  neighborOpacity: number;
+  srcX: number;
+  srcY: number;
+  srcW: number;
+  srcH: number;
+  clipPath: Path2D;
+  localCX: number;
+  localCY: number;
+  bitmap: ImageBitmap | null;
+}
+
+/** Module-level topo cache (nullable fields for initial empty state). */
+interface BlendTopoCacheState {
+  cells: CellGrid | null;
+  gridSize: number | null;
+  blendWidth: number | null;
+  catalog: BlendTextureCatalog | null;
+  texturesVersion: number;
+  edges: BlendEdge[] | null;
+  corners: BlendCorner[] | null;
+}
 import { CARDINAL_DIRS, OPPOSITE, isEdgeOpen } from '../util/index.js';
 
 // ── Texture blend topology cache ──────────────────────────────────────────────
 // Pre-computes edge/corner blend descriptors and world-space Path2D clip polygons.
 // Keyed on (cells, gridSize, blendWidth, catalog). On pan/zoom only the
 // scratch-canvas pixel work runs per frame — topology + geometry are reused.
-let _blendTopoCache = {
+let _blendTopoCache: BlendTopoCacheState = {
   cells: null, gridSize: null, blendWidth: null, catalog: null,
-  edges: null, corners: null,
+  texturesVersion: 0, edges: null, corners: null,
 };
 
 // ── Renderer-specific constants ───────────────────────────────────────────────
@@ -35,8 +104,8 @@ export { BLEND_BITMAP_SIZE };
  * @param {number} col - Cell column for chunk selection
  * @returns {{ srcX: number, srcY: number, srcW: number, srcH: number }} Source rectangle
  */
-export function getTexChunk(entry: any, row: number, col: number): { srcX: number; srcY: number; srcW: number; srcH: number } {
-  const img = entry.img;
+export function getTexChunk(entry: TexEntry | TextureRuntime, row: number, col: number): { srcX: number; srcY: number; srcW: number; srcH: number } {
+  const img = entry.img!;
   const chunkSize = 256;
   const cw = Math.max(1, Math.floor(img.naturalWidth  / chunkSize));
   const ch = Math.max(1, Math.floor(img.naturalHeight / chunkSize));
@@ -68,7 +137,7 @@ const SPLAT_DEPTH = 0.2; // smoothing zone (from the splatting article)
  * @param {number} blendPx - Maximum blend distance in pixels
  * @returns {number} Penetration depth in pixels
  */
-function splatPenetration(hCurrent: any, hNeighbor: any, blendPx: any) {
+function splatPenetration(hCurrent: number, hNeighbor: number, blendPx: number) {
   const cc = hCurrent + 0.5, cn = hNeighbor + 0.5;
   const ma = Math.max(cc, cn) - SPLAT_DEPTH;
   const b1 = Math.max(cc - ma, 0);
@@ -82,8 +151,8 @@ function splatPenetration(hCurrent: any, hNeighbor: any, blendPx: any) {
  * Used to determine blend direction: the harder cell accepts the soft fade, never the reverse.
  * Result is cached on entry._baseHeight. Returns 0.5 if the displacement map is unavailable.
  */
-function computeBaseHeight(entry: any) {
-  if ('_baseHeight' in entry) return entry._baseHeight;
+function computeBaseHeight(entry: TexEntry): number {
+  if (entry._baseHeight !== undefined) return entry._baseHeight;
   if (typeof OffscreenCanvas === 'undefined') { entry._baseHeight = 0.5; return 0.5; }
   if (!entry.dispImg?.complete || !entry.dispImg.naturalWidth) {
     // Don't cache if the image exists but hasn't loaded yet — will recompute next render
@@ -113,14 +182,14 @@ function computeBaseHeight(entry: any) {
  * Cached on entry._hmap. Returns null in environments without OffscreenCanvas
  * (Node.js PDF renderer), which gracefully degrades to a uniform blend.
  */
-function extractHeightMap(entry: any) {
+function extractHeightMap(entry: TexEntry) {
   if ('_hmap' in entry) return entry._hmap;
   if (typeof OffscreenCanvas === 'undefined') { entry._hmap = null; return null; }
 
   // Prefer displacement map; fall back to diffuse if unavailable
   const img = (entry.dispImg?.complete && entry.dispImg.naturalWidth) ? entry.dispImg : entry.img;
   // Don't cache if image hasn't loaded yet — will recompute next render
-  if (!img?.complete || !img.naturalWidth) return null;
+  if (!img.complete || !img.naturalWidth) return null;
   const w = Math.max(1, Math.floor(img.naturalWidth  / HMAP_SCALE));
   const h = Math.max(1, Math.floor(img.naturalHeight / HMAP_SCALE));
   const oc = new OffscreenCanvas(w, h);
@@ -142,7 +211,7 @@ function extractHeightMap(entry: any) {
  * ('north' = top row, 'south' = bottom row, 'west' = left col, 'east' = right col).
  * Returns null if hmap unavailable (fallback: treat all heights as 0.5).
  */
-function sampleEdgeHeights(entry: any, row: any, col: any, edgeDir: any) {
+function sampleEdgeHeights(entry: TexEntry, row: number, col: number, edgeDir: string) {
   const hmap = extractHeightMap(entry);
   if (!hmap) return null;
   // Map chunk coordinates (in diffuse space) to hmap space using the hmap's source dimensions
@@ -155,14 +224,13 @@ function sampleEdgeHeights(entry: any, row: any, col: any, edgeDir: any) {
   const out = new Float32Array(N_SAMPLES);
   for (let i = 0; i < N_SAMPLES; i++) {
     const t = i / (N_SAMPLES - 1);
-    let hx, hy;
+    let hx = 0, hy = 0;
     switch (edgeDir) {
       case 'north': hx = hmX + Math.round(t*(hmW-1)); hy = hmY;           break;
       case 'south': hx = hmX + Math.round(t*(hmW-1)); hy = hmY + hmH - 1; break;
       case 'west':  hx = hmX;           hy = hmY + Math.round(t*(hmH-1)); break;
       case 'east':  hx = hmX + hmW - 1; hy = hmY + Math.round(t*(hmH-1)); break;
     }
-    // @ts-expect-error — strict-mode migration
     out[i] = hmap.data[Math.min(hy, hmap.h-1) * hmap.w + Math.min(hx, hmap.w-1)];
   }
   return out;
@@ -173,7 +241,7 @@ function sampleEdgeHeights(entry: any, row: any, col: any, edgeDir: any) {
  * (localX, localY) are in [0..cellPx] coordinates within the cell.
  * Returns 0.5 if height map is unavailable.
  */
-function sampleHeightAtPoint(entry: any, row: any, col: any, localX: any, localY: any, cellPx: any) {
+function sampleHeightAtPoint(entry: TexEntry, row: number, col: number, localX: number, localY: number, cellPx: number) {
   const hmap = extractHeightMap(entry);
   if (!hmap) return 0.5;
   const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
@@ -186,7 +254,7 @@ function sampleHeightAtPoint(entry: any, row: any, col: any, localX: any, localY
 
 // Scratch OffscreenCanvas for blending — destination-out gradient applied here so it
 // never punches holes through the main canvas's existing dungeon content.
-let blendScratch: any = null;
+let blendScratch: OffscreenCanvas | null = null;
 let blendScratchPx = 0;
 
 /**
@@ -194,7 +262,7 @@ let blendScratchPx = 0;
  * @param {number} px - Required canvas size in pixels
  * @returns {OffscreenCanvas|null} Scratch canvas, or null if OffscreenCanvas unavailable
  */
-export function getBlendScratch(px: number): any {
+export function getBlendScratch(px: number): OffscreenCanvas | null {
   const p = Math.ceil(px);
   if (!blendScratch) {
     if (typeof OffscreenCanvas === 'undefined') return null;
@@ -211,7 +279,7 @@ export function getBlendScratch(px: number): any {
 // ── L1 Bitmap cache builders ────────────────────────────────────────────────
 
 /** Close all ImageBitmaps in a topo cache to free GPU memory. */
-function closeBlendBitmaps(cache: any) {
+function closeBlendBitmaps(cache: BlendTopoCacheState) {
   if (cache.edges) {
     for (const edge of cache.edges) {
       if (edge.bitmap) { edge.bitmap.close(); edge.bitmap = null; }
@@ -229,14 +297,14 @@ function closeBlendBitmaps(cache: any) {
  * Uses the shared scratch OffscreenCanvas + transferToImageBitmap() for each descriptor.
  * Skipped entirely in Node.js (PDF path, no OffscreenCanvas).
  */
-function buildBlendBitmaps(edges: any, corners: any, gridSize: any, blendWidth: any) {
+function buildBlendBitmaps(edges: BlendEdge[], corners: BlendCorner[], gridSize: number, blendWidth: number) {
   if (typeof OffscreenCanvas === 'undefined') return;
 
   const sz = BLEND_BITMAP_SIZE;
   const blendPx = blendWidth * sz;
   const scratch = getBlendScratch(sz);
   if (!scratch) return;
-  const sctx = scratch.getContext('2d');
+  const sctx = scratch.getContext('2d')!;
 
   // ── Edge bitmaps ──
   for (const edge of edges) {
@@ -244,12 +312,12 @@ function buildBlendBitmaps(edges: any, corners: any, gridSize: any, blendWidth: 
     sctx.globalCompositeOperation = 'source-over';
     sctx.drawImage(edge.neighborEntry.img, edge.srcX, edge.srcY, edge.srcW, edge.srcH, 0, 0, sz, sz);
 
-    let sg;
+    let sg: CanvasGradient;
     switch (edge.direction) {
       case 'north': sg = sctx.createLinearGradient(0, 0, 0, blendPx); break;
       case 'south': sg = sctx.createLinearGradient(0, sz, 0, sz - blendPx); break;
       case 'west':  sg = sctx.createLinearGradient(0, 0, blendPx, 0); break;
-      case 'east':  sg = sctx.createLinearGradient(sz, 0, sz - blendPx, 0); break;
+      default:      sg = sctx.createLinearGradient(sz, 0, sz - blendPx, 0); break;
     }
     sg.addColorStop(0, 'rgba(0,0,0,0)');
     sg.addColorStop(1, 'rgba(0,0,0,1)');
@@ -291,7 +359,7 @@ function buildBlendBitmaps(edges: any, corners: any, gridSize: any, blendWidth: 
 // Pre-rendered blend layer at cache resolution. Persists across map cache
 // rebuilds as long as the blend topology hasn't changed. Separate from the
 // viewport L2 layer so they don't invalidate each other.
-let _blendCacheLayer: any = null; // { canvas, w, h, topoRef }
+let _blendCacheLayer: { canvas: OffscreenCanvas | HTMLCanvasElement; w: number; h: number; topoRef: BlendEdge[] } | null = null;
 
 /**
  * Return a pre-rendered blend layer for the offscreen map cache.
@@ -303,13 +371,15 @@ let _blendCacheLayer: any = null; // { canvas, w, h, topoRef }
  * @param {number} [cacheScale=10] - Pixels per foot at cache resolution
  * @returns {HTMLCanvasElement|OffscreenCanvas|null} Pre-rendered blend canvas, or null
  */
-export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: number, cacheH: number, cacheScale: number = 10): any {
+export function getRenderedBlendLayer(topo: BlendTopoCacheState, gridSize: number, cacheW: number, cacheH: number, cacheScale: number = 10): OffscreenCanvas | HTMLCanvasElement | null {
   if (typeof OffscreenCanvas === 'undefined') return null;
   if (!topo.edges?.length && !topo.corners?.length) return null;
-  if (!topo.edges.every((e: any) => e.bitmap) || !topo.corners.every((c: any) => c.bitmap)) return null;
+  const edges = topo.edges!;
+  const corners = topo.corners!;
+  if (!edges.every((e: BlendEdge) => e.bitmap) || !corners.every((c: BlendCorner) => c.bitmap)) return null;
 
   // Return cached layer if still valid
-  if (_blendCacheLayer && _blendCacheLayer.w === cacheW && _blendCacheLayer.h === cacheH &&
+  if (_blendCacheLayer?.w === cacheW && _blendCacheLayer.h === cacheH &&
       _blendCacheLayer.topoRef === topo.edges) {
     return _blendCacheLayer.canvas;
   }
@@ -321,7 +391,7 @@ export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: numbe
   const sz = BLEND_BITMAP_SIZE;
 
   let offCanvas;
-  if (_blendCacheLayer && _blendCacheLayer.canvas) {
+  if (_blendCacheLayer?.canvas) {
     offCanvas = _blendCacheLayer.canvas;
     if (offCanvas.width !== cacheW || offCanvas.height !== cacheH) {
       offCanvas = new OffscreenCanvas(cacheW, cacheH);
@@ -330,10 +400,10 @@ export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: numbe
     offCanvas = new OffscreenCanvas(cacheW, cacheH);
   }
 
-  const lctx = offCanvas.getContext('2d');
+  const lctx = offCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
   lctx.clearRect(0, 0, cacheW, cacheH);
 
-  for (const edge of topo.edges) {
+  for (const edge of edges) {
     if (!edge.bitmap) continue;
     const screenX = edge.col * gridSize * sc + ox;
     const screenY = edge.row * gridSize * sc + oy;
@@ -347,7 +417,7 @@ export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: numbe
     lctx.restore();
   }
 
-  for (const cn of topo.corners) {
+  for (const cn of corners) {
     if (!cn.bitmap) continue;
     const screenX = cn.col * gridSize * sc + ox;
     const screenY = cn.row * gridSize * sc + oy;
@@ -361,7 +431,7 @@ export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: numbe
     lctx.restore();
   }
 
-  _blendCacheLayer = { canvas: offCanvas, w: cacheW, h: cacheH, topoRef: topo.edges };
+  _blendCacheLayer = { canvas: offCanvas, w: cacheW, h: cacheH, topoRef: edges };
   return offCanvas;
 }
 
@@ -369,14 +439,14 @@ export function getRenderedBlendLayer(topo: any, gridSize: number, cacheW: numbe
 // A single OffscreenCanvas compositing all visible blended tiles at screen resolution.
 // Valid as long as transform + canvas dimensions + topology haven't changed.
 
-let _blendLayer: any = null;
+let _blendLayer: OffscreenCanvas | null = null;
 let _blendLayerValid = false;
 let _blendLayerOx = 0;
 let _blendLayerOy = 0;
 let _blendLayerSc = 0;
 let _blendLayerW = 0;
 let _blendLayerH = 0;
-let _blendLayerTopoRef: any = null; // identity ref to edges array
+let _blendLayerTopoRef: BlendEdge[] | null = null;
 
 function invalidateViewportBlendLayer() {
   _blendLayerValid = false;
@@ -392,7 +462,7 @@ function invalidateViewportBlendLayer() {
  * @param {number} gridSize - Grid cell size in feet
  * @returns {OffscreenCanvas|null} Viewport blend canvas, or null
  */
-export function getViewportBlendLayer(canvasW: number, canvasH: number, transform: RenderTransform, topo: any, gridSize: number): any {
+export function getViewportBlendLayer(canvasW: number, canvasH: number, transform: RenderTransform, topo: BlendTopoCacheState, gridSize: number): OffscreenCanvas | HTMLCanvasElement | null {
   if (typeof OffscreenCanvas === 'undefined') return null;
 
   // Check L2 validity
@@ -412,7 +482,7 @@ export function getViewportBlendLayer(canvasW: number, canvasH: number, transfor
   }
 
   // Rebuild from L1 bitmaps
-  const lctx = _blendLayer.getContext('2d');
+  const lctx = _blendLayer.getContext('2d') as OffscreenCanvasRenderingContext2D;
   lctx.clearRect(0, 0, canvasW, canvasH);
 
   const { scale: sc, offsetX: ox, offsetY: oy } = transform;
@@ -426,7 +496,7 @@ export function getViewportBlendLayer(canvasW: number, canvasH: number, transfor
   const colMax = Math.ceil(((canvasW - ox) / sc) / gridSize) + 2;
 
   // Edge pass
-  for (const edge of topo.edges) {
+  for (const edge of topo.edges!) {
     if (edge.row < rowMin || edge.row > rowMax || edge.col < colMin || edge.col > colMax) continue;
     if (!edge.bitmap) continue;
 
@@ -444,7 +514,7 @@ export function getViewportBlendLayer(canvasW: number, canvasH: number, transfor
   }
 
   // Corner pass
-  for (const cn of topo.corners) {
+  for (const cn of topo.corners!) {
     if (cn.row < rowMin || cn.row > rowMax || cn.col < colMin || cn.col > colMax) continue;
     if (!cn.bitmap) continue;
 
@@ -478,18 +548,18 @@ export function getViewportBlendLayer(canvasW: number, canvasH: number, transfor
 // with world-coordinate Path2D clip polygons. This runs once when cells change;
 // the per-frame render loop only does scratch-canvas pixel work + clip composite.
 
-const CORNER_DIRS = [
+const CORNER_DIRS: readonly { dr1: number; dc1: number; dr2: number; dc2: number; corner: string; dir1: CardinalDirection; dir2: CardinalDirection }[] = [
   { dr1: -1, dc1: 0, dr2: 0, dc2: -1, corner: 'nw', dir1: 'north', dir2: 'west' },
   { dr1: -1, dc1: 0, dr2: 0, dc2:  1, corner: 'ne', dir1: 'north', dir2: 'east' },
   { dr1:  1, dc1: 0, dr2: 0, dc2: -1, corner: 'sw', dir1: 'south', dir2: 'west' },
   { dr1:  1, dc1: 0, dr2: 0, dc2:  1, corner: 'se', dir1: 'south', dir2: 'east' },
 ];
 
-function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOptions: any) {
+function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
-  const blendWidth = textureOptions?.blendWidth ?? 0.35;
-  const catalog = textureOptions.catalog;
+  const blendWidth = textureOptions.blendWidth;
+  const catalog = textureOptions.catalog as BlendTextureCatalog;
   const blendWorld = blendWidth * gridSize;
   const edges = [];
   const corners = [];
@@ -511,9 +581,9 @@ function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOp
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
 
         const currentEntry = catalog.textures[cell.texture];
-        if (!currentEntry) continue;
         const neighborEntry = catalog.textures[neighbor.texture];
-        if (!neighborEntry?.img?.complete || !neighborEntry.img.naturalWidth) continue;
+        if (!currentEntry || !neighborEntry) continue;
+        if (!neighborEntry.img.complete || !neighborEntry.img.naturalWidth) continue;
 
         const curH = computeBaseHeight(currentEntry);
         const nbrH = computeBaseHeight(neighborEntry);
@@ -595,7 +665,6 @@ function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOp
         const n2Cell = cells[n2r]?.[n2c];
         if (n1Cell?.trimClip) continue; // no blending from trimmed cells
         if (n2Cell?.trimClip) continue;
-        // @ts-expect-error — strict-mode migration
         if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
         const diagR = row + dr1 + dr2;
         const diagC = col + dc1 + dc2;
@@ -621,11 +690,11 @@ function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOp
         }
 
         const adjEntry = catalog.textures[softTexture];
-        if (!adjEntry?.img?.complete || !adjEntry.img.naturalWidth) continue;
+        if (!adjEntry?.img.complete || !adjEntry.img.naturalWidth) continue;
         if (curH < computeBaseHeight(adjEntry) + 0.05) continue;
 
         // Corner point in world-local coords
-        let localCX, localCY, startAngle;
+        let localCX = 0, localCY = 0, startAngle = 0;
         switch (corner) {
           case 'nw': localCX = 0;        localCY = 0;        startAngle = 0;               break;
           case 'ne': localCX = gridSize;  localCY = 0;        startAngle = Math.PI / 2;     break;
@@ -635,7 +704,6 @@ function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOp
 
         const radii = new Float32Array(8); // N_ARC = 8
         for (let i = 0; i < 8; i++) {
-          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           const sampleLX = localCX + (blendWorld * 0.5) * Math.cos(angle);
           const sampleLY = localCY + (blendWorld * 0.5) * Math.sin(angle);
@@ -651,7 +719,6 @@ function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOp
         const clipPath = new Path2D();
         clipPath.moveTo(worldCX, worldCY);
         for (let i = 0; i < 8; i++) {
-          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           clipPath.lineTo(
             worldCX + radii[i] * Math.cos(angle),
@@ -686,15 +753,15 @@ function buildBlendTopology(cells: any, roomCells: any, gridSize: any, textureOp
  * @param {Object} textureOptions - Texture catalog and blend settings
  * @returns {Object} Blend topology cache with edges and corners arrays
  */
-export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: any): any {
-  const blendWidth = textureOptions?.blendWidth ?? 0.35;
-  const catalog = textureOptions?.catalog;
-  const texturesVersion = textureOptions?.texturesVersion ?? 0;
+export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions): BlendTopoCacheState | null {
+  const blendWidth = textureOptions.blendWidth;
+  const catalog = textureOptions.catalog;
+  const texturesVersion = textureOptions.texturesVersion ?? 0;
   if (_blendTopoCache.cells === cells &&
       _blendTopoCache.gridSize === gridSize &&
       _blendTopoCache.blendWidth === blendWidth &&
       _blendTopoCache.catalog === catalog &&
-      (_blendTopoCache as any).texturesVersion === texturesVersion) {
+      _blendTopoCache.texturesVersion === texturesVersion) {
     return _blendTopoCache;
   }
 
@@ -707,8 +774,7 @@ export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridS
   // Pre-render blend bitmaps (L1 cache)
   buildBlendBitmaps(edges, corners, gridSize, blendWidth);
 
-  // @ts-expect-error — strict-mode migration
-  _blendTopoCache = { cells, gridSize, blendWidth, catalog, texturesVersion, edges, corners };
+  _blendTopoCache = { cells, gridSize, blendWidth, catalog: catalog as BlendTextureCatalog | null, texturesVersion, edges, corners };
   return _blendTopoCache;
 }
 
@@ -716,13 +782,13 @@ export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridS
  * Return the stored parameters from the current blend topo cache (or null if no cache).
  * @returns {{ gridSize: number, blendWidth: number, catalog: Object, texturesVersion: number }|null}
  */
-export function getBlendCacheParams(): any {
+export function getBlendCacheParams(): { gridSize: number; blendWidth: number; catalog: TextureCatalog; texturesVersion: number } | null {
   if (!_blendTopoCache.edges) return null;
   return {
-    gridSize: _blendTopoCache.gridSize,
-    blendWidth: _blendTopoCache.blendWidth,
-    catalog: _blendTopoCache.catalog,
-    texturesVersion: (_blendTopoCache as any).texturesVersion,
+    gridSize: _blendTopoCache.gridSize as number,
+    blendWidth: _blendTopoCache.blendWidth as number,
+    catalog: _blendTopoCache.catalog as TextureCatalog,
+    texturesVersion: _blendTopoCache.texturesVersion,
   };
 }
 
@@ -734,7 +800,7 @@ export function invalidateBlendLayerCache(): void {
   closeBlendBitmaps(_blendTopoCache);
   invalidateViewportBlendLayer();
   _blendCacheLayer = null;
-  _blendTopoCache = { cells: null, gridSize: null, blendWidth: null, catalog: null, edges: null, corners: null };
+  _blendTopoCache = { cells: null, gridSize: null, blendWidth: null, catalog: null, texturesVersion: 0, edges: null, corners: null };
 }
 
 /**
@@ -748,14 +814,14 @@ export function invalidateBlendLayerCache(): void {
  * @param {Object} textureOptions - Texture catalog and blend settings
  * @returns {void}
  */
-export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: any): void {
+export function patchBlendRegion(region: { minRow: number; maxRow: number; minCol: number; maxCol: number }, cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions): void {
   if (!_blendTopoCache.edges) {
     // No existing topology — need a full build
     invalidateBlendLayerCache();
     return;
   }
 
-  const blendWidth = textureOptions?.blendWidth ?? 0.35;
+  const blendWidth = textureOptions.blendWidth;
 
   // Expand region by 1 cell — neighbors of dirty cells may gain/lose blend edges
   const PAD = 1;
@@ -770,7 +836,6 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
   const keptEdges = [];
   const keptCorners = [];
 
-  // @ts-expect-error — strict-mode migration
   for (const edge of oldEdges) {
     if (edge.row >= minR && edge.row <= maxR && edge.col >= minC && edge.col <= maxC) {
       if (edge.bitmap) { edge.bitmap.close(); edge.bitmap = null; }
@@ -778,7 +843,6 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
       keptEdges.push(edge);
     }
   }
-  // @ts-expect-error — strict-mode migration
   for (const corner of oldCorners!) {
     if (corner.row >= minR && corner.row <= maxR && corner.col >= minC && corner.col <= maxC) {
       if (corner.bitmap) { corner.bitmap.close(); corner.bitmap = null; }
@@ -795,15 +859,13 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
   buildBlendBitmaps(regionTopo.edges, regionTopo.corners, gridSize, blendWidth);
 
   // Merge into the kept topology
-  // @ts-expect-error — strict-mode migration
   _blendTopoCache.edges = keptEdges.concat(regionTopo.edges);
-  // @ts-expect-error — strict-mode migration
   _blendTopoCache.corners = keptCorners.concat(regionTopo.corners);
 
   // Patch the blend cache layer for the dirty region
-  if (_blendCacheLayer && _blendCacheLayer.canvas) {
+  if (_blendCacheLayer?.canvas) {
     const sc = _blendCacheLayer.w / (cells[0].length * gridSize) || 10;
-    const lctx = _blendCacheLayer.canvas.getContext('2d');
+    const lctx = _blendCacheLayer.canvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
     const sz = BLEND_BITMAP_SIZE;
     const cellPx = gridSize * sc;
 
@@ -820,7 +882,6 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
 
     // Re-render only the new edges/corners in the region
     for (const edge of regionTopo.edges) {
-      if (!edge.bitmap) continue;
       const screenX = edge.col * gridSize * sc;
       const screenY = edge.row * gridSize * sc;
       const cpx = Math.ceil(cellPx);
@@ -829,11 +890,10 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
       lctx.clip(edge.clipPath);
       lctx.setTransform(1, 0, 0, 1, 0, 0);
       lctx.globalAlpha = edge.neighborOpacity;
-      lctx.drawImage(edge.bitmap, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
+      lctx.drawImage(edge.bitmap!, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
       lctx.restore();
     }
     for (const cn of regionTopo.corners) {
-      if (!cn.bitmap) continue;
       const screenX = cn.col * gridSize * sc;
       const screenY = cn.row * gridSize * sc;
       const cpx = Math.ceil(cellPx);
@@ -842,7 +902,7 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
       lctx.clip(cn.clipPath);
       lctx.setTransform(1, 0, 0, 1, 0, 0);
       lctx.globalAlpha = cn.neighborOpacity;
-      lctx.drawImage(cn.bitmap, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
+      lctx.drawImage(cn.bitmap!, 0, 0, sz, sz, screenX, screenY, cpx, cpx);
       lctx.restore();
     }
 
@@ -857,11 +917,11 @@ export function patchBlendRegion(region: any, cells: CellGrid, roomCells: boolea
  * Build blend topology for a restricted cell region only.
  * Same logic as buildBlendTopology but limited to [minR..maxR, minC..maxC].
  */
-function _buildBlendTopologyForRegion(cells: any, roomCells: any, gridSize: any, textureOptions: any, minR: any, maxR: any, minC: any, maxC: any) {
+function _buildBlendTopologyForRegion(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions, minR: number, maxR: number, minC: number, maxC: number) {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
-  const blendWidth = textureOptions?.blendWidth ?? 0.35;
-  const catalog = textureOptions.catalog;
+  const blendWidth = textureOptions.blendWidth;
+  const catalog = textureOptions.catalog as BlendTextureCatalog;
   const blendWorld = blendWidth * gridSize;
   const edges = [];
   const corners = [];
@@ -883,9 +943,9 @@ function _buildBlendTopologyForRegion(cells: any, roomCells: any, gridSize: any,
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
 
         const currentEntry = catalog.textures[cell.texture];
-        if (!currentEntry) continue;
         const neighborEntry = catalog.textures[neighbor.texture];
-        if (!neighborEntry?.img?.complete || !neighborEntry.img.naturalWidth) continue;
+        if (!currentEntry || !neighborEntry) continue;
+        if (!neighborEntry.img.complete || !neighborEntry.img.naturalWidth) continue;
 
         const curH = computeBaseHeight(currentEntry);
         const nbrH = computeBaseHeight(neighborEntry);
@@ -943,7 +1003,6 @@ function _buildBlendTopologyForRegion(cells: any, roomCells: any, gridSize: any,
         const n2Cell = cells[n2r]?.[n2c];
         if (n1Cell?.trimClip) continue;
         if (n2Cell?.trimClip) continue;
-        // @ts-expect-error — strict-mode migration
         if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
         const diagR = row + dr1 + dr2, diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
@@ -968,17 +1027,17 @@ function _buildBlendTopologyForRegion(cells: any, roomCells: any, gridSize: any,
         }
 
         const adjEntry = catalog.textures[softTexture];
-        if (!adjEntry?.img?.complete || !adjEntry.img.naturalWidth) continue;
+        if (!adjEntry?.img.complete || !adjEntry.img.naturalWidth) continue;
         if (curH < computeBaseHeight(adjEntry) + 0.05) continue;
 
-        let localCX, localCY;
+        let localCX = 0, localCY = 0;
         switch (corner) {
           case 'nw': localCX = 0;       localCY = 0;        break;
           case 'ne': localCX = gridSize; localCY = 0;        break;
           case 'sw': localCX = 0;       localCY = gridSize;  break;
           case 'se': localCX = gridSize; localCY = gridSize;  break;
         }
-        let startAngle;
+        let startAngle = 0;
         switch (corner) {
           case 'nw': startAngle = 0;               break;
           case 'ne': startAngle = Math.PI / 2;     break;
@@ -988,7 +1047,6 @@ function _buildBlendTopologyForRegion(cells: any, roomCells: any, gridSize: any,
 
         const radii = new Float32Array(8);
         for (let i = 0; i < 8; i++) {
-          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           const sampleLX = localCX + (blendWorld * 0.5) * Math.cos(angle);
           const sampleLY = localCY + (blendWorld * 0.5) * Math.sin(angle);
@@ -1002,7 +1060,6 @@ function _buildBlendTopologyForRegion(cells: any, roomCells: any, gridSize: any,
         const clipPath = new Path2D();
         clipPath.moveTo(worldCX, worldCY);
         for (let i = 0; i < 8; i++) {
-          // @ts-expect-error — strict-mode migration
           const angle = startAngle + (Math.PI / 2) * i / 7;
           clipPath.lineTo(worldCX + radii[i] * Math.cos(angle), worldCY + radii[i] * Math.sin(angle));
         }

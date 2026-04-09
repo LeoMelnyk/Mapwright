@@ -1,40 +1,41 @@
+import type { PropCommand, PropDefinition } from '../types.js';
 /**
  * prop-catalog-node.js
  * Node.js-only prop catalog loader for the CLI render pipeline.
  * NOT imported by the browser bundle — uses fs.readFileSync and Node.js path utilities.
  */
 
-// @ts-expect-error — strict-mode migration
 import fs from 'fs';
-// @ts-expect-error — strict-mode migration
 import { fileURLToPath } from 'url';
-// @ts-expect-error — strict-mode migration
 import { dirname, join } from 'path';
 import { parsePropFile, generateHitbox } from './props.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** Convert manual hitbox commands (rect/circle/poly) into a single polygon. */
-function manualHitboxToPolygon(cmds: any[]): number[][] | null {
+function manualHitboxToPolygon(cmds: PropCommand[]): number[][] | null {
   const points = [];
   for (const cmd of cmds) {
     switch (cmd.subShape) {
       case 'rect':
         points.push(
-          [cmd.x, cmd.y], [cmd.x + cmd.w, cmd.y],
-          [cmd.x + cmd.w, cmd.y + cmd.h], [cmd.x, cmd.y + cmd.h],
+          [cmd.x!, cmd.y!], [cmd.x! + cmd.w!, cmd.y!],
+          [cmd.x! + cmd.w!, cmd.y! + cmd.h!], [cmd.x!, cmd.y! + cmd.h!],
         );
         break;
       case 'circle': {
         const N = 16;
         for (let i = 0; i < N; i++) {
           const angle = (i / N) * Math.PI * 2;
-          points.push([cmd.cx + cmd.r * Math.cos(angle), cmd.cy + cmd.r * Math.sin(angle)]);
+          points.push([cmd.cx! + cmd.r! * Math.cos(angle), cmd.cy! + cmd.r! * Math.sin(angle)]);
         }
         break;
       }
       case 'poly':
         if (cmd.points?.length) points.push(...cmd.points);
+        break;
+      case undefined:
+      default:
         break;
     }
   }
@@ -42,11 +43,11 @@ function manualHitboxToPolygon(cmds: any[]): number[][] | null {
 }
 
 /** Build hitbox zones for z-height shadow projection. */
-function buildHitboxZones(def: any): any[] | null {
-  const hasZRanges = def.manualHitbox?.some((cmd: any) => cmd.zBottom != null);
+function buildHitboxZones(def: PropDefinition): { polygon: number[][]; zBottom: number; zTop: number }[] | null {
+  const hasZRanges = def.manualHitbox?.some((cmd: Record<string, unknown>) => cmd.zBottom != null);
   if (hasZRanges) {
     const groups = new Map();
-    for (const cmd of def.manualHitbox) {
+    for (const cmd of def.manualHitbox!) {
       const key = cmd.zBottom != null ? `${cmd.zBottom}-${cmd.zTop}` : 'default';
       if (!groups.has(key)) groups.set(key, { cmds: [], zBottom: cmd.zBottom ?? 0, zTop: cmd.zTop ?? Infinity });
       groups.get(key).cmds.push(cmd);
@@ -68,7 +69,7 @@ function buildHitboxZones(def: any): any[] | null {
  * Synchronously load the full prop catalog from .prop files on disk.
  * Returns { props: { [name]: PropDefinition }, categories: string[] }.
  */
-export function loadPropCatalogSync(): { props: Record<string, any>; categories: string[] } {
+export function loadPropCatalogSync(): { props: Record<string, PropDefinition>; categories: string[] } {
   const manifestPath = join(__dirname, '../props/manifest.json');
   let manifest;
   try {
@@ -85,26 +86,21 @@ export function loadPropCatalogSync(): { props: Record<string, any>; categories:
       const text = fs.readFileSync(propPath, 'utf-8');
       const def = parsePropFile(text);
       // Generate hitboxes (same as browser prop-catalog.js buildCatalog)
-      if (!def.autoHitbox && def.commands?.length) {
-        // @ts-expect-error — strict-mode migration
-        def.autoHitbox = generateHitbox(def.commands, def.footprint);
+      if (!def.autoHitbox && def.commands.length) {
+        def.autoHitbox = generateHitbox(def.commands, def.footprint) ?? undefined;
       }
-      if (!def.hitbox) {
-        // @ts-expect-error — strict-mode migration
-        def.hitbox = def.manualHitbox?.length
-          ? manualHitboxToPolygon(def.manualHitbox)
+      def.hitbox ??= def.manualHitbox?.length
+          ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined)
           : def.autoHitbox;
-      }
       if (def.blocksLight && !def.hitboxZones) {
-        // @ts-expect-error — strict-mode migration
-        def.hitboxZones = buildHitboxZones(def);
+        def.hitboxZones = buildHitboxZones(def) ?? undefined;
       }
-      (props as any)[name] = def;
+      (props as Record<string, unknown>)[name] = def;
     } catch (e) {
-      console.warn(`[props] Failed to load ${name}.prop: ${(e as any).message}`);
+      console.warn(`[props] Failed to load ${name}.prop: ${(e as Error).message}`);
     }
   }
 
-  const categories = [...new Set(Object.values(props).map(p => (p as any).category))];
+  const categories = [...new Set(Object.values(props).map(p => (p as PropDefinition).category))];
   return { props, categories };
 }

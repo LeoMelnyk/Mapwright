@@ -1,3 +1,4 @@
+import type { Cell, RenderTransform } from '../../../types.js';
 // Trim tool: click+drag to create multi-cell diagonal trims
 //
 // Drag direction auto-detects the corner (default "auto" mode):
@@ -9,26 +10,25 @@
 //   - Interior cells (between hypotenuse and corner) get voided to null
 //   - If rounded, all hypotenuse cells share the same arc center + radius
 
-import { Tool } from './tool-base.js';
+import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { pushUndo, markDirty, invalidateLightmap } from '../state.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
-import { computeTrimCells } from '../../../util/index.js';
+import { computeTrimCells, type TrimCorner, type TrimPreview } from '../../../util/index.js';
 
 /**
  * Trim tool: click+drag to create multi-cell diagonal or arc trims on room corners.
  * Auto-detects corner direction from drag gesture.
  */
 export class TrimTool extends Tool {
-  [key: string]: any;
-  declare dragging: boolean;
-  declare dragStart: { row: number; col: number } | null;
-  declare dragEnd: { row: number; col: number } | null;
-  declare previewCells: any;
-  declare resolvedCorner: string | null;
-  declare hoverPos: { x: number; y: number } | null;
-  declare hoverCorner: string | null;
+  dragging: boolean = false;
+  dragStart: { row: number; col: number } | null = null;
+  dragEnd: { row: number; col: number } | null = null;
+  previewCells: TrimPreview | null = null;
+  resolvedCorner: TrimCorner | null = null;
+  hoverPos: { x: number; y: number } | null = null;
+  hoverCorner: TrimCorner | null = null;
 
   constructor() {
     super('trim', 'T', 'crosshair');
@@ -36,9 +36,9 @@ export class TrimTool extends Tool {
     this.dragStart = null;
     this.dragEnd = null;
     this.previewCells = null;
-    this.resolvedCorner = null; // the corner used for current drag (auto-detected or manual)
-    this.hoverPos = null;       // canvas pixel position for hover preview
-    this.hoverCorner = null;    // resolved corner shown in last hover preview
+    this.resolvedCorner = null;
+    this.hoverPos = null;
+    this.hoverCorner = null;
   }
 
   onActivate() {
@@ -63,19 +63,19 @@ export class TrimTool extends Tool {
     return true;
   }
 
-  onMouseDown(row: any, col: any) {
+  onMouseDown(row: number, col: number) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
 
     this.dragging = true;
     this.dragStart = { row, col };
     this.dragEnd = { row, col };
-    this.resolvedCorner = state.trimCorner === 'auto' ? (this.hoverCorner || 'nw') : state.trimCorner;
+    this.resolvedCorner = state.trimCorner === 'auto' ? (this.hoverCorner ?? 'nw') : state.trimCorner as TrimCorner;
     this._updatePreview();
   }
 
-  onMouseMove(row: any, col: any, edge: any, event: any, pos: any) {
-    this.hoverPos = pos || null;
+  onMouseMove(row: number, col: number, edge: EdgeInfo | null, event: MouseEvent, pos: CanvasPos | null) {
+    this.hoverPos = pos ?? null;
     if (!this.dragging) return;
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
@@ -84,10 +84,8 @@ export class TrimTool extends Tool {
 
     // Auto-detect corner from drag direction
     if (state.trimCorner === 'auto') {
-      // @ts-expect-error — strict-mode migration
-      const dr = this.dragEnd.row - this!.dragStart.row;
-      // @ts-expect-error — strict-mode migration
-      const dc = this.dragEnd.col - this!.dragStart.col;
+      const dr = this.dragEnd.row - this.dragStart!.row;
+      const dc = this.dragEnd.col - this.dragStart!.col;
       // Only update direction once the mouse has moved at least 1 cell
       if (dr !== 0 || dc !== 0) {
         if (dr <= 0 && dc <= 0) this.resolvedCorner = 'nw';
@@ -96,7 +94,7 @@ export class TrimTool extends Tool {
         else this.resolvedCorner = 'se';
       }
     } else {
-      this.resolvedCorner = state.trimCorner;
+      this.resolvedCorner = state.trimCorner as TrimCorner;
     }
 
     this._updatePreview();
@@ -119,7 +117,7 @@ export class TrimTool extends Tool {
     const allCoords = [
       ...preview.voided,
       ...preview.hypotenuse,
-      ...(preview.insideArc || []),
+      ...(preview.insideArc ?? []),
     ];
     const before = captureBeforeState(cells, allCoords);
 
@@ -133,14 +131,13 @@ export class TrimTool extends Tool {
     const allDirs = ['north', 'south', 'east', 'west'];
 
     // Helper: clear all cardinal/diagonal walls and their reciprocals
-    const clearWalls = (cell: any, r: any, c: any) => {
+    const clearWalls = (cell: Cell, r: number, c: number) => {
       for (const dir of allDirs) {
-        if (cell[dir]) {
-          delete cell[dir];
-          const [dr, dc] = (offsets as any)[dir];
+        if ((cell as Record<string, unknown>)[dir]) {
+          delete (cell as Record<string, unknown>)[dir];
+          const [dr, dc] = (offsets as unknown as Record<string, [number, number]>)[dir];
           const neighbor = cells[r + dr]?.[c + dc];
-          // @ts-expect-error — strict-mode migration
-          if (neighbor) delete (neighbor as any)[reciprocals[dir]];
+          if (neighbor) delete (neighbor as Record<string, unknown>)[(reciprocals as Record<string, string>)[dir]];
         }
       }
       delete cell['nw-se'];
@@ -148,35 +145,34 @@ export class TrimTool extends Tool {
     };
 
     // Helper: remove all old-format trim flags from a cell
-    const clearOldTrimFlags = (cell: any) => {
+    const clearOldTrimFlags = (cell: Cell) => {
       delete cell.trimRound;
-      delete cell.trimArcCenterRow;
-      delete cell.trimArcCenterCol;
-      delete cell.trimArcRadius;
-      delete cell.trimArcInverted;
-      delete cell.trimInsideArc;
+      delete (cell as Record<string, unknown>).trimArcCenterRow;
+      delete (cell as Record<string, unknown>).trimArcCenterCol;
+      delete (cell as Record<string, unknown>).trimArcRadius;
+      delete (cell as Record<string, unknown>).trimArcInverted;
+      delete (cell as Record<string, unknown>).trimInsideArc;
       delete cell.trimCorner;
-      delete cell.trimOpen;
-      delete cell.trimInverted;
+      delete (cell as Record<string, unknown>).trimOpen;
+      delete (cell as Record<string, unknown>).trimInverted;
       delete cell.trimClip;
       delete cell.trimWall;
       delete cell.trimPassable;
-    delete cell.trimCrossing;
+      delete cell.trimCrossing;
     };
 
     if (isRound) {
       // ── Round trim: per-cell data from computeTrimCells ──
-      // @ts-expect-error — strict-mode migration
-      const trimData = computeTrimCells(preview, corner, isInverted, state.trimOpen);
+      const trimData = computeTrimCells(preview, corner!, isInverted, state.trimOpen);
       const numRows = cells.length;
       const numCols = cells[0]?.length || 0;
 
       // Track which cells are in the original trim zone (walls should be cleared).
       // Buffer-ring neighbors that get arc data should NOT have their walls cleared.
       const trimZone = new Set([
-        ...preview.voided.map((c: any) => `${c.row},${c.col}`),
-        ...preview.hypotenuse.map((c: any) => `${c.row},${c.col}`),
-        ...(preview.insideArc || []).map((c: any) => `${c.row},${c.col}`),
+        ...preview.voided.map(c => `${c.row},${c.col}`),
+        ...preview.hypotenuse.map(c => `${c.row},${c.col}`),
+        ...(preview.insideArc ?? []).map(c => `${c.row},${c.col}`),
       ]);
 
       for (const [key, val] of trimData) {
@@ -190,26 +186,24 @@ export class TrimTool extends Tool {
         } else if (val === 'interior') {
           // Regular floor — only clear walls/flags if in the trim zone
           if (inZone) {
-            if (!cells[r][c]) cells[r][c] = {};
+            cells[r][c] ??= {};
             const cell = cells[r][c];
             clearWalls(cell, r, c);
             clearOldTrimFlags(cell);
           }
-        // @ts-expect-error — strict-mode migration
-        } else if (val === 'diagonal') {
+        } else if ((val as unknown as string) === 'diagonal') {
           // Inverted hypotenuse: straight diagonal wall (like straight trims)
-          if (!cells[r][c]) cells[r][c] = {};
+          cells[r][c] ??= {};
           const cell = cells[r][c];
           if (inZone) clearWalls(cell, r, c);
           clearOldTrimFlags(cell);
-          // @ts-expect-error — strict-mode migration
-          cell.trimCorner = corner;
+          cell.trimCorner = corner!;
           if (corner === 'nw' || corner === 'se') cell['ne-sw'] = 'w';
           else cell['nw-se'] = 'w';
           if (state.trimOpen) cell.trimOpen = true;
         } else {
           // Arc boundary cell — stamp new properties
-          if (!cells[r][c]) cells[r][c] = {};
+          cells[r][c] ??= {};
           const cell = cells[r][c];
           if (inZone) clearWalls(cell, r, c);
           clearOldTrimFlags(cell);
@@ -235,10 +229,9 @@ export class TrimTool extends Tool {
 
       // Set hypotenuse cells
       for (const { row: r, col: c } of preview.hypotenuse) {
-        if (!cells[r][c]) cells[r][c] = {};
+        cells[r][c] ??= {};
         const cell = cells[r][c];
-        // @ts-expect-error — strict-mode migration
-        cell.trimCorner = corner;
+        cell.trimCorner = corner!;
         clearWalls(cell, r, c);
 
         // Set diagonal border
@@ -266,16 +259,14 @@ export class TrimTool extends Tool {
    */
   _updatePreview() {
     const corner = this.resolvedCorner;
-    // @ts-expect-error — strict-mode migration
-    const { row: r0, col: c0 } = this.dragStart;
-    // @ts-expect-error — strict-mode migration
-    const { row: r1, col: c1 } = this.dragEnd;
+    const { row: r0, col: c0 } = this.dragStart!;
+    const { row: r1, col: c1 } = this.dragEnd!;
 
     // Size = max distance along row or col axis + 1
     const size = Math.max(Math.abs(r1 - r0), Math.abs(c1 - c0)) + 1;
 
-    const hypotenuse = [];
-    let voided = [];
+    const hypotenuse: { row: number; col: number }[] = [];
+    let voided: { row: number; col: number }[] = [];
     const cells = state.dungeon.cells;
     const numRows = cells.length;
     const numCols = cells[0]?.length || 0;
@@ -291,14 +282,14 @@ export class TrimTool extends Tool {
     const far = size - 1;
 
     for (let i = 0; i < size; i++) {
-      let hr, hc;
+      let hr = 0, hc = 0;
       switch (corner) {
         case 'se': hr = r0 - far + i; hc = c0 - i; break;
         case 'nw': hr = r0 + far - i; hc = c0 + i; break;
         case 'ne': hr = r0 + far - i; hc = c0 - i; break;
         case 'sw': hr = r0 - far + i; hc = c0 + i; break;
+        case null: break;
       }
-      // @ts-expect-error — strict-mode migration
       if (hr < 0 || hr >= numRows || hc < 0 || hc >= numCols) continue;
       hypotenuse.push({ row: hr, col: hc });
     }
@@ -307,14 +298,14 @@ export class TrimTool extends Tool {
     // At hyp index i, there are i void cells filling back toward the click column.
     for (let i = 1; i < size; i++) {
       for (let j = 0; j < i; j++) {
-        let vr, vc;
+        let vr = 0, vc = 0;
         switch (corner) {
           case 'se': vr = r0 - far + i; vc = c0 - i + 1 + j; break;
           case 'nw': vr = r0 + far - i; vc = c0 + j;         break;
           case 'ne': vr = r0 + far - i; vc = c0 - i + 1 + j; break;
           case 'sw': vr = r0 - far + i; vc = c0 + j;         break;
+          case null: break;
         }
-        // @ts-expect-error — strict-mode migration
         if (vr < 0 || vr >= numRows || vc < 0 || vc >= numCols) continue;
         voided.push({ row: vr, col: vc });
       }
@@ -325,9 +316,7 @@ export class TrimTool extends Tool {
     const allRows = hypotenuse.map(c => c.row).concat(voided.map(c => c.row));
     const allCols = hypotenuse.map(c => c.col).concat(voided.map(c => c.col));
     if (allRows.length > 0) {
-      // @ts-expect-error — strict-mode migration
       const minR = Math.min(...allRows);
-      // @ts-expect-error — strict-mode migration
       const maxR = Math.max(...allRows);
       const minC = Math.min(...allCols);
       const maxC = Math.max(...allCols);
@@ -337,6 +326,7 @@ export class TrimTool extends Tool {
         case 'ne': arcCenter = { row: minR, col: maxC + 1 }; break;
         case 'sw': arcCenter = { row: maxR + 1, col: minC }; break;
         case 'se': arcCenter = { row: maxR + 1, col: maxC + 1 }; break;
+        case null: break;
       }
     }
 
@@ -345,21 +335,19 @@ export class TrimTool extends Tool {
     // voided. Cells between the diagonal and the arc remain as room floor,
     // but their existing cardinal/diagonal walls must be cleared (the arc is
     // now the wall).
-    const insideArc: any = [];
+    const insideArc: { row: number; col: number }[] = [];
     if (state.trimRound && !state.trimInverted && voided.length > 0) {
-      // @ts-expect-error — strict-mode migration
-      let acxGrid, acyGrid;
+      let acxGrid = 0, acyGrid = 0;
       switch (corner) {
         case 'nw': acxGrid = arcCenter.col + size; acyGrid = arcCenter.row + size; break;
         case 'ne': acxGrid = arcCenter.col - size; acyGrid = arcCenter.row + size; break;
         case 'sw': acxGrid = arcCenter.col + size; acyGrid = arcCenter.row - size; break;
         case 'se': acxGrid = arcCenter.col - size; acyGrid = arcCenter.row - size; break;
+        case null: break;
       }
       voided = voided.filter(({ row: vr, col: vc }) => {
         // Closest distance from cell [vc, vc+1] × [vr, vr+1] to arc pivot
-        // @ts-expect-error — strict-mode migration
         const dx = Math.max(vc - acxGrid, 0, acxGrid - (vc + 1));
-        // @ts-expect-error — strict-mode migration
         const dy = Math.max(vr - acyGrid, 0, acyGrid - (vr + 1));
         const outside = Math.sqrt(dx * dx + dy * dy) > size;
         if (!outside) insideArc.push({ row: vr, col: vc });
@@ -370,11 +358,11 @@ export class TrimTool extends Tool {
     this.previewCells = { hypotenuse, voided, insideArc, arcCenter, size };
   }
 
-  onRightClick(row: any, col: any) {
+  onRightClick(row: number, col: number) {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
     const cell = cells[row][col];
-    if (!cell || !cell.trimCorner) return;
+    if (!cell?.trimCorner) return;
 
     const before = captureBeforeState(cells, [{ row, col }]);
     pushUndo('Remove Trim');
@@ -402,15 +390,15 @@ export class TrimTool extends Tool {
     requestRender();
   }
 
-  onKeyDown(e: any) {
+  onKeyDown(e: KeyboardEvent) {
     if (e.key === 'Escape' && this.dragging) {
       this.onCancel();
       requestRender();
       return;
     }
-    const syncTrimButtons = (prop: any, val: any) => {
-      document.querySelectorAll(`#trim-shape-options [data-trim="${prop}"]`).forEach(b => {
-        b.classList.toggle('active', (b as HTMLElement).dataset.val === String(val));
+    const syncTrimButtons = (prop: string, val: boolean) => {
+      document.querySelectorAll<HTMLElement>(`#trim-shape-options [data-trim="${prop}"]`).forEach(b => {
+        b.classList.toggle('active', (b).dataset.val === String(val));
       });
     };
     if (e.key === 'r' || e.key === 'R') {
@@ -427,13 +415,13 @@ export class TrimTool extends Tool {
     }
   }
 
-  renderOverlay(ctx: any, transform: any, gridSize: any) {
+  renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {
     // Hover preview — show which corner will be trimmed before dragging
     if (!this.dragging && state.hoveredCell && this.hoverPos) {
       const { row, col } = state.hoveredCell;
       const cells = state.dungeon.cells;
       if (row >= 0 && row < cells.length && col >= 0 && col < (cells[0]?.length || 0) && cells[row][col] !== null) {
-        let corner;
+        let corner: TrimCorner;
         if (state.trimCorner === 'auto') {
           // Determine corner from which quadrant of the cell the cursor is in
           const cellTL = toCanvas(col * gridSize, row * gridSize, transform);
@@ -442,7 +430,7 @@ export class TrimTool extends Tool {
           const inSouth = this.hoverPos.y - cellTL.y > cellPx / 2;
           corner = inSouth ? (inEast ? 'se' : 'sw') : (inEast ? 'ne' : 'nw');
         } else {
-          corner = state.trimCorner;
+          corner = state.trimCorner as TrimCorner;
         }
         this.hoverCorner = corner; // remember for onMouseDown
         this._drawHoverPreview(ctx, transform, gridSize, row, col, corner);
@@ -488,12 +476,10 @@ export class TrimTool extends Tool {
     ctx.stroke();
 
     // Arc preview if rounded
-    if (state.trimRound && this.previewCells.arcCenter) {
-      this._drawArcPreview(ctx, transform, gridSize, corner);
-    }
+    this._drawArcPreview(ctx, transform, gridSize, corner!);
   }
 
-  _drawHoverPreview(ctx: any, transform: any, gridSize: any, row: any, col: any, corner: any) {
+  _drawHoverPreview(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, row: number, col: number, corner: TrimCorner) {
     const x = col * gridSize;
     const y = row * gridSize;
     const tl = toCanvas(x,             y,             transform);
@@ -507,7 +493,6 @@ export class TrimTool extends Tool {
     const dp2 = isNESW ? bl : br;
 
     // The void triangle is the corner being cut plus the two diagonal endpoints
-    // @ts-expect-error — strict-mode migration
     const voidTri = {
       nw: [tl, tr, bl],
       ne: [tl, tr, br],
@@ -538,8 +523,8 @@ export class TrimTool extends Tool {
     ctx.restore();
   }
 
-  _drawArcPreview(ctx: any, transform: any, gridSize: any, corner: any) {
-    const { arcCenter, size } = this.previewCells;
+  _drawArcPreview(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, corner: TrimCorner) {
+    const { arcCenter, size } = this.previewCells!;
     const R = size * gridSize;
     const Rpx = R * transform.scale;
     const cp = toCanvas(arcCenter.col * gridSize, arcCenter.row * gridSize, transform);
@@ -557,14 +542,13 @@ export class TrimTool extends Tool {
         case 'se': ctx.arc(cp.x, cp.y, Rpx, Math.PI, 3 * Math.PI / 2, false); break;
       }
     } else {
-      let acx, acy;
+      let acx = 0, acy = 0;
       switch (corner) {
         case 'nw': acx = (arcCenter.col + size) * gridSize; acy = (arcCenter.row + size) * gridSize; break;
         case 'ne': acx = (arcCenter.col - size) * gridSize; acy = (arcCenter.row + size) * gridSize; break;
         case 'sw': acx = (arcCenter.col + size) * gridSize; acy = (arcCenter.row - size) * gridSize; break;
         case 'se': acx = (arcCenter.col - size) * gridSize; acy = (arcCenter.row - size) * gridSize; break;
       }
-      // @ts-expect-error — strict-mode migration
       const acp = toCanvas(acx, acy, transform);
       switch (corner) {
         case 'nw': ctx.arc(acp.x, acp.y, Rpx, 3 * Math.PI / 2, Math.PI, true); break;

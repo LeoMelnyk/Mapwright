@@ -8,7 +8,8 @@ import {
  * Get all level definitions with display coordinates.
  * @returns {{ success: boolean, levels: Array<Object> }}
  */
-export function getLevels(): { success: true; levels: any[] } {
+export function getLevels(): { success: true; levels: { index: number; name: string | null; startRow: number; numRows: number }[] } {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   const levels = state.dungeon.metadata.levels || [];
   return {
     success: true,
@@ -29,8 +30,8 @@ export function getLevels(): { success: true; levels: any[] } {
  */
 export function renameLevel(levelIndex: number, newName: string): { success: true } {
   const levels = state.dungeon.metadata.levels;
-  if (!levels || levelIndex < 0 || levelIndex >= levels.length) {
-    throw new Error(`Level index ${levelIndex} out of range (${levels?.length || 0} levels)`);
+  if (levelIndex < 0 || levelIndex >= levels.length) {
+    throw new Error(`Level index ${levelIndex} out of range (${levels.length} levels)`);
   }
   if (!newName || typeof newName !== 'string') {
     throw new Error('Level name must be a non-empty string');
@@ -51,8 +52,8 @@ export function renameLevel(levelIndex: number, newName: string): { success: tru
 export function resizeLevel(levelIndex: number, newRows: number): { success: true } {
   newRows = toInt(newRows);
   const levels = state.dungeon.metadata.levels;
-  if (!levels || levelIndex < 0 || levelIndex >= levels.length) {
-    throw new Error(`Level index ${levelIndex} out of range (${levels?.length || 0} levels)`);
+  if (levelIndex < 0 || levelIndex >= levels.length) {
+    throw new Error(`Level index ${levelIndex} out of range (${levels.length} levels)`);
   }
   if (newRows < 1) {
     throw new Error('Row count must be a positive integer');
@@ -119,7 +120,6 @@ export function addLevel(name: string, numRows: number = 15): { success: true; l
     cells.push(row);
   }
 
-  if (!state.dungeon.metadata.levels) state.dungeon.metadata.levels = [];
   state.dungeon.metadata.levels.push({
     name: name.trim(),
     startRow: currentRows + 1,

@@ -6,9 +6,9 @@ const DEFAULTS = {
   model: 'qwen3.5:9b',
 };
 
-let _cache: any = null;
+let _cache: Record<string, unknown> | null = null;
 
-function load() {
+function load(): Record<string, unknown> {
   if (_cache) return _cache;
   try {
     const raw = localStorage.getItem(KEY);
@@ -16,7 +16,7 @@ function load() {
   } catch {
     _cache = { ...DEFAULTS };
   }
-  return _cache;
+  return _cache!;
 }
 
 function save() {

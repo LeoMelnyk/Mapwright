@@ -15,7 +15,8 @@ function getContainer(): HTMLDivElement {
  * @param {number} [duration=4000] - How long the toast stays visible in milliseconds.
  * @returns {void}
  */
-export function showToast(message: string, duration: number = 4000): void {
+export function showToast(message: string, durationOrType: number | string = 4000): void {
+  const duration = typeof durationOrType === 'number' ? durationOrType : 4000;
   const c = getContainer();
   const toast = document.createElement('div');
   toast.className = 'toast';

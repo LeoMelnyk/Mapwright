@@ -119,6 +119,14 @@ function createWindow() {
   pendingFile = null;
   mainWindow.loadURL(editorUrl);
 
+  // Forward renderer console messages to terminal with source location
+  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+    const tag = ['DEBUG', 'INFO', 'WARN', 'ERROR'][level] || 'LOG';
+    // Strip the origin prefix to show just the asset path
+    const source = sourceId.replace(/^https?:\/\/[^/]+\//, '');
+    console.log(`[${tag}] ${message}  (${source}:${line})`);
+  });
+
   // F12 opens devtools
   mainWindow.webContents.on('before-input-event', (event, input) => {
     if (input.key === 'F12') {

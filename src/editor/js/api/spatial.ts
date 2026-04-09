@@ -5,6 +5,7 @@ import {
   cellKey, parseCellKey, floodFillRoom, roomBoundsFromKeys,
   toInt, toDisp,
 } from './_shared.js';
+import type { EdgeValue, PartitionRoomOptions } from '../../../types.js';
 import { isPropAt } from '../prop-spatial.js';
 
 // ── Spatial Queries ───────────────────────────────────────────────────────
@@ -14,12 +15,11 @@ import { isPropAt } from '../prop-spatial.js';
  * @param {string} label - Room label to search for
  * @returns {{ success: boolean, row?: number, col?: number, error?: string }}
  */
-export function findCellByLabel(label: string): { success: boolean; row?: number; col?: number; error?: string } {
+export function findCellByLabel(label: string | number): { success: boolean; row?: number; col?: number; error?: string } {
   const cells = state.dungeon.cells;
   const target = String(label);
   for (let r = 0; r < cells.length; r++) {
     const row = cells[r];
-    if (!row) continue;
     for (let c = 0; c < row.length; c++) {
       if (cells[r][c]?.center?.label === target) return { success: true, row: toDisp(r), col: toDisp(c) };
     }
@@ -35,7 +35,7 @@ export function findCellByLabel(label: string): { success: boolean; row?: number
 export function _collectRoomCells(label: string): Set<string> | null {
   const start = getApi().findCellByLabel(label);
   if (!start.success) return null;
-  return floodFillRoom(state.dungeon.cells, start.row, start.col);
+  return floodFillRoom(state.dungeon.cells, start.row!, start.col!);
 }
 
 /**
@@ -46,12 +46,12 @@ export function _collectRoomCells(label: string): Set<string> | null {
  */
 export function _getWallCells(roomCellSet: Set<string>, wall: string): [number, number][] {
   if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
-  const result = [];
+  const result: [number, number][] = [];
   const [dr, dc] = OFFSETS[wall];
   for (const key of roomCellSet) {
     const [r, c] = parseCellKey(key);
     if (!roomCellSet.has(cellKey(r + dr, c + dc))) {
-      result.push([r, c]);
+      result.push([r, c] as [number, number]);
     }
   }
   if (wall === 'north' || wall === 'south') {
@@ -59,7 +59,6 @@ export function _getWallCells(roomCellSet: Set<string>, wall: string): [number, 
   } else {
     result.sort((a, b) => a[0] - b[0]);
   }
-  // @ts-expect-error — strict-mode migration
   return result;
 }
 
@@ -80,6 +79,7 @@ export function _isCellCoveredByProp(r: number, c: number): boolean {
  */
 export function getRoomBounds(label: string): { r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number } | null {
   const roomCells = getApi()._collectRoomCells(label);
+  if (!roomCells) return null;
   const bounds = roomBoundsFromKeys(roomCells);
   if (!bounds) return null;
   return {
@@ -111,7 +111,7 @@ export function findWallBetween(label1: string, label2: string): Array<{ row: nu
       const [dr, dc] = OFFSETS[dir];
       const nr = r + dr, nc = c + dc;
       if (!room2Cells.has(cellKey(nr, nc))) continue;
-      results.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as any)[dir] || 'w' });
+      results.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: ((cell as Record<string, unknown>)[dir] as string) || 'w' });
     }
   }
 
@@ -130,7 +130,7 @@ export function findWallBetween(label1: string, label2: string): Array<{ row: nu
  * @param {Object} [options] - { doorAt: number } to place a door at a specific position
  * @returns {{ success: boolean, wallsPlaced: number }}
  */
-export function partitionRoom(roomLabel: string, direction: string, position: number, wallType: string = 'w', options: Record<string, any> = {}): { success: true; wallsPlaced: number } {
+export function partitionRoom(roomLabel: string, direction: string, position: number, wallType: string = 'w', options: PartitionRoomOptions = {}): { success: true; wallsPlaced: number } {
   if (!['horizontal', 'vertical'].includes(direction)) {
     throw new Error('direction must be "horizontal" or "vertical"');
   }
@@ -152,10 +152,8 @@ export function partitionRoom(roomLabel: string, direction: string, position: nu
       const [r, c] = parseCellKey(key);
       if (r !== position) continue;
       if (!roomCells.has(cellKey(r + 1, c))) continue;
-      const val = (doorAt === c) ? 'd' : wallType;
-      // @ts-expect-error — strict-mode migration
+      const val = ((doorAt === c) ? 'd' : wallType) as EdgeValue;
       cells[r][c]!.south = val;
-      // @ts-expect-error — strict-mode migration
       setReciprocal(r, c, 'south', val);
       count++;
     }
@@ -164,10 +162,8 @@ export function partitionRoom(roomLabel: string, direction: string, position: nu
       const [r, c] = parseCellKey(key);
       if (c !== position) continue;
       if (!roomCells.has(cellKey(r, c + 1))) continue;
-      const val = (doorAt === r) ? 'd' : wallType;
-      // @ts-expect-error — strict-mode migration
+      const val = ((doorAt === r) ? 'd' : wallType) as EdgeValue;
       cells[r][c]!.east = val;
-      // @ts-expect-error — strict-mode migration
       setReciprocal(r, c, 'east', val);
       count++;
     }

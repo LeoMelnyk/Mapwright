@@ -1,5 +1,6 @@
 // Light tool: place, select, and move light sources
-import { Tool } from './tool-base.js';
+import type { Light, RenderTransform } from '../../../types.js';
+import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
@@ -10,23 +11,23 @@ const LIGHT_HIT_RADIUS = 8; // pixels at screen scale for click detection
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function getLights(): any[] {
+function getLights(): Light[] {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   return state.dungeon.metadata.lights || [];
 }
 
 function ensureLightsArray(): void {
-  if (!state.dungeon.metadata.lights) state.dungeon.metadata.lights = [];
   if (!state.dungeon.metadata.nextLightId) state.dungeon.metadata.nextLightId = 1;
 }
 
-function findLightById(id: number): any {
-  return getLights().find(l => l.id === id) || null;
+function findLightById(id: number): Light | null {
+  return getLights().find(l => l.id === id) ?? null;
 }
 
-function hitTestLight(pos: { x: number; y: number }): any {
+function hitTestLight(pos: { x: number; y: number }): Light | null {
   const transform = getTransform();
   const lights = getLights();
-  let closest = null;
+  let closest: Light | null = null;
   let closestDist = LIGHT_HIT_RADIUS;
 
   for (const light of lights) {
@@ -50,14 +51,10 @@ function hitTestLight(pos: { x: number; y: number }): any {
  * Supports point and directional lights with preset catalog integration.
  */
 export class LightTool extends Tool {
-  [key: string]: any;
-  declare _dragging: boolean;
-  declare _dragLightId: number | null;
-  declare _dragStartPos: { x: number; y: number } | null;
-  declare _pendingPlace: boolean;
-  declare _resizing: boolean;
-  declare _resizeStartDist: number;
-  declare _resizeStartRadius: number;
+  dragging: { lightId: number; offsetX: number; offsetY: number; origX?: number; origY?: number; origRadius?: number; undoSnapshot?: string } | null = null;
+  dragMoved: boolean = false;
+  hoveredLightId: number | null = null;
+  hoverPos: CanvasPos | null = null;
 
   constructor() {
     super('light', 'L', 'crosshair');
@@ -88,15 +85,14 @@ export class LightTool extends Tool {
     this.hoverPos = null;
     state.lightPasteMode = false;
     state.statusInstruction = null;
-    const bar = document.getElementById('light-options');
-    if (bar) bar.style.display = 'none';
+    const bar = document.getElementById('light-options')!;
+    bar.style.display = 'none';
   }
 
   /** Populate and show the preset select in the suboptions bar. */
   _syncPresetBar() {
-    const bar = document.getElementById('light-options');
-    const select = document.getElementById('light-preset-select');
-    if (!bar || !select) return;
+    const bar = document.getElementById('light-options')!;
+    const select = document.getElementById('light-preset-select')!;
 
     const catalog = getLightCatalog();
     if (catalog && select.childElementCount === 0) {
@@ -110,26 +106,29 @@ export class LightTool extends Tool {
         const group = document.createElement('optgroup');
         group.label = category;
         for (const id of catalog.byCategory[category]) {
+          const preset = catalog.lights[id];
+          if (!preset) continue;
           const opt = document.createElement('option');
           opt.value = id;
-          opt.textContent = catalog.lights[id].displayName;
+          opt.textContent = preset.displayName;
           group.appendChild(opt);
         }
         select.appendChild(group);
       }
 
       select.addEventListener('change', () => {
-        const catalog = getLightCatalog();
-        const preset = (catalog as any)?.lights[(select as HTMLInputElement).value];
+        const lightCatalog = getLightCatalog();
+        if (!lightCatalog) return;
+        const preset = lightCatalog.lights[(select as HTMLInputElement).value];
         if (!preset) return;
         state.lightPreset  = (select as HTMLInputElement).value;
-        state.lightType    = preset.type || 'point';
+        state.lightType    = preset.type;
         state.lightColor   = preset.color;
         state.lightRadius  = preset.radius;
         state.lightIntensity = preset.intensity;
         state.lightFalloff = preset.falloff;
         state.lightDimRadius = preset.dimRadius ?? 0;
-        state.lightZ = preset.z ?? null;
+        state.lightZ = (preset as Record<string, unknown>).z as number;
         state.lightAnimation = preset.animation ? { ...preset.animation } : null;
         if (preset.type === 'directional' && preset.spread != null) {
           state.lightSpread = preset.spread;
@@ -139,11 +138,11 @@ export class LightTool extends Tool {
     }
 
     // Reflect current state
-    (select as HTMLInputElement).value = state.lightPreset || '';
+    (select as HTMLInputElement).value = state.lightPreset ?? '';
     bar.style.display = 'flex';
   }
 
-  onMouseDown(row: any, col: any, edge: any, event: any, pos: any) {
+  onMouseDown(row: number, col: number, edge: EdgeInfo | null, event: MouseEvent, pos: CanvasPos | null) {
     // Paste mode: place the clipboard light at cursor position
     if (state.lightPasteMode && state.lightClipboard) {
       this._commitLightPaste(pos, event);
@@ -151,16 +150,15 @@ export class LightTool extends Tool {
     }
 
     // Unified: hit-test first — select+drag if over a light, place otherwise
-    const hit = hitTestLight(pos);
+    const hit = hitTestLight(pos!);
     if (hit) {
-      // @ts-expect-error — strict-mode migration
-      this._startSelectOrDrag(pos, event);
+      this._startSelectOrDrag(pos);
     } else {
       this._placeLight(pos, event);
     }
   }
 
-  onMouseMove(row: any, col: any, edge: any, event: any, pos: any) {
+  onMouseMove(row: number, col: number, edge: EdgeInfo | null, event: MouseEvent, pos: CanvasPos | null) {
     this.hoverPos = pos;
 
     if (this.dragging) {
@@ -168,9 +166,9 @@ export class LightTool extends Tool {
       const transform = getTransform();
       const light = findLightById(this.dragging.lightId);
       if (light) {
-        if (event?.ctrlKey && light.type !== 'directional') {
+        if (event.ctrlKey && light.type !== 'directional') {
           // Ctrl+drag: resize radius — measure distance from light center to cursor
-          const world = fromCanvas(pos.x, pos.y, transform);
+          const world = fromCanvas(pos!.x, pos!.y, transform);
           const dx = world.x - light.x;
           const dy = world.y - light.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
@@ -178,7 +176,7 @@ export class LightTool extends Tool {
           light.radius = Math.max(gridSize, Math.round(dist / gridSize) * gridSize);
         } else {
           // Normal drag: move light position
-          const world = fromCanvas(pos.x - this.dragging.offsetX, pos.y - this.dragging.offsetY, transform);
+          const world = fromCanvas(pos!.x - this.dragging.offsetX, pos!.y - this.dragging.offsetY, transform);
           light.x = world.x;
           light.y = world.y;
         }
@@ -190,7 +188,7 @@ export class LightTool extends Tool {
     }
 
     // Update hover state and cursor — only request render on actual state transitions
-    const hit = hitTestLight(pos);
+    const hit = pos ? hitTestLight(pos) : null;
     if (hit) {
       if (this.hoveredLightId !== hit.id) {
         this.hoveredLightId = hit.id;
@@ -224,8 +222,8 @@ export class LightTool extends Tool {
       // Restore original position — no undo entry created
       const light = findLightById(this.dragging.lightId);
       if (light && this.dragMoved) {
-        light.x = this.dragging.origX;
-        light.y = this.dragging.origY;
+        light.x = this.dragging.origX!;
+        light.y = this.dragging.origY!;
         if (this.dragging.origRadius != null) light.radius = this.dragging.origRadius;
         invalidateLightmap(false);
         markDirty();
@@ -239,8 +237,7 @@ export class LightTool extends Tool {
     return false;
   }
 
-  // @ts-expect-error — strict-mode migration
-  onRightClick(row: any, col: any, edge: any, event: any) {
+  onRightClick(row: number, col: number, edge: EdgeInfo | null, event: MouseEvent) {
     // Right-click during drag cancels the move
     if (this.dragging) {
       this.onCancel();
@@ -248,7 +245,7 @@ export class LightTool extends Tool {
     }
 
     // Delete light under cursor
-    const pos = { x: event.offsetX ?? event.layerX, y: event.offsetY ?? event.layerY };
+    const pos = { x: event.offsetX, y: event.offsetY};
     const light = hitTestLight(pos);
     if (!light) return;
 
@@ -272,7 +269,7 @@ export class LightTool extends Tool {
     requestRender();
   }
 
-  onKeyDown(e: any) {
+  onKeyDown(e: KeyboardEvent) {
     // Delete selected light
     if (e.key === 'Delete' || e.key === 'Backspace') {
       if (state.selectedLightId != null) {
@@ -324,7 +321,7 @@ export class LightTool extends Tool {
     }
   }
 
-  renderOverlay(ctx: any, transform: any) {
+  renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform) {
     const lights = getLights();
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
@@ -369,6 +366,7 @@ export class LightTool extends Tool {
   // ── Delete / Paste Helpers ───────────────────────────────────────────────
 
   _deleteSelectedLight() {
+    if (state.selectedLightId == null) return;
     const light = findLightById(state.selectedLightId);
     if (!light) return;
     pushUndo('Delete light');
@@ -387,13 +385,13 @@ export class LightTool extends Tool {
     requestRender();
   }
 
-  _commitLightPaste(pos: any, event: any) {
+  _commitLightPaste(pos: CanvasPos | null, event: MouseEvent) {
     const transform = getTransform();
     const gridSize = state.dungeon.metadata.gridSize || 5;
-    let world = fromCanvas(pos.x, pos.y, transform);
+    let world = fromCanvas(pos!.x, pos!.y, transform);
 
     // Shift+click: snap to grid
-    if (event?.shiftKey) {
+    if (event.shiftKey) {
       world = {
         x: Math.round(world.x / gridSize) * gridSize,
         y: Math.round(world.y / gridSize) * gridSize,
@@ -422,13 +420,13 @@ export class LightTool extends Tool {
 
   // ── Place ────────────────────────────────────────────────────────────────
 
-  _placeLight(pos: any, event: any) {
+  _placeLight(pos: CanvasPos | null, event: MouseEvent) {
     const transform = getTransform();
     const gridSize = state.dungeon.metadata.gridSize || 5;
-    let world = fromCanvas(pos.x, pos.y, transform);
+    let world = fromCanvas(pos!.x, pos!.y, transform);
 
     // Shift+click: snap position to grid intersection
-    if (event?.shiftKey) {
+    if (event.shiftKey) {
       world = {
         x: Math.round(world.x / gridSize) * gridSize,
         y: Math.round(world.y / gridSize) * gridSize,
@@ -438,35 +436,33 @@ export class LightTool extends Tool {
     pushUndo('Add light');
     ensureLightsArray();
 
-    const light = {
+    const light: Light = {
       id: state.dungeon.metadata.nextLightId++,
       x: world.x,
       y: world.y,
-      type: state.lightType,
+      type: state.lightType as Light['type'],
       radius: state.lightRadius,
       color: state.lightColor,
       intensity: state.lightIntensity,
-      falloff: state.lightFalloff,
+      falloff: state.lightFalloff as Light['falloff'],
     };
 
     // Dim radius
-    if (state.lightDimRadius > 0) (light as any).dimRadius = state.lightDimRadius;
+    if (state.lightDimRadius > 0) light.dimRadius = state.lightDimRadius;
 
     // Z-height (height above floor in feet)
-    if (state.lightZ != null) (light as any).z = state.lightZ;
+    if (state.lightZ) light.z = state.lightZ;
 
     // Track which preset this light was created from (enables Resync Preset Lights)
-    if (state.lightPreset) (light as any).presetId = state.lightPreset;
+    if (state.lightPreset) light.presetId = state.lightPreset;
 
     // Animation
-    if (state.lightAnimation?.type) (light as any).animation = { ...state.lightAnimation };
+    if (state.lightAnimation?.type) light.animation = { ...state.lightAnimation };
 
     // Add directional-specific properties
     if (state.lightType === 'directional') {
-      (light as any).spread= state.lightAngle;
-      (light as any).ranged = state.lightSpread;
-      (light as any).range = state.lightRadius; // use radius as range
-      delete light.radius;
+      light.spread = state.lightAngle;
+      light.range = state.lightRadius;
     }
 
     state.dungeon.metadata.lights.push(light);
@@ -484,7 +480,8 @@ export class LightTool extends Tool {
 
   // ── Select + Drag ────────────────────────────────────────────────────────
 
-  _startSelectOrDrag(pos: any) {
+  _startSelectOrDrag(pos: CanvasPos | null) {
+    if (!pos) return;
     const light = hitTestLight(pos);
 
     if (light) {
@@ -517,7 +514,7 @@ export class LightTool extends Tool {
 
   // ── Rendering Helpers ────────────────────────────────────────────────────
 
-  _drawLightIcon(ctx: any, px: any, py: any, light: any, isSelected: any, isHovered: any) {
+  _drawLightIcon(ctx: CanvasRenderingContext2D, px: number, py: number, light: Light, isSelected: boolean, isHovered: boolean) {
     const size = isSelected ? 10 : isHovered ? 9 : 7;
 
     ctx.save();
@@ -551,16 +548,16 @@ export class LightTool extends Tool {
     ctx.restore();
   }
 
-  _drawLightPreview(ctx: any, px: any, py: any, light: any, transform: any) {
+  _drawLightPreview(ctx: CanvasRenderingContext2D, px: number, py: number, light: Light, transform: RenderTransform) {
     ctx.save();
     ctx.setLineDash([6, 4]);
     ctx.lineWidth = 1.5;
     ctx.strokeStyle = 'rgba(255, 200, 50, 0.6)';
 
     if (light.type === 'directional') {
-      const range = (light.range || light.radius || 30) * transform.scale;
-      const angleRad = (light.angle || 0) * Math.PI / 180;
-      const spreadRad = (light.spread || 45) * Math.PI / 180;
+      const range = ((light.range ?? light.radius) || 30) * transform.scale;
+      const angleRad = (light.angle ?? 0) * Math.PI / 180;
+      const spreadRad = (light.spread ?? 45) * Math.PI / 180;
 
       // Draw cone
       ctx.beginPath();
@@ -597,9 +594,9 @@ export class LightTool extends Tool {
     ctx.restore();
   }
 
-  _drawPlacementPreview(ctx: any, pos: any, transform: any) {
+  _drawPlacementPreview(ctx: CanvasRenderingContext2D, pos: CanvasPos | null, transform: RenderTransform) {
     const color = state.lightColor || '#ff9944';
-    const { x, y } = pos;
+    const { x, y } = pos!;
 
     ctx.save();
     ctx.setLineDash([4, 4]);
@@ -646,8 +643,9 @@ export class LightTool extends Tool {
     ctx.restore();
   }
 
-  _drawPastePreview(ctx: any, pos: any, transform: any) {
+  _drawPastePreview(ctx: CanvasRenderingContext2D, pos: { x: number; y: number }, transform: { scale: number }) {
     const light = state.lightClipboard;
+    if (!light) return;
     const color = light.color || '#ff9944';
     const { x, y } = pos;
 
@@ -656,9 +654,9 @@ export class LightTool extends Tool {
     ctx.setLineDash([4, 4]);
 
     if (light.type === 'directional') {
-      const range = (light.range || light.radius || 30) * transform.scale;
-      const angleRad = (light.angle || 0) * Math.PI / 180;
-      const spreadRad = (light.spread || 45) * Math.PI / 180;
+      const range = ((light.range ?? light.radius) || 30) * transform.scale;
+      const angleRad = (light.angle ?? 0) * Math.PI / 180;
+      const spreadRad = (light.spread ?? 45) * Math.PI / 180;
 
       ctx.strokeStyle = color;
       ctx.lineWidth = 1.5;

@@ -6,7 +6,7 @@
  * light-blocking line segments for the lighting engine.
  */
 
-import type { PropCommand } from '../types.js';
+import type { OverlayProp, PropCatalog, PropCommand, PropDefinition } from '../types.js';
 import {
   flipCommand, transformCommand,
 } from './parse-props.js';
@@ -27,13 +27,13 @@ import {
  * @param {number} gridSize - Grid cell size in feet
  * @returns {boolean} True if the point hits the prop
  */
-export function hitTestPropPixel(prop: any, wx: number, wy: number, propCatalog: any, gridSize: number): boolean {
-  const propDef = propCatalog?.props?.[prop.type];
-  if (!propDef?.commands?.length) return false;
+export function hitTestPropPixel(prop: OverlayProp, wx: number, wy: number, propCatalog: PropCatalog | null, gridSize: number): boolean {
+  const propDef = propCatalog?.props[prop.type];
+  if (!propDef?.commands.length) return false;
 
-  const rotation = prop.rotation ?? 0;
-  const scale = prop.scale ?? 1.0;
-  const flipped = prop.flipped ?? false;
+  const rotation = prop.rotation;
+  const scale = prop.scale;
+  const flipped = prop.flipped;
 
   // Convert world-feet cursor to prop-local normalized coordinates
   const [fRows, fCols] = propDef.footprint;
@@ -52,7 +52,7 @@ export function hitTestPropPixel(prop: any, wx: number, wy: number, propCatalog:
   // Fast path: use selection hitbox (if defined), else auto-generated hitbox
   // Note: propDef.hitbox (lighting) is intentionally NOT used here — it may be
   // a manual convex shape that's too loose for accurate click detection.
-  const selHitbox = propDef.selectionHitbox || propDef.autoHitbox;
+  const selHitbox = propDef.selectionHitbox ?? propDef.autoHitbox;
   if (selHitbox) {
     // Inverse-transform the test point back to unrotated/unflipped prop space
     let hx = nx, hy = ny;
@@ -88,38 +88,38 @@ export function hitTestPropPixel(prop: any, wx: number, wy: number, propCatalog:
     switch (tc.type) {
       case 'rect':
         if (tc.rotate != null && tc.rotate !== 0) {
-          const cx = tc.x + tc.w / 2, cy = tc.y + tc.h / 2;
+          const cx = (tc.x ?? 0) + (tc.w ?? 0) / 2, cy = (tc.y ?? 0) + (tc.h ?? 0) / 2;
           const rad = (-tc.rotate * Math.PI) / 180;
           const cos = Math.cos(rad), sin = Math.sin(rad);
           const dx = nx - cx, dy = ny - cy;
           const lx = dx * cos - dy * sin + cx;
           const ly = dx * sin + dy * cos + cy;
-          if (lx >= tc.x && lx <= tc.x + tc.w && ly >= tc.y && ly <= tc.y + tc.h) hit = true;
+          if (lx >= (tc.x ?? 0) && lx <= (tc.x ?? 0) + (tc.w ?? 0) && ly >= (tc.y ?? 0) && ly <= (tc.y ?? 0) + (tc.h ?? 0)) hit = true;
         } else {
-          if (nx >= tc.x && nx <= tc.x + tc.w && ny >= tc.y && ny <= tc.y + tc.h) hit = true;
+          if (nx >= (tc.x ?? 0) && nx <= (tc.x ?? 0) + (tc.w ?? 0) && ny >= (tc.y ?? 0) && ny <= (tc.y ?? 0) + (tc.h ?? 0)) hit = true;
         }
         break;
       case 'circle': {
-        const dx = nx - tc.cx, dy = ny - tc.cy;
-        if (dx * dx + dy * dy <= tc.r * tc.r) hit = true;
+        const dx = nx - (tc.cx ?? 0), dy = ny - (tc.cy ?? 0);
+        if (dx * dx + dy * dy <= (tc.r ?? 0) * (tc.r ?? 0)) hit = true;
         break;
       }
       case 'ellipse': {
-        const edx = (nx - tc.cx) / tc.rx, edy = (ny - tc.cy) / tc.ry;
+        const edx = (nx - (tc.cx ?? 0)) / (tc.rx ?? 1), edy = (ny - (tc.cy ?? 0)) / (tc.ry ?? 1);
         if (edx * edx + edy * edy <= 1) hit = true;
         break;
       }
       case 'poly': {
-        if (tc.points?.length >= 3 && _pointInPolygon(nx, ny, tc.points)) hit = true;
+        if (tc.points && tc.points.length >= 3 && _pointInPolygon(nx, ny, tc.points)) hit = true;
         break;
       }
       case 'arc': {
-        const adx = nx - tc.cx, ady = ny - tc.cy;
-        if (adx * adx + ady * ady > tc.r * tc.r) break;
+        const adx = nx - (tc.cx ?? 0), ady = ny - (tc.cy ?? 0);
+        if (adx * adx + ady * ady > (tc.r ?? 0) * (tc.r ?? 0)) break;
         let angle = Math.atan2(ady, adx) * 180 / Math.PI;
         if (angle < 0) angle += 360;
-        const start = ((tc.startDeg % 360) + 360) % 360;
-        const end = ((tc.endDeg % 360) + 360) % 360;
+        const start = (((tc.startDeg ?? 0) % 360) + 360) % 360;
+        const end = (((tc.endDeg ?? 0) % 360) + 360) % 360;
         if (start <= end) {
           if (angle >= start && angle <= end) hit = true;
         } else {
@@ -132,26 +132,29 @@ export function hitTestPropPixel(prop: any, wx: number, wy: number, propCatalog:
         let inside = false;
         switch (tc.subShape) {
           case 'circle': {
-            const dx = nx - tc.cx, dy = ny - tc.cy;
-            inside = dx * dx + dy * dy <= tc.r * tc.r;
+            const dx = nx - (tc.cx ?? 0), dy = ny - (tc.cy ?? 0);
+            inside = dx * dx + dy * dy <= (tc.r ?? 0) * (tc.r ?? 0);
             break;
           }
           case 'rect':
-            inside = nx >= tc.x && nx <= tc.x + tc.w && ny >= tc.y && ny <= tc.y + tc.h;
+            inside = nx >= (tc.x ?? 0) && nx <= (tc.x ?? 0) + (tc.w ?? 0) && ny >= (tc.y ?? 0) && ny <= (tc.y ?? 0) + (tc.h ?? 0);
             break;
           case 'ellipse': {
-            const edx = (nx - tc.cx) / tc.rx, edy = (ny - tc.cy) / tc.ry;
+            const edx = (nx - (tc.cx ?? 0)) / (tc.rx ?? 1), edy = (ny - (tc.cy ?? 0)) / (tc.ry ?? 1);
             inside = edx * edx + edy * edy <= 1;
             break;
           }
+          case undefined:
+          default:
+            break;
         }
         if (inside) hit = false;
         break;
       }
       case 'ring': {
-        const dx = nx - tc.cx, dy = ny - tc.cy;
+        const dx = nx - (tc.cx ?? 0), dy = ny - (tc.cy ?? 0);
         const dist2 = dx * dx + dy * dy;
-        if (dist2 <= tc.outerR * tc.outerR && dist2 >= tc.innerR * tc.innerR) hit = true;
+        if (dist2 <= (tc.outerR ?? 0) * (tc.outerR ?? 0) && dist2 >= (tc.innerR ?? 0) * (tc.innerR ?? 0)) hit = true;
         break;
       }
     }
@@ -174,7 +177,7 @@ const HITBOX_SIMPLIFY_EPSILON: number = 0.08; // Douglas-Peucker tolerance in no
  * @returns {Array<[number,number]>|null} polygon in prop-local coords (0..cols, 0..rows), or null if empty
  */
 export function generateHitbox(commands: PropCommand[], footprint: [number, number]): [number, number][] | null {
-  if (!commands?.length) return null;
+  if (!commands.length) return null;
   const [fRows, fCols] = footprint;
   const gw = fCols * HITBOX_PX_PER_CELL;
   const gh = fRows * HITBOX_PX_PER_CELL;
@@ -195,7 +198,7 @@ export function generateHitbox(commands: PropCommand[], footprint: [number, numb
   for (let y = 0; y < gh; y++) {
     for (let x = 0; x < gw; x++) {
       if (!grid[y * gw + x]) continue;
-      const g = (bx: any, by: any) => (bx >= 0 && bx < gw && by >= 0 && by < gh) ? grid[by * gw + bx] : 0;
+      const g = (bx: number, by: number) => (bx >= 0 && bx < gw && by >= 0 && by < gh) ? grid[by * gw + bx] : 0;
       if (!g(x - 1, y) || !g(x + 1, y) || !g(x, y - 1) || !g(x, y + 1)) {
         boundary.push([x / HITBOX_PX_PER_CELL, y / HITBOX_PX_PER_CELL]);
       }
@@ -204,9 +207,8 @@ export function generateHitbox(commands: PropCommand[], footprint: [number, numb
   if (boundary.length < 3) return null;
 
   // 3. Compute convex hull (Graham scan) — handles disconnected shapes (e.g. tree canopy + trunk)
-  // @ts-expect-error — strict-mode migration
-  const hull = _convexHull(boundary);
-  if (!hull || hull.length < 3) return null;
+  const hull = _convexHull(boundary as [number, number][]);
+  if (hull.length < 3) return null;
 
   // 4. Simplify with Douglas-Peucker
   const simplified = _douglasPeucker(hull, HITBOX_SIMPLIFY_EPSILON);
@@ -221,48 +223,37 @@ function _testPointAgainstCommands(nx: number, ny: number, commands: PropCommand
     switch (cmd.type) {
       case 'rect':
         if (cmd.rotate != null && cmd.rotate !== 0) {
-          // @ts-expect-error — strict-mode migration
-          const cx = cmd.x + cmd.w / 2, cy = cmd.y + cmd.h / 2;
+          const cx = (cmd.x ?? 0) + (cmd.w ?? 0) / 2, cy = (cmd.y ?? 0) + (cmd.h ?? 0) / 2;
           const rad = (-cmd.rotate * Math.PI) / 180;
           const cos = Math.cos(rad), sin = Math.sin(rad);
           const dx = nx - cx, dy = ny - cy;
           const lx = dx * cos - dy * sin + cx;
           const ly = dx * sin + dy * cos + cy;
-          // @ts-expect-error — strict-mode migration
-          if (lx >= cmd.x && lx <= cmd.x + cmd.w && ly >= cmd.y && ly <= cmd.y + cmd.h) hit = true;
+          if (lx >= (cmd.x ?? 0) && lx <= (cmd.x ?? 0) + (cmd.w ?? 0) && ly >= (cmd.y ?? 0) && ly <= (cmd.y ?? 0) + (cmd.h ?? 0)) hit = true;
         } else {
-          // @ts-expect-error — strict-mode migration
-          if (nx >= cmd.x && nx <= cmd.x + cmd.w && ny >= cmd.y && ny <= cmd.y + cmd.h) hit = true;
+          if (nx >= (cmd.x ?? 0) && nx <= (cmd.x ?? 0) + (cmd.w ?? 0) && ny >= (cmd.y ?? 0) && ny <= (cmd.y ?? 0) + (cmd.h ?? 0)) hit = true;
         }
         break;
       case 'circle': {
-        // @ts-expect-error — strict-mode migration
-        const dx = nx - cmd.cx, dy = ny - cmd.cy;
-        // @ts-expect-error — strict-mode migration
-        if (dx * dx + dy * dy <= cmd.r * cmd.r) hit = true;
+        const dx = nx - (cmd.cx ?? 0), dy = ny - (cmd.cy ?? 0);
+        if (dx * dx + dy * dy <= (cmd.r ?? 0) * (cmd.r ?? 0)) hit = true;
         break;
       }
       case 'ellipse': {
-        // @ts-expect-error — strict-mode migration
-        const edx = (nx - cmd.cx) / cmd.rx, edy = (ny - cmd.cy) / cmd.ry;
+        const edx = (nx - (cmd.cx ?? 0)) / (cmd.rx ?? 1), edy = (ny - (cmd.cy ?? 0)) / (cmd.ry ?? 1);
         if (edx * edx + edy * edy <= 1) hit = true;
         break;
       }
       case 'poly':
-        // @ts-expect-error — strict-mode migration
-        if (cmd.points?.length >= 3 && _pointInPolygon(nx, ny, cmd.points)) hit = true;
+        if (cmd.points && cmd.points.length >= 3 && _pointInPolygon(nx, ny, cmd.points)) hit = true;
         break;
       case 'arc': {
-        // @ts-expect-error — strict-mode migration
-        const adx = nx - cmd.cx, ady = ny - cmd.cy;
-        // @ts-expect-error — strict-mode migration
-        if (adx * adx + ady * ady > cmd.r * cmd.r) break;
+        const adx = nx - (cmd.cx ?? 0), ady = ny - (cmd.cy ?? 0);
+        if (adx * adx + ady * ady > (cmd.r ?? 0) * (cmd.r ?? 0)) break;
         let angle = Math.atan2(ady, adx) * 180 / Math.PI;
         if (angle < 0) angle += 360;
-        // @ts-expect-error — strict-mode migration
-        const start = ((cmd.startDeg % 360) + 360) % 360;
-        // @ts-expect-error — strict-mode migration
-        const end = ((cmd.endDeg % 360) + 360) % 360;
+        const start = (((cmd.startDeg ?? 0) % 360) + 360) % 360;
+        const end = (((cmd.endDeg ?? 0) % 360) + 360) % 360;
         if (start <= end) { if (angle >= start && angle <= end) hit = true; }
         else { if (angle >= start || angle <= end) hit = true; }
         break;
@@ -271,32 +262,29 @@ function _testPointAgainstCommands(nx: number, ny: number, commands: PropCommand
         let inside = false;
         switch (cmd.subShape) {
           case 'circle': {
-            // @ts-expect-error — strict-mode migration
-            const dx = nx - cmd.cx, dy = ny - cmd.cy;
-            // @ts-expect-error — strict-mode migration
-            inside = dx * dx + dy * dy <= cmd.r * cmd.r;
+            const dx = nx - (cmd.cx ?? 0), dy = ny - (cmd.cy ?? 0);
+            inside = dx * dx + dy * dy <= (cmd.r ?? 0) * (cmd.r ?? 0);
             break;
           }
           case 'rect':
-            // @ts-expect-error — strict-mode migration
-            inside = nx >= cmd.x && nx <= cmd.x + cmd.w && ny >= cmd.y && ny <= cmd.y + cmd.h;
+            inside = nx >= (cmd.x ?? 0) && nx <= (cmd.x ?? 0) + (cmd.w ?? 0) && ny >= (cmd.y ?? 0) && ny <= (cmd.y ?? 0) + (cmd.h ?? 0);
             break;
           case 'ellipse': {
-            // @ts-expect-error — strict-mode migration
-            const edx = (nx - cmd.cx) / cmd.rx, edy = (ny - cmd.cy) / cmd.ry;
+            const edx = (nx - (cmd.cx ?? 0)) / (cmd.rx ?? 1), edy = (ny - (cmd.cy ?? 0)) / (cmd.ry ?? 1);
             inside = edx * edx + edy * edy <= 1;
             break;
           }
+          case undefined:
+          default:
+            break;
         }
         if (inside) hit = false;
         break;
       }
       case 'ring': {
-        // @ts-expect-error — strict-mode migration
-        const dx = nx - cmd.cx, dy = ny - cmd.cy;
+        const dx = nx - (cmd.cx ?? 0), dy = ny - (cmd.cy ?? 0);
         const dist2 = dx * dx + dy * dy;
-        // @ts-expect-error — strict-mode migration
-        if (dist2 <= cmd.outerR * cmd.outerR && dist2 >= cmd.innerR * cmd.innerR) hit = true;
+        if (dist2 <= (cmd.outerR ?? 0) * (cmd.outerR ?? 0) && dist2 >= (cmd.innerR ?? 0) * (cmd.innerR ?? 0)) hit = true;
         break;
       }
     }
@@ -416,10 +404,10 @@ function _pointInPolygon(px: number, py: number, points: number[][]): boolean {
  * @param {number} gridSize
  * @returns {Array<{x1, y1, x2, y2}>} Segments in world-feet
  */
-export function extractOverlayPropLightSegments(propDef: any, overlayProp: any, gridSize: number): Array<{x1: number; y1: number; x2: number; y2: number}> {
-  const rotation = overlayProp.rotation ?? 0;
-  const scale = overlayProp.scale ?? 1.0;
-  const flipped = overlayProp.flipped ?? false;
+export function extractOverlayPropLightSegments(propDef: PropDefinition, overlayProp: OverlayProp, gridSize: number): Array<{x1: number; y1: number; x2: number; y2: number}> {
+  const rotation = overlayProp.rotation;
+  const scale = overlayProp.scale;
+  const flipped = overlayProp.flipped;
   const [fRows, fCols] = propDef.footprint;
   const r = ((rotation % 360) + 360) % 360;
 
@@ -432,7 +420,7 @@ export function extractOverlayPropLightSegments(propDef: any, overlayProp: any, 
     const rdy = (fCols - fRows) / 2;
 
     // Transform each hitbox vertex: flip → rotate → scale → world-feet → translate
-    const worldPts = hitbox.map(([hx, hy]: any) => {
+    const worldPts = hitbox.map(([hx, hy]: number[]) => {
       let px = flipped ? fCols - hx : hx;
       let py = hy;
       // Rotate using rotatePoint logic
@@ -471,8 +459,6 @@ export function extractOverlayPropLightSegments(propDef: any, overlayProp: any, 
   }
 
   // Fallback: iterate draw commands
-  if (!propDef?.commands) return [];
-
   // For grid-aligned rotation at scale 1.0, delegate to existing function
   if ((r === 0 || r === 90 || r === 180 || r === 270) && scale === 1.0) {
     const row = overlayProp.y / gridSize;
@@ -490,7 +476,7 @@ export function extractOverlayPropLightSegments(propDef: any, overlayProp: any, 
   const sin = Math.sin(rad);
 
   return baseSegments.map(seg => {
-    function transform(x: any, y: any) {
+    function transform(x: number, y: number) {
       const dx = x - cx;
       const dy = y - cy;
       const sx = dx * scale;
@@ -572,9 +558,7 @@ function polygonToSegments(points: Array<{ x: number; y: number }>): Array<{x1: 
  * @param {number} gridSize - Grid cell size in feet
  * @returns {Array<{x1, y1, x2, y2}>} Segments in world-feet coordinates
  */
-export function extractPropLightSegments(propDef: any, row: number, col: number, rotation: number, flipped: boolean, gridSize: number): Array<{x1: number; y1: number; x2: number; y2: number}> {
-  if (!propDef?.commands) return [];
-
+export function extractPropLightSegments(propDef: PropDefinition, row: number, col: number, rotation: number, flipped: boolean, gridSize: number): Array<{x1: number; y1: number; x2: number; y2: number}> {
   const segments = [];
 
   for (const cmd of propDef.commands) {
@@ -591,10 +575,10 @@ export function extractPropLightSegments(propDef: any, row: number, col: number,
       case 'rect': {
         if (tc.rotate != null && tc.rotate !== 0) {
           // Rotated rect: compute actual corners
-          const cx = tc.x + tc.w / 2, cy = tc.y + tc.h / 2;
+          const cx = (tc.x ?? 0) + (tc.w ?? 0) / 2, cy = (tc.y ?? 0) + (tc.h ?? 0) / 2;
           const rad = (tc.rotate * Math.PI) / 180;
           const cos = Math.cos(rad), sin = Math.sin(rad);
-          const hw = tc.w / 2, hh = tc.h / 2;
+          const hw = (tc.w ?? 0) / 2, hh = (tc.h ?? 0) / 2;
           const corners = [
             [-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]
           ].map(([lx, ly]) => toWorldFeet(cx + lx * cos - ly * sin, cy + lx * sin + ly * cos, row, col, gridSize));
@@ -603,10 +587,10 @@ export function extractPropLightSegments(propDef: any, row: number, col: number,
             segments.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
           }
         } else {
-          const tl = toWorldFeet(tc.x, tc.y, row, col, gridSize);
-          const tr = toWorldFeet(tc.x + tc.w, tc.y, row, col, gridSize);
-          const br = toWorldFeet(tc.x + tc.w, tc.y + tc.h, row, col, gridSize);
-          const bl = toWorldFeet(tc.x, tc.y + tc.h, row, col, gridSize);
+          const tl = toWorldFeet(tc.x ?? 0, tc.y ?? 0, row, col, gridSize);
+          const tr = toWorldFeet((tc.x ?? 0) + (tc.w ?? 0), tc.y ?? 0, row, col, gridSize);
+          const br = toWorldFeet((tc.x ?? 0) + (tc.w ?? 0), (tc.y ?? 0) + (tc.h ?? 0), row, col, gridSize);
+          const bl = toWorldFeet(tc.x ?? 0, (tc.y ?? 0) + (tc.h ?? 0), row, col, gridSize);
           segments.push(
             { x1: tl.x, y1: tl.y, x2: tr.x, y2: tr.y },
             { x1: tr.x, y1: tr.y, x2: br.x, y2: br.y },
@@ -618,37 +602,37 @@ export function extractPropLightSegments(propDef: any, row: number, col: number,
       }
 
       case 'circle': {
-        const pts = circleToPolygon(tc.cx, tc.cy, tc.r);
+        const pts = circleToPolygon(tc.cx ?? 0, tc.cy ?? 0, tc.r ?? 0);
         const worldPts = pts.map(p => toWorldFeet(p.x, p.y, row, col, gridSize));
         segments.push(...polygonToSegments(worldPts));
         break;
       }
 
       case 'ellipse': {
-        const pts = ellipseToPolygon(tc.cx, tc.cy, tc.rx, tc.ry);
+        const pts = ellipseToPolygon(tc.cx ?? 0, tc.cy ?? 0, tc.rx ?? 0, tc.ry ?? 0);
         const worldPts = pts.map(p => toWorldFeet(p.x, p.y, row, col, gridSize));
         segments.push(...polygonToSegments(worldPts));
         break;
       }
 
       case 'poly': {
-        if (tc.points.length < 2) break;
-        const worldPts = tc.points.map(([px, py]: any) => toWorldFeet(px, py, row, col, gridSize));
+        if (!tc.points || tc.points.length < 2) break;
+        const worldPts = tc.points.map(([px, py]: number[]) => toWorldFeet(px, py, row, col, gridSize));
         segments.push(...polygonToSegments(worldPts));
         break;
       }
 
       case 'arc': {
-        const startRad = (tc.startDeg * Math.PI) / 180;
-        const endRad = (tc.endDeg * Math.PI) / 180;
+        const startRad = ((tc.startDeg ?? 0) * Math.PI) / 180;
+        const endRad = ((tc.endDeg ?? 0) * Math.PI) / 180;
         const ARC_SUBDIVISIONS = 8;
         const pts = [];
         for (let i = 0; i <= ARC_SUBDIVISIONS; i++) {
           const t = i / ARC_SUBDIVISIONS;
           const angle = startRad + t * (endRad - startRad);
           const p = toWorldFeet(
-            tc.cx + tc.r * Math.cos(angle),
-            tc.cy + tc.r * Math.sin(angle),
+            (tc.cx ?? 0) + (tc.r ?? 0) * Math.cos(angle),
+            (tc.cy ?? 0) + (tc.r ?? 0) * Math.sin(angle),
             row, col, gridSize
           );
           pts.push(p);
@@ -662,10 +646,10 @@ export function extractPropLightSegments(propDef: any, row: number, col: number,
 
       case 'ring': {
         // Generate segments for both outer and inner circles
-        const outerPts = circleToPolygon(tc.cx, tc.cy, tc.outerR);
+        const outerPts = circleToPolygon(tc.cx ?? 0, tc.cy ?? 0, tc.outerR ?? 0);
         const outerWorld = outerPts.map(p => toWorldFeet(p.x, p.y, row, col, gridSize));
         segments.push(...polygonToSegments(outerWorld));
-        const innerPts = circleToPolygon(tc.cx, tc.cy, tc.innerR);
+        const innerPts = circleToPolygon(tc.cx ?? 0, tc.cy ?? 0, tc.innerR ?? 0);
         const innerWorld = innerPts.map(p => toWorldFeet(p.x, p.y, row, col, gridSize));
         segments.push(...polygonToSegments(innerWorld));
         break;

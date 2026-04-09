@@ -19,11 +19,11 @@ export function initSessionPanel(containerEl: HTMLElement): void {
   subscribe(() => render(), 'session');
 }
 
-let _lastSessionActive: any = null;
-let _lastSessionCells: any = null;
-let _lastPlayerCount: any = null;
-let _lastDmViewActive: any = null;
-let _lastDmViewForced: any = null;
+let _lastSessionActive: unknown = null;
+let _lastSessionCells: unknown = null;
+let _lastPlayerCount: unknown = null;
+let _lastDmViewActive: unknown = null;
+let _lastDmViewForced: unknown = null;
 function render() {
   if (!container) return;
 
@@ -81,7 +81,7 @@ function render() {
         <div style="font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.4;">
           Share this link with players on your local network:
         </div>
-        <div class="session-link-row" data-url="http://${localIP || ''}:${location.port || 3000}/player/">
+        <div class="session-link-row" data-url="http://${localIP ?? ''}:${location.port || 3000}/player/">
           <code class="session-ip-link" title="Click to copy">http://••••••••••:${location.port || 3000}/player/</code>
           <button class="session-copy-btn" title="Copy player link">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -95,7 +95,7 @@ function render() {
       <div style="font-size:12px;color:var(--text-dim);line-height:1.5;">
         Start a session to enable the player view with fog of war.
         <div style="margin-top:6px;">Share this link with players on your local network:</div>
-        <div class="session-link-row" data-url="http://${localIP || ''}:${location.port || 3000}/player/">
+        <div class="session-link-row" data-url="http://${localIP ?? ''}:${location.port || 3000}/player/">
           <code class="session-ip-link" title="Click to copy">http://••••••••••:${location.port || 3000}/player/</code>
           <button class="session-copy-btn" title="Copy player link">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -114,7 +114,7 @@ function render() {
   });
 
   container.querySelector('.session-room-select')?.addEventListener('change', (e) => {
-    const key = (e.target! as any).value;
+    const key = ((e.target ?? e.currentTarget) as HTMLSelectElement).value;
     if (!key) return;
     const [r, c] = key.split(',').map(Number);
     setStartingRoom(r, c);
@@ -143,7 +143,7 @@ function render() {
     const copy = () => {
       const url = (row as HTMLElement).dataset.url;
       if (!url) return;
-      navigator.clipboard.writeText(url).then(() => showToast('Link copied'));
+      void navigator.clipboard.writeText(url).then(() => showToast('Link copied'));
     };
     row.querySelector('.session-ip-link')?.addEventListener('click', copy);
     row.querySelector('.session-copy-btn')?.addEventListener('click', copy);

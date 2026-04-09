@@ -1,3 +1,4 @@
+import type { BridgeType } from '../../../types.js';
 import {
   state, pushUndo, markDirty, notify, getApi,
   validateBounds, isInBounds,
@@ -36,7 +37,7 @@ export function addStairs(p1r: number, p1c: number, p2r: number, p2c: number, p3
   p1r = toInt(p1r); p1c = toInt(p1c);
   p2r = toInt(p2r); p2c = toInt(p2c);
   p3r = toInt(p3r); p3c = toInt(p3c);
-  const p1 = [p1r, p1c], p2 = [p2r, p2c], p3 = [p3r, p3c];
+  const p1: [number, number] = [p1r, p1c], p2: [number, number] = [p2r, p2c], p3: [number, number] = [p3r, p3c];
   if (isDegenerate(p1, p2, p3)) {
     throw new Error('Degenerate stair shape (zero area)');
   }
@@ -57,16 +58,13 @@ export function addStairs(p1r: number, p1c: number, p2r: number, p2c: number, p3
 
   pushUndo();
   const meta = state.dungeon.metadata;
-  if (!meta.stairs) meta.stairs = [];
-  if (meta.nextStairId == null) meta.nextStairId = 0;
   const id = meta.nextStairId++;
-  // @ts-expect-error — strict-mode migration
   meta.stairs.push({ id, points: [p1, p2, p3], link: null });
 
   let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
   for (const { row, col } of occupied) {
-    if (!cells[row][col]) cells[row][col] = {};
-    if (!cells[row][col].center) cells[row][col].center = {};
+    cells[row][col] ??= {};
+    cells[row][col].center ??= {};
     cells[row][col].center['stair-id'] = id;
     if (row < minR) minR = row;
     if (row > maxR) maxR = row;
@@ -108,7 +106,7 @@ export function removeStairs(row: number, col: number): { success: true } {
 
   pushUndo();
   const meta = state.dungeon.metadata;
-  const stairs = meta?.stairs || [];
+  const stairs = meta.stairs;
   const idx = stairs.findIndex(s => s.id === id);
 
   if (idx !== -1) {
@@ -125,10 +123,8 @@ export function removeStairs(row: number, col: number): { success: true } {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['stair-id'] === id) {
-        // @ts-expect-error — strict-mode migration
-        delete cells![r][c]!.center['stair-id'];
-        // @ts-expect-error — strict-mode migration
-        if (Object.keys(cells[r][c]!.center).length === 0) delete cells[r][c]!.center;
+        delete cells[r][c]!.center!['stair-id'];
+        if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
         if (r < minR) minR = r;
         if (r > maxR) maxR = r;
         if (c < minC) minC = c;
@@ -161,7 +157,7 @@ export function linkStairs(r1: number, c1: number, r2: number, c2: number): { su
   if (id2 == null) throw new Error(`Cell (${r2}, ${c2}) has no stairs to link`);
   if (id1 === id2) throw new Error('Cannot link a stair to itself');
 
-  const stairs = state.dungeon.metadata?.stairs || [];
+  const stairs = state.dungeon.metadata.stairs;
   const s1 = stairs.find(s => s.id === id1);
   const s2 = stairs.find(s => s.id === id2);
   if (!s1 || !s2) throw new Error('Stair definition not found in metadata');
@@ -203,7 +199,7 @@ export function addBridge(type: string, p1r: number, p1c: number, p2r: number, p
   p1r = toInt(p1r); p1c = toInt(p1c);
   p2r = toInt(p2r); p2c = toInt(p2c);
   p3r = toInt(p3r); p3c = toInt(p3c);
-  const p1 = [p1r, p1c], p2 = [p2r, p2c], p3 = [p3r, p3c];
+  const p1: [number, number] = [p1r, p1c], p2: [number, number] = [p2r, p2c], p3: [number, number] = [p3r, p3c];
   if (isBridgeDegenerate(p1, p2, p3)) throw new Error('Degenerate bridge (zero depth)');
 
   const occupied = getBridgeOccupiedCells(p1, p2, p3);
@@ -220,16 +216,12 @@ export function addBridge(type: string, p1r: number, p1c: number, p2r: number, p
   pushUndo();
 
   const meta = state.dungeon.metadata;
-  if (!meta.bridges) meta.bridges = [];
-  if (meta.nextBridgeId == null) meta.nextBridgeId = 0;
-
   const id = meta.nextBridgeId++;
-  // @ts-expect-error — strict-mode migration
-  meta.bridges.push({ id, type, points: [p1, p2, p3] });
+  meta.bridges.push({ id, type: type as BridgeType, points: [p1, p2, p3] });
 
   for (const { row, col } of occupied) {
-    if (!cells[row][col]) cells[row][col] = {};
-    if (!cells[row][col].center) cells[row][col].center = {};
+    cells[row][col] ??= {};
+    cells[row][col].center ??= {};
     cells[row][col].center['bridge-id'] = id;
   }
 
@@ -251,7 +243,7 @@ export function removeBridge(row: number, col: number): { success: true } {
   if (id == null) throw new Error(`Cell (${row}, ${col}) has no bridge`);
 
   const meta = state.dungeon.metadata;
-  const idx = (meta?.bridges || []).findIndex(b => b.id === id);
+  const idx = meta.bridges.findIndex(b => b.id === id);
   if (idx === -1) throw new Error(`Bridge id ${id} not found in metadata`);
 
   pushUndo();
@@ -261,10 +253,8 @@ export function removeBridge(row: number, col: number): { success: true } {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
-        // @ts-expect-error — strict-mode migration
-        delete cells![r][c]!.center['bridge-id'];
-        // @ts-expect-error — strict-mode migration
-        if (Object.keys(cells[r][c]!.center).length === 0) delete cells[r][c]!.center;
+        delete cells[r][c]!.center!['bridge-id'];
+        if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
       }
     }
   }
@@ -278,6 +268,6 @@ export function removeBridge(row: number, col: number): { success: true } {
  * Get all bridge definitions from metadata.
  * @returns {{ success: boolean, bridges: Array<Object> }}
  */
-export function getBridges(): { success: true; bridges: any[] } {
-  return { success: true, bridges: state.dungeon.metadata?.bridges || [] };
+export function getBridges(): { success: true; bridges: { id: number; type: string; points: [number, number][] }[] } {
+  return { success: true, bridges: state.dungeon.metadata.bridges };
 }

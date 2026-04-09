@@ -81,6 +81,40 @@ Full migration of the entire `src/` directory from JavaScript to TypeScript and 
 - ESLint updated with `typescript-eslint` parser
 - `tsconfig.json` and `tsconfig.node.json` for editor and server respectively
 
+### Type Safety & Lint Cleanup
+
+Full type-safety pass across 124 TypeScript files, eliminating all suppressions and enabling strict mode with type-checked linting.
+
+**Phase 1 — Zero `: any` type annotations (873 removed):**
+- All function parameters, variables, return types, and callbacks now use domain-specific types
+- Core interfaces expanded: `EditorState` (53+ properties), `Theme` (20+ rendering properties), `PropCommand` (20 geometry fields), `MapCacheParams`, `BlendTopoCache`, `TexEntry`, `FluidData`
+- Every file across render/, editor/, player/, util/ at zero `: any`
+
+**Phase 2 — Zero `as any` casts (473 removed):**
+- All unsafe casts replaced with proper typed casts (`as Error`, `as HTMLInputElement`, `as Record<string, unknown>`, `keyof typeof`, etc.)
+- Structural fixes: `cvState` fully typed, Tool base class signatures corrected, `getTheme()` returns `Theme` instead of `Record<string, unknown>`
+- OffscreenCanvas `getContext('2d')` properly typed across render pipeline
+
+**Phase 3 — Zero `@ts-expect-error` suppressions (1,915 removed):**
+- All 1,915 suppressions eliminated across 86 files in 30+ commits
+- Interface expansions in `types.ts` resolved the vast majority: `Cell` index signature, `Metadata.theme` union, `BackgroundImage` fields, `BlendEdge`/`BlendCorner` runtime fields
+- `ban-ts-comment` rule set to `error` — `@ts-expect-error`, `@ts-ignore`, `@ts-nocheck` all banned
+
+**Phase 4 & 5 — Type-checked linting (1,859 violations fixed):**
+- 17 new ESLint rules enabled via `typescript-eslint` type-checked config
+- 690 violations fixed in Phase 5 initial pass, 1,169 more in final pass
+- Key rules: `no-unnecessary-condition`, `prefer-nullish-coalescing`, `no-unsafe-function-type`, `no-explicit-any`, `consistent-type-imports`, `no-shadow`
+- Zero `eslint-disable` comments in `src/`
+
+**Post-migration runtime fixes:**
+- Fixed `Record<string, T>` types for texture/light catalogs to include `| undefined`, making null guards type-correct instead of lint-suppressed
+- Restored `??` fallbacks for label coordinates lost during migration (`labelX`/`labelY` cast to `number` → `NaN`)
+- Restored `ctx` → `drawCtx`/`maskCtx` parameter renames missed in player fog overlay (diagonal trim void culling broken)
+- Fixed 39 pre-existing TypeScript errors (OffscreenCanvas context types, DOM null checks, gradient assignment)
+- Source maps enabled for dev builds; Electron console-message forwarding for renderer logs
+
+**Final state:** `strict: true`, zero TypeScript errors, zero ESLint errors, zero suppressions, 854 unit tests + 34 E2E tests passing.
+
 ### Test Suite Expansion
 
 Expanded test coverage from 734 tests to 1,105+ tests across 4 test suites.
