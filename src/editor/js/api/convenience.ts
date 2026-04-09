@@ -9,6 +9,7 @@ import {
   invalidateAllCaches,
   toInt,
   captureBeforeState, smartInvalidate,
+  ApiValidationError,
 } from './_shared.js';
 
 // ── Convenience ───────────────────────────────────────────────────────────
@@ -23,7 +24,7 @@ import {
 export function mergeRooms(label1: string, label2: string): { success: true; removed: number } {
   const walls = getApi().findWallBetween(label1, label2);
   if (!walls) {
-    throw new Error(`No shared boundary found between '${label1}' and '${label2}'`);
+    throw new ApiValidationError('NO_SHARED_BOUNDARY', `No shared boundary found between '${label1}' and '${label2}'`, { label1, label2 });
   }
   const coords = walls.map(({ row, col }: { row: number; col: number }) => ({ row: toInt(row), col: toInt(col) }));
   const before = captureBeforeState(state.dungeon.cells, coords);
@@ -372,7 +373,7 @@ export function createCorridor(label1: string, label2: string, width: number = 2
 export function setDoorBetween(label1: string, label2: string, type: string = 'd'): { success: true; row: number; col: number; direction: string } {
   const walls = getApi().findWallBetween(label1, label2);
   if (!walls?.length) {
-    throw new Error(`No shared wall found between "${label1}" and "${label2}". Rooms must be adjacent.`);
+    throw new ApiValidationError('NO_SHARED_BOUNDARY', `No shared wall found between "${label1}" and "${label2}". Rooms must be adjacent.`, { label1, label2 });
   }
   const mid = walls[Math.floor(walls.length / 2)];
   getApi().setDoor(mid.row, mid.col, mid.direction, type);

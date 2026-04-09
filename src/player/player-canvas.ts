@@ -523,7 +523,7 @@ export function requestRender(): void {
 function _hasAnimatedLights(): boolean {
   const lights = playerState.dungeon?.metadata.lights;
   if (!lights) return false;
-  return lights.some((l) => (l as unknown as Record<string, unknown>).animation && ((l as unknown as Record<string, unknown>).animation as Record<string, unknown>).type);
+  return lights.some((l) => l.animation?.type);
 }
 
 function _tickAnimLoop(): void {
@@ -566,7 +566,7 @@ function resolveTheme(): Theme | null {
   if (playerState.resolvedTheme) return playerState.resolvedTheme;
   // Fallback: if dungeon metadata has an inline theme object
   const t = playerState.dungeon?.metadata.theme;
-  if (typeof t === 'object') return t as unknown as Theme;
+  if (typeof t === 'object') return t;
   return null;
 }
 
@@ -1459,7 +1459,7 @@ function drawDiagnostics(gridSize: number): void {
   lines.push({ text: '', color: '#666' });
   lines.push({ text: '── Map ──', color: '#666' });
   lines.push({ text: `Grid: ${numRows}x${numCols} (${gridSize}ft)`, color: '#aaf' });
-  lines.push({ text: `Props: ${(metadata as Record<string, unknown>).props ? ((metadata as Record<string, unknown>).props as unknown[]).length : 0} | Lights: ${metadata.lights.length}`, color: '#aaa' });
+  lines.push({ text: `Props: ${metadata.props ? metadata.props.length : 0} | Lights: ${metadata.lights.length}`, color: '#aaa' });
   lines.push({ text: `Revealed: ${playerState.revealedCells.size} / ${numRows * numCols} cells`, color: '#aaa' });
 
   // Caches

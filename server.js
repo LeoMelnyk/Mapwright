@@ -3,6 +3,7 @@
 //
 // Usage: node server.js [port]  (default 3000)
 
+import crypto from 'crypto';
 import express from 'express';
 import { createServer } from 'http';
 import { WebSocketServer } from 'ws';
@@ -918,6 +919,47 @@ app.get('/api/textures/download', async (req, res) => {
 
 const server = createServer(app);
 
+// ── Session auth (LAN authentication) ──────────────────────────────────────
+
+let sessionToken = null;   // DM-only auth token (auto-generated, never shared with players)
+let sessionPassword = null; // Optional player password (set by DM before starting session)
+let playerToken = null;     // Player auth token (issued after password validation)
+
+app.post('/api/session/start', (req, res) => {
+  sessionToken = crypto.randomBytes(16).toString('hex');
+  const password = req.body?.password;
+  if (typeof password === 'string' && password.length > 0) {
+    sessionPassword = password;
+    playerToken = crypto.randomBytes(16).toString('hex');
+  } else {
+    sessionPassword = null;
+    playerToken = null;
+  }
+  res.json({ token: sessionToken });
+});
+
+app.post('/api/session/end', (_req, res) => {
+  sessionToken = null;
+  sessionPassword = null;
+  playerToken = null;
+  res.json({ ok: true });
+});
+
+app.get('/api/session/status', (_req, res) => {
+  res.json({
+    active: sessionToken !== null,
+    passwordRequired: sessionPassword !== null,
+  });
+});
+
+app.post('/api/session/auth', (req, res) => {
+  if (!sessionToken) return res.status(400).json({ error: 'No active session' });
+  if (!sessionPassword) return res.status(400).json({ error: 'No password required' });
+  const password = req.body?.password;
+  if (password !== sessionPassword) return res.status(403).json({ error: 'Incorrect password' });
+  res.json({ token: playerToken });
+});
+
 // ── WebSocket relay ─────────────────────────────────────────────────────────
 
 const wss = new WebSocketServer({ server, path: '/ws' });
@@ -928,6 +970,19 @@ const playerSockets = new Set();
 wss.on('connection', (ws, req) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const role = url.searchParams.get('role') || 'player';
+
+  // Authentication: DM must provide the session token; players must provide
+  // the player token (if a password was set) or connect freely (if no password).
+  if (sessionToken !== null) {
+    const token = url.searchParams.get('token');
+    if (role === 'dm') {
+      if (token !== sessionToken) { ws.close(4001, 'Invalid DM token'); return; }
+    } else if (sessionPassword !== null) {
+      // Password-protected session — players need the player token
+      if (token !== playerToken) { ws.close(4002, 'Player authentication required'); return; }
+    }
+    // No password set — players connect freely
+  }
 
   if (role === 'dm') {
     dmSocket = ws;

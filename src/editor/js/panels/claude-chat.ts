@@ -1,5 +1,6 @@
 import { getClaudeSettings } from '../claude-settings.js';
 import { TOOL_DEFINITIONS, executeTool } from '../claude-tools.js';
+import { getEl } from '../utils.js';
 
 /** Minimal type for the subset of editorAPI methods used by the chat panel. */
 interface EditorAPIChat {
@@ -258,7 +259,7 @@ function render() {
 }
 
 function renderMessages() {
-  const list = document.getElementById('claude-message-list')!;
+  const list = getEl('claude-message-list');
 
   if (_messages.length === 0) {
     const settings = getClaudeSettings();
@@ -321,8 +322,8 @@ function renderMessages() {
 }
 
 function wireEvents() {
-  const sendBtn = document.getElementById('claude-send-btn')!;
-  const input = document.getElementById('claude-input')!;
+  const sendBtn = getEl('claude-send-btn');
+  const input = getEl('claude-input');
 
   sendBtn.addEventListener('click', () => {
     if (_abortController) stopGeneration();
@@ -386,13 +387,13 @@ async function executePlan() {
 // ── Message handling ─────────────────────────────────────────────────────────
 
 async function sendMessage() {
-  const input = document.getElementById('claude-input')!;
-  const text = (input as HTMLInputElement).value.trim();
+  const input = getEl<HTMLInputElement>('claude-input');
+  const text = input.value.trim();
   if (!text) return;
 
   const settings = getClaudeSettings();
 
-  (input as HTMLInputElement).value = '';
+  input.value = '';
   resetAILog();
   _abortController = new AbortController();
   setProcessing(true);
@@ -432,7 +433,7 @@ async function sendMessage() {
 
 function showStreamingBubble() {
   hideThinking();
-  const list = document.getElementById('claude-message-list')!;
+  const list = getEl('claude-message-list');
   const el = document.createElement('div');
   el.className = 'claude-message claude-message-assistant';
   el.innerHTML = '<div class="claude-bubble claude-streaming"><span class="claude-streaming-text"></span><span class="claude-cursor"></span></div>';
@@ -444,7 +445,7 @@ function showStreamingBubble() {
 function updateStreamingBubble(text: string) {
   if (!_streamingEl) return;
   _streamingEl.textContent += text;
-  const list = document.getElementById('claude-message-list')!;
+  const list = getEl('claude-message-list');
   list.scrollTop = list.scrollHeight;
 }
 
@@ -662,9 +663,9 @@ async function runConversationLoop(settings: { ollamaBase: string; model: string
 // ── UI helpers ───────────────────────────────────────────────────────────────
 
 function setProcessing(active: boolean) {
-  const btn   = document.getElementById('claude-send-btn')!;
-  const input = document.getElementById('claude-input')!;
-  (input as HTMLInputElement).disabled = active;
+  const btn   = getEl('claude-send-btn');
+  const input = getEl<HTMLInputElement>('claude-input');
+  input.disabled = active;
   btn.classList.toggle('claude-btn-stop', active);
   btn.title = active ? 'Stop' : 'Send';
   (btn.querySelector('.icon-send') as HTMLElement).style.display = active ? 'none' : '';
@@ -676,7 +677,7 @@ function stopGeneration() {
   finalizeStreamingBubble();
   hideThinking();
   // Add a soft visual indicator that the user stopped the response
-  const list = document.getElementById('claude-message-list')!;
+  const list = getEl('claude-message-list');
   const el = document.createElement('div');
   el.className = 'claude-message claude-message-assistant';
   el.innerHTML = '<div class="claude-bubble claude-stopped">Stopped.</div>';
@@ -685,7 +686,7 @@ function stopGeneration() {
 }
 
 function updateTokenDisplay() {
-  const bar = document.getElementById('claude-token-bar')!;
+  const bar = getEl('claude-token-bar');
   const { input, output } = _sessionTokens;
   const total = input + output;
   if (total === 0) { bar.style.display = 'none'; return; }
@@ -697,7 +698,7 @@ function updateTokenDisplay() {
 }
 
 function showThinking() {
-  const list = document.getElementById('claude-message-list')!;
+  const list = getEl('claude-message-list');
   const el = document.createElement('div');
   el.className = 'claude-message claude-message-assistant claude-thinking-row';
   el.id = 'claude-thinking';
@@ -746,7 +747,7 @@ function updateThinkingText(toolName: string) {
 }
 
 function showUndoToast(startDepth: number) {
-  const list = document.getElementById('claude-message-list')!;
+  const list = getEl('claude-message-list');
   const toast = document.createElement('div');
   toast.className = 'claude-undo-toast';
   toast.innerHTML = `<span>AI made changes.</span><button class="claude-undo-all-btn">Undo all</button>`;

@@ -4,6 +4,7 @@ import {
   validateBounds, ensureCell,
   toInt,
   captureBeforeState, smartInvalidate,
+  ApiValidationError,
 } from './_shared.js';
 
 /**
@@ -17,7 +18,7 @@ import {
 export function setFill(row: number, col: number, fillType: string, depth: number = 1): { success: true } {
   row = toInt(row); col = toInt(col);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
-    throw new Error(`Invalid fill type: ${fillType}. Use 'pit', 'water', or 'lava'. For hazard, use setHazard().`);
+    throw new ApiValidationError('INVALID_FILL_TYPE', `Invalid fill type: ${fillType}. Use 'pit', 'water', or 'lava'. For hazard, use setHazard().`, { fillType });
   }
   const cell = ensureCell(row, col);
   const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
@@ -97,7 +98,7 @@ export function setHazard(row: number, col: number, enabled: boolean = true): { 
 export function setFillRect(r1: number, c1: number, r2: number, c2: number, fillType: string, depth: number = 1): { success: true } {
   r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
-    throw new Error(`Invalid fill type: "${fillType}" (expected: pit, water, lava). For hazard, use setHazardRect().`);
+    throw new ApiValidationError('INVALID_FILL_TYPE', `Invalid fill type: "${fillType}" (expected: pit, water, lava). For hazard, use setHazardRect().`, { fillType });
   }
   const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);

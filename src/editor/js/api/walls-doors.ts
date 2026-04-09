@@ -4,6 +4,7 @@ import {
   validateBounds, ensureCell, setReciprocal, deleteReciprocal,
   CARDINAL_DIRS, ALL_DIRS, OPPOSITE,
   toInt,
+  ApiValidationError,
 } from './_shared.js';
 import { setEdge, deleteEdge } from '../../../util/index.js';
 
@@ -17,7 +18,7 @@ import { setEdge, deleteEdge } from '../../../util/index.js';
 export function setWall(row: number, col: number, direction: string): { success: true } {
   row = toInt(row); col = toInt(col);
   if (!ALL_DIRS.includes(direction)) {
-    throw new Error(`Invalid direction: ${direction}. Use: ${ALL_DIRS.join(', ')}`);
+    throw new ApiValidationError('INVALID_DIRECTION', `Invalid direction: ${direction}. Use: ${ALL_DIRS.join(', ')}`, { direction, validDirections: ALL_DIRS, row, col });
   }
   const cell = ensureCell(row, col);
   mutate('Set wall', [{ row, col }], () => {
@@ -40,7 +41,7 @@ export function setWall(row: number, col: number, direction: string): { success:
 export function removeWall(row: number, col: number, direction: string): { success: true } {
   row = toInt(row); col = toInt(col);
   if (!ALL_DIRS.includes(direction)) {
-    throw new Error(`Invalid direction: ${direction}. Use: ${ALL_DIRS.join(', ')}`);
+    throw new ApiValidationError('INVALID_DIRECTION', `Invalid direction: ${direction}. Use: ${ALL_DIRS.join(', ')}`, { direction, validDirections: ALL_DIRS, row, col });
   }
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
@@ -66,7 +67,7 @@ export function removeWall(row: number, col: number, direction: string): { succe
 export function setDoor(row: number, col: number, direction: string, type: string = 'd'): { success: true } {
   row = toInt(row); col = toInt(col);
   if (!CARDINAL_DIRS.includes(direction)) {
-    throw new Error(`Invalid direction for door: ${direction}. Use: ${CARDINAL_DIRS.join(', ')}`);
+    throw new ApiValidationError('INVALID_DIRECTION', `Invalid direction for door: ${direction}. Use: ${CARDINAL_DIRS.join(', ')}`, { direction, validDirections: CARDINAL_DIRS, row, col });
   }
   if (type !== 'd' && type !== 's') {
     throw new Error(`Invalid door type: ${type}. Use 'd' (normal) or 's' (secret).`);
@@ -89,7 +90,7 @@ export function setDoor(row: number, col: number, direction: string, type: strin
 export function removeDoor(row: number, col: number, direction: string): { success: true } {
   row = toInt(row); col = toInt(col);
   if (!CARDINAL_DIRS.includes(direction)) {
-    throw new Error(`Invalid direction for door: ${direction}. Use: ${CARDINAL_DIRS.join(', ')}`);
+    throw new ApiValidationError('INVALID_DIRECTION', `Invalid direction for door: ${direction}. Use: ${CARDINAL_DIRS.join(', ')}`, { direction, validDirections: CARDINAL_DIRS, row, col });
   }
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];

@@ -7,7 +7,7 @@ const BASE_URL = '/themes/';
 const CACHE_KEY = 'theme-catalog';
 const CACHE_VER_KEY = 'theme-catalog-ver';
 
-let catalog: { names: string[]; themes: Record<string, Record<string, string | number | boolean>>; userNames: string[]; userThemes: Record<string, Record<string, string | number | boolean>> } | null = null;
+let catalog: { names: string[]; themes: Record<string, Record<string, unknown>>; userNames: string[]; userThemes: Record<string, Record<string, unknown>> } | null = null;
 
 // Minimal dungeon used for preview renders — a plain 3×3 room
 const PREVIEW_CELLS = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]];
@@ -15,14 +15,14 @@ const PREVIEW_CELLS = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]];
 /**
  * Register themes into the shared THEMES registry and build the catalog.
  */
-function buildFromData(themeMap: Record<string, Record<string, string | number | boolean>>) {
+function buildFromData(themeMap: Record<string, Record<string, unknown>>) {
   const names: string[] = [];
-  const themes: Record<string, Record<string, string | number | boolean>> = {};
+  const themes: Record<string, Record<string, unknown>> = {};
   for (const [key, data] of Object.entries(themeMap)) {
     const { displayName, ...themeProps } = data;
     themes[key] = { ...themeProps, displayName };
     names.push(key);
-    THEMES[key] = themeProps as unknown as Theme;
+    THEMES[key] = themeProps as Theme;
   }
   return { names, themes };
 }
@@ -46,7 +46,7 @@ export async function loadThemeCatalog(onProgress?: (loaded: number, total: numb
     const cachedVer = localStorage.getItem(CACHE_VER_KEY);
     if (cachedVer === version) {
       try {
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!) as Record<string, Record<string, string | number | boolean>> | null;
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!) as Record<string, Record<string, unknown>> | null;
         if (cached && Object.keys(cached).length) {
           if (onProgress) onProgress(keys.length, keys.length);
           catalog = { ...buildFromData(cached), userNames: [], userThemes: {} };
@@ -87,7 +87,7 @@ export async function loadThemeCatalog(onProgress?: (loaded: number, total: numb
       localStorage.setItem(CACHE_VER_KEY, version);
     } catch { /* localStorage full or unavailable */ }
 
-    catalog = { ...buildFromData(themeMap as Record<string, Record<string, string | number | boolean>>), userNames: [], userThemes: {} };
+    catalog = { ...buildFromData(themeMap as Record<string, Record<string, unknown>>), userNames: [], userThemes: {} };
   } catch (e) {
     console.warn('[theme-catalog] Could not load themes from server:', e);
     catalog = { names: [], themes: {}, userNames: [], userThemes: {} };
@@ -119,7 +119,7 @@ async function _loadUserThemes() {
         const fullKey = `user:${entry.key}`;
         catalog.userNames.push(entry.key);
         catalog.userThemes[entry.key] = { ...themeProps, displayName: displayName ?? entry.key };
-        THEMES[fullKey] = themeProps as unknown as Theme;
+        THEMES[fullKey] = themeProps as Theme;
       } catch { /* skip individual failures */ }
     }
   } catch { /* no user themes endpoint available */ }
@@ -142,7 +142,7 @@ export function clearThemeCatalogCache() {
 /**
  * Save a new user theme. Returns the slug key.
  */
-export async function saveUserTheme(name: string, themeObj: Record<string, string | number | boolean>) {
+export async function saveUserTheme(name: string, themeObj: Record<string, unknown>) {
   const res = await fetch('/api/user-themes', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -155,7 +155,7 @@ export async function saveUserTheme(name: string, themeObj: Record<string, strin
   const { key } = await res.json();
   // Register locally
   const fullKey = `user:${key}`;
-  THEMES[fullKey] = { ...themeObj } as unknown as Theme;
+  THEMES[fullKey] = { ...themeObj } as Theme;
   if (catalog) {
     catalog.userNames.push(key);
     catalog.userThemes[key] = { ...themeObj, displayName: name };

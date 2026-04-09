@@ -1,5 +1,6 @@
 // Right sidebar: icon bar panel switching (mirrors left sidebar pattern)
 import { resizeCanvas } from '../canvas-view.js';
+import { getEl } from '../utils.js';
 
 let panelChangeCb: ((panel: string | null) => void) | null = null;
 
@@ -32,7 +33,7 @@ export function toggleRightPanel(panelId: string): void {
  */
 export function init(): void {
   const iconBtns = document.querySelectorAll<HTMLElement>('.right-icon-btn');
-  const rightContent = document.getElementById('right-content')!;
+  const rightContent = getEl('right-content');
 
   iconBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -71,8 +72,8 @@ export function init(): void {
 /** Adjust floating element positions when the right panel collapses/expands. */
 function updateFloatPositions(collapsed: boolean) {
   const rightOffset = collapsed ? '52px' : '272px';
-  const cellFloat = document.getElementById('cell-info-float')!;
+  const cellFloat = getEl('cell-info-float');
   cellFloat.style.right = rightOffset;
-  const toastContainer = document.getElementById('toast-container')!;
+  const toastContainer = getEl('toast-container');
   toastContainer.style.right = rightOffset;
 }

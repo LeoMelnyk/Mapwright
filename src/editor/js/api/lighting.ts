@@ -3,6 +3,7 @@ import {
   state, pushUndo, markDirty, notify,
   invalidateLightmap, requestRender,
   getLightCatalog,
+  ApiValidationError,
 } from './_shared.js';
 
 /**
@@ -16,7 +17,7 @@ export function placeLight(x: number, y: number, config: PlaceLightConfig = {}):
   if (config.preset) {
     const catalog = getLightCatalog();
     const p = catalog?.lights[config.preset];
-    if (!p) throw new Error(`Unknown light preset: ${config.preset}. Call listLightPresets() for valid names.`);
+    if (!p) throw new ApiValidationError('UNKNOWN_LIGHT_PRESET', `Unknown light preset: ${config.preset}. Call listLightPresets() for valid names.`, { preset: config.preset });
     config = { ...p, ...config };
     delete config.preset;
     delete config.displayName;
@@ -70,7 +71,7 @@ export function removeLight(id: number): { success: true } {
   const meta = state.dungeon.metadata;
   if (meta.lights.length === 0) return { success: true };
   const idx = meta.lights.findIndex(l => l.id === id);
-  if (idx === -1) throw new Error(`Light with id ${id} not found`);
+  if (idx === -1) throw new ApiValidationError('LIGHT_NOT_FOUND', `Light with id ${id} not found`, { id });
 
   pushUndo();
   meta.lights.splice(idx, 1);

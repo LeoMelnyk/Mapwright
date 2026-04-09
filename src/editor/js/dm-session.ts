@@ -15,6 +15,7 @@ import { getContentVersion, consumeBroadcastDirtyRegion, getLightingVersion, get
 export const sessionState: {
   active: boolean;
   ws: WebSocket | null;
+  token: string | null;
   revealedCells: Set<string>;
   openedDoors: { row: number; col: number; dir: string; wasSecret: boolean }[];
   openedStairs: (string | number)[];
@@ -25,6 +26,7 @@ export const sessionState: {
 } = {
   active: false,
   ws: null,
+  token: null,
   revealedCells: new Set(),
   openedDoors: [],
   openedStairs: [],
@@ -38,7 +40,8 @@ export const sessionState: {
 
 function connectWS() {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const url = `${protocol}//${location.host}/ws?role=dm`;
+  const tokenParam = sessionState.token ? `&token=${sessionState.token}` : '';
+  const url = `${protocol}//${location.host}/ws?role=dm${tokenParam}`;
 
   const ws = new WebSocket(url);
   sessionState.ws = ws;
@@ -65,7 +68,7 @@ function connectWS() {
 }
 
 // Range highlight callback (set by main.js)
-interface RangeHighlightMsg { cells: { row: number; col: number }[]; distanceFt: number; subTool: string }
+interface RangeHighlightMsg { cells: { row: number; col: number }[]; distanceFt: number; subTool: string; [key: string]: unknown }
 let rangeHighlightCallback: ((msg: RangeHighlightMsg) => void) | null = null;
 /**
  * Set the callback for incoming range highlights from players.
@@ -89,7 +92,9 @@ function handleMessage(msg: Record<string, unknown>) {
 
     case 'range:highlight':
       // A player sent a range highlight — apply locally for DM rendering
-      if (rangeHighlightCallback) rangeHighlightCallback(msg as unknown as RangeHighlightMsg);
+      if (rangeHighlightCallback && Array.isArray(msg.cells)) {
+        rangeHighlightCallback(msg as RangeHighlightMsg);
+      }
       break;
   }
 }
@@ -103,11 +108,28 @@ function send(msg: unknown) {
 // ── Session lifecycle ───────────────────────────────────────────────────────
 
 /**
- * Start a DM session — connects WebSocket, reveals starting room, begins broadcasts.
+ * Start a DM session — requests a session token, connects WebSocket, reveals starting room, begins broadcasts.
  * @returns {void}
  */
-export function startSession(): void {
+export async function startSession(password?: string): Promise<void> {
   if (sessionState.active) return;
+
+  // Request a session token from the server, optionally with a player password
+  try {
+    const body: Record<string, string> = {};
+    if (password) body.password = password;
+    const res = await fetch('/api/session/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json() as { token: string };
+    sessionState.token = data.token;
+  } catch {
+    showToast('Failed to start session — server unreachable');
+    return;
+  }
+
   sessionState.active = true;
   state.session.active = true;
   connectWS();
@@ -125,7 +147,7 @@ export function startSession(): void {
 }
 
 /**
- * End the active DM session — disconnects WebSocket and clears session state.
+ * End the active DM session — disconnects WebSocket, clears session token, and resets state.
  * @returns {void}
  */
 export function endSession(): void {
@@ -143,6 +165,9 @@ export function endSession(): void {
     sessionState.ws.close();
     sessionState.ws = null;
   }
+  // Clear server-side session token
+  void fetch('/api/session/end', { method: 'POST' }).catch(() => {});
+  sessionState.token = null;
   showToast('Session ended');
   markDirty();
   notify();
@@ -342,8 +367,8 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
         if (!newCells.includes(key)) newCells.push(key);
       }
     } else {
-      const OFFSETS = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
-      const [dr, dcc] = (OFFSETS as unknown as Record<string, [number, number]>)[dir];
+      const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+      const [dr, dcc] = OFFSETS[dir];
       const revealed = revealRoom(dc.row + dr, dc.col + dcc);
       for (const key of revealed) {
         if (!newCells.includes(key)) newCells.push(key);
@@ -693,7 +718,7 @@ function findRevealableDoors() {
       }
 
       // Normal/invisible doors: only show if neighbor is unrevealed
-      const [dr, dc] = (OFFSETS as unknown as Record<string, [number, number]>)[dir];
+      const [dr, dc] = OFFSETS[dir]!;
       const nr = r + dr, nc = c + dc;
       const neighborKey = cellKey(nr, nc);
       if (sessionState.revealedCells.has(neighborKey)) continue;

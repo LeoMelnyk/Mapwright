@@ -715,6 +715,12 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   display: flex;
   gap: 2px;
   margin-left: auto;
+
+  .toolbar-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+  }
 }
 /* In vertical dock, Yes/No buttons stay compact (override the stretch-to-fill rule) */
 #drawing-toolbar.toolbar-docked-left .trim-toggle .toolbar-btn,
@@ -2145,6 +2151,52 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   color: var(--accent);
 }
 
+.session-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+
+  label {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  select {
+    width: 90px;
+    padding: 2px 4px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--btn-bg);
+    color: var(--text);
+    font-size: 12px;
+  }
+}
+
+.session-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
+.session-share-row {
+  margin-bottom: 6px;
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 2px;
+  }
+}
+
 .session-link-row {
   display: flex;
   align-items: center;
@@ -2183,6 +2235,34 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 .session-copy-btn:hover {
   color: var(--text);
   background: var(--btn-hover);
+}
+
+.session-password-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.session-password-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
+
+  input[type="password"] {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--btn-bg);
+    color: var(--text);
+    font-size: 12px;
+    font-family: inherit;
+
+    &::placeholder { color: var(--text-dim); opacity: 0.6; }
+    &:focus { outline: none; border-color: var(--accent); }
+  }
 }
 
 .session-room-select {

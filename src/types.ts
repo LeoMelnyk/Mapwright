@@ -94,6 +94,21 @@ export interface Cell {
 /** The 2D cell grid. null entries are void (no floor). */
 export type CellGrid = (Cell | null)[][];
 
+/** A multi-level dungeon: one CellGrid per level. */
+export type MultiLevelCellGrid = CellGrid[];
+
+/**
+ * Dungeon cells — either a single flat grid or an array of grids (one per level).
+ * At runtime, multi-level dungeons store cells as CellGrid[] even though the
+ * static type is CellGrid.  Use `asMultiLevel()` after an `isMultiLevel` guard.
+ */
+export type CellGridOrMultiLevel = CellGrid | MultiLevelCellGrid;
+
+/** Narrow a CellGrid to MultiLevelCellGrid after a runtime multi-level check. */
+export function asMultiLevel(cells: CellGrid): MultiLevelCellGrid {
+  return cells as unknown as MultiLevelCellGrid;
+}
+
 // ── Lights ─────────────────────────────────────────────────────────────────
 
 /** Light falloff curve types. */
@@ -629,9 +644,24 @@ export interface EditorState {
   [key: string]: unknown;
 }
 
-/** An entry in the undo stack. */
+/** A cell-level diff for compact undo storage. */
+export interface UndoCellPatch {
+  row: number;
+  col: number;
+  before: Cell | null;
+  after: Cell | null;
+}
+
+/** Metadata diff for compact undo storage (JSON-serialized sub-objects). */
+export interface UndoMetaPatch {
+  before: string;
+  after: string;
+}
+
+/** An entry in the undo stack. Either a full JSON snapshot or a compact patch. */
 export interface UndoEntry {
-  json: string;
+  json?: string;
+  patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null };
   label: string;
   timestamp: number;
 }

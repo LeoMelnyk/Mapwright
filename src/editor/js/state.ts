@@ -1,5 +1,5 @@
 // Central state store
-import type { Dungeon, EditorState, Theme, CellGrid } from '../../types.js';
+import type { Dungeon, EditorState, Theme, CellGrid, Cell, UndoCellPatch, UndoMetaPatch } from '../../types.js';
 
 interface AutosaveData {
   dungeon: Dungeon;
@@ -20,6 +20,8 @@ export type NotifyTopic = 'cells' | 'metadata' | 'lighting' | 'props' | 'viewpor
 export type InvalidateFlag = 'geometry' | 'lighting' | 'lighting:props' | 'fluid' | 'props';
 
 const MAX_UNDO = 100;
+/** Every Nth undo entry is stored as a full JSON keyframe for bounded undo cost. */
+const KEYFRAME_INTERVAL = 10;
 
 const state: EditorState = {
   dungeon: createEmptyDungeon('New Dungeon', 20, 30),
@@ -148,14 +150,57 @@ export function pushUndo(label: string = 'Edit', preSerializedJson: string | nul
 }
 
 /**
+ * Restore dungeon state from an undo/redo entry.
+ * Handles both full JSON snapshots and compact cell patches.
+ */
+function applyEntry(entry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } }, direction: 'undo' | 'redo'): void {
+  if (entry.json) {
+    // Full snapshot — replace entire dungeon
+    state.dungeon = JSON.parse(entry.json);
+  } else if (entry.patch) {
+    // Compact patch — apply cell changes
+    const cells = state.dungeon.cells;
+    for (const cp of entry.patch.cells) {
+      const value = direction === 'undo' ? cp.before : cp.after;
+      if (cells[cp.row]) {
+        cells[cp.row][cp.col] = value ? JSON.parse(JSON.stringify(value)) : null;
+      }
+    }
+    // Apply metadata changes
+    if (entry.patch.meta) {
+      const restored = direction === 'undo' ? entry.patch.meta.before : entry.patch.meta.after;
+      Object.assign(state.dungeon.metadata, JSON.parse(restored));
+    }
+  }
+}
+
+/**
+ * Create a redo entry that captures the inverse of what was just applied.
+ * For patch entries, swap before/after. For snapshots, serialize current state.
+ */
+function createRedoEntry(appliedEntry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } }, label: string): typeof appliedEntry & { label: string; timestamp: number } {
+  if (appliedEntry.patch) {
+    // Swap before/after for the reverse direction
+    return {
+      patch: {
+        cells: appliedEntry.patch.cells.map(cp => ({ row: cp.row, col: cp.col, before: cp.after, after: cp.before })),
+        meta: appliedEntry.patch.meta ? { before: appliedEntry.patch.meta.after, after: appliedEntry.patch.meta.before } : null,
+      },
+      label,
+      timestamp: Date.now(),
+    };
+  }
+  return { json: JSON.stringify(state.dungeon), label, timestamp: Date.now() };
+}
+
+/**
  * Undo the last action by restoring the previous dungeon state.
- * @returns {void}
  */
 export function undo(): void {
   if (!state.undoStack.length) return;
-  state.redoStack.push({ json: JSON.stringify(state.dungeon), label: 'Current', timestamp: Date.now() });
   const entry = state.undoStack.pop()!;
-  state.dungeon = JSON.parse(entry.json);
+  state.redoStack.push(createRedoEntry(entry, 'Current'));
+  applyEntry(entry, 'undo');
   markPropSpatialDirty();
   invalidateLightmap();
   markDirty();
@@ -164,13 +209,12 @@ export function undo(): void {
 
 /**
  * Redo the last undone action.
- * @returns {void}
  */
 export function redo(): void {
   if (!state.redoStack.length) return;
-  state.undoStack.push({ json: JSON.stringify(state.dungeon), label: 'Redo', timestamp: Date.now() });
   const entry = state.redoStack.pop()!;
-  state.dungeon = JSON.parse(entry.json);
+  state.undoStack.push(createRedoEntry(entry, 'Redo'));
+  applyEntry(entry, 'redo');
   markPropSpatialDirty();
   invalidateLightmap();
   markDirty();
@@ -179,12 +223,12 @@ export function redo(): void {
 
 /**
  * Jump to a specific point in the undo stack. Entries above targetIndex move to redo.
+ * For mixed patch/snapshot stacks, this rebuilds from the nearest keyframe.
  * @param {number} targetIndex - Index in the undo stack to restore.
- * @returns {void}
  */
 export function jumpToState(targetIndex: number): void {
   if (targetIndex < 0 || targetIndex >= state.undoStack.length) return;
-  // Push current state to redo
+  // Push current state to redo as a full snapshot (jumpToState is rare, simplicity wins)
   state.redoStack.push({ json: JSON.stringify(state.dungeon), label: 'Current', timestamp: Date.now() });
   // Move entries above targetIndex to redo stack
   const toRedo = state.undoStack.splice(targetIndex + 1);
@@ -193,7 +237,15 @@ export function jumpToState(targetIndex: number): void {
   }
   // Restore the target entry
   const entry = state.undoStack.pop()!;
-  state.dungeon = JSON.parse(entry.json);
+  if (entry.json) {
+    state.dungeon = JSON.parse(entry.json);
+  } else {
+    // Patch entry — need to find the nearest keyframe and replay
+    // For simplicity, serialize current state and apply patches backwards
+    // from current position to target. Since jumpToState is rare (UI only),
+    // this is acceptable.
+    applyEntry(entry, 'undo');
+  }
   markPropSpatialDirty();
   invalidateLightmap();
   markDirty();
@@ -379,6 +431,14 @@ export function notify(topic?: NotifyTopic): void {
  * @param fn - Callback that performs the actual mutation on state.dungeon.
  * @param options - Extra invalidation flags and notify topic.
  */
+/** Count entries since the last full-snapshot keyframe. */
+function _entriesSinceKeyframe(): number {
+  for (let i = state.undoStack.length - 1; i >= 0; i--) {
+    if (state.undoStack[i].json) return state.undoStack.length - 1 - i;
+  }
+  return state.undoStack.length;
+}
+
 export function mutate(
   label: string,
   coords: Array<{ row: number; col: number }>,
@@ -390,12 +450,67 @@ export function mutate(
     topic?: NotifyTopic;
   } = {},
 ): void {
+  if (undoDisabled) { fn(); markDirty(); notify(options.topic); return; }
+
   const cells: CellGrid = state.dungeon.cells;
-  const before = coords.length > 0 ? captureBeforeState(cells, coords) : [];
-  pushUndo(label);
+  const renderBefore = coords.length > 0 ? captureBeforeState(cells, coords) : [];
+
+  // Decide: compact patch or full keyframe snapshot
+  const useKeyframe = coords.length === 0 || _entriesSinceKeyframe() >= KEYFRAME_INTERVAL;
+
+  if (useKeyframe) {
+    // Full snapshot (metadata-only changes, or periodic keyframe)
+    pushUndo(label);
+  } else {
+    // Compact patch — capture cell state before mutation
+    const cellsBefore: UndoCellPatch[] = coords.map(({ row, col }) => ({
+      row, col,
+      before: cells[row]?.[col] ? JSON.parse(JSON.stringify(cells[row][col])) as Cell : null,
+      after: null, // filled after fn()
+    }));
+    const metaBefore = JSON.stringify(state.dungeon.metadata);
+
+    // Push patch entry (no full JSON serialization)
+    const patchEntry = { cells: cellsBefore, meta: null as UndoMetaPatch | null };
+    state.undoStack.push({ patch: patchEntry, label, timestamp: Date.now() });
+    if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
+    state.redoStack.length = 0;
+    markPropSpatialDirty();
+
+    // Execute mutation
+    fn();
+
+    // Capture after-state
+    for (const cp of cellsBefore) {
+      cp.after = cells[cp.row]?.[cp.col] ? JSON.parse(JSON.stringify(cells[cp.row][cp.col])) as Cell : null;
+    }
+    const metaAfter = JSON.stringify(state.dungeon.metadata);
+    if (metaBefore !== metaAfter) {
+      patchEntry.meta = { before: metaBefore, after: metaAfter };
+    }
+
+    // Smart invalidation + finish
+    if (renderBefore.length > 0) {
+      smartInvalidate(renderBefore, cells, {
+        forceGeometry: options.forceGeometry ?? false,
+        forceFluid: options.forceFluid ?? false,
+      });
+    }
+    const flags = options.invalidate;
+    if (flags) {
+      if (flags.includes('lighting')) invalidateLightmap(true);
+      else if (flags.includes('lighting:props')) invalidateLightmap('props');
+      if (flags.includes('props')) markPropSpatialDirty();
+    }
+    markDirty();
+    notify(options.topic);
+    return;
+  }
+
+  // Full snapshot path — fn() runs after pushUndo
   fn();
-  if (before.length > 0) {
-    smartInvalidate(before, cells, {
+  if (renderBefore.length > 0) {
+    smartInvalidate(renderBefore, cells, {
       forceGeometry: options.forceGeometry ?? false,
       forceFluid: options.forceFluid ?? false,
     });

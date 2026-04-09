@@ -1,5 +1,6 @@
 // Keybindings Helper — floating panel showing contextual keybinds for the active tool
 import state, { subscribe } from '../state.js';
+import { getEl } from '../utils.js';
 
 // ── Keybinding definitions per tool ─────────────────────────────────────────
 // Each tool has global bindings (always shown) and optionally mode-specific ones.
@@ -255,8 +256,8 @@ export function toggleKeybindingsHelper(visible?: boolean): void {
   const show = visible ?? panel.style.display === 'none';
   panel.style.display = show ? '' : 'none';
   // Sync checkbox
-  const cb = document.getElementById('feat-keybindings')!;
-  (cb as HTMLInputElement).checked = show;
+  const cb = getEl<HTMLInputElement>('feat-keybindings');
+  cb.checked = show;
   if (!show) {
     // Reset to default CSS position
     panel.style.left = '';
@@ -317,7 +318,7 @@ function onDragEnd() {
  * Initialize the keybindings helper: build panel, restore position, and subscribe to tool changes.
  */
 export function initKeybindingsHelper(): void {
-  panel = document.getElementById('keybindings-helper')!;
+  panel = getEl('keybindings-helper');
 
   headerEl = panel.querySelector('.kb-header-title');
   bodyEl = panel.querySelector('.kb-body');
@@ -347,14 +348,14 @@ export function initKeybindingsHelper(): void {
   const pref = localStorage.getItem('mw-keybindings-helper');
   const show = pref !== '0';
   panel.style.display = show ? '' : 'none';
-  const cb = document.getElementById('feat-keybindings')!;
-  (cb as HTMLInputElement).checked = show;
+  const cb = getEl<HTMLInputElement>('feat-keybindings');
+  cb.checked = show;
 
   // Refresh on state changes (tool switch, mode switch, session toggle)
   subscribe(refresh, 'keybindings');
 
   // Session tool buttons don't trigger state.notify(), so listen for clicks directly
-  const sessionToolRow = document.getElementById('session-tool-row')!;
+  const sessionToolRow = getEl('session-tool-row');
   sessionToolRow.addEventListener('click', () => {
     // Small delay so the active class has been toggled before we read it
     requestAnimationFrame(refresh);

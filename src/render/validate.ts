@@ -1,4 +1,4 @@
-import type { DungeonBounds, CellGrid, Cell, Metadata, EdgeValue } from '../types.js';
+import { asMultiLevel, type DungeonBounds, type CellGrid, type Cell, type Metadata, type EdgeValue } from '../types.js';
 
 /** Room definition used by the legacy coordinate-based validator. */
 interface ValidatorRoom {
@@ -317,7 +317,7 @@ function validateMatrixFormat(config: { metadata: Metadata; cells: CellGrid }): 
     }
 
     for (let level = 0; level < numLevels; level++) {
-      const levelCells = (config.cells as unknown as CellGrid[])[level];
+      const levelCells = asMultiLevel(config.cells)[level];
 
       if (!Array.isArray(levelCells)) {
         errors.push(`Level ${level}: must be an array`);
@@ -476,7 +476,7 @@ function detectBorderCollisions(cells: CellGrid) {
  * then collect all labels found within the filled cells.
  */
 function floodFillRoomLabels(cells: CellGrid, startLevel: number, startRow: number, startCol: number, visited: boolean[][][], isMultiLevel: boolean) {
-  const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[startLevel] : cells);
+  const levelCells = (isMultiLevel ? (asMultiLevel(cells))[startLevel] : cells);
   const cellKeys = sharedFloodFillRoom(levelCells as (Cell | null)[][], startRow, startCol);
 
   const labels = [];
@@ -500,7 +500,7 @@ function validateRoomLabels(cells: CellGrid, isMultiLevel = false) {
 
   const visited: boolean[][][] = [];
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
     visited[level] = Array.from({length: numRows}, () => Array(numCols).fill(false) as boolean[]);
@@ -509,7 +509,7 @@ function validateRoomLabels(cells: CellGrid, isMultiLevel = false) {
   const allLabels = new Map<string, string>();
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
 
@@ -551,7 +551,7 @@ function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
@@ -641,7 +641,7 @@ function validateDoorAdjacency(cells: CellGrid, isMultiLevel = false) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
@@ -736,7 +736,7 @@ function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number
 
   const visited: boolean[][][] = [];
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
     visited[level] = Array.from({length: numRows}, () => Array(numCols).fill(false) as boolean[]);
@@ -746,7 +746,7 @@ function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number
   const queue: {level: number; row: number; col: number}[] = [{level: startLevel, row: startRow, col: startCol}];
 
   visited[startLevel][startRow][startCol] = true;
-  const startLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[startLevel] : cells);
+  const startLevelCells = (isMultiLevel ? (asMultiLevel(cells))[startLevel] : cells);
   const startCell = startLevelCells[startRow][startCol];
   if (startCell?.center?.label) {
     reachedRooms.add(startCell.center.label);
@@ -754,7 +754,7 @@ function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number
 
   while (queue.length > 0) {
     const {level, row, col} = queue.shift()!;
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const cell = levelCells[row][col];
 
     // 1. Try horizontal movement (4 cardinal directions)
@@ -794,7 +794,7 @@ function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number
     if (cell?.center) {
       // Check stairs-up (skip non-array markers — visual-only from .map compiler)
       if (Array.isArray(cell.center['stairs-up'])) {
-        const stairTarget = cell.center['stairs-up'] as unknown as number[];
+        const stairTarget = cell.center['stairs-up'] as number[];
         let targetLevel: number, targetRow: number, targetCol: number;
 
         if (stairTarget.length === 3) {
@@ -808,7 +808,7 @@ function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number
           visited[targetLevel][targetRow][targetCol] = true;
           queue.push({level: targetLevel, row: targetRow, col: targetCol});
 
-          const targetLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[targetLevel] : cells);
+          const targetLevelCells = (isMultiLevel ? (asMultiLevel(cells))[targetLevel] : cells);
           const targetCell = targetLevelCells[targetRow][targetCol];
           if (targetCell?.center?.label) {
             reachedRooms.add(targetCell.center.label);
@@ -818,7 +818,7 @@ function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number
 
       // Check stairs-down (skip non-array markers — visual-only from .map compiler)
       if (Array.isArray(cell.center['stairs-down'])) {
-        const stairTarget = cell.center['stairs-down'] as unknown as number[];
+        const stairTarget = cell.center['stairs-down'] as number[];
         let targetLevel: number, targetRow: number, targetCol: number;
 
         if (stairTarget.length === 3) {
@@ -832,7 +832,7 @@ function bfsReachableRooms(cells: CellGrid, startLevel: number, startRow: number
           visited[targetLevel][targetRow][targetCol] = true;
           queue.push({level: targetLevel, row: targetRow, col: targetCol});
 
-          const targetLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[targetLevel] : cells);
+          const targetLevelCells = (isMultiLevel ? (asMultiLevel(cells))[targetLevel] : cells);
           const targetCell = targetLevelCells[targetRow][targetCol];
           if (targetCell?.center?.label) {
             reachedRooms.add(targetCell.center.label);
@@ -855,7 +855,7 @@ function detectInaccessibleRooms(cells: CellGrid, isMultiLevel = false) {
   const roomPositions = new Map();
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
     const numCols = levelCells[0]?.length || 0;
 
@@ -934,7 +934,7 @@ function hasStairFeatures(cells: CellGrid) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
@@ -982,7 +982,7 @@ function validateSingleStair(cells: CellGrid, isMultiLevel: boolean, fromLevel: 
     return errors;
   }
 
-  const targetLevelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[targetLevel] : cells);
+  const targetLevelCells = (isMultiLevel ? (asMultiLevel(cells))[targetLevel] : cells);
   const numRows = targetLevelCells.length;
   const numCols = targetLevelCells[0]?.length || 0;
 
@@ -1023,7 +1023,7 @@ function validateSingleStair(cells: CellGrid, isMultiLevel: boolean, fromLevel: 
     return errors;
   }
 
-  const reciprocal = targetCell.center[reciprocalType] as unknown as number[];
+  const reciprocal = targetCell.center[reciprocalType] as number[];
   let recipLevel: number, recipRow: number, recipCol: number;
   if (reciprocal.length === 3) {
     [recipLevel, recipRow, recipCol] = reciprocal;
@@ -1054,7 +1054,7 @@ function validateStairConnections(cells: CellGrid, isMultiLevel: boolean) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = (isMultiLevel ? (cells as unknown as CellGrid[])[level] : cells);
+    const levelCells = (isMultiLevel ? (asMultiLevel(cells))[level] : cells);
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {

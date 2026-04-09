@@ -12,8 +12,21 @@ import { reloadAssets, migrateHalfTextures } from '../io.js';
 import { migrateToLatest } from '../migrations.js';
 import { classifyStairShape, isDegenerate, getOccupiedCells } from '../stair-geometry.js';
 import { isBridgeDegenerate, getBridgeOccupiedCells } from '../bridge-geometry.js';
-import { calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches, captureBeforeState, smartInvalidate, patchBlendForDirtyRegion, accumulateDirtyRect } from '../../../render/index.js';
+import { calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches, captureBeforeState, smartInvalidate, patchBlendForDirtyRegion, accumulateDirtyRect, getContentVersion, getGeometryVersion, getLightingVersion, getPropsVersion, getDirtyRegion, renderTimings } from '../../../render/index.js';
 import { OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom, toInternalCoord, toDisplayCoord } from '../../../util/index.js';
+
+// ─── Structured API Error ───────────────────────────────────────────────────
+
+export class ApiValidationError extends Error {
+  code: string;
+  context: Record<string, unknown>;
+  constructor(code: string, message: string, context: Record<string, unknown> = {}) {
+    super(message);
+    this.name = 'ApiValidationError';
+    this.code = code;
+    this.context = context;
+  }
+}
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -75,7 +88,9 @@ function _setApi(api: EditorApiMap): void {
 function validateBounds(row: number, col: number): void {
   const cells = state.dungeon.cells;
   if (!isInBounds(cells, row, col)) {
-    throw new Error(`Cell (${row}, ${col}) out of bounds (${cells.length} rows, ${cells[0]?.length || 0} cols)`);
+    const maxRows = cells.length;
+    const maxCols = cells[0]?.length || 0;
+    throw new ApiValidationError('OUT_OF_BOUNDS', `Cell (${row}, ${col}) out of bounds (${maxRows} rows, ${maxCols} cols)`, { row, col, maxRows, maxCols });
   }
 }
 
@@ -164,6 +179,10 @@ export {
   // Render
   calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches,
   captureBeforeState, smartInvalidate, patchBlendForDirtyRegion, accumulateDirtyRect,
+
+  // Render diagnostics
+  getContentVersion, getGeometryVersion, getLightingVersion, getPropsVersion,
+  getDirtyRegion, renderTimings,
 
   // Grid utils
   OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom,

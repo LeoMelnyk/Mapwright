@@ -4,6 +4,7 @@ import {
   state, pushUndo, markDirty, notify, setReciprocal,
   cellKey, parseCellKey, floodFillRoom, roomBoundsFromKeys,
   toInt, toDisp,
+  ApiValidationError,
 } from './_shared.js';
 import type { EdgeValue, PartitionRoomOptions } from '../../../types.js';
 import { isPropAt } from '../prop-spatial.js';
@@ -45,7 +46,7 @@ export function _collectRoomCells(label: string): Set<string> | null {
  * @returns {Array<[number, number]>} Sorted [[row, col], ...] along the wall axis
  */
 export function _getWallCells(roomCellSet: Set<string>, wall: string): [number, number][] {
-  if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
+  if (!CARDINAL_DIRS.includes(wall)) throw new ApiValidationError('INVALID_WALL', `wall must be one of: ${CARDINAL_DIRS.join(', ')}`, { wall });
   const result: [number, number][] = [];
   const [dr, dc] = OFFSETS[wall];
   for (const key of roomCellSet) {
@@ -141,7 +142,7 @@ export function partitionRoom(roomLabel: string, direction: string, position: nu
   const doorAt = options.doorAt != null ? toInt(options.doorAt) : undefined;
 
   const roomCells = getApi()._collectRoomCells(roomLabel);
-  if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+  if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
 
   pushUndo();
   const cells = state.dungeon.cells;

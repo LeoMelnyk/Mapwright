@@ -78,6 +78,9 @@ interface DungeonUpdateMessage {
 
 interface RangeHighlightMessage {
   type: 'range:highlight';
+  cells: { row: number; col: number }[];
+  distanceFt: number;
+  subTool: string;
   [key: string]: unknown;
 }
 
@@ -103,23 +106,89 @@ let playerRangeTool: InstanceType<typeof RangeTool> | null = null;
 const statusEl = (): HTMLElement | null => document.getElementById('connection-status')!;
 const resyncBtn = (): HTMLElement | null => document.getElementById('resync-btn')!;
 
+// ── Session auth ───────────────────────────────────────────────────────────
+
+let playerToken: string | null = null;
+
+async function checkSessionAndConnect(): Promise<void> {
+  try {
+    const res = await fetch('/api/session/status');
+    const status = await res.json() as { active: boolean; passwordRequired: boolean };
+    if (status.active && status.passwordRequired) {
+      showPasswordPrompt();
+      return;
+    }
+  } catch {
+    // Server unreachable — try connecting anyway (will reconnect on failure)
+  }
+  connect();
+}
+
+function showPasswordPrompt(): void {
+  const overlay = document.getElementById('password-overlay');
+  const input = document.getElementById('password-input') as HTMLInputElement | null;
+  const submit = document.getElementById('password-submit');
+  const errorEl = document.getElementById('password-error');
+  if (!overlay || !input || !submit) { connect(); return; }
+
+  overlay.classList.remove('hidden');
+
+  const doSubmit = async () => {
+    const password = input.value;
+    if (!password) return;
+    submit.textContent = 'Joining…';
+    (submit as HTMLButtonElement).disabled = true;
+    try {
+      const res = await fetch('/api/session/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      if (!res.ok) {
+        const data = await res.json() as { error: string };
+        if (errorEl) { errorEl.textContent = data.error || 'Authentication failed'; errorEl.classList.remove('hidden'); }
+        submit.textContent = 'Join';
+        (submit as HTMLButtonElement).disabled = false;
+        return;
+      }
+      const data = await res.json() as { token: string };
+      playerToken = data.token;
+      overlay.classList.add('hidden');
+      connect();
+    } catch {
+      if (errorEl) { errorEl.textContent = 'Server unreachable'; errorEl.classList.remove('hidden'); }
+      submit.textContent = 'Join';
+      (submit as HTMLButtonElement).disabled = false;
+    }
+  };
+
+  submit.addEventListener('click', () => { void doSubmit(); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') void doSubmit(); });
+  input.focus();
+}
+
 // ── WebSocket ───────────────────────────────────────────────────────────────
 
 function connect(): void {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const url = `${protocol}//${location.host}/ws?role=player`;
+  const tokenParam = playerToken ? `&token=${playerToken}` : '';
+  const url = `${protocol}//${location.host}/ws?role=player${tokenParam}`;
 
   ws = new WebSocket(url);
 
   ws.addEventListener('open', () => {
     playerState.connected = true;
     setStatus('connected', 'Connected');
-    // Hide status after 2s
     setTimeout(() => statusEl()?.classList.add('hidden'), 2000);
   });
 
-  ws.addEventListener('close', () => {
+  ws.addEventListener('close', (e: CloseEvent) => {
     playerState.connected = false;
+    if (e.code === 4002) {
+      // Password required — show prompt instead of reconnecting
+      showPasswordPrompt();
+      return;
+    }
     setStatus('disconnected', 'Disconnected — reconnecting…');
     statusEl()?.classList.remove('hidden');
     scheduleReconnect();
@@ -265,7 +334,7 @@ function handleMessage(msg: WSMessage): void {
 
     case 'range:highlight':
       if (playerRangeTool) {
-        (playerRangeTool as unknown as { applyRemoteHighlight(msg: unknown): void }).applyRemoteHighlight(msg);
+        playerRangeTool.applyRemoteHighlight(msg);
         playerCanvas.requestRender();
       }
       break;
@@ -490,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
     shapeBtn.addEventListener('click', () => {
       document.querySelectorAll<HTMLElement>('#player-toolbar [data-range-shape]').forEach(b => b.classList.remove('active'));
       shapeBtn.classList.add('active');
-      if (playerRangeTool) (playerRangeTool as unknown as { setSubTool(shape: string): void }).setSubTool(shapeBtn.dataset.rangeShape!);
+      if (playerRangeTool) playerRangeTool.setSubTool(shapeBtn.dataset.rangeShape!);
     });
   });
 
@@ -498,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playerDistSelect = document.getElementById('player-range-distance')! as HTMLSelectElement | null;
   if (playerDistSelect) {
     playerDistSelect.addEventListener('change', () => {
-      if (playerRangeTool) (playerRangeTool as unknown as { setFixedRange(val: number): void }).setFixedRange(parseInt(playerDistSelect.value, 10));
+      if (playerRangeTool) playerRangeTool.setFixedRange(parseInt(playerDistSelect.value, 10));
     });
   }
 
@@ -516,6 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   void Promise.all([propCatalogPromise, textureCatalogPromise]).then(() => tryInitialBuild());
 
-  // Connect to DM
-  connect();
+  // Check for password-protected session, then connect to DM
+  void checkSessionAndConnect();
 });

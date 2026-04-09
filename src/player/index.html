@@ -36,6 +36,16 @@
     </div>
   </div>
 
+  <!-- Password prompt (shown when session requires a password) -->
+  <div id="password-overlay" class="hidden">
+    <div class="password-prompt">
+      <div class="password-title">Session Password</div>
+      <input type="password" id="password-input" placeholder="Enter password" autocomplete="off">
+      <button id="password-submit">Join</button>
+      <div id="password-error" class="hidden"></div>
+    </div>
+  </div>
+
   <button id="resync-btn">Back to DM View</button>
   <div id="connection-status">Connecting…</div>
   <script type="module" src="player-main.ts"></script>

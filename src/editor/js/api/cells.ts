@@ -6,6 +6,7 @@ import {
   roomTool,
   toInt,
   captureBeforeState, smartInvalidate,
+  ApiValidationError,
 } from './_shared.js';
 
 /**
@@ -136,7 +137,7 @@ export function createRoom(r1: number, c1: number, r2: number, c2: number, mode:
   validateBounds(maxR, maxC);
 
   if (mode !== 'room' && mode !== 'merge') {
-    throw new Error(`Invalid room mode: ${mode}. Use 'room' or 'merge'.`);
+    throw new ApiValidationError('INVALID_ROOM_MODE', `Invalid room mode: ${mode}. Use 'room' or 'merge'.`, { mode });
   }
 
   const selection = new Set();

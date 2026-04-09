@@ -14,6 +14,7 @@ import state, {
   jumpToState,
   loadAutosave,
   notifyTimings,
+  mutate,
 } from '../src/editor/js/state.js';
 import { createEmptyDungeon } from '../src/editor/js/utils.js';
 import { THEMES, invalidateVisibilityCache } from '../src/render/index.js';
@@ -720,5 +721,301 @@ describe('Singleton behavior', () => {
     markDirty();
     expect(state.dirty).toBe(true);
     expect(state.dungeon.cells[0][0]).toEqual({ north: 'w' });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 11. Hybrid undo (patch / snapshot)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('hybrid undo', () => {
+  beforeEach(() => freshState());
+
+  // ── mutate() stores compact patches for cell-level changes ──────────
+
+  it('mutate() stores a compact patch (not full JSON) for cell changes', () => {
+    state.dungeon.cells[2][3] = { north: 'w' };
+    mutate('paint cell', [{ row: 2, col: 3 }], () => {
+      state.dungeon.cells[2][3] = { north: 'w', east: 'd' };
+    });
+
+    expect(state.undoStack.length).toBe(1);
+    const entry = state.undoStack[0];
+    // Should be a patch entry, not a full JSON snapshot
+    expect(entry.patch).toBeDefined();
+    expect(entry.json).toBeUndefined();
+    expect(entry.patch!.cells.length).toBe(1);
+    expect(entry.patch!.cells[0].row).toBe(2);
+    expect(entry.patch!.cells[0].col).toBe(3);
+    expect(entry.patch!.cells[0].before).toEqual({ north: 'w' });
+    expect(entry.patch!.cells[0].after).toEqual({ north: 'w', east: 'd' });
+  });
+
+  it('patch entry captures null → object transition', () => {
+    // Cell starts as null (void)
+    expect(state.dungeon.cells[5][5]).toBeNull();
+    mutate('create cell', [{ row: 5, col: 5 }], () => {
+      state.dungeon.cells[5][5] = { south: 'w' };
+    });
+
+    const patch = state.undoStack[0].patch!;
+    expect(patch.cells[0].before).toBeNull();
+    expect(patch.cells[0].after).toEqual({ south: 'w' });
+  });
+
+  it('patch entry captures object → null transition', () => {
+    state.dungeon.cells[3][3] = { west: 'd' };
+    mutate('erase cell', [{ row: 3, col: 3 }], () => {
+      state.dungeon.cells[3][3] = null;
+    });
+
+    const patch = state.undoStack[0].patch!;
+    expect(patch.cells[0].before).toEqual({ west: 'd' });
+    expect(patch.cells[0].after).toBeNull();
+  });
+
+  // ── Keyframe interval ──────────────────────────────────────────────────
+
+  it('stores a full keyframe snapshot every KEYFRAME_INTERVAL entries', () => {
+    // KEYFRAME_INTERVAL is 10. The keyframe triggers when
+    // _entriesSinceKeyframe() >= 10, which happens on the 11th mutate
+    // (after 10 patches are already in the stack).
+    for (let i = 0; i < 11; i++) {
+      mutate(`action-${i}`, [{ row: 0, col: 0 }], () => {
+        state.dungeon.cells[0][0] = { north: `v${i}` } as Record<string, unknown>;
+      });
+    }
+
+    expect(state.undoStack.length).toBe(11);
+    // Entries 0-9 should be patches
+    for (let i = 0; i < 10; i++) {
+      expect(state.undoStack[i].patch).toBeDefined();
+      expect(state.undoStack[i].json).toBeUndefined();
+    }
+    // Entry 10 (11th mutate) should be a full keyframe
+    expect(state.undoStack[10].json).toBeDefined();
+    expect(state.undoStack[10].patch).toBeUndefined();
+  });
+
+  it('metadata-only changes (empty coords) always store full snapshots', () => {
+    mutate('rename', [], () => {
+      state.dungeon.metadata.dungeonName = 'Renamed';
+    });
+
+    expect(state.undoStack.length).toBe(1);
+    const entry = state.undoStack[0];
+    expect(entry.json).toBeDefined();
+    expect(entry.patch).toBeUndefined();
+  });
+
+  // ── Undo reverses a patch entry ────────────────────────────────────────
+
+  it('undo reverses a patch entry (cells restored to before-state)', () => {
+    state.dungeon.cells[4][4] = { north: 'w', south: 'w' };
+    mutate('modify', [{ row: 4, col: 4 }], () => {
+      state.dungeon.cells[4][4] = { north: 'w', south: 'w', east: 'd' };
+    });
+
+    expect(state.dungeon.cells[4][4]).toEqual({ north: 'w', south: 'w', east: 'd' });
+
+    undo();
+
+    // Should be back to before-state
+    expect(state.dungeon.cells[4][4]).toEqual({ north: 'w', south: 'w' });
+  });
+
+  it('undo restores null cells correctly', () => {
+    expect(state.dungeon.cells[7][7]).toBeNull();
+    mutate('create', [{ row: 7, col: 7 }], () => {
+      state.dungeon.cells[7][7] = { west: 'w' };
+    });
+    expect(state.dungeon.cells[7][7]).not.toBeNull();
+
+    undo();
+    expect(state.dungeon.cells[7][7]).toBeNull();
+  });
+
+  // ── Redo re-applies a patch entry ──────────────────────────────────────
+
+  it('redo after undo of a patch restores undo stack symmetry', () => {
+    state.dungeon.cells[1][1] = { north: 'w' };
+    mutate('modify', [{ row: 1, col: 1 }], () => {
+      state.dungeon.cells[1][1] = { north: 'w', east: 'd' };
+    });
+
+    // Verify patch is on the undo stack
+    expect(state.undoStack.length).toBe(1);
+    expect(state.undoStack[0].patch).toBeDefined();
+
+    undo();
+    expect(state.dungeon.cells[1][1]).toEqual({ north: 'w' });
+    expect(state.redoStack.length).toBe(1);
+
+    // Redo pushes an entry back onto the undo stack
+    redo();
+    expect(state.undoStack.length).toBe(1);
+    expect(state.redoStack.length).toBe(0);
+  });
+
+  // ── Mixed undo/redo across patch and snapshot entries ──────────────────
+
+  it('mixed undo across patch and keyframe entries', () => {
+    // Build up 12 actions: 10 patches + 1 keyframe + 1 patch
+    state.dungeon.cells[0][0] = {};
+    for (let i = 0; i < 12; i++) {
+      mutate(`action-${i}`, [{ row: 0, col: 0 }], () => {
+        state.dungeon.cells[0][0] = { north: `v${i}` } as Record<string, unknown>;
+      });
+    }
+
+    // Current state: cells[0][0] = { north: 'v11' }
+    expect((state.dungeon.cells[0][0] as Record<string, unknown>).north).toBe('v11');
+
+    // Entry [10] is a keyframe, [11] is a patch.
+    expect(state.undoStack[10].json).toBeDefined();
+    expect(state.undoStack[11].patch).toBeDefined();
+
+    // Undo last action (patch) → v10
+    undo();
+    expect((state.dungeon.cells[0][0] as Record<string, unknown>).north).toBe('v10');
+
+    // Undo the keyframe → restores the snapshot (state as of v9)
+    undo();
+    expect((state.dungeon.cells[0][0] as Record<string, unknown>).north).toBe('v9');
+
+    // Undo a patch → v8
+    undo();
+    expect((state.dungeon.cells[0][0] as Record<string, unknown>).north).toBe('v8');
+  });
+
+  it('multiple undos across a keyframe boundary', () => {
+    state.dungeon.cells[0][0] = {};
+    // Push 10 patches (no keyframe yet — keyframe would be the 11th)
+    for (let i = 0; i < 10; i++) {
+      mutate(`a-${i}`, [{ row: 0, col: 0 }], () => {
+        state.dungeon.cells[0][0] = { north: `s${i}` } as Record<string, unknown>;
+      });
+    }
+
+    // All 10 entries should be patches
+    expect(state.undoStack.length).toBe(10);
+    for (let i = 0; i < 10; i++) {
+      expect(state.undoStack[i].patch).toBeDefined();
+    }
+
+    // Undo all 10 entries
+    for (let i = 0; i < 10; i++) {
+      undo();
+    }
+
+    // Should be back to original empty cell
+    expect(state.dungeon.cells[0][0]).toEqual({});
+    expect(state.undoStack.length).toBe(0);
+    expect(state.redoStack.length).toBe(10);
+  });
+
+  // ── pushUndo (non-mutate path) still stores full snapshots ─────────────
+
+  it('pushUndo() always stores a full JSON snapshot', () => {
+    state.dungeon.metadata.dungeonName = 'Before Push';
+    pushUndo('manual snapshot');
+
+    expect(state.undoStack.length).toBe(1);
+    const entry = state.undoStack[0];
+    expect(entry.json).toBeDefined();
+    expect(entry.patch).toBeUndefined();
+
+    const parsed = JSON.parse(entry.json!);
+    expect(parsed.metadata.dungeonName).toBe('Before Push');
+  });
+
+  it('pushUndo() entries integrate correctly with mutate() patch entries', () => {
+    // pushUndo captures the current state as a full snapshot
+    state.dungeon.metadata.dungeonName = 'Original';
+    pushUndo('snapshot');
+
+    // Modify metadata + paint a cell after the snapshot
+    state.dungeon.metadata.dungeonName = 'Modified';
+    state.dungeon.cells[0][0] = { north: 'w' };
+
+    // mutate → patch (since pushUndo just added a keyframe, _entriesSinceKeyframe()=0)
+    mutate('paint', [{ row: 0, col: 0 }], () => {
+      state.dungeon.cells[0][0] = { north: 'w', east: 'd' };
+    });
+
+    expect(state.undoStack.length).toBe(2);
+    expect(state.undoStack[0].json).toBeDefined();  // full snapshot
+    expect(state.undoStack[1].patch).toBeDefined();  // compact patch
+
+    // Undo the patch — restores cells to before-state
+    undo();
+    expect(state.dungeon.cells[0][0]).toEqual({ north: 'w' });
+
+    // Undo the snapshot — restores full dungeon to 'Original' state
+    undo();
+    expect(state.dungeon.metadata.dungeonName).toBe('Original');
+    expect(state.dungeon.cells[0][0]).toBeNull(); // was null when snapshot was taken
+  });
+
+  // ── Deep copy isolation in patches ─────────────────────────────────────
+
+  it('patch before/after are deep copies — mutations do not affect undo data', () => {
+    state.dungeon.cells[2][2] = { north: 'w', center: { label: 'A1' } };
+    mutate('modify', [{ row: 2, col: 2 }], () => {
+      state.dungeon.cells[2][2] = { north: 'w', east: 'd', center: { label: 'A1' } };
+    });
+
+    // Mutate the live cell
+    (state.dungeon.cells[2][2] as Record<string, unknown>).north = 'MUTATED';
+
+    // The patch's after-state should still have the original value
+    const afterState = state.undoStack[0].patch!.cells[0].after as Record<string, unknown>;
+    expect(afterState.north).toBe('w');
+    expect(afterState.east).toBe('d');
+  });
+
+  // ── Metadata changes in patches ────────────────────────────────────────
+
+  it('captures metadata changes when they occur during mutate()', () => {
+    mutate('rename and paint', [{ row: 0, col: 0 }], () => {
+      state.dungeon.cells[0][0] = { west: 'w' };
+      state.dungeon.metadata.dungeonName = 'Changed During Mutate';
+    });
+
+    const entry = state.undoStack[0];
+    expect(entry.patch).toBeDefined();
+    expect(entry.patch!.meta).not.toBeNull();
+    expect(entry.patch!.meta!.before).toBeDefined();
+    expect(entry.patch!.meta!.after).toBeDefined();
+
+    const afterMeta = JSON.parse(entry.patch!.meta!.after);
+    expect(afterMeta.dungeonName).toBe('Changed During Mutate');
+  });
+
+  it('does not store metadata patch when metadata is unchanged', () => {
+    state.dungeon.cells[1][1] = { north: 'w' };
+    mutate('cell only', [{ row: 1, col: 1 }], () => {
+      state.dungeon.cells[1][1] = { north: 'w', south: 'd' };
+    });
+
+    const entry = state.undoStack[0];
+    expect(entry.patch!.meta).toBeNull();
+  });
+
+  // ── Undo marks dirty and notifies ──────────────────────────────────────
+
+  it('undo of patch entry marks dirty and notifies', () => {
+    const spy = vi.fn();
+    subscribe(spy);
+
+    mutate('action', [{ row: 0, col: 0 }], () => {
+      state.dungeon.cells[0][0] = {};
+    });
+    spy.mockClear();
+    state.dirty = false;
+
+    undo();
+    expect(state.dirty).toBe(true);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

@@ -7,6 +7,7 @@ import {
   getLightCatalog,
   cellKey, roomBoundsFromKeys,
   toInt,
+  ApiValidationError,
 } from './_shared.js';
 import { getEdge } from '../../../util/index.js';
 import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
@@ -57,7 +58,7 @@ export function placeProp(row: number, col: number, propType: string, facing: nu
   validateBounds(row, col);
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
-    throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props ?? {}).join(', ')}`);
+    throw new ApiValidationError('UNKNOWN_PROP', `Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props ?? {}).join(', ')}`, { propType, available: Object.keys(catalog?.props ?? {}) });
   }
   facing = ((facing % 360) + 360) % 360; // normalize to 0-359
   const scale = Math.max(0.25, Math.min(4.0, options.scale ?? 1.0));
@@ -74,14 +75,14 @@ export function placeProp(row: number, col: number, propType: string, facing: nu
   for (let r = row; r < row + span[0]; r++) {
     for (let c = col; c < col + span[1]; c++) {
       validateBounds(r, c);
-      if (cells[r][c] === null) throw new Error(`Cell (${r}, ${c}) is void — cannot place prop`);
+      if (cells[r][c] === null) throw new ApiValidationError('CELL_VOID', `Cell (${r}, ${c}) is void — cannot place prop`, { row: r, col: c });
       // O(1) spatial hash check for overlap
       const covered = lookupPropAt(r, c);
       if (covered) {
         if (allowOverlap) {
           warnings.push(`overlaps with ${covered.propType} (${covered.propId || 'unknown'}) at (${covered.anchorRow}, ${covered.anchorCol})`);
         } else {
-          throw new Error(`Cell (${r}, ${c}) is already covered by prop "${covered.propType}" anchored at (${covered.anchorRow}, ${covered.anchorCol})`);
+          throw new ApiValidationError('PROP_OVERLAP', `Cell (${r}, ${c}) is already covered by prop "${covered.propType}" anchored at (${covered.anchorRow}, ${covered.anchorCol})`, { row: r, col: c, existingProp: covered.propType, existingAnchor: [covered.anchorRow, covered.anchorCol] });
         }
       }
     }
@@ -176,7 +177,7 @@ export function removeProp(row: number, col: number): { success: true } {
 export function setLightName(id: number, name: string | null): { success: true } {
   const meta = state.dungeon.metadata;
   const light = meta.lights.find(l => l.id === id);
-  if (!light) throw new Error(`No light with id ${id}`);
+  if (!light) throw new ApiValidationError('LIGHT_NOT_FOUND', `No light with id ${id}`, { id });
   if (name) light.name = name;
   else delete light.name;
   markDirty();
@@ -338,10 +339,10 @@ export function removePropsInRect(r1: number, c1: number, r2: number, c2: number
  * @returns {{ success: boolean, placed: Array<[number, number]> }}
  */
 export function fillWallWithProps(roomLabel: string, propType: string, wall: string, options: FillWallOptions = {}): { success: true; placed: [number, number][] } {
-  if (!CARDINAL_DIRS.includes(wall)) throw new Error(`wall must be one of: ${CARDINAL_DIRS.join(', ')}`);
+  if (!CARDINAL_DIRS.includes(wall)) throw new ApiValidationError('INVALID_WALL', `wall must be one of: ${CARDINAL_DIRS.join(', ')}`, { wall });
 
   const catalog = state.propCatalog;
-  if (!catalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
+  if (!catalog?.props[propType]) throw new ApiValidationError('UNKNOWN_PROP', `Unknown prop type: ${propType}`, { propType, available: Object.keys(catalog?.props ?? {}) });
 
   const def = catalog.props[propType];
 
@@ -363,7 +364,7 @@ export function fillWallWithProps(roomLabel: string, propType: string, wall: str
     : [...def.footprint];
 
   const roomCells = getApi()._collectRoomCells(roomLabel);
-  if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+  if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
 
   const wallCells = getApi()._getWallCells(roomCells, wall);
   if (!wallCells.length) return { success: true, placed: [] };
@@ -428,7 +429,7 @@ export function lineProps(roomLabel: string, propType: string, startRow: number,
   if (!['east', 'south'].includes(direction)) throw new Error('direction must be "east" or "south"');
 
   const catalog = state.propCatalog;
-  if (!catalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
+  if (!catalog?.props[propType]) throw new ApiValidationError('UNKNOWN_PROP', `Unknown prop type: ${propType}`, { propType, available: Object.keys(catalog?.props ?? {}) });
 
   const facing = options.facing ?? 0;
   const gap = options.gap ?? 0;
@@ -440,7 +441,7 @@ export function lineProps(roomLabel: string, propType: string, startRow: number,
     : [...def.footprint];
 
   const roomCells = getApi()._collectRoomCells(roomLabel);
-  if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+  if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
 
   const [dr, dc] = direction === 'south' ? [spanRows + gap, 0] : [0, spanCols + gap];
 
@@ -527,7 +528,7 @@ export function scatterProps(roomLabel: string, propType: string, count: number,
 export function clusterProps(roomLabel: string, props: Array<{ type: string; dr: number; dc: number; facing?: number }>, anchorRow: number, anchorCol: number): { success: true; placed: { type: string; row: number; col: number }[]; failed: { type: string; row: number; col: number; error: string }[] } {
   anchorRow = toInt(anchorRow); anchorCol = toInt(anchorCol);
   const roomCells = getApi()._collectRoomCells(roomLabel);
-  if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+  if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
 
   const placed: { type: string; row: number; col: number }[] = [];
   const failed: { type: string; row: number; col: number; error: string }[] = [];
@@ -622,7 +623,7 @@ export function sendBackward(propId: string): { success: true; zIndex: number } 
  */
 export function suggestPropPosition(roomLabel: string, propType: string, options: SuggestPropPositionOptions = {}): { success: boolean; row?: number; col?: number; x?: number; y?: number; rotation?: number; error?: string } {
   const catalog = state.propCatalog;
-  if (!catalog?.props[propType]) throw new Error(`Unknown prop type: ${propType}`);
+  if (!catalog?.props[propType]) throw new ApiValidationError('UNKNOWN_PROP', `Unknown prop type: ${propType}`, { propType, available: Object.keys(catalog?.props ?? {}) });
 
   const def = catalog.props[propType];
   const placement = def.placement ?? 'center';
@@ -630,7 +631,7 @@ export function suggestPropPosition(roomLabel: string, propType: string, options
   const gridSize = meta.gridSize || 5;
 
   const roomCells = getApi()._collectRoomCells(roomLabel);
-  if (!roomCells) throw new Error(`Room "${roomLabel}" not found`);
+  if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
   const bounds = roomBoundsFromKeys(roomCells);
   if (!bounds) throw new Error(`Room "${roomLabel}" has no cells`);
 

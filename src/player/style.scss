@@ -175,3 +175,70 @@ html, body {
   font-size: 14px;
   font-weight: 500;
 }
+
+/* ── Password Prompt ────────────────────────────────────────────────────── */
+
+#password-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+
+  &.hidden { display: none; }
+}
+
+.password-prompt {
+  background: #1e1e2e;
+  border: 1px solid #45475a;
+  border-radius: 12px;
+  padding: 28px 32px;
+  min-width: 280px;
+  text-align: center;
+  color: #cdd6f4;
+}
+
+.password-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+#password-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: #181825;
+  border: 1px solid #45475a;
+  border-radius: 6px;
+  color: #cdd6f4;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 12px;
+
+  &:focus { border-color: #89b4fa; }
+}
+
+#password-submit {
+  width: 100%;
+  padding: 10px;
+  background: #89b4fa;
+  color: #1e1e2e;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: #b4d0fb; }
+  &:disabled { opacity: 0.5; cursor: default; }
+}
+
+#password-error {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #f38ba8;
+
+  &.hidden { display: none; }
+}

@@ -27,18 +27,33 @@ Maps can now be exported as `.dd2vtt` files for use in Foundry VTT, Roll20, and 
 - Corrupted or hand-edited `.mapwright` files are now checked on load for structural issues (invalid edge values, unknown cell properties, malformed metadata)
 - Warnings shown via toast notification; files are never rejected
 
+### Player Session Redesign
+
+- **Session password** — DMs can set an optional password before starting a session; players must enter it to join
+- **Redesigned session panel** — action-first layout with the start/stop button at top, grouped "Share with Players" and "Fog of War" sections, and a Yes/No toggle for DM View
+- **Password persistence** — saved in editor settings so DMs don't have to re-enter it each session
+- **Obfuscated sharing** — both the player link and password are masked with copy buttons (same pattern as the IP address)
+- **Player password prompt** — players see a styled login screen when joining a password-protected session
+
 ### New Automation API Methods
 
 - **`getStateDigest()`** — lightweight summary of map state (room count, prop count, light count, undo depth, dirty flag) without full JSON serialization
+- **`getRenderDiagnostics()`** — render pipeline state: version counters, dirty region, and per-phase timings
 - **`validateBatch(commands)`** — pre-validate a batch of commands against current state without executing them; returns which commands would fail and why
+
+### Structured API Errors
+
+API errors now include a machine-readable `code` and `context` object alongside the error message — e.g., `{ code: "OUT_OF_BOUNDS", context: { row: 5, col: 99, maxRows: 20, maxCols: 30 } }`. Makes automated error handling and self-correction easier.
 
 ### Electron Fixes
 
 - Server process tree is now properly killed on app close (Windows)
 - Renderer console messages forwarded to terminal
+- Vite watch mode runs automatically alongside Electron — code changes rebuild instantly without restarting the app
 
 ### Security Hardening
 
+- **Session authentication** — DM connections use a server-generated token; player connections validate against an optional password. Prevents unauthorized users from joining LAN sessions
 - Path traversal protection on file open and theme endpoints
 - SSRF protection on Ollama proxy endpoints (localhost only)
 - Content Security Policy, `X-Content-Type-Options`, and `X-Frame-Options` headers added
@@ -50,8 +65,10 @@ Maps can now be exported as `.dd2vtt` files for use in Foundry VTT, Roll20, and 
 - **Test suite** — expanded from 734 to 1,111+ tests, now also type-checked via TypeScript
 - **Codebase refactoring** — four largest files split into focused modules for maintainability
 - **Cell type safety** — removed loose index signature from the Cell type; all cell property access is now compile-time checked
+- **Hybrid undo system** — small edits store compact cell-level patches instead of full JSON snapshots, with periodic keyframes; reduces undo memory usage by up to 95%
 - **Transaction helper** — new `mutate()` function wraps the undo/invalidate/notify ceremony, reducing boilerplate and preventing missed steps in state mutations
 - **Selective subscriptions** — `notify()` now supports topic filtering so UI panels only re-render when relevant state changes
+- **~30 type cast reductions** — replaced `as unknown` casts with proper type aliases, type guards, and narrowed interfaces
 
 ---
 

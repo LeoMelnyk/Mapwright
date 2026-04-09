@@ -9,6 +9,8 @@ import {
   calculateCanvasSize, renderDungeonToCanvas,
   cellKey, parseCellKey, roomBoundsFromKeys,
   toInt, toDisp,
+  getContentVersion, getGeometryVersion, getLightingVersion, getPropsVersion,
+  getDirtyRegion, renderTimings,
 } from './_shared.js';
 
 // ── Undo / Redo ──────────────────────────────────────────────────────────
@@ -445,6 +447,38 @@ export function getValidPropPositions(label: string, propType: string, facing: n
 
   positions.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   return { success: true, positions };
+}
+
+// ── Render Diagnostics ──────────────────────────────────────────────────
+
+/**
+ * Aggregate current render state into a diagnostic summary.
+ * Useful for debugging render pipeline stalls and cache invalidation.
+ * @returns Render version counters, dirty region, and per-phase timings.
+ */
+export function getRenderDiagnostics(): {
+  success: true;
+  contentVersion: number;
+  geometryVersion: number;
+  lightingVersion: number;
+  propsVersion: number;
+  dirtyRegion: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null;
+  timings: Record<string, number>;
+} {
+  const dirty = getDirtyRegion();
+  const timings: Record<string, number> = {};
+  for (const [key, entry] of Object.entries(renderTimings)) {
+    timings[key] = entry.ms;
+  }
+  return {
+    success: true,
+    contentVersion: getContentVersion(),
+    geometryVersion: getGeometryVersion(),
+    lightingVersion: getLightingVersion(),
+    propsVersion: getPropsVersion(),
+    dirtyRegion: dirty ? { minRow: dirty.minRow, maxRow: dirty.maxRow, minCol: dirty.minCol, maxCol: dirty.maxCol } : null,
+    timings,
+  };
 }
 
 // ── State Digest ────────────────────────────────────────────────────────

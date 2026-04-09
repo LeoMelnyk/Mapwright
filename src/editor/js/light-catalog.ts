@@ -1,6 +1,6 @@
 // Light Catalog — loads .light preset metadata for the lighting panel.
 // Mirrors the pattern of texture-catalog.js (manifest + individual files + localStorage caching).
-import type { LightCatalog } from '../../types.js';
+import type { LightCatalog, LightPreset } from '../../types.js';
 
 const BASE_URL = '/lights/';
 const CACHE_KEY = 'light-catalog';
@@ -24,38 +24,49 @@ let catalog: LightCatalog | null = null; // { names, lights, byCategory, categor
  * }
  */
 
-function buildFromMetadata(entries: Record<string, unknown>[]) {
+function buildFromMetadata(entries: Record<string, unknown>[]): LightCatalog {
   const names: string[] = [];
-  const lights: Record<string, Record<string, unknown>> = {};
+  const lights: Record<string, LightPreset | undefined> = {};
   const byCategory: Record<string, string[]> = {};
   const categoryOrder: string[] = [];
 
   for (const data of entries) {
     const key = data.id as string;
 
-    const entry: Record<string, unknown> = {
+    const str = (v: unknown, fallback: string): string => typeof v === 'string' ? v : fallback;
+    const num = (v: unknown, fallback: number): number => typeof v === 'number' ? v : fallback;
+
+    const entry: LightPreset = {
       id: key,
-      displayName: data.displayName ?? key,
-      category: data.category ?? 'Uncategorized',
-      description: data.description ?? '',
-      type: data.type ?? 'point',
-      color: data.color ?? '#ff9944',
-      radius: data.radius ?? 30,
-      intensity: data.intensity ?? 1.0,
-      falloff: data.falloff ?? 'smooth',
+      displayName: str(data.displayName, key),
+      category: str(data.category, 'Uncategorized'),
+      description: str(data.description, ''),
+      type: (data.type === 'directional' ? 'directional' : 'point'),
+      color: str(data.color, '#ff9944'),
+      radius: num(data.radius, 30),
+      intensity: num(data.intensity, 1.0),
+      falloff: str(data.falloff, 'smooth') as LightPreset['falloff'],
     };
 
     if (data.type === 'directional' && data.spread != null) {
-      entry.spread = data.spread;
+      entry.spread = data.spread as number;
     }
-    if (data.dimRadius != null) entry.dimRadius = data.dimRadius;
-    if (data.z != null)          entry.z = data.z;
-    if ((data.animation as Record<string, unknown> | null)?.type) entry.animation = { ...(data.animation as Record<string, unknown>) };
+    if (data.dimRadius != null) entry.dimRadius = data.dimRadius as number;
+    if (data.z != null)          entry.z = data.z as number;
+    const animData = data.animation as Record<string, unknown> | null;
+    if (animData?.type) {
+      entry.animation = {
+        type: str(animData.type, ''),
+        speed: num(animData.speed, 1),
+        amplitude: num(animData.amplitude, 0.5),
+        ...(animData.radiusVariation != null ? { radiusVariation: animData.radiusVariation as number } : {}),
+      };
+    }
 
     lights[key] = entry;
     names.push(key);
 
-    const cat = entry.category as string;
+    const cat = entry.category;
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- byCategory is built dynamically
     if (!byCategory[cat]) {
       byCategory[cat] = [];
@@ -64,7 +75,7 @@ function buildFromMetadata(entries: Record<string, unknown>[]) {
     byCategory[cat].push(key);
   }
 
-  return { names, lights, byCategory, categoryOrder } as unknown as LightCatalog;
+  return { names, lights, byCategory, categoryOrder };
 }
 
 /**

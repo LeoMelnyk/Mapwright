@@ -223,12 +223,17 @@ async function main() {
           const res = await fn.apply(window.editorAPI, a);
           return res || { success: true };
         } catch (e) {
-          return { success: false, error: e.message };
+          const out = { success: false, error: e.message };
+          if (e.code) out.code = e.code;
+          if (e.context) out.context = e.context;
+          return out;
         }
       }, method, methodArgs);
 
       if (!result.success) {
-        console.error(`FAILED [${i}] [${method}]: ${result.error}`);
+        const codePart = result.code ? ` (${result.code})` : '';
+        const ctxPart = result.context ? ` ${JSON.stringify(result.context)}` : '';
+        console.error(`FAILED [${i}] [${method}]${codePart}: ${result.error}${ctxPart}`);
         anyFailed = true;
         if (!args.continueOnError) break;
       } else {

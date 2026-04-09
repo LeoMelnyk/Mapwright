@@ -4,7 +4,7 @@
  * Used by both generate_dungeon.js (CLI) and the editor's Export PNG.
  */
 
-import type { CellGrid, Metadata, PropCatalog, TextureCatalog, Theme } from '../types.js';
+import { asMultiLevel, type CellGrid, type Metadata, type PropCatalog, type TextureCatalog, type Theme } from '../types.js';
 import type { OpenedDoor } from '../player/player-state.js';
 import { GRID_SCALE, MARGIN } from './constants.js';
 import { THEMES } from './themes.js';
@@ -51,7 +51,7 @@ export function calculateCanvasSize(config: { metadata: Metadata; cells: CellGri
                        Array.isArray(config.cells[0][0]);
 
   if (isMultiLevel) {
-    const multiCells = config.cells as unknown as CellGrid[];
+    const multiCells = asMultiLevel(config.cells);
     const numLevels = multiCells.length;
     let totalHeight = 0;
     let maxWidth = 0;
@@ -106,7 +106,7 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: { m
   drawBackground(ctx, width, height, theme);
 
   if (isMultiLevel) {
-    const multiCells = config.cells as unknown as CellGrid[];
+    const multiCells = asMultiLevel(config.cells);
     let yOffset = 0;
     const titleFontSize = (config.metadata.titleFontSize as number) || 32;
     const titleHeight = titleFontSize + 40;
@@ -250,7 +250,7 @@ export function renderDungeonToCanvas(ctx: CanvasRenderingContext2D, config: { m
  * @param {Object|null} [textureCatalog] - Texture catalog with loaded images
  * @returns {void}
  */
-export function renderPlayerViewToCanvas(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; cells: CellGrid }, revealedCells: Set<string> | boolean[][], fogOptions: { openedDoors?: OpenedDoor[]; openedStairs?: number[] } | null, width: number, height: number, propCatalog: PropCatalog | null = null, textureCatalog: TextureCatalog | null = null): void {
+export function renderPlayerViewToCanvas(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; cells: CellGrid }, revealedCells: Set<string>, fogOptions: { openedDoors?: OpenedDoor[]; openedStairs?: number[] } | null, width: number, height: number, propCatalog: PropCatalog | null = null, textureCatalog: TextureCatalog | null = null): void {
   const { openedDoors = [], openedStairs = [] } = fogOptions ?? {};
   const gridSize = config.metadata.gridSize;
   const theme = resolveTheme(config.metadata.theme || 'blue-parchment', config.metadata.themeOverrides ?? null);
@@ -259,7 +259,7 @@ export function renderPlayerViewToCanvas(ctx: CanvasRenderingContext2D, config: 
   const labelStyle = config.metadata.labelStyle;
 
   // Apply fog-of-war filtering
-  const revealedSet = revealedCells instanceof Set ? revealedCells : revealedCells as unknown as Set<string>;
+  const revealedSet = revealedCells;
   const playerCells = buildPlayerCells(config, revealedSet, openedDoors);
   const filteredStairs = filterStairsForPlayer(config.metadata.stairs, revealedSet, openedStairs);
   const filteredBridges = filterBridgesForPlayer(config.metadata.bridges, revealedSet);
