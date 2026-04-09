@@ -2,6 +2,25 @@
 
 ## v0.10.0
 
+### Editor Loading Overlay
+
+- Spinner overlay covers the canvas while catalogs and textures load on startup and file open
+- Overlay stays visible until all props, lights, and textures finish loading
+- Fades out with 0.4s transition; supports both dark and light editor themes
+- Matches the player view's loading screen style
+
+### Stair & Bridge Improvements
+
+- **Stair hover highlight** — placed stairs now highlight on mouse hover with a dashed blue outline (same as bridges)
+- **Stair shape preview** — ghost outline correctly shows rectangle, trapezoid, or triangle for all placement angles (was always drawing a cone for non-axis-aligned stairs)
+- **Angled bridge/stair fix** — fractional cell indices from angled placement no longer cause texture cache corruption or crashes
+- **Bridge placement logging** — console logs geometry details (points, corners, angle, dimensions) for debugging
+
+### Electron Fixes
+
+- Server process tree is now properly killed on app close (Windows `taskkill /T`)
+- Renderer console messages forwarded to terminal with `[INFO]`/`[WARN]`/`[ERROR]` tags
+
 ### Universal VTT Export
 
 Maps can now be exported as `.dd2vtt` files (Universal VTT format) for use in Foundry VTT, Roll20, and other virtual tabletop platforms.

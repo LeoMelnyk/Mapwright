@@ -82,7 +82,16 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFi
       if (tid) usedIds.add(tid);
     }
   }
-  if (usedIds.size > 0) void ensureTexturesLoaded(usedIds).then(() => { state.texturesVersion++; notify(); });
+  showEditorLoading();
+  if (usedIds.size > 0) {
+    void ensureTexturesLoaded(usedIds).then(() => {
+      state.texturesVersion++;
+      notify();
+      hideEditorLoading();
+    });
+  } else {
+    hideEditorLoading();
+  }
   // Zoom to fit the loaded map in the viewport
   requestAnimationFrame(() => zoomToFit());
 }
@@ -190,6 +199,14 @@ async function confirmUnsaved() {
  * Load a dungeon JSON via File System Access API (or fallback file input).
  * @returns {Promise<void>}
  */
+function showEditorLoading(): void {
+  document.getElementById('editor-loading-overlay')?.classList.remove('hidden');
+}
+
+function hideEditorLoading(): void {
+  document.getElementById('editor-loading-overlay')?.classList.add('hidden');
+}
+
 export async function loadDungeon(): Promise<void> {
   if (!await confirmUnsaved()) return;
 

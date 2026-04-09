@@ -267,7 +267,14 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   if (app._serverChild) {
-    app._serverChild.kill();
+    if (process.platform === 'win32') {
+      // On Windows, child.kill() only kills the direct process — use taskkill /T
+      // to kill the entire process tree (node → tsx → server.js)
+      const { execSync } = require('child_process');
+      try { execSync(`taskkill /PID ${app._serverChild.pid} /T /F`, { stdio: 'ignore' }); } catch {}
+    } else {
+      app._serverChild.kill();
+    }
     app._serverChild = null;
   }
 });

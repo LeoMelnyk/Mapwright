@@ -108,6 +108,9 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   if (!tools[state.activeTool]) state.activeTool = 'room';
   setTool(state.activeTool);
 
+  // ── Loading overlay (spinner over canvas during init / file open) ────
+  const editorLoadingOverlay = document.getElementById('editor-loading-overlay');
+
   // ── Asset loading bar ──────────────────────────────────────────────────
   const loadingBar = document.getElementById('loading-bar');
   const loadingFill = document.getElementById('loading-bar-fill');
@@ -134,6 +137,7 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
     const allReported = Object.values(progress).every(v => v !== null);
     if (allReported && sumLoaded >= sumTotal && sumTotal > 0) {
       setTimeout(() => loadingBar?.classList.remove('active'), 400);
+      editorLoadingOverlay?.classList.add('hidden');
     }
   }
 
