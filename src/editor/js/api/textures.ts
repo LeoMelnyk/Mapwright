@@ -1,11 +1,15 @@
 import type { TextureCatalog } from '../../../types.js';
 import {
-  state, mutate,
-  validateBounds, ensureCell,
-  loadTextureImages, paintTool,
+  state,
+  mutate,
+  validateBounds,
+  ensureCell,
+  loadTextureImages,
+  paintTool,
   toInt,
   patchBlendForDirtyRegion,
 } from './_shared.js';
+import { normalizeRect } from './_rect-utils.js';
 
 function _blendPatch(minRow: number, minCol: number, maxRow: number, maxCol: number): void {
   const catalog = state.textureCatalog;
@@ -30,7 +34,8 @@ function _blendPatch(minRow: number, minCol: number, maxRow: number, maxCol: num
  * @returns {{ success: boolean }}
  */
 export function setTexture(row: number, col: number, textureId: string, opacity: number = 1.0): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   const cell = ensureCell(row, col);
   void loadTextureImages(textureId);
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
@@ -49,7 +54,8 @@ export function setTexture(row: number, col: number, textureId: string, opacity:
  * @returns {{ success: boolean }}
  */
 export function removeTexture(row: number, col: number): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell?.texture) return { success: true };
@@ -72,12 +78,15 @@ export function removeTexture(row: number, col: number): { success: true } {
  * @param {number} [opacity=1.0] - Texture opacity (0-1)
  * @returns {{ success: boolean }}
  */
-export function setTextureRect(r1: number, c1: number, r2: number, c2: number, textureId: string, opacity: number = 1.0): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
-  validateBounds(minR, minC);
-  validateBounds(maxR, maxC);
+export function setTextureRect(
+  r1: number,
+  c1: number,
+  r2: number,
+  c2: number,
+  textureId: string,
+  opacity: number = 1.0,
+): { success: true } {
+  const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const clampedOpacity = Math.max(0, Math.min(1, opacity));
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
@@ -106,11 +115,7 @@ export function setTextureRect(r1: number, c1: number, r2: number, c2: number, t
  * @returns {{ success: boolean }}
  */
 export function removeTextureRect(r1: number, c1: number, r2: number, c2: number): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
-  validateBounds(minR, minC);
-  validateBounds(maxR, maxC);
+  const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   mutate('removeTextureRect', coords, () => {
@@ -136,8 +141,14 @@ export function removeTextureRect(r1: number, c1: number, r2: number, c2: number
  * @param {number} [opacity=1.0] - Texture opacity (0-1)
  * @returns {{ success: boolean }}
  */
-export function floodFillTexture(row: number, col: number, textureId: string, opacity: number = 1.0): { success: boolean; error?: string } {
-  row = toInt(row); col = toInt(col);
+export function floodFillTexture(
+  row: number,
+  col: number,
+  textureId: string,
+  opacity: number = 1.0,
+): { success: boolean; error?: string } {
+  row = toInt(row);
+  col = toInt(col);
   validateBounds(row, col);
   if (!state.dungeon.cells[row]?.[col]) return { success: false, error: 'void cell' };
   const prevTexture = state.activeTexture;

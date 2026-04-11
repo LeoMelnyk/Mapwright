@@ -1,10 +1,6 @@
 import type { FillType } from '../../../types.js';
-import {
-  state, mutate,
-  validateBounds, ensureCell,
-  toInt,
-  ApiValidationError,
-} from './_shared.js';
+import { state, mutate, validateBounds, ensureCell, toInt, ApiValidationError } from './_shared.js';
+import { normalizeRect } from './_rect-utils.js';
 
 /**
  * Set a fill type (pit, water, lava) on a single cell.
@@ -15,15 +11,20 @@ import {
  * @returns {{ success: boolean }}
  */
 export function setFill(row: number, col: number, fillType: string, depth: number = 1): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   if (!['pit', 'water', 'lava'].includes(fillType)) {
-    throw new ApiValidationError('INVALID_FILL_TYPE', `Invalid fill type: ${fillType}. Use 'pit', 'water', or 'lava'. For hazard, use setHazard().`, { fillType });
+    throw new ApiValidationError(
+      'INVALID_FILL_TYPE',
+      `Invalid fill type: ${fillType}. Use 'pit', 'water', or 'lava'. For hazard, use setHazard().`,
+      { fillType },
+    );
   }
   const cell = ensureCell(row, col);
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate('setFill', coords, () => {
     cell.fill = fillType as FillType;
-    const d = (depth >= 1 && depth <= 3) ? depth : 1;
+    const d = depth >= 1 && depth <= 3 ? depth : 1;
     if (fillType === 'water') {
       cell.waterDepth = d;
       delete cell.lavaDepth;
@@ -45,7 +46,8 @@ export function setFill(row: number, col: number, fillType: string, depth: numbe
  * @returns {{ success: boolean }}
  */
 export function removeFill(row: number, col: number): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell?.fill) return { success: true };
@@ -64,7 +66,8 @@ export function removeFill(row: number, col: number): { success: true } {
  * @returns {{ success: boolean }}
  */
 export function setHazard(row: number, col: number, enabled: boolean = true): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   const cell = ensureCell(row, col);
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate('setHazard', coords, () => {
@@ -88,19 +91,26 @@ export function setHazard(row: number, col: number, enabled: boolean = true): { 
  * @param {number} [depth] - Depth level 1-3 (for water/lava)
  * @returns {{ success: boolean }}
  */
-export function setFillRect(r1: number, c1: number, r2: number, c2: number, fillType: string, depth: number = 1): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
+export function setFillRect(
+  r1: number,
+  c1: number,
+  r2: number,
+  c2: number,
+  fillType: string,
+  depth: number = 1,
+): { success: true } {
   if (!['pit', 'water', 'lava'].includes(fillType)) {
-    throw new ApiValidationError('INVALID_FILL_TYPE', `Invalid fill type: "${fillType}" (expected: pit, water, lava). For hazard, use setHazardRect().`, { fillType });
+    throw new ApiValidationError(
+      'INVALID_FILL_TYPE',
+      `Invalid fill type: "${fillType}" (expected: pit, water, lava). For hazard, use setHazardRect().`,
+      { fillType },
+    );
   }
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
-  validateBounds(minR, minC);
-  validateBounds(maxR, maxC);
+  const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   mutate('setFillRect', coords, () => {
-    const wd = (depth >= 1 && depth <= 3) ? depth : 1;
+    const wd = depth >= 1 && depth <= 3 ? depth : 1;
     for (let r = minR; r <= maxR; r++) {
       for (let c = minC; c <= maxC; c++) {
         const cell = state.dungeon.cells[r]?.[c];
@@ -132,12 +142,14 @@ export function setFillRect(r1: number, c1: number, r2: number, c2: number, fill
  * @param {boolean} [enabled=true] - Whether to enable or disable hazard
  * @returns {{ success: boolean }}
  */
-export function setHazardRect(r1: number, c1: number, r2: number, c2: number, enabled: boolean = true): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
-  validateBounds(minR, minC);
-  validateBounds(maxR, maxC);
+export function setHazardRect(
+  r1: number,
+  c1: number,
+  r2: number,
+  c2: number,
+  enabled: boolean = true,
+): { success: true } {
+  const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   mutate('setHazardRect', coords, () => {
@@ -167,11 +179,7 @@ export function setHazardRect(r1: number, c1: number, r2: number, c2: number, en
  * @returns {{ success: boolean }}
  */
 export function removeFillRect(r1: number, c1: number, r2: number, c2: number): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
-  validateBounds(minR, minC);
-  validateBounds(maxR, maxC);
+  const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   mutate('removeFillRect', coords, () => {

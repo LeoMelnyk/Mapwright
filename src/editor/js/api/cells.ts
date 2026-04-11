@@ -1,12 +1,17 @@
 import type { Cell } from '../../../types.js';
 import {
-  state, mutate,
+  state,
+  mutate,
   validateBounds,
-  cellKey, isInBounds, OPPOSITE, OFFSETS,
+  cellKey,
+  isInBounds,
+  OPPOSITE,
+  OFFSETS,
   roomTool,
   toInt,
   ApiValidationError,
 } from './_shared.js';
+import { normalizeRect } from './_rect-utils.js';
 
 /**
  * Get a deep copy of the cell data at the given position.
@@ -15,7 +20,8 @@ import {
  * @returns {{ success: boolean, cell: Object|null }} Cell data or null if void
  */
 export function getCellInfo(row: number, col: number): { success: true; cell: Cell | null } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   return { success: true, cell: cell ? JSON.parse(JSON.stringify(cell)) : null };
@@ -28,13 +34,19 @@ export function getCellInfo(row: number, col: number): { success: true; cell: Ce
  * @returns {{ success: boolean }}
  */
 export function paintCell(row: number, col: number): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   validateBounds(row, col);
   if (state.dungeon.cells[row][col] !== null) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
-  mutate('paintCell', coords, () => {
-    state.dungeon.cells[row][col] = {};
-  }, { forceGeometry: true });
+  mutate(
+    'paintCell',
+    coords,
+    () => {
+      state.dungeon.cells[row][col] = {};
+    },
+    { forceGeometry: true },
+  );
   return { success: true };
 }
 
@@ -47,21 +59,22 @@ export function paintCell(row: number, col: number): { success: true } {
  * @returns {{ success: boolean }}
  */
 export function paintRect(r1: number, c1: number, r2: number, c2: number): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
-  validateBounds(minR, minC);
-  validateBounds(maxR, maxC);
+  const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  mutate('paintRect', coords, () => {
-    const cells = state.dungeon.cells;
-    for (let r = minR; r <= maxR; r++) {
-      for (let c = minC; c <= maxC; c++) {
-        cells[r][c] ??= {};
+  mutate(
+    'paintRect',
+    coords,
+    () => {
+      const cells = state.dungeon.cells;
+      for (let r = minR; r <= maxR; r++) {
+        for (let c = minC; c <= maxC; c++) {
+          cells[r][c] ??= {};
+        }
       }
-    }
-  }, { forceGeometry: true });
+    },
+    { forceGeometry: true },
+  );
   return { success: true };
 }
 
@@ -72,13 +85,19 @@ export function paintRect(r1: number, c1: number, r2: number, c2: number): { suc
  * @returns {{ success: boolean }}
  */
 export function eraseCell(row: number, col: number): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   validateBounds(row, col);
   if (state.dungeon.cells[row][col] === null) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
-  mutate('eraseCell', coords, () => {
-    state.dungeon.cells[row][col] = null;
-  }, { forceGeometry: true, invalidate: ['lighting'] });
+  mutate(
+    'eraseCell',
+    coords,
+    () => {
+      state.dungeon.cells[row][col] = null;
+    },
+    { forceGeometry: true, invalidate: ['lighting'] },
+  );
   return { success: true };
 }
 
@@ -91,21 +110,22 @@ export function eraseCell(row: number, col: number): { success: true } {
  * @returns {{ success: boolean }}
  */
 export function eraseRect(r1: number, c1: number, r2: number, c2: number): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
-  validateBounds(minR, minC);
-  validateBounds(maxR, maxC);
+  const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  mutate('eraseRect', coords, () => {
-    const cells = state.dungeon.cells;
-    for (let r = minR; r <= maxR; r++) {
-      for (let c = minC; c <= maxC; c++) {
-        cells[r][c] = null;
+  mutate(
+    'eraseRect',
+    coords,
+    () => {
+      const cells = state.dungeon.cells;
+      for (let r = minR; r <= maxR; r++) {
+        for (let c = minC; c <= maxC; c++) {
+          cells[r][c] = null;
+        }
       }
-    }
-  }, { forceGeometry: true, invalidate: ['lighting'] });
+    },
+    { forceGeometry: true, invalidate: ['lighting'] },
+  );
   return { success: true };
 }
 
@@ -119,9 +139,14 @@ export function eraseRect(r1: number, c1: number, r2: number, c2: number): { suc
  * @returns {{ success: boolean }}
  */
 export function createRoom(r1: number, c1: number, r2: number, c2: number, mode: string = 'room'): { success: true } {
-  r1 = toInt(r1); c1 = toInt(c1); r2 = toInt(r2); c2 = toInt(c2);
-  const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-  const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+  r1 = toInt(r1);
+  c1 = toInt(c1);
+  r2 = toInt(r2);
+  c2 = toInt(c2);
+  const minR = Math.min(r1, r2),
+    maxR = Math.max(r1, r2);
+  const minC = Math.min(c1, c2),
+    maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
 
@@ -154,7 +179,10 @@ export function createRoom(r1: number, c1: number, r2: number, c2: number, mode:
  * @param {string} [mode='room'] - 'room' or 'merge'
  * @returns {{ success: boolean, count: number }}
  */
-export function createPolygonRoom(cellList: [number, number][], mode: string = 'room'): { success: true; count: number } {
+export function createPolygonRoom(
+  cellList: [number, number][],
+  mode: string = 'room',
+): { success: true; count: number } {
   if (!Array.isArray(cellList) || cellList.length === 0) {
     throw new Error('cellList must be a non-empty array of [row, col] pairs');
   }
@@ -165,38 +193,62 @@ export function createPolygonRoom(cellList: [number, number][], mode: string = '
   const mergeMode = mode === 'merge';
 
   const coords: Array<{ row: number; col: number }> = cellList.map(([r, c]) => ({ row: r, col: c }));
-  mutate('createPolygonRoom', coords, () => {
-    const cells = state.dungeon.cells;
-    for (const [r, c] of cellList) {
-      cells[r][c] ??= {};
-      const cell = cells[r][c];
+  mutate(
+    'createPolygonRoom',
+    coords,
+    () => {
+      const cells = state.dungeon.cells;
+      for (const [r, c] of cellList) {
+        cells[r][c] ??= {};
+        const cell = cells[r][c];
 
-      for (const dir of ['north', 'south', 'east', 'west']) {
-        const [dr, dc] = OFFSETS[dir];
-        const nr = r + dr, nc = c + dc;
-        const inBounds_ = isInBounds(cells, nr, nc);
-        const neighborCell = inBounds_ ? cells[nr][nc] : null;
-        const reciprocal = OPPOSITE[dir as keyof typeof OPPOSITE];
-        const neighborInRoom = cellSet.has(cellKey(nr, nc));
+        for (const dir of ['north', 'south', 'east', 'west']) {
+          const [dr, dc] = OFFSETS[dir];
+          const nr = r + dr,
+            nc = c + dc;
+          const inBounds_ = isInBounds(cells, nr, nc);
+          const neighborCell = inBounds_ ? cells[nr][nc] : null;
+          const reciprocal = OPPOSITE[dir as keyof typeof OPPOSITE];
+          const neighborInRoom = cellSet.has(cellKey(nr, nc));
 
-        if (mergeMode) {
-          if (!inBounds_ || !neighborCell) {
-            if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') (cell as Record<string, unknown>)[dir] = 'w';
+          if (mergeMode) {
+            if (!inBounds_ || !neighborCell) {
+              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
+                (cell as Record<string, unknown>)[dir] = 'w';
+            } else {
+              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
+                delete (cell as Record<string, unknown>)[dir];
+              if (
+                (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' &&
+                (neighborCell as Record<string, unknown>)[reciprocal] !== 's'
+              )
+                delete (neighborCell as Record<string, unknown>)[reciprocal];
+            }
           } else {
-            if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') delete (cell as Record<string, unknown>)[dir];
-            if ((neighborCell as Record<string, unknown>)[reciprocal] !== 'd' && (neighborCell as Record<string, unknown>)[reciprocal] !== 's') delete (neighborCell as Record<string, unknown>)[reciprocal];
-          }
-        } else {
-          if (neighborInRoom) {
-            if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') delete (cell as Record<string, unknown>)[dir];
-            if (neighborCell && (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' && (neighborCell as Record<string, unknown>)[reciprocal] !== 's') delete (neighborCell as Record<string, unknown>)[reciprocal];
-          } else {
-            if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') (cell as Record<string, unknown>)[dir] = 'w';
-            if (neighborCell && (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' && (neighborCell as Record<string, unknown>)[reciprocal] !== 's') (neighborCell as Record<string, unknown>)[reciprocal] = 'w';
+            if (neighborInRoom) {
+              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
+                delete (cell as Record<string, unknown>)[dir];
+              if (
+                neighborCell &&
+                (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' &&
+                (neighborCell as Record<string, unknown>)[reciprocal] !== 's'
+              )
+                delete (neighborCell as Record<string, unknown>)[reciprocal];
+            } else {
+              if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's')
+                (cell as Record<string, unknown>)[dir] = 'w';
+              if (
+                neighborCell &&
+                (neighborCell as Record<string, unknown>)[reciprocal] !== 'd' &&
+                (neighborCell as Record<string, unknown>)[reciprocal] !== 's'
+              )
+                (neighborCell as Record<string, unknown>)[reciprocal] = 'w';
+            }
           }
         }
       }
-    }
-  }, { forceGeometry: true });
+    },
+    { forceGeometry: true },
+  );
   return { success: true, count: cellList.length };
 }

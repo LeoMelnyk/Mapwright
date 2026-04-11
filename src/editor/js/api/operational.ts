@@ -2,15 +2,28 @@
 
 import {
   getApi,
-  state, undoFn, redoFn,
+  state,
+  undoFn,
+  redoFn,
   requestRender,
-  getThemeCatalog, getTextureCatalog, collectTextureIds, ensureTexturesLoaded,
+  getThemeCatalog,
+  getTextureCatalog,
+  collectTextureIds,
+  ensureTexturesLoaded,
   reloadAssets,
-  calculateCanvasSize, renderDungeonToCanvas,
-  cellKey, parseCellKey, roomBoundsFromKeys,
-  toInt, toDisp,
-  getContentVersion, getGeometryVersion, getLightingVersion, getPropsVersion,
-  getDirtyRegion, renderTimings,
+  calculateCanvasSize,
+  renderDungeonToCanvas,
+  cellKey,
+  parseCellKey,
+  roomBoundsFromKeys,
+  toInt,
+  toDisp,
+  getContentVersion,
+  getGeometryVersion,
+  getLightingVersion,
+  getPropsVersion,
+  getDirtyRegion,
+  renderTimings,
 } from './_shared.js';
 
 // ── Undo / Redo ──────────────────────────────────────────────────────────
@@ -65,23 +78,36 @@ export async function waitForTextures(timeoutMs: number = 8000): Promise<{ succe
 
   // Wait for all in-flight images (map-used + any previously triggered)
   const entries = Object.values(state.textureCatalog.textures);
-  const pending = entries.filter(e => (e as { img?: HTMLImageElement }).img && !(e as { img?: HTMLImageElement }).img!.complete);
-  if (!pending.length) { requestRender(); return { success: true, count: entries.length }; }
+  const pending = entries.filter(
+    (e) => (e as { img?: HTMLImageElement }).img && !(e as { img?: HTMLImageElement }).img!.complete,
+  );
+  if (!pending.length) {
+    requestRender();
+    return { success: true, count: entries.length };
+  }
 
   const deadline = Date.now() + timeoutMs;
-  await Promise.all(pending.map(e => new Promise<void>((resolve) => {
-    const img = (e as { img?: HTMLImageElement }).img!;
-    if (img.complete) return resolve();
-    const done = () => {
-      img.removeEventListener('load', done);
-      img.removeEventListener('error', done);
-      resolve();
-    };
-    img.addEventListener('load', done);
-    img.addEventListener('error', done);
-    const check = () => { if (img.complete || Date.now() >= deadline) resolve(); else setTimeout(check, 100); };
-    check();
-  })));
+  await Promise.all(
+    pending.map(
+      (e) =>
+        new Promise<void>((resolve) => {
+          const img = (e as { img?: HTMLImageElement }).img!;
+          if (img.complete) return resolve();
+          const done = () => {
+            img.removeEventListener('load', done);
+            img.removeEventListener('error', done);
+            resolve();
+          };
+          img.addEventListener('load', done);
+          img.addEventListener('error', done);
+          const check = () => {
+            if (img.complete || Date.now() >= deadline) resolve();
+            else setTimeout(check, 100);
+          };
+          check();
+        }),
+    ),
+  );
 
   requestRender();
   return { success: true, count: entries.length };
@@ -149,12 +175,7 @@ export async function waitForEditor(timeoutMs: number = 15000): Promise<{ succes
   await new Promise((resolve, reject) => {
     const check = () => {
       if (Date.now() >= deadline) return reject(new Error('waitForEditor timed out'));
-      const ready = !!(
-        document.getElementById('editor-canvas') &&
-         
-        getThemeCatalog() !== null &&
-        state.propCatalog
-      );
+      const ready = !!(document.getElementById('editor-canvas') && getThemeCatalog() !== null && state.propCatalog);
       if (ready) return resolve(undefined);
       setTimeout(check, 100);
     };
@@ -171,7 +192,9 @@ export async function waitForEditor(timeoutMs: number = 15000): Promise<{ succes
  * @param {string} code - JavaScript code to evaluate
  * @returns {Promise<{ success: boolean, result?: * }>}
  */
-export async function eval_(code: string): Promise<{ success: boolean; result?: string | number | boolean | Record<string, unknown> | null }> {
+export async function eval_(
+  code: string,
+): Promise<{ success: boolean; result?: string | number | boolean | Record<string, unknown> | null }> {
   const fn = new Function('state', 'editorAPI', `return (async () => { ${code} })();`);
   const result = await fn(state, (window as unknown as Record<string, unknown>).editorAPI);
   if (result === undefined || result === null) return { success: true };
@@ -209,23 +232,50 @@ export function undoToDepth(targetDepth: number): { success: true; undid: number
  * @param {string} label - Room label
  * @returns {{ label: string, bounds: Object, props: Array, fills: Array, doors: Array, textures: Array }}
  */
-export function getRoomContents(label: string): { success?: boolean; error?: string; label?: string; bounds?: { r1: number; c1: number; r2: number; c2: number }; props: { row: number; col: number; type: string; facing: number }[]; fills: { row: number; col: number; type: string; depth: number }[]; doors: { row: number; col: number; direction: string; type: string }[]; textures: { row: number; col: number; id: string; opacity: number }[] } {
-  const bounds = getApi().getRoomBounds(label);
-  if (!bounds) return { success: false, error: `Room "${label}" not found`, props: [], fills: [], doors: [], textures: [] };
-  const result: { label: string; bounds: typeof bounds; props: { row: number; col: number; type: string; facing: number }[]; fills: { row: number; col: number; type: string; depth: number }[]; doors: { row: number; col: number; direction: string; type: string }[]; textures: { row: number; col: number; id: string; opacity: number }[] } = { label, bounds, props: [], fills: [], doors: [], textures: [] };
+export function getRoomContents(label: string): {
+  success?: boolean;
+  error?: string;
+  label?: string;
+  bounds?: { r1: number; c1: number; r2: number; c2: number };
+  props: { row: number; col: number; type: string; facing: number }[];
+  fills: { row: number; col: number; type: string; depth: number }[];
+  doors: { row: number; col: number; direction: string; type: string }[];
+  textures: { row: number; col: number; id: string; opacity: number }[];
+} {
+  const boundsResult = getApi().getRoomBounds(label);
+  if (!boundsResult.success)
+    return { success: false, error: `Room "${label}" not found`, props: [], fills: [], doors: [], textures: [] };
+  const bounds = boundsResult;
+  const result: {
+    label: string;
+    bounds: typeof bounds;
+    props: { row: number; col: number; type: string; facing: number }[];
+    fills: { row: number; col: number; type: string; depth: number }[];
+    doors: { row: number; col: number; direction: string; type: string }[];
+    textures: { row: number; col: number; id: string; opacity: number }[];
+  } = { label, bounds, props: [], fills: [], doors: [], textures: [] };
   const gs = state.dungeon.metadata.gridSize || 5;
   // Convert display bounds to internal for iteration
-  const ir1 = toInt(bounds.r1), ic1 = toInt(bounds.c1);
-  const ir2 = toInt(bounds.r2), ic2 = toInt(bounds.c2);
+  const ir1 = toInt(bounds.r1),
+    ic1 = toInt(bounds.c1);
+  const ir2 = toInt(bounds.r2),
+    ic2 = toInt(bounds.c2);
   for (let r = ir1; r <= ir2; r++) {
     for (let c = ic1; c <= ic2; c++) {
       const cell = state.dungeon.cells[r]?.[c];
       if (!cell) continue;
-      if (cell.fill) result.fills.push({ row: toDisp(r), col: toDisp(c), type: cell.fill as string, depth: cell.fillDepth ?? 1 });
-      if (cell.texture) result.textures.push({ row: toDisp(r), col: toDisp(c), id: cell.texture, opacity: cell.textureOpacity ?? 1 });
+      if (cell.fill)
+        result.fills.push({ row: toDisp(r), col: toDisp(c), type: cell.fill as string, depth: cell.fillDepth ?? 1 });
+      if (cell.texture)
+        result.textures.push({ row: toDisp(r), col: toDisp(c), id: cell.texture, opacity: cell.textureOpacity ?? 1 });
       for (const dir of ['north', 'south', 'east', 'west']) {
         if ((cell as Record<string, unknown>)[dir] === 'd' || (cell as Record<string, unknown>)[dir] === 's')
-          result.doors.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: (cell as Record<string, unknown>)[dir] as string });
+          result.doors.push({
+            row: toDisp(r),
+            col: toDisp(c),
+            direction: dir,
+            type: (cell as Record<string, unknown>)[dir] as string,
+          });
       }
     }
   }
@@ -249,7 +299,11 @@ export function getRoomContents(label: string): { success?: boolean; error?: str
  * @param {string|null} [adjacentTo=null] - Room label to try placing adjacent to
  * @returns {{ r1: number, c1: number, r2: number, c2: number } | { success: boolean, error: string }}
  */
-export function suggestPlacement(rows: number, cols: number, adjacentTo: string | null = null): { success?: boolean; error?: string; r1?: number; c1?: number; r2?: number; c2?: number } {
+export function suggestPlacement(
+  rows: number,
+  cols: number,
+  adjacentTo: string | null = null,
+): { success?: boolean; error?: string; r1?: number; c1?: number; r2?: number; c2?: number } {
   const info = getApi().getMapInfo();
   if (!info) return { success: false, error: 'Map not available' };
   const { rows: gridRows, cols: gridCols } = info;
@@ -259,7 +313,10 @@ export function suggestPlacement(rows: number, cols: number, adjacentTo: string 
     if (r1 < margin || c1 < margin) return false;
     if (r2 > gridRows - 1 - margin || c2 > gridCols - 1 - margin) return false;
     // Convert display coords to internal for cell access
-    const ir1 = toInt(r1), ic1 = toInt(c1), ir2 = toInt(r2), ic2 = toInt(c2);
+    const ir1 = toInt(r1),
+      ic1 = toInt(c1),
+      ir2 = toInt(r2),
+      ic2 = toInt(c2);
     for (let r = ir1; r <= ir2; r++) {
       for (let c = ic1; c <= ic2; c++) {
         const cell = state.dungeon.cells[r]?.[c];
@@ -271,18 +328,18 @@ export function suggestPlacement(rows: number, cols: number, adjacentTo: string 
 
   // Try positions adjacent to a reference room first
   if (adjacentTo) {
-    const b = getApi().getRoomBounds(adjacentTo);
-    if (b) {
+    const bResult = getApi().getRoomBounds(adjacentTo);
+    if (bResult.success) {
+      const b = bResult;
       const hc = b.centerCol - Math.floor(cols / 2);
       const hr = b.centerRow - Math.floor(rows / 2);
       for (const [r, c] of [
-        [b.r2 + 2, hc],           // south
-        [b.r1 - rows - 1, hc],    // north
-        [hr, b.c2 + 2],            // east
-        [hr, b.c1 - cols - 1],     // west
+        [b.r2 + 2, hc], // south
+        [b.r1 - rows - 1, hc], // north
+        [hr, b.c2 + 2], // east
+        [hr, b.c1 - cols - 1], // west
       ]) {
-        if (isFree(r, c, r + rows - 1, c + cols - 1))
-          return { r1: r, c1: c, r2: r + rows - 1, c2: c + cols - 1 };
+        if (isFree(r, c, r + rows - 1, c + cols - 1)) return { r1: r, c1: c, r2: r + rows - 1, c2: c + cols - 1 };
       }
     }
   }
@@ -290,8 +347,7 @@ export function suggestPlacement(rows: number, cols: number, adjacentTo: string 
   // Systematic left-to-right, top-to-bottom scan
   for (let r = margin; r <= gridRows - rows - margin; r++) {
     for (let c = margin; c <= gridCols - cols - margin; c++) {
-      if (isFree(r, c, r + rows - 1, c + cols - 1))
-        return { r1: r, c1: c, r2: r + rows - 1, c2: c + cols - 1 };
+      if (isFree(r, c, r + rows - 1, c + cols - 1)) return { r1: r, c1: c, r2: r + rows - 1, c2: c + cols - 1 };
     }
   }
   return { success: false, error: `No space found for a ${rows}×${cols} room. Map may be full.` };
@@ -303,16 +359,21 @@ export function suggestPlacement(rows: number, cols: number, adjacentTo: string 
  * List all available floor textures from the catalog.
  * @returns {{ success: boolean, textures: Array<{ id: string, displayName: string, category: string }> }}
  */
-export function listTextures(): { success: true; textures: Array<{ id: string; displayName: string; category: string }> } {
+export function listTextures(): {
+  success: true;
+  textures: Array<{ id: string; displayName: string; category: string }>;
+} {
   const catalog = getTextureCatalog();
   if (!catalog) return { success: true, textures: [] };
   return {
     success: true,
-    textures: Object.values(catalog.textures).filter(t => t != null).map(t => ({
-      id: (t as Record<string, unknown>).id as string,
-      displayName: (t.displayName ?? ''),
-      category: (t as Record<string, unknown>).category as string,
-    })),
+    textures: Object.values(catalog.textures)
+      .filter((t) => t != null)
+      .map((t) => ({
+        id: (t as Record<string, unknown>).id as string,
+        displayName: t.displayName ?? '',
+        category: (t as Record<string, unknown>).category as string,
+      })),
   };
 }
 
@@ -332,7 +393,10 @@ export function listThemes(): { success: true; themes: string[] } {
  * Return all labeled rooms with bounding boxes and centers.
  * @returns {{ success: boolean, rooms: Array<Object> }}
  */
-export function listRooms(): { success: true; rooms: { label: string; r1: number; c1: number; r2: number; c2: number; center: { row: number; col: number } }[] } {
+export function listRooms(): {
+  success: true;
+  rooms: { label: string; r1: number; c1: number; r2: number; c2: number; center: { row: number; col: number } }[];
+} {
   const cells = state.dungeon.cells;
   const labels = new Map();
   for (let r = 0; r < cells.length; r++) {
@@ -346,7 +410,15 @@ export function listRooms(): { success: true; rooms: { label: string; r1: number
     const roomCells = getApi()._collectRoomCells(label);
     if (!roomCells) continue;
     const b = roomBoundsFromKeys(roomCells);
-    if (b) rooms.push({ label, r1: toDisp(b.r1), c1: toDisp(b.c1), r2: toDisp(b.r2), c2: toDisp(b.c2), center: { row: toDisp(b.centerRow), col: toDisp(b.centerCol) } });
+    if (b)
+      rooms.push({
+        label,
+        r1: toDisp(b.r1),
+        c1: toDisp(b.c1),
+        r2: toDisp(b.r2),
+        c2: toDisp(b.c2),
+        center: { row: toDisp(b.centerRow), col: toDisp(b.centerCol) },
+      });
   }
   rooms.sort((a, b) => a.label.localeCompare(b.label));
   return { success: true, rooms };
@@ -375,7 +447,10 @@ export function listRoomCells(label: string): { success: boolean; cells?: [numbe
  * Footprint is R×C (rows × cols). At 90°/270° the dimensions swap.
  * Returns { success, spanRows, spanCols, cells: [[dr, dc], ...] }.
  */
-export function getPropFootprint(propType: string, facing: number = 0): { success: boolean; spanRows?: number; spanCols?: number; cells?: [number, number][]; error?: string } {
+export function getPropFootprint(
+  propType: string,
+  facing: number = 0,
+): { success: boolean; spanRows?: number; spanCols?: number; cells?: [number, number][]; error?: string } {
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
     return { success: false, error: `Unknown prop type: ${propType}` };
@@ -384,9 +459,8 @@ export function getPropFootprint(propType: string, facing: number = 0): { succes
     return { success: false, error: `Invalid facing: ${facing}. Use 0, 90, 180, or 270.` };
   }
   const def = catalog.props[propType];
-  const [spanRows, spanCols] = (facing === 90 || facing === 270)
-    ? [def.footprint[1], def.footprint[0]]
-    : [...def.footprint];
+  const [spanRows, spanCols] =
+    facing === 90 || facing === 270 ? [def.footprint[1], def.footprint[0]] : [...def.footprint];
   const cells: [number, number][] = [];
   for (let r = 0; r < spanRows; r++) {
     for (let c = 0; c < spanCols; c++) cells.push([r, c]);
@@ -399,7 +473,11 @@ export function getPropFootprint(propType: string, facing: number = 0): { succes
  * Checks that the full footprint fits within the room and doesn't overlap existing props.
  * Returns { success, positions: [[row, col], ...] }.
  */
-export function getValidPropPositions(label: string, propType: string, facing: number = 0): { success: boolean; positions?: [number, number][]; error?: string } {
+export function getValidPropPositions(
+  label: string,
+  propType: string,
+  facing: number = 0,
+): { success: boolean; positions?: [number, number][]; error?: string } {
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
     throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props ?? {}).join(', ')}`);
@@ -409,9 +487,8 @@ export function getValidPropPositions(label: string, propType: string, facing: n
   }
 
   const def = catalog.props[propType];
-  const [spanRows, spanCols] = (facing === 90 || facing === 270)
-    ? [def.footprint[1], def.footprint[0]]
-    : [...def.footprint];
+  const [spanRows, spanCols] =
+    facing === 90 || facing === 270 ? [def.footprint[1], def.footprint[0]] : [...def.footprint];
 
   const roomCellSet = getApi()._collectRoomCells(label);
   if (!roomCellSet?.size) return { success: false, error: `Room "${label}" not found` };
@@ -435,11 +512,16 @@ export function getValidPropPositions(label: string, propType: string, facing: n
   for (const key of roomCellSet) {
     const [r, c] = parseCellKey(key);
     let valid = true;
-    outer:
-    for (let dr = 0; dr < spanRows; dr++) {
+    outer: for (let dr = 0; dr < spanRows; dr++) {
       for (let dc = 0; dc < spanCols; dc++) {
-        if (!roomCellSet.has(cellKey(r + dr, c + dc))) { valid = false; break outer; }
-        if (isCovered(r + dr, c + dc)) { valid = false; break outer; }
+        if (!roomCellSet.has(cellKey(r + dr, c + dc))) {
+          valid = false;
+          break outer;
+        }
+        if (isCovered(r + dr, c + dc)) {
+          valid = false;
+          break outer;
+        }
       }
     }
     if (valid) positions.push([toDisp(r), toDisp(c)]);
@@ -476,7 +558,9 @@ export function getRenderDiagnostics(): {
     geometryVersion: getGeometryVersion(),
     lightingVersion: getLightingVersion(),
     propsVersion: getPropsVersion(),
-    dirtyRegion: dirty ? { minRow: dirty.minRow, maxRow: dirty.maxRow, minCol: dirty.minCol, maxCol: dirty.maxCol } : null,
+    dirtyRegion: dirty
+      ? { minRow: dirty.minRow, maxRow: dirty.maxRow, minCol: dirty.minCol, maxCol: dirty.maxCol }
+      : null,
     timings,
   };
 }

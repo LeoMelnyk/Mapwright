@@ -4,7 +4,10 @@
 import type { PlaceLightConfig } from '../../../types.js';
 import {
   getApi,
-  state, mutate, markDirty, notify,
+  state,
+  mutate,
+  markDirty,
+  notify,
   setReciprocal,
   invalidateAllCaches,
   toInt,
@@ -22,20 +25,33 @@ import {
  * @returns {{ success: boolean, removed: number }} Count of walls cleared
  */
 export function mergeRooms(label1: string, label2: string): { success: true; removed: number } {
-  const walls = getApi().findWallBetween(label1, label2);
-  if (!walls) {
-    throw new ApiValidationError('NO_SHARED_BOUNDARY', `No shared boundary found between '${label1}' and '${label2}'`, { label1, label2 });
+  const wallResult = getApi().findWallBetween(label1, label2);
+  if (!wallResult.success) {
+    throw new ApiValidationError('NO_SHARED_BOUNDARY', `No shared boundary found between '${label1}' and '${label2}'`, {
+      label1,
+      label2,
+    });
   }
-  const coords: Array<{ row: number; col: number }> = walls.map(({ row, col }: { row: number; col: number }) => ({ row: toInt(row), col: toInt(col) }));
-  mutate('mergeRooms', coords, () => {
-    for (const { row, col, direction } of walls) {
-      const iRow = toInt(row), iCol = toInt(col);
-      const cell = state.dungeon.cells[iRow]?.[iCol];
-      if (!cell) continue;
-      delete (cell as Record<string, unknown>)[direction];
-      setReciprocal(iRow, iCol, direction, null);
-    }
-  }, { invalidate: ['lighting'] });
+  const walls = wallResult.walls;
+  const coords: Array<{ row: number; col: number }> = walls.map(({ row, col }: { row: number; col: number }) => ({
+    row: toInt(row),
+    col: toInt(col),
+  }));
+  mutate(
+    'mergeRooms',
+    coords,
+    () => {
+      for (const { row, col, direction } of walls) {
+        const iRow = toInt(row),
+          iCol = toInt(col);
+        const cell = state.dungeon.cells[iRow]?.[iCol];
+        if (!cell) continue;
+        delete (cell as Record<string, unknown>)[direction];
+        setReciprocal(iRow, iCol, direction, null);
+      }
+    },
+    { invalidate: ['lighting'] },
+  );
   return { success: true, removed: walls.length };
 }
 
@@ -48,7 +64,8 @@ export function mergeRooms(label1: string, label2: string): { success: true; rem
  * @returns {{ success: boolean, newRows: number, newCols: number }}
  */
 export function shiftCells(dr: number, dc: number): { success: true; newRows: number; newCols: number } {
-  dr = toInt(dr); dc = toInt(dc);
+  dr = toInt(dr);
+  dc = toInt(dc);
   const cells = state.dungeon.cells;
   const rows = cells.length;
   const cols = cells[0]?.length || 0;
@@ -183,11 +200,11 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
     if (hasContent) {
       const relMinRow = minRow - origStartRow; // current top margin within this level
       const contentHeight = maxRow - minRow + 1;
-      topShift = targetMargin - relMinRow;     // +ve = content moves down, -ve = moves up
+      topShift = targetMargin - relMinRow; // +ve = content moves down, -ve = moves up
       newNumRows = 2 * targetMargin + contentHeight;
     } else {
       topShift = 0;
-      newNumRows = 2 * targetMargin;           // empty level: preserve margin-only footprint
+      newNumRows = 2 * targetMargin; // empty level: preserve margin-only footprint
     }
 
     return { origStartRow, origNumRows, li, hasContent, topShift, newNumRows };
@@ -207,7 +224,7 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
     for (let i = 0; i < levelAdjustments.length; i++) {
       const { origStartRow, origNumRows, topShift } = levelAdjustments[i];
       if (r >= origStartRow && r < origStartRow + origNumRows) {
-        return (newLevelStartRows[i] - origStartRow) + topShift;
+        return newLevelStartRows[i] - origStartRow + topShift;
       }
     }
     return 0; // separator row — no structural content expected here
@@ -218,77 +235,77 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
   });
 
   function _doNormalizeMargin() {
-  // ── 4. Build new cells array ─────────────────────────────────────────────
-  const newCells = Array.from({ length: newTotalRows }, () => Array(newNumCols).fill(null));
-  for (const { origStartRow, origNumRows, li, topShift, newNumRows } of levelAdjustments) {
-    const newStartRow = newLevelStartRows[li];
-    for (let r = origStartRow; r < origStartRow + origNumRows; r++) {
-      const newRelRow = (r - origStartRow) + topShift;
-      if (newRelRow < 0 || newRelRow >= newNumRows) continue;
-      const newAbsRow = newStartRow + newRelRow;
-      for (let c = 0; c < numCols; c++) {
-        if (cells[r]?.[c] == null) continue;
-        const newCol = c + colShift;
-        if (newCol < 0 || newCol >= newNumCols) continue;
-        newCells[newAbsRow][newCol] = cells[r][c];
+    // ── 4. Build new cells array ─────────────────────────────────────────────
+    const newCells = Array.from({ length: newTotalRows }, () => Array(newNumCols).fill(null));
+    for (const { origStartRow, origNumRows, li, topShift, newNumRows } of levelAdjustments) {
+      const newStartRow = newLevelStartRows[li];
+      for (let r = origStartRow; r < origStartRow + origNumRows; r++) {
+        const newRelRow = r - origStartRow + topShift;
+        if (newRelRow < 0 || newRelRow >= newNumRows) continue;
+        const newAbsRow = newStartRow + newRelRow;
+        for (let c = 0; c < numCols; c++) {
+          if (cells[r]?.[c] == null) continue;
+          const newCol = c + colShift;
+          if (newCol < 0 || newCol >= newNumCols) continue;
+          newCells[newAbsRow][newCol] = cells[r][c];
+        }
       }
     }
-  }
-  state.dungeon.cells = newCells;
+    state.dungeon.cells = newCells;
 
-  // ── 5. Update lights (world-feet x/y) ────────────────────────────────────
-  for (const light of meta.lights) {
-    const lightRow = light.y / gridSize;
-    light.y += getRowDelta(lightRow) * gridSize;
-    light.x += colShift * gridSize;
-  }
-
-  // ── 6. Update bridges (row/col point arrays) ──────────────────────────────
-  for (const bridge of meta.bridges) {
-    for (const pt of bridge.points) {
-      pt[0] += getRowDelta(pt[0]);
-      pt[1] += colShift;
+    // ── 5. Update lights (world-feet x/y) ────────────────────────────────────
+    for (const light of meta.lights) {
+      const lightRow = light.y / gridSize;
+      light.y += getRowDelta(lightRow) * gridSize;
+      light.x += colShift * gridSize;
     }
-  }
 
-  // ── 7. Update stair corner points in metadata ─────────────────────────────
-  for (const stair of meta.stairs) {
-    for (const pt of stair.points) {
-      pt[0] += getRowDelta(pt[0]);
-      pt[1] += colShift;
+    // ── 6. Update bridges (row/col point arrays) ──────────────────────────────
+    for (const bridge of meta.bridges) {
+      for (const pt of bridge.points) {
+        pt[0] += getRowDelta(pt[0]);
+        pt[1] += colShift;
+      }
     }
-  }
 
-  // ── 8. Update level metadata ──────────────────────────────────────────────
-  // Replace meta.levels with the complete list (including any implied first level)
-  if (allLevels.length > 0) {
-    meta.levels = allLevels.map((l, i) => ({
-      name: l.name ?? `Level ${i + 1}`,
-      startRow: newLevelStartRows[i],
-      numRows: levelAdjustments[i].newNumRows,
-    }));
-  }
+    // ── 7. Update stair corner points in metadata ─────────────────────────────
+    for (const stair of meta.stairs) {
+      for (const pt of stair.points) {
+        pt[0] += getRowDelta(pt[0]);
+        pt[1] += colShift;
+      }
+    }
 
-  invalidateAllCaches();
-  markDirty();
-  notify();
+    // ── 8. Update level metadata ──────────────────────────────────────────────
+    // Replace meta.levels with the complete list (including any implied first level)
+    if (allLevels.length > 0) {
+      meta.levels = allLevels.map((l, i) => ({
+        name: l.name ?? `Level ${i + 1}`,
+        startRow: newLevelStartRows[i],
+        numRows: levelAdjustments[i].newNumRows,
+      }));
+    }
 
-  return {
-    success: true,
-    before: { rows: numRows, cols: numCols },
-    after: { rows: newTotalRows, cols: newNumCols },
-    targetMargin,
-    adjustments: {
-      colShift,
-      levels: levelAdjustments.map(({ li, topShift, newNumRows }) => ({
-        index: li,
-        name: rawLevels[li].name,
-        topShift,
-        newNumRows,
-        newStartRow: newLevelStartRows[li],
-      })),
-    },
-  };
+    invalidateAllCaches();
+    markDirty();
+    notify();
+
+    return {
+      success: true,
+      before: { rows: numRows, cols: numCols },
+      after: { rows: newTotalRows, cols: newNumCols },
+      targetMargin,
+      adjustments: {
+        colShift,
+        levels: levelAdjustments.map(({ li, topShift, newNumRows }) => ({
+          index: li,
+          name: rawLevels[li].name,
+          topShift,
+          newNumRows,
+          newStartRow: newLevelStartRows[li],
+        })),
+      },
+    };
   } // _doNormalizeMargin
 }
 
@@ -302,38 +319,58 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
  * @returns {{ success: boolean, corridorLabel: string, r1: number, c1: number, r2: number, c2: number }}
  */
 export function createCorridor(label1: string, label2: string, width: number = 2): Record<string, unknown> {
-  const b1 = getApi().getRoomBounds(label1);
-  const b2 = getApi().getRoomBounds(label2);
-  if (!b1) return { success: false, error: `Room "${label1}" not found` };
-  if (!b2) return { success: false, error: `Room "${label2}" not found` };
+  const b1Result = getApi().getRoomBounds(label1);
+  const b2Result = getApi().getRoomBounds(label2);
+  if (!b1Result.success) return { success: false, error: `Room "${label1}" not found` };
+  if (!b2Result.success) return { success: false, error: `Room "${label2}" not found` };
+  const b1 = b1Result,
+    b2 = b2Result;
 
   let cr1, cc1, cr2, cc2;
 
   const vOverlap = Math.min(b1.c2, b2.c2) - Math.max(b1.c1, b2.c1) + 1;
   const hOverlap = Math.min(b1.r2, b2.r2) - Math.max(b1.r1, b2.r1) + 1;
 
-  if (b1.c2 < b2.c1 && vOverlap >= width) {        // b1 left of b2
-    cc1 = b1.c2 + 1; cc2 = b2.c1 - 1;
+  if (b1.c2 < b2.c1 && vOverlap >= width) {
+    // b1 left of b2
+    cc1 = b1.c2 + 1;
+    cc2 = b2.c1 - 1;
     const mid = Math.floor((Math.max(b1.r1, b2.r1) + Math.min(b1.r2, b2.r2)) / 2);
-    cr1 = mid - Math.floor(width / 2); cr2 = cr1 + width - 1;
-  } else if (b2.c2 < b1.c1 && vOverlap >= width) { // b2 left of b1
-    cc1 = b2.c2 + 1; cc2 = b1.c1 - 1;
+    cr1 = mid - Math.floor(width / 2);
+    cr2 = cr1 + width - 1;
+  } else if (b2.c2 < b1.c1 && vOverlap >= width) {
+    // b2 left of b1
+    cc1 = b2.c2 + 1;
+    cc2 = b1.c1 - 1;
     const mid = Math.floor((Math.max(b1.r1, b2.r1) + Math.min(b1.r2, b2.r2)) / 2);
-    cr1 = mid - Math.floor(width / 2); cr2 = cr1 + width - 1;
-  } else if (b1.r2 < b2.r1 && hOverlap >= width) { // b1 above b2
-    cr1 = b1.r2 + 1; cr2 = b2.r1 - 1;
+    cr1 = mid - Math.floor(width / 2);
+    cr2 = cr1 + width - 1;
+  } else if (b1.r2 < b2.r1 && hOverlap >= width) {
+    // b1 above b2
+    cr1 = b1.r2 + 1;
+    cr2 = b2.r1 - 1;
     const mid = Math.floor((Math.max(b1.c1, b2.c1) + Math.min(b1.c2, b2.c2)) / 2);
-    cc1 = mid - Math.floor(width / 2); cc2 = cc1 + width - 1;
-  } else if (b2.r2 < b1.r1 && hOverlap >= width) { // b2 above b1
-    cr1 = b2.r2 + 1; cr2 = b1.r1 - 1;
+    cc1 = mid - Math.floor(width / 2);
+    cc2 = cc1 + width - 1;
+  } else if (b2.r2 < b1.r1 && hOverlap >= width) {
+    // b2 above b1
+    cr1 = b2.r2 + 1;
+    cr2 = b1.r1 - 1;
     const mid = Math.floor((Math.max(b1.c1, b2.c1) + Math.min(b1.c2, b2.c2)) / 2);
-    cc1 = mid - Math.floor(width / 2); cc2 = cc1 + width - 1;
+    cc1 = mid - Math.floor(width / 2);
+    cc2 = cc1 + width - 1;
   } else {
-    return { success: false, error: `Cannot auto-route a corridor between "${label1}" and "${label2}". Rooms must be axis-aligned with at least ${width} cells of shared overlap and a gap between them. Use createRoom manually for L-shaped paths.` };
+    return {
+      success: false,
+      error: `Cannot auto-route a corridor between "${label1}" and "${label2}". Rooms must be axis-aligned with at least ${width} cells of shared overlap and a gap between them. Use createRoom manually for L-shaped paths.`,
+    };
   }
 
   if (cr2 < cr1 || cc2 < cc1)
-    return { success: false, error: `"${label1}" and "${label2}" are already touching — use findWallBetween + setDoor to add a door directly.` };
+    return {
+      success: false,
+      error: `"${label1}" and "${label2}" are already touching — use findWallBetween + setDoor to add a door directly.`,
+    };
 
   getApi().createRoom(cr1, cc1, cr2, cc2, 'merge');
 
@@ -354,9 +391,9 @@ export function createCorridor(label1: string, label2: string, width: number = 2
 
   // Place doors at both connection points
   for (const roomLabel of [label1, label2]) {
-    const walls = getApi().findWallBetween(roomLabel, corridorLabel);
-    if (walls?.length) {
-      const mid = walls[Math.floor(walls.length / 2)];
+    const wallResult = getApi().findWallBetween(roomLabel, corridorLabel);
+    if (wallResult.success && wallResult.walls.length) {
+      const mid = wallResult.walls[Math.floor(wallResult.walls.length / 2)];
       getApi().setDoor(mid.row, mid.col, mid.direction, 'd');
     }
   }
@@ -372,12 +409,20 @@ export function createCorridor(label1: string, label2: string, width: number = 2
  * @param {string} [type='d'] - Door type: 'd' (normal) or 's' (secret)
  * @returns {{ success: boolean, row: number, col: number, direction: string }}
  */
-export function setDoorBetween(label1: string, label2: string, type: string = 'd'): { success: true; row: number; col: number; direction: string } {
-  const walls = getApi().findWallBetween(label1, label2);
-  if (!walls?.length) {
-    throw new ApiValidationError('NO_SHARED_BOUNDARY', `No shared wall found between "${label1}" and "${label2}". Rooms must be adjacent.`, { label1, label2 });
+export function setDoorBetween(
+  label1: string,
+  label2: string,
+  type: string = 'd',
+): { success: true; row: number; col: number; direction: string } {
+  const wallResult = getApi().findWallBetween(label1, label2);
+  if (!wallResult.success || !wallResult.walls.length) {
+    throw new ApiValidationError(
+      'NO_SHARED_BOUNDARY',
+      `No shared wall found between "${label1}" and "${label2}". Rooms must be adjacent.`,
+      { label1, label2 },
+    );
   }
-  const mid = walls[Math.floor(walls.length / 2)];
+  const mid = wallResult.walls[Math.floor(wallResult.walls.length / 2)];
   getApi().setDoor(mid.row, mid.col, mid.direction, type);
   return { success: true, row: mid.row, col: mid.col, direction: mid.direction };
 }
@@ -389,9 +434,14 @@ export function setDoorBetween(label1: string, label2: string, type: string = 'd
  * @param {Object} [config] - Additional light configuration overrides
  * @returns {{ success: boolean, id: number }}
  */
-export function placeLightInRoom(label: string, preset?: string, config: PlaceLightConfig = {}): Record<string, unknown> {
-  const b = getApi().getRoomBounds(label);
-  if (!b) return { success: false, error: `Room "${label}" not found` };
+export function placeLightInRoom(
+  label: string,
+  preset?: string,
+  config: PlaceLightConfig = {},
+): Record<string, unknown> {
+  const bResult = getApi().getRoomBounds(label);
+  if (!bResult.success) return { success: false, error: `Room "${label}" not found` };
+  const b = bResult;
   const meta = state.dungeon.metadata;
   const gs = meta.gridSize || 5;
   const res = meta.resolution || 1;

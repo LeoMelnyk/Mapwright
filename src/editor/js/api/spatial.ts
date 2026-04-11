@@ -1,9 +1,16 @@
 import {
   getApi,
-  CARDINAL_DIRS, OFFSETS,
-  state, mutate, setReciprocal,
-  cellKey, parseCellKey, floodFillRoom, roomBoundsFromKeys,
-  toInt, toDisp,
+  CARDINAL_DIRS,
+  OFFSETS,
+  state,
+  mutate,
+  setReciprocal,
+  cellKey,
+  parseCellKey,
+  floodFillRoom,
+  roomBoundsFromKeys,
+  toInt,
+  toDisp,
   ApiValidationError,
 } from './_shared.js';
 import type { EdgeValue, PartitionRoomOptions } from '../../../types.js';
@@ -16,7 +23,12 @@ import { isPropAt } from '../prop-spatial.js';
  * @param {string} label - Room label to search for
  * @returns {{ success: boolean, row?: number, col?: number, error?: string }}
  */
-export function findCellByLabel(label: string | number): { success: boolean; row?: number; col?: number; error?: string } {
+export function findCellByLabel(label: string | number): {
+  success: boolean;
+  row?: number;
+  col?: number;
+  error?: string;
+} {
   const cells = state.dungeon.cells;
   const target = String(label);
   for (let r = 0; r < cells.length; r++) {
@@ -46,7 +58,8 @@ export function _collectRoomCells(label: string): Set<string> | null {
  * @returns {Array<[number, number]>} Sorted [[row, col], ...] along the wall axis
  */
 export function _getWallCells(roomCellSet: Set<string>, wall: string): [number, number][] {
-  if (!CARDINAL_DIRS.includes(wall)) throw new ApiValidationError('INVALID_WALL', `wall must be one of: ${CARDINAL_DIRS.join(', ')}`, { wall });
+  if (!CARDINAL_DIRS.includes(wall))
+    throw new ApiValidationError('INVALID_WALL', `wall must be one of: ${CARDINAL_DIRS.join(', ')}`, { wall });
   const result: [number, number][] = [];
   const [dr, dc] = OFFSETS[wall];
   for (const key of roomCellSet) {
@@ -78,15 +91,23 @@ export function _isCellCoveredByProp(r: number, c: number): boolean {
  * @param {string} label - Room label
  * @returns {{ r1: number, c1: number, r2: number, c2: number, centerRow: number, centerCol: number }|null}
  */
-export function getRoomBounds(label: string): { r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number } | null {
+export function getRoomBounds(
+  label: string,
+):
+  | { success: true; r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number }
+  | { success: false; error: string } {
   const roomCells = getApi()._collectRoomCells(label);
-  if (!roomCells) return null;
+  if (!roomCells) return { success: false, error: `Room "${label}" not found` };
   const bounds = roomBoundsFromKeys(roomCells);
-  if (!bounds) return null;
+  if (!bounds) return { success: false, error: `Room "${label}" has no bounds` };
   return {
-    r1: toDisp(bounds.r1), c1: toDisp(bounds.c1),
-    r2: toDisp(bounds.r2), c2: toDisp(bounds.c2),
-    centerRow: toDisp(bounds.centerRow), centerCol: toDisp(bounds.centerCol),
+    success: true,
+    r1: toDisp(bounds.r1),
+    c1: toDisp(bounds.c1),
+    r2: toDisp(bounds.r2),
+    c2: toDisp(bounds.c2),
+    centerRow: toDisp(bounds.centerRow),
+    centerCol: toDisp(bounds.centerCol),
   };
 }
 
@@ -96,13 +117,19 @@ export function getRoomBounds(label: string): { r1: number; c1: number; r2: numb
  * @param {string} label2 - Second room label
  * @returns {Array<{ row: number, col: number, direction: string, type: string }>|null}
  */
-export function findWallBetween(label1: string, label2: string): Array<{ row: number; col: number; direction: string; type: string }> | null {
+export function findWallBetween(
+  label1: string,
+  label2: string,
+):
+  | { success: true; walls: Array<{ row: number; col: number; direction: string; type: string }> }
+  | { success: false; error: string } {
   const room1Cells = getApi()._collectRoomCells(label1);
   const room2Cells = getApi()._collectRoomCells(label2);
-  if (!room1Cells || !room2Cells) return null;
+  if (!room1Cells) return { success: false, error: `Room "${label1}" not found` };
+  if (!room2Cells) return { success: false, error: `Room "${label2}" not found` };
 
   const cells = state.dungeon.cells;
-  const results = [];
+  const results: Array<{ row: number; col: number; direction: string; type: string }> = [];
 
   for (const key of room1Cells) {
     const [r, c] = parseCellKey(key);
@@ -110,13 +137,21 @@ export function findWallBetween(label1: string, label2: string): Array<{ row: nu
     if (!cell) continue;
     for (const dir of CARDINAL_DIRS) {
       const [dr, dc] = OFFSETS[dir];
-      const nr = r + dr, nc = c + dc;
+      const nr = r + dr,
+        nc = c + dc;
       if (!room2Cells.has(cellKey(nr, nc))) continue;
-      results.push({ row: toDisp(r), col: toDisp(c), direction: dir, type: ((cell as Record<string, unknown>)[dir] as string) || 'w' });
+      results.push({
+        row: toDisp(r),
+        col: toDisp(c),
+        direction: dir,
+        type: ((cell as Record<string, unknown>)[dir] as string) || 'w',
+      });
     }
   }
 
-  return results.length > 0 ? results : null;
+  if (results.length === 0)
+    return { success: false, error: `No shared wall between rooms "${label1}" and "${label2}"` };
+  return { success: true, walls: results };
 }
 
 /**
@@ -131,7 +166,13 @@ export function findWallBetween(label1: string, label2: string): Array<{ row: nu
  * @param {Object} [options] - { doorAt: number } to place a door at a specific position
  * @returns {{ success: boolean, wallsPlaced: number }}
  */
-export function partitionRoom(roomLabel: string, direction: string, position: number, wallType: string = 'w', options: PartitionRoomOptions = {}): { success: true; wallsPlaced: number } {
+export function partitionRoom(
+  roomLabel: string,
+  direction: string,
+  position: number,
+  wallType: string = 'w',
+  options: PartitionRoomOptions = {},
+): { success: true; wallsPlaced: number } {
   if (!['horizontal', 'vertical'].includes(direction)) {
     throw new Error('direction must be "horizontal" or "vertical"');
   }
@@ -164,30 +205,35 @@ export function partitionRoom(roomLabel: string, direction: string, position: nu
   if (coords.length === 0) throw new Error(`No cells at ${direction} position ${position} in room "${roomLabel}"`);
 
   let count = 0;
-  mutate('partitionRoom', coords, () => {
-    const cells = state.dungeon.cells;
-    if (direction === 'horizontal') {
-      for (const key of roomCells) {
-        const [r, c] = parseCellKey(key);
-        if (r !== position) continue;
-        if (!roomCells.has(cellKey(r + 1, c))) continue;
-        const val = ((doorAt === c) ? 'd' : wallType) as EdgeValue;
-        cells[r][c]!.south = val;
-        setReciprocal(r, c, 'south', val);
-        count++;
+  mutate(
+    'partitionRoom',
+    coords,
+    () => {
+      const cells = state.dungeon.cells;
+      if (direction === 'horizontal') {
+        for (const key of roomCells) {
+          const [r, c] = parseCellKey(key);
+          if (r !== position) continue;
+          if (!roomCells.has(cellKey(r + 1, c))) continue;
+          const val = (doorAt === c ? 'd' : wallType) as EdgeValue;
+          cells[r][c]!.south = val;
+          setReciprocal(r, c, 'south', val);
+          count++;
+        }
+      } else {
+        for (const key of roomCells) {
+          const [r, c] = parseCellKey(key);
+          if (c !== position) continue;
+          if (!roomCells.has(cellKey(r, c + 1))) continue;
+          const val = (doorAt === r ? 'd' : wallType) as EdgeValue;
+          cells[r][c]!.east = val;
+          setReciprocal(r, c, 'east', val);
+          count++;
+        }
       }
-    } else {
-      for (const key of roomCells) {
-        const [r, c] = parseCellKey(key);
-        if (c !== position) continue;
-        if (!roomCells.has(cellKey(r, c + 1))) continue;
-        const val = ((doorAt === r) ? 'd' : wallType) as EdgeValue;
-        cells[r][c]!.east = val;
-        setReciprocal(r, c, 'east', val);
-        count++;
-      }
-    }
-  }, { invalidate: ['lighting'] });
+    },
+    { invalidate: ['lighting'] },
+  );
 
   return { success: true, wallsPlaced: count };
 }

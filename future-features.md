@@ -1,5 +1,7 @@
 # Future Features
 
+> **Status:** Living document. Last reviewed April 2026.
+
 Ideas that are interesting but not currently prioritized. Revisit as the project evolves.
 
 ## Collaborative Editing
@@ -18,14 +20,13 @@ Procedural generation of dungeon layouts from parameters (room count, theme, dif
 
 ## VTT Export (Foundry VTT / Roll20)
 
-Export maps to Virtual Tabletop formats:
-- **Foundry VTT:** Walls, doors, lights, and tokens as Foundry scene JSON
-- **Roll20:** Universal VTT format (`.dd2vtt`) with wall/door/light data
-- **Dungeondraft:** `.dungeondraft_map` format for interoperability
+> **Status: Partially complete (v0.10.0).** Universal VTT (`.dd2vtt`) export is shipped — works with Foundry VTT (via Universal Battlemap Import module) and Roll20. See `src/render/export-dd2vtt.ts`.
 
-**Why not now:** Need sample JSON files from these systems to understand their data models and assess feasibility. Wall/door/light data maps conceptually, but coordinate systems and feature sets may differ significantly.
+Remaining formats:
+- **Foundry VTT native:** Walls, doors, lights, and tokens as Foundry scene JSON (not started)
+- **Dungeondraft:** `.dungeondraft_map` format for interoperability (not started)
 
-**Next step:** Obtain example Foundry VTT scene JSON and Roll20 `.dd2vtt` files to evaluate mapping complexity.
+**Blocked on:** Obtaining native Foundry scene JSON and Dungeondraft sample files.
 
 ## Encounter / Room Annotations
 

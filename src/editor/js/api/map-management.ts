@@ -1,10 +1,19 @@
 import type { Dungeon, LabelStyle } from '../../../types.js';
 import {
-  state, pushUndo, markDirty, notify, getApi,
-  createEmptyDungeon, requestRender,
-  collectTextureIds, ensureTexturesLoaded,
+  state,
+  pushUndo,
+  markDirty,
+  notify,
+  getApi,
+  createEmptyDungeon,
+  requestRender,
+  collectTextureIds,
+  ensureTexturesLoaded,
   migrateToLatest,
-  CARDINAL_DIRS, OFFSETS, OPPOSITE, toDisp,
+  CARDINAL_DIRS,
+  OFFSETS,
+  OPPOSITE,
+  toDisp,
 } from './_shared.js';
 
 /**
@@ -16,7 +25,13 @@ import {
  * @param {string} [theme='stone-dungeon'] - Theme name
  * @returns {{ success: boolean }}
  */
-export function newMap(name: string, rows: number, cols: number, gridSize: number = 5, theme: string = 'stone-dungeon'): { success: true } {
+export function newMap(
+  name: string,
+  rows: number,
+  cols: number,
+  gridSize: number = 5,
+  theme: string = 'stone-dungeon',
+): { success: true } {
   pushUndo();
   state.dungeon = createEmptyDungeon(name, rows, cols, gridSize, theme);
   state.currentLevel = 0;
@@ -46,7 +61,9 @@ export function loadMap(json: Record<string, unknown>): { success: true } {
 
   const usedIds = collectTextureIds(state.dungeon.cells);
   if (usedIds.size > 0) {
-    void ensureTexturesLoaded(usedIds).then(() => { requestRender(); });
+    void ensureTexturesLoaded(usedIds).then(() => {
+      requestRender();
+    });
   }
 
   return { success: true };
@@ -64,7 +81,14 @@ export function getMap(): { success: true; dungeon: Record<string, unknown> } {
  * Get a summary of the current map (dimensions, theme, feature flags, counts).
  * @returns {{ success: boolean, name: string, rows: number, cols: number, gridSize: number, theme: string, levels: Array, propCount: number, labelCount: number, lightCount: number }}
  */
-export function getMapInfo(): { rows: number; cols: number; gridSize: number; theme: string; name: string; [k: string]: unknown } {
+export function getMapInfo(): {
+  rows: number;
+  cols: number;
+  gridSize: number;
+  theme: string;
+  name: string;
+  [k: string]: unknown;
+} {
   const meta = state.dungeon.metadata;
   const cells = state.dungeon.cells;
 
@@ -91,7 +115,7 @@ export function getMapInfo(): { rows: number; cols: number; gridSize: number; th
     theme: typeof meta.theme === 'string' ? meta.theme : 'custom',
     labelStyle: meta.labelStyle,
     features: { ...meta.features },
-    levels: meta.levels.map(l => ({
+    levels: meta.levels.map((l) => ({
       ...l,
       startRow: toDisp(l.startRow),
       numRows: toDisp(l.numRows),
@@ -120,7 +144,8 @@ export function getFullMapInfo(): Record<string, unknown> {
       const label = cells[r]?.[c]?.center?.label;
       if (label != null && !seenLabels.has(label)) {
         seenLabels.add(label);
-        const bounds = getApi().getRoomBounds(label);
+        const boundsResult = getApi().getRoomBounds(label);
+        const bounds = boundsResult.success ? boundsResult : null;
         rooms.push({ label, labelRow: toDisp(r), labelCol: toDisp(c), bounds });
       }
     }
@@ -130,7 +155,13 @@ export function getFullMapInfo(): Record<string, unknown> {
   const gs = meta.gridSize || 5;
   if (meta.props) {
     for (const op of meta.props) {
-      props.push({ row: toDisp(Math.round(op.y / gs)), col: toDisp(Math.round(op.x / gs)), type: op.type, facing: op.rotation, id: op.id });
+      props.push({
+        row: toDisp(Math.round(op.y / gs)),
+        col: toDisp(Math.round(op.x / gs)),
+        type: op.type,
+        facing: op.rotation,
+        id: op.id,
+      });
     }
   }
 
@@ -225,10 +256,10 @@ export function setFeature(feature: string, enabled: unknown): { success: true }
   }
   pushUndo();
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
-  if (!state.dungeon.metadata.features) state.dungeon.metadata.features = { showGrid: false, compassRose: false, scale: false, border: false };
+  if (!state.dungeon.metadata.features)
+    state.dungeon.metadata.features = { showGrid: false, compassRose: false, scale: false, border: false };
   (state.dungeon.metadata.features as unknown as Record<string, boolean>)[feature] = !!enabled;
   markDirty();
   notify();
   return { success: true };
 }
-

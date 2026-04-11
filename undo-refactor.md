@@ -1,12 +1,14 @@
 # Undo/Redo Refactor: JSON Snapshots → Targeted Diffs
 
-## Problem
+> **Status: COMPLETED in v0.10.0.** This refactor has been fully implemented. The undo system now uses incremental cell-level patches with keyframe snapshots every 10 entries. See CHANGELOG.md v0.10.0 "Incremental Undo/Redo" section for details. This document is preserved as historical design context.
 
-Every `pushUndo()` call serializes the **entire** `state.dungeon` via `JSON.stringify()`. For a 20×30 dungeon with props, lights, and textures, that's 5–50KB per edit. With MAX_UNDO=100, that's up to 5MB of JSON strings in memory — most of which is identical between consecutive entries.
+## Problem (Historical)
 
-Worse, there's no undo grouping: painting 10 cells with a drag creates 10 undo entries (though some tools batch via a single `pushUndo()` before a loop).
+Every `pushUndo()` call serialized the **entire** `state.dungeon` via `JSON.stringify()`. For a 20×30 dungeon with props, lights, and textures, that was 5–50KB per edit. With MAX_UNDO=100, that was up to 5MB of JSON strings in memory — most of which was identical between consecutive entries.
 
-## Current System
+Worse, there was no undo grouping: painting 10 cells with a drag created 10 undo entries (though some tools batched via a single `pushUndo()` before a loop).
+
+## Original System
 
 ```
 UndoEntry = { json: string, label: string, timestamp: number (unused) }

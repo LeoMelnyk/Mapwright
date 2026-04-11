@@ -4,7 +4,7 @@
  * Spawns the real server as a subprocess (same pattern as E2E tests)
  * and makes HTTP requests against it.
  */
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { startServer, stopServer } from './e2e/helpers/server.js';
 import fs from 'fs';
 import path from 'path';
@@ -161,7 +161,7 @@ describe('GET /api/examples', () => {
 
   it('includes .mapwright files from examples directory', async () => {
     const { body } = await apiJson('/api/examples');
-    const files = body.map(e => e.file);
+    const files = body.map((e) => e.file);
     // We know mines.mapwright exists
     expect(files).toContain('mines.mapwright');
   });
@@ -219,7 +219,7 @@ describe('User Themes CRUD', () => {
 
   it('GET /api/user-themes includes the created theme', async () => {
     const { body } = await apiJson('/api/user-themes');
-    const found = body.find(t => t.key === createdKey);
+    const found = body.find((t) => t.key === createdKey);
     expect(found).toBeTruthy();
     expect(found.displayName).toBe(uniqueName);
   });
@@ -254,7 +254,7 @@ describe('User Themes CRUD', () => {
 
     // Verify it is gone
     const list = await apiJson('/api/user-themes');
-    const found = list.body.find(t => t.key === createdKey);
+    const found = list.body.find((t) => t.key === createdKey);
     expect(found).toBeFalsy();
     createdKey = null; // prevent afterAll cleanup
   });
@@ -457,4 +457,128 @@ describe('GET /', () => {
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toBe('/editor/');
   });
+});
+
+// ── Session Management (LAN Auth) ─────────────────────────────────────────
+
+describe('Session endpoints', () => {
+  // Clean up after each test to avoid cross-test state leakage
+  afterEach(async () => {
+    await apiPost('/api/session/end', {});
+  });
+
+  it('POST /api/session/start returns a token', async () => {
+    const { status, body } = await apiPost('/api/session/start', {});
+    expect(status).toBe(200);
+    expect(body).toHaveProperty('token');
+    expect(typeof body.token).toBe('string');
+    expect(body.token.length).toBeGreaterThan(0);
+  });
+
+  it('POST /api/session/start with password still returns a DM token', async () => {
+    const { status, body } = await apiPost('/api/session/start', { password: 'secret123' });
+    expect(status).toBe(200);
+    expect(body).toHaveProperty('token');
+    expect(typeof body.token).toBe('string');
+  });
+
+  it('GET /api/session/status reflects active session', async () => {
+    // Before starting, no session
+    const before = await apiJson('/api/session/status');
+    expect(before.body.active).toBe(false);
+
+    // Start a session
+    await apiPost('/api/session/start', {});
+    const after = await apiJson('/api/session/status');
+    expect(after.body.active).toBe(true);
+    expect(after.body.passwordRequired).toBe(false);
+  });
+
+  it('GET /api/session/status shows passwordRequired when password set', async () => {
+    await apiPost('/api/session/start', { password: 'mypass' });
+    const { body } = await apiJson('/api/session/status');
+    expect(body.active).toBe(true);
+    expect(body.passwordRequired).toBe(true);
+  });
+
+  it('POST /api/session/end clears session', async () => {
+    await apiPost('/api/session/start', { password: 'test' });
+    const { status, body } = await apiPost('/api/session/end', {});
+    expect(status).toBe(200);
+    expect(body.ok).toBe(true);
+
+    const statusRes = await apiJson('/api/session/status');
+    expect(statusRes.body.active).toBe(false);
+    expect(statusRes.body.passwordRequired).toBe(false);
+  });
+
+  it('POST /api/session/auth with correct password returns player token', async () => {
+    await apiPost('/api/session/start', { password: 'correcthorse' });
+    const { status, body } = await apiPost('/api/session/auth', { password: 'correcthorse' });
+    expect(status).toBe(200);
+    expect(body).toHaveProperty('token');
+    expect(typeof body.token).toBe('string');
+    expect(body.token.length).toBeGreaterThan(0);
+  });
+
+  it('POST /api/session/auth with wrong password returns 403', async () => {
+    await apiPost('/api/session/start', { password: 'rightpassword' });
+    const { status, body } = await apiPost('/api/session/auth', { password: 'wrongpassword' });
+    expect(status).toBe(403);
+    expect(body.error).toMatch(/incorrect/i);
+  });
+
+  it('POST /api/session/auth with no active session returns 400', async () => {
+    // afterEach already ends sessions, so no session is active
+    const { status, body } = await apiPost('/api/session/auth', { password: 'anything' });
+    expect(status).toBe(400);
+    expect(body.error).toMatch(/no active session/i);
+  });
+
+  it('POST /api/session/auth when no password required returns 400', async () => {
+    // Start session without password
+    await apiPost('/api/session/start', {});
+    const { status, body } = await apiPost('/api/session/auth', { password: 'anything' });
+    expect(status).toBe(400);
+    expect(body.error).toMatch(/no password required/i);
+  });
+
+  it('starting a new session generates a different token each time', async () => {
+    const { body: first } = await apiPost('/api/session/start', {});
+    await apiPost('/api/session/end', {});
+    const { body: second } = await apiPost('/api/session/start', {});
+    // Tokens are cryptographically random — vanishingly unlikely to match
+    expect(first.token).not.toBe(second.token);
+  });
+
+  it('player token differs from DM token', async () => {
+    const { body: startBody } = await apiPost('/api/session/start', { password: 'pw' });
+    const dmToken = startBody.token;
+
+    const { body: authBody } = await apiPost('/api/session/auth', { password: 'pw' });
+    const playerToken = authBody.token;
+
+    expect(dmToken).not.toBe(playerToken);
+    expect(typeof playerToken).toBe('string');
+    expect(playerToken.length).toBeGreaterThan(0);
+  });
+
+  // Rate limit test MUST be last — once triggered, the server's per-IP rate limiter
+  // stays active for 15 minutes and would cause subsequent auth tests to get 429.
+  it('POST /api/session/auth rate limits after 20+ attempts', async () => {
+    await apiPost('/api/session/start', { password: 'secret' });
+
+    // Make 21+ failed attempts to trigger rate limiting.
+    // The rate limiter tracks by IP; all requests from the test client
+    // share the same IP (127.0.0.1 / ::1).
+    let gotRateLimited = false;
+    for (let i = 0; i < 25; i++) {
+      const { status } = await apiPost('/api/session/auth', { password: 'wrong' });
+      if (status === 429) {
+        gotRateLimited = true;
+        break;
+      }
+    }
+    expect(gotRateLimited).toBe(true);
+  }, 30000); // longer timeout for 25 sequential requests
 });

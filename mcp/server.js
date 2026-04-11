@@ -47,7 +47,10 @@ function isServerRunning(port = 3000) {
       res.destroy();
     });
     req.on('error', () => resolve(false));
-    req.setTimeout(2000, () => { req.destroy(); resolve(false); });
+    req.setTimeout(2000, () => {
+      req.destroy();
+      resolve(false);
+    });
   });
 }
 
@@ -56,9 +59,12 @@ function isServerRunning(port = 3000) {
  */
 function validateFilePath(filePath, allowedDirs) {
   const resolved = path.resolve(filePath);
-  const isAllowed = allowedDirs.some(dir =>
-    resolved.startsWith(dir + path.sep) || resolved === dir
-  );
+  const isAllowed = allowedDirs.some((dir) => {
+    const resolvedDir = path.resolve(dir);
+    const rel = path.relative(resolvedDir, resolved);
+    // path.relative returns a string starting with '..' if resolved is outside dir
+    return !rel.startsWith('..') && !path.isAbsolute(rel);
+  });
   if (!isAllowed) {
     throw new Error(`File path "${resolved}" is outside allowed directories: ${allowedDirs.join(', ')}`);
   }
@@ -83,13 +89,19 @@ function runProcess(command, args, cwd) {
       const remaining = PROCESS_MAX_BUFFER - cur.length;
       const text = chunk.toString();
       if (text.length <= remaining) {
-        if (which === 'out') stdout += text; else stderr += text;
+        if (which === 'out') stdout += text;
+        else stderr += text;
       } else {
         const truncated = text.slice(0, remaining) + '\n…[truncated: stream exceeded MCP buffer cap]';
-        if (which === 'out') stdout += truncated; else stderr += truncated;
+        if (which === 'out') stdout += truncated;
+        else stderr += truncated;
         if (!killed) {
           killed = true;
-          try { child.kill(); } catch { /* best effort */ }
+          try {
+            child.kill();
+          } catch {
+            /* best effort */
+          }
         }
       }
     };
@@ -103,7 +115,7 @@ function runProcess(command, args, cwd) {
 /** Run commands through the puppeteer bridge, returning { isError, text }. */
 async function runBridge(bridgeArgs) {
   const result = await runProcess(
-    process.execPath,  // node binary
+    process.execPath, // node binary
     [`${MAPWRIGHT_DIR}/tools/puppeteer-bridge.js`, ...bridgeArgs],
     MAPWRIGHT_DIR,
   );
@@ -115,10 +127,7 @@ async function runBridge(bridgeArgs) {
 // MCP Server
 // ---------------------------------------------------------------------------
 
-const server = new Server(
-  { name: 'mapwright', version: '1.0.0' },
-  { capabilities: { tools: {}, resources: {} } },
-);
+const server = new Server({ name: 'mapwright', version: '1.0.0' }, { capabilities: { tools: {}, resources: {} } });
 
 // ---- Tools -----------------------------------------------------------------
 
@@ -175,12 +184,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
           },
           visible: {
             type: 'boolean',
-            description: 'Show the browser window while commands execute (headed mode). Use for live debugging so the user can watch changes happen in real time.',
+            description:
+              'Show the browser window while commands execute (headed mode). Use for live debugging so the user can watch changes happen in real time.',
             default: false,
           },
           slow_mo: {
             type: 'number',
-            description: 'Delay in milliseconds between commands when visible=true (default: 0). Use e.g. 300 to make each command visibly animate.',
+            description:
+              'Delay in milliseconds between commands when visible=true (default: 0). Use e.g. 300 to make each command visibly animate.',
             default: 0,
           },
         },
@@ -229,13 +240,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const running = await isServerRunning(port);
     if (!running) {
       return {
-        content: [{
-          type: 'text',
-          text:
-            `ERROR: Mapwright server is not running on port ${port}.\n\n` +
-            `Start it with:\n  cd "${MAPWRIGHT_DIR}" && npm start\n\n` +
-            `Then retry. The execute_commands tool requires the editor server.`,
-        }],
+        content: [
+          {
+            type: 'text',
+            text:
+              `ERROR: Mapwright server is not running on port ${port}.\n\n` +
+              `Start it with:\n  cd "${MAPWRIGHT_DIR}" && npm start\n\n` +
+              `Then retry. The execute_commands tool requires the editor server.`,
+          },
+        ],
         isError: true,
       };
     }
@@ -243,10 +256,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     // Validate file paths against allowed directories
     const allowedDirs = [MAPWRIGHT_DIR, os.tmpdir(), os.homedir()];
     try {
-      if (args.load_file)       validateFilePath(args.load_file, allowedDirs);
-      if (args.save_file)       validateFilePath(args.save_file, allowedDirs);
+      if (args.load_file) validateFilePath(args.load_file, allowedDirs);
+      if (args.save_file) validateFilePath(args.save_file, allowedDirs);
       if (args.screenshot_file) validateFilePath(args.screenshot_file, allowedDirs);
-      if (args.export_png)      validateFilePath(args.export_png, allowedDirs);
+      if (args.export_png) validateFilePath(args.export_png, allowedDirs);
     } catch (err) {
       return { content: [{ type: 'text', text: `Path validation error: ${err.message}` }], isError: true };
     }
@@ -256,18 +269,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     await writeFile(tmpFile, JSON.stringify(args.commands));
 
     const bridgeArgs = ['--commands-file', tmpFile];
-    if (args.load_file)       bridgeArgs.push('--load',         args.load_file);
-    if (args.save_file)       bridgeArgs.push('--save',         args.save_file);
-    if (args.screenshot_file) bridgeArgs.push('--screenshot',   args.screenshot_file);
-    if (args.export_png)      bridgeArgs.push('--export-png',   args.export_png);
-    if (args.dry_run)         bridgeArgs.push('--dry-run');
+    if (args.load_file) bridgeArgs.push('--load', args.load_file);
+    if (args.save_file) bridgeArgs.push('--save', args.save_file);
+    if (args.screenshot_file) bridgeArgs.push('--screenshot', args.screenshot_file);
+    if (args.export_png) bridgeArgs.push('--export-png', args.export_png);
+    if (args.dry_run) bridgeArgs.push('--dry-run');
     if (args.continue_on_error) bridgeArgs.push('--continue-on-error');
-    if (args.port)            bridgeArgs.push('--port', String(args.port));
-    if (args.visible)         bridgeArgs.push('--visible');
-    if (args.slow_mo)         bridgeArgs.push('--slow-mo', String(args.slow_mo));
+    if (args.port) bridgeArgs.push('--port', String(args.port));
+    if (args.visible) bridgeArgs.push('--visible');
+    if (args.slow_mo) bridgeArgs.push('--slow-mo', String(args.slow_mo));
 
-    const { isError, text } = await runBridge(bridgeArgs);
-    await unlink(tmpFile).catch(() => {});
+    let isError, text;
+    try {
+      ({ isError, text } = await runBridge(bridgeArgs));
+    } finally {
+      await unlink(tmpFile).catch(() => {});
+    }
 
     return { content: [{ type: 'text', text }], isError };
   }
@@ -295,12 +312,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const port = args.port ?? 3000;
     const running = await isServerRunning(port);
     return {
-      content: [{
-        type: 'text',
-        text: running
-          ? `Mapwright server is running on port ${port}.`
-          : `Mapwright server is NOT running on port ${port}.\n\nStart it with:\n  cd "${MAPWRIGHT_DIR}" && npm start`,
-      }],
+      content: [
+        {
+          type: 'text',
+          text: running
+            ? `Mapwright server is running on port ${port}.`
+            : `Mapwright server is NOT running on port ${port}.\n\nStart it with:\n  cd "${MAPWRIGHT_DIR}" && npm start`,
+        },
+      ],
     };
   }
 
@@ -349,8 +368,8 @@ server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
   if (uri === 'mapwright://workflow') {
     const full = await readFile(path.join(MAPWRIGHT_DIR, 'src/editor/CLAUDE.md'), 'utf-8');
     const start = full.indexOf('## Claude Workflow: Recommended Dungeon Generation Process');
-    const end   = full.indexOf('\n---\n', start + 1);
-    const text  = start >= 0 ? full.slice(start, end > start ? end : undefined) : full;
+    const end = full.indexOf('\n---\n', start + 1);
+    const text = start >= 0 ? full.slice(start, end > start ? end : undefined) : full;
     return { contents: [{ uri, mimeType: 'text/markdown', text }] };
   }
 

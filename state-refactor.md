@@ -1,5 +1,7 @@
 # State Refactor: Monolithic Object → Typed Sub-Stores
 
+> **Status: Proposed (not started).** This is a design proposal from March 2025. No implementation work has begun. The current monolithic state is functional but could benefit from splitting as the codebase grows.
+
 ## Problem
 
 The editor state is a single monolithic object with 53+ properties. Everything from dungeon data to tool modes to clipboard buffers to animation clocks lives on one object. All 64 files that import state get the whole thing, and all subscribers are notified on every change regardless of what changed.

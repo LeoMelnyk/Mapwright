@@ -84,8 +84,8 @@ beforeEach(() => {
   state.propCatalog = {
     categories: ['furniture'],
     props: {
-      'chair': { name: 'Chair', category: 'furniture', footprint: [1, 1], facing: true },
-      'table': { name: 'Table', category: 'furniture', footprint: [2, 2], facing: false },
+      chair: { name: 'Chair', category: 'furniture', footprint: [1, 1], facing: true },
+      table: { name: 'Table', category: 'furniture', footprint: [2, 2], facing: false },
     },
   };
   markPropSpatialDirty();
@@ -300,36 +300,49 @@ describe('getRoomBounds', () => {
     buildRoom(2, 3, 4, 5, 'B1', 3, 4);
     const bounds = getRoomBounds('B1');
     expect(bounds).toEqual({
-      r1: 2, c1: 3, r2: 4, c2: 5,
-      centerRow: 3, centerCol: 4,
+      success: true,
+      r1: 2,
+      c1: 3,
+      r2: 4,
+      c2: 5,
+      centerRow: 3,
+      centerCol: 4,
     });
   });
 
-  it('returns null for a non-existent room', () => {
-    expect(getRoomBounds('NonExistent')).toBeNull();
+  it('returns error for a non-existent room', () => {
+    const result = getRoomBounds('NonExistent');
+    expect(result.success).toBe(false);
+    expect('error' in result && result.error).toContain('not found');
   });
 
   it('computes bounds for a single-cell room', () => {
     const cells = state.dungeon.cells;
     cells[5][5] = { center: { label: 'Tiny' }, north: 'w', south: 'w', east: 'w', west: 'w' };
     const bounds = getRoomBounds('Tiny');
-    expect(bounds).toEqual({ r1: 5, c1: 5, r2: 5, c2: 5, centerRow: 5, centerCol: 5 });
+    expect(bounds).toEqual({ success: true, r1: 5, c1: 5, r2: 5, c2: 5, centerRow: 5, centerCol: 5 });
   });
 
   it('computes bounds for a wide room', () => {
     buildRoom(3, 1, 3, 10, 'Wide', 3, 5);
     const bounds = getRoomBounds('Wide');
-    expect(bounds.r1).toBe(3);
-    expect(bounds.r2).toBe(3);
-    expect(bounds.c1).toBe(1);
-    expect(bounds.c2).toBe(10);
+    expect(bounds.success).toBe(true);
+    if (bounds.success) {
+      expect(bounds.r1).toBe(3);
+      expect(bounds.r2).toBe(3);
+      expect(bounds.c1).toBe(1);
+      expect(bounds.c2).toBe(10);
+    }
   });
 
   it('computes center as floor of midpoints', () => {
     buildRoom(2, 2, 5, 7, 'Rect', 3, 4);
     const bounds = getRoomBounds('Rect');
-    expect(bounds.centerRow).toBe(Math.floor((2 + 5) / 2));
-    expect(bounds.centerCol).toBe(Math.floor((2 + 7) / 2));
+    expect(bounds.success).toBe(true);
+    if (bounds.success) {
+      expect(bounds.centerRow).toBe(Math.floor((2 + 5) / 2));
+      expect(bounds.centerCol).toBe(Math.floor((2 + 7) / 2));
+    }
   });
 });
 
@@ -338,27 +351,28 @@ describe('getRoomBounds', () => {
 describe('findWallBetween', () => {
   it('finds the shared wall between two adjacent rooms', () => {
     setupTwoAdjacentRooms();
-    const walls = findWallBetween('A1', 'A2');
-    expect(walls).not.toBeNull();
-    expect(walls.length).toBe(3); // 3 cells share the boundary
+    const result = findWallBetween('A1', 'A2');
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.walls.length).toBe(3); // 3 cells share the boundary
     // All walls should be in the east direction from A1
-    for (const w of walls) {
+    for (const w of result.walls) {
       expect(w.direction).toBe('east');
       expect(w.col).toBe(4);
       expect(w.type).toBe('w');
     }
   });
 
-  it('returns null when rooms are not adjacent', () => {
+  it('returns error when rooms are not adjacent', () => {
     buildRoom(2, 2, 4, 4, 'X1', 3, 3);
     buildRoom(2, 8, 4, 10, 'X2', 3, 9);
-    expect(findWallBetween('X1', 'X2')).toBeNull();
+    expect(findWallBetween('X1', 'X2').success).toBe(false);
   });
 
-  it('returns null if either label does not exist', () => {
+  it('returns error if either label does not exist', () => {
     buildRoom(2, 2, 4, 4, 'A1', 3, 3);
-    expect(findWallBetween('A1', 'NonExistent')).toBeNull();
-    expect(findWallBetween('NonExistent', 'A1')).toBeNull();
+    expect(findWallBetween('A1', 'NonExistent').success).toBe(false);
+    expect(findWallBetween('NonExistent', 'A1').success).toBe(false);
   });
 
   it('detects door types on shared boundaries', () => {
@@ -367,19 +381,21 @@ describe('findWallBetween', () => {
     const cells = state.dungeon.cells;
     cells[3][4].east = 'd';
     cells[3][5].west = 'd';
-    const walls = findWallBetween('A1', 'A2');
-    expect(walls).not.toBeNull();
-    const doorEntry = walls.find(w => w.row === 3);
-    expect(doorEntry.type).toBe('d');
+    const result = findWallBetween('A1', 'A2');
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const doorEntry = result.walls.find((w) => w.row === 3);
+    expect(doorEntry!.type).toBe('d');
   });
 
   it('finds walls in reverse order too (A2 -> A1)', () => {
     setupTwoAdjacentRooms();
-    const walls = findWallBetween('A2', 'A1');
-    expect(walls).not.toBeNull();
-    expect(walls.length).toBe(3);
+    const result = findWallBetween('A2', 'A1');
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.walls.length).toBe(3);
     // From A2 perspective, the wall is on the west side
-    for (const w of walls) {
+    for (const w of result.walls) {
       expect(w.direction).toBe('west');
       expect(w.col).toBe(5);
     }

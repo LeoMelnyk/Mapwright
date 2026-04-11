@@ -11,7 +11,7 @@
     "dev:api": "tsx watch server.js",
     "dev:vite": "vite --config vite.config.ts",
     "build": "vite build --config vite.config.ts",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
     "electron": "node run-electron.cjs",
     "electron:build": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win portable --publish never",
     "electron:build:installer": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win nsis --publish never",
@@ -20,6 +20,8 @@
     "prepare": "husky || true",
     "download-textures": "node tools/polyhaven/download-polyhaven.js",
     "download-textures:test": "node tools/polyhaven/download-polyhaven.js --limit 5 --dry-run",
+    "format": "node ./node_modules/prettier/bin/prettier.cjs --write \"src/**/*.ts\" \"tools/**/*.js\" \"test/**/*.{ts,js}\"",
+    "format:check": "node ./node_modules/prettier/bin/prettier.cjs --check \"src/**/*.ts\" \"tools/**/*.js\" \"test/**/*.{ts,js}\"",
     "lint": "node ./node_modules/eslint/bin/eslint.js src/ tools/",
     "lint:fix": "node ./node_modules/eslint/bin/eslint.js src/ tools/ --fix",
     "lint:strict": "node ./node_modules/eslint/bin/eslint.js src/ tools/ --max-warnings 0",
@@ -28,9 +30,12 @@
     "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage",
     "test:e2e": "node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.js",
     "test:server": "node node_modules/vitest/vitest.mjs run --config vitest.server.config.js",
-    "test:render": "node node_modules/vitest/vitest.mjs run --config vitest.render.config.js"
+    "test:render": "node node_modules/vitest/vitest.mjs run --config vitest.render.config.js",
+    "test:all": "node node_modules/vitest/vitest.mjs run && node node_modules/vitest/vitest.mjs run --config vitest.render.config.js && node node_modules/vitest/vitest.mjs run --config vitest.server.config.js"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@emnapi/core": "^1.9.2",
     "@emnapi/runtime": "^1.9.2",
     "@types/express": "^5.0.6",
@@ -48,6 +53,7 @@
     "lint-staged": "^16.4.0",
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0",
+    "prettier": "^3.8.2",
     "puppeteer": "^24.2.0",
     "sass": "^1.99.0",
     "tsx": "^4.21.0",
@@ -124,7 +130,10 @@
     }
   },
   "lint-staged": {
-    "*.{ts,js,cjs,mjs}": "node ./node_modules/eslint/bin/eslint.js --fix"
+    "*.{ts,js,cjs,mjs}": [
+      "node ./node_modules/eslint/bin/eslint.js --fix",
+      "node ./node_modules/prettier/bin/prettier.cjs --write"
+    ]
   },
   "optionalDependencies": {
     "@emnapi/core": "*",

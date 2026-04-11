@@ -1,7 +1,15 @@
 // Shared helpers, constants, and tool instances for the editor API modules.
 
 import type { CardinalDirection, Cell, EdgeValue, PlaceLightConfig } from '../../../types.js';
-import state, { pushUndo, markDirty, notify, undo as undoFn, redo as redoFn, invalidateLightmap, mutate } from '../state.js';
+import state, {
+  pushUndo,
+  markDirty,
+  notify,
+  undo as undoFn,
+  redo as redoFn,
+  invalidateLightmap,
+  mutate,
+} from '../state.js';
 import { createEmptyDungeon } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
 import { RoomTool, TrimTool, PaintTool } from '../tools/index.js';
@@ -12,8 +20,32 @@ import { reloadAssets, migrateHalfTextures } from '../io.js';
 import { migrateToLatest } from '../migrations.js';
 import { classifyStairShape, isDegenerate, getOccupiedCells } from '../stair-geometry.js';
 import { isBridgeDegenerate, getBridgeOccupiedCells } from '../bridge-geometry.js';
-import { calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches, captureBeforeState, smartInvalidate, patchBlendForDirtyRegion, accumulateDirtyRect, getContentVersion, getGeometryVersion, getLightingVersion, getPropsVersion, getDirtyRegion, renderTimings } from '../../../render/index.js';
-import { OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom, toInternalCoord, toDisplayCoord, CARDINAL_OFFSETS } from '../../../util/index.js';
+import {
+  calculateCanvasSize,
+  renderDungeonToCanvas,
+  invalidateAllCaches,
+  captureBeforeState,
+  smartInvalidate,
+  patchBlendForDirtyRegion,
+  accumulateDirtyRect,
+  getContentVersion,
+  getGeometryVersion,
+  getLightingVersion,
+  getPropsVersion,
+  getDirtyRegion,
+  renderTimings,
+} from '../../../render/index.js';
+import {
+  OPPOSITE,
+  cellKey,
+  parseCellKey,
+  isInBounds,
+  roomBoundsFromKeys,
+  floodFillRoom,
+  toInternalCoord,
+  toDisplayCoord,
+  CARDINAL_OFFSETS,
+} from '../../../util/index.js';
 
 // ─── Structured API Error ───────────────────────────────────────────────────
 // Re-exported here for backwards compatibility — the canonical definition
@@ -46,14 +78,48 @@ interface EditorApiMap {
   _collectRoomCells(label: string): Set<string> | null;
   _getWallCells(roomCellSet: Set<string>, wall: string): [number, number][];
   _isCellCoveredByProp(r: number, c: number): boolean;
-  addStairs(p1r: number, p1c: number, p2r: number, p2c: number, p3r: number, p3c: number): { success: true; id: number };
+  addStairs(
+    p1r: number,
+    p1c: number,
+    p2r: number,
+    p2c: number,
+    p3r: number,
+    p3c: number,
+  ): { success: true; id: number };
   createRoom(r1: number, c1: number, r2: number, c2: number, mode?: string): { success: boolean };
-  createTrim(r1: number, c1: number, r2: number, c2: number, cornerOrOptions?: string | Record<string, unknown>, extraOptions?: Record<string, unknown>): { success: boolean };
+  createTrim(
+    r1: number,
+    c1: number,
+    r2: number,
+    c2: number,
+    cornerOrOptions?: string | Record<string, unknown>,
+    extraOptions?: Record<string, unknown>,
+  ): { success: boolean };
   findCellByLabel(label: string): { success: boolean; row?: number; col?: number; error?: string };
-  findWallBetween(label1: string, label2: string): { row: number; col: number; direction: string; type: string }[] | null;
-  getMapInfo(): { rows: number; cols: number; gridSize: number; theme: string; name: string; [k: string]: unknown } | null;
-  getRoomBounds(label: string): { r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number } | null;
-  getValidPropPositions(label: string, propType: string, facing: number): { success: boolean; positions?: [number, number][] };
+  findWallBetween(
+    label1: string,
+    label2: string,
+  ):
+    | { success: true; walls: { row: number; col: number; direction: string; type: string }[] }
+    | { success: false; error: string };
+  getMapInfo(): {
+    rows: number;
+    cols: number;
+    gridSize: number;
+    theme: string;
+    name: string;
+    [k: string]: unknown;
+  } | null;
+  getRoomBounds(
+    label: string,
+  ):
+    | { success: true; r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number }
+    | { success: false; error: string };
+  getValidPropPositions(
+    label: string,
+    propType: string,
+    facing: number,
+  ): { success: boolean; positions?: [number, number][] };
   placeLight(x: number, y: number, config?: PlaceLightConfig): { success: boolean; id: number };
   placeProp(row: number, col: number, propType: string, facing?: number): { success: boolean };
   setDoor(row: number, col: number, direction: string, type?: string): { success: boolean };
@@ -87,7 +153,11 @@ function validateBounds(row: number, col: number): void {
   if (!isInBounds(cells, row, col)) {
     const maxRows = cells.length;
     const maxCols = cells[0]?.length || 0;
-    throw new ApiValidationError('OUT_OF_BOUNDS', `Cell (${row}, ${col}) out of bounds (${maxRows} rows, ${maxCols} cols)`, { row, col, maxRows, maxCols });
+    throw new ApiValidationError(
+      'OUT_OF_BOUNDS',
+      `Cell (${row}, ${col}) out of bounds (${maxRows} rows, ${maxCols} cols)`,
+      { row, col, maxRows, maxCols },
+    );
   }
 }
 
@@ -108,7 +178,8 @@ function setReciprocal(row: number, col: number, direction: string, value: EdgeV
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (!OPPOSITE[dir]) return;
   const [dr, dc] = OFFSETS[dir];
-  const nr = row + dr, nc = col + dc;
+  const nr = row + dr,
+    nc = col + dc;
   const cells = state.dungeon.cells;
   if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length || 0)) return;
   cells[nr][nc] ??= {} as Cell;
@@ -184,42 +255,85 @@ function toDisp(internalCoord: number): number {
 
 export {
   // API ref
-  getApi, _setApi,
+  getApi,
+  _setApi,
 
   // Constants
-  CARDINAL_DIRS, ALL_DIRS, OFFSETS,
+  CARDINAL_DIRS,
+  ALL_DIRS,
+  OFFSETS,
 
   // Helpers
-  validateBounds, ensureCell, setReciprocal, deleteReciprocal, withRollback,
+  validateBounds,
+  ensureCell,
+  setReciprocal,
+  deleteReciprocal,
+  withRollback,
 
   // Tool instances
-  roomTool, trimTool, paintTool,
+  roomTool,
+  trimTool,
+  paintTool,
 
   // State
-  state, pushUndo, markDirty, notify, undoFn, redoFn, invalidateLightmap, mutate,
+  state,
+  pushUndo,
+  markDirty,
+  notify,
+  undoFn,
+  redoFn,
+  invalidateLightmap,
+  mutate,
 
   // Utils
-  createEmptyDungeon, requestRender,
+  createEmptyDungeon,
+  requestRender,
 
   // Catalogs
-  getThemeCatalog, collectTextureIds, ensureTexturesLoaded, loadTextureImages, getTextureCatalog,
-  getLightCatalog, reloadAssets, migrateHalfTextures, migrateToLatest,
+  getThemeCatalog,
+  collectTextureIds,
+  ensureTexturesLoaded,
+  loadTextureImages,
+  getTextureCatalog,
+  getLightCatalog,
+  reloadAssets,
+  migrateHalfTextures,
+  migrateToLatest,
 
   // Geometry
-  classifyStairShape, isDegenerate, getOccupiedCells,
-  isBridgeDegenerate, getBridgeOccupiedCells,
+  classifyStairShape,
+  isDegenerate,
+  getOccupiedCells,
+  isBridgeDegenerate,
+  getBridgeOccupiedCells,
 
   // Render
-  calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches,
-  captureBeforeState, smartInvalidate, patchBlendForDirtyRegion, accumulateDirtyRect,
+  calculateCanvasSize,
+  renderDungeonToCanvas,
+  invalidateAllCaches,
+  captureBeforeState,
+  smartInvalidate,
+  patchBlendForDirtyRegion,
+  accumulateDirtyRect,
 
   // Render diagnostics
-  getContentVersion, getGeometryVersion, getLightingVersion, getPropsVersion,
-  getDirtyRegion, renderTimings,
+  getContentVersion,
+  getGeometryVersion,
+  getLightingVersion,
+  getPropsVersion,
+  getDirtyRegion,
+  renderTimings,
 
   // Grid utils
-  OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom,
+  OPPOSITE,
+  cellKey,
+  parseCellKey,
+  isInBounds,
+  roomBoundsFromKeys,
+  floodFillRoom,
 
   // Resolution helpers
-  getResolution, toInt, toDisp,
+  getResolution,
+  toInt,
+  toDisp,
 };

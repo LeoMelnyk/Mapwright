@@ -23,6 +23,13 @@ Undo/redo previously serialized the entire map as JSON on every action and resto
 - **MCP subprocess buffer cap** — `runProcess` limits stdout/stderr to 8 MB and kills runaway children
 - **Electron navigation guard** — `will-navigate` handler blocks navigation away from localhost; explicit `sandbox: true` on BrowserWindow
 - **taskkill safety** — server shutdown uses `execFileSync` (argv-based) instead of `execSync` (shell string interpolation)
+- **CSP tightened** — `unsafe-inline` removed from `script-src`; inline styles still permitted (`style-src`)
+- **Session password hashing** — DM session passwords are now hashed with scrypt + random salt instead of stored in plain text; comparison uses `crypto.timingSafeEqual`
+- **Session token expiry** — session tokens expire after 1 hour; checked on WebSocket connect and status endpoint
+- **Rate limiting on auth** — `/api/session/auth` rate-limited to 20 attempts per 15-minute window per IP
+- **Error message sanitization** — API error responses no longer leak internal file paths
+- **DM socket cleanup** — reconnecting as DM properly closes the previous socket instead of leaking it
+- **MCP path validation** — file path allowlist uses `path.relative()` instead of string prefix matching, preventing symlink/UNC bypass
 
 ### Quality Infrastructure
 
@@ -98,6 +105,8 @@ Maps can now be exported as `.dd2vtt` files for use in Foundry VTT, Roll20, and 
 ### Structured API Errors
 
 API errors now include a machine-readable `code` and `context` object alongside the error message — e.g., `{ code: "OUT_OF_BOUNDS", context: { row: 5, col: 99, maxRows: 20, maxCols: 30 } }`. Makes automated error handling and self-correction easier.
+
+- **`getRoomBounds`** and **`findWallBetween`** now return `{ success: false, error }` instead of `null` when a room is not found — consistent with all other API methods
 
 ### Electron Fixes
 
