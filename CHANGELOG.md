@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.10.2
+
+### Incremental Undo/Redo
+
+Undo/redo previously serialized the entire map as JSON on every action and restored it in full on Ctrl+Z, triggering a complete cache rebuild (6–10 seconds on large maps). The system now tracks granular cell-level patches and uses dirty-region information to perform partial cache rebuilds.
+
+- **Patch-aware undo/redo** — `undo()` and `redo()` now call `smartInvalidate()` with exact cell coordinates from patch entries, enabling partial cache rebuilds instead of full redraws
+- **`mutate()` API** — new transaction wrapper that captures cell before/after states as compact patches, handles `smartInvalidate`, `markDirty`, and `notify` in one call; replaces the manual `captureBeforeState → pushUndo → modify → smartInvalidate → markDirty` boilerplate
+- **Metadata-only mutations** — `mutate()` accepts `metaOnly: true` for operations that only touch `metadata` (lights, overlay props, stair links); stores only the metadata diff, and undo rebuilds just the lighting composite layer without touching the cell cache
+- **`pushPatchUndo()` helper** — for tools with drag-accumulation patterns (wall tool), allows pushing a compact patch entry from externally collected before/after states
+- **JSON snapshot diffing** — remaining `pushUndo()` sites (theme editor, level management, file load) now diff old vs new cells on undo to compute a dirty region; falls back to full rebuild only when >30% of cells changed or grid dimensions differ
+- **Tool conversions** — room, door, fill, erase, trim, label, wall, paint (box modes), prop, light, stairs, and bridge tools all converted from full JSON snapshots to compact patches
+- **API conversions** — `cells`, `fills`, `textures`, `labels`, `trims`, `convenience`, `spatial`, `lighting`, `props`, and `stairs-bridges` API modules converted
+
 ## v0.10.1
 
 ### Security Hardening

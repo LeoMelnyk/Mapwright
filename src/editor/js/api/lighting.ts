@@ -1,7 +1,7 @@
 import type { FalloffType, LightPreset, Light, PlaceLightConfig } from '../../../types.js';
 import {
-  state, pushUndo, markDirty, notify,
-  invalidateLightmap, requestRender,
+  state, mutate,
+  requestRender,
   getLightCatalog,
   ApiValidationError,
 } from './_shared.js';
@@ -34,32 +34,32 @@ export function placeLight(x: number, y: number, config: PlaceLightConfig = {}):
     throw new Error(`Invalid light type: ${type}. Use 'point' or 'directional'.`);
   }
 
-  pushUndo();
+  let lightId: number;
+  mutate('Place light', [], () => {
+    const light: Light = {
+      id: meta.nextLightId++,
+      x, y, type,
+      radius: config.radius ?? 30,
+      color: config.color ?? '#ff9944',
+      intensity: config.intensity ?? 1.0,
+      falloff: (config.falloff ?? 'smooth') as FalloffType,
+    };
 
-  const light: Light = {
-    id: meta.nextLightId++,
-    x, y, type,
-    radius: config.radius ?? 30,
-    color: config.color ?? '#ff9944',
-    intensity: config.intensity ?? 1.0,
-    falloff: (config.falloff ?? 'smooth') as FalloffType,
-  };
+    // Z-height (height above floor in feet) — from preset or explicit config
+    if (config.z != null) light.z = config.z;
 
-  // Z-height (height above floor in feet) — from preset or explicit config
-  if (config.z != null) light.z = config.z;
+    if (type === 'directional') {
+      light.angle = config.angle ?? 0;
+      light.spread = config.spread ?? 45;
+    }
 
-  if (type === 'directional') {
-    light.angle = config.angle ?? 0;
-    light.spread = config.spread ?? 45;
-  }
+    meta.lights.push(light);
+    if (!meta.lightingEnabled) meta.lightingEnabled = true;
+    lightId = light.id;
+  }, { metaOnly: true, invalidate: ['lighting'] });
 
-  meta.lights.push(light);
-  if (!meta.lightingEnabled) meta.lightingEnabled = true;
-  invalidateLightmap(false);
-  markDirty();
-  notify();
   requestRender();
-  return { success: true, id: light.id };
+  return { success: true, id: lightId! };
 }
 
 /**
@@ -73,11 +73,9 @@ export function removeLight(id: number): { success: true } {
   const idx = meta.lights.findIndex(l => l.id === id);
   if (idx === -1) throw new ApiValidationError('LIGHT_NOT_FOUND', `Light with id ${id} not found`, { id });
 
-  pushUndo();
-  meta.lights.splice(idx, 1);
-  invalidateLightmap(false);
-  markDirty();
-  notify();
+  mutate('Remove light', [], () => {
+    meta.lights.splice(idx, 1);
+  }, { metaOnly: true, invalidate: ['lighting'] });
   requestRender();
   return { success: true };
 }
@@ -100,11 +98,9 @@ export function setAmbientLight(level: number): { success: true } {
   if (typeof level !== 'number' || level < 0 || level > 1) {
     throw new Error(`Ambient light must be a number between 0 and 1, got: ${level}`);
   }
-  pushUndo();
-  state.dungeon.metadata.ambientLight = level;
-  invalidateLightmap(false);
-  markDirty();
-  notify();
+  mutate('Set ambient light', [], () => {
+    state.dungeon.metadata.ambientLight = level;
+  }, { metaOnly: true, invalidate: ['lighting'] });
   requestRender();
   return { success: true };
 }
@@ -115,11 +111,9 @@ export function setAmbientLight(level: number): { success: true } {
  * @returns {{ success: boolean }}
  */
 export function setLightingEnabled(enabled: unknown): { success: true } {
-  pushUndo();
-  state.dungeon.metadata.lightingEnabled = !!enabled;
-  invalidateLightmap(false);
-  markDirty();
-  notify();
+  mutate('Set lighting enabled', [], () => {
+    state.dungeon.metadata.lightingEnabled = !!enabled;
+  }, { metaOnly: true, invalidate: ['lighting'] });
   requestRender();
   return { success: true };
 }

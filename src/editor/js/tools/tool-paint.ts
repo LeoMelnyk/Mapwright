@@ -5,12 +5,12 @@ import type { CardinalDirection, CellGrid, RenderTransform, Cell } from '../../.
 // Shift+drag in room mode: constrain selection to a square.
 // Syringe mode: click to pick up a cell's texture, then auto-switch to texture paint.
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, markDirty, notify, getTheme } from '../state.js';
+import state, { pushUndo, mutate, markDirty, notify, getTheme } from '../state.js';
 import { setCursor, getTransform, requestRender } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
 import { selectTexture } from '../panels/index.js';
 import { loadTextureImages } from '../texture-catalog.js';
-import { invalidateBlendLayerCache, captureBeforeState, smartInvalidate, accumulateDirtyRect, patchBlendForDirtyRegion } from '../../../render/index.js';
+import { invalidateBlendLayerCache, accumulateDirtyRect, patchBlendForDirtyRegion } from '../../../render/index.js';
 import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, blockedByDiagonal, lockDiagonalHalf, isInBounds, normalizeBounds, snapToSquare } from '../../../util/index.js';
 
 // SVG paint bucket cursor — hotspot at the drip tip (bottom-left of bucket)
@@ -870,21 +870,19 @@ export class PaintTool extends Tool {
           if (cells[r]) coords.push({ row: r, col: c });
         }
       }
-      const before = captureBeforeState(cells, coords);
 
-      pushUndo('Paint room');
-      for (let r = r1; r <= r2; r++) {
-        for (let c = c1; c <= c2; c++) {
-          if (!cells[r]) continue;
-          if (cells[r][c] !== null) {
-            if (cells[r][c]?.fill) delete cells[r][c]!.fill;
-          } else {
-            cells[r][c] = {};
+      mutate('Paint room', coords, () => {
+        for (let r = r1; r <= r2; r++) {
+          for (let c = c1; c <= c2; c++) {
+            if (!cells[r]) continue;
+            if (cells[r][c] !== null) {
+              if (cells[r][c]?.fill) delete cells[r][c]!.fill;
+            } else {
+              cells[r][c] = {};
+            }
           }
         }
-      }
-      smartInvalidate(before, cells);
-      markDirty();
+      });
 
     } else if (mode === 'texture') {
       const tid = state.activeTexture;
@@ -901,19 +899,24 @@ export class PaintTool extends Tool {
         }
       }
       if (!hasWork) return;
-      pushUndo('Paint texture');
+      const texCoords: Array<{ row: number; col: number }> = [];
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
-          const cell = cells[r]?.[c];
-          if (!cell) continue;
-          (cell as Record<string, unknown>)[texKey] = tid;
-          (cell as Record<string, unknown>)[opKey] = opacity;
+          if (cells[r]?.[c]) texCoords.push({ row: r, col: c });
         }
       }
-      accumulateDirtyRect(r1, c1, r2, c2);
-      _patchBlend({ minRow: r1, maxRow: r2, minCol: c1, maxCol: c2 });
-      markDirty();
-      notify();
+      mutate('Paint texture', texCoords, () => {
+        for (let r = r1; r <= r2; r++) {
+          for (let c = c1; c <= c2; c++) {
+            const cell = cells[r]?.[c];
+            if (!cell) continue;
+            (cell as Record<string, unknown>)[texKey] = tid;
+            (cell as Record<string, unknown>)[opKey] = opacity;
+          }
+        }
+        accumulateDirtyRect(r1, c1, r2, c2);
+        _patchBlend({ minRow: r1, maxRow: r2, minCol: c1, maxCol: c2 });
+      });
 
     } else if (mode === 'clear-texture') {
       const clearKeys = state.paintSecondary
@@ -928,18 +931,23 @@ export class PaintTool extends Tool {
         }
       }
       if (!hasWork) return;
-      pushUndo('Clear texture');
+      const clearCoords: Array<{ row: number; col: number }> = [];
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
-          const cell = cells[r]?.[c];
-          if (!cell) continue;
-          for (const k of clearKeys) delete cell[k as keyof Cell];
+          if (cells[r]?.[c]) clearCoords.push({ row: r, col: c });
         }
       }
-      accumulateDirtyRect(r1, c1, r2, c2);
-      invalidateBlendLayerCache();
-      markDirty();
-      notify();
+      mutate('Clear texture', clearCoords, () => {
+        for (let r = r1; r <= r2; r++) {
+          for (let c = c1; c <= c2; c++) {
+            const cell = cells[r]?.[c];
+            if (!cell) continue;
+            for (const k of clearKeys) delete cell[k as keyof Cell];
+          }
+        }
+        accumulateDirtyRect(r1, c1, r2, c2);
+        invalidateBlendLayerCache();
+      });
     }
   }
 

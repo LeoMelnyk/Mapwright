@@ -2,7 +2,7 @@ import type { CardinalDirection, LightPreset, Metadata, OverlayProp, PlacePropOp
 import {
   getApi,
   CARDINAL_DIRS,
-  state, pushUndo, markDirty, notify, invalidateLightmap,
+  state, mutate, markDirty, notify,
   validateBounds,
   getLightCatalog,
   cellKey, roomBoundsFromKeys,
@@ -10,7 +10,7 @@ import {
   ApiValidationError,
 } from './_shared.js';
 import { getEdge } from '../../../util/index.js';
-import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
+import { lookupPropAt } from '../prop-spatial.js';
 import { createOverlayProp, resolveZIndex } from '../prop-overlay.js';
 
 // ── Overlay Helpers ─────────────────────────────────────────────────────
@@ -91,55 +91,51 @@ export function placeProp(row: number, col: number, propType: string, facing: nu
   const meta = ensurePropsArray();
   const gridSize = meta.gridSize || 5;
 
-  pushUndo();
+  mutate('Place prop', [], () => {
+    // Write to overlay — use exact world-feet coords if provided, otherwise snap to grid
+    const entry = createOverlayProp(meta, propType, row, col, gridSize, {
+      rotation: facing,
+      scale,
+      ...(options.zIndex != null && { zIndex: options.zIndex }),
+    });
+    // Freeform placement: override position with exact world-feet coordinates
+    if (options.x != null) entry.x = options.x;
+    if (options.y != null) entry.y = options.y;
+    meta.props!.push(entry);
 
-  // Write to overlay — use exact world-feet coords if provided, otherwise snap to grid
-  const entry = createOverlayProp(meta, propType, row, col, gridSize, {
-    rotation: facing,
-    scale,
-    ...(options.zIndex != null && { zIndex: options.zIndex }),
-  });
-  // Freeform placement: override position with exact world-feet coordinates
-  if (options.x != null) entry.x = options.x;
-  if (options.y != null) entry.y = options.y;
-  meta.props!.push(entry);
+    // Create linked lights from propDef.lights
+    if (def.lights?.length) {
+      if (!meta.nextLightId) meta.nextLightId = 1;
+      const lightCatalog = getLightCatalog();
+      const [origRows, origCols] = def.footprint;
 
-  // Create linked lights from propDef.lights
-  if (def.lights?.length) {
-    if (!meta.nextLightId) meta.nextLightId = 1;
-    const lightCatalog = getLightCatalog();
-    const [origRows, origCols] = def.footprint;
+      for (const lightEntry of def.lights) {
+        let nx = lightEntry.x;
+        let ny = lightEntry.y;
+        if (facing === 90)  { [nx, ny] = [origRows - ny, nx]; }
+        else if (facing === 180) { [nx, ny] = [origCols - nx, origRows - ny]; }
+        else if (facing === 270) { [nx, ny] = [ny, origCols - nx]; }
 
-    for (const lightEntry of def.lights) {
-      let nx = lightEntry.x;
-      let ny = lightEntry.y;
-      if (facing === 90)  { [nx, ny] = [origRows - ny, nx]; }
-      else if (facing === 180) { [nx, ny] = [origCols - nx, origRows - ny]; }
-      else if (facing === 270) { [nx, ny] = [ny, origCols - nx]; }
-
-      const preset = lightCatalog?.lights[lightEntry.preset] ?? {} as Partial<LightPreset>;
-      const light: Record<string, unknown> = {
-        id: meta.nextLightId++,
-        x: (col + nx) * gridSize,
-        y: (row + ny) * gridSize,
-        type: preset.type ?? 'point',
-        radius: preset.radius ?? 20,
-        color: preset.color ?? '#ff9944',
-        intensity: preset.intensity ?? 1.0,
-        falloff: preset.falloff ?? 'smooth',
-        presetId: lightEntry.preset,
-        propRef: { row, col },
-      };
-      if (preset.dimRadius) light.dimRadius = preset.dimRadius;
-      if (preset.animation?.type) light.animation = { ...preset.animation };
-      meta.lights.push(light as unknown as typeof meta.lights[number]);
+        const preset = lightCatalog?.lights[lightEntry.preset] ?? {} as Partial<LightPreset>;
+        const light: Record<string, unknown> = {
+          id: meta.nextLightId++,
+          x: (col + nx) * gridSize,
+          y: (row + ny) * gridSize,
+          type: preset.type ?? 'point',
+          radius: preset.radius ?? 20,
+          color: preset.color ?? '#ff9944',
+          intensity: preset.intensity ?? 1.0,
+          falloff: preset.falloff ?? 'smooth',
+          presetId: lightEntry.preset,
+          propRef: { row, col },
+        };
+        if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+        if (preset.animation?.type) light.animation = { ...preset.animation };
+        meta.lights.push(light as unknown as typeof meta.lights[number]);
+      }
     }
-  }
+  }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
 
-  markPropSpatialDirty();
-  invalidateLightmap();
-  markDirty();
-  notify();
   return warnings.length ? { success: true, warnings } : { success: true };
 }
 
@@ -154,17 +150,14 @@ export function removeProp(row: number, col: number): { success: true } {
   validateBounds(row, col);
   const overlay = findPropAtGrid(row, col);
   if (!overlay) return { success: true };
-  pushUndo();
-  removePropAtGrid(row, col);
-  // Remove linked lights
-  const meta = state.dungeon.metadata;
-  if (meta.lights.length) {
-    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef.col === col));
-  }
-  markPropSpatialDirty();
-  invalidateLightmap();
-  markDirty();
-  notify();
+  mutate('Remove prop', [], () => {
+    removePropAtGrid(row, col);
+    // Remove linked lights
+    const meta = state.dungeon.metadata;
+    if (meta.lights.length) {
+      meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef.col === col));
+    }
+  }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
   return { success: true };
 }
 
@@ -197,13 +190,12 @@ export function rotateProp(row: number, col: number, degrees: number = 90): { su
   validateBounds(row, col);
   const overlay = findPropAtGrid(row, col);
   if (!overlay) throw new Error(`No prop at (${row}, ${col})`);
-  pushUndo();
-  const newFacing = (((overlay.rotation || 0) + degrees) % 360 + 360) % 360;
-  overlay.rotation = newFacing;
-  markPropSpatialDirty();
-  markDirty();
-  notify();
-  return { success: true, facing: newFacing };
+  let newFacing: number;
+  mutate('Rotate prop', [], () => {
+    newFacing = (((overlay.rotation || 0) + degrees) % 360 + 360) % 360;
+    overlay.rotation = newFacing;
+  }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+  return { success: true, facing: newFacing! };
 }
 
 /**
@@ -269,17 +261,14 @@ export function removePropAt(row: number, col: number): { success: boolean; erro
   row = toInt(row); col = toInt(col);
   validateBounds(row, col);
   if (!findPropAtGrid(row, col)) return { success: false, error: 'no prop at that cell' };
-  pushUndo();
-  removePropAtGrid(row, col);
-  // Remove linked lights
-  const meta = state.dungeon.metadata;
-  if (meta.lights.length) {
-    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef.col === col));
-  }
-  markPropSpatialDirty();
-  invalidateLightmap();
-  markDirty();
-  notify();
+  mutate('Remove prop', [], () => {
+    removePropAtGrid(row, col);
+    // Remove linked lights
+    const meta = state.dungeon.metadata;
+    if (meta.lights.length) {
+      meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef.col === col));
+    }
+  }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
   return { success: true };
 }
 
@@ -301,30 +290,26 @@ export function removePropsInRect(r1: number, c1: number, r2: number, c2: number
   if (!meta.props) return { success: true, removed: 0 };
 
   const gridSize = meta.gridSize || 5;
-  pushUndo();
-
-  const before = meta.props.length;
-  meta.props = meta.props.filter((p: { x: number; y: number }) => {
-    const pRow = Math.round(p.y / gridSize);
-    const pCol = Math.round(p.x / gridSize);
-    return pRow < minR || pRow > maxR || pCol < minC || pCol > maxC;
-  });
-  const removed = before - meta.props.length;
-
-  // Remove linked lights for deleted props
-  if (removed > 0 && meta.lights.length) {
-    meta.lights = meta.lights.filter(l => {
-      if (!l.propRef) return true;
-      const { row, col } = l.propRef;
-      return row < minR || row > maxR || col < minC || col > maxC;
+  let removed: number;
+  mutate('Remove props in rect', [], () => {
+    const before = meta.props!.length;
+    meta.props = meta.props!.filter((p: { x: number; y: number }) => {
+      const pRow = Math.round(p.y / gridSize);
+      const pCol = Math.round(p.x / gridSize);
+      return pRow < minR || pRow > maxR || pCol < minC || pCol > maxC;
     });
-  }
+    removed = before - meta.props.length;
 
-  markPropSpatialDirty();
-  invalidateLightmap();
-  markDirty();
-  notify();
-  return { success: true, removed };
+    // Remove linked lights for deleted props
+    if (removed > 0 && meta.lights.length) {
+      meta.lights = meta.lights.filter(l => {
+        if (!l.propRef) return true;
+        const { row, col } = l.propRef;
+        return row < minR || row > maxR || col < minC || col > maxC;
+      });
+    }
+  }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+  return { success: true, removed: removed! };
 }
 
 // ── Bulk Prop Placement ─────────────────────────────────────────────────
@@ -561,10 +546,9 @@ export function setPropZIndex(propId: string, zOrPreset: string | number): { suc
   const prop = meta.props.find((p: { id: string | number }) => p.id === propId);
   if (!prop) throw new Error(`No prop with id "${propId}"`);
 
-  pushUndo();
-  prop.zIndex = resolveZIndex(zOrPreset);
-  markDirty();
-  notify();
+  mutate('Set prop z-index', [], () => {
+    prop.zIndex = resolveZIndex(zOrPreset);
+  }, { metaOnly: true, invalidate: ['props'] });
   return { success: true, zIndex: prop.zIndex };
 }
 
@@ -581,11 +565,10 @@ export function bringForward(propId: string): { success: true; zIndex: number } 
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
   const idx = sorted.findIndex(p => p.id === propId);
   if (idx < sorted.length - 1) {
-    pushUndo();
-    const nextZ = sorted[idx + 1].zIndex;
-    prop.zIndex = nextZ === prop.zIndex ? prop.zIndex + 1 : nextZ;
-    markDirty();
-    notify();
+    mutate('Bring prop forward', [], () => {
+      const nextZ = sorted[idx + 1].zIndex;
+      prop.zIndex = nextZ === prop.zIndex ? prop.zIndex + 1 : nextZ;
+    }, { metaOnly: true, invalidate: ['props'] });
   }
   return { success: true, zIndex: prop.zIndex };
 }
@@ -602,11 +585,10 @@ export function sendBackward(propId: string): { success: true; zIndex: number } 
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
   const idx = sorted.findIndex(p => p.id === propId);
   if (idx > 0) {
-    pushUndo();
-    const prevZ = sorted[idx - 1].zIndex;
-    prop.zIndex = prevZ === prop.zIndex ? Math.max(0, prop.zIndex - 1) : prevZ;
-    markDirty();
-    notify();
+    mutate('Send prop backward', [], () => {
+      const prevZ = sorted[idx - 1].zIndex;
+      prop.zIndex = prevZ === prop.zIndex ? Math.max(0, prop.zIndex - 1) : prevZ;
+    }, { metaOnly: true, invalidate: ['props'] });
   }
   return { success: true, zIndex: prop.zIndex };
 }

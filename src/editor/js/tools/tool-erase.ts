@@ -2,8 +2,8 @@ import type { CellGrid, RenderTransform, Metadata } from '../../../types.js';
 // Erase tool: drag a selection box, then void all cells within it on release
 // Shift: constrain the drag rectangle to a square (larger dimension wins)
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
-import { captureBeforeState, smartInvalidate, accumulateDirtyRect } from '../../../render/index.js';
+import state, { mutate } from '../state.js';
+import { accumulateDirtyRect } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
 import { showToast } from '../toast.js';
@@ -114,7 +114,6 @@ export class EraseTool extends Tool {
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) coords.push({ row: r, col: c });
       }
-      const before = captureBeforeState(cells, coords);
 
       // Collect stair IDs before cells are nulled (stairs span multiple cells)
       const stairIdsToRemove = new Set<number>();
@@ -126,7 +125,6 @@ export class EraseTool extends Tool {
       }
 
       // Expand dirty region to cover multi-cell props that extend beyond the erase box
-      const dirtyR1 = r1, dirtyC1 = c1;
       let dirtyR2 = r2, dirtyC2 = c2;
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
@@ -138,64 +136,56 @@ export class EraseTool extends Tool {
           }
         }
       }
-      accumulateDirtyRect(dirtyR1, dirtyC1, dirtyR2, dirtyC2);
 
-      pushUndo('Erase cells');
-      for (let r = r1; r <= r2; r++) {
-        for (let c = c1; c <= c2; c++) {
-          cells[r][c] = null;
-        }
-      }
+      mutate('Erase cells', coords, () => {
+        // Expand dirty region for multi-cell props before cells are nulled
+        accumulateDirtyRect(r1, c1, dirtyR2, dirtyC2);
 
-      const meta = state.dungeon.metadata;
-
-      // Remove stair definitions (and unlink partners)
-      for (const id of stairIdsToRemove) {
-        _removeStair(meta, cells, id);
-      }
-
-      // Remove bridges with any point inside the erased region
-      if (meta.bridges.length) {
-        meta.bridges = meta.bridges.filter(bridge =>
-          !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2)
-        );
-      }
-
-      // Remove overlay props whose anchor falls inside the erased region
-      if (meta.props?.length) {
-        const gridSize = meta.gridSize || 5;
-        meta.props = meta.props.filter(p => {
-          const pRow = Math.round(p.y / gridSize);
-          const pCol = Math.round(p.x / gridSize);
-          return pRow < r1 || pRow > r2 || pCol < c1 || pCol > c2;
-        });
-      }
-
-      // Remove lights whose world position or prop anchor falls inside the erased region
-      if (meta.lights.length) {
-        const gridSize = meta.gridSize || 5;
-        meta.lights = meta.lights.filter(light => {
-          // Position-based: light center in erased region
-          const lightRow = Math.floor(light.y / gridSize);
-          const lightCol = Math.floor(light.x / gridSize);
-          if (lightRow >= r1 && lightRow <= r2 && lightCol >= c1 && lightCol <= c2) return false;
-          // PropRef-based: prop anchor in erased region (covers multi-cell props)
-          if (light.propRef) {
-            const { row: pr, col: pc } = light.propRef;
-            if (pr >= r1 && pr <= r2 && pc >= c1 && pc <= c2) return false;
+        for (let r = r1; r <= r2; r++) {
+          for (let c = c1; c <= c2; c++) {
+            cells[r][c] = null;
           }
-          return true;
-        });
-        if (state.selectedLightId != null &&
-            !meta.lights.find(l => l.id === state.selectedLightId)) {
-          state.selectedLightId = null;
         }
-      }
 
-      invalidateLightmap();
-      smartInvalidate(before, cells);
-      markDirty();
-      notify();
+        const meta = state.dungeon.metadata;
+
+        for (const id of stairIdsToRemove) {
+          _removeStair(meta, cells, id);
+        }
+
+        if (meta.bridges.length) {
+          meta.bridges = meta.bridges.filter(bridge =>
+            !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2)
+          );
+        }
+
+        if (meta.props?.length) {
+          const gridSize = meta.gridSize || 5;
+          meta.props = meta.props.filter(p => {
+            const pRow = Math.round(p.y / gridSize);
+            const pCol = Math.round(p.x / gridSize);
+            return pRow < r1 || pRow > r2 || pCol < c1 || pCol > c2;
+          });
+        }
+
+        if (meta.lights.length) {
+          const gridSize = meta.gridSize || 5;
+          meta.lights = meta.lights.filter(light => {
+            const lightRow = Math.floor(light.y / gridSize);
+            const lightCol = Math.floor(light.x / gridSize);
+            if (lightRow >= r1 && lightRow <= r2 && lightCol >= c1 && lightCol <= c2) return false;
+            if (light.propRef) {
+              const { row: pr, col: pc } = light.propRef;
+              if (pr >= r1 && pr <= r2 && pc >= c1 && pc <= c2) return false;
+            }
+            return true;
+          });
+          if (state.selectedLightId != null &&
+              !meta.lights.find(l => l.id === state.selectedLightId)) {
+            state.selectedLightId = null;
+          }
+        }
+      }, { invalidate: ['lighting'], forceGeometry: true });
 
       if (stairIdsToRemove.size > 0) {
         showToast('Linked stairs were unlinked');

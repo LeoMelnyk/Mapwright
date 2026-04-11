@@ -1,10 +1,9 @@
 import type { TextureCatalog } from '../../../types.js';
 import {
-  state, pushUndo, markDirty, notify,
+  state, mutate,
   validateBounds, ensureCell,
   loadTextureImages, paintTool,
   toInt,
-  captureBeforeState, smartInvalidate,
   patchBlendForDirtyRegion,
 } from './_shared.js';
 
@@ -33,15 +32,13 @@ function _blendPatch(minRow: number, minCol: number, maxRow: number, maxCol: num
 export function setTexture(row: number, col: number, textureId: string, opacity: number = 1.0): { success: true } {
   row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
   void loadTextureImages(textureId);
-  cell.texture = textureId;
-  cell.textureOpacity = Math.max(0, Math.min(1, opacity));
-  smartInvalidate(before, state.dungeon.cells);
-  _blendPatch(row, col, row, col);
-  markDirty();
-  notify();
+  const coords: Array<{ row: number; col: number }> = [{ row, col }];
+  mutate('setTexture', coords, () => {
+    cell.texture = textureId;
+    cell.textureOpacity = Math.max(0, Math.min(1, opacity));
+    _blendPatch(row, col, row, col);
+  });
   return { success: true };
 }
 
@@ -56,14 +53,12 @@ export function removeTexture(row: number, col: number): { success: true } {
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell?.texture) return { success: true };
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  delete cell.texture;
-  delete cell.textureOpacity;
-  smartInvalidate(before, state.dungeon.cells);
-  _blendPatch(row, col, row, col);
-  markDirty();
-  notify();
+  const coords: Array<{ row: number; col: number }> = [{ row, col }];
+  mutate('removeTexture', coords, () => {
+    delete cell.texture;
+    delete cell.textureOpacity;
+    _blendPatch(row, col, row, col);
+  });
   return { success: true };
 }
 
@@ -84,24 +79,21 @@ export function setTextureRect(r1: number, c1: number, r2: number, c2: number, t
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
   const clampedOpacity = Math.max(0, Math.min(1, opacity));
-  const coords = [];
+  const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  const before = captureBeforeState(state.dungeon.cells, coords);
   void loadTextureImages(textureId);
-  pushUndo();
-  for (let r = minR; r <= maxR; r++) {
-    for (let c = minC; c <= maxC; c++) {
-      const cell = state.dungeon.cells[r]?.[c];
-      if (cell) {
-        cell.texture = textureId;
-        cell.textureOpacity = clampedOpacity;
+  mutate('setTextureRect', coords, () => {
+    for (let r = minR; r <= maxR; r++) {
+      for (let c = minC; c <= maxC; c++) {
+        const cell = state.dungeon.cells[r]?.[c];
+        if (cell) {
+          cell.texture = textureId;
+          cell.textureOpacity = clampedOpacity;
+        }
       }
     }
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  _blendPatch(minR, minC, maxR, maxC);
-  markDirty();
-  notify();
+    _blendPatch(minR, minC, maxR, maxC);
+  });
   return { success: true };
 }
 
@@ -119,23 +111,20 @@ export function removeTextureRect(r1: number, c1: number, r2: number, c2: number
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
-  const coords = [];
+  const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  const before = captureBeforeState(state.dungeon.cells, coords);
-  pushUndo();
-  for (let r = minR; r <= maxR; r++) {
-    for (let c = minC; c <= maxC; c++) {
-      const cell = state.dungeon.cells[r]?.[c];
-      if (cell) {
-        delete cell.texture;
-        delete cell.textureOpacity;
+  mutate('removeTextureRect', coords, () => {
+    for (let r = minR; r <= maxR; r++) {
+      for (let c = minC; c <= maxC; c++) {
+        const cell = state.dungeon.cells[r]?.[c];
+        if (cell) {
+          delete cell.texture;
+          delete cell.textureOpacity;
+        }
       }
     }
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  _blendPatch(minR, minC, maxR, maxC);
-  markDirty();
-  notify();
+    _blendPatch(minR, minC, maxR, maxC);
+  });
   return { success: true };
 }
 

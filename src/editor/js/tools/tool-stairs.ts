@@ -1,7 +1,7 @@
 import type { RenderTransform, Stairs } from '../../../types.js';
 // Stairs tool: 3-click corner-point placement, linking
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, markDirty, notify } from '../state.js';
+import state, { mutate } from '../state.js';
 import { accumulateDirtyRect, bumpContentVersion } from '../../../render/index.js';
 import { requestRender, getTransform } from '../canvas-view.js';
 import { toCanvas, nearestCorner } from '../utils.js';
@@ -121,10 +121,20 @@ export class StairsTool extends Tool {
     const id = stairIdAt(row, col);
     if (id == null) return;
 
-    pushUndo('Remove stairs');
-    this._removeStair(id);
-    markDirty();
-    notify();
+    // Collect all cells that belong to this stair for the coords array
+    const stairCoords: Array<{ row: number; col: number }> = [];
+    const cells = state.dungeon.cells;
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        if ((cells[r]?.[c]?.center?.['stair-id'] as number) === id) {
+          stairCoords.push({ row: r, col: c });
+        }
+      }
+    }
+
+    mutate('Remove stairs', stairCoords, () => {
+      this._removeStair(id);
+    }, { invalidate: ['lighting'] });
     requestRender();
   }
 
@@ -228,30 +238,28 @@ export class StairsTool extends Tool {
   }
 
   _commitStair(p1: [number, number], p2: [number, number], p3: [number, number], occupiedCells: { row: number; col: number }[]) {
-    pushUndo('Place stairs');
+    mutate('Place stairs', occupiedCells, () => {
+      const meta = state.dungeon.metadata;
+      const id = meta.nextStairId++;
+      meta.stairs.push({ id, points: [p1, p2, p3], link: null });
 
-    const meta = state.dungeon.metadata;
-    const id = meta.nextStairId++;
-    meta.stairs.push({ id, points: [p1, p2, p3], link: null });
+      const cells = state.dungeon.cells;
+      let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+      for (const { row, col } of occupiedCells) {
+        if (!cells[row]?.[col]) continue;
+        cells[row][col].center ??= {};
+        cells[row][col].center['stair-id'] = id;
+        if (row < minR) minR = row;
+        if (row > maxR) maxR = row;
+        if (col < minC) minC = col;
+        if (col > maxC) maxC = col;
+      }
 
-    const cells = state.dungeon.cells;
-    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
-    for (const { row, col } of occupiedCells) {
-      if (!cells[row]?.[col]) continue;
-      cells[row][col].center ??= {};
-      cells[row][col].center['stair-id'] = id;
-      if (row < minR) minR = row;
-      if (row > maxR) maxR = row;
-      if (col < minC) minC = col;
-      if (col > maxC) maxC = col;
-    }
-
-    if (minR <= maxR) {
-      accumulateDirtyRect(minR, minC, maxR, maxC);
-      bumpContentVersion();
-    }
-    markDirty();
-    notify();
+      if (minR <= maxR) {
+        accumulateDirtyRect(minR, minC, maxR, maxC);
+        bumpContentVersion();
+      }
+    }, { invalidate: ['lighting'] });
     requestRender();
   }
 
@@ -311,15 +319,14 @@ export class StairsTool extends Tool {
     if (state.linkSource == null) {
       // If already linked, clicking it unlinks
       if (stairDef.link) {
-        pushUndo('Unlink stairs');
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        const partner = (state.dungeon.metadata.stairs || []).find(
-          s => s.link === stairDef.link && s.id !== id
-        );
-        if (partner) partner.link = null;
-        stairDef.link = null;
-        markDirty();
-        notify();
+        mutate('Unlink stairs', [], () => {
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          const partner = (state.dungeon.metadata.stairs || []).find(
+            s => s.link === stairDef.link && s.id !== id
+          );
+          if (partner) partner.link = null;
+          stairDef.link = null;
+        }, { metaOnly: true, invalidate: ['lighting'] });
         requestRender();
         return;
       }
@@ -336,28 +343,27 @@ export class StairsTool extends Tool {
     }
 
     // Second click — link the two stairs
-    pushUndo('Link stairs');
-    const label = getNextLinkLabel();
-    const stairs = state.dungeon.metadata.stairs;
-    const src = stairs.find(s => s.id === state.linkSource);
-    const tgt = stairDef;
+    mutate('Link stairs', [], () => {
+      const label = getNextLinkLabel();
+      const stairs = state.dungeon.metadata.stairs;
+      const src = stairs.find(s => s.id === state.linkSource);
+      const tgt = stairDef;
 
-    // Remove old links if any
-    if (src?.link) {
-      const oldPartner = stairs.find(s => s.link === src.link && s.id !== src.id);
-      if (oldPartner) oldPartner.link = null;
-    }
-    if (tgt.link) {
-      const oldPartner = stairs.find(s => s.link === tgt.link && s.id !== tgt.id);
-      if (oldPartner) oldPartner.link = null;
-    }
+      // Remove old links if any
+      if (src?.link) {
+        const oldPartner = stairs.find(s => s.link === src.link && s.id !== src.id);
+        if (oldPartner) oldPartner.link = null;
+      }
+      if (tgt.link) {
+        const oldPartner = stairs.find(s => s.link === tgt.link && s.id !== tgt.id);
+        if (oldPartner) oldPartner.link = null;
+      }
 
-    if (src) src.link = label;
-    tgt.link = label;
+      if (src) src.link = label;
+      tgt.link = label;
+    }, { metaOnly: true, invalidate: ['lighting'] });
 
     state.linkSource = null;
-    markDirty();
-    notify();
     requestRender();
   }
 

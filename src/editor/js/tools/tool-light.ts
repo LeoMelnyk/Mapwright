@@ -1,7 +1,7 @@
 // Light tool: place, select, and move light sources
 import type { Light, RenderTransform } from '../../../types.js';
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
+import state, { mutate, markDirty, invalidateLightmap, notify } from '../state.js';
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { fromCanvas, toCanvas } from '../utils.js';
 import { getLightCatalog } from '../light-catalog.js';
@@ -51,7 +51,7 @@ function hitTestLight(pos: { x: number; y: number }): Light | null {
  * Supports point and directional lights with preset catalog integration.
  */
 export class LightTool extends Tool {
-  dragging: { lightId: number; offsetX: number; offsetY: number; origX?: number; origY?: number; origRadius?: number; undoSnapshot?: string } | null = null;
+  dragging: { lightId: number; offsetX: number; offsetY: number; origX?: number; origY?: number; origRadius?: number; metaSnapshot?: string } | null = null;
   dragMoved: boolean = false;
   hoveredLightId: number | null = null;
   hoverPos: CanvasPos | null = null;
@@ -207,9 +207,15 @@ export class LightTool extends Tool {
   onMouseUp() {
     if (this.dragging) {
       if (this.dragMoved) {
-        // Commit: push undo with the original position, then notify
-        pushUndo('Move light', this.dragging.undoSnapshot);
-        notify();
+        // Light is already at the new position from onMouseMove.
+        // Temporarily restore pre-drag metadata so mutate captures the correct "before" state,
+        // then re-apply the current (moved) state inside fn().
+        const currentMeta = JSON.stringify(state.dungeon.metadata);
+        const preDragMeta = this.dragging.metaSnapshot!;
+        Object.assign(state.dungeon.metadata, JSON.parse(preDragMeta));
+        mutate('Move light', [], () => {
+          Object.assign(state.dungeon.metadata, JSON.parse(currentMeta));
+        }, { metaOnly: true, invalidate: ['lighting'] });
       }
       this.dragging = null;
       this.dragMoved = false;
@@ -249,23 +255,22 @@ export class LightTool extends Tool {
     const light = hitTestLight(pos);
     if (!light) return;
 
-    pushUndo('Delete light');
-    const lights = getLights();
-    const idx = lights.indexOf(light);
-    if (idx >= 0) lights.splice(idx, 1);
+    const lightToDelete = light;
+    mutate('Delete light', [], () => {
+      const lights = getLights();
+      const idx = lights.indexOf(lightToDelete);
+      if (idx >= 0) lights.splice(idx, 1);
+    }, { metaOnly: true, invalidate: ['lighting'] });
 
-    if (state.selectedLightId === light.id) {
+    if (state.selectedLightId === lightToDelete.id) {
       state.selectedLightId = null;
     }
-    if (this.hoveredLightId === light.id) {
+    if (this.hoveredLightId === lightToDelete.id) {
       this.hoveredLightId = null;
       setCursor('crosshair');
     }
 
     this._updateStatusInstruction();
-    invalidateLightmap(false);
-    markDirty();
-    notify();
     requestRender();
   }
 
@@ -369,19 +374,18 @@ export class LightTool extends Tool {
     if (state.selectedLightId == null) return;
     const light = findLightById(state.selectedLightId);
     if (!light) return;
-    pushUndo('Delete light');
-    const lights = getLights();
-    const idx = lights.indexOf(light);
-    if (idx >= 0) lights.splice(idx, 1);
-    if (this.hoveredLightId === light.id) {
+    const lightRef = light;
+    mutate('Delete light', [], () => {
+      const lights = getLights();
+      const idx = lights.indexOf(lightRef);
+      if (idx >= 0) lights.splice(idx, 1);
+    }, { metaOnly: true, invalidate: ['lighting'] });
+    if (this.hoveredLightId === lightRef.id) {
       this.hoveredLightId = null;
       setCursor('crosshair');
     }
     state.selectedLightId = null;
     this._updateStatusInstruction();
-    invalidateLightmap(false);
-    markDirty();
-    notify();
     requestRender();
   }
 
@@ -398,22 +402,21 @@ export class LightTool extends Tool {
       };
     }
 
-    pushUndo('Paste light');
-    ensureLightsArray();
-
     const src = state.lightClipboard;
-    const light = JSON.parse(JSON.stringify(src));
-    light.id = state.dungeon.metadata.nextLightId++;
-    light.x = world.x;
-    light.y = world.y;
-
-    state.dungeon.metadata.lights.push(light);
-    state.selectedLightId = light.id;
+    const worldPos = world;
+    let newLightId: number;
+    mutate('Paste light', [], () => {
+      ensureLightsArray();
+      const light = JSON.parse(JSON.stringify(src));
+      light.id = state.dungeon.metadata.nextLightId++;
+      light.x = worldPos.x;
+      light.y = worldPos.y;
+      state.dungeon.metadata.lights.push(light);
+      newLightId = light.id;
+    }, { metaOnly: true, invalidate: ['lighting'] });
+    state.selectedLightId = newLightId!;
     state.lightPasteMode = false;
 
-    invalidateLightmap(false);
-    markDirty();
-    notify();
     requestRender();
     showToast('Pasted light');
   }
@@ -433,48 +436,49 @@ export class LightTool extends Tool {
       };
     }
 
-    pushUndo('Add light');
-    ensureLightsArray();
+    let newLight: Light;
+    mutate('Add light', [], () => {
+      ensureLightsArray();
 
-    const light: Light = {
-      id: state.dungeon.metadata.nextLightId++,
-      x: world.x,
-      y: world.y,
-      type: state.lightType as Light['type'],
-      radius: state.lightRadius,
-      color: state.lightColor,
-      intensity: state.lightIntensity,
-      falloff: state.lightFalloff as Light['falloff'],
-    };
+      const light: Light = {
+        id: state.dungeon.metadata.nextLightId++,
+        x: world.x,
+        y: world.y,
+        type: state.lightType as Light['type'],
+        radius: state.lightRadius,
+        color: state.lightColor,
+        intensity: state.lightIntensity,
+        falloff: state.lightFalloff as Light['falloff'],
+      };
 
-    // Dim radius
-    if (state.lightDimRadius > 0) light.dimRadius = state.lightDimRadius;
+      // Dim radius
+      if (state.lightDimRadius > 0) light.dimRadius = state.lightDimRadius;
 
-    // Z-height (height above floor in feet)
-    if (state.lightZ) light.z = state.lightZ;
+      // Z-height (height above floor in feet)
+      if (state.lightZ) light.z = state.lightZ;
 
-    // Track which preset this light was created from (enables Resync Preset Lights)
-    if (state.lightPreset) light.presetId = state.lightPreset;
+      // Track which preset this light was created from (enables Resync Preset Lights)
+      if (state.lightPreset) light.presetId = state.lightPreset;
 
-    // Animation
-    if (state.lightAnimation?.type) light.animation = { ...state.lightAnimation };
+      // Animation
+      if (state.lightAnimation?.type) light.animation = { ...state.lightAnimation };
 
-    // Add directional-specific properties
-    if (state.lightType === 'directional') {
-      light.spread = state.lightAngle;
-      light.range = state.lightRadius;
-    }
+      // Add directional-specific properties
+      if (state.lightType === 'directional') {
+        light.spread = state.lightAngle;
+        light.range = state.lightRadius;
+      }
 
-    state.dungeon.metadata.lights.push(light);
-    state.selectedLightId = light.id;
+      state.dungeon.metadata.lights.push(light);
+      newLight = light;
+    }, { metaOnly: true, invalidate: ['lighting'] });
+
+    state.selectedLightId = newLight!.id;
 
     // Start dragging the newly placed light so user can reposition while holding
-    this.dragging = { lightId: light.id, offsetX: 0, offsetY: 0 };
+    this.dragging = { lightId: newLight!.id, offsetX: 0, offsetY: 0 };
     this.dragMoved = false;
 
-    invalidateLightmap(false);
-    markDirty();
-    notify();
     requestRender();
   }
 
@@ -499,7 +503,7 @@ export class LightTool extends Tool {
         origX: light.x,
         origY: light.y,
         origRadius: light.radius,
-        undoSnapshot: JSON.stringify(state.dungeon),
+        metaSnapshot: JSON.stringify(state.dungeon.metadata),
       };
       this.dragMoved = false;
       setCursor('grabbing');

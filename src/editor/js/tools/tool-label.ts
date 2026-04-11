@@ -1,7 +1,7 @@
 import type { RenderTransform } from '../../../types.js';
 // Label tool: two sub-modes — Room Label (auto-increment) and DM Label (free text with scroll backdrop)
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, markDirty } from '../state.js';
+import state, { mutate } from '../state.js';
 import { getTransform, requestRender, setCursor } from '../canvas-view.js';
 import { toCanvas, fromCanvas } from '../utils.js';
 import { drawDmLabel } from '../../../render/index.js';
@@ -141,19 +141,21 @@ export class LabelTool extends Tool {
     const mode = state.labelMode || 'room';
 
     if (mode === 'room') {
-      if (!cell!.center?.label) return;
-      pushUndo('Remove label');
-      delete cell!.center.label;
-      cleanupLabelPos(cell!.center);
-      if (Object.keys(cell!.center).length === 0) delete cell!.center;
-      markDirty();
+      const center = cell?.center;
+      if (!center?.label) return;
+      mutate('Remove label', [{ row: hit.row, col: hit.col }], () => {
+        delete center.label;
+        cleanupLabelPos(center);
+        if (Object.keys(center).length === 0) delete cell!.center;
+      });
     } else {
-      if (!cell!.center?.dmLabel) return;
-      pushUndo('Remove DM note');
-      delete cell!.center.dmLabel;
-      cleanupLabelPos(cell!.center);
-      if (Object.keys(cell!.center).length === 0) delete cell!.center;
-      markDirty();
+      const center = cell?.center;
+      if (!center?.dmLabel) return;
+      mutate('Remove DM note', [{ row: hit.row, col: hit.col }], () => {
+        delete center.dmLabel;
+        cleanupLabelPos(center);
+        if (Object.keys(center).length === 0) delete cell!.center;
+      });
     }
   }
 
@@ -247,13 +249,14 @@ export class LabelTool extends Tool {
       const { row, col } = this.selectedLabelCell;
       const cell = state.dungeon.cells[row]?.[col];
       if (cell?.center) {
-        pushUndo('Remove label');
-        delete cell.center.label;
-        delete cell.center.dmLabel;
-        cleanupLabelPos(cell.center);
-        if (Object.keys(cell.center).length === 0) delete cell.center;
+        const center = cell.center;
+        mutate('Remove label', [{ row, col }], () => {
+          delete center.label;
+          delete center.dmLabel;
+          cleanupLabelPos(center);
+          if (Object.keys(center).length === 0) delete cell.center;
+        });
         this.selectedLabelCell = null;
-        markDirty();
         requestRender();
       }
       return;
@@ -273,12 +276,12 @@ export class LabelTool extends Tool {
     const nextNum = this._getNextRoomNumber();
     const letter = state.dungeon.metadata.dungeonLetter ?? 'A';
 
-    pushUndo('Place label');
-    if (!cell!.center) cell!.center = {};
-    cell!.center.label = letter + nextNum;
-    cell!.center.labelX = worldX;
-    cell!.center.labelY = worldY;
-    markDirty();
+    mutate('Place label', [{ row, col }], () => {
+      if (!cell!.center) cell!.center = {};
+      cell!.center.label = letter + nextNum;
+      cell!.center.labelX = worldX;
+      cell!.center.labelY = worldY;
+    });
   }
 
   _getNextRoomNumber() {
@@ -360,24 +363,28 @@ export class LabelTool extends Tool {
     const cell = cells[this._editRow]?.[this._editCol];
     const text = this._inputEl?.value.trim() ?? '';
 
-    pushUndo('DM note');
-
-    if (text) {
-      if (!cell!.center) cell!.center = {};
-      cell!.center.dmLabel = text;
-      cell!.center.dmLabelX = this._editWorldX;
-      cell!.center.dmLabelY = this._editWorldY;
-    } else {
-      if (cell?.center) {
-        delete cell.center.dmLabel;
-        delete cell.center.dmLabelX;
-        delete cell.center.dmLabelY;
-        if (Object.keys(cell.center).length === 0) delete cell.center;
-      }
-    }
+    const editRow = this._editRow;
+    const editCol = this._editCol;
+    const editWorldX = this._editWorldX;
+    const editWorldY = this._editWorldY;
 
     this._cleanup();
-    markDirty();
+
+    mutate('DM note', [{ row: editRow, col: editCol }], () => {
+      if (text) {
+        if (!cell!.center) cell!.center = {};
+        cell!.center.dmLabel = text;
+        cell!.center.dmLabelX = editWorldX;
+        cell!.center.dmLabelY = editWorldY;
+      } else {
+        if (cell?.center) {
+          delete cell.center.dmLabel;
+          delete cell.center.dmLabelX;
+          delete cell.center.dmLabelY;
+          if (Object.keys(cell.center).length === 0) delete cell.center;
+        }
+      }
+    });
     requestRender();
   }
 
@@ -414,6 +421,7 @@ export class LabelTool extends Tool {
     const cells = state.dungeon.cells;
     const srcCell = cells[src.row]?.[src.col];
     if (!srcCell?.center) { this._resetDrag(); return; }
+    const srcCenter = srcCell.center;
 
     const gridSize = state.dungeon.metadata.gridSize;
     // Find destination cell from world position
@@ -426,45 +434,48 @@ export class LabelTool extends Tool {
     const clampedRow = Math.max(0, Math.min(numRows - 1, dstRow));
     const clampedCol = Math.max(0, Math.min(numCols - 1, dstCol));
 
-    pushUndo('Move label');
-
-    if (clampedRow === src.row && clampedCol === src.col) {
-      // Same cell — just update position
-      if (srcCell.center.label != null) {
-        srcCell.center.labelX = worldPos.x;
-        srcCell.center.labelY = worldPos.y;
-      }
-      if (srcCell.center.dmLabel != null) {
-        srcCell.center.dmLabelX = worldPos.x;
-        srcCell.center.dmLabelY = worldPos.y;
-      }
-    } else {
-      // Different cell — move label data and set position
-      cells[clampedRow][clampedCol] ??= {};
-      cells[clampedRow][clampedCol].center ??= {};
-      const dstCenter = cells[clampedRow][clampedCol].center;
-
-      if (srcCell.center.label != null) {
-        dstCenter.label = srcCell.center.label;
-        dstCenter.labelX = worldPos.x;
-        dstCenter.labelY = worldPos.y;
-        delete srcCell.center.label;
-        delete srcCell.center.labelX;
-        delete srcCell.center.labelY;
-      }
-      if (srcCell.center.dmLabel != null) {
-        dstCenter.dmLabel = srcCell.center.dmLabel;
-        dstCenter.dmLabelX = worldPos.x;
-        dstCenter.dmLabelY = worldPos.y;
-        delete srcCell.center.dmLabel;
-        delete srcCell.center.dmLabelX;
-        delete srcCell.center.dmLabelY;
-      }
-      if (Object.keys(srcCell.center).length === 0) delete srcCell.center;
+    // Include both source and destination cells in coords
+    const coords: Array<{ row: number; col: number }> = [{ row: src.row, col: src.col }];
+    if (clampedRow !== src.row || clampedCol !== src.col) {
+      coords.push({ row: clampedRow, col: clampedCol });
     }
 
+    mutate('Move label', coords, () => {
+      if (clampedRow === src.row && clampedCol === src.col) {
+        if (srcCenter.label != null) {
+          srcCenter.labelX = worldPos.x;
+          srcCenter.labelY = worldPos.y;
+        }
+        if (srcCenter.dmLabel != null) {
+          srcCenter.dmLabelX = worldPos.x;
+          srcCenter.dmLabelY = worldPos.y;
+        }
+      } else {
+        cells[clampedRow][clampedCol] ??= {};
+        cells[clampedRow][clampedCol].center ??= {};
+        const dstCenter = cells[clampedRow][clampedCol].center;
+
+        if (srcCenter.label != null) {
+          dstCenter.label = srcCenter.label;
+          dstCenter.labelX = worldPos.x;
+          dstCenter.labelY = worldPos.y;
+          delete srcCenter.label;
+          delete srcCenter.labelX;
+          delete srcCenter.labelY;
+        }
+        if (srcCenter.dmLabel != null) {
+          dstCenter.dmLabel = srcCenter.dmLabel;
+          dstCenter.dmLabelX = worldPos.x;
+          dstCenter.dmLabelY = worldPos.y;
+          delete srcCenter.dmLabel;
+          delete srcCenter.dmLabelX;
+          delete srcCenter.dmLabelY;
+        }
+        if (Object.keys(srcCenter).length === 0) delete srcCell.center;
+      }
+    });
+
     this.selectedLabelCell = { row: clampedRow, col: clampedCol };
-    markDirty();
     this._resetDrag();
     requestRender();
   }

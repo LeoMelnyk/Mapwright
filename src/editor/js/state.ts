@@ -171,6 +171,27 @@ export function pushUndo(label: string = 'Edit', preSerializedJson: string | nul
 }
 
 /**
+ * Push a compact cell-patch undo entry (no full JSON serialization).
+ * Used by tools that accumulate changes over a drag and want to push one entry at the end.
+ * @param label - Description shown in the history panel.
+ * @param cellPatches - Array of { row, col, before, after } for each changed cell.
+ */
+export function pushPatchUndo(label: string, cellPatches: UndoCellPatch[]): void {
+  if (undoDisabled) return;
+  const metaBefore = JSON.stringify(state.dungeon.metadata);
+  const patchEntry = { cells: cellPatches, meta: null as UndoMetaPatch | null };
+  // Check for metadata changes (e.g. wall tool doesn't change metadata, but future callers might)
+  const metaAfter = JSON.stringify(state.dungeon.metadata);
+  if (metaBefore !== metaAfter) {
+    patchEntry.meta = { before: metaBefore, after: metaAfter };
+  }
+  state.undoStack.push({ patch: patchEntry, label, timestamp: Date.now() });
+  if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
+  state.redoStack.length = 0;
+  markPropSpatialDirty();
+}
+
+/**
  * Restore dungeon state from an undo/redo entry.
  * Handles both full JSON snapshots and compact cell patches.
  */
@@ -215,15 +236,69 @@ function createRedoEntry(appliedEntry: { json?: string; patch?: { cells: UndoCel
 }
 
 /**
+ * Diff two cell grids to find which cells changed.
+ * Returns coords of changed cells, or null if too many changed (>30%) or dimensions differ.
+ */
+function diffCellsForUndo(oldCells: CellGrid, newCells: CellGrid): Array<{ row: number; col: number }> | null {
+  if (oldCells.length !== newCells.length) return null;
+  const rows = oldCells.length;
+  const cols = oldCells[0]?.length || 0;
+  if (cols !== (newCells[0]?.length || 0)) return null;
+
+  const changed: Array<{ row: number; col: number }> = [];
+  const maxChanged = Math.ceil(rows * cols * 0.3);
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const oldCell = oldCells[r][c];
+      const newCell = newCells[r][c];
+      if (oldCell === newCell) continue; // both null
+      if (!oldCell || !newCell || JSON.stringify(oldCell) !== JSON.stringify(newCell)) {
+        changed.push({ row: r, col: c });
+        if (changed.length > maxChanged) return null; // too many changes, full rebuild
+      }
+    }
+  }
+  return changed;
+}
+
+/**
  * Undo the last action by restoring the previous dungeon state.
  */
 export function undo(): void {
   if (!state.undoStack.length) return;
   const entry = state.undoStack.pop()!;
   state.redoStack.push(createRedoEntry(entry, 'Current'));
-  applyEntry(entry, 'undo');
+
+  if (entry.patch) {
+    // Patch entry — we know exact cells. Use smart invalidation for partial rebuild.
+    const cells = state.dungeon.cells;
+    const coords = entry.patch.cells.map(cp => ({ row: cp.row, col: cp.col }));
+    const beforeState = coords.length > 0 ? captureBeforeState(cells, coords) : [];
+    applyEntry(entry, 'undo');
+    if (beforeState.length > 0) {
+      smartInvalidate(beforeState, state.dungeon.cells);
+    }
+    // Always invalidate lightmap — cell changes (walls, doors) affect shadow casting
+    invalidateLightmap();
+  } else {
+    // JSON snapshot — diff old vs new to find changed cells for partial rebuild
+    const oldCells = state.dungeon.cells;
+    applyEntry(entry, 'undo');
+    const changedCoords = diffCellsForUndo(oldCells, state.dungeon.cells);
+    if (changedCoords && changedCoords.length > 0) {
+      // Compute before-state from the OLD cells (pre-undo) for the changed coordinates
+      const beforeState = changedCoords.map(({ row, col }) => {
+        const cell = oldCells[row]?.[col];
+        if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
+        return { row, col, wasVoid: false, fill: (cell.fill as string | null) ?? null, waterDepth: (cell.waterDepth as number | null) ?? null, lavaDepth: (cell.lavaDepth as number | null) ?? null, hazard: !!(cell.hazard) };
+      });
+      smartInvalidate(beforeState, state.dungeon.cells);
+    }
+    invalidateLightmap();
+  }
+
   markPropSpatialDirty();
-  invalidateLightmap();
   markDirty();
   notify();
 }
@@ -235,9 +310,35 @@ export function redo(): void {
   if (!state.redoStack.length) return;
   const entry = state.redoStack.pop()!;
   state.undoStack.push(createRedoEntry(entry, 'Redo'));
-  applyEntry(entry, 'redo');
+
+  if (entry.patch) {
+    // Patch entry — use smart invalidation for partial rebuild
+    const cells = state.dungeon.cells;
+    const coords = entry.patch.cells.map(cp => ({ row: cp.row, col: cp.col }));
+    const beforeState = coords.length > 0 ? captureBeforeState(cells, coords) : [];
+    applyEntry(entry, 'redo');
+    if (beforeState.length > 0) {
+      smartInvalidate(beforeState, state.dungeon.cells);
+    }
+    // Always invalidate lightmap — cell changes (walls, doors) affect shadow casting
+    invalidateLightmap();
+  } else {
+    // JSON snapshot — diff old vs new for partial rebuild
+    const oldCells = state.dungeon.cells;
+    applyEntry(entry, 'redo');
+    const changedCoords = diffCellsForUndo(oldCells, state.dungeon.cells);
+    if (changedCoords && changedCoords.length > 0) {
+      const beforeState = changedCoords.map(({ row, col }) => {
+        const cell = oldCells[row]?.[col];
+        if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
+        return { row, col, wasVoid: false, fill: (cell.fill as string | null) ?? null, waterDepth: (cell.waterDepth as number | null) ?? null, lavaDepth: (cell.lavaDepth as number | null) ?? null, hazard: !!(cell.hazard) };
+      });
+      smartInvalidate(beforeState, state.dungeon.cells);
+    }
+    invalidateLightmap();
+  }
+
   markPropSpatialDirty();
-  invalidateLightmap();
   markDirty();
   notify();
 }
@@ -502,6 +603,7 @@ export function mutate(
     forceGeometry?: boolean;
     forceFluid?: boolean;
     topic?: NotifyTopic;
+    metaOnly?: boolean;
   } = {},
 ): void {
   if (undoDisabled) { fn(); markDirty(); notify(options.topic); return; }
@@ -509,11 +611,34 @@ export function mutate(
   const cells: CellGrid = state.dungeon.cells;
   const renderBefore = coords.length > 0 ? captureBeforeState(cells, coords) : [];
 
+  // Metadata-only path: no cell changes, just snapshot metadata before/after
+  if (options.metaOnly && coords.length === 0) {
+    const metaBefore = JSON.stringify(state.dungeon.metadata);
+    fn();
+    const metaAfter = JSON.stringify(state.dungeon.metadata);
+    const patchEntry = {
+      cells: [] as UndoCellPatch[],
+      meta: metaBefore !== metaAfter ? { before: metaBefore, after: metaAfter } as UndoMetaPatch : null,
+    };
+    state.undoStack.push({ patch: patchEntry, label, timestamp: Date.now() });
+    if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
+    state.redoStack.length = 0;
+    const flags = options.invalidate;
+    if (flags) {
+      if (flags.includes('lighting')) invalidateLightmap(true);
+      else if (flags.includes('lighting:props')) invalidateLightmap('props');
+      if (flags.includes('props')) markPropSpatialDirty();
+    }
+    markDirty();
+    notify(options.topic);
+    return;
+  }
+
   // Decide: compact patch or full keyframe snapshot
   const useKeyframe = coords.length === 0 || _entriesSinceKeyframe() >= KEYFRAME_INTERVAL;
 
   if (useKeyframe) {
-    // Full snapshot (metadata-only changes, or periodic keyframe)
+    // Full snapshot (metadata-only changes without metaOnly flag, or periodic keyframe)
     pushUndo(label);
   } else {
     // Compact patch — capture cell state before mutation

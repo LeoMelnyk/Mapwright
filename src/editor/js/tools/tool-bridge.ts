@@ -2,7 +2,7 @@
 // P1 → P2: entrance width.  P3: depth direction (always rectangular).
 import type { BridgeType, Bridge, RenderTransform } from '../../../types.js';
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, markDirty, notify } from '../state.js';
+import state, { mutate } from '../state.js';
 import { accumulateDirtyRect, bumpContentVersion } from '../../../render/index.js';
 import { requestRender, getTransform, setCursor } from '../canvas-view.js';
 import { toCanvas, nearestCorner } from '../utils.js';
@@ -132,11 +132,12 @@ export class BridgeTool extends Tool {
     if (event.key === 'Delete' || event.key === 'Backspace') {
       if (state.selectedBridgeId != null && !this._isDragging && this._phase === 'idle') {
         event.preventDefault();
-        pushUndo('Remove Bridge');
-        this._removeBridge(state.selectedBridgeId);
+        const bridgeId = state.selectedBridgeId;
+        const bridgeCoords = this._collectBridgeCells(bridgeId);
+        mutate('Remove Bridge', bridgeCoords, () => {
+          this._removeBridge(bridgeId);
+        }, { invalidate: ['lighting'] });
         state.selectedBridgeId = null;
-        markDirty();
-        notify();
         requestRender();
       }
       return;
@@ -179,14 +180,15 @@ export class BridgeTool extends Tool {
           }
         }
 
-        pushUndo('Rotate Bridge');
-        this._dirtyFromBridge(bridge.id);
-        this._clearCellMarkers(bridge.id);
-        bridge.points = rotated as Bridge['points'];
-        this._setCellMarkers(bridge.id, occupied);
-        this._dirtyFromCells(occupied);
-        markDirty();
-        notify();
+        const oldCoords = this._collectBridgeCells(bridge.id);
+        const allCoords = [...oldCoords, ...occupied];
+        mutate('Rotate Bridge', allCoords, () => {
+          this._dirtyFromBridge(bridge.id);
+          this._clearCellMarkers(bridge.id);
+          bridge.points = rotated as Bridge['points'];
+          this._setCellMarkers(bridge.id, occupied);
+          this._dirtyFromCells(occupied);
+        }, { invalidate: ['lighting'] });
         requestRender();
       }
       return;
@@ -197,11 +199,11 @@ export class BridgeTool extends Tool {
     if (this._isDragging) return;
     const id = bridgeIdAt(row, col);
     if (id == null) return;
-    pushUndo('Remove Bridge');
+    const bridgeCoords = this._collectBridgeCells(id);
+    mutate('Remove Bridge', bridgeCoords, () => {
+      this._removeBridge(id);
+    }, { invalidate: ['lighting'] });
     if (state.selectedBridgeId === id) state.selectedBridgeId = null;
-    this._removeBridge(id);
-    markDirty();
-    notify();
     requestRender();
   }
 
@@ -361,18 +363,16 @@ export class BridgeTool extends Tool {
   // ── Commit / Remove ───────────────────────────────────────────────────────
 
   _commitBridge(p1: [number, number], p2: [number, number], p3: [number, number], occupiedCells: { row: number; col: number }[]) {
-    pushUndo('Place Bridge');
+    mutate('Place Bridge', occupiedCells, () => {
+      const meta = state.dungeon.metadata;
+      const id = meta.nextBridgeId++;
+      const type = (state.bridgeType || 'wood') as BridgeType;
 
-    const meta = state.dungeon.metadata;
-    const id = meta.nextBridgeId++;
-    const type = (state.bridgeType || 'wood') as BridgeType;
+      meta.bridges.push({ id, type, points: [p1, p2, p3] });
 
-    meta.bridges.push({ id, type, points: [p1, p2, p3] });
-
-    this._setCellMarkers(id, occupiedCells);
-    this._dirtyFromCells(occupiedCells);
-    markDirty();
-    notify();
+      this._setCellMarkers(id, occupiedCells);
+      this._dirtyFromCells(occupiedCells);
+    }, { invalidate: ['lighting'] });
     requestRender();
   }
 
@@ -407,14 +407,15 @@ export class BridgeTool extends Tool {
       return;
     }
 
-    pushUndo('Move Bridge');
-    this._dirtyFromBridge(id!);
-    this._clearCellMarkers(id!);
-    bridge.points = ghostPts as Bridge['points'];
-    this._setCellMarkers(id!, occupied);
-    this._dirtyFromCells(occupied);
-    markDirty();
-    notify();
+    const oldCoords = this._collectBridgeCells(id!);
+    const allCoords = [...oldCoords, ...occupied];
+    mutate('Move Bridge', allCoords, () => {
+      this._dirtyFromBridge(id!);
+      this._clearCellMarkers(id!);
+      bridge.points = ghostPts as Bridge['points'];
+      this._setCellMarkers(id!, occupied);
+      this._dirtyFromCells(occupied);
+    }, { invalidate: ['lighting'] });
     this._resetDrag();
     requestRender();
   }
@@ -426,6 +427,20 @@ export class BridgeTool extends Tool {
     const bridges = state.dungeon.metadata.bridges;
     const idx = bridges.findIndex(b => b.id === id);
     if (idx !== -1) bridges.splice(idx, 1);
+  }
+
+  /** Collect all cells belonging to a bridge by scanning for its ID. */
+  _collectBridgeCells(id: number): Array<{ row: number; col: number }> {
+    const cells = state.dungeon.cells;
+    const coords: Array<{ row: number; col: number }> = [];
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+        if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
+          coords.push({ row: r, col: c });
+        }
+      }
+    }
+    return coords;
   }
 
   /** Accumulate dirty rect from a bridge's occupied cells. */

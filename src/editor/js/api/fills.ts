@@ -1,9 +1,8 @@
 import type { FillType } from '../../../types.js';
 import {
-  state, pushUndo, markDirty, notify,
+  state, mutate,
   validateBounds, ensureCell,
   toInt,
-  captureBeforeState, smartInvalidate,
   ApiValidationError,
 } from './_shared.js';
 
@@ -21,23 +20,21 @@ export function setFill(row: number, col: number, fillType: string, depth: numbe
     throw new ApiValidationError('INVALID_FILL_TYPE', `Invalid fill type: ${fillType}. Use 'pit', 'water', or 'lava'. For hazard, use setHazard().`, { fillType });
   }
   const cell = ensureCell(row, col);
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  cell.fill = fillType as FillType;
-  const d = (depth >= 1 && depth <= 3) ? depth : 1;
-  if (fillType === 'water') {
-    cell.waterDepth = d;
-    delete cell.lavaDepth;
-  } else if (fillType === 'lava') {
-    cell.lavaDepth = d;
-    delete cell.waterDepth;
-  } else {
-    delete cell.waterDepth;
-    delete cell.lavaDepth;
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  const coords: Array<{ row: number; col: number }> = [{ row, col }];
+  mutate('setFill', coords, () => {
+    cell.fill = fillType as FillType;
+    const d = (depth >= 1 && depth <= 3) ? depth : 1;
+    if (fillType === 'water') {
+      cell.waterDepth = d;
+      delete cell.lavaDepth;
+    } else if (fillType === 'lava') {
+      cell.lavaDepth = d;
+      delete cell.waterDepth;
+    } else {
+      delete cell.waterDepth;
+      delete cell.lavaDepth;
+    }
+  });
   return { success: true };
 }
 
@@ -52,12 +49,10 @@ export function removeFill(row: number, col: number): { success: true } {
   validateBounds(row, col);
   const cell = state.dungeon.cells[row][col];
   if (!cell?.fill) return { success: true };
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  delete cell.fill;
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  const coords: Array<{ row: number; col: number }> = [{ row, col }];
+  mutate('removeFill', coords, () => {
+    delete cell.fill;
+  });
   return { success: true };
 }
 
@@ -71,17 +66,15 @@ export function removeFill(row: number, col: number): { success: true } {
 export function setHazard(row: number, col: number, enabled: boolean = true): { success: true } {
   row = toInt(row); col = toInt(col);
   const cell = ensureCell(row, col);
-  const before = captureBeforeState(state.dungeon.cells, [{ row, col }]);
-  pushUndo();
-  if (enabled) {
-    cell.hazard = true;
-    if ((cell.fill as string) === 'difficult-terrain') delete cell.fill;
-  } else {
-    delete cell.hazard;
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  const coords: Array<{ row: number; col: number }> = [{ row, col }];
+  mutate('setHazard', coords, () => {
+    if (enabled) {
+      cell.hazard = true;
+      if ((cell.fill as string) === 'difficult-terrain') delete cell.fill;
+    } else {
+      delete cell.hazard;
+    }
+  });
   return { success: true };
 }
 
@@ -104,32 +97,29 @@ export function setFillRect(r1: number, c1: number, r2: number, c2: number, fill
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
-  const coords = [];
+  const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  const before = captureBeforeState(state.dungeon.cells, coords);
-  pushUndo();
-  const wd = (depth >= 1 && depth <= 3) ? depth : 1;
-  for (let r = minR; r <= maxR; r++) {
-    for (let c = minC; c <= maxC; c++) {
-      const cell = state.dungeon.cells[r]?.[c];
-      if (cell) {
-        cell.fill = fillType as FillType;
-        if (fillType === 'water') {
-          cell.waterDepth = wd;
-          delete cell.lavaDepth;
-        } else if (fillType === 'lava') {
-          cell.lavaDepth = wd;
-          delete cell.waterDepth;
-        } else {
-          delete cell.waterDepth;
-          delete cell.lavaDepth;
+  mutate('setFillRect', coords, () => {
+    const wd = (depth >= 1 && depth <= 3) ? depth : 1;
+    for (let r = minR; r <= maxR; r++) {
+      for (let c = minC; c <= maxC; c++) {
+        const cell = state.dungeon.cells[r]?.[c];
+        if (cell) {
+          cell.fill = fillType as FillType;
+          if (fillType === 'water') {
+            cell.waterDepth = wd;
+            delete cell.lavaDepth;
+          } else if (fillType === 'lava') {
+            cell.lavaDepth = wd;
+            delete cell.waterDepth;
+          } else {
+            delete cell.waterDepth;
+            delete cell.lavaDepth;
+          }
         }
       }
     }
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  });
   return { success: true };
 }
 
@@ -148,26 +138,23 @@ export function setHazardRect(r1: number, c1: number, r2: number, c2: number, en
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
-  const coords = [];
+  const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  const before = captureBeforeState(state.dungeon.cells, coords);
-  pushUndo();
-  for (let r = minR; r <= maxR; r++) {
-    for (let c = minC; c <= maxC; c++) {
-      const cell = state.dungeon.cells[r]?.[c];
-      if (cell) {
-        if (enabled) {
-          cell.hazard = true;
-          if ((cell.fill as string) === 'difficult-terrain') delete cell.fill;
-        } else {
-          delete cell.hazard;
+  mutate('setHazardRect', coords, () => {
+    for (let r = minR; r <= maxR; r++) {
+      for (let c = minC; c <= maxC; c++) {
+        const cell = state.dungeon.cells[r]?.[c];
+        if (cell) {
+          if (enabled) {
+            cell.hazard = true;
+            if ((cell.fill as string) === 'difficult-terrain') delete cell.fill;
+          } else {
+            delete cell.hazard;
+          }
         }
       }
     }
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  });
   return { success: true };
 }
 
@@ -185,18 +172,15 @@ export function removeFillRect(r1: number, c1: number, r2: number, c2: number): 
   const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
   validateBounds(minR, minC);
   validateBounds(maxR, maxC);
-  const coords = [];
+  const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  const before = captureBeforeState(state.dungeon.cells, coords);
-  pushUndo();
-  for (let r = minR; r <= maxR; r++) {
-    for (let c = minC; c <= maxC; c++) {
-      const cell = state.dungeon.cells[r]?.[c];
-      if (cell) delete cell.fill;
+  mutate('removeFillRect', coords, () => {
+    for (let r = minR; r <= maxR; r++) {
+      for (let c = minC; c <= maxC; c++) {
+        const cell = state.dungeon.cells[r]?.[c];
+        if (cell) delete cell.fill;
+      }
     }
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  });
   return { success: true };
 }

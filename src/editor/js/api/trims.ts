@@ -3,11 +3,10 @@ import type { TrimCorner } from '../../../util/trim-geometry.js';
 import {
   getApi,
   CARDINAL_DIRS, OFFSETS, OPPOSITE,
-  state, pushUndo, markDirty, notify,
+  state, mutate,
   trimTool,
   validateBounds,
   toInt,
-  captureBeforeState, smartInvalidate,
 } from './_shared.js';
 import { computeTrimCells, getEdge, deleteEdge } from '../../../util/index.js';
 
@@ -87,120 +86,120 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
 
   // Apply — same logic as TrimTool.onMouseUp
   const cells = state.dungeon.cells;
-  const trimCoords = [
+  const trimCoords: Array<{ row: number; col: number }> = [
     ...preview.voided.map(({ row, col }: { row: number; col: number }) => ({ row, col })),
     ...preview.hypotenuse.map(({ row, col }: { row: number; col: number }) => ({ row, col })),
     ...(preview.insideArc ?? []).map(({ row, col }: { row: number; col: number }) => ({ row, col })),
   ];
-  const before = captureBeforeState(cells, trimCoords);
-  pushUndo();
 
-  // Helper: clear all walls and reciprocals from a cell
-  const clearWalls = (cell: Cell, r: number, c: number) => {
-    for (const dir of CARDINAL_DIRS) {
-      if (getEdge(cell, dir as Direction)) {
-        deleteEdge(cell, dir as Direction);
-        const [dr, dc] = OFFSETS[dir];
-        const neighbor = cells[r + dr]?.[c + dc];
-        if (neighbor) deleteEdge(neighbor, OPPOSITE[dir as CardinalDirection]);
+  mutate('createTrim', trimCoords, () => {
+    // Helper: clear all walls and reciprocals from a cell
+    const clearWalls = (cell: Cell, r: number, c: number) => {
+      for (const dir of CARDINAL_DIRS) {
+        if (getEdge(cell, dir as Direction)) {
+          deleteEdge(cell, dir as Direction);
+          const [dr, dc] = OFFSETS[dir];
+          const neighbor = cells[r + dr]?.[c + dc];
+          if (neighbor) deleteEdge(neighbor, OPPOSITE[dir as CardinalDirection]);
+        }
       }
-    }
-    deleteEdge(cell, 'nw-se');
-    deleteEdge(cell, 'ne-sw');
-  };
+      deleteEdge(cell, 'nw-se');
+      deleteEdge(cell, 'ne-sw');
+    };
 
-  const clearOldTrimFlags = (cell: Cell) => {
-    delete cell.trimRound;
-    delete cell.trimArcCenterRow;
-    delete cell.trimArcCenterCol;
-    delete cell.trimArcRadius;
-    delete cell.trimArcInverted;
-    delete cell.trimInsideArc;
-    delete cell.trimCorner;
-    delete cell.trimOpen;
-    delete cell.trimInverted;
-    delete cell.trimClip;
-    delete cell.trimWall;
-    delete cell.trimPassable;
-    delete cell.trimCrossing;
-  };
+    const clearOldTrimFlags = (cell: Cell) => {
+      delete cell.trimRound;
+      delete cell.trimArcCenterRow;
+      delete cell.trimArcCenterCol;
+      delete cell.trimArcRadius;
+      delete cell.trimArcInverted;
+      delete cell.trimInsideArc;
+      delete cell.trimCorner;
+      delete cell.trimOpen;
+      delete cell.trimInverted;
+      delete cell.trimClip;
+      delete cell.trimWall;
+      delete cell.trimPassable;
+      delete cell.trimCrossing;
+    };
 
-  if (round) {
-    // ── Round trim: per-cell data from computeTrimCells ──
-    const trimData = computeTrimCells(preview, resolvedCorner as TrimCorner, inverted, open);
-    const numRows = cells.length;
-    const numCols = cells[0]?.length || 0;
+    if (round) {
+      // ── Round trim: per-cell data from computeTrimCells ──
+      const trimData = computeTrimCells(preview, resolvedCorner as TrimCorner, inverted, open);
+      const numRows = cells.length;
+      const numCols = cells[0]?.length || 0;
 
-    // Only clear walls on cells in the original trim zone, not buffer-ring neighbors
-    const trimZone = new Set([
-      ...preview.voided.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
-      ...preview.hypotenuse.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
-      ...(preview.insideArc ?? []).map((c: { row: number; col: number }) => `${c.row},${c.col}`),
-    ]);
+      // Only clear walls on cells in the original trim zone, not buffer-ring neighbors
+      const trimZone = new Set([
+        ...preview.voided.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
+        ...preview.hypotenuse.map((c: { row: number; col: number }) => `${c.row},${c.col}`),
+        ...(preview.insideArc ?? []).map((c: { row: number; col: number }) => `${c.row},${c.col}`),
+      ]);
 
-    for (const [key, val] of trimData) {
-      const [r, c] = key.split(',').map(Number);
-      if (r < 0 || r >= numRows || c < 0 || c >= numCols) continue;
-      const inZone = trimZone.has(key);
+      for (const [key, val] of trimData) {
+        const [r, c] = key.split(',').map(Number);
+        if (r < 0 || r >= numRows || c < 0 || c >= numCols) continue;
+        const inZone = trimZone.has(key);
 
-      if (val === null) {
-        cells[r][c] = null;
-      } else if (val === 'interior') {
-        if (inZone) {
+        if (val === null) {
+          cells[r][c] = null;
+        } else if (val === 'interior') {
+          if (inZone) {
+            cells[r][c] ??= {};
+            const cell = cells[r][c];
+            clearWalls(cell, r, c);
+            clearOldTrimFlags(cell);
+          }
+        } else if ((val as unknown as string) === 'diagonal') {
+          // Inverted hypotenuse: straight diagonal wall (like straight trims)
           cells[r][c] ??= {};
           const cell = cells[r][c];
+          if (inZone) clearWalls(cell, r, c);
+          clearOldTrimFlags(cell);
+          cell.trimCorner = resolvedCorner;
+          if (resolvedCorner === 'nw' || resolvedCorner === 'se') cell['ne-sw'] = 'w';
+          else cell['nw-se'] = 'w';
+          if (open) cell.trimOpen = true;
+        } else {
+          cells[r][c] ??= {};
+          const cell = cells[r][c];
+          if (inZone) clearWalls(cell, r, c);
+          clearOldTrimFlags(cell);
+          Object.assign(cell, val);
+        }
+      }
+    } else {
+      // ── Straight trim: original logic (unchanged) ──
+      if (!open) {
+        for (const { row, col } of preview.voided) {
+          cells[row][col] = null;
+        }
+      } else {
+        for (const { row: r, col: c } of preview.voided) {
+          const cell = cells[r]?.[c];
+          if (!cell) continue;
           clearWalls(cell, r, c);
           clearOldTrimFlags(cell);
         }
-      } else if ((val as unknown as string) === 'diagonal') {
-        // Inverted hypotenuse: straight diagonal wall (like straight trims)
+      }
+
+      for (const { row: r, col: c } of preview.hypotenuse) {
         cells[r][c] ??= {};
         const cell = cells[r][c];
-        if (inZone) clearWalls(cell, r, c);
-        clearOldTrimFlags(cell);
         cell.trimCorner = resolvedCorner;
-        if (resolvedCorner === 'nw' || resolvedCorner === 'se') cell['ne-sw'] = 'w';
-        else cell['nw-se'] = 'w';
-        if (open) cell.trimOpen = true;
-      } else {
-        cells[r][c] ??= {};
-        const cell = cells[r][c];
-        if (inZone) clearWalls(cell, r, c);
-        clearOldTrimFlags(cell);
-        Object.assign(cell, val);
-      }
-    }
-  } else {
-    // ── Straight trim: original logic (unchanged) ──
-    if (!open) {
-      for (const { row, col } of preview.voided) {
-        cells[row][col] = null;
-      }
-    } else {
-      for (const { row: r, col: c } of preview.voided) {
-        const cell = cells[r]?.[c];
-        if (!cell) continue;
         clearWalls(cell, r, c);
-        clearOldTrimFlags(cell);
+
+        if (resolvedCorner === 'nw' || resolvedCorner === 'se') {
+          cell['ne-sw'] = 'w';
+        } else {
+          cell['nw-se'] = 'w';
+        }
+
+        if (open) cell.trimOpen = true;
+        else delete cell.trimOpen;
       }
     }
-
-    for (const { row: r, col: c } of preview.hypotenuse) {
-      cells[r][c] ??= {};
-      const cell = cells[r][c];
-      cell.trimCorner = resolvedCorner;
-      clearWalls(cell, r, c);
-
-      if (resolvedCorner === 'nw' || resolvedCorner === 'se') {
-        cell['ne-sw'] = 'w';
-      } else {
-        cell['nw-se'] = 'w';
-      }
-
-      if (open) cell.trimOpen = true;
-      else delete cell.trimOpen;
-    }
-  }
+  }, { forceGeometry: true, invalidate: ['lighting'] });
 
   // Restore state
   state.trimCorner = prevCorner;
@@ -209,9 +208,6 @@ export function createTrim(r1: number, c1: number, r2: number, c2: number, corne
   state.trimOpen = prevOpen;
   trimTool.previewCells = null;
 
-  smartInvalidate(before, cells, { forceGeometry: true });
-  markDirty();
-  notify();
   return { success: true };
 }
 

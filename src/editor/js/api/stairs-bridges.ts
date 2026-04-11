@@ -1,6 +1,6 @@
 import type { BridgeType } from '../../../types.js';
 import {
-  state, pushUndo, markDirty, notify, getApi,
+  state, mutate, getApi,
   validateBounds, isInBounds,
   classifyStairShape, isDegenerate, getOccupiedCells,
   isBridgeDegenerate, getBridgeOccupiedCells,
@@ -56,26 +56,26 @@ export function addStairs(p1r: number, p1c: number, p2r: number, p2c: number, p3
     }
   }
 
-  pushUndo();
-  const meta = state.dungeon.metadata;
-  const id = meta.nextStairId++;
-  meta.stairs.push({ id, points: [p1, p2, p3], link: null });
+  let stairId: number;
+  mutate('Add stairs', occupied, () => {
+    const meta = state.dungeon.metadata;
+    stairId = meta.nextStairId++;
+    meta.stairs.push({ id: stairId, points: [p1, p2, p3], link: null });
 
-  let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
-  for (const { row, col } of occupied) {
-    cells[row][col] ??= {};
-    cells[row][col].center ??= {};
-    cells[row][col].center['stair-id'] = id;
-    if (row < minR) minR = row;
-    if (row > maxR) maxR = row;
-    if (col < minC) minC = col;
-    if (col > maxC) maxC = col;
-  }
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    for (const { row, col } of occupied) {
+      cells[row][col] ??= {};
+      cells[row][col].center ??= {};
+      cells[row][col].center['stair-id'] = stairId;
+      if (row < minR) minR = row;
+      if (row > maxR) maxR = row;
+      if (col < minC) minC = col;
+      if (col > maxC) maxC = col;
+    }
 
-  accumulateDirtyRect(minR, minC, maxR, maxC);
-  markDirty();
-  notify();
-  return { success: true, id };
+    accumulateDirtyRect(minR, minC, maxR, maxC);
+  }, { invalidate: ['lighting'] });
+  return { success: true, id: stairId! };
 }
 
 /**
@@ -92,50 +92,58 @@ export function removeStairs(row: number, col: number): { success: true } {
 
   if (id == null) {
     if (cell?.center?.['stairs-up'] || cell?.center?.['stairs-down']) {
-      pushUndo();
-      delete cell.center['stairs-up'];
-      delete cell.center['stairs-down'];
-      delete cell.center['stairs-link'];
-      if (Object.keys(cell.center).length === 0) delete cell.center;
-      accumulateDirtyRect(row, col, row, col);
-      markDirty();
-      notify();
+      mutate('Remove legacy stairs', [{ row, col }], () => {
+        if (!cell.center) return;
+        delete cell.center['stairs-up'];
+        delete cell.center['stairs-down'];
+        delete cell.center['stairs-link'];
+        if (Object.keys(cell.center).length === 0) delete cell.center;
+        accumulateDirtyRect(row, col, row, col);
+      }, { invalidate: ['lighting'] });
     }
     return { success: true };
   }
 
-  pushUndo();
-  const meta = state.dungeon.metadata;
-  const stairs = meta.stairs;
-  const idx = stairs.findIndex(s => s.id === id);
-
-  if (idx !== -1) {
-    const stairDef = stairs[idx];
-    if (stairDef.link) {
-      const partner = stairs.find(s => s.link === stairDef.link && s.id !== id);
-      if (partner) partner.link = null;
-    }
-    stairs.splice(idx, 1);
-  }
-
+  // Collect all cells with this stair-id for coords
   const cells = state.dungeon.cells;
-  let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+  const stairCoords: Array<{ row: number; col: number }> = [];
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['stair-id'] === id) {
-        delete cells[r][c]!.center!['stair-id'];
-        if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
+        stairCoords.push({ row: r, col: c });
+      }
+    }
+  }
+
+  mutate('Remove stairs', stairCoords, () => {
+    const meta = state.dungeon.metadata;
+    const stairs = meta.stairs;
+    const idx = stairs.findIndex(s => s.id === id);
+
+    if (idx !== -1) {
+      const stairDef = stairs[idx];
+      if (stairDef.link) {
+        const partner = stairs.find(s => s.link === stairDef.link && s.id !== id);
+        if (partner) partner.link = null;
+      }
+      stairs.splice(idx, 1);
+    }
+
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    for (const { row: r, col: c } of stairCoords) {
+      const stairCell = cells[r]?.[c];
+      if (stairCell?.center?.['stair-id'] === id) {
+        delete stairCell.center['stair-id'];
+        if (Object.keys(stairCell.center).length === 0) delete stairCell.center;
         if (r < minR) minR = r;
         if (r > maxR) maxR = r;
         if (c < minC) minC = c;
         if (c > maxC) maxC = c;
       }
     }
-  }
 
-  if (minR <= maxR) accumulateDirtyRect(minR, minC, maxR, maxC);
-  markDirty();
-  notify();
+    if (minR <= maxR) accumulateDirtyRect(minR, minC, maxR, maxC);
+  }, { invalidate: ['lighting'] });
   return { success: true };
 }
 
@@ -170,14 +178,12 @@ export function linkStairs(r1: number, c1: number, r2: number, c2: number): { su
   }
   if (!label) throw new Error('No available link labels (A-Z exhausted)');
 
-  pushUndo();
-  if (s1.link) { const old = stairs.find(s => s.link === s1.link && s.id !== id1); if (old) old.link = null; }
-  if (s2.link) { const old = stairs.find(s => s.link === s2.link && s.id !== id2); if (old) old.link = null; }
-  s1.link = label;
-  s2.link = label;
-
-  markDirty();
-  notify();
+  mutate('Link stairs', [], () => {
+    if (s1.link) { const old = stairs.find(s => s.link === s1.link && s.id !== id1); if (old) old.link = null; }
+    if (s2.link) { const old = stairs.find(s => s.link === s2.link && s.id !== id2); if (old) old.link = null; }
+    s1.link = label;
+    s2.link = label;
+  }, { metaOnly: true, invalidate: ['lighting'] });
   return { success: true, label };
 }
 
@@ -213,21 +219,19 @@ export function addBridge(type: string, p1r: number, p1c: number, p2r: number, p
     }
   }
 
-  pushUndo();
+  let bridgeId: number;
+  mutate('Add bridge', occupied, () => {
+    const meta = state.dungeon.metadata;
+    bridgeId = meta.nextBridgeId++;
+    meta.bridges.push({ id: bridgeId, type: type as BridgeType, points: [p1, p2, p3] });
 
-  const meta = state.dungeon.metadata;
-  const id = meta.nextBridgeId++;
-  meta.bridges.push({ id, type: type as BridgeType, points: [p1, p2, p3] });
-
-  for (const { row, col } of occupied) {
-    cells[row][col] ??= {};
-    cells[row][col].center ??= {};
-    cells[row][col].center['bridge-id'] = id;
-  }
-
-  markDirty();
-  notify();
-  return { success: true, id };
+    for (const { row, col } of occupied) {
+      cells[row][col] ??= {};
+      cells[row][col].center ??= {};
+      cells[row][col].center['bridge-id'] = bridgeId;
+    }
+  }, { invalidate: ['lighting'] });
+  return { success: true, id: bridgeId! };
 }
 
 /**
@@ -246,21 +250,28 @@ export function removeBridge(row: number, col: number): { success: true } {
   const idx = meta.bridges.findIndex(b => b.id === id);
   if (idx === -1) throw new Error(`Bridge id ${id} not found in metadata`);
 
-  pushUndo();
-  meta.bridges.splice(idx, 1);
-
+  // Collect all cells with this bridge-id for coords
   const cells = state.dungeon.cells;
+  const bridgeCoords: Array<{ row: number; col: number }> = [];
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length || 0); c++) {
       if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
-        delete cells[r][c]!.center!['bridge-id'];
-        if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
+        bridgeCoords.push({ row: r, col: c });
       }
     }
   }
 
-  markDirty();
-  notify();
+  mutate('Remove bridge', bridgeCoords, () => {
+    meta.bridges.splice(idx, 1);
+
+    for (const { row: r, col: c } of bridgeCoords) {
+      const bridgeCell = cells[r]?.[c];
+      if (bridgeCell?.center?.['bridge-id'] === id) {
+        delete bridgeCell.center['bridge-id'];
+        if (Object.keys(bridgeCell.center).length === 0) delete bridgeCell.center;
+      }
+    }
+  }, { invalidate: ['lighting'] });
   return { success: true };
 }
 

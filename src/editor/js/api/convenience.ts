@@ -4,11 +4,10 @@
 import type { PlaceLightConfig } from '../../../types.js';
 import {
   getApi,
-  state, pushUndo, markDirty, notify,
+  state, mutate, markDirty, notify,
   setReciprocal,
   invalidateAllCaches,
   toInt,
-  captureBeforeState, smartInvalidate,
   withRollback,
   ApiValidationError,
 } from './_shared.js';
@@ -27,19 +26,16 @@ export function mergeRooms(label1: string, label2: string): { success: true; rem
   if (!walls) {
     throw new ApiValidationError('NO_SHARED_BOUNDARY', `No shared boundary found between '${label1}' and '${label2}'`, { label1, label2 });
   }
-  const coords = walls.map(({ row, col }: { row: number; col: number }) => ({ row: toInt(row), col: toInt(col) }));
-  const before = captureBeforeState(state.dungeon.cells, coords);
-  pushUndo();
-  for (const { row, col, direction } of walls) {
-    const iRow = toInt(row), iCol = toInt(col);
-    const cell = state.dungeon.cells[iRow]?.[iCol];
-    if (!cell) continue;
-    delete (cell as Record<string, unknown>)[direction];
-    setReciprocal(iRow, iCol, direction, null);
-  }
-  smartInvalidate(before, state.dungeon.cells);
-  markDirty();
-  notify();
+  const coords: Array<{ row: number; col: number }> = walls.map(({ row, col }: { row: number; col: number }) => ({ row: toInt(row), col: toInt(col) }));
+  mutate('mergeRooms', coords, () => {
+    for (const { row, col, direction } of walls) {
+      const iRow = toInt(row), iCol = toInt(col);
+      const cell = state.dungeon.cells[iRow]?.[iCol];
+      if (!cell) continue;
+      delete (cell as Record<string, unknown>)[direction];
+      setReciprocal(iRow, iCol, direction, null);
+    }
+  }, { invalidate: ['lighting'] });
   return { success: true, removed: walls.length };
 }
 

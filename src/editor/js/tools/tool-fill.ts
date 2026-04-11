@@ -2,8 +2,7 @@ import type { FillType, RenderTransform } from '../../../types.js';
 // Fill tool: click-drag box selection to apply cell fills (water, lava, pit, difficult-terrain)
 // or to clear fills (clear-fill mode). Right-click clears fills/hazard on a single cell.
 import { Tool } from './tool-base.js';
-import state, { pushUndo, markDirty } from '../state.js';
-import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
+import state, { mutate } from '../state.js';
 
 const OVERLAY_COLORS = {
   'water':            { fill: 'rgba(60,120,220,0.12)',  stroke: 'rgba(60,120,220,0.85)' },
@@ -73,22 +72,20 @@ export class FillTool extends Tool {
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
     if (cells[row][col] === null) return;
     const mode = state.fillMode || 'water';
+    const cell = cells[row][col];
     if (mode === 'difficult-terrain') {
-      if (!cells[row][col].hazard) return;
-      const before = captureBeforeState(cells, [{ row, col }]);
-      pushUndo('Clear hazard');
-      delete cells[row][col].hazard;
-      smartInvalidate(before, cells);
+      if (!cell.hazard) return;
+      mutate('Clear hazard', [{ row, col }], () => {
+        delete cell.hazard;
+      });
     } else {
-      if (!cells[row][col].fill) return;
-      const before = captureBeforeState(cells, [{ row, col }]);
-      pushUndo('Clear fill');
-      delete cells[row][col].fill;
-      delete cells[row][col].waterDepth;
-      delete cells[row][col].lavaDepth;
-      smartInvalidate(before, cells);
+      if (!cell.fill) return;
+      mutate('Clear fill', [{ row, col }], () => {
+        delete cell.fill;
+        delete cell.waterDepth;
+        delete cell.lavaDepth;
+      });
     }
-    markDirty();
   }
 
   _getBoxBounds() {
@@ -112,7 +109,7 @@ export class FillTool extends Tool {
     const depth = isFluid ? (state[depthKey] ?? 1) : undefined;
 
     // Collect coords that will actually be mutated
-    const coords = [];
+    const coords: Array<{ row: number; col: number }> = [];
     for (let r = r1; r <= r2; r++) {
       for (let c = c1; c <= c2; c++) {
         if (cells[r]?.[c]) coords.push({ row: r, col: c });
@@ -120,23 +117,19 @@ export class FillTool extends Tool {
     }
     if (coords.length === 0) return;
 
-    const before = captureBeforeState(cells, coords);
-    pushUndo(mode === 'difficult-terrain' ? 'Paint hazard' : 'Paint ' + mode);
-
-    for (const { row: r, col: c } of coords) {
-      const cell = cells[r][c];
-      if (mode === 'difficult-terrain') {
-        cell!.hazard = true;
-      } else {
-        cell!.fill = mode as FillType;
-        if (isFluid) (cell as Record<string, unknown>)[depthKey] = depth;
-        if (mode !== 'water') delete cell!.waterDepth;
-        if (mode !== 'lava')  delete cell!.lavaDepth;
+    mutate(mode === 'difficult-terrain' ? 'Paint hazard' : 'Paint ' + mode, coords, () => {
+      for (const { row: r, col: c } of coords) {
+        const cell = cells[r][c];
+        if (mode === 'difficult-terrain') {
+          cell!.hazard = true;
+        } else {
+          cell!.fill = mode as FillType;
+          if (isFluid) (cell as Record<string, unknown>)[depthKey] = depth;
+          if (mode !== 'water') delete cell!.waterDepth;
+          if (mode !== 'lava')  delete cell!.lavaDepth;
+        }
       }
-    }
-
-    smartInvalidate(before, cells);
-    markDirty();
+    });
   }
 
   _clearBox() {
@@ -144,7 +137,7 @@ export class FillTool extends Tool {
     const cells = state.dungeon.cells;
     const { r1, r2, c1, c2 } = this._getBoxBounds();
 
-    const coords = [];
+    const coords: Array<{ row: number; col: number }> = [];
     for (let r = r1; r <= r2; r++) {
       for (let c = c1; c <= c2; c++) {
         if (cells[r]?.[c]?.fill || cells[r]?.[c]?.hazard) coords.push({ row: r, col: c });
@@ -152,18 +145,14 @@ export class FillTool extends Tool {
     }
     if (coords.length === 0) return;
 
-    const before = captureBeforeState(cells, coords);
-    pushUndo('Clear fill');
-
-    for (const { row: r, col: c } of coords) {
-      delete cells[r][c]!.fill;
-      delete cells[r][c]!.waterDepth;
-      delete cells[r][c]!.lavaDepth;
-      delete cells[r][c]!.hazard;
-    }
-
-    smartInvalidate(before, cells);
-    markDirty();
+    mutate('Clear fill', coords, () => {
+      for (const { row: r, col: c } of coords) {
+        delete cells[r][c]!.fill;
+        delete cells[r][c]!.waterDepth;
+        delete cells[r][c]!.lavaDepth;
+        delete cells[r][c]!.hazard;
+      }
+    });
   }
 
   renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {

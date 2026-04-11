@@ -1,8 +1,8 @@
 // Door tool: click on cell edges to place/toggle doors (normal or secret)
 import type { Direction, EdgeValue } from '../../../types.js';
 import { Tool, type EdgeInfo } from './tool-base.js';
-import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state.js';
-import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal, getEdge } from '../../../util/index.js';
+import state, { mutate } from '../state.js';
+import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal, getEdge, CARDINAL_OFFSETS } from '../../../util/index.js';
 
 /**
  * Door tool: click on cell edges to place/toggle doors (normal, secret, or invisible).
@@ -34,12 +34,15 @@ export class DoorTool extends Tool {
     if (!cells[er]?.[ec]) return;
     if (!getEdge(cells[er][ec], direction as Direction)) return; // nothing to clear
 
-    pushUndo('Remove door');
-    deleteEdgeReciprocal(cells, er, ec, direction);
+    const coords: Array<{ row: number; col: number }> = [{ row: er, col: ec }];
+    const offset = (CARDINAL_OFFSETS as unknown as Record<string, [number, number]>)[direction] as [number, number] | undefined;
+    if (offset && isInBounds(cells, er + offset[0], ec + offset[1])) {
+      coords.push({ row: er + offset[0], col: ec + offset[1] });
+    }
 
-    invalidateLightmap();
-    markDirty();
-    notify();
+    mutate('Remove door', coords, () => {
+      deleteEdgeReciprocal(cells, er, ec, direction);
+    }, { invalidate: ['lighting'] });
   }
 
   onMouseDown(row: number, col: number, edge: EdgeInfo | null) {
@@ -48,22 +51,25 @@ export class DoorTool extends Tool {
     const { direction, row: er, col: ec } = edge;
 
     if (!isInBounds(cells, er, ec)) return;
-    cells[er][ec] ??= {}; // create cell if void
 
-    const cell = cells[er][ec];
-    const doorType = state.doorType || 'd'; // 'd' or 's'
+    const cell = cells[er][ec] ?? {};
+    const doorType = state.doorType || 'd';
     const isToggleOff = (cell as Record<string, unknown>)[direction] === doorType;
-    pushUndo(isToggleOff ? 'Remove door' : (doorType === 's' ? 'Secret door' : 'Add door'));
+    const label = isToggleOff ? 'Remove door' : (doorType === 's' ? 'Secret door' : 'Add door');
 
-    // Toggle: if clicking same value, clear it (revert to wall)
-    if (isToggleOff) {
-      setEdgeReciprocal(cells, er, ec, direction, 'w');
-    } else {
-      setEdgeReciprocal(cells, er, ec, direction, doorType as EdgeValue);
+    const coords: Array<{ row: number; col: number }> = [{ row: er, col: ec }];
+    const offset = (CARDINAL_OFFSETS as unknown as Record<string, [number, number]>)[direction] as [number, number] | undefined;
+    if (offset && isInBounds(cells, er + offset[0], ec + offset[1])) {
+      coords.push({ row: er + offset[0], col: ec + offset[1] });
     }
 
-    invalidateLightmap();
-    markDirty();
-    notify();
+    mutate(label, coords, () => {
+      cells[er][ec] ??= {};
+      if (isToggleOff) {
+        setEdgeReciprocal(cells, er, ec, direction, 'w');
+      } else {
+        setEdgeReciprocal(cells, er, ec, direction, doorType as EdgeValue);
+      }
+    }, { invalidate: ['lighting'] });
   }
 }

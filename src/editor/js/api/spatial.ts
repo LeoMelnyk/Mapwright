@@ -1,7 +1,7 @@
 import {
   getApi,
   CARDINAL_DIRS, OFFSETS,
-  state, pushUndo, markDirty, notify, setReciprocal,
+  state, mutate, setReciprocal,
   cellKey, parseCellKey, floodFillRoom, roomBoundsFromKeys,
   toInt, toDisp,
   ApiValidationError,
@@ -144,35 +144,50 @@ export function partitionRoom(roomLabel: string, direction: string, position: nu
   const roomCells = getApi()._collectRoomCells(roomLabel);
   if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
 
-  pushUndo();
-  const cells = state.dungeon.cells;
-  let count = 0;
-
-  if (direction === 'horizontal') {
-    for (const key of roomCells) {
-      const [r, c] = parseCellKey(key);
+  // Collect affected coords (partition cells + their reciprocal neighbors)
+  const coords: Array<{ row: number; col: number }> = [];
+  for (const key of roomCells) {
+    const [r, c] = parseCellKey(key);
+    if (direction === 'horizontal') {
       if (r !== position) continue;
       if (!roomCells.has(cellKey(r + 1, c))) continue;
-      const val = ((doorAt === c) ? 'd' : wallType) as EdgeValue;
-      cells[r][c]!.south = val;
-      setReciprocal(r, c, 'south', val);
-      count++;
-    }
-  } else {
-    for (const key of roomCells) {
-      const [r, c] = parseCellKey(key);
+      coords.push({ row: r, col: c });
+      coords.push({ row: r + 1, col: c });
+    } else {
       if (c !== position) continue;
       if (!roomCells.has(cellKey(r, c + 1))) continue;
-      const val = ((doorAt === r) ? 'd' : wallType) as EdgeValue;
-      cells[r][c]!.east = val;
-      setReciprocal(r, c, 'east', val);
-      count++;
+      coords.push({ row: r, col: c });
+      coords.push({ row: r, col: c + 1 });
     }
   }
 
-  if (count === 0) throw new Error(`No cells at ${direction} position ${position} in room "${roomLabel}"`);
+  if (coords.length === 0) throw new Error(`No cells at ${direction} position ${position} in room "${roomLabel}"`);
 
-  markDirty();
-  notify();
+  let count = 0;
+  mutate('partitionRoom', coords, () => {
+    const cells = state.dungeon.cells;
+    if (direction === 'horizontal') {
+      for (const key of roomCells) {
+        const [r, c] = parseCellKey(key);
+        if (r !== position) continue;
+        if (!roomCells.has(cellKey(r + 1, c))) continue;
+        const val = ((doorAt === c) ? 'd' : wallType) as EdgeValue;
+        cells[r][c]!.south = val;
+        setReciprocal(r, c, 'south', val);
+        count++;
+      }
+    } else {
+      for (const key of roomCells) {
+        const [r, c] = parseCellKey(key);
+        if (c !== position) continue;
+        if (!roomCells.has(cellKey(r, c + 1))) continue;
+        const val = ((doorAt === r) ? 'd' : wallType) as EdgeValue;
+        cells[r][c]!.east = val;
+        setReciprocal(r, c, 'east', val);
+        count++;
+      }
+    }
+  }, { invalidate: ['lighting'] });
+
   return { success: true, wallsPlaced: count };
 }

@@ -5,8 +5,7 @@ import type { RenderTransform } from '../../../types.js';
 // Shift: constrain the drag rectangle to a square (larger dimension wins)
 
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, markDirty, invalidateLightmap } from '../state.js';
-import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
+import state, { mutate } from '../state.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
 import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, snapToSquare, normalizeBounds } from '../../../util/index.js';
@@ -109,31 +108,28 @@ export class RoomTool extends Tool {
     if (!isInBounds(cells, row, col)) return;
     if (cells[row][col] === null) return; // already void
 
-    const before = captureBeforeState(cells, [{ row, col }]);
-    pushUndo('Void cell');
-
-    // Void the cell
-    cells[row][col] = null;
-
-    // Add walls to all adjacent non-void cells on the side facing this now-void cell
-    const neighbors = [
-      { dr: -1, dc: 0, wallDir: 'south' },  // north neighbor needs south wall
-      { dr: 1, dc: 0, wallDir: 'north' },    // south neighbor needs north wall
-      { dr: 0, dc: 1, wallDir: 'west' },     // east neighbor needs west wall
-      { dr: 0, dc: -1, wallDir: 'east' },    // west neighbor needs east wall
+    // Include target cell + neighbors in coords (neighbors get walls added)
+    const neighborOffsets = [
+      { dr: -1, dc: 0, wallDir: 'south' },
+      { dr: 1, dc: 0, wallDir: 'north' },
+      { dr: 0, dc: 1, wallDir: 'west' },
+      { dr: 0, dc: -1, wallDir: 'east' },
     ];
-
-    for (const { dr, dc, wallDir } of neighbors) {
-      const nr = row + dr;
-      const nc = col + dc;
-      if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
-        (cells[nr][nc] as Record<string, unknown>)[wallDir] = 'w';
-      }
+    const coords: Array<{ row: number; col: number }> = [{ row, col }];
+    for (const { dr, dc } of neighborOffsets) {
+      if (isInBounds(cells, row + dr, col + dc)) coords.push({ row: row + dr, col: col + dc });
     }
 
-    invalidateLightmap();
-    smartInvalidate(before, cells);
-    markDirty();
+    mutate('Void cell', coords, () => {
+      cells[row][col] = null;
+      for (const { dr, dc, wallDir } of neighborOffsets) {
+        const nr = row + dr;
+        const nc = col + dc;
+        if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
+          (cells[nr][nc] as Record<string, unknown>)[wallDir] = 'w';
+        }
+      }
+    }, { invalidate: ['lighting'] });
   }
 
   _cancelDrag() {
@@ -175,50 +171,45 @@ export class RoomTool extends Tool {
         coords.push({ row: r, col: c });
       }
     }
-    const before = captureBeforeState(cells, coords);
+    mutate('Draw room', coords, () => {
+      const has = (r: number, c: number) => selected.has(cellKey(r, c));
 
-    pushUndo('Draw room');
-    const has = (r: number, c: number) => selected.has(cellKey(r, c));
+      for (const key of selected) {
+        const [r, c] = parseCellKey(key);
 
-    for (const key of selected) {
-      const [r, c] = parseCellKey(key);
+        cells[r][c] ??= {};
+        const cell = cells[r][c];
 
-      cells[r][c] ??= {};
-      const cell = cells[r][c];
+        for (const { dir, dr, dc } of CARDINAL_DIRS) {
+          const nr = r + dr;
+          const nc = c + dc;
+          const inBounds_ = isInBounds(cells, nr, nc);
+          const neighborCell = inBounds_ ? cells[nr][nc] : null;
+          const reciprocal = OPPOSITE[dir];
 
-      for (const { dir, dr, dc } of CARDINAL_DIRS) {
-        const nr = r + dr;
-        const nc = c + dc;
-        const inBounds_ = isInBounds(cells, nr, nc);
-        const neighborCell = inBounds_ ? cells[nr][nc] : null;
-        const reciprocal = OPPOSITE[dir];
-
-        if (mergeMode) {
-          if (!inBounds_ || !neighborCell) {
-            if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
-          } else {
-            if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-            if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
-          }
-        } else {
-          if (has(nr, nc)) {
-            if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-            if (neighborCell) {
+          if (mergeMode) {
+            if (!inBounds_ || !neighborCell) {
+              if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
+            } else {
+              if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
               if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
             }
           } else {
-            if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
-            if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') {
-              neighborCell[reciprocal] = 'w';
+            if (has(nr, nc)) {
+              if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
+              if (neighborCell) {
+                if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
+              }
+            } else {
+              if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
+              if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') {
+                neighborCell[reciprocal] = 'w';
+              }
             }
           }
         }
       }
-    }
-
-    invalidateLightmap();
-    smartInvalidate(before, cells);
-    markDirty();
+    }, { invalidate: ['lighting'] });
   }
 
   _drawSizeLabel(ctx: CanvasRenderingContext2D, gridSize: number) {
