@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.10.2
+## v0.10.0
 
 ### Incremental Undo/Redo
 
@@ -13,8 +13,6 @@ Undo/redo previously serialized the entire map as JSON on every action and resto
 - **JSON snapshot diffing** — remaining `pushUndo()` sites (theme editor, level management, file load) now diff old vs new cells on undo to compute a dirty region; falls back to full rebuild only when >30% of cells changed or grid dimensions differ
 - **Tool conversions** — room, door, fill, erase, trim, label, wall, paint (box modes), prop, light, stairs, and bridge tools all converted from full JSON snapshots to compact patches
 - **API conversions** — `cells`, `fills`, `textures`, `labels`, `trims`, `convenience`, `spatial`, `lighting`, `props`, and `stairs-bridges` API modules converted
-
-## v0.10.1
 
 ### Security Hardening
 
@@ -57,10 +55,6 @@ Undo/redo previously serialized the entire map as JSON on every action and resto
 
 - 21 new tests: polygon math helpers, notify re-entrancy guard, `withRollback` semantics, and first-ever panel smoke tests
 - Test count: 942 unit + 257 render (up from 921 + 257)
-
----
-
-## v0.10.0
 
 ### Universal VTT Export
 
