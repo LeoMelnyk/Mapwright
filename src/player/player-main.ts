@@ -5,6 +5,7 @@ import * as playerCanvas from './player-canvas.js';
 import { invalidateFullMapCache, invalidateLightingOnly, invalidatePropsChange, patchOpenedDoor, revealFogCells, concealFogCells, resetFogLayers, markAssetsReady } from './player-canvas.js';
 import { loadPropCatalog, loadTextureCatalog, collectTextureIds, ensureTexturesLoaded, RangeTool } from '../editor/js/index.js';
 import { BRIDGE_TEXTURE_IDS } from '../render/index.js';
+import { CARDINAL_OFFSETS } from '../util/index.js';
 import type { Dungeon, PropDefinition, Theme, VisibleBounds } from '../types.js';
 
 // ── WebSocket message types ────────────────────────────────────────────────
@@ -238,10 +239,11 @@ async function loadMapTextures(): Promise<void> {
       }
     }
   }
-  // Include bridge textures (hardcoded IDs in bridges.js)
+  // Include bridge textures (canonical IDs in render/constants.ts)
   if (playerState.dungeon.metadata.bridges.length) {
+    const bridgeTexLookup = BRIDGE_TEXTURE_IDS as unknown as Record<string, string | undefined>;
     for (const b of playerState.dungeon.metadata.bridges) {
-      const texId = BRIDGE_TEXTURE_IDS[b.type] || BRIDGE_TEXTURE_IDS.wood;
+      const texId = bridgeTexLookup[b.type] ?? BRIDGE_TEXTURE_IDS.wood;
       usedIds.add(texId);
     }
   }
@@ -435,9 +437,8 @@ function onDoorOpen(msg: DoorOpenMessage): void {
     // Patch cached cells to convert 's' → 'd' before the partial rebuild
     patchOpenedDoor(msg.row, msg.col, msg.dir);
     // Secret door rendered as wall → now a door — rebuild the affected region only
-    const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    const [dr, dc] = OFFSETS[msg.dir] || [0, 0];
+    const offset = (CARDINAL_OFFSETS as Record<string, readonly [number, number] | undefined>)[msg.dir];
+    const [dr, dc] = offset ?? [0, 0];
     const rows = [msg.row, msg.row + dr];
     const cols = [msg.col, msg.col + dc];
     invalidateFullMapCache({

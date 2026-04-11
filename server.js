@@ -468,16 +468,29 @@ app.get('/api/check-update', async (_req, res) => {
 
 // ── AI session log endpoint ─────────────────────────────────────────────────
 // Renderer-side AI logs are written here so they can be read from disk.
-// Each new chat message resets the file (reset:true), preventing unbounded growth.
+// Each new chat message resets the file (reset:true). We also enforce a hard
+// size cap so a misbehaving renderer or local attacker can't fill the disk.
 
 const AI_LOG_PATH = path.join(__dirname, 'ai-session.log');
+const AI_LOG_MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const AI_LOG_MAX_LINE = 64 * 1024;        // 64 KB per line
 
 app.post('/api/ai-log', (req, res) => {
-  const { line = '', reset = false } = req.body;
+  let { line = '', reset = false } = req.body;
+  if (typeof line !== 'string') line = String(line);
+  if (line.length > AI_LOG_MAX_LINE) line = line.slice(0, AI_LOG_MAX_LINE) + '…[truncated]';
   try {
     if (reset) {
       fs.writeFileSync(AI_LOG_PATH, line ? line + '\n' : '');
     } else {
+      // Truncate the file if it's grown past the cap. We rotate to a single
+      // .old file so a recent tail is still inspectable, then start fresh.
+      try {
+        const stat = fs.statSync(AI_LOG_PATH);
+        if (stat.size > AI_LOG_MAX_BYTES) {
+          try { fs.renameSync(AI_LOG_PATH, AI_LOG_PATH + '.old'); } catch { /* best effort */ }
+        }
+      } catch { /* file may not exist yet */ }
       fs.appendFileSync(AI_LOG_PATH, line + '\n');
     }
   } catch { /* ignore write errors */ }
@@ -962,7 +975,31 @@ app.post('/api/session/auth', (req, res) => {
 
 // ── WebSocket relay ─────────────────────────────────────────────────────────
 
-const wss = new WebSocketServer({ server, path: '/ws' });
+// Hard limit on relay payload size. Real DM messages (full dungeon snapshots
+// with props/lights) can run a few hundred KB; 2 MB gives generous headroom
+// while still preventing a malicious client from OOMing the relay or peers.
+const WS_MAX_PAYLOAD = 2 * 1024 * 1024;
+
+// Player → server message type allowlist. Anything outside this set is dropped
+// rather than relayed. Keep this in sync with the player client's outbound
+// message types in src/player/.
+const PLAYER_ALLOWED_TYPES = new Set(['range:highlight']);
+
+// Player message types that fan out to other clients (DM + other players)
+// instead of going only to the DM.
+const PLAYER_BROADCAST_TYPES = new Set(['range:highlight']);
+
+const wss = new WebSocketServer({
+  server,
+  path: '/ws',
+  maxPayload: WS_MAX_PAYLOAD,
+  // Avoid permessage-deflate context takeover, which would let a single client
+  // pin large dictionaries in memory across messages.
+  perMessageDeflate: {
+    clientNoContextTakeover: true,
+    serverNoContextTakeover: true,
+  },
+});
 
 let dmSocket = null;
 const playerSockets = new Set();
@@ -1000,34 +1037,37 @@ wss.on('connection', (ws, req) => {
     }
   }
 
-  // Message types that players broadcast to ALL clients (DM + other players)
-  const PLAYER_BROADCAST_TYPES = new Set(['range:highlight']);
-
   ws.on('message', (raw) => {
+    // ws enforces maxPayload above, but double-guard against absurdly large
+    // strings produced by toString() on multi-byte buffers.
+    if (raw.length > WS_MAX_PAYLOAD) return;
     const data = raw.toString();
 
     if (role === 'dm') {
-      // Relay DM messages to all players
+      // DM is trusted (token-authenticated above). Relay to all players.
       for (const p of playerSockets) {
         if (p.readyState === 1) p.send(data);
       }
-    } else if (role === 'player') {
-      // Check if this message type should be broadcast to everyone
-      let parsed;
-      try { parsed = JSON.parse(data); } catch { parsed = null; }
+      return;
+    }
 
-      if (parsed && PLAYER_BROADCAST_TYPES.has(parsed.type)) {
-        // Broadcast to DM and all other players
-        if (dmSocket?.readyState === 1) dmSocket.send(data);
-        for (const p of playerSockets) {
-          if (p !== ws && p.readyState === 1) p.send(data);
-        }
-      } else {
-        // Standard: relay player messages to DM only
-        if (dmSocket?.readyState === 1) {
-          dmSocket.send(data);
-        }
+    if (role !== 'player') return;
+
+    // Player messages are untrusted. Require parseable JSON with a known
+    // type, and drop everything else rather than relay it to the DM.
+    let parsed;
+    try { parsed = JSON.parse(data); } catch { return; }
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.type !== 'string') return;
+    if (!PLAYER_ALLOWED_TYPES.has(parsed.type)) return;
+
+    if (PLAYER_BROADCAST_TYPES.has(parsed.type)) {
+      // Broadcast to DM and all other players
+      if (dmSocket?.readyState === 1) dmSocket.send(data);
+      for (const p of playerSockets) {
+        if (p !== ws && p.readyState === 1) p.send(data);
       }
+    } else if (dmSocket?.readyState === 1) {
+      dmSocket.send(data);
     }
   });
 

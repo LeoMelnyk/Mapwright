@@ -9,6 +9,7 @@ import {
   invalidateAllCaches,
   toInt,
   captureBeforeState, smartInvalidate,
+  withRollback,
   ApiValidationError,
 } from './_shared.js';
 
@@ -67,36 +68,37 @@ export function shiftCells(dr: number, dc: number): { success: true; newRows: nu
   const rowOffset = Math.max(0, dr);
   const colOffset = Math.max(0, dc);
 
-  pushUndo();
-
-  const newCells = Array.from({ length: newRows }, () => Array(newCols).fill(null));
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (cells[r]?.[c]) newCells[r + rowOffset][c + colOffset] = cells[r][c];
-    }
-  }
-  state.dungeon.cells = newCells;
-
-  // Update level startRow values (only affected by vertical shift)
-  if (dr !== 0) {
-    for (const level of state.dungeon.metadata.levels) {
-      level.startRow += rowOffset;
-    }
-  }
-
-  // Shift stair corner points
-  if (rowOffset || colOffset) {
-    for (const stair of state.dungeon.metadata.stairs) {
-      for (const pt of stair.points) {
-        pt[0] += rowOffset;
-        pt[1] += colOffset;
+  return withRollback('shiftCells', () => {
+    const sourceCells = state.dungeon.cells;
+    const newCells = Array.from({ length: newRows }, () => Array(newCols).fill(null));
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (sourceCells[r]?.[c]) newCells[r + rowOffset][c + colOffset] = sourceCells[r][c];
       }
     }
-  }
+    state.dungeon.cells = newCells;
 
-  markDirty();
-  notify();
-  return { success: true, newRows, newCols };
+    // Update level startRow values (only affected by vertical shift)
+    if (dr !== 0) {
+      for (const level of state.dungeon.metadata.levels) {
+        level.startRow += rowOffset;
+      }
+    }
+
+    // Shift stair corner points
+    if (rowOffset || colOffset) {
+      for (const stair of state.dungeon.metadata.stairs) {
+        for (const pt of stair.points) {
+          pt[0] += rowOffset;
+          pt[1] += colOffset;
+        }
+      }
+    }
+
+    markDirty();
+    notify();
+    return { success: true as const, newRows, newCols };
+  });
 }
 
 /**
@@ -129,7 +131,7 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
   // When addLevel() is used, meta.levels only contains explicitly-added levels —
   // the initial map area (rows before the first explicit level) is an implied level.
   const hasMeta = Array.isArray(meta.levels) && meta.levels.length > 0;
-  const allLevels = [];
+  const allLevels: { name: string | null; startRow: number; numRows: number }[] = [];
   if (hasMeta) {
     const firstStart = meta.levels[0].startRow;
     if (firstStart > 1) {
@@ -215,8 +217,11 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
     return 0; // separator row — no structural content expected here
   };
 
-  pushUndo();
+  return withRollback('normalizeMargin', () => {
+    return _doNormalizeMargin();
+  });
 
+  function _doNormalizeMargin() {
   // ── 4. Build new cells array ─────────────────────────────────────────────
   const newCells = Array.from({ length: newTotalRows }, () => Array(newNumCols).fill(null));
   for (const { origStartRow, origNumRows, li, topShift, newNumRows } of levelAdjustments) {
@@ -288,6 +293,7 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
       })),
     },
   };
+  } // _doNormalizeMargin
 }
 
 /**

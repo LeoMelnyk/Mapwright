@@ -36,15 +36,18 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
   let manifest;
   try {
     manifest = JSON.parse(fs.readFileSync(join(TEXTURES_DIR, 'manifest.json'), 'utf-8'));
-  } catch {
+  } catch (manifestErr) {
     try {
       const polyDir = join(TEXTURES_DIR, 'polyhaven');
       manifest = fs.readdirSync(polyDir)
         .filter(f => f.endsWith('.texture'))
         .map(f => `polyhaven/${basename(f, '.texture')}`)
         .sort();
-    } catch {
-      console.warn('[textures] No texture catalog found — textures will not render');
+    } catch (scanErr) {
+      console.warn(
+        `[textures] No texture catalog found at ${TEXTURES_DIR} — textures will not render. ` +
+        `manifest.json error: ${(manifestErr as Error).message}; scan error: ${(scanErr as Error).message}`,
+      );
       catalogCache = { names: [], textures: {} };
       return catalogCache;
     }
@@ -108,10 +111,11 @@ function collectTextureIds(cells: CellGrid): Set<string> {
 export async function ensureTexturesForConfig(catalog: TextureCatalog | null, config: { metadata: Metadata; cells: CellGrid }, propCatalog: PropCatalog | null): Promise<void> {
   const ids = collectTextureIds(config.cells);
 
-  // Include bridge textures (hardcoded IDs in bridges.js)
+  // Include bridge textures (canonical IDs in render/constants.ts)
   if (config.metadata.bridges.length) {
+    const bridgeTexLookup = BRIDGE_TEXTURE_IDS as unknown as Record<string, string | undefined>;
     for (const b of config.metadata.bridges) {
-      const texId = BRIDGE_TEXTURE_IDS[b.type as keyof typeof BRIDGE_TEXTURE_IDS] || BRIDGE_TEXTURE_IDS.wood;
+      const texId = bridgeTexLookup[b.type] ?? BRIDGE_TEXTURE_IDS.wood;
       ids.add(texId);
     }
   }

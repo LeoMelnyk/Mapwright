@@ -755,6 +755,8 @@ export const CORE_TOOL_DEFINITIONS = TOOL_DEFINITIONS.filter(t => CORE_TOOL_NAME
 
 // ── Tool execution ────────────────────────────────────────────────────────────
 
+import { ApiValidationError } from './api/errors.js';
+
 /** Validate that required fields are present. Returns an error string or null. */
 function requireFields(input: Record<string, string | number | boolean>, ...fields: string[]) {
   for (const f of fields) {
@@ -770,6 +772,53 @@ const VALID_DIRECTIONS = new Set(['north', 'south', 'east', 'west']);
 const VALID_FILLS = new Set(['difficult-terrain', 'pit', 'water', 'lava']);
 
 /**
+ * Declarative table of required input fields per tool. The dispatch switch
+ * still handles tool-specific cross-field validation (e.g. r1 ≤ r2) and enum
+ * checks, but the bulk of "did the LLM remember to send field X?" is now
+ * data-driven and easier to keep in sync when adding new tools.
+ */
+const TOOL_REQUIRED_FIELDS: Partial<Record<string, readonly string[]>> = {
+  // Map management
+  newMap: ['name', 'rows', 'cols'],
+  loadMap: ['json'],
+  setName: ['name'],
+  setTheme: ['theme'],
+  // Rooms / cells
+  paintRect: ['r1', 'c1', 'r2', 'c2'],
+  eraseRect: ['r1', 'c1', 'r2', 'c2'],
+  // Spatial / convenience
+  getRoomBounds: ['label'],
+  getRoomContents: ['label'],
+  removeLabel: ['row', 'col'],
+  findCellByLabel: ['label'],
+  findWallBetween: ['label1', 'label2'],
+  mergeRooms: ['label1', 'label2'],
+  createCorridor: ['label1', 'label2'],
+  suggestPlacement: ['rows', 'cols'],
+  // Cell-position tools
+  getCellInfo: ['row', 'col'],
+  removeFill: ['row', 'col'],
+  removeTexture: ['row', 'col'],
+  rotateProp: ['row', 'col'],
+  eraseCell: ['row', 'col'],
+  paintCell: ['row', 'col'],
+  removeBridge: ['row', 'col'],
+  removeProp: ['row', 'col'],
+  removeStairs: ['row', 'col'],
+  // Lighting
+  placeLightInRoom: ['label', 'preset'],
+  setAmbientLight: ['level'],
+  setLightingEnabled: ['enabled'],
+  removeLight: ['id'],
+  setLabelStyle: ['style'],
+  // Levels
+  addLevel: ['name'],
+  renameLevel: ['levelIndex', 'name'],
+  resizeLevel: ['levelIndex', 'numRows'],
+  shiftCells: ['dr', 'dc'],
+};
+
+/**
  * Execute a single tool call against window.editorAPI.
  * Returns the API result (or an error object with a descriptive message).
  */
@@ -778,6 +827,15 @@ export function executeTool(name: string, input: Record<string, string | number 
   const api = (window as unknown as Record<string, unknown>).editorAPI as Record<string, (...args: unknown[]) => Record<string, unknown>>;
   const fn = api[name].bind(api);
   if (typeof fn !== 'function') return { error: `Unknown tool: "${name}". Check tool name spelling.` };
+
+  // Declarative required-field check, applied to every tool that has an entry
+  // in TOOL_REQUIRED_FIELDS. Per-tool cross-field/enum checks still live in
+  // the switch below.
+  const required = TOOL_REQUIRED_FIELDS[name];
+  if (required) {
+    const fieldErr = requireFields(input, ...required);
+    if (fieldErr) return { error: `${name}: ${fieldErr}` };
+  }
 
   // Per-tool argument validation — gives the model actionable error messages
   let err;
@@ -810,14 +868,14 @@ export function executeTool(name: string, input: Record<string, string | number 
       }
       break;
     case 'setFill':
-      err = requireFields(input, 'row', 'col', 'fillType');
+      err = requireFields(input, 'fillType');
       if (err) return { error: `setFill: ${err}` };
       if (!VALID_FILLS.has(String(input.fillType))) {
         return { error: `setFill: fillType must be one of: ${[...VALID_FILLS].join(', ')}. Got "${input.fillType}".` };
       }
       break;
     case 'setFillRect':
-      err = requireFields(input, 'r1', 'c1', 'r2', 'c2', 'fillType');
+      err = requireFields(input, 'fillType');
       if (err) return { error: `setFillRect: ${err}` };
       if (!VALID_FILLS.has(String(input.fillType))) {
         return { error: `setFillRect: fillType must be one of: ${[...VALID_FILLS].join(', ')}. Got "${input.fillType}".` };
@@ -830,32 +888,6 @@ export function executeTool(name: string, input: Record<string, string | number 
     case 'placeProp':
       err = requireFields(input, 'row', 'col', 'propType');
       if (err) return { error: `placeProp: ${err}. Call listProps first to get valid prop names.` };
-      break;
-    case 'getRoomBounds': case 'getRoomContents': case 'removeLabel':
-      err = requireFields(input, 'label');
-      if (err) return { error: `${name}: ${err}` };
-      break;
-    case 'findWallBetween': case 'mergeRooms': case 'createCorridor':
-      err = requireFields(input, 'label1', 'label2');
-      if (err) return { error: `${name}: ${err}` };
-      break;
-    case 'suggestPlacement':
-      err = requireFields(input, 'rows', 'cols');
-      if (err) return { error: `suggestPlacement: ${err}` };
-      break;
-    case 'getCellInfo': case 'removeFill': case 'removeTexture': case 'rotateProp':
-    case 'eraseCell': case 'paintCell': case 'removeBridge': case 'removeLabel':
-    case 'removeProp': case 'removeStairs':
-      err = requireFields(input, 'row', 'col');
-      if (err) return { error: `${name}: ${err}` };
-      break;
-    case 'findCellByLabel':
-      err = requireFields(input, 'label');
-      if (err) return { error: `findCellByLabel: ${err}` };
-      break;
-    case 'placeLightInRoom':
-      err = requireFields(input, 'label', 'preset');
-      if (err) return { error: `placeLightInRoom: ${err}` };
       break;
     case 'removeLight':
       err = requireFields(input, 'id');
@@ -973,6 +1005,11 @@ export function executeTool(name: string, input: Record<string, string | number 
       default:                  return { error: `No dispatch for tool: "${name}". This tool exists but has no handler — report this bug.` };
     }
   } catch (execErr) {
+    if (execErr instanceof ApiValidationError) {
+      // Preserve the structured error for the LLM — code + context are far
+      // more actionable than a stringified message.
+      return { error: execErr.message, code: execErr.code, context: execErr.context };
+    }
     return { error: `${name} failed: ${(execErr as Error).message}` };
   }
 }

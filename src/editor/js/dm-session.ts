@@ -4,7 +4,7 @@ import type { CardinalDirection, Cell, RenderTransform } from '../../types.js';
 import state, { subscribe, markDirty, notify, getTheme } from './state.js';
 import { getCanvasSize, requestRender, panToLevel } from './canvas-view.js';
 import { showToast } from './toast.js';
-import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, floodFillRoom } from '../../util/index.js';
+import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, floodFillRoom, CARDINAL_OFFSETS } from '../../util/index.js';
 import { toCanvas } from './utils.js';
 import { classifyStairShape, getOccupiedCells, stairBoundingBox } from './stair-geometry.js';
 import { getEditorSettings } from './editor-settings.js';
@@ -38,6 +38,31 @@ export const sessionState: {
 
 // ── WebSocket ───────────────────────────────────────────────────────────────
 
+// Reconnect backoff: start at 1s, double on each failure, cap at 30s, give up
+// after MAX_RECONNECT_ATTEMPTS so we don't loop forever against a dead server.
+const RECONNECT_BASE_MS = 1000;
+const RECONNECT_MAX_MS = 30_000;
+const MAX_RECONNECT_ATTEMPTS = 12; // ~6 min total wall time at the cap
+let reconnectAttempts = 0;
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Inbound message size cap. Server enforces 2 MB; client refuses anything
+// noticeably larger to defend against a compromised relay.
+const WS_MAX_INBOUND = 4 * 1024 * 1024;
+
+function scheduleReconnect() {
+  if (!sessionState.active) return;
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+    showToast('Session disconnected — gave up reconnecting. Restart the session.');
+    sessionState.active = false;
+    return;
+  }
+  const delay = Math.min(RECONNECT_BASE_MS * 2 ** reconnectAttempts, RECONNECT_MAX_MS);
+  reconnectAttempts++;
+  if (reconnectTimer) clearTimeout(reconnectTimer);
+  reconnectTimer = setTimeout(connectWS, delay);
+}
+
 function connectWS() {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
   const tokenParam = sessionState.token ? `&token=${sessionState.token}` : '';
@@ -47,6 +72,7 @@ function connectWS() {
   sessionState.ws = ws;
 
   ws.addEventListener('open', () => {
+    reconnectAttempts = 0;
     showToast('Session started — connected to server');
     broadcastInit();
   });
@@ -54,16 +80,22 @@ function connectWS() {
   ws.addEventListener('close', () => {
     if (sessionState.active) {
       showToast('WebSocket disconnected — reconnecting…');
-      setTimeout(connectWS, 2000);
+      scheduleReconnect();
     }
   });
 
   ws.addEventListener('error', () => ws.close());
 
   ws.addEventListener('message', (e) => {
+    const raw = typeof e.data === 'string' ? e.data : String(e.data);
+    if (raw.length > WS_MAX_INBOUND) {
+      console.warn('[dm-session] inbound message exceeds size cap, dropping');
+      return;
+    }
     let msg;
-    try { msg = JSON.parse(e.data); } catch { console.warn('[dm-session] malformed WebSocket message', String(e.data).slice(0, 120)); return; }
-    handleMessage(msg);
+    try { msg = JSON.parse(raw); } catch { console.warn('[dm-session] malformed WebSocket message', raw.slice(0, 120)); return; }
+    if (!msg || typeof msg !== 'object') return;
+    handleMessage(msg as Record<string, unknown>);
   });
 }
 
@@ -77,6 +109,26 @@ let rangeHighlightCallback: ((msg: RangeHighlightMsg) => void) | null = null;
  */
 export function setRangeHighlightCallback(fn: (msg: RangeHighlightMsg) => void): void { rangeHighlightCallback = fn; }
 
+// ── Inbound message validators ──────────────────────────────────────────────
+// The relay only forwards messages with allowlisted types, but we still
+// validate shape here so a compromised relay or future schema drift can't
+// crash the editor.
+
+function isFiniteNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v);
+}
+
+function isCellArray(v: unknown): v is { row: number; col: number }[] {
+  if (!Array.isArray(v)) return false;
+  if (v.length > 10_000) return false; // sanity cap
+  for (const c of v) {
+    if (!c || typeof c !== 'object') return false;
+    const cell = c as { row?: unknown; col?: unknown };
+    if (!isFiniteNumber(cell.row) || !isFiniteNumber(cell.col)) return false;
+  }
+  return true;
+}
+
 function handleMessage(msg: Record<string, unknown>) {
   switch (msg.type) {
     case 'player:join':
@@ -84,16 +136,26 @@ function handleMessage(msg: Record<string, unknown>) {
       broadcastInit();
       break;
 
-    case 'player:count':
-      sessionState.playerCount = msg.count as number;
-      state.session.playerCount = msg.count as number;
+    case 'player:count': {
+      const count = msg.count;
+      if (!isFiniteNumber(count) || count < 0 || count > 1000) return;
+      sessionState.playerCount = count;
+      state.session.playerCount = count;
       notify();
       break;
+    }
 
     case 'range:highlight':
-      // A player sent a range highlight — apply locally for DM rendering
-      if (rangeHighlightCallback && Array.isArray(msg.cells)) {
-        rangeHighlightCallback(msg as RangeHighlightMsg);
+      // A player sent a range highlight — apply locally for DM rendering.
+      // Validate the full structure before invoking the callback so a
+      // malformed payload can't crash the renderer.
+      if (
+        rangeHighlightCallback &&
+        isCellArray(msg.cells) &&
+        isFiniteNumber(msg.distanceFt) &&
+        typeof msg.subTool === 'string'
+      ) {
+        rangeHighlightCallback(msg as unknown as RangeHighlightMsg);
       }
       break;
   }
@@ -154,6 +216,8 @@ export function endSession(): void {
   if (!sessionState.active) return;
   send({ type: 'session:end' });
   sessionState.active = false;
+  if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+  reconnectAttempts = 0;
   sessionState.revealedCells.clear();
   sessionState.openedDoors = [];
   sessionState.openedStairs = [];
@@ -367,8 +431,7 @@ export function openDoor(row: number, col: number, dir: string, mergedCells?: { 
         if (!newCells.includes(key)) newCells.push(key);
       }
     } else {
-      const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
-      const [dr, dcc] = OFFSETS[dir];
+      const [dr, dcc] = CARDINAL_OFFSETS[dir as keyof typeof CARDINAL_OFFSETS];
       const revealed = revealRoom(dc.row + dr, dc.col + dcc);
       for (const key of revealed) {
         if (!newCells.includes(key)) newCells.push(key);
@@ -682,13 +745,12 @@ function findRevealableDoors() {
   const cells = state.dungeon.cells;
   const doors: { row: number; col: number; dir: string; type: string }[] = [];
   const seen = new Set();
-  const OFFSETS: Record<string, [number, number] | undefined> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
 
   // Build opened-door set for fast lookup (include both sides of cardinal doors)
   const openedSet = new Set();
   for (const d of sessionState.openedDoors) {
     openedSet.add(`${d.row},${d.col},${d.dir}`);
-    const offset = OFFSETS[d.dir];
+    const offset = (CARDINAL_OFFSETS as Record<string, readonly [number, number] | undefined>)[d.dir];
     if (!offset) continue;
     const [dr, dc] = offset;
     openedSet.add(`${d.row + dr},${d.col + dc},${OPPOSITE[d.dir as CardinalDirection]}`);
@@ -718,7 +780,7 @@ function findRevealableDoors() {
       }
 
       // Normal/invisible doors: only show if neighbor is unrevealed
-      const [dr, dc] = OFFSETS[dir]!;
+      const [dr, dc] = CARDINAL_OFFSETS[dir as keyof typeof CARDINAL_OFFSETS];
       const nr = r + dr, nc = c + dc;
       const neighborKey = cellKey(nr, nc);
       if (sessionState.revealedCells.has(neighborKey)) continue;

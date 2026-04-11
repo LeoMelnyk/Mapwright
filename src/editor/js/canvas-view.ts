@@ -77,6 +77,27 @@ export function stopAnimLoop(): void {
   }
 }
 
+// Stop the animation loop on page unload so the timer (which captures
+// `state` and the render functions in its closure) doesn't keep the editor
+// context alive in memory after the tab is closed. Also pause it on
+// visibilitychange — backgrounded tabs don't need light flicker animation
+// and the wakeups thrash CPU on laptops.
+//
+// Guarded against the Node test harness which exposes `window` and `document`
+// as plain objects without addEventListener.
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('beforeunload', () => { stopAnimLoop(); });
+}
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopAnimLoop();
+    } else if (state.dungeon.metadata.lightingEnabled) {
+      startAnimLoop();
+    }
+  });
+}
+
 // ── Public API setters ──────────────────────────────────────────────────────
 
 /**

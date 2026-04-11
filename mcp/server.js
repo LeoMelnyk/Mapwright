@@ -65,15 +65,38 @@ function validateFilePath(filePath, allowedDirs) {
   return resolved;
 }
 
-/** Spawn a subprocess and capture stdout + stderr. */
+/**
+ * Spawn a subprocess and capture stdout + stderr, with hard buffer caps so a
+ * runaway child can't OOM the MCP server. If a stream exceeds MAX_BUFFER, we
+ * append a truncation marker, stop appending, and kill the child.
+ */
+const PROCESS_MAX_BUFFER = 8 * 1024 * 1024; // 8 MB per stream
 function runProcess(command, args, cwd) {
   return new Promise((resolve) => {
     const child = spawn(command, args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
-    child.stdout.on('data', (d) => { stdout += d.toString(); });
-    child.stderr.on('data', (d) => { stderr += d.toString(); });
+    let killed = false;
+    const append = (which, chunk) => {
+      const cur = which === 'out' ? stdout : stderr;
+      if (cur.length >= PROCESS_MAX_BUFFER) return;
+      const remaining = PROCESS_MAX_BUFFER - cur.length;
+      const text = chunk.toString();
+      if (text.length <= remaining) {
+        if (which === 'out') stdout += text; else stderr += text;
+      } else {
+        const truncated = text.slice(0, remaining) + '\n…[truncated: stream exceeded MCP buffer cap]';
+        if (which === 'out') stdout += truncated; else stderr += truncated;
+        if (!killed) {
+          killed = true;
+          try { child.kill(); } catch { /* best effort */ }
+        }
+      }
+    };
+    child.stdout.on('data', (d) => append('out', d));
+    child.stderr.on('data', (d) => append('err', d));
     child.on('close', (code) => resolve({ code, stdout, stderr }));
+    child.on('error', (err) => resolve({ code: -1, stdout, stderr: stderr + '\n' + err.message }));
   });
 }
 

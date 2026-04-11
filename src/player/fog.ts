@@ -1,5 +1,5 @@
 // Fog of war: cell filtering for the player view.
-import { cellKey } from '../util/index.js';
+import { cellKey, CARDINAL_OFFSETS } from '../util/index.js';
 import { classifyStairShape, getOccupiedCells } from '../editor/js/index.js';
 import type { Dungeon, Cell, CellGrid, Stairs, Bridge, OverlayProp, PropCatalog } from '../types.js';
 import type { OpenedDoor } from './player-state.js';
@@ -121,14 +121,13 @@ export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, o
 
   // Build a set of opened door keys for fast lookup (include both sides of cardinal doors)
   const OPPOSITE: Record<string, string> = { north: 'south', south: 'north', east: 'west', west: 'east' };
-  const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
   const openedSet = new Set<string>();
   for (const d of openedDoors) {
     openedSet.add(`${d.row},${d.col},${d.dir}`);
     // Add the mirror key for the adjacent cell's side
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    if (OFFSETS[d.dir]) {
-      const [dr, dc] = OFFSETS[d.dir];
+    const off = (CARDINAL_OFFSETS as Record<string, readonly [number, number] | undefined>)[d.dir];
+    if (off) {
+      const [dr, dc] = off;
       openedSet.add(`${d.row + dr},${d.col + dc},${OPPOSITE[d.dir]}`);
     }
   }

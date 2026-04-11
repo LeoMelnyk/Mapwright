@@ -81,50 +81,9 @@ export function stairBoundingBox(points: number[][]): { minRow: number; minCol: 
   return { minRow, minCol, maxRow, maxCol };
 }
 
-/**
- * Point-in-polygon test using ray casting.
- * @param {number} px - test point x (col)
- * @param {number} py - test point y (row)
- * @param {number[][]} polygon - vertices as [row, col] pairs
- * @returns {boolean}
- */
-function pointInPolygon(py: number, px: number, polygon: number[][]) {
-  let inside = false;
-  const n = polygon.length;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const yi = polygon[i][0], xi = polygon[i][1];
-    const yj = polygon[j][0], xj = polygon[j][1];
-    if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
-      inside = !inside;
-    }
-  }
-  return inside;
-}
-
-/**
- * Check if a point is on a polygon edge (within epsilon).
- * @param {number} py - test point y (row)
- * @param {number} px - test point x (col)
- * @param {number[][]} polygon - vertices as [row, col]
- * @param {number} eps - tolerance
- * @returns {boolean}
- */
-function pointOnPolygonEdge(py: number, px: number, polygon: number[][], eps = 0.01) {
-  const n = polygon.length;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const yi = polygon[i][0], xi = polygon[i][1];
-    const yj = polygon[j][0], xj = polygon[j][1];
-    // Check if point is on segment (i, j)
-    const dx = xj - xi, dy = yj - yi;
-    const len2 = dx * dx + dy * dy;
-    if (len2 === 0) continue;
-    const t = Math.max(0, Math.min(1, ((px - xi) * dx + (py - yi) * dy) / len2));
-    const projX = xi + t * dx, projY = yi + t * dy;
-    const dist = Math.hypot(px - projX, py - projY);
-    if (dist < eps) return true;
-  }
-  return false;
-}
+// Polygon point-tests sourced from src/util/polygon.ts (single source of truth
+// shared with the render pipeline). The local wrappers below were duplicates.
+import { pointInPolygon, pointOnPolygonEdge } from '../../util/index.js';
 
 /**
  * Get all cells occupied by a stair polygon.

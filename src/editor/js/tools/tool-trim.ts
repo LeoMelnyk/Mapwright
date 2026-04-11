@@ -15,7 +15,7 @@ import state, { pushUndo, markDirty, invalidateLightmap } from '../state.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
-import { computeTrimCells, type TrimCorner, type TrimPreview } from '../../../util/index.js';
+import { computeTrimCells, CARDINAL_OFFSETS, type TrimCorner, type TrimPreview } from '../../../util/index.js';
 
 /**
  * Trim tool: click+drag to create multi-cell diagonal or arc trims on room corners.
@@ -127,7 +127,7 @@ export class TrimTool extends Tool {
     const isInverted = state.trimInverted;
 
     const reciprocals = { north: 'south', south: 'north', east: 'west', west: 'east' };
-    const offsets = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+    const offsets = CARDINAL_OFFSETS;
     const allDirs = ['north', 'south', 'east', 'west'];
 
     // Helper: clear all cardinal/diagonal walls and their reciprocals

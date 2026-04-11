@@ -25,6 +25,24 @@ jobs:
       - name: Run unit tests
         run: npm test
 
+  render:
+    name: Render Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run render tests
+        run: npm run test:render
+
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest

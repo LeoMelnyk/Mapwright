@@ -9,7 +9,7 @@ interface AutosaveData {
   panX: number;
   panY: number;
 }
-import { THEMES, invalidateVisibilityCache, captureBeforeState, smartInvalidate } from '../../render/index.js';
+import { THEMES, invalidateVisibilityCache, captureBeforeState, smartInvalidate, normalizeTheme as normalizeRenderTheme } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
 
@@ -101,24 +101,45 @@ const state: EditorState = {
   _lastPushUndoMs: null,
 };
 
+// Cache normalized themes by raw theme reference. Normalization is idempotent
+// and pure, so the cached object is safe to reuse across frames; this also
+// preserves reference stability for downstream caches that key on theme.
+const _normalizedThemeCache = new WeakMap<Theme, Theme>();
+function _resolveAndNormalize(rawTheme: Theme): Theme {
+  let cached = _normalizedThemeCache.get(rawTheme);
+  if (!cached) {
+    cached = normalizeRenderTheme(rawTheme);
+    _normalizedThemeCache.set(rawTheme, cached);
+  }
+  return cached;
+}
+
 /**
- * Get the resolved theme object for the current dungeon.
+ * Get the resolved, normalized theme object for the current dungeon.
+ * Downstream renderers can read theme color keys directly without
+ * `?? defaults` fallbacks — see render/compile.ts:normalizeTheme.
  * @returns {Object} The active theme configuration.
  */
 export function getTheme(): Theme {
   const t = state.dungeon.metadata.theme;
+  let raw: Theme;
   if (typeof t === 'string') {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    if (THEMES[t]) return THEMES[t];
-    // Fallback: user theme not installed locally — use embedded data
-    if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
-      return state.dungeon.metadata.savedThemeData.theme as Theme;
+    if (THEMES[t]) {
+      raw = THEMES[t];
+    } else if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
+      // Fallback: user theme not installed locally — use embedded data
+      raw = state.dungeon.metadata.savedThemeData.theme as Theme;
+    } else {
+      raw = THEMES['blue-parchment'];
     }
-    return THEMES['blue-parchment'];
-  }
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (typeof t === 'object' && t !== null) return t;
-  return THEMES['blue-parchment'];
+  } else if (typeof t === 'object' && t !== null) {
+    raw = t;
+  } else {
+    raw = THEMES['blue-parchment'];
+  }
+  return _resolveAndNormalize(raw);
 }
 
 /** Set to true to skip all undo stack pushes (for testing). */
@@ -398,6 +419,13 @@ export async function loadAutosave(): Promise<boolean> {
   }
 }
 
+// Re-entrancy guard. If a subscriber calls notify() while we're already
+// inside notify(), we'd loop forever and trash the call stack. Instead, we
+// coalesce nested calls: the inner call records the topic and returns
+// immediately; the outer call drains the queue once its current pass finishes.
+let _notifyInProgress = false;
+let _pendingNotify: { any: boolean; topics: Set<NotifyTopic> } = { any: false, topics: new Set() };
+
 /**
  * Notify subscribers of a state change and schedule autosave.
  * @param topic - Optional topic filter. When provided, only subscribers
@@ -405,6 +433,32 @@ export async function loadAutosave(): Promise<boolean> {
  *   When omitted, all subscribers are called.
  */
 export function notify(topic?: NotifyTopic): void {
+  if (_notifyInProgress) {
+    // Re-entrant call from inside a subscriber. Queue it and bail; the outer
+    // notify will drain the queue once its pass finishes.
+    if (topic === undefined) _pendingNotify.any = true;
+    else _pendingNotify.topics.add(topic);
+    return;
+  }
+  _notifyInProgress = true;
+  try {
+    _runNotifyPass(topic);
+    // Drain any notifies queued by subscribers during the pass.
+    while (_pendingNotify.any || _pendingNotify.topics.size > 0) {
+      const pending = _pendingNotify;
+      _pendingNotify = { any: false, topics: new Set() };
+      if (pending.any) {
+        _runNotifyPass(undefined);
+      } else {
+        for (const t of pending.topics) _runNotifyPass(t);
+      }
+    }
+  } finally {
+    _notifyInProgress = false;
+  }
+}
+
+function _runNotifyPass(topic?: NotifyTopic): void {
   const t0 = performance.now();
   _notifyFrame++;
   const subs = [];

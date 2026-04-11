@@ -18,7 +18,7 @@
 import { renderCells, renderLabels, invalidateGeometryCache, invalidateFluidCache, invalidateVisibilityCache, invalidatePropsRenderLayer, invalidateAllCaches, invalidateLightmapCaches, renderLightmap, extractFillLights, MapCache, drawHatching, drawRockShading, drawOuterShading, renderTimings, patchBlendForDirtyRegion, patchFluidForDirtyRegion } from '../render/index.js';
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer, classifyAllTrimFog } from './fog.js';
 import playerState from './player-state.js';
-import { cellKey, displayGridSize as _dgs } from '../util/index.js';
+import { cellKey, displayGridSize as _dgs, CARDINAL_OFFSETS } from '../util/index.js';
 import type { Cell, CellGrid, Metadata, TextureCatalog, Theme, RenderTransform, VisibleBounds, OverlayProp } from '../types.js';
 
 const CELL_SIZE = 40; // pixels per cell at zoom=1
@@ -267,11 +267,10 @@ export function patchOpenedDoor(row: number, col: number, dir: string): void {
   if (!_cachedFullCells || !playerState.dungeon) return;
   const rawCells = playerState.dungeon.cells;
   const OPPOSITE: Record<string, string> = { north: 'south', south: 'north', east: 'west', west: 'east' };
-  const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
   const cell = _cachedFullCells[row]?.[col] as Record<string, unknown> | null;
   if (cell && (rawCells[row]?.[col] as Record<string, unknown> | null)?.[dir] === 's') cell[dir] = 'd';
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-  const [dr, dc] = OFFSETS[dir] || [0, 0];
+  const offset = (CARDINAL_OFFSETS as Record<string, readonly [number, number] | undefined>)[dir];
+  const [dr, dc] = offset ?? [0, 0];
   const nr = row + dr, nc = col + dc;
   const opp = OPPOSITE[dir];
   const neighbor = _cachedFullCells[nr]?.[nc] as Record<string, unknown> | null;
@@ -601,13 +600,12 @@ function buildFullMapCache(): void {
     const cMin = Math.max(0, dr.minCol - PAD), cMax = Math.min(numCols - 1, dr.maxCol + PAD);
     // Build opened-door lookup for secret door conversion
     const _OPP: Record<string, string> = { north: 'south', south: 'north', east: 'west', west: 'east' };
-    const _OFF: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
     const openedSet = new Set<string>();
     for (const d of playerState.openedDoors) {
       openedSet.add(`${d.row},${d.col},${d.dir}`);
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-      if (_OFF[d.dir]) {
-        const [ddr, ddc] = _OFF[d.dir];
+      const _off = (CARDINAL_OFFSETS as Record<string, readonly [number, number] | undefined>)[d.dir];
+      if (_off) {
+        const [ddr, ddc] = _off;
         openedSet.add(`${d.row + ddr},${d.col + ddc},${_OPP[d.dir]}`);
       }
     }
@@ -937,7 +935,8 @@ function buildHatchingLayer(fullCells: CellGrid, gridSize: number, theme: Theme)
 
 const _BORDER_DIRS: string[] = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'];
 const _OPPOSITE: Record<string, string> = { north: 'south', south: 'north', east: 'west', west: 'east' };
-const _OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+// Sourced from util/grid.ts CARDINAL_OFFSETS — single source of truth.
+const _OFFSETS = CARDINAL_OFFSETS as unknown as Record<string, [number, number]>;
 
 /** Clone a cell for the walls overlay, converting secret doors to walls/doors
  *  and stripping walls on the unrevealed side of open diagonal trims. */

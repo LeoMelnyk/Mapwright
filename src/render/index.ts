@@ -14,7 +14,7 @@ export { THEMES } from './themes.js';
 // Bridges
 export { BRIDGE_TEXTURE_IDS } from './bridges.js';
 // Compile-to-canvas
-export { calculateCanvasSize, renderDungeonToCanvas } from './compile.js';
+export { calculateCanvasSize, renderDungeonToCanvas, normalizeTheme } from './compile.js';
 // Render warnings
 export { warn as renderWarn, flush as flushRenderWarnings } from './warnings.js';
 // Effects (shading / hatching) — used by player fog overlay

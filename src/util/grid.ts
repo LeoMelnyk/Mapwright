@@ -168,7 +168,21 @@ export function roomBoundsFromKeys(cellKeySet: Set<string> | null | undefined): 
 
 // ── Edge reciprocal helpers ─────────────────────────────────────────────────
 
-const DIR_OFFSET: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+/**
+ * Canonical cardinal direction → [row, col] offset map.
+ *
+ * Single source of truth — do NOT redefine this in other files. Imported by
+ * editor tools, panels, dm-session, player canvas, fog, render, and import
+ * adapters via the util barrel.
+ */
+export const CARDINAL_OFFSETS: Readonly<Record<'north' | 'south' | 'east' | 'west', readonly [number, number]>> = {
+  north: [-1, 0],
+  south: [1,  0],
+  east:  [0,  1],
+  west:  [0, -1],
+} as const;
+
+const DIR_OFFSET = CARDINAL_OFFSETS as unknown as Record<string, [number, number]>;
 
 /**
  * Set a wall/door value on a cell edge and its reciprocal on the neighbor.

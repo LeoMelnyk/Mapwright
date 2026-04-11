@@ -1,5 +1,5 @@
 import type { Bridge, CellGrid, Direction, EdgeValue, Light, Metadata, Stairs } from '../../types.js';
-import { getEdge, deleteEdge } from '../../util/index.js';
+import { getEdge, deleteEdge, CARDINAL_OFFSETS } from '../../util/index.js';
 // Convert a One-Page-Dungeon JSON export into our internal dungeon format.
 // OPD format: { rects, doors, notes, columns, water, title, story, version }
 //
@@ -558,7 +558,7 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
 
 // ── Internal helpers ─────────────────────────────────────────────────────────
 
-const OFFS = { north: [-1, 0], south: [1, 0], west: [0, -1], east: [0, 1] };
+const OFFS = CARDINAL_OFFSETS;
 const OPP  = { north: 'south', south: 'north', west: 'east', east: 'west' };
 
 /** Clear cardinal walls on cell + reciprocals, preserving doors. */

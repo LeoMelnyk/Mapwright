@@ -49,21 +49,52 @@ function _applyPatternTransform(pattern: CanvasPattern, entry: TextureRuntime, c
 }
 
 /**
- * Fill room backgrounds and render per-cell texture overlays.
- * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
- * @param {Array<Array<Object>>} cells - 2D cell grid
- * @param {Array<Array<boolean>>} roomCells - Room cell mask
- * @param {number} gridSize - Grid cell size in feet
- * @param {Object} theme - Theme object with floor colors
- * @param {Object} transform - Transform with scale, offsetX, offsetY
- * @param {Object|null} textureOptions - Texture catalog and blend settings
- * @param {HTMLImageElement|null} [bgImageEl=null] - Background image element
- * @param {Object|null} [bgImgConfig=null] - Background image config
- * @param {Object|null} [visibleBounds=null] - Viewport bounds for culling
- * @param {number} [resolution=1] - Resolution multiplier for sub-cells
- * @returns {boolean} True if any textured cells were drawn
+ * Visual params shared by every phase: grid size, theme, viewport transform.
  */
-export function renderFloors(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, textureOptions: TextureOptions | null, bgImageEl: HTMLImageElement | null = null, bgImgConfig: BackgroundImage | Record<string, number | string | boolean> | null = null, visibleBounds: VisibleBounds | null = null, resolution: number = 1): boolean {
+export interface RenderPhaseParams {
+  gridSize: number;
+  theme: Theme;
+  transform: RenderTransform;
+}
+
+/**
+ * Optional rendering knobs accepted by `renderFloors`. All fields default to
+ * the equivalent of "off" or "no override".
+ */
+export interface RenderFloorsOptions {
+  textureOptions?: TextureOptions | null;
+  bgImageEl?: HTMLImageElement | null;
+  bgImgConfig?: BackgroundImage | Record<string, number | string | boolean> | null;
+  visibleBounds?: VisibleBounds | null;
+  /** Sub-cell resolution multiplier (1, 2, …) */
+  resolution?: number;
+}
+
+/**
+ * Fill room backgrounds and render per-cell texture overlays.
+ *
+ * @param ctx - Canvas rendering context
+ * @param cells - 2D cell grid
+ * @param roomCells - Room cell mask
+ * @param params - Required visual params (gridSize, theme, transform)
+ * @param options - Optional rendering knobs (textures, bg image, viewport bounds, resolution)
+ * @returns True if any textured cells were drawn
+ */
+export function renderFloors(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  params: RenderPhaseParams,
+  options: RenderFloorsOptions = {},
+): boolean {
+  const { gridSize, theme, transform } = params;
+  const {
+    textureOptions = null,
+    bgImageEl = null,
+    bgImgConfig = null,
+    visibleBounds = null,
+    resolution = 1,
+  } = options;
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const startRow = visibleBounds?.minRow ?? 0;

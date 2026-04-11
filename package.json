@@ -17,6 +17,7 @@
     "electron:build:installer": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win nsis --publish never",
     "electron:build:mac": "node ./node_modules/electron-builder/out/cli/cli.js --mac dmg --publish never",
     "postinstall": "node tools/patch-app-builder.cjs",
+    "prepare": "husky || true",
     "download-textures": "node tools/polyhaven/download-polyhaven.js",
     "download-textures:test": "node tools/polyhaven/download-polyhaven.js --limit 5 --dry-run",
     "lint": "node ./node_modules/eslint/bin/eslint.js src/ tools/",
@@ -26,7 +27,8 @@
     "test:watch": "node node_modules/vitest/vitest.mjs",
     "test:coverage": "node node_modules/vitest/vitest.mjs run --coverage",
     "test:e2e": "node node_modules/vitest/vitest.mjs run --config vitest.e2e.config.js",
-    "test:server": "node node_modules/vitest/vitest.mjs run --config vitest.server.config.js"
+    "test:server": "node node_modules/vitest/vitest.mjs run --config vitest.server.config.js",
+    "test:render": "node node_modules/vitest/vitest.mjs run --config vitest.render.config.js"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
@@ -40,6 +42,8 @@
     "eslint": "^10.0.2",
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
     "pixelmatch": "^7.1.0",
     "pngjs": "^7.0.0",
     "puppeteer": "^24.2.0",
@@ -116,5 +120,8 @@
       "allowToChangeInstallationDirectory": true,
       "artifactName": "${productName}-${version}-setup.${ext}"
     }
+  },
+  "lint-staged": {
+    "*.{ts,js,cjs,mjs}": "node ./node_modules/eslint/bin/eslint.js --fix"
   }
 }

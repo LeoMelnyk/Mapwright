@@ -67,6 +67,19 @@ const api = {
 // Clean up the alias — api should have 'eval' not 'eval_'
 delete (api as Record<string, unknown>).eval_;
 
+/**
+ * The full editor automation API surface, derived from the assembled object.
+ * Used to type `window.editorAPI` so renaming a method on the source side
+ * surfaces a type error at the dispatch layer instead of failing at runtime.
+ */
+export type EditorAPI = Omit<typeof api, 'eval_'>;
+
+declare global {
+  interface Window {
+    editorAPI?: EditorAPI;
+  }
+}
+
 // Set the API reference so cross-module getApi() calls work
 _setApi(api);
 
@@ -77,7 +90,7 @@ function waitForReady(): Promise<void> {
     const check = () => {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- catalogs load async; null until ready
       if (document.getElementById('editor-canvas') && state.dungeon && getThemeCatalog() !== null) {
-        (window as unknown as Record<string, unknown>).editorAPI = api;
+        window.editorAPI = api as EditorAPI;
         console.log('[editor-api] API ready — window.editorAPI available');
         resolve();
       } else {

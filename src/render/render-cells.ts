@@ -65,7 +65,11 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
   }
   if (!skipPhases?.floors) {
     _t('floors', () => {
-      hasTexturedCells = renderFloors(ctx, cells, roomCells, gridSize, theme, transform, textureOptions, bgImageEl, bgImgConfig, visibleBounds, _res);
+      hasTexturedCells = renderFloors(
+        ctx, cells, roomCells,
+        { gridSize, theme, transform },
+        { textureOptions, bgImageEl, bgImgConfig, visibleBounds, resolution: _res },
+      );
     });
   }
 

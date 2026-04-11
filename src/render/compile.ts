@@ -16,8 +16,53 @@ import { extractFillLights } from './lighting.js';
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer } from '../player/fog.js';
 
 /**
- * Resolve theme config to a theme object.
+ * Fill in default values for theme color keys that downstream renderers
+ * dereference. This is the single source of truth for theme defaults — no
+ * other render module should use `theme.foo ?? '#XXXXXX'` fallbacks.
+ *
+ * Idempotent (calling on an already-normalized theme is a no-op) and
+ * non-mutating (returns a fresh object).
+ *
+ * Cascading defaults preserve the existing intent: `doorStroke` falls back
+ * to `wallStroke`, `compassRoseFill` falls back to `wallStroke`, etc.
+ */
+function normalizeTheme(theme: Theme): Theme {
+  // Treat the input as possibly-partial. Themes loaded from .theme files at
+  // runtime, theme overrides spread on top of presets, and user-edited themes
+  // can all have missing keys even though the static Theme type marks them
+  // as required. The cast lets us check each key with `??` defaults; the
+  // returned object is guaranteed to satisfy the strict Theme contract.
+  const t = theme as unknown as Record<string, string | number | undefined>;
+  const wallStroke = (t.wallStroke as string | undefined) ?? '#000000';
+  const normalized = {
+    ...t,
+    wallStroke,
+    doorFill:          (t.doorFill as string | undefined)          ?? '#ffffff',
+    doorStroke:        (t.doorStroke as string | undefined)        ?? wallStroke,
+    secretDoorColor:   (t.secretDoorColor as string | undefined)   ?? wallStroke,
+    floorFill:         (t.floorFill as string | undefined)         ?? '#ffffff',
+    textColor:         (t.textColor as string | undefined)         ?? '#000000',
+    compassRoseFill:   (t.compassRoseFill as string | undefined)   ?? wallStroke,
+    compassRoseStroke: (t.compassRoseStroke as string | undefined) ?? wallStroke,
+    hatchDistance:     (t.hatchDistance as number | undefined)     ?? 1,
+    hatchSize:         (t.hatchSize as number | undefined)         ?? 0.5,
+    hatchColor:        (t.hatchColor as string | undefined)        ?? wallStroke,
+    wallRoughness:     (t.wallRoughness as number | undefined)     ?? 0,
+    gridStyle:         (t.gridStyle as string | undefined)         ?? 'lines',
+    gridLineWidth:     (t.gridLineWidth as number | undefined)     ?? 4,
+    gridNoise:         (t.gridNoise as number | undefined)         ?? 0,
+    gridCornerLength:  (t.gridCornerLength as number | undefined)  ?? 0.3,
+    gridOpacity:       (t.gridOpacity as number | undefined)       ?? 0.5,
+    textureBlendWidth: (t.textureBlendWidth as number | undefined) ?? 0.35,
+  } as unknown as Theme;
+  return normalized;
+}
+
+/**
+ * Resolve theme config to a normalized theme object.
  * If themeOverrides is provided, start with the base theme and spread overrides on top.
+ * The returned theme has all expected keys populated — downstream renderers
+ * can read them directly without `?? defaults`.
  */
 function resolveTheme(themeConfig: string | Record<string, unknown>, themeOverrides: Record<string, unknown> | null): Theme {
   let theme: Theme;
@@ -27,11 +72,16 @@ function resolveTheme(themeConfig: string | Record<string, unknown>, themeOverri
     const name = typeof themeConfig === 'string' ? themeConfig : 'blue-parchment';
     theme = THEMES[name];
   }
+  let merged = theme;
   if (themeOverrides && typeof themeOverrides === 'object') {
-    return { ...theme, ...themeOverrides } as Theme;
+    merged = { ...theme, ...themeOverrides } as Theme;
   }
-  return theme;
+  return normalizeTheme(merged);
 }
+
+// Re-exported for the editor's live render path so it can normalize themes
+// loaded from .theme files before passing them to renderCells.
+export { normalizeTheme };
 
 /**
  * Calculate the required canvas pixel dimensions for a dungeon config.

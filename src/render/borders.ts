@@ -1,15 +1,17 @@
 import type { CellGrid, Direction, RenderTransform, Stairs, Theme } from '../types.js';
-import { GRID_SCALE } from './constants.js';
+import { GRID_SCALE, FEATURE_SIZES } from './constants.js';
 import { toCanvas } from './bounds.js';
 import { getEdge } from '../util/index.js';
 
-// ─── Constants ─────
-const DOOR_LENGTH_MULT = 0.6;
-const DIAG_DOOR_LENGTH_MULT = 0.80 * Math.SQRT2; // Compensate for sqrt(2) diagonal length so door fills 80% of the diagonal
-const SECRET_FONT_MULT = 0.7;
-const STAIR_NUM_LINES = 6;
-const STAIR_HATCH_MARGIN = 0.08;
-const STAIR_HATCH_LINE_SPACING = 0.2;
+// Re-exported as locals so the existing call sites below stay readable.
+const {
+  DOOR_LENGTH_MULT,
+  DIAG_DOOR_LENGTH_MULT,
+  SECRET_FONT_MULT,
+  STAIR_NUM_LINES,
+  STAIR_HATCH_MARGIN,
+  STAIR_HATCH_LINE_SPACING,
+} = FEATURE_SIZES;
 
 /**
  * Compute a scale factor relative to the base GRID_SCALE.

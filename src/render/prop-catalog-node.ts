@@ -74,8 +74,8 @@ export function loadPropCatalogSync(): { props: Record<string, PropDefinition>; 
   let manifest;
   try {
     manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-  } catch {
-    console.warn('[props] Could not load prop manifest — props will not render in CLI build');
+  } catch (e) {
+    console.warn(`[props] Could not load prop manifest at ${manifestPath} — props will not render in CLI build: ${(e as Error).stack ?? (e as Error).message}`);
     return { props: {}, categories: [] };
   }
 

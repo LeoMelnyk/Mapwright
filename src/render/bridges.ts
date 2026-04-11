@@ -15,6 +15,16 @@
 import type { Theme, RenderTransform, Bridge } from '../types.js';
 import { toCanvas } from './bounds.js';
 import { warn } from './warnings.js';
+import { BRIDGE_TEXTURE_IDS } from './constants.js';
+import {
+  getBridgeCorners as _getBridgeCornersShared,
+  pointInPolygon as _pointInPolygonShared,
+  pointOnPolygonEdge as _pointOnPolygonEdgeShared,
+} from '../util/index.js';
+
+// Re-export so existing importers (texture-catalog-node.ts) continue to work
+// while the canonical definition lives in constants.ts.
+export { BRIDGE_TEXTURE_IDS };
 
 /** A 2D point as [row, col]. */
 type Pt = [number, number];
@@ -27,59 +37,14 @@ if (!_DOMMatrix) {
   try { _DOMMatrix = (await import('@napi-rs/canvas')).DOMMatrix as typeof DOMMatrix; } catch { /* browser — not needed, already global */ }
 }
 
-// ── Geometry (duplicated from editor/js/bridge-geometry.js to keep render self-contained) ──
+// ── Geometry (now sourced from src/util/polygon.ts — single source of truth shared with editor) ──
 
-function _getBridgeCorners(p1: Pt, p2: Pt, p3: Pt): [Pt, Pt, Pt, Pt] {
-  const bR = p2[0] - p1[0], bC = p2[1] - p1[1];
-  const bLen2 = bR * bR + bC * bC;
-  if (bLen2 < 0.001) return [p1, p2, p2, p1];
-
-  const relR = p3[0] - p2[0], relC = p3[1] - p2[1];
-  const dotPar = (relR * bR + relC * bC) / bLen2;
-  const perpR = relR - dotPar * bR;
-  const perpC = relC - dotPar * bC;
-
-  return [p1, p2, [p2[0] + perpR, p2[1] + perpC], [p1[0] + perpR, p1[1] + perpC]];
-}
-
-// ── Point-in-polygon helpers (duplicated from stair-geometry.js — render folder cannot import from editor/js) ──
-
-function _pointInPolygon(r: number, c: number, polygon: Pt[]) {
-  let inside = false;
-  const n = polygon.length;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const ri = polygon[i][0], ci = polygon[i][1];
-    const rj = polygon[j][0], cj = polygon[j][1];
-    if (((ri > r) !== (rj > r)) && (c < (cj - ci) * (r - ri) / (rj - ri) + ci)) {
-      inside = !inside;
-    }
-  }
-  return inside;
-}
-
-function _pointOnPolygonEdge(r: number, c: number, polygon: Pt[], eps = 0.01) {
-  const n = polygon.length;
-  for (let i = 0, j = n - 1; i < n; j = i++) {
-    const ri = polygon[i][0], ci = polygon[i][1];
-    const rj = polygon[j][0], cj = polygon[j][1];
-    const dr = rj - ri, dc = cj - ci;
-    const len2 = dr * dr + dc * dc;
-    if (len2 === 0) continue;
-    const t = Math.max(0, Math.min(1, ((r - ri) * dr + (c - ci) * dc) / len2));
-    if (Math.hypot(c - (ci + t * dc), r - (ri + t * dr)) < eps) return true;
-  }
-  return false;
-}
+const _getBridgeCorners = _getBridgeCornersShared as (p1: Pt, p2: Pt, p3: Pt) => [Pt, Pt, Pt, Pt];
+const _pointInPolygon = _pointInPolygonShared as (r: number, c: number, polygon: Pt[]) => boolean;
+const _pointOnPolygonEdge = _pointOnPolygonEdgeShared as (r: number, c: number, polygon: Pt[], eps?: number) => boolean;
 
 // ── Style constants ────────────────────────────────────────────────────────────
 
-/** @type {Object.<string, string>} Map of bridge type to texture ID */
-export const BRIDGE_TEXTURE_IDS = {
-  wood:  'polyhaven/weathered_planks',
-  stone: 'polyhaven/stone_wall',
-  rope:  'polyhaven/worn_planks',
-  dock:  'polyhaven/brown_planks_09',
-};
 const TEXTURE_IDS = BRIDGE_TEXTURE_IDS;
 
 const FALLBACK_COLORS = {
@@ -379,7 +344,8 @@ function renderBridge(ctx: CanvasRenderingContext2D, bridge: Bridge, allBridges:
   ctx.clip();
 
   // ── 2. Texture / color base fill ──
-  const texId = TEXTURE_IDS[type as keyof typeof TEXTURE_IDS] || TEXTURE_IDS.wood;
+  const texLookup = TEXTURE_IDS as unknown as Record<string, string | undefined>;
+  const texId = texLookup[type] ?? TEXTURE_IDS.wood;
   const texImg = getTextureImage ? getTextureImage(texId) : null;
 
   _buildPath(ctx, A, B, C, D);

@@ -201,4 +201,7 @@ vi.mock('../src/render/index.js', () => ({
   accumulateDirtyRect: vi.fn(),
   patchBlendForDirtyRegion: vi.fn(),
   patchFluidForDirtyRegion: vi.fn(),
+  // Identity in tests: getTheme should return the same reference it was given
+  // so existing toBe() reference-equality assertions still hold.
+  normalizeTheme: vi.fn((t) => t),
 }));

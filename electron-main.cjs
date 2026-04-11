@@ -108,9 +108,19 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
       backgroundThrottling: false,
       devTools: true,
     },
+  });
+
+  // Block any navigation away from the local editor — if a renderer is
+  // compromised it shouldn't be able to swap the window to a phishing page.
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!url.startsWith(`http://localhost:${PORT}/`)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
   });
 
   const editorUrl = pendingFile
@@ -269,9 +279,13 @@ app.on('before-quit', () => {
   if (app._serverChild) {
     if (process.platform === 'win32') {
       // On Windows, child.kill() only kills the direct process — use taskkill /T
-      // to kill the entire process tree (node → tsx → server.js)
-      const { execSync } = require('child_process');
-      try { execSync(`taskkill /PID ${app._serverChild.pid} /T /F`, { stdio: 'ignore' }); } catch {}
+      // to kill the entire process tree (node → tsx → server.js). Use execFileSync
+      // (no shell) so the PID is passed as a discrete argv, not interpolated into
+      // a shell command.
+      const { execFileSync } = require('child_process');
+      try {
+        execFileSync('taskkill', ['/PID', String(app._serverChild.pid), '/T', '/F'], { stdio: 'ignore' });
+      } catch { /* best effort */ }
     } else {
       app._serverChild.kill();
     }

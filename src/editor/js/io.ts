@@ -11,7 +11,7 @@ import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
-import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache, invalidateAllCaches, THEMES } from '../../render/index.js';
+import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache, invalidateAllCaches, THEMES, BRIDGE_TEXTURE_IDS } from '../../render/index.js';
 import { validateDungeonStructure } from '../../render/validate.js';
 import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextureCatalogCache } from './texture-catalog.js';
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
@@ -79,14 +79,11 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFi
       }
     }
   }
-  // Bridge textures (hardcoded Polyhaven IDs in bridges.js)
+  // Bridge textures (single source of truth: render/constants.ts BRIDGE_TEXTURE_IDS)
   if (json.metadata.bridges.length) {
-    const bridgeTexIds = {
-      wood: 'polyhaven/weathered_planks', stone: 'polyhaven/stone_wall',
-      rope: 'polyhaven/worn_planks', dock: 'polyhaven/brown_planks_09',
-    };
+    const bridgeTexLookup = BRIDGE_TEXTURE_IDS as unknown as Record<string, string | undefined>;
     for (const b of json.metadata.bridges) {
-      const tid = bridgeTexIds[b.type];
+      const tid = bridgeTexLookup[b.type];
       if (tid) usedIds.add(tid);
     }
   }
@@ -95,6 +92,12 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFi
     void ensureTexturesLoaded(usedIds).then(() => {
       state.texturesVersion++;
       notify();
+      hideEditorLoading();
+    }).catch((err: unknown) => {
+      // Don't leave the loading overlay stuck on. The map itself loaded fine —
+      // textures just won't render until the next reload.
+      console.warn('[load] texture load failed; map will render without textures', err);
+      showToast('Some textures failed to load — re-open the map to retry');
       hideEditorLoading();
     });
   } else {

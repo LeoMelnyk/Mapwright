@@ -1,5 +1,51 @@
 # Changelog
 
+## v0.10.1
+
+### Security Hardening
+
+- **WebSocket relay hardened** — player messages validated against a type allowlist with JSON schema checks; `maxPayload` cap (2 MB) and `perMessageDeflate` limits prevent memory exhaustion from malicious clients
+- **Client-side message validation** — DM session now validates inbound message shape (`player:count`, `range:highlight`) before acting on it; malformed payloads are dropped instead of crashing the editor
+- **Reconnect backoff** — WebSocket reconnect uses exponential backoff (1s → 30s, max 12 attempts) instead of a fixed 2-second loop
+- **AI log rotation** — session log capped at 5 MB with `.old` rollover; per-line cap prevents oversized payloads
+- **MCP subprocess buffer cap** — `runProcess` limits stdout/stderr to 8 MB and kills runaway children
+- **Electron navigation guard** — `will-navigate` handler blocks navigation away from localhost; explicit `sandbox: true` on BrowserWindow
+- **taskkill safety** — server shutdown uses `execFileSync` (argv-based) instead of `execSync` (shell string interpolation)
+
+### Quality Infrastructure
+
+- **Pre-commit hooks** — husky + lint-staged now runs ESLint `--fix` on staged files before each commit
+- **Render tests in CI** — new `npm run test:render` script + GitHub Actions job; 257 render tests now run on every push
+- **Repo cleanup** — deleted stale `ai-session.log` and `eslint-errors.json` artifacts, removed 6 legacy TypeScript migration scripts from `tools/`
+
+### Render Pipeline
+
+- **Theme normalization** — new `normalizeTheme()` fills in all expected color/numeric keys once at resolve time; downstream renderers no longer need scattered `?? '#ffffff'` fallbacks
+- **Bridge texture IDs centralized** — `BRIDGE_TEXTURE_IDS` moved to `render/constants.ts` as the single source of truth; previously duplicated in `bridges.ts` and `io.ts`
+- **Feature sizing constants centralized** — `DOOR_LENGTH_MULT`, `STAIR_HATCH_MARGIN`, and other border/feature sizing values moved from file-scoped consts to `constants.ts`
+- **Shared polygon geometry** — `pointInPolygon`, `pointOnPolygonEdge`, and `getBridgeCorners` extracted to `util/polygon.ts`; eliminates duplicate implementations between `render/bridges.ts` and `editor/js/stair-geometry.ts`
+- **lighting.ts split** — wall extraction, prop shadow zones, and projected-shadow computation moved to new `lighting-geometry.ts` (1438 → 1157 lines in the main module)
+- **renderFloors parameter cleanup** — 11 positional args replaced with `RenderPhaseParams` + `RenderFloorsOptions` objects
+- **Silent catch fixes** — prop and texture catalog loaders now log full error stacks instead of swallowing context
+
+### Editor
+
+- **notify() re-entrancy guard** — nested `notify()` calls from subscribers are queued and drained after the outer pass finishes, preventing infinite loops
+- **Multi-step mutation rollback** — `shiftCells` and `normalizeMargin` now use a `withRollback()` helper that restores the dungeon snapshot and pops the undo entry if any step throws
+- **Async load error handling** — `loadDungeonJSON` now catches texture-load failures with a user-facing toast instead of silently leaving the loading overlay stuck
+- **Animation loop lifecycle** — `beforeunload` and `visibilitychange` handlers stop/restart the light animation loop on page close or tab background
+- **Typed `window.editorAPI`** — new `EditorAPI` type derived from the assembled api object + `declare global` augmentation; renaming a method now surfaces a type error at the dispatch layer
+- **Direction offsets consolidated** — 12 duplicate `{ north: [-1,0], ... }` definitions replaced by a single `CARDINAL_OFFSETS` export from `util/grid.ts`
+- **Structured errors in dispatch** — `claude-tools.ts` now preserves `ApiValidationError.code` and `.context` when surfacing errors to the LLM, plus uses a declarative `TOOL_REQUIRED_FIELDS` table for input validation
+- **`ApiValidationError` isolated** — moved to its own zero-dependency `api/errors.ts` file so dispatch code can import it without pulling in tool instances or the render pipeline
+
+### Tests
+
+- 21 new tests: polygon math helpers, notify re-entrancy guard, `withRollback` semantics, and first-ever panel smoke tests
+- Test count: 942 unit + 257 render (up from 921 + 257)
+
+---
+
 ## v0.10.0
 
 ### Universal VTT Export

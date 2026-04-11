@@ -13,26 +13,23 @@ import { migrateToLatest } from '../migrations.js';
 import { classifyStairShape, isDegenerate, getOccupiedCells } from '../stair-geometry.js';
 import { isBridgeDegenerate, getBridgeOccupiedCells } from '../bridge-geometry.js';
 import { calculateCanvasSize, renderDungeonToCanvas, invalidateAllCaches, captureBeforeState, smartInvalidate, patchBlendForDirtyRegion, accumulateDirtyRect, getContentVersion, getGeometryVersion, getLightingVersion, getPropsVersion, getDirtyRegion, renderTimings } from '../../../render/index.js';
-import { OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom, toInternalCoord, toDisplayCoord } from '../../../util/index.js';
+import { OPPOSITE, cellKey, parseCellKey, isInBounds, roomBoundsFromKeys, floodFillRoom, toInternalCoord, toDisplayCoord, CARDINAL_OFFSETS } from '../../../util/index.js';
 
 // ─── Structured API Error ───────────────────────────────────────────────────
+// Re-exported here for backwards compatibility — the canonical definition
+// lives in ./errors.ts so dispatch code can import the class without dragging
+// in the rest of the editor API surface (tools, render modules, etc.).
 
-export class ApiValidationError extends Error {
-  code: string;
-  context: Record<string, unknown>;
-  constructor(code: string, message: string, context: Record<string, unknown> = {}) {
-    super(message);
-    this.name = 'ApiValidationError';
-    this.code = code;
-    this.context = context;
-  }
-}
+export { ApiValidationError } from './errors.js';
+import { ApiValidationError } from './errors.js';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CARDINAL_DIRS: string[] = ['north', 'south', 'east', 'west'];
 const ALL_DIRS: string[] = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'];
-const OFFSETS: Record<string, [number, number]> = { north: [-1, 0], south: [1, 0], east: [0, 1], west: [0, -1] };
+// Canonical offsets sourced from util/grid.ts. The local mutable cast is
+// for backwards compatibility with the existing `Record<string, [n, n]>` shape.
+const OFFSETS = CARDINAL_OFFSETS as unknown as Record<string, [number, number]>;
 
 // ─── Private tool instances ──────────────────────────────────────────────────
 
@@ -129,6 +126,42 @@ function deleteReciprocal(row: number, col: number, direction: string): void {
   setReciprocal(row, col, direction, null);
 }
 
+// ─── Multi-step mutation rollback ───────────────────────────────────────────
+
+/**
+ * Wrap a multi-step mutation in pushUndo + try/catch with rollback.
+ *
+ * Used by API methods that touch multiple parts of the dungeon (cells, levels,
+ * lights, bridges, stairs) where a partial failure would leave the dungeon in
+ * an inconsistent state. On exception, the snapshot is restored AND the
+ * just-pushed undo entry is popped — so the user can't accidentally undo to
+ * a half-mutated state.
+ *
+ * Caller should NOT call pushUndo() inside `fn` — this helper does it.
+ */
+function withRollback<T>(label: string, fn: () => T): T {
+  const beforeDepth = state.undoStack.length;
+  pushUndo(label);
+  // Snapshot AFTER pushUndo so the snapshot reflects the same pre-mutation state
+  // that the undo entry points to. JSON round-trip is acceptable here because
+  // these multi-step mutations are infrequent (shiftCells, normalizeMargin).
+  const snapshot = JSON.stringify(state.dungeon);
+  try {
+    return fn();
+  } catch (e) {
+    // Restore the dungeon and discard the undo entry we pushed.
+    try {
+      state.dungeon = JSON.parse(snapshot);
+    } catch {
+      // Snapshot was somehow corrupted — best-effort: log and re-throw original.
+      console.error('[withRollback] failed to restore snapshot', e);
+    }
+    state.undoStack.length = beforeDepth;
+    invalidateAllCaches();
+    throw e;
+  }
+}
+
 // ─── Resolution coordinate conversion ───────────────────────────────────────
 
 /** Get the current resolution (defaults to 1 for legacy maps). */
@@ -157,7 +190,7 @@ export {
   CARDINAL_DIRS, ALL_DIRS, OFFSETS,
 
   // Helpers
-  validateBounds, ensureCell, setReciprocal, deleteReciprocal,
+  validateBounds, ensureCell, setReciprocal, deleteReciprocal, withRollback,
 
   // Tool instances
   roomTool, trimTool, paintTool,
