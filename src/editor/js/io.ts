@@ -63,11 +63,10 @@ export function loadDungeonJSON(
 
   // Auto-install embedded user theme if not locally available
   const _theme = json.metadata.theme;
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (
     typeof _theme === 'string' &&
     _theme.startsWith('user:') &&
-    !THEMES[_theme] &&
+    !(THEMES as Record<string, unknown>)[_theme] &&
     json.metadata.savedThemeData?.theme
   ) {
     // Register in memory for immediate use
