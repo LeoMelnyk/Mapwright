@@ -155,6 +155,66 @@ API errors now include a machine-readable `code` and `context` object alongside 
 - **`getRoomBounds`** and **`findWallBetween`** now return `{ success: false, error }` instead of `null` when a room is not found — consistent with all other API methods
 - **`loadMap`** now returns map info alongside `{ success: true }`, saving a follow-up query after every map load
 
+### Claude Map-Building Improvements — Round 2
+
+A second pass focused on cutting Claude's overhead per call, raising the quality of auto-furnished rooms, and making it easier for Claude to verify its own work without paying for screenshots every time.
+
+#### Persistent editor session (much faster)
+
+- **Browser stays open between Claude's commands** — previously every batch from Claude spawned a fresh browser, navigated to the editor, and tore it down on exit. The MCP integration now keeps a long-running browser session and forwards each command batch through it. Typical multi-phase build is several times faster end-to-end and feels noticeably more responsive
+- **Idle cleanup** — the persistent session shuts itself down after 10 minutes of inactivity, then re-spawns on demand
+- **Per-command progress streaming** — when Claude clients support it (via the standard MCP `progressToken`), the editor now streams per-command progress events while a batch runs. You can watch a 60-command build land one step at a time instead of getting one final blob
+- **Pause-for-review checkpoints** — Claude can drop a `pauseForReview` step into the middle of a batch to give you time to inspect a phase in the visible browser before the next phase runs
+
+#### Smarter furnishing
+
+- **Plan-then-commit auto-furnish** — Claude can now propose a furnishing plan (every prop with role, position, facing, and a 1-line reason) and inspect or edit it before committing. Replaces the old "call autofurnish, hope for the best" flow. The legacy `autofurnish` API still works
+- **Honors prop clustering metadata** — secondary prop selection is now biased toward props that the catalog tags as belonging together (e.g., `pillar` clusters with `throne`, `anvil` with `forge`). Fewer mismatched assortments
+- **Door clearance is preserved** — auto-furnish no longer places props in cells immediately in front of doors
+- **Light budget is enforced** — auto-furnish caps the number of light-emitting props per room to prevent rooms from being blown out by stacked torches and braziers
+- **Symmetric flanking** — formal rooms (throne rooms, temples) now get bilateral pairs of pillars or braziers placed automatically when density is normal or dense
+
+#### Relational placement helpers
+
+- **`placeRelative(row, col, direction, offset, propType)`** — place a prop a given number of cells from an anchor in a cardinal direction. No more manual coordinate math for "put a candle two cells west of the throne"
+- **`placeSymmetric(roomLabel, axis, row, col, propType, facing)`** — place a pair of props mirrored across a room's centerline, with facing automatically mirrored on the other side
+- **`placeFlanking(roomLabel, anchorPropType, flankPropType)`** — find an existing prop in a room and place flanks on either side, perpendicular to its facing
+
+#### Light-emitting prop awareness
+
+- **`placeProp` now reports auto-added lights** — props like braziers, forges, hearths, chandeliers, and torch-sconces have always emitted their own light when placed. The result now surfaces a `lightsAdded` array so Claude knows not to double-add a `placeLight` at the same cell
+- **`listLightEmittingProps()`** — lists every prop in the catalog that brings its own light, with the preset and offset
+
+#### New verification tools (without screenshots)
+
+- **`describeMap()`** — compact semantic snapshot of every labeled room: ASCII shape, numbered prop sidecar with coordinates, doors, fills, lights, textures, adjacent rooms. Uses far less context than a screenshot for routine "did things land where I think they did?" checks
+- **`critiqueMap()`** — runs design heuristics across the whole map: rooms with no props, rooms with no centerpiece, blown-out lighting, light-emitting props with no light, overcrowded rooms, doors blocked by props, homogeneous prop usage. Replaces several manual review passes with one call
+
+#### Undo summary
+
+- **`diffFromCheckpoint(name)`** — summarize what `rollback(name)` would throw away. Returns counts by category (props added/removed, fills added, walls changed, doors added, lights added, etc.) plus per-entry labels. Makes rollback decisions much less scary
+
+#### API discovery
+
+- **`apiSearch(query, options)`** — search the editor API by keyword and category, returns lightweight method metadata. Avoids loading the full ~250-method reference for routine work
+- **`apiDetails(methodName)`** and **`apiCategories()`** — drill into a single method or list every category with method counts
+
+#### Visual prop browsing
+
+- **`getPropThumbnail(name)`** — cached small PNG of any prop, rendered on demand. Useful for visual prop picking when Claude is choosing between several similar candidates
+- **`getPropThumbnails(names)`** — batch fetch
+- **`prewarmPropThumbnails()`** — pre-render the entire prop catalog into the cache (useful before a "show me 50 props" sweep)
+- **`searchPropsWithThumbnails(filter)`** — combined `searchProps` + thumbnail in one call
+
+### Bug Fixes
+
+- **Auto-furnish now respects its own light cap** — the `lightCap` option was being ignored because the candidate list dropped the `lights` field. Light-emitting props could be placed beyond the configured budget, leading to rooms with three braziers when one was asked for. Fixed
+- **Prop thumbnail cache no longer collides between sizes** — requesting the same prop at two different sizes used to evict each other from the cache. Cache key now includes the requested size
+
+### Breaking Changes
+
+- **Removed `mapwright/room-templates/*.json`** — the seven JSON template files (throne-room, alchemist-lab, forge, crypt, temple, wizard-sanctum, prison-block) are gone. They were reference designs used as inspiration for AI-generated rooms; in practice they anchored Claude toward producing rooms that all looked alike. Same room-type guidance now lives in `mapwright/DESIGN.md` under "Room Semantic Library", which describes prop palettes and density without prescribing exact layouts. If you were running these templates standalone, the design notes for each room type are still in DESIGN.md
+
 ### Electron Fixes
 
 - Server process tree is now properly killed on app close (Windows)

@@ -77,7 +77,7 @@ export function placeProp(
   propType: string,
   facing: number = 0,
   options: PlacePropOptions = {},
-): { success: true; warnings?: string[] } {
+): { success: true; warnings?: string[]; lightsAdded?: Array<{ id: number; preset: string }> } {
   row = toInt(row);
   col = toInt(col);
   validateBounds(row, col);
@@ -124,6 +124,7 @@ export function placeProp(
 
   const meta = ensurePropsArray();
   const gridSize = meta.gridSize || 5;
+  const lightsAdded: Array<{ id: number; preset: string }> = [];
 
   mutate(
     'Place prop',
@@ -158,8 +159,9 @@ export function placeProp(
           }
 
           const preset = lightCatalog?.lights[lightEntry.preset] ?? ({} as Partial<LightPreset>);
+          const lightId = meta.nextLightId++;
           const light: Record<string, unknown> = {
-            id: meta.nextLightId++,
+            id: lightId,
             x: (col + nx) * gridSize,
             y: (row + ny) * gridSize,
             type: preset.type ?? 'point',
@@ -173,13 +175,51 @@ export function placeProp(
           if (preset.dimRadius) light.dimRadius = preset.dimRadius;
           if (preset.animation?.type) light.animation = { ...preset.animation };
           meta.lights.push(light as unknown as (typeof meta.lights)[number]);
+          lightsAdded.push({ id: lightId, preset: lightEntry.preset });
         }
       }
     },
     { metaOnly: true, invalidate: ['lighting:props', 'props'] },
   );
 
-  return warnings.length ? { success: true, warnings } : { success: true };
+  const result: { success: true; warnings?: string[]; lightsAdded?: Array<{ id: number; preset: string }> } = {
+    success: true,
+  };
+  if (warnings.length) result.warnings = warnings;
+  if (lightsAdded.length) result.lightsAdded = lightsAdded;
+  return result;
+}
+
+/**
+ * List all props in the catalog that auto-emit light when placed.
+ *
+ * Use this to know which props you should NOT also call `placeLight` for —
+ * they bring their own light source via the `lights:` field in the prop file.
+ *
+ * @returns `{ count, props: [{ name, lights: [{preset, x, y}] }] }`
+ */
+export function listLightEmittingProps(): {
+  success: true;
+  count: number;
+  props: Array<{ name: string; category: string; lights: Array<{ preset: string; x: number; y: number }> }>;
+} {
+  const catalog = state.propCatalog;
+  if (!catalog) {
+    throw new ApiValidationError('NO_PROP_CATALOG', 'Prop catalog not loaded', {});
+  }
+  const out: Array<{ name: string; category: string; lights: Array<{ preset: string; x: number; y: number }> }> = [];
+  for (const [name, def] of Object.entries(catalog.props)) {
+    const lights = (def as { lights?: Array<{ preset: string; x: number; y: number }> }).lights;
+    if (lights?.length) {
+      out.push({
+        name,
+        category: (def as { category?: string }).category ?? 'Misc',
+        lights: lights.map((l) => ({ preset: l.preset, x: l.x, y: l.y })),
+      });
+    }
+  }
+  out.sort((a, b) => a.name.localeCompare(b.name));
+  return { success: true, count: out.length, props: out };
 }
 
 /**

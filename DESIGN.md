@@ -84,6 +84,22 @@ Before any risky batch, record undo depth: `["getUndoDepth"]`. If the result loo
 
 ---
 
+## Inventing New Props
+
+The catalog is **not** exhaustive and never will be. When a room genuinely needs something the library lacks (an astrolabe, a chaise lounge, a specific cult relic) — **create the prop**, don't substitute.
+
+Read [src/props/CLAUDE.md](src/props/CLAUDE.md) for the format. Every prop gets the full treatment: footprint, hitbox, shadow, `blocks_light`, `height`, `lights:` if applicable, `placement`, `room_types`, `typical_count`, `clusters_with`, and notes. Author the draw commands as vector primitives (rectangles, circles, lines, polys, texfills) — same approach as existing props. **Do not generate raster/PNG props** — they will look uncanny next to vector neighbors and degrade catalog cohesion.
+
+**Budget is not a constraint; thoroughness is.** Spend tokens liberally:
+- Reference the closest existing prop (e.g. `throne-dais.prop`, `brazier.prop`, `forge.prop`) for layering style, opacity, and stroke conventions
+- Render a single-prop test and screenshot before placing in the map
+- Compare quality side-by-side against neighbors in the same category
+- Iterate until it fits — 3-5 revisions is normal for a new prop
+
+A well-authored prop is reused across many maps. Cutting corners here pollutes the entire catalog.
+
+---
+
 ## Hard Limits
 
 ### Textures
@@ -150,6 +166,8 @@ Every room has three prop layers:
 
 ### 6. Lighting Anchors
 Lights should explain themselves. A `torch-sconce` prop should have a corresponding point light at that cell. A `brazier` should glow. A `forge` should cast heat-orange light. Players (and AI) notice when light exists with no source, or sources exist with no light.
+
+**Many props auto-emit light on placement** — `placeProp` adds the light for you. Call `listLightEmittingProps()` for the full list, or check the `lights:` field in any `.prop` file. When `placeProp` returns `lightsAdded: [...]`, the prop already brought its own light; do NOT also call `placeLight` or `placeLightInRoom` at that cell or you'll double up. Examples that auto-light: `brazier`, `forge`, `fireplace`, `hearth`, `chandelier`, `torch-sconce`, `candelabra`, `candle-cluster`, `wall-lantern`, `floor-candelabra`, `signal-fire`, `campfire`, `lantern-post`, `lava-pool`. Props that do NOT auto-light still need a manual `placeLight` if you want them illuminated.
 
 ### 7. Symmetry vs. Organic
 - **Formal/ceremonial spaces** (throne room, temple, audience hall): bilateral symmetry. Matching pillars, matching braziers, centered primary feature.
@@ -892,15 +910,6 @@ node tools/puppeteer-bridge.js \
 
 ---
 
-## Room Templates
+## Room Design Reference
 
-Ready-to-run examples live in `room-templates/`. Each creates a complete standalone map with a single fully-furnished room. Study them to understand prop placement patterns.
-
-```bash
-# Run a template to see the result
-node tools/puppeteer-bridge.js \
-  --commands-file room-templates/throne-room.json \
-  --screenshot throne-room.png
-```
-
-Templates use a standard 14-row × 16-col grid with a single 10×12 room (interior 8 rows × 10 cols = 40×50 ft). When adapting a template to a different room size, scale prop positions proportionally from the room's `r1/c1` corner.
+The Room Semantic Library above is the authority on what props, fills, textures, and lighting work for each room type. Design every room fresh from those primitives — no two rooms in a dungeon should feel like copies of each other.

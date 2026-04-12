@@ -2,6 +2,33 @@
 
 This guide explains how to programmatically create and edit maps using the editor's automation API. Claude is the primary intended user of this API.
 
+## API Discovery (start here)
+
+The API has 250+ methods. Don't try to load this whole doc unless you need a deep dive — instead, search for the right method:
+
+```json
+["apiSearch", "prop", { "category": "bulk-props", "limit": 10 }]
+["apiDetails", "proposeFurnishing"]
+["apiCategories"]
+```
+
+Categories: `map`, `rooms`, `cells`, `walls-doors`, `labels`, `stairs-bridges`, `trims`, `fills`, `textures`, `lighting`, `props`, `bulk-props`, `relational`, `spatial`, `inspection`, `validation`, `transforms`, `levels`, `plan`, `undo-checkpoints`, `preview`, `session`, `catalog`, `discovery`, `operational`.
+
+## What's new in this guide
+
+| Method | Category | Use when |
+|---|---|---|
+| `describeMap` | inspection | Need to verify "did things land where I think?" without paying for a screenshot. Returns ASCII per room + numbered prop sidecar. |
+| `placeRelative` / `placeSymmetric` / `placeFlanking` | relational | Placing props relative to anchors or with bilateral symmetry — saves coordinate math. |
+| `proposeFurnishing` / `commitFurnishing` | bulk-props | Plan-then-commit furnishing: inspect/edit the plan before placement. Supersedes black-box `autofurnish`. |
+| `critiqueMap` | validation | Run design heuristics (completeness, lighting, spatial, composition) over the whole map. |
+| `listLightEmittingProps` | catalog | Know which props auto-emit a light when placed (so you don't double-add a `placeLight` at the same cell). |
+| `diffFromCheckpoint` | undo-checkpoints | Summarize what `rollback(name)` would throw away. |
+| `getPropThumbnail` / `getPropThumbnails` | preview | Cached small PNG for visual prop picking — cheaper than full screenshots. |
+| `pauseForReview` | operational | Block batch execution for human inspection (best with `--visible --slow-mo`). |
+
+`placeProp` now returns `lightsAdded: [{id, preset}]` when the prop auto-emits a light. If you see this in the result, do NOT also call `placeLight` at that cell.
+
 ## Prerequisites
 
 1. The dev server must be running: `cd mapwright && npm start` (serves on port 3000)
@@ -1165,12 +1192,3 @@ node tools/puppeteer-bridge.js \
 
 The design rules, room type → prop/fill/lighting specs, spatial arrangement patterns, and multi-agent coordination details are documented in `mapwright/DESIGN.md`. **Read it before generating any map.**
 
-### Room Templates
-
-`mapwright/room-templates/` contains ready-to-run JSON templates for common room types. Run any template with:
-```bash
-node tools/puppeteer-bridge.js \
-  --commands-file room-templates/throne-room.json \
-  --screenshot throne-room.png
-```
-Templates use a standard 14×16 grid with a single 10×12 room. Adapt coordinates by offset from the target room's `r1, c1` corner.

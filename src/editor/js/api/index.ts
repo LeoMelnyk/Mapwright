@@ -25,6 +25,7 @@ import * as preview from './preview.js';
 import * as inspect from './inspect.js';
 import * as transforms from './transforms.js';
 import * as furnish from './furnish.js';
+import * as discovery from './discovery.js';
 
 // ─── Assemble ────────────────────────────────────────────────────────────────
 
@@ -69,6 +70,8 @@ const api = {
   ...transforms,
   // Auto-furnish (catalog-driven prop placement)
   ...furnish,
+  // Discovery (apiSearch / apiDetails / apiCategories)
+  ...discovery,
   // Rename eval_ back to eval (eval is a reserved word in strict mode exports)
   eval: operational.eval_,
 };

@@ -124,6 +124,153 @@ async function runBridge(bridgeArgs) {
 }
 
 // ---------------------------------------------------------------------------
+// Daemon manager — singleton long-running puppeteer-bridge process.
+//
+// Lazy-spawned on first request. Reused across calls so the browser stays
+// open between MCP tool invocations. Idle timeout (default 10 min) kills the
+// daemon to free resources; next call respawns it.
+// ---------------------------------------------------------------------------
+
+const DAEMON_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+
+class BridgeDaemon {
+  constructor(port) {
+    this.port = port;
+    this.proc = null;
+    this.readyPromise = null;
+    this.pending = new Map(); // id -> {resolve, reject}
+    this.nextId = 1;
+    this.buffer = '';
+    this.idleTimer = null;
+  }
+
+  async start(visible = false) {
+    if (this.proc) return this.readyPromise;
+    const args = [`${MAPWRIGHT_DIR}/tools/puppeteer-bridge.js`, '--daemon', '--port', String(this.port)];
+    if (visible) args.push('--visible');
+    this.proc = spawn(process.execPath, args, { cwd: MAPWRIGHT_DIR, stdio: ['pipe', 'pipe', 'pipe'] });
+    this.readyPromise = new Promise((resolve, reject) => {
+      const onData = (chunk) => {
+        this.buffer += chunk.toString();
+        let nl;
+        while ((nl = this.buffer.indexOf('\n')) >= 0) {
+          const line = this.buffer.slice(0, nl).trim();
+          this.buffer = this.buffer.slice(nl + 1);
+          if (!line) continue;
+          let msg;
+          try {
+            msg = JSON.parse(line);
+          } catch {
+            continue;
+          }
+          if (msg.ready) {
+            resolve();
+            continue;
+          }
+          if (msg.id != null && this.pending.has(msg.id)) {
+            const entry = this.pending.get(msg.id);
+            // Progress event — forward to the per-request callback if registered
+            if (msg.type === 'progress') {
+              if (entry.onProgress) {
+                try {
+                  entry.onProgress(msg);
+                } catch {
+                  /* swallow — caller's progress handler must not break the daemon */
+                }
+              }
+              continue;
+            }
+            // Result (or any non-progress message) — resolve and remove
+            this.pending.delete(msg.id);
+            entry.resolve(msg);
+          }
+        }
+      };
+      this.proc.stdout.on('data', onData);
+      this.proc.stderr.on('data', () => {}); // discard daemon stderr (puppeteer noise)
+      this.proc.on('exit', (code) => {
+        // Reject any in-flight requests
+        for (const { reject: rj } of this.pending.values()) rj(new Error(`bridge daemon exited (code=${code})`));
+        this.pending.clear();
+        this.proc = null;
+        this.readyPromise = null;
+        if (this.idleTimer) {
+          clearTimeout(this.idleTimer);
+          this.idleTimer = null;
+        }
+      });
+      this.proc.on('error', (err) => reject(err));
+      // Hard timeout for ready
+      setTimeout(() => reject(new Error('bridge daemon ready timeout (30s)')), 30000);
+    });
+    await this.readyPromise;
+    this.bumpIdle();
+    return this.readyPromise;
+  }
+
+  bumpIdle() {
+    if (this.idleTimer) clearTimeout(this.idleTimer);
+    this.idleTimer = setTimeout(() => {
+      this.shutdown().catch(() => {});
+    }, DAEMON_IDLE_TIMEOUT_MS);
+  }
+
+  async execute(req, onProgress) {
+    if (!this.proc) await this.start(req.visible);
+    const id = this.nextId++;
+    const stream = typeof onProgress === 'function';
+    const payload = { id, op: 'execute', stream, ...req };
+    return new Promise((resolve, reject) => {
+      this.pending.set(id, { resolve, reject, onProgress });
+      try {
+        this.proc.stdin.write(JSON.stringify(payload) + '\n');
+      } catch (e) {
+        this.pending.delete(id);
+        reject(e);
+        return;
+      }
+      this.bumpIdle();
+    });
+  }
+
+  async shutdown() {
+    if (!this.proc) return;
+    try {
+      this.proc.stdin.write(JSON.stringify({ id: 0, op: 'shutdown' }) + '\n');
+    } catch {}
+    // Give the daemon ~2s to clean up
+    await new Promise((r) => setTimeout(r, 2000));
+    if (this.proc) {
+      try {
+        this.proc.kill();
+      } catch {}
+    }
+  }
+}
+
+const daemons = new Map(); // key = `${port}:${visible}` -> BridgeDaemon
+
+function getDaemon(port, visible) {
+  const key = `${port}:${visible ? 'v' : 'h'}`;
+  let d = daemons.get(key);
+  if (!d) {
+    d = new BridgeDaemon(port);
+    daemons.set(key, d);
+  }
+  return d;
+}
+
+// On MCP shutdown, terminate all daemons
+process.on('SIGINT', async () => {
+  for (const d of daemons.values()) await d.shutdown();
+  process.exit(0);
+});
+process.on('SIGTERM', async () => {
+  for (const d of daemons.values()) await d.shutdown();
+  process.exit(0);
+});
+
+// ---------------------------------------------------------------------------
 // MCP Server
 // ---------------------------------------------------------------------------
 
@@ -140,7 +287,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         'The mapwright server must be running on port 3000 (run `npm start` in the mapwright directory). ' +
         'Commands are a JSON array of [methodName, ...args] tuples — e.g. ' +
         '[["newMap","My Dungeon",25,35],["createRoom",2,2,10,12],["setDoor",5,12,"east"]]. ' +
-        'See the mapwright://editor-api resource for the full ~70-method API reference.',
+        'See the mapwright://editor-api resource for the full API reference (250+ methods, searchable via `apiSearch`). ' +
+        'TIP: pass visible=true + slow_mo=200 to keep the browser open across calls (Chrome remote debugging persists ' +
+        'between invocations) — combine with the `pauseForReview` API method for interactive multi-phase builds.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -194,6 +343,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
               'Delay in milliseconds between commands when visible=true (default: 0). Use e.g. 300 to make each command visibly animate.',
             default: 0,
           },
+          use_daemon: {
+            type: 'boolean',
+            description:
+              'Use the long-running bridge daemon (browser persists between MCP calls — fast). Default true. Set false to spawn a fresh bridge subprocess per call (legacy one-shot mode).',
+            default: true,
+          },
         },
         required: ['commands'],
       },
@@ -231,8 +386,24 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   ],
 }));
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
   const { name, arguments: args } = request.params;
+  // MCP progress notifications: client sends a progressToken in _meta,
+  // server emits notifications/progress with that token while the call runs.
+  const progressToken = request.params._meta?.progressToken;
+  const sendProgress =
+    progressToken != null && extra?.sendNotification
+      ? async (progress, total, message) => {
+          try {
+            await extra.sendNotification({
+              method: 'notifications/progress',
+              params: { progressToken, progress, total, message },
+            });
+          } catch {
+            /* notification failures should never break the tool */
+          }
+        }
+      : null;
 
   // ---- execute_commands ----------------------------------------------------
   if (name === 'execute_commands') {
@@ -264,6 +435,44 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return { content: [{ type: 'text', text: `Path validation error: ${err.message}` }], isError: true };
     }
 
+    // ── Daemon path (default) ─────────────────────────────────────
+    const useDaemon = args.use_daemon !== false;
+    if (useDaemon) {
+      const daemon = getDaemon(port, !!args.visible);
+      try {
+        const req = {
+          commands: args.commands,
+          load: args.load_file,
+          save: args.save_file,
+          screenshot: args.screenshot_file,
+          exportPng: args.export_png,
+          dryRun: !!args.dry_run,
+          continueOnError: !!args.continue_on_error,
+          slowMo: args.slow_mo || 0,
+          visible: !!args.visible,
+        };
+        // If client sent a progressToken, stream per-command progress events
+        const onProgress = sendProgress
+          ? (msg) => {
+              if (msg.index != null) {
+                void sendProgress(msg.index, msg.total ?? null, msg.line);
+              }
+            }
+          : undefined;
+        const resp = await daemon.execute(req, onProgress);
+        return {
+          content: [{ type: 'text', text: resp.output || '(no output)' }],
+          isError: !resp.ok,
+        };
+      } catch (err) {
+        return {
+          content: [{ type: 'text', text: `Bridge daemon error: ${err.message}` }],
+          isError: true,
+        };
+      }
+    }
+
+    // ── Legacy one-shot subprocess path ──────────────────────────
     // Write commands to a temp file to avoid shell arg-length limits
     const tmpFile = path.join(os.tmpdir(), `mapwright-cmds-${Date.now()}.json`);
     await writeFile(tmpFile, JSON.stringify(args.commands));

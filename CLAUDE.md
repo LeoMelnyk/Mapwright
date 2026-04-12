@@ -27,19 +27,7 @@ When beginning work on this codebase, launch focused Explore agents BEFORE makin
 - Multi-agent map generation pipeline (5-phase command-list architecture)
 - Anti-patterns to avoid
 
-**Room templates** in `mapwright/room-templates/` are **reference designs** (not stamps) for common room types. Study them for prop palettes, density, and spatial arrangement — then design a fresh room that fits the actual dungeon. **Never copy-paste a template into a map.**
-
-| Template | File | Concept |
-|---|---|---|
-| Throne Room | `room-templates/throne-room.json` | Audience chamber with dais |
-| Alchemist's Lab | `room-templates/alchemist-lab.json` | Brewing and experimentation |
-| Forge / Smithy | `room-templates/forge.json` | Metalworking workshop |
-| Crypt / Ossuary | `room-templates/crypt.json` | Burial chamber |
-| Temple / Shrine | `room-templates/temple.json` | Religious worship space |
-| Wizard's Sanctum | `room-templates/wizard-sanctum.json` | Arcane study |
-| Prison Block | `room-templates/prison-block.json` | Jail and interrogation |
-
-Preview a template standalone: `node tools/puppeteer-bridge.js --commands-file room-templates/throne-room.json --screenshot out.png`
+Room palettes, density, and spatial arrangement for common room types are documented in `mapwright/DESIGN.md` under "Room Semantic Library". There are no template files — each room is designed fresh from those primitives so dungeons don't feel like collections of stamped rooms.
 
 ---
 

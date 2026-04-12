@@ -339,6 +339,38 @@ export function undoToDepth(targetDepth: number): { success: true; undid: number
   return { success: true, undid: count };
 }
 
+// ── Interactive pause ────────────────────────────────────────────────────
+
+/**
+ * Block command execution for a fixed duration so the human can inspect the
+ * map in a visible browser session. Use as a checkpoint in a multi-phase
+ * build:
+ *
+ *   ["createRoom", ...], ..., ["pauseForReview", 30, "after layout"], ...
+ *
+ * The bridge keeps the browser open during the wait. Combine with
+ * `--visible --slow-mo 200` for an interactive build session where you can
+ * close the browser to abort or just watch each phase land.
+ *
+ * Note: this blocks the editor's command queue but does not pause rendering
+ * or other ambient work. It is purely a synchronization point for the user.
+ *
+ * @param seconds Pause duration in seconds (1-600). Default 30.
+ * @param message Optional label written to console for context.
+ */
+export async function pauseForReview(
+  seconds: number = 30,
+  message?: string,
+): Promise<{ success: true; pausedSeconds: number; message?: string }> {
+  const s = Math.max(
+    1,
+    Math.min(600, Math.floor((typeof seconds === 'number' && Number.isFinite(seconds) ? seconds : 30) || 30)),
+  );
+  if (message) console.log(`[pauseForReview] ${message} — waiting ${s}s`);
+  await new Promise((r) => setTimeout(r, s * 1000));
+  return { success: true, pausedSeconds: s, ...(message ? { message } : {}) };
+}
+
 // ── Named checkpoints ────────────────────────────────────────────────────
 //
 // In-memory map of checkpoint name -> undo depth at the time of capture.
@@ -407,6 +439,285 @@ export function listCheckpoints(): {
 /** Delete a named checkpoint. No-op if it doesn't exist. */
 export function clearCheckpoint(name: string): { success: true; existed: boolean } {
   return { success: true, existed: checkpoints.delete(name) };
+}
+
+// ── Checkpoint diff ──────────────────────────────────────────────────────
+
+interface CheckpointDiffSummary {
+  cellsModified: number;
+  cellsPainted: number;
+  cellsErased: number;
+  propsAdded: number;
+  propsRemoved: number;
+  propsChanged: number;
+  fillsAdded: number;
+  fillsRemoved: number;
+  fillsChanged: number;
+  labelsAdded: number;
+  labelsRemoved: number;
+  labelsChanged: number;
+  wallsAdded: number;
+  wallsRemoved: number;
+  doorsAdded: number;
+  doorsRemoved: number;
+  texturesChanged: number;
+  hazardsToggled: number;
+  // Metadata-level
+  overlayPropsAdded: number;
+  overlayPropsRemoved: number;
+  lightsAdded: number;
+  lightsRemoved: number;
+  stairsAdded: number;
+  stairsRemoved: number;
+  bridgesAdded: number;
+  bridgesRemoved: number;
+  metaChanges: string[];
+  // Keyframe entries: hard to diff exactly, so just count
+  snapshotEntries: number;
+}
+
+const WALL_EDGES = ['north', 'south', 'east', 'west', 'nw-se', 'ne-sw'] as const;
+const TEXTURE_KEYS = [
+  'texture',
+  'textureOpacity',
+  'textureSecondary',
+  'textureSecondaryOpacity',
+  'textureNE',
+  'textureSW',
+  'textureNW',
+  'textureSE',
+  'textureNEOpacity',
+  'textureSWOpacity',
+  'textureNWOpacity',
+  'textureSEOpacity',
+] as const;
+
+function isDoorEdge(v: unknown): boolean {
+  return v === 'd' || v === 'id' || v === 's';
+}
+function isWallEdge(v: unknown): boolean {
+  return v === 'w' || v === 'iw';
+}
+
+function classifyCellPatch(
+  before: Record<string, unknown> | null | undefined,
+  after: Record<string, unknown> | null | undefined,
+  s: CheckpointDiffSummary,
+): void {
+  s.cellsModified++;
+  if (!before && after) {
+    s.cellsPainted++;
+    return;
+  }
+  if (before && !after) {
+    s.cellsErased++;
+    return;
+  }
+  if (!before || !after) return;
+
+  // Props
+  const bp = before.prop as { type?: string } | undefined;
+  const ap = after.prop as { type?: string } | undefined;
+  if (!bp && ap) s.propsAdded++;
+  else if (bp && !ap) s.propsRemoved++;
+  else if (bp && ap && JSON.stringify(bp) !== JSON.stringify(ap)) s.propsChanged++;
+
+  // Fills
+  const bf = before.fill;
+  const af = after.fill;
+  if (!bf && af) s.fillsAdded++;
+  else if (bf && !af) s.fillsRemoved++;
+  else if (bf && af && bf !== af) s.fillsChanged++;
+
+  // Labels
+  const bl = (before.center as { label?: string } | undefined)?.label;
+  const al = (after.center as { label?: string } | undefined)?.label;
+  if (!bl && al) s.labelsAdded++;
+  else if (bl && !al) s.labelsRemoved++;
+  else if (bl && al && bl !== al) s.labelsChanged++;
+
+  // Walls / doors
+  for (const edge of WALL_EDGES) {
+    const be = before[edge];
+    const ae = after[edge];
+    if (be === ae) continue;
+    if (isWallEdge(ae) && !isWallEdge(be)) s.wallsAdded++;
+    else if (isWallEdge(be) && !isWallEdge(ae)) s.wallsRemoved++;
+    if (isDoorEdge(ae) && !isDoorEdge(be)) s.doorsAdded++;
+    else if (isDoorEdge(be) && !isDoorEdge(ae)) s.doorsRemoved++;
+  }
+
+  // Textures
+  for (const key of TEXTURE_KEYS) {
+    if (before[key] !== after[key]) {
+      s.texturesChanged++;
+      break;
+    }
+  }
+
+  // Hazards
+  if (Boolean(before.hazard) !== Boolean(after.hazard)) s.hazardsToggled++;
+}
+
+function classifyMetaDiff(beforeStr: string, afterStr: string, s: CheckpointDiffSummary): void {
+  let before: Record<string, unknown>;
+  let after: Record<string, unknown>;
+  try {
+    before = JSON.parse(beforeStr);
+    after = JSON.parse(afterStr);
+  } catch {
+    s.metaChanges.push('unparseable');
+    return;
+  }
+
+  // Lights — diff by id set
+  const bLights = ((before.lights as Array<{ id: number }> | undefined) ?? []).map((l) => l.id);
+  const aLights = ((after.lights as Array<{ id: number }> | undefined) ?? []).map((l) => l.id);
+  const bLightSet = new Set(bLights);
+  const aLightSet = new Set(aLights);
+  for (const id of aLightSet) if (!bLightSet.has(id)) s.lightsAdded++;
+  for (const id of bLightSet) if (!aLightSet.has(id)) s.lightsRemoved++;
+
+  // Stairs
+  const bStairs = ((before.stairs as Array<{ id: number }> | undefined) ?? []).map((x) => x.id);
+  const aStairs = ((after.stairs as Array<{ id: number }> | undefined) ?? []).map((x) => x.id);
+  const bStairsSet = new Set(bStairs);
+  const aStairsSet = new Set(aStairs);
+  for (const id of aStairsSet) if (!bStairsSet.has(id)) s.stairsAdded++;
+  for (const id of bStairsSet) if (!aStairsSet.has(id)) s.stairsRemoved++;
+
+  // Bridges
+  const bBridges = ((before.bridges as Array<{ id: number }> | undefined) ?? []).map((x) => x.id);
+  const aBridges = ((after.bridges as Array<{ id: number }> | undefined) ?? []).map((x) => x.id);
+  const bBridgeSet = new Set(bBridges);
+  const aBridgeSet = new Set(aBridges);
+  for (const id of aBridgeSet) if (!bBridgeSet.has(id)) s.bridgesAdded++;
+  for (const id of bBridgeSet) if (!aBridgeSet.has(id)) s.bridgesRemoved++;
+
+  // Overlay props (placed on metadata)
+  const bOverlay = ((before.props as Array<{ id: number | string }> | undefined) ?? []).map((x) => String(x.id));
+  const aOverlay = ((after.props as Array<{ id: number | string }> | undefined) ?? []).map((x) => String(x.id));
+  const bOverlaySet = new Set(bOverlay);
+  const aOverlaySet = new Set(aOverlay);
+  for (const id of aOverlaySet) if (!bOverlaySet.has(id)) s.overlayPropsAdded++;
+  for (const id of bOverlaySet) if (!aOverlaySet.has(id)) s.overlayPropsRemoved++;
+
+  // Scalar metadata fields worth flagging
+  const SCALAR_KEYS = ['dungeonName', 'theme', 'labelStyle', 'gridSize', 'ambientLight', 'lightingEnabled'];
+  for (const key of SCALAR_KEYS) {
+    if (JSON.stringify(before[key]) !== JSON.stringify(after[key])) {
+      s.metaChanges.push(`${key}: ${JSON.stringify(before[key])} → ${JSON.stringify(after[key])}`);
+    }
+  }
+}
+
+/**
+ * Summarize what would be undone if `rollback(name)` were called now.
+ *
+ * Walks the undo stack from the checkpoint depth to the current depth and
+ * aggregates changes by category: cells, props, fills, walls, doors, lights,
+ * etc. Use this before rollback to know what work is on the line.
+ *
+ * Cell-patch entries are classified precisely. Snapshot (keyframe) entries
+ * count as `snapshotEntries` and surface their label in `entryLabels` —
+ * their internal cell-by-cell diff is not computed (would require replaying
+ * the stack).
+ *
+ * @param name - Checkpoint name from a prior `checkpoint(name)` call.
+ * @returns Aggregated summary plus per-entry labels and counts.
+ */
+export function diffFromCheckpoint(name: string): {
+  success: true;
+  name: string;
+  fromDepth: number;
+  toDepth: number;
+  entriesAhead: number;
+  summary: CheckpointDiffSummary;
+  entryLabels: Array<{ label: string; type: 'patch' | 'snapshot'; cellCount: number; hasMeta: boolean }>;
+} {
+  if (!checkpoints.has(name)) {
+    throw new ApiValidationError('CHECKPOINT_NOT_FOUND', `No checkpoint named "${name}"`, {
+      name,
+      available: [...checkpoints.keys()],
+    });
+  }
+  const fromDepth = checkpoints.get(name)!;
+  const toDepth = state.undoStack.length;
+
+  const summary: CheckpointDiffSummary = {
+    cellsModified: 0,
+    cellsPainted: 0,
+    cellsErased: 0,
+    propsAdded: 0,
+    propsRemoved: 0,
+    propsChanged: 0,
+    fillsAdded: 0,
+    fillsRemoved: 0,
+    fillsChanged: 0,
+    labelsAdded: 0,
+    labelsRemoved: 0,
+    labelsChanged: 0,
+    wallsAdded: 0,
+    wallsRemoved: 0,
+    doorsAdded: 0,
+    doorsRemoved: 0,
+    texturesChanged: 0,
+    hazardsToggled: 0,
+    overlayPropsAdded: 0,
+    overlayPropsRemoved: 0,
+    lightsAdded: 0,
+    lightsRemoved: 0,
+    stairsAdded: 0,
+    stairsRemoved: 0,
+    bridgesAdded: 0,
+    bridgesRemoved: 0,
+    metaChanges: [],
+    snapshotEntries: 0,
+  };
+  const entryLabels: Array<{ label: string; type: 'patch' | 'snapshot'; cellCount: number; hasMeta: boolean }> = [];
+
+  for (let i = fromDepth; i < toDepth; i++) {
+    const entry = state.undoStack[i] as {
+      json?: string;
+      patch?: {
+        cells: Array<{
+          row: number;
+          col: number;
+          before: Record<string, unknown> | null;
+          after: Record<string, unknown> | null;
+        }>;
+        meta: { before: string; after: string } | null;
+      };
+      label: string;
+    };
+    if (entry.patch) {
+      for (const cp of entry.patch.cells) {
+        classifyCellPatch(cp.before, cp.after, summary);
+      }
+      if (entry.patch.meta) {
+        classifyMetaDiff(entry.patch.meta.before, entry.patch.meta.after, summary);
+      }
+      entryLabels.push({
+        label: entry.label,
+        type: 'patch',
+        cellCount: entry.patch.cells.length,
+        hasMeta: !!entry.patch.meta,
+      });
+    } else if (entry.json) {
+      summary.snapshotEntries++;
+      entryLabels.push({ label: entry.label, type: 'snapshot', cellCount: 0, hasMeta: false });
+    }
+  }
+
+  return {
+    success: true,
+    name,
+    fromDepth,
+    toDepth,
+    entriesAhead: toDepth - fromDepth,
+    summary,
+    entryLabels,
+  };
 }
 
 // ── Transactional batches ────────────────────────────────────────────────

@@ -1033,3 +1033,253 @@ export function findConflicts(options: { entranceLabel?: string; darkThreshold?:
 
   return { success: true, conflictCount: conflicts.length, conflicts };
 }
+
+// ─── describeMap ─────────────────────────────────────────────────────────
+
+interface RoomSnapshot {
+  label: string;
+  bounds: { r1: number; c1: number; r2: number; c2: number };
+  cellCount: number;
+  ascii: string;
+  props: Array<{ key: string; type: string; row: number; col: number; facing: number }>;
+  doors: Array<{ row: number; col: number; direction: string; type: string; to?: string }>;
+  fills: Array<{ type: string; cellCount: number }>;
+  lights: Array<{ id: number; preset?: string; row: number; col: number; radius: number }>;
+  textures: string[];
+  adjacentRooms: string[];
+}
+
+/**
+ * Use the index N (1..9, then a..z, then A..Z) for the Nth prop anchor in a
+ * room. Falls back to '?' for >61 props (unrealistic per room).
+ */
+function propIndexGlyph(n: number): string {
+  if (n < 9) return String(n + 1);
+  if (n < 9 + 26) return String.fromCharCode('a'.charCodeAt(0) + (n - 9));
+  if (n < 9 + 26 + 26) return String.fromCharCode('A'.charCodeAt(0) + (n - 9 - 26));
+  return '?';
+}
+
+function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null {
+  const api = getApi() as unknown as {
+    getRoomBounds: (l: string) => { success: boolean; r1: number; c1: number; r2: number; c2: number };
+    _collectRoomCells: (l: string) => Set<string> | null;
+  };
+  const boundsR = api.getRoomBounds(label);
+  if (!boundsR.success) return null;
+  const r1 = boundsR.r1,
+    c1 = boundsR.c1,
+    r2 = boundsR.r2,
+    c2 = boundsR.c2;
+  const roomCells = api._collectRoomCells(label);
+  if (!roomCells) return null;
+
+  const cells = state.dungeon.cells;
+  const meta = state.dungeon.metadata;
+
+  // Collect overlay props whose anchor (x/y in world feet) is inside the room.
+  const gsForProps = meta.gridSize || 5;
+  const propEntries: Array<{ key: string; type: string; row: number; col: number; facing: number }> = [];
+  if (meta.props) {
+    const placed = meta.props
+      .map((p) => ({
+        ref: p,
+        pr: Math.floor(p.y / gsForProps),
+        pc: Math.floor(p.x / gsForProps),
+      }))
+      .filter(({ pr, pc }) => pr >= r1 && pr <= r2 && pc >= c1 && pc <= c2 && roomCells.has(cellKey(pr, pc)))
+      .sort((a, b) => a.pr - b.pr || a.pc - b.pc);
+    let idx = 0;
+    for (const { ref, pr, pc } of placed) {
+      propEntries.push({
+        key: propIndexGlyph(idx++),
+        type: ref.type,
+        row: toDisp(pr),
+        col: toDisp(pc),
+        facing: typeof ref.rotation === 'number' ? ref.rotation : (ref.facing ?? 0),
+      });
+    }
+  }
+
+  // Build prop anchor lookup: row,col -> glyph
+  const anchorGlyph = new Map<string, string>();
+  for (const p of propEntries) {
+    anchorGlyph.set(`${p.row - 1},${p.col - 1}`, p.key); // back to internal coords
+  }
+
+  // ASCII rendering — borrow renderAscii's pattern but inject glyphs
+  let ascii = '';
+  if (includeAscii) {
+    const lines: string[] = [];
+    const topLine: string[] = ['+'];
+    for (let c = c1; c <= c2; c++) {
+      topLine.push(edgeGlyph(edgeOf(cells[r1][c], 'north'), 'h'));
+      topLine.push('+');
+    }
+    lines.push(topLine.join(''));
+
+    for (let r = r1; r <= r2; r++) {
+      const contentLine: string[] = [];
+      contentLine.push(edgeGlyph(edgeOf(cells[r][c1], 'west'), 'v'));
+      for (let c = c1; c <= c2; c++) {
+        const cell = cells[r][c];
+        const g = anchorGlyph.get(`${r},${c}`);
+        if (g) {
+          contentLine.push(g);
+        } else if (cell?.center?.label != null && roomCells.has(cellKey(r, c))) {
+          contentLine.push('*');
+        } else {
+          contentLine.push(cellGlyph(cell));
+        }
+        contentLine.push(edgeGlyph(edgeOf(cell, 'east'), 'v'));
+      }
+      lines.push(contentLine.join(''));
+
+      const botLine: string[] = ['+'];
+      for (let c = c1; c <= c2; c++) {
+        botLine.push(edgeGlyph(edgeOf(cells[r][c], 'south'), 'h'));
+        botLine.push('+');
+      }
+      lines.push(botLine.join(''));
+    }
+    ascii = lines.join('\n');
+  }
+
+  // Doors on perimeter
+  const doors: Array<{ row: number; col: number; direction: string; type: string; to?: string }> = [];
+  for (const key of roomCells) {
+    const [r, c] = parseCellKey(key);
+    const cell = cells[r]?.[c];
+    if (!cell) continue;
+    for (const dir of CARDINAL_DIRS) {
+      const v = (cell as Record<string, unknown>)[dir];
+      if (v === 'd' || v === 's' || v === 'id') {
+        const [dr, dc] = OFFSETS[dir];
+        const nr = r + dr,
+          nc = c + dc;
+        const inRoom = roomCells.has(cellKey(nr, nc));
+        if (inRoom) continue;
+        doors.push({
+          row: toDisp(r),
+          col: toDisp(c),
+          direction: dir,
+          type: v as string,
+        });
+      }
+    }
+  }
+
+  // Fills aggregated by type
+  const fillCount = new Map<string, number>();
+  for (const key of roomCells) {
+    const [r, c] = parseCellKey(key);
+    const cell = cells[r]?.[c];
+    if (cell?.fill) fillCount.set(cell.fill, (fillCount.get(cell.fill) ?? 0) + 1);
+  }
+  const fills = [...fillCount.entries()].map(([type, cellCount]) => ({ type, cellCount }));
+
+  // Textures used in room
+  const textureSet = new Set<string>();
+  for (const key of roomCells) {
+    const [r, c] = parseCellKey(key);
+    const cell = cells[r]?.[c];
+    if (cell?.texture) textureSet.add(cell.texture);
+  }
+
+  // Lights inside the room bbox
+  const gs = meta.gridSize || 5;
+  const lights: Array<{ id: number; preset?: string; row: number; col: number; radius: number }> = [];
+  for (const light of meta.lights) {
+    const lr = Math.floor(light.y / gs);
+    const lc = Math.floor(light.x / gs);
+    if (lr < r1 || lr > r2 || lc < c1 || lc > c2) continue;
+    lights.push({
+      id: light.id,
+      preset: (light as { presetId?: string }).presetId,
+      row: toDisp(lr),
+      col: toDisp(lc),
+      radius: light.radius,
+    });
+  }
+
+  // Adjacent rooms (one door step)
+  const adjacent = new Set<string>();
+  for (const d of doors) {
+    const [dr, dc] = OFFSETS[d.direction as 'north' | 'south' | 'east' | 'west'];
+    const nr = d.row - 1 + dr,
+      nc = d.col - 1 + dc;
+    const nLabel = findLabelForCell(nr, nc);
+    if (nLabel && nLabel !== label) adjacent.add(nLabel);
+  }
+
+  return {
+    label,
+    bounds: { r1: toDisp(r1), c1: toDisp(c1), r2: toDisp(r2), c2: toDisp(c2) },
+    cellCount: roomCells.size,
+    ascii,
+    props: propEntries,
+    doors,
+    fills,
+    lights,
+    textures: [...textureSet],
+    adjacentRooms: [...adjacent].sort(),
+  };
+}
+
+/**
+ * Compact semantic snapshot of the map. Cheaper than a screenshot when you
+ * just need to verify "did things land where I think they did?"
+ *
+ * For each labeled room, returns its ASCII shape (with prop anchors as
+ * indexed glyphs `1`,`2`,…,`a`,…) plus a sidecar prop list that maps each
+ * glyph back to a prop type and coordinates. Also returns doors, fills
+ * (aggregated), lights, textures used, and adjacent rooms.
+ *
+ * Pass `label` to describe just one room. Without it, describes all labeled
+ * rooms. ASCII output is ~200 tokens/room — far cheaper than a PNG read.
+ *
+ * @param options.label - Single room label to describe. Default: all rooms.
+ * @param options.includeAscii - Include the per-room ASCII grid. Default true.
+ */
+export function describeMap(options: { label?: string; includeAscii?: boolean } = {}): {
+  success: true;
+  map: { name: string; rows: number; cols: number; theme: string };
+  rooms: RoomSnapshot[];
+} {
+  const includeAscii = options.includeAscii !== false;
+  const meta = state.dungeon.metadata;
+  const cells = state.dungeon.cells;
+  const out: RoomSnapshot[] = [];
+
+  if (options.label) {
+    const snap = describeRoom(options.label, includeAscii);
+    if (!snap) {
+      throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${options.label}" not found`, { label: options.label });
+    }
+    out.push(snap);
+  } else {
+    // Find all labeled rooms by scanning labeled cells
+    const seen = new Set<string>();
+    for (let r = 0; r < cells.length; r++) {
+      for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
+        const lbl = cells[r]?.[c]?.center?.label;
+        if (!lbl || seen.has(lbl)) continue;
+        seen.add(lbl);
+        const snap = describeRoom(lbl, includeAscii);
+        if (snap) out.push(snap);
+      }
+    }
+    out.sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  return {
+    success: true,
+    map: {
+      name: meta.dungeonName || '',
+      rows: cells.length,
+      cols: cells[0]?.length ?? 0,
+      theme: typeof meta.theme === 'string' ? meta.theme : 'custom',
+    },
+    rooms: out,
+  };
+}

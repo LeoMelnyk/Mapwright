@@ -240,3 +240,226 @@ export async function validateCommands(
 
   return { success: true, allOk: results.every((r) => r.ok), results };
 }
+
+// ── critiqueMap ──────────────────────────────────────────────────────────
+
+interface CritiqueFinding {
+  lens: 'completeness' | 'lighting' | 'spatial' | 'composition';
+  severity: 'error' | 'warning' | 'info';
+  message: string;
+  room?: string;
+  row?: number;
+  col?: number;
+  context?: Record<string, unknown>;
+}
+
+/**
+ * Run design heuristics against the current map and report findings.
+ *
+ * Lenses:
+ *  - `completeness`: rooms with no props (likely unfinished); rooms with no
+ *    centerpiece near centroid (reads as storage)
+ *  - `lighting`: orphan light-emitting props with no light at their cell;
+ *    rooms with summed light intensity above blow-out threshold; rooms
+ *    with structural lighting prop placed but `lights:` not auto-added
+ *  - `spatial`: door-clearance issues (delegates to validateDoorClearance);
+ *    rooms with prop density outside reasonable bounds
+ *  - `composition`: rooms with only one prop type (homogeneous = boring)
+ *
+ * Findings are sorted error → warning → info. Pass `{lenses: [...]}` to
+ * restrict the run to specific lenses.
+ *
+ * @param options.lenses Subset of lenses to run. Default: all.
+ * @param options.intensitySumThreshold Lighting blow-out threshold (default 2.5)
+ */
+export function critiqueMap(
+  options: {
+    lenses?: Array<'completeness' | 'lighting' | 'spatial' | 'composition'>;
+    intensitySumThreshold?: number;
+  } = {},
+): { success: true; findingCount: number; findings: CritiqueFinding[] } {
+  const lensesActive = new Set(options.lenses ?? ['completeness', 'lighting', 'spatial', 'composition']);
+  const intensityThreshold = options.intensitySumThreshold ?? 2.5;
+  const findings: CritiqueFinding[] = [];
+
+  const api = getApi() as unknown as {
+    listRooms: () => {
+      success: boolean;
+      rooms: Array<{ label: string; r1: number; c1: number; r2: number; c2: number }>;
+    };
+    _collectRoomCells: (l: string) => Set<string> | null;
+    validateDoorClearance: () => {
+      clear: boolean;
+      issues: Array<{ row: number; col: number; direction: string; doorType: string; problem: string }>;
+    };
+  };
+
+  const meta = state.dungeon.metadata;
+  const gs = meta.gridSize || 5;
+  const propCatalog = state.propCatalog;
+
+  // Build cell-to-room-label map and per-room prop bag
+  const rooms = api.listRooms().rooms;
+  const roomCellSets = new Map<string, Set<string>>();
+  for (const room of rooms) {
+    const set = api._collectRoomCells(room.label);
+    if (set) roomCellSets.set(room.label, set);
+  }
+
+  // Per-room props (overlay props anchored within room)
+  const roomProps = new Map<string, Array<{ type: string; row: number; col: number }>>();
+  for (const [label] of roomCellSets) roomProps.set(label, []);
+  for (const p of meta.props ?? []) {
+    const pr = Math.floor(p.y / gs);
+    const pc = Math.floor(p.x / gs);
+    const key = cellKey(pr, pc);
+    for (const [label, set] of roomCellSets) {
+      if (set.has(key)) {
+        roomProps.get(label)!.push({ type: p.type, row: pr, col: pc });
+        break;
+      }
+    }
+  }
+
+  // ── Completeness lens ───────────────────────────────────────────────
+  if (lensesActive.has('completeness')) {
+    for (const [label, set] of roomCellSets) {
+      const props = roomProps.get(label) ?? [];
+      if (props.length === 0 && set.size >= 6) {
+        findings.push({
+          lens: 'completeness',
+          severity: 'warning',
+          message: `Room "${label}" has no props (${set.size} cells) — likely unfinished or reads as empty space`,
+          room: label,
+        });
+      }
+      // Centerpiece: any prop within 2 cells of the centroid?
+      if (props.length > 0) {
+        let sumR = 0,
+          sumC = 0;
+        for (const k of set) {
+          const [r, c] = k.split(',').map(Number);
+          sumR += r;
+          sumC += c;
+        }
+        const cR = sumR / set.size;
+        const cC = sumC / set.size;
+        const hasCenter = props.some((p) => Math.hypot(p.row - cR, p.col - cC) <= 2);
+        if (!hasCenter && set.size >= 12) {
+          findings.push({
+            lens: 'completeness',
+            severity: 'info',
+            message: `Room "${label}" has no centerpiece prop near centroid — may read as storage rather than purposeful space`,
+            room: label,
+            context: { centroid: { row: toDisp(Math.round(cR)), col: toDisp(Math.round(cC)) } },
+          });
+        }
+      }
+    }
+  }
+
+  // ── Lighting lens ───────────────────────────────────────────────────
+  if (lensesActive.has('lighting')) {
+    // Build light-emitting prop set
+    const litPropTypes = new Set<string>();
+    if (propCatalog) {
+      for (const [name, def] of Object.entries(propCatalog.props)) {
+        const lights = (def as { lights?: unknown[] }).lights;
+        if (lights?.length) litPropTypes.add(name);
+      }
+    }
+
+    // Per-room: sum of light intensity, count of lit-fixture props, count of lights
+    for (const [label, set] of roomCellSets) {
+      const props = roomProps.get(label) ?? [];
+      let intensitySum = 0;
+      let lightCount = 0;
+      for (const light of meta.lights) {
+        const lr = Math.floor(light.y / gs);
+        const lc = Math.floor(light.x / gs);
+        if (set.has(cellKey(lr, lc))) {
+          intensitySum += light.intensity || 1.0;
+          lightCount++;
+        }
+      }
+      if (intensitySum > intensityThreshold) {
+        findings.push({
+          lens: 'lighting',
+          severity: 'warning',
+          message: `Room "${label}" has summed light intensity ${intensitySum.toFixed(2)} (>${intensityThreshold}) — likely blown out, reduce intensity or remove a source`,
+          room: label,
+          context: { intensitySum, lightCount },
+        });
+      }
+      const litPropCount = props.filter((p) => litPropTypes.has(p.type)).length;
+      if (litPropCount > 0 && lightCount === 0) {
+        findings.push({
+          lens: 'lighting',
+          severity: 'error',
+          message: `Room "${label}" has ${litPropCount} light-emitting prop(s) but zero lights — placement likely failed to add the linked light. Re-place the props.`,
+          room: label,
+          context: { litPropCount },
+        });
+      }
+      if (litPropCount === 0 && set.size >= 12 && lightCount === 0) {
+        findings.push({
+          lens: 'lighting',
+          severity: 'warning',
+          message: `Room "${label}" has no lights and no light-emitting props — will be dark. Add a torch-sconce, brazier, or call placeLightInRoom.`,
+          room: label,
+        });
+      }
+    }
+  }
+
+  // ── Spatial lens ────────────────────────────────────────────────────
+  if (lensesActive.has('spatial')) {
+    const dc = api.validateDoorClearance();
+    for (const issue of dc.issues) {
+      findings.push({
+        lens: 'spatial',
+        severity: 'warning',
+        message: `Door at (${issue.row},${issue.col}) ${issue.direction}: ${issue.problem}`,
+        row: issue.row,
+        col: issue.col,
+      });
+    }
+    for (const [label, set] of roomCellSets) {
+      const props = roomProps.get(label) ?? [];
+      const density = props.length / Math.max(1, set.size);
+      if (density > 0.5) {
+        findings.push({
+          lens: 'spatial',
+          severity: 'warning',
+          message: `Room "${label}" prop density ${(density * 100).toFixed(0)}% — overcrowded, consider thinning`,
+          room: label,
+          context: { props: props.length, cells: set.size },
+        });
+      }
+    }
+  }
+
+  // ── Composition lens ────────────────────────────────────────────────
+  if (lensesActive.has('composition')) {
+    for (const [label, set] of roomCellSets) {
+      const props = roomProps.get(label) ?? [];
+      if (props.length < 3) continue;
+      const types = new Set(props.map((p) => p.type));
+      if (types.size === 1) {
+        findings.push({
+          lens: 'composition',
+          severity: 'info',
+          message: `Room "${label}" only contains "${[...types][0]}" props — homogeneous, consider mixing in supporting props per Rule #5 (primary/secondary/scatter)`,
+          room: label,
+          context: { propCount: props.length, roomCells: set.size },
+        });
+      }
+    }
+  }
+
+  // Sort: error > warning > info
+  const sevOrder: Record<string, number> = { error: 0, warning: 1, info: 2 };
+  findings.sort((a, b) => sevOrder[a.severity] - sevOrder[b.severity]);
+
+  return { success: true, findingCount: findings.length, findings };
+}

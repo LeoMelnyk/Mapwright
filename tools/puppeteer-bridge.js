@@ -1,19 +1,23 @@
 #!/usr/bin/env node
 // Puppeteer bridge for programmatic dungeon editor control.
 //
-// Two execution modes:
+// Three execution modes:
 //
-//   HEADLESS (default): launches a new headless browser per invocation, closes on exit.
+//   ONE-SHOT (default): launches/reuses browser, runs commands, exits.
 //
-//   VISIBLE (--visible): opens a persistent headed browser that stays alive between calls.
-//     - First call: tries to connect to an existing Chrome on port 9222. If none found,
-//       launches a new headed Chrome with --remote-debugging-port=9222.
-//     - Subsequent calls: connect to the already-running Chrome, find the open editor tab,
-//       apply commands without reloading — the browser stays open throughout.
-//     - If the user closes the browser between calls: connection fails, execution
-//       continues in headless mode for that invocation (no new window is opened).
+//   VISIBLE (--visible): persistent headed browser shared across calls via
+//     Chrome remote debugging port 9222.
 //
-// Usage:
+//   DAEMON (--daemon): long-running stdin/stdout NDJSON server. Browser
+//     stays alive between requests. Each NDJSON request on stdin produces
+//     one NDJSON response on stdout. Used by the MCP server.
+//
+//     Request:  {"id":1,"op":"execute","commands":[...],"load":"...",...}
+//                {"id":2,"op":"shutdown"}
+//     Response: {"id":1,"ok":true,"output":"...","exitCode":0}
+//                {"id":1,"ok":false,"error":"..."}
+//
+// Usage (one-shot):
 //   node puppeteer-bridge.js [options]
 //
 // Options:
@@ -27,6 +31,7 @@
 //   --port <number>           Editor port (default: 3000)
 //   --visible                 Persistent headed browser (see above)
 //   --slow-mo <ms>            Delay between commands in ms (default: 0)
+//   --daemon                  Long-running NDJSON request server on stdin/stdout
 //
 // Command format: [["methodName", arg1, arg2, ...], ...]
 // Example: [["createRoom", 2, 2, 8, 12], ["setDoor", 5, 12, "east"]]
@@ -34,6 +39,7 @@
 import puppeteer from 'puppeteer';
 import fs from 'fs/promises';
 import path from 'path';
+import readline from 'readline';
 import { spawn } from 'child_process';
 import { get as httpGet } from 'http';
 
@@ -76,6 +82,7 @@ function parseArgs(argv) {
     visible: false,
     slowMo: 0,
     highlight: null,
+    daemon: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
@@ -119,23 +126,23 @@ function parseArgs(argv) {
       case '--highlight':
         args.highlight = argv[++i];
         break;
+      case '--daemon':
+        args.daemon = true;
+        break;
     }
   }
   return args;
 }
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
+// ─── Browser/page setup (shared by one-shot and daemon) ─────────────────────
 
+async function setupBrowser(args) {
   const editorUrl = `http://localhost:${args.port}/editor/?api`;
   let browser = null;
   let page = null;
-  let usingPersistentBrowser = false; // true = leave browser open on exit
-
-  // ---- Browser acquisition ------------------------------------------------
+  let usingPersistentBrowser = false;
 
   if (args.visible) {
-    // Step 1: try to connect to an already-running Chrome (user-visible window)
     try {
       browser = await puppeteer.connect({
         browserURL: `http://localhost:${DEBUG_PORT}`,
@@ -143,8 +150,6 @@ async function main() {
       });
       usingPersistentBrowser = true;
     } catch {
-      // Step 2: no existing Chrome — launch a NEW detached Chrome process so it
-      // survives after this Node process exits (avoids Windows Job Object kill).
       try {
         const chromePath = puppeteer.executablePath();
         const chromeProc = spawn(
@@ -159,18 +164,14 @@ async function main() {
           ],
           { detached: true, stdio: 'ignore' },
         );
-        chromeProc.unref(); // detach from this Node process
-
-        // Wait up to 8 s for the remote debugging endpoint to become reachable
+        chromeProc.unref();
         await waitForDebugPort(DEBUG_PORT, 8000);
-
         browser = await puppeteer.connect({
           browserURL: `http://localhost:${DEBUG_PORT}`,
           defaultViewport: null,
         });
         usingPersistentBrowser = true;
       } catch {
-        // Step 3: couldn't open a window at all — fall back silently to headless
         console.error('[visible] Could not open or connect to browser — running headless.');
         args.visible = false;
       }
@@ -178,7 +179,6 @@ async function main() {
   }
 
   if (!args.visible) {
-    // Standard headless session
     browser = await puppeteer.launch({
       headless: 'new',
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -186,44 +186,50 @@ async function main() {
     usingPersistentBrowser = false;
   }
 
-  let exitCode = 0;
-
-  try {
-    // ---- Page acquisition -------------------------------------------------
-
-    if (usingPersistentBrowser) {
-      // Find an already-open editor tab, or open a new one
-      const pages = await browser.pages();
-      page = pages.find((p) => p.url().includes('/editor')) || null;
-
-      if (page) {
-        // Editor tab exists — verify API is ready (it should be)
-        try {
-          await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 5000 });
-        } catch {
-          // Tab might have been refreshed mid-session; navigate again
-          await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 15000 });
-          await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 10000 });
-        }
-      } else {
-        // No editor tab open yet — create one
-        page = await browser.newPage();
-        await page.setViewport({ width: 1920, height: 1080 });
+  if (usingPersistentBrowser) {
+    const pages = await browser.pages();
+    page = pages.find((p) => p.url().includes('/editor')) || null;
+    if (page) {
+      try {
+        await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 5000 });
+      } catch {
         await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 15000 });
         await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 10000 });
       }
     } else {
-      // Headless: fresh page every time
       page = await browser.newPage();
       await page.setViewport({ width: 1920, height: 1080 });
       await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 15000 });
       await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 10000 });
     }
+  } else {
+    page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 15000 });
+    await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 10000 });
+  }
 
-    // ---- Load map from file -----------------------------------------------
+  return { browser, page, usingPersistentBrowser };
+}
 
-    if (args.load) {
-      const mapPath = path.resolve(args.load);
+// ─── Per-request execution (used by both one-shot and daemon) ────────────────
+
+/**
+ * Run one batch of commands against an existing page.
+ * @param {Page} page
+ * @param {object} req — { load, commands, commandsFile, screenshot, save, exportPng,
+ *                         dryRun, continueOnError, highlight, info, slowMo }
+ * @param {(line: string) => void} emit — receives every log line (replaces console)
+ * @returns {{ exitCode: number, anyFailed: boolean }}
+ */
+async function executeRequest(page, req, emit) {
+  let anyFailed = false;
+  let exitCode = 0;
+
+  try {
+    // Load map
+    if (req.load) {
+      const mapPath = path.resolve(req.load);
       const json = await fs.readFile(mapPath, 'utf-8');
       const result = await page.evaluate((jsonStr) => {
         try {
@@ -233,20 +239,21 @@ async function main() {
         }
       }, json);
       if (!result.success) throw new Error(`Failed to load map: ${result.error}`);
-      console.log(`Loaded: ${args.load}`);
+      emit(`Loaded: ${req.load}`);
     }
 
-    // ---- Execute commands -------------------------------------------------
-
+    // Resolve commands
     let commands = [];
-    if (args.commands) {
-      commands = JSON.parse(args.commands);
-    } else if (args.commandsFile) {
-      const content = await fs.readFile(path.resolve(args.commandsFile), 'utf-8');
+    if (req.commands && typeof req.commands === 'string') {
+      commands = JSON.parse(req.commands);
+    } else if (Array.isArray(req.commands)) {
+      commands = req.commands;
+    } else if (req.commandsFile) {
+      const content = await fs.readFile(path.resolve(req.commandsFile), 'utf-8');
       commands = JSON.parse(content);
     }
 
-    let anyFailed = false;
+    // Execute commands
     for (let i = 0; i < commands.length; i++) {
       const [method, ...methodArgs] = commands[i];
       const result = await page.evaluate(
@@ -272,77 +279,208 @@ async function main() {
       if (!result.success) {
         const codePart = result.code ? ` (${result.code})` : '';
         const ctxPart = result.context ? ` ${JSON.stringify(result.context)}` : '';
-        console.error(`FAILED [${i}] [${method}]${codePart}: ${result.error}${ctxPart}`);
+        emit(`FAILED [${i}] [${method}]${codePart}: ${result.error}${ctxPart}`);
         anyFailed = true;
-        if (!args.continueOnError) break;
+        if (!req.continueOnError) break;
       } else {
         const returnVal =
           result && Object.keys(result).some((k) => k !== 'success') ? ` => ${JSON.stringify(result)}` : '';
-        console.log(`OK [${i}]: ${method}(${methodArgs.map((a) => JSON.stringify(a)).join(', ')})${returnVal}`);
+        emit(`OK [${i}]: ${method}(${methodArgs.map((a) => JSON.stringify(a)).join(', ')})${returnVal}`);
       }
 
-      // Manual slow-mo delay (works for both launched and connected browsers)
-      if (args.slowMo > 0) {
-        await new Promise((r) => setTimeout(r, args.slowMo));
+      if (req.slowMo > 0) {
+        await new Promise((r) => setTimeout(r, req.slowMo));
       }
     }
     if (anyFailed) exitCode = 1;
 
-    // ---- Print map info ---------------------------------------------------
-
-    if (args.info) {
+    if (req.info) {
       const info = await page.evaluate(() => window.editorAPI.getMapInfo());
-      console.log(JSON.stringify(info, null, 2));
+      emit(JSON.stringify(info, null, 2));
     }
 
-    // ---- File I/O ---------------------------------------------------------
-
-    if (args.dryRun) {
-      console.log('[dry-run] Skipping all file I/O (screenshot, save, export)');
+    if (req.dryRun) {
+      emit('[dry-run] Skipping all file I/O (screenshot, save, export)');
     } else {
-      if (args.screenshot) {
-        const highlights = args.highlight ? JSON.parse(args.highlight) : null;
+      if (req.screenshot) {
+        const highlights = req.highlight
+          ? typeof req.highlight === 'string'
+            ? JSON.parse(req.highlight)
+            : req.highlight
+          : null;
         const dataURL = await page.evaluate(async (h) => {
           if (h) return await window.editorAPI.getScreenshotAnnotated(h);
           return await window.editorAPI.getScreenshot();
         }, highlights);
         const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
-        const outPath = path.resolve(args.screenshot);
+        const outPath = path.resolve(req.screenshot);
         await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
-        console.log(
+        emit(
           `Screenshot: ${outPath}${highlights ? ` (with ${highlights.length} highlight${highlights.length === 1 ? '' : 's'})` : ''}`,
         );
       }
 
-      if (args.save) {
+      if (req.save) {
         const result = await page.evaluate(() => window.editorAPI.getMap());
-        const map = result.dungeon || result; // unwrap { success, dungeon } envelope
-        const outPath = path.resolve(args.save);
+        const map = result.dungeon || result;
+        const outPath = path.resolve(req.save);
         await fs.writeFile(outPath, JSON.stringify(map));
-        console.log(`Saved: ${outPath}`);
+        emit(`Saved: ${outPath}`);
       }
 
-      if (args.exportPng) {
+      if (req.exportPng) {
         const dataURL = await page.evaluate(async () => {
           return await window.editorAPI.exportPng();
         });
         const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
-        const outPath = path.resolve(args.exportPng);
+        const outPath = path.resolve(req.exportPng);
         await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
-        console.log(`Export PNG: ${outPath}`);
+        emit(`Export PNG: ${outPath}`);
       }
     }
   } catch (err) {
-    console.error(`Error: ${err.message}`);
+    emit(`Error: ${err.message}`);
     exitCode = 1;
-  } finally {
+  }
+
+  return { exitCode, anyFailed };
+}
+
+// ─── Daemon mode ─────────────────────────────────────────────────────────────
+
+async function runDaemon(args) {
+  const { browser, page, usingPersistentBrowser } = await setupBrowser(args);
+
+  // Signal readiness on stdout
+  process.stdout.write(JSON.stringify({ ready: true, pid: process.pid }) + '\n');
+
+  const rl = readline.createInterface({ input: process.stdin, crlfDelay: Infinity });
+
+  let shuttingDown = false;
+  const cleanup = async (exitCode = 0) => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     if (usingPersistentBrowser) {
-      // Leave the browser window open — just detach Puppeteer's connection
       try {
         browser.disconnect();
       } catch {}
     } else {
-      // Headless: clean up
+      try {
+        await browser.close();
+      } catch {}
+    }
+    process.exit(exitCode);
+  };
+
+  process.on('SIGTERM', () => void cleanup(0));
+  process.on('SIGINT', () => void cleanup(0));
+
+  for await (const line of rl) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    let req;
+    try {
+      req = JSON.parse(trimmed);
+    } catch (e) {
+      process.stdout.write(
+        JSON.stringify({ id: null, type: 'result', ok: false, error: `JSON parse: ${e.message}` }) + '\n',
+      );
+      continue;
+    }
+    const id = req.id ?? null;
+    if (req.op === 'shutdown') {
+      process.stdout.write(JSON.stringify({ id, type: 'result', ok: true, shutdown: true }) + '\n');
+      await cleanup(0);
+      return;
+    }
+    if (req.op === 'ping') {
+      process.stdout.write(JSON.stringify({ id, type: 'result', ok: true, pong: true }) + '\n');
+      continue;
+    }
+    if (req.op !== 'execute') {
+      process.stdout.write(JSON.stringify({ id, type: 'result', ok: false, error: `Unknown op: ${req.op}` }) + '\n');
+      continue;
+    }
+    // Execute — capture output. If stream:true, also emit per-line progress.
+    const lines = [];
+    const stream = !!req.stream;
+    const totalCommands = Array.isArray(req.commands) ? req.commands.length : 0;
+    let progressIndex = 0;
+    const emit = (s) => {
+      const str = String(s);
+      lines.push(str);
+      if (stream) {
+        // Increment progress on OK/FAILED command lines (one per executed command)
+        const isCmdLine = str.startsWith('OK [') || str.startsWith('FAILED [');
+        if (isCmdLine) progressIndex++;
+        process.stdout.write(
+          JSON.stringify({
+            id,
+            type: 'progress',
+            line: str,
+            index: isCmdLine ? progressIndex : undefined,
+            total: totalCommands || undefined,
+          }) + '\n',
+        );
+      }
+    };
+    let result;
+    try {
+      result = await executeRequest(page, req, emit);
+    } catch (e) {
+      process.stdout.write(
+        JSON.stringify({ id, type: 'result', ok: false, error: e.message, output: lines.join('\n') }) + '\n',
+      );
+      continue;
+    }
+    process.stdout.write(
+      JSON.stringify({
+        id,
+        type: 'result',
+        ok: result.exitCode === 0,
+        exitCode: result.exitCode,
+        anyFailed: result.anyFailed,
+        output: lines.join('\n'),
+      }) + '\n',
+    );
+  }
+
+  // stdin closed
+  await cleanup(0);
+}
+
+// ─── Main entry ──────────────────────────────────────────────────────────────
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+
+  if (args.daemon) {
+    await runDaemon(args);
+    return;
+  }
+
+  // One-shot mode
+  const { browser, page, usingPersistentBrowser } = await setupBrowser(args);
+
+  const emit = (s) => {
+    // Match prior behavior: FAILED / Error → stderr; everything else → stdout
+    if (typeof s === 'string' && (s.startsWith('FAILED') || s.startsWith('Error:'))) {
+      console.error(s);
+    } else {
+      console.log(s);
+    }
+  };
+
+  let exitCode = 0;
+  try {
+    const result = await executeRequest(page, args, emit);
+    exitCode = result.exitCode;
+  } finally {
+    if (usingPersistentBrowser) {
+      try {
+        browser.disconnect();
+      } catch {}
+    } else {
       try {
         await browser.close();
       } catch {}
