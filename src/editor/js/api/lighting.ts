@@ -1,10 +1,5 @@
 import type { FalloffType, LightPreset, Light, PlaceLightConfig } from '../../../types.js';
-import {
-  state, mutate,
-  requestRender,
-  getLightCatalog,
-  ApiValidationError,
-} from './_shared.js';
+import { state, mutate, requestRender, getLightCatalog, ApiValidationError } from './_shared.js';
 
 /**
  * Place a light source at world-feet coordinates.
@@ -17,7 +12,12 @@ export function placeLight(x: number, y: number, config: PlaceLightConfig = {}):
   if (config.preset) {
     const catalog = getLightCatalog();
     const p = catalog?.lights[config.preset];
-    if (!p) throw new ApiValidationError('UNKNOWN_LIGHT_PRESET', `Unknown light preset: ${config.preset}. Call listLightPresets() for valid names.`, { preset: config.preset });
+    if (!p)
+      throw new ApiValidationError(
+        'UNKNOWN_LIGHT_PRESET',
+        `Unknown light preset: ${config.preset}. Call listLightPresets() for valid names.`,
+        { preset: config.preset },
+      );
     config = { ...p, ...config };
     delete config.preset;
     delete config.displayName;
@@ -31,32 +31,42 @@ export function placeLight(x: number, y: number, config: PlaceLightConfig = {}):
 
   const type = config.type ?? 'point';
   if (type !== 'point' && type !== 'directional') {
-    throw new Error(`Invalid light type: ${type}. Use 'point' or 'directional'.`);
+    throw new ApiValidationError('INVALID_LIGHT_TYPE', `Invalid light type: ${type}. Use 'point' or 'directional'.`, {
+      type,
+      validTypes: ['point', 'directional'],
+    });
   }
 
   let lightId: number;
-  mutate('Place light', [], () => {
-    const light: Light = {
-      id: meta.nextLightId++,
-      x, y, type,
-      radius: config.radius ?? 30,
-      color: config.color ?? '#ff9944',
-      intensity: config.intensity ?? 1.0,
-      falloff: (config.falloff ?? 'smooth') as FalloffType,
-    };
+  mutate(
+    'Place light',
+    [],
+    () => {
+      const light: Light = {
+        id: meta.nextLightId++,
+        x,
+        y,
+        type,
+        radius: config.radius ?? 30,
+        color: config.color ?? '#ff9944',
+        intensity: config.intensity ?? 1.0,
+        falloff: (config.falloff ?? 'smooth') as FalloffType,
+      };
 
-    // Z-height (height above floor in feet) — from preset or explicit config
-    if (config.z != null) light.z = config.z;
+      // Z-height (height above floor in feet) — from preset or explicit config
+      if (config.z != null) light.z = config.z;
 
-    if (type === 'directional') {
-      light.angle = config.angle ?? 0;
-      light.spread = config.spread ?? 45;
-    }
+      if (type === 'directional') {
+        light.angle = config.angle ?? 0;
+        light.spread = config.spread ?? 45;
+      }
 
-    meta.lights.push(light);
-    if (!meta.lightingEnabled) meta.lightingEnabled = true;
-    lightId = light.id;
-  }, { metaOnly: true, invalidate: ['lighting'] });
+      meta.lights.push(light);
+      if (!meta.lightingEnabled) meta.lightingEnabled = true;
+      lightId = light.id;
+    },
+    { metaOnly: true, invalidate: ['lighting'] },
+  );
 
   requestRender();
   return { success: true, id: lightId! };
@@ -70,12 +80,17 @@ export function placeLight(x: number, y: number, config: PlaceLightConfig = {}):
 export function removeLight(id: number): { success: true } {
   const meta = state.dungeon.metadata;
   if (meta.lights.length === 0) return { success: true };
-  const idx = meta.lights.findIndex(l => l.id === id);
+  const idx = meta.lights.findIndex((l) => l.id === id);
   if (idx === -1) throw new ApiValidationError('LIGHT_NOT_FOUND', `Light with id ${id} not found`, { id });
 
-  mutate('Remove light', [], () => {
-    meta.lights.splice(idx, 1);
-  }, { metaOnly: true, invalidate: ['lighting'] });
+  mutate(
+    'Remove light',
+    [],
+    () => {
+      meta.lights.splice(idx, 1);
+    },
+    { metaOnly: true, invalidate: ['lighting'] },
+  );
   requestRender();
   return { success: true };
 }
@@ -96,11 +111,20 @@ export function getLights(): { success: true; lights: Light[] } {
  */
 export function setAmbientLight(level: number): { success: true } {
   if (typeof level !== 'number' || level < 0 || level > 1) {
-    throw new Error(`Ambient light must be a number between 0 and 1, got: ${level}`);
+    throw new ApiValidationError(
+      'INVALID_AMBIENT_LEVEL',
+      `Ambient light must be a number between 0 and 1, got: ${level}`,
+      { received: level, type: typeof level, range: [0, 1] },
+    );
   }
-  mutate('Set ambient light', [], () => {
-    state.dungeon.metadata.ambientLight = level;
-  }, { metaOnly: true, invalidate: ['lighting'] });
+  mutate(
+    'Set ambient light',
+    [],
+    () => {
+      state.dungeon.metadata.ambientLight = level;
+    },
+    { metaOnly: true, invalidate: ['lighting'] },
+  );
   requestRender();
   return { success: true };
 }
@@ -111,9 +135,14 @@ export function setAmbientLight(level: number): { success: true } {
  * @returns {{ success: boolean }}
  */
 export function setLightingEnabled(enabled: unknown): { success: true } {
-  mutate('Set lighting enabled', [], () => {
-    state.dungeon.metadata.lightingEnabled = !!enabled;
-  }, { metaOnly: true, invalidate: ['lighting'] });
+  mutate(
+    'Set lighting enabled',
+    [],
+    () => {
+      state.dungeon.metadata.lightingEnabled = !!enabled;
+    },
+    { metaOnly: true, invalidate: ['lighting'] },
+  );
   requestRender();
   return { success: true };
 }
@@ -129,15 +158,20 @@ export function listLightPresets(): { success: true; categories: string[]; prese
     success: true,
     categories: catalog.categoryOrder,
     presets: Object.fromEntries(
-      Object.entries(catalog.lights).filter((e): e is [string, LightPreset] => e[1] != null).map(([k, v]) => [k, {
-        displayName: v.displayName,
-        category: v.category,
-        type: v.type,
-        color: v.color,
-        radius: v.radius,
-        intensity: v.intensity,
-        falloff: v.falloff,
-      }])
+      Object.entries(catalog.lights)
+        .filter((e): e is [string, LightPreset] => e[1] != null)
+        .map(([k, v]) => [
+          k,
+          {
+            displayName: v.displayName,
+            category: v.category,
+            type: v.type,
+            color: v.color,
+            radius: v.radius,
+            intensity: v.intensity,
+            falloff: v.falloff,
+          },
+        ]),
     ),
   };
 }

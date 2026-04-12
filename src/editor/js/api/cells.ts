@@ -184,7 +184,9 @@ export function createPolygonRoom(
   mode: string = 'room',
 ): { success: true; count: number } {
   if (!Array.isArray(cellList) || cellList.length === 0) {
-    throw new Error('cellList must be a non-empty array of [row, col] pairs');
+    throw new ApiValidationError('INVALID_CELL_LIST', 'cellList must be a non-empty array of [row, col] pairs', {
+      received: cellList,
+    });
   }
   cellList = cellList.map(([r, c]) => [toInt(r), toInt(c)]);
   for (const [r, c] of cellList) validateBounds(r, c);

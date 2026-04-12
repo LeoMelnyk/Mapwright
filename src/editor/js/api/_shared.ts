@@ -11,7 +11,7 @@ import state, {
   mutate,
 } from '../state.js';
 import { createEmptyDungeon } from '../utils.js';
-import { requestRender } from '../canvas-view.js';
+import { requestRender, getTransform } from '../canvas-view.js';
 import { RoomTool, TrimTool, PaintTool } from '../tools/index.js';
 import { getThemeCatalog } from '../theme-catalog.js';
 import { collectTextureIds, ensureTexturesLoaded, loadTextureImages, getTextureCatalog } from '../texture-catalog.js';
@@ -288,6 +288,7 @@ export {
   // Utils
   createEmptyDungeon,
   requestRender,
+  getTransform,
 
   // Catalogs
   getThemeCatalog,

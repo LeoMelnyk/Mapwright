@@ -6,6 +6,8 @@ import '../../src/editor/js/api/index.js'; // Initialize getApi()
 import {
   validateDoorClearance,
   validateConnectivity,
+  explainCommand,
+  validateCommands,
 } from '../../src/editor/js/api/validation.js';
 import { markPropSpatialDirty } from '../../src/editor/js/prop-spatial.js';
 
@@ -55,7 +57,8 @@ function addDoorBetween(r, c, direction) {
   const OPPOSITE = { north: 'south', south: 'north', east: 'west', west: 'east' };
   cells[r][c][direction] = 'd';
   const [dr, dc] = OFFSETS[direction];
-  const nr = r + dr, nc = c + dc;
+  const nr = r + dr,
+    nc = c + dc;
   if (cells[nr]?.[nc]) {
     cells[nr][nc][OPPOSITE[direction]] = 'd';
   }
@@ -70,7 +73,7 @@ beforeEach(() => {
   state.propCatalog = {
     categories: ['furniture'],
     props: {
-      'chair': { name: 'Chair', category: 'furniture', footprint: [1, 1], facing: true },
+      chair: { name: 'Chair', category: 'furniture', footprint: [1, 1], facing: true },
     },
   };
   markPropSpatialDirty();
@@ -116,7 +119,7 @@ describe('validateDoorClearance', () => {
     const result = validateDoorClearance();
     expect(result.clear).toBe(false);
     expect(result.issues.length).toBeGreaterThan(0);
-    const blocking = result.issues.find(i => i.row === 3 && i.col === 4);
+    const blocking = result.issues.find((i) => i.row === 3 && i.col === 4);
     expect(blocking).toBeDefined();
     expect(blocking.problem).toContain('blocking door cell');
   });
@@ -135,7 +138,7 @@ describe('validateDoorClearance', () => {
 
     const result = validateDoorClearance();
     expect(result.clear).toBe(false);
-    const approach = result.issues.find(i => i.problem.includes('approach'));
+    const approach = result.issues.find((i) => i.problem.includes('approach'));
     expect(approach).toBeDefined();
   });
 
@@ -181,7 +184,7 @@ describe('validateDoorClearance', () => {
 
     const result = validateDoorClearance();
     expect(result.clear).toBe(false);
-    const issue = result.issues.find(i => i.doorType === 's');
+    const issue = result.issues.find((i) => i.doorType === 's');
     expect(issue).toBeDefined();
   });
 });
@@ -315,5 +318,101 @@ describe('validateConnectivity', () => {
     expect(result.reachable).toEqual(['Solo']);
     expect(result.unreachable).toEqual([]);
     expect(result.totalRooms).toBe(1);
+  });
+});
+
+// ── explainCommand ────────────────────────────────────────────────────────────
+
+describe('explainCommand', () => {
+  it('returns ok=true for a valid mutation without modifying state', async () => {
+    const before = JSON.stringify(state.dungeon);
+    const result = await explainCommand('paintCell', 5, 5);
+    expect(result.ok).toBe(true);
+    expect(result.method).toBe('paintCell');
+    expect(JSON.stringify(state.dungeon)).toBe(before);
+  });
+
+  it('returns ok=false with code+context for a failing command', async () => {
+    const result = await explainCommand('paintCell', 999, 999);
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe('OUT_OF_BOUNDS');
+    expect(result.context).toMatchObject({ row: 999, col: 999 });
+  });
+
+  it('returns the result of read methods', async () => {
+    state.dungeon.cells[3][3] = { north: 'w' };
+    const result = await explainCommand('getCellInfo', 3, 3);
+    expect(result.ok).toBe(true);
+    expect(result.result).toMatchObject({ success: true, cell: { north: 'w' } });
+  });
+
+  it('reports UNKNOWN_METHOD for an unrecognized command', async () => {
+    const result = await explainCommand('floopTheCells', 1, 2);
+    expect(result.ok).toBe(false);
+    expect(result.code).toBe('UNKNOWN_METHOD');
+  });
+
+  it('rolls back on error so subsequent calls see clean state', async () => {
+    const before = JSON.stringify(state.dungeon);
+    await explainCommand('setDoor', 5, 5, 'badDirection');
+    expect(JSON.stringify(state.dungeon)).toBe(before);
+  });
+});
+
+// ── validateCommands ──────────────────────────────────────────────────────────
+
+describe('validateCommands', () => {
+  it('returns one result per command in order', async () => {
+    const result = await validateCommands([
+      ['paintCell', 1, 1],
+      ['paintCell', 2, 2],
+      ['paintCell', 999, 999],
+    ]);
+    expect(result.success).toBe(true);
+    expect(result.allOk).toBe(false);
+    expect(result.results).toHaveLength(3);
+    expect(result.results[0].ok).toBe(true);
+    expect(result.results[1].ok).toBe(true);
+    expect(result.results[2].ok).toBe(false);
+    expect(result.results[2].code).toBe('OUT_OF_BOUNDS');
+  });
+
+  it('does not mutate state', async () => {
+    const before = JSON.stringify(state.dungeon);
+    await validateCommands([
+      ['createRoom', 2, 2, 5, 5],
+      ['setLabel', 3, 3, 'X'],
+      ['setDoor', 3, 5, 'east'],
+    ]);
+    expect(JSON.stringify(state.dungeon)).toBe(before);
+  });
+
+  it('cumulates effects within the batch (later commands see earlier mutations)', async () => {
+    // The second command depends on the room created by the first.
+    const result = await validateCommands([
+      ['createRoom', 2, 2, 5, 5],
+      ['setLabel', 3, 3, 'X'],
+      ['placeLightInRoom', 'X', 'torch'],
+    ]);
+    expect(result.allOk).toBe(true);
+  });
+
+  it('stopOnError halts at the first failure', async () => {
+    const result = await validateCommands(
+      [
+        ['paintCell', 1, 1],
+        ['paintCell', 999, 999],
+        ['paintCell', 2, 2],
+      ],
+      { stopOnError: true },
+    );
+    expect(result.results).toHaveLength(2);
+    expect(result.results[1].ok).toBe(false);
+  });
+
+  it('reports INVALID_COMMAND for malformed entries', async () => {
+    const result = await validateCommands([['paintCell', 1, 1], []]);
+    expect(result.results[1].ok).toBe(false);
+    expect(result.results[1].code).toBe('INVALID_COMMAND');
   });
 });

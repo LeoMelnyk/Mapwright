@@ -73,7 +73,11 @@ export function shiftCells(dr: number, dc: number): { success: true; newRows: nu
   const newCols = cols + Math.abs(dc);
 
   if (newRows > 200 || newCols > 200) {
-    throw new Error(`Shift would exceed maximum grid size (200×200). Result: ${newRows}×${newCols}`);
+    throw new ApiValidationError(
+      'GRID_SIZE_EXCEEDED',
+      `Shift would exceed maximum grid size (200×200). Result: ${newRows}×${newCols}`,
+      { newRows, newCols, maxRows: 200, maxCols: 200 },
+    );
   }
 
   // Row/col offset in the destination grid:
@@ -131,7 +135,9 @@ export function shiftCells(dr: number, dc: number): { success: true; newRows: nu
 export function normalizeMargin(targetMargin: number = 2): Record<string, unknown> {
   targetMargin = toInt(targetMargin);
   if (targetMargin < 0) {
-    throw new Error('targetMargin must be a non-negative integer');
+    throw new ApiValidationError('INVALID_MARGIN', 'targetMargin must be a non-negative integer', {
+      received: targetMargin,
+    });
   }
 
   const cells = state.dungeon.cells;

@@ -113,6 +113,31 @@ All imports within `src/` must go through barrel files (`index.ts`), never direc
 
 ---
 
+## Changelog Maintenance
+
+When you ship a user-visible change, append it to `CHANGELOG.md` under the version that matches the current branch. Branch names follow `release/<version>` — `release/0.10.0` → write to the `## v0.10.0` section. If that section doesn't exist yet, create it at the top of the file.
+
+**Audience: end users, not developers.** They install the desktop app and want to know what's new, what got faster, what got fixed. They don't read source code. Avoid:
+- Internal function names (`mutate()`, `_collectRoomCells`)
+- File paths or module references
+- Refactoring details that don't change behavior
+- Test counts, lint cleanups, type safety improvements
+
+Include:
+- **What changed** in plain language ("Door placement now flags blocked approaches", not "added validateDoorClearance API method")
+- **Why it matters** to the user when it's not obvious ("...so you don't lose props to misplaced doors")
+- **Breaking changes** — flag clearly so users know to update their workflows
+- New features, bug fixes, performance wins, UI changes
+
+**Organize by topic, not by commit.** Group related items under section headings (`### Lighting`, `### Editor UI`, `### Performance`). Existing sections in `## v0.10.0` show the pattern — match its tone and depth. If a change touches a new area, add a new `###` heading.
+
+**Format per entry:** start with a bold lead phrase that names the change, then a short clause explaining what it does or why it's there.
+- `- **Wall blends now respect texture opacity** — fixes the seam that appeared when blending two partially-transparent floor textures`
+
+**Skip the changelog when:** the change is purely internal (refactor, test, lint, dependency bump with no behavior change, code reorganization). If you're unsure whether it's user-visible, it probably isn't — ask the user.
+
+---
+
 ## Debugging Strategy
 
 **Inspect data first, not geometry.** When a rendering issue appears, check map JSON properties, cell flags, and skip conditions before analyzing geometry math. The root cause is usually a simple conditional skip.

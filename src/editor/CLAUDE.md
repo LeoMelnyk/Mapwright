@@ -379,12 +379,90 @@ These methods automate common prop placement patterns. Each call may place multi
 ], 5, 8]
 ```
 
+### Inspection (read-only)
+
+Cheap, structured queries for surveying a map without screenshots or N×M `getCellInfo` calls.
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `renderAscii` | `r1, c1, r2, c2` | ASCII grid of the region. Glyphs: `.` floor, ` ` void, `~` water, `^` lava, `_` pit, `:` hazard, `o` prop, `*` label, `>` stair, `=` bridge. Walls: `\|` `-`. Doors: `D` (normal), `S` (secret). Returns `{ ascii, rows, cols, legend }`. Region capped at 80 cols. |
+| `inspectRegion` | `r1, c1, r2, c2` | Full structured dump of every cell in the rectangle: walls, fill, prop, label, texture, stair/bridge IDs. Plus lights whose center is inside the region. Returns `{ bounds, cellCount, cells, lights }`. Out-of-bounds rectangles are clamped. |
+| `getRoomSummary` | `label` | One-call survey of a labeled room: bounds (bounding box — for L/U shaped rooms this includes void cells), cell count (actual floor cells via flood fill), props, fills, doors, textures, lights affecting (Euclidean radius reach), and `adjacentRooms` (rooms reachable through one door step). Replaces `getRoomBounds + getRoomContents + getLights` calls. |
+| `queryCells` | `predicate` | Find cells matching a structured predicate. Fields are AND-combined. Predicate keys: `prop`, `hasProp`, `fill`, `hasFill`, `hasLabel`, `label`, `hasTexture`, `texture`, `hasDoor`, `hasWall`, `hasStair`, `hasBridge`, `isVoid`, `hasHazard`, `region: {r1,c1,r2,c2}`. Array values for `prop`/`fill` mean "any of". Returns `{ count, cells: [{row, col, cell}] }`. |
+| `getLightingCoverage` | `[darkThreshold=0.15], [region]` | Per-cell lighting estimate (ambient + sum of falloff per light). **Ignores wall shadowing for speed.** Returns `{ ambient, totalCells, litCells, darkCells, averageIntensity, darkSpots: [{row,col,intensity}] }`. Useful for "did I light this room?" checks. |
+| `findConflicts` | `[options]` | Single-call design audit: blocked doors, unreachable rooms (if `entranceLabel` given), lights in void, dark rooms (>50% cells dark, requires lighting enabled). Each conflict has `type`, `severity` (`error`/`warning`), `message`, optional `row/col/context`. Options: `{ entranceLabel?, darkThreshold? }`. |
+| `getPropPlacementOptions` | `label, propType, [options]` | Enumerate every candidate anchor in a room with `valid: bool` + `reasons: [...]`. Reasons: `OUT_OF_ROOM`, `OVERLAPS_PROP`, `BLOCKS_DOOR`, `BLOCKS_DOOR_APPROACH`. Options: `{ facing=0, includeInvalid=true }`. Returns `{ options, summary: {total, valid, invalid} }`. Use this instead of `getValidPropPositions` when you want to know *why* a placement was rejected. |
+
+**Examples:**
+```json
+["renderAscii", 2, 2, 8, 12]
+["queryCells", { "prop": "brazier" }]
+["queryCells", { "hasFill": true, "region": { "r1": 5, "c1": 5, "r2": 15, "c2": 15 } }]
+["getRoomSummary", "A1"]
+["findConflicts", { "entranceLabel": "A1" }]
+["getPropPlacementOptions", "A1", "throne", { "facing": 180 }]
+```
+
+### Catalog & enumeration
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `searchProps` | `[filter]` | Filter the prop catalog. Filter fields: `placement` ("wall"/"corner"/"center"/"floor"/"any" or array), `roomTypes` (string or array, any-of), `category` (string or array), `facing` (boolean), `maxFootprint`/`minFootprint` ([rows, cols]), `namePattern` (case-insensitive substring). Returns `{ count, props }`. |
+| `listDoors` | — | Every door (and secret door) on the map, deduplicated against the reciprocal edge. Returns `{ doors: [{row, col, direction, type}] }`. |
+| `listWalls` | — | Every wall edge (visible + invisible), deduplicated. Returns `{ walls: [{row, col, direction, type}] }`. |
+| `listFills` | — | Every filled cell with depth. Returns `{ fills: [{row, col, type, depth}] }`. |
+| `unlabelledRooms` | — | Rooms (BFS regions of contiguous floor) that have no `center.label`. Useful for "did I forget a label?" checks. Returns `{ count, rooms: [{representativeCell, cellCount}] }`. |
+| `getThemeColors` | — | Resolved theme color map for the current map. Returns `{ themeName, colors }`. |
+| `waitForRender` | `[timeoutMs=3000]` | Wait until the lighting version stops advancing for two consecutive frames. Useful after bulk light placements before screenshot. Returns `{ settledMs }`. |
+
+### Bulk transforms
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `cloneRoom` | `label, dr, dc, [{newLabel}]` | Copy a labeled room (cells, walls, fills, props, textures, label, lights inside bbox, overlay props inside bbox) to a new offset. Throws `CLONE_OUT_OF_BOUNDS` or `CLONE_OVERLAP` if destination is invalid. Returns `{ copied: {cells, overlayProps, lights}, bounds }`. |
+| `mirrorRegion` | `r1, c1, r2, c2, axis` | Flip cells in a rectangle across `"horizontal"` (E↔W) or `"vertical"` (N↔S) axis. Cell walls are remapped accordingly. **Multi-cell props, overlay props, lights, stairs, bridges inside the region are NOT transformed** — clear them first or use `cloneRoom`. |
+| `rotateRegion` | `r1, c1, r2, c2, degrees` | Rotate a SQUARE region 90/180/270 clockwise. Walls remap. Same caveats as `mirrorRegion`. |
+| `replaceProp` | `oldType, newType, [{region}]` | Bulk swap one prop type for another in cell-level props and overlay props. Optional region constraint. Returns `{ replaced }`. |
+| `replaceTexture` | `oldId, newId, [{region}]` | Bulk swap one texture ID for another (covers main + corner textures). Returns `{ replaced }`. |
+
+### Auto-furnish
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `autofurnish` | `label, roomType, [{density, preferWall}]` | Catalog-driven prop placement: picks props whose `roomTypes` includes the given type (or `'any'`), groups by `placement`, and places a centerpiece + wall props + scattered floor props. `density: "sparse"\|"normal"\|"dense"`. Centerpiece is anchored to the room's actual cell-set centroid (not the bbox center) so L/U shaped rooms work correctly. Returns `{ placed: [{type,row,col,via}], skipped: [{type,via,reason}] }`. |
+| `furnishBrief` | `{rooms: [{label, role, density?}]}` | Run `autofurnish` for many rooms in one call. Returns `{ rooms: [...], totals: {placed, skipped} }`. Per-room failures are recorded in the room's own result; the batch never throws. |
+
+### Bulk placement feedback
+
+`fillWallWithProps`, `lineProps`, `scatterProps`, and `clusterProps` all return `{ success, placed, skipped }` where `skipped: [{ row, col, reason, code?, context? }]` reports every position that was attempted but couldn't take a prop. Reasons include `DOOR_HERE`, `OUT_OF_ROOM`, `OVERLAPS_PROP`, and `PLACE_FAILED: <message>`. `scatterProps` additionally returns `requested` (count asked for) and `available` (valid positions before filtering). `clusterProps` skipped entries include the prop type plus the `code`/`context` from the underlying `placeProp` failure.
+
+### Annotated screenshots
+
+Pass `--highlight '<json>'` alongside `--screenshot out.png` to overlay markers on the saved image. Each highlight: `{ row, col, [rows=1], [cols=1], [color="#ff3030"], [shape="box"|"dot"|"cross"], [label] }`. Useful for confirming "is this the cell I think it is?" without a second screenshot.
+
+```bash
+node tools/puppeteer-bridge.js --load map.json --screenshot out.png \
+  --highlight '[{"row":5,"col":7,"label":"throne","color":"#ffd000"}]'
+```
+
+The `getScreenshotAnnotated(highlights)` API method returns the annotated PNG as a data URL when called directly via `--commands`.
+
 ### Validation
 
 | Method | Args | Description |
 |--------|------|-------------|
 | `validateDoorClearance` | — | Check for props blocking door cells or their approach cells. Returns `{ clear: bool, issues: [{ row, col, direction, doorType, problem }] }` |
 | `validateConnectivity` | `entranceLabel` | BFS from entrance through open edges and doors. Returns `{ connected: bool, reachable: [...], unreachable: [...], totalRooms, visitedCells }` |
+| `explainCommand` | `method, ...args` | Dry-run a single command against current state. Returns `{ ok, method, result?, error?, code?, context? }`. Mutating commands are rolled back; read methods return their result. Use this before committing to verify a command works. |
+| `validateCommands` | `commands, [options]` | Dry-run a batch of commands sequentially (each command sees the cumulative effect of previous ones). State is fully restored at the end. Returns `{ allOk, results: [{ index, method, ok, error?, code?, context?, result? }] }`. Pass `{ stopOnError: true }` to halt at the first failure. |
+
+**Structured errors.** Every API method that throws raises an `ApiValidationError` with a stable `code` (e.g. `OUT_OF_BOUNDS`, `UNKNOWN_PROP`, `INVALID_DOOR_TYPE`, `STAIR_OVERLAP`, `ROOM_NOT_FOUND`) and a JSON-serializable `context` bag (the offending args, valid alternatives, current state). The Puppeteer bridge surfaces both — failed commands print as `FAILED [i] [method] (CODE): message {context}`. Use the `code` for branching logic; use the `context` to diagnose without a follow-up `getCellInfo` call.
+
+**Dry-run pattern:** before submitting a long batch, validate it first to surface failures cheaply:
+```bash
+node tools/puppeteer-bridge.js --load map.json \
+  --commands '[["validateCommands", [["createRoom",2,2,5,5],["setLabel",3,3,"X"],["placeLightInRoom","X","torch"]]]]'
+```
 
 **`planBrief` brief format:**
 ```json
@@ -471,22 +549,52 @@ Typical texture workflow:
 
 Edge blending (smooth gradient between adjacent different textures) is controlled per-theme via `theme.textureBlendWidth` (0.0–1.0, default 0.35).
 
-### Undo / Redo
+### Undo / Redo / Checkpoints
 
 | Method | Args | Description |
 |--------|------|-------------|
 | `undo` | — | Undo last action |
 | `redo` | — | Redo last undone action |
+| `getUndoDepth` | — | Numeric undo stack depth |
+| `undoToDepth` | `targetDepth` | Undo back to a numeric depth |
+| `checkpoint` | `name` | Record a named checkpoint at the current undo depth. Overwrites if name exists. Returns `{ name, depth }`. |
+| `rollback` | `name` | Undo back to the depth captured by `checkpoint(name)`. Checkpoint is preserved (re-rollable). Returns `{ name, depth, undid }`. |
+| `listCheckpoints` | — | List all named checkpoints with their depth and `stepsAhead` (how many undo steps since the checkpoint). |
+| `clearCheckpoint` | `name` | Delete a named checkpoint. Returns `{ existed }`. |
 
-**Build checkpointing pattern** — record depth before a multi-step build, then roll back everything if something goes wrong:
+**Prefer named checkpoints over `getUndoDepth`/`undoToDepth`** — they're more readable and survive across multiple Puppeteer calls without you tracking integers. Checkpoints are cleared automatically on `newMap`/`loadMap`.
+
 ```json
-["getUndoDepth"]
+["createRoom", 2, 2, 8, 12]
+["checkpoint", "after-rooms"]
+["setTextureRect", 2, 2, 8, 12, "polyhaven/cobblestone_floor_03"]
+["checkpoint", "after-textures"]
+["scatterProps", "A1", "rubble", 5]
+// If the props look wrong:
+["rollback", "after-textures"]
 ```
-(Returns the depth as a plain number in the result field.) Then if the build needs to be reversed:
+
+### Transactional batches
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `transaction` | `commands` | Run a batch all-or-nothing. On any failure, undo every preceding command in the batch and return `{ success: false, committed: false, failedAt, results }`. On full success, all commands remain applied. Distinct from `validateCommands` (always rolls back) and `--continue-on-error` (leaves partial state). |
+
 ```json
-["undoToDepth", 5]
+["transaction", [
+  ["createRoom", 2, 2, 8, 12],
+  ["setLabel", 5, 7, "A1"],
+  ["placeProp", 4, 4, "throne", 180]
+]]
 ```
-This is in the AI Helpers section above.
+
+### Session info
+
+| Method | Args | Description |
+|--------|------|-------------|
+| `getSessionInfo` | — | Rich snapshot of the editor's current state: `mapName, rows, cols, currentLevel, undoDepth, redoDepth, dirty, unsavedChanges, lightingEnabled, catalogsLoaded {props,textures,theme,lights}, checkpoints, counts {rooms,props,lights,stairs,bridges,levels}`. Use as the first call in a Puppeteer session to verify the editor isn't holding stale state from a previous task. |
+
+**`loadMap` now returns `{ success, info }`** where `info` is the same shape as `getMapInfo`. No second roundtrip needed to learn what got loaded.
 
 ### Catalog Queries
 

@@ -239,7 +239,7 @@ export function rotateProp(row: number, col: number, degrees: number = 90): { su
   col = toInt(col);
   validateBounds(row, col);
   const overlay = findPropAtGrid(row, col);
-  if (!overlay) throw new Error(`No prop at (${row}, ${col})`);
+  if (!overlay) throw new ApiValidationError('NO_PROP_AT_CELL', `No prop at (${row}, ${col})`, { row, col });
   let newFacing: number;
   mutate(
     'Rotate prop',
@@ -414,7 +414,7 @@ export function fillWallWithProps(
   propType: string,
   wall: string,
   options: FillWallOptions = {},
-): { success: true; placed: [number, number][] } {
+): { success: true; placed: [number, number][]; skipped: Array<{ row: number; col: number; reason: string }> } {
   if (!CARDINAL_DIRS.includes(wall))
     throw new ApiValidationError('INVALID_WALL', `wall must be one of: ${CARDINAL_DIRS.join(', ')}`, { wall });
 
@@ -439,7 +439,11 @@ export function fillWallWithProps(
   const inset = options.inset ?? 0;
   const skipDoors = options.skipDoors !== false;
 
-  if (![0, 90, 180, 270].includes(facing)) throw new Error(`Invalid facing: ${facing}`);
+  if (![0, 90, 180, 270].includes(facing))
+    throw new ApiValidationError('INVALID_FACING', `Invalid facing: ${facing}. Use 0, 90, 180, or 270.`, {
+      facing,
+      validFacings: [0, 90, 180, 270],
+    });
 
   const [spanRows, spanCols] =
     facing === 90 || facing === 270 ? [def.footprint[1], def.footprint[0]] : [...def.footprint];
@@ -448,12 +452,13 @@ export function fillWallWithProps(
   if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
 
   const wallCells = getApi()._getWallCells(roomCells, wall);
-  if (!wallCells.length) return { success: true, placed: [] };
+  const placed: [number, number][] = [];
+  const skipped: Array<{ row: number; col: number; reason: string }> = [];
+  if (!wallCells.length) return { success: true, placed, skipped };
 
   const cells = state.dungeon.cells;
   const stride = wall === 'north' || wall === 'south' ? spanCols + gap : spanRows + gap;
 
-  const placed: [number, number][] = [];
   let i = 0;
   while (i < wallCells.length) {
     const [wr, wc] = wallCells[i];
@@ -462,6 +467,7 @@ export function fillWallWithProps(
       const cell = cells[wr]?.[wc];
       const edgeVal = cell ? getEdge(cell, wall as CardinalDirection) : undefined;
       if (edgeVal === 'd' || edgeVal === 's') {
+        skipped.push({ row: wr, col: wc, reason: 'DOOR_HERE' });
         i++;
         continue;
       }
@@ -482,28 +488,35 @@ export function fillWallWithProps(
       ac = wc - inset - spanCols + 1;
     }
 
-    let canPlace = true;
-    for (let dr = 0; dr < spanRows && canPlace; dr++) {
-      for (let dc = 0; dc < spanCols && canPlace; dc++) {
-        if (!roomCells.has(cellKey(ar + dr, ac + dc))) canPlace = false;
-        else if (getApi()._isCellCoveredByProp(ar + dr, ac + dc)) canPlace = false;
+    let reason: string | null = null;
+    outer: for (let dr = 0; dr < spanRows; dr++) {
+      for (let dc = 0; dc < spanCols; dc++) {
+        if (!roomCells.has(cellKey(ar + dr, ac + dc))) {
+          reason = 'OUT_OF_ROOM';
+          break outer;
+        }
+        if (getApi()._isCellCoveredByProp(ar + dr, ac + dc)) {
+          reason = 'OVERLAPS_PROP';
+          break outer;
+        }
       }
     }
 
-    if (canPlace) {
+    if (!reason) {
       try {
         getApi().placeProp(ar, ac, propType, facing);
         placed.push([ar, ac]);
         i += stride;
-      } catch {
-        i++;
+        continue;
+      } catch (e) {
+        reason = e instanceof Error ? `PLACE_FAILED: ${e.message}` : 'PLACE_FAILED';
       }
-    } else {
-      i++;
     }
+    skipped.push({ row: ar, col: ac, reason });
+    i++;
   }
 
-  return { success: true, placed };
+  return { success: true, placed, skipped };
 }
 
 /**
@@ -527,10 +540,14 @@ export function lineProps(
   direction: string,
   count: number,
   options: LinePropsOptions = {},
-): { success: true; placed: [number, number][] } {
+): { success: true; placed: [number, number][]; skipped: Array<{ row: number; col: number; reason: string }> } {
   startRow = toInt(startRow);
   startCol = toInt(startCol);
-  if (!['east', 'south'].includes(direction)) throw new Error('direction must be "east" or "south"');
+  if (!['east', 'south'].includes(direction))
+    throw new ApiValidationError('INVALID_LINE_DIRECTION', 'direction must be "east" or "south"', {
+      direction,
+      validDirections: ['east', 'south'],
+    });
 
   const catalog = state.propCatalog;
   if (!catalog?.props[propType])
@@ -541,7 +558,11 @@ export function lineProps(
 
   const facing = options.facing ?? 0;
   const gap = options.gap ?? 0;
-  if (![0, 90, 180, 270].includes(facing)) throw new Error(`Invalid facing: ${facing}`);
+  if (![0, 90, 180, 270].includes(facing))
+    throw new ApiValidationError('INVALID_FACING', `Invalid facing: ${facing}. Use 0, 90, 180, or 270.`, {
+      facing,
+      validFacings: [0, 90, 180, 270],
+    });
 
   const def = catalog.props[propType];
   const [spanRows, spanCols] =
@@ -553,31 +574,40 @@ export function lineProps(
   const [dr, dc] = direction === 'south' ? [spanRows + gap, 0] : [0, spanCols + gap];
 
   const placed: [number, number][] = [];
+  const skipped: Array<{ row: number; col: number; reason: string }> = [];
   let r = startRow,
     c = startCol;
 
   for (let i = 0; i < count; i++) {
-    let canPlace = true;
-    for (let pr = 0; pr < spanRows && canPlace; pr++) {
-      for (let pc = 0; pc < spanCols && canPlace; pc++) {
-        if (!roomCells.has(cellKey(r + pr, c + pc))) canPlace = false;
-        else if (getApi()._isCellCoveredByProp(r + pr, c + pc)) canPlace = false;
+    let reason: string | null = null;
+    outer: for (let pr = 0; pr < spanRows; pr++) {
+      for (let pc = 0; pc < spanCols; pc++) {
+        if (!roomCells.has(cellKey(r + pr, c + pc))) {
+          reason = 'OUT_OF_ROOM';
+          break outer;
+        }
+        if (getApi()._isCellCoveredByProp(r + pr, c + pc)) {
+          reason = 'OVERLAPS_PROP';
+          break outer;
+        }
       }
     }
 
-    if (canPlace) {
+    if (!reason) {
       try {
         getApi().placeProp(r, c, propType, facing);
         placed.push([r, c]);
-      } catch {
-        /* skip failed */
+      } catch (e) {
+        skipped.push({ row: r, col: c, reason: e instanceof Error ? `PLACE_FAILED: ${e.message}` : 'PLACE_FAILED' });
       }
+    } else {
+      skipped.push({ row: r, col: c, reason });
     }
     r += dr;
     c += dc;
   }
 
-  return { success: true, placed };
+  return { success: true, placed, skipped };
 }
 
 /**
@@ -594,12 +624,23 @@ export function scatterProps(
   propType: string,
   count: number,
   options: ScatterPropsOptions = {},
-): { success: true; placed: [number, number][] } {
+): {
+  success: true;
+  placed: [number, number][];
+  skipped: Array<{ row: number; col: number; reason: string }>;
+  requested: number;
+  available: number;
+} {
   const facing = options.facing ?? 0;
+  const placed: [number, number][] = [];
+  const skipped: Array<{ row: number; col: number; reason: string }> = [];
   const result = getApi().getValidPropPositions(roomLabel, propType, facing);
-  if (!result.success || !result.positions?.length) return { success: true, placed: [] };
+  if (!result.success || !result.positions?.length) {
+    return { success: true, placed, skipped, requested: count, available: 0 };
+  }
 
   let positions = [...result.positions];
+  const availableBeforeFilter = positions.length;
 
   if (options.avoidWalls) {
     const roomCells = getApi()._collectRoomCells(roomLabel);
@@ -619,19 +660,21 @@ export function scatterProps(
     [positions[i], positions[j]] = [positions[j], positions[i]];
   }
 
-  const placed: [number, number][] = [];
   for (const [r, c] of positions) {
     if (placed.length >= count) break;
-    if (getApi()._isCellCoveredByProp(r, c)) continue;
+    if (getApi()._isCellCoveredByProp(r, c)) {
+      skipped.push({ row: r, col: c, reason: 'OVERLAPS_PROP' });
+      continue;
+    }
     try {
       getApi().placeProp(r, c, propType, facing);
       placed.push([r, c]);
-    } catch {
-      continue;
+    } catch (e) {
+      skipped.push({ row: r, col: c, reason: e instanceof Error ? `PLACE_FAILED: ${e.message}` : 'PLACE_FAILED' });
     }
   }
 
-  return { success: true, placed };
+  return { success: true, placed, skipped, requested: count, available: availableBeforeFilter };
 }
 
 /**
@@ -650,7 +693,14 @@ export function clusterProps(
 ): {
   success: true;
   placed: { type: string; row: number; col: number }[];
-  failed: { type: string; row: number; col: number; error: string }[];
+  skipped: {
+    type: string;
+    row: number;
+    col: number;
+    reason: string;
+    code?: string;
+    context?: Record<string, unknown>;
+  }[];
 } {
   anchorRow = toInt(anchorRow);
   anchorCol = toInt(anchorCol);
@@ -658,7 +708,14 @@ export function clusterProps(
   if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
 
   const placed: { type: string; row: number; col: number }[] = [];
-  const failed: { type: string; row: number; col: number; error: string }[] = [];
+  const skipped: {
+    type: string;
+    row: number;
+    col: number;
+    reason: string;
+    code?: string;
+    context?: Record<string, unknown>;
+  }[] = [];
 
   for (const p of props) {
     const r = anchorRow + (p.dr || 0);
@@ -668,11 +725,28 @@ export function clusterProps(
       getApi().placeProp(r, c, p.type, facing);
       placed.push({ type: p.type, row: r, col: c });
     } catch (e) {
-      failed.push({ type: p.type, row: r, col: c, error: (e as Error).message });
+      const entry: {
+        type: string;
+        row: number;
+        col: number;
+        reason: string;
+        code?: string;
+        context?: Record<string, unknown>;
+      } = {
+        type: p.type,
+        row: r,
+        col: c,
+        reason: e instanceof Error ? e.message : String(e),
+      };
+      if (e instanceof ApiValidationError) {
+        entry.code = e.code;
+        entry.context = e.context;
+      }
+      skipped.push(entry);
     }
   }
 
-  return { success: true, placed, failed };
+  return { success: true, placed, skipped };
 }
 
 // ── Overlay Prop Methods (metadata.props[] direct) ──────────────────────
@@ -684,9 +758,9 @@ export function clusterProps(
  */
 export function setPropZIndex(propId: string, zOrPreset: string | number): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
-  if (!meta.props) throw new Error('No overlay props');
+  if (!meta.props) throw new ApiValidationError('NO_OVERLAY_PROPS', 'No overlay props on this map', {});
   const prop = meta.props.find((p: { id: string | number }) => p.id === propId);
-  if (!prop) throw new Error(`No prop with id "${propId}"`);
+  if (!prop) throw new ApiValidationError('PROP_ID_NOT_FOUND', `No prop with id "${propId}"`, { propId });
 
   mutate(
     'Set prop z-index',
@@ -704,9 +778,9 @@ export function setPropZIndex(propId: string, zOrPreset: string | number): { suc
  */
 export function bringForward(propId: string): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
-  if (!meta.props) throw new Error('No overlay props');
+  if (!meta.props) throw new ApiValidationError('NO_OVERLAY_PROPS', 'No overlay props on this map', {});
   const prop = meta.props.find((p) => p.id === propId);
-  if (!prop) throw new Error(`No prop with id "${propId}"`);
+  if (!prop) throw new ApiValidationError('PROP_ID_NOT_FOUND', `No prop with id "${propId}"`, { propId });
 
   // Find the next prop with a higher z-index
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
@@ -730,9 +804,9 @@ export function bringForward(propId: string): { success: true; zIndex: number } 
  */
 export function sendBackward(propId: string): { success: true; zIndex: number } {
   const meta = state.dungeon.metadata;
-  if (!meta.props) throw new Error('No overlay props');
+  if (!meta.props) throw new ApiValidationError('NO_OVERLAY_PROPS', 'No overlay props on this map', {});
   const prop = meta.props.find((p) => p.id === propId);
-  if (!prop) throw new Error(`No prop with id "${propId}"`);
+  if (!prop) throw new ApiValidationError('PROP_ID_NOT_FOUND', `No prop with id "${propId}"`, { propId });
 
   const sorted = [...meta.props].sort((a, b) => a.zIndex - b.zIndex);
   const idx = sorted.findIndex((p) => p.id === propId);
@@ -780,7 +854,7 @@ export function suggestPropPosition(
   const roomCells = getApi()._collectRoomCells(roomLabel);
   if (!roomCells) throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${roomLabel}" not found`, { label: roomLabel });
   const bounds = roomBoundsFromKeys(roomCells);
-  if (!bounds) throw new Error(`Room "${roomLabel}" has no cells`);
+  if (!bounds) throw new ApiValidationError('ROOM_EMPTY', `Room "${roomLabel}" has no cells`, { label: roomLabel });
 
   const centerRow = Math.floor((bounds.r1 + bounds.r2) / 2);
   const centerCol = Math.floor((bounds.c1 + bounds.c2) / 2);

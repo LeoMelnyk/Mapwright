@@ -22,6 +22,9 @@ import * as planBrief from './plan-brief.js';
 import * as levels from './levels.js';
 import * as operational from './operational.js';
 import * as preview from './preview.js';
+import * as inspect from './inspect.js';
+import * as transforms from './transforms.js';
+import * as furnish from './furnish.js';
 
 // ─── Assemble ────────────────────────────────────────────────────────────────
 
@@ -60,6 +63,12 @@ const api = {
   ...operational,
   // Preview
   ...preview,
+  // Inspection (read-only queries)
+  ...inspect,
+  // Bulk transforms (clone, mirror, rotate, replace)
+  ...transforms,
+  // Auto-furnish (catalog-driven prop placement)
+  ...furnish,
   // Rename eval_ back to eval (eval is a reserved word in strict mode exports)
   eval: operational.eval_,
 };

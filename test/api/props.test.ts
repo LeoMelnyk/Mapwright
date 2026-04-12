@@ -15,7 +15,14 @@ import {
   bringForward,
   sendBackward,
   suggestPropPosition,
+  fillWallWithProps,
+  lineProps,
+  scatterProps,
+  clusterProps,
 } from '../../src/editor/js/api/props.js';
+import { createRoom } from '../../src/editor/js/api/cells.js';
+import { setLabel } from '../../src/editor/js/api/labels.js';
+import { setDoor } from '../../src/editor/js/api/walls-doors.js';
 
 // ── Setup ────────────────────────────────────────────────────────────────────
 
@@ -28,11 +35,47 @@ beforeEach(() => {
   state.propCatalog = {
     categories: ['furniture', 'decoration'],
     props: {
-      'chair': { name: 'Chair', category: 'furniture', footprint: [1, 1], facing: true, placement: 'center', roomTypes: ['any'] },
-      'table': { name: 'Table', category: 'furniture', footprint: [2, 2], facing: false, placement: 'center', roomTypes: ['tavern'] },
-      'bookshelf': { name: 'Bookshelf', category: 'furniture', footprint: [1, 3], facing: true, placement: 'wall', roomTypes: ['library'] },
-      'candle': { name: 'Candle', category: 'decoration', footprint: [1, 1], facing: false, placement: 'center', roomTypes: ['any'], lights: [{ preset: 'torch', x: 0.5, y: 0.5 }] },
-      'statue': { name: 'Statue', category: 'decoration', footprint: [1, 1], facing: false, placement: 'center', roomTypes: ['temple', 'any'] },
+      chair: {
+        name: 'Chair',
+        category: 'furniture',
+        footprint: [1, 1],
+        facing: true,
+        placement: 'center',
+        roomTypes: ['any'],
+      },
+      table: {
+        name: 'Table',
+        category: 'furniture',
+        footprint: [2, 2],
+        facing: false,
+        placement: 'center',
+        roomTypes: ['tavern'],
+      },
+      bookshelf: {
+        name: 'Bookshelf',
+        category: 'furniture',
+        footprint: [1, 3],
+        facing: true,
+        placement: 'wall',
+        roomTypes: ['library'],
+      },
+      candle: {
+        name: 'Candle',
+        category: 'decoration',
+        footprint: [1, 1],
+        facing: false,
+        placement: 'center',
+        roomTypes: ['any'],
+        lights: [{ preset: 'torch', x: 0.5, y: 0.5 }],
+      },
+      statue: {
+        name: 'Statue',
+        category: 'decoration',
+        footprint: [1, 1],
+        facing: false,
+        placement: 'center',
+        roomTypes: ['temple', 'any'],
+      },
     },
   };
 });
@@ -54,8 +97,9 @@ function findOverlay(row, col) {
   const meta = state.dungeon.metadata;
   if (!meta?.props) return null;
   const gs = meta.gridSize || 5;
-  const x = col * gs, y = row * gs;
-  return meta.props.find(p => Math.abs(p.x - x) < 0.01 && Math.abs(p.y - y) < 0.01) ?? null;
+  const x = col * gs,
+    y = row * gs;
+  return meta.props.find((p) => Math.abs(p.x - x) < 0.01 && Math.abs(p.y - y) < 0.01) ?? null;
 }
 
 // ── placeProp ────────────────────────────────────────────────────────────────
@@ -281,7 +325,7 @@ describe('getPropsForRoomType', () => {
   it('returns props matching a specific room type', () => {
     const result = getPropsForRoomType('tavern');
     expect(result.success).toBe(true);
-    const names = result.props.map(p => p.name);
+    const names = result.props.map((p) => p.name);
     expect(names).toContain('table'); // roomTypes includes 'tavern'
     expect(names).toContain('chair'); // roomTypes includes 'any'
     expect(names).toContain('statue'); // roomTypes includes 'any'
@@ -289,14 +333,14 @@ describe('getPropsForRoomType', () => {
 
   it('includes "any" type props in all room types', () => {
     const result = getPropsForRoomType('library');
-    const names = result.props.map(p => p.name);
+    const names = result.props.map((p) => p.name);
     expect(names).toContain('chair'); // 'any' type
     expect(names).toContain('bookshelf'); // 'library' specific
   });
 
   it('returns empty for unknown room type (only "any" props)', () => {
     const result = getPropsForRoomType('spaceship');
-    const names = result.props.map(p => p.name);
+    const names = result.props.map((p) => p.name);
     // Should include props with 'any' in roomTypes
     expect(names).toContain('chair');
     expect(names).toContain('statue');
@@ -314,7 +358,7 @@ describe('getPropsForRoomType', () => {
 
   it('includes prop metadata in returned entries', () => {
     const result = getPropsForRoomType('tavern');
-    const table = result.props.find(p => p.name === 'table');
+    const table = result.props.find((p) => p.name === 'table');
     expect(table.displayName).toBe('Table');
     expect(table.category).toBe('furniture');
     expect(table.footprint).toEqual([2, 2]);
@@ -457,7 +501,7 @@ describe('overlay dual-write', () => {
     placeProp(4, 4, 'chair', 0);
     placeProp(5, 5, 'chair', 0);
 
-    const ids = state.dungeon.metadata.props.map(p => p.id);
+    const ids = state.dungeon.metadata.props.map((p) => p.id);
     expect(new Set(ids).size).toBe(3);
   });
 });
@@ -549,5 +593,53 @@ describe('suggestPropPosition', () => {
 
   it('throws for unknown room', () => {
     expect(() => suggestPropPosition('BOGUS', 'chair')).toThrow('not found');
+  });
+});
+
+// ── Bulk methods: placed/skipped feedback ──────────────────────────────────
+
+describe('bulk placement feedback', () => {
+  it('fillWallWithProps reports skipped door cells', () => {
+    createRoom(2, 2, 4, 8);
+    setLabel(3, 5, 'A1');
+    setDoor(2, 5, 'north');
+    const r = fillWallWithProps('A1', 'chair', 'north', { skipDoors: true });
+    expect(r.success).toBe(true);
+    expect(r.skipped.some((s) => s.reason === 'DOOR_HERE')).toBe(true);
+  });
+
+  it('lineProps reports OUT_OF_ROOM when running off the room', () => {
+    createRoom(2, 2, 4, 4);
+    setLabel(3, 3, 'A1');
+    const r = lineProps('A1', 'chair', 3, 3, 'east', 5);
+    expect(r.skipped.some((s) => s.reason === 'OUT_OF_ROOM')).toBe(true);
+    expect(r.placed.length).toBeLessThan(5);
+  });
+
+  it('scatterProps reports requested vs available counts', () => {
+    createRoom(2, 2, 4, 4);
+    setLabel(3, 3, 'A1');
+    const r = scatterProps('A1', 'chair', 100);
+    expect(r.requested).toBe(100);
+    expect(r.available).toBeGreaterThan(0);
+    // Room only has 9 cells, so placed < 100
+    expect(r.placed.length).toBeLessThan(100);
+  });
+
+  it('clusterProps returns placed/skipped (not failed)', () => {
+    createRoom(2, 2, 4, 4);
+    setLabel(3, 3, 'A1');
+    const r = clusterProps(
+      'A1',
+      [
+        { type: 'chair', dr: 0, dc: 0 },
+        { type: 'nonexistent', dr: 0, dc: 1 },
+      ],
+      3,
+      3,
+    );
+    expect(r.placed).toHaveLength(1);
+    expect(r.skipped).toHaveLength(1);
+    expect(r.skipped[0].code).toBe('UNKNOWN_PROP');
   });
 });

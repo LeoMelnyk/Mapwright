@@ -49,10 +49,13 @@ function waitForDebugPort(port, timeoutMs) {
         resolve();
       });
       req.on('error', () => {
-        if (Date.now() >= deadline) return reject(new Error(`Chrome debug port ${port} not ready after ${timeoutMs}ms`));
+        if (Date.now() >= deadline)
+          return reject(new Error(`Chrome debug port ${port} not ready after ${timeoutMs}ms`));
         setTimeout(attempt, 200);
       });
-      req.setTimeout(500, () => { req.destroy(); });
+      req.setTimeout(500, () => {
+        req.destroy();
+      });
     }
     attempt();
   });
@@ -72,22 +75,50 @@ function parseArgs(argv) {
     port: 3000,
     visible: false,
     slowMo: 0,
+    highlight: null,
   };
 
   for (let i = 0; i < argv.length; i++) {
     switch (argv[i]) {
-      case '--load': args.load = argv[++i]; break;
-      case '--commands': args.commands = argv[++i]; break;
-      case '--commands-file': args.commandsFile = argv[++i]; break;
-      case '--screenshot': args.screenshot = argv[++i]; break;
-      case '--save': args.save = argv[++i]; break;
-      case '--export-png': args.exportPng = argv[++i]; break;
-      case '--info': args.info = true; break;
-      case '--continue-on-error': args.continueOnError = true; break;
-      case '--dry-run': args.dryRun = true; break;
-      case '--port': args.port = parseInt(argv[++i], 10); break;
-      case '--visible': args.visible = true; break;
-      case '--slow-mo': args.slowMo = parseInt(argv[++i], 10); break;
+      case '--load':
+        args.load = argv[++i];
+        break;
+      case '--commands':
+        args.commands = argv[++i];
+        break;
+      case '--commands-file':
+        args.commandsFile = argv[++i];
+        break;
+      case '--screenshot':
+        args.screenshot = argv[++i];
+        break;
+      case '--save':
+        args.save = argv[++i];
+        break;
+      case '--export-png':
+        args.exportPng = argv[++i];
+        break;
+      case '--info':
+        args.info = true;
+        break;
+      case '--continue-on-error':
+        args.continueOnError = true;
+        break;
+      case '--dry-run':
+        args.dryRun = true;
+        break;
+      case '--port':
+        args.port = parseInt(argv[++i], 10);
+        break;
+      case '--visible':
+        args.visible = true;
+        break;
+      case '--slow-mo':
+        args.slowMo = parseInt(argv[++i], 10);
+        break;
+      case '--highlight':
+        args.highlight = argv[++i];
+        break;
     }
   }
   return args;
@@ -116,14 +147,18 @@ async function main() {
       // survives after this Node process exits (avoids Windows Job Object kill).
       try {
         const chromePath = puppeteer.executablePath();
-        const chromeProc = spawn(chromePath, [
-          `--remote-debugging-port=${DEBUG_PORT}`,
-          '--no-first-run',
-          '--no-default-browser-check',
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--start-maximized',
-        ], { detached: true, stdio: 'ignore' });
+        const chromeProc = spawn(
+          chromePath,
+          [
+            `--remote-debugging-port=${DEBUG_PORT}`,
+            '--no-first-run',
+            '--no-default-browser-check',
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--start-maximized',
+          ],
+          { detached: true, stdio: 'ignore' },
+        );
         chromeProc.unref(); // detach from this Node process
 
         // Wait up to 8 s for the remote debugging endpoint to become reachable
@@ -159,7 +194,7 @@ async function main() {
     if (usingPersistentBrowser) {
       // Find an already-open editor tab, or open a new one
       const pages = await browser.pages();
-      page = pages.find(p => p.url().includes('/editor')) || null;
+      page = pages.find((p) => p.url().includes('/editor')) || null;
 
       if (page) {
         // Editor tab exists — verify API is ready (it should be)
@@ -214,21 +249,25 @@ async function main() {
     let anyFailed = false;
     for (let i = 0; i < commands.length; i++) {
       const [method, ...methodArgs] = commands[i];
-      const result = await page.evaluate(async (m, a) => {
-        try {
-          const fn = window.editorAPI[m];
-          if (typeof fn !== 'function') {
-            return { success: false, error: `unknown method: ${m}` };
+      const result = await page.evaluate(
+        async (m, a) => {
+          try {
+            const fn = window.editorAPI[m];
+            if (typeof fn !== 'function') {
+              return { success: false, error: `unknown method: ${m}` };
+            }
+            const res = await fn.apply(window.editorAPI, a);
+            return res || { success: true };
+          } catch (e) {
+            const out = { success: false, error: e.message };
+            if (e.code) out.code = e.code;
+            if (e.context) out.context = e.context;
+            return out;
           }
-          const res = await fn.apply(window.editorAPI, a);
-          return res || { success: true };
-        } catch (e) {
-          const out = { success: false, error: e.message };
-          if (e.code) out.code = e.code;
-          if (e.context) out.context = e.context;
-          return out;
-        }
-      }, method, methodArgs);
+        },
+        method,
+        methodArgs,
+      );
 
       if (!result.success) {
         const codePart = result.code ? ` (${result.code})` : '';
@@ -237,15 +276,14 @@ async function main() {
         anyFailed = true;
         if (!args.continueOnError) break;
       } else {
-        const returnVal = (result && Object.keys(result).some(k => k !== 'success'))
-          ? ` => ${JSON.stringify(result)}`
-          : '';
-        console.log(`OK [${i}]: ${method}(${methodArgs.map(a => JSON.stringify(a)).join(', ')})${returnVal}`);
+        const returnVal =
+          result && Object.keys(result).some((k) => k !== 'success') ? ` => ${JSON.stringify(result)}` : '';
+        console.log(`OK [${i}]: ${method}(${methodArgs.map((a) => JSON.stringify(a)).join(', ')})${returnVal}`);
       }
 
       // Manual slow-mo delay (works for both launched and connected browsers)
       if (args.slowMo > 0) {
-        await new Promise(r => setTimeout(r, args.slowMo));
+        await new Promise((r) => setTimeout(r, args.slowMo));
       }
     }
     if (anyFailed) exitCode = 1;
@@ -263,13 +301,17 @@ async function main() {
       console.log('[dry-run] Skipping all file I/O (screenshot, save, export)');
     } else {
       if (args.screenshot) {
-        const dataURL = await page.evaluate(async () => {
+        const highlights = args.highlight ? JSON.parse(args.highlight) : null;
+        const dataURL = await page.evaluate(async (h) => {
+          if (h) return await window.editorAPI.getScreenshotAnnotated(h);
           return await window.editorAPI.getScreenshot();
-        });
+        }, highlights);
         const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
         const outPath = path.resolve(args.screenshot);
         await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
-        console.log(`Screenshot: ${outPath}`);
+        console.log(
+          `Screenshot: ${outPath}${highlights ? ` (with ${highlights.length} highlight${highlights.length === 1 ? '' : 's'})` : ''}`,
+        );
       }
 
       if (args.save) {
@@ -290,17 +332,20 @@ async function main() {
         console.log(`Export PNG: ${outPath}`);
       }
     }
-
   } catch (err) {
     console.error(`Error: ${err.message}`);
     exitCode = 1;
   } finally {
     if (usingPersistentBrowser) {
       // Leave the browser window open — just detach Puppeteer's connection
-      try { browser.disconnect(); } catch {}
+      try {
+        browser.disconnect();
+      } catch {}
     } else {
       // Headless: clean up
-      try { await browser.close(); } catch {}
+      try {
+        await browser.close();
+      } catch {}
     }
   }
 

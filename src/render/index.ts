@@ -1,13 +1,58 @@
 // Core rendering
-export { renderCells, renderLabels, invalidateGeometryCache, captureBeforeState, smartInvalidate, invalidateBlendLayerCache, renderTimings, bumpTimingFrame, getTimingFrame, getContentVersion, getGeometryVersion, bumpContentVersion, getDirtyRegion, consumeDirtyRegion, accumulateDirtyRect, patchBlendForDirtyRegion, patchFluidForDirtyRegion, traceArcWedge, collectRoundedCorners, getBroadcastDirtyRegion, consumeBroadcastDirtyRegion } from './render.js';
+export {
+  renderCells,
+  renderLabels,
+  invalidateGeometryCache,
+  captureBeforeState,
+  smartInvalidate,
+  invalidateBlendLayerCache,
+  renderTimings,
+  bumpTimingFrame,
+  getTimingFrame,
+  getContentVersion,
+  getGeometryVersion,
+  bumpContentVersion,
+  getDirtyRegion,
+  consumeDirtyRegion,
+  accumulateDirtyRect,
+  patchBlendForDirtyRegion,
+  patchFluidForDirtyRegion,
+  traceArcWedge,
+  collectRoundedCorners,
+  getBroadcastDirtyRegion,
+  consumeBroadcastDirtyRegion,
+} from './render.js';
 export { invalidateFluidCache } from './fluid.js';
 // Decorations & lighting
-export { drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled } from './decorations.js';
-export { renderLightmap, renderCoverageHeatmap, invalidateVisibilityCache, invalidateLightmapCaches, extractFillLights, getLightingVersion } from './lighting.js';
+export {
+  drawBorderOnMap,
+  drawScaleIndicatorOnMap,
+  findCompassRosePositionOnMap,
+  drawCompassRoseScaled,
+} from './decorations.js';
+export {
+  renderLightmap,
+  renderCoverageHeatmap,
+  invalidateVisibilityCache,
+  invalidateLightmapCaches,
+  extractFillLights,
+  getLightingVersion,
+  falloffMultiplier,
+} from './lighting.js';
 // Bounds
 export { toCanvas } from './bounds.js';
 // Props & features
-export { renderProp, parsePropFile, generateHitbox, invalidatePropsCache, invalidatePropsRenderLayer, getPropsVersion, renderOverlayProps, extractOverlayPropLightSegments, hitTestPropPixel } from './props.js';
+export {
+  renderProp,
+  parsePropFile,
+  generateHitbox,
+  invalidatePropsCache,
+  invalidatePropsRenderLayer,
+  getPropsVersion,
+  renderOverlayProps,
+  extractOverlayPropLightSegments,
+  hitTestPropPixel,
+} from './props.js';
 export { drawDmLabel } from './features.js';
 // Themes
 export { THEMES } from './themes.js';
@@ -18,7 +63,13 @@ export { calculateCanvasSize, renderDungeonToCanvas, normalizeTheme } from './co
 // Render warnings
 export { warn as renderWarn, flush as flushRenderWarnings } from './warnings.js';
 // Effects (shading / hatching) — used by player fog overlay
-export { drawHatching, drawRockShading, drawOuterShading, drawBufferShading, invalidateEffectsCache } from './effects.js';
+export {
+  drawHatching,
+  drawRockShading,
+  drawOuterShading,
+  drawBufferShading,
+  invalidateEffectsCache,
+} from './effects.js';
 // Room cell detection — used by player fog overlay for hatching
 export { determineRoomCells } from './floors.js';
 

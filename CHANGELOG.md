@@ -96,17 +96,64 @@ Maps can now be exported as `.dd2vtt` files for use in Foundry VTT, Roll20, and 
 - **Obfuscated sharing** — both the player link and password are masked with copy buttons (same pattern as the IP address)
 - **Player password prompt** — players see a styled login screen when joining a password-protected session
 
-### New Automation API Methods
+### Claude Map-Building Improvements
 
-- **`getStateDigest()`** — lightweight summary of map state (room count, prop count, light count, undo depth, dirty flag) without full JSON serialization
-- **`getRenderDiagnostics()`** — render pipeline state: version counters, dirty region, and per-phase timings
-- **`validateBatch(commands)`** — pre-validate a batch of commands against current state without executing them; returns which commands would fail and why
+A pass over the editor automation API to make Claude faster and more reliable when building maps for you in chat. You should notice:
+- Fewer "stuck" moments where Claude can't figure out why a command failed and re-asks itself
+- Cleaner finished maps — Claude can audit its own work and fix conflicts before handing it over
+- L-shaped, U-shaped, and other irregular rooms work correctly with auto-furnishing
+
+#### Smarter feedback when something goes wrong
+
+- **Every command failure now explains itself** — when Claude tries to place a door on a wall that doesn't exist, or a prop in a cell that's already occupied, it gets a structured reason ("OUT_OF_BOUNDS", "OVERLAPS_PROP", etc.) plus the relevant context, instead of a generic error string. Cuts down on Claude getting confused mid-build.
+- **Bulk placement reports what was skipped and why** — when Claude scatters props or fills a wall, the result now includes every position that didn't take a prop along with the reason ("DOOR_HERE", "OUT_OF_ROOM", "OVERLAPS_PROP"). No more silent gaps in furnishings.
+
+#### Dry-run before committing
+
+- **Validate command batches without applying them** — Claude can rehearse a sequence of edits and see which ones would fail, without actually changing the map. Shows you a working preview before any state changes happen.
+- **Per-command "what would this do?" check** — Claude can ask the editor to simulate a single command and report the result before committing.
+
+#### Build checkpoints and transactions
+
+- **Named checkpoints** — Claude can mark "after walls", "after textures", "after props" and roll back to any of them if a phase doesn't look right. Replaces fragile counter-based undo tracking; checkpoints reset automatically when you open a new map.
+- **All-or-nothing batches** — when Claude runs a transaction, the whole batch either applies cleanly or rolls back completely. No more half-built maps left behind by partial failures.
+
+#### Map auditing and inspection
+
+- **Conflict scan** — Claude can run a single audit that flags blocked doors, props blocking door approaches, unreachable rooms, lights placed in the void, and rooms that are mostly dark. Lets it clean up its own mistakes before showing you the result.
+- **Lighting coverage check** — quick estimate of which cells fall below a brightness threshold per room; surfaces "I forgot to light this room" gaps.
+- **Room summary in one call** — Claude can ask "tell me everything about room A1" and get bounds, cell count, props inside, fills, doors, neighboring rooms, and which lights reach it — all at once, instead of stitching together five separate queries.
+- **Cell-level region inspection** — structured dump of every cell in a rectangle (walls, fills, props, textures, lights). Replaces dozens of individual cell lookups.
+- **ASCII map preview** — Claude can ask for a text-art rendering of a region for quick sanity checks without the cost of a full screenshot.
+
+#### Furnishing and bulk operations
+
+- **Auto-furnish a room by purpose** — Claude can populate a labeled room based on its role ("library", "throne-room", "armory") in one call. Picks props from the catalog whose metadata says they belong there, places a centerpiece + wall props + scattered floor decorations. Density is tunable (sparse, normal, dense).
+- **Multi-room furnishing brief** — apply auto-furnish to many rooms at once with per-room role and density.
+- **Clone a room to a new location** — copies cells, walls, fills, textures, props, and lights to a new offset (with optional rename). Useful for symmetric layouts.
+- **Mirror or rotate a region** — flip a rectangle horizontally/vertically, or rotate a square region 90/180/270 degrees. Walls are remapped correctly.
+- **Bulk swap props or textures** — replace every "wooden chair" with "stone chair" across the map (or within a region) in one call.
+
+#### Catalog browsing
+
+- **Search the prop catalog with filters** — Claude can find props by placement, room type, footprint size, name pattern, or category, instead of dumping the whole catalog and grepping. Speeds up "what props would suit this kind of room?" decisions.
+- **Find unlabelled rooms** — single call that flags rooms with no label, useful as a final pass before export.
+- **List enumerations** — full inventories of doors, walls, and fills on the map.
+
+#### Annotated screenshots
+
+- **Highlight overlays on saved screenshots** — Claude (or you, via the CLI) can mark specific cells on a screenshot with boxes, dots, crosses, and labels in chosen colors. Useful for confirming "is this the cell I meant?" without juggling two images.
+
+### Render Pipeline Polish
+
+- **Wait-for-render helper** — Claude can wait until the lighting recompute settles after placing many lights, before screenshotting. Eliminates a class of "the screenshot was taken too early and lighting looks wrong" issues.
 
 ### Structured API Errors
 
-API errors now include a machine-readable `code` and `context` object alongside the error message — e.g., `{ code: "OUT_OF_BOUNDS", context: { row: 5, col: 99, maxRows: 20, maxCols: 30 } }`. Makes automated error handling and self-correction easier.
+API errors now include a machine-readable `code` and `context` object alongside the error message on **every** API method (was partial before — most validation errors now follow this pattern). Example: `{ code: "OUT_OF_BOUNDS", context: { row: 5, col: 99, maxRows: 20, maxCols: 30 } }`. Makes automated error handling and self-correction much more reliable.
 
 - **`getRoomBounds`** and **`findWallBetween`** now return `{ success: false, error }` instead of `null` when a room is not found — consistent with all other API methods
+- **`loadMap`** now returns map info alongside `{ success: true }`, saving a follow-up query after every map load
 
 ### Electron Fixes
 

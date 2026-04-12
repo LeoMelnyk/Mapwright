@@ -14,7 +14,9 @@ import {
   OFFSETS,
   OPPOSITE,
   toDisp,
+  ApiValidationError,
 } from './_shared.js';
+import { _clearCheckpoints } from './operational.js';
 
 /**
  * Create a new empty map, replacing the current one.
@@ -36,6 +38,7 @@ export function newMap(
   state.dungeon = createEmptyDungeon(name, rows, cols, gridSize, theme);
   state.currentLevel = 0;
   state.selectedCells = [];
+  _clearCheckpoints();
   markDirty();
   notify();
   return { success: true };
@@ -46,16 +49,20 @@ export function newMap(
  * @param {Object|string} json - Dungeon JSON data
  * @returns {{ success: boolean }}
  */
-export function loadMap(json: Record<string, unknown>): { success: true } {
+export function loadMap(json: Record<string, unknown>): { success: true; info: Record<string, unknown> } {
   if (typeof json === 'string') json = JSON.parse(json);
   if (!json.metadata || !json.cells) {
-    throw new Error('Invalid dungeon JSON: missing metadata or cells');
+    throw new ApiValidationError('INVALID_DUNGEON_JSON', 'Invalid dungeon JSON: missing metadata or cells', {
+      hasMetadata: !!json.metadata,
+      hasCells: !!json.cells,
+    });
   }
   pushUndo();
   state.dungeon = json as unknown as Dungeon;
   migrateToLatest(json as Parameters<typeof migrateToLatest>[0]);
   state.currentLevel = 0;
   state.selectedCells = [];
+  _clearCheckpoints();
   markDirty();
   notify();
 
@@ -66,7 +73,8 @@ export function loadMap(json: Record<string, unknown>): { success: true } {
     });
   }
 
-  return { success: true };
+  // Return a getMapInfo-equivalent so callers don't need a second roundtrip.
+  return { success: true, info: getApi().getMapInfo() as unknown as Record<string, unknown> };
 }
 
 /**
@@ -202,7 +210,10 @@ export function getFullMapInfo(): Record<string, unknown> {
  */
 export function setName(name: string): { success: true } {
   if (!name || typeof name !== 'string') {
-    throw new Error('Name must be a non-empty string');
+    throw new ApiValidationError('INVALID_NAME', 'Name must be a non-empty string', {
+      received: name,
+      type: typeof name,
+    });
   }
   pushUndo();
   state.dungeon.metadata.dungeonName = name.trim();
@@ -218,7 +229,10 @@ export function setName(name: string): { success: true } {
  */
 export function setTheme(theme: string): { success: true } {
   if (!theme || typeof theme !== 'string') {
-    throw new Error('Theme must be a non-empty string');
+    throw new ApiValidationError('INVALID_THEME', 'Theme must be a non-empty string', {
+      received: theme,
+      type: typeof theme,
+    });
   }
   pushUndo();
   state.dungeon.metadata.theme = theme;
@@ -234,7 +248,11 @@ export function setTheme(theme: string): { success: true } {
  */
 export function setLabelStyle(style: string): { success: true } {
   if (!['circled', 'plain', 'bold'].includes(style)) {
-    throw new Error(`Invalid label style: ${style}. Use 'circled', 'plain', or 'bold'.`);
+    throw new ApiValidationError(
+      'INVALID_LABEL_STYLE',
+      `Invalid label style: ${style}. Use 'circled', 'plain', or 'bold'.`,
+      { style, validStyles: ['circled', 'plain', 'bold'] },
+    );
   }
   pushUndo();
   state.dungeon.metadata.labelStyle = style as LabelStyle;
@@ -252,7 +270,10 @@ export function setLabelStyle(style: string): { success: true } {
 export function setFeature(feature: string, enabled: unknown): { success: true } {
   const validFeatures = ['grid', 'compass', 'scale', 'border'];
   if (!validFeatures.includes(feature)) {
-    throw new Error(`Invalid feature: ${feature}. Use: ${validFeatures.join(', ')}`);
+    throw new ApiValidationError('INVALID_FEATURE', `Invalid feature: ${feature}. Use: ${validFeatures.join(', ')}`, {
+      feature,
+      validFeatures,
+    });
   }
   pushUndo();
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing

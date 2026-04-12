@@ -1,14 +1,22 @@
 import {
-  state, pushUndo, markDirty, notify,
+  state,
+  pushUndo,
+  markDirty,
+  notify,
   invalidateAllCaches,
-  toInt, toDisp,
+  toInt,
+  toDisp,
+  ApiValidationError,
 } from './_shared.js';
 
 /**
  * Get all level definitions with display coordinates.
  * @returns {{ success: boolean, levels: Array<Object> }}
  */
-export function getLevels(): { success: true; levels: { index: number; name: string | null; startRow: number; numRows: number }[] } {
+export function getLevels(): {
+  success: true;
+  levels: { index: number; name: string | null; startRow: number; numRows: number }[];
+} {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   const levels = state.dungeon.metadata.levels || [];
   return {
@@ -31,10 +39,17 @@ export function getLevels(): { success: true; levels: { index: number; name: str
 export function renameLevel(levelIndex: number, newName: string): { success: true } {
   const levels = state.dungeon.metadata.levels;
   if (levelIndex < 0 || levelIndex >= levels.length) {
-    throw new Error(`Level index ${levelIndex} out of range (${levels.length} levels)`);
+    throw new ApiValidationError(
+      'LEVEL_OUT_OF_RANGE',
+      `Level index ${levelIndex} out of range (${levels.length} levels)`,
+      { levelIndex, totalLevels: levels.length },
+    );
   }
   if (!newName || typeof newName !== 'string') {
-    throw new Error('Level name must be a non-empty string');
+    throw new ApiValidationError('INVALID_LEVEL_NAME', 'Level name must be a non-empty string', {
+      received: newName,
+      type: typeof newName,
+    });
   }
   pushUndo();
   levels[levelIndex].name = newName.trim();
@@ -53,10 +68,14 @@ export function resizeLevel(levelIndex: number, newRows: number): { success: tru
   newRows = toInt(newRows);
   const levels = state.dungeon.metadata.levels;
   if (levelIndex < 0 || levelIndex >= levels.length) {
-    throw new Error(`Level index ${levelIndex} out of range (${levels.length} levels)`);
+    throw new ApiValidationError(
+      'LEVEL_OUT_OF_RANGE',
+      `Level index ${levelIndex} out of range (${levels.length} levels)`,
+      { levelIndex, totalLevels: levels.length },
+    );
   }
   if (newRows < 1) {
-    throw new Error('Row count must be a positive integer');
+    throw new ApiValidationError('INVALID_ROW_COUNT', 'Row count must be a positive integer', { received: newRows });
   }
 
   const level = levels[levelIndex];
@@ -102,10 +121,13 @@ export function resizeLevel(levelIndex: number, newRows: number): { success: tru
 export function addLevel(name: string, numRows: number = 15): { success: true; levelIndex: number } {
   numRows = toInt(numRows);
   if (!name || typeof name !== 'string') {
-    throw new Error('Level name must be a non-empty string');
+    throw new ApiValidationError('INVALID_LEVEL_NAME', 'Level name must be a non-empty string', {
+      received: name,
+      type: typeof name,
+    });
   }
   if (numRows < 1) {
-    throw new Error('Row count must be a positive integer');
+    throw new ApiValidationError('INVALID_ROW_COUNT', 'Row count must be a positive integer', { received: numRows });
   }
 
   pushUndo();
@@ -140,21 +162,36 @@ export function addLevel(name: string, numRows: number = 15): { success: true; l
  */
 export function defineLevels(levels: Array<{ name: string; startRow: number; numRows: number }>): { success: true } {
   if (!Array.isArray(levels) || levels.length === 0) {
-    throw new Error('levels must be a non-empty array of { name, startRow, numRows }');
+    throw new ApiValidationError('INVALID_LEVELS', 'levels must be a non-empty array of { name, startRow, numRows }', {
+      received: levels,
+    });
   }
   const maxRow = state.dungeon.cells.length;
   for (const lvl of levels) {
-    if (!lvl.name || typeof lvl.name !== 'string') throw new Error('Each level needs a name string');
+    if (!lvl.name || typeof lvl.name !== 'string')
+      throw new ApiValidationError('INVALID_LEVEL_NAME', 'Each level needs a name string', { level: lvl });
     const sr = toInt(lvl.startRow);
     const nr = toInt(lvl.numRows);
-    if (sr < 0) throw new Error(`Invalid startRow: ${lvl.startRow}`);
-    if (nr < 1) throw new Error(`Invalid numRows: ${lvl.numRows}`);
+    if (sr < 0)
+      throw new ApiValidationError('INVALID_START_ROW', `Invalid startRow: ${lvl.startRow}`, {
+        level: lvl,
+        startRow: lvl.startRow,
+      });
+    if (nr < 1)
+      throw new ApiValidationError('INVALID_ROW_COUNT', `Invalid numRows: ${lvl.numRows}`, {
+        level: lvl,
+        numRows: lvl.numRows,
+      });
     if (sr + nr > maxRow) {
-      throw new Error(`Level "${lvl.name}" exceeds grid: startRow=${lvl.startRow} + numRows=${lvl.numRows} > ${toDisp(maxRow)} total rows`);
+      throw new ApiValidationError(
+        'LEVEL_EXCEEDS_GRID',
+        `Level "${lvl.name}" exceeds grid: startRow=${lvl.startRow} + numRows=${lvl.numRows} > ${toDisp(maxRow)} total rows`,
+        { level: lvl.name, startRow: lvl.startRow, numRows: lvl.numRows, maxRows: toDisp(maxRow) },
+      );
     }
   }
   pushUndo();
-  state.dungeon.metadata.levels = levels.map(l => ({
+  state.dungeon.metadata.levels = levels.map((l) => ({
     name: l.name.trim(),
     startRow: toInt(l.startRow),
     numRows: toInt(l.numRows),

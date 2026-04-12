@@ -1,10 +1,34 @@
 // plan-brief.js — Compute a complete dungeon layout from a high-level brief
 // and return ready-to-execute command arrays.
 
-interface RoomDef { label: string; width: number; height: number; entrance?: boolean; [k: string]: unknown }
-interface ConnDef { from: string; to: string; direction: string; corridorWidth?: number; type?: string }
-interface Edge { to: string; dir: string; corrW: number; type: string }
-interface Rect { r1: number; c1: number; r2: number; c2: number }
+import { ApiValidationError } from './_shared.js';
+
+interface RoomDef {
+  label: string;
+  width: number;
+  height: number;
+  entrance?: boolean;
+  [k: string]: unknown;
+}
+interface ConnDef {
+  from: string;
+  to: string;
+  direction: string;
+  corridorWidth?: number;
+  type?: string;
+}
+interface Edge {
+  to: string;
+  dir: string;
+  corrW: number;
+  type: string;
+}
+interface Rect {
+  r1: number;
+  c1: number;
+  r2: number;
+  c2: number;
+}
 
 /**
  * Compute a complete dungeon layout from a high-level brief and return ready-to-execute
@@ -25,7 +49,9 @@ interface Rect { r1: number; c1: number; r2: number; c2: number }
  * @param {Object} brief - Layout brief with rooms, connections, and map settings
  * @returns {{ success: boolean, commands: Array<Array>, mapSize: { rows: number, cols: number } }}
  */
-export function planBrief(brief: Record<string, string | number | boolean | Record<string, unknown>[] | Record<string, unknown>>): { success: true; commands: (string | number | boolean)[][]; mapSize: { rows: number; cols: number } } {
+export function planBrief(
+  brief: Record<string, string | number | boolean | Record<string, unknown>[] | Record<string, unknown>>,
+): { success: true; commands: (string | number | boolean)[][]; mapSize: { rows: number; cols: number } } {
   const {
     name = 'Dungeon',
     theme = 'stone-dungeon',
@@ -36,30 +62,47 @@ export function planBrief(brief: Record<string, string | number | boolean | Reco
   } = brief;
 
   if (!Array.isArray(roomDefs) || roomDefs.length === 0) {
-    throw new Error('planBrief requires at least one room in brief.rooms');
+    throw new ApiValidationError('NO_ROOMS', 'planBrief requires at least one room in brief.rooms', {
+      rooms: roomDefs,
+    });
   }
   for (const r of roomDefs) {
-    if (!r.label) throw new Error('Each room must have a label');
-    if (!r.width || !r.height) throw new Error(`Room "${r.label}" must have width and height`);
+    if (!r.label) throw new ApiValidationError('MISSING_ROOM_LABEL', 'Each room must have a label', { room: r });
+    if (!r.width || !r.height)
+      throw new ApiValidationError('MISSING_ROOM_DIMENSIONS', `Room "${r.label}" must have width and height`, {
+        room: r.label,
+        width: r.width,
+        height: r.height,
+      });
   }
 
-  const roomMap = Object.fromEntries((roomDefs as RoomDef[]).map(r => [r.label, r]));
+  const roomMap = Object.fromEntries((roomDefs as RoomDef[]).map((r) => [r.label, r]));
   const ODIR = { north: 'south', south: 'north', east: 'west', west: 'east' };
 
   // Build directed adjacency list
-  const adj: Record<string, Edge[]> = Object.fromEntries((roomDefs as RoomDef[]).map(r => [r.label, []]));
+  const adj: Record<string, Edge[]> = Object.fromEntries((roomDefs as RoomDef[]).map((r) => [r.label, []]));
   for (const conn of connections as unknown as ConnDef[]) {
     const corrW = conn.corridorWidth ?? (defaultCorrW as number);
     const type = conn.type === 'secret' ? 's' : 'd';
-    if (!conn.direction) throw new Error(`Connection from "${conn.from}" to "${conn.to}" must specify direction`);
+    if (!conn.direction)
+      throw new ApiValidationError(
+        'MISSING_CONNECTION_DIRECTION',
+        `Connection from "${conn.from}" to "${conn.to}" must specify direction`,
+        { from: conn.from, to: conn.to },
+      );
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     (adj[conn.from] = adj[conn.from] || []).push({ to: conn.to, dir: conn.direction, corrW, type });
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    (adj[conn.to] = adj[conn.to] || []).push({ to: conn.from, dir: ODIR[conn.direction as keyof typeof ODIR], corrW, type });
+    (adj[conn.to] = adj[conn.to] || []).push({
+      to: conn.from,
+      dir: ODIR[conn.direction as keyof typeof ODIR],
+      corrW,
+      type,
+    });
   }
 
   // BFS layout
-  const rootLabel = ((roomDefs as RoomDef[]).find(r => r.entrance) ?? (roomDefs as RoomDef[])[0]).label;
+  const rootLabel = ((roomDefs as RoomDef[]).find((r) => r.entrance) ?? (roomDefs as RoomDef[])[0]).label;
   const positions: Record<string, Rect> = {};
   const corridorRects: Rect[] = [];
   const doorCmds: { row: number; col: number; dir: string; type: string }[] = [];
@@ -78,7 +121,7 @@ export function planBrief(brief: Record<string, string | number | boolean | Reco
     // Group unvisited children by direction
     const byDir: Record<string, Edge[]> = {};
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    for (const edge of (adj[pLabel!] || [])) {
+    for (const edge of adj[pLabel!] || []) {
       if (visited.has(edge.to)) continue;
       visited.add(edge.to);
       queue.push(edge.to);
@@ -168,35 +211,75 @@ export function planBrief(brief: Record<string, string | number | boolean | Reco
   }
 
   // Place any disconnected rooms to the right of everything, stacked
-  let farRight = 1, stackRow = 1;
+  let farRight = 1,
+    stackRow = 1;
   for (const pos of Object.values(positions)) farRight = Math.max(farRight, pos.c2 + 2);
   for (const corr of corridorRects) farRight = Math.max(farRight, corr.c2 + 2);
   for (const rDef of roomDefs as RoomDef[]) {
     if (!visited.has(rDef.label)) {
-      positions[rDef.label] = { r1: stackRow, c1: farRight, r2: stackRow + rDef.height - 1, c2: farRight + rDef.width - 1 };
+      positions[rDef.label] = {
+        r1: stackRow,
+        c1: farRight,
+        r2: stackRow + rDef.height - 1,
+        c2: farRight + rDef.width - 1,
+      };
       stackRow += rDef.height + 1;
     }
   }
 
   // Normalize: shift everything so minimum is at (1, 1)
-  let minR = Infinity, minC = Infinity;
-  for (const pos of Object.values(positions)) { minR = Math.min(minR, pos.r1); minC = Math.min(minC, pos.c1); }
-  for (const corr of corridorRects) { minR = Math.min(minR, corr.r1); minC = Math.min(minC, corr.c1); }
-  for (const d of doorCmds) { minR = Math.min(minR, d.row); minC = Math.min(minC, d.col); }
+  let minR = Infinity,
+    minC = Infinity;
+  for (const pos of Object.values(positions)) {
+    minR = Math.min(minR, pos.r1);
+    minC = Math.min(minC, pos.c1);
+  }
+  for (const corr of corridorRects) {
+    minR = Math.min(minR, corr.r1);
+    minC = Math.min(minC, corr.c1);
+  }
+  for (const d of doorCmds) {
+    minR = Math.min(minR, d.row);
+    minC = Math.min(minC, d.col);
+  }
 
-  const or = 1 - minR, oc = 1 - minC;
-  for (const pos of Object.values(positions)) { pos.r1 += or; pos.c1 += oc; pos.r2 += or; pos.c2 += oc; }
-  for (const corr of corridorRects) { corr.r1 += or; corr.c1 += oc; corr.r2 += or; corr.c2 += oc; }
-  for (const d of doorCmds) { d.row += or; d.col += oc; }
+  const or = 1 - minR,
+    oc = 1 - minC;
+  for (const pos of Object.values(positions)) {
+    pos.r1 += or;
+    pos.c1 += oc;
+    pos.r2 += or;
+    pos.c2 += oc;
+  }
+  for (const corr of corridorRects) {
+    corr.r1 += or;
+    corr.c1 += oc;
+    corr.r2 += or;
+    corr.c2 += oc;
+  }
+  for (const d of doorCmds) {
+    d.row += or;
+    d.col += oc;
+  }
 
   // Compute map dimensions
-  let maxR = 0, maxC = 0;
-  for (const pos of Object.values(positions)) { maxR = Math.max(maxR, pos.r2); maxC = Math.max(maxC, pos.c2); }
-  for (const corr of corridorRects) { maxR = Math.max(maxR, corr.r2); maxC = Math.max(maxC, corr.c2); }
-  const mapRows = maxR + 2, mapCols = maxC + 2;
+  let maxR = 0,
+    maxC = 0;
+  for (const pos of Object.values(positions)) {
+    maxR = Math.max(maxR, pos.r2);
+    maxC = Math.max(maxC, pos.c2);
+  }
+  for (const corr of corridorRects) {
+    maxR = Math.max(maxR, corr.r2);
+    maxC = Math.max(maxC, corr.c2);
+  }
+  const mapRows = maxR + 2,
+    mapCols = maxC + 2;
 
   // Assemble commands
-  const commands: (string | number | boolean)[][] = [['newMap', name as string, mapRows, mapCols, gridSize as number, theme as string]];
+  const commands: (string | number | boolean)[][] = [
+    ['newMap', name as string, mapRows, mapCols, gridSize as number, theme as string],
+  ];
 
   // Rooms in input order
   for (const rDef of roomDefs as RoomDef[]) {

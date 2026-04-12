@@ -24,6 +24,8 @@ import {
   getPropsVersion,
   getDirtyRegion,
   renderTimings,
+  ApiValidationError,
+  getTransform,
 } from './_shared.js';
 
 // ── Undo / Redo ──────────────────────────────────────────────────────────
@@ -129,6 +131,90 @@ export async function getScreenshot(): Promise<string> {
   });
 }
 
+interface Highlight {
+  row: number;
+  col: number;
+  rows?: number; // span height in cells (default 1)
+  cols?: number; // span width in cells (default 1)
+  color?: string; // CSS color (default '#ff3030')
+  label?: string; // text drawn at the corner
+  shape?: 'box' | 'dot' | 'cross';
+}
+
+/**
+ * Capture the editor canvas with overlay markers drawn on top of the
+ * specified cells. Useful for visually verifying coordinates without
+ * cluttering the saved map.
+ *
+ * Each highlight: { row, col, [rows=1], [cols=1], [color='#ff3030'],
+ * [shape='box'], [label] }.
+ */
+export async function getScreenshotAnnotated(highlights: Highlight[]): Promise<string> {
+  await getApi().waitForTextures();
+  requestRender();
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      const canvas = document.getElementById('editor-canvas') as HTMLCanvasElement;
+      const out = document.createElement('canvas');
+      out.width = canvas.width;
+      out.height = canvas.height;
+      const ctx = out.getContext('2d')!;
+      ctx.drawImage(canvas, 0, 0);
+
+      const transform = getTransform();
+      const gs = state.dungeon.metadata.gridSize || 5;
+      const list = Array.isArray(highlights) ? highlights : [];
+
+      for (const h of list) {
+        const rows = h.rows ?? 1;
+        const cols = h.cols ?? 1;
+        const x = h.col * gs * transform.scale + transform.offsetX;
+        const y = h.row * gs * transform.scale + transform.offsetY;
+        const w = cols * gs * transform.scale;
+        const ht = rows * gs * transform.scale;
+        const color = h.color ?? '#ff3030';
+        const shape = h.shape ?? 'box';
+
+        ctx.save();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 3;
+
+        if (shape === 'dot') {
+          ctx.beginPath();
+          ctx.arc(x + w / 2, y + ht / 2, Math.min(w, ht) / 4, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (shape === 'cross') {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + w, y + ht);
+          ctx.moveTo(x + w, y);
+          ctx.lineTo(x, y + ht);
+          ctx.stroke();
+        } else {
+          ctx.strokeRect(x, y, w, ht);
+        }
+
+        if (h.label) {
+          const fontSize = Math.max(11, Math.min(20, w * 0.35));
+          ctx.font = `bold ${fontSize}px sans-serif`;
+          ctx.textBaseline = 'top';
+          // Draw a contrasting halo for readability
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+          ctx.strokeText(h.label, x + 4, y + 4);
+          ctx.fillStyle = color;
+          ctx.fillText(h.label, x + 4, y + 4);
+        }
+
+        ctx.restore();
+      }
+
+      resolve(out.toDataURL('image/png'));
+    });
+  });
+}
+
 /**
  * Export the map as a PNG using the compile pipeline (HQ lighting).
  * @returns {Promise<string>} Base64 PNG data URL
@@ -161,6 +247,32 @@ export async function clearCaches(): Promise<{ success: true }> {
 export function render(): { success: true } {
   requestRender();
   return { success: true };
+}
+
+/**
+ * Wait for any pending render work to complete by waiting until the lighting
+ * version stops advancing for two consecutive frames. Useful after bulk light
+ * placements before taking a screenshot.
+ *
+ * @param timeoutMs cap on total wait (default 3000)
+ */
+export async function waitForRender(timeoutMs: number = 3000): Promise<{ success: true; settledMs: number }> {
+  const start = Date.now();
+  let prev = getLightingVersion();
+  let stable = 0;
+  while (Date.now() - start < timeoutMs) {
+    requestRender();
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    const cur = getLightingVersion();
+    if (cur === prev) {
+      stable++;
+      if (stable >= 2) break;
+    } else {
+      stable = 0;
+      prev = cur;
+    }
+  }
+  return { success: true, settledMs: Date.now() - start };
 }
 
 /**
@@ -225,6 +337,211 @@ export function undoToDepth(targetDepth: number): { success: true; undid: number
     count++;
   }
   return { success: true, undid: count };
+}
+
+// ── Named checkpoints ────────────────────────────────────────────────────
+//
+// In-memory map of checkpoint name -> undo depth at the time of capture.
+// Cleared on newMap/loadMap (each map has its own undo stack identity).
+// Names are stable strings the caller chooses, e.g. "after-rooms",
+// "phase-2-textures". Replaces fragile getUndoDepth() integer tracking.
+
+const checkpoints = new Map<string, number>();
+
+/** Reset the checkpoint table. Called by newMap/loadMap. */
+export function _clearCheckpoints(): void {
+  checkpoints.clear();
+}
+
+/**
+ * Record a named checkpoint at the current undo depth. Use `rollback(name)`
+ * later to undo back to this point. Overwrites a checkpoint of the same name.
+ * @returns `{ success, name, depth }`
+ */
+export function checkpoint(name: string): { success: true; name: string; depth: number } {
+  if (typeof name !== 'string' || !name) {
+    throw new ApiValidationError('INVALID_CHECKPOINT_NAME', 'Checkpoint name must be a non-empty string', { name });
+  }
+  const depth = state.undoStack.length;
+  checkpoints.set(name, depth);
+  return { success: true, name, depth };
+}
+
+/**
+ * Undo back to the depth recorded by `checkpoint(name)`. The checkpoint itself
+ * is preserved (you can rollback again until you call `clearCheckpoint`).
+ * @returns `{ success, name, depth, undid }`
+ */
+export function rollback(name: string): { success: true; name: string; depth: number; undid: number } {
+  if (!checkpoints.has(name)) {
+    throw new ApiValidationError('CHECKPOINT_NOT_FOUND', `No checkpoint named "${name}"`, {
+      name,
+      available: [...checkpoints.keys()],
+    });
+  }
+  const depth = checkpoints.get(name)!;
+  let count = 0;
+  while (state.undoStack.length > depth) {
+    undoFn();
+    count++;
+  }
+  return { success: true, name, depth, undid: count };
+}
+
+/** List all named checkpoints with their captured depth and current age (steps since). */
+export function listCheckpoints(): {
+  success: true;
+  current: number;
+  checkpoints: Array<{ name: string; depth: number; stepsAhead: number }>;
+} {
+  const cur = state.undoStack.length;
+  const list = [...checkpoints.entries()].map(([name, depth]) => ({
+    name,
+    depth,
+    stepsAhead: cur - depth,
+  }));
+  list.sort((a, b) => b.depth - a.depth);
+  return { success: true, current: cur, checkpoints: list };
+}
+
+/** Delete a named checkpoint. No-op if it doesn't exist. */
+export function clearCheckpoint(name: string): { success: true; existed: boolean } {
+  return { success: true, existed: checkpoints.delete(name) };
+}
+
+// ── Transactional batches ────────────────────────────────────────────────
+
+interface TxnResult {
+  index: number;
+  method: string;
+  ok: boolean;
+  error?: string;
+  code?: string;
+  context?: Record<string, unknown>;
+  result?: unknown;
+}
+
+function txnErrorFields(e: unknown): { error: string; code?: string; context?: Record<string, unknown> } {
+  if (e instanceof ApiValidationError) return { error: e.message, code: e.code, context: e.context };
+  if (e instanceof Error) return { error: e.message };
+  return { error: String(e) };
+}
+
+/**
+ * Run a batch of commands as an all-or-nothing transaction. If any command
+ * throws, every preceding command in the batch is undone and the transaction
+ * returns the failure. On full success, all commands remain applied (one
+ * cumulative state change in the undo stack from the caller's perspective).
+ *
+ * Differs from `validateCommands` (which always rolls back) and
+ * `--continue-on-error` (which leaves partial state).
+ */
+export async function transaction(
+  commands: unknown[][],
+): Promise<{ success: boolean; committed: boolean; results: TxnResult[]; failedAt?: number }> {
+  const startDepth = state.undoStack.length;
+  const results: TxnResult[] = [];
+  const api = getApi() as unknown as Record<string, (...a: unknown[]) => unknown>;
+
+  for (let i = 0; i < commands.length; i++) {
+    const cmd = commands[i];
+    if (!Array.isArray(cmd) || cmd.length === 0) {
+      // Roll back everything done so far.
+      while (state.undoStack.length > startDepth) undoFn();
+      results.push({
+        index: i,
+        method: '',
+        ok: false,
+        error: 'Command must be a non-empty array',
+        code: 'INVALID_COMMAND',
+      });
+      return { success: false, committed: false, results, failedAt: i };
+    }
+    const [method, ...args] = cmd as [string, ...unknown[]];
+    try {
+      const fn = api[method];
+      if (typeof fn !== 'function') {
+        throw new ApiValidationError('UNKNOWN_METHOD', `unknown method: ${method}`, { method });
+      }
+      const result = await fn.apply(api, args);
+      results.push({ index: i, method, ok: true, result });
+    } catch (e) {
+      while (state.undoStack.length > startDepth) undoFn();
+      results.push({ index: i, method, ok: false, ...txnErrorFields(e) });
+      return { success: false, committed: false, results, failedAt: i };
+    }
+  }
+
+  return { success: true, committed: true, results };
+}
+
+// ── Session info ─────────────────────────────────────────────────────────
+
+/**
+ * Rich session-state snapshot for sanity checks between Puppeteer calls.
+ * Tells the caller what map is loaded, whether it's dirty, what catalogs
+ * are ready, and what named checkpoints exist.
+ *
+ * Cheaper to call than `getMapInfo` and includes the things you actually
+ * need to decide "is this session safe to use?".
+ */
+export function getSessionInfo(): {
+  success: true;
+  mapName: string;
+  rows: number;
+  cols: number;
+  currentLevel: number;
+  undoDepth: number;
+  redoDepth: number;
+  dirty: boolean;
+  unsavedChanges: boolean;
+  lightingEnabled: boolean;
+  catalogsLoaded: { props: boolean; textures: boolean; theme: boolean; lights: boolean };
+  checkpoints: Array<{ name: string; depth: number; stepsAhead: number }>;
+  counts: { rooms: number; props: number; lights: number; stairs: number; bridges: number; levels: number };
+} {
+  const meta = state.dungeon.metadata;
+  const cells = state.dungeon.cells;
+  const roomLabels = new Set<string>();
+  for (let r = 0; r < cells.length; r++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
+      const lbl = cells[r]?.[c]?.center?.label;
+      if (lbl != null) roomLabels.add(lbl);
+    }
+  }
+  const checkpointList = [...checkpoints.entries()].map(([name, depth]) => ({
+    name,
+    depth,
+    stepsAhead: state.undoStack.length - depth,
+  }));
+
+  return {
+    success: true,
+    mapName: meta.dungeonName,
+    rows: cells.length,
+    cols: cells[0]?.length ?? 0,
+    currentLevel: state.currentLevel,
+    undoDepth: state.undoStack.length,
+    redoDepth: state.redoStack.length,
+    dirty: state.dirty,
+    unsavedChanges: state.unsavedChanges,
+    lightingEnabled: meta.lightingEnabled,
+    catalogsLoaded: {
+      props: state.propCatalog != null,
+      textures: state.textureCatalog != null,
+      theme: getThemeCatalog() != null,
+      lights: state.lightCatalog != null,
+    },
+    checkpoints: checkpointList,
+    counts: {
+      rooms: roomLabels.size,
+      props: meta.props?.length ?? 0,
+      lights: meta.lights.length,
+      stairs: meta.stairs.length,
+      bridges: meta.bridges.length,
+      levels: meta.levels.length,
+    },
+  };
 }
 
 /**
@@ -480,10 +797,16 @@ export function getValidPropPositions(
 ): { success: boolean; positions?: [number, number][]; error?: string } {
   const catalog = state.propCatalog;
   if (!catalog?.props[propType]) {
-    throw new Error(`Unknown prop type: ${propType}. Available: ${Object.keys(catalog?.props ?? {}).join(', ')}`);
+    throw new ApiValidationError('UNKNOWN_PROP', `Unknown prop type: ${propType}`, {
+      propType,
+      available: Object.keys(catalog?.props ?? {}),
+    });
   }
   if (![0, 90, 180, 270].includes(facing)) {
-    throw new Error(`Invalid facing: ${facing}. Use 0, 90, 180, or 270.`);
+    throw new ApiValidationError('INVALID_FACING', `Invalid facing: ${facing}. Use 0, 90, 180, or 270.`, {
+      facing,
+      validFacings: [0, 90, 180, 270],
+    });
   }
 
   const def = catalog.props[propType];

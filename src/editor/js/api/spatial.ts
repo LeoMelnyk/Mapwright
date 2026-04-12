@@ -174,10 +174,16 @@ export function partitionRoom(
   options: PartitionRoomOptions = {},
 ): { success: true; wallsPlaced: number } {
   if (!['horizontal', 'vertical'].includes(direction)) {
-    throw new Error('direction must be "horizontal" or "vertical"');
+    throw new ApiValidationError('INVALID_PARTITION_DIRECTION', 'direction must be "horizontal" or "vertical"', {
+      direction,
+      validDirections: ['horizontal', 'vertical'],
+    });
   }
   if (!['w', 'iw'].includes(wallType)) {
-    throw new Error('wallType must be "w" or "iw"');
+    throw new ApiValidationError('INVALID_WALL_TYPE', 'wallType must be "w" or "iw"', {
+      wallType,
+      validTypes: ['w', 'iw'],
+    });
   }
   position = toInt(position);
   const doorAt = options.doorAt != null ? toInt(options.doorAt) : undefined;
@@ -202,7 +208,12 @@ export function partitionRoom(
     }
   }
 
-  if (coords.length === 0) throw new Error(`No cells at ${direction} position ${position} in room "${roomLabel}"`);
+  if (coords.length === 0)
+    throw new ApiValidationError(
+      'NO_PARTITION_CELLS',
+      `No cells at ${direction} position ${position} in room "${roomLabel}"`,
+      { roomLabel, direction, position },
+    );
 
   let count = 0;
   mutate(
