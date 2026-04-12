@@ -138,6 +138,58 @@ export function renderAscii(
   };
 }
 
+// ─── 1b. previewShape ────────────────────────────────────────────────────
+
+/**
+ * Render a labeled room's current shape as ASCII — walls, floor cells, voids,
+ * trim diagonals. Useful for verifying room geometry before/after trim or
+ * round operations without taking a screenshot.
+ *
+ * Scoped to the room's bounding box plus a 1-cell margin so you can see the
+ * wall edges. For irregular rooms (L/U/+), void cells render as blank.
+ *
+ * @param label Room label (e.g. "A1")
+ * @param options.margin Extra cells to include around the bbox (default 1)
+ * @returns { success, label, bounds, ascii, cellCount, legend }
+ */
+export function previewShape(
+  label: string,
+  options: { margin?: number } = {},
+): {
+  success: true;
+  label: string;
+  bounds: { r1: number; c1: number; r2: number; c2: number };
+  ascii: string;
+  cellCount: number;
+  legend: string;
+} {
+  const api = getApi();
+  const boundsResult = api.getRoomBounds(label);
+  if (!boundsResult.success) {
+    throw new ApiValidationError('ROOM_NOT_FOUND', `Room "${label}" not found`, { label });
+  }
+  const cellsResult = (
+    api as unknown as { listRoomCells(l: string): { success: boolean; cells?: [number, number][] } }
+  ).listRoomCells(label);
+  const cellCount = cellsResult.cells?.length ?? 0;
+
+  const margin = Math.max(0, options.margin ?? 1);
+  const r1 = boundsResult.r1 - margin;
+  const c1 = boundsResult.c1 - margin;
+  const r2 = boundsResult.r2 + margin;
+  const c2 = boundsResult.c2 + margin;
+  const rendered = renderAscii(r1, c1, r2, c2);
+
+  return {
+    success: true,
+    label,
+    bounds: { r1: boundsResult.r1, c1: boundsResult.c1, r2: boundsResult.r2, c2: boundsResult.c2 },
+    ascii: rendered.ascii,
+    cellCount,
+    legend: rendered.legend,
+  };
+}
+
 // ─── 2. inspectRegion ────────────────────────────────────────────────────
 
 interface RegionCellInfo {
@@ -890,7 +942,7 @@ export function getThemeColors(): {
 
 interface Conflict {
   type: string;
-  severity: 'error' | 'warning';
+  severity: 'error' | 'warning' | 'info';
   row?: number;
   col?: number;
   message: string;
@@ -904,8 +956,21 @@ interface Conflict {
  *
  * Use this before exporting a map. Each issue has a `severity` and stable
  * `type` so callers can filter.
+ *
+ * Lighting is **intent-driven**. Unlit rooms are valid (caves, ruins, sealed
+ * crypts), so dark-room reports are `severity: "info"` rather than warnings.
+ * Pass `unlitRooms: ["B3", "C1"]` to suppress the check for rooms that are
+ * intentionally dark (e.g. anything whose vocab `ambient_is: "discouraged"`).
+ * Pass `skipDarkCheck: true` to disable the lighting check entirely.
  */
-export function findConflicts(options: { entranceLabel?: string; darkThreshold?: number } = {}): {
+export function findConflicts(
+  options: {
+    entranceLabel?: string;
+    darkThreshold?: number;
+    unlitRooms?: string[];
+    skipDarkCheck?: boolean;
+  } = {},
+): {
   success: true;
   conflictCount: number;
   conflicts: Conflict[];
@@ -987,19 +1052,25 @@ export function findConflicts(options: { entranceLabel?: string; darkThreshold?:
     }
   }
 
-  // 5. Dark rooms (only if lighting is enabled)
-  if (meta.lightingEnabled) {
+  // 5. Dark rooms (only if lighting is enabled and not explicitly skipped).
+  // Unlit rooms are valid by design for caves, ruins, and sealed crypts, so
+  // this is reported as `info` rather than `warning`. Authors can silence
+  // specific rooms via `unlitRooms: [...]` or disable entirely via
+  // `skipDarkCheck: true`.
+  if (meta.lightingEnabled && !options.skipDarkCheck) {
     const darkThreshold = options.darkThreshold ?? 0.15;
+    const unlit = new Set(options.unlitRooms ?? []);
     const rooms = api.listRooms();
     for (const room of rooms.rooms) {
+      if (unlit.has(room.label)) continue;
       const cov = getLightingCoverage(darkThreshold, { r1: room.r1, c1: room.c1, r2: room.r2, c2: room.c2 });
       if (cov.totalCells === 0) continue;
       const darkRatio = cov.darkCells / cov.totalCells;
       if (darkRatio > 0.5) {
         conflicts.push({
           type: 'ROOM_TOO_DARK',
-          severity: 'warning',
-          message: `Room "${room.label}" is mostly dark (${cov.darkCells}/${cov.totalCells} cells below ${darkThreshold})`,
+          severity: 'info',
+          message: `Room "${room.label}" is mostly dark (${cov.darkCells}/${cov.totalCells} cells below ${darkThreshold}). If intentional (cave, ruin, sealed crypt), pass unlitRooms: ["${room.label}"].`,
           context: { roomLabel: room.label, darkRatio: +darkRatio.toFixed(2), threshold: darkThreshold },
         });
       }

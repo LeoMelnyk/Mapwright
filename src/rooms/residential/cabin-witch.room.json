@@ -1,0 +1,71 @@
+{
+  "name": "cabin-witch",
+  "category": "residential",
+  "tags": ["wilderness", "residential", "small", "occult", "witch", "hedge-magic"],
+  "summary": "A hedge-witch's one-room cabin — drying herbs crowd the rafters, a cauldron bubbles somewhere, and the walls keep secrets.",
+  "size_guidance": {
+    "min": [5, 6],
+    "typical": [7, 8],
+    "aspect_ratio": "near-square or slightly elongated around the hearth"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/dirt_floor", "polyhaven/mossy_wood"],
+    "accent": {
+      "purpose": "chalk circle or working area",
+      "options": ["polyhaven/dirt_floor", "polyhaven/ash_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["cauldron-fire"], "surrounded_by": ["log-pile", "mortar-pestle"], "note": "classic brewing witch — the cauldron is the altar" },
+    { "props": ["alchemy-bench"], "surrounded_by": ["shelf-bottles", "herb-drying-rack"], "note": "apothecary witch — precise, recipe-driven, rural healer" },
+    { "props": ["altar"], "surrounded_by": ["candle-cluster", "candle-cluster"], "note": "devotional witch — the cabin is a shrine to an old spirit" },
+    { "props": ["hearth", "mortar-pestle"], "note": "kitchen-witch — magic is cookery and cookery is magic" },
+    { "props": ["chalk-circle-floor"], "surrounded_by": ["candle", "candle", "candle"], "note": "summoner — the working is mid-ritual, do not cross the line" }
+  ],
+  "secondary_palette": [
+    "bed",
+    "bedroll",
+    "herb-drying-rack",
+    "shelf-bottles",
+    "bookshelf",
+    "lectern",
+    "cauldron-large",
+    "spice-shelf",
+    "rocking-chair",
+    "trunk",
+    "birdcage"
+  ],
+  "scatter_palette": [
+    "dried-herbs",
+    "bone-pile",
+    "candle",
+    "scroll-case",
+    "poppet",
+    "raven-perch",
+    "mushroom-basket",
+    "crystal-shard",
+    "tallow-pot",
+    "skull-small"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "hexagonal-via-corner-trims", "L-shape-with-bed-alcove"],
+    "discouraged": ["rigid-rectangle-with-sharp-corners", "multi-room-formal"]
+  },
+  "story_prompts": [
+    "occupied, the witch stirs the pot — do not interrupt the brewing",
+    "empty and dusty — she has been gone a full moon, something in the pot has started speaking",
+    "the working went wrong — chalk circle broken, candles burned black, a cold wind from the hearth",
+    "the village healer lives here — entirely mundane except for one wall of disturbing fetishes",
+    "two witches, teacher and apprentice — two beds, duplicate benches, bickering notes everywhere"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very low (0.15-0.25) — cauldron glow and candles",
+    "ambient_is": "optional",
+    "common_sources": ["cauldron-fire", "candle-cluster", "hearth"]
+  },
+  "anti_patterns": [
+    "do not make it look like a wizard's tower — this is folk magic, not academic",
+    "no heavy masonry or formal library — shelves are rough, books are few and hand-written",
+    "ceiling hangs are decorative in description, not prop-placed on the floor"
+  ]
+}

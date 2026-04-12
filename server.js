@@ -205,10 +205,48 @@ if (userTexturePath) {
 // Serve user-saved themes
 app.use('/user-themes', express.static(userThemePath));
 
-// Data assets (props, lights, themes) always served from src/ — they're not code
+// Data assets (props, lights, themes, rooms) always served from src/ — they're not code
 app.use('/props', express.static(path.join(__dirname, 'src', 'props')));
 app.use('/lights', express.static(path.join(__dirname, 'src', 'lights')));
 app.use('/themes', express.static(path.join(__dirname, 'src', 'themes')));
+app.use('/rooms', express.static(path.join(__dirname, 'src', 'rooms')));
+
+// Dynamic manifest for the room vocab library: scan src/rooms/**/*.room.json
+// and return a flat index so clients know what specs exist without probing.
+app.get('/api/rooms/manifest', (_req, res) => {
+  const roomsDir = path.join(__dirname, 'src', 'rooms');
+  const manifest = [];
+  function scan(dir, relCategory) {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        scan(full, entry.name);
+      } else if (entry.name.endsWith('.room.json')) {
+        try {
+          const spec = JSON.parse(fs.readFileSync(full, 'utf-8'));
+          manifest.push({
+            name: spec.name || path.basename(entry.name, '.room.json'),
+            category: spec.category || relCategory || 'misc',
+            tags: spec.tags || [],
+            summary: spec.summary || '',
+            path: relCategory ? `${relCategory}/${entry.name}` : entry.name,
+          });
+        } catch {
+          /* skip malformed spec */
+        }
+      }
+    }
+  }
+  scan(roomsDir, '');
+  manifest.sort((a, b) => a.name.localeCompare(b.name));
+  res.json({ count: manifest.length, rooms: manifest });
+});
 
 // Serve Vite build output (dist/) if it exists, otherwise fall back to src/
 // In production/Electron, dist/ contains the compiled TS+SCSS assets.

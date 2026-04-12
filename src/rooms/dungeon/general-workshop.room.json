@@ -1,0 +1,75 @@
+{
+  "name": "general-workshop",
+  "category": "dungeon",
+  "tags": ["dungeon", "crafting", "utility", "working", "medium"],
+  "summary": "A room where things are made or repaired — benches, tools arranged by trade, work-in-progress half-finished on every surface.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangular, benches along walls, clear working center"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/wood_floor",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_polished"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["forge", "anvil", "bellows"], "note": "smith's workshop — forge, anvil, bellows arranged for iron work" },
+    { "props": ["workbench", "workbench", "tool-rack"], "note": "carpenter's or joiner's shop — benches and tool walls" },
+    { "props": ["alchemy-bench", "alembic"], "surrounded_by": ["ingredient-rack", "ingredient-rack"], "note": "alchemist's lab-workshop — glass, fire, and labeled jars" },
+    { "props": ["loom", "spinning-wheel"], "surrounded_by": ["cabinet", "crate"], "note": "textile workshop — weaving and thread work" },
+    { "props": ["potter-wheel", "oven"], "surrounded_by": ["shelf-bare", "shelf-bare"], "note": "potter's workshop — wheel and kiln" },
+    { "props": ["workbench", "grinding-wheel", "tool-rack"], "note": "mixed-trade repair shop — sharpening, fixing, fitting" }
+  ],
+  "secondary_palette": [
+    "workbench",
+    "tool-rack",
+    "anvil",
+    "bellows",
+    "grinding-wheel",
+    "crucible",
+    "forge",
+    "barrel",
+    "crate",
+    "crate-stack",
+    "lumber-stack",
+    "ingot-stack",
+    "cabinet",
+    "shelf-bare",
+    "trough",
+    "wall-lantern",
+    "torch-sconce"
+  ],
+  "scatter_palette": [
+    "hammer",
+    "tongs",
+    "chisel",
+    "horseshoe",
+    "nail-pile",
+    "wood-shavings",
+    "work-in-progress"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-shape-with-alcove", "square"],
+    "discouraged": ["round", "narrow-corridor-like"]
+  },
+  "story_prompts": [
+    "active smithy with work still on the anvil, fire banked not dead",
+    "an alchemist's lab mid-experiment, something bubbling",
+    "abandoned workshop, tools rusting, a half-finished chair on the bench",
+    "cultist-run workshop making ritual implements on standard carpentry equipment",
+    "a dwarf's trade shop far from home, precise and immaculate"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "functional bright (0.4-0.55)",
+    "ambient_is": "optional",
+    "common_sources": ["forge", "oven", "wall-lantern", "torch-sconce", "candelabra"]
+  },
+  "anti_patterns": [
+    "don't mix unrelated trades without a reason — smithing and weaving together looks random",
+    "don't forget work-in-progress — an empty bench looks wrong",
+    "avoid rugs or fine carpets; floors are dirty and scuffed"
+  ]
+}

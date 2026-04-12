@@ -1,0 +1,66 @@
+{
+  "name": "bath-house",
+  "category": "urban",
+  "tags": ["urban", "social", "medium", "wet", "refined"],
+  "summary": "A public or private bath-house. A central heated pool, smaller plunge basins, benches along the wall for attendants to oil and scrape, a brazier for warming oils. Tile underfoot, steam rising.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 12],
+    "aspect_ratio": "squareish with central pool dominating"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "wet tiled edge around the pool",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["bath-pool"], "surrounded_by": ["bench", "brazier", "pillar"], "note": "classic bath — central pool, flanking benches" },
+    { "props": ["bath-pool", "plunge-basin"], "surrounded_by": ["bench", "pillar", "statue"], "note": "formal bath — hot pool + cold plunge, columned" },
+    { "props": ["bath-pool"], "surrounded_by": ["massage-table", "brazier", "bench"], "note": "therapeutic bath — attendants working at massage tables" }
+  ],
+  "secondary_palette": [
+    "bath-pool",
+    "plunge-basin",
+    "massage-table",
+    "bench",
+    "brazier",
+    "pillar",
+    "statue",
+    "cabinet",
+    "shelf-open",
+    "chair",
+    "fountain"
+  ],
+  "scatter_palette": [
+    "oil-amphora",
+    "strigil",
+    "towel-folded",
+    "sandal-pair",
+    "water-jar",
+    "rose-petals",
+    "candle",
+    "steam-cloud"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "columned-hall", "L-with-changing-alcove"],
+    "discouraged": ["narrow", "small"]
+  },
+  "story_prompts": [
+    "midday bathers — nobles reclining, attendants oiling, deals being made",
+    "empty morning — pool steaming, lone attendant lighting braziers",
+    "assassination site — a figure floating face-down, screaming bather",
+    "private session — the whole house rented, two rivals negotiating in the pool"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "soft humid light (0.4) — lamps flicker in steam",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "the pool is a water-fill, not a prop — it's sunk into the floor",
+    "pillars mark the edge of the pool chamber — never block the pool",
+    "changing area and bathing area should feel separate — use an alcove"
+  ]
+}

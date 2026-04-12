@@ -1,0 +1,70 @@
+{
+  "name": "mess-hall",
+  "category": "dungeon",
+  "tags": ["dungeon", "military", "social", "communal", "large"],
+  "summary": "Where the garrison eats. Long tables, benches, a serving counter or hearth, and the smell of a hundred meals soaked into the wood.",
+  "size_guidance": {
+    "min": [8, 12],
+    "typical": [10, 14],
+    "aspect_ratio": "elongated — long tables want length"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/wood_floor",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_polished"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["long-table", "long-table"], "surrounded_by": ["bench", "bench"], "note": "parallel trestles — standard mess seating" },
+    { "props": ["long-table"], "surrounded_by": ["bench", "bench"], "note": "single table for a small garrison" },
+    { "props": ["long-table", "long-table", "long-table"], "note": "three-row seating — large company, densely packed" },
+    { "props": ["hearth", "long-table"], "note": "fire-and-table hall — cooking happens here too" },
+    { "props": ["bar-counter", "long-table"], "note": "serving counter at one end, seating at the other" }
+  ],
+  "secondary_palette": [
+    "bench",
+    "stool",
+    "barrel",
+    "barrel-stack",
+    "keg",
+    "hearth",
+    "fireplace",
+    "pot-rack",
+    "banner",
+    "torch-sconce",
+    "wall-lantern",
+    "notice-board",
+    "chandelier"
+  ],
+  "scatter_palette": [
+    "tankard",
+    "bread-loaf",
+    "bowl-of-stew",
+    "plate-stack",
+    "cutlery-pile",
+    "empty-bottle",
+    "dice-cup"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "rectangle", "T-shape"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "mid-meal — food still on plates, the guards left in a hurry",
+    "empty before the shift change, clean wood and stacked cups",
+    "a grim cultist refectory, eating in silence beneath a black banner",
+    "ruined mess, tables broken for firewood, one bench still upright",
+    "orc war-band hall, carved gouges in the table and bones on the floor"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm communal (0.4-0.55)",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "wall-lantern", "hearth", "candelabra"]
+  },
+  "anti_patterns": [
+    "don't place tables flush to walls on both sides — benches need room to slide back",
+    "don't use a single flickering torch; mess halls are lit to eat by",
+    "avoid ornate furniture — this is functional communal space"
+  ]
+}

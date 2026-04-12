@@ -1,0 +1,69 @@
+{
+  "name": "monster-lair-small",
+  "category": "dungeon",
+  "tags": ["dungeon", "wild", "monster", "organic", "small", "medium"],
+  "summary": "A single beast's den — a nest of debris, the remains of meals, the smell of it. Built into an existing dungeon room, not designed.",
+  "size_guidance": {
+    "min": [5, 6],
+    "typical": [7, 8],
+    "aspect_ratio": "irregular — creature chose the space, not an architect"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/dirt_floor",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/cave_floor"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["nest-of-rags"], "surrounded_by": ["bone-pile", "bone-pile-small"], "note": "humanoid beast (ogre, bugbear) — a fouled bed and a pile of gnawed bones" },
+    { "props": ["web-cluster", "egg-sac"], "note": "giant spider lair — the whole room is webbed" },
+    { "props": ["straw-bed-large", "bone-pile"], "note": "large mammalian beast — pressed-down straw and kill-leavings" },
+    { "props": ["treasure-pile-small"], "surrounded_by": ["bone-pile", "corpse"], "note": "hoarder-beast — shiny things taken from victims" },
+    { "props": ["slime-puddle", "corpse"], "note": "ooze or grell lair — a single greasy depression in the floor" }
+  ],
+  "secondary_palette": [
+    "bone-pile",
+    "bone-pile-small",
+    "corpse",
+    "rubble",
+    "boulder",
+    "rock-cluster",
+    "dead-tree",
+    "fallen-log",
+    "web-cluster",
+    "egg-sac",
+    "nest-of-rags",
+    "claw-marks-wall"
+  ],
+  "scatter_palette": [
+    "gnawed-bone",
+    "blood-smear",
+    "torn-cloak",
+    "broken-shield",
+    "half-eaten-carcass",
+    "scat-pile",
+    "shed-skin"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-cave", "L-shape-with-alcove", "lobed", "rectangle-with-rubble"],
+    "discouraged": ["perfect-square", "formal-symmetric"]
+  },
+  "story_prompts": [
+    "owlbear den in a ruined room — a door broken inward, a nest of timber and rag",
+    "spider lair where every cell is webbed floor to ceiling",
+    "gnoll lair — the victims aren't hidden, they're displayed",
+    "troll lair beside an underground stream for drinking",
+    "empty lair — the monster has been hunted and dragged out, only the nest remains"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "near-dark (0.1-0.25), creatures don't light their homes",
+    "ambient_is": "discouraged",
+    "common_sources": ["crystal-torch", "residual-torch-from-victims"]
+  },
+  "anti_patterns": [
+    "don't use tidy furniture — if there's a chair, it's broken",
+    "don't light the room well; lairs are dark unless the beast fears the dark",
+    "avoid props that imply civilized occupation (no books, no looms, no beds)"
+  ]
+}

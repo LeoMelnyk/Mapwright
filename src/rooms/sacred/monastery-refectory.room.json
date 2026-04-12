@@ -1,0 +1,67 @@
+{
+  "name": "monastery-refectory",
+  "category": "sacred",
+  "tags": ["sacred", "monastic", "communal", "dining", "hall", "ascetic"],
+  "summary": "The communal dining hall of a monastery — long tables, benches, a lectern for the day's reading. Meals are a sacred act here; silence and shared bread under a single holy image.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 14],
+    "aspect_ratio": "long — one or two great tables running the length of the room"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "a head-of-room dais where the abbot's seat and lectern stand",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_polished"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["table"], "surrounded_by": ["bench", "bench"], "note": "a single long refectory table with benches along both sides" },
+    { "props": ["table", "table"], "surrounded_by": ["bench", "bench", "bench", "bench"], "note": "two parallel tables with a central walk between" },
+    { "props": ["lectern"], "surrounded_by": ["table", "bench"], "note": "focus on the reader's lectern; the tables fall into place around it" },
+    { "props": ["hearth"], "surrounded_by": ["table", "bench"], "note": "a great hearth at one end, with the head table close and the rest ranged beyond" }
+  ],
+  "secondary_palette": [
+    "table",
+    "bench",
+    "lectern",
+    "hearth",
+    "chandelier",
+    "candelabra",
+    "painting",
+    "banner",
+    "bookshelf",
+    "barrel",
+    "chair"
+  ],
+  "scatter_palette": [
+    "bowl",
+    "mug",
+    "bread-loaf",
+    "book",
+    "book-open",
+    "candle",
+    "carpet-runner"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-hall", "rectangle-with-head-dais"],
+    "discouraged": ["round", "square", "small"]
+  },
+  "story_prompts": [
+    "a meal in silence — brothers eating, the reader halfway through a passage at the lectern",
+    "between services — tables set, food not yet brought, a single novice lighting candles",
+    "a feast-day exception — wine on the tables, ornaments out, the usual silence broken",
+    "a meal interrupted — half-eaten bowls, benches pushed back, everyone rushed out",
+    "the monastery has fallen — long-cold hearth, mice in the bread, one last brother at the lectern dead of plague"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm and practical (0.4-0.5) — hearth at one end, candles along the tables, the lectern well-lit",
+    "ambient_is": "required",
+    "common_sources": ["hearth", "chandelier", "candelabra", "candle"]
+  },
+  "anti_patterns": [
+    "tables in rigorous straight lines — this is a monastic space, not a tavern",
+    "the lectern has a clear sightline to every brother on the benches — never obstruct it",
+    "avoid throne-scale chairs for any seat — even the abbot's chair is plain"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "courthouse-chamber",
+  "category": "urban",
+  "tags": ["urban", "formal", "noble", "large", "civic"],
+  "summary": "A courthouse hearing chamber. Raised judge's bench, witness dock, clerk's desk, rows of benches for the public, a prisoner's railing at the front. Weight of law in the air.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 14],
+    "aspect_ratio": "rectangle with bench elevated at one end, public seating opposite"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "formal central aisle",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["judge-bench"], "surrounded_by": ["witness-dock", "clerk-desk", "bench"], "note": "classic courtroom — judge elevated, witness box, public benches" },
+    { "props": ["judge-bench", "prisoner-dock"], "surrounded_by": ["witness-dock", "clerk-desk", "bench"], "note": "criminal court — prisoner's railing prominent" },
+    { "props": ["judge-bench"], "surrounded_by": ["lectern", "bench", "bench", "clerk-desk"], "note": "civil court — lectern for advocates, no prisoner dock" }
+  ],
+  "secondary_palette": [
+    "judge-bench",
+    "witness-dock",
+    "prisoner-dock",
+    "clerk-desk",
+    "lectern",
+    "bench",
+    "chair",
+    "bookshelf",
+    "banner",
+    "painting",
+    "stocks",
+    "gallows"
+  ],
+  "scatter_palette": [
+    "gavel",
+    "ledger-stack",
+    "quill",
+    "inkwell",
+    "document-stack",
+    "wax-seal",
+    "candle",
+    "chain-shackle",
+    "scale-justice"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "formal-hall"],
+    "discouraged": ["small", "round"]
+  },
+  "story_prompts": [
+    "murder trial — prisoner in the dock, witnesses queued, public benches packed",
+    "empty chamber — dawn before first session, clerk arranging documents",
+    "corrupt verdict — judge pronouncing, accused shouting, guards moving in",
+    "sanctuary petition — a refugee at the lectern, judge listening skeptically"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "cold formal light (0.45) — tall windows implied, chandelier overhead",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "judge's bench elevated — place against the back wall, never mid-floor",
+    "public benches face the bench — don't scatter or angle them",
+    "central aisle must be clear — prisoner walks it from door to dock"
+  ]
+}

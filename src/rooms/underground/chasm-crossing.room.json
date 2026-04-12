@@ -1,0 +1,60 @@
+{
+  "name": "chasm-crossing",
+  "category": "underground",
+  "tags": ["underground", "chasm", "bridge", "hazard", "traversal", "vertigo"],
+  "summary": "A bottomless cleft spanned by a precarious crossing — rope-and-plank bridge, or a natural stone arch, with ledges on either rim.",
+  "size_guidance": {
+    "min": [8, 14],
+    "typical": [10, 16],
+    "aspect_ratio": "long — the chasm cuts the long axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/rock_ground", "polyhaven/cave_floor", "polyhaven/gravel_floor"],
+    "accent": {
+      "purpose": "bridge deck / rim ledge",
+      "options": ["polyhaven/wood_floor_old", "polyhaven/rock_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["rope-bridge"], "surrounded_by": ["anchor-post", "anchor-post"], "note": "swaying plank bridge over the drop" },
+    { "props": ["stone-arch-natural"], "surrounded_by": ["rubble", "stalagmite"], "note": "natural rock span — narrower than it looks" },
+    { "props": ["winch-platform"], "surrounded_by": ["crate", "rope-coil"], "note": "lowered cage or basket to reach the far side" },
+    { "props": ["broken-bridge-stub"], "surrounded_by": ["rubble", "anchor-post"], "note": "the bridge is gone — party must improvise" }
+  ],
+  "secondary_palette": [
+    "anchor-post",
+    "rope-coil",
+    "lantern-post",
+    "stalagmite",
+    "rubble",
+    "winch-platform",
+    "chain-heavy"
+  ],
+  "scatter_palette": [
+    "rubble",
+    "bone-pile",
+    "rag-pile",
+    "broken-plank",
+    "skeleton"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "hourglass", "dual-ledge"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "something is already on the bridge — you both meet in the middle",
+    "the ropes look new, the bridge is bait, something waits below",
+    "a flying foe harries the crossing — every turn on the bridge is a save",
+    "the far ledge is occupied, and they're already cutting the ropes"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.1), lanterns on each rim only",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "torch-wall"]
+  },
+  "anti_patterns": [
+    "the chasm must read as deadly — don't make it narrow enough to simply step over",
+    "ledges should be shallow, forcing the party toward the crossing",
+    "don't decorate the bridge itself — clean span, threat is traversal"
+  ]
+}

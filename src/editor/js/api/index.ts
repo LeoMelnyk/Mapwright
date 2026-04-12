@@ -26,6 +26,7 @@ import * as inspect from './inspect.js';
 import * as transforms from './transforms.js';
 import * as furnish from './furnish.js';
 import * as discovery from './discovery.js';
+import * as vocab from './vocab.js';
 
 // ─── Assemble ────────────────────────────────────────────────────────────────
 
@@ -72,6 +73,8 @@ const api = {
   ...furnish,
   // Discovery (apiSearch / apiDetails / apiCategories)
   ...discovery,
+  // Room vocabulary library (palette-based room specs)
+  ...vocab,
   // Rename eval_ back to eval (eval is a reserved word in strict mode exports)
   eval: operational.eval_,
 };

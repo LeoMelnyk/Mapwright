@@ -206,6 +206,32 @@ A second pass focused on cutting Claude's overhead per call, raising the quality
 - **`prewarmPropThumbnails()`** — pre-render the entire prop catalog into the cache (useful before a "show me 50 props" sweep)
 - **`searchPropsWithThumbnails(filter)`** — combined `searchProps` + thumbnail in one call
 
+### Claude Map-Building Improvements — Round 3
+
+A third pass focused on how Claude *reasons* about rooms — moving from preloaded prose guides to a queryable palette library, plus convenience APIs that cut coordinate math and visual-verification overhead.
+
+#### Room vocabulary library
+
+- **160 queryable room-type palettes** live in `mapwright/src/rooms/` across 10 categories (dungeon, residential, sacred, wilderness, industrial, urban, underground, naval, planar, outdoor). Each spec is a *palette* — multiple primary/secondary/scatter prop options plus story prompts — so two rooms of the same type look meaningfully different because Claude composes from the palette rather than stamping a template. Covers the variations the old prose library lacked: cabin-hunters vs cabin-trapper vs cabin-witch vs cabin-abandoned; house-small vs house-medium-artisan vs mansion-grand-hall; etc.
+- **`listRoomTypes`** / **`searchRoomVocab`** / **`getRoomVocab`** / **`suggestRoomType`** — four new API methods for discovering and fetching room palettes on demand. Claude no longer preloads 340+ lines of prose room specs; fetches only the types used in the current build.
+- **Dynamic manifest** — new `/api/rooms/manifest` endpoint scans `src/rooms/` at request time, so adding a new `.room.json` spec is picked up without a rebuild.
+- **DESIGN.md restructured** — the Room Semantic Library prose section is replaced by a pointer to the vocab API. Universal Spatial Rules, prop density guide, shape vocabulary, fill usage patterns, and anti-patterns stay in DESIGN.md.
+
+#### Shape editing without coordinate math
+
+- **`trimCorner(label, cornerOrCell, size, options)`** — label-based single-corner trim. Accepts `"nw"`/`"ne"`/`"sw"`/`"se"` OR a `[row, col]` cell coordinate (auto-detects the nearest convex corner). Works on irregular rooms (L, U, +, polygon) because it resolves the corner from the room's actual cell set, not a bounding box. Replaces the tip/extent math of `createTrim` for the common case.
+- **`previewShape(label)`** — ASCII render of a labeled room plus a 1-cell margin. Cheap shape verification after trim/round/merge operations without taking a screenshot.
+
+#### Intent-driven lighting check
+
+- **Unlit rooms are now valid** — `findConflicts` reports mostly-dark rooms as `info` rather than `warning`, since caves, ruins, sealed crypts, and abandoned spaces are often dark on purpose. New `unlitRooms: [...]` option silences specific labels; `skipDarkCheck: true` disables the check entirely.
+- **Room vocab carries lighting intent** — each spec includes `lighting_notes.ambient_is: "required" | "optional" | "discouraged"` so authors can signal whether a room type is meant to be lit. Claude reads this when deciding whether to place light sources.
+
+#### MCP inline images
+
+- **Prop thumbnails and screenshots now render inline** in MCP clients. The Puppeteer bridge extracts `dataUrl` strings from command results and the MCP server surfaces them as `image` content blocks instead of stringifying base64 into the text response. Vision-capable clients (Claude etc.) can actually see prop thumbnails when picking from `searchPropsWithThumbnails`.
+- **`inline_images` tool parameter** — opt-in flag to also surface `export_png` output inline (off by default — HQ exports are large).
+
 ### Bug Fixes
 
 - **Auto-furnish now respects its own light cap** — the `lightCap` option was being ignored because the candidate list dropped the `lights` field. Light-emitting props could be placed beyond the configured budget, leading to rooms with three braziers when one was asked for. Fixed

@@ -1,0 +1,64 @@
+{
+  "name": "ship-cargo-hold",
+  "category": "naval",
+  "tags": ["naval", "ship", "cargo", "hold", "dark", "cramped"],
+  "summary": "The belly of the ship — stacked crates and barrels lashed to ring-bolts, bilge-damp air, a single shaft of light from a grate above.",
+  "size_guidance": {
+    "min": [6, 12],
+    "typical": [8, 16],
+    "aspect_ratio": "long rectangle along the keel"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wood_planks_wet", "polyhaven/bilge_planks"],
+    "accent": {
+      "purpose": "bilge puddle / grate-lit spot",
+      "options": ["polyhaven/bilge_planks", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["crate-stack"], "surrounded_by": ["barrel-stack", "cargo-lashing"], "note": "main cargo block lashed down for sea" },
+    { "props": ["treasure-chest-naval"], "surrounded_by": ["crate-stack", "crate"], "note": "a specific manifest item — the cargo worth the voyage" },
+    { "props": ["smuggled-cage"], "surrounded_by": ["crate-stack", "barrel"], "note": "contraband — creature or slave cargo hidden among goods" },
+    { "props": ["ballast-stones"], "surrounded_by": ["barrel-stack"], "note": "a light load — holds mostly ballast, trouble for the captain" }
+  ],
+  "secondary_palette": [
+    "crate",
+    "crate-stack",
+    "barrel",
+    "barrel-stack",
+    "keg",
+    "cargo-lashing",
+    "rope-coil",
+    "chest",
+    "chest-large",
+    "lumber-stack"
+  ],
+  "scatter_palette": [
+    "rat-swarm-marker",
+    "rope-coil",
+    "bucket",
+    "rag-pile",
+    "broken-crate",
+    "bilge-puddle"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "keel-tapered"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "a stowaway lives among the crates",
+    "the manifest is a lie — something in the chests has started moving",
+    "rats with too much intelligence have taken the hold",
+    "flood damage mid-voyage — stuff floats, the crew is bailing"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.1), single grate-shaft of daylight if above water",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "grate-shaft"]
+  },
+  "anti_patterns": [
+    "always leave a central aisle — cargo goes along the sides, lashed",
+    "don't float crates in the middle of the floor unless flooded",
+    "the hold has no windows (above bilge) — lighting must be artificial"
+  ]
+}

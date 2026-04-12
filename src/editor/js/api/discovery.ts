@@ -35,6 +35,7 @@ type Category =
   | 'session'
   | 'catalog'
   | 'discovery'
+  | 'vocab'
   | 'operational';
 
 interface MethodInfo {
@@ -93,8 +94,13 @@ const REGISTRY: MethodInfo[] = [
   { name: 'getBridges', category: 'stairs-bridges', intent: 'List all bridges' },
 
   // ── trims ──────────────────────────────────────────
-  { name: 'createTrim', category: 'trims', intent: 'Cut a diagonal corner from a room' },
+  { name: 'createTrim', category: 'trims', intent: 'Cut a diagonal corner from a room (coordinate-based)' },
   { name: 'roundRoomCorners', category: 'trims', intent: 'Round all 4 corners of a labeled room' },
+  {
+    name: 'trimCorner',
+    category: 'trims',
+    intent: 'Cut one corner from a labeled room — compass ("nw") or [row,col]; works on irregular shapes',
+  },
 
   // ── fills ──────────────────────────────────────────
   { name: 'setFill', category: 'fills', intent: 'Set fill on a cell (pit/water/lava)' },
@@ -185,6 +191,11 @@ const REGISTRY: MethodInfo[] = [
 
   // ── inspection ─────────────────────────────────────
   { name: 'renderAscii', category: 'inspection', intent: 'ASCII-render a region of the map' },
+  {
+    name: 'previewShape',
+    category: 'inspection',
+    intent: 'ASCII preview of a labeled room (shape verification for trim/round ops)',
+  },
   { name: 'inspectRegion', category: 'inspection', intent: 'Structured per-cell dump of a region' },
   { name: 'getRoomSummary', category: 'inspection', intent: 'One-call survey of a labeled room' },
   { name: 'queryCells', category: 'inspection', intent: 'Find cells matching a structured predicate' },
@@ -289,6 +300,28 @@ const REGISTRY: MethodInfo[] = [
   { name: 'apiSearch', category: 'discovery', intent: 'Search API methods by keyword and category' },
   { name: 'apiDetails', category: 'discovery', intent: 'Get full signature + intent for a method' },
   { name: 'apiCategories', category: 'discovery', intent: 'List all API categories with method counts' },
+
+  // ── vocab (room semantic library) ──────────────────
+  {
+    name: 'listRoomTypes',
+    category: 'vocab',
+    intent: 'List every room type in the vocabulary library (name, tags, summary)',
+  },
+  {
+    name: 'searchRoomVocab',
+    category: 'vocab',
+    intent: 'Filter room vocab by tags/category/name — discovery without loading full specs',
+  },
+  {
+    name: 'getRoomVocab',
+    category: 'vocab',
+    intent: 'Fetch the full palette for one room type (primary/secondary/scatter/story prompts)',
+  },
+  {
+    name: 'suggestRoomType',
+    category: 'vocab',
+    intent: 'Fuzzy reverse-lookup: prose description → ranked room type suggestions',
+  },
 ];
 
 const BY_NAME = new Map<string, MethodInfo>(REGISTRY.map((m) => [m.name, m]));
@@ -399,6 +432,7 @@ function categoryToModule(cat: string): string {
     session: 'operational',
     catalog: 'operational',
     discovery: 'discovery',
+    vocab: 'vocab',
     operational: 'operational',
   };
   return map[cat] ?? 'unknown';

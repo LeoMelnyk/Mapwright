@@ -1,0 +1,69 @@
+{
+  "name": "tavern-common",
+  "category": "urban",
+  "tags": ["urban", "commercial", "social", "medium", "commoner", "gathering"],
+  "summary": "The common room of a working tavern. Bar along one wall, mixed tables, hearth, stairs up to rooms. Smoky, noisy, central to a town's social life.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 14],
+    "aspect_ratio": "rectangle, bar dictates long axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "worn footpath from door to bar",
+      "options": ["polyhaven/dirt_floor", "polyhaven/wooden_planks_worn"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["bar-counter"], "surrounded_by": ["stool-bar", "stool-bar", "stool-bar"], "note": "bar-forward tavern, barkeep at the center" },
+    { "props": ["hearth"], "surrounded_by": ["chair-upholstered", "chair-upholstered"], "note": "fireplace-forward — quieter tavern where regulars claim the hearth" },
+    { "props": ["stage-small"], "surrounded_by": ["bench", "bench"], "note": "entertainment-forward — bard's tavern, stage is the focus" }
+  ],
+  "secondary_palette": [
+    "bar-counter",
+    "table-round",
+    "table-long",
+    "bench",
+    "chair-wooden",
+    "stool-bar",
+    "keg-stack",
+    "shelf-bottles",
+    "hearth",
+    "staircase-wooden",
+    "notice-board",
+    "dart-board"
+  ],
+  "scatter_palette": [
+    "tankard",
+    "spilled-ale",
+    "broken-stool",
+    "dice-cup",
+    "playing-cards",
+    "pipe-clay",
+    "coin-pile",
+    "bowl-stew",
+    "bread-heel",
+    "cat-sleeping"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-shape-with-stair-alcove", "T-with-kitchen-pass"],
+    "discouraged": ["small-square", "formal"]
+  },
+  "story_prompts": [
+    "busy evening — every table full, bard playing, barkeep swamped",
+    "mid-afternoon lull — one patron at the bar, barkeep wiping glasses",
+    "post-brawl — overturned chairs, blood-smear on a table, regulars gossiping",
+    "closing time — last patrons staggering out, barkeep sweeping"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm social (0.4-0.5)",
+    "ambient_is": "required",
+    "common_sources": ["hearth", "chandelier-small", "candle-dipped", "lantern-post"]
+  },
+  "anti_patterns": [
+    "don't grid-align tables — organic, uneven placement reads as 'busy space'",
+    "the bar needs a back-bar / bottle shelf — a counter alone looks wrong",
+    "leave clear paths from door → bar and door → stairs — patrons need to move"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "celestial-vault",
+  "category": "planar",
+  "tags": ["planar", "celestial", "sacred", "formal", "large", "exotic", "light"],
+  "summary": "An open hall in the Upper Planes where gold, marble, and open sky blur together. Light itself is architecture — pillars of radiance support a ceiling that may not exist.",
+  "size_guidance": {
+    "min": [12, 16],
+    "typical": [14, 22],
+    "aspect_ratio": "2:1 with broad central axis — generous, airy, not intimate"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/white_marble",
+      "polyhaven/gold_tile",
+      "polyhaven/cloud_floor"
+    ],
+    "accent": {
+      "purpose": "radiant pathway or sun-disc inlay",
+      "options": ["polyhaven/gold_inlay", "polyhaven/white_marble"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["celestial-pillar-of-light"], "surrounded_by": ["celestial-pillar-of-light", "celestial-pillar-of-light"], "note": "central radiance as the sacred focus" },
+    { "props": ["sun-disc-altar"], "surrounded_by": ["holy-font", "holy-font"], "note": "classic celestial altar" },
+    { "props": ["statue-solar"], "surrounded_by": ["reliquary", "reliquary"], "note": "angel effigy presiding" },
+    { "props": ["celestial-scales"], "surrounded_by": ["floor-candelabra", "floor-candelabra"], "note": "place of judgment, weighing of souls" }
+  ],
+  "secondary_palette": [
+    "pillar-marble",
+    "celestial-pillar-of-light",
+    "holy-font",
+    "reliquary",
+    "statue-solar",
+    "banner-celestial",
+    "pew",
+    "floor-candelabra"
+  ],
+  "scatter_palette": [
+    "feather-celestial",
+    "offering-plate",
+    "flowers",
+    "candle",
+    "prayer-book",
+    "rose-petals"
+  ],
+  "shape_guidance": {
+    "preferred": ["open-hall-with-apse", "circle", "cruciform", "octagon"],
+    "discouraged": ["cramped", "square-small", "corridor"]
+  },
+  "story_prompts": [
+    "a solar presides over a judgment, the scales lit from within",
+    "empty at dawn — a single feather drifting down through a pillar of light",
+    "damaged by a fiendish raid — one pillar of light has gone out, leaving a dark scar",
+    "a planar traveler has been granted sanctuary and sleeps beneath the altar",
+    "vault is preparing for a soul's ascension — flowers laid, candles aligned"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright (0.6-0.75) with warm gold-white ambient color",
+    "ambient_is": "required",
+    "common_sources": ["celestial-pillar-of-light", "floor-candelabra", "sun-disc-altar"]
+  },
+  "anti_patterns": [
+    "never make it dim or gloomy — celestial space is LIGHT-forward",
+    "no dark wood, no black stone — white, gold, cream, pale blue only",
+    "avoid clutter — the room's power comes from open, resonant space",
+    "don't forget that the 'ceiling' may be open sky or infinite cloud"
+  ]
+}

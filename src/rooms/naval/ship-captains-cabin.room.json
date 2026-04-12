@@ -1,0 +1,62 @@
+{
+  "name": "ship-captains-cabin",
+  "category": "naval",
+  "tags": ["naval", "ship", "cabin", "officer", "private", "cramped"],
+  "summary": "The captain's quarters at the stern — a wide aft window, chart-strewn desk, a narrow bunk built into the bulkhead, personal trophies on every shelf.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [7, 10],
+    "aspect_ratio": "rectangular, stern-wider-than-long"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wood_planks_worn"],
+    "accent": {
+      "purpose": "rug under the desk",
+      "options": ["polyhaven/carpet_red", "polyhaven/carpet_worn"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["map-table"], "surrounded_by": ["chair", "lantern-post"], "note": "chart-covered working desk — the cabin's hub" },
+    { "props": ["desk"], "surrounded_by": ["chair", "chest", "bookshelf-short"], "note": "formal writing desk with ledger and quill" },
+    { "props": ["captains-bunk"], "surrounded_by": ["chest", "trunk"], "note": "built-in bunk against the bulkhead" },
+    { "props": ["ship-in-bottle-shelf"], "surrounded_by": ["trophy-case", "map-table"], "note": "collector captain — trophies dominate" }
+  ],
+  "secondary_palette": [
+    "chest",
+    "trunk",
+    "bookshelf-short",
+    "lantern-post",
+    "mirror",
+    "stern-window",
+    "weapon-rack-small",
+    "cabinet-liquor"
+  ],
+  "scatter_palette": [
+    "scroll-rolled",
+    "quill-and-ink",
+    "spyglass",
+    "liquor-bottle",
+    "log-book",
+    "chart-rolled"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-stern-tapered", "trapezoid-aft-wide"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "captain is missing — the log ends mid-sentence",
+    "a secret compartment in the desk holds a letter from the enemy admiral",
+    "mutineers occupy it now, the captain's effects smashed",
+    "the captain is alive, charming, and a vampire"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm interior (0.4-0.5) — lantern plus stern-window daylight",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "stern-window"]
+  },
+  "anti_patterns": [
+    "don't use a wide doorway — ship doors are narrow and reinforced",
+    "bunk always against a bulkhead, never floating mid-floor",
+    "don't fill the floor — leave a cleared path from door to desk"
+  ]
+}

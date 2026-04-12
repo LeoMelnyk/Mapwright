@@ -1,0 +1,68 @@
+{
+  "name": "temple-of-craft",
+  "category": "sacred",
+  "tags": ["sacred", "craft", "dwarven", "artisan", "forge", "religious", "workshop"],
+  "summary": "A temple where worship and making are the same act — a forge-shrine, a scriptorium-chapel, a loom-sanctuary. The tools of the craft are the altar furniture; the craft itself is the rite.",
+  "size_guidance": {
+    "min": [7, 9],
+    "typical": [9, 12],
+    "aspect_ratio": "rectangular — altar at one end, working space at the other"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_polished", "polyhaven/cobblestone_floor_03", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "the altar/focus floor — typically more sacred material",
+      "options": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["forge-altar"], "surrounded_by": ["anvil", "ward-stone", "ward-stone"], "note": "smith-god temple — the forge is the altar, an anvil as chancel furniture" },
+    { "props": ["loom-altar"], "surrounded_by": ["candelabra", "candelabra"], "note": "weaver-god temple — the loom is the altar, threads dedicated as offerings" },
+    { "props": ["altar"], "surrounded_by": ["desk", "scroll-rack"], "note": "scribe-god temple — the altar holds the sacred text; desks and scrolls around" },
+    { "props": ["hearth"], "surrounded_by": ["anvil", "tool-rack"], "note": "a working forge-shrine; less altar-focused, more hearth-centered" }
+  ],
+  "secondary_palette": [
+    "anvil",
+    "forge-altar",
+    "loom-altar",
+    "hearth",
+    "desk",
+    "bookshelf",
+    "scroll-rack",
+    "tool-rack",
+    "candelabra",
+    "ward-stone",
+    "statue",
+    "banner"
+  ],
+  "scatter_palette": [
+    "hammer",
+    "chisel",
+    "book",
+    "book-open",
+    "scroll-case",
+    "ingot-pile",
+    "candle"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-with-chancel", "hall-with-working-aisles"],
+    "discouraged": ["round", "tiny"]
+  },
+  "story_prompts": [
+    "a consecration-work in progress — a priest-artisan mid-craft, the work itself the rite",
+    "between rites — tools laid reverently in their racks, the hearth banked",
+    "a workshop stripped of its gods — the forge cold, the ward-stones carried off, sigils chiseled away",
+    "a masterwork in progress — the altar bears an item nearly finished, a gift for a great patron",
+    "a craftmaster's funeral — the anvil draped, the forge lit and the forge-altar burning bright"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm and working (0.45-0.55) — forge-glow dominant, with candles and wall-lanterns at the altar end",
+    "ambient_is": "required",
+    "common_sources": ["hearth", "forge-altar", "candelabra", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "the craft is the rite — the working tools are holy, not ornamental clutter",
+    "avoid pews — craftspeople stand at benches; this is not a congregant space",
+    "the altar and the workshop share the room — never split them into separate chambers"
+  ]
+}

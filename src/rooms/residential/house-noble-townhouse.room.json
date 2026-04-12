@@ -1,0 +1,72 @@
+{
+  "name": "house-noble-townhouse",
+  "category": "residential",
+  "tags": ["urban", "residential", "large", "noble", "townhouse", "parlor", "formal"],
+  "summary": "The receiving parlor of a noble townhouse — where the family meets callers. Tasteful, expensive, deliberately curated.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle, formal symmetry"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/parquet_floor", "polyhaven/marble_floor"],
+    "accent": {
+      "purpose": "central rug or fireplace hearthstone",
+      "options": ["polyhaven/carpet_ornate", "polyhaven/flagstone_polished"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["fireplace"], "surrounded_by": ["armchair", "armchair", "settee"], "note": "conversation parlor — the fire is the social axis" },
+    { "props": ["pianoforte"], "surrounded_by": ["armchair", "armchair"], "note": "musical family — recitals for guests, the piano is the centerpiece" },
+    { "props": ["tea-table"], "surrounded_by": ["armchair", "armchair", "armchair", "armchair"], "note": "afternoon-visit parlor — cards and tea, four-seat arrangement" },
+    { "props": ["display-case"], "surrounded_by": ["painting", "painting"], "note": "collector's parlor — the room exists to show off curiosities" }
+  ],
+  "secondary_palette": [
+    "fireplace",
+    "armchair",
+    "settee",
+    "tea-table",
+    "writing-desk",
+    "bookshelf",
+    "painting",
+    "mirror",
+    "carpet-royal",
+    "candelabra",
+    "floor-candelabra",
+    "sideboard",
+    "vase-floor"
+  ],
+  "scatter_palette": [
+    "calling-card-tray",
+    "tea-service",
+    "decanter",
+    "book-open",
+    "embroidery-hoop",
+    "fresh-flowers",
+    "lapdog-cushion",
+    "fan",
+    "snuffbox"
+  ],
+  "shape_guidance": {
+    "preferred": ["symmetrical-rectangle", "bay-window-alcove", "rectangle-with-fireplace-niche"],
+    "discouraged": ["asymmetric", "cramped", "cluttered"]
+  },
+  "story_prompts": [
+    "awaiting an important caller — fire built up, decanter laid out, nobody yet present",
+    "the morning after a social triumph — cards scattered, ashtrays full, servants not yet cleaning",
+    "the family is in mourning — mirrors draped, furniture pushed to the walls",
+    "the parlor hides a secret — a panel behind the painting, a coded book on the shelf",
+    "the lord and lady are having the Argument again — chairs pulled apart, the settee empty"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "formal warm (0.5-0.6) — fireplace and candelabra, window light by day",
+    "ambient_is": "required",
+    "common_sources": ["fireplace", "candelabra", "floor-candelabra", "chandelier"]
+  },
+  "anti_patterns": [
+    "no clutter — servants keep this room presentation-ready at all times",
+    "no trade tools or working surfaces — this is a performance room",
+    "the fireplace belongs on a wall, not freestanding — anchor it",
+    "symmetry matters — pair your armchairs, balance your art"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "name": "forest-clearing",
+  "category": "wilderness",
+  "tags": ["wilderness", "forest", "clearing", "natural", "open"],
+  "summary": "A natural break in the forest canopy. Sunlit grass, scattered wildflowers, a fallen log or two. The default 'open space in the woods' — neutral, pleasant, flexible.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [12, 12],
+    "aspect_ratio": "near-circular or soft oval"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/grass_floor", "polyhaven/forest_floor", "polyhaven/moss_ground"]
+  },
+  "primary_palette": [
+    { "props": ["fallen-log"], "surrounded_by": ["flower-patch", "tall-grass"], "note": "single big log across the clearing — seat, landmark, cover" },
+    { "props": ["tree-stump"], "surrounded_by": ["mushroom-cluster", "fern"], "note": "old cut stump as the clearing's quiet center" },
+    { "props": ["flower-patch"], "surrounded_by": ["flower-patch", "tall-grass"], "note": "wildflower meadow — nothing but color and grass" },
+    { "props": ["pond"], "surrounded_by": ["reed-bed", "tall-grass"], "note": "small natural pool — the clearing exists because water won't let trees grow" }
+  ],
+  "secondary_palette": [
+    "fallen-log",
+    "tree-stump",
+    "tree-small",
+    "bush",
+    "bush-large",
+    "flower-patch",
+    "tall-grass",
+    "fern",
+    "mushroom-cluster",
+    "rock-cluster"
+  ],
+  "scatter_palette": [
+    "flower-patch",
+    "flowers",
+    "tall-grass",
+    "fern",
+    "mushroom",
+    "moss-patch",
+    "fallen-leaves",
+    "butterfly-cloud",
+    "rabbit-trail"
+  ],
+  "shape_guidance": {
+    "preferred": ["near-circular", "soft-oval", "irregular-blob"],
+    "discouraged": ["rectangle", "square", "any-right-angles"]
+  },
+  "story_prompts": [
+    "peaceful rest-stop — a good place to camp, refuel, regroup",
+    "ambush site — the clearing offers no cover, enemies on all tree lines",
+    "a body in the grass — recent, no visible wound, the flowers around it are wilted in a ring",
+    "fey circle — a perfect ring of mushrooms, stepping inside has consequences",
+    "ritual site — someone drew a chalk pattern here, half-washed by rain"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright daylight — the clearing exists because sun reaches the floor",
+    "ambient_is": "discouraged",
+    "common_sources": ["campfire"]
+  },
+  "anti_patterns": [
+    "no built walls — the treeline defines the edge via invisible walls and perimeter trees",
+    "do not fill the clearing — it should read as open ground first, decorated second",
+    "avoid perfect symmetry — the log and stump land where they fell, not where they'd balance"
+  ]
+}

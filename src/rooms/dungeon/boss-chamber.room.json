@@ -1,0 +1,78 @@
+{
+  "name": "boss-chamber",
+  "category": "dungeon",
+  "tags": ["dungeon", "combat", "climactic", "large", "dramatic"],
+  "summary": "The dungeon's final encounter room — large, theatrical, built around the boss's identity and fighting style. Space to maneuver, features to exploit, a silhouette to remember.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [14, 16],
+    "aspect_ratio": "generous — combat needs room, drama needs scale"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/marble_floor",
+      "polyhaven/stone_tile_polished",
+      "polyhaven/cave_floor"
+    ],
+    "accent": {
+      "purpose": "raised platform / arena circle / boss dais",
+      "options": ["polyhaven/marble_floor", "polyhaven/wood_floor", "polyhaven/stone_tile_polished"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["bone-throne"], "surrounded_by": ["pillar", "pillar", "pillar", "pillar"], "note": "lich or undead lord — throne among columns" },
+    { "props": ["necrotic-altar", "ritual-circle"], "note": "cult leader mid-rite — the ritual itself is the battlefield" },
+    { "props": ["treasure-pile-massive"], "surrounded_by": ["pillar", "pillar"], "note": "dragon's hoard — the boss sleeps on wealth" },
+    { "props": ["forge", "anvil"], "surrounded_by": ["weapon-rack", "weapon-rack"], "note": "warlord's forge-hall — the boss fights with things they made" },
+    { "props": ["arena-pit", "pillar", "pillar", "pillar", "pillar"], "note": "pit-arena — sunken floor, columns, verticality" },
+    { "props": ["summoning-pool"], "surrounded_by": ["obelisk", "obelisk", "obelisk"], "note": "demon-summoner — the boss calls reinforcements from the pool" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "pillar-corner",
+    "stone-column",
+    "obelisk",
+    "brazier",
+    "floor-candelabra",
+    "chandelier",
+    "statue",
+    "banner",
+    "chain-wall",
+    "ward-stone",
+    "rubble",
+    "stalagmite"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "corpse",
+    "broken-weapon",
+    "treasure-pile-small",
+    "shattered-shield",
+    "bloodstain-large",
+    "scorched-cell"
+  ],
+  "shape_guidance": {
+    "preferred": ["octagon-via-corner-trims", "rounded-apse-behind-boss", "long-rectangle", "cross", "round-arena"],
+    "discouraged": ["narrow-corridor-like", "cramped-square"]
+  },
+  "story_prompts": [
+    "a vampire's hall — coffin at the apse, pillars casting long shadows",
+    "a collapsed cathedral where the boss fights beneath a broken dome",
+    "a dragon's cavern — stalactites above, hoard below, a central open floor",
+    "a hag's warren at the heart of a swamp-dungeon, many small alcoves",
+    "a warlord's audience hall turned battlefield, banners still hanging",
+    "an archmage's sanctum with three activated magic circles"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dramatic, often colored (0.2-0.4)",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "chandelier", "floor-candelabra", "crystal-torch", "summoning-pool-glow"]
+  },
+  "anti_patterns": [
+    "don't center the boss — offset to the back third so the party enters facing them across space",
+    "don't clutter the combat floor — pillars and features at edges, center stays open",
+    "don't underlight — drama needs visible silhouettes",
+    "avoid reusing a throne-room palette exactly; the boss chamber should feel more volatile"
+  ]
+}

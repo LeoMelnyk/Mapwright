@@ -1,0 +1,64 @@
+{
+  "name": "temple-nave",
+  "category": "sacred",
+  "tags": ["urban", "sacred", "large", "formal", "religious", "ceremonial"],
+  "summary": "The public worship space of a temple. Long processional nave, pews facing the altar, apse behind. Scale makes worshippers feel small.",
+  "size_guidance": {
+    "min": [10, 14],
+    "typical": [12, 20],
+    "aspect_ratio": "3:1 very elongated — the nave IS the long axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_polished", "polyhaven/marble_floor", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "dais / chancel area at the altar end",
+      "options": ["polyhaven/marble_floor", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["altar"], "surrounded_by": ["candelabra", "candelabra"], "note": "classic altar with flanking candles" },
+    { "props": ["altar-sacrificial"], "surrounded_by": ["brazier", "brazier"], "note": "dark or blood-faith temple" },
+    { "props": ["statue-deity"], "surrounded_by": ["offering-plate", "offering-plate"], "note": "deity effigy as the primary; altar secondary" }
+  ],
+  "secondary_palette": [
+    "pew",
+    "pillar",
+    "candelabra",
+    "holy-font",
+    "brazier",
+    "banner-religious",
+    "tapestry-religious",
+    "icon-wall",
+    "kneeling-bench",
+    "pulpit"
+  ],
+  "scatter_palette": [
+    "censer",
+    "offering-plate",
+    "prayer-book",
+    "candle-dipped",
+    "holy-symbol",
+    "ashes-pile",
+    "withered-offering"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-nave-with-rounded-apse", "long-rectangle-with-pillar-aisles", "cruciform"],
+    "discouraged": ["small", "square"]
+  },
+  "story_prompts": [
+    "service in progress — pews half-occupied, censer smoke in the air",
+    "dawn, empty — single candle lit at the altar, keeper sweeping",
+    "desecrated — altar cloth torn, candles snapped, effigy defaced",
+    "threshold of a major feast — extra candles, flowers, ceremonial fabric unrolled"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim reverent (0.3-0.4) — candle and brazier dominant",
+    "ambient_is": "required",
+    "common_sources": ["candelabra", "brazier", "chandelier"]
+  },
+  "anti_patterns": [
+    "altar goes at one end (usually north) — never center",
+    "pews in rows with a central aisle, facing the altar",
+    "bilateral symmetry across the nave axis — it's a ceremonial space"
+  ]
+}

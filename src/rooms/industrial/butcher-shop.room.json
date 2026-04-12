@@ -1,0 +1,67 @@
+{
+  "name": "butcher-shop",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "commercial", "medium", "wet", "food"],
+  "summary": "A butcher's shop. Customer counter facing the street, back workroom with chopping blocks, hanging carcasses on hooks, a salt barrel for curing. Bloody apron, sharp knives.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 10],
+    "aspect_ratio": "rectangle with customer counter short-side, workroom behind"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "blood-stained zone under hooks and blocks",
+      "options": ["polyhaven/dirt_floor", "polyhaven/cobblestone_floor_03"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["chopping-block", "meat-hook-rack"], "surrounded_by": ["counter", "scale"], "note": "classic butcher — block, hanging meats, front counter" },
+    { "props": ["chopping-block", "chopping-block"], "surrounded_by": ["meat-hook-rack", "salt-barrel"], "note": "production butcher — wholesale, twin blocks" },
+    { "props": ["chopping-block"], "surrounded_by": ["meat-hook-rack", "display-case", "scale"], "note": "upscale butcher — display case for cut offerings" }
+  ],
+  "secondary_palette": [
+    "chopping-block",
+    "meat-hook-rack",
+    "counter",
+    "display-case",
+    "scale",
+    "salt-barrel",
+    "barrel",
+    "cabinet",
+    "shelf-open",
+    "workbench",
+    "weapon-rack"
+  ],
+  "scatter_palette": [
+    "cleaver",
+    "knife-curved",
+    "fly-swarm",
+    "blood-smear",
+    "bone-pile",
+    "sausage-link",
+    "rag-damp",
+    "bucket-stained",
+    "cat-hunting"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-back-room", "T-with-counter-front"],
+    "discouraged": ["open-hall", "round"]
+  },
+  "story_prompts": [
+    "market morning — counter busy, butcher cutting to order, apprentice hauling carcass",
+    "suspicious delivery — an unmarked cart, a butcher arguing with a cloaked figure",
+    "inspection — guild official checking weights, butcher sweating",
+    "night cleanup — buckets of pink water, butcher scrubbing the blocks alone"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "practical working light (0.4) — visibility for precision cuts",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "candle", "chandelier"]
+  },
+  "anti_patterns": [
+    "customer counter faces the street — workroom behind",
+    "meat hooks hang from ceiling against back wall, not centerfloor",
+    "don't forget the drain — blood has to go somewhere, imply it with stained texture"
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "name": "ritual-chamber",
+  "category": "dungeon",
+  "tags": ["dungeon", "occult", "sacred", "magical", "medium"],
+  "summary": "A consecrated space for invocations and summoning — a central figure (circle, altar, or pool) with radial focus, candles and braziers defining the working floor.",
+  "size_guidance": {
+    "min": [7, 7],
+    "typical": [9, 9],
+    "aspect_ratio": "symmetric — square, circular, or octagonal"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/stone_tile_polished",
+      "polyhaven/marble_floor",
+      "polyhaven/cobblestone_floor_03"
+    ],
+    "accent": {
+      "purpose": "ritual circle inlay",
+      "options": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ritual-circle"], "surrounded_by": ["candle-cluster", "candle-cluster", "candle-cluster", "candle-cluster"], "note": "summoning ground — circle ringed by candles at cardinal points" },
+    { "props": ["magic-circle", "altar"], "note": "altar at the head of the circle — an offering-and-invocation setup" },
+    { "props": ["necrotic-altar"], "surrounded_by": ["bone-shrine", "bone-shrine"], "note": "necromantic rite — bones at the corners, altar in the heart" },
+    { "props": ["arcane-pedestal"], "surrounded_by": ["obelisk", "obelisk", "obelisk", "obelisk"], "note": "ley-line focus — four obelisks channeling into a central pedestal" },
+    { "props": ["bone-shrine", "ritual-circle"], "surrounded_by": ["skeleton", "skeleton"], "note": "past ritual — the bodies are still there" }
+  ],
+  "secondary_palette": [
+    "candle",
+    "candle-cluster",
+    "candelabra",
+    "floor-candelabra",
+    "censer",
+    "brazier",
+    "obelisk",
+    "ward-stone",
+    "pillar",
+    "altar",
+    "spell-focus",
+    "scroll-rack",
+    "reliquary"
+  ],
+  "scatter_palette": [
+    "skull-offering",
+    "chalk-marks",
+    "melted-wax",
+    "bloodstain",
+    "spilled-salt",
+    "incense-stub",
+    "torn-page"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "octagon-via-corner-trims", "circle", "square-with-rounded-corners"],
+    "discouraged": ["long-rectangle", "narrow-corridor-like"]
+  },
+  "story_prompts": [
+    "active ritual interrupted — candles still lit, chalk still fresh, the caster fled",
+    "ancient chamber, runes faded but the geometry still works",
+    "bound-demon chamber where the circle holds something still",
+    "preparatory state — robes hung, braziers cold, the rite is tomorrow",
+    "ruined ritual — the circle was broken and something got out"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "purple/green/red tint, dim (0.15-0.3)",
+    "ambient_is": "optional",
+    "common_sources": ["candle-cluster", "candelabra", "brazier", "censer", "crystal-torch"]
+  },
+  "anti_patterns": [
+    "don't fill the circle with props — its power is its emptiness",
+    "don't use warm hearth light; ritual chambers are cold-lit",
+    "avoid furniture that doesn't serve the rite (no mess tables, no beds)"
+  ]
+}

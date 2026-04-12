@@ -1,0 +1,66 @@
+{
+  "name": "house-medium-family",
+  "category": "residential",
+  "tags": ["urban", "residential", "medium", "family", "common-room", "middle-class"],
+  "summary": "A middle-class family's main room — hearth, table for six, a few treasured possessions on a shelf. Lived-in but tidy.",
+  "size_guidance": {
+    "min": [7, 8],
+    "typical": [9, 11],
+    "aspect_ratio": "squarish to short-rectangle"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/worn_plank_floor", "polyhaven/flagstone_floor"]
+  },
+  "primary_palette": [
+    { "props": ["kitchen-table"], "surrounded_by": ["chair", "chair", "chair", "chair"], "note": "hearth-centered family dinner — the table is the gathering point" },
+    { "props": ["hearth"], "surrounded_by": ["rocking-chair", "armchair", "sewing-basket"], "note": "evening hearthside — quiet hour, mending and stories" },
+    { "props": ["long-table"], "surrounded_by": ["bench", "bench"], "note": "larger family or boarder house — bench seating, communal" },
+    { "props": ["cradle", "armchair"], "note": "young family — nursing chair by the fire, baby sleeping" }
+  ],
+  "secondary_palette": [
+    "hearth",
+    "cabinet",
+    "cupboard",
+    "shelf",
+    "chair",
+    "stool",
+    "rocking-chair",
+    "chest",
+    "carpet",
+    "wash-basin",
+    "spinning-wheel"
+  ],
+  "scatter_palette": [
+    "bread-loaf",
+    "candle",
+    "sewing-basket",
+    "wooden-toy",
+    "family-portrait-small",
+    "dried-herbs",
+    "water-jug",
+    "knitting-pile",
+    "cat-sleeping",
+    "prayer-beads"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "squarish", "L-with-hearth-nook"],
+    "discouraged": ["long-formal", "multi-partition"]
+  },
+  "story_prompts": [
+    "mid-meal — a place set for someone who hasn't come home",
+    "tidy, empty — the family is at market, back by dusk",
+    "holiday night — table extended with a borrowed board, wreath on the door",
+    "grieving household — the father's chair left empty, his cup still on the shelf",
+    "contested inheritance — two sets of possessions uneasily sharing one room"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm moderate (0.4-0.5) — hearth plus candles or a shuttered window",
+    "ambient_is": "optional",
+    "common_sources": ["hearth", "candelabra", "wall-lantern", "candle"]
+  },
+  "anti_patterns": [
+    "not a single-person room — spaces show multiple occupants (mismatched chairs, multiple mugs, toys)",
+    "avoid luxury props — no gold, no crystal, no velvet. Wool and pewter.",
+    "don't over-clutter — this is a cared-for home, not a hovel"
+  ]
+}

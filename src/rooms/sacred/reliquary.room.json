@@ -1,0 +1,57 @@
+{
+  "name": "reliquary",
+  "category": "sacred",
+  "tags": ["sacred", "small", "vault", "restricted", "treasure", "religious"],
+  "summary": "A small vault-chamber housing saintly relics, holy objects, or bound curiosities. Cool, close, lined with pedestals and cases. Sometimes unlit — the relics do not need to see.",
+  "size_guidance": {
+    "min": [3, 3],
+    "typical": [4, 5],
+    "aspect_ratio": "small, near-square or slightly rectangular"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_polished", "polyhaven/marble_floor", "polyhaven/stone_tile_rough"]
+  },
+  "primary_palette": [
+    { "props": ["reliquary"], "surrounded_by": ["candle", "candle"], "note": "a single great casket at the center, flanked by candles" },
+    { "props": ["pedestal-stone"], "surrounded_by": ["ward-stone"], "note": "a lone pedestal with a warded relic; the chamber is otherwise bare" },
+    { "props": ["sarcophagus"], "surrounded_by": ["candelabra", "candelabra"], "note": "the relic is a saint's body itself" },
+    { "props": ["reliquary", "reliquary", "reliquary"], "note": "several smaller reliquaries arranged along the walls — a collection" }
+  ],
+  "secondary_palette": [
+    "pedestal-stone",
+    "candelabra",
+    "candle",
+    "ward-stone",
+    "scroll-case",
+    "bookshelf",
+    "painting",
+    "banner"
+  ],
+  "scatter_palette": [
+    "book",
+    "scroll-case",
+    "candle",
+    "offering-plate"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "small-rectangle", "alcove"],
+    "discouraged": ["large", "open-plan"]
+  },
+  "story_prompts": [
+    "a relic missing — empty pedestal, wards cold, dust outline on the stone",
+    "sealed for a generation — cobwebs undisturbed, candles never lit",
+    "a cursed relic — wards carved thickly on every wall, chains across the casket",
+    "newly endowed — crates of wrapped items waiting to be catalogued",
+    "a pilgrim permitted rare entry — one lamp lit, a prayer written in chalk on the floor"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "either near-dark (0.1) with single focused candle, or entirely unlit — the relic's presence IS the lighting",
+    "ambient_is": "optional",
+    "common_sources": ["candle", "candelabra", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "keep it small — a reliquary is a vault, not a gallery",
+    "pedestals hug the walls; the center should be clear for approach or kneeling",
+    "no seating and no furniture — relics are approached on foot, reverently"
+  ]
+}

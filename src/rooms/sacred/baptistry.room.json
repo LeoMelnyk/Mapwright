@@ -1,0 +1,62 @@
+{
+  "name": "baptistry",
+  "category": "sacred",
+  "tags": ["sacred", "water", "initiation", "religious", "ceremonial"],
+  "summary": "A chamber built around a font or sunken pool for rites of initiation — baptism, cleansing, rebirth. Wet stone, echo, candles reflected in still water.",
+  "size_guidance": {
+    "min": [5, 5],
+    "typical": [7, 7],
+    "aspect_ratio": "square or octagonal — the pool is centered and approached from all sides"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "the pool surround — a contrasting border",
+      "options": ["polyhaven/stone_tile_polished", "polyhaven/marble_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["baptismal-pool"], "surrounded_by": ["candelabra", "candelabra", "candelabra", "candelabra"], "note": "a sunken pool with candelabra at each corner" },
+    { "props": ["holy-font"], "surrounded_by": ["pillar", "pillar"], "note": "a standing font flanked by pillars — for infant baptism or head-anointing" },
+    { "props": ["baptismal-pool"], "surrounded_by": ["statue"], "note": "a pool watched over by an effigy of the patron on a central plinth" },
+    { "props": ["holy-font"], "surrounded_by": ["kneeling-bench", "kneeling-bench"], "note": "a small font with kneelers — personal rite, not ceremonial spectacle" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "candelabra",
+    "floor-candelabra",
+    "kneeling-bench",
+    "holy-font",
+    "statue",
+    "bench",
+    "painting",
+    "banner"
+  ],
+  "scatter_palette": [
+    "candle",
+    "offering-plate",
+    "book",
+    "carpet-runner"
+  ],
+  "shape_guidance": {
+    "preferred": ["octagonal", "square-centered", "round"],
+    "discouraged": ["long-nave", "irregular"]
+  },
+  "story_prompts": [
+    "a rite in progress — a robed initiate stepping into the water, priest with raised hand",
+    "empty and still — the pool glass-flat, candles doubled in reflection",
+    "the water wrong — dark, steaming, or algal; something has spoiled the rite",
+    "aftermath — wet footprints leading to a side door, candles guttered",
+    "a secret chamber beneath the pool — drained, the tiled basin lifted aside"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "reflective and clear (0.4-0.5) — warm candlelight caught and doubled on the water",
+    "ambient_is": "required",
+    "common_sources": ["candelabra", "floor-candelabra", "wall-lantern", "chandelier"]
+  },
+  "anti_patterns": [
+    "the pool or font is centered — the room is built around it",
+    "approachable from multiple sides — no single forced axis",
+    "never fill with clutter; the water should dominate the sightline"
+  ]
+}

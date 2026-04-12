@@ -1,0 +1,62 @@
+{
+  "name": "ship-crew-quarters",
+  "category": "naval",
+  "tags": ["naval", "ship", "berth", "crew", "cramped", "squalid"],
+  "summary": "A low-ceilinged berth where the crew swings in ranks of hammocks — sea chests under every hook, the air thick with sweat and tar.",
+  "size_guidance": {
+    "min": [6, 10],
+    "typical": [8, 14],
+    "aspect_ratio": "long rectangle along the keel"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wood_planks_worn"],
+    "accent": {
+      "purpose": "worn path down the centerline",
+      "options": ["polyhaven/wood_planks_worn"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ships-hammock"], "surrounded_by": ["ships-hammock", "trunk"], "note": "paired ranks of slung hammocks — typical crew berth" },
+    { "props": ["mess-table-folding"], "surrounded_by": ["bench-long", "bench-long"], "note": "a table rigged down for meals, stows between watches" },
+    { "props": ["gear-locker"], "surrounded_by": ["trunk", "trunk"], "note": "communal kit stow for the watch" }
+  ],
+  "secondary_palette": [
+    "ships-hammock",
+    "trunk",
+    "chest",
+    "bench-long",
+    "lantern-post",
+    "barrel",
+    "rope-coil",
+    "bucket"
+  ],
+  "scatter_palette": [
+    "tankard",
+    "boots-discarded",
+    "dice-cup",
+    "rag-pile",
+    "playing-cards",
+    "rope-coil",
+    "bucket"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "narrow-corridor-with-nooks"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "off-watch sleeping — an argument brewing in the corner",
+    "recent fight — one hammock cut down, blood on the planks",
+    "empty, mid-battle — the crew is all topside",
+    "plague has taken half the watch, shrouds wrapped in the hammocks"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim (0.2-0.25), single swinging lantern",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post"]
+  },
+  "anti_patterns": [
+    "hammocks don't touch the floor — they hang from beams; leave clear floor beneath",
+    "don't scatter chests randomly — each hammock has its chest directly under it",
+    "no elegant furniture — everything is rough, functional, salt-bleached"
+  ]
+}

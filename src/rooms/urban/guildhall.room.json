@@ -1,0 +1,67 @@
+{
+  "name": "guildhall",
+  "category": "urban",
+  "tags": ["urban", "commercial", "social", "large", "noble", "formal"],
+  "summary": "A guild's meeting hall — long table for elder councils, a heraldic banner on the wall, trophies of the craft displayed in cases, a lectern for public address. A hall where decisions get made.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 16],
+    "aspect_ratio": "long rectangle, long-table oriented along the long axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "formal runner down the central axis",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["long-table"], "surrounded_by": ["chair", "chair", "chair"], "note": "classic council hall — long-table occupies the center, banner behind" },
+    { "props": ["lectern"], "surrounded_by": ["bench", "bench", "long-table"], "note": "assembly hall — speaker at lectern, members on benches" },
+    { "props": ["long-table", "display-case"], "surrounded_by": ["chair", "painting", "weapon-rack"], "note": "trophy hall — council table with craft relics on display" }
+  ],
+  "secondary_palette": [
+    "long-table",
+    "lectern",
+    "bench",
+    "chair",
+    "display-case",
+    "painting",
+    "banner",
+    "bookshelf",
+    "cabinet",
+    "fireplace",
+    "chandelier",
+    "weapon-rack"
+  ],
+  "scatter_palette": [
+    "ledger-stack",
+    "quill",
+    "inkwell",
+    "wax-seal",
+    "goblet",
+    "document-stack",
+    "hourglass",
+    "gavel"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "great-hall", "T-with-entry-foyer"],
+    "discouraged": ["small", "round"]
+  },
+  "story_prompts": [
+    "annual vote — elders seated, members standing, tally being read",
+    "crisis session — emergency meeting, guild master furious, rival faction arguing",
+    "induction ceremony — initiates kneeling before the long-table, banner raised",
+    "empty hall after session — overturned chairs, spilled goblet, one elder lingering"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "formal hall-light (0.5) — chandelier over the long-table",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "fireplace", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "the long-table is the focus — don't clutter the center with other props",
+    "banner behind the head of the table — visual axis",
+    "leave clear walking room on both sides of the table for attendants"
+  ]
+}

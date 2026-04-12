@@ -1,0 +1,67 @@
+{
+  "name": "goblin-warren-entrance",
+  "category": "wilderness",
+  "tags": ["wilderness", "goblin", "entrance", "trap", "chaotic"],
+  "summary": "The outside approach to a goblin warren — a slope-dug hole or cave mouth, ringed with stolen junk, crude traps, and pointless totems. Small, mean, trash-strewn, watched from peep-holes.",
+  "size_guidance": {
+    "min": [7, 7],
+    "typical": [9, 9],
+    "aspect_ratio": "irregular approach funneling into a hole"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/mud_floor", "polyhaven/trampled_earth"]
+  },
+  "primary_palette": [
+    { "props": ["warren-hole"], "surrounded_by": ["junk-pile", "bone-totem-small", "bear-trap"], "note": "dug hole into a slope, junk heaped around, a trap on the approach" },
+    { "props": ["cave-mouth-small"], "surrounded_by": ["junk-pile", "skull-on-stick", "spike-pit-hidden"], "note": "natural cave mouth crudely defended, spike pit half-covered" },
+    { "props": ["junk-pile"], "surrounded_by": ["bone-totem-small", "warren-hole", "bear-trap"], "note": "massive midden outside the hole — stolen goods, broken gear, bones" }
+  ],
+  "secondary_palette": [
+    "warren-hole",
+    "cave-mouth-small",
+    "junk-pile",
+    "bone-totem-small",
+    "skull-on-stick",
+    "bear-trap",
+    "spike-pit-hidden",
+    "tripwire",
+    "campfire-stone",
+    "hide-tarp",
+    "cart",
+    "crate"
+  ],
+  "scatter_palette": [
+    "gnawed-bone",
+    "shiny-trinket",
+    "broken-arrow",
+    "torn-cloth",
+    "rat-carcass",
+    "ash-pile",
+    "dung-pile",
+    "stolen-shoe",
+    "coin-scatter"
+  ],
+  "shape_guidance": {
+    "preferred": ["funnel-into-hole", "irregular-with-choke-point", "slope-approach"],
+    "discouraged": ["rectangle", "symmetric", "open-circle"]
+  },
+  "story_prompts": [
+    "watchers in the hole — the goblins know you're coming, the approach is primed",
+    "mid-feast — bonfire at the entrance, drunk goblins, sentries asleep",
+    "recently attacked — adventurers' bodies tangled in the traps, hole silent",
+    "the goblins are hiding from something bigger — they'll parley, for once",
+    "a 'warren' that's actually a setup — bait, no goblins, waiting for the party to enter"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor — daylit approach, dark hole, small cookfire possible",
+    "ambient_is": "discouraged",
+    "common_sources": ["campfire-stone", "torch-totem"]
+  },
+  "anti_patterns": [
+    "no built walls — the hole is a prop, the slope is the room boundary",
+    "the junk is THE theme — stolen rich-people items next to rotten trash",
+    "traps should be visible to the player but 'hidden' in-fiction — a warning, not a gotcha",
+    "do not make it look orderly — goblins live in chaos, just with more layers than it first appears",
+    "keep scale SMALL — goblins build small, low, cramped; nothing human-height if avoidable"
+  ]
+}

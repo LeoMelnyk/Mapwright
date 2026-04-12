@@ -1,0 +1,64 @@
+{
+  "name": "cave-bandit-camp",
+  "category": "wilderness",
+  "tags": ["wilderness", "cave", "camp", "bandit", "squalid"],
+  "summary": "A bandit crew has squatted in a natural cave. Messy, stinking, half-organized — bedrolls around a smoky fire, loot piled where it landed, a watch-point near the mouth.",
+  "size_guidance": {
+    "min": [7, 7],
+    "typical": [10, 10],
+    "aspect_ratio": "irregular — one main chamber plus a back nook"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/cave_floor", "polyhaven/rock_ground"]
+  },
+  "primary_palette": [
+    { "props": ["campfire-stone"], "surrounded_by": ["bedroll", "bedroll", "crate"], "note": "central smoky fire, bedrolls radiating out, crate-seats" },
+    { "props": ["loot-pile"], "surrounded_by": ["crate", "crate", "barrel"], "note": "stolen cargo dumped — half-open chest, rolled rug, sacks" },
+    { "props": ["campfire-stone"], "surrounded_by": ["chopping-block", "log-pile"], "note": "working camp — cooking setup, firewood stocked, butchery" },
+    { "props": ["cart"], "note": "stolen cart wedged into the cave — contents being sorted onto the floor" }
+  ],
+  "secondary_palette": [
+    "bedroll",
+    "crate",
+    "barrel",
+    "log-pile",
+    "chopping-block",
+    "boulder",
+    "weapon-rack-crude",
+    "lantern-post",
+    "rope-coil",
+    "loot-pile"
+  ],
+  "scatter_palette": [
+    "bottle-empty",
+    "dice-pile",
+    "chicken-bone",
+    "torn-cloth",
+    "coin-scatter",
+    "playing-cards",
+    "rubble",
+    "ash-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-blob", "L-shape", "main-chamber-with-nook"],
+    "discouraged": ["rectangle", "symmetric", "clean-geometry"]
+  },
+  "story_prompts": [
+    "full crew home, drunk and loud — easy to scout, hard to surprise",
+    "skeleton watch — two bandits left behind, rest out on a job",
+    "recently raided by rivals — bodies, the loot stripped",
+    "the crew hides a kidnap victim in the back nook — bound, gagged, alive",
+    "they've been here too long — disease is spreading through the bedrolls"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "cave-dark with firelight — ambient low, strong campfire glow in the main chamber",
+    "ambient_is": "discouraged",
+    "common_sources": ["campfire", "campfire-stone", "lantern-post", "torch-wall"]
+  },
+  "anti_patterns": [
+    "no built walls — use rough cave outline (iw or rounded corners)",
+    "do not make it tidy — scatter loot and refuse, bedrolls at uneven angles",
+    "the fire should be near-centered under a natural chimney, not against a wall",
+    "watch position near the mouth should be visibly distinct — a single bedroll or crate-seat separated from the main cluster"
+  ]
+}

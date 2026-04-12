@@ -1,0 +1,58 @@
+{
+  "name": "ruined-watchtower",
+  "category": "wilderness",
+  "tags": ["wilderness", "military", "ruined", "small", "vertical"],
+  "summary": "The ground floor of a collapsed border watchtower. Partial walls, exposed to the sky, debris from upper floors strewn across the floor.",
+  "size_guidance": {
+    "min": [4, 4],
+    "typical": [5, 5],
+    "aspect_ratio": "square — towers are vertical"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_08", "polyhaven/stone_tile_rough", "polyhaven/dirt_floor"]
+  },
+  "primary_palette": [
+    { "props": ["collapsed-stair"], "note": "the stair up is broken — access to the tower's upper floors impossible or climb-DC" },
+    { "props": ["brazier-dead"], "surrounded_by": ["rubble-pile"], "note": "cold watchfire, site where guards once warmed hands" },
+    { "props": ["skeleton-slumped"], "note": "previous occupant — centerpiece of the tragedy" }
+  ],
+  "secondary_palette": [
+    "rubble-pile",
+    "fallen-beam",
+    "broken-arrow-slit",
+    "collapsed-wall-segment",
+    "stair-remnant",
+    "watchfire-ring",
+    "weapon-rack-broken",
+    "bedroll"
+  ],
+  "scatter_palette": [
+    "arrow-broken",
+    "shield-broken",
+    "helmet-rusted",
+    "ration-moldy",
+    "bone-pile",
+    "wild-plant-sprouting",
+    "bird-nest"
+  ],
+  "shape_guidance": {
+    "preferred": ["square-with-rounded-trims", "circle", "square-with-collapsed-wall-section"],
+    "discouraged": ["large", "rectangular"]
+  },
+  "story_prompts": [
+    "fell to bandits a decade ago, never reclaimed",
+    "abandoned after the border shifted — nothing dramatic, just irrelevant",
+    "struck by magic — one wall fused to glass, corpses in peculiar positions",
+    "reclaimed by a scout party as a temporary camp, rope up to the broken second floor"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "natural — daylit via collapsed roof",
+    "ambient_is": "optional",
+    "common_sources": ["campfire", "lantern-floor"]
+  },
+  "anti_patterns": [
+    "at least one wall should be partially broken — use short wall runs, not full enclosure",
+    "rubble concentrated under where upper floors were — not evenly scattered",
+    "no pristine surviving furniture — everything is damaged or repurposed"
+  ]
+}

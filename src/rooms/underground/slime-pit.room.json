@@ -1,0 +1,61 @@
+{
+  "name": "slime-pit",
+  "category": "underground",
+  "tags": ["underground", "ooze", "hazard", "wet", "organic", "decaying"],
+  "summary": "A low-ceilinged sump where the cave floor has rotted into acidic slime — stained walls, dissolved bones, the slow drip of ceiling ichor.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "shallow bowl, wider than long"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/slime_floor", "polyhaven/wet_stone", "polyhaven/mud_ground"],
+    "accent": {
+      "purpose": "raised dry walkway / stone ledge",
+      "options": ["polyhaven/rock_ground", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ooze-pool"], "surrounded_by": ["bone-pile", "dissolved-skeleton"], "note": "the pit's centerpiece — a wide pool of living slime" },
+    { "props": ["dripping-stalactite"], "surrounded_by": ["ooze-puddle", "ooze-puddle"], "note": "acid-drip feature growing a fresh ooze below" },
+    { "props": ["victim-cocoon"], "surrounded_by": ["bone-pile"], "note": "a still-digesting shape half-dissolved in membrane" },
+    { "props": ["acid-etched-altar"], "surrounded_by": ["ooze-puddle"], "note": "cultist offering-stone corroded into abstract shape" }
+  ],
+  "secondary_palette": [
+    "ooze-puddle",
+    "dissolved-skeleton",
+    "bone-pile",
+    "dripping-stalactite",
+    "stalagmite",
+    "rubble",
+    "fungal-growth"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "ooze-puddle",
+    "rag-pile",
+    "rusted-weapon",
+    "slime-trail",
+    "moss-patch"
+  ],
+  "shape_guidance": {
+    "preferred": ["lobed-cave", "shallow-bowl", "irregular-polygon"],
+    "discouraged": ["rectangle", "square"]
+  },
+  "story_prompts": [
+    "a cultist breeds oozes here for a patron",
+    "the slime is sapient and bargains by writing in its own surface",
+    "a dying adventurer on a dry ledge, out of spell slots and hope",
+    "rare alchemical reagents bloom in the acid — poachers risk dissolution for coin"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.1) with faint sickly-green glow from the ooze itself",
+    "ambient_is": "required",
+    "common_sources": ["ooze-pool", "torch-wall", "fungal-growth"]
+  },
+  "anti_patterns": [
+    "don't make the slime a neat circle — it spreads and puddles irregularly",
+    "dry walkways should hug walls, giving the party a route that isn't a cake-walk",
+    "no wood props in the pit itself — everything organic dissolves here"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "mansion-servants-quarters",
+  "category": "residential",
+  "tags": ["mansion", "residential", "medium", "servants", "dormitory", "utilitarian"],
+  "summary": "Servants' quarters — narrow beds in rows, shared trunks at the foot, a single washstand. Spartan, cold, efficient.",
+  "size_guidance": {
+    "min": [6, 9],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangle, often in an attic or basement"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/worn_plank_floor", "polyhaven/rough_wood", "polyhaven/packed_earth"]
+  },
+  "primary_palette": [
+    { "props": ["narrow-bed", "narrow-bed", "narrow-bed", "narrow-bed"], "note": "dormitory row — four or more plain cots, trunks at the foot of each" },
+    { "props": ["bunk-bed", "bunk-bed"], "note": "tight quarters — bunks doubled up, a ladder each, cramped aisle" },
+    { "props": ["narrow-bed", "narrow-bed"], "surrounded_by": ["wash-basin", "clothes-rack"], "note": "two senior servants sharing — marginally more space, a shared washstand" }
+  ],
+  "secondary_palette": [
+    "narrow-bed",
+    "bunk-bed",
+    "trunk",
+    "clothes-rack",
+    "wash-basin",
+    "stool",
+    "shelf",
+    "chamber-pot",
+    "peg-rail-wall",
+    "threadbare-rug"
+  ],
+  "scatter_palette": [
+    "servant-uniform-hung",
+    "prayer-card",
+    "letter-home",
+    "worn-shoes",
+    "tin-cup",
+    "candle-stub",
+    "sewing-kit-small",
+    "mouse-trap"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-narrow-rectangle", "attic-with-sloped-walls", "basement-rectangle"],
+    "discouraged": ["square-grand", "ornate", "symmetrical-formal"]
+  },
+  "story_prompts": [
+    "empty during the day — all staff serving upstairs, the room preserves sleeping-order",
+    "late night — a lantern moving between beds, someone sobbing quietly",
+    "a death in the household below — one bed newly empty, the trunk already being packed",
+    "a conspiracy brews — the staff meets here after midnight, a map hidden beneath a mattress",
+    "the household has dismissed its staff — beds stripped, trunks gone, a single forgotten letter"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim (0.2-0.3) — one or two candles, no waste of tallow",
+    "ambient_is": "optional",
+    "common_sources": ["candle", "wall-lantern", "lantern-floor"]
+  },
+  "anti_patterns": [
+    "NO luxury — no carpets, no paintings, no upholstery. Wool blankets only.",
+    "uniformity is the point — identical beds, identical trunks. Not personalized.",
+    "no fireplaces unless the setting demands — servants froze. That's the texture.",
+    "beds line the walls, narrow aisle between — never centered in the room"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "name": "tunnel-mine-worked",
+  "category": "underground",
+  "tags": ["underground", "mine", "industrial", "worked", "labor"],
+  "summary": "An active (or recently active) mining gallery — timber shoring, ore carts on rails, tool racks, bracing pillars.",
+  "size_guidance": {
+    "min": [8, 14],
+    "typical": [10, 18],
+    "aspect_ratio": "elongated tunnel, 1.8:1 or longer"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/rock_ground", "polyhaven/dirt_floor", "polyhaven/gravel_floor"],
+    "accent": {
+      "purpose": "rail bed / trampled work path",
+      "options": ["polyhaven/gravel_floor", "polyhaven/mud_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ore-cart"], "surrounded_by": ["rail-track", "rubble"], "note": "full cart halted mid-haul" },
+    { "props": ["mine-shaft-opening"], "surrounded_by": ["timber-brace", "lantern-post"], "note": "vertical drop to a deeper level" },
+    { "props": ["ore-sorting-table"], "surrounded_by": ["crate", "pickaxe-rack"], "note": "sorting station with raw ore piles" },
+    { "props": ["rubble"], "surrounded_by": ["timber-brace", "timber-brace"], "note": "fresh collapse blocking further progress" }
+  ],
+  "secondary_palette": [
+    "timber-brace",
+    "pickaxe-rack",
+    "lantern-post",
+    "crate",
+    "barrel",
+    "rail-track",
+    "ore-pile",
+    "bellows",
+    "log-pile"
+  ],
+  "scatter_palette": [
+    "rubble",
+    "bone-pile",
+    "broken-pickaxe",
+    "ore-chunk",
+    "bucket",
+    "rope-coil",
+    "rag-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "L-shape", "branching-tunnel"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "workers fled mid-shift — tools still where they fell, a cart half-loaded",
+    "the vein ran into something that shouldn't have been there",
+    "abandoned decades ago and reopened by squatters",
+    "slave-labor operation, overseer's whip coiled on the sorting table"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.1-0.15), cold lantern pools",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "torch-wall"]
+  },
+  "anti_patterns": [
+    "timber bracing must line the walls regularly — mines don't hold themselves up",
+    "rails go in a continuous line, not scattered — cart path must be coherent",
+    "don't fill the tunnel full-width; leave a walking channel"
+  ]
+}

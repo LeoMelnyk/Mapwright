@@ -1,0 +1,65 @@
+{
+  "name": "glassworks",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "hot", "medium", "commercial", "dangerous"],
+  "summary": "A glassblower's studio with a roaring glory hole furnace, a marver slab, gaffer's bench with tools, and annealing oven. Molten color and sand.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 12],
+    "aspect_ratio": "squareish with furnace dominating one side"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "scorched zone around furnace and marver",
+      "options": ["polyhaven/ash_layer", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["glass-furnace"], "surrounded_by": ["marver-slab", "gaffer-bench"], "note": "classic studio — one furnace, one working station" },
+    { "props": ["glass-furnace", "annealing-oven"], "surrounded_by": ["marver-slab", "gaffer-bench"], "note": "full production — cool-down oven alongside main furnace" },
+    { "props": ["glass-furnace", "glass-furnace"], "surrounded_by": ["gaffer-bench", "gaffer-bench", "marver-slab"], "note": "master-apprentice — twin furnaces, shared marver" }
+  ],
+  "secondary_palette": [
+    "glass-furnace",
+    "annealing-oven",
+    "marver-slab",
+    "gaffer-bench",
+    "display-case",
+    "shelf-open",
+    "workbench",
+    "barrel",
+    "sand-bin",
+    "bench"
+  ],
+  "scatter_palette": [
+    "glass-shard",
+    "blowpipe",
+    "jack-tool",
+    "color-rod-bundle",
+    "finished-vessel",
+    "sand-spill",
+    "bucket-water",
+    "scorch-mark"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "L-with-cooling-alcove"],
+    "discouraged": ["narrow", "round"]
+  },
+  "story_prompts": [
+    "mid-blow — gaffer turning a red-hot gather, apprentice ready with jacks",
+    "commissioned window — colored rods stacked, design pinned to the wall",
+    "explosion aftermath — a vessel shattered mid-cool, scorched bench",
+    "night shift — furnace banked low, watcher feeding coals"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "hot orange glow from furnace dominates (0.35 ambient + furnace light)",
+    "ambient_is": "required",
+    "common_sources": ["glass-furnace", "brazier", "lantern-post"]
+  },
+  "anti_patterns": [
+    "furnace on an exterior wall with implied chimney — never centerfloor",
+    "gaffer's bench in front of the furnace so the blowpipe has room",
+    "annealing oven far from furnace to avoid shock — not adjacent"
+  ]
+}

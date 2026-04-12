@@ -1,0 +1,63 @@
+{
+  "name": "sanctuary-inner",
+  "category": "sacred",
+  "tags": ["sacred", "restricted", "holy-of-holies", "formal", "religious"],
+  "summary": "The innermost sacred space — priests only. Beyond the nave, behind a veil or screen, where the true relic or divine focus is kept. Charged, silent, heavy with presence.",
+  "size_guidance": {
+    "min": [5, 5],
+    "typical": [7, 7],
+    "aspect_ratio": "square or slightly long — a focal chamber, not a hall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished"],
+    "accent": {
+      "purpose": "central dais or inlaid circle around the focus",
+      "options": ["polyhaven/marble_floor", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["altar"], "surrounded_by": ["candelabra", "candelabra", "candelabra", "candelabra"], "note": "high altar flanked by tall candelabra at each corner" },
+    { "props": ["reliquary"], "surrounded_by": ["candle-cluster", "candle-cluster"], "note": "central relic casket on a dais" },
+    { "props": ["statue"], "surrounded_by": ["holy-font", "offering-plate"], "note": "colossal deity effigy as the focus of the chamber" },
+    { "props": ["ritual-circle"], "surrounded_by": ["pillar", "pillar", "pillar", "pillar"], "note": "an inlaid ritual circle bordered by four pillars" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "candelabra",
+    "holy-font",
+    "banner",
+    "tapestry",
+    "kneeling-bench",
+    "lectern",
+    "reliquary",
+    "ward-stone"
+  ],
+  "scatter_palette": [
+    "candle",
+    "book-open",
+    "offering-plate",
+    "scroll-case",
+    "carpet"
+  ],
+  "shape_guidance": {
+    "preferred": ["square-with-pillared-corners", "octagonal", "cruciform-chancel"],
+    "discouraged": ["long-nave", "irregular"]
+  },
+  "story_prompts": [
+    "the high priest at vigil — alone, kneeling before the relic, mouth moving silently",
+    "the veil torn down — someone has violated the sanctuary, the focus is gone",
+    "between rites — perfectly arranged, every candle trimmed, no one present",
+    "a relic recently returned — wrapped cloths and travel-stains still on the casket",
+    "feast-day preparation — extra banners hung, fresh oil in every lamp"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "focused and reverent (0.25-0.35) — strong halo around the focus, corners in shadow",
+    "ambient_is": "required",
+    "common_sources": ["candelabra", "candle-cluster", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "strict bilateral symmetry — the sanctuary is a formal space",
+    "the focus sits at the exact geometric center or directly opposite the door",
+    "no pews — this is not a worship hall; only a priest or two is ever here"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "name": "cave-bear-lair",
+  "category": "wilderness",
+  "tags": ["wilderness", "cave", "lair", "beast", "dark"],
+  "summary": "A natural cave den occupied by a large predator. Bones, matted bedding of leaves and fur, deep claw-marks in the walls. No structure — the cave IS the room.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [8, 9],
+    "aspect_ratio": "irregular — deeper than wide, one fat chamber with a narrow mouth"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/cave_floor", "polyhaven/rock_ground"],
+    "accent": {
+      "purpose": "nest depression — trampled bedding at the back",
+      "options": ["polyhaven/dirt_floor", "polyhaven/moss_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["bone-pile"], "surrounded_by": ["fur-nest", "rubble"], "note": "back-of-cave nest with the kill-pile piled against the wall" },
+    { "props": ["fur-nest"], "note": "matted bedding of leaves, moss, and shed fur — centerpiece of the lair" },
+    { "props": ["skeleton"], "surrounded_by": ["bone-pile", "bone-pile"], "note": "past victim half-eaten, gnawed clean — grisly centerpiece" },
+    { "props": ["carcass-fresh"], "note": "recent kill being slowly consumed — flies, spatter" }
+  ],
+  "secondary_palette": [
+    "bone-pile",
+    "boulder",
+    "rubble",
+    "stalagmite",
+    "claw-marked-wall",
+    "fur-nest",
+    "moss-patch",
+    "rock-cluster"
+  ],
+  "scatter_palette": [
+    "gnawed-bone",
+    "tuft-of-fur",
+    "scat-pile",
+    "broken-antler",
+    "torn-cloth",
+    "moss-patch",
+    "mushroom"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-blob", "bottle-shape-narrow-mouth", "kidney-shape"],
+    "discouraged": ["rectangle", "square", "symmetric"]
+  },
+  "story_prompts": [
+    "occupied — the bear is sleeping at the back, scent thick in the air",
+    "recently vacated — still warm, bear out hunting, returns in d6 hours",
+    "the bear is dying of a festering wound — dangerous but slow",
+    "not a bear — an owlbear, or something worse wearing a bear's den",
+    "a cub nest — mother away, three cubs, moral dilemma baked in"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "cave-dark — near-zero ambient, daylight bleeds in from the mouth only",
+    "ambient_is": "discouraged",
+    "common_sources": []
+  },
+  "anti_patterns": [
+    "no built walls — cave outline is stone, use rounded/irregular cell shapes",
+    "no furniture, no tools — this is an animal's home, not a humanoid's",
+    "do not arrange bones neatly — scatter with heavy concentration at the nest",
+    "keep it dark — this is a place adventurers bring their own light into"
+  ]
+}

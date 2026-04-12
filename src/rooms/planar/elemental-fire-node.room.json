@@ -1,0 +1,67 @@
+{
+  "name": "elemental-fire-node",
+  "category": "planar",
+  "tags": ["planar", "elemental", "fire", "natural", "exotic", "raw", "hazardous"],
+  "summary": "A pocket of the Elemental Plane of Fire. Lava vents pour from walls that are themselves burning, and the air shimmers with heat distortion. Stone floors are a polite fiction — most of the footing is cooled crust over flowing magma.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [12, 14],
+    "aspect_ratio": "irregular circular — the room is a cooled bubble in the magma"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/lava_crust",
+      "polyhaven/basalt_cracked",
+      "polyhaven/scorched_obsidian"
+    ],
+    "accent": {
+      "purpose": "glowing lava fissures through the crust",
+      "options": ["polyhaven/molten_rock", "polyhaven/lava_vein"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["fire-node-core"], "surrounded_by": ["lava-fountain", "lava-fountain"], "note": "an eternal flame at the node's heart" },
+    { "props": ["lava-fountain", "lava-fountain"], "surrounded_by": ["basalt-pillar", "basalt-pillar"], "note": "twin upjets of molten rock" },
+    { "props": ["efreet-brazier-grand"], "surrounded_by": ["brazier", "brazier"], "note": "efreeti holdfast — the brazier rules the room" },
+    { "props": ["flame-pillar"], "surrounded_by": ["flame-pillar", "basalt-pillar"], "note": "a stand of burning columns, no obvious focus" }
+  ],
+  "secondary_palette": [
+    "lava-fountain",
+    "basalt-pillar",
+    "flame-pillar",
+    "brazier",
+    "ember-pit",
+    "slag-heap",
+    "fire-node-core"
+  ],
+  "scatter_palette": [
+    "ember-drift",
+    "obsidian-shard",
+    "ash-pile",
+    "skeleton-charred",
+    "molten-pool-small",
+    "spark-burst"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle", "irregular-organic", "oval"],
+    "discouraged": ["right-angles", "square", "corridor"]
+  },
+  "story_prompts": [
+    "an efreeti noble entertains a salamander envoy beside the grand brazier",
+    "the node is swelling — a material-plane volcano is about to erupt in sympathy",
+    "phoenix hatching in progress — the core pulses in a heartbeat rhythm",
+    "stolen — the core is gone, the room is cooling and going dark",
+    "cultists of Imix have chained a fire elemental to the central fountain"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright (0.55-0.7) with strong orange-red; the room IS light",
+    "ambient_is": "required",
+    "common_sources": ["lava-fountain", "fire-node-core", "flame-pillar", "brazier"]
+  },
+  "anti_patterns": [
+    "no wood, no fabric, no paper — everything that could burn has burned",
+    "don't use a cool or neutral ambient — if your screenshot isn't orange, it's wrong",
+    "walls are not polite — use trims and irregular edges to show melted rock",
+    "leave traversable crust paths between fissures or the room isn't playable"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "hermit-cell",
+  "category": "sacred",
+  "tags": ["sacred", "small", "ascetic", "dwelling", "isolated", "lived-in"],
+  "summary": "The cell of a hermit — a single devotional recluse's dwelling. Not a monastery cell but a standalone hut or cave-chamber. A little worship, a little sleeping, a little eating, all in one cramped sacred space.",
+  "size_guidance": {
+    "min": [3, 3],
+    "typical": [4, 5],
+    "aspect_ratio": "small, near-square — a hut's worth of room"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+  },
+  "primary_palette": [
+    { "props": ["idol"], "surrounded_by": ["candle", "offering-plate"], "note": "a personal idol in the corner, the rest of the space for living" },
+    { "props": ["shrine-stone"], "surrounded_by": ["kneeling-bench", "candle"], "note": "a weathered shrine-stone brought inside, worked into the dwelling" },
+    { "props": ["altar"], "surrounded_by": ["bedroll"], "note": "a small altar and a bedroll on the floor — no other concessions" },
+    { "props": ["bone-shrine"], "surrounded_by": ["stool", "candle"], "note": "a bone-shrine of personal ancestors or saints — private veneration" }
+  ],
+  "secondary_palette": [
+    "kneeling-bench",
+    "stool",
+    "bedroll",
+    "hearth",
+    "candle",
+    "candle-cluster",
+    "book-pile",
+    "bookshelf",
+    "idol",
+    "shrine-stone",
+    "chest-small"
+  ],
+  "scatter_palette": [
+    "book",
+    "book-open",
+    "book-pile",
+    "candle",
+    "bone-pile",
+    "offering-plate"
+  ],
+  "shape_guidance": {
+    "preferred": ["tiny-square", "tiny-rectangle", "rough-cave-chamber"],
+    "discouraged": ["large", "multi-room", "formal-nave"]
+  },
+  "story_prompts": [
+    "the hermit at home — stirring a small pot over a hearth, the shrine lit at the back",
+    "the hermit gone — a long absence; the candle a stub, the bowl empty, the bedroll neat",
+    "the hermit dead — a body at the kneeler, the idol watching; days old",
+    "a visitor welcomed — two bowls, two cups, evidence of an unexpected guest",
+    "the hermit slipping — notes pinned everywhere, the shrine overgrown with private sigils"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very low and warm (0.15-0.25) — a hearth or one or two candles carrying the whole room",
+    "ambient_is": "required",
+    "common_sources": ["hearth", "candle", "candle-cluster"]
+  },
+  "anti_patterns": [
+    "the shrine and the living space must share the room — don't partition them",
+    "always lived-in — crumbs, ashes, a cloak hung; never museum-clean",
+    "small furniture only — no pews, no thrones, no wide pillars"
+  ]
+}

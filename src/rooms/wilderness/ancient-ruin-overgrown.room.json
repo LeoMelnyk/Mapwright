@@ -1,0 +1,71 @@
+{
+  "name": "ancient-ruin-overgrown",
+  "category": "wilderness",
+  "tags": ["wilderness", "ruin", "ancient", "overgrown", "mystery"],
+  "summary": "The remnants of a building the forest has reclaimed. Toppled columns, a cracked floor mosaic under moss, a tree growing through a wall. The plants are winning.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [11, 10],
+    "aspect_ratio": "irregular — a former rectangle blurred by collapse"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03", "polyhaven/moss_ground"],
+    "accent": {
+      "purpose": "moss-covered mosaic or cracked slabs",
+      "options": ["polyhaven/moss_ground", "polyhaven/forest_floor", "polyhaven/cracked_stone"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["stone-column-broken"], "surrounded_by": ["stone-column-broken", "rubble", "tree"], "note": "pair of broken columns marking a vanished doorway — tree grown between" },
+    { "props": ["altar-stone-flat"], "surrounded_by": ["stone-column-broken", "bramble", "moss-patch"], "note": "overgrown altar or dais at the ruin's center" },
+    { "props": ["tree"], "surrounded_by": ["rubble", "stone-column-broken", "moss-patch"], "note": "a great tree has grown through the ruin — its roots cracking the floor" },
+    { "props": ["statue-toppled"], "surrounded_by": ["rubble", "bramble"], "note": "face-down statue, its identity lost — the ruin's mute protagonist" }
+  ],
+  "secondary_palette": [
+    "stone-column-broken",
+    "stone-column",
+    "statue-toppled",
+    "altar-stone-flat",
+    "rubble",
+    "fallen-beam",
+    "collapsed-wall-segment",
+    "tree",
+    "bramble",
+    "moss-patch",
+    "fern",
+    "bush-large"
+  ],
+  "scatter_palette": [
+    "moss-patch",
+    "fern",
+    "fallen-leaves",
+    "mushroom-cluster",
+    "mosaic-fragment",
+    "carved-rune-stone",
+    "bird-nest",
+    "animal-tracks",
+    "vine-hanging"
+  ],
+  "shape_guidance": {
+    "preferred": ["broken-rectangle-with-gaps", "partial-walls-plus-clearing", "L-shape-with-collapsed-wing"],
+    "discouraged": ["complete-enclosure", "clean-rectangle"]
+  },
+  "story_prompts": [
+    "forgotten, truly — no one has visited in generations, the forest is the sole tenant",
+    "scholars are here — a half-mapped dig, a tent in the ruin, notes nailed to a column",
+    "a cult uses the altar — fresh offerings, ritual chalk, someone comes here at night",
+    "the ruin is a doorway — something sleeps in the foundation and is about to wake",
+    "treasure hunters ransacked it last year — the good stuff is gone, the curse isn't"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dappled forest — broken roof admits sky, shaded under canopy",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "campfire-stone", "brazier"]
+  },
+  "anti_patterns": [
+    "do not enclose fully — at least one full side should be broken-open to the forest",
+    "walls in this room are short, partial, ivy-covered — never pristine",
+    "plants grow THROUGH things, not beside them — trees inside former rooms, ferns in cracks",
+    "mosaic/floor pattern visible only in patches — moss and dirt cover the rest"
+  ]
+}

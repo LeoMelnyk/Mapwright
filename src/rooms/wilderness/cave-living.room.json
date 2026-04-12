@@ -1,0 +1,67 @@
+{
+  "name": "cave-living",
+  "category": "wilderness",
+  "tags": ["wilderness", "cave", "natural", "empty", "transitional"],
+  "summary": "A natural living cave — damp, mineral, unoccupied by humanoids but full of subterranean life. Stalagmites, pools, moss, mushroom colonies. The kind of place something might come to.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [10, 12],
+    "aspect_ratio": "irregular — can be long and winding or a single wide chamber"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cave_floor", "polyhaven/rock_ground", "polyhaven/wet_stone"],
+    "accent": {
+      "purpose": "pool or mineral deposit",
+      "options": ["polyhaven/wet_stone", "polyhaven/moss_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["pond"], "surrounded_by": ["stalagmite", "stalagmite", "moss-patch"], "note": "cave pool at the low point, ringed with dripstone" },
+    { "props": ["crystal-formation"], "surrounded_by": ["stalagmite", "rock-cluster"], "note": "mineral feature — vein of crystals catching stray light" },
+    { "props": ["mushroom-cluster"], "surrounded_by": ["mushroom", "moss-patch"], "note": "fungal colony, bioluminescent or ordinary" },
+    { "props": ["stalagmite-forest"], "note": "dense stalagmite floor — the chamber's defining feature" }
+  ],
+  "secondary_palette": [
+    "stalagmite",
+    "stalactite-hanging",
+    "boulder",
+    "rock-cluster",
+    "moss-patch",
+    "mushroom-cluster",
+    "mushroom",
+    "pond",
+    "crystal-formation",
+    "rubble"
+  ],
+  "scatter_palette": [
+    "mushroom",
+    "moss-patch",
+    "bat-guano",
+    "drip-stain",
+    "small-bone",
+    "cave-cricket",
+    "mineral-vein"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-blob", "serpentine", "pinch-and-chamber"],
+    "discouraged": ["rectangle", "square", "any-straight-wall"]
+  },
+  "story_prompts": [
+    "pristine — no one has been here in centuries, a true wild cave",
+    "bioluminescent mushroom bloom — the whole chamber glows blue-green",
+    "flooded — the pool has risen, half the chamber is knee-deep water",
+    "something lives here — no nest visible, but tracks circle the pool",
+    "a vein of something valuable is exposed in the wall, half-worked by unknown tools"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "cave-dark — truly dark; bioluminescence is the only natural exception",
+    "ambient_is": "discouraged",
+    "common_sources": ["mushroom-glow", "crystal-glow"]
+  },
+  "anti_patterns": [
+    "no structure, no furniture, no humanoid trace",
+    "the pool should be at a natural low point, not centered for symmetry",
+    "stalagmites rise from floor, stalactites hang from ceiling — don't mix them as ground props",
+    "avoid dense prop coverage — caves have breathing room between features"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "name": "command-room",
+  "category": "dungeon",
+  "tags": ["dungeon", "military", "planning", "functional", "medium"],
+  "summary": "A captain's or warlord's strategy room — a central map table, marked pieces, banners of allied forces on the walls, correspondence stacked at a desk.",
+  "size_guidance": {
+    "min": [7, 8],
+    "typical": [9, 10],
+    "aspect_ratio": "square or rectangular — the table is the center, walls hold references"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/wood_floor",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/marble_floor"
+    ],
+    "accent": {
+      "purpose": "carpet under the map table",
+      "options": ["polyhaven/wood_floor", "polyhaven/marble_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["map-table"], "surrounded_by": ["chair", "chair", "chair", "chair"], "note": "classic war room — central table with officers' chairs" },
+    { "props": ["map-table", "desk"], "note": "working command room — planning table and correspondence desk both present" },
+    { "props": ["map-table"], "surrounded_by": ["banner", "banner", "banner"], "note": "confederacy — multiple faction banners on the walls around the table" },
+    { "props": ["sand-table"], "surrounded_by": ["bench", "bench"], "note": "drill-room style — a sand-table miniature of the battlefield" },
+    { "props": ["map-table", "scrying-mirror"], "note": "wizardly command — table for mundane ops, mirror for divination" }
+  ],
+  "secondary_palette": [
+    "map-table",
+    "desk",
+    "chair",
+    "stool",
+    "bookshelf",
+    "scroll-rack",
+    "globe",
+    "banner",
+    "notice-board",
+    "weapon-rack",
+    "shield-rack",
+    "telescope",
+    "hourglass",
+    "chandelier",
+    "candelabra"
+  ],
+  "scatter_palette": [
+    "map-scroll",
+    "dispatch-pouch",
+    "wax-seal-kit",
+    "wine-decanter",
+    "campaign-ledger",
+    "game-piece",
+    "dagger-through-map"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "square", "octagon-via-corner-trims"],
+    "discouraged": ["long-narrow-corridor", "round"]
+  },
+  "story_prompts": [
+    "active planning session — pieces on the map, wine half-drunk, the captain just stepped out",
+    "abandoned command room, the battle was lost, papers still scattered",
+    "a traitor's command room — false orders drafted, real ones hidden",
+    "a pirate captain's chart room on a landlocked dungeon level, stolen maps pinned everywhere",
+    "an ancient command room, the war it planned over for centuries but the map still showing troop positions"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "functional warm (0.4-0.55)",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candelabra", "wall-lantern", "desk-lamp"]
+  },
+  "anti_patterns": [
+    "don't let the map-table go near a wall — it needs access on all sides",
+    "don't underlight; officers need to read the map",
+    "avoid dormitory or torture elements; this is a staff room"
+  ]
+}

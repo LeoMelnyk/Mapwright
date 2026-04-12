@@ -1,0 +1,75 @@
+{
+  "name": "mansion-library",
+  "category": "residential",
+  "tags": ["mansion", "residential", "large", "library", "scholarly", "public-room"],
+  "summary": "A great house library — shelves floor to ceiling, a reading table at the center, ladders on rails. Collected across generations.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 14],
+    "aspect_ratio": "rectangular hall, often two-story ambience"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/parquet_floor", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "reading-area rug",
+      "options": ["polyhaven/carpet_ornate", "polyhaven/carpet_oriental", "polyhaven/carpet_royal"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["long-table"], "surrounded_by": ["chair", "chair", "chair", "chair", "candelabra"], "note": "reading-hall library — the table is for multiple scholars" },
+    { "props": ["bookshelf", "bookshelf", "bookshelf"], "surrounded_by": ["library-ladder"], "note": "stacks-dominant — the collection IS the room, tables are secondary" },
+    { "props": ["reading-chair", "reading-chair"], "surrounded_by": ["fireplace", "side-table"], "note": "social library — two armchairs by the fire, for quiet conversation" },
+    { "props": ["map-table"], "surrounded_by": ["globe", "celestial-globe", "scroll-rack"], "note": "cartographer's library — maps and atlases, not novels" },
+    { "props": ["lectern"], "surrounded_by": ["book-open", "candelabra"], "note": "monastic feel — a standing reader's lectern under a window" }
+  ],
+  "secondary_palette": [
+    "bookshelf",
+    "library-ladder",
+    "reading-chair",
+    "fireplace",
+    "long-table",
+    "lectern",
+    "globe",
+    "celestial-globe",
+    "scroll-rack",
+    "card-catalog",
+    "chandelier",
+    "floor-candelabra",
+    "painting",
+    "bust-on-pedestal"
+  ],
+  "scatter_palette": [
+    "book-pile",
+    "book-open",
+    "scroll-case",
+    "reading-spectacles",
+    "ink-pot",
+    "quill",
+    "candle-cluster",
+    "bookmark-ribbons",
+    "dust-sheet-partial",
+    "cat-sleeping"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-hall-rectangle", "gallery-with-apse", "double-height-visual"],
+    "discouraged": ["small-square", "cluttered-cozy"]
+  },
+  "story_prompts": [
+    "the scholar has been reading all night — table strewn with open volumes, candles guttering",
+    "abandoned wing — dust sheets on chairs, shelves mostly empty, the best volumes already sold",
+    "one shelf is a disguised door and the staff politely pretend not to know",
+    "a secret cult meets here once a month — the usual books hide forbidden ones",
+    "rival scholars share the space reluctantly — two tables, two candelabra, a line of books between"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "formal moderate (0.4-0.5) — chandelier plus table candelabra",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candelabra", "floor-candelabra", "fireplace"]
+  },
+  "anti_patterns": [
+    "differentiate from the study — this is MANY shelves, MANY seats, a public-feeling room",
+    "don't cram — a good library breathes. Pair shelves with painting alcoves, busts, windows",
+    "library ladders along the shelf walls, not floating in the middle",
+    "no desk dominant — desks belong in the study"
+  ]
+}

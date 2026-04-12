@@ -1,0 +1,67 @@
+{
+  "name": "brewery",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "commercial", "large", "wet", "hot"],
+  "summary": "A working brewery with mash tuns, copper kettles over firepits, fermentation vats, and a cellar wall of racked kegs. Steam, yeast smell, and the soft sour tang of wort.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 16],
+    "aspect_ratio": "wide rectangle, flow from mash to ferment to storage"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_03", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "wet stone around the kettles and drains",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/wooden_planks"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["brewing-kettle", "mash-tun"], "surrounded_by": ["fermentation-vat", "keg-stack"], "note": "full-production brewery — classic three-stage flow" },
+    { "props": ["brewing-kettle", "brewing-kettle"], "surrounded_by": ["mash-tun", "fermentation-vat"], "note": "twin-kettle — a large operation running two batches in parallel" },
+    { "props": ["fermentation-vat", "fermentation-vat"], "surrounded_by": ["keg-stack", "keg-stack", "mash-tun"], "note": "ferment-focused — a specialty brewery aging at scale" }
+  ],
+  "secondary_palette": [
+    "mash-tun",
+    "brewing-kettle",
+    "fermentation-vat",
+    "keg-stack",
+    "keg",
+    "barrel",
+    "hearth",
+    "workbench",
+    "ingredient-rack",
+    "grain-hopper",
+    "ledger-stack",
+    "bench"
+  ],
+  "scatter_palette": [
+    "tankard",
+    "grain-spill",
+    "puddle-wort",
+    "hops-bunch",
+    "wooden-paddle",
+    "cork-pile",
+    "broom",
+    "rag-damp"
+  ],
+  "shape_guidance": {
+    "preferred": ["wide-rectangle", "L-with-cellar-alcove", "T-with-loading-dock"],
+    "discouraged": ["narrow", "round"]
+  },
+  "story_prompts": [
+    "brew day — kettles boiling, mash being stirred, brewer calling out timings",
+    "contamination panic — a vat gone sour, brewer furious, apprentice in tears",
+    "festival prep — every keg full, labelled for tomorrow's delivery",
+    "midnight theft — brewer asleep upstairs, shadowy figure tapping a keg"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm steamy working light (0.4) with firepit glow under kettles",
+    "ambient_is": "required",
+    "common_sources": ["hearth", "brazier", "lantern-post"]
+  },
+  "anti_patterns": [
+    "flow must go mash → boil → ferment → store — don't scatter the stages",
+    "fires belong under or beside kettles, never under fermentation vats",
+    "kegs stack along walls — never free-standing in the working floor"
+  ]
+}

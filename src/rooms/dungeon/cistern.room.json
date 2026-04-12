@@ -1,0 +1,72 @@
+{
+  "name": "cistern",
+  "category": "dungeon",
+  "tags": ["dungeon", "water", "utility", "wet", "medium"],
+  "summary": "A stone tank holding the dungeon's water — still surface, a well-head or drain channel, echoes and dripping.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [8, 10],
+    "aspect_ratio": "square or near-square — tanks want even proportions"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_wet",
+      "polyhaven/stone_tile_cracked"
+    ],
+    "accent": {
+      "purpose": "water surface / submerged floor",
+      "options": ["polyhaven/water_surface", "polyhaven/stone_tile_wet"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["well"], "note": "a drawing point — most of the room is water, a single stone curb in the center" },
+    { "props": ["well", "pillar", "pillar"], "note": "columned cistern, roman-style, pillars rising out of the water" },
+    { "props": ["fountain-square"], "note": "decorative cistern — a central fountain feeds the tank" },
+    { "props": ["holy-font"], "note": "sacred cistern, the water is consecrated or used in rites" },
+    { "props": ["well"], "surrounded_by": ["reed-bed", "moss-patch"], "note": "half-wild cistern reclaimed by growth" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "pillar-corner",
+    "ladder",
+    "bucket-on-rope",
+    "pipe-outlet",
+    "moss-patch",
+    "reed-bed",
+    "lily-pads",
+    "rubble",
+    "torch-sconce",
+    "wall-lantern"
+  ],
+  "scatter_palette": [
+    "floating-barrel",
+    "drowned-rat",
+    "rusted-bucket",
+    "coin-in-water",
+    "bone-pile-small",
+    "algae-bloom",
+    "chain-coil"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "square-with-rounded-corners", "octagon-via-corner-trims"],
+    "discouraged": ["long-narrow-corridor", "L-shape-with-alcove"]
+  },
+  "story_prompts": [
+    "a peaceful working cistern feeding the kitchens above",
+    "contaminated cistern — something dead is in the water",
+    "sacred pool of a forgotten water-cult, still holy, still watched",
+    "flooded sub-level where the cistern has overflowed into the hallway",
+    "ancient cistern with submerged stairs descending further into the dungeon"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "damp and cold (0.2-0.35), reflections on water",
+    "ambient_is": "optional",
+    "common_sources": ["wall-lantern", "torch-sconce", "crystal-torch"]
+  },
+  "anti_patterns": [
+    "don't forget the water — cistern without a filled tank is just a room",
+    "don't clutter the water surface; reflections and emptiness are the mood",
+    "avoid furniture in the water; ladders and pipes only"
+  ]
+}

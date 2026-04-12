@@ -1,0 +1,68 @@
+{
+  "name": "peasant-hovel",
+  "category": "residential",
+  "tags": ["rural", "residential", "small", "hovel", "poor", "one-room"],
+  "summary": "A peasant's one-room hovel — dirt floor, central fire, a straw pallet in the corner, animals possibly sharing the space. Subsistence.",
+  "size_guidance": {
+    "min": [4, 4],
+    "typical": [5, 6],
+    "aspect_ratio": "small square"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/packed_earth", "polyhaven/dirt_floor", "polyhaven/straw_floor"]
+  },
+  "primary_palette": [
+    { "props": ["firepit-central"], "surrounded_by": ["pallet", "stool", "log-pile"], "note": "classic hovel — central firepit, no chimney, smoke escapes through roof" },
+    { "props": ["hearth"], "surrounded_by": ["pallet", "pallet", "table-small"], "note": "slightly better-off peasant — wall hearth, two sleeping pallets" },
+    { "props": ["pallet", "pallet"], "surrounded_by": ["animal-pen-partition", "hay-bale"], "note": "peasant-and-beast — a goat or pig shares the hovel behind a low partition" }
+  ],
+  "secondary_palette": [
+    "pallet",
+    "firepit-central",
+    "hearth",
+    "table-small",
+    "stool",
+    "log-pile",
+    "barrel",
+    "crate",
+    "hay-bale",
+    "animal-pen-partition",
+    "cauldron-large",
+    "broom"
+  ],
+  "scatter_palette": [
+    "turnip-pile",
+    "cabbage",
+    "bread-heel",
+    "tin-cup",
+    "wooden-bowl",
+    "patched-shirt",
+    "worn-shoes",
+    "prayer-card",
+    "chicken-loose",
+    "candle-stub",
+    "straw-wisps"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "round-via-corner-trims", "tiny-rectangle"],
+    "discouraged": ["multi-room", "large", "symmetrical-formal"]
+  },
+  "story_prompts": [
+    "occupied — a family of three huddled around the firepit, the baby crying",
+    "the lord's men have come for the tithe — the hovel is being turned out",
+    "the peasant is dead of fever — the hovel to be burned at dawn",
+    "refugees squat here — not the usual occupants, strangers uneasy in the space",
+    "the hovel hides something — a cache beneath the hearthstone, a runaway in the hay"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very low (0.15-0.25) — firelight only, smoke-dim",
+    "ambient_is": "optional",
+    "common_sources": ["firepit-central", "hearth", "candle"]
+  },
+  "anti_patterns": [
+    "NO furniture beyond the barest minimum — no chairs, no wardrobes, no shelves",
+    "no windows implied — hovels are dark. Light is fire.",
+    "the floor is earth or straw, not planks",
+    "clutter is RAGS and TOOLS, not possessions — peasants own almost nothing"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "gambling-den",
+  "category": "urban",
+  "tags": ["urban", "social", "medium", "shady", "smoky"],
+  "summary": "A gambling hall — dice tables, a card-pit, a wheel-of-chance, a bar along one wall, a heavy door to a private high-stakes room. Smoky, loud, full of suspicion.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 12],
+    "aspect_ratio": "rectangle, several game stations arrayed around the floor"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "worn path between the tables",
+      "options": ["polyhaven/wooden_planks", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["dice-table", "card-table"], "surrounded_by": ["stool", "chair", "bar-counter"], "note": "classic den — dice and cards, small bar" },
+    { "props": ["card-table", "card-table", "fortune-wheel"], "surrounded_by": ["chair", "stool", "bar-counter"], "note": "casino-style — multiple card tables plus wheel" },
+    { "props": ["dice-table"], "surrounded_by": ["card-table", "private-booth", "bar-counter"], "note": "backroom-focused — private booth for high-stakes" }
+  ],
+  "secondary_palette": [
+    "dice-table",
+    "card-table",
+    "fortune-wheel",
+    "bar-counter",
+    "stool",
+    "chair",
+    "table",
+    "private-booth",
+    "chandelier",
+    "cabinet",
+    "display-case"
+  ],
+  "scatter_palette": [
+    "dice-cup",
+    "playing-cards",
+    "coin-pile",
+    "coin-stack",
+    "tankard",
+    "pipe-clay",
+    "smoke-cloud",
+    "dagger-loose",
+    "chips-stack"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-private-room", "open-floor"],
+    "discouraged": ["small", "narrow"]
+  },
+  "story_prompts": [
+    "big game — every table packed, dealer sweating, a noble losing badly",
+    "cheat exposed — overturned table, dagger drawn, owner's muscle closing in",
+    "quiet afternoon — two regulars playing cards, owner counting the take",
+    "raid — guards at the door, patrons fleeing, owner sweeping coin into a bag"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "smoky low light (0.35) — table lamps pool light where it's needed",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "tables leave sight-lines to the door — gamblers don't sit with backs to it",
+    "bar counter tucked to one side — this isn't a tavern, the games are the point",
+    "don't over-light — smoky dimness is the mood"
+  ]
+}

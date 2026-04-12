@@ -1,0 +1,69 @@
+{
+  "name": "infernal-forge",
+  "category": "planar",
+  "tags": ["planar", "infernal", "industrial", "fire", "large", "exotic", "work"],
+  "summary": "A forge in the Nine Hells where damned souls are hammered into weapons and chains. Lava channels replace coal beds; the anvils are big enough for a devil to stand on.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 16],
+    "aspect_ratio": "roughly square or 4:3 — work stations radiate around a central furnace"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/basalt_tile",
+      "polyhaven/iron_grating",
+      "polyhaven/scorched_stone"
+    ],
+    "accent": {
+      "purpose": "lava channels cut through the floor",
+      "options": ["polyhaven/lava_crust", "polyhaven/molten_rock"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["infernal-furnace"], "surrounded_by": ["anvil-devil", "anvil-devil"], "note": "centerpiece furnace, anvils radiating" },
+    { "props": ["forge", "forge"], "surrounded_by": ["infernal-chain-hook", "infernal-chain-hook"], "note": "twin forges worked by chained smiths" },
+    { "props": ["soul-crucible"], "surrounded_by": ["brazier", "brazier"], "note": "the forge refines souls, not metal" },
+    { "props": ["anvil-devil"], "surrounded_by": ["quench-trough-blood", "infernal-chain-hook"], "note": "single master anvil, spare dressing" }
+  ],
+  "secondary_palette": [
+    "forge",
+    "anvil-devil",
+    "quench-trough-blood",
+    "bellows-giant",
+    "infernal-chain-hook",
+    "weapon-rack-infernal",
+    "brazier",
+    "pillar"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "slag-heap",
+    "chain-coil",
+    "glowing-ingot",
+    "hammer-giant",
+    "skeleton",
+    "soot-streak"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "octagon", "rectangle-with-central-pit"],
+    "discouraged": ["long-thin-hall"]
+  },
+  "story_prompts": [
+    "active — every anvil ringing, souls screaming inside the furnace",
+    "a masterwork in progress on the central anvil; the devil-smith has stepped away",
+    "abandoned after a cambion uprising, furnace cold, chains still holding skeletons",
+    "a shipment is ready — stacks of infernal blades awaiting pickup",
+    "sabotage — someone has cooled the central furnace and stolen the key ingot"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.2) with strong orange-red; lava channels and furnace provide dramatic fill",
+    "ambient_is": "required",
+    "common_sources": ["infernal-furnace", "forge", "brazier", "soul-crucible"]
+  },
+  "anti_patterns": [
+    "don't treat it like a blacksmith — this is industrial cruelty, not craft",
+    "no coal or wood piles — everything burns on lava or trapped souls",
+    "anvils should be oversized (2x2 minimum) — this is devil-scale work",
+    "chains are everywhere, but always purposeful (holding, hanging, suspending) — never decorative heaps"
+  ]
+}

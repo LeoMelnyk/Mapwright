@@ -1,0 +1,66 @@
+{
+  "name": "opium-den",
+  "category": "urban",
+  "tags": ["urban", "social", "medium", "shady", "dim", "smoky"],
+  "summary": "An opium den. Low couches and mats arranged around a central brazier, lanterns in red paper, a keeper at a small counter dispensing pipes. Thick smoke, half-dreaming patrons.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 10],
+    "aspect_ratio": "squareish, perimeter of couches around center"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "stained mat zone",
+      "options": ["polyhaven/dirt_floor", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["brazier"], "surrounded_by": ["opium-couch", "opium-couch", "opium-couch"], "note": "classic den — brazier central, couches radiating" },
+    { "props": ["opium-couch", "opium-couch"], "surrounded_by": ["low-table", "curtain-divider", "counter"], "note": "curtained den — partitioned for privacy" },
+    { "props": ["counter"], "surrounded_by": ["opium-couch", "brazier", "cabinet"], "note": "keeper-forward — owner controls from the counter" }
+  ],
+  "secondary_palette": [
+    "opium-couch",
+    "low-table",
+    "counter",
+    "brazier",
+    "cabinet",
+    "curtain-divider",
+    "shelf-open",
+    "cushion-pile",
+    "stool",
+    "screen-folding"
+  ],
+  "scatter_palette": [
+    "opium-pipe",
+    "pipe-ash",
+    "smoke-cloud",
+    "teapot",
+    "teacup",
+    "silk-scarf",
+    "coin-purse",
+    "candle-red",
+    "incense-burner"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "L-with-private-alcove"],
+    "discouraged": ["large", "open-hall"]
+  },
+  "story_prompts": [
+    "evening haze — couches full, keeper moving among patrons, pipes refilled",
+    "overdose — a patron not breathing, keeper panicking, regulars ignoring",
+    "raid — guards bursting in, smoke concealing, patrons fleeing barefoot",
+    "private deal — two figures in a curtained alcove, pipe between them a pretense"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim red-lit (0.2-0.3) — smoke and shadow, red paper lanterns",
+    "ambient_is": "optional",
+    "common_sources": ["brazier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "couches should be low — ground-level mats, not tall furniture",
+    "don't make it bright — gloom is the atmosphere",
+    "brazier or counter as the single point of light — never evenly lit"
+  ]
+}

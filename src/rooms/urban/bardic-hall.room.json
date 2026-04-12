@@ -1,0 +1,67 @@
+{
+  "name": "bardic-hall",
+  "category": "urban",
+  "tags": ["urban", "social", "large", "refined", "cultural"],
+  "summary": "A bardic college or performance hall. Raised stage at one end, rows of benches or seats facing it, instruments on stands between acts, a practice corner with a music stand. Tapestries absorb sound.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 16],
+    "aspect_ratio": "long rectangle — stage at one short end, seating filling the rest"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "central carpet runner up the aisle",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["stage-large"], "surrounded_by": ["bench", "bench", "chair"], "note": "performance-forward — stage commands the hall" },
+    { "props": ["stage-large", "lectern"], "surrounded_by": ["bench", "chair", "music-stand"], "note": "recital hall — lectern for introductions, classical setup" },
+    { "props": ["stage-large"], "surrounded_by": ["harp", "chair", "chair", "bench"], "note": "salon hall — intimate, instruments out, chamber performance" }
+  ],
+  "secondary_palette": [
+    "stage-large",
+    "stage-small",
+    "lectern",
+    "bench",
+    "chair",
+    "music-stand",
+    "harp",
+    "lute-stand",
+    "drum-stand",
+    "painting",
+    "banner",
+    "chandelier"
+  ],
+  "scatter_palette": [
+    "sheet-music",
+    "quill",
+    "candle",
+    "bouquet",
+    "laurel-wreath",
+    "wine-glass",
+    "flower-petals",
+    "silk-scarf"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "great-hall", "T-with-entry-foyer"],
+    "discouraged": ["small", "narrow", "round"]
+  },
+  "story_prompts": [
+    "grand recital — hall packed, master bard performing, rapt silence",
+    "rehearsal — only performers present, instruments being tuned, director pacing",
+    "poetry duel — two bards alternating at the lectern, judges at a side table",
+    "empty hall after show — petals on the stage, one lute forgotten on a chair"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm performance light (0.45) — stage bright, audience dimmer",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "stage visible from every seat — don't block sight-lines with pillars centerfloor",
+    "central aisle clear — performers and guests need to process",
+    "instruments on stands belong near the stage — don't scatter through the audience"
+  ]
+}

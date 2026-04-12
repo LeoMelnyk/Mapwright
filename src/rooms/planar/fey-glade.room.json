@@ -1,0 +1,71 @@
+{
+  "name": "fey-glade",
+  "category": "planar",
+  "tags": ["planar", "fey", "wilderness", "natural", "exotic", "magical"],
+  "summary": "A clearing in the Feywild where the rules of botany have been negotiated. Mushroom rings mark meeting-places, flowers bloom out of season, and a single tree presides like a monarch.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [14, 16],
+    "aspect_ratio": "roughly circular or square — glades favor rounded perimeters"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/mossy_ground",
+      "polyhaven/forest_floor_leaves",
+      "polyhaven/wildflower_meadow"
+    ],
+    "accent": {
+      "purpose": "ring of altered ground at the glade's heart",
+      "options": ["polyhaven/silver_moss", "polyhaven/petal_carpet"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["fey-mushroom-ring"], "surrounded_by": ["willow-tree", "willow-tree"], "note": "classic faerie ring meeting-place" },
+    { "props": ["tree-ancient-fey"], "surrounded_by": ["flower-patch", "flower-patch"], "note": "the glade centers on a thinking tree" },
+    { "props": ["fey-archfey-throne"], "surrounded_by": ["mushroom-cluster", "mushroom-cluster"], "note": "a noble of the Summer or Winter court holds court here" },
+    { "props": ["pond"], "surrounded_by": ["flowers", "willow-tree"], "note": "scrying pool at the heart of the clearing" }
+  ],
+  "secondary_palette": [
+    "willow-tree",
+    "tree",
+    "tree-small",
+    "mushroom-cluster",
+    "mushroom",
+    "flower-patch",
+    "flowers",
+    "tall-grass",
+    "fey-lantern-bloom",
+    "rock-cluster"
+  ],
+  "scatter_palette": [
+    "mushroom",
+    "flowers",
+    "fey-lantern-bloom",
+    "dew-drop-sparkle",
+    "fallen-antler",
+    "tiny-shoe",
+    "songbird-nest"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle", "oval", "irregular-organic"],
+    "discouraged": ["rectangle", "square", "right-angles"]
+  },
+  "story_prompts": [
+    "the court is in session — the archfey present, attendants arrayed in the ring",
+    "dawn, dew-heavy, empty — a music-box melody lingering in the air",
+    "a mortal has stumbled in mid-revel, the dancers frozen mid-step",
+    "the ring is cursed — step inside and you age or youthen a year per second",
+    "the great tree is dying and the whole glade's color is bleeding toward winter"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dappled and slightly magical (0.5-0.6) with green-gold tint",
+    "ambient_is": "required",
+    "common_sources": ["fey-lantern-bloom", "fey-mushroom-ring"]
+  },
+  "anti_patterns": [
+    "no straight edges — walls are tree-lines, not masonry",
+    "never place fire sources (braziers, torches) — fey light is biological/magical",
+    "don't overpack props; negative space full of grass and flower-fill IS the room",
+    "mushroom rings should never touch a wall — they need space to feel sacred"
+  ]
+}

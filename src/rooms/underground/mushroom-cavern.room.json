@@ -1,0 +1,62 @@
+{
+  "name": "mushroom-cavern",
+  "category": "underground",
+  "tags": ["underground", "fungal", "myconid", "bioluminescent", "alien", "serene"],
+  "summary": "A vast fungal cavern — towering shriekers, clusters of glowcaps, a spongy mycelium floor that absorbs sound.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [14, 16],
+    "aspect_ratio": "irregular, near-round"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/moss_ground", "polyhaven/mycelium_floor", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "spore-bloom patch / wet hollow",
+      "options": ["polyhaven/mycelium_floor", "polyhaven/mud_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["giant-mushroom"], "surrounded_by": ["glowcap-mushroom", "mushroom-cluster"], "note": "a canopy-sized cap dominating the chamber" },
+    { "props": ["myconid-circle"], "surrounded_by": ["glowcap-mushroom", "glowcap-mushroom"], "note": "ring of the fungal community in silent communion" },
+    { "props": ["shrieker"], "surrounded_by": ["mushroom-cluster", "violet-fungus"], "note": "alarm fungus guarding deeper passages" },
+    { "props": ["spore-pool"], "note": "a shallow basin of luminous spore-water" }
+  ],
+  "secondary_palette": [
+    "glowcap-mushroom",
+    "giant-mushroom",
+    "mushroom-cluster",
+    "violet-fungus",
+    "shrieker",
+    "fallen-log",
+    "stalagmite",
+    "moss-patch"
+  ],
+  "scatter_palette": [
+    "mushroom",
+    "moss-patch",
+    "spore-puff",
+    "glowcap-mushroom",
+    "bone-pile",
+    "root-tangle"
+  ],
+  "shape_guidance": {
+    "preferred": ["lobed-cave", "irregular-polygon", "circle-via-rounded-corners"],
+    "discouraged": ["rectangle", "square", "corridor"]
+  },
+  "story_prompts": [
+    "myconid sovereign offers parlay through spore-speech",
+    "a violet fungus grove stalks anything that disturbs the shriekers",
+    "poachers harvesting glowcaps have drawn the cavern's wrath",
+    "a lost child of the surface lies dreaming in the spore-pool"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "soft dim glow (0.25-0.35) from bioluminescent fungi — cool teal/violet tint",
+    "ambient_is": "required",
+    "common_sources": ["glowcap-mushroom", "spore-pool"]
+  },
+  "anti_patterns": [
+    "no firelight — flame kills the fungal ecosystem and breaks the mood",
+    "don't grid the mushrooms — they grow in natural clusters of 3-7",
+    "ceiling should read as high and vaulted, not low and cramped"
+  ]
+}

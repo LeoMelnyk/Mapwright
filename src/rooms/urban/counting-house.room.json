@@ -1,0 +1,69 @@
+{
+  "name": "counting-house",
+  "category": "urban",
+  "tags": ["urban", "commercial", "scholarly", "medium", "noble", "secure"],
+  "summary": "A merchant's counting house or private bank. High counter separating clerks from clients, ledgers and scales, a heavy vault door in the back, guards at the entrance. Quiet, formal, precise.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle with counter dividing public and private zones"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "polished private zone behind the counter",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["counter", "counter"], "surrounded_by": ["desk", "ledger-stack", "chest-large"], "note": "classic counting-house — long clerk counter, desks behind" },
+    { "props": ["counter", "vault-door"], "surrounded_by": ["desk", "ledger-stack", "chest-large"], "note": "bank — vault visible behind the counter" },
+    { "props": ["desk", "desk"], "surrounded_by": ["ledger-stack", "counter", "chair"], "note": "partnership house — open desks for senior partners" }
+  ],
+  "secondary_palette": [
+    "counter",
+    "desk",
+    "vault-door",
+    "chest-large",
+    "chest",
+    "ledger-stack",
+    "scale",
+    "bookshelf",
+    "cabinet",
+    "chair",
+    "stool",
+    "painting",
+    "hourglass"
+  ],
+  "scatter_palette": [
+    "quill",
+    "inkwell",
+    "coin-pile",
+    "coin-stack",
+    "wax-seal",
+    "abacus",
+    "document-stack",
+    "candle",
+    "key-ring"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-vault-alcove", "formal-square"],
+    "discouraged": ["round", "small"]
+  },
+  "story_prompts": [
+    "noble deposit — a baron with chests of gold, clerks counting, guards watching",
+    "audit — a guild inspector going line-by-line, clerks sweating",
+    "robbery — vault cracked overnight, owner pale, magistrate taking notes",
+    "after hours — one senior partner alone with a ledger, hiding a discrepancy"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "steady clean light (0.5) — clerks need to read columns of numbers",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "the counter is a hard barrier — clients one side, clerks the other, never ambiguous",
+    "vault on an interior wall against stone — never on an exterior wall",
+    "clerks face clients — desks behind them perpendicular so they can turn quickly"
+  ]
+}

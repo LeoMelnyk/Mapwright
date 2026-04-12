@@ -1,0 +1,67 @@
+{
+  "name": "foundry-great",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "hot", "dangerous", "large", "military"],
+  "summary": "A heavy industrial foundry for casting bells, cannons, statuary. A towering blast furnace, crucibles on hoists, sand-casting floor, overhead cranes. Molten iron and roaring heat.",
+  "size_guidance": {
+    "min": [14, 14],
+    "typical": [16, 18],
+    "aspect_ratio": "large square or wide rectangle — heavy machinery demands scale"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "sand-cast floor and scorched zones",
+      "options": ["polyhaven/dirt_floor", "polyhaven/ash_layer"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["blast-furnace"], "surrounded_by": ["crucible-large", "casting-pit", "sand-mold"], "note": "cannon foundry — single blast furnace, large casting pit" },
+    { "props": ["blast-furnace", "crucible-large"], "surrounded_by": ["sand-mold", "sand-mold", "bellows"], "note": "bell foundry — furnace feeds crucible over bell-mold" },
+    { "props": ["forge", "forge", "crucible-large"], "surrounded_by": ["anvil", "sand-mold", "ingot-stack"], "note": "general foundry — multiple forges feeding shared crucible" }
+  ],
+  "secondary_palette": [
+    "blast-furnace",
+    "crucible-large",
+    "casting-pit",
+    "sand-mold",
+    "forge",
+    "anvil",
+    "bellows",
+    "grinding-wheel",
+    "ingot-stack",
+    "workbench",
+    "overhead-crane",
+    "trough"
+  ],
+  "scatter_palette": [
+    "slag-heap",
+    "iron-scrap",
+    "leather-apron",
+    "tongs-long",
+    "ladle-iron",
+    "soot-patch",
+    "scorch-mark",
+    "ingot-single"
+  ],
+  "shape_guidance": {
+    "preferred": ["large-square", "wide-rectangle", "great-hall"],
+    "discouraged": ["small", "narrow", "round"]
+  },
+  "story_prompts": [
+    "mid-pour — crucible tipped over the mold, master roaring orders",
+    "war contract — rows of cannon-molds in the sand floor, state inspector present",
+    "furnace banked — cool-down day, apprentices chipping slag",
+    "catastrophic breach — cracked crucible, molten iron spilled, dead apprentice"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "fierce orange glow from furnace (0.4) — hot zones light their own space",
+    "ambient_is": "required",
+    "common_sources": ["blast-furnace", "forge", "brazier", "crucible-large"]
+  },
+  "anti_patterns": [
+    "blast furnace on exterior wall with implied chimney — never centerfloor",
+    "casting pits recessed into the floor, not placed like props — imply them",
+    "keep overhead crane paths clear — nothing directly under the crane run"
+  ]
+}

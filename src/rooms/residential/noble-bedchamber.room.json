@@ -1,0 +1,74 @@
+{
+  "name": "noble-bedchamber",
+  "category": "residential",
+  "tags": ["castle", "residential", "medium", "bedchamber", "noble", "private"],
+  "summary": "A noble's private bedchamber in a castle or fortified manor — stone walls, tapestries against the cold, a heavy curtained bed. Grander than a townhouse bedroom, colder too.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle, bed facing the fireplace wall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/flagstone_polished", "polyhaven/stone_tile_polished", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "bedside rug or dais",
+      "options": ["polyhaven/carpet_royal", "polyhaven/carpet_oriental", "polyhaven/wolf-pelt-rug"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["canopy-bed"], "surrounded_by": ["fireplace", "tapestry", "tapestry"], "note": "castle chamber — massive fireplace, heavy tapestries blunt the stone cold" },
+    { "props": ["canopy-bed"], "surrounded_by": ["armor-stand", "weapon-rack-wall"], "note": "warrior noble — sleeps beside their war-kit, ready at any hour" },
+    { "props": ["canopy-bed"], "surrounded_by": ["writing-desk-small", "prayer-bench"], "note": "devout noble — bed, desk, altar, spartan by their own choice" },
+    { "props": ["bed-double"], "surrounded_by": ["hunting-trophy", "fireplace"], "note": "hunting-lodge chamber — less formal, trophies instead of tapestries" }
+  ],
+  "secondary_palette": [
+    "fireplace",
+    "tapestry",
+    "wardrobe",
+    "chest-large",
+    "armor-stand",
+    "weapon-rack-wall",
+    "writing-desk-small",
+    "prayer-bench",
+    "vanity-table",
+    "mirror-standing",
+    "nightstand",
+    "floor-candelabra",
+    "hunting-trophy",
+    "brazier"
+  ],
+  "scatter_palette": [
+    "candle-cluster",
+    "jewel-casket",
+    "scroll-case",
+    "decanter",
+    "signet-ring-tray",
+    "folded-cloak",
+    "hound-asleep",
+    "dagger-bedside",
+    "incense-burner",
+    "ancestor-portrait"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-with-fireplace-wall", "tower-round-via-corner-trims", "L-with-garderobe-alcove"],
+    "discouraged": ["small", "undefended-open-plan"]
+  },
+  "story_prompts": [
+    "the lord sleeps behind drawn curtains — the hound on the rug will wake before he does",
+    "the chamber has just been vacated at speed — armor half-donned, bed thrown back",
+    "a murder has occurred here and the tapestries have been moved to hide a stain",
+    "an assignation — the lady is not expecting her husband, who is one corridor away",
+    "the old lord died in this bed three generations ago and the family insists nothing has changed"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low warm (0.25-0.4) — fireplace, brazier, candelabra — stone soaks light",
+    "ambient_is": "optional",
+    "common_sources": ["fireplace", "brazier", "floor-candelabra", "candelabra", "wall-sconce"]
+  },
+  "anti_patterns": [
+    "differentiate from the mansion-bedroom — stone not wood, tapestries not paintings, heavier and colder",
+    "the bed is fortified — curtains drawn against draft, canopy retains heat",
+    "weapons within reach are plausible — this is a noble who expects trouble",
+    "tapestries on walls (described/implied), rugs on floor — stone walls and floors both need covering"
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "name": "astral-anchor",
+  "category": "planar",
+  "tags": ["planar", "astral", "exotic", "travel", "arcane", "formal"],
+  "summary": "A fixed point in the silver void of the Astral Plane. A platform of starlight-stone, ringed by portal-stelae, where travelers regain their bearings between journeys. Everything drifts slightly.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 14],
+    "aspect_ratio": "roughly square or circular — the anchor is a disc in the void"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/starlight_stone",
+      "polyhaven/silver_marble",
+      "polyhaven/void_tile"
+    ],
+    "accent": {
+      "purpose": "sigil-inlay or anchor-glyph at the platform center",
+      "options": ["polyhaven/silver_inlay", "polyhaven/astral_glyph"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["astral-anchor-stone"], "surrounded_by": ["portal-stela", "portal-stela"], "note": "the mooring stone with portals in a ring" },
+    { "props": ["silver-cord-pylon"], "surrounded_by": ["silver-cord-pylon", "silver-cord-pylon"], "note": "a cluster of cord-moorings for planar travelers" },
+    { "props": ["githyanki-perch"], "surrounded_by": ["portal-stela", "portal-stela"], "note": "a warband's rally-point" },
+    { "props": ["spelljammer-dock-mooring"], "surrounded_by": ["obelisk-astral", "obelisk-astral"], "note": "astral ships moor here" }
+  ],
+  "secondary_palette": [
+    "portal-stela",
+    "silver-cord-pylon",
+    "obelisk-astral",
+    "astral-lantern",
+    "pillar-floating",
+    "bench-astral"
+  ],
+  "scatter_palette": [
+    "drifting-stone",
+    "planar-sigil-shard",
+    "silver-cord-stub",
+    "star-dust-pile",
+    "dead-god-fragment",
+    "floating-candle"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle", "octagon", "square"],
+    "discouraged": ["corridor", "irregular-jagged"]
+  },
+  "story_prompts": [
+    "a githyanki raiding party stages here before a material-plane strike",
+    "a dead god's finger has drifted into the anchor's field and is tangling cords",
+    "two rival planar guilds are negotiating mooring rights at the central stone",
+    "empty, eerily quiet — a single silver cord dangles, its traveler overdue",
+    "a mind flayer nautiloid has moored and is discharging passengers"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "medium (0.4-0.55) with silver-violet ambient; portals glow",
+    "ambient_is": "required",
+    "common_sources": ["portal-stela", "astral-lantern", "astral-anchor-stone"]
+  },
+  "anti_patterns": [
+    "surround the platform with invisible walls (iw) — the void is the wall",
+    "no ground outside the platform — the platform IS the room",
+    "avoid warm colors; palette is silver, violet, pale blue, starlight",
+    "props can and should float slightly off the floor — drift is expected"
+  ]
+}

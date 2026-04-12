@@ -1,0 +1,58 @@
+{
+  "name": "cabin-hunters",
+  "category": "residential",
+  "tags": ["wilderness", "residential", "small", "rustic", "hunter", "trapper"],
+  "summary": "A single-room hunter's cabin: hearth, bedroll, stretched hides, traps on pegs. Practical, temporary, alone.",
+  "size_guidance": {
+    "min": [4, 5],
+    "typical": [6, 7],
+    "aspect_ratio": "near-square, small"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/dirt_floor"]
+  },
+  "primary_palette": [
+    { "props": ["hearth"], "surrounded_by": ["firewood-stack"], "note": "central living point — cook and warmth in one" },
+    { "props": ["bedroll"], "surrounded_by": ["lantern-floor"], "note": "single occupant, tiny personal corner" },
+    { "props": ["skinning-table"], "note": "trapper focus — the table is the room's purpose" }
+  ],
+  "secondary_palette": [
+    "bedroll",
+    "pallet",
+    "trap-rack",
+    "stretched-hide",
+    "antler-rack",
+    "firewood-stack",
+    "trunk",
+    "stool"
+  ],
+  "scatter_palette": [
+    "boot-muddy",
+    "water-jug",
+    "skinning-knife",
+    "ration-pack",
+    "pelt-roll",
+    "dried-herbs",
+    "oil-flask"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "small-rectangle"],
+    "discouraged": ["multi-room", "large"]
+  },
+  "story_prompts": [
+    "occupied, hunter gone for the day — kettle still warm",
+    "abandoned mid-winter — everything frozen in place",
+    "recent struggle — overturned stool, missing knife, blood on the door jamb",
+    "well-kept summer base, rotated through by a small clan of trappers"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low (0.2-0.3) — firelight dominant",
+    "ambient_is": "optional",
+    "common_sources": ["hearth", "lantern-floor"]
+  },
+  "anti_patterns": [
+    "single room — do not split into multiple partitions",
+    "wall-hung hides and traps, not floor-placed",
+    "no formal furniture: no proper tables, no chairs, no chests with locks"
+  ]
+}

@@ -340,24 +340,33 @@ This takes 30 seconds and prevents scrapping a 200-command build because a zone 
 
 ## Room Shape Vocabulary
 
-Use `createTrim` and `createPolygonRoom` to break monotony. Rectangular rooms are the default — use other shapes when they serve the narrative.
+Rectangular rooms are the default — use other shapes when they serve the narrative.
 
 | Shape | How | When |
 |-------|-----|------|
-| Diagonal corner cut | `createTrim(tipR, tipC, extR, extC, "nw")` | Fortress alcoves, guard stations, corners cut for sightlines |
-| Single rounded corner | `createTrim(tipR, tipC, extR, extC, "nw", {round:true})` | Tower stairwell, apse, rounded alcove |
+| Single corner cut | `trimCorner(label, "nw", size)` | Fortress alcoves, guard stations, sightline cuts |
+| Single rounded corner | `trimCorner(label, "nw", size, {round: true})` | Tower stairwell, apse, rounded alcove |
 | Full rounded room | `roundRoomCorners(label, trimSize)` | Towers, circular shrines, arcane chambers, ritual rooms |
-| L-shape | `createPolygonRoom([cells])` | Natural caves, organic layouts, rooms that wrap around corners |
+| L-shape | `createPolygonRoom([cells])` or two `createRoom` calls with `"merge"` | Natural caves, organic layouts, rooms wrapping corners |
 | Irregular cave | `createPolygonRoom` with a ragged cell list | Natural caverns, collapsed areas |
 
-**`roundRoomCorners`** is the preferred way to make circular/rounded rooms. One call handles all 4 corners with correct directions:
+**Prefer `trimCorner` over `createTrim` for single corners.** It takes a room label + compass direction (or `[row, col]` cell) + size — no coordinate math, no tip/extent reasoning. Works on irregular rooms (L, U, +, polygon) because it resolves the corner from the room's actual cell set.
+
+```json
+["trimCorner", "A1", "nw", 3, {"round": true}]
+["trimCorner", "A1", [5, 12], 3, {"round": true}]    ← cell-based: finds nearest convex corner
+```
+
+**`roundRoomCorners`** rounds all 4 corners of a rectangular room in one call:
 ```json
 ["roundRoomCorners", "A10", 4]
 ```
 
-**Trim size guide:** Size 2 = modest corner cut. Size 3–4 = significant bevel. For a near-circular room, use `trimSize = floor(min(width, height) / 2)`. The method validates that the trim size isn't too large for the room.
+**Trim size guide:** Size 2 = modest corner cut. Size 3–4 = significant bevel. For a near-circular room, use `trimSize = floor(min(width, height) / 2)`.
 
-**Manual `createTrim` tip convention:** The first coordinate `(r1, c1)` is the corner **tip** — the outermost cell that gets voided. The corner label matches the visual position: `nw` = top-left, `ne` = top-right, `sw` = bottom-left, `se` = bottom-right.
+**Verify shape after trims.** `previewShape(label)` returns ASCII of the room's current cells — confirm the geometry without a full screenshot.
+
+**Legacy `createTrim`** still works for coordinate-based edits but requires manual tip/extent math. Prefer `trimCorner`.
 
 ---
 
@@ -381,18 +390,13 @@ Use `createTrim` and `createPolygonRoom` to break monotony. Rectangular rooms ar
 | `campfire` | Deep orange | ~20 | Caves, outdoor areas |
 
 ### Placement Patterns
-- **Sconce lighting**: Place `torch-sconce` props on walls, then `placeLight` at the same cell with `preset: "torch"`. Radius 15, 1 per ~10 cells of wall.
-- **Brazier lighting**: Place `brazier` prop in room, then `placeLight` at same world-feet with `preset: "brazier"`. 1–2 per room max.
-- **Ambient fill**: Use `placeLightInRoom(label, "torch")` as a quick ambient light at room center when detailed placement isn't needed.
+- **Prefer light-emitting props.** Placing a `torch-sconce`, `brazier`, `chandelier`, `fireplace`, `hearth`, `candelabra`, or `lantern-post` auto-adds a light. This is the most natural way to light a room — pick the prop, the light follows.
 - **Multiple weak > one strong**: A room with 3 torches (radius 15, intensity 0.7) is more atmospheric than one large light (radius 45, intensity 1.0).
 - **Match light color to theme**: Forge/kitchen rooms = orange-red (`#ff4400`). Undead/crypt = pale blue-white (`#aabbff`). Arcane = violet (`#cc88ff`). Ice = cold blue (`#88aaff`).
+- **Unlit rooms are valid.** Caves, abandoned buildings, sealed crypts, and places without a living occupant can and should be dark. Don't force a light into every room — check the room vocab's `lighting_notes.ambient_is` field: `required` → light it, `optional` → your call, `discouraged` → leave it dark.
 
 ### Lighting World Coordinates
-Light `x = col * gridSize`, `y = row * gridSize`. For gridSize 5:
-- Cell (row=5, col=8): x = 40, y = 25
-- Center of a 10×12 room at r3,c3: center approx row 8, col 9 → x=45, y=40
-
-Use `placeLightInRoom(label, preset)` to avoid coordinate math when precise placement doesn't matter.
+Light `x = col * gridSize`, `y = row * gridSize`. Prefer `placeLightInRoom(label, preset)` to avoid coordinate math.
 
 ---
 
@@ -415,349 +419,45 @@ Use `placeLightInRoom(label, preset)` to avoid coordinate math when precise plac
 
 ---
 
-## Room Semantic Library
+## Room Semantic Library — Queryable Vocab API
 
-Each entry specifies: theme, size, texture, fills, primary prop, secondary props, scatter, shape notes, and lighting.
+The Room Semantic Library lives in `src/rooms/**/*.room.json` and is accessed through API methods, **not** preloaded prose. Each spec is a **palette of options** (multiple primary choices, multiple secondary options, story prompts) — two instances of the same room type will look meaningfully different because you compose a specific layout from the palette.
 
----
+### Discovery flow
 
-### Throne Room / Audience Hall
+```json
+["listRoomTypes"]                                  // all types: name, category, tags, summary
+["searchRoomVocab", {"tags": ["arcane"]}]         // filtered discovery
+["suggestRoomType", {"description": "smoky room full of pipes"}]   // prose → ranked candidates
+["getRoomVocab", "throne-room"]                   // full palette for one type
+```
 
-**Story:** Power. Formality. The ruler receives supplicants here.
+### What a spec contains
 
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `blue-parchment`, `sepia-parchment` |
-| Size | Large (8×14 to 10×16) — **elongated 2:1 ratio**, processional axis from door to throne |
-| Texture | `cobblestone` for whole room; `wood` for dais area (r3-r5) |
-| Fills | None, or a shallow water moat for extreme wealth |
-| Primary | `throne-dais` (2W×3H) at north wall center, facing 180; OR `throne` (1×1) backed by `banner` props on flanking walls |
-| Secondary | 4× `pillar` at interior corners; `carpet` aisle leading from door to throne; 2× `chandelier` overhead; 2× `brazier` flanking dais |
-| Scatter | `trophy` on walls; `statue` in alcoves |
-| Shape | **Elongated rectangle (2:1)** — the long axis from door to throne creates a processional feel. Add diagonal corner trims for a ceremonial octagon |
-| Lighting | Ambient 0.4; `brazier` lights at brazier positions; warm chandelier light at ceiling center; faint torch at throne |
+Every `.room.json` file has these fields:
+- `primary_palette` — options for the room's dominant feature. **Pick ONE.** Each entry can suggest flanking props (`surrounded_by`) and a creative context note.
+- `secondary_palette` — 2-4 supporting props. Compose your own arrangement.
+- `scatter_palette` — 1-3 accent props for life.
+- `size_guidance` — min/typical sizes and aspect ratio advice.
+- `texture_options` — floor + accent texture IDs.
+- `shape_guidance` — preferred/discouraged shapes (trims, rounds, L-shapes, etc.).
+- `story_prompts` — seed phrases to vary the room's narrative feel. Pick one, invent your own, or ignore.
+- `lighting_notes.ambient_is` — `required` | `optional` | `discouraged`. Drives whether unlit rooms are appropriate.
+- `anti_patterns` — type-specific mistakes to avoid.
 
-**Arrangement:** Throne is north-center. Carpet runs south from dais to door. Pillars at all 4 interior corners. Chandeliers hang left and right of the center aisle. Braziers flank the dais, not the door.
+### Composition rule
 
----
+The library is **vocabulary, not a recipe.** Two throne rooms built from `throne-room.room.json` should still feel different: different primary (throne-dais vs bone-throne), different secondaries (pillars + brazier vs chandelier + curtain), different story (cold queen vs usurper). The spec tells you what pieces exist. You decide which, how many, where, and what story they tell.
 
-### Guard Post / Gatehouse Entry
+### Extending the library
 
-**Story:** Alert military presence. This room is functional, not decorative.
+If no existing spec fits, author a new one:
+1. Place it under `src/rooms/<category>/<name>.room.json`
+2. Follow the schema of any existing spec (throne-room is the reference)
+3. The server's `/api/rooms/manifest` picks it up on next request — no rebuild needed
+4. Categories on disk match the `category` field (but tags are the primary discovery axis)
 
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `blue-parchment` |
-| Size | Small (4×6 to 6×8) — tight and functional, not spacious |
-| Texture | `cobblestone` |
-| Fills | None |
-| Primary | `portcullis` (1W×2H) in the passage/door position, facing to match entry direction |
-| Secondary | `weapon-rack` against wall; `table` or `bench` for the guard station; `torch-sconce` props on walls |
-| Scatter | `shield-rack`; `barrel` (supplies); `stool` at the table |
-| Shape | **L-shape** (main room + alcove for the guard station), or narrow rectangle. Use `createRoom` + merge-mode alcove. Never a big square — guard posts are cramped |
-| Lighting | Ambient 0.4; torch lights at each sconce position, radius 12 |
-
-**Arrangement:** Portcullis is in the chokepoint. Guard station (table + stool) is off to the side with sightline to the gate. Weapon rack on the opposite wall. Barrel of supplies near the table.
-
----
-
-### Barracks / Sleeping Quarters
-
-**Story:** People live here. It's crowded, personal, smells like soldiers.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `dirt` |
-| Size | Medium (6×12 to 8×14) — **elongated 2:1** to line beds along walls |
-| Texture | `wood` (interior floor) |
-| Fills | None |
-| Primary | 4–6× `bed` (2W×1H) along walls, facing inward |
-| Secondary | `table` in center; 2–4× `chest` at foot of each bed; `bench` at table |
-| Scatter | `barrel` of water; `lantern-post` or `torch-sconce` near table |
-| Shape | **Long rectangle (2:1)** — beds line the long walls facing inward, table runs down the center aisle |
-| Lighting | Ambient 0.35; single `torch` or `lantern` at table center, radius 20 |
-
-**Arrangement:** Beds are flush against north and south walls, heads against the wall, feet toward center. Table + bench in the middle for eating/card games. Chests at the foot of each bed. One light source at the table — realistic for a barracks.
-
----
-
-### Library / Scriptorium
-
-**Story:** Knowledge hoarded over centuries. Dusty but organized.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `arcane`, `sepia-parchment` |
-| Size | Medium (8×10 to 10×14) — **elongated for shelf rows** |
-| Texture | `wood` |
-| Fills | None |
-| Primary | 4–6× `bookshelf` (1W×2H) against north and side walls, facing south |
-| Secondary | `desk` with `chair` for the scholar; `map-table` in center; `scroll-rack` on side wall |
-| Scatter | `globe`; `book-pile`; `scroll-case`; `candle-cluster` on desk |
-| Shape | **Long rectangle with alcove** — main hall lined with shelves, merge-mode alcove off one side for a reading nook with desk + candle |
-| Lighting | Ambient 0.4; `candle` light at desk (radius 8, soft yellow); `torch` at room center for general illumination |
-
-**Arrangement:** Bookshelves line the walls — north wall first, then side walls. Desk is in a corner or alcove with a candle light source. Map table in the center for reference. Scroll rack on the remaining wall space. Globe and book piles are scatter near the desk.
-
----
-
-### Alchemist's Laboratory
-
-**Story:** Obsessive experimentation. Smells of sulfur and strange herbs.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `arcane` |
-| Size | Medium (6×10 to 8×12) — **L-shape ideal** with storage alcove |
-| Texture | `cobblestone` with `dirt` patches (spilled reagents) |
-| Fills | 1–2 hazard cells near the bench (dangerous spillage) |
-| Primary | `alchemy-bench` (2W×2H) against north wall, facing south |
-| Secondary | `alembic`; `ingredient-rack` (1W×2H); `specimen-jar`; `crucible` |
-| Scatter | `mortar-pestle`; `barrel` (reagents); `candle-cluster`; `book-pile` |
-| Shape | **L-shape** — main workspace rectangle + merge-mode storage alcove for ingredients/reagents. The alcove separates volatile materials from the workbench |
-| Lighting | Ambient 0.3; `candle` at bench position (radius 10, yellow); eerie secondary light if magical |
-
-**Arrangement:** Alchemy bench against back wall. Ingredient rack on the adjacent wall within arm's reach. Alembic, crucible, and mortar-pestle clustered near the bench. Specimen jars as scatter on shelves (use bookshelf props with jars near them). Hazard cells immediately around the bench (dangerous floor). Barrel in a corner.
-
----
-
-### Forge / Smithy
-
-**Story:** Heat, labor, raw materials. The clang of hammer on metal.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `volcanic` |
-| Size | Medium-large (8×12 to 10×14) — **wide rectangle, 3:2** |
-| Texture | `cobblestone`; `dirt` around the forge |
-| Fills | `hazard` around forge area (hot coals, metal scraps) |
-| Primary | `forge` (2W×2H) against north wall, facing south |
-| Secondary | `anvil`; `bellows` adjacent to forge; `workbench`; `trough` (water quench) |
-| Scatter | `barrel` (coal/supplies); `weapon-rack`; `armor-stand`; `crate` (finished goods) |
-| Shape | **Wide rectangle (3:2)** — forge against back wall, work stations spread across width. Or L-shape with finished goods in a separate alcove |
-| Lighting | Ambient 0.25 (forge provides own light); deep orange-red `placeLight` at forge position (`color: "#ff4400"`, `radius: 25`, `intensity: 0.9`); secondary torch near workbench |
-
-**Arrangement:** Forge against back wall (north). Anvil 2 cells south of forge (working distance). Bellows adjacent to forge (east or west). Trough on the opposite side of the anvil from the bellows. Workbench against a side wall. Weapon/armor storage near the exit.
-
----
-
-### Kitchen / Larder
-
-**Story:** The dungeon's stomach. Utilitarian, cluttered, slightly greasy.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon` |
-| Size | Medium (6×10 to 8×12) — **L-shape ideal** with pantry alcove |
-| Texture | `cobblestone`; `dirt` near the hearth |
-| Fills | `hazard` 1–2 cells around hearth (grease fire risk) |
-| Primary | `hearth` (1W×2H) against north wall, facing south; OR `oven` (1W×2H) |
-| Secondary | `kitchen-table`; `chopping-block`; `pot-rack` on wall; `cauldron-large` near fire |
-| Scatter | `barrel` (grain/water); `crate` (provisions); `spice-shelf`; `wood-pile` |
-| Shape | **L-shape** — main kitchen rectangle + merge-mode pantry/larder alcove for dry goods storage (barrels, crates, spice-shelf) |
-| Lighting | Ambient 0.35; fire-orange `placeLight` at hearth (`color: "#ff6600"`, `radius: 18`); secondary `candle` near prep area |
-
-**Arrangement:** Hearth/oven at north wall center. Cauldron near the fire. Kitchen table 2–3 cells south of hearth (prep space). Chopping block against a side wall. Pot rack on the wall above/beside the hearth. Barrels and crates in the remaining corners.
-
----
-
-### Crypt / Ossuary
-
-**Story:** The honored dead (or dishonored, or forgotten). Silence and stone.
-
-| Element | Spec |
-|---------|------|
-| Theme | `crypt`, `stone-dungeon` |
-| Size | Medium (8×8 to 10×10) |
-| Texture | `cobblestone` |
-| Fills | None; or 1–2 `pit` cells for open grave shafts |
-| Primary | 2–4× `sarcophagus` (1W×2H) along walls, facing inward |
-| Secondary | `grave-marker` at the head of each sarcophagus; `candle-cluster` or `candelabra` between tombs |
-| Scatter | `bone-pile`; `burial-urn`; `canopic-jar` |
-| Shape | Rectangular with rounded/trimmed corners (dignified geometry); or alcoves cut per tomb |
-| Lighting | Ambient 0.15 (near-dark); `candle` lights at each candelabra position, radius 8, pale yellow; no warm lights |
-
-**Arrangement:** Sarcophagi against north and side walls, heads to the wall. Grave markers at the head end. Candelabras between tombs. Bone piles and urns as scatter — the mess of ages. Central floor is clear.
-
----
-
-### Prison Block / Dungeon Cells
-
-**Story:** Captivity and despair. Iron, stone, and broken spirits.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon` |
-| Size | Medium-large (10×12+) to fit multiple cells |
-| Texture | `dirt` (earthen floor conveys degradation) |
-| Fills | None; or `pit` for oubliettes |
-| Primary | `portcullis` dividers creating cell bays (invisible walls or actual portcullis props); `shackles` on walls |
-| Secondary | `chain-wall` (1W×3H) creating cell partitions; `stocks` or `pillory` in a central area |
-| Scatter | `bone-pile`; `barrel` (prison rations); `stool` for guards |
-| Shape | Subdivide with invisible walls (`iw`) or portcullis props to create individual cells 2–3 cells wide |
-| Lighting | Ambient 0.1 (very dark); single `torch` near guard station only, radius 15; cells are dim |
-
-**Arrangement:** Guard station near the entrance (table + stool + weapon rack). Cells along the walls with portcullis or invisible wall dividers. Shackles on the back wall of each cell. Central area left open for dragging prisoners. Bone pile in the darkest corner.
-
----
-
-### Torture Chamber
-
-**Story:** Institutional cruelty. The architecture of pain.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `crypt` |
-| Size | Medium (8×10) |
-| Texture | `cobblestone` with `dirt` patches |
-| Fills | 2–3 `pit` cells (drainage trenches) |
-| Primary | `torture-rack` (1W×2H, center of room) or `iron-maiden` against wall |
-| Secondary | `execution-block`; `pillory`; `shackles` on walls; `gibbet` if room is large enough |
-| Scatter | `chain-wall` sections; `bucket` (crate proxy); `bone-pile` |
-| Shape | **Narrow rectangle (3:2)** — low ceiling implied by tight dimensions. The confined space amplifies the horror |
-| Lighting | Ambient 0.1; single `torch-sconce` + torch light near the primary instrument, radius 12 |
-
-**Arrangement:** Primary instrument in the center or slightly north. Secondary instruments against walls. Pit cells around the central instrument (drainage). Shackles on multiple walls. Guard station is absent — this room is visited, not occupied.
-
----
-
-### Temple / Shrine / Chapel
-
-**Story:** Devotion or dark worship. The architecture of faith.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `arcane`, `crypt` (for dark temples) |
-| Size | Large (8×16 to 10×20) — **very elongated 2:1 or 3:1** for the nave |
-| Texture | `cobblestone`; `wood` for the dais/chancel area |
-| Fills | None; or `water` for holy font basin |
-| Primary | `altar` (2W×1H) at north wall center, facing 180; flanked by `candelabra` or `brazier` |
-| Secondary | `pew` rows (1W×3H) in two columns facing north; `idol` or `statue` above altar; `holy-font` near entrance |
-| Scatter | `offering-plate`; `censer`; `kneeling-bench`; `tapestry` on walls |
-| Shape | **Long nave (2:1 to 3:1)** — pews fill the long axis. Use `roundRoomCorners` on the north end for a rounded apse behind the altar. Bilateral symmetry throughout |
-| Lighting | Ambient 0.3; `candle` at each candelabra (radius 8); `brazier` at altar (radius 20, amber); `candle` at holy font |
-
-**Arrangement:** Altar at north center. Idol/statue behind altar or above it. Candelabras flanking altar. Two rows of pews split by a center aisle leading to the altar. Holy font near the south entrance. Tapestries on north wall flanking altar. Offering plate at the base of the altar.
-
----
-
-### Wizard's Sanctum / Arcane Study
-
-**Story:** One brilliant, obsessive mind. Magic and knowledge layered over decades.
-
-| Element | Spec |
-|---------|------|
-| Theme | `arcane`, `stone-dungeon` |
-| Size | Medium (10×10 to 12×12) — **square base for circular trim** |
-| Texture | `wood` |
-| Fills | None; or `water` in a scrying pool depression |
-| Primary | `magic-circle` (3W×3H) in center floor; OR `ritual-circle` |
-| Secondary | `bookshelf` walls; `desk` with `chair`; `arcane-pedestal` with specimen on it; `scrying-mirror` |
-| Scatter | `crystal-ball`; `spell-focus`; `scroll-case`; `ward-stone`; `component-shelf` |
-| Shape | **Circular** — `createRoom` then `roundRoomCorners(label, 3)` or `roundRoomCorners(label, 4)`. The rounded walls reinforce the arcane geometry of the magic circle |
-| Lighting | Ambient 0.2; arcane glow at magic circle center (`color: "#cc88ff"`, radius 20, intensity 0.6); `candle` at desk; `crystal-torch` props for ambient |
-
-**Arrangement:** Magic circle in center (leave it clear — it IS the floor here). Bookshelves on three walls. Desk in the remaining corner with a candle. Arcane pedestal with crystal ball or spell focus in the clearest sightline from the door. Ward stones in corners. Scrying mirror on east wall.
-
----
-
-### Armory
-
-**Story:** Military infrastructure. Rows of tools for killing.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon` |
-| Size | Medium (8×10) |
-| Texture | `cobblestone` |
-| Fills | None |
-| Primary | 2–3× `weapon-rack` (1W×2H) against north and side walls, facing south |
-| Secondary | `armor-stand`; `shield-rack`; `barrel` (arrows/bolts); `chest` (small arms) |
-| Scatter | `crate`; `barrel-stack`; `spear-stand` |
-| Shape | **Long rectangle (2:1)** — racks line the long walls like aisles in a warehouse |
-| Lighting | Ambient 0.5 (working light); `torch` at center, radius 25 — armories need good visibility |
-
-**Arrangement:** Weapon racks on north and east walls. Shield rack on west wall. Armor stands in a row near the weapon racks. Barrel of arrows near the bows. Chests for smaller items near the exit for quick access.
-
----
-
-### Treasure Vault
-
-**Story:** The hoard. The payoff. Everything worth dying for.
-
-| Element | Spec |
-|---------|------|
-| Theme | `stone-dungeon`, `crypt` |
-| Size | Medium (8×8 to 10×10) |
-| Texture | `cobblestone`; `wood` under the main pile |
-| Fills | None; or `pit` traps in approach corridor |
-| Primary | `treasure-pile` (2W×2H) in center or north center |
-| Secondary | `chest` (multiple, along walls); `barrel-stack`; `display-case` for special items; `vault-door` prop if accessible |
-| Scatter | `barrel`; `crate`; `sarcophagus` (secondary trove); `ward-stone` (magical wards) |
-| Shape | **Small square or near-square** — vaults are compact and dense, not spacious. Often only accessible through a locked/secret door |
-| Lighting | Ambient 0.3; single `torch` or `brazier` at the treasure pile — gold catches the light |
-
-**Arrangement:** Treasure pile is the focal point — place it slightly north of center. Chests along the walls. Display case in a corner for special items. Ward stones at corners (magical protection). Vault door prop on the south wall if this room has a reinforced entrance.
-
----
-
-### Natural Cavern
-
-**Story:** The earth itself. Raw, unworked, ancient.
-
-| Element | Spec |
-|---------|------|
-| Theme | `earth-cave`, `underdark`, `dirt` |
-| Size | Variable — irregular is better |
-| Texture | `dirt` |
-| Fills | Pools of `water` (depth 1–2) in depressions; `hazard` in muddy areas |
-| Primary | `stalagmite` clusters; `boulder` or `rock-cluster` |
-| Secondary | `mushroom-cluster` in damp areas; `dead-tree` if near the surface; `campfire` if inhabited |
-| Scatter | `mushroom`; `bone-pile`; `fallen-log` |
-| Shape | **Use `createPolygonRoom`** — never rectangular. Jagged, asymmetric, lobed. Use hazard fills to make "rough" walls feel irregular |
-| Lighting | Ambient 0.1–0.2; `campfire` light if inhabited (radius 20, orange); otherwise dim or bioluminescent (`color: "#88ffaa"` for underdark fungi) |
-
-**Arrangement:** No rules — caverns are chaotic. Cluster stalagmites in groups of 2–3, not evenly spaced. Water pools are bottom (south) or in depressions. If inhabited, there's a cleared central space with a campfire.
-
----
-
-### Boss Chamber
-
-**Story:** The climax. Every visual element should telegraph danger and purpose.
-
-| Element | Spec |
-|---------|------|
-| Theme | Match the dungeon theme |
-| Size | Large (14×16 minimum) — bosses need room to move |
-| Texture | Matching theme; `wood` under a throne; `dirt` under a monster lair |
-| Fills | Environmental hazard: `pit` channels, `lava` pools, `water` sections — the boss uses terrain |
-| Primary | The boss's seat of power: `throne`, `necrotic-altar`, `ritual-circle`, `bone-throne`, or terrain itself |
-| Secondary | 2–4× `pillar` or `stone-column` for cover; environmental features (lava, water) |
-| Scatter | Scattered bones/debris appropriate to the boss type |
-| Shape | Large and dramatic — trimmed corners, or unique polygon shape |
-| Lighting | Ambient 0.15–0.2 (dramatic contrast); strong light at the boss position; hazard areas lit in danger colors (red/orange for lava); rest is dark |
-
-**Tactical note:** Boss chambers should have **cover**, **hazards**, and **multiple approach angles**. Pillars in pairs create cover corridors. Pits force movement decisions. Water slows movement. The boss's position should give them a sightline advantage.
-
----
-
-### Undead Lair / Necromancer's Den
-
-**Story:** Death perverted. Rot and bone and cold purpose.
-
-| Element | Spec |
-|---------|------|
-| Theme | `crypt`, `stone-dungeon` |
-| Size | Medium-large (10×12) |
-| Texture | `cobblestone` with dirt patches |
-| Fills | `pit` sections (open graves); `hazard` (bone fragments, rot) |
-| Primary | `necrotic-altar` (2W×2H) at north center; OR `bone-throne` (2W×1H) |
-| Secondary | `sarcophagus` along walls; `skeleton` or `corpse` scatter props; `canopic-jar`; `burial-urn` |
-| Scatter | `bone-pile`; `zombie-pit` (1×1); `bone-shrine`; `grave-marker` |
-| Shape | Rectangular with pit sections; consider irregular alcoves cut into walls |
-| Lighting | Ambient 0.05 (near-total darkness); cold blue light at altar (`color: "#aabbff"`, radius 18); no warm lights |
-
-**Arrangement:** Necrotic altar at north center — this is the source of power. Sarcophagi along the walls (sources for undead encounters). Zombie pits and corpse props scattered near the altar. Open pit sections on the floor. Everything oriented toward the altar — this is a place of dark worship.
+The goal is breadth: ~100-150 specs across dungeon, residential (variations: cabin/house/mansion/etc.), wilderness, urban, industrial, sacred, naval, planar. Variety of coverage matters more than variety within one type — that comes from composition.
 
 ---
 
@@ -769,12 +469,12 @@ These are the most common ways maps fail to feel real:
 2. **Centred furniture in every room**: Only formal/ceremonial rooms have central furniture. Lived-in spaces cluster against walls.
 3. **Identical room fills**: Don't give every room the same texture and no fills. Vary materials and fill types.
 4. **Lights with no source**: Every light should have a corresponding prop that would cast it (sconce, brazier, campfire). Exception: magical ambient glows.
-5. **Under-lit large rooms**: A 12×14 room with one candle light (radius 8) is too dark to navigate — feel free to add multiple light sources.
+5. **Under-lit large rooms**: A 12×14 room with one candle light (radius 8) is too dark to navigate — feel free to add multiple light sources, OR check `lighting_notes.ambient_is` in the room vocab — some rooms (caves, ruins) are meant to be dark.
 6. **Random prop selection**: Props must reflect room purpose. A tomb with a kitchen table breaks immersion. A forge with a magic circle creates a story question worth answering.
 7. **Symmetric organic spaces**: Natural caves and lived-in spaces shouldn't have bilateral symmetry. Only formal/military/religious spaces should mirror.
 8. **Fills that block all passage**: Water fills and pit fills must leave at least 1-cell walkable paths through them (unless the point is that the room is impassable without magic).
 9. **Props outside room bounds**: All prop anchors and their full footprint must be within the room's interior (not on wall cells). Use `getValidPropPositions` when uncertain.
-10. **Forgetting lighting at all**: A fully-furnished room with no light sources is flat. Even a single `placeLightInRoom` call improves the map significantly.
+10. **Same-vocab rooms feeling identical**: Two rooms of the same type should feel different. Pull different `primary_palette` options, different secondaries, different story prompts. If two throne rooms in one dungeon look the same, the vocab is being stamped instead of composed.
 11. **One-shot 100+ command batches**: Generating all commands blindly and executing once guarantees invisible coordinate errors. Use the Iterative Build Protocol.
 12. **Using short texture names**: `"cobblestone"`, `"dirt"`, `"wood"` are NOT valid IDs. Use full polyhaven paths: `polyhaven/cobblestone_floor_03`, `polyhaven/dirt_floor`, `polyhaven/wood_floor`. Wrong IDs silently do nothing.
 13. **Oversized light radius**: A `radius: 50` indoor light turns the entire dungeon into a glowing blob. Cap at 28 for any indoor room.
@@ -786,7 +486,8 @@ These are the most common ways maps fail to feel real:
 19. **Using `setTextureRect` to fill a room**: Use `floodFillTexture` from any interior floor cell instead — it covers the whole connected area automatically without bound calculation.
 20. **Picking texture IDs from memory**: The texture catalog is dynamic. Always call `listTextures()` and pick the best match for the room's material — don't assume a shortlist is current.
 21. **Corridor stubs between building rooms**: Using `createCorridor` between rooms in a structural building (keep, temple, undercroft) creates tiny 1-2 cell connector rooms that look like airlocks. Instead, place rooms flush (adjacent columns/rows) and use `setDoorBetween` for a door on the shared wall. Reserve `createCorridor` for natural tunnels and caves. See Spatial Rule #11.
-22. **All rooms are squares**: If every room in the dungeon is 8×10 or 10×10, the map looks like a grid of boxes. Vary aspect ratios (2:1 for throne rooms, 3:1 for temple naves), use L-shapes for kitchens and labs, rounded corners for arcane rooms, and alcoves for guard posts. See Spatial Rule #12 and the Room Semantic Library shape entries.
+22. **All rooms are squares**: If every room in the dungeon is 8×10 or 10×10, the map looks like a grid of boxes. Vary aspect ratios (2:1 for throne rooms, 3:1 for temple naves), use L-shapes for kitchens and labs, rounded corners for arcane rooms, and alcoves for guard posts. See Spatial Rule #12 and the room vocab's `shape_guidance` field.
+23. **Forcing lighting into rooms meant to be dark**: A collapsed watchtower, an abandoned cabin, or a sealed crypt is *supposed* to be dark. Read `lighting_notes.ambient_is` in the room vocab — if it says `discouraged`, leave it unlit. Darkness is a design tool, not a failure mode.
 
 ---
 
@@ -821,7 +522,7 @@ When building complex multi-room dungeons with parallel agents, they coordinate 
 ]
 ```
 
-Room types map to entries in the Room Semantic Library above. The planner assigns semantic types — decorators use them to select props and fills.
+Room `type` values come from `listRoomTypes` — the planner picks the closest vocab entry for each room, and decorators fetch the full palette with `getRoomVocab(type)`.
 
 ### Phase 2 — Layout Agent (Serial)
 
@@ -858,11 +559,11 @@ This ensures every level has exactly 2 cells of empty margin around all structur
 Launch one agent per room (or per cluster of small rooms). Each agent:
 
 1. **Reads:** Its room label, type, bounds from `layout_info.json`, and this DESIGN.md
-2. **Looks up:** Room Semantic Library entry for its type
+2. **Looks up:** Full palette with `getRoomVocab(type)` — never prose from this file
 3. **Produces:** A command array for its room ONLY
 
 **Strict rules for decorator agents:**
-- ONLY call: `placeProp`, `removeProp`, `setFill`, `setFillRect`, `removeFill`, `setHazard`, `setHazardRect`, `setTexture`, `setTextureRect`, `placeLight`, `setLabel`, `createTrim`, `setDoor`, `setAmbientLight`
+- ONLY call: `placeProp`, `removeProp`, `setFill`, `setFillRect`, `removeFill`, `setHazard`, `setHazardRect`, `setTexture`, `setTextureRect`, `placeLight`, `setLabel`, `createTrim`, `trimCorner`, `setDoor`, `setAmbientLight`
 - NEVER call: `newMap`, `createRoom`, `setTheme`, `setName`, `setFeature`, `addLevel`, or any structural commands
 - ALL coordinates must fall within the room's assigned bounds
 - Produce output as a JSON file: `decorator_A1.json`, `decorator_A2.json`, etc.
@@ -912,4 +613,4 @@ node tools/puppeteer-bridge.js \
 
 ## Room Design Reference
 
-The Room Semantic Library above is the authority on what props, fills, textures, and lighting work for each room type. Design every room fresh from those primitives — no two rooms in a dungeon should feel like copies of each other.
+The Room Semantic Library is queryable data — `listRoomTypes` + `getRoomVocab(type)`. Each spec is a palette of options. Compose a specific room by picking from `primary_palette` (one), `secondary_palette` (2-4), `scatter_palette` (1-3), and optionally a `story_prompts` seed. Two rooms of the same type should feel different because you chose differently, not because the library forced a different layout.

@@ -222,9 +222,64 @@ async function setupBrowser(args) {
  * @param {(line: string) => void} emit — receives every log line (replaces console)
  * @returns {{ exitCode: number, anyFailed: boolean }}
  */
-async function executeRequest(page, req, emit) {
+// Max images to surface per request (MCP response size safety cap).
+const MAX_IMAGES_PER_REQUEST = 24;
+// Max bytes per image (decoded). Skip anything larger to avoid context bloat.
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
+// Regex to match data URL image strings.
+const DATA_URL_RE = /^data:image\/(png|jpeg|webp|gif);base64,/;
+
+/**
+ * Walk a JS value and extract image dataUrls. Replaces each dataUrl in the
+ * returned clone with a short placeholder so the text output stays readable.
+ * Caps total images at MAX_IMAGES_PER_REQUEST.
+ *
+ * @param {*} value The value to scan.
+ * @param {Array} collected Mutable array of {label, dataUrl, mimeType}.
+ * @param {string} label A human-friendly tag for collected images.
+ * @returns The value with dataUrls replaced by `[image #N]` placeholders.
+ */
+function extractImages(value, collected, label) {
+  if (collected.length >= MAX_IMAGES_PER_REQUEST) return value;
+  if (typeof value === 'string') {
+    const m = value.match(DATA_URL_RE);
+    if (m) {
+      const mimeType = `image/${m[1] === 'jpeg' ? 'jpeg' : m[1]}`;
+      const base64 = value.slice(value.indexOf(',') + 1);
+      // Approximate decoded size: base64 is ~4/3 of raw bytes
+      const approxBytes = Math.floor(base64.length * 0.75);
+      if (approxBytes > MAX_IMAGE_BYTES) {
+        return `[image omitted: ${approxBytes} bytes exceeds ${MAX_IMAGE_BYTES} cap]`;
+      }
+      const index = collected.length + 1;
+      collected.push({ label: label || `image ${index}`, dataUrl: value, mimeType });
+      return `[image #${index}${label ? ` — ${label}` : ''}]`;
+    }
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((v, i) => extractImages(v, collected, label ? `${label}[${i}]` : undefined));
+  }
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      // Prefer a richer label when we're inside a prop thumbnail object
+      let childLabel = label;
+      if (k === 'dataUrl' && value.name) childLabel = String(value.name);
+      else if (k === 'dataUrl' && value.type) childLabel = String(value.type);
+      else if (k === 'dataUrl' && !label) childLabel = 'thumbnail';
+      out[k] = extractImages(v, collected, childLabel);
+    }
+    return out;
+  }
+  return value;
+}
+
+async function executeRequest(page, req, emit, imageCollector) {
   let anyFailed = false;
   let exitCode = 0;
+  // If caller didn't provide a collector (e.g. one-shot mode), create a local one.
+  const collected = imageCollector || [];
 
   try {
     // Load map
@@ -283,8 +338,11 @@ async function executeRequest(page, req, emit) {
         anyFailed = true;
         if (!req.continueOnError) break;
       } else {
+        // Extract any image dataUrls from the result so they can be surfaced
+        // as image content blocks by the MCP layer instead of bloating text.
+        const scrubbed = extractImages(result, collected, method);
         const returnVal =
-          result && Object.keys(result).some((k) => k !== 'success') ? ` => ${JSON.stringify(result)}` : '';
+          scrubbed && Object.keys(scrubbed).some((k) => k !== 'success') ? ` => ${JSON.stringify(scrubbed)}` : '';
         emit(`OK [${i}]: ${method}(${methodArgs.map((a) => JSON.stringify(a)).join(', ')})${returnVal}`);
       }
 
@@ -318,6 +376,10 @@ async function executeRequest(page, req, emit) {
         emit(
           `Screenshot: ${outPath}${highlights ? ` (with ${highlights.length} highlight${highlights.length === 1 ? '' : 's'})` : ''}`,
         );
+        // Also surface the screenshot as an inline image for MCP clients.
+        if (req.inlineImages !== false) {
+          extractImages(dataURL, collected, `screenshot:${path.basename(outPath)}`);
+        }
       }
 
       if (req.save) {
@@ -332,6 +394,11 @@ async function executeRequest(page, req, emit) {
         const dataURL = await page.evaluate(async () => {
           return await window.editorAPI.exportPng();
         });
+        // Note: exportPng is high-res — only surface inline when explicitly requested
+        // via `inlineImages: true` (off by default to avoid huge MCP responses).
+        if (req.inlineImages === true) {
+          extractImages(dataURL, collected, `export:${path.basename(req.exportPng)}`);
+        }
         const base64 = dataURL.replace(/^data:image\/png;base64,/, '');
         const outPath = path.resolve(req.exportPng);
         await fs.writeFile(outPath, Buffer.from(base64, 'base64'));
@@ -343,7 +410,7 @@ async function executeRequest(page, req, emit) {
     exitCode = 1;
   }
 
-  return { exitCode, anyFailed };
+  return { exitCode, anyFailed, images: collected };
 }
 
 // ─── Daemon mode ─────────────────────────────────────────────────────────────
@@ -425,11 +492,12 @@ async function runDaemon(args) {
       }
     };
     let result;
+    const images = [];
     try {
-      result = await executeRequest(page, req, emit);
+      result = await executeRequest(page, req, emit, images);
     } catch (e) {
       process.stdout.write(
-        JSON.stringify({ id, type: 'result', ok: false, error: e.message, output: lines.join('\n') }) + '\n',
+        JSON.stringify({ id, type: 'result', ok: false, error: e.message, output: lines.join('\n'), images }) + '\n',
       );
       continue;
     }
@@ -441,6 +509,7 @@ async function runDaemon(args) {
         exitCode: result.exitCode,
         anyFailed: result.anyFailed,
         output: lines.join('\n'),
+        images: result.images,
       }) + '\n',
     );
   }

@@ -1,0 +1,63 @@
+{
+  "name": "corrupted-temple",
+  "category": "sacred",
+  "tags": ["sacred", "corrupt", "desecrated", "ruined", "occult", "religious"],
+  "summary": "A former temple given over to corruption — icons defaced, holy fixtures inverted or broken, a new unwholesome faith overlaid on the bones of the old. Layered desecration.",
+  "size_guidance": {
+    "min": [9, 12],
+    "typical": [11, 16],
+    "aspect_ratio": "long — bones of a nave remain, but the layout has been violated"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03", "polyhaven/marble_floor_cracked"]
+  },
+  "primary_palette": [
+    { "props": ["necrotic-altar"], "surrounded_by": ["brazier", "brazier"], "note": "the original altar overturned; a new necrotic one erected on top" },
+    { "props": ["idol"], "surrounded_by": ["bone-pile", "bone-pile"], "note": "a new idol of a malignant power replacing the defaced effigy" },
+    { "props": ["obelisk"], "surrounded_by": ["skull-stack", "skull-stack"], "note": "a black monolith planted through the old altar stone" },
+    { "props": ["altar"], "surrounded_by": ["iron-chain-hook", "iron-chain-hook"], "note": "the old altar kept but chained, used for bindings and bloodletting" }
+  ],
+  "secondary_palette": [
+    "pew",
+    "pillar",
+    "brazier",
+    "necrotic-altar",
+    "bone-pile",
+    "skull-stack",
+    "obelisk",
+    "iron-chain-hook",
+    "torn-banner",
+    "broken-statue",
+    "ward-stone"
+  ],
+  "scatter_palette": [
+    "candle",
+    "bone-pile",
+    "skeleton",
+    "book",
+    "book-open",
+    "scroll-case",
+    "rubble-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-nave-partially-ruined", "cruciform-with-collapsed-arm", "cathedral-hall-defiled"],
+    "discouraged": ["small", "pristine"]
+  },
+  "story_prompts": [
+    "a congregation of the new faith mid-service — robed figures chanting in the defiled nave",
+    "long abandoned even by the defilers — the second faith is also gone, only the ruin remains",
+    "reclamation underway — original priests attempting to purify, chalked sigils of warding half-complete",
+    "the desecration is recent — paint still wet on the walls, blood not yet dry on the altar",
+    "the corruption is spreading — a visible miasma, mushrooms and bone-growths on the pillars"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low and sickly (0.15-0.25) — green, red, or blue-pale tint; the warm candles replaced with wrong-colored fires",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "candle-cluster", "necrotic-altar"]
+  },
+  "anti_patterns": [
+    "the layering must show — original features broken but visible beneath the new ones",
+    "never fully clean — this is desecration, there is ALWAYS rubble, blood, or defaced iconography",
+    "avoid uniform darkness; the wrong-colored fires should throw visible zones of unhealthy color"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "farmhouse-kitchen",
+  "category": "residential",
+  "tags": ["rural", "residential", "medium", "kitchen", "work-room", "rustic"],
+  "summary": "The working kitchen of a farmhouse — oven, prep table, hanging herbs, a well-worn butcher's block. Where food is actually made, not eaten.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangle, often adjacent to pantry or stillroom"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/flagstone_floor", "polyhaven/packed_earth", "polyhaven/stone_tile_kitchen"]
+  },
+  "primary_palette": [
+    { "props": ["oven", "hearth"], "surrounded_by": ["pot-rack", "log-pile"], "note": "bread-kitchen — the oven is the workhorse, used daily" },
+    { "props": ["chopping-block"], "surrounded_by": ["pot-rack", "spice-shelf", "hanging-meat"], "note": "butcher-kitchen — chopping block dominates, meat ages overhead" },
+    { "props": ["kitchen-table"], "surrounded_by": ["oven", "wash-basin", "shelf-crockery"], "note": "prep-table kitchen — the big worktable is where it all happens" },
+    { "props": ["cauldron-fire"], "surrounded_by": ["cooking-spit", "long-spoon", "log-pile"], "note": "soup-and-stew kitchen — the cauldron is always going" }
+  ],
+  "secondary_palette": [
+    "oven",
+    "hearth",
+    "chopping-block",
+    "kitchen-table",
+    "pot-rack",
+    "spice-shelf",
+    "shelf-crockery",
+    "cauldron-large",
+    "barrel",
+    "flour-barrel",
+    "wash-basin",
+    "butter-churn",
+    "cooking-spit",
+    "pantry-door"
+  ],
+  "scatter_palette": [
+    "chopped-vegetables",
+    "flour-dust",
+    "hanging-sausage",
+    "hanging-garlic",
+    "onion-braid",
+    "cheese-wheel",
+    "cleaver",
+    "wooden-spoon-pile",
+    "mixing-bowl",
+    "apron-hung",
+    "cat-begging"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-with-oven-nook", "L-with-pantry-alcove", "narrow-work-galley"],
+    "discouraged": ["formal", "open-plan-dining"]
+  },
+  "story_prompts": [
+    "mid-baking — dough rising on the table, the oven just fired",
+    "after a feast — wreckage of plates and pots, one exhausted cook asleep in a chair",
+    "the slaughter day — the block is bloody, a pig hangs, the family works in shifts",
+    "the cook has been poisoned and the kitchen is being quietly searched",
+    "the kitchen has been abandoned — mice in the flour, rust on the cleaver, a calendar on the wall"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm working (0.4-0.5) — oven glow, hearth fire, window if any",
+    "ambient_is": "optional",
+    "common_sources": ["oven", "hearth", "wall-lantern", "candle"]
+  },
+  "anti_patterns": [
+    "this is a WORK kitchen, not a dining room — no long-table of chairs",
+    "the surfaces are USED — chopping block stained, table floured, pots heavy with char",
+    "herbs hang from walls and rafters (described in prose), props go on horizontal surfaces",
+    "avoid formal decoration — even a noble kitchen is utilitarian downstairs"
+  ]
+}

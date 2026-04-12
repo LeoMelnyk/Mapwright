@@ -1,0 +1,63 @@
+{
+  "name": "ritual-chamber-bright",
+  "category": "sacred",
+  "tags": ["sacred", "ritual", "divine", "ceremonial", "bright", "holy"],
+  "summary": "A chamber prepared for divine or celestial rites — a great circle inscribed in the floor, concentric pillars, bright light pouring from above or from sanctified fires. Clean, ordered, reverent.",
+  "size_guidance": {
+    "min": [7, 7],
+    "typical": [9, 9],
+    "aspect_ratio": "square or circular — the circle is the room"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished"],
+    "accent": {
+      "purpose": "the ritual circle itself — a ring of different material",
+      "options": ["polyhaven/marble_floor", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ritual-circle"], "surrounded_by": ["pillar", "pillar", "pillar", "pillar"], "note": "classic inscribed circle with four corner pillars" },
+    { "props": ["magic-circle"], "surrounded_by": ["candelabra", "candelabra", "candelabra", "candelabra"], "note": "sigil-bound circle with tall candelabra at cardinal points" },
+    { "props": ["altar"], "surrounded_by": ["ritual-circle"], "note": "altar at center of an enclosing circle — a rite performed upon the altar" },
+    { "props": ["holy-font"], "surrounded_by": ["ward-stone", "ward-stone", "ward-stone", "ward-stone"], "note": "a sanctifying font inside a guarded perimeter" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "candelabra",
+    "floor-candelabra",
+    "ward-stone",
+    "brazier",
+    "banner",
+    "holy-font",
+    "kneeling-bench",
+    "lectern"
+  ],
+  "scatter_palette": [
+    "candle",
+    "book-open",
+    "scroll-case",
+    "carpet",
+    "spell-focus"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "octagonal", "round"],
+    "discouraged": ["long-nave", "irregular"]
+  },
+  "story_prompts": [
+    "a rite mid-way — robed figures standing at the points of the circle, chanting",
+    "preparation in progress — chalk being drawn, candles still being placed",
+    "just concluded — aftermath of a successful rite, residue of divine presence",
+    "a binding ceremony — the circle holds something holy but not entirely safe",
+    "abandoned mid-rite — chalk half-drawn, a toppled candle, no one in the room"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright and clean (0.5-0.6) — the chamber is literally and spiritually illuminated",
+    "ambient_is": "required",
+    "common_sources": ["candelabra", "floor-candelabra", "brazier", "chandelier"]
+  },
+  "anti_patterns": [
+    "the circle is centered in the room — radial symmetry matters here",
+    "no clutter inside the circle; nothing crosses the inscribed line casually",
+    "avoid any corrupt or necrotic iconography — this is a bright rite"
+  ]
+}

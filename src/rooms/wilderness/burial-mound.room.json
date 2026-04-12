@@ -1,0 +1,67 @@
+{
+  "name": "burial-mound",
+  "category": "wilderness",
+  "tags": ["wilderness", "burial", "ancient", "sacred", "dead"],
+  "summary": "A grass-covered burial mound on an open field. Stone-lined entrance passage on one side, grave-markers around it, sometimes a cairn on top. Older than the local kingdom.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 10],
+    "aspect_ratio": "near-circular outer, rectangular passage pointing out"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/grass_floor", "polyhaven/moss_ground", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "exposed stone passage entrance",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["grave-mound"], "surrounded_by": ["grave-marker", "grave-marker", "standing-stone"], "note": "mound with stone-ringed base, markers at compass points" },
+    { "props": ["mound-entrance"], "surrounded_by": ["grave-marker", "cairn-sacred"], "note": "stone-lined passage cut into the mound — entrance to the barrow below" },
+    { "props": ["cairn-sacred"], "surrounded_by": ["grave-mound", "standing-stone"], "note": "cairn on the mound's crown, old king's landmark" }
+  ],
+  "secondary_palette": [
+    "grave-mound",
+    "grave-marker",
+    "mound-entrance",
+    "cairn-sacred",
+    "standing-stone",
+    "standing-stone-fallen",
+    "tall-grass",
+    "moss-patch",
+    "dead-tree",
+    "rock-cluster"
+  ],
+  "scatter_palette": [
+    "tall-grass",
+    "moss-patch",
+    "flower-patch",
+    "fallen-leaves",
+    "bone-marker",
+    "offering-bowl",
+    "coin-offering",
+    "ravens-feather"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle-with-stub-passage", "oval-with-tail", "irregular-near-round"],
+    "discouraged": ["rectangle", "square", "symmetric-with-no-entrance"]
+  },
+  "story_prompts": [
+    "undisturbed — entrance stone in place, grass unbroken, the dead rest",
+    "freshly looted — the entrance stone is pushed aside, fresh footprints, something missing",
+    "the dead are awake — grave-markers freshly cracked, crows roosting, soil wrong-colored",
+    "a cult uses the passage as a meeting place — ritual candles inside, not robbers",
+    "not a grave — the 'mound' is something buried alive, and it is stirring"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "open-sky above-ground — bright daylight, the passage interior dark",
+    "ambient_is": "discouraged",
+    "common_sources": ["brazier", "lantern-post"]
+  },
+  "anti_patterns": [
+    "no built walls — the mound is a landmark prop, the field is the room",
+    "the passage entrance should be clearly visible, not hidden — readable at a glance",
+    "do not clutter the mound top — cairn or nothing, not a display of loot",
+    "grave markers are weathered, not pristine — these are old stones"
+  ]
+}

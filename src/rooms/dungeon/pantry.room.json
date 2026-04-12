@@ -1,0 +1,70 @@
+{
+  "name": "pantry",
+  "category": "dungeon",
+  "tags": ["dungeon", "storage", "utility", "small"],
+  "summary": "A dense storeroom for food — shelves packed with dry goods, barrels of salt-meat, hanging hams, a quiet mustiness.",
+  "size_guidance": {
+    "min": [4, 5],
+    "typical": [5, 7],
+    "aspect_ratio": "compact — pantries are tight, every wall used"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/wood_floor",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_polished"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["pantry-shelf", "pantry-shelf", "pantry-shelf"], "note": "shelved pantry — walls floor-to-ceiling in jars and sacks" },
+    { "props": ["barrel-stack", "barrel-stack", "ham-hook-row"], "note": "bulk storage — casks and hanging meat" },
+    { "props": ["spice-shelf", "cabinet", "barrel"], "note": "spice pantry — valuable dry goods, kept locked" },
+    { "props": ["pantry-shelf", "barrel", "crate-stack"], "note": "mixed pantry — shelves, barrels, and boxes crammed in" },
+    { "props": ["fish-drying-rack", "barrel"], "note": "preserve pantry — drying and salting" }
+  ],
+  "secondary_palette": [
+    "pantry-shelf",
+    "shelf-bare",
+    "spice-shelf",
+    "barrel",
+    "barrel-stack",
+    "barrel-side",
+    "keg",
+    "crate",
+    "crate-stack",
+    "cabinet",
+    "sack-stack",
+    "hanging-ham",
+    "fish-drying-rack"
+  ],
+  "scatter_palette": [
+    "grain-sack",
+    "cheese-wheel",
+    "onion-braid",
+    "salt-brick",
+    "bottle",
+    "jar",
+    "rat"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "square", "narrow-corridor-like"],
+    "discouraged": ["round", "L-shape-with-alcove"]
+  },
+  "story_prompts": [
+    "full pantry, recently stocked, everything labeled",
+    "looted pantry — broken jars, spilled grain, nothing edible left",
+    "rat-infested pantry where the food moves on its own",
+    "magical pantry whose stores never run out",
+    "rotted pantry, spoilage-mold climbing the walls"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim, barely lit (0.15-0.3)",
+    "ambient_is": "optional",
+    "common_sources": ["wall-lantern", "candle", "torch-sconce"]
+  },
+  "anti_patterns": [
+    "don't leave walls empty — pantries use every inch of wall",
+    "don't oversize; a pantry of 10x10 feels like a warehouse",
+    "avoid decorative props; this is pure storage"
+  ]
+}

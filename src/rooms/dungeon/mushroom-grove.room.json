@@ -1,0 +1,68 @@
+{
+  "name": "mushroom-grove",
+  "category": "dungeon",
+  "tags": ["dungeon", "underdark", "wild", "organic", "medium", "large"],
+  "summary": "An underground garden — fungal forest grown on cavern floor, bioluminescent caps, damp air, soft ground.",
+  "size_guidance": {
+    "min": [7, 9],
+    "typical": [10, 12],
+    "aspect_ratio": "irregular — caverns aren't rectangular"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/dirt_floor",
+      "polyhaven/mossy_ground",
+      "polyhaven/cave_floor"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["mushroom-cluster", "mushroom-cluster", "mushroom", "mushroom"], "note": "wild grove — scattered clusters of varying size" },
+    { "props": ["giant-mushroom", "mushroom-cluster"], "note": "a single dominant giant cap with smaller growth beneath" },
+    { "props": ["mushroom-cluster", "glowcap-cluster", "spore-puffball"], "note": "bioluminescent variety — the grove is the light source" },
+    { "props": ["mushroom-cluster", "mushroom-cluster"], "surrounded_by": ["bone-pile-small", "corpse"], "note": "carnivorous grove — something feeds the mushrooms" },
+    { "props": ["mushroom-cluster", "planter-box", "planter-box"], "note": "cultivated grove — duergar or drow farm" }
+  ],
+  "secondary_palette": [
+    "mushroom",
+    "mushroom-cluster",
+    "moss-patch",
+    "roots",
+    "stalagmite",
+    "rock-cluster",
+    "boulder",
+    "fallen-log",
+    "pond",
+    "spore-puffball",
+    "glowcap-cluster"
+  ],
+  "scatter_palette": [
+    "mushroom",
+    "moss-patch",
+    "mycelium-web",
+    "slug-trail",
+    "decaying-log",
+    "bone-pile-small",
+    "luminous-spore"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-cave", "L-shape-with-alcove", "rounded-blob", "lobed"],
+    "discouraged": ["rectangle", "square"]
+  },
+  "story_prompts": [
+    "wild underdark grove lit by its own glow, no one tends it",
+    "drow farm — tidy rows of cultivated mushrooms, a slave's basket nearby",
+    "myconid colony ground where the mushrooms watch",
+    "a grove poisoned by something upstream, caps blackening",
+    "recently burned grove regrowing — char and new shoots together"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "faint blue-green glow (0.15-0.3) from the caps themselves",
+    "ambient_is": "optional",
+    "common_sources": ["glowcap-cluster", "luminous-spore", "crystal-formation", "crystal-torch"]
+  },
+  "anti_patterns": [
+    "don't use straight walls — caverns should trim corners heavily or be irregular",
+    "don't light with torches unless someone brought them; the grove is self-lit",
+    "avoid furniture unless this is a cultivated variant"
+  ]
+}

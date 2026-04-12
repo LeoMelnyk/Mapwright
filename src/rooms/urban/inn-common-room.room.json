@@ -1,0 +1,69 @@
+{
+  "name": "inn-common-room",
+  "category": "urban",
+  "tags": ["urban", "rural", "commercial", "social", "medium", "travel"],
+  "summary": "The ground floor of a traveler's inn. Dining tables, a hearth, kegs behind a serving counter, staircase to rented rooms above. A warmer, more family-friendly space than a pure tavern.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 12],
+    "aspect_ratio": "squareish with stairs at one end, hearth on a long wall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "worn path from door to stairs",
+      "options": ["polyhaven/dirt_floor", "polyhaven/wooden_planks"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["hearth"], "surrounded_by": ["long-table", "bench", "bench"], "note": "hearth-forward — communal long table, family dining vibe" },
+    { "props": ["bar-counter"], "surrounded_by": ["table", "chair", "keg-stack"], "note": "counter-forward — innkeeper takes orders and holds keys at one spot" },
+    { "props": ["fireplace", "long-table"], "surrounded_by": ["bench", "stool", "kitchen-table"], "note": "mixed — hearth plus a pass-through to the kitchen" }
+  ],
+  "secondary_palette": [
+    "hearth",
+    "fireplace",
+    "bar-counter",
+    "long-table",
+    "table",
+    "bench",
+    "chair",
+    "stool",
+    "keg-stack",
+    "keg",
+    "notice-board",
+    "staircase",
+    "cabinet"
+  ],
+  "scatter_palette": [
+    "tankard",
+    "bread-loaf",
+    "bowl-stew",
+    "cat-sleeping",
+    "dog-sleeping",
+    "travel-pack",
+    "walking-stick",
+    "pipe-clay",
+    "candle"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "L-with-stair-alcove"],
+    "discouraged": ["open-hall", "narrow"]
+  },
+  "story_prompts": [
+    "caravan night — every table full, bard on a chair, innkeeper out of beds",
+    "quiet morning — one traveler eating porridge, hearth low, innkeeper on the stairs",
+    "blizzard stranding — travelers asleep on benches, children playing by the fire",
+    "mysterious guest — hooded figure at a corner table, refusing to sign the register"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm hearth-lit (0.45-0.5) — welcoming, slightly smoky",
+    "ambient_is": "required",
+    "common_sources": ["hearth", "chandelier", "lantern-post", "candle"]
+  },
+  "anti_patterns": [
+    "stairs can't be buried — keep a clean path from door to stairs",
+    "don't pack it like a tavern — inns have fewer tables, more walking space",
+    "notice-board near door, not deep in the room — travelers check it on entry"
+  ]
+}

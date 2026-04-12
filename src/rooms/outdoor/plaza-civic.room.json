@@ -1,0 +1,69 @@
+{
+  "name": "plaza-civic",
+  "category": "outdoor",
+  "tags": ["outdoor", "urban", "formal", "social", "public", "ceremonial"],
+  "summary": "A civic plaza — paved, formal, dominated by a single centerpiece (statue, fountain, or obelisk). Benches ring the edges, lanterns mark the paths, and the space is designed to be crossed and observed, not occupied.",
+  "size_guidance": {
+    "min": [12, 14],
+    "typical": [14, 18],
+    "aspect_ratio": "square or circular footprint preferred"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/stone_tile_polished",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/marble_floor"
+    ],
+    "accent": {
+      "purpose": "ring or radial-pattern inlay around the centerpiece",
+      "options": ["polyhaven/marble_floor", "polyhaven/stone_inlay_radial"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["statue"], "surrounded_by": ["bench", "bench"], "note": "civic hero or founder statue" },
+    { "props": ["fountain-large"], "surrounded_by": ["bench", "planter-box"], "note": "grand fountain as the plaza's heart" },
+    { "props": ["obelisk"], "surrounded_by": ["lantern-post", "lantern-post"], "note": "memorial obelisk commemorating a war or founding" },
+    { "props": ["clock-tower-base"], "surrounded_by": ["bench", "lantern-post"], "note": "clock tower anchors one edge; plaza centers under the chime" }
+  ],
+  "secondary_palette": [
+    "bench",
+    "lantern-post",
+    "planter-box",
+    "flag-pole",
+    "tree-small",
+    "fountain",
+    "statue",
+    "banner"
+  ],
+  "scatter_palette": [
+    "flowers",
+    "dropped-coin",
+    "pigeon-flock",
+    "fallen-leaves",
+    "broadsheet-posted",
+    "rope-cordon",
+    "cart"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "circle", "octagon"],
+    "discouraged": ["corridor", "irregular"]
+  },
+  "story_prompts": [
+    "execution or proclamation day — crowd gathered, guards forming a ring",
+    "quiet afternoon — children throwing coins in the fountain, an old man feeding pigeons",
+    "a festival has just ended; benches are broken, the flag is torn, but no one has cleaned up yet",
+    "the statue has been defaced overnight with a forbidden sigil",
+    "winter at dusk — plaza empty except for a lantern-lighter working the posts"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor daylight by default; evening 0.35-0.5 with warm lantern tint",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "fountain-large"]
+  },
+  "anti_patterns": [
+    "bilateral or radial symmetry is MANDATORY — civic plazas are designed, not grown",
+    "invisible walls (iw) at the perimeter — buildings suggested by texture, not modeled",
+    "don't clutter — a plaza's power is openness; scatter is minimal",
+    "centerpiece MUST be offset from a door axis — visitors should see it from the corner approach"
+  ]
+}

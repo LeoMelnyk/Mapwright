@@ -1,0 +1,72 @@
+{
+  "name": "gatehouse-inner",
+  "category": "dungeon",
+  "tags": ["dungeon", "military", "entry", "defensive", "medium"],
+  "summary": "The fortified room behind a major gate — a portcullis mechanism, murder-holes, guard stations, arrow slits. Built to hold even after the gate falls.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangular, aligned with the gate axis"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_polished",
+      "polyhaven/brick_floor"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["portcullis", "winch-mechanism"], "surrounded_by": ["weapon-rack", "weapon-rack"], "note": "classic gatehouse — portcullis plus its winch, weapons within reach" },
+    { "props": ["portcullis", "murder-hole-grate"], "note": "double-defensive — gate plus kill-zone above" },
+    { "props": ["portcullis", "brazier", "weapon-rack"], "note": "lit watch-gate — fire for night alarms, weapons for response" },
+    { "props": ["vault-door"], "surrounded_by": ["arrow-slit-wall", "arrow-slit-wall"], "note": "interior vault-gate with flanking arrow slits" },
+    { "props": ["portcullis", "ballista"], "note": "heavy gatehouse — a mounted ballista aimed down the corridor" }
+  ],
+  "secondary_palette": [
+    "portcullis",
+    "winch-mechanism",
+    "weapon-rack",
+    "shield-rack",
+    "spear-stand",
+    "brazier",
+    "torch-sconce",
+    "wall-lantern",
+    "barrier",
+    "alarm-bell",
+    "notice-board",
+    "banner",
+    "chain-hoist",
+    "arrow-slit-wall",
+    "murder-hole-grate"
+  ],
+  "scatter_palette": [
+    "helm-on-peg",
+    "stool",
+    "dice-cup",
+    "lantern",
+    "oil-flask",
+    "key-ring",
+    "arrow-bundle"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "long-rectangle", "T-shape"],
+    "discouraged": ["round", "square-undirectional"]
+  },
+  "story_prompts": [
+    "manned and alert — guards at post, brazier lit, a dog asleep beside the winch",
+    "empty gatehouse, portcullis down, rust on the mechanism",
+    "recently overrun — bodies at the winch, portcullis stuck half-raised",
+    "ceremonial inner gate, polished and decorative, rarely closed",
+    "a dwarf fortress gatehouse with redundant everything — two portcullises, two winches"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "alert dim (0.3-0.45), fire-lit",
+    "ambient_is": "optional",
+    "common_sources": ["brazier", "torch-sconce", "wall-lantern", "lantern-post"]
+  },
+  "anti_patterns": [
+    "don't place the winch away from the portcullis — they're functionally linked",
+    "don't miss the defensive orientation — everything faces outward, toward the gate",
+    "avoid soft furnishings (carpets, beds, paintings); this is a fighting room"
+  ]
+}

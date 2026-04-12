@@ -1,0 +1,64 @@
+{
+  "name": "ritual-chamber-dark",
+  "category": "sacred",
+  "tags": ["sacred", "ritual", "occult", "corrupt", "ceremonial", "dark"],
+  "summary": "A chamber prepared for occult, necrotic, or infernal rites. Blood-grooves cut into the floor, irregular symbols, braziers that burn with wrong-colored flame. Charged and unstable.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [8, 8],
+    "aspect_ratio": "square or circular — the circle still anchors the room, but its character is inverted"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "the sigil — grooves stained or inlaid differently",
+      "options": ["polyhaven/stone_tile_polished", "polyhaven/marble_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["magic-circle"], "surrounded_by": ["brazier", "brazier", "brazier", "brazier"], "note": "summoning sigil with braziers at cardinal points" },
+    { "props": ["necrotic-altar"], "surrounded_by": ["bone-pile", "bone-pile"], "note": "dark altar amid piled remains of prior rites" },
+    { "props": ["ritual-circle"], "surrounded_by": ["skull-stack", "skull-stack", "skull-stack", "skull-stack"], "note": "a skull-warded circle — offerings at each quarter" },
+    { "props": ["obelisk"], "surrounded_by": ["ward-stone", "ward-stone"], "note": "a black monolith that the chamber is built around; rituals performed against its face" }
+  ],
+  "secondary_palette": [
+    "brazier",
+    "necrotic-altar",
+    "obelisk",
+    "bone-pile",
+    "skull-stack",
+    "ward-stone",
+    "blood-basin",
+    "iron-chain-hook",
+    "pillar"
+  ],
+  "scatter_palette": [
+    "candle",
+    "book-open",
+    "scroll-case",
+    "skeleton",
+    "bone-pile",
+    "spell-focus"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "irregular-octagonal", "round-pit"],
+    "discouraged": ["long-nave", "cruciform"]
+  },
+  "story_prompts": [
+    "a summoning complete — the circle's occupant has left; the summoners did not",
+    "fresh blood in the grooves — the rite was interrupted minutes ago",
+    "a generational chamber — layer upon layer of sigil scarring, newest one not yet finished",
+    "a single cultist rehearsing — chalked annotations in the margins, a manual propped open",
+    "the rite misfired — char-marks radiating outward, the altar cracked, a scorched shape on the wall"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low and wrong (0.15-0.25) — green, blue, or red-tinged ambient; braziers the dominant source",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "candle-cluster", "necrotic-altar"]
+  },
+  "anti_patterns": [
+    "symmetry should feel WRONG — slightly off-axis sigils, unequal counts",
+    "no pews or worship seating — this is practitioner space, not congregant",
+    "avoid bright warm lighting — the mood is sickly, cold, or infernal"
+  ]
+}

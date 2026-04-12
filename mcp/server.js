@@ -349,6 +349,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
               'Use the long-running bridge daemon (browser persists between MCP calls — fast). Default true. Set false to spawn a fresh bridge subprocess per call (legacy one-shot mode).',
             default: true,
           },
+          inline_images: {
+            type: 'boolean',
+            description:
+              'Surface high-resolution export_png output as an inline image content block in addition to writing the file. Off by default for export (images are large). Screenshots and prop thumbnails are always surfaced inline.',
+            default: false,
+          },
         },
         required: ['commands'],
       },
@@ -450,6 +456,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
           continueOnError: !!args.continue_on_error,
           slowMo: args.slow_mo || 0,
           visible: !!args.visible,
+          inlineImages: args.inline_images,
         };
         // If client sent a progressToken, stream per-command progress events
         const onProgress = sendProgress
@@ -460,10 +467,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request, extra) => {
             }
           : undefined;
         const resp = await daemon.execute(req, onProgress);
-        return {
-          content: [{ type: 'text', text: resp.output || '(no output)' }],
-          isError: !resp.ok,
-        };
+        const content = [{ type: 'text', text: resp.output || '(no output)' }];
+        // Surface extracted image dataUrls as image content blocks so vision-capable
+        // MCP clients (Claude, etc.) can actually see prop thumbnails, screenshots,
+        // and shape previews instead of parsing walls of base64 text.
+        if (Array.isArray(resp.images)) {
+          for (const img of resp.images) {
+            if (!img || typeof img.dataUrl !== 'string') continue;
+            const commaIdx = img.dataUrl.indexOf(',');
+            if (commaIdx < 0) continue;
+            const data = img.dataUrl.slice(commaIdx + 1);
+            const mimeType = img.mimeType || 'image/png';
+            if (img.label) content.push({ type: 'text', text: `[image: ${img.label}]` });
+            content.push({ type: 'image', data, mimeType });
+          }
+        }
+        return { content, isError: !resp.ok };
       } catch (err) {
         return {
           content: [{ type: 'text', text: `Bridge daemon error: ${err.message}` }],

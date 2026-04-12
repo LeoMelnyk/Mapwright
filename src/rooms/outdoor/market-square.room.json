@@ -1,0 +1,73 @@
+{
+  "name": "market-square",
+  "category": "outdoor",
+  "tags": ["outdoor", "urban", "commerce", "social", "crowded", "civilian"],
+  "summary": "A working market — rows of canvas stalls, crates stacked between, produce carts, a well or fountain for a fixed point. Noisy, dense, defined by the stalls, not by buildings.",
+  "size_guidance": {
+    "min": [12, 14],
+    "typical": [16, 20],
+    "aspect_ratio": "square or 4:3 — aisles run between stall rows"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/dirt_floor",
+      "polyhaven/packed_earth"
+    ],
+    "accent": {
+      "purpose": "central plaza ring around the well or fountain",
+      "options": ["polyhaven/stone_tile_polished", "polyhaven/cobblestone_floor_03"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["well"], "surrounded_by": ["market-stall", "market-stall"], "note": "water well as the focal landmark" },
+    { "props": ["fountain"], "surrounded_by": ["market-stall", "market-stall"], "note": "civic fountain surrounded by stalls" },
+    { "props": ["market-cross"], "surrounded_by": ["market-stall", "cart"], "note": "traditional stone market cross centerpiece" },
+    { "props": ["auction-block"], "surrounded_by": ["market-stall", "market-stall"], "note": "auction day — the block is the focus" }
+  ],
+  "secondary_palette": [
+    "market-stall",
+    "market-stall-awning",
+    "cart",
+    "crate",
+    "barrel",
+    "hay-bale",
+    "bench",
+    "lantern-post",
+    "flag-pole",
+    "planter-box"
+  ],
+  "scatter_palette": [
+    "crate",
+    "barrel",
+    "produce-pile",
+    "sack",
+    "coin-scatter",
+    "dog-stray",
+    "chicken-crate",
+    "dropped-apple",
+    "broken-pottery"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "L-shape-with-main-thoroughfare"],
+    "discouraged": ["corridor", "round-enclosed"]
+  },
+  "story_prompts": [
+    "market day at peak — every stall manned, crowd thick, a pickpocket working the crowd",
+    "dawn setup — half the stalls still going up, vendors arguing over pitches",
+    "a riot has broken out — stalls overturned, goods scattered, guards moving in",
+    "end of day, packing up — lanterns lit, most stalls empty, a drunk by the well",
+    "the market has been closed by plague order; stalls stand empty, goods rotting"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor daylight by default; evening scenes use 0.35-0.45 with warm torch tint",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "market-stall-awning"]
+  },
+  "anti_patterns": [
+    "perimeter is invisible walls (iw) — buildings at the edge are suggested, not modeled",
+    "stalls should form aisles, not a grid — leave room for crowds",
+    "don't skip scatter — a tidy market reads as closed; clutter = commerce",
+    "don't forget vertical interest — banners on poles, awning props, flag-poles break up the plane"
+  ]
+}

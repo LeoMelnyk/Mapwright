@@ -1,0 +1,73 @@
+{
+  "name": "treasure-vault",
+  "category": "dungeon",
+  "tags": ["dungeon", "treasure", "secure", "reward", "small", "medium"],
+  "summary": "A sealed room housing wealth — heaped coin, locked chests, or display cases. Often trapped, nearly always lit by the glitter itself.",
+  "size_guidance": {
+    "min": [5, 5],
+    "typical": [7, 8],
+    "aspect_ratio": "compact, often square or near-square"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/marble_floor",
+      "polyhaven/stone_tile_polished",
+      "polyhaven/cobblestone_floor_03"
+    ],
+    "accent": {
+      "purpose": "plinth / display dais / central hoard",
+      "options": ["polyhaven/marble_floor", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["treasure-pile-massive"], "note": "dragon-style hoard — a single mound in the room's heart" },
+    { "props": ["chest-large", "chest-large", "chest"], "note": "mercantile vault — locked strongboxes lined along walls" },
+    { "props": ["display-case", "display-case", "display-case"], "note": "collector's cabinet — named objects behind glass" },
+    { "props": ["treasure-pile", "treasure-pile-small", "chest"], "note": "working treasury — loose coin still being counted" },
+    { "props": ["reliquary"], "surrounded_by": ["pillar", "pillar"], "note": "single object of great price on a pedestal" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "pillar-corner",
+    "chest",
+    "chest-large",
+    "display-case",
+    "pedestal",
+    "statue",
+    "vault-door",
+    "ward-stone",
+    "candelabra",
+    "carpet-royal",
+    "carpet-small"
+  ],
+  "scatter_palette": [
+    "coin-spill",
+    "goblet",
+    "gem-cluster",
+    "crown-on-cushion",
+    "ingot-stack",
+    "scroll-case",
+    "treasure-pile-small"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "octagon-via-corner-trims", "square-with-rounded-corners"],
+    "discouraged": ["long-rectangle", "narrow-corridor-like"]
+  },
+  "story_prompts": [
+    "a dragon's hoard long abandoned — coins tarnished, a single footprint in the dust",
+    "a merchant prince's counting vault, ledgers stacked with the ingots",
+    "a temple reliquary — one object matters, the rest is offering",
+    "a thief's stash behind a false wall, disorganized and hasty",
+    "a trapped vault where the greed itself is the puzzle"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim but glinting (0.2-0.35)",
+    "ambient_is": "optional",
+    "common_sources": ["candelabra", "wall-lantern", "brazier", "crystal-torch"]
+  },
+  "anti_patterns": [
+    "don't scatter small piles across every cell — treasure reads better concentrated",
+    "don't forget the vault door — the entry should feel heavy and singular",
+    "avoid mundane furniture (chairs, tables) unless this is a counting-room variant"
+  ]
+}

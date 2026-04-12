@@ -1,0 +1,73 @@
+{
+  "name": "campsite-traveler",
+  "category": "outdoor",
+  "tags": ["outdoor", "wilderness", "rural", "rest", "exploration", "social"],
+  "summary": "A traveler's camp — central fire, two to four tents or bedrolls arranged around it, a picketed horse line, gear stacked within reach. The camp is the story: whose camp, what state, what's missing.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "roughly circular — camps arrange around a central fire"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/forest_floor_leaves",
+      "polyhaven/grass_patchy",
+      "polyhaven/packed_earth"
+    ],
+    "accent": {
+      "purpose": "cleared ring around the fire",
+      "options": ["polyhaven/ash_ring", "polyhaven/packed_earth"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["campfire"], "surrounded_by": ["tent", "tent"], "note": "classic traveler's camp — fire with tents around" },
+    { "props": ["campfire"], "surrounded_by": ["bedroll", "bedroll"], "note": "rough camp — no tents, just bedrolls" },
+    { "props": ["cook-pot-tripod"], "surrounded_by": ["stool", "log-seat"], "note": "meal in progress, fire has a pot over it" },
+    { "props": ["campfire-cold"], "surrounded_by": ["tent-collapsed", "bedroll"], "note": "abandoned or attacked camp" }
+  ],
+  "secondary_palette": [
+    "tent",
+    "bedroll",
+    "log-seat",
+    "stool",
+    "cart",
+    "picket-line",
+    "crate",
+    "barrel",
+    "wood-pile",
+    "cook-pot-tripod"
+  ],
+  "scatter_palette": [
+    "sack",
+    "waterskin",
+    "boots-drying",
+    "cookware-scatter",
+    "empty-bottle",
+    "dice-scatter",
+    "lantern-ground",
+    "map-pinned",
+    "fishing-rod"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle", "irregular-organic", "rough-oval"],
+    "discouraged": ["rectangle", "square", "corridor"]
+  },
+  "story_prompts": [
+    "merchant camp at night — guard awake, others snoring, horses picketed",
+    "abandoned mid-meal — the pot is still warm, no sign of the travelers",
+    "bandit camp with a captive bound by the picket line",
+    "pilgrim camp — simple, modest, a shrine-icon set up near the fire",
+    "ranger's solitary camp, meticulously neat, fire banked low for stealth"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "night scene by default (0.15-0.25) with the campfire as dominant source",
+    "ambient_is": "required",
+    "common_sources": ["campfire", "lantern-ground", "cook-pot-tripod"]
+  },
+  "anti_patterns": [
+    "invisible walls (iw) at perimeter — use trees/rocks as suggested boundary",
+    "fire goes at the visual center but off the door axis",
+    "tents/bedrolls point FEET toward fire, heads away — respect camp convention",
+    "don't forget the gear — a camp with no scatter reads as a movie set"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "refinery",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "arcane", "hot", "medium", "dangerous"],
+  "summary": "A refinery for distilling oils, purifying metals, or rendering alchemical reagents. Copper stills, condenser coils, a low furnace, and racks of sealed vessels. Somewhere between a chemist and a smelter.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 12],
+    "aspect_ratio": "squareish with a clear flow from fire to condenser to collection"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "stained chemical zone under stills",
+      "options": ["polyhaven/dirt_floor", "polyhaven/ash_layer"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["distillery-vat", "alembic"], "surrounded_by": ["condenser-coil", "ingredient-rack"], "note": "distillation refinery — classic still train" },
+    { "props": ["crucible-large", "forge"], "surrounded_by": ["ingot-stack", "bellows"], "note": "metal refinery — smelting and assaying" },
+    { "props": ["distillery-vat", "distillery-vat"], "surrounded_by": ["alembic", "condenser-coil", "cauldron-large"], "note": "alchemical refinery — large-scale reagent production" }
+  ],
+  "secondary_palette": [
+    "distillery-vat",
+    "alembic",
+    "condenser-coil",
+    "cauldron-large",
+    "crucible",
+    "forge",
+    "ingredient-rack",
+    "workbench",
+    "barrel",
+    "scale",
+    "shelf-open",
+    "mortar-pestle"
+  ],
+  "scatter_palette": [
+    "glass-shard",
+    "spill-reagent",
+    "stopper-cork",
+    "leather-apron",
+    "glove-stained",
+    "flask-small",
+    "scorch-mark",
+    "smoke-wisp"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "L-with-storage"],
+    "discouraged": ["narrow", "round"]
+  },
+  "story_prompts": [
+    "active run — stills bubbling, condensate dripping into collection jars, master taking notes",
+    "contamination panic — one vat gone wrong, colored smoke, evacuation",
+    "secret project — locked cabinet, encoded recipe pinned to the wall",
+    "post-explosion — scorched wall, broken glass, owner surveying damage"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "steady clean light (0.4) — precision work over open flame",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "lantern-post", "candle"]
+  },
+  "anti_patterns": [
+    "keep condensers far from heat source — they need cool runs",
+    "don't crowd the still train — the flow is linear and must be walkable",
+    "open flame belongs under a stone hearth, never on a wooden floor zone"
+  ]
+}

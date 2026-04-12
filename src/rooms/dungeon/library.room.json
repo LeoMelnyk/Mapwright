@@ -1,0 +1,63 @@
+{
+  "name": "library",
+  "category": "dungeon",
+  "tags": ["dungeon", "urban", "scholarly", "arcane", "medium", "quiet"],
+  "summary": "A room of books — the quantity is the point. Shelves line walls, reading stations in the center, ladder to access high shelves. Dusty and organized.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 14],
+    "aspect_ratio": "rectangular — shelves run along the long walls"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks", "polyhaven/carpet_oriental"]
+  },
+  "primary_palette": [
+    { "props": ["bookshelf-tall", "bookshelf-tall", "bookshelf-tall", "bookshelf-tall"], "note": "wall-to-wall bookshelves, comprehensive archive" },
+    { "props": ["reading-table"], "surrounded_by": ["chair-upholstered", "chair-upholstered", "chair-upholstered"], "note": "study-forward — tables dominate, shelves secondary" },
+    { "props": ["scroll-rack-tall"], "surrounded_by": ["scroll-rack-tall", "scroll-rack-tall"], "note": "scroll library — ancient record archive, not bound books" }
+  ],
+  "secondary_palette": [
+    "bookshelf-tall",
+    "bookshelf-short",
+    "reading-table",
+    "chair-upholstered",
+    "ladder-rolling",
+    "scroll-rack",
+    "map-case",
+    "globe",
+    "lectern",
+    "writing-desk",
+    "candelabra"
+  ],
+  "scatter_palette": [
+    "book-pile",
+    "book-open",
+    "scroll-loose",
+    "quill-and-ink",
+    "dust-cover",
+    "candle-dipped",
+    "bookmark",
+    "broken-binding",
+    "reading-glasses"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "L-shape-with-reading-alcove", "cross-with-central-table"],
+    "discouraged": ["tiny", "asymmetric"]
+  },
+  "story_prompts": [
+    "active research in progress — books open on tables, annotations in progress",
+    "centuries-neglected — dust thick, some shelves fallen, others intact",
+    "recently raided — gaps in the shelves where specific books were taken",
+    "guarded archive — librarian's desk near the door with ledger of borrowings"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim (0.3-0.4) — no direct light on books",
+    "ambient_is": "required",
+    "common_sources": ["candelabra", "candle-dipped", "lantern-floor"]
+  },
+  "anti_patterns": [
+    "shelves against walls, not floating — use the walls",
+    "reading surfaces in the open center, not jammed against shelves",
+    "avoid bright fires — books fear flame, libraries use candles with care"
+  ]
+}

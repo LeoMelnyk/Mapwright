@@ -1,0 +1,59 @@
+{
+  "name": "house-small",
+  "category": "residential",
+  "tags": ["urban", "residential", "small", "commoner", "family"],
+  "summary": "A single-room commoner's house. Hearth for cooking and warmth, pallet in the corner, table for meals. Honest poverty, not squalor.",
+  "size_guidance": {
+    "min": [5, 6],
+    "typical": [6, 8],
+    "aspect_ratio": "small rectangle"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/dirt_floor", "polyhaven/stone_tile_rough"]
+  },
+  "primary_palette": [
+    { "props": ["hearth"], "surrounded_by": ["pot-rack", "firewood-stack"], "note": "the cooking and living hub in one" },
+    { "props": ["kitchen-table"], "surrounded_by": ["stool", "stool", "stool"], "note": "family table is the central feature" },
+    { "props": ["bed-small"], "note": "single-occupant bed — laborer living alone" }
+  ],
+  "secondary_palette": [
+    "bed-small",
+    "kitchen-table",
+    "stool",
+    "chair-wooden",
+    "shelf-open",
+    "chest-wooden",
+    "pot-rack",
+    "broom",
+    "washing-tub"
+  ],
+  "scatter_palette": [
+    "clay-cup",
+    "bread-loaf",
+    "bundle-of-herbs",
+    "candle-dipped",
+    "sewing-basket",
+    "child's-toy",
+    "rolled-blanket"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-rectangle", "square"],
+    "discouraged": ["large", "multi-room"]
+  },
+  "story_prompts": [
+    "clean and kept — a proud family keeping up appearances on nothing",
+    "weary — weaving loom in the corner, a widow's livelihood",
+    "crowded — too many pallets on the floor for the room size",
+    "recently swept for guests — best plates out, single candle lit"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm low (0.3-0.4) — hearth + one candle",
+    "ambient_is": "optional",
+    "common_sources": ["hearth", "candle-dipped"]
+  },
+  "anti_patterns": [
+    "no servants' quarters, no wine racks, no art — this is a poor home",
+    "one room, one function — kitchen, bedroom, living all overlap",
+    "avoid squalor unless the story demands it — honest poverty is neat"
+  ]
+}

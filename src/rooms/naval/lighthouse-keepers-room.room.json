@@ -1,0 +1,65 @@
+{
+  "name": "lighthouse-keepers-room",
+  "category": "naval",
+  "tags": ["naval", "lighthouse", "keeper", "isolated", "small", "domestic"],
+  "summary": "The keeper's living quarters partway up the lighthouse — a narrow room hugging the tower wall, a cot, a potbelly stove, the log for the beam's nightly tending.",
+  "size_guidance": {
+    "min": [5, 6],
+    "typical": [6, 8],
+    "aspect_ratio": "near-square, curved outer wall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough", "polyhaven/brick_floor"],
+    "accent": {
+      "purpose": "stove hearth",
+      "options": ["polyhaven/brick_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["potbelly-stove"], "surrounded_by": ["rocking-chair", "wood-bin", "bed"], "note": "the room's warm focal point" },
+    { "props": ["desk"], "surrounded_by": ["chair", "bookshelf-short", "log-book"], "note": "the keeper's logbook station" },
+    { "props": ["telescope"], "surrounded_by": ["desk", "chart-rolled"], "note": "watch station at the seaward window" },
+    { "props": ["lighthouse-lens"], "surrounded_by": ["oil-reservoir", "log-book"], "note": "if this IS the lamp room — the beam's mechanism dominates" }
+  ],
+  "secondary_palette": [
+    "bed",
+    "desk",
+    "rocking-chair",
+    "bookshelf-short",
+    "potbelly-stove",
+    "wood-bin",
+    "telescope",
+    "chest",
+    "lantern-post",
+    "oil-reservoir"
+  ],
+  "scatter_palette": [
+    "log-book",
+    "chart-rolled",
+    "tankard",
+    "tobacco-pipe",
+    "knit-blanket",
+    "letter-stack",
+    "spyglass"
+  ],
+  "shape_guidance": {
+    "preferred": ["near-square-with-curved-wall", "round-via-corner-trims", "hexagon"],
+    "discouraged": ["long-rectangle", "square-sharp-corners"]
+  },
+  "story_prompts": [
+    "the keeper is overdue below — the lamp is guttering and something is in the stairwell",
+    "a wreck tonight was deliberate — the keeper's log is torn out",
+    "the keeper hasn't left this room in a decade and knows every ship by name",
+    "a stranger sleeps in the cot; the real keeper is not here"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm interior (0.35-0.45), stove plus lantern; dramatic beam-spill if lamp room",
+    "ambient_is": "required",
+    "common_sources": ["potbelly-stove", "lantern-post", "lighthouse-lens"]
+  },
+  "anti_patterns": [
+    "the outer wall curves — use rounded corner trims, don't leave hard square corners",
+    "don't overload — this is one person's life, intimately small",
+    "the stove is against a masonry section of wall, never the wooden floor-center"
+  ]
+}

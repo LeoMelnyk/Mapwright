@@ -1,0 +1,63 @@
+{
+  "name": "ship-gun-deck",
+  "category": "naval",
+  "tags": ["naval", "ship", "cannons", "battle", "cramped", "military"],
+  "summary": "A row of cannons on either side, muzzles to the gun ports — powder monkeys' paths worn down the centerline, shot-garlands stacked beside each piece.",
+  "size_guidance": {
+    "min": [7, 14],
+    "typical": [8, 18],
+    "aspect_ratio": "long narrow rectangle, guns to port and starboard"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_planks_deck", "polyhaven/wood_floor", "polyhaven/wood_planks_worn"],
+    "accent": {
+      "purpose": "red-painted gun-deck / powder-stain",
+      "options": ["polyhaven/wood_red", "polyhaven/wood_planks_worn"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["cannon"], "surrounded_by": ["shot-garland", "gun-port", "cannon-tackle"], "note": "standard gun station — most common" },
+    { "props": ["cannon"], "surrounded_by": ["cannon", "shot-garland"], "note": "gun battery, paired stations along the hull" },
+    { "props": ["powder-tub"], "surrounded_by": ["cannon", "rammer-rack"], "note": "central powder tub serving adjacent guns" }
+  ],
+  "secondary_palette": [
+    "cannon",
+    "cannon-swivel",
+    "shot-garland",
+    "powder-tub",
+    "rammer-rack",
+    "cannon-tackle",
+    "gun-port",
+    "lantern-post",
+    "mast-main",
+    "rope-coil"
+  ],
+  "scatter_palette": [
+    "linstock",
+    "swab-rammer",
+    "match-tub",
+    "shot-loose",
+    "bucket",
+    "rope-coil"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-narrow-tapered", "ship-hull-silhouette"],
+    "discouraged": ["square", "wide-rectangle"]
+  },
+  "story_prompts": [
+    "general quarters — crews running out the guns, a sail on the horizon",
+    "after a battle — broken guns, wounded among the carriages",
+    "mutiny: guns turned inboard, pointed at the quarterdeck above",
+    "abandoned ghost-ship, guns still loaded and primed after a century"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim (0.15-0.25), lantern pools between guns, shafts from gun ports if open",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "gun-port"]
+  },
+  "anti_patterns": [
+    "guns face outward to ports — never inward to the centerline (except for mutiny)",
+    "leave the centerline clear — powder monkeys run the full length",
+    "pair each gun with its shot-garland and tackle; isolated guns read as broken"
+  ]
+}

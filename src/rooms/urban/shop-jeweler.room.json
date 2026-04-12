@@ -1,0 +1,66 @@
+{
+  "name": "shop-jeweler",
+  "category": "urban",
+  "tags": ["urban", "commercial", "small", "noble", "refined"],
+  "summary": "A jeweler's shop. Polished counter with glass display cases of rings and gems, a back workroom with a tiny anvil and delicate tools. A guarded safe in the corner. Quiet, expensive.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [8, 8],
+    "aspect_ratio": "small square — intimate luxury"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "carpet or polished marble customer zone",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["counter", "display-case"], "surrounded_by": ["display-case", "chest-large", "scale"], "note": "classic jeweler — display-heavy front, safe in back" },
+    { "props": ["display-case", "display-case"], "surrounded_by": ["counter", "chest-large", "workbench"], "note": "gallery-style — multiple cases visible from entry" },
+    { "props": ["counter"], "surrounded_by": ["display-case", "jeweler-bench", "scale"], "note": "master-jeweler shop — active workbench in view" }
+  ],
+  "secondary_palette": [
+    "counter",
+    "display-case",
+    "jeweler-bench",
+    "chest-large",
+    "chest",
+    "scale",
+    "cabinet",
+    "stool",
+    "chair",
+    "painting",
+    "candle"
+  ],
+  "scatter_palette": [
+    "gem-loose",
+    "ring-display",
+    "pearl-strand",
+    "magnifier",
+    "tweezers",
+    "coin-pile",
+    "silver-bowl",
+    "velvet-cloth"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "rectangle", "L-with-workroom"],
+    "discouraged": ["large", "open-hall"]
+  },
+  "story_prompts": [
+    "commission — a noble describing a necklace, jeweler sketching on a slate",
+    "appraisal — a questionable 'heirloom' and a suspicious customer",
+    "heist in progress — safe open, jeweler bound, thieves at the door",
+    "closing ritual — jeweler locking every case, safe, door, then the inner gate"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright focused light (0.5) — gems need to sparkle",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "don't clutter — luxury needs breathing room around each display",
+    "a jeweler's safe is heavy and permanent — place it against an interior wall",
+    "workbench stays in a controlled side zone — customers don't touch tools"
+  ]
+}

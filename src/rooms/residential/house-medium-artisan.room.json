@@ -1,0 +1,70 @@
+{
+  "name": "house-medium-artisan",
+  "category": "residential",
+  "tags": ["urban", "residential", "medium", "artisan", "craftsman", "workshop-home"],
+  "summary": "A craftsman's combined workshop and living space — the trade up front, the family behind. Tools, half-finished work, a kettle on the stove.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle, often split front-shop / back-living"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/worn_plank_floor"],
+    "accent": {
+      "purpose": "workshop zone (sawdust, stone, forge-bed)",
+      "options": ["polyhaven/sawdust_floor", "polyhaven/cobblestone_floor_03", "polyhaven/packed_earth"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["workbench"], "surrounded_by": ["tool-rack-wall", "stool"], "note": "woodworker / leatherworker — the bench is the business" },
+    { "props": ["forge", "anvil"], "surrounded_by": ["bellows", "quench-barrel"], "note": "smith's house — smoky front room, forge is the heart" },
+    { "props": ["loom"], "surrounded_by": ["yarn-basket", "spindle-rack"], "note": "weaver's house — bright window-side loom, thread stock everywhere" },
+    { "props": ["kitchen-table"], "surrounded_by": ["chair", "chair", "hearth"], "note": "emphasize the living half — workshop is peripheral" },
+    { "props": ["potter-wheel"], "surrounded_by": ["clay-bin", "drying-shelf"], "note": "potter's house — damp-smelling, clay dust in every corner" }
+  ],
+  "secondary_palette": [
+    "bed",
+    "hearth",
+    "kitchen-table",
+    "chair",
+    "stool",
+    "cabinet",
+    "shelf-tools",
+    "chest",
+    "barrel",
+    "crate",
+    "wash-basin"
+  ],
+  "scatter_palette": [
+    "tool-scatter",
+    "half-finished-work",
+    "apron-hung",
+    "water-jug",
+    "candle",
+    "oil-flask",
+    "sawdust-pile",
+    "bread-loaf",
+    "cat-sleeping"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-split-front-back", "L-shape-with-workshop-wing"],
+    "discouraged": ["single-purpose-room", "palatial"]
+  },
+  "story_prompts": [
+    "the master is at work, the apprentice sweeps — ordinary Tuesday",
+    "closed for a funeral — tools covered, hearth cold, chairs dragged together",
+    "the shop was raided last night — workbench overturned, a valuable commission missing",
+    "peak season before market day — every surface covered in work-in-progress",
+    "the artisan has passed and the heirs are arguing — half the tools already packed"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "moderate (0.4-0.5) — big shutter-window at front, hearth at back",
+    "ambient_is": "optional",
+    "common_sources": ["hearth", "wall-lantern", "candle", "forge"]
+  },
+  "anti_patterns": [
+    "don't treat it as a pure workshop OR a pure home — the blend is the point",
+    "avoid formal furniture (upholstered chairs, display cases) — this is a working house",
+    "no fine wall art — any decor is trade-guild, tools-of-the-trade, or a child's drawing"
+  ]
+}

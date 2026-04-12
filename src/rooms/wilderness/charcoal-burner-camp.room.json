@@ -1,0 +1,68 @@
+{
+  "name": "charcoal-burner-camp",
+  "category": "wilderness",
+  "tags": ["wilderness", "forest", "industry", "camp", "smoky"],
+  "summary": "A charcoal burner's forest camp — earth-mounded kilns smoldering day and night, stacks of cordwood, a soot-blackened shelter. Everything is grey with ash.",
+  "size_guidance": {
+    "min": [9, 8],
+    "typical": [11, 10],
+    "aspect_ratio": "oval clearing with kiln cluster on one side"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/ash_floor", "polyhaven/forest_floor"],
+    "accent": {
+      "purpose": "ash-scorched ground around the kilns",
+      "options": ["polyhaven/ash_floor", "polyhaven/burnt_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["charcoal-kiln"], "surrounded_by": ["log-pile", "log-pile", "chopping-block"], "note": "smoldering kiln as the camp's center — cordwood stacked around" },
+    { "props": ["charcoal-kiln"], "surrounded_by": ["charcoal-kiln", "log-pile"], "note": "two kilns at different burn stages, wood between them" },
+    { "props": ["burner-shelter"], "surrounded_by": ["charcoal-kiln", "log-pile", "bedroll"], "note": "rough lean-to for the burner — the kilns are the real feature" }
+  ],
+  "secondary_palette": [
+    "charcoal-kiln",
+    "log-pile",
+    "chopping-block",
+    "burner-shelter",
+    "tree-stump",
+    "fallen-log",
+    "cart",
+    "bedroll",
+    "campfire-stone",
+    "trough",
+    "axe-stuck"
+  ],
+  "scatter_palette": [
+    "ash-pile",
+    "charcoal-lump",
+    "wood-chip-pile",
+    "tree-stump",
+    "soot-print",
+    "fallen-leaves",
+    "ration-wrapper",
+    "water-skin"
+  ],
+  "shape_guidance": {
+    "preferred": ["oval-clearing", "irregular-with-kiln-cluster", "L-shape-with-wood-yard"],
+    "discouraged": ["square", "symmetric", "clean-geometry"]
+  },
+  "story_prompts": [
+    "burner present, friendly — happy for company, sells charcoal, knows the forest",
+    "mid-burn, no one in sight — the kiln needs tending, where did the burner go?",
+    "the burner is an informant for the local lord — knows who passes through these woods",
+    "a kiln has failed — collapsed, smoking wrong, a body visible in the ashes",
+    "the 'burner' is a fugitive in disguise — the camp is a hideout, the work is cover"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "smoky forest — dimmed daylight through haze, kiln glow at the vents",
+    "ambient_is": "optional",
+    "common_sources": ["charcoal-kiln", "campfire-stone", "lantern-post"]
+  },
+  "anti_patterns": [
+    "no built walls — the forest defines the edge, the kilns define the center",
+    "kilns are never tidy rectangles — they are mounded, scorched, irregular domes",
+    "wood stacks are MASSIVE relative to the shelter — this is a working camp, not a home",
+    "ground texture should be grey-scorched near kilns, green at the treeline — mark the transition"
+  ]
+}

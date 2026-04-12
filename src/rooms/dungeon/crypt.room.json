@@ -1,0 +1,55 @@
+{
+  "name": "crypt",
+  "category": "dungeon",
+  "tags": ["dungeon", "sacred", "undead", "dark", "ceremonial"],
+  "summary": "The honored (or forgotten) dead. Silence, stone, dust. Tombs against the walls, candles between them.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangular or cross-shaped"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_08", "polyhaven/stone_tile_polished"]
+  },
+  "primary_palette": [
+    { "props": ["sarcophagus", "sarcophagus"], "note": "two named tombs, lineage implied" },
+    { "props": ["sarcophagus", "sarcophagus", "sarcophagus", "sarcophagus"], "note": "a small family crypt — 4 tombs, wall-aligned" },
+    { "props": ["grave-marker", "grave-marker", "grave-marker", "grave-marker", "grave-marker"], "note": "upright stones — mass grave or martyrs' memorial" },
+    { "props": ["reliquary"], "note": "single saintly relic as the focal point" }
+  ],
+  "secondary_palette": [
+    "candelabra",
+    "candle-cluster",
+    "offering-plate",
+    "kneeling-bench",
+    "urn",
+    "tapestry"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "burial-urn",
+    "canopic-jar",
+    "dust-heap",
+    "withered-wreath"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangular-with-trimmed-corners", "cross", "rounded-apse"],
+    "discouraged": ["asymmetric", "organic"]
+  },
+  "story_prompts": [
+    "first crypt in two centuries to be disturbed — dust still on the air",
+    "a family crypt used beyond capacity, fresh and old dead stacked",
+    "a saint's tomb with pilgrim offerings layered over generations",
+    "desecrated crypt, tombs smashed open, contents missing"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "near-dark (0.1-0.2)",
+    "ambient_is": "optional",
+    "common_sources": ["candle-cluster", "candelabra"]
+  },
+  "anti_patterns": [
+    "no warm light sources — crypts are pale, cold, or unlit",
+    "tombs against walls, not floating in the middle (unless one central ruler's tomb)",
+    "central floor stays open — mourners need to walk"
+  ]
+}

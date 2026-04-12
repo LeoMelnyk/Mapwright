@@ -1,0 +1,70 @@
+{
+  "name": "barracks",
+  "category": "dungeon",
+  "tags": ["dungeon", "military", "sleeping", "communal", "medium", "large"],
+  "summary": "Rows of bunks or bedrolls for a standing force — personal gear at each rack, a weapons peg by the door, low steady lamplight.",
+  "size_guidance": {
+    "min": [7, 9],
+    "typical": [9, 12],
+    "aspect_ratio": "rectangular — bunk rows want parallel walls"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/wood_floor",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_polished"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["bunk-bed", "bunk-bed", "bunk-bed"], "note": "regulation barracks — stacked bunks in a row" },
+    { "props": ["bed", "bed", "bed", "bed"], "note": "single cots, no stacking, more personal space" },
+    { "props": ["bedroll", "bedroll", "bedroll", "bedroll", "bedroll"], "note": "bedrolls on the floor — warband, cultists, or poverty" },
+    { "props": ["bed-double", "bed-double"], "note": "officer barracks — better beds, fewer occupants" },
+    { "props": ["ships-hammock", "ships-hammock", "ships-hammock"], "note": "hammocks slung between pillars — mariners or slavers" }
+  ],
+  "secondary_palette": [
+    "trunk",
+    "footlocker",
+    "nightstand",
+    "wardrobe",
+    "armor-stand",
+    "weapon-rack",
+    "shield-rack",
+    "stool",
+    "wall-lantern",
+    "torch-sconce",
+    "banner",
+    "carpet-small",
+    "pillar"
+  ],
+  "scatter_palette": [
+    "boots-by-bed",
+    "folded-cloak",
+    "helm-on-peg",
+    "dice-cup",
+    "empty-bottle",
+    "playing-cards",
+    "personal-chest"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "rectangle", "L-shape-with-alcove"],
+    "discouraged": ["round", "square"]
+  },
+  "story_prompts": [
+    "mid-shift barracks — half the bunks occupied by sleeping guards",
+    "empty, beds made tight, everyone at their post",
+    "ransacked barracks after a mutiny, trunks thrown open",
+    "shared barracks of a motley mercenary band, gear of five nations",
+    "cultist dormitory, identical black robes folded on each bunk"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low steady (0.25-0.4)",
+    "ambient_is": "optional",
+    "common_sources": ["wall-lantern", "torch-sconce", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "don't center a feature — barracks are perimeter rooms, the floor stays walkable",
+    "don't mix bed types randomly — a barracks has one bunk style",
+    "avoid heavy art or carpet; this is functional billet space"
+  ]
+}

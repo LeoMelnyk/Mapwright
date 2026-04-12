@@ -1,0 +1,68 @@
+{
+  "name": "brothel-parlor",
+  "category": "urban",
+  "tags": ["urban", "social", "medium", "refined", "intimate"],
+  "summary": "The front parlor of a high-end brothel. Plush seating, low tables with wine, a madam's desk, a curtained stair to private rooms. More salon than transaction.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle with desk at entry, lounge area deeper"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "lush carpet defining the lounge",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["desk"], "surrounded_by": ["chair", "fainting-couch", "fireplace"], "note": "classic parlor — madam's desk, lounge, fire" },
+    { "props": ["fainting-couch", "fainting-couch"], "surrounded_by": ["low-table", "chair", "curtain-divider"], "note": "salon-forward — multiple lounges, conversational" },
+    { "props": ["fireplace"], "surrounded_by": ["fainting-couch", "chair", "bar-counter"], "note": "hearth-lounge — cozy, fire-centered" }
+  ],
+  "secondary_palette": [
+    "desk",
+    "fainting-couch",
+    "chair",
+    "low-table",
+    "fireplace",
+    "bar-counter",
+    "curtain-divider",
+    "painting",
+    "cabinet",
+    "staircase",
+    "chandelier",
+    "mirror"
+  ],
+  "scatter_palette": [
+    "wine-bottle",
+    "wine-glass",
+    "silk-scarf",
+    "perfume-bottle",
+    "candle",
+    "playing-cards",
+    "coin-purse",
+    "rose-petals",
+    "mask-feathered"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-stair-alcove"],
+    "discouraged": ["small", "narrow"]
+  },
+  "story_prompts": [
+    "evening gathering — patrons arriving, wine poured, madam greeting at the desk",
+    "private audience — a political figure in the corner with a courtesan, guards excluded",
+    "blackmail exchange — a letter being handed over at the curtain",
+    "quiet morning — staff cleaning, madam reviewing the ledger"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm intimate light (0.4) — candle and firelight dominant",
+    "ambient_is": "required",
+    "common_sources": ["fireplace", "candle", "chandelier"]
+  },
+  "anti_patterns": [
+    "avoid anything crude — this is the refined version, atmosphere is soft",
+    "stair to private rooms goes behind a curtain or alcove — never front-and-center",
+    "madam's desk faces the door — she controls access"
+  ]
+}

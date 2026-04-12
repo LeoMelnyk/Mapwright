@@ -1,0 +1,68 @@
+{
+  "name": "elemental-water-node",
+  "category": "planar",
+  "tags": ["planar", "elemental", "water", "natural", "exotic", "raw"],
+  "summary": "A pocket of the Elemental Plane of Water. The chamber is a current-carved bubble in the endless sea, with kelp-like growths, coral pillars, and a drifting gravity that lets objects hang suspended.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 16],
+    "aspect_ratio": "rounded — currents don't favor right angles"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/coral_sand",
+      "polyhaven/sea_stone_worn",
+      "polyhaven/kelp_bed"
+    ],
+    "accent": {
+      "purpose": "deep pool or current-channel at the center",
+      "options": ["polyhaven/deep_water", "polyhaven/pearl_tile"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["water-node-core"], "surrounded_by": ["coral-pillar", "coral-pillar"], "note": "a sphere of compressed pure water at the heart" },
+    { "props": ["fountain-large"], "surrounded_by": ["kelp-frond-giant", "kelp-frond-giant"], "note": "upwelling spring as focus" },
+    { "props": ["pond"], "surrounded_by": ["coral-pillar", "coral-pillar"], "note": "a scrying pool used by marids" },
+    { "props": ["marid-pavilion"], "surrounded_by": ["pearl-obelisk", "pearl-obelisk"], "note": "a noble's drifting audience pavilion" }
+  ],
+  "secondary_palette": [
+    "coral-pillar",
+    "kelp-frond-giant",
+    "pearl-obelisk",
+    "shell-giant",
+    "fountain-large",
+    "pond",
+    "bubble-pillar"
+  ],
+  "scatter_palette": [
+    "shell-scatter",
+    "pearl-cluster",
+    "bubble-drift",
+    "kelp-strand",
+    "fish-skeleton",
+    "anemone-small",
+    "sea-glass-shard"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle", "oval", "irregular-organic"],
+    "discouraged": ["right-angles", "corridor"]
+  },
+  "story_prompts": [
+    "a marid court in session — pearls drift upward as offerings",
+    "the pool is being poisoned; a slow black bloom spreads through the coral",
+    "sahuagin raiders have staked the node and are hauling captives into the depths",
+    "empty, serene — a single bubble-pillar rising in perfect rhythm",
+    "a drowning portal has opened to the material plane, leaking salt water and dying fish"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "soft dim (0.35-0.5) with deep teal-blue; light shafts from above",
+    "ambient_is": "required",
+    "common_sources": ["water-node-core", "bubble-pillar", "anemone-glow"]
+  },
+  "anti_patterns": [
+    "never use fire sources here — all light is bioluminescent or refracted",
+    "don't place cleanly rectangular props — coral/kelp growth is organic",
+    "use water fill liberally; the 'floor' is often only nominal",
+    "avoid warm colors — palette is teal, pearl, soft green, deep blue"
+  ]
+}

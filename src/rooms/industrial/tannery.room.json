@@ -1,0 +1,65 @@
+{
+  "name": "tannery",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "wet", "large", "commercial", "foul"],
+  "summary": "A tannery laid out around rows of soaking pits and stretched hides. Stinking of lime and urine — always on the edge of town for a reason. Scraping stations and finished leather stacks.",
+  "size_guidance": {
+    "min": [12, 10],
+    "typical": [14, 12],
+    "aspect_ratio": "wide rectangle with pit rows along the long axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "wet, stained zone around pits",
+      "options": ["polyhaven/dirt_floor", "polyhaven/cobblestone_floor_03"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["tanning-pit", "tanning-pit", "tanning-pit"], "surrounded_by": ["tanning-rack", "scraping-beam"], "note": "classic pit-row tannery — three stages of soak" },
+    { "props": ["tanning-pit", "tanning-pit"], "surrounded_by": ["tanning-rack", "tanning-rack", "scraping-beam"], "note": "two-pit operation with heavy stretching area" },
+    { "props": ["tanning-vat"], "surrounded_by": ["scraping-beam", "tanning-rack", "leather-stack"], "note": "vat-based finishing tannery — fine leather only" }
+  ],
+  "secondary_palette": [
+    "tanning-pit",
+    "tanning-vat",
+    "tanning-rack",
+    "scraping-beam",
+    "leather-stack",
+    "barrel",
+    "trough",
+    "workbench",
+    "chopping-block",
+    "lime-bin"
+  ],
+  "scatter_palette": [
+    "hide-scraps",
+    "fly-swarm",
+    "bone-pile",
+    "lime-dust",
+    "leather-apron",
+    "knife-curved",
+    "bucket-stained",
+    "fur-clump"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "L-with-drying-yard", "open-shed"],
+    "discouraged": ["square", "small"]
+  },
+  "story_prompts": [
+    "scraping day — beams occupied, foul water sluicing into the drain",
+    "stench inspection — a city official with a kerchief, tanner arguing back",
+    "hide theft — one pit tipped, finished leather gone, apprentice bound",
+    "night quiet — pits bubbling alone, rats feasting on scraps"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "grim working light (0.3-0.4) — often half-open to outside",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "brazier"]
+  },
+  "anti_patterns": [
+    "pits always at floor level — they're dug, not placed",
+    "hides hang on racks near walls — never in the central work paths",
+    "don't place food or living-quarters props — this room reeks"
+  ]
+}

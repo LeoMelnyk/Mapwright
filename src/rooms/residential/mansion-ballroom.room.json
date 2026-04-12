@@ -1,0 +1,71 @@
+{
+  "name": "mansion-ballroom",
+  "category": "residential",
+  "tags": ["mansion", "residential", "large", "ballroom", "formal", "empty-center"],
+  "summary": "A grand ballroom — the center is the point, kept clear for dancing. Seating hugs the walls, chandeliers burn overhead, music plays from an alcove.",
+  "size_guidance": {
+    "min": [14, 18],
+    "typical": [16, 22],
+    "aspect_ratio": "large rectangle or oval, empty center"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/parquet_floor", "polyhaven/marble_floor", "polyhaven/wood_floor_polished"],
+    "accent": {
+      "purpose": "dais under musicians or thrones",
+      "options": ["polyhaven/wood_floor", "polyhaven/marble_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["chandelier", "chandelier", "chandelier"], "note": "the light IS the primary — three great chandeliers in a row, the dance floor below left empty" },
+    { "props": ["musicians-dais"], "surrounded_by": ["harpsichord", "chair", "chair"], "note": "music-focused — the dais is the orchestra's alcove" },
+    { "props": ["throne-dais"], "surrounded_by": ["banner", "banner"], "note": "royal ballroom — a receiving throne at one end, dancing before it" },
+    { "props": ["fountain-interior"], "note": "ornate — a central fountain becomes the axis, dancers circle it" }
+  ],
+  "secondary_palette": [
+    "musicians-dais",
+    "pillar",
+    "chandelier",
+    "floor-candelabra",
+    "wall-sconce",
+    "mirror-tall",
+    "bench-upholstered",
+    "potted-palm",
+    "buffet-table",
+    "punch-table",
+    "painting-large",
+    "tapestry",
+    "statue-classical"
+  ],
+  "scatter_palette": [
+    "dropped-fan",
+    "masquerade-mask",
+    "wine-glass",
+    "rose-petal-scatter",
+    "dance-card",
+    "spilled-punch",
+    "ribbon",
+    "glove-single"
+  ],
+  "shape_guidance": {
+    "preferred": ["large-rectangle", "oval-via-trim-corners", "T-shape-with-alcoves", "colonnade-framed-center"],
+    "discouraged": ["small", "cluttered-center", "asymmetric"]
+  },
+  "story_prompts": [
+    "the ball is at its peak — every sconce lit, the dance floor kept clear by tradition",
+    "the ball has just ended — servants sweeping petals, a single pair still talking in an alcove",
+    "mid-disaster — chandelier crashed, guests scattered, the music abruptly stopped",
+    "abandoned decades — chandeliers still hanging, dust sheets on the chairs, mirrors cracked",
+    "a masquerade — masks on every face, the killer hidden in plain sight"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright formal (0.6-0.7) — chandelier-flooded, designed to dazzle",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "floor-candelabra", "wall-sconce", "mirror-reflected"]
+  },
+  "anti_patterns": [
+    "KEEP THE CENTER EMPTY — this is the defining feature. Furniture hugs walls.",
+    "chandeliers are metadata lights overhead, not floor props",
+    "avoid small furniture clusters in the middle — seating groups only along walls and alcoves",
+    "pillars line the walls or frame a colonnade, they don't clutter the dance floor"
+  ]
+}

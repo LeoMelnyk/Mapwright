@@ -1,0 +1,67 @@
+{
+  "name": "scriptorium-mundane",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "scholarly", "medium", "commercial", "quiet"],
+  "summary": "A secular copy-house or early print shop. Rows of copy desks with scribes hunched over, ink-wells, a printing press if advanced, ledgers bound for merchants and courts.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle, desks oriented toward the light source"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "ink-stained zone near the press",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/wooden_planks"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["desk", "desk", "desk"], "surrounded_by": ["stool", "stool", "stool"], "note": "classic scribal hall — three copy desks facing the windows" },
+    { "props": ["printing-press"], "surrounded_by": ["desk", "type-case", "ink-stone"], "note": "print shop — press central, compositor at the type case" },
+    { "props": ["lectern", "desk", "desk"], "surrounded_by": ["stool", "stool", "bookshelf"], "note": "master-reader scriptorium — lectern reads aloud, scribes copy in parallel" }
+  ],
+  "secondary_palette": [
+    "desk",
+    "lectern",
+    "printing-press",
+    "type-case",
+    "bookshelf",
+    "scroll-rack",
+    "ink-stone",
+    "stool",
+    "chair",
+    "chest",
+    "ledger-stack",
+    "book-pile"
+  ],
+  "scatter_palette": [
+    "quill",
+    "inkwell",
+    "parchment-scrap",
+    "wax-seal",
+    "book-open",
+    "candle",
+    "sand-shaker",
+    "blotting-rag"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-storage", "long-hall"],
+    "discouraged": ["round"]
+  },
+  "story_prompts": [
+    "deadline — every desk occupied, master pacing, a merchant waiting at the door",
+    "forgery — one scribe hiding a document as the master approaches",
+    "ink-shipment late — scribes sharpening quills, nothing to do",
+    "night copy — single scribe, single candle, a forbidden text on the desk"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "steady reading light (0.5) — scribes need clean light",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "desks face the light source — never placed with backs to windows",
+    "keep the press away from shelved parchment — ink splatter hazard",
+    "inkwells belong on desks, not on the floor — they're implied, not decorative"
+  ]
+}

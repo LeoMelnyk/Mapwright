@@ -1,0 +1,64 @@
+{
+  "name": "ranger-camp",
+  "category": "wilderness",
+  "tags": ["wilderness", "camp", "ranger", "tidy", "woodland"],
+  "summary": "A discreet woodland camp — tidy, low-trace, deliberately sited. Small fire in a ring of stones, single bedroll, gear stowed off the ground, sightlines chosen.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [8, 8],
+    "aspect_ratio": "near-circular clearing"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/forest_floor", "polyhaven/dirt_floor", "polyhaven/moss_ground"]
+  },
+  "primary_palette": [
+    { "props": ["campfire-stone"], "surrounded_by": ["bedroll", "log-pile", "fallen-log"], "note": "small stone-ringed fire, bedroll on one side, log-seat opposite" },
+    { "props": ["campfire-stone"], "surrounded_by": ["cooking-tripod", "fallen-log"], "note": "cooking camp — pot on tripod, fire managed, kit organized" },
+    { "props": ["lean-to"], "surrounded_by": ["campfire-stone", "bedroll"], "note": "lean-to shelter of branches and oilcloth, fire in front" },
+    { "props": ["fallen-log"], "surrounded_by": ["campfire-stone", "gear-pack"], "note": "log-as-bench by the fire — gear stacked behind" }
+  ],
+  "secondary_palette": [
+    "bedroll",
+    "fallen-log",
+    "tree-stump",
+    "log-pile",
+    "gear-pack",
+    "cooking-tripod",
+    "cauldron-fire",
+    "lean-to",
+    "archery-target",
+    "rope-coil"
+  ],
+  "scatter_palette": [
+    "fern",
+    "tall-grass",
+    "moss-patch",
+    "bush",
+    "fallen-leaves",
+    "arrow-fletching",
+    "whittled-stick",
+    "snare-set"
+  ],
+  "shape_guidance": {
+    "preferred": ["near-circular-via-rounded-corners", "irregular-clearing", "L-shape-into-treeline"],
+    "discouraged": ["rectangle", "square", "large"]
+  },
+  "story_prompts": [
+    "occupied, ranger present — wary but not hostile, watching before speaking",
+    "ranger out scouting — fire banked to coals, gear hidden, returns at dusk",
+    "the ranger is wounded and needs help — bloody bandages by the fire",
+    "two rangers — one dead, one missing, signs of a fight with something big",
+    "it looks like a ranger camp, but too clean — this is a trap baited for travelers"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor forest — dappled daylight, or dark woods with firelight",
+    "ambient_is": "optional",
+    "common_sources": ["campfire", "campfire-stone"]
+  },
+  "anti_patterns": [
+    "do not use built walls — trees and terrain define the edge",
+    "keep prop count low — a ranger leaves little trace on purpose",
+    "fire is never pushed against flammable brush — it sits in a clear stone ring",
+    "no tents, no wagons, no stacked supplies — this is a travelling camp, not a homestead"
+  ]
+}

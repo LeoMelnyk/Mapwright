@@ -1,0 +1,67 @@
+{
+  "name": "elemental-shrine",
+  "category": "sacred",
+  "tags": ["sacred", "elemental", "primal", "shrine", "wild", "natural"],
+  "summary": "A shrine to an elemental power — fire, water, earth, air, or a blend. Shaped by the element itself: flame-blackened stone, ever-wet floor, growing roots, wind-carved openings. Pre-temple, primal, often in wilderness.",
+  "size_guidance": {
+    "min": [4, 4],
+    "typical": [6, 7],
+    "aspect_ratio": "varies by element — often irregular, shaped by the force it honors"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/dirt_floor", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "the element's mark — scorch, damp, moss, or carved spiral",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["brazier"], "surrounded_by": ["obsidian-shard", "obsidian-shard"], "note": "fire shrine — eternal brazier circled by glassy shards" },
+    { "props": ["well"], "surrounded_by": ["rock-cluster", "moss-patch"], "note": "water shrine — a spring or well in a green-grown chamber" },
+    { "props": ["obelisk"], "surrounded_by": ["rock-cluster", "rock-cluster", "rock-cluster"], "note": "earth shrine — a monolith ringed by raw stone" },
+    { "props": ["wind-chime-pillar"], "surrounded_by": ["bone-pile", "feather-bundle"], "note": "air shrine — a whistling pillar and offerings of bone and feather" },
+    { "props": ["crystal-formation"], "surrounded_by": ["ward-stone", "ward-stone"], "note": "primal-energy shrine — a living crystal outcrop, warded but not tamed" }
+  ],
+  "secondary_palette": [
+    "obelisk",
+    "brazier",
+    "well",
+    "rock-cluster",
+    "moss-patch",
+    "mushroom-cluster",
+    "crystal-formation",
+    "crystal-torch",
+    "ward-stone",
+    "fallen-log",
+    "wind-chime-pillar"
+  ],
+  "scatter_palette": [
+    "offering-plate",
+    "rock-cluster",
+    "moss-patch",
+    "bone-pile",
+    "feather-bundle",
+    "candle"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-cave", "natural-grotto", "open-ring"],
+    "discouraged": ["rectangular-hall", "formal-nave"]
+  },
+  "story_prompts": [
+    "a pilgrim mid-offering — weathered, road-stained, kneeling in the element",
+    "the element stirring — a rite has awakened it; the chamber is restless, smoke/water/wind abnormal",
+    "overgrown and half-reclaimed — the shrine has become part of the wilderness again",
+    "a recent sacrifice — blood or bone fresh among older layered offerings",
+    "a hermit-attendant has left — the fire neglected, the offerings undisturbed for days"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "elemental and irregular — firelit (0.4), sunlit through a cleft (0.5), or crystal-glow (0.3) depending on element",
+    "ambient_is": "optional",
+    "common_sources": ["brazier", "crystal-torch", "crystal-formation", "lantern-post"]
+  },
+  "anti_patterns": [
+    "formal symmetry feels wrong here — the element imposes its own logic",
+    "avoid pews, lecterns, or clerical furniture — this is pre-temple worship",
+    "the element MUST be visibly present — a fire, water, carved stone, rooted growth; not hinted"
+  ]
+}

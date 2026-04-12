@@ -1,0 +1,55 @@
+{
+  "name": "confessional",
+  "category": "sacred",
+  "tags": ["sacred", "small", "intimate", "religious", "private", "spoken"],
+  "summary": "A small chamber or pair of linked cells where the faithful unburden themselves to a priest. A screen or grille between penitent and confessor. Close, wooden, hushed.",
+  "size_guidance": {
+    "min": [2, 3],
+    "typical": [3, 5],
+    "aspect_ratio": "narrow, often split into two adjacent cells"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"]
+  },
+  "primary_palette": [
+    { "props": ["confessional-booth"], "note": "a built-in twin booth — penitent and confessor separated by a screen" },
+    { "props": ["kneeling-bench", "chair"], "note": "split room: a kneeling bench on one side, a chair on the other" },
+    { "props": ["chair"], "surrounded_by": ["candle"], "note": "a single seat for a priest-in-residence, penitents kneel before" },
+    { "props": ["curtain-screen", "kneeling-bench"], "note": "improvised confessional — a hung curtain and a worn kneeler" }
+  ],
+  "secondary_palette": [
+    "chair",
+    "kneeling-bench",
+    "candle",
+    "wall-lantern",
+    "painting",
+    "book",
+    "curtain-screen"
+  ],
+  "scatter_palette": [
+    "book",
+    "candle",
+    "offering-plate"
+  ],
+  "shape_guidance": {
+    "preferred": ["narrow-rectangle", "paired-cells-sharing-a-wall", "alcove"],
+    "discouraged": ["large", "open-plan", "round"]
+  },
+  "story_prompts": [
+    "a confession mid-whisper — a penitent on the kneeler, the confessor still and listening",
+    "empty between confessions — the screen clean, a prayer book open on the priest's side",
+    "the priest dead inside — a confession that went very wrong, the screen holding something back",
+    "a traveler's desperate use — boots muddy on the kneeler, a weapon set aside",
+    "a secret meeting — the booth used for something other than confession; chalk signs on the wood"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim and close (0.2-0.3) — a single candle per side, or one shared lantern",
+    "ambient_is": "required",
+    "common_sources": ["candle", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "keep it small — a confessional is private, not processional",
+    "there should always be a boundary between penitent and confessor — screen, curtain, or grille",
+    "no altar, no circle — this chamber is about words, not rites"
+  ]
+}

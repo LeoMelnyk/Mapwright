@@ -1,0 +1,63 @@
+{
+  "name": "mansion-grand-hall",
+  "category": "residential",
+  "tags": ["urban", "residential", "large", "noble", "formal", "wealthy", "ceremonial"],
+  "summary": "The entrance hall of a noble's manor. Statement room: tall chandelier, stair to the upper floor, banners or portraits, polished floor. Designed to intimidate guests.",
+  "size_guidance": {
+    "min": [10, 14],
+    "typical": [12, 18],
+    "aspect_ratio": "2:1 elongated — the hall is a processional space"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished"],
+    "accent": {
+      "purpose": "ceremonial carpet from entrance to stair",
+      "options": ["polyhaven/carpet_rich", "polyhaven/carpet_oriental"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["grand-staircase"], "note": "the architectural centerpiece — stair ascending from the hall" },
+    { "props": ["chandelier-grand"], "surrounded_by": ["pillar", "pillar", "pillar", "pillar"], "note": "centerpiece of ceiling, pillars framing below" },
+    { "props": ["statue-noble"], "surrounded_by": ["pedestal-stone", "pedestal-stone"], "note": "family-founder effigy, flanked by lesser busts" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "banner-heraldic",
+    "tapestry-large",
+    "candelabra-tall",
+    "portrait-framed",
+    "bust-on-pedestal",
+    "rug-runner",
+    "grandfather-clock",
+    "umbrella-stand",
+    "coat-rack-ornate"
+  ],
+  "scatter_palette": [
+    "calling-card-tray",
+    "flower-arrangement",
+    "decorative-urn",
+    "brass-candlestick",
+    "ornamental-dagger",
+    "silver-bowl"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "T-shape-around-stair", "octagonal-via-trims"],
+    "discouraged": ["small", "square", "cave"]
+  },
+  "story_prompts": [
+    "awaiting a ball — flowers fresh, chandelier candles just lit",
+    "family in mourning — black cloth over portraits, silence",
+    "faded glory — dust on the bust plinths, one chandelier candle out of three working",
+    "under new ownership — old heraldry removed, new banners not yet hung"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright formal (0.5-0.6) — statement space",
+    "ambient_is": "required",
+    "common_sources": ["chandelier-grand", "candelabra-tall"]
+  },
+  "anti_patterns": [
+    "never use plain dungeon-stone texture — marble or polished tile only",
+    "central floor stays clear — this is a processional space, not a furnished parlor",
+    "symmetry is non-negotiable — paired pillars, paired candelabras, paired portraits"
+  ]
+}

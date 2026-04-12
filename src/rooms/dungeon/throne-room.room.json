@@ -1,0 +1,66 @@
+{
+  "name": "throne-room",
+  "category": "dungeon",
+  "tags": ["dungeon", "urban", "sacred", "power", "formal", "large"],
+  "summary": "A ruler's audience chamber — processional axis, primary seat at the far wall, formal symmetry.",
+  "size_guidance": {
+    "min": [8, 14],
+    "typical": [10, 16],
+    "aspect_ratio": "2:1 elongated along the door→throne axis"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/marble_floor",
+      "polyhaven/stone_tile_polished"
+    ],
+    "accent": {
+      "purpose": "dais / raised floor under throne",
+      "options": ["polyhaven/wood_floor", "polyhaven/marble_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["throne-dais"], "note": "formal court, established dynasty" },
+    { "props": ["throne"], "surrounded_by": ["banner", "banner"], "note": "single ruler, military bearing" },
+    { "props": ["bone-throne"], "note": "necromantic, barbarian, or dark power" },
+    { "props": ["iron-chair"], "surrounded_by": ["chain-wall", "chain-wall"], "note": "tyrant, infernal, prison-court" },
+    { "props": ["magic-sigil-floor"], "note": "occult ruler — the circle IS the throne" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "chandelier",
+    "brazier",
+    "carpet-runner",
+    "banner",
+    "tapestry",
+    "statue",
+    "curtain"
+  ],
+  "scatter_palette": [
+    "trophy",
+    "weapon-rack-ceremonial",
+    "offering-plate",
+    "kneeling-bench",
+    "incense-burner"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "octagon-via-corner-trims", "rounded-apse-behind-throne"],
+    "discouraged": ["square"]
+  },
+  "story_prompts": [
+    "a cold formal chamber for a dying queen",
+    "ruined throne room reclaimed by a usurper who hasn't redecorated",
+    "infernal court — braziers replace chandeliers, iron grating replaces carpet",
+    "beast-lord's hall, trophies overwhelming heraldry"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim formal (0.3-0.4)",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "chandelier", "candelabra"]
+  },
+  "anti_patterns": [
+    "don't place the throne in the center — the back wall is the power axis",
+    "don't rely on a single light source — formal rooms use several",
+    "door clearance: carpet and pillars must not block the entry cell"
+  ]
+}

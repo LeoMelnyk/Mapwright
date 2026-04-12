@@ -1,0 +1,67 @@
+{
+  "name": "interrogation-room",
+  "category": "dungeon",
+  "tags": ["dungeon", "prison", "cruel", "clinical", "small", "medium"],
+  "summary": "Built for questions, not entertainment. A chair, a table, a light aimed at the prisoner — cleaner and more focused than a torture chamber.",
+  "size_guidance": {
+    "min": [5, 6],
+    "typical": [6, 8],
+    "aspect_ratio": "compact rectangle — the room focuses on a single chair"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/stone_tile_polished",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/wood_floor"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["chair-restraint", "table", "chair"], "note": "classic setup — prisoner in shackled chair, interrogator across the table" },
+    { "props": ["chair-restraint"], "surrounded_by": ["brazier", "tool-cart"], "note": "lone chair under harsh light, implements within reach" },
+    { "props": ["table", "chair", "chair"], "note": "civil interrogation — the table is the weapon, no visible restraints" },
+    { "props": ["scrying-mirror", "chair-restraint"], "note": "arcane interrogation — truth by magical means" },
+    { "props": ["chair-restraint", "desk"], "note": "bureaucratic interrogator — a clerk with ledgers and a chained subject" }
+  ],
+  "secondary_palette": [
+    "shackles",
+    "brazier",
+    "wall-lantern",
+    "torch-sconce",
+    "tool-cart",
+    "desk",
+    "bookshelf",
+    "ledger-stack",
+    "chain-wall",
+    "drain-grate"
+  ],
+  "scatter_palette": [
+    "bloody-rag",
+    "pen-and-inkwell",
+    "confession-paper",
+    "water-pitcher",
+    "broken-tooth",
+    "cigarette-stub",
+    "thumbscrews"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "square", "square-with-rounded-corners"],
+    "discouraged": ["long-narrow-corridor", "round"]
+  },
+  "story_prompts": [
+    "mid-interrogation — papers on the table, the chair still warm",
+    "immaculately clean, recently scrubbed, all evidence removed",
+    "inquisitorial chamber with a confession already written, awaiting the signature",
+    "a wizard's interrogation room — a magic circle, a single chair, no physical implements",
+    "improvised interrogation in a closet — a chair dragged in, a lantern on the floor"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim with one bright focal source (0.15-0.3)",
+    "ambient_is": "optional",
+    "common_sources": ["wall-lantern", "focused-lamp", "torch-sconce", "candle"]
+  },
+  "anti_patterns": [
+    "don't confuse with torture-chamber — interrogation is minimalist, not cluttered",
+    "don't light evenly — one bright source on the prisoner, rest in shadow",
+    "avoid ornamentation; this room is about discomfort, not aesthetic"
+  ]
+}

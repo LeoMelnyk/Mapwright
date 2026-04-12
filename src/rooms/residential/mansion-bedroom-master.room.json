@@ -1,0 +1,72 @@
+{
+  "name": "mansion-bedroom-master",
+  "category": "residential",
+  "tags": ["mansion", "residential", "medium", "bedroom", "master", "private", "formal"],
+  "summary": "The master bedchamber of a great house — a canopied bed against the far wall, a dressing area, a private hearth. Formal even in sleep.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle, bed on the long wall opposite the door"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/parquet_floor"],
+    "accent": {
+      "purpose": "bedside rug",
+      "options": ["polyhaven/carpet_royal", "polyhaven/carpet_oriental"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["canopy-bed"], "surrounded_by": ["nightstand", "nightstand", "carpet"], "note": "classic master — four-poster with curtains, matched nightstands" },
+    { "props": ["canopy-bed"], "surrounded_by": ["fireplace", "armchair", "vanity-table"], "note": "occupied master — dressing and warming corners are active" },
+    { "props": ["bed-double"], "surrounded_by": ["wardrobe", "dressing-screen"], "note": "less grand but still noble — full bed, dressing area screened off" },
+    { "props": ["canopy-bed"], "surrounded_by": ["prayer-bench", "crucifix-wall"], "note": "pious noble — the master sleeps beside their altar" }
+  ],
+  "secondary_palette": [
+    "wardrobe",
+    "vanity-table",
+    "dressing-screen",
+    "fireplace",
+    "armchair",
+    "chest-large",
+    "nightstand",
+    "mirror-standing",
+    "painting",
+    "writing-desk-small",
+    "prayer-bench",
+    "chamber-pot-stand"
+  ],
+  "scatter_palette": [
+    "candle",
+    "candelabra",
+    "jewelry-box",
+    "hairbrush-set",
+    "perfume-bottle",
+    "folded-gown",
+    "slippers",
+    "book-bedside",
+    "wine-nightcap",
+    "miniature-portrait"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-bed-on-long-wall", "L-with-dressing-alcove", "rectangle-with-fireplace-niche"],
+    "discouraged": ["square-bed-in-center", "ballroom-scale"]
+  },
+  "story_prompts": [
+    "the lord sleeps — curtains drawn, fire banked, one candle still burning",
+    "the bed has not been slept in tonight — covers turned back, the lord is elsewhere",
+    "mid-dressing — gown half-laid, the ladyship called away suddenly",
+    "the bed hides a compartment beneath the mattress — the estate's real papers live there",
+    "a sickroom — the master is dying, nurses' chairs added, a physician's kit by the bed"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "intimate low (0.25-0.4) — fireplace and bedside candles",
+    "ambient_is": "optional",
+    "common_sources": ["fireplace", "candelabra", "candle", "wall-sconce"]
+  },
+  "anti_patterns": [
+    "the bed is the anchor — against a wall, head to wall, NOT floating in the middle",
+    "nightstands come as a pair in a noble bedroom — symmetry is wealth",
+    "no working props — no desk piled with letters (that's the study), no weapons on racks",
+    "the room should feel DRESSED — every surface has something, but everything has a place"
+  ]
+}

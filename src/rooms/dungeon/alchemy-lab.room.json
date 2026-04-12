@@ -1,0 +1,67 @@
+{
+  "name": "alchemy-lab",
+  "category": "dungeon",
+  "tags": ["dungeon", "urban", "arcane", "scholarly", "medium", "hazardous"],
+  "summary": "A working alchemist's laboratory. Central bench with active apparatus, ingredient shelves, specimen jars. Volatile, disorderly in a practiced way.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "L-shape ideal — main bench space + storage alcove"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_03", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "stained reagent zone around primary bench",
+      "options": ["polyhaven/dirt_floor", "polyhaven/stone_stained"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["alchemy-bench"], "surrounded_by": ["alembic", "crucible"], "note": "working alchemist, apparatus mid-process" },
+    { "props": ["distillation-setup"], "note": "alcohol/poison distillery setup as the room's purpose" },
+    { "props": ["specimen-tank"], "surrounded_by": ["ingredient-rack", "ingredient-rack"], "note": "biological specimen focus — necromancer or vivisectionist" }
+  ],
+  "secondary_palette": [
+    "alchemy-bench",
+    "alembic",
+    "crucible",
+    "ingredient-rack",
+    "specimen-jar-shelf",
+    "specimen-jar",
+    "bookshelf",
+    "desk-writing",
+    "mortar-pestle",
+    "fume-hood",
+    "cauldron-small"
+  ],
+  "scatter_palette": [
+    "mortar-pestle",
+    "spilled-reagent",
+    "broken-vial",
+    "candle-dipped",
+    "book-open",
+    "scroll-case",
+    "dried-herbs",
+    "animal-skull",
+    "strange-residue"
+  ],
+  "shape_guidance": {
+    "preferred": ["L-shape-with-storage-alcove", "rectangle-with-secondary-bench-alcove"],
+    "discouraged": ["formal-symmetric"]
+  },
+  "story_prompts": [
+    "mid-experiment — apparatus active, alchemist stepped out for a moment",
+    "catastrophic failure — overturned bench, glass everywhere, strange stain spreading",
+    "organized mastermind — everything labeled, inventory current, eerie in its precision",
+    "novice's first lab — cheap gear, trial-and-error burn marks, overambitious notes"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim (0.3) — candlelight at bench",
+    "ambient_is": "required",
+    "common_sources": ["candle-dipped", "candelabra", "magical-glow-prop"]
+  },
+  "anti_patterns": [
+    "include at least one hazard cell near the bench — alchemy is messy",
+    "ingredient storage separate from active bench area — fire-safety logic",
+    "don't arrange bottles in a grid — working shelves are layered and stacked"
+  ]
+}

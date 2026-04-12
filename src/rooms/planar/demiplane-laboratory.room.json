@@ -1,0 +1,72 @@
+{
+  "name": "demiplane-laboratory",
+  "category": "planar",
+  "tags": ["planar", "demiplane", "arcane", "work", "exotic", "magical"],
+  "summary": "A wizard's bespoke pocket-dimension laboratory. The rules here are whatever the creator wanted — gravity, scale, and architecture all bend to a single obsessive mind.",
+  "size_guidance": {
+    "min": [8, 12],
+    "typical": [12, 14],
+    "aspect_ratio": "whatever the wizard wanted — often square or octagon"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/arcane_tile",
+      "polyhaven/runed_stone",
+      "polyhaven/glass_floor"
+    ],
+    "accent": {
+      "purpose": "central sigil-circle or experiment pit",
+      "options": ["polyhaven/sigil_inlay", "polyhaven/void_tile"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["arcane-experiment-core"], "surrounded_by": ["crystal-ball", "crystal-ball"], "note": "a central containment project, the laboratory's reason for being" },
+    { "props": ["magic-circle"], "surrounded_by": ["alchemy-bench", "alchemy-bench"], "note": "summoning or binding circle flanked by workbenches" },
+    { "props": ["orrery-magical"], "surrounded_by": ["desk", "bookshelf-tall"], "note": "mage studies planes and time" },
+    { "props": ["homunculus-vat"], "surrounded_by": ["alchemy-bench", "alchemy-bench"], "note": "fleshcrafter's laboratory" }
+  ],
+  "secondary_palette": [
+    "alchemy-bench",
+    "desk",
+    "bookshelf-tall",
+    "crystal-ball",
+    "scrying-mirror",
+    "spell-focus",
+    "ward-stone",
+    "magic-circle",
+    "orrery-magical",
+    "reagent-rack"
+  ],
+  "scatter_palette": [
+    "scroll-stack",
+    "candle",
+    "reagent-jar",
+    "specimen-jar",
+    "quill-and-ink",
+    "rune-chalk-mark",
+    "spell-component-loose",
+    "broken-glassware"
+  ],
+  "shape_guidance": {
+    "preferred": ["octagon", "square", "circle", "cruciform"],
+    "discouraged": ["long-corridor", "irregular"]
+  },
+  "story_prompts": [
+    "the wizard is mid-experiment; the bound entity is restless",
+    "a containment has failed — the center is now a small hazard zone",
+    "apprentice is alone and in over their head",
+    "the demiplane is destabilizing; walls flicker and reality frays",
+    "abandoned for decades, notebook open on the desk, dust on everything"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "medium-dim (0.35-0.5) with cold arcane tint — violet, cyan, or pale green",
+    "ambient_is": "required",
+    "common_sources": ["crystal-ball", "magic-circle", "candle", "arcane-experiment-core"]
+  },
+  "anti_patterns": [
+    "don't make it look like a dungeon workshop — it is BESPOKE, tailored, perfect in scale",
+    "gravity or geometry violation should be present somewhere (upside-down shelf, floating desk)",
+    "clutter must read as organized — this is a working scholar's mind, not a hoard",
+    "avoid fire sources near the main circle — a loose spark is the whole adventure"
+  ]
+}

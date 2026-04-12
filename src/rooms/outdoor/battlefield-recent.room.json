@@ -1,0 +1,72 @@
+{
+  "name": "battlefield-recent",
+  "category": "outdoor",
+  "tags": ["outdoor", "military", "bleak", "exploration", "combat", "aftermath"],
+  "summary": "Ground where a battle ended hours or days ago. Corpses not yet cleared, banners half-trampled, weapons driven into the mud. Crows are the only inhabitants. A place to loot, identify the dead, or ambush survivors.",
+  "size_guidance": {
+    "min": [14, 16],
+    "typical": [18, 22],
+    "aspect_ratio": "broad and open — battles don't happen in corridors"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/muddy_turf",
+      "polyhaven/bloody_mud",
+      "polyhaven/trampled_grass"
+    ],
+    "accent": {
+      "purpose": "churned mud or charred patch where a spell landed",
+      "options": ["polyhaven/scorched_earth", "polyhaven/bloody_mud"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["siege-engine-wrecked"], "surrounded_by": ["corpse-soldier", "broken-shield"], "note": "wrecked trebuchet or ballista as landmark" },
+    { "props": ["banner-fallen"], "surrounded_by": ["corpse-soldier", "corpse-soldier"], "note": "rally point where the line broke" },
+    { "props": ["pyre-mass-grave"], "surrounded_by": ["corpse-soldier", "corpse-soldier"], "note": "the clean-up has begun at the center" },
+    { "props": ["commander-corpse-mounted"], "surrounded_by": ["corpse-soldier", "broken-spear"], "note": "dead officer beside dead horse — a recognizable heraldic centerpiece" }
+  ],
+  "secondary_palette": [
+    "corpse-soldier",
+    "corpse-horse",
+    "siege-engine-wrecked",
+    "banner-fallen",
+    "broken-shield",
+    "broken-spear",
+    "weapon-stuck",
+    "pavise",
+    "campfire-abandoned",
+    "arrow-cluster-ground"
+  ],
+  "scatter_palette": [
+    "arrow-stuck",
+    "helmet-fallen",
+    "blood-pool",
+    "severed-limb",
+    "crow-picking",
+    "dropped-coin",
+    "tattered-letter",
+    "broken-sword"
+  ],
+  "shape_guidance": {
+    "preferred": ["open-field", "rectangle-wide", "irregular-natural"],
+    "discouraged": ["corridor", "small", "square-enclosed"]
+  },
+  "story_prompts": [
+    "hours after — the dying still moan, the living haven't returned yet",
+    "a looter cart works the field; the party can beat them to a dead officer",
+    "necromancer drawn to the carrion is raising a small undead warband",
+    "two days after — bodies are bloated, crows everywhere, clean-up crew arriving",
+    "ambush — the losing side left survivors hiding under corpses"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor overcast (0.4-0.55) with drained color — tragic, grey",
+    "ambient_is": "optional",
+    "common_sources": ["campfire-abandoned"]
+  },
+  "anti_patterns": [
+    "invisible walls (iw) at the perimeter — the field continues out of frame",
+    "don't arrange corpses in rows — bodies fall in patterns of rout and clumping",
+    "mud and blood fills should be common — clean grass is wrong here",
+    "never forget the crows — scatter birds liberally, they are the ambient life"
+  ]
+}

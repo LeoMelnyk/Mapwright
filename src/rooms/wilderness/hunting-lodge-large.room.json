@@ -1,0 +1,72 @@
+{
+  "name": "hunting-lodge-large",
+  "category": "wilderness",
+  "tags": ["wilderness", "lodge", "noble", "hunting", "rustic"],
+  "summary": "A substantial timber lodge set in a private hunting preserve. Great hearth, trophy heads on the walls, tanning yard behind, dog kennels and a gear-porch. A noble's rustic pleasure, staffed year-round.",
+  "size_guidance": {
+    "min": [12, 10],
+    "typical": [14, 12],
+    "aspect_ratio": "long, with outbuildings and yard"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/plank_floor", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "yard and kennel area",
+      "options": ["polyhaven/dirt_floor", "polyhaven/grass_floor", "polyhaven/mud_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["great-hearth"], "surrounded_by": ["trophy-head", "table", "fur-rug"], "note": "the hall's hearth — trophy-lined wall, long table facing the fire" },
+    { "props": ["table"], "surrounded_by": ["trophy-head", "weapon-rack", "great-hearth"], "note": "feast table along the hall, trophies and weapons displayed" },
+    { "props": ["tanning-rack"], "surrounded_by": ["chopping-block", "fish-drying-rack", "log-pile"], "note": "yard side of the lodge — processing game, stretched hides" }
+  ],
+  "secondary_palette": [
+    "great-hearth",
+    "table",
+    "trophy-head",
+    "fur-rug",
+    "weapon-rack",
+    "tanning-rack",
+    "chopping-block",
+    "fish-drying-rack",
+    "log-pile",
+    "kennel",
+    "archery-target",
+    "trough",
+    "cart",
+    "barrel",
+    "crate"
+  ],
+  "scatter_palette": [
+    "antler-pile",
+    "tuft-of-fur",
+    "dog-bowl",
+    "muddy-boot-prints",
+    "fallen-leaves",
+    "arrow-fletching",
+    "bone-pile",
+    "hunting-horn"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle-with-yard-wing", "L-shape-hall-and-yard", "T-shape-main-with-outbuildings"],
+    "discouraged": ["simple-square", "small"]
+  },
+  "story_prompts": [
+    "noble in residence with full retinue — feast night, dogs in the kennel, guards posted",
+    "off-season caretaker only — lodge closed, kennels empty, the ranger sleeps in the hall",
+    "the noble died on the hunt — the retinue is searching, the lodge is in disarray",
+    "a rival claim — two parties insist the lodge is theirs, one forged the deed",
+    "something in the preserve is hunting back — the trophy wall has a new kind of skull on it"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "interior lodge — warm firelit hall, daylit yard through open doors",
+    "ambient_is": "optional",
+    "common_sources": ["great-hearth", "lantern-post", "candle", "brazier"]
+  },
+  "anti_patterns": [
+    "this one DOES have built walls — a lodge is a building, not a camp",
+    "keep the yard outdoor — dirt, not floorboards, past the porch line",
+    "trophies belong on the wall, not stacked on the floor — display, not storage",
+    "do not make the hall feel like a castle — timbers and antlers, not tapestries and marble"
+  ]
+}

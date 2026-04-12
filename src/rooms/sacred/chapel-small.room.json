@@ -1,0 +1,63 @@
+{
+  "name": "chapel-small",
+  "category": "sacred",
+  "tags": ["sacred", "small", "religious", "intimate", "devotional"],
+  "summary": "An intimate worship space for a household, village, or side-chapel of a larger temple. A single axis from door to altar, a handful of pews or kneeling benches, and a patron's effigy.",
+  "size_guidance": {
+    "min": [4, 6],
+    "typical": [5, 8],
+    "aspect_ratio": "2:1 — short nave with a clear door-to-altar axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/wood_floor", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "altar dais — a step or platform at the far end",
+      "options": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["altar"], "surrounded_by": ["candle-cluster", "candle-cluster"], "note": "simple wooden or stone altar with flanking candles" },
+    { "props": ["statue"], "surrounded_by": ["offering-plate"], "note": "patron saint or deity effigy on the far wall" },
+    { "props": ["holy-font"], "surrounded_by": ["kneeling-bench"], "note": "household font used for daily blessing; a single bench in front" },
+    { "props": ["idol"], "surrounded_by": ["candle", "candle"], "note": "rural folk-faith — a carved idol rather than a deity image" }
+  ],
+  "secondary_palette": [
+    "pew",
+    "kneeling-bench",
+    "candelabra",
+    "candle-cluster",
+    "banner",
+    "painting",
+    "offering-plate",
+    "wall-lantern",
+    "carpet-runner"
+  ],
+  "scatter_palette": [
+    "candle",
+    "book",
+    "book-open",
+    "offering-plate",
+    "carpet"
+  ],
+  "shape_guidance": {
+    "preferred": ["short-rectangle", "rectangle-with-shallow-apse"],
+    "discouraged": ["round", "irregular", "large"]
+  },
+  "story_prompts": [
+    "a family chapel — fresh flowers on the altar, a child's carved toy left as offering",
+    "a garrison side-chapel — helmets stacked by the kneeling bench, a soldier's prayer in progress",
+    "long-neglected — dust on the pews, the altar candle burned down to a puddle",
+    "a chapel dedicated to a forbidden or minor saint — signs of careful, quiet maintenance",
+    "recently re-consecrated — the scent of incense, new banner still creased from folding"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm and intimate (0.35-0.45) — one or two concentrated sources near the altar",
+    "ambient_is": "required",
+    "common_sources": ["candle-cluster", "candelabra", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "altar always at the far end from the door — the axis is the whole point",
+    "never crowd the nave with pillars; this is an intimate room, not a cathedral",
+    "seating faces the altar — no benches along side walls"
+  ]
+}

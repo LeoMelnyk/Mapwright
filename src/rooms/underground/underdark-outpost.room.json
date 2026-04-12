@@ -1,0 +1,62 @@
+{
+  "name": "underdark-outpost",
+  "category": "underground",
+  "tags": ["underground", "underdark", "outpost", "fortified", "crossroads"],
+  "summary": "A fortified stop on an Underdark trade route — chitin-and-stone palisade, a banked watchfire, bedrolls and supply crates for travelers who trust no one.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 14],
+    "aspect_ratio": "roughly square, defensible"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/rock_ground", "polyhaven/cave_floor", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "watch platform / signal-hearth ring",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/ash_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["watchfire-pit"], "surrounded_by": ["chitin-barrier", "bedroll", "bedroll"], "note": "banked fire ringed by watch positions" },
+    { "props": ["supply-cache"], "surrounded_by": ["crate-stack", "barrel"], "note": "trade goods under guard" },
+    { "props": ["signal-gong"], "surrounded_by": ["chitin-barrier", "lantern-post"], "note": "alarm point for incoming raids" },
+    { "props": ["map-table"], "surrounded_by": ["crate", "lantern-post"], "note": "captain's planning table with Underdark charts" }
+  ],
+  "secondary_palette": [
+    "chitin-barrier",
+    "crate-stack",
+    "barrel",
+    "bedroll",
+    "lantern-post",
+    "stalagmite",
+    "shackles",
+    "weapon-rack"
+  ],
+  "scatter_palette": [
+    "rubble",
+    "bone-pile",
+    "rag-pile",
+    "rope-coil",
+    "moss-patch",
+    "mushroom"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-polygon", "octagon-via-corner-trims", "natural-widening"],
+    "discouraged": ["symmetric-rectangle"]
+  },
+  "story_prompts": [
+    "mind flayer diplomats pass through — everyone pretends not to notice",
+    "the captain is dying from a hook horror wound and won't admit it",
+    "a svirfneblin caravan trades gems for surface grain",
+    "raided last night — survivors rebuilding the barrier"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim (0.15-0.2) firelight plus cold lantern pools",
+    "ambient_is": "required",
+    "common_sources": ["watchfire-pit", "lantern-post"]
+  },
+  "anti_patterns": [
+    "don't make it tidy — this is a hard-scrabble waypoint, not a garrison",
+    "barriers cluster at choke points, not evenly along walls",
+    "leave sightlines from the map-table to every entry"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "sanctum-order",
+  "category": "sacred",
+  "tags": ["sacred", "order", "chapter-house", "formal", "martial", "religious", "council"],
+  "summary": "The chapter-sanctum of a holy order — where knights, templars, or sworn initiates gather in council. A round or chapter-house shape, seats for each member, the order's banner and relics at the head.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 10],
+    "aspect_ratio": "round, octagonal, or square — collective, not processional"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "the order's sigil inlaid at the center",
+      "options": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["round-table"], "surrounded_by": ["throne", "chair", "chair", "chair"], "note": "a round table — the grandmaster's seat marked, peers around" },
+    { "props": ["altar"], "surrounded_by": ["chair", "chair", "chair", "chair"], "note": "a chapter altar at center with seats ringing it — oaths sworn here" },
+    { "props": ["reliquary"], "surrounded_by": ["banner", "banner", "chair", "chair"], "note": "the order's founding relic on a plinth, banners and seats arrayed" },
+    { "props": ["throne"], "surrounded_by": ["bench", "bench", "bench"], "note": "a grandmaster's throne at one end, tiered benches before it — hierarchical rather than round" }
+  ],
+  "secondary_palette": [
+    "chair",
+    "throne",
+    "round-table",
+    "altar",
+    "reliquary",
+    "banner",
+    "tapestry",
+    "painting",
+    "weapon-rack",
+    "armor-stand",
+    "pillar",
+    "candelabra",
+    "floor-candelabra"
+  ],
+  "scatter_palette": [
+    "book",
+    "book-open",
+    "scroll-case",
+    "candle",
+    "carpet"
+  ],
+  "shape_guidance": {
+    "preferred": ["round", "octagonal", "square-with-central-table"],
+    "discouraged": ["long-nave", "irregular", "tiny"]
+  },
+  "story_prompts": [
+    "a council mid-debate — full chapter seated, voices raised over a map on the central table",
+    "between councils — the chamber empty, every seat in place, a single candle burning at the grandmaster's chair",
+    "an initiation — a candidate kneeling at the altar, the chapter standing around in silence",
+    "a traitor's trial — one seat overturned, the rest occupied, judgment underway",
+    "the order has fallen — banners dust-laden, armor-stands holding rusted plate, the table stone cold"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "formal and even (0.4-0.5) — chandelier or ring of candelabra giving even council-light, relic or altar with a stronger highlight",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candelabra", "floor-candelabra", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "seating is equal and collective — even a grandmaster's throne is only slightly elevated",
+    "the order's sigil, banners, and relics must be present — this room is about identity",
+    "no pews in rows — this is a chapter, not a congregation"
+  ]
+}

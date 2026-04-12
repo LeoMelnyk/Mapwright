@@ -1,0 +1,63 @@
+{
+  "name": "cave-goblin-warren",
+  "category": "underground",
+  "tags": ["underground", "cave", "lair", "goblin", "squalid", "cramped"],
+  "summary": "A filthy goblin nest scratched into a natural cave — bedrolls piled against walls, bone-trash middens, a central cook-fire choking the chamber with smoke.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 12],
+    "aspect_ratio": "irregular, lobed"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/rock_ground", "polyhaven/cave_floor"],
+    "accent": {
+      "purpose": "trampled path / midden stain",
+      "options": ["polyhaven/mud_ground", "polyhaven/ash_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["campfire"], "surrounded_by": ["bedroll", "bedroll", "bone-pile"], "note": "central smoky hearth — the warren's hub" },
+    { "props": ["cook-spit"], "surrounded_by": ["bone-pile", "trash-heap"], "note": "roasting pit with a half-eaten something over it" },
+    { "props": ["goblin-totem"], "surrounded_by": ["bedroll", "bone-pile"], "note": "tribal idol, a rallying point for the tribe" },
+    { "props": ["cage-wicker"], "surrounded_by": ["bone-pile"], "note": "captives or snarling beasts kept close" }
+  ],
+  "secondary_palette": [
+    "bedroll",
+    "bone-pile",
+    "stalagmite",
+    "trash-heap",
+    "crate",
+    "barrel",
+    "shackles",
+    "rubble"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "rubble",
+    "mushroom",
+    "rat-swarm-marker",
+    "rag-pile",
+    "broken-weapon",
+    "moss-patch"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-polygon", "lobed-cave", "L-shape"],
+    "discouraged": ["rectangle", "square"]
+  },
+  "story_prompts": [
+    "tribe gone out raiding — only the runts and a guard-hob remain",
+    "fresh kill being butchered, chieftain holding court over scraps",
+    "recent collapse — half the warren buried, survivors sleeping in the other half",
+    "a captured adventurer tied to the totem, pack arguing over who eats first"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.1-0.15), firelight-dominated",
+    "ambient_is": "required",
+    "common_sources": ["campfire", "torch-wall"]
+  },
+  "anti_patterns": [
+    "no tidy rows — bedrolls and trash pile against walls at random angles",
+    "the cave is the wall; don't add built masonry",
+    "don't center the fire geometrically — offset it so smoke-shadow reads naturally"
+  ]
+}

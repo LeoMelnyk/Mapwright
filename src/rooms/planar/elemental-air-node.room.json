@@ -1,0 +1,67 @@
+{
+  "name": "elemental-air-node",
+  "category": "planar",
+  "tags": ["planar", "elemental", "air", "natural", "exotic", "raw"],
+  "summary": "A pocket of the Elemental Plane of Air. The 'floor' is a solidified cloud-shelf; walls are defined by perpetual gale, and luminous wisps orbit a singing vortex at the center.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [14, 16],
+    "aspect_ratio": "circular or oval — wind does not tolerate corners"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cloud_floor",
+      "polyhaven/crystal_mist",
+      "polyhaven/pale_nimbus"
+    ],
+    "accent": {
+      "purpose": "denser cloud-core or wind-spiral at the center",
+      "options": ["polyhaven/storm_cloud", "polyhaven/radiant_mist"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["air-node-vortex"], "surrounded_by": ["air-node-wisp", "air-node-wisp"], "note": "a central wind-singularity with orbiting wisps" },
+    { "props": ["djinn-pavilion"], "surrounded_by": ["cloud-pillar", "cloud-pillar"], "note": "a noble djinn's floating court" },
+    { "props": ["storm-altar"], "surrounded_by": ["floating-stone", "floating-stone"], "note": "a lightning-fed shrine" },
+    { "props": ["wind-chime-giant"], "surrounded_by": ["air-node-wisp", "floating-stone"], "note": "the chime IS the node, sounded by eternal breeze" }
+  ],
+  "secondary_palette": [
+    "cloud-pillar",
+    "floating-stone",
+    "air-node-wisp",
+    "wind-chime-giant",
+    "djinn-pavilion",
+    "storm-altar",
+    "feather-drift-cluster"
+  ],
+  "scatter_palette": [
+    "air-node-wisp",
+    "feather-drift",
+    "leaf-drift",
+    "lightning-arc-small",
+    "pebble-suspended",
+    "seed-float"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle", "oval", "irregular-organic"],
+    "discouraged": ["right-angles", "square", "corridor"]
+  },
+  "story_prompts": [
+    "a djinn noble entertains an aarakocra emissary on the floating pavilion",
+    "the vortex has slowed — something is dying, and the wind is dropping",
+    "storm giants have anchored a drifting fortress to the node",
+    "empty, singing — a chorus of wind-chimes keyed to the node's breath",
+    "a planar tear leaks air toward the material plane, fueling a distant hurricane"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright diffuse (0.55-0.7) with pale silver-blue; light has no single source",
+    "ambient_is": "required",
+    "common_sources": ["air-node-vortex", "air-node-wisp", "lightning-arc-small"]
+  },
+  "anti_patterns": [
+    "no furniture that can't plausibly float or be anchored",
+    "no fire sources — everything here is wind, light, and lightning",
+    "walls are conceptual — use invisible walls (iw) so the cloud-shelf reads as open sky",
+    "avoid clutter on the floor; drift should be vertical, not horizontal"
+  ]
+}

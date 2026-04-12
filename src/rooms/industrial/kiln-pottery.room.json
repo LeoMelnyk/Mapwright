@@ -1,0 +1,65 @@
+{
+  "name": "kiln-pottery",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "hot", "medium", "commercial", "dusty"],
+  "summary": "A potter's workshop with a brick kiln against one wall, wheels at the working stations, and shelves of drying greenware. Clay dust, heat, and rows of finished pots.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle with the kiln along one short wall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "clay-dusted zone around the wheels",
+      "options": ["polyhaven/dirt_floor", "polyhaven/ash_layer"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["kiln-brick"], "surrounded_by": ["potter-wheel", "drying-rack"], "note": "classic potter's shop — kiln, one wheel, drying rack" },
+    { "props": ["kiln-brick", "potter-wheel"], "surrounded_by": ["potter-wheel", "drying-rack", "clay-bin"], "note": "two-wheel workshop — master plus apprentice" },
+    { "props": ["kiln-large"], "surrounded_by": ["potter-wheel", "drying-rack", "drying-rack"], "note": "production pottery — large kiln, bulk greenware" }
+  ],
+  "secondary_palette": [
+    "potter-wheel",
+    "kiln-brick",
+    "drying-rack",
+    "clay-bin",
+    "shelf-open",
+    "workbench",
+    "barrel",
+    "bench",
+    "stool",
+    "display-case"
+  ],
+  "scatter_palette": [
+    "clay-lump",
+    "pottery-shard",
+    "broken-pot",
+    "water-bowl",
+    "sponge",
+    "clay-dust",
+    "finished-pot",
+    "apron-clay"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-kiln-alcove"],
+    "discouraged": ["round", "narrow"]
+  },
+  "story_prompts": [
+    "firing day — kiln roaring, potter refusing to let anyone near",
+    "wet-work morning — wheels spinning, three pots rising",
+    "cracked-batch disaster — shelf of broken greenware, potter weeping",
+    "glaze experiment — strange colored jars, alchemist in the corner"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm working light (0.4) with kiln glow dominant",
+    "ambient_is": "required",
+    "common_sources": ["kiln-brick", "brazier", "lantern-post"]
+  },
+  "anti_patterns": [
+    "kiln against an exterior wall with implied chimney — never centerfloor",
+    "drying racks stay away from the kiln heat — opposite wall or middle zone",
+    "wheels need open floor around them — don't crowd them with shelves"
+  ]
+}

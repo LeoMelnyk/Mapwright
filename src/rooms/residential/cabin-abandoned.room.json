@@ -1,0 +1,56 @@
+{
+  "name": "cabin-abandoned",
+  "category": "residential",
+  "tags": ["wilderness", "residential", "small", "rustic", "ruined", "haunting"],
+  "summary": "An empty cabin left to rot. Cold hearth, overturned furniture, evidence of hasty departure or violence.",
+  "size_guidance": {
+    "min": [4, 5],
+    "typical": [6, 7],
+    "aspect_ratio": "near-square, small"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/dirt_floor"]
+  },
+  "primary_palette": [
+    { "props": ["hearth"], "note": "cold hearth, ashes long settled — the story point" },
+    { "props": ["bedroll"], "note": "pallet half-collapsed in the corner — whoever slept here never came back" },
+    { "props": ["overturned-table"], "note": "central upset — a struggle or a hurried departure" }
+  ],
+  "secondary_palette": [
+    "chair-broken",
+    "crate-splintered",
+    "bedroll",
+    "trunk-open",
+    "shelf-fallen",
+    "pot-rack"
+  ],
+  "scatter_palette": [
+    "dust-heap",
+    "cobweb-cluster",
+    "rat-skeleton",
+    "broken-bottle",
+    "spilled-flour-sack",
+    "dry-leaves",
+    "fallen-tool"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "small-rectangle"],
+    "discouraged": ["formal", "symmetric"]
+  },
+  "story_prompts": [
+    "fled during a monster attack — door hangs open, claw marks on the lintel",
+    "plague-cleared — household belongings still in place, just no people",
+    "squatter camp layered over original residence — two eras of debris",
+    "murder site, investigator left everything exactly as found"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "unlit — shafts through window-gaps only",
+    "ambient_is": "discouraged",
+    "common_sources": []
+  },
+  "anti_patterns": [
+    "no lit fires, no working lanterns — this is a dead home",
+    "debris should look organic and asymmetric — don't grid-align fallen items",
+    "at least one prominent 'something is wrong' beat (blood, door ajar, object out of place)"
+  ]
+}
