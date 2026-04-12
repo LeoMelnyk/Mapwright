@@ -11,9 +11,21 @@ import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
 import { createEmptyDungeon } from './utils.js';
-import { calculateCanvasSize, renderDungeonToCanvas, invalidatePropsCache, invalidateAllCaches, THEMES, BRIDGE_TEXTURE_IDS } from '../../render/index.js';
+import {
+  calculateCanvasSize,
+  renderDungeonToCanvas,
+  invalidatePropsCache,
+  invalidateAllCaches,
+  THEMES,
+  BRIDGE_TEXTURE_IDS,
+} from '../../render/index.js';
 import { validateDungeonStructure } from '../../render/validate.js';
-import { collectTextureIds, ensureTexturesLoaded, loadTextureCatalog, clearTextureCatalogCache } from './texture-catalog.js';
+import {
+  collectTextureIds,
+  ensureTexturesLoaded,
+  loadTextureCatalog,
+  clearTextureCatalogCache,
+} from './texture-catalog.js';
 import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache, saveUserTheme } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
@@ -27,7 +39,10 @@ import { onMapLoaded } from './dm-session.js';
  * @param {Object} [opts] - Options: fileHandle, fileName.
  * @returns {void}
  */
-export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFileHandle | null; fileName?: string } = {}): void {
+export function loadDungeonJSON(
+  json: Dungeon,
+  opts: { fileHandle?: FileSystemFileHandle | null; fileName?: string } = {},
+): void {
   pushUndo();
   state.dungeon = json;
   (migrateToLatest as (j: unknown) => void)(json);
@@ -49,11 +64,19 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFi
   // Auto-install embedded user theme if not locally available
   const _theme = json.metadata.theme;
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-  if (typeof _theme === 'string' && _theme.startsWith('user:') && !THEMES[_theme] && json.metadata.savedThemeData?.theme) {
+  if (
+    typeof _theme === 'string' &&
+    _theme.startsWith('user:') &&
+    !THEMES[_theme] &&
+    json.metadata.savedThemeData?.theme
+  ) {
     // Register in memory for immediate use
     (THEMES as Record<string, unknown>)[_theme] = json.metadata.savedThemeData.theme;
     // Persist to disk for future sessions (fire-and-forget)
-    saveUserTheme(((json.metadata.savedThemeData as Record<string, unknown>).name as string) || _theme.slice(5), json.metadata.savedThemeData.theme as Record<string, string | number | boolean>).catch(() => {});
+    saveUserTheme(
+      ((json.metadata.savedThemeData as Record<string, unknown>).name as string) || _theme.slice(5),
+      json.metadata.savedThemeData.theme as Record<string, string | number | boolean>,
+    ).catch(() => {});
   }
 
   state.currentLevel = 0;
@@ -89,17 +112,19 @@ export function loadDungeonJSON(json: Dungeon, opts: { fileHandle?: FileSystemFi
   }
   showEditorLoading();
   if (usedIds.size > 0) {
-    void ensureTexturesLoaded(usedIds).then(() => {
-      state.texturesVersion++;
-      notify();
-      hideEditorLoading();
-    }).catch((err: unknown) => {
-      // Don't leave the loading overlay stuck on. The map itself loaded fine —
-      // textures just won't render until the next reload.
-      console.warn('[load] texture load failed; map will render without textures', err);
-      showToast('Some textures failed to load — re-open the map to retry');
-      hideEditorLoading();
-    });
+    void ensureTexturesLoaded(usedIds)
+      .then(() => {
+        state.texturesVersion++;
+        notify();
+        hideEditorLoading();
+      })
+      .catch((err: unknown) => {
+        // Don't leave the loading overlay stuck on. The map itself loaded fine —
+        // textures just won't render until the next reload.
+        console.warn('[load] texture load failed; map will render without textures', err);
+        showToast('Some textures failed to load — re-open the map to retry');
+        hideEditorLoading();
+      });
   } else {
     hideEditorLoading();
   }
@@ -116,34 +141,52 @@ export function migrateHalfTextures(dungeon: Dungeon): void {
   for (const row of dungeon.cells) {
     for (const cell of row) {
       if (!cell) continue;
-      const hasOld = cell.textureNE !== undefined || cell.textureSW !== undefined
-                   || cell.textureNW !== undefined || cell.textureSE !== undefined;
+      const hasOld =
+        cell.textureNE !== undefined ||
+        cell.textureSW !== undefined ||
+        cell.textureNW !== undefined ||
+        cell.textureSE !== undefined;
       if (!hasOld) continue;
       if (cell['nw-se']) {
-        if (cell.textureNE) { cell.texture = cell.textureNE; if (cell.textureNEOpacity !== undefined) cell.textureOpacity = cell.textureNEOpacity; }
-        if (cell.textureSW) { cell.textureSecondary = cell.textureSW; if (cell.textureSWOpacity !== undefined) cell.textureSecondaryOpacity = cell.textureSWOpacity; }
+        if (cell.textureNE) {
+          cell.texture = cell.textureNE;
+          if (cell.textureNEOpacity !== undefined) cell.textureOpacity = cell.textureNEOpacity;
+        }
+        if (cell.textureSW) {
+          cell.textureSecondary = cell.textureSW;
+          if (cell.textureSWOpacity !== undefined) cell.textureSecondaryOpacity = cell.textureSWOpacity;
+        }
       } else if (cell['ne-sw']) {
-        if (cell.textureNW) { cell.texture = cell.textureNW; if (cell.textureNWOpacity !== undefined) cell.textureOpacity = cell.textureNWOpacity; }
-        if (cell.textureSE) { cell.textureSecondary = cell.textureSE; if (cell.textureSEOpacity !== undefined) cell.textureSecondaryOpacity = cell.textureSEOpacity; }
+        if (cell.textureNW) {
+          cell.texture = cell.textureNW;
+          if (cell.textureNWOpacity !== undefined) cell.textureOpacity = cell.textureNWOpacity;
+        }
+        if (cell.textureSE) {
+          cell.textureSecondary = cell.textureSE;
+          if (cell.textureSEOpacity !== undefined) cell.textureSecondaryOpacity = cell.textureSEOpacity;
+        }
       }
-      delete cell.textureNE; delete cell.textureNEOpacity;
-      delete cell.textureSW; delete cell.textureSWOpacity;
-      delete cell.textureNW; delete cell.textureNWOpacity;
-      delete cell.textureSE; delete cell.textureSEOpacity;
+      delete cell.textureNE;
+      delete cell.textureNEOpacity;
+      delete cell.textureSW;
+      delete cell.textureSWOpacity;
+      delete cell.textureNW;
+      delete cell.textureNWOpacity;
+      delete cell.textureSE;
+      delete cell.textureSEOpacity;
     }
   }
 }
 
 function getSuggestedName() {
-  return (state.dungeon.metadata.dungeonName || 'dungeon')
-    .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.mapwright';
+  return (state.dungeon.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.mapwright';
 }
 
 function showConfirmModal(message: string) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const overlay = document.getElementById('modal-confirm')!;
-    const msg     = document.getElementById('modal-confirm-msg')!;
-    const btnOk   = document.getElementById('modal-confirm-ok')!;
+    const msg = document.getElementById('modal-confirm-msg')!;
+    const btnOk = document.getElementById('modal-confirm-ok')!;
     const btnCancel = document.getElementById('modal-confirm-cancel')!;
     msg.textContent = message;
     (overlay as HTMLDialogElement).showModal();
@@ -154,9 +197,12 @@ function showConfirmModal(message: string) {
       overlay.removeEventListener('cancel', onNativeCancel);
       resolve(result);
     };
-    const onOk     = () => finish(true);
+    const onOk = () => finish(true);
     const onCancel = () => finish(false);
-    const onNativeCancel = (e: Event) => { e.preventDefault(); finish(false); };
+    const onNativeCancel = (e: Event) => {
+      e.preventDefault();
+      finish(false);
+    };
     btnOk.addEventListener('click', onOk);
     btnCancel.addEventListener('click', onCancel);
     overlay.addEventListener('cancel', onNativeCancel);
@@ -164,11 +210,11 @@ function showConfirmModal(message: string) {
 }
 
 function showNewMapModal(): Promise<{ name: string; rows: number; cols: number } | null> {
-  return new Promise(resolve => {
-    const overlay  = document.getElementById('modal-new-map')!;
-    const nameEl   = document.getElementById('modal-map-name')!;
-    const rowsEl   = document.getElementById('modal-map-rows')!;
-    const colsEl   = document.getElementById('modal-map-cols')!;
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-new-map')!;
+    const nameEl = document.getElementById('modal-map-name')!;
+    const rowsEl = document.getElementById('modal-map-rows')!;
+    const colsEl = document.getElementById('modal-map-cols')!;
     const btnCreate = document.getElementById('modal-new-create')!;
     const btnCancel = document.getElementById('modal-new-cancel')!;
 
@@ -185,15 +231,22 @@ function showNewMapModal(): Promise<{ name: string; rows: number; cols: number }
       overlay.removeEventListener('keydown', onKey);
       resolve(result);
     };
-    const onCreate = () => finish({
-      name: (nameEl as HTMLInputElement).value.trim() || 'New Dungeon',
-      rows: parseInt((rowsEl as HTMLInputElement).value) || 20,
-      cols: parseInt((colsEl as HTMLInputElement).value) || 30,
-    });
+    const onCreate = () =>
+      finish({
+        name: (nameEl as HTMLInputElement).value.trim() || 'New Dungeon',
+        rows: parseInt((rowsEl as HTMLInputElement).value) || 20,
+        cols: parseInt((colsEl as HTMLInputElement).value) || 30,
+      });
     const onCancel = () => finish(null);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Enter')  { e.preventDefault(); onCreate(); }
-      if (e.key === 'Escape') { e.preventDefault(); onCancel(); }
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onCreate();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      }
     };
     btnCreate.addEventListener('click', onCreate);
     btnCancel.addEventListener('click', onCancel);
@@ -219,7 +272,7 @@ function hideEditorLoading(): void {
 }
 
 export async function loadDungeon(): Promise<void> {
-  if (!await confirmUnsaved()) return;
+  if (!(await confirmUnsaved())) return;
 
   // Try File System Access API first
   if ((window as unknown as FilePickerWindow).showOpenFilePicker) {
@@ -281,7 +334,7 @@ export async function saveDungeon(): Promise<void> {
   if (typeof _saveTheme === 'string' && _saveTheme.startsWith('user:') && THEMES[_saveTheme]) {
     const themeObj = THEMES[_saveTheme];
     state.dungeon.metadata.savedThemeData = {
-      name: (themeObj as Record<string, unknown>).displayName as string || _saveTheme.slice(5),
+      name: ((themeObj as Record<string, unknown>).displayName as string) || _saveTheme.slice(5),
       theme: { ...themeObj },
     };
     delete state.dungeon.metadata.savedThemeData.theme.displayName;
@@ -380,18 +433,20 @@ async function saveBlob(blob: Blob, suggestedName: string) {
  */
 let exportOverlay: HTMLElement | null = null;
 
-function showExportOverlay() {
+function showExportOverlay(label = 'Rendering PNG\u2026') {
   if (!exportOverlay) {
     exportOverlay = document.createElement('div');
     exportOverlay.className = 'export-overlay';
     exportOverlay.innerHTML = `
       <div class="export-overlay-content">
         <div class="export-spinner"></div>
-        <div class="export-overlay-label">Rendering PNG\u2026</div>
+        <div class="export-overlay-label"></div>
         <div class="export-overlay-sublabel">This may take a minute for large maps</div>
       </div>`;
     document.body.appendChild(exportOverlay);
   }
+  const labelEl = exportOverlay.querySelector('.export-overlay-label');
+  if (labelEl) labelEl.textContent = label;
   exportOverlay.style.display = 'flex';
   exportOverlay.offsetHeight; // force reflow
   exportOverlay.classList.add('visible');
@@ -400,15 +455,18 @@ function showExportOverlay() {
 function hideExportOverlay() {
   if (!exportOverlay) return;
   exportOverlay.classList.remove('visible');
-  exportOverlay.addEventListener('transitionend', () => {
-    exportOverlay!.style.display = 'none';
-  }, { once: true });
+  exportOverlay.addEventListener(
+    'transitionend',
+    () => {
+      exportOverlay!.style.display = 'none';
+    },
+    { once: true },
+  );
 }
 
 export async function exportPng(): Promise<void> {
   const config = state.dungeon;
-  const suggestedName = (config.metadata.dungeonName || 'dungeon')
-    .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.png';
+  const suggestedName = (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.png';
 
   showExportOverlay();
 
@@ -429,12 +487,18 @@ export async function exportPng(): Promise<void> {
     // Server responded with an error — surface it rather than silently falling back
     hideExportOverlay();
     let detail = `HTTP ${res.status}`;
-    try { const body = await res.json(); if (body.error) detail = body.error; } catch {}
+    try {
+      const body = await res.json();
+      if (body.error) detail = body.error;
+    } catch {}
     showToast(`Export failed: ${detail}`);
     console.error('[export] Server error:', res.status, detail);
     return;
   } catch (err) {
-    if ((err as Error).name === 'AbortError') { hideExportOverlay(); return; }
+    if ((err as Error).name === 'AbortError') {
+      hideExportOverlay();
+      return;
+    }
     console.warn('Server export unavailable — falling back to browser render');
   }
 
@@ -456,7 +520,7 @@ export async function exportPng(): Promise<void> {
     const bi = config.metadata.backgroundImage;
     if (bi?.dataUrl) {
       bgImageEl = new Image();
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         bgImageEl!.onload = resolve;
         bgImageEl!.onerror = resolve; // fail gracefully — image won't appear but export continues
         bgImageEl!.src = bi.dataUrl!;
@@ -465,7 +529,7 @@ export async function exportPng(): Promise<void> {
 
     renderDungeonToCanvas(ctx, config, width, height, null, null, bgImageEl);
 
-    const blob = await new Promise(resolve => offscreen.toBlob(resolve, 'image/png'));
+    const blob = await new Promise((resolve) => offscreen.toBlob(resolve, 'image/png'));
     if (!blob) {
       hideExportOverlay();
       showToast('Export failed: could not encode PNG');
@@ -489,10 +553,10 @@ export async function exportPng(): Promise<void> {
  */
 export async function exportDd2vtt(): Promise<void> {
   const config = state.dungeon;
-  const suggestedName = (config.metadata.dungeonName || 'dungeon')
-    .replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.dd2vtt';
+  const suggestedName =
+    (config.metadata.dungeonName || 'dungeon').replace(/[^a-z0-9]+/gi, '_').toLowerCase() + '.dd2vtt';
 
-  showExportOverlay();
+  showExportOverlay('Exporting to Universal VTT\u2026');
 
   try {
     const res = await fetch('/api/export-dd2vtt', {
@@ -503,7 +567,10 @@ export async function exportDd2vtt(): Promise<void> {
     if (!res.ok) {
       hideExportOverlay();
       let detail = `HTTP ${res.status}`;
-      try { const body = await res.json(); if (body.error) detail = body.error; } catch {}
+      try {
+        const body = await res.json();
+        if (body.error) detail = body.error;
+      } catch {}
       showToast(`Export failed: ${detail}`);
       return;
     }
@@ -525,8 +592,16 @@ export async function exportDd2vtt(): Promise<void> {
  */
 export async function reloadAssets(): Promise<void> {
   // Clear localStorage
-  for (const key of ['prop-catalog', 'prop-catalog-ver', 'texture-catalog', 'texture-catalog-ver',
-                      'theme-catalog', 'theme-catalog-ver', 'light-catalog', 'light-catalog-ver']) {
+  for (const key of [
+    'prop-catalog',
+    'prop-catalog-ver',
+    'texture-catalog',
+    'texture-catalog-ver',
+    'theme-catalog',
+    'theme-catalog-ver',
+    'light-catalog',
+    'light-catalog-ver',
+  ]) {
     localStorage.removeItem(key);
   }
 
@@ -588,7 +663,7 @@ export async function saveDungeonAs(): Promise<void> {
  * @returns {Promise<void>}
  */
 export async function newDungeon(): Promise<void> {
-  if (!await confirmUnsaved()) return;
+  if (!(await confirmUnsaved())) return;
 
   const result = await showNewMapModal();
   if (!result) return;

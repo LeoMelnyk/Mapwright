@@ -1,16 +1,50 @@
-import type { BackgroundImage, Cell, CellGrid, Direction, Metadata, PropCatalog, RenderTransform, TextureOptions, TextureRuntime, Theme, VisibleBounds } from '../types.js';
+import type {
+  BackgroundImage,
+  Cell,
+  CellGrid,
+  Direction,
+  Metadata,
+  PropCatalog,
+  RenderTransform,
+  TextureOptions,
+  TextureRuntime,
+  Theme,
+  VisibleBounds,
+} from '../types.js';
 import { getEdge } from '../util/index.js';
 import { toCanvas } from './bounds.js';
 import { renderTimings, getTimingFrame } from './render-state.js';
 import { withTrimVoidClip } from './render-cache.js';
 import { getDiagonalTrimCorner } from './floors.js';
-import { renderBorder, getDoubleDoorRole, getDoubleDoorDiagonalRole, renderDoubleBorder, renderDiagonalBorder, renderDiagonalDoubleBorder, drawStairsInCell, drawStairsLinkLabel, drawStairShape, drawStairShapeLinkLabel, wallSegmentCoords, scaleFactor } from './borders.js';
+import {
+  renderBorder,
+  getDoubleDoorRole,
+  getDoubleDoorDiagonalRole,
+  renderDoubleBorder,
+  renderDiagonalBorder,
+  renderDiagonalDoubleBorder,
+  drawStairsInCell,
+  drawStairsLinkLabel,
+  drawStairShape,
+  drawStairShapeLinkLabel,
+  wallSegmentCoords,
+  scaleFactor,
+} from './borders.js';
 import { drawCellLabel, drawDmLabel } from './features.js';
 import { drawMatrixGrid } from './decorations.js';
 import { renderAllProps, getRenderedPropsLayer } from './props.js';
 import { drawWallShadow, drawRoughWalls, drawBufferShading } from './effects.js';
 import { getFluidPathCache, getRenderedFluidLayer } from './fluid.js';
-import { getBlendTopoCache, getBlendScratch, getViewportBlendLayer, getRenderedBlendLayer, BLEND_BITMAP_SIZE, PDF_EDGE_FALLBACK_OPACITY, PDF_CORNER_FALLBACK_OPACITY, getTexChunk } from './blend.js';
+import {
+  getBlendTopoCache,
+  getBlendScratch,
+  getViewportBlendLayer,
+  getRenderedBlendLayer,
+  BLEND_BITMAP_SIZE,
+  PDF_EDGE_FALLBACK_OPACITY,
+  PDF_CORNER_FALLBACK_OPACITY,
+  getTexChunk,
+} from './blend.js';
 
 // ─── Constants ─────
 const HAZARD_COLOR = '#f0c020';
@@ -32,20 +66,25 @@ function _getTexPattern(ctx: CanvasRenderingContext2D, entry: TextureRuntime) {
   return entry._pattern as CanvasPattern;
 }
 
-function _applyPatternTransform(pattern: CanvasPattern, entry: TextureRuntime, cellPx: number, transform: RenderTransform, resolution = 1) {
+function _applyPatternTransform(
+  pattern: CanvasPattern,
+  entry: TextureRuntime,
+  cellPx: number,
+  transform: RenderTransform,
+  resolution = 1,
+) {
   const img = entry.img!;
-  const cw = Math.max(1, Math.floor(img.naturalWidth  / 256));
+  const cw = Math.max(1, Math.floor(img.naturalWidth / 256));
   const ch = Math.max(1, Math.floor(img.naturalHeight / 256));
   // Scale: one chunk (srcW × srcH texture pixels) → one display cell.
   // Multiply cellPx by resolution so the texture tiles at the display-cell size
   // (5ft) rather than the internal cell size (2.5ft).
   const displayCellPx = cellPx * resolution;
-  const srcW = Math.floor(img.naturalWidth  / cw);
+  const srcW = Math.floor(img.naturalWidth / cw);
   const srcH = Math.floor(img.naturalHeight / ch);
-  pattern.setTransform(new DOMMatrix([
-    displayCellPx / srcW, 0, 0, displayCellPx / srcH,
-    transform.offsetX, transform.offsetY,
-  ]));
+  pattern.setTransform(
+    new DOMMatrix([displayCellPx / srcW, 0, 0, displayCellPx / srcH, transform.offsetX, transform.offsetY]),
+  );
 }
 
 /**
@@ -88,21 +127,15 @@ export function renderFloors(
   options: RenderFloorsOptions = {},
 ): boolean {
   const { gridSize, theme, transform } = params;
-  const {
-    textureOptions = null,
-    bgImageEl = null,
-    bgImgConfig = null,
-    visibleBounds = null,
-    resolution = 1,
-  } = options;
+  const { textureOptions = null, bgImageEl = null, bgImgConfig = null, visibleBounds = null, resolution = 1 } = options;
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const startRow = visibleBounds?.minRow ?? 0;
-  const endRow = visibleBounds?.maxRow ?? (numRows - 1);
+  const endRow = visibleBounds?.maxRow ?? numRows - 1;
   const startCol = visibleBounds?.minCol ?? 0;
-  const endCol = visibleBounds?.maxCol ?? (numCols - 1);
+  const endCol = visibleBounds?.maxCol ?? numCols - 1;
   let hasTexturedCells = false;
-  const displayCellFeet = gridSize * resolution;  // size of one display cell in feet
+  const displayCellFeet = gridSize * resolution; // size of one display cell in feet
 
   // Pass 1: Build a single floor path covering all room cells, fill once.
   // Step by `resolution` to draw display-cell-sized rects — reduces canvas commands by 4x.
@@ -118,16 +151,21 @@ export function renderFloors(
   for (let row = floorStartRow; row <= endRow; row += step) {
     for (let col = floorStartCol; col <= endCol; col += step) {
       // Check sub-cells in this display cell
-      let floorCount = 0, hasTrim = false;
+      let floorCount = 0,
+        hasTrim = false;
       const totalSub = step * step;
       for (let dr = 0; dr < step && !hasTrim; dr++) {
         for (let dc = 0; dc < step; dc++) {
-          const sr = row + dr, sc = col + dc;
+          const sr = row + dr,
+            sc = col + dc;
           if (!roomCells[sr]?.[sc]) continue;
           const c = cells[sr]?.[sc];
           if (c?.trimShowExteriorOnly) continue;
           floorCount++;
-          if (c && (getDiagonalTrimCorner(c, cells, sr, sc) || c.trimClip)) { hasTrim = true; break; }
+          if (c && (getDiagonalTrimCorner(c, cells, sr, sc) || c.trimClip)) {
+            hasTrim = true;
+            break;
+          }
         }
       }
       if (!floorCount) continue;
@@ -140,11 +178,13 @@ export function renderFloors(
         // Slow path: per-sub-cell for trim corners
         for (let dr = 0; dr < step; dr++) {
           for (let dc = 0; dc < step; dc++) {
-            const sr = row + dr, sc = col + dc;
+            const sr = row + dr,
+              sc = col + dc;
             if (!roomCells[sr]?.[sc]) continue;
             const cell = cells[sr]?.[sc];
             if (!cell || cell.trimShowExteriorOnly) continue;
-            const x = sc * gridSize, y = sr * gridSize;
+            const x = sc * gridSize,
+              y = sr * gridSize;
             const trimCorner = getDiagonalTrimCorner(cell, cells, sr, sc);
             if (trimCorner && !cell.trimWall && !cell.trimOpen) {
               const tl = toCanvas(x, y, transform);
@@ -152,10 +192,26 @@ export function renderFloors(
               const bl = toCanvas(x, y + gridSize, transform);
               const br = toCanvas(x + gridSize, y + gridSize, transform);
               switch (trimCorner) {
-                case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
-                case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
-                case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
-                case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+                case 'nw':
+                  ctx.moveTo(tr.x, tr.y);
+                  ctx.lineTo(br.x, br.y);
+                  ctx.lineTo(bl.x, bl.y);
+                  break;
+                case 'ne':
+                  ctx.moveTo(tl.x, tl.y);
+                  ctx.lineTo(bl.x, bl.y);
+                  ctx.lineTo(br.x, br.y);
+                  break;
+                case 'sw':
+                  ctx.moveTo(tl.x, tl.y);
+                  ctx.lineTo(tr.x, tr.y);
+                  ctx.lineTo(br.x, br.y);
+                  break;
+                case 'se':
+                  ctx.moveTo(tl.x, tl.y);
+                  ctx.lineTo(tr.x, tr.y);
+                  ctx.lineTo(bl.x, bl.y);
+                  break;
               }
               ctx.closePath();
             } else if (cell.trimClip) {
@@ -188,8 +244,8 @@ export function renderFloors(
   // Background image: above floor base color, below texture tiles, clipped to floor cells
   if (bgImageEl && bgImgConfig && bgImageEl.complete && bgImageEl.naturalWidth > 0) {
     const cellPx = gridSize * transform.scale;
-    const imgW = bgImageEl.naturalWidth  * cellPx / (bgImgConfig.pixelsPerCell as number);
-    const imgH = bgImageEl.naturalHeight * cellPx / (bgImgConfig.pixelsPerCell as number);
+    const imgW = (bgImageEl.naturalWidth * cellPx) / (bgImgConfig.pixelsPerCell as number);
+    const imgH = (bgImageEl.naturalHeight * cellPx) / (bgImgConfig.pixelsPerCell as number);
     const imgX = transform.offsetX + (bgImgConfig.offsetX as number) * cellPx;
     const imgY = transform.offsetY + (bgImgConfig.offsetY as number) * cellPx;
     ctx.save();
@@ -215,7 +271,7 @@ export function renderFloors(
     // straightBatches: simple rect cells grouped by (texId, opacity) — one fill call per group.
     // clippedWork:     cells needing a triangular fill (trim corners, half-texture diagonals).
     const straightBatches = new Map(); // `${texId}\x00${texOp}` → { entry, texOp, rects[] }
-    const clippedWork = [];            // { entry, texOp, clipType, tl, tr, bl, br }
+    const clippedWork = []; // { entry, texOp, clipType, tl, tr, bl, br }
 
     const catalog = textureOptions?.catalog;
     for (let row = startRow; row <= endRow; row++) {
@@ -239,16 +295,28 @@ export function renderFloors(
 
         if (hasHalfTex) {
           const halves = hasNWSE
-            ? [{ clipType: 'sw', key: 'texture',          opKey: 'textureOpacity' },
-               { clipType: 'ne', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' }]
-            : [{ clipType: 'se', key: 'texture',          opKey: 'textureOpacity' },
-               { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' }];
+            ? [
+                { clipType: 'sw', key: 'texture', opKey: 'textureOpacity' },
+                { clipType: 'ne', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
+              ]
+            : [
+                { clipType: 'se', key: 'texture', opKey: 'textureOpacity' },
+                { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
+              ];
           for (const { clipType, key, opKey } of halves) {
             const tid = ((cell as Record<string, unknown>)[key] ?? cell.texture) as string;
             if (!tid) continue;
             const entry = catalog?.textures[tid];
             if (!entry?.img?.complete || !entry.img.naturalWidth) continue;
-            clippedWork.push({ entry, texOp: (cell as Record<string, unknown>)[opKey] as number, clipType, tl, tr, bl, br });
+            clippedWork.push({
+              entry,
+              texOp: (cell as Record<string, unknown>)[opKey] as number,
+              clipType,
+              tl,
+              tr,
+              bl,
+              br,
+            });
             hasTexturedCells = true;
           }
           continue;
@@ -279,22 +347,64 @@ export function renderFloors(
           const showExterior = !cell.trimHideExterior;
           if (hasPrimary && hasSecondary) {
             clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
-            if (showExterior) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: 'trimClipInvert', trimClip: cell.trimClip, tl, tr, bl, br });
+            if (showExterior)
+              clippedWork.push({
+                entry: secEntry,
+                texOp: cell.textureSecondaryOpacity ?? 1.0,
+                clipType: 'trimClipInvert',
+                trimClip: cell.trimClip,
+                tl,
+                tr,
+                bl,
+                br,
+              });
           } else {
             // Closed trim: clip to room side only
-            if (hasPrimary) clippedWork.push({ entry: texEntry, texOp, clipType: 'trimClip', trimClip: cell.trimClip, tl, tr, bl, br });
-            if (hasSecondary && showExterior) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: 'trimClipInvert', trimClip: cell.trimClip, tl, tr, bl, br });
+            if (hasPrimary)
+              clippedWork.push({
+                entry: texEntry,
+                texOp,
+                clipType: 'trimClip',
+                trimClip: cell.trimClip,
+                tl,
+                tr,
+                bl,
+                br,
+              });
+            if (hasSecondary && showExterior)
+              clippedWork.push({
+                entry: secEntry,
+                texOp: cell.textureSecondaryOpacity ?? 1.0,
+                clipType: 'trimClipInvert',
+                trimClip: cell.trimClip,
+                tl,
+                tr,
+                bl,
+                br,
+              });
           }
         } else if (cell.trimWall && cell.trimCorner && (hasPrimary || hasSecondary)) {
           // Fallback for arc cells missing trimClip (old format or pre-reload): triangle approximation
           const voidCorner = cell.trimCorner;
           const roomCorner = { nw: 'se', ne: 'sw', sw: 'ne', se: 'nw' }[voidCorner];
           if (hasPrimary) clippedWork.push({ entry: texEntry, texOp, clipType: roomCorner, tl, tr, bl, br });
-          if (hasSecondary) clippedWork.push({ entry: secEntry, texOp: cell.textureSecondaryOpacity ?? 1.0, clipType: voidCorner, tl, tr, bl, br });
+          if (hasSecondary)
+            clippedWork.push({
+              entry: secEntry,
+              texOp: cell.textureSecondaryOpacity ?? 1.0,
+              clipType: voidCorner,
+              tl,
+              tr,
+              bl,
+              br,
+            });
         } else if (hasPrimary) {
           const batchKey = `${texId}\x00${texOp}`;
           let batch = straightBatches.get(batchKey);
-          if (!batch) { batch = { entry: texEntry, texOp, rects: [] }; straightBatches.set(batchKey, batch); }
+          if (!batch) {
+            batch = { entry: texEntry, texOp, rects: [] };
+            straightBatches.set(batchKey, batch);
+          }
           batch.rects.push(tl.x, tl.y);
         }
       }
@@ -343,11 +453,29 @@ export function renderFloors(
         continue;
       } else {
         switch (clipType) {
-          case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
-          case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
-          case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
-          case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
-          case undefined: default: break;
+          case 'nw':
+            ctx.moveTo(tr.x, tr.y);
+            ctx.lineTo(br.x, br.y);
+            ctx.lineTo(bl.x, bl.y);
+            break;
+          case 'ne':
+            ctx.moveTo(tl.x, tl.y);
+            ctx.lineTo(bl.x, bl.y);
+            ctx.lineTo(br.x, br.y);
+            break;
+          case 'sw':
+            ctx.moveTo(tl.x, tl.y);
+            ctx.lineTo(tr.x, tr.y);
+            ctx.lineTo(br.x, br.y);
+            break;
+          case 'se':
+            ctx.moveTo(tl.x, tl.y);
+            ctx.lineTo(tr.x, tr.y);
+            ctx.lineTo(bl.x, bl.y);
+            break;
+          case undefined:
+          default:
+            break;
         }
       }
       ctx.closePath();
@@ -355,7 +483,6 @@ export function renderFloors(
     }
 
     ctx.globalAlpha = 1.0;
-
   } else {
     // ── Fallback: original per-cell drawImage (Node.js PDF renderer) ───────
     for (let row = 0; row < numRows; row++) {
@@ -380,10 +507,14 @@ export function renderFloors(
 
         if (hasHalfTex) {
           const halves = hasNWSE
-            ? [{ clipType: 'sw', key: 'texture',          opKey: 'textureOpacity' },
-               { clipType: 'ne', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' }]
-            : [{ clipType: 'se', key: 'texture',          opKey: 'textureOpacity' },
-               { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' }];
+            ? [
+                { clipType: 'sw', key: 'texture', opKey: 'textureOpacity' },
+                { clipType: 'ne', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
+              ]
+            : [
+                { clipType: 'se', key: 'texture', opKey: 'textureOpacity' },
+                { clipType: 'nw', key: 'textureSecondary', opKey: 'textureSecondaryOpacity' },
+              ];
           for (const { clipType, key, opKey } of halves) {
             const tid = ((cell as Record<string, unknown>)[key] ?? cell.texture) as string;
             if (!tid) continue;
@@ -393,10 +524,26 @@ export function renderFloors(
             ctx.save();
             ctx.beginPath();
             switch (clipType) {
-              case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
-              case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
-              case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
-              case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
+              case 'ne':
+                ctx.moveTo(tl.x, tl.y);
+                ctx.lineTo(bl.x, bl.y);
+                ctx.lineTo(br.x, br.y);
+                break;
+              case 'sw':
+                ctx.moveTo(tl.x, tl.y);
+                ctx.lineTo(tr.x, tr.y);
+                ctx.lineTo(br.x, br.y);
+                break;
+              case 'se':
+                ctx.moveTo(tl.x, tl.y);
+                ctx.lineTo(tr.x, tr.y);
+                ctx.lineTo(bl.x, bl.y);
+                break;
+              case 'nw':
+                ctx.moveTo(tr.x, tr.y);
+                ctx.lineTo(br.x, br.y);
+                ctx.lineTo(bl.x, bl.y);
+                break;
             }
             ctx.closePath();
             ctx.clip();
@@ -432,10 +579,26 @@ export function renderFloors(
             } else if (trimCorner && !cell.trimWall) {
               ctx.beginPath();
               switch (trimCorner) {
-                case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
-                case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
-                case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
-                case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+                case 'nw':
+                  ctx.moveTo(tr.x, tr.y);
+                  ctx.lineTo(br.x, br.y);
+                  ctx.lineTo(bl.x, bl.y);
+                  break;
+                case 'ne':
+                  ctx.moveTo(tl.x, tl.y);
+                  ctx.lineTo(bl.x, bl.y);
+                  ctx.lineTo(br.x, br.y);
+                  break;
+                case 'sw':
+                  ctx.moveTo(tl.x, tl.y);
+                  ctx.lineTo(tr.x, tr.y);
+                  ctx.lineTo(br.x, br.y);
+                  break;
+                case 'se':
+                  ctx.moveTo(tl.x, tl.y);
+                  ctx.lineTo(tr.x, tr.y);
+                  ctx.lineTo(bl.x, bl.y);
+                  break;
               }
               ctx.closePath();
               ctx.clip();
@@ -443,6 +606,31 @@ export function renderFloors(
             ctx.drawImage(texEntry.img, srcX, srcY, srcW, srcH, p1.x, p1.y, cellPx, cellPx);
             ctx.restore();
             hasTexturedCells = true;
+          }
+
+          // Secondary (exterior) pass for arc cells — draws textureSecondary in
+          // the void side of the arc clip. Matches the batched path's
+          // 'trimClipInvert' item (see line ~331).
+          if (cell.trimClip && cell.textureSecondary && !cell.trimHideExterior) {
+            const secEntry = catalog?.textures[cell.textureSecondary];
+            if (secEntry?.img?.complete && secEntry.img.naturalWidth) {
+              const { srcX: sx2, srcY: sy2, srcW: sw2, srcH: sh2 } = getTexChunk(secEntry, row, col);
+              const clip = cell.trimClip;
+              const gs = cellPx;
+              ctx.save();
+              ctx.globalAlpha = cell.textureSecondaryOpacity ?? 1.0;
+              ctx.beginPath();
+              ctx.rect(p1.x, p1.y, gs, gs);
+              ctx.moveTo(p1.x + clip[0][0] * gs, p1.y + clip[0][1] * gs);
+              for (let i = 1; i < clip.length; i++) {
+                ctx.lineTo(p1.x + clip[i][0] * gs, p1.y + clip[i][1] * gs);
+              }
+              ctx.closePath();
+              ctx.clip('evenodd');
+              ctx.drawImage(secEntry.img, sx2, sy2, sw2, sh2, p1.x, p1.y, gs, gs);
+              ctx.restore();
+              hasTexturedCells = true;
+            }
           }
         }
       }
@@ -467,7 +655,15 @@ export function renderFloors(
  * @param {Object|null} [cacheSize=null] - Cache dimensions {w, h, scale}
  * @returns {void}
  */
-export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, transform: RenderTransform, textureOptions: TextureOptions | null, cacheSize: { w: number; h: number; scale?: number } | null = null): void {
+export function renderTextureBlending(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  transform: RenderTransform,
+  textureOptions: TextureOptions | null,
+  cacheSize: { w: number; h: number; scale?: number } | null = null,
+): void {
   const blendWidth = textureOptions?.blendWidth ?? 0.35;
   if (blendWidth <= 0) return;
 
@@ -488,7 +684,9 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
   }
 
   // ── L2 fast path: all bitmaps ready → single drawImage ──
-  const allBitmapsReady = topo.edges!.every(e => (e as unknown as { bitmap?: unknown }).bitmap) && topo.corners!.every(c => (c as unknown as { bitmap?: unknown }).bitmap);
+  const allBitmapsReady =
+    topo.edges!.every((e) => (e as unknown as { bitmap?: unknown }).bitmap) &&
+    topo.corners!.every((c) => (c as unknown as { bitmap?: unknown }).bitmap);
   if (allBitmapsReady) {
     const layer = getViewportBlendLayer(canvasW, canvasH, transform, topo, gridSize);
     if (layer) {
@@ -542,10 +740,18 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
 
           let sg!: CanvasGradient;
           switch (edge.direction) {
-            case 'north': sg = sctx.createLinearGradient(0, 0, 0, blendPx); break;
-            case 'south': sg = sctx.createLinearGradient(0, cellPx, 0, cellPx - blendPx); break;
-            case 'west':  sg = sctx.createLinearGradient(0, 0, blendPx, 0); break;
-            case 'east':  sg = sctx.createLinearGradient(cellPx, 0, cellPx - blendPx, 0); break;
+            case 'north':
+              sg = sctx.createLinearGradient(0, 0, 0, blendPx);
+              break;
+            case 'south':
+              sg = sctx.createLinearGradient(0, cellPx, 0, cellPx - blendPx);
+              break;
+            case 'west':
+              sg = sctx.createLinearGradient(0, 0, blendPx, 0);
+              break;
+            case 'east':
+              sg = sctx.createLinearGradient(cellPx, 0, cellPx - blendPx, 0);
+              break;
           }
           sg.addColorStop(0, 'rgba(0,0,0,0)');
           sg.addColorStop(1, 'rgba(0,0,0,1)');
@@ -567,7 +773,17 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
           ctx.clip(edge.clipPath);
           ctx.setTransform(1, 0, 0, 1, 0, 0);
           ctx.globalAlpha = edge.neighborOpacity * PDF_EDGE_FALLBACK_OPACITY;
-          ctx.drawImage(edge.neighborEntry.img, edge.srcX, edge.srcY, edge.srcW, edge.srcH, screenX, screenY, cellPx, cellPx);
+          ctx.drawImage(
+            edge.neighborEntry.img,
+            edge.srcX,
+            edge.srcY,
+            edge.srcW,
+            edge.srcH,
+            screenX,
+            screenY,
+            cellPx,
+            cellPx,
+          );
           ctx.restore();
         }
       }
@@ -646,7 +862,18 @@ export function renderTextureBlending(ctx: CanvasRenderingContext2D, cells: Cell
  * @param {Object|null} [cacheSize=null] - Cache dimensions {w, h, scale}
  * @returns {void}
  */
-export function renderFillPatternsAndGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, showGrid: boolean, skipGrid: boolean = false, metadata: Metadata | null = null, cacheSize: { w: number; h: number; scale?: number } | null = null): void {
+export function renderFillPatternsAndGrid(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  showGrid: boolean,
+  skipGrid: boolean = false,
+  metadata: Metadata | null = null,
+  cacheSize: { w: number; h: number; scale?: number } | null = null,
+): void {
   const { scale: sc, offsetX: txOff, offsetY: tyOff } = transform;
 
   const data = getFluidPathCache(cells, gridSize, theme, roomCells);
@@ -655,7 +882,9 @@ export function renderFillPatternsAndGrid(ctx: CanvasRenderingContext2D, cells: 
   if (data.pit || data.water || data.lava) {
     withTrimVoidClip(ctx, cells, gridSize, transform, () => {
       // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
-      const fluidLayer = cacheSize ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
+      const fluidLayer = cacheSize
+        ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale)
+        : null;
 
       if (fluidLayer) {
         // Blit the cached fluid layer
@@ -672,9 +901,9 @@ export function renderFillPatternsAndGrid(ctx: CanvasRenderingContext2D, cells: 
 
           for (const [colorKey, path] of fd.fills) {
             const ck = Number(colorKey);
-            const rv = (ck >> 16) & 0xFF;
-            const gv = (ck >> 8) & 0xFF;
-            const bv = ck & 0xFF;
+            const rv = (ck >> 16) & 0xff;
+            const gv = (ck >> 8) & 0xff;
+            const bv = ck & 0xff;
             ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
             ctx.fill(path);
           }
@@ -729,7 +958,12 @@ export function renderFillPatternsAndGrid(ctx: CanvasRenderingContext2D, cells: 
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-export function renderHazardOverlay(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, transform: RenderTransform): void {
+export function renderHazardOverlay(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -750,9 +984,9 @@ export function renderHazardOverlay(ctx: CanvasRenderingContext2D, cells: CellGr
       const cx = p.x + cellPx - size * 0.75;
       const cy = p.y + h * 0.75;
 
-      const top    = { x: cx,              y: cy - h * 0.55 };
-      const left   = { x: cx - size / 2,   y: cy + h * 0.45 };
-      const right  = { x: cx + size / 2,   y: cy + h * 0.45 };
+      const top = { x: cx, y: cy - h * 0.55 };
+      const left = { x: cx - size / 2, y: cy + h * 0.45 };
+      const right = { x: cx + size / 2, y: cy + h * 0.45 };
 
       ctx.beginPath();
       ctx.moveTo(top.x, top.y);
@@ -769,8 +1003,8 @@ export function renderHazardOverlay(ctx: CanvasRenderingContext2D, cells: CellGr
       const bangW = Math.max(1, cellPx * 0.04);
       const bangTop = cy - h * 0.22;
       const bangBot = cy + h * 0.12;
-      const dotY    = cy + h * 0.25;
-      const dotR    = bangW * 0.7;
+      const dotY = cy + h * 0.25;
+      const dotR = bangW * 0.7;
 
       ctx.fillStyle = '#222222';
       ctx.strokeStyle = '#222222';
@@ -804,7 +1038,17 @@ export function renderHazardOverlay(ctx: CanvasRenderingContext2D, cells: CellGr
  * @param {number} [_res=1] - Resolution multiplier for sub-cells
  * @returns {void}
  */
-export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, showInvisible: boolean = false, visibleBounds: VisibleBounds | null = null, _res: number = 1): void {
+export function renderWallsAndBorders(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  showInvisible: boolean = false,
+  visibleBounds: VisibleBounds | null = null,
+  _res: number = 1,
+): void {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
@@ -816,9 +1060,9 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
   const WALL_DIRS = ['north', 'south', 'east', 'west'];
 
   const startRow = visibleBounds?.minRow ?? 0;
-  const endRow = visibleBounds?.maxRow ?? (numRows - 1);
+  const endRow = visibleBounds?.maxRow ?? numRows - 1;
   const startCol = visibleBounds?.minCol ?? 0;
-  const endCol = visibleBounds?.maxCol ?? (numCols - 1);
+  const endCol = visibleBounds?.maxCol ?? numCols - 1;
 
   for (let row = startRow; row <= endRow; row++) {
     for (let col = startCol; col <= endCol; col++) {
@@ -829,11 +1073,11 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
       const borders: [string, number, number, number, number, string][] = [
         ['north', col, row, col + 1, row, 'horizontal'],
         ['south', col, row + 1, col + 1, row + 1, 'horizontal'],
-        ['east',  col + 1, row, col + 1, row + 1, 'vertical'],
-        ['west',  col, row, col, row + 1, 'vertical'],
+        ['east', col + 1, row, col + 1, row + 1, 'vertical'],
+        ['west', col, row, col, row + 1, 'vertical'],
       ];
       for (const [dir, x1, y1, x2, y2, orient] of borders) {
-        const bt = ((cell as Record<string, unknown>)[dir]) as string;
+        const bt = (cell as Record<string, unknown>)[dir] as string;
         if (!bt) continue;
         if (bt === 'd' || bt === 's') {
           const role = getDoubleDoorRole(cells, row, col, dir, _res);
@@ -845,7 +1089,10 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
           if (role === 'single-wide') {
             // Render a single door spanning one display cell (resolution sub-cells)
             // Extend the wall segment coordinates to cover the full display cell width
-            const wx1 = x1, wy1 = y1; let wx2 = x2, wy2 = y2;
+            const wx1 = x1,
+              wy1 = y1;
+            let wx2 = x2,
+              wy2 = y2;
             if (orient === 'horizontal') {
               wx2 = x1 + _res; // extend cols by resolution
             } else {
@@ -881,7 +1128,7 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
 
       // Diagonal borders — collect doors for deferred rendering, walls handled below
       for (const diag of ['nw-se', 'ne-sw']) {
-        const bt = ((cell as Record<string, unknown>)[diag]);
+        const bt = (cell as Record<string, unknown>)[diag];
         if (!bt) continue;
         if (cell.trimWall) continue;
         if (bt === 'd' || bt === 's') {
@@ -915,23 +1162,29 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
         const dr = diag === 'nw-se' ? 1 : 1;
         const dc = diag === 'nw-se' ? 1 : -1;
         let runLen = 0;
-        let r = row, c = col;
+        let r = row,
+          c = col;
         while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
           const v = cells[r]?.[c]?.[diag as keyof Cell];
           if ((v !== 'w' && v !== 'd' && v !== 's') || cells[r]?.[c]?.trimWall) break;
           diagSeen.add(`${r},${c},${diag}`);
           runLen++;
-          r += dr; c += dc;
+          r += dr;
+          c += dc;
         }
 
         // Build one long segment from start to end of run
         let fx1, fy1, fx2, fy2;
         if (diag === 'nw-se') {
-          fx1 = col * gridSize;              fy1 = row * gridSize;
-          fx2 = (col + runLen) * gridSize;   fy2 = (row + runLen) * gridSize;
+          fx1 = col * gridSize;
+          fy1 = row * gridSize;
+          fx2 = (col + runLen) * gridSize;
+          fy2 = (row + runLen) * gridSize;
         } else {
-          fx1 = (col + 1) * gridSize;            fy1 = row * gridSize;
-          fx2 = (col + 1 - runLen) * gridSize;   fy2 = (row + runLen) * gridSize;
+          fx1 = (col + 1) * gridSize;
+          fy1 = row * gridSize;
+          fx2 = (col + 1 - runLen) * gridSize;
+          fy2 = (row + runLen) * gridSize;
         }
         const p1 = toCanvas(fx1, fy1, transform);
         const p2 = toCanvas(fx2, fy2, transform);
@@ -982,7 +1235,8 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
       const cell = cells[row]?.[col];
       if (!cell?.trimWall) continue;
       const wall = cell.trimWall;
-      const cx = col * gridSize, cy = row * gridSize;
+      const cx = col * gridSize,
+        cy = row * gridSize;
       const s = scaleFactor(transform);
 
       // Shadow pass
@@ -991,12 +1245,21 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
         ctx.strokeStyle = 'rgba(0,0,0,0.3)';
         ctx.lineWidth = 8 * s;
         ctx.lineCap = 'round';
-        const sx = 2 * s, sy = 2 * s;
+        const sx = 2 * s,
+          sy = 2 * s;
         ctx.beginPath();
-        const p0s = toCanvas(cx + (wall[0][0] as number) * gridSize + sx / transform.scale, cy + (wall[0][1] as number) * gridSize + sy / transform.scale, transform);
+        const p0s = toCanvas(
+          cx + (wall[0][0] as number) * gridSize + sx / transform.scale,
+          cy + (wall[0][1] as number) * gridSize + sy / transform.scale,
+          transform,
+        );
         ctx.moveTo(p0s.x, p0s.y);
         for (let i = 1; i < wall.length; i++) {
-          const p = toCanvas(cx + (wall[i][0] as number) * gridSize + sx / transform.scale, cy + (wall[i][1] as number) * gridSize + sy / transform.scale, transform);
+          const p = toCanvas(
+            cx + (wall[i][0] as number) * gridSize + sx / transform.scale,
+            cy + (wall[i][1] as number) * gridSize + sy / transform.scale,
+            transform,
+          );
           ctx.lineTo(p.x, p.y);
         }
         ctx.stroke();
@@ -1032,7 +1295,14 @@ export function renderWallsAndBorders(ctx: CanvasRenderingContext2D, cells: Cell
  * @param {string} labelStyle - Label style ('circled', 'plain', 'bold')
  * @returns {void}
  */
-export function renderLabels(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, labelStyle: string): void {
+export function renderLabels(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  labelStyle: string,
+): void {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
   const style = labelStyle || 'circled';
@@ -1078,21 +1348,61 @@ export function renderLabels(ctx: CanvasRenderingContext2D, cells: CellGrid, gri
  * @param {Object|null} [cacheSize=null] - Cache dimensions {w, h, scale}
  * @returns {void}
  */
-export function renderLabelsStairsProps(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, labelStyle: string, propCatalog: PropCatalog | null, textureOptions: TextureOptions | null, metadata: Metadata | null, skipLabels: boolean = false, visibleBounds: VisibleBounds | null = null, cacheSize: { w: number; h: number; scale?: number } | null = null): void {
+export function renderLabelsStairsProps(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  labelStyle: string,
+  propCatalog: PropCatalog | null,
+  textureOptions: TextureOptions | null,
+  metadata: Metadata | null,
+  skipLabels: boolean = false,
+  visibleBounds: VisibleBounds | null = null,
+  cacheSize: { w: number; h: number; scale?: number } | null = null,
+): void {
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
 
   // Props (furniture, objects)
   const getTextureImage: ((id: string) => HTMLImageElement | null) | null = textureOptions?.catalog
-    ? (id: string) => { const e = textureOptions.catalog.textures[id]; return e?.img?.complete ? e.img as HTMLImageElement : null; }
+    ? (id: string) => {
+        const e = textureOptions.catalog.textures[id];
+        return e?.img?.complete ? (e.img as HTMLImageElement) : null;
+      }
     : null;
 
   // Try pre-rendered props layer cache
-  const propsLayer = cacheSize ? getRenderedPropsLayer(cells, gridSize, theme, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, metadata, cacheSize.w, cacheSize.h, cacheSize.scale) : null;
+  const propsLayer = cacheSize
+    ? getRenderedPropsLayer(
+        cells,
+        gridSize,
+        theme,
+        propCatalog,
+        getTextureImage,
+        textureOptions?.texturesVersion ?? 0,
+        metadata,
+        cacheSize.w,
+        cacheSize.h,
+        cacheSize.scale,
+      )
+    : null;
   if (propsLayer) {
     ctx.drawImage(propsLayer, 0, 0);
   } else {
-    renderAllProps(ctx, cells, gridSize, theme, transform, propCatalog, getTextureImage, textureOptions?.texturesVersion ?? 0, visibleBounds, metadata);
+    renderAllProps(
+      ctx,
+      cells,
+      gridSize,
+      theme,
+      transform,
+      propCatalog,
+      getTextureImage,
+      textureOptions?.texturesVersion ?? 0,
+      visibleBounds,
+      metadata,
+    );
   }
 
   // Room labels and DM labels — skipped when lighting is enabled so they can be
@@ -1108,13 +1418,13 @@ export function renderLabelsStairsProps(ctx: CanvasRenderingContext2D, cells: Ce
     drawStairShape(ctx, stairDef, theme, gridSize, transform);
 
     if (stairDef.link) {
-      let minRow = Infinity, minCol = Infinity;
+      let minRow = Infinity,
+        minCol = Infinity;
       for (const [r, c] of stairDef.points) {
         if (r < minRow) minRow = r;
         if (c < minCol) minCol = c;
       }
-      drawStairShapeLinkLabel(ctx, minCol * gridSize, minRow * gridSize,
-        stairDef.link, theme, transform);
+      drawStairShapeLinkLabel(ctx, minCol * gridSize, minRow * gridSize, stairDef.link, theme, transform);
     }
   }
 

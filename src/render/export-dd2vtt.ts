@@ -23,25 +23,34 @@ import { getEdge } from '../util/index.js';
  * @param {number} canvasHeight - Height of the rendered PNG in pixels
  * @returns {Object} dd2vtt-format JSON object
  */
-export function buildDd2vtt(pngBuffer: Buffer, config: { metadata: Metadata; cells: CellGrid }, canvasWidth: number, canvasHeight: number): Dd2vttFormat {
+export function buildDd2vtt(
+  pngBuffer: Buffer,
+  config: { metadata: Metadata; cells: CellGrid },
+  canvasWidth: number,
+  canvasHeight: number,
+): Dd2vttFormat {
   const { metadata, cells } = config;
   const gridSize = metadata.gridSize || 5;
   const resolution = metadata.resolution || 1;
   const displayGridSize = gridSize * resolution;
 
-  // Calculate bounds to determine offset (same logic as compile.js)
-  const bounds = calculateBoundsFromCells(cells, displayGridSize);
+  // Calculate bounds to determine offset (same logic as compile.js — uses the
+  // mapwright cell size in feet, NOT displayGridSize. `resolution` is the
+  // mapwright-cells-per-Foundry-cell factor, not a feet multiplier: at
+  // gridSize=2.5 ft and resolution=2, each mapwright cell is 2.5 ft wide and
+  // two of them make one 5 ft Foundry cell.)
+  const bounds = calculateBoundsFromCells(cells, gridSize);
   const offsetX = MARGIN - bounds.minX * GRID_SCALE;
   const offsetY = MARGIN - bounds.minY * GRID_SCALE;
 
-  // Pixels per grid square in the rendered image
+  // Pixels per Foundry grid square in the rendered image
   const pixelsPerGrid = GRID_SCALE * displayGridSize;
 
   // Encode PNG as base64 data URI
   const imageBase64 = pngBuffer.toString('base64');
 
   // Extract walls (line_of_sight) and doors (portals) from the cell grid
-  const { walls, portals } = extractWallsAndPortals(cells, displayGridSize, offsetX, offsetY, pixelsPerGrid);
+  const { walls, portals } = extractWallsAndPortals(cells, gridSize, offsetX, offsetY, pixelsPerGrid);
 
   // Extract lights
   const lights = extractLights(metadata, displayGridSize, offsetX, offsetY, pixelsPerGrid);
@@ -77,8 +86,14 @@ export function buildDd2vtt(pngBuffer: Buffer, config: { metadata: Metadata; cel
  * @param {number} pixelsPerGrid - Pixels per grid square
  * @returns {{ walls: Array, portals: Array }}
  */
-function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): { walls: Array<[{x: number; y: number}, {x: number; y: number}]>; portals: Dd2vttPortal[] } {
-  const walls: Array<[{x: number; y: number}, {x: number; y: number}]> = [];
+function extractWallsAndPortals(
+  cells: CellGrid,
+  gridSize: number,
+  offsetX: number,
+  offsetY: number,
+  pixelsPerGrid: number,
+): { walls: Array<[{ x: number; y: number }, { x: number; y: number }]>; portals: Dd2vttPortal[] } {
+  const walls: Array<[{ x: number; y: number }, { x: number; y: number }]> = [];
   const portals: Dd2vttPortal[] = [];
   const numRows = cells.length;
   const numCols = cells[0]?.length || 0;
@@ -93,8 +108,8 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
       const edges = [
         { dir: 'north', x1: col, y1: row, x2: col + 1, y2: row },
         { dir: 'south', x1: col, y1: row + 1, x2: col + 1, y2: row + 1 },
-        { dir: 'west',  x1: col, y1: row, x2: col, y2: row + 1 },
-        { dir: 'east',  x1: col + 1, y1: row, x2: col + 1, y2: row + 1 },
+        { dir: 'west', x1: col, y1: row, x2: col, y2: row + 1 },
+        { dir: 'east', x1: col + 1, y1: row, x2: col + 1, y2: row + 1 },
       ];
 
       for (const edge of edges) {
@@ -110,7 +125,7 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
         seen.add(key);
 
         // Convert cell-grid coords to pixel coords, then to grid-unit coords
-        const seg = cellToPixelSegment(edge, displayGridSize, offsetX, offsetY, pixelsPerGrid);
+        const seg = cellToPixelSegment(edge, gridSize, offsetX, offsetY, pixelsPerGrid);
 
         if (val === 'w') {
           // Wall → line of sight blocker
@@ -118,9 +133,10 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
             { x: seg.x1, y: seg.y1 },
             { x: seg.x2, y: seg.y2 },
           ]);
-        } else { // val is 'd' | 's' (door or secret door)
+        } else {
+          // val is 'd' | 's' (door or secret door)
           // Door → portal (closed by default, secret doors also closed)
-          const rotation = (edge.dir === 'north' || edge.dir === 'south') ? 0 : 90;
+          const rotation = edge.dir === 'north' || edge.dir === 'south' ? 0 : 90;
           portals.push({
             position: {
               x: (seg.x1 + seg.x2) / 2,
@@ -152,10 +168,16 @@ function extractWallsAndPortals(cells: CellGrid, displayGridSize: number, offset
  * @param {number} pixelsPerGrid - Pixels per grid square
  * @returns {{ x1: number, y1: number, x2: number, y2: number }} Edge in grid-unit coords
  */
-function cellToPixelSegment(edge: { x1: number; y1: number; x2: number; y2: number; dir: string }, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): { x1: number; y1: number; x2: number; y2: number } {
-  // Cell coords → world feet → canvas pixels → grid units
+function cellToPixelSegment(
+  edge: { x1: number; y1: number; x2: number; y2: number; dir: string },
+  gridSize: number,
+  offsetX: number,
+  offsetY: number,
+  pixelsPerGrid: number,
+): { x1: number; y1: number; x2: number; y2: number } {
+  // Cell coords → world feet → canvas pixels → Foundry-grid units
   const toGridUnits = (cellVal: number, offset: number) => {
-    const worldFeet = cellVal * displayGridSize;
+    const worldFeet = cellVal * gridSize;
     const canvasPixels = worldFeet * GRID_SCALE + offset;
     return canvasPixels / pixelsPerGrid;
   };
@@ -178,7 +200,13 @@ function cellToPixelSegment(edge: { x1: number; y1: number; x2: number; y2: numb
  * @param {number} pixelsPerGrid - Pixels per grid square
  * @returns {Array<Object>} Array of dd2vtt light objects
  */
-function extractLights(metadata: Metadata | null, displayGridSize: number, offsetX: number, offsetY: number, pixelsPerGrid: number): Dd2vttLight[] {
+function extractLights(
+  metadata: Metadata | null,
+  displayGridSize: number,
+  offsetX: number,
+  offsetY: number,
+  pixelsPerGrid: number,
+): Dd2vttLight[] {
   if (!metadata?.lights || !metadata.lightingEnabled) return [];
 
   return metadata.lights.map((light: Light) => {
