@@ -1,0 +1,72 @@
+{
+  "name": "workshop-artificer",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "arcane", "scholarly", "medium"],
+  "summary": "An artificer's cluttered workshop — part smithy, part alchemical bench, part library. Mechanical projects in various stages, schematics pinned to every surface, a few mysterious devices humming.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle, messy zones rather than clean stations"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "burn-marked bench zone",
+      "options": ["polyhaven/ash_layer", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["workbench", "workbench"], "surrounded_by": ["tool-rack", "ingredient-rack", "bookshelf"], "note": "twin-bench artificer — mechanical and arcane stations" },
+    { "props": ["workbench", "alchemy-bench"], "surrounded_by": ["forge", "bookshelf"], "note": "forge + alchemy hybrid — a tinker with fire" },
+    { "props": ["clockwork-frame"], "surrounded_by": ["workbench", "tool-rack", "bookshelf"], "note": "centerpiece project — a large device under construction" }
+  ],
+  "secondary_palette": [
+    "workbench",
+    "alchemy-bench",
+    "clockwork-frame",
+    "forge",
+    "anvil",
+    "tool-rack",
+    "ingredient-rack",
+    "bookshelf",
+    "cabinet",
+    "desk",
+    "grinding-wheel",
+    "scale",
+    "hourglass",
+    "chest"
+  ],
+  "scatter_palette": [
+    "gear-pile",
+    "schematic-rolled",
+    "book-open",
+    "spring-coil",
+    "glass-shard",
+    "crystal-shard",
+    "quill",
+    "inkwell",
+    "screwdriver",
+    "arcane-sigil",
+    "half-built-device"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-forge-alcove", "cluttered-square"],
+    "discouraged": ["open-hall", "narrow"]
+  },
+  "story_prompts": [
+    "mid-breakthrough — artificer at the bench, one device humming, shelves climbed for a reference book",
+    "commission — a noble's order on the central bench, three days to finish",
+    "explosion aftermath — scorched corner, walls smoking, artificer uninjured but thoughtful",
+    "auction prep — finished devices laid out, catalog on the desk"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "focused working light (0.45) with magical accents — arcane sigils glow",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "forge", "lantern-post"]
+  },
+  "anti_patterns": [
+    "messy is the point — don't grid-align anything, stations should overlap zones",
+    "arcane and fire must have at least one cell of buffer — or a burn mark suggests they didn't",
+    "don't theme-split the room into 'magic side' and 'smith side' — blend them"
+  ]
+}

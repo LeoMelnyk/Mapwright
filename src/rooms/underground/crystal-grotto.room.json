@@ -1,0 +1,60 @@
+{
+  "name": "crystal-grotto",
+  "category": "underground",
+  "tags": ["underground", "crystal", "magical", "natural", "luminous", "wondrous"],
+  "summary": "A chamber where stone has given way to crystal — prismatic growths climb the walls, a still pool mirrors the glow, every surface refracts light.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "near-round, vaulted"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/crystal_floor", "polyhaven/rock_ground", "polyhaven/obsidian_floor"],
+    "accent": {
+      "purpose": "reflective pool / crystal shard carpet",
+      "options": ["polyhaven/mirror_water", "polyhaven/crystal_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["crystal-heart"], "surrounded_by": ["crystal-formation", "crystal-formation"], "note": "a central colossal crystal, source of the chamber's power" },
+    { "props": ["scrying-crystal"], "surrounded_by": ["crystal-formation", "crystal-torch"], "note": "freestanding scrying crystal on a natural pedestal" },
+    { "props": ["resonance-pool"], "surrounded_by": ["crystal-formation", "crystal-formation"], "note": "still pool amplifying harmonic crystal song" },
+    { "props": ["crystal-cluster-large"], "surrounded_by": ["crystal-torch"], "note": "wild growth with no obvious intelligence behind it" }
+  ],
+  "secondary_palette": [
+    "crystal-formation",
+    "crystal-torch",
+    "crystal-cluster-large",
+    "stalagmite",
+    "crystal-shard",
+    "pillar-crystal",
+    "pond"
+  ],
+  "scatter_palette": [
+    "crystal-shard",
+    "rubble",
+    "moss-patch",
+    "crystal-dust",
+    "mushroom"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle-via-rounded-corners", "hexagon", "irregular-polygon"],
+    "discouraged": ["rectangle", "square", "corridor"]
+  },
+  "story_prompts": [
+    "the crystals sing a note that pierces the soul — long exposure warps the mind",
+    "a crystal dragon has claimed this as a nursery",
+    "miners tried to harvest — the chamber remembers every blow",
+    "a petrified adventurer stands mid-stride, slowly becoming crystal themselves"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "soft luminous (0.35-0.45) with prismatic color bleed",
+    "ambient_is": "required",
+    "common_sources": ["crystal-torch", "crystal-heart", "crystal-cluster-large"]
+  },
+  "anti_patterns": [
+    "no torches or braziers — crystals provide the entire light budget",
+    "don't over-pack the center — the colossal crystal needs breathing room",
+    "formations cluster against walls and ceiling, not randomly in the middle of the floor"
+  ]
+}

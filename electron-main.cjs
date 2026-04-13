@@ -72,9 +72,31 @@ if (!gotTheLock) {
 }
 
 async function startServer() {
-  // Dynamic import loads server.js as ESM, which starts Express + WebSockets
-  // as a side effect. Port defaults to 3000 via process.argv fallback in server.js.
-  await import('./server.js');
+  // server.js imports from .ts files — spawn it as a child process with tsx
+  // rather than importing directly (Electron's Node doesn't support tsx register)
+  const { spawn } = require('child_process');
+  const serverPath = path.join(__dirname, 'server.js');
+  const child = spawn('node', ['--import', 'tsx', serverPath, String(PORT)], {
+    cwd: __dirname,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      MAPWRIGHT_TEXTURE_PATH: process.env.MAPWRIGHT_TEXTURE_PATH || path.join(app.getPath('userData'), 'textures'),
+      MAPWRIGHT_THEME_PATH: process.env.MAPWRIGHT_THEME_PATH || path.join(app.getPath('userData'), 'themes'),
+    },
+  });
+  // Store reference so we can clean up on quit
+  app._serverChild = child;
+  // Wait for server to be ready
+  const http = require('http');
+  await new Promise((resolve) => {
+    const check = () => {
+      const req = http.get(`http://localhost:${PORT}/`, () => resolve());
+      req.on('error', () => setTimeout(check, 200));
+      req.end();
+    };
+    check();
+  });
 }
 
 function createWindow() {
@@ -86,9 +108,19 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      sandbox: true,
       backgroundThrottling: false,
       devTools: true,
     },
+  });
+
+  // Block any navigation away from the local editor — if a renderer is
+  // compromised it shouldn't be able to swap the window to a phishing page.
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!url.startsWith(`http://localhost:${PORT}/`)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
   });
 
   const editorUrl = pendingFile
@@ -96,6 +128,14 @@ function createWindow() {
     : `http://localhost:${PORT}/editor/`;
   pendingFile = null;
   mainWindow.loadURL(editorUrl);
+
+  // Forward renderer console messages to terminal with source location
+  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+    const tag = ['DEBUG', 'INFO', 'WARN', 'ERROR'][level] || 'LOG';
+    // Strip the origin prefix to show just the asset path
+    const source = sourceId.replace(/^https?:\/\/[^/]+\//, '');
+    console.log(`[${tag}] ${message}  (${source}:${line})`);
+  });
 
   // F12 opens devtools
   mainWindow.webContents.on('before-input-event', (event, input) => {
@@ -233,4 +273,22 @@ app.whenReady().then(async () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.exit(0);
+});
+
+app.on('before-quit', () => {
+  if (app._serverChild) {
+    if (process.platform === 'win32') {
+      // On Windows, child.kill() only kills the direct process — use taskkill /T
+      // to kill the entire process tree (node → tsx → server.js). Use execFileSync
+      // (no shell) so the PID is passed as a discrete argv, not interpolated into
+      // a shell command.
+      const { execFileSync } = require('child_process');
+      try {
+        execFileSync('taskkill', ['/PID', String(app._serverChild.pid), '/T', '/F'], { stdio: 'ignore' });
+      } catch { /* best effort */ }
+    } else {
+      app._serverChild.kill();
+    }
+    app._serverChild = null;
+  }
 });

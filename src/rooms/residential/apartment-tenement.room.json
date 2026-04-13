@@ -1,0 +1,71 @@
+{
+  "name": "apartment-tenement",
+  "category": "residential",
+  "tags": ["urban", "residential", "small", "tenement", "poor", "urban-poverty"],
+  "summary": "A single-room tenement apartment — a bed, a stove, a table, everything a family owns squeezed into four walls. Smells of damp and cabbage.",
+  "size_guidance": {
+    "min": [4, 5],
+    "typical": [5, 7],
+    "aspect_ratio": "small rectangle, often deeper than wide"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/worn_plank_floor", "polyhaven/rough_wood", "polyhaven/stained_wood"]
+  },
+  "primary_palette": [
+    { "props": ["narrow-bed", "narrow-bed"], "surrounded_by": ["table-small", "stool"], "note": "family of four in one room — beds share a wall, table between" },
+    { "props": ["stove-iron"], "surrounded_by": ["coal-bucket", "washing-line"], "note": "kitchen-corner dominates — everything orbits the stove" },
+    { "props": ["bed-double"], "surrounded_by": ["cradle", "trunk"], "note": "young couple with first child — bed, cradle, one trunk" },
+    { "props": ["table-small"], "surrounded_by": ["stool", "stool", "stool"], "note": "the table is the center — eating, sewing, schoolwork all happen here" }
+  ],
+  "secondary_palette": [
+    "narrow-bed",
+    "bed-double",
+    "stove-iron",
+    "table-small",
+    "stool",
+    "chair",
+    "trunk",
+    "shelf",
+    "cradle",
+    "washing-line",
+    "washing-tub",
+    "wash-basin",
+    "cupboard-small",
+    "peg-rail-wall"
+  ],
+  "scatter_palette": [
+    "cabbage",
+    "bread-heel",
+    "tin-cup",
+    "boot-worn",
+    "patched-shirt",
+    "coal-bucket",
+    "mouse-trap",
+    "candle-stub",
+    "child-doll-rag",
+    "prayer-card",
+    "damp-stain"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-rectangle", "narrow-deep", "cramped-irregular"],
+    "discouraged": ["large", "symmetrical", "open-plan"]
+  },
+  "story_prompts": [
+    "occupied — the mother mends by the stove, children already asleep in the bed",
+    "the rent is unpaid — the landlord's note on the table, half the possessions already sold",
+    "a death — the body laid on the table, the room dressed as dignified as poverty allows",
+    "a hideout — the usual family is out, a stranger squats in their room",
+    "overcrowded — one room, three beds, seven people, clothes washing on a line overhead"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low (0.2-0.3) — one tallow candle and what little comes through the window",
+    "ambient_is": "optional",
+    "common_sources": ["candle", "stove-iron", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "no luxury of ANY kind — no carpet, no mirror, no painting. One prized possession at most.",
+    "every surface is shared — beds double for seats, tables for beds, nothing single-purpose",
+    "clutter is the texture — hung clothes, stacked crates, overlapping uses",
+    "damp, cold, tight — let the prose and lighting reinforce this"
+  ]
+}

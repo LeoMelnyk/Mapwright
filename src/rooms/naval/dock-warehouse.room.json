@@ -1,0 +1,65 @@
+{
+  "name": "dock-warehouse",
+  "category": "naval",
+  "tags": ["naval", "dockside", "warehouse", "cargo", "urban", "industrial"],
+  "summary": "A waterfront warehouse — high rafters, stacked crates and barrels awaiting shipment, a loading dock door, a clerk's nook by the ledger desk.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 16],
+    "aspect_ratio": "wide rectangle, loading door to the waterside"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wood_planks_worn", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "loading bay / clerk's mat",
+      "options": ["polyhaven/wood_planks_worn", "polyhaven/carpet_worn"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["crate-stack"], "surrounded_by": ["barrel-stack", "lumber-stack"], "note": "primary cargo block filling the floor" },
+    { "props": ["cargo-scale"], "surrounded_by": ["crate-stack", "desk"], "note": "weighing station — customs or merchant inspection" },
+    { "props": ["winch-block"], "surrounded_by": ["crate-stack", "rope-coil"], "note": "overhead lifting rig for heavy goods" },
+    { "props": ["contraband-stash"], "surrounded_by": ["crate-stack", "crate-stack"], "note": "hidden cache behind legitimate cargo" }
+  ],
+  "secondary_palette": [
+    "crate",
+    "crate-stack",
+    "barrel",
+    "barrel-stack",
+    "lumber-stack",
+    "rope-coil",
+    "cart",
+    "desk",
+    "lantern-post",
+    "winch-block",
+    "log-pile"
+  ],
+  "scatter_palette": [
+    "rat-swarm-marker",
+    "rope-coil",
+    "broken-crate",
+    "sawdust-pile",
+    "tally-stick",
+    "bucket"
+  ],
+  "shape_guidance": {
+    "preferred": ["wide-rectangle", "L-shape-with-loading-bay"],
+    "discouraged": ["narrow-corridor", "round"]
+  },
+  "story_prompts": [
+    "smugglers meet after hours — the party stumbles in",
+    "stock mysteriously goes missing each night; something in the rafters",
+    "the clerk is being extorted and the party arrives during a shakedown",
+    "the warehouse is a front — stolen goods fill half the stacks"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim interior (0.2-0.3), daylight shafts from clerestory by day",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "clerestory-window"]
+  },
+  "anti_patterns": [
+    "crates stack against walls and in blocks — leave forklift-style aisles",
+    "the loading door is a wide opening, not a standard door — specify clearance",
+    "don't distribute cargo evenly; real warehouses have dense blocks and open floor"
+  ]
+}

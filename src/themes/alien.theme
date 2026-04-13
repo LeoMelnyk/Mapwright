@@ -1,7 +1,7 @@
 {
   "displayName": "Alien",
   "background": "#101820",
-  "gridLine": "#00d890",
+  "gridLine": "#000000",
   "wallStroke": "#00d890",
   "wallFill": "#1a3040",
   "textColor": "#00d890",
@@ -44,8 +44,7 @@
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
   },
-  "gridStyle": "corners-x",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.2,
-  "gridCornerLength": 0.2
+  "gridStyle": "lines",
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

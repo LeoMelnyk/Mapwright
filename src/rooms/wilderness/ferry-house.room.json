@@ -1,0 +1,69 @@
+{
+  "name": "ferry-house",
+  "category": "wilderness",
+  "tags": ["wilderness", "river", "dwelling", "commerce", "small"],
+  "summary": "A small riverbank cabin where the ferry operator lives and works. A dock, a landing ramp, a fee-table, a signal bell. The river is the real center of the room.",
+  "size_guidance": {
+    "min": [8, 7],
+    "typical": [10, 9],
+    "aspect_ratio": "long parallel to the riverbank"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/grass_floor", "polyhaven/mud_floor"],
+    "accent": {
+      "purpose": "dock planks and cabin porch",
+      "options": ["polyhaven/wood_floor", "polyhaven/plank_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ferry-cabin"], "surrounded_by": ["dock-post", "signal-bell", "rope-coil"], "note": "cabin plus dock — bell on a post, ropes coiled, boat at mooring" },
+    { "props": ["dock-post"], "surrounded_by": ["rope-coil", "fish-drying-rack", "crate"], "note": "working dock — tackle and fish-racks, cabin off to one side" },
+    { "props": ["ferry-raft"], "surrounded_by": ["dock-post", "rope-coil"], "note": "the raft itself at the waterline — hauling-rope across the river" }
+  ],
+  "secondary_palette": [
+    "ferry-cabin",
+    "ferry-raft",
+    "dock-post",
+    "signal-bell",
+    "rope-coil",
+    "crate",
+    "barrel",
+    "fish-drying-rack",
+    "fishing-net",
+    "lantern-post",
+    "fee-board",
+    "campfire-stone"
+  ],
+  "scatter_palette": [
+    "fishing-net",
+    "fallen-leaves",
+    "reed-bed",
+    "coin-scatter",
+    "driftwood",
+    "fish-bucket",
+    "mud-print",
+    "ration-wrapper"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle-along-bank", "L-shape-cabin-with-dock", "irregular-with-water-edge"],
+    "discouraged": ["square", "centered-layout"]
+  },
+  "story_prompts": [
+    "ferryman present, tired, willing to haggle — standard fee posted, negotiable",
+    "ferry is gone — rope cut, cabin door open, signs of struggle",
+    "the ferryman is dead in the cabin — raft still at the dock, someone else ran it across first",
+    "ferryman is a smuggler — crates under the dock, double the usual goods",
+    "a charon figure — takes coin in silence, asks no questions, sees everything"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor riverside — bright daylight, lantern-post for dusk arrivals",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "campfire-stone", "cabin-window-glow"]
+  },
+  "anti_patterns": [
+    "the cabin is a small prop-structure on a riverside lot, not a full building interior",
+    "do not center the cabin — push it to one side, leave the dock and shore dominant",
+    "the waterline is a hard edge — mark it clearly with dock-posts and a texture change",
+    "working gear belongs within arm's reach of the dock, not inside the cabin"
+  ]
+}

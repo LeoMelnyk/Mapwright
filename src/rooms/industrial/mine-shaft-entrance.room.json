@@ -1,0 +1,67 @@
+{
+  "name": "mine-shaft-entrance",
+  "category": "industrial",
+  "tags": ["rural", "industrial", "underground", "dangerous", "medium"],
+  "summary": "The surface head of a mine — a wooden headframe over the shaft, a winch to haul ore, sorting tables, and tool racks. The shaft itself drops into darkness at the center.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 12],
+    "aspect_ratio": "squareish with the shaft dominating the center"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "dusty ore-dump zone near sort tables",
+      "options": ["polyhaven/ash_layer", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["mine-shaft", "winch-large"], "surrounded_by": ["ore-cart", "sorting-table"], "note": "classic head-frame — shaft, winch, ore handling" },
+    { "props": ["mine-shaft", "headframe"], "surrounded_by": ["ore-cart", "tool-rack", "sorting-table"], "note": "industrial mine — larger operation with timber headframe" },
+    { "props": ["mine-shaft"], "surrounded_by": ["winch-large", "ore-cart", "weapon-rack"], "note": "guarded mine — armed supervision, weapons at the entrance" }
+  ],
+  "secondary_palette": [
+    "mine-shaft",
+    "headframe",
+    "winch-large",
+    "ore-cart",
+    "sorting-table",
+    "tool-rack",
+    "workbench",
+    "barrel",
+    "lumber-stack",
+    "crate",
+    "chest",
+    "ledger-stack"
+  ],
+  "scatter_palette": [
+    "ore-chunk",
+    "pickaxe",
+    "helmet-mining",
+    "rope-coil",
+    "candle-miner",
+    "dust-cloud",
+    "cart-track",
+    "rags-bloody"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "L-with-office-alcove", "open-shed"],
+    "discouraged": ["narrow"]
+  },
+  "story_prompts": [
+    "shift change — miners emerging blackened, next shift descending",
+    "collapse — rescue winch hauling up an injured miner, foreman shouting for timbers",
+    "strike day — shaft silent, miners blocking the entrance, owner at the office door",
+    "rich vein — ore cart overflowing, foreman weighing a fist-sized nugget"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim half-outdoor light (0.3-0.4) with lanterns near the shaft",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "brazier"]
+  },
+  "anti_patterns": [
+    "shaft is a hole — treat it like a pit fill with wooden frame around it, not a prop floating on floor",
+    "ore carts on implied rails — don't scatter them randomly, they run in tracks to the sort table",
+    "headframe is tall — it's implied to extend upward, keep the shaft cells unobstructed"
+  ]
+}

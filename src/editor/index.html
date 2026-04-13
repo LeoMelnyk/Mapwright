@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mapwright</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.scss">
 </head>
 <body>
   <div id="app">
 
     <!-- Menu Bar -->
-    <div id="menubar">
+    <div id="menubar" role="menubar">
 
       <!-- File menu -->
       <div class="menu-item" data-menu="file">
-        <button class="menu-trigger">File</button>
-        <div class="menu-dropdown">
+        <button class="menu-trigger" aria-haspopup="true" aria-expanded="false">File</button>
+        <div class="menu-dropdown" role="menu">
           <button class="menu-action" id="btn-new">New Map…</button>
           <button class="menu-action" id="btn-load">Open…</button>
           <div class="menu-separator"></div>
@@ -24,10 +24,11 @@
           <button class="menu-action" id="btn-save-as">Save As…</button>
           <div class="menu-separator"></div>
           <button class="menu-action" id="btn-export-png">Export to PNG…</button>
+          <button class="menu-action" id="btn-export-dd2vtt">Export to Universal VTT…</button>
           <div class="menu-separator"></div>
           <div class="menu-submenu">
-            <button class="menu-action menu-submenu-trigger">Import ▸</button>
-            <div class="menu-submenu-dropdown">
+            <button class="menu-action menu-submenu-trigger" aria-haspopup="true" aria-expanded="false">Import ▸</button>
+            <div class="menu-submenu-dropdown" role="menu">
               <button class="menu-action" id="btn-import-opd">From One-Page-Dungeon</button>
               <button class="menu-action" id="btn-import-donjon">From Donjon</button>
             </div>
@@ -37,8 +38,8 @@
 
       <!-- Edit menu -->
       <div class="menu-item" data-menu="edit">
-        <button class="menu-trigger">Edit</button>
-        <div class="menu-dropdown">
+        <button class="menu-trigger" aria-haspopup="true" aria-expanded="false">Edit</button>
+        <div class="menu-dropdown" role="menu">
           <button class="menu-action" id="btn-undo">Undo <span class="key-hint-menu">Ctrl+Z</span></button>
           <button class="menu-action" id="btn-redo">Redo <span class="key-hint-menu">Ctrl+Y</span></button>
           <div class="menu-separator"></div>
@@ -55,8 +56,8 @@
 
       <!-- View menu -->
       <div class="menu-item" data-menu="view">
-        <button class="menu-trigger">View</button>
-        <div class="menu-dropdown">
+        <button class="menu-trigger" aria-haspopup="true" aria-expanded="false">View</button>
+        <div class="menu-dropdown" role="menu">
           <label class="menu-check-item">
             <input type="checkbox" id="feat-grid" checked> Grid
           </label>
@@ -78,8 +79,8 @@
           </label>
           <div class="menu-separator"></div>
           <div class="menu-submenu">
-            <button class="menu-action menu-submenu-trigger">Developer ▸</button>
-            <div class="menu-submenu-dropdown">
+            <button class="menu-action menu-submenu-trigger" aria-haspopup="true" aria-expanded="false">Developer ▸</button>
+            <div class="menu-submenu-dropdown" role="menu">
               <label class="menu-check-item">
                 <input type="checkbox" id="feat-fps"> Diagnostics
               </label>
@@ -123,8 +124,8 @@
 
       <!-- Help menu -->
       <div class="menu-item" data-menu="help">
-        <button class="menu-trigger">Help</button>
-        <div class="menu-dropdown">
+        <button class="menu-trigger" aria-haspopup="true" aria-expanded="false">Help</button>
+        <div class="menu-dropdown" role="menu">
           <button class="menu-action" id="btn-shortcuts">Keyboard Shortcuts <span class="key-hint-menu">?</span></button>
           <button class="menu-action" id="btn-release-notes">Release Notes</button>
           <button class="menu-action" id="btn-welcome">Welcome Screen</button>
@@ -252,6 +253,12 @@
     <!-- Canvas -->
     <div id="canvas-container">
       <canvas id="editor-canvas"></canvas>
+      <div id="editor-loading-overlay">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <div class="loading-label">Loading map…</div>
+        </div>
+      </div>
       <div id="minimap-wrapper" style="display:none; position:absolute; bottom:36px; right:8px; z-index:10;">
         <div id="minimap-header">Minimap</div>
         <canvas id="minimap-canvas"></canvas>
@@ -541,7 +548,7 @@
     </div>
 
     <!-- New Map modal -->
-    <div id="modal-new-map" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-new-map" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-title">New Map</div>
         <div class="mw-modal-field">
@@ -563,10 +570,10 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-new-create">Create</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Confirm modal (unsaved changes, etc.) -->
-    <div id="modal-confirm" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-confirm" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-body" id="modal-confirm-msg"></div>
         <div class="mw-modal-footer">
@@ -574,10 +581,10 @@
           <button class="mw-modal-btn mw-modal-btn-danger" id="modal-confirm-ok">Continue</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Resize Canvas modal -->
-    <div id="modal-resize-canvas" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-resize-canvas" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-title">Resize Canvas</div>
         <div class="mw-modal-row">
@@ -595,10 +602,10 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-resize-canvas-ok">Resize</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Resize Level modal -->
-    <div id="modal-resize-level" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-resize-level" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-title">Resize Level</div>
         <div class="mw-modal-body" id="modal-resize-level-desc"></div>
@@ -611,10 +618,10 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-resize-level-ok">Resize</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Confirm destructive resize modal -->
-    <div id="modal-resize-level-confirm" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-resize-level-confirm" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-body" id="modal-resize-level-confirm-msg"></div>
         <div class="mw-modal-footer">
@@ -622,10 +629,10 @@
           <button class="mw-modal-btn mw-modal-btn-danger" id="modal-resize-level-confirm-ok">Delete &amp; Resize</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Add Level modal -->
-    <div id="modal-add-level" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-add-level" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-title">Add Level</div>
         <div class="mw-modal-field">
@@ -637,10 +644,10 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-add-level-ok">Add</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Delete Level modal -->
-    <div id="modal-delete-level" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-delete-level" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-title">Delete Level</div>
         <div class="mw-modal-body" id="modal-delete-level-msg"></div>
@@ -649,10 +656,10 @@
           <button class="mw-modal-btn mw-modal-btn-danger" id="modal-delete-level-ok">Delete</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Keyboard Shortcuts modal -->
-    <div id="modal-shortcuts" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-shortcuts" class="mw-modal-overlay">
       <div class="mw-modal mw-modal-wide">
         <div class="mw-modal-title">Keyboard Shortcuts</div>
         <div class="shortcuts-grid">
@@ -723,10 +730,10 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-shortcuts-close">Close</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Release Notes modal -->
-    <div id="modal-release-notes" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-release-notes" class="mw-modal-overlay">
       <div class="mw-modal mw-modal-wide">
         <div class="mw-modal-title">Release Notes <span id="release-notes-version" class="release-notes-version-badge"></span></div>
         <div class="mw-modal-body release-notes-body" id="release-notes-body"></div>
@@ -734,10 +741,10 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-release-notes-close">Close</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Claude Settings modal -->
-    <div id="modal-claude-settings" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-claude-settings" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-title">AI Settings</div>
         <div class="claude-settings-intro">
@@ -780,10 +787,10 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="claude-settings-save">Save</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- AI Agent warning modal -->
-    <div id="modal-claude-agent-warning" class="mw-modal-overlay" style="display:none;">
+    <dialog id="modal-claude-agent-warning" class="mw-modal-overlay">
       <div class="mw-modal">
         <div class="mw-modal-title">Enable AI Agent?</div>
         <div class="mw-modal-body">
@@ -795,7 +802,7 @@
           <button class="mw-modal-btn mw-modal-btn-primary" id="modal-claude-warning-enable">Enable</button>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- Keybindings Helper (floating, draggable) -->
     <div id="keybindings-helper" style="display:none;">
@@ -816,7 +823,7 @@
 
   </div>
 
-  <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/editor-api.js"></script>
+  <script type="module" src="js/main.ts"></script>
+  <script type="module" src="js/editor-api.ts"></script>
 </body>
 </html>

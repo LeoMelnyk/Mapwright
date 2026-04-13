@@ -1,5 +1,273 @@
 # Changelog
 
+## v0.10.0
+
+### Incremental Undo/Redo
+
+Undo/redo previously serialized the entire map as JSON on every action and restored it in full on Ctrl+Z, triggering a complete cache rebuild (6–10 seconds on large maps). The system now tracks granular cell-level patches and uses dirty-region information to perform partial cache rebuilds.
+
+- **Patch-aware undo/redo** — `undo()` and `redo()` now call `smartInvalidate()` with exact cell coordinates from patch entries, enabling partial cache rebuilds instead of full redraws
+- **`mutate()` API** — new transaction wrapper that captures cell before/after states as compact patches, handles `smartInvalidate`, `markDirty`, and `notify` in one call; replaces the manual `captureBeforeState → pushUndo → modify → smartInvalidate → markDirty` boilerplate
+- **Metadata-only mutations** — `mutate()` accepts `metaOnly: true` for operations that only touch `metadata` (lights, overlay props, stair links); stores only the metadata diff, and undo rebuilds just the lighting composite layer without touching the cell cache
+- **`pushPatchUndo()` helper** — for tools with drag-accumulation patterns (wall tool), allows pushing a compact patch entry from externally collected before/after states
+- **JSON snapshot diffing** — remaining `pushUndo()` sites (theme editor, level management, file load) now diff old vs new cells on undo to compute a dirty region; falls back to full rebuild only when >30% of cells changed or grid dimensions differ
+- **Tool conversions** — room, door, fill, erase, trim, label, wall, paint (box modes), prop, light, stairs, and bridge tools all converted from full JSON snapshots to compact patches
+- **API conversions** — `cells`, `fills`, `textures`, `labels`, `trims`, `convenience`, `spatial`, `lighting`, `props`, and `stairs-bridges` API modules converted
+
+### Security Hardening
+
+- **WebSocket relay hardened** — player messages validated against a type allowlist with JSON schema checks; `maxPayload` cap (2 MB) and `perMessageDeflate` limits prevent memory exhaustion from malicious clients
+- **Client-side message validation** — DM session now validates inbound message shape (`player:count`, `range:highlight`) before acting on it; malformed payloads are dropped instead of crashing the editor
+- **Reconnect backoff** — WebSocket reconnect uses exponential backoff (1s → 30s, max 12 attempts) instead of a fixed 2-second loop
+- **AI log rotation** — session log capped at 5 MB with `.old` rollover; per-line cap prevents oversized payloads
+- **MCP subprocess buffer cap** — `runProcess` limits stdout/stderr to 8 MB and kills runaway children
+- **Electron navigation guard** — `will-navigate` handler blocks navigation away from localhost; explicit `sandbox: true` on BrowserWindow
+- **taskkill safety** — server shutdown uses `execFileSync` (argv-based) instead of `execSync` (shell string interpolation)
+- **CSP tightened** — `unsafe-inline` removed from `script-src`; inline styles still permitted (`style-src`)
+- **Session password hashing** — DM session passwords are now hashed with scrypt + random salt instead of stored in plain text; comparison uses `crypto.timingSafeEqual`
+- **Session token expiry** — session tokens expire after 1 hour; checked on WebSocket connect and status endpoint
+- **Rate limiting on auth** — `/api/session/auth` rate-limited to 20 attempts per 15-minute window per IP
+- **Error message sanitization** — API error responses no longer leak internal file paths
+- **DM socket cleanup** — reconnecting as DM properly closes the previous socket instead of leaking it
+- **MCP path validation** — file path allowlist uses `path.relative()` instead of string prefix matching, preventing symlink/UNC bypass
+
+### Quality Infrastructure
+
+- **Pre-commit hooks** — husky + lint-staged now runs ESLint `--fix` on staged files before each commit
+- **Render tests in CI** — new `npm run test:render` script + GitHub Actions job; 257 render tests now run on every push
+- **Repo cleanup** — deleted stale `ai-session.log` and `eslint-errors.json` artifacts, removed 6 legacy TypeScript migration scripts from `tools/`
+
+### Render Pipeline
+
+- **Theme normalization** — new `normalizeTheme()` fills in all expected color/numeric keys once at resolve time; downstream renderers no longer need scattered `?? '#ffffff'` fallbacks
+- **Bridge texture IDs centralized** — `BRIDGE_TEXTURE_IDS` moved to `render/constants.ts` as the single source of truth; previously duplicated in `bridges.ts` and `io.ts`
+- **Feature sizing constants centralized** — `DOOR_LENGTH_MULT`, `STAIR_HATCH_MARGIN`, and other border/feature sizing values moved from file-scoped consts to `constants.ts`
+- **Shared polygon geometry** — `pointInPolygon`, `pointOnPolygonEdge`, and `getBridgeCorners` extracted to `util/polygon.ts`; eliminates duplicate implementations between `render/bridges.ts` and `editor/js/stair-geometry.ts`
+- **lighting.ts split** — wall extraction, prop shadow zones, and projected-shadow computation moved to new `lighting-geometry.ts` (1438 → 1157 lines in the main module)
+- **renderFloors parameter cleanup** — 11 positional args replaced with `RenderPhaseParams` + `RenderFloorsOptions` objects
+- **Silent catch fixes** — prop and texture catalog loaders now log full error stacks instead of swallowing context
+
+### Editor
+
+- **notify() re-entrancy guard** — nested `notify()` calls from subscribers are queued and drained after the outer pass finishes, preventing infinite loops
+- **Multi-step mutation rollback** — `shiftCells` and `normalizeMargin` now use a `withRollback()` helper that restores the dungeon snapshot and pops the undo entry if any step throws
+- **Async load error handling** — `loadDungeonJSON` now catches texture-load failures with a user-facing toast instead of silently leaving the loading overlay stuck
+- **Animation loop lifecycle** — `beforeunload` and `visibilitychange` handlers stop/restart the light animation loop on page close or tab background
+- **Typed `window.editorAPI`** — new `EditorAPI` type derived from the assembled api object + `declare global` augmentation; renaming a method now surfaces a type error at the dispatch layer
+- **Direction offsets consolidated** — 12 duplicate `{ north: [-1,0], ... }` definitions replaced by a single `CARDINAL_OFFSETS` export from `util/grid.ts`
+- **Structured errors in dispatch** — `claude-tools.ts` now preserves `ApiValidationError.code` and `.context` when surfacing errors to the LLM, plus uses a declarative `TOOL_REQUIRED_FIELDS` table for input validation
+- **`ApiValidationError` isolated** — moved to its own zero-dependency `api/errors.ts` file so dispatch code can import it without pulling in tool instances or the render pipeline
+
+### Tests
+
+- 21 new tests: polygon math helpers, notify re-entrancy guard, `withRollback` semantics, and first-ever panel smoke tests
+- Test count: 942 unit + 257 render (up from 921 + 257)
+
+### Universal VTT Export
+
+Maps can now be exported as `.dd2vtt` files for use in Foundry VTT, Roll20, and other virtual tabletop platforms.
+
+- **File > Export to Universal VTT** in the toolbar
+- Embeds a full-quality PNG render alongside line-of-sight walls, door portals, and lights
+- Doors exported as portals; invisible walls/doors excluded from line-of-sight data
+- Compatible with Foundry VTT (via Universal Battlemap Import module)
+
+### Editor Loading Overlay
+
+- Loading spinner covers the canvas while textures and catalogs load on startup and file open
+- Prevents interacting with a half-loaded map
+
+### Stair & Bridge Improvements
+
+- **Stair hover highlight** — placed stairs now highlight on mouse hover (same as bridges)
+- **Stair shape preview** — ghost outline correctly shows rectangle, trapezoid, or triangle for all placement angles
+- **Angled bridge/stair fix** — fractional cell indices from angled placement no longer cause crashes
+
+### File Load Validation
+
+- Corrupted or hand-edited `.mapwright` files are now checked on load for structural issues (invalid edge values, unknown cell properties, malformed metadata)
+- Warnings shown via toast notification; files are never rejected
+
+### Player Session Redesign
+
+- **Session password** — DMs can set an optional password before starting a session; players must enter it to join
+- **Redesigned session panel** — action-first layout with the start/stop button at top, grouped "Share with Players" and "Fog of War" sections, and a Yes/No toggle for DM View
+- **Password persistence** — saved in editor settings so DMs don't have to re-enter it each session
+- **Obfuscated sharing** — both the player link and password are masked with copy buttons (same pattern as the IP address)
+- **Player password prompt** — players see a styled login screen when joining a password-protected session
+
+### Claude Map-Building Improvements
+
+A pass over the editor automation API to make Claude faster and more reliable when building maps for you in chat. You should notice:
+- Fewer "stuck" moments where Claude can't figure out why a command failed and re-asks itself
+- Cleaner finished maps — Claude can audit its own work and fix conflicts before handing it over
+- L-shaped, U-shaped, and other irregular rooms work correctly with auto-furnishing
+
+#### Smarter feedback when something goes wrong
+
+- **Every command failure now explains itself** — when Claude tries to place a door on a wall that doesn't exist, or a prop in a cell that's already occupied, it gets a structured reason ("OUT_OF_BOUNDS", "OVERLAPS_PROP", etc.) plus the relevant context, instead of a generic error string. Cuts down on Claude getting confused mid-build.
+- **Bulk placement reports what was skipped and why** — when Claude scatters props or fills a wall, the result now includes every position that didn't take a prop along with the reason ("DOOR_HERE", "OUT_OF_ROOM", "OVERLAPS_PROP"). No more silent gaps in furnishings.
+
+#### Dry-run before committing
+
+- **Validate command batches without applying them** — Claude can rehearse a sequence of edits and see which ones would fail, without actually changing the map. Shows you a working preview before any state changes happen.
+- **Per-command "what would this do?" check** — Claude can ask the editor to simulate a single command and report the result before committing.
+
+#### Build checkpoints and transactions
+
+- **Named checkpoints** — Claude can mark "after walls", "after textures", "after props" and roll back to any of them if a phase doesn't look right. Replaces fragile counter-based undo tracking; checkpoints reset automatically when you open a new map.
+- **All-or-nothing batches** — when Claude runs a transaction, the whole batch either applies cleanly or rolls back completely. No more half-built maps left behind by partial failures.
+
+#### Map auditing and inspection
+
+- **Conflict scan** — Claude can run a single audit that flags blocked doors, props blocking door approaches, unreachable rooms, lights placed in the void, and rooms that are mostly dark. Lets it clean up its own mistakes before showing you the result.
+- **Lighting coverage check** — quick estimate of which cells fall below a brightness threshold per room; surfaces "I forgot to light this room" gaps.
+- **Room summary in one call** — Claude can ask "tell me everything about room A1" and get bounds, cell count, props inside, fills, doors, neighboring rooms, and which lights reach it — all at once, instead of stitching together five separate queries.
+- **Cell-level region inspection** — structured dump of every cell in a rectangle (walls, fills, props, textures, lights). Replaces dozens of individual cell lookups.
+- **ASCII map preview** — Claude can ask for a text-art rendering of a region for quick sanity checks without the cost of a full screenshot.
+
+#### Furnishing and bulk operations
+
+- **Auto-furnish a room by purpose** — Claude can populate a labeled room based on its role ("library", "throne-room", "armory") in one call. Picks props from the catalog whose metadata says they belong there, places a centerpiece + wall props + scattered floor decorations. Density is tunable (sparse, normal, dense).
+- **Multi-room furnishing brief** — apply auto-furnish to many rooms at once with per-room role and density.
+- **Clone a room to a new location** — copies cells, walls, fills, textures, props, and lights to a new offset (with optional rename). Useful for symmetric layouts.
+- **Mirror or rotate a region** — flip a rectangle horizontally/vertically, or rotate a square region 90/180/270 degrees. Walls are remapped correctly.
+- **Bulk swap props or textures** — replace every "wooden chair" with "stone chair" across the map (or within a region) in one call.
+
+#### Catalog browsing
+
+- **Search the prop catalog with filters** — Claude can find props by placement, room type, footprint size, name pattern, or category, instead of dumping the whole catalog and grepping. Speeds up "what props would suit this kind of room?" decisions.
+- **Find unlabelled rooms** — single call that flags rooms with no label, useful as a final pass before export.
+- **List enumerations** — full inventories of doors, walls, and fills on the map.
+
+#### Annotated screenshots
+
+- **Highlight overlays on saved screenshots** — Claude (or you, via the CLI) can mark specific cells on a screenshot with boxes, dots, crosses, and labels in chosen colors. Useful for confirming "is this the cell I meant?" without juggling two images.
+
+### Render Pipeline Polish
+
+- **Wait-for-render helper** — Claude can wait until the lighting recompute settles after placing many lights, before screenshotting. Eliminates a class of "the screenshot was taken too early and lighting looks wrong" issues.
+
+### Structured API Errors
+
+API errors now include a machine-readable `code` and `context` object alongside the error message on **every** API method (was partial before — most validation errors now follow this pattern). Example: `{ code: "OUT_OF_BOUNDS", context: { row: 5, col: 99, maxRows: 20, maxCols: 30 } }`. Makes automated error handling and self-correction much more reliable.
+
+- **`getRoomBounds`** and **`findWallBetween`** now return `{ success: false, error }` instead of `null` when a room is not found — consistent with all other API methods
+- **`loadMap`** now returns map info alongside `{ success: true }`, saving a follow-up query after every map load
+
+### Claude Map-Building Improvements — Round 2
+
+A second pass focused on cutting Claude's overhead per call, raising the quality of auto-furnished rooms, and making it easier for Claude to verify its own work without paying for screenshots every time.
+
+#### Persistent editor session (much faster)
+
+- **Browser stays open between Claude's commands** — previously every batch from Claude spawned a fresh browser, navigated to the editor, and tore it down on exit. The MCP integration now keeps a long-running browser session and forwards each command batch through it. Typical multi-phase build is several times faster end-to-end and feels noticeably more responsive
+- **Idle cleanup** — the persistent session shuts itself down after 10 minutes of inactivity, then re-spawns on demand
+- **Per-command progress streaming** — when Claude clients support it (via the standard MCP `progressToken`), the editor now streams per-command progress events while a batch runs. You can watch a 60-command build land one step at a time instead of getting one final blob
+- **Pause-for-review checkpoints** — Claude can drop a `pauseForReview` step into the middle of a batch to give you time to inspect a phase in the visible browser before the next phase runs
+
+#### Smarter furnishing
+
+- **Plan-then-commit auto-furnish** — Claude can now propose a furnishing plan (every prop with role, position, facing, and a 1-line reason) and inspect or edit it before committing. Replaces the old "call autofurnish, hope for the best" flow. The legacy `autofurnish` API still works
+- **Honors prop clustering metadata** — secondary prop selection is now biased toward props that the catalog tags as belonging together (e.g., `pillar` clusters with `throne`, `anvil` with `forge`). Fewer mismatched assortments
+- **Door clearance is preserved** — auto-furnish no longer places props in cells immediately in front of doors
+- **Light budget is enforced** — auto-furnish caps the number of light-emitting props per room to prevent rooms from being blown out by stacked torches and braziers
+- **Symmetric flanking** — formal rooms (throne rooms, temples) now get bilateral pairs of pillars or braziers placed automatically when density is normal or dense
+
+#### Relational placement helpers
+
+- **`placeRelative(row, col, direction, offset, propType)`** — place a prop a given number of cells from an anchor in a cardinal direction. No more manual coordinate math for "put a candle two cells west of the throne"
+- **`placeSymmetric(roomLabel, axis, row, col, propType, facing)`** — place a pair of props mirrored across a room's centerline, with facing automatically mirrored on the other side
+- **`placeFlanking(roomLabel, anchorPropType, flankPropType)`** — find an existing prop in a room and place flanks on either side, perpendicular to its facing
+
+#### Light-emitting prop awareness
+
+- **`placeProp` now reports auto-added lights** — props like braziers, forges, hearths, chandeliers, and torch-sconces have always emitted their own light when placed. The result now surfaces a `lightsAdded` array so Claude knows not to double-add a `placeLight` at the same cell
+- **`listLightEmittingProps()`** — lists every prop in the catalog that brings its own light, with the preset and offset
+
+#### New verification tools (without screenshots)
+
+- **`describeMap()`** — compact semantic snapshot of every labeled room: ASCII shape, numbered prop sidecar with coordinates, doors, fills, lights, textures, adjacent rooms. Uses far less context than a screenshot for routine "did things land where I think they did?" checks
+- **`critiqueMap()`** — runs design heuristics across the whole map: rooms with no props, rooms with no centerpiece, blown-out lighting, light-emitting props with no light, overcrowded rooms, doors blocked by props, homogeneous prop usage. Replaces several manual review passes with one call
+
+#### Undo summary
+
+- **`diffFromCheckpoint(name)`** — summarize what `rollback(name)` would throw away. Returns counts by category (props added/removed, fills added, walls changed, doors added, lights added, etc.) plus per-entry labels. Makes rollback decisions much less scary
+
+#### API discovery
+
+- **`apiSearch(query, options)`** — search the editor API by keyword and category, returns lightweight method metadata. Avoids loading the full ~250-method reference for routine work
+- **`apiDetails(methodName)`** and **`apiCategories()`** — drill into a single method or list every category with method counts
+
+#### Visual prop browsing
+
+- **`getPropThumbnail(name)`** — cached small PNG of any prop, rendered on demand. Useful for visual prop picking when Claude is choosing between several similar candidates
+- **`getPropThumbnails(names)`** — batch fetch
+- **`prewarmPropThumbnails()`** — pre-render the entire prop catalog into the cache (useful before a "show me 50 props" sweep)
+- **`searchPropsWithThumbnails(filter)`** — combined `searchProps` + thumbnail in one call
+
+### Claude Map-Building Improvements — Round 3
+
+A third pass focused on how Claude *reasons* about rooms — moving from preloaded prose guides to a queryable palette library, plus convenience APIs that cut coordinate math and visual-verification overhead.
+
+#### Room vocabulary library
+
+- **160 queryable room-type palettes** live in `mapwright/src/rooms/` across 10 categories (dungeon, residential, sacred, wilderness, industrial, urban, underground, naval, planar, outdoor). Each spec is a *palette* — multiple primary/secondary/scatter prop options plus story prompts — so two rooms of the same type look meaningfully different because Claude composes from the palette rather than stamping a template. Covers the variations the old prose library lacked: cabin-hunters vs cabin-trapper vs cabin-witch vs cabin-abandoned; house-small vs house-medium-artisan vs mansion-grand-hall; etc.
+- **`listRoomTypes`** / **`searchRoomVocab`** / **`getRoomVocab`** / **`suggestRoomType`** — four new API methods for discovering and fetching room palettes on demand. Claude no longer preloads 340+ lines of prose room specs; fetches only the types used in the current build.
+- **Dynamic manifest** — new `/api/rooms/manifest` endpoint scans `src/rooms/` at request time, so adding a new `.room.json` spec is picked up without a rebuild.
+- **DESIGN.md restructured** — the Room Semantic Library prose section is replaced by a pointer to the vocab API. Universal Spatial Rules, prop density guide, shape vocabulary, fill usage patterns, and anti-patterns stay in DESIGN.md.
+
+#### Shape editing without coordinate math
+
+- **`trimCorner(label, cornerOrCell, size, options)`** — label-based single-corner trim. Accepts `"nw"`/`"ne"`/`"sw"`/`"se"` OR a `[row, col]` cell coordinate (auto-detects the nearest convex corner). Works on irregular rooms (L, U, +, polygon) because it resolves the corner from the room's actual cell set, not a bounding box. Replaces the tip/extent math of `createTrim` for the common case.
+- **`previewShape(label)`** — ASCII render of a labeled room plus a 1-cell margin. Cheap shape verification after trim/round/merge operations without taking a screenshot.
+
+#### Intent-driven lighting check
+
+- **Unlit rooms are now valid** — `findConflicts` reports mostly-dark rooms as `info` rather than `warning`, since caves, ruins, sealed crypts, and abandoned spaces are often dark on purpose. New `unlitRooms: [...]` option silences specific labels; `skipDarkCheck: true` disables the check entirely.
+- **Room vocab carries lighting intent** — each spec includes `lighting_notes.ambient_is: "required" | "optional" | "discouraged"` so authors can signal whether a room type is meant to be lit. Claude reads this when deciding whether to place light sources.
+
+#### MCP inline images
+
+- **Prop thumbnails and screenshots now render inline** in MCP clients. The Puppeteer bridge extracts `dataUrl` strings from command results and the MCP server surfaces them as `image` content blocks instead of stringifying base64 into the text response. Vision-capable clients (Claude etc.) can actually see prop thumbnails when picking from `searchPropsWithThumbnails`.
+- **`inline_images` tool parameter** — opt-in flag to also surface `export_png` output inline (off by default — HQ exports are large).
+
+### Bug Fixes
+
+- **Auto-furnish now respects its own light cap** — the `lightCap` option was being ignored because the candidate list dropped the `lights` field. Light-emitting props could be placed beyond the configured budget, leading to rooms with three braziers when one was asked for. Fixed
+- **Prop thumbnail cache no longer collides between sizes** — requesting the same prop at two different sizes used to evict each other from the cache. Cache key now includes the requested size
+
+### Breaking Changes
+
+- **Removed `mapwright/room-templates/*.json`** — the seven JSON template files (throne-room, alchemist-lab, forge, crypt, temple, wizard-sanctum, prison-block) are gone. They were reference designs used as inspiration for AI-generated rooms; in practice they anchored Claude toward producing rooms that all looked alike. Same room-type guidance now lives in `mapwright/DESIGN.md` under "Room Semantic Library", which describes prop palettes and density without prescribing exact layouts. If you were running these templates standalone, the design notes for each room type are still in DESIGN.md
+
+### Electron Fixes
+
+- Server process tree is now properly killed on app close (Windows)
+- Renderer console messages forwarded to terminal
+- Vite watch mode runs automatically alongside Electron — code changes rebuild instantly without restarting the app
+
+### Security Hardening
+
+- **Session authentication** — DM connections use a server-generated token; player connections validate against an optional password. Prevents unauthorized users from joining LAN sessions
+- Path traversal protection on file open and theme endpoints
+- SSRF protection on Ollama proxy endpoints (localhost only)
+- Content Security Policy, `X-Content-Type-Options`, and `X-Frame-Options` headers added
+
+### Under the Hood
+
+- **Full TypeScript migration** — entire codebase converted to strict TypeScript with zero type errors and zero lint suppressions
+- **Vite build system** — faster dev server with hot module replacement; production builds in ~300ms
+- **Test suite** — expanded from 734 to 1,111+ tests, now also type-checked via TypeScript
+- **Codebase refactoring** — four largest files split into focused modules for maintainability
+- **Cell type safety** — removed loose index signature from the Cell type; all cell property access is now compile-time checked
+- **Hybrid undo system** — small edits store compact cell-level patches instead of full JSON snapshots, with periodic keyframes; reduces undo memory usage by up to 95%
+- **Transaction helper** — new `mutate()` function wraps the undo/invalidate/notify ceremony, reducing boilerplate and preventing missed steps in state mutations
+- **Selective subscriptions** — `notify()` now supports topic filtering so UI panels only re-render when relevant state changes
+- **~30 type cast reductions** — replaced `as unknown` casts with proper type aliases, type guards, and narrowed interfaces
+
+---
+
 ## v0.9.1
 
 ### Grid Customization

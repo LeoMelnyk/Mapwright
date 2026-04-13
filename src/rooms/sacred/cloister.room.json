@@ -1,0 +1,64 @@
+{
+  "name": "cloister",
+  "category": "sacred",
+  "tags": ["sacred", "monastic", "large", "contemplative", "open", "garden"],
+  "summary": "A covered walk surrounding an open garth — a square or rectangular walkway of columns enclosing a small garden or well. Monks walk here in contemplation; plants, silence, and light shape the space.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [11, 11],
+    "aspect_ratio": "square — the enclosed garth is the heart, the walk the frame"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03", "polyhaven/marble_floor"],
+    "accent": {
+      "purpose": "the central garth — grass, dirt, or gravel",
+      "options": ["polyhaven/dirt_floor", "polyhaven/grass_medium"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["well"], "surrounded_by": ["bench", "bench"], "note": "a central well flanked by stone benches" },
+    { "props": ["statue"], "surrounded_by": ["moss-patch", "moss-patch"], "note": "a founder's effigy in the garth amid planted moss" },
+    { "props": ["holy-font"], "surrounded_by": ["moss-patch", "mushroom-cluster"], "note": "an open-air font amid wild-growing greenery" },
+    { "props": ["tree-small"], "surrounded_by": ["bench", "rock-cluster"], "note": "a single sacred tree in the center of the garth" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "stone-column",
+    "bench",
+    "well",
+    "statue",
+    "moss-patch",
+    "mushroom-cluster",
+    "rock-cluster",
+    "tree-small",
+    "lantern-post"
+  ],
+  "scatter_palette": [
+    "moss-patch",
+    "mushroom",
+    "rock-cluster",
+    "book",
+    "carpet-runner"
+  ],
+  "shape_guidance": {
+    "preferred": ["square-with-pillared-walkway", "rectangular-cloister"],
+    "discouraged": ["irregular", "cramped", "single-axis"]
+  },
+  "story_prompts": [
+    "morning meditation — monks walking the perimeter in silence, garth unoccupied",
+    "a novice tending the garth — tools left against a pillar, work half-done",
+    "rain-soaked — the garth a shallow pool, the walkway glistening",
+    "a buried secret — one flagstone in the walkway lifted, something interred beneath",
+    "a quiet conspiracy — two figures stopped by the well, speaking too low to be heard"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "natural daylight in the garth (0.6+), dimmer shade beneath the walkway — a clear inside/outside contrast",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "the walkway is continuous — you can circle the whole garth without interruption",
+    "the garth is open to the sky; never roof it over",
+    "avoid clutter in the walkway — monks must be able to walk single-file or in procession"
+  ]
+}

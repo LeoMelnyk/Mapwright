@@ -1,0 +1,75 @@
+{
+  "name": "noble-solar",
+  "category": "residential",
+  "tags": ["castle", "residential", "medium", "solar", "private", "family-room", "upper-floor"],
+  "summary": "The solar — a noble family's private upper chamber above the great hall. The warm, sunlit room where they actually live, away from court.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [9, 11],
+    "aspect_ratio": "squarish, with big windows on one wall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/parquet_floor", "polyhaven/flagstone_polished"],
+    "accent": {
+      "purpose": "window-side carpet",
+      "options": ["polyhaven/carpet_oriental", "polyhaven/carpet_royal"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["window-seat"], "surrounded_by": ["embroidery-frame", "sewing-basket", "small-table"], "note": "ladies' solar — sewing and needlework by the window, main use of the room" },
+    { "props": ["fireplace"], "surrounded_by": ["armchair", "armchair", "small-table"], "note": "family-hour solar — the lord and lady sit together, reading and talking" },
+    { "props": ["tea-table"], "surrounded_by": ["chair", "chair", "chair", "chair"], "note": "games and refreshment solar — cards or chess, private from the hall" },
+    { "props": ["harp-floor"], "surrounded_by": ["chair", "chair", "floor-candelabra"], "note": "musical solar — the lady plays for her household, small audience seating" },
+    { "props": ["writing-desk"], "surrounded_by": ["bookshelf", "armchair"], "note": "the lady's study — a private desk in the family room, correspondence central" }
+  ],
+  "secondary_palette": [
+    "fireplace",
+    "armchair",
+    "window-seat",
+    "embroidery-frame",
+    "sewing-basket",
+    "tea-table",
+    "small-table",
+    "harp-floor",
+    "writing-desk",
+    "bookshelf",
+    "carpet",
+    "tapestry",
+    "birdcage",
+    "spinning-wheel"
+  ],
+  "scatter_palette": [
+    "embroidery-hoop",
+    "book-open",
+    "tea-service",
+    "chess-set",
+    "fresh-flowers",
+    "letter-stack",
+    "lapdog-cushion",
+    "fan",
+    "miniature-portrait",
+    "yarn-basket"
+  ],
+  "shape_guidance": {
+    "preferred": ["square-with-window-bay", "rectangle-with-fireplace-wall", "L-with-alcove"],
+    "discouraged": ["dark-interior-no-windows", "long-processional", "ballroom-scale"]
+  },
+  "story_prompts": [
+    "the lady sits at her frame — afternoon light, everyone else is elsewhere, this is her hour",
+    "a family gathering — the children on the rug, the parents by the fire, a rare unguarded moment",
+    "a secret meeting — the solar is private in a way no other room is; plots ferment here",
+    "the solar in summer — windows open, embroidery abandoned, the family in the garden below",
+    "the widowed lady has moved her whole life into the solar — bed rolled in, she will not leave"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright warm (0.55-0.7) — the solar is named for sun, let light in",
+    "ambient_is": "required",
+    "common_sources": ["sun-window", "fireplace", "candelabra", "floor-candelabra"]
+  },
+  "anti_patterns": [
+    "the solar is SUNNY — big windows are the defining feature, even if not prop-placeable",
+    "differentiate from the bedchamber — no bed dominant, no garderobe, activities matter",
+    "this is the family's real room — comfortable, slightly cluttered with hobbies, lived-in",
+    "not a formal reception room — no symmetry demands, no courtiers, no throne"
+  ]
+}

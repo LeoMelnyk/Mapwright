@@ -1,0 +1,70 @@
+{
+  "name": "servants-kitchen",
+  "category": "dungeon",
+  "tags": ["dungeon", "utility", "working", "warm", "medium"],
+  "summary": "Where the meals are prepared — a hearth or oven, a prep table, hanging pots, the clutter of active cooking.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangular, often with a clear cooking wall and a prep floor"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_polished",
+      "polyhaven/brick_floor"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["hearth", "kitchen-table"], "note": "hearth-cooking kitchen — fire on one wall, prep in the center" },
+    { "props": ["oven", "kitchen-table", "pot-rack"], "note": "baker-cook's kitchen — oven dominates, table beside" },
+    { "props": ["cooking-spit", "hearth"], "surrounded_by": ["cauldron-large", "pot-rack"], "note": "roasting kitchen — whole animals over flame" },
+    { "props": ["kitchen-table", "chopping-block", "cauldron-large"], "note": "stew-kitchen — table, block, and a pot always on" },
+    { "props": ["oven", "oven", "kitchen-table"], "note": "large-scale kitchen feeding a garrison — multiple ovens" }
+  ],
+  "secondary_palette": [
+    "pot-rack",
+    "cauldron-large",
+    "cauldron-fire",
+    "chopping-block",
+    "cooking-spit",
+    "spice-shelf",
+    "cabinet",
+    "barrel",
+    "barrel-stack",
+    "keg",
+    "crate",
+    "trough",
+    "well"
+  ],
+  "scatter_palette": [
+    "knife-on-block",
+    "herb-bundle",
+    "onion-braid",
+    "salt-sack",
+    "broken-plate",
+    "flour-bag",
+    "rat"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-shape-with-alcove", "square"],
+    "discouraged": ["round", "narrow-corridor-like"]
+  },
+  "story_prompts": [
+    "mid-prep — meat on the block, onions sliced, the cook briefly stepped away",
+    "burnt-out kitchen after a fire — soot walls, a collapsed oven",
+    "cultist feast-kitchen preparing something wrong",
+    "abandoned servants' kitchen, pots still hanging, dust on everything",
+    "orc kitchen — bones, filth, a still-smoking fire"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm firelight (0.35-0.5)",
+    "ambient_is": "required",
+    "common_sources": ["hearth", "oven", "cauldron-fire", "wall-lantern", "torch-sconce"]
+  },
+  "anti_patterns": [
+    "don't center the oven — it belongs against a wall with chimney access",
+    "don't forget clutter — a working kitchen is never tidy",
+    "avoid fine dining furniture; this is a service room, not a dining room"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "thieves-guild-hideout",
+  "category": "urban",
+  "tags": ["urban", "underground", "shady", "medium", "criminal"],
+  "summary": "A thieves' guild den — mismatched furniture, a planning table with a city map, a fence's trading counter, loot stashed in chests. Multiple exits (door, trapdoor, shuttered window). Dimly lit, watchful.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle or irregular — hideouts aren't designed, they're occupied"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "worn footpaths, hidden chalk-marks",
+      "options": ["polyhaven/dirt_floor", "polyhaven/wooden_planks"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["map-table"], "surrounded_by": ["chair", "chest", "weapon-rack"], "note": "planning-forward — central map table for jobs" },
+    { "props": ["counter"], "surrounded_by": ["chest-large", "chest", "scale"], "note": "fence-forward — trading counter where loot is appraised" },
+    { "props": ["long-table"], "surrounded_by": ["chair", "bench", "weapon-rack"], "note": "mess-hall style — guild hangout, long table for meals and meetings" }
+  ],
+  "secondary_palette": [
+    "map-table",
+    "long-table",
+    "counter",
+    "chest-large",
+    "chest",
+    "weapon-rack",
+    "cabinet",
+    "bookshelf",
+    "fireplace",
+    "chair",
+    "bench",
+    "scale",
+    "trapdoor"
+  ],
+  "scatter_palette": [
+    "lockpicks",
+    "dagger-loose",
+    "coin-stack",
+    "jewelry-loose",
+    "mask-cloth",
+    "rope-coil",
+    "playing-cards",
+    "tankard",
+    "blood-smear",
+    "candle",
+    "chalk-mark"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular", "L-with-multiple-exits", "cellar"],
+    "discouraged": ["symmetric", "formal"]
+  },
+  "story_prompts": [
+    "heist planning — map covered in chalk, members arguing over approaches",
+    "fence at work — stolen goods sorted into piles, ledger updated quietly",
+    "guild betrayal — one thief bound in a chair, others arguing about fate",
+    "raid — guards breaking down the door, thieves scrambling for the trapdoor"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low shadowy light (0.25-0.35) — always a reason to hide",
+    "ambient_is": "optional",
+    "common_sources": ["candle", "lantern-post", "fireplace"]
+  },
+  "anti_patterns": [
+    "always at least two exits — trapdoor, back door, or secret passage implied",
+    "don't make it orderly — mismatched, patched, functional-over-beautiful",
+    "keep the fence's counter distinct from the planning table — different functions"
+  ]
+}

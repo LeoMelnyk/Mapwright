@@ -1,0 +1,70 @@
+{
+  "name": "shadowfell-mausoleum",
+  "category": "planar",
+  "tags": ["planar", "shadowfell", "sacred", "undead", "exotic", "formal", "bleak"],
+  "summary": "A tomb on the plane of shadow where grief has weight. Color has drained from stone and wood alike; the mist pools low and never lifts.",
+  "size_guidance": {
+    "min": [8, 12],
+    "typical": [10, 14],
+    "aspect_ratio": "2:1 processional — sarcophagi or coffins in rows"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/pale_stone_tile",
+      "polyhaven/ashen_marble",
+      "polyhaven/cracked_flagstone"
+    ],
+    "accent": {
+      "purpose": "central aisle or inset grave-seal",
+      "options": ["polyhaven/worn_basalt", "polyhaven/grave_inlay"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["sarcophagus-shadow"], "surrounded_by": ["shadow-tree", "shadow-tree"], "note": "a single honored dead, flanked by pale trees" },
+    { "props": ["coffin", "coffin", "coffin"], "surrounded_by": ["grave-marker", "grave-marker"], "note": "rows of the family dead" },
+    { "props": ["obelisk-memorial"], "surrounded_by": ["sarcophagus", "sarcophagus"], "note": "a monument the tomb was built around" },
+    { "props": ["necrotic-altar"], "surrounded_by": ["reliquary-bone", "reliquary-bone"], "note": "Raven Queen or death-cult shrine" }
+  ],
+  "secondary_palette": [
+    "sarcophagus",
+    "coffin",
+    "grave-marker",
+    "grave-marker-large",
+    "obelisk-memorial",
+    "shadow-tree",
+    "pillar",
+    "reliquary-bone",
+    "mist-pool"
+  ],
+  "scatter_palette": [
+    "skeleton",
+    "bone-pile",
+    "withered-flowers",
+    "candle-guttered",
+    "cobweb-heavy",
+    "shroud-torn",
+    "mourning-bell"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "cruciform", "octagon"],
+    "discouraged": ["square-small", "round-bright"]
+  },
+  "story_prompts": [
+    "a Raven Queen priestess conducts a silent vigil; the air itself grieves",
+    "something shifted inside a sarcophagus — the lid is off by a finger's width",
+    "empty, mist-filled — a grave-bell tolls though no hand pulls it",
+    "a mourner from the material plane is trapped here, slowly fading into shadow",
+    "the obelisk is cracked; shadow leaks out in slow tendrils"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.15-0.25) with pale blue-grey ambient color — cold and leached",
+    "ambient_is": "required",
+    "common_sources": ["candle-guttered", "mist-pool", "mourning-bell"]
+  },
+  "anti_patterns": [
+    "no warm colors — everything is grey, pale blue, bone-white, or drained",
+    "never place fire sources with vigor — candles are always guttering, flames always low",
+    "mist should always pool at the floor, not hang in sheets",
+    "trees here are dead-looking and pale, never green — use shadow-tree or dead-tree"
+  ]
+}

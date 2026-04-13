@@ -1,6 +1,6 @@
 {
   "name": "mapwright-mcp",
-  "version": "1.0.0",
+  "version": "0.10.0",
   "description": "MCP server for the Mapwright dungeon editor — exposes the full editor API to Claude and other MCP clients",
   "type": "module",
   "main": "server.js",

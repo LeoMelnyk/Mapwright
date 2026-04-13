@@ -1,0 +1,669 @@
+import type { Bridge, CellGrid, Direction, EdgeValue, Light, Metadata, Stairs } from '../../types.js';
+import { getEdge, deleteEdge, CARDINAL_OFFSETS } from '../../util/index.js';
+// Convert a One-Page-Dungeon JSON export into our internal dungeon format.
+// OPD format: { rects, doors, notes, columns, water, title, story, version }
+//
+// Outputs at resolution=2 (half-cell grid) and formatVersion=4 natively,
+// bypassing the migration pipeline entirely.
+//
+// OPD door types (from watabou source):
+//   0 = connection     1 = normal door    2 = archway       3 = stairs
+//   4 = portcullis     5 = special        6 = secret        7 = door (alt)
+//   8 = long stairs    9 = steps (level change)
+
+import { computeTrimCells } from '../../util/trim-geometry.js';
+
+/** Loose type for One-Page-Dungeon JSON export. */
+interface OpdJson {
+  rects: { x: number; y: number; w: number; h: number; ending?: boolean; rotunda?: boolean }[];
+  doors: { x: number; y: number; dir: { x: number; y: number }; type: number }[];
+  notes: { pos: { x: number; y: number }; text: string; ref: string }[];
+  columns?: { x: number; y: number }[];
+  water?: { x: number; y: number; w: number; h: number }[];
+  title?: string;
+  story?: string;
+  version?: number;
+  [key: string]: unknown;
+}
+
+const RES = 2; // half-cell resolution: each OPD cell → 2×2 subcells
+const FORMAT_VERSION = 4; // current format (half-cell + per-cell arcs)
+
+/**
+ * Classify an OPD door type.
+ * Returns "door", "secret", "open", or "stairs".
+ */
+function classifyDoor(type: number) {
+  switch (type) {
+    case 0:
+      return 'open'; // empty / open passage
+    case 2:
+      return 'open'; // archway
+    case 3:
+      return 'stairs'; // staircase
+    case 8:
+      return 'stairs'; // long stairs
+    case 9:
+      return 'stairs'; // steps / level change
+    case 6:
+      return 'secret'; // secret door
+    default:
+      return 'door'; // 1=normal, 4=portcullis, 5=special, 7=barred
+  }
+}
+
+/**
+ * Convert OPD direction {x, y} to our cardinal direction names
+ * and the reciprocal direction for the neighbouring cell.
+ */
+function dirToCardinal(dir: { x: number; y: number }) {
+  if (dir.x === 1) return { self: 'east', reciprocal: 'west' };
+  if (dir.x === -1) return { self: 'west', reciprocal: 'east' };
+  if (dir.y === 1) return { self: 'south', reciprocal: 'north' };
+  if (dir.y === -1) return { self: 'north', reciprocal: 'south' };
+  return null;
+}
+
+/**
+ * Build a stair triangle (3 points in grid-corner coords) for a cell
+ * at (row, col) with the stair going in direction dir.
+ * Coordinates are in the 2× internal grid.
+ *
+ * P1→P2 = base edge (entry side), P3 = midpoint of the far edge.
+ * The triangle tapers toward the direction of travel, matching OPD's
+ * directional stair arrows.
+ */
+function buildStairPoints(row: number, col: number, dir: { x: number; y: number }) {
+  // Grid-corner coords: cell (r,c) has corners (r,c), (r,c+1), (r+1,c), (r+1,c+1).
+  // The base edge is the side the stair enters FROM (opposite to dir).
+  // P3 is the midpoint of the far edge so classifyStairShape() → triangle.
+  // These coordinates are at 2× scale (each OPD cell = 2 subcells).
+  const w = RES,
+    h = RES; // stair spans the full 2×2 block
+  if (dir.y === -1) {
+    // Stair goes north: base = south edge, point = north midpoint
+    return [
+      [row + h, col],
+      [row + h, col + w],
+      [row, col + w / 2],
+    ];
+  }
+  if (dir.y === 1) {
+    // Stair goes south: base = north edge, point = south midpoint
+    return [
+      [row, col + w],
+      [row, col],
+      [row + h, col + w / 2],
+    ];
+  }
+  if (dir.x === 1) {
+    // Stair goes east: base = west edge, point = east midpoint
+    return [
+      [row, col],
+      [row + h, col],
+      [row + h / 2, col + w],
+    ];
+  }
+  if (dir.x === -1) {
+    // Stair goes west: base = east edge, point = west midpoint
+    return [
+      [row + h, col + w],
+      [row, col + w],
+      [row + h / 2, col],
+    ];
+  }
+  return null;
+}
+
+// ── Subcell helpers ──────────────────────────────────────────────────────────
+
+/** Set a wall/door on both subcells spanning one edge of a 2×2 block. */
+function setEdge(cells: CellGrid, r: number, c: number, direction: string, value: EdgeValue) {
+  const tl = cells[r]?.[c],
+    tr = cells[r]?.[c + 1];
+  const bl = cells[r + 1]?.[c],
+    br = cells[r + 1]?.[c + 1];
+  switch (direction) {
+    case 'north':
+      if (tl) tl.north = value;
+      if (tr) tr.north = value;
+      break;
+    case 'south':
+      if (bl) bl.south = value;
+      if (br) br.south = value;
+      break;
+    case 'west':
+      if (tl) tl.west = value;
+      if (bl) bl.west = value;
+      break;
+    case 'east':
+      if (tr) tr.east = value;
+      if (br) br.east = value;
+      break;
+  }
+}
+
+/** Remove a wall/door from both subcells spanning one edge of a 2×2 block. */
+function clearEdge(cells: CellGrid, r: number, c: number, direction: string) {
+  const tl = cells[r]?.[c],
+    tr = cells[r]?.[c + 1];
+  const bl = cells[r + 1]?.[c],
+    br = cells[r + 1]?.[c + 1];
+  switch (direction) {
+    case 'north':
+      if (tl) delete tl.north;
+      if (tr) delete tr.north;
+      break;
+    case 'south':
+      if (bl) delete bl.south;
+      if (br) delete br.south;
+      break;
+    case 'west':
+      if (tl) delete tl.west;
+      if (bl) delete bl.west;
+      break;
+    case 'east':
+      if (tr) delete tr.east;
+      if (br) delete br.east;
+      break;
+  }
+}
+
+/** Set a door at the internal subcell boundary (center of a 2×2 block). */
+function setCenterDoor(cells: CellGrid, r: number, c: number, axis: string, value: EdgeValue) {
+  const tl = cells[r]?.[c],
+    tr = cells[r]?.[c + 1];
+  const bl = cells[r + 1]?.[c],
+    br = cells[r + 1]?.[c + 1];
+  if (axis === 'ew') {
+    if (tl) tl.east = value;
+    if (tr) tr.west = value;
+    if (bl) bl.east = value;
+    if (br) br.west = value;
+  } else {
+    if (tl) tl.south = value;
+    if (tr) tr.south = value;
+    if (bl) bl.north = value;
+    if (br) br.north = value;
+  }
+}
+
+/**
+ * Convert a One-Page-Dungeon JSON object into our dungeon editor JSON.
+ * Returns { metadata, cells } ready to assign to state.dungeon.
+ */
+export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells: CellGrid[][] } {
+  // ── 1. Bounding box ────────────────────────────────────────────────
+  let minX = Infinity,
+    maxX = -Infinity;
+  let minY = Infinity,
+    maxY = -Infinity;
+  for (const r of opd.rects) {
+    minX = Math.min(minX, r.x);
+    maxX = Math.max(maxX, r.x + r.w - 1);
+    minY = Math.min(minY, r.y);
+    maxY = Math.max(maxY, r.y + r.h - 1);
+  }
+  // 1-cell padding so outer walls aren't on the grid edge
+  minX -= 1;
+  minY -= 1;
+  maxX += 1;
+  maxY += 1;
+
+  const opdCols = maxX - minX + 1;
+  const opdRows = maxY - minY + 1;
+  const cols = opdCols * RES;
+  const rows = opdRows * RES;
+
+  // Helper: OPD coords → our internal (row, col) at 2× scale (top-left subcell)
+  const toRow = (y: number) => (y - minY) * RES;
+  const toCol = (x: number) => (x - minX) * RES;
+
+  // ── 2. Blank grid (all void) ───────────────────────────────────────
+  const cells = [];
+  for (let r = 0; r < rows; r++) {
+    cells.push(new Array(cols).fill(null));
+  }
+
+  // ── 3. Fill floor cells from rects (each OPD cell → 2×2 subcells) ──
+  for (const rect of opd.rects) {
+    for (let dy = 0; dy < rect.h; dy++) {
+      for (let dx = 0; dx < rect.w; dx++) {
+        const r = toRow(rect.y + dy);
+        const c = toCol(rect.x + dx);
+        // Fill all 4 subcells
+        for (let sr = 0; sr < RES; sr++) {
+          for (let sc = 0; sc < RES; sc++) {
+            const rr = r + sr,
+              cc = c + sc;
+            if (rr >= 0 && rr < rows && cc >= 0 && cc < cols) {
+              cells[rr]![cc] ??= {};
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ── 4. Walls at floor / void boundaries ────────────────────────────
+  // Each subcell gets walls where it faces void or grid edge.
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!cells[r]![c]) continue;
+      if (r === 0 || !cells[r - 1]![c]) cells[r]![c]!.north = 'w';
+      if (r === rows - 1 || !cells[r + 1]![c]) cells[r]![c]!.south = 'w';
+      if (c === 0 || !cells[r]![c - 1]) cells[r]![c]!.west = 'w';
+      if (c === cols - 1 || !cells[r]![c + 1]) cells[r]![c]!.east = 'w';
+    }
+  }
+
+  // ── 5. Build set of 1×1 door-cell positions for mid-cell centering ─
+  const doorCellSet = new Set();
+  for (const rect of opd.rects) {
+    if (rect.w === 1 && rect.h === 1) {
+      doorCellSet.add(`${rect.x},${rect.y}`);
+    }
+  }
+
+  // ── 6. Place doors and stairs ──────────────────────────────────────
+  const stairs = [];
+  let nextStairId = 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  for (const door of opd.doors || []) {
+    const kind = classifyDoor(door.type);
+    if (kind === 'open') continue; // open passage — leave as-is
+
+    const cardinal = dirToCardinal(door.dir);
+    if (!cardinal) continue;
+
+    const r = toRow(door.y);
+    const c = toCol(door.x);
+    // Neighbor 2×2 block origin
+    const nr = r + door.dir.y * RES;
+    const nc = c + door.dir.x * RES;
+
+    if (kind === 'stairs') {
+      // Remove walls between the stair block and its neighbor
+      clearEdge(cells, r, c, cardinal.self);
+      clearEdge(cells, nr, nc, cardinal.reciprocal);
+
+      // Create stair entry with points at 2× scale
+      const points = buildStairPoints(r, c, door.dir);
+      if (points) {
+        const id = nextStairId++;
+        stairs.push({ id, points, link: null });
+        // Mark the top-left subcell as belonging to this stair
+        if (cells[r]?.[c]) {
+          cells[r][c].center ??= {};
+          cells[r][c].center['stair-id'] = id;
+        }
+      }
+    } else {
+      const wallVal = kind === 'secret' ? 's' : 'd';
+      const isDoorCell = doorCellSet.has(`${door.x},${door.y}`);
+
+      if (kind === 'secret') {
+        // Secret doors: OPD dir points toward the hidden room; the secret
+        // wall faces the opposite direction (toward the main room).
+        setEdge(cells, r, c, cardinal.reciprocal, wallVal);
+        const oppR = r - door.dir.y * RES;
+        const oppC = c - door.dir.x * RES;
+        setEdge(cells, oppR, oppC, cardinal.self, wallVal);
+      } else if (isDoorCell) {
+        // Door on a 1×1 passage cell — check if rooms on both sides
+        const oppR = r - door.dir.y * RES;
+        const oppC = c - door.dir.x * RES;
+        const oppHasFloor = cells[oppR]?.[oppC] != null;
+
+        if (oppHasFloor) {
+          // Passage connects rooms on both sides — center the door
+          const axis = door.dir.x !== 0 ? 'ew' : 'ns';
+          // Remove walls on both outer edges (connecting to rooms)
+          clearEdge(cells, r, c, cardinal.self);
+          clearEdge(cells, nr, nc, cardinal.reciprocal);
+          const oppCardinal = dirToCardinal({ x: -door.dir.x, y: -door.dir.y });
+          if (oppCardinal) {
+            clearEdge(cells, r, c, oppCardinal.self);
+            clearEdge(cells, oppR, oppC, oppCardinal.reciprocal);
+          }
+          // Place door at internal subcell boundary
+          setCenterDoor(cells, r, c, axis, wallVal);
+        } else {
+          // Dead-end passage — place on outer edge
+          setEdge(cells, r, c, cardinal.self, wallVal);
+          setEdge(cells, nr, nc, cardinal.reciprocal, wallVal);
+        }
+      } else {
+        // Door on a room boundary (not a 1×1 passage cell)
+        setEdge(cells, r, c, cardinal.self, wallVal);
+        setEdge(cells, nr, nc, cardinal.reciprocal, wallVal);
+      }
+    }
+  }
+
+  // ── 7. Notes → room labels (letter + ref number, skip flavor text) ──
+  const dungeonLetter = 'A';
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  for (const note of opd.notes || []) {
+    const r = toRow(Math.floor(note.pos.y));
+    const c = toCol(Math.floor(note.pos.x));
+    if (cells[r]?.[c]) {
+      cells[r][c].center ??= {};
+      cells[r][c].center.label = dungeonLetter + note.ref;
+    }
+  }
+
+  // ── 8. Props (columns, archways, portcullis) → metadata.props[] ────
+  const gridSize = 5 / RES; // internal gridSize = 2.5
+  const props: Record<string, unknown>[] = [];
+  let nextPropId = 1;
+
+  function addProp(row: number, col: number, type: string, rotation = 0) {
+    props.push({
+      id: `prop_${nextPropId++}`,
+      type,
+      x: col * gridSize,
+      y: row * gridSize,
+      rotation,
+      scale: 1.0,
+      zIndex: 10,
+      flipped: false,
+    });
+  }
+
+  // Columns: OPD columns are at grid intersections (corners where 4 cells meet).
+  // At 2× scale, OPD corner (col.x, col.y) maps to internal grid point (r, c).
+  // The 4 surrounding OPD cells are at subcell blocks, so we check
+  // the subcells adjacent to the grid intersection.
+  for (const col of opd.columns ?? []) {
+    const r = toRow(col.y);
+    const c = toCol(col.x);
+    // At 2×, the grid intersection is at (r, c). The 4 OPD cells sharing
+    // this corner have their nearest subcells at:
+    //   NW = (r-1, c-1), NE = (r-1, c), SW = (r, c-1), SE = (r, c)
+    const nw = cells[r - 1]?.[c - 1];
+    const ne = cells[r - 1]?.[c];
+    const sw = cells[r]?.[c - 1];
+    const se = cells[r]?.[c];
+
+    // All 4 subcells must be floor
+    if (!nw || !ne || !sw || !se) continue;
+
+    // No walls at the shared edges meeting at this corner
+    if (nw.east || nw.south) continue;
+    if (ne.west || ne.south) continue;
+    if (sw.east || sw.north) continue;
+    if (se.west || se.north) continue;
+
+    // Don't place on stair cells
+    if (se.center?.['stair-id'] != null) continue;
+
+    addProp(r, c, 'pillar-corner');
+  }
+
+  // Archways and portcullis: place visual props on door cells
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  for (const door of opd.doors || []) {
+    if (door.type !== 2 && door.type !== 4) continue; // archway=2, portcullis=4
+
+    const r = toRow(door.y);
+    const c = toCol(door.x);
+    if (!cells[r]?.[c]) continue;
+
+    // Rotation: horizontal passage = 0, vertical = 90
+    const rotation = door.dir.x !== 0 ? 90 : 0;
+
+    if (door.type === 2) {
+      // Center the archway prop in the 2×2 block (offset 0.5 perpendicular to passage)
+      if (rotation === 0) {
+        // Horizontal archway (1×2): center vertically
+        addProp(r + 0.5, c, 'archway', 0);
+      } else {
+        // Vertical archway (2×1): center horizontally
+        addProp(r, c + 0.5, 'archway', 90);
+      }
+      // Place invisible door at center of 2×2 block for fog/BFS control
+      const doorAxis = door.dir.x !== 0 ? 'ew' : 'ns';
+      setCenterDoor(cells, r, c, doorAxis, 'id');
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    } else if (door.type === 4) {
+      addProp(r, c, 'portcullis', rotation);
+    }
+  }
+
+  // ── 9. Water fills (each OPD water cell → 2×2 subcells) ────────────
+  for (const w of opd.water ?? []) {
+    for (let dy = 0; dy < (w.h || 1); dy++) {
+      for (let dx = 0; dx < (w.w || 1); dx++) {
+        const r = toRow((w.y || 0) + dy);
+        const c = toCol((w.x || 0) + dx);
+        // Fill all 4 subcells
+        for (let sr = 0; sr < RES; sr++) {
+          for (let sc = 0; sc < RES; sc++) {
+            const cell = cells[r + sr]?.[c + sc];
+            if (cell) {
+              cell.fill = 'water';
+              cell.waterDepth = 1;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // ── 10. Rotunda trims (circular rooms) — via computeTrimCells ────
+  for (const rect of opd.rects) {
+    if (!rect.rotunda) continue;
+    const topR = toRow(rect.y);
+    const leftC = toCol(rect.x);
+    const botR = toRow(rect.y + rect.h - 1) + (RES - 1); // bottom-right subcell
+    const rightC = toCol(rect.x + rect.w - 1) + (RES - 1);
+    const sz = Math.floor(Math.min(rect.w, rect.h) / 2) * RES;
+    if (sz < RES) continue;
+
+    // r0 = corner tip cell, matching the trim tool's dragStart convention
+    const cornerDefs = [
+      { cn: 'nw', r0: topR, c0: leftC },
+      { cn: 'ne', r0: topR, c0: rightC },
+      { cn: 'sw', r0: botR, c0: leftC },
+      { cn: 'se', r0: botR, c0: rightC },
+    ];
+
+    for (const { cn, r0, c0 } of cornerDefs) {
+      const far = sz - 1;
+
+      // Build hypotenuse + voided (same geometry as the trim tool)
+      const hypotenuse: { row: number; col: number }[] = [];
+      for (let i = 0; i < sz; i++) {
+        let hr = 0,
+          hc = 0;
+        switch (cn) {
+          case 'nw':
+            hr = r0 + far - i;
+            hc = c0 + i;
+            break;
+          case 'ne':
+            hr = r0 + far - i;
+            hc = c0 - i;
+            break;
+          case 'sw':
+            hr = r0 - far + i;
+            hc = c0 + i;
+            break;
+          case 'se':
+            hr = r0 - far + i;
+            hc = c0 - i;
+            break;
+        }
+        hypotenuse.push({ row: hr, col: hc });
+      }
+
+      let voided: { row: number; col: number }[] = [];
+      for (let i = 1; i < sz; i++) {
+        for (let j = 0; j < i; j++) {
+          let vr = 0,
+            vc = 0;
+          switch (cn) {
+            case 'nw':
+              vr = r0 + far - i;
+              vc = c0 + j;
+              break;
+            case 'ne':
+              vr = r0 + far - i;
+              vc = c0 - i + 1 + j;
+              break;
+            case 'sw':
+              vr = r0 - far + i;
+              vc = c0 + j;
+              break;
+            case 'se':
+              vr = r0 - far + i;
+              vc = c0 - i + 1 + j;
+              break;
+          }
+          voided.push({ row: vr, col: vc });
+        }
+      }
+
+      // Compute arcCenter (same logic as trim tool _updatePreview)
+      const allRows = hypotenuse.map((c) => c.row).concat(voided.map((c) => c.row));
+      const allCols = hypotenuse.map((c) => c.col).concat(voided.map((c) => c.col));
+      let arcCenter = { row: r0, col: c0 };
+      if (allRows.length > 0) {
+        const minR = Math.min(...allRows);
+        const maxR = Math.max(...allRows);
+        const minC = Math.min(...allCols);
+        const maxC = Math.max(...allCols);
+        switch (cn) {
+          case 'nw':
+            arcCenter = { row: minR, col: minC };
+            break;
+          case 'ne':
+            arcCenter = { row: minR, col: maxC + 1 };
+            break;
+          case 'sw':
+            arcCenter = { row: maxR + 1, col: minC };
+            break;
+          case 'se':
+            arcCenter = { row: maxR + 1, col: maxC + 1 };
+            break;
+        }
+      }
+
+      // Filter voided → insideArc (cells between diagonal and arc curve)
+      const insideArc: { row: number; col: number }[] = [];
+      let acxGrid: number = 0,
+        acyGrid: number = 0;
+      switch (cn) {
+        case 'nw':
+          acxGrid = arcCenter.col + sz;
+          acyGrid = arcCenter.row + sz;
+          break;
+        case 'ne':
+          acxGrid = arcCenter.col - sz;
+          acyGrid = arcCenter.row + sz;
+          break;
+        case 'sw':
+          acxGrid = arcCenter.col + sz;
+          acyGrid = arcCenter.row - sz;
+          break;
+        case 'se':
+          acxGrid = arcCenter.col - sz;
+          acyGrid = arcCenter.row - sz;
+          break;
+      }
+      voided = voided.filter(({ row: vr, col: vc }) => {
+        const dx = Math.max(vc - acxGrid, 0, acxGrid - (vc + 1));
+        const dy = Math.max(vr - acyGrid, 0, acyGrid - (vr + 1));
+        const outside = Math.sqrt(dx * dx + dy * dy) > sz;
+        if (!outside) insideArc.push({ row: vr, col: vc });
+        return outside;
+      });
+
+      // Build preview and compute per-cell trim data
+      const preview = { hypotenuse, voided, insideArc, arcCenter, size: sz };
+      const trimData = computeTrimCells(preview, cn as 'nw' | 'ne' | 'sw' | 'se', false, false);
+
+      // Apply trim data to cells
+      for (const [key, val] of trimData) {
+        const [r, c] = key.split(',').map(Number) as [number, number];
+        if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
+
+        if (val === null) {
+          // Void — but skip cells with doors (they connect to adjacent rooms)
+          const vc = cells[r]?.[c];
+          if (vc) {
+            const hasDoor = ['north', 'south', 'east', 'west'].some((d) => vc[d] === 'd' || vc[d] === 's');
+            if (!hasDoor) cells[r]![c] = null;
+          }
+        } else if (val === 'interior') {
+          if (cells[r]?.[c]) _clearWalls(cells, r, c, rows, cols);
+        } else {
+          // Arc boundary cell
+          const rowArr = cells[r]!;
+          rowArr[c] ??= {};
+          _clearWalls(cells, r, c, rows, cols);
+          Object.assign(rowArr[c], val);
+        }
+      }
+    }
+  }
+
+  // ── 11. Assemble dungeon JSON (v4 format — half-cell, per-cell arcs) ─
+  const metadata = {
+    formatVersion: FORMAT_VERSION,
+    dungeonName: opd.title ?? 'Imported Dungeon',
+    gridSize,
+    resolution: RES,
+    theme: 'sepia-parchment',
+    labelStyle: 'circled',
+    features: {
+      showGrid: true,
+      compassRose: true,
+      scale: true,
+      border: true,
+    },
+    dungeonLetter: dungeonLetter,
+    levels: [{ name: null, startRow: 0, numRows: rows }],
+    props,
+    nextPropId,
+    lightingEnabled: false,
+    ambientLight: 1.0,
+    lights: [] as Light[],
+    stairs: stairs.length > 0 ? stairs : ([] as Stairs[]),
+    bridges: [] as Bridge[],
+    nextLightId: 0,
+    nextBridgeId: 0,
+    nextStairId: stairs.length > 0 ? nextStairId : 0,
+  };
+
+  return { metadata: metadata as unknown as Metadata, cells: cells as unknown as CellGrid[][] };
+}
+
+// ── Internal helpers ─────────────────────────────────────────────────────────
+
+const OFFS = CARDINAL_OFFSETS;
+const OPP = { north: 'south', south: 'north', west: 'east', east: 'west' };
+
+/** Clear cardinal walls on cell + reciprocals, preserving doors. */
+function _clearWalls(cells: CellGrid, r: number, c: number, numRows: number, numCols: number) {
+  const cell = cells[r]?.[c];
+  if (!cell) return;
+  for (const dir of ['north', 'south', 'east', 'west'] as const) {
+    const edge = getEdge(cell, dir as Direction);
+    if (edge && edge !== 'd' && edge !== 's') {
+      deleteEdge(cell, dir as Direction);
+      const [dr, dc] = OFFS[dir];
+      const nr = r + dr,
+        nc = c + dc;
+      if (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols) {
+        const nb = cells[nr]?.[nc];
+        const oppDir = OPP[dir] as Direction;
+        if (nb && getEdge(nb, oppDir) !== 'd' && getEdge(nb, oppDir) !== 's') deleteEdge(nb, oppDir);
+      }
+    }
+  }
+  deleteEdge(cell, 'nw-se');
+  deleteEdge(cell, 'ne-sw');
+}

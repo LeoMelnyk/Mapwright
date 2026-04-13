@@ -1,0 +1,68 @@
+{
+  "name": "toll-bridge-house",
+  "category": "wilderness",
+  "tags": ["wilderness", "road", "commerce", "bridge", "small"],
+  "summary": "A gatehouse beside a bridge or ford. Lowerable bar across the road, fee-table, a guard or two, a shelter from the weather. Part building, part roadside structure.",
+  "size_guidance": {
+    "min": [7, 6],
+    "typical": [9, 7],
+    "aspect_ratio": "long across the road"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_road", "polyhaven/cobblestone_floor_03", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "toll house porch",
+      "options": ["polyhaven/wood_floor", "polyhaven/plank_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["toll-house"], "surrounded_by": ["toll-barrier", "flag-pole", "lantern-post"], "note": "house beside the road, barrier across — classic checkpoint" },
+    { "props": ["toll-barrier"], "surrounded_by": ["brazier", "fee-board", "weapon-rack-crude"], "note": "barrier front-and-center, guards' brazier on one side" },
+    { "props": ["toll-house"], "surrounded_by": ["cart", "crate", "lantern-post"], "note": "busy day — a cart waits at the bar, goods being inspected" }
+  ],
+  "secondary_palette": [
+    "toll-house",
+    "toll-barrier",
+    "fee-board",
+    "flag-pole",
+    "lantern-post",
+    "brazier",
+    "weapon-rack-crude",
+    "cart",
+    "crate",
+    "barrel",
+    "campfire-stone",
+    "trough"
+  ],
+  "scatter_palette": [
+    "coin-scatter",
+    "ration-wrapper",
+    "horse-dung",
+    "mud-print",
+    "fallen-leaves",
+    "parchment-scrap",
+    "ash-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-across-road", "L-shape-house-with-barrier", "irregular-roadside"],
+    "discouraged": ["symmetric-centered", "small-square"]
+  },
+  "story_prompts": [
+    "official toll — reasonable fee, bored guards, paperwork posted",
+    "bandit shakedown — the 'guards' are thieves, the toll is robbery with extra steps",
+    "closed — barrier down, no one in the house, a notice nailed to the door",
+    "the bridge behind is damaged — the toll-keeper is warning travelers off, not taking coin",
+    "a noble's vanity toll — exorbitant fee, liveried guards, the house flies a crest"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor road — daylit, brazier and lantern for night traffic",
+    "ambient_is": "optional",
+    "common_sources": ["brazier", "lantern-post", "campfire-stone"]
+  },
+  "anti_patterns": [
+    "the toll house is a structure within a roadside space, not a full building interior",
+    "the road must be clearly readable — do not decorate so heavily it disappears",
+    "barrier is perpendicular to the road, not parallel — it blocks passage",
+    "keep guards' kit at the fire/brazier, not on the road itself"
+  ]
+}

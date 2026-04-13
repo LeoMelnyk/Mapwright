@@ -1,0 +1,66 @@
+{
+  "name": "mill-grain",
+  "category": "industrial",
+  "tags": ["rural", "industrial", "large", "commercial", "dusty"],
+  "summary": "A grain mill built around a massive turning millstone. Grain sacks stacked high, flour dust in the air, a hopper above the stone. Often water- or wind-driven with shafts disappearing into a wall.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 14],
+    "aspect_ratio": "squareish, the millstone dictates the center"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "flour-dusted zone around the stone",
+      "options": ["polyhaven/ash_layer", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["millstone"], "surrounded_by": ["grain-hopper", "flour-sack-stack"], "note": "single-stone mill — stone dominates the center, hopper above" },
+    { "props": ["millstone", "millstone"], "surrounded_by": ["grain-hopper", "grain-hopper"], "note": "double-stone mill — large commercial operation" },
+    { "props": ["millstone"], "surrounded_by": ["grain-hopper", "drive-shaft", "flour-sack-stack"], "note": "water-wheel mill — drive shaft emerges from one wall" }
+  ],
+  "secondary_palette": [
+    "grain-hopper",
+    "flour-sack-stack",
+    "barrel",
+    "scale",
+    "workbench",
+    "sack-pile",
+    "drive-shaft",
+    "lumber-stack",
+    "bench",
+    "shelf-open",
+    "ledger-stack"
+  ],
+  "scatter_palette": [
+    "flour-sack",
+    "grain-spill",
+    "broom",
+    "rat-sign",
+    "scoop-wooden",
+    "cat-sleeping",
+    "dust-cloud",
+    "mouse-trap"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "wide-rectangle", "L-with-loading-bay"],
+    "discouraged": ["narrow", "small"]
+  },
+  "story_prompts": [
+    "harvest-week peak — every cell stacked with grain sacks, miller and two apprentices covered in flour",
+    "stone-dressing day — millstone lifted, chisels out, operation halted",
+    "flood-broken — water wheel shaft cracked, stone silent, miller arguing with creditors",
+    "night watch — dust settled, one lantern, a thief picking the scales"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dusty working light (0.35-0.45) with sunbeams through high windows",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "brazier"]
+  },
+  "anti_patterns": [
+    "millstone belongs centered — it's the machine the whole room serves",
+    "grain sacks cluster along walls, never block the working path to the stone",
+    "avoid open flames near flour dust — brazier must be far from working zone or implied doused"
+  ]
+}

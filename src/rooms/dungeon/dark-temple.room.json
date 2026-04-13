@@ -1,0 +1,76 @@
+{
+  "name": "dark-temple",
+  "category": "dungeon",
+  "tags": ["dungeon", "sacred", "occult", "formal", "large"],
+  "summary": "A sanctuary to a foul or forgotten god — a processional nave, pews or kneeling-benches facing a central altar, an icon of the deity dominating the back wall.",
+  "size_guidance": {
+    "min": [9, 12],
+    "typical": [11, 16],
+    "aspect_ratio": "2:1 elongated along the door→altar axis"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/marble_floor",
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/stone_tile_polished"
+    ],
+    "accent": {
+      "purpose": "chancel / altar dais",
+      "options": ["polyhaven/marble_floor", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["necrotic-altar", "idol"], "surrounded_by": ["pew", "pew", "pew", "pew"], "note": "classic dark temple — altar and icon at apse, pews in the nave" },
+    { "props": ["altar", "statue-dark-god"], "surrounded_by": ["kneeling-bench", "kneeling-bench", "kneeling-bench"], "note": "smaller cult shrine — kneeling benches instead of pews" },
+    { "props": ["bone-shrine"], "surrounded_by": ["pillar", "pillar", "pillar", "pillar"], "note": "ossuary-temple — the dead are the congregation" },
+    { "props": ["summoning-pool", "idol"], "note": "demon-temple — the altar is a pool, the god answers directly" },
+    { "props": ["necrotic-altar", "organ"], "surrounded_by": ["pew", "pew"], "note": "cathedral-style, complete with a massive pipe organ" }
+  ],
+  "secondary_palette": [
+    "pew",
+    "kneeling-bench",
+    "pillar",
+    "stone-column",
+    "statue",
+    "idol",
+    "brazier",
+    "floor-candelabra",
+    "candelabra",
+    "censer",
+    "banner",
+    "tapestry-dark",
+    "holy-font",
+    "reliquary",
+    "carpet-runner"
+  ],
+  "scatter_palette": [
+    "offering-plate",
+    "candle",
+    "incense-stub",
+    "scroll-case",
+    "prayer-book",
+    "melted-wax",
+    "bloodstain"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "cross", "rounded-apse-behind-altar", "octagon-via-corner-trims"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "active congregation — candles lit, an evening rite in progress",
+    "long-abandoned temple, pews rotting, the idol still watching",
+    "desecrated temple retaken by a worse cult, both iconographies present",
+    "drow temple to Lolth, spiders in every corner, webs between pillars",
+    "a small village church revealed to have always been a dark temple"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "cold sacred dim (0.2-0.35), often colored",
+    "ambient_is": "required",
+    "common_sources": ["floor-candelabra", "brazier", "censer", "candle", "candelabra"]
+  },
+  "anti_patterns": [
+    "don't place the altar centered left-right but also centered front-back — the altar belongs at the apse",
+    "don't forget directionality — pews face one way, the axis leads the eye",
+    "avoid bright white lighting; sacred dim is the mood"
+  ]
+}

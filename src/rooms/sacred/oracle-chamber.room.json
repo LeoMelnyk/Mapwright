@@ -1,0 +1,63 @@
+{
+  "name": "oracle-chamber",
+  "category": "sacred",
+  "tags": ["sacred", "mystic", "divination", "circular", "ritual", "prophetic"],
+  "summary": "A round chamber where an oracle speaks — steam, smoke, and strange vapors rise from a central pit or font. Supplicants stand beyond a ring; the seer sits or stands above the fume.",
+  "size_guidance": {
+    "min": [6, 6],
+    "typical": [8, 8],
+    "aspect_ratio": "round — the chamber's circularity is central to the rite"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/marble_floor", "polyhaven/stone_tile_polished", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "an inner ring around the vapor source",
+      "options": ["polyhaven/marble_floor", "polyhaven/cobblestone_floor_03"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["oracle-pit"], "surrounded_by": ["pillar", "pillar", "pillar"], "note": "a steaming cleft in the floor ringed by three or more pillars" },
+    { "props": ["crystal-ball"], "surrounded_by": ["chair", "candelabra", "candelabra"], "note": "a seer's chair before a great scrying sphere" },
+    { "props": ["holy-font"], "surrounded_by": ["ward-stone", "ward-stone", "ward-stone"], "note": "a scrying basin warded by stones at compass points" },
+    { "props": ["brazier"], "surrounded_by": ["stool", "stool", "stool"], "note": "smoke-divination — stools set around the smoking brazier for supplicants" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "stone-column",
+    "candelabra",
+    "brazier",
+    "chair",
+    "stool",
+    "ward-stone",
+    "crystal-formation",
+    "banner"
+  ],
+  "scatter_palette": [
+    "candle",
+    "bone-pile",
+    "scroll-case",
+    "book-open",
+    "spell-focus"
+  ],
+  "shape_guidance": {
+    "preferred": ["round", "octagonal", "hexagonal"],
+    "discouraged": ["rectangle", "long-nave", "square"]
+  },
+  "story_prompts": [
+    "the oracle mid-utterance — vapor thick, seer's head thrown back, supplicants frozen",
+    "the oracle gone missing — chair empty, vapor still rising, prophecies half-scrawled on the wall",
+    "supplicants waiting — a queue of frightened nobles, the oracle not yet arrived",
+    "the chamber has gone silent for years — the vapor source cold, the last prophecy still chalked above the pit",
+    "a false oracle — mechanisms beneath the pit, a pipe channeling steam from a hidden furnace"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "hazy and dim (0.2-0.3) — smoke and vapor diffuse the light; cold or greenish tint",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "candelabra", "crystal-formation", "crystal-torch"]
+  },
+  "anti_patterns": [
+    "the focus (pit, ball, font) sits at the geometric center — radial symmetry",
+    "no pews or seating rows — supplicants stand or kneel at the ring",
+    "never square off the room with corners full of props; the circularity is the magic"
+  ]
+}

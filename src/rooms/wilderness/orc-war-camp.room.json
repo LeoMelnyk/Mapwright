@@ -1,0 +1,72 @@
+{
+  "name": "orc-war-camp",
+  "category": "wilderness",
+  "tags": ["wilderness", "camp", "orc", "military", "crude"],
+  "summary": "An orc war-band's forward camp — crude but organized. Totems of skulls and painted hide, a central bonfire, rows of sleeping mats under hide-tarps, butchery pit, weapon stacks. Discipline under the filth.",
+  "size_guidance": {
+    "min": [12, 10],
+    "typical": [14, 12],
+    "aspect_ratio": "oval clearing with totem gateway"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/mud_floor", "polyhaven/trampled_earth"],
+    "accent": {
+      "purpose": "bonfire scorch ring",
+      "options": ["polyhaven/ash_floor", "polyhaven/burnt_ground"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["bonfire"], "surrounded_by": ["skull-totem", "skull-totem", "weapon-rack-crude", "hide-tarp"], "note": "huge central bonfire, skull totems at cardinal points, warriors' kit around" },
+    { "props": ["skull-totem"], "surrounded_by": ["skull-totem", "bonfire", "hide-tarp"], "note": "totem gateway leading into the camp — bonfire beyond" },
+    { "props": ["butchery-pit"], "surrounded_by": ["chopping-block", "carcass-fresh", "hide-tarp"], "note": "messy butchery corner of the camp — raw meat, hides drying" },
+    { "props": ["chieftains-throne"], "surrounded_by": ["skull-totem", "bonfire", "weapon-rack-crude"], "note": "rough throne of logs and furs — the warchief's seat" }
+  ],
+  "secondary_palette": [
+    "bonfire",
+    "skull-totem",
+    "hide-tarp",
+    "weapon-rack-crude",
+    "chopping-block",
+    "butchery-pit",
+    "carcass-fresh",
+    "chieftains-throne",
+    "bedroll-hide",
+    "log-pile",
+    "cauldron-fire",
+    "trough",
+    "cart",
+    "prisoner-cage"
+  ],
+  "scatter_palette": [
+    "gnawed-bone",
+    "skull-trophy",
+    "spear-stuck",
+    "ash-pile",
+    "tuft-of-fur",
+    "torn-banner",
+    "broken-shield",
+    "war-paint-pot"
+  ],
+  "shape_guidance": {
+    "preferred": ["oval-clearing", "irregular-with-gateway", "crude-ring"],
+    "discouraged": ["square", "tidy-rectangle", "symmetric"]
+  },
+  "story_prompts": [
+    "full warband in camp — loud, drinking, the night before an attack",
+    "mid-raid — only skeleton crew, slaves and wounded — warband gone, back soon",
+    "the chief is dead — the totems have been knocked over, infighting underway",
+    "a prisoner cage holds someone the party needs alive",
+    "not orcs — this is a half-orc warband that disciplined itself into a real army"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor night — ambient low, bonfire dominates, torches on totems",
+    "ambient_is": "optional",
+    "common_sources": ["bonfire", "campfire", "torch-totem", "brazier"]
+  },
+  "anti_patterns": [
+    "no built walls — the camp is a cleared outdoor space, defined by totems and tarps",
+    "do not make it random — orcs DO organize, just crudely (sleeping rows, weapon stacks, fire hierarchy)",
+    "totems should be large and visible, not scatter-scale — they are landmarks",
+    "bonfire sits central, chieftain's seat faces it — social geometry matters"
+  ]
+}

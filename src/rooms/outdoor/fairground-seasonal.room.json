@@ -1,0 +1,75 @@
+{
+  "name": "fairground-seasonal",
+  "category": "outdoor",
+  "tags": ["outdoor", "urban", "rural", "social", "festival", "crowded", "celebratory"],
+  "summary": "A seasonal fair — a field or plaza temporarily taken over by tents, stages, game booths, and bunting. Noise, smell, color. Could be a harvest fair, a high holiday market, or a traveling carnival.",
+  "size_guidance": {
+    "min": [14, 16],
+    "typical": [16, 20],
+    "aspect_ratio": "broad, square-ish — fairs sprawl"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/trampled_grass",
+      "polyhaven/dirt_floor",
+      "polyhaven/packed_earth"
+    ],
+    "accent": {
+      "purpose": "central performance ring or maypole area",
+      "options": ["polyhaven/sawdust_ring", "polyhaven/packed_earth"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["maypole"], "surrounded_by": ["market-stall", "game-booth"], "note": "spring festival with maypole at the heart" },
+    { "props": ["stage-performance"], "surrounded_by": ["bench", "bench"], "note": "troupe or minstrel fair with performance stage" },
+    { "props": ["bonfire-large"], "surrounded_by": ["hay-bale", "hay-bale"], "note": "harvest or solstice fire as centerpiece" },
+    { "props": ["prize-ring"], "surrounded_by": ["game-booth", "game-booth"], "note": "wrestling or archery competition ring" }
+  ],
+  "secondary_palette": [
+    "market-stall",
+    "market-stall-awning",
+    "game-booth",
+    "stage-performance",
+    "bench",
+    "hay-bale",
+    "archery-target",
+    "bunting-line",
+    "flag-pole",
+    "tent",
+    "cart",
+    "planter-box"
+  ],
+  "scatter_palette": [
+    "dropped-coin",
+    "spilled-ale",
+    "pie-stand",
+    "dog-stray",
+    "children-toys",
+    "ribbon-scatter",
+    "apple-barrel",
+    "fallen-mask",
+    "lantern-paper"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "circle"],
+    "discouraged": ["corridor", "irregular-tight"]
+  },
+  "story_prompts": [
+    "harvest fair at peak — every booth busy, the maypole dance in progress",
+    "night — lanterns lit, bonfire roaring, dancers around the ring",
+    "opening morning — booths setting up, banners going up, vendors arguing",
+    "end of fair — most booths packed, ribbons in the mud, one last drunk by the fire",
+    "a thief has stolen the prize and crowd is turning into a mob"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor daylight by default; evening/night scenes 0.35-0.5 with very warm lantern-fire tint",
+    "ambient_is": "optional",
+    "common_sources": ["bonfire-large", "lantern-paper", "lantern-post"]
+  },
+  "anti_patterns": [
+    "invisible walls (iw) perimeter — fairs bleed into surrounding ground",
+    "booths and stalls must form loose aisles, never a grid",
+    "bunting-line and flag-pole props should break up vertical space — a flat fair reads wrong",
+    "don't skimp on scatter — the mess IS the vibe; cleanliness reads as a closed fair"
+  ]
+}

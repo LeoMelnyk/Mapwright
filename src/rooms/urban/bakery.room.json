@@ -1,0 +1,67 @@
+{
+  "name": "bakery",
+  "category": "urban",
+  "tags": ["urban", "commercial", "food", "small", "hot"],
+  "summary": "A bakery with a domed brick oven roaring at the back, a kneading table, flour barrels, and a small front counter with trays of loaves. Warm, floury air, rising yeast.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangle with oven at back wall, counter at street side"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "flour-dusted zone around kneading table",
+      "options": ["polyhaven/dirt_floor", "polyhaven/ash_layer"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["oven"], "surrounded_by": ["kitchen-table", "counter", "flour-sack-stack"], "note": "classic bakery — oven back, counter front" },
+    { "props": ["oven", "oven"], "surrounded_by": ["kitchen-table", "flour-sack-stack"], "note": "production bakery — twin ovens, bulk loaves" },
+    { "props": ["oven", "counter"], "surrounded_by": ["display-case", "kitchen-table", "flour-sack-stack"], "note": "upscale bakery — glass display of pastries" }
+  ],
+  "secondary_palette": [
+    "oven",
+    "kitchen-table",
+    "counter",
+    "display-case",
+    "flour-sack-stack",
+    "barrel",
+    "shelf-open",
+    "cabinet",
+    "stool",
+    "scale",
+    "pot-rack"
+  ],
+  "scatter_palette": [
+    "bread-loaf",
+    "bread-heel",
+    "rolling-pin",
+    "flour-sack",
+    "flour-dust",
+    "apron-floured",
+    "peel-wooden",
+    "cat-sleeping",
+    "coin-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-front-counter"],
+    "discouraged": ["large", "round"]
+  },
+  "story_prompts": [
+    "predawn baking — oven roaring, baker elbow-deep in dough, no customers yet",
+    "morning rush — counter busy, trays emptying, apprentice running fresh loaves out",
+    "bread riot — customers desperate, grain shortage, baker rationing",
+    "burnt batch — smoke in the street, baker pulling blackened loaves, swearing"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm oven-lit (0.4-0.5) — glow from the firebox",
+    "ambient_is": "required",
+    "common_sources": ["oven", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "oven against a stone back wall — never wood, never centerfloor",
+    "kneading table central — the heart of the shop",
+    "counter at the street-facing edge with display close at hand"
+  ]
+}

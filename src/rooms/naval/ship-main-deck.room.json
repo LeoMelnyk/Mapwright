@@ -1,0 +1,67 @@
+{
+  "name": "ship-main-deck",
+  "category": "naval",
+  "tags": ["naval", "ship", "deck", "outdoor", "working", "open"],
+  "summary": "The top deck of a working ship — mast footings, coiled rigging, the helm aft, hatches amidships, gunwales lined with belaying pins.",
+  "size_guidance": {
+    "min": [8, 14],
+    "typical": [10, 20],
+    "aspect_ratio": "long narrow rectangle with tapered bow"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_planks_deck", "polyhaven/wood_floor", "polyhaven/wood_planks_worn"],
+    "accent": {
+      "purpose": "holy-stoned planks / caulked seams",
+      "options": ["polyhaven/wood_planks_deck"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ship-wheel"], "surrounded_by": ["binnacle", "ships-ladder"], "note": "quarterdeck helm — navigation focus" },
+    { "props": ["mast-main"], "surrounded_by": ["capstan", "sail-rolled"], "note": "main mast with rigging pinned to the fife rail" },
+    { "props": ["cargo-hatch"], "surrounded_by": ["rope-coil", "capstan"], "note": "working deck around the main hatch" },
+    { "props": ["longboat-cradle"], "surrounded_by": ["rope-coil", "water-barrel"], "note": "ship's boat stowed amidships" }
+  ],
+  "secondary_palette": [
+    "mast-main",
+    "mast-fore",
+    "capstan",
+    "binnacle",
+    "ship-wheel",
+    "cannon",
+    "cannon-swivel",
+    "rope-coil",
+    "sail-rolled",
+    "cargo-hatch",
+    "ships-ladder",
+    "anchor",
+    "water-barrel"
+  ],
+  "scatter_palette": [
+    "rope-coil",
+    "belaying-pin-rack",
+    "bucket",
+    "holystone",
+    "fishing-net",
+    "flag-pole"
+  ],
+  "shape_guidance": {
+    "preferred": ["ship-hull-silhouette", "long-narrow-tapered", "pointed-bow"],
+    "discouraged": ["square", "round", "wide-rectangle"]
+  },
+  "story_prompts": [
+    "boarding action in progress — grappling lines over the gunwale",
+    "mid-storm — crew fighting a flogging sail",
+    "ship is becalmed — nothing moves, sails slack, silence wrong",
+    "a merchant vessel, peaceable — customs inspection boarding"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "full daylight (0.8-1.0) by day, dark with binnacle glow by night",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "binnacle"]
+  },
+  "anti_patterns": [
+    "always taper the bow — a ship deck is not a rectangle",
+    "masts are anchors, not clutter — leave clear working radius around each",
+    "rope coils against the gunwale, not in the middle of the walk-space"
+  ]
+}

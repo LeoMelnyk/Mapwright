@@ -1,0 +1,55 @@
+{
+  "name": "shrine-roadside",
+  "category": "sacred",
+  "tags": ["wilderness", "sacred", "small", "religious", "simple"],
+  "summary": "A small devotional structure along a road or trail. Often open to the elements. Offerings from many passing travelers layered over time.",
+  "size_guidance": {
+    "min": [2, 2],
+    "typical": [3, 4],
+    "aspect_ratio": "very small — the shrine is the room"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/dirt_floor", "polyhaven/cobblestone_floor_03"]
+  },
+  "primary_palette": [
+    { "props": ["shrine-stone"], "note": "weathered stone altar with carved symbol" },
+    { "props": ["statue-small"], "surrounded_by": ["offering-plate"], "note": "patron deity effigy on a pedestal" },
+    { "props": ["cairn-sacred"], "note": "stacked-stone marker — older, pre-temple faith" }
+  ],
+  "secondary_palette": [
+    "candle-dipped",
+    "offering-plate",
+    "lantern-post",
+    "bell-small",
+    "prayer-flag",
+    "withered-wreath"
+  ],
+  "scatter_palette": [
+    "coin-offering",
+    "fruit-rotten",
+    "dried-flowers",
+    "ribbon-tied",
+    "prayer-stone",
+    "feather-bundle"
+  ],
+  "shape_guidance": {
+    "preferred": ["tiny-square", "alcove"],
+    "discouraged": ["large", "multi-room"]
+  },
+  "story_prompts": [
+    "fresh offering from a traveler who passed an hour ago",
+    "neglected for a season — offerings decayed, candle-stubs not replaced",
+    "shrine to a forgotten or forbidden god — signs of furtive recent worship",
+    "the site of a local miracle — extra offerings, more than a roadside would warrant"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "natural/outdoor lit (0.5+) or unlit under cover",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "candle-dipped"]
+  },
+  "anti_patterns": [
+    "keep it tiny — this is a waypoint, not a chapel",
+    "offerings layered across eras (some fresh, some rotted) — never all one vintage",
+    "no seating — pilgrims kneel or stand briefly"
+  ]
+}

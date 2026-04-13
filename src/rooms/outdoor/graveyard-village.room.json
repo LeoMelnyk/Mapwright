@@ -1,0 +1,71 @@
+{
+  "name": "graveyard-village",
+  "category": "outdoor",
+  "tags": ["outdoor", "sacred", "rural", "bleak", "undead", "exploration"],
+  "summary": "A village graveyard — headstones in loose rows, older graves sinking into the turf, a central monument or crypt. Enclosed by low wall or hedge rather than a building. A place for vigils, funerals, and things that dig themselves up.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [14, 16],
+    "aspect_ratio": "roughly square or 4:3 — pathways quarter the yard"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/grass_patchy",
+      "polyhaven/forest_floor_leaves",
+      "polyhaven/muddy_turf"
+    ],
+    "accent": {
+      "purpose": "gravel footpath quartering the yard",
+      "options": ["polyhaven/gravel_path", "polyhaven/cobblestone_floor_03"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["grave-marker-large"], "surrounded_by": ["grave-marker", "grave-marker"], "note": "founder's grave as the central monument" },
+    { "props": ["crypt-entrance"], "surrounded_by": ["grave-marker", "grave-marker"], "note": "family crypt centerpiece" },
+    { "props": ["obelisk"], "surrounded_by": ["grave-marker", "grave-mound"], "note": "memorial obelisk commemorating plague or war dead" },
+    { "props": ["statue-weeping"], "surrounded_by": ["grave-marker", "dead-tree"], "note": "angel of mourning at the center" }
+  ],
+  "secondary_palette": [
+    "grave-marker",
+    "grave-marker-large",
+    "grave-mound",
+    "dead-tree",
+    "willow-tree",
+    "bench",
+    "lantern-post",
+    "crypt-entrance",
+    "statue-weeping"
+  ],
+  "scatter_palette": [
+    "withered-flowers",
+    "flowers",
+    "candle-guttered",
+    "shovel-leaning",
+    "raven-perched",
+    "fresh-dirt-mound",
+    "empty-bottle",
+    "skull-small"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "rectangle", "irregular-walled-yard"],
+    "discouraged": ["round", "corridor"]
+  },
+  "story_prompts": [
+    "a funeral in progress — mourners at the central mound",
+    "fresh grave newly disturbed, dirt scattered outward",
+    "night vigil — one bench occupied by a lone gravedigger smoking a pipe",
+    "a recent plague has overwhelmed the yard; new markers are wooden, temporary, crowded",
+    "the willow has died suddenly and the ravens refuse to land in it"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor — default to daylight unless a night scene, then 0.2-0.3 with cool tint",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post", "candle-guttered"]
+  },
+  "anti_patterns": [
+    "use invisible walls (iw) at the perimeter with a low wall/hedge suggested by props, not full walls",
+    "grave markers should be in loose rows, not perfect grid — this is a real yard, not a spreadsheet",
+    "avoid symmetry — older markers lean, new ones stand straight",
+    "don't over-fill; negative space (turf) is the dominant texture"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "name": "cave-drow-outpost",
+  "category": "underground",
+  "tags": ["underground", "drow", "underdark", "alien", "elegant", "menacing"],
+  "summary": "A drow forward post carved with unsettling spider-silk geometry — black stone, faerzress-glow sconces, a command slab at the far wall.",
+  "size_guidance": {
+    "min": [9, 12],
+    "typical": [11, 14],
+    "aspect_ratio": "asymmetric — one long axis biased to the command wall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/obsidian_floor", "polyhaven/black_stone", "polyhaven/cave_floor"],
+    "accent": {
+      "purpose": "etched sigil slab or silk-web floor",
+      "options": ["polyhaven/obsidian_floor", "polyhaven/spider-silk-weave"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["drow-command-slab"], "surrounded_by": ["faerzress-sconce", "faerzress-sconce"], "note": "officer's briefing stone — maps etched in chalk" },
+    { "props": ["spider-shrine"], "surrounded_by": ["chitin-barrier", "bone-pile"], "note": "Lolth altar, dominant focal point" },
+    { "props": ["drow-weapon-rack"], "surrounded_by": ["chitin-barrier"], "note": "hand crossbows and poisoned blades on display" },
+    { "props": ["scrying-pool"], "note": "obsidian basin for the matron's eyes" }
+  ],
+  "secondary_palette": [
+    "chitin-barrier",
+    "faerzress-sconce",
+    "spider-silk-drape",
+    "stalagmite",
+    "shackles",
+    "pillar",
+    "drow-weapon-rack"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "rubble",
+    "spider-egg-cluster",
+    "moss-patch-glowing",
+    "fungal-growth",
+    "web-strand"
+  ],
+  "shape_guidance": {
+    "preferred": ["octagon-via-corner-trims", "asymmetric-polygon", "elongated-with-apse"],
+    "discouraged": ["square", "simple-rectangle"]
+  },
+  "story_prompts": [
+    "a scouting cell debriefs after a surface raid — prisoners in the back",
+    "ritual in progress — matron priestess communing with Lolth",
+    "outpost abandoned hastily, web-shrouds over unfinished work",
+    "war room: the officer plots an ambush on a drider patrol"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "near-dark (0.05-0.1) with cold purple faerzress accents",
+    "ambient_is": "required",
+    "common_sources": ["faerzress-sconce", "candle-violet"]
+  },
+  "anti_patterns": [
+    "no warm lighting — drow never sit in firelight",
+    "don't arrange props symmetrically — drow aesthetic is deliberate asymmetry",
+    "webs and silk should cling to corners and ceilings, not fill the floor"
+  ]
+}

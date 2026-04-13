@@ -1,0 +1,70 @@
+{
+  "name": "roadside-gallows",
+  "category": "outdoor",
+  "tags": ["outdoor", "rural", "bleak", "formal", "law", "small"],
+  "summary": "A gallows or gibbet beside a road — a warning to travelers. Usually a single gibbet cage or three-post gallows on a raised earthen mound, with a notice board and a bench for the watcher.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "small, compact — a shrine of cruelty, not a plaza"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/packed_earth",
+      "polyhaven/gravel_path",
+      "polyhaven/trampled_grass"
+    ],
+    "accent": {
+      "purpose": "raised earth mound beneath the gallows",
+      "options": ["polyhaven/packed_earth", "polyhaven/worn_stone"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["gallows"], "surrounded_by": ["notice-board", "lantern-post"], "note": "classic three-post gallows on a mound" },
+    { "props": ["gibbet"], "surrounded_by": ["grave-marker", "notice-board"], "note": "single gibbet cage — long-term warning" },
+    { "props": ["stocks"], "surrounded_by": ["notice-board", "bench"], "note": "lesser punishment — stocks for humiliation" },
+    { "props": ["gallows-triple"], "surrounded_by": ["grave-marker", "notice-board"], "note": "mass-hanging site, severe warning" }
+  ],
+  "secondary_palette": [
+    "gallows",
+    "gibbet",
+    "stocks",
+    "notice-board",
+    "lantern-post",
+    "bench",
+    "grave-marker",
+    "dead-tree",
+    "fence-wood-low"
+  ],
+  "scatter_palette": [
+    "crow-perched",
+    "bone-pile",
+    "dropped-rope",
+    "withered-flowers",
+    "empty-bottle",
+    "fresh-dirt-mound",
+    "torn-notice"
+  ],
+  "shape_guidance": {
+    "preferred": ["square-small", "rectangle-small", "circle-small"],
+    "discouraged": ["large", "corridor"]
+  },
+  "story_prompts": [
+    "recent execution — the body still hangs, the crowd gone",
+    "the gibbet's occupant is a notorious bandit; his gang plans to retrieve the body",
+    "dusk, empty, crows roosting — party passes through on a lonely road",
+    "a fresh corpse hangs, but the notice is for a different crime — wrong body?",
+    "the gallows is being used as a wildlife perch; no one has swung here in years"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor default; evening scenes 0.25-0.35 with cool tint",
+    "ambient_is": "optional",
+    "common_sources": ["lantern-post"]
+  },
+  "anti_patterns": [
+    "invisible walls (iw) perimeter — the road continues past",
+    "never more than one centerpiece — gallows OR gibbet OR stocks, not a mix",
+    "scatter stays sparse — this is a threshold, not a gathering place",
+    "the notice-board should always be readable from the road approach"
+  ]
+}

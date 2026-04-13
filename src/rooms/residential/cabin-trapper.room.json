@@ -1,0 +1,64 @@
+{
+  "name": "cabin-trapper",
+  "category": "residential",
+  "tags": ["wilderness", "residential", "small", "rustic", "trapper", "frontier"],
+  "summary": "A fur-trapper's one-room cabin — skinning work dominates the space, pelts hang everywhere, and the smell of tallow lingers.",
+  "size_guidance": {
+    "min": [5, 5],
+    "typical": [6, 8],
+    "aspect_ratio": "near-square or short-rectangle"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/dirt_floor", "polyhaven/rough_wood"]
+  },
+  "primary_palette": [
+    { "props": ["skinning-table"], "surrounded_by": ["barrel", "tanning-rack"], "note": "work-first cabin — the pelt trade pays the rent" },
+    { "props": ["tanning-rack", "tanning-rack"], "note": "peak season — two racks in use, curing hides everywhere" },
+    { "props": ["hearth"], "surrounded_by": ["cooking-spit", "log-pile"], "note": "winter-bound trapper, cooking and curing over the same fire" },
+    { "props": ["workbench"], "surrounded_by": ["trap-rack", "trap-rack"], "note": "the trapper is a craftsman — making and repairing traps between runs" }
+  ],
+  "secondary_palette": [
+    "pallet",
+    "bedroll",
+    "trap-rack",
+    "tanning-rack",
+    "stretched-hide",
+    "log-pile",
+    "barrel",
+    "stool",
+    "trunk",
+    "pelt-stack"
+  ],
+  "scatter_palette": [
+    "skinning-knife",
+    "tallow-pot",
+    "bone-pile",
+    "dried-herbs",
+    "oil-flask",
+    "rope-coil",
+    "water-jug",
+    "boot-muddy",
+    "antler-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-rectangle", "L-shape-with-alcove-for-bed"],
+    "discouraged": ["symmetrical-formal", "multi-room"]
+  },
+  "story_prompts": [
+    "empty — trapper is three days out on the line, check the ledger for the route",
+    "recently abandoned after a bad encounter — a partial skin on the rack, tools dropped",
+    "occupied year-round by a taciturn woman who trades only in Spring",
+    "a pair of brothers share it in rotation — two bedrolls, two knives, one disagreement",
+    "trap-making workshop serving several neighboring lines — more workbench than home"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low (0.2-0.3) — hearth-lit with one tallow lamp",
+    "ambient_is": "optional",
+    "common_sources": ["hearth", "candle", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "no refined furniture — no upholstered chairs, no painted cabinets",
+    "hides go on walls and racks, not the floor",
+    "avoid neat organization — trapping is a messy trade, let the scatter show it"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "name": "mill-lumber",
+  "category": "industrial",
+  "tags": ["rural", "industrial", "large", "commercial", "loud"],
+  "summary": "A water- or ox-driven sawmill. Massive pit-saw or circular blade, rough logs feeding in one side, finished boards stacked on the other. Sawdust everywhere.",
+  "size_guidance": {
+    "min": [12, 10],
+    "typical": [14, 12],
+    "aspect_ratio": "long rectangle aligned with the saw carriage"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "sawdust accumulation under and around the blade",
+      "options": ["polyhaven/ash_layer", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["pit-saw"], "surrounded_by": ["log-carriage", "lumber-stack"], "note": "pit-saw mill — two-man reciprocating blade, log fed from above" },
+    { "props": ["sawmill-blade"], "surrounded_by": ["log-carriage", "drive-shaft"], "note": "water-driven circular saw — a proud modern mill" },
+    { "props": ["sawmill-blade"], "surrounded_by": ["log-carriage", "lumber-stack", "lumber-stack"], "note": "production mill — bulk board output, carriage mid-cut" }
+  ],
+  "secondary_palette": [
+    "log-carriage",
+    "lumber-stack",
+    "drive-shaft",
+    "workbench",
+    "grinding-wheel",
+    "barrel",
+    "chopping-block",
+    "weapon-rack",
+    "tool-rack",
+    "bench"
+  ],
+  "scatter_palette": [
+    "sawdust-pile",
+    "wood-chip",
+    "log-round",
+    "wedge-iron",
+    "axe-head",
+    "rope-coil",
+    "broken-blade",
+    "leather-apron"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "L-with-log-yard", "open-shed"],
+    "discouraged": ["square", "small"]
+  },
+  "story_prompts": [
+    "full production — logs queuing at the inlet, boards stacking at the outlet, shouting over the noise",
+    "blade-broken — saw stopped, sawyer cursing at a snapped tooth",
+    "after hours — mill silent, one figure sharpening the blade by lantern-light",
+    "flood surge — water wheel running wild, sawyer scrambling to brake the carriage"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright working light (0.4-0.5) — often half-open to the elements",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "brazier"]
+  },
+  "anti_patterns": [
+    "don't center the blade — put it along the long axis so the log carriage has room to travel",
+    "logs enter one end, boards leave the other — enforce the flow direction visually",
+    "don't block the drive shaft path from the exterior wall"
+  ]
+}

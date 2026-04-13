@@ -1,0 +1,67 @@
+{
+  "name": "shop-tailor",
+  "category": "urban",
+  "tags": ["urban", "commercial", "small", "refined"],
+  "summary": "A tailor's shop with bolts of cloth on shelves, a fitting mirror, a cutting table, and a sewing bench in the back. Finished garments on mannequins, pinned patterns on the walls.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangle with fitting area front, cutting/sewing back"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "fitting area rug",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["cutting-table", "mannequin"], "surrounded_by": ["silk-bolt", "fitting-mirror", "shelf-open"], "note": "classic tailor — fitting, cutting, bolts" },
+    { "props": ["counter"], "surrounded_by": ["mannequin", "mannequin", "silk-bolt"], "note": "gallery-style tailor — dressed mannequins front and center" },
+    { "props": ["cutting-table"], "surrounded_by": ["sewing-bench", "silk-bolt", "fitting-mirror"], "note": "workshop-tailor — active sewing visible" }
+  ],
+  "secondary_palette": [
+    "cutting-table",
+    "sewing-bench",
+    "mannequin",
+    "fitting-mirror",
+    "silk-bolt",
+    "shelf-open",
+    "cabinet",
+    "chair",
+    "stool",
+    "counter",
+    "chest"
+  ],
+  "scatter_palette": [
+    "thread-spool",
+    "pin-cushion",
+    "scissors-shears",
+    "chalk-mark",
+    "measuring-tape",
+    "fabric-scrap",
+    "needle-case",
+    "thimble",
+    "buttons-jar"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-fitting-room"],
+    "discouraged": ["large", "round"]
+  },
+  "story_prompts": [
+    "wedding commission — a bride at the mirror, tailor pinning, mother watching",
+    "rushed funeral order — black cloth unspooled, tailor and apprentice sewing frantically",
+    "noble's fitting — a baron on the stool, tailor measuring, guards at the door",
+    "midnight stitching — tailor alone, sewing a concealed pocket into a diplomatic coat"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright clean light (0.5) — cloth colors must be true",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "bolts stand on end along walls, don't lay flat on the floor",
+    "cutting table is large and central — the heart of the shop",
+    "fitting mirror must be against a wall — never mid-floor"
+  ]
+}

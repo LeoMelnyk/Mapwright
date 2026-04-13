@@ -1,0 +1,66 @@
+{
+  "name": "cooperage",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "commercial", "medium", "hot"],
+  "summary": "A cooper's workshop for building barrels. Stave horses, a hooping fire for shaping iron bands, finished barrels stacked floor to ceiling, a master at the hoop-driver.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 12],
+    "aspect_ratio": "rectangle with hooping fire at one end, finished goods at the other"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "scorched zone around the hooping fire",
+      "options": ["polyhaven/ash_layer", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["stave-horse", "hooping-fire"], "surrounded_by": ["barrel-stack", "workbench"], "note": "classic cooperage — shape, hoop, stack" },
+    { "props": ["stave-horse", "stave-horse"], "surrounded_by": ["hooping-fire", "barrel-stack"], "note": "two-station cooperage — master plus apprentice" },
+    { "props": ["hooping-fire"], "surrounded_by": ["stave-horse", "barrel-stack", "barrel-stack"], "note": "hooping-focused — wholesaler building in bulk" }
+  ],
+  "secondary_palette": [
+    "stave-horse",
+    "hooping-fire",
+    "barrel-stack",
+    "barrel",
+    "keg",
+    "workbench",
+    "chopping-block",
+    "grinding-wheel",
+    "tool-rack",
+    "lumber-stack",
+    "bench"
+  ],
+  "scatter_palette": [
+    "iron-hoop",
+    "wood-chip",
+    "stave-pile",
+    "adze",
+    "mallet-wooden",
+    "chalk-mark",
+    "leather-apron",
+    "sawdust-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-storage"],
+    "discouraged": ["round", "small"]
+  },
+  "story_prompts": [
+    "brewery contract — 50 barrels due by week's end, every station moving",
+    "hooping failure — fire too hot, a stave charred, master cursing",
+    "quiet apprentice day — master absent, apprentice practicing bands alone",
+    "midnight smuggling — barrels stacked in rows, one with a false bottom"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm working light (0.4) with hooping-fire glow",
+    "ambient_is": "required",
+    "common_sources": ["hooping-fire", "brazier", "lantern-post"]
+  },
+  "anti_patterns": [
+    "finished barrels stack along walls, never block the door or fire approach",
+    "hooping fire on a stone hearth — never on wooden planks",
+    "stave horses need swing-room for the adze — don't crowd them"
+  ]
+}

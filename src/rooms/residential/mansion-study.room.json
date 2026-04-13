@@ -1,0 +1,70 @@
+{
+  "name": "mansion-study",
+  "category": "residential",
+  "tags": ["mansion", "residential", "medium", "study", "office", "private", "scholarly"],
+  "summary": "A noble's private study — desk-dominant, book-lined, personal. Where the lord signs letters, hides ledgers, and thinks alone.",
+  "size_guidance": {
+    "min": [7, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "squarish or slightly elongated toward the window"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/parquet_floor"],
+    "accent": {
+      "purpose": "desk-area rug",
+      "options": ["polyhaven/carpet_ornate", "polyhaven/carpet_oriental"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["desk"], "surrounded_by": ["armchair", "bookshelf", "bookshelf"], "note": "scholar-noble — desk faces the window, books wrap three walls" },
+    { "props": ["desk"], "surrounded_by": ["globe", "map-table"], "note": "administrator / spymaster — the study plans the estate or the realm" },
+    { "props": ["writing-desk"], "surrounded_by": ["fireplace", "armchair"], "note": "intimate study — correspondence and fireside reading" },
+    { "props": ["lectern"], "surrounded_by": ["book-pile", "candelabra"], "note": "standing scholar — no desk, a reading lectern and shelves" }
+  ],
+  "secondary_palette": [
+    "bookshelf",
+    "armchair",
+    "fireplace",
+    "globe",
+    "map-table",
+    "cabinet",
+    "scroll-rack",
+    "painting",
+    "carpet",
+    "hourglass",
+    "chest"
+  ],
+  "scatter_palette": [
+    "book-open",
+    "ink-pot",
+    "quill",
+    "sealing-wax",
+    "letter-stack",
+    "decanter",
+    "reading-spectacles",
+    "pipe-ashtray",
+    "candle",
+    "paperweight"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "rectangle-with-fireplace-wall", "L-with-alcove-desk"],
+    "discouraged": ["large", "public-facing", "open-plan"]
+  },
+  "story_prompts": [
+    "the lord has just stepped out — the letter on the desk is mid-sentence, candle still lit",
+    "ransacked — drawers pulled, books thrown down, a specific ledger is missing",
+    "the inheritor's study — the old lord's things untouched, the new lord's things stacked by the door",
+    "the study has a secret door behind a bookshelf and a second, smaller study beyond",
+    "an evening reading — fireplace bright, decanter open, nobody awake to finish the glass"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "focused warm (0.3-0.45) — desk candles, fireplace glow",
+    "ambient_is": "optional",
+    "common_sources": ["candelabra", "fireplace", "desk-lamp", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "this is NOT a library — shelves line the walls but books are tools, not the point",
+    "desk is primary, NOT decorative — it dominates one axis of the room",
+    "avoid crowded bookshelves on every wall — leave room for a painting, a map, a window"
+  ]
+}

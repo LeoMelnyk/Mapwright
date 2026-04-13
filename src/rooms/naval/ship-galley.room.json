@@ -1,0 +1,62 @@
+{
+  "name": "ship-galley",
+  "category": "naval",
+  "tags": ["naval", "ship", "galley", "kitchen", "cramped", "functional"],
+  "summary": "The ship's kitchen — a brick-lined iron stove, swinging pots, a chopping block, every surface strapped or stowed against the roll of the sea.",
+  "size_guidance": {
+    "min": [5, 6],
+    "typical": [6, 8],
+    "aspect_ratio": "small rectangle"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wood_planks_worn", "polyhaven/brick_floor"],
+    "accent": {
+      "purpose": "stove hearth / tile mat",
+      "options": ["polyhaven/brick_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["ship-stove"], "surrounded_by": ["pot-rack", "wood-bin"], "note": "iron brick-lined stove, heart of the galley" },
+    { "props": ["chopping-block"], "surrounded_by": ["hanging-meat", "spice-rack"], "note": "cook's work surface with a cleaver buried in it" },
+    { "props": ["kettle-hook"], "surrounded_by": ["pot-rack", "barrel-salt-pork"], "note": "simmering pot, meal in progress" }
+  ],
+  "secondary_palette": [
+    "ship-stove",
+    "pot-rack",
+    "spice-rack",
+    "chopping-block",
+    "barrel-salt-pork",
+    "barrel",
+    "wood-bin",
+    "hanging-meat",
+    "cupboard-galley"
+  ],
+  "scatter_palette": [
+    "tankard",
+    "pewter-plate",
+    "cleaver",
+    "wooden-spoon",
+    "rag-pile",
+    "onion-braid"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-rectangle", "L-shape-counter"],
+    "discouraged": ["large-square", "round"]
+  },
+  "story_prompts": [
+    "cook is a retired adventurer and still a dangerous foe",
+    "a poisoning has just been discovered — the cook flees or fights",
+    "everything is bolted down, the galley has ridden out worse storms",
+    "the stove's fire hasn't gone out in twenty years — now it's guttering"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm (0.35-0.45) firelight plus one lantern",
+    "ambient_is": "required",
+    "common_sources": ["ship-stove", "lantern-post"]
+  },
+  "anti_patterns": [
+    "stove hugs a bulkhead, never floats in the middle",
+    "don't leave the floor bare — pots, racks, barrels stack tightly",
+    "pot-racks overhead (as props), not freestanding in the walk-space"
+  ]
+}

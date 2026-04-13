@@ -1,0 +1,59 @@
+{
+  "name": "ossuary",
+  "category": "sacred",
+  "tags": ["sacred", "burial", "bones", "underground", "death", "memorial"],
+  "summary": "A chamber of ordered bones — walls lined with skulls, columns of femurs, ornamental patterns made from the dead. The faithful kept for veneration, not feared.",
+  "size_guidance": {
+    "min": [5, 5],
+    "typical": [7, 9],
+    "aspect_ratio": "rectangular or cruciform — processional paths between bone stacks"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/stone_tile_rough", "polyhaven/cobblestone_floor_03", "polyhaven/dirt_floor"]
+  },
+  "primary_palette": [
+    { "props": ["bone-shrine"], "surrounded_by": ["candle-cluster", "candle-cluster"], "note": "ornate bone-stack shrine as centerpiece" },
+    { "props": ["altar"], "surrounded_by": ["skull-stack", "skull-stack"], "note": "a memorial altar with pillars of skulls to each side" },
+    { "props": ["sarcophagus"], "surrounded_by": ["bone-pile", "bone-pile"], "note": "the founder's sarcophagus amid the piled dead" },
+    { "props": ["bone-chandelier"], "surrounded_by": ["grave-marker", "grave-marker"], "note": "the chamber's ornament is the ceiling itself" }
+  ],
+  "secondary_palette": [
+    "bone-pile",
+    "skull-stack",
+    "bone-shrine",
+    "candelabra",
+    "candle-cluster",
+    "grave-marker",
+    "coffin",
+    "pillar",
+    "sarcophagus-skull"
+  ],
+  "scatter_palette": [
+    "skeleton",
+    "candle",
+    "book",
+    "offering-plate",
+    "bone-pile"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle-with-pillars", "cruciform", "vaulted-hall"],
+    "discouraged": ["small-cell", "irregular"]
+  },
+  "story_prompts": [
+    "newly arranged — a recent plague's dead still being sorted into patterns",
+    "venerated daily — candles lit, fresh petals among the skulls",
+    "desecrated — bones scattered, patterns broken, an empty niche where a reliquary sat",
+    "a grief-stricken visitor — found weeping at a particular skull set apart from the others",
+    "a secret below — one sarcophagus has been dragged aside, a crawl-space behind it"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "low and cold (0.15-0.25) — scattered candles throwing long shadows through bone arches",
+    "ambient_is": "required",
+    "common_sources": ["candle-cluster", "candelabra", "bone-chandelier"]
+  },
+  "anti_patterns": [
+    "bones are arranged, never scattered — this is veneration, not a battlefield",
+    "processional paths between stacks; visitors can walk the chamber",
+    "no throne or ritual circle — ossuaries memorialize, they do not perform"
+  ]
+}

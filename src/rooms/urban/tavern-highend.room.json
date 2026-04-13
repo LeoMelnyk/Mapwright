@@ -1,0 +1,69 @@
+{
+  "name": "tavern-highend",
+  "category": "urban",
+  "tags": ["urban", "commercial", "social", "medium", "noble", "refined"],
+  "summary": "An upscale tavern catering to merchants, officers, and minor nobility. Polished wood, private booths, a formal bar with rare bottles, a small stage for a lute duet. No brawls here.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 14],
+    "aspect_ratio": "rectangle with booths lining walls, open floor for servers"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "polished central floor or carpet runner",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["bar-counter"], "surrounded_by": ["stool", "wine-rack", "display-case"], "note": "wine-bar-forward — rare vintages visible behind the counter" },
+    { "props": ["fireplace"], "surrounded_by": ["chair", "chair", "table"], "note": "fireplace lounge — intimate high-end retreat" },
+    { "props": ["stage-small"], "surrounded_by": ["table", "chair", "chair"], "note": "entertainment-forward — a harpist or duet, booths gathered toward the stage" }
+  ],
+  "secondary_palette": [
+    "bar-counter",
+    "wine-rack",
+    "table",
+    "long-table",
+    "chair",
+    "bench",
+    "stool",
+    "fireplace",
+    "chandelier",
+    "display-case",
+    "painting",
+    "notice-board",
+    "stage-small"
+  ],
+  "scatter_palette": [
+    "wine-bottle",
+    "wine-glass",
+    "silver-tray",
+    "candle",
+    "playing-cards",
+    "coin-pile",
+    "cigar-case",
+    "hat-tricorn",
+    "glove-silk"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-private-alcove", "T-with-entrance-foyer"],
+    "discouraged": ["small", "round"]
+  },
+  "story_prompts": [
+    "diplomatic dinner — two factions at separate booths, a courier between them",
+    "quiet afternoon — one table of merchants closing a deal, bard playing softly",
+    "private party — the whole room rented out, guards at the door",
+    "closing — master polishing wine glasses while a cloaked stranger waits"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm refined light (0.5) — chandelier-lit with fire accent",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "fireplace", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "avoid common-tavern clutter — no spilled ale, no brawl debris",
+    "booths hug walls for privacy — don't place them mid-floor",
+    "the bar is for display as much as service — the back shelves must be visible"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "elemental-earth-node",
+  "category": "planar",
+  "tags": ["planar", "elemental", "earth", "natural", "exotic", "raw"],
+  "summary": "A pocket of the Elemental Plane of Earth. The room is not a room — it is a rough cavity in living stone where crystal grows faster than moss, and gravity seems to pick its own direction.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [12, 14],
+    "aspect_ratio": "irregular — the 'room' is wherever the stone parted"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/raw_granite",
+      "polyhaven/geode_interior",
+      "polyhaven/ore_rock"
+    ],
+    "accent": {
+      "purpose": "crystal-vein inlay running through the floor",
+      "options": ["polyhaven/crystal_vein", "polyhaven/quartz_inlay"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["earth-node-core"], "surrounded_by": ["crystal-formation", "crystal-formation"], "note": "a beating gemstone heart of the node" },
+    { "props": ["crystal-formation", "crystal-formation"], "surrounded_by": ["stalagmite", "stalagmite"], "note": "massive twin crystal clusters dominate" },
+    { "props": ["earth-elemental-anvil"], "surrounded_by": ["rock-cluster", "rock-cluster"], "note": "dao-worked forge-stone, raw and unworked" },
+    { "props": ["obelisk-stone-raw"], "surrounded_by": ["stalagmite", "crystal-formation"], "note": "a rough monolith grown, not carved" }
+  ],
+  "secondary_palette": [
+    "crystal-formation",
+    "stalagmite",
+    "stone-column",
+    "rock-cluster",
+    "obelisk-stone-raw",
+    "geode-cluster",
+    "ore-vein-prop"
+  ],
+  "scatter_palette": [
+    "rock-cluster",
+    "crystal-shard",
+    "ore-chunk",
+    "gem-loose",
+    "stone-debris",
+    "fossil-embedded"
+  ],
+  "shape_guidance": {
+    "preferred": ["irregular-organic", "hexagonal-chamber", "oval"],
+    "discouraged": ["right-angles", "square", "polished-rectangle"]
+  },
+  "story_prompts": [
+    "a dao surveys the node, dispatching gem-workers",
+    "the core is cracking — a great earthquake is imminent on a linked material world",
+    "xorn have infested and are eating the prize crystals",
+    "a miner has been fused into the wall and is still alive, slowly becoming stone",
+    "empty, silent except for the slow growth-chime of crystal forming in real time"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim (0.25-0.4) but crystals provide bright cold-blue/violet point sources",
+    "ambient_is": "required",
+    "common_sources": ["crystal-formation", "earth-node-core", "geode-cluster"]
+  },
+  "anti_patterns": [
+    "no worked stone, no furniture, no wood — this is raw geology",
+    "no fire sources — light comes from crystal, not flame",
+    "walls should be jagged; use trims to break any straight line",
+    "avoid symmetry entirely — nothing here was built to a plan"
+  ]
+}

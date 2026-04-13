@@ -1,0 +1,66 @@
+{
+  "name": "textile-loomhouse",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "medium", "commercial"],
+  "summary": "A weaver's workshop dominated by large floor looms, with spinning wheels, bolts of finished cloth, and dye vats in the back. Threads and lint in every corner.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 14],
+    "aspect_ratio": "rectangle — looms line up along the long axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "dye-stained zone in the back near vats",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["loom", "loom"], "surrounded_by": ["spinning-wheel", "silk-bolt"], "note": "two-loom shop — classic weaver's household" },
+    { "props": ["loom", "loom", "loom"], "surrounded_by": ["spinning-wheel", "silk-bolt"], "note": "production loomhouse — journeymen at three looms" },
+    { "props": ["loom"], "surrounded_by": ["dye-vat", "spinning-wheel", "silk-bolt"], "note": "dyer-weaver — integrated color and cloth production" }
+  ],
+  "secondary_palette": [
+    "loom",
+    "spinning-wheel",
+    "dye-vat",
+    "silk-bolt",
+    "shelf-open",
+    "workbench",
+    "stool",
+    "bench",
+    "basket",
+    "thread-rack",
+    "chest"
+  ],
+  "scatter_palette": [
+    "thread-spool",
+    "lint-clump",
+    "fabric-scrap",
+    "bobbin",
+    "needle-case",
+    "chalk-mark",
+    "cat-sleeping",
+    "pin-cushion"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-dye-alcove"],
+    "discouraged": ["round", "small"]
+  },
+  "story_prompts": [
+    "commission rush — all looms running, master checking tension on each",
+    "dye day — vats steaming, weavers wearing stained aprons",
+    "thread-shortage — looms idle, master arguing with a merchant",
+    "night's work — one loom lit by candles, a pattern no one's seen before"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "steady working light (0.45-0.5) — weavers need to see thread",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "lantern-post", "candle"]
+  },
+  "anti_patterns": [
+    "looms need walking space on multiple sides — don't crowd them",
+    "dye vats stay away from finished cloth — cloth stacks near the exit",
+    "don't mirror loom orientation — weavers face the warp, make that visible"
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "displayName": "Snow Tundra",
   "background": "#e0ecf4",
-  "gridLine": "#4888b8",
+  "gridLine": "#000000",
   "wallStroke": "#182a3c",
   "wallFill": "#f0f6fa",
   "textColor": "#182a3c",
@@ -45,6 +45,6 @@
     "backgroundColor": "#FFFFFF"
   },
   "gridStyle": "lines",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.15
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

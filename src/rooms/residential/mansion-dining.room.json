@@ -1,0 +1,69 @@
+{
+  "name": "mansion-dining",
+  "category": "residential",
+  "tags": ["mansion", "residential", "large", "dining", "formal", "public-room"],
+  "summary": "The formal dining hall of a great house — one long table dominates the processional axis, flanked by sideboards and candelabra.",
+  "size_guidance": {
+    "min": [10, 14],
+    "typical": [12, 18],
+    "aspect_ratio": "long rectangle along the table axis"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/parquet_floor", "polyhaven/marble_floor", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "runner under the table",
+      "options": ["polyhaven/carpet_royal", "polyhaven/carpet_oriental"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["long-table"], "surrounded_by": ["chair", "chair", "chair", "chair", "chair", "chair", "chair", "chair"], "note": "the classic banquet — eight-to-twelve seats, head at each end" },
+    { "props": ["long-table"], "surrounded_by": ["chair", "chair", "chair", "chair", "candelabra", "candelabra"], "note": "intimate dining — half the table set, candelabra down the runner" },
+    { "props": ["round-dining-table"], "surrounded_by": ["chair", "chair", "chair", "chair", "chair", "chair"], "note": "round-table house — equal seating, designed for conversation" }
+  ],
+  "secondary_palette": [
+    "sideboard",
+    "serving-trolley",
+    "candelabra",
+    "chandelier",
+    "floor-candelabra",
+    "fireplace",
+    "painting",
+    "tapestry",
+    "carpet-royal",
+    "wine-rack",
+    "china-cabinet"
+  ],
+  "scatter_palette": [
+    "tureen",
+    "silver-candlestick",
+    "decanter",
+    "fruit-bowl",
+    "napkin-pile",
+    "place-card",
+    "fresh-flowers",
+    "spilled-wine",
+    "dropped-fork"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "processional-along-table", "doors-at-short-ends"],
+    "discouraged": ["square", "cramped", "asymmetric"]
+  },
+  "story_prompts": [
+    "the feast is laid, guests not yet seated — servants frozen in tableau",
+    "mid-banquet crisis — a place just vacated, a chair overturned, wine spilled on the runner",
+    "the morning after — half-eaten courses, guttered candles, a single servant surveying the wreckage",
+    "the hall is laid for a wedding that will not happen",
+    "a council dinner — political factions arranged by seating, knives deliberately sharp"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "formal bright (0.5-0.6) — chandelier over the table plus wall sconces",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candelabra", "floor-candelabra", "wall-lantern", "fireplace"]
+  },
+  "anti_patterns": [
+    "the long table runs the long axis — do not place it crosswise in a long room",
+    "chairs come in pairs across the table, not singles — formal symmetry",
+    "avoid working props — no workbenches, no tools. This room performs.",
+    "food is scatter, not primary — the props are the setting, not the meal"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "name": "scriptorium-dark",
+  "category": "dungeon",
+  "tags": ["dungeon", "knowledge", "occult", "study", "medium"],
+  "summary": "A forbidden library or copying hall — desks lined beneath shelves of vile texts, each station lit by a single candle, ink-stained fingers and cracked bindings.",
+  "size_guidance": {
+    "min": [7, 9],
+    "typical": [9, 12],
+    "aspect_ratio": "rectangular — desks lined along walls want length"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/wood_floor",
+      "polyhaven/stone_tile_polished",
+      "polyhaven/cobblestone_floor_03"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["desk", "desk", "desk", "desk"], "surrounded_by": ["bookshelf", "bookshelf"], "note": "copying hall — four scriveners' stations, shelves of source material" },
+    { "props": ["lectern", "lectern"], "surrounded_by": ["bookshelf", "bookshelf", "bookshelf"], "note": "reading-chapel — standing lecterns in a shelf-walled room" },
+    { "props": ["desk", "scroll-rack"], "surrounded_by": ["book-pile", "book-pile"], "note": "one scholar's chaotic working-room" },
+    { "props": ["map-table", "bookshelf"], "note": "cartographer-scribe — charts and gazetteers" },
+    { "props": ["desk", "necrotic-altar"], "note": "forbidden research — the desk is where the notes go, the altar is where the answers come from" }
+  ],
+  "secondary_palette": [
+    "bookshelf",
+    "scroll-rack",
+    "scroll-case",
+    "lectern",
+    "desk",
+    "chair",
+    "stool",
+    "book-pile",
+    "book-open",
+    "candelabra",
+    "floor-candelabra",
+    "candle",
+    "globe",
+    "hourglass"
+  ],
+  "scatter_palette": [
+    "ink-pot",
+    "quill-pen",
+    "parchment-scrap",
+    "book",
+    "book-open",
+    "reading-spectacles",
+    "wax-seal-kit"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "long-rectangle", "L-shape-with-alcove"],
+    "discouraged": ["round", "narrow-corridor-like"]
+  },
+  "story_prompts": [
+    "interrupted mid-copy — ink still wet on a half-finished page of forbidden text",
+    "the scribes are dead at their desks, the work went on without them",
+    "a cultist study hall — identical books on every shelf, all one title",
+    "a mad wizard's scriptorium where the books rewrite themselves",
+    "ruined library where the knowledge survived but the keepers didn't"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim pools of candle-light (0.2-0.35)",
+    "ambient_is": "optional",
+    "common_sources": ["candle", "candelabra", "floor-candelabra", "wall-lantern"]
+  },
+  "anti_patterns": [
+    "don't light it brightly — the mood is isolated pools of illumination",
+    "don't scatter books randomly on the floor without explanation",
+    "avoid overlapping with ritual-chamber — this is study, not invocation"
+  ]
+}

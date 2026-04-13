@@ -1,0 +1,63 @@
+{
+  "name": "druid-grove",
+  "category": "wilderness",
+  "tags": ["wilderness", "sacred", "natural", "druidic", "primal"],
+  "summary": "A sacred clearing. Ring of standing stones or old trees around a ritual center. No built walls — the grove IS the sanctuary.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 12],
+    "aspect_ratio": "near-circular"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/forest_floor", "polyhaven/moss_ground", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "ritual center stone disk or flattened earth",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["standing-stones-ring"], "note": "stone ring, druid ceremonial space" },
+    { "props": ["ancient-tree"], "surrounded_by": ["cairn-sacred", "cairn-sacred"], "note": "central living tree as the focus" },
+    { "props": ["altar-wooden"], "surrounded_by": ["brazier", "brazier"], "note": "clearing with a built druidic altar" }
+  ],
+  "secondary_palette": [
+    "standing-stone",
+    "cairn-sacred",
+    "tree-old",
+    "bush-berry",
+    "fern-cluster",
+    "log-fallen",
+    "brazier",
+    "antler-offering",
+    "bone-marker"
+  ],
+  "scatter_palette": [
+    "mushroom-cluster",
+    "feather-bundle",
+    "wildflower-patch",
+    "animal-tracks",
+    "rain-puddle",
+    "wood-chip-pile",
+    "prayer-stone"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle-via-rounded-corners", "irregular-polygon", "L-shape-trailing-into-forest"],
+    "discouraged": ["rectangle", "square"]
+  },
+  "story_prompts": [
+    "active druidic rite mid-summer, fresh wreaths on every stone",
+    "abandoned by its circle — moss overtaking the altar, stones leaning",
+    "recently defiled — one stone toppled, burn marks on the central tree",
+    "seasonal gathering site — fire ring, temporary shelters at the perimeter"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "natural/outdoor — 0.6-0.8 by day, dark by night except braziers",
+    "ambient_is": "optional",
+    "common_sources": ["brazier", "campfire"]
+  },
+  "anti_patterns": [
+    "no built walls — use invisible walls (iw) to shape without drawing structure",
+    "the ring of stones/trees is the 'wall' — prop-based boundary only",
+    "do not over-prop the center — it must read as sacred open space"
+  ]
+}

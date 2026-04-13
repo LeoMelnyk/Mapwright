@@ -1,0 +1,70 @@
+{
+  "name": "bog-witch-hut",
+  "category": "wilderness",
+  "tags": ["wilderness", "bog", "witch", "occult", "dwelling"],
+  "summary": "A lone hut on stilts (or a stump, or a slumped mound) at the edge of a bog. Smoke from a crooked chimney, bone charms on the door, a cauldron outside. More outdoor than indoor — the swamp is part of the home.",
+  "size_guidance": {
+    "min": [7, 7],
+    "typical": [10, 9],
+    "aspect_ratio": "irregular — hut footprint plus surrounding bog yard"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/mud_floor", "polyhaven/bog_floor", "polyhaven/forest_floor"],
+    "accent": {
+      "purpose": "hut floorboards — a small raised interior",
+      "options": ["polyhaven/wood_floor", "polyhaven/plank_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["witch-hut"], "surrounded_by": ["cauldron-fire", "bone-charm", "dead-tree"], "note": "the hut itself as centerpiece — cauldron outside the door" },
+    { "props": ["cauldron-fire"], "surrounded_by": ["chopping-block", "herb-drying-rack", "fallen-log"], "note": "outdoor workspace — the witch works in front of the hut" },
+    { "props": ["witch-hut-stilts"], "surrounded_by": ["reed-bed", "lantern-post"], "note": "stilted hut over open bogwater — walkway of planks to dry ground" }
+  ],
+  "secondary_palette": [
+    "witch-hut",
+    "cauldron-fire",
+    "chopping-block",
+    "herb-drying-rack",
+    "bone-charm",
+    "dead-tree",
+    "reed-bed",
+    "mushroom-cluster",
+    "willow-tree",
+    "fallen-log",
+    "lantern-post",
+    "planter-box"
+  ],
+  "scatter_palette": [
+    "mushroom",
+    "mushroom-cluster",
+    "moss-patch",
+    "reed-bed",
+    "candle",
+    "bone-charm",
+    "animal-skull-small",
+    "jar-of-teeth",
+    "hung-herb-bundle"
+  ],
+  "shape_guidance": {
+    "preferred": ["hut-island-in-bog", "irregular-with-raised-center", "clearing-with-dark-treeline"],
+    "discouraged": ["rectangle", "symmetric", "clean-walls"]
+  },
+  "story_prompts": [
+    "the witch is home — tea is ready, she was expecting someone (maybe you)",
+    "the witch is out — familiars guard the hut, cauldron still bubbling",
+    "the witch is dead — the charms on the door have gone silent, something moved in",
+    "not a witch — a healer hiding from a town that would burn her",
+    "a hag wears the witch's face — the real witch is bones under the floorboards"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim bog-dusk — low ambient, greenish tint, firelight from cauldron and hut windows",
+    "ambient_is": "optional",
+    "common_sources": ["cauldron-fire", "lantern-post", "candle", "hut-window-glow"]
+  },
+  "anti_patterns": [
+    "the hut is not a building-room — it is a prop/structure in a wilderness space",
+    "do not clean up the yard — bones, jars, hung herbs should crowd the workspace",
+    "the bog is part of the room — wet ground, reeds, dead trees on the perimeter",
+    "cauldron sits outside, not inside — witch work is weather work"
+  ]
+}

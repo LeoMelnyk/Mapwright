@@ -1,0 +1,60 @@
+{
+  "name": "ship-brig",
+  "category": "naval",
+  "tags": ["naval", "ship", "brig", "prison", "cramped", "grim"],
+  "summary": "The ship's jail — iron-barred cells built against the hull, a guard's stool, rusted manacles, the smell of bilge and fear.",
+  "size_guidance": {
+    "min": [5, 8],
+    "typical": [6, 10],
+    "aspect_ratio": "narrow — cells on one side, guard lane on the other"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_planks_worn", "polyhaven/bilge_planks", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "wet cell floor / bloodstained plank",
+      "options": ["polyhaven/bilge_planks", "polyhaven/wood_planks_wet"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["iron-cage-cell"], "surrounded_by": ["shackles", "bedroll"], "note": "single cell, standard naval brig" },
+    { "props": ["iron-cage-cell"], "surrounded_by": ["iron-cage-cell", "lantern-post"], "note": "a pair of cells facing a guard lane" },
+    { "props": ["interrogation-chair"], "surrounded_by": ["shackles", "brazier-small"], "note": "the captain gets results here — not a regular brig" }
+  ],
+  "secondary_palette": [
+    "iron-cage-cell",
+    "shackles",
+    "bedroll",
+    "lantern-post",
+    "bucket",
+    "stool-wooden",
+    "weapon-rack-small",
+    "chain-heavy"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "rat-swarm-marker",
+    "rag-pile",
+    "bucket",
+    "scratched-tally"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-narrow-rectangle", "cells-one-side"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "a prisoner offers information no one else could know",
+    "the brig is empty but freshly-used — where did the prisoner go?",
+    "a previously-loyal officer sits in the cell, awaiting tribunal",
+    "the prisoner isn't human and the cell wasn't built for them"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.1-0.15), single guard lantern",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post"]
+  },
+  "anti_patterns": [
+    "cells line one long wall — don't scatter them around the room",
+    "the guard lane stays clear — don't clutter it with chests or barrels",
+    "no windows — brigs are always below the waterline or center-hull"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "name": "oubliette",
+  "category": "dungeon",
+  "tags": ["dungeon", "prison", "grim", "horror", "small", "sealed"],
+  "summary": "A pit-prison — the forgotten place. One way in (above), bones on the floor, no hope of getting out.",
+  "size_guidance": {
+    "min": [4, 4],
+    "typical": [5, 6],
+    "aspect_ratio": "tight and claustrophobic, near-square"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/dirt_floor",
+      "polyhaven/stone_tile_cracked",
+      "polyhaven/cobblestone_floor_03"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["bone-pile"], "note": "generations of forgotten prisoners, bones heaped under the grate" },
+    { "props": ["corpse", "bone-pile-small"], "note": "recent addition — one still-fleshed body among older bones" },
+    { "props": ["shackles", "skeleton"], "note": "a prisoner chained to the wall, long dead" },
+    { "props": ["trapdoor"], "note": "the room's defining feature is the hole in the ceiling — nothing else, bare stone" },
+    { "props": ["bone-pile", "shackles", "corpse"], "note": "working oubliette — multiple dead in various stages" }
+  ],
+  "secondary_palette": [
+    "shackles",
+    "skeleton",
+    "bone-pile-small",
+    "chain-wall",
+    "grate-ceiling",
+    "puddle",
+    "rubble",
+    "rat-swarm-marker"
+  ],
+  "scatter_palette": [
+    "broken-fingernail-scratch",
+    "tally-marks-wall",
+    "rag-pile",
+    "rat-skeleton",
+    "water-dish-dry",
+    "moldy-bread",
+    "single-tooth"
+  ],
+  "shape_guidance": {
+    "preferred": ["square", "circle", "square-with-rounded-corners"],
+    "discouraged": ["long-rectangle", "L-shape-with-alcove"]
+  },
+  "story_prompts": [
+    "centuries-old, bones packed two feet deep",
+    "occupied — a starving prisoner still alive at the bottom",
+    "empty except for a scratched message in a dead language",
+    "collapsed oubliette, a way out now that didn't exist before",
+    "a false oubliette — the bones are decoys, the floor is a trapdoor to worse"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "near-black (0.05-0.15), light only from the grate above",
+    "ambient_is": "discouraged",
+    "common_sources": ["shaft-light-from-above"]
+  },
+  "anti_patterns": [
+    "don't furnish — no beds, no tables, no chairs. Oubliettes are bare.",
+    "don't put a door at floor level — the entry is above, via trapdoor or grate",
+    "don't light it well; this room is defined by its darkness"
+  ]
+}

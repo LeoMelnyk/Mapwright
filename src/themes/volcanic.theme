@@ -1,7 +1,7 @@
 {
   "displayName": "Volcanic",
   "background": "#281c10",
-  "gridLine": "#ff5500",
+  "gridLine": "#000000",
   "wallStroke": "#ff5500",
   "wallFill": "#382818",
   "textColor": "#ff8840",
@@ -45,6 +45,6 @@
     "backgroundColor": "#FFFFFF"
   },
   "gridStyle": "lines",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.15
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

@@ -1,0 +1,61 @@
+{
+  "name": "spider-lair",
+  "category": "underground",
+  "tags": ["underground", "spider", "web", "predator", "vertical", "horror"],
+  "summary": "A cave choked with webbing — sticky floor-sheets, silk-wrapped victims hanging from above, egg sacs pulsing gently in dark corners.",
+  "size_guidance": {
+    "min": [9, 11],
+    "typical": [11, 13],
+    "aspect_ratio": "vertical-feeling, irregular"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/web_carpet", "polyhaven/rock_ground", "polyhaven/cave_floor"],
+    "accent": {
+      "purpose": "clear stone patch / nursery mound",
+      "options": ["polyhaven/rock_ground", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["egg-sac-mound"], "surrounded_by": ["web-floor", "silk-cocoon"], "note": "central nursery of the brood" },
+    { "props": ["silk-cocoon-victim"], "surrounded_by": ["web-strand", "web-strand"], "note": "wrapped prey suspended for later" },
+    { "props": ["spider-matriarch-pad"], "surrounded_by": ["silk-cocoon", "web-floor"], "note": "a flattened web-dais where the big one rests" },
+    { "props": ["web-funnel"], "note": "trap funnel at an entrance — one-way snare" }
+  ],
+  "secondary_palette": [
+    "silk-cocoon",
+    "web-strand",
+    "web-floor",
+    "egg-sac-mound",
+    "stalagmite",
+    "bone-pile",
+    "dead-tree"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "spider-husk",
+    "web-strand",
+    "rag-pile",
+    "fang-scatter",
+    "rubble"
+  ],
+  "shape_guidance": {
+    "preferred": ["lobed-cave", "irregular-polygon", "multi-chamber"],
+    "discouraged": ["rectangle", "simple-square"]
+  },
+  "story_prompts": [
+    "a cocoon still struggles — saved now or watched forever",
+    "the matriarch is gone raiding; the nursery is guarded by dozens of young",
+    "a drow handler lives alongside the brood, training them",
+    "something larger than the spiders ate the matriarch recently"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "near-dark (0.08-0.12), filtered through web-haze",
+    "ambient_is": "required",
+    "common_sources": ["torch-wall", "glowcap-mushroom"]
+  },
+  "anti_patterns": [
+    "don't web the entire floor — leave clear stone lanes for the spiders' own use",
+    "cocoons hang from walls and ceiling, not standing on the floor",
+    "egg sacs cluster together — a nursery, not scattered"
+  ]
+}

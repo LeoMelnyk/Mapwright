@@ -1,0 +1,66 @@
+{
+  "name": "shop-weaponsmith",
+  "category": "urban",
+  "tags": ["urban", "commercial", "military", "medium", "retail"],
+  "summary": "A weaponsmith's retail front (as opposed to the full smithy). Racks of finished blades, polearms along the walls, display cases of daggers, a counter with a ledger. Smithy is implied behind a back door.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 10],
+    "aspect_ratio": "rectangle with walls lined in weapon racks"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "testing zone — a small striking stand",
+      "options": ["polyhaven/dirt_floor", "polyhaven/wooden_planks"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["counter", "weapon-rack"], "surrounded_by": ["weapon-rack", "spear-stand", "display-case"], "note": "classic weapon shop — full wall-racks" },
+    { "props": ["counter"], "surrounded_by": ["weapon-rack", "armor-stand", "shield-rack"], "note": "combined arms — weapons plus armor" },
+    { "props": ["display-case", "weapon-rack"], "surrounded_by": ["weapon-rack", "counter", "archery-target"], "note": "testing floor shop — range target for buyers to try bows" }
+  ],
+  "secondary_palette": [
+    "counter",
+    "weapon-rack",
+    "spear-stand",
+    "armor-stand",
+    "shield-rack",
+    "display-case",
+    "archery-target",
+    "cabinet",
+    "workbench",
+    "chest",
+    "ledger-stack"
+  ],
+  "scatter_palette": [
+    "dagger-loose",
+    "arrow-bundle",
+    "whetstone",
+    "leather-strap",
+    "scabbard-empty",
+    "polish-rag",
+    "coin-pile",
+    "broken-blade"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-test-range"],
+    "discouraged": ["small", "round"]
+  },
+  "story_prompts": [
+    "guard resupply — a sergeant ordering twenty spears, owner haggling",
+    "adventurer fitting — a newcomer testing sword heft, owner advising",
+    "mourning order — a widow commissioning her husband's blade for a son",
+    "night deal — shop closed, back door open, a crate of unmarked weapons changing hands"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "bright shop light (0.5) — polished steel must gleam",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "lantern-post", "candle"]
+  },
+  "anti_patterns": [
+    "weapons hang from walls, never stacked on the floor — this is retail",
+    "counter near the door so the owner sees everyone entering",
+    "don't mix with active smithy — the forge is behind a door, not in this room"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "name": "meditation-cell",
+  "category": "sacred",
+  "tags": ["sacred", "small", "monastic", "contemplative", "austere", "private"],
+  "summary": "A single-occupant cell for meditation or contemplative retreat. Almost bare — a mat, a candle, perhaps a single image. The room's austerity is the practice.",
+  "size_guidance": {
+    "min": [2, 2],
+    "typical": [3, 3],
+    "aspect_ratio": "tiny, near-square"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough", "polyhaven/dirt_floor"]
+  },
+  "primary_palette": [
+    { "props": ["kneeling-bench"], "surrounded_by": ["candle"], "note": "a single kneeler facing a bare wall with one candle" },
+    { "props": ["carpet"], "surrounded_by": ["candle"], "note": "a meditation mat on the floor, a candle set just off-center" },
+    { "props": ["painting"], "surrounded_by": ["kneeling-bench"], "note": "a single holy image to meditate upon, a kneeler before it" },
+    { "props": ["idol"], "surrounded_by": ["candle", "offering-plate"], "note": "a small devotional idol on a shelf or ledge, a candle and offering below" }
+  ],
+  "secondary_palette": [
+    "kneeling-bench",
+    "candle",
+    "painting",
+    "idol",
+    "carpet",
+    "book",
+    "stool"
+  ],
+  "scatter_palette": [
+    "candle",
+    "book",
+    "book-open"
+  ],
+  "shape_guidance": {
+    "preferred": ["tiny-square", "tiny-rectangle"],
+    "discouraged": ["large", "multi-focal", "irregular"]
+  },
+  "story_prompts": [
+    "currently occupied — a hooded figure motionless on the kneeler, unaware of intrusion",
+    "long-abandoned — dust on the mat, the candle a wax stub",
+    "the occupant in crisis — prayer book flung aside, candle overturned but not lit the floor",
+    "an ascetic's cell — a single bowl, a single cloak, nothing else",
+    "a cell used by someone hiding — a bedroll wedged against a wall, the shrine kept up as cover"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dim (0.1-0.2) — a single candle is the whole lighting plan",
+    "ambient_is": "required",
+    "common_sources": ["candle"]
+  },
+  "anti_patterns": [
+    "never more than two or three props — austerity is the design",
+    "no multi-cell props — everything fits in a one-meter footprint",
+    "no seating beyond a stool or kneeler — this is not a room for visitors"
+  ]
+}

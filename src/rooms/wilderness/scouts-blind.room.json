@@ -1,0 +1,62 @@
+{
+  "name": "scouts-blind",
+  "category": "wilderness",
+  "tags": ["wilderness", "hidden", "small", "reconnaissance", "observation"],
+  "summary": "A concealed observation post — a hide of branches, cloth, and camouflage overlooking a trail or landmark. Room for one or two watchers, barely.",
+  "size_guidance": {
+    "min": [3, 3],
+    "typical": [4, 4],
+    "aspect_ratio": "small, tight, just big enough"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/forest_floor", "polyhaven/dirt_floor", "polyhaven/moss_ground"]
+  },
+  "primary_palette": [
+    { "props": ["brush-blind"], "surrounded_by": ["bedroll", "gear-pack"], "note": "woven branch blind, bedroll on the ground, kit stashed low" },
+    { "props": ["bedroll"], "surrounded_by": ["brush-blind", "rope-coil"], "note": "prone watcher position — no shelter, just camouflage overhead" },
+    { "props": ["tree-stump"], "surrounded_by": ["brush-blind", "spyglass-tripod"], "note": "seated blind with a spyglass mount pointed outward" }
+  ],
+  "secondary_palette": [
+    "brush-blind",
+    "bedroll",
+    "gear-pack",
+    "tree-stump",
+    "fallen-log",
+    "spyglass-tripod",
+    "rope-coil",
+    "bush-large",
+    "fern"
+  ],
+  "scatter_palette": [
+    "fallen-leaves",
+    "moss-patch",
+    "tall-grass",
+    "fern",
+    "ration-wrapper",
+    "ink-pot-small",
+    "parchment-scrap",
+    "arrow-fletching"
+  ],
+  "shape_guidance": {
+    "preferred": ["tight-irregular", "wedge-into-thicket", "small-L-shape"],
+    "discouraged": ["large", "open", "symmetric"]
+  },
+  "story_prompts": [
+    "occupied — a scout is watching the trail below, unaware of the party behind",
+    "abandoned mid-watch — still-warm coffee, notes on parchment, no scout in sight",
+    "the scout is a spy for the enemy — the notes incriminate someone back home",
+    "days-old blind — weathered, but the notes hint at a pattern the party needs",
+    "two blinds, crossfire position — the watchers have been covering a single approach"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor-dim — deliberately shaded, no fire (would give position away)",
+    "ambient_is": "optional",
+    "common_sources": []
+  },
+  "anti_patterns": [
+    "no fire — the whole point is to not be seen",
+    "keep it tiny — a blind that fits four people is a camp, not a blind",
+    "no built walls — brush and bush-large define the concealment",
+    "one clear sightline out — the rest of the perimeter is densely screened"
+  ]
+}

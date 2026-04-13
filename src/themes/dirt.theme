@@ -1,7 +1,7 @@
 {
   "displayName": "Dirt",
   "background": "#be8e58",
-  "gridLine": "#3a2010",
+  "gridLine": "#000000",
   "wallStroke": "#200c00",
   "wallFill": "#d4ae7c",
   "textColor": "#100600",
@@ -44,7 +44,7 @@
     "fontColor": "#000000",
     "backgroundColor": "#FFFFFF"
   },
-  "gridStyle": "corners-dot",
-  "gridLineWidth": 2,
-  "gridOpacity": 0.3
+  "gridStyle": "lines",
+  "gridLineWidth": 4,
+  "gridOpacity": 0.5
 }

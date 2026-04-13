@@ -1,0 +1,73 @@
+{
+  "name": "sewer-junction",
+  "category": "dungeon",
+  "tags": ["dungeon", "urban", "wet", "utility", "underworld", "medium"],
+  "summary": "A convergence of sewer tunnels — walkways flank a flowing channel, iron grates drain into the dark, the smell is everywhere.",
+  "size_guidance": {
+    "min": [7, 8],
+    "typical": [9, 11],
+    "aspect_ratio": "cross-shape or T — multiple tunnels meeting"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/brick_floor",
+      "polyhaven/stone_tile_wet",
+      "polyhaven/cobblestone_floor_03"
+    ],
+    "accent": {
+      "purpose": "sewage channel water",
+      "options": ["polyhaven/water_murky", "polyhaven/stone_tile_wet"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["sewage-channel"], "surrounded_by": ["pillar", "pillar"], "note": "classic cross-junction — channel through center, walkways at sides" },
+    { "props": ["grate-floor", "grate-floor", "pipe-outlet"], "note": "drainage junction — multiple pipes feeding into floor grates" },
+    { "props": ["sewage-channel", "bridge-wood"], "note": "a plank bridge over the channel — the only way across" },
+    { "props": ["sewage-channel"], "surrounded_by": ["rubble", "moss-patch", "fungal-growth"], "note": "half-collapsed junction reclaimed by underworld growth" },
+    { "props": ["sewage-channel", "nest-of-rags", "campfire-stone"], "note": "squatter-occupied junction, a beggar or smuggler has made camp" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "pipe-outlet",
+    "grate-floor",
+    "grate-wall",
+    "ladder",
+    "chain-hoist",
+    "rubble",
+    "moss-patch",
+    "fungal-growth",
+    "rat-swarm-marker",
+    "wall-lantern",
+    "torch-sconce"
+  ],
+  "scatter_palette": [
+    "rat",
+    "floating-debris",
+    "rusted-tool",
+    "bone-pile-small",
+    "oil-slick",
+    "broken-crate",
+    "scummy-water-pool"
+  ],
+  "shape_guidance": {
+    "preferred": ["cross", "T-shape", "rectangle-with-channel", "Y-junction"],
+    "discouraged": ["square", "round"]
+  },
+  "story_prompts": [
+    "a working city sewer junction, rats everywhere, torches at intervals",
+    "a smuggler's transfer point — boxes waiting, a boat at the channel",
+    "a blocked junction where the sewage is backing up into the tunnels",
+    "flooded junction after rain, walkways submerged",
+    "ancient junction predating the city above, the channel runs to somewhere older"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "wet dim (0.15-0.3), light reflects on water",
+    "ambient_is": "optional",
+    "common_sources": ["wall-lantern", "torch-sconce", "grate-shaft-light"]
+  },
+  "anti_patterns": [
+    "don't forget the channel — a sewer junction without flowing sewage is just a room",
+    "don't use dry floor textures throughout; show the wet",
+    "avoid fine furniture unless it's out of place on purpose (a dumped desk, a stolen chair)"
+  ]
+}

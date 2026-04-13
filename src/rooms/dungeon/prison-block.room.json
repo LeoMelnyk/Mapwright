@@ -1,0 +1,56 @@
+{
+  "name": "prison-block",
+  "category": "dungeon",
+  "tags": ["dungeon", "captivity", "military", "dark", "institutional"],
+  "summary": "Individual cells along a central guard-walk. Iron bars, hard stone floors, shackles, no comfort.",
+  "size_guidance": {
+    "min": [8, 10],
+    "typical": [10, 14],
+    "aspect_ratio": "rectangular, long-axis for cell-row alignment"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/cobblestone_floor_08"]
+  },
+  "primary_palette": [
+    { "props": ["cell-door", "cell-door", "cell-door"], "note": "row of 3 barred cells along one wall" },
+    { "props": ["cell-door", "cell-door", "cell-door", "cell-door"], "note": "double-loaded — cells on both long walls" },
+    { "props": ["pillory"], "surrounded_by": ["shackles", "shackles"], "note": "central exposure corner — public punishment within the block" }
+  ],
+  "secondary_palette": [
+    "shackles",
+    "chain-wall",
+    "straw-pile",
+    "pallet",
+    "bucket",
+    "bars-cell-partition",
+    "torture-instrument-small"
+  ],
+  "scatter_palette": [
+    "bone-pile",
+    "rat-nest",
+    "blood-stain",
+    "scratch-marks",
+    "ration-bowl",
+    "rusted-manacle"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "T-with-guard-alcove"],
+    "discouraged": ["square", "rounded"]
+  },
+  "story_prompts": [
+    "mostly empty, only two cells occupied — political prisoners in separated cells",
+    "overcrowded, 5-per-cell, recent mass arrest",
+    "long-abandoned, cell doors rusted open, straw rotted to dust",
+    "interrogation in progress — guards at central pillory, block otherwise quiet"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "very dark (0.1)",
+    "ambient_is": "required",
+    "common_sources": ["torch-sconce"]
+  },
+  "anti_patterns": [
+    "cells need to be enclosed — use partial walls or cell-door props to close each bay",
+    "don't place props inside cell cells — cells should feel stripped bare",
+    "guard station or desk near the entrance — someone controls this space"
+  ]
+}

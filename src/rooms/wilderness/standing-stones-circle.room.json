@@ -1,0 +1,67 @@
+{
+  "name": "standing-stones-circle",
+  "category": "wilderness",
+  "tags": ["wilderness", "sacred", "ancient", "ritual", "megalithic"],
+  "summary": "A ring of upright stones on a low rise or moor. Older than any living people. No structure, no shelter — just stone, grass, sky, and a quiet that feels attentive.",
+  "size_guidance": {
+    "min": [10, 10],
+    "typical": [12, 12],
+    "aspect_ratio": "circular"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/grass_floor", "polyhaven/moss_ground", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "trampled ritual center — flattened grass or bare earth",
+      "options": ["polyhaven/dirt_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["standing-stone"], "surrounded_by": ["standing-stone", "standing-stone", "standing-stone"], "note": "full ring — 6-9 stones evenly spaced around an open center" },
+    { "props": ["altar-stone-flat"], "surrounded_by": ["standing-stone", "standing-stone"], "note": "altar-stone at the center of the ring, stones around the perimeter" },
+    { "props": ["obelisk"], "surrounded_by": ["standing-stone", "standing-stone"], "note": "taller center stone — axis mundi surrounded by lesser stones" },
+    { "props": ["standing-stone-fallen"], "surrounded_by": ["standing-stone", "standing-stone"], "note": "incomplete ring — one stone toppled across the line, gap in the circle" }
+  ],
+  "secondary_palette": [
+    "standing-stone",
+    "standing-stone-fallen",
+    "altar-stone-flat",
+    "obelisk",
+    "cairn-sacred",
+    "tall-grass",
+    "moss-patch",
+    "rock-cluster",
+    "grave-marker"
+  ],
+  "scatter_palette": [
+    "tall-grass",
+    "flower-patch",
+    "moss-patch",
+    "offering-bowl",
+    "bone-marker",
+    "coin-offering",
+    "ribbon-tied",
+    "carved-rune-stone"
+  ],
+  "shape_guidance": {
+    "preferred": ["circle", "near-circular-via-rounded-corners"],
+    "discouraged": ["rectangle", "square", "asymmetric"]
+  },
+  "story_prompts": [
+    "silent and neutral — just old stones, but every animal avoids the ring",
+    "active ley-line — the stones hum faintly, spells cast within are amplified",
+    "mid-ritual — hooded figures, torches, something is being invoked tonight",
+    "damaged — someone toppled a stone; the broken ring is leaking something",
+    "the stones move when no one is watching — last visitor's notes mapped a different layout"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "open-sky — bright by day, starlit by night, no fixed light sources",
+    "ambient_is": "discouraged",
+    "common_sources": ["brazier", "campfire", "ritual-candle"]
+  },
+  "anti_patterns": [
+    "no built walls — the stones are the landmark, the moor is the floor",
+    "do not over-prop the center — an altar or bare ground, nothing more",
+    "stones should be evenly spaced unless the story calls for a fallen one — don't clump them",
+    "no buildings, no tents — this is a place people visit and leave"
+  ]
+}

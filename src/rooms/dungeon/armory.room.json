@@ -1,0 +1,70 @@
+{
+  "name": "armory",
+  "category": "dungeon",
+  "tags": ["dungeon", "military", "storage", "functional", "medium"],
+  "summary": "Weapons and armor stored for rapid issue — wall-hugging racks, a central clear floor, a quartermaster's station.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "roughly rectangular, slight elongation along rack walls"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/wood_floor",
+      "polyhaven/stone_tile_polished"
+    ]
+  },
+  "primary_palette": [
+    { "props": ["weapon-rack", "weapon-rack", "armor-stand"], "note": "active garrison — issued-and-ready, labeled shelves" },
+    { "props": ["shield-rack", "spear-stand", "armor-stand"], "note": "phalanx/legionary, shields and polearms dominate" },
+    { "props": ["weapon-rack"], "surrounded_by": ["trunk", "trunk"], "note": "small hidden cache — a single rack and locked chests" },
+    { "props": ["armor-stand", "armor-stand", "armor-stand"], "note": "ceremonial armory — ranked suits like silent soldiers" },
+    { "props": ["weapon-rack", "workbench"], "note": "working armory — maintenance station doubles as quartermaster" }
+  ],
+  "secondary_palette": [
+    "shield-rack",
+    "spear-stand",
+    "chest",
+    "chest-large",
+    "trunk",
+    "crate",
+    "crate-stack",
+    "barrel",
+    "workbench",
+    "torch-sconce",
+    "wall-lantern",
+    "banner",
+    "notice-board"
+  ],
+  "scatter_palette": [
+    "whetstone",
+    "oil-flask",
+    "helm-on-peg",
+    "gauntlet-pile",
+    "arrow-bundle",
+    "rope-coil",
+    "ledger-stack"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-shape-with-alcove", "long-rectangle"],
+    "discouraged": ["circle", "round"]
+  },
+  "story_prompts": [
+    "a well-maintained company armory with every weapon accounted for by tag",
+    "looted armory after a coup — empty pegs, one broken sword on the floor",
+    "ceremonial armory of a defunct order, suits of armor covered in dust",
+    "improvised armory in a captured room — mismatched weapons leaning on walls",
+    "cultist armory with consecrated blades and black-iron helms"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "functional dim (0.3-0.45)",
+    "ambient_is": "optional",
+    "common_sources": ["torch-sconce", "wall-lantern", "brazier"]
+  },
+  "anti_patterns": [
+    "don't place racks in the center — weapons hug walls so the floor stays clear for mustering",
+    "don't light with a single weak torch in a big armory — the quartermaster needs to see inventory",
+    "avoid heavy carpets; this is a working room, not a parlor"
+  ]
+}

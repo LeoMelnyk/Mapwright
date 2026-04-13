@@ -1,0 +1,69 @@
+{
+  "name": "shop-general",
+  "category": "urban",
+  "tags": ["urban", "rural", "commercial", "small", "retail"],
+  "summary": "A general store selling tools, rope, salt, lanterns, blankets — whatever a town needs. Counter up front with a scale, shelves of mixed goods behind, a back door to storage.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangle with counter at street side, shelves along walls"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/wood_floor"],
+    "accent": {
+      "purpose": "worn path from door to counter",
+      "options": ["polyhaven/dirt_floor", "polyhaven/wooden_planks"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["counter"], "surrounded_by": ["shelf-open", "barrel", "scale"], "note": "classic front-counter shop" },
+    { "props": ["counter", "scale"], "surrounded_by": ["shelf-open", "crate-stack", "keg"], "note": "measured-goods shop — salt, grain, flour by the pound" },
+    { "props": ["counter"], "surrounded_by": ["display-case", "shelf-open", "barrel"], "note": "curios-leaning shop — glassed cases for small valuables" }
+  ],
+  "secondary_palette": [
+    "counter",
+    "shelf-open",
+    "display-case",
+    "scale",
+    "barrel",
+    "keg",
+    "crate",
+    "crate-stack",
+    "cabinet",
+    "ledger-stack",
+    "stool",
+    "lantern-post"
+  ],
+  "scatter_palette": [
+    "rope-coil",
+    "lantern-hand",
+    "salt-sack",
+    "bread-loaf",
+    "candle-bundle",
+    "nails-box",
+    "blanket-folded",
+    "coin-pile",
+    "broom",
+    "cat-sleeping"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-backroom"],
+    "discouraged": ["large", "round"]
+  },
+  "story_prompts": [
+    "market morning — several customers, shopkeep weighing goods, apprentice restocking",
+    "slow afternoon — shopkeep reading a ledger, dust motes in light from the door",
+    "resupply day — wagon at the back door, crates pouring in",
+    "robbery scene — counter tipped, goods scattered, shopkeep bleeding"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "practical shop light (0.45) with daylight from door",
+    "ambient_is": "required",
+    "common_sources": ["lantern-post", "candle", "chandelier"]
+  },
+  "anti_patterns": [
+    "shelves hug the walls — center is for customers",
+    "counter faces the door — shopkeep sees who enters",
+    "don't over-theme — a general store carries EVERYTHING, show variety"
+  ]
+}

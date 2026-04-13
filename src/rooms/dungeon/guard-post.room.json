@@ -1,0 +1,53 @@
+{
+  "name": "guard-post",
+  "category": "dungeon",
+  "tags": ["dungeon", "urban", "military", "functional", "small"],
+  "summary": "Alert guard station — tight, utilitarian, sightline to the controlled passage.",
+  "size_guidance": {
+    "min": [4, 6],
+    "typical": [6, 8],
+    "aspect_ratio": "cramped — never spacious"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_03", "polyhaven/stone_tile_rough"]
+  },
+  "primary_palette": [
+    { "props": ["portcullis"], "note": "gatehouse with a raised iron gate" },
+    { "props": ["table"], "surrounded_by": ["stool", "stool"], "note": "watch station at a table — sightline to the door" },
+    { "props": ["brazier"], "note": "open-air guard post, dominant fire keeping watchers warm" }
+  ],
+  "secondary_palette": [
+    "weapon-rack",
+    "shield-rack",
+    "armor-stand",
+    "torch-sconce",
+    "barrel",
+    "bench"
+  ],
+  "scatter_palette": [
+    "crate",
+    "bone-pile",
+    "bucket",
+    "dice-cup",
+    "playing-cards"
+  ],
+  "shape_guidance": {
+    "preferred": ["L-shape-with-alcove", "narrow-rectangle"],
+    "discouraged": ["large-square"]
+  },
+  "story_prompts": [
+    "two bored guards mid-card-game, weapons within reach but not in hand",
+    "abandoned post, weapons still on the rack but dust everywhere",
+    "double-manned watch after a recent breach — extra stools, extra tension"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "working light (0.4)",
+    "ambient_is": "required",
+    "common_sources": ["torch-sconce", "brazier"]
+  },
+  "anti_patterns": [
+    "never place a guard post bigger than a small living room",
+    "the table should have line-of-sight to the controlled doorway",
+    "weapon racks go on the wall opposite the door so guards grab and turn"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "name": "house-merchant",
+  "category": "residential",
+  "tags": ["urban", "residential", "medium", "merchant", "comfortable", "wealthy"],
+  "summary": "A well-off merchant's parlor or ground-floor living hall. Quality furniture, display of wealth that stops short of aristocratic. Account books visible.",
+  "size_guidance": {
+    "min": [7, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "moderate rectangle"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks", "polyhaven/marble_floor"],
+    "accent": {
+      "purpose": "rug under central table / seating cluster",
+      "options": ["polyhaven/carpet_rich", "polyhaven/carpet_oriental"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["desk-writing"], "surrounded_by": ["chair-upholstered", "ledger-stack"], "note": "working merchant — accounts on display" },
+    { "props": ["dining-table"], "surrounded_by": ["chair-wooden", "chair-wooden", "chair-wooden", "chair-wooden"], "note": "a family that eats together, hosts guests" },
+    { "props": ["fireplace"], "surrounded_by": ["chair-upholstered", "chair-upholstered"], "note": "social hearth — two good chairs facing" }
+  ],
+  "secondary_palette": [
+    "bookshelf",
+    "sideboard",
+    "chest-ornate",
+    "candelabra",
+    "rug-oriental",
+    "painting-framed",
+    "writing-desk",
+    "curtain",
+    "wine-rack-small",
+    "grandfather-clock"
+  ],
+  "scatter_palette": [
+    "quill-and-ink",
+    "coin-purse",
+    "scales-merchant",
+    "brass-lamp",
+    "letter-sealed",
+    "ledger",
+    "decanter-with-glasses",
+    "fruit-bowl"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "rectangle-with-bay-window-alcove"],
+    "discouraged": ["cave", "irregular"]
+  },
+  "story_prompts": [
+    "successful month — sideboard crowded with wine, fresh painting on the wall",
+    "creditors circling — ledgers open to worrying figures, no wine in decanter",
+    "host awaiting a guest — everything arranged for an impression",
+    "recently burgled — ransacked but not torn apart, specific things missing"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "comfortable warm (0.4-0.5)",
+    "ambient_is": "required",
+    "common_sources": ["fireplace", "candelabra", "chandelier-small"]
+  },
+  "anti_patterns": [
+    "don't use coarse / dungeon-stone textures — this is a finished interior",
+    "clear floor space for entertaining — don't over-stuff the room",
+    "displays of wealth should look considered (curated), not hoarded"
+  ]
+}

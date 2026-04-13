@@ -1,0 +1,68 @@
+{
+  "name": "shop-apothecary",
+  "category": "urban",
+  "tags": ["urban", "commercial", "scholarly", "small", "arcane"],
+  "summary": "An apothecary's shop. A counter with scales and a mortar, wall after wall of labeled drawers, jars of dried herbs, a back workroom with an alembic bubbling. Smells of lavender and bitter roots.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangle with counter front, workroom back"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wooden_planks", "polyhaven/stone_tile_rough"],
+    "accent": {
+      "purpose": "stained zone near the back workbench",
+      "options": ["polyhaven/stone_tile_rough", "polyhaven/wood_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["counter", "mortar-pestle"], "surrounded_by": ["ingredient-rack", "spice-shelf", "cabinet"], "note": "classic apothecary — drawers, herbs, front scale" },
+    { "props": ["counter"], "surrounded_by": ["ingredient-rack", "alembic", "cauldron-large"], "note": "brewer-apothecary — active potion-making visible" },
+    { "props": ["counter", "display-case"], "surrounded_by": ["ingredient-rack", "bookshelf", "spice-shelf"], "note": "scholarly apothecary — books and cases of rare specimens" }
+  ],
+  "secondary_palette": [
+    "counter",
+    "ingredient-rack",
+    "spice-shelf",
+    "cabinet",
+    "alembic",
+    "cauldron-large",
+    "mortar-pestle",
+    "scale",
+    "display-case",
+    "bookshelf",
+    "workbench",
+    "stool"
+  ],
+  "scatter_palette": [
+    "herb-bundle",
+    "potion-bottle",
+    "scroll-case",
+    "candle",
+    "bone-specimen",
+    "dried-lizard",
+    "quill",
+    "inkwell",
+    "dust-cloud"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-back-workroom"],
+    "discouraged": ["large", "round"]
+  },
+  "story_prompts": [
+    "plague morning — line of customers, apothecary dispensing tinctures by the ladle",
+    "noble commission — private consultation, a silver coin on the counter, rare herbs requested",
+    "regulator visit — city official checking for restricted substances",
+    "brewing accident — back room smoking, apothecary coughing"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm amber light (0.4-0.45) — jars catch the light",
+    "ambient_is": "required",
+    "common_sources": ["candle", "lantern-post", "brazier"]
+  },
+  "anti_patterns": [
+    "walls should be wall-to-ceiling drawers and shelves — no empty wall space",
+    "dangerous brewing stays in the back — customers don't stand next to an alembic",
+    "don't make it too clean — a working apothecary is crowded and fragrant"
+  ]
+}

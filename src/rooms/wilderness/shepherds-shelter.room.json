@@ -1,0 +1,64 @@
+{
+  "name": "shepherds-shelter",
+  "category": "wilderness",
+  "tags": ["wilderness", "pastoral", "shelter", "small", "moor"],
+  "summary": "A stone-and-turf shelter on a hillside — half-buried in the slope, low doorway, a single room with a fire-ring. A shepherd's refuge from weather and wolves.",
+  "size_guidance": {
+    "min": [5, 5],
+    "typical": [6, 7],
+    "aspect_ratio": "small, set into a slope"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/stone_tile_rough", "polyhaven/grass_floor"]
+  },
+  "primary_palette": [
+    { "props": ["fire-ring"], "surrounded_by": ["bedroll", "fallen-log", "log-pile"], "note": "central fire-ring, bedroll on stone, log for a seat" },
+    { "props": ["fire-ring"], "surrounded_by": ["hay-bale", "trough", "crate"], "note": "doubles as a lambing pen in storm weather — hay, trough for a sickly lamb" },
+    { "props": ["bedroll"], "surrounded_by": ["fire-ring", "gear-pack"], "note": "minimal refuge — fire, bedroll, a pack, nothing else" }
+  ],
+  "secondary_palette": [
+    "fire-ring",
+    "bedroll",
+    "fallen-log",
+    "log-pile",
+    "hay-bale",
+    "trough",
+    "crate",
+    "gear-pack",
+    "shepherds-crook",
+    "dog-bowl",
+    "lantern-post"
+  ],
+  "scatter_palette": [
+    "tuft-of-fur",
+    "sheep-dung",
+    "fallen-leaves",
+    "moss-patch",
+    "tall-grass",
+    "ash-pile",
+    "carved-stick",
+    "bread-crust"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-rectangle-half-buried", "D-shape-against-hill", "irregular-cozy"],
+    "discouraged": ["large", "freestanding-square"]
+  },
+  "story_prompts": [
+    "shelter is empty but stocked — shepherd left firewood and bread 'for whoever needs it'",
+    "shepherd inside, wary of strangers — shares fire, watches his crook",
+    "wolves took the flock last night — the shepherd is mourning, or hunting revenge",
+    "the dog is dead at the door, the shepherd is missing, the fire is cold",
+    "a hiding place — not a shepherd at all, a fugitive wearing the part"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim — the shelter is roofed, small windows or none at all, firelight dominates",
+    "ambient_is": "optional",
+    "common_sources": ["fire-ring", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "it's small — do not over-prop, a shepherd's shelter holds one person and their gear",
+    "half-buried in a slope is the point — at least one wall should read as 'earth/stone', not built",
+    "no livestock living inside — a sickly lamb at most, the flock is outdoors",
+    "the fire is central, not against a wall — vented through a roof hole"
+  ]
+}

@@ -9,7 +9,9 @@ src/textures/**/*.png
 # *.pdf
 
 ai-session.log
+eslint-errors.json
 
 # Test outputs
 test/e2e/output/
 test/snapshots/renders/*-diff.png
+coverage/

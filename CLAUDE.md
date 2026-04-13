@@ -27,19 +27,7 @@ When beginning work on this codebase, launch focused Explore agents BEFORE makin
 - Multi-agent map generation pipeline (5-phase command-list architecture)
 - Anti-patterns to avoid
 
-**Room templates** in `mapwright/room-templates/` are ready-to-run JSON examples for common room types:
-
-| Template | File |
-|---|---|
-| Throne Room | `room-templates/throne-room.json` |
-| Alchemist's Lab | `room-templates/alchemist-lab.json` |
-| Forge / Smithy | `room-templates/forge.json` |
-| Crypt / Ossuary | `room-templates/crypt.json` |
-| Temple / Shrine | `room-templates/temple.json` |
-| Wizard's Sanctum | `room-templates/wizard-sanctum.json` |
-| Prison Block | `room-templates/prison-block.json` |
-
-Run any template: `node tools/puppeteer-bridge.js --commands-file room-templates/throne-room.json --screenshot out.png`
+Room palettes, density, and spatial arrangement for common room types are documented in `mapwright/DESIGN.md` under "Room Semantic Library". There are no template files — each room is designed fresh from those primitives so dungeons don't feel like collections of stamped rooms.
 
 ---
 
@@ -97,19 +85,44 @@ netstat -ano | grep ':3000' | grep 'LISTENING' | awk '{print $5}' | head -1 | xa
 
 ## Barrel Import Rules
 
-All imports within `src/` must go through barrel files (`index.js`), never directly from a specific module file.
+All imports within `src/` must go through barrel files (`index.ts`), never directly from a specific module file.
 
 | Directory | Barrel | Exports |
 |---|---|---|
-| `src/render/` | `render/index.js` | `renderCells`, `renderDungeonToCanvas`, `THEMES`, etc. |
-| `src/util/` | `util/index.js` | `cellKey`, `isInBounds`, `floodFillRoom`, etc. |
-| `src/editor/js/tools/` | `tools/index.js` | All tool classes, `SYRINGE_CURSOR`, `STAMP_CURSOR` |
-| `src/editor/js/panels/` | `panels/index.js` | All panel init functions (prefixed: `initToolbar`, `initSidebar`, etc.) |
+| `src/render/` | `render/index.ts` | `renderCells`, `renderDungeonToCanvas`, `THEMES`, etc. |
+| `src/util/` | `util/index.ts` | `cellKey`, `isInBounds`, `floodFillRoom`, etc. |
+| `src/editor/js/tools/` | `tools/index.ts` | All tool classes, `SYRINGE_CURSOR`, `STAMP_CURSOR` |
+| `src/editor/js/panels/` | `panels/index.ts` | All panel init functions (prefixed: `initToolbar`, `initSidebar`, etc.) |
 
 **Rules:**
-- Always import from the barrel directory, not from the file: `from './tools/index.js'` not `from './tools/tool-room.js'`
-- The panels barrel uses explicit named re-exports (not `export *`) to avoid `init()` name conflicts — each panel's `init` is re-exported as `initToolbar`, `initSidebar`, `initProperties`, `initMetadata`, `initLevels`, `initRightSidebar`
-- **Exception:** Tool files may import `Tool` directly from `./tool-base.js` to avoid circular dependencies (the tools barrel imports from each tool file)
+- Always import from the barrel directory, not from the file: `from './tools/index.js'` not `from './tools/tool-room.js'` (note: TypeScript import paths use `.js` extensions by convention even though source files are `.ts`)
+- The panels barrel uses explicit named re-exports (not `export *`) to avoid `init()` name conflicts — each panel's `init` is re-exported as `initToolbar`, `initSidebar`, `initProperties`, `initMetadata`, `initLevels`, `initRightSidebar`, `initHistoryPanel`, `initLightingPanel`, `initSessionPanel`, `initTexturesPanel`, `initClaudePanel`, `initBackgroundImagePanel`, `initKeybindingsHelper`, `initDebugPanel`
+- **Exception:** Tool files may import `Tool` directly from `./tool-base.ts` to avoid circular dependencies (the tools barrel imports from each tool file)
+
+---
+
+## Changelog Maintenance
+
+When you ship a user-visible change, append it to `CHANGELOG.md` under the version that matches the current branch. Branch names follow `release/<version>` — `release/0.10.0` → write to the `## v0.10.0` section. If that section doesn't exist yet, create it at the top of the file.
+
+**Audience: end users, not developers.** They install the desktop app and want to know what's new, what got faster, what got fixed. They don't read source code. Avoid:
+- Internal function names (`mutate()`, `_collectRoomCells`)
+- File paths or module references
+- Refactoring details that don't change behavior
+- Test counts, lint cleanups, type safety improvements
+
+Include:
+- **What changed** in plain language ("Door placement now flags blocked approaches", not "added validateDoorClearance API method")
+- **Why it matters** to the user when it's not obvious ("...so you don't lose props to misplaced doors")
+- **Breaking changes** — flag clearly so users know to update their workflows
+- New features, bug fixes, performance wins, UI changes
+
+**Organize by topic, not by commit.** Group related items under section headings (`### Lighting`, `### Editor UI`, `### Performance`). Existing sections in `## v0.10.0` show the pattern — match its tone and depth. If a change touches a new area, add a new `###` heading.
+
+**Format per entry:** start with a bold lead phrase that names the change, then a short clause explaining what it does or why it's there.
+- `- **Wall blends now respect texture opacity** — fixes the seam that appeared when blending two partially-transparent floor textures`
+
+**Skip the changelog when:** the change is purely internal (refactor, test, lint, dependency bump with no behavior change, code reorganization). If you're unsure whether it's user-visible, it probably isn't — ask the user.
 
 ---
 
@@ -137,24 +150,39 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/render/`
 
 **Known files:**
-- `render/render.js` — Main render orchestrator. `renderCells()` draws all cell layers (floors, walls, doors, fills, labels, props). Calls sub-renderers in layer order.
-- `render/effects.js` — Visual effects: shadows, bloom, glow, fog-of-war transitions.
-- `render/borders.js` — Dungeon border frame, compass rose, scale ruler, grid overlay.
-- `render/decorations.js` — Background fill, dungeon title, compass rose positioning, scale indicator.
-- `render/floors.js` — Floor base color and texture blending.
-- `render/features.js` — Renders doors, stairs, trims, fills onto cells.
-- `render/themes.js` — Theme color/style constants. `THEMES` object with all named themes.
-- `render/bounds.js` — Spatial query helpers: `calculateBoundsFromCells()`, `toCanvas()`, `fromCanvas()`.
-- `render/constants.js` — `GRID_SCALE`, `MARGIN`, and other render constants.
-- `render/validate.js` — Dungeon matrix format validation.
-- `render/compile.js` — Bridge from JSON dungeon → canvas rendering for PNG export. `renderDungeonToCanvas()`, `calculateCanvasSize()`.
-- `render/props.js` — Prop rendering: `parsePropFile()`, `renderProp()`, `renderAllProps()`, `extractPropLightSegments()`.
-- `render/lighting.js` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`. Wall segments from cell grid + props, 2D raycasting visibility polygon.
-- `render/lighting-hq.js` — `renderLightmapHQ()`. Per-pixel falloff, shadow mask rasterization, normal map bump. Used for PNG export only.
-- `render/bridges.js` — Bridge rendering (wood, stone, rope, dock types). Contains hardcoded Polyhaven texture IDs.
-- `render/blend.js` — Texture blending at cell edges and corners.
-- `render/prop-catalog-node.js` — Node.js version of prop catalog for CLI rendering.
-- `render/texture-catalog-node.js` — Node.js texture catalog loader for CLI rendering.
+- `render/index.ts` — Main barrel export; re-exports all public render functions and constants.
+- `render/render.ts` — Barrel re-export from render-state, render-cache, render-phases, render-cells.
+- `render/render-cells.ts` — Main render orchestrator. `renderCells()` draws all cell layers in order.
+- `render/render-phases.ts` — Multi-phase rendering (floors, blending, grid, hazards, walls, labels, props). Exports `renderFloors()`, `renderFillPatternsAndGrid()`, `renderWallsAndBorders()`, `renderLabelsStairsProps()`.
+- `render/render-props.ts` — Canvas rendering and tile caching for props. `renderProp()`, `renderAllProps()`, `renderOverlayProps()`.
+- `render/render-cache.ts` — Per-frame caches for room cells, geometry, blend/fluid regions. `getCachedRoomCells()`, `invalidateGeometryCache()`.
+- `render/render-state.ts` — Render performance profiling and frame state. `renderTimings`, `getContentVersion()`, `getGeometryVersion()`.
+- `render/map-cache.ts` — Offscreen cache with two layers + snapshot. `MapCache` class and cache management.
+- `render/effects.ts` — Visual effects: shadows, bloom, glow, fog-of-war transitions. `drawWallShadow()`, `drawRoughWalls()`, `drawBufferShading()`.
+- `render/borders.ts` — Dungeon border frame, wall/door rendering. `renderBorder()`, `drawStairsInCell()`, `wallSegmentCoords()`.
+- `render/decorations.ts` — Background fill, dungeon title, compass rose positioning, scale indicator. `drawBackground()`, `drawCompassRose()`, `drawScaleIndicator()`.
+- `render/floors.ts` — Floor base color and texture blending. `determineRoomCells()`.
+- `render/features.ts` — Renders labels onto cells. `drawCellLabel()`, `drawDmLabel()`.
+- `render/themes.ts` — Shared mutable theme registry. `THEMES` object populated at runtime.
+- `render/bounds.ts` — Spatial query helpers: `calculateBoundsFromCells()`, `toCanvas()`, coordinate utilities.
+- `render/constants.ts` — `GRID_SCALE`, `MARGIN`, `LINE_WIDTH`, `Z_POSITIONS`, `FEATURE_SIZES`, `BRIDGE_TEXTURE_IDS`.
+- `render/validate.ts` — Dungeon matrix format validation (1231 lines, 25+ validation functions).
+- `render/compile.ts` — Bridge from JSON dungeon → canvas rendering for PNG export. `renderDungeonToCanvas()`, `calculateCanvasSize()`, `normalizeTheme()`.
+- `render/props.ts` — Barrel re-export of prop functions: `parsePropFile`, `renderProp`, `renderAllProps`, `generateHitbox`, `hitTestPropPixel`, `extractPropLightSegments`.
+- `render/parse-props.ts` — Prop file parsing and coordinate transformation. `parsePropFile()`, `parseCommand()`, `parseCoord()`, `flipCommand()`, `transformCommand()`.
+- `render/hitbox-props.ts` — Hitbox generation, hit testing, light segment extraction. `generateHitbox()`, `hitTestPropPixel()`, `extractPropLightSegments()`.
+- `render/prop-validate.ts` — Validates prop draw commands stay within footprint bounds.
+- `render/lighting.ts` — 2D lighting engine. `renderLightmap()`, `computeVisibility()`, `extractWallSegments()`, `falloffMultiplier()`.
+- `render/lighting-geometry.ts` — Wall segment extraction and z-height prop shadow zones. `extractWallSegments()`, `extractPropShadowZones()`, `computePropShadowPolygon()`.
+- `render/lighting-hq.ts` — `renderLightmapHQ()`. Per-pixel falloff, shadow mask rasterization, normal map bump. Used for PNG export only.
+- `render/bridges.ts` — Bridge/dock rendering (wood, stone, rope, dock types). `renderAllBridges()`.
+- `render/blend.ts` — Texture blending at cell edges and corners. `renderTextureBlending()`, `patchBlendRegion()`.
+- `render/fluid.ts` — Fluid/liquid rendering (water, lava, pit). `getFluidPathCache()`, `getRenderedFluidLayer()`.
+- `render/patterns.ts` — Hatching patterns and Voronoi effects data. `HATCH_PATTERNS`, `WATER_SPATIAL`.
+- `render/export-dd2vtt.ts` — Universal VTT export for Foundry VTT, Roll20. `convertToDd2vtt()`.
+- `render/warnings.ts` — Deduplicated render warnings collector. `warn()`, `flush()`.
+- `render/prop-catalog-node.ts` — Node.js version of prop catalog for CLI rendering.
+- `render/texture-catalog-node.ts` — Node.js texture catalog loader for CLI rendering.
 
 ---
 
@@ -165,11 +193,12 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/render/`, `src/lights/`
 
 **Known files:**
-- `render/lighting.js` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`, `renderStaticLightmap()`, `renderAnimatedLightOverlay()`.
-- `render/lighting-hq.js` — `renderLightmapHQ()`. PNG export only.
-- `editor/js/tools/tool-light.js` — Light placement tool.
-- `editor/js/panels/lighting.js` — Lighting panel UI.
-- `editor/js/light-catalog.js` — Light preset catalog loading and caching.
+- `render/lighting.ts` — `extractWallSegments()`, `computeVisibility()`, `renderLightmap()`, `renderStaticLightmap()`, `renderAnimatedLightOverlay()`.
+- `render/lighting-geometry.ts` — Wall segment extraction, prop shadow zones. `extractWallSegments()`, `extractPropShadowZones()`, `computePropShadowPolygon()`.
+- `render/lighting-hq.ts` — `renderLightmapHQ()`. PNG export only.
+- `editor/js/tools/tool-light.ts` — Light placement tool.
+- `editor/js/panels/lighting.ts` — Lighting panel UI.
+- `editor/js/light-catalog.ts` — Light preset catalog loading and caching.
 - `lights/manifest.json` — Light preset catalog (candle, torch, brazier, etc.).
 
 **Focus:** Wall extraction → visibility polygon → lightmap pipeline, light object shape (`{id, x, y, type, radius, color, intensity, falloff, angle, spread}`), how props interact with lighting (`blocksLight`, `extractPropLightSegments` using hitbox polygons). Lightmap is split into a cached static layer (ambient + non-animated lights) and a per-frame animated overlay rendered at screen resolution.
@@ -183,10 +212,14 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/render/`, `src/props/`
 
 **Known files:**
-- `render/props.js` — `parsePropFile()`, `renderProp()`, `renderAllProps()`, `extractPropLightSegments()`, `generateHitbox()`, `hitTestPropPixel()`.
-- `editor/js/tools/tool-prop.js` — Prop placement tool.
-- `editor/js/prop-catalog.js` — Loads `props/manifest.json` + all `.prop` files. Auto-generates hitboxes at load time via `generateHitbox()`.
-- `render/prop-catalog-node.js` — Node.js version for CLI rendering.
+- `render/props.ts` — Barrel re-export: `parsePropFile()`, `renderProp()`, `renderAllProps()`, `extractPropLightSegments()`, `generateHitbox()`, `hitTestPropPixel()`.
+- `render/parse-props.ts` — Prop file parsing and coordinate transforms.
+- `render/hitbox-props.ts` — Hitbox generation, hit testing, light segment extraction.
+- `render/render-props.ts` — Canvas rendering and tile caching for props.
+- `render/prop-validate.ts` — Validates prop draw commands stay within footprint bounds.
+- `editor/js/tools/tool-prop.ts` — Prop placement tool.
+- `editor/js/prop-catalog.ts` — Loads `props/manifest.json` + all `.prop` files. Auto-generates hitboxes at load time via `generateHitbox()`.
+- `render/prop-catalog-node.ts` — Node.js version for CLI rendering.
 - `src/props/CLAUDE.md` — Prop creation guide: footprint conventions, draw command syntax, hitbox/selection commands, texture references, design patterns.
 
 **Focus:** `.prop` file format (YAML header: name, category, footprint, facing, shadow, blocks_light + draw commands + hitbox/selection overrides), `PropDefinition` shape (includes `hitbox`, `selectionHitbox`, `autoHitbox` polygon arrays), cell.prop shape (`{type, span, facing, flipped}`).
@@ -200,21 +233,24 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/editor/js/`
 
 **Known files — Core:**
-- `editor/js/state.js` — Central store. `state`, `pushUndo()`, `undo()`, `redo()`, `markDirty()`, `notify()`, `subscribe()`, `getTheme()`.
-- `editor/js/canvas-view.js` — Canvas render loop, pan/zoom, mouse event routing.
-- `editor/js/main.js` — App init. Loads catalogs, wires toolbar/sidebar, registers tools.
-- `editor/js/editor-api.js` — Puppeteer automation API (~70+ methods). Full reference: `src/editor/CLAUDE.md`.
-- `editor/js/io.js` — File I/O. `loadDungeon()`, `saveDungeon()`, PNG export.
-- `editor/js/utils.js` — `toCanvas()`, `fromCanvas()`, `pixelToCell()`, `nearestEdge()`, `createEmptyDungeon()`.
+- `editor/js/state.ts` — Central store. `state`, `pushUndo()`, `undo()`, `redo()`, `markDirty()`, `notify()`, `subscribe()`, `getTheme()`, `mutate()`.
+- `editor/js/canvas-view.ts` — Canvas render loop, pan/zoom, mouse event routing.
+- `editor/js/main.ts` — App init. Loads catalogs, wires toolbar/sidebar, registers tools.
+- `editor/js/editor-api.ts` — Puppeteer automation API loader; delegates to modules in `editor/js/api/`.
+- `editor/js/io.ts` — File I/O. `loadDungeon()`, `saveDungeon()`, PNG export.
+- `editor/js/utils.ts` — `toCanvas()`, `fromCanvas()`, `pixelToCell()`, `nearestEdge()`, `createEmptyDungeon()`.
 - `editor/CLAUDE.md` — Full Puppeteer automation API reference.
 
+**Known files — API modules** (`editor/js/api/`):
+`_shared.ts` (shared helpers/constants), `errors.ts` (ApiValidationError), `cells.ts`, `walls-doors.ts`, `fills.ts`, `textures.ts`, `labels.ts`, `trims.ts`, `props.ts`, `lighting.ts`, `stairs-bridges.ts`, `spatial.ts`, `convenience.ts`, `map-management.ts`, `levels.ts`, `validation.ts`, `bulk-props.ts`, `eval.ts`, `diagnostics.ts`
+
 **Known files — Tools** (`editor/js/tools/`):
-`tool-room`, `tool-paint`, `tool-fill`, `tool-erase`, `tool-wall`, `tool-door`, `tool-stairs`, `tool-trim`, `tool-label`, `tool-prop`, `tool-light`, `tool-select`, `tool-border`, `tool-range`
+`tool-base`, `tool-room`, `tool-paint`, `tool-fill`, `tool-erase`, `tool-wall`, `tool-door`, `tool-stairs`, `tool-bridge`, `tool-trim`, `tool-label`, `tool-prop`, `tool-light`, `tool-select`, `tool-range`, `tool-fog-reveal`
 
 **Known files — Panels** (`editor/js/panels/`):
-`toolbar`, `sidebar`, `right-sidebar`, `history`, `properties`, `metadata`, `textures`, `levels`, `lighting`, `session`, `debug`
+`toolbar`, `sidebar`, `right-sidebar`, `history`, `properties`, `metadata`, `textures`, `theme-editor`, `levels`, `lighting`, `session`, `claude-chat`, `background-image`, `keybindings-helper`, `debug`
 
-**Focus:** State shape (dungeon.metadata, dungeon.cells), mutation pattern (`pushUndo → modify → markDirty → notify`), tool interface (`onMouseDown/Move/Up/activate/deactivate`).
+**Focus:** State shape (dungeon.metadata, dungeon.cells), mutation pattern (`pushUndo → modify → markDirty → notify` or `mutate()` for automatic patch tracking), tool interface (`onMouseDown/Move/Up/activate/deactivate`).
 
 ---
 
@@ -225,11 +261,11 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/textures/`, `src/editor/js/`
 
 **Known files:**
-- `editor/js/texture-catalog.js` — Browser texture catalog; fetches metadata from `/textures/` served by Express.
-- `editor/js/panels/textures.js` — Texture selector panel UI.
-- `render/blend.js` — Texture blending at cell edges and corners.
-- `render/bridges.js` — Hardcoded Polyhaven texture IDs for bridge types.
-- `render/texture-catalog-node.js` — Node.js texture catalog for CLI rendering. Reads from `MAPWRIGHT_TEXTURE_PATH` (Electron userData) or `src/textures/` (CLI fallback). Looks for `manifest.json` first, then scans `.texture` files.
+- `editor/js/texture-catalog.ts` — Browser texture catalog; fetches metadata from `/textures/` served by Express.
+- `editor/js/panels/textures.ts` — Texture selector panel UI.
+- `render/blend.ts` — Texture blending at cell edges and corners.
+- `render/bridges.ts` — Bridge rendering with Polyhaven texture IDs (centralized in `constants.ts` as `BRIDGE_TEXTURE_IDS`).
+- `render/texture-catalog-node.ts` — Node.js texture catalog for CLI rendering. Reads from `MAPWRIGHT_TEXTURE_PATH` (Electron userData) or `src/textures/` (CLI fallback). Looks for `manifest.json` first, then scans `.texture` files.
 - `tools/download-textures.js` — CLI tool to download required or all Polyhaven textures.
 
 **Note:** `src/textures/` is empty in the repo. In the desktop app, textures are downloaded to the user's AppData folder (`MAPWRIGHT_TEXTURE_PATH`). For CLI tools, run `node tools/download-textures.js --required` to populate `src/textures/` locally.
@@ -245,15 +281,15 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/player/`, `src/editor/js/`
 
 **Known files:**
-- `player/player-main.js` — Player view entry point; connects to WebSocket, drives player canvas.
-- `player/player-canvas.js` — Renders the player's view of the map with fog-of-war applied.
-- `player/player-state.js` — Shared state for the player view (revealed cells, current level).
-- `player/fog.js` — Strips invisible wall/door types (`iw`, `id`) from cells before sending to players; manages reveal state.
-- `editor/js/dm-session.js` — DM session state (`sessionState`), WebSocket relay logic, and the DM fog overlay. Key exports: `toggleDmView()`, `renderDmFogOverlay()`, `renderSessionOverlay()`.
-- `editor/js/panels/session.js` — Session panel UI (start/stop session, reveal controls, player count).
+- `player/player-main.ts` — Player view entry point; connects to WebSocket, drives player canvas.
+- `player/player-canvas.ts` — Renders the player's view of the map with fog-of-war applied.
+- `player/player-state.ts` — Shared state for the player view (revealed cells, current level).
+- `player/fog.ts` — Strips invisible wall/door types (`iw`, `id`) from cells before sending to players; manages reveal state.
+- `editor/js/dm-session.ts` — DM session state (`sessionState`), WebSocket relay logic, and the DM fog overlay. Key exports: `toggleDmView()`, `renderDmFogOverlay()`, `renderSessionOverlay()`.
+- `editor/js/panels/session.ts` — Session panel UI (start/stop session, reveal controls, player count).
 - `server.js` (`/ws` endpoint) — WebSocket relay: DM sends commands to all players; tracks player count and notifies DM on join/leave.
 
-**DM fog overlay:** `sessionState.dmViewActive` toggles a dark tint over all unrevealed cells in the DM view. Rendered via `renderDmFogOverlay(ctx, transform, gridSize)` — registered with `setDmFogOverlay()` in `canvas-view.js` and called each frame when active.
+**DM fog overlay:** `sessionState.dmViewActive` toggles a dark tint over all unrevealed cells in the DM view. Rendered via `renderDmFogOverlay(ctx, transform, gridSize)` — registered with `setDmFogOverlay()` in `canvas-view.ts` and called each frame when active.
 
 ---
 
@@ -264,21 +300,54 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 **Root dirs:** `src/util/`
 
 **Known files:**
-- `util/grid.js` — Grid utility functions shared across compile and render.
-- `util/range-geometry.js` — Range and distance geometry helpers.
+- `util/grid.ts` — Grid utility functions shared across compile and render. `OPPOSITE`, `cellKey`, `parseCellKey`, `isInBounds`, `floodFillRoom`, `CARDINAL_OFFSETS`.
+- `util/range-geometry.ts` — Range and distance geometry helpers.
+- `util/polygon.ts` — `pointInPolygon`, `pointOnPolygonEdge`, `getBridgeCorners`.
 
 ---
 
 ## Core Data Shapes
 
 ### Cell
-```
-{ north, south, east, west: "w"|"d"|"s"|"iw"|"id"|null,
-  "nw-se", "ne-sw": "w"|"iw"|null,
-  fill, texture: {id, opacity},
-  trimmed: true|undefined,
-  center: {label},
-  prop: {type, span, facing, flipped} }
+```typescript
+interface Cell {
+  // Cardinal edges
+  north?, south?, east?, west?: EdgeValue;  // "w"|"d"|"s"|"iw"|"id"|null
+  // Diagonal edges
+  'nw-se'?, 'ne-sw'?: EdgeValue;
+
+  // Fill
+  fill?: FillType;       // "pit"|"water"|"lava"
+  fillDepth?: number;    // 1-3 for water/lava
+  hazard?: boolean;      // difficult terrain overlay
+
+  // Textures (per-cell, string IDs — NOT objects)
+  texture?: string;              // e.g. "polyhaven/cobblestone_floor_03"
+  textureOpacity?: number;       // 0.0-1.0
+  textureSecondary?: string;
+  textureSecondaryOpacity?: number;
+  // Corner textures (for blend transitions)
+  textureNE?, textureSW?, textureNW?, textureSE?: string;
+  textureNEOpacity?, textureSWOpacity?, textureNWOpacity?, textureSEOpacity?: number;
+
+  // Fluid
+  waterDepth?: number;
+  lavaDepth?: number;
+
+  // Trim (diagonal corner cuts)
+  trimWall?: CardinalDirection | number[][];
+  trimCorner?: string;
+  trimRound?, trimInverted?, trimOpen?, trimPassable?: boolean;
+  trimClip?: number[][];
+  trimCrossing?: boolean | Record<string, string>;
+  trimHideExterior?, trimShowExteriorOnly?, trimInsideArc?: boolean;
+  trimArcRadius?, trimArcCenterRow?, trimArcCenterCol?: number;
+  trimArcInverted?: boolean;
+
+  // Content
+  center?: { label?, dmLabel?, 'stair-id'? };
+  prop?: { type: string, span: [number, number], facing: number, flipped?: boolean };
+}
 ```
 
 ### Edge value taxonomy
@@ -291,17 +360,57 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 | `"iw"` | Invisible wall | Blocks always | **No** | Nothing |
 | `"id"` | Invisible door | Blocks (passable with `traverseDoors`) | **No** | Nothing (DM can open) |
 
-Invisible types are stripped from player cells in `player/fog.js` and excluded from shadow geometry in `render/lighting.js` (`extractWallSegments`). **Note:** `render/lighting-hq.js` (export pipeline) imports `extractWallSegments` directly from `lighting.js`, so invisible-type exclusions apply automatically to both real-time and HQ rendering without any additional changes.
+Invisible types are stripped from player cells in `player/fog.ts` and excluded from shadow geometry in `render/lighting.ts` (`extractWallSegments`). **Note:** `render/lighting-hq.ts` (export pipeline) imports `extractWallSegments` directly from `lighting.ts`, so invisible-type exclusions apply automatically to both real-time and HQ rendering without any additional changes.
 
 ### Metadata
-```
-{ dungeonName, gridSize, theme, labelStyle,
-  features: {showGrid, compassRose, scale, border},
-  levels: [{name, startRow, numRows}],
-  lightingEnabled, ambientLight,
-  lights: [{id, x, y, type, radius, color, intensity, falloff, angle, spread}],
-  bridges: [{id, type, points: [[r,c],[r,c],[r,c]]}],
-  nextLightId, nextBridgeId }
+```typescript
+interface Metadata {
+  dungeonName: string;
+  dungeonLetter?: string;
+  gridSize: number;
+  resolution: number;
+  theme: string | Theme;
+  labelStyle: LabelStyle;        // "circled"|"plain"|"bold"
+  features: {
+    showGrid: boolean;
+    compassRose: boolean;
+    scale: boolean;
+    border: boolean;
+  };
+  levels: Array<{ name: string; startRow: number; numRows: number }>;
+
+  // Lighting
+  lightingEnabled: boolean;
+  ambientLight: number;          // 0.0-1.0
+  ambientColor?: string;
+  lights: Array<{ id, x, y, type, radius, color, intensity, falloff, angle?, spread? }>;
+  nextLightId: number;
+
+  // Stairs
+  stairs: Array<{ id, points: [[r,c],[r,c],[r,c]], link?: string }>;
+  nextStairId: number;
+
+  // Bridges
+  bridges: Array<{ id, type, points: [[r,c],[r,c],[r,c]] }>;
+  nextBridgeId: number;
+
+  // Overlay props (placed on metadata, not cells — e.g. multi-cell decorations)
+  props?: Array<{ id, type, row, col, facing, flipped? }>;
+  nextPropId?: number;
+
+  // Appearance
+  backgroundImage?: { src, opacity, x, y, width, height };
+  savedThemeData?: { name?: string; theme: Record<string, unknown> };
+  themeOverrides?: Record<string, unknown> | null;
+  pixelsPerCell?: number;
+  titleFontSize?: number;
+  texturesVersion?: number;
+
+  // Audio
+  backgroundMusic?: string;
+
+  [key: string]: unknown;        // extensible for future fields
+}
 ```
 
 ### Coordinate System
@@ -325,26 +434,26 @@ When adding a new feature, every layer of the pipeline needs to be considered. N
 #### 1. Core: Does the feature work?
 
 - [ ] **Data model** — Define how the feature is stored in the matrix JSON (cell-level property, metadata field, etc.)
-- [ ] **Renderer** (`src/render/render.js`, `floors.js`, `borders.js`, `features.js`, `decorations.js`) — Add visual rendering. Determine which render pass the feature belongs in (floor fill, border, feature overlay, decoration).
-- [ ] **Themes** (`src/render/themes.js`) — If the feature introduces new colors, add properties to the theme object and update all existing theme presets.
-- [ ] **Constants** (`src/render/constants.js`) — If new magic numbers are needed, add them to the constants file.
+- [ ] **Renderer** (`src/render/render-phases.ts`, `floors.ts`, `borders.ts`, `features.ts`, `decorations.ts`) — Add visual rendering. Determine which render pass the feature belongs in (floor fill, border, feature overlay, decoration).
+- [ ] **Themes** (`src/render/themes.ts`) — If the feature introduces new colors, add properties to the theme object and update all existing theme presets.
+- [ ] **Constants** (`src/render/constants.ts`) — If new magic numbers are needed, add them to the constants file.
 - [ ] **Validation** — Add error messages for invalid configurations.
 
 #### 2. Editor: Can users control this feature visually?
 
-- [ ] **State** (`src/editor/js/state.js`) — If the feature needs UI state, add it to the state object with a sensible default.
+- [ ] **State** (`src/editor/js/state.ts`) — If the feature needs UI state, add it to the state object with a sensible default.
 - [ ] **Tool** (`src/editor/js/tools/`) — If the feature is a new interactive tool or a sub-mode of an existing tool, create or update the tool class. Follow the `Tool` base class pattern.
-- [ ] **Tool sub-options** — If the feature adds modes to an existing tool, add the button group to `index.html` and wire show/hide + active state in `toolbar.js`.
-- [ ] **Toolbar** (`src/editor/js/panels/toolbar.js`) — Wire new buttons, mode selectors, or export actions.
-- [ ] **Properties panel** (`src/editor/js/panels/properties.js`) — If the feature is a cell-level property, add it to the properties inspector.
-- [ ] **Metadata panel** (`src/editor/js/panels/metadata.js`) — If the feature is a map-level setting, add a control to the metadata panel.
-- [ ] **Canvas rendering** (`src/editor/js/canvas-view.js`) — If the feature affects rendering, pass new parameters through to `renderDungeonToCanvas()`.
-- [ ] **HTML** (`src/editor/index.html`) / **CSS** (`src/editor/style.css`) — Add and style new UI elements.
-- [ ] **Keyboard shortcuts** — If the feature warrants a shortcut, add it to the key handler in `main.js`.
+- [ ] **Tool sub-options** — If the feature adds modes to an existing tool, add the button group to `index.html` and wire show/hide + active state in `toolbar.ts`.
+- [ ] **Toolbar** (`src/editor/js/panels/toolbar.ts`) — Wire new buttons, mode selectors, or export actions.
+- [ ] **Properties panel** (`src/editor/js/panels/properties.ts`) — If the feature is a cell-level property, add it to the properties inspector.
+- [ ] **Metadata panel** (`src/editor/js/panels/metadata.ts`) — If the feature is a map-level setting, add a control to the metadata panel.
+- [ ] **Canvas rendering** (`src/editor/js/canvas-view.ts`) — If the feature affects rendering, pass new parameters through to `renderDungeonToCanvas()`.
+- [ ] **HTML** (`src/editor/index.html`) / **SCSS** (`src/editor/style.scss`) — Add and style new UI elements.
+- [ ] **Keyboard shortcuts** — If the feature warrants a shortcut, add it to the key handler in `main.ts`.
 
 #### 3. API: Can Claude control this feature programmatically?
 
-- [ ] **Editor API** (`src/editor/js/editor-api.js`) — Add methods. Pattern: validate inputs → `pushUndo()` → modify state → `markDirty()` → `notify()` → return `{ success: true }`.
+- [ ] **Editor API** (`src/editor/js/api/`) — Add methods to the appropriate module (e.g. `cells.ts`, `props.ts`, `lighting.ts`). Pattern: validate inputs → `mutate()` or `pushUndo()` → modify state → `markDirty()` → `notify()` → return `{ success: true }`. Then re-export from `editor-api.ts`.
 - [ ] **Puppeteer bridge** (`tools/puppeteer-bridge.js`) — The bridge is generic (calls any `editorAPI` method by name), so new API methods work automatically. Verify end-to-end.
 - [ ] **API documentation** (`src/editor/CLAUDE.md`) — Document new methods with args, description, and examples.
 - [ ] **`getMapInfo()`** — If the feature adds map-level metadata, include it in the return value.
@@ -372,12 +481,12 @@ node tools/puppeteer-bridge.js --commands '[["newMethod", args]]' --screenshot t
 
 | Feature Type | Reference | Files |
 |---|---|---|
-| Cell property | **Fills** (difficult-terrain, pit) | `render/features.js` → `editor-api.js:setFill` |
-| Metadata setting | **Label style** (circled, plain, bold) | `render/decorations.js` → `editor-api.js:setLabelStyle` |
-| Interactive tool | **Door tool** | `editor/js/tools/tool-door.js` → `editor-api.js:setDoor` |
-| Decoration toggle | **Compass rose** | `render/borders.js:drawCompassRose()` → `editor-api.js:setFeature` |
-| Asset catalog | **Props** | `src/props/*.prop` → `prop-catalog.js` → `tool-prop.js` → `render/props.js` |
-| Bulk rect operation | **Fill rect** | `editor-api.js:setFillRect` pattern |
+| Cell property | **Fills** (difficult-terrain, pit) | `render/features.ts` → `api/fills.ts:setFill` |
+| Metadata setting | **Label style** (circled, plain, bold) | `render/decorations.ts` → `api/map-management.ts:setLabelStyle` |
+| Interactive tool | **Door tool** | `editor/js/tools/tool-door.ts` → `api/walls-doors.ts:setDoor` |
+| Decoration toggle | **Compass rose** | `render/decorations.ts:drawCompassRose()` → `api/map-management.ts:setFeature` |
+| Asset catalog | **Props** | `src/props/*.prop` → `prop-catalog.ts` → `tool-prop.ts` → `render/props.ts` |
+| Bulk rect operation | **Fill rect** | `api/fills.ts:setFillRect` pattern |
 
 ---
 

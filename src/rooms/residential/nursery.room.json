@@ -1,0 +1,79 @@
+{
+  "name": "nursery",
+  "category": "residential",
+  "tags": ["residential", "small", "nursery", "children", "family"],
+  "summary": "A nursery — a cradle or small bed, a rocking chair for the nurse, toys scattered, a night-light burning low. Tender, cluttered, often uneasy.",
+  "size_guidance": {
+    "min": [5, 6],
+    "typical": [6, 8],
+    "aspect_ratio": "small rectangle or square, often adjoining a parent's chamber"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/worn_plank_floor", "polyhaven/parquet_floor"],
+    "accent": {
+      "purpose": "play rug",
+      "options": ["polyhaven/carpet_round", "polyhaven/carpet_oriental", "polyhaven/sheepskin-rug"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["cradle"], "surrounded_by": ["rocking-chair", "nurse-stool", "toy-chest"], "note": "infant nursery — cradle primary, wet-nurse arrangement, lullaby space" },
+    { "props": ["child-bed"], "surrounded_by": ["toy-chest", "dollhouse", "rocking-horse"], "note": "toddler nursery — a small bed, toys dominant, a child's kingdom" },
+    { "props": ["child-bed", "child-bed"], "surrounded_by": ["toy-chest", "small-table"], "note": "siblings' nursery — two small beds, shared toy pile, a governess's chair" },
+    { "props": ["cradle"], "surrounded_by": ["child-bed", "rocking-chair"], "note": "mixed ages — infant and older sibling share the room, one asleep, one playing" },
+    { "props": ["rocking-horse"], "surrounded_by": ["toy-chest", "dollhouse", "blocks-pile"], "note": "playroom-style nursery — less sleeping, more playing, toys are primary" }
+  ],
+  "secondary_palette": [
+    "cradle",
+    "child-bed",
+    "rocking-chair",
+    "nurse-stool",
+    "toy-chest",
+    "dollhouse",
+    "rocking-horse",
+    "small-table",
+    "tiny-chair",
+    "bookshelf-child",
+    "screen-painted",
+    "wash-basin",
+    "hearth-small",
+    "wardrobe-small"
+  ],
+  "scatter_palette": [
+    "rag-doll",
+    "wooden-toy",
+    "building-blocks",
+    "picture-book",
+    "stuffed-bear",
+    "tin-soldier-pile",
+    "spilled-toys",
+    "bottle-nursing",
+    "candle-night-light",
+    "lullaby-music-box",
+    "cot-blanket",
+    "hobby-horse"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-square", "small-rectangle", "adjoining-parent-chamber"],
+    "discouraged": ["large-open", "formal-symmetric"]
+  },
+  "story_prompts": [
+    "the baby sleeps — the nurse dozes in the rocker, a single candle burns blue",
+    "the children have been told to stay in their room — toys everywhere, nobody visible",
+    "the nursery is empty and has been for decades — dust on the rocking horse, the doll's eyes closed",
+    "a kidnapping has occurred — the cradle empty, the window open, a single small footprint",
+    "a ghost child plays here at night — toys in the morning are never where they were left",
+    "noble nursery with a hidden governess-room adjoining — a second door only servants know"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "soft low (0.25-0.4) — a night-light, a banked hearth, gentle and warm",
+    "ambient_is": "optional",
+    "common_sources": ["candle", "candle-night-light", "hearth-small", "wall-sconce"]
+  },
+  "anti_patterns": [
+    "not a miniature adult bedroom — toys and playful clutter are the texture",
+    "avoid anything sharp or dangerous on display — nurseries are curated for safety",
+    "scale the props — a rocking chair for an adult, tiny chair/table for children",
+    "the feeling is TENDER or UNSETTLING depending on story — lean into whichever is chosen",
+    "don't crowd — leave play space, often a central rug with nothing on it"
+  ]
+}

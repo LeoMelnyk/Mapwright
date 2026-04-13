@@ -1,0 +1,73 @@
+{
+  "name": "farmhouse-common",
+  "category": "residential",
+  "tags": ["rural", "residential", "medium", "farmhouse", "family", "rustic"],
+  "summary": "The common room of a working farmhouse — hearth, long bench-table, tools by the door. Muddy boots, a cat in the rafters, the smell of bread.",
+  "size_guidance": {
+    "min": [7, 9],
+    "typical": [9, 11],
+    "aspect_ratio": "rectangular, door on a long wall"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/flagstone_floor", "polyhaven/packed_earth", "polyhaven/wooden_planks"]
+  },
+  "primary_palette": [
+    { "props": ["hearth"], "surrounded_by": ["long-table", "bench", "bench"], "note": "hearthside meal — table drawn up to the fire, communal bench seating" },
+    { "props": ["long-table"], "surrounded_by": ["bench", "bench", "hearth"], "note": "table-dominant — the whole family eats, prays, and works here" },
+    { "props": ["rocking-chair"], "surrounded_by": ["spinning-wheel", "hearth", "basket-wool"], "note": "evening quiet — spinning by the fire, table pushed aside" },
+    { "props": ["kitchen-table"], "surrounded_by": ["chair", "chair", "stool", "stool"], "note": "smaller family, mixed chair-and-stool seating" }
+  ],
+  "secondary_palette": [
+    "hearth",
+    "long-table",
+    "bench",
+    "chair",
+    "stool",
+    "rocking-chair",
+    "cupboard",
+    "shelf",
+    "cabinet",
+    "chest",
+    "spinning-wheel",
+    "butter-churn",
+    "broom",
+    "pot-rack",
+    "barrel"
+  ],
+  "scatter_palette": [
+    "bread-loaf",
+    "cheese-wheel",
+    "muddy-boots",
+    "candle",
+    "hay-wisps",
+    "wooden-bowl",
+    "pewter-mug",
+    "cat-sleeping",
+    "farm-tool-hung",
+    "child-wooden-toy",
+    "prayer-shelf",
+    "dried-herbs"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-mud-room-alcove", "long-rectangle-with-hearth-at-end"],
+    "discouraged": ["formal-symmetric", "ornate"]
+  },
+  "story_prompts": [
+    "the family is at supper — bench of five, one place empty for the son who is late",
+    "harvest evening — table extended, neighbors helping, a cask of ale on the floor",
+    "the farm is failing — three good chairs sold, the cupboard mostly empty",
+    "the farmer is dead and the room is laid for the funeral feast",
+    "a stranger has been fed and now sleeps by the hearth — the family watches from the stairs"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm moderate (0.35-0.5) — hearth dominant, one or two tallow candles",
+    "ambient_is": "optional",
+    "common_sources": ["hearth", "wall-lantern", "candle", "candelabra"]
+  },
+  "anti_patterns": [
+    "no refinement — no parlor furniture, no display cases, no carpet-royal",
+    "show the working life — boots by the door, tools on the wall, flour dust in the air",
+    "benches before chairs — farms seat many cheaply",
+    "the hearth does everything: cooks, warms, lights. Don't duplicate its function."
+  ]
+}

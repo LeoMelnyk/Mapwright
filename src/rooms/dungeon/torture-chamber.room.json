@@ -1,0 +1,73 @@
+{
+  "name": "torture-chamber",
+  "category": "dungeon",
+  "tags": ["dungeon", "grim", "horror", "cruel", "medium"],
+  "summary": "A room built to inflict and extract — implements of pain arrayed around a central station, drains and stains in the floor.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 10],
+    "aspect_ratio": "rectangular, room for tools along walls and a working floor"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/cobblestone_floor_03",
+      "polyhaven/dirt_floor",
+      "polyhaven/stone_tile_cracked"
+    ],
+    "accent": {
+      "purpose": "bloodstain / drain channel under the rack",
+      "options": ["polyhaven/stone_tile_cracked", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["torture-rack"], "surrounded_by": ["brazier", "brazier"], "note": "classic inquisition — rack centered, fire to either side" },
+    { "props": ["iron-maiden", "shackles"], "note": "vertical implements — standing torments" },
+    { "props": ["execution-block", "gallows"], "note": "this chamber ends lives, it doesn't extract" },
+    { "props": ["chair-restraint", "tool-cart"], "note": "clinical torture — a chair and a tray of instruments" },
+    { "props": ["torture-rack", "iron-maiden", "execution-block"], "note": "a professional's workshop — multiple stations, each ready" }
+  ],
+  "secondary_palette": [
+    "brazier",
+    "shackles",
+    "pillory",
+    "stocks",
+    "chain-wall",
+    "cauldron-fire",
+    "tool-cart",
+    "workbench",
+    "bone-pile",
+    "bone-pile-small",
+    "corpse",
+    "trough"
+  ],
+  "scatter_palette": [
+    "pincers",
+    "bloody-rag",
+    "hot-iron",
+    "tooth-jar",
+    "branding-iron",
+    "bone-pile-small",
+    "chain-coil"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-shape-with-alcove", "square-with-rounded-corners"],
+    "discouraged": ["round", "long-narrow-corridor"]
+  },
+  "story_prompts": [
+    "recently used — coals still warm, a half-completed confession on the table",
+    "abandoned inquisition cell, implements rusted to the walls",
+    "infernal torture chamber where the victim is the room itself",
+    "cultist's altar-chamber: torture is offering, not interrogation",
+    "a tidy executioner's room — professional, uncruel, worse for it"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "red and low (0.15-0.3)",
+    "ambient_is": "optional",
+    "common_sources": ["brazier", "cauldron-fire", "torch-sconce", "oil-cauldron"]
+  },
+  "anti_patterns": [
+    "don't make it pretty — avoid carpets, chandeliers, fine furniture",
+    "don't put the centerpiece against a wall — working space is needed on all sides",
+    "avoid bright uniform lighting — pools of firelight read grimmer than a lit room"
+  ]
+}

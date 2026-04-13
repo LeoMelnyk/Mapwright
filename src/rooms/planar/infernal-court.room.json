@@ -1,0 +1,69 @@
+{
+  "name": "infernal-court",
+  "category": "planar",
+  "tags": ["planar", "infernal", "sacred", "power", "formal", "large", "exotic"],
+  "summary": "An audience chamber in the Nine Hells — chains replace heraldry, fire replaces torchlight, and the seat of power is a tyrant's iron pulpit. Everything signals dominion through suffering.",
+  "size_guidance": {
+    "min": [10, 14],
+    "typical": [12, 18],
+    "aspect_ratio": "2:1 elongated along the supplicant→throne axis"
+  },
+  "texture_options": {
+    "floor": [
+      "polyhaven/obsidian_floor",
+      "polyhaven/basalt_tile",
+      "polyhaven/iron_grating"
+    ],
+    "accent": {
+      "purpose": "dais or molten channel in front of the throne",
+      "options": ["polyhaven/lava_crust", "polyhaven/blackened_marble"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["bone-throne"], "surrounded_by": ["infernal-chain-hook", "infernal-chain-hook"], "note": "devil prince who hoards atrocity-trophies" },
+    { "props": ["iron-throne-spiked"], "surrounded_by": ["brazier", "brazier"], "note": "classic pit-fiend court" },
+    { "props": ["necrotic-altar"], "surrounded_by": ["gibbet", "gibbet"], "note": "contract-broker, the pulpit IS the altar" },
+    { "props": ["infernal-contract-pedestal"], "surrounded_by": ["floor-candelabra", "floor-candelabra"], "note": "bureaucratic devil — the writ outranks any seat" }
+  ],
+  "secondary_palette": [
+    "pillar",
+    "brazier",
+    "gibbet",
+    "cage-large",
+    "infernal-chain-hook",
+    "banner-infernal",
+    "statue-devil",
+    "obelisk",
+    "stocks"
+  ],
+  "scatter_palette": [
+    "skeleton",
+    "bone-pile",
+    "offering-plate",
+    "scorched-scroll",
+    "soul-coin-pile",
+    "chain-coil"
+  ],
+  "shape_guidance": {
+    "preferred": ["long-rectangle", "rounded-apse-behind-throne", "cruciform-with-pit"],
+    "discouraged": ["square", "small"]
+  },
+  "story_prompts": [
+    "a devil prince holds audience for a mortal petitioner — chained supplicants line the walls",
+    "contract signing ceremony, the pedestal glowing, witnesses gibbeted at the sides",
+    "empty between courts — chains sway, braziers banked low, a single soul-coin on the floor",
+    "sacked by a rival — throne split, banners burning, the master fled to another layer",
+    "trial of a fallen pit fiend, the seat turned AWAY from the door in ritual shame"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim infernal (0.25-0.35) with deep orange-red ambient color",
+    "ambient_is": "required",
+    "common_sources": ["brazier", "infernal-chain-hook", "floor-candelabra"]
+  },
+  "anti_patterns": [
+    "don't use warm yellow candlelight — infernal light is orange-red, almost bloody",
+    "never center the throne; it belongs at the far wall with a processional path",
+    "no wood — everything here is iron, bone, obsidian, or stone",
+    "chains should hang from the walls and ceiling, not be stacked on the floor like rope"
+  ]
+}

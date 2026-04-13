@@ -1,0 +1,60 @@
+{
+  "name": "forge",
+  "category": "dungeon",
+  "tags": ["dungeon", "industrial", "military", "hot", "noisy"],
+  "summary": "Heat, soot, ringing metal. A working smithy: forge against the back wall, anvil in front, quench to the side.",
+  "size_guidance": {
+    "min": [6, 8],
+    "typical": [8, 12],
+    "aspect_ratio": "3:2 wide — work stations span the width"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_03", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "sooty zone around forge",
+      "options": ["polyhaven/dirt_floor", "polyhaven/ash_layer"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["forge"], "surrounded_by": ["anvil", "bellows"], "note": "classic smithy — forge, anvil, bellows cluster" },
+    { "props": ["forge-great"], "surrounded_by": ["anvil", "anvil"], "note": "industrial weapon-foundry with multiple stations" },
+    { "props": ["forge"], "surrounded_by": ["crucible", "trough"], "note": "caster's forge — bronze and iron pouring" }
+  ],
+  "secondary_palette": [
+    "workbench",
+    "trough",
+    "grinding-wheel",
+    "quench-barrel",
+    "weapon-rack",
+    "armor-stand",
+    "tool-rack"
+  ],
+  "scatter_palette": [
+    "barrel",
+    "crate",
+    "coal-pile",
+    "slag-heap",
+    "ingot-stack",
+    "bellows-hand"
+  ],
+  "shape_guidance": {
+    "preferred": ["wide-rectangle", "L-shape-with-storage-alcove"],
+    "discouraged": ["narrow"]
+  },
+  "story_prompts": [
+    "active smithy mid-commission — weapon half-finished on the anvil",
+    "cold forge, tools intact but no fire — smith killed, left everything",
+    "war-forge running double shifts — soot thick, sparks everywhere",
+    "dwarven master forge, ornate bellows, quality beyond utility"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "dim ambient — the forge itself dominates (0.25)",
+    "ambient_is": "optional",
+    "common_sources": ["forge", "brazier"]
+  },
+  "anti_patterns": [
+    "forge must be against a wall with chimney implied — never center-placed",
+    "anvil goes in front of the forge at working distance (1-2 cells)",
+    "don't cluster props under the chimney / exhaust zone — smoke implies clear air above"
+  ]
+}

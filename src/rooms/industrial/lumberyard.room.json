@@ -1,0 +1,67 @@
+{
+  "name": "lumberyard",
+  "category": "industrial",
+  "tags": ["rural", "industrial", "commercial", "large", "outdoor"],
+  "summary": "An open-air or half-covered lumberyard. Stacks of cut boards sorted by size, rough logs awaiting sawing, a small office shack and a loading dock for wagons.",
+  "size_guidance": {
+    "min": [12, 12],
+    "typical": [14, 16],
+    "aspect_ratio": "large rectangle with clear wagon-access on one long edge"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/dirt_floor", "polyhaven/cobblestone_floor_03"],
+    "accent": {
+      "purpose": "sawdust layer in the cutting area",
+      "options": ["polyhaven/ash_layer", "polyhaven/dirt_floor"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["lumber-stack", "lumber-stack", "lumber-stack"], "surrounded_by": ["log-pile", "chopping-block"], "note": "classic yard — sorted boards, rough logs for splitting" },
+    { "props": ["lumber-stack", "log-pile"], "surrounded_by": ["workbench", "chopping-block", "desk"], "note": "retail yard — small office corner for sales" },
+    { "props": ["lumber-stack", "lumber-stack"], "surrounded_by": ["wagon", "crate-stack", "chopping-block"], "note": "wholesale yard — loading bay active" }
+  ],
+  "secondary_palette": [
+    "lumber-stack",
+    "log-pile",
+    "chopping-block",
+    "workbench",
+    "desk",
+    "wagon",
+    "crate-stack",
+    "barrel",
+    "tool-rack",
+    "weapon-rack",
+    "bench",
+    "ledger-stack"
+  ],
+  "scatter_palette": [
+    "wood-chip",
+    "sawdust-pile",
+    "axe-head",
+    "rope-coil",
+    "wedge-iron",
+    "log-round",
+    "cat-sleeping",
+    "dog-chain"
+  ],
+  "shape_guidance": {
+    "preferred": ["wide-rectangle", "L-with-office", "open-yard"],
+    "discouraged": ["narrow", "enclosed"]
+  },
+  "story_prompts": [
+    "delivery morning — wagons loading, foreman tallying, buyers haggling",
+    "winter quiet — snow on the stacks, yard boss in the office shack",
+    "fire risk — dry summer, a careless pipe-smoker being ejected",
+    "theft overnight — a stack toppled, boards missing, dog dead"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor natural light — covered sections need lanterns",
+    "ambient_is": "discouraged",
+    "common_sources": ["lantern-post"]
+  },
+  "anti_patterns": [
+    "stacks along edges leaving a wide central work path — don't clutter center",
+    "wagon access requires an unbroken edge — never block it with a prop",
+    "office is tiny, one or two cells — don't build a house"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "market-stall",
+  "category": "urban",
+  "tags": ["urban", "commercial", "small", "street", "outdoor"],
+  "summary": "A single market stall under canvas. Display counter facing the street, storage behind. Specific to one vendor's goods.",
+  "size_guidance": {
+    "min": [2, 3],
+    "typical": [3, 4],
+    "aspect_ratio": "small rectangle facing the street"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_03", "polyhaven/dirt_floor", "polyhaven/stone_tile_rough"]
+  },
+  "primary_palette": [
+    { "props": ["stall-counter"], "surrounded_by": ["display-basket", "display-basket"], "note": "produce / food vendor — baskets of goods" },
+    { "props": ["stall-counter"], "surrounded_by": ["display-rack-fabric", "display-rack-fabric"], "note": "cloth / textile vendor" },
+    { "props": ["stall-counter"], "surrounded_by": ["display-case-small", "scales-merchant"], "note": "precious goods vendor — jeweler, spice trader" }
+  ],
+  "secondary_palette": [
+    "stall-counter",
+    "canvas-awning",
+    "barrel-open",
+    "crate-stacked",
+    "display-basket",
+    "display-rack-fabric",
+    "scales-merchant",
+    "stool-vendor"
+  ],
+  "scatter_palette": [
+    "coin-purse",
+    "apple-pile",
+    "fabric-bolt",
+    "bread-loaf",
+    "spice-bowl",
+    "broom",
+    "fly-swarm"
+  ],
+  "shape_guidance": {
+    "preferred": ["small-rectangle", "alcove-off-street"],
+    "discouraged": ["large", "enclosed"]
+  },
+  "story_prompts": [
+    "opening hour — vendor setting out the best goods",
+    "midday rush — goods half-gone, vendor busy",
+    "closing up — vendor loading unsold goods onto a handcart",
+    "abandoned stall — goods rotting, no vendor today"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "outdoor natural — use sunlight implied",
+    "ambient_is": "discouraged",
+    "common_sources": ["lantern-post"]
+  },
+  "anti_patterns": [
+    "keep it small — a stall is tiny compared to any shop",
+    "counter faces OUT to the street — not inward",
+    "don't fully enclose — canvas awning implied, one or two sides open"
+  ]
+}

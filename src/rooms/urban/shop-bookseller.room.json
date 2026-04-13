@@ -1,0 +1,68 @@
+{
+  "name": "shop-bookseller",
+  "category": "urban",
+  "tags": ["urban", "commercial", "scholarly", "small", "quiet"],
+  "summary": "A bookseller's shop. Floor-to-ceiling shelves, a sales counter with a ledger, a reading stool or two, and a back room of unsorted stock. Smells of vellum, leather, and dust.",
+  "size_guidance": {
+    "min": [8, 8],
+    "typical": [10, 10],
+    "aspect_ratio": "rectangle with shelf-lined walls and narrow aisles"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/wood_floor", "polyhaven/wooden_planks"],
+    "accent": {
+      "purpose": "reading nook carpet zone",
+      "options": ["polyhaven/wood_floor", "polyhaven/stone_tile_rough"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["counter", "bookshelf"], "surrounded_by": ["bookshelf", "bookshelf", "lectern"], "note": "classic bookseller — shelves dominate, counter tucked to one side" },
+    { "props": ["lectern"], "surrounded_by": ["bookshelf", "bookshelf", "chair"], "note": "reading-salon bookseller — a lectern invites browsing" },
+    { "props": ["counter"], "surrounded_by": ["bookshelf", "book-pile", "scroll-rack"], "note": "disordered bookseller — stacks everywhere, scrolls as well" }
+  ],
+  "secondary_palette": [
+    "bookshelf",
+    "counter",
+    "lectern",
+    "desk",
+    "chair",
+    "stool",
+    "scroll-rack",
+    "ladder-library",
+    "cabinet",
+    "book-pile",
+    "ledger-stack"
+  ],
+  "scatter_palette": [
+    "book-open",
+    "book-pile",
+    "scroll-case",
+    "bookmark",
+    "candle",
+    "quill",
+    "inkwell",
+    "dust-cloud",
+    "cat-sleeping",
+    "reading-glasses"
+  ],
+  "shape_guidance": {
+    "preferred": ["rectangle", "L-with-reading-nook", "narrow-aisle"],
+    "discouraged": ["open-hall"]
+  },
+  "story_prompts": [
+    "rare find — a scholar haggling over a grimoire, owner unwilling to sell",
+    "quiet browsing — three patrons, owner at the ledger, cat on a stack",
+    "book confiscation — inquisitors arriving with a list",
+    "midnight visit — shop closed, back shelf open revealing a hidden passage"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "warm reading light (0.5) — bright enough to read titles on spines",
+    "ambient_is": "required",
+    "common_sources": ["chandelier", "candle", "lantern-post"]
+  },
+  "anti_patterns": [
+    "shelves define every wall — don't leave bare wall space",
+    "aisles between shelves must be walkable — don't pack them with piles",
+    "never put open flame adjacent to a bookshelf — candles go on tables or counter only"
+  ]
+}

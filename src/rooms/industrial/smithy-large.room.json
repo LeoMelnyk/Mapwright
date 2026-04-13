@@ -1,0 +1,68 @@
+{
+  "name": "smithy-large",
+  "category": "industrial",
+  "tags": ["urban", "industrial", "military", "large", "hot", "commercial"],
+  "summary": "A working urban smithy — more than a dungeon forge. Multiple stations (master anvil + apprentice anvils), visible shop counter, retail display toward the street.",
+  "size_guidance": {
+    "min": [10, 12],
+    "typical": [12, 16],
+    "aspect_ratio": "wide rectangle with a clear street-facing edge"
+  },
+  "texture_options": {
+    "floor": ["polyhaven/cobblestone_floor_03", "polyhaven/dirt_floor"],
+    "accent": {
+      "purpose": "sooty working zones around forges",
+      "options": ["polyhaven/dirt_floor", "polyhaven/ash_layer"]
+    }
+  },
+  "primary_palette": [
+    { "props": ["forge-great"], "surrounded_by": ["anvil", "anvil", "bellows"], "note": "master forge + apprentice anvils — a training smithy" },
+    { "props": ["forge", "forge"], "surrounded_by": ["anvil", "anvil"], "note": "twin-forge operation, two masters or master+journeyman" },
+    { "props": ["forge"], "surrounded_by": ["anvil", "shop-counter"], "note": "single forge retail smithy — street-facing counter primary" }
+  ],
+  "secondary_palette": [
+    "anvil",
+    "bellows",
+    "trough",
+    "quench-barrel",
+    "workbench",
+    "tool-rack",
+    "grinding-wheel",
+    "shop-counter",
+    "display-rack-weapons",
+    "display-rack-armor",
+    "coal-bin",
+    "ingot-stack"
+  ],
+  "scatter_palette": [
+    "barrel",
+    "crate",
+    "slag-heap",
+    "bellows-hand",
+    "horseshoe-pile",
+    "nails-crate",
+    "leather-apron",
+    "hammer-rack",
+    "soot-patch"
+  ],
+  "shape_guidance": {
+    "preferred": ["wide-rectangle", "L-shape-with-retail-front", "U-shape-with-workyard-alcove"],
+    "discouraged": ["narrow", "round"]
+  },
+  "story_prompts": [
+    "mid-commission war contract — every anvil occupied, soot thick",
+    "end-of-day — forges banked, apprentices sweeping, master at the ledger",
+    "retail hours — master at the counter haggling while apprentice hammers",
+    "closed for mourning — forge cold, door draped"
+  ],
+  "lighting_notes": {
+    "ambient_intent": "working light (0.4) with hot forge glow zones",
+    "ambient_is": "required",
+    "common_sources": ["forge-great", "forge", "brazier"]
+  },
+  "anti_patterns": [
+    "forges against back wall with implied chimneys — never centerfloor",
+    "customer area (counter, displays) near the street — separate from the hot zone",
+    "don't mix smithy hazard cells with customer-facing floor space"
+  ]
+}
