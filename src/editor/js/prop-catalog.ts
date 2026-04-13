@@ -224,7 +224,7 @@ function buildEmptyCatalog() {
  */
 export function ensurePropTextures(propType: string): void {
   const def = cachedCatalog?.props[propType];
-  if (!def?.textures?.length) return;
+  if (!def?.textures.length) return;
   if (!getTextureCatalog()) return;
   for (const id of def.textures) void loadTextureImages(id);
 }
