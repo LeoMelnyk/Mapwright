@@ -109,11 +109,10 @@ export function render(): void {
   ctx.fillStyle = theme.background;
   ctx.fillRect(0, 0, cvState._canvasW, cvState._canvasH);
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const _skip =
-    (typeof window !== 'undefined' &&
-      ((window as unknown as Record<string, unknown>)._skipPhases as Record<string, boolean>)) ||
-    {};
+  const _skip: Record<string, boolean> =
+    (typeof window !== 'undefined'
+      ? ((window as unknown as Record<string, unknown>)._skipPhases as Record<string, boolean> | undefined)
+      : undefined) ?? {};
 
   // Debug: skip ALL rendering (just background fill) to test compositor behavior
   if (_skip.all) {
