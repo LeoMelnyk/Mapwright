@@ -26,6 +26,7 @@ import {
 import { getEdge } from '../../../util/index.js';
 import { lookupPropAt } from '../prop-spatial.js';
 import { createOverlayProp, resolveZIndex } from '../prop-overlay.js';
+import { ensurePropTextures } from '../prop-catalog.js';
 import { normalizeRect } from './_rect-utils.js';
 
 // ── Overlay Helpers ─────────────────────────────────────────────────────
@@ -125,6 +126,8 @@ export function placeProp(
   const meta = ensurePropsArray();
   const gridSize = meta.gridSize || 5;
   const lightsAdded: Array<{ id: number; preset: string }> = [];
+
+  ensurePropTextures(propType);
 
   mutate(
     'Place prop',

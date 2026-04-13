@@ -18,6 +18,7 @@ import { getTextureCatalog } from '../texture-catalog.js';
 import { showToast } from '../toast.js';
 import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
 import { createOverlayProp } from '../prop-overlay.js';
+import { ensurePropTextures } from '../prop-catalog.js';
 import { bringForward, sendBackward } from '../api/props.js';
 
 const BOX_SELECT_THRESHOLD = 8; // pixels before a mousedown-on-empty becomes a box-select drag
@@ -64,6 +65,7 @@ function _addOverlayAt(
   const gs = meta.gridSize || 5;
   const entry = createOverlayProp(meta, propType, row, col, gs, { rotation: facing, flipped });
   meta.props!.push(entry);
+  ensurePropTextures(propType);
   return entry;
 }
 

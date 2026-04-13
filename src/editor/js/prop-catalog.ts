@@ -142,7 +142,6 @@ export async function loadPropCatalog(
         if (cached && Object.keys(cached).length) {
           if (onProgress) onProgress(propNames.length, propNames.length);
           cachedCatalog = buildCatalog(cached);
-          preloadPropTextures(cachedCatalog);
           return cachedCatalog;
         }
       } catch {
@@ -190,7 +189,6 @@ export async function loadPropCatalog(
     }
 
     cachedCatalog = buildCatalog(props);
-    preloadPropTextures(cachedCatalog);
     return cachedCatalog;
   } catch (e) {
     console.warn('[prop-catalog] Failed to load catalog:', e);
@@ -221,19 +219,12 @@ function buildEmptyCatalog() {
 }
 
 /**
- * Preload texture images referenced by any prop's texfill commands.
- * Fire-and-forget — textures load in the background.
+ * Kick off loads for textures referenced by a single prop.
+ * Fire-and-forget — safe to call repeatedly (loadTextureImages is a no-op if already loading).
  */
-function preloadPropTextures(catalog: PropCatalog) {
-  const texCatalog = getTextureCatalog();
-  if (!texCatalog) return;
-
-  const ids = new Set<string>();
-  for (const propDef of Object.values(catalog.props)) {
-    for (const id of propDef.textures) ids.add(id);
-  }
-
-  for (const id of ids) {
-    void loadTextureImages(id);
-  }
+export function ensurePropTextures(propType: string): void {
+  const def = cachedCatalog?.props[propType];
+  if (!def?.textures?.length) return;
+  if (!getTextureCatalog()) return;
+  for (const id of def.textures) void loadTextureImages(id);
 }

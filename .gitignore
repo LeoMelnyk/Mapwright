@@ -11,6 +11,9 @@ src/textures/**/*.png
 ai-session.log
 eslint-errors.json
 
+# Claude Code agent worktrees
+.claude/worktrees/
+
 # Test outputs
 test/e2e/output/
 test/snapshots/renders/*-diff.png
