@@ -66,7 +66,7 @@ export function init(): void {
       const isCustomActive = typeof state.dungeon.metadata.theme === 'object';
       state.dungeon.metadata.customTheme = null;
       if (isCustomActive) {
-        state.dungeon.metadata.theme = catalog.names[0];
+        state.dungeon.metadata.theme = catalog.names[0]!;
         syncCustomEditorValues();
       }
       syncThemePicker();
@@ -76,7 +76,7 @@ export function init(): void {
 
     // User-saved themes — between Custom and built-ins
     for (const uKey of catalog.userNames) {
-      const userTheme = catalog.userThemes[uKey];
+      const userTheme = catalog.userThemes[uKey]!;
       const fullKey = `user:${uKey}`;
       const item = document.createElement('div');
       item.className = 'theme-thumb theme-thumb-user';
@@ -123,21 +123,23 @@ export function init(): void {
         notify();
       });
 
-      deleteBtn.addEventListener('click', (e) => { void (async () => {
-        e.stopPropagation();
-        pushUndo();
-        await deleteUserTheme(uKey);
-        const isActive = state.dungeon.metadata.theme === fullKey;
-        if (isActive) {
-          state.dungeon.metadata.theme = catalog.names[0];
-          delete state.dungeon.metadata.savedThemeData;
-          syncCustomEditorValues();
-        }
-        buildThemePicker();
-        syncThemePicker();
-        markDirty();
-        notify();
-      })(); });
+      deleteBtn.addEventListener('click', (e) => {
+        void (async () => {
+          e.stopPropagation();
+          pushUndo();
+          await deleteUserTheme(uKey);
+          const isActive = state.dungeon.metadata.theme === fullKey;
+          if (isActive) {
+            state.dungeon.metadata.theme = catalog.names[0]!;
+            delete state.dungeon.metadata.savedThemeData;
+            syncCustomEditorValues();
+          }
+          buildThemePicker();
+          syncThemePicker();
+          markDirty();
+          notify();
+        })();
+      });
 
       renameBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -150,11 +152,16 @@ export function init(): void {
         input.focus();
         input.select();
 
-        function revert() { input.replaceWith(label); }
+        function revert() {
+          input.replaceWith(label);
+        }
 
         async function commitAsync() {
           const newName = input.value.trim();
-          if (!newName || newName === currentName) { revert(); return; }
+          if (!newName || newName === currentName) {
+            revert();
+            return;
+          }
           pushUndo();
           try {
             const newKey = await renameUserTheme(uKey, newName);
@@ -172,13 +179,22 @@ export function init(): void {
             input.style.borderColor = '#a02030';
           }
         }
-        function commit() { void commitAsync(); }
+        function commit() {
+          void commitAsync();
+        }
 
         input.addEventListener('blur', commit);
         input.addEventListener('keydown', (ev) => {
           ev.stopPropagation();
-          if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); }
-          if (ev.key === 'Escape') { ev.preventDefault(); input.removeEventListener('blur', commit); revert(); }
+          if (ev.key === 'Enter') {
+            ev.preventDefault();
+            input.blur();
+          }
+          if (ev.key === 'Escape') {
+            ev.preventDefault();
+            input.removeEventListener('blur', commit);
+            revert();
+          }
         });
       });
 
@@ -203,7 +219,7 @@ export function init(): void {
       thumbCanvas.height = 64;
 
       const label = document.createElement('span');
-      label.textContent = (catalog.themes[key].displayName as string) || key;
+      label.textContent = (catalog.themes[key]!.displayName as string) || key;
 
       item.appendChild(thumbCanvas);
       item.appendChild(label);
@@ -248,7 +264,7 @@ export function init(): void {
     const isCustom = typeof current === 'object';
 
     // Preset thumbs
-    grid.querySelectorAll('.theme-thumb:not(#theme-thumb-custom)').forEach(item => {
+    grid.querySelectorAll('.theme-thumb:not(#theme-thumb-custom)').forEach((item) => {
       item.classList.toggle('active', !isCustom && (item as HTMLElement).dataset.themeKey === current);
     });
 
@@ -294,7 +310,8 @@ export function init(): void {
 
     if (nameInput) (nameInput as HTMLInputElement).value = state.dungeon.metadata.dungeonName || '';
     const res = state.dungeon.metadata.resolution || 1;
-    if (gridSizeSelect) (gridSizeSelect as HTMLSelectElement).value = String((state.dungeon.metadata.gridSize || 5) * res);
+    if (gridSizeSelect)
+      (gridSizeSelect as HTMLSelectElement).value = String((state.dungeon.metadata.gridSize || 5) * res);
 
     syncThemePicker();
     syncCustomEditorValues();
@@ -389,7 +406,10 @@ export function init(): void {
 
       input.addEventListener('blur', commit);
       input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          input.blur();
+        }
         if (e.key === 'Escape') {
           input.removeEventListener('blur', commit);
           input.replaceWith(mapTitleEl);
@@ -427,7 +447,7 @@ export function init(): void {
   document.getElementById('btn-resize')?.addEventListener('click', () => {
     const cells = state.dungeon.cells;
     const oldRows = cells.length;
-    const oldCols = cells[0]?.length || 0;
+    const oldCols = cells[0]?.length ?? 0;
 
     const modal = document.getElementById('modal-resize-canvas');
     const rowInput = document.getElementById('modal-resize-rows');
@@ -449,7 +469,9 @@ export function init(): void {
       modal!.removeEventListener('click', onOverlay);
     }
 
-    function onCancel() { cleanup(); }
+    function onCancel() {
+      cleanup();
+    }
 
     function onOk() {
       const newRows = Math.max(1, parseInt((rowInput as HTMLInputElement).value) || oldRows);
@@ -476,13 +498,15 @@ export function init(): void {
       }
 
       const levels = state.dungeon.metadata.levels;
-      if (levels.length === 1) levels[0].numRows = newRows;
+      if (levels.length === 1) levels[0]!.numRows = newRows;
 
       markDirty();
       notify();
     }
 
-    function onOverlay(e: MouseEvent) { if (e.target === modal) cleanup(); }
+    function onOverlay(e: MouseEvent) {
+      if (e.target === modal) cleanup();
+    }
 
     cancelBtn.addEventListener('click', onCancel);
     okBtn.addEventListener('click', onOk);
@@ -495,10 +519,12 @@ export function init(): void {
     ['feat-compass', 'compassRose'],
     ['feat-scale', 'scale'],
     ['feat-border', 'border'],
-  ]) {
+  ] as const) {
     document.getElementById(id)?.addEventListener('change', (e) => {
       pushUndo();
-      (state.dungeon.metadata.features as unknown as Record<string, boolean>)[key] = ((e.target ?? e.currentTarget) as HTMLInputElement).checked;
+      (state.dungeon.metadata.features as unknown as Record<string, boolean>)[key] = (
+        (e.target ?? e.currentTarget) as HTMLInputElement
+      ).checked;
       markDirty();
       notify();
     });
@@ -508,7 +534,7 @@ export function init(): void {
   for (const [id, key] of [
     ['feat-fps', 'fpsCounter'],
     ['feat-minimap', 'minimap'],
-  ]) {
+  ] as const) {
     document.getElementById(id)?.addEventListener('change', (e) => {
       setEditorSetting(key, ((e.target ?? e.currentTarget) as HTMLInputElement).checked);
       requestRender();
@@ -568,7 +594,9 @@ export function init(): void {
       setEditorSetting('claude', true);
       location.reload();
     };
-    const onOverlay = (ev: MouseEvent) => { if (ev.target === modal) onCancel(); };
+    const onOverlay = (ev: MouseEvent) => {
+      if (ev.target === modal) onCancel();
+    };
 
     function cleanup() {
       document.getElementById('modal-claude-warning-cancel')?.removeEventListener('click', onCancel);

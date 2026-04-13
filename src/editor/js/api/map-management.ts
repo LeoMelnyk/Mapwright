@@ -104,7 +104,7 @@ export function getMapInfo(): {
   let labelCount = 0;
   const textureIds = new Set();
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       if (cell.center?.label != null) labelCount++;
@@ -117,7 +117,7 @@ export function getMapInfo(): {
     success: true,
     name: meta.dungeonName,
     rows: toDisp(cells.length),
-    cols: toDisp(cells[0]?.length || 0),
+    cols: toDisp(cells[0]?.length ?? 0),
     gridSize: meta.gridSize * res, // display gridSize
     resolution: res,
     theme: typeof meta.theme === 'string' ? meta.theme : 'custom',
@@ -148,7 +148,7 @@ export function getFullMapInfo(): Record<string, unknown> {
   const rooms = [];
   const seenLabels = new Set();
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const label = cells[r]?.[c]?.center?.label;
       if (label != null && !seenLabels.has(label)) {
         seenLabels.add(label);
@@ -176,13 +176,13 @@ export function getFullMapInfo(): Record<string, unknown> {
   const doors = [];
   const seen = new Set();
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
         if ((cell as Record<string, unknown>)[dir] !== 'd' && (cell as Record<string, unknown>)[dir] !== 's') continue;
         const key = `${r},${c},${dir}`;
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         const recipKey = `${r + dr},${c + dc},${OPPOSITE[dir as keyof typeof OPPOSITE]}`;
         if (seen.has(recipKey)) continue;
         seen.add(key);

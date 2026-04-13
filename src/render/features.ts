@@ -12,15 +12,23 @@ import type { Theme } from '../types.js';
  * @param {number} scale - transform.scale (pixels per foot); sizes are relative to GRID_SCALE
  * @returns {void}
  */
-function drawCellLabel(ctx: CanvasRenderingContext2D, cx: number, cy: number, label: string, theme: Theme, labelStyle: string = 'circled', scale: number = GRID_SCALE): void {
+function drawCellLabel(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  label: string,
+  theme: Theme,
+  labelStyle: string = 'circled',
+  scale: number = GRID_SCALE,
+): void {
   const isRoomLabel = /^[A-Z]\d+$/.test(label);
   const s = scale / GRID_SCALE;
 
   // Theme-controlled label colors (default: black border, black font, white background)
   const labelColors = ((theme as Record<string, unknown>).labels ?? {}) as Record<string, string>;
-  const borderColor: string = labelColors.borderColor || '#000000';
-  const fontColor: string = labelColors.fontColor || '#000000';
-  const bgColor: string = labelColors.backgroundColor || '#FFFFFF';
+  const borderColor: string = labelColors.borderColor ?? '#000000';
+  const fontColor: string = labelColors.fontColor ?? '#000000';
+  const bgColor: string = labelColors.backgroundColor ?? '#FFFFFF';
 
   if (isRoomLabel && labelStyle === 'circled') {
     // Circled style: background circle with border, bold text inside
@@ -111,15 +119,23 @@ function drawCellLabel(ctx: CanvasRenderingContext2D, cx: number, cy: number, la
  * @param {number} scale - transform.scale (pixels per foot); sizes are relative to GRID_SCALE
  * @returns {void}
  */
-function drawDmLabel(ctx: CanvasRenderingContext2D, cx: number, cy: number, text: string, scale: number = GRID_SCALE): void {
+function drawDmLabel(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  text: string,
+  scale: number = GRID_SCALE,
+): void {
   const s = scale / GRID_SCALE;
   ctx.save();
   ctx.font = `italic ${12 * s}px "Palatino Linotype", "Book Antiqua", Palatino, serif`;
   const metrics = ctx.measureText(text);
-  const padX = 12 * s, padY = 6 * s;
+  const padX = 12 * s,
+    padY = 6 * s;
   const w = Math.max(metrics.width + padX * 2, 40 * s);
   const h = 20 * s + padY * 2;
-  const x = cx - w / 2, y = cy - h / 2;
+  const x = cx - w / 2,
+    y = cy - h / 2;
   const curl = 4 * s;
   const bulge = 2 * s;
 
@@ -129,12 +145,12 @@ function drawDmLabel(ctx: CanvasRenderingContext2D, cx: number, cy: number, text
   ctx.lineWidth = 1.5 * s;
   ctx.beginPath();
   ctx.moveTo(x + curl, y);
-  ctx.lineTo(x + w - curl, y);                                            // top edge
-  ctx.quadraticCurveTo(x + w + bulge, y + h * 0.3, x + w, y + h / 2);    // right curl top
+  ctx.lineTo(x + w - curl, y); // top edge
+  ctx.quadraticCurveTo(x + w + bulge, y + h * 0.3, x + w, y + h / 2); // right curl top
   ctx.quadraticCurveTo(x + w + bulge, y + h * 0.7, x + w - curl, y + h); // right curl bottom
-  ctx.lineTo(x + curl, y + h);                                            // bottom edge
-  ctx.quadraticCurveTo(x - bulge, y + h * 0.7, x, y + h / 2);            // left curl bottom
-  ctx.quadraticCurveTo(x - bulge, y + h * 0.3, x + curl, y);             // left curl top
+  ctx.lineTo(x + curl, y + h); // bottom edge
+  ctx.quadraticCurveTo(x - bulge, y + h * 0.7, x, y + h / 2); // left curl bottom
+  ctx.quadraticCurveTo(x - bulge, y + h * 0.3, x + curl, y); // left curl top
   ctx.closePath();
   ctx.fill();
   ctx.stroke();

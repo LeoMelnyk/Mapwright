@@ -69,7 +69,7 @@ export async function waitForTextures(timeoutMs: number = 8000): Promise<{ succe
   if (state.propCatalog?.props && state.dungeon.metadata.props) {
     for (const op of state.dungeon.metadata.props) {
       const propDef = state.propCatalog.props[op.type];
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
       if (propDef?.textures) {
         for (const id of propDef.textures) usedIds.add(id);
       }
@@ -966,7 +966,7 @@ export function suggestPlacement(
         [b.r1 - rows - 1, hc], // north
         [hr, b.c2 + 2], // east
         [hr, b.c1 - cols - 1], // west
-      ]) {
+      ] as [number, number][]) {
         if (isFree(r, c, r + rows - 1, c + cols - 1)) return { r1: r, c1: c, r2: r + rows - 1, c2: c + cols - 1 };
       }
     }
@@ -1028,7 +1028,7 @@ export function listRooms(): {
   const cells = state.dungeon.cells;
   const labels = new Map();
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const lbl = cells[r]?.[c]?.center?.label;
       if (lbl) labels.set(lbl, { row: r, col: c });
     }
@@ -1227,7 +1227,7 @@ export function getStateDigest(): {
   for (let r = 0; r < cells.length; r++) {
     for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
-      if (cell !== null) {
+      if (cell != null) {
         totalCells++;
         if (cell.center?.label) roomLabels.add(cell.center.label);
       }

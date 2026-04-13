@@ -14,8 +14,12 @@ import { saveDungeon, saveDungeonAs } from './io.js';
 import { zoomToFit } from './canvas-view.js';
 import { lookupPropAt, markPropSpatialDirty } from './prop-spatial.js';
 import {
-  applyToolSideEffects, cycleSubMode, updateToolButtons,
-  togglePanel, deselectCell, selectLevel,
+  applyToolSideEffects,
+  cycleSubMode,
+  updateToolButtons,
+  togglePanel,
+  deselectCell,
+  selectLevel,
 } from './panels/index.js';
 import type { Tool } from './tools/tool-base.js';
 /**
@@ -25,16 +29,48 @@ import type { Tool } from './tools/tool-base.js';
  * @param {(name: string) => void} setTool - Switches the active editor tool.
  * @returns {{ onKeyDown: (e: KeyboardEvent) => void, onKeyUp: (e: KeyboardEvent) => void }}
  */
-export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (name: string) => void): { onKeyDown: (e: KeyboardEvent) => void; onKeyUp: (e: KeyboardEvent) => void } {
-
+export function initKeyboardShortcuts(
+  tools: Record<string, Tool>,
+  setTool: (name: string) => void,
+): { onKeyDown: (e: KeyboardEvent) => void; onKeyUp: (e: KeyboardEvent) => void } {
   function onKeyDown(e: KeyboardEvent) {
     // Don't intercept when typing in inputs
-    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'SELECT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return;
+    if (
+      (e.target as HTMLElement).tagName === 'INPUT' ||
+      (e.target as HTMLElement).tagName === 'SELECT' ||
+      (e.target as HTMLElement).tagName === 'TEXTAREA'
+    )
+      return;
 
-    if (e.ctrlKey && e.key === 'z') { e.preventDefault(); if (state.undoStack.length) { undo(); showToast('Undo'); } else { showToast('Nothing to undo'); } canvasView.requestRender(); }
-    if (e.ctrlKey && e.key === 'y') { e.preventDefault(); if (state.redoStack.length) { redo(); showToast('Redo'); } else { showToast('Nothing to redo'); } canvasView.requestRender(); }
-    if (e.ctrlKey && e.shiftKey && e.key === 'S') { e.preventDefault(); void saveDungeonAs(); return; }
-    if (e.ctrlKey && e.key === 's') { e.preventDefault(); void saveDungeon(); }
+    if (e.ctrlKey && e.key === 'z') {
+      e.preventDefault();
+      if (state.undoStack.length) {
+        undo();
+        showToast('Undo');
+      } else {
+        showToast('Nothing to undo');
+      }
+      canvasView.requestRender();
+    }
+    if (e.ctrlKey && e.key === 'y') {
+      e.preventDefault();
+      if (state.redoStack.length) {
+        redo();
+        showToast('Redo');
+      } else {
+        showToast('Nothing to redo');
+      }
+      canvasView.requestRender();
+    }
+    if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+      e.preventDefault();
+      void saveDungeonAs();
+      return;
+    }
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      void saveDungeon();
+    }
 
     // H: zoom to fit current level
     if ((e.key === 'h' || e.key === 'H') && !e.ctrlKey) {
@@ -57,11 +93,12 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
       const anchorRow = Math.min(...state.selectedCells.map((c) => c.row));
       const anchorCol = Math.min(...state.selectedCells.map((c) => c.col));
       state.clipboard = {
-        anchorRow, anchorCol,
+        anchorRow,
+        anchorCol,
         cells: state.selectedCells.map(({ row, col }: { row: number; col: number }) => ({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
-          data: cells[row][col] ? JSON.parse(JSON.stringify(cells[row][col])) : null,
+          data: cells[row]![col] ? JSON.parse(JSON.stringify(cells[row]![col])) : null,
         })),
       };
       const n = state.selectedCells.length;
@@ -81,7 +118,10 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
         // Use propId when available (from box-select/hit-test), else spatial lookup
         const overlay = a.propId
           ? meta.props?.find((p: { id: number | string }) => p.id === a.propId)
-          : (() => { const entry = lookupPropAt(a.row, a.col); return entry ? meta.props?.find((p: { id: number | string }) => p.id === entry.propId) : null; })();
+          : (() => {
+              const entry = lookupPropAt(a.row, a.col);
+              return entry ? meta.props?.find((p: { id: number | string }) => p.id === entry.propId) : null;
+            })();
         if (overlay && !copiedIds.has(overlay.id)) {
           copiedIds.add(overlay.id);
           const { row, col } = a;
@@ -91,8 +131,8 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
           const propAnchorCol = Math.round(overlay.x / gs);
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           const linkedLights = (meta.lights || [])
-            .filter(l => l.propRef?.row === propAnchorRow && l.propRef.col === propAnchorCol)
-            .map(l => {
+            .filter((l) => l.propRef?.row === propAnchorRow && l.propRef.col === propAnchorCol)
+            .map((l) => {
               const clone = JSON.parse(JSON.stringify(l));
               // Store light offset relative to the prop's world position
               clone._offsetX = l.x - overlay.x;
@@ -121,17 +161,18 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
       const anchorRow = Math.min(...state.selectedCells.map((c) => c.row));
       const anchorCol = Math.min(...state.selectedCells.map((c) => c.col));
       state.clipboard = {
-        anchorRow, anchorCol,
+        anchorRow,
+        anchorCol,
         cells: state.selectedCells.map(({ row, col }: { row: number; col: number }) => ({
           dRow: row - anchorRow,
           dCol: col - anchorCol,
-          data: cells[row][col] ? JSON.parse(JSON.stringify(cells[row][col])) : null,
+          data: cells[row]![col] ? JSON.parse(JSON.stringify(cells[row]![col])) : null,
         })),
       };
       // Delete the cells
       pushUndo('Cut cells');
       for (const { row, col } of state.selectedCells) {
-        cells[row][col] = null;
+        cells[row]![col] = null;
       }
       const n = state.selectedCells.length;
       state.selectedCells = [];
@@ -153,7 +194,10 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
       for (const a of state.selectedPropAnchors) {
         const overlay = a.propId
           ? meta.props?.find((p: { id: number | string }) => p.id === a.propId)
-          : (() => { const entry = lookupPropAt(a.row, a.col); return entry ? meta.props?.find((p: { id: number | string }) => p.id === entry.propId) : null; })();
+          : (() => {
+              const entry = lookupPropAt(a.row, a.col);
+              return entry ? meta.props?.find((p: { id: number | string }) => p.id === entry.propId) : null;
+            })();
         if (overlay && !copiedIds.has(overlay.id)) {
           copiedIds.add(overlay.id);
           const { row, col } = a;
@@ -163,8 +207,8 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
           const propAnchorCol = Math.round(overlay.x / gs);
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           const linkedLights = (meta.lights || [])
-            .filter(l => l.propRef?.row === propAnchorRow && l.propRef.col === propAnchorCol)
-            .map(l => {
+            .filter((l) => l.propRef?.row === propAnchorRow && l.propRef.col === propAnchorCol)
+            .map((l) => {
               const clone = JSON.parse(JSON.stringify(l));
               clone._offsetX = l.x - overlay.x;
               clone._offsetY = l.y - overlay.y;
@@ -203,7 +247,7 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
     if (e.ctrlKey && e.key === 'v' && state.propClipboard && state.activeTool === 'prop') {
       e.preventDefault();
       // Cancel any in-progress drag
-      tools.prop.onCancel();
+      tools.prop!.onCancel();
       // Deselect the prop template (stop placing new props)
       if (state.selectedProp) {
         state.selectedProp = null;
@@ -239,8 +283,12 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
     }
 
     // F1–F5: toggle sidebar panels
-    const panelKeys = { 'F1': 'themes', 'F2': 'levels', 'F3': 'textures', 'F4': 'lighting', 'F5': 'session' };
-    if ((panelKeys as Record<string, string>)[e.key]) { e.preventDefault(); togglePanel((panelKeys as Record<string, string>)[e.key]); return; }
+    const panelKeys = { F1: 'themes', F2: 'levels', F3: 'textures', F4: 'lighting', F5: 'session' };
+    if ((panelKeys as Record<string, string>)[e.key]) {
+      e.preventDefault();
+      togglePanel((panelKeys as Record<string, string>)[e.key]!);
+      return;
+    }
 
     // Ctrl+1–9: switch to level by index
     if (e.ctrlKey && /^[1-9]$/.test(e.key)) {
@@ -250,7 +298,21 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
     }
 
     // Suppress tool shortcuts in session tools mode — use session-specific keybinds instead
-    const toolKeys = { '1': 'room', '2': 'paint', '3': 'fill', '4': 'wall', '5': 'door', '6': 'label', 's': 'stairs', 'b': 'bridge', 't': 'trim', 'a': 'select', 'q': 'prop', 'e': 'erase', 'l': 'light' };
+    const toolKeys = {
+      '1': 'room',
+      '2': 'paint',
+      '3': 'fill',
+      '4': 'wall',
+      '5': 'door',
+      '6': 'label',
+      s: 'stairs',
+      b: 'bridge',
+      t: 'trim',
+      a: 'select',
+      q: 'prop',
+      e: 'erase',
+      l: 'light',
+    };
     if (state.sessionToolsActive) {
       // 1/2: switch session tools
       const sessionToolKeys = { '1': 'doors', '2': 'range', '3': 'fog-reveal' };
@@ -266,10 +328,10 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
         e.preventDefault();
         const shapes = [...document.querySelectorAll<HTMLElement>('#range-options [data-range-shape]')];
         if (shapes.length === 0) return;
-        const activeIdx = shapes.findIndex(b => b.classList.contains('active'));
+        const activeIdx = shapes.findIndex((b) => b.classList.contains('active'));
         const dir = e.shiftKey ? -1 : 1;
         const nextIdx = (activeIdx + dir + shapes.length) % shapes.length;
-        shapes[nextIdx].click();
+        shapes[nextIdx]!.click();
         return;
       }
       if ((toolKeys as Record<string, unknown>)[e.key]) return;
@@ -299,7 +361,7 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
     if (e.key === 'Delete' && state.selectedCells.length) {
       pushUndo();
       for (const { row, col } of state.selectedCells) {
-        state.dungeon.cells[row][col] = null;
+        state.dungeon.cells[row]![col] = null;
       }
       state.selectedCells = [];
       markDirty();
@@ -307,14 +369,18 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
     }
 
     // D / Shift+D: cycle water/lava depth (fill tool, water or lava mode only)
-    if ((e.key === 'd' || e.key === 'D') && !e.ctrlKey &&
-        state.activeTool === 'fill' && (state.fillMode === 'water' || state.fillMode === 'lava')) {
+    if (
+      (e.key === 'd' || e.key === 'D') &&
+      !e.ctrlKey &&
+      state.activeTool === 'fill' &&
+      (state.fillMode === 'water' || state.fillMode === 'lava')
+    ) {
       e.preventDefault();
       const cur = state.fillMode === 'lava' ? state.lavaDepth : state.waterDepth;
-      const next = e.shiftKey ? (cur === 1 ? 3 : cur - 1) : (cur === 3 ? 1 : cur + 1);
+      const next = e.shiftKey ? (cur === 1 ? 3 : cur - 1) : cur === 3 ? 1 : cur + 1;
       if (state.fillMode === 'lava') state.lavaDepth = next;
       else state.waterDepth = next;
-      document.querySelectorAll<HTMLElement>('[data-water-depth]').forEach(b => {
+      document.querySelectorAll<HTMLElement>('[data-water-depth]').forEach((b) => {
         b.classList.toggle('active', parseInt(b.dataset.waterDepth ?? '0', 10) === next);
       });
       return;
@@ -322,15 +388,20 @@ export function initKeyboardShortcuts(tools: Record<string, Tool>, setTool: (nam
 
     // Forward to active tool
     const tool = tools[state.activeTool];
-    tool.onKeyDown(e);
+    tool?.onKeyDown(e);
   }
 
   function onKeyUp(e: KeyboardEvent) {
-    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'SELECT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return;
+    if (
+      (e.target as HTMLElement).tagName === 'INPUT' ||
+      (e.target as HTMLElement).tagName === 'SELECT' ||
+      (e.target as HTMLElement).tagName === 'TEXTAREA'
+    )
+      return;
 
     // Forward to active tool (needed for room tool shift-release)
     const tool = tools[state.activeTool];
-    tool.onKeyUp(e);
+    tool?.onKeyUp(e);
   }
 
   return { onKeyDown, onKeyUp };

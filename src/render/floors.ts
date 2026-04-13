@@ -9,45 +9,58 @@ import type { Cell, CellGrid, RenderTransform } from '../types.js';
  */
 function determineRoomCells(cells: CellGrid): boolean[][] {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
-  const isRoom = Array.from({length: numRows}, () => Array(numCols).fill(false));
+  const isRoom = Array.from({ length: numRows }, () => Array(numCols).fill(false));
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      if (cells[row][col]) {
-        isRoom[row][col] = true;
+      if (cells[row]![col]) {
+        isRoom[row]![col] = true;
       }
     }
   }
 
-  const isOutside = Array.from({length: numRows}, () => Array(numCols).fill(false));
+  const isOutside = Array.from({ length: numRows }, () => Array(numCols).fill(false));
 
   // Iterative flood fill to avoid stack overflow on large grids
   const stack: number[] = [];
   function seedOutside(r: number, c: number): void {
     if (r < 0 || r >= numRows || c < 0 || c >= numCols) return;
-    if (!isOutside[r][c]) { isOutside[r][c] = true; stack.push(r, c); }
+    if (!isOutside[r]![c]) {
+      isOutside[r]![c] = true;
+      stack.push(r, c);
+    }
   }
 
-  for (let col = 0; col < numCols; col++) { seedOutside(0, col); seedOutside(numRows - 1, col); }
-  for (let row = 0; row < numRows; row++) { seedOutside(row, 0); seedOutside(row, numCols - 1); }
+  for (let col = 0; col < numCols; col++) {
+    seedOutside(0, col);
+    seedOutside(numRows - 1, col);
+  }
+  for (let row = 0; row < numRows; row++) {
+    seedOutside(row, 0);
+    seedOutside(row, numCols - 1);
+  }
 
   while (stack.length > 0) {
     const col = stack.pop()!;
     const row = stack.pop()!;
-    const cell = cells[row][col];
-    if (row > 0 && !isOutside[row - 1][col] && isEdgeOpen(cell, cells[row - 1]?.[col], 'north')) {
-      isOutside[row - 1][col] = true; stack.push(row - 1, col);
+    const cell = cells[row]![col] ?? null;
+    if (row > 0 && !isOutside[row - 1]![col] && isEdgeOpen(cell, cells[row - 1]?.[col] ?? null, 'north')) {
+      isOutside[row - 1]![col] = true;
+      stack.push(row - 1, col);
     }
-    if (row < numRows - 1 && !isOutside[row + 1][col] && isEdgeOpen(cell, cells[row + 1]?.[col], 'south')) {
-      isOutside[row + 1][col] = true; stack.push(row + 1, col);
+    if (row < numRows - 1 && !isOutside[row + 1]![col] && isEdgeOpen(cell, cells[row + 1]?.[col] ?? null, 'south')) {
+      isOutside[row + 1]![col] = true;
+      stack.push(row + 1, col);
     }
-    if (col < numCols - 1 && !isOutside[row][col + 1] && isEdgeOpen(cell, cells[row]?.[col + 1], 'east')) {
-      isOutside[row][col + 1] = true; stack.push(row, col + 1);
+    if (col < numCols - 1 && !isOutside[row]![col + 1] && isEdgeOpen(cell, cells[row]?.[col + 1] ?? null, 'east')) {
+      isOutside[row]![col + 1] = true;
+      stack.push(row, col + 1);
     }
-    if (col > 0 && !isOutside[row][col - 1] && isEdgeOpen(cell, cells[row]?.[col - 1], 'west')) {
-      isOutside[row][col - 1] = true; stack.push(row, col - 1);
+    if (col > 0 && !isOutside[row]![col - 1] && isEdgeOpen(cell, cells[row]?.[col - 1] ?? null, 'west')) {
+      isOutside[row]![col - 1] = true;
+      stack.push(row, col - 1);
     }
   }
 
@@ -72,8 +85,8 @@ function getDiagonalTrimCorner(cell: Cell | null, cells: CellGrid, row: number, 
   if (!hasDiag) return null;
 
   const numRows = cells.length || 0;
-  const numCols = cells[0]?.length || 0;
-  const isVoid = (r: number, c: number): boolean => r < 0 || r >= numRows || c < 0 || c >= numCols || !cells[r][c];
+  const numCols = cells[0]?.length ?? 0;
+  const isVoid = (r: number, c: number): boolean => r < 0 || r >= numRows || c < 0 || c >= numCols || !cells[r]![c];
 
   if (cell['ne-sw']) {
     if (isVoid(row - 1, col) && isVoid(row, col - 1)) return 'nw';
@@ -98,7 +111,15 @@ function getDiagonalTrimCorner(cell: Cell | null, cells: CellGrid, row: number, 
  * @param {string} voidCorner - Corner direction ('nw', 'ne', 'sw', 'se')
  * @returns {void}
  */
-function fillTrimmedCell(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, fillColor: string, transform: RenderTransform, voidCorner: string): void {
+function fillTrimmedCell(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  fillColor: string,
+  transform: RenderTransform,
+  voidCorner: string,
+): void {
   const tl = toCanvas(x, y, transform);
   const tr = toCanvas(x + size, y, transform);
   const bl = toCanvas(x, y + size, transform);
@@ -144,7 +165,14 @@ function fillTrimmedCell(ctx: CanvasRenderingContext2D, x: number, y: number, si
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-function fillRoomSquare(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, fillColor: string, transform: RenderTransform): void {
+function fillRoomSquare(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  fillColor: string,
+  transform: RenderTransform,
+): void {
   const p1 = toCanvas(x, y, transform);
   const p2 = toCanvas(x + size, y + size, transform);
   const pixelSize = p2.x - p1.x;
@@ -153,9 +181,4 @@ function fillRoomSquare(ctx: CanvasRenderingContext2D, x: number, y: number, siz
   ctx.fillRect(p1.x, p1.y, pixelSize, pixelSize);
 }
 
-export {
-  determineRoomCells,
-  getDiagonalTrimCorner,
-  fillTrimmedCell,
-  fillRoomSquare,
-};
+export { determineRoomCells, getDiagonalTrimCorner, fillTrimmedCell, fillRoomSquare };

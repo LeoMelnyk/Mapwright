@@ -39,7 +39,12 @@ export function fromCanvas(px: number, py: number, transform: RenderTransform): 
  * @param {number} gridSize - Grid cell size in feet.
  * @returns {{ row: number, col: number }} Grid cell coordinates.
  */
-export function pixelToCell(px: number, py: number, transform: RenderTransform, gridSize: number): { row: number; col: number } {
+export function pixelToCell(
+  px: number,
+  py: number,
+  transform: RenderTransform,
+  gridSize: number,
+): { row: number; col: number } {
   const feet = fromCanvas(px, py, transform);
   return {
     row: Math.floor(feet.y / gridSize),
@@ -56,13 +61,19 @@ export function pixelToCell(px: number, py: number, transform: RenderTransform, 
  * @param {number} [edgeMarginRatio=0.25] - Fraction of cell width considered "near" an edge.
  * @returns {{ direction: string, row: number, col: number }|null} Edge info or null if not near an edge.
  */
-export function nearestEdge(px: number, py: number, transform: RenderTransform, gridSize: number, edgeMarginRatio: number = 0.25): { direction: string; row: number; col: number } | null {
+export function nearestEdge(
+  px: number,
+  py: number,
+  transform: RenderTransform,
+  gridSize: number,
+  edgeMarginRatio: number = 0.25,
+): { direction: string; row: number; col: number } | null {
   const feet = fromCanvas(px, py, transform);
   const col = Math.floor(feet.x / gridSize);
   const row = Math.floor(feet.y / gridSize);
 
-  const relX = (feet.x / gridSize) - col; // 0..1 within cell
-  const relY = (feet.y / gridSize) - row;
+  const relX = feet.x / gridSize - col; // 0..1 within cell
+  const relY = feet.y / gridSize - row;
 
   const margin = edgeMarginRatio;
 
@@ -81,7 +92,7 @@ export function nearestEdge(px: number, py: number, transform: RenderTransform, 
 
   if (candidates.length === 0) return null;
   candidates.sort((a, b) => a.dist - b.dist);
-  return { direction: candidates[0].direction, row, col };
+  return { direction: candidates[0]!.direction, row, col };
 }
 
 /**
@@ -94,7 +105,14 @@ export function nearestEdge(px: number, py: number, transform: RenderTransform, 
  * @param {number} [resolution] - Internal subdivision factor.
  * @returns {Object} A dungeon JSON object with metadata and empty cells grid.
  */
-export function createEmptyDungeon(name: string, rows: number, cols: number, gridSize: number = 5, theme: string = 'stone-dungeon', resolution: number = RESOLUTION_DEFAULT): Dungeon {
+export function createEmptyDungeon(
+  name: string,
+  rows: number,
+  cols: number,
+  gridSize: number = 5,
+  theme: string = 'stone-dungeon',
+  resolution: number = RESOLUTION_DEFAULT,
+): Dungeon {
   const internalRows = rows * resolution;
   const internalCols = cols * resolution;
   const internalGridSize = gridSize / resolution;
@@ -145,7 +163,12 @@ export function createEmptyDungeon(name: string, rows: number, cols: number, gri
  * @param {number} gridSize - Grid cell size in feet
  * @returns {{ row: number, col: number }}
  */
-export function nearestCorner(px: number, py: number, transform: RenderTransform, gridSize: number): { row: number; col: number } {
+export function nearestCorner(
+  px: number,
+  py: number,
+  transform: RenderTransform,
+  gridSize: number,
+): { row: number; col: number } {
   const feet = fromCanvas(px, py, transform);
   return {
     row: Math.round(feet.y / gridSize),

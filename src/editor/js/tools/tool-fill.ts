@@ -5,11 +5,11 @@ import { Tool } from './tool-base.js';
 import state, { mutate } from '../state.js';
 
 const OVERLAY_COLORS = {
-  'water':            { fill: 'rgba(60,120,220,0.12)',  stroke: 'rgba(60,120,220,0.85)' },
-  'lava':             { fill: 'rgba(220,80,20,0.12)',   stroke: 'rgba(220,80,20,0.85)'  },
-  'pit':              { fill: 'rgba(60,60,60,0.18)',    stroke: 'rgba(80,80,80,0.85)'   },
-  'difficult-terrain':{ fill: 'rgba(160,100,40,0.12)', stroke: 'rgba(160,100,40,0.85)' },
-  'clear-fill':       { fill: 'rgba(220,60,60,0.10)',  stroke: 'rgba(220,60,60,0.85)'  },
+  water: { fill: 'rgba(60,120,220,0.12)', stroke: 'rgba(60,120,220,0.85)' },
+  lava: { fill: 'rgba(220,80,20,0.12)', stroke: 'rgba(220,80,20,0.85)' },
+  pit: { fill: 'rgba(60,60,60,0.18)', stroke: 'rgba(80,80,80,0.85)' },
+  'difficult-terrain': { fill: 'rgba(160,100,40,0.12)', stroke: 'rgba(160,100,40,0.85)' },
+  'clear-fill': { fill: 'rgba(220,60,60,0.10)', stroke: 'rgba(220,60,60,0.85)' },
 };
 
 /**
@@ -23,31 +23,33 @@ export class FillTool extends Tool {
   constructor() {
     super('fill', '3', 'crosshair');
     this.boxStart = null; // { row, col } — drag start
-    this.boxEnd   = null; // { row, col } — current cursor during drag
+    this.boxEnd = null; // { row, col } — current cursor during drag
   }
 
-  getCursor() { return 'crosshair'; }
+  getCursor() {
+    return 'crosshair';
+  }
 
   onActivate() {
     const statuses = {
-      water:               'Drag to fill with water · Right-click cell to clear',
-      lava:                'Drag to fill with lava · Right-click cell to clear',
-      pit:                 'Drag to fill with pit · Right-click cell to clear',
+      water: 'Drag to fill with water · Right-click cell to clear',
+      lava: 'Drag to fill with lava · Right-click cell to clear',
+      pit: 'Drag to fill with pit · Right-click cell to clear',
       'difficult-terrain': 'Drag to paint difficult terrain · Right-click cell to clear',
-      'clear-fill':        'Drag to clear fills from cells',
+      'clear-fill': 'Drag to clear fills from cells',
     };
     state.statusInstruction = statuses[(state.fillMode || 'water') as keyof typeof statuses] || null;
   }
 
   onDeactivate() {
     this.boxStart = null;
-    this.boxEnd   = null;
+    this.boxEnd = null;
     state.statusInstruction = null;
   }
 
   onMouseDown(row: number, col: number) {
     this.boxStart = { row, col };
-    this.boxEnd   = { row, col };
+    this.boxEnd = { row, col };
   }
 
   onMouseMove(row: number, col: number) {
@@ -64,15 +66,15 @@ export class FillTool extends Tool {
       this._applyBox(mode);
     }
     this.boxStart = null;
-    this.boxEnd   = null;
+    this.boxEnd = null;
   }
 
   onRightClick(row: number, col: number) {
     const cells = state.dungeon.cells;
-    if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
-    if (cells[row][col] === null) return;
+    if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return;
+    if (cells[row]![col] === null) return;
     const mode = state.fillMode || 'water';
-    const cell = cells[row][col];
+    const cell = cells[row]![col]!;
     if (mode === 'difficult-terrain') {
       if (!cell.hazard) return;
       mutate('Clear hazard', [{ row, col }], () => {
@@ -91,7 +93,7 @@ export class FillTool extends Tool {
   _getBoxBounds() {
     const cells = state.dungeon.cells;
     const numRows = cells.length;
-    const numCols = cells[0]?.length || 0;
+    const numCols = cells[0]?.length ?? 0;
     return {
       r1: Math.max(0, Math.min(this.boxStart!.row, this.boxEnd!.row)),
       r2: Math.min(numRows - 1, Math.max(this.boxStart!.row, this.boxEnd!.row)),
@@ -104,7 +106,7 @@ export class FillTool extends Tool {
     if (!this.boxStart || !this.boxEnd) return;
     const cells = state.dungeon.cells;
     const { r1, r2, c1, c2 } = this._getBoxBounds();
-    const isFluid = (mode === 'water' || mode === 'lava');
+    const isFluid = mode === 'water' || mode === 'lava';
     const depthKey = mode + 'Depth';
     const depth = isFluid ? (state[depthKey] ?? 1) : undefined;
 
@@ -119,14 +121,14 @@ export class FillTool extends Tool {
 
     mutate(mode === 'difficult-terrain' ? 'Paint hazard' : 'Paint ' + mode, coords, () => {
       for (const { row: r, col: c } of coords) {
-        const cell = cells[r][c];
+        const cell = cells[r]![c];
         if (mode === 'difficult-terrain') {
           cell!.hazard = true;
         } else {
           cell!.fill = mode as FillType;
           if (isFluid) (cell as Record<string, unknown>)[depthKey] = depth;
           if (mode !== 'water') delete cell!.waterDepth;
-          if (mode !== 'lava')  delete cell!.lavaDepth;
+          if (mode !== 'lava') delete cell!.lavaDepth;
         }
       }
     });
@@ -147,10 +149,10 @@ export class FillTool extends Tool {
 
     mutate('Clear fill', coords, () => {
       for (const { row: r, col: c } of coords) {
-        delete cells[r][c]!.fill;
-        delete cells[r][c]!.waterDepth;
-        delete cells[r][c]!.lavaDepth;
-        delete cells[r][c]!.hazard;
+        delete cells[r]![c]!.fill;
+        delete cells[r]![c]!.waterDepth;
+        delete cells[r]![c]!.lavaDepth;
+        delete cells[r]![c]!.hazard;
       }
     });
   }

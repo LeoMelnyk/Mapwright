@@ -33,7 +33,7 @@ export function validatePropBounds(propDef: PropDefinition) {
   const warnings = [];
 
   for (let i = 0; i < commands.length; i++) {
-    const cmd = commands[i];
+    const cmd = commands[i]!;
     const checks = getCommandBounds(cmd);
     if (!checks) continue;
 
@@ -102,7 +102,7 @@ export function validatePropBounds(propDef: PropDefinition) {
         if (!cmd.points) return null;
         const polyChecks = [];
         for (let pi = 0; pi < cmd.points.length; pi++) {
-          const [px, py] = cmd.points[pi];
+          const [px = 0, py = 0] = cmd.points[pi]!;
           polyChecks.push(
             { label: `x[${pi}]`, value: px, bound: xMin, side: 'min' },
             { label: `y[${pi}]`, value: py, bound: yMin, side: 'min' },

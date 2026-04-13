@@ -23,8 +23,10 @@ export function initDraggableToolbar(): void {
 
   let locked = true;
   let dragging = false;
-  let startMouseX = 0, startMouseY = 0;
-  let startLeft = 0, startBottom = 0;
+  let startMouseX = 0,
+    startMouseY = 0;
+  let startLeft = 0,
+    startBottom = 0;
   let activeSnap: string | null = null;
   let dragContainerWidth = 0;
   let dragContainerHeight = 0;
@@ -123,15 +125,14 @@ export function initDraggableToolbar(): void {
     const toolbarRect = toolbar.getBoundingClientRect();
     const handleRect = handle.getBoundingClientRect();
     const handleOffsetX = handleRect.left - toolbarRect.left;
-    const handleOffsetY = handleRect.top  - toolbarRect.top;
+    const handleOffsetY = handleRect.top - toolbarRect.top;
     // Set startLeft/startBottom so the handle sits directly under the mouse
-    startLeft   = (e.clientX - containerRect.left) - handleOffsetX;
-    startBottom = containerRect.height - toolbarRect.height
-                  - (e.clientY - containerRect.top) + handleOffsetY;
-    toolbar.style.left   = `${startLeft}px`;
-    toolbar.style.right  = 'auto';
+    startLeft = e.clientX - containerRect.left - handleOffsetX;
+    startBottom = containerRect.height - toolbarRect.height - (e.clientY - containerRect.top) + handleOffsetY;
+    toolbar.style.left = `${startLeft}px`;
+    toolbar.style.right = 'auto';
     toolbar.style.bottom = `${startBottom}px`;
-    toolbar.style.top    = 'auto';
+    toolbar.style.top = 'auto';
     startMouseX = e.clientX;
     startMouseY = e.clientY;
     activeSnap = null;
@@ -139,7 +140,7 @@ export function initDraggableToolbar(): void {
     // Show snap indicators
     const snapIndicators = document.getElementById('snap-indicators')!;
     snapIndicators.classList.add('visible');
-    snapIndicators.querySelectorAll('.snap-indicator').forEach(el => el.classList.remove('active'));
+    snapIndicators.querySelectorAll('.snap-indicator').forEach((el) => el.classList.remove('active'));
   });
 
   document.addEventListener('mousemove', (e) => {
@@ -158,10 +159,10 @@ export function initDraggableToolbar(): void {
     const tb = { x1: newLeft, y1: toolbarTop, x2: newLeft + toolbarW, y2: toolbarTop + toolbarH };
     // Snap indicator rects — must match CSS dimensions (100×20 for top/bottom, 20×100 for left/right)
     const snapRects = {
-      'center-bottom': { x1: cW/2-50, y1: cH-SNAP_EDGE-20, x2: cW/2+50, y2: cH-SNAP_EDGE },
-      'center-top':    { x1: cW/2-50, y1: SNAP_EDGE,        x2: cW/2+50, y2: SNAP_EDGE+20 },
-      'center-left':   { x1: SNAP_EDGE,       y1: cH/2-50, x2: SNAP_EDGE+20,       y2: cH/2+50 },
-      'center-right':  { x1: cW-SNAP_EDGE-20, y1: cH/2-50, x2: cW-SNAP_EDGE,       y2: cH/2+50 },
+      'center-bottom': { x1: cW / 2 - 50, y1: cH - SNAP_EDGE - 20, x2: cW / 2 + 50, y2: cH - SNAP_EDGE },
+      'center-top': { x1: cW / 2 - 50, y1: SNAP_EDGE, x2: cW / 2 + 50, y2: SNAP_EDGE + 20 },
+      'center-left': { x1: SNAP_EDGE, y1: cH / 2 - 50, x2: SNAP_EDGE + 20, y2: cH / 2 + 50 },
+      'center-right': { x1: cW - SNAP_EDGE - 20, y1: cH / 2 - 50, x2: cW - SNAP_EDGE, y2: cH / 2 + 50 },
     };
     const prevSnap = activeSnap;
     activeSnap = null;
@@ -184,7 +185,7 @@ export function initDraggableToolbar(): void {
       toolbar.classList.toggle('toolbar-snapping', !!activeSnap);
       // Highlight the active snap indicator
       const snapIndicators = document.getElementById('snap-indicators')!;
-      snapIndicators.querySelectorAll('.snap-indicator').forEach(el => {
+      snapIndicators.querySelectorAll('.snap-indicator').forEach((el) => {
         el.classList.toggle('active', (el as HTMLElement).dataset.snap === activeSnap);
       });
     }
@@ -197,7 +198,7 @@ export function initDraggableToolbar(): void {
     // Hide snap indicators
     const snapIndicators = document.getElementById('snap-indicators')!;
     snapIndicators.classList.remove('visible');
-    snapIndicators.querySelectorAll('.snap-indicator').forEach(el => el.classList.remove('active'));
+    snapIndicators.querySelectorAll('.snap-indicator').forEach((el) => el.classList.remove('active'));
     if (activeSnap) {
       applySnap(activeSnap);
       localStorage.setItem('mw-toolbar-pos', JSON.stringify({ snap: activeSnap }));
@@ -233,8 +234,8 @@ export function updateStatusBar(): void {
   if (levels.length) {
     if (hovered) {
       for (let i = levels.length - 1; i >= 0; i--) {
-        if (hovered.row >= levels[i].startRow) {
-          levelName = levels[i].name;
+        if (hovered.row >= levels[i]!.startRow) {
+          levelName = levels[i]!.name;
           break;
         }
       }
@@ -301,8 +302,14 @@ export function mdToHtml(md: string): string {
   for (const line of lines) {
     if (line.startsWith('```')) {
       if (!inCode) {
-        if (inList)  { html += '</ul>'; inList = false; }
-        if (inTable) { html += '</tbody></table>'; inTable = false; }
+        if (inList) {
+          html += '</ul>';
+          inList = false;
+        }
+        if (inTable) {
+          html += '</tbody></table>';
+          inTable = false;
+        }
         html += '<pre class="rn-pre"><code>';
         inCode = true;
       } else {
@@ -311,54 +318,82 @@ export function mdToHtml(md: string): string {
       }
       continue;
     }
-    if (inCode) { html += escHtml(line) + '\n'; continue; }
+    if (inCode) {
+      html += escHtml(line) + '\n';
+      continue;
+    }
 
     // Table separator row
     if (/^\|[\s\-:|]+\|$/.test(line.trim())) continue;
     // Table row
     if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
       if (!inTable) {
-        if (inList) { html += '</ul>'; inList = false; }
+        if (inList) {
+          html += '</ul>';
+          inList = false;
+        }
         html += '<table class="rn-table"><tbody>';
         inTable = true;
       }
-      const cells = line.trim().slice(1, -1).split('|')
-        .map(c => `<td>${inlineMd(c.trim())}</td>`).join('');
+      const cells = line
+        .trim()
+        .slice(1, -1)
+        .split('|')
+        .map((c) => `<td>${inlineMd(c.trim())}</td>`)
+        .join('');
       html += `<tr>${cells}</tr>`;
       continue;
     }
-    if (inTable) { html += '</tbody></table>'; inTable = false; }
+    if (inTable) {
+      html += '</tbody></table>';
+      inTable = false;
+    }
 
     if (line.startsWith('### ')) {
-      if (inList) { html += '</ul>'; inList = false; }
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
       html += `<h4 class="rn-h4">${inlineMd(line.slice(4))}</h4>`;
       continue;
     }
     if (line.startsWith('## ')) {
-      if (inList) { html += '</ul>'; inList = false; }
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
       html += `<h3 class="rn-h3">${inlineMd(line.slice(3))}</h3>`;
       continue;
     }
     if (/^  [-*] /.test(line)) {
-      if (!inList) { html += '<ul class="rn-list">'; inList = true; }
+      if (!inList) {
+        html += '<ul class="rn-list">';
+        inList = true;
+      }
       html += `<li class="rn-li rn-li-nested">${inlineMd(line.slice(4))}</li>`;
       continue;
     }
     if (/^[-*] /.test(line)) {
-      if (!inList) { html += '<ul class="rn-list">'; inList = true; }
+      if (!inList) {
+        html += '<ul class="rn-list">';
+        inList = true;
+      }
       html += `<li class="rn-li">${inlineMd(line.slice(2))}</li>`;
       continue;
     }
     if (line.trim() === '') {
-      if (inList) { html += '</ul>'; inList = false; }
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
       html += '<div class="rn-gap"></div>';
       continue;
     }
     html += `<p class="rn-p">${inlineMd(line)}</p>`;
   }
-  if (inList)  html += '</ul>';
+  if (inList) html += '</ul>';
   if (inTable) html += '</tbody></table>';
-  if (inCode)  html += '</code></pre>';
+  if (inCode) html += '</code></pre>';
   return html;
 }
 
@@ -400,13 +435,15 @@ export function initReleaseNotesModal(): void {
     const badge = document.getElementById('release-notes-version')!;
     body.textContent = 'Loading…';
     fetch('/api/changelog')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then(({ version, notes }) => {
         badge.textContent = version;
         body.innerHTML = mdToHtml(notes);
         body.dataset.loaded = '1';
       })
-      .catch(() => { body.textContent = 'Could not load release notes.'; });
+      .catch(() => {
+        body.textContent = 'Could not load release notes.';
+      });
     (m as HTMLDialogElement).showModal();
   }
   function closeReleaseNotesModal() {
@@ -446,7 +483,9 @@ export function initClaudeSettingsModal(): void {
     const m = document.getElementById('modal-claude-settings')! as HTMLDialogElement;
     m.close();
   }
-  document.getElementById('claude-model-select')?.addEventListener('change', (e) => updatePullCmd(((e.target ?? e.currentTarget) as HTMLInputElement).value));
+  document
+    .getElementById('claude-model-select')
+    ?.addEventListener('change', (e) => updatePullCmd(((e.target ?? e.currentTarget) as HTMLInputElement).value));
   document.getElementById('btn-claude-settings')?.addEventListener('click', openClaudeSettingsModal);
   document.getElementById('claude-settings-cancel')?.addEventListener('click', closeClaudeSettingsModal);
   document.getElementById('modal-claude-settings')?.addEventListener('click', (e) => {

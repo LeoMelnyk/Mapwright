@@ -19,24 +19,27 @@ const HINTS_KEY = 'mw-hints-seen';
 // ─── First-Use Tool Hints ────────────────────────────────────────────────────
 
 const TOOL_HINTS = {
-  room:   'Shift = square · Tab = Room/Merge mode · Right-click = void cell',
-  paint:  'Alt+Click = eyedrop texture · Tab = cycle Texture/Syringe/Room/Clear',
-  fill:   'Click cells to fill · D/Shift+D = cycle depth · Tab = Water/Lava/Pit/Hazard',
-  wall:   'Click between two cells to toggle a wall · Tab = Normal/Invisible',
-  door:   'Click on a wall to add a door · Tab = Normal/Secret/Invisible',
-  label:  'Click a cell to add a room label · Tab = Room Label/free-text DM note',
+  room: 'Shift = square · Tab = Room/Merge mode · Right-click = void cell',
+  paint: 'Alt+Click = eyedrop texture · Tab = cycle Texture/Syringe/Room/Clear',
+  fill: 'Click cells to fill · D/Shift+D = cycle depth · Tab = Water/Lava/Pit/Hazard',
+  wall: 'Click between two cells to toggle a wall · Tab = Normal/Invisible',
+  door: 'Click on a wall to add a door · Tab = Normal/Secret/Invisible',
+  label: 'Click a cell to add a room label · Tab = Room Label/free-text DM note',
   stairs: 'Click 3 corner points to define stair shape · Tab = Place/Link mode',
   bridge: 'Click 3 points to place a bridge · R = rotate · Tab = Wood/Stone/Rope/Dock',
-  trim:   'Drag from a room corner to trim · R = Round · I = Invert · O = Open',
+  trim: 'Drag from a room corner to trim · R = Round · I = Invert · O = Open',
   select: 'Drag to select cells · Ctrl+C/V = copy/paste · Ctrl+X = cut · Del = delete · Tab = Inspect',
-  prop:   'Choose a prop from the sidebar, then click to place · R = rotate · F = flip',
-  erase:  'Click or drag to erase cells · Shift = constrain to square',
-  light:  'Choose a preset from the bar, then click to place · Ctrl+drag = resize radius · Ctrl+C/X/V = copy/cut/paste',
+  prop: 'Choose a prop from the sidebar, then click to place · R = rotate · F = flip',
+  erase: 'Click or drag to erase cells · Shift = constrain to square',
+  light: 'Choose a preset from the bar, then click to place · Ctrl+drag = resize radius · Ctrl+C/X/V = copy/cut/paste',
 };
 
 function getSeenHints() {
-  try { return new Set(JSON.parse(localStorage.getItem(HINTS_KEY) ?? '[]')); }
-  catch { return new Set(); }
+  try {
+    return new Set(JSON.parse(localStorage.getItem(HINTS_KEY) ?? '[]'));
+  } catch {
+    return new Set();
+  }
 }
 
 function markHintSeen(tool: string) {
@@ -113,8 +116,8 @@ function showWelcome(onTutorial: () => void, onExample: (url: string, name: stri
   // Load example map thumbnails from the server
   const grid = overlay.querySelector('#onboarding-examples-grid');
   fetch('/api/examples')
-    .then(r => r.json())
-    .then(examples => {
+    .then((r) => r.json())
+    .then((examples) => {
       if (!examples.length) {
         grid!.innerHTML = '<div class="onboarding-examples-loading">No examples found</div>';
         return;
@@ -141,8 +144,14 @@ function showWelcome(onTutorial: () => void, onExample: (url: string, name: stri
     });
 
   // Wire non-example buttons
-  overlay.querySelector<HTMLInputElement>('[data-action="tutorial"]')?.addEventListener('click', () => { close(); onTutorial(); });
-  overlay.querySelector<HTMLInputElement>('[data-action="fresh"]')?.addEventListener('click', () => { close(); onFresh(); });
+  overlay.querySelector<HTMLInputElement>('[data-action="tutorial"]')?.addEventListener('click', () => {
+    close();
+    onTutorial();
+  });
+  overlay.querySelector<HTMLInputElement>('[data-action="fresh"]')?.addEventListener('click', () => {
+    close();
+    onFresh();
+  });
 }
 
 // ─── Tutorial System ─────────────────────────────────────────────────────────
@@ -183,7 +192,7 @@ const TUTORIAL_STEPS = [
   {
     target: '[data-menu="file"] .menu-trigger',
     title: 'Export Your Map!',
-    text: 'When you\'re happy with your dungeon, go to <strong>File → Export to PNG</strong> to save a high-quality image ready for your VTT or print.',
+    text: "When you're happy with your dungeon, go to <strong>File → Export to PNG</strong> to save a high-quality image ready for your VTT or print.",
     hint: 'You can also save your work as JSON with Ctrl+S.',
     position: 'below',
     waitFor: null, // last step, no auto-advance
@@ -223,11 +232,11 @@ class Tutorial {
     const cells = state.dungeon.cells;
     const visited = new Set();
     for (let r = 0; r < cells.length; r++) {
-      for (let c = 0; c < (cells[0]?.length || 0); c++) {
-        if (!cells[r][c] || visited.has(`${r},${c}`)) continue;
+      for (let c = 0; c < (cells[0]?.length ?? 0); c++) {
+        if (!cells[r]![c] || visited.has(`${r},${c}`)) continue;
         count++;
         // BFS to mark connected cells
-        const queue = [[r, c]];
+        const queue: [number, number][] = [[r, c]];
         while (queue.length) {
           const [cr, cc] = queue.pop()!;
           const key = `${cr},${cc}`;
@@ -235,13 +244,24 @@ class Tutorial {
           visited.add(key);
           const cell = cells[cr]?.[cc];
           if (!cell) continue;
-          const dirs: [number, number, string][] = [[-1, 0, 'north'], [1, 0, 'south'], [0, -1, 'west'], [0, 1, 'east']];
+          const dirs: [number, number, string][] = [
+            [-1, 0, 'north'],
+            [1, 0, 'south'],
+            [0, -1, 'west'],
+            [0, 1, 'east'],
+          ];
           for (const [dr, dc, dir] of dirs) {
-            const nr = cr + dr, nc = cc + dc;
-            if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length || 0)) continue;
-            if (!cells[nr][nc]) continue;
+            const nr = cr + dr,
+              nc = cc + dc;
+            if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length ?? 0)) continue;
+            if (!cells[nr]![nc]) continue;
             // Connected if no wall between them
-            if (!(cell as Record<string, unknown>)[dir] || (cell as Record<string, unknown>)[dir] === 'd' || (cell as Record<string, unknown>)[dir] === 's' || (cell as Record<string, unknown>)[dir] === 'id') {
+            if (
+              !(cell as Record<string, unknown>)[dir] ||
+              (cell as Record<string, unknown>)[dir] === 'd' ||
+              (cell as Record<string, unknown>)[dir] === 's' ||
+              (cell as Record<string, unknown>)[dir] === 'id'
+            ) {
               queue.push([nr, nc]);
             }
           }
@@ -258,7 +278,12 @@ class Tutorial {
       for (const cell of row) {
         if (!cell) continue;
         for (const dir of ['north', 'south', 'east', 'west']) {
-          if ((cell as Record<string, unknown>)[dir] === 'd' || (cell as Record<string, unknown>)[dir] === 's' || (cell as Record<string, unknown>)[dir] === 'id') count++;
+          if (
+            (cell as Record<string, unknown>)[dir] === 'd' ||
+            (cell as Record<string, unknown>)[dir] === 's' ||
+            (cell as Record<string, unknown>)[dir] === 'id'
+          )
+            count++;
         }
       }
     }
@@ -271,7 +296,7 @@ class Tutorial {
 
   _checkCompletion() {
     const stepDef = TUTORIAL_STEPS[this.step];
-    if (!stepDef.waitFor) return;
+    if (!stepDef?.waitFor) return;
 
     let advance = false;
     switch (stepDef.waitFor) {
@@ -333,7 +358,7 @@ class Tutorial {
 
   _showStep(index: number) {
     this.step = index;
-    const stepDef = TUTORIAL_STEPS[index];
+    const stepDef = TUTORIAL_STEPS[index]!;
     const panel = this.overlay!.querySelector('.tutorial-panel') as HTMLElement;
     const spotlight = this.overlay!.querySelector('.tutorial-spotlight') as HTMLElement;
 
@@ -422,7 +447,7 @@ class Tutorial {
   end() {
     // Remove state listener
     if (this._listener) {
-      const idx = state.listeners.findIndex(e => e.fn === this._listener);
+      const idx = state.listeners.findIndex((e) => e.fn === this._listener);
       if (idx !== -1) state.listeners.splice(idx, 1);
       this._listener = null;
     }
@@ -430,7 +455,9 @@ class Tutorial {
       this.overlay.classList.remove('visible');
       this.overlay.addEventListener('transitionend', () => this.overlay?.remove(), { once: true });
       // Fallback removal in case transitionend doesn't fire
-      setTimeout(() => { if (this.overlay?.parentNode) this.overlay.remove(); }, 500);
+      setTimeout(() => {
+        if (this.overlay?.parentNode) this.overlay.remove();
+      }, 500);
     }
     showToast('Press ? anytime for keyboard shortcuts');
   }
@@ -440,8 +467,11 @@ class Tutorial {
 
 function loadExampleMap(url: string, name: string) {
   fetch(url)
-    .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
-    .then(json => {
+    .then((r) => {
+      if (!r.ok) throw new Error(`${r.status}`);
+      return r.json();
+    })
+    .then((json) => {
       loadDungeonJSON(json, { fileName: name });
       // Clear undo stack so the example feels like a fresh start
       state.undoStack.length = 0;
@@ -450,7 +480,7 @@ function loadExampleMap(url: string, name: string) {
       notify();
       showToast(`Loaded "${name}" — explore and modify it freely!`);
     })
-    .catch(err => showToast(`Failed to load example: ${err.message}`));
+    .catch((err) => showToast(`Failed to load example: ${err.message}`));
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
@@ -494,6 +524,6 @@ export function openWelcomeScreen(): void {
     // Example map (receives url and name from the clicked card)
     (url: string, name: string) => loadExampleMap(url, name),
     // Fresh — do nothing
-    () => {}
+    () => {},
   );
 }

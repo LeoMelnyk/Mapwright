@@ -8,7 +8,15 @@ import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { mutate } from '../state.js';
 import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
-import { CARDINAL_DIRS, OPPOSITE, cellKey, parseCellKey, isInBounds, snapToSquare, normalizeBounds } from '../../../util/index.js';
+import {
+  CARDINAL_DIRS,
+  OPPOSITE,
+  cellKey,
+  parseCellKey,
+  isInBounds,
+  snapToSquare,
+  normalizeBounds,
+} from '../../../util/index.js';
 
 /**
  * Room tool: click+drag to paint cells and auto-wall the boundary rectangle.
@@ -33,9 +41,10 @@ export class RoomTool extends Tool {
     this.dragStart = null;
     this.dragEnd = null;
     this.mousePos = null;
-    state.statusInstruction = state.roomMode === 'merge'
-      ? 'Drag over adjacent rooms to merge them into one'
-      : 'Drag to draw room · Shift for square · Right-click to void';
+    state.statusInstruction =
+      state.roomMode === 'merge'
+        ? 'Drag over adjacent rooms to merge them into one'
+        : 'Drag to draw room · Shift for square · Right-click to void';
   }
 
   onDeactivate() {
@@ -59,7 +68,7 @@ export class RoomTool extends Tool {
     if (!this.dragging) return;
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
-    col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
+    col = Math.max(0, Math.min((cells[0]?.length ?? 1) - 1, col));
 
     if (event.shiftKey) {
       ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
@@ -76,7 +85,7 @@ export class RoomTool extends Tool {
 
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
-    col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
+    col = Math.max(0, Math.min((cells[0]?.length ?? 1) - 1, col));
 
     if (event.shiftKey) {
       ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
@@ -106,7 +115,7 @@ export class RoomTool extends Tool {
 
     const cells = state.dungeon.cells;
     if (!isInBounds(cells, row, col)) return;
-    if (cells[row][col] === null) return; // already void
+    if (cells[row]![col] === null) return; // already void
 
     // Include target cell + neighbors in coords (neighbors get walls added)
     const neighborOffsets = [
@@ -120,16 +129,21 @@ export class RoomTool extends Tool {
       if (isInBounds(cells, row + dr, col + dc)) coords.push({ row: row + dr, col: col + dc });
     }
 
-    mutate('Void cell', coords, () => {
-      cells[row][col] = null;
-      for (const { dr, dc, wallDir } of neighborOffsets) {
-        const nr = row + dr;
-        const nc = col + dc;
-        if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
-          (cells[nr][nc] as Record<string, unknown>)[wallDir] = 'w';
+    mutate(
+      'Void cell',
+      coords,
+      () => {
+        cells[row]![col] = null;
+        for (const { dr, dc, wallDir } of neighborOffsets) {
+          const nr = row + dr;
+          const nc = col + dc;
+          if (isInBounds(cells, nr, nc) && cells[nr]![nc]) {
+            (cells[nr]![nc] as Record<string, unknown>)[wallDir] = 'w';
+          }
         }
-      }
-    }, { invalidate: ['lighting'] });
+      },
+      { invalidate: ['lighting'] },
+    );
   }
 
   _cancelDrag() {
@@ -148,7 +162,11 @@ export class RoomTool extends Tool {
     if (!this.dragStart || !this.dragEnd) return;
 
     const { r1, c1, r2, c2 } = normalizeBounds(
-      this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
+      this.dragStart.row,
+      this.dragStart.col,
+      this.dragEnd.row,
+      this.dragEnd.col,
+    );
 
     const selected = new Set<string>();
     for (let r = r1; r <= r2; r++) {
@@ -164,58 +182,70 @@ export class RoomTool extends Tool {
 
     // Capture before state for all selected cells plus their 1-cell border
     // (the border cells may also be modified when mirroring outer walls)
-    const rows = cells.length, cols = cells[0]?.length || 0;
+    const rows = cells.length,
+      cols = cells[0]?.length ?? 0;
     const coords = [];
     for (let r = Math.max(0, r1 - 1); r <= Math.min(rows - 1, r2 + 1); r++) {
       for (let c = Math.max(0, c1 - 1); c <= Math.min(cols - 1, c2 + 1); c++) {
         coords.push({ row: r, col: c });
       }
     }
-    mutate('Draw room', coords, () => {
-      const has = (r: number, c: number) => selected.has(cellKey(r, c));
+    mutate(
+      'Draw room',
+      coords,
+      () => {
+        const has = (r: number, c: number) => selected.has(cellKey(r, c));
 
-      for (const key of selected) {
-        const [r, c] = parseCellKey(key);
+        for (const key of selected) {
+          const [r, c] = parseCellKey(key);
 
-        cells[r][c] ??= {};
-        const cell = cells[r][c];
+          cells[r]![c] ??= {};
+          const cell = cells[r]![c];
 
-        for (const { dir, dr, dc } of CARDINAL_DIRS) {
-          const nr = r + dr;
-          const nc = c + dc;
-          const inBounds_ = isInBounds(cells, nr, nc);
-          const neighborCell = inBounds_ ? cells[nr][nc] : null;
-          const reciprocal = OPPOSITE[dir];
+          for (const { dir, dr, dc } of CARDINAL_DIRS) {
+            const nr = r + dr;
+            const nc = c + dc;
+            const inBounds_ = isInBounds(cells, nr, nc);
+            const neighborCell = inBounds_ ? cells[nr]![nc] : null;
+            const reciprocal = OPPOSITE[dir];
 
-          if (mergeMode) {
-            if (!inBounds_ || !neighborCell) {
-              if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
-            } else {
-              if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-              if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
-            }
-          } else {
-            if (has(nr, nc)) {
-              if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
-              if (neighborCell) {
-                if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') delete neighborCell[reciprocal];
+            if (mergeMode) {
+              if (!inBounds_ || !neighborCell) {
+                if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
+              } else {
+                if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
+                if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's')
+                  delete neighborCell[reciprocal];
               }
             } else {
-              if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
-              if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') {
-                neighborCell[reciprocal] = 'w';
+              if (has(nr, nc)) {
+                if (cell[dir] !== 'd' && cell[dir] !== 's') delete cell[dir];
+                if (neighborCell) {
+                  if (neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's')
+                    delete neighborCell[reciprocal];
+                }
+              } else {
+                if (cell[dir] !== 'd' && cell[dir] !== 's') cell[dir] = 'w';
+                if (neighborCell && neighborCell[reciprocal] !== 'd' && neighborCell[reciprocal] !== 's') {
+                  neighborCell[reciprocal] = 'w';
+                }
               }
             }
           }
         }
-      }
-    }, { invalidate: ['lighting'] });
+      },
+      { invalidate: ['lighting'] },
+    );
   }
 
   _drawSizeLabel(ctx: CanvasRenderingContext2D, gridSize: number) {
     if (!this.mousePos || !this.dragStart || !this.dragEnd) return;
     const { r1, c1, r2, c2 } = normalizeBounds(
-      this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
+      this.dragStart.row,
+      this.dragStart.col,
+      this.dragEnd.row,
+      this.dragEnd.col,
+    );
     const wFt = (c2 - c1 + 1) * gridSize;
     const hFt = (r2 - r1 + 1) * gridSize;
     const label = `${wFt} ft × ${hFt} ft`;
@@ -241,7 +271,11 @@ export class RoomTool extends Tool {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
 
     const { r1, c1, r2, c2 } = normalizeBounds(
-      this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
+      this.dragStart.row,
+      this.dragStart.col,
+      this.dragEnd.row,
+      this.dragEnd.col,
+    );
 
     const cellPx = gridSize * transform.scale;
 
@@ -262,10 +296,30 @@ export class RoomTool extends Tool {
       for (let c = c1; c <= c2; c++) {
         const x = c * gridSize;
         const y = r * gridSize;
-        if (r === r1) { const p1 = toCanvas(x, y, transform), p2 = toCanvas(x + gridSize, y, transform); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
-        if (r === r2) { const p1 = toCanvas(x, y + gridSize, transform), p2 = toCanvas(x + gridSize, y + gridSize, transform); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
-        if (c === c1) { const p1 = toCanvas(x, y, transform), p2 = toCanvas(x, y + gridSize, transform); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
-        if (c === c2) { const p1 = toCanvas(x + gridSize, y, transform), p2 = toCanvas(x + gridSize, y + gridSize, transform); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); }
+        if (r === r1) {
+          const p1 = toCanvas(x, y, transform),
+            p2 = toCanvas(x + gridSize, y, transform);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+        if (r === r2) {
+          const p1 = toCanvas(x, y + gridSize, transform),
+            p2 = toCanvas(x + gridSize, y + gridSize, transform);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+        if (c === c1) {
+          const p1 = toCanvas(x, y, transform),
+            p2 = toCanvas(x, y + gridSize, transform);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+        if (c === c2) {
+          const p1 = toCanvas(x + gridSize, y, transform),
+            p2 = toCanvas(x + gridSize, y + gridSize, transform);
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
       }
     }
     ctx.stroke();

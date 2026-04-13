@@ -4,8 +4,20 @@ import { getEl } from '../utils.js';
 
 /** Minimal type for the subset of editorAPI methods used by the chat panel. */
 interface EditorAPIChat {
-  getMapInfo(): { gridSize: number; name: string; rows: number; cols: number; theme: string; [k: string]: unknown } | null;
-  getFullMapInfo(): { rooms?: { label: string; bounds: { r1: number; c1: number; r2: number; c2: number } }[]; doors?: unknown[]; props?: unknown[]; [k: string]: unknown } | null;
+  getMapInfo(): {
+    gridSize: number;
+    name: string;
+    rows: number;
+    cols: number;
+    theme: string;
+    [k: string]: unknown;
+  } | null;
+  getFullMapInfo(): {
+    rooms?: { label: string; bounds: { r1: number; c1: number; r2: number; c2: number } }[];
+    doors?: unknown[];
+    props?: unknown[];
+    [k: string]: unknown;
+  } | null;
   getMap(): { metadata?: { dungeonLetter?: string }; cells?: ({ center?: { label?: string } } | null)[][] } | null;
   getLevels(): { name: string; startRow: number; numRows: number }[];
   getLights(): { lights?: unknown[]; lightingEnabled?: boolean; ambientLight?: number; [k: string]: unknown } | null;
@@ -14,7 +26,7 @@ interface EditorAPIChat {
 }
 
 function getEditorAPI(): EditorAPIChat | null {
-  return ((window as unknown as Record<string, unknown>).editorAPI as EditorAPIChat);
+  return (window as unknown as Record<string, unknown>).editorAPI as EditorAPIChat;
 }
 
 // ── System prompt ────────────────────────────────────────────────────────────
@@ -54,8 +66,6 @@ stone-dungeon, crypt, earth-cave, ice-cave, water-temple, underdark, volcanic, s
 
 If you made changes to the map: write one short paragraph saying what was built or changed, then give 1 DM tip. No questions, no "let me know", no offers to do more.
 If you only answered a question (no writes): respond concisely and stop.`;
-
-
 
 // ── Context builder ──────────────────────────────────────────────────────────
 
@@ -108,34 +118,48 @@ function buildMapContext() {
       } else {
         lines.push('The map is currently empty — no rooms placed yet.');
       }
-    } catch { /* info unavailable */ }
+    } catch {
+      /* info unavailable */
+    }
 
     // ── Next room label ───────────────────────────────────────────────────
     try {
-      const map = api.getMap() as { metadata?: { dungeonLetter?: string }; cells?: ({ center?: { label?: string } } | null)[][] } | null;
+      const map = api.getMap() as {
+        metadata?: { dungeonLetter?: string };
+        cells?: ({ center?: { label?: string } } | null)[][];
+      } | null;
       const dungeonLetter = map?.metadata?.dungeonLetter ?? 'A';
       const labelPat = new RegExp(`^${dungeonLetter}(\\d+)$`);
       const usedNums = new Set();
       for (const row of map?.cells ?? []) {
         for (const cell of row) {
           const m = cell?.center?.label?.match(labelPat);
-          if (m) usedNums.add(parseInt(m[1]));
+          if (m) usedNums.add(parseInt(m[1]!));
         }
       }
       let nextN = 1;
       while (usedNums.has(nextN)) nextN++;
       lines.push(`\nNext room label: ${dungeonLetter}${nextN}`);
-    } catch { /* label unavailable */ }
+    } catch {
+      /* label unavailable */
+    }
 
     // ── Levels (multi-level maps) ─────────────────────────────────────────
     try {
       const levels = api.getLevels();
       if (levels.length > 1) {
-        const summary = levels.map((l: { name: string; startRow: number; numRows: number }, i: number) => `  Level ${i + 1}: "${l.name}" (rows ${l.startRow}–${l.startRow + l.numRows - 1})`).join('\n');
+        const summary = levels
+          .map(
+            (l: { name: string; startRow: number; numRows: number }, i: number) =>
+              `  Level ${i + 1}: "${l.name}" (rows ${l.startRow}–${l.startRow + l.numRows - 1})`,
+          )
+          .join('\n');
         lines.push(`\n## Levels (${levels.length} total — use getLevels for full info)`);
         lines.push(summary);
       }
-    } catch { /* levels unavailable */ }
+    } catch {
+      /* levels unavailable */
+    }
 
     // ── Lights ────────────────────────────────────────────────────────────
     try {
@@ -144,9 +168,13 @@ function buildMapContext() {
       if (lights.length > 0) {
         const enabled = lightsResult?.lightingEnabled ? 'enabled' : 'disabled';
         const ambient = lightsResult?.ambientLight != null ? `, ambient: ${lightsResult.ambientLight}` : '';
-        lines.push(`\n## Lights: ${lights.length} light(s) on map (lighting ${enabled}${ambient}) — call getLights for full list`);
+        lines.push(
+          `\n## Lights: ${lights.length} light(s) on map (lighting ${enabled}${ambient}) — call getLights for full list`,
+        );
       }
-    } catch { /* lights unavailable */ }
+    } catch {
+      /* lights unavailable */
+    }
 
     // ── Available props (compact list for .map props: section) ──────────────
     try {
@@ -156,7 +184,9 @@ function buildMapContext() {
         lines.push(`\n## Valid prop names for props: section`);
         lines.push(names);
       }
-    } catch { /* prop catalog unavailable */ }
+    } catch {
+      /* prop catalog unavailable */
+    }
 
     return lines.join('\n');
   } catch {
@@ -170,7 +200,7 @@ function buildMapContext() {
 
 function aiLog(...args: unknown[]) {
   console.log(...args);
-  const line = args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ');
+  const line = args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ');
   fetch('/api/ai-log', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -194,8 +224,8 @@ let _abortController: AbortController | null = null;
 const _sessionTokens = { input: 0, output: 0 }; // cumulative for current chat session
 let _ollamaStatus: { running: boolean; models: string[] } | null = null;
 let _streamingEl: HTMLSpanElement | null = null;
-let _planMode = false;       // true when plan-before-act mode is on
-let _pendingPlanIdx = -1;    // _messages index of the awaiting-execute plan (-1 = none)
+let _planMode = false; // true when plan-before-act mode is on
+let _pendingPlanIdx = -1; // _messages index of the awaiting-execute plan (-1 = none)
 const _hiddenMsgIdxs = new Set(); // indices of injected system messages to hide from UI
 
 /**
@@ -223,7 +253,7 @@ async function checkOllamaStatus() {
 
 function updateStatusDot() {
   const dot = document.getElementById('claude-status-dot');
-   
+
   if (!dot) return;
   dot.classList.toggle('offline', !_ollamaStatus?.running);
   dot.title = _ollamaStatus?.running ? 'Ollama running' : 'Ollama not detected';
@@ -277,7 +307,7 @@ function renderMessages() {
         <p class="claude-setup-hint">Configure the URL in <strong>Help → AI Settings</strong>.</p>
       </div>`;
     } else if (_ollamaStatus?.running && _ollamaStatus.models.length > 0) {
-      const baseName = (model as string).split(':')[0];
+      const baseName = (model as string).split(':')[0]!;
       if (!_ollamaStatus.models.some((m: string) => m.startsWith(baseName))) {
         setupHtml = `<div class="claude-setup-card">
           <div class="claude-setup-title">Model not pulled</div>
@@ -299,10 +329,14 @@ function renderMessages() {
       if (_hiddenMsgIdxs.has(idx)) return '';
       if (m.role === 'user') {
         const text = Array.isArray(m.content)
-          ? m.content.filter((b: Record<string, unknown>) => b.type === 'text').map((b: Record<string, unknown>) => b.text).join('')
+          ? m.content
+              .filter((b: Record<string, unknown>) => b.type === 'text')
+              .map((b: Record<string, unknown>) => b.text)
+              .join('')
           : m.content;
         // Skip tool result messages (they look like user messages but are [{type:'tool_result'}])
-        if (Array.isArray(m.content) && m.content.every((b: Record<string, unknown>) => b.type === 'tool_result')) return '';
+        if (Array.isArray(m.content) && m.content.every((b: Record<string, unknown>) => b.type === 'tool_result'))
+          return '';
         return `<div class="claude-message claude-message-user"><div class="claude-bubble">${escHtml(text)}</div></div>`;
       } else {
         const blocks = Array.isArray(m.content) ? m.content : [{ type: 'text', text: m.content }];
@@ -311,7 +345,9 @@ function renderMessages() {
         const text = textBlocks.map((b: Record<string, unknown>) => b.text).join('');
         const bubble = `<div class="claude-message claude-message-assistant"><div class="claude-bubble">${formatMarkdown(text)}</div></div>`;
         if (idx === _pendingPlanIdx) {
-          return bubble + `<div class="claude-plan-actions"><button class="claude-execute-btn">Execute Plan</button></div>`;
+          return (
+            bubble + `<div class="claude-plan-actions"><button class="claude-execute-btn">Execute Plan</button></div>`
+          );
         }
         return bubble;
       }
@@ -329,7 +365,7 @@ function wireEvents() {
     if (_abortController) stopGeneration();
     else void sendMessage();
   });
-  input.addEventListener('keydown', e => {
+  input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (_abortController) stopGeneration();
@@ -337,14 +373,12 @@ function wireEvents() {
     }
   });
 
-  document.getElementById('claude-plan-toggle')
-    ?.addEventListener('click', togglePlanMode);
+  document.getElementById('claude-plan-toggle')?.addEventListener('click', togglePlanMode);
 
   // Execute button — event delegation so it survives renderMessages() re-renders
-  document.getElementById('claude-message-list')
-    ?.addEventListener('click', e => {
-      if ((e.target as HTMLElement).classList.contains('claude-execute-btn')) void executePlan();
-    });
+  document.getElementById('claude-message-list')?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).classList.contains('claude-execute-btn')) void executePlan();
+  });
 }
 
 // ── Plan mode ─────────────────────────────────────────────────────────────────
@@ -353,14 +387,14 @@ function togglePlanMode() {
   _planMode = !_planMode;
   _pendingPlanIdx = -1;
   const btn = document.getElementById('claude-plan-toggle');
-   
+
   if (btn) btn.classList.toggle('claude-plan-active', _planMode);
 }
 
 async function executePlan() {
   _pendingPlanIdx = -1;
   const wasInPlanMode = _planMode;
-  _planMode = false;   // run execution in normal mode (tools allowed)
+  _planMode = false; // run execution in normal mode (tools allowed)
 
   const settings = getClaudeSettings();
   _abortController = new AbortController();
@@ -407,9 +441,8 @@ async function sendMessage() {
     // In plan mode, detect if the AI wrote a plan (no tool calls) and show Execute button
     if (_planMode && _pendingPlanIdx === -1) {
       const last = _messages[_messages.length - 1];
-      if (last.role === 'assistant') {
-        const blocks = Array.isArray(last.content)
-          ? last.content : [{ type: 'text', text: last.content }];
+      if (last?.role === 'assistant') {
+        const blocks = Array.isArray(last.content) ? last.content : [{ type: 'text', text: last.content }];
         if (!blocks.some((b: Record<string, unknown>) => b.type === 'tool_use')) {
           _pendingPlanIdx = _messages.length - 1;
           renderMessages();
@@ -436,7 +469,8 @@ function showStreamingBubble() {
   const list = getEl('claude-message-list');
   const el = document.createElement('div');
   el.className = 'claude-message claude-message-assistant';
-  el.innerHTML = '<div class="claude-bubble claude-streaming"><span class="claude-streaming-text"></span><span class="claude-cursor"></span></div>';
+  el.innerHTML =
+    '<div class="claude-bubble claude-streaming"><span class="claude-streaming-text"></span><span class="claude-cursor"></span></div>';
   list.appendChild(el);
   list.scrollTop = list.scrollHeight;
   _streamingEl = el.querySelector('.claude-streaming-text');
@@ -463,7 +497,14 @@ function finalizeStreamingBubble() {
 // ── Streaming fetch ───────────────────────────────────────────────────────────
 
 async function fetchStreamingResponse(body: Record<string, unknown>, signal: AbortSignal) {
-  aiLog('[AI] fetch start — model:', body.model, '| tools:', (body.tools as unknown[] | undefined)?.length, '| messages:', (body.messages as unknown[] | undefined)?.length);
+  aiLog(
+    '[AI] fetch start — model:',
+    body.model,
+    '| tools:',
+    (body.tools as unknown[] | undefined)?.length,
+    '| messages:',
+    (body.messages as unknown[] | undefined)?.length,
+  );
 
   const response = await fetch('/api/claude', {
     method: 'POST',
@@ -487,11 +528,13 @@ async function fetchStreamingResponse(body: Record<string, unknown>, signal: Abo
   let toolUseBlocks = [];
   let eventCount = 0;
 
-   
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const { done, value } = await reader.read();
-    if (done) { aiLog('[AI] stream done (reader exhausted)'); break; }
+    if (done) {
+      aiLog('[AI] stream done (reader exhausted)');
+      break;
+    }
 
     sseBuffer += decoder.decode(value, { stream: true });
     const lines = sseBuffer.split('\n');
@@ -500,10 +543,17 @@ async function fetchStreamingResponse(body: Record<string, unknown>, signal: Abo
     for (const line of lines) {
       if (!line.startsWith('data: ')) continue;
       const raw = line.slice(6).trim();
-      if (raw === '[DONE]') { aiLog('[AI] [DONE] received'); break; }
+      if (raw === '[DONE]') {
+        aiLog('[AI] [DONE] received');
+        break;
+      }
 
       let parsed;
-      try { parsed = JSON.parse(raw); } catch { continue; }
+      try {
+        parsed = JSON.parse(raw);
+      } catch {
+        continue;
+      }
 
       eventCount++;
       if (eventCount <= 5 || parsed.type !== 'text_delta') {
@@ -515,7 +565,10 @@ async function fetchStreamingResponse(body: Record<string, unknown>, signal: Abo
         updateStreamingBubble(parsed.text);
         accText += parsed.text;
       } else if (parsed.type === 'tool_use') {
-        aiLog('[AI] tool_use blocks:', parsed.blocks?.map((b: Record<string, unknown>) => b.name));
+        aiLog(
+          '[AI] tool_use blocks:',
+          parsed.blocks?.map((b: Record<string, unknown>) => b.name),
+        );
         toolUseBlocks = parsed.blocks;
       }
     }
@@ -523,7 +576,14 @@ async function fetchStreamingResponse(body: Record<string, unknown>, signal: Abo
 
   finalizeStreamingBubble();
 
-  aiLog('[AI] stream complete — accText length:', accText.length, '| tool blocks:', toolUseBlocks.length, '| total events:', eventCount);
+  aiLog(
+    '[AI] stream complete — accText length:',
+    accText.length,
+    '| tool blocks:',
+    toolUseBlocks.length,
+    '| total events:',
+    eventCount,
+  );
 
   const content = [];
   if (accText) content.push({ type: 'text', text: accText });
@@ -547,10 +607,24 @@ async function runConversationLoop(settings: { ollamaBase: string; model: string
   const system = SYSTEM_PROMPT + planInstruction + (mapContext ? `\n\n${mapContext}` : '');
 
   // Capture undo depth before any changes so we can offer "Undo all" after.
-  const startUndoDepth = ((window as unknown as Record<string, unknown>).editorAPI as { getUndoDepth?: () => number } | undefined)?.getUndoDepth?.() ?? null;
+  const startUndoDepth =
+    (
+      (window as unknown as Record<string, unknown>).editorAPI as { getUndoDepth?: () => number } | undefined
+    )?.getUndoDepth?.() ?? null;
 
-  const readOnlyTools = new Set(['getMapInfo', 'getFullMapInfo', 'getCellInfo', 'getRoomBounds',
-    'findWallBetween', 'listProps', 'listTextures', 'getBridges', 'getRoomContents', 'suggestPlacement', 'listRooms']);
+  const readOnlyTools = new Set([
+    'getMapInfo',
+    'getFullMapInfo',
+    'getCellInfo',
+    'getRoomBounds',
+    'findWallBetween',
+    'listProps',
+    'listTextures',
+    'getBridges',
+    'getRoomContents',
+    'suggestPlacement',
+    'listRooms',
+  ]);
 
   const model = settings.model || 'qwen3.5:9b';
 
@@ -565,7 +639,9 @@ async function runConversationLoop(settings: { ollamaBase: string; model: string
 
     if (iteration > MAX_ITERATIONS) {
       hideThinking();
-      appendErrorMessage(`Stopped after ${MAX_ITERATIONS} tool calls — the map may be incomplete. Try a simpler request or use "Undo all".`);
+      appendErrorMessage(
+        `Stopped after ${MAX_ITERATIONS} tool calls — the map may be incomplete. Try a simpler request or use "Undo all".`,
+      );
       renderMessages();
       return;
     }
@@ -573,17 +649,23 @@ async function runConversationLoop(settings: { ollamaBase: string; model: string
     // In plan mode: after MAX_PLAN_ITERATIONS read-only calls, nudge the AI to write the plan
     if (_planMode && !planNudgeSent && iteration > MAX_PLAN_ITERATIONS) {
       planNudgeSent = true;
-      _messages.push({ role: 'user', content: "You've gathered enough information. Write your complete plan now — do not call any more tools." });
+      _messages.push({
+        role: 'user',
+        content: "You've gathered enough information. Write your complete plan now — do not call any more tools.",
+      });
       _hiddenMsgIdxs.add(_messages.length - 1);
     }
 
-    const data = await fetchStreamingResponse({
-      messages: _messages,
-      ollamaBase: settings.ollamaBase,
-      model,
-      tools: _planMode ? TOOL_DEFINITIONS.filter(t => readOnlyTools.has(t.name)) : TOOL_DEFINITIONS,
-      system,
-    }, signal);
+    const data = await fetchStreamingResponse(
+      {
+        messages: _messages,
+        ollamaBase: settings.ollamaBase,
+        model,
+        tools: _planMode ? TOOL_DEFINITIONS.filter((t) => readOnlyTools.has(t.name)) : TOOL_DEFINITIONS,
+        system,
+      },
+      signal,
+    );
 
     aiLog('[AI] stop_reason:', data.stop_reason, '| content blocks:', data.content.length);
     _messages.push({ role: 'assistant', content: data.content });
@@ -599,7 +681,7 @@ async function runConversationLoop(settings: { ollamaBase: string; model: string
     }
 
     if (data.stop_reason === 'tool_use') {
-      const toolUseBlocks = data.content.filter(b => b.type === 'tool_use');
+      const toolUseBlocks = data.content.filter((b) => b.type === 'tool_use');
       const toolResults = [];
 
       hideThinking(); // clear any existing before re-showing
@@ -617,9 +699,7 @@ async function runConversationLoop(settings: { ollamaBase: string; model: string
         // Truncate large tool results to prevent context bloat.
         // Catalog and export tools are never truncated (bounded or needed in full).
         // For other tools: try smart array-level truncation before falling back to char-slice.
-        const NO_TRUNCATE = new Set([
-          'listProps', 'listTextures', 'listLightPresets', 'listRooms', 'listThemes',
-        ]);
+        const NO_TRUNCATE = new Set(['listProps', 'listTextures', 'listLightPresets', 'listRooms', 'listThemes']);
         const MAX_RESULT = 3000;
         let resultStr = JSON.stringify(result);
         if (!NO_TRUNCATE.has(block.name) && resultStr.length > MAX_RESULT) {
@@ -663,13 +743,13 @@ async function runConversationLoop(settings: { ollamaBase: string; model: string
 // ── UI helpers ───────────────────────────────────────────────────────────────
 
 function setProcessing(active: boolean) {
-  const btn   = getEl('claude-send-btn');
+  const btn = getEl('claude-send-btn');
   const input = getEl<HTMLInputElement>('claude-input');
   input.disabled = active;
   btn.classList.toggle('claude-btn-stop', active);
   btn.title = active ? 'Stop' : 'Send';
   (btn.querySelector('.icon-send') as HTMLElement).style.display = active ? 'none' : '';
-  (btn.querySelector('.icon-stop') as HTMLElement).style.display = active ? ''     : 'none';
+  (btn.querySelector('.icon-stop') as HTMLElement).style.display = active ? '' : 'none';
 }
 
 function stopGeneration() {
@@ -689,9 +769,12 @@ function updateTokenDisplay() {
   const bar = getEl('claude-token-bar');
   const { input, output } = _sessionTokens;
   const total = input + output;
-  if (total === 0) { bar.style.display = 'none'; return; }
+  if (total === 0) {
+    bar.style.display = 'none';
+    return;
+  }
 
-  const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+  const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n));
 
   bar.style.display = '';
   bar.textContent = `Session: ↑${fmt(input)} ↓${fmt(output)} (FREE)`;
@@ -702,7 +785,8 @@ function showThinking() {
   const el = document.createElement('div');
   el.className = 'claude-message claude-message-assistant claude-thinking-row';
   el.id = 'claude-thinking';
-  el.innerHTML = '<div class="claude-bubble claude-thinking"><span class="claude-thinking-label"></span><span></span><span></span><span></span></div>';
+  el.innerHTML =
+    '<div class="claude-bubble claude-thinking"><span class="claude-thinking-label"></span><span></span><span></span><span></span></div>';
   list.appendChild(el);
   list.scrollTop = list.scrollHeight;
 }
@@ -715,35 +799,72 @@ function updateThinkingText(toolName: string) {
   const label = document.querySelector('#claude-thinking .claude-thinking-label');
   if (!label) return;
   const LABELS = {
-    planBrief: 'Planning layout', getMapInfo: 'Reading map', getCellInfo: 'Inspecting cell', getRoomBounds: 'Checking room',
-    getRoomContents: 'Reading room contents', findWallBetween: 'Finding wall',
-    listProps: 'Checking props', listTextures: 'Checking textures', getBridges: 'Checking bridges',
+    planBrief: 'Planning layout',
+    getMapInfo: 'Reading map',
+    getCellInfo: 'Inspecting cell',
+    getRoomBounds: 'Checking room',
+    getRoomContents: 'Reading room contents',
+    findWallBetween: 'Finding wall',
+    listProps: 'Checking props',
+    listTextures: 'Checking textures',
+    getBridges: 'Checking bridges',
     suggestPlacement: 'Finding space',
-    createRoom: 'Creating room', createCorridor: 'Creating corridor', createTrim: 'Trimming corner',
-    setLabel: 'Labelling room', setDoor: 'Placing door', removeDoor: 'Removing door',
-    setWall: 'Setting wall', removeWall: 'Removing wall', removeLabel: 'Removing label',
-    setFill: 'Adding fill', setFillRect: 'Adding fill', removeFill: 'Clearing fill', removeFillRect: 'Clearing fill',
-    setTheme: 'Changing theme', setName: 'Setting name', setFeature: 'Toggling feature',
-    setTexture: 'Applying texture', setTextureRect: 'Applying texture',
-    floodFillTexture: 'Painting texture', removeTexture: 'Clearing texture', removeTextureRect: 'Clearing texture',
-    placeProp: 'Placing prop', rotateProp: 'Rotating prop',
-    removeProp: 'Removing prop', removePropsInRect: 'Clearing props',
-    placeLight: 'Placing light', addStairs: 'Adding stairs', linkStairs: 'Linking stairs',
+    createRoom: 'Creating room',
+    createCorridor: 'Creating corridor',
+    createTrim: 'Trimming corner',
+    setLabel: 'Labelling room',
+    setDoor: 'Placing door',
+    removeDoor: 'Removing door',
+    setWall: 'Setting wall',
+    removeWall: 'Removing wall',
+    removeLabel: 'Removing label',
+    setFill: 'Adding fill',
+    setFillRect: 'Adding fill',
+    removeFill: 'Clearing fill',
+    removeFillRect: 'Clearing fill',
+    setTheme: 'Changing theme',
+    setName: 'Setting name',
+    setFeature: 'Toggling feature',
+    setTexture: 'Applying texture',
+    setTextureRect: 'Applying texture',
+    floodFillTexture: 'Painting texture',
+    removeTexture: 'Clearing texture',
+    removeTextureRect: 'Clearing texture',
+    placeProp: 'Placing prop',
+    rotateProp: 'Rotating prop',
+    removeProp: 'Removing prop',
+    removePropsInRect: 'Clearing props',
+    placeLight: 'Placing light',
+    addStairs: 'Adding stairs',
+    linkStairs: 'Linking stairs',
     removeStairs: 'Removing stairs',
-    getLights: 'Checking lights', removeLight: 'Removing light',
-    setAmbientLight: 'Setting ambient light', setLightingEnabled: 'Toggling lighting',
+    getLights: 'Checking lights',
+    removeLight: 'Removing light',
+    setAmbientLight: 'Setting ambient light',
+    setLightingEnabled: 'Toggling lighting',
     listLightPresets: 'Checking light presets',
-    addBridge: 'Adding bridge', removeBridge: 'Removing bridge',
-    paintCell: 'Painting cell', paintRect: 'Painting area', eraseCell: 'Erasing cell', eraseRect: 'Erasing area',
-    setHazard: 'Marking hazard', setHazardRect: 'Marking hazard', mergeRooms: 'Merging rooms',
+    addBridge: 'Adding bridge',
+    removeBridge: 'Removing bridge',
+    paintCell: 'Painting cell',
+    paintRect: 'Painting area',
+    eraseCell: 'Erasing cell',
+    eraseRect: 'Erasing area',
+    setHazard: 'Marking hazard',
+    setHazardRect: 'Marking hazard',
+    mergeRooms: 'Merging rooms',
     newMap: 'Creating new map',
-    setLabelStyle: 'Setting label style', listThemes: 'Checking themes',
-    getLevels: 'Checking levels', addLevel: 'Adding level',
-    renameLevel: 'Renaming level', resizeLevel: 'Resizing level',
-    findCellByLabel: 'Finding room', shiftCells: 'Repositioning map',
-    listRooms: 'Listing rooms', placeLightInRoom: 'Placing light',
+    setLabelStyle: 'Setting label style',
+    listThemes: 'Checking themes',
+    getLevels: 'Checking levels',
+    addLevel: 'Adding level',
+    renameLevel: 'Renaming level',
+    resizeLevel: 'Resizing level',
+    findCellByLabel: 'Finding room',
+    shiftCells: 'Repositioning map',
+    listRooms: 'Listing rooms',
+    placeLightInRoom: 'Placing light',
   };
-  label.textContent = (LABELS[toolName as keyof typeof LABELS]) + '…';
+  label.textContent = LABELS[toolName as keyof typeof LABELS] + '…';
 }
 
 function showUndoToast(startDepth: number) {
@@ -754,7 +875,9 @@ function showUndoToast(startDepth: number) {
   toast.querySelector('.claude-undo-all-btn')!.addEventListener('click', () => {
     getEditorAPI()?.undoToDepth?.(startDepth);
     toast.remove();
-    ((window as unknown as Record<string, unknown>).showToast as ((msg: string) => void) | undefined)?.('All Claude changes undone.');
+    ((window as unknown as Record<string, unknown>).showToast as ((msg: string) => void) | undefined)?.(
+      'All Claude changes undone.',
+    );
   });
   list.appendChild(toast);
   list.scrollTop = list.scrollHeight;
@@ -767,11 +890,7 @@ function appendErrorMessage(text: string) {
 }
 
 function escHtml(str: string) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function formatMarkdown(text: string) {

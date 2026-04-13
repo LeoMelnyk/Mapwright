@@ -52,7 +52,7 @@ export function renameLevel(levelIndex: number, newName: string): { success: tru
     });
   }
   pushUndo();
-  levels[levelIndex].name = newName.trim();
+  levels[levelIndex]!.name = newName.trim();
   markDirty();
   notify();
   return { success: true };
@@ -78,13 +78,13 @@ export function resizeLevel(levelIndex: number, newRows: number): { success: tru
     throw new ApiValidationError('INVALID_ROW_COUNT', 'Row count must be a positive integer', { received: newRows });
   }
 
-  const level = levels[levelIndex];
+  const level = levels[levelIndex]!;
   if (newRows === level.numRows) return { success: true };
 
   pushUndo();
 
   const cells = state.dungeon.cells;
-  const numCols = cells[0]?.length || 30;
+  const numCols = cells[0]?.length ?? 30;
   const delta = newRows - level.numRows;
   const levelEnd = level.startRow + level.numRows;
 
@@ -103,7 +103,7 @@ export function resizeLevel(levelIndex: number, newRows: number): { success: tru
   level.numRows = newRows;
 
   for (let i = levelIndex + 1; i < levels.length; i++) {
-    levels[i].startRow += delta;
+    levels[i]!.startRow += delta;
   }
 
   invalidateAllCaches();
@@ -134,7 +134,7 @@ export function addLevel(name: string, numRows: number = 15): { success: true; l
 
   const cells = state.dungeon.cells;
   const currentRows = cells.length;
-  const numCols = cells[0]?.length || 30;
+  const numCols = cells[0]?.length ?? 30;
 
   for (let r = 0; r < 1 + numRows; r++) {
     const row = [];

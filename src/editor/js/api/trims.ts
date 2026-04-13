@@ -104,7 +104,7 @@ export function createTrim(
         for (const dir of CARDINAL_DIRS) {
           if (getEdge(cell, dir as Direction)) {
             deleteEdge(cell, dir as Direction);
-            const [dr, dc] = OFFSETS[dir];
+            const [dr, dc] = OFFSETS[dir]!;
             const neighbor = cells[r + dr]?.[c + dc];
             if (neighbor) deleteEdge(neighbor, OPPOSITE[dir as CardinalDirection]);
           }
@@ -133,7 +133,7 @@ export function createTrim(
         // ── Round trim: per-cell data from computeTrimCells ──
         const trimData = computeTrimCells(preview, resolvedCorner as TrimCorner, inverted, open);
         const numRows = cells.length;
-        const numCols = cells[0]?.length || 0;
+        const numCols = cells[0]?.length ?? 0;
 
         // Only clear walls on cells in the original trim zone, not buffer-ring neighbors
         const trimZone = new Set([
@@ -143,23 +143,23 @@ export function createTrim(
         ]);
 
         for (const [key, val] of trimData) {
-          const [r, c] = key.split(',').map(Number);
+          const [r, c] = key.split(',').map(Number) as [number, number];
           if (r < 0 || r >= numRows || c < 0 || c >= numCols) continue;
           const inZone = trimZone.has(key);
 
           if (val === null) {
-            cells[r][c] = null;
+            cells[r]![c] = null;
           } else if (val === 'interior') {
             if (inZone) {
-              cells[r][c] ??= {};
-              const cell = cells[r][c];
+              cells[r]![c] ??= {};
+              const cell = cells[r]![c];
               clearWalls(cell, r, c);
               clearOldTrimFlags(cell);
             }
           } else if ((val as unknown as string) === 'diagonal') {
             // Inverted hypotenuse: straight diagonal wall (like straight trims)
-            cells[r][c] ??= {};
-            const cell = cells[r][c];
+            cells[r]![c] ??= {};
+            const cell = cells[r]![c];
             if (inZone) clearWalls(cell, r, c);
             clearOldTrimFlags(cell);
             cell.trimCorner = resolvedCorner;
@@ -167,8 +167,8 @@ export function createTrim(
             else cell['nw-se'] = 'w';
             if (open) cell.trimOpen = true;
           } else {
-            cells[r][c] ??= {};
-            const cell = cells[r][c];
+            cells[r]![c] ??= {};
+            const cell = cells[r]![c];
             if (inZone) clearWalls(cell, r, c);
             clearOldTrimFlags(cell);
             Object.assign(cell, val);
@@ -178,7 +178,7 @@ export function createTrim(
         // ── Straight trim: original logic (unchanged) ──
         if (!open) {
           for (const { row, col } of preview.voided) {
-            cells[row][col] = null;
+            cells[row]![col] = null;
           }
         } else {
           for (const { row: r, col: c } of preview.voided) {
@@ -190,8 +190,8 @@ export function createTrim(
         }
 
         for (const { row: r, col: c } of preview.hypotenuse) {
-          cells[r][c] ??= {};
-          const cell = cells[r][c];
+          cells[r]![c] ??= {};
+          const cell = cells[r]![c];
           cell.trimCorner = resolvedCorner;
           clearWalls(cell, r, c);
 
@@ -400,8 +400,8 @@ export function trimCorner(
         const [bp1, bp2] = cornerPriority(cornerDir, b.row, b.col);
         return ap1 - bp1 || ap2 - bp2;
       });
-      tipR = allCorners[0].row;
-      tipC = allCorners[0].col;
+      tipR = allCorners[0]!.row;
+      tipC = allCorners[0]!.col;
     }
   } else {
     // Cell coord form — [row, col] or { row, col }.
@@ -420,9 +420,9 @@ export function trimCorner(
       const db = (b.row - refRow) ** 2 + (b.col - refCol) ** 2;
       return da - db;
     });
-    cornerDir = allCorners[0].corner;
-    tipR = allCorners[0].row;
-    tipC = allCorners[0].col;
+    cornerDir = allCorners[0]!.corner;
+    tipR = allCorners[0]!.row;
+    tipC = allCorners[0]!.col;
   }
 
   // Compute extent cell: `size` cells inward from the tip along both axes.

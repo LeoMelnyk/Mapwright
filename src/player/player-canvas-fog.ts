@@ -135,7 +135,7 @@ export function rebuildFogOverlay(): void {
 
   // Step 1: Clear full rects for ALL revealed cells (no gaps at cell boundaries)
   for (const key of playerState.revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     fCtx.clearRect(c * cellPx, r * cellPx, cellPx, cellPx);
   }
 
@@ -144,7 +144,7 @@ export function rebuildFogOverlay(): void {
   const trimSides = classifyAllTrimFog(playerState.revealedCells, cells);
   for (const [key, side] of trimSides) {
     if ((side as string) === 'both' || (side as string) === 'neither') continue;
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cell = cells[r]?.[c] as Record<string, unknown> | null;
     const clip = cell?.trimClip as [number, number][];
     const px = c * cellPx,
@@ -155,18 +155,18 @@ export function rebuildFogOverlay(): void {
       // Paint fog over the exterior (cell rect minus trimClip via evenodd)
       fCtx.beginPath();
       fCtx.rect(px, py, cellPx, cellPx);
-      fCtx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
+      fCtx.moveTo(px + clip[0]![0] * cellPx, py + clip[0]![1] * cellPx);
       for (let i = 1; i < clip.length; i++) {
-        fCtx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
+        fCtx.lineTo(px + clip[i]![0] * cellPx, py + clip[i]![1] * cellPx);
       }
       fCtx.closePath();
       fCtx.fill('evenodd');
     } else {
       // exteriorOnly: paint fog over the room side (trimClip polygon)
       fCtx.beginPath();
-      fCtx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
+      fCtx.moveTo(px + clip[0]![0] * cellPx, py + clip[0]![1] * cellPx);
       for (let i = 1; i < clip.length; i++) {
-        fCtx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
+        fCtx.lineTo(px + clip[i]![0] * cellPx, py + clip[i]![1] * cellPx);
       }
       fCtx.closePath();
       fCtx.fill();
@@ -177,7 +177,7 @@ export function rebuildFogOverlay(): void {
   // 2b: Diagonal trims (trimCorner without trimClip) — always fog the void triangle
   fCtx.fillStyle = fogColor;
   for (const key of playerState.revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cell = cells[r]?.[c] as Record<string, unknown> | null;
     if (!cell?.trimCorner || cell.trimClip) continue;
     const px = c * cellPx,
@@ -189,7 +189,7 @@ export function rebuildFogOverlay(): void {
 
   // 2c: Open diagonal trims (diagonal wall, no trimCorner) — fog the unrevealed half
   for (const key of playerState.revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cell = cells[r]?.[c] as Record<string, unknown> | null;
     if (!cell || cell.trimCorner || cell.trimClip) continue;
     const fogHalf = _openDiagFogHalf(cell, r, c, playerState.revealedCells);
@@ -217,13 +217,13 @@ export function revealFogCells(cellKeys: string[], revealWallsCells: (cellKeys: 
   const gridSize = metadata.gridSize;
   const cellPx = gridSize * getMapPxPerFoot();
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const fCtx = S._fogOverlay.ctx;
   const theme = resolveTheme();
   const fogColor = theme?.background ?? '#000000';
 
   for (const key of cellKeys) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     fCtx.clearRect(c * cellPx, r * cellPx, cellPx, cellPx);
   }
 
@@ -232,7 +232,7 @@ export function revealFogCells(cellKeys: string[], revealWallsCells: (cellKeys: 
   // repaint the correct half.
   const refreshed = new Set<string>();
   for (const key of cellKeys) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     for (const [dr, dc] of [
       [-1, 0],
       [1, 0],
@@ -281,7 +281,7 @@ export function concealFogCells(cellKeys: string[], rebuildWallsLayer: () => voi
   const theme = resolveTheme();
   fCtx.fillStyle = theme?.background ?? '#000000';
   for (const key of cellKeys) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     fCtx.fillRect(c * cellPx, r * cellPx, cellPx, cellPx);
   }
   S._fogBuiltVersion = S._fogVersion;

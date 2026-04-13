@@ -30,15 +30,9 @@ const TOOL_BINDS = {
     { key: 'Shift+D', desc: 'Cycle depth (reverse)', modes: ['water', 'lava'] },
     { key: 'Right-click', desc: 'Clear fill' },
   ],
-  wall: [
-    { key: 'Right-click', desc: 'Remove wall' },
-  ],
-  door: [
-    { key: 'Right-click', desc: 'Remove door' },
-  ],
-  label: [
-    { key: 'Del', desc: 'Delete selected label' },
-  ],
+  wall: [{ key: 'Right-click', desc: 'Remove wall' }],
+  door: [{ key: 'Right-click', desc: 'Remove door' }],
+  label: [{ key: 'Del', desc: 'Delete selected label' }],
   stairs: [
     { key: 'Esc', desc: 'Cancel placement' },
     { key: 'Right-click', desc: 'Delete stair' },
@@ -92,17 +86,13 @@ const SESSION_GLOBAL_BINDS = [
 ];
 
 const SESSION_TOOL_BINDS = {
-  doors: [
-    { key: 'Click door', desc: 'Open / close door' },
-  ],
+  doors: [{ key: 'Click door', desc: 'Open / close door' }],
   range: [
     { key: 'Click+Drag', desc: 'Measure area' },
     { key: 'Tab', desc: 'Cycle shape' },
     { key: 'Shift+Tab', desc: 'Cycle shape (reverse)' },
   ],
-  'fog-reveal': [
-    { key: 'Click+Drag', desc: 'Reveal rectangle' },
-  ],
+  'fog-reveal': [{ key: 'Click+Drag', desc: 'Reveal rectangle' }],
 };
 
 const SESSION_TOOL_NAMES = {
@@ -138,19 +128,40 @@ let dragOffsetY = 0;
 
 function getToolDisplayName(toolName: string) {
   const names = {
-    room: 'Room', paint: 'Paint', fill: 'Fill', wall: 'Wall', door: 'Door',
-    label: 'Label', stairs: 'Stairs', bridge: 'Bridge', select: 'Select',
-    trim: 'Trim', prop: 'Prop', erase: 'Erase', light: 'Light',
+    room: 'Room',
+    paint: 'Paint',
+    fill: 'Fill',
+    wall: 'Wall',
+    door: 'Door',
+    label: 'Label',
+    stairs: 'Stairs',
+    bridge: 'Bridge',
+    select: 'Select',
+    trim: 'Trim',
+    prop: 'Prop',
+    erase: 'Erase',
+    light: 'Light',
   };
-  return (names as Record<string, string>)[toolName] || toolName;
+  return (names as Record<string, string>)[toolName] ?? toolName;
 }
 
 function getToolShortcut(toolName: string) {
   const keys = {
-    room: '1', paint: '2', fill: '3', wall: '4', door: '5', label: '6',
-    stairs: 'S', bridge: 'B', trim: 'T', select: 'A', prop: 'Q', erase: 'E', light: 'L',
+    room: '1',
+    paint: '2',
+    fill: '3',
+    wall: '4',
+    door: '5',
+    label: '6',
+    stairs: 'S',
+    bridge: 'B',
+    trim: 'T',
+    select: 'A',
+    prop: 'Q',
+    erase: 'E',
+    light: 'L',
   };
-  return (keys as Record<string, string>)[toolName] || null;
+  return (keys as Record<string, string>)[toolName] ?? null;
 }
 
 function getActiveSessionTool(): string {
@@ -166,8 +177,10 @@ function buildContent(toolName: string) {
 
   const modeKey = (TOOL_MODE_KEYS as Record<string, string>)[toolName];
   const currentMode = modeKey ? state[modeKey] : null;
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const toolBinds = ((TOOL_BINDS as Record<string, { key: string; desc: string; modes?: string[] }[]>)[toolName] || []).filter((b) => {
+
+  const toolBinds = (
+    (TOOL_BINDS as Record<string, { key: string; desc: string; modes?: string[] }[]>)[toolName] ?? []
+  ).filter((b) => {
     if (!b.modes) return true;
     return b.modes.includes(currentMode as string);
   });
@@ -192,8 +205,7 @@ function buildContent(toolName: string) {
 }
 
 function buildSessionContent(sessionTool: string) {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const toolBinds = (SESSION_TOOL_BINDS as Record<string, { key: string; desc: string }[]>)[sessionTool] || [];
+  const toolBinds = (SESSION_TOOL_BINDS as Record<string, { key: string; desc: string }[]>)[sessionTool] ?? [];
   let html = '';
 
   if (toolBinds.length > 0) {
@@ -230,8 +242,13 @@ function refresh() {
   const currentMode: string | null = modeKey ? (state[modeKey] as string) : null;
 
   // Skip if nothing changed
-  if (sessionActive === lastSessionActive && sessionTool === lastSessionTool &&
-      toolName === lastTool && currentMode === lastMode) return;
+  if (
+    sessionActive === lastSessionActive &&
+    sessionTool === lastSessionTool &&
+    toolName === lastTool &&
+    currentMode === lastMode
+  )
+    return;
   lastSessionActive = sessionActive;
   lastSessionTool = sessionTool;
   lastTool = toolName;
@@ -239,7 +256,8 @@ function refresh() {
 
   if (sessionActive) {
     const key = (SESSION_TOOL_KEYS as Record<string, string>)[sessionTool!];
-    headerEl!.textContent = `DM: ${(SESSION_TOOL_NAMES as Record<string, string>)[sessionTool!] || sessionTool}` + (key ? ` (${key})` : '');
+    headerEl!.textContent =
+      `DM: ${(SESSION_TOOL_NAMES as Record<string, string>)[sessionTool!] ?? sessionTool}` + (key ? ` (${key})` : '');
   } else {
     const shortcut = getToolShortcut(toolName);
     headerEl!.textContent = `${getToolDisplayName(toolName)} Tool` + (shortcut ? ` (${shortcut})` : '');
@@ -264,7 +282,9 @@ export function toggleKeybindingsHelper(visible?: boolean): void {
     panel.style.top = '';
     panel.style.bottom = '';
     panel.style.right = '';
-    try { localStorage.removeItem('mw-keybindings-pos'); } catch {}
+    try {
+      localStorage.removeItem('mw-keybindings-pos');
+    } catch {}
   } else {
     lastTool = null;
     lastMode = null;
@@ -273,7 +293,9 @@ export function toggleKeybindingsHelper(visible?: boolean): void {
     refresh();
   }
   // Persist preference
-  try { localStorage.setItem('mw-keybindings-helper', show ? '1' : '0'); } catch {}
+  try {
+    localStorage.setItem('mw-keybindings-helper', show ? '1' : '0');
+  } catch {}
 }
 
 function onDragStart(e: MouseEvent) {
@@ -307,10 +329,13 @@ function onDragEnd() {
   panel!.classList.remove('kb-dragging');
   // Save position
   try {
-    localStorage.setItem('mw-keybindings-pos', JSON.stringify({
-      left: panel!.style.left,
-      top: panel!.style.top,
-    }));
+    localStorage.setItem(
+      'mw-keybindings-pos',
+      JSON.stringify({
+        left: panel!.style.left,
+        top: panel!.style.top,
+      }),
+    );
   } catch {}
 }
 

@@ -10,7 +10,6 @@ import type { PropDefinition, PropCommand, PropPlacement, RenderTransform } from
 import { GRID_SCALE } from './constants.js';
 import { warn } from './warnings.js';
 
-
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
@@ -31,7 +30,7 @@ export function scaleFactor(transform: RenderTransform): number {
 export function parseHexColor(hex: string): { r: number; g: number; b: number } {
   let h = hex.replace('#', '');
   if (h.length === 3) {
-    h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    h = h[0]! + h[0]! + h[1]! + h[1]! + h[2]! + h[2]!;
   }
   return {
     r: parseInt(h.substring(0, 2), 16),
@@ -49,9 +48,8 @@ export function parseHexColor(hex: string): { r: number; g: number; b: number } 
  */
 export function scanKeyword(tokens: string[], keyword: string): number | null {
   for (let i = 0; i < tokens.length; i++) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- tokens[i+1] can be out of bounds
     if (tokens[i] === keyword && tokens[i + 1] != null) {
-      return parseFloat(tokens[i + 1]);
+      return parseFloat(tokens[i + 1]!);
     }
   }
   return null;
@@ -106,15 +104,15 @@ export function parsePropFile(text: string): PropDefinition {
   }
 
   // Extract structured fields
-  const name = header.name || 'Unnamed';
-  const category = header.category || 'Misc';
+  const name = header.name ?? 'Unnamed';
+  const category = header.category ?? 'Misc';
 
   // Footprint: "RxC" -> [rows, cols]
   let footprint: [number, number] = [1, 1];
   if (header.footprint) {
     const parts = header.footprint.toLowerCase().split('x');
     if (parts.length === 2) {
-      footprint = [parseInt(parts[0], 10) || 1, parseInt(parts[1], 10) || 1];
+      footprint = [parseInt(parts[0]!, 10) || 1, parseInt(parts[1]!, 10) || 1];
     }
   }
 
@@ -128,15 +126,19 @@ export function parsePropFile(text: string): PropDefinition {
   const blocksLight = header.blocks_light === 'yes' || header.blocks_light === 'true';
 
   // Height: prop height in feet for z-height shadow projection (default null = infinite)
-  const height = isNaN(parseFloat(header.height)) ? null : parseFloat(header.height);
+  const height = isNaN(parseFloat(header.height!)) ? null : parseFloat(header.height!);
 
   // Padding: extra cells of overflow around the footprint (default 0)
-  const padding = parseFloat(header.padding) || 0;
+  const padding = parseFloat(header.padding!) || 0;
 
   // Prop-bundled lights: inline JSON array of { preset, x, y } (normalized 0–cols, 0–rows)
   let propLights = null;
   if (header.lights) {
-    try { propLights = JSON.parse(header.lights); } catch (e) { warn(`[props] Malformed lights JSON in prop "${name}": ${(e as Error).message}`); }
+    try {
+      propLights = JSON.parse(header.lights);
+    } catch (e) {
+      warn(`[props] Malformed lights JSON in prop "${name}": ${(e as Error).message}`);
+    }
   }
 
   // Parse body (draw commands + hitbox/selection commands)
@@ -158,27 +160,44 @@ export function parsePropFile(text: string): PropDefinition {
   }
 
   // Collect unique texture IDs referenced by texfill commands
-  const textures = [...new Set(
-    commands.filter(c => c.style === 'texfill' && c.textureId).map(c => c.textureId!)
-  )];
+  const textures = [...new Set(commands.filter((c) => c.style === 'texfill' && c.textureId).map((c) => c.textureId!))];
 
   // Placement metadata (optional fields — gracefully default to null/empty)
-  const placement = (header.placement || null) as PropPlacement;  // wall, corner, center, floor, any
+  const placement = (header.placement ?? null) as PropPlacement; // wall, corner, center, floor, any
   const roomTypes = header.room_types
-    ? header.room_types.split(',').map((s: string) => s.trim()).filter(Boolean)
+    ? header.room_types
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean)
     : [];
-  const typicalCount = header.typical_count || null;           // single, few, many
+  const typicalCount = header.typical_count ?? null; // single, few, many
   const clustersWith = header.clusters_with
-    ? header.clusters_with.split(',').map((s: string) => s.trim()).filter(Boolean)
+    ? header.clusters_with
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean)
     : [];
-  const notes = header.notes || null;
+  const notes = header.notes ?? null;
 
   return {
-    name, category, footprint, facing, shadow, blocksLight, padding, height,
-    commands, textures, lights: propLights,
+    name,
+    category,
+    footprint,
+    facing,
+    shadow,
+    blocksLight,
+    padding,
+    height,
+    commands,
+    textures,
+    lights: propLights,
     manualHitbox: manualHitboxCmds.length > 0 ? manualHitboxCmds : null,
     manualSelection: manualSelectionCmds.length > 0 ? manualSelectionCmds : null,
-    placement, roomTypes, typicalCount, clustersWith, notes,
+    placement,
+    roomTypes,
+    typicalCount,
+    clustersWith,
+    notes,
   };
 }
 
@@ -196,26 +215,29 @@ export function parsePropFile(text: string): PropDefinition {
  * @param {number} startIndex - Index to start parsing style from
  * @returns {{ style: string, color: string|null, textureId: string|null, opacity: number|null, gradientEnd?: string }}
  */
-export function parseStyleExtended(tokens: string[], startIndex: number): { style: string; color: string | null; textureId: string | null; opacity: number | null; gradientEnd?: string } {
+export function parseStyleExtended(
+  tokens: string[],
+  startIndex: number,
+): { style: string; color: string | null; textureId: string | null; opacity: number | null; gradientEnd?: string } {
   const styleToken = tokens[startIndex];
   if (!styleToken) return { style: 'fill', color: null, textureId: null, opacity: null };
 
   if (styleToken === 'gradient-radial') {
-    const startColor = tokens[startIndex + 1] || '#ffffff';
-    const endColor = tokens[startIndex + 2] || '#000000';
+    const startColor = tokens[startIndex + 1] ?? '#ffffff';
+    const endColor = tokens[startIndex + 2] ?? '#000000';
     const opacity = parseOpacity(tokens[startIndex + 3]);
     return { style: 'gradient-radial', color: startColor, textureId: null, opacity, gradientEnd: endColor };
   }
 
   if (styleToken === 'gradient-linear') {
-    const startColor = tokens[startIndex + 1] || '#ffffff';
-    const endColor = tokens[startIndex + 2] || '#000000';
+    const startColor = tokens[startIndex + 1] ?? '#ffffff';
+    const endColor = tokens[startIndex + 2] ?? '#000000';
     const opacity = parseOpacity(tokens[startIndex + 3]);
     return { style: 'gradient-linear', color: startColor, textureId: null, opacity, gradientEnd: endColor };
   }
 
   if (styleToken === 'texfill') {
-    const textureId = tokens[startIndex + 1] || null;
+    const textureId = tokens[startIndex + 1] ?? null;
     const opacity = parseOpacity(tokens[startIndex + 2]);
     return { style: 'texfill', color: null, textureId, opacity };
   }
@@ -223,7 +245,6 @@ export function parseStyleExtended(tokens: string[], startIndex: number): { styl
   const style = styleToken === 'stroke' ? 'stroke' : 'fill';
   const nextToken = tokens[startIndex + 1];
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- nextToken can be undefined (array out of bounds)
   if (nextToken?.startsWith('#')) {
     const color = nextToken;
     const opacity = parseOpacity(tokens[startIndex + 2]);
@@ -252,7 +273,7 @@ export function parseStyleExtended(tokens: string[], startIndex: number): { styl
  */
 export function parseCommand(line: string): PropCommand | null {
   const tokens = line.split(/\s+/);
-  const type = tokens[0].toLowerCase();
+  const type = tokens[0]!.toLowerCase();
 
   switch (type) {
     case 'rect': {
@@ -267,7 +288,7 @@ export function parseCommand(line: string): PropCommand | null {
 
     case 'circle': {
       const [cx, cy] = parseCoord(tokens[1]);
-      const r = parseFloat(tokens[2]);
+      const r = parseFloat(tokens[2]!);
       const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 3);
       const width = scanKeyword(tokens, 'width');
       const angle = scanKeyword(tokens, 'angle');
@@ -305,9 +326,21 @@ export function parseCommand(line: string): PropCommand | null {
     case 'poly': {
       // poly x1,y1 x2,y2 x3,y3 ... [fill|stroke|texfill] [#color|textureId] [opacity]
       const points = [];
-      let ext: { style: string; color: string | null; textureId: string | null; opacity: number | null; gradientEnd?: string } = { style: 'fill', color: null, textureId: null, opacity: null };
+      let ext: {
+        style: string;
+        color: string | null;
+        textureId: string | null;
+        opacity: number | null;
+        gradientEnd?: string;
+      } = { style: 'fill', color: null, textureId: null, opacity: null };
       for (let i = 1; i < tokens.length; i++) {
-        if (tokens[i] === 'fill' || tokens[i] === 'stroke' || tokens[i] === 'texfill' || tokens[i] === 'gradient-radial' || tokens[i] === 'gradient-linear') {
+        if (
+          tokens[i] === 'fill' ||
+          tokens[i] === 'stroke' ||
+          tokens[i] === 'texfill' ||
+          tokens[i] === 'gradient-radial' ||
+          tokens[i] === 'gradient-linear'
+        ) {
           ext = parseStyleExtended(tokens, i);
           break;
         }
@@ -322,9 +355,9 @@ export function parseCommand(line: string): PropCommand | null {
 
     case 'arc': {
       const [cx, cy] = parseCoord(tokens[1]);
-      const r = parseFloat(tokens[2]);
-      const startDeg = parseFloat(tokens[3]);
-      const endDeg = parseFloat(tokens[4]);
+      const r = parseFloat(tokens[2]!);
+      const startDeg = parseFloat(tokens[3]!);
+      const endDeg = parseFloat(tokens[4]!);
       const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 5);
       const width = scanKeyword(tokens, 'width');
       const angle = scanKeyword(tokens, 'angle');
@@ -332,11 +365,11 @@ export function parseCommand(line: string): PropCommand | null {
     }
 
     case 'cutout': {
-      const subShape = tokens[1]?.toLowerCase();
+      const subShape = tokens[1]?.toLowerCase() ?? '';
       switch (subShape) {
         case 'circle': {
           const [cx, cy] = parseCoord(tokens[2]);
-          const r = parseFloat(tokens[3]);
+          const r = parseFloat(tokens[3]!);
           return { type: 'cutout', subShape: 'circle', cx, cy, r };
         }
         case 'rect': {
@@ -356,8 +389,8 @@ export function parseCommand(line: string): PropCommand | null {
 
     case 'ring': {
       const [cx, cy] = parseCoord(tokens[1]);
-      const outerR = parseFloat(tokens[2]);
-      const innerR = parseFloat(tokens[3]);
+      const outerR = parseFloat(tokens[2]!);
+      const innerR = parseFloat(tokens[3]!);
       const { style, color, textureId, opacity, gradientEnd } = parseStyleExtended(tokens, 4);
       const width = scanKeyword(tokens, 'width');
       const angle = scanKeyword(tokens, 'angle');
@@ -393,11 +426,11 @@ export function parseCommand(line: string): PropCommand | null {
     }
 
     case 'clip-begin': {
-      const subShape = tokens[1]?.toLowerCase();
+      const subShape = tokens[1]?.toLowerCase() ?? '';
       switch (subShape) {
         case 'circle': {
           const [cx, cy] = parseCoord(tokens[2]);
-          const r = parseFloat(tokens[3]);
+          const r = parseFloat(tokens[3]!);
           return { type: 'clip-begin', subShape: 'circle', cx, cy, r };
         }
         case 'rect': {
@@ -410,7 +443,8 @@ export function parseCommand(line: string): PropCommand | null {
           const [rx, ry] = parseCoord(tokens[3]);
           return { type: 'clip-begin', subShape: 'ellipse', cx, cy, rx, ry };
         }
-        default: return null;
+        default:
+          return null;
       }
     }
 
@@ -423,15 +457,16 @@ export function parseCommand(line: string): PropCommand | null {
       // hitbox rect x,y w,h [z bottom-top]  — lighting occlusion shape with optional height zone
       // selection rect x,y w,h              — click/selection shape
       // Both support: rect, circle, poly
-      const shape = tokens[1]?.toLowerCase();
+      const shape = tokens[1]?.toLowerCase() ?? '';
       // Scan for trailing 'z' keyword: "z 0-6" → { zBottom: 0, zTop: 6 }
-      let zBottom = null, zTop = null;
+      let zBottom = null,
+        zTop = null;
       for (let zi = 2; zi < tokens.length; zi++) {
         if (tokens[zi] === 'z' && tokens[zi + 1]) {
-          const parts = tokens[zi + 1].split('-');
+          const parts = tokens[zi + 1]!.split('-');
           if (parts.length === 2) {
-            zBottom = parseFloat(parts[0]);
-            zTop = parseFloat(parts[1]);
+            zBottom = parseFloat(parts[0]!);
+            zTop = parseFloat(parts[1]!);
           }
           break;
         }
@@ -445,7 +480,7 @@ export function parseCommand(line: string): PropCommand | null {
         }
         case 'circle': {
           const [cx, cy] = parseCoord(tokens[2]);
-          const r = parseFloat(tokens[3]);
+          const r = parseFloat(tokens[3]!);
           return { type, subShape: 'circle', cx, cy, r, ...zInfo };
         }
         case 'poly': {
@@ -457,7 +492,8 @@ export function parseCommand(line: string): PropCommand | null {
           }
           return { type, subShape: 'poly', points, ...zInfo };
         }
-        default: return null;
+        default:
+          return null;
       }
     }
 
@@ -471,10 +507,10 @@ export function parseCommand(line: string): PropCommand | null {
  * @param {string} token - Comma-separated coordinate string
  * @returns {[number, number]} Parsed [x, y] coordinates
  */
-export function parseCoord(token: string): [number, number] {
+export function parseCoord(token: string | undefined): [number, number] {
   if (!token) return [0, 0];
   const parts = token.split(',');
-  return [parseFloat(parts[0]) || 0, parseFloat(parts[1]) || 0];
+  return [parseFloat(parts[0] ?? '') || 0, parseFloat(parts[1] ?? '') || 0];
 }
 
 /**
@@ -482,7 +518,8 @@ export function parseCoord(token: string): [number, number] {
  * @param {string|undefined|null} token - String token to parse as opacity
  * @returns {number|null} Parsed opacity value, or null if not present
  */
-export function parseOpacity(token: string): number | null {
+export function parseOpacity(token: string | undefined): number | null {
+  if (!token) return null;
   const v = parseFloat(token);
   return isNaN(v) ? null : v;
 }
@@ -540,7 +577,7 @@ export function flipCommand(cmd: PropCommand, footprint: [number, number]): Prop
   // For linear gradients, horizontal flip negates the angle
   function flipAngle(result: PropCommand): PropCommand {
     if (result.angle != null && result.style === 'gradient-linear') {
-      return { ...result, angle: -(result.angle) };
+      return { ...result, angle: -result.angle };
     }
     return result;
   }
@@ -559,7 +596,12 @@ export function flipCommand(cmd: PropCommand, footprint: [number, number]): Prop
       return { ...cmd, x1: cols - cmd.x1!, x2: cols - cmd.x2! };
 
     case 'poly':
-      return flipAngle({ ...cmd, points: cmd.points!.map(([px, py]: number[]) => [cols - px, py]) });
+      return flipAngle({
+        ...cmd,
+        points: (cmd.points! as [number, number][]).map(
+          ([px, py]: [number, number]) => [cols - px, py] as [number, number],
+        ),
+      });
 
     case 'arc':
       // Reflecting angles over the vertical axis: θ → 180° - θ
@@ -636,9 +678,7 @@ export function transformCommand(cmd: PropCommand, rotation: number, footprint: 
   if (rotation === 0) return cmd;
 
   // For linear gradients, rotate the angle by the same amount as the shape
-  const rotatedAngle = (cmd.angle != null && cmd.style === 'gradient-linear')
-    ? cmd.angle + rotation
-    : cmd.angle;
+  const rotatedAngle = cmd.angle != null && cmd.style === 'gradient-linear' ? cmd.angle + rotation : cmd.angle;
 
   switch (cmd.type) {
     case 'rect': {
@@ -651,18 +691,26 @@ export function transformCommand(cmd: PropCommand, rotation: number, footprint: 
         const swap = rotation === 90 || rotation === 270;
         const nw = swap ? cmd.h : cmd.w;
         const nh = swap ? cmd.w : cmd.h;
-        return { ...cmd, x: ncx - nw! / 2, y: ncy - nh! / 2, w: nw, h: nh, rotate: cmd.rotate + rotation, angle: rotatedAngle };
+        return {
+          ...cmd,
+          x: ncx - nw! / 2,
+          y: ncy - nh! / 2,
+          w: nw,
+          h: nh,
+          rotate: cmd.rotate + rotation,
+          angle: rotatedAngle,
+        };
       }
       // Non-rotated rect: AABB approach
-      const corners = [
+      const corners: [number, number][] = [
         [cmd.x!, cmd.y!],
         [cmd.x! + cmd.w!, cmd.y!],
         [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
         [cmd.x!, cmd.y! + cmd.h!],
       ];
       const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
-      const xs = rotated.map(p => p[0]);
-      const ys = rotated.map(p => p[1]);
+      const xs = rotated.map((p) => p[0]);
+      const ys = rotated.map((p) => p[1]);
       const minX = Math.min(...xs);
       const minY = Math.min(...ys);
       const maxX = Math.max(...xs);
@@ -696,7 +744,9 @@ export function transformCommand(cmd: PropCommand, rotation: number, footprint: 
     }
 
     case 'poly': {
-      const newPoints = cmd.points!.map(([px, py]: number[]) => rotatePoint(px, py, rotation, footprint));
+      const newPoints = (cmd.points! as [number, number][]).map(([px, py]: [number, number]) =>
+        rotatePoint(px, py, rotation, footprint),
+      );
       return { ...cmd, points: newPoints, angle: rotatedAngle };
     }
 
@@ -719,16 +769,22 @@ export function transformCommand(cmd: PropCommand, rotation: number, footprint: 
           return { ...cmd, cx: ncx, cy: ncy };
         }
         case 'rect': {
-          const corners = [
+          const corners: [number, number][] = [
             [cmd.x!, cmd.y!],
             [cmd.x! + cmd.w!, cmd.y!],
             [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
             [cmd.x!, cmd.y! + cmd.h!],
           ];
           const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
-          const xs = rotated.map(p => p[0]);
-          const ys = rotated.map(p => p[1]);
-          return { ...cmd, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+          const xs = rotated.map((p) => p[0]);
+          const ys = rotated.map((p) => p[1]);
+          return {
+            ...cmd,
+            x: Math.min(...xs),
+            y: Math.min(...ys),
+            w: Math.max(...xs) - Math.min(...xs),
+            h: Math.max(...ys) - Math.min(...ys),
+          };
         }
         case 'ellipse': {
           const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);
@@ -782,16 +838,22 @@ export function transformCommand(cmd: PropCommand, rotation: number, footprint: 
           return { ...cmd, cx: ncx, cy: ncy };
         }
         case 'rect': {
-          const corners = [
+          const corners: [number, number][] = [
             [cmd.x!, cmd.y!],
             [cmd.x! + cmd.w!, cmd.y!],
             [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
             [cmd.x!, cmd.y! + cmd.h!],
           ];
           const rotated = corners.map(([px, py]) => rotatePoint(px, py, rotation, footprint));
-          const xs = rotated.map(p => p[0]);
-          const ys = rotated.map(p => p[1]);
-          return { ...cmd, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+          const xs = rotated.map((p) => p[0]);
+          const ys = rotated.map((p) => p[1]);
+          return {
+            ...cmd,
+            x: Math.min(...xs),
+            y: Math.min(...ys),
+            w: Math.max(...xs) - Math.min(...xs),
+            h: Math.max(...ys) - Math.min(...ys),
+          };
         }
         case 'ellipse': {
           const [ncx, ncy] = rotatePoint(cmd.cx!, cmd.cy!, rotation, footprint);

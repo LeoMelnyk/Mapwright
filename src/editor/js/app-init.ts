@@ -19,29 +19,50 @@ import { RangeTool, FogRevealTool, type LightTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
 import { initPropSpatial, onPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
-import { sessionState, renderSessionOverlay, renderDmFogOverlay, hitTestDoorButton, hitTestStairButton, openDoor, openStairs, setRangeHighlightCallback } from './dm-session.js';
+import {
+  sessionState,
+  renderSessionOverlay,
+  renderDmFogOverlay,
+  hitTestDoorButton,
+  hitTestStairButton,
+  openDoor,
+  openStairs,
+  setRangeHighlightCallback,
+} from './dm-session.js';
 import { setSessionOverlay, setSessionTool, setSessionRangeTool, setDmFogOverlay } from './canvas-view.js';
 import {
-  initToolbar, setToolChangeCallback,
-  initSidebar, setPanelChangeCallback,
-  initProperties, setSelectPropCallback,
+  initToolbar,
+  setToolChangeCallback,
+  initSidebar,
+  setPanelChangeCallback,
+  initProperties,
+  setSelectPropCallback,
   initMetadata,
   initLevels,
   initHistoryPanel,
   initLightingPanel,
   initSessionPanel,
-  initTexturesPanel, renderTexturesPanel,
+  initTexturesPanel,
+  renderTexturesPanel,
   initRightSidebar,
   initClaudePanel,
   initBackgroundImagePanel,
-  initKeybindingsHelper, toggleKeybindingsHelper,
+  initKeybindingsHelper,
+  toggleKeybindingsHelper,
   initDebugPanel,
-  updateToolButtons, setSubMode,
+  updateToolButtons,
+  setSubMode,
 } from './panels/index.js';
 import { getEditorSettings, setEditorSetting } from './editor-settings.js';
 import { initOnboarding } from './onboarding.js';
 import { initTextureAlerts } from './texture-alerts.js';
-import { initDraggableToolbar, updateStatusBar, initShortcutsModal, initReleaseNotesModal, initClaudeSettingsModal } from './ui-components.js';
+import {
+  initDraggableToolbar,
+  updateStatusBar,
+  initShortcutsModal,
+  initReleaseNotesModal,
+  initClaudeSettingsModal,
+} from './ui-components.js';
 import { getEl } from './utils.js';
 
 /**
@@ -52,29 +73,42 @@ import { getEl } from './utils.js';
  * @param {Function} updateSessionToolsMode - Syncs session tools active state.
  * @returns {Promise<void>}
  */
-export async function initApp(tools: Record<string, Tool>, setTool: (name: string) => void, updateSessionToolsMode: () => void): Promise<void> {
+export async function initApp(
+  tools: Record<string, Tool>,
+  setTool: (name: string) => void,
+  updateSessionToolsMode: () => void,
+): Promise<void> {
   // Wire up prop spatial hash (lazy getter to avoid circular import)
   initPropSpatial(() => state);
   // When props change (move/place/remove), invalidate the props render layer cache
   const { invalidatePropsRenderLayer, bumpContentVersion } = await import('../../render/index.js');
-  onPropSpatialDirty(() => { invalidatePropsRenderLayer(); bumpContentVersion(); });
+  onPropSpatialDirty(() => {
+    invalidatePropsRenderLayer();
+    bumpContentVersion();
+  });
 
   // ── App version (status bar) ───────────────────────────────────────────
-  fetch('/api/version').then(r => r.json()).then(({ version }) => {
-    state.appVersion = version;
-    const el = document.getElementById('status-version');
-    if (el) el.textContent = `v${version}`;
-  }).catch(() => {});
+  fetch('/api/version')
+    .then((r) => r.json())
+    .then(({ version }) => {
+      state.appVersion = version;
+      const el = document.getElementById('status-version');
+      if (el) el.textContent = `v${version}`;
+    })
+    .catch(() => {});
 
   // ── Update check (toolbar) ────────────────────────────────────────────
-  fetch('/api/check-update').then(r => r.json()).then(({ hasUpdate, latestVersion, url }) => {
-    if (!hasUpdate) return;
-    const el = document.getElementById('btn-update-alert');
-    if (!el) return;
-    el.textContent = `↑ v${latestVersion} available`;
-    (el as HTMLAnchorElement).href = url;
-    el.style.display = 'flex';
-  }).catch(() => {});
+  fetch('/api/check-update')
+    .then((r) => r.json())
+    .then(({ hasUpdate, latestVersion, url }) => {
+      if (!hasUpdate) return;
+      const el = document.getElementById('btn-update-alert');
+      if (!el) return;
+      el.textContent = `↑ v${latestVersion} available`;
+      (el as HTMLAnchorElement).href = url;
+      el.style.display = 'flex';
+    })
+    .catch(() => {});
 
   // ── Editor UI theme (light/dark) ───────────────────────────────────────
   const savedTheme = localStorage.getItem('editor-ui-theme');
@@ -105,7 +139,7 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   // Set initial tool (use restored tool or default)
   if (!restored) state.activeTool = 'room';
   // Migration: if restored tool was removed, default to room
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
   if (!tools[state.activeTool]) state.activeTool = 'room';
   setTool(state.activeTool);
 
@@ -117,7 +151,11 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   const loadingFill = document.getElementById('loading-bar-fill');
   if (loadingBar) loadingBar.classList.add('active');
 
-  const progress: Record<string, { loaded: number; total: number } | null> = { themes: null, props: null, textures: null };
+  const progress: Record<string, { loaded: number; total: number } | null> = {
+    themes: null,
+    props: null,
+    textures: null,
+  };
   const toasted = { themes: false, props: false, textures: false };
   const labels = { themes: 'Themes', props: 'Props', textures: 'Textures' };
   function onAssetProgress(key: string, loaded: number, total: number) {
@@ -128,14 +166,18 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
       showToast(`${(labels as Record<string, string>)[key]} loaded`);
     }
     // Aggregate bar
-    let sumLoaded = 0, sumTotal = 0;
+    let sumLoaded = 0,
+      sumTotal = 0;
     for (const v of Object.values(progress)) {
-      if (v) { sumLoaded += v.loaded; sumTotal += v.total; }
+      if (v) {
+        sumLoaded += v.loaded;
+        sumTotal += v.total;
+      }
     }
     if (loadingFill && sumTotal > 0) {
       loadingFill.style.width = `${Math.round((sumLoaded / sumTotal) * 100)}%`;
     }
-    const allReported = Object.values(progress).every(v => v !== null);
+    const allReported = Object.values(progress).every((v) => v !== null);
     if (allReported && sumLoaded >= sumTotal && sumTotal > 0) {
       setTimeout(() => loadingBar?.classList.remove('active'), 400);
       editorLoadingOverlay?.classList.add('hidden');
@@ -230,7 +272,7 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
     () => ({
       gridSize: state.dungeon.metadata.gridSize,
       numRows: state.dungeon.cells.length,
-      numCols: state.dungeon.cells[0]?.length || 0,
+      numCols: state.dungeon.cells[0]?.length ?? 0,
     }),
     () => canvasView.requestRender(),
   );
@@ -248,9 +290,9 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   });
 
   // Session tool button switching (Doors vs Range)
-  document.querySelectorAll<HTMLElement>('[data-session-tool]').forEach(btn => {
+  document.querySelectorAll<HTMLElement>('[data-session-tool]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll<HTMLElement>('[data-session-tool]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll<HTMLElement>('[data-session-tool]').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
 
       const tool = btn.dataset.sessionTool;
@@ -273,9 +315,9 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   });
 
   // Range shape sub-tool switching
-  document.querySelectorAll<HTMLElement>('[data-range-shape]').forEach(btn => {
+  document.querySelectorAll<HTMLElement>('[data-range-shape]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll<HTMLElement>('[data-range-shape]').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll<HTMLElement>('[data-range-shape]').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       dmRangeTool.setSubTool(btn.dataset.rangeShape!);
     });
@@ -323,48 +365,63 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
   subscribe(() => updateSessionToolsMode(), 'session-tools');
 
   // Load light preset catalog (metadata only, fast)
-  loadLightCatalog().then(catalog => {
-    state.lightCatalog = catalog;
-    // If the light tool activated before the catalog resolved, populate its preset bar now
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    if (state.activeTool === 'light' && tools.light) {
-      (tools.light as LightTool)._syncPresetBar();
-    }
-    notify();
-  }).catch(err => console.warn('Failed to load light catalog:', err));
+  loadLightCatalog()
+    .then((catalog) => {
+      state.lightCatalog = catalog;
+      // If the light tool activated before the catalog resolved, populate its preset bar now
+
+      if (state.activeTool === 'light' && tools.light) {
+        (tools.light as LightTool)._syncPresetBar();
+      }
+      notify();
+    })
+    .catch((err) => console.warn('Failed to load light catalog:', err));
 
   // Load prop catalog (async, doesn't block editor)
-  const propCatalogPromise = loadPropCatalog((loaded, total) => onAssetProgress('props', loaded, total)).then(catalog => {
-    state.propCatalog = catalog;
-    // Invalidate the lighting visibility cache so wall segments are recomputed
-    // with full prop data (props can cast shadows; segments cached before this
-    // point would exclude prop-based walls, causing animated lights to render
-    // without shadows until manually nudged).
-    if (state.dungeon.metadata.lights.length) {
-      invalidateLightmap();
-    }
-    notify();
-    return catalog;
-  }).catch(err => { console.warn('Failed to load prop catalog:', err); return null; });
+  const propCatalogPromise = loadPropCatalog((loaded, total) => onAssetProgress('props', loaded, total))
+    .then((catalog) => {
+      state.propCatalog = catalog;
+      // Invalidate the lighting visibility cache so wall segments are recomputed
+      // with full prop data (props can cast shadows; segments cached before this
+      // point would exclude prop-based walls, causing animated lights to render
+      // without shadows until manually nudged).
+      if (state.dungeon.metadata.lights.length) {
+        invalidateLightmap();
+      }
+      notify();
+      return catalog;
+    })
+    .catch((err) => {
+      console.warn('Failed to load prop catalog:', err);
+      return null;
+    });
 
   // Load texture catalog (metadata only — images load on demand)
-  const textureCatalogPromise = loadTextureCatalog().then(catalog => {
-    state.textureCatalog = catalog;
-    const texContainer = document.getElementById('textures-panel-content');
-    if (texContainer) initTexturesPanel(texContainer);
-    notify();
-    return catalog;
-  }).catch(err => { console.warn('Failed to load texture catalog:', err); return null; });
+  const textureCatalogPromise = loadTextureCatalog()
+    .then((catalog) => {
+      state.textureCatalog = catalog;
+      const texContainer = document.getElementById('textures-panel-content');
+      if (texContainer) initTexturesPanel(texContainer);
+      notify();
+      return catalog;
+    })
+    .catch((err) => {
+      console.warn('Failed to load texture catalog:', err);
+      return null;
+    });
 
   // After both catalogs are ready, pre-load textures for the current map (floor + props)
   void Promise.all([propCatalogPromise, textureCatalogPromise]).then(([propCatalog, textureCatalog]) => {
-    if (!textureCatalog) { onAssetProgress('textures', 1, 1); return; }
+    if (!textureCatalog) {
+      onAssetProgress('textures', 1, 1);
+      return;
+    }
 
     const usedIds = collectTextureIds(state.dungeon.cells);
     if (propCatalog?.props && state.dungeon.metadata.props) {
       for (const op of state.dungeon.metadata.props) {
         const propDef = propCatalog.props[op.type];
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
         if (propDef?.textures) {
           for (const id of propDef.textures) usedIds.add(id);
         }
@@ -373,8 +430,10 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
     // Bridge textures (hardcoded Polyhaven IDs in bridges.js)
     if (state.dungeon.metadata.bridges.length) {
       const bridgeTexIds = {
-        wood: 'polyhaven/weathered_planks', stone: 'polyhaven/stone_wall',
-        rope: 'polyhaven/worn_planks', dock: 'polyhaven/brown_planks_09',
+        wood: 'polyhaven/weathered_planks',
+        stone: 'polyhaven/stone_wall',
+        rope: 'polyhaven/worn_planks',
+        dock: 'polyhaven/brown_planks_09',
       };
       for (const b of state.dungeon.metadata.bridges) {
         const tid = bridgeTexIds[b.type];
@@ -383,8 +442,10 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
     }
 
     if (usedIds.size > 0) {
-      void ensureTexturesLoaded(usedIds, (loaded, total) => onAssetProgress('textures', loaded, total))
-        .then(() => { state.texturesVersion++; notify(); });
+      void ensureTexturesLoaded(usedIds, (loaded, total) => onAssetProgress('textures', loaded, total)).then(() => {
+        state.texturesVersion++;
+        notify();
+      });
     } else {
       onAssetProgress('textures', 1, 1);
     }
@@ -396,9 +457,12 @@ export async function initApp(tools: Record<string, Tool>, setTool: (name: strin
     // Wait for prop catalog so textures load correctly
     void propCatalogPromise.then(() =>
       fetch(`/api/open-file?path=${encodeURIComponent(openParam)}`)
-        .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.json(); })
-        .then(json => loadDungeonJSON(json, { fileName: openParam.split(/[/\\]/).pop() }))
-        .catch(err => console.warn('Auto-load failed:', err))
+        .then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.json();
+        })
+        .then((json) => loadDungeonJSON(json, { fileName: openParam.split(/[/\\]/).pop() }))
+        .catch((err) => console.warn('Auto-load failed:', err)),
     );
   }
 

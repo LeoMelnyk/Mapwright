@@ -76,7 +76,7 @@ export async function startSession(password?: string): Promise<void> {
   const levels = state.dungeon.metadata.levels;
   if (levels.length) {
     state.currentLevel = 0;
-    panToLevel(levels[0].startRow, levels[0].numRows);
+    panToLevel(levels[0]!.startRow, levels[0]!.numRows);
   }
   // Subscribe to viewport changes
   startViewportBroadcast();
@@ -139,7 +139,7 @@ export function renderDmFogOverlay(ctx: CanvasRenderingContext2D, transform: Ren
 
   const cells = state.dungeon.cells;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // Build a single clipping path from all unrevealed cells
   ctx.save();

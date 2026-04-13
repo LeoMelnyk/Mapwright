@@ -138,7 +138,6 @@ function mergeDoorRuns(doors: { row: number; col: number; dir: string; type: str
   const cardinalDoors: DoorEntry[] = [];
   const otherDoors: DoorEntry[] = [];
   for (const d of doors) {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (STEP[d.dir]) cardinalDoors.push(d);
     else otherDoors.push(d);
   }
@@ -146,19 +145,18 @@ function mergeDoorRuns(doors: { row: number; col: number; dir: string; type: str
   // Group by direction + type + fixed coordinate (row for N/S, col for E/W)
   const groups: Record<string, DoorEntry[]> = {};
   for (const door of cardinalDoors) {
-    const [dr] = STEP[door.dir];
+    const [dr] = STEP[door.dir]!;
     const fixedCoord = dr === 0 ? door.row : door.col;
     const key = `${door.dir}:${door.type}:${fixedCoord}`;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    if (!groups[key]) groups[key] = [];
+    groups[key] ??= [];
     groups[key].push(door);
   }
 
   const merged = [];
   for (const key of Object.keys(groups)) {
-    const group = groups[key];
-    const dir = group[0].dir;
-    const [dr] = STEP[dir];
+    const group = groups[key]!;
+    const dir = group[0]!.dir;
+    const [dr] = STEP[dir]!;
 
     // Sort by step coordinate
     group.sort((a, b) => (dr === 0 ? a.col - b.col : a.row - b.row));
@@ -166,22 +164,22 @@ function mergeDoorRuns(doors: { row: number; col: number; dir: string; type: str
     // Find consecutive runs
     let runStart = 0;
     for (let i = 1; i <= group.length; i++) {
-      const prev = group[i - 1];
+      const prev = group[i - 1]!;
       const curr = group[i];
       const prevStep = dr === 0 ? prev.col : prev.row;
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
       const currStep = curr ? (dr === 0 ? curr.col : curr.row) : -999;
 
       if (currStep !== prevStep + 1) {
         const run = group.slice(runStart, i);
         if (run.length === 1) {
-          merged.push(run[0]);
+          merged.push(run[0]!);
         } else {
           merged.push({
-            row: run[0].row,
-            col: run[0].col,
-            dir: run[0].dir,
-            type: run[0].type,
+            row: run[0]!.row,
+            col: run[0]!.col,
+            dir: run[0]!.dir,
+            type: run[0]!.type,
             cells: run.map((d: { row: number; col: number }) => ({ row: d.row, col: d.col })),
           });
         }
@@ -251,8 +249,8 @@ function getDoorMidpoint(
   transform: RenderTransform,
 ) {
   if (door.cells && door.cells.length > 1) {
-    const first = door.cells[0];
-    const last = door.cells[door.cells.length - 1];
+    const first = door.cells[0]!;
+    const last = door.cells[door.cells.length - 1]!;
     const p1 = getSingleDoorMidpoint(first.row, first.col, door.dir, gridSize, transform);
     const p2 = getSingleDoorMidpoint(last.row, last.col, door.dir, gridSize, transform);
     return { x: (p1!.x + p2!.x) / 2, y: (p1!.y + p2!.y) / 2 };
@@ -509,8 +507,8 @@ export function openStairs(stairId: number, partnerId: number): void {
     const partnerShape = classifyStairShape(partner.points[0], partner.points[1], partner.points[2]);
     const partnerCells = getOccupiedCells(partnerShape.vertices);
     if (partnerCells.length > 0) {
-      partnerRow = partnerCells[0].row;
-      allNewCells = revealRoom(partnerRow, partnerCells[0].col);
+      partnerRow = partnerCells[0]!.row;
+      allNewCells = revealRoom(partnerRow, partnerCells[0]!.col);
     }
   }
 
@@ -525,9 +523,9 @@ export function openStairs(stairId: number, partnerId: number): void {
     const levels = state.dungeon.metadata.levels;
     if (levels.length) {
       for (let i = levels.length - 1; i >= 0; i--) {
-        if (partnerRow >= levels[i].startRow) {
+        if (partnerRow >= levels[i]!.startRow) {
           state.currentLevel = i;
-          panToLevel(levels[i].startRow, levels[i].numRows);
+          panToLevel(levels[i]!.startRow, levels[i]!.numRows);
           break;
         }
       }

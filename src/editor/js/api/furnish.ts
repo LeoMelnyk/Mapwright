@@ -76,7 +76,7 @@ function nonDoorApproachCells(roomCells: Set<string>): Set<string> {
       const v = (cell as Record<string, unknown>)[dir];
       if (v === 'd' || v === 's' || v === 'id') {
         blocked.add(key);
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         blocked.add(cellKey(r + dr, c + dc));
       }
     }
@@ -97,13 +97,13 @@ function centroidCell(roomCells: Set<string>): [number, number] {
   }
   const cR = sumR / all.length;
   const cC = sumC / all.length;
-  let best = all[0];
+  let best = all[0]!;
   let bestDist = Infinity;
   for (const [r, c] of all) {
     const d = (r - cR) ** 2 + (c - cC) ** 2;
     if (d < bestDist) {
       bestDist = d;
-      best = [r, c];
+      best = [r, c] as [number, number];
     }
   }
   return best;
@@ -178,7 +178,7 @@ export function proposeFurnishing(
   const bySlot = { wall: [], corner: [], center: [], floor: [], any: [] } as Record<string, PropMeta[]>;
   for (const p of candidates) {
     const slot = (p.placement ?? 'any').toLowerCase();
-    (bySlot[slot] ?? bySlot.any).push(p);
+    (bySlot[slot] ?? bySlot.any!).push(p);
   }
 
   // Track placements to avoid overlap and to enforce light cap
@@ -189,8 +189,8 @@ export function proposeFurnishing(
   let primaryProp: PropMeta | undefined;
   let primaryRow: number | undefined;
   let primaryCol: number | undefined;
-  if (bySlot.center.length) {
-    primaryProp = pickRandom(bySlot.center);
+  if (bySlot.center!.length) {
+    primaryProp = pickRandom(bySlot.center!);
     if (primaryProp) {
       const [pr, pc] = centroidCell(roomCells);
       primaryRow = pr;

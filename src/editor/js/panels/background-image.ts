@@ -48,7 +48,7 @@ function render() {
   uploadBtns.appendChild(uploadBtn);
 
   fileInput.addEventListener('change', () => {
-    const file = fileInput.files![0];
+    const file = fileInput.files![0]!;
     const reader = new FileReader();
     reader.onload = (ev) => {
       const dataUrl = ev.target!.result as string;
@@ -74,7 +74,7 @@ function render() {
         if (r1 <= r2 && c1 <= c2) {
           for (let r = r1; r <= r2; r++) {
             for (let c = c1; c <= c2; c++) {
-              cells[r][c] ??= {};
+              cells[r]![c] ??= {};
             }
           }
           invalidateAllCaches();
@@ -166,7 +166,7 @@ function render() {
     if (r1 <= r2 && c1 <= c2) {
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
-          cells[r][c] ??= {};
+          cells[r]![c] ??= {};
         }
       }
       invalidateAllCaches();
@@ -179,10 +179,21 @@ function render() {
   const scaleRow = numericRow(
     'Scale (px / cell)',
     bi.pixelsPerCell!,
-    1, null, 1,
+    1,
+    null,
+    1,
     'How many pixels in the source image equal one Mapwright grid cell. Adjust until grid lines overlap.',
-    (v: number) => { bi.pixelsPerCell = v; markDirty(); requestRender(); },
-    (v: number) => { pushUndo(); bi.pixelsPerCell = v; markDirty(); notify(); }
+    (v: number) => {
+      bi.pixelsPerCell = v;
+      markDirty();
+      requestRender();
+    },
+    (v: number) => {
+      pushUndo();
+      bi.pixelsPerCell = v;
+      markDirty();
+      notify();
+    },
   );
 
   // ── Measure Cell drag tool ───────────────────────────────────────────────
@@ -242,12 +253,15 @@ function render() {
     const cols = parseInt(colsInput.value, 10);
     const rows = parseInt(rowsInput.value, 10);
     const img = getCachedBgImage(bi.dataUrl);
-    const ppcFromCols = cols > 0 ? img.naturalWidth  / cols : null;
+    const ppcFromCols = cols > 0 ? img.naturalWidth / cols : null;
     const ppcFromRows = rows > 0 ? img.naturalHeight / rows : null;
     if (!ppcFromCols && !ppcFromRows) return;
-    const ppc = Math.max(1, (ppcFromCols && ppcFromRows)
-      ? Math.round((ppcFromCols + ppcFromRows) / 2)
-      : Math.round((ppcFromCols ?? ppcFromRows)!));
+    const ppc = Math.max(
+      1,
+      ppcFromCols && ppcFromRows
+        ? Math.round((ppcFromCols + ppcFromRows) / 2)
+        : Math.round((ppcFromCols ?? ppcFromRows)!),
+    );
     pushUndo();
     bi.pixelsPerCell = ppc;
     recenterAndFill(img, ppc);
@@ -261,23 +275,49 @@ function render() {
   // ── Offsets ─────────────────────────────────────────────────────────────
   container.appendChild(sectionLabel('Position'));
 
-  container.appendChild(numericRow(
-    'Offset X (cells)',
-    parseFloat(bi.offsetX!.toFixed(2)),
-    null, null, 0.01,
-    'Horizontal shift of the image in grid cells. Use to align vertical grid lines.',
-    (v: number) => { bi.offsetX = v; markDirty(); requestRender(); },
-    (v: number) => { pushUndo(); bi.offsetX = v; markDirty(); notify(); }
-  ));
+  container.appendChild(
+    numericRow(
+      'Offset X (cells)',
+      parseFloat(bi.offsetX!.toFixed(2)),
+      null,
+      null,
+      0.01,
+      'Horizontal shift of the image in grid cells. Use to align vertical grid lines.',
+      (v: number) => {
+        bi.offsetX = v;
+        markDirty();
+        requestRender();
+      },
+      (v: number) => {
+        pushUndo();
+        bi.offsetX = v;
+        markDirty();
+        notify();
+      },
+    ),
+  );
 
-  container.appendChild(numericRow(
-    'Offset Y (cells)',
-    parseFloat(bi.offsetY!.toFixed(2)),
-    null, null, 0.01,
-    'Vertical shift of the image in grid cells. Use to align horizontal grid lines.',
-    (v: number) => { bi.offsetY = v; markDirty(); requestRender(); },
-    (v: number) => { pushUndo(); bi.offsetY = v; markDirty(); notify(); }
-  ));
+  container.appendChild(
+    numericRow(
+      'Offset Y (cells)',
+      parseFloat(bi.offsetY!.toFixed(2)),
+      null,
+      null,
+      0.01,
+      'Vertical shift of the image in grid cells. Use to align horizontal grid lines.',
+      (v: number) => {
+        bi.offsetY = v;
+        markDirty();
+        requestRender();
+      },
+      (v: number) => {
+        pushUndo();
+        bi.offsetY = v;
+        markDirty();
+        notify();
+      },
+    ),
+  );
 
   const centerBtn = document.createElement('button');
   centerBtn.className = 'toolbar-btn bg-image-btn-sm';
@@ -330,7 +370,7 @@ function render() {
     pushUndo();
     for (let r = r1; r <= r2; r++) {
       for (let c = c1; c <= c2; c++) {
-        cells[r][c] ??= {};
+        cells[r]![c] ??= {};
       }
     }
     invalidateAllCaches();
@@ -371,12 +411,12 @@ function render() {
           }
           const levels = m.levels;
           if (levels.length > 0) {
-            const last = levels[levels.length - 1];
+            const last = levels[levels.length - 1]!;
             last.numRows = neededRows - last.startRow;
           }
         }
         // Clear all floors, re-center image, re-fill under image
-        for (let r = 0; r < c.length; r++) for (let col = 0; col < c[r].length; col++) c[r][col] = null;
+        for (let r = 0; r < c.length; r++) for (let col = 0; col < c[r]!.length; col++) c[r]![col] = null;
         if (imgEl.complete && imgEl.naturalWidth) recenterAndFill(imgEl, bi.pixelsPerCell!);
         invalidateAllCaches();
         markDirty();
@@ -400,11 +440,11 @@ function render() {
         // Update last level's numRows
         const levels = m.levels;
         if (levels.length > 0) {
-          const last = levels[levels.length - 1];
+          const last = levels[levels.length - 1]!;
           last.numRows = neededRows - last.startRow;
         }
         // Clear all floors, re-center image, re-fill under image
-        for (let r = 0; r < c.length; r++) for (let col = 0; col < c[r].length; col++) c[r][col] = null;
+        for (let r = 0; r < c.length; r++) for (let col = 0; col < c[r]!.length; col++) c[r]![col] = null;
         if (imgEl.complete && imgEl.naturalWidth) recenterAndFill(imgEl, bi.pixelsPerCell!);
         invalidateAllCaches();
         markDirty();
@@ -430,7 +470,7 @@ function render() {
   opacitySlider.min = '0';
   opacitySlider.max = '100';
   opacitySlider.step = '5';
-  opacitySlider.value = String(Math.round((bi.opacity) * 100));
+  opacitySlider.value = String(Math.round(bi.opacity * 100));
 
   const opacityDisplay = el('span', 'bg-image-value');
   opacityDisplay.textContent = `${opacitySlider.value}%`;
@@ -468,7 +508,16 @@ function sectionLabel(text: string) {
   return label;
 }
 
-function numericRow(labelText: string, value: number | string, min: number | null, max: number | null, step: number, title: string, onInput: (v: number) => void, onChange: (v: number) => void) {
+function numericRow(
+  labelText: string,
+  value: number | string,
+  min: number | null,
+  max: number | null,
+  step: number,
+  title: string,
+  onInput: (v: number) => void,
+  onChange: (v: number) => void,
+) {
   const row = el('div', 'bg-image-slider-row');
 
   const labelEl = el('label', 'bg-image-label');
@@ -496,18 +545,25 @@ function numericRow(labelText: string, value: number | string, min: number | nul
       onChange(v);
     }
   });
-  input.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const v = parseFloat(input.value) || 0;
-    const delta = e.deltaY < 0 ? step : -step;
-    const next = parseFloat((v + delta).toFixed(10));
-    if ((min === null || next >= min) && (max === null || next <= max)) {
-      input.value = String(next);
-      onInput(next);
-      clearTimeout((input as unknown as { _wheelTimer: ReturnType<typeof setTimeout> })._wheelTimer);
-      (input as unknown as { _wheelTimer: ReturnType<typeof setTimeout> })._wheelTimer = setTimeout(() => onChange(next), 400);
-    }
-  }, { passive: false });
+  input.addEventListener(
+    'wheel',
+    (e) => {
+      e.preventDefault();
+      const v = parseFloat(input.value) || 0;
+      const delta = e.deltaY < 0 ? step : -step;
+      const next = parseFloat((v + delta).toFixed(10));
+      if ((min === null || next >= min) && (max === null || next <= max)) {
+        input.value = String(next);
+        onInput(next);
+        clearTimeout((input as unknown as { _wheelTimer: ReturnType<typeof setTimeout> })._wheelTimer);
+        (input as unknown as { _wheelTimer: ReturnType<typeof setTimeout> })._wheelTimer = setTimeout(
+          () => onChange(next),
+          400,
+        );
+      }
+    },
+    { passive: false },
+  );
 
   row.appendChild(input);
   return row;
@@ -534,26 +590,26 @@ function _analyzeGrid(img: HTMLImageElement) {
   const gray = new Float32Array(w * h);
   for (let i = 0; i < w * h; i++) {
     const p = i * 4;
-    gray[i] = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2];
+    gray[i] = 0.299 * data[p]! + 0.587 * data[p + 1]! + 0.114 * data[p + 2]!;
   }
   // Row signal: mean |dy| per row — spikes at horizontal grid lines
   const rowSig = new Float32Array(h);
   for (let y = 1; y < h; y++) {
     let s = 0;
-    for (let x = 0; x < w; x++) s += Math.abs(gray[y * w + x] - gray[(y - 1) * w + x]);
+    for (let x = 0; x < w; x++) s += Math.abs(gray[y * w + x]! - gray[(y - 1) * w + x]!);
     rowSig[y] = s / w;
   }
   // Col signal: mean |dx| per col — spikes at vertical grid lines
   const colSig = new Float32Array(w);
   for (let x = 1; x < w; x++) {
     let s = 0;
-    for (let y = 0; y < h; y++) s += Math.abs(gray[y * w + x] - gray[y * w + x - 1]);
+    for (let y = 0; y < h; y++) s += Math.abs(gray[y * w + x]! - gray[y * w + x - 1]!);
     colSig[x] = s / h;
   }
   const rp = _findPeriod(rowSig);
   const cp = _findPeriod(colSig);
   if (!rp && !cp) return null;
-  const avgPeriod = (rp && cp) ? (rp + cp) / 2 : (rp ?? cp)!;
+  const avgPeriod = rp && cp ? (rp + cp) / 2 : (rp ?? cp)!;
   const raw = Math.max(4, Math.round(avgPeriod / scale));
   // For larger grid sizes, snap to the nearest multiple of 5 (e.g. 73 → 75)
   const pixelsPerCell = raw > 50 ? Math.round(raw / 5) * 5 : raw;
@@ -574,12 +630,12 @@ function _findPeriod(signal: Float32Array) {
   const MAX_P = Math.min(Math.floor(n / 3), 400);
   if (MAX_P < MIN_P * 2) return null;
   let mean = 0;
-  for (let i = 0; i < n; i++) mean += signal[i];
+  for (let i = 0; i < n; i++) mean += signal[i]!;
   mean /= n;
   const s = new Float32Array(n);
-  for (let i = 0; i < n; i++) s[i] = signal[i] - mean;
+  for (let i = 0; i < n; i++) s[i] = signal[i]! - mean;
   let var0 = 0;
-  for (let i = 0; i < n; i++) var0 += s[i] * s[i];
+  for (let i = 0; i < n; i++) var0 += s[i]! * s[i]!;
   var0 /= n;
   if (var0 < 1e-10) return null;
   // Normalised autocorrelation — find the lag with the highest correlation
@@ -588,9 +644,12 @@ function _findPeriod(signal: Float32Array) {
   for (let k = MIN_P; k <= MAX_P; k++) {
     const len = n - k;
     let sum = 0;
-    for (let i = 0; i < len; i++) sum += s[i] * s[i + k];
+    for (let i = 0; i < len; i++) sum += s[i]! * s[i + k]!;
     const r = sum / (len * var0);
-    if (r > bestR) { bestR = r; bestK = k; }
+    if (r > bestR) {
+      bestR = r;
+      bestK = k;
+    }
   }
   if (!bestK) return null;
   // Sub-harmonic check: only needed when large-scale image structure (e.g. repeating
@@ -608,7 +667,7 @@ function _findPeriod(signal: Float32Array) {
     if (Math.abs(bestK - div * sub) / sub > 0.15) continue;
     const len = n - sub;
     let sum = 0;
-    for (let i = 0; i < len; i++) sum += s[i] * s[i + sub];
+    for (let i = 0; i < len; i++) sum += s[i]! * s[i + sub]!;
     const r = sum / (len * var0);
     if (r >= 0.35 * bestR) foundSub = sub;
   }
@@ -624,10 +683,14 @@ function _findPeriod(signal: Float32Array) {
 function _findPhase(signal: Float32Array, period: number) {
   const T = Math.max(1, Math.round(period));
   const bucket = new Float32Array(T);
-  for (let i = 0; i < signal.length; i++) bucket[i % T] += signal[i];
-  let maxVal = -Infinity, phase = 0;
+  for (let i = 0; i < signal.length; i++) bucket[i % T]! += signal[i]!;
+  let maxVal = -Infinity,
+    phase = 0;
   for (let p = 0; p < T; p++) {
-    if (bucket[p] > maxVal) { maxVal = bucket[p]; phase = p; }
+    if (bucket[p]! > maxVal) {
+      maxVal = bucket[p]!;
+      phase = p;
+    }
   }
   return phase;
 }
@@ -643,25 +706,26 @@ function _detectPhase(img: HTMLImageElement, ppc: number) {
   const w = Math.round(img.naturalWidth * scale);
   const h = Math.round(img.naturalHeight * scale);
   const cvs = document.createElement('canvas');
-  cvs.width = w; cvs.height = h;
+  cvs.width = w;
+  cvs.height = h;
   const ctx = cvs.getContext('2d', { willReadFrequently: true });
   ctx!.drawImage(img, 0, 0, w, h);
   const { data } = ctx!.getImageData(0, 0, w, h);
   const gray = new Float32Array(w * h);
   for (let i = 0; i < w * h; i++) {
     const p = i * 4;
-    gray[i] = 0.299 * data[p] + 0.587 * data[p + 1] + 0.114 * data[p + 2];
+    gray[i] = 0.299 * data[p]! + 0.587 * data[p + 1]! + 0.114 * data[p + 2]!;
   }
   const rowSig = new Float32Array(h);
   for (let y = 1; y < h; y++) {
     let s = 0;
-    for (let x = 0; x < w; x++) s += Math.abs(gray[y * w + x] - gray[(y - 1) * w + x]);
+    for (let x = 0; x < w; x++) s += Math.abs(gray[y * w + x]! - gray[(y - 1) * w + x]!);
     rowSig[y] = s / w;
   }
   const colSig = new Float32Array(w);
   for (let x = 1; x < w; x++) {
     let s = 0;
-    for (let y = 0; y < h; y++) s += Math.abs(gray[y * w + x] - gray[y * w + x - 1]);
+    for (let y = 0; y < h; y++) s += Math.abs(gray[y * w + x]! - gray[y * w + x - 1]!);
     colSig[x] = s / h;
   }
   const scaledPpc = ppc * scale;

@@ -33,15 +33,15 @@ function buildFromMetadata(entries: Record<string, unknown>[]): LightCatalog {
   for (const data of entries) {
     const key = data.id as string;
 
-    const str = (v: unknown, fallback: string): string => typeof v === 'string' ? v : fallback;
-    const num = (v: unknown, fallback: number): number => typeof v === 'number' ? v : fallback;
+    const str = (v: unknown, fallback: string): string => (typeof v === 'string' ? v : fallback);
+    const num = (v: unknown, fallback: number): number => (typeof v === 'number' ? v : fallback);
 
     const entry: LightPreset = {
       id: key,
       displayName: str(data.displayName, key),
       category: str(data.category, 'Uncategorized'),
       description: str(data.description, ''),
-      type: (data.type === 'directional' ? 'directional' : 'point'),
+      type: data.type === 'directional' ? 'directional' : 'point',
       color: str(data.color, '#ff9944'),
       radius: num(data.radius, 30),
       intensity: num(data.intensity, 1.0),
@@ -52,7 +52,7 @@ function buildFromMetadata(entries: Record<string, unknown>[]): LightCatalog {
       entry.spread = data.spread as number;
     }
     if (data.dimRadius != null) entry.dimRadius = data.dimRadius as number;
-    if (data.z != null)          entry.z = data.z as number;
+    if (data.z != null) entry.z = data.z as number;
     const animData = data.animation as Record<string, unknown> | null;
     if (animData?.type) {
       entry.animation = {
@@ -67,7 +67,7 @@ function buildFromMetadata(entries: Record<string, unknown>[]): LightCatalog {
     names.push(key);
 
     const cat = entry.category;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- byCategory is built dynamically
+
     if (!byCategory[cat]) {
       byCategory[cat] = [];
       categoryOrder.push(cat);
@@ -100,7 +100,9 @@ export async function loadLightCatalog(): Promise<LightCatalog | null> {
           catalog = buildFromMetadata(cached);
           return catalog;
         }
-      } catch { /* cache corrupt, fall through to fresh fetch */ }
+      } catch {
+        /* cache corrupt, fall through to fresh fetch */
+      }
     }
 
     // Fresh fetch — load all .light files
@@ -109,7 +111,7 @@ export async function loadLightCatalog(): Promise<LightCatalog | null> {
         const r = await fetch(`${BASE_URL}${key}.light`, { cache: 'no-cache' });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return { key, data: await r.json() };
-      })
+      }),
     );
 
     const metadataEntries = [];
@@ -139,7 +141,9 @@ export async function loadLightCatalog(): Promise<LightCatalog | null> {
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(metadataEntries));
       localStorage.setItem(CACHE_VER_KEY, version);
-    } catch { /* localStorage full or unavailable — ignore */ }
+    } catch {
+      /* localStorage full or unavailable — ignore */
+    }
 
     catalog = buildFromMetadata(metadataEntries);
   } catch (e) {

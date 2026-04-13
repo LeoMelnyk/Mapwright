@@ -1,7 +1,15 @@
 // Session panel UI: start/stop session, starting room picker, player count, open player view.
 
 import state, { subscribe } from '../state.js';
-import { sessionState, startSession, endSession, setStartingRoom, revealAll, resetFog, toggleDmView } from '../dm-session.js';
+import {
+  sessionState,
+  startSession,
+  endSession,
+  setStartingRoom,
+  revealAll,
+  resetFog,
+  toggleDmView,
+} from '../dm-session.js';
 import { showToast } from '../toast.js';
 import { cellKey } from '../../../util/index.js';
 import { getEditorSettings, setEditorSetting } from '../editor-settings.js';
@@ -15,7 +23,13 @@ let localIP: string | null = null;
  */
 export function initSessionPanel(containerEl: HTMLElement): void {
   container = containerEl;
-  fetch('/api/local-ip').then(r => r.json()).then(d => { localIP = d.ip; render(); }).catch(() => {});
+  fetch('/api/local-ip')
+    .then((r) => r.json())
+    .then((d) => {
+      localIP = d.ip;
+      render();
+    })
+    .catch(() => {});
   render();
   subscribe(() => render(), 'session');
 }
@@ -30,7 +44,15 @@ function render() {
 
   const active = sessionState.active;
   // Skip rebuild if nothing relevant changed and DOM is still populated
-  if (active === _lastSessionActive && state.dungeon.cells === _lastSessionCells && sessionState.playerCount === _lastPlayerCount && sessionState.dmViewActive === _lastDmViewActive && sessionState.dmViewForced === _lastDmViewForced && container.children.length > 0) return;
+  if (
+    active === _lastSessionActive &&
+    state.dungeon.cells === _lastSessionCells &&
+    sessionState.playerCount === _lastPlayerCount &&
+    sessionState.dmViewActive === _lastDmViewActive &&
+    sessionState.dmViewForced === _lastDmViewForced &&
+    container.children.length > 0
+  )
+    return;
   _lastSessionActive = active;
   _lastSessionCells = state.dungeon.cells;
   _lastPlayerCount = sessionState.playerCount;
@@ -49,7 +71,9 @@ function render() {
       ${active ? 'End Session' : 'Start Session'}
     </button>
 
-    ${!active ? `
+    ${
+      !active
+        ? `
       <div class="panel-field session-password-field">
         <label>Player Password <span style="color:var(--text-dim);font-weight:normal;">(optional)</span></label>
         <div class="session-password-row">
@@ -57,7 +81,8 @@ function render() {
           <button class="session-copy-btn session-password-copy" title="Copy password">${copySvg}</button>
         </div>
       </div>
-    ` : `
+    `
+        : `
       <div class="session-info">
         <div class="session-field-row">
           <label>Players</label>
@@ -67,7 +92,7 @@ function render() {
           <label>Starting Room</label>
           <select class="session-room-select">
             <option value="">— pick —</option>
-            ${labels.map(l => `<option value="${l.key}" ${l.key === sessionState.startingRoom ? 'selected' : ''}>${l.label}</option>`).join('')}
+            ${labels.map((l) => `<option value="${l.key}" ${l.key === sessionState.startingRoom ? 'selected' : ''}>${l.label}</option>`).join('')}
           </select>
         </div>
 
@@ -79,7 +104,9 @@ function render() {
             <button class="session-copy-btn" title="Copy player link">${copySvg}</button>
           </div>
         </div>
-        ${savedPassword ? `
+        ${
+          savedPassword
+            ? `
         <div class="session-share-row">
           <label>Password</label>
           <div class="session-link-row" data-url="${savedPassword}">
@@ -87,13 +114,15 @@ function render() {
             <button class="session-copy-btn" title="Copy password">${copySvg}</button>
           </div>
         </div>
-        ` : ''}
+        `
+            : ''
+        }
 
         <div class="session-section-label">Fog of War</div>
         <div class="session-field-row">
           <label>DM View</label>
           <div class="trim-toggle">
-            <button class="toolbar-btn session-dm-view-yes ${(sessionState.dmViewActive || sessionState.dmViewForced) ? 'active' : ''}" ${sessionState.dmViewForced ? 'disabled' : ''}>Yes</button>
+            <button class="toolbar-btn session-dm-view-yes ${sessionState.dmViewActive || sessionState.dmViewForced ? 'active' : ''}" ${sessionState.dmViewForced ? 'disabled' : ''}>Yes</button>
             <button class="toolbar-btn session-dm-view-no ${!(sessionState.dmViewActive || sessionState.dmViewForced) ? 'active' : ''}" ${sessionState.dmViewForced ? 'disabled' : ''}>No</button>
           </div>
         </div>
@@ -109,7 +138,8 @@ function render() {
           Open Player View ↗
         </button>
       </div>
-    `}
+    `
+    }
   `;
 
   // Wire events
@@ -135,7 +165,7 @@ function render() {
   container.querySelector('.session-room-select')?.addEventListener('change', (e) => {
     const key = ((e.target ?? e.currentTarget) as HTMLSelectElement).value;
     if (!key) return;
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     setStartingRoom(r, c);
     showToast('Starting room set — fog revealed');
   });
@@ -161,7 +191,7 @@ function render() {
     if (sessionState.dmViewActive && !sessionState.dmViewForced) toggleDmView();
   });
 
-  container.querySelectorAll('.session-link-row').forEach(row => {
+  container.querySelectorAll('.session-link-row').forEach((row) => {
     const copy = () => {
       const url = (row as HTMLElement).dataset.url;
       if (!url) return;
@@ -180,7 +210,7 @@ function findRoomLabels() {
   const cells = state.dungeon.cells;
   const labels = [];
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[0]?.length || 0); c++) {
+    for (let c = 0; c < (cells[0]?.length ?? 0); c++) {
       const lbl = cells[r]?.[c]?.center?.label;
       if (lbl) labels.push({ label: lbl, key: cellKey(r, c), row: r, col: c });
     }

@@ -49,7 +49,7 @@ export function removeFill(row: number, col: number): { success: true } {
   row = toInt(row);
   col = toInt(col);
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
+  const cell = state.dungeon.cells[row]![col];
   if (!cell?.fill) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate('removeFill', coords, () => {

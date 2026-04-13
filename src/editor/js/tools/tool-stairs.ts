@@ -5,12 +5,7 @@ import state, { mutate } from '../state.js';
 import { accumulateDirtyRect, bumpContentVersion } from '../../../render/index.js';
 import { requestRender, getTransform } from '../canvas-view.js';
 import { toCanvas, nearestCorner } from '../utils.js';
-import {
-  classifyStairShape,
-  isDegenerate,
-  getOccupiedCells,
-  computeHatchLines,
-} from '../stair-geometry.js';
+import { classifyStairShape, isDegenerate, getOccupiedCells, computeHatchLines } from '../stair-geometry.js';
 import { showToast } from '../toast.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -30,7 +25,7 @@ function stairIdAt(row: number, col: number): number | null {
  */
 function findStair(id: number): Stairs | null {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  return (state.dungeon.metadata.stairs || []).find(s => s.id === id) ?? null;
+  return (state.dungeon.metadata.stairs || []).find((s) => s.id === id) ?? null;
 }
 
 /**
@@ -39,7 +34,7 @@ function findStair(id: number): Stairs | null {
 function getNextLinkLabel(): string {
   const used = new Set();
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  for (const stair of (state.dungeon.metadata.stairs || [])) {
+  for (const stair of state.dungeon.metadata.stairs || []) {
     if (stair.link) used.add(stair.link);
   }
   for (let i = 0; i < 26; i++) {
@@ -73,9 +68,10 @@ export class StairsTool extends Tool {
 
   onActivate() {
     this._resetPlacement();
-    state.statusInstruction = state.stairsMode === 'link'
-      ? 'Click a stair to select it · Click another to link · Click a linked stair to unlink · Right-click to delete'
-      : 'Click to place corner 1 of 3';
+    state.statusInstruction =
+      state.stairsMode === 'link'
+        ? 'Click a stair to select it · Click another to link · Click a linked stair to unlink · Right-click to delete'
+        : 'Click to place corner 1 of 3';
   }
 
   onDeactivate() {
@@ -125,16 +121,21 @@ export class StairsTool extends Tool {
     const stairCoords: Array<{ row: number; col: number }> = [];
     const cells = state.dungeon.cells;
     for (let r = 0; r < cells.length; r++) {
-      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
         if ((cells[r]?.[c]?.center?.['stair-id'] as number) === id) {
           stairCoords.push({ row: r, col: c });
         }
       }
     }
 
-    mutate('Remove stairs', stairCoords, () => {
-      this._removeStair(id);
-    }, { invalidate: ['lighting'] });
+    mutate(
+      'Remove stairs',
+      stairCoords,
+      () => {
+        this._removeStair(id);
+      },
+      { invalidate: ['lighting'] },
+    );
     requestRender();
   }
 
@@ -218,12 +219,12 @@ export class StairsTool extends Tool {
 
       // Check for existing stairs and out-of-bounds
       for (const { row, col } of occupied) {
-        if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) {
+        if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) {
           showToast('Stair shape extends out of bounds.', 'warning');
           return;
         }
         if (!cells[row]?.[col]) continue; // void cell — allowed but won't get stair-id
-        const existingId = cells[row][col]?.center?.['stair-id'];
+        const existingId = cells[row][col].center?.['stair-id'];
         if (existingId != null) {
           showToast('Overlaps an existing stair. Remove it first.', 'warning');
           return;
@@ -237,29 +238,42 @@ export class StairsTool extends Tool {
     }
   }
 
-  _commitStair(p1: [number, number], p2: [number, number], p3: [number, number], occupiedCells: { row: number; col: number }[]) {
-    mutate('Place stairs', occupiedCells, () => {
-      const meta = state.dungeon.metadata;
-      const id = meta.nextStairId++;
-      meta.stairs.push({ id, points: [p1, p2, p3], link: null });
+  _commitStair(
+    p1: [number, number],
+    p2: [number, number],
+    p3: [number, number],
+    occupiedCells: { row: number; col: number }[],
+  ) {
+    mutate(
+      'Place stairs',
+      occupiedCells,
+      () => {
+        const meta = state.dungeon.metadata;
+        const id = meta.nextStairId++;
+        meta.stairs.push({ id, points: [p1, p2, p3], link: null });
 
-      const cells = state.dungeon.cells;
-      let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
-      for (const { row, col } of occupiedCells) {
-        if (!cells[row]?.[col]) continue;
-        cells[row][col].center ??= {};
-        cells[row][col].center['stair-id'] = id;
-        if (row < minR) minR = row;
-        if (row > maxR) maxR = row;
-        if (col < minC) minC = col;
-        if (col > maxC) maxC = col;
-      }
+        const cells = state.dungeon.cells;
+        let minR = Infinity,
+          maxR = -Infinity,
+          minC = Infinity,
+          maxC = -Infinity;
+        for (const { row, col } of occupiedCells) {
+          if (!cells[row]?.[col]) continue;
+          cells[row][col].center ??= {};
+          cells[row][col].center['stair-id'] = id;
+          if (row < minR) minR = row;
+          if (row > maxR) maxR = row;
+          if (col < minC) minC = col;
+          if (col > maxC) maxC = col;
+        }
 
-      if (minR <= maxR) {
-        accumulateDirtyRect(minR, minC, maxR, maxC);
-        bumpContentVersion();
-      }
-    }, { invalidate: ['lighting'] });
+        if (minR <= maxR) {
+          accumulateDirtyRect(minR, minC, maxR, maxC);
+          bumpContentVersion();
+        }
+      },
+      { invalidate: ['lighting'] },
+    );
     requestRender();
   }
 
@@ -267,13 +281,13 @@ export class StairsTool extends Tool {
     const meta = state.dungeon.metadata;
     const stairs = meta.stairs;
 
-    const idx = stairs.findIndex(s => s.id === id);
+    const idx = stairs.findIndex((s) => s.id === id);
     if (idx === -1) return;
-    const stairDef = stairs[idx];
+    const stairDef = stairs[idx]!;
 
     // Unlink partner if linked
     if (stairDef.link) {
-      const partner = stairs.find(s => s.link === stairDef.link && s.id !== id);
+      const partner = stairs.find((s) => s.link === stairDef.link && s.id !== id);
       if (partner) partner.link = null;
     }
 
@@ -282,12 +296,15 @@ export class StairsTool extends Tool {
 
     // Clear cell references and track dirty region
     const cells = state.dungeon.cells;
-    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    let minR = Infinity,
+      maxR = -Infinity,
+      minC = Infinity,
+      maxC = -Infinity;
     for (let r = 0; r < cells.length; r++) {
-      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
         if ((cells[r]?.[c]?.center?.['stair-id'] as number) === id) {
-          delete cells[r][c]!.center!['stair-id'];
-          if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
+          delete cells[r]![c]!.center!['stair-id'];
+          if (Object.keys(cells[r]![c]!.center!).length === 0) delete cells[r]![c]!.center;
           if (r < minR) minR = r;
           if (r > maxR) maxR = r;
           if (c < minC) minC = c;
@@ -319,14 +336,17 @@ export class StairsTool extends Tool {
     if (state.linkSource == null) {
       // If already linked, clicking it unlinks
       if (stairDef.link) {
-        mutate('Unlink stairs', [], () => {
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          const partner = (state.dungeon.metadata.stairs || []).find(
-            s => s.link === stairDef.link && s.id !== id
-          );
-          if (partner) partner.link = null;
-          stairDef.link = null;
-        }, { metaOnly: true, invalidate: ['lighting'] });
+        mutate(
+          'Unlink stairs',
+          [],
+          () => {
+            // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            const partner = (state.dungeon.metadata.stairs || []).find((s) => s.link === stairDef.link && s.id !== id);
+            if (partner) partner.link = null;
+            stairDef.link = null;
+          },
+          { metaOnly: true, invalidate: ['lighting'] },
+        );
         requestRender();
         return;
       }
@@ -343,25 +363,30 @@ export class StairsTool extends Tool {
     }
 
     // Second click — link the two stairs
-    mutate('Link stairs', [], () => {
-      const label = getNextLinkLabel();
-      const stairs = state.dungeon.metadata.stairs;
-      const src = stairs.find(s => s.id === state.linkSource);
-      const tgt = stairDef;
+    mutate(
+      'Link stairs',
+      [],
+      () => {
+        const label = getNextLinkLabel();
+        const stairs = state.dungeon.metadata.stairs;
+        const src = stairs.find((s) => s.id === state.linkSource);
+        const tgt = stairDef;
 
-      // Remove old links if any
-      if (src?.link) {
-        const oldPartner = stairs.find(s => s.link === src.link && s.id !== src.id);
-        if (oldPartner) oldPartner.link = null;
-      }
-      if (tgt.link) {
-        const oldPartner = stairs.find(s => s.link === tgt.link && s.id !== tgt.id);
-        if (oldPartner) oldPartner.link = null;
-      }
+        // Remove old links if any
+        if (src?.link) {
+          const oldPartner = stairs.find((s) => s.link === src.link && s.id !== src.id);
+          if (oldPartner) oldPartner.link = null;
+        }
+        if (tgt.link) {
+          const oldPartner = stairs.find((s) => s.link === tgt.link && s.id !== tgt.id);
+          if (oldPartner) oldPartner.link = null;
+        }
 
-      if (src) src.link = label;
-      tgt.link = label;
-    }, { metaOnly: true, invalidate: ['lighting'] });
+        if (src) src.link = label;
+        tgt.link = label;
+      },
+      { metaOnly: true, invalidate: ['lighting'] },
+    );
 
     state.linkSource = null;
     requestRender();
@@ -392,7 +417,7 @@ export class StairsTool extends Tool {
         ctx.setLineDash([4, 3]);
         ctx.beginPath();
         for (let i = 0; i < shape.vertices.length; i++) {
-          const v = shape.vertices[i];
+          const v = shape.vertices[i]!;
           const p = toCanvas(v[1] * gridSize, v[0] * gridSize, transform);
           if (i === 0) ctx.moveTo(p.x, p.y);
           else ctx.lineTo(p.x, p.y);
@@ -450,15 +475,22 @@ export class StairsTool extends Tool {
 
       // Preview shape to hover corner
       if (hc) {
-        const p3 = [hc.row, hc.col];
+        const p3: [number, number] = [hc.row, hc.col];
         if (!isDegenerate(this._p1, this._p2, p3)) {
-          this._drawPreview(ctx, transform, gridSize, this._p1, this._p2, p3 as [number, number]);
+          this._drawPreview(ctx, transform, gridSize, this._p1, this._p2, p3);
         }
       }
     }
   }
 
-  _drawPreview(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, p1: [number, number], p2: [number, number], p3: [number, number]) {
+  _drawPreview(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    p1: [number, number],
+    p2: [number, number],
+    p3: [number, number],
+  ) {
     const shape = classifyStairShape(p1, p2, p3);
 
     // Draw polygon outline
@@ -467,7 +499,7 @@ export class StairsTool extends Tool {
     ctx.setLineDash([4, 3]);
     ctx.beginPath();
     for (let i = 0; i < shape.vertices.length; i++) {
-      const v = shape.vertices[i];
+      const v = shape.vertices[i]!;
       const p = toCanvas(v[1] * gridSize, v[0] * gridSize, transform);
       if (i === 0) ctx.moveTo(p.x, p.y);
       else ctx.lineTo(p.x, p.y);

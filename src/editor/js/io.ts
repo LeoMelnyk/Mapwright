@@ -95,7 +95,7 @@ export function loadDungeonJSON(
   if (state.propCatalog?.props && json.metadata.props) {
     for (const op of json.metadata.props) {
       const propDef = state.propCatalog.props[op.type];
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
       if (propDef?.textures) {
         for (const id of propDef.textures) usedIds.add(id);
       }
@@ -280,6 +280,7 @@ export async function loadDungeon(): Promise<void> {
         types: [{ description: 'Mapwright Dungeon', accept: { 'application/json': ['.mapwright', '.json'] } }],
         multiple: false,
       });
+      if (!handle) return;
       const file = await handle.getFile();
       const text = await file.text();
       const json = JSON.parse(text);
@@ -301,6 +302,7 @@ export async function loadDungeon(): Promise<void> {
   input.accept = '.mapwright,.json';
   input.onchange = (e) => {
     const file = ((e.target ?? e.currentTarget) as HTMLInputElement).files![0];
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
@@ -329,7 +331,7 @@ export async function saveDungeon(): Promise<void> {
 
   // Embed user theme data for cross-machine portability
   const _saveTheme = state.dungeon.metadata.theme;
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
   if (typeof _saveTheme === 'string' && _saveTheme.startsWith('user:') && THEMES[_saveTheme]) {
     const themeObj = THEMES[_saveTheme];
     state.dungeon.metadata.savedThemeData = {
@@ -629,7 +631,7 @@ export async function reloadAssets(): Promise<void> {
   if (propCatalog?.props && state.dungeon.metadata.props) {
     for (const op of state.dungeon.metadata.props) {
       const propDef = propCatalog.props[op.type];
-      for (const id of propDef.textures) usedIds.add(id);
+      if (propDef) for (const id of propDef.textures) usedIds.add(id);
     }
   }
   if (usedIds.size > 0) {

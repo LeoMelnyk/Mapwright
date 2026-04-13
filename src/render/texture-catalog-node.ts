@@ -39,14 +39,15 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
   } catch (manifestErr) {
     try {
       const polyDir = join(TEXTURES_DIR, 'polyhaven');
-      manifest = fs.readdirSync(polyDir)
-        .filter(f => f.endsWith('.texture'))
-        .map(f => `polyhaven/${basename(f, '.texture')}`)
+      manifest = fs
+        .readdirSync(polyDir)
+        .filter((f) => f.endsWith('.texture'))
+        .map((f) => `polyhaven/${basename(f, '.texture')}`)
         .sort();
     } catch (scanErr) {
       console.warn(
         `[textures] No texture catalog found at ${TEXTURES_DIR} — textures will not render. ` +
-        `manifest.json error: ${(manifestErr as Error).message}; scan error: ${(scanErr as Error).message}`,
+          `manifest.json error: ${(manifestErr as Error).message}; scan error: ${(scanErr as Error).message}`,
       );
       catalogCache = { names: [], textures: {} };
       return catalogCache;
@@ -68,7 +69,9 @@ export function loadTextureCatalogMetadata(): { names: string[]; textures: Recor
         img: null,
         dispImg: null,
       };
-    } catch (e) { console.warn(`[textures] Failed to load ${id}.texture: ${(e as Error).message}`); }
+    } catch (e) {
+      console.warn(`[textures] Failed to load ${id}.texture: ${(e as Error).message}`);
+    }
   }
 
   catalogCache = { names: manifest, textures: textures as Record<string, Record<string, unknown>> };
@@ -108,7 +111,11 @@ function collectTextureIds(cells: CellGrid): Set<string> {
  * Also loads textures referenced by props.
  * Images are cached — subsequent calls for the same textures are instant.
  */
-export async function ensureTexturesForConfig(catalog: TextureCatalog | null, config: { metadata: Metadata; cells: CellGrid }, propCatalog: PropCatalog | null): Promise<void> {
+export async function ensureTexturesForConfig(
+  catalog: TextureCatalog | null,
+  config: { metadata: Metadata; cells: CellGrid },
+  propCatalog: PropCatalog | null,
+): Promise<void> {
   const ids = collectTextureIds(config.cells);
 
   // Include bridge textures (canonical IDs in render/constants.ts)
@@ -124,7 +131,7 @@ export async function ensureTexturesForConfig(catalog: TextureCatalog | null, co
   if (propCatalog?.props && config.metadata.props) {
     for (const op of config.metadata.props) {
       const propDef = propCatalog.props[op.type];
-      for (const id of propDef.textures) ids.add(id);
+      if (propDef) for (const id of propDef.textures) ids.add(id);
     }
   }
 
@@ -141,8 +148,13 @@ export async function ensureTexturesForConfig(catalog: TextureCatalog | null, co
       } else {
         promises.push(
           loadImage(filePath)
-            .then(img => { entry.img = img as unknown as HTMLImageElement; imageCache.set(filePath, img); })
-            .catch((e: Error) => { console.warn(`[textures] Failed to load diffuse for ${id}: ${e.message}`); })
+            .then((img) => {
+              entry.img = img as unknown as HTMLImageElement;
+              imageCache.set(filePath, img);
+            })
+            .catch((e: Error) => {
+              console.warn(`[textures] Failed to load diffuse for ${id}: ${e.message}`);
+            }),
         );
       }
     }
@@ -156,8 +168,13 @@ export async function ensureTexturesForConfig(catalog: TextureCatalog | null, co
       } else {
         promises.push(
           loadImage(filePath)
-            .then(img => { entry.dispImg = img as unknown as HTMLImageElement; imageCache.set(filePath, img); })
-            .catch(() => { /* displacement maps are optional */ })
+            .then((img) => {
+              entry.dispImg = img as unknown as HTMLImageElement;
+              imageCache.set(filePath, img);
+            })
+            .catch(() => {
+              /* displacement maps are optional */
+            }),
         );
       }
     }

@@ -99,10 +99,10 @@ export function placeProp(
   // Validate all cells in span
   const warnings = [];
   const cells = state.dungeon.cells;
-  for (let r = row; r < row + span[0]; r++) {
-    for (let c = col; c < col + span[1]; c++) {
+  for (let r = row; r < row + span[0]!; r++) {
+    for (let c = col; c < col + span[1]!; c++) {
       validateBounds(r, c);
-      if (cells[r][c] === null)
+      if (cells[r]![c] === null)
         throw new ApiValidationError('CELL_VOID', `Cell (${r}, ${c}) is void — cannot place prop`, { row: r, col: c });
       // O(1) spatial hash check for overlap
       const covered = lookupPropAt(r, c);
@@ -501,7 +501,7 @@ export function fillWallWithProps(
 
   let i = 0;
   while (i < wallCells.length) {
-    const [wr, wc] = wallCells[i];
+    const [wr, wc] = wallCells[i]!;
 
     if (skipDoors) {
       const cell = cells[wr]?.[wc];
@@ -697,7 +697,7 @@ export function scatterProps(
   // Fisher-Yates shuffle
   for (let i = positions.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [positions[i], positions[j]] = [positions[j], positions[i]];
+    [positions[i], positions[j]] = [positions[j]!, positions[i]!];
   }
 
   for (const [r, c] of positions) {
@@ -830,7 +830,7 @@ export function bringForward(propId: string): { success: true; zIndex: number } 
       'Bring prop forward',
       [],
       () => {
-        const nextZ = sorted[idx + 1].zIndex;
+        const nextZ = sorted[idx + 1]!.zIndex;
         prop.zIndex = nextZ === prop.zIndex ? prop.zIndex + 1 : nextZ;
       },
       { metaOnly: true, invalidate: ['props'] },
@@ -855,7 +855,7 @@ export function sendBackward(propId: string): { success: true; zIndex: number } 
       'Send prop backward',
       [],
       () => {
-        const prevZ = sorted[idx - 1].zIndex;
+        const prevZ = sorted[idx - 1]!.zIndex;
         prop.zIndex = prevZ === prop.zIndex ? Math.max(0, prop.zIndex - 1) : prevZ;
       },
       { metaOnly: true, invalidate: ['props'] },

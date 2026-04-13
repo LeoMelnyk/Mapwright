@@ -1,13 +1,39 @@
 // Canvas rendering pipeline + overlay drawing helpers.
 import type { CellGrid, Metadata, RenderTransform, TextureOptions, Theme } from '../../types.js';
 import state, { getTheme, markDirty, notifyTimings } from './state.js';
-import { renderCells, renderLabels, drawBorderOnMap, drawScaleIndicatorOnMap, findCompassRosePositionOnMap, drawCompassRoseScaled, renderLightmap, renderCoverageHeatmap, extractFillLights, flushRenderWarnings, renderTimings, bumpTimingFrame, getContentVersion, getLightingVersion, getDirtyRegion, consumeDirtyRegion } from '../../render/index.js';
+import {
+  renderCells,
+  renderLabels,
+  drawBorderOnMap,
+  drawScaleIndicatorOnMap,
+  findCompassRosePositionOnMap,
+  drawCompassRoseScaled,
+  renderLightmap,
+  renderCoverageHeatmap,
+  extractFillLights,
+  flushRenderWarnings,
+  renderTimings,
+  bumpTimingFrame,
+  getContentVersion,
+  getLightingVersion,
+  getDirtyRegion,
+  consumeDirtyRegion,
+} from '../../render/index.js';
 import { showToast } from './toast.js';
 import { toCanvas } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
 import { updateMinimap } from './minimap.js';
 import { getEditorSettings } from './editor-settings.js';
-import { cvState, CELL_SIZE, ANIM_INTERVAL_MS, getMapCache, getCachedBgImage, _shownWarnings, fpsState, rafProbe } from './canvas-view-state.js';
+import {
+  cvState,
+  CELL_SIZE,
+  ANIM_INTERVAL_MS,
+  getMapCache,
+  getCachedBgImage,
+  _shownWarnings,
+  fpsState,
+  rafProbe,
+} from './canvas-view-state.js';
 
 /**
  * Schedule a canvas repaint on the next animation frame.
@@ -43,7 +69,7 @@ export function resizeCanvas(): void {
  */
 export function getTransform(): RenderTransform {
   const { gridSize, resolution } = state.dungeon.metadata;
-  const scale = CELL_SIZE * state.zoom / _dgs(gridSize, resolution); // pixels per foot
+  const scale = (CELL_SIZE * state.zoom) / _dgs(gridSize, resolution); // pixels per foot
   return {
     offsetX: state.panX,
     offsetY: state.panY,
@@ -71,7 +97,7 @@ export function render(): void {
   if (!theme) return; // Theme catalog not loaded yet
   const transform = getTransform();
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // Clear canvas (physical pixel dimensions)
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -84,7 +110,10 @@ export function render(): void {
   ctx.fillRect(0, 0, cvState._canvasW, cvState._canvasH);
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const _skip = (typeof window !== 'undefined' && (window as unknown as Record<string, unknown>)._skipPhases as Record<string, boolean>) || {};
+  const _skip =
+    (typeof window !== 'undefined' &&
+      ((window as unknown as Record<string, unknown>)._skipPhases as Record<string, boolean>)) ||
+    {};
 
   // Debug: skip ALL rendering (just background fill) to test compositor behavior
   if (_skip.all) {
@@ -93,17 +122,26 @@ export function render(): void {
     // still draw diagnostics below
     fpsState._fpsFrames++;
     const now = performance.now();
-    if (now - fpsState._fpsLastTime >= 1000) { fpsState._fpsValue = fpsState._fpsFrames; fpsState._fpsFrames = 0; fpsState._fpsLastTime = now; }
+    if (now - fpsState._fpsLastTime >= 1000) {
+      fpsState._fpsValue = fpsState._fpsFrames;
+      fpsState._fpsFrames = 0;
+      fpsState._fpsLastTime = now;
+    }
     const editorSettings = getEditorSettings();
     if (editorSettings.fpsCounter === true) {
-      const lines = [{ text: `Draw: ${cvState.lastDrawMs.toFixed(1)}ms | ${fpsState._fpsValue} fps | gap: ${fpsState._frameGapMs.toFixed(0)}ms | rAF: ${rafProbe._rafProbeHz}Hz`, color: '#4f4' },
-        { text: 'SKIP ALL — compositor test', color: '#f84' }];
+      const lines = [
+        {
+          text: `Draw: ${cvState.lastDrawMs.toFixed(1)}ms | ${fpsState._fpsValue} fps | gap: ${fpsState._frameGapMs.toFixed(0)}ms | rAF: ${rafProbe._rafProbeHz}Hz`,
+          color: '#4f4',
+        },
+        { text: 'SKIP ALL — compositor test', color: '#f84' },
+      ];
       ctx.font = '13px monospace';
       for (let i = 0; i < lines.length; i++) {
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        ctx.fillRect(4, 4 + i * 17, ctx.measureText(lines[i].text).width + 8, 16);
-        ctx.fillStyle = lines[i].color;
-        ctx.fillText(lines[i].text, 8, 16 + i * 17);
+        ctx.fillRect(4, 4 + i * 17, ctx.measureText(lines[i]!.text).width + 8, 16);
+        ctx.fillStyle = lines[i]!.color;
+        ctx.fillText(lines[i]!.text, 8, 16 + i * 17);
       }
     }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -115,8 +153,12 @@ export function render(): void {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const labelStyle = metadata.labelStyle || 'circled';
   const textureOptions = state.textureCatalog
-    ? { catalog: state.textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35, texturesVersion: state.texturesVersion}
-    : { catalog: null, blendWidth: 0, texturesVersion: state.texturesVersion};
+    ? {
+        catalog: state.textureCatalog,
+        blendWidth: theme.textureBlendWidth ?? 0.35,
+        texturesVersion: state.texturesVersion,
+      }
+    : { catalog: null, blendWidth: 0, texturesVersion: state.texturesVersion };
   const lightingEnabled = metadata.lightingEnabled;
   const showInvisible = state.activeTool === 'wall' || state.activeTool === 'door';
   const bgImgConfig = metadata.backgroundImage ?? null;
@@ -133,7 +175,7 @@ export function render(): void {
 
   const animClock = state.animClock;
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const hasAnimLights = lightingEnabled && (metadata.lights || []).some(l => l.animation?.type);
+  const hasAnimLights = lightingEnabled && (metadata.lights || []).some((l) => l.animation?.type);
 
   if (useCache) {
     const _cacheStart = performance.now();
@@ -141,14 +183,17 @@ export function render(): void {
       contentVersion: getContentVersion(),
       lightingVersion: getLightingVersion(),
       texturesVersion: state.texturesVersion,
-      cells, gridSize, theme,
+      cells,
+      gridSize,
+      theme,
       showGrid: showGrid && !_skip.grid,
       labelStyle,
       propCatalog: state.propCatalog,
       textureOptions: textureOptions as TextureOptions | null,
       metadata,
       showInvisible,
-      bgImageEl, bgImgConfig: bgImgConfig as Record<string, string | number | boolean> | null,
+      bgImageEl,
+      bgImgConfig: bgImgConfig as Record<string, string | number | boolean> | null,
       lightingEnabled,
       hasAnimLights,
       lights: metadata.lights,
@@ -158,8 +203,11 @@ export function render(): void {
       ambientColor: metadata.ambientColor ?? '#ffffff',
       textureCatalog: state.textureCatalog,
       dirtyRegion: getDirtyRegion(),
-      preRenderHook: _skip.dots ? null : (offCtx: CanvasRenderingContext2D, t: RenderTransform) => drawEditorDots(offCtx, numRows, numCols, gridSize, theme, t),
-      skipPhases: Object.keys(_skip).some(k => _skip[k] && k !== 'all') ? _skip : null,
+      preRenderHook: _skip.dots
+        ? null
+        : (offCtx: CanvasRenderingContext2D, t: RenderTransform) =>
+            drawEditorDots(offCtx, numRows, numCols, gridSize, theme, t),
+      skipPhases: Object.keys(_skip).some((k) => _skip[k] && k !== 'all') ? _skip : null,
       skipLabels: lightingEnabled || _skip.labels,
     });
 
@@ -182,28 +230,38 @@ export function render(): void {
       if (composite) {
         const fillLights = extractFillLights(cells, gridSize, theme);
         const allLights = fillLights.length
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          ? [...(metadata.lights || []), ...fillLights]
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          : (metadata.lights || []);
+          ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            [...(metadata.lights || []), ...fillLights]
+          : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+            metadata.lights || [];
         const LIGHT_PX_PER_FOOT = (getEditorSettings().lightQuality as number) || 10;
         const sx = transform.scale / MAP_PX_PER_FOOT;
         const mapScreenW = composite.cacheW * sx;
         const mapScreenH = composite.cacheH * sx;
-        renderLightmap(ctx, allLights, cells, gridSize,
+        renderLightmap(
+          ctx,
+          allLights,
+          cells,
+          gridSize,
           { scale: transform.scale, offsetX: 0, offsetY: 0 },
-          Math.ceil(mapScreenW), Math.ceil(mapScreenH), metadata.ambientLight,
-          state.textureCatalog, state.propCatalog,
+          Math.ceil(mapScreenW),
+          Math.ceil(mapScreenH),
+          metadata.ambientLight,
+          state.textureCatalog,
+          state.propCatalog,
           {
-            ambientColor: metadata.ambientColor ?? '#ffffff', time: animClock,
+            ambientColor: metadata.ambientColor ?? '#ffffff',
+            time: animClock,
             lightPxPerFoot: LIGHT_PX_PER_FOOT,
-            destX: transform.offsetX, destY: transform.offsetY,
-            destW: mapScreenW, destH: mapScreenH,
+            destX: transform.offsetX,
+            destY: transform.offsetY,
+            destW: mapScreenW,
+            destH: mapScreenH,
           },
-          metadata);
+          metadata,
+        );
       }
     }
-
   } else {
     // Fallback: direct render (huge maps or skip mode)
     const _dotsStart = performance.now();
@@ -212,33 +270,52 @@ export function render(): void {
 
     const cellPxSize = gridSize * transform.scale;
     const CULL_MARGIN = 2;
-    const visibleBounds = cellPxSize > 0 ? {
-      minRow: Math.max(0, Math.floor(-transform.offsetY / cellPxSize) - CULL_MARGIN),
-      maxRow: Math.min(numRows - 1, Math.ceil((canvas.height - transform.offsetY) / cellPxSize) + CULL_MARGIN),
-      minCol: Math.max(0, Math.floor(-transform.offsetX / cellPxSize) - CULL_MARGIN),
-      maxCol: Math.min(numCols - 1, Math.ceil((canvas.width - transform.offsetX) / cellPxSize) + CULL_MARGIN),
-    } : null;
+    const visibleBounds =
+      cellPxSize > 0
+        ? {
+            minRow: Math.max(0, Math.floor(-transform.offsetY / cellPxSize) - CULL_MARGIN),
+            maxRow: Math.min(numRows - 1, Math.ceil((canvas.height - transform.offsetY) / cellPxSize) + CULL_MARGIN),
+            minCol: Math.max(0, Math.floor(-transform.offsetX / cellPxSize) - CULL_MARGIN),
+            maxCol: Math.min(numCols - 1, Math.ceil((canvas.width - transform.offsetX) / cellPxSize) + CULL_MARGIN),
+          }
+        : null;
 
-    if (!_skip.cells) renderCells(ctx, cells, gridSize, theme, transform, {
-      showGrid: showGrid && !_skip.grid, labelStyle, propCatalog: _skip.props ? null : state.propCatalog, textureOptions: (_skip.textures ? null : textureOptions) as TextureOptions | null, metadata,
-      skipLabels: lightingEnabled || _skip.labels, showInvisible,
-      bgImageEl, bgImgConfig,
-      visibleBounds,
-    });
+    if (!_skip.cells)
+      renderCells(ctx, cells, gridSize, theme, transform, {
+        showGrid: showGrid && !_skip.grid,
+        labelStyle,
+        propCatalog: _skip.props ? null : state.propCatalog,
+        textureOptions: (_skip.textures ? null : textureOptions) as TextureOptions | null,
+        metadata,
+        skipLabels: lightingEnabled || _skip.labels,
+        showInvisible,
+        bgImageEl,
+        bgImgConfig,
+        visibleBounds,
+      });
 
     if (lightingEnabled && !_skip.lighting) {
       const _lightStart = performance.now();
       const fillLights = extractFillLights(cells, gridSize, theme);
       const allLights = fillLights.length
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        ? [...(metadata.lights || []), ...fillLights]
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        : (metadata.lights || []);
-      renderLightmap(ctx, allLights, cells, gridSize, transform,
-        cvState._canvasW, cvState._canvasH, metadata.ambientLight,
-        state.textureCatalog, state.propCatalog,
-        { ambientColor: metadata.ambientColor ?? '#ffffff', time: state.animClock},
-        metadata);
+        ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          [...(metadata.lights || []), ...fillLights]
+        : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          metadata.lights || [];
+      renderLightmap(
+        ctx,
+        allLights,
+        cells,
+        gridSize,
+        transform,
+        cvState._canvasW,
+        cvState._canvasH,
+        metadata.ambientLight,
+        state.textureCatalog,
+        state.propCatalog,
+        { ambientColor: metadata.ambientColor ?? '#ffffff', time: state.animClock },
+        metadata,
+      );
       renderTimings.lighting = { ms: performance.now() - _lightStart, frame: _currentFrame };
       renderLabels(ctx, cells, gridSize, theme, transform, labelStyle);
     }
@@ -247,7 +324,7 @@ export function render(): void {
   // Auto-manage animation loop based on animated lights
   if (lightingEnabled) {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    const hasAnimLightsLocal = (metadata.lights || []).some(l => l.animation?.type);
+    const hasAnimLightsLocal = (metadata.lights || []).some((l) => l.animation?.type);
     if (hasAnimLightsLocal && !cvState.animLoopId) {
       cvState.animLoopId = setTimeout(_tickAnimLoopRef, ANIM_INTERVAL_MS);
     } else if (!hasAnimLightsLocal && cvState.animLoopId) {
@@ -300,7 +377,7 @@ export function render(): void {
     ctx.save();
     for (const prop of metadata.props) {
       const propDef = state.propCatalog.props[prop.type];
-      if (!propDef.hitbox) continue;
+      if (!propDef?.hitbox) continue;
       const rotation = prop.rotation;
       const scl = prop.scale;
       const flipped = prop.flipped;
@@ -309,16 +386,19 @@ export function render(): void {
 
       function hitboxToScreen(points: number[][]) {
         return points.map(([hx, hy]: number[]) => {
-          let px = flipped ? fCols - hx : hx;
-          let py = hy;
+          let px = flipped ? fCols - hx! : hx!;
+          let py = hy!;
           // Rotate around footprint center using general rotation math
           // Note: prop rotation is CCW in the data model (negative ctx.rotate),
           // so negate the angle to match visual rendering
-          const cx = fCols / 2, cy = fRows / 2;
+          const cx = fCols / 2,
+            cy = fRows / 2;
           if (r !== 0) {
             const rad = (-rotation * Math.PI) / 180;
-            const cosA = Math.cos(rad), sinA = Math.sin(rad);
-            const dx = px - cx, dy = py - cy;
+            const cosA = Math.cos(rad),
+              sinA = Math.sin(rad);
+            const dx = px - cx,
+              dy = py - cy;
             px = cx + dx * cosA - dy * sinA;
             py = cy + dx * sinA + dy * cosA;
           }
@@ -338,8 +418,8 @@ export function render(): void {
         ctx!.setLineDash([4, 3]);
         ctx!.beginPath();
         for (let i = 0; i < screenPts.length; i++) {
-          if (i === 0) ctx!.moveTo(screenPts[i].x, screenPts[i].y);
-          else ctx!.lineTo(screenPts[i].x, screenPts[i].y);
+          if (i === 0) ctx!.moveTo(screenPts[i]!.x, screenPts[i]!.y);
+          else ctx!.lineTo(screenPts[i]!.x, screenPts[i]!.y);
         }
         ctx!.closePath();
         ctx!.stroke();
@@ -367,7 +447,7 @@ export function render(): void {
     const sy = dy >= 0 ? y0 : y0 - size;
     const bi = state.dungeon.metadata.backgroundImage;
     const cellPx = gridSize * transform.scale;
-    const computed = Math.round(size * (bi?.pixelsPerCell ?? 70) / cellPx);
+    const computed = Math.round((size * (bi?.pixelsPerCell ?? 70)) / cellPx);
     ctx.save();
     ctx.strokeStyle = '#00d4ff';
     ctx.lineWidth = 2;
@@ -436,7 +516,10 @@ export function render(): void {
       lines.push({ text: '── Map ──', color: '#666' });
       const cellCount = numRows * numCols;
       const displayCells = res > 1 ? `${numRows / res}x${numCols / res} display` : '';
-      lines.push({ text: `Grid: ${numRows}x${numCols}${res > 1 ? ` (res=${res}, ${displayCells})` : ''}`, color: '#aaf' });
+      lines.push({
+        text: `Grid: ${numRows}x${numCols}${res > 1 ? ` (res=${res}, ${displayCells})` : ''}`,
+        color: '#aaf',
+      });
       const propCount = metadata.props?.length ?? 0;
       const lightCount = metadata.lights.length || 0;
       lines.push({ text: `Props: ${propCount} | Lights: ${lightCount} | Cells: ${cellCount}`, color: '#aaa' });
@@ -446,12 +529,12 @@ export function render(): void {
       const _rt = (key: string) => {
         const t = renderTimings[key];
         if (typeof t === 'number') return { ms: t, stale: true }; // legacy format
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- renderTimings keys may not exist at runtime
+
         if (!t) return { ms: 0, stale: true };
         return { ms: t.ms, stale: t.frame !== _tf };
       };
       const _fmt = (ms: number, stale: boolean) => `${ms.toFixed(1)}ms${stale ? ' (stale)' : ''}`;
-      const _col = (ms: number, stale: boolean) => stale ? '#666' : ms < 2 ? '#8f8' : ms < 5 ? '#ff4' : '#f44';
+      const _col = (ms: number, stale: boolean) => (stale ? '#666' : ms < 2 ? '#8f8' : ms < 5 ? '#ff4' : '#f44');
 
       // ── Caches ──
       lines.push({ text: '', color: '#666' });
@@ -470,14 +553,24 @@ export function render(): void {
       lines.push({ text: '', color: '#666' });
       lines.push({ text: '── Render ──', color: '#666' });
       const phases = [
-        ['mouseMove', 'Mouse'], ['dots', 'Dots'], ['roomCells', 'RoomCells'],
-        ['shading', 'Shading'], ['floors', 'Floors'], ['arcs', 'Arcs'],
-        ['blending', 'Blend'], ['fills', 'Fills'], ['walls', 'Walls'],
-        ['bridges', 'Bridges'], ['grid', 'Grid'], ['props', 'Props'],
-        ['hazard', 'Hazard'], ['lighting', 'Lighting'], ['decorations', 'Decor'],
+        ['mouseMove', 'Mouse'],
+        ['dots', 'Dots'],
+        ['roomCells', 'RoomCells'],
+        ['shading', 'Shading'],
+        ['floors', 'Floors'],
+        ['arcs', 'Arcs'],
+        ['blending', 'Blend'],
+        ['fills', 'Fills'],
+        ['walls', 'Walls'],
+        ['bridges', 'Bridges'],
+        ['grid', 'Grid'],
+        ['props', 'Props'],
+        ['hazard', 'Hazard'],
+        ['lighting', 'Lighting'],
+        ['decorations', 'Decor'],
       ];
       for (const [key, label] of phases) {
-        const t = _rt(key);
+        const t = _rt(key!);
         lines.push({
           text: `${label}: ${_fmt(t.ms, t.stale)}`,
           color: _col(t.ms, t.stale),
@@ -494,7 +587,10 @@ export function render(): void {
           color: u.stringify < 5 ? '#8f8' : u.stringify < 15 ? '#ff4' : '#f44',
         });
       }
-      lines.push({ text: `Stack: ${state.undoStack.length || 0} undo, ${state.redoStack.length || 0} redo`, color: '#aaa' });
+      lines.push({
+        text: `Stack: ${state.undoStack.length || 0} undo, ${state.redoStack.length || 0} redo`,
+        color: '#aaa',
+      });
 
       // ── Notify (subscriber timings) ──
       if (notifyTimings.subscribers.length > 0) {
@@ -519,7 +615,9 @@ export function render(): void {
       {
         lines.push({ text: '', color: '#666' });
         lines.push({ text: '── Memory ──', color: '#666' });
-        const mem = (performance as unknown as Record<string, unknown>).memory as { usedJSHeapSize: number; jsHeapSizeLimit: number } | undefined;
+        const mem = (performance as unknown as Record<string, unknown>).memory as
+          | { usedJSHeapSize: number; jsHeapSizeLimit: number }
+          | undefined;
         if (mem) {
           const usedMB = (mem.usedJSHeapSize / 1048576).toFixed(1);
           const limitMB = (mem.jsHeapSizeLimit / 1048576).toFixed(0);
@@ -539,10 +637,11 @@ export function render(): void {
     const pad = 5;
     const lineH = 18;
     // Filter out spacer lines for width calculation but keep them for layout
-    const textLines = lines.filter(l => l.text.length > 0);
-    const boxW = Math.max(...textLines.map(l => ctx.measureText(l.text).width)) + pad * 2;
+    const textLines = lines.filter((l) => l.text.length > 0);
+    const boxW = Math.max(...textLines.map((l) => ctx.measureText(l.text).width)) + pad * 2;
     const boxH = lines.length * lineH + pad;
-    const bx = 10, by = 10;
+    const bx = 10,
+      by = 10;
 
     ctx.fillStyle = 'rgba(0,0,0,0.65)';
     ctx.fillRect(bx, by, boxW, boxH);
@@ -581,7 +680,9 @@ export function render(): void {
 
   // Probe: measure how long the main thread stays busy after render() returns
   const _probeT = performance.now();
-  setTimeout(() => { fpsState._postFrameBusyMs = performance.now() - _probeT; }, 0);
+  setTimeout(() => {
+    fpsState._postFrameBusyMs = performance.now() - _probeT;
+  }, 0);
 }
 
 // ── tickAnimLoop reference ──────────────────────────────────────────────────
@@ -593,11 +694,20 @@ let _tickAnimLoopRef = () => {};
  * @param {Function} fn - The animation loop tick function from canvas-view.js.
  * @returns {void}
  */
-export function setTickAnimLoopRef(fn: () => void): void { _tickAnimLoopRef = fn; }
+export function setTickAnimLoopRef(fn: () => void): void {
+  _tickAnimLoopRef = fn;
+}
 
 // ── Overlay drawing helpers ─────────────────────────────────────────────────
 
-function drawEditorDots(ctx: CanvasRenderingContext2D, numRows: number, numCols: number, gridSize: number, theme: Theme, transform: RenderTransform) {
+function drawEditorDots(
+  ctx: CanvasRenderingContext2D,
+  numRows: number,
+  numCols: number,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+) {
   const DOT_RADIUS = 1.5;
   const resolution = state.dungeon.metadata.resolution || 1;
 
@@ -607,9 +717,11 @@ function drawEditorDots(ctx: CanvasRenderingContext2D, numRows: number, numCols:
   // Viewport culling: compute visible cell range
   const cellPx = gridSize * transform.scale;
   const minRow = cellPx > 0 ? Math.max(0, Math.floor(-transform.offsetY / cellPx) - 1) : 0;
-  const maxRow = cellPx > 0 ? Math.min(numRows, Math.ceil((ctx.canvas.height - transform.offsetY) / cellPx) + 1) : numRows;
+  const maxRow =
+    cellPx > 0 ? Math.min(numRows, Math.ceil((ctx.canvas.height - transform.offsetY) / cellPx) + 1) : numRows;
   const minCol = cellPx > 0 ? Math.max(0, Math.floor(-transform.offsetX / cellPx) - 1) : 0;
-  const maxCol = cellPx > 0 ? Math.min(numCols, Math.ceil((ctx.canvas.width - transform.offsetX) / cellPx) + 1) : numCols;
+  const maxCol =
+    cellPx > 0 ? Math.min(numCols, Math.ceil((ctx.canvas.width - transform.offsetX) / cellPx) + 1) : numCols;
 
   // Snap to display-cell boundaries
   const startRow = Math.floor(minRow / step) * step;
@@ -636,7 +748,7 @@ function drawHoverHighlight(ctx: CanvasRenderingContext2D, gridSize: number, tra
   if (!state.hoveredCell) return;
   const { row, col } = state.hoveredCell;
   const cells = state.dungeon.cells;
-  if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
+  if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return;
 
   const p = toCanvas(col * gridSize, row * gridSize, transform);
   const size = gridSize * transform.scale;
@@ -667,7 +779,7 @@ function drawLinkSourceHighlight(ctx: CanvasRenderingContext2D, gridSize: number
   if (typeof state.linkSource === 'number') {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     const stairs = state.dungeon.metadata.stairs || [];
-    const stairDef = stairs.find(s => s.id === state.linkSource);
+    const stairDef = stairs.find((s) => s.id === state.linkSource);
     if (!stairDef) return;
     // Highlight all cells belonging to this stair
     const cells = state.dungeon.cells;
@@ -676,7 +788,7 @@ function drawLinkSourceHighlight(ctx: CanvasRenderingContext2D, gridSize: number
     ctx.setLineDash([6, 3]);
     ctx.fillStyle = 'rgba(255, 180, 50, 0.15)';
     for (let r = 0; r < cells.length; r++) {
-      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
         if (cells[r]?.[c]?.center?.['stair-id'] === state.linkSource) {
           const p = toCanvas(c * gridSize, r * gridSize, transform);
           const size = gridSize * transform.scale;
@@ -717,35 +829,55 @@ function drawEdgeHighlight(ctx: CanvasRenderingContext2D, gridSize: number, tran
   ctx.lineWidth = 3;
   ctx.beginPath();
 
-  const x = col * gridSize, y = row * gridSize;
+  const x = col * gridSize,
+    y = row * gridSize;
 
   if (direction === 'north') {
-    const p1 = toCanvas(x, y, transform), p2 = toCanvas(x + gridSize, y, transform);
-    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+    const p1 = toCanvas(x, y, transform),
+      p2 = toCanvas(x + gridSize, y, transform);
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
   } else if (direction === 'south') {
-    const p1 = toCanvas(x, y + gridSize, transform), p2 = toCanvas(x + gridSize, y + gridSize, transform);
-    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+    const p1 = toCanvas(x, y + gridSize, transform),
+      p2 = toCanvas(x + gridSize, y + gridSize, transform);
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
   } else if (direction === 'east') {
-    const p1 = toCanvas(x + gridSize, y, transform), p2 = toCanvas(x + gridSize, y + gridSize, transform);
-    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+    const p1 = toCanvas(x + gridSize, y, transform),
+      p2 = toCanvas(x + gridSize, y + gridSize, transform);
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
   } else if (direction === 'west') {
-    const p1 = toCanvas(x, y, transform), p2 = toCanvas(x, y + gridSize, transform);
-    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+    const p1 = toCanvas(x, y, transform),
+      p2 = toCanvas(x, y + gridSize, transform);
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
   } else if (direction === 'nw-se') {
-    const p1 = toCanvas(x, y, transform), p2 = toCanvas(x + gridSize, y + gridSize, transform);
-    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+    const p1 = toCanvas(x, y, transform),
+      p2 = toCanvas(x + gridSize, y + gridSize, transform);
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
   } else if (direction === 'ne-sw') {
-    const p1 = toCanvas(x + gridSize, y, transform), p2 = toCanvas(x, y + gridSize, transform);
-    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+    const p1 = toCanvas(x + gridSize, y, transform),
+      p2 = toCanvas(x, y + gridSize, transform);
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
   }
   ctx.stroke();
 }
 
-function drawDungeonTitleOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, metadata: Metadata) {
+function drawDungeonTitleOnMap(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  metadata: Metadata,
+) {
   const dungeonName = metadata.dungeonName;
   if (!dungeonName) return;
 
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const centerWorldX = (numCols * gridSize) / 2;
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const hasSubtitles = metadata.levels && metadata.levels.length > 1;
@@ -755,7 +887,7 @@ function drawDungeonTitleOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, g
   ctx.fillStyle = theme.textColor ?? '#000';
 
   // Main title — bold, above the dungeon. Give extra headroom when subtitles follow.
-  const titleFontSize = Math.max(10, Math.round(32 * transform.scale / 10));
+  const titleFontSize = Math.max(10, Math.round((32 * transform.scale) / 10));
   ctx.font = `bold ${titleFontSize}px Georgia, "Times New Roman", serif`;
   ctx.textBaseline = 'bottom';
   const titleWorldY = hasSubtitles ? -gridSize * 1.0 : -gridSize * 0.5;
@@ -764,7 +896,7 @@ function drawDungeonTitleOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, g
 
   // Level subtitles — italic, above each level's startRow (including level 0)
   if (hasSubtitles) {
-    const subtitleFontSize = Math.max(8, Math.round(18 * transform.scale / 10));
+    const subtitleFontSize = Math.max(8, Math.round((18 * transform.scale) / 10));
     ctx.font = `italic ${subtitleFontSize}px Georgia, "Times New Roman", serif`;
     for (const level of metadata.levels) {
       if (!level.name) continue;
@@ -776,12 +908,18 @@ function drawDungeonTitleOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, g
   ctx.restore();
 }
 
-function drawLevelSeparators(ctx: CanvasRenderingContext2D, levels: { startRow: number; numRows: number; name: string | null }[], gridSize: number, transform: RenderTransform, theme: Theme) {
+function drawLevelSeparators(
+  ctx: CanvasRenderingContext2D,
+  levels: { startRow: number; numRows: number; name: string | null }[],
+  gridSize: number,
+  transform: RenderTransform,
+  theme: Theme,
+) {
   ctx.strokeStyle = theme.textColor ?? '#888';
   ctx.lineWidth = 1;
   ctx.setLineDash([8, 4]);
 
-  const numCols = state.dungeon.cells[0]?.length || 0;
+  const numCols = state.dungeon.cells[0]?.length ?? 0;
 
   for (const level of levels) {
     if (level.startRow === 0) continue;

@@ -152,7 +152,7 @@ function validateBounds(row: number, col: number): void {
   const cells = state.dungeon.cells;
   if (!isInBounds(cells, row, col)) {
     const maxRows = cells.length;
-    const maxCols = cells[0]?.length || 0;
+    const maxCols = cells[0]?.length ?? 0;
     throw new ApiValidationError(
       'OUT_OF_BOUNDS',
       `Cell (${row}, ${col}) out of bounds (${maxRows} rows, ${maxCols} cols)`,
@@ -166,8 +166,8 @@ function validateBounds(row: number, col: number): void {
  */
 function ensureCell(row: number, col: number): Cell {
   validateBounds(row, col);
-  state.dungeon.cells[row][col] ??= {} as Cell;
-  return state.dungeon.cells[row][col];
+  state.dungeon.cells[row]![col] ??= {} as Cell;
+  return state.dungeon.cells[row]![col];
 }
 
 /**
@@ -177,16 +177,16 @@ function setReciprocal(row: number, col: number, direction: string, value: EdgeV
   const dir = direction as CardinalDirection;
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
   if (!OPPOSITE[dir]) return;
-  const [dr, dc] = OFFSETS[dir];
+  const [dr, dc] = OFFSETS[dir]!;
   const nr = row + dr,
     nc = col + dc;
   const cells = state.dungeon.cells;
-  if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length || 0)) return;
-  cells[nr][nc] ??= {} as Cell;
+  if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[0]?.length ?? 0)) return;
+  cells[nr]![nc] ??= {} as Cell;
   if (value === null) {
-    delete (cells[nr][nc] as Record<string, unknown>)[OPPOSITE[dir]];
+    delete (cells[nr]![nc] as Record<string, unknown>)[OPPOSITE[dir]];
   } else {
-    (cells[nr][nc] as Record<string, unknown>)[OPPOSITE[dir]] = value;
+    (cells[nr]![nc] as Record<string, unknown>)[OPPOSITE[dir]] = value;
   }
 }
 

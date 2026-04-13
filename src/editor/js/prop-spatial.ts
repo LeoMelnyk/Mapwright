@@ -9,7 +9,13 @@
 import { isGridAlignedRotation } from './prop-overlay.js';
 import type { EditorState } from '../../types.js';
 
-interface SpatialEntry { anchorRow: number; anchorCol: number; propType: string; propId: number | string; zIndex: number }
+interface SpatialEntry {
+  anchorRow: number;
+  anchorCol: number;
+  propType: string;
+  propId: number | string;
+  zIndex: number;
+}
 let spatialMap: Map<string, SpatialEntry[]> | null = null;
 let dirty = true;
 let lastPropsRef: unknown = null;
@@ -34,16 +40,22 @@ function rebuildPropSpatialMap() {
   const st = getState();
   const meta = st?.dungeon.metadata;
   const props = meta?.props;
-  if (!props) { dirty = false; return; }
+  if (!props) {
+    dirty = false;
+    return;
+  }
 
   const gridSize = meta.gridSize || 5;
   const catalog = st!.propCatalog;
 
   // If the prop catalog hasn't loaded yet, don't build — stay dirty so we rebuild later
-  if (!catalog?.props) { return; }
+  if (!catalog?.props) {
+    return;
+  }
 
   for (const prop of props) {
     const propDef = catalog.props[prop.type];
+    if (!propDef) continue;
 
     const col = Math.round(prop.x / gridSize);
     const row = Math.round(prop.y / gridSize);
@@ -53,14 +65,14 @@ function rebuildPropSpatialMap() {
     let spanRows, spanCols;
     if (isGridAlignedRotation(rotation)) {
       const r = ((rotation % 360) + 360) % 360;
-      spanRows = (r === 90 || r === 270) ? fCols : fRows;
-      spanCols = (r === 90 || r === 270) ? fRows : fCols;
+      spanRows = r === 90 || r === 270 ? fCols : fRows;
+      spanCols = r === 90 || r === 270 ? fRows : fCols;
     } else {
       spanRows = fRows;
       spanCols = fCols;
     }
 
-    const entry = { anchorRow: row, anchorCol: col, propType: prop.type, propId: prop.id, zIndex: prop.zIndex};
+    const entry = { anchorRow: row, anchorCol: col, propType: prop.type, propId: prop.id, zIndex: prop.zIndex };
 
     for (let r = row; r < row + spanRows; r++) {
       for (let c = col; c < col + spanCols; c++) {
@@ -100,7 +112,9 @@ let _onDirtyCallback: (() => void) | null = null;
  * @param {Function} fn - Callback invoked on spatial map invalidation.
  * @returns {void}
  */
-export function onPropSpatialDirty(fn: () => void): void { _onDirtyCallback = fn; }
+export function onPropSpatialDirty(fn: () => void): void {
+  _onDirtyCallback = fn;
+}
 
 /**
  * Mark the spatial map as needing rebuild. Call on any prop mutation.

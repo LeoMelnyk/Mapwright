@@ -17,11 +17,11 @@ function bridgeIdAt(row: number, col: number): number | null {
   const cell = state.dungeon.cells[row]?.[col];
   if (!cell?.center) return null;
   const id = cell.center['bridge-id'];
-  return id != null ? id as number : null;
+  return id != null ? (id as number) : null;
 }
 
 function getBridgeById(id: number): Bridge | null {
-  return state.dungeon.metadata.bridges.find(b => b.id === id) ?? null;
+  return state.dungeon.metadata.bridges.find((b) => b.id === id) ?? null;
 }
 
 /**
@@ -29,11 +29,15 @@ function getBridgeById(id: number): Bridge | null {
  * @param {number[][]} pts - [[r,c], [r,c], [r,c]]
  * @returns {number[][]}
  */
-function rotatePts90CW(pts: number[][]): number[][] {
-  const corners = getBridgeCorners(pts[0], pts[1], pts[2]);
+function rotatePts90CW(pts: number[][]): [number, number][] {
+  const corners = getBridgeCorners(
+    pts[0]! as [number, number],
+    pts[1]! as [number, number],
+    pts[2]! as [number, number],
+  );
   const cR = corners.reduce((s, c) => s + c[0], 0) / 4;
   const cC = corners.reduce((s, c) => s + c[1], 0) / 4;
-  return pts.map(([r, c]) => [cR + (c - cC), cC - (r - cR)]);
+  return pts.map(([r, c]) => [cR + (c! - cC), cC - (r! - cR)] as [number, number]);
 }
 
 // ── Tool ──────────────────────────────────────────────────────────────────────
@@ -63,14 +67,16 @@ export class BridgeTool extends Tool {
     this.hoveredBridgeId = null;
     this._isDragging = false;
     this._dragBridgeId = null;
-    this._pendingDrag = null;       // { bridgeId } — threshold not yet crossed
-    this._pendingDragPos = null;    // { x, y } — mousedown pixel position
+    this._pendingDrag = null; // { bridgeId } — threshold not yet crossed
+    this._pendingDragPos = null; // { x, y } — mousedown pixel position
     this._pendingDragCorner = null; // { row, col } — corner at mousedown (drag anchor)
-    this._basePoints = null;        // [[r,c],[r,c],[r,c]] — base pts (R-key rotations baked in)
+    this._basePoints = null; // [[r,c],[r,c],[r,c]] — base pts (R-key rotations baked in)
     this._dragDelta = { dRow: 0, dCol: 0 };
   }
 
-  getCursor() { return 'crosshair'; }
+  getCursor() {
+    return 'crosshair';
+  }
 
   onActivate() {
     this._resetPlacement();
@@ -134,9 +140,14 @@ export class BridgeTool extends Tool {
         event.preventDefault();
         const bridgeId = state.selectedBridgeId;
         const bridgeCoords = this._collectBridgeCells(bridgeId);
-        mutate('Remove Bridge', bridgeCoords, () => {
-          this._removeBridge(bridgeId);
-        }, { invalidate: ['lighting'] });
+        mutate(
+          'Remove Bridge',
+          bridgeCoords,
+          () => {
+            this._removeBridge(bridgeId);
+          },
+          { invalidate: ['lighting'] },
+        );
         state.selectedBridgeId = null;
         requestRender();
       }
@@ -160,7 +171,7 @@ export class BridgeTool extends Tool {
         const bridge = getBridgeById(state.selectedBridgeId);
         if (!bridge) return;
         const rotated = rotatePts90CW(bridge.points);
-        const [rp1, rp2, rp3] = rotated;
+        const [rp1, rp2, rp3] = rotated as [[number, number], [number, number], [number, number]];
 
         if (isBridgeDegenerate(rp1, rp2, rp3)) {
           showToast('Rotated bridge is degenerate.', 'warning');
@@ -172,7 +183,8 @@ export class BridgeTool extends Tool {
           return;
         }
         const cells = state.dungeon.cells;
-        const numRows = cells.length, numCols = cells[0]?.length || 0;
+        const numRows = cells.length,
+          numCols = cells[0]?.length ?? 0;
         for (const { row, col } of occupied) {
           if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
             showToast('Rotated bridge would go out of bounds.', 'warning');
@@ -182,13 +194,18 @@ export class BridgeTool extends Tool {
 
         const oldCoords = this._collectBridgeCells(bridge.id);
         const allCoords = [...oldCoords, ...occupied];
-        mutate('Rotate Bridge', allCoords, () => {
-          this._dirtyFromBridge(bridge.id);
-          this._clearCellMarkers(bridge.id);
-          bridge.points = rotated as Bridge['points'];
-          this._setCellMarkers(bridge.id, occupied);
-          this._dirtyFromCells(occupied);
-        }, { invalidate: ['lighting'] });
+        mutate(
+          'Rotate Bridge',
+          allCoords,
+          () => {
+            this._dirtyFromBridge(bridge.id);
+            this._clearCellMarkers(bridge.id);
+            bridge.points = rotated as Bridge['points'];
+            this._setCellMarkers(bridge.id, occupied);
+            this._dirtyFromCells(occupied);
+          },
+          { invalidate: ['lighting'] },
+        );
         requestRender();
       }
       return;
@@ -200,9 +217,14 @@ export class BridgeTool extends Tool {
     const id = bridgeIdAt(row, col);
     if (id == null) return;
     const bridgeCoords = this._collectBridgeCells(id);
-    mutate('Remove Bridge', bridgeCoords, () => {
-      this._removeBridge(id);
-    }, { invalidate: ['lighting'] });
+    mutate(
+      'Remove Bridge',
+      bridgeCoords,
+      () => {
+        this._removeBridge(id);
+      },
+      { invalidate: ['lighting'] },
+    );
     if (state.selectedBridgeId === id) state.selectedBridgeId = null;
     requestRender();
   }
@@ -225,7 +247,7 @@ export class BridgeTool extends Tool {
         this._pendingDrag = { bridgeId: this.hoveredBridgeId };
         this._pendingDragPos = { x: pos!.x, y: pos!.y };
         this._pendingDragCorner = { row: corner.row, col: corner.col };
-        this._basePoints = bridge.points.map(p => [...p] as [number, number]);
+        this._basePoints = bridge.points.map((p) => [...p] as [number, number]);
         this._dragDelta = { dRow: 0, dCol: 0 };
       }
       requestRender();
@@ -347,7 +369,7 @@ export class BridgeTool extends Tool {
 
       const cells = state.dungeon.cells;
       const numRows = cells.length;
-      const numCols = cells[0]?.length || 0;
+      const numCols = cells[0]?.length ?? 0;
       for (const { row, col } of occupied) {
         if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
           showToast('Bridge extends out of bounds.', 'warning');
@@ -362,27 +384,40 @@ export class BridgeTool extends Tool {
 
   // ── Commit / Remove ───────────────────────────────────────────────────────
 
-  _commitBridge(p1: [number, number], p2: [number, number], p3: [number, number], occupiedCells: { row: number; col: number }[]) {
-    mutate('Place Bridge', occupiedCells, () => {
-      const meta = state.dungeon.metadata;
-      const id = meta.nextBridgeId++;
-      const type = (state.bridgeType || 'wood') as BridgeType;
+  _commitBridge(
+    p1: [number, number],
+    p2: [number, number],
+    p3: [number, number],
+    occupiedCells: { row: number; col: number }[],
+  ) {
+    mutate(
+      'Place Bridge',
+      occupiedCells,
+      () => {
+        const meta = state.dungeon.metadata;
+        const id = meta.nextBridgeId++;
+        const type = (state.bridgeType || 'wood') as BridgeType;
 
-      meta.bridges.push({ id, type, points: [p1, p2, p3] });
+        meta.bridges.push({ id, type, points: [p1, p2, p3] });
 
-      this._setCellMarkers(id, occupiedCells);
-      this._dirtyFromCells(occupiedCells);
-    }, { invalidate: ['lighting'] });
+        this._setCellMarkers(id, occupiedCells);
+        this._dirtyFromCells(occupiedCells);
+      },
+      { invalidate: ['lighting'] },
+    );
     requestRender();
   }
 
   _commitDrag() {
     const id = this._dragBridgeId;
     const bridge = getBridgeById(id!);
-    if (!bridge) { this._resetDrag(); return; }
+    if (!bridge) {
+      this._resetDrag();
+      return;
+    }
 
     const ghostPts = this._getGhostPoints();
-    const [gp1, gp2, gp3] = ghostPts;
+    const [gp1, gp2, gp3] = ghostPts as [[number, number], [number, number], [number, number]];
 
     if (isBridgeDegenerate(gp1, gp2, gp3)) {
       showToast('Bridge position is invalid.', 'warning');
@@ -393,11 +428,15 @@ export class BridgeTool extends Tool {
 
     const occupied = getBridgeOccupiedCells(gp1, gp2, gp3);
     const cells = state.dungeon.cells;
-    const numRows = cells.length, numCols = cells[0]?.length || 0;
+    const numRows = cells.length,
+      numCols = cells[0]?.length ?? 0;
     let valid = occupied.length > 0;
     if (valid) {
       for (const { row, col } of occupied) {
-        if (row < 0 || row >= numRows || col < 0 || col >= numCols) { valid = false; break; }
+        if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
+          valid = false;
+          break;
+        }
       }
     }
     if (!valid) {
@@ -409,13 +448,18 @@ export class BridgeTool extends Tool {
 
     const oldCoords = this._collectBridgeCells(id!);
     const allCoords = [...oldCoords, ...occupied];
-    mutate('Move Bridge', allCoords, () => {
-      this._dirtyFromBridge(id!);
-      this._clearCellMarkers(id!);
-      bridge.points = ghostPts as Bridge['points'];
-      this._setCellMarkers(id!, occupied);
-      this._dirtyFromCells(occupied);
-    }, { invalidate: ['lighting'] });
+    mutate(
+      'Move Bridge',
+      allCoords,
+      () => {
+        this._dirtyFromBridge(id!);
+        this._clearCellMarkers(id!);
+        bridge.points = ghostPts as Bridge['points'];
+        this._setCellMarkers(id!, occupied);
+        this._dirtyFromCells(occupied);
+      },
+      { invalidate: ['lighting'] },
+    );
     this._resetDrag();
     requestRender();
   }
@@ -425,7 +469,7 @@ export class BridgeTool extends Tool {
     this._dirtyFromBridge(id);
     this._clearCellMarkers(id);
     const bridges = state.dungeon.metadata.bridges;
-    const idx = bridges.findIndex(b => b.id === id);
+    const idx = bridges.findIndex((b) => b.id === id);
     if (idx !== -1) bridges.splice(idx, 1);
   }
 
@@ -434,7 +478,7 @@ export class BridgeTool extends Tool {
     const cells = state.dungeon.cells;
     const coords: Array<{ row: number; col: number }> = [];
     for (let r = 0; r < cells.length; r++) {
-      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
         if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
           coords.push({ row: r, col: c });
         }
@@ -446,9 +490,12 @@ export class BridgeTool extends Tool {
   /** Accumulate dirty rect from a bridge's occupied cells. */
   _dirtyFromBridge(id: number) {
     const cells = state.dungeon.cells;
-    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    let minR = Infinity,
+      maxR = -Infinity,
+      minC = Infinity,
+      maxC = -Infinity;
     for (let r = 0; r < cells.length; r++) {
-      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
         if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
           if (r < minR) minR = r;
           if (r > maxR) maxR = r;
@@ -465,7 +512,10 @@ export class BridgeTool extends Tool {
 
   /** Accumulate dirty rect from a list of occupied cells. */
   _dirtyFromCells(occupiedCells: { row: number; col: number }[]) {
-    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    let minR = Infinity,
+      maxR = -Infinity,
+      minC = Infinity,
+      maxC = -Infinity;
     for (const { row, col } of occupiedCells) {
       if (row < minR) minR = row;
       if (row > maxR) maxR = row;
@@ -481,10 +531,10 @@ export class BridgeTool extends Tool {
   _clearCellMarkers(id: number) {
     const cells = state.dungeon.cells;
     for (let r = 0; r < cells.length; r++) {
-      for (let c = 0; c < (cells[r]?.length || 0); c++) {
+      for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
         if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
-          delete cells[r][c]!.center!['bridge-id'];
-          if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
+          delete cells[r]![c]!.center!['bridge-id'];
+          if (Object.keys(cells[r]![c]!.center!).length === 0) delete cells[r]![c]!.center;
         }
       }
     }
@@ -507,12 +557,13 @@ export class BridgeTool extends Tool {
   }
 
   _ghostIsValid() {
-    const [gp1, gp2, gp3] = this._getGhostPoints();
+    const [gp1, gp2, gp3] = this._getGhostPoints() as [[number, number], [number, number], [number, number]];
     if (isBridgeDegenerate(gp1, gp2, gp3)) return false;
     const occupied = getBridgeOccupiedCells(gp1, gp2, gp3);
     if (occupied.length === 0) return false;
     const cells = state.dungeon.cells;
-    const numRows = cells.length, numCols = cells[0]?.length || 0;
+    const numRows = cells.length,
+      numCols = cells[0]?.length ?? 0;
     for (const { row, col } of occupied) {
       if (row < 0 || row >= numRows || col < 0 || col >= numCols) return false;
     }
@@ -524,11 +575,11 @@ export class BridgeTool extends Tool {
   renderOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number) {
     // 1. Drag ghost
     if (this._isDragging) {
-      const [gp1, gp2, gp3] = this._getGhostPoints();
+      const [gp1, gp2, gp3] = this._getGhostPoints() as [[number, number], [number, number], [number, number]];
       const valid = this._ghostIsValid();
       this._drawBridgePoly(ctx, transform, gridSize, gp1, gp2, gp3, {
-        fill:   valid ? 'rgba(100, 200, 255, 0.15)' : 'rgba(255, 80, 80, 0.15)',
-        stroke: valid ? 'rgba(100, 200, 255, 0.8)'  : 'rgba(255, 80, 80, 0.8)',
+        fill: valid ? 'rgba(100, 200, 255, 0.15)' : 'rgba(255, 80, 80, 0.15)',
+        stroke: valid ? 'rgba(100, 200, 255, 0.8)' : 'rgba(255, 80, 80, 0.8)',
         lineWidth: 2,
       });
       return; // skip placement preview during drag
@@ -540,10 +591,10 @@ export class BridgeTool extends Tool {
       if (bridge) {
         const [p1, p2, p3] = bridge.points;
         this._drawBridgePoly(ctx, transform, gridSize, p1, p2, p3, {
-          fill:      'rgba(150, 220, 255, 0.12)',
-          stroke:    'rgba(150, 220, 255, 0.7)',
+          fill: 'rgba(150, 220, 255, 0.12)',
+          stroke: 'rgba(150, 220, 255, 0.7)',
           lineWidth: 1.5,
-          dash:      [4, 3],
+          dash: [4, 3],
         });
       }
     }
@@ -554,8 +605,8 @@ export class BridgeTool extends Tool {
       if (bridge) {
         const [p1, p2, p3] = bridge.points;
         this._drawBridgePoly(ctx, transform, gridSize, p1, p2, p3, {
-          fill:      'rgba(60, 140, 255, 0.15)',
-          stroke:    'rgba(60, 140, 255, 0.9)',
+          fill: 'rgba(60, 140, 255, 0.15)',
+          stroke: 'rgba(60, 140, 255, 0.9)',
           lineWidth: 2,
         });
       }
@@ -617,25 +668,52 @@ export class BridgeTool extends Tool {
     }
   }
 
-  _drawBridgePoly(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, p1: [number, number], p2: [number, number], p3: [number, number], { fill, stroke, lineWidth = 2, dash = [] }: { fill?: string; stroke?: string; lineWidth?: number; dash?: number[] } = {}) {
+  _drawBridgePoly(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    p1: [number, number],
+    p2: [number, number],
+    p3: [number, number],
+    {
+      fill,
+      stroke,
+      lineWidth = 2,
+      dash = [],
+    }: { fill?: string; stroke?: string; lineWidth?: number; dash?: number[] } = {},
+  ) {
     const corners = getBridgeCorners(p1, p2, p3);
-    const pts = corners.map(c => toCanvas(c[1] * gridSize, c[0] * gridSize, transform));
+    const pts = corners.map((c) => toCanvas(c[1] * gridSize, c[0] * gridSize, transform));
     ctx.beginPath();
-    ctx.moveTo(pts[0].x, pts[0].y);
-    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.moveTo(pts[0]!.x, pts[0]!.y);
+    for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i]!.x, pts[i]!.y);
     ctx.closePath();
     ctx.setLineDash(dash);
-    if (fill)   { ctx.fillStyle   = fill;              ctx.fill(); }
-    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth; ctx.stroke(); }
+    if (fill) {
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+    if (stroke) {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+    }
     ctx.setLineDash([]);
   }
 
-  _drawPreview(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, p1: [number, number], p2: [number, number], p3: [number, number]) {
+  _drawPreview(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    p1: [number, number],
+    p2: [number, number],
+    p3: [number, number],
+  ) {
     this._drawBridgePoly(ctx, transform, gridSize, p1, p2, p3, {
-      fill:      'rgba(100, 200, 255, 0.12)',
-      stroke:    'rgba(100, 200, 255, 0.6)',
+      fill: 'rgba(100, 200, 255, 0.12)',
+      stroke: 'rgba(100, 200, 255, 0.6)',
       lineWidth: 1.5,
-      dash:      [4, 3],
+      dash: [4, 3],
     });
   }
 }

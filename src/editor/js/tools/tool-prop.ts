@@ -1,5 +1,13 @@
 // Prop tool: place props from catalog or select/manipulate placed props
-import type { CellGrid, Light, LightPreset, Metadata, OverlayProp, PropDefinition, RenderTransform } from '../../../types.js';
+import type {
+  CellGrid,
+  Light,
+  LightPreset,
+  Metadata,
+  OverlayProp,
+  PropDefinition,
+  RenderTransform,
+} from '../../../types.js';
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
 import state, { mutate, markDirty, notify, getTheme, invalidateLightmap } from '../state.js';
 import { getLightCatalog } from '../light-catalog.js';
@@ -41,11 +49,17 @@ function _removeOverlayAt(row: number, col: number): void {
   if (idx >= 0) meta.props.splice(idx, 1);
   // Remove linked lights
   if (meta.lights.length) {
-    meta.lights = meta.lights.filter(l => !(l.propRef?.row === row && l.propRef.col === col));
+    meta.lights = meta.lights.filter((l) => !(l.propRef?.row === row && l.propRef.col === col));
   }
 }
 
-function _addOverlayAt(row: number, col: number, propType: string, facing: number, flipped: boolean = false): OverlayProp {
+function _addOverlayAt(
+  row: number,
+  col: number,
+  propType: string,
+  facing: number,
+  flipped: boolean = false,
+): OverlayProp {
   const meta = _ensurePropsArray();
   const gs = meta.gridSize || 5;
   const entry = createOverlayProp(meta, propType, row, col, gs, { rotation: facing, flipped });
@@ -54,7 +68,11 @@ function _addOverlayAt(row: number, col: number, propType: string, facing: numbe
 }
 
 /** Compute the pixel bounds of an overlay prop for selection/hover boxes. */
-function _propBounds(overlay: { x: number; y: number; type: string; rotation?: number; scale?: number }, gridSize: number, transform: RenderTransform) {
+function _propBounds(
+  overlay: { x: number; y: number; type: string; rotation?: number; scale?: number },
+  gridSize: number,
+  transform: RenderTransform,
+) {
   const [spanRows, spanCols] = _overlaySpan(overlay);
   const scl = overlay.scale ?? 1.0;
   const w = spanCols * gridSize;
@@ -68,7 +86,7 @@ function _propBounds(overlay: { x: number; y: number; type: string; rotation?: n
 }
 
 /** Get the effective span of an overlay prop from its catalog definition + rotation. */
-function _overlaySpan(overlayProp: { type: string; rotation?: number; scale?: number }) {
+function _overlaySpan(overlayProp: { type: string; rotation?: number; scale?: number }): [number, number] {
   const catalog = state.propCatalog;
   const propDef = catalog?.props[overlayProp.type];
   if (!propDef) return [1, 1];
@@ -104,7 +122,7 @@ function _hitTestProps(pos: { x: number; y: number } | null, transform: RenderTr
     const maxY = cy + h / 2;
 
     if (wx >= minX && wx <= maxX && wy >= minY && wy <= maxY) {
-      hits.push({ prop, area: w * h, z: prop.zIndex});
+      hits.push({ prop, area: w * h, z: prop.zIndex });
     }
   }
 
@@ -130,7 +148,7 @@ function _hitTestProps(pos: { x: number; y: number } | null, transform: RenderTr
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function getEffectiveFootprint(propDef: PropDefinition, rotation: number) {
+function getEffectiveFootprint(propDef: PropDefinition, rotation: number): [number, number] {
   const [rows, cols] = propDef.footprint;
   if (rotation === 90 || rotation === 270) return [cols, rows];
   return [rows, cols];
@@ -154,12 +172,12 @@ function findPropAnchor(_cells: CellGrid, row: number, col: number) {
 
 function isFootprintClear(cells: CellGrid, anchorRow: number, anchorCol: number, spanRows: number, spanCols: number) {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   for (let r = anchorRow; r < anchorRow + spanRows; r++) {
     for (let c = anchorCol; c < anchorCol + spanCols; c++) {
       if (r < 0 || r >= numRows || c < 0 || c >= numCols) return false;
-      if (cells[r][c] === null) return false; // void cell
+      if (cells[r]![c] === null) return false; // void cell
       // Overlapping props is now allowed (z-ordered stickers layer)
     }
   }
@@ -169,7 +187,10 @@ function isFootprintClear(cells: CellGrid, anchorRow: number, anchorCol: number,
 function getTextureResolver() {
   const texCat = getTextureCatalog();
   return texCat
-    ? (id: string) => { const e = texCat.textures[id]; return e?.img?.complete ? e.img : null; }
+    ? (id: string) => {
+        const e = texCat.textures[id];
+        return e?.img?.complete ? e.img : null;
+      }
     : null;
 }
 
@@ -236,26 +257,26 @@ export class PropTool extends Tool {
     this.dragEnd = null;
     this.isBoxSelecting = false;
     // Pending place (deferred from mousedown to mouseup, to allow box-select on drag)
-    this._pendingPlace = null;    // { row, col }
+    this._pendingPlace = null; // { row, col }
     this._pendingPlacePos = null; // { x, y } pixel position at mousedown
     // Drag-to-move state (multi-prop)
     this.isDragging = false;
-    this.dragItems = [];          // [{ anchor, propDef, origProp, offsetRow, offsetCol, facing, flipped }]
-    this.dragLeadAnchor = null;   // anchor of the directly-dragged prop (offset 0,0)
-    this.dragGhost = null;        // {row, col, worldX?, worldY?} — lead prop's current ghost position
-    this.dragFreeform = false;    // true when Ctrl held during drag (sub-cell positioning)
+    this.dragItems = []; // [{ anchor, propDef, origProp, offsetRow, offsetCol, facing, flipped }]
+    this.dragLeadAnchor = null; // anchor of the directly-dragged prop (offset 0,0)
+    this.dragGhost = null; // {row, col, worldX?, worldY?} — lead prop's current ghost position
+    this.dragFreeform = false; // true when Ctrl held during drag (sub-cell positioning)
     // Pending drag (prop clicked but not yet moved beyond threshold)
-    this._pendingDragAnchor = null;  // anchor of prop to potentially drag
-    this._pendingDragPos = null;     // pixel position at prop mousedown
+    this._pendingDragAnchor = null; // anchor of prop to potentially drag
+    this._pendingDragPos = null; // pixel position at prop mousedown
     // Hover state
-    this.hoveredAnchor = null;    // anchor cell of prop currently under cursor
+    this.hoveredAnchor = null; // anchor cell of prop currently under cursor
     this.hoverRow = null;
     this.hoverCol = null;
-    this.hoverFreeform = false;   // true when Ctrl held during hover (freeform ghost)
-    this.hoverWorldX = null;      // world-feet X when freeform hover
-    this.hoverWorldY = null;      // world-feet Y when freeform hover
+    this.hoverFreeform = false; // true when Ctrl held during hover (freeform ghost)
+    this.hoverWorldX = null; // world-feet X when freeform hover
+    this.hoverWorldY = null; // world-feet Y when freeform hover
     // Paste mode cursor tracking
-    this.pasteHover = null;       // {row, col} — current cursor cell for paste preview
+    this.pasteHover = null; // {row, col} — current cursor cell for paste preview
   }
 
   getCursor() {
@@ -263,7 +284,8 @@ export class PropTool extends Tool {
   }
 
   onActivate() {
-    state.statusInstruction = 'Click place · R rotate · Alt+Scroll fine rotate · Alt+Shift+Scroll scale · Arrows nudge · [ ] z-order · Ctrl freeform · Shift snap';
+    state.statusInstruction =
+      'Click place · R rotate · Alt+Scroll fine rotate · Alt+Shift+Scroll scale · Arrows nudge · [ ] z-order · Ctrl freeform · Shift snap';
   }
 
   onDeactivate() {
@@ -323,7 +345,7 @@ export class PropTool extends Tool {
       // Clicking on empty space → defer place; start tracking for potential box-select
       this._pendingPlace = { row, col };
       this._pendingPlacePos = pos ?? null;
-      this._pendingPlaceCtrl = (event?.ctrlKey ?? event?.metaKey) ?? false;
+      this._pendingPlaceCtrl = event?.ctrlKey ?? event?.metaKey ?? false;
       this.isBoxSelecting = false;
       this.dragStart = { row, col };
       this.dragEnd = null;
@@ -347,13 +369,14 @@ export class PropTool extends Tool {
     }
 
     if (this.isDragging) {
-      this.dragFreeform = (event?.ctrlKey ?? event?.metaKey) ?? false;
+      this.dragFreeform = event?.ctrlKey ?? event?.metaKey ?? false;
       this.dragSnapToGrid = event?.shiftKey ?? false;
       if (this.dragFreeform && pos) {
         // Freeform: track exact world-feet position
         const transform = getTransform();
         this.dragGhost = {
-          row, col,
+          row,
+          col,
           worldX: (pos.x - transform.offsetX) / transform.scale,
           worldY: (pos.y - transform.offsetY) / transform.scale,
         };
@@ -446,8 +469,10 @@ export class PropTool extends Tool {
         const c2 = Math.max(this.dragStart.col, this.dragEnd.col) + 1;
         const meta = state.dungeon.metadata;
         const gs = meta.gridSize || 5;
-        const boxMinX = c1 * gs, boxMinY = r1 * gs;
-        const boxMaxX = c2 * gs, boxMaxY = r2 * gs;
+        const boxMinX = c1 * gs,
+          boxMinY = r1 * gs;
+        const boxMaxX = c2 * gs,
+          boxMaxY = r2 * gs;
 
         if (meta.props) {
           const selectedIds = new Set();
@@ -455,11 +480,16 @@ export class PropTool extends Tool {
             // Check if prop's visual bounds overlap the selection box
             const [spanRows, spanCols] = _overlaySpan(prop);
             const scl = prop.scale;
-            const uw = spanCols * gs, uh = spanRows * gs;
-            const pcx = prop.x + uw / 2, pcy = prop.y + uh / 2;
-            const pw = uw * scl, ph = uh * scl;
-            const pMinX = pcx - pw / 2, pMinY = pcy - ph / 2;
-            const pMaxX = pcx + pw / 2, pMaxY = pcy + ph / 2;
+            const uw = spanCols * gs,
+              uh = spanRows * gs;
+            const pcx = prop.x + uw / 2,
+              pcy = prop.y + uh / 2;
+            const pw = uw * scl,
+              ph = uh * scl;
+            const pMinX = pcx - pw / 2,
+              pMinY = pcy - ph / 2;
+            const pMaxX = pcx + pw / 2,
+              pMaxY = pcy + ph / 2;
 
             if (pMaxX > boxMinX && pMinX < boxMaxX && pMaxY > boxMinY && pMinY < boxMaxY) {
               if (!selectedIds.has(prop.id)) {
@@ -488,7 +518,7 @@ export class PropTool extends Tool {
 
     if (this._pendingPlace) {
       // No significant drag — place prop at the original click position
-      const freeform = ((event?.ctrlKey ?? event?.metaKey)) ?? this._pendingPlaceCtrl;
+      const freeform = event?.ctrlKey ?? event?.metaKey ?? this._pendingPlaceCtrl;
       let placeRow = this._pendingPlace.row;
       let placeCol = this._pendingPlace.col;
       // Center prop on cursor
@@ -560,29 +590,37 @@ export class PropTool extends Tool {
       e.preventDefault();
       const gs = state.dungeon.metadata.gridSize || 5;
       const step = e.shiftKey ? gs : 1; // Shift = full cell, bare = 1 foot
-      let dx = 0, dy = 0;
-      if (e.key === 'ArrowUp')    dy = -step;
-      if (e.key === 'ArrowDown')  dy = step;
-      if (e.key === 'ArrowLeft')  dx = -step;
+      let dx = 0,
+        dy = 0;
+      if (e.key === 'ArrowUp') dy = -step;
+      if (e.key === 'ArrowDown') dy = step;
+      if (e.key === 'ArrowLeft') dx = -step;
       if (e.key === 'ArrowRight') dx = step;
 
-      mutate('Nudge prop', [], () => {
-        for (const anchor of state.selectedPropAnchors) {
-          const overlay = _findOverlayAt(anchor.row, anchor.col);
-          if (overlay) {
-            overlay.x += dx;
-            overlay.y += dy;
+      mutate(
+        'Nudge prop',
+        [],
+        () => {
+          for (const anchor of state.selectedPropAnchors) {
+            const overlay = _findOverlayAt(anchor.row, anchor.col);
+            if (overlay) {
+              overlay.x += dx;
+              overlay.y += dy;
+            }
           }
-        }
-      }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+        },
+        { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+      );
       // Update anchor positions to match new grid cells
-      state.selectedPropAnchors = state.selectedPropAnchors.map((a: { row: number; col: number; propId?: number | string }) => {
-        const overlay = _findOverlayAt(a.row, a.col);
-        if (!overlay) return a;
-        const newRow = Math.round(overlay.y / gs);
-        const newCol = Math.round(overlay.x / gs);
-        return { row: newRow, col: newCol };
-      });
+      state.selectedPropAnchors = state.selectedPropAnchors.map(
+        (a: { row: number; col: number; propId?: number | string }) => {
+          const overlay = _findOverlayAt(a.row, a.col);
+          if (!overlay) return a;
+          const newRow = Math.round(overlay.y / gs);
+          const newCol = Math.round(overlay.x / gs);
+          return { row: newRow, col: newCol };
+        },
+      );
       requestRender();
       return;
     }
@@ -592,13 +630,13 @@ export class PropTool extends Tool {
       if (this.isDragging && this.dragItems.length > 0) {
         const step = e.key === ']' ? 1 : -1;
         for (const item of this.dragItems) {
-          item.zIndex = Math.max(0, (item.zIndex) + step);
+          item.zIndex = Math.max(0, item.zIndex + step);
         }
         requestRender();
         return;
       }
       if (state.selectedPropAnchors.length > 0) {
-        const anchor = state.selectedPropAnchors[0];
+        const anchor = state.selectedPropAnchors[0]!;
         const overlay = _findOverlayAt(anchor.row, anchor.col);
         if (overlay) {
           if (e.key === ']') bringForward(String(overlay.id));
@@ -617,13 +655,13 @@ export class PropTool extends Tool {
       if (event.shiftKey) {
         const step = deltaY > 0 ? -0.1 : 0.1;
         for (const item of this.dragItems) {
-          item.scale = Math.max(0.25, Math.min(4.0, (item.scale) + step));
+          item.scale = Math.max(0.25, Math.min(4.0, item.scale + step));
           item.scale = Math.round(item.scale * 100) / 100;
         }
       } else {
         const step = deltaY > 0 ? 15 : -15;
         if (this.dragItems.length === 1) {
-          this.dragItems[0].facing = (((this.dragItems[0].facing || 0) + step) % 360 + 360) % 360;
+          this.dragItems[0]!.facing = ((((this.dragItems[0]!.facing || 0) + step) % 360) + 360) % 360;
         } else {
           this._rotateDragGroup(step);
         }
@@ -636,11 +674,11 @@ export class PropTool extends Tool {
     if (!this.hoveredAnchor && state.selectedProp && this.hoverRow != null) {
       if (event.shiftKey) {
         const step = deltaY > 0 ? -0.1 : 0.1;
-        state.propScale = Math.max(0.25, Math.min(4.0, (state.propScale) + step));
+        state.propScale = Math.max(0.25, Math.min(4.0, state.propScale + step));
         state.propScale = Math.round(state.propScale * 100) / 100;
       } else {
         const step = deltaY > 0 ? 15 : -15;
-        state.propRotation = (((state.propRotation || 0) + step) % 360 + 360) % 360;
+        state.propRotation = ((((state.propRotation || 0) + step) % 360) + 360) % 360;
       }
       requestRender();
       return;
@@ -659,7 +697,9 @@ export class PropTool extends Tool {
     const overlays: OverlayProp[] = [];
     if (state.selectedPropAnchors.length > 0) {
       for (const a of state.selectedPropAnchors) {
-        const o = a.propId ? meta.props?.find((p: { id: string | number }) => p.id === a.propId) : _findOverlayAt(a.row, a.col);
+        const o = a.propId
+          ? meta.props?.find((p: { id: string | number }) => p.id === a.propId)
+          : _findOverlayAt(a.row, a.col);
         if (o) overlays.push(o);
       }
     } else if (this.hoveredAnchor) {
@@ -675,16 +715,17 @@ export class PropTool extends Tool {
         // Single prop: simple rotation/scale
         if (event.shiftKey) {
           const step = deltaY > 0 ? -0.1 : 0.1;
-          overlays[0].scale = Math.max(0.25, Math.min(4.0, (overlays[0].scale) + step));
-          overlays[0].scale = Math.round(overlays[0].scale * 100) / 100;
+          overlays[0]!.scale = Math.max(0.25, Math.min(4.0, overlays[0]!.scale + step));
+          overlays[0]!.scale = Math.round(overlays[0]!.scale * 100) / 100;
         } else {
           const step = deltaY > 0 ? 15 : -15;
-          overlays[0].rotation = (((overlays[0].rotation || 0) + step) % 360 + 360) % 360;
+          overlays[0]!.rotation = ((((overlays[0]!.rotation || 0) + step) % 360) + 360) % 360;
         }
       } else {
         // Multi-prop: pivot around group center
         // Compute group center in world-feet
-        let cx = 0, cy = 0;
+        let cx = 0,
+          cy = 0;
         for (const o of overlays) {
           const [sr, sc] = _overlaySpan(o);
           cx += o.x + (sc * gs) / 2;
@@ -703,8 +744,8 @@ export class PropTool extends Tool {
             // Scale distance from group center
             const dx = propCx - cx;
             const dy = propCy - cy;
-            const newScale = Math.max(0.25, Math.min(4.0, (o.scale) + step));
-            const scaleFactor = newScale / (o.scale);
+            const newScale = Math.max(0.25, Math.min(4.0, o.scale + step));
+            const scaleFactor = newScale / o.scale;
             o.x = cx + dx * scaleFactor - (sc * gs) / 2;
             o.y = cy + dy * scaleFactor - (sr * gs) / 2;
             o.scale = Math.round(newScale * 100) / 100;
@@ -727,7 +768,7 @@ export class PropTool extends Tool {
             o.x = newCx - (sc * gs) / 2;
             o.y = newCy - (sr * gs) / 2;
             // Rotate the prop itself
-            o.rotation = (((o.rotation || 0) + step) % 360 + 360) % 360;
+            o.rotation = ((((o.rotation || 0) + step) % 360) + 360) % 360;
           }
         }
       }
@@ -745,7 +786,7 @@ export class PropTool extends Tool {
     }
 
     // Update anchors to match new positions
-    state.selectedPropAnchors = overlays.map(o => ({
+    state.selectedPropAnchors = overlays.map((o) => ({
       row: Math.round(o.y / gs),
       col: Math.round(o.x / gs),
       propId: o.id,
@@ -783,7 +824,7 @@ export class PropTool extends Tool {
     }
 
     const cells = state.dungeon.cells;
-    if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length || 0)) return;
+    if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return;
 
     // Use cell-based lookup (right-click doesn't receive pixel pos)
     const anchor = findPropAnchor(cells, row, col);
@@ -793,13 +834,18 @@ export class PropTool extends Tool {
     if (!overlay) return;
 
     const anchorToDelete = anchor;
-    mutate('Delete prop', [], () => {
-      _removeOverlayAt(anchorToDelete.row, anchorToDelete.col);
-    }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+    mutate(
+      'Delete prop',
+      [],
+      () => {
+        _removeOverlayAt(anchorToDelete.row, anchorToDelete.col);
+      },
+      { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+    );
 
     // Remove from selection if it was selected
     state.selectedPropAnchors = state.selectedPropAnchors.filter(
-      (a: { row: number; col: number }) => a.row !== anchorToDelete.row || a.col !== anchorToDelete.col
+      (a: { row: number; col: number }) => a.row !== anchorToDelete.row || a.col !== anchorToDelete.col,
     );
 
     requestRender();
@@ -837,7 +883,8 @@ export class PropTool extends Tool {
         ctx.globalAlpha = 0.45;
         if (needsTransform) {
           const [fRows, fCols] = propDef.footprint;
-          const centerNx = fCols / 2, centerNy = fRows / 2;
+          const centerNx = fCols / 2,
+            centerNy = fRows / 2;
           const { x: cx, y: cy } = toCanvas((col + centerNx) * gridSize, (row + centerNy) * gridSize, transform);
           ctx.translate(cx, cy);
           ctx.rotate((-rot * Math.PI) / 180);
@@ -850,8 +897,10 @@ export class PropTool extends Tool {
         }
         ctx.restore();
 
-        const w = spanCols * gridSize, h = spanRows * gridSize;
-        const bCx = col * gridSize + w / 2, bCy = row * gridSize + h / 2;
+        const w = spanCols * gridSize,
+          h = spanRows * gridSize;
+        const bCx = col * gridSize + w / 2,
+          bCy = row * gridSize + h / 2;
         const topLeft = toCanvas(bCx - (w * scl) / 2, bCy - (h * scl) / 2, transform);
         const bottomRight = toCanvas(bCx + (w * scl) / 2, bCy + (h * scl) / 2, transform);
         ctx.save();
@@ -874,8 +923,8 @@ export class PropTool extends Tool {
         // Compute ghost position, including freeform sub-cell offset
         let row, col;
         const snapToGrid = this.dragSnapToGrid;
-        const fox = snapToGrid ? 0 : (item.freeOffsetX || 0);
-        const foy = snapToGrid ? 0 : (item.freeOffsetY || 0);
+        const fox = snapToGrid ? 0 : item.freeOffsetX || 0;
+        const foy = snapToGrid ? 0 : item.freeOffsetY || 0;
         if (isFreeformGhost) {
           const gs = gridSize;
           row = (this.dragGhost.worldY! + item.offsetRow * gs) / gs;
@@ -886,7 +935,8 @@ export class PropTool extends Tool {
         }
         const [spanRows, spanCols] = getEffectiveFootprint(item.propDef!, item.facing);
         const scl = item.scale;
-        const needsTransform = scl !== 1.0 || (item.facing !== 0 && item.facing !== 90 && item.facing !== 180 && item.facing !== 270);
+        const needsTransform =
+          scl !== 1.0 || (item.facing !== 0 && item.facing !== 90 && item.facing !== 180 && item.facing !== 270);
 
         ctx.save();
         ctx.globalAlpha = 0.4;
@@ -907,7 +957,18 @@ export class PropTool extends Tool {
           };
           renderProp(ctx, item.propDef!, 0, 0, 0, gridSize, theme, offsetTransform, item.flipped, getTextureResolver());
         } else {
-          renderProp(ctx, item.propDef!, row, col, item.facing, gridSize, theme, transform, item.flipped, getTextureResolver());
+          renderProp(
+            ctx,
+            item.propDef!,
+            row,
+            col,
+            item.facing,
+            gridSize,
+            theme,
+            transform,
+            item.flipped,
+            getTextureResolver(),
+          );
         }
         ctx.restore();
 
@@ -930,7 +991,7 @@ export class PropTool extends Tool {
           if (name) {
             let label = name + ` ${item.facing}°`;
             if (scl !== 1.0) label += ` ${Math.round(scl * 100)}%`;
-            if ((item.zIndex) !== 10) label += ` z${item.zIndex}`;
+            if (item.zIndex !== 10) label += ` z${item.zIndex}`;
             this._drawNameLabel(ctx, label, topLeft, bottomRight);
           }
         }
@@ -958,8 +1019,14 @@ export class PropTool extends Tool {
     }
 
     // 3. Placement preview — when hovering empty space with a prop selected
-    if (!this.isDragging && !this.isBoxSelecting && !this.hoveredAnchor &&
-        this.hoverRow != null && this.hoverCol != null && state.selectedProp) {
+    if (
+      !this.isDragging &&
+      !this.isBoxSelecting &&
+      !this.hoveredAnchor &&
+      this.hoverRow != null &&
+      this.hoverCol != null &&
+      state.selectedProp
+    ) {
       const catalog = state.propCatalog;
       const prevDef = catalog?.props[state.selectedProp];
       if (prevDef) {
@@ -1024,84 +1091,95 @@ export class PropTool extends Tool {
     const catalog = state.propCatalog;
     if (!catalog?.props[state.selectedProp]) return;
 
-    const propDef = catalog.props[state.selectedProp];
+    const propDef = catalog.props[state.selectedProp]!;
     const [spanRows, spanCols] = getEffectiveFootprint(propDef, state.propRotation);
     const cells = state.dungeon.cells;
 
     if (!isFootprintClear(cells, row, col, spanRows, spanCols)) return;
 
-    mutate('Place prop', [], () => {
-      const entry = _addOverlayAt(row, col, state.selectedProp!, state.propRotation, state.propFlipped || false);
-      if ((state.propScale) !== 1.0) entry.scale = state.propScale;
+    mutate(
+      'Place prop',
+      [],
+      () => {
+        const entry = _addOverlayAt(row, col, state.selectedProp!, state.propRotation, state.propFlipped || false);
+        if (state.propScale !== 1.0) entry.scale = state.propScale;
 
-      // Freeform: Ctrl+click places at exact pixel position (sub-cell),
-      // centering the prop on the cursor (matching the ghost preview)
-      if (freeform && pixelPos) {
-        const transform = getTransform();
-        const gs = state.dungeon.metadata.gridSize || 5;
-        const cursorWorldX = (pixelPos.x - transform.offsetX) / transform.scale;
-        const cursorWorldY = (pixelPos.y - transform.offsetY) / transform.scale;
-        entry.x = cursorWorldX - (spanCols * gs) / 2;
-        entry.y = cursorWorldY - (spanRows * gs) / 2;
-      }
-
-      // Create linked lights if the prop defines any
-      if (propDef.lights?.length) {
-        const meta = state.dungeon.metadata;
-        if (!meta.nextLightId) meta.nextLightId = 1;
-        const gridSize = meta.gridSize || 5;
-        const lightCatalog = getLightCatalog();
-        const [origRows, origCols] = propDef.footprint;
-
-        for (const lightDef of propDef.lights) {
-          // Start from normalized footprint coords (unrotated)
-          let nx = lightDef.x;
-          let ny = lightDef.y;
-
-          // Rotate offset to match prop rotation
-          const rot = state.propRotation;
-          if (rot === 90) {
-            [nx, ny] = [origRows - ny, nx];
-          } else if (rot === 180) {
-            [nx, ny] = [origCols - nx, origRows - ny];
-          } else if (rot === 270) {
-            [nx, ny] = [ny, origCols - nx];
-          }
-
-          // Use the prop's actual world position (accounts for freeform offset)
-          const worldX = entry.x + nx * gridSize;
-          const worldY = entry.y + ny * gridSize;
-
-          // Merge preset defaults with overrides from the prop entry
-          const preset = lightCatalog?.lights[lightDef.preset] ?? {} as Partial<LightPreset>;
-          const light: Light = {
-            id: meta.nextLightId++,
-            x: worldX,
-            y: worldY,
-            type: (preset.type ?? 'point'),
-            radius: preset.radius ?? 20,
-            color: preset.color ?? '#ff9944',
-            intensity: preset.intensity ?? 1.0,
-            falloff: (preset.falloff ?? 'smooth'),
-            presetId: lightDef.preset,
-            propRef: { row, col },
-          };
-          if (preset.dimRadius) light.dimRadius = preset.dimRadius;
-          if (preset.animation?.type) light.animation = { ...preset.animation };
-
-          meta.lights.push(light);
+        // Freeform: Ctrl+click places at exact pixel position (sub-cell),
+        // centering the prop on the cursor (matching the ghost preview)
+        if (freeform && pixelPos) {
+          const transform = getTransform();
+          const gs = state.dungeon.metadata.gridSize || 5;
+          const cursorWorldX = (pixelPos.x - transform.offsetX) / transform.scale;
+          const cursorWorldY = (pixelPos.y - transform.offsetY) / transform.scale;
+          entry.x = cursorWorldX - (spanCols * gs) / 2;
+          entry.y = cursorWorldY - (spanRows * gs) / 2;
         }
-      }
-    }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+
+        // Create linked lights if the prop defines any
+        if (propDef.lights?.length) {
+          const meta = state.dungeon.metadata;
+          if (!meta.nextLightId) meta.nextLightId = 1;
+          const gridSize = meta.gridSize || 5;
+          const lightCatalog = getLightCatalog();
+          const [origRows, origCols] = propDef.footprint;
+
+          for (const lightDef of propDef.lights) {
+            // Start from normalized footprint coords (unrotated)
+            let nx = lightDef.x;
+            let ny = lightDef.y;
+
+            // Rotate offset to match prop rotation
+            const rot = state.propRotation;
+            if (rot === 90) {
+              [nx, ny] = [origRows - ny, nx];
+            } else if (rot === 180) {
+              [nx, ny] = [origCols - nx, origRows - ny];
+            } else if (rot === 270) {
+              [nx, ny] = [ny, origCols - nx];
+            }
+
+            // Use the prop's actual world position (accounts for freeform offset)
+            const worldX = entry.x + nx * gridSize;
+            const worldY = entry.y + ny * gridSize;
+
+            // Merge preset defaults with overrides from the prop entry
+            const preset = lightCatalog?.lights[lightDef.preset] ?? ({} as Partial<LightPreset>);
+            const light: Light = {
+              id: meta.nextLightId++,
+              x: worldX,
+              y: worldY,
+              type: preset.type ?? 'point',
+              radius: preset.radius ?? 20,
+              color: preset.color ?? '#ff9944',
+              intensity: preset.intensity ?? 1.0,
+              falloff: preset.falloff ?? 'smooth',
+              presetId: lightDef.preset,
+              propRef: { row, col },
+            };
+            if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+            if (preset.animation?.type) light.animation = { ...preset.animation };
+
+            meta.lights.push(light);
+          }
+        }
+      },
+      { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+    );
 
     requestRender();
   }
 
-  _renderPlacePreview(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, row: number, col: number) {
+  _renderPlacePreview(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    row: number,
+    col: number,
+  ) {
     const catalog = state.propCatalog;
     if (!state.selectedProp || !catalog?.props[state.selectedProp]) return;
 
-    const propDef = catalog.props[state.selectedProp];
+    const propDef = catalog.props[state.selectedProp]!;
     const rot = state.propRotation;
     const scl = state.propScale;
     const [spanRows, spanCols] = getEffectiveFootprint(propDef, rot);
@@ -1114,7 +1192,8 @@ export class PropTool extends Tool {
     ctx.globalAlpha = 0.4;
     if (needsTransform) {
       const [fRows, fCols] = propDef.footprint;
-      const centerNx = fCols / 2, centerNy = fRows / 2;
+      const centerNx = fCols / 2,
+        centerNy = fRows / 2;
       const { x: cx, y: cy } = toCanvas((col + centerNx) * gridSize, (row + centerNy) * gridSize, transform);
       ctx.translate(cx, cy);
       ctx.rotate((-rot * Math.PI) / 180);
@@ -1127,8 +1206,10 @@ export class PropTool extends Tool {
     }
     ctx.restore();
 
-    const w = spanCols * gridSize, h = spanRows * gridSize;
-    const bCx = col * gridSize + w / 2, bCy = row * gridSize + h / 2;
+    const w = spanCols * gridSize,
+      h = spanRows * gridSize;
+    const bCx = col * gridSize + w / 2,
+      bCy = row * gridSize + h / 2;
     const topLeft = toCanvas(bCx - (w * scl) / 2, bCy - (h * scl) / 2, transform);
     const bottomRight = toCanvas(bCx + (w * scl) / 2, bCy + (h * scl) / 2, transform);
     const borderColor = valid ? 'rgba(100, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
@@ -1147,12 +1228,19 @@ export class PropTool extends Tool {
 
   // ── Select + Drag ────────────────────────────────────────────────────────
 
-  _selectOnMouseDown(row: number, col: number, event: MouseEvent, pos: CanvasPos | null, propId: string | number | undefined) {
+  _selectOnMouseDown(
+    row: number,
+    col: number,
+    event: MouseEvent,
+    pos: CanvasPos | null,
+    propId: string | number | undefined,
+  ) {
     const anchor = { row, col, propId };
 
     // Check if this prop is already in the selection (by ID or by position)
-    const idx = state.selectedPropAnchors.findIndex((a: { row: number; col: number; propId?: string | number }) =>
-      (propId && a.propId === propId) ?? (a.row === row && a.col === col)
+    const idx = state.selectedPropAnchors.findIndex(
+      (a: { row: number; col: number; propId?: string | number }) =>
+        (propId && a.propId === propId) ?? (a.row === row && a.col === col),
     );
 
     if (event.shiftKey) {
@@ -1180,9 +1268,12 @@ export class PropTool extends Tool {
   _activateDrag(anchor: { row: number; col: number; propId?: string | number }) {
     // Move all selected props if the dragged anchor is in the selection,
     // otherwise just move the single prop that was clicked.
-    const anchorsToMove = state.selectedPropAnchors.some((a: { row: number; col: number; propId?: string | number }) =>
-      (anchor.propId && a.propId === anchor.propId) ?? (a.row === anchor.row && a.col === anchor.col)
-    ) ? state.selectedPropAnchors : [anchor];
+    const anchorsToMove = state.selectedPropAnchors.some(
+      (a: { row: number; col: number; propId?: string | number }) =>
+        (anchor.propId && a.propId === anchor.propId) ?? (a.row === anchor.row && a.col === anchor.col),
+    )
+      ? state.selectedPropAnchors
+      : [anchor];
 
     const meta = state.dungeon.metadata;
     const gs = meta.gridSize || 5;
@@ -1203,8 +1294,8 @@ export class PropTool extends Tool {
       const anchorCol = Math.round(overlay.x / gs);
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const linkedLightIds = (meta.lights || [])
-        .filter(l => l.propRef?.row === anchorRow && l.propRef.col === anchorCol)
-        .map(l => l.id);
+        .filter((l) => l.propRef?.row === anchorRow && l.propRef.col === anchorCol)
+        .map((l) => l.id);
       items.push({
         anchor: { row: a.row, col: a.col },
         propId: overlay.id,
@@ -1252,7 +1343,7 @@ export class PropTool extends Tool {
     // Props are free-form overlays — just check the anchor cell is within map bounds
     const cells = state.dungeon.cells;
     const numRows = cells.length;
-    const numCols = cells[0]?.length || 0;
+    const numCols = cells[0]?.length ?? 0;
     for (const item of this.dragItems) {
       const newRow = this.dragGhost!.row + item.offsetRow;
       const newCol = this.dragGhost!.col + item.offsetCol;
@@ -1278,55 +1369,60 @@ export class PropTool extends Tool {
       const dragSnapToGrid = this.dragSnapToGrid;
       Object.assign(state.dungeon.metadata, JSON.parse(preDragMeta));
       let newAnchors: { row: number; col: number; propId: string | number }[] = [];
-      mutate(label, [], () => {
-        // First, re-remove the original props (they were restored from preDragMeta)
-        const meta = state.dungeon.metadata;
-        for (const item of dragItems) {
-          if (meta.props) {
-            const idx = meta.props.findIndex((p: { id: string | number }) => p.id === item.propId);
-            if (idx >= 0) meta.props.splice(idx, 1);
+      mutate(
+        label,
+        [],
+        () => {
+          // First, re-remove the original props (they were restored from preDragMeta)
+          const meta = state.dungeon.metadata;
+          for (const item of dragItems) {
+            if (meta.props) {
+              const idx = meta.props.findIndex((p: { id: string | number }) => p.id === item.propId);
+              if (idx >= 0) meta.props.splice(idx, 1);
+            }
           }
-        }
 
-        const gs = meta.gridSize || 5;
-        const ghost = dragGhost;
-        const isFreeform = dragFreeform && ghost.worldX != null;
-        const anchors: { row: number; col: number; propId: string | number }[] = [];
-        for (const item of dragItems) {
-          const newRow = ghost.row + item.offsetRow;
-          const newCol = ghost.col + item.offsetCol;
-          const entry = _addOverlayAt(newRow, newCol, item.origType, item.facing, item.flipped);
-          entry.scale = item.scale;
-          entry.zIndex = item.zIndex;
-          if (isFreeform) {
-            // Ctrl+drag: place at exact world-feet position
-            entry.x = ghost.worldX! + item.offsetCol * gs;
-            entry.y = ghost.worldY! + item.offsetRow * gs;
-          } else if (!dragSnapToGrid && (item.freeOffsetX || item.freeOffsetY)) {
-            // Preserve original freeform sub-cell offset (unless Shift = snap to grid)
-            entry.x += (item.freeOffsetX || 0) * gs;
-            entry.y += (item.freeOffsetY || 0) * gs;
-          }
-          anchors.push({ row: newRow, col: newCol, propId: entry.id });
+          const gs = meta.gridSize || 5;
+          const ghost = dragGhost;
+          const isFreeform = dragFreeform && ghost.worldX != null;
+          const anchors: { row: number; col: number; propId: string | number }[] = [];
+          for (const item of dragItems) {
+            const newRow = ghost.row + item.offsetRow;
+            const newCol = ghost.col + item.offsetCol;
+            const entry = _addOverlayAt(newRow, newCol, item.origType, item.facing, item.flipped);
+            entry.scale = item.scale;
+            entry.zIndex = item.zIndex;
+            if (isFreeform) {
+              // Ctrl+drag: place at exact world-feet position
+              entry.x = ghost.worldX! + item.offsetCol * gs;
+              entry.y = ghost.worldY! + item.offsetRow * gs;
+            } else if (!dragSnapToGrid && (item.freeOffsetX || item.freeOffsetY)) {
+              // Preserve original freeform sub-cell offset (unless Shift = snap to grid)
+              entry.x += (item.freeOffsetX || 0) * gs;
+              entry.y += (item.freeOffsetY || 0) * gs;
+            }
+            anchors.push({ row: newRow, col: newCol, propId: entry.id });
 
-          // Move linked lights by the same delta as the prop
-          if (item.linkedLightIds.length > 0) {
-            const dx = entry.x - item.origX;
-            const dy = entry.y - item.origY;
-            const newPropRefRow = Math.round(entry.y / gs);
-            const newPropRefCol = Math.round(entry.x / gs);
-            for (const lightId of item.linkedLightIds) {
-              const light = meta.lights.find(l => l.id === lightId);
-              if (light) {
-                light.x += dx;
-                light.y += dy;
-                light.propRef = { row: newPropRefRow, col: newPropRefCol };
+            // Move linked lights by the same delta as the prop
+            if (item.linkedLightIds.length > 0) {
+              const dx = entry.x - item.origX;
+              const dy = entry.y - item.origY;
+              const newPropRefRow = Math.round(entry.y / gs);
+              const newPropRefCol = Math.round(entry.x / gs);
+              for (const lightId of item.linkedLightIds) {
+                const light = meta.lights.find((l) => l.id === lightId);
+                if (light) {
+                  light.x += dx;
+                  light.y += dy;
+                  light.propRef = { row: newPropRefRow, col: newPropRefCol };
+                }
               }
             }
           }
-        }
-        newAnchors = anchors;
-      }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+          newAnchors = anchors;
+        },
+        { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+      );
       state.selectedPropAnchors = newAnchors;
     } else {
       this._restoreDragItems();
@@ -1378,14 +1474,19 @@ export class PropTool extends Tool {
       return;
     }
     if (state.selectedPropAnchors.length === 1) {
-      const anchor = state.selectedPropAnchors[0];
-      mutate('Rotate prop', [], () => {
-        const overlay = _findOverlayAt(anchor.row, anchor.col);
-        if (overlay) {
-          // Props are free-form overlays — no footprint validation needed for rotation
-          overlay.rotation = (((overlay.rotation || 0) + degrees) % 360 + 360) % 360;
-        }
-      }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+      const anchor = state.selectedPropAnchors[0]!;
+      mutate(
+        'Rotate prop',
+        [],
+        () => {
+          const overlay = _findOverlayAt(anchor.row, anchor.col);
+          if (overlay) {
+            // Props are free-form overlays — no footprint validation needed for rotation
+            overlay.rotation = ((((overlay.rotation || 0) + degrees) % 360) + 360) % 360;
+          }
+        },
+        { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+      );
       requestRender();
       return;
     }
@@ -1401,13 +1502,18 @@ export class PropTool extends Tool {
       return;
     }
     if (state.selectedPropAnchors.length === 1) {
-      const { row: fRow, col: fCol } = state.selectedPropAnchors[0];
-      mutate('Flip prop', [], () => {
-        const overlay = _findOverlayAt(fRow, fCol);
-        if (overlay) {
-          overlay.flipped = !overlay.flipped;
-        }
-      }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+      const { row: fRow, col: fCol } = state.selectedPropAnchors[0]!;
+      mutate(
+        'Flip prop',
+        [],
+        () => {
+          const overlay = _findOverlayAt(fRow, fCol);
+          if (overlay) {
+            overlay.flipped = !overlay.flipped;
+          }
+        },
+        { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+      );
       requestRender();
       return;
     }
@@ -1423,12 +1529,15 @@ export class PropTool extends Tool {
   _rotateDragGroup(degrees = 90) {
     if (!this.dragGhost || this.dragItems.length === 0) return;
     if (this.dragItems.length === 1) {
-      this.dragItems[0].facing = (this.dragItems[0].facing + degrees) % 360;
+      this.dragItems[0]!.facing = (this.dragItems[0]!.facing + degrees) % 360;
       return;
     }
 
     // Compute bounding box of all items in absolute grid space
-    let r_min = Infinity, c_min = Infinity, r_max = -Infinity, c_max = -Infinity;
+    let r_min = Infinity,
+      c_min = Infinity,
+      r_max = -Infinity,
+      c_max = -Infinity;
     for (const item of this.dragItems) {
       const [spanRows, spanCols] = getEffectiveFootprint(item.propDef!, item.facing);
       const absRow = this.dragGhost.row + item.offsetRow;
@@ -1461,11 +1570,12 @@ export class PropTool extends Tool {
   _flipDragGroup() {
     if (!this.dragGhost || this.dragItems.length === 0) return;
     if (this.dragItems.length === 1) {
-      this.dragItems[0].flipped = !this.dragItems[0].flipped;
+      this.dragItems[0]!.flipped = !this.dragItems[0]!.flipped;
       return;
     }
 
-    let c_min = Infinity, c_max = -Infinity;
+    let c_min = Infinity,
+      c_max = -Infinity;
     for (const item of this.dragItems) {
       const [, spanCols] = getEffectiveFootprint(item.propDef!, item.facing);
       const absCol = this.dragGhost.col + item.offsetCol;
@@ -1491,13 +1601,16 @@ export class PropTool extends Tool {
     // Collect overlays
     const overlays: OverlayProp[] = [];
     for (const a of state.selectedPropAnchors) {
-      const o = a.propId ? meta.props?.find((p: { id: string | number }) => p.id === a.propId) : _findOverlayAt(a.row, a.col);
+      const o = a.propId
+        ? meta.props?.find((p: { id: string | number }) => p.id === a.propId)
+        : _findOverlayAt(a.row, a.col);
       if (o) overlays.push(o);
     }
     if (overlays.length === 0) return;
 
     // Compute group center in world-feet
-    let cx = 0, cy = 0;
+    let cx = 0,
+      cy = 0;
     for (const o of overlays) {
       const [sr, sc] = _overlaySpan(o);
       cx += o.x + (sc * gs) / 2;
@@ -1506,29 +1619,34 @@ export class PropTool extends Tool {
     cx /= overlays.length;
     cy /= overlays.length;
 
-    mutate('Rotate props', [], () => {
-      // Rotate each prop around group center + rotate the prop itself
-      const rad = (-degrees * Math.PI) / 180; // negate to match visual direction
-      const cos = Math.cos(rad);
-      const sin = Math.sin(rad);
-      for (const o of overlays) {
-        const [sr, sc] = _overlaySpan(o);
-        const propCx = o.x + (sc * gs) / 2;
-        const propCy = o.y + (sr * gs) / 2;
-        // Orbit around group center
-        const dx = propCx - cx;
-        const dy = propCy - cy;
-        const newCx = cx + dx * cos - dy * sin;
-        const newCy = cy + dx * sin + dy * cos;
-        o.x = newCx - (sc * gs) / 2;
-        o.y = newCy - (sr * gs) / 2;
-        // Rotate the prop itself
-        o.rotation = (((o.rotation || 0) + degrees) % 360 + 360) % 360;
-      }
-    }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+    mutate(
+      'Rotate props',
+      [],
+      () => {
+        // Rotate each prop around group center + rotate the prop itself
+        const rad = (-degrees * Math.PI) / 180; // negate to match visual direction
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+        for (const o of overlays) {
+          const [sr, sc] = _overlaySpan(o);
+          const propCx = o.x + (sc * gs) / 2;
+          const propCy = o.y + (sr * gs) / 2;
+          // Orbit around group center
+          const dx = propCx - cx;
+          const dy = propCy - cy;
+          const newCx = cx + dx * cos - dy * sin;
+          const newCy = cy + dx * sin + dy * cos;
+          o.x = newCx - (sc * gs) / 2;
+          o.y = newCy - (sr * gs) / 2;
+          // Rotate the prop itself
+          o.rotation = ((((o.rotation || 0) + degrees) % 360) + 360) % 360;
+        }
+      },
+      { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+    );
 
     // Update selection anchors
-    state.selectedPropAnchors = overlays.map(o => ({
+    state.selectedPropAnchors = overlays.map((o) => ({
       row: Math.round(o.y / gs),
       col: Math.round(o.x / gs),
       propId: o.id,
@@ -1540,10 +1658,11 @@ export class PropTool extends Tool {
   _flipSelectedGroup() {
     const cells = state.dungeon.cells;
     const numRows = cells.length;
-    const numCols = cells[0]?.length || 0;
+    const numCols = cells[0]?.length ?? 0;
 
     const items = [];
-    let c_min = Infinity, c_max = -Infinity;
+    let c_min = Infinity,
+      c_max = -Infinity;
     for (const anchor of state.selectedPropAnchors) {
       const overlay = _findOverlayAt(anchor.row, anchor.col);
       if (!overlay) continue;
@@ -1572,7 +1691,7 @@ export class PropTool extends Tool {
       for (let r = p.newRow; r < p.newRow + p.newSpanRows; r++) {
         for (let c = p.newCol; c < p.newCol + p.newSpanCols; c++) {
           if (r < 0 || r >= numRows || c < 0 || c >= numCols) return;
-          if (cells[r][c] === null) return;
+          if (cells[r]![c] === null) return;
           const key = `${r},${c}`;
           if (claimed.has(key)) return;
           const existing = findPropAnchor(cells, r, c);
@@ -1583,17 +1702,22 @@ export class PropTool extends Tool {
     }
 
     let newAnchors: { row: number; col: number }[] = [];
-    mutate('Flip props', [], () => {
-      for (const { oldAnchor } of placements) {
-        _removeOverlayAt(oldAnchor.row, oldAnchor.col);
-      }
-      const anchors: { row: number; col: number }[] = [];
-      for (const p of placements) {
-        _addOverlayAt(p.newRow, p.newCol, p.type, p.newFacing, p.flipped);
-        anchors.push({ row: p.newRow, col: p.newCol });
-      }
-      newAnchors = anchors;
-    }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+    mutate(
+      'Flip props',
+      [],
+      () => {
+        for (const { oldAnchor } of placements) {
+          _removeOverlayAt(oldAnchor.row, oldAnchor.col);
+        }
+        const anchors: { row: number; col: number }[] = [];
+        for (const p of placements) {
+          _addOverlayAt(p.newRow, p.newCol, p.type, p.newFacing, p.flipped);
+          anchors.push({ row: p.newRow, col: p.newCol });
+        }
+        newAnchors = anchors;
+      },
+      { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+    );
     state.selectedPropAnchors = newAnchors;
     requestRender();
   }
@@ -1602,11 +1726,16 @@ export class PropTool extends Tool {
     if (state.selectedPropAnchors.length === 0) return;
 
     const anchorsToDelete = [...state.selectedPropAnchors];
-    mutate('Delete prop', [], () => {
-      for (const anchor of anchorsToDelete) {
-        _removeOverlayAt(anchor.row, anchor.col);
-      }
-    }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+    mutate(
+      'Delete prop',
+      [],
+      () => {
+        for (const anchor of anchorsToDelete) {
+          _removeOverlayAt(anchor.row, anchor.col);
+        }
+      },
+      { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+    );
 
     state.selectedPropAnchors = [];
     requestRender();
@@ -1618,7 +1747,7 @@ export class PropTool extends Tool {
     if (!state.propClipboard) return false;
     const cells = state.dungeon.cells;
     const numRows = cells.length;
-    const numCols = cells[0]?.length || 0;
+    const numCols = cells[0]?.length ?? 0;
     const { props } = state.propClipboard;
     const catalog = state.propCatalog;
 
@@ -1627,14 +1756,12 @@ export class PropTool extends Tool {
       const col = targetCol + dCol;
       // Compute span from catalog + rotation (overlay props don't have span)
       const propDef = catalog?.props[prop.type];
-      const [spanRows, spanCols] = propDef
-        ? getEffectiveFootprint(propDef, prop.rotation)
-        : [1, 1];
+      const [spanRows, spanCols] = propDef ? getEffectiveFootprint(propDef, prop.rotation) : [1, 1];
 
       for (let r = row; r < row + spanRows; r++) {
         for (let c = col; c < col + spanCols; c++) {
           if (r < 0 || r >= numRows || c < 0 || c >= numCols) return false;
-          if (cells[r][c] === null) return false;
+          if (cells[r]![c] === null) return false;
         }
       }
     }
@@ -1650,65 +1777,73 @@ export class PropTool extends Tool {
 
     let newAnchors: { row: number; col: number }[] = [];
     let lightsCreated = 0;
-    mutate('Paste props', [], () => {
-      // Remove any existing props at paste anchor positions
-      for (const { dRow, dCol } of props) {
-        const r = targetRow + dRow, c = targetCol + dCol;
-        _removeOverlayAt(r, c);
-      }
-
-      // Place pasted props (and their associated lights)
-      const meta = state.dungeon.metadata;
-      const gs = meta.gridSize || 5;
-      if (!meta.nextLightId) meta.nextLightId = 1;
-      const anchors: { row: number; col: number }[] = [];
-      for (const { dRow, dCol, prop, lights } of props) {
-        const row = targetRow + dRow;
-        const col = targetCol + dCol;
-        const cell = cells[row]?.[col];
-        if (!cell) continue;
-        const entry = _addOverlayAt(row, col, prop.type, (prop.facing ?? prop.rotation) || 0, prop.flipped);
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (prop.scale != null) entry.scale = prop.scale;
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (prop.zIndex != null) entry.zIndex = prop.zIndex;
-        // Preserve freeform sub-cell offset from the original prop
-        const origAnchorRow = Math.round(prop.y / gs);
-        const origAnchorCol = Math.round(prop.x / gs);
-        const offsetX = prop.x - origAnchorCol * gs;
-        const offsetY = prop.y - origAnchorRow * gs;
-        if (Math.abs(offsetX) > 0.01 || Math.abs(offsetY) > 0.01) {
-          entry.x = col * gs + offsetX;
-          entry.y = row * gs + offsetY;
+    mutate(
+      'Paste props',
+      [],
+      () => {
+        // Remove any existing props at paste anchor positions
+        for (const { dRow, dCol } of props) {
+          const r = targetRow + dRow,
+            c = targetCol + dCol;
+          _removeOverlayAt(r, c);
         }
-        anchors.push({ row, col });
 
-        // Create associated lights at the pasted prop's new position
-        if (lights?.length) {
-          const newPropRefRow = Math.round(entry.y / gs);
-          const newPropRefCol = Math.round(entry.x / gs);
-          for (const light of lights) {
-            const newLight: Light = {
-              id: meta.nextLightId++,
-              x: entry.x + (light._offsetX ?? 0),
-              y: entry.y + (light._offsetY ?? 0),
-              type: (light.type ?? 'point') as Light['type'],
-              radius: (light.radius as number),
-              color: (light.color as string) || '#ff9944',
-              intensity: (light.intensity as number),
-              falloff: (light.falloff ?? 'smooth') as Light['falloff'],
-              propRef: { row: newPropRefRow, col: newPropRefCol },
-            };
-            if (light.presetId) newLight.presetId = light.presetId as string;
-            if (light.dimRadius) newLight.dimRadius = light.dimRadius as number;
-            if (light.animation) newLight.animation = typeof light.animation === 'string' ? JSON.parse(light.animation) : { ...light.animation };
-            meta.lights.push(newLight);
-            lightsCreated++;
+        // Place pasted props (and their associated lights)
+        const meta = state.dungeon.metadata;
+        const gs = meta.gridSize || 5;
+        if (!meta.nextLightId) meta.nextLightId = 1;
+        const anchors: { row: number; col: number }[] = [];
+        for (const { dRow, dCol, prop, lights } of props) {
+          const row = targetRow + dRow;
+          const col = targetCol + dCol;
+          const cell = cells[row]?.[col];
+          if (!cell) continue;
+          const entry = _addOverlayAt(row, col, prop.type, (prop.facing ?? prop.rotation) || 0, prop.flipped);
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          if (prop.scale != null) entry.scale = prop.scale;
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          if (prop.zIndex != null) entry.zIndex = prop.zIndex;
+          // Preserve freeform sub-cell offset from the original prop
+          const origAnchorRow = Math.round(prop.y / gs);
+          const origAnchorCol = Math.round(prop.x / gs);
+          const offsetX = prop.x - origAnchorCol * gs;
+          const offsetY = prop.y - origAnchorRow * gs;
+          if (Math.abs(offsetX) > 0.01 || Math.abs(offsetY) > 0.01) {
+            entry.x = col * gs + offsetX;
+            entry.y = row * gs + offsetY;
+          }
+          anchors.push({ row, col });
+
+          // Create associated lights at the pasted prop's new position
+          if (lights?.length) {
+            const newPropRefRow = Math.round(entry.y / gs);
+            const newPropRefCol = Math.round(entry.x / gs);
+            for (const light of lights) {
+              const newLight: Light = {
+                id: meta.nextLightId++,
+                x: entry.x + (light._offsetX ?? 0),
+                y: entry.y + (light._offsetY ?? 0),
+                type: (light.type ?? 'point') as Light['type'],
+                radius: light.radius as number,
+                color: (light.color as string) || '#ff9944',
+                intensity: light.intensity as number,
+                falloff: (light.falloff ?? 'smooth') as Light['falloff'],
+                propRef: { row: newPropRefRow, col: newPropRefCol },
+              };
+              if (light.presetId) newLight.presetId = light.presetId as string;
+              if (light.dimRadius) newLight.dimRadius = light.dimRadius as number;
+              if (light.animation)
+                newLight.animation =
+                  typeof light.animation === 'string' ? JSON.parse(light.animation) : { ...light.animation };
+              meta.lights.push(newLight);
+              lightsCreated++;
+            }
           }
         }
-      }
-      newAnchors = anchors;
-    }, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+        newAnchors = anchors;
+      },
+      { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+    );
 
     state.selectedPropAnchors = newAnchors;
     state.propPasteMode = false;
@@ -1718,7 +1853,12 @@ export class PropTool extends Tool {
     showToast(`Pasted ${newAnchors.length} prop${newAnchors.length === 1 ? '' : 's'}${lightMsg}`);
   }
 
-  _drawNameLabel(ctx: CanvasRenderingContext2D, name: string, topLeft: { x: number; y: number }, bottomRight: { x: number; y: number }) {
+  _drawNameLabel(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    topLeft: { x: number; y: number },
+    bottomRight: { x: number; y: number },
+  ) {
     const centerX = (topLeft.x + bottomRight.x) / 2;
     const aboveY = topLeft.y - 6;
 

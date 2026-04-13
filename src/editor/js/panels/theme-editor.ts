@@ -18,13 +18,13 @@ const THEME_PROPS = [
   ['secretDoorColor', 'Secret Door'],
   ['compassRoseFill', 'Compass Fill'],
   ['compassRoseStroke', 'Compass Stroke'],
-];
+] as const;
 
 function parseRgbaColor(color: string) {
   const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/.exec(color);
   if (m) {
-    const hex = '#' + [m[1], m[2], m[3]].map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const hex = '#' + [m[1]!, m[2]!, m[3]!].map((x) => parseInt(x).toString(16).padStart(2, '0')).join('');
+
     const alpha = m[4] !== undefined ? parseFloat(m[4]) : 1;
     return { hex, alpha };
   }
@@ -84,7 +84,16 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       </div>
     </div>`;
 
-  const sliderRow = (label: string, numAttr: string, rangeAttr: string, key: string, val: number, min: number, max: number, step: number) =>
+  const sliderRow = (
+    label: string,
+    numAttr: string,
+    rangeAttr: string,
+    key: string,
+    val: number,
+    min: number,
+    max: number,
+    step: number,
+  ) =>
     `<div class="cte-slider-row">
       <div class="cte-slider-header">
         <span class="cte-label">${label}</span>
@@ -124,14 +133,20 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
   html += section('Colors', colorsHtml);
 
   // Grid section
-  html += section('Grid', `
+  html += section(
+    'Grid',
+    `
     ${colorRow('Color', 'data-grid-prop', 'color', theme.gridLine ?? '#000000')}
-    ${selectRow('Style', 'data-grid-prop="style"', `
+    ${selectRow(
+      'Style',
+      'data-grid-prop="style"',
+      `
       <option value="lines" ${gridStyle === 'lines' ? 'selected' : ''}>Lines</option>
       <option value="dotted" ${gridStyle === 'dotted' ? 'selected' : ''}>Dotted Lines</option>
       <option value="corners-x" ${gridStyle === 'corners-x' ? 'selected' : ''}>Corner Crosses</option>
       <option value="corners-dot" ${gridStyle === 'corners-dot' ? 'selected' : ''}>Corner Dots</option>
-    `)}
+    `,
+    )}
     ${sliderRow('Width', 'data-grid-prop', 'data-grid-range', 'lineWidth', gridLineWidth, 1, 8, 1)}
     ${sliderRow('Opacity', 'data-grid-prop', 'data-grid-range', 'opacity', gridOpacity, 0, 1, 0.05)}
     <div data-grid-cond="corners-x" style="${gridStyle === 'corners-x' ? '' : 'display:none'}">
@@ -140,74 +155,100 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     <div data-grid-cond="lines,dotted" style="${gridStyle === 'lines' || gridStyle === 'dotted' ? '' : 'display:none'}">
       ${sliderRow('Noise', 'data-grid-prop', 'data-grid-range', 'noise', gridNoise, 0, 1, 0.05)}
     </div>
-  `);
+  `,
+  );
 
   // Walls section
-  html += section('Walls', `
+  html += section(
+    'Walls',
+    `
     ${sliderRow('Roughness', 'data-wall-prop', 'data-wall-range', 'roughness', wallRoughness, 0, 3, 0.1)}
     ${colorRow('Shadow Color', 'data-wshadow-prop', 'color', parsedShadow.hex)}
     ${sliderRow('Shadow Opacity', 'data-wshadow-prop', 'data-wshadow-range', 'opacity', parsedShadow.alpha, 0, 1, 0.01)}
-    ${sliderRow('Shadow Blur', 'data-wshadow-prop', 'data-wshadow-range', 'blur', (wallShadow.blur), 0, 30, 1)}
-    ${sliderRow('Shadow X', 'data-wshadow-prop', 'data-wshadow-range', 'offsetX', (wallShadow.offsetX), -20, 20, 1)}
-    ${sliderRow('Shadow Y', 'data-wshadow-prop', 'data-wshadow-range', 'offsetY', (wallShadow.offsetY), -20, 20, 1)}
-  `);
+    ${sliderRow('Shadow Blur', 'data-wshadow-prop', 'data-wshadow-range', 'blur', wallShadow.blur, 0, 30, 1)}
+    ${sliderRow('Shadow X', 'data-wshadow-prop', 'data-wshadow-range', 'offsetX', wallShadow.offsetX, -20, 20, 1)}
+    ${sliderRow('Shadow Y', 'data-wshadow-prop', 'data-wshadow-range', 'offsetY', wallShadow.offsetY, -20, 20, 1)}
+  `,
+  );
 
   // Shading section
-  html += section('Shading', `
+  html += section(
+    'Shading',
+    `
     ${sliderRow('Buffer Opacity', 'data-buf-prop', 'data-buf-range', 'opacity', bufferOpacity, 0, 1, 0.01)}
-    ${colorRow('Outer Color', 'data-shading-prop', 'color', (shading.color) || '#c5b9ac')}
-    ${sliderRow('Outer Size', 'data-shading-prop', 'data-shading-range', 'size', (shading.size), 0, 100, 1)}
-    ${sliderRow('Outer Roughness', 'data-shading-prop', 'data-shading-range', 'roughness', (shading.roughness as number), 0, 10, 0.5)}
-  `);
+    ${colorRow('Outer Color', 'data-shading-prop', 'color', shading.color || '#c5b9ac')}
+    ${sliderRow('Outer Size', 'data-shading-prop', 'data-shading-range', 'size', shading.size, 0, 100, 1)}
+    ${sliderRow('Outer Roughness', 'data-shading-prop', 'data-shading-range', 'roughness', shading.roughness as number, 0, 10, 0.5)}
+  `,
+  );
 
   // Hatching section
-  html += section('Hatching', `
-    ${selectRow('Style', 'data-hatch-prop="style"', `
+  html += section(
+    'Hatching',
+    `
+    ${selectRow(
+      'Style',
+      'data-hatch-prop="style"',
+      `
       <option value="lines" ${hatchStyle === 'lines' ? 'selected' : ''}>Lines</option>
       <option value="rocks" ${hatchStyle === 'rocks' ? 'selected' : ''}>Rocks</option>
       <option value="both" ${hatchStyle === 'both' ? 'selected' : ''}>Both</option>
-    `)}
+    `,
+    )}
     ${colorRow('Color', 'data-hatch-prop', 'color', hatchColor)}
     ${sliderRow('Size', 'data-hatch-prop', 'data-hatch-range', 'size', hatchSize, 0, 1, 0.05)}
     ${sliderRow('Opacity', 'data-hatch-prop', 'data-hatch-range', 'opacity', hatchOpacity, 0, 1, 0.01)}
     ${sliderRow('Distance', 'data-hatch-prop', 'data-hatch-range', 'distance', hatchDistance, 1, 8, 1)}
-  `);
+  `,
+  );
 
   // Textures section
   const blendWidth = theme.textureBlendWidth ?? 0.35;
-  html += section('Textures', `
+  html += section(
+    'Textures',
+    `
     ${sliderRow('Edge Blend', 'data-texblend-prop', 'data-texblend-range', 'blendWidth', blendWidth, 0, 1, 0.01)}
-  `);
+  `,
+  );
 
   // Water section
   const parsedCaustic = parseRgbaColor((theme.waterCausticColor as string) || 'rgba(160,215,255,0.55)');
-  html += section('Water', `
+  html += section(
+    'Water',
+    `
     ${colorRow('Shallow', 'data-theme-prop', 'waterShallowColor', (theme.waterShallowColor as string) || '#2d69a5')}
     ${colorRow('Medium', 'data-theme-prop', 'waterMediumColor', (theme.waterMediumColor as string) || '#1e4b8a')}
     ${colorRow('Deep', 'data-theme-prop', 'waterDeepColor', (theme.waterDeepColor as string) || '#0f2d6e')}
     ${colorRow('Caustic Color', 'data-caustic-prop', 'color', parsedCaustic.hex)}
     ${sliderRow('Caustic Opacity', 'data-caustic-prop', 'data-caustic-range', 'opacity', parsedCaustic.alpha, 0, 1, 0.01)}
-  `);
+  `,
+  );
 
   // Lava section
   const parsedLavaCaustic = parseRgbaColor((theme.lavaCausticColor as string) || 'rgba(255,160,60,0.55)');
-  html += section('Lava', `
+  html += section(
+    'Lava',
+    `
     ${colorRow('Shallow', 'data-theme-prop', 'lavaShallowColor', (theme.lavaShallowColor as string) || '#cc4400')}
     ${colorRow('Medium', 'data-theme-prop', 'lavaMediumColor', (theme.lavaMediumColor as string) || '#992200')}
     ${colorRow('Deep', 'data-theme-prop', 'lavaDeepColor', (theme.lavaDeepColor as string) || '#661100')}
     ${colorRow('Caustic Color', 'data-lava-caustic-prop', 'color', parsedLavaCaustic.hex)}
     ${sliderRow('Caustic Opacity', 'data-lava-caustic-prop', 'data-lava-caustic-range', 'opacity', parsedLavaCaustic.alpha, 0, 1, 0.01)}
     ${colorRow('Light Color', 'data-theme-prop', 'lavaLightColor', (theme.lavaLightColor as string) || '#ff6600')}
-    ${sliderRow('Light Strength', 'data-lava-light-prop', 'data-lava-light-range', 'intensity', (theme.lavaLightIntensity as number), 0, 1, 0.01)}
-  `);
+    ${sliderRow('Light Strength', 'data-lava-light-prop', 'data-lava-light-range', 'intensity', theme.lavaLightIntensity as number, 0, 1, 0.01)}
+  `,
+  );
 
   // Labels section
   const labels = (theme.labels ?? {}) as Record<string, unknown>;
-  html += section('Labels', `
+  html += section(
+    'Labels',
+    `
     ${colorRow('Border', 'data-label-prop', 'borderColor', (labels.borderColor as string) || '#000000')}
     ${colorRow('Font', 'data-label-prop', 'fontColor', (labels.fontColor as string) || '#000000')}
     ${colorRow('Background', 'data-label-prop', 'backgroundColor', (labels.backgroundColor as string) || '#FFFFFF')}
-  `);
+  `,
+  );
 
   html += '<button id="btn-save-user-theme" class="cte-save-btn">Save as Theme</button>';
 
@@ -243,10 +284,16 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
 
       async function commit() {
         const name = input.value.trim();
-        if (!name) { revert(); return; }
+        if (!name) {
+          revert();
+          return;
+        }
         const t = state.dungeon.metadata.theme;
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (typeof t !== 'object' || t === null) { revert(); return; }
+        if (typeof t !== 'object' || t === null) {
+          revert();
+          return;
+        }
         try {
           const themeObj = { ...t };
           delete themeObj.displayName;
@@ -265,11 +312,19 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
         }
       }
 
-      okBtn.addEventListener('click', () => { void commit(); });
+      okBtn.addEventListener('click', () => {
+        void commit();
+      });
       cancelBtn.addEventListener('click', revert);
       input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); void commit(); }
-        if (e.key === 'Escape') { e.preventDefault(); revert(); }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          void commit();
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          revert();
+        }
       });
     });
   }
@@ -364,17 +419,42 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     const numInput = customEditorEl.querySelector<HTMLInputElement>(`[data-grid-prop="${prop}"]`);
     const rangeInput = customEditorEl.querySelector<HTMLInputElement>(`[data-grid-range="${prop}"]`);
     if (!numInput || !rangeInput) continue;
-    const keyMap = { lineWidth: 'gridLineWidth', opacity: 'gridOpacity', cornerLength: 'gridCornerLength', noise: 'gridNoise' };
+    const keyMap = {
+      lineWidth: 'gridLineWidth',
+      opacity: 'gridOpacity',
+      cornerLength: 'gridCornerLength',
+      noise: 'gridNoise',
+    };
     const sync = (value: string, source: HTMLInputElement | HTMLSelectElement | null) => {
       const t = ensureCustomThemeObject();
       (t as Record<string, unknown>)[keyMap[prop as keyof typeof keyMap]] = Number(value);
       if (numInput !== source) numInput.value = value;
       if (rangeInput !== source) rangeInput.value = value;
     };
-    numInput.addEventListener('input', () => { sync(numInput.value, numInput); invalidateGridCache(); markDirty(); notify(); });
-    numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); invalidateGridCache(); renderCustomThumb(); });
-    rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); invalidateGridCache(); markDirty(); notify(); });
-    rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); invalidateGridCache(); renderCustomThumb(); });
+    numInput.addEventListener('input', () => {
+      sync(numInput.value, numInput);
+      invalidateGridCache();
+      markDirty();
+      notify();
+    });
+    numInput.addEventListener('change', () => {
+      pushUndo();
+      sync(numInput.value, numInput);
+      invalidateGridCache();
+      renderCustomThumb();
+    });
+    rangeInput.addEventListener('input', () => {
+      sync(rangeInput.value, rangeInput);
+      invalidateGridCache();
+      markDirty();
+      notify();
+    });
+    rangeInput.addEventListener('change', () => {
+      pushUndo();
+      sync(rangeInput.value, rangeInput);
+      invalidateGridCache();
+      renderCustomThumb();
+    });
   }
 
   // Shading color picker
@@ -414,10 +494,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       if (rangeInput !== source) rangeInput.value = value;
     };
 
-    numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-    numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-    rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-    rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+    numInput.addEventListener('input', () => {
+      sync(numInput.value, numInput);
+      markDirty();
+      notify();
+    });
+    numInput.addEventListener('change', () => {
+      pushUndo();
+      sync(numInput.value, numInput);
+      renderCustomThumb();
+    });
+    rangeInput.addEventListener('input', () => {
+      sync(rangeInput.value, rangeInput);
+      markDirty();
+      notify();
+    });
+    rangeInput.addEventListener('change', () => {
+      pushUndo();
+      sync(rangeInput.value, rangeInput);
+      renderCustomThumb();
+    });
   }
 
   // Wall roughness
@@ -431,10 +527,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
-      numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-      numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-      rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-      rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+      numInput.addEventListener('input', () => {
+        sync(numInput.value, numInput);
+        markDirty();
+        notify();
+      });
+      numInput.addEventListener('change', () => {
+        pushUndo();
+        sync(numInput.value, numInput);
+        renderCustomThumb();
+      });
+      rangeInput.addEventListener('input', () => {
+        sync(rangeInput.value, rangeInput);
+        markDirty();
+        notify();
+      });
+      rangeInput.addEventListener('change', () => {
+        pushUndo();
+        sync(rangeInput.value, rangeInput);
+        renderCustomThumb();
+      });
     }
   }
 
@@ -449,9 +561,13 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       t.wallShadow.color = hexAlphaToRgba(wShadowColorInput.value, alpha);
       const hex = wShadowColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = wShadowColorInput.value;
-      markDirty(); notify();
+      markDirty();
+      notify();
     });
-    wShadowColorInput.addEventListener('change', () => { pushUndo(); renderCustomThumb(); });
+    wShadowColorInput.addEventListener('change', () => {
+      pushUndo();
+      renderCustomThumb();
+    });
   }
 
   // Wall shadow numeric + range controls (opacity, blur, offsetX, offsetY)
@@ -471,10 +587,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       if (numInput !== source) numInput.value = value;
       if (rangeInput !== source) rangeInput.value = value;
     };
-    numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-    numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-    rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-    rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+    numInput.addEventListener('input', () => {
+      sync(numInput.value, numInput);
+      markDirty();
+      notify();
+    });
+    numInput.addEventListener('change', () => {
+      pushUndo();
+      sync(numInput.value, numInput);
+      renderCustomThumb();
+    });
+    rangeInput.addEventListener('input', () => {
+      sync(rangeInput.value, rangeInput);
+      markDirty();
+      notify();
+    });
+    rangeInput.addEventListener('change', () => {
+      pushUndo();
+      sync(rangeInput.value, rangeInput);
+      renderCustomThumb();
+    });
   }
 
   // Buffer shading opacity
@@ -488,10 +620,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
-      numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-      numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-      rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-      rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+      numInput.addEventListener('input', () => {
+        sync(numInput.value, numInput);
+        markDirty();
+        notify();
+      });
+      numInput.addEventListener('change', () => {
+        pushUndo();
+        sync(numInput.value, numInput);
+        renderCustomThumb();
+      });
+      rangeInput.addEventListener('input', () => {
+        sync(rangeInput.value, rangeInput);
+        markDirty();
+        notify();
+      });
+      rangeInput.addEventListener('change', () => {
+        pushUndo();
+        sync(rangeInput.value, rangeInput);
+        renderCustomThumb();
+      });
     }
   }
 
@@ -548,10 +696,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       if (rangeInput !== source) rangeInput.value = value;
     };
 
-    numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-    numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-    rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-    rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+    numInput.addEventListener('input', () => {
+      sync(numInput.value, numInput);
+      markDirty();
+      notify();
+    });
+    numInput.addEventListener('change', () => {
+      pushUndo();
+      sync(numInput.value, numInput);
+      renderCustomThumb();
+    });
+    rangeInput.addEventListener('input', () => {
+      sync(rangeInput.value, rangeInput);
+      markDirty();
+      notify();
+    });
+    rangeInput.addEventListener('change', () => {
+      pushUndo();
+      sync(rangeInput.value, rangeInput);
+      renderCustomThumb();
+    });
   }
 
   // Texture blend width
@@ -565,10 +729,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
-      numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-      numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-      rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-      rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+      numInput.addEventListener('input', () => {
+        sync(numInput.value, numInput);
+        markDirty();
+        notify();
+      });
+      numInput.addEventListener('change', () => {
+        pushUndo();
+        sync(numInput.value, numInput);
+        renderCustomThumb();
+      });
+      rangeInput.addEventListener('input', () => {
+        sync(rangeInput.value, rangeInput);
+        markDirty();
+        notify();
+      });
+      rangeInput.addEventListener('change', () => {
+        pushUndo();
+        sync(rangeInput.value, rangeInput);
+        renderCustomThumb();
+      });
     }
   }
 
@@ -582,9 +762,13 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       t.waterCausticColor = hexAlphaToRgba(causticColorInput.value, alpha);
       const hex = causticColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = causticColorInput.value;
-      markDirty(); notify();
+      markDirty();
+      notify();
     });
-    causticColorInput.addEventListener('change', () => { pushUndo(); renderCustomThumb(); });
+    causticColorInput.addEventListener('change', () => {
+      pushUndo();
+      renderCustomThumb();
+    });
   }
 
   // Water caustic opacity (paired number + range)
@@ -599,10 +783,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
-      numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-      numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-      rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-      rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+      numInput.addEventListener('input', () => {
+        sync(numInput.value, numInput);
+        markDirty();
+        notify();
+      });
+      numInput.addEventListener('change', () => {
+        pushUndo();
+        sync(numInput.value, numInput);
+        renderCustomThumb();
+      });
+      rangeInput.addEventListener('input', () => {
+        sync(rangeInput.value, rangeInput);
+        markDirty();
+        notify();
+      });
+      rangeInput.addEventListener('change', () => {
+        pushUndo();
+        sync(rangeInput.value, rangeInput);
+        renderCustomThumb();
+      });
     }
   }
 
@@ -616,9 +816,13 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       t.lavaCausticColor = hexAlphaToRgba(lavaCausticColorInput.value, alpha);
       const hex = lavaCausticColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = lavaCausticColorInput.value;
-      markDirty(); notify();
+      markDirty();
+      notify();
     });
-    lavaCausticColorInput.addEventListener('change', () => { pushUndo(); renderCustomThumb(); });
+    lavaCausticColorInput.addEventListener('change', () => {
+      pushUndo();
+      renderCustomThumb();
+    });
   }
 
   // Lava caustic opacity (paired number + range)
@@ -633,10 +837,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
-      numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-      numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-      rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-      rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+      numInput.addEventListener('input', () => {
+        sync(numInput.value, numInput);
+        markDirty();
+        notify();
+      });
+      numInput.addEventListener('change', () => {
+        pushUndo();
+        sync(numInput.value, numInput);
+        renderCustomThumb();
+      });
+      rangeInput.addEventListener('input', () => {
+        sync(rangeInput.value, rangeInput);
+        markDirty();
+        notify();
+      });
+      rangeInput.addEventListener('change', () => {
+        pushUndo();
+        sync(rangeInput.value, rangeInput);
+        renderCustomThumb();
+      });
     }
   }
 
@@ -651,10 +871,26 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
         if (numInput !== source) numInput.value = value;
         if (rangeInput !== source) rangeInput.value = value;
       };
-      numInput.addEventListener('input', () => { sync(numInput.value, numInput); markDirty(); notify(); });
-      numInput.addEventListener('change', () => { pushUndo(); sync(numInput.value, numInput); renderCustomThumb(); });
-      rangeInput.addEventListener('input', () => { sync(rangeInput.value, rangeInput); markDirty(); notify(); });
-      rangeInput.addEventListener('change', () => { pushUndo(); sync(rangeInput.value, rangeInput); renderCustomThumb(); });
+      numInput.addEventListener('input', () => {
+        sync(numInput.value, numInput);
+        markDirty();
+        notify();
+      });
+      numInput.addEventListener('change', () => {
+        pushUndo();
+        sync(numInput.value, numInput);
+        renderCustomThumb();
+      });
+      rangeInput.addEventListener('input', () => {
+        sync(rangeInput.value, rangeInput);
+        markDirty();
+        notify();
+      });
+      rangeInput.addEventListener('change', () => {
+        pushUndo();
+        sync(rangeInput.value, rangeInput);
+        renderCustomThumb();
+      });
     }
   }
 
@@ -705,8 +941,8 @@ function ensureCustomThemeObject(): Theme {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (typeof t === 'object' && t !== null) return t;
   // User-saved theme — edit the registry entry in place
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-  if (typeof t === 'string' && t.startsWith('user:') && THEMES[t]) return THEMES[t];
+
+  if (typeof t === 'string' && t.startsWith('user:') && THEMES[t]) return THEMES[t]!;
   // Built-in preset — clone into inline custom
   t = getCustomThemeBase();
   state.dungeon.metadata.theme = t;
@@ -752,7 +988,7 @@ function syncCustomEditorValues() {
   };
 
   // Theme color props
-  customEditor.querySelectorAll<HTMLInputElement>('input[data-theme-prop]').forEach(input => {
+  customEditor.querySelectorAll<HTMLInputElement>('input[data-theme-prop]').forEach((input) => {
     const prop = input.dataset.themeProp;
     if (theme[prop!]) syncColor(input, theme[prop!] as string);
   });
@@ -761,8 +997,8 @@ function syncCustomEditorValues() {
   syncColor(customEditor.querySelector<HTMLInputElement>('[data-grid-prop="color"]'), theme.gridLine ?? '#000000');
   const gridStyleSel = customEditor.querySelector<HTMLInputElement>('[data-grid-prop="style"]');
   const gridStyleVal = theme.gridStyle ?? 'lines';
-  if (gridStyleSel) (gridStyleSel).value = gridStyleVal;
-  customEditor.querySelectorAll('[data-grid-cond]').forEach(el => {
+  if (gridStyleSel) gridStyleSel.value = gridStyleVal;
+  customEditor.querySelectorAll('[data-grid-cond]').forEach((el) => {
     const allowed = (el as HTMLElement).dataset.gridCond!.split(',');
     (el as HTMLElement).style.display = allowed.includes(gridStyleVal) ? '' : 'none';
   });
@@ -774,15 +1010,15 @@ function syncCustomEditorValues() {
   ]) {
     const ni = customEditor.querySelector<HTMLInputElement>(`[data-grid-prop="${prop}"]`);
     const ri = customEditor.querySelector<HTMLInputElement>(`[data-grid-range="${prop}"]`);
-    if (ni) (ni).value = String(val);
-    if (ri) (ri).value = String(val);
+    if (ni) ni.value = String(val);
+    if (ri) ri.value = String(val);
   }
 
   // Wall controls
   const wrNum = customEditor.querySelector<HTMLInputElement>('[data-wall-prop="roughness"]');
   const wrRange = customEditor.querySelector<HTMLInputElement>('[data-wall-range="roughness"]');
-  if (wrNum) (wrNum).value = String(theme.wallRoughness ?? 0);
-  if (wrRange) (wrRange).value = String(theme.wallRoughness ?? 0);
+  if (wrNum) wrNum.value = String(theme.wallRoughness ?? 0);
+  if (wrRange) wrRange.value = String(theme.wallRoughness ?? 0);
 
   const ws = (theme.wallShadow ?? {}) as { color?: string; blur?: number; offsetX?: number; offsetY?: number };
   const parsedWS = parseRgbaColor(ws.color ?? 'rgba(0,0,0,0.2)');
@@ -795,32 +1031,38 @@ function syncCustomEditorValues() {
   ]) {
     const ni = customEditor.querySelector<HTMLInputElement>(`[data-wshadow-prop="${prop}"]`);
     const ri = customEditor.querySelector<HTMLInputElement>(`[data-wshadow-range="${prop}"]`);
-    if (ni) (ni).value = String(fallback);
-    if (ri) (ri).value = String(fallback);
+    if (ni) ni.value = String(fallback);
+    if (ri) ri.value = String(fallback);
   }
 
   // Buffer opacity
   const bufN = customEditor.querySelector<HTMLInputElement>('[data-buf-prop="opacity"]');
   const bufR = customEditor.querySelector<HTMLInputElement>('[data-buf-range="opacity"]');
-  if (bufN) (bufN).value = String(theme.bufferShadingOpacity ?? 0);
-  if (bufR) (bufR).value = String(theme.bufferShadingOpacity ?? 0);
+  if (bufN) bufN.value = String(theme.bufferShadingOpacity ?? 0);
+  if (bufR) bufR.value = String(theme.bufferShadingOpacity ?? 0);
 
   // Outer shading controls
   const shading = theme.outerShading ?? { color: 'rgba(0,0,0,0)', size: 0, roughness: 0 };
-  syncColor(customEditor.querySelector<HTMLInputElement>('[data-shading-prop="color"]') as HTMLInputElement, shading.color);
+  syncColor(
+    customEditor.querySelector<HTMLInputElement>('[data-shading-prop="color"]') as HTMLInputElement,
+    shading.color,
+  );
   for (const prop of ['size', 'roughness']) {
     const val = String((shading as Record<string, unknown>)[prop] ?? 0);
     const numInput = customEditor.querySelector<HTMLInputElement>(`[data-shading-prop="${prop}"]`);
     const rangeInput = customEditor.querySelector<HTMLInputElement>(`[data-shading-range="${prop}"]`);
-    if (numInput) (numInput).value = val;
-    if (rangeInput) (rangeInput).value = val;
+    if (numInput) numInput.value = val;
+    if (rangeInput) rangeInput.value = val;
   }
 
   // Hatching controls
   const hatchStyleSel = customEditor.querySelector<HTMLInputElement>('[data-hatch-prop="style"]');
-  if (hatchStyleSel) (hatchStyleSel).value = theme.hatchStyle ?? 'lines';
+  if (hatchStyleSel) hatchStyleSel.value = theme.hatchStyle ?? 'lines';
 
-  syncColor(customEditor.querySelector<HTMLInputElement>('[data-hatch-prop="color"]') as HTMLInputElement, (theme.hatchColor as string) || theme.wallStroke || '#000000');
+  syncColor(
+    customEditor.querySelector<HTMLInputElement>('[data-hatch-prop="color"]') as HTMLInputElement,
+    (theme.hatchColor as string) || theme.wallStroke || '#000000',
+  );
 
   const pairs = [
     ['size', theme.hatchSize ?? 0.5],
@@ -830,45 +1072,57 @@ function syncCustomEditorValues() {
   for (const [prop, val] of pairs) {
     const numInput = customEditor.querySelector<HTMLInputElement>(`[data-hatch-prop="${prop}"]`);
     const rangeInput = customEditor.querySelector<HTMLInputElement>(`[data-hatch-range="${prop}"]`);
-    if (numInput) (numInput).value = String(val);
-    if (rangeInput) (rangeInput).value = String(val);
+    if (numInput) numInput.value = String(val);
+    if (rangeInput) rangeInput.value = String(val);
   }
 
   // Texture blend width
   const tbNum = customEditor.querySelector<HTMLInputElement>('[data-texblend-prop="blendWidth"]');
   const tbRange = customEditor.querySelector<HTMLInputElement>('[data-texblend-range="blendWidth"]');
   const tbVal = String(theme.textureBlendWidth ?? 0.35);
-  if (tbNum) (tbNum).value = tbVal;
-  if (tbRange) (tbRange).value = tbVal;
+  if (tbNum) tbNum.value = tbVal;
+  if (tbRange) tbRange.value = tbVal;
 
   // Water caustic
   const parsedCausticSync = parseRgbaColor((theme.waterCausticColor as string) || 'rgba(160,215,255,0.55)');
   syncColor(customEditor.querySelector<HTMLInputElement>('[data-caustic-prop="color"]'), parsedCausticSync.hex);
   const causticOpN = customEditor.querySelector<HTMLInputElement>('[data-caustic-prop="opacity"]');
   const causticOpR = customEditor.querySelector<HTMLInputElement>('[data-caustic-range="opacity"]');
-  if (causticOpN) (causticOpN).value = String(parsedCausticSync.alpha);
-  if (causticOpR) (causticOpR).value = String(parsedCausticSync.alpha);
+  if (causticOpN) causticOpN.value = String(parsedCausticSync.alpha);
+  if (causticOpR) causticOpR.value = String(parsedCausticSync.alpha);
 
   // Lava caustic
   const parsedLavaCausticSync = parseRgbaColor((theme.lavaCausticColor as string) || 'rgba(255,160,60,0.55)');
-  syncColor(customEditor.querySelector<HTMLInputElement>('[data-lava-caustic-prop="color"]'), parsedLavaCausticSync.hex);
+  syncColor(
+    customEditor.querySelector<HTMLInputElement>('[data-lava-caustic-prop="color"]'),
+    parsedLavaCausticSync.hex,
+  );
   const lavaCausticOpN = customEditor.querySelector<HTMLInputElement>('[data-lava-caustic-prop="opacity"]');
   const lavaCausticOpR = customEditor.querySelector<HTMLInputElement>('[data-lava-caustic-range="opacity"]');
-  if (lavaCausticOpN) (lavaCausticOpN).value = String(parsedLavaCausticSync.alpha);
-  if (lavaCausticOpR) (lavaCausticOpR).value = String(parsedLavaCausticSync.alpha);
+  if (lavaCausticOpN) lavaCausticOpN.value = String(parsedLavaCausticSync.alpha);
+  if (lavaCausticOpR) lavaCausticOpR.value = String(parsedLavaCausticSync.alpha);
 
   // Lava light intensity
   const lavaLightIntN = customEditor.querySelector<HTMLInputElement>('[data-lava-light-prop="intensity"]');
   const lavaLightIntR = customEditor.querySelector<HTMLInputElement>('[data-lava-light-range="intensity"]');
-  const lavaLightIntVal = String(theme.lavaLightIntensity ?? 0.70);
-  if (lavaLightIntN) (lavaLightIntN).value = lavaLightIntVal;
-  if (lavaLightIntR) (lavaLightIntR).value = lavaLightIntVal;
+  const lavaLightIntVal = String(theme.lavaLightIntensity ?? 0.7);
+  if (lavaLightIntN) lavaLightIntN.value = lavaLightIntVal;
+  if (lavaLightIntR) lavaLightIntR.value = lavaLightIntVal;
 
   // Label colors
   const labelColors = (theme.labels ?? {}) as { borderColor?: string; fontColor?: string; backgroundColor?: string };
-  syncColor(customEditor.querySelector<HTMLInputElement>('[data-label-prop="borderColor"]'), labelColors.borderColor ?? '#000000');
-  syncColor(customEditor.querySelector<HTMLInputElement>('[data-label-prop="fontColor"]'), labelColors.fontColor ?? '#000000');
-  syncColor(customEditor.querySelector<HTMLInputElement>('[data-label-prop="backgroundColor"]'), labelColors.backgroundColor ?? '#FFFFFF');
+  syncColor(
+    customEditor.querySelector<HTMLInputElement>('[data-label-prop="borderColor"]'),
+    labelColors.borderColor ?? '#000000',
+  );
+  syncColor(
+    customEditor.querySelector<HTMLInputElement>('[data-label-prop="fontColor"]'),
+    labelColors.fontColor ?? '#000000',
+  );
+  syncColor(
+    customEditor.querySelector<HTMLInputElement>('[data-label-prop="backgroundColor"]'),
+    labelColors.backgroundColor ?? '#FFFFFF',
+  );
 }
 
 function renderCustomThumb() {

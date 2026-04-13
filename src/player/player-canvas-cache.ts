@@ -98,7 +98,7 @@ export function patchOpenedDoor(row: number, col: number, dir: string): void {
     nc = col + dc;
   const opp = OPPOSITE[dir];
   const neighbor = S._cachedFullCells[nr]?.[nc] as Record<string, unknown> | null;
-  if (neighbor && (rawCells[nr]?.[nc] as Record<string, unknown> | null)?.[opp] === 's') neighbor[opp] = 'd';
+  if (opp && neighbor && (rawCells[nr]?.[nc] as Record<string, unknown> | null)?.[opp] === 's') neighbor[opp] = 'd';
 }
 
 /**
@@ -239,7 +239,7 @@ export function buildFullMapCache(): void {
   const { cells, metadata } = dungeon;
   const gridSize = metadata.gridSize;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   getMapCache().pxPerFoot = getMapPxPerFoot();
   if (!getMapCache().canCache(numRows, numCols, gridSize)) return;
@@ -271,7 +271,7 @@ export function buildFullMapCache(): void {
       for (let c = cMin; c <= cMax; c++) {
         const src = cells[r]?.[c];
         if (!src) {
-          S._cachedFullCells[r][c] = null;
+          S._cachedFullCells[r]![c] = null;
           continue;
         }
         const pc: Record<string, unknown> = JSON.parse(JSON.stringify(src));
@@ -292,7 +292,7 @@ export function buildFullMapCache(): void {
         delete center?.dmLabelX;
         delete center?.dmLabelY;
         if (center && Object.keys(center).length === 0) delete pc.center;
-        S._cachedFullCells[r][c] = pc as unknown as Cell;
+        S._cachedFullCells[r]![c] = pc as unknown as Cell;
       }
     }
   } else if (S._pendingPreserveCells && S._cachedFullCells?.length === numRows) {

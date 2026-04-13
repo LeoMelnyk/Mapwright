@@ -32,7 +32,7 @@ export function getCachedRoomCells(cells: CellGrid): boolean[][] {
  * @returns {void}
  */
 export function invalidateGeometryCache(): void {
-  _roomCellsCache      = { cells: null, result: null };
+  _roomCellsCache = { cells: null, result: null };
   invalidateEffectsCache();
 }
 
@@ -44,10 +44,12 @@ function _cellHasFluid(cell: Cell | null): boolean {
 }
 
 function _neighborHasFluid(row: number, col: number, cells: CellGrid): boolean {
-  return _cellHasFluid(cells[row - 1]?.[col]) ||
-         _cellHasFluid(cells[row + 1]?.[col]) ||
-         _cellHasFluid(cells[row]?.[col - 1]) ||
-         _cellHasFluid(cells[row]?.[col + 1]);
+  return (
+    _cellHasFluid(cells[row - 1]?.[col] ?? null) ||
+    _cellHasFluid(cells[row + 1]?.[col] ?? null) ||
+    _cellHasFluid(cells[row]?.[col - 1] ?? null) ||
+    _cellHasFluid(cells[row]?.[col + 1] ?? null)
+  );
 }
 
 /**
@@ -68,11 +70,19 @@ interface BeforeState {
   hazard: boolean;
 }
 
-export function captureBeforeState(cells: CellGrid, coords: Array<{row: number; col: number}>): BeforeState[] {
+export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number; col: number }>): BeforeState[] {
   return coords.map(({ row, col }) => {
     const cell = cells[row]?.[col];
     if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
-    return { row, col, wasVoid: false, fill: (cell.fill as string | null) ?? null, waterDepth: (cell.waterDepth as number | null) ?? null, lavaDepth: (cell.lavaDepth as number | null) ?? null, hazard: !!(cell.hazard) };
+    return {
+      row,
+      col,
+      wasVoid: false,
+      fill: (cell.fill as string | null) ?? null,
+      waterDepth: (cell.waterDepth as number | null) ?? null,
+      lavaDepth: (cell.lavaDepth as number | null) ?? null,
+      hazard: !!cell.hazard,
+    };
   });
 }
 
@@ -93,15 +103,27 @@ export function captureBeforeState(cells: CellGrid, coords: Array<{row: number; 
  *  - Void transitions near fluid cells → also invalidateFluidCache()
  *  - Wall/metadata changes with no void or fluid involvement → nothing cleared
  */
-export function smartInvalidate(changes: BeforeState[], cells: CellGrid, { forceGeometry = false, forceFluid = false }: { forceGeometry?: boolean; forceFluid?: boolean } = {}): void {
+export function smartInvalidate(
+  changes: BeforeState[],
+  cells: CellGrid,
+  { forceGeometry = false, forceFluid = false }: { forceGeometry?: boolean; forceFluid?: boolean } = {},
+): void {
   let needsGeometry = forceGeometry;
-  let needsFluid    = forceFluid;
+  let needsFluid = forceFluid;
 
-  for (const { row, col, wasVoid, fill: beforeFill, waterDepth: beforeWD, lavaDepth: beforeLD, hazard: beforeHazard } of changes) {
+  for (const {
+    row,
+    col,
+    wasVoid,
+    fill: beforeFill,
+    waterDepth: beforeWD,
+    lavaDepth: beforeLD,
+    hazard: beforeHazard,
+  } of changes) {
     if (needsGeometry && needsFluid) break;
 
-    const afterCell = cells[row]?.[col];
-    const isVoid    = afterCell === null;
+    const afterCell = cells[row]?.[col] ?? null;
+    const isVoid = afterCell === null;
 
     if (wasVoid !== isVoid) {
       needsGeometry = true;
@@ -112,16 +134,21 @@ export function smartInvalidate(changes: BeforeState[], cells: CellGrid, { force
         }
       }
     } else if (!wasVoid && !isVoid) {
-      if (beforeFill !== afterCell.fill ||
-          beforeWD   !== afterCell.waterDepth ||
-          beforeLD   !== afterCell.lavaDepth ||
-          beforeHazard !== afterCell.hazard) {
+      if (
+        beforeFill !== afterCell.fill ||
+        beforeWD !== afterCell.waterDepth ||
+        beforeLD !== afterCell.lavaDepth ||
+        beforeHazard !== afterCell.hazard
+      ) {
         needsFluid = true;
       }
     }
   }
 
-  if (needsGeometry) { invalidateGeometryCache(); _bumpGeometryVersion(); }
+  if (needsGeometry) {
+    invalidateGeometryCache();
+    _bumpGeometryVersion();
+  }
 
   // Accumulate dirty region for partial cache redraws.
   // Must be computed BEFORE the blend/fluid patches so the region is available.
@@ -155,7 +182,10 @@ export function smartInvalidate(changes: BeforeState[], cells: CellGrid, { force
 }
 
 /** Patch blend topology for a dirty region using parameters from the existing blend cache. */
-function _patchBlendFromCache(cells: CellGrid, region: { minRow: number; maxRow: number; minCol: number; maxCol: number }): void {
+function _patchBlendFromCache(
+  cells: CellGrid,
+  region: { minRow: number; maxRow: number; minCol: number; maxCol: number },
+): void {
   // Grab the blend cache's stored catalog + settings (set during the last full build)
   const cached = getBlendCacheParams();
   if (!cached) return; // no blend cache exists yet — nothing to patch
@@ -176,7 +206,12 @@ function _patchBlendFromCache(cells: CellGrid, region: { minRow: number; maxRow:
  * @param {Object} textureOptions - Texture catalog and blend settings
  * @returns {void}
  */
-export function patchBlendForDirtyRegion(region: { minRow: number; maxRow: number; minCol: number; maxCol: number }, cells: CellGrid, gridSize: number, textureOptions: TextureOptions | null): void {
+export function patchBlendForDirtyRegion(
+  region: { minRow: number; maxRow: number; minCol: number; maxCol: number },
+  cells: CellGrid,
+  gridSize: number,
+  textureOptions: TextureOptions | null,
+): void {
   if (!textureOptions) return;
   const roomCells = getCachedRoomCells(cells);
   patchBlendRegion(region, cells, roomCells, gridSize, textureOptions);
@@ -190,7 +225,12 @@ export function patchBlendForDirtyRegion(region: { minRow: number; maxRow: numbe
  * @param {Object} theme - Current theme object
  * @returns {void}
  */
-export function patchFluidForDirtyRegion(region: { minRow: number; maxRow: number; minCol: number; maxCol: number }, cells: CellGrid, gridSize: number, theme: Theme): void {
+export function patchFluidForDirtyRegion(
+  region: { minRow: number; maxRow: number; minCol: number; maxCol: number },
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+): void {
   const roomCells = getCachedRoomCells(cells);
   patchFluidRegion(region, cells, roomCells, gridSize, theme);
 }
@@ -211,7 +251,7 @@ export function collectRoundedCorners(cells: CellGrid): Map<string, Record<strin
   const roundedCorners = new Map();
   const numRows = cells.length;
   for (let row = 0; row < numRows; row++) {
-    const numCols = cells[row]?.length || 0;
+    const numCols = cells[row]?.length ?? 0;
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
       if (!cell?.trimRound) continue;
@@ -247,35 +287,101 @@ export function collectRoundedCorners(cells: CellGrid): Map<string, Record<strin
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-export function traceArcWedge(ctx: CanvasRenderingContext2D, rc: { row: number; col: number; radius: number; centerRow: number; centerCol: number; corner: string; inverted: boolean; startAngle: number; endAngle: number }, gridSize: number, transform: RenderTransform): void {
+export function traceArcWedge(
+  ctx: CanvasRenderingContext2D,
+  rc: {
+    row: number;
+    col: number;
+    radius: number;
+    centerRow: number;
+    centerCol: number;
+    corner: string;
+    inverted: boolean;
+    startAngle: number;
+    endAngle: number;
+  },
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const ocp = toCanvas(rc.centerCol * gridSize, rc.centerRow * gridSize, transform);
   const Rpx = rc.radius * gridSize * transform.scale;
   if (rc.inverted) {
-    let startAngle = 0, endAngle = 0, anticlockwise = false;
+    let startAngle = 0,
+      endAngle = 0,
+      anticlockwise = false;
     switch (rc.corner) {
-      case 'nw': startAngle = Math.PI / 2;   endAngle = 0;               anticlockwise = true;  break;
-      case 'ne': startAngle = Math.PI / 2;   endAngle = Math.PI;         anticlockwise = false; break;
-      case 'sw': startAngle = 0;             endAngle = 3 * Math.PI / 2; anticlockwise = true;  break;
-      case 'se': startAngle = Math.PI;       endAngle = 3 * Math.PI / 2; anticlockwise = false; break;
+      case 'nw':
+        startAngle = Math.PI / 2;
+        endAngle = 0;
+        anticlockwise = true;
+        break;
+      case 'ne':
+        startAngle = Math.PI / 2;
+        endAngle = Math.PI;
+        anticlockwise = false;
+        break;
+      case 'sw':
+        startAngle = 0;
+        endAngle = (3 * Math.PI) / 2;
+        anticlockwise = true;
+        break;
+      case 'se':
+        startAngle = Math.PI;
+        endAngle = (3 * Math.PI) / 2;
+        anticlockwise = false;
+        break;
     }
     ctx.moveTo(ocp.x, ocp.y);
     ctx.lineTo(ocp.x + Rpx * Math.cos(startAngle), ocp.y + Rpx * Math.sin(startAngle));
     ctx.arc(ocp.x, ocp.y, Rpx, startAngle, endAngle, anticlockwise);
     ctx.lineTo(ocp.x, ocp.y);
   } else {
-    let acx = 0, acy = 0;
+    let acx = 0,
+      acy = 0;
     switch (rc.corner) {
-      case 'nw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'ne': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow + rc.radius) * gridSize; break;
-      case 'sw': acx = (rc.centerCol + rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
-      case 'se': acx = (rc.centerCol - rc.radius) * gridSize; acy = (rc.centerRow - rc.radius) * gridSize; break;
+      case 'nw':
+        acx = (rc.centerCol + rc.radius) * gridSize;
+        acy = (rc.centerRow + rc.radius) * gridSize;
+        break;
+      case 'ne':
+        acx = (rc.centerCol - rc.radius) * gridSize;
+        acy = (rc.centerRow + rc.radius) * gridSize;
+        break;
+      case 'sw':
+        acx = (rc.centerCol + rc.radius) * gridSize;
+        acy = (rc.centerRow - rc.radius) * gridSize;
+        break;
+      case 'se':
+        acx = (rc.centerCol - rc.radius) * gridSize;
+        acy = (rc.centerRow - rc.radius) * gridSize;
+        break;
     }
     const acp = toCanvas(acx, acy, transform);
     switch (rc.corner) {
-      case 'nw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, Math.PI, true);  ctx.lineTo(ocp.x, ocp.y); break;
-      case 'ne': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, 3*Math.PI/2, 0, false);        ctx.lineTo(ocp.x, ocp.y); break;
-      case 'sw': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x + Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, Math.PI, false);    ctx.lineTo(ocp.x, ocp.y); break;
-      case 'se': ctx.moveTo(ocp.x, ocp.y); ctx.lineTo(ocp.x - Rpx, ocp.y); ctx.arc(acp.x, acp.y, Rpx, Math.PI/2, 0, true);           ctx.lineTo(ocp.x, ocp.y); break;
+      case 'nw':
+        ctx.moveTo(ocp.x, ocp.y);
+        ctx.lineTo(ocp.x + Rpx, ocp.y);
+        ctx.arc(acp.x, acp.y, Rpx, (3 * Math.PI) / 2, Math.PI, true);
+        ctx.lineTo(ocp.x, ocp.y);
+        break;
+      case 'ne':
+        ctx.moveTo(ocp.x, ocp.y);
+        ctx.lineTo(ocp.x - Rpx, ocp.y);
+        ctx.arc(acp.x, acp.y, Rpx, (3 * Math.PI) / 2, 0, false);
+        ctx.lineTo(ocp.x, ocp.y);
+        break;
+      case 'sw':
+        ctx.moveTo(ocp.x, ocp.y);
+        ctx.lineTo(ocp.x + Rpx, ocp.y);
+        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, Math.PI, false);
+        ctx.lineTo(ocp.x, ocp.y);
+        break;
+      case 'se':
+        ctx.moveTo(ocp.x, ocp.y);
+        ctx.lineTo(ocp.x - Rpx, ocp.y);
+        ctx.arc(acp.x, acp.y, Rpx, Math.PI / 2, 0, true);
+        ctx.lineTo(ocp.x, ocp.y);
+        break;
     }
   }
 }
@@ -292,23 +398,32 @@ export function traceArcWedge(ctx: CanvasRenderingContext2D, rc: { row: number; 
  * @param {Function} fn - Callback to invoke inside the clip
  * @returns {void}
  */
-export function withTrimVoidClip(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, transform: RenderTransform, fn: () => void): void {
+export function withTrimVoidClip(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  transform: RenderTransform,
+  fn: () => void,
+): void {
   // Quick scan: bail early if no closed trim cells exist
   let hasTrim = false;
   for (let r = 0; !hasTrim && r < cells.length; r++)
-    for (let c = 0; !hasTrim && c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; !hasTrim && c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
       if (cell?.trimClip && !cell.trimOpen) hasTrim = true;
       else if (cell?.trimCorner && !cell.trimClip && !cell.trimOpen) hasTrim = true;
     }
 
-  if (!hasTrim) { fn(); return; }
+  if (!hasTrim) {
+    fn();
+    return;
+  }
 
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       const tl = toCanvas(c * gridSize, r * gridSize, transform);
@@ -317,9 +432,8 @@ export function withTrimVoidClip(ctx: CanvasRenderingContext2D, cells: CellGrid,
         // Arc trim: cell rect + trimClip polygon
         const clip = cell.trimClip;
         ctx.rect(tl.x, tl.y, gs, gs);
-        ctx.moveTo(tl.x + clip[0][0] * gs, tl.y + clip[0][1] * gs);
-        for (let i = 1; i < clip.length; i++)
-          ctx.lineTo(tl.x + clip[i][0] * gs, tl.y + clip[i][1] * gs);
+        ctx.moveTo(tl.x + clip[0]![0]! * gs, tl.y + clip[0]![1]! * gs);
+        for (let i = 1; i < clip.length; i++) ctx.lineTo(tl.x + clip[i]![0]! * gs, tl.y + clip[i]![1]! * gs);
         ctx.closePath();
       } else if (cell.trimCorner && !cell.trimClip && !cell.trimOpen) {
         // Diagonal trim: cell rect + room triangle (excludes void corner)
@@ -328,10 +442,26 @@ export function withTrimVoidClip(ctx: CanvasRenderingContext2D, cells: CellGrid,
         const br = { x: tl.x + gs, y: tl.y + gs };
         ctx.rect(tl.x, tl.y, gs, gs);
         switch (cell.trimCorner) {
-          case 'nw': ctx.moveTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); ctx.lineTo(bl.x, bl.y); break;
-          case 'ne': ctx.moveTo(tl.x, tl.y); ctx.lineTo(bl.x, bl.y); ctx.lineTo(br.x, br.y); break;
-          case 'sw': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(br.x, br.y); break;
-          case 'se': ctx.moveTo(tl.x, tl.y); ctx.lineTo(tr.x, tr.y); ctx.lineTo(bl.x, bl.y); break;
+          case 'nw':
+            ctx.moveTo(tr.x, tr.y);
+            ctx.lineTo(br.x, br.y);
+            ctx.lineTo(bl.x, bl.y);
+            break;
+          case 'ne':
+            ctx.moveTo(tl.x, tl.y);
+            ctx.lineTo(bl.x, bl.y);
+            ctx.lineTo(br.x, br.y);
+            break;
+          case 'sw':
+            ctx.moveTo(tl.x, tl.y);
+            ctx.lineTo(tr.x, tr.y);
+            ctx.lineTo(br.x, br.y);
+            break;
+          case 'se':
+            ctx.moveTo(tl.x, tl.y);
+            ctx.lineTo(tr.x, tr.y);
+            ctx.lineTo(bl.x, bl.y);
+            break;
         }
         ctx.closePath();
       }

@@ -104,16 +104,16 @@ export function renderAscii(
   // Build top boundary
   const topLine: string[] = ['+'];
   for (let c = ic1; c <= ic2; c++) {
-    topLine.push(edgeGlyph(edgeOf(cells[ir1][c], 'north'), 'h'));
+    topLine.push(edgeGlyph(edgeOf(cells[ir1]![c] ?? null, 'north'), 'h'));
     topLine.push('+');
   }
   lines.push(topLine.join(''));
 
   for (let r = ir1; r <= ir2; r++) {
     const contentLine: string[] = [];
-    contentLine.push(edgeGlyph(edgeOf(cells[r][ic1], 'west'), 'v'));
+    contentLine.push(edgeGlyph(edgeOf(cells[r]![ic1] ?? null, 'west'), 'v'));
     for (let c = ic1; c <= ic2; c++) {
-      const cell = cells[r][c];
+      const cell = cells[r]![c] ?? null;
       contentLine.push(cellGlyph(cell));
       contentLine.push(edgeGlyph(edgeOf(cell, 'east'), 'v'));
     }
@@ -122,7 +122,7 @@ export function renderAscii(
     // Bottom boundary of this row (which is top of the next)
     const botLine: string[] = ['+'];
     for (let c = ic1; c <= ic2; c++) {
-      botLine.push(edgeGlyph(edgeOf(cells[r][c], 'south'), 'h'));
+      botLine.push(edgeGlyph(edgeOf(cells[r]![c] ?? null, 'south'), 'h'));
       botLine.push('+');
     }
     lines.push(botLine.join(''));
@@ -315,7 +315,7 @@ export function getRoomSummary(
       for (const dir of CARDINAL_DIRS) {
         const edge = (cell as Record<string, unknown>)[dir];
         if (edge !== 'd' && edge !== 's' && edge !== 'id') continue;
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         const nr = r + dr,
           nc = c + dc;
         if (roomCellSet.has(cellKey(nr, nc))) continue;
@@ -447,9 +447,9 @@ export function queryCells(predicate: CellPredicate = {}): {
   const out: Array<{ row: number; col: number; cell: Cell | null }> = [];
 
   for (let r = Math.max(0, r1); r <= Math.min(cells.length - 1, r2); r++) {
-    const rowCells = cells[r];
+    const rowCells = cells[r]!;
     for (let c = Math.max(0, c1); c <= Math.min(rowCells.length - 1, c2); c++) {
-      const cell: Cell | null = rowCells[c];
+      const cell: Cell | null = rowCells[c] ?? null;
 
       if (predicate.isVoid === true && cell !== null) continue;
       if (predicate.isVoid === false && cell === null) continue;
@@ -653,7 +653,7 @@ export function getPropPlacementOptions(
       const v = rec[dir];
       if (v === 'd' || v === 's' || v === 'id') {
         doorCells.add(key);
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         const nr = r + dr,
           nc = c + dc;
         doorApproachCells.add(cellKey(nr, nc));
@@ -801,7 +801,7 @@ export function listDoors(): {
         const v = rec[dir];
         if (v !== 'd' && v !== 's' && v !== 'id') continue;
         const key = `${r},${c},${dir}`;
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         const opposite = { north: 'south', south: 'north', east: 'west', west: 'east' }[
           dir as 'north' | 'south' | 'east' | 'west'
         ];
@@ -836,7 +836,7 @@ export function listWalls(): {
         const v = rec[dir];
         if (v !== 'w' && v !== 'iw') continue;
         const key = `${r},${c},${dir}`;
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         const opposite = { north: 'south', south: 'north', east: 'west', west: 'east' }[
           dir as 'north' | 'south' | 'east' | 'west'
         ];
@@ -898,7 +898,7 @@ export function unlabelledRooms(): {
         for (const dir of CARDINAL_DIRS) {
           const edge = rec[dir];
           if (edge === 'w' || edge === 'iw') continue;
-          const [dr, dc] = OFFSETS[dir];
+          const [dr, dc] = OFFSETS[dir]!;
           const nr = cr + dr,
             nc = cc + dc;
           const nkey = cellKey(nr, nc);
@@ -911,7 +911,7 @@ export function unlabelledRooms(): {
       }
       if (!hasLabel && region.length >= 2) {
         rooms.push({
-          representativeCell: { row: toDisp(region[0][0]), col: toDisp(region[0][1]) },
+          representativeCell: { row: toDisp(region[0]![0]), col: toDisp(region[0]![1]) },
           cellCount: region.length,
         });
       }
@@ -1184,16 +1184,16 @@ function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null
     const lines: string[] = [];
     const topLine: string[] = ['+'];
     for (let c = c1; c <= c2; c++) {
-      topLine.push(edgeGlyph(edgeOf(cells[r1][c], 'north'), 'h'));
+      topLine.push(edgeGlyph(edgeOf(cells[r1]![c] ?? null, 'north'), 'h'));
       topLine.push('+');
     }
     lines.push(topLine.join(''));
 
     for (let r = r1; r <= r2; r++) {
       const contentLine: string[] = [];
-      contentLine.push(edgeGlyph(edgeOf(cells[r][c1], 'west'), 'v'));
+      contentLine.push(edgeGlyph(edgeOf(cells[r]![c1] ?? null, 'west'), 'v'));
       for (let c = c1; c <= c2; c++) {
-        const cell = cells[r][c];
+        const cell = cells[r]![c] ?? null;
         const g = anchorGlyph.get(`${r},${c}`);
         if (g) {
           contentLine.push(g);
@@ -1208,7 +1208,7 @@ function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null
 
       const botLine: string[] = ['+'];
       for (let c = c1; c <= c2; c++) {
-        botLine.push(edgeGlyph(edgeOf(cells[r][c], 'south'), 'h'));
+        botLine.push(edgeGlyph(edgeOf(cells[r]![c] ?? null, 'south'), 'h'));
         botLine.push('+');
       }
       lines.push(botLine.join(''));
@@ -1225,7 +1225,7 @@ function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null
     for (const dir of CARDINAL_DIRS) {
       const v = (cell as Record<string, unknown>)[dir];
       if (v === 'd' || v === 's' || v === 'id') {
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         const nr = r + dr,
           nc = c + dc;
         const inRoom = roomCells.has(cellKey(nr, nc));
@@ -1276,7 +1276,7 @@ function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null
   // Adjacent rooms (one door step)
   const adjacent = new Set<string>();
   for (const d of doors) {
-    const [dr, dc] = OFFSETS[d.direction as 'north' | 'south' | 'east' | 'west'];
+    const [dr, dc] = OFFSETS[d.direction as 'north' | 'south' | 'east' | 'west']!;
     const nr = d.row - 1 + dr,
       nc = d.col - 1 + dc;
     const nLabel = findLabelForCell(nr, nc);

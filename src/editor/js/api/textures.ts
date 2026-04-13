@@ -57,7 +57,7 @@ export function removeTexture(row: number, col: number): { success: true } {
   row = toInt(row);
   col = toInt(col);
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
+  const cell = state.dungeon.cells[row]![col];
   if (!cell?.texture) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate('removeTexture', coords, () => {

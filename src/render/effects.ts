@@ -36,7 +36,10 @@ const BUFFER_SHADING_DEPTH = 0.35;
  */
 export function seededLcg(seed: number): () => number {
   let s = seed >>> 0;
-  return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 0x100000000; };
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 0x100000000;
+  };
 }
 
 // ── Hex → rgba helper ───────────────────────────────────────────────────────
@@ -58,7 +61,12 @@ function hexToRgba(hex: string, alpha: number) {
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-export function drawWallShadow(ctx: CanvasRenderingContext2D, wallSegments: Array<{x1: number; y1: number; x2: number; y2: number}>, theme: Theme, transform: RenderTransform): void {
+export function drawWallShadow(
+  ctx: CanvasRenderingContext2D,
+  wallSegments: Array<{ x1: number; y1: number; x2: number; y2: number }>,
+  theme: Theme,
+  transform: RenderTransform,
+): void {
   if (!theme.wallShadow || wallSegments.length === 0) return;
   const s = scaleFactor(transform);
   const { color, blur, offsetX, offsetY } = theme.wallShadow;
@@ -100,7 +108,12 @@ export function drawWallShadow(ctx: CanvasRenderingContext2D, wallSegments: Arra
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-export function drawRoughWalls(ctx: CanvasRenderingContext2D, wallSegments: Array<{x1: number; y1: number; x2: number; y2: number; seed?: number}>, theme: Theme, transform: RenderTransform): void {
+export function drawRoughWalls(
+  ctx: CanvasRenderingContext2D,
+  wallSegments: Array<{ x1: number; y1: number; x2: number; y2: number; seed?: number }>,
+  theme: Theme,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   const amp = (theme.wallRoughness ?? 0) * s * 1.5;
   const spacing = ROUGH_WALL_SPACING; // pixels between control points
@@ -138,17 +151,17 @@ export function drawRoughWalls(ctx: CanvasRenderingContext2D, wallSegments: Arra
     pts.push({ x: x2, y: y2 });
 
     // Draw smooth curve through control points
-    ctx.moveTo(pts[0].x, pts[0].y);
+    ctx.moveTo(pts[0]!.x, pts[0]!.y);
     if (pts.length === 2) {
-      ctx.lineTo(pts[1].x, pts[1].y);
+      ctx.lineTo(pts[1]!.x, pts[1]!.y);
     } else {
       // Quadratic Bézier through midpoints for C1 continuity
       for (let i = 1; i < pts.length - 1; i++) {
-        const xMid = (pts[i].x + pts[i + 1].x) / 2;
-        const yMid = (pts[i].y + pts[i + 1].y) / 2;
-        ctx.quadraticCurveTo(pts[i].x, pts[i].y, xMid, yMid);
+        const xMid = (pts[i]!.x + pts[i + 1]!.x) / 2;
+        const yMid = (pts[i]!.y + pts[i + 1]!.y) / 2;
+        ctx.quadraticCurveTo(pts[i]!.x, pts[i]!.y, xMid, yMid);
       }
-      ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+      ctx.lineTo(pts[pts.length - 1]!.x, pts[pts.length - 1]!.y);
     }
   }
 
@@ -163,36 +176,44 @@ export function drawRoughWalls(ctx: CanvasRenderingContext2D, wallSegments: Arra
 // Cached by (cells, roomCells, maxDist) reference — cells/roomCells are the
 // same object references across all pan/zoom frames and only replaced when the
 // map is edited, so cache hits eliminate the BFS entirely during panning.
-let _distMapCache: { cells: CellGrid | null; roomCells: boolean[][] | null; maxDist: number; dist: Float32Array[] | null } = { cells: null, roomCells: null, maxDist: -1, dist: null };
+let _distMapCache: {
+  cells: CellGrid | null;
+  roomCells: boolean[][] | null;
+  maxDist: number;
+  dist: Float32Array[] | null;
+} = { cells: null, roomCells: null, maxDist: -1, dist: null };
 
 function buildDistMap(cells: CellGrid, roomCells: boolean[][], maxDist: number) {
-  if (_distMapCache.cells === cells &&
-      _distMapCache.roomCells === roomCells &&
-      _distMapCache.maxDist === maxDist) {
+  if (_distMapCache.cells === cells && _distMapCache.roomCells === roomCells && _distMapCache.maxDist === maxDist) {
     return _distMapCache.dist;
   }
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const dist = Array.from({ length: numRows }, () => new Float32Array(numCols).fill(Infinity));
   const queue = new Int32Array(numRows * numCols);
-  let qHead = 0, qTail = 0;
+  let qHead = 0,
+    qTail = 0;
   for (let r = 0; r < numRows; r++) {
     for (let c = 0; c < numCols; c++) {
-      if (roomCells[r][c]) { dist[r][c] = 0; queue[qTail++] = r * numCols + c; }
+      if (roomCells[r]![c]) {
+        dist[r]![c] = 0;
+        queue[qTail++] = r * numCols + c;
+      }
     }
   }
   while (qHead < qTail) {
-    const idx = queue[qHead++];
+    const idx = queue[qHead++]!;
     const r = (idx / numCols) | 0;
     const c = idx % numCols;
-    const nd = dist[r][c] + 1;
+    const nd = dist[r]![c]! + 1;
     if (nd > maxDist) continue;
     for (let dr = -1; dr <= 1; dr++) {
       for (let dc = -1; dc <= 1; dc++) {
         if (dr === 0 && dc === 0) continue;
-        const nr = r + dr, nc = c + dc;
-        if (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols && dist[nr][nc] === Infinity) {
-          dist[nr][nc] = nd;
+        const nr = r + dr,
+          nc = c + dc;
+        if (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols && dist[nr]![nc] === Infinity) {
+          dist[nr]![nc] = nd;
           queue[qTail++] = nr * numCols + nc;
         }
       }
@@ -201,7 +222,6 @@ function buildDistMap(cells: CellGrid, roomCells: boolean[][], maxDist: number) 
   _distMapCache = { cells, roomCells, maxDist, dist };
   return dist;
 }
-
 
 // ── Wall Hatching Path2D Cache ───────────────────────────────────────────────
 // Caches Path2D geometry in world coordinates per distance bucket. The expensive
@@ -219,26 +239,31 @@ let _hatchCache: PathCache | null = null;
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-export function drawHatching(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform): void {
+export function drawHatching(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+): void {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle === 'rocks') return;
 
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   if (!numRows || !numCols) return;
 
   const MAX_DIST = Math.round((theme.hatchDistance ?? 1) * 2);
   const size = theme.hatchSize ?? 0.5;
   const color = theme.hatchColor ?? theme.wallStroke;
-  const mapW = numCols * gridSize, mapH = numRows * gridSize;
+  const mapW = numCols * gridSize,
+    mapH = numRows * gridSize;
 
   // Rebuild Path2D cache if map data or relevant theme params changed.
   // roomCells is derived from cells, so cells ref-equality is sufficient.
   const hc = _hatchCache;
-  if (hc?.cells !== cells ||
-      hc.gridSize !== gridSize || hc.size !== size ||
-      hc.maxDist !== MAX_DIST) {
-
+  if (hc?.cells !== cells || hc.gridSize !== gridSize || hc.size !== size || hc.maxDist !== MAX_DIST) {
     const dist = buildDistMap(cells, roomCells, MAX_DIST);
     const tileWorld = gridSize * 2 * (1.5 + size * 3);
     const patternScale = tileWorld / HATCH_TILE_SIZE;
@@ -252,22 +277,16 @@ export function drawHatching(ctx: CanvasRenderingContext2D, cells: CellGrid, roo
         const offsetX = tx * tileWorld;
         const offsetY = ty * tileWorld;
         for (const p of HATCH_PATTERNS) {
-          const cWorldX = p.centre[0] * patternScale + offsetX;
-          const cWorldY = p.centre[1] * patternScale + offsetY;
+          const cWorldX = p.centre[0]! * patternScale + offsetX;
+          const cWorldY = p.centre[1]! * patternScale + offsetY;
           const cellCol = Math.floor(cWorldX / gridSize);
           const cellRow = Math.floor(cWorldY / gridSize);
           if (cellRow < 0 || cellRow >= numRows || cellCol < 0 || cellCol >= numCols) continue;
-          const d = dist![cellRow][cellCol];
+          const d = dist![cellRow]![cellCol]!;
           if (d > MAX_DIST) continue;
           for (const line of p.cellLines) {
-            hatchPath.moveTo(
-              line[0][0] * patternScale + offsetX,
-              line[0][1] * patternScale + offsetY
-            );
-            hatchPath.lineTo(
-              line[1][0] * patternScale + offsetX,
-              line[1][1] * patternScale + offsetY
-            );
+            hatchPath.moveTo(line[0]![0]! * patternScale + offsetX, line[0]![1]! * patternScale + offsetY);
+            hatchPath.lineTo(line[1]![0]! * patternScale + offsetX, line[1]![1]! * patternScale + offsetY);
           }
         }
       }
@@ -308,26 +327,31 @@ let _rockCache: PathCache | null = null;
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-export function drawRockShading(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform): void {
+export function drawRockShading(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+): void {
   if (!theme.hatchOpacity) return;
   if (theme.hatchStyle !== 'rocks' && theme.hatchStyle !== 'both') return;
 
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   if (!numRows || !numCols) return;
 
   const MAX_DIST = Math.round((theme.hatchDistance ?? 1) * 2);
   const size = theme.hatchSize ?? 0.5;
   const color = (theme.hatchColor ?? theme.wallStroke) || '#000000';
-  const mapW = numCols * gridSize, mapH = numRows * gridSize;
+  const mapW = numCols * gridSize,
+    mapH = numRows * gridSize;
 
   // Rebuild Path2D cache if map data or relevant theme params changed.
   // roomCells is derived from cells, so cells ref-equality is sufficient.
   const rc = _rockCache;
-  if (rc?.cells !== cells ||
-      rc.gridSize !== gridSize || rc.size !== size ||
-      rc.maxDist !== MAX_DIST) {
-
+  if (rc?.cells !== cells || rc.gridSize !== gridSize || rc.size !== size || rc.maxDist !== MAX_DIST) {
     const dist = buildDistMap(cells, roomCells, MAX_DIST);
     const tileWorld = gridSize * (8 + size * 8);
     const patternScale = tileWorld / WATER_TILE_SIZE;
@@ -350,7 +374,7 @@ export function drawRockShading(ctx: CanvasRenderingContext2D, cells: CellGrid, 
 
         for (let r = rowMin; r <= rowMax; r++) {
           for (let col = colMin; col <= colMax; col++) {
-            const d = dist![r][col];
+            const d = dist![r]![col]!;
             if (d > MAX_DIST) continue;
 
             const txl0 = (col * gridSize - offsetX) / patternScale;
@@ -365,18 +389,15 @@ export function drawRockShading(ctx: CanvasRenderingContext2D, cells: CellGrid, 
 
             for (let by = byMin; by <= byMax; by++) {
               for (let bx = bxMin; bx <= bxMax; bx++) {
-                for (const p of spatialBins[by * binCount + bx]) {
+                for (const p of spatialBins[by * binCount + bx]!) {
                   if (Math.floor((p.centre[0] * patternScale + offsetX) / gridSize) !== col) continue;
                   if (Math.floor((p.centre[1] * patternScale + offsetY) / gridSize) !== r) continue;
                   const verts = p.verts;
-                  const wx0 = verts[0][0] * patternScale + offsetX;
-                  const wy0 = verts[0][1] * patternScale + offsetY;
+                  const wx0 = verts[0]![0]! * patternScale + offsetX;
+                  const wy0 = verts[0]![1]! * patternScale + offsetY;
                   rockPath.moveTo(wx0, wy0);
                   for (let vi = 1; vi < verts.length; vi++) {
-                    rockPath.lineTo(
-                      verts[vi][0] * patternScale + offsetX,
-                      verts[vi][1] * patternScale + offsetY
-                    );
+                    rockPath.lineTo(verts[vi]![0]! * patternScale + offsetX, verts[vi]![1]! * patternScale + offsetY);
                   }
                   rockPath.closePath();
                 }
@@ -426,7 +447,15 @@ let _outerShadingCache: ShadingCache | null = null;
  * @param {number} [resolution=1] - Resolution multiplier for sub-cells
  * @returns {void}
  */
-export function drawOuterShading(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform, resolution: number = 1): void {
+export function drawOuterShading(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  resolution: number = 1,
+): void {
   if (!theme.outerShading?.color || !(theme.outerShading.size > 0)) return;
 
   const { color, size, roughness = 0 } = theme.outerShading;
@@ -437,9 +466,13 @@ export function drawOuterShading(ctx: CanvasRenderingContext2D, cells: CellGrid,
 
   // Rebuild Path2D cache if map data or shading params changed
   const oc = _outerShadingCache;
-  if (oc?.cells !== cells || oc.gridSize !== gridSize ||
-      oc.size !== size || oc.roughness !== roughness || oc.resolution !== resolution) {
-
+  if (
+    oc?.cells !== cells ||
+    oc.gridSize !== gridSize ||
+    oc.size !== size ||
+    oc.roughness !== roughness ||
+    oc.resolution !== resolution
+  ) {
     const path = new Path2D();
     const worldRadius = displayGs * (0.5 + size / 10);
     const roughAmp = roughness * 0.2 * displayGs;
@@ -450,8 +483,7 @@ export function drawOuterShading(ctx: CanvasRenderingContext2D, cells: CellGrid,
         // Check if any sub-cell is a room cell
         let isRoom = false;
         for (let dr = 0; dr < step && !isRoom; dr++)
-          for (let dc = 0; dc < step && !isRoom; dc++)
-            if (roomCells[row + dr]?.[col + dc]) isRoom = true;
+          for (let dc = 0; dc < step && !isRoom; dc++) if (roomCells[row + dr]?.[col + dc]) isRoom = true;
         if (!isRoom) continue;
 
         const cx = (col + step * 0.5) * gridSize;
@@ -498,11 +530,18 @@ export function drawOuterShading(ctx: CanvasRenderingContext2D, cells: CellGrid,
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-export function drawBufferShading(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, theme: Theme, transform: RenderTransform): void {
+export function drawBufferShading(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+): void {
   if (!theme.bufferShadingOpacity) return;
 
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const depthFraction = BUFFER_SHADING_DEPTH; // gradient extends 35% into the cell
 
   // Viewport culling: only process cells visible on screen
@@ -520,8 +559,8 @@ export function drawBufferShading(ctx: CanvasRenderingContext2D, cells: CellGrid
 
   for (let row = rowMin; row <= rowMax; row++) {
     for (let col = colMin; col <= colMax; col++) {
-      if (!roomCells[row][col]) continue;
-      const cell = cells[row][col];
+      if (!roomCells[row]![col]) continue;
+      const cell = cells[row]![col];
       if (!cell) continue;
 
       const p1 = toCanvas(col * gridSize, row * gridSize, transform);
