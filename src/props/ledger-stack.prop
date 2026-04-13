@@ -1,0 +1,41 @@
+name: Ledger Stack
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: floor
+room_types: counting-house, guildhall, library, study, courthouse-chamber, thieves-guild-hideout, scriptorium-mundane, mansion-study
+typical_count: few
+clusters_with: desk, inkwell, quill, writing-desk, document-stack
+notes: Stack of heavy bound ledgers; place on desks, sideboards, or counting-house floors
+---
+# === HITBOX ===
+hitbox rect 0.12,0.18 0.76,0.64 z 0-1.2
+
+# Bottom ledger (largest, darkest binding)
+rect 0.12,0.56 0.76,0.26 texfill polyhaven/brown_leather 0.85
+rect 0.12,0.56 0.76,0.26 stroke #2a1400
+# Spine band and clasp
+line 0.12,0.70 0.88,0.70 stroke #5a3a00 0.5
+rect 0.82,0.60 0.04,0.18 fill #8b6914 0.85
+rect 0.82,0.60 0.04,0.18 stroke #5a3a00
+# Middle ledger (offset slightly, red binding)
+rect 0.16,0.36 0.68,0.22 fill #661a1a 0.85
+rect 0.16,0.36 0.68,0.22 stroke #2a0808
+line 0.16,0.44 0.84,0.44 stroke #3a1010 0.5
+# Gilt title stamp on red spine
+rect 0.34,0.40 0.22,0.04 fill #daa520 0.7
+# Top ledger (smallest, dark green)
+rect 0.20,0.18 0.58,0.20 fill #2a4a2a 0.85
+rect 0.20,0.18 0.58,0.20 stroke #112211
+line 0.20,0.26 0.78,0.26 stroke #3a6a3a 0.4
+# Gilt corner stamp
+rect 0.66,0.20 0.08,0.04 fill #daa520 0.6
+# Paper edge fanning out (page block between covers)
+line 0.12,0.82 0.88,0.82 stroke #e8dcc8 0.8
+line 0.16,0.58 0.84,0.58 stroke #e8dcc8 0.6
+line 0.20,0.38 0.78,0.38 stroke #e8dcc8 0.5
+# Bookmark ribbon trailing from middle ledger
+line 0.70,0.58 0.74,0.66 stroke #881111 0.8

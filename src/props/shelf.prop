@@ -1,0 +1,66 @@
+name: Shelf
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 3
+placement: wall
+room_types: apartment-tenement, farmhouse-common, house-medium-family, mansion-servants-quarters, pantry, kitchen, peasant-hovel
+typical_count: few
+clusters_with: shelf-open, wooden-bowl, tin-cup, cheese-wheel, bread-loaf, water-jug
+notes: Simple plank wall shelf with a few items; lower-class kitchen or hall
+---
+# === HITBOX ===
+hitbox rect 0.0,0.0 2.0,0.85 z 0-3
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: weathered plank along wall with a few items peeking at south edge
+
+# Shelf body (recessed, darker strip visible at front/sides)
+rect 0.1,0.0 1.8,0.85 fill #2a1400 0.35
+line 0.1,0.0 0.1,0.85 stroke #3a2010
+line 1.9,0.0 1.9,0.85 stroke #3a2010
+line 0.1,0.85 1.9,0.85 stroke #3a2010
+
+# === Items peeking out at south edge (sparse, humble) ===
+# Wooden bowl
+ellipse 0.32,0.75 0.09,0.04 fill #6b4e2e 0.9
+ellipse 0.32,0.75 0.09,0.04 stroke #2a1400
+ellipse 0.32,0.74 0.06,0.025 fill #3a1f00 0.9
+# Tin cup
+circle 0.62,0.75 0.06 fill #8899aa 0.88
+circle 0.62,0.75 0.06 stroke #444444
+circle 0.62,0.75 0.04 stroke #555555 0.6 width 1
+# Ceramic jar
+circle 0.96,0.74 0.08 texfill polyhaven/stone_wall 0.65
+circle 0.96,0.74 0.08 fill #8a7058 0.4
+circle 0.96,0.74 0.08 stroke #3a2a1a
+ellipse 0.96,0.70 0.05,0.02 fill #1a1008 0.85
+# Loaf of bread
+ellipse 1.28,0.76 0.10,0.05 fill #c8893a 0.92
+ellipse 1.28,0.76 0.10,0.05 stroke #6a3a10
+# Small crock/pot
+circle 1.58,0.74 0.07 fill #8a5820 0.88
+circle 1.58,0.74 0.07 stroke #3a2408
+ellipse 1.58,0.70 0.04,0.02 fill #1a1008 0.8
+
+# Weathered plank top (drawn on top, covers most of items — only bottoms peek)
+rect 0.0,0.0 2.0,0.65 texfill polyhaven/weathered_planks 0.88
+rect 0.0,0.0 2.0,0.65 stroke #3a2010
+
+# Plank wood grain
+line 0.0,0.18 2.0,0.18 stroke #5c3a1e 0.4
+line 0.0,0.36 2.0,0.36 stroke #5c3a1e 0.4
+line 0.0,0.52 2.0,0.52 stroke #5c3a1e 0.4
+
+# Plank seam (two boards joined)
+line 1.0,0.0 1.0,0.65 stroke #2a1400 0.6
+
+# Iron L-brackets peeking at north edge
+rect 0.12,0.02 0.06,0.08 fill #3a3020 0.85
+rect 1.82,0.02 0.06,0.08 fill #3a3020 0.85
+
+# Bracket rivet heads
+circle 0.15,0.06 0.01 fill #222222 0.9
+circle 1.85,0.06 0.01 fill #222222 0.9

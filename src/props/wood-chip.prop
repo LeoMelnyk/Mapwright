@@ -1,0 +1,49 @@
+name: Wood Chip
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: cooperage, lumberyard, mill-lumber, charcoal-burner-camp, druid-grove
+typical_count: many
+clusters_with: sawdust-pile, log-pile, lumber-stack, log-round, wood-chip
+notes: Scattered wood chips from chopping/sawing; floor scatter in woodworking areas
+---
+# === HITBOX ===
+hitbox rect 0.14,0.20 0.72,0.60 z 0-0.05
+
+# Chip 1 (large irregular chunk)
+poly 0.18,0.36 0.26,0.30 0.32,0.36 0.28,0.42 fill #8a5a30 0.9
+poly 0.18,0.36 0.26,0.30 0.32,0.36 0.28,0.42 stroke #4a2810
+line 0.20,0.38 0.28,0.34 stroke #5c3a1e 0.6
+# Chip 2 (lighter wood)
+poly 0.40,0.26 0.48,0.22 0.54,0.28 0.50,0.34 0.44,0.32 fill #a07840 0.9
+poly 0.40,0.26 0.48,0.22 0.54,0.28 0.50,0.34 0.44,0.32 stroke #5c3a1e
+line 0.42,0.28 0.52,0.32 stroke #6b4e2e 0.6
+# Chip 3 (thin curl shaving)
+bezier 0.60,0.24 0.66,0.22 0.72,0.28 0.78,0.32 stroke #a07840 width 4
+bezier 0.60,0.24 0.66,0.22 0.72,0.28 0.78,0.32 stroke #5c3a1e width 1
+# Chip 4 (dark inner wood)
+poly 0.22,0.50 0.30,0.48 0.34,0.54 0.28,0.60 fill #5c3a1e 0.9
+poly 0.22,0.50 0.30,0.48 0.34,0.54 0.28,0.60 stroke #2a1400
+# Chip 5 (flat splinter)
+rect 0.44,0.52 0.18,0.06 fill #8a5a30 0.9 rotate 15
+rect 0.44,0.52 0.18,0.06 stroke #4a2810 rotate 15
+# Chip 6 (rounded, bark side)
+ellipse 0.72,0.56 0.08,0.05 texfill polyhaven/bark_brown_01 0.9
+ellipse 0.72,0.56 0.08,0.05 stroke #3a2010
+# Chip 7 (small)
+poly 0.36,0.68 0.42,0.66 0.44,0.72 0.38,0.74 fill #6b4e2e 0.88
+poly 0.36,0.68 0.42,0.66 0.44,0.72 0.38,0.74 stroke #2a1400
+# Chip 8 (tiny splinters scattered)
+rect 0.56,0.68 0.12,0.02 fill #8a5a30 0.8 rotate -20
+rect 0.18,0.70 0.10,0.02 fill #a07840 0.8 rotate 25
+rect 0.64,0.76 0.08,0.02 fill #6b4e2e 0.8 rotate 10
+# Dust/small flecks
+circle 0.14,0.28 0.012 fill #a07840 0.7
+circle 0.80,0.40 0.012 fill #8a5a30 0.7
+circle 0.16,0.78 0.01 fill #6b4e2e 0.6
+circle 0.82,0.70 0.01 fill #8a5a30 0.6
+circle 0.50,0.78 0.008 fill #a07840 0.65

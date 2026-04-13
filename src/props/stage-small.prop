@@ -1,0 +1,57 @@
+name: Small Stage
+category: Furniture
+footprint: 3x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: wall
+room_types: bardic-hall, tavern-common, tavern-highend, inn-common-room
+typical_count: single
+clusters_with: stool, stage-small, musical-instrument
+notes: Raised wooden platform for performers; low, plank surface with step
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,2.80 z 0-0.5
+
+# Stage main platform (raised wooden floor)
+rect 0.10,0.10 1.80,2.40 texfill polyhaven/weathered_planks 0.9
+rect 0.10,0.10 1.80,2.40 stroke #3a2010
+# Plank seams running north-south
+line 0.40,0.10 0.40,2.50 stroke #3a2010 0.7
+line 0.70,0.10 0.70,2.50 stroke #3a2010 0.7
+line 1.00,0.10 1.00,2.50 stroke #3a2010 0.7
+line 1.30,0.10 1.30,2.50 stroke #3a2010 0.7
+line 1.60,0.10 1.60,2.50 stroke #3a2010 0.7
+# Plank wood grain lines
+line 0.10,0.80 1.90,0.80 stroke #5c3a1e 0.3
+line 0.10,1.60 1.90,1.60 stroke #5c3a1e 0.3
+line 0.10,2.20 1.90,2.20 stroke #5c3a1e 0.3
+# Edge trim (raised border)
+rect 0.10,0.10 1.80,0.08 fill #3a2010 0.85
+rect 0.10,0.10 0.08,2.40 fill #3a2010 0.85
+rect 1.82,0.10 0.08,2.40 fill #3a2010 0.85
+# Step down (south face, lower plank)
+rect 0.30,2.50 1.40,0.30 texfill polyhaven/weathered_planks 0.88
+rect 0.30,2.50 1.40,0.30 stroke #3a2010
+# Step edge highlight
+line 0.30,2.50 1.70,2.50 stroke #5c3a1e 0.7 width 1
+# Step plank grain
+line 0.30,2.64 1.70,2.64 stroke #3a2010 0.5
+line 0.30,2.74 1.70,2.74 stroke #3a2010 0.5
+# Nail heads scattered (iron spots)
+circle 0.24,0.30 0.02 fill #444444 0.9
+circle 0.82,0.40 0.02 fill #444444 0.9
+circle 1.40,0.50 0.02 fill #444444 0.9
+circle 0.50,1.20 0.02 fill #444444 0.9
+circle 1.24,1.60 0.02 fill #444444 0.9
+circle 0.28,2.20 0.02 fill #444444 0.9
+circle 1.64,2.30 0.02 fill #444444 0.9
+# Performer spot wear (center slightly polished)
+ellipse 1.00,1.30 0.30,0.40 fill #8b6914 0.12
+# Scuff marks
+line 0.80,1.00 0.92,1.08 stroke #2a1400 0.4
+line 1.16,1.60 1.28,1.52 stroke #2a1400 0.4
+# Stool silhouette (small round spot showing where a performer sits)
+circle 1.00,0.80 0.12 fill #2a1400 0.3
+circle 1.00,0.80 0.12 stroke #5c3a1e 0.6 width 1

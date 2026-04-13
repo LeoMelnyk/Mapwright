@@ -1,0 +1,49 @@
+name: Leather Apron
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1.5
+placement: wall
+room_types: cooperage, foundry-great, mill-lumber, forge, smithy-large, shop-tailor, glassworks, butcher-shop, tannery
+typical_count: single
+clusters_with: tool-rack, weapon-rack, workbench, anvil
+notes: Heavy work apron hanging from a peg; burn marks suggest smithy use
+---
+# === HITBOX ===
+hitbox rect 0.20,0.10 0.60,0.70 z 0-1.5
+
+# Peg (small dark dot at top — where apron hangs)
+circle 0.50,0.08 0.03 fill #2a1400 0.9
+# Neck strap loop
+bezier 0.42,0.10 0.44,0.14 0.56,0.14 0.58,0.10 stroke #3a2010 width 2
+# Apron top bib (narrow)
+poly 0.42,0.14 0.58,0.14 0.60,0.28 0.40,0.28 fill #5c3a1e 0.9
+poly 0.42,0.14 0.58,0.14 0.60,0.28 0.40,0.28 stroke #2a1400
+# Apron main body (wider)
+poly 0.40,0.28 0.60,0.28 0.72,0.52 0.70,0.76 0.30,0.76 0.28,0.52 fill #6b4a2e 0.92
+poly 0.40,0.28 0.60,0.28 0.72,0.52 0.70,0.76 0.30,0.76 0.28,0.52 texfill polyhaven/brown_leather 0.6
+poly 0.40,0.28 0.60,0.28 0.72,0.52 0.70,0.76 0.30,0.76 0.28,0.52 stroke #2a1400
+# Waist tie strings (going off to east and west)
+bezier 0.28,0.52 0.20,0.48 0.14,0.50 0.10,0.54 stroke #3a2010 width 2
+bezier 0.72,0.52 0.80,0.48 0.86,0.50 0.90,0.54 stroke #3a2010 width 2
+# Stitching seams (dark lines)
+line 0.40,0.30 0.40,0.74 stroke #2a1400 0.6
+line 0.60,0.30 0.60,0.74 stroke #2a1400 0.6
+# Cross-stitching
+line 0.32,0.54 0.68,0.54 stroke #3a2010 0.5
+# Burn marks/scorch spots
+circle 0.46,0.42 0.04 fill #1a1008 0.7
+circle 0.56,0.58 0.035 fill #1a1008 0.7
+circle 0.40,0.64 0.03 fill #2a1808 0.6
+# Metal grommets on top
+circle 0.44,0.20 0.02 fill #666666 0.9
+circle 0.56,0.20 0.02 fill #666666 0.9
+# Stain streaks (oil / ash)
+line 0.40,0.38 0.38,0.52 stroke #1a1008 0.4
+line 0.58,0.46 0.62,0.62 stroke #1a1008 0.4
+# Hem line at bottom
+line 0.30,0.74 0.70,0.74 stroke #3a2010 0.7
+# Pocket (small rectangular stitched pocket)
+rect 0.44,0.50 0.12,0.12 stroke #2a1400 0.6 width 1

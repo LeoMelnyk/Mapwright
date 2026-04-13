@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.11.0
+
+### Prop Catalog
+
+- **100 new props** — filling high-priority gaps from the prop-ideas worklist, covering scribe/library clutter, bedding, kitchen and tavern staples, furniture, forge and textile workshop gear, coins, ruin/decay scatter, combat kit, cave and ritual markers, and effect stains. Every entry gets the full treatment (footprint, hitbox, `blocks_light`, `lights`, `placement`, `room_types`, `typical_count`, `clusters_with`, notes).
+- **Top-down perspective fixes** — `shelf`, `shelf-open`, `tapestry`, and `spinning-wheel` now render in true bird's-eye view (rod + top edge + shadow for wall-hung textiles; edge-on drive wheel with base plank and bobbin for the spinning wheel) so they stop reading as side-elevation drawings next to other props.
+- **Manifest regenerated** — catalog now ships 344 props across 27 categories.
+
 ## v0.10.1
 
 ### Fixed

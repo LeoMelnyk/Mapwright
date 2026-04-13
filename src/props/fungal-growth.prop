@@ -1,0 +1,62 @@
+name: Fungal Growth
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: cave-drow-outpost, sewer-junction, slime-pit, mushroom-cavern, mushroom-grove, underdark-outpost, cave
+typical_count: many
+clusters_with: glowcap-mushroom, giant-mushroom, slime-pit, fungal-growth, algae-bloom
+notes: Patch of small cluster mushrooms and fungal crust on damp ground
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.36 z 0-0.3
+
+# Damp stain/moss base (dark wet patch)
+poly 0.16,0.50 0.22,0.34 0.36,0.22 0.54,0.20 0.70,0.26 0.82,0.42 0.86,0.58 0.78,0.72 0.62,0.82 0.42,0.82 0.24,0.74 0.16,0.62 fill #2a3820 0.9
+poly 0.16,0.50 0.22,0.34 0.36,0.22 0.54,0.20 0.70,0.26 0.82,0.42 0.86,0.58 0.78,0.72 0.62,0.82 0.42,0.82 0.24,0.74 0.16,0.62 stroke #1a2010
+# Moss detail (greenish fuzz)
+ellipse 0.30,0.50 0.12,0.08 fill #4a5820 0.7
+ellipse 0.65,0.58 0.10,0.08 fill #4a5820 0.7
+# Mushroom 1 (large, red-brown cap)
+ellipse 0.36,0.42 0.10,0.06 fill #8a4020 0.95
+ellipse 0.36,0.42 0.10,0.06 stroke #3a1008
+# Mushroom 1 stem
+rect 0.34,0.42 0.04,0.08 fill #d4c4a8 0.9
+rect 0.34,0.42 0.04,0.08 stroke #6a5040
+# Mushroom 1 gill shadow under cap
+ellipse 0.36,0.48 0.08,0.02 fill #1a0804 0.7
+# Mushroom 2 (yellow-ochre)
+ellipse 0.58,0.38 0.08,0.05 fill #b88830 0.95
+ellipse 0.58,0.38 0.08,0.05 stroke #5a3810
+rect 0.56,0.38 0.04,0.08 fill #e8dcc8 0.9
+rect 0.56,0.38 0.04,0.08 stroke #8b7355
+# Mushroom 3 (purple, small)
+ellipse 0.48,0.60 0.06,0.04 fill #6a2858 0.95
+ellipse 0.48,0.60 0.06,0.04 stroke #2a0820
+rect 0.47,0.60 0.03,0.06 fill #d4c4a8 0.85
+# Mushroom 4 (tiny cluster, white)
+circle 0.70,0.52 0.035 fill #e8dcc8 0.9
+circle 0.70,0.52 0.035 stroke #8b7355
+circle 0.74,0.56 0.025 fill #e8dcc8 0.9
+circle 0.74,0.56 0.025 stroke #8b7355
+circle 0.68,0.58 0.025 fill #e8dcc8 0.9
+circle 0.68,0.58 0.025 stroke #8b7355
+# Mushroom 5 (glowing blue, bioluminescent)
+ellipse 0.30,0.66 0.06,0.04 fill #4080a0 0.95
+ellipse 0.30,0.66 0.06,0.04 stroke #103050
+rect 0.28,0.66 0.04,0.07 fill #88c0d0 0.9
+# Mushroom 5 glow
+circle 0.30,0.66 0.10 fill #4080a0 0.15
+# Mushroom 6 (brown button, small)
+ellipse 0.62,0.70 0.05,0.03 fill #6a4020 0.95
+ellipse 0.62,0.70 0.05,0.03 stroke #2a1808
+# Spores/dust
+circle 0.20,0.40 0.015 fill #aaaaaa 0.6
+circle 0.80,0.50 0.012 fill #aaaaaa 0.6
+circle 0.40,0.74 0.01 fill #aaaaaa 0.5
+# Tiny fungal crust dots
+circle 0.24,0.60 0.015 fill #4a5020 0.8
+circle 0.76,0.68 0.015 fill #4a5020 0.8

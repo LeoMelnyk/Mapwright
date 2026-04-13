@@ -1,0 +1,58 @@
+name: Sewing Basket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.6
+placement: floor
+room_types: house-medium-family, house-small, noble-solar, textile-loomhouse, nursery
+typical_count: single
+clusters_with: spinning-wheel, yarn-basket, rocking-chair, thread-spool, pin-cushion
+notes: Open wicker basket with spools, threads, and fabric scraps spilling over
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.36 z 0-0.6
+
+# Basket outer body (wicker texture, light tan)
+circle 0.5,0.52 0.36 texfill polyhaven/rough_linen 0.75
+circle 0.5,0.52 0.36 fill #a08058 0.5
+circle 0.5,0.52 0.36 stroke #5c3a1e
+# Wicker weave pattern (crosshatch)
+arc 0.5,0.52 0.34 200 340 stroke #6b4e2e 0.5 width 1
+arc 0.5,0.52 0.30 200 340 stroke #6b4e2e 0.5 width 1
+arc 0.5,0.52 0.26 200 340 stroke #6b4e2e 0.5 width 1
+line 0.5,0.18 0.5,0.86 stroke #6b4e2e 0.5
+line 0.24,0.34 0.76,0.70 stroke #6b4e2e 0.4
+line 0.24,0.70 0.76,0.34 stroke #6b4e2e 0.4
+# Rim (darker circle)
+circle 0.5,0.52 0.34 stroke #3a1f00 width 2
+# Handle loop (arc extending north)
+arc 0.5,0.20 0.10 180 360 stroke #5c3a1e width 3
+# Interior (darker, filled with contents)
+circle 0.5,0.52 0.30 fill #3a2810 0.6
+# === Contents spilling out ===
+# Red thread spool
+circle 0.36,0.46 0.08 fill #882818 0.95
+circle 0.36,0.46 0.08 stroke #3a0808
+circle 0.36,0.46 0.03 fill #c8b898 0.9
+circle 0.36,0.46 0.03 stroke #3a1f00
+# Blue thread spool
+circle 0.62,0.46 0.07 fill #2848a8 0.95
+circle 0.62,0.46 0.07 stroke #101830
+circle 0.62,0.46 0.025 fill #c8b898 0.9
+# Pin cushion (red tomato)
+circle 0.50,0.62 0.06 fill #c82828 0.95
+circle 0.50,0.62 0.06 stroke #5a0808
+# Pin heads on cushion
+circle 0.48,0.60 0.01 fill #daa520 0.95
+circle 0.52,0.60 0.01 fill #daa520 0.95
+circle 0.50,0.64 0.01 fill #daa520 0.95
+# White fabric scrap edge
+poly 0.30,0.64 0.44,0.68 0.42,0.76 0.28,0.72 fill #e8dcc8 0.9
+poly 0.30,0.64 0.44,0.68 0.42,0.76 0.28,0.72 stroke #8b7355
+# Thread trailing out of basket
+bezier 0.36,0.46 0.30,0.34 0.22,0.28 0.14,0.22 stroke #882818 width 1
+# Thimble (silver)
+circle 0.68,0.60 0.025 fill #aaaaaa 0.95
+circle 0.68,0.60 0.025 stroke #555555

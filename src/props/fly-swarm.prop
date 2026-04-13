@@ -1,0 +1,52 @@
+name: Fly Swarm
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: butcher-shop, market-stall, tannery, monster-lair-small, sewer-junction
+typical_count: single
+clusters_with: carcass-fresh, gnawed-bone, scat-pile, corpse, hanging-meat
+notes: Dark cloud of tiny flies over decay; use sparingly near butchered meat or waste
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-0.5
+
+# Diffuse haze (faint blur)
+circle 0.5,0.5 0.32 fill #1a1a1a 0.12
+circle 0.5,0.5 0.24 fill #1a1a1a 0.18
+# Individual fly dots — dense cluster in center
+circle 0.48,0.46 0.015 fill #0a0a0a 0.95
+circle 0.52,0.48 0.015 fill #0a0a0a 0.95
+circle 0.50,0.52 0.015 fill #0a0a0a 0.95
+circle 0.46,0.50 0.015 fill #0a0a0a 0.95
+circle 0.54,0.52 0.015 fill #0a0a0a 0.95
+circle 0.44,0.54 0.015 fill #0a0a0a 0.9
+circle 0.56,0.46 0.015 fill #0a0a0a 0.9
+# Mid-ring flies
+circle 0.40,0.42 0.013 fill #0a0a0a 0.85
+circle 0.60,0.44 0.013 fill #0a0a0a 0.85
+circle 0.62,0.56 0.013 fill #0a0a0a 0.85
+circle 0.38,0.58 0.013 fill #0a0a0a 0.85
+circle 0.42,0.60 0.013 fill #0a0a0a 0.8
+circle 0.58,0.60 0.013 fill #0a0a0a 0.8
+circle 0.40,0.36 0.013 fill #0a0a0a 0.8
+circle 0.64,0.40 0.013 fill #0a0a0a 0.8
+# Outer scattered flies
+circle 0.30,0.44 0.012 fill #0a0a0a 0.75
+circle 0.70,0.50 0.012 fill #0a0a0a 0.75
+circle 0.34,0.64 0.012 fill #0a0a0a 0.7
+circle 0.66,0.64 0.012 fill #0a0a0a 0.7
+circle 0.28,0.52 0.012 fill #0a0a0a 0.65
+circle 0.72,0.38 0.012 fill #0a0a0a 0.65
+# Motion blur lines (tiny flight paths)
+line 0.32,0.40 0.36,0.42 stroke #1a1a1a 0.5
+line 0.68,0.56 0.64,0.58 stroke #1a1a1a 0.5
+line 0.46,0.36 0.48,0.32 stroke #1a1a1a 0.5
+line 0.54,0.64 0.52,0.68 stroke #1a1a1a 0.5
+# Stray outliers
+circle 0.20,0.36 0.01 fill #0a0a0a 0.6
+circle 0.80,0.60 0.01 fill #0a0a0a 0.6
+circle 0.76,0.28 0.01 fill #0a0a0a 0.5

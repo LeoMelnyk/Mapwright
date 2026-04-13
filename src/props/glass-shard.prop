@@ -1,0 +1,56 @@
+name: Glass Shard
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: glassworks, refinery, workshop-artificer, alchemy-lab, demiplane-laboratory
+typical_count: many
+clusters_with: broken-bottle, glass-shard, scorch-mark, workbench
+notes: Scattered broken glass fragments; dangerous floor hazard
+---
+# === HITBOX ===
+hitbox rect 0.14,0.16 0.72,0.68 z 0-0.05
+
+# Large shard 1 (greenish glass, jagged)
+poly 0.20,0.22 0.34,0.18 0.40,0.30 0.30,0.40 0.22,0.34 fill #4a7868 0.75
+poly 0.20,0.22 0.34,0.18 0.40,0.30 0.30,0.40 0.22,0.34 stroke #2a4838
+# Shard 1 highlight
+line 0.22,0.24 0.38,0.28 stroke #a0d0c0 0.7 width 1
+line 0.32,0.36 0.22,0.32 stroke #ffffff 0.5 width 1
+# Shard 2 (clear glass, triangular)
+poly 0.50,0.24 0.62,0.20 0.68,0.36 0.54,0.38 fill #c0e0f0 0.5
+poly 0.50,0.24 0.62,0.20 0.68,0.36 0.54,0.38 stroke #6a8898
+# Shard 2 inner glint
+line 0.52,0.26 0.66,0.32 stroke #ffffff 0.8 width 1
+# Shard 3 (small green)
+poly 0.76,0.30 0.82,0.28 0.84,0.38 0.78,0.40 fill #4a7868 0.75
+poly 0.76,0.30 0.82,0.28 0.84,0.38 0.78,0.40 stroke #2a4838
+# Shard 4 (long splinter)
+poly 0.18,0.50 0.38,0.48 0.40,0.54 0.20,0.56 fill #a0c0d0 0.55 rotate 10
+poly 0.18,0.50 0.38,0.48 0.40,0.54 0.20,0.56 stroke #5a7888 rotate 10
+# Shard 4 edge glint
+line 0.20,0.52 0.38,0.50 stroke #ffffff 0.7 width 1 rotate 10
+# Shard 5 (blue bottle glass)
+poly 0.48,0.50 0.60,0.54 0.58,0.66 0.46,0.62 fill #2a4878 0.7
+poly 0.48,0.50 0.60,0.54 0.58,0.66 0.46,0.62 stroke #10203a
+line 0.50,0.54 0.58,0.62 stroke #88a0c0 0.6 width 1
+# Shard 6 (small brown)
+poly 0.70,0.54 0.78,0.52 0.82,0.64 0.72,0.66 fill #6a4820 0.75
+poly 0.70,0.54 0.78,0.52 0.82,0.64 0.72,0.66 stroke #3a2810
+# Tiny shards scattered (small flecks)
+poly 0.30,0.70 0.34,0.72 0.32,0.76 fill #4a7868 0.7
+poly 0.54,0.76 0.58,0.78 0.56,0.82 fill #c0e0f0 0.5
+poly 0.66,0.74 0.70,0.72 0.72,0.78 fill #2a4878 0.7
+# Tiny dust flecks
+circle 0.44,0.30 0.012 fill #ffffff 0.85
+circle 0.66,0.60 0.012 fill #ffffff 0.85
+circle 0.24,0.62 0.012 fill #a0d0c0 0.7
+circle 0.84,0.48 0.01 fill #ffffff 0.7
+circle 0.16,0.76 0.01 fill #c0e0f0 0.7
+# Sparkle highlights
+circle 0.32,0.26 0.01 fill #ffffff 0.95
+circle 0.60,0.30 0.008 fill #ffffff 0.9
+circle 0.52,0.58 0.008 fill #ffffff 0.85

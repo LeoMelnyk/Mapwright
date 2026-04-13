@@ -1,0 +1,50 @@
+name: Ore Chunk
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.4
+placement: floor
+room_types: elemental-earth-node, mine-shaft-entrance, tunnel-mine-worked, cave, refinery, foundry-great
+typical_count: few
+clusters_with: rubble-pile, boulder, ore-cart, crystal-shard, crystal-formation
+notes: Raw chunk of metal ore with visible veins; crystalline fragments of iron/copper
+---
+# === HITBOX ===
+hitbox poly 0.18,0.48 0.32,0.28 0.54,0.22 0.74,0.32 0.82,0.54 0.74,0.74 0.48,0.82 0.26,0.74 z 0-0.4
+
+# Rock body (dark stone chunk, irregular polygon)
+poly 0.18,0.48 0.24,0.34 0.34,0.26 0.50,0.22 0.66,0.26 0.76,0.34 0.82,0.48 0.80,0.62 0.74,0.74 0.62,0.80 0.46,0.82 0.30,0.78 0.22,0.66 fill #3a3830 0.95
+poly 0.18,0.48 0.24,0.34 0.34,0.26 0.50,0.22 0.66,0.26 0.76,0.34 0.82,0.48 0.80,0.62 0.74,0.74 0.62,0.80 0.46,0.82 0.30,0.78 0.22,0.66 texfill polyhaven/rock_boulder_cracked 0.6
+poly 0.18,0.48 0.24,0.34 0.34,0.26 0.50,0.22 0.66,0.26 0.76,0.34 0.82,0.48 0.80,0.62 0.74,0.74 0.62,0.80 0.46,0.82 0.30,0.78 0.22,0.66 stroke #1a1810
+# Crystalline ore veins (metallic streaks — iron/copper colored)
+line 0.30,0.40 0.44,0.48 stroke #a07040 0.85 width 2
+line 0.44,0.48 0.56,0.42 stroke #a07040 0.85 width 2
+line 0.56,0.42 0.68,0.56 stroke #a07040 0.85 width 2
+line 0.36,0.62 0.52,0.72 stroke #a07040 0.8 width 2
+line 0.52,0.72 0.66,0.68 stroke #a07040 0.8 width 2
+# Vein highlight (polished metal)
+line 0.32,0.42 0.42,0.48 stroke #e8a860 0.7 width 1
+line 0.58,0.44 0.66,0.54 stroke #e8a860 0.7 width 1
+# Iron ore facet (angular, silver-ish)
+poly 0.44,0.44 0.52,0.40 0.56,0.48 0.48,0.54 fill #6a7080 0.9
+poly 0.44,0.44 0.52,0.40 0.56,0.48 0.48,0.54 stroke #2a3038
+line 0.46,0.46 0.54,0.50 stroke #aaaaaa 0.6 width 1
+# Rust/oxidation patches
+circle 0.34,0.60 0.03 fill #8a3818 0.6
+circle 0.68,0.46 0.025 fill #8a3818 0.6
+# Cracks in stone
+line 0.28,0.48 0.38,0.58 stroke #1a1810 0.7
+line 0.60,0.30 0.66,0.42 stroke #1a1810 0.6
+line 0.70,0.62 0.64,0.72 stroke #1a1810 0.6
+# Flecks of embedded mineral
+circle 0.40,0.36 0.015 fill #8899aa 0.8
+circle 0.64,0.64 0.015 fill #8899aa 0.8
+circle 0.34,0.68 0.012 fill #a07040 0.85
+circle 0.72,0.70 0.012 fill #a07040 0.85
+# Dark surface shadowing (cast from ridges)
+poly 0.32,0.58 0.40,0.70 0.30,0.72 fill #1a1810 0.5
+poly 0.62,0.58 0.72,0.66 0.60,0.72 fill #1a1810 0.5
+# Highlight rim
+arc 0.5,0.5 0.32 200 260 stroke #5a5850 0.6 width 1

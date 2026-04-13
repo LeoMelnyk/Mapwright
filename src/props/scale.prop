@@ -1,0 +1,68 @@
+name: Scale
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: floor
+room_types: bakery, butcher-shop, counting-house, shop-jeweler, shop-general, market-stall, apothecary, alchemy-lab
+typical_count: single
+clusters_with: coin-stack, coin-pile, ledger-stack, desk, weights
+notes: Two-pan balance scale — classic merchant/apothecary tool
+---
+# === HITBOX ===
+hitbox rect 0.12,0.30 0.76,0.50 z 0-1.2
+
+# Base plate (heavy bronze pedestal)
+rect 0.32,0.74 0.36,0.14 texfill polyhaven/metal_plate 0.85
+rect 0.32,0.74 0.36,0.14 fill #5a3a00 0.5
+rect 0.32,0.74 0.36,0.14 stroke #3a2400
+# Base highlight
+line 0.34,0.76 0.66,0.76 stroke #daa520 0.5
+# Central post (vertical pillar)
+rect 0.47,0.42 0.06,0.32 fill #8b6914 0.9
+rect 0.47,0.42 0.06,0.32 stroke #5a3a00
+# Post decorative band
+line 0.47,0.52 0.53,0.52 stroke #5a3a00 0.7
+line 0.47,0.62 0.53,0.62 stroke #5a3a00 0.7
+# Fulcrum (decorative knob at top of post)
+circle 0.50,0.40 0.04 fill #daa520 0.95
+circle 0.50,0.40 0.04 stroke #5a3a00
+# Beam (horizontal crossbar, slightly tilted)
+rect 0.14,0.38 0.72,0.04 fill #daa520 0.9
+rect 0.14,0.38 0.72,0.04 stroke #5a3a00
+# Beam tick marks (calibration)
+line 0.24,0.38 0.24,0.42 stroke #5a3a00 0.7
+line 0.36,0.38 0.36,0.42 stroke #5a3a00 0.7
+line 0.64,0.38 0.64,0.42 stroke #5a3a00 0.7
+line 0.76,0.38 0.76,0.42 stroke #5a3a00 0.7
+# Chain links from beam to pans (left)
+line 0.18,0.42 0.18,0.56 stroke #444444 width 1
+line 0.18,0.42 0.18,0.56 stroke #666666 0.7 width 1
+# Chain links from beam to pans (right)
+line 0.82,0.42 0.82,0.54 stroke #444444 width 1
+# Left pan (shallow bowl, top-down — ellipse)
+ellipse 0.18,0.60 0.12,0.06 fill #daa520 0.9
+ellipse 0.18,0.60 0.12,0.06 stroke #5a3a00
+ellipse 0.18,0.60 0.10,0.04 fill #8b6914 0.8
+ellipse 0.18,0.60 0.10,0.04 stroke #5a3a00
+# Left pan contents (gold coins)
+circle 0.16,0.60 0.02 fill #daa520 0.95
+circle 0.16,0.60 0.02 stroke #5a3a00
+circle 0.20,0.60 0.02 fill #daa520 0.95
+circle 0.20,0.60 0.02 stroke #5a3a00
+circle 0.18,0.58 0.018 fill #daa520 0.9
+# Right pan (tilted higher — brass bowl)
+ellipse 0.82,0.58 0.12,0.06 fill #daa520 0.9
+ellipse 0.82,0.58 0.12,0.06 stroke #5a3a00
+ellipse 0.82,0.58 0.10,0.04 fill #8b6914 0.8
+ellipse 0.82,0.58 0.10,0.04 stroke #5a3a00
+# Right pan contents (stone weight)
+circle 0.82,0.56 0.035 fill #666666 0.95
+circle 0.82,0.56 0.035 stroke #333333
+# Indicator needle (pointing slightly off-center)
+line 0.50,0.40 0.54,0.30 stroke #daa520 width 2
+line 0.50,0.40 0.54,0.30 stroke #5a3a00 width 1
+# Calibration dial behind
+arc 0.50,0.40 0.10 180 360 stroke #5a3a00 0.5 width 1

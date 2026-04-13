@@ -1,0 +1,48 @@
+name: Coin Purse
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: brothel-parlor, house-merchant, market-stall, opium-den, thieves-guild-hideout, counting-house
+typical_count: few
+clusters_with: coin-pile, coin-scatter, coin-stack, scale, desk
+notes: Small leather drawstring pouch of coins; often with a few spilling out
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.56 0.24,0.20 z 0-0.25
+
+# Pouch body (rounded leather pouch, slightly squashed)
+ellipse 0.5,0.56 0.24,0.22 texfill polyhaven/brown_leather 0.9
+ellipse 0.5,0.56 0.24,0.22 fill #5c3a1e 0.4
+ellipse 0.5,0.56 0.24,0.22 stroke #2a1400
+# Pouch body highlight
+arc 0.5,0.56 0.22 210 270 stroke #8b6914 0.5 width 1
+# Drawstring gather (neck of pouch, pinched)
+ellipse 0.5,0.38 0.10,0.04 fill #2a1400 0.9
+ellipse 0.5,0.38 0.10,0.04 stroke #1a0808
+# Drawstring cord coming out
+line 0.42,0.36 0.36,0.28 stroke #3a2010 width 2
+line 0.58,0.36 0.64,0.28 stroke #3a2010 width 2
+# Drawstring knot
+circle 0.50,0.34 0.03 fill #2a1400 0.9
+# Leather stitching along seam
+line 0.40,0.42 0.44,0.46 stroke #8b6914 0.6
+line 0.56,0.42 0.60,0.46 stroke #8b6914 0.6
+line 0.36,0.50 0.34,0.56 stroke #8b6914 0.5
+line 0.64,0.50 0.66,0.56 stroke #8b6914 0.5
+# Leather texture bumps
+circle 0.42,0.62 0.02 fill #3a2010 0.4
+circle 0.58,0.58 0.02 fill #3a2010 0.4
+# Coins spilling out onto floor (from open mouth or tear)
+circle 0.34,0.72 0.05 fill #daa520 0.95
+circle 0.34,0.72 0.05 stroke #5a3a00
+circle 0.34,0.72 0.015 fill #5a3a00 0.8
+circle 0.66,0.72 0.045 fill #daa520 0.95
+circle 0.66,0.72 0.045 stroke #5a3a00
+ellipse 0.50,0.78 0.05,0.025 fill #cccccc 0.9
+ellipse 0.50,0.78 0.05,0.025 stroke #555555
+# Glint
+circle 0.35,0.70 0.01 fill #ffee88 0.85

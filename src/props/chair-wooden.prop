@@ -1,0 +1,47 @@
+name: Wooden Chair
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: floor
+room_types: house-merchant, house-small, tavern-common, farmhouse-common, peasant-hovel, inn-common-room, cabin-hunters, cabin-trapper
+typical_count: few
+clusters_with: table, bench, stool, writing-desk
+notes: Simple spindle-back wooden chair; pairs with dining tables
+---
+# === HITBOX ===
+hitbox rect 0.18,0.18 0.64,0.64 z 0-2.5
+
+# Seat (wooden plank)
+rect 0.18,0.44 0.64,0.40 texfill polyhaven/wood_table 0.88
+rect 0.18,0.44 0.64,0.40 stroke #3a1f00
+# Seat wood grain
+line 0.22,0.54 0.78,0.54 stroke #5c3a1e 0.4
+line 0.22,0.68 0.78,0.68 stroke #5c3a1e 0.4
+line 0.22,0.78 0.78,0.78 stroke #5c3a1e 0.4
+# Seat edge beveling
+rect 0.22,0.48 0.56,0.32 stroke #5c3a1e 0.5 width 1
+# Backrest top rail (north edge)
+rect 0.18,0.18 0.64,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.18,0.18 0.64,0.08 stroke #2a1400
+# Back spindles (vertical slats)
+line 0.28,0.26 0.28,0.44 stroke #3a1f00 width 2
+line 0.40,0.26 0.40,0.44 stroke #3a1f00 width 2
+line 0.50,0.26 0.50,0.44 stroke #3a1f00 width 2
+line 0.60,0.26 0.60,0.44 stroke #3a1f00 width 2
+line 0.72,0.26 0.72,0.44 stroke #3a1f00 width 2
+# Backrest frame verticals (thicker)
+line 0.22,0.18 0.22,0.44 stroke #2a1400 width 3
+line 0.78,0.18 0.78,0.44 stroke #2a1400 width 3
+# Leg tops visible at corners (dark circles)
+circle 0.22,0.48 0.04 fill #2a1400 0.7
+circle 0.78,0.48 0.04 fill #2a1400 0.7
+circle 0.22,0.80 0.04 fill #2a1400 0.85
+circle 0.78,0.80 0.04 fill #2a1400 0.85
+# Leg shadows below (south legs cast)
+circle 0.22,0.82 0.05 fill #000000 0.3
+circle 0.78,0.82 0.05 fill #000000 0.3
+# Sit wear polish in seat center
+ellipse 0.50,0.64 0.16,0.10 fill #8b6914 0.2

@@ -1,0 +1,54 @@
+name: Tapestry
+category: Decor
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 3
+placement: wall
+room_types: crypt, mansion-ballroom, mansion-dining, mansion-grand-hall, mansion-library, noble-solar, throne-room, temple-nave
+typical_count: few
+clusters_with: wall-sconce, candelabra, banner, carpet
+notes: Hanging wall tapestry — top-down shows mounting rod and frame edge along the wall with shadow below
+---
+# === HITBOX ===
+hitbox rect 0.10,0.04 1.80,0.18 z 0-3
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: wall-hung flat textile — only the top rod + fabric top edge + shadow visible
+
+# Brass hanging rod (wider than fabric, ornate pole across top)
+rect 0.08,0.04 1.84,0.06 fill #daa520 0.92
+rect 0.08,0.04 1.84,0.06 stroke #5a3a00
+# Rod shine
+line 0.10,0.05 1.90,0.05 stroke #ffd860 0.6 width 1
+
+# Rod ornamental finial caps (east & west ends)
+circle 0.08,0.07 0.05 fill #daa520 0.95
+circle 0.08,0.07 0.05 stroke #5a3a00
+circle 1.92,0.07 0.05 fill #daa520 0.95
+circle 1.92,0.07 0.05 stroke #5a3a00
+# Finial inner detail
+circle 0.08,0.07 0.02 fill #8b6914 0.8
+circle 1.92,0.07 0.02 fill #8b6914 0.8
+
+# Tapestry top fabric edge (only a thin strip visible from above — the fabric's thickness)
+rect 0.14,0.10 1.72,0.10 texfill polyhaven/velour_velvet 0.85
+rect 0.14,0.10 1.72,0.10 fill #4a1820 0.4
+rect 0.14,0.10 1.72,0.10 stroke #2a0810
+
+# Gold embroidered banding along top edge
+line 0.14,0.13 1.86,0.13 stroke #daa520 0.8 width 1
+line 0.14,0.17 1.86,0.17 stroke #daa520 0.6 width 1
+
+# Small medallion pattern hints (just the tops visible)
+circle 0.40,0.16 0.02 fill #daa520 0.7
+circle 0.80,0.16 0.02 fill #daa520 0.7
+circle 1.20,0.16 0.02 fill #daa520 0.7
+circle 1.60,0.16 0.02 fill #daa520 0.7
+
+# Drop shadow cast on wall below the tapestry (fabric thickness shadow)
+rect 0.14,0.20 1.72,0.04 fill #000000 0.25
+
+# Subtle fade of shadow further south
+rect 0.18,0.23 1.64,0.02 fill #000000 0.1

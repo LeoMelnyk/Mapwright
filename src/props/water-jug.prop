@@ -1,0 +1,46 @@
+name: Water Jug
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: floor
+room_types: cabin-hunters, cabin-trapper, house-medium-artisan, house-medium-family, house-small, farmhouse-common, farmhouse-kitchen, peasant-hovel
+typical_count: few
+clusters_with: washbasin, bucket, tin-cup, wooden-bowl, shelf-open
+notes: Ceramic water pitcher with handle; kitchen and household staple
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.26 z 0-1.2
+
+# Jug base circle (bottom rim, wider than body)
+circle 0.5,0.52 0.28 fill #3a2a1a 0.3
+# Jug body (top-down: slightly off-center with handle bulge)
+circle 0.5,0.52 0.24 texfill polyhaven/stone_wall 0.6
+circle 0.5,0.52 0.24 fill #8a7058 0.4
+circle 0.5,0.52 0.24 stroke #3a2a1a
+# Body glaze ring
+circle 0.5,0.52 0.22 stroke #5a4028 0.5 width 1
+# Ridge/shoulder
+circle 0.5,0.52 0.18 stroke #4a3020 0.5 width 1
+# Neck (narrower top)
+ellipse 0.5,0.40 0.12,0.06 fill #8a7058 0.9
+ellipse 0.5,0.40 0.12,0.06 stroke #3a2a1a
+# Rim/opening (dark hole)
+ellipse 0.5,0.38 0.10,0.04 fill #1a1008 0.95
+ellipse 0.5,0.38 0.10,0.04 stroke #3a2a1a
+# Water meniscus (darker ring inside)
+ellipse 0.5,0.38 0.08,0.03 fill #3a5a7a 0.85
+# Handle (curved arc extending east)
+arc 0.76,0.50 0.12 250 110 stroke #8a7058 width 4
+arc 0.76,0.50 0.12 250 110 stroke #3a2a1a width 1
+# Handle inner shadow
+arc 0.76,0.50 0.10 250 110 stroke #4a3020 0.6 width 1
+# Spout (small lip pointing south-west)
+poly 0.32,0.44 0.28,0.48 0.34,0.50 fill #8a7058 0.9
+poly 0.32,0.44 0.28,0.48 0.34,0.50 stroke #3a2a1a
+# Drip stain below spout
+ellipse 0.30,0.60 0.04,0.02 fill #3a5a7a 0.5
+# Body highlight curve
+arc 0.5,0.52 0.22 210 260 stroke #a08878 0.5 width 1

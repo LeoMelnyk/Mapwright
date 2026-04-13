@@ -1,0 +1,45 @@
+name: Torn Cloth
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: cave-bandit-camp, cave-bear-lair, goblin-warren-entrance, monster-lair-small, ruined-watchtower, sewer-junction
+typical_count: many
+clusters_with: rag-pile, corpse, torn-banner, bone-pile, torn-cloth
+notes: Ripped cloth fragment — from torn clothing, sail, or cloak
+---
+# === HITBOX ===
+hitbox poly 0.16,0.30 0.68,0.22 0.82,0.52 0.60,0.78 0.24,0.70 z 0-0.05
+
+# Main torn fabric shape (irregular, with jagged tears)
+poly 0.16,0.30 0.28,0.24 0.44,0.22 0.60,0.26 0.70,0.24 0.78,0.34 0.82,0.50 0.76,0.64 0.64,0.74 0.48,0.78 0.32,0.74 0.20,0.64 0.14,0.48 fill #5a3028 0.9
+poly 0.16,0.30 0.28,0.24 0.44,0.22 0.60,0.26 0.70,0.24 0.78,0.34 0.82,0.50 0.76,0.64 0.64,0.74 0.48,0.78 0.32,0.74 0.20,0.64 0.14,0.48 texfill polyhaven/rough_linen 0.5
+poly 0.16,0.30 0.28,0.24 0.44,0.22 0.60,0.26 0.70,0.24 0.78,0.34 0.82,0.50 0.76,0.64 0.64,0.74 0.48,0.78 0.32,0.74 0.20,0.64 0.14,0.48 stroke #2a1408
+# Tear gash (deep cut across middle)
+poly 0.30,0.42 0.50,0.48 0.46,0.52 0.28,0.48 fill #1a1008 0.8
+# Secondary tear
+poly 0.56,0.58 0.70,0.56 0.68,0.62 0.54,0.64 fill #1a1008 0.7
+# Darker stain (blood or mud)
+ellipse 0.42,0.58 0.14,0.06 fill #3a1008 0.7
+# Frayed edge threads (loose fibers)
+line 0.16,0.30 0.12,0.26 stroke #5a3028 0.8
+line 0.20,0.26 0.16,0.22 stroke #5a3028 0.8
+line 0.26,0.22 0.24,0.18 stroke #5a3028 0.8
+line 0.64,0.74 0.66,0.80 stroke #5a3028 0.8
+line 0.56,0.78 0.58,0.82 stroke #5a3028 0.8
+line 0.78,0.60 0.84,0.58 stroke #5a3028 0.7
+line 0.80,0.40 0.86,0.38 stroke #5a3028 0.7
+# Dirt/mud streaks
+line 0.34,0.32 0.46,0.36 stroke #2a1410 0.5
+line 0.52,0.60 0.62,0.66 stroke #2a1410 0.5
+# Fold creases
+line 0.42,0.28 0.44,0.72 stroke #3a2010 0.4
+bezier 0.24,0.44 0.36,0.50 0.60,0.48 0.74,0.42 stroke #3a2010 0.4
+# Small fabric scrap nearby
+poly 0.10,0.72 0.16,0.70 0.18,0.76 0.12,0.78 fill #5a3028 0.85
+poly 0.10,0.72 0.16,0.70 0.18,0.76 0.12,0.78 stroke #2a1408
+# Thread tip
+line 0.10,0.72 0.06,0.70 stroke #5a3028 0.7

@@ -1,0 +1,51 @@
+name: Scorch Mark
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: foundry-great, glassworks, refinery, forge, battlefield-recent, demiplane-laboratory, elemental-fire-node
+typical_count: few
+clusters_with: ash-pile, slag-heap, campfire, forge, brazier
+notes: Dark burnt stain on the floor from fire damage
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.01
+
+# Outer char haze (faded perimeter)
+circle 0.5,0.5 0.40 fill #4a2a18 0.25
+circle 0.5,0.5 0.36 fill #3a2010 0.35
+# Main burn blob (dark irregular shape)
+poly 0.16,0.48 0.24,0.30 0.38,0.22 0.54,0.20 0.68,0.26 0.78,0.38 0.84,0.52 0.80,0.66 0.70,0.78 0.54,0.82 0.36,0.80 0.22,0.72 0.14,0.60 fill #1a1008 0.85
+poly 0.16,0.48 0.24,0.30 0.38,0.22 0.54,0.20 0.68,0.26 0.78,0.38 0.84,0.52 0.80,0.66 0.70,0.78 0.54,0.82 0.36,0.80 0.22,0.72 0.14,0.60 stroke #0a0404
+# Deepest char (near-black center)
+poly 0.28,0.50 0.34,0.34 0.48,0.32 0.60,0.36 0.68,0.46 0.68,0.60 0.58,0.70 0.42,0.72 0.30,0.64 fill #0a0404 0.9
+# Cracks in burnt surface
+line 0.30,0.44 0.40,0.54 stroke #2a1810 0.6
+line 0.50,0.36 0.58,0.48 stroke #2a1810 0.6
+line 0.40,0.58 0.52,0.66 stroke #2a1810 0.6
+line 0.56,0.54 0.64,0.60 stroke #2a1810 0.5
+# Peeling ash flakes
+poly 0.36,0.42 0.40,0.40 0.42,0.46 0.38,0.46 fill #555555 0.6
+poly 0.52,0.46 0.56,0.44 0.58,0.50 0.54,0.50 fill #555555 0.6
+# Warm residual glow (if still hot)
+ellipse 0.50,0.50 0.12,0.08 fill #4a1008 0.35
+# Tiny smoldering embers (occasional)
+circle 0.48,0.52 0.012 fill #c83018 0.5
+circle 0.54,0.48 0.01 fill #e85500 0.4
+# Ash scatter around edges
+circle 0.18,0.40 0.02 fill #6a6058 0.4
+circle 0.82,0.60 0.02 fill #6a6058 0.4
+circle 0.34,0.76 0.018 fill #6a6058 0.4
+circle 0.66,0.24 0.018 fill #6a6058 0.4
+circle 0.20,0.66 0.015 fill #6a6058 0.3
+# Radial blast streaks (indicating origin of burst)
+line 0.50,0.50 0.34,0.24 stroke #1a1008 0.6
+line 0.50,0.50 0.72,0.28 stroke #1a1008 0.6
+line 0.50,0.50 0.76,0.70 stroke #1a1008 0.6
+line 0.50,0.50 0.26,0.72 stroke #1a1008 0.6
+# Soot smear detail
+bezier 0.30,0.28 0.22,0.26 0.18,0.30 0.14,0.34 stroke #1a1008 0.7 width 2
+bezier 0.72,0.72 0.80,0.74 0.84,0.72 0.88,0.70 stroke #1a1008 0.7 width 2

@@ -1,0 +1,47 @@
+name: Ingot Stack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.5
+placement: floor
+room_types: forge, foundry-great, general-workshop, mine-shaft-entrance, smithy-large, refinery
+typical_count: few
+clusters_with: anvil, forge, slag-heap, crucible, ore-chunk
+notes: Neat pile of cast metal ingots; raw material near forges
+---
+# === HITBOX ===
+hitbox rect 0.10,0.20 0.80,0.60 z 0-0.5
+
+# Bottom row ingot 1 (iron, dark)
+rect 0.10,0.56 0.36,0.18 texfill polyhaven/metal_plate 0.85
+rect 0.10,0.56 0.36,0.18 stroke #222222
+rect 0.10,0.56 0.36,0.18 fill #444444 0.4
+# Bottom row ingot 2 (iron)
+rect 0.54,0.56 0.36,0.18 texfill polyhaven/metal_plate 0.85
+rect 0.54,0.56 0.36,0.18 stroke #222222
+rect 0.54,0.56 0.36,0.18 fill #444444 0.4
+# Middle row ingot 3 (offset, iron)
+rect 0.32,0.36 0.36,0.18 texfill polyhaven/metal_plate 0.88
+rect 0.32,0.36 0.36,0.18 stroke #222222
+# Top ingot 4 (smaller offset, different metal — brass/bronze)
+rect 0.22,0.20 0.30,0.14 fill #8b6914 0.9
+rect 0.22,0.20 0.30,0.14 stroke #5a3a00
+# Top ingot 5 (adjacent brass)
+rect 0.52,0.22 0.28,0.14 fill #a08458 0.9
+rect 0.52,0.22 0.28,0.14 stroke #5a3a00
+# Ingot bevels (edges darker)
+rect 0.12,0.58 0.32,0.14 stroke #666666 0.4 width 1
+rect 0.56,0.58 0.32,0.14 stroke #666666 0.4 width 1
+rect 0.34,0.38 0.32,0.14 stroke #666666 0.4 width 1
+# Stamp/brand marks on top ingots
+rect 0.30,0.24 0.08,0.06 fill #5a3a00 0.6
+line 0.31,0.26 0.37,0.26 stroke #2a1800 0.8
+line 0.31,0.28 0.36,0.28 stroke #2a1800 0.8
+rect 0.60,0.26 0.08,0.06 fill #5a3a00 0.6
+line 0.61,0.28 0.67,0.28 stroke #2a1800 0.8
+# Metal sheen highlights
+line 0.12,0.58 0.44,0.58 stroke #aaaaaa 0.5
+line 0.56,0.58 0.88,0.58 stroke #aaaaaa 0.5
+line 0.34,0.38 0.66,0.38 stroke #aaaaaa 0.5

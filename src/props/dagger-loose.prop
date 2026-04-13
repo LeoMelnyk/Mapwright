@@ -1,0 +1,55 @@
+name: Loose Dagger
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: gambling-den, shop-weaponsmith, thieves-guild-hideout, assassin-hideout
+typical_count: single
+clusters_with: coin-scatter, playing-cards, bloodstain, corpse, whetstone
+notes: Single dagger lying on a surface; stabbing weapon or thrown blade
+---
+# === HITBOX ===
+hitbox rect 0.38,0.14 0.24,0.72 z 0-0.1
+
+# Faint shadow
+rect 0.40,0.18 0.22,0.68 fill #1a1008 0.2
+# Blade (tapered, pointing south)
+poly 0.46,0.16 0.54,0.16 0.58,0.50 0.50,0.58 0.42,0.50 fill #aaaaaa 0.95
+poly 0.46,0.16 0.54,0.16 0.58,0.50 0.50,0.58 0.42,0.50 texfill polyhaven/metal_plate 0.6
+poly 0.46,0.16 0.54,0.16 0.58,0.50 0.50,0.58 0.42,0.50 stroke #333333
+# Fuller/central groove (dark line down blade)
+line 0.50,0.18 0.50,0.54 stroke #444444 width 1
+# Blade edge highlights
+line 0.46,0.18 0.50,0.54 stroke #dddddd 0.5 width 1
+line 0.54,0.18 0.50,0.54 stroke #dddddd 0.5 width 1
+# Blade tip point
+circle 0.50,0.58 0.015 fill #ffffff 0.9
+# Crossguard (horizontal bar)
+rect 0.38,0.58 0.24,0.06 fill #5a3a00 0.9
+rect 0.38,0.58 0.24,0.06 texfill polyhaven/metal_plate 0.5
+rect 0.38,0.58 0.24,0.06 stroke #2a1400
+# Crossguard terminals (decorative caps)
+circle 0.38,0.61 0.03 fill #8b6914 0.9
+circle 0.38,0.61 0.03 stroke #5a3a00
+circle 0.62,0.61 0.03 fill #8b6914 0.9
+circle 0.62,0.61 0.03 stroke #5a3a00
+# Grip (wrapped leather)
+rect 0.44,0.64 0.12,0.18 texfill polyhaven/brown_leather 0.9
+rect 0.44,0.64 0.12,0.18 stroke #2a1400
+# Grip wrap binding (diagonal wraps)
+line 0.44,0.68 0.56,0.70 stroke #3a2010 0.8
+line 0.44,0.72 0.56,0.74 stroke #3a2010 0.8
+line 0.44,0.76 0.56,0.78 stroke #3a2010 0.8
+# Pommel (round metal cap)
+circle 0.50,0.84 0.05 fill #8b6914 0.95
+circle 0.50,0.84 0.05 stroke #5a3a00
+# Pommel gem
+circle 0.50,0.84 0.02 fill #cc2030 0.9
+circle 0.50,0.84 0.02 stroke #6a1020
+# Blood smear on blade
+line 0.49,0.24 0.51,0.42 stroke #5a1010 0.6 width 1
+# Tiny drop on floor
+circle 0.60,0.50 0.015 fill #4a1010 0.7

@@ -1,0 +1,31 @@
+name: Wax Seal
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: counting-house, courthouse-chamber, guildhall, scriptorium-mundane, mansion-study, command-room
+typical_count: few
+clusters_with: document-stack, letter-stack, desk, wax-seal-kit
+notes: Red wax seal impressed with an emblem; often beside rolled letters or documents
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.18 z 0-0.1
+
+# Wax puddle (irregular drip shape)
+poly 0.32,0.52 0.36,0.38 0.48,0.32 0.62,0.34 0.70,0.44 0.68,0.58 0.58,0.66 0.44,0.66 0.34,0.60 fill #991111 0.9
+poly 0.32,0.52 0.36,0.38 0.48,0.32 0.62,0.34 0.70,0.44 0.68,0.58 0.58,0.66 0.44,0.66 0.34,0.60 stroke #5a0808
+# Darker inner shadow (impression depth)
+circle 0.50,0.49 0.13 fill #6a0808 0.55
+# Emblem (stamp impression — abstract crest)
+poly 0.44,0.44 0.56,0.44 0.56,0.54 0.50,0.58 0.44,0.54 fill #881010 0.95
+poly 0.44,0.44 0.56,0.44 0.56,0.54 0.50,0.58 0.44,0.54 stroke #3a0404
+# Inner emblem detail (small cross or mark)
+line 0.48,0.47 0.52,0.47 stroke #e8dcc8 0.4
+line 0.50,0.46 0.50,0.52 stroke #e8dcc8 0.4
+# Highlight on wax (glossy)
+arc 0.50,0.49 0.11 200 260 stroke #c83030 0.6 width 1
+# Drip tail trailing south
+poly 0.46,0.66 0.54,0.66 0.52,0.78 0.48,0.78 fill #991111 0.85

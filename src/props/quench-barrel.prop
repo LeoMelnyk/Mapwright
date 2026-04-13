@@ -1,0 +1,51 @@
+name: Quench Barrel
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: floor
+room_types: forge, house-medium-artisan, smithy-large, foundry-great
+typical_count: single
+clusters_with: anvil, forge, tool-rack, ingot-stack
+notes: Water-filled barrel for cooling hot metal; steam-stained and stained dark
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.40 z 0-2.5
+
+# Barrel outer ring (wooden staves, darkened)
+circle 0.5,0.5 0.40 texfill polyhaven/dark_wood 0.9
+circle 0.5,0.5 0.40 fill #1a1008 0.3
+circle 0.5,0.5 0.40 stroke #0a0404
+# Stave seam lines (radial, as if looking into top)
+line 0.50,0.10 0.50,0.90 stroke #2a1400 0.6
+line 0.22,0.22 0.78,0.78 stroke #2a1400 0.5
+line 0.22,0.78 0.78,0.22 stroke #2a1400 0.5
+line 0.10,0.50 0.90,0.50 stroke #2a1400 0.5
+# Iron bands (heavier rusty metal rings)
+circle 0.5,0.5 0.40 stroke #3a2810 width 3
+circle 0.5,0.5 0.36 stroke #444444 width 2
+# Inner rim lip
+circle 0.5,0.5 0.32 stroke #1a1008 width 2
+# Water surface (dark murky)
+circle 0.5,0.5 0.32 fill #1a2028 0.95
+circle 0.5,0.5 0.32 stroke #0a0808
+# Water surface sheen (light reflection)
+arc 0.5,0.5 0.30 200 260 stroke #4a5a68 0.6 width 1
+arc 0.5,0.5 0.26 220 250 stroke #8a9aa8 0.5 width 1
+# Soot floating on water
+circle 0.42,0.42 0.025 fill #0a0404 0.85
+circle 0.58,0.48 0.02 fill #0a0404 0.85
+circle 0.46,0.58 0.02 fill #0a0404 0.85
+circle 0.38,0.52 0.015 fill #0a0404 0.75
+circle 0.56,0.58 0.015 fill #0a0404 0.75
+# Steam curl rising
+bezier 0.44,0.40 0.38,0.30 0.50,0.22 0.44,0.12 stroke #aaaaaa 0.4 width 2
+bezier 0.56,0.44 0.62,0.34 0.52,0.26 0.58,0.16 stroke #cccccc 0.35 width 2
+# Stain rings on outside (water spills darkened wood)
+arc 0.5,0.5 0.42 30 80 stroke #0a0404 0.6 width 2
+arc 0.5,0.5 0.42 230 280 stroke #0a0404 0.5 width 2
+# Dipping tool handle sticking out
+line 0.60,0.48 0.76,0.32 stroke #5c3a1e width 3
+line 0.60,0.48 0.76,0.32 stroke #2a1400 width 1

@@ -1,0 +1,37 @@
+name: Reading Spectacles
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: mansion-library, mansion-study, scriptorium-dark, library, shop-bookseller
+typical_count: single
+clusters_with: book, book-pile, desk, ledger-stack
+notes: Tiny desk accent; folded or open pair of round spectacles
+---
+# === HITBOX ===
+hitbox rect 0.14,0.42 0.72,0.20 z 0-0.05
+
+# Left lens (wire-rim circle)
+circle 0.30,0.52 0.14 fill #1a1410 0.1
+circle 0.30,0.52 0.14 stroke #444444 width 2
+# Left lens inner glint
+arc 0.30,0.52 0.12 200 260 stroke #aaaaaa 0.5 width 1
+# Right lens
+circle 0.70,0.52 0.14 fill #1a1410 0.1
+circle 0.70,0.52 0.14 stroke #444444 width 2
+# Right lens inner glint
+arc 0.70,0.52 0.12 200 260 stroke #aaaaaa 0.5 width 1
+# Bridge (connecting piece)
+line 0.42,0.52 0.58,0.52 stroke #555555 width 2
+# Bridge arch (subtle curve above)
+qbezier 0.42,0.52 0.50,0.46 0.58,0.52 stroke #666666 width 1
+# Left temple arm (folding back)
+line 0.16,0.56 0.18,0.48 stroke #555555 width 2
+# Right temple arm
+line 0.84,0.56 0.82,0.48 stroke #555555 width 2
+# Tiny hinge dots
+circle 0.18,0.50 0.012 fill #333333 0.9
+circle 0.82,0.50 0.012 fill #333333 0.9

@@ -1,0 +1,51 @@
+name: Standing Stone
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 4
+placement: floor
+room_types: burial-mound, druid-grove, standing-stones-circle, wilderness, moor
+typical_count: few
+clusters_with: standing-stone, cairn-sacred, carved-rune-stone, bone-marker, standing-stone-fallen
+notes: Single upright menhir, rougher and more organic than an obelisk
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.5 0.26,0.34 z 0-4
+
+# Shadow pool cast by tall stone
+ellipse 0.5,0.82 0.30,0.08 fill #1a1008 0.5
+# Stone body (tall menhir — top-down shows elongated irregular shape)
+poly 0.30,0.20 0.38,0.14 0.56,0.12 0.68,0.18 0.74,0.30 0.76,0.50 0.72,0.68 0.64,0.78 0.46,0.80 0.32,0.72 0.26,0.56 0.24,0.38 fill #5a5048 0.95
+poly 0.30,0.20 0.38,0.14 0.56,0.12 0.68,0.18 0.74,0.30 0.76,0.50 0.72,0.68 0.64,0.78 0.46,0.80 0.32,0.72 0.26,0.56 0.24,0.38 texfill polyhaven/rock_boulder_cracked 0.6
+poly 0.30,0.20 0.38,0.14 0.56,0.12 0.68,0.18 0.74,0.30 0.76,0.50 0.72,0.68 0.64,0.78 0.46,0.80 0.32,0.72 0.26,0.56 0.24,0.38 stroke #2a2420
+# Weathered erosion cracks (vertical lines of age)
+bezier 0.34,0.22 0.32,0.40 0.34,0.60 0.36,0.76 stroke #1a1410 0.7 width 1
+bezier 0.64,0.18 0.68,0.40 0.66,0.58 0.64,0.76 stroke #1a1410 0.7 width 1
+bezier 0.48,0.16 0.46,0.40 0.50,0.60 0.48,0.78 stroke #1a1410 0.6 width 1
+# Ancient carved runes (primitive spirals/lines)
+circle 0.42,0.40 0.04 stroke #1a0800 width 1
+arc 0.42,0.40 0.03 0 270 stroke #1a0800 0.85 width 1
+line 0.56,0.36 0.62,0.44 stroke #1a0800 0.85 width 1
+line 0.56,0.44 0.62,0.36 stroke #1a0800 0.85 width 1
+# Secondary runes
+line 0.48,0.54 0.52,0.62 stroke #1a0800 0.7 width 1
+line 0.40,0.62 0.46,0.62 stroke #1a0800 0.6 width 1
+line 0.56,0.62 0.62,0.62 stroke #1a0800 0.6 width 1
+# Ochre pigment staining (ancient ritual markings)
+ellipse 0.50,0.40 0.14,0.04 fill #8a3010 0.35
+# Moss covering (lichen on north/shaded side)
+poly 0.24,0.48 0.28,0.42 0.32,0.50 0.28,0.58 fill #3a5028 0.75
+poly 0.26,0.60 0.30,0.54 0.32,0.62 0.28,0.66 fill #3a5028 0.7
+# Yellow lichen blotch
+ellipse 0.68,0.56 0.05,0.04 fill #8a9020 0.6
+# Light side highlight (catches sun)
+arc 0.50,0.50 0.28 210 270 stroke #8a8078 0.5 width 1
+# Tiny fallen chip at base
+poly 0.22,0.80 0.26,0.78 0.28,0.82 0.24,0.84 fill #6a6058 0.85
+poly 0.22,0.80 0.26,0.78 0.28,0.82 0.24,0.84 stroke #2a2420
+# Small cluster of grass at base
+line 0.18,0.82 0.20,0.76 stroke #4a6028 0.7
+line 0.22,0.84 0.24,0.78 stroke #4a6028 0.7
+line 0.78,0.80 0.80,0.74 stroke #4a6028 0.7

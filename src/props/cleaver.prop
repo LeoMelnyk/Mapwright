@@ -1,0 +1,47 @@
+name: Cleaver
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: butcher-shop, farmhouse-kitchen, ship-galley, servants-kitchen, kitchen
+typical_count: single
+clusters_with: chopping-block, cutting-board, hanging-meat, knife-curved
+notes: Heavy meat cleaver with rectangular blade; place on blocks or hanging
+---
+# === HITBOX ===
+hitbox rect 0.22,0.18 0.56,0.66 z 0-0.2
+
+# Blade (rectangular, wide)
+rect 0.22,0.18 0.56,0.46 texfill polyhaven/metal_plate 0.9
+rect 0.22,0.18 0.56,0.46 stroke #333333
+# Blade edge darkening (cutting edge at south)
+rect 0.22,0.60 0.56,0.04 fill #aaaaaa 0.9
+rect 0.22,0.60 0.56,0.04 stroke #555555
+# Blade spine highlight (north edge)
+line 0.22,0.18 0.78,0.18 stroke #ccccdd 0.7 width 1
+# Blade main highlight
+line 0.24,0.24 0.76,0.24 stroke #aaaacc 0.5
+# Brand mark / smithy stamp
+circle 0.62,0.38 0.04 fill #555555 0.7
+circle 0.62,0.38 0.04 stroke #222222
+# Small rivet hole
+circle 0.30,0.30 0.02 fill #222222 0.9
+# Tang transition (neck from blade to handle)
+rect 0.44,0.64 0.12,0.08 fill #444444 0.85
+rect 0.44,0.64 0.12,0.08 stroke #222222
+# Handle (wooden grip extending south)
+rect 0.42,0.72 0.16,0.12 texfill polyhaven/dark_wood 0.88
+rect 0.42,0.72 0.16,0.12 stroke #3a1f00
+# Handle rivets
+circle 0.46,0.76 0.015 fill #555555 0.9
+circle 0.54,0.76 0.015 fill #555555 0.9
+circle 0.46,0.80 0.015 fill #555555 0.9
+circle 0.54,0.80 0.015 fill #555555 0.9
+# Handle buttcap
+rect 0.42,0.82 0.16,0.04 fill #555555 0.8
+rect 0.42,0.82 0.16,0.04 stroke #222222
+# Faint blood smear on blade
+ellipse 0.38,0.50 0.08,0.04 fill #4a1010 0.35

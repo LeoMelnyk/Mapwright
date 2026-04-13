@@ -1,0 +1,65 @@
+name: Onion Braid
+category: Food
+footprint: 2x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1
+placement: wall
+room_types: farmhouse-kitchen, pantry, servants-kitchen, ship-galley, farmhouse-common
+typical_count: few
+clusters_with: hanging-meat, dried-herbs, shelf-open, cupboard
+notes: Braid of onions hanging from wall/beam; drape along walls in kitchens
+---
+# === HITBOX ===
+hitbox rect 0.34,0.12 0.32,1.72 z 0-1
+
+# Twine/rope hanger at top
+line 0.40,0.08 0.60,0.08 stroke #6b4e2e width 2
+# Hanging loop knot
+circle 0.50,0.08 0.04 fill #4a3820 0.9
+# Central braid string running down
+line 0.50,0.12 0.50,1.88 stroke #6b4e2e 0.6 width 1
+# Onion 1 (top left)
+ellipse 0.40,0.30 0.14,0.14 fill #d4b088 0.92
+ellipse 0.40,0.30 0.14,0.14 stroke #6a4828
+# Onion 1 stripes
+arc 0.40,0.30 0.12 250 290 stroke #8a6a40 0.5 width 1
+arc 0.40,0.30 0.09 250 290 stroke #8a6a40 0.4 width 1
+# Onion 1 root tuft
+line 0.40,0.44 0.34,0.56 stroke #3a2810 0.7
+line 0.40,0.44 0.46,0.56 stroke #3a2810 0.7
+line 0.40,0.44 0.40,0.58 stroke #3a2810 0.7
+# Onion 2 (top right, offset)
+ellipse 0.62,0.50 0.14,0.14 fill #e8c898 0.92
+ellipse 0.62,0.50 0.14,0.14 stroke #6a4828
+arc 0.62,0.50 0.12 250 290 stroke #a08458 0.5 width 1
+# Onion 2 roots
+line 0.62,0.64 0.56,0.74 stroke #3a2810 0.7
+line 0.62,0.64 0.68,0.74 stroke #3a2810 0.7
+# Onion 3 (middle left)
+ellipse 0.36,0.78 0.14,0.14 fill #d4b088 0.92
+ellipse 0.36,0.78 0.14,0.14 stroke #6a4828
+arc 0.36,0.78 0.12 250 290 stroke #8a6a40 0.5 width 1
+line 0.36,0.92 0.30,1.04 stroke #3a2810 0.7
+line 0.36,0.92 0.42,1.04 stroke #3a2810 0.7
+# Onion 4 (middle right)
+ellipse 0.64,1.04 0.14,0.14 fill #e8c898 0.92
+ellipse 0.64,1.04 0.14,0.14 stroke #6a4828
+arc 0.64,1.04 0.12 250 290 stroke #a08458 0.5 width 1
+line 0.64,1.18 0.58,1.28 stroke #3a2810 0.7
+line 0.64,1.18 0.70,1.28 stroke #3a2810 0.7
+# Onion 5 (bottom left)
+ellipse 0.38,1.32 0.14,0.14 fill #d4b088 0.92
+ellipse 0.38,1.32 0.14,0.14 stroke #6a4828
+arc 0.38,1.32 0.12 250 290 stroke #8a6a40 0.5 width 1
+line 0.38,1.46 0.32,1.56 stroke #3a2810 0.7
+line 0.38,1.46 0.44,1.56 stroke #3a2810 0.7
+# Onion 6 (bottom, center — largest)
+ellipse 0.50,1.58 0.16,0.16 fill #d4b088 0.95
+ellipse 0.50,1.58 0.16,0.16 stroke #6a4828
+arc 0.50,1.58 0.14 250 290 stroke #8a6a40 0.5 width 1
+# Onion 6 roots (tail at bottom)
+line 0.50,1.74 0.42,1.88 stroke #3a2810 0.75
+line 0.50,1.74 0.50,1.92 stroke #3a2810 0.75
+line 0.50,1.74 0.58,1.88 stroke #3a2810 0.75

@@ -1,0 +1,40 @@
+name: Dropped Coin
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: battlefield-recent, fairground-seasonal, plaza-civic, market-square
+typical_count: single
+clusters_with: coin-scatter, dropped-coin
+notes: Single lost coin on the floor; minor treasure hint
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.10 z 0-0.02
+
+# Faint shadow under coin
+circle 0.52,0.52 0.10 fill #1a1008 0.25
+# Main coin body (gold)
+circle 0.5,0.5 0.09 fill #daa520 0.98
+circle 0.5,0.5 0.09 stroke #5a3a00
+# Raised rim ring
+circle 0.5,0.5 0.075 stroke #8b6914 0.8 width 1
+# Coin face detail — central emblem (crude crown/head)
+circle 0.5,0.5 0.04 fill #8b6914 0.85
+circle 0.5,0.5 0.04 stroke #5a3a00
+# Emblem detail
+line 0.48,0.49 0.52,0.49 stroke #3a2400 0.8
+line 0.50,0.47 0.50,0.53 stroke #3a2400 0.8
+# Date/legend letters (tiny dots around emblem)
+circle 0.44,0.48 0.008 fill #5a3a00 0.8
+circle 0.56,0.48 0.008 fill #5a3a00 0.8
+circle 0.44,0.52 0.008 fill #5a3a00 0.8
+circle 0.56,0.52 0.008 fill #5a3a00 0.8
+# Highlight crescent (gold catches light)
+arc 0.5,0.5 0.08 210 280 stroke #ffcc00 0.7 width 1
+# Bright glint
+circle 0.46,0.46 0.012 fill #ffee88 0.95
+# Small wear scratch
+line 0.46,0.52 0.54,0.48 stroke #8b6914 0.5 width 1

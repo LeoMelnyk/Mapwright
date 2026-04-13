@@ -1,0 +1,55 @@
+name: Upholstered Chair
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: floor
+room_types: house-merchant, library, tavern-common, mansion-library, noble-solar, mansion-study
+typical_count: few
+clusters_with: desk, writing-desk, fireplace, hearth, small-table
+notes: Comfortable padded chair with cushioned seat and back; softer than plain wooden chair
+---
+# === HITBOX ===
+hitbox rect 0.14,0.14 0.72,0.72 z 0-2.5
+
+# Wooden frame (bottom visible behind cushions)
+rect 0.14,0.14 0.72,0.72 texfill polyhaven/dark_wood 0.75
+rect 0.14,0.14 0.72,0.72 stroke #2a1400
+# Backrest cushion (upper portion, against north wall)
+rect 0.18,0.18 0.64,0.34 fill #6a1818 0.9
+rect 0.18,0.18 0.64,0.34 stroke #2a0808
+# Backrest button tufting (decorative buttons)
+circle 0.34,0.28 0.025 fill #3a0808 0.9
+circle 0.34,0.28 0.025 stroke #daa520 0.5
+circle 0.50,0.28 0.025 fill #3a0808 0.9
+circle 0.50,0.28 0.025 stroke #daa520 0.5
+circle 0.66,0.28 0.025 fill #3a0808 0.9
+circle 0.66,0.28 0.025 stroke #daa520 0.5
+circle 0.34,0.40 0.025 fill #3a0808 0.9
+circle 0.34,0.40 0.025 stroke #daa520 0.5
+circle 0.50,0.40 0.025 fill #3a0808 0.9
+circle 0.50,0.40 0.025 stroke #daa520 0.5
+circle 0.66,0.40 0.025 fill #3a0808 0.9
+circle 0.66,0.40 0.025 stroke #daa520 0.5
+# Backrest fabric highlights
+arc 0.50,0.28 0.25 210 280 stroke #8a2828 0.5 width 1
+# Seat cushion (lower portion, sinkable)
+rect 0.16,0.54 0.68,0.30 fill #7a1a1a 0.9
+rect 0.16,0.54 0.68,0.30 stroke #2a0808
+# Seat cushion divot (seat center darker)
+ellipse 0.50,0.70 0.22,0.08 fill #4a1010 0.5
+# Armrests (east & west strips)
+rect 0.12,0.50 0.08,0.30 texfill polyhaven/dark_wood 0.88
+rect 0.12,0.50 0.08,0.30 stroke #2a1400
+rect 0.80,0.50 0.08,0.30 texfill polyhaven/dark_wood 0.88
+rect 0.80,0.50 0.08,0.30 stroke #2a1400
+# Armrest caps (rounded pads)
+ellipse 0.16,0.50 0.06,0.03 fill #5c3a1e 0.9
+ellipse 0.84,0.50 0.06,0.03 fill #5c3a1e 0.9
+# Leg visible at south corners
+circle 0.18,0.86 0.04 fill #2a1400 0.85
+circle 0.82,0.86 0.04 fill #2a1400 0.85
+# Fabric edge piping
+line 0.18,0.54 0.82,0.54 stroke #daa520 0.4

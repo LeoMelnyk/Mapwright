@@ -1,0 +1,55 @@
+name: Coin Pile
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: bakery, counting-house, gambling-den, thieves-guild-hideout, treasure-vault, vault, shop-jeweler, market-stall, reliquary, cave-bandit-camp
+typical_count: few
+clusters_with: coin-stack, coin-scatter, coin-purse, chest, scale, treasure-pile
+notes: Small heap of loose coins; smaller than treasure-pile
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.28 z 0-0.2
+
+# Shadow beneath pile
+ellipse 0.5,0.58 0.28,0.06 fill #1a1008 0.4
+# Base layer — cluster of coins (gold and silver mixed)
+# Large gold coin 1
+circle 0.36,0.54 0.11 fill #daa520 0.95
+circle 0.36,0.54 0.11 stroke #5a3a00
+circle 0.36,0.54 0.08 stroke #8b6914 0.6 width 1
+circle 0.36,0.54 0.02 fill #5a3a00 0.8
+# Large gold coin 2
+circle 0.58,0.56 0.11 fill #daa520 0.95
+circle 0.58,0.56 0.11 stroke #5a3a00
+circle 0.58,0.56 0.08 stroke #8b6914 0.6 width 1
+circle 0.58,0.56 0.02 fill #5a3a00 0.8
+# Silver coin (overlapping)
+circle 0.46,0.48 0.09 fill #cccccc 0.95
+circle 0.46,0.48 0.09 stroke #555555
+circle 0.46,0.48 0.07 stroke #888888 0.6 width 1
+circle 0.46,0.48 0.02 fill #555555 0.8
+# Copper coin
+circle 0.72,0.50 0.08 fill #b06030 0.95
+circle 0.72,0.50 0.08 stroke #5a2810
+# Stacked coin on top
+circle 0.50,0.40 0.10 fill #daa520 0.95
+circle 0.50,0.40 0.10 stroke #5a3a00
+circle 0.50,0.40 0.07 stroke #8b6914 0.6 width 1
+# Peripheral scattered coins (edge-on, smaller)
+ellipse 0.24,0.48 0.08,0.03 fill #daa520 0.9
+ellipse 0.24,0.48 0.08,0.03 stroke #5a3a00
+ellipse 0.78,0.60 0.07,0.03 fill #cccccc 0.9
+ellipse 0.78,0.60 0.07,0.03 stroke #555555
+ellipse 0.40,0.68 0.07,0.03 fill #b06030 0.85
+ellipse 0.40,0.68 0.07,0.03 stroke #5a2810
+# Tiny glints/sparkles
+circle 0.38,0.52 0.012 fill #ffee88 0.9
+circle 0.56,0.54 0.012 fill #ffffff 0.8
+circle 0.48,0.38 0.01 fill #ffee88 0.8
+# Gold highlight arcs
+arc 0.36,0.54 0.10 210 260 stroke #ffcc00 0.6 width 1
+arc 0.58,0.56 0.10 210 260 stroke #ffcc00 0.6 width 1

@@ -1,0 +1,40 @@
+name: Ash Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: cave-bandit-camp, charcoal-burner-camp, elemental-fire-node, forge, hearth, shrine, foundry-great, ruined-watchtower
+typical_count: few
+clusters_with: campfire, hearth, scorch-mark, slag-heap, wood-chip
+notes: Soft gray ash remains of a fire; sometimes with embers still glowing
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-0.2
+
+# Outer ash scatter (lighter, spread wider)
+poly 0.16,0.50 0.22,0.34 0.36,0.24 0.54,0.22 0.70,0.28 0.82,0.42 0.84,0.58 0.76,0.72 0.60,0.80 0.40,0.80 0.22,0.72 0.14,0.58 fill #888888 0.6
+poly 0.16,0.50 0.22,0.34 0.36,0.24 0.54,0.22 0.70,0.28 0.82,0.42 0.84,0.58 0.76,0.72 0.60,0.80 0.40,0.80 0.22,0.72 0.14,0.58 stroke #555555 0.5
+# Mid ash mound (darker gray)
+poly 0.26,0.50 0.30,0.38 0.40,0.32 0.52,0.30 0.64,0.34 0.72,0.44 0.74,0.56 0.66,0.68 0.52,0.72 0.36,0.70 0.26,0.62 fill #555555 0.85
+# Darker char interior
+poly 0.34,0.50 0.36,0.42 0.44,0.38 0.54,0.38 0.62,0.44 0.64,0.52 0.58,0.62 0.48,0.64 0.38,0.60 fill #2a2420 0.9
+# Ember glow (small hot spots)
+circle 0.44,0.48 0.025 fill #ff6600 0.85
+circle 0.54,0.52 0.02 fill #e85500 0.7
+circle 0.46,0.58 0.018 fill #cc3300 0.7
+circle 0.56,0.44 0.015 fill #ffaa00 0.6
+# Hot ember center (brightest)
+circle 0.50,0.50 0.015 fill #ffcc00 0.85
+# Charred wood fragment poking through
+line 0.42,0.44 0.50,0.52 stroke #1a1008 width 2
+line 0.50,0.44 0.58,0.52 stroke #1a1008 width 2
+# Random ash flakes in periphery
+circle 0.20,0.40 0.012 fill #aaaaaa 0.7
+circle 0.80,0.56 0.012 fill #aaaaaa 0.7
+circle 0.30,0.80 0.01 fill #888888 0.6
+circle 0.70,0.76 0.01 fill #888888 0.6
+# Subtle heat haze (faint radial)
+circle 0.5,0.5 0.30 fill #ffaa00 0.05

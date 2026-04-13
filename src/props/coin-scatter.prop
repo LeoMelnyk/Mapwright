@@ -1,0 +1,52 @@
+name: Coin Scatter
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: cave-bandit-camp, ferry-house, goblin-warren-entrance, gambling-den, tavern-common, thieves-guild-hideout
+typical_count: many
+clusters_with: coin-pile, coin-stack, coin-purse, dice-cup, playing-cards
+notes: Loose coins scattered on the floor; small find
+---
+# === HITBOX ===
+hitbox rect 0.14,0.18 0.72,0.64 z 0-0.05
+
+# Coin 1 (gold, face up)
+circle 0.22,0.32 0.06 fill #daa520 0.95
+circle 0.22,0.32 0.06 stroke #5a3a00
+circle 0.22,0.32 0.015 fill #5a3a00 0.8
+# Coin 2 (silver, face up)
+circle 0.44,0.28 0.06 fill #cccccc 0.95
+circle 0.44,0.28 0.06 stroke #555555
+circle 0.44,0.28 0.015 fill #555555 0.8
+# Coin 3 (gold, edge-on)
+ellipse 0.66,0.32 0.06,0.025 fill #daa520 0.9
+ellipse 0.66,0.32 0.06,0.025 stroke #5a3a00
+# Coin 4 (copper)
+circle 0.28,0.56 0.05 fill #b06030 0.95
+circle 0.28,0.56 0.05 stroke #5a2810
+# Coin 5 (gold)
+circle 0.52,0.58 0.06 fill #daa520 0.95
+circle 0.52,0.58 0.06 stroke #5a3a00
+circle 0.52,0.58 0.015 fill #5a3a00 0.8
+# Coin 6 (silver, slight angle)
+ellipse 0.74,0.60 0.06,0.04 fill #cccccc 0.95
+ellipse 0.74,0.60 0.06,0.04 stroke #555555
+# Coin 7 (copper, small)
+circle 0.40,0.72 0.04 fill #b06030 0.9
+circle 0.40,0.72 0.04 stroke #5a2810
+# Coin 8 (gold, small)
+circle 0.68,0.76 0.04 fill #daa520 0.9
+circle 0.68,0.76 0.04 stroke #5a3a00
+# Coin 9 (small edge)
+ellipse 0.18,0.70 0.05,0.02 fill #daa520 0.85
+ellipse 0.18,0.70 0.05,0.02 stroke #5a3a00
+# Highlight glints
+arc 0.22,0.32 0.05 210 260 stroke #ffcc00 0.6 width 1
+arc 0.44,0.28 0.05 210 260 stroke #ffffff 0.5 width 1
+arc 0.52,0.58 0.05 210 260 stroke #ffcc00 0.6 width 1
+circle 0.46,0.46 0.01 fill #ffee88 0.85
+circle 0.60,0.40 0.008 fill #ffee88 0.7

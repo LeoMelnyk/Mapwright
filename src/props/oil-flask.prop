@@ -1,0 +1,53 @@
+name: Oil Flask
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: armory, cabin-hunters, cabin-trapper, alchemy-lab, shop-apothecary, ranger-camp
+typical_count: few
+clusters_with: lantern-post, wall-lantern, alchemy-bench, shelf-open
+notes: Small glass flask of lamp oil or alchemist fire
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.52 0.16,0.20 z 0-0.4
+
+# Shadow
+ellipse 0.5,0.68 0.18,0.04 fill #1a1008 0.4
+# Flask base (wide rounded bottom, thick glass)
+ellipse 0.5,0.58 0.18,0.14 fill #a08840 0.8
+ellipse 0.5,0.58 0.18,0.14 stroke #3a2810
+# Oil inside (amber liquid)
+ellipse 0.5,0.58 0.15,0.12 fill #c8892a 0.9
+ellipse 0.5,0.58 0.15,0.12 stroke #5a3010
+# Oil meniscus surface
+arc 0.5,0.58 0.12 200 260 stroke #e8b860 0.7 width 1
+# Glass body shoulder (narrowing up)
+poly 0.38,0.46 0.62,0.46 0.58,0.36 0.42,0.36 fill #a08840 0.7
+poly 0.38,0.46 0.62,0.46 0.58,0.36 0.42,0.36 stroke #3a2810
+# Oil in neck
+poly 0.42,0.44 0.58,0.44 0.56,0.38 0.44,0.38 fill #c8892a 0.8
+# Neck (narrow cylinder)
+rect 0.44,0.28 0.12,0.10 fill #a08840 0.7
+rect 0.44,0.28 0.12,0.10 stroke #3a2810
+# Rope/twine wrap around neck (for grip)
+rect 0.44,0.30 0.12,0.02 fill #6b4e2e 0.9
+rect 0.44,0.34 0.12,0.02 fill #6b4e2e 0.9
+line 0.44,0.30 0.56,0.30 stroke #3a2010 0.7
+line 0.44,0.34 0.56,0.34 stroke #3a2010 0.7
+# Cork stopper
+rect 0.46,0.22 0.08,0.06 texfill polyhaven/dark_wood 0.85
+rect 0.46,0.22 0.08,0.06 stroke #3a1f00
+# Cork top
+ellipse 0.50,0.22 0.04,0.02 fill #5c3a1e 0.9
+# Paper label
+rect 0.40,0.54 0.20,0.10 fill #e8dcc8 0.9
+rect 0.40,0.54 0.20,0.10 stroke #8b7355
+line 0.42,0.58 0.56,0.58 stroke #2a1400 0.7
+line 0.42,0.62 0.54,0.62 stroke #2a1400 0.6
+# Label ink mark/flame symbol
+poly 0.46,0.56 0.50,0.54 0.52,0.56 0.50,0.60 fill #aa2020 0.7
+# Glass highlight
+arc 0.5,0.58 0.16 220 260 stroke #f0d080 0.6 width 1

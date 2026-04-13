@@ -1,0 +1,47 @@
+name: Blood Smear
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: butcher-shop, monster-lair-small, thieves-guild-hideout, corpse-scene, torture-chamber, interrogation-room
+typical_count: few
+clusters_with: corpse, bone-pile, broken-shield, dagger-loose, fly-swarm
+notes: Streaky blood stain on floor — dragged or spattered, dark red
+---
+# === HITBOX ===
+hitbox rect 0.10,0.20 0.80,0.64 z 0-0.01
+
+# Main blood pool (dark, irregular shape)
+poly 0.16,0.42 0.24,0.32 0.40,0.26 0.54,0.28 0.66,0.36 0.72,0.48 0.68,0.60 0.58,0.66 0.40,0.66 0.26,0.60 0.18,0.52 fill #4a0808 0.85
+poly 0.16,0.42 0.24,0.32 0.40,0.26 0.54,0.28 0.66,0.36 0.72,0.48 0.68,0.60 0.58,0.66 0.40,0.66 0.26,0.60 0.18,0.52 stroke #2a0404
+# Deeper center (wetter, darker)
+poly 0.28,0.44 0.38,0.36 0.52,0.38 0.58,0.48 0.54,0.56 0.42,0.58 0.32,0.54 fill #2a0404 0.9
+# Drag smear (trailing east, dragged mark)
+poly 0.68,0.52 0.76,0.48 0.86,0.52 0.90,0.58 0.82,0.62 0.72,0.58 fill #4a0808 0.75
+poly 0.68,0.52 0.76,0.48 0.86,0.52 0.90,0.58 0.82,0.62 0.72,0.58 stroke #2a0404
+# Drag trail fade
+bezier 0.86,0.56 0.90,0.60 0.94,0.64 0.98,0.66 stroke #4a0808 width 3
+# Spatter droplets (outside main pool)
+circle 0.14,0.30 0.02 fill #4a0808 0.85
+circle 0.20,0.22 0.015 fill #4a0808 0.8
+circle 0.74,0.28 0.02 fill #4a0808 0.8
+circle 0.82,0.34 0.015 fill #4a0808 0.75
+circle 0.36,0.74 0.025 fill #4a0808 0.85
+circle 0.54,0.78 0.02 fill #4a0808 0.8
+circle 0.20,0.68 0.018 fill #4a0808 0.8
+circle 0.78,0.70 0.015 fill #4a0808 0.75
+# Spatter streaks (elongated droplets)
+poly 0.12,0.38 0.16,0.36 0.14,0.40 fill #4a0808 0.75
+poly 0.86,0.38 0.90,0.40 0.88,0.44 fill #4a0808 0.75
+poly 0.26,0.78 0.30,0.80 0.28,0.82 fill #4a0808 0.75
+# Dried/crust edge (slightly brownish at perimeter)
+arc 0.42,0.46 0.28 0 360 stroke #3a0808 0.5 width 1
+# Fresh glint on wet blood
+arc 0.42,0.46 0.20 200 260 stroke #8a1818 0.6 width 1
+# Tiny micro-droplets
+circle 0.10,0.50 0.01 fill #4a0808 0.7
+circle 0.90,0.44 0.01 fill #4a0808 0.7
+circle 0.50,0.82 0.01 fill #4a0808 0.7

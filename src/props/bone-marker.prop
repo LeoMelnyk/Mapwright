@@ -1,0 +1,57 @@
+name: Bone Marker
+category: Decor
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: burial-mound, druid-grove, standing-stones-circle, bog-witch-hut, shrine
+typical_count: few
+clusters_with: cairn-sacred, feather-bundle, standing-stone, prayer-stone, skull-small
+notes: Upright bone driven into ground as a territorial or sacred marker
+---
+# === HITBOX ===
+hitbox rect 0.36,0.16 0.28,0.68 z 0-0.6
+
+# Ground base (dirt mound the bone is driven into)
+ellipse 0.50,0.78 0.20,0.08 fill #3a2418 0.9
+ellipse 0.50,0.78 0.20,0.08 stroke #1a1008
+# Small rocks around base
+circle 0.36,0.78 0.03 fill #5a5048 0.85
+circle 0.36,0.78 0.03 stroke #2a2420
+circle 0.64,0.78 0.028 fill #6a6058 0.85
+circle 0.64,0.78 0.028 stroke #2a2420
+circle 0.44,0.82 0.02 fill #5a5048 0.8
+circle 0.56,0.82 0.02 fill #5a5048 0.8
+# Main bone (femur or long bone, vertical)
+rect 0.44,0.22 0.12,0.54 fill #e8dcc8 0.95
+rect 0.44,0.22 0.12,0.54 stroke #6a5040
+# Bone shaft highlight
+line 0.46,0.24 0.46,0.76 stroke #f0e4d0 0.5
+line 0.54,0.24 0.54,0.76 stroke #8a7060 0.5
+# Top knuckle (rounded joint)
+ellipse 0.50,0.20 0.10,0.08 fill #e8dcc8 0.95
+ellipse 0.50,0.20 0.10,0.08 stroke #6a5040
+# Knuckle shadow/crevice
+arc 0.50,0.20 0.08 20 160 stroke #8a7060 0.7 width 1
+# Knuckle highlight
+arc 0.50,0.20 0.08 200 260 stroke #f0e4d0 0.6 width 1
+# Bone ridge/articulation detail
+line 0.46,0.18 0.54,0.18 stroke #8a7060 0.6
+# Runes carved into bone (spiral/tribal marks)
+line 0.48,0.34 0.52,0.34 stroke #3a2010 0.85 width 1
+line 0.48,0.38 0.52,0.42 stroke #3a2010 0.85 width 1
+circle 0.50,0.48 0.02 fill #3a2010 0.8
+circle 0.50,0.48 0.02 stroke #2a1008
+line 0.48,0.56 0.52,0.60 stroke #3a2010 0.85 width 1
+line 0.48,0.66 0.52,0.66 stroke #3a2010 0.7 width 1
+# Red ochre staining
+ellipse 0.50,0.44 0.04,0.08 fill #8a3010 0.4
+# Feather trophy tied to bone
+line 0.44,0.30 0.36,0.28 stroke #6b4e2e width 1
+poly 0.30,0.24 0.34,0.20 0.38,0.28 0.32,0.30 fill #aa4040 0.85
+poly 0.30,0.24 0.34,0.20 0.38,0.28 0.32,0.30 stroke #5a1808
+# Weathering cracks on bone
+line 0.44,0.40 0.50,0.48 stroke #8a7060 0.5
+line 0.54,0.52 0.50,0.62 stroke #8a7060 0.5

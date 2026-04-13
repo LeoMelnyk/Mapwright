@@ -1,0 +1,46 @@
+name: Decanter
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: house-noble-townhouse, mansion-dining, mansion-study, noble-bedchamber, noble-solar
+typical_count: single
+clusters_with: wine-glass, sideboard, tea-service, goblet
+notes: Crystal wine decanter; place on sideboards and dining tables
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.58 0.22,0.18 z 0-0.8
+
+# Base bulb (rounded bottom, crystal glass)
+ellipse 0.5,0.62 0.22,0.20 fill #a0b8c0 0.35
+ellipse 0.5,0.62 0.22,0.20 stroke #5a7080
+# Wine inside (dark burgundy)
+ellipse 0.5,0.62 0.18,0.16 fill #4a0818 0.8
+ellipse 0.5,0.62 0.18,0.16 stroke #2a0408
+# Wine surface meniscus highlight
+arc 0.5,0.62 0.16 200 260 stroke #6a1828 0.7 width 1
+# Glass shoulder (narrower)
+ellipse 0.5,0.44 0.14,0.05 fill #a0b8c0 0.4
+ellipse 0.5,0.44 0.14,0.05 stroke #5a7080
+# Neck (narrow cylinder)
+rect 0.44,0.28 0.12,0.16 fill #a0b8c0 0.35
+rect 0.44,0.28 0.12,0.16 stroke #5a7080
+# Wine visible in neck
+rect 0.46,0.32 0.08,0.12 fill #4a0818 0.7
+# Stopper (crystal knob on top)
+ellipse 0.5,0.24 0.10,0.04 fill #d0e0e8 0.6
+ellipse 0.5,0.24 0.10,0.04 stroke #5a7080
+circle 0.5,0.20 0.05 fill #d0e0e8 0.6
+circle 0.5,0.20 0.05 stroke #5a7080
+# Stopper facet highlights (cut glass)
+line 0.47,0.19 0.53,0.19 stroke #ffffff 0.6 width 1
+line 0.50,0.16 0.50,0.23 stroke #ffffff 0.5 width 1
+# Body highlight curve
+arc 0.5,0.62 0.20 220 260 stroke #ffffff 0.5 width 1
+# Cut-glass facets on bulb
+line 0.36,0.54 0.40,0.70 stroke #ffffff 0.35 width 1
+line 0.64,0.54 0.60,0.70 stroke #ffffff 0.35 width 1
+line 0.50,0.46 0.50,0.78 stroke #ffffff 0.25 width 1

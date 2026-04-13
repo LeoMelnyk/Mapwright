@@ -1,0 +1,42 @@
+name: Tankard
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: brewery, gambling-den, inn-common-room, tavern-common, tavern-highend, bar-counter, barracks, mess-hall
+typical_count: many
+clusters_with: bar-counter, bench, stool, table, keg, bowl-stew
+notes: Pewter or wooden drinking tankard with handle
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-0.4
+
+# Base (dark shadow ring)
+circle 0.5,0.52 0.24 fill #1a1008 0.4
+# Tankard body (top-down: cylinder)
+circle 0.5,0.5 0.22 fill #666666 0.85
+circle 0.5,0.5 0.22 stroke #222222
+# Band accents
+circle 0.5,0.5 0.20 stroke #333333 0.6 width 1
+circle 0.5,0.5 0.16 stroke #333333 0.4 width 1
+# Ale (frothy beer inside, viewed from above)
+circle 0.5,0.5 0.15 fill #b08830 0.9
+circle 0.5,0.5 0.15 stroke #5a4008
+# Foam head (lighter top)
+arc 0.5,0.5 0.14 190 350 stroke #f0e0a0 0.8 width 2
+circle 0.44,0.46 0.03 fill #f0e0a0 0.85
+circle 0.54,0.52 0.025 fill #f0e0a0 0.8
+circle 0.48,0.54 0.02 fill #f0e0a0 0.7
+# Handle (curved arc on east side)
+arc 0.76,0.50 0.10 250 110 stroke #666666 width 3
+arc 0.76,0.50 0.10 250 110 stroke #222222 width 1
+arc 0.76,0.50 0.08 250 110 stroke #444444 0.7 width 1
+# Rim highlight
+arc 0.5,0.5 0.22 210 260 stroke #aaaaaa 0.7 width 1
+# Inner rim shadow
+arc 0.5,0.5 0.15 20 160 stroke #3a2810 0.6 width 1
+# Worn dent
+circle 0.38,0.42 0.02 fill #222222 0.5

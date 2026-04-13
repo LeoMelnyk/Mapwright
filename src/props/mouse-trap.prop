@@ -1,0 +1,55 @@
+name: Mouse Trap
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: apartment-tenement, mansion-servants-quarters, mill-grain, pantry, servants-kitchen
+typical_count: few
+clusters_with: rat, mouse-trap, cheese-wheel, bread-heel
+notes: Classic spring-loaded wooden mouse trap on the floor
+---
+# === HITBOX ===
+hitbox rect 0.22,0.28 0.56,0.44 z 0-0.1
+
+# Wooden base (rectangular plank)
+rect 0.22,0.30 0.56,0.40 texfill polyhaven/weathered_planks 0.9
+rect 0.22,0.30 0.56,0.40 stroke #3a2010
+# Plank wood grain
+line 0.24,0.40 0.76,0.40 stroke #5c3a1e 0.4
+line 0.24,0.50 0.76,0.50 stroke #5c3a1e 0.4
+line 0.24,0.60 0.76,0.60 stroke #5c3a1e 0.4
+# Metal spring (coiled wire, round at east end)
+circle 0.66,0.50 0.06 fill #888888 0.95
+circle 0.66,0.50 0.06 stroke #333333
+circle 0.66,0.50 0.04 stroke #555555 0.7 width 1
+circle 0.66,0.50 0.025 fill #444444 0.9
+# Spring coil lines (tight wire loops)
+arc 0.66,0.50 0.05 0 360 stroke #aaaaaa 0.4 width 1
+# Striker bar (the U-shape that snaps down — horizontal bar across middle)
+rect 0.28,0.38 0.34,0.04 fill #aaaaaa 0.9
+rect 0.28,0.38 0.34,0.04 stroke #333333
+# Striker bar arm connecting to spring
+line 0.62,0.40 0.66,0.48 stroke #888888 width 2
+# Trigger catch (thin wire holding bar open)
+line 0.30,0.42 0.34,0.60 stroke #666666 width 1
+# Bait pedal (small plate with cheese on it)
+rect 0.36,0.54 0.12,0.10 fill #daa520 0.9
+rect 0.36,0.54 0.12,0.10 stroke #5a3a00
+# Bait (cheese chunk)
+poly 0.38,0.56 0.44,0.54 0.46,0.60 0.40,0.62 fill #f0d460 0.95
+poly 0.38,0.56 0.44,0.54 0.46,0.60 0.40,0.62 stroke #8a5808
+# Tiny holes in cheese
+circle 0.41,0.58 0.008 fill #8a5808 0.8
+# Trap label "S" stamp on base
+circle 0.30,0.33 0.015 fill #2a1400 0.7
+# Small nails holding parts
+circle 0.26,0.36 0.01 fill #333333 0.9
+circle 0.74,0.36 0.01 fill #333333 0.9
+circle 0.26,0.66 0.01 fill #333333 0.9
+circle 0.74,0.66 0.01 fill #333333 0.9
+# Bloody stain from past catch
+circle 0.40,0.46 0.025 fill #4a1010 0.5
+line 0.42,0.48 0.46,0.52 stroke #4a1010 0.4

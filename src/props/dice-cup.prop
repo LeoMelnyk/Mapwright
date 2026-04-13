@@ -1,0 +1,46 @@
+name: Dice Cup
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: barracks, gambling-den, gatehouse-inner, tavern-common, inn-common-room, thieves-guild-hideout
+typical_count: single
+clusters_with: playing-cards, coin-scatter, coin-pile, dice, table, stool
+notes: Leather cup for shaking dice; often with dice spilled around it
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-0.3
+
+# Cup body (top-down — dark leather)
+circle 0.5,0.5 0.22 texfill polyhaven/brown_leather 0.9
+circle 0.5,0.5 0.22 stroke #2a1400
+# Rim/opening (darker inside)
+circle 0.5,0.5 0.18 fill #1a0a08 0.9
+circle 0.5,0.5 0.18 stroke #2a1400
+# Inner shadow depth
+arc 0.5,0.5 0.17 20 160 stroke #0a0404 0.8 width 2
+# Leather stitching at rim
+line 0.36,0.36 0.40,0.32 stroke #8b6914 0.7 width 1
+line 0.50,0.30 0.50,0.34 stroke #8b6914 0.7 width 1
+line 0.64,0.36 0.60,0.32 stroke #8b6914 0.7 width 1
+line 0.64,0.64 0.60,0.68 stroke #8b6914 0.7 width 1
+line 0.50,0.70 0.50,0.66 stroke #8b6914 0.7 width 1
+line 0.36,0.64 0.40,0.68 stroke #8b6914 0.7 width 1
+# Rim highlight (catching light)
+arc 0.5,0.5 0.22 190 260 stroke #8b6914 0.7 width 1
+# Three dice spilled beside cup (to south-east)
+rect 0.68,0.72 0.08,0.08 fill #e8dcc8 0.9
+rect 0.68,0.72 0.08,0.08 stroke #5a4028
+circle 0.72,0.76 0.012 fill #222222 0.9
+rect 0.78,0.68 0.07,0.07 fill #e8dcc8 0.9
+rect 0.78,0.68 0.07,0.07 stroke #5a4028 rotate 15
+circle 0.815,0.715 0.008 fill #222222 0.9
+circle 0.795,0.695 0.008 fill #222222 0.9
+rect 0.20,0.76 0.08,0.08 fill #e8dcc8 0.9
+rect 0.20,0.76 0.08,0.08 stroke #5a4028
+circle 0.22,0.78 0.008 fill #222222 0.9
+circle 0.26,0.82 0.008 fill #222222 0.9
+circle 0.24,0.80 0.008 fill #222222 0.9

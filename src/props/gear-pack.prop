@@ -1,0 +1,65 @@
+name: Gear Pack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: ranger-camp, scouts-blind, shepherds-shelter, campsite-traveler, hunting-lodge-large, cabin-hunters
+typical_count: few
+clusters_with: bedroll, campfire, tent, oil-flask, ration-wrapper
+notes: Adventurer's backpack propped up; bulging with gear and straps
+---
+# === HITBOX ===
+hitbox rect 0.18,0.22 0.64,0.62 z 0-0.8
+
+# Ground shadow
+ellipse 0.5,0.82 0.28,0.06 fill #1a1008 0.4
+# Main pack body (canvas bag, brown)
+rect 0.20,0.28 0.60,0.52 texfill polyhaven/rough_linen 0.85
+rect 0.20,0.28 0.60,0.52 fill #5c3a1e 0.5
+rect 0.20,0.28 0.60,0.52 stroke #2a1400
+# Top flap (overlapping hood on top)
+poly 0.20,0.28 0.80,0.28 0.78,0.42 0.50,0.44 0.22,0.42 fill #4a2800 0.9
+poly 0.20,0.28 0.80,0.28 0.78,0.42 0.50,0.44 0.22,0.42 stroke #2a1400
+# Flap strap buckle (brass)
+rect 0.44,0.38 0.12,0.08 fill #daa520 0.9
+rect 0.44,0.38 0.12,0.08 stroke #5a3a00
+# Buckle prong
+line 0.50,0.40 0.50,0.44 stroke #5a3a00 width 1
+# Leather strap going down from buckle
+rect 0.46,0.44 0.08,0.26 fill #5c3a1e 0.9
+rect 0.46,0.44 0.08,0.26 stroke #2a1400
+# Strap stitching
+line 0.47,0.46 0.47,0.68 stroke #2a1400 0.6
+line 0.53,0.46 0.53,0.68 stroke #2a1400 0.6
+# Side pockets (small flaps)
+rect 0.22,0.50 0.16,0.22 fill #4a2800 0.88
+rect 0.22,0.50 0.16,0.22 stroke #2a1400
+rect 0.62,0.50 0.16,0.22 fill #4a2800 0.88
+rect 0.62,0.50 0.16,0.22 stroke #2a1400
+# Pocket buttons
+circle 0.30,0.60 0.02 fill #daa520 0.85
+circle 0.30,0.60 0.02 stroke #5a3a00
+circle 0.70,0.60 0.02 fill #daa520 0.85
+circle 0.70,0.60 0.02 stroke #5a3a00
+# Bedroll strapped on top
+ellipse 0.50,0.26 0.28,0.06 fill #3a2a1a 0.9
+ellipse 0.50,0.26 0.28,0.06 stroke #1a1008
+line 0.24,0.26 0.76,0.26 stroke #5c3a1e 0.7
+# Tin cup dangling from strap
+circle 0.80,0.74 0.05 fill #8899aa 0.9
+circle 0.80,0.74 0.05 stroke #333333
+circle 0.80,0.74 0.035 stroke #555555 0.6 width 1
+line 0.76,0.72 0.80,0.74 stroke #666666 width 1
+# Rope/twine coil on side
+ring 0.22,0.76 0.06 0.03 fill #6b4e2e 0.9
+ring 0.22,0.76 0.06 0.03 stroke #3a2010
+# Patch/repair
+rect 0.44,0.58 0.12,0.10 stroke #2a1400 0.6 width 1
+line 0.44,0.58 0.56,0.58 stroke #2a1400 0.5
+line 0.44,0.68 0.56,0.68 stroke #2a1400 0.5
+# Wear/stain
+ellipse 0.32,0.42 0.10,0.04 fill #1a1008 0.3
+ellipse 0.66,0.68 0.08,0.04 fill #1a1008 0.3

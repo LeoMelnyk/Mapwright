@@ -1,0 +1,37 @@
+name: Wine Glass
+category: Containers
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: bardic-hall, brothel-parlor, mansion-ballroom, mansion-dining, tavern-highend, noble-solar
+typical_count: few
+clusters_with: decanter, wine-bottle, tankard, sideboard, table
+notes: Stemmed crystal wine glass viewed from above
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-0.4
+
+# Base foot (outer disk)
+circle 0.5,0.5 0.22 fill #a0b8c0 0.25
+circle 0.5,0.5 0.22 stroke #5a7080
+# Stem (thin circle in middle)
+circle 0.5,0.5 0.04 fill #a0b8c0 0.4
+circle 0.5,0.5 0.04 stroke #5a7080
+# Bowl rim (viewed from directly above — large circle of glass)
+circle 0.5,0.5 0.18 fill #c0d0d8 0.2
+circle 0.5,0.5 0.18 stroke #5a7080 width 2
+# Wine inside (darker circle, not filling to rim)
+circle 0.5,0.5 0.15 fill #4a0818 0.75
+circle 0.5,0.5 0.15 stroke #2a0408
+# Wine surface highlight (meniscus glow)
+arc 0.5,0.5 0.14 200 260 stroke #6a1828 0.7 width 1
+# Rim highlight (top of glass catches light)
+arc 0.5,0.5 0.18 190 230 stroke #ffffff 0.7 width 1
+# Glass facet reflection (radial glint)
+line 0.36,0.40 0.42,0.46 stroke #ffffff 0.5 width 1
+line 0.58,0.60 0.64,0.64 stroke #ffffff 0.35 width 1
+# Inner ring (wine edge reflection)
+circle 0.5,0.5 0.13 stroke #8a2038 0.5 width 1

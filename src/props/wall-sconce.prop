@@ -1,0 +1,51 @@
+name: Wall Sconce
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1
+lights: [{"preset":"candle","x":0.5,"y":0.5}]
+placement: wall
+room_types: mansion-ballroom, mansion-bedroom-master, noble-bedchamber, nursery, mansion-dining, mansion-grand-hall, noble-solar
+typical_count: many
+clusters_with: candle, chandelier, tapestry, painting
+notes: Ornate brass wall sconce holding candles; decorative manor-house fixture
+---
+# === HITBOX ===
+hitbox rect 0.22,0.04 0.56,0.46 z 0-1
+
+# Back plate (ornate shield shape flush to north wall)
+poly 0.30,0.04 0.70,0.04 0.74,0.14 0.70,0.26 0.50,0.30 0.30,0.26 0.26,0.14 fill #8b6914 0.85
+poly 0.30,0.04 0.70,0.04 0.74,0.14 0.70,0.26 0.50,0.30 0.30,0.26 0.26,0.14 stroke #5a3a00
+# Back plate inner engraving
+poly 0.36,0.08 0.64,0.08 0.68,0.14 0.64,0.22 0.50,0.26 0.36,0.22 0.32,0.14 stroke #daa520 0.6 width 1
+# Central rosette
+circle 0.50,0.16 0.05 fill #daa520 0.8
+circle 0.50,0.16 0.05 stroke #5a3a00
+# Rosette petals
+poly 0.48,0.14 0.52,0.14 0.50,0.10 fill #5a3a00 0.7
+poly 0.48,0.18 0.52,0.18 0.50,0.22 fill #5a3a00 0.7
+# Curved brass arms (extending south/east/west to hold candles)
+bezier 0.38,0.24 0.28,0.30 0.28,0.38 0.34,0.42 stroke #daa520 width 3
+bezier 0.38,0.24 0.28,0.30 0.28,0.38 0.34,0.42 stroke #5a3a00 width 1
+bezier 0.62,0.24 0.72,0.30 0.72,0.38 0.66,0.42 stroke #daa520 width 3
+bezier 0.62,0.24 0.72,0.30 0.72,0.38 0.66,0.42 stroke #5a3a00 width 1
+# Candle cups at arm ends
+ellipse 0.34,0.44 0.06,0.03 fill #8b6914 0.9
+ellipse 0.34,0.44 0.06,0.03 stroke #5a3a00
+ellipse 0.66,0.44 0.06,0.03 fill #8b6914 0.9
+ellipse 0.66,0.44 0.06,0.03 stroke #5a3a00
+# Candles rising from cups
+rect 0.32,0.40 0.04,0.04 fill #f0e4d0 0.95
+rect 0.32,0.40 0.04,0.04 stroke #8b7355
+rect 0.64,0.40 0.04,0.04 fill #f0e4d0 0.95
+rect 0.64,0.40 0.04,0.04 stroke #8b7355
+# Flames
+poly 0.33,0.40 0.34,0.36 0.35,0.40 fill #e85500 0.7
+poly 0.335,0.39 0.34,0.37 0.345,0.39 fill #ffcc00 0.9
+poly 0.65,0.40 0.66,0.36 0.67,0.40 fill #e85500 0.7
+poly 0.655,0.39 0.66,0.37 0.665,0.39 fill #ffcc00 0.9
+# Flame halos
+circle 0.34,0.38 0.04 fill #ffaa00 0.15
+circle 0.66,0.38 0.04 fill #ffaa00 0.15

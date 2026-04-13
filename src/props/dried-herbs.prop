@@ -1,0 +1,60 @@
+name: Dried Herbs
+category: Decor
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1
+placement: wall
+room_types: alchemy-lab, cabin-hunters, cabin-trapper, cabin-witch, bog-witch-hut, shop-apothecary, farmhouse-kitchen, servants-kitchen, kitchen
+typical_count: few
+clusters_with: onion-braid, shelf-open, ingredient-rack, hanging-meat, cauldron
+notes: Bundle of dried herbs hanging from the wall/ceiling for drying
+---
+# === HITBOX ===
+hitbox rect 0.30,0.08 0.40,0.76 z 0-1
+
+# Twine hanger
+line 0.40,0.08 0.60,0.08 stroke #6b4e2e width 2
+# Hanging knot
+circle 0.50,0.08 0.025 fill #4a3820 0.9
+# Central twine down body
+line 0.50,0.10 0.50,0.40 stroke #6b4e2e 0.5
+# Binding at top of bundle (wrapped cord)
+rect 0.38,0.18 0.24,0.08 fill #4a3820 0.9
+rect 0.38,0.18 0.24,0.08 stroke #2a1800
+line 0.38,0.20 0.62,0.20 stroke #6b4e2e 0.7
+line 0.38,0.24 0.62,0.24 stroke #6b4e2e 0.7
+# Stems (fanning down)
+line 0.40,0.26 0.30,0.80 stroke #4a5818 width 1
+line 0.44,0.26 0.38,0.82 stroke #4a5818 width 1
+line 0.48,0.26 0.46,0.82 stroke #4a5818 width 1
+line 0.52,0.26 0.54,0.82 stroke #4a5818 width 1
+line 0.56,0.26 0.62,0.82 stroke #4a5818 width 1
+line 0.60,0.26 0.70,0.80 stroke #4a5818 width 1
+# Leaf bunches along stems (oval clusters)
+ellipse 0.30,0.46 0.06,0.10 fill #5a7028 0.85
+ellipse 0.30,0.46 0.06,0.10 stroke #2a3810
+ellipse 0.40,0.52 0.05,0.08 fill #4a6020 0.85
+ellipse 0.40,0.52 0.05,0.08 stroke #2a3810
+ellipse 0.50,0.54 0.07,0.11 fill #5a7028 0.85
+ellipse 0.50,0.54 0.07,0.11 stroke #2a3810
+ellipse 0.60,0.52 0.05,0.08 fill #4a6020 0.85
+ellipse 0.60,0.52 0.05,0.08 stroke #2a3810
+ellipse 0.70,0.46 0.06,0.10 fill #5a7028 0.85
+ellipse 0.70,0.46 0.06,0.10 stroke #2a3810
+# Additional lower leaf tufts
+ellipse 0.36,0.66 0.05,0.08 fill #6a7830 0.85
+ellipse 0.36,0.66 0.05,0.08 stroke #2a3810
+ellipse 0.52,0.70 0.06,0.10 fill #5a7028 0.85
+ellipse 0.52,0.70 0.06,0.10 stroke #2a3810
+ellipse 0.66,0.68 0.05,0.08 fill #6a7830 0.85
+ellipse 0.66,0.68 0.05,0.08 stroke #2a3810
+# Flower heads (small dried purple/pink)
+circle 0.34,0.36 0.02 fill #7048a0 0.8
+circle 0.54,0.34 0.02 fill #a04868 0.8
+circle 0.66,0.38 0.018 fill #7048a0 0.8
+# Veining detail
+line 0.30,0.46 0.30,0.54 stroke #2a3810 0.6
+line 0.50,0.54 0.50,0.64 stroke #2a3810 0.6
+line 0.70,0.46 0.70,0.54 stroke #2a3810 0.6

@@ -1,0 +1,45 @@
+name: Playing Cards
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: barracks, brothel-parlor, cave-bandit-camp, gambling-den, inn-common-room, tavern-common, gatehouse-inner, opium-den, thieves-guild-hideout
+typical_count: few
+clusters_with: dice-cup, coin-scatter, coin-pile, tankard, table
+notes: Fanned or scattered playing cards on a surface
+---
+# === HITBOX ===
+hitbox rect 0.14,0.22 0.72,0.60 z 0-0.05
+
+# Fanned deck (multiple cards overlapping)
+# Card 1 (leftmost, rotated left)
+rect 0.14,0.30 0.24,0.40 fill #e8dcc8 0.95 rotate -20
+rect 0.14,0.30 0.24,0.40 stroke #2a1400 rotate -20
+# Card 2 (partially visible)
+rect 0.22,0.26 0.24,0.44 fill #f0e4d0 0.95 rotate -10
+rect 0.22,0.26 0.24,0.44 stroke #2a1400 rotate -10
+# Card 3 (centered, face up)
+rect 0.34,0.24 0.24,0.48 fill #f0e4d0 0.95
+rect 0.34,0.24 0.24,0.48 stroke #2a1400
+# Card 3 pip (heart — red)
+poly 0.44,0.40 0.46,0.36 0.48,0.40 0.50,0.36 0.52,0.40 0.48,0.48 fill #c82030 0.9
+# Card 3 corner letter
+line 0.37,0.28 0.40,0.28 stroke #c82030 0.8
+# Card 4 (right, angled)
+rect 0.46,0.26 0.24,0.44 fill #f0e4d0 0.95 rotate 10
+rect 0.46,0.26 0.24,0.44 stroke #2a1400 rotate 10
+# Card 5 (rightmost, rotated right)
+rect 0.58,0.30 0.24,0.40 fill #e8dcc8 0.95 rotate 20
+rect 0.58,0.30 0.24,0.40 stroke #2a1400 rotate 20
+# Scattered stray cards face-down (patterned back)
+rect 0.18,0.70 0.20,0.14 fill #4a2828 0.9 rotate 25
+rect 0.18,0.70 0.20,0.14 stroke #2a0808 rotate 25
+# Stray card back detail (cross-hatching)
+line 0.22,0.74 0.34,0.82 stroke #8a2020 0.6 rotate 25
+# Face-down stack edge
+rect 0.62,0.72 0.22,0.12 fill #4a2828 0.9 rotate -15
+rect 0.62,0.72 0.22,0.12 stroke #2a0808 rotate -15
+line 0.66,0.76 0.78,0.80 stroke #8a2020 0.6 rotate -15

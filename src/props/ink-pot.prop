@@ -1,0 +1,36 @@
+name: Ink Pot
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.35
+placement: floor
+room_types: mansion-library, mansion-study, scriptorium-dark, library
+typical_count: few
+clusters_with: quill, desk, ledger-stack, parchment-scrap, writing-desk
+notes: Stoppered ceramic ink pot; similar to inkwell but with lid/stopper
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-0.35
+
+# Ceramic body (squat jar)
+circle 0.5,0.55 0.22 texfill polyhaven/stone_wall 0.65
+circle 0.5,0.55 0.22 stroke #2a2420
+# Mid-band groove (horizontal accent)
+arc 0.5,0.55 0.20 200 340 stroke #1a1410 0.6 width 1
+# Shoulder narrowing to neck
+ellipse 0.5,0.40 0.14,0.06 fill #4a3f38 0.9
+ellipse 0.5,0.40 0.14,0.06 stroke #1a1410
+# Cork/wood stopper
+ellipse 0.5,0.36 0.10,0.05 texfill polyhaven/dark_wood 0.85
+ellipse 0.5,0.36 0.10,0.05 stroke #3a1f00
+# Stopper top
+ellipse 0.5,0.33 0.06,0.03 fill #5c3a1e 0.9
+# Label (small square)
+rect 0.40,0.52 0.20,0.12 fill #e8dcc8 0.8
+rect 0.40,0.52 0.20,0.12 stroke #8b7355
+line 0.43,0.56 0.57,0.56 stroke #2a1400 0.6
+line 0.43,0.60 0.55,0.60 stroke #2a1400 0.5
+# Ink drip down side
+poly 0.48,0.58 0.50,0.76 0.46,0.76 fill #1a0f30 0.7
