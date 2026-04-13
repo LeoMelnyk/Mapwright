@@ -112,7 +112,6 @@
     "win": {
       "target": "portable",
       "icon": "src/icon.ico",
-      "publisherName": "Leo Melnyk",
       "azureSignOptions": {
         "publisherName": "Leo Melnyk",
         "endpoint": "https://eus.codesigning.azure.net/",
