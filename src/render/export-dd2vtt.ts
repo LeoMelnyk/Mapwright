@@ -96,12 +96,12 @@ function extractWallsAndPortals(
   const walls: Array<[{ x: number; y: number }, { x: number; y: number }]> = [];
   const portals: Dd2vttPortal[] = [];
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const seen = new Set();
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      const cell = cells[row][col];
+      const cell = cells[row]![col];
       if (!cell) continue;
 
       // Cardinal directions: north, south, east, west

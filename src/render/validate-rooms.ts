@@ -20,13 +20,13 @@ function floodFillRoomLabels(
   visited: boolean[][][],
   isMultiLevel: boolean,
 ) {
-  const levelCells = isMultiLevel ? asMultiLevel(cells)[startLevel] : cells;
+  const levelCells = (isMultiLevel ? asMultiLevel(cells)[startLevel] : cells)!;
   const cellKeys = sharedFloodFillRoom(levelCells as (Cell | null)[][], startRow, startCol);
 
   const labels = [];
   for (const key of cellKeys) {
     const [r, c] = parseCellKey(key);
-    visited[startLevel][r][c] = true;
+    visited[startLevel]![r]![c] = true;
     const cell = levelCells[r]?.[c];
     if (cell?.center?.label) {
       labels.push({ label: cell.center.label, row: r, col: c, level: startLevel });
@@ -44,25 +44,25 @@ function validateRoomLabels(cells: CellGrid, isMultiLevel = false) {
 
   const visited: boolean[][][] = [];
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
-    const numCols = levelCells[0]?.length || 0;
+    const numCols = levelCells[0]?.length ?? 0;
     visited[level] = Array.from({ length: numRows }, () => Array(numCols).fill(false) as boolean[]);
   }
 
   const allLabels = new Map<string, string>();
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
-    const numCols = levelCells[0]?.length || 0;
+    const numCols = levelCells[0]?.length ?? 0;
 
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        const cell = levelCells[row][col];
+        const cell = levelCells[row]![col];
 
         if (!cell) continue;
-        if (visited[level][row][col]) continue;
+        if (visited[level]![row]![col]) continue;
 
         const labelsInRoom = floodFillRoomLabels(cells, level, row, col, visited, isMultiLevel);
 
@@ -92,8 +92,8 @@ function parseRoomLabel(label: string): ParsedLabel | null {
   const match = /^([A-Z]+)(\d+)$/.exec(label);
   if (!match) return null;
   return {
-    letter: match[1],
-    number: parseInt(match[2], 10),
+    letter: match[1]!,
+    number: parseInt(match[2]!, 10),
     original: label,
   };
 }
@@ -145,26 +145,26 @@ function bfsReachableRooms(
 
   const visited: boolean[][][] = [];
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
-    const numCols = levelCells[0]?.length || 0;
+    const numCols = levelCells[0]?.length ?? 0;
     visited[level] = Array.from({ length: numRows }, () => Array(numCols).fill(false) as boolean[]);
   }
 
   const reachedRooms = new Set<string>();
   const queue: { level: number; row: number; col: number }[] = [{ level: startLevel, row: startRow, col: startCol }];
 
-  visited[startLevel][startRow][startCol] = true;
-  const startLevelCells = isMultiLevel ? asMultiLevel(cells)[startLevel] : cells;
-  const startCell = startLevelCells[startRow][startCol];
+  visited[startLevel]![startRow]![startCol] = true;
+  const startLevelCells = (isMultiLevel ? asMultiLevel(cells)[startLevel] : cells)!;
+  const startCell = startLevelCells[startRow]![startCol];
   if (startCell?.center?.label) {
     reachedRooms.add(startCell.center.label);
   }
 
   while (queue.length > 0) {
     const { level, row, col } = queue.shift()!;
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
-    const cell = levelCells[row][col];
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
+    const cell = levelCells[row]![col];
 
     // 1. Try horizontal movement (4 cardinal directions)
     const directions = [
@@ -178,19 +178,19 @@ function bfsReachableRooms(
       const newRow = row + dRow;
       const newCol = col + dCol;
       const numRows = levelCells.length;
-      const numCols = levelCells[0]?.length || 0;
+      const numCols = levelCells[0]?.length ?? 0;
 
       if (newRow < 0 || newRow >= numRows || newCol < 0 || newCol >= numCols) {
         continue;
       }
 
-      if (visited[level][newRow][newCol]) {
+      if (visited[level]![newRow]![newCol]) {
         continue;
       }
 
-      const nextCell = levelCells[newRow][newCol];
-      if (canTraverse(cell, nextCell, dir)) {
-        visited[level][newRow][newCol] = true;
+      const nextCell = levelCells[newRow]![newCol] ?? null;
+      if (canTraverse(cell ?? null, nextCell, dir)) {
+        visited[level]![newRow]![newCol] = true;
         queue.push({ level, row: newRow, col: newCol });
 
         if (nextCell?.center?.label) {
@@ -207,18 +207,18 @@ function bfsReachableRooms(
         let targetLevel: number, targetRow: number, targetCol: number;
 
         if (stairTarget.length === 3) {
-          [targetLevel, targetRow, targetCol] = stairTarget;
+          [targetLevel, targetRow, targetCol] = stairTarget as [number, number, number];
         } else {
           targetLevel = level;
-          [targetRow, targetCol] = stairTarget;
+          [targetRow, targetCol] = stairTarget as [number, number];
         }
 
-        if (!visited[targetLevel][targetRow][targetCol]) {
-          visited[targetLevel][targetRow][targetCol] = true;
+        if (!visited[targetLevel]![targetRow]![targetCol]) {
+          visited[targetLevel]![targetRow]![targetCol] = true;
           queue.push({ level: targetLevel, row: targetRow, col: targetCol });
 
-          const targetLevelCells = isMultiLevel ? asMultiLevel(cells)[targetLevel] : cells;
-          const targetCell = targetLevelCells[targetRow][targetCol];
+          const targetLevelCells = (isMultiLevel ? asMultiLevel(cells)[targetLevel] : cells)!;
+          const targetCell = targetLevelCells[targetRow]![targetCol];
           if (targetCell?.center?.label) {
             reachedRooms.add(targetCell.center.label);
           }
@@ -231,18 +231,18 @@ function bfsReachableRooms(
         let targetLevel: number, targetRow: number, targetCol: number;
 
         if (stairTarget.length === 3) {
-          [targetLevel, targetRow, targetCol] = stairTarget;
+          [targetLevel, targetRow, targetCol] = stairTarget as [number, number, number];
         } else {
           targetLevel = level;
-          [targetRow, targetCol] = stairTarget;
+          [targetRow, targetCol] = stairTarget as [number, number];
         }
 
-        if (!visited[targetLevel][targetRow][targetCol]) {
-          visited[targetLevel][targetRow][targetCol] = true;
+        if (!visited[targetLevel]![targetRow]![targetCol]) {
+          visited[targetLevel]![targetRow]![targetCol] = true;
           queue.push({ level: targetLevel, row: targetRow, col: targetCol });
 
-          const targetLevelCells = isMultiLevel ? asMultiLevel(cells)[targetLevel] : cells;
-          const targetCell = targetLevelCells[targetRow][targetCol];
+          const targetLevelCells = (isMultiLevel ? asMultiLevel(cells)[targetLevel] : cells)!;
+          const targetCell = targetLevelCells[targetRow]![targetCol];
           if (targetCell?.center?.label) {
             reachedRooms.add(targetCell.center.label);
           }
@@ -264,13 +264,13 @@ function detectInaccessibleRooms(cells: CellGrid, isMultiLevel = false) {
   const roomPositions = new Map();
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
-    const numCols = levelCells[0]?.length || 0;
+    const numCols = levelCells[0]?.length ?? 0;
 
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        const cell = levelCells[row][col];
+        const cell = levelCells[row]![col];
         if (cell?.center?.label) {
           if (!roomPositions.has(cell.center.label)) {
             roomPositions.set(cell.center.label, []);
@@ -294,7 +294,7 @@ function detectInaccessibleRooms(cells: CellGrid, isMultiLevel = false) {
   }
 
   parsedLabels.sort(compareRoomLabels);
-  const startingLabel = parsedLabels[0].original;
+  const startingLabel = parsedLabels[0]!.original;
   const startingPositions = roomPositions.get(startingLabel);
   const startPos = startingPositions[0];
 

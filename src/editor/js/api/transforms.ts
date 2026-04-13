@@ -72,7 +72,7 @@ export function cloneRoom(
         dc,
       });
     }
-    if (cells[nr][nc]) {
+    if (cells[nr]![nc]) {
       throw new ApiValidationError('CLONE_OVERLAP', `Clone destination (${nr}, ${nc}) is already non-void`, {
         row: nr,
         col: nc,
@@ -119,13 +119,13 @@ export function cloneRoom(
       // 1. Copy each cell
       for (const key of sourceSet) {
         const [r, c] = parseCellKey(key);
-        const src = cells[r][c];
+        const src = cells[r]![c];
         if (!src) continue;
         const dest = deepClone(src);
         if (newLabel != null && dest.center?.label != null) {
           dest.center.label = newLabel;
         }
-        cells[r + dr][c + dc] = dest;
+        cells[r + dr]![c + dc] = dest;
         cellsCopied++;
       }
 
@@ -339,7 +339,7 @@ export function mirrorRegion(
       const snapshot: Array<{ r: number; c: number; cell: Cell | null }> = [];
       for (let r = minR; r <= maxR; r++) {
         for (let c = minC; c <= maxC; c++) {
-          const src = cells[r][c];
+          const src = cells[r]![c];
           snapshot.push({
             r,
             c,
@@ -351,7 +351,7 @@ export function mirrorRegion(
       for (const { r, c, cell } of snapshot) {
         const newR = axis === 'vertical' ? maxR - (r - minR) : r;
         const newC = axis === 'horizontal' ? maxC - (c - minC) : c;
-        cells[newR][newC] = cell;
+        cells[newR]![newC] = cell;
         if (cell) mirrored++;
       }
     },
@@ -407,7 +407,7 @@ export function rotateRegion(
       for (let r = minR; r <= maxR; r++) {
         const row: Array<Cell | null> = [];
         for (let c = minC; c <= maxC; c++) {
-          const src = cells[r][c];
+          const src = cells[r]![c];
           row.push(src ? rebuildCellEdges(src, mapping) : null);
         }
         snapshot.push(row);
@@ -425,8 +425,8 @@ export function rotateRegion(
             nr = size - 1 - c;
             nc = r;
           }
-          const cell = snapshot[r][c];
-          cells[minR + nr][minC + nc] = cell;
+          const cell = snapshot[r]![c];
+          cells[minR + nr]![minC + nc] = cell ?? null;
           if (cell) rotated++;
         }
       }

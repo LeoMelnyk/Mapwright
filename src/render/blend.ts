@@ -1,4 +1,11 @@
-import type { CardinalDirection, CellGrid, RenderTransform, TextureCatalog, TextureOptions, TextureRuntime } from '../types.js';
+import type {
+  CardinalDirection,
+  CellGrid,
+  RenderTransform,
+  TextureCatalog,
+  TextureOptions,
+  TextureRuntime,
+} from '../types.js';
 
 /** Height map extracted from a texture's displacement map. */
 interface HeightMap {
@@ -75,8 +82,13 @@ import { CARDINAL_DIRS, OPPOSITE, isEdgeOpen } from '../util/index.js';
 // Keyed on (cells, gridSize, blendWidth, catalog). On pan/zoom only the
 // scratch-canvas pixel work runs per frame — topology + geometry are reused.
 let _blendTopoCache: BlendTopoCacheState = {
-  cells: null, gridSize: null, blendWidth: null, catalog: null,
-  texturesVersion: 0, edges: null, corners: null,
+  cells: null,
+  gridSize: null,
+  blendWidth: null,
+  catalog: null,
+  texturesVersion: 0,
+  edges: null,
+  corners: null,
 };
 
 // ── Renderer-specific constants ───────────────────────────────────────────────
@@ -104,12 +116,16 @@ export { BLEND_BITMAP_SIZE };
  * @param {number} col - Cell column for chunk selection
  * @returns {{ srcX: number, srcY: number, srcW: number, srcH: number }} Source rectangle
  */
-export function getTexChunk(entry: TexEntry | TextureRuntime, row: number, col: number): { srcX: number; srcY: number; srcW: number; srcH: number } {
+export function getTexChunk(
+  entry: TexEntry | TextureRuntime,
+  row: number,
+  col: number,
+): { srcX: number; srcY: number; srcW: number; srcH: number } {
   const img = entry.img!;
   const chunkSize = 256;
-  const cw = Math.max(1, Math.floor(img.naturalWidth  / chunkSize));
+  const cw = Math.max(1, Math.floor(img.naturalWidth / chunkSize));
   const ch = Math.max(1, Math.floor(img.naturalHeight / chunkSize));
-  const srcW = Math.floor(img.naturalWidth  / cw);
+  const srcW = Math.floor(img.naturalWidth / cw);
   const srcH = Math.floor(img.naturalHeight / ch);
   return {
     srcX: (((col % cw) + cw) % cw) * srcW,
@@ -125,8 +141,8 @@ export function getTexChunk(entry: TexEntry | TextureRuntime, row: number, col: 
 // boundary driven by the splatting formula from:
 // https://www.gamedeveloper.com/programming/advanced-terrain-texture-splatting
 
-const HMAP_SCALE = 8;   // sample at 1/8 native resolution
-const N_SAMPLES  = 16;  // polygon points along each blend edge
+const HMAP_SCALE = 8; // sample at 1/8 native resolution
+const N_SAMPLES = 16; // polygon points along each blend edge
 const SPLAT_DEPTH = 0.2; // smoothing zone (from the splatting article)
 
 /**
@@ -138,7 +154,8 @@ const SPLAT_DEPTH = 0.2; // smoothing zone (from the splatting article)
  * @returns {number} Penetration depth in pixels
  */
 function splatPenetration(hCurrent: number, hNeighbor: number, blendPx: number) {
-  const cc = hCurrent + 0.5, cn = hNeighbor + 0.5;
+  const cc = hCurrent + 0.5,
+    cn = hNeighbor + 0.5;
   const ma = Math.max(cc, cn) - SPLAT_DEPTH;
   const b1 = Math.max(cc - ma, 0);
   const b2 = Math.max(cn - ma, 0);
@@ -153,7 +170,10 @@ function splatPenetration(hCurrent: number, hNeighbor: number, blendPx: number) 
  */
 function computeBaseHeight(entry: TexEntry): number {
   if (entry._baseHeight !== undefined) return entry._baseHeight;
-  if (typeof OffscreenCanvas === 'undefined') { entry._baseHeight = 0.5; return 0.5; }
+  if (typeof OffscreenCanvas === 'undefined') {
+    entry._baseHeight = 0.5;
+    return 0.5;
+  }
   if (!entry.dispImg?.complete || !entry.dispImg.naturalWidth) {
     // Don't cache if the image exists but hasn't loaded yet — will recompute next render
     if (entry.dispImg && !entry.dispImg.complete) return 0.5;
@@ -168,9 +188,11 @@ function computeBaseHeight(entry: TexEntry): number {
     const px = octx!.getImageData(0, 0, sz, sz).data;
     let sum = 0;
     for (let i = 0; i < sz * sz; i++)
-      sum += (px[i*4]*0.299 + px[i*4+1]*0.587 + px[i*4+2]*0.114) / 255;
+      sum += (px[i * 4]! * 0.299 + px[i * 4 + 1]! * 0.587 + px[i * 4 + 2]! * 0.114) / 255;
     entry._baseHeight = sum / (sz * sz);
-  } catch { entry._baseHeight = 0.5; }
+  } catch {
+    entry._baseHeight = 0.5;
+  }
   return entry._baseHeight;
 }
 
@@ -184,13 +206,16 @@ function computeBaseHeight(entry: TexEntry): number {
  */
 function extractHeightMap(entry: TexEntry) {
   if ('_hmap' in entry) return entry._hmap;
-  if (typeof OffscreenCanvas === 'undefined') { entry._hmap = null; return null; }
+  if (typeof OffscreenCanvas === 'undefined') {
+    entry._hmap = null;
+    return null;
+  }
 
   // Prefer displacement map; fall back to diffuse if unavailable
-  const img = (entry.dispImg?.complete && entry.dispImg.naturalWidth) ? entry.dispImg : entry.img;
+  const img = entry.dispImg?.complete && entry.dispImg.naturalWidth ? entry.dispImg : entry.img;
   // Don't cache if image hasn't loaded yet — will recompute next render
   if (!img.complete || !img.naturalWidth) return null;
-  const w = Math.max(1, Math.floor(img.naturalWidth  / HMAP_SCALE));
+  const w = Math.max(1, Math.floor(img.naturalWidth / HMAP_SCALE));
   const h = Math.max(1, Math.floor(img.naturalHeight / HMAP_SCALE));
   const oc = new OffscreenCanvas(w, h);
   const octx = oc.getContext('2d');
@@ -199,9 +224,11 @@ function extractHeightMap(entry: TexEntry) {
     const px = octx!.getImageData(0, 0, w, h).data;
     const hmap = new Float32Array(w * h);
     for (let i = 0; i < w * h; i++)
-      hmap[i] = (px[i*4]*0.299 + px[i*4+1]*0.587 + px[i*4+2]*0.114) / 255;
+      hmap[i] = (px[i * 4]! * 0.299 + px[i * 4 + 1]! * 0.587 + px[i * 4 + 2]! * 0.114) / 255;
     entry._hmap = { data: hmap, w, h, srcW: img.naturalWidth, srcH: img.naturalHeight };
-  } catch { entry._hmap = null; }
+  } catch {
+    entry._hmap = null;
+  }
   return entry._hmap;
 }
 
@@ -216,22 +243,35 @@ function sampleEdgeHeights(entry: TexEntry, row: number, col: number, edgeDir: s
   if (!hmap) return null;
   // Map chunk coordinates (in diffuse space) to hmap space using the hmap's source dimensions
   const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
-  const hmX = Math.floor(srcX / hmap.srcW * hmap.w);
-  const hmY = Math.floor(srcY / hmap.srcH * hmap.h);
-  const hmW = Math.max(1, Math.floor(srcW / hmap.srcW * hmap.w));
-  const hmH = Math.max(1, Math.floor(srcH / hmap.srcH * hmap.h));
+  const hmX = Math.floor((srcX / hmap.srcW) * hmap.w);
+  const hmY = Math.floor((srcY / hmap.srcH) * hmap.h);
+  const hmW = Math.max(1, Math.floor((srcW / hmap.srcW) * hmap.w));
+  const hmH = Math.max(1, Math.floor((srcH / hmap.srcH) * hmap.h));
 
   const out = new Float32Array(N_SAMPLES);
   for (let i = 0; i < N_SAMPLES; i++) {
     const t = i / (N_SAMPLES - 1);
-    let hx = 0, hy = 0;
+    let hx = 0,
+      hy = 0;
     switch (edgeDir) {
-      case 'north': hx = hmX + Math.round(t*(hmW-1)); hy = hmY;           break;
-      case 'south': hx = hmX + Math.round(t*(hmW-1)); hy = hmY + hmH - 1; break;
-      case 'west':  hx = hmX;           hy = hmY + Math.round(t*(hmH-1)); break;
-      case 'east':  hx = hmX + hmW - 1; hy = hmY + Math.round(t*(hmH-1)); break;
+      case 'north':
+        hx = hmX + Math.round(t * (hmW - 1));
+        hy = hmY;
+        break;
+      case 'south':
+        hx = hmX + Math.round(t * (hmW - 1));
+        hy = hmY + hmH - 1;
+        break;
+      case 'west':
+        hx = hmX;
+        hy = hmY + Math.round(t * (hmH - 1));
+        break;
+      case 'east':
+        hx = hmX + hmW - 1;
+        hy = hmY + Math.round(t * (hmH - 1));
+        break;
     }
-    out[i] = hmap.data[Math.min(hy, hmap.h-1) * hmap.w + Math.min(hx, hmap.w-1)];
+    out[i] = hmap.data[Math.min(hy, hmap.h - 1) * hmap.w + Math.min(hx, hmap.w - 1)]!;
   }
   return out;
 }
@@ -241,15 +281,22 @@ function sampleEdgeHeights(entry: TexEntry, row: number, col: number, edgeDir: s
  * (localX, localY) are in [0..cellPx] coordinates within the cell.
  * Returns 0.5 if height map is unavailable.
  */
-function sampleHeightAtPoint(entry: TexEntry, row: number, col: number, localX: number, localY: number, cellPx: number) {
+function sampleHeightAtPoint(
+  entry: TexEntry,
+  row: number,
+  col: number,
+  localX: number,
+  localY: number,
+  cellPx: number,
+) {
   const hmap = extractHeightMap(entry);
   if (!hmap) return 0.5;
   const { srcX, srcY, srcW, srcH } = getTexChunk(entry, row, col);
   const imgX = srcX + (localX / cellPx) * srcW;
   const imgY = srcY + (localY / cellPx) * srcH;
-  const hmX = Math.max(0, Math.min(hmap.w - 1, Math.floor(imgX / hmap.srcW * hmap.w)));
-  const hmY = Math.max(0, Math.min(hmap.h - 1, Math.floor(imgY / hmap.srcH * hmap.h)));
-  return hmap.data[hmY * hmap.w + hmX];
+  const hmX = Math.max(0, Math.min(hmap.w - 1, Math.floor((imgX / hmap.srcW) * hmap.w)));
+  const hmY = Math.max(0, Math.min(hmap.h - 1, Math.floor((imgY / hmap.srcH) * hmap.h)));
+  return hmap.data[hmY * hmap.w + hmX]!;
 }
 
 // Scratch OffscreenCanvas for blending — destination-out gradient applied here so it
@@ -282,12 +329,18 @@ export function getBlendScratch(px: number): OffscreenCanvas | null {
 function closeBlendBitmaps(cache: BlendTopoCacheState) {
   if (cache.edges) {
     for (const edge of cache.edges) {
-      if (edge.bitmap) { edge.bitmap.close(); edge.bitmap = null; }
+      if (edge.bitmap) {
+        edge.bitmap.close();
+        edge.bitmap = null;
+      }
     }
   }
   if (cache.corners) {
     for (const corner of cache.corners) {
-      if (corner.bitmap) { corner.bitmap.close(); corner.bitmap = null; }
+      if (corner.bitmap) {
+        corner.bitmap.close();
+        corner.bitmap = null;
+      }
     }
   }
 }
@@ -314,10 +367,18 @@ function buildBlendBitmaps(edges: BlendEdge[], corners: BlendCorner[], gridSize:
 
     let sg: CanvasGradient;
     switch (edge.direction) {
-      case 'north': sg = sctx.createLinearGradient(0, 0, 0, blendPx); break;
-      case 'south': sg = sctx.createLinearGradient(0, sz, 0, sz - blendPx); break;
-      case 'west':  sg = sctx.createLinearGradient(0, 0, blendPx, 0); break;
-      default:      sg = sctx.createLinearGradient(sz, 0, sz - blendPx, 0); break;
+      case 'north':
+        sg = sctx.createLinearGradient(0, 0, 0, blendPx);
+        break;
+      case 'south':
+        sg = sctx.createLinearGradient(0, sz, 0, sz - blendPx);
+        break;
+      case 'west':
+        sg = sctx.createLinearGradient(0, 0, blendPx, 0);
+        break;
+      default:
+        sg = sctx.createLinearGradient(sz, 0, sz - blendPx, 0);
+        break;
     }
     sg.addColorStop(0, 'rgba(0,0,0,0)');
     sg.addColorStop(1, 'rgba(0,0,0,1)');
@@ -359,7 +420,12 @@ function buildBlendBitmaps(edges: BlendEdge[], corners: BlendCorner[], gridSize:
 // Pre-rendered blend layer at cache resolution. Persists across map cache
 // rebuilds as long as the blend topology hasn't changed. Separate from the
 // viewport L2 layer so they don't invalidate each other.
-let _blendCacheLayer: { canvas: OffscreenCanvas | HTMLCanvasElement; w: number; h: number; topoRef: BlendEdge[] } | null = null;
+let _blendCacheLayer: {
+  canvas: OffscreenCanvas | HTMLCanvasElement;
+  w: number;
+  h: number;
+  topoRef: BlendEdge[];
+} | null = null;
 
 /**
  * Return a pre-rendered blend layer for the offscreen map cache.
@@ -371,7 +437,13 @@ let _blendCacheLayer: { canvas: OffscreenCanvas | HTMLCanvasElement; w: number; 
  * @param {number} [cacheScale=10] - Pixels per foot at cache resolution
  * @returns {HTMLCanvasElement|OffscreenCanvas|null} Pre-rendered blend canvas, or null
  */
-export function getRenderedBlendLayer(topo: BlendTopoCacheState, gridSize: number, cacheW: number, cacheH: number, cacheScale: number = 10): OffscreenCanvas | HTMLCanvasElement | null {
+export function getRenderedBlendLayer(
+  topo: BlendTopoCacheState,
+  gridSize: number,
+  cacheW: number,
+  cacheH: number,
+  cacheScale: number = 10,
+): OffscreenCanvas | HTMLCanvasElement | null {
   if (typeof OffscreenCanvas === 'undefined') return null;
   if (!topo.edges?.length && !topo.corners?.length) return null;
   const edges = topo.edges!;
@@ -379,14 +451,14 @@ export function getRenderedBlendLayer(topo: BlendTopoCacheState, gridSize: numbe
   if (!edges.every((e: BlendEdge) => e.bitmap) || !corners.every((c: BlendCorner) => c.bitmap)) return null;
 
   // Return cached layer if still valid
-  if (_blendCacheLayer?.w === cacheW && _blendCacheLayer.h === cacheH &&
-      _blendCacheLayer.topoRef === topo.edges) {
+  if (_blendCacheLayer?.w === cacheW && _blendCacheLayer.h === cacheH && _blendCacheLayer.topoRef === topo.edges) {
     return _blendCacheLayer.canvas;
   }
 
   // Build the layer at cache resolution
   const sc = cacheScale;
-  const ox = 0, oy = 0;
+  const ox = 0,
+    oy = 0;
   const cellPx = gridSize * sc;
   const sz = BLEND_BITMAP_SIZE;
 
@@ -462,17 +534,25 @@ function invalidateViewportBlendLayer() {
  * @param {number} gridSize - Grid cell size in feet
  * @returns {OffscreenCanvas|null} Viewport blend canvas, or null
  */
-export function getViewportBlendLayer(canvasW: number, canvasH: number, transform: RenderTransform, topo: BlendTopoCacheState, gridSize: number): OffscreenCanvas | HTMLCanvasElement | null {
+export function getViewportBlendLayer(
+  canvasW: number,
+  canvasH: number,
+  transform: RenderTransform,
+  topo: BlendTopoCacheState,
+  gridSize: number,
+): OffscreenCanvas | HTMLCanvasElement | null {
   if (typeof OffscreenCanvas === 'undefined') return null;
 
   // Check L2 validity
-  if (_blendLayerValid &&
-      _blendLayerOx === transform.offsetX &&
-      _blendLayerOy === transform.offsetY &&
-      _blendLayerSc === transform.scale &&
-      _blendLayerW === canvasW &&
-      _blendLayerH === canvasH &&
-      _blendLayerTopoRef === topo.edges) {
+  if (
+    _blendLayerValid &&
+    _blendLayerOx === transform.offsetX &&
+    _blendLayerOy === transform.offsetY &&
+    _blendLayerSc === transform.scale &&
+    _blendLayerW === canvasW &&
+    _blendLayerH === canvasH &&
+    _blendLayerTopoRef === topo.edges
+  ) {
     return _blendLayer;
   }
 
@@ -490,10 +570,10 @@ export function getViewportBlendLayer(canvasW: number, canvasH: number, transfor
   const sz = BLEND_BITMAP_SIZE;
 
   // Viewport culling bounds (world coords)
-  const rowMin = Math.floor((-oy / sc) / gridSize) - 2;
-  const rowMax = Math.ceil(((canvasH - oy) / sc) / gridSize) + 2;
-  const colMin = Math.floor((-ox / sc) / gridSize) - 2;
-  const colMax = Math.ceil(((canvasW - ox) / sc) / gridSize) + 2;
+  const rowMin = Math.floor(-oy / sc / gridSize) - 2;
+  const rowMax = Math.ceil((canvasH - oy) / sc / gridSize) + 2;
+  const colMin = Math.floor(-ox / sc / gridSize) - 2;
+  const colMax = Math.ceil((canvasW - ox) / sc / gridSize) + 2;
 
   // Edge pass
   for (const edge of topo.edges!) {
@@ -548,16 +628,24 @@ export function getViewportBlendLayer(canvasW: number, canvasH: number, transfor
 // with world-coordinate Path2D clip polygons. This runs once when cells change;
 // the per-frame render loop only does scratch-canvas pixel work + clip composite.
 
-const CORNER_DIRS: readonly { dr1: number; dc1: number; dr2: number; dc2: number; corner: string; dir1: CardinalDirection; dir2: CardinalDirection }[] = [
+const CORNER_DIRS: readonly {
+  dr1: number;
+  dc1: number;
+  dr2: number;
+  dc2: number;
+  corner: string;
+  dir1: CardinalDirection;
+  dir2: CardinalDirection;
+}[] = [
   { dr1: -1, dc1: 0, dr2: 0, dc2: -1, corner: 'nw', dir1: 'north', dir2: 'west' },
-  { dr1: -1, dc1: 0, dr2: 0, dc2:  1, corner: 'ne', dir1: 'north', dir2: 'east' },
-  { dr1:  1, dc1: 0, dr2: 0, dc2: -1, corner: 'sw', dir1: 'south', dir2: 'west' },
-  { dr1:  1, dc1: 0, dr2: 0, dc2:  1, corner: 'se', dir1: 'south', dir2: 'east' },
+  { dr1: -1, dc1: 0, dr2: 0, dc2: 1, corner: 'ne', dir1: 'north', dir2: 'east' },
+  { dr1: 1, dc1: 0, dr2: 0, dc2: -1, corner: 'sw', dir1: 'south', dir2: 'west' },
+  { dr1: 1, dc1: 0, dr2: 0, dc2: 1, corner: 'se', dir1: 'south', dir2: 'east' },
 ];
 
 function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions) {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const blendWidth = textureOptions.blendWidth;
   const catalog = textureOptions.catalog as BlendTextureCatalog;
   const blendWorld = blendWidth * gridSize;
@@ -568,14 +656,15 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.texture || !roomCells[row][col]) continue;
+      if (!cell?.texture || !roomCells[row]![col]) continue;
       if (cell.trimClip) continue; // no blending on trimmed cells
 
       for (const { dr, dc, dir } of CARDINAL_DIRS) {
-        const nr = row + dr, nc = col + dc;
+        const nr = row + dr,
+          nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         const neighbor = cells[nr]?.[nc];
-        if (!neighbor?.texture || !roomCells[nr][nc]) continue;
+        if (!neighbor?.texture || !roomCells[nr]![nc]) continue;
         if (neighbor.trimClip) continue;
         if (neighbor.texture === cell.texture) continue;
         if (!isEdgeOpen(cell, neighbor, dir)) continue;
@@ -594,11 +683,7 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
         const h_nbr = sampleEdgeHeights(neighborEntry, nr, nc, OPPOSITE[dir]);
         const pen = new Float32Array(N_SAMPLES);
         for (let i = 0; i < N_SAMPLES; i++) {
-          pen[i] = splatPenetration(
-            h_cur ? h_cur[i] : 0.5,
-            h_nbr ? h_nbr[i] : 0.5,
-            blendWorld
-          );
+          pen[i] = splatPenetration(h_cur ? h_cur[i]! : 0.5, h_nbr ? h_nbr[i]! : 0.5, blendWorld);
         }
 
         // World-coordinate Path2D clip polygon
@@ -609,26 +694,22 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
         switch (dir) {
           case 'north':
             clipPath.moveTo(wx, wy);
-            for (let i = 0; i < N_SAMPLES; i++)
-              clipPath.lineTo(wx + i * gs / (N_SAMPLES - 1), wy + pen[i]);
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + (i * gs) / (N_SAMPLES - 1), wy + pen[i]!);
             clipPath.lineTo(wx + gs, wy);
             break;
           case 'south':
             clipPath.moveTo(wx, wy + gs);
-            for (let i = 0; i < N_SAMPLES; i++)
-              clipPath.lineTo(wx + i * gs / (N_SAMPLES - 1), wy + gs - pen[i]);
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + (i * gs) / (N_SAMPLES - 1), wy + gs - pen[i]!);
             clipPath.lineTo(wx + gs, wy + gs);
             break;
           case 'west':
             clipPath.moveTo(wx, wy);
-            for (let i = 0; i < N_SAMPLES; i++)
-              clipPath.lineTo(wx + pen[i], wy + i * gs / (N_SAMPLES - 1));
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + pen[i]!, wy + (i * gs) / (N_SAMPLES - 1));
             clipPath.lineTo(wx, wy + gs);
             break;
           case 'east':
             clipPath.moveTo(wx + gs, wy);
-            for (let i = 0; i < N_SAMPLES; i++)
-              clipPath.lineTo(wx + gs - pen[i], wy + i * gs / (N_SAMPLES - 1));
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + gs - pen[i]!, wy + (i * gs) / (N_SAMPLES - 1));
             clipPath.lineTo(wx + gs, wy + gs);
             break;
         }
@@ -637,10 +718,15 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
         const { srcX, srcY, srcW, srcH } = getTexChunk(neighborEntry, row, col);
 
         edges.push({
-          row, col, direction: dir,
+          row,
+          col,
+          direction: dir,
           neighborEntry,
           neighborOpacity: neighbor.textureOpacity ?? 1.0,
-          srcX, srcY, srcW, srcH,
+          srcX,
+          srcY,
+          srcW,
+          srcH,
           clipPath,
           bitmap: null, // filled by buildBlendBitmaps
         });
@@ -652,20 +738,22 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
       const cell = cells[row]?.[col];
-      if (!cell?.texture || !roomCells[row][col]) continue;
+      if (!cell?.texture || !roomCells[row]![col]) continue;
       if (cell.trimClip) continue; // no blending on trimmed cells
       const currentEntry = catalog.textures[cell.texture];
       if (!currentEntry) continue;
       const curH = computeBaseHeight(currentEntry);
 
       for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2 } of CORNER_DIRS) {
-        const n1r = row + dr1, n1c = col + dc1;
-        const n2r = row + dr2, n2c = col + dc2;
+        const n1r = row + dr1,
+          n1c = col + dc1;
+        const n2r = row + dr2,
+          n2c = col + dc2;
         const n1Cell = cells[n1r]?.[n1c];
         const n2Cell = cells[n2r]?.[n2c];
         if (n1Cell?.trimClip) continue; // no blending from trimmed cells
         if (n2Cell?.trimClip) continue;
-        if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
+        if (!isEdgeOpen(cell, n1Cell ?? null, dir1) || !isEdgeOpen(cell, n2Cell ?? null, dir2)) continue;
         const diagR = row + dr1 + dr2;
         const diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
@@ -680,12 +768,14 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
           if (n1Cell.texture !== n2Cell.texture) continue;
           if (!roomCells[n1r]?.[n1c] || !roomCells[n2r]?.[n2c]) continue;
           softTexture = n1Cell.texture;
-          softSampleR = n1r; softSampleC = n1c;
+          softSampleR = n1r;
+          softSampleC = n1c;
           softOpacity = n1Cell.textureOpacity ?? 1.0;
         } else {
           if (!roomCells[diagR]?.[diagC]) continue;
           softTexture = diagCell.texture;
-          softSampleR = diagR; softSampleC = diagC;
+          softSampleR = diagR;
+          softSampleC = diagC;
           softOpacity = diagCell.textureOpacity ?? 1.0;
         }
 
@@ -694,19 +784,37 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
         if (curH < computeBaseHeight(adjEntry) + 0.05) continue;
 
         // Corner point in world-local coords
-        let localCX = 0, localCY = 0, startAngle = 0;
+        let localCX = 0,
+          localCY = 0,
+          startAngle = 0;
         switch (corner) {
-          case 'nw': localCX = 0;        localCY = 0;        startAngle = 0;               break;
-          case 'ne': localCX = gridSize;  localCY = 0;        startAngle = Math.PI / 2;     break;
-          case 'sw': localCX = 0;        localCY = gridSize;  startAngle = 3 * Math.PI / 2; break;
-          case 'se': localCX = gridSize;  localCY = gridSize;  startAngle = Math.PI;         break;
+          case 'nw':
+            localCX = 0;
+            localCY = 0;
+            startAngle = 0;
+            break;
+          case 'ne':
+            localCX = gridSize;
+            localCY = 0;
+            startAngle = Math.PI / 2;
+            break;
+          case 'sw':
+            localCX = 0;
+            localCY = gridSize;
+            startAngle = (3 * Math.PI) / 2;
+            break;
+          case 'se':
+            localCX = gridSize;
+            localCY = gridSize;
+            startAngle = Math.PI;
+            break;
         }
 
         const radii = new Float32Array(8); // N_ARC = 8
         for (let i = 0; i < 8; i++) {
-          const angle = startAngle + (Math.PI / 2) * i / 7;
-          const sampleLX = localCX + (blendWorld * 0.5) * Math.cos(angle);
-          const sampleLY = localCY + (blendWorld * 0.5) * Math.sin(angle);
+          const angle = startAngle + ((Math.PI / 2) * i) / 7;
+          const sampleLX = localCX + blendWorld * 0.5 * Math.cos(angle);
+          const sampleLY = localCY + blendWorld * 0.5 * Math.sin(angle);
           const hc = sampleHeightAtPoint(currentEntry, row, col, sampleLX, sampleLY, gridSize);
           const hn = sampleHeightAtPoint(adjEntry, softSampleR, softSampleC, sampleLX, sampleLY, gridSize);
           radii[i] = splatPenetration(hc, hn, blendWorld);
@@ -719,23 +827,26 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
         const clipPath = new Path2D();
         clipPath.moveTo(worldCX, worldCY);
         for (let i = 0; i < 8; i++) {
-          const angle = startAngle + (Math.PI / 2) * i / 7;
-          clipPath.lineTo(
-            worldCX + radii[i] * Math.cos(angle),
-            worldCY + radii[i] * Math.sin(angle)
-          );
+          const angle = startAngle + ((Math.PI / 2) * i) / 7;
+          clipPath.lineTo(worldCX + radii[i]! * Math.cos(angle), worldCY + radii[i]! * Math.sin(angle));
         }
         clipPath.closePath();
 
         const { srcX, srcY, srcW, srcH } = getTexChunk(adjEntry, row, col);
 
         corners.push({
-          row, col, corner,
+          row,
+          col,
+          corner,
           neighborEntry: adjEntry,
           neighborOpacity: softOpacity,
-          srcX, srcY, srcW, srcH,
+          srcX,
+          srcY,
+          srcW,
+          srcH,
           clipPath,
-          localCX, localCY,
+          localCX,
+          localCY,
           bitmap: null, // filled by buildBlendBitmaps
         });
       }
@@ -753,15 +864,22 @@ function buildBlendTopology(cells: CellGrid, roomCells: boolean[][], gridSize: n
  * @param {Object} textureOptions - Texture catalog and blend settings
  * @returns {Object} Blend topology cache with edges and corners arrays
  */
-export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions): BlendTopoCacheState | null {
+export function getBlendTopoCache(
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  textureOptions: TextureOptions,
+): BlendTopoCacheState | null {
   const blendWidth = textureOptions.blendWidth;
   const catalog = textureOptions.catalog;
   const texturesVersion = textureOptions.texturesVersion ?? 0;
-  if (_blendTopoCache.cells === cells &&
-      _blendTopoCache.gridSize === gridSize &&
-      _blendTopoCache.blendWidth === blendWidth &&
-      _blendTopoCache.catalog === catalog &&
-      _blendTopoCache.texturesVersion === texturesVersion) {
+  if (
+    _blendTopoCache.cells === cells &&
+    _blendTopoCache.gridSize === gridSize &&
+    _blendTopoCache.blendWidth === blendWidth &&
+    _blendTopoCache.catalog === catalog &&
+    _blendTopoCache.texturesVersion === texturesVersion
+  ) {
     return _blendTopoCache;
   }
 
@@ -774,7 +892,15 @@ export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridS
   // Pre-render blend bitmaps (L1 cache)
   buildBlendBitmaps(edges, corners, gridSize, blendWidth);
 
-  _blendTopoCache = { cells, gridSize, blendWidth, catalog: catalog as BlendTextureCatalog | null, texturesVersion, edges, corners };
+  _blendTopoCache = {
+    cells,
+    gridSize,
+    blendWidth,
+    catalog: catalog as BlendTextureCatalog | null,
+    texturesVersion,
+    edges,
+    corners,
+  };
   return _blendTopoCache;
 }
 
@@ -782,7 +908,12 @@ export function getBlendTopoCache(cells: CellGrid, roomCells: boolean[][], gridS
  * Return the stored parameters from the current blend topo cache (or null if no cache).
  * @returns {{ gridSize: number, blendWidth: number, catalog: Object, texturesVersion: number }|null}
  */
-export function getBlendCacheParams(): { gridSize: number; blendWidth: number; catalog: TextureCatalog; texturesVersion: number } | null {
+export function getBlendCacheParams(): {
+  gridSize: number;
+  blendWidth: number;
+  catalog: TextureCatalog;
+  texturesVersion: number;
+} | null {
   if (!_blendTopoCache.edges) return null;
   return {
     gridSize: _blendTopoCache.gridSize as number,
@@ -800,7 +931,15 @@ export function invalidateBlendLayerCache(): void {
   closeBlendBitmaps(_blendTopoCache);
   invalidateViewportBlendLayer();
   _blendCacheLayer = null;
-  _blendTopoCache = { cells: null, gridSize: null, blendWidth: null, catalog: null, texturesVersion: 0, edges: null, corners: null };
+  _blendTopoCache = {
+    cells: null,
+    gridSize: null,
+    blendWidth: null,
+    catalog: null,
+    texturesVersion: 0,
+    edges: null,
+    corners: null,
+  };
 }
 
 /**
@@ -814,7 +953,13 @@ export function invalidateBlendLayerCache(): void {
  * @param {Object} textureOptions - Texture catalog and blend settings
  * @returns {void}
  */
-export function patchBlendRegion(region: { minRow: number; maxRow: number; minCol: number; maxCol: number }, cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions): void {
+export function patchBlendRegion(
+  region: { minRow: number; maxRow: number; minCol: number; maxCol: number },
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  textureOptions: TextureOptions,
+): void {
   if (!_blendTopoCache.edges) {
     // No existing topology — need a full build
     invalidateBlendLayerCache();
@@ -828,7 +973,7 @@ export function patchBlendRegion(region: { minRow: number; maxRow: number; minCo
   const minR = Math.max(0, region.minRow - PAD);
   const maxR = Math.min(cells.length - 1, region.maxRow + PAD);
   const minC = Math.max(0, region.minCol - PAD);
-  const maxC = Math.min((cells[0]?.length || 0) - 1, region.maxCol + PAD);
+  const maxC = Math.min((cells[0]?.length ?? 0) - 1, region.maxCol + PAD);
 
   // Remove old edges/corners in the region (close their bitmaps)
   const oldEdges = _blendTopoCache.edges;
@@ -838,14 +983,20 @@ export function patchBlendRegion(region: { minRow: number; maxRow: number; minCo
 
   for (const edge of oldEdges) {
     if (edge.row >= minR && edge.row <= maxR && edge.col >= minC && edge.col <= maxC) {
-      if (edge.bitmap) { edge.bitmap.close(); edge.bitmap = null; }
+      if (edge.bitmap) {
+        edge.bitmap.close();
+        edge.bitmap = null;
+      }
     } else {
       keptEdges.push(edge);
     }
   }
   for (const corner of oldCorners!) {
     if (corner.row >= minR && corner.row <= maxR && corner.col >= minC && corner.col <= maxC) {
-      if (corner.bitmap) { corner.bitmap.close(); corner.bitmap = null; }
+      if (corner.bitmap) {
+        corner.bitmap.close();
+        corner.bitmap = null;
+      }
     } else {
       keptCorners.push(corner);
     }
@@ -864,7 +1015,7 @@ export function patchBlendRegion(region: { minRow: number; maxRow: number; minCo
 
   // Patch the blend cache layer for the dirty region
   if (_blendCacheLayer?.canvas) {
-    const sc = _blendCacheLayer.w / (cells[0].length * gridSize) || 10;
+    const sc = _blendCacheLayer.w / (cells[0]!.length * gridSize) || 10;
     const lctx = _blendCacheLayer.canvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
     const sz = BLEND_BITMAP_SIZE;
     const cellPx = gridSize * sc;
@@ -917,9 +1068,18 @@ export function patchBlendRegion(region: { minRow: number; maxRow: number; minCo
  * Build blend topology for a restricted cell region only.
  * Same logic as buildBlendTopology but limited to [minR..maxR, minC..maxC].
  */
-function _buildBlendTopologyForRegion(cells: CellGrid, roomCells: boolean[][], gridSize: number, textureOptions: TextureOptions, minR: number, maxR: number, minC: number, maxC: number) {
+function _buildBlendTopologyForRegion(
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  textureOptions: TextureOptions,
+  minR: number,
+  maxR: number,
+  minC: number,
+  maxC: number,
+) {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const blendWidth = textureOptions.blendWidth;
   const catalog = textureOptions.catalog as BlendTextureCatalog;
   const blendWorld = blendWidth * gridSize;
@@ -934,7 +1094,8 @@ function _buildBlendTopologyForRegion(cells: CellGrid, roomCells: boolean[][], g
       if (cell.trimClip) continue;
 
       for (const { dr, dc, dir } of CARDINAL_DIRS) {
-        const nr = row + dr, nc = col + dc;
+        const nr = row + dr,
+          nc = col + dc;
         if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
         const neighbor = cells[nr]?.[nc];
         if (!neighbor?.texture || !roomCells[nr]?.[nc]) continue;
@@ -955,33 +1116,51 @@ function _buildBlendTopologyForRegion(cells: CellGrid, roomCells: boolean[][], g
         const h_nbr = sampleEdgeHeights(neighborEntry, nr, nc, OPPOSITE[dir]);
         const pen = new Float32Array(N_SAMPLES);
         for (let i = 0; i < N_SAMPLES; i++) {
-          pen[i] = splatPenetration(h_cur ? h_cur[i] : 0.5, h_nbr ? h_nbr[i] : 0.5, blendWorld);
+          pen[i] = splatPenetration(h_cur ? h_cur[i]! : 0.5, h_nbr ? h_nbr[i]! : 0.5, blendWorld);
         }
 
-        const wx = col * gridSize, wy = row * gridSize, gs = gridSize;
+        const wx = col * gridSize,
+          wy = row * gridSize,
+          gs = gridSize;
         const clipPath = new Path2D();
         switch (dir) {
           case 'north':
             clipPath.moveTo(wx, wy);
-            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + i * gs / (N_SAMPLES - 1), wy + pen[i]);
-            clipPath.lineTo(wx + gs, wy); break;
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + (i * gs) / (N_SAMPLES - 1), wy + pen[i]!);
+            clipPath.lineTo(wx + gs, wy);
+            break;
           case 'south':
             clipPath.moveTo(wx, wy + gs);
-            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + i * gs / (N_SAMPLES - 1), wy + gs - pen[i]);
-            clipPath.lineTo(wx + gs, wy + gs); break;
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + (i * gs) / (N_SAMPLES - 1), wy + gs - pen[i]!);
+            clipPath.lineTo(wx + gs, wy + gs);
+            break;
           case 'west':
             clipPath.moveTo(wx, wy);
-            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + pen[i], wy + i * gs / (N_SAMPLES - 1));
-            clipPath.lineTo(wx, wy + gs); break;
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + pen[i]!, wy + (i * gs) / (N_SAMPLES - 1));
+            clipPath.lineTo(wx, wy + gs);
+            break;
           case 'east':
             clipPath.moveTo(wx + gs, wy);
-            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + gs - pen[i], wy + i * gs / (N_SAMPLES - 1));
-            clipPath.lineTo(wx + gs, wy + gs); break;
+            for (let i = 0; i < N_SAMPLES; i++) clipPath.lineTo(wx + gs - pen[i]!, wy + (i * gs) / (N_SAMPLES - 1));
+            clipPath.lineTo(wx + gs, wy + gs);
+            break;
         }
         clipPath.closePath();
 
         const { srcX, srcY, srcW, srcH } = getTexChunk(neighborEntry, row, col);
-        edges.push({ row, col, direction: dir, neighborEntry, neighborOpacity: neighbor.textureOpacity ?? 1.0, srcX, srcY, srcW, srcH, clipPath, bitmap: null });
+        edges.push({
+          row,
+          col,
+          direction: dir,
+          neighborEntry,
+          neighborOpacity: neighbor.textureOpacity ?? 1.0,
+          srcX,
+          srcY,
+          srcW,
+          srcH,
+          clipPath,
+          bitmap: null,
+        });
       }
     }
   }
@@ -997,14 +1176,17 @@ function _buildBlendTopologyForRegion(cells: CellGrid, roomCells: boolean[][], g
       const curH = computeBaseHeight(currentEntry);
 
       for (const { dr1, dc1, dr2, dc2, corner, dir1, dir2 } of CORNER_DIRS) {
-        const n1r = row + dr1, n1c = col + dc1;
-        const n2r = row + dr2, n2c = col + dc2;
+        const n1r = row + dr1,
+          n1c = col + dc1;
+        const n2r = row + dr2,
+          n2c = col + dc2;
         const n1Cell = cells[n1r]?.[n1c];
         const n2Cell = cells[n2r]?.[n2c];
         if (n1Cell?.trimClip) continue;
         if (n2Cell?.trimClip) continue;
-        if (!isEdgeOpen(cell, n1Cell, dir1) || !isEdgeOpen(cell, n2Cell, dir2)) continue;
-        const diagR = row + dr1 + dr2, diagC = col + dc1 + dc2;
+        if (!isEdgeOpen(cell, n1Cell ?? null, dir1) || !isEdgeOpen(cell, n2Cell ?? null, dir2)) continue;
+        const diagR = row + dr1 + dr2,
+          diagC = col + dc1 + dc2;
         if (diagR < 0 || diagR >= numRows || diagC < 0 || diagC >= numCols) continue;
         const diagCell = cells[diagR]?.[diagC];
         if (!diagCell?.texture) continue;
@@ -1017,12 +1199,14 @@ function _buildBlendTopologyForRegion(cells: CellGrid, roomCells: boolean[][], g
           if (n1Cell.texture !== n2Cell.texture) continue;
           if (!roomCells[n1r]?.[n1c] || !roomCells[n2r]?.[n2c]) continue;
           softTexture = n1Cell.texture;
-          softSampleR = n1r; softSampleC = n1c;
+          softSampleR = n1r;
+          softSampleC = n1c;
           softOpacity = n1Cell.textureOpacity ?? 1.0;
         } else {
           if (!roomCells[diagR]?.[diagC]) continue;
           softTexture = diagCell.texture;
-          softSampleR = diagR; softSampleC = diagC;
+          softSampleR = diagR;
+          softSampleC = diagC;
           softOpacity = diagCell.textureOpacity ?? 1.0;
         }
 
@@ -1030,43 +1214,80 @@ function _buildBlendTopologyForRegion(cells: CellGrid, roomCells: boolean[][], g
         if (!adjEntry?.img.complete || !adjEntry.img.naturalWidth) continue;
         if (curH < computeBaseHeight(adjEntry) + 0.05) continue;
 
-        let localCX = 0, localCY = 0;
+        let localCX = 0,
+          localCY = 0;
         switch (corner) {
-          case 'nw': localCX = 0;       localCY = 0;        break;
-          case 'ne': localCX = gridSize; localCY = 0;        break;
-          case 'sw': localCX = 0;       localCY = gridSize;  break;
-          case 'se': localCX = gridSize; localCY = gridSize;  break;
+          case 'nw':
+            localCX = 0;
+            localCY = 0;
+            break;
+          case 'ne':
+            localCX = gridSize;
+            localCY = 0;
+            break;
+          case 'sw':
+            localCX = 0;
+            localCY = gridSize;
+            break;
+          case 'se':
+            localCX = gridSize;
+            localCY = gridSize;
+            break;
         }
         let startAngle = 0;
         switch (corner) {
-          case 'nw': startAngle = 0;               break;
-          case 'ne': startAngle = Math.PI / 2;     break;
-          case 'sw': startAngle = 3 * Math.PI / 2; break;
-          case 'se': startAngle = Math.PI;         break;
+          case 'nw':
+            startAngle = 0;
+            break;
+          case 'ne':
+            startAngle = Math.PI / 2;
+            break;
+          case 'sw':
+            startAngle = (3 * Math.PI) / 2;
+            break;
+          case 'se':
+            startAngle = Math.PI;
+            break;
         }
 
         const radii = new Float32Array(8);
         for (let i = 0; i < 8; i++) {
-          const angle = startAngle + (Math.PI / 2) * i / 7;
-          const sampleLX = localCX + (blendWorld * 0.5) * Math.cos(angle);
-          const sampleLY = localCY + (blendWorld * 0.5) * Math.sin(angle);
+          const angle = startAngle + ((Math.PI / 2) * i) / 7;
+          const sampleLX = localCX + blendWorld * 0.5 * Math.cos(angle);
+          const sampleLY = localCY + blendWorld * 0.5 * Math.sin(angle);
           const hc = sampleHeightAtPoint(currentEntry, row, col, sampleLX, sampleLY, gridSize);
           const hn = sampleHeightAtPoint(adjEntry, softSampleR, softSampleC, sampleLX, sampleLY, gridSize);
           radii[i] = splatPenetration(hc, hn, blendWorld);
         }
 
-        const wx = col * gridSize, wy = row * gridSize;
-        const worldCX = wx + localCX, worldCY = wy + localCY;
+        const wx = col * gridSize,
+          wy = row * gridSize;
+        const worldCX = wx + localCX,
+          worldCY = wy + localCY;
         const clipPath = new Path2D();
         clipPath.moveTo(worldCX, worldCY);
         for (let i = 0; i < 8; i++) {
-          const angle = startAngle + (Math.PI / 2) * i / 7;
-          clipPath.lineTo(worldCX + radii[i] * Math.cos(angle), worldCY + radii[i] * Math.sin(angle));
+          const angle = startAngle + ((Math.PI / 2) * i) / 7;
+          clipPath.lineTo(worldCX + radii[i]! * Math.cos(angle), worldCY + radii[i]! * Math.sin(angle));
         }
         clipPath.closePath();
 
         const { srcX, srcY, srcW, srcH } = getTexChunk(adjEntry, row, col);
-        corners.push({ row, col, corner, neighborEntry: adjEntry, neighborOpacity: softOpacity, srcX, srcY, srcW, srcH, clipPath, localCX, localCY, bitmap: null });
+        corners.push({
+          row,
+          col,
+          corner,
+          neighborEntry: adjEntry,
+          neighborOpacity: softOpacity,
+          srcX,
+          srcY,
+          srcW,
+          srcH,
+          clipPath,
+          localCX,
+          localCY,
+          bitmap: null,
+        });
       }
     }
   }

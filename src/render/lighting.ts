@@ -10,7 +10,16 @@
  * here so existing imports keep working.
  */
 
-import type { CellGrid, RenderTransform, FalloffType, Light, Metadata, PropCatalog, TextureCatalog, Theme } from '../types.js';
+import type {
+  CellGrid,
+  RenderTransform,
+  FalloffType,
+  Light,
+  Metadata,
+  PropCatalog,
+  TextureCatalog,
+  Theme,
+} from '../types.js';
 import {
   extractWallSegments,
   extractPropShadowZones,
@@ -21,12 +30,7 @@ import {
 
 // Re-export geometry helpers so existing importers (lighting-hq.ts, render barrel,
 // editor) keep working without ripple after the split.
-export {
-  extractWallSegments,
-  extractPropShadowZones,
-  computePropShadowPolygon,
-  DEFAULT_LIGHT_Z,
-};
+export { extractWallSegments, extractPropShadowZones, computePropShadowPolygon, DEFAULT_LIGHT_Z };
 export type { WallSegment };
 
 // ─── Constants ─────
@@ -34,7 +38,6 @@ const INVERSE_SQUARE_K = 25;
 const RAY_EPSILON = 0.00001;
 const ANIM_TIME_SCALE = 0.4;
 const GRADIENT_STOPS = 16;
-
 
 // ─── 2D Visibility Polygon (Shadow Casting) ────────────────────────────────
 
@@ -46,7 +49,16 @@ const EPSILON = RAY_EPSILON;
  * Returns { t, u } where t is distance along ray, u is position along segment.
  * Returns null if no intersection.
  */
-function raySegmentIntersect(ox: number, oy: number, dx: number, dy: number, sx1: number, sy1: number, sx2: number, sy2: number) {
+function raySegmentIntersect(
+  ox: number,
+  oy: number,
+  dx: number,
+  dy: number,
+  sx1: number,
+  sy1: number,
+  sx2: number,
+  sy2: number,
+) {
   const sdx = sx2 - sx1;
   const sdy = sy2 - sy1;
   const denom = dx * sdy - dy * sdx;
@@ -92,8 +104,7 @@ class SegmentGrid {
       for (let gy = minGy; gy <= maxGy; gy++) {
         for (let gx = minGx; gx <= maxGx; gx++) {
           const idx = gy * this.w + gx;
-          this.buckets[idx] ??= [];
-          this.buckets[idx].push(seg);
+          (this.buckets[idx] ??= []).push(seg);
         }
       }
     }
@@ -101,7 +112,7 @@ class SegmentGrid {
 
   getBucket(gx: number, gy: number): WallSegment[] | null {
     if (gx < 0 || gx >= this.w || gy < 0 || gy >= this.h) return null;
-    return this.buckets[gy * this.w + gx];
+    return this.buckets[gy * this.w + gx] ?? null;
   }
 }
 
@@ -123,12 +134,8 @@ function castRayGrid(ox: number, oy: number, angle: number, grid: SegmentGrid) {
   const tDeltaX = dx !== 0 ? Math.abs(cs / dx) : Infinity;
   const tDeltaY = dy !== 0 ? Math.abs(cs / dy) : Infinity;
 
-  let tMaxX = dx !== 0
-    ? ((dx > 0 ? (gx + 1) * cs + grid.ox - ox : gx * cs + grid.ox - ox) / dx)
-    : Infinity;
-  let tMaxY = dy !== 0
-    ? ((dy > 0 ? (gy + 1) * cs + grid.oy - oy : gy * cs + grid.oy - oy) / dy)
-    : Infinity;
+  let tMaxX = dx !== 0 ? (dx > 0 ? (gx + 1) * cs + grid.ox - ox : gx * cs + grid.ox - ox) / dx : Infinity;
+  let tMaxY = dy !== 0 ? (dy > 0 ? (gy + 1) * cs + grid.oy - oy : gy * cs + grid.oy - oy) / dy : Infinity;
 
   let closest = null;
   const tested = new Set();
@@ -182,7 +189,12 @@ function castRayGrid(ox: number, oy: number, angle: number, grid: SegmentGrid) {
  * @param {Array} segments - wall segments [{x1,y1,x2,y2}]
  * @returns {Array} visibility polygon [{x,y}, ...] in world feet
  */
-export function computeVisibility(lx: number, ly: number, radius: number, segments: Array<{x1: number; y1: number; x2: number; y2: number}>): Array<{x: number; y: number}> {
+export function computeVisibility(
+  lx: number,
+  ly: number,
+  radius: number,
+  segments: Array<{ x1: number; y1: number; x2: number; y2: number }>,
+): Array<{ x: number; y: number }> {
   // Add bounding box segments to limit visibility to the light's radius
   const r = radius + 1; // slight padding
   const bounds = [
@@ -220,7 +232,7 @@ export function computeVisibility(lx: number, ly: number, radius: number, segmen
   // Cast rays at each endpoint angle with +/- epsilon
   const angles = [];
   for (const ep of endpoints) {
-    const [ex, ey] = (ep as string).split(',').map(Number);
+    const [ex, ey] = (ep as string).split(',').map(Number) as [number, number];
     const angle = Math.atan2(ey - ly, ex - lx);
     angles.push(angle - EPSILON);
     angles.push(angle);
@@ -241,7 +253,6 @@ export function computeVisibility(lx: number, ly: number, radius: number, segmen
 
   return polygon;
 }
-
 
 // ─── Lightmap Rendering ────────────────────────────────────────────────────
 
@@ -270,8 +281,10 @@ export function falloffMultiplier(dist: number, radius: number, falloff: Falloff
   if (radius <= 0) return 1;
   const t = Math.max(0, 1 - dist / radius);
   switch (falloff) {
-    case 'linear': return t;
-    case 'quadratic': return t * t;
+    case 'linear':
+      return t;
+    case 'quadratic':
+      return t * t;
     case 'inverse-square': {
       // 1/(1+k*d²) normalized so f(0)=1 and f(r)≈0
       const k = INVERSE_SQUARE_K;
@@ -308,25 +321,21 @@ export function getEffectiveLight(light: Light, time: number): Light {
 
   switch (type) {
     case 'flicker':
-      intensityMult = 1 + amplitude * (
-        0.5 * Math.sin(t * 17.3) +
-        0.3 * Math.sin(t * 31.7) +
-        0.2 * Math.sin(t * 7.1)
-      );
+      intensityMult = 1 + amplitude * (0.5 * Math.sin(t * 17.3) + 0.3 * Math.sin(t * 31.7) + 0.2 * Math.sin(t * 7.1));
       if (radiusVariation > 0) radiusMult = 1 + radiusVariation * Math.sin(t * 11.3);
       break;
     case 'pulse':
       intensityMult = 1 + amplitude * Math.sin(2 * Math.PI * t);
       break;
     case 'strobe':
-      intensityMult = (t % 1) < 0.5 ? 1 + amplitude : Math.max(0, 1 - amplitude);
+      intensityMult = t % 1 < 0.5 ? 1 + amplitude : Math.max(0, 1 - amplitude);
       break;
   }
 
   const result = { ...light };
   result.intensity = Math.max(0.01, light.intensity * Math.max(0, intensityMult));
   if (light.radius && radiusMult !== 1.0) result.radius = Math.max(1, light.radius * Math.max(0.1, radiusMult));
-  if (light.range  && radiusMult !== 1.0) result.range  = Math.max(1, light.range  * Math.max(0.1, radiusMult));
+  if (light.range && radiusMult !== 1.0) result.range = Math.max(1, light.range * Math.max(0.1, radiusMult));
   return result;
 }
 
@@ -338,7 +347,8 @@ let lightRTCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
 let lightRTCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null = null;
 
 function ensureLightRTCanvas(w: number, h: number) {
-  const cw = Math.ceil(w), ch = Math.ceil(h);
+  const cw = Math.ceil(w),
+    ch = Math.ceil(h);
   if (!lightRTCanvas) {
     if (typeof OffscreenCanvas !== 'undefined') {
       lightRTCanvas = new OffscreenCanvas(cw, ch);
@@ -348,7 +358,7 @@ function ensureLightRTCanvas(w: number, h: number) {
       lightRTCtx = lightRTCanvas.getContext('2d');
     }
   } else if (lightRTCanvas.width < cw || lightRTCanvas.height < ch) {
-    lightRTCanvas.width  = Math.max(lightRTCanvas.width,  cw);
+    lightRTCanvas.width = Math.max(lightRTCanvas.width, cw);
     lightRTCanvas.height = Math.max(lightRTCanvas.height, ch);
   }
   return lightRTCtx!;
@@ -359,12 +369,24 @@ function ensureLightRTCanvas(w: number, h: number) {
  * Uses 'destination-out' to subtract shadow areas from the light's gradient,
  * with a linear gradient from near (opaque) to far (transparent) for penumbra.
  */
-function _applyPropShadowsToRT(gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, light: Light, transform: RenderTransform, bbX: number, bbY: number) {
-  for (const { shadowPoly, nearCenter, farCenter, opacity, hard } of light._propShadows as Array<{ shadowPoly: number[][]; nearCenter: number[]; farCenter: number[]; opacity: number; hard: boolean }>) {
+function _applyPropShadowsToRT(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  light: Light,
+  transform: RenderTransform,
+  bbX: number,
+  bbY: number,
+) {
+  for (const { shadowPoly, nearCenter, farCenter, opacity, hard } of light._propShadows as Array<{
+    shadowPoly: number[][];
+    nearCenter: number[];
+    farCenter: number[];
+    opacity: number;
+    hard: boolean;
+  }>) {
     // Convert world-feet shadow polygon to pixel coordinates relative to the RT canvas
     const pxPoly = shadowPoly.map(([wx, wy]: number[]) => [
-      wx * transform.scale + transform.offsetX - bbX,
-      wy * transform.scale + transform.offsetY - bbY,
+      wx! * transform.scale + transform.offsetX - bbX,
+      wy! * transform.scale + transform.offsetY - bbY,
     ]);
 
     // Subtract shadow from the light using destination-out
@@ -376,19 +398,19 @@ function _applyPropShadowsToRT(gctx: CanvasRenderingContext2D | OffscreenCanvasR
       gctx.fillStyle = `rgba(0,0,0,${opacity.toFixed(3)})`;
     } else {
       // Soft shadow: linear gradient penumbra from near edge → far edge
-      const ncx = nearCenter[0] * transform.scale + transform.offsetX - bbX;
-      const ncy = nearCenter[1] * transform.scale + transform.offsetY - bbY;
-      const fcx = farCenter[0] * transform.scale + transform.offsetX - bbX;
-      const fcy = farCenter[1] * transform.scale + transform.offsetY - bbY;
+      const ncx = nearCenter[0]! * transform.scale + transform.offsetX - bbX;
+      const ncy = nearCenter[1]! * transform.scale + transform.offsetY - bbY;
+      const fcx = farCenter[0]! * transform.scale + transform.offsetX - bbX;
+      const fcy = farCenter[1]! * transform.scale + transform.offsetY - bbY;
       const grad = gctx.createLinearGradient(ncx, ncy, fcx, fcy);
       grad.addColorStop(0, `rgba(0,0,0,${opacity.toFixed(3)})`);
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       gctx.fillStyle = grad;
     }
     gctx.beginPath();
-    gctx.moveTo(pxPoly[0][0], pxPoly[0][1]);
+    gctx.moveTo(pxPoly[0]![0]!, pxPoly[0]![1]!);
     for (let i = 1; i < pxPoly.length; i++) {
-      gctx.lineTo(pxPoly[i][0], pxPoly[i][1]);
+      gctx.lineTo(pxPoly[i]![0]!, pxPoly[i]![1]!);
     }
     gctx.closePath();
     gctx.fill();
@@ -400,19 +422,19 @@ function _applyPropShadowsToRT(gctx: CanvasRenderingContext2D | OffscreenCanvasR
  * Draw visibility polygon as a white filled shape into gctx,
  * offset so that world-to-canvas coords are relative to (bbX, bbY).
  */
-function clipToVisibility(gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, visibility: Array<{ x: number; y: number }>, transform: RenderTransform, bbX: number, bbY: number) {
+function clipToVisibility(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  visibility: Array<{ x: number; y: number }>,
+  transform: RenderTransform,
+  bbX: number,
+  bbY: number,
+) {
   gctx.beginPath();
-  const p0 = visibility[0];
-  gctx.moveTo(
-    p0.x * transform.scale + transform.offsetX - bbX,
-    p0.y * transform.scale + transform.offsetY - bbY,
-  );
+  const p0 = visibility[0]!;
+  gctx.moveTo(p0.x * transform.scale + transform.offsetX - bbX, p0.y * transform.scale + transform.offsetY - bbY);
   for (let i = 1; i < visibility.length; i++) {
-    const p = visibility[i];
-    gctx.lineTo(
-      p.x * transform.scale + transform.offsetX - bbX,
-      p.y * transform.scale + transform.offsetY - bbY,
-    );
+    const p = visibility[i]!;
+    gctx.lineTo(p.x * transform.scale + transform.offsetX - bbX, p.y * transform.scale + transform.offsetY - bbY);
   }
   gctx.closePath();
   gctx.fill();
@@ -422,7 +444,18 @@ function clipToVisibility(gctx: CanvasRenderingContext2D | OffscreenCanvasRender
  * Build gradient stops for a radial gradient from (cx, cy) out to radius rPx,
  * using gradient center offset within the bounding box at (relCx, relCy).
  */
-function buildRadialGradient(gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, relCx: number, relCy: number, rPx: number, r: number, g: number, b: number, intensity: number, lightRadius: number, falloff: FalloffType | string) {
+function buildRadialGradient(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  relCx: number,
+  relCy: number,
+  rPx: number,
+  r: number,
+  g: number,
+  b: number,
+  intensity: number,
+  lightRadius: number,
+  falloff: FalloffType | string,
+) {
   const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, rPx);
   grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1.0, intensity)})`);
   const numStops = GRADIENT_STOPS;
@@ -439,14 +472,18 @@ function buildRadialGradient(gctx: CanvasRenderingContext2D | OffscreenCanvasRen
  * Uses destination-in composite to mask a radial gradient to the visibility polygon —
  * giving anti-aliased shadow edges without a CPU pixel loop.
  */
-function renderPointLight(lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, light: Light, visibility: Array<{ x: number; y: number }>, transform: RenderTransform) {
+function renderPointLight(
+  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  light: Light,
+  visibility: Array<{ x: number; y: number }>,
+  transform: RenderTransform,
+) {
   if (visibility.length < 3) return;
 
   const cx = light.x * transform.scale + transform.offsetX;
   const cy = light.y * transform.scale + transform.offsetY;
-  const rPx   = light.radius * transform.scale;
-  const dimRPx = (light.dimRadius && light.dimRadius > light.radius)
-    ? light.dimRadius * transform.scale : null;
+  const rPx = light.radius * transform.scale;
+  const dimRPx = light.dimRadius && light.dimRadius > light.radius ? light.dimRadius * transform.scale : null;
   const outerRPx = dimRPx ?? rPx;
 
   // Clip bounding box to the canvas viewport. Without this, zooming in deeply
@@ -492,7 +529,7 @@ function renderPointLight(lctx: CanvasRenderingContext2D | OffscreenCanvasRender
       grad.addColorStop(gradFrac, `rgba(${r},${g},${b},${alpha.toFixed(4)})`);
     }
     grad.addColorStop(brightFrac, `rgba(${r},${g},${b},${dimIntensity})`);
-    grad.addColorStop(1.0,        `rgba(${r},${g},${b},0)`);
+    grad.addColorStop(1.0, `rgba(${r},${g},${b},0)`);
     gctx.fillStyle = grad;
     gctx.fillRect(0, 0, bbW, bbH);
   } else {
@@ -518,19 +555,24 @@ function renderPointLight(lctx: CanvasRenderingContext2D | OffscreenCanvasRender
 /**
  * Render a single directional (cone) light using GPU-composited shadow mask.
  */
-function renderDirectionalLight(lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, light: Light, visibility: Array<{ x: number; y: number }>, transform: RenderTransform) {
+function renderDirectionalLight(
+  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  light: Light,
+  visibility: Array<{ x: number; y: number }>,
+  transform: RenderTransform,
+) {
   if (visibility.length < 3) return;
 
-  const cx    = light.x * transform.scale + transform.offsetX;
-  const cy    = light.y * transform.scale + transform.offsetY;
+  const cx = light.x * transform.scale + transform.offsetX;
+  const cy = light.y * transform.scale + transform.offsetY;
   const range = ((light.range ?? light.radius) || 30) * transform.scale;
 
   const { r, g, b } = parseColor(light.color);
-  const intensity  = light.intensity;
+  const intensity = light.intensity;
   const falloff: FalloffType = light.falloff;
-  const angleRad   = (light.angle ?? 0) * Math.PI / 180;
-  const spreadRad  = (light.spread ?? 45) * Math.PI / 180;
-  const effRadius  = (light.range ?? light.radius) || 30;
+  const angleRad = ((light.angle ?? 0) * Math.PI) / 180;
+  const spreadRad = ((light.spread ?? 45) * Math.PI) / 180;
+  const effRadius = (light.range ?? light.radius) || 30;
 
   const vpW = lctx.canvas.width;
   const vpH = lctx.canvas.height;
@@ -589,13 +631,16 @@ let _lightingVersion = 0;
  * Return the current lighting version counter. Bumped on every invalidation.
  * @returns {number} Lighting version
  */
-export function getLightingVersion(): number { return _lightingVersion; }
+export function getLightingVersion(): number {
+  return _lightingVersion;
+}
 
 // ─── Reusable Lightmap Canvases ───────────────────────────────────────────
 // _lmCanvas: final lightmap (static + animated, composited each frame)
 // _staticLmCanvas: cached static-only lightmap (rebuilt only when lights/walls change)
 let _lmCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
-let _lmW = 0, _lmH = 0;
+let _lmW = 0,
+  _lmH = 0;
 let _staticLmCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
 let _staticLmValid = false;
 
@@ -682,8 +727,37 @@ export function invalidateLightmapCaches(): void {
  * @param {Object|null} [metadata=null] - Dungeon metadata
  * @returns {void}
  */
-export function renderLightmap(ctx: CanvasRenderingContext2D, lights: Light[], cells: CellGrid, gridSize: number, transform: RenderTransform, canvasW: number, canvasH: number, ambientLevel: number, textureCatalog: TextureCatalog | null, propCatalog: PropCatalog | null, options: { ambientColor?: string; time?: number; lightPxPerFoot?: number; destX?: number; destY?: number; destW?: number; destH?: number } | null, metadata: Metadata | null = null): void {
-  const { ambientColor = '#ffffff', time = 0, lightPxPerFoot = 0, destX = 0, destY = 0, destW = 0, destH = 0 } = options ?? {};
+export function renderLightmap(
+  ctx: CanvasRenderingContext2D,
+  lights: Light[],
+  cells: CellGrid,
+  gridSize: number,
+  transform: RenderTransform,
+  canvasW: number,
+  canvasH: number,
+  ambientLevel: number,
+  textureCatalog: TextureCatalog | null,
+  propCatalog: PropCatalog | null,
+  options: {
+    ambientColor?: string;
+    time?: number;
+    lightPxPerFoot?: number;
+    destX?: number;
+    destY?: number;
+    destW?: number;
+    destH?: number;
+  } | null,
+  metadata: Metadata | null = null,
+): void {
+  const {
+    ambientColor = '#ffffff',
+    time = 0,
+    lightPxPerFoot = 0,
+    destX = 0,
+    destY = 0,
+    destW = 0,
+    destH = 0,
+  } = options ?? {};
   const activeLights = lights;
 
   // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
@@ -698,10 +772,9 @@ export function renderLightmap(ctx: CanvasRenderingContext2D, lights: Light[], c
   // resolution, render at reduced size and upscale. Lightmaps are smooth
   // gradients so lower resolution is visually imperceptible.
   const cacheScale = transform.scale; // px/ft of the full cache
-  const lmScale = (lightPxPerFoot > 0 && lightPxPerFoot < cacheScale)
-    ? lightPxPerFoot : cacheScale;
-  const lmW = Math.ceil(canvasW * lmScale / cacheScale);
-  const lmH = Math.ceil(canvasH * lmScale / cacheScale);
+  const lmScale = lightPxPerFoot > 0 && lightPxPerFoot < cacheScale ? lightPxPerFoot : cacheScale;
+  const lmW = Math.ceil((canvasW * lmScale) / cacheScale);
+  const lmH = Math.ceil((canvasH * lmScale) / cacheScale);
   const lmTransform = { scale: lmScale, offsetX: 0, offsetY: 0 };
 
   // Split lights into static (no animation) and animated
@@ -785,10 +858,16 @@ export function renderLightmap(ctx: CanvasRenderingContext2D, lights: Light[], c
 }
 
 /** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
-function _renderOneLight(lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, light: Light, time: number, segments: WallSegment[], transform: RenderTransform, propShadowZones: ReturnType<typeof extractPropShadowZones>) {
+function _renderOneLight(
+  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  light: Light,
+  time: number,
+  segments: WallSegment[],
+  transform: RenderTransform,
+  propShadowZones: ReturnType<typeof extractPropShadowZones>,
+) {
   const eff = getEffectiveLight(light, time);
-  const outerRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0))
-    ? eff.dimRadius : (eff.radius || 30);
+  const outerRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : eff.radius || 30;
   const effectiveRadius = eff.range ?? outerRadius;
   const cacheKey = `${light.id}:${eff.x},${eff.y},${effectiveRadius}`;
   let visibility = visibilityCache.get(cacheKey);
@@ -812,7 +891,13 @@ function _renderOneLight(lctx: CanvasRenderingContext2D | OffscreenCanvasRenderi
         if (dx * dx + dy * dy > rSq) continue;
 
         const shadow = computePropShadowPolygon(
-          eff.x, eff.y, lightZ, zone.worldPolygon, zone.zBottom, zone.zTop, effectiveRadius
+          eff.x,
+          eff.y,
+          lightZ,
+          zone.worldPolygon,
+          zone.zBottom,
+          zone.zTop,
+          effectiveRadius,
         );
         if (shadow) propShadows.push(shadow);
       }
@@ -857,10 +942,17 @@ function getBumpTmpCtx() {
   return bumpTmpCtx;
 }
 
-function applyNormalMapBump(lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D, lights: Light[], cells: CellGrid, gridSize: number, transform: RenderTransform, textureCatalog: TextureCatalog | null) {
+function applyNormalMapBump(
+  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  lights: Light[],
+  cells: CellGrid,
+  gridSize: number,
+  transform: RenderTransform,
+  textureCatalog: TextureCatalog | null,
+) {
   if (!textureCatalog) return;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const tmpCtx = getBumpTmpCtx()!;
 
   // Use 'multiply' for darkening areas with steep normals
@@ -869,7 +961,7 @@ function applyNormalMapBump(lctx: CanvasRenderingContext2D | OffscreenCanvasRend
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      const cell = cells[row][col];
+      const cell = cells[row]![col];
       if (!cell?.texture) continue;
 
       const texId = cell.texture;
@@ -880,7 +972,9 @@ function applyNormalMapBump(lctx: CanvasRenderingContext2D | OffscreenCanvasRend
       const cellCenterX = (col + 0.5) * gridSize;
       const cellCenterY = (row + 0.5) * gridSize;
 
-      let totalLightX = 0, totalLightY = 0, totalIntensity = 0;
+      let totalLightX = 0,
+        totalLightY = 0,
+        totalIntensity = 0;
       for (const light of lights) {
         const dx = light.x - cellCenterX;
         const dy = light.y - cellCenterY;
@@ -899,8 +993,8 @@ function applyNormalMapBump(lctx: CanvasRenderingContext2D | OffscreenCanvasRend
       // Normalize light direction (in 2D, pointing from cell toward light)
       const lenXY = Math.sqrt(totalLightX * totalLightX + totalLightY * totalLightY);
       // Light direction as a 3D vector: (lx, ly, 0.7) normalized — slight top-down bias
-      const lx3 = lenXY > 0 ? totalLightX / lenXY * 0.5 : 0;
-      const ly3 = lenXY > 0 ? totalLightY / lenXY * 0.5 : 0;
+      const lx3 = lenXY > 0 ? (totalLightX / lenXY) * 0.5 : 0;
+      const ly3 = lenXY > 0 ? (totalLightY / lenXY) * 0.5 : 0;
       const lz3 = 0.7;
       const lLen = Math.sqrt(lx3 * lx3 + ly3 * ly3 + lz3 * lz3);
 
@@ -923,9 +1017,9 @@ function applyNormalMapBump(lctx: CanvasRenderingContext2D | OffscreenCanvasRend
       let sampleCount = 0;
       for (let i = 0; i < data.length; i += 4) {
         // Normal map: RGB = XYZ mapped from [0,255] to [-1,1]
-        const nx = (data[i] / 255) * 2 - 1;
-        const ny = (data[i + 1] / 255) * 2 - 1;
-        const nz = (data[i + 2] / 255) * 2 - 1;
+        const nx = (data[i]! / 255) * 2 - 1;
+        const ny = (data[i + 1]! / 255) * 2 - 1;
+        const nz = (data[i + 2]! / 255) * 2 - 1;
 
         // Dot product with light direction
         const dot = (nx * lx3 + ny * ly3 + nz * lz3) / lLen;
@@ -971,9 +1065,15 @@ function applyNormalMapBump(lctx: CanvasRenderingContext2D | OffscreenCanvasRend
  * @param {Object} transform - {offsetX, offsetY, scale}
  * @returns {void}
  */
-export function renderCoverageHeatmap(ctx: CanvasRenderingContext2D, lights: Light[], cells: CellGrid, gridSize: number, transform: RenderTransform): void {
+export function renderCoverageHeatmap(
+  ctx: CanvasRenderingContext2D,
+  lights: Light[],
+  cells: CellGrid,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const activeLights = lights;
 
   ctx.save();
@@ -981,7 +1081,7 @@ export function renderCoverageHeatmap(ctx: CanvasRenderingContext2D, lights: Lig
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      const cell = cells[row][col];
+      const cell = cells[row]![col];
       if (!cell) continue;
 
       const cellCenterX = (col + 0.5) * gridSize;
@@ -1003,13 +1103,19 @@ export function renderCoverageHeatmap(ctx: CanvasRenderingContext2D, lights: Lig
       let cr, cg, cb;
       if (t < 0.25) {
         const s = t / 0.25;
-        cr = 0; cg = 0; cb = Math.round(s * 180);
-      } else if (t < 0.60) {
+        cr = 0;
+        cg = 0;
+        cb = Math.round(s * 180);
+      } else if (t < 0.6) {
         const s = (t - 0.25) / 0.35;
-        cr = Math.round(s * 255); cg = Math.round(s * 200); cb = Math.round(180 * (1 - s));
+        cr = Math.round(s * 255);
+        cg = Math.round(s * 200);
+        cb = Math.round(180 * (1 - s));
       } else {
-        const s = (t - 0.60) / 0.40;
-        cr = 255; cg = Math.round(200 + s * 55); cb = Math.round(s * 255);
+        const s = (t - 0.6) / 0.4;
+        cr = 255;
+        cg = Math.round(200 + s * 55);
+        cb = Math.round(s * 255);
       }
 
       const px = col * gridSize * transform.scale + transform.offsetX;
@@ -1036,12 +1142,16 @@ export function renderCoverageHeatmap(ctx: CanvasRenderingContext2D, lights: Lig
  * @param {object} theme - Resolved theme object (including any themeOverrides)
  * @returns {Array} Light objects ready for renderLightmap / renderLightmapHQ
  */
-export function extractFillLights(cells: CellGrid, gridSize: number, theme: Theme | Record<string, unknown> = {}): Light[] {
-  const color     = (theme as Record<string, unknown>).lavaLightColor as string;
+export function extractFillLights(
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme | Record<string, unknown> = {},
+): Light[] {
+  const color = (theme as Record<string, unknown>).lavaLightColor as string;
   const intensity = (theme as Record<string, unknown>).lavaLightIntensity as number;
   const lights: Light[] = [];
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // ── Step 1: flood-fill connected lava regions ──────────────────────────────
   const visited = new Set();
@@ -1056,10 +1166,16 @@ export function extractFillLights(cells: CellGrid, gridSize: number, theme: Them
       const queue = [[r0, c0]];
       visited.add(`${r0},${c0}`);
       while (queue.length > 0) {
-        const [r, c] = queue.shift()!;
+        const [r, c] = queue.shift()! as [number, number];
         region.push([r, c]);
-        for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
-          const nr = r + dr, nc = c + dc;
+        for (const [dr, dc] of [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
+        ] as const) {
+          const nr = r + dr,
+            nc = c + dc;
           const nk = `${nr},${nc}`;
           if (visited.has(nk)) continue;
           if (cells[nr]?.[nc]?.fill !== 'lava') continue;
@@ -1100,51 +1216,62 @@ export function extractFillLights(cells: CellGrid, gridSize: number, theme: Them
       placed.add(id);
       lights.push({
         id: parseInt(id.replace(/\D/g, '')) || 0,
-        x:         (c + 0.5) * gridSize,
-        y:         (r + 0.5) * gridSize,
-        type:      'point',
-        radius:    0,
+        x: (c + 0.5) * gridSize,
+        y: (r + 0.5) * gridSize,
+        type: 'point',
+        radius: 0,
         dimRadius: gridSize * 4,
         color,
         intensity,
-        falloff:   'smooth',
+        falloff: 'smooth',
       } as Light);
     };
 
     if (spacing === null) {
       // Tiny pool: one light at the cell closest to the centroid
-      const avgR = region.reduce((s, [r]) => s + r, 0) / area;
-      const avgC = region.reduce((s, [, c]) => s + c, 0) / area;
+      const avgR = region.reduce((s, [r]) => s + r!, 0) / area;
+      const avgC = region.reduce((s, [, c]) => s + c!, 0) / area;
       const [br, bc] = region.reduce((best, [r, c]) => {
-        const d  = (r - avgR) ** 2 + (c - avgC) ** 2;
-        const bd = (best[0] - avgR) ** 2 + (best[1] - avgC) ** 2;
-        return d < bd ? [r, c] : best;
-      }, region[0]);
+        const d = (r! - avgR) ** 2 + (c! - avgC) ** 2;
+        const bd = (best[0]! - avgR) ** 2 + (best[1]! - avgC) ** 2;
+        return d < bd ? [r!, c!] : best;
+      }, region[0]!) as [number, number];
       pushLight(br, bc);
     } else {
       // Larger pool: regular grid anchored to the bounding box.
       // Each grid point snaps to the nearest lava cell within spacing/2
       // so irregular shapes still get full coverage.
-      let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
-      for (const [r, c] of region) {
-        if (r < minR) minR = r;  if (r > maxR) maxR = r;
-        if (c < minC) minC = c;  if (c > maxC) maxC = c;
+      let minR = Infinity,
+        maxR = -Infinity,
+        minC = Infinity,
+        maxC = -Infinity;
+      for (const [r, c] of region as [number, number][]) {
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
       }
 
       // Centre the grid within the bounding box
       const rowOff = Math.floor(((maxR - minR) % spacing) / 2);
       const colOff = Math.floor(((maxC - minC) % spacing) / 2);
-      const snap   = Math.ceil(spacing / 2);
+      const snap = Math.ceil(spacing / 2);
 
       for (let gr = minR + rowOff; gr <= maxR; gr += spacing) {
         for (let gc = minC + colOff; gc <= maxC; gc += spacing) {
           // Find the nearest lava cell to this grid point
-          let bestR = -1, bestC = -1, bestD = Infinity;
+          let bestR = -1,
+            bestC = -1,
+            bestD = Infinity;
           for (let dr = -snap; dr <= snap; dr++) {
             for (let dc = -snap; dc <= snap; dc++) {
               if (!regionSet.has(`${gr + dr},${gc + dc}`)) continue;
               const d = dr * dr + dc * dc;
-              if (d < bestD) { bestD = d; bestR = gr + dr; bestC = gc + dc; }
+              if (d < bestD) {
+                bestD = d;
+                bestR = gr + dr;
+                bestC = gc + dc;
+              }
             }
           }
           if (bestR !== -1) pushLight(bestR, bestC);

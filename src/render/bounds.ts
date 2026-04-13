@@ -9,13 +9,13 @@ import { coordinateToFeet, getCoordinateBounds } from './validate.js';
  */
 function calculateBoundsFromCells(cells: CellGrid, gridSize: number): DungeonBounds {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   return {
     minX: 0,
     minY: 0,
     maxX: numCols * gridSize,
-    maxY: numRows * gridSize
+    maxY: numRows * gridSize,
   };
 }
 
@@ -43,8 +43,10 @@ interface LegacyConfig {
  * @returns {DungeonBounds} Bounding box in feet
  */
 function calculateBounds(config: LegacyConfig): DungeonBounds {
-  let minX = Infinity, minY = Infinity;
-  let maxX = -Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    minY = Infinity;
+  let maxX = -Infinity,
+    maxY = -Infinity;
 
   const gridSize = config.gridSize;
 
@@ -52,21 +54,19 @@ function calculateBounds(config: LegacyConfig): DungeonBounds {
     if (room.type === 'walls') {
       const coords: [number, number][] = [];
       for (const wallSegment of room.walls! as number[][][]) {
-        coords.push(...wallSegment as [number, number][]);
+        coords.push(...(wallSegment as [number, number][]));
       }
       const bounds = getCoordinateBounds(coords, gridSize);
       minX = Math.min(minX, bounds.minX);
       minY = Math.min(minY, bounds.minY);
       maxX = Math.max(maxX, bounds.maxX);
       maxY = Math.max(maxY, bounds.maxY);
-
     } else if (room.type === 'grid') {
       const bounds = getCoordinateBounds(room.coordinates!, gridSize);
       minX = Math.min(minX, bounds.minX);
       minY = Math.min(minY, bounds.minY);
       maxX = Math.max(maxX, bounds.maxX);
       maxY = Math.max(maxY, bounds.maxY);
-
     } else if (room.type === 'circular') {
       const center3 = room.center as [number, number, number];
       const [centerX, centerY] = coordinateToFeet(center3[0], center3[1], center3[2], gridSize);
@@ -75,10 +75,13 @@ function calculateBounds(config: LegacyConfig): DungeonBounds {
       minY = Math.min(minY, centerY - radius);
       maxX = Math.max(maxX, centerX + radius);
       maxY = Math.max(maxY, centerY + radius);
-
     } else if (room.type === 'custom') {
       const coords: [number, number][] = [];
-      for (const wall of room.walls! as { from: [number, number]; to: [number, number]; controlPoints?: [number, number][] }[]) {
+      for (const wall of room.walls! as {
+        from: [number, number];
+        to: [number, number];
+        controlPoints?: [number, number][];
+      }[]) {
         coords.push(wall.from);
         coords.push(wall.to);
         if (wall.controlPoints) {
@@ -90,14 +93,12 @@ function calculateBounds(config: LegacyConfig): DungeonBounds {
       minY = Math.min(minY, bounds.minY);
       maxX = Math.max(maxX, bounds.maxX);
       maxY = Math.max(maxY, bounds.maxY);
-
     } else if (room.type === 'rectangular') {
       const [x, y] = room.topLeft!;
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x + room.width!);
       maxY = Math.max(maxY, y + room.height!);
-
     } else if (room.type === 'cave') {
       const [cx, cy] = room.center!;
       const hw = room.width! / 2;

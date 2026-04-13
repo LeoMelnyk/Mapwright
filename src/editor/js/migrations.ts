@@ -2,7 +2,15 @@ import type { CellGrid } from '../../types.js';
 
 /** Loose dungeon JSON shape for migrations (fields may be absent in older formats). */
 interface MigrationJson {
-  metadata: Record<string, unknown> & { formatVersion?: number; gridSize?: number; props?: unknown[]; nextPropId?: number; levels?: unknown[]; bridges?: unknown[]; stairs?: unknown[] };
+  metadata: Record<string, unknown> & {
+    formatVersion?: number;
+    gridSize?: number;
+    props?: unknown[];
+    nextPropId?: number;
+    levels?: unknown[];
+    bridges?: unknown[];
+    stairs?: unknown[];
+  };
   cells: CellGrid;
   [key: string]: unknown;
 }
@@ -41,7 +49,7 @@ function migratePropsToOverlay(json: MigrationJson) {
 
   for (let row = 0; row < json.cells.length; row++) {
     const rowArr = json.cells[row];
-    if (!rowArr) continue; // eslint-disable-line @typescript-eslint/no-unnecessary-condition -- legacy data
+    if (!rowArr) continue;
     for (let col = 0; col < rowArr.length; col++) {
       const cell = rowArr[col];
       if (!cell?.prop) continue;
@@ -81,7 +89,7 @@ function migrateToHalfCell(json: MigrationJson) {
   if (!metadata || !cells || cells.length === 0) return;
 
   const oldRows = cells.length;
-  const oldCols = cells[0]?.length || 0;
+  const oldCols = cells[0]?.length ?? 0;
   const newRows = oldRows * 2;
   const newCols = oldCols * 2;
 
@@ -99,7 +107,8 @@ function migrateToHalfCell(json: MigrationJson) {
       const cell = cells[r]?.[c];
       if (!cell) continue;
 
-      const nr = r * 2, nc = c * 2;  // top-left sub-cell coords
+      const nr = r * 2,
+        nc = c * 2; // top-left sub-cell coords
 
       // Create the 4 sub-cells with replicated appearance properties
       const base = {};
@@ -119,13 +128,25 @@ function migrateToHalfCell(json: MigrationJson) {
 
       // ── Outer walls / doors ──
       // North edge of old cell → north edge of TL and TR
-      if (cell.north) { tl.north = cell.north; tr.north = cell.north; }
+      if (cell.north) {
+        tl.north = cell.north;
+        tr.north = cell.north;
+      }
       // South edge of old cell → south edge of BL and BR
-      if (cell.south) { bl.south = cell.south; br.south = cell.south; }
+      if (cell.south) {
+        bl.south = cell.south;
+        br.south = cell.south;
+      }
       // West edge of old cell → west edge of TL and BL
-      if (cell.west)  { tl.west = cell.west;  bl.west = cell.west; }
+      if (cell.west) {
+        tl.west = cell.west;
+        bl.west = cell.west;
+      }
       // East edge of old cell → east edge of TR and BR
-      if (cell.east)  { tr.east = cell.east;  br.east = cell.east; }
+      if (cell.east) {
+        tr.east = cell.east;
+        br.east = cell.east;
+      }
 
       // ── Diagonal walls + Trim ──
       if (cell.trimCorner && !cell.trimRound && !cell.trimInsideArc) {
@@ -136,14 +157,23 @@ function migrateToHalfCell(json: MigrationJson) {
         //   SW corner (nw-se): void=BL, diag=TL+BR, floor=TR
         //   SE corner (ne-sw): void=BR, diag=TR+BL, floor=TL
         const corner = cell.trimCorner;
-        const diagType = (corner === 'nw' || corner === 'se') ? 'ne-sw' : 'nw-se';
+        const diagType = corner === 'nw' || corner === 'se' ? 'ne-sw' : 'nw-se';
         const diagVal = cell[diagType] ?? 'w';
 
         // Mark the corner sub-cell for voiding (applied after cell assignment below)
-        if (corner === 'nw') { tl._void = true; _trimVoidCount++; }
-        else if (corner === 'ne') { tr._void = true; _trimVoidCount++; }
-        else if (corner === 'sw') { bl._void = true; _trimVoidCount++; }
-        else { br._void = true; _trimVoidCount++; }
+        if (corner === 'nw') {
+          tl._void = true;
+          _trimVoidCount++;
+        } else if (corner === 'ne') {
+          tr._void = true;
+          _trimVoidCount++;
+        } else if (corner === 'sw') {
+          bl._void = true;
+          _trimVoidCount++;
+        } else {
+          br._void = true;
+          _trimVoidCount++;
+        }
 
         // Set diagonal + trimCorner on the two diagonal sub-cells
         const diagCells = diagType === 'ne-sw' ? [tr, bl] : [tl, br];
@@ -156,16 +186,14 @@ function migrateToHalfCell(json: MigrationJson) {
         // Round trim: skip diagonal replication (arc wall rendered from metadata).
         // Set trim properties on the corner sub-cell.
         const target =
-          cell.trimCorner === 'nw' ? tl :
-          cell.trimCorner === 'ne' ? tr :
-          cell.trimCorner === 'sw' ? bl : br;
+          cell.trimCorner === 'nw' ? tl : cell.trimCorner === 'ne' ? tr : cell.trimCorner === 'sw' ? bl : br;
         target.trimCorner = cell.trimCorner;
         target.trimRound = true;
         if (cell.trimOpen) target.trimOpen = true;
         if (cell.trimArcInverted) target.trimArcInverted = true;
         if (cell.trimInsideArc) target.trimInsideArc = true;
         if (cell.trimArcCenterRow != null) {
-          target.trimArcCenterRow = (cell.trimArcCenterRow) * 2;
+          target.trimArcCenterRow = cell.trimArcCenterRow * 2;
           target.trimArcCenterCol = (cell.trimArcCenterCol as number) * 2;
           target.trimArcRadius = (cell.trimArcRadius as number) * 2;
         }
@@ -177,7 +205,7 @@ function migrateToHalfCell(json: MigrationJson) {
           sub.trimCorner = cell.trimCorner;
           if (cell.trimArcInverted) sub.trimArcInverted = true;
           if (cell.trimArcCenterRow != null) {
-            sub.trimArcCenterRow = (cell.trimArcCenterRow) * 2;
+            sub.trimArcCenterRow = cell.trimArcCenterRow * 2;
             sub.trimArcCenterCol = (cell.trimArcCenterCol as number) * 2;
             sub.trimArcRadius = (cell.trimArcRadius as number) * 2;
           }
@@ -185,7 +213,8 @@ function migrateToHalfCell(json: MigrationJson) {
       } else {
         // Non-trim diagonals: check if the cell is a trim hypotenuse (adjacent to void)
         // even without trimCorner — the old trim tool didn't always set trimCorner.
-        const isVoid = (vr: number, vc: number) => vr < 0 || vr >= oldRows || vc < 0 || vc >= oldCols || !cells[vr][vc];
+        const isVoid = (vr: number, vc: number) =>
+          vr < 0 || vr >= oldRows || vc < 0 || vc >= oldCols || !cells[vr]![vc];
         let inferredCorner = null;
         if (cell['ne-sw']) {
           if (isVoid(r - 1, c) && isVoid(r, c - 1)) inferredCorner = 'nw';
@@ -198,12 +227,21 @@ function migrateToHalfCell(json: MigrationJson) {
 
         if (inferredCorner) {
           // Treat as straight trim: void the corner sub-cell, set diagonal on the other two
-          const diagType = (inferredCorner === 'nw' || inferredCorner === 'se') ? 'ne-sw' : 'nw-se';
+          const diagType = inferredCorner === 'nw' || inferredCorner === 'se' ? 'ne-sw' : 'nw-se';
           const diagVal = cell[diagType] ?? 'w';
-          if (inferredCorner === 'nw') { tl._void = true; _trimVoidCount++; }
-          else if (inferredCorner === 'ne') { tr._void = true; _trimVoidCount++; }
-          else if (inferredCorner === 'sw') { bl._void = true; _trimVoidCount++; }
-          else { br._void = true; _trimVoidCount++; }
+          if (inferredCorner === 'nw') {
+            tl._void = true;
+            _trimVoidCount++;
+          } else if (inferredCorner === 'ne') {
+            tr._void = true;
+            _trimVoidCount++;
+          } else if (inferredCorner === 'sw') {
+            bl._void = true;
+            _trimVoidCount++;
+          } else {
+            br._void = true;
+            _trimVoidCount++;
+          }
           const diagCells = diagType === 'ne-sw' ? [tr, bl] : [tl, br];
           for (const dc of diagCells) {
             dc[diagType] = diagVal;
@@ -223,13 +261,33 @@ function migrateToHalfCell(json: MigrationJson) {
       }
       // Non-corner trim flags (trimRound/trimInsideArc without trimCorner)
       if (!cell.trimCorner) {
-        if (cell.trimRound) { tl.trimRound = true; tr.trimRound = true; bl.trimRound = true; br.trimRound = true; }
-        if (cell.trimOpen) { tl.trimOpen = true; tr.trimOpen = true; bl.trimOpen = true; br.trimOpen = true; }
-        if (cell.trimInsideArc) { tl.trimInsideArc = true; tr.trimInsideArc = true; bl.trimInsideArc = true; br.trimInsideArc = true; }
-        if (cell.trimArcInverted) { tl.trimArcInverted = true; tr.trimArcInverted = true; bl.trimArcInverted = true; br.trimArcInverted = true; }
+        if (cell.trimRound) {
+          tl.trimRound = true;
+          tr.trimRound = true;
+          bl.trimRound = true;
+          br.trimRound = true;
+        }
+        if (cell.trimOpen) {
+          tl.trimOpen = true;
+          tr.trimOpen = true;
+          bl.trimOpen = true;
+          br.trimOpen = true;
+        }
+        if (cell.trimInsideArc) {
+          tl.trimInsideArc = true;
+          tr.trimInsideArc = true;
+          bl.trimInsideArc = true;
+          br.trimInsideArc = true;
+        }
+        if (cell.trimArcInverted) {
+          tl.trimArcInverted = true;
+          tr.trimArcInverted = true;
+          bl.trimArcInverted = true;
+          br.trimArcInverted = true;
+        }
         if (cell.trimArcCenterRow != null) {
           for (const sub of [tl, tr, bl, br]) {
-            sub.trimArcCenterRow = (cell.trimArcCenterRow) * 2;
+            sub.trimArcCenterRow = cell.trimArcCenterRow * 2;
             sub.trimArcCenterCol = (cell.trimArcCenterCol as number) * 2;
             sub.trimArcRadius = (cell.trimArcRadius as number) * 2;
           }
@@ -242,16 +300,20 @@ function migrateToHalfCell(json: MigrationJson) {
         tl.center = JSON.parse(JSON.stringify(cell.center));
       }
       // Legacy properties moved to cell.center.label in later formats
-      if ((cell as Record<string, unknown>).label) { tl.label = (cell as Record<string, unknown>).label; }
-      if ((cell as Record<string, unknown>).dmLabel) { tl.dmLabel = (cell as Record<string, unknown>).dmLabel; }
+      if ((cell as Record<string, unknown>).label) {
+        tl.label = (cell as Record<string, unknown>).label;
+      }
+      if ((cell as Record<string, unknown>).dmLabel) {
+        tl.dmLabel = (cell as Record<string, unknown>).dmLabel;
+      }
 
       // Internal edges between sub-cells: leave empty (no walls)
       // This is the default — we just don't set north/south/east/west between them.
 
-      newCells[nr][nc] = tl._void ? null : tl;
-      newCells[nr][nc + 1] = tr._void ? null : tr;
-      newCells[nr + 1][nc] = bl._void ? null : bl;
-      newCells[nr + 1][nc + 1] = br._void ? null : br;
+      newCells[nr]![nc] = tl._void ? null : tl;
+      newCells[nr]![nc + 1] = tr._void ? null : tr;
+      newCells[nr + 1]![nc] = bl._void ? null : bl;
+      newCells[nr + 1]![nc + 1] = br._void ? null : br;
     }
   }
 
@@ -292,8 +354,8 @@ function migrateToHalfCell(json: MigrationJson) {
   // Levels: double startRow and numRows
   if (metadata.levels) {
     for (const level of metadata.levels as Record<string, number>[]) {
-      level.startRow = (level.startRow || 0) * 2;
-      level.numRows = (level.numRows || 0) * 2;
+      level.startRow = (level.startRow ?? 0) * 2;
+      level.numRows = (level.numRows ?? 0) * 2;
     }
   }
 
@@ -342,38 +404,50 @@ function _centerMidwallDoors(cells: CellGrid, numRows: number, numCols: number) 
 
   for (let r = 0; r < numRows; r += 2) {
     for (let c = 0; c < numCols; c += 2) {
-      const tl = cells[r]?.[c], tr = cells[r]?.[c + 1];
-      const bl = cells[r + 1]?.[c], br = cells[r + 1]?.[c + 1];
+      const tl = cells[r]?.[c],
+        tr = cells[r]?.[c + 1];
+      const bl = cells[r + 1]?.[c],
+        br = cells[r + 1]?.[c + 1];
       if (!tl || !tr || !bl || !br) continue;
 
       // N-S passageway: doors on north and south outer edges
       if (isDoor(tl.north) && isDoor(bl.south)) {
-        const doorN = tl.north, doorS = bl.south;
+        const doorN = tl.north,
+          doorS = bl.south;
         // Remove from outer edges + reciprocals on neighbors
-        delete tl.north; delete tr.north;
-        delete bl.south; delete br.south;
-        if (cells[r - 1]?.[c]) delete cells[r - 1][c]!.south;
-        if (cells[r - 1]?.[c + 1]) delete cells[r - 1][c + 1]!.south;
-        if (cells[r + 2]?.[c]) delete cells[r + 2][c]!.north;
-        if (cells[r + 2]?.[c + 1]) delete cells[r + 2][c + 1]!.north;
+        delete tl.north;
+        delete tr.north;
+        delete bl.south;
+        delete br.south;
+        if (cells[r - 1]?.[c]) delete cells[r - 1]![c]!.south;
+        if (cells[r - 1]?.[c + 1]) delete cells[r - 1]![c + 1]!.south;
+        if (cells[r + 2]?.[c]) delete cells[r + 2]![c]!.north;
+        if (cells[r + 2]?.[c + 1]) delete cells[r + 2]![c + 1]!.north;
         // Place at internal boundary (center of original cell)
-        tl.south = doorN; tr.south = doorN;
-        bl.north = doorS; br.north = doorS;
+        tl.south = doorN;
+        tr.south = doorN;
+        bl.north = doorS;
+        br.north = doorS;
       }
 
       // E-W passageway: doors on west and east outer edges
       if (isDoor(tl.west) && isDoor(tr.east)) {
-        const doorW = tl.west, doorE = tr.east;
+        const doorW = tl.west,
+          doorE = tr.east;
         // Remove from outer edges + reciprocals on neighbors
-        delete tl.west; delete bl.west;
-        delete tr.east; delete br.east;
-        if (cells[r]?.[c - 1]) delete cells[r][c - 1]!.east;
-        if (cells[r + 1]?.[c - 1]) delete cells[r + 1][c - 1]!.east;
-        if (cells[r]?.[c + 2]) delete cells[r][c + 2]!.west;
-        if (cells[r + 1]?.[c + 2]) delete cells[r + 1][c + 2]!.west;
+        delete tl.west;
+        delete bl.west;
+        delete tr.east;
+        delete br.east;
+        if (cells[r]?.[c - 1]) delete cells[r]![c - 1]!.east;
+        if (cells[r + 1]?.[c - 1]) delete cells[r + 1]![c - 1]!.east;
+        if (cells[r]?.[c + 2]) delete cells[r]![c + 2]!.west;
+        if (cells[r + 1]?.[c + 2]) delete cells[r + 1]![c + 2]!.west;
         // Place at internal boundary
-        tl.east = doorW; bl.east = doorW;
-        tr.west = doorE; br.west = doorE;
+        tl.east = doorW;
+        bl.east = doorW;
+        tr.west = doorE;
+        br.west = doorE;
       }
     }
   }
@@ -381,7 +455,7 @@ function _centerMidwallDoors(cells: CellGrid, numRows: number, numCols: number) 
 
 function _fixArcTrims(cells: CellGrid) {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // Step 1: Remove diagonal walls from trimRound cells.
   // The arc wall is rendered as a smooth canvas arc from the arc metadata —
@@ -428,22 +502,55 @@ function _fixArcTrims(cells: CellGrid) {
     // Bounding box of the arc region (with margin)
     let r1, c1, r2, c2;
     switch (corner) {
-      case 'nw': r1 = cr; c1 = cc; r2 = cr + R + 1; c2 = cc + R + 1; break;
-      case 'ne': r1 = cr; c1 = cc - R - 1; r2 = cr + R + 1; c2 = cc; break;
-      case 'sw': r1 = cr - R - 1; c1 = cc; r2 = cr; c2 = cc + R + 1; break;
-      case 'se': r1 = cr - R - 1; c1 = cc - R - 1; r2 = cr; c2 = cc; break;
+      case 'nw':
+        r1 = cr;
+        c1 = cc;
+        r2 = cr + R + 1;
+        c2 = cc + R + 1;
+        break;
+      case 'ne':
+        r1 = cr;
+        c1 = cc - R - 1;
+        r2 = cr + R + 1;
+        c2 = cc;
+        break;
+      case 'sw':
+        r1 = cr - R - 1;
+        c1 = cc;
+        r2 = cr;
+        c2 = cc + R + 1;
+        break;
+      case 'se':
+        r1 = cr - R - 1;
+        c1 = cc - R - 1;
+        r2 = cr;
+        c2 = cc;
+        break;
     }
 
     // Arc circle center: for non-inverted arcs the circle center is offset
     // from the stored corner point by ±R (matching traceArcWedge in render.js).
     // Inverted arcs are centered at the corner point itself.
-    let acr = cr, acc = cc;
+    let acr = cr,
+      acc = cc;
     if (!inverted) {
       switch (corner) {
-        case 'nw': acr = cr + R; acc = cc + R; break;
-        case 'ne': acr = cr + R; acc = cc - R; break;
-        case 'sw': acr = cr - R; acc = cc + R; break;
-        case 'se': acr = cr - R; acc = cc - R; break;
+        case 'nw':
+          acr = cr + R;
+          acc = cc + R;
+          break;
+        case 'ne':
+          acr = cr + R;
+          acc = cc - R;
+          break;
+        case 'sw':
+          acr = cr - R;
+          acc = cc + R;
+          break;
+        case 'se':
+          acr = cr - R;
+          acc = cc - R;
+          break;
       }
     }
 
@@ -463,11 +570,11 @@ function _fixArcTrims(cells: CellGrid) {
         // adjacent corridor/room cells that happen to be near the arc boundary.
         if (!inverted) {
           if (dist < R - 0.9 && cell === null) {
-            cells[r][c] = {};
+            cells[r]![c] = {};
           }
         } else {
           if (dist > R + 0.9 && cell === null) {
-            cells[r][c] = {};
+            cells[r]![c] = {};
           }
         }
       }
@@ -499,8 +606,13 @@ function _repairArcFloodBoundary(cells: CellGrid) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
-  const DIRS = [{ dr: -1, dc: 0 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: 0, dc: 1 }];
+  const numCols = cells[0]?.length ?? 0;
+  const DIRS = [
+    { dr: -1, dc: 0 },
+    { dr: 1, dc: 0 },
+    { dr: 0, dc: -1 },
+    { dr: 0, dc: 1 },
+  ];
 
   // Collect all trimRound cells with arc metadata
   const trimRoundCells = [];
@@ -524,25 +636,44 @@ function _repairArcFloodBoundary(cells: CellGrid) {
 
     if (!inverted) {
       switch (corner) {
-        case 'nw': acr += R; acc += R; break;
-        case 'ne': acr += R; acc -= R; break;
-        case 'sw': acr -= R; acc += R; break;
-        case 'se': acr -= R; acc -= R; break;
+        case 'nw':
+          acr += R;
+          acc += R;
+          break;
+        case 'ne':
+          acr += R;
+          acc -= R;
+          break;
+        case 'sw':
+          acr -= R;
+          acc += R;
+          break;
+        case 'se':
+          acr -= R;
+          acc -= R;
+          break;
       }
     }
 
     for (const { dr, dc } of DIRS) {
-      const nr = r + dr, nc = c + dc;
+      const nr = r + dr,
+        nc = c + dc;
       if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
       const neighbor = cells[nr]?.[nc];
       // Legacy property removed in format v4+
-      if (!neighbor || neighbor.trimRound || neighbor.trimInsideArc || (neighbor as Record<string, unknown>).fogBoundary) continue;
+      if (
+        !neighbor ||
+        neighbor.trimRound ||
+        neighbor.trimInsideArc ||
+        (neighbor as Record<string, unknown>).fogBoundary
+      )
+        continue;
 
       // Check if this neighbor is inside the arc (room side)
       const drr = nr + 0.5 - acr;
       const dcc = nc + 0.5 - acc;
       const dist = Math.sqrt(drr * drr + dcc * dcc);
-      const isInside = inverted ? (dist > R) : (dist < R);
+      const isInside = inverted ? dist > R : dist < R;
 
       if (isInside) {
         // Legacy property removed in format v4+
@@ -558,10 +689,14 @@ function _repairArcFloodBoundary(cells: CellGrid) {
 /** Check if a point is in the corner's quadrant relative to arc center. */
 function _inCornerQuad(x: number, y: number, cx: number, cy: number, corner: string) {
   switch (corner) {
-    case 'nw': return x <= cx && y <= cy;
-    case 'ne': return x >= cx && y <= cy;
-    case 'sw': return x <= cx && y >= cy;
-    case 'se': return x >= cx && y >= cy;
+    case 'nw':
+      return x <= cx && y <= cy;
+    case 'ne':
+      return x >= cx && y <= cy;
+    case 'sw':
+      return x <= cx && y >= cy;
+    case 'se':
+      return x >= cx && y >= cy;
   }
 }
 
@@ -572,10 +707,14 @@ function _inCornerQuad(x: number, y: number, cx: number, cy: number, corner: str
  */
 function _inTrimZone(r: number, c: number, cornerRow: number, cornerCol: number, corner: string) {
   switch (corner) {
-    case 'nw': return r >= cornerRow && c >= cornerCol;
-    case 'ne': return r >= cornerRow && c < cornerCol;
-    case 'sw': return r < cornerRow && c >= cornerCol;
-    case 'se': return r < cornerRow && c < cornerCol;
+    case 'nw':
+      return r >= cornerRow && c >= cornerCol;
+    case 'ne':
+      return r >= cornerRow && c < cornerCol;
+    case 'sw':
+      return r < cornerRow && c >= cornerCol;
+    case 'se':
+      return r < cornerRow && c < cornerCol;
   }
 }
 
@@ -588,7 +727,7 @@ function _migrateArcToPerCell(cells: CellGrid) {
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime data may be missing
   if (!cells || cells.length === 0) return;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // 1. Collect all unique arcs by scanning trimRound cells
   const arcs = new Map(); // key -> { centerRow, centerCol, radius, corner, inverted, open }
@@ -624,9 +763,10 @@ function _migrateArcToPerCell(cells: CellGrid) {
         const cell = cells[r]?.[c];
         if (!cell) continue;
 
-        const isThisArc = cell.trimArcCenterRow === arc.centerRow &&
-                          cell.trimArcCenterCol === arc.centerCol &&
-                          cell.trimCorner === arc.corner;
+        const isThisArc =
+          cell.trimArcCenterRow === arc.centerRow &&
+          cell.trimArcCenterCol === arc.centerCol &&
+          cell.trimCorner === arc.corner;
         // Legacy property removed in format v4+
         if (!isThisArc && !(cell as Record<string, unknown>).fogBoundary) continue;
 
@@ -747,11 +887,14 @@ function _migrateArcToPerCell(cells: CellGrid) {
 function _repairMissingCrossing(cells: CellGrid) {
   let repaired = 0;
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell?.trimWall || cell.trimCrossing) continue;
       if (cell.trimClip) {
-        cell.trimCrossing = computeTrimCrossing(cell.trimClip, cell.trimWall as number[][]) as unknown as Record<string, string>;
+        cell.trimCrossing = computeTrimCrossing(cell.trimClip, cell.trimWall as number[][]) as unknown as Record<
+          string,
+          string
+        >;
         repaired++;
       }
     }
@@ -774,7 +917,7 @@ export function migrateToLatest(json: MigrationJson): Record<string, unknown> {
   if (version > CURRENT_FORMAT_VERSION) {
     console.warn(
       `[migrations] File format version ${version} is newer than supported version ${CURRENT_FORMAT_VERSION}. ` +
-      `Some features may not work correctly. Consider updating mapwright.`
+        `Some features may not work correctly. Consider updating mapwright.`,
     );
     return json;
   }
@@ -793,9 +936,12 @@ export function migrateToLatest(json: MigrationJson): Record<string, unknown> {
   let hasOldFormat = false;
   let hasMissingCrossing = false;
   outer: for (let r = 0; r < json.cells.length; r++) {
-    for (let c = 0; c < (json.cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (json.cells[r]?.length ?? 0); c++) {
       const cell = json.cells[r]?.[c];
-      if (cell?.trimRound) { hasOldFormat = true; break outer; }
+      if (cell?.trimRound) {
+        hasOldFormat = true;
+        break outer;
+      }
       if (cell?.trimWall && !cell.trimCrossing) hasMissingCrossing = true;
     }
   }

@@ -57,13 +57,18 @@ export function toDisplayCoord(internalCoord: number, resolution: number): numbe
 }
 
 export const CARDINAL_DIRS: ReadonlyArray<{ dir: CardinalDirection; dr: number; dc: number }> = [
-  { dir: 'north', dr: -1, dc:  0 },
-  { dir: 'south', dr:  1, dc:  0 },
-  { dir: 'east',  dr:  0, dc:  1 },
-  { dir: 'west',  dr:  0, dc: -1 },
+  { dir: 'north', dr: -1, dc: 0 },
+  { dir: 'south', dr: 1, dc: 0 },
+  { dir: 'east', dr: 0, dc: 1 },
+  { dir: 'west', dr: 0, dc: -1 },
 ];
 
-export const OPPOSITE: Record<CardinalDirection, CardinalDirection> = { north: 'south', south: 'north', east: 'west', west: 'east' };
+export const OPPOSITE: Record<CardinalDirection, CardinalDirection> = {
+  north: 'south',
+  south: 'north',
+  east: 'west',
+  west: 'east',
+};
 
 /**
  * Create a "row,col" string key for Set/Map lookups.
@@ -71,14 +76,19 @@ export const OPPOSITE: Record<CardinalDirection, CardinalDirection> = { north: '
  * @param c - Column index
  * @returns Cell key string
  */
-export function cellKey(r: number, c: number): string { return `${r},${c}`; }
+export function cellKey(r: number, c: number): string {
+  return `${r},${c}`;
+}
 
 /**
  * Parse a "row,col" string key back into [row, col] integers.
  * @param key - Cell key string
  * @returns [row, col]
  */
-export function parseCellKey(key: string): number[] { return key.split(',').map(Number); }
+export function parseCellKey(key: string): [number, number] {
+  const parts = key.split(',');
+  return [Number(parts[0]), Number(parts[1])];
+}
 
 /**
  * Check if (row, col) is within the grid bounds.
@@ -88,7 +98,7 @@ export function parseCellKey(key: string): number[] { return key.split(',').map(
  * @returns True if in bounds
  */
 export function isInBounds(cells: CellGrid, r: number, c: number): boolean {
-  return r >= 0 && r < cells.length && c >= 0 && c < (cells[0]?.length || 0);
+  return r >= 0 && r < cells.length && c >= 0 && c < (cells[0]?.length ?? 0);
 }
 
 /**
@@ -100,13 +110,19 @@ export function isInBounds(cells: CellGrid, r: number, c: number): boolean {
  * @param cells - 2D cells grid (for bounds clamping)
  * @returns Clamped square endpoint
  */
-export function snapToSquare(row: number, col: number, startRow: number, startCol: number, cells: CellGrid): { row: number; col: number } {
+export function snapToSquare(
+  row: number,
+  col: number,
+  startRow: number,
+  startCol: number,
+  cells: CellGrid,
+): { row: number; col: number } {
   const dr = row - startRow;
   const dc = col - startCol;
   const size = Math.max(Math.abs(dr), Math.abs(dc));
   return {
     row: Math.max(0, Math.min(cells.length - 1, startRow + (dr >= 0 ? size : -size))),
-    col: Math.max(0, Math.min((cells[0]?.length || 1) - 1, startCol + (dc >= 0 ? size : -size))),
+    col: Math.max(0, Math.min((cells[0]?.length ?? 1) - 1, startCol + (dc >= 0 ? size : -size))),
   };
 }
 
@@ -117,10 +133,17 @@ export function snapToSquare(row: number, col: number, startRow: number, startCo
  * @param r2 - Second corner row
  * @param c2 - Second corner column
  */
-export function normalizeBounds(r1: number, c1: number, r2: number, c2: number): { r1: number; c1: number; r2: number; c2: number } {
+export function normalizeBounds(
+  r1: number,
+  c1: number,
+  r2: number,
+  c2: number,
+): { r1: number; c1: number; r2: number; c2: number } {
   return {
-    r1: Math.min(r1, r2), c1: Math.min(c1, c2),
-    r2: Math.max(r1, r2), c2: Math.max(c1, c2),
+    r1: Math.min(r1, r2),
+    c1: Math.min(c1, c2),
+    r2: Math.max(r1, r2),
+    c2: Math.max(c1, c2),
   };
 }
 
@@ -143,7 +166,8 @@ export function isEdgeOpen(cell: Cell | null, neighbor: Cell | null, dir: Cardin
  * @returns True if passable
  */
 export function isEdgePassable(cell: Cell | null, neighbor: Cell | null, dir: CardinalDirection): boolean {
-  const a = cell?.[dir], b = neighbor?.[OPPOSITE[dir]];
+  const a = cell?.[dir],
+    b = neighbor?.[OPPOSITE[dir]];
   return a !== 'w' && a !== 'iw' && b !== 'w' && b !== 'iw';
 }
 
@@ -153,9 +177,14 @@ export function isEdgePassable(cell: Cell | null, neighbor: Cell | null, dir: Ca
  * Given a Set of "row,col" cell keys, compute the bounding box and center.
  * @param cellKeySet - Set of cell key strings
  */
-export function roomBoundsFromKeys(cellKeySet: Set<string> | null | undefined): { r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number } | null {
+export function roomBoundsFromKeys(
+  cellKeySet: Set<string> | null | undefined,
+): { r1: number; c1: number; r2: number; c2: number; centerRow: number; centerCol: number } | null {
   if (!cellKeySet || cellKeySet.size === 0) return null;
-  let r1 = Infinity, c1 = Infinity, r2 = -Infinity, c2 = -Infinity;
+  let r1 = Infinity,
+    c1 = Infinity,
+    r2 = -Infinity,
+    c2 = -Infinity;
   for (const key of cellKeySet) {
     const [r, c] = parseCellKey(key);
     if (r < r1) r1 = r;
@@ -177,9 +206,9 @@ export function roomBoundsFromKeys(cellKeySet: Set<string> | null | undefined): 
  */
 export const CARDINAL_OFFSETS: Readonly<Record<'north' | 'south' | 'east' | 'west', readonly [number, number]>> = {
   north: [-1, 0],
-  south: [1,  0],
-  east:  [0,  1],
-  west:  [0, -1],
+  south: [1, 0],
+  east: [0, 1],
+  west: [0, -1],
 } as const;
 
 const DIR_OFFSET = CARDINAL_OFFSETS as unknown as Record<string, [number, number]>;
@@ -192,14 +221,21 @@ const DIR_OFFSET = CARDINAL_OFFSETS as unknown as Record<string, [number, number
  * @param direction - Edge direction
  * @param value - Edge value ('w', 'd', 's', 'iw', etc.)
  */
-export function setEdgeReciprocal(cells: CellGrid, row: number, col: number, direction: string, value: EdgeValue): void {
-  (cells[row][col] as Record<string, unknown>)[direction] = value;
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+export function setEdgeReciprocal(
+  cells: CellGrid,
+  row: number,
+  col: number,
+  direction: string,
+  value: EdgeValue,
+): void {
+  (cells[row]![col] as Record<string, unknown>)[direction] = value;
+
   if (!DIR_OFFSET[direction]) return; // diagonal — no reciprocal
   const [dr, dc] = DIR_OFFSET[direction];
-  const nr = row + dr, nc = col + dc;
-  if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
-    (cells[nr][nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]] = value;
+  const nr = row + dr,
+    nc = col + dc;
+  if (isInBounds(cells, nr, nc) && cells[nr]![nc]) {
+    (cells[nr]![nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]] = value;
   }
 }
 
@@ -211,13 +247,14 @@ export function setEdgeReciprocal(cells: CellGrid, row: number, col: number, dir
  * @param direction - Edge direction
  */
 export function deleteEdgeReciprocal(cells: CellGrid, row: number, col: number, direction: string): void {
-  delete (cells[row][col] as Record<string, unknown>)[direction];
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+  delete (cells[row]![col] as Record<string, unknown>)[direction];
+
   if (!DIR_OFFSET[direction]) return; // diagonal — no reciprocal
   const [dr, dc] = DIR_OFFSET[direction];
-  const nr = row + dr, nc = col + dc;
-  if (isInBounds(cells, nr, nc) && cells[nr][nc]) {
-    delete (cells[nr][nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]];
+  const nr = row + dr,
+    nc = col + dc;
+  if (isInBounds(cells, nr, nc) && cells[nr]![nc]) {
+    delete (cells[nr]![nc] as Record<string, unknown>)[OPPOSITE[direction as CardinalDirection]];
   }
 }
 
@@ -235,16 +272,20 @@ export function blockedByDiagonal(cell: Cell, entryDir: CardinalDirection | null
 
   if (cell['nw-se']) {
     if (entryDir === 'north' || entryDir === 'east') {
-      blocked.add('south'); blocked.add('west');
+      blocked.add('south');
+      blocked.add('west');
     } else {
-      blocked.add('north'); blocked.add('east');
+      blocked.add('north');
+      blocked.add('east');
     }
   }
   if (cell['ne-sw']) {
     if (entryDir === 'south' || entryDir === 'east') {
-      blocked.add('north'); blocked.add('west');
+      blocked.add('north');
+      blocked.add('west');
     } else {
-      blocked.add('south'); blocked.add('east');
+      blocked.add('south');
+      blocked.add('east');
     }
   }
   return blocked;
@@ -258,16 +299,20 @@ export function blockedByDiagonal(cell: Cell, entryDir: CardinalDirection | null
  * @param entryDir - Direction the cell was entered from
  * @param cell - Cell object
  */
-export function lockDiagonalHalf(visited: Set<string>, r: number, c: number, entryDir: string | null, cell: Cell): void {
+export function lockDiagonalHalf(
+  visited: Set<string>,
+  r: number,
+  c: number,
+  entryDir: string | null,
+  cell: Cell,
+): void {
   if (!entryDir) return;
   if (cell['nw-se']) {
-    const others = (entryDir === 'north' || entryDir === 'east')
-      ? ['south', 'west'] : ['north', 'east'];
-    others.forEach(e => visited.add(`${r},${c},${e}`));
+    const others = entryDir === 'north' || entryDir === 'east' ? ['south', 'west'] : ['north', 'east'];
+    others.forEach((e) => visited.add(`${r},${c},${e}`));
   } else if (cell['ne-sw']) {
-    const others = (entryDir === 'north' || entryDir === 'west')
-      ? ['south', 'east'] : ['north', 'west'];
-    others.forEach(e => visited.add(`${r},${c},${e}`));
+    const others = entryDir === 'north' || entryDir === 'west' ? ['south', 'east'] : ['north', 'west'];
+    others.forEach((e) => visited.add(`${r},${c},${e}`));
   }
 }
 
@@ -280,18 +325,18 @@ export function lockDiagonalHalf(visited: Set<string>, r: number, c: number, ent
  * @param startCol
  * @param options
  */
-export function floodFillRoom(cells: CellGrid, startRow: number, startCol: number, options: {
-  traverseDoors?: boolean;
-  startEntryDir?: string | null;
-  rowMin?: number;
-  rowMax?: number;
-} = {}): Set<string> {
-  const {
-    traverseDoors = false,
-    startEntryDir = null,
-    rowMin = 0,
-    rowMax = cells.length - 1,
-  } = options;
+export function floodFillRoom(
+  cells: CellGrid,
+  startRow: number,
+  startCol: number,
+  options: {
+    traverseDoors?: boolean;
+    startEntryDir?: string | null;
+    rowMin?: number;
+    rowMax?: number;
+  } = {},
+): Set<string> {
+  const { traverseDoors = false, startEntryDir = null, rowMin = 0, rowMax = cells.length - 1 } = options;
 
   const filledCells = new Set<string>();
   const startCell = cells[startRow]?.[startCol];
@@ -321,13 +366,14 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
     for (const { dir, dr, dc } of CARDINAL_DIRS) {
       // Check exit edge on current cell
       const edge = cell[dir];
-      if (edge === 'w' || edge === 'iw') continue;   // wall and invisible wall always block
-      if (edge && !traverseDoors) continue;           // doors (including 'id') block unless traverseDoors
-      if (diagonalBlocked.has(dir)) continue;         // diagonal wall blocks this exit
-      if (arcExits !== null && !arcExits.includes(dir[0])) continue; // arc wall blocks this exit
+      if (edge === 'w' || edge === 'iw') continue; // wall and invisible wall always block
+      if (edge && !traverseDoors) continue; // doors (including 'id') block unless traverseDoors
+      if (diagonalBlocked.has(dir)) continue; // diagonal wall blocks this exit
+      if (arcExits !== null && !arcExits.includes(dir[0]!)) continue; // arc wall blocks this exit
 
-      const nr = r + dr, nc = c + dc;
-      if (nr < rowMin || nr > rowMax) continue;       // row-range constraint
+      const nr = r + dr,
+        nc = c + dc;
+      if (nr < rowMin || nr > rowMax) continue; // row-range constraint
       const neighborEntryDir: CardinalDirection = OPPOSITE[dir];
       const tKey = `${nr},${nc},${neighborEntryDir}`;
       if (visitedTraversal.has(tKey)) continue;
@@ -339,17 +385,17 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
 
       // Check entry edge on neighbor cell
       const nEdge = neighbor[neighborEntryDir];
-      if (nEdge === 'w' || nEdge === 'iw') continue;  // wall and invisible wall always block
-      if (nEdge && !traverseDoors) continue;           // doors (including 'id') block unless traverseDoors
+      if (nEdge === 'w' || nEdge === 'iw') continue; // wall and invisible wall always block
+      if (nEdge && !traverseDoors) continue; // doors (including 'id') block unless traverseDoors
 
       // Lock arc cell to the side it's first reached from (like lockDiagonalHalf).
       // Uses crossing matrix: lock entry directions whose reachable set differs.
       if (neighbor.trimCrossing) {
         const tc = neighbor.trimCrossing;
-        const myExits: string = (tc as Record<string, string>)[neighborEntryDir[0]] ?? '';
+        const myExits: string = (tc as Record<string, string>)[neighborEntryDir[0]!] ?? '';
         for (const ld of ['north', 'south', 'east', 'west']) {
           if (ld === neighborEntryDir) continue;
-          const otherExits: string = (tc as Record<string, string>)[ld[0]] ?? '';
+          const otherExits: string = (tc as Record<string, string>)[ld[0]!] ?? '';
           if (otherExits !== myExits) visitedTraversal.add(`${nr},${nc},${ld}`);
         }
       }
@@ -376,7 +422,7 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
     // Seed: non-arc filled cells adjacent to arc cells.
     // Skip cells sandwiched between arc cells (gap between circles).
     for (const k of filledCells) {
-      const [fr, fc] = k.split(',').map(Number);
+      const [fr, fc] = k.split(',').map(Number) as [number, number];
       const fCell = cells[fr]?.[fc];
       if (fCell?.trimWall) continue;
       const hasArcN = !!cells[fr - 1]?.[fc]?.trimWall;
@@ -385,7 +431,8 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
       const hasArcW = !!cells[fr]?.[fc - 1]?.trimWall;
       if ((hasArcN && hasArcS) || (hasArcE && hasArcW)) continue;
       for (const { dr, dc } of CARDINAL_DIRS) {
-        const nr = fr + dr, nc = fc + dc;
+        const nr = fr + dr,
+          nc = fc + dc;
         if (!cells[nr]?.[nc]?.trimWall) continue;
         const nKey = cellKey(nr, nc);
         if (arcVisited.has(nKey)) continue;
@@ -399,7 +446,8 @@ export function floodFillRoom(cells: CellGrid, startRow: number, startCol: numbe
     while (arcQueue.length > 0) {
       const [ar, ac] = arcQueue.shift()!;
       for (const { dr, dc } of CARDINAL_DIRS) {
-        const nr = ar + dr, nc = ac + dc;
+        const nr = ar + dr,
+          nc = ac + dc;
         if (!cells[nr]?.[nc]?.trimWall) continue;
         const nKey = cellKey(nr, nc);
         if (arcVisited.has(nKey)) continue;

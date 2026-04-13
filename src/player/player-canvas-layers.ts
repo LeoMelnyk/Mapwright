@@ -38,7 +38,7 @@ export function buildShadingLayer(fullCells: CellGrid, gridSize: number, theme: 
 
   const cacheTransform: RenderTransform = { scale: getMapPxPerFoot(), offsetX: 0, offsetY: 0 };
   const numRows = fullCells.length;
-  const numCols = fullCells[0]?.length || 0;
+  const numCols = fullCells[0]?.length ?? 0;
   const allRoom: boolean[][] = Array.from({ length: numRows }, () => Array(numCols).fill(true));
   drawOuterShading(sCtx, fullCells, allRoom, gridSize, theme, cacheTransform);
 
@@ -74,7 +74,7 @@ export function buildHatchingLayer(fullCells: CellGrid, gridSize: number, theme:
   // Transparent background — the shading layer below provides the backdrop
   const cacheTransform: RenderTransform = { scale: getMapPxPerFoot(), offsetX: 0, offsetY: 0 };
   const numRows = fullCells.length;
-  const numCols = fullCells[0]?.length || 0;
+  const numCols = fullCells[0]?.length ?? 0;
   const allRoom: boolean[][] = Array.from({ length: numRows }, () => Array(numCols).fill(true));
   drawHatching(hCtx, fullCells, allRoom, gridSize, theme, cacheTransform);
   drawRockShading(hCtx, fullCells, allRoom, gridSize, theme, cacheTransform);
@@ -149,9 +149,9 @@ function _wallsOpenedSet(): Set<string> {
   S._wallsOpenedCache = new Set();
   for (const d of playerState.openedDoors) {
     S._wallsOpenedCache.add(`${d.row},${d.col},${d.dir}`);
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
     if (_OFFSETS[d.dir]) {
-      const [dr, dc] = _OFFSETS[d.dir];
+      const [dr, dc] = _OFFSETS[d.dir]!;
       S._wallsOpenedCache.add(`${d.row + dr},${d.col + dc},${_OPPOSITE[d.dir]}`);
     }
   }
@@ -184,7 +184,7 @@ export function initWallsLayer(): void {
   if (!dungeon) return;
   const { cells, metadata } = dungeon;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // Create canvas + empty filtered cells grid
   const offscreen = document.createElement('canvas');
@@ -196,9 +196,9 @@ export function initWallsLayer(): void {
   // Populate with currently revealed cells and do an initial render
   if (playerState.revealedCells.size > 0) {
     for (const key of playerState.revealedCells) {
-      const [r, c] = key.split(',').map(Number);
+      const [r, c] = key.split(',').map(Number) as [number, number];
       if (r >= 0 && r < numRows && c >= 0 && c < numCols) {
-        S._wallsCells[r][c] = _wallsCellForPlayer(cells[r][c], r, c);
+        S._wallsCells[r]![c] = _wallsCellForPlayer(cells[r]?.[c] ?? null, r, c);
       }
     }
     const theme = resolveTheme();
@@ -219,7 +219,7 @@ export function revealWallsCells(cellKeys: string[]): void {
   const { cells, metadata } = playerState.dungeon;
   const gridSize = metadata.gridSize;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const theme = resolveTheme();
   if (!theme) return;
 
@@ -229,9 +229,9 @@ export function revealWallsCells(cellKeys: string[]): void {
     minC = Infinity,
     maxC = -Infinity;
   for (const key of cellKeys) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     if (r >= 0 && r < numRows && c >= 0 && c < numCols) {
-      S._wallsCells[r][c] = _wallsCellForPlayer(cells[r][c], r, c);
+      S._wallsCells[r]![c] = _wallsCellForPlayer(cells[r]?.[c] ?? null, r, c);
       if (r < minR) minR = r;
       if (r > maxR) maxR = r;
       if (c < minC) minC = c;
@@ -243,7 +243,7 @@ export function revealWallsCells(cellKeys: string[]): void {
   // Re-process neighboring open diagonal cells whose revealed state may have changed
   // (e.g. walls need restoring now that both sides are revealed)
   for (const key of cellKeys) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     for (const [dr, dc] of [
       [-1, 0],
       [1, 0],
@@ -321,7 +321,7 @@ function applyFogEdgeMask(
   maskCtx.globalCompositeOperation = 'destination-in';
   maskCtx.beginPath();
   for (const key of playerState.revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cx = (c + 0.5) * cellPx;
     const cy = (r + 0.5) * cellPx;
     maskCtx.moveTo(cx + ballRadius, cy);
@@ -333,7 +333,7 @@ function applyFogEdgeMask(
   maskCtx.globalCompositeOperation = 'destination-out';
   maskCtx.beginPath();
   for (const key of playerState.revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     maskCtx.rect(c * cellPx, r * cellPx, cellPx, cellPx);
   }
   maskCtx.fill();
@@ -345,7 +345,7 @@ function applyFogEdgeMask(
   const trimSides = classifyAllTrimFog(playerState.revealedCells, cells!);
   for (const [key, side] of trimSides) {
     if ((side as string) === 'both' || (side as string) === 'neither') continue;
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
     const clip = cell?.trimClip as [number, number][];
     const px = c * cellPx,
@@ -354,9 +354,9 @@ function applyFogEdgeMask(
       maskCtx.save();
       maskCtx.beginPath();
       maskCtx.rect(px, py, cellPx, cellPx);
-      maskCtx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
+      maskCtx.moveTo(px + clip[0]![0] * cellPx, py + clip[0]![1] * cellPx);
       for (let i = 1; i < clip.length; i++) {
-        maskCtx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
+        maskCtx.lineTo(px + clip[i]![0] * cellPx, py + clip[i]![1] * cellPx);
       }
       maskCtx.closePath();
       maskCtx.clip('evenodd');
@@ -365,9 +365,9 @@ function applyFogEdgeMask(
     } else {
       maskCtx.save();
       maskCtx.beginPath();
-      maskCtx.moveTo(px + clip[0][0] * cellPx, py + clip[0][1] * cellPx);
+      maskCtx.moveTo(px + clip[0]![0] * cellPx, py + clip[0]![1] * cellPx);
       for (let i = 1; i < clip.length; i++) {
-        maskCtx.lineTo(px + clip[i][0] * cellPx, py + clip[i][1] * cellPx);
+        maskCtx.lineTo(px + clip[i]![0] * cellPx, py + clip[i]![1] * cellPx);
       }
       maskCtx.closePath();
       maskCtx.clip();
@@ -378,7 +378,7 @@ function applyFogEdgeMask(
 
   // Diagonal trims (trimCorner without trimClip) — paint shading back over void triangle
   for (const key of playerState.revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
     if (!cell?.trimCorner || cell.trimClip) continue;
     const px = c * cellPx,
@@ -393,7 +393,7 @@ function applyFogEdgeMask(
 
   // Open diagonal trims — paint shading back over the unrevealed half
   for (const key of playerState.revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cell = cells?.[r]?.[c] as Record<string, unknown> | null;
     if (!cell || cell.trimCorner || cell.trimClip) continue;
     const fogHalf = _openDiagFogHalf(cell, r, c, playerState.revealedCells);

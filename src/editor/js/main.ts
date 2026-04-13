@@ -1,7 +1,21 @@
 // App initialization — entry point orchestrator
 import state from './state.js';
 import * as canvasView from './canvas-view.js';
-import { RoomTool, PaintTool, WallTool, DoorTool, LabelTool, StairsTool, BridgeTool, SelectTool, TrimTool, PropTool, EraseTool, LightTool, FillTool } from './tools/index.js';
+import {
+  RoomTool,
+  PaintTool,
+  WallTool,
+  DoorTool,
+  LabelTool,
+  StairsTool,
+  BridgeTool,
+  SelectTool,
+  TrimTool,
+  PropTool,
+  EraseTool,
+  LightTool,
+  FillTool,
+} from './tools/index.js';
 import { sessionState } from './dm-session.js';
 import { setSessionTool } from './canvas-view.js';
 import { getToolCursor, updateToolButtons, getActivePanel, refreshKeybindingsHelper } from './panels/index.js';
@@ -33,7 +47,7 @@ function setTool(name: string) {
 
   state.activeTool = name;
 
-  const tool = (tools as Record<string, Tool>)[name];
+  const tool = (tools as Record<string, Tool>)[name]!;
 
   // Activate new tool
   tool.onActivate();
@@ -72,7 +86,9 @@ function enterSessionToolsMode() {
 
   // Hide normal toolbar, show session toolbar
   document.getElementById('editor-tool-row')!.style.display = 'none';
-  document.querySelectorAll<HTMLElement>('.suboptions-bar, .tertiaryoptions-bar').forEach(el => { el.style.display = 'none'; });
+  document.querySelectorAll<HTMLElement>('.suboptions-bar, .tertiaryoptions-bar').forEach((el) => {
+    el.style.display = 'none';
+  });
   document.getElementById('session-tool-row')!.style.display = 'flex';
   document.getElementById('drawing-toolbar')?.classList.add('session-active');
 }
@@ -96,12 +112,14 @@ function exitSessionToolsMode() {
 }
 
 // Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', () => { void (async () => {
-  // Bootstrap the application
-  await initApp(tools, setTool, updateSessionToolsMode);
+document.addEventListener('DOMContentLoaded', () => {
+  void (async () => {
+    // Bootstrap the application
+    await initApp(tools, setTool, updateSessionToolsMode);
 
-  // Wire keyboard shortcuts
-  const { onKeyDown, onKeyUp } = initKeyboardShortcuts(tools, setTool);
-  document.addEventListener('keydown', onKeyDown);
-  document.addEventListener('keyup', onKeyUp);
-})(); });
+    // Wire keyboard shortcuts
+    const { onKeyDown, onKeyUp } = initKeyboardShortcuts(tools, setTool);
+    document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('keyup', onKeyUp);
+  })();
+});

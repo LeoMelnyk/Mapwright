@@ -1,4 +1,4 @@
-import { asMultiLevel, type CellGrid, type Metadata } from '../types.js';
+import { asMultiLevel, type Cell, type CellGrid, type Metadata } from '../types.js';
 
 // ── Sub-module imports ─────────────────────────────────────────────────────
 import {
@@ -59,42 +59,42 @@ function validateMatrixFormat(config: { metadata: Metadata; cells: CellGrid }): 
       }
 
       // Validate this level's cells
-      const numCols = levelCells[0]?.length || 0;
+      const numCols = levelCells[0]?.length ?? 0;
       for (let row = 0; row < levelCells.length; row++) {
         if (!Array.isArray(levelCells[row])) {
           errors.push(`Level ${level}, Row ${row}: must be an array`);
           continue;
         }
-        if (levelCells[row].length !== numCols) {
+        if (levelCells[row]!.length !== numCols) {
           errors.push(
-            `Level ${level}, Row ${row}: has ${levelCells[row].length} columns, expected ${numCols} (all rows must have same length)`,
+            `Level ${level}, Row ${row}: has ${levelCells[row]!.length} columns, expected ${numCols} (all rows must have same length)`,
           );
         }
 
         // Validate each cell in this level
-        for (let col = 0; col < levelCells[row].length; col++) {
-          const cell = levelCells[row][col];
+        for (let col = 0; col < levelCells[row]!.length; col++) {
+          const cell = levelCells[row]![col] ?? null;
           validateCell(cell, level, row, col, errors);
         }
       }
     }
   } else {
     // Single-level: validate as 2D array
-    const numCols = config.cells[0]?.length || 0;
+    const numCols = config.cells[0]?.length ?? 0;
     for (let row = 0; row < config.cells.length; row++) {
       if (!Array.isArray(config.cells[row])) {
         errors.push(`Row ${row}: must be an array`);
         continue;
       }
-      if (config.cells[row].length !== numCols) {
+      if (config.cells[row]!.length !== numCols) {
         errors.push(
-          `Row ${row}: has ${config.cells[row].length} columns, expected ${numCols} (all rows must have same length)`,
+          `Row ${row}: has ${config.cells[row]!.length} columns, expected ${numCols} (all rows must have same length)`,
         );
       }
 
       // Validate each cell
-      for (let col = 0; col < config.cells[row].length; col++) {
-        const cell = config.cells[row][col];
+      for (let col = 0; col < config.cells[row]!.length; col++) {
+        const cell = config.cells[row]![col] as unknown as Cell | null;
         validateCell(cell, null, row, col, errors);
       }
     }
@@ -141,15 +141,15 @@ function detectBorderCollisions(cells: CellGrid) {
   const numRows = cells.length;
 
   for (let row = 0; row < numRows; row++) {
-    const numCols = cells[row].length;
+    const numCols = cells[row]!.length;
 
     for (let col = 0; col < numCols; col++) {
-      const cell = cells[row][col];
+      const cell = cells[row]![col];
       if (!cell) continue;
 
       // Check east border collision (with cell to the right)
       if (col < numCols - 1 && cell.east) {
-        const rightCell = cells[row][col + 1];
+        const rightCell = cells[row]![col + 1];
         if (rightCell?.west && cell.east !== rightCell.west) {
           errors.push(
             `Border collision detected:\n` +
@@ -162,7 +162,7 @@ function detectBorderCollisions(cells: CellGrid) {
 
       // Check south border collision (with cell below)
       if (row < numRows - 1 && cell.south) {
-        const belowCell = cells[row + 1][col];
+        const belowCell = cells[row + 1]![col];
         if (belowCell?.north && cell.south !== belowCell.north) {
           errors.push(
             `Border collision detected:\n` +
@@ -175,7 +175,7 @@ function detectBorderCollisions(cells: CellGrid) {
 
       // Check nw-se diagonal collision (with cell diagonally below-right)
       if (row < numRows - 1 && col < numCols - 1 && cell['nw-se']) {
-        const diagCell = cells[row + 1][col + 1];
+        const diagCell = cells[row + 1]![col + 1];
         if (diagCell?.['nw-se'] && cell['nw-se'] !== diagCell['nw-se']) {
           errors.push(
             `Diagonal border collision detected:\n` +
@@ -188,7 +188,7 @@ function detectBorderCollisions(cells: CellGrid) {
 
       // Check ne-sw diagonal collision (with cell diagonally below-left)
       if (row < numRows - 1 && col > 0 && cell['ne-sw']) {
-        const diagCell = cells[row + 1][col - 1];
+        const diagCell = cells[row + 1]![col - 1];
         if (diagCell?.['ne-sw'] && cell['ne-sw'] !== diagCell['ne-sw']) {
           errors.push(
             `Diagonal border collision detected:\n` +

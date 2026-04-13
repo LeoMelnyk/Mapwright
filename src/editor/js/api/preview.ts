@@ -49,13 +49,13 @@ export async function renderPropPreview(
     }
 
     propDef = catalog.props[propTypeOrText];
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
     if (!propDef) {
       // Try case-insensitive search
       const key = Object.keys(catalog.props).find((k) => k.toLowerCase() === propTypeOrText.toLowerCase());
       if (key) propDef = catalog.props[key];
     }
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
+
     if (!propDef) {
       return {
         success: false,

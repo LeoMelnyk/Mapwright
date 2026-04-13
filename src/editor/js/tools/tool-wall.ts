@@ -13,7 +13,7 @@ import { isInBounds, setEdgeReciprocal, deleteEdgeReciprocal, getEdge, CARDINAL_
 
 /** Clone a cell for undo patch storage. */
 function cloneCell(cell: Cell | null): Cell | null {
-  return cell ? JSON.parse(JSON.stringify(cell)) as Cell : null;
+  return cell ? (JSON.parse(JSON.stringify(cell)) as Cell) : null;
 }
 
 /**
@@ -42,9 +42,10 @@ export class WallTool extends Tool {
   }
 
   onActivate() {
-    state.statusInstruction = state.wallType === 'iw'
-      ? 'Click or drag edge to place invisible wall · Blocks movement but hidden from players · Right-click to remove'
-      : 'Click or drag edge to place wall · Right-click to remove';
+    state.statusInstruction =
+      state.wallType === 'iw'
+        ? 'Click or drag edge to place invisible wall · Blocks movement but hidden from players · Right-click to remove'
+        : 'Click or drag edge to place wall · Right-click to remove';
   }
 
   onDeactivate() {
@@ -69,7 +70,8 @@ export class WallTool extends Tool {
     const hoverRow = edge ? edge.row : row;
     const hoverCol = edge ? edge.col : col;
 
-    let targetRow: number = hoverRow, targetCol: number = hoverCol;
+    let targetRow: number = hoverRow,
+      targetCol: number = hoverCol;
     if (dir === 'north' || dir === 'south') {
       targetRow = this.startRow;
       targetCol = hoverCol;
@@ -105,7 +107,7 @@ export class WallTool extends Tool {
       const cells = state.dungeon.cells;
       const patches: UndoCellPatch[] = [];
       for (const [key, before] of this._beforeStates) {
-        const [r, c] = key.split(',').map(Number);
+        const [r, c] = key.split(',').map(Number) as [number, number];
         patches.push({ row: r, col: c, before, after: cloneCell(cells[r]?.[c] ?? null) });
       }
       pushPatchUndo('Add wall', patches);
@@ -126,13 +128,18 @@ export class WallTool extends Tool {
 
     // Capture before-states for cell + reciprocal
     const coords: Array<{ row: number; col: number }> = [{ row: er, col: ec }];
-    const offset = (CARDINAL_OFFSETS as unknown as Record<string, [number, number]>)[direction] as [number, number] | undefined;
+    const offset = (CARDINAL_OFFSETS as unknown as Record<string, [number, number]>)[direction] as
+      | [number, number]
+      | undefined;
     if (offset && isInBounds(cells, er + offset[0], ec + offset[1])) {
       coords.push({ row: er + offset[0], col: ec + offset[1] });
     }
 
     const patches: UndoCellPatch[] = coords.map(({ row: r, col: c }) => ({
-      row: r, col: c, before: cloneCell(cells[r]?.[c] ?? null), after: null,
+      row: r,
+      col: c,
+      before: cloneCell(cells[r]?.[c] ?? null),
+      after: null,
     }));
 
     const before = captureBeforeState(cells, coords);
@@ -157,8 +164,8 @@ export class WallTool extends Tool {
       const cells = state.dungeon.cells;
       const coords: Array<{ row: number; col: number }> = [];
       for (const [key, before] of this._beforeStates) {
-        const [r, c] = key.split(',').map(Number);
-        cells[r][c] = before ? JSON.parse(JSON.stringify(before)) as Cell : null;
+        const [r, c] = key.split(',').map(Number) as [number, number];
+        cells[r]![c] = before ? (JSON.parse(JSON.stringify(before)) as Cell) : null;
         coords.push({ row: r, col: c });
       }
       if (coords.length > 0) {
@@ -226,14 +233,21 @@ export class WallTool extends Tool {
     const wallType = (state.wallType || 'w') as EdgeValue;
 
     if (!isInBounds(cells, row, col)) return;
-    if (!cells[row][col]) return;
-    const existing = cells[row][col];
+    if (!cells[row]![col]) return;
+    const existing = cells[row]![col];
     if ((existing as Record<string, unknown>)[direction] === wallType) return;
-    if ((existing as Record<string, unknown>)[direction] === 'd' || (existing as Record<string, unknown>)[direction] === 's' || (existing as Record<string, unknown>)[direction] === 'id') return;
+    if (
+      (existing as Record<string, unknown>)[direction] === 'd' ||
+      (existing as Record<string, unknown>)[direction] === 's' ||
+      (existing as Record<string, unknown>)[direction] === 'id'
+    )
+      return;
 
     // Capture before-states for this cell and its reciprocal neighbor
     this._captureBefore(cells, row, col);
-    const offset = (CARDINAL_OFFSETS as unknown as Record<string, [number, number]>)[direction] as [number, number] | undefined;
+    const offset = (CARDINAL_OFFSETS as unknown as Record<string, [number, number]>)[direction] as
+      | [number, number]
+      | undefined;
     if (offset && isInBounds(cells, row + offset[0], col + offset[1])) {
       this._captureBefore(cells, row + offset[0], col + offset[1]);
     }

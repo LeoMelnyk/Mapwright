@@ -27,9 +27,7 @@ function buildCatalog(props: Record<string, PropDefinition>) {
       def.autoHitbox = generateHitbox(def.commands, def.footprint) ?? undefined;
     }
     // Lighting hitbox: manual hitbox commands > auto-generated
-    def.hitbox ??= def.manualHitbox?.length
-        ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined)
-        : def.autoHitbox;
+    def.hitbox ??= def.manualHitbox?.length ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined) : def.autoHitbox;
     // Build hitbox zones for z-height shadow projection.
     // Each zone has { polygon, zBottom, zTop } for height-based shadow casting.
     if (!def.hitboxZones && def.blocksLight) {
@@ -39,12 +37,12 @@ function buildCatalog(props: Record<string, PropDefinition>) {
     if (!def.selectionHitbox && def.manualSelection?.length) {
       def.selectionHitbox = manualHitboxToPolygon(def.manualSelection) ?? undefined;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- byCategory is built dynamically, key may not exist yet
+
     if (!(byCategory as Record<string, string[]>)[def.category]) {
       (byCategory as Record<string, string[]>)[def.category] = [];
       categoryOrder.push(def.category);
     }
-    (byCategory as Record<string, string[]>)[def.category].push(name);
+    (byCategory as Record<string, string[]>)[def.category]!.push(name);
   }
   return { categories: categoryOrder, props, byCategory };
 }
@@ -56,8 +54,10 @@ function manualHitboxToPolygon(cmds: PropCommand[]) {
     switch (cmd.subShape) {
       case 'rect':
         points.push(
-          [cmd.x!, cmd.y!], [cmd.x! + cmd.w!, cmd.y!],
-          [cmd.x! + cmd.w!, cmd.y! + cmd.h!], [cmd.x!, cmd.y! + cmd.h!],
+          [cmd.x!, cmd.y!],
+          [cmd.x! + cmd.w!, cmd.y!],
+          [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
+          [cmd.x!, cmd.y! + cmd.h!],
         );
         break;
       case 'circle': {
@@ -109,7 +109,7 @@ function buildHitboxZones(def: PropDefinition) {
   const polygon = def.hitbox;
   if (!polygon) return null;
 
-  const zTop = (def.height != null && isFinite(def.height)) ? def.height : Infinity;
+  const zTop = def.height != null && isFinite(def.height) ? def.height : Infinity;
   return [{ polygon, zBottom: 0, zTop }];
 }
 
@@ -120,7 +120,9 @@ function buildHitboxZones(def: PropDefinition) {
  * @param {function} [onProgress] — called with (loaded, total) as prop files are fetched
  * @returns {Promise<PropCatalog>}
  */
-export async function loadPropCatalog(onProgress?: (loaded: number, total: number) => void): Promise<PropCatalog | null> {
+export async function loadPropCatalog(
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<PropCatalog | null> {
   if (cachedCatalog) return cachedCatalog;
 
   try {
@@ -143,7 +145,9 @@ export async function loadPropCatalog(onProgress?: (loaded: number, total: numbe
           preloadPropTextures(cachedCatalog);
           return cachedCatalog;
         }
-      } catch { /* cache corrupt, fall through */ }
+      } catch {
+        /* cache corrupt, fall through */
+      }
     }
 
     // Fresh fetch
@@ -159,7 +163,7 @@ export async function loadPropCatalog(onProgress?: (loaded: number, total: numbe
         loaded++;
         if (onProgress) onProgress(loaded, propNames.length);
         return { name, def };
-      })
+      }),
     );
 
     const props = {};
@@ -181,7 +185,9 @@ export async function loadPropCatalog(onProgress?: (loaded: number, total: numbe
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(props));
       localStorage.setItem(CACHE_VER_KEY, version);
-    } catch { /* localStorage full or unavailable */ }
+    } catch {
+      /* localStorage full or unavailable */
+    }
 
     cachedCatalog = buildCatalog(props);
     preloadPropTextures(cachedCatalog);

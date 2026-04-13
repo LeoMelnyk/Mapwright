@@ -91,14 +91,14 @@ function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
       const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
-        const cell = levelCells[row][col];
+        const cell = levelCells[row]![col];
 
         if (!cell) continue;
 
@@ -123,7 +123,7 @@ function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
 
         // Check north adjacency
         if (row > 0) {
-          const northCell = levelCells[row - 1][col];
+          const northCell = levelCells[row - 1]![col];
           if (northCell === null) {
             if (cell.north !== 'w' && !diagCovers.has('north')) {
               errors.push(
@@ -137,7 +137,7 @@ function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
 
         // Check south adjacency
         if (row < numRows - 1) {
-          const southCell = levelCells[row + 1][col];
+          const southCell = levelCells[row + 1]![col];
           if (southCell === null) {
             if (cell.south !== 'w' && !diagCovers.has('south')) {
               errors.push(
@@ -151,7 +151,7 @@ function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
 
         // Check east adjacency
         if (col < numCols - 1) {
-          const eastCell = levelCells[row][col + 1];
+          const eastCell = levelCells[row]![col + 1];
           if (eastCell === null) {
             if (cell.east !== 'w' && !diagCovers.has('east')) {
               errors.push(
@@ -165,7 +165,7 @@ function validateNullAdjacency(cells: CellGrid, isMultiLevel = false) {
 
         // Check west adjacency
         if (col > 0) {
-          const westCell = levelCells[row][col - 1];
+          const westCell = levelCells[row]![col - 1];
           if (westCell === null) {
             if (cell.west !== 'w' && !diagCovers.has('west')) {
               errors.push(
@@ -191,14 +191,14 @@ function validateDoorAdjacency(cells: CellGrid, isMultiLevel = false) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
       const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
-        const cell = levelCells[row][col];
+        const cell = levelCells[row]![col];
 
         if (!cell) continue;
 

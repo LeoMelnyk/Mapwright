@@ -45,7 +45,11 @@ export class RangeTool extends Tool {
    * @param {Function} getGridInfo  - () => { gridSize, numRows, numCols }
    * @param {Function} requestRender - () => void, triggers canvas re-render
    */
-  constructor(sendFn: (msg: Record<string, unknown>) => void, getGridInfo: () => { gridSize: number; numRows: number; numCols: number }, requestRender: () => void) {
+  constructor(
+    sendFn: (msg: Record<string, unknown>) => void,
+    getGridInfo: () => { gridSize: number; numRows: number; numCols: number },
+    requestRender: () => void,
+  ) {
     super('range', 'R', 'crosshair');
     this._send = sendFn;
     this._gridInfo = getGridInfo;
@@ -60,7 +64,7 @@ export class RangeTool extends Tool {
     this.hoverCell = null; // tracks mouse position for hover preview
 
     this.committedHighlight = null; // { cells, distanceFt, subTool }
-    this.remoteHighlight = null;    // same shape
+    this.remoteHighlight = null; // same shape
     this._clearTimer = null;
     this._remoteClearTimer = null;
   }
@@ -164,7 +168,10 @@ export class RangeTool extends Tool {
         distanceFt: result.distanceFt,
         subTool: this.subTool,
       });
-      this._clearTimer = setTimeout(() => { this.committedHighlight = null; this._requestRender(); }, CLEAR_TIMEOUT);
+      this._clearTimer = setTimeout(() => {
+        this.committedHighlight = null;
+        this._requestRender();
+      }, CLEAR_TIMEOUT);
       this._requestRender();
       return;
     }
@@ -254,12 +261,18 @@ export class RangeTool extends Tool {
   }
 
   _clearCommitted() {
-    if (this._clearTimer) { clearTimeout(this._clearTimer); this._clearTimer = null; }
+    if (this._clearTimer) {
+      clearTimeout(this._clearTimer);
+      this._clearTimer = null;
+    }
     this.committedHighlight = null;
   }
 
   _clearRemote() {
-    if (this._remoteClearTimer) { clearTimeout(this._remoteClearTimer); this._remoteClearTimer = null; }
+    if (this._remoteClearTimer) {
+      clearTimeout(this._remoteClearTimer);
+      this._remoteClearTimer = null;
+    }
     this.remoteHighlight = null;
   }
 
@@ -275,7 +288,15 @@ export class RangeTool extends Tool {
 
     // 2. Committed highlight (own measurement)
     if (this.committedHighlight) {
-      this._drawCells(ctx, transform, gridSize, this.committedHighlight.cells, COMMITTED_FILL, COMMITTED_BORDER, COMMITTED_SHADOW);
+      this._drawCells(
+        ctx,
+        transform,
+        gridSize,
+        this.committedHighlight.cells,
+        COMMITTED_FILL,
+        COMMITTED_BORDER,
+        COMMITTED_SHADOW,
+      );
     }
 
     // 3. Live drag preview (top layer)
@@ -320,11 +341,19 @@ export class RangeTool extends Tool {
     }
   }
 
-  _drawCells(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, cells: { row: number; col: number }[], fillColor: string, borderColor: string, shadowColor: string) {
+  _drawCells(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    cells: { row: number; col: number }[],
+    fillColor: string,
+    borderColor: string,
+    shadowColor: string,
+  ) {
     const cellPx = gridSize * transform.scale;
 
     // Build a set for fast neighbor lookup (for border drawing)
-    const cellSet = new Set(cells.map(c => `${c.row},${c.col}`));
+    const cellSet = new Set(cells.map((c) => `${c.row},${c.col}`));
 
     // Fill with hatched pattern for visibility on any background
     ctx.fillStyle = fillColor;
@@ -357,7 +386,7 @@ export class RangeTool extends Tool {
     ctx.restore();
 
     // Collect border segments (edges facing non-highlighted cells)
-    const segments = [];
+    const segments: [{ x: number; y: number }, { x: number; y: number }][] = [];
     for (const { row, col } of cells) {
       const x = col * gridSize;
       const y = row * gridSize;
@@ -380,18 +409,29 @@ export class RangeTool extends Tool {
       ctx.strokeStyle = shadowColor;
       ctx.lineWidth = 4;
       ctx.beginPath();
-      for (const [a, b] of segments) { ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); }
+      for (const [a, b] of segments) {
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+      }
       ctx.stroke();
     }
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    for (const [a, b] of segments) { ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); }
+    for (const [a, b] of segments) {
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    }
     ctx.stroke();
   }
 
   /** Draw a line from start cell center to end cell center. */
-  _drawLineOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, end: { row: number; col: number }) {
+  _drawLineOverlay(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    end: { row: number; col: number },
+  ) {
     const sx = this.dragStart!.col * gridSize + gridSize / 2;
     const sy = this.dragStart!.row * gridSize + gridSize / 2;
     const ex = end.col * gridSize + gridSize / 2;
@@ -421,7 +461,12 @@ export class RangeTool extends Tool {
   }
 
   /** Draw cone wedge: two lines from origin + straight edge at distance. */
-  _drawConeOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, end: { row: number; col: number }) {
+  _drawConeOverlay(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    end: { row: number; col: number },
+  ) {
     const sx = this.dragStart!.col * gridSize + gridSize / 2;
     const sy = this.dragStart!.row * gridSize + gridSize / 2;
     const ex = end.col * gridSize + gridSize / 2;
@@ -432,7 +477,8 @@ export class RangeTool extends Tool {
     const halfAngle = Math.PI / 4; // 45 degrees each side
     // Exact center-to-center distance, then push tips out so the far edge
     // midpoint reaches the target cell center (matches computeCone geometry)
-    const dx = ex - sx, dy = ey - sy;
+    const dx = ex - sx,
+      dy = ey - sy;
     const tipPx = (Math.sqrt(dx * dx + dy * dy) / Math.cos(halfAngle)) * transform.scale;
 
     // Two edge endpoints
@@ -491,7 +537,13 @@ export class RangeTool extends Tool {
   }
 
   /** Draw circle outline centered on an arbitrary cell (for hover preview). */
-  _drawCircleOverlayAt(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, cell: { row: number; col: number }, distanceFt: number) {
+  _drawCircleOverlayAt(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    cell: { row: number; col: number },
+    distanceFt: number,
+  ) {
     const sx = cell.col * gridSize + gridSize / 2;
     const sy = cell.row * gridSize + gridSize / 2;
     const origin = toCanvas(sx, sy, transform);
@@ -514,11 +566,19 @@ export class RangeTool extends Tool {
   }
 
   /** Draw cube outline around the affected cells. */
-  _drawCubeOverlay(ctx: CanvasRenderingContext2D, transform: RenderTransform, gridSize: number, cells: { row: number; col: number }[]) {
+  _drawCubeOverlay(
+    ctx: CanvasRenderingContext2D,
+    transform: RenderTransform,
+    gridSize: number,
+    cells: { row: number; col: number }[],
+  ) {
     if (cells.length === 0) return;
 
     // Find bounding box of the cube cells
-    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    let minR = Infinity,
+      maxR = -Infinity,
+      minC = Infinity,
+      maxC = -Infinity;
     for (const { row, col } of cells) {
       if (row < minR) minR = row;
       if (row > maxR) maxR = row;

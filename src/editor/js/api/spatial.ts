@@ -32,9 +32,9 @@ export function findCellByLabel(label: string | number): {
   const cells = state.dungeon.cells;
   const target = String(label);
   for (let r = 0; r < cells.length; r++) {
-    const row = cells[r];
+    const row = cells[r]!;
     for (let c = 0; c < row.length; c++) {
-      if (cells[r][c]?.center?.label === target) return { success: true, row: toDisp(r), col: toDisp(c) };
+      if (cells[r]![c]?.center?.label === target) return { success: true, row: toDisp(r), col: toDisp(c) };
     }
   }
   return { success: false, error: `Label "${label}" not found` };
@@ -61,7 +61,7 @@ export function _getWallCells(roomCellSet: Set<string>, wall: string): [number, 
   if (!CARDINAL_DIRS.includes(wall))
     throw new ApiValidationError('INVALID_WALL', `wall must be one of: ${CARDINAL_DIRS.join(', ')}`, { wall });
   const result: [number, number][] = [];
-  const [dr, dc] = OFFSETS[wall];
+  const [dr, dc] = OFFSETS[wall]!;
   for (const key of roomCellSet) {
     const [r, c] = parseCellKey(key);
     if (!roomCellSet.has(cellKey(r + dr, c + dc))) {
@@ -136,7 +136,7 @@ export function findWallBetween(
     const cell = cells[r]?.[c];
     if (!cell) continue;
     for (const dir of CARDINAL_DIRS) {
-      const [dr, dc] = OFFSETS[dir];
+      const [dr, dc] = OFFSETS[dir]!;
       const nr = r + dr,
         nc = c + dc;
       if (!room2Cells.has(cellKey(nr, nc))) continue;
@@ -227,7 +227,7 @@ export function partitionRoom(
           if (r !== position) continue;
           if (!roomCells.has(cellKey(r + 1, c))) continue;
           const val = (doorAt === c ? 'd' : wallType) as EdgeValue;
-          cells[r][c]!.south = val;
+          cells[r]![c]!.south = val;
           setReciprocal(r, c, 'south', val);
           count++;
         }
@@ -237,7 +237,7 @@ export function partitionRoom(
           if (c !== position) continue;
           if (!roomCells.has(cellKey(r, c + 1))) continue;
           const val = (doorAt === r ? 'd' : wallType) as EdgeValue;
-          cells[r][c]!.east = val;
+          cells[r]![c]!.east = val;
           setReciprocal(r, c, 'east', val);
           count++;
         }

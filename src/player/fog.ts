@@ -11,16 +11,48 @@ type TrimFogClass = 'roomOnly' | 'exteriorOnly' | 'both';
 // Includes cardinal + the corner diagonal to handle large arcs where
 // cardinals traverse 3+ trim cells before reaching a non-trim cell.
 const _EXTERIOR_DIRS: Record<TrimCorner, [number, number][]> = {
-  nw: [[-1, 0], [0, -1], [-1, -1]],  // north, west, nw diagonal
-  ne: [[-1, 0], [0,  1], [-1,  1]],  // north, east, ne diagonal
-  sw: [[ 1, 0], [0, -1], [ 1, -1]],  // south, west, sw diagonal
-  se: [[ 1, 0], [0,  1], [ 1,  1]],  // south, east, se diagonal
+  nw: [
+    [-1, 0],
+    [0, -1],
+    [-1, -1],
+  ], // north, west, nw diagonal
+  ne: [
+    [-1, 0],
+    [0, 1],
+    [-1, 1],
+  ], // north, east, ne diagonal
+  sw: [
+    [1, 0],
+    [0, -1],
+    [1, -1],
+  ], // south, west, sw diagonal
+  se: [
+    [1, 0],
+    [0, 1],
+    [1, 1],
+  ], // south, east, se diagonal
 };
 const _INTERIOR_DIRS: Record<TrimCorner, [number, number][]> = {
-  nw: [[ 1, 0], [0,  1], [ 1,  1]],  // south, east, se diagonal
-  ne: [[ 1, 0], [0, -1], [ 1, -1]],  // south, west, sw diagonal
-  sw: [[-1, 0], [0,  1], [-1,  1]],  // north, east, ne diagonal
-  se: [[-1, 0], [0, -1], [-1, -1]],  // north, west, nw diagonal
+  nw: [
+    [1, 0],
+    [0, 1],
+    [1, 1],
+  ], // south, east, se diagonal
+  ne: [
+    [1, 0],
+    [0, -1],
+    [1, -1],
+  ], // south, west, sw diagonal
+  sw: [
+    [-1, 0],
+    [0, 1],
+    [-1, 1],
+  ], // north, east, ne diagonal
+  se: [
+    [-1, 0],
+    [0, -1],
+    [-1, -1],
+  ], // north, west, nw diagonal
 };
 
 /**
@@ -29,8 +61,9 @@ const _INTERIOR_DIRS: Record<TrimCorner, [number, number][]> = {
 function _pip(px: number, py: number, poly: [number, number][]): boolean {
   let inside = false;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [xi, yi] = poly[i], [xj, yj] = poly[j];
-    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
+    const [xi, yi] = poly[i]!,
+      [xj, yj] = poly[j]!;
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
       inside = !inside;
     }
   }
@@ -44,8 +77,8 @@ function _pip(px: number, py: number, poly: [number, number][]): boolean {
  */
 function _exitsInterior(dr: number, dc: number, clip: [number, number][]): boolean {
   // Exit point on cell boundary, nudged toward center to avoid edge ambiguity
-  const px = (dc + 1) / 2 * 0.96 + 0.02;
-  const py = (dr + 1) / 2 * 0.96 + 0.02;
+  const px = ((dc + 1) / 2) * 0.96 + 0.02;
+  const py = ((dr + 1) / 2) * 0.96 + 0.02;
   return _pip(px, py, clip);
 }
 
@@ -64,7 +97,7 @@ export function classifyAllTrimFog(revealedCells: Set<string>, cells: CellGrid):
   const results = new Map<string, TrimFogClass>();
 
   for (const key of revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const cell = cells[r]?.[c] as (Cell & { trimClip?: [number, number][]; trimCorner?: TrimCorner }) | null;
     if (!cell?.trimClip || !cell.trimCorner) continue;
 
@@ -80,7 +113,8 @@ export function classifyAllTrimFog(revealedCells: Set<string>, cells: CellGrid):
         if (isInterior !== wantInterior) continue;
 
         for (let dist = 1; dist <= 2; dist++) {
-          const nr = r + dr * dist, nc = c + dc * dist;
+          const nr = r + dr * dist,
+            nc = c + dc * dist;
           const neighbor = cells[nr]?.[nc] as (Cell & { trimClip?: [number, number][] }) | null;
           if (!neighbor) break; // void or out of bounds
           if (!neighbor.trimClip) {
@@ -116,7 +150,7 @@ export function classifyAllTrimFog(revealedCells: Set<string>, cells: CellGrid):
 export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, openedDoors: OpenedDoor[]): CellGrid {
   const cells = dungeon.cells;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const playerCells: CellGrid = [];
 
   // Build a set of opened door keys for fast lookup (include both sides of cardinal doors)
@@ -142,7 +176,10 @@ export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, o
       }
 
       const cell = cells[r]?.[c];
-      if (!cell) { row.push(null); continue; }
+      if (!cell) {
+        row.push(null);
+        continue;
+      }
 
       // Deep clone
       const pc: Record<string, unknown> = JSON.parse(JSON.stringify(cell));
@@ -181,7 +218,7 @@ export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, o
   // so the renderer only draws that side's floor/texture.
   const trimSides = classifyAllTrimFog(revealedCells, cells);
   for (const [key, side] of trimSides) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const pc = playerCells[r]?.[c] as Record<string, unknown> | null;
     if (!pc) continue;
     if (side === 'roomOnly') pc.trimHideExterior = true;
@@ -192,7 +229,7 @@ export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, o
   // When only one side of a diagonal wall is revealed, remove cardinal
   // walls on the unrevealed side so they don't render through the fog.
   for (const key of revealedCells) {
-    const [r, c] = key.split(',').map(Number);
+    const [r, c] = key.split(',').map(Number) as [number, number];
     const pc = playerCells[r]?.[c] as Record<string, unknown> | null;
     if (!pc || pc.trimCorner || pc.trimClip) continue;
     const hasNWSE = !!pc['nw-se'];
@@ -216,12 +253,22 @@ export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, o
     // Strip walls on the unrevealed side
     if (hasNWSE) {
       // NE side walls: north, east; SW side walls: south, west
-      if (!sideARevealed) { delete pc.north; delete pc.east; }
-      else                { delete pc.south; delete pc.west; }
+      if (!sideARevealed) {
+        delete pc.north;
+        delete pc.east;
+      } else {
+        delete pc.south;
+        delete pc.west;
+      }
     } else {
       // NW side walls: north, west; SE side walls: south, east
-      if (!sideARevealed) { delete pc.north; delete pc.west; }
-      else                { delete pc.south; delete pc.east; }
+      if (!sideARevealed) {
+        delete pc.north;
+        delete pc.west;
+      } else {
+        delete pc.south;
+        delete pc.east;
+      }
     }
   }
 
@@ -235,19 +282,17 @@ export function buildPlayerCells(dungeon: Dungeon, revealedCells: Set<string>, o
  */
 export function filterBridgesForPlayer(bridges: Bridge[] | undefined, revealedCells: Set<string>): Bridge[] {
   if (!bridges || bridges.length === 0) return [];
-  return bridges.filter(bridge =>
-    bridge.points.some(([row, col]) => revealedCells.has(cellKey(row, col)))
-  );
+  return bridges.filter((bridge) => bridge.points.some(([row, col]) => revealedCells.has(cellKey(row, col))));
 }
 
 export function filterPropsForPlayer(
   props: OverlayProp[] | undefined,
   revealedCells: Set<string>,
   gridSize: number,
-  propCatalog: PropCatalog | null
+  propCatalog: PropCatalog | null,
 ): OverlayProp[] {
   if (!props || props.length === 0) return [];
-  return props.filter(prop => {
+  return props.filter((prop) => {
     const col = Math.floor(prop.x / gridSize);
     const row = Math.floor(prop.y / gridSize);
     const propDef = propCatalog?.props[prop.type];
@@ -255,8 +300,8 @@ export function filterPropsForPlayer(
 
     const [fRows, fCols] = propDef.footprint;
     const r = ((prop.rotation % 360) + 360) % 360;
-    const eRows = (r === 90 || r === 270) ? fCols : fRows;
-    const eCols = (r === 90 || r === 270) ? fRows : fCols;
+    const eRows = r === 90 || r === 270 ? fCols : fRows;
+    const eCols = r === 90 || r === 270 ? fRows : fCols;
 
     for (let dr = 0; dr < eRows; dr++) {
       for (let dc = 0; dc < eCols; dc++) {
@@ -270,19 +315,19 @@ export function filterPropsForPlayer(
 export function filterStairsForPlayer(
   stairs: Stairs[] | undefined,
   revealedCells: Set<string>,
-  openedStairIds: number[]
+  openedStairIds: number[],
 ): Stairs[] {
   if (!stairs || stairs.length === 0) return [];
 
   const openedSet = new Set(openedStairIds);
 
   return stairs
-    .filter(stair => {
+    .filter((stair) => {
       const shape = classifyStairShape(stair.points[0], stair.points[1], stair.points[2]);
       const cells = getOccupiedCells(shape.vertices);
       return cells.some(({ row, col }: { row: number; col: number }) => revealedCells.has(cellKey(row, col)));
     })
-    .map(stair => {
+    .map((stair) => {
       if (openedSet.has(stair.id)) return stair;
       return { ...stair, link: null };
     });

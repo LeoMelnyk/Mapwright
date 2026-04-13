@@ -155,7 +155,7 @@ export function revealAll(): void {
   const cells = state.dungeon.cells;
   const newCells = [];
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[0]?.length || 0); c++) {
+    for (let c = 0; c < (cells[0]?.length ?? 0); c++) {
       if (!cells[r]?.[c]) continue;
       const key = cellKey(r, c);
       if (!sessionState.revealedCells.has(key)) {

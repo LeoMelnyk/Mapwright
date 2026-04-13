@@ -67,7 +67,7 @@ export function removeWall(row: number, col: number, direction: string): { succe
     });
   }
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
+  const cell = state.dungeon.cells[row]![col];
   if (!cell) return { success: true };
   mutate(
     'Remove wall',
@@ -141,7 +141,7 @@ export function removeDoor(row: number, col: number, direction: string): { succe
     );
   }
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
+  const cell = state.dungeon.cells[row]![col];
   if (!cell) return { success: true };
   mutate(
     'Remove door',

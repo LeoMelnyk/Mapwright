@@ -38,7 +38,18 @@ function scaleFactor(transform: RenderTransform): number {
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-function renderBorder(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, borderType: string, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function renderBorder(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  borderType: string,
+  orientation: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   // Compute wall span in grid units — normally 1, but resolution-aware calls may pass wider spans
   const wallSpan = orientation === 'horizontal' ? Math.abs(x2 - x1) : Math.abs(y2 - y1);
@@ -86,11 +97,23 @@ function renderBorder(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2:
     ctx.lineCap = 'round';
 
     if (orientation === 'horizontal') {
-      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(midX - halfDoorLength, midY); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(midX + halfDoorLength, midY); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(midX - halfDoorLength, midY);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(midX + halfDoorLength, midY);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
     } else {
-      ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(midX, midY - halfDoorLength); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(midX, midY + halfDoorLength); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(midX, midY - halfDoorLength);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(midX, midY + halfDoorLength);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.stroke();
     }
     ctx.setLineDash([]);
 
@@ -101,11 +124,11 @@ function renderBorder(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2:
     ctx.lineWidth = 2 * s;
     const doorThickness = 6 * s;
     if (orientation === 'horizontal') {
-      ctx.fillRect(midX - halfDoorLength / 2, midY - doorThickness / 2, doorLength / 2 * 1.0, doorThickness);
-      ctx.strokeRect(midX - halfDoorLength / 2, midY - doorThickness / 2, doorLength / 2 * 1.0, doorThickness);
+      ctx.fillRect(midX - halfDoorLength / 2, midY - doorThickness / 2, (doorLength / 2) * 1.0, doorThickness);
+      ctx.strokeRect(midX - halfDoorLength / 2, midY - doorThickness / 2, (doorLength / 2) * 1.0, doorThickness);
     } else {
-      ctx.fillRect(midX - doorThickness / 2, midY - halfDoorLength / 2, doorThickness, doorLength / 2 * 1.0);
-      ctx.strokeRect(midX - doorThickness / 2, midY - halfDoorLength / 2, doorThickness, doorLength / 2 * 1.0);
+      ctx.fillRect(midX - doorThickness / 2, midY - halfDoorLength / 2, doorThickness, (doorLength / 2) * 1.0);
+      ctx.strokeRect(midX - doorThickness / 2, midY - halfDoorLength / 2, doorThickness, (doorLength / 2) * 1.0);
     }
     ctx.restore();
   } else if (borderType === 'd') {
@@ -188,7 +211,15 @@ function renderBorder(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2:
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawDoorAtPosition(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  orientation: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
   const doorThickness = 6 * s;
@@ -219,7 +250,15 @@ function drawDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: numbe
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawSecretDoorAtPosition(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  orientation: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   ctx.save();
 
   ctx.fillStyle = theme.secretDoorColor ?? theme.wallStroke;
@@ -253,7 +292,16 @@ function drawSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy:
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawStairsInCell(ctx: CanvasRenderingContext2D, cx: number, cy: number, stairType: string, theme: Theme, gridSize: number, hasLabel: boolean, transform: RenderTransform): void {
+function drawStairsInCell(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  stairType: string,
+  theme: Theme,
+  gridSize: number,
+  hasLabel: boolean,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   ctx.save();
   const color = theme.wallStroke || '#000000';
@@ -326,7 +374,17 @@ function drawStairsInCell(ctx: CanvasRenderingContext2D, cx: number, cy: number,
  * @param {number} [span=1] - Number of cells the diagonal spans
  * @returns {void}
  */
-function renderDiagonalBorder(ctx: CanvasRenderingContext2D, col: number, row: number, borderType: string, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform, span: number = 1): void {
+function renderDiagonalBorder(
+  ctx: CanvasRenderingContext2D,
+  col: number,
+  row: number,
+  borderType: string,
+  diagonal: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+  span: number = 1,
+): void {
   const s = scaleFactor(transform);
   let fx1, fy1, fx2, fy2;
 
@@ -356,7 +414,6 @@ function renderDiagonalBorder(ctx: CanvasRenderingContext2D, col: number, row: n
     ctx.moveTo(p1.x, p1.y);
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
-
   } else if (borderType === 'iw') {
     // Invisible diagonal wall: dashed blue ghost line
     ctx.save();
@@ -369,7 +426,6 @@ function renderDiagonalBorder(ctx: CanvasRenderingContext2D, col: number, row: n
     ctx.lineTo(p2.x, p2.y);
     ctx.stroke();
     ctx.restore();
-
   } else if (borderType === 'id') {
     // Invisible diagonal door: ghost diagonal door symbol
     const midX = (p1.x + p2.x) / 2;
@@ -386,13 +442,23 @@ function renderDiagonalBorder(ctx: CanvasRenderingContext2D, col: number, row: n
     ctx.strokeStyle = 'rgba(80, 130, 255, 0.65)';
     ctx.lineWidth = 4 * s;
     ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(midX - dx, midY - dy); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(midX + dx, midY + dy); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(midX - dx, midY - dy);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(midX + dx, midY + dy);
+    ctx.lineTo(p2.x, p2.y);
+    ctx.stroke();
     ctx.setLineDash([]);
 
     // Ghost door rectangle at diagonal
     ctx.translate(midX, midY);
-    if (diagonal === 'nw-se') { ctx.rotate(Math.PI / 4); } else { ctx.rotate(-Math.PI / 4); }
+    if (diagonal === 'nw-se') {
+      ctx.rotate(Math.PI / 4);
+    } else {
+      ctx.rotate(-Math.PI / 4);
+    }
     const doorThickness = 6 * s;
     ctx.globalAlpha = 0.55;
     ctx.fillStyle = 'rgba(80, 130, 255, 0.3)';
@@ -401,7 +467,6 @@ function renderDiagonalBorder(ctx: CanvasRenderingContext2D, col: number, row: n
     ctx.fillRect(-halfDoorLength / 2, -doorThickness / 2, doorLength / 2, doorThickness);
     ctx.strokeRect(-halfDoorLength / 2, -doorThickness / 2, doorLength / 2, doorThickness);
     ctx.restore();
-
   } else if (borderType === 'd') {
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
@@ -428,7 +493,6 @@ function renderDiagonalBorder(ctx: CanvasRenderingContext2D, col: number, row: n
     ctx.stroke();
 
     drawDiagonalDoor(ctx, midX, midY, diagonal, theme, doorGs, transform);
-
   } else if (borderType === 's') {
     const midX = (p1.x + p2.x) / 2;
     const midY = (p1.y + p2.y) / 2;
@@ -469,7 +533,15 @@ function renderDiagonalBorder(ctx: CanvasRenderingContext2D, col: number, row: n
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawDiagonalDoor(ctx: CanvasRenderingContext2D, cx: number, cy: number, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawDiagonalDoor(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  diagonal: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   const doorLength = gridSize * transform.scale * DOOR_LENGTH_MULT;
   const doorThickness = 6 * s;
@@ -505,7 +577,15 @@ function drawDiagonalDoor(ctx: CanvasRenderingContext2D, cx: number, cy: number,
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawDiagonalSecretDoor(ctx: CanvasRenderingContext2D, cx: number, cy: number, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawDiagonalSecretDoor(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  diagonal: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   ctx.save();
   ctx.translate(cx, cy);
 
@@ -536,7 +616,13 @@ function drawDiagonalSecretDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {string|null} Role: 'anchor', 'partner', 'single-wide', or null
  */
-function getDoubleDoorRole(cells: CellGrid, row: number, col: number, borderDirection: string, resolution: number = 1): string | null {
+function getDoubleDoorRole(
+  cells: CellGrid,
+  row: number,
+  col: number,
+  borderDirection: string,
+  resolution: number = 1,
+): string | null {
   return _getDoorRole(cells, row, col, borderDirection, resolution, 'cardinal');
 }
 
@@ -559,37 +645,52 @@ function _getDoorRole(cells: CellGrid, row: number, col: number, direction: stri
   if (bt !== 'd' && bt !== 's') return null;
 
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // Step direction along the run
   let dr, dc;
   if (mode === 'cardinal') {
-    if (direction === 'north' || direction === 'south') { dr = 0; dc = 1; }
-    else { dr = 1; dc = 0; }
+    if (direction === 'north' || direction === 'south') {
+      dr = 0;
+      dc = 1;
+    } else {
+      dr = 1;
+      dc = 0;
+    }
   } else {
     // diagonal
-    if (direction === 'nw-se') { dr = 1; dc = 1; }
-    else { dr = 1; dc = -1; }
+    if (direction === 'nw-se') {
+      dr = 1;
+      dc = 1;
+    } else {
+      dr = 1;
+      dc = -1;
+    }
   }
 
   // Walk backwards to find run start
-  let startR = row, startC = col;
+  let startR = row,
+    startC = col;
   for (;;) {
-    const pr = startR - dr, pc = startC - dc;
+    const pr = startR - dr,
+      pc = startC - dc;
     if (pr < 0 || pr >= numRows || pc < 0 || pc >= numCols) break;
     const prevCell = cells[pr]?.[pc];
     if (!prevCell || getEdge(prevCell, direction as Direction) !== bt) break;
-    startR = pr; startC = pc;
+    startR = pr;
+    startC = pc;
   }
 
   // Count total run length
   let runLen = 0;
-  let r = startR, c = startC;
+  let r = startR,
+    c = startC;
   while (r >= 0 && r < numRows && c >= 0 && c < numCols) {
     const runCell = cells[r]?.[c];
     if (!runCell || getEdge(runCell, direction as Direction) !== bt) break;
     runLen++;
-    r += dr; c += dc;
+    r += dr;
+    c += dc;
   }
 
   // Position = number of steps from run start (not Manhattan distance)
@@ -631,7 +732,13 @@ function _getDoorRole(cells: CellGrid, row: number, col: number, direction: stri
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {string|null} Role: 'anchor', 'partner', or null
  */
-function getDoubleDoorDiagonalRole(cells: CellGrid, row: number, col: number, diagonal: string, resolution: number = 1): string | null {
+function getDoubleDoorDiagonalRole(
+  cells: CellGrid,
+  row: number,
+  col: number,
+  diagonal: string,
+  resolution: number = 1,
+): string | null {
   return _getDoorRole(cells, row, col, diagonal, resolution, 'diagonal');
 }
 
@@ -650,18 +757,45 @@ function getDoubleDoorDiagonalRole(cells: CellGrid, row: number, col: number, di
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {void}
  */
-function renderDoubleBorder(ctx: CanvasRenderingContext2D, cells: CellGrid, row: number, col: number, borderDirection: string, borderType: string, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform, resolution: number = 1): void {
+function renderDoubleBorder(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  row: number,
+  col: number,
+  borderDirection: string,
+  borderType: string,
+  orientation: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+  resolution: number = 1,
+): void {
   const s = scaleFactor(transform);
   const span = 2 * resolution; // double door spans 2 display cells = 2*resolution sub-cells
-  let gx1 = 0, gy1 = 0, gx2 = 0, gy2 = 0;
+  let gx1 = 0,
+    gy1 = 0,
+    gx2 = 0,
+    gy2 = 0;
   if (borderDirection === 'north') {
-    gx1 = col; gy1 = row; gx2 = col + span; gy2 = row;
+    gx1 = col;
+    gy1 = row;
+    gx2 = col + span;
+    gy2 = row;
   } else if (borderDirection === 'south') {
-    gx1 = col; gy1 = row + 1; gx2 = col + span; gy2 = row + 1;
+    gx1 = col;
+    gy1 = row + 1;
+    gx2 = col + span;
+    gy2 = row + 1;
   } else if (borderDirection === 'west') {
-    gx1 = col; gy1 = row; gx2 = col; gy2 = row + span;
+    gx1 = col;
+    gy1 = row;
+    gx2 = col;
+    gy2 = row + span;
   } else if (borderDirection === 'east') {
-    gx1 = col + 1; gy1 = row; gx2 = col + 1; gy2 = row + span;
+    gx1 = col + 1;
+    gy1 = row;
+    gx2 = col + 1;
+    gy2 = row + span;
   }
 
   const p1 = toCanvas(gx1 * gridSize, gy1 * gridSize, transform);
@@ -721,17 +855,32 @@ function renderDoubleBorder(ctx: CanvasRenderingContext2D, cells: CellGrid, row:
  * @param {number} [resolution=1] - Resolution multiplier
  * @returns {void}
  */
-function renderDiagonalDoubleBorder(ctx: CanvasRenderingContext2D, cells: CellGrid, row: number, col: number, borderType: string, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform, resolution: number = 1): void {
+function renderDiagonalDoubleBorder(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  row: number,
+  col: number,
+  borderType: string,
+  diagonal: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+  resolution: number = 1,
+): void {
   const s = scaleFactor(transform);
   const span = 2 * resolution; // double door spans 2 display cells
 
   let fx1, fy1, fx2, fy2;
   if (diagonal === 'nw-se') {
-    fx1 = col * gridSize;            fy1 = row * gridSize;
-    fx2 = (col + span) * gridSize;   fy2 = (row + span) * gridSize;
+    fx1 = col * gridSize;
+    fy1 = row * gridSize;
+    fx2 = (col + span) * gridSize;
+    fy2 = (row + span) * gridSize;
   } else {
-    fx1 = (col + 1) * gridSize;          fy1 = row * gridSize;
-    fx2 = (col + 1 - span) * gridSize;   fy2 = (row + span) * gridSize;
+    fx1 = (col + 1) * gridSize;
+    fy1 = row * gridSize;
+    fx2 = (col + 1 - span) * gridSize;
+    fy2 = (row + span) * gridSize;
   }
 
   const p1 = toCanvas(fx1, fy1, transform);
@@ -780,7 +929,15 @@ function renderDiagonalDoubleBorder(ctx: CanvasRenderingContext2D, cells: CellGr
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawDoubleDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawDoubleDoorAtPosition(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  orientation: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   const totalLength = gridSize * transform.scale * 1.6;
   const doorThickness = 6 * s;
@@ -818,7 +975,15 @@ function drawDoubleDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy:
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawDoubleSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: number, cy: number, orientation: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawDoubleSecretDoorAtPosition(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  orientation: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   ctx.save();
   ctx.fillStyle = theme.secretDoorColor ?? theme.wallStroke;
 
@@ -849,7 +1014,15 @@ function drawDoubleSecretDoorAtPosition(ctx: CanvasRenderingContext2D, cx: numbe
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawDiagonalDoubleDoor(ctx: CanvasRenderingContext2D, cx: number, cy: number, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawDiagonalDoubleDoor(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  diagonal: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   const totalLength = gridSize * transform.scale * (2 * DIAG_DOOR_LENGTH_MULT);
   const doorThickness = 6 * s;
@@ -891,7 +1064,15 @@ function drawDiagonalDoubleDoor(ctx: CanvasRenderingContext2D, cx: number, cy: n
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawDiagonalDoubleSecretDoor(ctx: CanvasRenderingContext2D, cx: number, cy: number, diagonal: string, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawDiagonalDoubleSecretDoor(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  diagonal: string,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   ctx.save();
   ctx.translate(cx, cy);
 
@@ -921,7 +1102,14 @@ function drawDiagonalDoubleSecretDoor(ctx: CanvasRenderingContext2D, cx: number,
  * @param {Object} transform - Transform with scale
  * @returns {void}
  */
-function drawStairsLinkLabel(ctx: CanvasRenderingContext2D, cx: number, cy: number, label: string, theme: Theme, transform: RenderTransform): void {
+function drawStairsLinkLabel(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  label: string,
+  theme: Theme,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   ctx.save();
   const radius = 8 * s;
@@ -955,7 +1143,13 @@ function drawStairsLinkLabel(ctx: CanvasRenderingContext2D, cx: number, cy: numb
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-function drawStairShape(ctx: CanvasRenderingContext2D, stairDef: Stairs, theme: Theme, gridSize: number, transform: RenderTransform): void {
+function drawStairShape(
+  ctx: CanvasRenderingContext2D,
+  stairDef: Stairs,
+  theme: Theme,
+  gridSize: number,
+  transform: RenderTransform,
+): void {
   const [p1, p2, p3] = stairDef.points;
   const lines = _computeStairHatchLines(p1, p2, p3);
   if (lines.length === 0) return;
@@ -987,7 +1181,12 @@ function drawStairShape(ctx: CanvasRenderingContext2D, stairDef: Stairs, theme: 
  * and inward shift (parallel to base toward P1). narrowLen = baseLen - 2 * inward.
  * This naturally handles rectangles (inward=0), trapezoids, and triangles.
  */
-function _computeStairHatchLines(p1: [number, number], p2: [number, number], p3: [number, number], lineSpacing = STAIR_HATCH_LINE_SPACING) {
+function _computeStairHatchLines(
+  p1: [number, number],
+  p2: [number, number],
+  p3: [number, number],
+  lineSpacing = STAIR_HATCH_LINE_SPACING,
+) {
   // Base vector and length
   const baseR = p2[0] - p1[0];
   const baseC = p2[1] - p1[1];
@@ -1028,10 +1227,10 @@ function _computeStairHatchLines(p1: [number, number], p2: [number, number], p3:
 
   for (let i = 0; i <= numLines; i++) {
     const t = margin + (i / numLines) * (1 - 2 * margin);
-    const r1 = p1[0] + t * (narrowStart[0] - p1[0]);
-    const c1 = p1[1] + t * (narrowStart[1] - p1[1]);
-    const r2 = p2[0] + t * (narrowEnd[0] - p2[0]);
-    const c2 = p2[1] + t * (narrowEnd[1] - p2[1]);
+    const r1 = p1[0] + t * (narrowStart[0]! - p1[0]);
+    const c1 = p1[1] + t * (narrowStart[1]! - p1[1]);
+    const r2 = p2[0] + t * (narrowEnd[0]! - p2[0]);
+    const c2 = p2[1] + t * (narrowEnd[1]! - p2[1]);
     const lineLen = Math.hypot(r2 - r1, c2 - c1);
     if (lineLen < 0.05) continue;
     lines.push({ r1, c1, r2, c2 });
@@ -1049,7 +1248,14 @@ function _computeStairHatchLines(p1: [number, number], p2: [number, number], p3:
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {void}
  */
-function drawStairShapeLinkLabel(ctx: CanvasRenderingContext2D, worldX: number, worldY: number, label: string, theme: Theme, transform: RenderTransform): void {
+function drawStairShapeLinkLabel(
+  ctx: CanvasRenderingContext2D,
+  worldX: number,
+  worldY: number,
+  label: string,
+  theme: Theme,
+  transform: RenderTransform,
+): void {
   const s = scaleFactor(transform);
   const p = toCanvas(worldX, worldY, transform);
   ctx.save();
@@ -1084,7 +1290,14 @@ function drawStairShapeLinkLabel(ctx: CanvasRenderingContext2D, worldX: number, 
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ p1: { x: number, y: number }, p2: { x: number, y: number } }} Canvas pixel endpoints
  */
-function wallSegmentCoords(x1: number, y1: number, x2: number, y2: number, gridSize: number, transform: RenderTransform): { p1: { x: number; y: number }; p2: { x: number; y: number } } {
+function wallSegmentCoords(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  gridSize: number,
+  transform: RenderTransform,
+): { p1: { x: number; y: number }; p2: { x: number; y: number } } {
   const fx1 = x1 * gridSize;
   const fy1 = y1 * gridSize;
   const fx2 = x2 * gridSize;
@@ -1103,7 +1316,13 @@ function wallSegmentCoords(x1: number, y1: number, x2: number, y2: number, gridS
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ p1: { x: number, y: number }, p2: { x: number, y: number } }} Canvas pixel endpoints
  */
-function diagonalWallSegmentCoords(col: number, row: number, diagonal: string, gridSize: number, transform: RenderTransform): { p1: { x: number; y: number }; p2: { x: number; y: number } } {
+function diagonalWallSegmentCoords(
+  col: number,
+  row: number,
+  diagonal: string,
+  gridSize: number,
+  transform: RenderTransform,
+): { p1: { x: number; y: number }; p2: { x: number; y: number } } {
   let fx1, fy1, fx2, fy2;
   if (diagonal === 'nw-se') {
     fx1 = col * gridSize;
@@ -1142,5 +1361,5 @@ export {
   drawStairsLinkLabel,
   wallSegmentCoords,
   diagonalWallSegmentCoords,
-  scaleFactor
+  scaleFactor,
 };

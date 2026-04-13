@@ -21,7 +21,7 @@ function ensureLightsArray(): void {
 }
 
 function findLightById(id: number): Light | null {
-  return getLights().find(l => l.id === id) ?? null;
+  return getLights().find((l) => l.id === id) ?? null;
 }
 
 function hitTestLight(pos: { x: number; y: number }): Light | null {
@@ -51,17 +51,25 @@ function hitTestLight(pos: { x: number; y: number }): Light | null {
  * Supports point and directional lights with preset catalog integration.
  */
 export class LightTool extends Tool {
-  dragging: { lightId: number; offsetX: number; offsetY: number; origX?: number; origY?: number; origRadius?: number; metaSnapshot?: string } | null = null;
+  dragging: {
+    lightId: number;
+    offsetX: number;
+    offsetY: number;
+    origX?: number;
+    origY?: number;
+    origRadius?: number;
+    metaSnapshot?: string;
+  } | null = null;
   dragMoved: boolean = false;
   hoveredLightId: number | null = null;
   hoverPos: CanvasPos | null = null;
 
   constructor() {
     super('light', 'L', 'crosshair');
-    this.dragging = null;    // { lightId, offsetX, offsetY } during drag
+    this.dragging = null; // { lightId, offsetX, offsetY } during drag
     this.dragMoved = false;
     this.hoveredLightId = null; // light under cursor (for cursor changes)
-    this.hoverPos = null;       // current cursor position (for placement preview)
+    this.hoverPos = null; // current cursor position (for placement preview)
   }
 
   getCursor() {
@@ -105,7 +113,7 @@ export class LightTool extends Tool {
       for (const category of catalog.categoryOrder) {
         const group = document.createElement('optgroup');
         group.label = category;
-        for (const id of catalog.byCategory[category]) {
+        for (const id of catalog.byCategory[category] ?? []) {
           const preset = catalog.lights[id];
           if (!preset) continue;
           const opt = document.createElement('option');
@@ -121,10 +129,10 @@ export class LightTool extends Tool {
         if (!lightCatalog) return;
         const preset = lightCatalog.lights[(select as HTMLInputElement).value];
         if (!preset) return;
-        state.lightPreset  = (select as HTMLInputElement).value;
-        state.lightType    = preset.type;
-        state.lightColor   = preset.color;
-        state.lightRadius  = preset.radius;
+        state.lightPreset = (select as HTMLInputElement).value;
+        state.lightType = preset.type;
+        state.lightColor = preset.color;
+        state.lightRadius = preset.radius;
         state.lightIntensity = preset.intensity;
         state.lightFalloff = preset.falloff;
         state.lightDimRadius = preset.dimRadius ?? 0;
@@ -213,9 +221,14 @@ export class LightTool extends Tool {
         const currentMeta = JSON.stringify(state.dungeon.metadata);
         const preDragMeta = this.dragging.metaSnapshot!;
         Object.assign(state.dungeon.metadata, JSON.parse(preDragMeta));
-        mutate('Move light', [], () => {
-          Object.assign(state.dungeon.metadata, JSON.parse(currentMeta));
-        }, { metaOnly: true, invalidate: ['lighting'] });
+        mutate(
+          'Move light',
+          [],
+          () => {
+            Object.assign(state.dungeon.metadata, JSON.parse(currentMeta));
+          },
+          { metaOnly: true, invalidate: ['lighting'] },
+        );
       }
       this.dragging = null;
       this.dragMoved = false;
@@ -251,16 +264,21 @@ export class LightTool extends Tool {
     }
 
     // Delete light under cursor
-    const pos = { x: event.offsetX, y: event.offsetY};
+    const pos = { x: event.offsetX, y: event.offsetY };
     const light = hitTestLight(pos);
     if (!light) return;
 
     const lightToDelete = light;
-    mutate('Delete light', [], () => {
-      const lights = getLights();
-      const idx = lights.indexOf(lightToDelete);
-      if (idx >= 0) lights.splice(idx, 1);
-    }, { metaOnly: true, invalidate: ['lighting'] });
+    mutate(
+      'Delete light',
+      [],
+      () => {
+        const lights = getLights();
+        const idx = lights.indexOf(lightToDelete);
+        if (idx >= 0) lights.splice(idx, 1);
+      },
+      { metaOnly: true, invalidate: ['lighting'] },
+    );
 
     if (state.selectedLightId === lightToDelete.id) {
       state.selectedLightId = null;
@@ -375,11 +393,16 @@ export class LightTool extends Tool {
     const light = findLightById(state.selectedLightId);
     if (!light) return;
     const lightRef = light;
-    mutate('Delete light', [], () => {
-      const lights = getLights();
-      const idx = lights.indexOf(lightRef);
-      if (idx >= 0) lights.splice(idx, 1);
-    }, { metaOnly: true, invalidate: ['lighting'] });
+    mutate(
+      'Delete light',
+      [],
+      () => {
+        const lights = getLights();
+        const idx = lights.indexOf(lightRef);
+        if (idx >= 0) lights.splice(idx, 1);
+      },
+      { metaOnly: true, invalidate: ['lighting'] },
+    );
     if (this.hoveredLightId === lightRef.id) {
       this.hoveredLightId = null;
       setCursor('crosshair');
@@ -405,15 +428,20 @@ export class LightTool extends Tool {
     const src = state.lightClipboard;
     const worldPos = world;
     let newLightId: number;
-    mutate('Paste light', [], () => {
-      ensureLightsArray();
-      const light = JSON.parse(JSON.stringify(src));
-      light.id = state.dungeon.metadata.nextLightId++;
-      light.x = worldPos.x;
-      light.y = worldPos.y;
-      state.dungeon.metadata.lights.push(light);
-      newLightId = light.id;
-    }, { metaOnly: true, invalidate: ['lighting'] });
+    mutate(
+      'Paste light',
+      [],
+      () => {
+        ensureLightsArray();
+        const light = JSON.parse(JSON.stringify(src));
+        light.id = state.dungeon.metadata.nextLightId++;
+        light.x = worldPos.x;
+        light.y = worldPos.y;
+        state.dungeon.metadata.lights.push(light);
+        newLightId = light.id;
+      },
+      { metaOnly: true, invalidate: ['lighting'] },
+    );
     state.selectedLightId = newLightId!;
     state.lightPasteMode = false;
 
@@ -437,41 +465,46 @@ export class LightTool extends Tool {
     }
 
     let newLight: Light;
-    mutate('Add light', [], () => {
-      ensureLightsArray();
+    mutate(
+      'Add light',
+      [],
+      () => {
+        ensureLightsArray();
 
-      const light: Light = {
-        id: state.dungeon.metadata.nextLightId++,
-        x: world.x,
-        y: world.y,
-        type: state.lightType as Light['type'],
-        radius: state.lightRadius,
-        color: state.lightColor,
-        intensity: state.lightIntensity,
-        falloff: state.lightFalloff as Light['falloff'],
-      };
+        const light: Light = {
+          id: state.dungeon.metadata.nextLightId++,
+          x: world.x,
+          y: world.y,
+          type: state.lightType as Light['type'],
+          radius: state.lightRadius,
+          color: state.lightColor,
+          intensity: state.lightIntensity,
+          falloff: state.lightFalloff as Light['falloff'],
+        };
 
-      // Dim radius
-      if (state.lightDimRadius > 0) light.dimRadius = state.lightDimRadius;
+        // Dim radius
+        if (state.lightDimRadius > 0) light.dimRadius = state.lightDimRadius;
 
-      // Z-height (height above floor in feet)
-      if (state.lightZ) light.z = state.lightZ;
+        // Z-height (height above floor in feet)
+        if (state.lightZ) light.z = state.lightZ;
 
-      // Track which preset this light was created from (enables Resync Preset Lights)
-      if (state.lightPreset) light.presetId = state.lightPreset;
+        // Track which preset this light was created from (enables Resync Preset Lights)
+        if (state.lightPreset) light.presetId = state.lightPreset;
 
-      // Animation
-      if (state.lightAnimation?.type) light.animation = { ...state.lightAnimation };
+        // Animation
+        if (state.lightAnimation?.type) light.animation = { ...state.lightAnimation };
 
-      // Add directional-specific properties
-      if (state.lightType === 'directional') {
-        light.spread = state.lightAngle;
-        light.range = state.lightRadius;
-      }
+        // Add directional-specific properties
+        if (state.lightType === 'directional') {
+          light.spread = state.lightAngle;
+          light.range = state.lightRadius;
+        }
 
-      state.dungeon.metadata.lights.push(light);
-      newLight = light;
-    }, { metaOnly: true, invalidate: ['lighting'] });
+        state.dungeon.metadata.lights.push(light);
+        newLight = light;
+      },
+      { metaOnly: true, invalidate: ['lighting'] },
+    );
 
     state.selectedLightId = newLight!.id;
 
@@ -518,7 +551,14 @@ export class LightTool extends Tool {
 
   // ── Rendering Helpers ────────────────────────────────────────────────────
 
-  _drawLightIcon(ctx: CanvasRenderingContext2D, px: number, py: number, light: Light, isSelected: boolean, isHovered: boolean) {
+  _drawLightIcon(
+    ctx: CanvasRenderingContext2D,
+    px: number,
+    py: number,
+    light: Light,
+    isSelected: boolean,
+    isHovered: boolean,
+  ) {
     const size = isSelected ? 10 : isHovered ? 9 : 7;
 
     ctx.save();
@@ -560,8 +600,8 @@ export class LightTool extends Tool {
 
     if (light.type === 'directional') {
       const range = ((light.range ?? light.radius) || 30) * transform.scale;
-      const angleRad = (light.angle ?? 0) * Math.PI / 180;
-      const spreadRad = (light.spread ?? 45) * Math.PI / 180;
+      const angleRad = ((light.angle ?? 0) * Math.PI) / 180;
+      const spreadRad = ((light.spread ?? 45) * Math.PI) / 180;
 
       // Draw cone
       ctx.beginPath();
@@ -607,8 +647,8 @@ export class LightTool extends Tool {
 
     if (state.lightType === 'directional') {
       const range = (state.lightRadius || 30) * transform.scale;
-      const angleRad = (state.lightAngle || 0) * Math.PI / 180;
-      const spreadRad = (state.lightSpread || 45) * Math.PI / 180;
+      const angleRad = ((state.lightAngle || 0) * Math.PI) / 180;
+      const spreadRad = ((state.lightSpread || 45) * Math.PI) / 180;
 
       ctx.strokeStyle = color + '80';
       ctx.lineWidth = 1.5;
@@ -659,8 +699,8 @@ export class LightTool extends Tool {
 
     if (light.type === 'directional') {
       const range = ((light.range ?? light.radius) || 30) * transform.scale;
-      const angleRad = (light.angle ?? 0) * Math.PI / 180;
-      const spreadRad = (light.spread ?? 45) * Math.PI / 180;
+      const angleRad = ((light.angle ?? 0) * Math.PI) / 180;
+      const spreadRad = ((light.spread ?? 45) * Math.PI) / 180;
 
       ctx.strokeStyle = color;
       ctx.lineWidth = 1.5;

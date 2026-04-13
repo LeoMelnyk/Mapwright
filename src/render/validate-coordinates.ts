@@ -42,7 +42,7 @@ function coordinateToFeet(x: number, y: number, z: number, gridSize: number): [n
     8: [halfGrid, halfGrid], // CENTER
   };
 
-  const [offsetX, offsetY] = zOffsets[z];
+  const [offsetX, offsetY] = zOffsets[z]!;
 
   return [feetX + offsetX, feetY + offsetY];
 }
@@ -80,7 +80,7 @@ function getCoordinateBounds(coordinates: number[][], gridSize: number): Dungeon
   let maxX = -Infinity,
     maxY = -Infinity;
 
-  for (const [x, y, z] of coordinates) {
+  for (const [x, y, z] of coordinates as [number, number, number][]) {
     const [feetX, feetY] = coordinateToFeet(x, y, z, gridSize);
     minX = Math.min(minX, feetX);
     minY = Math.min(minY, feetY);
@@ -148,7 +148,7 @@ function validateGridAlignment(config: { metadata: Metadata; cells: CellGrid; ro
     // Validate doors
     if (room.doors) {
       for (let i = 0; i < room.doors.length; i++) {
-        const door = room.doors[i];
+        const door = room.doors[i]!;
         try {
           validateCoordinate(door.coordinate, `Room ${room.id} door ${i}`);
         } catch (e) {
@@ -160,7 +160,7 @@ function validateGridAlignment(config: { metadata: Metadata; cells: CellGrid; ro
     // Validate secret doors
     if (room.secretDoors) {
       for (let i = 0; i < room.secretDoors.length; i++) {
-        const secretDoor = room.secretDoors[i];
+        const secretDoor = room.secretDoors[i]!;
         try {
           validateCoordinate(secretDoor.coordinate, `Room ${room.id} secretDoor ${i}`);
         } catch (e) {
@@ -172,7 +172,7 @@ function validateGridAlignment(config: { metadata: Metadata; cells: CellGrid; ro
     // Validate traps
     if (room.traps) {
       for (let i = 0; i < room.traps.length; i++) {
-        const trap = room.traps[i];
+        const trap = room.traps[i]!;
         try {
           validateCoordinate(trap.coordinate, `Room ${room.id} trap ${i}`);
         } catch (e) {
@@ -184,7 +184,7 @@ function validateGridAlignment(config: { metadata: Metadata; cells: CellGrid; ro
     // Validate room features
     if (room.features) {
       for (let i = 0; i < room.features.length; i++) {
-        const feature = room.features[i];
+        const feature = room.features[i]!;
         if (feature.coordinate) {
           try {
             validateCoordinate(feature.coordinate, `Room ${room.id} feature ${i}`);

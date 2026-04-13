@@ -60,7 +60,7 @@ function buildFromMetadata(entries: TextureMetadata[]): TextureCatalog {
     const key = data.id;
 
     const entry: TextureRuntime = {
-      displayName: (data.displayName) || key,
+      displayName: data.displayName || key,
       file: data.file,
       dispFile: (data.dispFile as string) || undefined,
       norFile: (data.norFile as string) || undefined,
@@ -73,8 +73,8 @@ function buildFromMetadata(entries: TextureMetadata[]): TextureCatalog {
     textures[key] = entry;
     names.push(key);
 
-    const category = entry.displayName ? (data.category) || 'Uncategorized' : 'Uncategorized';
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- byCategory is built dynamically
+    const category = entry.displayName ? data.category || 'Uncategorized' : 'Uncategorized';
+
     if (!byCategory[category]) {
       byCategory[category] = [];
       categoryOrder.push(category);
@@ -107,7 +107,9 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
           catalog = buildFromMetadata(cached);
           return catalog;
         }
-      } catch { /* cache corrupt, fall through to fresh fetch */ }
+      } catch {
+        /* cache corrupt, fall through to fresh fetch */
+      }
     }
 
     // Fresh fetch — load all .texture files
@@ -116,7 +118,7 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
         const r = await fetch(`${BASE_URL}${key}.texture`, { cache: 'no-cache' });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return { key, data: await r.json() };
-      })
+      }),
     );
 
     // Build serializable metadata array
@@ -151,7 +153,9 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(metadataEntries));
       localStorage.setItem(CACHE_VER_KEY, version);
-    } catch { /* localStorage full or unavailable — ignore */ }
+    } catch {
+      /* localStorage full or unavailable — ignore */
+    }
 
     catalog = buildFromMetadata(metadataEntries as TextureMetadata[]);
   } catch (e) {
@@ -203,7 +207,7 @@ export function loadTextureImages(id: string): Promise<void> {
   // (both are needed for rendering — displacement drives edge blend ordering)
   function awaitImage(image: HTMLImageElement) {
     if (!image.src || image.complete) return Promise.resolve();
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       image.addEventListener('load', resolve, { once: true });
       image.addEventListener('error', resolve, { once: true });
     });
@@ -218,7 +222,10 @@ export function loadTextureImages(id: string): Promise<void> {
  * @param {Function} [onProgress] - Called with (loaded, total) as images finish loading.
  * @returns {Promise<void>} Resolves when all diffuse + displacement images are ready.
  */
-export function ensureTexturesLoaded(ids: Iterable<string>, onProgress?: (loaded: number, total: number) => void): Promise<void[]> {
+export function ensureTexturesLoaded(
+  ids: Iterable<string>,
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<void[]> {
   const promises = [];
   const pendingImages = [];
 
@@ -246,9 +253,18 @@ export function ensureTexturesLoaded(ids: Iterable<string>, onProgress?: (loaded
         const entry = catalog?.textures[id];
         if (!entry) continue;
         for (const img of [entry.img, entry.dispImg]) {
-          if (!img) { loaded++; continue; }
-          if (img.complete) { loaded++; continue; }
-          const bump = () => { loaded++; onProgress(loaded, total); };
+          if (!img) {
+            loaded++;
+            continue;
+          }
+          if (img.complete) {
+            loaded++;
+            continue;
+          }
+          const bump = () => {
+            loaded++;
+            onProgress(loaded, total);
+          };
           img.addEventListener('load', bump, { once: true });
           img.addEventListener('error', bump, { once: true });
         }

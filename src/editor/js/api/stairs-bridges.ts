@@ -102,9 +102,9 @@ export function addStairs(
         minC = Infinity,
         maxC = -Infinity;
       for (const { row, col } of occupied) {
-        cells[row][col] ??= {};
-        cells[row][col].center ??= {};
-        cells[row][col].center['stair-id'] = stairId;
+        cells[row]![col] ??= {};
+        cells[row]![col].center ??= {};
+        cells[row]![col].center['stair-id'] = stairId;
         if (row < minR) minR = row;
         if (row > maxR) maxR = row;
         if (col < minC) minC = col;
@@ -128,7 +128,7 @@ export function removeStairs(row: number, col: number): { success: true } {
   row = toInt(row);
   col = toInt(col);
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
+  const cell = state.dungeon.cells[row]![col];
   const id = cell?.center?.['stair-id'];
 
   if (id == null) {
@@ -154,7 +154,7 @@ export function removeStairs(row: number, col: number): { success: true } {
   const cells = state.dungeon.cells;
   const stairCoords: Array<{ row: number; col: number }> = [];
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       if (cells[r]?.[c]?.center?.['stair-id'] === id) {
         stairCoords.push({ row: r, col: c });
       }
@@ -170,7 +170,7 @@ export function removeStairs(row: number, col: number): { success: true } {
       const idx = stairs.findIndex((s) => s.id === id);
 
       if (idx !== -1) {
-        const stairDef = stairs[idx];
+        const stairDef = stairs[idx]!;
         if (stairDef.link) {
           const partner = stairs.find((s) => s.link === stairDef.link && s.id !== id);
           if (partner) partner.link = null;
@@ -314,7 +314,7 @@ export function addBridge(
 
   const cells = state.dungeon.cells;
   const numRows = cells.length,
-    numCols = cells[0]?.length || 0;
+    numCols = cells[0]?.length ?? 0;
   for (const { row, col } of occupied) {
     if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
       throw new ApiValidationError('BRIDGE_OUT_OF_BOUNDS', `Bridge extends out of bounds at (${row}, ${col})`, {
@@ -336,9 +336,9 @@ export function addBridge(
       meta.bridges.push({ id: bridgeId, type: type as BridgeType, points: [p1, p2, p3] });
 
       for (const { row, col } of occupied) {
-        cells[row][col] ??= {};
-        cells[row][col].center ??= {};
-        cells[row][col].center['bridge-id'] = bridgeId;
+        cells[row]![col] ??= {};
+        cells[row]![col].center ??= {};
+        cells[row]![col].center['bridge-id'] = bridgeId;
       }
     },
     { invalidate: ['lighting'] },
@@ -369,7 +369,7 @@ export function removeBridge(row: number, col: number): { success: true } {
   const cells = state.dungeon.cells;
   const bridgeCoords: Array<{ row: number; col: number }> = [];
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       if (cells[r]?.[c]?.center?.['bridge-id'] === id) {
         bridgeCoords.push({ row: r, col: c });
       }

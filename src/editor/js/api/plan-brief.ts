@@ -90,10 +90,10 @@ export function planBrief(
         `Connection from "${conn.from}" to "${conn.to}" must specify direction`,
         { from: conn.from, to: conn.to },
       );
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    (adj[conn.from] = adj[conn.from] || []).push({ to: conn.to, dir: conn.direction, corrW, type });
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    (adj[conn.to] = adj[conn.to] || []).push({
+
+    (adj[conn.from] = adj[conn.from] ?? []).push({ to: conn.to, dir: conn.direction, corrW, type });
+
+    (adj[conn.to] = adj[conn.to] ?? []).push({
       to: conn.from,
       dir: ODIR[conn.direction as keyof typeof ODIR],
       corrW,
@@ -102,31 +102,31 @@ export function planBrief(
   }
 
   // BFS layout
-  const rootLabel = ((roomDefs as RoomDef[]).find((r) => r.entrance) ?? (roomDefs as RoomDef[])[0]).label;
+  const rootLabel = ((roomDefs as RoomDef[]).find((r) => r.entrance) ?? (roomDefs as RoomDef[])[0]!).label;
   const positions: Record<string, Rect> = {};
   const corridorRects: Rect[] = [];
   const doorCmds: { row: number; col: number; dir: string; type: string }[] = [];
   const visited = new Set([rootLabel]);
 
-  const rootDef = roomMap[rootLabel];
+  const rootDef = roomMap[rootLabel]!;
   positions[rootLabel] = { r1: 1, c1: 1, r2: rootDef.height, c2: rootDef.width };
 
   const queue = [rootLabel];
   while (queue.length) {
     const pLabel = queue.shift();
-    const pPos = positions[pLabel!];
+    const pPos = positions[pLabel!]!;
     const pCenterRow = Math.floor((pPos.r1 + pPos.r2) / 2);
     const pCenterCol = Math.floor((pPos.c1 + pPos.c2) / 2);
 
     // Group unvisited children by direction
     const byDir: Record<string, Edge[]> = {};
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-    for (const edge of adj[pLabel!] || []) {
+
+    for (const edge of adj[pLabel!] ?? []) {
       if (visited.has(edge.to)) continue;
       visited.add(edge.to);
       queue.push(edge.to);
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
-      (byDir[edge.dir] = byDir[edge.dir] || []).push(edge);
+
+      (byDir[edge.dir] = byDir[edge.dir] ?? []).push(edge);
     }
 
     for (const [dir, edges] of Object.entries(byDir)) {
@@ -134,11 +134,11 @@ export function planBrief(
 
       if (isNS) {
         // Side-by-side horizontally, each corridor centered on its child
-        const totalW = edges.reduce((s: number, e: Edge) => s + roomMap[e.to].width, 0) + (edges.length - 1);
+        const totalW = edges.reduce((s: number, e: Edge) => s + roomMap[e.to]!.width, 0) + (edges.length - 1);
         let startCol = pCenterCol - Math.floor(totalW / 2);
 
         for (const edge of edges) {
-          const cDef = roomMap[edge.to];
+          const cDef = roomMap[edge.to]!;
           const corrW = edge.corrW;
           let cR1, corrR1, corrR2;
 
@@ -171,11 +171,11 @@ export function planBrief(
         }
       } else {
         // Side-by-side vertically, each corridor centered on its child
-        const totalH = edges.reduce((s: number, e: Edge) => s + roomMap[e.to].height, 0) + (edges.length - 1);
+        const totalH = edges.reduce((s: number, e: Edge) => s + roomMap[e.to]!.height, 0) + (edges.length - 1);
         let startRow = pCenterRow - Math.floor(totalH / 2);
 
         for (const edge of edges) {
-          const cDef = roomMap[edge.to];
+          const cDef = roomMap[edge.to]!;
           const corrW = edge.corrW;
           let cC1, corrC1, corrC2;
 
@@ -283,7 +283,7 @@ export function planBrief(
 
   // Rooms in input order
   for (const rDef of roomDefs as RoomDef[]) {
-    const pos = positions[rDef.label];
+    const pos = positions[rDef.label]!;
     commands.push(['createRoom', pos.r1, pos.c1, pos.r2, pos.c2]);
     commands.push(['setLabel', Math.floor((pos.r1 + pos.r2) / 2), Math.floor((pos.c1 + pos.c2) / 2), rDef.label]);
   }

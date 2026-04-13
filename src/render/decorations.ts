@@ -28,7 +28,14 @@ function drawBackground(ctx: CanvasRenderingContext2D, width: number, height: nu
  * @param {number} [yOffset=0] - Vertical offset from the top
  * @returns {void}
  */
-function drawDungeonTitle(ctx: CanvasRenderingContext2D, width: number, dungeonName: string, fontSize: number, theme: Theme, yOffset: number = 0): void {
+function drawDungeonTitle(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  dungeonName: string,
+  fontSize: number,
+  theme: Theme,
+  yOffset: number = 0,
+): void {
   ctx.save();
 
   ctx.font = `bold ${fontSize}px Georgia, "Times New Roman", serif`;
@@ -69,9 +76,18 @@ function _gridNoise(row: number, col: number, dir: number, noiseAmount: number, 
  * @param {Object} metadata - Dungeon metadata with resolution
  * @returns {void}
  */
-function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCells: boolean[][], gridSize: number, transform: RenderTransform, theme: Theme, showGridInCorridors: boolean, metadata: Metadata | null): void {
+function drawMatrixGrid(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+  transform: RenderTransform,
+  theme: Theme,
+  showGridInCorridors: boolean,
+  metadata: Metadata | null,
+): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const resolution = metadata?.resolution ?? 1;
 
   const style = theme.gridStyle ?? 'lines';
@@ -84,7 +100,7 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
 
   const shouldDraw = (r: number, c: number) => {
     if (r < 0 || r >= numRows || c < 0 || c >= numCols) return false;
-    return roomCells[r][c] || (showGridInCorridors && cells[r]?.[c]);
+    return roomCells[r]![c] ?? (showGridInCorridors && cells[r]?.[c]);
   };
 
   ctx.strokeStyle = theme.gridLine!;
@@ -95,7 +111,7 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
   if (style === 'lines' || style === 'dotted') {
     // Full lines or dashed lines between cells
     if (style === 'dotted') {
-      const dashLen = (lineWidth) * 2;
+      const dashLen = lineWidth * 2;
       ctx.setLineDash([dashLen, dashLen]);
     }
     ctx.beginPath();
@@ -128,11 +144,10 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
 
     ctx.stroke();
     if (style === 'dotted') ctx.setLineDash([]);
-
   } else if (style === 'corners-x' || style === 'corners-dot') {
     // Iterate over intersection points (corners of the grid)
     // Intersection (r, c) is shared by cells (r-1,c-1), (r-1,c), (r,c-1), (r,c)
-    const armLen = gridSize * (cornerFrac);
+    const armLen = gridSize * cornerFrac;
     const dotRadius = lineWidth;
     ctx.beginPath();
 
@@ -142,8 +157,7 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
         if (c % resolution !== 0) continue;
 
         // Only draw at fully interior intersections (all 4 adjacent cells must be drawable)
-        if (!shouldDraw(r, c) || !shouldDraw(r - 1, c) ||
-            !shouldDraw(r, c - 1) || !shouldDraw(r - 1, c - 1)) continue;
+        if (!shouldDraw(r, c) || !shouldDraw(r - 1, c) || !shouldDraw(r, c - 1) || !shouldDraw(r - 1, c - 1)) continue;
 
         const n = _gridNoise(r, c, style === 'corners-x' ? 2 : 3, noise, gridSize);
         const p = toCanvas(c * gridSize + n, r * gridSize + n, transform);
@@ -177,7 +191,13 @@ function drawMatrixGrid(ctx: CanvasRenderingContext2D, cells: CellGrid, roomCell
  * @param {Object} theme - Theme with gridLine color
  * @returns {void}
  */
-function drawGrid(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; cells: CellGrid }, bounds: { minX: number; minY: number; maxX: number; maxY: number }, transform: RenderTransform, theme: Theme): void {
+function drawGrid(
+  ctx: CanvasRenderingContext2D,
+  config: { metadata: Metadata; cells: CellGrid },
+  bounds: { minX: number; minY: number; maxX: number; maxY: number },
+  transform: RenderTransform,
+  theme: Theme,
+): void {
   const gridSize = config.metadata.gridSize;
   const style = theme.gridStyle ?? 'lines';
   const lineWidth = theme.gridLineWidth ?? 4;
@@ -197,7 +217,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; c
 
   if (style === 'lines' || style === 'dotted') {
     if (style === 'dotted') {
-      const dashLen = (lineWidth) * 2;
+      const dashLen = lineWidth * 2;
       ctx.setLineDash([dashLen, dashLen]);
     }
 
@@ -226,9 +246,8 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; c
     }
 
     if (style === 'dotted') ctx.setLineDash([]);
-
   } else if (style === 'corners-x') {
-    const armLen = gridSize * (cornerFrac);
+    const armLen = gridSize * cornerFrac;
     ctx.beginPath();
 
     for (let x = startX; x <= endX; x += gridSize) {
@@ -246,7 +265,6 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; c
     }
 
     ctx.stroke();
-
   } else if (style === 'corners-dot') {
     const dotRadius = lineWidth;
     ctx.beginPath();
@@ -277,9 +295,15 @@ function drawGrid(ctx: CanvasRenderingContext2D, config: { metadata: Metadata; c
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ x: number, y: number }|null} Canvas position, or null if no space
  */
-function findCompassRosePosition(cells: CellGrid, gridSize: number, width: number, height: number, transform: RenderTransform): { x: number; y: number } | null {
+function findCompassRosePosition(
+  cells: CellGrid,
+  gridSize: number,
+  width: number,
+  height: number,
+  transform: RenderTransform,
+): { x: number; y: number } | null {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   const isCornerClear = (canvasX: number, canvasY: number) => {
     const feetX = (canvasX - transform.offsetX) / transform.scale;
@@ -297,7 +321,7 @@ function findCompassRosePosition(cells: CellGrid, gridSize: number, width: numbe
           continue;
         }
 
-        if (cells[checkY][checkX] !== null) {
+        if (cells[checkY]![checkX] != null) {
           return false;
         }
       }
@@ -310,7 +334,7 @@ function findCompassRosePosition(cells: CellGrid, gridSize: number, width: numbe
     { x: width - 80, y: 80 },
     { x: 80, y: 80 },
     { x: width - 80, y: height - 80 },
-    { x: 80, y: height - 80 }
+    { x: 80, y: height - 80 },
   ];
 
   for (const corner of corners) {
@@ -346,11 +370,11 @@ function drawCompassRose(ctx: CanvasRenderingContext2D, x: number, y: number, th
   ctx.stroke();
 
   const drawPoint = (angle: number, length: number, filled: boolean) => {
-    const rad = (angle - 90) * Math.PI / 180;
+    const rad = ((angle - 90) * Math.PI) / 180;
     const tipX = x + Math.cos(rad) * length;
     const tipY = y + Math.sin(rad) * length;
-    const baseLeft = (angle - 90 - 15) * Math.PI / 180;
-    const baseRight = (angle - 90 + 15) * Math.PI / 180;
+    const baseLeft = ((angle - 90 - 15) * Math.PI) / 180;
+    const baseRight = ((angle - 90 + 15) * Math.PI) / 180;
     const baseLength = length * 0.3;
 
     ctx.beginPath();
@@ -406,7 +430,14 @@ function drawCompassRose(ctx: CanvasRenderingContext2D, x: number, y: number, th
  * @param {number} resolution - Resolution multiplier
  * @returns {void}
  */
-function drawScaleIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, gridSize: number, theme: Theme, resolution: number): void {
+function drawScaleIndicator(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  gridSize: number,
+  theme: Theme,
+  resolution: number,
+): void {
   ctx.fillStyle = theme.textColor!;
   ctx.font = 'bold 12px serif';
   ctx.textAlign = 'center';
@@ -446,9 +477,16 @@ function drawBorder(ctx: CanvasRenderingContext2D, width: number, height: number
  * @param {number} [padding=5] - Padding in grid-feet outside the dungeon bounds
  * @returns {void}
  */
-function drawBorderOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, padding: number = 5): void {
+function drawBorderOnMap(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  padding: number = 5,
+): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   const s = transform.scale / 10; // scale factor relative to GRID_SCALE=10
 
@@ -480,9 +518,16 @@ function drawBorderOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSiz
  * @param {number} resolution - Resolution multiplier
  * @returns {void}
  */
-function drawScaleIndicatorOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, resolution: number): void {
+function drawScaleIndicatorOnMap(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  resolution: number,
+): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   const s = transform.scale / 10;
 
@@ -507,9 +552,13 @@ function drawScaleIndicatorOnMap(ctx: CanvasRenderingContext2D, cells: CellGrid,
  * @param {Object} transform - Transform with scale, offsetX, offsetY
  * @returns {{ x: number, y: number }|null} Canvas position, or null if no space
  */
-function findCompassRosePositionOnMap(cells: CellGrid, gridSize: number, transform: RenderTransform): { x: number; y: number; scale: number } | null {
+function findCompassRosePositionOnMap(
+  cells: CellGrid,
+  gridSize: number,
+  transform: RenderTransform,
+): { x: number; y: number; scale: number } | null {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   const s = transform.scale / 10;
 
@@ -523,7 +572,7 @@ function findCompassRosePositionOnMap(cells: CellGrid, gridSize: number, transfo
         const checkCol = cellCol + dx;
         const checkRow = cellRow + dy;
         if (checkCol < 0 || checkCol >= numCols || checkRow < 0 || checkRow >= numRows) continue;
-        if (cells[checkRow][checkCol] !== null) return false;
+        if (cells[checkRow]![checkCol] != null) return false;
       }
     }
     return true;
@@ -534,10 +583,10 @@ function findCompassRosePositionOnMap(cells: CellGrid, gridSize: number, transfo
 
   // Corners of the dungeon in feet (inset by a couple squares)
   const corners = [
-    { fx: numCols * gridSize - insetFeet, fy: insetFeet },                       // top-right
-    { fx: insetFeet, fy: insetFeet },                                             // top-left
-    { fx: numCols * gridSize - insetFeet, fy: numRows * gridSize - insetFeet },   // bottom-right
-    { fx: insetFeet, fy: numRows * gridSize - insetFeet },                        // bottom-left
+    { fx: numCols * gridSize - insetFeet, fy: insetFeet }, // top-right
+    { fx: insetFeet, fy: insetFeet }, // top-left
+    { fx: numCols * gridSize - insetFeet, fy: numRows * gridSize - insetFeet }, // bottom-right
+    { fx: insetFeet, fy: numRows * gridSize - insetFeet }, // bottom-left
   ];
 
   for (const corner of corners) {
@@ -575,11 +624,11 @@ function drawCompassRoseScaled(ctx: CanvasRenderingContext2D, x: number, y: numb
   ctx.stroke();
 
   const drawPoint = (angle: number, length: number, filled: boolean) => {
-    const rad = (angle - 90) * Math.PI / 180;
+    const rad = ((angle - 90) * Math.PI) / 180;
     const tipX = x + Math.cos(rad) * length;
     const tipY = y + Math.sin(rad) * length;
-    const baseLeft = (angle - 90 - 15) * Math.PI / 180;
-    const baseRight = (angle - 90 + 15) * Math.PI / 180;
+    const baseLeft = ((angle - 90 - 15) * Math.PI) / 180;
+    const baseRight = ((angle - 90 + 15) * Math.PI) / 180;
     const baseLength = length * 0.3;
 
     ctx.beginPath();
@@ -638,5 +687,5 @@ export {
   drawBorderOnMap,
   drawScaleIndicatorOnMap,
   findCompassRosePositionOnMap,
-  drawCompassRoseScaled
+  drawCompassRoseScaled,
 };

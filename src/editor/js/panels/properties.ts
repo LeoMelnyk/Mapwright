@@ -16,7 +16,9 @@ const collapsedCategories = new Set();
  * Register a callback invoked when a prop is selected in the explorer.
  * @param {Function} fn - Callback receiving the prop type key
  */
-export function setSelectPropCallback(fn: (propType: string) => void): void { onSelectProp = fn; }
+export function setSelectPropCallback(fn: (propType: string) => void): void {
+  onSelectProp = fn;
+}
 
 /**
  * Initialize the properties panel: subscribe to state changes and render initial content.
@@ -46,7 +48,8 @@ function update() {
   }
 
   // Rebuild cell info only when selected cells or inspect mode changes
-  const cellsSig = state.selectedCells.length > 0 ? `${state.selectedCells[0].row},${state.selectedCells[0].col}` : '';
+  const cellsSig =
+    state.selectedCells.length > 0 ? `${state.selectedCells[0]!.row},${state.selectedCells[0]!.col}` : '';
   const modeSig = state.activeTool + ':' + state.selectMode;
   if (cellsSig !== _lastSelectedCells || modeSig !== _lastSelectMode) {
     _lastSelectedCells = cellsSig;
@@ -110,8 +113,10 @@ function buildPropExplorer(container: HTMLElement) {
   collapseAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>`;
   collapseAllBtn.addEventListener('click', () => {
     catalog.categories.forEach((cat: string) => collapsedCategories.add(cat));
-    scrollArea.querySelectorAll<HTMLElement>('.prop-category-title').forEach(t => t.classList.remove('open'));
-    scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach(g => { g.style.display = 'none'; });
+    scrollArea.querySelectorAll<HTMLElement>('.prop-category-title').forEach((t) => t.classList.remove('open'));
+    scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach((g) => {
+      g.style.display = 'none';
+    });
   });
 
   const expandAllBtn = document.createElement('button');
@@ -120,8 +125,10 @@ function buildPropExplorer(container: HTMLElement) {
   expandAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 6 5 5 5-5"/><path d="m7 13 5 5 5-5"/></svg>`;
   expandAllBtn.addEventListener('click', () => {
     collapsedCategories.clear();
-    scrollArea.querySelectorAll<HTMLElement>('.prop-category-title').forEach(t => t.classList.add('open'));
-    scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach(g => { g.style.display = ''; });
+    scrollArea.querySelectorAll<HTMLElement>('.prop-category-title').forEach((t) => t.classList.add('open'));
+    scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach((g) => {
+      g.style.display = '';
+    });
   });
 
   searchWrap.appendChild(actionSep);
@@ -143,7 +150,7 @@ function buildPropExplorer(container: HTMLElement) {
     html += `<div class="prop-grid" data-cat-grid="${category}">`;
 
     for (const propType of propNames) {
-      const def = catalog.props[propType];
+      const def = catalog.props[propType]!;
       const displayName = def.name || propType;
       html += `<div class="prop-thumb" data-prop="${propType}">`;
       html += '<div class="prop-thumb-shimmer"></div>';
@@ -200,7 +207,7 @@ function filterProps(query: string) {
   // Track which categories have visible props
   const visibleCategories = new Set();
 
-  thumbs.forEach(thumb => {
+  thumbs.forEach((thumb) => {
     const propType = thumb.dataset.prop;
     const label = thumb.querySelector('span')?.textContent.toLowerCase() ?? '';
     const match = !query || label.includes(query) || (propType?.includes(query) ?? false);
@@ -214,7 +221,7 @@ function filterProps(query: string) {
     }
   });
 
-  categoryTitles.forEach(title => {
+  categoryTitles.forEach((title) => {
     const cat = title.dataset.category;
     const hasVisible = visibleCategories.has(cat);
     title.style.display = hasVisible ? '' : 'none';
@@ -245,11 +252,11 @@ function renderThumbnails(catalog: PropCatalog) {
   function renderBatch() {
     let rendered = 0;
     while (index < allThumbs.length) {
-      const thumb = allThumbs[index];
+      const thumb = allThumbs[index]!;
       index++;
 
       const propType = thumb.dataset.prop!;
-      const def = catalog.props[propType];
+      const def = catalog.props[propType]!;
 
       const [rows, cols] = def.footprint;
       const maxDim = Math.max(rows, cols);
@@ -276,7 +283,10 @@ function renderThumbnails(catalog: PropCatalog) {
 
       const texCat = getTextureCatalog();
       const getTexImg = texCat
-        ? (id: string) => { const e = texCat.textures[id]; return e?.img?.complete ? e.img : null; }
+        ? (id: string) => {
+            const e = texCat.textures[id];
+            return e?.img?.complete ? e.img : null;
+          }
         : null;
       renderProp(ctx, def, 0, 0, 0, 1, theme, transform, false, getTexImg);
 
@@ -304,7 +314,7 @@ function updateSelectedThumb() {
   if (!explorer) return;
 
   const thumbs = explorer.querySelectorAll<HTMLElement>('.prop-thumb');
-  thumbs.forEach(thumb => {
+  thumbs.forEach((thumb) => {
     if (thumb.dataset.prop === state.selectedProp) {
       thumb.classList.add('selected');
     } else {
@@ -317,7 +327,7 @@ function updateSelectedThumb() {
 
 function getFloatPanel() {
   let fp = document.getElementById('cell-info-float');
-   
+
   if (!fp) {
     fp = document.createElement('div');
     fp.id = 'cell-info-float';
@@ -345,13 +355,12 @@ function updateCellInfo() {
     return;
   }
 
-  const { row, col } = state.selectedCells[0];
+  const { row, col } = state.selectedCells[0]!;
   const cells = state.dungeon.cells;
   const cell = cells[row]?.[col];
 
   let bodyHtml = '';
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (cell === null || cell === undefined) {
     bodyHtml = '<p class="hint">Void cell (no data)</p>';
   } else {
@@ -365,10 +374,14 @@ function updateCellInfo() {
     // Center
     bodyHtml += '<div class="prop-section">Center</div>';
     if (cell.center) {
-      if (cell.center.label) bodyHtml += `<div class="prop-row"><span>label</span><span class="prop-val">${cell.center.label}</span></div>`;
-      if (cell.center['stairs-up']) bodyHtml += `<div class="prop-row"><span>stairs-up</span><span class="prop-val">${JSON.stringify(cell.center['stairs-up'])}</span></div>`;
-      if (cell.center['stairs-down']) bodyHtml += `<div class="prop-row"><span>stairs-down</span><span class="prop-val">${JSON.stringify(cell.center['stairs-down'])}</span></div>`;
-      if (cell.center['stairs-link']) bodyHtml += `<div class="prop-row"><span>link</span><span class="prop-val">${cell.center['stairs-link']}</span></div>`;
+      if (cell.center.label)
+        bodyHtml += `<div class="prop-row"><span>label</span><span class="prop-val">${cell.center.label}</span></div>`;
+      if (cell.center['stairs-up'])
+        bodyHtml += `<div class="prop-row"><span>stairs-up</span><span class="prop-val">${JSON.stringify(cell.center['stairs-up'])}</span></div>`;
+      if (cell.center['stairs-down'])
+        bodyHtml += `<div class="prop-row"><span>stairs-down</span><span class="prop-val">${JSON.stringify(cell.center['stairs-down'])}</span></div>`;
+      if (cell.center['stairs-link'])
+        bodyHtml += `<div class="prop-row"><span>link</span><span class="prop-val">${cell.center['stairs-link']}</span></div>`;
     } else {
       bodyHtml += '<p class="hint">No center content</p>';
     }
@@ -376,13 +389,19 @@ function updateCellInfo() {
     // Trim
     if (cell.trimCorner || cell.trimWall || cell.trimClip) {
       bodyHtml += '<div class="prop-section">Trim</div>';
-      if (cell.trimCorner) bodyHtml += `<div class="prop-row"><span>corner</span><span class="prop-val">${cell.trimCorner}</span></div>`;
-      if (cell.trimWall) bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">round arc</span></div>`;
-      else if (cell['ne-sw'] || cell['nw-se']) bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">straight diagonal</span></div>`;
+      if (cell.trimCorner)
+        bodyHtml += `<div class="prop-row"><span>corner</span><span class="prop-val">${cell.trimCorner}</span></div>`;
+      if (cell.trimWall)
+        bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">round arc</span></div>`;
+      else if (cell['ne-sw'] || cell['nw-se'])
+        bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">straight diagonal</span></div>`;
       if (cell.trimOpen) bodyHtml += `<div class="prop-row"><span>open</span><span class="prop-val">true</span></div>`;
-      if (cell.trimInverted) bodyHtml += `<div class="prop-row"><span>inverted</span><span class="prop-val">true</span></div>`;
-      if (cell.trimWall) bodyHtml += `<div class="prop-row"><span>wall pts</span><span class="prop-val">${cell.trimWall.length}</span></div>`;
-      if (cell.trimClip) bodyHtml += `<div class="prop-row"><span>clip pts</span><span class="prop-val">${cell.trimClip.length}</span></div>`;
+      if (cell.trimInverted)
+        bodyHtml += `<div class="prop-row"><span>inverted</span><span class="prop-val">true</span></div>`;
+      if (cell.trimWall)
+        bodyHtml += `<div class="prop-row"><span>wall pts</span><span class="prop-val">${cell.trimWall.length}</span></div>`;
+      if (cell.trimClip)
+        bodyHtml += `<div class="prop-row"><span>clip pts</span><span class="prop-val">${cell.trimClip.length}</span></div>`;
     }
 
     // Fill
@@ -410,29 +429,35 @@ function updateCellInfo() {
     // Prop info (from overlay)
     const meta = state.dungeon.metadata;
     const gs = meta.gridSize || 5;
-    const overlayProp = meta.props?.find((p: { x: number; y: number }) => Math.abs(p.x - col * gs) < 0.01 && Math.abs(p.y - row * gs) < 0.01);
+    const overlayProp = meta.props?.find(
+      (p: { x: number; y: number }) => Math.abs(p.x - col * gs) < 0.01 && Math.abs(p.y - row * gs) < 0.01,
+    );
     if (overlayProp) {
       const Z_NAMES = { 0: 'floor', 10: 'furniture', 20: 'tall', 30: 'hanging' };
-      const zName = (Z_NAMES as Record<string, string>)[overlayProp.zIndex] || '';
-      const scalePercent = Math.round((overlayProp.scale) * 100);
+      const zName = (Z_NAMES as Record<string, string>)[overlayProp.zIndex] ?? '';
+      const scalePercent = Math.round(overlayProp.scale * 100);
       bodyHtml += '<div class="prop-section">Prop</div>';
       bodyHtml += `<div class="prop-row"><span>type</span><span class="prop-val">${overlayProp.type}</span></div>`;
       bodyHtml += `<div class="prop-row"><span>rotation</span><span class="prop-val">${overlayProp.rotation}\u00b0</span></div>`;
       bodyHtml += `<div class="prop-row"><span>scale</span><span class="prop-val">${scalePercent}%</span></div>`;
       bodyHtml += `<div class="prop-row"><span>z-order</span><span class="prop-val">${zName ? zName + ' (' + overlayProp.zIndex + ')' : overlayProp.zIndex}</span></div>`;
-      if (overlayProp.flipped) bodyHtml += `<div class="prop-row"><span>flipped</span><span class="prop-val">true</span></div>`;
+      if (overlayProp.flipped)
+        bodyHtml += `<div class="prop-row"><span>flipped</span><span class="prop-val">true</span></div>`;
       bodyHtml += `<div class="prop-row"><span>id</span><span class="prop-val">${overlayProp.id}</span></div>`;
     }
 
     // Texture
     if (cell.texture || cell.textureSecondary) {
       bodyHtml += '<div class="prop-section">Texture</div>';
-      if (cell.texture) bodyHtml += `<div class="prop-row"><span>primary</span><span class="prop-val" title="${cell.texture}">${cell.texture.split('/').pop()}</span></div>`;
-      if (cell.textureSecondary) bodyHtml += `<div class="prop-row"><span>secondary</span><span class="prop-val" title="${cell.textureSecondary}">${cell.textureSecondary.split('/').pop()}</span></div>`;
+      if (cell.texture)
+        bodyHtml += `<div class="prop-row"><span>primary</span><span class="prop-val" title="${cell.texture}">${cell.texture.split('/').pop()}</span></div>`;
+      if (cell.textureSecondary)
+        bodyHtml += `<div class="prop-row"><span>secondary</span><span class="prop-val" title="${cell.textureSecondary}">${cell.textureSecondary.split('/').pop()}</span></div>`;
     }
 
     // Raw JSON (collapsed by default)
-    bodyHtml += '<details class="prop-raw-details"><summary class="prop-section" style="cursor:pointer">Raw JSON \u25B6</summary>';
+    bodyHtml +=
+      '<details class="prop-raw-details"><summary class="prop-section" style="cursor:pointer">Raw JSON \u25B6</summary>';
     bodyHtml += `<pre class="prop-json">${JSON.stringify(cell, null, 2)}</pre></details>`;
   }
 

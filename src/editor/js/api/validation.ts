@@ -25,7 +25,7 @@ export function validateDoorClearance(): {
   const issues = [];
 
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const cell = cells[r]?.[c];
       if (!cell) continue;
       for (const dir of CARDINAL_DIRS) {
@@ -39,10 +39,10 @@ export function validateDoorClearance(): {
             problem: 'prop blocking door cell',
           });
         }
-        const [dr, dc] = OFFSETS[dir];
+        const [dr, dc] = OFFSETS[dir]!;
         const nr = r + dr,
           nc = c + dc;
-        if (nr >= 0 && nr < cells.length && nc >= 0 && nc < (cells[nr]?.length || 0)) {
+        if (nr >= 0 && nr < cells.length && nc >= 0 && nc < (cells[nr]?.length ?? 0)) {
           if (getApi()._isCellCoveredByProp(nr, nc)) {
             issues.push({
               row: toDisp(nr),
@@ -82,7 +82,7 @@ export function validateConnectivity(entranceLabel: string): {
   // findCellByLabel returns display coords — convert to internal
   const startR = toInt(start.row!),
     startC = toInt(start.col!);
-  const queue = [[startR, startC]];
+  const queue: [number, number][] = [[startR, startC]];
   visited.add(cellKey(startR, startC));
 
   while (queue.length) {
@@ -92,12 +92,12 @@ export function validateConnectivity(entranceLabel: string): {
     for (const dir of CARDINAL_DIRS) {
       const edge = (cell as Record<string, unknown>)[dir];
       if (edge === 'w' || edge === 'iw') continue;
-      const [dr, dc] = OFFSETS[dir];
+      const [dr, dc] = OFFSETS[dir]!;
       const nr = r + dr,
         nc = c + dc;
       const key = cellKey(nr, nc);
       if (visited.has(key)) continue;
-      if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[nr]?.length || 0)) continue;
+      if (nr < 0 || nr >= cells.length || nc < 0 || nc >= (cells[nr]?.length ?? 0)) continue;
       if (!cells[nr]?.[nc]) continue;
       visited.add(key);
       queue.push([nr, nc]);
@@ -107,7 +107,7 @@ export function validateConnectivity(entranceLabel: string): {
   const reachable = [];
   const unreachable = [];
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       const label = cells[r]?.[c]?.center?.label;
       if (label == null) continue;
       const labelStr = label;
@@ -338,7 +338,7 @@ export function critiqueMap(
         let sumR = 0,
           sumC = 0;
         for (const k of set) {
-          const [r, c] = k.split(',').map(Number);
+          const [r, c] = k.split(',').map(Number) as [number, number];
           sumR += r;
           sumC += c;
         }
@@ -459,7 +459,7 @@ export function critiqueMap(
 
   // Sort: error > warning > info
   const sevOrder: Record<string, number> = { error: 0, warning: 1, info: 2 };
-  findings.sort((a, b) => sevOrder[a.severity] - sevOrder[b.severity]);
+  findings.sort((a, b) => sevOrder[a.severity]! - sevOrder[b.severity]!);
 
   return { success: true, findingCount: findings.length, findings };
 }

@@ -17,20 +17,22 @@ import { getBridgeCorners as sharedGetBridgeCorners } from '../../util/index.js'
  * @param {number[]} p3 - [row, col]
  * @returns {boolean}
  */
-export function isBridgeDegenerate(p1: number[], p2: number[], p3: number[]): boolean {
+export function isBridgeDegenerate(p1: [number, number], p2: [number, number], p3: [number, number]): boolean {
   if (p1[0] === p2[0] && p1[1] === p2[1]) return true;
 
-  const bR = p2[0] - p1[0], bC = p2[1] - p1[1];
+  const bR = p2[0] - p1[0],
+    bC = p2[1] - p1[1];
   const bLen2 = bR * bR + bC * bC;
   if (bLen2 < 0.001) return true;
 
   // Project (P3 - P2) onto perpendicular of base
-  const relR = p3[0] - p2[0], relC = p3[1] - p2[1];
+  const relR = p3[0] - p2[0],
+    relC = p3[1] - p2[1];
   const dotPar = (relR * bR + relC * bC) / bLen2;
   const perpR = relR - dotPar * bR;
   const perpC = relC - dotPar * bC;
 
-  return (perpR * perpR + perpC * perpC) < 0.01;
+  return perpR * perpR + perpC * perpC < 0.01;
 }
 
 /**
@@ -41,8 +43,8 @@ export function isBridgeDegenerate(p1: number[], p2: number[], p3: number[]): bo
  * Thin wrapper around the shared util helper, kept for the existing
  * `number[]` (instead of `Pt`) signature used by callers.
  */
-export function getBridgeCorners(p1: number[], p2: number[], p3: number[]): number[][] {
-  return sharedGetBridgeCorners(p1, p2, p3) as unknown as number[][];
+export function getBridgeCorners(p1: [number, number], p2: [number, number], p3: [number, number]): [number, number][] {
+  return sharedGetBridgeCorners(p1, p2, p3) as unknown as [number, number][];
 }
 
 /**
@@ -52,7 +54,11 @@ export function getBridgeCorners(p1: number[], p2: number[], p3: number[]): numb
  * @param {number[]} p3
  * @returns {{ row: number, col: number }[]}
  */
-export function getBridgeOccupiedCells(p1: number[], p2: number[], p3: number[]): { row: number; col: number }[] {
+export function getBridgeOccupiedCells(
+  p1: [number, number],
+  p2: [number, number],
+  p3: [number, number],
+): { row: number; col: number }[] {
   const corners = getBridgeCorners(p1, p2, p3);
   return getOccupiedCells(corners);
 }

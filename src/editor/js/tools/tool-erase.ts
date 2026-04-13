@@ -13,11 +13,11 @@ function _removeStair(meta: Metadata, cells: CellGrid, id: number): void {
   const stairs = meta.stairs;
   const idx = stairs.findIndex((s: { id: number }) => s.id === id);
   if (idx === -1) return;
-  const stairDef = stairs[idx];
+  const stairDef = stairs[idx]!;
 
   // Unlink partner
   if (stairDef.link) {
-    const partner = stairs.find(s => s.link === stairDef.link && s.id !== id);
+    const partner = stairs.find((s) => s.link === stairDef.link && s.id !== id);
     if (partner) partner.link = null;
   }
 
@@ -25,10 +25,10 @@ function _removeStair(meta: Metadata, cells: CellGrid, id: number): void {
 
   // Clear stair-id from any cells outside the erased region that still reference it
   for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length || 0); c++) {
+    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
       if (cells[r]?.[c]?.center?.['stair-id'] === id) {
-        delete cells[r][c]!.center!['stair-id'];
-        if (Object.keys(cells[r][c]!.center!).length === 0) delete cells[r][c]!.center;
+        delete cells[r]![c]!.center!['stair-id'];
+        if (Object.keys(cells[r]![c]!.center!).length === 0) delete cells[r]![c]!.center;
       }
     }
   }
@@ -74,7 +74,7 @@ export class EraseTool extends Tool {
     if (!this.dragging) return;
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
-    col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
+    col = Math.max(0, Math.min((cells[0]?.length ?? 1) - 1, col));
 
     if (event.shiftKey) {
       ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
@@ -91,7 +91,7 @@ export class EraseTool extends Tool {
 
     const cells = state.dungeon.cells;
     row = Math.max(0, Math.min(cells.length - 1, row));
-    col = Math.max(0, Math.min((cells[0]?.length || 1) - 1, col));
+    col = Math.max(0, Math.min((cells[0]?.length ?? 1) - 1, col));
 
     if (event.shiftKey) {
       ({ row, col } = snapToSquare(row, col, this.dragStart!.row, this.dragStart!.col, cells));
@@ -100,12 +100,16 @@ export class EraseTool extends Tool {
     this.dragEnd = { row, col };
 
     const { r1, c1, r2, c2 } = normalizeBounds(
-      this.dragStart!.row, this.dragStart!.col, this.dragEnd.row, this.dragEnd.col);
+      this.dragStart!.row,
+      this.dragStart!.col,
+      this.dragEnd.row,
+      this.dragEnd.col,
+    );
 
     let hasContent = false;
     for (let r = r1; r <= r2 && !hasContent; r++) {
       for (let c = c1; c <= c2 && !hasContent; c++) {
-        if (cells[r][c] !== null) hasContent = true;
+        if (cells[r]![c] !== null) hasContent = true;
       }
     }
 
@@ -125,67 +129,73 @@ export class EraseTool extends Tool {
       }
 
       // Expand dirty region to cover multi-cell props that extend beyond the erase box
-      let dirtyR2 = r2, dirtyC2 = c2;
+      let dirtyR2 = r2,
+        dirtyC2 = c2;
       for (let r = r1; r <= r2; r++) {
         for (let c = c1; c <= c2; c++) {
           const prop = cells[r]?.[c]?.prop;
           if (prop?.span) {
-            const sr = prop.span[0] || 1, scc = prop.span[1] || 1;
+            const sr = prop.span[0] || 1,
+              scc = prop.span[1] || 1;
             if (r + sr - 1 > dirtyR2) dirtyR2 = r + sr - 1;
             if (c + scc - 1 > dirtyC2) dirtyC2 = c + scc - 1;
           }
         }
       }
 
-      mutate('Erase cells', coords, () => {
-        // Expand dirty region for multi-cell props before cells are nulled
-        accumulateDirtyRect(r1, c1, dirtyR2, dirtyC2);
+      mutate(
+        'Erase cells',
+        coords,
+        () => {
+          // Expand dirty region for multi-cell props before cells are nulled
+          accumulateDirtyRect(r1, c1, dirtyR2, dirtyC2);
 
-        for (let r = r1; r <= r2; r++) {
-          for (let c = c1; c <= c2; c++) {
-            cells[r][c] = null;
-          }
-        }
-
-        const meta = state.dungeon.metadata;
-
-        for (const id of stairIdsToRemove) {
-          _removeStair(meta, cells, id);
-        }
-
-        if (meta.bridges.length) {
-          meta.bridges = meta.bridges.filter(bridge =>
-            !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2)
-          );
-        }
-
-        if (meta.props?.length) {
-          const gridSize = meta.gridSize || 5;
-          meta.props = meta.props.filter(p => {
-            const pRow = Math.round(p.y / gridSize);
-            const pCol = Math.round(p.x / gridSize);
-            return pRow < r1 || pRow > r2 || pCol < c1 || pCol > c2;
-          });
-        }
-
-        if (meta.lights.length) {
-          const gridSize = meta.gridSize || 5;
-          meta.lights = meta.lights.filter(light => {
-            const lightRow = Math.floor(light.y / gridSize);
-            const lightCol = Math.floor(light.x / gridSize);
-            if (lightRow >= r1 && lightRow <= r2 && lightCol >= c1 && lightCol <= c2) return false;
-            if (light.propRef) {
-              const { row: pr, col: pc } = light.propRef;
-              if (pr >= r1 && pr <= r2 && pc >= c1 && pc <= c2) return false;
+          for (let r = r1; r <= r2; r++) {
+            for (let c = c1; c <= c2; c++) {
+              cells[r]![c] = null;
             }
-            return true;
-          });
-          if (state.selectedLightId != null &&
-              !meta.lights.find(l => l.id === state.selectedLightId)) {
-            state.selectedLightId = null;
           }
-        }
-      }, { invalidate: ['lighting'], forceGeometry: true });
+
+          const meta = state.dungeon.metadata;
+
+          for (const id of stairIdsToRemove) {
+            _removeStair(meta, cells, id);
+          }
+
+          if (meta.bridges.length) {
+            meta.bridges = meta.bridges.filter(
+              (bridge) => !bridge.points.some(([r, c]) => r >= r1 && r <= r2 && c >= c1 && c <= c2),
+            );
+          }
+
+          if (meta.props?.length) {
+            const gridSize = meta.gridSize || 5;
+            meta.props = meta.props.filter((p) => {
+              const pRow = Math.round(p.y / gridSize);
+              const pCol = Math.round(p.x / gridSize);
+              return pRow < r1 || pRow > r2 || pCol < c1 || pCol > c2;
+            });
+          }
+
+          if (meta.lights.length) {
+            const gridSize = meta.gridSize || 5;
+            meta.lights = meta.lights.filter((light) => {
+              const lightRow = Math.floor(light.y / gridSize);
+              const lightCol = Math.floor(light.x / gridSize);
+              if (lightRow >= r1 && lightRow <= r2 && lightCol >= c1 && lightCol <= c2) return false;
+              if (light.propRef) {
+                const { row: pr, col: pc } = light.propRef;
+                if (pr >= r1 && pr <= r2 && pc >= c1 && pc <= c2) return false;
+              }
+              return true;
+            });
+            if (state.selectedLightId != null && !meta.lights.find((l) => l.id === state.selectedLightId)) {
+              state.selectedLightId = null;
+            }
+          }
+        },
+        { invalidate: ['lighting'], forceGeometry: true },
+      );
 
       if (stairIdsToRemove.size > 0) {
         showToast('Linked stairs were unlinked');
@@ -201,7 +211,11 @@ export class EraseTool extends Tool {
   _drawSizeLabel(ctx: CanvasRenderingContext2D, gridSize: number) {
     if (!this.mousePos || !this.dragStart || !this.dragEnd) return;
     const { r1, c1, r2, c2 } = normalizeBounds(
-      this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
+      this.dragStart.row,
+      this.dragStart.col,
+      this.dragEnd.row,
+      this.dragEnd.col,
+    );
     const wFt = (c2 - c1 + 1) * gridSize;
     const hFt = (r2 - r1 + 1) * gridSize;
     const label = `${wFt} ft × ${hFt} ft`;
@@ -227,7 +241,11 @@ export class EraseTool extends Tool {
     if (!this.dragging || !this.dragStart || !this.dragEnd) return;
 
     const { r1, c1, r2, c2 } = normalizeBounds(
-      this.dragStart.row, this.dragStart.col, this.dragEnd.row, this.dragEnd.col);
+      this.dragStart.row,
+      this.dragStart.col,
+      this.dragEnd.row,
+      this.dragEnd.col,
+    );
 
     const cellPx = gridSize * transform.scale;
     const topLeft = toCanvas(c1 * gridSize, r1 * gridSize, transform);

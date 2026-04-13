@@ -6,7 +6,16 @@
  */
 
 import type { CellGrid, Light, Metadata, PropCatalog, RenderTransform, TextureCatalog } from '../types.js';
-import { extractWallSegments, computeVisibility, falloffMultiplier, parseColor, getEffectiveLight, extractPropShadowZones, computePropShadowPolygon, DEFAULT_LIGHT_Z } from './lighting.js';
+import {
+  extractWallSegments,
+  computeVisibility,
+  falloffMultiplier,
+  parseColor,
+  getEffectiveLight,
+  extractPropShadowZones,
+  computePropShadowPolygon,
+  DEFAULT_LIGHT_Z,
+} from './lighting.js';
 
 // ─── Normal Map Cache ─────────────────────────────────────────────────────────
 
@@ -20,11 +29,11 @@ function cacheNormalMaps(cells: CellGrid, textureCatalog: TextureCatalog | null)
 
   const seenIds = new Set<string>();
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   for (let r = 0; r < numRows; r++) {
     for (let c = 0; c < numCols; c++) {
-      const cell = cells[r][c];
+      const cell = cells[r]![c];
       if (!cell) continue;
       if (cell.texture) seenIds.add(cell.texture);
       if (cell.textureSecondary) seenIds.add(cell.textureSecondary);
@@ -86,7 +95,14 @@ let maskCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null
  * @param {number} bbH - bounding box height in pixels
  * @returns {Uint8Array} - one byte per pixel: 0=shadow, 255=lit, AA values in between
  */
-function rasterizeShadowMask(visibility: Array<{x: number; y: number}>, transform: RenderTransform, bbX: number, bbY: number, bbW: number, bbH: number) {
+function rasterizeShadowMask(
+  visibility: Array<{ x: number; y: number }>,
+  transform: RenderTransform,
+  bbX: number,
+  bbY: number,
+  bbW: number,
+  bbH: number,
+) {
   if (!maskCanvas) {
     if (typeof OffscreenCanvas !== 'undefined') {
       maskCanvas = new OffscreenCanvas(bbW, bbH);
@@ -109,17 +125,11 @@ function rasterizeShadowMask(visibility: Array<{x: number; y: number}>, transfor
 
   // Draw visibility polygon offset by bounding box origin
   maskCtx!.beginPath();
-  const p0 = visibility[0];
-  maskCtx!.moveTo(
-    p0.x * transform.scale + transform.offsetX - bbX,
-    p0.y * transform.scale + transform.offsetY - bbY
-  );
+  const p0 = visibility[0]!;
+  maskCtx!.moveTo(p0.x * transform.scale + transform.offsetX - bbX, p0.y * transform.scale + transform.offsetY - bbY);
   for (let i = 1; i < visibility.length; i++) {
-    const p = visibility[i];
-    maskCtx!.lineTo(
-      p.x * transform.scale + transform.offsetX - bbX,
-      p.y * transform.scale + transform.offsetY - bbY
-    );
+    const p = visibility[i]!;
+    maskCtx!.lineTo(p.x * transform.scale + transform.offsetX - bbX, p.y * transform.scale + transform.offsetY - bbY);
   }
   maskCtx!.closePath();
   maskCtx!.fill();
@@ -129,7 +139,7 @@ function rasterizeShadowMask(visibility: Array<{x: number; y: number}>, transfor
   const src = imageData.data;
   const mask = new Uint8Array(bbW * bbH);
   for (let i = 0, j = 0; i < src.length; i += 4, j++) {
-    mask[j] = src[i]; // R channel
+    mask[j] = src[i]!; // R channel
   }
 
   return mask;
@@ -154,7 +164,20 @@ function rasterizeShadowMask(visibility: Array<{x: number; y: number}>, transfor
  * @param {Object|null} [metadata] - Dungeon metadata
  * @returns {void}
  */
-export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[], cells: CellGrid, gridSize: number, transform: RenderTransform, canvasW: number, canvasH: number, ambientLevel: number, textureCatalog: TextureCatalog | null, propCatalog: PropCatalog | null, options: Record<string, unknown> | null, metadata: Metadata | null = null): void {
+export function renderLightmapHQ(
+  ctx: CanvasRenderingContext2D,
+  lights: Light[],
+  cells: CellGrid,
+  gridSize: number,
+  transform: RenderTransform,
+  canvasW: number,
+  canvasH: number,
+  ambientLevel: number,
+  textureCatalog: TextureCatalog | null,
+  propCatalog: PropCatalog | null,
+  options: Record<string, unknown> | null,
+  metadata: Metadata | null = null,
+): void {
   const { ambientColor = '#ffffff', time = 0 } = options ?? {};
   const activeLights = lights;
 
@@ -176,7 +199,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
   const offY = transform.offsetY;
 
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // Normal map chunk size (matches getTexChunk in render.js)
   const CHUNK_SIZE = 256;
@@ -184,7 +207,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
   for (const light of activeLights) {
     const eff = getEffectiveLight(light, time as number);
     const brightRadius = (eff.range ?? eff.radius) || 30;
-    const dimRadius = (eff.dimRadius && eff.dimRadius > (eff.radius || 0)) ? eff.dimRadius : null;
+    const dimRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : null;
     const effectiveRadius = dimRadius ?? brightRadius;
 
     // Compute visibility polygon at outer radius
@@ -198,7 +221,13 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
       for (const { zones } of propShadowZones) {
         for (const zone of zones) {
           const shadow = computePropShadowPolygon(
-            eff.x, eff.y, lightZ, zone.worldPolygon, zone.zBottom, zone.zTop, effectiveRadius
+            eff.x,
+            eff.y,
+            lightZ,
+            zone.worldPolygon,
+            zone.zBottom,
+            zone.zTop,
+            effectiveRadius,
           );
           if (shadow) propShadows.push(shadow);
         }
@@ -232,12 +261,14 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
 
     // Precompute directional cone parameters
     const isDirectional = eff.type === 'directional';
-    let coneDirX = 0, coneDirY = 0, cosSpread = 0;
+    let coneDirX = 0,
+      coneDirY = 0,
+      cosSpread = 0;
     if (isDirectional) {
-      const angleRad = (eff.angle ?? 0) * Math.PI / 180;
+      const angleRad = ((eff.angle ?? 0) * Math.PI) / 180;
       coneDirX = Math.cos(angleRad);
       coneDirY = Math.sin(angleRad);
-      cosSpread = Math.cos((eff.spread ?? 45) * Math.PI / 180);
+      cosSpread = Math.cos(((eff.spread ?? 45) * Math.PI) / 180);
     }
 
     // Light height above floor for 3D normal map direction
@@ -249,7 +280,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
 
       for (let px = bbX; px < bbX2; px++) {
         // Shadow test
-        const shadowByte = shadowMask[maskRowOff + (px - bbX)];
+        const shadowByte = shadowMask[maskRowOff + (px - bbX)]!;
         if (shadowByte === 0) continue;
         const shadowFrac = shadowByte / 255.0;
 
@@ -283,7 +314,7 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
           const cellCol = Math.floor(worldX / gridSize);
           const cellRow = Math.floor(worldY / gridSize);
           if (cellRow >= 0 && cellRow < numRows && cellCol >= 0 && cellCol < numCols) {
-            const cell = cells[cellRow][cellCol];
+            const cell = cells[cellRow]![cellCol];
             const norData = cell?.texture ? normalCache.get(cell.texture) : null;
             if (norData) {
               const norW = norData.width;
@@ -294,14 +325,14 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
               const srcH = norH / ch;
               const chunkX = ((cellCol % cw) + cw) % cw;
               const chunkY = ((cellRow % ch) + ch) % ch;
-              const fracX = (worldX / gridSize) - cellCol;
-              const fracY = (worldY / gridSize) - cellRow;
+              const fracX = worldX / gridSize - cellCol;
+              const fracY = worldY / gridSize - cellRow;
               const sampleX = Math.min(norW - 1, Math.floor(chunkX * srcW + fracX * srcW));
               const sampleY = Math.min(norH - 1, Math.floor(chunkY * srcH + fracY * srcH));
               const nIdx = (sampleY * norW + sampleX) * 4;
-              const nx = (norData.data[nIdx]     / 255) * 2 - 1;
-              const ny = (norData.data[nIdx + 1] / 255) * 2 - 1;
-              const nz = (norData.data[nIdx + 2] / 255) * 2 - 1;
+              const nx = (norData.data[nIdx]! / 255) * 2 - 1;
+              const ny = (norData.data[nIdx + 1]! / 255) * 2 - 1;
+              const nz = (norData.data[nIdx + 2]! / 255) * 2 - 1;
               const lLen = Math.sqrt(dx * dx + dy * dy + lightHeight * lightHeight);
               if (lLen > 0.001) {
                 const ndotl = (nx * dx + ny * dy + nz * lightHeight) / lLen;
@@ -331,14 +362,15 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
                 shadowStrength = opacity;
               } else {
                 // Soft shadow: gradient position (0 = near edge, 1 = far edge)
-                const gradDx = farCenter[0] - nearCenter[0];
-                const gradDy = farCenter[1] - nearCenter[1];
+                const gradDx = farCenter[0]! - nearCenter[0]!;
+                const gradDy = farCenter[1]! - nearCenter[1]!;
                 const gradLenSq = gradDx * gradDx + gradDy * gradDy;
                 let t = 0;
                 if (gradLenSq > 0.001) {
-                  t = Math.max(0, Math.min(1,
-                    ((worldX - nearCenter[0]) * gradDx + (worldY - nearCenter[1]) * gradDy) / gradLenSq
-                  ));
+                  t = Math.max(
+                    0,
+                    Math.min(1, ((worldX - nearCenter[0]!) * gradDx + (worldY - nearCenter[1]!) * gradDy) / gradLenSq),
+                  );
                 }
                 shadowStrength = opacity * (1 - t); // fades from opacity at near to 0 at far
               }
@@ -349,9 +381,9 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
         }
 
         const accIdx = (py * canvasW + px) * 3;
-        lightAccum[accIdx]     += rNorm * contribution;
-        lightAccum[accIdx + 1] += gNorm * contribution;
-        lightAccum[accIdx + 2] += bNorm * contribution;
+        lightAccum[accIdx]! += rNorm * contribution;
+        lightAccum[accIdx + 1]! += gNorm * contribution;
+        lightAccum[accIdx + 2]! += bNorm * contribution;
       }
     }
   }
@@ -367,9 +399,9 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
   const out = imageData.data;
 
   for (let i = 0, j = 0; i < out.length; i += 4, j += 3) {
-    out[i]     = Math.min(255, Math.round((ambR + lightAccum[j])     * 255));
-    out[i + 1] = Math.min(255, Math.round((ambG + lightAccum[j + 1]) * 255));
-    out[i + 2] = Math.min(255, Math.round((ambB + lightAccum[j + 2]) * 255));
+    out[i] = Math.min(255, Math.round((ambR + lightAccum[j]!) * 255));
+    out[i + 1] = Math.min(255, Math.round((ambG + lightAccum[j + 1]!) * 255));
+    out[i + 2] = Math.min(255, Math.round((ambB + lightAccum[j + 2]!) * 255));
     out[i + 3] = 255;
   }
 
@@ -398,9 +430,9 @@ export function renderLightmapHQ(ctx: CanvasRenderingContext2D, lights: Light[],
 function _pointInPolygon(px: number, py: number, polygon: number[][]) {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const [xi, yi] = polygon[i];
-    const [xj, yj] = polygon[j];
-    if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+    const [xi, yi] = polygon[i]! as [number, number];
+    const [xj, yj] = polygon[j]! as [number, number];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) {
       inside = !inside;
     }
   }

@@ -9,7 +9,13 @@ interface AutosaveData {
   panX: number;
   panY: number;
 }
-import { THEMES, invalidateVisibilityCache, captureBeforeState, smartInvalidate, normalizeTheme as normalizeRenderTheme } from '../../render/index.js';
+import {
+  THEMES,
+  invalidateVisibilityCache,
+  captureBeforeState,
+  smartInvalidate,
+  normalizeTheme as normalizeRenderTheme,
+} from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
 
@@ -28,59 +34,59 @@ const state: EditorState = {
   currentLevel: 0,
   selectedCells: [],
   activeTool: 'paint',
-  roomMode: 'room',    // 'room' (wall boundaries) or 'merge' (only wall void edges)
-  paintMode: 'texture',   // 'texture', 'syringe', 'room', 'clear-texture'
-  fillMode: 'water',      // 'water', 'pit', 'difficult-terrain', 'clear-fill'
-  waterDepth: 1,           // 1 (shallow), 2 (medium), 3 (deep)
-  lavaDepth: 1,            // 1 (shallow), 2 (medium), 3 (deep)
-  doorType: 'd',       // 'd' (normal) or 's' (secret)
-  wallType: 'w',       // 'w' (wall) or 'iw' (invisible wall)
-  trimCorner: 'auto',  // 'auto', 'nw', 'ne', 'sw', 'se'
+  roomMode: 'room', // 'room' (wall boundaries) or 'merge' (only wall void edges)
+  paintMode: 'texture', // 'texture', 'syringe', 'room', 'clear-texture'
+  fillMode: 'water', // 'water', 'pit', 'difficult-terrain', 'clear-fill'
+  waterDepth: 1, // 1 (shallow), 2 (medium), 3 (deep)
+  lavaDepth: 1, // 1 (shallow), 2 (medium), 3 (deep)
+  doorType: 'd', // 'd' (normal) or 's' (secret)
+  wallType: 'w', // 'w' (wall) or 'iw' (invisible wall)
+  trimCorner: 'auto', // 'auto', 'nw', 'ne', 'sw', 'se'
   trimRound: false,
   trimInverted: false,
   trimOpen: false,
-  labelMode: 'room',    // 'room' (auto-increment room labels) or 'dm' (free-text DM labels)
-  stairsMode: 'place',  // 'place' or 'link'
+  labelMode: 'room', // 'room' (auto-increment room labels) or 'dm' (free-text DM labels)
+  stairsMode: 'place', // 'place' or 'link'
   stairPlacement: { p1: null, p2: null }, // in-progress 3-click placement points
-  bridgeType: 'wood',   // 'wood', 'stone', 'rope', 'dock'
+  bridgeType: 'wood', // 'wood', 'stone', 'rope', 'dock'
   selectedBridgeId: null, // ID of currently selected bridge
-  linkSource: null,     // stair ID for pending link source
-  hoveredCorner: null,  // { row, col } — nearest grid corner when stairs tool active
+  linkSource: null, // stair ID for pending link source
+  hoveredCorner: null, // { row, col } — nearest grid corner when stairs tool active
   selectMode: 'select', // 'select' or 'inspect'
-  clipboard: null,      // { cells: [...], anchorRow, anchorCol } — copy/paste buffer
-  pasteMode: false,     // true when Ctrl+V pressed — paste preview follows cursor
-  propClipboard: null,  // { anchorRow, anchorCol, props: [{dRow, dCol, prop}] } — prop copy buffer
+  clipboard: null, // { cells: [...], anchorRow, anchorCol } — copy/paste buffer
+  pasteMode: false, // true when Ctrl+V pressed — paste preview follows cursor
+  propClipboard: null, // { anchorRow, anchorCol, props: [{dRow, dCol, prop}] } — prop copy buffer
   propPasteMode: false, // true when Ctrl+V pressed with prop clipboard — paste preview follows cursor
-  selectedProp: null,  // string — prop type name from catalog (e.g. 'pillar')
-  propRotation: 0,     // 0, 90, 180, 270 — current placement rotation
-  propFlipped: false,  // whether the next placed prop is horizontally mirrored
-  propScale: 1.0,      // scale for next placed prop
-  propCatalog: null,   // PropCatalog object, loaded at init (runtime only, not serialized)
+  selectedProp: null, // string — prop type name from catalog (e.g. 'pillar')
+  propRotation: 0, // 0, 90, 180, 270 — current placement rotation
+  propFlipped: false, // whether the next placed prop is horizontally mirrored
+  propScale: 1.0, // scale for next placed prop
+  propCatalog: null, // PropCatalog object, loaded at init (runtime only, not serialized)
   selectedPropAnchors: [], // array of {row, col} for selected props in select mode (legacy)
-  selectedPropIds: [],     // array of overlay prop IDs for selected props (new system)
-  activeTexture: null,    // string — texture ID from catalog (e.g. 'cobblestone')
-  textureOpacity: 1.0,    // 0–1 — opacity applied when painting a texture
-  paintSecondary: false,  // when true, texture paints write to textureSecondary slot
+  selectedPropIds: [], // array of overlay prop IDs for selected props (new system)
+  activeTexture: null, // string — texture ID from catalog (e.g. 'cobblestone')
+  textureOpacity: 1.0, // 0–1 — opacity applied when painting a texture
+  paintSecondary: false, // when true, texture paints write to textureSecondary slot
   textureCatalog: null, // TextureCatalog object, loaded at init (runtime only, not serialized)
-  texturesVersion: 0,   // incremented when texture images finish loading; invalidates blend cache
-  lightCatalog: null,   // LightCatalog object, loaded at init (runtime only, not serialized)
+  texturesVersion: 0, // incremented when texture images finish loading; invalidates blend cache
+  lightCatalog: null, // LightCatalog object, loaded at init (runtime only, not serialized)
   // Lighting tool state
-  selectedLightId: null,     // ID of currently selected light
-  lightClipboard: null,      // deep-cloned light object for copy/cut/paste
-  lightPasteMode: false,     // true when pasting a light — preview follows cursor
-  lightPreset: null,         // string — selected preset ID from catalog (e.g. 'torch')
-  lightType: 'point',        // default placement type: 'point' or 'directional'
-  lightRadius: 30,           // default radius in feet
-  lightColor: '#ff9944',     // default warm color
-  lightIntensity: 1.0,       // default intensity
-  lightFalloff: 'smooth',    // default falloff curve
-  lightAngle: 0,             // default directional angle (degrees)
-  lightSpread: 45,           // default cone spread (degrees)
-  lightDimRadius: 0,         // default dim radius (0 = disabled)
-  lightAnimation: null,      // default animation ({type,speed,amplitude,radiusVariation} or null)
-  lightZ: 0,                 // default Z height for lights
-  animClock: 0,              // elapsed seconds — updated by animation loop in canvas-view.js
-  lightCoverageMode: false,  // when true, coverage heatmap is rendered over the lightmap
+  selectedLightId: null, // ID of currently selected light
+  lightClipboard: null, // deep-cloned light object for copy/cut/paste
+  lightPasteMode: false, // true when pasting a light — preview follows cursor
+  lightPreset: null, // string — selected preset ID from catalog (e.g. 'torch')
+  lightType: 'point', // default placement type: 'point' or 'directional'
+  lightRadius: 30, // default radius in feet
+  lightColor: '#ff9944', // default warm color
+  lightIntensity: 1.0, // default intensity
+  lightFalloff: 'smooth', // default falloff curve
+  lightAngle: 0, // default directional angle (degrees)
+  lightSpread: 45, // default cone spread (degrees)
+  lightDimRadius: 0, // default dim radius (0 = disabled)
+  lightAnimation: null, // default animation ({type,speed,amplitude,radiusVariation} or null)
+  lightZ: 0, // default Z height for lights
+  animClock: 0, // elapsed seconds — updated by animation loop in canvas-view.js
+  lightCoverageMode: false, // when true, coverage heatmap is rendered over the lightmap
   zoom: 1.0,
   panX: 60,
   panY: 60,
@@ -90,14 +96,14 @@ const state: EditorState = {
   redoStack: [],
   dirty: true,
   listeners: [],
-  fileHandle: null,     // File System Access API handle for save-in-place
-  fileName: null,       // Display name of the current file (e.g. 'my_dungeon.mapwright')
+  fileHandle: null, // File System Access API handle for save-in-place
+  fileName: null, // Display name of the current file (e.g. 'my_dungeon.mapwright')
   unsavedChanges: false, // true when edits exist since last file save
   // Player session (runtime only, not serialized)
   session: { active: false, playerCount: 0 },
-  sessionToolsActive: false,  // true when session toolbar is shown (session panel open + session active)
-  statusInstruction: null,    // string or null — shown in #status-center when set
-  debugShowHitboxes: false,  // when true, render prop hitbox outlines on the canvas
+  sessionToolsActive: false, // true when session toolbar is shown (session panel open + session active)
+  statusInstruction: null, // string or null — shown in #status-center when set
+  debugShowHitboxes: false, // when true, render prop hitbox outlines on the canvas
   _lastPushUndoMs: null,
 };
 
@@ -124,20 +130,19 @@ export function getTheme(): Theme {
   const t = state.dungeon.metadata.theme;
   let raw: Theme;
   if (typeof t === 'string') {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Record type lies; runtime keys can be missing
     if (THEMES[t]) {
-      raw = THEMES[t];
+      raw = THEMES[t]!;
     } else if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
       // Fallback: user theme not installed locally — use embedded data
       raw = state.dungeon.metadata.savedThemeData.theme as Theme;
     } else {
-      raw = THEMES['blue-parchment'];
+      raw = THEMES['blue-parchment']!;
     }
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   } else if (typeof t === 'object' && t !== null) {
     raw = t;
   } else {
-    raw = THEMES['blue-parchment'];
+    raw = THEMES['blue-parchment']!;
   }
   return _resolveAndNormalize(raw);
 }
@@ -149,7 +154,9 @@ export let undoDisabled = false;
  * @param {boolean} v - Whether to disable undo.
  * @returns {void}
  */
-export function setUndoDisabled(v: boolean): void { undoDisabled = v; }
+export function setUndoDisabled(v: boolean): void {
+  undoDisabled = v;
+}
 
 /**
  * Push current dungeon state onto the undo stack.
@@ -195,7 +202,10 @@ export function pushPatchUndo(label: string, cellPatches: UndoCellPatch[]): void
  * Restore dungeon state from an undo/redo entry.
  * Handles both full JSON snapshots and compact cell patches.
  */
-function applyEntry(entry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } }, direction: 'undo' | 'redo'): void {
+function applyEntry(
+  entry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } },
+  direction: 'undo' | 'redo',
+): void {
   if (entry.json) {
     // Full snapshot — replace entire dungeon
     state.dungeon = JSON.parse(entry.json);
@@ -205,7 +215,7 @@ function applyEntry(entry: { json?: string; patch?: { cells: UndoCellPatch[]; me
     for (const cp of entry.patch.cells) {
       const value = direction === 'undo' ? cp.before : cp.after;
       if (cells[cp.row]) {
-        cells[cp.row][cp.col] = value ? JSON.parse(JSON.stringify(value)) : null;
+        cells[cp.row]![cp.col] = value ? JSON.parse(JSON.stringify(value)) : null;
       }
     }
     // Apply metadata changes
@@ -220,13 +230,18 @@ function applyEntry(entry: { json?: string; patch?: { cells: UndoCellPatch[]; me
  * Create a redo entry that captures the inverse of what was just applied.
  * For patch entries, swap before/after. For snapshots, serialize current state.
  */
-function createRedoEntry(appliedEntry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } }, label: string): typeof appliedEntry & { label: string; timestamp: number } {
+function createRedoEntry(
+  appliedEntry: { json?: string; patch?: { cells: UndoCellPatch[]; meta: UndoMetaPatch | null } },
+  label: string,
+): typeof appliedEntry & { label: string; timestamp: number } {
   if (appliedEntry.patch) {
     // Swap before/after for the reverse direction
     return {
       patch: {
-        cells: appliedEntry.patch.cells.map(cp => ({ row: cp.row, col: cp.col, before: cp.after, after: cp.before })),
-        meta: appliedEntry.patch.meta ? { before: appliedEntry.patch.meta.after, after: appliedEntry.patch.meta.before } : null,
+        cells: appliedEntry.patch.cells.map((cp) => ({ row: cp.row, col: cp.col, before: cp.after, after: cp.before })),
+        meta: appliedEntry.patch.meta
+          ? { before: appliedEntry.patch.meta.after, after: appliedEntry.patch.meta.before }
+          : null,
       },
       label,
       timestamp: Date.now(),
@@ -242,16 +257,16 @@ function createRedoEntry(appliedEntry: { json?: string; patch?: { cells: UndoCel
 function diffCellsForUndo(oldCells: CellGrid, newCells: CellGrid): Array<{ row: number; col: number }> | null {
   if (oldCells.length !== newCells.length) return null;
   const rows = oldCells.length;
-  const cols = oldCells[0]?.length || 0;
-  if (cols !== (newCells[0]?.length || 0)) return null;
+  const cols = oldCells[0]?.length ?? 0;
+  if (cols !== (newCells[0]?.length ?? 0)) return null;
 
   const changed: Array<{ row: number; col: number }> = [];
   const maxChanged = Math.ceil(rows * cols * 0.3);
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      const oldCell = oldCells[r][c];
-      const newCell = newCells[r][c];
+      const oldCell = oldCells[r]![c];
+      const newCell = newCells[r]![c];
       if (oldCell === newCell) continue; // both null
       if (!oldCell || !newCell || JSON.stringify(oldCell) !== JSON.stringify(newCell)) {
         changed.push({ row: r, col: c });
@@ -273,7 +288,7 @@ export function undo(): void {
   if (entry.patch) {
     // Patch entry — we know exact cells. Use smart invalidation for partial rebuild.
     const cells = state.dungeon.cells;
-    const coords = entry.patch.cells.map(cp => ({ row: cp.row, col: cp.col }));
+    const coords = entry.patch.cells.map((cp) => ({ row: cp.row, col: cp.col }));
     const beforeState = coords.length > 0 ? captureBeforeState(cells, coords) : [];
     applyEntry(entry, 'undo');
     if (beforeState.length > 0) {
@@ -291,7 +306,15 @@ export function undo(): void {
       const beforeState = changedCoords.map(({ row, col }) => {
         const cell = oldCells[row]?.[col];
         if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
-        return { row, col, wasVoid: false, fill: (cell.fill as string | null) ?? null, waterDepth: (cell.waterDepth as number | null) ?? null, lavaDepth: (cell.lavaDepth as number | null) ?? null, hazard: !!(cell.hazard) };
+        return {
+          row,
+          col,
+          wasVoid: false,
+          fill: (cell.fill as string | null) ?? null,
+          waterDepth: (cell.waterDepth as number | null) ?? null,
+          lavaDepth: (cell.lavaDepth as number | null) ?? null,
+          hazard: !!cell.hazard,
+        };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
     }
@@ -314,7 +337,7 @@ export function redo(): void {
   if (entry.patch) {
     // Patch entry — use smart invalidation for partial rebuild
     const cells = state.dungeon.cells;
-    const coords = entry.patch.cells.map(cp => ({ row: cp.row, col: cp.col }));
+    const coords = entry.patch.cells.map((cp) => ({ row: cp.row, col: cp.col }));
     const beforeState = coords.length > 0 ? captureBeforeState(cells, coords) : [];
     applyEntry(entry, 'redo');
     if (beforeState.length > 0) {
@@ -331,7 +354,15 @@ export function redo(): void {
       const beforeState = changedCoords.map(({ row, col }) => {
         const cell = oldCells[row]?.[col];
         if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
-        return { row, col, wasVoid: false, fill: (cell.fill as string | null) ?? null, waterDepth: (cell.waterDepth as number | null) ?? null, lavaDepth: (cell.lavaDepth as number | null) ?? null, hazard: !!(cell.hazard) };
+        return {
+          row,
+          col,
+          wasVoid: false,
+          fill: (cell.fill as string | null) ?? null,
+          waterDepth: (cell.waterDepth as number | null) ?? null,
+          lavaDepth: (cell.lavaDepth as number | null) ?? null,
+          hazard: !!cell.hazard,
+        };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
     }
@@ -419,7 +450,11 @@ export function subscribe(
 }
 
 /** Latest per-subscriber timing data from the most recent notify() call. */
-export const notifyTimings: { total: number; subscribers: { label: string; ms: number }[]; frame: number } = { total: 0, subscribers: [], frame: 0 };
+export const notifyTimings: { total: number; subscribers: { label: string; ms: number }[]; frame: number } = {
+  total: 0,
+  subscribers: [],
+  frame: 0,
+};
 let _notifyFrame = 0;
 
 // ─── Auto-save ────────────────────────────────────────────────────────────
@@ -434,7 +469,10 @@ let _autosaveDb: IDBDatabase | null = null;
 
 function _openDb(): Promise<IDBDatabase> {
   return new Promise<IDBDatabase>((resolve, reject) => {
-    if (_autosaveDb) { resolve(_autosaveDb); return; }
+    if (_autosaveDb) {
+      resolve(_autosaveDb);
+      return;
+    }
     const req = indexedDB.open(AUTOSAVE_DB, 1);
     req.onupgradeneeded = () => {
       req.result.createObjectStore(AUTOSAVE_STORE);
@@ -449,30 +487,36 @@ function _openDb(): Promise<IDBDatabase> {
 
 // Initialize DB early so it's ready when first autosave fires
 if (typeof indexedDB !== 'undefined') {
-  _openDb().catch(() => { /* IndexedDB unavailable — fallback to localStorage */ });
+  _openDb().catch(() => {
+    /* IndexedDB unavailable — fallback to localStorage */
+  });
 }
 
 function scheduleAutosave() {
   if (autosaveTimer) clearTimeout(autosaveTimer);
-  autosaveTimer = setTimeout(() => { void (async () => {
-    const data = {
-      dungeon: state.dungeon,
-      currentLevel: state.currentLevel,
-      activeTool: state.activeTool,
-      zoom: state.zoom,
-      panX: state.panX,
-      panY: state.panY,
-    };
-    try {
-      const db: IDBDatabase = await _openDb();
-      const tx = db.transaction(AUTOSAVE_STORE, 'readwrite');
-      tx.objectStore(AUTOSAVE_STORE).put(data, AUTOSAVE_KEY);
-      // tx completes async — no main thread blocking
-    } catch {
-      // IndexedDB failed — fall back to localStorage (blocking but rare)
-      try { localStorage.setItem(AUTOSAVE_LEGACY_KEY, JSON.stringify(data)); } catch {}
-    }
-  })(); }, 1000);
+  autosaveTimer = setTimeout(() => {
+    void (async () => {
+      const data = {
+        dungeon: state.dungeon,
+        currentLevel: state.currentLevel,
+        activeTool: state.activeTool,
+        zoom: state.zoom,
+        panX: state.panX,
+        panY: state.panY,
+      };
+      try {
+        const db: IDBDatabase = await _openDb();
+        const tx = db.transaction(AUTOSAVE_STORE, 'readwrite');
+        tx.objectStore(AUTOSAVE_STORE).put(data, AUTOSAVE_KEY);
+        // tx completes async — no main thread blocking
+      } catch {
+        // IndexedDB failed — fall back to localStorage (blocking but rare)
+        try {
+          localStorage.setItem(AUTOSAVE_LEGACY_KEY, JSON.stringify(data));
+        } catch {}
+      }
+    })();
+  }, 1000);
 }
 
 /**
@@ -589,7 +633,7 @@ function _runNotifyPass(topic?: NotifyTopic): void {
 /** Count entries since the last full-snapshot keyframe. */
 function _entriesSinceKeyframe(): number {
   for (let i = state.undoStack.length - 1; i >= 0; i--) {
-    if (state.undoStack[i].json) return state.undoStack.length - 1 - i;
+    if (state.undoStack[i]!.json) return state.undoStack.length - 1 - i;
   }
   return state.undoStack.length;
 }
@@ -606,7 +650,12 @@ export function mutate(
     metaOnly?: boolean;
   } = {},
 ): void {
-  if (undoDisabled) { fn(); markDirty(); notify(options.topic); return; }
+  if (undoDisabled) {
+    fn();
+    markDirty();
+    notify(options.topic);
+    return;
+  }
 
   const cells: CellGrid = state.dungeon.cells;
   const renderBefore = coords.length > 0 ? captureBeforeState(cells, coords) : [];
@@ -618,7 +667,7 @@ export function mutate(
     const metaAfter = JSON.stringify(state.dungeon.metadata);
     const patchEntry = {
       cells: [] as UndoCellPatch[],
-      meta: metaBefore !== metaAfter ? { before: metaBefore, after: metaAfter } as UndoMetaPatch : null,
+      meta: metaBefore !== metaAfter ? ({ before: metaBefore, after: metaAfter } as UndoMetaPatch) : null,
     };
     state.undoStack.push({ patch: patchEntry, label, timestamp: Date.now() });
     if (state.undoStack.length > MAX_UNDO) state.undoStack.shift();
@@ -643,8 +692,9 @@ export function mutate(
   } else {
     // Compact patch — capture cell state before mutation
     const cellsBefore: UndoCellPatch[] = coords.map(({ row, col }) => ({
-      row, col,
-      before: cells[row]?.[col] ? JSON.parse(JSON.stringify(cells[row][col])) as Cell : null,
+      row,
+      col,
+      before: cells[row]?.[col] ? (JSON.parse(JSON.stringify(cells[row][col])) as Cell) : null,
       after: null, // filled after fn()
     }));
     const metaBefore = JSON.stringify(state.dungeon.metadata);
@@ -661,7 +711,7 @@ export function mutate(
 
     // Capture after-state
     for (const cp of cellsBefore) {
-      cp.after = cells[cp.row]?.[cp.col] ? JSON.parse(JSON.stringify(cells[cp.row][cp.col])) as Cell : null;
+      cp.after = cells[cp.row]?.[cp.col] ? (JSON.parse(JSON.stringify(cells[cp.row]![cp.col])) as Cell) : null;
     }
     const metaAfter = JSON.stringify(state.dungeon.metadata);
     if (metaBefore !== metaAfter) {

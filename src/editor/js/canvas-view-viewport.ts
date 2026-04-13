@@ -12,9 +12,9 @@ export function clampPan(): void {
   const { canvas } = cvState;
   if (!canvas) return;
   const { gridSize, resolution } = state.dungeon.metadata;
-  const scale = CELL_SIZE * state.zoom / _dgs(gridSize, resolution);
+  const scale = (CELL_SIZE * state.zoom) / _dgs(gridSize, resolution);
   const numRows = state.dungeon.cells.length;
-  const numCols = state.dungeon.cells[0]?.length || 0;
+  const numCols = state.dungeon.cells[0]?.length ?? 0;
   const mapPxW = numCols * gridSize * scale;
   const mapPxH = numRows * gridSize * scale;
   const vw = cvState._canvasW || canvas.width;
@@ -32,7 +32,7 @@ export function clampPan(): void {
 export function zoomToFit(): void {
   const levels = state.dungeon.metadata.levels;
   if (levels.length) {
-    const level = levels[state.currentLevel] || levels[0];
+    const level = levels[state.currentLevel] ?? levels[0]!;
     panToLevel(level.startRow, level.numRows);
   } else {
     // Single-level map: fit all rows
@@ -50,7 +50,7 @@ export function panToLevel(startRow: number, numRows: number): void {
   const { canvas } = cvState;
   const { gridSize, resolution } = state.dungeon.metadata;
   const dgs = _dgs(gridSize, resolution);
-  const numCols = state.dungeon.cells[0]?.length || 0;
+  const numCols = state.dungeon.cells[0]?.length ?? 0;
   const margin = 40; // px padding around the level
 
   // World-space bounds of the level (in feet)
@@ -67,7 +67,7 @@ export function panToLevel(startRow: number, numRows: number): void {
   state.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, Math.min(zoomX, zoomY)));
 
   // Recompute scale with new zoom
-  const scale = CELL_SIZE * state.zoom / dgs;
+  const scale = (CELL_SIZE * state.zoom) / dgs;
 
   // Center the level in the viewport
   const levelPixelW = worldW * scale;

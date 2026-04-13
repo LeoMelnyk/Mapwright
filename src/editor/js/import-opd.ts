@@ -26,8 +26,8 @@ interface OpdJson {
   [key: string]: unknown;
 }
 
-const RES = 2;             // half-cell resolution: each OPD cell → 2×2 subcells
-const FORMAT_VERSION = 4;  // current format (half-cell + per-cell arcs)
+const RES = 2; // half-cell resolution: each OPD cell → 2×2 subcells
+const FORMAT_VERSION = 4; // current format (half-cell + per-cell arcs)
 
 /**
  * Classify an OPD door type.
@@ -35,13 +35,20 @@ const FORMAT_VERSION = 4;  // current format (half-cell + per-cell arcs)
  */
 function classifyDoor(type: number) {
   switch (type) {
-    case 0:  return 'open';    // empty / open passage
-    case 2:  return 'open';    // archway
-    case 3:  return 'stairs';  // staircase
-    case 8:  return 'stairs';  // long stairs
-    case 9:  return 'stairs';  // steps / level change
-    case 6:  return 'secret';  // secret door
-    default: return 'door';    // 1=normal, 4=portcullis, 5=special, 7=barred
+    case 0:
+      return 'open'; // empty / open passage
+    case 2:
+      return 'open'; // archway
+    case 3:
+      return 'stairs'; // staircase
+    case 8:
+      return 'stairs'; // long stairs
+    case 9:
+      return 'stairs'; // steps / level change
+    case 6:
+      return 'secret'; // secret door
+    default:
+      return 'door'; // 1=normal, 4=portcullis, 5=special, 7=barred
   }
 }
 
@@ -50,9 +57,9 @@ function classifyDoor(type: number) {
  * and the reciprocal direction for the neighbouring cell.
  */
 function dirToCardinal(dir: { x: number; y: number }) {
-  if (dir.x ===  1) return { self: 'east',  reciprocal: 'west'  };
-  if (dir.x === -1) return { self: 'west',  reciprocal: 'east'  };
-  if (dir.y ===  1) return { self: 'south', reciprocal: 'north' };
+  if (dir.x === 1) return { self: 'east', reciprocal: 'west' };
+  if (dir.x === -1) return { self: 'west', reciprocal: 'east' };
+  if (dir.y === 1) return { self: 'south', reciprocal: 'north' };
   if (dir.y === -1) return { self: 'north', reciprocal: 'south' };
   return null;
 }
@@ -71,22 +78,39 @@ function buildStairPoints(row: number, col: number, dir: { x: number; y: number 
   // The base edge is the side the stair enters FROM (opposite to dir).
   // P3 is the midpoint of the far edge so classifyStairShape() → triangle.
   // These coordinates are at 2× scale (each OPD cell = 2 subcells).
-  const w = RES, h = RES; // stair spans the full 2×2 block
+  const w = RES,
+    h = RES; // stair spans the full 2×2 block
   if (dir.y === -1) {
     // Stair goes north: base = south edge, point = north midpoint
-    return [[row + h, col], [row + h, col + w], [row, col + w / 2]];
+    return [
+      [row + h, col],
+      [row + h, col + w],
+      [row, col + w / 2],
+    ];
   }
   if (dir.y === 1) {
     // Stair goes south: base = north edge, point = south midpoint
-    return [[row, col + w], [row, col], [row + h, col + w / 2]];
+    return [
+      [row, col + w],
+      [row, col],
+      [row + h, col + w / 2],
+    ];
   }
   if (dir.x === 1) {
     // Stair goes east: base = west edge, point = east midpoint
-    return [[row, col], [row + h, col], [row + h / 2, col + w]];
+    return [
+      [row, col],
+      [row + h, col],
+      [row + h / 2, col + w],
+    ];
   }
   if (dir.x === -1) {
     // Stair goes west: base = east edge, point = west midpoint
-    return [[row + h, col + w], [row, col + w], [row + h / 2, col]];
+    return [
+      [row + h, col + w],
+      [row, col + w],
+      [row + h / 2, col],
+    ];
   }
   return null;
 }
@@ -95,62 +119,72 @@ function buildStairPoints(row: number, col: number, dir: { x: number; y: number 
 
 /** Set a wall/door on both subcells spanning one edge of a 2×2 block. */
 function setEdge(cells: CellGrid, r: number, c: number, direction: string, value: EdgeValue) {
+  const tl = cells[r]?.[c],
+    tr = cells[r]?.[c + 1];
+  const bl = cells[r + 1]?.[c],
+    br = cells[r + 1]?.[c + 1];
   switch (direction) {
     case 'north':
-      if (cells[r]?.[c]) cells[r][c].north = value;
-      if (cells[r]?.[c + 1]) cells[r][c + 1]!.north = value;
+      if (tl) tl.north = value;
+      if (tr) tr.north = value;
       break;
     case 'south':
-      if (cells[r + 1]?.[c]) cells[r + 1][c]!.south = value;
-      if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.south = value;
+      if (bl) bl.south = value;
+      if (br) br.south = value;
       break;
     case 'west':
-      if (cells[r]?.[c]) cells[r][c].west = value;
-      if (cells[r + 1]?.[c]) cells[r + 1][c]!.west = value;
+      if (tl) tl.west = value;
+      if (bl) bl.west = value;
       break;
     case 'east':
-      if (cells[r]?.[c + 1]) cells[r][c + 1]!.east = value;
-      if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.east = value;
+      if (tr) tr.east = value;
+      if (br) br.east = value;
       break;
   }
 }
 
 /** Remove a wall/door from both subcells spanning one edge of a 2×2 block. */
 function clearEdge(cells: CellGrid, r: number, c: number, direction: string) {
+  const tl = cells[r]?.[c],
+    tr = cells[r]?.[c + 1];
+  const bl = cells[r + 1]?.[c],
+    br = cells[r + 1]?.[c + 1];
   switch (direction) {
     case 'north':
-      if (cells[r]?.[c]) delete cells[r][c].north;
-      if (cells[r]?.[c + 1]) delete cells[r][c + 1]!.north;
+      if (tl) delete tl.north;
+      if (tr) delete tr.north;
       break;
     case 'south':
-      if (cells[r + 1]?.[c]) delete cells[r + 1][c]!.south;
-      if (cells[r + 1]?.[c + 1]) delete cells[r + 1][c + 1]!.south;
+      if (bl) delete bl.south;
+      if (br) delete br.south;
       break;
     case 'west':
-      if (cells[r]?.[c]) delete cells[r][c].west;
-      if (cells[r + 1]?.[c]) delete cells[r + 1][c]!.west;
+      if (tl) delete tl.west;
+      if (bl) delete bl.west;
       break;
     case 'east':
-      if (cells[r]?.[c + 1]) delete cells[r][c + 1]!.east;
-      if (cells[r + 1]?.[c + 1]) delete cells[r + 1][c + 1]!.east;
+      if (tr) delete tr.east;
+      if (br) delete br.east;
       break;
   }
 }
 
 /** Set a door at the internal subcell boundary (center of a 2×2 block). */
 function setCenterDoor(cells: CellGrid, r: number, c: number, axis: string, value: EdgeValue) {
+  const tl = cells[r]?.[c],
+    tr = cells[r]?.[c + 1];
+  const bl = cells[r + 1]?.[c],
+    br = cells[r + 1]?.[c + 1];
   if (axis === 'ew') {
-    // Internal E-W boundary: between TL/BL and TR/BR
-    if (cells[r]?.[c]) cells[r][c].east = value;
-    if (cells[r]?.[c + 1]) cells[r][c + 1]!.west = value;
-    if (cells[r + 1]?.[c]) cells[r + 1][c]!.east = value;
-    if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.west = value;
+    if (tl) tl.east = value;
+    if (tr) tr.west = value;
+    if (bl) bl.east = value;
+    if (br) br.west = value;
   } else {
-    // Internal N-S boundary: between TL/TR and BL/BR
-    if (cells[r]?.[c]) cells[r][c].south = value;
-    if (cells[r]?.[c + 1]) cells[r][c + 1]!.south = value;
-    if (cells[r + 1]?.[c]) cells[r + 1][c]!.north = value;
-    if (cells[r + 1]?.[c + 1]) cells[r + 1][c + 1]!.north = value;
+    if (tl) tl.south = value;
+    if (tr) tr.south = value;
+    if (bl) bl.north = value;
+    if (br) br.north = value;
   }
 }
 
@@ -160,8 +194,10 @@ function setCenterDoor(cells: CellGrid, r: number, c: number, axis: string, valu
  */
 export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells: CellGrid[][] } {
   // ── 1. Bounding box ────────────────────────────────────────────────
-  let minX = Infinity, maxX = -Infinity;
-  let minY = Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    maxX = -Infinity;
+  let minY = Infinity,
+    maxY = -Infinity;
   for (const r of opd.rects) {
     minX = Math.min(minX, r.x);
     maxX = Math.max(maxX, r.x + r.w - 1);
@@ -198,9 +234,10 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
         // Fill all 4 subcells
         for (let sr = 0; sr < RES; sr++) {
           for (let sc = 0; sc < RES; sc++) {
-            const rr = r + sr, cc = c + sc;
+            const rr = r + sr,
+              cc = c + sc;
             if (rr >= 0 && rr < rows && cc >= 0 && cc < cols) {
-              cells[rr][cc] ??= {};
+              cells[rr]![cc] ??= {};
             }
           }
         }
@@ -212,11 +249,11 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
   // Each subcell gets walls where it faces void or grid edge.
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (!cells[r][c]) continue;
-      if (r === 0          || !cells[r - 1][c]) cells[r][c]!.north = 'w';
-      if (r === rows - 1   || !cells[r + 1][c]) cells[r][c]!.south = 'w';
-      if (c === 0          || !cells[r][c - 1]) cells[r][c]!.west  = 'w';
-      if (c === cols - 1   || !cells[r][c + 1]) cells[r][c]!.east  = 'w';
+      if (!cells[r]![c]) continue;
+      if (r === 0 || !cells[r - 1]![c]) cells[r]![c]!.north = 'w';
+      if (r === rows - 1 || !cells[r + 1]![c]) cells[r]![c]!.south = 'w';
+      if (c === 0 || !cells[r]![c - 1]) cells[r]![c]!.west = 'w';
+      if (c === cols - 1 || !cells[r]![c + 1]) cells[r]![c]!.east = 'w';
     }
   }
 
@@ -233,7 +270,7 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
   let nextStairId = 0;
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  for (const door of (opd.doors || [])) {
+  for (const door of opd.doors || []) {
     const kind = classifyDoor(door.type);
     if (kind === 'open') continue; // open passage — leave as-is
 
@@ -308,7 +345,7 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
   // ── 7. Notes → room labels (letter + ref number, skip flavor text) ──
   const dungeonLetter = 'A';
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  for (const note of (opd.notes || [])) {
+  for (const note of opd.notes || []) {
     const r = toRow(Math.floor(note.pos.y));
     const c = toCol(Math.floor(note.pos.x));
     if (cells[r]?.[c]) {
@@ -339,7 +376,7 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
   // At 2× scale, OPD corner (col.x, col.y) maps to internal grid point (r, c).
   // The 4 surrounding OPD cells are at subcell blocks, so we check
   // the subcells adjacent to the grid intersection.
-  for (const col of (opd.columns ?? [])) {
+  for (const col of opd.columns ?? []) {
     const r = toRow(col.y);
     const c = toCol(col.x);
     // At 2×, the grid intersection is at (r, c). The 4 OPD cells sharing
@@ -367,7 +404,7 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
 
   // Archways and portcullis: place visual props on door cells
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  for (const door of (opd.doors || [])) {
+  for (const door of opd.doors || []) {
     if (door.type !== 2 && door.type !== 4) continue; // archway=2, portcullis=4
 
     const r = toRow(door.y);
@@ -389,14 +426,14 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
       // Place invisible door at center of 2×2 block for fog/BFS control
       const doorAxis = door.dir.x !== 0 ? 'ew' : 'ns';
       setCenterDoor(cells, r, c, doorAxis, 'id');
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     } else if (door.type === 4) {
       addProp(r, c, 'portcullis', rotation);
     }
   }
 
   // ── 9. Water fills (each OPD water cell → 2×2 subcells) ────────────
-  for (const w of (opd.water ?? [])) {
+  for (const w of opd.water ?? []) {
     for (let dy = 0; dy < (w.h || 1); dy++) {
       for (let dx = 0; dx < (w.w || 1); dx++) {
         const r = toRow((w.y || 0) + dy);
@@ -427,10 +464,10 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
 
     // r0 = corner tip cell, matching the trim tool's dragStart convention
     const cornerDefs = [
-      { cn: 'nw', r0: topR,  c0: leftC  },
-      { cn: 'ne', r0: topR,  c0: rightC },
-      { cn: 'sw', r0: botR,  c0: leftC  },
-      { cn: 'se', r0: botR,  c0: rightC },
+      { cn: 'nw', r0: topR, c0: leftC },
+      { cn: 'ne', r0: topR, c0: rightC },
+      { cn: 'sw', r0: botR, c0: leftC },
+      { cn: 'se', r0: botR, c0: rightC },
     ];
 
     for (const { cn, r0, c0 } of cornerDefs) {
@@ -439,12 +476,25 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
       // Build hypotenuse + voided (same geometry as the trim tool)
       const hypotenuse: { row: number; col: number }[] = [];
       for (let i = 0; i < sz; i++) {
-        let hr = 0, hc = 0;
+        let hr = 0,
+          hc = 0;
         switch (cn) {
-          case 'nw': hr = r0 + far - i; hc = c0 + i; break;
-          case 'ne': hr = r0 + far - i; hc = c0 - i; break;
-          case 'sw': hr = r0 - far + i; hc = c0 + i; break;
-          case 'se': hr = r0 - far + i; hc = c0 - i; break;
+          case 'nw':
+            hr = r0 + far - i;
+            hc = c0 + i;
+            break;
+          case 'ne':
+            hr = r0 + far - i;
+            hc = c0 - i;
+            break;
+          case 'sw':
+            hr = r0 - far + i;
+            hc = c0 + i;
+            break;
+          case 'se':
+            hr = r0 - far + i;
+            hc = c0 - i;
+            break;
         }
         hypotenuse.push({ row: hr, col: hc });
       }
@@ -452,20 +502,33 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
       let voided: { row: number; col: number }[] = [];
       for (let i = 1; i < sz; i++) {
         for (let j = 0; j < i; j++) {
-          let vr = 0, vc = 0;
+          let vr = 0,
+            vc = 0;
           switch (cn) {
-            case 'nw': vr = r0 + far - i; vc = c0 + j; break;
-            case 'ne': vr = r0 + far - i; vc = c0 - i + 1 + j; break;
-            case 'sw': vr = r0 - far + i; vc = c0 + j; break;
-            case 'se': vr = r0 - far + i; vc = c0 - i + 1 + j; break;
+            case 'nw':
+              vr = r0 + far - i;
+              vc = c0 + j;
+              break;
+            case 'ne':
+              vr = r0 + far - i;
+              vc = c0 - i + 1 + j;
+              break;
+            case 'sw':
+              vr = r0 - far + i;
+              vc = c0 + j;
+              break;
+            case 'se':
+              vr = r0 - far + i;
+              vc = c0 - i + 1 + j;
+              break;
           }
           voided.push({ row: vr, col: vc });
         }
       }
 
       // Compute arcCenter (same logic as trim tool _updatePreview)
-      const allRows = hypotenuse.map(c => c.row).concat(voided.map(c => c.row));
-      const allCols = hypotenuse.map(c => c.col).concat(voided.map(c => c.col));
+      const allRows = hypotenuse.map((c) => c.row).concat(voided.map((c) => c.row));
+      const allCols = hypotenuse.map((c) => c.col).concat(voided.map((c) => c.col));
       let arcCenter = { row: r0, col: c0 };
       if (allRows.length > 0) {
         const minR = Math.min(...allRows);
@@ -473,21 +536,42 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
         const minC = Math.min(...allCols);
         const maxC = Math.max(...allCols);
         switch (cn) {
-          case 'nw': arcCenter = { row: minR, col: minC }; break;
-          case 'ne': arcCenter = { row: minR, col: maxC + 1 }; break;
-          case 'sw': arcCenter = { row: maxR + 1, col: minC }; break;
-          case 'se': arcCenter = { row: maxR + 1, col: maxC + 1 }; break;
+          case 'nw':
+            arcCenter = { row: minR, col: minC };
+            break;
+          case 'ne':
+            arcCenter = { row: minR, col: maxC + 1 };
+            break;
+          case 'sw':
+            arcCenter = { row: maxR + 1, col: minC };
+            break;
+          case 'se':
+            arcCenter = { row: maxR + 1, col: maxC + 1 };
+            break;
         }
       }
 
       // Filter voided → insideArc (cells between diagonal and arc curve)
       const insideArc: { row: number; col: number }[] = [];
-      let acxGrid: number = 0, acyGrid: number = 0;
+      let acxGrid: number = 0,
+        acyGrid: number = 0;
       switch (cn) {
-        case 'nw': acxGrid = arcCenter.col + sz; acyGrid = arcCenter.row + sz; break;
-        case 'ne': acxGrid = arcCenter.col - sz; acyGrid = arcCenter.row + sz; break;
-        case 'sw': acxGrid = arcCenter.col + sz; acyGrid = arcCenter.row - sz; break;
-        case 'se': acxGrid = arcCenter.col - sz; acyGrid = arcCenter.row - sz; break;
+        case 'nw':
+          acxGrid = arcCenter.col + sz;
+          acyGrid = arcCenter.row + sz;
+          break;
+        case 'ne':
+          acxGrid = arcCenter.col - sz;
+          acyGrid = arcCenter.row + sz;
+          break;
+        case 'sw':
+          acxGrid = arcCenter.col + sz;
+          acyGrid = arcCenter.row - sz;
+          break;
+        case 'se':
+          acxGrid = arcCenter.col - sz;
+          acyGrid = arcCenter.row - sz;
+          break;
       }
       voided = voided.filter(({ row: vr, col: vc }) => {
         const dx = Math.max(vc - acxGrid, 0, acxGrid - (vc + 1));
@@ -503,23 +587,24 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
 
       // Apply trim data to cells
       for (const [key, val] of trimData) {
-        const [r, c] = key.split(',').map(Number);
+        const [r, c] = key.split(',').map(Number) as [number, number];
         if (r < 0 || r >= rows || c < 0 || c >= cols) continue;
 
         if (val === null) {
           // Void — but skip cells with doors (they connect to adjacent rooms)
           const vc = cells[r]?.[c];
           if (vc) {
-            const hasDoor = ['north','south','east','west'].some(d => vc[d] === 'd' || vc[d] === 's');
-            if (!hasDoor) cells[r][c] = null;
+            const hasDoor = ['north', 'south', 'east', 'west'].some((d) => vc[d] === 'd' || vc[d] === 's');
+            if (!hasDoor) cells[r]![c] = null;
           }
         } else if (val === 'interior') {
           if (cells[r]?.[c]) _clearWalls(cells, r, c, rows, cols);
         } else {
           // Arc boundary cell
-          cells[r][c] ??= {};
+          const rowArr = cells[r]!;
+          rowArr[c] ??= {};
           _clearWalls(cells, r, c, rows, cols);
-          Object.assign(cells[r][c], val);
+          Object.assign(rowArr[c], val);
         }
       }
     }
@@ -546,7 +631,7 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
     lightingEnabled: false,
     ambientLight: 1.0,
     lights: [] as Light[],
-    stairs: stairs.length > 0 ? stairs : [] as Stairs[],
+    stairs: stairs.length > 0 ? stairs : ([] as Stairs[]),
     bridges: [] as Bridge[],
     nextLightId: 0,
     nextBridgeId: 0,
@@ -559,7 +644,7 @@ export function convertOnePageDungeon(opd: OpdJson): { metadata: Metadata; cells
 // ── Internal helpers ─────────────────────────────────────────────────────────
 
 const OFFS = CARDINAL_OFFSETS;
-const OPP  = { north: 'south', south: 'north', west: 'east', east: 'west' };
+const OPP = { north: 'south', south: 'north', west: 'east', east: 'west' };
 
 /** Clear cardinal walls on cell + reciprocals, preserving doors. */
 function _clearWalls(cells: CellGrid, r: number, c: number, numRows: number, numCols: number) {
@@ -570,7 +655,8 @@ function _clearWalls(cells: CellGrid, r: number, c: number, numRows: number, num
     if (edge && edge !== 'd' && edge !== 's') {
       deleteEdge(cell, dir as Direction);
       const [dr, dc] = OFFS[dir];
-      const nr = r + dr, nc = c + dc;
+      const nr = r + dr,
+        nc = c + dc;
       if (nr >= 0 && nr < numRows && nc >= 0 && nc < numCols) {
         const nb = cells[nr]?.[nc];
         const oppDir = OPP[dir] as Direction;

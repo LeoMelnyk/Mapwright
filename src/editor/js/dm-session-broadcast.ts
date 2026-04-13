@@ -25,7 +25,7 @@ export function snapshotBroadcastBaseline() {
   _lastBroadcastLightingVersion = getLightingVersion();
   _lastBroadcastPropsVersion = getPropsVersion();
   _lastBroadcastGridRows = state.dungeon.cells.length;
-  _lastBroadcastGridCols = state.dungeon.cells[0]?.length || 0;
+  _lastBroadcastGridCols = state.dungeon.cells[0]?.length ?? 0;
   _lastBroadcastContentVersion = getContentVersion();
   consumeBroadcastDirtyRegion(); // clear any accumulated region
 }
@@ -104,7 +104,7 @@ export function startDungeonBroadcast() {
       const lv = getLightingVersion();
       const pv = getPropsVersion();
       const numRows = state.dungeon.cells.length;
-      const numCols = state.dungeon.cells[0]?.length || 0;
+      const numCols = state.dungeon.cells[0]?.length ?? 0;
 
       const changeHints = {
         dirtyRegion: consumeBroadcastDirtyRegion(),

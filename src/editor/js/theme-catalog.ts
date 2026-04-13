@@ -7,10 +7,19 @@ const BASE_URL = '/themes/';
 const CACHE_KEY = 'theme-catalog';
 const CACHE_VER_KEY = 'theme-catalog-ver';
 
-let catalog: { names: string[]; themes: Record<string, Record<string, unknown>>; userNames: string[]; userThemes: Record<string, Record<string, unknown>> } | null = null;
+let catalog: {
+  names: string[];
+  themes: Record<string, Record<string, unknown>>;
+  userNames: string[];
+  userThemes: Record<string, Record<string, unknown>>;
+} | null = null;
 
 // Minimal dungeon used for preview renders — a plain 3×3 room
-const PREVIEW_CELLS = [[{}, {}, {}], [{}, {}, {}], [{}, {}, {}]];
+const PREVIEW_CELLS = [
+  [{}, {}, {}],
+  [{}, {}, {}],
+  [{}, {}, {}],
+];
 
 /**
  * Register themes into the shared THEMES registry and build the catalog.
@@ -54,7 +63,9 @@ export async function loadThemeCatalog(onProgress?: (loaded: number, total: numb
           await _loadUserThemes();
           return catalog;
         }
-      } catch { /* cache corrupt, fall through */ }
+      } catch {
+        /* cache corrupt, fall through */
+      }
     }
 
     // Fresh fetch
@@ -69,7 +80,7 @@ export async function loadThemeCatalog(onProgress?: (loaded: number, total: numb
         loaded++;
         if (onProgress) onProgress(loaded, keys.length);
         return { key, data };
-      })
+      }),
     );
 
     const themeMap = {};
@@ -85,7 +96,9 @@ export async function loadThemeCatalog(onProgress?: (loaded: number, total: numb
     try {
       localStorage.setItem(CACHE_KEY, JSON.stringify(themeMap));
       localStorage.setItem(CACHE_VER_KEY, version);
-    } catch { /* localStorage full or unavailable */ }
+    } catch {
+      /* localStorage full or unavailable */
+    }
 
     catalog = { ...buildFromData(themeMap as Record<string, Record<string, unknown>>), userNames: [], userThemes: {} };
   } catch (e) {
@@ -120,9 +133,13 @@ async function _loadUserThemes() {
         catalog.userNames.push(entry.key);
         catalog.userThemes[entry.key] = { ...themeProps, displayName: displayName ?? entry.key };
         THEMES[fullKey] = themeProps as Theme;
-      } catch { /* skip individual failures */ }
+      } catch {
+        /* skip individual failures */
+      }
     }
-  } catch { /* no user themes endpoint available */ }
+  } catch {
+    /* no user themes endpoint available */
+  }
 }
 
 /**
@@ -193,7 +210,7 @@ export async function renameUserTheme(oldKey: string, newName: string) {
   const oldTheme = THEMES[`user:${oldKey}`];
   if (oldKey !== newKey) {
     delete THEMES[`user:${oldKey}`];
-    THEMES[`user:${newKey}`] = oldTheme;
+    if (oldTheme) THEMES[`user:${newKey}`] = oldTheme;
   }
   if (catalog) {
     const idx = catalog.userNames.indexOf(oldKey);

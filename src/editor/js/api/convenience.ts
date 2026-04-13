@@ -68,7 +68,7 @@ export function shiftCells(dr: number, dc: number): { success: true; newRows: nu
   dc = toInt(dc);
   const cells = state.dungeon.cells;
   const rows = cells.length;
-  const cols = cells[0]?.length || 0;
+  const cols = cells[0]?.length ?? 0;
   const newRows = rows + Math.abs(dr);
   const newCols = cols + Math.abs(dc);
 
@@ -90,7 +90,7 @@ export function shiftCells(dr: number, dc: number): { success: true; newRows: nu
     const newCells = Array.from({ length: newRows }, () => Array(newCols).fill(null));
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        if (sourceCells[r]?.[c]) newCells[r + rowOffset][c + colOffset] = sourceCells[r][c];
+        if (sourceCells[r]?.[c]) newCells[r + rowOffset]![c + colOffset] = sourceCells[r]![c];
       }
     }
     state.dungeon.cells = newCells;
@@ -143,7 +143,7 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
   const cells = state.dungeon.cells;
   const meta = state.dungeon.metadata;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const gridSize = meta.gridSize || 5;
 
   // Resolve level list — fall back to whole-grid single level if no levels metadata.
@@ -152,7 +152,7 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
   const hasMeta = Array.isArray(meta.levels) && meta.levels.length > 0;
   const allLevels: { name: string | null; startRow: number; numRows: number }[] = [];
   if (hasMeta) {
-    const firstStart = meta.levels[0].startRow;
+    const firstStart = meta.levels[0]!.startRow;
     if (firstStart > 1) {
       // Implied first level: rows 0 to (firstStart - 2), separator at (firstStart - 1)
       allLevels.push({ name: null, startRow: 0, numRows: firstStart - 1 });
@@ -222,15 +222,15 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
   for (let i = 0; i < levelAdjustments.length; i++) {
     if (i > 0) newTotalRows += 1; // void separator row between levels
     newLevelStartRows.push(newTotalRows);
-    newTotalRows += levelAdjustments[i].newNumRows;
+    newTotalRows += levelAdjustments[i]!.newNumRows;
   }
 
   // Helper: compute absolute-row delta for a given original row value
   const getRowDelta = (r: number) => {
     for (let i = 0; i < levelAdjustments.length; i++) {
-      const { origStartRow, origNumRows, topShift } = levelAdjustments[i];
+      const { origStartRow, origNumRows, topShift } = levelAdjustments[i]!;
       if (r >= origStartRow && r < origStartRow + origNumRows) {
-        return newLevelStartRows[i] - origStartRow + topShift;
+        return newLevelStartRows[i]! - origStartRow + topShift;
       }
     }
     return 0; // separator row — no structural content expected here
@@ -244,7 +244,7 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
     // ── 4. Build new cells array ─────────────────────────────────────────────
     const newCells = Array.from({ length: newTotalRows }, () => Array(newNumCols).fill(null));
     for (const { origStartRow, origNumRows, li, topShift, newNumRows } of levelAdjustments) {
-      const newStartRow = newLevelStartRows[li];
+      const newStartRow = newLevelStartRows[li]!;
       for (let r = origStartRow; r < origStartRow + origNumRows; r++) {
         const newRelRow = r - origStartRow + topShift;
         if (newRelRow < 0 || newRelRow >= newNumRows) continue;
@@ -253,7 +253,7 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
           if (cells[r]?.[c] == null) continue;
           const newCol = c + colShift;
           if (newCol < 0 || newCol >= newNumCols) continue;
-          newCells[newAbsRow][newCol] = cells[r][c];
+          newCells[newAbsRow]![newCol] = cells[r]![c];
         }
       }
     }
@@ -287,8 +287,8 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
     if (allLevels.length > 0) {
       meta.levels = allLevels.map((l, i) => ({
         name: l.name ?? `Level ${i + 1}`,
-        startRow: newLevelStartRows[i],
-        numRows: levelAdjustments[i].newNumRows,
+        startRow: newLevelStartRows[i]!,
+        numRows: levelAdjustments[i]!.newNumRows,
       }));
     }
 
@@ -305,10 +305,10 @@ export function normalizeMargin(targetMargin: number = 2): Record<string, unknow
         colShift,
         levels: levelAdjustments.map(({ li, topShift, newNumRows }) => ({
           index: li,
-          name: rawLevels[li].name,
+          name: rawLevels[li]!.name,
           topShift,
           newNumRows,
-          newStartRow: newLevelStartRows[li],
+          newStartRow: newLevelStartRows[li]!,
         })),
       },
     };
@@ -387,7 +387,7 @@ export function createCorridor(label1: string, label2: string, width: number = 2
   for (const row of state.dungeon.cells) {
     for (const cell of row) {
       const m = cell?.center?.label?.match(pat);
-      if (m) used.add(parseInt(m[1]));
+      if (m) used.add(parseInt(m[1]!));
     }
   }
   let n = 1;
@@ -399,7 +399,7 @@ export function createCorridor(label1: string, label2: string, width: number = 2
   for (const roomLabel of [label1, label2]) {
     const wallResult = getApi().findWallBetween(roomLabel, corridorLabel);
     if (wallResult.success && wallResult.walls.length) {
-      const mid = wallResult.walls[Math.floor(wallResult.walls.length / 2)];
+      const mid = wallResult.walls[Math.floor(wallResult.walls.length / 2)]!;
       getApi().setDoor(mid.row, mid.col, mid.direction, 'd');
     }
   }
@@ -428,7 +428,7 @@ export function setDoorBetween(
       { label1, label2 },
     );
   }
-  const mid = wallResult.walls[Math.floor(wallResult.walls.length / 2)];
+  const mid = wallResult.walls[Math.floor(wallResult.walls.length / 2)]!;
   getApi().setDoor(mid.row, mid.col, mid.direction, type);
   return { success: true, row: mid.row, col: mid.col, direction: mid.direction };
 }

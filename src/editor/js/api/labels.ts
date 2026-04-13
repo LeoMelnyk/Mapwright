@@ -1,9 +1,4 @@
-import {
-  mutate,
-  validateBounds, ensureCell,
-  toInt,
-  state,
-} from './_shared.js';
+import { mutate, validateBounds, ensureCell, toInt, state } from './_shared.js';
 
 /**
  * Set a room label on a cell, optionally at a specific world-feet position.
@@ -14,8 +9,15 @@ import {
  * @param {number} [worldY] - World-feet Y override for label position
  * @returns {{ success: boolean }}
  */
-export function setLabel(row: number, col: number, text: string | number, worldX?: number, worldY?: number): { success: true } {
-  row = toInt(row); col = toInt(col);
+export function setLabel(
+  row: number,
+  col: number,
+  text: string | number,
+  worldX?: number,
+  worldY?: number,
+): { success: true } {
+  row = toInt(row);
+  col = toInt(col);
   const cell = ensureCell(row, col);
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate('setLabel', coords, () => {
@@ -40,9 +42,10 @@ export function setLabel(row: number, col: number, text: string | number, worldX
  * @returns {{ success: boolean }}
  */
 export function removeLabel(row: number, col: number): { success: true } {
-  row = toInt(row); col = toInt(col);
+  row = toInt(row);
+  col = toInt(col);
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
+  const cell = state.dungeon.cells[row]![col];
   if (!cell?.center?.label) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate('removeLabel', coords, () => {

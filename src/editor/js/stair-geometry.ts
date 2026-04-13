@@ -16,28 +16,37 @@
  * @param {number[]} p1 - [row, col] first click (base start)
  * @param {number[]} p2 - [row, col] second click (base end)
  * @param {number[]} p3 - [row, col] third click (depth target)
- * @returns {{ type: 'rectangle'|'triangle', vertices: number[][] }}
+ * @returns {{ type: 'rectangle'|'triangle', vertices: [number, number][] }}
  */
-export function classifyStairShape(p1: number[], p2: number[], p3: number[]): { type: 'rectangle' | 'trapezoid' | 'triangle'; vertices: number[][] } {
-  const baseR = p2[0] - p1[0], baseC = p2[1] - p1[1];
+export function classifyStairShape(
+  p1: [number, number],
+  p2: [number, number],
+  p3: [number, number],
+): { type: 'rectangle' | 'trapezoid' | 'triangle'; vertices: [number, number][] } {
+  const baseR = p2[0] - p1[0],
+    baseC = p2[1] - p1[1];
   const baseLen = Math.hypot(baseR, baseC);
   if (baseLen < 0.01) return { type: 'triangle', vertices: [p1, p2, p3] };
-  const baseUnitR = baseR / baseLen, baseUnitC = baseC / baseLen;
+  const baseUnitR = baseR / baseLen,
+    baseUnitC = baseC / baseLen;
 
   // Decompose P3-P2 into base-parallel (inward) and base-perpendicular (depth)
-  const relR = p3[0] - p2[0], relC = p3[1] - p2[1];
+  const relR = p3[0] - p2[0],
+    relC = p3[1] - p2[1];
   const inward = -(relR * baseUnitR + relC * baseUnitC);
   const depthR = relR + inward * baseUnitR;
   const depthC = relC + inward * baseUnitC;
 
   const narrowLen = baseLen - 2 * inward;
-  const midR = (p1[0] + p2[0]) / 2, midC = (p1[1] + p2[1]) / 2;
-  const narrowCenterR = midR + depthR, narrowCenterC = midC + depthC;
+  const midR = (p1[0] + p2[0]) / 2,
+    midC = (p1[1] + p2[1]) / 2;
+  const narrowCenterR = midR + depthR,
+    narrowCenterC = midC + depthC;
 
   if (narrowLen > 0.05) {
     const halfNarrow = narrowLen / 2;
-    const ns = [narrowCenterR - halfNarrow * baseUnitR, narrowCenterC - halfNarrow * baseUnitC];
-    const ne = [narrowCenterR + halfNarrow * baseUnitR, narrowCenterC + halfNarrow * baseUnitC];
+    const ns: [number, number] = [narrowCenterR - halfNarrow * baseUnitR, narrowCenterC - halfNarrow * baseUnitC];
+    const ne: [number, number] = [narrowCenterR + halfNarrow * baseUnitR, narrowCenterC + halfNarrow * baseUnitC];
     const type = Math.abs(narrowLen - baseLen) < 0.05 ? 'rectangle' : 'trapezoid';
     return { type, vertices: [p1, p2, ne, ns] };
   }
@@ -52,7 +61,7 @@ export function classifyStairShape(p1: number[], p2: number[], p3: number[]): { 
  * @param {number[]} p3
  * @returns {boolean} true if degenerate
  */
-export function isDegenerate(p1: number[], p2: number[], p3: number[]): boolean {
+export function isDegenerate(p1: [number, number], p2: [number, number], p3: [number, number]): boolean {
   // Same point check
   if (p1[0] === p2[0] && p1[1] === p2[1]) return true;
   if (p2[0] === p3[0] && p2[1] === p3[1]) return true;
@@ -68,10 +77,18 @@ export function isDegenerate(p1: number[], p2: number[], p3: number[]): boolean 
  * @param {number[][]} points - Array of [row, col] corner points (3 for triangle, or raw 3 points)
  * @returns {{ minRow: number, minCol: number, maxRow: number, maxCol: number }}
  */
-export function stairBoundingBox(points: number[][]): { minRow: number; minCol: number; maxRow: number; maxCol: number } {
-  const shape = classifyStairShape(points[0], points[1], points[2]);
+export function stairBoundingBox(points: [number, number][]): {
+  minRow: number;
+  minCol: number;
+  maxRow: number;
+  maxCol: number;
+} {
+  const shape = classifyStairShape(points[0]!, points[1]!, points[2]!);
   const verts = shape.vertices;
-  let minRow = Infinity, minCol = Infinity, maxRow = -Infinity, maxCol = -Infinity;
+  let minRow = Infinity,
+    minCol = Infinity,
+    maxRow = -Infinity,
+    maxCol = -Infinity;
   for (const [r, c] of verts) {
     if (r < minRow) minRow = r;
     if (c < minCol) minCol = c;
@@ -93,8 +110,11 @@ import { pointInPolygon, pointOnPolygonEdge } from '../../util/index.js';
  * @param {number[][]} vertices - Polygon vertices in corner coords [row, col]
  * @returns {{ row: number, col: number }[]}
  */
-export function getOccupiedCells(vertices: number[][]): { row: number; col: number }[] {
-  let minRow = Infinity, minCol = Infinity, maxRow = -Infinity, maxCol = -Infinity;
+export function getOccupiedCells(vertices: [number, number][]): { row: number; col: number }[] {
+  let minRow = Infinity,
+    minCol = Infinity,
+    maxRow = -Infinity,
+    maxCol = -Infinity;
   for (const [r, c] of vertices) {
     if (r < minRow) minRow = r;
     if (c < minCol) minCol = c;
@@ -103,8 +123,10 @@ export function getOccupiedCells(vertices: number[][]): { row: number; col: numb
   }
 
   // Cell rows go from minRow to maxRow-1, cols from minCol to maxCol-1
-  const startR = Math.floor(minRow), startC = Math.floor(minCol);
-  const endR = Math.ceil(maxRow), endC = Math.ceil(maxCol);
+  const startR = Math.floor(minRow),
+    startC = Math.floor(minCol);
+  const endR = Math.ceil(maxRow),
+    endC = Math.ceil(maxCol);
   const cells = [];
   for (let r = startR; r < endR; r++) {
     for (let c = startC; c < endC; c++) {
@@ -129,8 +151,11 @@ export function getOccupiedCells(vertices: number[][]): { row: number; col: numb
  * @param {number} [lineSpacing=0.2] - Spacing between lines in grid units
  * @returns {{ r1: number, c1: number, r2: number, c2: number }[]}
  */
-export function computeHatchLines(points: number[][], lineSpacing: number = 0.2): { r1: number; c1: number; r2: number; c2: number }[] {
-  const [p1, p2, p3] = points;
+export function computeHatchLines(
+  points: [number, number][],
+  lineSpacing: number = 0.2,
+): { r1: number; c1: number; r2: number; c2: number }[] {
+  const [p1, p2, p3] = points as [[number, number], [number, number], [number, number]];
 
   // Base vector and length
   const baseR = p2[0] - p1[0];
@@ -156,7 +181,7 @@ export function computeHatchLines(points: number[][], lineSpacing: number = 0.2)
   const narrowCenterR = midR + depthR;
   const narrowCenterC = midC + depthC;
 
-  let narrowStart, narrowEnd;
+  let narrowStart: [number, number], narrowEnd: [number, number];
   if (narrowLen > 0.05) {
     const halfNarrow = narrowLen / 2;
     narrowStart = [narrowCenterR - halfNarrow * baseUnitR, narrowCenterC - halfNarrow * baseUnitC];
@@ -186,4 +211,3 @@ export function computeHatchLines(points: number[][], lineSpacing: number = 0.2)
 
   return lines;
 }
-

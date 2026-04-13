@@ -8,14 +8,14 @@ function hasStairFeatures(cells: CellGrid) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
       const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
-        const cell = levelCells[row][col];
+        const cell = levelCells[row]![col];
         if (cell?.center?.['stairs-up'] || cell?.center?.['stairs-down']) {
           return true;
         }
@@ -44,10 +44,10 @@ function validateSingleStair(
 
   let targetLevel: number, targetRow: number, targetCol: number;
   if (targetArr.length === 3) {
-    [targetLevel, targetRow, targetCol] = targetArr;
+    [targetLevel, targetRow, targetCol] = targetArr as [number, number, number];
   } else if (targetArr.length === 2) {
     targetLevel = fromLevel;
-    [targetRow, targetCol] = targetArr;
+    [targetRow, targetCol] = targetArr as [number, number];
   } else {
     errors.push(
       `Level ${fromLevel}, Cell [${fromRow}][${fromCol}]: ` +
@@ -65,9 +65,9 @@ function validateSingleStair(
     return errors;
   }
 
-  const targetLevelCells = isMultiLevel ? asMultiLevel(cells)[targetLevel] : cells;
+  const targetLevelCells = (isMultiLevel ? asMultiLevel(cells)[targetLevel] : cells)!;
   const numRows = targetLevelCells.length;
-  const numCols = targetLevelCells[0]?.length || 0;
+  const numCols = targetLevelCells[0]?.length ?? 0;
 
   if (targetRow < 0 || targetRow >= numRows) {
     errors.push(
@@ -85,7 +85,7 @@ function validateSingleStair(
     return errors;
   }
 
-  const targetCell = targetLevelCells[targetRow][targetCol];
+  const targetCell = targetLevelCells[targetRow]![targetCol];
   if (!targetCell) {
     errors.push(
       `Level ${fromLevel}, Cell [${fromRow}][${fromCol}]: ` +
@@ -109,10 +109,10 @@ function validateSingleStair(
   const reciprocal = targetCell.center[reciprocalType] as number[];
   let recipLevel: number, recipRow: number, recipCol: number;
   if (reciprocal.length === 3) {
-    [recipLevel, recipRow, recipCol] = reciprocal;
+    [recipLevel, recipRow, recipCol] = reciprocal as [number, number, number];
   } else {
     recipLevel = targetLevel;
-    [recipRow, recipCol] = reciprocal;
+    [recipRow, recipCol] = reciprocal as [number, number];
   }
 
   if (recipLevel !== fromLevel || recipRow !== fromRow || recipCol !== fromCol) {
@@ -137,14 +137,14 @@ function validateStairConnections(cells: CellGrid, isMultiLevel: boolean) {
   const numLevels = isMultiLevel ? cells.length : 1;
 
   for (let level = 0; level < numLevels; level++) {
-    const levelCells = isMultiLevel ? asMultiLevel(cells)[level] : cells;
+    const levelCells = (isMultiLevel ? asMultiLevel(cells)[level] : cells)!;
     const numRows = levelCells.length;
 
     for (let row = 0; row < numRows; row++) {
       const numCols = levelCells[row]?.length ?? 0;
 
       for (let col = 0; col < numCols; col++) {
-        const cell = levelCells[row][col];
+        const cell = levelCells[row]![col];
         if (!cell?.center) continue;
 
         if (Array.isArray(cell.center['stairs-up'])) {

@@ -23,7 +23,7 @@ export function getCellInfo(row: number, col: number): { success: true; cell: Ce
   row = toInt(row);
   col = toInt(col);
   validateBounds(row, col);
-  const cell = state.dungeon.cells[row][col];
+  const cell = state.dungeon.cells[row]![col];
   return { success: true, cell: cell ? JSON.parse(JSON.stringify(cell)) : null };
 }
 
@@ -37,13 +37,13 @@ export function paintCell(row: number, col: number): { success: true } {
   row = toInt(row);
   col = toInt(col);
   validateBounds(row, col);
-  if (state.dungeon.cells[row][col] !== null) return { success: true };
+  if (state.dungeon.cells[row]![col] !== null) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate(
     'paintCell',
     coords,
     () => {
-      state.dungeon.cells[row][col] = {};
+      state.dungeon.cells[row]![col] = {};
     },
     { forceGeometry: true },
   );
@@ -69,7 +69,7 @@ export function paintRect(r1: number, c1: number, r2: number, c2: number): { suc
       const cells = state.dungeon.cells;
       for (let r = minR; r <= maxR; r++) {
         for (let c = minC; c <= maxC; c++) {
-          cells[r][c] ??= {};
+          cells[r]![c] ??= {};
         }
       }
     },
@@ -88,13 +88,13 @@ export function eraseCell(row: number, col: number): { success: true } {
   row = toInt(row);
   col = toInt(col);
   validateBounds(row, col);
-  if (state.dungeon.cells[row][col] === null) return { success: true };
+  if (state.dungeon.cells[row]![col] === null) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
   mutate(
     'eraseCell',
     coords,
     () => {
-      state.dungeon.cells[row][col] = null;
+      state.dungeon.cells[row]![col] = null;
     },
     { forceGeometry: true, invalidate: ['lighting'] },
   );
@@ -120,7 +120,7 @@ export function eraseRect(r1: number, c1: number, r2: number, c2: number): { suc
       const cells = state.dungeon.cells;
       for (let r = minR; r <= maxR; r++) {
         for (let c = minC; c <= maxC; c++) {
-          cells[r][c] = null;
+          cells[r]![c] = null;
         }
       }
     },
@@ -201,15 +201,15 @@ export function createPolygonRoom(
     () => {
       const cells = state.dungeon.cells;
       for (const [r, c] of cellList) {
-        cells[r][c] ??= {};
-        const cell = cells[r][c];
+        cells[r]![c] ??= {};
+        const cell = cells[r]![c];
 
         for (const dir of ['north', 'south', 'east', 'west']) {
-          const [dr, dc] = OFFSETS[dir];
+          const [dr, dc] = OFFSETS[dir]!;
           const nr = r + dr,
             nc = c + dc;
           const inBounds_ = isInBounds(cells, nr, nc);
-          const neighborCell = inBounds_ ? cells[nr][nc] : null;
+          const neighborCell = inBounds_ ? cells[nr]![nc] : null;
           const reciprocal = OPPOSITE[dir as keyof typeof OPPOSITE];
           const neighborInRoom = cellSet.has(cellKey(nr, nc));
 

@@ -129,7 +129,7 @@ export function renderFloors(
   const { gridSize, theme, transform } = params;
   const { textureOptions = null, bgImageEl = null, bgImgConfig = null, visibleBounds = null, resolution = 1 } = options;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const startRow = visibleBounds?.minRow ?? 0;
   const endRow = visibleBounds?.maxRow ?? numRows - 1;
   const startCol = visibleBounds?.minCol ?? 0;
@@ -224,9 +224,9 @@ export function renderFloors(
                 const clip = cell.trimClip;
                 const gs = cellPxSub;
                 const px = toCanvas(x, y, transform);
-                ctx.moveTo(px.x + clip[0][0] * gs, px.y + clip[0][1] * gs);
+                ctx.moveTo(px.x + clip[0]![0]! * gs, px.y + clip[0]![1]! * gs);
                 for (let i = 1; i < clip.length; i++) {
-                  ctx.lineTo(px.x + clip[i][0] * gs, px.y + clip[i][1] * gs);
+                  ctx.lineTo(px.x + clip[i]![0]! * gs, px.y + clip[i]![1]! * gs);
                 }
                 ctx.closePath();
               }
@@ -277,7 +277,7 @@ export function renderFloors(
     for (let row = startRow; row <= endRow; row++) {
       for (let col = startCol; col <= endCol; col++) {
         if (!roomCells[row]?.[col]) continue;
-        const cell = cells[row][col];
+        const cell = cells[row]![col];
         if (!cell) continue;
         if (cell.trimShowExteriorOnly) continue; // exterior-only: skip interior face fill
         const x = col * gridSize;
@@ -434,18 +434,18 @@ export function renderFloors(
       if (clipType === 'trimClip') {
         const clip = item.trimClip;
         const gs = cellPx;
-        ctx.moveTo(tl.x + clip![0][0] * gs, tl.y + clip![0][1] * gs);
+        ctx.moveTo(tl.x + clip![0]![0]! * gs, tl.y + clip![0]![1]! * gs);
         for (let i = 1; i < clip!.length; i++) {
-          ctx.lineTo(tl.x + clip![i][0] * gs, tl.y + clip![i][1] * gs);
+          ctx.lineTo(tl.x + clip![i]![0]! * gs, tl.y + clip![i]![1]! * gs);
         }
       } else if (clipType === 'trimClipInvert') {
         // Void side: cell rect minus trimClip polygon (using evenodd)
         const clip = item.trimClip;
         const gs = cellPx;
         ctx.rect(tl.x, tl.y, gs, gs);
-        ctx.moveTo(tl.x + clip![0][0] * gs, tl.y + clip![0][1] * gs);
+        ctx.moveTo(tl.x + clip![0]![0]! * gs, tl.y + clip![0]![1]! * gs);
         for (let i = 1; i < clip!.length; i++) {
-          ctx.lineTo(tl.x + clip![i][0] * gs, tl.y + clip![i][1] * gs);
+          ctx.lineTo(tl.x + clip![i]![0]! * gs, tl.y + clip![i]![1]! * gs);
         }
         ctx.closePath();
         ctx.fill('evenodd');
@@ -487,8 +487,8 @@ export function renderFloors(
     // ── Fallback: original per-cell drawImage (Node.js PDF renderer) ───────
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        if (!roomCells[row][col]) continue;
-        const cell = cells[row][col];
+        if (!roomCells[row]![col]) continue;
+        const cell = cells[row]![col];
         if (!cell) continue;
         if (cell.trimShowExteriorOnly) continue; // exterior-only: skip interior face fill
         const x = col * gridSize;
@@ -570,9 +570,9 @@ export function renderFloors(
               const clip = cell.trimClip;
               const gs = cellPx;
               ctx.beginPath();
-              ctx.moveTo(p1.x + clip[0][0] * gs, p1.y + clip[0][1] * gs);
+              ctx.moveTo(p1.x + clip[0]![0]! * gs, p1.y + clip[0]![1]! * gs);
               for (let i = 1; i < clip.length; i++) {
-                ctx.lineTo(p1.x + clip[i][0] * gs, p1.y + clip[i][1] * gs);
+                ctx.lineTo(p1.x + clip[i]![0]! * gs, p1.y + clip[i]![1]! * gs);
               }
               ctx.closePath();
               ctx.clip();
@@ -621,9 +621,9 @@ export function renderFloors(
               ctx.globalAlpha = cell.textureSecondaryOpacity ?? 1.0;
               ctx.beginPath();
               ctx.rect(p1.x, p1.y, gs, gs);
-              ctx.moveTo(p1.x + clip[0][0] * gs, p1.y + clip[0][1] * gs);
+              ctx.moveTo(p1.x + clip[0]![0]! * gs, p1.y + clip[0]![1]! * gs);
               for (let i = 1; i < clip.length; i++) {
-                ctx.lineTo(p1.x + clip[i][0] * gs, p1.y + clip[i][1] * gs);
+                ctx.lineTo(p1.x + clip[i]![0]! * gs, p1.y + clip[i]![1]! * gs);
               }
               ctx.closePath();
               ctx.clip('evenodd');
@@ -697,7 +697,7 @@ export function renderTextureBlending(
 
   // ── Fallback: per-element rendering (PDF path, or some bitmaps missing) ──
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const vx0 = -transform.offsetX / transform.scale;
   const vy0 = -transform.offsetY / transform.scale;
   const vx1 = (canvasW - transform.offsetX) / transform.scale;
@@ -921,7 +921,7 @@ export function renderFillPatternsAndGrid(
               grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
               grad.addColorStop(1, 'rgba(0,0,0,0)');
               ctx.fillStyle = grad;
-              for (const [r2, c2] of group as number[][]) {
+              for (const [r2, c2] of group as [number, number][]) {
                 ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
               }
             }
@@ -965,7 +965,7 @@ export function renderHazardOverlay(
   transform: RenderTransform,
 ): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
@@ -1050,7 +1050,7 @@ export function renderWallsAndBorders(
   _res: number = 1,
 ): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   drawBufferShading(ctx, cells, roomCells, gridSize, theme, transform);
 
@@ -1249,15 +1249,15 @@ export function renderWallsAndBorders(
           sy = 2 * s;
         ctx.beginPath();
         const p0s = toCanvas(
-          cx + (wall[0][0] as number) * gridSize + sx / transform.scale,
-          cy + (wall[0][1] as number) * gridSize + sy / transform.scale,
+          cx + (wall[0]![0] as number) * gridSize + sx / transform.scale,
+          cy + (wall[0]![1] as number) * gridSize + sy / transform.scale,
           transform,
         );
         ctx.moveTo(p0s.x, p0s.y);
         for (let i = 1; i < wall.length; i++) {
           const p = toCanvas(
-            cx + (wall[i][0] as number) * gridSize + sx / transform.scale,
-            cy + (wall[i][1] as number) * gridSize + sy / transform.scale,
+            cx + (wall[i]![0] as number) * gridSize + sx / transform.scale,
+            cy + (wall[i]![1] as number) * gridSize + sy / transform.scale,
             transform,
           );
           ctx.lineTo(p.x, p.y);
@@ -1272,10 +1272,10 @@ export function renderWallsAndBorders(
       ctx.lineWidth = 6 * s;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      const p0 = toCanvas(cx + (wall[0][0] as number) * gridSize, cy + (wall[0][1] as number) * gridSize, transform);
+      const p0 = toCanvas(cx + (wall[0]![0] as number) * gridSize, cy + (wall[0]![1] as number) * gridSize, transform);
       ctx.moveTo(p0.x, p0.y);
       for (let i = 1; i < wall.length; i++) {
-        const p = toCanvas(cx + (wall[i][0] as number) * gridSize, cy + (wall[i][1] as number) * gridSize, transform);
+        const p = toCanvas(cx + (wall[i]![0] as number) * gridSize, cy + (wall[i]![1] as number) * gridSize, transform);
         ctx.lineTo(p.x, p.y);
       }
       ctx.stroke();
@@ -1304,12 +1304,12 @@ export function renderLabels(
   labelStyle: string,
 ): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   const style = labelStyle || 'circled';
 
   for (let row = 0; row < numRows; row++) {
     for (let col = 0; col < numCols; col++) {
-      const cell = cells[row][col];
+      const cell = cells[row]![col];
       if (cell?.center?.label || cell?.center?.dmLabel) {
         // Use labelX/labelY (world feet) if set, otherwise default to cell center
         const labelX = cell.center.labelX ?? (col + 0.5) * gridSize;
@@ -1363,7 +1363,7 @@ export function renderLabelsStairsProps(
   cacheSize: { w: number; h: number; scale?: number } | null = null,
 ): void {
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   // Props (furniture, objects)
   const getTextureImage: ((id: string) => HTMLImageElement | null) | null = textureOptions?.catalog
@@ -1432,7 +1432,7 @@ export function renderLabelsStairsProps(
   if (stairDefs.length === 0) {
     for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-        const cell = cells[row][col];
+        const cell = cells[row]![col];
         if (!cell?.center) continue;
         const centerX = (col + 0.5) * gridSize;
         const centerY = (row + 0.5) * gridSize;

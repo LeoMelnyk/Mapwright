@@ -292,7 +292,7 @@ function drawDiagnostics(gridSize: number): void {
   // Map info
   const { cells, metadata } = playerState.dungeon!;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   lines.push({ text: '', color: '#666' });
   lines.push({ text: '── Map ──', color: '#666' });
   lines.push({ text: `Grid: ${numRows}x${numCols} (${gridSize}ft)`, color: '#aaf' });
@@ -322,12 +322,12 @@ function drawDiagnostics(gridSize: number): void {
   };
   lines.push({
     text: `Last: ${S._lastBuildType} ${S._lastCacheBuildMs.toFixed(0)}ms`,
-    color: typeColor[S._lastBuildType] || '#aaa',
+    color: typeColor[S._lastBuildType] ?? '#aaa',
   });
   if (cacheStats.lastRebuildType !== 'none') {
     lines.push({
       text: `  MapCache: ${cacheStats.lastRebuildType} ${cacheStats.lastRebuildMs.toFixed(0)}ms`,
-      color: typeColor[cacheStats.lastRebuildType] || '#aaa',
+      color: typeColor[cacheStats.lastRebuildType] ?? '#aaa',
     });
   }
   const t = S._lastBuildTimings;

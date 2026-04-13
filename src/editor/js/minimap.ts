@@ -17,7 +17,13 @@ let minimapWrapper: HTMLElement | null = null;
 
 // Offscreen cache for the minimap cell rendering (expensive).
 // Only rebuilt when map data changes. Pan/zoom just redraws the viewport rect.
-let _mmCache: { canvas: OffscreenCanvas | HTMLCanvasElement; ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D; dirtySeq: number; canvasW: number; canvasH: number } | null = null;
+let _mmCache: {
+  canvas: OffscreenCanvas | HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+  dirtySeq: number;
+  canvasW: number;
+  canvasH: number;
+} | null = null;
 
 export function initMinimap(editorCanvas: HTMLCanvasElement): void {
   mainCanvas = editorCanvas;
@@ -43,11 +49,22 @@ export function initMinimap(editorCanvas: HTMLCanvasElement): void {
     _panToMinimapPoint(e.clientX - rect.left, e.clientY - rect.top);
   });
 
-  minimapCanvas.addEventListener('mouseup', () => { panning = false; });
-  minimapCanvas.addEventListener('mouseleave', () => { panning = false; });
+  minimapCanvas.addEventListener('mouseup', () => {
+    panning = false;
+  });
+  minimapCanvas.addEventListener('mouseleave', () => {
+    panning = false;
+  });
 
   // ── Drag header → reposition minimap ──
-  let dragState: { startX: number; startY: number; initLeft: number; initTop: number; containerW: number; containerH: number } | null = null;
+  let dragState: {
+    startX: number;
+    startY: number;
+    initLeft: number;
+    initTop: number;
+    containerW: number;
+    containerH: number;
+  } | null = null;
 
   header.addEventListener('mousedown', (e) => {
     e.preventDefault();
@@ -108,7 +125,7 @@ export function updateMinimap(): void {
   const { cells, metadata } = dungeon;
   const gridSize = metadata.gridSize || 5;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
   if (numRows === 0 || numCols === 0) return;
 
   const theme = getTheme();
@@ -170,11 +187,11 @@ export function updateMinimap(): void {
   ctx.drawImage(_mmCache.canvas, 0, 0);
 
   // Draw viewport rectangle
-  const mainScale = CELL_SIZE * state.zoom / _dgs(gridSize, metadata.resolution);
+  const mainScale = (CELL_SIZE * state.zoom) / _dgs(gridSize, metadata.resolution);
   const vpLeft = (-state.panX / mainScale) * minimapScale + MINIMAP_PAD;
-  const vpTop  = (-state.panY / mainScale) * minimapScale + MINIMAP_PAD;
-  const vpW    = (mainCanvas.width  / mainScale) * minimapScale;
-  const vpH    = (mainCanvas.height / mainScale) * minimapScale;
+  const vpTop = (-state.panY / mainScale) * minimapScale + MINIMAP_PAD;
+  const vpW = (mainCanvas.width / mainScale) * minimapScale;
+  const vpH = (mainCanvas.height / mainScale) * minimapScale;
 
   ctx.save();
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
@@ -197,7 +214,7 @@ function _panToMinimapPoint(mx: number, my: number) {
   const { cells, metadata } = dungeon;
   const gridSize = metadata.gridSize || 5;
   const numRows = cells.length;
-  const numCols = cells[0]?.length || 0;
+  const numCols = cells[0]?.length ?? 0;
 
   const worldW = numCols * gridSize;
   const worldH = numRows * gridSize;
@@ -210,8 +227,8 @@ function _panToMinimapPoint(mx: number, my: number) {
   const wy = (my - MINIMAP_PAD) / minimapScale;
 
   // Center the main view on this world point
-  const mainScale = CELL_SIZE * state.zoom / _dgs(gridSize, metadata.resolution);
-  state.panX = mainCanvas!.width  / 2 - wx * mainScale;
+  const mainScale = (CELL_SIZE * state.zoom) / _dgs(gridSize, metadata.resolution);
+  state.panX = mainCanvas!.width / 2 - wx * mainScale;
   state.panY = mainCanvas!.height / 2 - wy * mainScale;
 
   markDirty();

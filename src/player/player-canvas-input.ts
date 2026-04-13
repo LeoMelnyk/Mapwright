@@ -116,9 +116,9 @@ function onTouchStart(e: TouchEvent): void {
       S.toolDragging = false;
     }
     S.touchMode = 'pinch';
-    S.lastPinchDist = pinchDistance(touches[0], touches[1]);
-    S.pinchMidX = (touches[0].clientX + touches[1].clientX) / 2;
-    S.pinchMidY = (touches[0].clientY + touches[1].clientY) / 2;
+    S.lastPinchDist = pinchDistance(touches[0]!, touches[1]!);
+    S.pinchMidX = (touches[0]!.clientX + touches[1]!.clientX) / 2;
+    S.pinchMidY = (touches[0]!.clientY + touches[1]!.clientY) / 2;
     S.panStartX = S.pinchMidX;
     S.panStartY = S.pinchMidY;
     S.panStartPanX = playerState.panX;
@@ -127,7 +127,7 @@ function onTouchStart(e: TouchEvent): void {
   }
 
   if (touches.length === 1) {
-    const t = touches[0];
+    const t = touches[0]!;
 
     // If a tool is active, route single finger to tool
     if (S.activeTool && playerState.dungeon) {
@@ -156,9 +156,9 @@ function onTouchMove(e: TouchEvent): void {
   const touches = e.touches;
 
   if (S.touchMode === 'pinch' && touches.length >= 2) {
-    const newDist = pinchDistance(touches[0], touches[1]);
-    const midX = (touches[0].clientX + touches[1].clientX) / 2;
-    const midY = (touches[0].clientY + touches[1].clientY) / 2;
+    const newDist = pinchDistance(touches[0]!, touches[1]!);
+    const midX = (touches[0]!.clientX + touches[1]!.clientX) / 2;
+    const midY = (touches[0]!.clientY + touches[1]!.clientY) / 2;
 
     // Zoom
     const scale = newDist / S.lastPinchDist;
@@ -184,7 +184,7 @@ function onTouchMove(e: TouchEvent): void {
   }
 
   if (S.touchMode === 'tool' && touches.length === 1 && S.activeTool && playerState.dungeon) {
-    const t = touches[0];
+    const t = touches[0]!;
     const pos = { x: t.clientX, y: t.clientY };
     const transform = getTransform();
     const gridSize = playerState.dungeon.metadata.gridSize;
@@ -195,7 +195,7 @@ function onTouchMove(e: TouchEvent): void {
   }
 
   if (S.touchMode === 'pan' && touches.length === 1) {
-    const t = touches[0];
+    const t = touches[0]!;
     playerState.panX = S.panStartPanX + (t.clientX - S.panStartX);
     playerState.panY = S.panStartPanY + (t.clientY - S.panStartY);
     playerState.followDM = false;
@@ -208,7 +208,7 @@ function onTouchEnd(e: TouchEvent): void {
   // Tool drag end
   if (S.touchMode === 'tool' && S.activeTool && playerState.dungeon) {
     // Use last known position (changedTouches has the lifted finger)
-    const t = e.changedTouches[0];
+    const t = e.changedTouches[0]!;
     const pos = { x: t.clientX, y: t.clientY };
     const transform = getTransform();
     const gridSize = playerState.dungeon.metadata.gridSize;
@@ -223,7 +223,7 @@ function onTouchEnd(e: TouchEvent): void {
   // If we were pinching and now have 1 finger left, switch to pan
   if (S.touchMode === 'pinch' && e.touches.length === 1) {
     S.touchMode = 'pan';
-    const t = e.touches[0];
+    const t = e.touches[0]!;
     S.panStartX = t.clientX;
     S.panStartY = t.clientY;
     S.panStartPanX = playerState.panX;

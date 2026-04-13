@@ -10,7 +10,9 @@ let scrollArea: HTMLElement | null = null;
 let _searchTimer: ReturnType<typeof setTimeout> | null = null;
 
 const TEX_COLLAPSED_KEY = 'mw-texture-collapsed';
-const collapsed = new Set(JSON.parse((typeof localStorage !== 'undefined' ? localStorage.getItem(TEX_COLLAPSED_KEY) : null) ?? '[]'));
+const collapsed = new Set(
+  JSON.parse((typeof localStorage !== 'undefined' ? localStorage.getItem(TEX_COLLAPSED_KEY) : null) ?? '[]'),
+);
 
 function saveCollapsed() {
   localStorage.setItem(TEX_COLLAPSED_KEY, JSON.stringify([...collapsed]));
@@ -34,7 +36,10 @@ export function renderTexturesPanel(): void {
 
 function render() {
   const cat = getTextureCatalog();
-  if (!cat) { container!.innerHTML = '<div class="panel-empty">Textures not loaded.</div>'; return; }
+  if (!cat) {
+    container!.innerHTML = '<div class="panel-empty">Textures not loaded.</div>';
+    return;
+  }
 
   container!.innerHTML = '';
 
@@ -115,13 +120,14 @@ function buildCategoryGrid(cat: TextureCatalog, parent: HTMLElement, filter: str
   const lowerFilter = filter.toLowerCase();
 
   for (const category of cat.categoryOrder) {
-    const ids = cat.byCategory[category];
+    const ids = cat.byCategory[category] ?? [];
     const matched = lowerFilter
       ? ids.filter((id: string) => {
           const entry = cat.textures[id];
           if (!entry) return false;
-          return (entry.displayName ?? id).toLowerCase().includes(lowerFilter)
-            || id.toLowerCase().includes(lowerFilter);
+          return (
+            (entry.displayName ?? id).toLowerCase().includes(lowerFilter) || id.toLowerCase().includes(lowerFilter)
+          );
         })
       : ids;
 
@@ -175,7 +181,10 @@ function buildCategoryGrid(cat: TextureCatalog, parent: HTMLElement, filter: str
         img.alt = name;
         img.className = 'texture-thumb-img';
         img.style.display = 'none';
-        const revealImg = () => { shimmer.remove(); img.style.display = ''; };
+        const revealImg = () => {
+          shimmer.remove();
+          img.style.display = '';
+        };
         img.addEventListener('load', revealImg);
         img.addEventListener('error', revealImg);
         img.src = `/textures/${entry.file}`; // set src AFTER listeners so cached images fire correctly
@@ -217,7 +226,7 @@ export function selectTexture(id: string): void {
   state.activeTool = 'paint';
 
   // Update toolbar buttons and activate the tool on the canvas
-  void import('./toolbar.js').then(m => {
+  void import('./toolbar.js').then((m) => {
     m.updateToolButtons();
     m.setSubMode('paint', 'texture');
     m.activateTool('paint');
@@ -225,7 +234,7 @@ export function selectTexture(id: string): void {
 
   // Update panel highlights
   if (scrollArea) {
-    scrollArea.querySelectorAll('.texture-thumb-item').forEach(el => {
+    scrollArea.querySelectorAll('.texture-thumb-item').forEach((el) => {
       el.classList.toggle('active', (el as HTMLElement).dataset.textureId === id);
     });
   }
