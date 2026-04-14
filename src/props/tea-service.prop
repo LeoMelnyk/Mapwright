@@ -1,0 +1,81 @@
+name: Tea Service
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: house-noble-townhouse, noble-solar, mansion-bedroom-master, mansion-dining
+typical_count: single
+clusters_with: tea-table, small-table, sideboard, lapdog-cushion, fresh-flowers
+notes: Silver tea service set — pot, sugar bowl, creamer on a silver tray
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.5 0.38,0.28 z 0-0.4
+
+# Silver tray
+ellipse 0.5,0.5 0.38,0.28 fill #cccccc 0.95
+ellipse 0.5,0.5 0.38,0.28 stroke #444444
+# Tray inner ring
+ellipse 0.5,0.5 0.34,0.24 stroke #888888 0.8 width 1
+# Tray surface
+ellipse 0.5,0.5 0.32,0.22 fill #aaaaaa 0.9
+# Tray handles (ornate)
+poly 0.12,0.50 0.16,0.44 0.16,0.56 fill #daa520 0.85
+poly 0.12,0.50 0.16,0.44 0.16,0.56 stroke #5a3a00
+poly 0.88,0.50 0.84,0.44 0.84,0.56 fill #daa520 0.85
+poly 0.88,0.50 0.84,0.44 0.84,0.56 stroke #5a3a00
+# === Teapot (center-left) ===
+# Pot body
+ellipse 0.32,0.48 0.10,0.08 fill #c0c0c0 0.95
+ellipse 0.32,0.48 0.10,0.08 stroke #444444
+# Pot lid (small circle on top)
+circle 0.32,0.42 0.05 fill #aaaaaa 0.95
+circle 0.32,0.42 0.05 stroke #444444
+# Lid knob (gold)
+circle 0.32,0.40 0.018 fill #daa520 0.9
+circle 0.32,0.40 0.018 stroke #5a3a00
+# Spout
+poly 0.42,0.46 0.48,0.44 0.50,0.50 0.44,0.52 fill #c0c0c0 0.9
+poly 0.42,0.46 0.48,0.44 0.50,0.50 0.44,0.52 stroke #444444
+# Handle (curl on west side)
+arc 0.20,0.48 0.04 270 90 stroke #888888 width 2
+# Engraved pattern on pot body
+arc 0.32,0.48 0.08 200 260 stroke #666666 0.7 width 1
+# === Sugar bowl (center-right, smaller) ===
+circle 0.62,0.50 0.07 fill #c0c0c0 0.95
+circle 0.62,0.50 0.07 stroke #444444
+# Sugar bowl lid
+circle 0.62,0.46 0.05 fill #aaaaaa 0.95
+circle 0.62,0.46 0.05 stroke #444444
+circle 0.62,0.44 0.018 fill #daa520 0.9
+# Sugar bowl handles (both sides)
+arc 0.55,0.50 0.03 90 270 stroke #888888 width 2
+arc 0.69,0.50 0.03 270 90 stroke #888888 width 2
+# === Creamer/milk pitcher (right side) ===
+ellipse 0.76,0.54 0.06,0.05 fill #c0c0c0 0.95
+ellipse 0.76,0.54 0.06,0.05 stroke #444444
+# Creamer spout (pointing south)
+poly 0.76,0.60 0.74,0.62 0.78,0.62 fill #c0c0c0 0.9
+# Creamer handle
+arc 0.70,0.54 0.03 270 90 stroke #888888 width 2
+# === Small teacup (front, visible tipped slightly) ===
+ellipse 0.48,0.58 0.07,0.05 fill #f0e4d0 0.95
+ellipse 0.48,0.58 0.07,0.05 stroke #8b7355
+# Cup interior (dark tea)
+ellipse 0.48,0.58 0.05,0.04 fill #6a3810 0.95
+# Cup saucer (visible beneath)
+ellipse 0.48,0.62 0.10,0.03 fill #e8dcc8 0.85
+ellipse 0.48,0.62 0.10,0.03 stroke #8b7355
+# Cup handle (tiny, east side)
+arc 0.55,0.58 0.02 270 90 stroke #8b7355 width 1
+# Silver sheen highlights
+arc 0.5,0.5 0.35 210 250 stroke #ffffff 0.7 width 1
+arc 0.32,0.48 0.08 210 240 stroke #ffffff 0.7 width 1
+arc 0.62,0.50 0.06 210 240 stroke #ffffff 0.7 width 1
+# Sugar cube visible in bowl
+rect 0.60,0.48 0.02,0.02 fill #ffffff 0.95
+# Small silver tongs resting on tray
+line 0.48,0.42 0.54,0.38 stroke #aaaaaa width 1
+line 0.50,0.40 0.56,0.36 stroke #aaaaaa width 1

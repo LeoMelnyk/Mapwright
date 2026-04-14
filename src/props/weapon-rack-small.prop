@@ -1,0 +1,55 @@
+name: Small Weapon Rack
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: ship-brig, ship-captains-cabin, guard-post, watch-post
+typical_count: single
+clusters_with: weapon-rack, shield-rack, armor-stand, helm-on-peg
+notes: Compact weapon rack for small spaces — fewer weapons than full weapon-rack
+---
+# === HITBOX ===
+hitbox rect 0.10,0.06 0.80,0.40 z 0-4
+
+# Wall-mounted wooden plank (north edge)
+rect 0.10,0.06 0.80,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.06 0.80,0.14 stroke #2a1400
+# Plank grain
+line 0.10,0.12 0.90,0.12 stroke #5c3a1e 0.4
+# End brackets (iron mounting)
+rect 0.10,0.08 0.06,0.12 fill #3a3020 0.85
+rect 0.84,0.08 0.06,0.12 fill #3a3020 0.85
+# Support slots (3 grooves in plank)
+rect 0.26,0.10 0.04,0.08 fill #1a1008 0.6
+rect 0.48,0.10 0.04,0.08 fill #1a1008 0.6
+rect 0.70,0.10 0.04,0.08 fill #1a1008 0.6
+# === Three weapons hanging ===
+# Weapon 1 — short sword
+circle 0.28,0.14 0.04 texfill polyhaven/metal_plate 0.85
+circle 0.28,0.14 0.04 stroke #333333
+line 0.28,0.18 0.26,0.44 stroke #8899aa width 2
+line 0.24,0.40 0.32,0.40 stroke #555555 width 2
+# Weapon 2 — dagger (shorter)
+circle 0.50,0.14 0.035 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.14 0.035 stroke #333333
+line 0.50,0.18 0.48,0.36 stroke #8899aa width 2
+line 0.46,0.32 0.52,0.32 stroke #555555 width 2
+poly 0.46,0.32 0.48,0.38 0.52,0.38 0.50,0.32 fill #888888 0.9
+# Weapon 3 — cutlass (curved)
+circle 0.72,0.14 0.04 texfill polyhaven/metal_plate 0.85
+circle 0.72,0.14 0.04 stroke #333333
+bezier 0.72,0.18 0.72,0.28 0.76,0.36 0.80,0.44 stroke #8899aa width 2
+# Cutlass hand guard (D-shape)
+arc 0.72,0.22 0.05 0 180 stroke #daa520 width 2
+# Small shield hanging at corner
+poly 0.14,0.30 0.22,0.28 0.24,0.36 0.20,0.42 0.14,0.38 fill #5a3a18 0.9
+poly 0.14,0.30 0.22,0.28 0.24,0.36 0.20,0.42 0.14,0.38 stroke #2a1408
+circle 0.19,0.35 0.02 fill #666666 0.9
+# Spear prop (leaning at east end)
+line 0.86,0.20 0.82,0.44 stroke #5c3a1e width 2
+poly 0.80,0.20 0.84,0.18 0.88,0.20 0.84,0.26 fill #888888 0.9
+poly 0.80,0.20 0.84,0.18 0.88,0.20 0.84,0.26 stroke #333333
+rect 0.70,0.24 0.12,0.20 fill #000000 0.15

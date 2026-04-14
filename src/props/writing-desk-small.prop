@@ -1,0 +1,70 @@
+name: Small Writing Desk
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: mansion-bedroom-master, noble-bedchamber, boudoir
+typical_count: single
+clusters_with: chair-upholstered, letter-stack, quill, inkwell, vanity-table
+notes: Delicate small writing desk for bedchamber correspondence
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.68 z 0-2.5
+
+# Main surface (slim rectangle along wall)
+rect 0.08,0.08 1.84,0.68 texfill polyhaven/wood_table 0.9
+rect 0.08,0.08 1.84,0.68 fill #6a3a10 0.4
+rect 0.08,0.08 1.84,0.68 stroke #2a1400
+# Top surface bevel
+rect 0.12,0.12 1.76,0.60 stroke #5c3a1e 0.6 width 1
+# Leather-inset writing surface (green leather panel)
+rect 0.30,0.20 1.40,0.36 fill #2a5028 0.88
+rect 0.30,0.20 1.40,0.36 stroke #1a2818
+# Leather gilt border
+rect 0.34,0.24 1.32,0.28 stroke #daa520 0.6 width 1
+# Raised pigeonhole shelf along north edge
+rect 0.20,0.12 1.60,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.20,0.12 1.60,0.08 stroke #2a1400
+# Pigeonhole dividers
+line 0.50,0.12 0.50,0.20 stroke #2a1400 0.8
+line 0.80,0.12 0.80,0.20 stroke #2a1400 0.8
+line 1.10,0.12 1.10,0.20 stroke #2a1400 0.8
+line 1.40,0.12 1.40,0.20 stroke #2a1400 0.8
+# Small rolled letter in one pigeonhole
+rect 0.24,0.14 0.22,0.04 fill #e8dcc8 0.9
+rect 0.56,0.14 0.22,0.04 fill #d4c4a8 0.9
+# Drawer at south edge
+rect 0.14,0.62 1.72,0.14 texfill polyhaven/dark_wood 0.88
+rect 0.14,0.62 1.72,0.14 stroke #2a1400
+# Drawer handles (ornate brass)
+ellipse 0.60,0.68 0.04,0.03 fill #daa520 0.9
+ellipse 0.60,0.68 0.04,0.03 stroke #5a3a00
+ellipse 1.40,0.68 0.04,0.03 fill #daa520 0.9
+ellipse 1.40,0.68 0.04,0.03 stroke #5a3a00
+# Keyhole escutcheon
+rect 0.98,0.66 0.04,0.06 fill #5a3a00 0.9
+# === Desk items ===
+# Inkwell
+circle 0.44,0.34 0.04 fill #1a0808 0.95
+circle 0.44,0.34 0.04 stroke #2a1400
+circle 0.44,0.34 0.025 fill #0a0618 0.95
+# Quill
+bezier 0.48,0.34 0.58,0.30 0.68,0.28 0.76,0.26 stroke #e8dcc8 width 2
+# Rolled letter with wax seal
+rect 0.86,0.30 0.32,0.06 fill #e8dcc8 0.9
+rect 0.86,0.30 0.32,0.06 stroke #8b7355
+circle 1.00,0.33 0.02 fill #881818 0.9
+# Small miniature portrait propped
+rect 1.40,0.24 0.12,0.12 fill #5a3a00 0.9
+rect 1.40,0.24 0.12,0.12 stroke #2a1400
+rect 1.42,0.26 0.08,0.08 fill #d4a878 0.9
+# Face detail (tiny)
+circle 1.46,0.29 0.01 fill #2a1400 0.7
+# Curved legs visible at south corners
+circle 0.14,0.80 0.04 fill #2a1400 0.85
+circle 1.86,0.80 0.04 fill #2a1400 0.85
+# Polish sheen
+arc 1.0,0.40 0.30 220 260 stroke #ffffff 0.25 width 1

@@ -1,0 +1,56 @@
+name: Fabric Scrap
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: shop-tailor, textile-loomhouse, apartment-tenement, peasant-hovel
+typical_count: many
+clusters_with: silk-bolt, pin-cushion, thread-spool, chalk-mark, sewing-basket
+notes: Discarded fabric cutoffs from tailoring — brighter/crafted than torn-cloth rags
+---
+# === HITBOX ===
+hitbox rect 0.12,0.22 0.76,0.60 z 0-0.02
+
+# Scrap 1 (red velvet, largest)
+poly 0.14,0.30 0.28,0.24 0.44,0.28 0.42,0.42 0.26,0.46 0.14,0.42 fill #881818 0.9
+poly 0.14,0.30 0.28,0.24 0.44,0.28 0.42,0.42 0.26,0.46 0.14,0.42 texfill polyhaven/velour_velvet 0.4
+poly 0.14,0.30 0.28,0.24 0.44,0.28 0.42,0.42 0.26,0.46 0.14,0.42 stroke #3a0808
+# Scrap 1 fray edges
+line 0.14,0.30 0.10,0.28 stroke #881818 0.6
+line 0.28,0.24 0.26,0.20 stroke #881818 0.6
+# Scrap 2 (blue silk, mid)
+poly 0.48,0.36 0.64,0.32 0.72,0.42 0.66,0.52 0.50,0.48 fill #2848a0 0.9
+poly 0.48,0.36 0.64,0.32 0.72,0.42 0.66,0.52 0.50,0.48 stroke #101830
+# Scrap 2 sheen
+line 0.52,0.38 0.68,0.42 stroke #6080c8 0.6 width 1
+# Scrap 3 (gold/cream patterned, overlapping)
+poly 0.30,0.52 0.48,0.48 0.56,0.60 0.44,0.68 0.28,0.64 fill #d4a858 0.9
+poly 0.30,0.52 0.48,0.48 0.56,0.60 0.44,0.68 0.28,0.64 stroke #6a4810
+# Scrap 3 pattern (diamonds)
+line 0.36,0.54 0.42,0.60 stroke #8a5808 0.6
+line 0.42,0.54 0.48,0.60 stroke #8a5808 0.6
+# Scrap 4 (green plaid, small)
+poly 0.60,0.54 0.76,0.50 0.82,0.62 0.70,0.68 fill #3a6028 0.9
+poly 0.60,0.54 0.76,0.50 0.82,0.62 0.70,0.68 stroke #1a3010
+# Plaid pattern
+line 0.62,0.58 0.80,0.54 stroke #6a9040 0.6
+line 0.66,0.52 0.70,0.66 stroke #6a9040 0.5
+# Scrap 5 (white linen, small)
+poly 0.16,0.54 0.24,0.52 0.28,0.60 0.22,0.66 0.16,0.64 fill #e8dcc8 0.9
+poly 0.16,0.54 0.24,0.52 0.28,0.60 0.22,0.66 0.16,0.64 texfill polyhaven/rough_linen 0.5
+poly 0.16,0.54 0.24,0.52 0.28,0.60 0.22,0.66 0.16,0.64 stroke #8b7355
+# Scrap 6 (yellow, tiny)
+poly 0.72,0.70 0.80,0.72 0.78,0.78 0.72,0.76 fill #d8c040 0.9
+poly 0.72,0.70 0.80,0.72 0.78,0.78 0.72,0.76 stroke #6a5008
+# Loose threads scattered
+bezier 0.14,0.72 0.20,0.74 0.26,0.72 0.30,0.78 stroke #c82020 0.7 width 1
+bezier 0.50,0.76 0.58,0.74 0.66,0.78 0.72,0.76 stroke #2848a0 0.6 width 1
+bezier 0.72,0.26 0.80,0.28 0.86,0.32 0.88,0.38 stroke #d4a858 0.5 width 1
+# Pins sticking through
+line 0.30,0.36 0.32,0.32 stroke #aaaaaa width 1
+circle 0.32,0.32 0.01 fill #daa520 0.9
+line 0.58,0.40 0.60,0.36 stroke #aaaaaa width 1
+circle 0.60,0.36 0.01 fill #c82020 0.9

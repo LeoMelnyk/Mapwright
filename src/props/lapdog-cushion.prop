@@ -1,0 +1,63 @@
+name: Lapdog Cushion
+category: Decor
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: house-noble-townhouse, noble-solar, mansion-bedroom-master
+typical_count: single
+clusters_with: armchair, small-table, tea-service, fan, perfume-bottle
+notes: Plush velvet cushion for a lapdog — maybe occupied
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.5 0.34,0.28 z 0-0.2
+
+# Main cushion body (oval, rich velvet)
+ellipse 0.5,0.5 0.36,0.28 fill #4a2058 0.92
+ellipse 0.5,0.5 0.36,0.28 texfill polyhaven/velour_velvet 0.55
+ellipse 0.5,0.5 0.36,0.28 stroke #2a0838
+# Inner cushion depression (where pet sat)
+ellipse 0.5,0.5 0.28,0.20 fill #2a0838 0.7
+# Gold trim piping around edge
+ellipse 0.5,0.5 0.34,0.26 stroke #daa520 0.7 width 1
+# Inner gold border
+ellipse 0.5,0.5 0.26,0.18 stroke #daa520 0.5 width 1
+# Tassels at 4 corners
+line 0.16,0.50 0.10,0.52 stroke #daa520 width 1
+line 0.16,0.50 0.10,0.56 stroke #daa520 width 1
+line 0.16,0.50 0.10,0.48 stroke #daa520 width 1
+line 0.84,0.50 0.90,0.52 stroke #daa520 width 1
+line 0.84,0.50 0.90,0.56 stroke #daa520 width 1
+line 0.84,0.50 0.90,0.48 stroke #daa520 width 1
+line 0.50,0.24 0.48,0.18 stroke #daa520 width 1
+line 0.50,0.24 0.52,0.18 stroke #daa520 width 1
+line 0.50,0.24 0.50,0.16 stroke #daa520 width 1
+line 0.50,0.76 0.48,0.82 stroke #daa520 width 1
+line 0.50,0.76 0.52,0.82 stroke #daa520 width 1
+line 0.50,0.76 0.50,0.84 stroke #daa520 width 1
+# Embroidered monogram in center (gold)
+poly 0.48,0.46 0.50,0.42 0.52,0.46 0.50,0.50 fill #daa520 0.7
+poly 0.48,0.54 0.50,0.50 0.52,0.54 0.50,0.58 fill #daa520 0.7
+# Stuffing tuft peeking out
+poly 0.32,0.42 0.36,0.40 0.34,0.46 fill #e8dcc8 0.8
+# Shed fur bits (white dog hair)
+circle 0.66,0.42 0.01 fill #e8e0d8 0.8
+circle 0.32,0.58 0.008 fill #e8e0d8 0.8
+circle 0.60,0.58 0.01 fill #e8e0d8 0.75
+# Velvet fabric sheen (nap direction)
+arc 0.5,0.5 0.30 210 260 stroke #8040a0 0.5 width 1
+arc 0.5,0.5 0.24 220 250 stroke #8040a0 0.4 width 1
+# Stitched quilted pattern (diamond)
+line 0.40,0.40 0.60,0.60 stroke #2a0838 0.4
+line 0.40,0.60 0.60,0.40 stroke #2a0838 0.4
+# Cushion tufting buttons
+circle 0.40,0.40 0.018 fill #5a0868 0.85
+circle 0.40,0.40 0.018 stroke #daa520 0.7
+circle 0.60,0.40 0.018 fill #5a0868 0.85
+circle 0.60,0.40 0.018 stroke #daa520 0.7
+circle 0.40,0.60 0.018 fill #5a0868 0.85
+circle 0.40,0.60 0.018 stroke #daa520 0.7
+circle 0.60,0.60 0.018 fill #5a0868 0.85
+circle 0.60,0.60 0.018 stroke #daa520 0.7

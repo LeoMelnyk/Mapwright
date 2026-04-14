@@ -1,0 +1,64 @@
+name: Withered Wreath
+category: Decor
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: crypt, shrine-roadside, graveyard-village, shadowfell-mausoleum
+typical_count: single
+clusters_with: withered-flowers, candle-guttered, fresh-dirt-mound, skull-small
+notes: Dead circular wreath lying on a grave — brown twisted branches
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-0.1
+
+# Wreath base (braided brown branches — ring shape)
+ring 0.5,0.5 0.34 0.20 fill #4a3020 0.92
+ring 0.5,0.5 0.34 0.20 stroke #2a1408
+# Twisted branch details (darker weave lines)
+arc 0.5,0.5 0.30 0 60 stroke #2a1408 0.8 width 2
+arc 0.5,0.5 0.30 60 120 stroke #1a0f00 0.8 width 2
+arc 0.5,0.5 0.30 120 180 stroke #2a1408 0.8 width 2
+arc 0.5,0.5 0.30 180 240 stroke #1a0f00 0.8 width 2
+arc 0.5,0.5 0.30 240 300 stroke #2a1408 0.8 width 2
+arc 0.5,0.5 0.30 300 360 stroke #1a0f00 0.8 width 2
+# Braid crossover bumps
+circle 0.72,0.30 0.02 fill #5c3a1e 0.85
+circle 0.78,0.56 0.02 fill #5c3a1e 0.85
+circle 0.56,0.76 0.02 fill #5c3a1e 0.85
+circle 0.26,0.70 0.02 fill #5c3a1e 0.85
+circle 0.22,0.42 0.02 fill #5c3a1e 0.85
+circle 0.38,0.22 0.02 fill #5c3a1e 0.85
+# Dead leaves attached (brown, curled)
+poly 0.68,0.24 0.72,0.20 0.76,0.26 0.72,0.30 fill #5a3018 0.9
+poly 0.68,0.24 0.72,0.20 0.76,0.26 0.72,0.30 stroke #2a1408
+poly 0.82,0.54 0.86,0.52 0.88,0.58 0.82,0.60 fill #5a3018 0.9
+poly 0.82,0.54 0.86,0.52 0.88,0.58 0.82,0.60 stroke #2a1408
+poly 0.28,0.76 0.24,0.80 0.18,0.74 0.22,0.70 fill #5a3018 0.9
+poly 0.28,0.76 0.24,0.80 0.18,0.74 0.22,0.70 stroke #2a1408
+# Dead flowers (shriveled, dark red/brown)
+circle 0.50,0.20 0.04 fill #4a1010 0.85
+circle 0.50,0.20 0.04 stroke #2a0808
+circle 0.80,0.70 0.035 fill #4a1010 0.85
+circle 0.80,0.70 0.035 stroke #2a0808
+circle 0.22,0.60 0.03 fill #4a2040 0.85
+circle 0.22,0.60 0.03 stroke #2a1020
+# Faded purple dried flower
+circle 0.72,0.76 0.03 fill #3a1040 0.85
+circle 0.72,0.76 0.03 stroke #2a0820
+# Ribbon (faded black mourning tie)
+poly 0.44,0.18 0.56,0.18 0.58,0.26 0.50,0.24 0.42,0.26 fill #1a1008 0.85
+poly 0.44,0.18 0.56,0.18 0.58,0.26 0.50,0.24 0.42,0.26 stroke #0a0404
+# Ribbon tails trailing
+line 0.42,0.24 0.38,0.12 stroke #1a1008 width 2
+line 0.58,0.24 0.62,0.12 stroke #1a1008 width 2
+# Cobweb/decay threads
+bezier 0.40,0.36 0.48,0.42 0.56,0.40 0.62,0.44 stroke #aaaaaa 0.4 width 1
+bezier 0.36,0.60 0.46,0.58 0.54,0.62 0.64,0.58 stroke #aaaaaa 0.35 width 1
+# Fallen petals around base
+circle 0.16,0.28 0.012 fill #4a1010 0.6
+circle 0.82,0.20 0.01 fill #4a1010 0.55
+circle 0.20,0.80 0.01 fill #3a1040 0.55
+circle 0.82,0.82 0.012 fill #4a1010 0.55

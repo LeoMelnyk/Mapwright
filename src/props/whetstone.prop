@@ -1,0 +1,52 @@
+name: Whetstone
+category: Tools
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: armory, shop-weaponsmith, forge, ranger-camp, hunting-lodge-large
+typical_count: single
+clusters_with: dagger-loose, tool-rack, weapon-rack, workbench, anvil
+notes: Sharpening stone with oil slick on top and a worn groove down the middle
+---
+# === HITBOX ===
+hitbox rect 0.22,0.26 0.56,0.48 z 0-0.1
+
+# Stone body (rectangular block, dark slate grey)
+rect 0.22,0.26 0.56,0.48 texfill polyhaven/granite_tile 0.85
+rect 0.22,0.26 0.56,0.48 fill #555555 0.4
+rect 0.22,0.26 0.56,0.48 stroke #222222
+# Rounded corners
+circle 0.22,0.26 0.03 fill #555555 0.9
+circle 0.78,0.26 0.03 fill #555555 0.9
+circle 0.22,0.74 0.03 fill #555555 0.9
+circle 0.78,0.74 0.03 fill #555555 0.9
+# Worn groove down the middle (from repeated sharpening)
+ellipse 0.50,0.50 0.20,0.10 fill #3a3a3a 0.7
+ellipse 0.50,0.50 0.18,0.08 fill #2a2a2a 0.6
+# Oil slick on surface (dark iridescent)
+ellipse 0.44,0.46 0.14,0.08 fill #1a1008 0.5
+# Oil rainbow sheen
+arc 0.44,0.46 0.12 200 260 stroke #4848a0 0.35 width 1
+arc 0.44,0.46 0.12 260 320 stroke #a04848 0.35 width 1
+# Metal filings streaked (from blade sharpening)
+circle 0.38,0.40 0.01 fill #888888 0.85
+circle 0.44,0.56 0.008 fill #888888 0.8
+circle 0.56,0.52 0.008 fill #888888 0.8
+circle 0.50,0.44 0.008 fill #888888 0.8
+circle 0.60,0.48 0.008 fill #888888 0.75
+# Wear highlights (polished rim where blades were drawn across)
+line 0.24,0.50 0.76,0.50 stroke #888888 0.4
+# Chipped corner
+poly 0.76,0.72 0.80,0.74 0.78,0.78 fill #222222 0.7
+# Surface cracks (fine lines)
+line 0.34,0.30 0.46,0.42 stroke #222222 0.5
+line 0.60,0.34 0.68,0.44 stroke #222222 0.4
+# Gritty texture dots
+circle 0.28,0.58 0.008 fill #333333 0.7
+circle 0.70,0.60 0.008 fill #333333 0.7
+circle 0.30,0.34 0.008 fill #333333 0.6
+# Edge highlight
+line 0.22,0.26 0.78,0.26 stroke #888888 0.4

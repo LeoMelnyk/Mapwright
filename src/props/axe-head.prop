@@ -1,0 +1,46 @@
+name: Axe Head
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: lumberyard, mill-lumber, smithy-large, shop-weaponsmith
+typical_count: few
+clusters_with: log-round, wedge-iron, whetstone, tool-rack, workbench
+notes: Detached axe head resting on a surface — no handle attached
+---
+# === HITBOX ===
+hitbox rect 0.18,0.30 0.64,0.40 z 0-0.15
+
+# Axe head main body (wedge shape — wide blade south, narrow poll north)
+poly 0.30,0.30 0.70,0.30 0.74,0.40 0.82,0.58 0.72,0.68 0.50,0.72 0.28,0.68 0.18,0.58 0.26,0.40 fill #666666 0.95
+poly 0.30,0.30 0.70,0.30 0.74,0.40 0.82,0.58 0.72,0.68 0.50,0.72 0.28,0.68 0.18,0.58 0.26,0.40 texfill polyhaven/metal_plate 0.6
+poly 0.30,0.30 0.70,0.30 0.74,0.40 0.82,0.58 0.72,0.68 0.50,0.72 0.28,0.68 0.18,0.58 0.26,0.40 stroke #222222
+# Cutting edge (bright along south)
+bezier 0.18,0.58 0.28,0.70 0.50,0.74 0.72,0.70 stroke #cccccc width 2
+bezier 0.18,0.58 0.28,0.70 0.50,0.74 0.72,0.70 stroke #ffffff 0.7 width 1
+# Poll/hammer back (north, flat)
+rect 0.40,0.28 0.20,0.08 fill #555555 0.95
+rect 0.40,0.28 0.20,0.08 stroke #222222
+# Eye (hole for handle — large dark center)
+ellipse 0.50,0.44 0.12,0.08 fill #1a1008 0.95
+ellipse 0.50,0.44 0.12,0.08 stroke #333333
+# Eye inner shadow
+ellipse 0.50,0.44 0.10,0.06 stroke #0a0808 width 1
+# Wedge-cut seat detail (where wedges go in)
+line 0.50,0.38 0.50,0.50 stroke #222222 0.8 width 1
+# Metal sheen on upper blade (catches light)
+arc 0.50,0.54 0.24 210 330 stroke #aaaaaa 0.6 width 1
+# Maker's stamp
+circle 0.36,0.48 0.02 fill #222222 0.85
+# Small hammer scars
+line 0.34,0.38 0.38,0.40 stroke #1a1008 0.6
+line 0.60,0.60 0.64,0.62 stroke #1a1008 0.6
+# Rust patch (orange-brown)
+ellipse 0.70,0.52 0.06,0.04 fill #6a3818 0.5
+# Nick on cutting edge
+poly 0.38,0.70 0.42,0.74 0.40,0.66 fill #1a1008 0.7
+# Edge shine (sharp line)
+line 0.28,0.66 0.72,0.68 stroke #e0e0e0 0.5

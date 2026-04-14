@@ -1,0 +1,78 @@
+name: Log Book
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: lighthouse-keepers-room, ship-captains-cabin, command-room
+typical_count: single
+clusters_with: spyglass, chart-rolled, inkwell, quill, desk
+notes: Thick bound journal — captain's or keeper's log book lying open
+---
+# === HITBOX ===
+hitbox rect 0.14,0.22 0.72,0.56 z 0-0.25
+
+# Left page (open book — flat white)
+rect 0.16,0.24 0.34,0.50 fill #e8dcc8 0.95
+rect 0.16,0.24 0.34,0.50 stroke #8b7355
+# Right page
+rect 0.50,0.24 0.34,0.50 fill #e8dcc8 0.95
+rect 0.50,0.24 0.34,0.50 stroke #8b7355
+# Page binding/spine (darker crease)
+line 0.50,0.24 0.50,0.74 stroke #5c3a1e width 2
+rect 0.48,0.24 0.04,0.50 fill #2a1400 0.7
+# Leather cover edges (visible beneath pages — dark binding)
+rect 0.14,0.22 0.04,0.54 texfill polyhaven/brown_leather 0.9
+rect 0.14,0.22 0.04,0.54 stroke #2a1400
+rect 0.82,0.22 0.04,0.54 texfill polyhaven/brown_leather 0.9
+rect 0.82,0.22 0.04,0.54 stroke #2a1400
+# Top and bottom cover edges
+rect 0.14,0.22 0.72,0.04 fill #3a2010 0.95
+rect 0.14,0.22 0.72,0.04 stroke #2a1400
+rect 0.14,0.72 0.72,0.04 fill #3a2010 0.95
+rect 0.14,0.72 0.72,0.04 stroke #2a1400
+# === Text on left page (handwritten entries) ===
+line 0.20,0.30 0.46,0.30 stroke #2a1400 0.75
+line 0.20,0.34 0.44,0.34 stroke #2a1400 0.75
+line 0.20,0.38 0.48,0.38 stroke #2a1400 0.75
+# Date header
+line 0.20,0.42 0.38,0.42 stroke #2a1400 0.85
+# More entries
+line 0.20,0.48 0.46,0.48 stroke #2a1400 0.7
+line 0.20,0.52 0.44,0.52 stroke #2a1400 0.7
+line 0.20,0.56 0.46,0.56 stroke #2a1400 0.7
+line 0.20,0.60 0.42,0.60 stroke #2a1400 0.7
+line 0.20,0.64 0.46,0.64 stroke #2a1400 0.65
+# === Right page (continuing text + drawing) ===
+line 0.54,0.30 0.80,0.30 stroke #2a1400 0.75
+line 0.54,0.34 0.78,0.34 stroke #2a1400 0.75
+line 0.54,0.38 0.80,0.38 stroke #2a1400 0.75
+# Small diagram/sketch (ship or compass rose)
+circle 0.67,0.50 0.07 stroke #2a1400 0.8 width 1
+line 0.67,0.44 0.67,0.56 stroke #2a1400 0.7
+line 0.61,0.50 0.73,0.50 stroke #2a1400 0.7
+# Compass points
+line 0.67,0.44 0.65,0.48 stroke #2a1400 0.6
+line 0.67,0.44 0.69,0.48 stroke #2a1400 0.6
+# More text below diagram
+line 0.54,0.62 0.80,0.62 stroke #2a1400 0.7
+line 0.54,0.66 0.78,0.66 stroke #2a1400 0.7
+line 0.54,0.70 0.76,0.70 stroke #2a1400 0.65
+# Ink blot
+circle 0.32,0.68 0.015 fill #0a0618 0.8
+# Ink smudge
+ellipse 0.72,0.68 0.06,0.02 fill #0a0618 0.35
+# Page corner curl (east page, south corner)
+poly 0.80,0.70 0.84,0.70 0.84,0.76 0.80,0.74 fill #c8b898 0.9
+poly 0.80,0.70 0.84,0.70 0.84,0.76 0.80,0.74 stroke #8b7355
+# Red bookmark ribbon (peeking from spine)
+rect 0.47,0.22 0.06,0.04 fill #881818 0.9
+line 0.50,0.22 0.52,0.14 stroke #881818 width 2
+# Page edges (gilt along outer edge)
+line 0.14,0.26 0.14,0.74 stroke #daa520 0.5
+line 0.86,0.26 0.86,0.74 stroke #daa520 0.5
+# Age stains
+ellipse 0.24,0.40 0.04,0.02 fill #8a5820 0.3
+ellipse 0.72,0.42 0.04,0.02 fill #8a5820 0.3

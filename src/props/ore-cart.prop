@@ -1,0 +1,106 @@
+name: Ore Cart
+category: Nautical
+footprint: 3x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: floor
+room_types: mine-shaft-entrance, tunnel-mine-worked, foundry-great, refinery
+typical_count: few
+clusters_with: ore-chunk, rubble-pile, tool-rack, cart, pickaxe
+notes: Wooden mining cart on rails, full of ore chunks — rolling stock for mines
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,2.80 z 0-1.5
+
+# Rails visible beneath (parallel iron tracks running N-S)
+rect 0.32,0.00 0.08,3.00 fill #333333 0.85
+rect 0.32,0.00 0.08,3.00 stroke #1a1008
+rect 1.60,0.00 0.08,3.00 fill #333333 0.85
+rect 1.60,0.00 0.08,3.00 stroke #1a1008
+# Rail sheen
+line 0.34,0.00 0.34,3.00 stroke #666666 0.5
+line 1.62,0.00 1.62,3.00 stroke #666666 0.5
+# Rail ties (crossbeams — wooden sleepers)
+rect 0.28,0.20 1.44,0.08 fill #3a1f00 0.8
+rect 0.28,1.00 1.44,0.08 fill #3a1f00 0.8
+rect 0.28,1.80 1.44,0.08 fill #3a1f00 0.8
+rect 0.28,2.60 1.44,0.08 fill #3a1f00 0.8
+# Cart body (rectangular container sitting on rails)
+rect 0.14,0.40 1.72,2.20 texfill polyhaven/dark_wood 0.88
+rect 0.14,0.40 1.72,2.20 fill #2a1400 0.4
+rect 0.14,0.40 1.72,2.20 stroke #1a0800
+# Cart wood grain
+line 0.14,0.90 1.86,0.90 stroke #5c3a1e 0.5
+line 0.14,1.40 1.86,1.40 stroke #5c3a1e 0.5
+line 0.14,1.90 1.86,1.90 stroke #5c3a1e 0.5
+# Iron reinforcement bands (running around cart)
+rect 0.14,0.40 1.72,0.08 fill #444444 0.9
+rect 0.14,0.40 1.72,0.08 stroke #1a1008
+rect 0.14,2.52 1.72,0.08 fill #444444 0.9
+rect 0.14,2.52 1.72,0.08 stroke #1a1008
+# Side iron bands
+rect 0.14,0.40 0.10,2.20 fill #333333 0.85
+rect 1.76,0.40 0.10,2.20 fill #333333 0.85
+# Rivets on bands
+circle 0.22,0.52 0.015 fill #1a1008 0.95
+circle 0.22,1.00 0.015 fill #1a1008 0.95
+circle 0.22,1.50 0.015 fill #1a1008 0.95
+circle 0.22,2.00 0.015 fill #1a1008 0.95
+circle 0.22,2.48 0.015 fill #1a1008 0.95
+circle 1.78,0.52 0.015 fill #1a1008 0.95
+circle 1.78,1.00 0.015 fill #1a1008 0.95
+circle 1.78,1.50 0.015 fill #1a1008 0.95
+circle 1.78,2.00 0.015 fill #1a1008 0.95
+circle 1.78,2.48 0.015 fill #1a1008 0.95
+# Wheel trucks (visible from above as small rectangles at corners)
+rect 0.22,0.10 0.22,0.20 fill #1a1008 0.9
+rect 0.22,0.10 0.22,0.20 stroke #000000
+rect 1.56,0.10 0.22,0.20 fill #1a1008 0.9
+rect 1.56,0.10 0.22,0.20 stroke #000000
+rect 0.22,2.70 0.22,0.20 fill #1a1008 0.9
+rect 0.22,2.70 0.22,0.20 stroke #000000
+rect 1.56,2.70 0.22,0.20 fill #1a1008 0.9
+rect 1.56,2.70 0.22,0.20 stroke #000000
+# Wheel visible bits (iron rim edges)
+circle 0.33,0.20 0.06 stroke #555555 width 2
+circle 1.67,0.20 0.06 stroke #555555 width 2
+circle 0.33,2.80 0.06 stroke #555555 width 2
+circle 1.67,2.80 0.06 stroke #555555 width 2
+# === Ore chunks inside cart ===
+# Big chunks
+poly 0.40,0.80 0.70,0.70 0.90,0.90 0.80,1.10 0.60,1.10 0.40,1.00 fill #3a3830 0.95
+poly 0.40,0.80 0.70,0.70 0.90,0.90 0.80,1.10 0.60,1.10 0.40,1.00 texfill polyhaven/rock_boulder_cracked 0.6
+poly 0.40,0.80 0.70,0.70 0.90,0.90 0.80,1.10 0.60,1.10 0.40,1.00 stroke #1a1810
+# Metal vein
+line 0.50,0.90 0.70,0.95 stroke #a07040 0.85 width 2
+# More ore chunks
+poly 1.10,0.70 1.40,0.80 1.50,1.10 1.30,1.20 1.10,1.10 fill #4a4840 0.95
+poly 1.10,0.70 1.40,0.80 1.50,1.10 1.30,1.20 1.10,1.10 texfill polyhaven/rock_boulder_cracked 0.6
+poly 1.10,0.70 1.40,0.80 1.50,1.10 1.30,1.20 1.10,1.10 stroke #1a1810
+# Middle chunk
+poly 0.60,1.30 0.90,1.40 1.10,1.60 1.00,1.90 0.70,1.90 0.50,1.70 fill #3a3830 0.95
+poly 0.60,1.30 0.90,1.40 1.10,1.60 1.00,1.90 0.70,1.90 0.50,1.70 texfill polyhaven/rock_boulder_cracked 0.55
+poly 0.60,1.30 0.90,1.40 1.10,1.60 1.00,1.90 0.70,1.90 0.50,1.70 stroke #1a1810
+line 0.70,1.60 0.90,1.70 stroke #a07040 0.8 width 2
+# South chunks
+poly 1.20,1.60 1.50,1.60 1.60,1.90 1.50,2.20 1.30,2.20 1.20,2.00 fill #4a4840 0.95
+poly 1.20,1.60 1.50,1.60 1.60,1.90 1.50,2.20 1.30,2.20 1.20,2.00 texfill polyhaven/rock_boulder_cracked 0.55
+poly 1.20,1.60 1.50,1.60 1.60,1.90 1.50,2.20 1.30,2.20 1.20,2.00 stroke #1a1810
+# Small chunks
+poly 0.30,2.00 0.50,2.10 0.45,2.40 0.25,2.30 fill #3a3830 0.9
+poly 0.30,2.00 0.50,2.10 0.45,2.40 0.25,2.30 stroke #1a1810
+# Pebbles scattered on top
+circle 0.38,1.40 0.02 fill #4a4840 0.85
+circle 0.72,2.10 0.02 fill #3a3830 0.85
+circle 1.30,1.40 0.018 fill #4a4840 0.85
+# Iron/copper sparkle glints on ore
+circle 0.60,0.90 0.008 fill #e8a860 0.85
+circle 1.30,0.95 0.008 fill #e8a860 0.85
+circle 0.80,1.60 0.008 fill #8899aa 0.85
+# Rust patches on cart
+ellipse 0.20,1.40 0.04,0.06 fill #6a3818 0.5
+ellipse 1.80,1.80 0.04,0.06 fill #6a3818 0.5
+# Dust on top of ore
+ellipse 0.70,1.60 0.14,0.05 fill #888888 0.2

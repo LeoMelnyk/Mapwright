@@ -1,0 +1,51 @@
+name: Guttered Candle
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: graveyard-village, shadowfell-mausoleum, crypt, dark-temple, cabin-abandoned
+typical_count: few
+clusters_with: candle-stub, withered-flowers, altar, skull-small, fresh-dirt-mound
+notes: Melted-down candle with rivers of wax spreading outward — slumped, sputtering
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.28 z 0-0.3
+
+# Massive wax pool (uneven rivulets)
+poly 0.22,0.54 0.28,0.36 0.42,0.30 0.58,0.32 0.72,0.38 0.80,0.50 0.76,0.64 0.60,0.72 0.42,0.72 0.28,0.66 0.20,0.60 fill #d4c4a8 0.9
+poly 0.22,0.54 0.28,0.36 0.42,0.30 0.58,0.32 0.72,0.38 0.80,0.50 0.76,0.64 0.60,0.72 0.42,0.72 0.28,0.66 0.20,0.60 stroke #8b7355
+# Wax flows outward (drip tongues)
+poly 0.22,0.54 0.14,0.60 0.10,0.66 0.18,0.66 fill #d4c4a8 0.85
+poly 0.80,0.50 0.88,0.52 0.92,0.58 0.84,0.60 fill #d4c4a8 0.85
+poly 0.44,0.72 0.42,0.80 0.48,0.84 0.50,0.78 fill #d4c4a8 0.85
+poly 0.66,0.72 0.70,0.78 0.64,0.84 0.60,0.78 fill #d4c4a8 0.85
+# Second layer (yellowed older wax)
+poly 0.28,0.50 0.34,0.38 0.46,0.34 0.58,0.36 0.68,0.42 0.72,0.54 0.66,0.64 0.50,0.68 0.36,0.64 0.28,0.58 fill #c8b898 0.9
+# Stub remains (small wax nub, barely above pool)
+ellipse 0.50,0.52 0.08,0.06 fill #e8dcc8 0.95
+ellipse 0.50,0.52 0.08,0.06 stroke #a08878
+# Melted crater (sunken center where wick lived)
+circle 0.50,0.52 0.04 fill #5a4020 0.7
+# Wick curl (still intact, leaning)
+bezier 0.50,0.52 0.52,0.48 0.54,0.42 0.52,0.38 stroke #1a0f00 width 1
+# Black char at wick base
+circle 0.50,0.52 0.015 fill #0a0404 0.95
+# Flickering/sputtering tiny flame
+poly 0.50,0.42 0.52,0.38 0.54,0.42 fill #e85500 0.6
+poly 0.51,0.41 0.52,0.39 0.53,0.41 fill #ffaa00 0.8
+# Flame halo (small, dim)
+circle 0.52,0.40 0.04 fill #ffaa00 0.15
+# Thin smoke trail (sputtering)
+bezier 0.52,0.38 0.56,0.32 0.52,0.26 0.54,0.20 stroke #aaaaaa 0.4 width 1
+# Wax texture ripples
+bezier 0.28,0.48 0.36,0.52 0.48,0.48 0.58,0.52 stroke #8b7355 0.4 width 1
+bezier 0.44,0.60 0.52,0.62 0.60,0.60 0.66,0.62 stroke #8b7355 0.4 width 1
+# Drip highlights
+arc 0.50,0.52 0.20 220 260 stroke #f0e4d0 0.5 width 1
+# Faint soot ring (where flame has been burning)
+circle 0.50,0.40 0.08 fill #1a1008 0.15
+# Crack in hardened wax
+line 0.38,0.58 0.48,0.64 stroke #a08878 0.5

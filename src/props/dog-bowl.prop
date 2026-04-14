@@ -1,0 +1,57 @@
+name: Dog Bowl
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: hunting-lodge-large, shepherds-shelter, cabin-hunters, farmhouse-common
+typical_count: few
+clusters_with: hearth, bedroll, stretched-hide, water-jug
+notes: Shallow dog dish — iron or wood, possibly with kibble or water
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.30 z 0-0.2
+
+# Bowl outer rim (wide, shallow — iron)
+circle 0.5,0.5 0.32 fill #4a3020 0.95
+circle 0.5,0.5 0.32 texfill polyhaven/rusty_metal 0.6
+circle 0.5,0.5 0.32 stroke #2a1810
+# Bowl rim edge (slightly raised)
+circle 0.5,0.5 0.30 stroke #1a1008 width 2
+# Bowl interior (darker, recessed)
+circle 0.5,0.5 0.26 fill #2a1810 0.9
+circle 0.5,0.5 0.26 stroke #1a1008
+# Water inside (dark reflective pool)
+circle 0.5,0.5 0.22 fill #3a4050 0.85
+circle 0.5,0.5 0.22 stroke #1a2028
+# Water surface shine
+arc 0.5,0.5 0.20 200 260 stroke #6a7080 0.6 width 1
+arc 0.5,0.5 0.16 220 260 stroke #8a98a8 0.5 width 1
+# Kibble/food scraps (brown lumps in water)
+circle 0.42,0.46 0.025 fill #5c3a1e 0.85
+circle 0.42,0.46 0.025 stroke #2a1400
+circle 0.56,0.52 0.02 fill #5c3a1e 0.85
+circle 0.56,0.52 0.02 stroke #2a1400
+circle 0.48,0.58 0.018 fill #5c3a1e 0.85
+# Bone fragment
+poly 0.44,0.38 0.52,0.36 0.50,0.44 0.46,0.44 fill #c8b898 0.85
+poly 0.44,0.38 0.52,0.36 0.50,0.44 0.46,0.44 stroke #6a5040
+# Bowl name letters around rim (stamped)
+line 0.46,0.70 0.54,0.70 stroke #1a1008 width 1
+# Dog saliva/drool on rim (wet)
+ellipse 0.38,0.70 0.05,0.02 fill #c8d0d8 0.4
+# Metal sheen on rim
+arc 0.5,0.5 0.30 210 260 stroke #888888 0.6 width 1
+# Paw print nearby (muddy)
+circle 0.20,0.18 0.018 fill #4a3018 0.7
+circle 0.16,0.22 0.012 fill #4a3018 0.6
+circle 0.24,0.22 0.012 fill #4a3018 0.6
+circle 0.18,0.26 0.012 fill #4a3018 0.6
+circle 0.22,0.28 0.012 fill #4a3018 0.6
+# Rust patches
+circle 0.74,0.32 0.02 fill #6a3818 0.5
+circle 0.32,0.74 0.018 fill #6a3818 0.5
+# Stray hair on rim
+bezier 0.30,0.34 0.36,0.32 0.40,0.30 0.44,0.28 stroke #6a4018 0.6 width 1

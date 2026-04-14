@@ -1,0 +1,53 @@
+name: Incense Stub
+category: Religious
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: dark-temple, ritual-chamber, shrine, temple-nave, opium-den
+typical_count: many
+clusters_with: incense-burner, altar, candle-stub, prayer-bench, skull-stack
+notes: Burnt-down incense stick with ash trail — ritual remnant
+---
+# === HITBOX ===
+hitbox rect 0.18,0.42 0.64,0.18 z 0-0.05
+
+# Thin base dish (small ceramic tray)
+ellipse 0.30,0.52 0.12,0.06 fill #4a3020 0.85
+ellipse 0.30,0.52 0.12,0.06 stroke #2a1810
+# Dish rim
+ellipse 0.30,0.52 0.10,0.05 stroke #6a4830 0.6 width 1
+# Tiny hole (where stick is inserted)
+circle 0.30,0.52 0.01 fill #1a0f00 0.95
+# Stick remnant (short charred stub)
+rect 0.30,0.50 0.04,0.08 fill #3a1f00 0.9
+rect 0.30,0.50 0.04,0.08 stroke #1a0f00
+# Burnt tip (glowing ember remnant)
+circle 0.32,0.50 0.015 fill #c82818 0.85
+circle 0.32,0.50 0.01 fill #ff6600 0.7
+# Long ash trail (where the stick burned down, now fallen)
+rect 0.34,0.50 0.48,0.03 fill #6a6058 0.85
+rect 0.34,0.50 0.48,0.03 stroke #3a3028
+# Ash segments (broken into chunks)
+line 0.44,0.50 0.44,0.53 stroke #3a3028 0.7
+line 0.54,0.50 0.54,0.53 stroke #3a3028 0.7
+line 0.64,0.50 0.64,0.53 stroke #3a3028 0.7
+line 0.72,0.50 0.72,0.53 stroke #3a3028 0.7
+# Scattered ash particles (fallen bits)
+circle 0.38,0.56 0.012 fill #6a6058 0.7
+circle 0.48,0.58 0.01 fill #6a6058 0.7
+circle 0.58,0.56 0.012 fill #6a6058 0.65
+circle 0.68,0.58 0.01 fill #6a6058 0.65
+circle 0.76,0.56 0.008 fill #6a6058 0.6
+# Darker burnt end at tip
+circle 0.82,0.53 0.015 fill #1a1008 0.85
+# Lingering smoke wisp (faint)
+bezier 0.32,0.50 0.28,0.40 0.34,0.28 0.30,0.18 stroke #cccccc 0.4 width 1
+bezier 0.32,0.48 0.36,0.36 0.28,0.26 0.32,0.14 stroke #aaaaaa 0.3 width 1
+# Tiny ember glow around tip
+circle 0.32,0.50 0.04 fill #c82818 0.2
+# Dusting of ash on ground around stub
+circle 0.22,0.62 0.015 fill #6a6058 0.5
+circle 0.38,0.62 0.012 fill #6a6058 0.5

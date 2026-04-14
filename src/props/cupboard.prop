@@ -1,0 +1,75 @@
+name: Cupboard
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: farmhouse-common, house-medium-family, farmhouse-kitchen, pantry, house-small
+typical_count: few
+clusters_with: shelf, cheese-wheel, water-jug, bread-loaf, butter-churn
+notes: Kitchen cupboard — from top-down only the flat cabinet top is visible (doors + handles are on the south face, hidden)
+---
+# === HITBOX ===
+hitbox rect 0.06,0.05 1.88,0.80 z 0-4
+
+# footprint 1x2: x range 0-2, y range 0-1. Wall at north, front face at south.
+# Top-down shows only the flat cabinet top.
+
+# Shadow gap at wall (north edge)
+rect 0.04,0.02 1.92,0.04 fill #000000 0.2
+
+# Crown molding (slight overhang along the top)
+rect 0.02,0.06 1.96,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.02,0.06 1.96,0.08 stroke #1a1208
+
+# Main cabinet top surface
+rect 0.06,0.12 1.88,0.66 texfill polyhaven/wood_cabinet_worn_long 0.88
+rect 0.06,0.12 1.88,0.66 stroke #2a1400
+
+# Wood grain (horizontal planks running along the top)
+line 0.08,0.26 1.92,0.26 stroke #3a1f00 0.3
+line 0.08,0.42 1.92,0.42 stroke #3a1f00 0.35
+line 0.08,0.58 1.92,0.58 stroke #3a1f00 0.3
+
+# Subtle dust shadow at back of top (near wall)
+rect 0.08,0.14 1.84,0.08 fill #000000 0.08
+
+# Door seam visible at south edge only (where the two doors meet below)
+line 1.00,0.72 1.00,0.80 stroke #2a1400 0.4
+
+# Front edge trim/overhang (south — where the cabinet face begins below)
+rect 0.06,0.74 1.88,0.06 fill #3a1f00 0.5
+rect 0.06,0.74 1.88,0.06 stroke #2a1400
+
+# === Items displayed on top of the cupboard ===
+# Ceramic jar (left)
+circle 0.30,0.44 0.10 texfill polyhaven/stone_wall 0.7
+circle 0.30,0.44 0.10 fill #8a7058 0.4
+circle 0.30,0.44 0.10 stroke #3a2a1a
+ellipse 0.30,0.38 0.07,0.03 fill #1a1008 0.85
+# Wooden bowl (center-left)
+ellipse 0.70,0.46 0.10,0.06 fill #6b4e2e 0.92
+ellipse 0.70,0.46 0.10,0.06 stroke #2a1400
+ellipse 0.70,0.46 0.07,0.04 fill #3a1f00 0.9
+# Brass candlestick (center)
+circle 1.10,0.44 0.05 fill #daa520 0.92
+circle 1.10,0.44 0.05 stroke #5a3a00
+circle 1.10,0.44 0.02 fill #1a0f00 0.95
+# Small loaf of bread (right-center)
+ellipse 1.45,0.48 0.14,0.06 fill #c8893a 0.92
+ellipse 1.45,0.48 0.14,0.06 stroke #6a3a10
+# Small pile of dried herbs at far right
+poly 1.70,0.42 1.78,0.40 1.80,0.46 1.76,0.50 1.72,0.48 fill #5a7028 0.75
+poly 1.70,0.42 1.78,0.40 1.80,0.46 1.76,0.50 1.72,0.48 stroke #1a3010
+# Faint ring marks (where other items usually sit)
+circle 0.50,0.56 0.06 stroke #3a1f00 0.25 width 1
+circle 1.70,0.60 0.05 stroke #3a1f00 0.25 width 1
+
+# Wood knot / imperfection
+circle 0.86,0.34 0.02 fill #2a1400 0.6
+circle 1.40,0.30 0.015 fill #2a1400 0.5
+
+# Edge highlight along the light-catching side
+line 0.08,0.16 1.92,0.16 stroke #8b6914 0.3

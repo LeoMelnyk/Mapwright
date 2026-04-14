@@ -1,0 +1,51 @@
+name: Spilled Ale
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: fairground-seasonal, tavern-common, inn-common-room, gambling-den
+typical_count: few
+clusters_with: tankard, empty-bottle, playing-cards, bench, stool
+notes: Foamy puddle of spilled beer with tipped tankard nearby
+---
+# === HITBOX ===
+hitbox rect 0.10,0.20 0.80,0.64 z 0-0.02
+
+# Main puddle (amber splat, irregular)
+poly 0.14,0.48 0.22,0.32 0.36,0.26 0.50,0.28 0.62,0.34 0.72,0.40 0.78,0.54 0.74,0.68 0.60,0.76 0.44,0.78 0.28,0.72 0.18,0.62 fill #8a5820 0.85
+poly 0.14,0.48 0.22,0.32 0.36,0.26 0.50,0.28 0.62,0.34 0.72,0.40 0.78,0.54 0.74,0.68 0.60,0.76 0.44,0.78 0.28,0.72 0.18,0.62 stroke #4a2810
+# Darker shadow center (pooled deeper)
+poly 0.28,0.54 0.40,0.44 0.54,0.46 0.64,0.56 0.58,0.66 0.42,0.68 0.30,0.62 fill #4a2810 0.6
+# Lighter edge (ale color)
+arc 0.46,0.52 0.28 0 360 stroke #b08030 0.5 width 1
+# Foamy head on top (pale beige islands)
+poly 0.30,0.40 0.38,0.36 0.44,0.40 0.38,0.44 fill #e8d8a8 0.85
+poly 0.30,0.40 0.38,0.36 0.44,0.40 0.38,0.44 stroke #8a7828
+poly 0.50,0.50 0.60,0.48 0.62,0.54 0.54,0.56 fill #e8d8a8 0.85
+poly 0.50,0.50 0.60,0.48 0.62,0.54 0.54,0.56 stroke #8a7828
+# Foam bubbles (small)
+circle 0.40,0.52 0.02 fill #f0e0b0 0.85
+circle 0.44,0.48 0.015 fill #f0e0b0 0.85
+circle 0.56,0.42 0.018 fill #f0e0b0 0.8
+circle 0.48,0.60 0.015 fill #f0e0b0 0.8
+circle 0.34,0.58 0.012 fill #f0e0b0 0.75
+# Tipped tankard (empty, on its side)
+ellipse 0.76,0.72 0.10,0.08 fill #666666 0.85
+ellipse 0.76,0.72 0.10,0.08 stroke #222222
+ellipse 0.76,0.72 0.08,0.06 fill #333333 0.8
+ellipse 0.76,0.72 0.08,0.06 stroke #222222
+# Tankard handle
+arc 0.82,0.72 0.04 30 330 stroke #666666 width 2
+# Splash droplets around pool
+circle 0.14,0.30 0.015 fill #8a5820 0.7
+circle 0.82,0.36 0.015 fill #8a5820 0.7
+circle 0.18,0.78 0.012 fill #8a5820 0.65
+circle 0.80,0.80 0.012 fill #8a5820 0.65
+circle 0.10,0.56 0.012 fill #8a5820 0.6
+# Streak/drag from tankard
+bezier 0.68,0.70 0.62,0.68 0.54,0.64 0.50,0.62 stroke #8a5820 0.6 width 2
+# Surface shine
+arc 0.46,0.52 0.22 200 240 stroke #d0a860 0.5 width 1

@@ -1,0 +1,42 @@
+name: Butter Churn
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: floor
+room_types: farmhouse-common, farmhouse-kitchen, pantry, house-medium-family
+typical_count: single
+clusters_with: cheese-wheel, cupboard, shelf-open, bucket
+notes: Tall wooden butter churn — seen from above as staved cylinder with plunger handle
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-1.5
+
+# Outer cylinder (wooden staves, top-down)
+circle 0.5,0.5 0.28 texfill polyhaven/dark_wood 0.88
+circle 0.5,0.5 0.28 stroke #2a1400
+# Stave seams (radial)
+line 0.50,0.22 0.50,0.78 stroke #2a1400 0.5
+line 0.30,0.30 0.70,0.70 stroke #2a1400 0.5
+line 0.30,0.70 0.70,0.30 stroke #2a1400 0.5
+# Iron bands (concentric)
+circle 0.5,0.5 0.28 stroke #444444 width 2
+circle 0.5,0.5 0.22 stroke #555555 0.7 width 1
+# Top lid with hole for plunger
+circle 0.5,0.5 0.20 fill #5c3a1e 0.9
+circle 0.5,0.5 0.20 stroke #2a1400
+# Plunger hole (dark ring)
+circle 0.5,0.5 0.06 fill #1a1008 0.95
+circle 0.5,0.5 0.06 stroke #2a1400
+# Plunger shaft (sticking up — we see the top cross-section)
+circle 0.5,0.5 0.035 fill #8b6914 0.95
+circle 0.5,0.5 0.035 stroke #5a3a00
+# Plunger grip handle (T-top protruding)
+rect 0.40,0.48 0.20,0.04 texfill polyhaven/dark_wood 0.9
+rect 0.40,0.48 0.20,0.04 stroke #2a1400
+# Wood highlight
+arc 0.5,0.5 0.26 210 260 stroke #8b6914 0.5 width 1
+# Splash stain on side
+ellipse 0.70,0.44 0.06,0.03 fill #f0e4d0 0.5

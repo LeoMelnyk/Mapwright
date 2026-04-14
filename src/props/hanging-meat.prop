@@ -1,0 +1,46 @@
+name: Hanging Meat
+category: Food
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2
+placement: wall
+room_types: farmhouse-kitchen, ship-galley, butcher-shop, smokehouse, pantry
+typical_count: few
+clusters_with: hanging-meat, cleaver, chopping-block, fly-swarm, onion-braid
+notes: Hook with slab of meat hanging from a beam; cured or raw
+---
+# === HITBOX ===
+hitbox rect 0.30,0.08 0.40,0.70 z 0-2
+
+# Beam (horizontal bar at top/ceiling)
+rect 0.08,0.06 0.84,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.06 0.84,0.08 stroke #2a1400
+# Beam grain
+line 0.08,0.10 0.92,0.10 stroke #5c3a1e 0.4
+# S-hook hanging down
+bezier 0.50,0.14 0.48,0.18 0.52,0.24 0.50,0.28 stroke #444444 width 3
+bezier 0.50,0.14 0.48,0.18 0.52,0.24 0.50,0.28 stroke #222222 width 1
+# Hook curl at bottom
+arc 0.50,0.30 0.04 0 180 stroke #444444 width 3
+# Meat hanging from hook (hunk of cured meat — dark red-brown)
+poly 0.34,0.30 0.66,0.30 0.70,0.50 0.66,0.68 0.56,0.76 0.44,0.76 0.34,0.68 0.30,0.50 fill #7a2818 0.92
+poly 0.34,0.30 0.66,0.30 0.70,0.50 0.66,0.68 0.56,0.76 0.44,0.76 0.34,0.68 0.30,0.50 stroke #3a0808
+# Fatty marbling streaks (pale cream)
+bezier 0.34,0.44 0.42,0.48 0.58,0.46 0.66,0.44 stroke #e8d0a8 0.55 width 1
+bezier 0.32,0.56 0.42,0.58 0.58,0.56 0.68,0.56 stroke #e8d0a8 0.55 width 1
+bezier 0.36,0.66 0.44,0.68 0.56,0.68 0.64,0.66 stroke #e8d0a8 0.5 width 1
+# Skin/outer crust (darker)
+arc 0.50,0.52 0.22 200 340 stroke #4a1008 0.7 width 2
+# Salt rub/paprika dusting
+circle 0.40,0.36 0.02 fill #c86030 0.6
+circle 0.58,0.40 0.018 fill #c86030 0.5
+circle 0.44,0.60 0.015 fill #c86030 0.5
+circle 0.56,0.64 0.015 fill #c86030 0.5
+# Darker rendering/drip at bottom
+poly 0.46,0.72 0.54,0.72 0.52,0.82 0.48,0.82 fill #4a1008 0.7
+# Drip
+circle 0.50,0.86 0.02 fill #4a1008 0.6
+# Hook attachment at meat top
+circle 0.50,0.32 0.025 fill #333333 0.9

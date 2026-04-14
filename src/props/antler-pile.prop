@@ -1,0 +1,66 @@
+name: Antler Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.4
+placement: floor
+room_types: cabin-trapper, hunting-lodge-large, cabin-hunters
+typical_count: single
+clusters_with: trap-rack, stretched-hide, bone-pile, skinning-knife, skinning-table
+notes: Pile of shed or cut antlers — trophies or raw materials
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.4
+
+# Main bottom antler (largest — deer rack, bone-colored)
+bezier 0.18,0.68 0.28,0.56 0.40,0.50 0.52,0.52 stroke #d4c4a8 width 5
+bezier 0.18,0.68 0.28,0.56 0.40,0.50 0.52,0.52 stroke #8a7060 width 1
+# Branch points (tines)
+line 0.32,0.56 0.30,0.44 stroke #d4c4a8 width 4
+line 0.32,0.56 0.30,0.44 stroke #8a7060 width 1
+line 0.42,0.52 0.44,0.40 stroke #d4c4a8 width 4
+line 0.42,0.52 0.44,0.40 stroke #8a7060 width 1
+line 0.48,0.52 0.58,0.46 stroke #d4c4a8 width 4
+line 0.48,0.52 0.58,0.46 stroke #8a7060 width 1
+# Second antler (opposite curve — mirrored)
+bezier 0.82,0.70 0.72,0.58 0.60,0.50 0.50,0.52 stroke #e0d4b8 width 5
+bezier 0.82,0.70 0.72,0.58 0.60,0.50 0.50,0.52 stroke #8a7060 width 1
+line 0.68,0.56 0.70,0.42 stroke #e0d4b8 width 4
+line 0.68,0.56 0.70,0.42 stroke #8a7060 width 1
+line 0.58,0.52 0.56,0.40 stroke #e0d4b8 width 4
+line 0.58,0.52 0.56,0.40 stroke #8a7060 width 1
+# Third smaller antler (across top of pile)
+bezier 0.30,0.38 0.40,0.30 0.56,0.28 0.70,0.34 stroke #c8b898 width 4
+bezier 0.30,0.38 0.40,0.30 0.56,0.28 0.70,0.34 stroke #6a5040 width 1
+line 0.42,0.30 0.38,0.20 stroke #c8b898 width 3
+line 0.42,0.30 0.38,0.20 stroke #6a5040 width 1
+line 0.54,0.28 0.58,0.18 stroke #c8b898 width 3
+line 0.54,0.28 0.58,0.18 stroke #6a5040 width 1
+# Fourth antler segment (fragment)
+bezier 0.20,0.40 0.32,0.44 0.40,0.50 0.50,0.56 stroke #d8c8ac width 3
+bezier 0.20,0.40 0.32,0.44 0.40,0.50 0.50,0.56 stroke #8a7060 width 1
+# Base/skull fragments (darker, at bottom of pile)
+circle 0.32,0.72 0.05 fill #8a7060 0.9
+circle 0.32,0.72 0.05 stroke #5a4828
+circle 0.66,0.74 0.05 fill #8a7060 0.9
+circle 0.66,0.74 0.05 stroke #5a4828
+# Attachment points (rough burr patterns on antler bases)
+circle 0.34,0.70 0.012 fill #5a4028 0.85
+circle 0.38,0.72 0.012 fill #5a4028 0.85
+circle 0.64,0.72 0.012 fill #5a4028 0.85
+circle 0.68,0.74 0.012 fill #5a4028 0.85
+# Antler texture ridges
+bezier 0.26,0.60 0.34,0.56 0.38,0.56 0.44,0.54 stroke #8a7060 0.6 width 1
+bezier 0.74,0.62 0.66,0.58 0.62,0.56 0.56,0.54 stroke #8a7060 0.6 width 1
+# Highlights on rounded surfaces
+arc 0.32,0.56 0.04 220 260 stroke #e8dcc8 0.7 width 1
+arc 0.68,0.56 0.04 220 260 stroke #e8dcc8 0.7 width 1
+# Dust/mossy patches
+ellipse 0.40,0.78 0.05,0.02 fill #3a4028 0.4
+ellipse 0.60,0.78 0.04,0.02 fill #3a4028 0.4
+# Cobweb strand draped over
+bezier 0.30,0.24 0.42,0.22 0.58,0.22 0.70,0.24 stroke #cccccc 0.3 width 1
+# Small bone fragment below pile
+line 0.22,0.82 0.30,0.82 stroke #c8b898 width 2

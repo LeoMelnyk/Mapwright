@@ -1,0 +1,75 @@
+name: Key Ring
+category: Tools
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: counting-house, gatehouse-inner, guard-post, prison-block
+typical_count: single
+clusters_with: desk, chest, vault-door, ledger-stack, coin-pile
+notes: Iron ring holding several large skeleton keys — jailer's keyring
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.30 z 0-0.1
+
+# Main iron ring (large circle)
+circle 0.5,0.5 0.24 stroke #444444 width 4
+circle 0.5,0.5 0.24 stroke #222222 width 2
+# Ring highlights
+arc 0.5,0.5 0.24 210 260 stroke #888888 0.7 width 1
+# Ring opening (split where keys slide on)
+line 0.50,0.26 0.50,0.30 stroke #222222 width 3
+# === Keys hanging from ring ===
+# Key 1 (large skeleton key)
+# Bow (round handle top)
+circle 0.22,0.58 0.05 stroke #444444 width 3
+circle 0.22,0.58 0.05 stroke #222222 width 1
+# Bow decorative cross pattern
+line 0.18,0.58 0.26,0.58 stroke #222222 width 1
+line 0.22,0.54 0.22,0.62 stroke #222222 width 1
+# Shaft
+rect 0.26,0.57 0.08,0.02 fill #444444 0.95
+rect 0.26,0.57 0.08,0.02 stroke #222222
+# Bit (wards at tip)
+rect 0.34,0.56 0.04,0.04 fill #555555 0.95
+rect 0.34,0.56 0.04,0.04 stroke #222222
+# Key 2 (smaller, pointing down)
+circle 0.48,0.32 0.04 stroke #555555 width 3
+circle 0.48,0.32 0.04 stroke #222222 width 1
+rect 0.47,0.36 0.02,0.12 fill #555555 0.9
+rect 0.47,0.36 0.02,0.12 stroke #222222
+# Small bit
+rect 0.46,0.46 0.04,0.03 fill #666666 0.95
+rect 0.46,0.46 0.04,0.03 stroke #222222
+# Key 3 (ornate, pointing right)
+circle 0.74,0.58 0.05 stroke #444444 width 3
+circle 0.74,0.58 0.05 stroke #222222 width 1
+# Ornate bow detail (scroll)
+arc 0.74,0.58 0.04 45 135 stroke #222222 width 1
+arc 0.74,0.58 0.04 225 315 stroke #222222 width 1
+# Shaft
+rect 0.66,0.57 0.08,0.02 fill #444444 0.95
+rect 0.66,0.57 0.08,0.02 stroke #222222
+# Bit (complex tooth pattern)
+rect 0.62,0.56 0.04,0.04 fill #555555 0.95
+rect 0.62,0.56 0.04,0.04 stroke #222222
+line 0.63,0.59 0.63,0.61 stroke #222222 width 1
+line 0.65,0.59 0.65,0.61 stroke #222222 width 1
+# Key 4 (small, pointing up)
+circle 0.70,0.74 0.04 stroke #555555 width 2
+rect 0.69,0.68 0.02,0.06 fill #555555 0.9
+rect 0.68,0.66 0.04,0.04 fill #666666 0.9
+rect 0.68,0.66 0.04,0.04 stroke #222222
+# Small scrap of leather tag
+poly 0.32,0.42 0.40,0.40 0.42,0.46 0.34,0.48 fill #5c3a1e 0.9
+poly 0.32,0.42 0.40,0.40 0.42,0.46 0.34,0.48 stroke #2a1400
+# Tag writing
+line 0.34,0.44 0.40,0.44 stroke #1a1008 0.7
+# Rust on ring
+circle 0.30,0.50 0.015 fill #6a3818 0.5
+circle 0.74,0.46 0.012 fill #6a3818 0.5
+# Metal sheen highlights on keys
+arc 0.22,0.58 0.04 210 260 stroke #888888 0.5 width 1
+arc 0.74,0.58 0.04 210 260 stroke #888888 0.5 width 1

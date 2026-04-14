@@ -1,0 +1,54 @@
+name: Hammer
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: general-workshop, temple-of-craft, forge, smithy-large, shop-weaponsmith
+typical_count: few
+clusters_with: anvil, tool-rack, chisel, workbench, ingot-stack
+notes: Blacksmith's hammer — iron head with wooden haft
+---
+# === HITBOX ===
+hitbox rect 0.20,0.20 0.60,0.64 z 0-0.15
+
+# Wooden handle (shaft running north-south)
+rect 0.44,0.32 0.12,0.50 texfill polyhaven/dark_wood 0.9
+rect 0.44,0.32 0.12,0.50 stroke #2a1400
+# Handle grain
+line 0.48,0.34 0.48,0.80 stroke #5c3a1e 0.4
+line 0.52,0.34 0.52,0.80 stroke #5c3a1e 0.4
+# Handle grip wrap (leather at south end)
+rect 0.42,0.66 0.16,0.16 fill #5c3a1e 0.9
+rect 0.42,0.66 0.16,0.16 stroke #2a1400
+line 0.42,0.70 0.58,0.70 stroke #3a2010 0.7
+line 0.42,0.74 0.58,0.74 stroke #3a2010 0.7
+line 0.42,0.78 0.58,0.78 stroke #3a2010 0.7
+# End cap
+ellipse 0.50,0.84 0.08,0.03 fill #3a1f00 0.9
+# Iron head (rectangular block at north end of handle)
+rect 0.20,0.22 0.60,0.20 fill #555555 0.95
+rect 0.20,0.22 0.60,0.20 texfill polyhaven/metal_plate 0.6
+rect 0.20,0.22 0.60,0.20 stroke #222222
+# Head striking face (west end, flat)
+rect 0.20,0.24 0.08,0.16 fill #777777 0.95
+rect 0.20,0.24 0.08,0.16 stroke #222222
+# Head peen (east end, rounded for shaping)
+poly 0.72,0.22 0.80,0.26 0.82,0.32 0.80,0.38 0.72,0.42 fill #666666 0.95
+poly 0.72,0.22 0.80,0.26 0.82,0.32 0.80,0.38 0.72,0.42 stroke #222222
+# Eye (where handle goes through)
+rect 0.48,0.28 0.08,0.10 fill #1a1008 0.95
+rect 0.48,0.28 0.08,0.10 stroke #222222
+# Head wedge (iron wedge driven into haft top to secure)
+rect 0.48,0.28 0.04,0.04 fill #3a3020 0.9
+rect 0.52,0.28 0.04,0.04 fill #3a3020 0.9
+# Strike marks on face
+line 0.22,0.28 0.26,0.32 stroke #1a1008 0.7
+line 0.22,0.34 0.26,0.38 stroke #1a1008 0.6
+# Metal sheen
+line 0.30,0.28 0.70,0.28 stroke #aaaaaa 0.5 width 1
+line 0.30,0.36 0.70,0.36 stroke #888888 0.4 width 1
+# Maker's stamp
+circle 0.50,0.32 0.015 fill #222222 0.9

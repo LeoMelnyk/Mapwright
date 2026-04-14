@@ -1,0 +1,88 @@
+name: Tool Cart
+category: Prison
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1
+placement: floor
+room_types: interrogation-room, torture-chamber, forge, workshop-dungeon
+typical_count: single
+clusters_with: chair-restraint, bloodstain, bloody-rag, brazier, chain-coil
+notes: Rolling cart with assorted torture implements laid out — pliers, knives, brands
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,0.68 z 0-1
+
+# Cart top (dark weathered wood surface)
+rect 0.10,0.10 1.80,0.68 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.10 1.80,0.68 fill #1a0f00 0.3
+rect 0.10,0.10 1.80,0.68 stroke #0a0400
+# Wood grain
+line 0.10,0.28 1.90,0.28 stroke #3a1f00 0.5
+line 0.10,0.46 1.90,0.46 stroke #3a1f00 0.5
+line 0.10,0.60 1.90,0.60 stroke #3a1f00 0.5
+# Corner iron bands
+rect 0.10,0.10 0.06,0.08 fill #3a3020 0.9
+rect 1.84,0.10 0.06,0.08 fill #3a3020 0.9
+rect 0.10,0.70 0.06,0.08 fill #3a3020 0.9
+rect 1.84,0.70 0.06,0.08 fill #3a3020 0.9
+# === Tools laid out ===
+# Pliers/pincers
+rect 0.20,0.26 0.18,0.08 fill #555555 0.95
+rect 0.20,0.26 0.18,0.08 stroke #222222
+circle 0.20,0.30 0.02 fill #1a1008 0.9
+line 0.20,0.30 0.10,0.30 stroke #555555 width 2
+line 0.20,0.30 0.10,0.24 stroke #555555 width 2
+# Pliers jaws
+poly 0.38,0.28 0.46,0.26 0.48,0.32 0.40,0.34 fill #666666 0.9
+poly 0.38,0.28 0.46,0.26 0.48,0.32 0.40,0.34 stroke #222222
+# Curved knife
+bezier 0.20,0.48 0.34,0.44 0.48,0.52 0.58,0.48 stroke #888888 width 2
+bezier 0.20,0.48 0.34,0.44 0.48,0.52 0.58,0.48 stroke #333333 width 1
+line 0.20,0.48 0.14,0.54 stroke #5c3a1e width 3
+# Knife handle
+rect 0.14,0.50 0.08,0.08 fill #5c3a1e 0.9
+rect 0.14,0.50 0.08,0.08 stroke #2a1400
+# Branding iron (long handle with star end)
+rect 0.56,0.18 0.50,0.06 texfill polyhaven/dark_wood 0.9
+rect 0.56,0.18 0.50,0.06 stroke #2a1400
+# Branding iron head (star)
+poly 1.04,0.18 1.10,0.14 1.12,0.20 1.18,0.18 1.14,0.24 1.16,0.30 1.08,0.26 1.02,0.30 1.04,0.24 fill #333333 0.95
+poly 1.04,0.18 1.10,0.14 1.12,0.20 1.18,0.18 1.14,0.24 1.16,0.30 1.08,0.26 1.02,0.30 1.04,0.24 stroke #1a1008
+# Brand glowing red (heated)
+circle 1.10,0.22 0.04 fill #c82818 0.7
+circle 1.10,0.22 0.02 fill #ff6600 0.8
+# Awl/spike
+line 1.20,0.40 1.36,0.48 stroke #888888 width 2
+rect 1.36,0.46 0.10,0.06 fill #5c3a1e 0.9
+rect 1.36,0.46 0.10,0.06 stroke #2a1400
+# Second knife (long blade)
+rect 0.68,0.42 0.30,0.06 fill #aaaaaa 0.95
+rect 0.68,0.42 0.30,0.06 texfill polyhaven/metal_plate 0.5
+rect 0.68,0.42 0.30,0.06 stroke #333333
+# Knife handle
+rect 0.60,0.40 0.10,0.10 fill #3a1f00 0.9
+rect 0.60,0.40 0.10,0.10 stroke #1a0f00
+# Small vial of acid (green)
+circle 1.54,0.28 0.06 fill #4a8028 0.9
+circle 1.54,0.28 0.06 stroke #1a3010
+circle 1.54,0.26 0.03 fill #8ad840 0.7
+# Small pincer/tongs
+rect 1.26,0.58 0.20,0.08 fill #555555 0.9
+rect 1.26,0.58 0.20,0.08 stroke #222222
+# Thumbscrews
+rect 0.64,0.58 0.10,0.10 fill #444444 0.95
+rect 0.64,0.58 0.10,0.10 stroke #1a1008
+circle 0.69,0.63 0.025 fill #daa520 0.9
+# Blood pool on surface
+ellipse 1.00,0.60 0.18,0.08 fill #3a0808 0.6
+# Rusty stains
+ellipse 0.40,0.64 0.10,0.05 fill #6a3818 0.5
+# Wheels visible at south edge
+circle 0.30,0.82 0.06 fill #1a1008 0.9
+circle 0.30,0.82 0.06 stroke #000000
+circle 0.30,0.82 0.02 fill #444444 0.9
+circle 1.70,0.82 0.06 fill #1a1008 0.9
+circle 1.70,0.82 0.06 stroke #000000
+circle 1.70,0.82 0.02 fill #444444 0.9

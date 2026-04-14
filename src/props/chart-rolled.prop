@@ -1,0 +1,64 @@
+name: Rolled Chart
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: lighthouse-keepers-room, ship-captains-cabin, command-room
+typical_count: few
+clusters_with: log-book, spyglass, desk, compass, ink-pot
+notes: Rolled-up nautical or treasure chart — tied scroll lying on surface
+---
+# === HITBOX ===
+hitbox rect 0.10,0.38 0.80,0.24 z 0-0.15
+
+# Scroll body (elongated cylinder from above — tan paper)
+ellipse 0.50,0.50 0.40,0.12 fill #e8dcc8 0.92
+ellipse 0.50,0.50 0.40,0.12 stroke #8b7355
+# Paper curl edge (exposed side of roll)
+arc 0.50,0.50 0.40 0 20 stroke #5a3a00 0.7 width 1
+arc 0.50,0.50 0.40 160 180 stroke #5a3a00 0.7 width 1
+# Darker line along length (edge where paper overlaps)
+line 0.12,0.48 0.88,0.48 stroke #8b7355 0.7
+line 0.14,0.54 0.86,0.54 stroke #8b7355 0.6
+# Wrap ribbon (thin tie around middle)
+rect 0.46,0.38 0.08,0.24 fill #881820 0.92
+rect 0.46,0.38 0.08,0.24 stroke #3a0808
+# Ribbon bow knot
+circle 0.50,0.50 0.04 fill #aa2028 0.95
+circle 0.50,0.50 0.04 stroke #3a0808
+# Ribbon loops (bow ends)
+poly 0.50,0.46 0.56,0.42 0.58,0.48 0.52,0.50 fill #aa2028 0.85
+poly 0.50,0.46 0.56,0.42 0.58,0.48 0.52,0.50 stroke #3a0808
+poly 0.50,0.54 0.44,0.58 0.42,0.52 0.48,0.50 fill #aa2028 0.85
+poly 0.50,0.54 0.44,0.58 0.42,0.52 0.48,0.50 stroke #3a0808
+# Ribbon tails trailing
+line 0.54,0.50 0.62,0.58 stroke #881820 width 2
+line 0.46,0.50 0.38,0.58 stroke #881820 width 2
+# Paper end caps (coiled ends visible)
+circle 0.10,0.50 0.06 fill #c8b898 0.9
+circle 0.10,0.50 0.06 stroke #8b7355
+# Spiral detail showing roll
+arc 0.10,0.50 0.05 0 360 stroke #8b7355 0.6 width 1
+arc 0.10,0.50 0.03 0 360 stroke #8b7355 0.5 width 1
+# Other end
+circle 0.90,0.50 0.06 fill #c8b898 0.9
+circle 0.90,0.50 0.06 stroke #8b7355
+arc 0.90,0.50 0.05 0 360 stroke #8b7355 0.6 width 1
+arc 0.90,0.50 0.03 0 360 stroke #8b7355 0.5 width 1
+# Faint ink visible at edges (partial map showing)
+line 0.18,0.48 0.24,0.50 stroke #2a1400 0.5
+line 0.78,0.50 0.82,0.48 stroke #2a1400 0.5
+# Wax seal stamp
+circle 0.40,0.42 0.025 fill #881820 0.85
+circle 0.40,0.42 0.025 stroke #3a0808
+# Age stains (brown spots)
+ellipse 0.28,0.48 0.04,0.02 fill #8a5820 0.4
+ellipse 0.70,0.52 0.04,0.02 fill #8a5820 0.4
+# Paper fiber texture
+line 0.20,0.44 0.30,0.44 stroke #8b7355 0.3
+line 0.60,0.56 0.70,0.56 stroke #8b7355 0.3
+# Highlight on roll top
+arc 0.50,0.50 0.38 210 260 stroke #f0e4d0 0.5 width 1

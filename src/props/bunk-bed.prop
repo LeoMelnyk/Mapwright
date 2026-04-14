@@ -1,0 +1,103 @@
+name: Bunk Bed
+category: Furniture
+footprint: 3x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 4
+placement: wall
+room_types: barracks, mansion-servants-quarters, ship-gun-deck, nursery, prison-block
+typical_count: few
+clusters_with: chest, bedroll, narrow-bed, pallet
+notes: Stacked two-tier bed — from directly above, only the TOP bunk is visible; a guard rail runs down the outside, and rung ends of the attached ladder protrude east
+---
+# === HITBOX ===
+hitbox rect 0.10,0.075 1.80,2.85 z 0-4
+
+# footprint 3x2: x range 0-2, y range 0-3
+# Top-down: upper bunk only. Bottom bunk is hidden underneath (same footprint).
+# Guard rail runs along east edge. Ladder rung-tops visible protruding east of rail.
+
+# Outer bed frame (upper bunk as seen from above)
+rect 0.10,0.075 1.80,2.85 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.075 1.80,2.85 stroke #2a1400
+# Heavy guard rail along east edge (prevents top-bunk sleeper from rolling out)
+rect 1.68,0.18 0.20,2.64 texfill polyhaven/dark_wood 0.92
+rect 1.68,0.18 0.20,2.64 fill #2a1400 0.45
+rect 1.68,0.18 0.20,2.64 stroke #1a0f00
+# Guard rail spindle tops (vertical slats poking up)
+circle 1.78,0.34 0.02 fill #1a0f00 0.9
+circle 1.78,0.70 0.02 fill #1a0f00 0.9
+circle 1.78,1.06 0.02 fill #1a0f00 0.9
+circle 1.78,1.42 0.02 fill #1a0f00 0.9
+circle 1.78,1.78 0.02 fill #1a0f00 0.9
+circle 1.78,2.14 0.02 fill #1a0f00 0.9
+circle 1.78,2.50 0.02 fill #1a0f00 0.9
+# Ladder climb-opening (gap in guard rail — dark hole where sleeper enters)
+rect 1.68,1.20 0.20,0.60 fill #0a0400 0.9
+rect 1.68,1.20 0.20,0.60 stroke #000000
+# Four corner posts (tall — extend all the way down past the bottom bunk to floor)
+rect 0.10,0.075 0.16,0.16 fill #1a0800 0.95
+rect 0.10,0.075 0.16,0.16 stroke #000000
+rect 1.74,0.075 0.16,0.16 fill #1a0800 0.95
+rect 1.74,0.075 0.16,0.16 stroke #000000
+rect 0.10,2.765 0.16,0.16 fill #1a0800 0.95
+rect 0.10,2.765 0.16,0.16 stroke #000000
+rect 1.74,2.765 0.16,0.16 fill #1a0800 0.95
+rect 1.74,2.765 0.16,0.16 stroke #000000
+# Headboard (north end, solid raised panel)
+rect 0.14,0.14 1.54,0.10 fill #2a1400 0.9
+rect 0.14,0.14 1.54,0.10 stroke #0a0400
+# Footboard (south end, shorter)
+rect 0.14,2.78 1.54,0.08 fill #2a1400 0.9
+rect 0.14,2.78 1.54,0.08 stroke #0a0400
+# Mattress (fills most of the frame — pale linen)
+rect 0.26,0.28 1.42,2.48 texfill polyhaven/rough_linen 0.88
+rect 0.26,0.28 1.42,2.48 fill #e8dcc8 0.4
+rect 0.26,0.28 1.42,2.48 stroke #8b7355
+# Pillow at north head
+rect 0.40,0.34 1.14,0.42 fill #f0e4d0 0.95
+rect 0.40,0.34 1.14,0.42 stroke #8b7355
+# Pillow indent
+ellipse 0.97,0.56 0.30,0.08 fill #c8b898 0.35
+# Grey army blanket covering body of bed
+rect 0.30,0.86 1.36,1.80 fill #4a5060 0.92
+rect 0.30,0.86 1.36,1.80 stroke #2a3038
+# Blanket fold at head (turn-back)
+rect 0.30,0.78 1.36,0.12 fill #3a4048 0.9
+line 0.30,0.90 1.66,0.90 stroke #1a2028 0.7
+# Blanket wrinkles
+line 0.30,1.22 1.66,1.22 stroke #2a3038 0.5
+line 0.30,1.60 1.66,1.60 stroke #2a3038 0.5
+line 0.30,2.00 1.66,2.00 stroke #2a3038 0.5
+line 0.30,2.38 1.66,2.38 stroke #2a3038 0.45
+# Mattress peeking at foot (south, below blanket)
+rect 0.30,2.66 1.36,0.10 fill #c8b898 0.5
+# === Ladder rung ends protruding east of guard rail ===
+circle 1.94,0.52 0.03 fill #5c3a1e 0.95
+circle 1.94,0.52 0.03 stroke #2a1400
+line 1.88,0.52 1.96,0.52 stroke #5c3a1e width 2
+circle 1.94,0.88 0.03 fill #5c3a1e 0.95
+circle 1.94,0.88 0.03 stroke #2a1400
+line 1.88,0.88 1.96,0.88 stroke #5c3a1e width 2
+circle 1.94,1.24 0.03 fill #5c3a1e 0.95
+circle 1.94,1.24 0.03 stroke #2a1400
+line 1.88,1.24 1.96,1.24 stroke #5c3a1e width 2
+circle 1.94,1.60 0.03 fill #5c3a1e 0.95
+circle 1.94,1.60 0.03 stroke #2a1400
+line 1.88,1.60 1.96,1.60 stroke #5c3a1e width 2
+circle 1.94,1.96 0.03 fill #5c3a1e 0.95
+circle 1.94,1.96 0.03 stroke #2a1400
+line 1.88,1.96 1.96,1.96 stroke #5c3a1e width 2
+circle 1.94,2.32 0.03 fill #5c3a1e 0.95
+circle 1.94,2.32 0.03 stroke #2a1400
+line 1.88,2.32 1.96,2.32 stroke #5c3a1e width 2
+# Ladder side rail (vertical strut, attached to guard rail)
+line 1.94,0.40 1.94,2.44 stroke #3a1f00 width 2
+# Personal item on pillow (folded handkerchief or book)
+rect 0.84,0.46 0.28,0.12 fill #6a1818 0.85
+rect 0.84,0.46 0.28,0.12 stroke #3a0808
+line 0.88,0.50 1.08,0.50 stroke #daa520 0.5
+# Wood grain on frame
+line 0.10,1.00 1.88,1.00 stroke #5c3a1e 0.3
+line 0.10,1.90 1.88,1.90 stroke #5c3a1e 0.3

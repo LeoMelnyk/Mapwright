@@ -1,0 +1,64 @@
+name: Swivel Cannon
+category: Nautical
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: wall
+room_types: ship-gun-deck, ship-main-deck, fortress-wall, watchtower
+typical_count: few
+clusters_with: cannon, capstan, mast-main, spyglass
+notes: Small mounted swivel gun on pivot post — smaller than full cannon
+---
+# === HITBOX ===
+hitbox rect 0.30,0.24 0.40,0.60 z 0-1.5
+
+# Mounting post (vertical wooden stake at south end)
+rect 0.44,0.66 0.12,0.22 texfill polyhaven/dark_wood 0.88
+rect 0.44,0.66 0.12,0.22 stroke #2a1400
+# Post base (wider pad)
+rect 0.40,0.84 0.20,0.06 fill #2a1400 0.9
+rect 0.40,0.84 0.20,0.06 stroke #0a0400
+# Swivel pivot (brass ring)
+circle 0.50,0.66 0.06 fill #daa520 0.9
+circle 0.50,0.66 0.06 stroke #5a3a00
+circle 0.50,0.66 0.03 fill #5a3a00 0.95
+# Cannon body (barrel, iron — elongated)
+rect 0.42,0.26 0.16,0.40 fill #333333 0.95
+rect 0.42,0.26 0.16,0.40 texfill polyhaven/metal_plate 0.6
+rect 0.42,0.26 0.16,0.40 stroke #1a1008
+# Reinforcement bands
+line 0.42,0.34 0.58,0.34 stroke #222222 width 2
+line 0.42,0.46 0.58,0.46 stroke #222222 width 2
+line 0.42,0.58 0.58,0.58 stroke #222222 width 2
+# Cannon muzzle (north — dark bore opening)
+ellipse 0.50,0.26 0.08,0.04 fill #0a0404 0.95
+ellipse 0.50,0.26 0.08,0.04 stroke #1a1008
+# Muzzle ring (slight flare)
+ellipse 0.50,0.26 0.09,0.05 stroke #555555 0.7 width 1
+# Trunnions (side pivots where barrel mounts to post — small bumps)
+circle 0.40,0.52 0.02 fill #555555 0.9
+circle 0.40,0.52 0.02 stroke #222222
+circle 0.60,0.52 0.02 fill #555555 0.9
+circle 0.60,0.52 0.02 stroke #222222
+# Breech (back of barrel, slight bulge)
+poly 0.42,0.62 0.58,0.62 0.56,0.68 0.44,0.68 fill #444444 0.95
+poly 0.42,0.62 0.58,0.62 0.56,0.68 0.44,0.68 stroke #1a1008
+# Cascabel (knob at rear)
+circle 0.50,0.70 0.025 fill #444444 0.95
+circle 0.50,0.70 0.025 stroke #1a1008
+# Vent hole (top of breech)
+circle 0.50,0.60 0.01 fill #0a0404 0.95
+# Handspike slots (for aiming)
+line 0.36,0.66 0.40,0.68 stroke #5c3a1e width 2
+line 0.60,0.66 0.64,0.68 stroke #5c3a1e width 2
+# Metal highlights
+arc 0.50,0.46 0.06 210 260 stroke #aaaaaa 0.6 width 1
+# Smoke scorch on muzzle area
+ellipse 0.50,0.22 0.10,0.03 fill #1a1008 0.5
+# Rust spot
+circle 0.52,0.40 0.015 fill #6a3818 0.5
+# Powder horn hanging nearby
+ellipse 0.82,0.78 0.06,0.04 fill #6a4020 0.9
+ellipse 0.82,0.78 0.06,0.04 stroke #2a1400

@@ -1,0 +1,87 @@
+name: Merchant's Scales
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1
+placement: floor
+room_types: house-merchant, market-stall, shop-general, shop-jeweler, counting-house
+typical_count: single
+clusters_with: coin-pile, coin-stack, coin-scatter, ledger-stack, gem-loose
+notes: Brass merchant balance scale with weights — more elaborate than plain scale
+---
+# === HITBOX ===
+hitbox rect 0.10,0.26 0.80,0.54 z 0-1
+
+# Solid wooden base
+rect 0.20,0.70 0.60,0.16 texfill polyhaven/dark_wood 0.9
+rect 0.20,0.70 0.60,0.16 stroke #2a1400
+# Base decorative trim
+line 0.20,0.74 0.80,0.74 stroke #daa520 0.6
+# Decorative brass feet
+circle 0.26,0.82 0.025 fill #daa520 0.9
+circle 0.26,0.82 0.025 stroke #5a3a00
+circle 0.74,0.82 0.025 fill #daa520 0.9
+circle 0.74,0.82 0.025 stroke #5a3a00
+# Central post (brass pillar)
+rect 0.46,0.38 0.08,0.32 fill #daa520 0.95
+rect 0.46,0.38 0.08,0.32 stroke #5a3a00
+# Post decorative bands
+line 0.46,0.44 0.54,0.44 stroke #5a3a00 0.7
+line 0.46,0.54 0.54,0.54 stroke #5a3a00 0.7
+line 0.46,0.64 0.54,0.64 stroke #5a3a00 0.7
+# Post capital (decorative top)
+circle 0.50,0.36 0.05 fill #daa520 0.95
+circle 0.50,0.36 0.05 stroke #5a3a00
+circle 0.50,0.36 0.025 fill #8b6914 0.9
+# Beam (horizontal crossbar — slightly tilted, gold)
+rect 0.10,0.34 0.80,0.04 fill #daa520 0.9
+rect 0.10,0.34 0.80,0.04 stroke #5a3a00
+# Beam rivets at ends
+circle 0.12,0.36 0.015 fill #5a3a00 0.9
+circle 0.88,0.36 0.015 fill #5a3a00 0.9
+# Beam tick marks (graduation)
+line 0.22,0.34 0.22,0.38 stroke #5a3a00 0.8
+line 0.32,0.34 0.32,0.38 stroke #5a3a00 0.8
+line 0.42,0.34 0.42,0.38 stroke #5a3a00 0.7
+line 0.58,0.34 0.58,0.38 stroke #5a3a00 0.7
+line 0.68,0.34 0.68,0.38 stroke #5a3a00 0.8
+line 0.78,0.34 0.78,0.38 stroke #5a3a00 0.8
+# Chains from beam to pans
+line 0.16,0.38 0.16,0.52 stroke #666666 width 1
+line 0.14,0.40 0.14,0.52 stroke #888888 0.6 width 1
+line 0.84,0.38 0.84,0.52 stroke #666666 width 1
+line 0.86,0.40 0.86,0.52 stroke #888888 0.6 width 1
+# Left pan (shallow dish, brass)
+ellipse 0.16,0.56 0.12,0.05 fill #daa520 0.92
+ellipse 0.16,0.56 0.12,0.05 stroke #5a3a00
+ellipse 0.16,0.56 0.10,0.04 fill #8b6914 0.85
+ellipse 0.16,0.56 0.10,0.04 stroke #5a3a00
+# Left pan contents — gold coins
+circle 0.14,0.56 0.025 fill #daa520 0.95
+circle 0.14,0.56 0.025 stroke #5a3a00
+circle 0.18,0.54 0.022 fill #daa520 0.95
+circle 0.18,0.54 0.022 stroke #5a3a00
+circle 0.16,0.57 0.02 fill #daa520 0.9
+# Right pan (slightly tilted lower — heavier)
+ellipse 0.84,0.58 0.12,0.05 fill #daa520 0.92
+ellipse 0.84,0.58 0.12,0.05 stroke #5a3a00
+ellipse 0.84,0.58 0.10,0.04 fill #8b6914 0.85
+ellipse 0.84,0.58 0.10,0.04 stroke #5a3a00
+# Right pan contents — brass weights stacked
+rect 0.82,0.52 0.04,0.06 fill #5a3a00 0.95
+rect 0.82,0.52 0.04,0.06 stroke #2a1400
+circle 0.84,0.52 0.015 fill #daa520 0.9
+# Weight number stamp
+circle 0.84,0.54 0.008 fill #2a1400 0.8
+# Indicator needle (pointing slight tilt)
+line 0.50,0.34 0.52,0.22 stroke #daa520 width 2
+line 0.50,0.34 0.52,0.22 stroke #5a3a00 width 1
+# Calibration dial (semicircle at top of post)
+arc 0.50,0.36 0.08 180 360 stroke #5a3a00 0.5 width 1
+# Post highlight
+arc 0.50,0.54 0.06 210 260 stroke #f0d060 0.7 width 1
+# Coin scatter on base
+ellipse 0.42,0.78 0.03,0.02 fill #daa520 0.9
+ellipse 0.42,0.78 0.03,0.02 stroke #5a3a00

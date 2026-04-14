@@ -4,9 +4,11 @@
 
 ### Prop Catalog
 
-- **100 new props** — filling high-priority gaps from the prop-ideas worklist, covering scribe/library clutter, bedding, kitchen and tavern staples, furniture, forge and textile workshop gear, coins, ruin/decay scatter, combat kit, cave and ritual markers, and effect stains. Every entry gets the full treatment (footprint, hitbox, `blocks_light`, `lights`, `placement`, `room_types`, `typical_count`, `clusters_with`, notes).
-- **Top-down perspective fixes** — `shelf`, `shelf-open`, `tapestry`, and `spinning-wheel` now render in true bird's-eye view (rod + top edge + shadow for wall-hung textiles; edge-on drive wheel with base plank and bobbin for the spinning wheel) so they stop reading as side-elevation drawings next to other props.
-- **Manifest regenerated** — catalog now ships 344 props across 27 categories.
+- **219 new props across two batches** — 100 Tier 1 priority props (scribe/library clutter, bedding, kitchen and tavern staples, furniture, forge and textile workshop gear, coins, ruin/decay scatter, combat kit, cave and ritual markers, effect stains) plus 119 Tier 2 props (butcher and pantry items, merchant goods, interior furniture variants, ship gear, cave flora, trapper kit). Every entry gets the full treatment (footprint, hitbox, `blocks_light`, `lights`, `placement`, `room_types`, `typical_count`, `clusters_with`, notes).
+- **Top-down perspective fixes** — `shelf`, `shelf-open`, `tapestry`, `spinning-wheel`, `onion-braid`, `bunk-bed`, `curtain-divider`, `cupboard`, and `grandfather-clock` now render in true bird's-eye view. Wall-hung flat textiles show only rod + top edge + shadow; vertical wheels appear edge-on; stacked furniture shows only the upper tier with ladder/guard-rail cues; cabinet tops show flat surfaces (doors and faces are hidden below).
+- **Removed ~180 manual offset drop-shadows** across 90 props — these were oblique/isometric-view tricks that don't belong in a top-down tile. The `shadow: yes` header field now drives the proper radial shadow via the render pipeline.
+- **Perspective rules documented** — the prop creation guide (`src/props/CLAUDE.md`) now has explicit sections on wall-mounted textiles, cabinets & wardrobes, stacked furniture, and vertical wheels, each pointing at canonical reference props.
+- **Manifest regenerated** — catalog now ships 463 props across 27 categories (up from 245 pre-release).
 
 ## v0.10.1
 

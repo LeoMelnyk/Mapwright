@@ -1,0 +1,86 @@
+name: Peg Rail Wall
+category: Structure
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 1.5
+placement: wall
+room_types: apartment-tenement, mansion-servants-quarters, hallway, cabin-hunters
+typical_count: single
+clusters_with: apron-hung, folded-cloak, helm-on-peg, shelf, leather-apron
+notes: Wall-mounted peg rail for hanging clothes or tools
+---
+# === HITBOX ===
+hitbox rect 0.06,0.06 1.88,0.20 z 0-1.5
+
+# Rail board (horizontal plank)
+rect 0.06,0.08 1.88,0.10 texfill polyhaven/dark_wood 0.9
+rect 0.06,0.08 1.88,0.10 stroke #2a1400
+# Rail wood grain
+line 0.06,0.14 1.94,0.14 stroke #5c3a1e 0.5
+# Mounting brackets at ends (iron)
+rect 0.06,0.08 0.06,0.10 fill #3a3020 0.9
+rect 1.88,0.08 0.06,0.10 fill #3a3020 0.9
+# === Pegs along the rail (wooden knobs) ===
+# Peg 1
+rect 0.20,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.20,0.16 0.06,0.10 stroke #2a1400
+circle 0.23,0.26 0.035 fill #5c3a1e 0.9
+circle 0.23,0.26 0.035 stroke #2a1400
+# Peg 2
+rect 0.40,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.40,0.16 0.06,0.10 stroke #2a1400
+circle 0.43,0.26 0.035 fill #5c3a1e 0.9
+circle 0.43,0.26 0.035 stroke #2a1400
+# Peg 3
+rect 0.60,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.60,0.16 0.06,0.10 stroke #2a1400
+circle 0.63,0.26 0.035 fill #5c3a1e 0.9
+circle 0.63,0.26 0.035 stroke #2a1400
+# Peg 4
+rect 0.80,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.80,0.16 0.06,0.10 stroke #2a1400
+circle 0.83,0.26 0.035 fill #5c3a1e 0.9
+circle 0.83,0.26 0.035 stroke #2a1400
+# Peg 5 (center)
+rect 1.00,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 1.00,0.16 0.06,0.10 stroke #2a1400
+circle 1.03,0.26 0.035 fill #5c3a1e 0.9
+circle 1.03,0.26 0.035 stroke #2a1400
+# Peg 6
+rect 1.20,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 1.20,0.16 0.06,0.10 stroke #2a1400
+circle 1.23,0.26 0.035 fill #5c3a1e 0.9
+circle 1.23,0.26 0.035 stroke #2a1400
+# Peg 7
+rect 1.40,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 1.40,0.16 0.06,0.10 stroke #2a1400
+circle 1.43,0.26 0.035 fill #5c3a1e 0.9
+circle 1.43,0.26 0.035 stroke #2a1400
+# Peg 8
+rect 1.60,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 1.60,0.16 0.06,0.10 stroke #2a1400
+circle 1.63,0.26 0.035 fill #5c3a1e 0.9
+circle 1.63,0.26 0.035 stroke #2a1400
+# Peg 9
+rect 1.78,0.16 0.06,0.10 texfill polyhaven/dark_wood 0.88
+rect 1.78,0.16 0.06,0.10 stroke #2a1400
+circle 1.81,0.26 0.035 fill #5c3a1e 0.9
+circle 1.81,0.26 0.035 stroke #2a1400
+# === A couple of hanging items ===
+# Hat on peg 3
+ellipse 0.63,0.40 0.08,0.05 fill #3a1f00 0.9
+ellipse 0.63,0.40 0.08,0.05 stroke #1a0f00
+line 0.56,0.40 0.70,0.40 stroke #1a0f00 width 2
+# Small apron on peg 6
+poly 1.18,0.32 1.28,0.32 1.30,0.46 1.16,0.46 fill #5c3a1e 0.85
+poly 1.18,0.32 1.28,0.32 1.30,0.46 1.16,0.46 stroke #2a1400
+# Scarf on peg 8
+bezier 1.60,0.30 1.64,0.40 1.70,0.50 1.66,0.60 stroke #aa2048 width 3
+bezier 1.60,0.30 1.64,0.40 1.70,0.50 1.66,0.60 stroke #5a0830 width 1
+# Plank nail heads
+circle 0.14,0.12 0.01 fill #333333 0.9
+circle 1.86,0.12 0.01 fill #333333 0.9
+# Subtle shadow below
+rect 0.10,0.30 1.80,0.04 fill #000000 0.15

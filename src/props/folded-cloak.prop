@@ -1,0 +1,46 @@
+name: Folded Cloak
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: barracks, noble-bedchamber, mansion-bedroom-master, cabin-hunters, ranger-camp
+typical_count: few
+clusters_with: chest, bed, wardrobe, chair
+notes: Folded travelers cloak on a surface — neat square of heavy fabric
+---
+# === HITBOX ===
+hitbox rect 0.18,0.22 0.64,0.56 z 0-0.2
+
+# Main folded cloak (dark forest green, stacked square)
+rect 0.18,0.22 0.64,0.56 texfill polyhaven/velour_velvet 0.85
+rect 0.18,0.22 0.64,0.56 fill #2a4828 0.55
+rect 0.18,0.22 0.64,0.56 stroke #0f2010
+# Top layer highlight (catches light)
+rect 0.22,0.26 0.56,0.08 fill #4a6838 0.5
+# Fold ridges (visible where fabric bends)
+line 0.18,0.36 0.82,0.36 stroke #0f2010 0.8
+line 0.18,0.50 0.82,0.50 stroke #0f2010 0.8
+line 0.18,0.64 0.82,0.64 stroke #0f2010 0.7
+# Vertical fold
+line 0.50,0.22 0.50,0.78 stroke #1a3018 0.6
+# Brass clasp/brooch on top fold (small gold circle)
+circle 0.50,0.30 0.04 fill #daa520 0.9
+circle 0.50,0.30 0.04 stroke #5a3a00
+circle 0.50,0.30 0.02 fill #881818 0.8
+# Fabric texture (stitched edge details)
+line 0.20,0.24 0.80,0.24 stroke #4a6838 0.5
+line 0.20,0.76 0.80,0.76 stroke #4a6838 0.5
+# Hem trim (gold thread)
+line 0.20,0.76 0.80,0.76 stroke #8b6914 0.5
+# Fabric wrinkle highlights
+bezier 0.22,0.42 0.34,0.44 0.50,0.42 0.60,0.44 stroke #4a6838 0.4 width 1
+bezier 0.22,0.56 0.36,0.58 0.54,0.56 0.64,0.58 stroke #4a6838 0.4 width 1
+# Edge shadow
+rect 0.18,0.76 0.64,0.04 fill #0f2010 0.4
+# Small tassel peeking from fold
+line 0.78,0.50 0.84,0.54 stroke #8b6914 0.7 width 1
+line 0.80,0.50 0.82,0.58 stroke #8b6914 0.7 width 1
+line 0.82,0.50 0.86,0.56 stroke #8b6914 0.7 width 1

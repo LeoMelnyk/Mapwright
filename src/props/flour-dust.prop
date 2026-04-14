@@ -1,0 +1,44 @@
+name: Flour Dust
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: bakery, farmhouse-kitchen, mill-grain
+typical_count: many
+clusters_with: flour-sack, flour-sack-stack, bread-loaf, oven, mouse-trap
+notes: Scatter of pale flour dust on floor from spilled sack
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-0.02
+
+# Diffuse dust cloud base (pale)
+circle 0.5,0.5 0.38 fill #f0e4d0 0.35
+circle 0.5,0.5 0.30 fill #f8ecd8 0.5
+# Denser mid patch
+poly 0.26,0.50 0.32,0.36 0.44,0.30 0.58,0.30 0.72,0.38 0.76,0.54 0.72,0.68 0.60,0.74 0.40,0.74 0.28,0.66 fill #f8ecd8 0.8
+# Footprint/handprint disturbance (shoe mark through dust)
+poly 0.40,0.46 0.46,0.42 0.56,0.44 0.58,0.52 0.50,0.54 0.42,0.52 fill #c8bca0 0.6
+# Individual dust motes (dense center)
+circle 0.38,0.42 0.012 fill #ffffff 0.85
+circle 0.46,0.38 0.012 fill #ffffff 0.85
+circle 0.54,0.42 0.012 fill #ffffff 0.85
+circle 0.62,0.46 0.012 fill #ffffff 0.8
+circle 0.40,0.58 0.012 fill #ffffff 0.8
+circle 0.52,0.62 0.012 fill #ffffff 0.8
+circle 0.60,0.58 0.012 fill #ffffff 0.8
+# Outer scatter
+circle 0.20,0.44 0.01 fill #f0e4d0 0.7
+circle 0.80,0.52 0.01 fill #f0e4d0 0.7
+circle 0.24,0.66 0.01 fill #f0e4d0 0.6
+circle 0.76,0.32 0.01 fill #f0e4d0 0.6
+circle 0.44,0.78 0.01 fill #f0e4d0 0.6
+circle 0.58,0.22 0.008 fill #f0e4d0 0.55
+# Tiny flour clumps
+poly 0.34,0.52 0.38,0.50 0.36,0.56 fill #ffffff 0.75
+poly 0.60,0.50 0.64,0.52 0.62,0.56 fill #ffffff 0.75
+# Breeze streaks
+bezier 0.28,0.46 0.34,0.48 0.40,0.46 0.46,0.48 stroke #ffffff 0.4 width 1
+bezier 0.56,0.54 0.62,0.56 0.68,0.54 0.74,0.56 stroke #ffffff 0.35 width 1

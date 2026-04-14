@@ -1,0 +1,52 @@
+name: Square Small Table
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+placement: floor
+room_types: apartment-tenement, peasant-hovel, cabin-hunters, cabin-abandoned, servants-kitchen
+typical_count: few
+clusters_with: chair-wooden, stool, bowl-stew, tin-cup, wooden-bowl
+notes: Rough square table for a poor household — four legs, plain wood top
+---
+# === HITBOX ===
+hitbox rect 0.14,0.14 0.72,0.72 z 0-2
+
+# Table top (weathered planks, square)
+rect 0.14,0.14 0.72,0.72 texfill polyhaven/weathered_planks 0.88
+rect 0.14,0.14 0.72,0.72 fill #4a2800 0.3
+rect 0.14,0.14 0.72,0.72 stroke #2a1400
+# Plank seams (2 planks running north-south)
+line 0.38,0.14 0.38,0.86 stroke #2a1400 0.7
+line 0.62,0.14 0.62,0.86 stroke #2a1400 0.7
+# Wood grain
+line 0.14,0.30 0.86,0.30 stroke #5c3a1e 0.4
+line 0.14,0.46 0.86,0.46 stroke #5c3a1e 0.4
+line 0.14,0.62 0.86,0.62 stroke #5c3a1e 0.4
+line 0.14,0.76 0.86,0.76 stroke #5c3a1e 0.4
+# Edge bevels
+rect 0.18,0.18 0.64,0.64 stroke #5c3a1e 0.5 width 1
+# Legs at corners (visible as dark squares)
+rect 0.16,0.16 0.08,0.08 fill #1a0f00 0.85
+rect 0.76,0.16 0.08,0.08 fill #1a0f00 0.85
+rect 0.16,0.76 0.08,0.08 fill #1a0f00 0.85
+rect 0.76,0.76 0.08,0.08 fill #1a0f00 0.85
+# Nail heads (rough construction)
+circle 0.22,0.20 0.012 fill #444444 0.85
+circle 0.78,0.20 0.012 fill #444444 0.85
+circle 0.22,0.80 0.012 fill #444444 0.85
+circle 0.78,0.80 0.012 fill #444444 0.85
+# Wear/stain spots
+ellipse 0.50,0.40 0.10,0.06 fill #1a1008 0.3
+# Dried food crust
+circle 0.44,0.56 0.02 fill #6a4018 0.5
+circle 0.58,0.44 0.018 fill #6a4018 0.4
+# Knife cut marks
+line 0.30,0.40 0.36,0.42 stroke #2a1400 0.6
+line 0.62,0.58 0.68,0.60 stroke #2a1400 0.6
+# Surface wear polish
+arc 0.50,0.50 0.24 210 260 stroke #8b6914 0.4 width 1
+# Scorch mark
+ellipse 0.28,0.64 0.04,0.02 fill #0a0404 0.5

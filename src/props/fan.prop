@@ -1,0 +1,66 @@
+name: Fan
+category: Decor
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: house-noble-townhouse, noble-solar, boudoir, mansion-bedroom-master
+typical_count: single
+clusters_with: vanity-table, miniature-portrait, perfume-bottle, silk-scarf
+notes: Ornate folded paper fan on a surface — lady's accessory
+---
+# === HITBOX ===
+hitbox rect 0.16,0.30 0.68,0.40 z 0-0.05
+
+# Main fan shape (opened, segmented like pie slice)
+poly 0.50,0.60 0.22,0.32 0.28,0.24 0.38,0.20 0.50,0.18 0.62,0.20 0.72,0.24 0.78,0.32 fill #f0d0c0 0.95
+poly 0.50,0.60 0.22,0.32 0.28,0.24 0.38,0.20 0.50,0.18 0.62,0.20 0.72,0.24 0.78,0.32 stroke #8a6048
+# Fan sections (radial ribs)
+line 0.50,0.60 0.22,0.32 stroke #8a6048 width 1
+line 0.50,0.60 0.30,0.26 stroke #8a6048 width 1
+line 0.50,0.60 0.38,0.20 stroke #8a6048 width 1
+line 0.50,0.60 0.46,0.18 stroke #8a6048 width 1
+line 0.50,0.60 0.54,0.18 stroke #8a6048 width 1
+line 0.50,0.60 0.62,0.20 stroke #8a6048 width 1
+line 0.50,0.60 0.70,0.26 stroke #8a6048 width 1
+line 0.50,0.60 0.78,0.32 stroke #8a6048 width 1
+# Painted decoration (floral — pink rose sprays)
+circle 0.36,0.32 0.03 fill #d84868 0.75
+circle 0.36,0.32 0.03 stroke #8a2040
+circle 0.50,0.28 0.035 fill #e87898 0.75
+circle 0.50,0.28 0.035 stroke #8a2040
+circle 0.64,0.32 0.03 fill #d84868 0.75
+circle 0.64,0.32 0.03 stroke #8a2040
+# Rose centers
+circle 0.36,0.32 0.01 fill #d8a820 0.8
+circle 0.50,0.28 0.012 fill #d8a820 0.8
+circle 0.64,0.32 0.01 fill #d8a820 0.8
+# Small green leaves scattered
+poly 0.42,0.34 0.44,0.36 0.40,0.38 fill #3a6028 0.75
+poly 0.58,0.34 0.60,0.36 0.56,0.38 fill #3a6028 0.75
+poly 0.30,0.40 0.34,0.42 0.28,0.44 fill #3a6028 0.7
+poly 0.70,0.40 0.72,0.42 0.66,0.44 fill #3a6028 0.7
+# Vine tracery
+bezier 0.30,0.40 0.40,0.42 0.60,0.42 0.70,0.40 stroke #3a6028 0.6 width 1
+# Gold trim along outer edge
+arc 0.50,0.60 0.40 180 360 stroke #daa520 0.7 width 1
+# Gold filigree sticks (handle/ribs at base converging)
+rect 0.46,0.58 0.08,0.12 fill #daa520 0.9
+rect 0.46,0.58 0.08,0.12 stroke #5a3a00
+# Pivot rivet
+circle 0.50,0.62 0.02 fill #5a3a00 0.95
+circle 0.50,0.62 0.02 stroke #2a1800
+# Tassel dangling from handle
+line 0.50,0.70 0.48,0.80 stroke #daa520 width 1
+line 0.50,0.70 0.52,0.80 stroke #daa520 width 1
+line 0.50,0.70 0.50,0.82 stroke #daa520 width 1
+circle 0.50,0.80 0.02 fill #daa520 0.9
+# Outer ornamental sticks (brass tipped)
+circle 0.22,0.32 0.018 fill #daa520 0.9
+circle 0.22,0.32 0.018 stroke #5a3a00
+circle 0.78,0.32 0.018 fill #daa520 0.9
+circle 0.78,0.32 0.018 stroke #5a3a00
+# Fan edge highlight
+arc 0.50,0.60 0.40 200 260 stroke #ffffff 0.4 width 1

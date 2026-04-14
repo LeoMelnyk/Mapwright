@@ -1,0 +1,62 @@
+name: Miniature Portrait
+category: Decor
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: mansion-bedroom-master, noble-solar, mansion-library
+typical_count: few
+clusters_with: small-table, writing-desk-small, letter-stack, vanity-table
+notes: Small framed portrait on a desk — cameo-style painted likeness
+---
+# === HITBOX ===
+hitbox rect 0.22,0.20 0.56,0.60 z 0-0.2
+
+# Ornate gilt frame (oval)
+ellipse 0.5,0.48 0.28,0.30 fill #daa520 0.95
+ellipse 0.5,0.48 0.28,0.30 stroke #5a3a00
+# Frame inner ring
+ellipse 0.5,0.48 0.24,0.26 stroke #8b6914 0.8 width 1
+# Frame decorative outer edge (scrollwork)
+arc 0.5,0.48 0.30 0 30 stroke #5a3a00 0.7 width 1
+arc 0.5,0.48 0.30 60 90 stroke #5a3a00 0.7 width 1
+arc 0.5,0.48 0.30 120 150 stroke #5a3a00 0.7 width 1
+arc 0.5,0.48 0.30 210 240 stroke #5a3a00 0.7 width 1
+arc 0.5,0.48 0.30 270 300 stroke #5a3a00 0.7 width 1
+arc 0.5,0.48 0.30 330 360 stroke #5a3a00 0.7 width 1
+# Top ornament
+poly 0.46,0.18 0.50,0.16 0.54,0.18 0.52,0.22 0.48,0.22 fill #daa520 0.95
+poly 0.46,0.18 0.50,0.16 0.54,0.18 0.52,0.22 0.48,0.22 stroke #5a3a00
+# Gem in top ornament
+circle 0.50,0.19 0.015 fill #cc1828 0.85
+# Portrait inner (painted miniature — sky/background)
+ellipse 0.5,0.48 0.22,0.24 fill #a0a0d8 0.9
+ellipse 0.5,0.48 0.22,0.24 stroke #5a3a00
+# Portrait subject (face/shoulders)
+ellipse 0.5,0.42 0.10,0.12 fill #d4a878 0.95
+ellipse 0.5,0.42 0.10,0.12 stroke #8a5830
+# Hair (dark brown atop)
+arc 0.5,0.36 0.10 180 360 fill #3a1f00 0.9
+arc 0.5,0.36 0.10 180 360 stroke #1a0800
+# Eyes (small dark dots)
+circle 0.46,0.42 0.012 fill #2a1400 0.9
+circle 0.54,0.42 0.012 fill #2a1400 0.9
+# Blush cheeks
+circle 0.44,0.46 0.01 fill #e87878 0.5
+circle 0.56,0.46 0.01 fill #e87878 0.5
+# Mouth (small lips)
+poly 0.48,0.48 0.52,0.48 0.50,0.50 fill #882020 0.8
+# Clothing/drapery (lower portrait — red dress)
+ellipse 0.5,0.56 0.14,0.06 fill #8a2020 0.92
+ellipse 0.5,0.56 0.14,0.06 stroke #3a0808
+# Pearl necklace
+circle 0.46,0.52 0.008 fill #f0f0f0 0.9
+circle 0.50,0.53 0.008 fill #f0f0f0 0.9
+circle 0.54,0.52 0.008 fill #f0f0f0 0.9
+# Frame propping stand (small easel visible at south base)
+poly 0.40,0.72 0.60,0.72 0.50,0.80 fill #3a1f00 0.85
+poly 0.40,0.72 0.60,0.72 0.50,0.80 stroke #1a0800
+# Frame shine
+arc 0.5,0.48 0.28 210 260 stroke #ffd860 0.7 width 1

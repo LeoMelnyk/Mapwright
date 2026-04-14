@@ -1,0 +1,43 @@
+name: Thread Spool
+category: Tools
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: shop-tailor, textile-loomhouse, noble-solar
+typical_count: many
+clusters_with: pin-cushion, needle-case, silk-bolt, sewing-basket, spinning-wheel
+notes: Wooden spool wound with colored thread
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.18 z 0-0.2
+
+# Spool end cap (wood, widest)
+circle 0.5,0.5 0.20 fill #8b6914 0.9
+circle 0.5,0.5 0.20 stroke #3a2010
+# Spool wood grain
+arc 0.5,0.5 0.19 200 340 stroke #5c3a1e 0.5 width 1
+# Central thread-wound shaft (slightly narrower)
+circle 0.5,0.5 0.16 fill #c82020 0.95
+circle 0.5,0.5 0.16 stroke #5a0808
+# Thread wrap lines (concentric)
+circle 0.5,0.5 0.15 stroke #e84848 0.7 width 1
+circle 0.5,0.5 0.13 stroke #e84848 0.6 width 1
+circle 0.5,0.5 0.11 stroke #e84848 0.6 width 1
+circle 0.5,0.5 0.09 stroke #e84848 0.5 width 1
+# Center wooden core visible (hole through spool)
+circle 0.5,0.5 0.04 fill #3a2010 0.95
+circle 0.5,0.5 0.04 stroke #1a0f00
+# Thread strand trailing off (loose end)
+bezier 0.66,0.50 0.76,0.48 0.80,0.56 0.86,0.60 stroke #c82020 width 1
+# Thread loose wisp
+bezier 0.86,0.60 0.88,0.68 0.82,0.72 0.78,0.76 stroke #c82020 0.7 width 1
+# Thread catches highlight
+line 0.36,0.42 0.42,0.40 stroke #f06060 0.6 width 1
+line 0.58,0.58 0.64,0.60 stroke #f06060 0.6 width 1
+# Cap edge highlight
+arc 0.5,0.5 0.20 220 260 stroke #daa520 0.5 width 1
+# Tiny crease in thread wrap
+line 0.34,0.56 0.42,0.54 stroke #8a1818 0.4

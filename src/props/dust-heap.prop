@@ -1,0 +1,53 @@
+name: Dust Heap
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: cabin-abandoned, crypt, ancient-ruin-overgrown, mansion-servants-quarters, cellar
+typical_count: many
+clusters_with: cobweb, rag-pile, rubble-pile, broken-crate
+notes: Soft pile of accumulated dust with debris — age and neglect
+---
+# === HITBOX ===
+hitbox circle 0.5,0.54 0.32 z 0-0.2
+
+# Outer dust halo (very faint)
+circle 0.5,0.54 0.36 fill #aaa090 0.3
+# Main dust mound (irregular blob)
+poly 0.18,0.56 0.24,0.38 0.36,0.28 0.52,0.26 0.68,0.30 0.80,0.44 0.84,0.58 0.78,0.70 0.64,0.78 0.44,0.80 0.28,0.76 0.18,0.66 fill #8a8078 0.85
+poly 0.18,0.56 0.24,0.38 0.36,0.28 0.52,0.26 0.68,0.30 0.80,0.44 0.84,0.58 0.78,0.70 0.64,0.78 0.44,0.80 0.28,0.76 0.18,0.66 stroke #5a5048 0.6
+# Inner darker mound (shadow in folds)
+poly 0.30,0.54 0.40,0.42 0.56,0.40 0.66,0.48 0.70,0.60 0.60,0.72 0.44,0.72 0.32,0.64 fill #6a6058 0.7
+# Dust fine texture (small dark flecks — debris)
+circle 0.36,0.40 0.012 fill #3a3028 0.7
+circle 0.52,0.34 0.01 fill #3a3028 0.7
+circle 0.60,0.42 0.012 fill #3a3028 0.65
+circle 0.46,0.52 0.01 fill #3a3028 0.7
+circle 0.58,0.62 0.012 fill #3a3028 0.7
+circle 0.38,0.66 0.01 fill #3a3028 0.65
+circle 0.66,0.56 0.008 fill #3a3028 0.6
+# Tiny bone fragments embedded
+poly 0.42,0.48 0.48,0.46 0.50,0.50 0.46,0.52 fill #c8b898 0.7
+poly 0.42,0.48 0.48,0.46 0.50,0.50 0.46,0.52 stroke #8a7060 0.6
+line 0.54,0.58 0.60,0.56 stroke #c8b898 0.7 width 2
+# Broken pottery shard
+poly 0.60,0.68 0.68,0.66 0.70,0.72 0.64,0.76 fill #8a7058 0.7
+poly 0.60,0.68 0.68,0.66 0.70,0.72 0.64,0.76 stroke #3a2a1a
+# Dust motes drifting (outer scatter)
+circle 0.16,0.42 0.01 fill #aaa090 0.6
+circle 0.86,0.50 0.01 fill #aaa090 0.6
+circle 0.20,0.72 0.01 fill #aaa090 0.6
+circle 0.80,0.72 0.008 fill #aaa090 0.55
+circle 0.50,0.22 0.01 fill #aaa090 0.6
+# Cobweb fragment drifting on top
+bezier 0.24,0.50 0.36,0.48 0.48,0.52 0.60,0.50 stroke #cccccc 0.4 width 1
+bezier 0.26,0.66 0.38,0.68 0.52,0.66 0.62,0.68 stroke #cccccc 0.35 width 1
+# Rat dropping (tiny dark dots)
+circle 0.40,0.74 0.01 fill #2a1808 0.85
+circle 0.44,0.76 0.008 fill #2a1808 0.8
+circle 0.48,0.74 0.008 fill #2a1808 0.8
+# Highlight (soft dust texture)
+arc 0.5,0.54 0.28 210 260 stroke #c8bcb0 0.4 width 1

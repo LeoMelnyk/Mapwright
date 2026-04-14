@@ -1,0 +1,66 @@
+name: Animal Tracks
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: ancient-ruin-overgrown, druid-grove, cave-bear-lair, cave, forest-path
+typical_count: few
+clusters_with: scat-pile, tuft-of-fur, animal-tracks, mud-print, carcass-fresh
+notes: Paw prints in mud or snow — tracking sign on floor
+---
+# === HITBOX ===
+hitbox rect 0.10,0.15 0.80,0.70 z 0-0.01
+
+# Slight muddy patch background
+poly 0.12,0.30 0.30,0.20 0.58,0.22 0.86,0.34 0.84,0.66 0.60,0.82 0.36,0.82 0.14,0.72 fill #3a2818 0.35
+# Paw print 1 (large, north)
+# Main pad
+ellipse 0.30,0.28 0.06,0.05 fill #1a1008 0.85
+# Toes (4 smaller pads around)
+ellipse 0.22,0.22 0.025,0.02 fill #1a1008 0.85
+ellipse 0.30,0.20 0.025,0.02 fill #1a1008 0.85
+ellipse 0.38,0.22 0.025,0.02 fill #1a1008 0.85
+ellipse 0.42,0.26 0.025,0.015 fill #1a1008 0.8
+# Claws (small dashes above toes)
+line 0.22,0.19 0.22,0.16 stroke #1a1008 width 1
+line 0.30,0.17 0.30,0.14 stroke #1a1008 width 1
+line 0.38,0.19 0.38,0.16 stroke #1a1008 width 1
+# Paw print 2 (middle)
+ellipse 0.60,0.50 0.06,0.05 fill #1a1008 0.85
+ellipse 0.52,0.44 0.025,0.02 fill #1a1008 0.85
+ellipse 0.60,0.42 0.025,0.02 fill #1a1008 0.85
+ellipse 0.68,0.44 0.025,0.02 fill #1a1008 0.85
+ellipse 0.72,0.48 0.025,0.015 fill #1a1008 0.8
+line 0.52,0.41 0.52,0.38 stroke #1a1008 width 1
+line 0.60,0.39 0.60,0.36 stroke #1a1008 width 1
+line 0.68,0.41 0.68,0.38 stroke #1a1008 width 1
+# Paw print 3 (south)
+ellipse 0.30,0.72 0.06,0.05 fill #1a1008 0.85
+ellipse 0.22,0.66 0.025,0.02 fill #1a1008 0.85
+ellipse 0.30,0.64 0.025,0.02 fill #1a1008 0.85
+ellipse 0.38,0.66 0.025,0.02 fill #1a1008 0.85
+ellipse 0.42,0.70 0.025,0.015 fill #1a1008 0.8
+line 0.22,0.63 0.22,0.60 stroke #1a1008 width 1
+line 0.30,0.61 0.30,0.58 stroke #1a1008 width 1
+line 0.38,0.63 0.38,0.60 stroke #1a1008 width 1
+# Partial/fading print 4 (far south-east)
+ellipse 0.74,0.76 0.04,0.03 fill #1a1008 0.5
+ellipse 0.70,0.72 0.018,0.014 fill #1a1008 0.5
+ellipse 0.74,0.70 0.018,0.014 fill #1a1008 0.5
+ellipse 0.78,0.72 0.018,0.014 fill #1a1008 0.5
+# Mud splash around prints
+circle 0.18,0.35 0.008 fill #3a2818 0.6
+circle 0.48,0.52 0.008 fill #3a2818 0.6
+circle 0.40,0.78 0.008 fill #3a2818 0.6
+# Direction smear lines (creature moving)
+bezier 0.32,0.38 0.44,0.42 0.58,0.42 0.60,0.42 stroke #3a2818 0.4 width 2
+bezier 0.62,0.58 0.50,0.62 0.38,0.64 0.32,0.64 stroke #3a2818 0.4 width 2
+# Moisture sheen on fresh prints
+arc 0.30,0.28 0.05 210 260 stroke #3a2818 0.4 width 1
+arc 0.60,0.50 0.05 210 260 stroke #3a2818 0.4 width 1
+# Small dirt ridges pushed up around prints
+arc 0.30,0.28 0.09 180 360 stroke #2a1810 0.4 width 1
+arc 0.60,0.50 0.09 180 360 stroke #2a1810 0.4 width 1

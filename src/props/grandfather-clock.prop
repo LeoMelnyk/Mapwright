@@ -1,0 +1,70 @@
+name: Grandfather Clock
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 6
+placement: wall
+room_types: house-merchant, mansion-grand-hall, mansion-library, noble-solar
+typical_count: single
+clusters_with: tapestry, wall-sconce, bust-on-pedestal, carpet
+notes: Tall narrow long-case clock — from top-down only the decorative crown cap is visible (face, pendulum, case body are on the south front)
+---
+# === HITBOX ===
+hitbox rect 0.30,0.06 0.40,0.70 z 0-6
+
+# footprint 1x1: x range 0-1, y range 0-1. Wall at north, face on south.
+# Top-down: narrow rectangle of the clock crown + case top.
+
+# Shadow gap at wall (north edge)
+rect 0.26,0.02 0.48,0.04 fill #000000 0.2
+
+# Crown pediment (widest ornamental top — broken arch shape)
+poly 0.24,0.06 0.76,0.06 0.72,0.16 0.58,0.14 0.50,0.10 0.42,0.14 0.28,0.16 fill #3a1f00 0.95
+poly 0.24,0.06 0.76,0.06 0.72,0.16 0.58,0.14 0.50,0.10 0.42,0.14 0.28,0.16 texfill polyhaven/dark_wood 0.55
+poly 0.24,0.06 0.76,0.06 0.72,0.16 0.58,0.14 0.50,0.10 0.42,0.14 0.28,0.16 stroke #1a0f00
+
+# Central finial (decorative spire/urn on top — visible from above)
+poly 0.46,0.10 0.54,0.10 0.52,0.04 0.50,0.02 0.48,0.04 fill #daa520 0.9
+poly 0.46,0.10 0.54,0.10 0.52,0.04 0.50,0.02 0.48,0.04 stroke #5a3a00
+
+# Side finial caps (small brass ornaments on each end of pediment)
+circle 0.26,0.10 0.028 fill #daa520 0.9
+circle 0.26,0.10 0.028 stroke #5a3a00
+circle 0.74,0.10 0.028 fill #daa520 0.9
+circle 0.74,0.10 0.028 stroke #5a3a00
+
+# Main clock case top (narrow rectangle body)
+rect 0.30,0.16 0.40,0.60 texfill polyhaven/dark_wood 0.9
+rect 0.30,0.16 0.40,0.60 fill #1a0f00 0.3
+rect 0.30,0.16 0.40,0.60 stroke #2a1400
+
+# Case top bevel edge
+rect 0.32,0.18 0.36,0.56 stroke #5c3a1e 0.55 width 1
+
+# Wood grain lines (along length of case)
+line 0.32,0.30 0.68,0.30 stroke #5c3a1e 0.3
+line 0.32,0.46 0.68,0.46 stroke #5c3a1e 0.3
+line 0.32,0.62 0.68,0.62 stroke #5c3a1e 0.3
+
+# Subtle dust shadow at back (near wall)
+rect 0.30,0.18 0.40,0.06 fill #000000 0.1
+
+# Front trim lip (south edge — where clock face panel sits below)
+rect 0.30,0.72 0.40,0.06 fill #3a1f00 0.6
+rect 0.30,0.72 0.40,0.06 stroke #2a1400
+
+# Glass-panel hint on the front (very faint reflection visible only at edge)
+rect 0.34,0.74 0.32,0.02 fill #aaaaaa 0.3
+
+# Carved decorative inlay on top (diamond motif)
+poly 0.46,0.40 0.50,0.36 0.54,0.40 0.50,0.44 stroke #5a3a00 0.6 width 1
+circle 0.50,0.40 0.012 fill #5a3a00 0.7
+
+# Wood knot detail
+circle 0.60,0.56 0.012 fill #2a1400 0.6
+circle 0.40,0.34 0.01 fill #2a1400 0.5
+
+# Edge highlight (light catching top edge)
+line 0.32,0.18 0.68,0.18 stroke #8b6914 0.35

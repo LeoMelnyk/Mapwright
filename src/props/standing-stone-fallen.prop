@@ -1,0 +1,67 @@
+name: Fallen Standing Stone
+category: Terrain
+footprint: 1x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: burial-mound, standing-stones-circle, ancient-ruin-overgrown
+typical_count: single
+clusters_with: standing-stone, cairn-sacred, fallen-leaves, moss, carved-rune-stone
+notes: Toppled menhir lying on its side — ancient fallen marker
+---
+# === HITBOX ===
+hitbox rect 0.20,0.22 2.60,0.56 z 0-0.8
+
+# Main stone body (elongated horizontal, irregular menhir shape)
+poly 0.24,0.32 0.48,0.24 0.90,0.22 1.50,0.20 2.10,0.24 2.60,0.28 2.80,0.38 2.82,0.58 2.74,0.68 2.20,0.74 1.60,0.78 1.00,0.76 0.50,0.72 0.24,0.62 0.18,0.46 fill #6a6058 0.95
+poly 0.24,0.32 0.48,0.24 0.90,0.22 1.50,0.20 2.10,0.24 2.60,0.28 2.80,0.38 2.82,0.58 2.74,0.68 2.20,0.74 1.60,0.78 1.00,0.76 0.50,0.72 0.24,0.62 0.18,0.46 texfill polyhaven/rock_boulder_cracked 0.65
+poly 0.24,0.32 0.48,0.24 0.90,0.22 1.50,0.20 2.10,0.24 2.60,0.28 2.80,0.38 2.82,0.58 2.74,0.68 2.20,0.74 1.60,0.78 1.00,0.76 0.50,0.72 0.24,0.62 0.18,0.46 stroke #2a2420
+# Broken base end (west — where stone snapped from pedestal)
+poly 0.24,0.32 0.14,0.36 0.10,0.48 0.12,0.58 0.18,0.64 0.24,0.62 fill #5a5048 0.95
+poly 0.24,0.32 0.14,0.36 0.10,0.48 0.12,0.58 0.18,0.64 0.24,0.62 stroke #2a2420
+# Jagged break detail
+line 0.24,0.34 0.16,0.40 stroke #2a2420 0.8 width 1
+line 0.20,0.44 0.12,0.48 stroke #2a2420 0.8 width 1
+line 0.18,0.54 0.12,0.56 stroke #2a2420 0.8 width 1
+# Weathering cracks (longitudinal)
+bezier 0.40,0.34 0.80,0.38 1.40,0.34 2.00,0.40 stroke #2a2420 0.7 width 1
+bezier 0.50,0.62 0.90,0.58 1.50,0.64 2.10,0.60 stroke #2a2420 0.7 width 1
+# Cross cracks (age)
+line 0.80,0.26 0.86,0.74 stroke #2a2420 0.5
+line 1.60,0.28 1.66,0.76 stroke #2a2420 0.5
+line 2.20,0.26 2.26,0.74 stroke #2a2420 0.5
+# === Worn carved runes (faded with time) ===
+line 0.60,0.40 0.60,0.52 stroke #1a0800 0.85 width 1
+line 0.56,0.46 0.64,0.46 stroke #1a0800 0.85 width 1
+circle 1.00,0.48 0.04 stroke #1a0800 0.8 width 1
+line 1.30,0.40 1.36,0.52 stroke #1a0800 0.75 width 1
+poly 1.70,0.40 1.76,0.48 1.70,0.56 stroke #1a0800 0.75 width 1
+line 2.10,0.42 2.16,0.50 stroke #1a0800 0.7 width 1
+# Moss/lichen overgrowth (indicates age lying here)
+ellipse 0.70,0.60 0.16,0.08 fill #3a5028 0.75
+ellipse 0.70,0.60 0.16,0.08 stroke #1a3010
+ellipse 1.40,0.40 0.20,0.10 fill #3a5028 0.75
+ellipse 1.40,0.40 0.20,0.10 stroke #1a3010
+ellipse 2.20,0.62 0.18,0.08 fill #3a5028 0.75
+ellipse 2.20,0.62 0.18,0.08 stroke #1a3010
+# Yellow lichen patches
+ellipse 0.90,0.40 0.08,0.05 fill #8a9020 0.6
+ellipse 1.90,0.58 0.10,0.06 fill #8a9020 0.6
+ellipse 2.50,0.44 0.08,0.05 fill #8a9020 0.6
+# Small plants sprouting in cracks
+line 1.20,0.22 1.22,0.14 stroke #4a6028 0.8
+line 1.22,0.24 1.26,0.16 stroke #4a6028 0.8
+line 1.80,0.80 1.82,0.86 stroke #4a6028 0.8
+# Grass tufts around base
+line 0.30,0.78 0.32,0.72 stroke #4a6028 0.7
+line 2.70,0.78 2.72,0.72 stroke #4a6028 0.7
+# Dry leaves on top
+poly 1.12,0.40 1.20,0.36 1.22,0.42 1.16,0.46 fill #a03020 0.7
+poly 1.12,0.40 1.20,0.36 1.22,0.42 1.16,0.46 stroke #5a1808
+# Pebbles around broken end
+circle 0.12,0.72 0.02 fill #5a5048 0.8
+circle 0.08,0.66 0.018 fill #5a5048 0.8
+# East end highlight
+arc 2.50,0.50 0.30 210 260 stroke #a0988c 0.4 width 1

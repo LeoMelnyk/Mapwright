@@ -1,0 +1,56 @@
+name: Skinning Knife
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: cabin-hunters, cabin-trapper, hunting-lodge-large, butcher-shop, tannery
+typical_count: few
+clusters_with: skinning-table, stretched-hide, cleaver, whetstone, trap-rack
+notes: Curved blade skinning knife with bone handle — trapper's tool
+---
+# === HITBOX ===
+hitbox rect 0.22,0.20 0.56,0.66 z 0-0.1
+
+# Bone/antler handle (south end)
+rect 0.40,0.60 0.20,0.24 fill #e0d4b8 0.95
+rect 0.40,0.60 0.20,0.24 stroke #8a7858
+# Handle grip texture (carved grooves)
+line 0.40,0.66 0.60,0.66 stroke #8a7858 0.7
+line 0.40,0.72 0.60,0.72 stroke #8a7858 0.7
+line 0.40,0.78 0.60,0.78 stroke #8a7858 0.7
+# Handle cap (butt end)
+ellipse 0.50,0.84 0.10,0.03 fill #c8b898 0.9
+ellipse 0.50,0.84 0.10,0.03 stroke #6a5040
+# Handle rivet
+circle 0.50,0.74 0.015 fill #5a3a00 0.9
+circle 0.50,0.74 0.015 stroke #3a2000
+# Bolster/guard (small metal band between handle and blade)
+rect 0.38,0.56 0.24,0.06 fill #666666 0.95
+rect 0.38,0.56 0.24,0.06 texfill polyhaven/metal_plate 0.5
+rect 0.38,0.56 0.24,0.06 stroke #222222
+# Blade (curved, swept upward — skinning pattern)
+poly 0.44,0.56 0.56,0.56 0.60,0.44 0.62,0.28 0.52,0.20 0.40,0.28 0.40,0.44 fill #aaaaaa 0.95
+poly 0.44,0.56 0.56,0.56 0.60,0.44 0.62,0.28 0.52,0.20 0.40,0.28 0.40,0.44 texfill polyhaven/metal_plate 0.55
+poly 0.44,0.56 0.56,0.56 0.60,0.44 0.62,0.28 0.52,0.20 0.40,0.28 0.40,0.44 stroke #333333
+# Blade spine (back edge — darker)
+bezier 0.62,0.28 0.60,0.44 0.56,0.54 0.52,0.54 stroke #555555 0.7 width 1
+# Blade sharp edge (concave curve)
+bezier 0.40,0.28 0.42,0.42 0.44,0.52 0.44,0.56 stroke #ffffff 0.9 width 1
+# Blade point
+poly 0.48,0.18 0.52,0.20 0.54,0.22 0.52,0.24 fill #cccccc 0.95
+poly 0.48,0.18 0.52,0.20 0.54,0.22 0.52,0.24 stroke #222222
+# Blade sheen (metal reflection)
+line 0.46,0.30 0.52,0.42 stroke #aaaaaa 0.6 width 1
+line 0.48,0.38 0.54,0.48 stroke #888888 0.5 width 1
+# Blood stain on blade
+ellipse 0.50,0.42 0.08,0.04 fill #4a1010 0.4
+# Blood drop
+circle 0.60,0.38 0.015 fill #3a0808 0.7
+# Scratches on blade (from use)
+line 0.42,0.32 0.46,0.36 stroke #333333 0.6
+line 0.54,0.34 0.58,0.38 stroke #333333 0.6
+# Handle wear spot
+ellipse 0.50,0.70 0.08,0.03 fill #8a7858 0.3

@@ -1,0 +1,68 @@
+name: Fresh Dirt Mound
+category: Terrain
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: graveyard-village, roadside-gallows, burial-mound, shadowfell-mausoleum
+typical_count: single
+clusters_with: withered-flowers, withered-wreath, gravestone, candle-guttered, shovel
+notes: Fresh grave mound — recently turned dark earth in oblong shape
+---
+# === HITBOX ===
+hitbox ellipse 1.0,0.50 0.80,0.30 z 0-0.4
+
+# Main dirt mound (oblong, crowned)
+ellipse 1.0,0.50 0.84,0.32 texfill polyhaven/brown_mud 0.9
+ellipse 1.0,0.50 0.84,0.32 fill #3a2418 0.5
+ellipse 1.0,0.50 0.84,0.32 stroke #1a1008
+# Center ridge (highest crest)
+ellipse 1.0,0.50 0.70,0.24 fill #4a3020 0.8
+ellipse 1.0,0.50 0.70,0.24 stroke #2a1810
+# Crown highlight (catches light)
+ellipse 1.0,0.44 0.60,0.14 fill #6a4a30 0.5
+# Dirt clods (lumpy texture)
+circle 0.40,0.44 0.04 fill #2a1810 0.7
+circle 0.60,0.52 0.035 fill #2a1810 0.7
+circle 0.84,0.42 0.04 fill #2a1810 0.7
+circle 1.10,0.56 0.035 fill #2a1810 0.7
+circle 1.34,0.46 0.04 fill #2a1810 0.7
+circle 1.56,0.52 0.035 fill #2a1810 0.7
+# Lighter dirt clumps (crumbled)
+circle 0.50,0.56 0.03 fill #6a4828 0.7
+circle 0.70,0.40 0.03 fill #6a4828 0.7
+circle 0.90,0.58 0.03 fill #6a4828 0.7
+circle 1.20,0.40 0.03 fill #6a4828 0.7
+circle 1.40,0.60 0.03 fill #6a4828 0.7
+# Shovel-stroke grooves (slanted)
+line 0.40,0.38 0.60,0.58 stroke #1a1008 0.5 width 1
+line 0.80,0.36 1.00,0.56 stroke #1a1008 0.5 width 1
+line 1.20,0.38 1.40,0.58 stroke #1a1008 0.5 width 1
+line 1.40,0.36 1.60,0.56 stroke #1a1008 0.5 width 1
+# Wooden grave marker at head (west end)
+rect 0.10,0.30 0.08,0.40 texfill polyhaven/weathered_planks 0.88
+rect 0.10,0.30 0.08,0.40 stroke #2a1400
+# Marker crossbeam
+rect 0.04,0.38 0.20,0.06 texfill polyhaven/weathered_planks 0.85
+rect 0.04,0.38 0.20,0.06 stroke #2a1400
+# Small flower offering (single)
+poly 0.50,0.26 0.54,0.22 0.58,0.26 0.54,0.30 fill #aa2020 0.85
+poly 0.50,0.26 0.54,0.22 0.58,0.26 0.54,0.30 stroke #5a0808
+line 0.54,0.30 0.54,0.40 stroke #3a5018 width 1
+# Another flower
+circle 0.80,0.24 0.03 fill #d8c040 0.85
+circle 0.80,0.24 0.03 stroke #8a7810
+line 0.80,0.28 0.80,0.38 stroke #3a5018 width 1
+# Fresh grass sprouts poking through
+line 1.60,0.38 1.62,0.32 stroke #4a6028 0.8
+line 1.65,0.40 1.68,0.34 stroke #4a6028 0.8
+line 1.70,0.42 1.72,0.36 stroke #4a6028 0.8
+# Worm holes
+circle 0.50,0.50 0.012 fill #1a1008 0.85
+circle 1.20,0.52 0.01 fill #1a1008 0.8
+circle 0.80,0.44 0.008 fill #1a1008 0.7
+# Small stones embedded
+circle 0.62,0.36 0.018 fill #5a5048 0.8
+circle 1.32,0.62 0.015 fill #5a5048 0.8

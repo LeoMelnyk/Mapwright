@@ -1,0 +1,39 @@
+name: Wooden Bowl
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: farmhouse-common, peasant-hovel, apartment-tenement, house-small, servants-kitchen, cabin-hunters
+typical_count: few
+clusters_with: bowl-stew, bread-heel, table, stool, tin-cup
+notes: Simple turned wooden bowl — empty or ready for stew
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-0.2
+
+# Outer bowl rim (wood)
+circle 0.5,0.5 0.28 texfill polyhaven/dark_wood 0.9
+circle 0.5,0.5 0.28 stroke #2a1400
+# Rim highlight
+arc 0.5,0.5 0.27 220 260 stroke #8b6914 0.5 width 1
+# Inner bowl (darker, recessed)
+circle 0.5,0.5 0.22 fill #3a1f00 0.85
+circle 0.5,0.5 0.22 stroke #1a0f00
+# Interior shadow (deeper in center)
+circle 0.5,0.5 0.16 fill #2a1400 0.7
+# Wood grain rings inside
+circle 0.5,0.5 0.20 stroke #5c3a1e 0.4 width 1
+circle 0.5,0.5 0.14 stroke #5c3a1e 0.3 width 1
+# Wood grain along outer rim
+line 0.30,0.44 0.34,0.44 stroke #5c3a1e 0.5
+line 0.66,0.44 0.70,0.44 stroke #5c3a1e 0.5
+line 0.30,0.56 0.34,0.56 stroke #5c3a1e 0.5
+line 0.66,0.56 0.70,0.56 stroke #5c3a1e 0.5
+# Knot/wood defect
+circle 0.68,0.52 0.015 fill #2a1400 0.85
+# Crumb/residue inside
+circle 0.46,0.48 0.01 fill #8a5820 0.7
+circle 0.52,0.52 0.008 fill #8a5820 0.6

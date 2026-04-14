@@ -1,0 +1,82 @@
+name: Fresh Carcass
+category: Effects
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.5
+placement: floor
+room_types: cave-bear-lair, orc-war-camp, monster-lair-small, butcher-shop, tannery
+typical_count: few
+clusters_with: gnawed-bone, bone-pile, blood-smear, fly-swarm, tuft-of-fur
+notes: Recently killed animal carcass — dead deer/boar with fur, exposed ribs
+---
+# === HITBOX ===
+hitbox rect 0.12,0.14 0.76,1.72 z 0-0.5
+
+# Main carcass body (elongated oval — lying on side, fur/hide)
+poly 0.30,0.20 0.56,0.16 0.70,0.28 0.78,0.50 0.82,0.90 0.78,1.40 0.70,1.70 0.54,1.80 0.36,1.76 0.22,1.60 0.18,1.20 0.20,0.80 0.24,0.40 fill #6a4820 0.95
+poly 0.30,0.20 0.56,0.16 0.70,0.28 0.78,0.50 0.82,0.90 0.78,1.40 0.70,1.70 0.54,1.80 0.36,1.76 0.22,1.60 0.18,1.20 0.20,0.80 0.24,0.40 texfill polyhaven/brown_leather 0.5
+poly 0.30,0.20 0.56,0.16 0.70,0.28 0.78,0.50 0.82,0.90 0.78,1.40 0.70,1.70 0.54,1.80 0.36,1.76 0.22,1.60 0.18,1.20 0.20,0.80 0.24,0.40 stroke #2a1408
+# Darker fur pattern (spots/markings)
+ellipse 0.50,0.50 0.20,0.10 fill #3a2010 0.7
+ellipse 0.55,0.95 0.16,0.08 fill #3a2010 0.7
+ellipse 0.50,1.40 0.18,0.10 fill #3a2010 0.7
+# Head at north end (deer/boar)
+ellipse 0.44,0.20 0.20,0.14 fill #5a3818 0.95
+ellipse 0.44,0.20 0.20,0.14 stroke #2a1408
+# Ears
+poly 0.30,0.14 0.34,0.08 0.38,0.16 fill #5a3818 0.95
+poly 0.30,0.14 0.34,0.08 0.38,0.16 stroke #2a1408
+poly 0.50,0.12 0.54,0.06 0.58,0.14 fill #5a3818 0.95
+poly 0.50,0.12 0.54,0.06 0.58,0.14 stroke #2a1408
+# Snout
+poly 0.36,0.24 0.52,0.26 0.50,0.32 0.38,0.30 fill #3a2010 0.95
+poly 0.36,0.24 0.52,0.26 0.50,0.32 0.38,0.30 stroke #1a0f00
+# Dead eye (closed, with blood tear)
+line 0.40,0.20 0.46,0.22 stroke #1a1008 width 1
+circle 0.46,0.22 0.015 fill #3a0808 0.8
+# Tongue hanging out
+poly 0.44,0.30 0.50,0.32 0.52,0.38 0.44,0.36 fill #8a2028 0.8
+poly 0.44,0.30 0.50,0.32 0.52,0.38 0.44,0.36 stroke #3a0808
+# Exposed ribs (belly split open — visible bone)
+poly 0.40,0.70 0.60,0.68 0.62,1.10 0.40,1.12 fill #8a2020 0.85
+poly 0.40,0.70 0.60,0.68 0.62,1.10 0.40,1.12 stroke #3a0808
+# Rib bones (white curves)
+bezier 0.40,0.74 0.50,0.70 0.56,0.74 0.60,0.78 stroke #e8dcc8 width 2
+bezier 0.40,0.74 0.50,0.70 0.56,0.74 0.60,0.78 stroke #8a7060 width 1
+bezier 0.40,0.82 0.50,0.78 0.56,0.82 0.60,0.86 stroke #e8dcc8 width 2
+bezier 0.40,0.82 0.50,0.78 0.56,0.82 0.60,0.86 stroke #8a7060 width 1
+bezier 0.40,0.90 0.50,0.86 0.56,0.90 0.60,0.94 stroke #e8dcc8 width 2
+bezier 0.40,0.90 0.50,0.86 0.56,0.90 0.60,0.94 stroke #8a7060 width 1
+bezier 0.40,0.98 0.50,0.94 0.56,0.98 0.60,1.02 stroke #e8dcc8 width 2
+bezier 0.40,0.98 0.50,0.94 0.56,0.98 0.60,1.02 stroke #8a7060 width 1
+# Organs/entrails spilling out (dark)
+poly 0.42,1.12 0.58,1.12 0.62,1.24 0.56,1.32 0.44,1.32 0.38,1.24 fill #4a0808 0.9
+poly 0.42,1.12 0.58,1.12 0.62,1.24 0.56,1.32 0.44,1.32 0.38,1.24 stroke #1a0404
+# Legs sticking out (all 4)
+poly 0.14,0.50 0.22,0.48 0.26,0.58 0.20,0.60 fill #3a2010 0.9
+poly 0.14,0.50 0.22,0.48 0.26,0.58 0.20,0.60 stroke #1a0f00
+poly 0.78,0.56 0.86,0.54 0.90,0.64 0.82,0.66 fill #3a2010 0.9
+poly 0.78,0.56 0.86,0.54 0.90,0.64 0.82,0.66 stroke #1a0f00
+poly 0.14,1.40 0.22,1.38 0.26,1.50 0.20,1.52 fill #3a2010 0.9
+poly 0.14,1.40 0.22,1.38 0.26,1.50 0.20,1.52 stroke #1a0f00
+poly 0.80,1.48 0.88,1.46 0.90,1.58 0.84,1.60 fill #3a2010 0.9
+poly 0.80,1.48 0.88,1.46 0.90,1.58 0.84,1.60 stroke #1a0f00
+# Hooves (visible at leg ends)
+circle 0.18,0.60 0.03 fill #1a0f00 0.95
+circle 0.86,0.66 0.03 fill #1a0f00 0.95
+circle 0.18,1.52 0.03 fill #1a0f00 0.95
+circle 0.86,1.60 0.03 fill #1a0f00 0.95
+# Tail
+bezier 0.40,1.80 0.38,1.86 0.42,1.90 0.40,1.94 stroke #3a2010 width 3
+# Blood pool around carcass
+poly 0.06,1.70 0.16,1.66 0.30,1.80 0.32,1.94 0.20,1.96 0.08,1.88 fill #3a0808 0.7
+# Blood splatters
+circle 0.76,0.40 0.02 fill #3a0808 0.7
+circle 0.16,0.82 0.018 fill #3a0808 0.7
+circle 0.84,1.00 0.02 fill #3a0808 0.7
+# Flies
+circle 0.50,0.90 0.01 fill #0a0404 0.9
+circle 0.54,1.10 0.008 fill #0a0404 0.85
+circle 0.48,1.00 0.008 fill #0a0404 0.85

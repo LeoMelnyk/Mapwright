@@ -1,0 +1,53 @@
+name: Salt Sack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.6
+placement: floor
+room_types: servants-kitchen, shop-general, pantry, dock-warehouse
+typical_count: few
+clusters_with: flour-sack, shelf-open, barrel, cart
+notes: Small burlap sack of salt with coarse grains spilling out
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.56 0.26,0.22 z 0-0.6
+
+# Sack body (burlap, smaller than flour-sack)
+ellipse 0.5,0.56 0.26,0.24 texfill polyhaven/rough_linen 0.88
+ellipse 0.5,0.56 0.26,0.24 fill #bfa878 0.4
+ellipse 0.5,0.56 0.26,0.24 stroke #4a3820
+# Seam
+line 0.50,0.34 0.50,0.78 stroke #3a2810 0.7
+# Cross stitches
+line 0.48,0.40 0.52,0.40 stroke #3a2810 0.6
+line 0.48,0.50 0.52,0.50 stroke #3a2810 0.6
+line 0.48,0.60 0.52,0.60 stroke #3a2810 0.6
+line 0.48,0.70 0.52,0.70 stroke #3a2810 0.6
+# Drawstring top
+ellipse 0.5,0.34 0.08,0.03 fill #4a3820 0.95
+ellipse 0.5,0.34 0.08,0.03 stroke #2a1810
+# Drawstring cords
+bezier 0.46,0.32 0.42,0.26 0.40,0.22 0.38,0.18 stroke #3a2010 width 2
+bezier 0.54,0.32 0.58,0.26 0.60,0.22 0.62,0.18 stroke #3a2010 width 2
+# Spilled salt at base (white crystals)
+poly 0.26,0.74 0.34,0.70 0.42,0.72 0.46,0.78 0.38,0.82 0.28,0.80 fill #ffffff 0.85
+poly 0.26,0.74 0.34,0.70 0.42,0.72 0.46,0.78 0.38,0.82 0.28,0.80 stroke #c0c0c0 0.7
+# Salt crystals scattered
+circle 0.22,0.78 0.015 fill #ffffff 0.95
+circle 0.30,0.84 0.012 fill #ffffff 0.9
+circle 0.40,0.82 0.012 fill #ffffff 0.9
+circle 0.50,0.82 0.015 fill #ffffff 0.9
+circle 0.58,0.80 0.012 fill #ffffff 0.85
+circle 0.66,0.76 0.012 fill #ffffff 0.85
+circle 0.72,0.82 0.01 fill #ffffff 0.8
+# Label (salt brand)
+rect 0.36,0.52 0.28,0.10 fill #e8dcc8 0.85
+rect 0.36,0.52 0.28,0.10 stroke #8b7355
+line 0.40,0.56 0.60,0.56 stroke #2a1400 0.7
+line 0.40,0.60 0.56,0.60 stroke #2a1400 0.6
+# Salt label "S" mark
+circle 0.50,0.58 0.018 fill #2a1400 0.5
+# Sack highlight
+arc 0.5,0.56 0.24 220 260 stroke #d8c498 0.4 width 1

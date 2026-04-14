@@ -2,7 +2,21 @@
 
 Generated from 160 room vocab specs in `src/rooms/`. These are prop names referenced by specs but not found in the current `src/props/` catalog. Author in priority order — Tier 1 unlocks the most rooms per prop created.
 
-**Total missing:** 1177  |  **Tier 1 (3+ uses):** 105  |  **Tier 2 (2 uses):** 150  |  **Tier 3 (1 use):** 922
+**Original totals:** 1177 missing  |  **Tier 1 (3+ uses):** 105  |  **Tier 2 (2 uses):** 150  |  **Tier 3 (1 use):** 922
+
+---
+
+## Progress log
+
+### 2026-04 (v0.11.0)
+
+- **219 props authored** across two batches. Catalog grew from ~245 to **463 props**.
+- **Tier 1: complete.** ~100 of 105 props authored. Remaining 5 were aliases (`counter` → `bar-counter`, `fireplace` → `hearth`, `bookshelf-short` → `bookshelf`, `tree-old` → `tree`), or non-drawable concepts (`rat-swarm-marker`). Specs that reference these should be updated to use the canonical names.
+- **Tier 2: ~119 of 150 authored.** Remaining ~30 are mostly specialised one-off items that didn't fit the themed batches — check the Tier 2 table below and cross-reference against `src/props/` to identify what's still missing.
+- **Tier 3 (922 props): untouched.** Most are one-off flavour that should be authored opportunistically — only when you're about to build the specific room that needs them, or when they're a natural variant of a Tier 1/2 prop you're already making.
+- **Perspective rules documented** in `src/props/CLAUDE.md` — wall-mounted textiles, cabinets, stacked furniture, vertical wheels. Read those sections before authoring anything against a wall or taller than 3 cells.
+
+**Next step before authoring more:** regenerate this file with `node tools/_gen-prop-ideas.cjs` to get an up-to-date list of what's actually still missing — the hardcoded tables below are from the original scan and don't reflect what's been authored.
 
 ---
 

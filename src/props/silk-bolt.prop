@@ -1,0 +1,55 @@
+name: Silk Bolt
+category: Containers
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.5
+placement: floor
+room_types: shop-tailor, textile-loomhouse, market-stall, mansion-grand-hall
+typical_count: few
+clusters_with: silk-bolt, fabric-scrap, thread-spool, pin-cushion, sewing-basket
+notes: Rolled bolt of fine fabric — seen top-down as a long cylinder with fabric tail
+---
+# === HITBOX ===
+hitbox rect 0.12,0.30 1.76,0.40 z 0-0.5
+
+# Main roll body (elongated cylinder lying on side)
+rect 0.12,0.32 1.76,0.36 fill #6a3098 0.95
+rect 0.12,0.32 1.76,0.36 texfill polyhaven/velour_velvet 0.5
+rect 0.12,0.32 1.76,0.36 stroke #2a0840
+# Rounded ends (end caps of cylinder)
+ellipse 0.12,0.50 0.06,0.18 fill #4a1878 0.95
+ellipse 0.12,0.50 0.06,0.18 stroke #2a0840
+ellipse 1.88,0.50 0.06,0.18 fill #4a1878 0.95
+ellipse 1.88,0.50 0.06,0.18 stroke #2a0840
+# Edge cap rings visible (thread binding at ends)
+line 0.18,0.32 0.18,0.68 stroke #2a0840 0.7
+line 1.82,0.32 1.82,0.68 stroke #2a0840 0.7
+# Silk sheen stripes along length (catches light)
+line 0.20,0.38 1.80,0.38 stroke #aa60d0 0.6 width 1
+line 0.20,0.50 1.80,0.50 stroke #aa60d0 0.5 width 1
+line 0.20,0.62 1.80,0.62 stroke #aa60d0 0.6 width 1
+# Gold embroidered pattern (diamond motif along silk)
+poly 0.42,0.42 0.48,0.50 0.42,0.58 0.36,0.50 stroke #daa520 0.8 width 1
+poly 0.82,0.42 0.88,0.50 0.82,0.58 0.76,0.50 stroke #daa520 0.8 width 1
+poly 1.22,0.42 1.28,0.50 1.22,0.58 1.16,0.50 stroke #daa520 0.8 width 1
+poly 1.62,0.42 1.68,0.50 1.62,0.58 1.56,0.50 stroke #daa520 0.8 width 1
+# Diamond centers (gold dots)
+circle 0.42,0.50 0.015 fill #daa520 0.9
+circle 0.82,0.50 0.015 fill #daa520 0.9
+circle 1.22,0.50 0.015 fill #daa520 0.9
+circle 1.62,0.50 0.015 fill #daa520 0.9
+# Loose end of silk peeling off (draped)
+poly 1.70,0.68 1.88,0.72 1.94,0.82 1.80,0.88 1.66,0.84 fill #6a3098 0.9
+poly 1.70,0.68 1.88,0.72 1.94,0.82 1.80,0.88 1.66,0.84 stroke #2a0840
+# Loose end sheen
+bezier 1.72,0.76 1.80,0.78 1.88,0.80 1.92,0.84 stroke #aa60d0 0.6 width 1
+# Paper label tied on with twine
+rect 0.94,0.28 0.12,0.06 fill #e8dcc8 0.9
+rect 0.94,0.28 0.12,0.06 stroke #8b7355
+line 0.96,0.30 1.04,0.30 stroke #2a1400 0.7
+# Tie twine
+line 1.00,0.28 1.00,0.38 stroke #6b4e2e width 1
+# Top highlight
+arc 1.0,0.50 0.40 220 320 stroke #cc80e0 0.4 width 1

@@ -1,0 +1,67 @@
+name: Spyglass
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: lighthouse-keepers-room, ship-captains-cabin, watchtower, command-room
+typical_count: single
+clusters_with: chart-rolled, log-book, desk, telescope, map
+notes: Brass telescoping spyglass — collapsed or extended, lying on surface
+---
+# === HITBOX ===
+hitbox rect 0.10,0.44 0.80,0.16 z 0-0.15
+
+# Largest segment (eyepiece end — east)
+rect 0.66,0.48 0.24,0.12 fill #daa520 0.95
+rect 0.66,0.48 0.24,0.12 texfill polyhaven/metal_plate 0.5
+rect 0.66,0.48 0.24,0.12 stroke #5a3a00
+# Eyepiece (dark lens at east end)
+circle 0.90,0.54 0.06 fill #1a0f00 0.95
+circle 0.90,0.54 0.06 stroke #3a2000
+# Eyepiece glass glint
+circle 0.90,0.54 0.04 fill #2a3a48 0.7
+arc 0.90,0.54 0.04 210 260 stroke #6080a0 0.7 width 1
+# Section ring (where segments join)
+line 0.66,0.48 0.66,0.60 stroke #5a3a00 width 2
+# Middle segment (slightly narrower)
+rect 0.44,0.50 0.22,0.08 fill #c89518 0.95
+rect 0.44,0.50 0.22,0.08 texfill polyhaven/metal_plate 0.5
+rect 0.44,0.50 0.22,0.08 stroke #5a3a00
+# Middle ring
+line 0.44,0.50 0.44,0.58 stroke #5a3a00 width 2
+# Front segment (narrowest, objective lens end — west)
+rect 0.22,0.51 0.22,0.06 fill #b08415 0.95
+rect 0.22,0.51 0.22,0.06 stroke #5a3a00
+# Front ring
+line 0.22,0.51 0.22,0.57 stroke #5a3a00 width 2
+# Objective lens (west end)
+circle 0.18,0.54 0.05 fill #1a0f00 0.95
+circle 0.18,0.54 0.05 stroke #3a2000
+# Lens glint
+circle 0.18,0.54 0.03 fill #2a3a48 0.7
+arc 0.18,0.54 0.03 210 260 stroke #6080a0 0.7 width 1
+# Leather grip wrapping (around middle segment)
+rect 0.50,0.50 0.10 fill #5c3a1e 0.85
+rect 0.50,0.50 0.10,0.08 stroke #2a1400
+# Leather wrap lines
+line 0.50,0.52 0.60,0.52 stroke #3a2010 0.7
+line 0.50,0.54 0.60,0.54 stroke #3a2010 0.7
+line 0.50,0.56 0.60,0.56 stroke #3a2010 0.7
+# Engraved decorative band on eyepiece section
+line 0.72,0.50 0.72,0.58 stroke #8b6914 0.7
+line 0.80,0.50 0.80,0.58 stroke #8b6914 0.7
+# Maker's mark
+circle 0.78,0.54 0.01 fill #2a1400 0.8
+# Metal sheen highlights
+line 0.26,0.52 0.42,0.52 stroke #ffee88 0.7 width 1
+line 0.48,0.50 0.64,0.50 stroke #ffee88 0.7 width 1
+line 0.68,0.48 0.88,0.48 stroke #ffee88 0.7 width 1
+# Small strap/lanyard loop on eyepiece
+circle 0.88,0.50 0.02 stroke #5a3a00 width 1
+bezier 0.88,0.48 0.86,0.42 0.88,0.38 0.90,0.34 stroke #5c3a1e width 1
+# Brass tarnish spots
+circle 0.56,0.52 0.012 fill #5a3a00 0.4
+circle 0.72,0.56 0.01 fill #5a3a00 0.4

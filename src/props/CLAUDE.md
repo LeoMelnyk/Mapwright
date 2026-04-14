@@ -282,13 +282,44 @@ Commands render in file order (top to bottom). **Draw background/base layers fir
 3. **Exceeding footprint bounds** — All coordinates must stay within 0–cols (x) and 0–rows (y).
 4. **Wrong facing direction** — Front faces south (high Y). Wall-mounted items have their wall at the north (low Y) edge.
 5. **Using rusty_metal for clean metal** — It looks like wood at small scales. Use `metal_plate` instead.
+6. **Manually drawing drop shadows** — Do NOT add `# Shadow` ellipses or rects offset south of a prop. That's an oblique/isometric-view trick, not top-down. Set `shadow: yes` in the frontmatter and let the render pipeline draw a proper radial shadow under the prop.
+7. **Footprint orientation mismatch** — A tall vertical prop (grandfather clock, broom handle, spinning wheel, curtain rail, standing stone) needs a tall footprint (`2x1`, `3x1`). A wide wall-mounted prop (shelf, tapestry, cupboard, sideboard) needs a wide footprint (`1x2`, `1x3`). Getting this wrong makes the validator emit hundreds of out-of-bounds warnings.
 
 ### Wall-Mounted Props
 
-Props that lean against or hang on a wall (mirror, painting, weapon rack, shield rack, tapestry, torch sconce) should have `facing: yes` and be drawn with:
+Props that lean against or hang on a wall (mirror, painting, weapon rack, shield rack, tapestry, banner, torch sconce) should have `facing: yes` and be drawn with:
 - The wall attachment along the **north edge** (low Y)
 - Only the top edge of the frame/rack visible from above
 - Very minimal visual footprint (you can barely see a flat wall-hung object from above)
+
+**Reference convention for flat wall-hung textiles (tapestry, banner, painting):**
+- Brass/wooden rod (thin rect along the wall edge, widest element)
+- Finial caps at rod ends (small brass circles)
+- Thin fabric top edge strip just south of rod (only a few rows of pixels deep)
+- Subtle drop-shadow rect south of the fabric strip indicating the drape hanging below out-of-view
+- Do NOT draw the full fabric drape with tassels, pleats, emblem, bottom fringe — that's a side elevation
+
+### Cabinet & Wardrobe Furniture
+
+Large wall-parallel furniture (cupboard, wardrobe, sideboard, bookshelf, grandfather clock) seen from above shows ONLY the flat top:
+- Crown molding / slight overhang at north (wall side)
+- Wood grain on the flat top surface
+- Slight trim or shadow line at south edge where the face panel begins below
+- Items placed on top (jar, bowl, candlestick, books) are visible; doors, handles, keyholes, clock faces, pendulums, drawer pulls are on the SOUTH front face and are **hidden from the top-down view** — do not draw them
+
+See `wardrobe.prop`, `bookshelf.prop`, and `component-shelf.prop` for the canonical implementation.
+
+### Stacked / Elevated Furniture
+
+Bunk beds, loft beds, and similar multi-tier furniture show only the UPPER tier from a top-down view — the lower tier is directly beneath and obscured. Signal the second level exists with:
+- Tall corner posts that extend down past the upper tier
+- Guard rail / safety rail along one edge (visible as a thick strip with spindles)
+- Ladder rung ends protruding beyond the footprint
+- Do NOT draw two stacked mattresses separated by a gap — that's a front elevation
+
+### Vertical Wheels & Rods
+
+Objects whose main feature is a vertically-oriented wheel, rod, or drum (spinning wheel, water wheel, cart wheel mounted upright, ceiling-hung curtain divider) show the element *edge-on* from above — as a thin ellipse or line, not a full circle. The wheel's diameter appears as the long axis of that ellipse; its thickness is the short axis. Supporting hardware (axle hub, upright posts, base plank) surrounds it. Side-on circle drawings read as a flat plate lying on the floor, which is wrong.
 
 ## Header Fields
 

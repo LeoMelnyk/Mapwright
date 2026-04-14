@@ -1,0 +1,65 @@
+name: Fruit Bowl
+category: Food
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: house-merchant, mansion-dining, noble-solar, mansion-grand-hall
+typical_count: single
+clusters_with: sideboard, table, decanter, fresh-flowers
+notes: Silver bowl piled with fresh fruit — centerpiece for dining tables
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.34 z 0-0.4
+
+# Silver bowl outer
+circle 0.5,0.54 0.34 fill #aaaaaa 0.95
+circle 0.5,0.54 0.34 stroke #444444
+# Bowl inner ring
+circle 0.5,0.54 0.30 stroke #666666 width 2
+# Bowl interior (darker where shadowed)
+circle 0.5,0.54 0.28 fill #888888 0.9
+# Silver highlight
+arc 0.5,0.54 0.32 210 260 stroke #e0e0e0 0.8 width 1
+# === Fruits piled inside ===
+# Apple (red)
+circle 0.40,0.46 0.10 fill #c82028 0.95
+circle 0.40,0.46 0.10 stroke #5a0810
+# Apple highlight
+arc 0.40,0.46 0.09 220 260 stroke #f06060 0.7 width 1
+# Apple stem
+line 0.40,0.38 0.38,0.34 stroke #3a2010 width 1
+# Orange
+circle 0.60,0.50 0.09 fill #e87820 0.95
+circle 0.60,0.50 0.09 stroke #8a4008
+# Orange texture dimples
+circle 0.56,0.48 0.01 fill #c85808 0.7
+circle 0.62,0.46 0.01 fill #c85808 0.7
+circle 0.58,0.52 0.01 fill #c85808 0.7
+# Orange highlight
+arc 0.60,0.50 0.08 220 260 stroke #f0a040 0.6 width 1
+# Pear (green-yellow)
+poly 0.48,0.32 0.54,0.30 0.56,0.40 0.50,0.44 0.46,0.40 fill #a8b038 0.95
+poly 0.48,0.32 0.54,0.30 0.56,0.40 0.50,0.44 0.46,0.40 stroke #4a5008
+# Pear stem
+line 0.52,0.30 0.50,0.26 stroke #3a2010 width 1
+# Grape cluster (purple)
+circle 0.32,0.58 0.03 fill #4a2060 0.9
+circle 0.32,0.58 0.03 stroke #2a1028
+circle 0.36,0.60 0.028 fill #4a2060 0.9
+circle 0.36,0.60 0.028 stroke #2a1028
+circle 0.30,0.62 0.025 fill #4a2060 0.9
+circle 0.30,0.62 0.025 stroke #2a1028
+circle 0.34,0.64 0.025 fill #4a2060 0.9
+# Grape highlights
+circle 0.32,0.58 0.01 fill #8860a0 0.7
+circle 0.36,0.60 0.01 fill #8860a0 0.7
+# Plum
+circle 0.70,0.58 0.05 fill #2a0828 0.95
+circle 0.70,0.58 0.05 stroke #100410
+arc 0.70,0.58 0.04 220 260 stroke #6a2870 0.7 width 1
+# Leaf peeking
+poly 0.54,0.30 0.62,0.26 0.60,0.32 fill #3a6020 0.85
+poly 0.54,0.30 0.62,0.26 0.60,0.32 stroke #1a3010

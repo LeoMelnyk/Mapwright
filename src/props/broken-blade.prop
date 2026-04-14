@@ -1,0 +1,58 @@
+name: Broken Blade
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: mill-lumber, shop-weaponsmith, battlefield-recent, forge, smithy-large
+typical_count: few
+clusters_with: whetstone, dagger-loose, broken-weapon, tool-rack
+notes: Snapped sword blade — jagged fracture in the middle
+---
+# === HITBOX ===
+hitbox rect 0.36,0.16 0.28,0.68 z 0-0.1
+
+# Upper half (intact, point end)
+poly 0.44,0.16 0.56,0.16 0.60,0.22 0.58,0.42 0.48,0.50 0.42,0.42 0.40,0.22 fill #aaaaaa 0.95
+poly 0.44,0.16 0.56,0.16 0.60,0.22 0.58,0.42 0.48,0.50 0.42,0.42 0.40,0.22 texfill polyhaven/metal_plate 0.6
+poly 0.44,0.16 0.56,0.16 0.60,0.22 0.58,0.42 0.48,0.50 0.42,0.42 0.40,0.22 stroke #333333
+# Pointy tip
+poly 0.46,0.16 0.54,0.16 0.50,0.10 fill #cccccc 0.95
+poly 0.46,0.16 0.54,0.16 0.50,0.10 stroke #333333
+# Upper blade fuller (central groove)
+line 0.50,0.14 0.50,0.42 stroke #555555 width 1
+# Tip highlight
+line 0.46,0.18 0.50,0.12 stroke #ffffff width 1
+line 0.54,0.18 0.50,0.12 stroke #ffffff width 1
+# Jagged break (bottom of upper piece)
+poly 0.42,0.42 0.46,0.48 0.50,0.42 0.54,0.50 0.58,0.42 fill #aaaaaa 0.95
+poly 0.42,0.42 0.46,0.48 0.50,0.42 0.54,0.50 0.58,0.42 stroke #333333
+# Lower half (with crossguard and grip — slightly offset)
+poly 0.38,0.56 0.44,0.52 0.48,0.56 0.52,0.54 0.56,0.58 0.62,0.56 0.64,0.64 fill #aaaaaa 0.95
+poly 0.38,0.56 0.44,0.52 0.48,0.56 0.52,0.54 0.56,0.58 0.62,0.56 0.64,0.64 texfill polyhaven/metal_plate 0.6
+poly 0.38,0.56 0.44,0.52 0.48,0.56 0.52,0.54 0.56,0.58 0.62,0.56 0.64,0.64 stroke #333333
+# Lower blade portion (short stub extending south)
+poly 0.42,0.60 0.58,0.60 0.56,0.66 0.44,0.66 fill #888888 0.95
+poly 0.42,0.60 0.58,0.60 0.56,0.66 0.44,0.66 stroke #333333
+# Crossguard
+rect 0.32,0.66 0.36,0.06 fill #5a3a00 0.95
+rect 0.32,0.66 0.36,0.06 texfill polyhaven/metal_plate 0.5
+rect 0.32,0.66 0.36,0.06 stroke #2a1400
+# Grip (leather-wrapped)
+rect 0.44,0.72 0.12,0.14 texfill polyhaven/brown_leather 0.9
+rect 0.44,0.72 0.12,0.14 stroke #2a1400
+# Grip wraps
+line 0.44,0.76 0.56,0.76 stroke #3a2010 0.7
+line 0.44,0.80 0.56,0.80 stroke #3a2010 0.7
+line 0.44,0.84 0.56,0.84 stroke #3a2010 0.7
+# Pommel
+circle 0.50,0.88 0.04 fill #8b6914 0.95
+circle 0.50,0.88 0.04 stroke #5a3a00
+# Rust/blood on break
+ellipse 0.50,0.46 0.10,0.04 fill #6a3818 0.4
+# Nick in upper blade
+line 0.44,0.30 0.46,0.34 stroke #444444 0.7
+# Blood drop at break
+circle 0.52,0.54 0.02 fill #4a1010 0.7

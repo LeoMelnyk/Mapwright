@@ -1,0 +1,62 @@
+name: Stone Pedestal
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: mansion-grand-hall, reliquary, temple-nave, shrine, gallery
+typical_count: few
+clusters_with: bust-on-pedestal, gem-loose, crystal-ball, offering-bowl, altar
+notes: Empty stone display pedestal — grey marble column for holding artifacts
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.30 z 0-2.5
+
+# Base plinth (widest at bottom)
+rect 0.16,0.68 0.68,0.16 texfill polyhaven/granite_tile 0.9
+rect 0.16,0.68 0.68,0.16 fill #8a8078 0.4
+rect 0.16,0.68 0.68,0.16 stroke #333333
+# Plinth top lip
+line 0.16,0.72 0.84,0.72 stroke #555555 width 1
+# Column shaft (circular, narrow)
+circle 0.5,0.50 0.22 texfill polyhaven/marble_01 0.92
+circle 0.5,0.50 0.22 fill #d0c8c0 0.3
+circle 0.5,0.50 0.22 stroke #555555
+# Column fluting (vertical ridges)
+line 0.32,0.34 0.32,0.64 stroke #888888 0.7
+line 0.38,0.30 0.38,0.66 stroke #888888 0.7
+line 0.44,0.28 0.44,0.68 stroke #888888 0.7
+line 0.50,0.28 0.50,0.68 stroke #888888 0.7
+line 0.56,0.28 0.56,0.68 stroke #888888 0.7
+line 0.62,0.30 0.62,0.66 stroke #888888 0.7
+line 0.68,0.34 0.68,0.64 stroke #888888 0.7
+# Column top (capital — slightly wider)
+circle 0.5,0.30 0.26 texfill polyhaven/marble_01 0.92
+circle 0.5,0.30 0.26 fill #e0d8d0 0.4
+circle 0.5,0.30 0.26 stroke #555555
+# Capital decorative ring
+circle 0.5,0.30 0.24 stroke #888888 0.7 width 1
+circle 0.5,0.30 0.20 stroke #888888 0.6 width 1
+# Top flat surface (where item would go — slightly recessed)
+circle 0.5,0.30 0.16 fill #c0b8b0 0.8
+circle 0.5,0.30 0.16 stroke #666666
+# Marks where something used to sit (faint ring)
+circle 0.5,0.30 0.09 stroke #888888 0.35 width 1
+# Carved ornamental border at top edge
+arc 0.5,0.30 0.24 20 80 stroke #666666 0.7 width 1
+arc 0.5,0.30 0.24 100 170 stroke #666666 0.7 width 1
+arc 0.5,0.30 0.24 200 260 stroke #666666 0.7 width 1
+arc 0.5,0.30 0.24 280 340 stroke #666666 0.7 width 1
+# Carved floral motifs on column (very subtle)
+poly 0.48,0.46 0.50,0.42 0.52,0.46 0.50,0.50 fill #aaaaaa 0.4
+poly 0.48,0.58 0.50,0.54 0.52,0.58 0.50,0.62 fill #aaaaaa 0.4
+# Marble sheen
+arc 0.5,0.50 0.20 210 260 stroke #ffffff 0.7 width 1
+arc 0.5,0.30 0.22 210 250 stroke #ffffff 0.8 width 1
+# Age cracks
+line 0.36,0.54 0.42,0.70 stroke #555555 0.5
+line 0.58,0.38 0.54,0.52 stroke #555555 0.4
+# Plinth corners worn/chipped
+poly 0.16,0.84 0.22,0.82 0.20,0.84 fill #555555 0.7

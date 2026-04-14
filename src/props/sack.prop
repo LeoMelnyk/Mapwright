@@ -1,0 +1,55 @@
+name: Sack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: campsite-traveler, market-square, peasant-hovel, dock-warehouse, cart
+typical_count: few
+clusters_with: cart, gear-pack, sack, crate, barrel
+notes: Generic burlap sack — could hold grain, goods, or loot
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.54 0.28,0.26 z 0-0.8
+
+# Main sack body (bulging rounded shape)
+ellipse 0.5,0.54 0.28,0.28 texfill polyhaven/rough_linen 0.9
+ellipse 0.5,0.54 0.28,0.28 fill #9a8260 0.4
+ellipse 0.5,0.54 0.28,0.28 stroke #3a2810
+# Lumpy contents bulges
+ellipse 0.40,0.48 0.10,0.08 fill #b8a580 0.5
+ellipse 0.60,0.54 0.10,0.08 fill #b8a580 0.5
+ellipse 0.48,0.64 0.12,0.06 fill #b8a580 0.5
+# Stitched center seam
+line 0.50,0.28 0.50,0.80 stroke #2a1810 0.7
+# Cross stitches
+line 0.48,0.34 0.52,0.34 stroke #2a1810 0.6
+line 0.48,0.44 0.52,0.44 stroke #2a1810 0.6
+line 0.48,0.54 0.52,0.54 stroke #2a1810 0.6
+line 0.48,0.64 0.52,0.64 stroke #2a1810 0.6
+line 0.48,0.74 0.52,0.74 stroke #2a1810 0.6
+# Drawstring gather at top
+ellipse 0.50,0.28 0.08,0.03 fill #3a2010 0.95
+ellipse 0.50,0.28 0.08,0.03 stroke #1a0f00
+# Drawstring tails
+bezier 0.46,0.26 0.42,0.20 0.40,0.14 0.38,0.10 stroke #3a2010 width 2
+bezier 0.54,0.26 0.58,0.20 0.60,0.14 0.62,0.10 stroke #3a2010 width 2
+# Tied knot
+circle 0.50,0.24 0.025 fill #2a1400 0.9
+# Simple stamp/marking
+rect 0.38,0.52 0.24,0.06 stroke #3a1808 0.5 width 1
+line 0.40,0.55 0.60,0.55 stroke #3a1808 0.5
+# Wear patches (dirt/grime)
+ellipse 0.30,0.60 0.06,0.04 fill #3a2810 0.3
+ellipse 0.66,0.46 0.05,0.03 fill #3a2810 0.3
+# Small hole/tear
+poly 0.66,0.62 0.72,0.62 0.70,0.68 0.66,0.68 fill #2a1810 0.6
+line 0.66,0.64 0.72,0.66 stroke #3a2010 0.7
+# Burlap weave hatching
+line 0.30,0.42 0.32,0.44 stroke #3a2810 0.4
+line 0.66,0.52 0.68,0.54 stroke #3a2810 0.4
+line 0.40,0.68 0.42,0.70 stroke #3a2810 0.4
+# Highlight on top
+arc 0.5,0.54 0.26 220 260 stroke #c8b880 0.4 width 1

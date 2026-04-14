@@ -1,0 +1,60 @@
+name: Curved Knife
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: butcher-shop, tannery, kitchen, shop-weaponsmith
+typical_count: few
+clusters_with: cleaver, chopping-block, whetstone, skinning-knife, hanging-meat
+notes: Curved butchering knife with sweeping blade for slicing meat
+---
+# === HITBOX ===
+hitbox rect 0.14,0.26 0.72,0.58 z 0-0.1
+
+# Wooden handle (south end, dark)
+rect 0.44,0.66 0.16,0.18 texfill polyhaven/dark_wood 0.9
+rect 0.44,0.66 0.16,0.18 fill #3a1f00 0.4
+rect 0.44,0.66 0.16,0.18 stroke #2a1400
+# Handle end cap
+ellipse 0.52,0.84 0.10,0.03 fill #2a1400 0.9
+# Handle rivets
+circle 0.48,0.72 0.015 fill #444444 0.9
+circle 0.48,0.76 0.015 fill #444444 0.9
+circle 0.56,0.72 0.015 fill #444444 0.9
+circle 0.56,0.76 0.015 fill #444444 0.9
+# Handle wood grain
+line 0.46,0.68 0.46,0.82 stroke #5c3a1e 0.5
+line 0.54,0.68 0.54,0.82 stroke #5c3a1e 0.5
+# Bolster (metal collar between handle and blade)
+rect 0.42,0.60 0.20,0.06 fill #666666 0.95
+rect 0.42,0.60 0.20,0.06 texfill polyhaven/metal_plate 0.5
+rect 0.42,0.60 0.20,0.06 stroke #222222
+# Blade (curved sweeping shape — tapered, wide at south, narrow pointing tip N)
+poly 0.42,0.60 0.62,0.60 0.66,0.52 0.68,0.42 0.64,0.32 0.56,0.26 0.44,0.30 0.38,0.40 0.38,0.52 fill #aaaaaa 0.95
+poly 0.42,0.60 0.62,0.60 0.66,0.52 0.68,0.42 0.64,0.32 0.56,0.26 0.44,0.30 0.38,0.40 0.38,0.52 texfill polyhaven/metal_plate 0.55
+poly 0.42,0.60 0.62,0.60 0.66,0.52 0.68,0.42 0.64,0.32 0.56,0.26 0.44,0.30 0.38,0.40 0.38,0.52 stroke #333333
+# Blade curved cutting edge (west — concave, sharp)
+bezier 0.38,0.52 0.36,0.44 0.40,0.36 0.44,0.30 stroke #ffffff 0.9 width 1
+# Blade spine (east — thicker back edge)
+bezier 0.56,0.26 0.64,0.32 0.68,0.42 0.66,0.52 stroke #555555 0.8 width 1
+# Blade tip
+poly 0.44,0.30 0.52,0.24 0.56,0.26 fill #cccccc 0.95
+poly 0.44,0.30 0.52,0.24 0.56,0.26 stroke #222222
+# Blade fuller (central groove)
+bezier 0.50,0.32 0.50,0.40 0.50,0.50 0.50,0.58 stroke #555555 width 1
+# Metal sheen
+line 0.44,0.36 0.46,0.54 stroke #aaaaaa 0.6 width 1
+line 0.58,0.36 0.56,0.54 stroke #888888 0.5 width 1
+# Blood stain on blade
+ellipse 0.52,0.46 0.06,0.04 fill #4a1010 0.45
+# Blood drop at tip
+circle 0.52,0.26 0.012 fill #3a0808 0.7
+# Maker's stamp
+circle 0.50,0.50 0.012 fill #222222 0.85
+# Fine scratches from whetstone
+line 0.42,0.40 0.46,0.42 stroke #333333 0.6
+line 0.54,0.42 0.58,0.44 stroke #333333 0.6
+line 0.46,0.48 0.50,0.50 stroke #333333 0.6

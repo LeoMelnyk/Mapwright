@@ -1,0 +1,72 @@
+name: Low Table
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: brothel-parlor, opium-den, bath-house, bedchamber
+typical_count: few
+clusters_with: cushion, tea-service, hookah, silk-scarf, perfume-bottle
+notes: Exotic low divan table — dark polished wood with fringe-trimmed rug
+---
+# === HITBOX ===
+hitbox rect 0.18,0.18 1.64,1.64 z 0-0.8
+
+# Table top (dark exotic wood — octagon-shaped)
+poly 0.40,0.20 1.60,0.20 1.80,0.40 1.80,1.60 1.60,1.80 0.40,1.80 0.20,1.60 0.20,0.40 fill #2a1400 0.95
+poly 0.40,0.20 1.60,0.20 1.80,0.40 1.80,1.60 1.60,1.80 0.40,1.80 0.20,1.60 0.20,0.40 texfill polyhaven/wood_table 0.5
+poly 0.40,0.20 1.60,0.20 1.80,0.40 1.80,1.60 1.60,1.80 0.40,1.80 0.20,1.60 0.20,0.40 stroke #0a0400
+# Edge beveling
+poly 0.44,0.24 1.56,0.24 1.76,0.44 1.76,1.56 1.56,1.76 0.44,1.76 0.24,1.56 0.24,0.44 stroke #5c3a1e 0.7 width 1
+# Wood grain
+line 0.30,0.60 1.70,0.60 stroke #5c3a1e 0.4
+line 0.30,1.00 1.70,1.00 stroke #5c3a1e 0.4
+line 0.30,1.40 1.70,1.40 stroke #5c3a1e 0.4
+# Mother-of-pearl inlay pattern (central rose/mandala)
+circle 1.0,1.0 0.18 stroke #daa520 0.6 width 1
+circle 1.0,1.0 0.22 stroke #daa520 0.5 width 1
+# Central star inlay
+poly 0.92,0.92 1.08,0.92 1.12,1.00 1.08,1.08 0.92,1.08 0.88,1.00 fill #e8dcc8 0.4
+poly 0.92,0.92 1.08,0.92 1.12,1.00 1.08,1.08 0.92,1.08 0.88,1.00 stroke #daa520 0.7
+# Small cross inlays at 4 octagon points
+circle 0.30,0.30 0.04 stroke #daa520 0.6 width 1
+circle 1.70,0.30 0.04 stroke #daa520 0.6 width 1
+circle 0.30,1.70 0.04 stroke #daa520 0.6 width 1
+circle 1.70,1.70 0.04 stroke #daa520 0.6 width 1
+# Rug/cloth peeking under table (colorful fringed)
+poly 0.10,0.60 0.20,0.40 0.20,1.60 0.10,1.40 fill #6a1830 0.75
+poly 1.80,0.60 1.90,0.40 1.90,1.60 1.80,1.40 fill #6a1830 0.75
+# Rug fringe
+line 0.10,0.70 0.06,0.72 stroke #daa520 0.8
+line 0.10,0.80 0.06,0.82 stroke #daa520 0.8
+line 0.10,1.00 0.06,1.02 stroke #daa520 0.8
+line 0.10,1.20 0.06,1.22 stroke #daa520 0.8
+line 1.90,0.70 1.94,0.72 stroke #daa520 0.8
+line 1.90,0.80 1.94,0.82 stroke #daa520 0.8
+line 1.90,1.00 1.94,1.02 stroke #daa520 0.8
+line 1.90,1.20 1.94,1.22 stroke #daa520 0.8
+# === Items on table ===
+# Hookah/brass bowl in corner
+circle 0.46,0.46 0.10 fill #8b6914 0.95
+circle 0.46,0.46 0.10 stroke #5a3a00
+circle 0.46,0.46 0.05 fill #3a1f00 0.9
+# Small silver bowl of fruit
+circle 1.50,0.50 0.10 fill #aaaaaa 0.9
+circle 1.50,0.50 0.10 stroke #555555
+circle 1.46,0.50 0.04 fill #c82028 0.9
+circle 1.54,0.48 0.04 fill #e87820 0.9
+# Cup
+ellipse 0.54,1.48 0.08,0.06 fill #daa520 0.9
+ellipse 0.54,1.48 0.08,0.06 stroke #5a3a00
+# Scattered petals
+circle 1.30,1.40 0.02 fill #aa2020 0.7
+circle 1.44,1.54 0.018 fill #aa2020 0.7
+# Leg shadows at octagon points
+circle 0.30,0.30 0.05 fill #1a1008 0.3
+circle 1.70,0.30 0.05 fill #1a1008 0.3
+circle 0.30,1.70 0.05 fill #1a1008 0.3
+circle 1.70,1.70 0.05 fill #1a1008 0.3
+# Surface polish
+arc 1.0,1.0 0.70 220 260 stroke #ffffff 0.3 width 1

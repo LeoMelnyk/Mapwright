@@ -1,0 +1,63 @@
+name: Offering Bowl
+category: Religious
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: burial-mound, standing-stones-circle, shrine, temple-nave, shrine-roadside
+typical_count: single
+clusters_with: altar, cairn-sacred, coin-offering, prayer-stone, fresh-flowers
+notes: Shallow ritual bowl holding assorted offerings — fruit, grain, coins
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-0.2
+
+# Bowl outer rim (clay/terracotta)
+circle 0.5,0.5 0.32 fill #8a5830 0.95
+circle 0.5,0.5 0.32 stroke #3a2408
+# Inner rim
+circle 0.5,0.5 0.28 stroke #5a3818 width 2
+# Bowl interior (darker, deeper)
+circle 0.5,0.5 0.26 fill #5a3820 0.9
+circle 0.5,0.5 0.26 stroke #2a1408
+# Inner shadow (center deepest)
+circle 0.5,0.5 0.22 fill #3a2010 0.8
+# === Offerings arranged inside ===
+# Apple (red fruit)
+circle 0.38,0.46 0.06 fill #c82028 0.95
+circle 0.38,0.46 0.06 stroke #5a0810
+line 0.38,0.42 0.37,0.40 stroke #3a2010 width 1
+# Small bread loaf
+ellipse 0.60,0.48 0.07,0.04 fill #c8893a 0.95
+ellipse 0.60,0.48 0.07,0.04 stroke #6a3a10
+# Grain/seeds scatter
+circle 0.46,0.56 0.01 fill #d4a858 0.9
+circle 0.48,0.58 0.008 fill #d4a858 0.85
+circle 0.50,0.54 0.008 fill #d4a858 0.85
+circle 0.52,0.58 0.01 fill #d4a858 0.85
+circle 0.54,0.56 0.008 fill #d4a858 0.85
+# Gold coin
+circle 0.42,0.58 0.03 fill #daa520 0.95
+circle 0.42,0.58 0.03 stroke #5a3a00
+circle 0.42,0.58 0.01 fill #5a3a00 0.7
+# Silver coin (partially visible)
+ellipse 0.58,0.58 0.03,0.02 fill #cccccc 0.9
+ellipse 0.58,0.58 0.03,0.02 stroke #666666
+# Tiny flower petal (purple)
+poly 0.50,0.40 0.54,0.38 0.56,0.42 0.52,0.44 fill #6a2080 0.8
+poly 0.50,0.40 0.54,0.38 0.56,0.42 0.52,0.44 stroke #3a1040
+# Small dark seeds
+circle 0.36,0.54 0.008 fill #3a2010 0.85
+circle 0.62,0.52 0.008 fill #3a2010 0.85
+# Bowl edge pattern (carved)
+arc 0.5,0.5 0.30 0 60 stroke #3a2408 0.6 width 1
+arc 0.5,0.5 0.30 60 120 stroke #3a2408 0.6 width 1
+arc 0.5,0.5 0.30 120 180 stroke #3a2408 0.6 width 1
+# Ceramic sheen
+arc 0.5,0.5 0.30 210 260 stroke #daa878 0.6 width 1
+# Water drop remnants (fresh offering)
+ellipse 0.50,0.50 0.04,0.02 fill #aac0d0 0.5
+# Little flame/smoke from offering (faint)
+bezier 0.50,0.44 0.48,0.38 0.52,0.32 0.50,0.26 stroke #cccccc 0.3 width 1

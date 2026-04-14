@@ -1,0 +1,80 @@
+name: Small Chandelier
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.5
+lights: [{"preset":"candle","x":0.5,"y":0.5}]
+placement: center
+room_types: house-merchant, tavern-common, inn-common-room, mansion-dining, noble-solar
+typical_count: few
+clusters_with: table, tapestry, wall-sconce, fresh-flowers
+notes: Hanging chandelier seen from directly below — wheel of candles with brass ring
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-0.5
+
+# Outer light halo
+circle 0.5,0.5 0.44 fill #ffaa00 0.1
+# Brass ring (main frame)
+ring 0.5,0.5 0.32 0.28 fill #daa520 0.92
+ring 0.5,0.5 0.32 0.28 stroke #5a3a00
+# Inner brass ring detail
+circle 0.5,0.5 0.30 stroke #8b6914 0.7 width 1
+# === Candles arranged around ring (6 candles) ===
+# Candle N
+circle 0.50,0.22 0.04 fill #f0e4d0 0.95
+circle 0.50,0.22 0.04 stroke #8b7355
+# Candle N flame
+poly 0.48,0.22 0.50,0.18 0.52,0.22 fill #e85500 0.7
+poly 0.49,0.21 0.50,0.19 0.51,0.21 fill #ffee88 0.95
+circle 0.50,0.20 0.03 fill #ffaa00 0.4
+# Candle NE
+circle 0.74,0.34 0.04 fill #f0e4d0 0.95
+circle 0.74,0.34 0.04 stroke #8b7355
+poly 0.72,0.34 0.74,0.30 0.76,0.34 fill #e85500 0.7
+circle 0.74,0.32 0.03 fill #ffaa00 0.4
+# Candle SE
+circle 0.74,0.66 0.04 fill #f0e4d0 0.95
+circle 0.74,0.66 0.04 stroke #8b7355
+poly 0.72,0.66 0.74,0.62 0.76,0.66 fill #e85500 0.7
+circle 0.74,0.64 0.03 fill #ffaa00 0.4
+# Candle S
+circle 0.50,0.78 0.04 fill #f0e4d0 0.95
+circle 0.50,0.78 0.04 stroke #8b7355
+poly 0.48,0.78 0.50,0.74 0.52,0.78 fill #e85500 0.7
+circle 0.50,0.76 0.03 fill #ffaa00 0.4
+# Candle SW
+circle 0.26,0.66 0.04 fill #f0e4d0 0.95
+circle 0.26,0.66 0.04 stroke #8b7355
+poly 0.24,0.66 0.26,0.62 0.28,0.66 fill #e85500 0.7
+circle 0.26,0.64 0.03 fill #ffaa00 0.4
+# Candle NW
+circle 0.26,0.34 0.04 fill #f0e4d0 0.95
+circle 0.26,0.34 0.04 stroke #8b7355
+poly 0.24,0.34 0.26,0.30 0.28,0.34 fill #e85500 0.7
+circle 0.26,0.32 0.03 fill #ffaa00 0.4
+# Central chain/support (small circle at center where chain descends)
+circle 0.50,0.50 0.06 fill #daa520 0.9
+circle 0.50,0.50 0.06 stroke #5a3a00
+# Chain detail (cross-hatch at center)
+line 0.46,0.50 0.54,0.50 stroke #5a3a00 0.7
+line 0.50,0.46 0.50,0.54 stroke #5a3a00 0.7
+# Decorative arms radiating out (thin spokes to candles)
+line 0.50,0.44 0.50,0.26 stroke #daa520 width 2
+line 0.50,0.44 0.50,0.26 stroke #5a3a00 width 1
+line 0.50,0.56 0.50,0.74 stroke #daa520 width 2
+line 0.50,0.56 0.50,0.74 stroke #5a3a00 width 1
+line 0.56,0.46 0.70,0.36 stroke #daa520 width 2
+line 0.56,0.46 0.70,0.36 stroke #5a3a00 width 1
+line 0.56,0.54 0.70,0.64 stroke #daa520 width 2
+line 0.56,0.54 0.70,0.64 stroke #5a3a00 width 1
+line 0.44,0.46 0.30,0.36 stroke #daa520 width 2
+line 0.44,0.46 0.30,0.36 stroke #5a3a00 width 1
+line 0.44,0.54 0.30,0.64 stroke #daa520 width 2
+line 0.44,0.54 0.30,0.64 stroke #5a3a00 width 1
+# Hanging crystal drops beneath each candle
+ellipse 0.50,0.88 0.02,0.04 fill #f0f4ff 0.8
+ellipse 0.74,0.74 0.02,0.03 fill #f0f4ff 0.7
+ellipse 0.26,0.74 0.02,0.03 fill #f0f4ff 0.7

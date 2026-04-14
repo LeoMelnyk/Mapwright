@@ -1,0 +1,49 @@
+name: Bloody Rag
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.03
+placement: floor
+room_types: interrogation-room, torture-chamber, butcher-shop, corpse-scene
+typical_count: many
+clusters_with: bloodstain, blood-smear, corpse, tool-cart, chair-restraint
+notes: Discarded rag soaked through with blood — balled up or thrown aside
+---
+# === HITBOX ===
+hitbox rect 0.16,0.24 0.68,0.56 z 0-0.03
+
+# Main crumpled rag (stained dark red)
+poly 0.18,0.42 0.26,0.28 0.40,0.24 0.56,0.26 0.70,0.30 0.82,0.42 0.80,0.56 0.70,0.70 0.56,0.78 0.40,0.78 0.26,0.72 0.16,0.60 fill #5a1818 0.92
+poly 0.18,0.42 0.26,0.28 0.40,0.24 0.56,0.26 0.70,0.30 0.82,0.42 0.80,0.56 0.70,0.70 0.56,0.78 0.40,0.78 0.26,0.72 0.16,0.60 texfill polyhaven/rough_linen 0.4
+poly 0.18,0.42 0.26,0.28 0.40,0.24 0.56,0.26 0.70,0.30 0.82,0.42 0.80,0.56 0.70,0.70 0.56,0.78 0.40,0.78 0.26,0.72 0.16,0.60 stroke #2a0808
+# Darkest saturated center (fresh blood)
+poly 0.32,0.44 0.44,0.34 0.56,0.38 0.64,0.50 0.58,0.62 0.44,0.66 0.32,0.58 fill #2a0404 0.95
+# Lighter fabric visible at edges (less saturated)
+poly 0.22,0.34 0.30,0.30 0.26,0.38 fill #c8b898 0.8
+poly 0.22,0.34 0.30,0.30 0.26,0.38 stroke #8b7355
+poly 0.74,0.60 0.80,0.64 0.76,0.70 fill #c8b898 0.75
+poly 0.74,0.60 0.80,0.64 0.76,0.70 stroke #8b7355
+# Fold creases/wrinkles
+bezier 0.22,0.48 0.34,0.52 0.50,0.48 0.60,0.54 stroke #2a0808 0.7 width 1
+bezier 0.26,0.62 0.38,0.60 0.52,0.66 0.66,0.62 stroke #2a0808 0.6 width 1
+bezier 0.30,0.36 0.44,0.40 0.56,0.36 0.68,0.42 stroke #2a0808 0.5 width 1
+# Dark congealed blood spots
+circle 0.38,0.48 0.03 fill #0a0202 0.85
+circle 0.52,0.56 0.025 fill #0a0202 0.85
+circle 0.60,0.42 0.02 fill #0a0202 0.8
+# Blood droplets that escaped the rag
+circle 0.14,0.50 0.015 fill #3a0808 0.8
+circle 0.86,0.52 0.015 fill #3a0808 0.8
+circle 0.18,0.72 0.012 fill #3a0808 0.75
+circle 0.82,0.72 0.012 fill #3a0808 0.75
+# Blood streak from rag
+bezier 0.70,0.72 0.80,0.78 0.88,0.82 0.94,0.86 stroke #3a0808 width 2
+# Frayed edge threads
+line 0.18,0.42 0.12,0.40 stroke #8b2020 0.7
+line 0.26,0.28 0.22,0.24 stroke #8b2020 0.7
+line 0.70,0.70 0.74,0.74 stroke #8b2020 0.7
+line 0.40,0.78 0.38,0.82 stroke #8b2020 0.7
+# Tiny crumb/dirt on rag
+circle 0.46,0.48 0.006 fill #1a1008 0.7

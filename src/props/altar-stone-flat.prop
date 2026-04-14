@@ -1,0 +1,55 @@
+name: Flat Stone Altar
+category: Religious
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1
+placement: center
+room_types: ancient-ruin-overgrown, standing-stones-circle, druid-grove, wilderness
+typical_count: single
+clusters_with: standing-stone, cairn-sacred, offering-bowl, coin-offering, bloodstain
+notes: Rough low stone slab used as primitive altar — weathered and moss-covered
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-1
+
+# Main slab (irregular square, weathered stone)
+poly 0.14,0.20 0.30,0.14 0.80,0.12 1.20,0.14 1.70,0.16 1.88,0.26 1.92,0.80 1.90,1.20 1.86,1.68 1.78,1.82 1.24,1.88 0.76,1.90 0.28,1.86 0.12,1.74 0.10,1.24 0.12,0.72 fill #6a6058 0.95
+poly 0.14,0.20 0.30,0.14 0.80,0.12 1.20,0.14 1.70,0.16 1.88,0.26 1.92,0.80 1.90,1.20 1.86,1.68 1.78,1.82 1.24,1.88 0.76,1.90 0.28,1.86 0.12,1.74 0.10,1.24 0.12,0.72 texfill polyhaven/stone_wall 0.6
+poly 0.14,0.20 0.30,0.14 0.80,0.12 1.20,0.14 1.70,0.16 1.88,0.26 1.92,0.80 1.90,1.20 1.86,1.68 1.78,1.82 1.24,1.88 0.76,1.90 0.28,1.86 0.12,1.74 0.10,1.24 0.12,0.72 stroke #2a2420
+# Worn top surface (lighter stone, central worship area)
+poly 0.30,0.40 0.80,0.36 1.20,0.38 1.60,0.40 1.66,0.80 1.64,1.20 1.60,1.58 1.20,1.62 0.80,1.60 0.30,1.56 0.26,1.20 0.28,0.80 fill #8a8078 0.7
+# Cracks running across surface
+bezier 0.30,0.60 0.60,0.70 1.20,0.70 1.60,0.60 stroke #2a2420 0.8 width 1
+bezier 0.40,1.10 0.80,1.00 1.20,1.20 1.60,1.10 stroke #2a2420 0.7 width 1
+line 0.60,0.40 0.70,1.58 stroke #2a2420 0.5
+# Dark channels (blood grooves carved into surface)
+bezier 0.60,0.80 0.80,0.90 1.20,0.90 1.40,0.80 stroke #3a1808 0.7 width 2
+bezier 1.00,0.50 0.90,0.80 0.90,1.20 1.00,1.50 stroke #3a1808 0.6 width 2
+# Moss patches (greenish)
+poly 0.20,0.32 0.34,0.28 0.40,0.40 0.30,0.48 0.22,0.44 fill #3a5028 0.75
+poly 0.20,0.32 0.34,0.28 0.40,0.40 0.30,0.48 0.22,0.44 stroke #1a3010 0.6
+poly 1.60,1.40 1.78,1.38 1.82,1.50 1.74,1.62 1.62,1.58 fill #3a5028 0.75
+poly 1.60,1.40 1.78,1.38 1.82,1.50 1.74,1.62 1.62,1.58 stroke #1a3010 0.6
+# Yellow lichen
+ellipse 0.40,1.30 0.08,0.06 fill #8a9020 0.6
+ellipse 1.40,0.40 0.10,0.07 fill #8a9020 0.6
+# Carved rune in center (ancient)
+circle 1.0,1.0 0.08 stroke #1a0800 width 2
+line 0.96,0.96 1.04,1.04 stroke #1a0800 width 2
+line 1.04,0.96 0.96,1.04 stroke #1a0800 width 2
+# Dried blood stain (faded)
+ellipse 1.0,1.0 0.14 fill #4a1010 0.3
+# Ochre pigment splash
+ellipse 0.70,0.70 0.08,0.06 fill #8a3010 0.4
+# Small offerings — coins and petals scattered
+circle 0.50,1.40 0.03 fill #daa520 0.8
+circle 1.50,0.60 0.025 fill #daa520 0.75
+poly 0.40,0.80 0.44,0.78 0.46,0.84 0.42,0.86 fill #aa2020 0.6
+# Weathered pitting
+circle 0.80,0.30 0.015 fill #2a2420 0.6
+circle 1.30,0.30 0.012 fill #2a2420 0.6
+circle 0.30,1.40 0.012 fill #2a2420 0.6
+# Highlight
+arc 1.0,1.0 0.86 210 260 stroke #a0988c 0.4 width 1

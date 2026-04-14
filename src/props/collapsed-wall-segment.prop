@@ -1,0 +1,57 @@
+name: Collapsed Wall Segment
+category: Terrain
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1
+placement: wall
+room_types: ancient-ruin-overgrown, ruined-watchtower, corrupted-temple, cave, battlefield-recent
+typical_count: few
+clusters_with: rubble-pile, fallen-beam, dust-heap, fallen-leaves
+notes: Collapsed stone wall section — blocks and rubble spilling into a room
+---
+# === HITBOX ===
+hitbox rect 0.15,0.20 0.70,1.60 z 0-1
+
+# Main block 1 (largest, toppled)
+poly 0.18,0.24 0.42,0.22 0.66,0.28 0.78,0.42 0.72,0.60 0.54,0.66 0.32,0.60 0.20,0.48 fill #6a6058 0.95
+poly 0.18,0.24 0.42,0.22 0.66,0.28 0.78,0.42 0.72,0.60 0.54,0.66 0.32,0.60 0.20,0.48 texfill polyhaven/stone_wall 0.65
+poly 0.18,0.24 0.42,0.22 0.66,0.28 0.78,0.42 0.72,0.60 0.54,0.66 0.32,0.60 0.20,0.48 stroke #2a2420
+# Block cracks
+line 0.24,0.30 0.48,0.40 stroke #1a1410 0.7
+line 0.60,0.34 0.72,0.52 stroke #1a1410 0.7
+line 0.34,0.52 0.52,0.58 stroke #1a1410 0.6
+# Block 2 (middle, tilted)
+poly 0.14,0.72 0.36,0.68 0.60,0.76 0.72,0.90 0.56,1.04 0.34,1.00 0.16,0.90 fill #5a5048 0.92
+poly 0.14,0.72 0.36,0.68 0.60,0.76 0.72,0.90 0.56,1.04 0.34,1.00 0.16,0.90 texfill polyhaven/stone_wall 0.6
+poly 0.14,0.72 0.36,0.68 0.60,0.76 0.72,0.90 0.56,1.04 0.34,1.00 0.16,0.90 stroke #2a2420
+line 0.26,0.82 0.52,0.92 stroke #1a1410 0.6
+# Block 3 (smaller, split)
+poly 0.30,1.10 0.52,1.14 0.64,1.28 0.56,1.42 0.38,1.44 0.22,1.30 fill #6a6058 0.9
+poly 0.30,1.10 0.52,1.14 0.64,1.28 0.56,1.42 0.38,1.44 0.22,1.30 texfill polyhaven/rock_boulder_cracked 0.6
+poly 0.30,1.10 0.52,1.14 0.64,1.28 0.56,1.42 0.38,1.44 0.22,1.30 stroke #2a2420
+# Block 4 (broken corner piece)
+poly 0.62,1.34 0.80,1.38 0.84,1.54 0.70,1.62 fill #5a5048 0.9
+poly 0.62,1.34 0.80,1.38 0.84,1.54 0.70,1.62 stroke #2a2420
+# Smaller rubble chunks
+poly 0.18,1.54 0.30,1.52 0.32,1.62 0.22,1.66 fill #6a6058 0.85
+poly 0.18,1.54 0.30,1.52 0.32,1.62 0.22,1.66 stroke #2a2420
+poly 0.60,1.70 0.72,1.68 0.76,1.78 0.66,1.82 fill #5a5048 0.85
+poly 0.60,1.70 0.72,1.68 0.76,1.78 0.66,1.82 stroke #2a2420
+# Dust/pebble scatter
+circle 0.20,0.70 0.015 fill #6a6058 0.7
+circle 0.80,1.00 0.015 fill #6a6058 0.7
+circle 0.14,1.40 0.012 fill #6a6058 0.7
+circle 0.84,1.70 0.012 fill #6a6058 0.6
+circle 0.40,1.74 0.01 fill #6a6058 0.6
+# Moss patches on old stone
+ellipse 0.40,0.44 0.10,0.06 fill #3a5028 0.6
+ellipse 0.60,0.90 0.08,0.05 fill #3a5028 0.55
+# Crack through rubble pile
+line 0.40,0.68 0.42,1.10 stroke #1a1410 0.5
+# Iron reinforcement bar sticking out (from old construction)
+line 0.52,0.40 0.64,0.28 stroke #3a3020 width 3
+line 0.52,0.40 0.64,0.28 stroke #1a1008 width 1
+# Dust cloud hint (greyish)
+circle 0.50,1.30 0.20 fill #888888 0.1

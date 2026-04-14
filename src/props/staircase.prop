@@ -1,0 +1,103 @@
+name: Staircase (Interior)
+category: Structure
+footprint: 3x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: brothel-parlor, inn-common-room, tavern-common, mansion-grand-hall
+typical_count: single
+clusters_with: carpet-runner, wall-sconce, tapestry
+notes: Interior staircase seen top-down — visible step treads ascending north with banister
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,2.80 z 0-4
+
+# Side walls/banister frame (left + right)
+rect 0.10,0.10 0.14,2.80 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.10 0.14,2.80 stroke #2a1400
+rect 1.76,0.10 0.14,2.80 texfill polyhaven/dark_wood 0.88
+rect 1.76,0.10 0.14,2.80 stroke #2a1400
+# Banister rail tops (both sides)
+rect 0.14,0.12 0.06,2.76 fill #3a1f00 0.9
+rect 1.80,0.12 0.06,2.76 fill #3a1f00 0.9
+# Banister spindles (small uprights spaced along)
+line 0.18,0.20 0.18,0.24 stroke #5c3a1e width 2
+line 0.18,0.40 0.18,0.44 stroke #5c3a1e width 2
+line 0.18,0.60 0.18,0.64 stroke #5c3a1e width 2
+line 0.18,0.80 0.18,0.84 stroke #5c3a1e width 2
+line 0.18,1.00 0.18,1.04 stroke #5c3a1e width 2
+line 0.18,1.20 0.18,1.24 stroke #5c3a1e width 2
+line 0.18,1.40 0.18,1.44 stroke #5c3a1e width 2
+line 0.18,1.60 0.18,1.64 stroke #5c3a1e width 2
+line 0.18,1.80 0.18,1.84 stroke #5c3a1e width 2
+line 0.18,2.00 0.18,2.04 stroke #5c3a1e width 2
+line 0.18,2.20 0.18,2.24 stroke #5c3a1e width 2
+line 0.18,2.40 0.18,2.44 stroke #5c3a1e width 2
+line 0.18,2.60 0.18,2.64 stroke #5c3a1e width 2
+# Right spindles mirrored
+line 1.82,0.20 1.82,0.24 stroke #5c3a1e width 2
+line 1.82,0.60 1.82,0.64 stroke #5c3a1e width 2
+line 1.82,1.00 1.82,1.04 stroke #5c3a1e width 2
+line 1.82,1.40 1.82,1.44 stroke #5c3a1e width 2
+line 1.82,1.80 1.82,1.84 stroke #5c3a1e width 2
+line 1.82,2.20 1.82,2.24 stroke #5c3a1e width 2
+line 1.82,2.60 1.82,2.64 stroke #5c3a1e width 2
+# Stair treads (horizontal planks, ascending — lighter to south)
+rect 0.24,2.60 1.52,0.20 texfill polyhaven/weathered_planks 0.9
+rect 0.24,2.60 1.52,0.20 stroke #2a1400
+rect 0.24,2.30 1.52,0.20 texfill polyhaven/weathered_planks 0.88
+rect 0.24,2.30 1.52,0.20 stroke #2a1400
+rect 0.24,2.00 1.52,0.20 texfill polyhaven/weathered_planks 0.88
+rect 0.24,2.00 1.52,0.20 stroke #2a1400
+rect 0.24,1.70 1.52,0.20 texfill polyhaven/weathered_planks 0.87
+rect 0.24,1.70 1.52,0.20 stroke #2a1400
+rect 0.24,1.40 1.52,0.20 texfill polyhaven/weathered_planks 0.85
+rect 0.24,1.40 1.52,0.20 stroke #2a1400
+rect 0.24,1.10 1.52,0.20 texfill polyhaven/weathered_planks 0.85
+rect 0.24,1.10 1.52,0.20 stroke #2a1400
+rect 0.24,0.80 1.52,0.20 texfill polyhaven/weathered_planks 0.83
+rect 0.24,0.80 1.52,0.20 stroke #2a1400
+rect 0.24,0.50 1.52,0.20 texfill polyhaven/weathered_planks 0.82
+rect 0.24,0.50 1.52,0.20 stroke #2a1400
+rect 0.24,0.20 1.52,0.20 texfill polyhaven/weathered_planks 0.8
+rect 0.24,0.20 1.52,0.20 stroke #2a1400
+# Stair nosings (front edge highlights — south edge of each)
+line 0.24,2.78 1.76,2.78 stroke #5c3a1e width 1
+line 0.24,2.48 1.76,2.48 stroke #5c3a1e width 1
+line 0.24,2.18 1.76,2.18 stroke #5c3a1e width 1
+line 0.24,1.88 1.76,1.88 stroke #5c3a1e width 1
+line 0.24,1.58 1.76,1.58 stroke #5c3a1e width 1
+line 0.24,1.28 1.76,1.28 stroke #5c3a1e width 1
+line 0.24,0.98 1.76,0.98 stroke #5c3a1e width 1
+line 0.24,0.68 1.76,0.68 stroke #5c3a1e width 1
+line 0.24,0.38 1.76,0.38 stroke #5c3a1e width 1
+# Carpet runner down center (red velvet)
+rect 0.70,0.18 0.60,2.62 fill #8a2020 0.7
+rect 0.70,0.18 0.60,2.62 stroke #3a0808
+# Carpet gold trim
+line 0.74,0.18 0.74,2.80 stroke #daa520 0.5
+line 1.26,0.18 1.26,2.80 stroke #daa520 0.5
+# Carpet pattern (diamonds down middle)
+poly 0.96,0.60 1.04,0.60 1.04,0.68 0.96,0.68 stroke #daa520 0.5
+poly 0.96,1.20 1.04,1.20 1.04,1.28 0.96,1.28 stroke #daa520 0.5
+poly 0.96,1.80 1.04,1.80 1.04,1.88 0.96,1.88 stroke #daa520 0.5
+poly 0.96,2.40 1.04,2.40 1.04,2.48 0.96,2.48 stroke #daa520 0.5
+# Top newel post (north, most decorative)
+rect 0.08,0.08 0.18,0.18 fill #1a0f00 0.9
+rect 0.08,0.08 0.18,0.18 stroke #000000
+rect 1.74,0.08 0.18,0.18 fill #1a0f00 0.9
+rect 1.74,0.08 0.18,0.18 stroke #000000
+# Bottom newel post (south)
+rect 0.08,2.74 0.18,0.18 fill #1a0f00 0.9
+rect 1.74,2.74 0.18,0.18 fill #1a0f00 0.9
+# Newel top caps (brass finials)
+circle 0.17,0.17 0.05 fill #daa520 0.85
+circle 0.17,0.17 0.05 stroke #5a3a00
+circle 1.83,0.17 0.05 fill #daa520 0.85
+circle 1.83,0.17 0.05 stroke #5a3a00
+circle 0.17,2.83 0.05 fill #daa520 0.85
+circle 0.17,2.83 0.05 stroke #5a3a00
+circle 1.83,2.83 0.05 fill #daa520 0.85
+circle 1.83,2.83 0.05 stroke #5a3a00

@@ -1,0 +1,52 @@
+name: Goblet
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: guildhall, treasure-vault, mansion-dining, throne-room, noble-solar
+typical_count: few
+clusters_with: wine-bottle, decanter, table, candelabra, silver-bowl
+notes: Ornate metal goblet viewed from above — bowl with jeweled rim
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.20 z 0-0.3
+
+# Foot base (widest — gold ring)
+circle 0.5,0.56 0.20 fill #8b6914 0.9
+circle 0.5,0.56 0.20 stroke #5a3a00
+# Foot decorative ring
+circle 0.5,0.56 0.16 stroke #daa520 0.7 width 1
+# Stem knop (decorative bulge — middle)
+circle 0.5,0.5 0.06 fill #daa520 0.95
+circle 0.5,0.5 0.06 stroke #5a3a00
+# Stem top ring
+circle 0.5,0.5 0.04 stroke #5a3a00 0.8 width 1
+# Bowl rim (top of goblet — widest)
+circle 0.5,0.5 0.18 fill #daa520 0.95
+circle 0.5,0.5 0.18 stroke #5a3a00
+# Bowl interior (darker — ruby wine or empty shadow)
+circle 0.5,0.5 0.14 fill #4a0818 0.95
+circle 0.5,0.5 0.14 stroke #2a0408
+# Wine meniscus
+arc 0.5,0.5 0.13 200 260 stroke #8a1828 0.7 width 1
+# Ornate gem setting on rim (large ruby)
+circle 0.5,0.33 0.035 fill #cc1828 0.95
+circle 0.5,0.33 0.035 stroke #5a0808
+circle 0.5,0.33 0.015 fill #f04040 0.7
+# Smaller gems around rim (sapphires)
+circle 0.34,0.45 0.02 fill #1848a0 0.9
+circle 0.34,0.45 0.02 stroke #0a1828
+circle 0.66,0.45 0.02 fill #1848a0 0.9
+circle 0.66,0.45 0.02 stroke #0a1828
+circle 0.5,0.67 0.02 fill #1848a0 0.9
+circle 0.5,0.67 0.02 stroke #0a1828
+# Gold engraved pattern on rim
+arc 0.5,0.5 0.17 230 250 stroke #f0c840 0.6 width 1
+arc 0.5,0.5 0.17 290 310 stroke #f0c840 0.6 width 1
+arc 0.5,0.5 0.17 110 130 stroke #f0c840 0.6 width 1
+arc 0.5,0.5 0.17 50 70 stroke #f0c840 0.6 width 1
+# Gold highlight on bowl rim
+arc 0.5,0.5 0.17 210 260 stroke #ffd860 0.7 width 1

@@ -1,0 +1,59 @@
+name: Carved Rune Stone
+category: Religious
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: floor
+room_types: ancient-ruin-overgrown, standing-stones-circle, druid-grove, bog-witch-hut
+typical_count: few
+clusters_with: standing-stone, cairn-sacred, bone-marker, prayer-stone, altar-stone-flat
+notes: Upright grey stone covered in carved glyphs — smaller than standing-stone
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.5 0.22,0.30 z 0-1.5
+
+# Stone body (irregular upright slab)
+poly 0.32,0.20 0.42,0.14 0.58,0.14 0.70,0.20 0.74,0.36 0.72,0.56 0.70,0.70 0.60,0.78 0.40,0.78 0.30,0.70 0.28,0.56 0.26,0.36 fill #6a6058 0.95
+poly 0.32,0.20 0.42,0.14 0.58,0.14 0.70,0.20 0.74,0.36 0.72,0.56 0.70,0.70 0.60,0.78 0.40,0.78 0.30,0.70 0.28,0.56 0.26,0.36 texfill polyhaven/stone_wall 0.6
+poly 0.32,0.20 0.42,0.14 0.58,0.14 0.70,0.20 0.74,0.36 0.72,0.56 0.70,0.70 0.60,0.78 0.40,0.78 0.30,0.70 0.28,0.56 0.26,0.36 stroke #2a2420
+# Weathering cracks
+bezier 0.32,0.28 0.36,0.44 0.34,0.60 0.38,0.72 stroke #2a2420 0.7 width 1
+bezier 0.66,0.24 0.68,0.40 0.70,0.56 0.66,0.72 stroke #2a2420 0.7 width 1
+# === Carved runes (top of stone) ===
+# Rune 1 (line with cross)
+line 0.44,0.22 0.44,0.34 stroke #1a0800 width 2
+line 0.40,0.26 0.48,0.26 stroke #1a0800 width 2
+# Rune 2 (triangle)
+poly 0.54,0.22 0.58,0.30 0.50,0.30 stroke #1a0800 width 2
+# Rune 3 (zigzag)
+line 0.36,0.40 0.42,0.44 stroke #1a0800 width 2
+line 0.42,0.44 0.38,0.48 stroke #1a0800 width 2
+line 0.38,0.48 0.44,0.52 stroke #1a0800 width 2
+# Rune 4 (circle with dot)
+circle 0.58,0.44 0.04 stroke #1a0800 width 1
+circle 0.58,0.44 0.012 fill #1a0800 0.9
+# Rune 5 (arrow down)
+line 0.50,0.54 0.50,0.66 stroke #1a0800 width 2
+line 0.46,0.62 0.50,0.66 stroke #1a0800 width 2
+line 0.54,0.62 0.50,0.66 stroke #1a0800 width 2
+# Rune 6 (double line)
+line 0.36,0.62 0.42,0.62 stroke #1a0800 width 2
+line 0.36,0.66 0.42,0.66 stroke #1a0800 width 2
+# Rune 7 (small hook)
+bezier 0.62,0.60 0.66,0.64 0.66,0.68 0.62,0.70 stroke #1a0800 width 2
+# Red ochre pigment in carvings
+line 0.44,0.22 0.44,0.34 stroke #8a3010 0.4 width 1
+circle 0.58,0.44 0.04 stroke #8a3010 0.5 width 1
+# Moss
+poly 0.30,0.60 0.34,0.56 0.38,0.64 0.32,0.68 fill #3a5028 0.7
+poly 0.30,0.60 0.34,0.56 0.38,0.64 0.32,0.68 stroke #1a3010
+# Yellow lichen
+ellipse 0.62,0.66 0.05,0.03 fill #8a9020 0.6
+# Edge highlight
+arc 0.5,0.5 0.22 210 270 stroke #a0988c 0.5 width 1
+# Base where stone meets ground (pebbles)
+circle 0.36,0.80 0.02 fill #5a5048 0.8
+circle 0.64,0.80 0.02 fill #5a5048 0.8
+circle 0.50,0.82 0.02 fill #5a5048 0.8

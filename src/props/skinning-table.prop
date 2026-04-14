@@ -1,0 +1,76 @@
+name: Skinning Table
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: floor
+room_types: cabin-hunters, cabin-trapper, tannery, butcher-shop
+typical_count: single
+clusters_with: skinning-knife, stretched-hide, bucket, bloodstain, cleaver
+notes: Rough wooden butchering table with blood channels and tools
+---
+# === HITBOX ===
+hitbox rect 0.14,0.14 1.72,1.72 z 0-1.5
+
+# Main table surface
+rect 0.14,0.14 1.72,1.72 texfill polyhaven/weathered_planks 0.9
+rect 0.14,0.14 1.72,1.72 fill #3a2010 0.45
+rect 0.14,0.14 1.72,1.72 stroke #2a1400
+# Plank seams
+line 0.60,0.14 0.60,1.86 stroke #2a1400 0.8
+line 1.00,0.14 1.00,1.86 stroke #2a1400 0.8
+line 1.40,0.14 1.40,1.86 stroke #2a1400 0.8
+# Wood grain
+line 0.14,0.50 1.86,0.50 stroke #5c3a1e 0.4
+line 0.14,0.90 1.86,0.90 stroke #5c3a1e 0.4
+line 0.14,1.30 1.86,1.30 stroke #5c3a1e 0.4
+line 0.14,1.70 1.86,1.70 stroke #5c3a1e 0.4
+# Corner legs visible
+rect 0.14,0.14 0.10,0.10 fill #1a0f00 0.85
+rect 1.76,0.14 0.10,0.10 fill #1a0f00 0.85
+rect 0.14,1.76 0.10,0.10 fill #1a0f00 0.85
+rect 1.76,1.76 0.10,0.10 fill #1a0f00 0.85
+# Central blood groove (channel to drain)
+rect 0.94,0.20 0.12,1.60 fill #1a0808 0.85
+rect 0.94,0.20 0.12,1.60 stroke #0a0404
+# Blood groove darker inner
+rect 0.96,0.22 0.08,1.56 fill #0a0202 0.9
+# Side drainage channels (lateral)
+line 0.20,0.60 0.94,0.60 stroke #0a0202 width 2
+line 1.06,0.60 1.80,0.60 stroke #0a0202 width 2
+line 0.20,1.20 0.94,1.20 stroke #0a0202 width 2
+line 1.06,1.20 1.80,1.20 stroke #0a0202 width 2
+# Large blood smear/pool on table
+poly 0.30,0.80 0.60,0.70 0.80,0.90 0.90,1.20 0.76,1.50 0.50,1.60 0.26,1.40 0.20,1.10 fill #3a0808 0.8
+poly 0.30,0.80 0.60,0.70 0.80,0.90 0.90,1.20 0.76,1.50 0.50,1.60 0.26,1.40 0.20,1.10 stroke #1a0404
+# Darker center
+ellipse 0.55,1.15 0.24,0.16 fill #1a0404 0.85
+# Scrape/cut marks from repeated use
+line 0.30,0.40 0.80,0.45 stroke #1a0404 0.5
+line 1.20,0.60 1.60,0.70 stroke #1a0404 0.5
+line 0.20,1.40 0.70,1.60 stroke #1a0404 0.5
+line 1.10,1.50 1.50,1.60 stroke #1a0404 0.5
+# Skinning knife on table
+rect 1.20,1.80 0.30,0.08 fill #aaaaaa 0.95 rotate 10
+rect 1.20,1.80 0.30,0.08 stroke #333333 rotate 10
+rect 1.44,1.82 0.10,0.06 fill #5c3a1e 0.9 rotate 10
+# Small pile of fat/fur scraps
+poly 1.56,0.30 1.70,0.26 1.76,0.36 1.68,0.44 fill #c8a078 0.85
+poly 1.56,0.30 1.70,0.26 1.76,0.36 1.68,0.44 stroke #6a4828
+# Bone fragments
+line 0.30,0.30 0.38,0.34 stroke #e8dcc8 width 2
+line 0.30,0.30 0.38,0.34 stroke #8a7060 width 1
+# Nail heads
+circle 0.20,0.20 0.01 fill #333333 0.9
+circle 1.80,0.20 0.01 fill #333333 0.9
+circle 0.20,1.80 0.01 fill #333333 0.9
+circle 1.80,1.80 0.01 fill #333333 0.9
+# Deep gouges in wood
+line 0.36,1.00 0.58,1.10 stroke #1a0f00 0.7 width 2
+line 1.20,0.90 1.50,0.80 stroke #1a0f00 0.7 width 2
+# Tiny flies around blood
+circle 0.60,1.20 0.008 fill #0a0404 0.9
+circle 0.68,1.10 0.006 fill #0a0404 0.85
+circle 0.72,1.30 0.006 fill #0a0404 0.85

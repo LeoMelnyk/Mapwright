@@ -1,0 +1,48 @@
+name: Flour Sack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: bakery, mill-grain, pantry, farmhouse-kitchen, servants-kitchen, shop-general
+typical_count: few
+clusters_with: flour-sack-stack, flour-dust, bread-loaf, scale, cart
+notes: Heavy burlap sack of flour; lumpy form slumped on floor
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.54 0.32,0.28 z 0-0.8
+
+# Sack body (lumpy oval, burlap)
+ellipse 0.5,0.54 0.32,0.30 texfill polyhaven/rough_linen 0.9
+ellipse 0.5,0.54 0.32,0.30 fill #d4b878 0.4
+ellipse 0.5,0.54 0.32,0.30 stroke #4a3820
+# Lumpy surface (contents bulges)
+ellipse 0.40,0.48 0.12,0.08 fill #c8ac70 0.5
+ellipse 0.62,0.56 0.10,0.08 fill #c8ac70 0.5
+ellipse 0.48,0.66 0.10,0.06 fill #c8ac70 0.4
+# Stitched seam down middle
+line 0.50,0.28 0.50,0.78 stroke #3a2810 0.7
+# Cross stitches
+line 0.48,0.32 0.52,0.32 stroke #3a2810 0.6
+line 0.48,0.40 0.52,0.40 stroke #3a2810 0.6
+line 0.48,0.50 0.52,0.50 stroke #3a2810 0.6
+line 0.48,0.60 0.52,0.60 stroke #3a2810 0.6
+line 0.48,0.68 0.52,0.68 stroke #3a2810 0.6
+# Drawstring gathered at top
+ellipse 0.5,0.26 0.10,0.04 fill #4a3820 0.95
+ellipse 0.5,0.26 0.10,0.04 stroke #2a1810
+# Drawstring cord tied
+bezier 0.46,0.24 0.42,0.18 0.40,0.14 0.38,0.10 stroke #3a2010 width 2
+bezier 0.54,0.24 0.58,0.18 0.60,0.14 0.62,0.10 stroke #3a2010 width 2
+# Brand stamp (red/purple)
+rect 0.36,0.54 0.28,0.08 stroke #4a1828 0.5 width 1
+line 0.40,0.58 0.60,0.58 stroke #4a1828 0.5
+# Small tear with flour dust
+poly 0.28,0.52 0.34,0.50 0.36,0.54 0.30,0.56 fill #2a1810 0.5
+circle 0.30,0.58 0.02 fill #f0e4d0 0.8
+circle 0.26,0.62 0.015 fill #f0e4d0 0.7
+circle 0.24,0.58 0.012 fill #f0e4d0 0.7
+# Highlight top
+arc 0.5,0.54 0.28 220 260 stroke #e8d4a0 0.4 width 1
