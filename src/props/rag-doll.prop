@@ -1,0 +1,67 @@
+name: Rag Doll
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: nursery, house-medium-family, peasant-hovel
+typical_count: single
+clusters_with: stuffed-bear, wooden-toy, blocks-pile, cradle
+notes: Soft cloth doll lying on the floor; patchwork dress, yarn hair, button eyes
+---
+# === HITBOX ===
+hitbox rect 0.24,0.14 0.52,0.76 z 0-0.1
+
+# Head — round cloth head at north
+circle 0.50,0.26 0.12 texfill polyhaven/rough_linen 0.85
+circle 0.50,0.26 0.12 fill #e8dcc0 0.5
+circle 0.50,0.26 0.12 stroke #8b7355
+# Yarn hair — curly strands around head (orange)
+bezier 0.38,0.20 0.34,0.14 0.40,0.10 0.46,0.14 stroke #c86830 width 3
+bezier 0.54,0.14 0.60,0.10 0.66,0.14 0.62,0.20 stroke #c86830 width 3
+bezier 0.40,0.28 0.34,0.28 0.32,0.22 0.36,0.18 stroke #c86830 width 2
+bezier 0.60,0.28 0.66,0.28 0.68,0.22 0.64,0.18 stroke #c86830 width 2
+# Hair bangs across forehead
+line 0.42,0.20 0.58,0.20 stroke #c86830 width 2
+# Button eyes
+circle 0.46,0.26 0.018 fill #1a0a04 0.95
+circle 0.54,0.26 0.018 fill #1a0a04 0.95
+# Stitched mouth
+line 0.46,0.32 0.54,0.32 stroke #8a2020 width 1
+# Tiny stitch marks (X stitches on cheeks)
+line 0.42,0.28 0.44,0.30 stroke #8b7355 width 1
+line 0.56,0.28 0.58,0.30 stroke #8b7355 width 1
+# Neck
+rect 0.46,0.36 0.08,0.06 fill #e8dcc0 0.85
+rect 0.46,0.36 0.08,0.06 stroke #8b7355
+# Body/dress — pink patchwork
+rect 0.32,0.40 0.36,0.32 texfill polyhaven/rough_linen 0.8
+rect 0.32,0.40 0.36,0.32 fill #c8a0b0 0.75
+rect 0.32,0.40 0.36,0.32 stroke #8b5060
+# Dress patch — blue square stitched on
+rect 0.40,0.48 0.12,0.12 fill #a0b8d0 0.85
+rect 0.40,0.48 0.12,0.12 stroke #506080
+# Patchwork seam down dress center
+line 0.50,0.42 0.50,0.70 stroke #8b5060 0.6 width 1
+# Splayed arms (east/west)
+rect 0.14,0.42 0.20,0.08 fill #c8a0b0 0.8 rotate 10
+rect 0.14,0.42 0.20,0.08 stroke #8b5060 rotate 10
+rect 0.66,0.42 0.20,0.08 fill #c8a0b0 0.8 rotate -10
+rect 0.66,0.42 0.20,0.08 stroke #8b5060 rotate -10
+# Tiny cream hands
+circle 0.16,0.44 0.04 fill #e8dcc0 0.9
+circle 0.16,0.44 0.04 stroke #8b7355
+circle 0.84,0.44 0.04 fill #e8dcc0 0.9
+circle 0.84,0.44 0.04 stroke #8b7355
+# Legs splayed south
+rect 0.36,0.70 0.08,0.18 fill #a0b8d0 0.85 rotate 8
+rect 0.36,0.70 0.08,0.18 stroke #506080 rotate 8
+rect 0.56,0.70 0.08,0.18 fill #a0b8d0 0.85 rotate -8
+rect 0.56,0.70 0.08,0.18 stroke #506080 rotate -8
+# Cream feet
+circle 0.38,0.86 0.04 fill #e8dcc0 0.9
+circle 0.38,0.86 0.04 stroke #8b7355
+circle 0.62,0.86 0.04 fill #e8dcc0 0.9
+circle 0.62,0.86 0.04 stroke #8b7355

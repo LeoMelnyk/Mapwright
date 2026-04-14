@@ -1,0 +1,43 @@
+name: Tin Cup
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: apartment-tenement, mansion-servants-quarters, peasant-hovel
+typical_count: many
+clusters_with: bread-heel, bowl-stew, candle-stub, tankard
+notes: Humble dented tin cup with a small handle — cheap pewter/tin finish
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.18 z 0-0.2
+
+# Cup body (outer circle)
+circle 0.50,0.50 0.16 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.50 0.16 fill #888a8c 0.55
+circle 0.50,0.50 0.16 stroke #3a3a3c
+# Outer rim edge (slightly darker band)
+circle 0.50,0.50 0.16 stroke #555658 width 1
+# Inner rim (thinner circle — rim thickness)
+circle 0.50,0.50 0.13 stroke #2a2a2c width 1
+# Inside of cup (darker — we look down into it)
+circle 0.50,0.50 0.12 fill #4a4a4c 0.75
+# Inner bottom shadow
+circle 0.50,0.50 0.08 fill #2a2a2c 0.55
+# Handle — curving arc on east side (thick, for visibility)
+arc 0.72,0.50 0.09 245 115 stroke #777779 width 4
+arc 0.72,0.50 0.09 245 115 stroke #3a3a3c width 1
+arc 0.72,0.50 0.07 245 115 stroke #555658 0.7 width 1
+# Handle attachment points (small circles at connection)
+circle 0.65,0.42 0.02 fill #555658 0.8
+circle 0.65,0.58 0.02 fill #555658 0.8
+# Dent highlight on west rim (small bright nick)
+arc 0.50,0.50 0.16 175 195 stroke #b8babc 0.8 width 2
+# Rim highlight on northwest (light reflection)
+arc 0.50,0.50 0.16 210 250 stroke #a8aaac 0.6 width 1
+# Dent — small dark indent
+circle 0.40,0.44 0.022 fill #2a2a2c 0.7
+# Tiny scuff
+line 0.44,0.56 0.48,0.58 stroke #3a3a3c 0.6 width 1

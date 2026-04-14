@@ -1,0 +1,72 @@
+name: Rocking Horse
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: nursery, mansion-bedroom-master
+typical_count: single
+clusters_with: wooden-toy, dollhouse, blocks-pile, cradle, child-bed
+notes: Carved wooden rocking horse viewed from above; curved rockers extend east and west beneath the body
+---
+# === HITBOX ===
+hitbox rect 0.20,0.10 1.60,0.80 z 0-0.8
+
+# Curved rocker rails (visible as arcs extending beyond body on east/west sides)
+bezier 0.14,0.28 0.08,0.50 0.08,0.50 0.14,0.72 stroke #3a1f00 width 4
+bezier 1.86,0.28 1.92,0.50 1.92,0.50 1.86,0.72 stroke #3a1f00 width 4
+bezier 0.14,0.28 0.08,0.50 0.08,0.50 0.14,0.72 stroke #6b4e2e 0.5 width 2
+bezier 1.86,0.28 1.92,0.50 1.92,0.50 1.86,0.72 stroke #6b4e2e 0.5 width 2
+# Horse body — elongated oval spanning east-west
+ellipse 1.00,0.50 0.64,0.22 texfill polyhaven/brown_planks_09 0.85
+ellipse 1.00,0.50 0.64,0.22 fill #a08058 0.45
+ellipse 1.00,0.50 0.64,0.22 stroke #3a1f00
+# Horse head — rounded ellipse at west (head faces west; rotation will place north as front)
+# Actually per spec: head at north with pointy ears, tail at south. But this is 1x2 (wide). Head at WEST end (low x), tail at EAST.
+# Re-reading: "head with pointy ears at north, a tail at south" — with facing:yes at 0° front=south.
+# For 1x2 (wide horse), head goes at one end. Place head at WEST for now (consistent with rocker direction).
+# Head oval at west end
+ellipse 0.28,0.50 0.16,0.14 texfill polyhaven/brown_planks_09 0.85
+ellipse 0.28,0.50 0.16,0.14 fill #a08058 0.55
+ellipse 0.28,0.50 0.16,0.14 stroke #3a1f00
+# Pointy ears (two small triangles at head)
+poly 0.22,0.36 0.28,0.30 0.30,0.40 fill #8a6838 0.9
+poly 0.22,0.36 0.28,0.30 0.30,0.40 stroke #3a1f00
+poly 0.22,0.64 0.28,0.70 0.30,0.60 fill #8a6838 0.9
+poly 0.22,0.64 0.28,0.70 0.30,0.60 stroke #3a1f00
+# Muzzle — white painted spot at very west
+ellipse 0.18,0.50 0.06,0.05 fill #e8dcc0 0.9
+ellipse 0.18,0.50 0.06,0.05 stroke #5c3a1e
+# Painted eye
+circle 0.24,0.44 0.02 fill #1a0a04 0.95
+# Painted red bridle strap across muzzle
+line 0.16,0.46 0.28,0.44 stroke #8a2020 width 2
+line 0.16,0.54 0.28,0.56 stroke #8a2020 width 2
+# Neck connecting head to body
+poly 0.36,0.40 0.48,0.38 0.48,0.62 0.36,0.60 fill #a08058 0.88
+poly 0.36,0.40 0.48,0.38 0.48,0.62 0.36,0.60 stroke #3a1f00
+# Painted dark mane stripe running along neck and back
+bezier 0.32,0.36 0.60,0.32 1.20,0.32 1.50,0.38 stroke #4a2810 width 3
+# Mane tuft detail strokes
+line 0.40,0.34 0.42,0.30 stroke #4a2810 width 1
+line 0.60,0.32 0.62,0.28 stroke #4a2810 width 1
+line 0.90,0.32 0.92,0.28 stroke #4a2810 width 1
+# Front legs (attached under body, west side)
+rect 0.44,0.22 0.10,0.14 fill #8a6838 0.88
+rect 0.44,0.22 0.10,0.14 stroke #3a1f00
+rect 0.44,0.64 0.10,0.14 fill #8a6838 0.88
+rect 0.44,0.64 0.10,0.14 stroke #3a1f00
+# Rear legs (east side)
+rect 1.46,0.22 0.10,0.14 fill #8a6838 0.88
+rect 1.46,0.22 0.10,0.14 stroke #3a1f00
+rect 1.46,0.64 0.10,0.14 fill #8a6838 0.88
+rect 1.46,0.64 0.10,0.14 stroke #3a1f00
+# Tail — flowing dark strokes at east end
+bezier 1.64,0.44 1.78,0.42 1.84,0.40 1.88,0.34 stroke #4a2810 width 2
+bezier 1.64,0.50 1.80,0.50 1.86,0.50 1.90,0.48 stroke #4a2810 width 2
+bezier 1.64,0.56 1.78,0.58 1.84,0.60 1.88,0.66 stroke #4a2810 width 2
+# Saddle — small red painted saddle on back
+ellipse 1.00,0.50 0.18,0.10 fill #8a2020 0.85
+ellipse 1.00,0.50 0.18,0.10 stroke #4a1010

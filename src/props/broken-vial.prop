@@ -1,0 +1,51 @@
+name: Broken Vial
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: alchemy-lab, demiplane-laboratory, cabin-abandoned, workshop-artificer
+typical_count: few
+clusters_with: broken-bottle, broken-glassware, reagent-jar, rag-damp
+notes: Shattered glass vial with spilled glowing potion — sign of disaster or haste.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.35 z 0-0.1
+
+# Spilled liquid pool (irregular splash, glowing green)
+poly 0.22,0.54 0.34,0.44 0.48,0.42 0.62,0.48 0.72,0.58 0.68,0.70 0.54,0.74 0.38,0.72 0.26,0.66 fill #4aa060 0.7
+poly 0.22,0.54 0.34,0.44 0.48,0.42 0.62,0.48 0.72,0.58 0.68,0.70 0.54,0.74 0.38,0.72 0.26,0.66 stroke #2a6040 0.7
+# Inner brighter puddle
+poly 0.32,0.54 0.46,0.48 0.58,0.52 0.62,0.62 0.50,0.68 0.38,0.64 fill #8ad890 0.6
+# Glowing splash droplets
+circle 0.20,0.42 0.03 fill #8ad890 0.7
+circle 0.78,0.46 0.025 fill #8ad890 0.65
+circle 0.80,0.70 0.03 fill #4aa060 0.7
+circle 0.18,0.72 0.025 fill #4aa060 0.65
+# Subtle outer halo glow
+circle 0.50,0.56 0.38 fill #4aa060 0.15
+# Surviving base fragment (bottom of vial with residue)
+circle 0.40,0.58 0.09 fill #d0e8e0 0.55
+circle 0.40,0.58 0.09 stroke #7a9a94
+arc 0.40,0.58 0.09 200 340 stroke #e8f4f0 0.5 width 1
+# Liquid residue in base fragment
+circle 0.40,0.58 0.06 fill #4aa060 0.75
+# Scattered glass shards (angular polygons with pale cyan tint)
+poly 0.18,0.32 0.28,0.28 0.26,0.38 fill #d0e8e0 0.6
+poly 0.18,0.32 0.28,0.28 0.26,0.38 stroke #7a9a94
+poly 0.66,0.30 0.76,0.34 0.70,0.42 fill #d0e8e0 0.6
+poly 0.66,0.30 0.76,0.34 0.70,0.42 stroke #7a9a94
+poly 0.74,0.76 0.84,0.72 0.82,0.82 fill #d0e8e0 0.6
+poly 0.74,0.76 0.84,0.72 0.82,0.82 stroke #7a9a94
+poly 0.58,0.82 0.68,0.84 0.62,0.92 fill #d0e8e0 0.6
+poly 0.58,0.82 0.68,0.84 0.62,0.92 stroke #7a9a94
+poly 0.16,0.64 0.24,0.68 0.18,0.76 fill #d0e8e0 0.6
+poly 0.16,0.64 0.24,0.68 0.18,0.76 stroke #7a9a94
+# Thin shard slivers
+line 0.32,0.22 0.40,0.30 stroke #7a9a94 width 2
+line 0.60,0.20 0.56,0.28 stroke #7a9a94 width 2
+# Tiny glass glints (highlights)
+line 0.20,0.30 0.23,0.32 stroke #f0f8f4 width 1
+line 0.70,0.32 0.72,0.36 stroke #f0f8f4 width 1

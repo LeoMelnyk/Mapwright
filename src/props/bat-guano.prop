@@ -1,0 +1,42 @@
+name: Bat Guano
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: cave-living, cave-bear-lair, cave-goblin-warren
+typical_count: many
+clusters_with: rubble-pile, mushroom, bone-pile, cave-cricket
+notes: Pile of bat droppings on cave floor — atmospheric cave hazard, signals bat roost overhead
+---
+# Main heap — irregular dark brown blob
+poly 0.22,0.52 0.30,0.36 0.44,0.28 0.60,0.28 0.74,0.36 0.80,0.50 0.76,0.66 0.66,0.76 0.50,0.80 0.34,0.76 0.24,0.66 fill #2a1a0a 0.9
+poly 0.22,0.52 0.30,0.36 0.44,0.28 0.60,0.28 0.74,0.36 0.80,0.50 0.76,0.66 0.66,0.76 0.50,0.80 0.34,0.76 0.24,0.66 stroke #140804
+# Dark interior chunks (glossy-look core)
+ellipse 0.42,0.48 0.11,0.08 fill #1a0808 0.85
+ellipse 0.58,0.56 0.09,0.07 fill #1a0808 0.8
+ellipse 0.50,0.38 0.06,0.05 fill #1a0808 0.75
+# Chunky texture highlights on top of heap
+ellipse 0.38,0.42 0.04,0.03 fill #4a3020 0.7
+ellipse 0.56,0.46 0.035,0.025 fill #4a3020 0.7
+ellipse 0.48,0.60 0.04,0.03 fill #4a3020 0.65
+ellipse 0.64,0.40 0.025,0.02 fill #4a3020 0.6
+# Glossy wet highlights
+ellipse 0.44,0.40 0.02,0.015 fill #6a4830 0.55
+ellipse 0.58,0.50 0.018,0.012 fill #6a4830 0.5
+# Scattered smaller droppings around main heap
+ellipse 0.18,0.24 0.05,0.035 fill #2a1a0a 0.85
+ellipse 0.18,0.24 0.05,0.035 stroke #140804
+ellipse 0.82,0.22 0.045,0.03 fill #2a1a0a 0.85
+ellipse 0.82,0.22 0.045,0.03 stroke #140804
+ellipse 0.84,0.76 0.05,0.035 fill #2a1a0a 0.8
+ellipse 0.84,0.76 0.05,0.035 stroke #140804
+ellipse 0.16,0.80 0.04,0.028 fill #2a1a0a 0.8
+ellipse 0.16,0.80 0.04,0.028 stroke #140804
+# Tiny specks
+circle 0.30,0.18 0.018 fill #1a0808 0.75
+circle 0.72,0.84 0.016 fill #1a0808 0.7
+circle 0.12,0.56 0.014 fill #1a0808 0.7
+circle 0.88,0.46 0.015 fill #1a0808 0.7

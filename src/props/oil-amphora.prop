@@ -1,0 +1,47 @@
+name: Oil Amphora
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: bath-house, mansion-bathroom, temple-nave, noble-solar
+typical_count: few
+clusters_with: decanter, bath-pool, massage-table, perfume-bottle
+notes: Tall ceramic amphora for scented oils; viewed from above as concentric rings with a decorative painted band.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-0.8
+
+# Body / shoulders of amphora (outer terracotta ring)
+circle 0.5,0.5 0.28 fill #8a4818 0.92
+circle 0.5,0.5 0.28 stroke #4a2008 width 2
+
+# Shoulder highlight ring (pale terracotta sheen)
+circle 0.5,0.5 0.26 stroke #b26030 0.7 width 1
+
+# Decorative painted band (black-figure style)
+ring 0.5,0.5 0.24 0.20 fill #2a1408 0.9
+ring 0.5,0.5 0.24 0.20 stroke #1a0a04
+
+# Painted geometric pattern tick marks on band
+line 0.50,0.26 0.50,0.30 stroke #8a4818 0.85 width 1
+line 0.50,0.70 0.50,0.74 stroke #8a4818 0.85 width 1
+line 0.26,0.50 0.30,0.50 stroke #8a4818 0.85 width 1
+line 0.70,0.50 0.74,0.50 stroke #8a4818 0.85 width 1
+line 0.34,0.34 0.37,0.37 stroke #8a4818 0.75 width 1
+line 0.63,0.66 0.66,0.63 stroke #8a4818 0.75 width 1
+
+# Narrow neck opening (top-down rim)
+circle 0.5,0.5 0.12 fill #4a2008 0.85
+circle 0.5,0.5 0.12 stroke #1a0a04
+
+# Inner neck shadow (dark opening)
+circle 0.5,0.5 0.08 fill #1a0a04 0.9
+
+# Small pale highlight on rim (catching light)
+arc 0.5,0.5 0.10 210 260 stroke #d0a878 0.5 width 1
+
+# Oil gleam / meniscus
+circle 0.50,0.48 0.04 fill #d4a020 0.7

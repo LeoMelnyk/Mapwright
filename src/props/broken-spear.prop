@@ -1,0 +1,52 @@
+name: Broken Spear
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: battlefield-recent, monster-lair-small, orc-war-camp, ruined-watchtower
+typical_count: few
+clusters_with: broken-shield, broken-sword, arrow-stuck, banner-fallen, gnawed-bone
+notes: Snapped spear — head and shaft separated at a jagged break, cord wrap near the split
+---
+# footprint 1x2: x range 0-2, y range 0-1
+
+# === Spearhead section (west end) ===
+# Shaft stub with splintered east break
+poly 0.10,0.44 0.70,0.42 0.78,0.46 0.82,0.50 0.76,0.54 0.72,0.58 0.10,0.56 texfill polyhaven/dark_wood 0.85
+poly 0.10,0.44 0.70,0.42 0.78,0.46 0.82,0.50 0.76,0.54 0.72,0.58 0.10,0.56 stroke #2a1400
+# Splinter tips on the break
+line 0.78,0.46 0.88,0.44 stroke #3a1f00 width 2
+line 0.82,0.50 0.92,0.52 stroke #3a1f00 width 2
+line 0.76,0.54 0.86,0.58 stroke #2a1400 width 2
+# Cord wrap near the break (leather binding)
+rect 0.60,0.40 0.10,0.20 fill #3a2010 0.9
+rect 0.60,0.40 0.10,0.20 stroke #1a0808
+line 0.62,0.44 0.68,0.44 stroke #5c3a1e 0.7
+line 0.62,0.52 0.68,0.52 stroke #5c3a1e 0.7
+# Spearhead — leaf-shaped iron point at west end
+poly 0.10,0.48 0.04,0.44 0.00,0.50 0.04,0.56 0.10,0.52 fill #888888 0.9
+poly 0.10,0.48 0.04,0.44 0.00,0.50 0.04,0.56 0.10,0.52 texfill polyhaven/metal_plate 0.5
+poly 0.10,0.48 0.04,0.44 0.00,0.50 0.04,0.56 0.10,0.52 stroke #222222
+# Socket collar between head and shaft
+rect 0.08,0.44 0.06,0.12 fill #555555 0.9
+rect 0.08,0.44 0.06,0.12 stroke #222222
+# Central blade ridge
+line 0.02,0.50 0.12,0.50 stroke #cccccc 0.6 width 1
+
+# === Broken-off shaft section (east end) ===
+# Shaft (the severed half, lying slightly askew)
+poly 1.12,0.56 1.22,0.50 1.96,0.52 1.94,0.60 1.20,0.62 texfill polyhaven/dark_wood 0.85
+poly 1.12,0.56 1.22,0.50 1.96,0.52 1.94,0.60 1.20,0.62 stroke #2a1400
+# Splintered west end of this fragment
+line 1.12,0.56 1.04,0.52 stroke #3a1f00 width 2
+line 1.18,0.54 1.08,0.48 stroke #3a1f00 width 2
+line 1.16,0.60 1.06,0.62 stroke #2a1400 width 2
+# Butt cap at east end
+circle 1.94,0.56 0.03 fill #3a1f00 0.9
+circle 1.94,0.56 0.03 stroke #1a1208
+
+# Blood smear between the two halves
+ellipse 0.96,0.56 0.10,0.04 fill #3a0808 0.6

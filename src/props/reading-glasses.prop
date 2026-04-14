@@ -1,0 +1,58 @@
+name: Reading Glasses
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: library, shop-bookseller, scriptorium-mundane
+typical_count: few
+clusters_with: book-pile, quill, ledger-stack, inkwell
+notes: Small pince-nez or folded spectacles resting on a surface. Two brass lens rings bridged in the middle, with thin folded wire arms.
+---
+# === HITBOX === (small — glasses barely occlude)
+hitbox rect 0.22,0.40 0.56,0.20 z 0-0.1
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Two lens rings centered horizontally around y=0.5, connected by a small bridge.
+
+# Left lens — glass tint (drawn first so rim overlaps it)
+circle 0.34,0.50 0.095 fill #d4d8e0 0.35
+# Left lens — subtle reflection arc
+arc 0.34,0.50 0.085 210 280 stroke #ffffff 0.45 width 1
+
+# Right lens — glass tint
+circle 0.66,0.50 0.095 fill #d4d8e0 0.35
+# Right lens — subtle reflection arc
+arc 0.66,0.50 0.085 210 280 stroke #ffffff 0.45 width 1
+
+# Left lens — brass rim
+ring 0.34,0.50 0.105 0.090 fill #daa520 0.92
+ring 0.34,0.50 0.105 0.090 stroke #5a3a00
+circle 0.34,0.50 0.105 stroke #8b6914 width 1
+
+# Right lens — brass rim
+ring 0.66,0.50 0.105 0.090 fill #daa520 0.92
+ring 0.66,0.50 0.105 0.090 stroke #5a3a00
+circle 0.66,0.50 0.105 stroke #8b6914 width 1
+
+# Bridge between the lenses — short brass bar with slight curve
+qbezier 0.435,0.50 0.50,0.46 0.565,0.50 stroke #daa520 width 3
+qbezier 0.435,0.50 0.50,0.47 0.565,0.50 stroke #8b6914 width 1
+
+# Left temple arm — folded down and back, thin wire
+bezier 0.245,0.49 0.18,0.46 0.14,0.50 0.12,0.56 stroke #daa520 width 2
+bezier 0.245,0.49 0.18,0.46 0.14,0.50 0.12,0.56 stroke #5a3a00 width 1
+# Left temple tip (earpiece end)
+circle 0.12,0.56 0.018 fill #5a3a00 0.9
+
+# Right temple arm — folded down and back, thin wire
+bezier 0.755,0.49 0.82,0.46 0.86,0.50 0.88,0.56 stroke #daa520 width 2
+bezier 0.755,0.49 0.82,0.46 0.86,0.50 0.88,0.56 stroke #5a3a00 width 1
+# Right temple tip (earpiece end)
+circle 0.88,0.56 0.018 fill #5a3a00 0.9
+
+# Tiny hinge pivots where temples meet rims
+circle 0.245,0.49 0.015 fill #5a3a00 0.9
+circle 0.755,0.49 0.015 fill #5a3a00 0.9

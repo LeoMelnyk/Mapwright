@@ -1,0 +1,66 @@
+name: Wooden Altar
+category: Terrain
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: center
+room_types: druid-grove, shrine-roadside, sacred-site, wilderness
+typical_count: single
+clusters_with: cairn-sacred, prayer-stone, antler-offering, feather-bundle, standing-stones-ring
+notes: Crude druidic altar of split logs lashed together, moss-covered, with flower/feather/acorn offerings on top
+---
+# === HITBOX ===
+hitbox rect 0.16,0.20 1.68,1.60 z 0-0.8
+
+# Base platform (split-log slab, filling most of the footprint)
+rect 0.18,0.22 1.64,1.56 texfill polyhaven/dark_wood 0.85
+rect 0.18,0.22 1.64,1.56 fill #4a2e18 0.35
+rect 0.18,0.22 1.64,1.56 stroke #2a1400 width 2
+# Split-log seams (4 logs lashed side-by-side running N-S)
+line 0.58,0.24 0.58,1.76 stroke #1a1008 0.8 width 2
+line 0.98,0.24 0.98,1.76 stroke #1a1008 0.8 width 2
+line 1.38,0.24 1.38,1.76 stroke #1a1008 0.8 width 2
+# Bark-edge detail along each split-log seam
+bezier 0.58,0.30 0.62,0.70 0.54,1.20 0.58,1.70 stroke #5c3a1e 0.6 width 1
+bezier 0.98,0.30 0.94,0.80 1.02,1.30 0.98,1.70 stroke #5c3a1e 0.6 width 1
+bezier 1.38,0.30 1.42,0.75 1.34,1.25 1.38,1.70 stroke #5c3a1e 0.6 width 1
+# Rope lashings (wrapped binding across the logs — two bands)
+rect 0.18,0.52 1.64,0.14 fill #6b4e2e 0.9
+rect 0.18,0.52 1.64,0.14 stroke #3a2010 width 1
+line 0.22,0.56 1.78,0.56 stroke #4a3020 0.7 width 1
+line 0.22,0.62 1.78,0.62 stroke #4a3020 0.7 width 1
+rect 0.18,1.34 1.64,0.14 fill #6b4e2e 0.9
+rect 0.18,1.34 1.64,0.14 stroke #3a2010 width 1
+line 0.22,1.38 1.78,1.38 stroke #4a3020 0.7 width 1
+line 0.22,1.44 1.78,1.44 stroke #4a3020 0.7 width 1
+# Moss patches creeping across the altar top
+ellipse 0.38,0.36 0.16,0.10 fill #4a6a2a 0.80
+ellipse 0.38,0.36 0.16,0.10 stroke #2a4a1a 0.6 width 1
+ellipse 1.62,0.86 0.18,0.11 fill #3a5a22 0.80
+ellipse 1.62,0.86 0.18,0.11 stroke #2a4a1a 0.6 width 1
+ellipse 0.50,1.62 0.14,0.09 fill #4a6a2a 0.78
+ellipse 0.50,1.62 0.14,0.09 stroke #2a4a1a 0.6 width 1
+ellipse 1.40,1.20 0.12,0.08 fill #3a5a22 0.75
+# Offerings — scattered on south (front) half
+# Small red flower
+circle 0.70,1.10 0.06 fill #a82838 0.95
+circle 0.70,1.10 0.06 stroke #5a1020 width 1
+circle 0.70,1.10 0.02 fill #ffcc00 0.9
+# Yellow flower cluster
+circle 1.20,0.80 0.05 fill #e8c040 0.95
+circle 1.20,0.80 0.05 stroke #8a6010 width 1
+circle 1.32,0.88 0.04 fill #e8c040 0.9
+# White feather laid across
+bezier 0.82,1.52 0.94,1.46 1.08,1.48 1.20,1.56 stroke #e8dcc8 width 3
+bezier 0.82,1.52 0.94,1.46 1.08,1.48 1.20,1.56 stroke #8a7060 0.7 width 1
+# Acorns (brown dots with stem caps)
+circle 1.54,1.54 0.045 fill #6b4e2e 0.95
+circle 1.54,1.54 0.045 stroke #2a1400 width 1
+arc 1.54,1.52 0.045 180 360 stroke #3a2010 width 1
+circle 0.34,1.18 0.04 fill #6b4e2e 0.95
+circle 0.34,1.18 0.04 stroke #2a1400 width 1
+# Blue petals
+circle 1.04,0.46 0.035 fill #4060a0 0.9
+circle 1.10,0.42 0.03 fill #4060a0 0.85

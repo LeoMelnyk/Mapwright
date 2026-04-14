@@ -1,0 +1,33 @@
+name: Long Spoon
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: farmhouse-kitchen, servants-kitchen
+typical_count: single
+clusters_with: mixing-bowl, kitchen-table, cleaver
+notes: Wooden cooking spoon with long handle; lay on tables or near bowls
+---
+# === HITBOX ===
+hitbox rect 0.44,0.14 0.12,0.72 z 0-0.1
+
+# Spoon handle (long narrow rect, handle north, bowl south)
+rect 0.46,0.14 0.08,0.56 texfill polyhaven/dark_wood 0.9
+rect 0.46,0.14 0.08,0.56 stroke #3a1f00
+# Handle grain line
+line 0.50,0.16 0.50,0.68 stroke #5c3a1e 0.5 width 1
+# Handle top end cap
+ellipse 0.50,0.14 0.04,0.02 fill #3a1f00 0.9
+# Spoon bowl (oval at south end, lighter wood)
+ellipse 0.50,0.78 0.09,0.10 fill #8a6838 0.95
+ellipse 0.50,0.78 0.09,0.10 stroke #3a1f00
+# Inner bowl concavity
+ellipse 0.50,0.78 0.06,0.07 fill #5c3a1e 0.7
+ellipse 0.50,0.78 0.06,0.07 stroke #3a1f00 0.5
+# Rim highlight on spoon bowl
+arc 0.50,0.78 0.085 220 260 stroke #b08858 0.5 width 1
+# Neck transition shadow
+rect 0.46,0.68 0.08,0.04 fill #3a1f00 0.4

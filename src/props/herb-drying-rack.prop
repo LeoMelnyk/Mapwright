@@ -1,0 +1,81 @@
+name: Herb Drying Rack
+category: Structure
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2
+placement: wall
+room_types: bog-witch-hut, cabin-witch, shop-apothecary, alchemy-lab, farmhouse-kitchen, servants-kitchen, pantry, cabin-hunters
+typical_count: single
+clusters_with: dried-herbs, herb-bundle, alchemy-bench, cauldron, shelf-open
+notes: Wall-mounted horizontal beam with bundles of herbs hanging to dry. Seen from above — the beam is the main visible element, bundles droop just south of it.
+---
+# === HITBOX ===
+hitbox rect 0.12,0.08 1.76,0.60 z 0-2
+
+# Wall-mounted beam backer (along north edge)
+rect 0.10,0.08 1.80,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.08 1.80,0.10 stroke #2a1400
+# End brackets (iron straps mounting beam to wall)
+rect 0.10,0.08 0.06,0.12 fill #3a3028 0.9
+rect 0.10,0.08 0.06,0.12 stroke #1a1008
+rect 1.84,0.08 0.06,0.12 fill #3a3028 0.9
+rect 1.84,0.08 0.06,0.12 stroke #1a1008
+# Wood grain line on beam
+line 0.14,0.13 1.86,0.13 stroke #5c3a1e 0.5
+
+# Twine ties connecting bundles to beam (short verticals)
+line 0.28,0.18 0.28,0.24 stroke #c8b898 width 2
+line 0.54,0.18 0.54,0.24 stroke #c8b898 width 2
+line 0.82,0.18 0.82,0.24 stroke #c8b898 width 2
+line 1.10,0.18 1.10,0.24 stroke #c8b898 width 2
+line 1.38,0.18 1.38,0.24 stroke #c8b898 width 2
+line 1.66,0.18 1.66,0.24 stroke #c8b898 width 2
+
+# === Bundle 1 (dark green herb) ===
+# Twine wrap
+rect 0.22,0.22 0.12,0.04 fill #c8b898 0.9
+rect 0.22,0.22 0.12,0.04 stroke #6b4e2e
+# Leaf mass drooping south
+ellipse 0.28,0.38 0.10,0.16 fill #4a6a2a 0.9
+ellipse 0.28,0.38 0.10,0.16 stroke #1a3010
+# Stem tips visible
+line 0.24,0.48 0.22,0.58 stroke #3a5018 width 1
+line 0.32,0.48 0.34,0.58 stroke #3a5018 width 1
+
+# === Bundle 2 (olive/brown drying herb) ===
+rect 0.48,0.22 0.12,0.04 fill #c8b898 0.9
+rect 0.48,0.22 0.12,0.04 stroke #6b4e2e
+ellipse 0.54,0.36 0.09,0.14 fill #6a7a3a 0.9
+ellipse 0.54,0.36 0.09,0.14 stroke #2a3810
+line 0.50,0.46 0.48,0.56 stroke #3a5018 width 1
+line 0.58,0.46 0.60,0.56 stroke #3a5018 width 1
+
+# === Bundle 3 (tan/ochre dried herb) ===
+rect 0.76,0.22 0.12,0.04 fill #c8b898 0.9
+rect 0.76,0.22 0.12,0.04 stroke #6b4e2e
+ellipse 0.82,0.40 0.10,0.18 fill #8a6a2a 0.9
+ellipse 0.82,0.40 0.10,0.18 stroke #3a2810
+
+# === Bundle 4 (green) ===
+rect 1.04,0.22 0.12,0.04 fill #c8b898 0.9
+rect 1.04,0.22 0.12,0.04 stroke #6b4e2e
+ellipse 1.10,0.38 0.10,0.16 fill #4a6a2a 0.9
+ellipse 1.10,0.38 0.10,0.16 stroke #1a3010
+line 1.06,0.48 1.04,0.56 stroke #3a5018 width 1
+line 1.14,0.48 1.16,0.56 stroke #3a5018 width 1
+
+# === Bundle 5 (olive) ===
+rect 1.32,0.22 0.12,0.04 fill #c8b898 0.9
+rect 1.32,0.22 0.12,0.04 stroke #6b4e2e
+ellipse 1.38,0.36 0.09,0.14 fill #6a7a3a 0.9
+ellipse 1.38,0.36 0.09,0.14 stroke #2a3810
+
+# === Bundle 6 (tan) ===
+rect 1.60,0.22 0.12,0.04 fill #c8b898 0.9
+rect 1.60,0.22 0.12,0.04 stroke #6b4e2e
+ellipse 1.66,0.40 0.10,0.18 fill #8a6a2a 0.9
+ellipse 1.66,0.40 0.10,0.18 stroke #3a2810
+line 1.62,0.52 1.60,0.62 stroke #3a5018 width 1
+line 1.70,0.52 1.72,0.62 stroke #3a5018 width 1

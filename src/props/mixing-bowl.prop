@@ -1,0 +1,41 @@
+name: Mixing Bowl
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: farmhouse-kitchen, servants-kitchen
+typical_count: single
+clusters_with: long-spoon, flour-sack, kitchen-table, chopped-vegetables
+notes: Large ceramic mixing bowl with dough/batter and a spoon resting in it
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.4
+
+# Outer bowl rim (ceramic)
+circle 0.5,0.5 0.38 fill #d4c8a8 0.92
+circle 0.5,0.5 0.38 stroke #6b4e2e
+# Rim thickness ring
+circle 0.5,0.5 0.34 stroke #a89868 0.8
+# Rim outer highlight
+arc 0.5,0.5 0.37 210 260 stroke #f0e4c8 0.5 width 1
+# Inner bowl interior (batter/dough cream)
+circle 0.5,0.5 0.32 fill #e8dcc0 0.95
+circle 0.5,0.5 0.32 stroke #8a7850 0.7
+# Batter surface texture (uneven patches of dough)
+ellipse 0.44,0.46 0.10,0.08 fill #f0e4c8 0.7
+ellipse 0.58,0.54 0.08,0.07 fill #dccfb0 0.75
+ellipse 0.48,0.60 0.07,0.05 fill #f0e4c8 0.6
+# Small flour dust specks on surface
+circle 0.40,0.56 0.015 fill #ffffff 0.5
+circle 0.58,0.42 0.012 fill #ffffff 0.5
+# Wooden spoon handle sticking up from bowl (angled)
+rect 0.56,0.18 0.05,0.34 texfill polyhaven/dark_wood 0.9 rotate -20
+rect 0.56,0.18 0.05,0.34 stroke #3a1f00 rotate -20
+# Spoon handle end cap
+circle 0.68,0.20 0.03 fill #4a2800 0.9
+circle 0.68,0.20 0.03 stroke #2a1400
+# Ceramic stripe decoration (rim band)
+circle 0.5,0.5 0.36 stroke #4a5878 0.5 width 1

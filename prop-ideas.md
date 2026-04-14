@@ -2,7 +2,8 @@
 
 Generated from 160 room vocab specs in `src/rooms/`. These are prop names referenced by specs but not found in the current `src/props/` catalog. Author in priority order — Tier 1 unlocks the most rooms per prop created.
 
-**Original totals:** 1177 missing  |  **Tier 1 (3+ uses):** 105  |  **Tier 2 (2 uses):** 150  |  **Tier 3 (1 use):** 922
+**Original totals (pre-v0.11.0):** 1177 missing  |  Tier 1 (3+ uses): 105  |  Tier 2 (2 uses): 150  |  Tier 3 (1 use): 922
+**Current totals:** 827 missing  |  Tier 1: 3 (aliases only)  |  Tier 2: 0 (complete)  |  Tier 3: 824
 
 ---
 
@@ -10,13 +11,21 @@ Generated from 160 room vocab specs in `src/rooms/`. These are prop names refere
 
 ### 2026-04 (v0.11.0)
 
-- **219 props authored** across two batches. Catalog grew from ~245 to **463 props**.
-- **Tier 1: complete.** ~100 of 105 props authored. Remaining 5 were aliases (`counter` → `bar-counter`, `fireplace` → `hearth`, `bookshelf-short` → `bookshelf`, `tree-old` → `tree`), or non-drawable concepts (`rat-swarm-marker`). Specs that reference these should be updated to use the canonical names.
-- **Tier 2: ~119 of 150 authored.** Remaining ~30 are mostly specialised one-off items that didn't fit the themed batches — check the Tier 2 table below and cross-reference against `src/props/` to identify what's still missing.
-- **Tier 3 (922 props): untouched.** Most are one-off flavour that should be authored opportunistically — only when you're about to build the specific room that needs them, or when they're a natural variant of a Tier 1/2 prop you're already making.
+- **~349 props authored** across six batches. Catalog grew from ~245 to **594 props across 31 categories**.
+- **Tier 1: complete.** Remaining 3 are aliases / non-drawable concepts — specs should be updated to use canonical names:
+  - `counter` → use `bar-counter` with `counter-corner` for L/U-shaped counters.
+  - `bookshelf-short` → use `bookshelf`.
+  - `rat-swarm-marker` is a *concept*, not a prop — remove from specs or replace with a real object like `rat` or `rat-skeleton`.
+- **Tier 2: complete.** 0 props remaining.
+- **Tier 3: 809 remaining** (down from 922). Authored in themed clusters — nursery, ballroom, mill/workshop, battlefield, shrine, goblin camp, cave biome, prison block, bath house, alchemy, infernal forge, kiln pottery, farmhouse kitchen, druid grove, ruined watchtower, glassworks, market, campsite, abandoned cabin.
 - **Perspective rules documented** in `src/props/CLAUDE.md` — wall-mounted textiles, cabinets, stacked furniture, vertical wheels. Read those sections before authoring anything against a wall or taller than 3 cells.
+- **Showcase PNGs** — `prop-showcase-v0.11.0-batch{3,4,5,6}.png` each show a labeled grid of the props authored in that batch for visual review.
 
-**Next step before authoring more:** regenerate this file with `node tools/_gen-prop-ideas.cjs` to get an up-to-date list of what's actually still missing — the hardcoded tables below are from the original scan and don't reflect what's been authored.
+**Workflow for picking this back up:**
+
+1. Regenerate the raw report: `node tools/_scan-missing-props.cjs` (rescans room specs, cross-references `src/props/`, writes fresh `_missing-props-report.json`).
+2. Regenerate the tables below: `node tools/_gen-prop-ideas.cjs`.
+3. Identify a cluster of ~20–50 props around a common room theme (see `bySpec` grouping at bottom of `_scan-missing-props.cjs` output for ideas), author in parallel agents.
 
 ---
 
@@ -119,111 +128,9 @@ Each prop here unlocks multiple room types. Author these first.
 
 | Prop | Uses | Rooms |
 |------|------|-------|
-| `bedroll` | 16 | barracks, cabin-abandoned, cabin-hunters +13 more |
-| `ledger-stack` | 14 | armory, brewery, counting-house +11 more |
-| `cat-sleeping` | 12 | bakery, farmhouse-common, house-medium-artisan +9 more |
-| `shelf-open` | 12 | bakery, bath-house, butcher-shop +9 more |
 | `counter` | 11 | bakery, butcher-shop, counting-house +8 more |
-| `fallen-leaves` | 11 | ancient-ruin-overgrown, burial-mound, charcoal-burner-camp +8 more |
-| `rag-pile` | 11 | cave-goblin-warren, chasm-crossing, oubliette +8 more |
-| `bread-loaf` | 10 | bakery, farmhouse-common, house-medium-artisan +7 more |
-| `quill` | 10 | bardic-hall, counting-house, courthouse-chamber +7 more |
-| `scale` | 10 | bakery, butcher-shop, counting-house +7 more |
-| `bucket` | 9 | dock-warehouse, guard-post, prison-block +6 more |
-| `playing-cards` | 9 | barracks, brothel-parlor, cave-bandit-camp +6 more |
-| `tankard` | 9 | brewery, gambling-den, inn-common-room +6 more |
-| `tool-rack` | 9 | cooperage, forge, general-workshop +6 more |
-| `coin-pile` | 8 | bakery, counting-house, gambling-den +5 more |
-| `tapestry` | 8 | crypt, mansion-ballroom, mansion-dining +5 more |
-| `ash-pile` | 7 | cave-bandit-camp, charcoal-burner-camp, elemental-fire-node +4 more |
-| `broom` | 7 | brewery, farmhouse-common, house-small +4 more |
-| `dice-cup` | 7 | barracks, gambling-den, gatehouse-inner +4 more |
-| `inkwell` | 7 | counting-house, courthouse-chamber, guildhall +4 more |
-| `candle-dipped` | 6 | alchemy-lab, house-small, library +3 more |
-| `dried-herbs` | 6 | alchemy-lab, cabin-hunters, cabin-trapper +3 more |
-| `ingot-stack` | 6 | forge, foundry-great, general-workshop +3 more |
-| `leather-apron` | 6 | cooperage, foundry-great, mill-lumber +3 more |
 | `rat-swarm-marker` | 6 | cave-goblin-warren, dock-warehouse, oubliette +3 more |
-| `torch-wall` | 6 | cave-bandit-camp, cave-goblin-warren, chasm-crossing +3 more |
-| `coin-scatter` | 5 | cave-bandit-camp, ferry-house, goblin-warren-entrance +2 more |
-| `empty-bottle` | 5 | barracks, campsite-traveler, graveyard-village +2 more |
-| `oil-flask` | 5 | armory, cabin-hunters, cabin-trapper +2 more |
-| `rocking-chair` | 5 | cabin-witch, farmhouse-common, house-medium-family +2 more |
-| `sawdust-pile` | 5 | cooperage, dock-warehouse, house-medium-artisan +2 more |
-| `slag-heap` | 5 | elemental-fire-node, forge, foundry-great +2 more |
-| `spinning-wheel` | 5 | farmhouse-common, general-workshop, house-medium-family +2 more |
-| `writing-desk` | 5 | house-merchant, house-noble-townhouse, library +2 more |
-| `bread-heel` | 4 | apartment-tenement, bakery, peasant-hovel, tavern-common |
-| `cairn-sacred` | 4 | burial-mound, druid-grove, shrine-roadside, standing-stones-circle |
-| `chain-coil` | 4 | cistern, infernal-court, infernal-forge, torture-chamber |
-| `chalk-mark` | 4 | cooperage, shop-tailor, textile-loomhouse, thieves-guild-hideout |
-| `coin-purse` | 4 | brothel-parlor, house-merchant, market-stall, opium-den |
-| `crystal-shard` | 4 | cabin-witch, crystal-grotto, elemental-earth-node, workshop-artificer |
-| `decanter` | 4 | house-noble-townhouse, mansion-dining, mansion-study, noble-bedchamber |
-| `dust-cloud` | 4 | mill-grain, mine-shaft-entrance, shop-apothecary, shop-bookseller |
-| `gnawed-bone` | 4 | cave-bear-lair, goblin-warren-entrance, monster-lair-small, orc-war-camp |
-| `lantern-floor` | 4 | cabin-hunters, library, mansion-servants-quarters, ruined-watchtower |
-| `onion-braid` | 4 | farmhouse-kitchen, pantry, servants-kitchen, ship-galley |
-| `pallet` | 4 | cabin-hunters, cabin-trapper, peasant-hovel, prison-block |
-| `parchment-scrap` | 4 | scouts-blind, scriptorium-dark, scriptorium-mundane, toll-bridge-house |
-| `quill-and-ink` | 4 | demiplane-laboratory, house-merchant, library, ship-captains-cabin |
-| `ration-wrapper` | 4 | charcoal-burner-camp, ferry-house, scouts-blind, toll-bridge-house |
-| `shelf` | 4 | apartment-tenement, farmhouse-common, house-medium-family, mansion-servants-quarters |
-| `tuft-of-fur` | 4 | cave-bear-lair, hunting-lodge-large, orc-war-camp, shepherds-shelter |
-| `wall-sconce` | 4 | mansion-ballroom, mansion-bedroom-master, noble-bedchamber, nursery |
-| `water-jug` | 4 | cabin-hunters, cabin-trapper, house-medium-artisan, house-medium-family |
-| `wax-seal` | 4 | counting-house, courthouse-chamber, guildhall, scriptorium-mundane |
-| `wine-glass` | 4 | bardic-hall, brothel-parlor, mansion-ballroom, tavern-highend |
-| `arrow-bundle` | 3 | armory, gatehouse-inner, shop-weaponsmith |
-| `arrow-fletching` | 3 | hunting-lodge-large, ranger-camp, scouts-blind |
-| `blood-smear` | 3 | butcher-shop, monster-lair-small, thieves-guild-hideout |
-| `bone-marker` | 3 | burial-mound, druid-grove, standing-stones-circle |
 | `bookshelf-short` | 3 | library, lighthouse-keepers-room, ship-captains-cabin |
-| `broken-crate` | 3 | dock-warehouse, sewer-junction, ship-cargo-hold |
-| `broken-shield` | 3 | battlefield-recent, monster-lair-small, orc-war-camp |
-| `candle-stub` | 3 | apartment-tenement, mansion-servants-quarters, peasant-hovel |
-| `chair-upholstered` | 3 | house-merchant, library, tavern-common |
-| `chair-wooden` | 3 | house-merchant, house-small, tavern-common |
-| `cheese-wheel` | 3 | farmhouse-common, farmhouse-kitchen, pantry |
-| `cleaver` | 3 | butcher-shop, farmhouse-kitchen, ship-galley |
-| `coin-offering` | 3 | burial-mound, shrine-roadside, standing-stones-circle |
-| `coin-stack` | 3 | counting-house, gambling-den, thieves-guild-hideout |
-| `cradle` | 3 | apartment-tenement, house-medium-family, nursery |
-| `dagger-loose` | 3 | gambling-den, shop-weaponsmith, thieves-guild-hideout |
-| `document-stack` | 3 | counting-house, courthouse-chamber, guildhall |
-| `dropped-coin` | 3 | battlefield-recent, fairground-seasonal, plaza-civic |
-| `feather-bundle` | 3 | druid-grove, elemental-shrine, shrine-roadside |
-| `fly-swarm` | 3 | butcher-shop, market-stall, tannery |
-| `fresh-flowers` | 3 | house-noble-townhouse, mansion-dining, noble-solar |
-| `fungal-growth` | 3 | cave-drow-outpost, sewer-junction, slime-pit |
-| `gear-pack` | 3 | ranger-camp, scouts-blind, shepherds-shelter |
-| `glass-shard` | 3 | glassworks, refinery, workshop-artificer |
-| `helm-on-peg` | 3 | armory, barracks, gatehouse-inner |
-| `incense-burner` | 3 | noble-bedchamber, opium-den, throne-room |
-| `ink-pot` | 3 | mansion-library, mansion-study, scriptorium-dark |
-| `keg-stack` | 3 | brewery, inn-common-room, tavern-common |
-| `letter-stack` | 3 | lighthouse-keepers-room, mansion-study, noble-solar |
-| `mouse-trap` | 3 | apartment-tenement, mansion-servants-quarters, mill-grain |
-| `ore-chunk` | 3 | elemental-earth-node, mine-shaft-entrance, tunnel-mine-worked |
-| `pipe-clay` | 3 | gambling-den, inn-common-room, tavern-common |
-| `prayer-book` | 3 | celestial-vault, dark-temple, temple-nave |
-| `prayer-card` | 3 | apartment-tenement, mansion-servants-quarters, peasant-hovel |
-| `quench-barrel` | 3 | forge, house-medium-artisan, smithy-large |
-| `rat` | 3 | pantry, servants-kitchen, sewer-junction |
-| `reading-spectacles` | 3 | mansion-library, mansion-study, scriptorium-dark |
-| `rose-petals` | 3 | bath-house, brothel-parlor, celestial-vault |
-| `scorch-mark` | 3 | foundry-great, glassworks, refinery |
-| `sewing-basket` | 3 | house-medium-family, house-small, noble-solar |
-| `sideboard` | 3 | house-merchant, house-noble-townhouse, mansion-dining |
-| `silk-scarf` | 3 | bardic-hall, brothel-parlor, opium-den |
-| `skull-stack` | 3 | corrupted-temple, ossuary, ritual-chamber-dark |
-| `stage-small` | 3 | bardic-hall, tavern-common, tavern-highend |
-| `standing-stone` | 3 | burial-mound, druid-grove, standing-stones-circle |
-| `tin-cup` | 3 | apartment-tenement, mansion-servants-quarters, peasant-hovel |
-| `torn-cloth` | 3 | cave-bandit-camp, cave-bear-lair, goblin-warren-entrance |
-| `weapon-rack-crude` | 3 | cave-bandit-camp, orc-war-camp, toll-bridge-house |
-| `withered-flowers` | 3 | graveyard-village, roadside-gallows, shadowfell-mausoleum |
-| `wood-chip` | 3 | cooperage, lumberyard, mill-lumber |
 
 ---
 
@@ -231,156 +138,6 @@ Each prop here unlocks multiple room types. Author these first.
 
 | Prop | Rooms |
 |------|-------|
-| `altar-stone-flat` | ancient-ruin-overgrown, standing-stones-circle |
-| `animal-tracks` | ancient-ruin-overgrown, druid-grove |
-| `antler-pile` | cabin-trapper, hunting-lodge-large |
-| `apron-hung` | farmhouse-kitchen, house-medium-artisan |
-| `axe-head` | lumberyard, mill-lumber |
-| `bellows-hand` | forge, smithy-large |
-| `bird-nest` | ancient-ruin-overgrown, ruined-watchtower |
-| `bloodstain` | dark-temple, ritual-chamber |
-| `bloody-rag` | interrogation-room, torture-chamber |
-| `bookmark` | library, shop-bookseller |
-| `bookshelf-tall` | demiplane-laboratory, library |
-| `boot-muddy` | cabin-hunters, cabin-trapper |
-| `bowl-stew` | inn-common-room, tavern-common |
-| `broken-blade` | mill-lumber, shop-weaponsmith |
-| `broken-weapon` | boss-chamber, cave-goblin-warren |
-| `bucket-stained` | butcher-shop, tannery |
-| `bunk-bed` | barracks, mansion-servants-quarters |
-| `bust-on-pedestal` | mansion-grand-hall, mansion-library |
-| `butter-churn` | farmhouse-common, farmhouse-kitchen |
-| `cabbage` | apartment-tenement, peasant-hovel |
-| `calling-card-tray` | house-noble-townhouse, mansion-grand-hall |
-| `candle-guttered` | graveyard-village, shadowfell-mausoleum |
-| `cannon-swivel` | ship-gun-deck, ship-main-deck |
-| `canopy-bed` | mansion-bedroom-master, noble-bedchamber |
-| `carcass-fresh` | cave-bear-lair, orc-war-camp |
-| `carved-rune-stone` | ancient-ruin-overgrown, standing-stones-circle |
-| `chain-heavy` | chasm-crossing, ship-brig |
-| `chair-restraint` | interrogation-room, torture-chamber |
-| `chandelier-small` | house-merchant, tavern-common |
-| `chart-rolled` | lighthouse-keepers-room, ship-captains-cabin |
-| `chisel` | general-workshop, temple-of-craft |
-| `chitin-barrier` | cave-drow-outpost, underdark-outpost |
-| `clay-bin` | house-medium-artisan, kiln-pottery |
-| `collapsed-wall-segment` | ancient-ruin-overgrown, ruined-watchtower |
-| `crucible-large` | foundry-great, refinery |
-| `cupboard` | farmhouse-common, house-medium-family |
-| `curtain` | house-merchant, throne-room |
-| `curtain-divider` | brothel-parlor, opium-den |
-| `desk-lamp` | command-room, mansion-study |
-| `desk-writing` | alchemy-lab, house-merchant |
-| `dog-bowl` | hunting-lodge-large, shepherds-shelter |
-| `dog-stray` | fairground-seasonal, market-square |
-| `drive-shaft` | mill-grain, mill-lumber |
-| `dust-heap` | cabin-abandoned, crypt |
-| `embroidery-hoop` | house-noble-townhouse, noble-solar |
-| `fabric-scrap` | shop-tailor, textile-loomhouse |
-| `fallen-beam` | ancient-ruin-overgrown, ruined-watchtower |
-| `fan` | house-noble-townhouse, noble-solar |
-| `fee-board` | ferry-house, toll-bridge-house |
-| `firewood-stack` | cabin-hunters, house-small |
-| `flour-dust` | bakery, farmhouse-kitchen |
-| `flour-sack` | bakery, mill-grain |
-| `flour-sack-stack` | bakery, mill-grain |
-| `folded-cloak` | barracks, noble-bedchamber |
-| `forge-great` | forge, smithy-large |
-| `fresh-dirt-mound` | graveyard-village, roadside-gallows |
-| `fruit-bowl` | house-merchant, mansion-dining |
-| `gavel` | courthouse-chamber, guildhall |
-| `gem-loose` | elemental-earth-node, shop-jeweler |
-| `giant-mushroom` | mushroom-cavern, mushroom-grove |
-| `glowcap-mushroom` | mushroom-cavern, spider-lair |
-| `goblet` | guildhall, treasure-vault |
-| `grain-hopper` | brewery, mill-grain |
-| `grain-spill` | brewery, mill-grain |
-| `grandfather-clock` | house-merchant, mansion-grand-hall |
-| `hammer` | general-workshop, temple-of-craft |
-| `hanging-meat` | farmhouse-kitchen, ship-galley |
-| `herb-bundle` | servants-kitchen, shop-apothecary |
-| `herb-drying-rack` | bog-witch-hut, cabin-witch |
-| `hide-tarp` | goblin-warren-entrance, orc-war-camp |
-| `incense-stub` | dark-temple, ritual-chamber |
-| `infernal-chain-hook` | infernal-court, infernal-forge |
-| `iron-chain-hook` | corrupted-temple, ritual-chamber-dark |
-| `key-ring` | counting-house, gatehouse-inner |
-| `knife-curved` | butcher-shop, tannery |
-| `lapdog-cushion` | house-noble-townhouse, noble-solar |
-| `log-book` | lighthouse-keepers-room, ship-captains-cabin |
-| `log-round` | lumberyard, mill-lumber |
-| `low-table` | brothel-parlor, opium-den |
-| `market-stall` | fairground-seasonal, market-square |
-| `market-stall-awning` | fairground-seasonal, market-square |
-| `mast-main` | ship-gun-deck, ship-main-deck |
-| `melted-wax` | dark-temple, ritual-chamber |
-| `miniature-portrait` | mansion-bedroom-master, noble-solar |
-| `mud-print` | ferry-house, toll-bridge-house |
-| `narrow-bed` | apartment-tenement, mansion-servants-quarters |
-| `needle-case` | shop-tailor, textile-loomhouse |
-| `nest-of-rags` | monster-lair-small, sewer-junction |
-| `obsidian-shard` | elemental-fire-node, elemental-shrine |
-| `offering-bowl` | burial-mound, standing-stones-circle |
-| `ore-cart` | mine-shaft-entrance, tunnel-mine-worked |
-| `patched-shirt` | apartment-tenement, peasant-hovel |
-| `pedestal-stone` | mansion-grand-hall, reliquary |
-| `peg-rail-wall` | apartment-tenement, mansion-servants-quarters |
-| `perfume-bottle` | brothel-parlor, mansion-bedroom-master |
-| `pin-cushion` | shop-tailor, textile-loomhouse |
-| `pipe-outlet` | cistern, sewer-junction |
-| `prayer-bench` | mansion-bedroom-master, noble-bedchamber |
-| `prayer-stone` | druid-grove, shrine-roadside |
-| `rag-damp` | brewery, butcher-shop |
-| `rat-skeleton` | cabin-abandoned, oubliette |
-| `reading-glasses` | library, shop-bookseller |
-| `ribbon-tied` | shrine-roadside, standing-stones-circle |
-| `rubble-pile` | corrupted-temple, ruined-watchtower |
-| `sack` | campsite-traveler, market-square |
-| `salt-sack` | servants-kitchen, shop-general |
-| `scales-merchant` | house-merchant, market-stall |
-| `scat-pile` | cave-bear-lair, monster-lair-small |
-| `shelf-bare` | general-workshop, pantry |
-| `shelf-bottles` | cabin-witch, tavern-common |
-| `shrine-stone` | hermit-cell, shrine-roadside |
-| `silk-bolt` | shop-tailor, textile-loomhouse |
-| `silver-bowl` | mansion-grand-hall, shop-jeweler |
-| `skinning-knife` | cabin-hunters, cabin-trapper |
-| `skinning-table` | cabin-hunters, cabin-trapper |
-| `skull-small` | cabin-witch, graveyard-village |
-| `small-table` | noble-solar, nursery |
-| `smoke-cloud` | gambling-den, opium-den |
-| `soot-patch` | foundry-great, smithy-large |
-| `spilled-ale` | fairground-seasonal, tavern-common |
-| `spyglass` | lighthouse-keepers-room, ship-captains-cabin |
-| `staircase` | brothel-parlor, inn-common-room |
-| `standing-stone-fallen` | burial-mound, standing-stones-circle |
-| `stretched-hide` | cabin-hunters, cabin-trapper |
-| `summoning-pool` | boss-chamber, dark-temple |
-| `table-small` | apartment-tenement, peasant-hovel |
-| `tallow-pot` | cabin-trapper, cabin-witch |
-| `tea-service` | house-noble-townhouse, noble-solar |
-| `tea-table` | house-noble-townhouse, noble-solar |
-| `tent` | campsite-traveler, fairground-seasonal |
-| `thread-spool` | shop-tailor, textile-loomhouse |
-| `tool-cart` | interrogation-room, torture-chamber |
-| `torch-totem` | goblin-warren-entrance, orc-war-camp |
-| `torn-banner` | corrupted-temple, orc-war-camp |
-| `trap-rack` | cabin-hunters, cabin-trapper |
-| `washing-tub` | apartment-tenement, house-small |
-| `wax-seal-kit` | command-room, scriptorium-dark |
-| `weapon-rack-small` | ship-brig, ship-captains-cabin |
-| `web-strand` | cave-drow-outpost, spider-lair |
-| `wedge-iron` | lumberyard, mill-lumber |
-| `whetstone` | armory, shop-weaponsmith |
-| `wine-bottle` | brothel-parlor, tavern-highend |
-| `withered-wreath` | crypt, shrine-roadside |
-| `wood-bin` | lighthouse-keepers-room, ship-galley |
-| `wood-chip-pile` | charcoal-burner-camp, druid-grove |
-| `wooden-bowl` | farmhouse-common, peasant-hovel |
-| `wooden-toy` | house-medium-family, nursery |
-| `worn-shoes` | mansion-servants-quarters, peasant-hovel |
-| `writing-desk-small` | mansion-bedroom-master, noble-bedchamber |
-| `yarn-basket` | house-medium-artisan, noble-solar |
 
 ---
 
@@ -397,19 +154,15 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `air-node-wisp` | elemental-air-node |
 | `algae-bloom` | cistern |
 | `altar-sacrificial` | temple-nave |
-| `altar-wooden` | druid-grove |
 | `ancestor-portrait` | noble-bedchamber |
 | `anchor-post` | chasm-crossing |
 | `ancient-tree` | druid-grove |
 | `anemone-glow` | elemental-water-node |
 | `anemone-small` | elemental-water-node |
 | `animal-pen-partition` | peasant-hovel |
-| `animal-skull` | alchemy-lab |
 | `animal-skull-small` | bog-witch-hut |
 | `annealing-oven` | glassworks |
-| `antler-offering` | druid-grove |
 | `antler-rack` | cabin-hunters |
-| `anvil-devil` | infernal-forge |
 | `apple-barrel` | fairground-seasonal |
 | `apple-pile` | market-stall |
 | `apron-clay` | kiln-pottery |
@@ -420,7 +173,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `arrow-broken` | ruined-watchtower |
 | `arrow-cluster-ground` | battlefield-recent |
 | `arrow-slit-wall` | gatehouse-inner |
-| `arrow-stuck` | battlefield-recent |
 | `ashes-pile` | temple-nave |
 | `astral-anchor-stone` | astral-anchor |
 | `astral-lantern` | astral-anchor |
@@ -428,42 +180,32 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `axe-stuck` | charcoal-burner-camp |
 | `ballast-stones` | ship-cargo-hold |
 | `banner-celestial` | celestial-vault |
-| `banner-fallen` | battlefield-recent |
 | `banner-heraldic` | mansion-grand-hall |
 | `banner-infernal` | infernal-court |
 | `banner-religious` | temple-nave |
 | `baptismal-pool` | baptistry |
 | `barrel-open` | market-stall |
 | `barrel-salt-pork` | ship-galley |
-| `bars-cell-partition` | prison-block |
 | `basalt-pillar` | elemental-fire-node |
 | `basket` | textile-loomhouse |
 | `basket-wool` | farmhouse-common |
-| `bat-guano` | cave-living |
-| `bath-pool` | bath-house |
 | `bed-small` | house-small |
 | `bedroll-hide` | orc-war-camp |
 | `belaying-pin-rack` | ship-main-deck |
 | `bell-small` | shrine-roadside |
-| `bellows-giant` | infernal-forge |
 | `bench-astral` | astral-anchor |
 | `bench-long` | ship-crew-quarters |
-| `bench-upholstered` | mansion-ballroom |
 | `bilge-puddle` | ship-cargo-hold |
 | `blanket-folded` | shop-general |
 | `blast-furnace` | foundry-great |
-| `blocks-pile` | nursery |
 | `blood-basin` | ritual-chamber-dark |
 | `blood-pool` | battlefield-recent |
-| `blood-stain` | prison-block |
 | `bloodstain-large` | boss-chamber |
 | `blotting-rag` | scriptorium-mundane |
-| `blowpipe` | glassworks |
 | `bobbin` | textile-loomhouse |
 | `bone-chandelier` | ossuary |
 | `bone-charm` | bog-witch-hut |
 | `bone-specimen` | shop-apothecary |
-| `bone-totem-small` | goblin-warren-entrance |
 | `bonfire` | orc-war-camp |
 | `bonfire-large` | fairground-seasonal |
 | `book-bedside` | mansion-bedroom-master |
@@ -472,7 +214,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `boot-worn` | apartment-tenement |
 | `boots-by-bed` | barracks |
 | `boots-discarded` | ship-crew-quarters |
-| `boots-drying` | campsite-traveler |
 | `bottle` | pantry |
 | `bottle-empty` | cave-bandit-camp |
 | `bottle-nursing` | nursery |
@@ -482,7 +223,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `branding-iron` | torture-chamber |
 | `brass-candlestick` | mansion-grand-hall |
 | `brass-lamp` | house-merchant |
-| `brazier-dead` | ruined-watchtower |
 | `brazier-small` | ship-brig |
 | `bread-crust` | shepherds-shelter |
 | `brewing-kettle` | brewery |
@@ -492,21 +232,16 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `broken-arrow` | goblin-warren-entrance |
 | `broken-arrow-slit` | ruined-watchtower |
 | `broken-binding` | library |
-| `broken-bottle` | cabin-abandoned |
 | `broken-bridge-stub` | chasm-crossing |
 | `broken-fingernail-scratch` | oubliette |
 | `broken-glassware` | demiplane-laboratory |
 | `broken-pickaxe` | tunnel-mine-worked |
 | `broken-plank` | chasm-crossing |
 | `broken-plate` | servants-kitchen |
-| `broken-pot` | kiln-pottery |
 | `broken-pottery` | market-square |
-| `broken-spear` | battlefield-recent |
 | `broken-statue` | corrupted-temple |
 | `broken-stool` | tavern-common |
-| `broken-sword` | battlefield-recent |
 | `broken-tooth` | interrogation-room |
-| `broken-vial` | alchemy-lab |
 | `brush-blind` | scouts-blind |
 | `bubble-drift` | elemental-water-node |
 | `bubble-pillar` | elemental-water-node |
@@ -517,7 +252,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `bundle-of-herbs` | house-small |
 | `bunting-line` | fairground-seasonal |
 | `burner-shelter` | charcoal-burner-camp |
-| `bush-berry` | druid-grove |
 | `butchery-pit` | orc-war-camp |
 | `butterfly-cloud` | forest-clearing |
 | `buttons-jar` | shop-tailor |
@@ -525,12 +259,8 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `cabinet-liquor` | ship-captains-cabin |
 | `cage-wicker` | cave-goblin-warren |
 | `campaign-ledger` | command-room |
-| `campfire-abandoned` | battlefield-recent |
-| `campfire-cold` | campsite-traveler |
-| `candelabra-tall` | mansion-grand-hall |
 | `candle-bundle` | shop-general |
 | `candle-miner` | mine-shaft-entrance |
-| `candle-night-light` | nursery |
 | `candle-red` | opium-den |
 | `candle-violet` | cave-drow-outpost |
 | `cannon-tackle` | ship-gun-deck |
@@ -544,22 +274,16 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `cart-track` | mine-shaft-entrance |
 | `carved-stick` | shepherds-shelter |
 | `casting-pit` | foundry-great |
-| `cat-begging` | farmhouse-kitchen |
 | `cat-hunting` | butcher-shop |
-| `cauldron-small` | alchemy-lab |
-| `cave-cricket` | cave-living |
 | `cave-mouth-small` | goblin-warren-entrance |
 | `celestial-globe` | mansion-library |
 | `celestial-pillar-of-light` | celestial-vault |
 | `celestial-scales` | celestial-vault |
-| `cell-door` | prison-block |
 | `chain-shackle` | courthouse-chamber |
-| `chair-broken` | cabin-abandoned |
 | `chalk-circle-floor` | cabin-witch |
 | `chalk-marks` | ritual-chamber |
 | `chamber-pot` | mansion-servants-quarters |
 | `chamber-pot-stand` | mansion-bedroom-master |
-| `chandelier-grand` | mansion-grand-hall |
 | `charcoal-kiln` | charcoal-burner-camp |
 | `charcoal-lump` | charcoal-burner-camp |
 | `chess-set` | noble-solar |
@@ -570,21 +294,18 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `chicken-crate` | market-square |
 | `chicken-loose` | peasant-hovel |
 | `chieftains-throne` | orc-war-camp |
-| `child-bed` | nursery |
 | `child-doll-rag` | apartment-tenement |
 | `child-wooden-toy` | farmhouse-common |
 | `child's-toy` | house-small |
 | `children-toys` | fairground-seasonal |
 | `china-cabinet` | mansion-dining |
 | `chips-stack` | gambling-den |
-| `chopped-vegetables` | farmhouse-kitchen |
 | `cigar-case` | tavern-highend |
 | `cigarette-stub` | interrogation-room |
 | `claw-marked-wall` | cave-bear-lair |
 | `claw-marks-wall` | monster-lair-small |
 | `clay-cup` | house-small |
 | `clay-dust` | kiln-pottery |
-| `clay-lump` | kiln-pottery |
 | `clerestory-window` | dock-warehouse |
 | `clerk-desk` | courthouse-chamber |
 | `clock-tower-base` | plaza-civic |
@@ -595,18 +316,15 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `coal-bucket` | apartment-tenement |
 | `coal-pile` | forge |
 | `coat-rack-ornate` | mansion-grand-hall |
-| `cobweb-cluster` | cabin-abandoned |
 | `cobweb-heavy` | shadowfell-mausoleum |
 | `coin-in-water` | cistern |
 | `coin-spill` | treasure-vault |
-| `collapsed-stair` | ruined-watchtower |
 | `color-rod-bundle` | glassworks |
 | `commander-corpse-mounted` | battlefield-recent |
 | `condenser-coil` | refinery |
 | `confession-paper` | interrogation-room |
 | `confessional-booth` | confessional |
 | `contraband-stash` | dock-warehouse |
-| `cook-pot-tripod` | campsite-traveler |
 | `cook-spit` | cave-goblin-warren |
 | `cooking-tripod` | ranger-camp |
 | `cookware-scatter` | campsite-traveler |
@@ -614,7 +332,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `cork-pile` | brewery |
 | `corpse-horse` | battlefield-recent |
 | `corpse-soldier` | battlefield-recent |
-| `cot-blanket` | nursery |
 | `crate-splintered` | cabin-abandoned |
 | `crate-stacked` | market-stall |
 | `crow-perched` | roadside-gallows |
@@ -624,7 +341,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `crypt-entrance` | graveyard-village |
 | `crystal-cluster-large` | crystal-grotto |
 | `crystal-dust` | crystal-grotto |
-| `crystal-glow` | cave-living |
 | `crystal-heart` | crystal-grotto |
 | `cupboard-galley` | ship-galley |
 | `cupboard-small` | apartment-tenement |
@@ -653,19 +369,16 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `display-rack-fabric` | market-stall |
 | `display-rack-weapons` | smithy-large |
 | `dissolved-skeleton` | slime-pit |
-| `distillation-setup` | alchemy-lab |
 | `distillery-vat` | refinery |
 | `djinn-pavilion` | elemental-air-node |
 | `dog-chain` | lumberyard |
 | `dog-sleeping` | inn-common-room |
-| `dollhouse` | nursery |
 | `drain-grate` | interrogation-room |
 | `dressing-screen` | mansion-bedroom-master |
 | `dried-flowers` | shrine-roadside |
 | `dried-lizard` | shop-apothecary |
 | `drifting-stone` | astral-anchor |
 | `driftwood` | ferry-house |
-| `drip-stain` | cave-living |
 | `dripping-stalactite` | slime-pit |
 | `dropped-apple` | market-square |
 | `dropped-fan` | mansion-ballroom |
@@ -704,14 +417,11 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `feather-drift-cluster` | elemental-air-node |
 | `fence-wood-low` | roadside-gallows |
 | `fermentation-vat` | brewery |
-| `fern-cluster` | druid-grove |
 | `ferry-cabin` | ferry-house |
 | `ferry-raft` | ferry-house |
 | `fey-archfey-throne` | fey-glade |
 | `fey-lantern-bloom` | fey-glade |
 | `fey-mushroom-ring` | fey-glade |
-| `finished-pot` | kiln-pottery |
-| `finished-vessel` | glassworks |
 | `fire-node-core` | elemental-fire-node |
 | `fire-ring` | shepherds-shelter |
 | `firepit-central` | peasant-hovel |
@@ -726,8 +436,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `floating-debris` | sewer-junction |
 | `floating-stone` | elemental-air-node |
 | `flour-bag` | servants-kitchen |
-| `flour-barrel` | farmhouse-kitchen |
-| `flower-arrangement` | mansion-grand-hall |
 | `flower-petals` | bardic-hall |
 | `focused-lamp` | interrogation-room |
 | `folded-gown` | mansion-bedroom-master |
@@ -751,12 +459,10 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `gem-cluster` | treasure-vault |
 | `geode-cluster` | elemental-earth-node |
 | `githyanki-perch` | astral-anchor |
-| `glass-furnace` | glassworks |
 | `glove-silk` | tavern-highend |
 | `glove-single` | mansion-ballroom |
 | `glove-stained` | refinery |
 | `glowcap-cluster` | mushroom-grove |
-| `glowing-ingot` | infernal-forge |
 | `goblin-totem` | cave-goblin-warren |
 | `grain-sack` | pantry |
 | `grand-staircase` | mansion-grand-hall |
@@ -774,21 +480,16 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `ham-hook-row` | pantry |
 | `hammer-giant` | infernal-forge |
 | `hammer-rack` | smithy-large |
-| `hanging-garlic` | farmhouse-kitchen |
 | `hanging-ham` | pantry |
-| `hanging-sausage` | farmhouse-kitchen |
 | `harp` | bardic-hall |
 | `harp-floor` | noble-solar |
-| `harpsichord` | mansion-ballroom |
 | `hat-tricorn` | tavern-highend |
 | `hay-wisps` | farmhouse-common |
 | `headframe` | mine-shaft-entrance |
 | `hearth-small` | nursery |
 | `helmet-fallen` | battlefield-recent |
 | `helmet-mining` | mine-shaft-entrance |
-| `helmet-rusted` | ruined-watchtower |
 | `hide-scraps` | tannery |
-| `hobby-horse` | nursery |
 | `holy-symbol` | temple-nave |
 | `holystone` | ship-main-deck |
 | `homunculus-vat` | demiplane-laboratory |
@@ -824,12 +525,10 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `jewelry-box` | mansion-bedroom-master |
 | `jewelry-loose` | thieves-guild-hideout |
 | `judge-bench` | courthouse-chamber |
-| `junk-pile` | goblin-warren-entrance |
 | `kelp-frond-giant` | elemental-water-node |
 | `kelp-strand` | elemental-water-node |
 | `kennel` | hunting-lodge-large |
 | `kettle-hook` | ship-galley |
-| `kiln-brick` | kiln-pottery |
 | `kiln-large` | kiln-pottery |
 | `knife-on-block` | servants-kitchen |
 | `knit-blanket` | lighthouse-keepers-room |
@@ -859,9 +558,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `liquor-bottle` | ship-captains-cabin |
 | `lockpicks` | thieves-guild-hideout |
 | `log-carriage` | mill-lumber |
-| `log-fallen` | druid-grove |
-| `log-seat` | campsite-traveler |
-| `long-spoon` | farmhouse-kitchen |
 | `longboat-cradle` | ship-main-deck |
 | `loom-altar` | temple-of-craft |
 | `loot-pile` | cave-bandit-camp |
@@ -878,12 +574,9 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `map-scroll` | command-room |
 | `marid-pavilion` | elemental-water-node |
 | `market-cross` | market-square |
-| `marver-slab` | glassworks |
 | `mash-tun` | brewery |
 | `mask-cloth` | thieves-guild-hideout |
 | `mask-feathered` | brothel-parlor |
-| `masquerade-mask` | mansion-ballroom |
-| `massage-table` | bath-house |
 | `mast-fore` | ship-main-deck |
 | `match-tub` | ship-gun-deck |
 | `maypole` | fairground-seasonal |
@@ -893,11 +586,8 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `millstone` | mill-grain |
 | `mine-shaft` | mine-shaft-entrance |
 | `mine-shaft-opening` | tunnel-mine-worked |
-| `mineral-vein` | cave-living |
 | `mirror-reflected` | mansion-ballroom |
-| `mirror-tall` | mansion-ballroom |
 | `mist-pool` | shadowfell-mausoleum |
-| `mixing-bowl` | farmhouse-kitchen |
 | `moldy-bread` | oubliette |
 | `molten-pool-small` | elemental-fire-node |
 | `mosaic-fragment` | ancient-ruin-overgrown |
@@ -909,7 +599,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `mug` | monastery-refectory |
 | `murder-hole-grate` | gatehouse-inner |
 | `mushroom-basket` | cabin-witch |
-| `mushroom-glow` | cave-living |
 | `music-stand` | bardic-hall |
 | `musicians-dais` | mansion-ballroom |
 | `mycelium-web` | mushroom-grove |
@@ -922,7 +611,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `obelisk-astral` | astral-anchor |
 | `obelisk-memorial` | shadowfell-mausoleum |
 | `obelisk-stone-raw` | elemental-earth-node |
-| `oil-amphora` | bath-house |
 | `oil-reservoir` | lighthouse-keepers-room |
 | `oil-slick` | sewer-junction |
 | `ooze-pool` | slime-pit |
@@ -939,7 +627,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `overturned-table` | cabin-abandoned |
 | `painting-framed` | house-merchant |
 | `painting-large` | mansion-ballroom |
-| `pantry-door` | farmhouse-kitchen |
 | `pantry-shelf` | pantry |
 | `paperweight` | mansion-study |
 | `pavise` | battlefield-recent |
@@ -972,14 +659,12 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `place-card` | mansion-dining |
 | `planar-sigil-shard` | astral-anchor |
 | `plate-stack` | mess-hall |
-| `plunge-basin` | bath-house |
 | `polish-rag` | shop-weaponsmith |
 | `poppet` | cabin-witch |
 | `portal-stela` | astral-anchor |
 | `portrait-framed` | mansion-grand-hall |
 | `potbelly-stove` | lighthouse-keepers-room |
 | `potion-bottle` | shop-apothecary |
-| `potted-palm` | mansion-ballroom |
 | `pottery-shard` | kiln-pottery |
 | `powder-tub` | ship-gun-deck |
 | `prayer-beads` | house-medium-family |
@@ -999,15 +684,11 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `quench-trough-blood` | infernal-forge |
 | `quill-pen` | scriptorium-dark |
 | `rabbit-trail` | forest-clearing |
-| `rag-doll` | nursery |
 | `rags-bloody` | mine-shaft-entrance |
 | `rail-track` | tunnel-mine-worked |
-| `rain-puddle` | druid-grove |
 | `rammer-rack` | ship-gun-deck |
 | `rat-carcass` | goblin-warren-entrance |
-| `rat-nest` | prison-block |
 | `rat-sign` | mill-grain |
-| `ration-bowl` | prison-block |
 | `ration-moldy` | ruined-watchtower |
 | `ration-pack` | cabin-hunters |
 | `raven-perch` | cabin-witch |
@@ -1015,7 +696,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `ravens-feather` | burial-mound |
 | `reading-chair` | mansion-library |
 | `reading-table` | library |
-| `reagent-jar` | demiplane-laboratory |
 | `reagent-rack` | demiplane-laboratory |
 | `reliquary-bone` | shadowfell-mausoleum |
 | `residual-torch-from-victims` | monster-lair-small |
@@ -1024,7 +704,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `ribbon-scatter` | fairground-seasonal |
 | `ring-display` | shop-jeweler |
 | `ritual-candle` | standing-stones-circle |
-| `rocking-horse` | nursery |
 | `rolled-blanket` | house-small |
 | `rolling-pin` | bakery |
 | `root-tangle` | mushroom-cavern |
@@ -1034,10 +713,8 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `round-dining-table` | mansion-dining |
 | `round-table` | sanctum-order |
 | `rug-oriental` | house-merchant |
-| `rug-runner` | mansion-grand-hall |
 | `rune-chalk-mark` | demiplane-laboratory |
 | `rusted-bucket` | cistern |
-| `rusted-manacle` | prison-block |
 | `rusted-tool` | sewer-junction |
 | `rusted-weapon` | slime-pit |
 | `sack-pile` | mill-grain |
@@ -1050,7 +727,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `sand-shaker` | scriptorium-mundane |
 | `sand-spill` | glassworks |
 | `sand-table` | command-room |
-| `sandal-pair` | bath-house |
 | `sarcophagus-shadow` | shadowfell-mausoleum |
 | `sausage-link` | butcher-shop |
 | `sawmill-blade` | mill-lumber |
@@ -1091,7 +767,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `sheep-dung` | shepherds-shelter |
 | `sheet-music` | bardic-hall |
 | `shelf-crockery` | farmhouse-kitchen |
-| `shelf-fallen` | cabin-abandoned |
 | `shelf-tools` | house-medium-artisan |
 | `shell-giant` | elemental-water-node |
 | `shell-scatter` | elemental-water-node |
@@ -1120,9 +795,7 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `silver-tray` | tavern-highend |
 | `single-tooth` | oubliette |
 | `skeleton-charred` | elemental-fire-node |
-| `skeleton-slumped` | ruined-watchtower |
 | `skull-offering` | ritual-chamber |
-| `skull-on-stick` | goblin-warren-entrance |
 | `skull-totem` | orc-war-camp |
 | `skull-trophy` | orc-war-camp |
 | `slime-puddle` | monster-lair-small |
@@ -1139,10 +812,8 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `soot-streak` | infernal-forge |
 | `sorting-table` | mine-shaft-entrance |
 | `soul-coin-pile` | infernal-court |
-| `soul-crucible` | infernal-forge |
 | `spark-burst` | elemental-fire-node |
 | `spear-stuck` | orc-war-camp |
-| `specimen-jar-shelf` | alchemy-lab |
 | `specimen-tank` | alchemy-lab |
 | `spell-component-loose` | demiplane-laboratory |
 | `spelljammer-dock-mooring` | astral-anchor |
@@ -1172,12 +843,9 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `stage-performance` | fairground-seasonal |
 | `stair-remnant` | ruined-watchtower |
 | `staircase-wooden` | tavern-common |
-| `stalactite-hanging` | cave-living |
 | `stalagmite-forest` | cave-living |
 | `stall-counter` | market-stall |
-| `standing-stones-ring` | druid-grove |
 | `star-dust-pile` | astral-anchor |
-| `statue-classical` | mansion-ballroom |
 | `statue-dark-god` | dark-temple |
 | `statue-deity` | temple-nave |
 | `statue-devil` | infernal-court |
@@ -1188,7 +856,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `statue-weeping` | graveyard-village |
 | `stave-horse` | cooperage |
 | `stave-pile` | cooperage |
-| `steam-cloud` | bath-house |
 | `stern-window` | ship-captains-cabin |
 | `stolen-shoe` | goblin-warren-entrance |
 | `stone-arch-natural` | chasm-crossing |
@@ -1202,10 +869,8 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `stove-iron` | apartment-tenement |
 | `strange-residue` | alchemy-lab |
 | `straw-bed-large` | monster-lair-small |
-| `straw-pile` | prison-block |
 | `straw-wisps` | peasant-hovel |
 | `strigil` | bath-house |
-| `stuffed-bear` | nursery |
 | `summoning-pool-glow` | boss-chamber |
 | `sun-disc-altar` | celestial-vault |
 | `sun-window` | noble-solar |
@@ -1229,7 +894,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `threadbare-rug` | mansion-servants-quarters |
 | `thumbscrews` | interrogation-room |
 | `timber-brace` | tunnel-mine-worked |
-| `tin-soldier-pile` | nursery |
 | `tiny-chair` | nursery |
 | `tiny-shoe` | fey-glade |
 | `tobacco-pipe` | lighthouse-keepers-room |
@@ -1244,8 +908,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `torn-notice` | roadside-gallows |
 | `torn-page` | ritual-chamber |
 | `torture-instrument-small` | prison-block |
-| `towel-folded` | bath-house |
-| `toy-chest` | nursery |
 | `trash-heap` | cave-goblin-warren |
 | `travel-pack` | inn-common-room |
 | `treasure-chest-naval` | ship-cargo-hold |
@@ -1269,10 +931,8 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `walking-stick` | inn-common-room |
 | `war-paint-pot` | orc-war-camp |
 | `wardrobe-small` | nursery |
-| `warren-hole` | goblin-warren-entrance |
 | `washing-line` | apartment-tenement |
 | `watchfire-pit` | underdark-outpost |
-| `watchfire-ring` | ruined-watchtower |
 | `water-barrel` | ship-main-deck |
 | `water-bowl` | kiln-pottery |
 | `water-dish-dry` | oubliette |
@@ -1290,7 +950,6 @@ Flavor props. Only author when building the specific room that needs them, or if
 | `web-floor` | spider-lair |
 | `web-funnel` | spider-lair |
 | `whittled-stick` | ranger-camp |
-| `wild-plant-sprouting` | ruined-watchtower |
 | `wildflower-patch` | druid-grove |
 | `winch-block` | dock-warehouse |
 | `winch-large` | mine-shaft-entrance |

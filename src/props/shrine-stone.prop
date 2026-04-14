@@ -1,0 +1,55 @@
+name: Shrine Stone
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: center
+room_types: hermit-cell, shrine-roadside, druid-grove, standing-stones-circle, burial-mound, wilderness
+typical_count: single
+clusters_with: prayer-stone, cairn-sacred, ribbon-tied, feather-bundle, offering-bowl, coin-offering
+notes: Waist-high roadside menhir with moss base and weathered face-carving on top; smaller cousin of the standing stone
+---
+# === HITBOX ===
+hitbox ellipse 0.50,0.46 0.20,0.30 z 0-1.2
+
+# Ground shadow pool (cast north by the leaning stone)
+ellipse 0.52,0.78 0.22,0.06 fill #1a1008 0.45
+# Base moss ring (thick lichen/moss at soil line)
+ellipse 0.50,0.70 0.26,0.10 fill #4a5a2a 0.75
+ellipse 0.50,0.70 0.26,0.10 stroke #2a3818 0.8 width 1
+# Moss tufts protruding beyond base
+poly 0.26,0.70 0.30,0.64 0.34,0.72 0.30,0.74 fill #4a5a2a 0.8
+poly 0.70,0.72 0.74,0.66 0.78,0.74 0.74,0.76 fill #3a4a22 0.8
+ellipse 0.42,0.76 0.06,0.025 fill #4a5a2a 0.7
+ellipse 0.58,0.76 0.06,0.025 fill #4a5a2a 0.7
+# Main stone body (slightly tilted upright menhir — oval with N lean to the east)
+poly 0.34,0.18 0.46,0.12 0.60,0.14 0.68,0.22 0.70,0.38 0.68,0.54 0.64,0.66 0.54,0.72 0.40,0.70 0.34,0.60 0.30,0.44 0.30,0.28 fill #5a5048 0.95
+poly 0.34,0.18 0.46,0.12 0.60,0.14 0.68,0.22 0.70,0.38 0.68,0.54 0.64,0.66 0.54,0.72 0.40,0.70 0.34,0.60 0.30,0.44 0.30,0.28 texfill polyhaven/stone_wall 0.65
+poly 0.34,0.18 0.46,0.12 0.60,0.14 0.68,0.22 0.70,0.38 0.68,0.54 0.64,0.66 0.54,0.72 0.40,0.70 0.34,0.60 0.30,0.44 0.30,0.28 stroke #2a2420
+# Weathering erosion cracks running down length of stone
+bezier 0.38,0.18 0.36,0.36 0.40,0.54 0.44,0.68 stroke #1a1410 0.7 width 1
+bezier 0.62,0.16 0.66,0.38 0.62,0.54 0.58,0.70 stroke #1a1410 0.65 width 1
+# Stone-carved face/eye sockets near top (primitive idol carving)
+circle 0.44,0.28 0.025 fill #1a1008 0.85
+circle 0.56,0.28 0.025 fill #1a1008 0.85
+arc 0.44,0.28 0.03 200 340 stroke #1a1008 0.6 width 1
+arc 0.56,0.28 0.03 200 340 stroke #1a1008 0.6 width 1
+# Carved mouth slit
+line 0.46,0.38 0.54,0.38 stroke #1a1008 0.8 width 2
+# Ochre pigment smear (ancient ritual paint, faded)
+ellipse 0.50,0.32 0.12,0.06 fill #8a3010 0.3
+# Patches of pale lichen high on stone
+ellipse 0.36,0.44 0.05,0.04 fill #8a9020 0.55
+ellipse 0.64,0.50 0.04,0.035 fill #8a9020 0.5
+# Green moss finger creeping up shaded side
+poly 0.30,0.52 0.34,0.46 0.36,0.58 0.32,0.62 fill #4a5a2a 0.7
+# Light-catching highlight arc (sun-facing side)
+arc 0.50,0.42 0.26 250 310 stroke #8a8078 0.5 width 1
+# Small offering — single coin at base
+circle 0.42,0.82 0.022 fill #daa520 0.9
+circle 0.42,0.82 0.022 stroke #5a3a00
+# Tiny pebble at base
+circle 0.66,0.80 0.025 fill #6a6058 0.85
+circle 0.66,0.80 0.025 stroke #2a2420

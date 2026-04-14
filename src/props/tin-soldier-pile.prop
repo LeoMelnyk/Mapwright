@@ -1,0 +1,68 @@
+name: Tin Soldier Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: nursery
+typical_count: few
+clusters_with: blocks-pile, wooden-toy, toy-chest
+notes: Small cluster of scattered tin soldiers with painted red uniforms and tiny muskets
+---
+# === HITBOX ===
+hitbox rect 0.15,0.15 0.70,0.70 z 0-0.08
+
+# Soldier 1 — upright-ish, north-west
+# Body
+rect 0.22,0.26 0.06,0.12 fill #c82020 0.9 rotate 20
+rect 0.22,0.26 0.06,0.12 stroke #6a1010 rotate 20
+# Head (tin-grey)
+circle 0.22,0.22 0.035 fill #888a8c 0.95
+circle 0.22,0.22 0.035 stroke #3a3a3c
+# Hat
+circle 0.20,0.19 0.025 fill #1a0a04 0.95
+# Musket line
+line 0.28,0.18 0.34,0.36 stroke #3a2010 width 2
+
+# Soldier 2 — lying east
+rect 0.46,0.24 0.12,0.06 fill #c82020 0.9 rotate -12
+rect 0.46,0.24 0.12,0.06 stroke #6a1010 rotate -12
+circle 0.60,0.22 0.035 fill #888a8c 0.95
+circle 0.60,0.22 0.035 stroke #3a3a3c
+circle 0.64,0.20 0.025 fill #1a0a04 0.95
+# Musket
+line 0.42,0.28 0.32,0.32 stroke #3a2010 width 2
+
+# Soldier 3 — scattered middle
+rect 0.50,0.48 0.06,0.12 fill #c82020 0.9 rotate 45
+rect 0.50,0.48 0.06,0.12 stroke #6a1010 rotate 45
+circle 0.60,0.48 0.035 fill #888a8c 0.95
+circle 0.60,0.48 0.035 stroke #3a3a3c
+circle 0.63,0.46 0.025 fill #1a0a04 0.95
+# Musket
+line 0.46,0.44 0.38,0.52 stroke #3a2010 width 2
+
+# Soldier 4 — south-west scattered
+rect 0.24,0.58 0.06,0.12 fill #c82020 0.9 rotate -30
+rect 0.24,0.58 0.06,0.12 stroke #6a1010 rotate -30
+circle 0.30,0.56 0.035 fill #888a8c 0.95
+circle 0.30,0.56 0.035 stroke #3a3a3c
+circle 0.33,0.54 0.025 fill #1a0a04 0.95
+# Musket
+line 0.22,0.66 0.14,0.72 stroke #3a2010 width 2
+
+# Soldier 5 — south-east, small
+rect 0.64,0.64 0.06,0.10 fill #c82020 0.88 rotate 15
+rect 0.64,0.64 0.06,0.10 stroke #6a1010 rotate 15
+circle 0.68,0.62 0.032 fill #888a8c 0.95
+circle 0.68,0.62 0.032 stroke #3a3a3c
+circle 0.66,0.59 0.022 fill #1a0a04 0.95
+# Musket
+line 0.72,0.66 0.82,0.74 stroke #3a2010 width 2
+
+# Fallen soldier 6 — tiny
+ellipse 0.38,0.74 0.06,0.03 fill #c82020 0.85 rotate 60
+ellipse 0.38,0.74 0.06,0.03 stroke #6a1010 rotate 60
+circle 0.42,0.78 0.028 fill #888a8c 0.9

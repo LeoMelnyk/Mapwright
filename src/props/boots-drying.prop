@@ -1,0 +1,54 @@
+name: Boots Drying
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: campsite-traveler, ranger-camp, cabin-hunters
+typical_count: few
+clusters_with: worn-shoes, campfire, bedroll, gear-pack
+notes: Pair of travel boots propped upside-down on sticks to dry; place near a campfire or hearth
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: boots are inverted, so what you see is the flat sole upward with a dark oval opening at the base (north end, where the ankle cuff faces down to the ground). Two short drying sticks poke up through each boot.
+
+# === LEFT BOOT (west) — inverted, sole facing up ===
+# Drying stick poking through (north end, small twig)
+line 0.28,0.12 0.28,0.30 stroke #3a1f00 width 2
+# Dark ankle opening (boot is inverted, so the opening is at the north end facing us)
+ellipse 0.28,0.30 0.10,0.06 fill #1a0808 0.9
+ellipse 0.28,0.30 0.10,0.06 stroke #0a0404
+# Boot body — elongated sole shape (narrower at heel/north, wider at toe/south)
+poly 0.18,0.32 0.38,0.32 0.40,0.62 0.38,0.82 0.32,0.88 0.22,0.86 0.17,0.70 0.16,0.50 texfill polyhaven/brown_leather 0.85
+poly 0.18,0.32 0.38,0.32 0.40,0.62 0.38,0.82 0.32,0.88 0.22,0.86 0.17,0.70 0.16,0.50 fill #4a2a10 0.45
+poly 0.18,0.32 0.38,0.32 0.40,0.62 0.38,0.82 0.32,0.88 0.22,0.86 0.17,0.70 0.16,0.50 stroke #2a1400
+# Sole heel/toe divider (worn groove across the arch)
+line 0.18,0.58 0.40,0.58 stroke #2a1400 0.6 width 1
+# Lighter scuff on toe
+ellipse 0.28,0.80 0.08,0.04 fill #6b4020 0.55
+# Wear mark on sole center
+ellipse 0.28,0.68 0.06,0.08 fill #2a1400 0.4
+# Steam curl rising
+bezier 0.28,0.10 0.22,0.05 0.34,0.02 0.28,-0.02 stroke #c8c0b8 0.4 width 2
+
+# === RIGHT BOOT (east) — inverted, sole facing up ===
+# Drying stick poking through
+line 0.72,0.12 0.72,0.30 stroke #3a1f00 width 2
+# Dark ankle opening
+ellipse 0.72,0.30 0.10,0.06 fill #1a0808 0.9
+ellipse 0.72,0.30 0.10,0.06 stroke #0a0404
+# Boot body — mirrored shape
+poly 0.62,0.32 0.82,0.32 0.84,0.50 0.83,0.70 0.78,0.86 0.68,0.88 0.62,0.82 0.60,0.62 texfill polyhaven/brown_leather 0.85
+poly 0.62,0.32 0.82,0.32 0.84,0.50 0.83,0.70 0.78,0.86 0.68,0.88 0.62,0.82 0.60,0.62 fill #4a2a10 0.45
+poly 0.62,0.32 0.82,0.32 0.84,0.50 0.83,0.70 0.78,0.86 0.68,0.88 0.62,0.82 0.60,0.62 stroke #2a1400
+# Sole heel/toe divider
+line 0.60,0.58 0.84,0.58 stroke #2a1400 0.6 width 1
+# Scuff on toe
+ellipse 0.72,0.80 0.08,0.04 fill #6b4020 0.55
+# Wear mark on sole
+ellipse 0.72,0.68 0.06,0.08 fill #2a1400 0.4
+# Lace tails dangling from the ankle opening (tiny loop of cord visible)
+bezier 0.68,0.32 0.66,0.36 0.74,0.36 0.76,0.32 stroke #6b4e2e 0.7 width 1
+bezier 0.24,0.32 0.22,0.36 0.30,0.36 0.32,0.32 stroke #6b4e2e 0.7 width 1

@@ -1,0 +1,96 @@
+name: Wood Bin
+category: Containers
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1
+placement: wall
+room_types: lighthouse-keepers-room, ship-galley
+typical_count: single
+clusters_with: hearth, firewood-stack, log-round
+notes: Open wooden crate holding chopped firewood with log-ends poking up; place against a wall with the back (north) edge flush
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.80 z 0-1
+
+# Bin outer box (rough planks forming the container)
+rect 0.08,0.08 1.84,0.80 texfill polyhaven/weathered_planks 0.88
+rect 0.08,0.08 1.84,0.80 stroke #2a1400 width 2
+
+# Plank seams along the rim
+line 0.08,0.24 1.92,0.24 stroke #3a1f00 0.55
+line 0.08,0.72 1.92,0.72 stroke #3a1f00 0.55
+line 0.60,0.08 0.60,0.88 stroke #3a1f00 0.45
+line 1.20,0.08 1.20,0.88 stroke #3a1f00 0.45
+
+# Thick rim frame (top edge of the bin planks)
+rect 0.08,0.08 1.84,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.08 1.84,0.10 stroke #1a1208
+rect 0.08,0.78 1.84,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.78 1.84,0.10 stroke #1a1208
+rect 0.08,0.08 0.10,0.80 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.08 0.10,0.80 stroke #1a1208
+rect 1.82,0.08 0.10,0.80 texfill polyhaven/dark_wood 0.88
+rect 1.82,0.08 0.10,0.80 stroke #1a1208
+
+# Corner iron brackets
+rect 0.08,0.08 0.14,0.08 fill #555555 0.85
+rect 0.08,0.08 0.14,0.08 stroke #222222
+rect 1.78,0.08 0.14,0.08 fill #555555 0.85
+rect 1.78,0.08 0.14,0.08 stroke #222222
+rect 0.08,0.80 0.14,0.08 fill #555555 0.85
+rect 0.08,0.80 0.14,0.08 stroke #222222
+rect 1.78,0.80 0.14,0.08 fill #555555 0.85
+rect 1.78,0.80 0.14,0.08 stroke #222222
+
+# Interior dark recess (space between the logs)
+rect 0.20,0.20 1.60,0.56 fill #0a0604 0.70
+
+# Log-ends stacked inside (circular butt-ends of chopped wood, viewed top-down)
+# Front row (closer to south / room side)
+circle 0.38,0.62 0.14 texfill polyhaven/dark_wood 0.90
+circle 0.38,0.62 0.14 stroke #1a1208
+circle 0.38,0.62 0.09 stroke #3a1f00 0.70
+circle 0.38,0.62 0.04 stroke #5c3a1e 0.60
+line 0.30,0.62 0.46,0.62 stroke #2a1400 0.50
+
+circle 0.68,0.60 0.13 texfill polyhaven/weathered_planks 0.88
+circle 0.68,0.60 0.13 stroke #1a1208
+circle 0.68,0.60 0.08 stroke #3a1f00 0.65
+circle 0.68,0.60 0.035 stroke #5c3a1e 0.55
+
+circle 0.98,0.64 0.14 texfill polyhaven/dark_wood 0.90
+circle 0.98,0.64 0.14 stroke #1a1208
+circle 0.98,0.64 0.09 stroke #3a1f00 0.70
+circle 0.98,0.64 0.04 stroke #5c3a1e 0.60
+
+circle 1.28,0.60 0.13 texfill polyhaven/worn_planks 0.88
+circle 1.28,0.60 0.13 stroke #1a1208
+circle 1.28,0.60 0.08 stroke #3a1f00 0.65
+
+circle 1.58,0.62 0.14 texfill polyhaven/dark_wood 0.90
+circle 1.58,0.62 0.14 stroke #1a1208
+circle 1.58,0.62 0.09 stroke #3a1f00 0.70
+circle 1.58,0.62 0.04 stroke #5c3a1e 0.60
+
+# Back row (partially visible between front logs)
+circle 0.52,0.36 0.11 texfill polyhaven/weathered_planks 0.85
+circle 0.52,0.36 0.11 stroke #1a1208
+circle 0.52,0.36 0.06 stroke #3a1f00 0.60
+
+circle 0.82,0.34 0.11 texfill polyhaven/dark_wood 0.85
+circle 0.82,0.34 0.11 stroke #1a1208
+circle 0.82,0.34 0.06 stroke #3a1f00 0.60
+
+circle 1.14,0.36 0.11 texfill polyhaven/worn_planks 0.85
+circle 1.14,0.36 0.11 stroke #1a1208
+circle 1.14,0.36 0.06 stroke #3a1f00 0.60
+
+circle 1.44,0.34 0.11 texfill polyhaven/dark_wood 0.85
+circle 1.44,0.34 0.11 stroke #1a1208
+circle 1.44,0.34 0.06 stroke #3a1f00 0.60
+
+# A few bark fragments in the gaps
+poly 0.24,0.48 0.30,0.46 0.28,0.52 fill #3a1f00 0.75
+poly 1.72,0.50 1.78,0.48 1.76,0.54 fill #3a1f00 0.75

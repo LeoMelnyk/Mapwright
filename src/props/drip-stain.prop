@@ -1,0 +1,37 @@
+name: Drip Stain
+category: Terrain
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: cave-living, cistern, sewer-junction, mushroom-cavern
+typical_count: few
+clusters_with: rain-puddle, mineral-vein, moss, fungal-growth
+notes: Mineral-stained water drip mark on floor — limestone deposit streak. Front (puddle end) faces south.
+---
+# Elongated mineral streak — irregular blotch
+poly 0.46,0.08 0.56,0.10 0.60,0.22 0.58,0.38 0.62,0.54 0.58,0.68 0.54,0.76 0.44,0.76 0.40,0.66 0.42,0.52 0.38,0.38 0.42,0.22 fill #c8a878 0.75
+poly 0.46,0.08 0.56,0.10 0.60,0.22 0.58,0.38 0.62,0.54 0.58,0.68 0.54,0.76 0.44,0.76 0.40,0.66 0.42,0.52 0.38,0.38 0.42,0.22 stroke #9a8050 0.7
+# Darker mineral edge bands
+line 0.44,0.16 0.58,0.20 stroke #9a8050 0.6
+line 0.42,0.36 0.60,0.40 stroke #9a8050 0.6
+line 0.44,0.58 0.58,0.60 stroke #9a8050 0.5
+# Lighter calcite highlights inside streak
+ellipse 0.50,0.28 0.04,0.08 fill #e0c898 0.5
+ellipse 0.50,0.54 0.035,0.06 fill #e0c898 0.45
+# Small splatter drips off main streak
+ellipse 0.30,0.32 0.04,0.025 fill #c8a878 0.65
+ellipse 0.30,0.32 0.04,0.025 stroke #9a8050 0.5
+ellipse 0.72,0.48 0.035,0.022 fill #c8a878 0.6
+ellipse 0.72,0.48 0.035,0.022 stroke #9a8050 0.5
+ellipse 0.32,0.62 0.028,0.018 fill #c8a878 0.55
+# Wet puddle at southern (front) end
+ellipse 0.50,0.86 0.10,0.055 fill #5a6870 0.7
+ellipse 0.50,0.86 0.10,0.055 stroke #3a4850
+# Wet puddle reflection highlight
+ellipse 0.48,0.84 0.05,0.02 fill #8a98a0 0.5
+# Tiny micro-droplets around puddle
+circle 0.34,0.88 0.018 fill #5a6870 0.6
+circle 0.66,0.88 0.015 fill #5a6870 0.55

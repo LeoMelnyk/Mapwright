@@ -1,0 +1,82 @@
+name: Brick Kiln
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: corner
+room_types: kiln-pottery, house-medium-artisan
+typical_count: single
+clusters_with: forge, clay-lump, finished-pot, broken-pot, clay-bin
+lights:
+  - type: brazier
+    x: 1.0
+    y: 1.0
+    radius: 14
+    color: "#ff7030"
+    intensity: 1.0
+notes: Small brick kiln for firing pottery — square brick body with central firing chamber
+---
+# === HITBOX ===
+hitbox rect 0.15,0.15 1.70,1.70 z 0-3
+
+# Ash and soot scatter at base (drawn first, behind kiln)
+ellipse 1.00,1.90 0.55,0.12 fill #2a2018 0.5
+ellipse 0.40,1.88 0.18,0.06 fill #2a2018 0.4
+ellipse 1.60,1.88 0.18,0.06 fill #2a2018 0.4
+# Warm glow spill on floor (from chimney)
+ellipse 1.00,1.00 0.90,0.90 fill #ff7030 0.06
+
+# === Outer square brick body ===
+rect 0.15,0.15 1.70,1.70 texfill polyhaven/brick_4 0.88
+rect 0.15,0.15 1.70,1.70 fill #2a1408 0.15
+rect 0.15,0.15 1.70,1.70 stroke #1a0a04 width 2
+
+# Inner shoulder step (thick wall of kiln)
+rect 0.30,0.30 1.40,1.40 texfill polyhaven/brick_4 0.78
+rect 0.30,0.30 1.40,1.40 stroke #1a0a04
+
+# Soot-stained inner ring
+rect 0.45,0.45 1.10,1.10 fill #1a0a04 0.55
+rect 0.45,0.45 1.10,1.10 stroke #0a0400
+
+# === Firing chamber (central circular opening — hot core) ===
+# Dark outer chamber rim
+circle 1.00,1.00 0.46 fill #1a0800 0.9
+circle 1.00,1.00 0.46 stroke #0a0400 width 2
+# Layered fire glow — outer embers
+circle 1.00,1.00 0.40 fill #cc3300 0.55
+# Mid glow
+circle 1.00,1.00 0.32 fill #e85500 0.65
+# Bright inner flame
+circle 1.00,1.00 0.24 fill #ff8800 0.75
+# Hot amber
+circle 1.00,1.00 0.16 fill #ffaa00 0.85
+# Hottest core
+circle 1.00,1.00 0.09 fill #ffcc00 0.95
+# White-hot center spark
+circle 1.00,1.00 0.04 fill #ffffcc 0.9
+
+# === Small chimney opening (offset NE from center) ===
+circle 1.50,0.50 0.12 fill #1a0800 0.85
+circle 1.50,0.50 0.12 stroke #0a0400
+# Heat shimmer from chimney
+circle 1.50,0.50 0.07 fill #cc3300 0.45
+circle 1.50,0.50 0.035 fill #ff8800 0.6
+
+# === Brick joint lines on outer body (mortar seams) ===
+line 0.15,0.60 0.30,0.60 stroke #1a0a04 0.7
+line 1.70,0.60 1.85,0.60 stroke #1a0a04 0.7
+line 0.15,1.30 0.30,1.30 stroke #1a0a04 0.7
+line 1.70,1.30 1.85,1.30 stroke #1a0a04 0.7
+line 0.60,0.15 0.60,0.30 stroke #1a0a04 0.7
+line 1.30,0.15 1.30,0.30 stroke #1a0a04 0.7
+line 0.60,1.70 0.60,1.85 stroke #1a0a04 0.7
+line 1.30,1.70 1.30,1.85 stroke #1a0a04 0.7
+
+# === Heat-scorched highlight around firing chamber ===
+arc 1.00,1.00 0.50 200 340 stroke #ff8800 0.4 width 2
+
+# Soot streak trailing from chimney
+ellipse 1.50,0.36 0.10,0.06 fill #1a0a04 0.6

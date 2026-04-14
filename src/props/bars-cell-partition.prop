@@ -1,0 +1,57 @@
+name: Bars (Cell Partition)
+category: Prison & Torture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 3
+placement: wall
+room_types: prison-block, dungeon-cell, ship-brig, oubliette
+typical_count: few
+clusters_with: cell-door, rusted-manacle, straw-pile, chain-coil
+notes: Iron-bar cell partition; place along a wall edge to divide cells or fence off a holding pen
+---
+# === HITBOX — only rails block light slightly, bars let most light through ===
+hitbox rect 0.0,0.30 2.0,0.08 z 0-3
+hitbox rect 0.0,0.62 2.0,0.08 z 0-3
+
+# North rail (reinforcing bar, wall-side)
+rect 0.0,0.30 2.0,0.08 texfill polyhaven/metal_plate 0.85
+rect 0.0,0.30 2.0,0.08 stroke #333333
+# South rail (reinforcing bar, room-side)
+rect 0.0,0.62 2.0,0.08 texfill polyhaven/metal_plate 0.85
+rect 0.0,0.62 2.0,0.08 stroke #333333
+# Vertical iron bars (cross-sections seen from above as thin vertical strips)
+rect 0.15,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 0.15,0.30 0.04,0.40 stroke #3a1808
+rect 0.33,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 0.33,0.30 0.04,0.40 stroke #3a1808
+rect 0.51,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 0.51,0.30 0.04,0.40 stroke #3a1808
+rect 0.69,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 0.69,0.30 0.04,0.40 stroke #3a1808
+rect 0.87,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 0.87,0.30 0.04,0.40 stroke #3a1808
+rect 1.05,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 1.05,0.30 0.04,0.40 stroke #3a1808
+rect 1.23,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 1.23,0.30 0.04,0.40 stroke #3a1808
+rect 1.41,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 1.41,0.30 0.04,0.40 stroke #3a1808
+rect 1.59,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 1.59,0.30 0.04,0.40 stroke #3a1808
+rect 1.77,0.30 0.04,0.40 texfill polyhaven/rusty_metal 0.8
+rect 1.77,0.30 0.04,0.40 stroke #3a1808
+# Hinges anchored into rails
+circle 0.08,0.34 0.035 fill #444444 0.9
+circle 0.08,0.34 0.035 stroke #222222
+circle 1.92,0.34 0.035 fill #444444 0.9
+circle 1.92,0.34 0.035 stroke #222222
+circle 0.08,0.66 0.035 fill #444444 0.9
+circle 0.08,0.66 0.035 stroke #222222
+circle 1.92,0.66 0.035 fill #444444 0.9
+circle 1.92,0.66 0.035 stroke #222222
+# Rust streaks on rails
+circle 0.40,0.34 0.02 fill #6a3818 0.7
+circle 1.10,0.66 0.02 fill #6a3818 0.7
+circle 1.56,0.34 0.018 fill #6a3818 0.6

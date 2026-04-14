@@ -1,0 +1,115 @@
+name: Grand Chandelier
+category: Decorative
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 4
+placement: center
+room_types: mansion-ballroom, mansion-grand-hall, throne-room
+typical_count: single
+clusters_with: candelabra-tall, banner-heraldic
+notes: Massive ornate hanging chandelier with concentric rings of candles and crystal prisms. Viewed from below looking up — shadow omitted because it hangs overhead. Implies a tall, grand ceiling.
+lights:
+  - type: brazier
+    x: 1.0
+    y: 1.0
+    radius: 22
+    color: "#ffcc66"
+    intensity: 1.0
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Ambient golden halo (overall light bloom from many candles)
+circle 1.0,1.0 0.92 fill #ffcc66 0.10
+circle 1.0,1.0 0.72 fill #ffcc66 0.12
+
+# Outer brass ring — main lower tier
+ring 1.0,1.0 0.78 0.72 fill #daa520 0.90
+ring 1.0,1.0 0.78 0.72 stroke #5a3a00
+# Inner brass ring — upper tier
+ring 1.0,1.0 0.44 0.38 fill #daa520 0.90
+ring 1.0,1.0 0.44 0.38 stroke #5a3a00
+
+# Radiating arms from center to outer ring (8 arms)
+line 1.0,1.0 1.0,0.22 stroke #daa520 width 3
+line 1.0,1.0 1.0,1.78 stroke #daa520 width 3
+line 1.0,1.0 0.22,1.0 stroke #daa520 width 3
+line 1.0,1.0 1.78,1.0 stroke #daa520 width 3
+line 1.0,1.0 0.45,0.45 stroke #daa520 width 3
+line 1.0,1.0 1.55,0.45 stroke #daa520 width 3
+line 1.0,1.0 0.45,1.55 stroke #daa520 width 3
+line 1.0,1.0 1.55,1.55 stroke #daa520 width 3
+
+# Outer ring candle cups (8 positions) — brass sockets
+circle 1.00,0.22 0.07 fill #daa520 0.95
+circle 1.00,0.22 0.07 stroke #5a3a00
+circle 1.00,1.78 0.07 fill #daa520 0.95
+circle 1.00,1.78 0.07 stroke #5a3a00
+circle 0.22,1.00 0.07 fill #daa520 0.95
+circle 0.22,1.00 0.07 stroke #5a3a00
+circle 1.78,1.00 0.07 fill #daa520 0.95
+circle 1.78,1.00 0.07 stroke #5a3a00
+circle 0.45,0.45 0.07 fill #daa520 0.95
+circle 0.45,0.45 0.07 stroke #5a3a00
+circle 1.55,0.45 0.07 fill #daa520 0.95
+circle 1.55,0.45 0.07 stroke #5a3a00
+circle 0.45,1.55 0.07 fill #daa520 0.95
+circle 0.45,1.55 0.07 stroke #5a3a00
+circle 1.55,1.55 0.07 fill #daa520 0.95
+circle 1.55,1.55 0.07 stroke #5a3a00
+
+# Outer candle flames (layered glow per position)
+circle 1.00,0.22 0.07 fill #ffaa00 0.5
+circle 1.00,0.22 0.04 fill #ffee88 0.9
+circle 1.00,1.78 0.07 fill #ffaa00 0.5
+circle 1.00,1.78 0.04 fill #ffee88 0.9
+circle 0.22,1.00 0.07 fill #ffaa00 0.5
+circle 0.22,1.00 0.04 fill #ffee88 0.9
+circle 1.78,1.00 0.07 fill #ffaa00 0.5
+circle 1.78,1.00 0.04 fill #ffee88 0.9
+circle 0.45,0.45 0.06 fill #ffaa00 0.5
+circle 0.45,0.45 0.035 fill #ffee88 0.9
+circle 1.55,0.45 0.06 fill #ffaa00 0.5
+circle 1.55,0.45 0.035 fill #ffee88 0.9
+circle 0.45,1.55 0.06 fill #ffaa00 0.5
+circle 0.45,1.55 0.035 fill #ffee88 0.9
+circle 1.55,1.55 0.06 fill #ffaa00 0.5
+circle 1.55,1.55 0.035 fill #ffee88 0.9
+
+# Inner ring candles (4 cardinal, smaller tier) — cups
+circle 1.00,0.56 0.05 fill #daa520 0.95
+circle 1.00,0.56 0.05 stroke #5a3a00
+circle 1.00,1.44 0.05 fill #daa520 0.95
+circle 1.00,1.44 0.05 stroke #5a3a00
+circle 0.56,1.00 0.05 fill #daa520 0.95
+circle 0.56,1.00 0.05 stroke #5a3a00
+circle 1.44,1.00 0.05 fill #daa520 0.95
+circle 1.44,1.00 0.05 stroke #5a3a00
+# Inner ring candle flames
+circle 1.00,0.56 0.05 fill #ffaa00 0.55
+circle 1.00,0.56 0.03 fill #ffee88 0.95
+circle 1.00,1.44 0.05 fill #ffaa00 0.55
+circle 1.00,1.44 0.03 fill #ffee88 0.95
+circle 0.56,1.00 0.05 fill #ffaa00 0.55
+circle 0.56,1.00 0.03 fill #ffee88 0.95
+circle 1.44,1.00 0.05 fill #ffaa00 0.55
+circle 1.44,1.00 0.03 fill #ffee88 0.95
+
+# Crystal prisms (small bright dots between ring tiers)
+circle 0.76,0.76 0.03 fill #e0e8f0 0.85
+circle 1.24,0.76 0.03 fill #e0e8f0 0.85
+circle 0.76,1.24 0.03 fill #e0e8f0 0.85
+circle 1.24,1.24 0.03 fill #e0e8f0 0.85
+circle 1.00,0.36 0.025 fill #e0e8f0 0.8
+circle 1.00,1.64 0.025 fill #e0e8f0 0.8
+circle 0.36,1.00 0.025 fill #e0e8f0 0.8
+circle 1.64,1.00 0.025 fill #e0e8f0 0.8
+
+# Central brass drop / chain hub
+circle 1.00,1.00 0.14 fill #daa520 0.95
+circle 1.00,1.00 0.14 stroke #5a3a00
+circle 1.00,1.00 0.08 fill #8b6914 0.9
+circle 1.00,1.00 0.08 stroke #5a3a00
+# Chain facet detail on hub
+line 0.94,1.00 1.06,1.00 stroke #5a3a00 0.8
+line 1.00,0.94 1.00,1.06 stroke #5a3a00 0.8

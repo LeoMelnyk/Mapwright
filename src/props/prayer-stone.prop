@@ -1,0 +1,41 @@
+name: Prayer Stone
+category: Decor
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: druid-grove, shrine-roadside, burial-mound, standing-stones-circle, hermit-cell
+typical_count: few
+clusters_with: cairn-sacred, shrine-stone, coin-offering, feather-bundle, ribbon-tied, prayer-stone
+notes: Small smooth oval stone worn by generations of kneeling supplicants; carved with a single blessing rune
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.52 0.26,0.20 z 0-0.4
+
+# Main stone body (smoothed oval — low domed river rock)
+ellipse 0.50,0.54 0.26,0.20 texfill polyhaven/granite_tile 0.85
+ellipse 0.50,0.54 0.26,0.20 fill #6a6058 0.35
+ellipse 0.50,0.54 0.26,0.20 stroke #2a2420
+# Darker underside / ground contact line
+arc 0.50,0.54 0.26 30 150 stroke #1a1410 0.7 width 1
+# Weathering crack (old hairline fracture)
+bezier 0.34,0.56 0.44,0.52 0.56,0.58 0.66,0.54 stroke #1a1410 0.6 width 1
+# Secondary shorter crack
+line 0.46,0.64 0.52,0.68 stroke #1a1410 0.5 width 1
+# Polished highlight (worn-smooth catch of light)
+ellipse 0.46,0.48 0.10,0.04 fill #a89e8e 0.35
+ellipse 0.46,0.48 0.06,0.02 fill #c8bea8 0.45
+# Carved blessing rune — simple spiral in center
+arc 0.50,0.54 0.06 30 360 stroke #2a1800 0.9 width 2
+arc 0.50,0.54 0.035 60 330 stroke #2a1800 0.85 width 1
+circle 0.50,0.54 0.012 fill #2a1800 0.9
+# Small parallel tally scratches beside rune
+line 0.36,0.52 0.40,0.50 stroke #2a1800 0.75 width 1
+line 0.36,0.56 0.40,0.54 stroke #2a1800 0.7 width 1
+# Tiny moss fleck at base (north edge, shaded)
+ellipse 0.38,0.40 0.04,0.02 fill #4a5a2a 0.7
+ellipse 0.62,0.42 0.03,0.015 fill #3a4a22 0.6
+# Warm lichen dot
+circle 0.64,0.62 0.018 fill #8a7a20 0.55

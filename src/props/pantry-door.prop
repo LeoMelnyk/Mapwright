@@ -1,0 +1,46 @@
+name: Pantry Door
+category: Architecture
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: yes
+height: 2.0
+placement: wall
+room_types: farmhouse-kitchen, pantry, servants-kitchen
+typical_count: single
+clusters_with: shelf, cupboard, flour-sack
+notes: Closed wooden pantry door seen from above; mount flush on a wall
+---
+# === HITBOX ===
+hitbox rect 0.06,0.10 0.88,0.30 z 0-2.0
+
+# Door face (horizontal rect along wall, wall-side north)
+rect 0.06,0.10 0.88,0.30 texfill polyhaven/dark_wood 0.9
+rect 0.06,0.10 0.88,0.30 stroke #2a1400
+# Inner panel edge detail
+rect 0.12,0.14 0.76,0.22 stroke #5c3a1e 0.7 width 1
+# Plank seams (vertical grain lines across door)
+line 0.28,0.10 0.28,0.40 stroke #2a1400 0.7 width 1
+line 0.50,0.10 0.50,0.40 stroke #2a1400 0.7 width 1
+line 0.72,0.10 0.72,0.40 stroke #2a1400 0.7 width 1
+# Subtle grain streaks
+line 0.18,0.18 0.18,0.34 stroke #4a2800 0.4 width 1
+line 0.40,0.20 0.40,0.32 stroke #4a2800 0.4 width 1
+line 0.62,0.18 0.62,0.34 stroke #4a2800 0.4 width 1
+line 0.82,0.20 0.82,0.32 stroke #4a2800 0.4 width 1
+# Iron hinges at left side (two bands)
+rect 0.06,0.14 0.10,0.05 fill #333333 0.95
+rect 0.06,0.14 0.10,0.05 stroke #1a1a1a
+circle 0.09,0.165 0.012 fill #1a1a1a 0.95
+circle 0.13,0.165 0.012 fill #1a1a1a 0.95
+rect 0.06,0.31 0.10,0.05 fill #333333 0.95
+rect 0.06,0.31 0.10,0.05 stroke #1a1a1a
+circle 0.09,0.335 0.012 fill #1a1a1a 0.95
+circle 0.13,0.335 0.012 fill #1a1a1a 0.95
+# Iron pull handle / latch (right side)
+rect 0.80,0.22 0.10,0.06 fill #333333 0.95
+rect 0.80,0.22 0.10,0.06 stroke #1a1a1a
+# Handle ring detail
+circle 0.86,0.25 0.025 stroke #1a1a1a width 2
+# Threshold shadow line at south (under door)
+line 0.06,0.40 0.94,0.40 stroke #1a0a00 0.6 width 2

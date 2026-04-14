@@ -1,0 +1,54 @@
+name: Prayer Ribbons
+category: Decor
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: shrine-roadside, standing-stones-circle, druid-grove, hermit-cell, burial-mound
+typical_count: few
+clusters_with: prayer-stone, shrine-stone, feather-bundle, coin-offering, cairn-sacred, ribbon-tied
+notes: Short branch or stick with several colored prayer ribbons knotted on, ends trailing in the wind
+---
+# === HITBOX ===
+hitbox rect 0.10,0.30 0.80,0.40 z 0-0.2
+
+# Anchor branch (short crooked stick laid diagonally across cell)
+bezier 0.18,0.52 0.34,0.46 0.62,0.56 0.82,0.50 stroke #3a2010 width 4
+bezier 0.18,0.52 0.34,0.46 0.62,0.56 0.82,0.50 stroke #6b4e2e 0.85 width 2
+# Small fork nub on branch
+line 0.42,0.50 0.46,0.44 stroke #3a2010 width 2
+line 0.42,0.50 0.46,0.44 stroke #6b4e2e 0.85 width 1
+# Knot clusters where ribbons tie on (tiny dark wraps)
+circle 0.28,0.50 0.018 fill #2a1400 0.9
+circle 0.44,0.48 0.018 fill #2a1400 0.9
+circle 0.60,0.54 0.018 fill #2a1400 0.9
+circle 0.74,0.52 0.018 fill #2a1400 0.9
+# Ribbon 1 — red, streaming north-east (windblown, S-curve)
+bezier 0.28,0.50 0.22,0.36 0.30,0.26 0.42,0.18 stroke #cc3030 width 4
+bezier 0.28,0.50 0.22,0.36 0.30,0.26 0.42,0.18 stroke #8a1818 0.8 width 2
+# Ribbon 1 tail flutter
+bezier 0.42,0.18 0.46,0.14 0.50,0.16 0.52,0.12 stroke #cc3030 width 3
+# Ribbon 2 — blue, curling south-west (long, wavy)
+bezier 0.44,0.48 0.36,0.62 0.22,0.68 0.14,0.80 stroke #2a5a8a width 4
+bezier 0.44,0.48 0.36,0.62 0.22,0.68 0.14,0.80 stroke #183a5a 0.8 width 2
+# Ribbon 2 forked tail
+line 0.14,0.80 0.10,0.86 stroke #2a5a8a width 3
+line 0.14,0.80 0.18,0.88 stroke #2a5a8a width 2
+# Ribbon 3 — gold, short and upright (stiffer, catching wind up)
+bezier 0.60,0.54 0.64,0.38 0.58,0.26 0.62,0.14 stroke #daa520 width 4
+bezier 0.60,0.54 0.64,0.38 0.58,0.26 0.62,0.14 stroke #8b6914 0.8 width 2
+# Ribbon 3 tail
+line 0.62,0.14 0.68,0.10 stroke #daa520 width 3
+# Ribbon 4 — green, streaming south-east (long lazy curve)
+bezier 0.74,0.52 0.80,0.64 0.76,0.76 0.84,0.88 stroke #5a8a4a width 4
+bezier 0.74,0.52 0.80,0.64 0.76,0.76 0.84,0.88 stroke #2a4a1a 0.8 width 2
+# Ribbon 4 tail split
+line 0.84,0.88 0.88,0.92 stroke #5a8a4a width 3
+# Ribbon 5 — faded white/cream, drooping east
+bezier 0.74,0.52 0.82,0.58 0.86,0.56 0.92,0.62 stroke #e8dcc8 width 3
+bezier 0.74,0.52 0.82,0.58 0.86,0.56 0.92,0.62 stroke #8a7a60 0.7 width 1
+# Tiny bead on one ribbon (weight to keep it down)
+circle 0.22,0.32 0.018 fill #8b6914 0.9
+circle 0.22,0.32 0.018 stroke #5a3a00

@@ -1,0 +1,76 @@
+name: Skull on Stick
+category: Decor
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: corner
+room_types: goblin-warren-entrance, orc-war-camp, monster-lair-small
+typical_count: few
+clusters_with: bone-totem-small, torch-totem, skull-small, animal-skull, bone-marker
+notes: Wooden stake impaling a skull — crude warning marker. Skull faces south (snout points at approaching intruder).
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.18 z 0-1.5
+
+# Dried blood stain at base of stake (ground pooling)
+ellipse 0.50,0.88 0.18,0.06 fill #3a1008 0.7
+ellipse 0.50,0.88 0.18,0.06 stroke #1a0404 0.6
+# Splatter dots around base
+circle 0.32,0.84 0.022 fill #3a1008 0.8
+circle 0.68,0.90 0.020 fill #3a1008 0.8
+circle 0.40,0.94 0.018 fill #3a1008 0.75
+
+# Stake extending slightly below skull (visible rim at bottom of footprint)
+rect 0.46,0.76 0.08,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.46,0.76 0.08,0.14 stroke #1a0a00
+# Stake grain
+line 0.50,0.76 0.50,0.90 stroke #2a1400 0.6 width 1
+
+# Stake cross-section under the skull (top of stake visible where skull sits)
+circle 0.50,0.58 0.08 texfill polyhaven/dark_wood 0.92
+circle 0.50,0.58 0.08 stroke #1a0a00
+circle 0.50,0.58 0.04 fill #1a0a00 0.8
+
+# Cranium (rounded dome — back of skull to the north)
+ellipse 0.50,0.40 0.24,0.22 fill #e8dcc8 0.95
+ellipse 0.50,0.40 0.24,0.22 stroke #4a3828
+# Aged bone wash (subtle yellowing)
+ellipse 0.50,0.40 0.24,0.22 texfill polyhaven/granite_tile 0.22
+
+# Cranial suture (zig-zag across top of skull)
+line 0.40,0.30 0.45,0.34 stroke #4a3828 0.7 width 1
+line 0.45,0.34 0.50,0.30 stroke #4a3828 0.7 width 1
+line 0.50,0.30 0.55,0.34 stroke #4a3828 0.7 width 1
+line 0.55,0.34 0.60,0.30 stroke #4a3828 0.7 width 1
+
+# Hairline crack down the side of the cranium
+bezier 0.34,0.40 0.36,0.46 0.32,0.52 0.30,0.58 stroke #3a2820 0.7 width 1
+# Second crack
+line 0.62,0.28 0.66,0.38 stroke #3a2820 0.6 width 1
+
+# Eye sockets (deep, very dark hollows)
+ellipse 0.40,0.44 0.06,0.075 fill #0a0604 0.98
+ellipse 0.40,0.44 0.06,0.075 stroke #2a1810
+ellipse 0.60,0.44 0.06,0.075 fill #0a0604 0.98
+ellipse 0.60,0.44 0.06,0.075 stroke #2a1810
+# Eye-socket rim shadow
+arc 0.40,0.44 0.06 200 340 stroke #4a3828 0.6 width 1
+arc 0.60,0.44 0.06 200 340 stroke #4a3828 0.6 width 1
+
+# Snout/muzzle projecting south (pointed, narrower than cranium)
+poly 0.40,0.56 0.60,0.56 0.58,0.66 0.50,0.72 0.42,0.66 fill #e8dcc8 0.95
+poly 0.40,0.56 0.60,0.56 0.58,0.66 0.50,0.72 0.42,0.66 stroke #4a3828
+# Snout central seam
+line 0.50,0.56 0.50,0.70 stroke #4a3828 0.6 width 1
+# Nasal cavity (dark triangular opening at snout tip)
+poly 0.48,0.60 0.52,0.60 0.50,0.68 fill #0a0604 0.95
+poly 0.48,0.60 0.52,0.60 0.50,0.68 stroke #2a1810
+# Teeth ridge along lower snout
+line 0.44,0.70 0.46,0.72 stroke #4a3828 width 1
+line 0.48,0.71 0.50,0.73 stroke #4a3828 width 1
+line 0.52,0.71 0.54,0.73 stroke #4a3828 width 1
+
+# Highlight on crown of skull (soft pale glint)
+ellipse 0.48,0.34 0.06,0.03 fill #f4e8d4 0.45

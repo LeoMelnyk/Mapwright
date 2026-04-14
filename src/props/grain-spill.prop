@@ -1,0 +1,49 @@
+name: Grain Spill
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: brewery, mill-grain
+typical_count: few
+clusters_with: grain-hopper, flour-sack, millstone
+notes: Loose grain kernels scattered on the floor; pale tan ellipses spread in a rough drift
+---
+# Subtle drift base (very faint wash of dust under the grain)
+ellipse 0.50,0.52 0.36,0.30 fill #d4b890 0.25
+
+# Cluster of kernels — dense center
+ellipse 0.46,0.50 0.035,0.022 fill #d4b890 0.90
+ellipse 0.46,0.50 0.035,0.022 stroke #8a6838 0.45
+ellipse 0.54,0.44 0.032,0.020 fill #c8a878 0.90
+ellipse 0.54,0.44 0.032,0.020 stroke #8a6838 0.45
+ellipse 0.50,0.58 0.034,0.022 fill #d4b890 0.90
+ellipse 0.50,0.58 0.034,0.022 stroke #8a6838 0.45
+ellipse 0.40,0.56 0.030,0.020 fill #b89868 0.85
+ellipse 0.40,0.56 0.030,0.020 stroke #8a6838 0.40
+ellipse 0.58,0.54 0.032,0.020 fill #c8a878 0.88
+ellipse 0.58,0.54 0.032,0.020 stroke #8a6838 0.40
+ellipse 0.44,0.62 0.028,0.018 fill #d4b890 0.85
+
+# Middle ring of kernels
+ellipse 0.30,0.44 0.030,0.020 fill #c8a878 0.85
+ellipse 0.30,0.44 0.030,0.020 stroke #8a6838 0.40
+ellipse 0.34,0.62 0.028,0.018 fill #d4b890 0.82
+ellipse 0.66,0.36 0.028,0.020 fill #d4b890 0.85
+ellipse 0.66,0.36 0.028,0.020 stroke #8a6838 0.35
+ellipse 0.70,0.54 0.030,0.020 fill #c8a878 0.85
+ellipse 0.70,0.54 0.030,0.020 stroke #8a6838 0.35
+ellipse 0.62,0.68 0.026,0.018 fill #b89868 0.82
+ellipse 0.38,0.36 0.026,0.018 fill #c8a878 0.80
+
+# Outer stray kernels
+ellipse 0.22,0.52 0.024,0.016 fill #d4b890 0.78
+ellipse 0.78,0.46 0.024,0.016 fill #c8a878 0.78
+ellipse 0.50,0.28 0.022,0.016 fill #d4b890 0.75
+ellipse 0.52,0.74 0.024,0.016 fill #b89868 0.75
+ellipse 0.26,0.66 0.022,0.014 fill #c8a878 0.72
+ellipse 0.74,0.66 0.022,0.016 fill #d4b890 0.75
+ellipse 0.18,0.40 0.020,0.014 fill #b89868 0.70
+ellipse 0.82,0.58 0.020,0.014 fill #c8a878 0.70

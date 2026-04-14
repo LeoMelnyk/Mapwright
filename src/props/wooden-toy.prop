@@ -1,0 +1,50 @@
+name: Wooden Toy
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: house-medium-family, nursery
+typical_count: single
+clusters_with: cradle, wooden-bowl, narrow-bed, small-table
+notes: Small hand-carved wooden horse, pale unpainted wood — an endearing child's toy
+---
+# === HITBOX ===
+hitbox rect 0.24,0.30 0.52,0.40 z 0-0.15
+
+# Body (rounded oval — horse's barrel, viewed from above)
+ellipse 0.50,0.54 0.18,0.14 texfill polyhaven/worn_planks 0.85
+ellipse 0.50,0.54 0.18,0.14 fill #a08058 0.55
+ellipse 0.50,0.54 0.18,0.14 stroke #5c3a1e
+# Head (smaller oval north of body)
+ellipse 0.50,0.36 0.08,0.09 texfill polyhaven/worn_planks 0.85
+ellipse 0.50,0.36 0.08,0.09 fill #a08058 0.55
+ellipse 0.50,0.36 0.08,0.09 stroke #5c3a1e
+# Neck bridge between head and body
+rect 0.46,0.42 0.08,0.06 fill #a08058 0.85
+rect 0.46,0.42 0.08,0.06 stroke #5c3a1e
+# Front legs (two small rects on sides of body-front)
+rect 0.36,0.44 0.06,0.10 fill #8a6838 0.85
+rect 0.36,0.44 0.06,0.10 stroke #3a1f00
+rect 0.58,0.44 0.06,0.10 fill #8a6838 0.85
+rect 0.58,0.44 0.06,0.10 stroke #3a1f00
+# Rear legs
+rect 0.36,0.62 0.06,0.10 fill #8a6838 0.85
+rect 0.36,0.62 0.06,0.10 stroke #3a1f00
+rect 0.58,0.62 0.06,0.10 fill #8a6838 0.85
+rect 0.58,0.62 0.06,0.10 stroke #3a1f00
+# Wood grain lines on body
+bezier 0.36,0.50 0.44,0.52 0.56,0.52 0.64,0.50 stroke #6b4e2e 0.5 width 1
+bezier 0.36,0.58 0.44,0.60 0.56,0.60 0.64,0.58 stroke #6b4e2e 0.5 width 1
+# Tail stub (tiny knob at south end)
+circle 0.50,0.70 0.03 fill #8a6838 0.9
+circle 0.50,0.70 0.03 stroke #3a1f00
+# Carved mane ridge on neck
+line 0.48,0.30 0.48,0.42 stroke #6b4e2e 0.7 width 1
+line 0.52,0.30 0.52,0.42 stroke #6b4e2e 0.7 width 1
+# Wee painted dot eye
+circle 0.48,0.34 0.013 fill #1a1008 0.9
+# Small nose notch
+circle 0.50,0.30 0.015 fill #5c3a1e 0.8

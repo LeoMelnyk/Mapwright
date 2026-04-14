@@ -1,0 +1,50 @@
+name: Patched Shirt
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: apartment-tenement, peasant-hovel
+typical_count: few
+clusters_with: rag-pile, folded-cloak, worn-shoes, narrow-bed
+notes: Threadbare shirt crumpled on the floor with mismatched patches — signals poverty
+---
+# === HITBOX ===
+hitbox rect 0.12,0.20 0.76,0.62 z 0-0.08
+
+# Main shirt body (rough crumpled outline — shoulders north, hem south)
+poly 0.28,0.26 0.44,0.22 0.58,0.24 0.72,0.30 0.80,0.42 0.76,0.58 0.70,0.72 0.56,0.80 0.40,0.78 0.26,0.70 0.18,0.56 0.20,0.40 fill #8a7868 0.85
+poly 0.28,0.26 0.44,0.22 0.58,0.24 0.72,0.30 0.80,0.42 0.76,0.58 0.70,0.72 0.56,0.80 0.40,0.78 0.26,0.70 0.18,0.56 0.20,0.40 stroke #3a2e20
+# Left sleeve splayed out west
+poly 0.20,0.40 0.10,0.46 0.08,0.56 0.14,0.62 0.22,0.58 fill #8a7868 0.85
+poly 0.20,0.40 0.10,0.46 0.08,0.56 0.14,0.62 0.22,0.58 stroke #3a2e20
+# Right sleeve splayed east, bent at elbow
+poly 0.76,0.40 0.86,0.42 0.92,0.52 0.88,0.62 0.80,0.60 fill #8a7868 0.85
+poly 0.76,0.40 0.86,0.42 0.92,0.52 0.88,0.62 0.80,0.60 stroke #3a2e20
+# Collar opening (darker neck hole)
+ellipse 0.50,0.30 0.06,0.04 fill #2a2218 0.7
+# Patch 1 — brown square on chest
+poly 0.34,0.44 0.48,0.42 0.50,0.54 0.36,0.56 fill #6b4e2e 0.85
+poly 0.34,0.44 0.48,0.42 0.50,0.54 0.36,0.56 stroke #2a1a08
+# Patch 1 stitching (dashed border)
+line 0.36,0.46 0.40,0.46 stroke #2a1a08 0.8 width 1
+line 0.44,0.46 0.48,0.47 stroke #2a1a08 0.8 width 1
+line 0.37,0.54 0.42,0.54 stroke #2a1a08 0.8 width 1
+line 0.46,0.53 0.49,0.53 stroke #2a1a08 0.8 width 1
+# Patch 2 — darker patch on right sleeve
+poly 0.58,0.56 0.68,0.54 0.70,0.64 0.60,0.66 fill #4a3a2a 0.85
+poly 0.58,0.56 0.68,0.54 0.70,0.64 0.60,0.66 stroke #1a1208
+line 0.60,0.58 0.64,0.58 stroke #1a1208 0.8 width 1
+line 0.66,0.62 0.69,0.62 stroke #1a1208 0.8 width 1
+# Crease/fold shadow down center
+bezier 0.48,0.32 0.50,0.48 0.52,0.62 0.48,0.76 stroke #3a2e20 0.5 width 2
+# Frayed hem (small frays at south edge)
+line 0.34,0.78 0.32,0.82 stroke #5a4838 0.7 width 1
+line 0.46,0.80 0.44,0.84 stroke #5a4838 0.7 width 1
+line 0.58,0.79 0.60,0.83 stroke #5a4838 0.7 width 1
+# Loose thread trailing
+bezier 0.10,0.54 0.06,0.60 0.08,0.66 0.04,0.70 stroke #6b4e2e 0.5
+# Dirty stain
+ellipse 0.62,0.40 0.05,0.04 fill #2a2010 0.4

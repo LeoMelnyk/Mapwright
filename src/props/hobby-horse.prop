@@ -1,0 +1,48 @@
+name: Hobby Horse
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: nursery, house-medium-family
+typical_count: single
+clusters_with: wooden-toy, rocking-horse, blocks-pile
+notes: Child's hobby horse — long wooden stick with carved horse head at north end
+---
+# === HITBOX ===
+hitbox rect 0.44,0.14 0.12,0.80 z 0-0.15
+
+# Long wooden stick/rod running north-south (south portion is the grip)
+rect 0.47,0.38 0.06,0.56 texfill polyhaven/dark_wood 0.88
+rect 0.47,0.38 0.06,0.56 stroke #2a1400
+# Stick grain lines
+line 0.48,0.42 0.48,0.90 stroke #1a0a00 0.4 width 1
+line 0.52,0.42 0.52,0.90 stroke #1a0a00 0.4 width 1
+# Grip end cap (south)
+circle 0.50,0.92 0.05 fill #3a1f00 0.9
+circle 0.50,0.92 0.05 stroke #1a0a00
+# Horse head — stylized oval at north end, angled slightly
+ellipse 0.48,0.24 0.16,0.14 fill #a08058 0.9
+ellipse 0.48,0.24 0.16,0.14 stroke #3a1f00
+# Pointy ear
+poly 0.40,0.14 0.44,0.10 0.48,0.16 fill #8a6838 0.9
+poly 0.40,0.14 0.44,0.10 0.48,0.16 stroke #3a1f00
+# Second ear
+poly 0.54,0.14 0.50,0.10 0.46,0.16 fill #8a6838 0.9
+poly 0.54,0.14 0.50,0.10 0.46,0.16 stroke #3a1f00
+# Muzzle end (west protrusion on head)
+ellipse 0.36,0.26 0.06,0.05 fill #a08058 0.9
+ellipse 0.36,0.26 0.06,0.05 stroke #3a1f00
+# Mane tuft (dark painted curls at top of neck where head meets stick)
+bezier 0.46,0.34 0.48,0.30 0.52,0.30 0.54,0.34 stroke #4a2810 width 2
+line 0.48,0.36 0.48,0.42 stroke #4a2810 width 2
+line 0.52,0.36 0.52,0.42 stroke #4a2810 width 2
+# Painted red bridle strap
+line 0.36,0.26 0.58,0.28 stroke #8a2020 width 2
+line 0.42,0.32 0.56,0.32 stroke #8a2020 width 1
+# Tiny painted eye
+circle 0.52,0.22 0.015 fill #1a0a04 0.95
+# Nose dot
+circle 0.34,0.26 0.012 fill #3a1f00 0.9

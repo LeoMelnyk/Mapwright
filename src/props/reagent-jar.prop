@@ -1,0 +1,40 @@
+name: Reagent Jar
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: alchemy-lab, demiplane-laboratory, shop-apothecary, workshop-artificer
+typical_count: many
+clusters_with: reagent-rack, specimen-jar-shelf, animal-skull, inkwell, broken-vial
+notes: Small labeled glass jar with unknown purple substance — alchemy reagent.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.22 z 0-0.4
+
+# Jar body (glass circle with colored substance)
+circle 0.50,0.54 0.24 fill #d8e8e4 0.65
+circle 0.50,0.54 0.24 stroke #7aa8a0
+# Colored substance inside (purple/red tint)
+circle 0.50,0.54 0.20 fill #8a4a80 0.85
+circle 0.50,0.54 0.20 stroke #4a2848 0.7
+# Substance surface sheen
+ellipse 0.50,0.48 0.12,0.05 fill #b06ab0 0.5
+# Parchment label band (wrapped around middle)
+rect 0.30,0.56 0.40,0.14 fill #e8dcc0 0.92
+rect 0.30,0.56 0.40,0.14 stroke #8b7355
+# Label scratch marks (writing)
+line 0.34,0.60 0.48,0.60 stroke #3a1f00 0.7 width 1
+line 0.34,0.63 0.46,0.63 stroke #3a1f00 0.6 width 1
+line 0.34,0.66 0.50,0.66 stroke #3a1f00 0.6 width 1
+line 0.54,0.61 0.64,0.61 stroke #3a1f00 0.5 width 1
+# Cork/stopper on top (dark brown circle)
+circle 0.50,0.34 0.12 fill #3a1f00 0.95
+circle 0.50,0.34 0.12 stroke #1a0f00
+# Cork grain
+line 0.44,0.32 0.56,0.32 stroke #5c3a1e 0.7 width 1
+line 0.44,0.36 0.56,0.36 stroke #5c3a1e 0.6 width 1
+# Glass rim highlight
+arc 0.50,0.54 0.23 210 280 stroke #f0f8f4 0.55 width 1

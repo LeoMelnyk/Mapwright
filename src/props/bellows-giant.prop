@@ -1,0 +1,78 @@
+name: Giant Bellows
+category: Tools
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: wall
+room_types: infernal-forge, foundry-great, smithy-large, forge
+typical_count: single
+clusters_with: bellows-hand, forge-great, forge, anvil-devil
+notes: Massive teardrop bellows for heavy forges — wooden pump arm extends to one side, iron-bound leather, big nozzle feeds into the hearth. Place against a wall adjacent to a great forge.
+---
+# === HITBOX ===
+hitbox poly 0.30,1.80 0.10,1.40 0.15,0.85 0.40,0.45 0.80,0.22 1.10,0.15 1.40,0.22 1.60,0.40 1.74,0.85 1.64,1.40 1.30,1.80 z 0-1.5
+
+# Teardrop bellows body (wider at south, tapering to nozzle at north-east)
+poly 0.30,1.80 0.10,1.40 0.15,0.85 0.40,0.45 0.80,0.22 1.10,0.15 1.40,0.22 1.60,0.40 1.62,0.55 1.30,0.72 0.80,1.00 0.50,1.40 0.40,1.70 texfill polyhaven/brown_leather 0.85
+poly 0.30,1.80 0.10,1.40 0.15,0.85 0.40,0.45 0.80,0.22 1.10,0.15 1.40,0.22 1.60,0.40 1.62,0.55 1.30,0.72 0.80,1.00 0.50,1.40 0.40,1.70 stroke #2a1400 width 2
+
+# Broader south-west bulge of the bellows (fat end)
+poly 0.15,1.70 0.12,1.30 0.20,0.95 0.55,1.25 0.60,1.60 0.40,1.82 fill #4a2810 0.75
+
+# Leather wrinkle lines radiating from the nozzle (north-east corner)
+bezier 1.45,0.25 1.15,0.60 0.75,0.95 0.35,1.55 stroke #2a1408 0.7 width 2
+bezier 1.40,0.35 1.05,0.70 0.65,1.05 0.25,1.50 stroke #2a1408 0.6 width 1
+bezier 1.35,0.45 0.95,0.80 0.55,1.15 0.20,1.40 stroke #2a1408 0.55 width 1
+bezier 1.50,0.45 1.25,0.75 0.90,1.10 0.55,1.45 stroke #2a1408 0.5 width 1
+bezier 1.55,0.60 1.30,0.90 0.95,1.25 0.60,1.60 stroke #2a1408 0.5 width 1
+
+# Iron reinforcement band (diagonal, crossing the body)
+rect 0.20,0.85 1.30,0.10 fill #333333 0.9 rotate -28
+rect 0.20,0.85 1.30,0.10 stroke #0a0a0a rotate -28
+
+# Iron reinforcement band (second, closer to fat end)
+rect 0.15,1.30 1.00,0.08 fill #333333 0.9 rotate -18
+rect 0.15,1.30 1.00,0.08 stroke #0a0a0a rotate -18
+
+# Rivets along the iron bands
+circle 0.35,0.95 0.022 fill #050505 0.95
+circle 0.70,0.78 0.022 fill #050505 0.95
+circle 1.05,0.60 0.022 fill #050505 0.95
+circle 1.35,0.45 0.022 fill #050505 0.95
+circle 0.30,1.40 0.022 fill #050505 0.95
+circle 0.70,1.30 0.022 fill #050505 0.95
+circle 1.05,1.15 0.022 fill #050505 0.95
+
+# Big iron nozzle at the north-east corner (pointing off-prop toward forge)
+poly 1.40,0.22 1.60,0.10 1.80,0.15 1.85,0.30 1.68,0.45 1.50,0.40 texfill polyhaven/metal_plate 0.85
+poly 1.40,0.22 1.60,0.10 1.80,0.15 1.85,0.30 1.68,0.45 1.50,0.40 fill #1a0a0a 0.5
+poly 1.40,0.22 1.60,0.10 1.80,0.15 1.85,0.30 1.68,0.45 1.50,0.40 stroke #050505 width 2
+# Nozzle tip opening (dark)
+circle 1.78,0.22 0.05 fill #1a0a0a 0.95
+circle 1.78,0.22 0.05 stroke #050505
+
+# Wooden pump handle arm extending south-west (out to the side)
+rect 0.00,1.55 0.65,0.14 texfill polyhaven/dark_wood 0.9 rotate -8
+rect 0.00,1.55 0.65,0.14 stroke #2a1400 rotate -8
+
+# Handle grip end (round knob)
+circle 0.10,1.62 0.08 texfill polyhaven/dark_wood 0.9
+circle 0.10,1.62 0.08 stroke #2a1400
+
+# Iron fitting where handle joins body
+rect 0.55,1.55 0.12,0.14 fill #333333 0.95
+rect 0.55,1.55 0.12,0.14 stroke #0a0a0a
+circle 0.58,1.58 0.018 fill #050505 0.95
+circle 0.64,1.58 0.018 fill #050505 0.95
+circle 0.58,1.65 0.018 fill #050505 0.95
+circle 0.64,1.65 0.018 fill #050505 0.95
+
+# Central valve cap (top of bellows, where air enters)
+circle 0.90,1.10 0.08 fill #444444 0.95
+circle 0.90,1.10 0.08 stroke #0a0a0a
+circle 0.90,1.10 0.04 fill #1a1a1a 0.9
+
+# Leather seam along body edge
+bezier 0.32,1.78 0.18,1.45 0.15,1.00 0.38,0.55 stroke #1a0a04 0.8 width 2

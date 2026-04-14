@@ -1,0 +1,50 @@
+name: Berry Bush
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: druid-grove, cabin-witch, ranger-camp, garden, wilderness, forest
+typical_count: many
+clusters_with: bush-hedge, fern-cluster, tree, moss-patch
+notes: Small bush with clusters of dark red and purple berries
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.6
+
+# Outer foliage blob (darkest under-leaves)
+ellipse 0.50,0.52 0.38,0.34 fill #2a4a1a 0.85
+ellipse 0.50,0.52 0.38,0.34 stroke #1a3010 width 1
+# Texture layer — leafy pattern
+ellipse 0.50,0.52 0.36,0.32 texfill polyhaven/forest_leaves_02 0.70
+# Mid leaves (lighter green lobes)
+ellipse 0.36,0.42 0.20,0.18 fill #3a5a2a 0.80
+ellipse 0.36,0.42 0.20,0.18 stroke #1a3010 0.5 width 1
+ellipse 0.62,0.46 0.22,0.18 fill #3a5a2a 0.80
+ellipse 0.62,0.46 0.22,0.18 stroke #1a3010 0.5 width 1
+ellipse 0.48,0.66 0.22,0.16 fill #3a5a2a 0.80
+ellipse 0.48,0.66 0.22,0.16 stroke #1a3010 0.5 width 1
+# Upper highlight leaves
+ellipse 0.44,0.38 0.12,0.10 fill #4a6a3a 0.75
+ellipse 0.58,0.58 0.14,0.10 fill #4a6a3a 0.75
+ellipse 0.34,0.58 0.10,0.08 fill #4a6a3a 0.70
+# Berries — red cluster (top-left)
+circle 0.32,0.38 0.035 fill #8a2030 0.95
+circle 0.32,0.38 0.035 stroke #4a0818 width 1
+circle 0.38,0.34 0.032 fill #8a2030 0.95
+circle 0.38,0.34 0.032 stroke #4a0818 width 1
+circle 0.30,0.44 0.03 fill #8a2030 0.95
+# Berries — purple cluster (right)
+circle 0.64,0.50 0.034 fill #6a1848 0.95
+circle 0.64,0.50 0.034 stroke #2a0818 width 1
+circle 0.70,0.54 0.032 fill #6a1848 0.95
+circle 0.70,0.54 0.032 stroke #2a0818 width 1
+# Berries — dark red cluster (bottom)
+circle 0.52,0.70 0.032 fill #6a1818 0.95
+circle 0.52,0.70 0.032 stroke #2a0808 width 1
+circle 0.46,0.72 0.03 fill #6a1818 0.95
+# Small berry highlights (dew / sheen)
+circle 0.32,0.37 0.008 fill #e8b0a0 0.8
+circle 0.64,0.49 0.008 fill #c080a0 0.7

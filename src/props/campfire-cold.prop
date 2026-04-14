@@ -1,0 +1,67 @@
+name: Campfire (Cold)
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: campsite-traveler, cabin-abandoned, charcoal-burner-camp
+typical_count: single
+clusters_with: ash-pile, campfire, log-seat, bedroll
+notes: Dead fire pit — neatly arranged stone ring, cold grey ashes, charred log ends but no flame. Signals a camp that's been packed up or rest stop left behind.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: circular ring of 8 rounded stones around a central grey ash pile with 2-3 charred log stubs. No glow, no embers — completely cold.
+
+# Scorched ground under the pit (very faint)
+circle 0.50,0.50 0.40 fill #1a0a06 0.3
+
+# === Stone ring (8 stones arranged evenly) ===
+circle 0.50,0.14 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.50,0.14 0.08 fill #777777 0.4
+circle 0.50,0.14 0.08 stroke #3a3a3a
+circle 0.75,0.25 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.75,0.25 0.08 fill #888888 0.4
+circle 0.75,0.25 0.08 stroke #3a3a3a
+circle 0.86,0.50 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.86,0.50 0.08 fill #777777 0.4
+circle 0.86,0.50 0.08 stroke #3a3a3a
+circle 0.75,0.75 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.75,0.75 0.08 fill #888888 0.4
+circle 0.75,0.75 0.08 stroke #3a3a3a
+circle 0.50,0.86 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.50,0.86 0.08 fill #777777 0.4
+circle 0.50,0.86 0.08 stroke #3a3a3a
+circle 0.25,0.75 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.25,0.75 0.08 fill #888888 0.4
+circle 0.25,0.75 0.08 stroke #3a3a3a
+circle 0.14,0.50 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.14,0.50 0.08 fill #777777 0.4
+circle 0.14,0.50 0.08 stroke #3a3a3a
+circle 0.25,0.25 0.08 texfill polyhaven/granite_tile 0.85
+circle 0.25,0.25 0.08 fill #888888 0.4
+circle 0.25,0.25 0.08 stroke #3a3a3a
+
+# === Central grey ash pile (no embers, fully cold) ===
+poly 0.30,0.50 0.36,0.38 0.46,0.32 0.58,0.32 0.68,0.40 0.70,0.52 0.64,0.64 0.52,0.68 0.38,0.66 0.30,0.58 fill #6a6660 0.85
+poly 0.30,0.50 0.36,0.38 0.46,0.32 0.58,0.32 0.68,0.40 0.70,0.52 0.64,0.64 0.52,0.68 0.38,0.66 0.30,0.58 stroke #3a3632
+# Inner darker ash
+poly 0.38,0.50 0.42,0.42 0.52,0.40 0.60,0.44 0.62,0.54 0.56,0.60 0.46,0.60 0.40,0.56 fill #2a2018 0.9
+poly 0.38,0.50 0.42,0.42 0.52,0.40 0.60,0.44 0.62,0.54 0.56,0.60 0.46,0.60 0.40,0.56 stroke #1a1410
+
+# === Charred log stubs (2-3 cold, blackened ends) ===
+# Log stub 1 — diagonal
+poly 0.36,0.46 0.40,0.42 0.54,0.54 0.50,0.58 fill #1a0a06 0.95
+poly 0.36,0.46 0.40,0.42 0.54,0.54 0.50,0.58 stroke #0a0402
+# Log stub 2 — shorter cross piece
+poly 0.46,0.54 0.50,0.50 0.60,0.52 0.58,0.56 fill #2a1408 0.9
+poly 0.46,0.54 0.50,0.50 0.60,0.52 0.58,0.56 stroke #0a0402
+# Log stub 3 — tiny nub
+poly 0.44,0.44 0.48,0.42 0.52,0.46 0.48,0.48 fill #1a0a06 0.95
+
+# Ash flakes scattered beyond ring
+circle 0.20,0.18 0.012 fill #8a8680 0.7
+circle 0.82,0.20 0.010 fill #8a8680 0.6
+circle 0.18,0.82 0.012 fill #8a8680 0.7
+circle 0.82,0.80 0.010 fill #8a8680 0.6

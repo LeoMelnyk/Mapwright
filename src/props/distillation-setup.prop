@@ -1,0 +1,69 @@
+name: Distillation Setup
+category: Alchemy
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: center
+room_types: alchemy-lab, demiplane-laboratory, workshop-artificer
+typical_count: single
+clusters_with: alchemy-bench, cauldron-small, reagent-jar, candle-dipped
+notes: Glass distillation apparatus — retort flask connected via arcing tube to collection flask, over a small burner. Burner emits candle-level light.
+lights:
+  - type: candle
+    x: 1.0
+    y: 1.0
+    radius: 6
+    color: "#ffaa44"
+    intensity: 0.5
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.85 z 0-0.8
+
+# Burner base (brass ring, center)
+circle 1.00,1.00 0.22 fill #8b6914 0.85
+circle 1.00,1.00 0.22 stroke #5a3a00
+circle 1.00,1.00 0.18 stroke #daa520 width 2
+# Burner fire glow (layered — charred base → orange → amber → hot yellow)
+circle 1.00,1.00 0.15 fill #1a0800 0.6
+circle 1.00,1.00 0.12 fill #e85500 0.55
+circle 1.00,1.00 0.08 fill #ff8800 0.7
+circle 1.00,1.00 0.05 fill #ffcc00 0.85
+circle 1.00,1.00 0.025 fill #ffee99 0.9
+# Arcing glass tube connecting both flasks (bezier over the top)
+bezier 0.58,0.74 0.70,0.30 1.30,0.30 1.42,0.74 stroke #7aa8a0 width 3
+bezier 0.58,0.74 0.70,0.30 1.30,0.30 1.42,0.74 stroke #d8e8e4 0.6 width 1
+# Retort flask (left/west) — large bulbous body
+circle 0.52,0.90 0.30 fill #d8e8e4 0.55
+circle 0.52,0.90 0.30 stroke #7aa8a0
+# Retort flask brass fitting neck at top
+rect 0.48,0.62 0.10,0.14 fill #daa520 0.85
+rect 0.48,0.62 0.10,0.14 stroke #5a3a00
+# Retort flask liquid inside
+circle 0.52,0.98 0.22 fill #8aa060 0.75
+circle 0.52,0.98 0.22 stroke #5a7040 0.6
+# Retort flask highlight
+arc 0.52,0.90 0.26 200 260 stroke #f0f8f4 0.65 width 1
+# Collection flask (right/east) — bulbous body
+circle 1.48,0.90 0.30 fill #d8e8e4 0.55
+circle 1.48,0.90 0.30 stroke #7aa8a0
+# Collection flask brass fitting neck at top
+rect 1.42,0.62 0.10,0.14 fill #daa520 0.85
+rect 1.42,0.62 0.10,0.14 stroke #5a3a00
+# Collection flask liquid (less full)
+ellipse 1.48,1.04 0.22,0.14 fill #8aa060 0.7
+ellipse 1.48,1.04 0.22,0.14 stroke #5a7040 0.6
+# Collection flask highlight
+arc 1.48,0.90 0.26 220 280 stroke #f0f8f4 0.65 width 1
+# Burner flame reflection on flasks
+arc 0.52,0.90 0.28 60 120 stroke #ffaa44 0.4 width 2
+arc 1.48,0.90 0.28 60 120 stroke #ffaa44 0.4 width 2
+# Small brass tube junction caps where bezier meets flasks
+circle 0.58,0.74 0.05 fill #daa520 0.9
+circle 0.58,0.74 0.05 stroke #5a3a00
+circle 1.42,0.74 0.05 fill #daa520 0.9
+circle 1.42,0.74 0.05 stroke #5a3a00
+# Drip spout on collection flask (south, small)
+rect 1.46,1.22 0.04,0.08 fill #daa520 0.85
+rect 1.46,1.22 0.04,0.08 stroke #5a3a00

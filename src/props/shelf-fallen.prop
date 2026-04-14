@@ -1,0 +1,59 @@
+name: Fallen Shelf
+category: Clutter
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: cabin-abandoned, ruined-watchtower, monster-lair-small
+typical_count: single
+clusters_with: shelf, broken-bottle, rubble-pile, chair-broken
+notes: Wall shelf that has collapsed off the wall with contents spilled around the broken plank
+---
+# === HITBOX ===
+hitbox rect 0.10,0.30 1.80,0.50 z 0-0.3
+
+# Broken wall bracket still hanging on wall (north edge)
+rect 0.18,0.04 0.08,0.10 fill #3a3020 0.85
+rect 0.18,0.04 0.08,0.10 stroke #1a1410
+rect 1.74,0.04 0.08,0.10 fill #3a3020 0.85
+rect 1.74,0.04 0.08,0.10 stroke #1a1410
+# Bent nails left in wall
+line 0.22,0.14 0.22,0.20 stroke #222222 width 1
+line 1.78,0.14 1.78,0.22 stroke #222222 width 1
+# Main fallen plank (tilted, propped at an angle — one end higher, one fallen to floor)
+rect 0.14,0.40 1.72,0.22 texfill polyhaven/weathered_planks 0.85 rotate -8
+rect 0.14,0.40 1.72,0.22 stroke #3a2010 rotate -8
+# Plank wood grain
+line 0.20,0.50 1.80,0.56 stroke #5c3a1e 0.5
+line 0.22,0.58 1.82,0.62 stroke #5c3a1e 0.4
+# Splintered broken end (high side of plank, where it tore off bracket)
+poly 0.10,0.38 0.16,0.34 0.14,0.42 0.18,0.40 0.16,0.46 fill #2a1400 0.8
+# Scattered item — bottle (ellipse, lying on side near fallen plank)
+ellipse 0.42,0.78 0.12,0.05 fill #2a4028 0.85
+ellipse 0.42,0.78 0.12,0.05 stroke #101810
+circle 0.52,0.78 0.03 fill #0a0808 0.9
+# Scattered item — wooden bowl (circle)
+circle 0.78,0.80 0.08 fill #6b4e2e 0.88
+circle 0.78,0.80 0.08 stroke #2a1400
+circle 0.78,0.80 0.05 fill #3a1f00 0.85
+# Scattered item — open book (small rect with page line)
+rect 1.06,0.74 0.18,0.14 fill #8a6a40 0.9 rotate 15
+rect 1.06,0.74 0.18,0.14 stroke #3a2010 rotate 15
+line 1.14,0.80 1.22,0.84 stroke #e8dcc8 0.6
+# Scattered item — ceramic cup (tipped, small circle)
+circle 1.44,0.82 0.06 fill #c8b898 0.88
+circle 1.44,0.82 0.06 stroke #6a5040
+ellipse 1.44,0.80 0.04,0.015 fill #1a1008 0.7
+# Scattered item — small jar (shattered — broken base ring)
+circle 1.66,0.76 0.07 fill #8a5820 0.85
+circle 1.66,0.76 0.07 stroke #3a2408
+poly 1.60,0.72 1.64,0.70 1.66,0.74 1.70,0.70 1.72,0.76 fill #3a2408 0.8
+# Scattered shards and debris
+poly 0.28,0.86 0.34,0.84 0.32,0.90 fill #c8b898 0.8
+poly 0.28,0.86 0.34,0.84 0.32,0.90 stroke #6a5040
+line 0.92,0.90 0.98,0.88 stroke #5c3a1e width 1
+line 1.30,0.92 1.36,0.90 stroke #5c3a1e width 1
+circle 0.62,0.92 0.02 fill #3a1f00 0.8
+circle 1.52,0.94 0.02 fill #3a1f00 0.8

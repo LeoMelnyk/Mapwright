@@ -1,0 +1,64 @@
+name: Begging Cat
+category: Creatures
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: farmhouse-kitchen, tavern-common, butcher-shop
+typical_count: single
+clusters_with: cat-sleeping, chopped-vegetables, hanging-sausage
+notes: Tabby cat sitting upright begging for scraps; place near food prep areas
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.55 0.20,0.22 z 0-0.4
+
+# Tail curled around south/east (drawn first, behind body)
+bezier 0.64,0.60 0.78,0.64 0.78,0.80 0.60,0.82 stroke #8a6040 width 6
+bezier 0.64,0.60 0.78,0.64 0.78,0.80 0.60,0.82 stroke #4a2810 width 1
+# Tail stripe
+line 0.72,0.68 0.76,0.72 stroke #4a2810 0.7
+line 0.66,0.78 0.68,0.82 stroke #4a2810 0.7
+# Tail tip
+circle 0.60,0.82 0.025 fill #4a2810 0.9
+# Body (sitting upright — compact rounded oval)
+ellipse 0.50,0.58 0.18,0.20 fill #8a6040 0.95
+ellipse 0.50,0.58 0.18,0.20 stroke #4a2810
+# Body tabby stripes
+bezier 0.34,0.54 0.44,0.50 0.56,0.50 0.66,0.54 stroke #4a2810 0.7 width 1
+bezier 0.34,0.64 0.44,0.62 0.56,0.62 0.66,0.64 stroke #4a2810 0.6 width 1
+bezier 0.38,0.72 0.48,0.70 0.54,0.70 0.62,0.72 stroke #4a2810 0.5 width 1
+# Pale cream belly patch
+ellipse 0.50,0.68 0.08,0.06 fill #d8c4a0 0.7
+# Head (above body — rounded, at north)
+circle 0.50,0.38 0.14 fill #8a6040 0.95
+circle 0.50,0.38 0.14 stroke #4a2810
+# Left ear (pointy triangle)
+poly 0.38,0.32 0.36,0.24 0.44,0.30 fill #8a6040 0.95
+poly 0.38,0.32 0.36,0.24 0.44,0.30 stroke #4a2810
+# Inner left ear
+poly 0.39,0.30 0.38,0.26 0.42,0.29 fill #c88a60 0.8
+# Right ear (pointy triangle)
+poly 0.62,0.32 0.64,0.24 0.56,0.30 fill #8a6040 0.95
+poly 0.62,0.32 0.64,0.24 0.56,0.30 stroke #4a2810
+# Inner right ear
+poly 0.61,0.30 0.62,0.26 0.58,0.29 fill #c88a60 0.8
+# Forehead stripe
+line 0.50,0.28 0.50,0.38 stroke #4a2810 0.7 width 1
+line 0.46,0.30 0.46,0.38 stroke #4a2810 0.6 width 1
+line 0.54,0.30 0.54,0.38 stroke #4a2810 0.6 width 1
+# Left eye slit
+line 0.44,0.40 0.46,0.40 stroke #1a1008 width 2
+# Right eye slit
+line 0.54,0.40 0.56,0.40 stroke #1a1008 width 2
+# Nose dot
+circle 0.50,0.44 0.012 fill #cc6868 0.9
+# Mouth hint
+line 0.50,0.45 0.48,0.47 stroke #2a1400 0.7
+line 0.50,0.45 0.52,0.47 stroke #2a1400 0.7
+# Front paws peeking at bottom
+ellipse 0.44,0.76 0.04,0.03 fill #8a6040 0.95
+ellipse 0.44,0.76 0.04,0.03 stroke #4a2810
+ellipse 0.54,0.76 0.04,0.03 fill #8a6040 0.95
+ellipse 0.54,0.76 0.04,0.03 stroke #4a2810

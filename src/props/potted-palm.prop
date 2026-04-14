@@ -1,0 +1,66 @@
+name: Potted Palm
+category: Decor
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.0
+placement: corner
+room_types: mansion-ballroom, mansion-grand-hall, bath-house, noble-estate
+typical_count: few
+clusters_with: flower-arrangement, decanter, fresh-flowers
+notes: Decorative potted palm in a large ceramic urn. Fronds radiate outward from center; use to flank doorways, fill corners, or break up long walls in grand rooms.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.42 z 0-2.0
+
+# === Ceramic urn (widest element at base, visible around foliage) ===
+circle 0.5,0.5 0.32 fill #d8cfbd 0.9
+circle 0.5,0.5 0.32 stroke #6a5a42 width 2
+# Gold band around urn rim
+ring 0.5,0.5 0.32 0.28 fill #daa520 0.9
+ring 0.5,0.5 0.32 0.28 stroke #5a3a00
+# Inner rim (darker, earthy interior)
+circle 0.5,0.5 0.24 fill #3a2a1a 0.85
+circle 0.5,0.5 0.24 stroke #2a1a08
+
+# === Palm fronds — curving bezier leaves radiating outward ===
+# North frond
+bezier 0.50,0.40 0.48,0.20 0.52,0.08 0.50,0.02 stroke #2a5a28 width 4
+bezier 0.50,0.40 0.44,0.22 0.40,0.12 0.36,0.04 stroke #2a5a28 width 3
+bezier 0.50,0.40 0.56,0.22 0.60,0.12 0.64,0.04 stroke #2a5a28 width 3
+
+# Northeast frond
+bezier 0.54,0.44 0.76,0.30 0.90,0.22 0.98,0.16 stroke #4a7a3a width 4
+bezier 0.54,0.44 0.80,0.34 0.94,0.30 0.98,0.26 stroke #4a7a3a width 3
+
+# East frond
+bezier 0.60,0.50 0.82,0.50 0.94,0.52 0.98,0.54 stroke #4a7a3a width 4
+bezier 0.60,0.50 0.86,0.56 0.96,0.62 0.98,0.66 stroke #2a5a28 width 3
+
+# Southeast frond
+bezier 0.56,0.56 0.78,0.72 0.90,0.84 0.96,0.92 stroke #4a7a3a width 4
+
+# Southwest frond
+bezier 0.44,0.56 0.22,0.72 0.10,0.84 0.04,0.92 stroke #2a5a28 width 4
+
+# West frond
+bezier 0.40,0.50 0.18,0.50 0.06,0.52 0.02,0.54 stroke #4a7a3a width 4
+bezier 0.40,0.50 0.14,0.56 0.04,0.62 0.02,0.66 stroke #2a5a28 width 3
+
+# Northwest frond
+bezier 0.46,0.44 0.24,0.30 0.10,0.22 0.02,0.16 stroke #4a7a3a width 4
+bezier 0.46,0.44 0.20,0.34 0.06,0.30 0.02,0.26 stroke #2a5a28 width 3
+
+# Ochre frond tips (warm highlights)
+circle 0.50,0.04 0.025 fill #a89838 0.8
+circle 0.96,0.20 0.025 fill #a89838 0.8
+circle 0.96,0.56 0.025 fill #a89838 0.8
+circle 0.04,0.20 0.025 fill #a89838 0.8
+circle 0.04,0.56 0.025 fill #a89838 0.8
+
+# Central foliage cluster (emerging from pot)
+circle 0.50,0.48 0.10 fill #2a5a28 0.8
+circle 0.50,0.48 0.10 stroke #1a3010

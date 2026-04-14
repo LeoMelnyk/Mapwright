@@ -1,0 +1,46 @@
+name: Antler Offering
+category: Decor
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: druid-grove, cabin-hunters, hunting-lodge-large, shrine-roadside, ranger-camp
+typical_count: few
+clusters_with: antler-pile, feather-bundle, prayer-stone, cairn-sacred
+notes: Single branching antler laid on the ground as a ritual offering
+---
+# === HITBOX ===
+hitbox rect 0.14,0.20 0.72,0.60 z 0-0.2
+
+# Main stem (curved main beam running east-west)
+bezier 0.14,0.68 0.30,0.58 0.56,0.48 0.84,0.42 stroke #d4c4a8 width 6
+bezier 0.14,0.68 0.30,0.58 0.56,0.48 0.84,0.42 stroke #8a7040 width 1
+# Burr/base knob (where antler was shed)
+circle 0.16,0.70 0.05 fill #c8b898 0.95
+circle 0.16,0.70 0.05 stroke #6a5030 width 1
+circle 0.18,0.70 0.015 fill #5a4028 0.9
+circle 0.15,0.72 0.012 fill #5a4028 0.9
+# Tine 1 (first branching tine, short)
+bezier 0.28,0.60 0.32,0.48 0.32,0.36 0.30,0.24 stroke #d4c4a8 width 4
+bezier 0.28,0.60 0.32,0.48 0.32,0.36 0.30,0.24 stroke #8a7040 width 1
+circle 0.30,0.23 0.022 fill #d4c4a8 0.95
+# Tine 2 (middle, tallest)
+bezier 0.46,0.52 0.48,0.38 0.48,0.22 0.50,0.12 stroke #d4c4a8 width 4
+bezier 0.46,0.52 0.48,0.38 0.48,0.22 0.50,0.12 stroke #8a7040 width 1
+circle 0.50,0.11 0.022 fill #d4c4a8 0.95
+# Tine 3 (branches forward/south slightly)
+bezier 0.56,0.48 0.62,0.60 0.64,0.74 0.60,0.84 stroke #d4c4a8 width 4
+bezier 0.56,0.48 0.62,0.60 0.64,0.74 0.60,0.84 stroke #8a7040 width 1
+circle 0.60,0.85 0.022 fill #d4c4a8 0.95
+# Tine 4 (upper-right, medium)
+bezier 0.70,0.44 0.74,0.30 0.76,0.20 0.74,0.10 stroke #d4c4a8 width 4
+bezier 0.70,0.44 0.74,0.30 0.76,0.20 0.74,0.10 stroke #8a7040 width 1
+circle 0.74,0.09 0.022 fill #d4c4a8 0.95
+# Tine 5 (forward tine, shorter)
+bezier 0.80,0.42 0.86,0.54 0.88,0.62 0.86,0.72 stroke #d4c4a8 width 3
+bezier 0.80,0.42 0.86,0.54 0.88,0.62 0.86,0.72 stroke #8a7040 width 1
+# Surface cracks / ridge texture along main beam
+bezier 0.24,0.62 0.40,0.54 0.58,0.48 0.78,0.44 stroke #8a7040 0.6 width 1
+bezier 0.28,0.66 0.44,0.58 0.62,0.50 0.80,0.46 stroke #8a7040 0.5 width 1

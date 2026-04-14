@@ -1,0 +1,66 @@
+name: Stuffed Bear
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: nursery, house-medium-family
+typical_count: single
+clusters_with: rag-doll, wooden-toy, child-bed, cradle
+notes: Plush toy bear with ribbon around neck; round head and body visible from above
+---
+# === HITBOX ===
+hitbox rect 0.22,0.12 0.56,0.76 z 0-0.2
+
+# Ears — two small rounded circles at north of head
+circle 0.36,0.20 0.07 fill #8a5830 0.9
+circle 0.36,0.20 0.07 stroke #3a2010
+circle 0.64,0.20 0.07 fill #8a5830 0.9
+circle 0.64,0.20 0.07 stroke #3a2010
+# Inner ear (pale pink/tan)
+circle 0.36,0.21 0.035 fill #c8a878 0.85
+circle 0.64,0.21 0.035 fill #c8a878 0.85
+# Head — round
+circle 0.50,0.30 0.15 fill #8a5830 0.9
+circle 0.50,0.30 0.15 stroke #3a2010
+# Muzzle — pale patch on face
+ellipse 0.50,0.34 0.08,0.06 fill #c8a878 0.9
+ellipse 0.50,0.34 0.08,0.06 stroke #6a4020
+# Nose
+circle 0.50,0.32 0.022 fill #1a0a04 0.95
+# Button eyes
+circle 0.44,0.28 0.018 fill #1a0a04 0.95
+circle 0.56,0.28 0.018 fill #1a0a04 0.95
+# Stitched mouth
+line 0.48,0.36 0.50,0.37 stroke #1a0a04 width 1
+line 0.52,0.36 0.50,0.37 stroke #1a0a04 width 1
+# Red ribbon around neck
+rect 0.30,0.43 0.40,0.05 fill #8a2020 0.92
+rect 0.30,0.43 0.40,0.05 stroke #4a1010
+# Ribbon bow at center
+poly 0.44,0.42 0.50,0.46 0.44,0.50 fill #8a2020 0.92
+poly 0.44,0.42 0.50,0.46 0.44,0.50 stroke #4a1010
+poly 0.56,0.42 0.50,0.46 0.56,0.50 fill #8a2020 0.92
+poly 0.56,0.42 0.50,0.46 0.56,0.50 stroke #4a1010
+circle 0.50,0.46 0.025 fill #4a1010 0.95
+# Body — round rounded
+ellipse 0.50,0.64 0.20,0.20 fill #8a5830 0.9
+ellipse 0.50,0.64 0.20,0.20 stroke #3a2010
+# Belly patch — pale
+ellipse 0.50,0.66 0.10,0.12 fill #c8a878 0.8
+ellipse 0.50,0.66 0.10,0.12 stroke #6a4020 0.6
+# Stubby limbs — arms on sides
+ellipse 0.28,0.60 0.07,0.09 fill #8a5830 0.9
+ellipse 0.28,0.60 0.07,0.09 stroke #3a2010
+ellipse 0.72,0.60 0.07,0.09 fill #8a5830 0.9
+ellipse 0.72,0.60 0.07,0.09 stroke #3a2010
+# Stubby legs at south
+ellipse 0.40,0.84 0.07,0.06 fill #8a5830 0.9
+ellipse 0.40,0.84 0.07,0.06 stroke #3a2010
+ellipse 0.60,0.84 0.07,0.06 fill #8a5830 0.9
+ellipse 0.60,0.84 0.07,0.06 stroke #3a2010
+# Paw pads
+circle 0.40,0.85 0.025 fill #c8a878 0.85
+circle 0.60,0.85 0.025 fill #c8a878 0.85

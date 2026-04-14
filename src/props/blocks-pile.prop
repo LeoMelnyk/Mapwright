@@ -1,0 +1,42 @@
+name: Blocks Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: nursery, house-medium-family
+typical_count: few
+clusters_with: wooden-toy, dollhouse, child-bed
+notes: Scattered painted wooden toy blocks in pastel colors, strewn at angles
+---
+# === HITBOX ===
+hitbox rect 0.20,0.20 0.60,0.60 z 0-0.15
+
+# Block 1 — red, slight rotation
+rect 0.22,0.28 0.14,0.14 fill #c84848 0.9 rotate 15
+rect 0.22,0.28 0.14,0.14 stroke #7a2828 rotate 15
+# Tiny mark on block 1
+circle 0.29,0.35 0.02 fill #6a1818 0.8
+# Block 2 — blue, different angle
+rect 0.42,0.22 0.14,0.14 texfill polyhaven/worn_planks 0.4 rotate -20
+rect 0.42,0.22 0.14,0.14 fill #4884c8 0.85 rotate -20
+rect 0.42,0.22 0.14,0.14 stroke #264878 rotate -20
+# Block 3 — yellow, center area
+rect 0.32,0.46 0.14,0.14 fill #d4c848 0.9 rotate 8
+rect 0.32,0.46 0.14,0.14 stroke #8a8020 rotate 8
+# Tiny letter-mark on yellow
+circle 0.39,0.53 0.02 fill #6a5a10 0.8
+# Block 4 — green, overlapping slightly
+rect 0.54,0.48 0.14,0.14 fill #48a450 0.9 rotate -12
+rect 0.54,0.48 0.14,0.14 stroke #1a5a22 rotate -12
+# Block 5 — pale wood unpainted, tucked at side
+rect 0.62,0.30 0.12,0.12 texfill polyhaven/worn_planks 0.85 rotate 25
+rect 0.62,0.30 0.12,0.12 stroke #5c3a1e rotate 25
+# Block 6 — small red, near corner
+rect 0.24,0.58 0.10,0.10 fill #c84848 0.88 rotate -30
+rect 0.24,0.58 0.10,0.10 stroke #7a2828 rotate -30
+# Block 7 — small blue, scattered
+rect 0.60,0.64 0.10,0.10 fill #4884c8 0.85 rotate 40
+rect 0.60,0.64 0.10,0.10 stroke #264878 rotate 40

@@ -1,0 +1,73 @@
+name: Tall Candelabra
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.8
+placement: corner
+room_types: mansion-ballroom, mansion-grand-hall, throne-room, noble-solar
+typical_count: few
+clusters_with: chandelier-grand, candle-dipped, brazier
+notes: Tall floor-standing candelabra with radiating arms holding multiple candles. Flank doorways, thrones, or grand staircases; excellent as corner light source.
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.5
+    radius: 12
+    color: "#ffcc88"
+    intensity: 0.9
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-1.8
+
+# Ambient glow from candle cluster
+circle 0.5,0.5 0.48 fill #ffcc66 0.10
+
+# Circular brass base (widest element)
+circle 0.5,0.5 0.34 fill #daa520 0.88
+circle 0.5,0.5 0.34 stroke #5a3a00
+circle 0.5,0.5 0.30 stroke #8b6914 0.7 width 1
+
+# Central column (top of post visible straight down)
+circle 0.5,0.5 0.09 fill #8b6914 0.95
+circle 0.5,0.5 0.09 stroke #3a2600
+# Column shadow ring
+circle 0.5,0.5 0.05 fill #2a1800 0.9
+
+# Radiating arms to 6 candle positions
+line 0.50,0.50 0.50,0.18 stroke #daa520 width 3
+line 0.50,0.50 0.78,0.34 stroke #daa520 width 3
+line 0.50,0.50 0.78,0.66 stroke #daa520 width 3
+line 0.50,0.50 0.50,0.82 stroke #daa520 width 3
+line 0.50,0.50 0.22,0.66 stroke #daa520 width 3
+line 0.50,0.50 0.22,0.34 stroke #daa520 width 3
+
+# Candle cups (brass sockets at arm tips)
+circle 0.50,0.18 0.06 fill #daa520 0.95
+circle 0.50,0.18 0.06 stroke #5a3a00
+circle 0.78,0.34 0.06 fill #daa520 0.95
+circle 0.78,0.34 0.06 stroke #5a3a00
+circle 0.78,0.66 0.06 fill #daa520 0.95
+circle 0.78,0.66 0.06 stroke #5a3a00
+circle 0.50,0.82 0.06 fill #daa520 0.95
+circle 0.50,0.82 0.06 stroke #5a3a00
+circle 0.22,0.66 0.06 fill #daa520 0.95
+circle 0.22,0.66 0.06 stroke #5a3a00
+circle 0.22,0.34 0.06 fill #daa520 0.95
+circle 0.22,0.34 0.06 stroke #5a3a00
+
+# Candle flames — layered glow per candle
+circle 0.50,0.18 0.06 fill #ff8800 0.55
+circle 0.50,0.18 0.035 fill #ffee88 0.95
+circle 0.78,0.34 0.06 fill #ff8800 0.55
+circle 0.78,0.34 0.035 fill #ffee88 0.95
+circle 0.78,0.66 0.06 fill #ff8800 0.55
+circle 0.78,0.66 0.035 fill #ffee88 0.95
+circle 0.50,0.82 0.06 fill #ff8800 0.55
+circle 0.50,0.82 0.035 fill #ffee88 0.95
+circle 0.22,0.66 0.06 fill #ff8800 0.55
+circle 0.22,0.66 0.035 fill #ffee88 0.95
+circle 0.22,0.34 0.06 fill #ff8800 0.55
+circle 0.22,0.34 0.035 fill #ffee88 0.95

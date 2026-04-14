@@ -1,0 +1,50 @@
+name: Glowing Ingot
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: infernal-forge, foundry-great, forge, smithy-large
+typical_count: few
+clusters_with: ingot-stack, anvil-devil, anvil, slag-heap, quench-trough
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.5
+    radius: 6
+    color: "#ff6030"
+    intensity: 0.7
+notes: Freshly forged metal ingot still bright with forge heat — hot center, cooling edges, wisps of heat shimmer. Drop near anvils and quench troughs.
+---
+# Heat halo shimmer on floor (drawn first, behind ingot)
+ellipse 0.50,0.50 0.42,0.30 fill #ff8800 0.18
+ellipse 0.50,0.50 0.32,0.22 fill #ffaa00 0.15
+
+# Ingot outer body (cooling edge — dim brownish iron)
+rect 0.22,0.36 0.56,0.28 texfill polyhaven/metal_plate 0.7
+rect 0.22,0.36 0.56,0.28 fill #6a3820 0.65
+rect 0.22,0.36 0.56,0.28 stroke #3a1808 width 2
+
+# Middle heat layer (orange-red)
+rect 0.26,0.39 0.48,0.22 fill #cc4400 0.8
+rect 0.26,0.39 0.48,0.22 stroke #8a2a00 width 1
+
+# Inner heat layer (bright orange)
+rect 0.30,0.42 0.40,0.16 fill #ff8800 0.85
+
+# Hot yellow layer
+rect 0.34,0.44 0.32,0.12 fill #ffdd88 0.9
+
+# Hottest center (near-white)
+rect 0.38,0.46 0.24,0.08 fill #ffffcc 0.95
+
+# Heat shimmer wisps rising (bezier curves)
+bezier 0.32,0.36 0.34,0.28 0.30,0.22 0.34,0.14 stroke #ff8800 0.45 width 1
+bezier 0.50,0.36 0.52,0.26 0.48,0.18 0.52,0.08 stroke #ffaa00 0.5 width 1
+bezier 0.68,0.36 0.66,0.28 0.70,0.22 0.66,0.14 stroke #ff8800 0.4 width 1
+
+# Cooling stripe along edge (darker where it touched air longest)
+line 0.22,0.36 0.78,0.36 stroke #2a1000 0.7 width 1
+line 0.22,0.64 0.78,0.64 stroke #2a1000 0.7 width 1

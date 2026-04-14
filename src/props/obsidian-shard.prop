@@ -1,0 +1,53 @@
+name: Obsidian Shard
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: elemental-fire-node, elemental-shrine, volcanic-cavern, cabin-witch, demiplane-laboratory, underdark-outpost
+typical_count: few
+clusters_with: crystal-shard, ash-pile, obsidian-shard, altar-stone-flat, crystal-formation, bone-marker
+notes: Sharp-edged shard of black volcanic glass with razor edges and faint iridescent sheen along the fractures
+---
+# === HITBOX ===
+hitbox poly 0.22,0.52 0.42,0.22 0.68,0.34 0.78,0.62 0.56,0.78 0.34,0.70 z 0-0.2
+
+# Ground contact shadow (dark, close to prop — glass is flat)
+ellipse 0.52,0.74 0.22,0.05 fill #050508 0.5
+# Main shard body — elongated angular polygon, diamond-ish with uneven fracture edges
+poly 0.22,0.52 0.32,0.32 0.42,0.22 0.58,0.22 0.68,0.34 0.78,0.52 0.72,0.66 0.56,0.78 0.38,0.76 0.28,0.64 fill #0a0a18 0.95
+poly 0.22,0.52 0.32,0.32 0.42,0.22 0.58,0.22 0.68,0.34 0.78,0.52 0.72,0.66 0.56,0.78 0.38,0.76 0.28,0.64 stroke #000004
+# Conchoidal fracture plane — inner facet catching light (upper facet)
+poly 0.32,0.32 0.42,0.22 0.58,0.22 0.56,0.42 0.44,0.48 0.34,0.44 fill #3a3a58 0.75
+poly 0.32,0.32 0.42,0.22 0.58,0.22 0.56,0.42 0.44,0.48 0.34,0.44 stroke #1a1a28 width 1
+# Secondary facet — right-side cleavage face (darker sheen)
+poly 0.58,0.22 0.68,0.34 0.78,0.52 0.66,0.58 0.56,0.42 fill #1a1a2a 0.8
+poly 0.58,0.22 0.68,0.34 0.78,0.52 0.66,0.58 0.56,0.42 stroke #05050a width 1
+# Tertiary facet — lower-left shadowed face
+poly 0.22,0.52 0.34,0.44 0.44,0.48 0.38,0.68 0.28,0.64 fill #0a0a14 0.9
+# Central high-sheen streak (light ripple along fracture)
+line 0.40,0.28 0.52,0.44 stroke #6a5a8a 0.85 width 2
+line 0.52,0.44 0.48,0.60 stroke #4a4a6a 0.75 width 2
+# Purple iridescent sheen — edge reflections
+line 0.42,0.22 0.58,0.22 stroke #6a5a8a 0.7 width 1
+line 0.32,0.32 0.42,0.22 stroke #4a3a6a 0.6 width 1
+line 0.58,0.22 0.68,0.34 stroke #5a4a7a 0.6 width 1
+# Blue-purple edge along right cleavage
+line 0.68,0.34 0.78,0.52 stroke #3a3a58 0.8 width 1
+line 0.78,0.52 0.72,0.66 stroke #2a2a48 0.7 width 1
+# Bright white highlight point (hot spot catching light)
+ellipse 0.46,0.32 0.04,0.02 fill #8a7aaa 0.8
+ellipse 0.46,0.32 0.02,0.01 fill #c8b8e8 0.9
+# Secondary smaller highlight
+circle 0.58,0.54 0.012 fill #6a5a8a 0.85
+# Chip scars (tiny flake removals along edge)
+poly 0.28,0.60 0.24,0.58 0.26,0.64 fill #000004 0.7
+poly 0.70,0.62 0.74,0.60 0.72,0.66 fill #000004 0.7
+# Tiny satellite chip detached to the side
+poly 0.84,0.70 0.88,0.68 0.90,0.74 0.86,0.76 fill #0a0a18 0.9
+poly 0.84,0.70 0.88,0.68 0.90,0.74 0.86,0.76 stroke #000004
+line 0.84,0.70 0.90,0.74 stroke #3a3a58 0.7 width 1
+# Faint purple halo sheen (subtle ground reflection)
+ellipse 0.50,0.78 0.12,0.02 fill #3a2a5a 0.25

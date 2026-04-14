@@ -1,0 +1,28 @@
+name: Rain Puddle
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: druid-grove, cistern, sewer-junction, ferry-house, cave, ruin, courtyard
+typical_count: few
+clusters_with: mud-print, drip-stain, fern-cluster, moss-patch
+notes: Shallow reflective puddle of rainwater on the ground
+---
+# Puddle body (irregular flat blob)
+poly 0.16,0.50 0.22,0.34 0.38,0.24 0.58,0.22 0.76,0.30 0.84,0.48 0.82,0.64 0.68,0.78 0.48,0.82 0.28,0.76 0.18,0.64 fill #5a7a8a 0.85
+poly 0.16,0.50 0.22,0.34 0.38,0.24 0.58,0.22 0.76,0.30 0.84,0.48 0.82,0.64 0.68,0.78 0.48,0.82 0.28,0.76 0.18,0.64 stroke #2a4a5a width 1
+# Inner reflective highlight (sky reflection)
+ellipse 0.48,0.46 0.26,0.18 fill #a0c0d0 0.70
+# Bright reflection streak
+ellipse 0.42,0.40 0.14,0.06 fill #c8dce4 0.55
+# Ripple rings (stroke only — concentric)
+ellipse 0.52,0.54 0.20,0.14 stroke #3a5a6a 0.6 width 1
+ellipse 0.52,0.54 0.12,0.08 stroke #3a5a6a 0.5 width 1
+# Small secondary ripple
+ellipse 0.30,0.68 0.06,0.04 stroke #3a5a6a 0.5 width 1
+# Tiny drop splash points
+circle 0.64,0.36 0.015 fill #c8dce4 0.7
+circle 0.38,0.62 0.012 fill #c8dce4 0.6

@@ -1,0 +1,47 @@
+name: Flour Barrel
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.0
+placement: floor
+room_types: bakery, farmhouse-kitchen, pantry, mill-grain
+typical_count: few
+clusters_with: flour-sack, flour-dust, mixing-bowl, barrel
+notes: Open-topped wooden barrel filled with flour; iron bands and pale powder interior
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.40 z 0-1.0
+
+# Outer wood barrel ring
+circle 0.5,0.5 0.40 texfill polyhaven/dark_wood 0.88
+circle 0.5,0.5 0.40 stroke #2a1400
+# Outer iron band
+circle 0.5,0.5 0.38 stroke #555555 width 2
+# Inner wood rim edge
+circle 0.5,0.5 0.32 stroke #3a1f00
+# Inner iron band lip
+circle 0.5,0.5 0.32 stroke #555555 width 1
+# Plank seam lines on wood rim
+line 0.22,0.40 0.26,0.34 stroke #2a1400 0.6
+line 0.74,0.40 0.78,0.34 stroke #2a1400 0.6
+line 0.22,0.60 0.26,0.66 stroke #2a1400 0.6
+line 0.74,0.60 0.78,0.66 stroke #2a1400 0.6
+line 0.50,0.18 0.50,0.22 stroke #2a1400 0.6
+line 0.50,0.78 0.50,0.82 stroke #2a1400 0.6
+# Flour interior (pale, mounded)
+circle 0.5,0.5 0.30 fill #e8d8b8 0.95
+circle 0.5,0.5 0.30 stroke #a89868 0.5
+# Flour surface mound highlight
+arc 0.5,0.5 0.28 210 260 stroke #f8ecd0 0.5 width 1
+# Flour uneven surface lumps
+ellipse 0.44,0.46 0.07,0.05 fill #f4e4c4 0.7
+ellipse 0.56,0.56 0.06,0.05 fill #d8c8a0 0.6
+ellipse 0.50,0.44 0.05,0.04 fill #f4e4c4 0.6
+# Flour dust scatter on rim
+circle 0.34,0.50 0.015 fill #ffffff 0.6
+circle 0.66,0.52 0.012 fill #ffffff 0.5
+circle 0.48,0.34 0.015 fill #ffffff 0.6
+# Small scoop mark / indent
+ellipse 0.52,0.52 0.04,0.02 fill #c8b898 0.5

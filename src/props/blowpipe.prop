@@ -1,0 +1,52 @@
+name: Blowpipe
+category: Tools
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: glassworks
+typical_count: single
+clusters_with: marver-slab, gaffer-bench, glass-furnace, jack-tool, finished-vessel
+notes: Iron glassblowing pipe — hollow tube with brass mouthpiece at east end, molten glass gather at west end. Lay flat on benches or floor beside the glass furnace.
+---
+# === HITBOX ===
+hitbox rect 0.14,0.42 1.72,0.16 z 0-0.1
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: long thin iron tube running east-west, mouthpiece (east), molten blob (west)
+
+# Iron shaft — long thin cylinder
+rect 0.14,0.44 1.70,0.12 texfill polyhaven/metal_plate 0.88
+rect 0.14,0.44 1.70,0.12 stroke #222222 width 2
+
+# Dark centerline of bore (hollow tube)
+line 0.16,0.50 1.84,0.50 stroke #1a1a1a width 1
+
+# Subtle steel highlight along top of shaft
+line 0.18,0.46 1.82,0.46 stroke #8899aa 0.55 width 1
+
+# Heat discoloration toward molten end (west)
+rect 0.14,0.44 0.40,0.12 fill #aa4010 0.30
+
+# Brass mouthpiece (east end) — small flared disc
+rect 1.82,0.42 0.08,0.16 fill #daa520 0.92
+rect 1.82,0.42 0.08,0.16 stroke #5a3a00
+# Mouthpiece bore
+circle 1.86,0.50 0.022 fill #1a1a1a 0.9
+
+# Reinforcement collar at mouthpiece joint
+rect 1.76,0.42 0.06,0.16 fill #8b6914 0.9
+rect 1.76,0.42 0.06,0.16 stroke #5a3a00
+
+# Molten glass gather at west end
+circle 0.14,0.50 0.12 fill #ff6030 0.95
+circle 0.14,0.50 0.12 stroke #aa2000
+# Hot core
+circle 0.13,0.50 0.07 fill #ffaa44 0.9
+# White-hot center
+circle 0.12,0.50 0.035 fill #ffee88 0.95
+
+# Heat glow halo around molten blob
+circle 0.18,0.50 0.16 fill #ff6030 0.12

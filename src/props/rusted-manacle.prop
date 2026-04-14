@@ -1,0 +1,48 @@
+name: Rusted Manacle
+category: Prison & Torture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: wall
+room_types: prison-block, torture-chamber, oubliette, ship-brig
+typical_count: few
+clusters_with: shackles, chain-coil, bars-cell-partition, chain-heavy
+notes: Single iron wrist cuff with short chain to the wall; place along a wall
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.14 z 0-0.2
+
+# Wall anchor plate (north, wall-side)
+rect 0.38,0.08 0.24,0.08 fill #555555 0.9
+rect 0.38,0.08 0.24,0.08 texfill polyhaven/rusty_metal_02 0.6
+rect 0.38,0.08 0.24,0.08 stroke #2a1810
+# Anchor bolts
+circle 0.44,0.12 0.02 fill #333333 0.9
+circle 0.56,0.12 0.02 fill #333333 0.9
+# Chain link 1 (closest to wall)
+ellipse 0.50,0.22 0.035,0.055 stroke #555555 width 3
+ellipse 0.50,0.22 0.035,0.055 stroke #3a1808 width 1
+# Chain link 2
+ellipse 0.50,0.32 0.035,0.055 stroke #4a3820 width 3
+ellipse 0.50,0.32 0.035,0.055 stroke #3a1808 width 1
+# Chain link 3
+ellipse 0.50,0.42 0.035,0.055 stroke #555555 width 3
+ellipse 0.50,0.42 0.035,0.055 stroke #3a1808 width 1
+# Main cuff ring (iron with rust texfill)
+ring 0.5,0.58 0.14 0.09 texfill polyhaven/rusty_metal_02 0.85
+ring 0.5,0.58 0.14 0.09 fill #4a3820 0.4
+ring 0.5,0.58 0.14 0.09 stroke #2a1810
+# Cuff outer edge stroke
+circle 0.5,0.58 0.14 stroke #222222 width 1
+# Cuff inner dark interior (where wrist would go)
+circle 0.5,0.58 0.09 fill #0a0604 0.85
+# Cuff hinge (east side)
+circle 0.64,0.58 0.022 fill #2a1810 0.95
+# Cuff latch pin (west side)
+circle 0.36,0.58 0.022 fill #2a1810 0.95
+# Rust streaks on cuff
+circle 0.42,0.68 0.02 fill #6a3818 0.7
+circle 0.58,0.50 0.018 fill #6a3818 0.7
+circle 0.50,0.72 0.022 fill #6a3818 0.6

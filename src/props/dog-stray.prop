@@ -1,0 +1,55 @@
+name: Stray Dog
+category: Creatures
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: fairground-seasonal, market-square, tavern-common
+typical_count: single
+clusters_with: butcher-shop, market-stall, bone-pile
+notes: Thin scruffy dog seen from above — body oval, smaller head oval, four short legs, tail curving out. Good for market scenes and tavern scraps.
+---
+# === HITBOX ===
+hitbox ellipse 0.50,0.55 0.30,0.16 z 0-0.5
+
+# Four short legs (small ovals poking out from body sides)
+ellipse 0.30,0.42 0.05,0.08 fill #6b4820 0.9
+ellipse 0.30,0.42 0.05,0.08 stroke #2a1408
+ellipse 0.70,0.42 0.05,0.08 fill #6b4820 0.9
+ellipse 0.70,0.42 0.05,0.08 stroke #2a1408
+ellipse 0.30,0.70 0.05,0.08 fill #6b4820 0.9
+ellipse 0.30,0.70 0.05,0.08 stroke #2a1408
+ellipse 0.70,0.70 0.05,0.08 fill #6b4820 0.9
+ellipse 0.70,0.70 0.05,0.08 stroke #2a1408
+# Body (main oval) — tan/brown fur, thin-looking
+ellipse 0.50,0.55 0.30,0.16 fill #8a6040 0.95
+ellipse 0.50,0.55 0.30,0.16 stroke #2a1408
+# Darker fur patches (scruffy mottled look)
+ellipse 0.38,0.50 0.08,0.06 fill #4a2810 0.7
+ellipse 0.62,0.58 0.09,0.06 fill #4a2810 0.65
+ellipse 0.50,0.62 0.06,0.04 fill #4a2810 0.55
+# Spine / fur ridge line
+bezier 0.24,0.55 0.38,0.53 0.62,0.57 0.76,0.55 stroke #4a2810 0.7 width 1
+# Head (smaller oval north of body)
+ellipse 0.50,0.28 0.11,0.09 fill #8a6040 0.95
+ellipse 0.50,0.28 0.11,0.09 stroke #2a1408
+# Ears (two small triangles on either side of head)
+poly 0.40,0.22 0.36,0.16 0.43,0.20 fill #6b4820 0.9
+poly 0.40,0.22 0.36,0.16 0.43,0.20 stroke #2a1408
+poly 0.60,0.22 0.64,0.16 0.57,0.20 fill #6b4820 0.9
+poly 0.60,0.22 0.64,0.16 0.57,0.20 stroke #2a1408
+# Snout (tiny bump pointing north)
+ellipse 0.50,0.20 0.04,0.04 fill #6b4820 0.95
+ellipse 0.50,0.20 0.04,0.04 stroke #2a1408
+# Nose (tiny dark dot)
+circle 0.50,0.18 0.018 fill #1a0a00 0.95
+# Eye glints (two tiny dots)
+circle 0.46,0.26 0.012 fill #1a0a00 0.9
+circle 0.54,0.26 0.012 fill #1a0a00 0.9
+# Tail curving out to the south/east (skinny bezier)
+bezier 0.76,0.58 0.86,0.62 0.90,0.74 0.86,0.84 stroke #8a6040 width 5
+bezier 0.76,0.58 0.86,0.62 0.90,0.74 0.86,0.84 stroke #2a1408 width 1
+# Tail tip (slightly darker)
+circle 0.86,0.84 0.025 fill #4a2810 0.9

@@ -1,0 +1,59 @@
+name: Hanging Garlic
+category: Food
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 1.8
+placement: wall
+room_types: farmhouse-kitchen, pantry, servants-kitchen
+typical_count: few
+clusters_with: dried-herbs, hanging-sausage, onion-braid, hanging-meat
+notes: Braid of garlic bulbs hung from ceiling/beam; cluster with other hanging food
+---
+# === HITBOX ===
+hitbox rect 0.34,0.10 0.32,0.76 z 0-1.8
+
+# Twine hanger at top
+line 0.42,0.08 0.58,0.08 stroke #6b4e2e width 2
+# Loop knot
+circle 0.50,0.08 0.035 fill #4a3820 0.9
+# Central braid twine running down
+line 0.50,0.12 0.50,0.86 stroke #6b4e2e 0.7 width 1
+# Bulb 1 (top left)
+ellipse 0.40,0.22 0.10,0.11 fill #f0e8d0 0.92
+ellipse 0.40,0.22 0.10,0.11 stroke #8a7850
+# Bulb 1 seam
+arc 0.40,0.22 0.09 250 290 stroke #b0a078 0.5 width 1
+# Bulb 1 green neck top
+line 0.40,0.14 0.38,0.10 stroke #6a8a3a width 1
+line 0.40,0.14 0.42,0.10 stroke #6a8a3a width 1
+# Bulb 2 (top right, offset)
+ellipse 0.60,0.30 0.10,0.11 fill #f0e8d0 0.92
+ellipse 0.60,0.30 0.10,0.11 stroke #8a7850
+arc 0.60,0.30 0.09 250 290 stroke #b0a078 0.5 width 1
+line 0.60,0.22 0.58,0.18 stroke #6a8a3a width 1
+line 0.60,0.22 0.62,0.18 stroke #6a8a3a width 1
+# Bulb 3 (middle left)
+ellipse 0.38,0.44 0.10,0.11 fill #ede0c8 0.92
+ellipse 0.38,0.44 0.10,0.11 stroke #8a7850
+arc 0.38,0.44 0.09 250 290 stroke #b0a078 0.5 width 1
+# Bulb 4 (middle right)
+ellipse 0.62,0.52 0.10,0.11 fill #f0e8d0 0.92
+ellipse 0.62,0.52 0.10,0.11 stroke #8a7850
+arc 0.62,0.52 0.09 250 290 stroke #b0a078 0.5 width 1
+# Bulb 5 (lower left)
+ellipse 0.40,0.66 0.10,0.11 fill #ede0c8 0.92
+ellipse 0.40,0.66 0.10,0.11 stroke #8a7850
+arc 0.40,0.66 0.09 250 290 stroke #b0a078 0.5 width 1
+# Bulb 6 (bottom center, largest)
+ellipse 0.50,0.78 0.12,0.12 fill #f0e8d0 0.95
+ellipse 0.50,0.78 0.12,0.12 stroke #8a7850
+arc 0.50,0.78 0.11 250 290 stroke #b0a078 0.5 width 1
+# Bulb 7 (bottom right small)
+ellipse 0.62,0.72 0.09,0.10 fill #ede0c8 0.9
+ellipse 0.62,0.72 0.09,0.10 stroke #8a7850
+# Root tuft at bottom
+line 0.50,0.90 0.46,0.96 stroke #6a8a3a 0.7
+line 0.50,0.90 0.54,0.96 stroke #6a8a3a 0.7
+line 0.50,0.90 0.50,0.98 stroke #6a8a3a 0.7

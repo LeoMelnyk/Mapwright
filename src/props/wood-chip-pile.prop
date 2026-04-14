@@ -1,0 +1,56 @@
+name: Wood Chip Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: charcoal-burner-camp, druid-grove
+typical_count: few
+clusters_with: sawdust-pile, log-round, axe-head, wood-chip
+notes: Irregular heap of pale wood chips and bark bits left behind from chopping
+---
+# Pile base spread (warm dust halo)
+ellipse 0.50,0.52 0.40,0.32 fill #8a6838 0.45
+ellipse 0.50,0.52 0.40,0.32 stroke #6b4e2e 0.30
+
+# Mid-tone pile mound (denser core)
+poly 0.22,0.52 0.28,0.38 0.42,0.32 0.58,0.30 0.72,0.36 0.80,0.48 0.78,0.62 0.66,0.72 0.48,0.76 0.32,0.72 0.24,0.62 fill #a08058 0.80
+poly 0.22,0.52 0.28,0.38 0.42,0.32 0.58,0.30 0.72,0.36 0.80,0.48 0.78,0.62 0.66,0.72 0.48,0.76 0.32,0.72 0.24,0.62 stroke #6b4e2e 0.55
+
+# Larger pale chips (angular pieces)
+poly 0.36,0.46 0.48,0.40 0.52,0.48 0.44,0.54 fill #a08058 0.92
+poly 0.36,0.46 0.48,0.40 0.52,0.48 0.44,0.54 stroke #6b4e2e
+poly 0.54,0.42 0.66,0.44 0.64,0.54 0.54,0.52 fill #8a6838 0.92
+poly 0.54,0.42 0.66,0.44 0.64,0.54 0.54,0.52 stroke #6b4e2e
+poly 0.40,0.58 0.52,0.58 0.54,0.66 0.42,0.68 fill #a08058 0.90
+poly 0.40,0.58 0.52,0.58 0.54,0.66 0.42,0.68 stroke #6b4e2e
+poly 0.56,0.60 0.68,0.62 0.66,0.70 0.58,0.70 fill #8a6838 0.90
+poly 0.56,0.60 0.68,0.62 0.66,0.70 0.58,0.70 stroke #6b4e2e
+
+# Smaller chips scattered around
+poly 0.24,0.44 0.32,0.40 0.34,0.48 fill #a08058 0.88
+poly 0.24,0.44 0.32,0.40 0.34,0.48 stroke #6b4e2e 0.8
+poly 0.70,0.50 0.78,0.52 0.74,0.60 fill #8a6838 0.88
+poly 0.70,0.50 0.78,0.52 0.74,0.60 stroke #6b4e2e 0.8
+poly 0.30,0.62 0.38,0.64 0.36,0.72 0.28,0.70 fill #a08058 0.85
+poly 0.30,0.62 0.38,0.64 0.36,0.72 0.28,0.70 stroke #6b4e2e 0.8
+
+# Dark bark pieces (the rougher outer pieces)
+poly 0.44,0.32 0.52,0.34 0.50,0.40 fill #3a1f00 0.90
+poly 0.44,0.32 0.52,0.34 0.50,0.40 stroke #1a1208
+poly 0.64,0.68 0.72,0.70 0.70,0.76 0.62,0.74 fill #3a1f00 0.88
+poly 0.64,0.68 0.72,0.70 0.70,0.76 0.62,0.74 stroke #1a1208
+poly 0.22,0.60 0.28,0.58 0.30,0.66 0.24,0.66 fill #3a1f00 0.85
+poly 0.22,0.60 0.28,0.58 0.30,0.66 0.24,0.66 stroke #1a1208
+
+# Tiny stray flakes at edges
+poly 0.18,0.48 0.22,0.46 0.22,0.52 fill #a08058 0.80
+poly 0.80,0.64 0.84,0.62 0.84,0.68 fill #8a6838 0.80
+poly 0.54,0.76 0.60,0.78 0.56,0.82 fill #a08058 0.80
+poly 0.40,0.24 0.46,0.22 0.46,0.28 fill #8a6838 0.75
+
+# A couple grain-line accents on the larger chips
+line 0.38,0.48 0.50,0.44 stroke #6b4e2e 0.65
+line 0.44,0.62 0.52,0.60 stroke #6b4e2e 0.55

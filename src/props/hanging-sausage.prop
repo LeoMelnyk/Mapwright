@@ -1,0 +1,54 @@
+name: Hanging Sausage
+category: Food
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 1.8
+placement: wall
+room_types: farmhouse-kitchen, pantry, ship-galley, butcher-shop
+typical_count: few
+clusters_with: hanging-garlic, hanging-meat, onion-braid
+notes: String of linked sausages hung from hook; cluster with other hanging food
+---
+# === HITBOX ===
+hitbox rect 0.24,0.10 0.52,0.78 z 0-1.8
+
+# Hook at top (iron S-hook)
+bezier 0.50,0.08 0.48,0.12 0.52,0.16 0.50,0.20 stroke #444444 width 3
+bezier 0.50,0.08 0.48,0.12 0.52,0.16 0.50,0.20 stroke #222222 width 1
+# Twine rope draped over hook, looping down
+bezier 0.32,0.22 0.28,0.36 0.72,0.36 0.68,0.22 stroke #c8b898 width 2
+bezier 0.30,0.50 0.26,0.62 0.74,0.62 0.70,0.50 stroke #c8b898 width 2
+# Top twine end tying at hook
+line 0.48,0.22 0.52,0.22 stroke #8a7858 width 1
+# Sausage 1 (upper left)
+ellipse 0.30,0.28 0.06,0.11 fill #8a3820 0.92
+ellipse 0.30,0.28 0.06,0.11 stroke #3a1408
+# Sausage 1 tied end highlight
+ellipse 0.30,0.18 0.04,0.02 fill #c8a890 0.85
+ellipse 0.30,0.38 0.04,0.02 fill #c8a890 0.85
+# Sausage 2 (upper right)
+ellipse 0.70,0.28 0.06,0.11 fill #8a3820 0.92
+ellipse 0.70,0.28 0.06,0.11 stroke #3a1408
+ellipse 0.70,0.18 0.04,0.02 fill #c8a890 0.85
+ellipse 0.70,0.38 0.04,0.02 fill #c8a890 0.85
+# Sausage 3 (middle left)
+ellipse 0.32,0.52 0.06,0.11 fill #923e24 0.92
+ellipse 0.32,0.52 0.06,0.11 stroke #3a1408
+ellipse 0.32,0.42 0.04,0.02 fill #c8a890 0.85
+ellipse 0.32,0.62 0.04,0.02 fill #c8a890 0.85
+# Sausage 4 (middle right)
+ellipse 0.68,0.52 0.06,0.11 fill #8a3820 0.92
+ellipse 0.68,0.52 0.06,0.11 stroke #3a1408
+ellipse 0.68,0.42 0.04,0.02 fill #c8a890 0.85
+ellipse 0.68,0.62 0.04,0.02 fill #c8a890 0.85
+# Sausage 5 (bottom center larger)
+ellipse 0.50,0.76 0.07,0.12 fill #923e24 0.93
+ellipse 0.50,0.76 0.07,0.12 stroke #3a1408
+ellipse 0.50,0.64 0.05,0.02 fill #c8a890 0.85
+ellipse 0.50,0.88 0.05,0.02 fill #c8a890 0.85
+# Casing sheen highlights
+arc 0.30,0.28 0.05 220 260 stroke #b85838 0.4 width 1
+arc 0.68,0.52 0.05 220 260 stroke #b85838 0.4 width 1
+arc 0.50,0.76 0.06 220 260 stroke #b85838 0.4 width 1

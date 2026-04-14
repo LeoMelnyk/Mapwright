@@ -1,0 +1,57 @@
+name: Pipe Outlet
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: wall
+room_types: cistern, sewer-junction
+typical_count: few
+clusters_with: grate, drain, water-puddle, fungal-growth, algae-bloom
+notes: Stone drainage pipe mouth set into the north wall. Slime-rimmed opening with water trickling south.
+---
+# Tight hitbox on the stone lip
+hitbox circle 0.50,0.22 0.22 z 0-0.5
+
+# === Stone lip/ring around the opening (flush to north wall) ===
+# Outer stone ring (raised lip)
+ring 0.50,0.22 0.24 0.14 texfill polyhaven/stone_wall 0.85
+ring 0.50,0.22 0.24 0.14 stroke #1a1a1a width 2
+
+# Mortar joints around the lip
+line 0.50,0.00 0.50,0.08 stroke #222222 0.5
+line 0.30,0.14 0.36,0.20 stroke #222222 0.4
+line 0.70,0.14 0.64,0.20 stroke #222222 0.4
+line 0.30,0.30 0.36,0.26 stroke #222222 0.4
+line 0.70,0.30 0.64,0.26 stroke #222222 0.4
+
+# === Dark interior of the pipe ===
+circle 0.50,0.22 0.14 fill #0a0608 0.95
+circle 0.50,0.22 0.14 stroke #000000 width 1
+# Inner darkness gradient
+circle 0.50,0.22 0.10 fill #000000 0.6
+# Faint rim highlight catching light
+arc 0.50,0.22 0.13 200 340 stroke #3a3a3a 0.5 width 1
+
+# === Slime/moss on the lip ===
+# Splotches of green slime around the lip
+ellipse 0.30,0.26 0.08,0.04 fill #4a5a2a 0.7
+ellipse 0.30,0.26 0.08,0.04 stroke #2a3a18 0.5
+ellipse 0.68,0.18 0.06,0.03 fill #4a5a2a 0.7
+ellipse 0.42,0.08 0.05,0.025 fill #3a4a20 0.65
+# Drip of slime hanging off the bottom of the lip
+bezier 0.44,0.38 0.42,0.42 0.46,0.48 0.44,0.52 stroke #4a5a2a 0.6 width 3
+
+# === Water trickle flowing south from the pipe mouth ===
+# Main trickle stream
+poly 0.46,0.30 0.54,0.30 0.56,0.60 0.58,0.90 0.42,0.90 0.44,0.60 fill #2a4a4a 0.5
+poly 0.46,0.30 0.54,0.30 0.56,0.60 0.58,0.90 0.42,0.90 0.44,0.60 stroke #1a3030 0.5
+# Trickle highlight
+line 0.50,0.34 0.51,0.88 stroke #5a8080 0.4 width 1
+
+# Small puddle at bottom where water pools
+ellipse 0.50,0.92 0.18,0.06 fill #2a4a4a 0.6
+ellipse 0.50,0.92 0.18,0.06 stroke #1a3030 0.4
+# Puddle shimmer
+ellipse 0.44,0.90 0.04,0.015 fill #6a9090 0.4

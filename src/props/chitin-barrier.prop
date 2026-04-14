@@ -1,0 +1,108 @@
+name: Chitin Barrier
+category: Structure
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: wall
+room_types: cave-drow-outpost, underdark-outpost, spider-lair
+typical_count: few
+clusters_with: web-strand, fungal-growth, chitin-barrier, spike-strip, bone-pile
+notes: Jagged organic barricade of insect carapace plates, bone shards, and sinew lashings. Built against a wall by drow or underdark dwellers.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.06 1.80,0.38 z 0-1.2
+
+# Back spine — main horizontal support beam (bound bone ribs)
+rect 0.08,0.08 1.84,0.08 fill #3a2a1a 0.9
+rect 0.08,0.08 1.84,0.08 texfill polyhaven/dark_wood 0.4
+rect 0.08,0.08 1.84,0.08 stroke #1a0a00
+
+# Sinew wrap bindings along the back beam (every few units)
+line 0.24,0.06 0.24,0.18 stroke #8a6040 width 2
+line 0.60,0.06 0.60,0.18 stroke #8a6040 width 2
+line 1.00,0.06 1.00,0.18 stroke #8a6040 width 2
+line 1.40,0.06 1.40,0.18 stroke #8a6040 width 2
+line 1.76,0.06 1.76,0.18 stroke #8a6040 width 2
+
+# Dark chitin plates — jagged irregular polygons along the barrier
+# Plate 1 (far west)
+poly 0.10,0.16 0.30,0.12 0.34,0.30 0.26,0.40 0.12,0.34 fill #2a1828 0.95
+poly 0.10,0.16 0.30,0.12 0.34,0.30 0.26,0.40 0.12,0.34 texfill polyhaven/brown_leather 0.25
+poly 0.10,0.16 0.30,0.12 0.34,0.30 0.26,0.40 0.12,0.34 stroke #1a0814
+# Purple highlight on plate 1
+line 0.14,0.20 0.28,0.16 stroke #5a2a5a 0.7 width 1
+
+# Plate 2
+poly 0.32,0.16 0.54,0.14 0.60,0.34 0.50,0.42 0.34,0.36 fill #3a1a3a 0.95
+poly 0.32,0.16 0.54,0.14 0.60,0.34 0.50,0.42 0.34,0.36 texfill polyhaven/brown_leather 0.25
+poly 0.32,0.16 0.54,0.14 0.60,0.34 0.50,0.42 0.34,0.36 stroke #1a0814
+line 0.38,0.20 0.54,0.18 stroke #5a2a5a 0.7 width 1
+
+# Plate 3 (center)
+poly 0.62,0.14 0.88,0.12 0.96,0.32 0.82,0.44 0.64,0.38 fill #2a1828 0.95
+poly 0.62,0.14 0.88,0.12 0.96,0.32 0.82,0.44 0.64,0.38 texfill polyhaven/brown_leather 0.25
+poly 0.62,0.14 0.88,0.12 0.96,0.32 0.82,0.44 0.64,0.38 stroke #1a0814
+line 0.68,0.18 0.88,0.16 stroke #5a2a5a 0.7 width 1
+
+# Plate 4
+poly 0.98,0.16 1.22,0.14 1.30,0.34 1.18,0.44 1.00,0.38 fill #3a1a3a 0.95
+poly 0.98,0.16 1.22,0.14 1.30,0.34 1.18,0.44 1.00,0.38 texfill polyhaven/brown_leather 0.25
+poly 0.98,0.16 1.22,0.14 1.30,0.34 1.18,0.44 1.00,0.38 stroke #1a0814
+line 1.04,0.20 1.22,0.18 stroke #5a2a5a 0.7 width 1
+
+# Plate 5 (far east)
+poly 1.32,0.14 1.56,0.12 1.64,0.30 1.58,0.42 1.40,0.40 fill #2a1828 0.95
+poly 1.32,0.14 1.56,0.12 1.64,0.30 1.58,0.42 1.40,0.40 texfill polyhaven/brown_leather 0.25
+poly 1.32,0.14 1.56,0.12 1.64,0.30 1.58,0.42 1.40,0.40 stroke #1a0814
+line 1.38,0.18 1.54,0.16 stroke #5a2a5a 0.7 width 1
+
+# Plate 6 (east-most)
+poly 1.66,0.16 1.88,0.16 1.92,0.30 1.84,0.40 1.66,0.36 fill #3a1a3a 0.95
+poly 1.66,0.16 1.88,0.16 1.92,0.30 1.84,0.40 1.66,0.36 texfill polyhaven/brown_leather 0.25
+poly 1.66,0.16 1.88,0.16 1.92,0.30 1.84,0.40 1.66,0.36 stroke #1a0814
+
+# Bone-white spines jutting forward (south) between plates — pointing into room
+poly 0.22,0.40 0.18,0.56 0.26,0.56 fill #d4c4a8 0.95
+poly 0.22,0.40 0.18,0.56 0.26,0.56 stroke #8a7a58
+
+poly 0.46,0.38 0.42,0.60 0.52,0.58 fill #e8dcc8 0.95
+poly 0.46,0.38 0.42,0.60 0.52,0.58 stroke #8a7a58
+
+poly 0.74,0.42 0.70,0.58 0.80,0.58 fill #d4c4a8 0.95
+poly 0.74,0.42 0.70,0.58 0.80,0.58 stroke #8a7a58
+
+poly 1.08,0.40 1.04,0.62 1.16,0.60 fill #e8dcc8 0.95
+poly 1.08,0.40 1.04,0.62 1.16,0.60 stroke #8a7a58
+
+poly 1.38,0.42 1.34,0.58 1.44,0.58 fill #d4c4a8 0.95
+poly 1.38,0.42 1.34,0.58 1.44,0.58 stroke #8a7a58
+
+poly 1.68,0.40 1.64,0.56 1.74,0.56 fill #e8dcc8 0.95
+poly 1.68,0.40 1.64,0.56 1.74,0.56 stroke #8a7a58
+
+# Tall central spike — tallest threat spine (like a mantid claw)
+poly 0.94,0.30 0.90,0.64 0.98,0.64 fill #e8dcc8 0.95
+poly 0.94,0.30 0.90,0.64 0.98,0.64 stroke #6a5a38
+line 0.94,0.40 0.94,0.60 stroke #8a7a58 0.7 width 1
+
+# Sinew lashings tying spikes to plates (diagonal strands)
+line 0.22,0.40 0.30,0.34 stroke #8a6040 0.8 width 1
+line 0.46,0.38 0.50,0.32 stroke #8a6040 0.8 width 1
+line 0.74,0.42 0.80,0.36 stroke #8a6040 0.8 width 1
+line 0.94,0.34 0.88,0.28 stroke #8a6040 0.8 width 1
+line 1.08,0.40 1.14,0.34 stroke #8a6040 0.8 width 1
+line 1.38,0.42 1.44,0.36 stroke #8a6040 0.8 width 1
+line 1.68,0.40 1.74,0.34 stroke #8a6040 0.8 width 1
+
+# Chitin highlights — glossy purple sheen dots
+circle 0.22,0.22 0.018 fill #7a3a7a 0.7
+circle 0.78,0.20 0.018 fill #7a3a7a 0.7
+circle 1.14,0.22 0.018 fill #7a3a7a 0.7
+circle 1.50,0.22 0.018 fill #7a3a7a 0.7
+
+# Small bone shard debris at the base
+ellipse 0.40,0.66 0.04,0.02 fill #d4c4a8 0.85
+ellipse 1.20,0.66 0.05,0.02 fill #d4c4a8 0.85
+ellipse 1.56,0.64 0.04,0.02 fill #e8dcc8 0.85
