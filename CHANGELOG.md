@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.10.1
+
+### Fixed
+
+- **Desktop app now launches** — v0.10.0 crashed on startup with `spawn node ENOENT` on machines without Node.js installed. The bundled server is now compiled ahead of time and run via Electron itself, so no external Node runtime is required.
+- **Build configuration** — corrected an invalid `win.publisherName` placement in `package.json` that was rejected by the electron-builder schema.
+
 ## v0.10.0
 
 ### Incremental Undo/Redo

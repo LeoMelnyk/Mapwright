@@ -1,6 +1,6 @@
 {
   "name": "mapwright",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Dungeon map editor for D&D 5e",
   "author": "Mapwright",
   "type": "module",
@@ -11,6 +11,8 @@
     "dev:api": "tsx watch server.js",
     "dev:vite": "vite --config vite.config.ts",
     "build": "vite build --config vite.config.ts",
+    "build:server": "node tools/bundle-server.cjs",
+    "build:electron": "npm run build && npm run build:server",
     "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
     "electron": "node run-electron.cjs",
     "electron:build": "node --preserve-symlinks ./node_modules/electron-builder/out/cli/cli.js --win portable --publish never",
@@ -87,12 +89,13 @@
     ],
     "files": [
       "electron-main.cjs",
-      "server.js",
+      "dist-electron/**/*",
       "src/**/*",
       "examples/**/*",
       "node_modules/**/*",
       "!node_modules/puppeteer/**",
       "!node_modules/puppeteer-core/**",
+      "!node_modules/tsx/**",
       "!node_modules/.cache/**"
     ],
     "asar": true,
@@ -112,8 +115,8 @@
     "win": {
       "target": "portable",
       "icon": "src/icon.ico",
-      "publisherName": "Leo Melnyk",
       "azureSignOptions": {
+        "publisherName": "Leo Melnyk",
         "endpoint": "https://eus.codesigning.azure.net/",
         "codeSigningAccountName": "mapwright",
         "certificateProfileName": "mapwright-cert"

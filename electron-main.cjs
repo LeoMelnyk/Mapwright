@@ -15,12 +15,12 @@ const fs = require('fs');
 // Force GPU compositing. Without these, Electron on Windows can silently fall
 // back to software compositing (visible as "FPS N/A / LAT N/A" in the HUD),
 // causing severe canvas perf degradation even when the GPU appears active.
-app.commandLine.appendSwitch('disk-cache-size', '0');           // disable disk cache (served locally, no benefit)
-app.commandLine.appendSwitch('ignore-gpu-blocklist');           // bypass driver blocklist
-app.commandLine.appendSwitch('disable-software-rasterizer');   // no CPU fallback
+app.commandLine.appendSwitch('disk-cache-size', '0'); // disable disk cache (served locally, no benefit)
+app.commandLine.appendSwitch('ignore-gpu-blocklist'); // bypass driver blocklist
+app.commandLine.appendSwitch('disable-software-rasterizer'); // no CPU fallback
 app.commandLine.appendSwitch('enable-accelerated-2d-canvas', 'true');
 app.commandLine.appendSwitch('enable-gpu-rasterization', 'true');
-app.commandLine.appendSwitch('use-angle', 'gl');               // OpenGL directly, skips ANGLE's DirectX layer
+app.commandLine.appendSwitch('use-angle', 'gl'); // OpenGL directly, skips ANGLE's DirectX layer
 
 app.setAppUserModelId('com.mapwright.editor');
 Menu.setApplicationMenu(null);
@@ -31,11 +31,12 @@ let mainWindow = null;
 // ── File association: open .mapwright files ──────────────────────────────────
 
 function getFileFromArgs(argv) {
-  return argv.find(arg =>
-    !arg.startsWith('-') &&
-    (arg.endsWith('.mapwright') || arg.endsWith('.json')) &&
-    arg !== process.execPath &&
-    !arg.includes('electron')
+  return argv.find(
+    (arg) =>
+      !arg.startsWith('-') &&
+      (arg.endsWith('.mapwright') || arg.endsWith('.json')) &&
+      arg !== process.execPath &&
+      !arg.includes('electron'),
   );
 }
 
@@ -72,15 +73,21 @@ if (!gotTheLock) {
 }
 
 async function startServer() {
-  // server.js imports from .ts files — spawn it as a child process with tsx
-  // rather than importing directly (Electron's Node doesn't support tsx register)
-  const { spawn } = require('child_process');
-  const serverPath = path.join(__dirname, 'server.js');
-  const child = spawn('node', ['--import', 'tsx', serverPath, String(PORT)], {
-    cwd: __dirname,
-    stdio: 'inherit',
+  // server.js + its .ts imports are bundled to dist-electron/server.mjs by
+  // tools/bundle-server.cjs at build time. We fork the bundle using Electron
+  // itself as the node runtime (ELECTRON_RUN_AS_NODE) — avoids requiring `node`
+  // on the user's PATH in packaged builds.
+  const { fork } = require('child_process');
+  const serverPath = path.join(__dirname, 'dist-electron', 'server.mjs');
+  // `cwd` must be a real filesystem path, not the in-asar `__dirname` — otherwise
+  // Windows spawn fails with ENOENT before the child even loads.
+  const child = fork(serverPath, [String(PORT)], {
+    cwd: path.dirname(process.execPath),
+    stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
+    execPath: process.execPath,
     env: {
       ...process.env,
+      ELECTRON_RUN_AS_NODE: '1',
       MAPWRIGHT_TEXTURE_PATH: process.env.MAPWRIGHT_TEXTURE_PATH || path.join(app.getPath('userData'), 'textures'),
       MAPWRIGHT_THEME_PATH: process.env.MAPWRIGHT_THEME_PATH || path.join(app.getPath('userData'), 'themes'),
     },
@@ -179,7 +186,7 @@ function createWindow() {
 function hasTextures(userDataPath) {
   const dir = path.join(userDataPath, 'textures', 'polyhaven');
   try {
-    return fs.existsSync(dir) && fs.readdirSync(dir).some(f => f.endsWith('.texture'));
+    return fs.existsSync(dir) && fs.readdirSync(dir).some((f) => f.endsWith('.texture'));
   } catch {
     return false;
   }
@@ -228,28 +235,32 @@ app.whenReady().then(async () => {
 
       autoUpdater.on('update-available', (info) => {
         if (!mainWindow) return;
-        dialog.showMessageBox(mainWindow, {
-          type: 'info',
-          title: 'Update Available',
-          message: `Mapwright v${info.version} is available. Would you like to download and install it?`,
-          buttons: ['Download', 'Later'],
-          defaultId: 0,
-        }).then(({ response }) => {
-          if (response === 0) autoUpdater.downloadUpdate();
-        });
+        dialog
+          .showMessageBox(mainWindow, {
+            type: 'info',
+            title: 'Update Available',
+            message: `Mapwright v${info.version} is available. Would you like to download and install it?`,
+            buttons: ['Download', 'Later'],
+            defaultId: 0,
+          })
+          .then(({ response }) => {
+            if (response === 0) autoUpdater.downloadUpdate();
+          });
       });
 
       autoUpdater.on('update-downloaded', () => {
         if (!mainWindow) return;
-        dialog.showMessageBox(mainWindow, {
-          type: 'info',
-          title: 'Update Ready',
-          message: 'The update has been downloaded. Restart now to install?',
-          buttons: ['Restart', 'Later'],
-          defaultId: 0,
-        }).then(({ response }) => {
-          if (response === 0) autoUpdater.quitAndInstall();
-        });
+        dialog
+          .showMessageBox(mainWindow, {
+            type: 'info',
+            title: 'Update Ready',
+            message: 'The update has been downloaded. Restart now to install?',
+            buttons: ['Restart', 'Later'],
+            defaultId: 0,
+          })
+          .then(({ response }) => {
+            if (response === 0) autoUpdater.quitAndInstall();
+          });
       });
 
       autoUpdater.on('error', (err) => {
@@ -285,7 +296,9 @@ app.on('before-quit', () => {
       const { execFileSync } = require('child_process');
       try {
         execFileSync('taskkill', ['/PID', String(app._serverChild.pid), '/T', '/F'], { stdio: 'ignore' });
-      } catch { /* best effort */ }
+      } catch {
+        /* best effort */
+      }
     } else {
       app._serverChild.kill();
     }

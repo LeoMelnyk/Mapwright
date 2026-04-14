@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-electron/
 
 # Texture maps — see README for download instructions
 src/textures/**/*.png
