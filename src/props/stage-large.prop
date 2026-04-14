@@ -1,0 +1,77 @@
+name: Large Stage
+category: Structure
+footprint: 3x3
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: wall
+room_types: bardic-hall, music-hall, theater, bards-college, tavern-stage, great-hall
+typical_count: single
+clusters_with: harp, lute-stand, drum-stand, music-stand, stage-curtain
+notes: Large raised wooden performance platform with stepped riser along the south (front) edge. Plank seams visible across the top.
+---
+# footprint 3x3: x 0-3, y 0-3
+
+# === HITBOX ===
+hitbox rect 0.10,0.10 2.80,2.56 z 0-0.5
+
+# === Main stage platform (wide plank-top deck) ===
+rect 0.10,0.10 2.80,2.56 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.10 2.80,2.56 fill #4a2e18 0.15
+rect 0.10,0.10 2.80,2.56 stroke #3a1f00 width 2
+
+# Dark trim band along the north (back) edge (backdrop rail base)
+rect 0.10,0.10 2.80,0.14 fill #2a1400 0.6
+rect 0.10,0.10 2.80,0.14 stroke #1a0804 width 1
+# Gilt stripe along backdrop base
+line 0.10,0.24 2.90,0.24 stroke #daa520 0.7 width 1
+
+# Plank seams running east-west across the stage
+line 0.10,0.46 2.90,0.46 stroke #2a1400 0.75 width 1
+line 0.10,0.72 2.90,0.72 stroke #2a1400 0.7 width 1
+line 0.10,0.98 2.90,0.98 stroke #2a1400 0.75 width 1
+line 0.10,1.24 2.90,1.24 stroke #2a1400 0.7 width 1
+line 0.10,1.50 2.90,1.50 stroke #2a1400 0.75 width 1
+line 0.10,1.76 2.90,1.76 stroke #2a1400 0.7 width 1
+line 0.10,2.02 2.90,2.02 stroke #2a1400 0.75 width 1
+line 0.10,2.28 2.90,2.28 stroke #2a1400 0.7 width 1
+
+# Plank seam nails/ends (small dark circles at plank joints)
+circle 0.30,0.46 0.015 fill #1a0804 0.75
+circle 1.50,0.72 0.015 fill #1a0804 0.75
+circle 2.60,0.98 0.015 fill #1a0804 0.75
+circle 0.80,1.24 0.015 fill #1a0804 0.75
+circle 2.20,1.50 0.015 fill #1a0804 0.75
+circle 0.40,1.76 0.015 fill #1a0804 0.75
+circle 1.80,2.02 0.015 fill #1a0804 0.75
+circle 2.70,2.28 0.015 fill #1a0804 0.75
+
+# === Riser step on south (front) edge — stepped down to floor ===
+# Step 1 (upper step)
+rect 0.20,2.66 2.60,0.12 texfill polyhaven/weathered_planks 0.82
+rect 0.20,2.66 2.60,0.12 stroke #3a1f00 width 1
+# Step 2 (lower step)
+rect 0.30,2.78 2.40,0.12 texfill polyhaven/weathered_planks 0.78
+rect 0.30,2.78 2.40,0.12 stroke #3a1f00 width 1
+
+# Step edge shadows
+line 0.20,2.66 2.80,2.66 stroke #1a0804 width 1
+line 0.30,2.78 2.70,2.78 stroke #1a0804 width 1
+
+# Stage edge highlight (north edge of each step catches light)
+line 0.20,2.67 2.80,2.67 stroke #8a7060 0.5 width 1
+line 0.30,2.79 2.70,2.79 stroke #8a7060 0.5 width 1
+
+# Corner post caps on the stage corners (small dark squares)
+rect 0.10,0.10 0.14,0.14 fill #2a1400 0.85
+rect 0.10,0.10 0.14,0.14 stroke #1a0804
+rect 2.76,0.10 0.14,0.14 fill #2a1400 0.85
+rect 2.76,0.10 0.14,0.14 stroke #1a0804
+rect 0.10,2.52 0.14,0.14 fill #2a1400 0.8
+rect 0.10,2.52 0.14,0.14 stroke #1a0804
+rect 2.76,2.52 0.14,0.14 fill #2a1400 0.8
+rect 2.76,2.52 0.14,0.14 stroke #1a0804
+
+# Subtle stage spotlight wear (central bright patch)
+ellipse 1.50,1.30 0.80,0.60 fill #8a7060 0.12

@@ -1,0 +1,78 @@
+name: Water Node Core
+category: Terrain
+footprint: 3x3
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: center
+room_types: elemental-water-node, aquatic-shrine
+typical_count: single
+clusters_with: bubble-pillar, bubble-drift, pearl-obelisk, marid-pavilion
+notes: Primal elemental water whirlpool; place as single dramatic centerpiece. Powerful glow.
+lights:
+  - type: torch
+    x: 1.5
+    y: 1.5
+    radius: 15
+    color: "#60a0ff"
+    intensity: 1.0
+---
+# Footprint 3x3: x 0-3, y 0-3.
+# Outer glow halo — radial gradient
+circle 1.50,1.50 1.45 gradient-radial #60a0ff #0a1a40 0.45
+# Secondary halo
+circle 1.50,1.50 1.15 fill #80c0ff 0.18
+circle 1.50,1.50 0.92 fill #a0d0ff 0.22
+# Outer churning water ring (ring with spray texture)
+ring 1.50,1.50 1.30 1.00 fill #2060a0 0.65
+ring 1.50,1.50 1.30 1.00 stroke #80c8f0 width 1
+# Spiral arms — spray bands rotating inward
+bezier 0.30,1.50 0.60,0.40 1.50,0.30 1.90,0.70 stroke #c0f0ff width 3
+bezier 2.70,1.50 2.40,2.60 1.50,2.70 1.10,2.30 stroke #c0f0ff width 3
+bezier 1.50,0.30 2.50,0.60 2.70,1.50 2.40,1.95 stroke #a0e0ff width 2
+bezier 1.50,2.70 0.50,2.40 0.30,1.50 0.60,1.05 stroke #a0e0ff width 2
+# Inner swirling band
+ring 1.50,1.50 0.95 0.65 fill #4080c0 0.75
+ring 1.50,1.50 0.95 0.65 stroke #a0d8f0
+# Mid swirl bezier streaks
+bezier 0.70,1.50 0.80,1.00 1.40,0.70 1.90,1.00 stroke #ffffff 0.7 width 2
+bezier 2.30,1.50 2.20,2.00 1.60,2.30 1.10,2.00 stroke #ffffff 0.7 width 2
+# Inner whirlpool funnel — gradient
+circle 1.50,1.50 0.60 gradient-radial #e0f8ff #104080 0.85
+circle 1.50,1.50 0.60 stroke #80c8f0 width 2
+# Deep center vortex
+circle 1.50,1.50 0.40 fill #6090d0 0.85
+circle 1.50,1.50 0.40 stroke #c0e8ff
+# Hottest / brightest center
+circle 1.50,1.50 0.24 fill #e0f8ff 0.92
+circle 1.50,1.50 0.24 stroke #ffffff
+circle 1.50,1.50 0.14 fill #ffffff 0.95
+circle 1.50,1.50 0.07 fill #ffffff 1.0
+# Crystalline spray shards jutting outward
+poly 1.50,0.20 1.54,0.45 1.46,0.45 fill #e0f8ff 0.85
+poly 1.50,0.20 1.54,0.45 1.46,0.45 stroke #80c8f0
+poly 1.50,2.80 1.54,2.55 1.46,2.55 fill #e0f8ff 0.85
+poly 1.50,2.80 1.54,2.55 1.46,2.55 stroke #80c8f0
+poly 0.20,1.50 0.45,1.54 0.45,1.46 fill #e0f8ff 0.85
+poly 0.20,1.50 0.45,1.54 0.45,1.46 stroke #80c8f0
+poly 2.80,1.50 2.55,1.54 2.55,1.46 fill #e0f8ff 0.85
+poly 2.80,1.50 2.55,1.54 2.55,1.46 stroke #80c8f0
+# Diagonal crystal shards (smaller)
+poly 0.45,0.45 0.70,0.60 0.60,0.70 fill #c0e8ff 0.8
+poly 0.45,0.45 0.70,0.60 0.60,0.70 stroke #80c8f0
+poly 2.55,0.45 2.30,0.60 2.40,0.70 fill #c0e8ff 0.8
+poly 2.55,0.45 2.30,0.60 2.40,0.70 stroke #80c8f0
+poly 0.45,2.55 0.70,2.40 0.60,2.30 fill #c0e8ff 0.8
+poly 0.45,2.55 0.70,2.40 0.60,2.30 stroke #80c8f0
+poly 2.55,2.55 2.30,2.40 2.40,2.30 fill #c0e8ff 0.8
+poly 2.55,2.55 2.30,2.40 2.40,2.30 stroke #80c8f0
+# Droplet spray around the vortex
+circle 0.60,0.90 0.05 fill #c0f0ff 0.75
+circle 2.40,0.90 0.05 fill #c0f0ff 0.75
+circle 0.60,2.10 0.05 fill #c0f0ff 0.75
+circle 2.40,2.10 0.05 fill #c0f0ff 0.75
+circle 0.90,0.40 0.04 fill #e0f8ff 0.8
+circle 2.10,0.40 0.04 fill #e0f8ff 0.8
+circle 0.90,2.60 0.04 fill #e0f8ff 0.8
+circle 2.10,2.60 0.04 fill #e0f8ff 0.8

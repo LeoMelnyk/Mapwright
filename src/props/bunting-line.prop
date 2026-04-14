@@ -1,0 +1,86 @@
+name: Bunting Line
+category: Decorative
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 2.5
+placement: center
+room_types: fairground-seasonal, festival-grounds, village-green, tavern
+typical_count: few
+clusters_with: maypole, stage-performance, game-booth, bonfire-large, lantern-paper
+notes: Strung triangular bunting flags in red/yellow/blue hanging from a draped rope — stretched between posts or buildings
+---
+# footprint 1x3: x range 0-3, y range 0-1
+# Top-down: rope runs east-west, flags drape south from it with slight sag
+
+# === Rope (drapes slightly in middle — curved) ===
+bezier 0.10,0.28 0.80,0.42 2.20,0.42 2.90,0.28 stroke #8b7355 width 3
+
+# === Triangular flags hanging from rope (top-down = visible tops of triangles) ===
+# Flag 1 (red, west end)
+poly 0.16,0.30 0.30,0.30 0.23,0.56 fill #c82020 0.95
+poly 0.16,0.30 0.30,0.30 0.23,0.56 stroke #5a1010
+
+# Flag 2 (yellow)
+poly 0.34,0.32 0.48,0.32 0.41,0.60 fill #ffcc20 0.95
+poly 0.34,0.32 0.48,0.32 0.41,0.60 stroke #8b6914
+
+# Flag 3 (blue)
+poly 0.52,0.34 0.66,0.34 0.59,0.62 fill #3080c0 0.95
+poly 0.52,0.34 0.66,0.34 0.59,0.62 stroke #1a4080
+
+# Flag 4 (red)
+poly 0.70,0.36 0.84,0.36 0.77,0.64 fill #c82020 0.95
+poly 0.70,0.36 0.84,0.36 0.77,0.64 stroke #5a1010
+
+# Flag 5 (green)
+poly 0.88,0.38 1.02,0.38 0.95,0.66 fill #40a040 0.95
+poly 0.88,0.38 1.02,0.38 0.95,0.66 stroke #1a4a1a
+
+# Flag 6 (yellow)
+poly 1.06,0.40 1.20,0.40 1.13,0.68 fill #ffcc20 0.95
+poly 1.06,0.40 1.20,0.40 1.13,0.68 stroke #8b6914
+
+# Flag 7 (red, center - lowest because rope sags)
+poly 1.24,0.42 1.38,0.42 1.31,0.70 fill #c82020 0.95
+poly 1.24,0.42 1.38,0.42 1.31,0.70 stroke #5a1010
+
+# Flag 8 (blue, center)
+poly 1.42,0.42 1.56,0.42 1.49,0.70 fill #3080c0 0.95
+poly 1.42,0.42 1.56,0.42 1.49,0.70 stroke #1a4080
+
+# Flag 9 (yellow)
+poly 1.60,0.42 1.74,0.42 1.67,0.70 fill #ffcc20 0.95
+poly 1.60,0.42 1.74,0.42 1.67,0.70 stroke #8b6914
+
+# Flag 10 (green)
+poly 1.78,0.40 1.92,0.40 1.85,0.68 fill #40a040 0.95
+poly 1.78,0.40 1.92,0.40 1.85,0.68 stroke #1a4a1a
+
+# Flag 11 (red)
+poly 1.96,0.38 2.10,0.38 2.03,0.66 fill #c82020 0.95
+poly 1.96,0.38 2.10,0.38 2.03,0.66 stroke #5a1010
+
+# Flag 12 (blue)
+poly 2.14,0.36 2.28,0.36 2.21,0.64 fill #3080c0 0.95
+poly 2.14,0.36 2.14,0.36 2.21,0.64 fill #3080c0 0.95
+poly 2.14,0.36 2.28,0.36 2.21,0.64 stroke #1a4080
+
+# Flag 13 (yellow)
+poly 2.32,0.34 2.46,0.34 2.39,0.62 fill #ffcc20 0.95
+poly 2.32,0.34 2.46,0.34 2.39,0.62 stroke #8b6914
+
+# Flag 14 (red)
+poly 2.50,0.32 2.64,0.32 2.57,0.60 fill #c82020 0.95
+poly 2.50,0.32 2.64,0.32 2.57,0.60 stroke #5a1010
+
+# Flag 15 (green, east end)
+poly 2.68,0.30 2.82,0.30 2.75,0.58 fill #40a040 0.95
+poly 2.68,0.30 2.82,0.30 2.75,0.58 stroke #1a4a1a
+
+# === Rope anchors (small tie knots on ends) ===
+circle 0.10,0.28 0.035 fill #5c3a1e 0.9
+circle 0.10,0.28 0.035 stroke #2a1408
+circle 2.90,0.28 0.035 fill #5c3a1e 0.9
+circle 2.90,0.28 0.035 stroke #2a1408

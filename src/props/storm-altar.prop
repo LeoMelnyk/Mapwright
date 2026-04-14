@@ -1,0 +1,68 @@
+name: Storm Altar
+category: Magical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: center
+room_types: elemental-air-node, storm-spire, elemental-node
+typical_count: single
+clusters_with: lightning-arc-small, air-node-vortex, cloud-pillar
+notes: Stone altar carved with storm runes with a small vortex of crackling wind above. Hitbox covers the altar slab.
+lights:
+  - type: candle
+    x: 1.0
+    y: 1.0
+    radius: 8
+    color: "#b0c0ff"
+    intensity: 0.7
+---
+# Hitbox: altar slab blocks light
+hitbox rect 0.25,0.25 1.5,1.5 z 0-1.2
+
+# Altar slab — main stone block
+rect 0.25,0.25 1.5,1.5 texfill polyhaven/stone_wall 0.85
+rect 0.25,0.25 1.5,1.5 stroke #444444 width 2
+
+# Beveled edge highlight (NW)
+line 0.25,0.25 1.75,0.25 stroke #888888 width 1
+line 0.25,0.25 0.25,1.75 stroke #888888 width 1
+
+# Inset top panel (slight recess)
+rect 0.4,0.4 1.2,1.2 texfill polyhaven/granite_tile 0.75
+rect 0.4,0.4 1.2,1.2 stroke #333333 width 1
+
+# Storm runes carved into top (four cardinal, lightning motifs)
+# North rune (jagged V)
+line 0.9,0.5 0.95,0.6 stroke #1a1a40 width 2
+line 0.95,0.6 1.0,0.52 stroke #1a1a40 width 2
+line 1.0,0.52 1.05,0.6 stroke #1a1a40 width 2
+line 1.05,0.6 1.1,0.5 stroke #1a1a40 width 2
+
+# South rune
+line 0.9,1.5 0.95,1.4 stroke #1a1a40 width 2
+line 0.95,1.4 1.0,1.48 stroke #1a1a40 width 2
+line 1.0,1.48 1.05,1.4 stroke #1a1a40 width 2
+line 1.05,1.4 1.1,1.5 stroke #1a1a40 width 2
+
+# West rune (spiral)
+arc 0.55,1.0 0.08 0 270 stroke #1a1a40 width 2
+# East rune (spiral)
+arc 1.45,1.0 0.08 90 360 stroke #1a1a40 width 2
+
+# Glowing rune accents (lightning filled with blue glow)
+circle 1.0,0.55 0.04 fill #b0c0ff 0.7
+circle 1.0,1.45 0.04 fill #b0c0ff 0.7
+circle 0.55,1.0 0.04 fill #b0c0ff 0.7
+circle 1.45,1.0 0.04 fill #b0c0ff 0.7
+
+# Vortex above altar (small spiral centered)
+circle 1.0,1.0 0.28 gradient-radial #c0d0ff #0a0a28 0.45
+bezier 0.75,0.85 0.95,0.8 1.1,1.0 1.0,1.2 stroke #ffffff width 2
+bezier 1.0,1.2 0.85,1.15 0.82,1.0 0.9,0.9 stroke #e0e8ff width 2
+
+# Tiny lightning flicker in vortex center
+line 0.95,0.92 1.0,1.0 stroke #ffffff width 2
+line 1.0,1.0 0.98,1.08 stroke #ffffff width 2
+circle 1.0,1.0 0.06 fill #ffffff 0.85

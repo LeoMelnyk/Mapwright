@@ -1,0 +1,69 @@
+name: Lava Fountain
+category: Features
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.4
+placement: center
+room_types: elemental-fire-node, volcano-caldera, elemental-node
+typical_count: single
+clusters_with: fire-node-core, molten-pool-small, basalt-pillar
+notes: Stone bowl fountain with liquid lava gushing up. Splash ring of molten drops radiates from the central jet.
+lights:
+  - type: torch
+    x: 1.0
+    y: 1.0
+    radius: 16
+    color: "#ff5020"
+    intensity: 1.0
+---
+# Heat halo
+circle 1.0,1.0 0.95 gradient-radial #ff5020 #0a0400 0.35
+
+# Outer stone bowl rim
+ring 1.0,1.0 0.85 0.7 texfill polyhaven/volcanic_rock_tiles 0.85
+ring 1.0,1.0 0.85 0.7 fill #2a1500 0.4
+ring 1.0,1.0 0.85 0.7 stroke #000000 width 2
+
+# Bowl edge highlight
+circle 1.0,1.0 0.85 stroke #5a3a00 width 1
+
+# Bowl interior filled with lava
+circle 1.0,1.0 0.7 fill #1a0800 0.95
+circle 1.0,1.0 0.68 fill #cc3300 0.7
+circle 1.0,1.0 0.62 fill #e85500 0.8
+circle 1.0,1.0 0.55 fill #ff6030 0.85
+
+# Cooled crust patches floating on the lava
+poly 0.55,0.85 0.7,0.82 0.75,0.95 0.65,1.02 0.55,0.95 fill #2a1500 0.8
+poly 0.55,0.85 0.7,0.82 0.75,0.95 0.65,1.02 0.55,0.95 stroke #000000 width 1
+poly 1.25,1.1 1.38,1.08 1.44,1.2 1.35,1.3 1.25,1.22 fill #2a1500 0.8
+poly 1.25,1.1 1.38,1.08 1.44,1.2 1.35,1.3 1.25,1.22 stroke #000000 width 1
+
+# Central lava jet gushing up (viewed as a bright bulb from above)
+circle 1.0,1.0 0.32 fill #ff8030 0.9
+circle 1.0,1.0 0.25 fill #ffaa30 0.95
+circle 1.0,1.0 0.18 fill #ffcc60 1.0
+circle 1.0,1.0 0.12 fill #ffffff 0.85
+
+# Splash droplets arcing out (molten specks)
+circle 1.0,0.35 0.05 fill #ffaa30 0.95
+circle 1.0,0.35 0.03 fill #ffffff 0.8
+circle 1.0,1.65 0.045 fill #ffaa30 0.9
+circle 1.0,1.65 0.025 fill #ffcc60 0.85
+circle 0.35,1.0 0.045 fill #ffaa30 0.9
+circle 0.35,1.0 0.025 fill #ffcc60 0.85
+circle 1.65,1.0 0.045 fill #ffaa30 0.9
+circle 1.65,1.0 0.025 fill #ffcc60 0.85
+
+# Diagonal splash droplets
+circle 0.5,0.5 0.035 fill #ff8030 0.85
+circle 1.5,0.5 0.035 fill #ff8030 0.85
+circle 0.5,1.5 0.035 fill #ff8030 0.85
+circle 1.5,1.5 0.035 fill #ff8030 0.85
+
+# Rising flecks and sparks
+circle 0.7,0.55 0.022 fill #ffcc60 0.8
+circle 1.3,0.6 0.02 fill #ffaa30 0.75
+circle 0.7,1.42 0.02 fill #ffaa30 0.8

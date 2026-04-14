@@ -1,0 +1,82 @@
+name: Chieftain's Throne
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: center
+room_types: orc-war-camp, orc-stronghold, humanoid-lair, war-camp
+typical_count: single
+clusters_with: bonfire, skull-totem, bone-pile, butchery-pit
+notes: Crude bound-log throne draped with furs, skull armrests. Back of throne at north (low Y); chief faces south.
+---
+# === HITBOX ===
+hitbox rect 0.22,0.20 1.56,1.50 z 0-1.8
+
+# Back panel (tall backrest seen as thick strip along north edge, crown of logs)
+rect 0.22,0.20 1.56,0.44 texfill polyhaven/bark_brown_02 0.88
+rect 0.22,0.20 1.56,0.44 fill #2a1400 0.35
+rect 0.22,0.20 1.56,0.44 stroke #1a0a00
+
+# Vertical log staves in backrest
+line 0.40,0.20 0.40,0.64 stroke #1a0a00 width 2
+line 0.60,0.20 0.60,0.64 stroke #1a0a00 width 2
+line 0.80,0.20 0.80,0.64 stroke #1a0a00 width 2
+line 1.00,0.20 1.00,0.64 stroke #1a0a00 width 2
+line 1.20,0.20 1.20,0.64 stroke #1a0a00 width 2
+line 1.40,0.20 1.40,0.64 stroke #1a0a00 width 2
+line 1.60,0.20 1.60,0.64 stroke #1a0a00 width 2
+
+# Log tops (stakes extending past the backrest)
+circle 0.40,0.18 0.05 fill #2a1400 0.9
+circle 0.40,0.18 0.05 stroke #1a0a00
+circle 0.80,0.16 0.05 fill #2a1400 0.9
+circle 0.80,0.16 0.05 stroke #1a0a00
+circle 1.20,0.18 0.05 fill #2a1400 0.9
+circle 1.20,0.18 0.05 stroke #1a0a00
+circle 1.60,0.16 0.05 fill #2a1400 0.9
+circle 1.60,0.16 0.05 stroke #1a0a00
+
+# Sinew lashing binding backrest logs
+line 0.22,0.34 1.78,0.34 stroke #5c3a1e 0.8 width 2
+line 0.22,0.52 1.78,0.52 stroke #5c3a1e 0.8 width 2
+
+# Fur-draped seat
+rect 0.30,0.66 1.40,1.04 texfill polyhaven/brown_leather 0.8
+rect 0.30,0.66 1.40,1.04 fill #4a3020 0.45
+rect 0.30,0.66 1.40,1.04 stroke #1a0a00
+
+# Fur tufts on seat (irregular patches)
+poly 0.44,0.72 0.54,0.80 0.48,0.88 0.38,0.82 fill #5a3a20 0.8
+poly 0.44,0.72 0.54,0.80 0.48,0.88 0.38,0.82 stroke #1a0a00 0.6
+poly 1.44,0.74 1.56,0.82 1.52,0.94 1.40,0.86 fill #5a3a20 0.8
+poly 1.44,0.74 1.56,0.82 1.52,0.94 1.40,0.86 stroke #1a0a00 0.6
+poly 0.90,1.14 1.00,1.06 1.12,1.14 1.02,1.24 fill #4a3020 0.8
+poly 0.90,1.14 1.00,1.06 1.12,1.14 1.02,1.24 stroke #1a0a00 0.6
+
+# Fur fringe along south (front edge of seat)
+poly 0.34,1.68 0.44,1.78 0.52,1.68 fill #4a3020 0.85
+poly 0.34,1.68 0.44,1.78 0.52,1.68 stroke #1a0a00 0.7
+poly 0.70,1.68 0.82,1.80 0.94,1.68 fill #5a3a20 0.85
+poly 0.70,1.68 0.82,1.80 0.94,1.68 stroke #1a0a00 0.7
+poly 1.10,1.68 1.22,1.80 1.34,1.68 fill #4a3020 0.85
+poly 1.10,1.68 1.22,1.80 1.34,1.68 stroke #1a0a00 0.7
+poly 1.48,1.68 1.58,1.78 1.66,1.68 fill #5a3a20 0.85
+poly 1.48,1.68 1.58,1.78 1.66,1.68 stroke #1a0a00 0.7
+
+# Skull armrests (west and east sides, front)
+ellipse 0.30,1.30 0.18,0.22 fill #e8dcc8 0.95
+ellipse 0.30,1.30 0.18,0.22 stroke #6a5040
+circle 0.26,1.26 0.03 fill #1a0a00 0.95
+circle 0.34,1.26 0.03 fill #1a0a00 0.95
+poly 0.26,1.40 0.34,1.40 0.30,1.50 fill #1a0a00 0.85
+
+ellipse 1.70,1.30 0.18,0.22 fill #e8dcc8 0.95
+ellipse 1.70,1.30 0.18,0.22 stroke #6a5040
+circle 1.66,1.26 0.03 fill #1a0a00 0.95
+circle 1.74,1.26 0.03 fill #1a0a00 0.95
+poly 1.66,1.40 1.74,1.40 1.70,1.50 fill #1a0a00 0.85
+
+# War paint red daub on backrest center
+ellipse 1.00,0.42 0.12,0.06 fill #a02020 0.75

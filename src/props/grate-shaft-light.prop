@@ -1,0 +1,41 @@
+name: Light Shaft Grate
+category: Structure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":10,"color":"#fff8d0","intensity":0.8}]
+placement: center
+room_types: sewer-junction, sewer, undercity
+typical_count: single
+clusters_with: grate-floor, scummy-water-pool
+notes: Overhead grate in street above; bright pale beam of daylight pierces down in a grid pattern. Place in sewer room centers to suggest street level above.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Outer bright halo of daylight on the floor
+circle 0.5,0.5 0.48 gradient-radial #fff8d0 #000000 0.45
+# Inner hot beam
+circle 0.5,0.5 0.30 fill #fff8d0 0.55
+circle 0.5,0.5 0.18 fill #ffffff 0.65
+
+# Iron frame of the overhead grate (cast shadow pattern)
+rect 0.10,0.10 0.80,0.80 stroke #2a2a2a width 2
+
+# Vertical shadow bars cast by grate bars
+rect 0.24,0.10 0.04,0.80 fill #2a2a2a 0.55
+rect 0.38,0.10 0.04,0.80 fill #2a2a2a 0.55
+rect 0.52,0.10 0.04,0.80 fill #2a2a2a 0.55
+rect 0.66,0.10 0.04,0.80 fill #2a2a2a 0.55
+
+# Horizontal shadow bars
+rect 0.10,0.30 0.80,0.04 fill #2a2a2a 0.45
+rect 0.10,0.56 0.80,0.04 fill #2a2a2a 0.45
+
+# Bright slivers in the gaps between bars (where light actually lands)
+rect 0.28,0.34 0.10,0.22 fill #fff8d0 0.6
+rect 0.42,0.34 0.10,0.22 fill #fff8d0 0.6
+rect 0.56,0.34 0.10,0.22 fill #fff8d0 0.6
+rect 0.28,0.60 0.10,0.26 fill #fff8d0 0.55
+rect 0.42,0.60 0.10,0.26 fill #fff8d0 0.55
+rect 0.56,0.60 0.10,0.26 fill #fff8d0 0.55

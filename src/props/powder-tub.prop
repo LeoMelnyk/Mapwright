@@ -1,0 +1,38 @@
+name: Powder Tub
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+placement: floor
+room_types: ship-gun-deck, warship, gunnery, frigate-deck, powder-magazine
+typical_count: few
+clusters_with: cannon, shot-garland, match-tub
+notes: Short wooden tub marked with red paint warnings. Lid loose, revealing black gunpowder inside. Keep clear of flame sources.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Outer tub — wooden staves, slightly wider at base
+circle 0.50,0.50 0.40 texfill polyhaven/dark_wood 0.88
+circle 0.50,0.50 0.40 stroke #2a1400
+# Iron hoop
+circle 0.50,0.50 0.39 stroke #444444 width 2
+circle 0.50,0.50 0.32 stroke #444444 width 1
+# Red danger paint stripe around tub
+arc 0.50,0.50 0.40 340 380 stroke #a02020 width 3
+arc 0.50,0.50 0.40 160 200 stroke #a02020 width 3
+# Red warning cross on the side visible from above (painted on lid rim)
+line 0.38,0.20 0.46,0.28 stroke #a02020 width 2
+line 0.46,0.20 0.38,0.28 stroke #a02020 width 2
+# Loose lid — offset slightly to reveal powder inside
+ellipse 0.54,0.48 0.30,0.26 texfill polyhaven/worn_planks 0.85
+ellipse 0.54,0.48 0.30,0.26 stroke #2a1400
+# Lid handle peg
+circle 0.54,0.48 0.04 fill #3a1f00 0.8
+circle 0.54,0.48 0.04 stroke #1a1208
+# Exposed black powder — crescent of darkness where the lid has slid off
+poly 0.22,0.42 0.30,0.30 0.42,0.28 0.40,0.40 0.28,0.50 fill #0a0a0a 0.95
+poly 0.22,0.42 0.30,0.30 0.42,0.28 0.40,0.40 0.28,0.50 stroke #1a1208
+# Grains of powder dusting the deck
+circle 0.24,0.56 0.012 fill #0a0a0a 0.9
+circle 0.20,0.48 0.010 fill #0a0a0a 0.9
+circle 0.28,0.62 0.010 fill #0a0a0a 0.85

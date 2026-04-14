@@ -1,0 +1,108 @@
+name: Grand Staircase
+category: Structure
+footprint: 3x3
+facing: yes
+shadow: yes
+blocks_light: no
+height: 4
+placement: wall
+room_types: mansion-grand-hall, manor-foyer, noble-villa, reception-hall, estate, great-hall
+typical_count: single
+clusters_with: banner-heraldic, tapestry-large, statue-noble, coat-rack-ornate
+notes: Base landing of a grand staircase ascending north. Marble steps with ornate balustrades on each side and a central carpet runner.
+---
+# footprint 3x3: x range 0-3, y range 0-3
+
+# === HITBOX ===
+hitbox rect 0.40,0.10 2.20,2.80 z 0-2
+
+# Base landing platform (full footprint marble)
+rect 0.10,0.10 2.80,2.80 texfill polyhaven/marble_01 0.88
+rect 0.10,0.10 2.80,2.80 stroke #777777 width 2
+
+# Left balustrade solid rail (west side, continuous strip)
+rect 0.10,0.10 0.30,2.70 texfill polyhaven/marble_01 0.92
+rect 0.10,0.10 0.30,2.70 stroke #666666 width 2
+
+# Right balustrade solid rail (east side)
+rect 2.60,0.10 0.30,2.70 texfill polyhaven/marble_01 0.92
+rect 2.60,0.10 0.30,2.70 stroke #666666 width 2
+
+# Left balustrade top-cap line (highlight)
+line 0.40,0.10 0.40,2.80 stroke #aaaaaa width 2
+
+# Right balustrade top-cap line
+line 2.60,0.10 2.60,2.80 stroke #aaaaaa width 2
+
+# Balustrade posts/spindles visible as small circles along the rails (west)
+circle 0.25,0.40 0.08 fill #aaaaaa 0.85
+circle 0.25,0.40 0.08 stroke #555555
+circle 0.25,0.90 0.06 fill #aaaaaa 0.8
+circle 0.25,1.40 0.06 fill #aaaaaa 0.8
+circle 0.25,1.90 0.06 fill #aaaaaa 0.8
+circle 0.25,2.40 0.06 fill #aaaaaa 0.8
+
+# Balustrade posts (east)
+circle 2.75,0.40 0.08 fill #aaaaaa 0.85
+circle 2.75,0.40 0.08 stroke #555555
+circle 2.75,0.90 0.06 fill #aaaaaa 0.8
+circle 2.75,1.40 0.06 fill #aaaaaa 0.8
+circle 2.75,1.90 0.06 fill #aaaaaa 0.8
+circle 2.75,2.40 0.06 fill #aaaaaa 0.8
+
+# Newel posts at south end (ornate large knobs at base of rail)
+circle 0.25,2.70 0.14 fill #f8f0e0 0.95
+circle 0.25,2.70 0.14 stroke #555555 width 2
+circle 0.25,2.70 0.08 fill #daa520 0.85
+circle 0.25,2.70 0.08 stroke #5a3a00
+
+circle 2.75,2.70 0.14 fill #f8f0e0 0.95
+circle 2.75,2.70 0.14 stroke #555555 width 2
+circle 2.75,2.70 0.08 fill #daa520 0.85
+circle 2.75,2.70 0.08 stroke #5a3a00
+
+# Central stair steps ascending north — a series of horizontal lines (each is a step edge)
+# Step edges drawn as shadow lines (strong at south end, fade up)
+rect 0.40,0.20 2.20,0.30 texfill polyhaven/marble_01 0.90
+rect 0.40,0.50 2.20,0.30 texfill polyhaven/marble_01 0.88
+rect 0.40,0.80 2.20,0.30 texfill polyhaven/marble_01 0.86
+rect 0.40,1.10 2.20,0.30 texfill polyhaven/marble_01 0.84
+rect 0.40,1.40 2.20,0.30 texfill polyhaven/marble_01 0.82
+rect 0.40,1.70 2.20,0.30 texfill polyhaven/marble_01 0.80
+rect 0.40,2.00 2.20,0.30 texfill polyhaven/marble_01 0.78
+rect 0.40,2.30 2.20,0.30 texfill polyhaven/marble_01 0.76
+
+# Step edge shadow lines (the line between each tread/riser)
+line 0.40,0.50 2.60,0.50 stroke #444444 width 2
+line 0.40,0.80 2.60,0.80 stroke #444444 width 2
+line 0.40,1.10 2.60,1.10 stroke #444444 width 2
+line 0.40,1.40 2.60,1.40 stroke #444444 width 2
+line 0.40,1.70 2.60,1.70 stroke #444444 width 2
+line 0.40,2.00 2.60,2.00 stroke #444444 width 2
+line 0.40,2.30 2.60,2.30 stroke #444444 width 2
+line 0.40,2.60 2.60,2.60 stroke #444444 width 2
+
+# Carpet runner down center of staircase (deep red with gold trim)
+rect 0.80,0.15 1.40,2.70 texfill polyhaven/floral_jacquard 0.8
+rect 0.80,0.15 1.40,2.70 fill #5a1a1a 0.55
+rect 0.80,0.15 1.40,2.70 stroke #2a0810 width 2
+
+# Carpet gold trim stripes
+line 0.86,0.15 0.86,2.85 stroke #daa520 width 2
+line 2.14,0.15 2.14,2.85 stroke #daa520 width 2
+
+# Carpet tassel/fringe at south base
+line 0.82,2.86 0.82,2.90 stroke #daa520 width 1
+line 0.92,2.86 0.92,2.90 stroke #daa520 width 1
+line 1.02,2.86 1.02,2.90 stroke #daa520 width 1
+line 1.12,2.86 1.12,2.90 stroke #daa520 width 1
+line 1.22,2.86 1.22,2.90 stroke #daa520 width 1
+line 1.32,2.86 1.32,2.90 stroke #daa520 width 1
+line 1.42,2.86 1.42,2.90 stroke #daa520 width 1
+line 1.52,2.86 1.52,2.90 stroke #daa520 width 1
+line 1.62,2.86 1.62,2.90 stroke #daa520 width 1
+line 1.72,2.86 1.72,2.90 stroke #daa520 width 1
+line 1.82,2.86 1.82,2.90 stroke #daa520 width 1
+line 1.92,2.86 1.92,2.90 stroke #daa520 width 1
+line 2.02,2.86 2.02,2.90 stroke #daa520 width 1
+line 2.12,2.86 2.12,2.90 stroke #daa520 width 1

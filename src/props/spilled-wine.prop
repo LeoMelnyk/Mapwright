@@ -1,0 +1,50 @@
+name: Spilled Wine
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-dining, dining-hall, supper-room, tavern, kitchen
+typical_count: single
+clusters_with: dropped-fork, napkin-pile, round-dining-table
+notes: Puddle of dark red wine with a tipped crystal glass lying in it.
+---
+# Footprint 1x1: x 0-1, y 0-1. Wine puddle with tipped glass.
+
+# Main puddle — irregular blob
+poly 0.18,0.54 0.32,0.40 0.52,0.36 0.70,0.44 0.80,0.58 0.74,0.74 0.58,0.82 0.36,0.80 0.22,0.70 fill #5a1a1a 0.85
+poly 0.18,0.54 0.32,0.40 0.52,0.36 0.70,0.44 0.80,0.58 0.74,0.74 0.58,0.82 0.36,0.80 0.22,0.70 stroke #2a0a0a 0.7
+
+# Darker center of pool (deeper wine)
+ellipse 0.48,0.58 0.22,0.16 fill #3a0a0a 0.7
+
+# Splash droplets separate from main pool
+circle 0.12,0.30 0.03 fill #5a1a1a 0.8
+circle 0.18,0.24 0.02 fill #5a1a1a 0.75
+circle 0.84,0.30 0.025 fill #5a1a1a 0.75
+circle 0.88,0.74 0.03 fill #5a1a1a 0.8
+circle 0.08,0.78 0.022 fill #5a1a1a 0.75
+
+# Highlight on wet puddle (reflection)
+arc 0.48,0.58 0.18 210 280 stroke #8a2828 0.5 width 1
+arc 0.52,0.54 0.12 210 260 stroke #aa4040 0.4 width 1
+
+# Tipped crystal goblet lying in puddle
+# Goblet bowl (oval — lying sideways)
+ellipse 0.60,0.50 0.14,0.09 fill #c8d8e8 0.55
+ellipse 0.60,0.50 0.14,0.09 stroke #8899aa
+# Goblet interior (wine-stained)
+ellipse 0.60,0.50 0.10,0.06 fill #3a0a0a 0.6
+
+# Goblet stem (thin line extending from bowl)
+line 0.70,0.50 0.86,0.44 stroke #8899aa width 3
+line 0.70,0.50 0.86,0.44 stroke #c8d8e8 width 1
+
+# Goblet foot (small disc at end of stem)
+ellipse 0.86,0.44 0.06,0.04 fill #c8d8e8 0.7
+ellipse 0.86,0.44 0.06,0.04 stroke #8899aa
+
+# Crystal facet highlights
+line 0.56,0.46 0.64,0.54 stroke #f0f8ff 0.6 width 1
+line 0.66,0.46 0.58,0.54 stroke #f0f8ff 0.5 width 1

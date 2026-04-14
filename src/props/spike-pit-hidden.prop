@@ -1,0 +1,68 @@
+name: Hidden Spike Pit
+category: Trap
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: goblin-warren-entrance, goblin-warren, kobold-warren, monster-lair-small, humanoid-lair
+typical_count: few
+clusters_with: tripwire, broken-arrow, dung-pile
+notes: Pit covered with twigs and leaves as camouflage. Part of the cover has broken away exposing the wooden spikes below. Goblin trap; small DC.
+---
+# === HITBOX ===
+hitbox rect 0.1,0.1 0.8,0.8 z 0-0.1
+
+# Pit outline (square hole)
+rect 0.10,0.10 0.80,0.80 fill #0a0604 0.9
+rect 0.10,0.10 0.80,0.80 stroke #1a1008
+
+# Dark inner depth (gradient simulating blackness)
+rect 0.14,0.14 0.72,0.72 gradient-radial #2a1a0a #000000 0.85
+
+# Camouflage covering (thin leaves and twigs across top — mostly intact on one side)
+# Layer of twigs crosshatch
+line 0.14,0.22 0.50,0.30 stroke #5c3a1e 0.85 width 2
+line 0.16,0.38 0.48,0.30 stroke #4a2800 0.8 width 2
+line 0.20,0.50 0.50,0.42 stroke #5c3a1e 0.8 width 2
+line 0.16,0.60 0.44,0.56 stroke #4a2800 0.75 width 2
+line 0.18,0.72 0.40,0.70 stroke #5c3a1e 0.8 width 2
+line 0.14,0.30 0.20,0.40 stroke #4a2800 0.75 width 1
+line 0.28,0.24 0.32,0.42 stroke #5c3a1e 0.8 width 1
+
+# Leaves (small polygons — green-brown)
+poly 0.20,0.30 0.26,0.28 0.28,0.34 0.22,0.36 fill #4a5020 0.85
+poly 0.20,0.30 0.26,0.28 0.28,0.34 0.22,0.36 stroke #2a2810 0.7
+poly 0.34,0.44 0.40,0.42 0.42,0.48 0.36,0.50 fill #5a5028 0.85
+poly 0.34,0.44 0.40,0.42 0.42,0.48 0.36,0.50 stroke #2a2810 0.7
+poly 0.22,0.64 0.28,0.62 0.30,0.68 0.24,0.70 fill #4a5020 0.85
+poly 0.22,0.64 0.28,0.62 0.30,0.68 0.24,0.70 stroke #2a2810 0.7
+
+# Broken-away section (east side — spikes visible)
+# Jagged edge where cover gave way
+poly 0.50,0.18 0.52,0.30 0.48,0.42 0.54,0.56 0.50,0.70 0.56,0.82 fill #0a0604 0.95
+poly 0.50,0.18 0.52,0.30 0.48,0.42 0.54,0.56 0.50,0.70 0.56,0.82 stroke #1a1008 0.8
+
+# Wooden spikes visible at bottom of pit (east half — points up, foreshortened as triangles)
+poly 0.58,0.70 0.62,0.56 0.66,0.70 fill #7a5020 0.95
+poly 0.58,0.70 0.62,0.56 0.66,0.70 texfill polyhaven/dark_wood 0.5
+poly 0.58,0.70 0.62,0.56 0.66,0.70 stroke #2a1400
+
+poly 0.68,0.74 0.72,0.58 0.76,0.74 fill #7a5020 0.95
+poly 0.68,0.74 0.72,0.58 0.76,0.74 texfill polyhaven/dark_wood 0.5
+poly 0.68,0.74 0.72,0.58 0.76,0.74 stroke #2a1400
+
+poly 0.60,0.46 0.64,0.32 0.68,0.46 fill #6a4818 0.95
+poly 0.60,0.46 0.64,0.32 0.68,0.46 stroke #2a1400
+
+poly 0.72,0.50 0.76,0.36 0.80,0.50 fill #7a5020 0.95
+poly 0.72,0.50 0.76,0.36 0.80,0.50 stroke #2a1400
+
+# Spike tips highlight
+line 0.62,0.56 0.62,0.60 stroke #a07840 0.7 width 1
+line 0.72,0.58 0.72,0.62 stroke #a07840 0.7 width 1
+line 0.64,0.32 0.64,0.36 stroke #a07840 0.6 width 1
+
+# Dried blood on one spike
+line 0.72,0.38 0.74,0.44 stroke #4a0000 0.8 width 2

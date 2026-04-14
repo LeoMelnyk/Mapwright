@@ -1,0 +1,78 @@
+name: Prisoner Cage
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.8
+placement: corner
+room_types: orc-war-camp, cave-bandit-camp, orc-stronghold, humanoid-lair, goblin-warren-entrance
+typical_count: single
+clusters_with: bone-pile, bloodstain, chieftains-throne
+notes: Crude wood-and-iron prisoner cage with cowering figure inside. Door faces south. Bars cast minimal shadow (open cage).
+---
+# === HITBOX ===
+hitbox rect 0.18,0.18 1.64,1.64 z 0-1.8
+
+# Cage floor (dark, soiled)
+rect 0.20,0.20 1.60,1.60 texfill polyhaven/weathered_planks 0.75
+rect 0.20,0.20 1.60,1.60 fill #2a1408 0.5
+rect 0.20,0.20 1.60,1.60 stroke #1a0a00
+
+# Straw / filth on floor
+line 0.40,0.55 0.52,0.60 stroke #8b7355 0.7 width 1
+line 0.60,0.75 0.72,0.70 stroke #8b7355 0.7 width 1
+line 1.20,0.50 1.32,0.55 stroke #8b7355 0.6 width 1
+line 1.40,1.30 1.52,1.25 stroke #8b7355 0.6 width 1
+
+# Corner posts (heavy wooden beams)
+rect 0.18,0.18 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.18,0.18 0.14,0.14 stroke #1a0a00
+rect 1.68,0.18 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 1.68,0.18 0.14,0.14 stroke #1a0a00
+rect 0.18,1.68 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.18,1.68 0.14,0.14 stroke #1a0a00
+rect 1.68,1.68 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 1.68,1.68 0.14,0.14 stroke #1a0a00
+
+# Iron bars top-down as grid of thin lines
+# Vertical bars (running north-south = along y)
+line 0.40,0.20 0.40,1.80 stroke #333333 width 2
+line 0.70,0.20 0.70,1.80 stroke #333333 width 2
+line 1.00,0.20 1.00,1.80 stroke #333333 width 2
+line 1.30,0.20 1.30,1.80 stroke #333333 width 2
+line 1.60,0.20 1.60,1.80 stroke #333333 width 2
+# Horizontal bars (running east-west = along x)
+line 0.20,0.50 1.80,0.50 stroke #555555 width 2
+line 0.20,1.00 1.80,1.00 stroke #555555 width 2
+line 0.20,1.50 1.80,1.50 stroke #555555 width 2
+
+# Iron bolts at corners
+circle 0.25,0.25 0.025 fill #222222 0.95
+circle 1.75,0.25 0.025 fill #222222 0.95
+circle 0.25,1.75 0.025 fill #222222 0.95
+circle 1.75,1.75 0.025 fill #222222 0.95
+
+# Door hinge and lock (south face = high Y)
+rect 0.95,1.78 0.14,0.06 fill #222222 0.95
+rect 0.95,1.78 0.14,0.06 stroke #111111
+circle 1.02,1.82 0.018 fill #daa520 0.9
+
+# Cowering prisoner figure (huddled in NE corner)
+# Body (slumped)
+ellipse 1.30,0.80 0.18,0.22 fill #4a3828 0.9
+ellipse 1.30,0.80 0.18,0.22 stroke #1a1008
+# Head (bowed)
+circle 1.30,0.62 0.10 fill #d4a574 0.9
+circle 1.30,0.62 0.10 stroke #6a4028
+# Ragged hair
+line 1.22,0.56 1.26,0.52 stroke #2a1408 width 1
+line 1.30,0.54 1.32,0.50 stroke #2a1408 width 1
+line 1.36,0.56 1.40,0.52 stroke #2a1408 width 1
+# Arms wrapped around knees
+bezier 1.18,0.78 1.10,0.86 1.12,0.94 1.22,0.94 stroke #4a3828 width 2
+bezier 1.42,0.78 1.50,0.86 1.48,0.94 1.38,0.94 stroke #4a3828 width 2
+
+# Blood droplet near prisoner
+circle 1.14,0.98 0.02 fill #4a0000 0.9
+circle 1.12,1.04 0.015 fill #4a0000 0.85

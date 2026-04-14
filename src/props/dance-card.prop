@@ -1,0 +1,43 @@
+name: Dance Card
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall
+typical_count: few
+clusters_with: dropped-fan, glove-single, ribbon, rose-petal-scatter
+notes: A small tasseled dance card dropped on the floor after a lady's hurried exit. Best scattered near dance floors or exits.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Card body — pale ivory paper with gilt edge
+rect 0.36,0.38 0.26,0.36 fill #f8f0e0 0.95
+rect 0.36,0.38 0.26,0.36 stroke #daa520 width 2
+
+# Inner gilt border detail
+rect 0.39,0.41 0.20,0.30 stroke #8b6914
+
+# Ruled lines for dance entries
+line 0.41,0.48 0.57,0.48 stroke #6b4e2e 0.5
+line 0.41,0.54 0.57,0.54 stroke #6b4e2e 0.5
+line 0.41,0.60 0.57,0.60 stroke #6b4e2e 0.5
+line 0.41,0.66 0.57,0.66 stroke #6b4e2e 0.5
+
+# Faint penciled name scrawl
+line 0.43,0.48 0.50,0.48 stroke #333333 0.7 width 1
+
+# Silk cord loop + pencil attachment
+bezier 0.62,0.40 0.76,0.32 0.78,0.46 0.72,0.56 stroke #8b2020 width 2
+
+# Tiny pencil stub attached to cord
+rect 0.70,0.56 0.06,0.14 fill #daa520 0.9
+rect 0.70,0.56 0.06,0.14 stroke #5a3a00
+
+# Tassel at cord end
+circle 0.75,0.32 0.05 fill #daa520 0.9
+circle 0.75,0.32 0.05 stroke #8b6914
+line 0.73,0.36 0.72,0.42 stroke #daa520
+line 0.75,0.36 0.75,0.42 stroke #daa520
+line 0.77,0.36 0.78,0.42 stroke #daa520

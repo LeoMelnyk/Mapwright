@@ -1,0 +1,58 @@
+name: Dead God Fragment
+category: Decorative
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: astral-anchor, astral-sea, planar-nexus
+typical_count: single
+clusters_with: astral-anchor-stone, drifting-stone, planar-sigil-shard
+notes: Broken piece of a petrified deity — a colossal stone fist or weathered eye, drifting in the void. Gold leaf fractures trace its cosmic cracks, which glow faintly with astral light.
+lights:
+  - type: candle
+    x: 1.0
+    y: 1.0
+    radius: 8
+    color: "#a080ff"
+    intensity: 0.6
+---
+# Glow of cosmic cracks bleeding into surroundings
+circle 1.0,1.0 0.95 gradient-radial #a080ff #1a0828 0.25
+
+# Outer irregular fragment silhouette (petrified, weathered)
+poly 0.95,0.08 1.45,0.14 1.82,0.36 1.92,0.78 1.88,1.22 1.78,1.62 1.52,1.86 1.12,1.94 0.68,1.88 0.32,1.72 0.12,1.42 0.08,0.96 0.16,0.54 0.42,0.22 texfill polyhaven/stone_wall 0.9
+poly 0.95,0.08 1.45,0.14 1.82,0.36 1.92,0.78 1.88,1.22 1.78,1.62 1.52,1.86 1.12,1.94 0.68,1.88 0.32,1.72 0.12,1.42 0.08,0.96 0.16,0.54 0.42,0.22 stroke #2a2028 width 2
+
+# Weathered inner mass (marble-like worn surface)
+poly 0.95,0.3 1.4,0.36 1.64,0.58 1.72,0.95 1.66,1.35 1.48,1.6 1.1,1.72 0.7,1.62 0.4,1.42 0.32,1.05 0.36,0.68 0.58,0.4 fill #8a7a90 0.6
+
+# Massive clenched eye (central orb, staring)
+circle 1.0,1.0 0.26 fill #4a3a80 0.75
+circle 1.0,1.0 0.26 stroke #2a1850 width 2
+# Pupil slit
+ellipse 1.0,1.0 0.06,0.18 fill #1a0828 0.9
+# Iris glow
+circle 1.0,1.0 0.14 stroke #a080ff width 1
+circle 1.0,1.0 0.08 stroke #e0e0ff width 1
+
+# Cosmic fractures — radiating cracks with gold leaf
+bezier 1.0,0.26 0.9,0.5 1.1,0.72 0.95,0.92 stroke #daa520 width 2
+bezier 0.24,0.9 0.5,1.0 0.78,1.05 0.9,1.08 stroke #daa520 width 2
+bezier 1.1,1.1 1.35,1.2 1.6,1.5 1.78,1.72 stroke #daa520 width 2
+bezier 1.4,0.32 1.3,0.6 1.2,0.8 1.08,0.88 stroke #daa520 width 1
+
+# Glowing violet leak from fractures
+bezier 1.0,0.26 0.9,0.5 1.1,0.72 0.95,0.92 stroke #a080ff width 1
+bezier 1.1,1.1 1.35,1.2 1.6,1.5 1.78,1.72 stroke #c0a0ff width 1
+
+# Weathered pitting
+circle 0.5,0.5 0.04 fill #1a0828 0.6
+circle 1.6,0.55 0.035 fill #1a0828 0.55
+circle 0.4,1.5 0.04 fill #1a0828 0.6
+circle 1.55,1.35 0.03 fill #1a0828 0.55
+
+# Gold leaf accent on fracture intersections
+circle 1.0,0.4 0.03 fill #daa520 0.9
+circle 1.35,1.3 0.025 fill #daa520 0.8

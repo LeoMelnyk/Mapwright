@@ -1,0 +1,42 @@
+name: Wall Grate
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: sewer-junction, sewer, undercity, prison, dungeon
+typical_count: few
+clusters_with: sewage-channel, grate-floor
+notes: Iron grate set into stone wall; rusted bars, darkness beyond. Mount along wall edges — place with wall at north.
+---
+# footprint 1x1: x range 0-1, y range 0-1; wall at north (low y)
+
+# Dark void beyond the grate (flush against wall)
+rect 0.12,0.04 0.76,0.24 fill #0a0804 0.95
+
+# Stone frame around grate
+rect 0.08,0.04 0.84,0.28 stroke #3a3a3a width 2
+
+# Rusted iron bars (vertical) — only upper band visible from above
+rect 0.18,0.06 0.04,0.24 fill #6a4020 0.9
+rect 0.18,0.06 0.04,0.24 stroke #3a1810
+rect 0.30,0.06 0.04,0.24 fill #6a4020 0.9
+rect 0.30,0.06 0.04,0.24 stroke #3a1810
+rect 0.42,0.06 0.04,0.24 fill #6a4020 0.9
+rect 0.42,0.06 0.04,0.24 stroke #3a1810
+rect 0.54,0.06 0.04,0.24 fill #6a4020 0.9
+rect 0.54,0.06 0.04,0.24 stroke #3a1810
+rect 0.66,0.06 0.04,0.24 fill #6a4020 0.9
+rect 0.66,0.06 0.04,0.24 stroke #3a1810
+rect 0.78,0.06 0.04,0.24 fill #6a4020 0.9
+rect 0.78,0.06 0.04,0.24 stroke #3a1810
+
+# Rust drip stains below grate on the floor
+line 0.24,0.32 0.22,0.42 stroke #6a4020 0.55 width 2
+line 0.48,0.32 0.50,0.46 stroke #6a4020 0.5 width 2
+line 0.72,0.32 0.70,0.40 stroke #6a4020 0.55 width 2
+
+# Small corner rivets
+circle 0.12,0.08 0.02 fill #444444 0.8
+circle 0.88,0.08 0.02 fill #444444 0.8

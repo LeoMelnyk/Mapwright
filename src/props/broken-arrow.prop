@@ -1,0 +1,51 @@
+name: Broken Arrow
+category: Combat
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: goblin-warren-entrance, goblin-warren, battlefield-recent, cave-bandit-camp, humanoid-lair, orc-war-camp
+typical_count: many
+clusters_with: arrow-stuck, broken-spear, dung-pile, rat-carcass
+notes: Snapped arrow shaft with bent fletching lying flat on ground. Scatter along pathways and near tripwires.
+---
+# === HITBOX ===
+hitbox rect 0.14,0.42 0.74,0.16 z 0-0.1
+
+# Faint dirt scuff under the arrow
+ellipse 0.50,0.54 0.34,0.06 fill #2a1a0a 0.3
+
+# Broken shaft piece 1 (longer, angled SW to NE across the cell)
+poly 0.16,0.56 0.18,0.50 0.58,0.44 0.60,0.50 fill #7a5020 0.92
+poly 0.16,0.56 0.18,0.50 0.58,0.44 0.60,0.50 texfill polyhaven/dark_wood 0.4
+poly 0.16,0.56 0.18,0.50 0.58,0.44 0.60,0.50 stroke #2a1400
+
+# Splintered break end (jagged tip at east of shaft 1)
+poly 0.60,0.50 0.66,0.46 0.62,0.50 0.66,0.54 0.60,0.54 fill #3a1f00 0.95
+poly 0.60,0.50 0.66,0.46 0.62,0.50 0.66,0.54 0.60,0.54 stroke #1a0a00
+
+# Broken shaft piece 2 (shorter, slightly offset to right)
+poly 0.68,0.52 0.70,0.46 0.88,0.44 0.90,0.50 fill #7a5020 0.9
+poly 0.68,0.52 0.70,0.46 0.88,0.44 0.90,0.50 texfill polyhaven/dark_wood 0.4
+poly 0.68,0.52 0.70,0.46 0.88,0.44 0.90,0.50 stroke #2a1400
+# Splintered west end of shaft 2
+poly 0.68,0.48 0.62,0.50 0.68,0.52 fill #3a1f00 0.9
+
+# Fletching (bent, at west end of shaft 1 — frayed)
+poly 0.16,0.56 0.10,0.64 0.14,0.52 fill #666666 0.85
+poly 0.16,0.56 0.10,0.64 0.14,0.52 stroke #3a3a3a
+poly 0.18,0.50 0.12,0.42 0.20,0.46 fill #888888 0.8
+poly 0.18,0.50 0.12,0.42 0.20,0.46 stroke #3a3a3a
+# Fletching vane line
+line 0.14,0.48 0.18,0.55 stroke #4a4a4a 0.6 width 1
+
+# Nock at far west tip
+rect 0.08,0.54 0.05,0.04 fill #3a1f00 0.9
+line 0.10,0.56 0.06,0.58 stroke #1a0a00 width 1
+
+# Arrowhead at east end of shaft 2 (small rusty iron, bent)
+poly 0.88,0.46 0.96,0.48 0.92,0.54 0.86,0.52 fill #666666 0.9
+poly 0.88,0.46 0.96,0.48 0.92,0.54 0.86,0.52 texfill polyhaven/rusty_metal 0.5
+poly 0.88,0.46 0.96,0.48 0.92,0.54 0.86,0.52 stroke #2a1a0a

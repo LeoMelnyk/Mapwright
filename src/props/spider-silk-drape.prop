@@ -1,0 +1,51 @@
+name: Spider Silk Drape
+category: Misc
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: cave-drow-outpost, underdark-outpost, spider-lair, dungeon
+typical_count: few
+clusters_with: spider-egg-cluster, cobweb-cluster, web-strand, spider-shrine
+notes: Hanging silk webbing between two anchor points with gossamer strands and wrapped prey bundles
+---
+# Anchor points (top corners at wall/ceiling)
+circle 0.14,0.10 0.04 fill #8b7355 0.8
+circle 1.86,0.10 0.04 fill #8b7355 0.8
+# Main sagging drape shape (filled translucent silk)
+poly 0.14,0.10 1.86,0.10 1.80,0.30 1.60,0.44 1.20,0.52 0.80,0.52 0.40,0.44 0.20,0.30 fill #e8dcc8 0.25
+poly 0.14,0.10 1.86,0.10 1.80,0.30 1.60,0.44 1.20,0.52 0.80,0.52 0.40,0.44 0.20,0.30 stroke #c8b898 0.5 width 1
+# Main web strands (gossamer — curved)
+bezier 0.14,0.10 0.60,0.20 1.40,0.20 1.86,0.10 stroke #e8dcc8 0.7 width 1
+bezier 0.14,0.14 0.60,0.30 1.40,0.30 1.86,0.14 stroke #e8dcc8 0.6 width 1
+bezier 0.14,0.18 0.60,0.38 1.40,0.38 1.86,0.18 stroke #e8dcc8 0.55 width 1
+bezier 0.20,0.22 0.70,0.48 1.30,0.48 1.80,0.22 stroke #e8dcc8 0.5 width 1
+# Vertical/radial strands
+line 0.14,0.10 0.30,0.50 stroke #e8dcc8 0.55 width 1
+line 1.86,0.10 1.70,0.50 stroke #e8dcc8 0.55 width 1
+line 0.50,0.12 0.60,0.50 stroke #e8dcc8 0.45 width 1
+line 1.50,0.12 1.40,0.50 stroke #e8dcc8 0.45 width 1
+line 1.00,0.14 1.00,0.52 stroke #e8dcc8 0.5 width 1
+# Dangling silk strands (short hairs below the drape)
+line 0.60,0.50 0.58,0.66 stroke #d4c4a8 0.55 width 1
+line 1.40,0.50 1.42,0.66 stroke #d4c4a8 0.55 width 1
+line 1.00,0.52 1.00,0.72 stroke #d4c4a8 0.55 width 1
+# Wrapped prey bundle 1 (large — center)
+ellipse 1.00,0.40 0.10,0.14 fill #c8b898 0.9
+ellipse 1.00,0.40 0.10,0.14 stroke #6a5040
+# Binding silk wraps on bundle
+line 0.92,0.32 1.08,0.32 stroke #e8dcc8 0.8 width 1
+line 0.92,0.40 1.08,0.40 stroke #e8dcc8 0.8 width 1
+line 0.92,0.48 1.08,0.48 stroke #e8dcc8 0.8 width 1
+# Dark protrusion from bundle (a hand or foot sticking out)
+poly 1.00,0.52 0.98,0.58 1.02,0.58 fill #4a3828 0.85
+# Wrapped prey bundle 2 (smaller, left)
+ellipse 0.54,0.34 0.06,0.09 fill #c8b898 0.88
+ellipse 0.54,0.34 0.06,0.09 stroke #6a5040
+line 0.48,0.30 0.60,0.30 stroke #e8dcc8 0.7 width 1
+line 0.48,0.38 0.60,0.38 stroke #e8dcc8 0.7 width 1
+# Small prey bundle 3 (right)
+ellipse 1.46,0.36 0.05,0.07 fill #c8b898 0.85
+ellipse 1.46,0.36 0.05,0.07 stroke #6a5040
+line 1.41,0.34 1.51,0.34 stroke #e8dcc8 0.7 width 1

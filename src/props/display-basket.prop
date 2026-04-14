@@ -1,0 +1,51 @@
+name: Display Basket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: market-stall, market, vendor-row, bazaar, kitchen
+typical_count: few
+clusters_with: apple-pile, stall-counter, spice-bowl, fabric-bolt, crate-open
+notes: Wide wicker basket on ground filled with bread loaves or apples. Place on floor in vendor rows.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.42 z 0-0.6
+
+# Footprint 1x1: x 0-1, y 0-1. Wide shallow wicker basket.
+
+# Basket outer rim (wicker weave)
+circle 0.5,0.5 0.44 fill #8b6914 0.95
+circle 0.5,0.5 0.44 stroke #3a1f00
+
+# Weave texture — concentric rings
+circle 0.5,0.5 0.42 stroke #5c3a1e 0.55
+circle 0.5,0.5 0.40 stroke #3a1f00 0.5
+
+# Weave radial spokes
+line 0.08,0.5 0.92,0.5 stroke #5c3a1e 0.4
+line 0.5,0.08 0.5,0.92 stroke #5c3a1e 0.4
+line 0.20,0.20 0.80,0.80 stroke #5c3a1e 0.3
+line 0.80,0.20 0.20,0.80 stroke #5c3a1e 0.3
+
+# Inner basket space (goods inside)
+circle 0.5,0.5 0.36 fill #6b4e2e 0.7
+
+# Bread loaves (oval crusty golden shapes)
+ellipse 0.36,0.42 0.12,0.08 fill #c8904a 0.95
+ellipse 0.36,0.42 0.12,0.08 stroke #6a4018
+ellipse 0.62,0.40 0.11,0.07 fill #c8904a 0.95
+ellipse 0.62,0.40 0.11,0.07 stroke #6a4018
+ellipse 0.42,0.62 0.12,0.08 fill #b87840 0.95
+ellipse 0.42,0.62 0.12,0.08 stroke #6a4018
+ellipse 0.66,0.62 0.10,0.07 fill #c8904a 0.92
+ellipse 0.66,0.62 0.10,0.07 stroke #6a4018
+
+# Loaf slash marks (score lines)
+line 0.30,0.42 0.42,0.42 stroke #6a4018 0.7
+line 0.58,0.40 0.68,0.40 stroke #6a4018 0.7
+line 0.38,0.62 0.48,0.62 stroke #6a4018 0.7
+
+# Rim highlight
+arc 0.5,0.5 0.44 210 340 stroke #d4a574 0.4 width 1

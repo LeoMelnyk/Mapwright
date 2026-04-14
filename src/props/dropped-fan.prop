@@ -1,0 +1,47 @@
+name: Dropped Fan
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall
+typical_count: few
+clusters_with: dance-card, glove-single, ribbon, rose-petal-scatter
+notes: A folded lady's fan lying open on the floor with ivory sticks and painted silk. Scatter near dance floors, seating, or exits.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Painted silk leaf (wedge fanning open)
+arc 0.50,0.55 0.42 210 330 fill #e8dcc8 0.9
+arc 0.50,0.55 0.42 210 330 stroke #8b6914 width 2
+
+# Painted floral detail on silk
+arc 0.50,0.60 0.36 215 325 stroke #daa520 0.6
+arc 0.50,0.60 0.30 220 320 stroke #8b2050 0.5
+circle 0.35,0.46 0.03 fill #aa2060 0.6
+circle 0.50,0.40 0.03 fill #aa2060 0.6
+circle 0.65,0.46 0.03 fill #aa2060 0.6
+circle 0.42,0.44 0.02 fill #2a6a20 0.5
+circle 0.58,0.44 0.02 fill #2a6a20 0.5
+
+# Ivory rib sticks radiating from pivot
+line 0.50,0.70 0.18,0.52 stroke #f8f0e0 width 2
+line 0.50,0.70 0.28,0.38 stroke #f8f0e0 width 2
+line 0.50,0.70 0.40,0.30 stroke #f8f0e0 width 2
+line 0.50,0.70 0.50,0.26 stroke #f8f0e0 width 2
+line 0.50,0.70 0.60,0.30 stroke #f8f0e0 width 2
+line 0.50,0.70 0.72,0.38 stroke #f8f0e0 width 2
+line 0.50,0.70 0.82,0.52 stroke #f8f0e0 width 2
+
+# Rib stroke outlines
+line 0.50,0.70 0.18,0.52 stroke #8b7355 0.6
+line 0.50,0.70 0.82,0.52 stroke #8b7355 0.6
+
+# Pivot rivet (brass)
+circle 0.50,0.70 0.05 fill #daa520 0.95
+circle 0.50,0.70 0.05 stroke #5a3a00
+circle 0.50,0.70 0.02 fill #ffd700 0.8
+
+# Silk cord wrist loop
+bezier 0.50,0.74 0.60,0.84 0.52,0.92 0.44,0.86 stroke #8b2020 width 2

@@ -1,0 +1,86 @@
+name: Deity Statue
+category: Features
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3.0
+placement: center
+room_types: temple-nave, temple, shrine, church, cathedral
+typical_count: single
+clusters_with: altar, altar-sacrificial, candelabra, censer, banner-religious
+notes: Large robed marble deity on a raised plinth, arms outspread in benediction. Place centered behind or beside the altar.
+---
+# footprint 2x2: x 0-2, y 0-2
+
+# === HITBOX — layered z-column ===
+hitbox rect 0.14,0.14 1.72,1.72 z 0-0.6
+hitbox circle 1.0,1.05 0.40 z 0.6-2.2
+hitbox circle 1.0,0.76 0.16 z 2.2-3.0
+
+# === Raised plinth (stepped stone base) ===
+rect 0.14,0.14 1.72,1.72 texfill polyhaven/granite_tile 0.7
+rect 0.14,0.14 1.72,1.72 stroke #555555 width 2
+
+# Bevel hints — outer to inner step
+line 0.14,0.14 0.26,0.26 stroke #888888 width 1
+line 1.86,0.14 1.74,0.26 stroke #888888 width 1
+line 0.14,1.86 0.26,1.74 stroke #888888 width 1
+line 1.86,1.86 1.74,1.74 stroke #888888 width 1
+
+# Inner plinth top
+rect 0.26,0.26 1.48,1.48 texfill polyhaven/marble_01 0.82
+rect 0.26,0.26 1.48,1.48 stroke #777777
+
+# Gilt trim band around plinth edge
+rect 0.30,0.30 1.40,1.40 stroke #daa520 0.7 width 1
+
+# Plinth edge light/shadow
+line 0.26,0.26 1.74,0.26 stroke #aaaaaa width 1
+line 0.26,1.74 1.74,1.74 stroke #444444 width 1
+
+# === Outspread arms (wide robed span) ===
+# Left arm extending west
+rect 0.38,0.94 0.40,0.16 texfill polyhaven/marble_01 0.85
+rect 0.38,0.94 0.40,0.16 stroke #666666 width 1
+# Left hand (open palm)
+ellipse 0.38,1.02 0.07,0.08 texfill polyhaven/marble_01 0.9
+ellipse 0.38,1.02 0.07,0.08 stroke #666666
+# Right arm extending east
+rect 1.22,0.94 0.40,0.16 texfill polyhaven/marble_01 0.85
+rect 1.22,0.94 0.40,0.16 stroke #666666 width 1
+# Right hand (open palm)
+ellipse 1.62,1.02 0.07,0.08 texfill polyhaven/marble_01 0.9
+ellipse 1.62,1.02 0.07,0.08 stroke #666666
+
+# === Robed torso (wide oval) ===
+ellipse 1.0,1.10 0.34,0.30 texfill polyhaven/marble_01 0.9
+ellipse 1.0,1.10 0.34,0.30 stroke #666666 width 2
+
+# Shoulder highlight
+ellipse 1.0,0.96 0.26,0.10 fill #ffffff 0.12
+
+# Robe drape lines (radiating south from torso)
+line 1.0,1.28 0.84,1.58 stroke #888888 0.65 width 1
+line 1.0,1.28 0.94,1.62 stroke #888888 0.6 width 1
+line 1.0,1.28 1.06,1.62 stroke #888888 0.6 width 1
+line 1.0,1.28 1.16,1.58 stroke #888888 0.65 width 1
+# Side drapery
+bezier 0.68,1.10 0.58,1.30 0.62,1.50 0.74,1.62 stroke #888888 0.55 width 1
+bezier 1.32,1.10 1.42,1.30 1.38,1.50 1.26,1.62 stroke #888888 0.55 width 1
+
+# Front sash/belt detail
+line 0.86,1.18 1.14,1.18 stroke #daa520 0.7 width 1
+
+# === Head (slightly north of shoulders) ===
+circle 1.0,0.78 0.14 texfill polyhaven/marble_01 0.95
+circle 1.0,0.78 0.14 stroke #666666 width 2
+
+# Crown / halo suggestion (gold arc behind head)
+arc 1.0,0.78 0.20 190 350 stroke #daa520 0.8 width 2
+
+# Face shadow
+ellipse 1.0,0.80 0.08,0.05 fill #000000 0.08
+
+# Hair / head top
+arc 1.0,0.78 0.12 200 340 stroke #888888 0.7 width 1

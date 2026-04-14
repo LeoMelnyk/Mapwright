@@ -1,0 +1,81 @@
+name: Children's Toys
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: fairground-seasonal, festival-grounds, village-green, nursery, bedroom, tavern
+typical_count: few
+clusters_with: ribbon-scatter, fallen-mask, prize-ring, bunting-line
+notes: Scatter of abandoned toys — wooden horse, hoop, spinning top, and rag doll
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Wooden hoop (NW) ===
+ring 0.28,0.30 0.18,0.12 fill #8b6914 0.9
+ring 0.28,0.30 0.18,0.12 stroke #3a1f00
+# Hoop wood grain
+arc 0.28,0.30 0.15 30 210 stroke #5c3a1e 0.5 width 1
+
+# === Small stick for hoop (leaning inside) ===
+rect 0.18,0.22 0.22,0.03 fill #5c3a1e 0.9
+rect 0.18,0.22 0.22,0.03 stroke #2a1408
+
+# === Wooden horse pull-toy (NE) ===
+# Platform board with wheels
+rect 0.58,0.20 0.30,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.58,0.20 0.30,0.12 stroke #2a1400
+# Wheel circles
+circle 0.62,0.32 0.035 fill #3a1f00 0.9
+circle 0.62,0.32 0.035 stroke #1a0a04
+circle 0.84,0.32 0.035 fill #3a1f00 0.9
+circle 0.84,0.32 0.035 stroke #1a0a04
+# Horse body (simple oval on platform)
+ellipse 0.73,0.22 0.13,0.07 fill #c4a882 0.9
+ellipse 0.73,0.22 0.13,0.07 stroke #5c3a1e
+# Horse head (small bump)
+poly 0.83,0.18 0.90,0.14 0.88,0.22 fill #c4a882 0.9
+poly 0.83,0.18 0.90,0.14 0.88,0.22 stroke #5c3a1e
+# Mane detail
+line 0.82,0.14 0.86,0.12 stroke #5c3a1e width 2
+line 0.80,0.16 0.84,0.14 stroke #5c3a1e width 2
+# Pull string
+bezier 0.60,0.24 0.48,0.38 0.38,0.48 0.26,0.52 stroke #8b7355 width 1
+
+# === Spinning top (SW) ===
+# Top body (triangular / conical from above = circle with tip dot)
+circle 0.28,0.68 0.09 fill #c82020 0.9
+circle 0.28,0.68 0.09 stroke #5a1010
+# Paint stripes (bands visible radiating)
+arc 0.28,0.68 0.07 0 180 stroke #ffcc20 width 2
+line 0.22,0.68 0.34,0.68 stroke #3080c0 width 2
+# Tip point (small)
+circle 0.28,0.68 0.018 fill #333333 0.95
+
+# === Rag doll (SE) ===
+# Head
+circle 0.68,0.60 0.06 fill #e8dcc8 0.9
+circle 0.68,0.60 0.06 stroke #8b7355
+# Hair (yarn)
+line 0.64,0.55 0.60,0.52 stroke #aa3030 width 2
+line 0.72,0.55 0.76,0.52 stroke #aa3030 width 2
+# Eyes (tiny dots)
+circle 0.66,0.60 0.01 fill #1a1408
+circle 0.70,0.60 0.01 fill #1a1408
+# Mouth (simple stitch)
+line 0.66,0.63 0.70,0.63 stroke #aa3030 width 1
+# Body (dress, sprawled)
+poly 0.58,0.68 0.78,0.66 0.82,0.82 0.62,0.86 fill #3080c0 0.9
+poly 0.58,0.68 0.78,0.66 0.82,0.82 0.62,0.86 texfill polyhaven/rough_linen 0.4
+poly 0.58,0.68 0.78,0.66 0.82,0.82 0.62,0.86 stroke #1a4080
+# Arms (yarn-stuffed stubs sticking out)
+rect 0.54,0.70 0.08,0.04 fill #e8dcc8 0.85
+rect 0.54,0.70 0.08,0.04 stroke #8b7355
+rect 0.78,0.70 0.08,0.04 fill #e8dcc8 0.85
+rect 0.78,0.70 0.08,0.04 stroke #8b7355
+
+# Loose string ball bits
+circle 0.45,0.82 0.025 fill #aa3030 0.8
+circle 0.48,0.78 0.018 fill #aa3030 0.7

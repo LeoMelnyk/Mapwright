@@ -1,0 +1,75 @@
+name: Severed Limb
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp, crypt, ritual-chamber-dark, orc-war-camp
+typical_count: few
+clusters_with: corpse-soldier, blood-pool, weapon-stuck, crow-picking
+notes: Detached arm or leg with torn fabric and blood trail; grim battlefield debris
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: severed arm with hand — fabric scraps at stump, blood pool/trail
+
+# Blood pool under stump
+ellipse 0.22,0.36 0.14,0.10 fill #4a0000 0.8
+ellipse 0.22,0.36 0.14,0.10 stroke #2a0000 0.6
+# Central wet spot
+ellipse 0.22,0.36 0.08,0.05 fill #8b0000 0.75
+
+# Blood trail trailing from limb toward edge
+poly 0.26,0.44 0.40,0.62 0.52,0.78 0.62,0.90 0.56,0.92 0.44,0.80 0.32,0.64 0.22,0.48 fill #4a0000 0.65
+# Trail drops scattered
+circle 0.68,0.88 0.025 fill #4a0000 0.75
+circle 0.76,0.82 0.02 fill #2a0000 0.7
+circle 0.82,0.70 0.018 fill #4a0000 0.65
+
+# === The arm itself (lying diagonally from NW to SE) ===
+# Shoulder/stump end (NW) - torn flesh, bone visible
+poly 0.16,0.30 0.30,0.24 0.36,0.38 0.22,0.46 fill #c4a882 0.85
+poly 0.16,0.30 0.30,0.24 0.36,0.38 0.22,0.46 stroke #3a2018
+# Bone fragment sticking from stump
+poly 0.18,0.30 0.22,0.28 0.24,0.36 0.20,0.38 fill #e8dcc8 0.95
+poly 0.18,0.30 0.22,0.28 0.24,0.36 0.20,0.38 stroke #8b7d6b
+# Torn red meat at stump
+ellipse 0.24,0.38 0.06,0.04 fill #8b0000 0.85
+
+# Upper arm (fabric sleeve - dark cloth remnant)
+poly 0.22,0.40 0.38,0.32 0.50,0.48 0.36,0.56 fill #3a3020 0.9
+poly 0.22,0.40 0.38,0.32 0.50,0.48 0.36,0.56 texfill polyhaven/rough_linen 0.4
+poly 0.22,0.40 0.38,0.32 0.50,0.48 0.36,0.56 stroke #1a1008
+# Torn fabric edges (fraying)
+line 0.18,0.32 0.14,0.28 stroke #1a1008 width 1
+line 0.20,0.44 0.16,0.48 stroke #1a1008 width 1
+line 0.32,0.28 0.30,0.22 stroke #1a1008 width 1
+
+# Elbow (slight bend)
+circle 0.44,0.52 0.06 fill #c4a882 0.85
+circle 0.44,0.52 0.06 stroke #3a2018
+
+# Forearm (skin tone, past sleeve)
+poly 0.40,0.50 0.52,0.46 0.68,0.62 0.56,0.66 fill #c4a882 0.85
+poly 0.40,0.50 0.52,0.46 0.68,0.62 0.56,0.66 stroke #3a2018
+
+# Wrist
+circle 0.64,0.60 0.05 fill #c4a882 0.85
+circle 0.64,0.60 0.05 stroke #3a2018
+
+# Hand (clenched / partially open)
+poly 0.60,0.58 0.76,0.56 0.82,0.68 0.74,0.74 0.64,0.70 fill #c4a882 0.9
+poly 0.60,0.58 0.76,0.56 0.82,0.68 0.74,0.74 0.64,0.70 stroke #3a2018
+# Finger details
+line 0.72,0.58 0.78,0.54 stroke #3a2018 width 1
+line 0.76,0.64 0.82,0.62 stroke #3a2018 width 1
+line 0.78,0.68 0.84,0.70 stroke #3a2018 width 1
+line 0.72,0.72 0.76,0.78 stroke #3a2018 width 1
+
+# Fingernails
+circle 0.80,0.56 0.012 fill #8b7d6b 0.8
+
+# Blood smears on arm
+line 0.32,0.44 0.38,0.46 stroke #4a0000 width 1
+ellipse 0.48,0.54 0.04,0.02 fill #4a0000 0.7

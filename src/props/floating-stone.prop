@@ -1,0 +1,36 @@
+name: Floating Stone
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: elemental-air-node, elemental-node, storm-spire
+typical_count: few
+clusters_with: pebble-suspended, air-node-vortex, cloud-pillar
+notes: Small round stone levitating a foot off the ground with a faint air swirl beneath. Set shadow:yes for the levitation radial effect.
+---
+# Faint wind swirl beneath (ground halo)
+circle 0.5,0.55 0.4 gradient-radial #d0e0ff #0a0814 0.18
+
+# Spiral wind lines under the stone
+bezier 0.2,0.65 0.35,0.55 0.5,0.6 0.65,0.55 stroke #d0e0ff width 1
+bezier 0.65,0.55 0.7,0.65 0.55,0.75 0.35,0.7 stroke #d0e0ff width 1
+bezier 0.3,0.6 0.45,0.65 0.55,0.6 0.6,0.55 stroke #e0e8ff width 1
+
+# Main stone body (rounded, slightly irregular)
+poly 0.35,0.3 0.5,0.22 0.65,0.28 0.7,0.42 0.64,0.52 0.5,0.55 0.36,0.52 0.3,0.42 fill #888888 0.85
+poly 0.35,0.3 0.5,0.22 0.65,0.28 0.7,0.42 0.64,0.52 0.5,0.55 0.36,0.52 0.3,0.42 texfill polyhaven/stone_wall 0.7
+poly 0.35,0.3 0.5,0.22 0.65,0.28 0.7,0.42 0.64,0.52 0.5,0.55 0.36,0.52 0.3,0.42 stroke #444444 width 2
+
+# Top highlight (stone catches light)
+ellipse 0.48,0.33 0.15,0.08 fill #b0b0b0 0.55
+
+# Darker underside shadow
+ellipse 0.5,0.5 0.17,0.06 fill #2a2a2a 0.5
+
+# Tiny air current sparkles around stone
+circle 0.25,0.4 0.02 fill #ffffff 0.7
+circle 0.78,0.38 0.018 fill #ffffff 0.6
+circle 0.78,0.7 0.016 fill #e0e8ff 0.55

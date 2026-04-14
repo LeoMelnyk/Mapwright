@@ -1,0 +1,64 @@
+name: Large Tapestry
+category: Decorative
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 5
+placement: wall
+room_types: mansion-grand-hall, mansion-ballroom, great-hall, noble-villa, reception-hall, estate, throne-room, temple-nave
+typical_count: few
+clusters_with: banner-heraldic, painting-large, mirror-reflected, portrait-framed
+notes: Massive wall tapestry. Top-down shows the brass mounting rod with finials, tassel cords, and a thin velvet top strip with a subtle woven pattern hint.
+---
+# footprint 1x3: x range 0-3, y range 0-1
+
+# === HITBOX ===
+hitbox rect 0.10,0.04 2.80,0.18 z 0-5
+
+# Brass mounting rod (wider than fabric, runs across full width)
+rect 0.08,0.04 2.84,0.06 fill #daa520 0.92
+rect 0.08,0.04 2.84,0.06 stroke #5a3a00
+
+# Rod shine highlight
+line 0.10,0.05 2.90,0.05 stroke #ffd700 0.7 width 1
+
+# Ornate finial caps (east and west ends)
+circle 0.08,0.07 0.06 fill #daa520 0.95
+circle 0.08,0.07 0.06 stroke #5a3a00
+circle 2.92,0.07 0.06 fill #daa520 0.95
+circle 2.92,0.07 0.06 stroke #5a3a00
+
+# Finial inner knob
+circle 0.08,0.07 0.025 fill #8b6914 0.8
+circle 2.92,0.07 0.025 fill #8b6914 0.8
+
+# Secondary midpoint supports on rod
+circle 1.00,0.07 0.035 fill #8b6914 0.85
+circle 2.00,0.07 0.035 fill #8b6914 0.85
+
+# Velvet tapestry top edge (thin strip south of rod)
+rect 0.14,0.10 2.72,0.10 texfill polyhaven/velour_velvet 0.88
+rect 0.14,0.10 2.72,0.10 fill #5a1a1a 0.40
+rect 0.14,0.10 2.72,0.10 stroke #2a0810 width 1
+
+# Gold embroidered banding along top edge
+line 0.14,0.12 2.86,0.12 stroke #daa520 0.8 width 1
+line 0.14,0.18 2.86,0.18 stroke #daa520 0.6 width 1
+
+# Woven pattern medallions (just the tops visible)
+circle 0.50,0.16 0.025 fill #daa520 0.75
+circle 1.00,0.16 0.025 fill #daa520 0.75
+circle 1.50,0.16 0.025 fill #daa520 0.75
+circle 2.00,0.16 0.025 fill #daa520 0.75
+circle 2.50,0.16 0.025 fill #daa520 0.75
+
+# Cord-hung tassels anchored to rod (visible strands hanging down)
+line 0.30,0.10 0.30,0.24 stroke #daa520 0.75 width 1
+circle 0.30,0.26 0.025 fill #daa520 0.9
+line 2.70,0.10 2.70,0.24 stroke #daa520 0.75 width 1
+circle 2.70,0.26 0.025 fill #daa520 0.9
+
+# Drop-shadow strip south of tapestry (fabric thickness shadow)
+rect 0.14,0.20 2.72,0.04 fill #000000 0.22
+rect 0.18,0.24 2.64,0.02 fill #000000 0.10

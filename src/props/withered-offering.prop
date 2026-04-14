@@ -1,0 +1,55 @@
+name: Withered Offering
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: temple-nave, temple, shrine, crypt, abandoned-chapel
+typical_count: few
+clusters_with: altar, altar-sacrificial, ash-pile, bone-pile, holy-symbol
+notes: Small cracked pottery offering bowl holding dried flowers, wilted petals, and old fruit — a long-forgotten votive
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-0.2
+
+# Cracked pottery bowl (top-down: dark ring)
+circle 0.5,0.5 0.30 texfill polyhaven/brown_mud 0.8
+circle 0.5,0.5 0.30 stroke #2a1400 width 2
+# Bowl inner rim (recessed)
+circle 0.5,0.5 0.24 fill #3a2010 0.85
+circle 0.5,0.5 0.24 stroke #1a0804 width 1
+
+# Hairline cracks in the pottery
+line 0.22,0.46 0.30,0.48 stroke #1a0804 width 1
+line 0.72,0.54 0.78,0.52 stroke #1a0804 width 1
+bezier 0.50,0.22 0.48,0.30 0.52,0.34 0.50,0.42 stroke #1a0804 0.7 width 1
+
+# Dried fruit (shriveled, dark brown)
+circle 0.44,0.48 0.06 fill #5c3a1e 0.9
+circle 0.44,0.48 0.06 stroke #2a1400 width 1
+circle 0.43,0.47 0.02 fill #2a1400 0.7
+
+# Wilted flower heads (pale brown, drooping)
+circle 0.58,0.44 0.04 fill #8a7060 0.85
+circle 0.58,0.44 0.04 stroke #3a2010
+circle 0.56,0.56 0.035 fill #6b5040 0.8
+circle 0.56,0.56 0.035 stroke #3a2010
+
+# Dried flower stems
+line 0.58,0.44 0.48,0.36 stroke #5c3a1e 0.7 width 1
+line 0.56,0.56 0.46,0.62 stroke #5c3a1e 0.7 width 1
+
+# Wilted petals scattered on/around the bowl
+poly 0.36,0.38 0.40,0.36 0.42,0.40 0.38,0.42 fill #8a5040 0.6
+poly 0.62,0.62 0.66,0.60 0.68,0.64 0.64,0.66 fill #6b4030 0.6
+poly 0.28,0.58 0.32,0.56 0.34,0.60 0.30,0.62 fill #7a5030 0.55
+
+# Small petal/leaf fragments outside bowl
+circle 0.20,0.30 0.015 fill #6b5040 0.7
+circle 0.82,0.72 0.015 fill #8a7060 0.65
+circle 0.78,0.22 0.012 fill #5c3a1e 0.6
+
+# Dust/ash dulling the rim
+arc 0.5,0.5 0.30 20 160 stroke #6b5040 0.4 width 1

@@ -1,0 +1,62 @@
+name: Pearl Obelisk
+category: Structure
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.2
+placement: corner
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto
+typical_count: few
+clusters_with: marid-pavilion, pearl-cluster, water-node-core, coral-pillar
+notes: Tall translucent pearl obelisk with glowing apex; place at corners or flanking centerpieces
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.4
+    radius: 10
+    color: "#e0f0ff"
+    intensity: 0.8
+---
+# Footprint 2x1: x 0-1, y 0-2. Base wide at south, tapers to point at north.
+# Hitbox — tight shaft
+hitbox rect 0.30,0.20 0.40,1.60 z 0-2.2
+# Soft halo around apex
+circle 0.50,0.40 0.36 gradient-radial #e0f0ff #103060 0.5
+# Base pedestal (wide square at south)
+rect 0.15,1.65 0.70,0.30 texfill polyhaven/marble_01 0.85
+rect 0.15,1.65 0.70,0.30 stroke #6090b0
+# Base inner trim
+rect 0.22,1.72 0.56,0.18 fill #d0e0f0 0.7
+rect 0.22,1.72 0.56,0.18 stroke #80a0c0
+# Main shaft — tapered obelisk column
+poly 0.28,1.68 0.72,1.68 0.62,0.40 0.50,0.15 0.38,0.40 fill #e8f4ff 0.85
+poly 0.28,1.68 0.72,1.68 0.62,0.40 0.50,0.15 0.38,0.40 stroke #6090b0
+# Left facet (lighter — catches light)
+poly 0.28,1.68 0.38,0.40 0.50,0.15 0.50,1.68 fill #f8fcff 0.5
+# Right facet (slight shadow)
+poly 0.50,0.15 0.62,0.40 0.72,1.68 0.50,1.68 fill #c0d8f0 0.3
+# Vertical seam highlight
+line 0.50,0.15 0.50,1.68 stroke #b0c8e0 width 1
+# Horizontal banding — pearl rings
+line 0.32,1.40 0.68,1.40 stroke #80a0c0 width 1
+line 0.35,1.10 0.65,1.10 stroke #80a0c0 width 1
+line 0.38,0.80 0.62,0.80 stroke #80a0c0 width 1
+line 0.41,0.55 0.59,0.55 stroke #80a0c0 width 1
+# Embedded pearls along the shaft
+circle 0.50,1.52 0.04 fill #ffffff 0.95
+circle 0.50,1.52 0.04 stroke #a0c0e0
+circle 0.50,1.22 0.035 fill #ffffff 0.9
+circle 0.50,1.22 0.035 stroke #a0c0e0
+circle 0.50,0.92 0.03 fill #ffffff 0.9
+circle 0.50,0.92 0.03 stroke #a0c0e0
+circle 0.50,0.66 0.025 fill #ffffff 0.9
+# Apex glow core
+circle 0.50,0.28 0.08 fill #ffffff 0.95
+circle 0.50,0.28 0.08 stroke #c0d8f0
+circle 0.50,0.28 0.05 fill #e0f8ff 0.95
+circle 0.50,0.28 0.025 fill #ffffff 1.0
+# Tip sparkle rays
+line 0.50,0.15 0.50,0.08 stroke #ffffff width 1
+line 0.42,0.22 0.36,0.18 stroke #ffffff width 1
+line 0.58,0.22 0.64,0.18 stroke #ffffff width 1

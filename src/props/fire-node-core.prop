@@ -1,0 +1,67 @@
+name: Fire Node Core
+category: Magical
+footprint: 3x3
+facing: no
+shadow: yes
+blocks_light: no
+height: 3.0
+placement: center
+room_types: elemental-fire-node, elemental-node, volcano-caldera
+typical_count: single
+clusters_with: basalt-pillar, flame-pillar, ember-pit, lava-fountain
+notes: Primal elemental fire node — column of roaring flame with a white-hot heart and charred stone base. Centerpiece of a fire-elemental node.
+lights:
+  - type: torch
+    x: 1.5
+    y: 1.5
+    radius: 20
+    color: "#ff6030"
+    intensity: 1.0
+---
+# Outer heat shimmer halo
+circle 1.5,1.5 1.4 gradient-radial #ff6030 #0a0400 0.4
+circle 1.5,1.5 1.1 fill #ff6030 0.3
+
+# Charred stone base (irregular ring)
+ring 1.5,1.5 1.1 0.9 texfill polyhaven/volcanic_rock_tiles 0.85
+ring 1.5,1.5 1.1 0.9 fill #1a0800 0.35
+ring 1.5,1.5 1.1 0.9 stroke #000000 width 2
+
+# Base rim detail — chunks of broken obsidian
+poly 1.5,0.4 1.58,0.45 1.56,0.55 1.44,0.55 1.42,0.45 fill #1a0800 0.9
+poly 1.5,0.4 1.58,0.45 1.56,0.55 1.44,0.55 1.42,0.45 stroke #000000 width 1
+poly 1.5,2.6 1.58,2.55 1.56,2.45 1.44,2.45 1.42,2.55 fill #1a0800 0.9
+poly 1.5,2.6 1.58,2.55 1.56,2.45 1.44,2.45 1.42,2.55 stroke #000000 width 1
+poly 0.4,1.5 0.45,1.42 0.55,1.44 0.55,1.56 0.45,1.58 fill #1a0800 0.9
+poly 0.4,1.5 0.45,1.42 0.55,1.44 0.55,1.56 0.45,1.58 stroke #000000 width 1
+poly 2.6,1.5 2.55,1.42 2.45,1.44 2.45,1.56 2.55,1.58 fill #1a0800 0.9
+poly 2.6,1.5 2.55,1.42 2.45,1.44 2.45,1.56 2.55,1.58 stroke #000000 width 1
+
+# Flame column layers (radial buildup to white core)
+circle 1.5,1.5 0.9 fill #cc3300 0.55
+circle 1.5,1.5 0.78 fill #e85500 0.65
+circle 1.5,1.5 0.65 fill #ff6030 0.75
+circle 1.5,1.5 0.5 fill #ff8030 0.85
+circle 1.5,1.5 0.35 fill #ffaa30 0.9
+circle 1.5,1.5 0.22 fill #ffcc60 0.95
+
+# Flame tongues (polygonal licks radiating outward)
+poly 1.5,0.6 1.4,0.9 1.6,0.9 fill #ff8030 0.7
+poly 1.5,2.4 1.4,2.1 1.6,2.1 fill #ff8030 0.7
+poly 0.6,1.5 0.9,1.4 0.9,1.6 fill #ff8030 0.7
+poly 2.4,1.5 2.1,1.4 2.1,1.6 fill #ff8030 0.7
+poly 0.85,0.85 1.05,1.0 1.0,1.05 fill #ffaa30 0.7
+poly 2.15,0.85 1.95,1.0 2.0,1.05 fill #ffaa30 0.7
+poly 0.85,2.15 1.05,2.0 1.0,1.95 fill #ffaa30 0.7
+poly 2.15,2.15 1.95,2.0 2.0,1.95 fill #ffaa30 0.7
+
+# Hot white heart
+circle 1.5,1.5 0.14 fill #ffcc60 1.0
+circle 1.5,1.5 0.09 fill #ffffff 0.9
+circle 1.5,1.5 0.05 fill #ffffff 1.0
+
+# Rising sparks and heat flecks
+circle 1.2,0.8 0.025 fill #ffcc60 0.85
+circle 1.85,0.9 0.02 fill #ffaa30 0.8
+circle 0.95,1.7 0.022 fill #ffcc60 0.8
+circle 2.0,2.1 0.02 fill #ffaa30 0.75

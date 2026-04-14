@@ -1,0 +1,68 @@
+name: Laurel Wreath
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: wall
+room_types: bardic-hall, music-hall, theater, bards-college, temple-nave, memorial
+typical_count: few
+clusters_with: bouquet, flower-petals, stage-large, banner-religious
+notes: Circular wreath of green laurel leaves bound with a gold ribbon — lies flat on the floor or hangs flat against the wall (top-down shows a ring of overlapping leaves)
+---
+# footprint 1x1 — flat ring, no shadow
+
+# Faint background shadow ring (very subtle floor hint)
+ring 0.5,0.5 0.40 0.30 fill #000000 0.08
+
+# Inner laurel ring base (dark green)
+ring 0.5,0.5 0.40 0.28 fill #3a6020 0.9
+ring 0.5,0.5 0.40 0.28 stroke #1a3010 width 1
+
+# Overlapping laurel leaves around the ring (pairs of small polygons)
+# North
+poly 0.42,0.10 0.48,0.06 0.52,0.14 0.46,0.18 fill #4a8030 0.9
+poly 0.42,0.10 0.48,0.06 0.52,0.14 0.46,0.18 stroke #2a5018 width 1
+poly 0.52,0.10 0.58,0.06 0.62,0.14 0.56,0.18 fill #5a9038 0.88
+poly 0.52,0.10 0.58,0.06 0.62,0.14 0.56,0.18 stroke #2a5018 width 1
+# NE
+poly 0.72,0.20 0.80,0.20 0.80,0.28 0.70,0.28 fill #4a8030 0.88
+poly 0.72,0.20 0.80,0.20 0.80,0.28 0.70,0.28 stroke #2a5018 width 1
+# East
+poly 0.86,0.42 0.92,0.46 0.90,0.54 0.82,0.52 fill #5a9038 0.9
+poly 0.86,0.42 0.92,0.46 0.90,0.54 0.82,0.52 stroke #2a5018 width 1
+poly 0.86,0.52 0.92,0.58 0.88,0.64 0.80,0.60 fill #4a8030 0.88
+poly 0.86,0.52 0.92,0.58 0.88,0.64 0.80,0.60 stroke #2a5018 width 1
+# SE
+poly 0.72,0.74 0.80,0.74 0.78,0.82 0.68,0.80 fill #4a8030 0.88
+poly 0.72,0.74 0.80,0.74 0.78,0.82 0.68,0.80 stroke #2a5018 width 1
+# South
+poly 0.48,0.86 0.54,0.82 0.58,0.90 0.52,0.94 fill #5a9038 0.9
+poly 0.48,0.86 0.54,0.82 0.58,0.90 0.52,0.94 stroke #2a5018 width 1
+poly 0.38,0.86 0.44,0.82 0.48,0.90 0.42,0.94 fill #4a8030 0.88
+poly 0.38,0.86 0.44,0.82 0.48,0.90 0.42,0.94 stroke #2a5018 width 1
+# SW
+poly 0.20,0.72 0.28,0.72 0.30,0.80 0.22,0.82 fill #5a9038 0.88
+poly 0.20,0.72 0.28,0.72 0.30,0.80 0.22,0.82 stroke #2a5018 width 1
+# West
+poly 0.08,0.42 0.16,0.46 0.18,0.54 0.10,0.56 fill #4a8030 0.9
+poly 0.08,0.42 0.16,0.46 0.18,0.54 0.10,0.56 stroke #2a5018 width 1
+poly 0.10,0.52 0.18,0.56 0.20,0.64 0.12,0.64 fill #5a9038 0.88
+poly 0.10,0.52 0.18,0.56 0.20,0.64 0.12,0.64 stroke #2a5018 width 1
+# NW
+poly 0.20,0.20 0.28,0.18 0.30,0.26 0.22,0.28 fill #4a8030 0.88
+poly 0.20,0.20 0.28,0.18 0.30,0.26 0.22,0.28 stroke #2a5018 width 1
+
+# Gold ribbon tied at the south with trailing tails
+rect 0.44,0.84 0.12,0.06 fill #daa520 0.95
+rect 0.44,0.84 0.12,0.06 stroke #5a3a00 width 1
+# Ribbon tails
+bezier 0.46,0.90 0.42,0.94 0.40,0.96 0.38,0.96 stroke #daa520 width 3
+bezier 0.54,0.90 0.58,0.94 0.60,0.96 0.62,0.96 stroke #daa520 width 3
+
+# Gold berry accents scattered on wreath
+circle 0.30,0.30 0.02 fill #ffd700 0.9
+circle 0.70,0.30 0.02 fill #ffd700 0.9
+circle 0.30,0.70 0.02 fill #ffd700 0.9
+circle 0.70,0.70 0.02 fill #ffd700 0.9

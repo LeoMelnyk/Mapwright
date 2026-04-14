@@ -1,0 +1,68 @@
+name: Ribbon Scatter
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.03
+placement: floor
+room_types: fairground-seasonal, festival-grounds, village-green, masquerade-ball
+typical_count: many
+clusters_with: fallen-mask, children-toys, maypole, bunting-line, prize-ring
+notes: Loose festival ribbons fluttering on the ground in many colors — scatter clutter after celebration
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Ribbons (curved thick bezier lines in many colors) ===
+# Red ribbon (curving NW to SE)
+bezier 0.08,0.20 0.30,0.35 0.55,0.40 0.82,0.60 stroke #c82020 width 5
+bezier 0.08,0.20 0.30,0.35 0.55,0.40 0.82,0.60 stroke #8b1010 0.7 width 2
+# Red end tail
+poly 0.78,0.56 0.86,0.60 0.80,0.66 0.74,0.62 fill #c82020 0.9
+poly 0.78,0.56 0.86,0.60 0.80,0.66 0.74,0.62 stroke #8b1010
+
+# Yellow ribbon (S curve)
+bezier 0.14,0.80 0.35,0.62 0.55,0.78 0.86,0.30 stroke #ffcc20 width 5
+bezier 0.14,0.80 0.35,0.62 0.55,0.78 0.86,0.30 stroke #8b6914 0.7 width 2
+# Yellow tail
+poly 0.10,0.76 0.16,0.82 0.10,0.86 0.06,0.80 fill #ffcc20 0.9
+poly 0.10,0.76 0.16,0.82 0.10,0.86 0.06,0.80 stroke #8b6914
+
+# Blue ribbon (long diagonal)
+bezier 0.20,0.08 0.45,0.28 0.60,0.50 0.20,0.72 stroke #3080c0 width 5
+bezier 0.20,0.08 0.45,0.28 0.60,0.50 0.20,0.72 stroke #1a4080 0.7 width 2
+# Blue tail
+poly 0.16,0.72 0.22,0.76 0.18,0.82 0.12,0.76 fill #3080c0 0.9
+poly 0.16,0.72 0.22,0.76 0.18,0.82 0.12,0.76 stroke #1a4080
+
+# Green ribbon (short curl)
+bezier 0.66,0.10 0.72,0.24 0.88,0.28 0.82,0.42 stroke #40a040 width 5
+bezier 0.66,0.10 0.72,0.24 0.88,0.28 0.82,0.42 stroke #1a4a1a 0.7 width 2
+# Green tail
+poly 0.80,0.40 0.86,0.44 0.82,0.50 0.76,0.46 fill #40a040 0.9
+poly 0.80,0.40 0.86,0.44 0.82,0.50 0.76,0.46 stroke #1a4a1a
+
+# White/gold ribbon (small curl NE)
+bezier 0.50,0.20 0.58,0.12 0.72,0.08 0.78,0.22 stroke #f8f0e0 width 4
+bezier 0.50,0.20 0.58,0.12 0.72,0.08 0.78,0.22 stroke #8b7355 0.7 width 1
+
+# Pink/rose ribbon (loop)
+bezier 0.42,0.62 0.50,0.78 0.38,0.86 0.30,0.80 stroke #e080a0 width 5
+bezier 0.42,0.62 0.50,0.78 0.38,0.86 0.30,0.80 stroke #a04060 0.7 width 2
+
+# Purple ribbon (small piece)
+line 0.58,0.66 0.72,0.74 stroke #8040a0 width 5
+line 0.58,0.66 0.72,0.74 stroke #4a2060 0.7 width 2
+
+# Small knotted ribbon bow
+circle 0.60,0.90 0.04 fill #c82020 0.9
+circle 0.60,0.90 0.04 stroke #8b1010
+line 0.55,0.86 0.65,0.94 stroke #c82020 width 3
+
+# Tiny confetti dots scattered
+circle 0.12,0.50 0.018 fill #ffcc20 0.8
+circle 0.94,0.12 0.02 fill #3080c0 0.85
+circle 0.06,0.42 0.015 fill #40a040 0.8
+circle 0.92,0.88 0.018 fill #c82020 0.8
+circle 0.42,0.12 0.015 fill #e080a0 0.75
+circle 0.88,0.72 0.015 fill #ffcc20 0.75

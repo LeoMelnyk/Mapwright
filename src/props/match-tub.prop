@@ -1,0 +1,37 @@
+name: Match Tub
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: ship-gun-deck, warship, gunnery, frigate-deck
+typical_count: few
+clusters_with: linstock, cannon, powder-tub
+notes: Small wooden tub half-filled with water; coiled slow-match hangs over the rim, smoldering end dips into water to prevent sparks spreading.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Outer tub — wooden staves
+circle 0.50,0.50 0.38 texfill polyhaven/worn_planks 0.88
+circle 0.50,0.50 0.38 stroke #2a1400
+# Iron hoop bands (top rim)
+circle 0.50,0.50 0.37 stroke #555555 width 2
+circle 0.50,0.50 0.30 stroke #555555 width 1
+# Plank seams radiating
+line 0.50,0.14 0.50,0.30 stroke #2a1400 0.5
+line 0.50,0.70 0.50,0.86 stroke #2a1400 0.5
+line 0.14,0.50 0.30,0.50 stroke #2a1400 0.5
+line 0.70,0.50 0.86,0.50 stroke #2a1400 0.5
+# Water surface inside
+circle 0.50,0.50 0.28 fill #2a4a5a 0.75
+circle 0.50,0.50 0.28 stroke #1a3040
+# Water highlight
+arc 0.50,0.50 0.24 200 280 stroke #5a7a8a 0.5 width 1
+# Coiled slow-match draped over the rim
+bezier 0.20,0.42 0.30,0.30 0.50,0.52 0.62,0.48 stroke #3a2a1a width 3
+bezier 0.62,0.48 0.72,0.45 0.78,0.40 0.84,0.38 stroke #3a2a1a width 3
+# Match loop laying across the water
+ellipse 0.48,0.52 0.14,0.06 stroke #2a1a0a width 2
+# Smoldering free end dangling outside the tub (east)
+circle 0.86,0.36 0.03 fill #cc3300 0.5
+circle 0.86,0.36 0.02 fill #ff8030 0.7

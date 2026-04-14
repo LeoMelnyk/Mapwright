@@ -1,0 +1,50 @@
+name: Drow Command Slab
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.9
+placement: center
+room_types: cave-drow-outpost, underdark-outpost, drow-citadel, war-room
+typical_count: single
+clusters_with: candle-violet, faerzress-sconce, spider-shrine
+notes: Angular obsidian command table etched with silver drow sigils and a battle-map — place in the center of a drow command chamber
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-0.9
+
+# Angular obsidian slab (irregular hexagonal top)
+poly 0.30,0.10 1.70,0.10 1.90,0.50 1.90,1.50 1.70,1.90 0.30,1.90 0.10,1.50 0.10,0.50 fill #1a1020 0.95
+poly 0.30,0.10 1.70,0.10 1.90,0.50 1.90,1.50 1.70,1.90 0.30,1.90 0.10,1.50 0.10,0.50 stroke #0a0820 width 2
+# Inner polished highlight (violet sheen)
+poly 0.40,0.20 1.60,0.20 1.78,0.55 1.78,1.45 1.60,1.80 0.40,1.80 0.22,1.45 0.22,0.55 fill #2a1840 0.5
+# Iron corner caps (each corner)
+rect 0.10,0.10 0.22,0.22 texfill polyhaven/rusty_metal_02 0.85
+rect 0.10,0.10 0.22,0.22 stroke #222222
+rect 1.68,0.10 0.22,0.22 texfill polyhaven/rusty_metal_02 0.85
+rect 1.68,0.10 0.22,0.22 stroke #222222
+rect 0.10,1.68 0.22,0.22 texfill polyhaven/rusty_metal_02 0.85
+rect 0.10,1.68 0.22,0.22 stroke #222222
+rect 1.68,1.68 0.22,0.22 texfill polyhaven/rusty_metal_02 0.85
+rect 1.68,1.68 0.22,0.22 stroke #222222
+# Battle-map carvings (grid of fine silver lines)
+line 0.40,0.70 1.60,0.70 stroke #c0c0c0 0.55 width 1
+line 0.40,1.00 1.60,1.00 stroke #c0c0c0 0.55 width 1
+line 0.40,1.30 1.60,1.30 stroke #c0c0c0 0.55 width 1
+line 0.70,0.50 0.70,1.50 stroke #c0c0c0 0.55 width 1
+line 1.00,0.50 1.00,1.50 stroke #c0c0c0 0.55 width 1
+line 1.30,0.50 1.30,1.50 stroke #c0c0c0 0.55 width 1
+# Silver drow sigil (central rune)
+circle 1.00,1.00 0.18 stroke #c0c0c0 width 2
+poly 1.00,0.85 1.12,1.00 1.00,1.15 0.88,1.00 stroke #c0c0c0 width 1
+line 0.88,1.00 1.12,1.00 stroke #c0c0c0 width 1
+line 1.00,0.85 1.00,1.15 stroke #c0c0c0 width 1
+# Silver position markers (small dots on the map grid)
+circle 0.70,0.70 0.04 fill #a060ff 0.85
+circle 1.30,0.70 0.04 fill #c0c0c0 0.85
+circle 0.70,1.30 0.04 fill #c0c0c0 0.85
+circle 1.30,1.30 0.04 fill #a060ff 0.85
+# Etched border runes at edges
+line 0.40,0.28 1.60,0.28 stroke #8040c0 0.55 width 1
+line 0.40,1.72 1.60,1.72 stroke #8040c0 0.55 width 1

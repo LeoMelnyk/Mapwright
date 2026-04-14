@@ -1,0 +1,66 @@
+name: Fallen Mask
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: fairground-seasonal, festival-grounds, village-green, masquerade-ball, tavern
+typical_count: single
+clusters_with: ribbon-scatter, children-toys, bunting-line, fallen-banner
+notes: Festive carnival mask dropped on the ground — feathered, half-profile, ribbon trailing behind
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: mask lying face up, ribbon trailing to one side
+
+# === Ribbon trailing (SE, curving) ===
+bezier 0.58,0.58 0.72,0.72 0.82,0.84 0.94,0.88 stroke #c82020 width 4
+bezier 0.58,0.60 0.72,0.74 0.82,0.86 0.94,0.90 stroke #8b1010 width 2
+# Second ribbon (NW)
+bezier 0.34,0.38 0.22,0.30 0.14,0.18 0.08,0.08 stroke #c82020 width 4
+bezier 0.34,0.40 0.22,0.32 0.14,0.20 0.08,0.10 stroke #8b1010 width 2
+
+# === Mask body (oval, slightly tilted) ===
+poly 0.26,0.36 0.40,0.28 0.60,0.28 0.74,0.36 0.70,0.58 0.56,0.64 0.44,0.64 0.30,0.58 fill #daa520 0.95
+poly 0.26,0.36 0.40,0.28 0.60,0.28 0.74,0.36 0.70,0.58 0.56,0.64 0.44,0.64 0.30,0.58 texfill polyhaven/velour_velvet 0.4
+poly 0.26,0.36 0.40,0.28 0.60,0.28 0.74,0.36 0.70,0.58 0.56,0.64 0.44,0.64 0.30,0.58 stroke #5a3a00
+
+# === Eye holes (cutouts — dark oval openings) ===
+ellipse 0.40,0.44 0.06,0.04 fill #1a1408 0.95
+ellipse 0.40,0.44 0.06,0.04 stroke #3a2a18
+ellipse 0.60,0.44 0.06,0.04 fill #1a1408 0.95
+ellipse 0.60,0.44 0.06,0.04 stroke #3a2a18
+
+# === Decorative swirls around eyes (gold + black paint) ===
+bezier 0.30,0.42 0.34,0.36 0.38,0.38 0.34,0.44 stroke #1a1408 width 2
+bezier 0.70,0.42 0.66,0.36 0.62,0.38 0.66,0.44 stroke #1a1408 width 2
+# Small gem inlays
+circle 0.34,0.38 0.018 fill #c82020 0.9
+circle 0.66,0.38 0.018 fill #c82020 0.9
+
+# === Feathers radiating from top of mask ===
+# Center feather (tall, purple-blue)
+poly 0.48,0.28 0.52,0.28 0.54,0.10 0.46,0.10 fill #3080c0 0.9
+poly 0.48,0.28 0.52,0.28 0.54,0.10 0.46,0.10 stroke #1a4080
+line 0.50,0.10 0.50,0.26 stroke #1a4080 width 1
+# Left feather (red, angled)
+poly 0.40,0.30 0.44,0.32 0.32,0.16 0.28,0.18 fill #c82020 0.9
+poly 0.40,0.30 0.44,0.32 0.32,0.16 0.28,0.18 stroke #5a1010
+# Right feather (yellow, angled)
+poly 0.56,0.30 0.60,0.32 0.68,0.18 0.64,0.16 fill #ffcc20 0.9
+poly 0.56,0.30 0.60,0.32 0.68,0.18 0.64,0.16 stroke #8b6914
+# Small green feather tucked in
+poly 0.44,0.30 0.48,0.30 0.44,0.20 0.40,0.22 fill #40a040 0.85
+poly 0.44,0.30 0.48,0.30 0.44,0.20 0.40,0.22 stroke #1a4a1a
+# Small feather accent
+poly 0.54,0.30 0.58,0.30 0.62,0.22 0.58,0.20 fill #e8dcc8 0.85
+poly 0.54,0.30 0.58,0.30 0.62,0.22 0.58,0.20 stroke #8b7355
+
+# === Beak / nose accent (central ridge) ===
+poly 0.48,0.48 0.52,0.48 0.50,0.56 fill #8b6914 0.9
+poly 0.48,0.48 0.52,0.48 0.50,0.56 stroke #5a3a00
+
+# Ribbon tie-points (where they attach to mask)
+circle 0.26,0.40 0.02 fill #8b1010 0.9
+circle 0.74,0.42 0.02 fill #8b1010 0.9

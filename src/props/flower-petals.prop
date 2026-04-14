@@ -1,0 +1,53 @@
+name: Flower Petals
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: bardic-hall, music-hall, theater, bards-college, mansion-ballroom, temple-nave, garden
+typical_count: many
+clusters_with: bouquet, laurel-wreath, stage-large, flower-vase
+notes: Loose scatter of fresh flower petals across the floor — assorted bright colors, no mound
+---
+# Light subtle floor stain hint (faint, no real shadow)
+
+# Red petals
+poly 0.18,0.22 0.22,0.18 0.26,0.22 0.22,0.26 fill #c82020 0.88
+poly 0.18,0.22 0.22,0.18 0.26,0.22 0.22,0.26 stroke #5a1010 0.5
+poly 0.64,0.30 0.70,0.26 0.72,0.32 0.68,0.34 fill #c82020 0.85
+poly 0.36,0.68 0.40,0.64 0.42,0.70 0.38,0.72 fill #c82020 0.8
+
+# Orange petals
+poly 0.50,0.24 0.56,0.22 0.58,0.28 0.52,0.30 fill #ff8030 0.88
+poly 0.50,0.24 0.56,0.22 0.58,0.28 0.52,0.30 stroke #a04010 0.5
+poly 0.78,0.58 0.82,0.54 0.86,0.60 0.80,0.62 fill #ff8030 0.82
+poly 0.22,0.50 0.26,0.46 0.30,0.52 0.26,0.54 fill #ff8030 0.8
+
+# Pink petals
+poly 0.44,0.42 0.50,0.40 0.52,0.46 0.46,0.48 fill #c03080 0.88
+poly 0.44,0.42 0.50,0.40 0.52,0.46 0.46,0.48 stroke #5a1040 0.5
+poly 0.70,0.74 0.76,0.72 0.78,0.78 0.72,0.80 fill #c03080 0.82
+poly 0.14,0.70 0.18,0.66 0.22,0.72 0.18,0.74 fill #c03080 0.75
+
+# Blue petals
+poly 0.58,0.52 0.64,0.50 0.66,0.56 0.60,0.58 fill #3080c0 0.88
+poly 0.58,0.52 0.64,0.50 0.66,0.56 0.60,0.58 stroke #103050 0.5
+poly 0.28,0.34 0.34,0.32 0.36,0.38 0.30,0.40 fill #3080c0 0.8
+
+# Yellow petals
+poly 0.82,0.18 0.88,0.16 0.88,0.22 0.82,0.24 fill #ffcc00 0.88
+poly 0.82,0.18 0.88,0.16 0.88,0.22 0.82,0.24 stroke #8a6010 0.5
+poly 0.52,0.82 0.56,0.78 0.60,0.84 0.54,0.86 fill #ffcc00 0.82
+
+# White petals
+poly 0.38,0.14 0.42,0.10 0.46,0.16 0.42,0.18 fill #e8dcc8 0.8
+poly 0.38,0.14 0.42,0.10 0.46,0.16 0.42,0.18 stroke #8a7858 0.5
+poly 0.84,0.84 0.88,0.82 0.90,0.88 0.86,0.90 fill #e8dcc8 0.75
+
+# Tiny petal fragments
+circle 0.10,0.40 0.012 fill #c82020 0.65
+circle 0.90,0.42 0.012 fill #ffcc00 0.65
+circle 0.48,0.90 0.012 fill #3080c0 0.6
+circle 0.14,0.88 0.01 fill #c03080 0.6

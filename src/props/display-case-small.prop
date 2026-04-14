@@ -1,0 +1,60 @@
+name: Small Display Case
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: any
+room_types: market-stall, market, vendor-row, bazaar, shop-merchant
+typical_count: single
+clusters_with: stall-counter, display-rack-fabric, spice-bowl
+notes: Glass-topped wooden display case on legs, velvet-lined, small wares inside. Wall side at north.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.78 z 0-0.8
+
+# Footprint 1x2: x 0-2, y 0-1. Wide rectangular display case.
+
+# Leg shadows at corners (peeking out under case)
+circle 0.15,0.12 0.05 fill #2a1400 0.5
+circle 1.85,0.12 0.05 fill #2a1400 0.5
+circle 0.15,0.82 0.05 fill #2a1400 0.5
+circle 1.85,0.82 0.05 fill #2a1400 0.5
+
+# Dark wood frame of the case
+rect 0.08,0.06 1.84,0.78 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.06 1.84,0.78 stroke #2a1400
+
+# Inner velvet lining (burgundy/red velvet bed)
+rect 0.16,0.14 1.68,0.62 texfill polyhaven/velour_velvet 0.8
+rect 0.16,0.14 1.68,0.62 fill #5a1a1a 0.45
+rect 0.16,0.14 1.68,0.62 stroke #2a0a0a
+
+# Glass top sheen (subtle translucent rect — drawn over the velvet)
+rect 0.16,0.14 1.68,0.62 fill #ffffff 0.08
+rect 0.16,0.14 1.68,0.62 stroke #8899aa 0.35 width 1
+
+# Small wares laid out on velvet
+# A ring
+circle 0.38,0.45 0.05 stroke #daa520 width 2
+circle 0.38,0.45 0.03 stroke #8b6914 0.5
+# A coin
+circle 0.62,0.38 0.045 fill #daa520 0.95
+circle 0.62,0.38 0.045 stroke #5a3a00
+# Another coin
+circle 0.78,0.52 0.04 fill #ffd700 0.95
+circle 0.78,0.52 0.04 stroke #5a3a00
+# A gem (cut facets)
+poly 1.02,0.36 1.10,0.42 1.06,0.52 0.98,0.48 fill #4422aa 0.88
+poly 1.02,0.36 1.10,0.42 1.06,0.52 0.98,0.48 stroke #2a1170
+# Small dagger
+rect 1.25,0.42 0.18,0.04 fill #c0c0c0 0.9
+rect 1.25,0.42 0.18,0.04 stroke #555555
+rect 1.43,0.41 0.06,0.06 fill #5c3a1e 0.9
+# Pendant
+circle 1.65,0.48 0.05 stroke #daa520 width 2
+line 1.65,0.43 1.65,0.38 stroke #daa520 width 1
+
+# Glass edge highlight (top-lit)
+line 0.16,0.14 1.84,0.14 stroke #f0f0ff 0.35 width 1

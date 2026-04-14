@@ -1,0 +1,41 @@
+name: Floor Grate
+category: Structure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: sewer-junction, sewer, undercity, dungeon, prison
+typical_count: few
+clusters_with: sewage-channel, grate-shaft-light
+notes: Iron grate set flush into the floor; dark runoff visible below. Place over drains or channels.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Dark runoff pit beneath
+rect 0.14,0.14 0.72,0.72 fill #1a1208 0.95
+rect 0.14,0.14 0.72,0.72 stroke #0a0804
+
+# Iron frame
+rect 0.10,0.10 0.80,0.80 stroke #444444 width 3
+
+# Corner rivets
+circle 0.16,0.16 0.03 fill #666666 0.9
+circle 0.84,0.16 0.03 fill #666666 0.9
+circle 0.16,0.84 0.03 fill #666666 0.9
+circle 0.84,0.84 0.03 fill #666666 0.9
+
+# Iron bars (vertical)
+rect 0.24,0.14 0.05,0.72 fill #555555 0.9
+rect 0.24,0.14 0.05,0.72 stroke #2a2a2a
+rect 0.38,0.14 0.05,0.72 fill #555555 0.9
+rect 0.38,0.14 0.05,0.72 stroke #2a2a2a
+rect 0.52,0.14 0.05,0.72 fill #555555 0.9
+rect 0.52,0.14 0.05,0.72 stroke #2a2a2a
+rect 0.66,0.14 0.05,0.72 fill #555555 0.9
+rect 0.66,0.14 0.05,0.72 stroke #2a2a2a
+
+# Rust streaks on bars
+line 0.265,0.30 0.265,0.60 stroke #6a4020 0.5
+line 0.545,0.25 0.545,0.55 stroke #6a4020 0.5
+line 0.685,0.40 0.685,0.70 stroke #6a4020 0.4

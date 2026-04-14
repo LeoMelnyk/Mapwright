@@ -1,0 +1,43 @@
+name: Bubble Drift
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto
+typical_count: many
+clusters_with: bubble-pillar, water-node-core, kelp-strand, anemone-glow
+notes: Small cluster of drifting water bubbles; place as atmospheric decoration near water features
+---
+# Subtle cyan wash
+circle 0.5,0.5 0.42 fill #80e0f0 0.08
+# Large bubble — top left
+circle 0.30,0.32 0.12 fill #c0f0ff 0.25
+circle 0.30,0.32 0.12 stroke #80c0e0 width 1
+circle 0.26,0.28 0.04 fill #ffffff 0.7
+# Medium bubble — center
+circle 0.56,0.50 0.09 fill #c0f0ff 0.25
+circle 0.56,0.50 0.09 stroke #80c0e0 width 1
+circle 0.53,0.47 0.03 fill #ffffff 0.65
+# Small bubble — lower right
+circle 0.74,0.72 0.07 fill #c0f0ff 0.25
+circle 0.74,0.72 0.07 stroke #80c0e0 width 1
+circle 0.72,0.70 0.025 fill #ffffff 0.6
+# Small bubble — lower left
+circle 0.28,0.74 0.06 fill #c0f0ff 0.25
+circle 0.28,0.74 0.06 stroke #80c0e0 width 1
+circle 0.26,0.72 0.02 fill #ffffff 0.6
+# Tiny bubbles scattered
+circle 0.48,0.22 0.035 fill #c0f0ff 0.3
+circle 0.48,0.22 0.035 stroke #80c0e0 width 1
+circle 0.78,0.36 0.04 fill #c0f0ff 0.3
+circle 0.78,0.36 0.04 stroke #80c0e0 width 1
+circle 0.18,0.54 0.03 fill #c0f0ff 0.3
+circle 0.18,0.54 0.03 stroke #80c0e0 width 1
+circle 0.44,0.76 0.025 fill #c0f0ff 0.3
+circle 0.44,0.76 0.025 stroke #80c0e0 width 1
+circle 0.62,0.32 0.022 fill #c0f0ff 0.3
+circle 0.62,0.32 0.022 stroke #80c0e0 width 1
+circle 0.68,0.58 0.02 fill #c0f0ff 0.3
+circle 0.68,0.58 0.02 stroke #80c0e0 width 1

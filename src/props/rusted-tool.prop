@@ -1,0 +1,45 @@
+name: Rusted Tool
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: sewer-junction, sewer, undercity, ruins, abandoned-workshop
+typical_count: few
+clusters_with: floating-debris, rubble
+notes: Discarded rusted tool (hook, hammer, or pliers) abandoned on the ground. Scatter for decay/detritus.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Bent iron grapple hook with broken handle
+
+# Wooden handle (broken, splintered)
+rect 0.18,0.50 0.40,0.08 texfill polyhaven/weathered_planks 0.8
+rect 0.18,0.50 0.40,0.08 stroke #3a1f00
+# Splintered broken end
+poly 0.58,0.50 0.64,0.52 0.60,0.56 0.62,0.58 0.58,0.58 fill #3a1f00 0.85
+poly 0.58,0.50 0.64,0.52 0.60,0.56 0.62,0.58 0.58,0.58 stroke #1a0a00
+
+# Iron ferrule binding handle to head
+rect 0.14,0.48 0.06,0.12 fill #6a4020 0.9
+rect 0.14,0.48 0.06,0.12 stroke #3a1810
+
+# Hook shaft
+rect 0.04,0.52 0.12,0.04 fill #6a4020 0.9
+rect 0.04,0.52 0.12,0.04 stroke #3a1810
+
+# Hook curve (quadratic bezier for the bend)
+qbezier 0.08,0.54 0.02,0.40 0.16,0.30 stroke #6a4020 width 4
+qbezier 0.08,0.54 0.02,0.40 0.16,0.30 stroke #3a1810 width 2
+
+# Hook point
+poly 0.14,0.28 0.20,0.26 0.18,0.34 fill #555555 0.9
+poly 0.14,0.28 0.20,0.26 0.18,0.34 stroke #2a1810
+
+# Rust pits / patches
+circle 0.30,0.54 0.02 fill #8a5020 0.7
+circle 0.42,0.52 0.018 fill #8a5020 0.65
+circle 0.10,0.46 0.02 fill #8a5020 0.6
+
+# Rust stain on ground around tool
+ellipse 0.35,0.60 0.30,0.10 fill #6a4020 0.25

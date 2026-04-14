@@ -1,0 +1,69 @@
+name: Skull Trophy
+category: Decor
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: corner
+room_types: orc-war-camp, orc-stronghold, humanoid-lair, war-camp, cave-bandit-camp, goblin-warren-entrance
+typical_count: few
+clusters_with: skull-totem, bone-pile, chieftains-throne, bonfire
+notes: Single humanoid skull driven on a short wooden stake into the ground. Smaller than skull-on-stick (shorter, ground-level trophy).
+---
+# === HITBOX ===
+hitbox circle 0.5,0.55 0.22 z 0-0.8
+
+# Ground blood stain at base
+ellipse 0.50,0.82 0.20,0.06 fill #4a0000 0.6
+ellipse 0.50,0.82 0.20,0.06 stroke #1a0400 0.5
+
+# Stake top cross-section (short — visible at south end where it enters ground)
+rect 0.46,0.74 0.08,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.46,0.74 0.08,0.12 stroke #1a0a00
+# Stake grain
+line 0.50,0.74 0.50,0.86 stroke #2a1400 0.6 width 1
+
+# Skull cranium (mounted on stake, pushed down — larger/closer than skull-on-stick)
+ellipse 0.50,0.46 0.28,0.26 fill #e8dcc8 0.95
+ellipse 0.50,0.46 0.28,0.26 stroke #4a3828
+# Aged bone wash
+ellipse 0.50,0.46 0.28,0.26 texfill polyhaven/granite_tile 0.22
+
+# Cranial suture zigzag
+line 0.36,0.30 0.42,0.34 stroke #4a3828 0.7 width 1
+line 0.42,0.34 0.50,0.28 stroke #4a3828 0.7 width 1
+line 0.50,0.28 0.58,0.34 stroke #4a3828 0.7 width 1
+line 0.58,0.34 0.64,0.30 stroke #4a3828 0.7 width 1
+
+# Cracks
+bezier 0.30,0.44 0.34,0.50 0.30,0.56 0.28,0.62 stroke #3a2820 0.7 width 1
+line 0.66,0.32 0.72,0.42 stroke #3a2820 0.6 width 1
+
+# Eye sockets (deep dark hollows)
+ellipse 0.40,0.48 0.070,0.090 fill #0a0604 0.98
+ellipse 0.40,0.48 0.070,0.090 stroke #2a1810
+ellipse 0.60,0.48 0.070,0.090 fill #0a0604 0.98
+ellipse 0.60,0.48 0.070,0.090 stroke #2a1810
+# Socket rim shadow
+arc 0.40,0.48 0.07 200 340 stroke #4a3828 0.6 width 1
+arc 0.60,0.48 0.07 200 340 stroke #4a3828 0.6 width 1
+
+# Snout (pointed, projecting south)
+poly 0.38,0.60 0.62,0.60 0.58,0.70 0.50,0.76 0.42,0.70 fill #e8dcc8 0.95
+poly 0.38,0.60 0.62,0.60 0.58,0.70 0.50,0.76 0.42,0.70 stroke #4a3828
+# Snout seam
+line 0.50,0.60 0.50,0.74 stroke #4a3828 0.6 width 1
+# Nasal cavity
+poly 0.47,0.64 0.53,0.64 0.50,0.72 fill #0a0604 0.95
+
+# Teeth ridge
+line 0.43,0.74 0.45,0.76 stroke #4a3828 width 1
+line 0.48,0.75 0.50,0.77 stroke #4a3828 width 1
+line 0.53,0.75 0.55,0.77 stroke #4a3828 width 1
+
+# War-paint red streak across forehead
+ellipse 0.50,0.36 0.16,0.03 fill #a02020 0.75
+
+# Crown highlight
+ellipse 0.46,0.34 0.06,0.03 fill #f4e8d4 0.45

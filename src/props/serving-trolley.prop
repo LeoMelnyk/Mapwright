@@ -1,0 +1,76 @@
+name: Serving Trolley
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.0
+placement: wall
+room_types: mansion-dining, dining-hall, supper-room, kitchen, noble-solar
+typical_count: single
+clusters_with: round-dining-table, china-cabinet, silver-candlestick, tureen
+notes: Wheeled cart with silver tray, covered dishes, and a crystal decanter. Approaches from south.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.72 z 0-1.0
+
+# Footprint 1x2: x 0-2, y 0-1. Wall/corner placement; service side at south (high Y).
+
+# Trolley top — wooden cart surface
+rect 0.08,0.08 1.84,0.72 texfill polyhaven/wood_table 0.9
+rect 0.08,0.08 1.84,0.72 stroke #2a1400
+
+# Wood grain
+line 0.10,0.30 1.90,0.30 stroke #3a1f00 0.35
+line 0.10,0.58 1.90,0.58 stroke #3a1f00 0.35
+
+# Wheels visible at corners (four circles, small, peeking under cart)
+circle 0.14,0.14 0.07 fill #222222 0.95
+circle 0.14,0.14 0.07 stroke #000000
+circle 0.14,0.04 0.02 fill #666666 0.9
+circle 1.86,0.14 0.07 fill #222222 0.95
+circle 1.86,0.14 0.07 stroke #000000
+circle 0.14,0.82 0.07 fill #222222 0.95
+circle 0.14,0.82 0.07 stroke #000000
+circle 1.86,0.82 0.07 fill #222222 0.95
+circle 1.86,0.82 0.07 stroke #000000
+
+# Silver tray on top (large rectangular)
+rect 0.22,0.22 1.08,0.46 fill #c0c0c0 0.92
+rect 0.22,0.22 1.08,0.46 stroke #555555
+# Tray inner edge
+rect 0.26,0.26 1.00,0.38 stroke #8899aa width 1
+
+# Covered silver dish (large dome — left)
+circle 0.46,0.45 0.14 fill #c0c0c0 0.95
+circle 0.46,0.45 0.14 stroke #555555
+circle 0.46,0.45 0.10 stroke #8899aa 0.6
+# Dome handle knob
+circle 0.46,0.45 0.035 fill #daa520 0.95
+circle 0.46,0.45 0.035 stroke #5a3a00
+
+# Smaller covered dish (right on tray)
+circle 0.96,0.45 0.11 fill #c0c0c0 0.95
+circle 0.96,0.45 0.11 stroke #555555
+circle 0.96,0.45 0.03 fill #daa520 0.95
+
+# Crystal decanter (right side — outside tray, on wood)
+# Base
+ellipse 1.60,0.55 0.11,0.08 fill #c8d8e8 0.7
+ellipse 1.60,0.55 0.11,0.08 stroke #8899aa
+# Wine filling (dark red showing through)
+ellipse 1.60,0.55 0.08,0.055 fill #5a1a1a 0.8
+# Neck
+circle 1.60,0.38 0.05 fill #c8d8e8 0.75
+circle 1.60,0.38 0.05 stroke #8899aa
+# Stopper
+circle 1.60,0.32 0.035 fill #daa520 0.9
+circle 1.60,0.32 0.035 stroke #5a3a00
+
+# Decanter crystal facet highlights
+line 1.54,0.50 1.56,0.60 stroke #f0f8ff 0.5 width 1
+line 1.66,0.50 1.64,0.60 stroke #f0f8ff 0.5 width 1
+
+# Trolley handle bar (south edge — pushed by servants)
+rect 0.30,0.80 1.40,0.04 fill #daa520 0.85
+rect 0.30,0.80 1.40,0.04 stroke #5a3a00

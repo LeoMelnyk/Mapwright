@@ -1,0 +1,38 @@
+name: Slippers
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-bedroom-master, bedchamber, noble-suite, bedroom
+typical_count: single
+clusters_with: bed, wardrobe, dressing-screen
+notes: Pair of embroidered silk slippers placed side by side at the foot of the bed, toes pointing the same way.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Left slipper (west) — elongated oval with pointed toe north
+poly 0.26,0.18 0.38,0.16 0.44,0.32 0.44,0.70 0.40,0.82 0.26,0.80 0.22,0.60 0.22,0.32 texfill polyhaven/velour_velvet 0.85
+poly 0.26,0.18 0.38,0.16 0.44,0.32 0.44,0.70 0.40,0.82 0.26,0.80 0.22,0.60 0.22,0.32 fill #f4c8c8 0.5
+poly 0.26,0.18 0.38,0.16 0.44,0.32 0.44,0.70 0.40,0.82 0.26,0.80 0.22,0.60 0.22,0.32 stroke #a07878
+# Left slipper opening (foot enters from south)
+ellipse 0.33,0.62 0.10,0.14 fill #4a2030 0.7
+ellipse 0.33,0.62 0.10,0.14 stroke #2a1018
+# Left embroidery detail (gold floral)
+circle 0.33,0.35 0.025 fill #daa520 0.85
+line 0.30,0.38 0.36,0.32 stroke #daa520 0.7 width 1
+line 0.30,0.32 0.36,0.38 stroke #daa520 0.7 width 1
+# Right slipper (east)
+poly 0.62,0.18 0.74,0.16 0.78,0.32 0.78,0.60 0.74,0.80 0.60,0.82 0.56,0.70 0.56,0.32 texfill polyhaven/velour_velvet 0.85
+poly 0.62,0.18 0.74,0.16 0.78,0.32 0.78,0.60 0.74,0.80 0.60,0.82 0.56,0.70 0.56,0.32 fill #f4c8c8 0.5
+poly 0.62,0.18 0.74,0.16 0.78,0.32 0.78,0.60 0.74,0.80 0.60,0.82 0.56,0.70 0.56,0.32 stroke #a07878
+# Right slipper opening
+ellipse 0.67,0.62 0.10,0.14 fill #4a2030 0.7
+ellipse 0.67,0.62 0.10,0.14 stroke #2a1018
+# Right embroidery
+circle 0.67,0.35 0.025 fill #daa520 0.85
+line 0.64,0.38 0.70,0.32 stroke #daa520 0.7 width 1
+line 0.64,0.32 0.70,0.38 stroke #daa520 0.7 width 1
+# Silk sheen highlight on both
+ellipse 0.30,0.26 0.05,0.02 fill #f8dcdc 0.5
+ellipse 0.64,0.26 0.05,0.02 fill #f8dcdc 0.5

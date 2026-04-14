@@ -1,0 +1,50 @@
+name: Ember Drift
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-fire-node, volcano-caldera, elemental-node
+typical_count: many
+clusters_with: ember-pit, molten-pool-small, fire-node-core
+notes: Scatter of floating hot embers and soot patches — dark base with orange spark dots scattered across.
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.5
+    radius: 5
+    color: "#ff6020"
+    intensity: 0.5
+---
+# Soft heat halo
+circle 0.5,0.5 0.45 gradient-radial #ff6020 #0a0400 0.2
+
+# Soot patches (irregular dark base)
+poly 0.15,0.4 0.3,0.3 0.4,0.35 0.35,0.5 0.22,0.55 fill #1a0800 0.75
+poly 0.15,0.4 0.3,0.3 0.4,0.35 0.35,0.5 0.22,0.55 stroke #2a1500 width 1
+
+poly 0.55,0.62 0.7,0.58 0.82,0.68 0.78,0.82 0.65,0.85 0.55,0.75 fill #1a0800 0.7
+poly 0.55,0.62 0.7,0.58 0.82,0.68 0.78,0.82 0.65,0.85 0.55,0.75 stroke #2a1500 width 1
+
+poly 0.62,0.2 0.78,0.18 0.85,0.3 0.75,0.4 0.62,0.35 fill #1a0800 0.6
+poly 0.62,0.2 0.78,0.18 0.85,0.3 0.75,0.4 0.62,0.35 stroke #2a1500 width 1
+
+# Glowing cracks through soot
+line 0.22,0.45 0.32,0.42 stroke #ff6020 width 2
+line 0.6,0.72 0.72,0.7 stroke #ff6020 width 2
+line 0.68,0.25 0.78,0.3 stroke #e85500 width 2
+
+# Bright ember spark dots scattered across
+circle 0.28,0.38 0.028 fill #ffaa30 0.95
+circle 0.72,0.72 0.025 fill #ffaa30 0.9
+circle 0.32,0.5 0.022 fill #ffcc60 0.85
+circle 0.65,0.7 0.02 fill #ffcc60 0.8
+circle 0.77,0.24 0.022 fill #ffaa30 0.85
+circle 0.45,0.45 0.018 fill #ff8030 0.8
+
+# Tiny floating sparks (above the ember bed)
+circle 0.2,0.2 0.015 fill #ffcc60 0.75
+circle 0.5,0.15 0.014 fill #ffaa30 0.7
+circle 0.85,0.5 0.015 fill #ffcc60 0.75
+circle 0.15,0.8 0.013 fill #ff8030 0.7

@@ -1,0 +1,51 @@
+name: Spider Egg Cluster
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cave-drow-outpost, underdark-outpost, spider-lair, dungeon
+typical_count: many
+clusters_with: spider-silk-drape, spider-shrine, cobweb-cluster, web-strand
+notes: Cluster of white-beige silk spider egg sacs — some intact, some broken open with tiny pulses of life
+---
+# Silk matting under the cluster (faint web background)
+ellipse 0.5,0.55 0.44,0.34 fill #c8b898 0.3
+ellipse 0.5,0.55 0.44,0.34 stroke #8b7355 0.5
+# Web strands radiating out
+line 0.10,0.30 0.50,0.50 stroke #e8dcc8 0.6 width 1
+line 0.90,0.32 0.50,0.50 stroke #e8dcc8 0.6 width 1
+line 0.14,0.78 0.50,0.56 stroke #e8dcc8 0.5 width 1
+line 0.86,0.80 0.50,0.56 stroke #e8dcc8 0.5 width 1
+# Intact egg sac 1 (large, central)
+ellipse 0.50,0.50 0.18,0.15 fill #e8dcc8 0.95
+ellipse 0.50,0.50 0.18,0.15 stroke #8b7355
+# Subtle highlight
+ellipse 0.46,0.46 0.08,0.05 fill #ffffff 0.35
+# Faint pulse shadow inside (a curled dark shape)
+ellipse 0.52,0.52 0.08,0.06 fill #4a3828 0.25
+# Intact egg sac 2 (upper left)
+ellipse 0.28,0.32 0.12,0.10 fill #e8dcc8 0.95
+ellipse 0.28,0.32 0.12,0.10 stroke #8b7355
+ellipse 0.26,0.30 0.05,0.03 fill #ffffff 0.3
+# Intact egg sac 3 (upper right)
+ellipse 0.74,0.30 0.11,0.09 fill #e8dcc8 0.92
+ellipse 0.74,0.30 0.11,0.09 stroke #8b7355
+# Broken egg sac (lower left — torn, dark inside)
+poly 0.18,0.72 0.28,0.68 0.34,0.78 0.30,0.86 0.18,0.86 0.14,0.80 fill #c8b898 0.85
+poly 0.18,0.72 0.28,0.68 0.34,0.78 0.30,0.86 0.18,0.86 0.14,0.80 stroke #6a5040
+# Dark hollow interior
+ellipse 0.24,0.78 0.06,0.05 fill #1a1208 0.85
+# Torn silk strands dangling
+line 0.22,0.70 0.20,0.64 stroke #d4c4a8 0.8 width 1
+line 0.32,0.72 0.36,0.64 stroke #d4c4a8 0.7 width 1
+# Small intact sac (lower right)
+ellipse 0.76,0.76 0.09,0.08 fill #e8dcc8 0.9
+ellipse 0.76,0.76 0.09,0.08 stroke #8b7355
+# Tiny spiderling on the cluster
+circle 0.60,0.38 0.02 fill #1a1020 0.9
+line 0.58,0.37 0.55,0.35 stroke #1a1020 width 1
+line 0.62,0.37 0.65,0.35 stroke #1a1020 width 1
+line 0.58,0.39 0.55,0.41 stroke #1a1020 width 1
+line 0.62,0.39 0.65,0.41 stroke #1a1020 width 1

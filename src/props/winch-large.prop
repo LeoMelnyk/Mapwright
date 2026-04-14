@@ -1,0 +1,54 @@
+name: Large Winch
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.2
+placement: corner
+room_types: mine-shaft-entrance, mining-camp, deep-mine, dock, well
+typical_count: few
+clusters_with: mine-shaft, headframe, cart-track, sorting-table
+notes: Large wooden winch with iron drum and coiled rope, crank handle — place beside a shaft or well to haul loads
+---
+# === HITBOX ===
+hitbox rect 0.06,0.20 0.88,0.60 z 0-1.2
+
+# North support post base (left upright)
+rect 0.06,0.22 0.12,0.56 texfill polyhaven/dark_wood 0.9
+rect 0.06,0.22 0.12,0.56 stroke #2a1400
+# South support post base (right upright)
+rect 0.82,0.22 0.12,0.56 texfill polyhaven/dark_wood 0.9
+rect 0.82,0.22 0.12,0.56 stroke #2a1400
+# Iron brackets on posts (where axle mounts)
+rect 0.06,0.44 0.12,0.14 fill #333333 0.95
+rect 0.06,0.44 0.12,0.14 stroke #222222
+rect 0.82,0.44 0.12,0.14 fill #333333 0.95
+rect 0.82,0.44 0.12,0.14 stroke #222222
+# Wooden drum body (thick horizontal cylinder between posts — seen edge-on as a thin ellipse vertically)
+rect 0.18,0.36 0.64,0.30 texfill polyhaven/dark_wood 0.9
+rect 0.18,0.36 0.64,0.30 stroke #2a1400
+# Iron drum bands
+line 0.18,0.42 0.82,0.42 stroke #222222 width 2
+line 0.18,0.60 0.82,0.60 stroke #222222 width 2
+# Rope coiled on the drum (horizontal stripes)
+line 0.20,0.46 0.80,0.46 stroke #8b7355 width 2
+line 0.20,0.50 0.80,0.50 stroke #8b7355 width 2
+line 0.20,0.54 0.80,0.54 stroke #8b7355 width 2
+line 0.20,0.58 0.80,0.58 stroke #8b7355 width 2
+# Rope highlight (top strand)
+line 0.22,0.45 0.78,0.45 stroke #a08560 0.7 width 1
+# Rope tail dangling off the drum (south)
+bezier 0.50,0.66 0.50,0.74 0.44,0.82 0.42,0.92 stroke #8b7355 width 3
+# Crank handle (protruding east from the drum end)
+# Crank arm
+rect 0.82,0.48 0.14,0.06 texfill polyhaven/dark_wood 0.9 rotate 20
+rect 0.82,0.48 0.14,0.06 stroke #2a1400 rotate 20
+# Crank grip (small knob)
+circle 0.94,0.60 0.05 fill #4a2800 0.9
+circle 0.94,0.60 0.05 stroke #2a1400
+# Axle end caps
+circle 0.12,0.50 0.04 fill #444444 0.95
+circle 0.12,0.50 0.04 stroke #222222
+circle 0.88,0.50 0.04 fill #444444 0.95
+circle 0.88,0.50 0.04 stroke #222222

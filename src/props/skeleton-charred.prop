@@ -1,0 +1,78 @@
+name: Charred Skeleton
+category: Misc
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-fire-node, volcano-caldera, elemental-node, crypt
+typical_count: few
+clusters_with: ember-drift, ember-pit, molten-pool-small
+notes: Blackened skeleton lying curled, bones fire-scorched. Ash aureole beneath. Vary rotation for natural scatter.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: skeleton curled on side, head east, feet west
+
+# Ash aureole beneath body
+ellipse 1.0,0.55 0.85,0.35 fill #3a3020 0.5
+ellipse 1.0,0.55 0.7,0.28 fill #1a0800 0.4
+
+# Scorch marks around ash
+circle 0.3,0.55 0.08 fill #1a0800 0.6
+circle 1.7,0.55 0.07 fill #1a0800 0.5
+
+# Spine (curved vertebrae line, head-to-pelvis)
+line 1.55,0.45 1.25,0.5 stroke #e8dcc8 width 3
+line 1.25,0.5 0.95,0.55 stroke #c8b898 width 3
+line 0.95,0.55 0.7,0.6 stroke #c8b898 width 3
+
+# Vertebrae bumps
+circle 1.5,0.46 0.035 fill #e8dcc8 0.7
+circle 1.5,0.46 0.035 stroke #2a1500 width 1
+circle 1.35,0.48 0.035 fill #d4c4a8 0.7
+circle 1.35,0.48 0.035 stroke #2a1500 width 1
+circle 1.15,0.52 0.035 fill #c8b898 0.7
+circle 1.15,0.52 0.035 stroke #2a1500 width 1
+circle 0.95,0.55 0.035 fill #a89878 0.7
+circle 0.95,0.55 0.035 stroke #2a1500 width 1
+circle 0.78,0.58 0.035 fill #8a7858 0.7
+circle 0.78,0.58 0.035 stroke #2a1500 width 1
+
+# Skull (east end)
+ellipse 1.7,0.5 0.12,0.1 fill #e8dcc8 0.8
+ellipse 1.7,0.5 0.12,0.1 stroke #2a1500 width 1
+# Eye sockets
+circle 1.7,0.47 0.025 fill #1a0800 0.95
+circle 1.76,0.51 0.02 fill #1a0800 0.95
+# Jaw line
+line 1.62,0.53 1.78,0.55 stroke #2a1500 width 1
+# Scorch on skull
+poly 1.68,0.43 1.74,0.43 1.72,0.48 fill #1a0800 0.6
+
+# Ribcage arc (north side — body on its left)
+arc 1.3,0.4 0.12 180 360 stroke #c8b898 width 2
+arc 1.2,0.4 0.1 180 360 stroke #a89878 width 2
+arc 1.1,0.42 0.09 180 360 stroke #8a7858 width 2
+# Rib ends protrude
+line 1.3,0.4 1.3,0.35 stroke #c8b898 width 1
+line 1.2,0.4 1.2,0.35 stroke #a89878 width 1
+
+# Pelvis (west of spine)
+ellipse 0.72,0.62 0.1,0.08 fill #a89878 0.7
+ellipse 0.72,0.62 0.1,0.08 stroke #2a1500 width 1
+
+# Leg bones (curled, femur + tibia, to the west)
+line 0.65,0.62 0.45,0.55 stroke #c8b898 width 3
+line 0.45,0.55 0.28,0.7 stroke #a89878 width 3
+line 0.7,0.68 0.5,0.75 stroke #c8b898 width 3
+line 0.5,0.75 0.35,0.68 stroke #a89878 width 3
+
+# Arm bone (thrown up, north)
+line 1.35,0.45 1.2,0.3 stroke #c8b898 width 2
+line 1.2,0.3 1.1,0.22 stroke #a89878 width 2
+# Hand bones
+circle 1.08,0.2 0.025 fill #8a7858 0.75
+
+# Charred scorch cracks on the skull/ribs
+line 1.65,0.46 1.73,0.52 stroke #1a0800 width 1
+line 1.25,0.48 1.32,0.42 stroke #1a0800 width 1

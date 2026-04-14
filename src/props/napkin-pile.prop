@@ -1,0 +1,45 @@
+name: Napkin Pile
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: any
+room_types: mansion-dining, dining-hall, supper-room, kitchen
+typical_count: few
+clusters_with: round-dining-table, silver-candlestick, serving-trolley, china-cabinet
+notes: Stack of folded white linen napkins with crisp creases.
+---
+# Footprint 1x1: x 0-1, y 0-1. Stack of folded napkins viewed from above.
+
+# Bottom napkin (visible edge)
+rect 0.16,0.24 0.68,0.54 fill #e8dcc8 0.95
+rect 0.16,0.24 0.68,0.54 stroke #8b7355
+
+# Middle napkin (slightly offset)
+rect 0.20,0.20 0.64,0.52 fill #f0e8d8 0.95
+rect 0.20,0.20 0.64,0.52 stroke #8b7355
+
+# Top napkin (further offset)
+rect 0.22,0.16 0.60,0.48 fill #f8f0e0 0.97
+rect 0.22,0.16 0.60,0.48 stroke #8b7355
+
+# Crease lines on top napkin (fold creases)
+line 0.22,0.40 0.82,0.40 stroke #c8b898 0.6 width 1
+line 0.52,0.16 0.52,0.64 stroke #c8b898 0.55 width 1
+
+# Secondary crease (quarter fold)
+line 0.22,0.28 0.82,0.28 stroke #c8b898 0.4 width 1
+
+# Linen texture — subtle weave dots
+circle 0.32,0.30 0.012 fill #c8b898 0.4
+circle 0.70,0.30 0.012 fill #c8b898 0.4
+circle 0.32,0.54 0.012 fill #c8b898 0.4
+circle 0.70,0.54 0.012 fill #c8b898 0.4
+
+# Edge shadows between napkins
+line 0.20,0.20 0.20,0.72 stroke #c8b898 0.5 width 1
+line 0.84,0.20 0.84,0.72 stroke #c8b898 0.5 width 1
+
+# Subtle monogram embroidery (decorative dot cluster on top napkin)
+circle 0.52,0.40 0.025 stroke #daa520 width 1

@@ -1,0 +1,39 @@
+name: Leaf Drift
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-air-node, elemental-node, storm-spire, genie-court
+typical_count: many
+clusters_with: feather-drift, seed-float
+notes: Scatter of autumn leaves caught mid-spin — ochre, rust, and gold.
+---
+# Subtle air swirl halo
+circle 0.5,0.5 0.4 gradient-radial #ddc090 #1a1408 0.12
+
+# Leaf 1 — ochre, upper-left (oak-shaped lobes)
+poly 0.25,0.2 0.32,0.15 0.38,0.22 0.36,0.3 0.3,0.34 0.22,0.3 fill #b8742a 0.85
+poly 0.25,0.2 0.32,0.15 0.38,0.22 0.36,0.3 0.3,0.34 0.22,0.3 stroke #5a3008 width 1
+line 0.28,0.2 0.30,0.32 stroke #5a3008 width 1
+
+# Leaf 2 — rust red, center (maple-ish)
+poly 0.55,0.42 0.62,0.38 0.7,0.42 0.72,0.5 0.65,0.56 0.58,0.58 0.5,0.55 0.48,0.48 fill #a03020 0.85
+poly 0.55,0.42 0.62,0.38 0.7,0.42 0.72,0.5 0.65,0.56 0.58,0.58 0.5,0.55 0.48,0.48 stroke #4a1008 width 1
+line 0.6,0.4 0.6,0.56 stroke #4a1008 width 1
+line 0.52,0.48 0.68,0.48 stroke #4a1008 width 1
+
+# Leaf 3 — gold yellow, lower-right
+poly 0.65,0.72 0.78,0.7 0.85,0.78 0.8,0.88 0.7,0.9 0.63,0.82 fill #d4a020 0.85
+poly 0.65,0.72 0.78,0.7 0.85,0.78 0.8,0.88 0.7,0.9 0.63,0.82 stroke #6a4808 width 1
+line 0.68,0.74 0.78,0.88 stroke #6a4808 width 1
+
+# Leaf 4 — small ochre, lower-left
+poly 0.2,0.75 0.28,0.72 0.32,0.8 0.25,0.86 0.18,0.82 fill #a8642a 0.8
+poly 0.2,0.75 0.28,0.72 0.32,0.8 0.25,0.86 0.18,0.82 stroke #5a3008 width 1
+
+# Tiny leaf bits and motes
+circle 0.45,0.25 0.025 fill #c08030 0.7
+circle 0.8,0.3 0.02 fill #d4a020 0.65
+circle 0.4,0.7 0.018 fill #a03020 0.6

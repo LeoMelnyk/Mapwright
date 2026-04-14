@@ -1,0 +1,64 @@
+name: Tureen
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: any
+room_types: mansion-dining, dining-hall, supper-room, kitchen, noble-solar
+typical_count: single
+clusters_with: round-dining-table, serving-trolley, silver-candlestick, napkin-pile
+notes: Ornate porcelain soup tureen, blue-and-white painted, lid slightly ajar with ladle handle protruding.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-0.8
+
+# Footprint 1x1: x 0-1, y 0-1. Round tureen viewed from above — lid on slight angle.
+
+# Tureen base (porcelain outer body — wider than lid)
+ellipse 0.5,0.55 0.40,0.32 fill #f0e8d8 0.95
+ellipse 0.5,0.55 0.40,0.32 stroke #4a5aaa
+
+# Handle lugs (two side handles peeking out east and west)
+ellipse 0.08,0.55 0.08,0.06 fill #f0e8d8 0.95
+ellipse 0.08,0.55 0.08,0.06 stroke #4a5aaa
+ellipse 0.92,0.55 0.08,0.06 fill #f0e8d8 0.95
+ellipse 0.92,0.55 0.08,0.06 stroke #4a5aaa
+
+# Blue-and-white painted pattern on body (visible band)
+ellipse 0.5,0.55 0.36,0.28 stroke #2a3a7a width 2
+# Pattern dots
+circle 0.30,0.52 0.018 fill #2a3a7a 0.85
+circle 0.70,0.52 0.018 fill #2a3a7a 0.85
+circle 0.20,0.60 0.015 fill #2a3a7a 0.8
+circle 0.80,0.60 0.015 fill #2a3a7a 0.8
+circle 0.5,0.76 0.018 fill #2a3a7a 0.85
+# Floral scrolls
+qbezier 0.38,0.70 0.44,0.66 0.50,0.70 stroke #2a3a7a 0.75 width 1
+qbezier 0.50,0.70 0.56,0.66 0.62,0.70 stroke #2a3a7a 0.75 width 1
+
+# Lid (offset slightly — sitting askew) — drawn on top
+ellipse 0.50,0.44 0.34,0.22 fill #f8f0e0 0.95
+ellipse 0.50,0.44 0.34,0.22 stroke #4a5aaa
+
+# Lid painted rim
+ellipse 0.50,0.44 0.30,0.19 stroke #2a3a7a 0.7 width 1
+
+# Gap between lid and body (exposed interior — dark, with steam hint)
+poly 0.22,0.48 0.46,0.50 0.46,0.54 0.24,0.52 fill #2a1800 0.75
+
+# Lid finial (knob on top of lid, slightly off-center due to askew lid)
+circle 0.52,0.44 0.05 fill #4a5aaa 0.95
+circle 0.52,0.44 0.05 stroke #2a1170
+circle 0.52,0.44 0.025 fill #6a7acc 0.8
+
+# Ladle handle protruding from the gap (wooden, curved up-right)
+rect 0.28,0.28 0.06,0.24 fill #8b6914 0.95 rotate -25
+rect 0.28,0.28 0.06,0.24 stroke #5a3a00 rotate -25
+
+# Steam wisps (subtle white curls rising from gap)
+qbezier 0.30,0.46 0.26,0.36 0.30,0.26 stroke #f0f0ff 0.4 width 2
+qbezier 0.36,0.48 0.40,0.38 0.36,0.30 stroke #f0f0ff 0.35 width 2
+
+# Porcelain rim highlight
+arc 0.5,0.55 0.40 210 340 stroke #ffffff 0.4 width 1

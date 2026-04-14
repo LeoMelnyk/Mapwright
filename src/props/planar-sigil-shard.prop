@@ -1,0 +1,51 @@
+name: Planar Sigil Shard
+category: Magical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: astral-anchor, astral-sea, planar-nexus, githyanki-citadel
+typical_count: few
+clusters_with: astral-anchor-stone, silver-cord-stub, star-dust-pile
+notes: Fragment of a shattered arcane seal — a broken engraved disc, split in half. A residual mana trail spirals from its fractured edge.
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.5
+    radius: 6
+    color: "#a080ff"
+    intensity: 0.5
+---
+# Faint violet residue glow
+circle 0.5,0.5 0.42 gradient-radial #a080ff #1a0828 0.2
+
+# Broken disc — left half (jagged break on right edge)
+poly 0.12,0.5 0.14,0.32 0.22,0.2 0.36,0.14 0.48,0.14 0.44,0.24 0.48,0.32 0.4,0.42 0.46,0.5 0.42,0.58 0.5,0.66 0.46,0.76 0.48,0.86 0.36,0.86 0.22,0.8 0.14,0.68 texfill polyhaven/marble_01 0.85
+poly 0.12,0.5 0.14,0.32 0.22,0.2 0.36,0.14 0.48,0.14 0.44,0.24 0.48,0.32 0.4,0.42 0.46,0.5 0.42,0.58 0.5,0.66 0.46,0.76 0.48,0.86 0.36,0.86 0.22,0.8 0.14,0.68 stroke #555555 width 2
+
+# Disc inner ring (half visible)
+arc 0.5,0.5 0.28 90 270 stroke #8060d0 width 1
+
+# Engraved runes on the disc face
+line 0.26,0.4 0.32,0.4 stroke #c0a0ff width 1
+line 0.26,0.5 0.34,0.5 stroke #c0a0ff width 1
+line 0.26,0.6 0.32,0.6 stroke #c0a0ff width 1
+circle 0.28,0.3 0.025 stroke #e0e0ff width 1
+circle 0.28,0.7 0.025 stroke #e0e0ff width 1
+
+# Small detached fragment (the other broken piece)
+poly 0.66,0.3 0.74,0.28 0.8,0.36 0.78,0.44 0.7,0.44 0.64,0.38 fill #8a8a8a 0.85
+poly 0.66,0.3 0.74,0.28 0.8,0.36 0.78,0.44 0.7,0.44 0.64,0.38 stroke #555555 width 1
+line 0.7,0.34 0.74,0.38 stroke #c0a0ff width 1
+
+# Mana trail spiraling from the fracture (violet residue)
+bezier 0.48,0.3 0.58,0.36 0.66,0.38 0.68,0.34 stroke #a080ff width 2
+bezier 0.48,0.7 0.58,0.72 0.64,0.66 0.7,0.58 stroke #a080ff width 2
+bezier 0.5,0.5 0.62,0.52 0.72,0.5 0.82,0.56 stroke #c0a0ff width 1
+
+# Sparkling residue motes along the trail
+circle 0.6,0.42 0.018 fill #e0e0ff 0.9
+circle 0.68,0.52 0.016 fill #c0a0ff 0.85
+circle 0.76,0.62 0.014 fill #e0e0ff 0.8
+circle 0.84,0.5 0.012 fill #c0a0ff 0.7

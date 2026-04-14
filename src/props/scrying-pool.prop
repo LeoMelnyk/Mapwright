@@ -1,0 +1,55 @@
+name: Scrying Pool
+category: Magical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: center
+room_types: cave-drow-outpost, underdark-outpost, drow-citadel, ritual-chamber, wizard-sanctum
+typical_count: single
+clusters_with: candle-violet, spider-shrine, faerzress-sconce
+notes: Circular stone basin with mirror-still violet water and silver etched rim — reveals distant visions
+lights:
+  - type: candle
+    x: 1.0
+    y: 1.0
+    radius: 8
+    color: "#a060ff"
+    intensity: 0.6
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.92 z 0-0.6
+
+# Outer basin stone rim
+circle 1.0,1.0 0.94 texfill polyhaven/stone_wall 0.8
+circle 1.0,1.0 0.94 stroke #1a1020 width 2
+# Inner rim step (polished obsidian)
+circle 1.0,1.0 0.82 fill #1a1020 0.95
+circle 1.0,1.0 0.82 stroke #0a0820
+# Silver etchings around the rim (radial ticks)
+line 1.0,0.12 1.0,0.22 stroke #c0c0c0 width 2
+line 1.0,1.78 1.0,1.88 stroke #c0c0c0 width 2
+line 0.12,1.0 0.22,1.0 stroke #c0c0c0 width 2
+line 1.78,1.0 1.88,1.0 stroke #c0c0c0 width 2
+line 0.34,0.34 0.42,0.42 stroke #c0c0c0 width 2
+line 1.58,0.34 1.66,0.42 stroke #c0c0c0 width 2
+line 0.34,1.66 0.42,1.58 stroke #c0c0c0 width 2
+line 1.58,1.66 1.66,1.58 stroke #c0c0c0 width 2
+# Silver sigil ring (circular band of runes)
+circle 1.0,1.0 0.76 stroke #c0c0c0 0.85 width 1
+circle 1.0,1.0 0.70 stroke #8040c0 0.55 width 1
+# Mirror-still violet water surface
+circle 1.0,1.0 0.66 gradient-radial #a060ff #2a1040 0.85
+# Inner faint reflection ring
+circle 1.0,1.0 0.50 fill #6040a0 0.35
+# Vision-glow at center (active scrying)
+circle 1.0,1.0 0.30 fill #a060ff 0.55
+circle 1.0,1.0 0.18 fill #c080ff 0.65
+circle 1.0,1.0 0.08 fill #e0c0ff 0.8
+# Highlight sliver (mirror sheen)
+arc 1.0,1.0 0.60 210 260 stroke #e0c0ff 0.5 width 1
+# Silver sparkle motes on water
+circle 0.70,0.80 0.02 fill #e0c0ff 0.85
+circle 1.32,1.24 0.018 fill #e0c0ff 0.80
+circle 1.20,0.70 0.016 fill #e0c0ff 0.75

@@ -1,0 +1,54 @@
+name: Spilled Punch
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall, tavern
+typical_count: single
+clusters_with: punch-table, dropped-fan, dance-card, ribbon
+notes: Puddle of red punch with a tipped crystal cup and fruit slices floating. Place near the punch table or as a scandal marker.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Main puddle — irregular blob of red punch
+poly 0.22,0.48 0.18,0.36 0.30,0.26 0.46,0.22 0.62,0.26 0.74,0.36 0.82,0.50 0.78,0.66 0.64,0.76 0.46,0.78 0.30,0.72 0.22,0.60 fill #8b1a2a 0.85
+poly 0.22,0.48 0.18,0.36 0.30,0.26 0.46,0.22 0.62,0.26 0.74,0.36 0.82,0.50 0.78,0.66 0.64,0.76 0.46,0.78 0.30,0.72 0.22,0.60 stroke #4a0810 width 1
+
+# Inner darker puddle center
+ellipse 0.50,0.50 0.24,0.20 fill #5a0a1a 0.6
+
+# Highlights on wet surface
+ellipse 0.42,0.40 0.08,0.04 fill #c02040 0.55
+ellipse 0.62,0.56 0.05,0.03 fill #c02040 0.45
+
+# Splash dots around puddle
+circle 0.14,0.30 0.03 fill #8b1a2a 0.8
+circle 0.18,0.80 0.025 fill #8b1a2a 0.8
+circle 0.88,0.32 0.025 fill #8b1a2a 0.8
+circle 0.84,0.80 0.03 fill #8b1a2a 0.8
+circle 0.92,0.56 0.02 fill #8b1a2a 0.75
+circle 0.08,0.56 0.02 fill #8b1a2a 0.75
+
+# Tipped crystal cup (ellipse on its side, rim visible)
+ellipse 0.32,0.42 0.10,0.07 fill #c8e0ee 0.65
+ellipse 0.32,0.42 0.10,0.07 stroke #88a0b8 width 2
+# Cup interior (rim seen from angle)
+ellipse 0.32,0.42 0.07,0.04 fill #5a0a1a 0.7
+ellipse 0.32,0.42 0.07,0.04 stroke #88a0b8
+
+# Cup gleam
+line 0.28,0.38 0.34,0.38 stroke #ffffff 0.6 width 1
+
+# Floating fruit slices
+ellipse 0.60,0.48 0.05,0.03 fill #ffaa88 0.9
+ellipse 0.60,0.48 0.05,0.03 stroke #aa4020
+line 0.58,0.48 0.62,0.48 stroke #ffdd99 width 1
+
+ellipse 0.50,0.66 0.045,0.028 fill #ffaa88 0.9
+ellipse 0.50,0.66 0.045,0.028 stroke #aa4020
+
+# Small lemon wedge
+poly 0.68,0.60 0.74,0.62 0.72,0.68 fill #ffd700 0.85
+poly 0.68,0.60 0.74,0.62 0.72,0.68 stroke #8b6914

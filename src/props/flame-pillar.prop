@@ -1,0 +1,63 @@
+name: Flame Pillar
+category: Magical
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.3
+placement: center
+room_types: elemental-fire-node, volcano-caldera, elemental-node
+typical_count: few
+clusters_with: fire-node-core, basalt-pillar, ember-pit
+notes: Tall tower of living flame — narrow base widening at top, yellow/orange gradient. A self-sustaining fire column with no obvious source.
+lights:
+  - type: torch
+    x: 0.5
+    y: 1.0
+    radius: 15
+    color: "#ff8030"
+    intensity: 0.9
+---
+# footprint 2x1: x range 0-1, y range 0-2
+
+# Outer heat halo
+ellipse 0.5,1.0 0.5,0.95 gradient-radial #ff6030 #0a0400 0.35
+
+# Charred ground ring at base
+ellipse 0.5,1.75 0.3,0.12 fill #1a0800 0.85
+ellipse 0.5,1.75 0.3,0.12 stroke #000000 width 2
+# Ember specks in charred ring
+circle 0.45,1.72 0.02 fill #ffaa30 0.85
+circle 0.55,1.78 0.018 fill #ff8030 0.8
+
+# Flame base layer — narrow at bottom
+poly 0.35,1.7 0.65,1.7 0.75,1.0 0.7,0.5 0.5,0.2 0.3,0.5 0.25,1.0 fill #cc3300 0.6
+poly 0.35,1.7 0.65,1.7 0.75,1.0 0.7,0.5 0.5,0.2 0.3,0.5 0.25,1.0 stroke #4a1008 width 1
+
+# Mid flame layer
+poly 0.38,1.65 0.62,1.65 0.7,1.0 0.65,0.55 0.5,0.3 0.35,0.55 0.3,1.0 fill #e85500 0.7
+
+# Inner bright flame
+poly 0.4,1.6 0.6,1.6 0.66,1.0 0.6,0.6 0.5,0.4 0.4,0.6 0.34,1.0 fill #ff6030 0.8
+
+# Hot inner core
+poly 0.42,1.5 0.58,1.5 0.62,1.0 0.55,0.7 0.5,0.55 0.45,0.7 0.38,1.0 fill #ff8030 0.85
+
+# Tongue at top (widening crown)
+poly 0.3,0.5 0.7,0.5 0.6,0.15 0.5,0.05 0.4,0.15 fill #ffaa30 0.75
+
+# Bright core
+line 0.5,0.3 0.5,1.55 stroke #ffcc60 width 4
+line 0.5,0.4 0.5,1.5 stroke #ffffff width 2
+
+# Rising flame tongue details
+poly 0.5,0.4 0.55,0.2 0.5,0.08 0.45,0.2 fill #ffcc60 0.85
+poly 0.5,0.55 0.53,0.35 0.5,0.25 0.47,0.35 fill #ffffff 0.75
+
+# Floating sparks around the pillar
+circle 0.25,0.7 0.025 fill #ffcc60 0.9
+circle 0.78,0.55 0.022 fill #ffaa30 0.85
+circle 0.2,1.3 0.02 fill #ffcc60 0.8
+circle 0.8,1.2 0.022 fill #ffaa30 0.85
+circle 0.35,0.3 0.018 fill #ffcc60 0.75
+circle 0.65,0.2 0.02 fill #ffcc60 0.8

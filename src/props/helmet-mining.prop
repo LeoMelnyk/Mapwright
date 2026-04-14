@@ -1,0 +1,43 @@
+name: Miner's Helmet
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, barracks
+typical_count: few
+clusters_with: pickaxe, candle-miner, rags-bloody, sorting-table
+notes: Discarded miner's helmet with a candle holder on the front, dented from use
+---
+# Helmet dome (top-down circle — battered iron)
+circle 0.50,0.50 0.32 texfill polyhaven/rusty_metal_02 0.85
+circle 0.50,0.50 0.32 stroke #222222
+# Dome inner ring (lower edge visible from above)
+circle 0.50,0.50 0.26 stroke #444444 width 1
+# Polished crown highlight
+arc 0.50,0.50 0.24 220 290 stroke #8899aa 0.5 width 2
+# Dent 1 (visible crease in the metal)
+bezier 0.36,0.42 0.42,0.46 0.44,0.44 0.40,0.50 stroke #1a1a1a 0.7 width 2
+# Dent 2
+bezier 0.62,0.56 0.68,0.54 0.66,0.60 0.60,0.62 stroke #1a1a1a 0.7 width 2
+# Rivets around the rim
+circle 0.30,0.42 0.02 fill #333333 0.95
+circle 0.30,0.58 0.02 fill #333333 0.95
+circle 0.70,0.42 0.02 fill #333333 0.95
+circle 0.70,0.58 0.02 fill #333333 0.95
+circle 0.50,0.22 0.02 fill #333333 0.95
+# Candle holder bracket on the front (south side)
+rect 0.44,0.74 0.12,0.08 fill #333333 0.95
+rect 0.44,0.74 0.12,0.08 stroke #222222
+# Small candle stub in the bracket
+circle 0.50,0.78 0.035 fill #e8dcc8 0.9
+circle 0.50,0.78 0.035 stroke #8b7355
+# Wick (burnt out)
+circle 0.50,0.78 0.008 fill #1a1208 0.95
+# Chin strap buckle (rear — north edge)
+rect 0.47,0.16 0.06,0.04 fill #5a3a00 0.85
+rect 0.47,0.16 0.06,0.04 stroke #2a1400
+# Dust/dirt smudges on the dome
+ellipse 0.42,0.56 0.06,0.04 fill #6a5a4a 0.35
+ellipse 0.58,0.40 0.05,0.03 fill #6a5a4a 0.35

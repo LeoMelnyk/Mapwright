@@ -1,0 +1,75 @@
+name: Marid Pavilion
+category: Decorative
+footprint: 3x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto
+typical_count: single
+clusters_with: pearl-obelisk, pearl-cluster, water-node-core, coral-pillar
+notes: Ornate underwater pavilion with domed center; single centerpiece per chamber
+---
+# Footprint 3x3: x 0-3, y 0-3. Octagonal platform with central dome and four corner pillars.
+# Outer platform — octagonal base
+poly 1.50,0.15 2.25,0.45 2.55,1.20 2.55,1.80 2.25,2.55 1.50,2.85 0.75,2.55 0.45,1.80 0.45,1.20 0.75,0.45 fill #80c0d0 0.75
+poly 1.50,0.15 2.25,0.45 2.55,1.20 2.55,1.80 2.25,2.55 1.50,2.85 0.75,2.55 0.45,1.80 0.45,1.20 0.75,0.45 stroke #4080a0 width 2
+# Platform inner ring
+poly 1.50,0.40 2.05,0.60 2.30,1.25 2.30,1.75 2.05,2.40 1.50,2.60 0.95,2.40 0.70,1.75 0.70,1.25 0.95,0.60 fill #a0d8e8 0.70
+poly 1.50,0.40 2.05,0.60 2.30,1.25 2.30,1.75 2.05,2.40 1.50,2.60 0.95,2.40 0.70,1.75 0.70,1.25 0.95,0.60 stroke #4080a0
+# Corner pearl pillars (4)
+circle 0.55,0.55 0.18 fill #e0f0ff 0.9
+circle 0.55,0.55 0.18 stroke #80a0c0
+circle 0.55,0.55 0.10 fill #ffffff 0.85
+circle 2.45,0.55 0.18 fill #e0f0ff 0.9
+circle 2.45,0.55 0.18 stroke #80a0c0
+circle 2.45,0.55 0.10 fill #ffffff 0.85
+circle 0.55,2.45 0.18 fill #e0f0ff 0.9
+circle 0.55,2.45 0.18 stroke #80a0c0
+circle 0.55,2.45 0.10 fill #ffffff 0.85
+circle 2.45,2.45 0.18 fill #e0f0ff 0.9
+circle 2.45,2.45 0.18 stroke #80a0c0
+circle 2.45,2.45 0.10 fill #ffffff 0.85
+# Cardinal pearl pillars (smaller)
+circle 1.50,0.45 0.12 fill #e0f0ff 0.85
+circle 1.50,0.45 0.12 stroke #80a0c0
+circle 1.50,2.55 0.12 fill #e0f0ff 0.85
+circle 1.50,2.55 0.12 stroke #80a0c0
+circle 0.50,1.50 0.12 fill #e0f0ff 0.85
+circle 0.50,1.50 0.12 stroke #80a0c0
+circle 2.50,1.50 0.12 fill #e0f0ff 0.85
+circle 2.50,1.50 0.12 stroke #80a0c0
+# Dome footprint (central circle — outer silver ring)
+circle 1.50,1.50 0.72 fill #c0e0f0 0.85
+circle 1.50,1.50 0.72 stroke #4080a0 width 2
+# Dome tier 2
+circle 1.50,1.50 0.56 fill #d0e8f5 0.9
+circle 1.50,1.50 0.56 stroke #6090b0
+# Dome tier 3 (lighter)
+circle 1.50,1.50 0.40 fill #e0f0ff 0.9
+circle 1.50,1.50 0.40 stroke #80a0c0
+# Dome apex (pearl finial)
+circle 1.50,1.50 0.22 fill #ffffff 0.95
+circle 1.50,1.50 0.22 stroke #80a0c0
+circle 1.50,1.50 0.12 fill #e0f8ff 0.9
+circle 1.50,1.50 0.06 fill #ffffff 0.95
+# Connecting arcs between corner pillars and dome (turquoise decorative lines)
+line 0.55,0.55 1.08,1.08 stroke #40a0c0 width 2
+line 2.45,0.55 1.92,1.08 stroke #40a0c0 width 2
+line 0.55,2.45 1.08,1.92 stroke #40a0c0 width 2
+line 2.45,2.45 1.92,1.92 stroke #40a0c0 width 2
+# Decorative pearl dots along perimeter
+circle 1.05,0.30 0.05 fill #e0f0ff 0.85
+circle 1.95,0.30 0.05 fill #e0f0ff 0.85
+circle 1.05,2.70 0.05 fill #e0f0ff 0.85
+circle 1.95,2.70 0.05 fill #e0f0ff 0.85
+circle 0.30,1.05 0.05 fill #e0f0ff 0.85
+circle 0.30,1.95 0.05 fill #e0f0ff 0.85
+circle 2.70,1.05 0.05 fill #e0f0ff 0.85
+circle 2.70,1.95 0.05 fill #e0f0ff 0.85
+# Turquoise inlay tiles at platform edges
+poly 1.50,0.20 1.60,0.30 1.50,0.38 1.40,0.30 fill #40a0c0 0.7
+poly 1.50,2.80 1.60,2.70 1.50,2.62 1.40,2.70 fill #40a0c0 0.7
+poly 0.20,1.50 0.30,1.60 0.38,1.50 0.30,1.40 fill #40a0c0 0.7
+poly 2.80,1.50 2.70,1.60 2.62,1.50 2.70,1.40 fill #40a0c0 0.7

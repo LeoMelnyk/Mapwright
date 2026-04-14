@@ -1,0 +1,53 @@
+name: War Paint Pot
+category: Decor
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: orc-war-camp, orc-stronghold, humanoid-lair, war-camp, cave-bandit-camp
+typical_count: few
+clusters_with: chieftains-throne, bonfire, bedroll-hide, skull-trophy
+notes: Small clay pot filled with thick red/black war paint, smudged handprint around rim. Left casually on the ground.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-0.2
+
+# Smudged handprint splatter around pot (red + black mix)
+ellipse 0.22,0.32 0.08,0.06 fill #a02020 0.55
+ellipse 0.78,0.28 0.07,0.05 fill #1a0800 0.55
+ellipse 0.18,0.72 0.09,0.06 fill #a02020 0.5
+ellipse 0.82,0.76 0.08,0.05 fill #4a0808 0.6
+
+# Finger-smear streaks
+bezier 0.22,0.34 0.30,0.40 0.34,0.40 0.38,0.38 stroke #a02020 0.7 width 2
+bezier 0.78,0.30 0.70,0.36 0.66,0.38 0.62,0.36 stroke #1a0800 0.7 width 2
+line 0.18,0.70 0.28,0.68 stroke #a02020 0.6 width 2
+
+# Clay pot body (outer rim — round)
+circle 0.50,0.50 0.28 fill #6b4a2e 0.9
+circle 0.50,0.50 0.28 texfill polyhaven/brown_mud 0.4
+circle 0.50,0.50 0.28 stroke #2a1400
+
+# Inner rim ring (pot walls thickness)
+circle 0.50,0.50 0.22 stroke #3a2010 width 2
+
+# Paint surface (bright red, viscous)
+circle 0.50,0.50 0.20 fill #a02020 0.95
+circle 0.50,0.50 0.20 stroke #4a0808
+
+# Black swirl mixed in (partially stirred)
+bezier 0.40,0.44 0.46,0.50 0.54,0.52 0.60,0.50 stroke #1a0800 0.85 width 3
+bezier 0.44,0.58 0.50,0.54 0.56,0.56 0.58,0.60 stroke #1a0800 0.7 width 2
+
+# Paint surface highlight
+ellipse 0.44,0.44 0.05,0.025 fill #d04040 0.55
+
+# Rim handprint smudge over the pot edge (SE)
+bezier 0.64,0.64 0.70,0.66 0.72,0.72 0.70,0.78 stroke #a02020 0.75 width 3
+circle 0.72,0.78 0.025 fill #a02020 0.8
+
+# Drip down the side
+line 0.30,0.68 0.26,0.78 stroke #a02020 0.75 width 2
+circle 0.26,0.80 0.02 fill #a02020 0.8

@@ -1,0 +1,45 @@
+name: Single Glove
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall
+typical_count: few
+clusters_with: dance-card, dropped-fan, ribbon, rose-petal-scatter
+notes: A single white satin evening glove dropped carelessly; fingers curl as if recently pulled off.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Glove body — long opera glove with slight bend
+bezier 0.28,0.20 0.32,0.38 0.58,0.56 0.66,0.74 stroke #f8f0e0 width 10
+bezier 0.28,0.20 0.32,0.38 0.58,0.56 0.66,0.74 stroke #d8c898 width 1
+
+# Cuff opening at wrist (wider)
+ellipse 0.30,0.22 0.08,0.06 fill #f8f0e0 0.95
+ellipse 0.30,0.22 0.08,0.06 stroke #c8b898
+
+# Cuff trim (satin ribbon)
+arc 0.30,0.22 0.08 30 210 stroke #daa520 width 2
+
+# Palm puff
+circle 0.56,0.58 0.10 fill #f8f0e0 0.95
+circle 0.56,0.58 0.10 stroke #c8b898
+
+# Finger curls at the hand end
+bezier 0.60,0.66 0.72,0.68 0.78,0.74 0.72,0.82 stroke #f8f0e0 width 5
+bezier 0.60,0.66 0.72,0.68 0.78,0.74 0.72,0.82 stroke #c8b898 width 1
+
+bezier 0.58,0.70 0.68,0.76 0.72,0.84 0.64,0.86 stroke #f8f0e0 width 4
+bezier 0.58,0.70 0.68,0.76 0.72,0.84 0.64,0.86 stroke #c8b898 width 1
+
+bezier 0.54,0.68 0.60,0.78 0.58,0.86 0.50,0.84 stroke #f8f0e0 width 4
+bezier 0.54,0.68 0.60,0.78 0.58,0.86 0.50,0.84 stroke #c8b898 width 1
+
+# Subtle satin sheen line along upper glove
+line 0.30,0.24 0.52,0.52 stroke #ffffff 0.5 width 1
+
+# Pearl button on cuff
+circle 0.26,0.26 0.025 fill #ffffff 0.95
+circle 0.26,0.26 0.025 stroke #c8b898

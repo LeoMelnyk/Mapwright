@@ -1,0 +1,56 @@
+name: Crate (Stacked)
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.4
+placement: corner
+room_types: market-stall, market, vendor-row, bazaar, storage, warehouse, dock, cellar
+typical_count: few
+clusters_with: crate, crate-open, barrel, barrel-open, stall-counter
+notes: Two wooden crates stacked — top crate slightly offset. Place in corners or against walls.
+---
+# === HITBOX ===
+hitbox rect 0.06,0.06 0.88,0.88 z 0-1.4
+
+# Footprint 1x1: x 0-1, y 0-1. Top-down view shows top crate with lower crate corners peeking out.
+
+# Lower crate visible as a thin border peeking out around the upper crate
+rect 0.06,0.06 0.88,0.88 texfill polyhaven/weathered_planks 0.85
+rect 0.06,0.06 0.88,0.88 stroke #2a1400
+# Lower-crate corner nails
+circle 0.10,0.10 0.02 fill #555555 0.8
+circle 0.90,0.10 0.02 fill #555555 0.8
+circle 0.10,0.90 0.02 fill #555555 0.8
+circle 0.90,0.90 0.02 fill #555555 0.8
+
+# Top crate (offset slightly toward NE so SW corner of lower crate peeks out)
+rect 0.16,0.12 0.76,0.76 texfill polyhaven/brown_planks_09 0.88
+rect 0.16,0.12 0.76,0.76 stroke #3a1f00
+
+# Top crate plank seams
+line 0.18,0.36 0.90,0.36 stroke #4a2800 0.5
+line 0.18,0.60 0.90,0.60 stroke #4a2800 0.5
+
+# Top crate frame border (thick edge planks)
+rect 0.16,0.12 0.76,0.08 texfill polyhaven/dark_wood 0.85
+rect 0.16,0.12 0.76,0.08 stroke #2a1400
+rect 0.16,0.80 0.76,0.08 texfill polyhaven/dark_wood 0.85
+rect 0.16,0.80 0.76,0.08 stroke #2a1400
+rect 0.16,0.12 0.08,0.76 texfill polyhaven/dark_wood 0.85
+rect 0.16,0.12 0.08,0.76 stroke #2a1400
+rect 0.84,0.12 0.08,0.76 texfill polyhaven/dark_wood 0.85
+rect 0.84,0.12 0.08,0.76 stroke #2a1400
+
+# Iron corner brackets on top crate
+rect 0.17,0.13 0.12,0.04 fill #444444 0.85
+rect 0.79,0.13 0.12,0.04 fill #444444 0.85
+rect 0.17,0.83 0.12,0.04 fill #444444 0.85
+rect 0.79,0.83 0.12,0.04 fill #444444 0.85
+
+# Nails on top crate corners
+circle 0.21,0.17 0.018 fill #666666 0.85
+circle 0.87,0.17 0.018 fill #666666 0.85
+circle 0.21,0.83 0.018 fill #666666 0.85
+circle 0.87,0.83 0.018 fill #666666 0.85

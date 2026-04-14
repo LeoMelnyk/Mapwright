@@ -1,0 +1,45 @@
+name: Sewage Channel
+category: Terrain
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: sewer-junction, sewer, undercity
+typical_count: few
+clusters_with: bridge-wood, grate-floor, scummy-water-pool
+notes: Straight concrete channel of flowing brown sewage; streaks suggest current. Run along walls or through rooms.
+---
+# footprint 1x3: x range 0-3, y range 0-1
+# Channel runs east-west; flow direction south (high y)
+
+# Stone channel edges (north and south lips)
+rect 0.00,0.08 3.00,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.08 3.00,0.12 stroke #2a2820
+rect 0.00,0.80 3.00,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.80 3.00,0.12 stroke #2a2820
+
+# Channel interior (brown sewage)
+rect 0.00,0.20 3.00,0.60 fill #3a2a18 0.95
+rect 0.00,0.20 3.00,0.60 stroke #1a1208
+
+# Flow streaks (east-west direction)
+bezier 0.05,0.32 0.75,0.28 1.50,0.36 2.95,0.30 stroke #5a4028 0.6 width 2
+bezier 0.05,0.45 0.80,0.50 1.60,0.42 2.95,0.48 stroke #5a4028 0.55 width 2
+bezier 0.05,0.58 0.70,0.55 1.40,0.62 2.95,0.58 stroke #5a4028 0.6 width 2
+bezier 0.05,0.70 0.85,0.68 1.70,0.72 2.95,0.68 stroke #4a3020 0.5 width 2
+
+# Scum patches floating
+ellipse 0.45,0.38 0.15,0.05 fill #4a6040 0.5
+ellipse 1.20,0.62 0.18,0.06 fill #4a6040 0.55
+ellipse 2.20,0.42 0.16,0.05 fill #4a6040 0.5
+ellipse 2.70,0.66 0.12,0.04 fill #4a6040 0.5
+
+# Bubbles (suggesting current)
+circle 0.80,0.50 0.02 fill #8aa070 0.7
+circle 1.60,0.48 0.02 fill #8aa070 0.7
+circle 2.40,0.52 0.02 fill #8aa070 0.7
+
+# Lip highlight (moisture on stone)
+line 0.00,0.20 3.00,0.20 stroke #6a8060 0.3 width 1
+line 0.00,0.80 3.00,0.80 stroke #6a8060 0.3 width 1

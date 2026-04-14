@@ -1,0 +1,70 @@
+name: Maypole
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 3.0
+placement: center
+room_types: fairground-seasonal, festival-grounds, village-green
+typical_count: single
+clusters_with: bunting-line, bonfire-large, stage-performance, ribbon-scatter, bunting-line
+notes: Tall central maypole with colorful ribbons streaming down from the top — top-down shows pole cross-section and radiating ribbons
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: pole is a circle center, ribbons radiate outward to ground edge
+
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.08 z 0-3.0
+
+# === Ribbons radiating outward (they splay across footprint to ground) ===
+# Ribbon 1 — red (N)
+poly 0.47,0.50 0.53,0.50 0.52,0.04 0.48,0.04 fill #c82020 0.9
+poly 0.47,0.50 0.53,0.50 0.52,0.04 0.48,0.04 stroke #5a1010
+# Ribbon 2 — yellow (NE)
+poly 0.50,0.47 0.54,0.53 0.88,0.16 0.84,0.12 fill #ffcc20 0.9
+poly 0.50,0.47 0.54,0.53 0.88,0.16 0.84,0.12 stroke #8b6914
+# Ribbon 3 — blue (E)
+poly 0.50,0.47 0.50,0.53 0.96,0.52 0.96,0.48 fill #3080c0 0.9
+poly 0.50,0.47 0.50,0.53 0.96,0.52 0.96,0.48 stroke #1a4080
+# Ribbon 4 — green (SE)
+poly 0.54,0.47 0.50,0.53 0.84,0.88 0.88,0.84 fill #40a040 0.9
+poly 0.54,0.47 0.50,0.53 0.84,0.88 0.88,0.84 stroke #1a4a1a
+# Ribbon 5 — red (S)
+poly 0.47,0.50 0.53,0.50 0.52,0.96 0.48,0.96 fill #c82020 0.9
+poly 0.47,0.50 0.53,0.50 0.52,0.96 0.48,0.96 stroke #5a1010
+# Ribbon 6 — yellow (SW)
+poly 0.50,0.53 0.54,0.47 0.16,0.88 0.12,0.84 fill #ffcc20 0.9
+poly 0.50,0.53 0.54,0.47 0.16,0.88 0.12,0.84 stroke #8b6914
+# Ribbon 7 — blue (W)
+poly 0.50,0.47 0.50,0.53 0.04,0.52 0.04,0.48 fill #3080c0 0.9
+poly 0.50,0.47 0.50,0.53 0.04,0.52 0.04,0.48 stroke #1a4080
+# Ribbon 8 — green (NW)
+poly 0.47,0.53 0.53,0.47 0.16,0.12 0.12,0.16 fill #40a040 0.9
+poly 0.47,0.53 0.53,0.47 0.16,0.12 0.12,0.16 stroke #1a4a1a
+
+# Ribbon "tails" fluttering at ends
+poly 0.50,0.02 0.44,0.00 0.56,0.00 fill #c82020 0.85
+poly 0.50,0.98 0.44,1.00 0.56,1.00 fill #c82020 0.85
+poly 0.02,0.50 0.00,0.44 0.00,0.56 fill #3080c0 0.85
+poly 0.98,0.50 1.00,0.44 1.00,0.56 fill #3080c0 0.85
+
+# === Pole cross-section (center) ===
+# Outer pole ring (thick wood)
+circle 0.5,0.5 0.08 texfill polyhaven/dark_wood 0.9
+circle 0.5,0.5 0.08 stroke #1a0a04 width 2
+# Inner wood grain
+circle 0.5,0.5 0.05 fill #3a1f00 0.85
+circle 0.5,0.5 0.05 stroke #1a0a04
+# Center darkest point (tree rings)
+circle 0.5,0.5 0.02 fill #1a0a04 0.95
+
+# Floral wreath / ring at top visible as thin halo around pole
+ring 0.5,0.5 0.13 0.10 fill #40a040 0.75
+ring 0.5,0.5 0.13 0.10 stroke #1a4a1a
+# Flower accents on wreath
+circle 0.50,0.37 0.022 fill #c82020 0.9
+circle 0.61,0.46 0.022 fill #ffcc20 0.9
+circle 0.58,0.58 0.022 fill #f8f0e0 0.9
+circle 0.42,0.58 0.022 fill #c82020 0.9
+circle 0.39,0.46 0.022 fill #ffcc20 0.9

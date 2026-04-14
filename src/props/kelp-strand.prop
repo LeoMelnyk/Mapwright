@@ -1,0 +1,39 @@
+name: Kelp Strand
+category: Nature
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-water-node, coral-reef, merfolk-grotto, aquatic-shrine
+typical_count: many
+clusters_with: kelp-frond-giant, anemone-small, shell-scatter, bubble-drift
+notes: Single ribbon-like kelp blade; scatter densely to build seaweed groundcover
+---
+# Subtle green wash
+ellipse 0.5,0.5 0.30,0.40 fill #4a6028 0.12
+# Holdfast (anchor dot at south)
+circle 0.50,0.88 0.05 fill #2a3818 0.85
+circle 0.50,0.88 0.05 stroke #152008
+# Main ribbon blade — curved bezier
+bezier 0.50,0.85 0.35,0.60 0.62,0.35 0.48,0.10 stroke #6a8038 width 6
+bezier 0.50,0.85 0.35,0.60 0.62,0.35 0.48,0.10 stroke #2a3818 width 1
+# Blade edge glow (lighter green)
+bezier 0.52,0.85 0.37,0.60 0.64,0.35 0.50,0.10 stroke #8ab048 width 2
+# Central vein
+bezier 0.50,0.82 0.38,0.60 0.60,0.38 0.48,0.14 stroke #2a3818 width 1
+# Bulb nodes along the blade (gas bladders)
+circle 0.42,0.68 0.035 fill #a0c060 0.9
+circle 0.42,0.68 0.035 stroke #4a6028
+circle 0.54,0.48 0.03 fill #a0c060 0.9
+circle 0.54,0.48 0.03 stroke #4a6028
+circle 0.52,0.28 0.028 fill #a0c060 0.9
+circle 0.52,0.28 0.028 stroke #4a6028
+# Secondary smaller blade
+bezier 0.48,0.82 0.58,0.66 0.32,0.48 0.38,0.28 stroke #6a8038 width 3
+bezier 0.48,0.82 0.58,0.66 0.32,0.48 0.38,0.28 stroke #2a3818 width 1
+# Small bulb on secondary
+circle 0.36,0.40 0.022 fill #a0c060 0.85
+# Tip highlight
+circle 0.48,0.10 0.022 fill #c0d878 0.9
+circle 0.38,0.28 0.018 fill #c0d878 0.85

@@ -1,0 +1,50 @@
+name: Bubble Pillar
+category: Decorative
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: center
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto
+typical_count: few
+clusters_with: bubble-drift, water-node-core, anemone-glow, pearl-cluster
+notes: Tall vertical column of rising bubbles; place at room center or flanking aquatic features
+---
+# Footprint 2x1: x 0-1, y 0-2. Rising column top-to-bottom.
+# Base glow wash (elliptical footprint)
+ellipse 0.5,1.0 0.38,0.85 fill #60b0ff 0.15
+ellipse 0.5,1.0 0.28,0.75 fill #80c8ff 0.18
+# Central column gradient
+ellipse 0.5,1.0 0.22,0.80 gradient-radial #c0f0ff #2060a0 0.4
+# Large bubbles along the central axis
+circle 0.50,0.20 0.14 fill #c0f0ff 0.35
+circle 0.50,0.20 0.14 stroke #80c0e0 width 1
+circle 0.46,0.16 0.04 fill #ffffff 0.75
+circle 0.48,0.55 0.12 fill #c0f0ff 0.35
+circle 0.48,0.55 0.12 stroke #80c0e0 width 1
+circle 0.45,0.52 0.035 fill #ffffff 0.7
+circle 0.52,0.95 0.13 fill #c0f0ff 0.35
+circle 0.52,0.95 0.13 stroke #80c0e0 width 1
+circle 0.49,0.91 0.038 fill #ffffff 0.72
+circle 0.50,1.35 0.11 fill #c0f0ff 0.35
+circle 0.50,1.35 0.11 stroke #80c0e0 width 1
+circle 0.47,1.32 0.032 fill #ffffff 0.68
+circle 0.48,1.72 0.10 fill #c0f0ff 0.35
+circle 0.48,1.72 0.10 stroke #80c0e0 width 1
+circle 0.45,1.69 0.03 fill #ffffff 0.65
+# Side bubbles — medium
+circle 0.30,0.35 0.06 fill #c0f0ff 0.3
+circle 0.30,0.35 0.06 stroke #80c0e0 width 1
+circle 0.70,0.72 0.07 fill #c0f0ff 0.3
+circle 0.70,0.72 0.07 stroke #80c0e0 width 1
+circle 0.28,1.10 0.055 fill #c0f0ff 0.3
+circle 0.28,1.10 0.055 stroke #80c0e0 width 1
+circle 0.72,1.48 0.06 fill #c0f0ff 0.3
+circle 0.72,1.48 0.06 stroke #80c0e0 width 1
+# Tiny ascending bubbles
+circle 0.38,0.75 0.025 fill #c0f0ff 0.4
+circle 0.62,0.28 0.025 fill #c0f0ff 0.4
+circle 0.40,1.55 0.028 fill #c0f0ff 0.4
+circle 0.66,1.15 0.025 fill #c0f0ff 0.4
+circle 0.58,1.85 0.022 fill #c0f0ff 0.4

@@ -1,0 +1,45 @@
+name: Small Anemone
+category: Nature
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: elemental-water-node, aquatic-shrine, coral-reef, merfolk-grotto
+typical_count: many
+clusters_with: anemone-glow, shell-scatter, coral-pillar, sea-glass-shard
+notes: Small non-glowing anemone with mauve tentacle fringe; scatter on aquatic floors
+---
+# Soft tinted base wash
+circle 0.5,0.5 0.38 fill #c08090 0.15
+# Central disk (pale pink)
+circle 0.5,0.5 0.16 fill #e8a0b0 0.85
+circle 0.5,0.5 0.16 stroke #a05060
+# Inner disk ring
+circle 0.5,0.5 0.12 fill #f0b8c8 0.9
+circle 0.5,0.5 0.12 stroke #a05060
+# Central mouth
+circle 0.5,0.5 0.05 fill #703040 0.9
+circle 0.5,0.5 0.05 stroke #401828
+# Tentacle fringe — short radiating strokes
+line 0.50,0.18 0.50,0.30 stroke #d090a0 width 2
+line 0.68,0.22 0.62,0.32 stroke #c08090 width 2
+line 0.78,0.34 0.68,0.38 stroke #d090a0 width 2
+line 0.82,0.50 0.70,0.50 stroke #c08090 width 2
+line 0.78,0.66 0.68,0.62 stroke #d090a0 width 2
+line 0.68,0.78 0.62,0.68 stroke #c08090 width 2
+line 0.50,0.82 0.50,0.70 stroke #d090a0 width 2
+line 0.32,0.78 0.38,0.68 stroke #c08090 width 2
+line 0.22,0.66 0.32,0.62 stroke #d090a0 width 2
+line 0.18,0.50 0.30,0.50 stroke #c08090 width 2
+line 0.22,0.34 0.32,0.38 stroke #d090a0 width 2
+line 0.32,0.22 0.38,0.32 stroke #c08090 width 2
+# Secondary shorter tentacles between
+line 0.60,0.20 0.58,0.28 stroke #e0a0b0 width 1
+line 0.75,0.42 0.66,0.44 stroke #e0a0b0 width 1
+line 0.75,0.58 0.66,0.56 stroke #e0a0b0 width 1
+line 0.60,0.80 0.58,0.72 stroke #e0a0b0 width 1
+line 0.40,0.80 0.42,0.72 stroke #e0a0b0 width 1
+line 0.25,0.58 0.34,0.56 stroke #e0a0b0 width 1
+line 0.25,0.42 0.34,0.44 stroke #e0a0b0 width 1
+line 0.40,0.20 0.42,0.28 stroke #e0a0b0 width 1

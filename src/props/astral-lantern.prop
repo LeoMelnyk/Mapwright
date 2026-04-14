@@ -1,0 +1,53 @@
+name: Astral Lantern
+category: Magical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: astral-anchor, astral-sea, spelljammer-dock, planar-nexus
+typical_count: few
+clusters_with: astral-anchor-stone, silver-cord-pylon, floating-candle
+notes: Ornate silver filigree lantern hanging in the void with no support. Contains a fragment of captive starlight.
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.5
+    radius: 12
+    color: "#e0e0ff"
+    intensity: 0.8
+---
+# Outer halo of captured starlight
+circle 0.5,0.5 0.46 gradient-radial #e0e0ff #4a3a80 0.35
+circle 0.5,0.5 0.38 fill #c0a0ff 0.25
+
+# Silver filigree cage — outer ring
+circle 0.5,0.5 0.32 stroke #c0c0c0 width 2
+circle 0.5,0.5 0.28 stroke #e0e0ff width 1
+
+# Cage ribs (cardinal + diagonal)
+line 0.5,0.18 0.5,0.82 stroke #c0c0c0 width 1
+line 0.18,0.5 0.82,0.5 stroke #c0c0c0 width 1
+line 0.28,0.28 0.72,0.72 stroke #daa520 width 1
+line 0.72,0.28 0.28,0.72 stroke #daa520 width 1
+
+# Top finial (gold filigree cap)
+circle 0.5,0.5 0.08 fill #daa520 0.7
+circle 0.5,0.5 0.08 stroke #5a3a00
+circle 0.5,0.5 0.04 fill #8b6914 0.8
+
+# Captive starlight core
+circle 0.5,0.5 0.14 fill #e0e0ff 0.5
+circle 0.5,0.5 0.09 fill #ffffff 0.85
+circle 0.5,0.5 0.04 fill #ffffff 0.95
+
+# Small silver bead accents at cage intersections
+circle 0.5,0.18 0.025 fill #e0e0ff 0.9
+circle 0.5,0.82 0.025 fill #e0e0ff 0.9
+circle 0.18,0.5 0.025 fill #e0e0ff 0.9
+circle 0.82,0.5 0.025 fill #e0e0ff 0.9
+
+# Sparkles drifting from lantern
+circle 0.3,0.25 0.015 fill #ffffff 0.8
+circle 0.72,0.3 0.012 fill #e0e0ff 0.75
+circle 0.28,0.74 0.012 fill #e0e0ff 0.7

@@ -1,0 +1,66 @@
+name: Giant Wind Chime
+category: Decorative
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: center
+room_types: elemental-air-node, genie-court, storm-spire
+typical_count: few
+clusters_with: djinn-pavilion, cloud-pillar, air-node-vortex
+notes: Massive wind chime — tall central rod with five long metal tubes hanging around it, feather accents. Top-down, you see the rod center and the tube top-circles ringed around it.
+---
+# footprint 2x1: x range 0-1, y range 0-2
+
+# Central hanging plate (suncatcher disc at the top of the rod)
+circle 0.5,1.0 0.28 texfill polyhaven/metal_plate 0.8
+circle 0.5,1.0 0.28 stroke #444444 width 2
+circle 0.5,1.0 0.2 stroke #666666 width 1
+
+# Central rod end-cap (top of tall rod viewed from above)
+circle 0.5,1.0 0.09 fill #888888 0.95
+circle 0.5,1.0 0.09 stroke #222222 width 2
+circle 0.5,1.0 0.05 fill #bbbbbb 0.8
+
+# Five tube top-circles ringed around the rod
+# Tube 1 — north
+circle 0.5,0.68 0.1 texfill polyhaven/metal_plate 0.85
+circle 0.5,0.68 0.1 stroke #333333 width 2
+circle 0.5,0.68 0.05 fill #222222 0.8
+# Tube 2 — NE
+circle 0.75,0.82 0.09 texfill polyhaven/metal_plate 0.85
+circle 0.75,0.82 0.09 stroke #333333 width 2
+circle 0.75,0.82 0.045 fill #222222 0.8
+# Tube 3 — SE
+circle 0.75,1.18 0.09 texfill polyhaven/metal_plate 0.85
+circle 0.75,1.18 0.09 stroke #333333 width 2
+circle 0.75,1.18 0.045 fill #222222 0.8
+# Tube 4 — south
+circle 0.5,1.32 0.1 texfill polyhaven/metal_plate 0.85
+circle 0.5,1.32 0.1 stroke #333333 width 2
+circle 0.5,1.32 0.05 fill #222222 0.8
+# Tube 5 — west (single on the west side)
+circle 0.22,1.0 0.09 texfill polyhaven/metal_plate 0.85
+circle 0.22,1.0 0.09 stroke #333333 width 2
+circle 0.22,1.0 0.045 fill #222222 0.8
+
+# Suspension strings from central disc to each tube (thin lines)
+line 0.5,1.0 0.5,0.68 stroke #8b7355 width 1
+line 0.5,1.0 0.75,0.82 stroke #8b7355 width 1
+line 0.5,1.0 0.75,1.18 stroke #8b7355 width 1
+line 0.5,1.0 0.5,1.32 stroke #8b7355 width 1
+line 0.5,1.0 0.22,1.0 stroke #8b7355 width 1
+
+# Feather accents dangling between tubes (seen edge-on as small curved wisps)
+bezier 0.35,0.5 0.32,0.38 0.38,0.28 0.4,0.22 stroke #f4f4f8 width 2
+bezier 0.68,0.45 0.72,0.32 0.66,0.22 0.6,0.18 stroke #8090a0 width 2
+bezier 0.3,1.55 0.28,1.65 0.35,1.75 0.38,1.82 stroke #f4f4f8 width 2
+bezier 0.7,1.55 0.72,1.68 0.65,1.78 0.6,1.84 stroke #1a1a20 width 2
+
+# Top crown hanger (small loop where the chime is suspended from)
+circle 0.5,1.0 0.32 stroke #666666 width 1
+
+# Decorative runes on central disc
+line 0.46,1.0 0.54,1.0 stroke #333333 width 1
+line 0.5,0.96 0.5,1.04 stroke #333333 width 1

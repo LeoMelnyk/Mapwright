@@ -1,0 +1,49 @@
+name: Fish Skeleton
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-water-node, sunken-temple, merfolk-grotto, coral-reef
+typical_count: few
+clusters_with: shell-scatter, sea-glass-shard, bone-pile, fish-skeleton
+notes: Skeletal fish on the floor; place as atmospheric detail in aquatic rooms
+---
+# Footprint 1x2: x 0-2, y 0-1. Fish laid horizontally, head at west, tail at east.
+# Subtle sand stain under skeleton
+ellipse 1.0,0.55 0.90,0.22 fill #807060 0.15
+# Spine — central horizontal bone
+line 0.28,0.52 1.70,0.52 stroke #e8dcc8 width 3
+line 0.28,0.52 1.70,0.52 stroke #b0a090 width 1
+# Skull (west end)
+poly 0.10,0.52 0.15,0.40 0.25,0.36 0.34,0.40 0.36,0.50 0.34,0.60 0.25,0.64 0.15,0.60 fill #e8dcc8 0.9
+poly 0.10,0.52 0.15,0.40 0.25,0.36 0.34,0.40 0.36,0.50 0.34,0.60 0.25,0.64 0.15,0.60 stroke #8a7a6a
+# Eye socket
+circle 0.22,0.48 0.035 fill #1a1010 0.85
+# Jaw line
+line 0.12,0.54 0.34,0.54 stroke #8a7a6a width 1
+# Rib bones — upper (curving up from spine)
+qbezier 0.40,0.52 0.42,0.38 0.46,0.30 stroke #d4c4a8 width 2
+qbezier 0.52,0.52 0.55,0.36 0.60,0.26 stroke #d4c4a8 width 2
+qbezier 0.66,0.52 0.70,0.34 0.76,0.22 stroke #d4c4a8 width 2
+qbezier 0.82,0.52 0.86,0.34 0.92,0.22 stroke #d4c4a8 width 2
+qbezier 0.98,0.52 1.02,0.34 1.08,0.22 stroke #d4c4a8 width 2
+qbezier 1.14,0.52 1.18,0.36 1.24,0.26 stroke #d4c4a8 width 2
+qbezier 1.30,0.52 1.32,0.38 1.36,0.30 stroke #d4c4a8 width 2
+qbezier 1.44,0.52 1.46,0.42 1.48,0.36 stroke #c8b898 width 2
+# Rib bones — lower (curving down from spine)
+qbezier 0.40,0.52 0.42,0.66 0.46,0.74 stroke #d4c4a8 width 2
+qbezier 0.52,0.52 0.55,0.68 0.60,0.78 stroke #d4c4a8 width 2
+qbezier 0.66,0.52 0.70,0.70 0.76,0.82 stroke #d4c4a8 width 2
+qbezier 0.82,0.52 0.86,0.70 0.92,0.82 stroke #d4c4a8 width 2
+qbezier 0.98,0.52 1.02,0.70 1.08,0.82 stroke #d4c4a8 width 2
+qbezier 1.14,0.52 1.18,0.68 1.24,0.78 stroke #d4c4a8 width 2
+qbezier 1.30,0.52 1.32,0.66 1.36,0.74 stroke #d4c4a8 width 2
+qbezier 1.44,0.52 1.46,0.62 1.48,0.68 stroke #c8b898 width 2
+# Tail fan (east end)
+poly 1.70,0.52 1.92,0.30 1.85,0.50 1.92,0.74 fill #e8dcc8 0.85
+poly 1.70,0.52 1.92,0.30 1.85,0.50 1.92,0.74 stroke #8a7a6a
+line 1.70,0.52 1.90,0.34 stroke #b0a090 width 1
+line 1.70,0.52 1.86,0.52 stroke #b0a090 width 1
+line 1.70,0.52 1.90,0.70 stroke #b0a090 width 1

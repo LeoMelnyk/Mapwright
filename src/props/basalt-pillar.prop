@@ -1,0 +1,58 @@
+name: Basalt Pillar
+category: Terrain
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.2
+placement: corner
+room_types: elemental-fire-node, volcano-caldera, elemental-node
+typical_count: few
+clusters_with: fire-node-core, flame-pillar, ember-pit
+notes: Tall hexagonal basalt column — dark volcanic rock with glowing orange lava cracks running up its sides.
+lights:
+  - type: candle
+    x: 0.5
+    y: 1.0
+    radius: 6
+    color: "#ff4400"
+    intensity: 0.5
+---
+# Hitbox: hexagonal column
+hitbox poly 0.15,0.65 0.15,1.35 0.5,1.65 0.85,1.35 0.85,0.65 0.5,0.35 z 0-2.2
+
+# Faint ember glow around base (heat aura)
+circle 0.5,1.0 0.5 gradient-radial #e85500 #0a0400 0.2
+
+# Hexagonal column (top-down view of the basalt hex)
+poly 0.15,0.65 0.15,1.35 0.5,1.65 0.85,1.35 0.85,0.65 0.5,0.35 texfill polyhaven/volcanic_rock_tiles 0.85
+poly 0.15,0.65 0.15,1.35 0.5,1.65 0.85,1.35 0.85,0.65 0.5,0.35 fill #1a0800 0.25
+poly 0.15,0.65 0.15,1.35 0.5,1.65 0.85,1.35 0.85,0.65 0.5,0.35 stroke #000000 width 2
+
+# Inner hexagonal facet line (cross-section detail)
+poly 0.28,0.75 0.28,1.25 0.5,1.45 0.72,1.25 0.72,0.75 0.5,0.55 stroke #1a0800 width 1
+
+# Glowing lava cracks (branching from the top-down hex)
+line 0.5,0.35 0.42,0.55 stroke #ff4400 width 2
+line 0.42,0.55 0.38,0.75 stroke #ff6030 width 2
+line 0.38,0.75 0.3,0.95 stroke #ff6030 width 2
+line 0.3,0.95 0.35,1.15 stroke #e85500 width 2
+
+line 0.5,0.35 0.58,0.58 stroke #ff4400 width 2
+line 0.58,0.58 0.65,0.85 stroke #ff6030 width 2
+line 0.65,0.85 0.7,1.15 stroke #e85500 width 2
+line 0.7,1.15 0.62,1.4 stroke #e85500 width 2
+
+# Side crack branching
+line 0.58,0.58 0.72,0.68 stroke #ff4400 width 2
+line 0.38,0.75 0.25,0.85 stroke #e85500 width 2
+
+# Bright hot spots along the cracks
+circle 0.42,0.55 0.03 fill #ffaa30 0.9
+circle 0.3,0.95 0.028 fill #ffaa30 0.85
+circle 0.65,0.85 0.03 fill #ffaa30 0.9
+circle 0.7,1.15 0.025 fill #ffcc60 0.8
+
+# Rough broken top edge
+line 0.5,0.35 0.48,0.4 stroke #000000 width 2
+line 0.55,0.4 0.6,0.38 stroke #000000 width 1

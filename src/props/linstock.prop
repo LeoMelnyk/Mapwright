@@ -1,0 +1,34 @@
+name: Linstock
+category: Weapon
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+lights: [{"type":"candle","x":0.5,"y":0.18,"radius":3,"color":"#ff8030","intensity":0.4}]
+placement: floor
+room_types: ship-gun-deck, warship, gunnery, frigate-deck
+typical_count: few
+clusters_with: match-tub, powder-tub, cannon
+notes: Long pole with smoldering slow-match cord wrapped at one end; used to fire cannons. The glowing tip emits a faint ember light.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Wooden pole (running roughly north-south, diagonal for visual interest)
+rect 0.44,0.18 0.10,0.76 texfill polyhaven/dark_wood 0.9
+rect 0.44,0.18 0.10,0.76 stroke #2a1400
+# Iron ferrule / collar near the match end (north)
+rect 0.42,0.24 0.14,0.05 fill #555555 0.85
+rect 0.42,0.24 0.14,0.05 stroke #222222
+# Wrapped slow-match cord (coiled around the fork at north end)
+ellipse 0.50,0.18 0.14,0.09 fill #3a2a1a 0.85
+ellipse 0.50,0.18 0.14,0.09 stroke #1a1208
+line 0.38,0.16 0.62,0.18 stroke #2a1a0a width 1
+line 0.38,0.20 0.62,0.22 stroke #2a1a0a width 1
+# Smoldering tip — glowing ember
+circle 0.50,0.14 0.06 fill #cc3300 0.5
+circle 0.50,0.14 0.04 fill #ff8030 0.7
+circle 0.50,0.14 0.02 fill #ffcc00 0.85
+# Faint wisp of smoke
+line 0.50,0.10 0.48,0.04 stroke #888888 0.35 width 1
+# Pole butt cap (south end) — iron
+circle 0.49,0.92 0.05 fill #555555 0.8
+circle 0.49,0.92 0.05 stroke #222222

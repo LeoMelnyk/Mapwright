@@ -1,0 +1,62 @@
+name: Small Wine Rack
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: wall
+room_types: house-merchant, merchant-home, parlor, burgher-house, cellar, kitchen
+typical_count: few
+clusters_with: wine-rack, wine-bottle, sideboard
+notes: Small diamond-pattern wine rack with 4-6 bottle ends visible from above. Place against walls or in corners.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 0.80,0.80 z 0-0.8
+
+# footprint 1x1: x range 0-1, y range 0-1; front (south) = high y
+
+# Dark wood frame outer
+rect 0.10,0.10 0.80,0.80 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.10 0.80,0.80 stroke #1a1208 width 2
+
+# Diamond lattice lines (X-pattern)
+line 0.10,0.10 0.90,0.90 stroke #3a1f00 width 2
+line 0.90,0.10 0.10,0.90 stroke #3a1f00 width 2
+line 0.10,0.50 0.50,0.10 stroke #3a1f00 width 1
+line 0.50,0.10 0.90,0.50 stroke #3a1f00 width 1
+line 0.10,0.50 0.50,0.90 stroke #3a1f00 width 1
+line 0.50,0.90 0.90,0.50 stroke #3a1f00 width 1
+
+# Bottle end (top-left diamond) — burgundy
+circle 0.28,0.32 0.08 fill #4a0020 0.9
+circle 0.28,0.32 0.08 stroke #2a0010
+circle 0.28,0.32 0.025 fill #1a0008 0.9
+
+# Bottle end (top-right) — dark green
+circle 0.72,0.32 0.08 fill #1a3322 0.9
+circle 0.72,0.32 0.08 stroke #0d1a11
+circle 0.72,0.32 0.025 fill #081008 0.9
+
+# Bottle end (center) — burgundy
+circle 0.50,0.50 0.08 fill #5a1a1a 0.9
+circle 0.50,0.50 0.08 stroke #2a0808
+circle 0.50,0.50 0.025 fill #1a0004 0.9
+
+# Bottle end (bottom-left) — amber
+circle 0.28,0.68 0.08 fill #6b4400 0.9
+circle 0.28,0.68 0.08 stroke #3a2200
+circle 0.28,0.68 0.025 fill #2a1800 0.9
+
+# Bottle end (bottom-right) — dark green
+circle 0.72,0.68 0.08 fill #1a3322 0.9
+circle 0.72,0.68 0.08 stroke #0d1a11
+circle 0.72,0.68 0.025 fill #081008 0.9
+
+# Cork shine hints
+arc 0.28,0.32 0.025 210 310 stroke #8b7355 0.6 width 1
+arc 0.50,0.50 0.025 210 310 stroke #8b7355 0.6 width 1
+arc 0.72,0.68 0.025 210 310 stroke #8b7355 0.6 width 1
+
+# Shadow below rack
+rect 0.12,0.90 0.76,0.05 fill #000000 0.2

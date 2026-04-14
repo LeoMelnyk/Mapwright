@@ -1,0 +1,36 @@
+name: Folded Gown
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-bedroom-master, bedchamber, noble-suite, dressing-room
+typical_count: single
+clusters_with: bench, bed, dressing-screen, wardrobe
+notes: Neatly folded silk evening gown, ribbon sash laid across the top. Place on a bench, chair seat, or the foot of a bed.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Outer fold — soft silk gown, rectangular stack
+rect 0.14,0.26 0.72,0.52 texfill polyhaven/velour_velvet 0.82
+rect 0.14,0.26 0.72,0.52 fill #f4c8c8 0.45
+rect 0.14,0.26 0.72,0.52 stroke #a07878
+# Fold crease lines (horizontal bands where fabric has been folded)
+line 0.14,0.44 0.86,0.44 stroke #b08888 0.55 width 1
+line 0.14,0.60 0.86,0.60 stroke #b08888 0.45 width 1
+# Soft rounded fold corners (suggest tucked edges)
+arc 0.18,0.30 0.05 90 180 stroke #a07878 0.5 width 1
+arc 0.82,0.30 0.05 0 90 stroke #a07878 0.5 width 1
+# Subtle silk sheen highlight
+ellipse 0.50,0.38 0.28,0.04 fill #f8dcdc 0.35
+# Ribbon sash draped diagonally across top
+poly 0.12,0.38 0.18,0.34 0.88,0.56 0.82,0.60 fill #daa520 0.88
+poly 0.12,0.38 0.18,0.34 0.88,0.56 0.82,0.60 stroke #8b6914
+# Ribbon knot center-ish
+circle 0.50,0.48 0.05 fill #daa520 0.95
+circle 0.50,0.48 0.05 stroke #5a3a00
+# Trailing ribbon ends
+line 0.50,0.50 0.42,0.72 stroke #daa520 width 3
+line 0.50,0.50 0.58,0.74 stroke #daa520 width 3
+# Lace trim peeking at one corner
+arc 0.18,0.74 0.06 180 360 stroke #f0e8d0 0.7 width 1

@@ -1,0 +1,45 @@
+name: Scummy Water Pool
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: sewer-junction, sewer, undercity, cave, swamp
+typical_count: few
+clusters_with: oil-slick, floating-debris, sewage-channel
+notes: Stagnant greenish-brown water with algae scum, bubbles, and floating film. Place in depressions or as room centerpiece.
+---
+# footprint 2x2: x range 0-2, y range 0-2
+
+# Stagnant water base — irregular pool
+poly 0.20,0.40 0.50,0.18 1.10,0.12 1.60,0.22 1.88,0.50 1.82,1.20 1.62,1.70 1.10,1.88 0.55,1.82 0.22,1.50 0.12,1.00 fill #3a2a18 0.9
+poly 0.20,0.40 0.50,0.18 1.10,0.12 1.60,0.22 1.88,0.50 1.82,1.20 1.62,1.70 1.10,1.88 0.55,1.82 0.22,1.50 0.12,1.00 stroke #1a1208
+
+# Greenish scum overlay
+poly 0.30,0.50 0.60,0.28 1.00,0.24 1.50,0.34 1.72,0.62 1.68,1.10 1.50,1.56 1.10,1.72 0.60,1.66 0.32,1.38 0.24,0.90 fill #4a6040 0.55
+
+# Algae clumps
+ellipse 0.45,0.55 0.12,0.08 fill #6a8060 0.8
+ellipse 0.45,0.55 0.12,0.08 stroke #2a4020
+ellipse 1.40,0.70 0.14,0.09 fill #6a8060 0.75
+ellipse 1.40,0.70 0.14,0.09 stroke #2a4020
+ellipse 0.80,1.30 0.16,0.10 fill #6a8060 0.8
+ellipse 0.80,1.30 0.16,0.10 stroke #2a4020
+ellipse 1.30,1.40 0.10,0.07 fill #5a7050 0.75
+
+# Floating film streaks
+bezier 0.30,0.80 0.60,0.60 1.20,1.00 1.60,0.85 stroke #6a8060 0.4 width 2
+bezier 0.40,1.50 0.80,1.30 1.20,1.40 1.60,1.20 stroke #6a8060 0.35 width 2
+
+# Bubbles
+circle 0.70,0.45 0.04 stroke #8aa070 width 1
+circle 0.75,0.43 0.015 fill #ffffff 0.4
+circle 1.20,0.95 0.035 stroke #8aa070 width 1
+circle 1.22,0.93 0.012 fill #ffffff 0.35
+circle 0.95,1.60 0.04 stroke #8aa070 width 1
+circle 0.97,1.58 0.015 fill #ffffff 0.4
+circle 1.55,1.25 0.025 stroke #8aa070 width 1
+
+# Dark depths (center hint)
+ellipse 1.00,1.00 0.28,0.22 fill #0a0804 0.3

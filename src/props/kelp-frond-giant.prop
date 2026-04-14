@@ -1,0 +1,51 @@
+name: Giant Kelp Frond
+category: Nature
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.0
+placement: floor
+room_types: elemental-water-node, coral-reef, merfolk-grotto, aquatic-shrine
+typical_count: few
+clusters_with: kelp-strand, coral-pillar, anemone-small, bubble-drift
+notes: Towering kelp; place against walls or in clusters to break up open aquatic spaces
+---
+# Footprint 2x1: x 0-1, y 0-2. Stalk rises from south base, tapered leaves flare.
+# Holdfast / root anchor
+ellipse 0.5,1.80 0.35,0.18 fill #2a3a18 0.8
+ellipse 0.5,1.80 0.35,0.18 stroke #152008
+# Main stalk (ribbed bezier column)
+bezier 0.50,1.78 0.44,1.20 0.56,0.70 0.50,0.20 stroke #4a6028 width 8
+bezier 0.50,1.78 0.44,1.20 0.56,0.70 0.50,0.20 stroke #2a3818 width 2
+# Stalk rib accents
+line 0.48,1.60 0.48,0.30 stroke #2a3818 width 1
+line 0.52,1.60 0.52,0.30 stroke #2a3818 width 1
+# Lower left leaf
+poly 0.48,1.55 0.20,1.35 0.10,1.05 0.16,1.00 0.30,1.18 0.46,1.40 fill #6a8038 0.85
+poly 0.48,1.55 0.20,1.35 0.10,1.05 0.16,1.00 0.30,1.18 0.46,1.40 stroke #2a3818
+# Lower right leaf
+poly 0.52,1.45 0.80,1.25 0.92,0.95 0.86,0.90 0.70,1.08 0.54,1.30 fill #6a8038 0.85
+poly 0.52,1.45 0.80,1.25 0.92,0.95 0.86,0.90 0.70,1.08 0.54,1.30 stroke #2a3818
+# Middle left leaf
+poly 0.46,0.95 0.22,0.75 0.12,0.45 0.18,0.40 0.32,0.58 0.48,0.82 fill #809e48 0.85
+poly 0.46,0.95 0.22,0.75 0.12,0.45 0.18,0.40 0.32,0.58 0.48,0.82 stroke #2a3818
+# Middle right leaf
+poly 0.54,0.85 0.78,0.65 0.90,0.35 0.84,0.30 0.68,0.48 0.52,0.72 fill #809e48 0.85
+poly 0.54,0.85 0.78,0.65 0.90,0.35 0.84,0.30 0.68,0.48 0.52,0.72 stroke #2a3818
+# Upper leaves (smaller, lighter)
+poly 0.48,0.45 0.30,0.22 0.22,0.08 0.28,0.05 0.38,0.15 0.50,0.32 fill #9ab858 0.8
+poly 0.48,0.45 0.30,0.22 0.22,0.08 0.28,0.05 0.38,0.15 0.50,0.32 stroke #2a3818
+poly 0.52,0.35 0.70,0.18 0.78,0.05 0.72,0.03 0.62,0.12 0.50,0.25 fill #9ab858 0.8
+poly 0.52,0.35 0.70,0.18 0.78,0.05 0.72,0.03 0.62,0.12 0.50,0.25 stroke #2a3818
+# Leaf vein highlights
+line 0.48,1.55 0.14,1.03 stroke #a0c060 width 1
+line 0.52,1.45 0.89,0.93 stroke #a0c060 width 1
+line 0.46,0.95 0.15,0.43 stroke #a0c060 width 1
+line 0.54,0.85 0.87,0.33 stroke #a0c060 width 1
+line 0.48,0.45 0.25,0.07 stroke #a0c060 width 1
+# Small gas bladders (keep fronds buoyant)
+circle 0.30,1.18 0.025 fill #c8e080 0.85
+circle 0.70,1.08 0.025 fill #c8e080 0.85
+circle 0.32,0.58 0.022 fill #c8e080 0.85
+circle 0.68,0.48 0.022 fill #c8e080 0.85

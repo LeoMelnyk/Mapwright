@@ -1,0 +1,69 @@
+name: Skull Totem
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.2
+placement: corner
+room_types: orc-war-camp, orc-stronghold, humanoid-lair, war-camp, goblin-warren-entrance
+typical_count: few
+clusters_with: chieftains-throne, bonfire, bone-shrine, skull-trophy
+notes: Tall warding pole with stacked skulls and tattered flags — tribal boundary marker. Top-down shows the pole cross-section with bone shards radiating.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.16 z 0-2.2
+
+# Faint ground shadow halo (just under pole base)
+circle 0.5,0.5 0.32 fill #0a0400 0.25
+
+# Radiating bone shards / flags (seen foreshortened sticking out)
+line 0.50,0.50 0.20,0.22 stroke #e8dcc8 width 3
+circle 0.20,0.22 0.035 fill #e8dcc8 0.95
+circle 0.20,0.22 0.035 stroke #6a5040
+
+line 0.50,0.50 0.82,0.22 stroke #d4c4a8 width 3
+circle 0.82,0.22 0.035 fill #e8dcc8 0.95
+circle 0.82,0.22 0.035 stroke #6a5040
+
+line 0.50,0.50 0.18,0.78 stroke #e8dcc8 width 3
+circle 0.18,0.78 0.030 fill #d4c4a8 0.95
+circle 0.18,0.78 0.030 stroke #6a5040
+
+line 0.50,0.50 0.80,0.82 stroke #d4c4a8 width 3
+circle 0.80,0.82 0.030 fill #e8dcc8 0.95
+circle 0.80,0.82 0.030 stroke #6a5040
+
+# Tattered flag strip dangling SW (red war paint)
+poly 0.36,0.58 0.28,0.72 0.22,0.88 0.34,0.80 0.40,0.66 fill #a02020 0.85
+poly 0.36,0.58 0.28,0.72 0.22,0.88 0.34,0.80 0.40,0.66 stroke #4a0808
+
+# Tattered flag strip dangling NE (black)
+poly 0.62,0.40 0.72,0.28 0.84,0.14 0.78,0.28 0.66,0.44 fill #1a0800 0.9
+poly 0.62,0.40 0.72,0.28 0.84,0.14 0.78,0.28 0.66,0.44 stroke #0a0400
+
+# Sinew lashings at base of pole
+arc 0.50,0.50 0.18 0 360 stroke #5c3a1e 0.9 width 2
+arc 0.50,0.50 0.20 30 150 stroke #3a2010 0.8 width 1
+arc 0.50,0.50 0.20 210 330 stroke #3a2010 0.8 width 1
+
+# Main skull on top of pole (centered — top skull of stack seen from above)
+ellipse 0.50,0.48 0.15,0.16 fill #e8dcc8 0.95
+ellipse 0.50,0.48 0.15,0.16 stroke #4a3828
+# Skull cranial suture
+line 0.44,0.42 0.46,0.44 stroke #4a3828 0.7 width 1
+line 0.46,0.44 0.50,0.42 stroke #4a3828 0.7 width 1
+line 0.50,0.42 0.54,0.44 stroke #4a3828 0.7 width 1
+line 0.54,0.44 0.56,0.42 stroke #4a3828 0.7 width 1
+# Eye sockets
+ellipse 0.45,0.48 0.030,0.040 fill #0a0604 0.98
+ellipse 0.55,0.48 0.030,0.040 fill #0a0604 0.98
+# Nasal triangle
+poly 0.49,0.52 0.51,0.52 0.50,0.58 fill #0a0604 0.9
+
+# Wooden pole cross-section visible at center
+circle 0.50,0.50 0.06 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.50 0.06 stroke #1a0a00
+
+# Highlight on skull crown
+ellipse 0.48,0.42 0.04,0.02 fill #f4e8d4 0.45

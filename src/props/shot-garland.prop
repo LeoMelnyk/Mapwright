@@ -1,0 +1,44 @@
+name: Shot Garland
+category: Misc
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: ship-gun-deck, warship, gunnery, frigate-deck
+typical_count: few
+clusters_with: cannon, powder-tub, shot-loose
+notes: Wooden frame with recessed hemispherical wells holding iron cannonballs in a row, mounted at the base of the hull.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Wooden frame plank
+rect 0.06,0.28 0.88,0.44 texfill polyhaven/worn_planks 0.88
+rect 0.06,0.28 0.88,0.44 stroke #2a1400
+# Iron edging along south face
+rect 0.06,0.68 0.88,0.04 fill #444444 0.8
+# Mounting screws at corners
+circle 0.12,0.34 0.02 fill #333333 0.85
+circle 0.88,0.34 0.02 fill #333333 0.85
+circle 0.12,0.66 0.02 fill #333333 0.85
+circle 0.88,0.66 0.02 fill #333333 0.85
+# Four recessed wells with iron cannonballs
+# Well 1
+circle 0.22,0.50 0.10 fill #1a1208 0.8
+circle 0.22,0.50 0.09 texfill polyhaven/rusty_metal 0.85
+circle 0.22,0.50 0.09 stroke #222222
+arc 0.22,0.50 0.07 200 290 stroke #888888 0.5 width 1
+# Well 2
+circle 0.42,0.50 0.10 fill #1a1208 0.8
+circle 0.42,0.50 0.09 texfill polyhaven/rusty_metal 0.85
+circle 0.42,0.50 0.09 stroke #222222
+arc 0.42,0.50 0.07 200 290 stroke #888888 0.5 width 1
+# Well 3
+circle 0.62,0.50 0.10 fill #1a1208 0.8
+circle 0.62,0.50 0.09 texfill polyhaven/rusty_metal 0.85
+circle 0.62,0.50 0.09 stroke #222222
+arc 0.62,0.50 0.07 200 290 stroke #888888 0.5 width 1
+# Well 4
+circle 0.82,0.50 0.10 fill #1a1208 0.8
+circle 0.82,0.50 0.09 texfill polyhaven/rusty_metal 0.85
+circle 0.82,0.50 0.09 stroke #222222
+arc 0.82,0.50 0.07 200 290 stroke #888888 0.5 width 1

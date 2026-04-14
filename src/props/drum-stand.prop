@@ -1,0 +1,61 @@
+name: Drum Stand
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.9
+placement: floor
+room_types: bardic-hall, music-hall, theater, bards-college, tavern-stage
+typical_count: few
+clusters_with: harp, lute-stand, music-stand, sheet-music, stage-large
+notes: Large standing drum on a tripod stand — top-down shows the round drum head with tension rods around the rim and two drumsticks laid across the top
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.9
+
+# Tripod leg shadow hints radiating outward
+line 0.14,0.78 0.30,0.62 stroke #2a1400 0.4 width 2
+line 0.86,0.78 0.70,0.62 stroke #2a1400 0.4 width 2
+line 0.50,0.14 0.50,0.30 stroke #2a1400 0.4 width 2
+
+# Outer wooden drum shell rim
+circle 0.5,0.5 0.42 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.42 stroke #3a1f00 width 2
+
+# Brass tension hoop rim
+circle 0.5,0.5 0.38 stroke #daa520 width 2
+
+# Drum head (taut leather/skin surface)
+circle 0.5,0.5 0.36 texfill polyhaven/brown_leather 0.7
+circle 0.5,0.5 0.36 fill #d4c4a8 0.35
+circle 0.5,0.5 0.36 stroke #5c3a1e width 1
+
+# Drum head subtle highlight
+arc 0.5,0.5 0.30 210 320 stroke #e8dcc8 0.4 width 1
+
+# Tension rods around the rim (brass lugs)
+circle 0.50,0.12 0.025 fill #daa520 0.9
+circle 0.50,0.12 0.025 stroke #5a3a00
+circle 0.50,0.88 0.025 fill #daa520 0.9
+circle 0.50,0.88 0.025 stroke #5a3a00
+circle 0.12,0.50 0.025 fill #daa520 0.9
+circle 0.12,0.50 0.025 stroke #5a3a00
+circle 0.88,0.50 0.025 fill #daa520 0.9
+circle 0.88,0.50 0.025 stroke #5a3a00
+circle 0.23,0.23 0.022 fill #daa520 0.85
+circle 0.77,0.23 0.022 fill #daa520 0.85
+circle 0.23,0.77 0.022 fill #daa520 0.85
+circle 0.77,0.77 0.022 fill #daa520 0.85
+
+# Drumsticks laid across the top (crossed)
+rect 0.20,0.44 0.60,0.04 fill #c8b898 0.95 rotate 15
+rect 0.20,0.44 0.60,0.04 stroke #8a7060 rotate 15
+rect 0.20,0.54 0.60,0.04 fill #c8b898 0.95 rotate -15
+rect 0.20,0.54 0.60,0.04 stroke #8a7060 rotate -15
+
+# Drumstick tips (rounded ends)
+circle 0.22,0.40 0.03 fill #d4c4a8 0.95
+circle 0.22,0.40 0.03 stroke #8a7060
+circle 0.78,0.60 0.03 fill #d4c4a8 0.95
+circle 0.78,0.60 0.03 stroke #8a7060

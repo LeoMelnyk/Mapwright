@@ -1,0 +1,53 @@
+name: Mine Cart Track
+category: Structure
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel
+typical_count: many
+clusters_with: cart-track, headframe, mine-shaft, cart
+notes: Short section of mine cart rail — two parallel iron rails on wooden ties; tile lengthwise to form a track run
+---
+# Wooden ties (cross-pieces — running perpendicular, visible beneath rails)
+rect 0.08,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.18 0.10,0.64 stroke #3a1f00
+rect 0.40,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.40,0.18 0.10,0.64 stroke #3a1f00
+rect 0.72,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.72,0.18 0.10,0.64 stroke #3a1f00
+rect 1.04,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 1.04,0.18 0.10,0.64 stroke #3a1f00
+rect 1.36,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 1.36,0.18 0.10,0.64 stroke #3a1f00
+rect 1.68,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 1.68,0.18 0.10,0.64 stroke #3a1f00
+rect 2.00,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 2.00,0.18 0.10,0.64 stroke #3a1f00
+rect 2.32,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 2.32,0.18 0.10,0.64 stroke #3a1f00
+rect 2.64,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 2.64,0.18 0.10,0.64 stroke #3a1f00
+# North iron rail (running east-west across the full length)
+rect 0.04,0.34 2.92,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.04,0.34 2.92,0.06 stroke #333333
+# Rail highlight (polished top edge)
+line 0.04,0.36 2.96,0.36 stroke #8899aa 0.7 width 1
+# South iron rail
+rect 0.04,0.60 2.92,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.04,0.60 2.92,0.06 stroke #333333
+line 0.04,0.62 2.96,0.62 stroke #8899aa 0.7 width 1
+# Rail spikes (at each tie)
+circle 0.13,0.37 0.018 fill #333333 0.95
+circle 0.13,0.63 0.018 fill #333333 0.95
+circle 0.45,0.37 0.018 fill #333333 0.95
+circle 0.45,0.63 0.018 fill #333333 0.95
+circle 0.77,0.37 0.018 fill #333333 0.95
+circle 0.77,0.63 0.018 fill #333333 0.95
+circle 1.09,0.37 0.018 fill #333333 0.95
+circle 1.09,0.63 0.018 fill #333333 0.95
+circle 1.73,0.37 0.018 fill #333333 0.95
+circle 1.73,0.63 0.018 fill #333333 0.95
+circle 2.37,0.37 0.018 fill #333333 0.95
+circle 2.37,0.63 0.018 fill #333333 0.95

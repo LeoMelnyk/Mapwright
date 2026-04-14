@@ -1,0 +1,52 @@
+name: Tall Reflected Mirror
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 6
+placement: wall
+room_types: mansion-ballroom, mansion-grand-hall, noble-villa, reception-hall, estate, dressing-room
+typical_count: few
+clusters_with: mirror, painting-large, banner-heraldic, tapestry-large
+notes: Tall wall-mounted mirror in an ornate gilt frame. Top-down shows only the gilt rod along the wall and a faint reflective strip just south.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+
+# === HITBOX ===
+hitbox rect 0.08,0.04 1.84,0.16 z 0-6
+
+# Ornate gilt frame top edge (widest band along wall)
+rect 0.08,0.04 1.84,0.10 fill #daa520 0.95
+rect 0.08,0.04 1.84,0.10 stroke #5a3a00 width 2
+
+# Gilt frame shine highlight
+line 0.10,0.05 1.90,0.05 stroke #ffd700 0.8 width 1
+
+# Ornate corner finials (east, west)
+circle 0.10,0.09 0.06 fill #ffd700 0.95
+circle 0.10,0.09 0.06 stroke #5a3a00
+circle 1.90,0.09 0.06 fill #ffd700 0.95
+circle 1.90,0.09 0.06 stroke #5a3a00
+
+# Center ornate crest on frame
+ellipse 1.00,0.07 0.18,0.05 fill #ffd700 0.9
+ellipse 1.00,0.07 0.18,0.05 stroke #5a3a00
+# Crest inner detail
+ellipse 1.00,0.07 0.10,0.03 fill #8b6914 0.6
+
+# Small scrollwork between crest and finials
+circle 0.50,0.08 0.03 fill #8b6914 0.7
+circle 1.50,0.08 0.03 fill #8b6914 0.7
+
+# Faint reflective glass strip just south of frame (slightly silvery)
+rect 0.14,0.14 1.72,0.08 fill #c0c0c0 0.55
+rect 0.14,0.14 1.72,0.08 stroke #8899aa
+
+# Reflection gleam highlight
+line 0.30,0.17 0.80,0.17 stroke #ffffff 0.5 width 1
+line 1.20,0.17 1.60,0.17 stroke #e8f0ff 0.4 width 1
+
+# Subtle shadow line below mirror
+rect 0.18,0.22 1.64,0.04 fill #000000 0.15
+rect 0.22,0.26 1.56,0.02 fill #000000 0.08

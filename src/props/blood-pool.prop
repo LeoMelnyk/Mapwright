@@ -1,0 +1,41 @@
+name: Blood Pool
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp, crypt, dungeon, ritual-chamber-dark
+typical_count: few
+clusters_with: corpse-soldier, severed-limb, weapon-stuck, blood-smear
+notes: Dark dried blood puddle with irregular edge and lighter center sheen; sits flat on floor
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: irregular dried blood puddle
+
+# Outer crust / darkest ring (irregular shape)
+poly 0.18,0.42 0.26,0.28 0.42,0.22 0.58,0.20 0.74,0.26 0.86,0.40 0.88,0.56 0.82,0.72 0.68,0.82 0.52,0.86 0.36,0.82 0.22,0.72 0.14,0.56 fill #2a0000 0.85
+poly 0.18,0.42 0.26,0.28 0.42,0.22 0.58,0.20 0.74,0.26 0.86,0.40 0.88,0.56 0.82,0.72 0.68,0.82 0.52,0.86 0.36,0.82 0.22,0.72 0.14,0.56 stroke #1a0000 0.7
+
+# Main body (dark dried blood)
+poly 0.24,0.44 0.32,0.32 0.46,0.28 0.60,0.26 0.72,0.32 0.80,0.44 0.82,0.58 0.74,0.70 0.62,0.78 0.48,0.80 0.34,0.76 0.24,0.66 0.20,0.56 fill #4a0000 0.9
+
+# Central wet sheen (lighter / fresher)
+ellipse 0.52,0.52 0.18,0.14 fill #8b0000 0.7
+
+# Highlight (wet reflection)
+ellipse 0.48,0.48 0.08,0.05 fill #a02020 0.5
+
+# Blood splatter drops around pool
+circle 0.12,0.24 0.03 fill #4a0000 0.8
+circle 0.88,0.18 0.025 fill #4a0000 0.75
+circle 0.94,0.72 0.028 fill #2a0000 0.8
+circle 0.08,0.78 0.022 fill #4a0000 0.7
+circle 0.18,0.14 0.015 fill #2a0000 0.7
+
+# Thin trailing smear (runoff)
+poly 0.82,0.70 0.94,0.76 0.96,0.80 0.84,0.76 fill #2a0000 0.75
+
+# Small darker clot
+ellipse 0.36,0.42 0.05,0.035 fill #1a0000 0.7

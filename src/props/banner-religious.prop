@@ -1,0 +1,47 @@
+name: Religious Banner
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: temple-nave, temple, shrine, church, cathedral
+typical_count: few
+clusters_with: altar, altar-sacrificial, candelabra, tapestry-religious, icon-wall
+notes: Wall-hung liturgical banner — brass rod with finials and a thin wine-red fabric strip bearing a gold holy symbol
+---
+# === HITBOX ===
+hitbox rect 0.10,0.04 1.80,0.18 z 0-2.5
+
+# footprint 1x2: x 0-2, y 0-1
+# Wall-hung textile: rod + finials + thin fabric top strip only.
+
+# Brass mounting rod along the wall (north edge)
+rect 0.08,0.04 1.84,0.06 fill #daa520 0.92
+rect 0.08,0.04 1.84,0.06 stroke #5a3a00
+
+# Rod shine highlight
+line 0.10,0.05 1.90,0.05 stroke #ffd860 0.6 width 1
+
+# Finial caps at the rod ends
+circle 0.08,0.07 0.05 fill #daa520 0.95
+circle 0.08,0.07 0.05 stroke #5a3a00
+circle 1.92,0.07 0.05 fill #daa520 0.95
+circle 1.92,0.07 0.05 stroke #5a3a00
+circle 0.08,0.07 0.02 fill #8b6914 0.85
+circle 1.92,0.07 0.02 fill #8b6914 0.85
+
+# Thin fabric top strip (wine red velvet)
+rect 0.18,0.10 1.64,0.10 texfill polyhaven/velour_velvet 0.85
+rect 0.18,0.10 1.64,0.10 fill #5a1a1a 0.5
+rect 0.18,0.10 1.64,0.10 stroke #2a0808
+
+# Gold embroidered trim lines
+line 0.18,0.13 1.82,0.13 stroke #daa520 0.8 width 1
+line 0.18,0.17 1.82,0.17 stroke #daa520 0.55 width 1
+
+# Central holy symbol hint — small gold sunburst/cross on fabric strip
+circle 1.0,0.15 0.03 fill #daa520 0.95
+circle 1.0,0.15 0.03 stroke #5a3a00
+line 0.96,0.15 1.04,0.15 stroke #daa520 width 1
+line 1.0,0.12 1.0,0.18 stroke #daa520 width 1

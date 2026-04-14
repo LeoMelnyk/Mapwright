@@ -1,0 +1,60 @@
+name: Large Oil Painting
+category: Decorative
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 6
+placement: wall
+room_types: mansion-ballroom, mansion-grand-hall, gallery, noble-villa, reception-hall, estate
+typical_count: few
+clusters_with: mirror-reflected, tapestry-large, banner-heraldic, portrait-framed
+notes: Huge gilt-framed oil painting. Top-down shows the gilt frame rod along the wall plus a thin painted-fabric strip south of it.
+---
+# footprint 1x3: x range 0-3, y range 0-1
+
+# === HITBOX ===
+hitbox rect 0.10,0.04 2.80,0.18 z 0-6
+
+# Heavy ornate gilt frame top edge (runs nearly full width)
+rect 0.10,0.04 2.80,0.12 fill #daa520 0.95
+rect 0.10,0.04 2.80,0.12 stroke #5a3a00 width 2
+
+# Frame shine highlight
+line 0.12,0.06 2.88,0.06 stroke #ffd700 0.85 width 1
+
+# Heavy corner finials
+rect 0.10,0.04 0.16,0.12 fill #ffd700 0.95
+rect 0.10,0.04 0.16,0.12 stroke #5a3a00
+rect 2.74,0.04 0.16,0.12 fill #ffd700 0.95
+rect 2.74,0.04 0.16,0.12 stroke #5a3a00
+
+# Corner rosettes
+circle 0.18,0.10 0.04 fill #8b6914 0.9
+circle 2.82,0.10 0.04 fill #8b6914 0.9
+
+# Center crest (laurel medallion)
+ellipse 1.50,0.10 0.24,0.06 fill #ffd700 0.9
+ellipse 1.50,0.10 0.24,0.06 stroke #5a3a00
+ellipse 1.50,0.10 0.14,0.03 fill #8b6914 0.6
+
+# Scrollwork ornaments along frame
+circle 0.70,0.10 0.03 fill #8b6914 0.8
+circle 1.10,0.10 0.03 fill #8b6914 0.8
+circle 1.90,0.10 0.03 fill #8b6914 0.8
+circle 2.30,0.10 0.03 fill #8b6914 0.8
+
+# Thin painted-canvas strip just south of frame (hint at oil colors)
+rect 0.16,0.16 2.68,0.06 fill #3a2a1a 0.85
+rect 0.16,0.16 2.68,0.06 stroke #1a0a00
+
+# Suggestions of painted color (hinting at the scene below)
+rect 0.20,0.17 0.40,0.04 fill #5a1a1a 0.5
+rect 0.80,0.17 0.30,0.04 fill #2a4a6a 0.5
+rect 1.30,0.17 0.40,0.04 fill #6a4a1a 0.5
+rect 1.90,0.17 0.30,0.04 fill #2a3a1a 0.5
+rect 2.40,0.17 0.40,0.04 fill #8b2020 0.5
+
+# Shadow line below frame where canvas stands off wall
+rect 0.16,0.22 2.68,0.04 fill #000000 0.18
+rect 0.20,0.26 2.60,0.02 fill #000000 0.10

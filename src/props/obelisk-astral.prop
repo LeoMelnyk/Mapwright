@@ -1,0 +1,62 @@
+name: Astral Obelisk
+category: Magical
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: corner
+room_types: astral-anchor, astral-sea, githyanki-citadel, planar-nexus
+typical_count: few
+clusters_with: astral-anchor-stone, portal-stela, silver-cord-pylon
+notes: Tall obsidian obelisk etched with silver astral runes, tapering to an apex that glimmers with captured starlight.
+lights:
+  - type: candle
+    x: 0.5
+    y: 1.0
+    radius: 8
+    color: "#c0a0ff"
+    intensity: 0.5
+---
+# footprint 2x1: x range 0-1, y range 0-2
+
+# Hitbox: tall shaft blocks light
+hitbox rect 0.3,0.3 0.4,1.4 z 0-2.5
+
+# Faint violet glow from apex
+circle 0.5,1.0 0.48 gradient-radial #c0a0ff #1a0828 0.22
+
+# Base plinth (square, wider than shaft)
+rect 0.12,1.55 0.76,0.3 texfill polyhaven/stone_wall 0.8
+rect 0.12,1.55 0.76,0.3 stroke #2a2038 width 2
+
+# Shaft cross-section (tall obsidian column seen top-down — narrow rectangle)
+rect 0.3,0.3 0.4,1.4 fill #1a0828 0.92
+rect 0.3,0.3 0.4,1.4 stroke #4a3a80 width 2
+
+# Silver rune etchings along shaft
+line 0.4,0.5 0.6,0.5 stroke #e0e0ff width 1
+circle 0.5,0.5 0.04 stroke #c0a0ff width 1
+line 0.4,0.85 0.6,0.85 stroke #e0e0ff width 1
+line 0.5,0.8 0.5,0.9 stroke #e0e0ff width 1
+line 0.4,1.2 0.6,1.2 stroke #e0e0ff width 1
+circle 0.5,1.2 0.04 stroke #c0a0ff width 1
+line 0.4,1.45 0.6,1.45 stroke #e0e0ff width 1
+
+# Edge highlights (light catches one vertical ridge)
+line 0.3,0.3 0.3,1.7 stroke #8060d0 width 1
+line 0.32,0.3 0.32,1.7 stroke #c0a0ff 0.5 width 1
+
+# Pyramidion apex (4 facets meeting at tip — appears at top of prop)
+poly 0.3,0.3 0.7,0.3 0.5,0.1 fill #4a3a80 0.85
+poly 0.3,0.3 0.5,0.1 0.3,0.18 fill #6050a0 0.75
+poly 0.7,0.3 0.5,0.1 0.7,0.18 fill #2a1850 0.8
+poly 0.3,0.3 0.7,0.3 0.5,0.1 stroke #8060d0 width 1
+
+# Captive starlight at apex
+circle 0.5,0.18 0.05 fill #e0e0ff 0.85
+circle 0.5,0.18 0.025 fill #ffffff 0.95
+
+# Base carved rune (ring)
+circle 0.5,1.7 0.08 stroke #c0a0ff width 1
+circle 0.5,1.7 0.04 fill #e0e0ff 0.55

@@ -1,0 +1,83 @@
+name: Stall Counter
+category: Furniture
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.0
+placement: wall
+room_types: market-stall, market, vendor-row, bazaar, shop-merchant
+typical_count: single
+clusters_with: canvas-awning, stool-vendor, display-basket, fabric-bolt, spice-bowl, apple-pile
+notes: Long wooden counter with vendor goods arrayed on top. Vendor stands at the north side, customers approach from the south.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 2.84,0.78 z 0-1.0
+
+# Footprint 1x3: x 0-3, y 0-1. Very wide counter with goods on top.
+
+# Counter top — long plank surface
+rect 0.08,0.06 2.84,0.78 texfill polyhaven/brown_planks_09 0.88
+rect 0.08,0.06 2.84,0.78 stroke #2a1400
+
+# Plank seams running east-west
+line 0.10,0.30 2.90,0.30 stroke #3a1f00 0.5
+line 0.10,0.58 2.90,0.58 stroke #3a1f00 0.5
+
+# Leg shadow dots at corners
+circle 0.16,0.14 0.05 fill #2a1400 0.55
+circle 2.84,0.14 0.05 fill #2a1400 0.55
+circle 0.16,0.78 0.05 fill #2a1400 0.55
+circle 2.84,0.78 0.05 fill #2a1400 0.55
+# Mid-length support leg shadows
+circle 1.00,0.78 0.045 fill #2a1400 0.5
+circle 2.00,0.78 0.045 fill #2a1400 0.5
+
+# === GOODS ON COUNTER ===
+
+# Small bottles cluster (left third — 3 bottles)
+circle 0.32,0.40 0.06 fill #2a4028 0.95
+circle 0.32,0.40 0.06 stroke #0d1a11
+circle 0.32,0.40 0.025 fill #a08058 0.9
+circle 0.48,0.44 0.06 fill #5a1a1a 0.95
+circle 0.48,0.44 0.06 stroke #2a0a0a
+circle 0.48,0.44 0.025 fill #a08058 0.9
+circle 0.40,0.58 0.06 fill #6b4400 0.95
+circle 0.40,0.58 0.06 stroke #3a2200
+circle 0.40,0.58 0.025 fill #a08058 0.9
+
+# Bundle of herbs (middle — tied bundle of leafy stalks)
+rect 1.20,0.30 0.40,0.12 fill #3a7a28 0.85
+rect 1.20,0.30 0.40,0.12 stroke #1a3810
+# Herb stems poking out
+line 1.22,0.34 1.18,0.28 stroke #2a5a18 width 2
+line 1.28,0.34 1.26,0.26 stroke #2a5a18 width 2
+line 1.50,0.34 1.54,0.28 stroke #2a5a18 width 2
+line 1.56,0.34 1.60,0.26 stroke #2a5a18 width 2
+# Tie string (twine wrap)
+rect 1.38,0.30 0.04,0.12 fill #8b7355 0.9
+# Bundle leaves
+poly 1.24,0.42 1.28,0.50 1.22,0.52 fill #3a7a28 0.85
+poly 1.42,0.42 1.46,0.52 1.40,0.54 fill #3a7a28 0.85
+poly 1.56,0.42 1.60,0.50 1.54,0.52 fill #3a7a28 0.85
+
+# Coin scale (right third — pan balance)
+# Base post
+rect 2.30,0.40 0.04,0.36 fill #8b6914 0.95
+rect 2.30,0.40 0.04,0.36 stroke #5a3a00
+# Cross-beam on top
+rect 2.10,0.36 0.44,0.04 fill #8b6914 0.95
+rect 2.10,0.36 0.44,0.04 stroke #5a3a00
+# Two suspended pans (ellipses hanging at ends)
+line 2.14,0.38 2.14,0.48 stroke #daa520 width 1
+line 2.50,0.38 2.50,0.48 stroke #daa520 width 1
+ellipse 2.14,0.52 0.10,0.05 fill #daa520 0.92
+ellipse 2.14,0.52 0.10,0.05 stroke #5a3a00
+ellipse 2.50,0.52 0.10,0.05 fill #daa520 0.92
+ellipse 2.50,0.52 0.10,0.05 stroke #5a3a00
+# A coin stack on the left pan
+circle 2.14,0.51 0.035 fill #ffd700 0.95
+circle 2.14,0.51 0.035 stroke #5a3a00
+
+# Counter front edge shadow (below where cloth or panel would hang)
+rect 0.10,0.82 2.80,0.03 fill #000000 0.20

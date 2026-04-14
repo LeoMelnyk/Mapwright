@@ -1,0 +1,33 @@
+name: Cannon Tackle
+category: Misc
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ship-gun-deck, warship, gunnery, frigate-deck
+typical_count: few
+clusters_with: cannon, gun-port, swab-rammer
+notes: Coiled rope with block-and-tackle pulleys and iron hook for securing the gun carriage. Place beside a cannon or against the hull.
+---
+# footprint 1x2: x 0-2, y 0-1
+# Coil of rope (right side) — concentric loops, top-down
+ellipse 1.45,0.50 0.32,0.28 texfill polyhaven/rough_linen 0.8
+ellipse 1.45,0.50 0.32,0.28 stroke #5c3a1e
+ellipse 1.45,0.50 0.22,0.18 stroke #6b4e2e width 1
+ellipse 1.45,0.50 0.12,0.09 stroke #8b7355 width 1
+circle 1.45,0.50 0.04 fill #3a1f00 0.6
+# Block-and-tackle pulley (left center) — wooden cheeks with sheave pin
+rect 0.45,0.34 0.30,0.32 texfill polyhaven/dark_wood 0.85
+rect 0.45,0.34 0.30,0.32 stroke #2a1400
+circle 0.60,0.50 0.08 fill #555555 0.7
+circle 0.60,0.50 0.08 stroke #222222
+circle 0.60,0.50 0.03 fill #222222 0.9
+# Rope running from pulley to coil
+line 0.75,0.48 1.18,0.48 stroke #8b7355 width 3
+line 0.75,0.52 1.18,0.52 stroke #6b4e2e width 2
+# Iron hook (far left)
+poly 0.12,0.48 0.22,0.40 0.34,0.42 0.34,0.50 0.26,0.54 0.22,0.62 0.16,0.60 0.18,0.52 fill #555555 0.85
+poly 0.12,0.48 0.22,0.40 0.34,0.42 0.34,0.50 0.26,0.54 0.22,0.62 0.16,0.60 0.18,0.52 stroke #222222
+# Rope from hook into pulley
+line 0.34,0.46 0.45,0.46 stroke #8b7355 width 2

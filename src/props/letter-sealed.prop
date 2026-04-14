@@ -1,0 +1,50 @@
+name: Sealed Letter
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: house-merchant, merchant-home, study, parlor, burgher-house, office
+typical_count: few
+clusters_with: ledger, desk, brass-lamp
+notes: Folded parchment letter with red wax seal and ribbon tie. Place on desks, tables, or beside beds.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Parchment letter (folded rectangle, slightly tilted)
+poly 0.12,0.28 0.88,0.22 0.92,0.74 0.14,0.80 fill #e8dcc8 0.95
+poly 0.12,0.28 0.88,0.22 0.92,0.74 0.14,0.80 stroke #8b7355 width 2
+
+# Parchment fold crease lines
+line 0.16,0.42 0.90,0.36 stroke #c8b898 0.7
+line 0.14,0.58 0.91,0.52 stroke #c8b898 0.7
+
+# Aged edge stains
+circle 0.18,0.32 0.04 fill #a89070 0.3
+circle 0.86,0.70 0.05 fill #a89070 0.3
+
+# Handwritten address lines (subtle)
+line 0.20,0.38 0.50,0.36 stroke #2a1400 0.5 width 1
+line 0.22,0.44 0.60,0.42 stroke #2a1400 0.4 width 1
+
+# Ribbon tie (dark cord across middle, east-west)
+line 0.10,0.52 0.94,0.46 stroke #5a1a1a width 3
+line 0.10,0.52 0.94,0.46 stroke #2a0808 width 1
+
+# Red wax seal (circular, offset center)
+circle 0.56,0.50 0.12 fill #8a1010 0.95
+circle 0.56,0.50 0.12 stroke #3a0808 width 2
+# Wax inner depression
+circle 0.56,0.50 0.10 fill #6a0808 0.85
+# Merchant sigil impression (stylized M / monogram)
+line 0.50,0.46 0.50,0.54 stroke #2a0808 width 2
+line 0.50,0.46 0.56,0.52 stroke #2a0808 width 2
+line 0.56,0.52 0.62,0.46 stroke #2a0808 width 2
+line 0.62,0.46 0.62,0.54 stroke #2a0808 width 2
+# Wax drip edge
+poly 0.46,0.48 0.50,0.60 0.44,0.58 fill #8a1010 0.9
+poly 0.66,0.48 0.70,0.58 0.64,0.60 fill #8a1010 0.9
+
+# Seal highlight (wax shine)
+arc 0.56,0.50 0.10 210 290 stroke #c02020 0.5 width 1

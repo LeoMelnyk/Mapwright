@@ -1,0 +1,40 @@
+name: Satin Ribbon
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall
+typical_count: few
+clusters_with: dropped-fan, dance-card, glove-single, rose-petal-scatter
+notes: A single length of satin ribbon dropped mid-curl on the floor. Use as litter after a grand dance.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Main ribbon curl — soft S-bend, wide stroke
+bezier 0.20,0.30 0.50,0.20 0.70,0.60 0.80,0.78 stroke #8b2050 width 10
+bezier 0.20,0.30 0.50,0.20 0.70,0.60 0.80,0.78 stroke #4a0820 width 1
+
+# Ribbon center lighter satin sheen
+bezier 0.20,0.30 0.50,0.20 0.70,0.60 0.80,0.78 stroke #c04080 0.6 width 4
+
+# Loop/twist at one end
+circle 0.26,0.30 0.07 fill #8b2050 0.9
+circle 0.26,0.30 0.07 stroke #4a0820
+# Inside of loop (twist visible)
+arc 0.26,0.30 0.05 135 315 stroke #c04080 width 2
+
+# Tapered ribbon tip with forked V-cut
+poly 0.78,0.78 0.88,0.74 0.92,0.82 0.80,0.88 fill #8b2050 0.9
+poly 0.78,0.78 0.88,0.74 0.92,0.82 0.80,0.88 stroke #4a0820
+
+# V-cut detail at tip
+line 0.86,0.78 0.88,0.82 stroke #4a0820 width 2
+
+# Second short curl nearby (ribbon doubled back)
+bezier 0.40,0.50 0.32,0.60 0.48,0.68 0.56,0.64 stroke #8b2050 width 5
+bezier 0.40,0.50 0.32,0.60 0.48,0.68 0.56,0.64 stroke #4a0820 width 1
+
+# Satin highlight streak on upper curl
+line 0.28,0.28 0.48,0.30 stroke #ffd0e0 0.5 width 1

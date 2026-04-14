@@ -1,0 +1,54 @@
+name: Religious Tapestry
+category: Decorative
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 3.5
+placement: wall
+room_types: temple-nave, temple, shrine, church, cathedral
+typical_count: few
+clusters_with: altar, banner-religious, icon-wall, candelabra, tapestry
+notes: Large wine-red and gold religious tapestry hung on the wall — heavy brass rod with finials, thin fabric top strip with gold embroidery and central holy medallion
+---
+# === HITBOX ===
+hitbox rect 0.08,0.04 2.84,0.22 z 0-3.5
+
+# footprint 1x3: x 0-3, y 0-1
+# Top-down wall textile: brass rod + finials + thin fabric top strip only.
+
+# Heavy brass mounting rod along the wall (north edge)
+rect 0.08,0.04 2.84,0.07 fill #daa520 0.92
+rect 0.08,0.04 2.84,0.07 stroke #5a3a00 width 1
+
+# Rod shine
+line 0.10,0.05 2.90,0.05 stroke #ffd860 0.6 width 1
+
+# Ornate finials at rod ends
+circle 0.08,0.075 0.055 fill #daa520 0.95
+circle 0.08,0.075 0.055 stroke #5a3a00
+circle 2.92,0.075 0.055 fill #daa520 0.95
+circle 2.92,0.075 0.055 stroke #5a3a00
+# Finial inner detail
+circle 0.08,0.075 0.025 fill #8b6914 0.85
+circle 2.92,0.075 0.025 fill #8b6914 0.85
+
+# Thin fabric top strip (wine red velvet)
+rect 0.14,0.11 2.72,0.11 texfill polyhaven/velour_velvet 0.85
+rect 0.14,0.11 2.72,0.11 fill #5a1a1a 0.45
+rect 0.14,0.11 2.72,0.11 stroke #2a0808
+
+# Gold embroidered trim bands
+line 0.14,0.14 2.86,0.14 stroke #daa520 0.85 width 1
+line 0.14,0.19 2.86,0.19 stroke #daa520 0.65 width 1
+
+# Gold medallion pattern hints across the strip (tops of woven motifs)
+circle 0.50,0.165 0.025 fill #daa520 0.75
+circle 1.00,0.165 0.025 fill #daa520 0.75
+# Central holy medallion (larger, with detail)
+circle 1.50,0.165 0.04 fill #daa520 0.92
+circle 1.50,0.165 0.04 stroke #5a3a00
+line 1.46,0.165 1.54,0.165 stroke #5a1a1a width 1
+line 1.50,0.13 1.50,0.20 stroke #5a1a1a width 1
+circle 2.00,0.165 0.025 fill #daa520 0.75
+circle 2.50,0.165 0.025 fill #daa520 0.75

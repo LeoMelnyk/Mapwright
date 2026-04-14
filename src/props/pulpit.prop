@@ -1,0 +1,58 @@
+name: Pulpit
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: temple-nave, temple, church, cathedral, great-hall
+typical_count: single
+clusters_with: altar, candelabra, kneeling-bench, banner-religious
+notes: Tall wooden preaching pulpit — circular base column with an angled reading tray on top (book rest tilted toward the south-facing congregation)
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.34 z 0-1.5
+
+# Round wooden base column (seen from above as a ring of dark wood)
+circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.38 stroke #3a1f00 width 2
+
+# Base plinth trim ring
+circle 0.5,0.5 0.34 stroke #5c3a1e width 1
+
+# Inner column stonework / paneling rim
+circle 0.5,0.5 0.28 texfill polyhaven/dark_wood 0.9
+circle 0.5,0.5 0.28 stroke #2a1400 width 1
+
+# Carved vertical panel shadows around the column (4 panels)
+line 0.22,0.5 0.28,0.5 stroke #1a0804 width 1
+line 0.72,0.5 0.78,0.5 stroke #1a0804 width 1
+line 0.5,0.22 0.5,0.28 stroke #1a0804 width 1
+line 0.5,0.72 0.5,0.78 stroke #1a0804 width 1
+
+# Angled reading tray on top (tilted south — book rest, rectangular from above)
+rect 0.28,0.42 0.44,0.24 texfill polyhaven/wood_table 0.9
+rect 0.28,0.42 0.44,0.24 stroke #3a1f00 width 2
+
+# Tray inner lip (where the book sits)
+rect 0.32,0.46 0.36,0.18 stroke #5c3a1e width 1
+
+# Gilt edge trim along the tray
+line 0.28,0.42 0.72,0.42 stroke #daa520 width 1
+line 0.28,0.66 0.72,0.66 stroke #daa520 0.8 width 1
+
+# Open book on the tray (two pages hinted)
+rect 0.36,0.50 0.28,0.12 fill #e8dcc8 0.9
+rect 0.36,0.50 0.28,0.12 stroke #8a7858 width 1
+line 0.50,0.50 0.50,0.62 stroke #5c3a1e 0.8 width 1
+
+# Text line hints on the book
+line 0.39,0.54 0.48,0.54 stroke #3a1f00 0.6 width 1
+line 0.39,0.57 0.47,0.57 stroke #3a1f00 0.6 width 1
+line 0.52,0.54 0.61,0.54 stroke #3a1f00 0.6 width 1
+line 0.52,0.57 0.60,0.57 stroke #3a1f00 0.6 width 1
+
+# Brass gooseneck lamp/clasp at south front edge
+circle 0.50,0.64 0.025 fill #daa520 0.9
+circle 0.50,0.64 0.025 stroke #5a3a00

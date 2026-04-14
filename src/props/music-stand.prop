@@ -1,0 +1,60 @@
+name: Music Stand
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.3
+placement: floor
+room_types: bardic-hall, music-hall, theater, bards-college, tavern-stage
+typical_count: few
+clusters_with: harp, lute-stand, drum-stand, sheet-music, stage-large
+notes: Slim tripod music stand — top-down shows a small triangular base and a rectangular angled tray holding sheet music at waist height
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-1.3
+
+# Tripod base (three legs radiating from center)
+line 0.30,0.82 0.50,0.60 stroke #2a1400 width 3
+line 0.70,0.82 0.50,0.60 stroke #2a1400 width 3
+line 0.50,0.22 0.50,0.60 stroke #2a1400 width 3
+
+# Tripod foot circles (small dark dots at leg ends)
+circle 0.30,0.82 0.03 fill #1a0804 0.9
+circle 0.30,0.82 0.03 stroke #2a1400
+circle 0.70,0.82 0.03 fill #1a0804 0.9
+circle 0.70,0.82 0.03 stroke #2a1400
+circle 0.50,0.22 0.03 fill #1a0804 0.9
+circle 0.50,0.22 0.03 stroke #2a1400
+
+# Central post (small circle at leg convergence)
+circle 0.50,0.60 0.04 fill #3a1f00 0.9
+circle 0.50,0.60 0.04 stroke #1a0804
+
+# Post riser (short dark rectangle from base to tray)
+rect 0.48,0.46 0.04 0.14 fill #2a1400 0.85
+
+# Sheet music tray (angled rectangle, darker wood / gilt edge)
+rect 0.28,0.34 0.44,0.18 texfill polyhaven/dark_wood 0.9
+rect 0.28,0.34 0.44,0.18 stroke #3a1f00 width 2
+
+# Gilt trim along tray edges
+line 0.28,0.34 0.72,0.34 stroke #daa520 0.85 width 1
+line 0.28,0.52 0.72,0.52 stroke #daa520 0.65 width 1
+
+# Tray lip / ledge for music (south edge)
+rect 0.28,0.50 0.44,0.04 fill #daa520 0.8
+rect 0.28,0.50 0.44,0.04 stroke #5a3a00 width 1
+
+# Sheet music clipped on tray (pale rectangle with staff lines)
+rect 0.34,0.37 0.32,0.13 fill #e8dcc8 0.92
+rect 0.34,0.37 0.32,0.13 stroke #8a7858 width 1
+# Staff lines
+line 0.36,0.40 0.64,0.40 stroke #3a1f00 0.7 width 1
+line 0.36,0.42 0.64,0.42 stroke #3a1f00 0.7 width 1
+line 0.36,0.44 0.64,0.44 stroke #3a1f00 0.7 width 1
+line 0.36,0.46 0.64,0.46 stroke #3a1f00 0.7 width 1
+# A note head or two
+circle 0.42,0.43 0.012 fill #1a0804 0.85
+circle 0.52,0.45 0.012 fill #1a0804 0.85
+circle 0.58,0.41 0.012 fill #1a0804 0.85

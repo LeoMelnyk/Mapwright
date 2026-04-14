@@ -1,0 +1,51 @@
+name: Coral Pillar
+category: Nature
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: corner
+room_types: elemental-water-node, coral-reef, aquatic-shrine, merfolk-grotto
+typical_count: few
+clusters_with: anemone-glow, anemone-small, shell-scatter, kelp-strand
+notes: Tall branching coral formation; place against walls or flanking features, 1-2 per room
+---
+# Footprint 2x1: x 0-1, y 0-2. Branching coral rising, top-down shows irregular branches.
+# Rocky base — holdfast
+ellipse 0.5,1.70 0.38,0.22 fill #554030 0.7
+ellipse 0.5,1.70 0.38,0.22 stroke #2a1810
+# Main trunk (vertical core polygon)
+poly 0.38,1.72 0.62,1.72 0.58,0.45 0.52,0.20 0.48,0.20 0.42,0.45 fill #d04020 0.85
+poly 0.38,1.72 0.62,1.72 0.58,0.45 0.52,0.20 0.48,0.20 0.42,0.45 stroke #802010
+# Left branch — mid
+poly 0.42,1.20 0.22,0.90 0.14,0.65 0.20,0.64 0.30,0.85 0.44,1.10 fill #e05030 0.82
+poly 0.42,1.20 0.22,0.90 0.14,0.65 0.20,0.64 0.30,0.85 0.44,1.10 stroke #802010
+# Right branch — upper
+poly 0.58,0.90 0.80,0.60 0.88,0.38 0.82,0.36 0.72,0.55 0.56,0.82 fill #e05030 0.82
+poly 0.58,0.90 0.80,0.60 0.88,0.38 0.82,0.36 0.72,0.55 0.56,0.82 stroke #802010
+# Left secondary branch — upper
+poly 0.45,0.65 0.30,0.35 0.22,0.15 0.28,0.14 0.36,0.30 0.48,0.55 fill #ff6040 0.80
+poly 0.45,0.65 0.30,0.35 0.22,0.15 0.28,0.14 0.36,0.30 0.48,0.55 stroke #802010
+# Right secondary — lower
+poly 0.58,1.30 0.76,1.10 0.84,0.92 0.80,0.88 0.70,1.02 0.56,1.22 fill #ff7050 0.78
+poly 0.58,1.30 0.76,1.10 0.84,0.92 0.80,0.88 0.70,1.02 0.56,1.22 stroke #802010
+# Coral polyp dots — small textured circles on branches
+circle 0.50,0.25 0.04 fill #ff9050 0.85
+circle 0.44,0.55 0.035 fill #ff9050 0.85
+circle 0.56,0.70 0.035 fill #ff9050 0.85
+circle 0.48,0.95 0.04 fill #ffa060 0.85
+circle 0.54,1.25 0.04 fill #ffa060 0.85
+circle 0.48,1.55 0.035 fill #ff9050 0.85
+circle 0.22,0.80 0.03 fill #ffa060 0.8
+circle 0.30,1.05 0.03 fill #ff9050 0.8
+circle 0.76,0.50 0.03 fill #ffa060 0.8
+circle 0.80,0.75 0.03 fill #ff9050 0.8
+circle 0.24,0.28 0.025 fill #ffb070 0.8
+circle 0.78,1.00 0.028 fill #ffb070 0.8
+# Branch tip highlights
+circle 0.50,0.20 0.025 fill #ffc080 0.9
+circle 0.14,0.65 0.022 fill #ffc080 0.85
+circle 0.88,0.38 0.022 fill #ffc080 0.85
+circle 0.22,0.15 0.02 fill #ffc080 0.85
+circle 0.84,0.92 0.022 fill #ffc080 0.85
