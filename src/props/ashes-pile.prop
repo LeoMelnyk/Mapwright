@@ -10,7 +10,13 @@ room_types: temple-nave, temple, shrine, hearth, ritual-chamber
 typical_count: few
 clusters_with: altar-sacrificial, censer, candelabra, scorch-mark
 notes: Small grey ash mound with black char flecks and faintly glowing embers — remains of a ritual offering or censer burnout
-lights: candle 3 #ff7030 0.3
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.5
+    radius: 3
+    color: "#ff7030"
+    intensity: 0.3
 ---
 # === HITBOX ===
 hitbox circle 0.5,0.5 0.28 z 0-0.15
