@@ -7,10 +7,15 @@ import type { PropCommand, PropDefinition } from '../types.js';
 
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { basename, dirname, join } from 'path';
 import { parsePropFile, generateHitbox } from './props.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = (() => {
+  const d = dirname(fileURLToPath(import.meta.url));
+  // In bundled mode (dist-electron/server.mjs), map back to the source location so
+  // relative project paths like '../props/manifest.json' still resolve correctly.
+  return basename(d) === 'dist-electron' ? join(dirname(d), 'src', 'render') : d;
+})();
 
 /** Convert manual hitbox commands (rect/circle/poly) into a single polygon. */
 function manualHitboxToPolygon(cmds: PropCommand[]): number[][] | null {
@@ -19,8 +24,10 @@ function manualHitboxToPolygon(cmds: PropCommand[]): number[][] | null {
     switch (cmd.subShape) {
       case 'rect':
         points.push(
-          [cmd.x!, cmd.y!], [cmd.x! + cmd.w!, cmd.y!],
-          [cmd.x! + cmd.w!, cmd.y! + cmd.h!], [cmd.x!, cmd.y! + cmd.h!],
+          [cmd.x!, cmd.y!],
+          [cmd.x! + cmd.w!, cmd.y!],
+          [cmd.x! + cmd.w!, cmd.y! + cmd.h!],
+          [cmd.x!, cmd.y! + cmd.h!],
         );
         break;
       case 'circle': {
@@ -61,7 +68,7 @@ function buildHitboxZones(def: PropDefinition): { polygon: number[][]; zBottom: 
   }
   const polygon = def.hitbox;
   if (!polygon) return null;
-  const zTop = (def.height != null && isFinite(def.height)) ? def.height : Infinity;
+  const zTop = def.height != null && isFinite(def.height) ? def.height : Infinity;
   return [{ polygon, zBottom: 0, zTop }];
 }
 
@@ -75,7 +82,9 @@ export function loadPropCatalogSync(): { props: Record<string, PropDefinition>; 
   try {
     manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
   } catch (e) {
-    console.warn(`[props] Could not load prop manifest at ${manifestPath} — props will not render in CLI build: ${(e as Error).stack ?? (e as Error).message}`);
+    console.warn(
+      `[props] Could not load prop manifest at ${manifestPath} — props will not render in CLI build: ${(e as Error).stack ?? (e as Error).message}`,
+    );
     return { props: {}, categories: [] };
   }
 
@@ -89,9 +98,7 @@ export function loadPropCatalogSync(): { props: Record<string, PropDefinition>; 
       if (!def.autoHitbox && def.commands.length) {
         def.autoHitbox = generateHitbox(def.commands, def.footprint) ?? undefined;
       }
-      def.hitbox ??= def.manualHitbox?.length
-          ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined)
-          : def.autoHitbox;
+      def.hitbox ??= def.manualHitbox?.length ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined) : def.autoHitbox;
       if (def.blocksLight && !def.hitboxZones) {
         def.hitboxZones = buildHitboxZones(def) ?? undefined;
       }
@@ -101,6 +108,6 @@ export function loadPropCatalogSync(): { props: Record<string, PropDefinition>; 
     }
   }
 
-  const categories = [...new Set(Object.values(props).map(p => (p as PropDefinition).category))];
+  const categories = [...new Set(Object.values(props).map((p) => (p as PropDefinition).category))];
   return { props, categories };
 }

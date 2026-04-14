@@ -6,6 +6,7 @@ import type { PropCatalog, PropDefinition, PropCommand } from '../../types.js';
 import { parsePropFile, generateHitbox } from '../../render/index.js';
 import { loadTextureImages, getTextureCatalog } from './texture-catalog.js';
 import { showToast } from './toast.js';
+import { allSettledWithLimit } from './async-batch.js';
 
 const MANIFEST_URL = '/props/manifest.json';
 const PROPS_BASE_URL = '/props/';
@@ -153,17 +154,15 @@ export async function loadPropCatalog(
     let loaded = 0;
     if (onProgress) onProgress(0, propNames.length);
 
-    const results = await Promise.allSettled(
-      propNames.map(async (name: string) => {
-        const res = await fetch(`${PROPS_BASE_URL}${name}.prop`, { cache: 'no-cache' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
-        const def = parsePropFile(text);
-        loaded++;
-        if (onProgress) onProgress(loaded, propNames.length);
-        return { name, def };
-      }),
-    );
+    const results = await allSettledWithLimit(propNames, 32, async (name: string) => {
+      const res = await fetch(`${PROPS_BASE_URL}${name}.prop`, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const def = parsePropFile(text);
+      loaded++;
+      if (onProgress) onProgress(loaded, propNames.length);
+      return { name, def };
+    });
 
     const props = {};
     let propFailCount = 0;

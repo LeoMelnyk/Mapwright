@@ -1,6 +1,7 @@
 // Light Catalog — loads .light preset metadata for the lighting panel.
 // Mirrors the pattern of texture-catalog.js (manifest + individual files + localStorage caching).
 import type { LightCatalog, LightPreset } from '../../types.js';
+import { allSettledWithLimit } from './async-batch.js';
 
 const BASE_URL = '/lights/';
 const CACHE_KEY = 'light-catalog';
@@ -106,13 +107,11 @@ export async function loadLightCatalog(): Promise<LightCatalog | null> {
     }
 
     // Fresh fetch — load all .light files
-    const results = await Promise.allSettled(
-      keys.map(async (key: string) => {
-        const r = await fetch(`${BASE_URL}${key}.light`, { cache: 'no-cache' });
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return { key, data: await r.json() };
-      }),
-    );
+    const results = await allSettledWithLimit(keys, 32, async (key: string) => {
+      const r = await fetch(`${BASE_URL}${key}.light`, { cache: 'no-cache' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return { key, data: await r.json() };
+    });
 
     const metadataEntries = [];
     for (const result of results) {

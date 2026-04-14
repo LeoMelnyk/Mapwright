@@ -1,6 +1,6 @@
 // Fog of war: cell filtering for the player view.
 import { cellKey, CARDINAL_OFFSETS } from '../util/index.js';
-import { classifyStairShape, getOccupiedCells } from '../editor/js/index.js';
+import { classifyStairShape, getOccupiedCells } from '../editor/js/stair-geometry.js';
 import type { Dungeon, Cell, CellGrid, Stairs, Bridge, OverlayProp, PropCatalog } from '../types.js';
 import type { OpenedDoor } from './player-state.js';
 

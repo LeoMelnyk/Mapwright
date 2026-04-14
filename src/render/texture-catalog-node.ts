@@ -13,7 +13,12 @@ import { fileURLToPath } from 'url';
 import { loadImage } from '@napi-rs/canvas';
 import { BRIDGE_TEXTURE_IDS } from './bridges.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = (() => {
+  const d = dirname(fileURLToPath(import.meta.url));
+  // In bundled mode (dist-electron/server.mjs), map back to the source location so
+  // relative project paths like '../textures' still resolve correctly.
+  return basename(d) === 'dist-electron' ? join(dirname(d), 'src', 'render') : d;
+})();
 
 // Electron sets MAPWRIGHT_TEXTURE_PATH before importing server.js, so this is
 // resolved correctly at module load time.

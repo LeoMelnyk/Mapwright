@@ -3,6 +3,7 @@ import type { CellGrid, TextureCatalog, TextureRuntime } from '../../types.js';
 // Mirrors the pattern of theme-catalog.js and prop-catalog.js.
 
 import { showToast } from './toast.js';
+import { allSettledWithLimit } from './async-batch.js';
 
 /** Serializable metadata entry (no images). */
 interface TextureMetadata {
@@ -113,13 +114,11 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
     }
 
     // Fresh fetch — load all .texture files
-    const results = await Promise.allSettled(
-      keys.map(async (key: string) => {
-        const r = await fetch(`${BASE_URL}${key}.texture`, { cache: 'no-cache' });
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return { key, data: await r.json() };
-      }),
-    );
+    const results = await allSettledWithLimit(keys, 32, async (key: string) => {
+      const r = await fetch(`${BASE_URL}${key}.texture`, { cache: 'no-cache' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return { key, data: await r.json() };
+    });
 
     // Build serializable metadata array
     const metadataEntries = [];

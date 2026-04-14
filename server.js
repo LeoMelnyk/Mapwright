@@ -60,7 +60,11 @@ if (typeof globalThis.document === 'undefined') {
   };
 }
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname = (() => {
+  const d = path.dirname(fileURLToPath(import.meta.url));
+  // In bundled mode (dist-electron/server.mjs), step up one level to project root.
+  return path.basename(d) === 'dist-electron' ? path.dirname(d) : d;
+})();
 const PORT = parseInt(process.argv[2]) || 3000;
 
 // Electron sets these to app.getPath('userData')/{dir} so user data
@@ -386,9 +390,7 @@ app.post('/api/export-dd2vtt', async (req, res) => {
 
 // ── Version endpoint ─────────────────────────────────────────────────────
 
-const { version: APP_VERSION } = JSON.parse(
-  fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'package.json'), 'utf-8'),
-);
+const { version: APP_VERSION } = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8'));
 
 app.get('/api/version', (_req, res) => {
   res.json({ version: APP_VERSION });
@@ -498,7 +500,7 @@ app.delete('/api/user-themes/:key', (req, res) => {
 
 app.get('/api/changelog', (_req, res) => {
   try {
-    const raw = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), 'CHANGELOG.md'), 'utf-8');
+    const raw = fs.readFileSync(path.join(__dirname, 'CHANGELOG.md'), 'utf-8');
     // First section (before the first `\n---\n` separator) is the latest release
     const latest = raw.split(/\n---\n/)[0].trim();
     const versionMatch = latest.match(/^## (v[\d.]+)/m);
