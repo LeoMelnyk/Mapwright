@@ -5,6 +5,9 @@
 ### Fixed
 
 - **Desktop app now launches** — v0.10.0 crashed on startup with `spawn node ENOENT` on machines without Node.js installed. The bundled server is now compiled ahead of time and run via Electron itself, so no external Node runtime is required.
+- **Packaged app window now appears** — the .exe/.dmg started its process but never showed a window. The compiled editor assets weren't being bundled into the installer, so the server silently fell back to serving raw TypeScript source and the browser refused to load it.
+- **Texture browser thumbnails** — the texture panel only showed thumbnails for textures already used on the map. All thumbnails now appear immediately when the panel opens.
+- **Startup error diagnostics** — if the app fails to start, a log file is now written to `%APPDATA%\Mapwright\logs\main.log` (Windows) or `~/Library/Logs/Mapwright/main.log` (macOS), and an error dialog is shown instead of a silent hang.
 - **Build configuration** — corrected an invalid `win.publisherName` placement in `package.json` that was rejected by the electron-builder schema.
 
 ## v0.10.0

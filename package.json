@@ -87,9 +87,13 @@
         "role": "Editor"
       }
     ],
+    "directories": {
+      "output": "release"
+    },
     "files": [
       "electron-main.cjs",
       "dist-electron/**/*",
+      "dist/**/*",
       "src/**/*",
       "examples/**/*",
       "node_modules/**/*",
