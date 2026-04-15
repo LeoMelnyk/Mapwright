@@ -72,38 +72,94 @@ if (!gotTheLock) {
   });
 }
 
+// Log file for packaged builds where stdout is invisible. Path:
+//   macOS: ~/Library/Logs/Mapwright/main.log
+//   Windows: %APPDATA%\Mapwright\logs\main.log
+function getLogStream() {
+  if (app._logStream) return app._logStream;
+  const logDir = app.getPath('logs');
+  try {
+    fs.mkdirSync(logDir, { recursive: true });
+  } catch {
+    /* best effort */
+  }
+  const logPath = path.join(logDir, 'main.log');
+  app._logPath = logPath;
+  app._logStream = fs.createWriteStream(logPath, { flags: 'a' });
+  app._logStream.write(`\n=== Mapwright startup ${new Date().toISOString()} ===\n`);
+  app._logStream.write(`execPath: ${process.execPath}\n`);
+  app._logStream.write(`__dirname: ${__dirname}\n`);
+  return app._logStream;
+}
+
+function logLine(prefix, msg) {
+  const line = `[${new Date().toISOString()}] [${prefix}] ${msg}\n`;
+  try {
+    getLogStream().write(line);
+  } catch {
+    /* best effort */
+  }
+  console.log(line.trimEnd());
+}
+
 async function startServer() {
   // server.js + its .ts imports are bundled to dist-electron/server.mjs by
-  // tools/bundle-server.cjs at build time. We fork the bundle using Electron
-  // itself as the node runtime (ELECTRON_RUN_AS_NODE) — avoids requiring `node`
-  // on the user's PATH in packaged builds.
-  const { fork } = require('child_process');
+  // tools/bundle-server.cjs at build time. We import the bundle directly into
+  // the Electron main process (rather than forking it) so that Electron's asar
+  // fs integration is available — ELECTRON_RUN_AS_NODE child processes lose
+  // asar support, which breaks express.static() against paths inside app.asar.
   const serverPath = path.join(__dirname, 'dist-electron', 'server.mjs');
-  // `cwd` must be a real filesystem path, not the in-asar `__dirname` — otherwise
-  // Windows spawn fails with ENOENT before the child even loads.
-  const child = fork(serverPath, [String(PORT)], {
-    cwd: path.dirname(process.execPath),
-    stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
-    execPath: process.execPath,
-    env: {
-      ...process.env,
-      ELECTRON_RUN_AS_NODE: '1',
-      MAPWRIGHT_TEXTURE_PATH: process.env.MAPWRIGHT_TEXTURE_PATH || path.join(app.getPath('userData'), 'textures'),
-      MAPWRIGHT_THEME_PATH: process.env.MAPWRIGHT_THEME_PATH || path.join(app.getPath('userData'), 'themes'),
-    },
-  });
-  // Store reference so we can clean up on quit
-  app._serverChild = child;
-  // Wait for server to be ready
+  logLine('server', `importing: ${serverPath}`);
+  logLine('server', `exists: ${fs.existsSync(serverPath)}`);
+
+  process.env.MAPWRIGHT_TEXTURE_PATH =
+    process.env.MAPWRIGHT_TEXTURE_PATH || path.join(app.getPath('userData'), 'textures');
+  process.env.MAPWRIGHT_THEME_PATH = process.env.MAPWRIGHT_THEME_PATH || path.join(app.getPath('userData'), 'themes');
+
+  // server.mjs reads PORT from process.argv[2]; inject it before import.
+  process.argv[2] = String(PORT);
+
+  const TIMEOUT_MS = 15000;
+  const started = Date.now();
   const http = require('http');
-  await new Promise((resolve) => {
+
+  try {
+    // Convert Windows path to a file:// URL so dynamic import works reliably on
+    // both platforms. Node accepts `file:///C:/...` but not raw `C:\...`.
+    const serverUrl = require('url').pathToFileURL(serverPath).href;
+    await import(serverUrl);
+  } catch (err) {
+    logLine('server:error', err.stack || String(err));
+    dialog.showErrorBox(
+      'Mapwright failed to start',
+      `Server import failed.\n\nReason: ${err.message}\n\nLog: ${app._logPath || '(unavailable)'}`,
+    );
+    return;
+  }
+
+  // server.js's app.listen() is async — poll until it responds.
+  const ready = await new Promise((resolve) => {
     const check = () => {
-      const req = http.get(`http://localhost:${PORT}/`, () => resolve());
+      if (Date.now() - started > TIMEOUT_MS) {
+        resolve({ ok: false, reason: `timed out after ${TIMEOUT_MS}ms waiting for http://localhost:${PORT}/` });
+        return;
+      }
+      const req = http.get(`http://localhost:${PORT}/`, () => resolve({ ok: true }));
       req.on('error', () => setTimeout(check, 200));
       req.end();
     };
     check();
   });
+
+  if (!ready.ok) {
+    logLine('server', `FAILED: ${ready.reason}`);
+    dialog.showErrorBox(
+      'Mapwright failed to start',
+      `The local server did not respond.\n\nReason: ${ready.reason}\n\nLog: ${app._logPath || '(unavailable)'}`,
+    );
+    return;
+  }
+  logLine('server', `ready in ${Date.now() - started}ms`);
 }
 
 function createWindow() {
@@ -286,22 +342,5 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.exit(0);
 });
 
-app.on('before-quit', () => {
-  if (app._serverChild) {
-    if (process.platform === 'win32') {
-      // On Windows, child.kill() only kills the direct process — use taskkill /T
-      // to kill the entire process tree (node → tsx → server.js). Use execFileSync
-      // (no shell) so the PID is passed as a discrete argv, not interpolated into
-      // a shell command.
-      const { execFileSync } = require('child_process');
-      try {
-        execFileSync('taskkill', ['/PID', String(app._serverChild.pid), '/T', '/F'], { stdio: 'ignore' });
-      } catch {
-        /* best effort */
-      }
-    } else {
-      app._serverChild.kill();
-    }
-    app._serverChild = null;
-  }
-});
+// Server runs in-process, so quitting the main process stops it automatically.
+// No explicit child cleanup needed.

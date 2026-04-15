@@ -180,7 +180,6 @@ function buildCategoryGrid(cat: TextureCatalog, parent: HTMLElement, filter: str
         const img = document.createElement('img');
         img.alt = name;
         img.className = 'texture-thumb-img';
-        img.loading = 'lazy';
         img.decoding = 'async';
         img.style.display = 'none';
         const revealImg = () => {
