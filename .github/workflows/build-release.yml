@@ -36,12 +36,12 @@ jobs:
           ELECTRON_BUILDER_PUBLISH: never
         run: npm run electron:build
 
-      - name: Stash portable exe and clean dist
+      - name: Stash portable exe and clean release output
         shell: bash
         run: |
           mkdir -p dist-portable
-          cp dist/*.exe dist-portable/
-          rm -rf dist/
+          cp release/*.exe dist-portable/
+          rm -rf release/
 
       - name: Build NSIS installer
         env:
@@ -58,9 +58,9 @@ jobs:
         run: |
           TAG="${{ github.event.release.tag_name || inputs.tag }}"
           gh release upload "$TAG" dist-portable/*.exe --clobber
-          gh release upload "$TAG" dist/*.exe --clobber
+          gh release upload "$TAG" release/*.exe --clobber
           # latest.yml is needed by electron-updater for NSIS auto-updates
-          if [ -f dist/latest.yml ]; then gh release upload "$TAG" dist/latest.yml --clobber; fi
+          if [ -f release/latest.yml ]; then gh release upload "$TAG" release/latest.yml --clobber; fi
 
   build-mac:
     name: Build Mac dmg
@@ -90,4 +90,4 @@ jobs:
       - name: Upload to release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.event.release.tag_name || inputs.tag }}" dist/*.dmg --clobber
+        run: gh release upload "${{ github.event.release.tag_name || inputs.tag }}" release/*.dmg --clobber
