@@ -9,63 +9,47 @@ placement: corner
 room_types: bardic-hall, music-hall, theater, bards-college, mansion-grand-hall, noble-solar
 typical_count: single
 clusters_with: music-stand, sheet-music, lute-stand, drum-stand, stage-large
-notes: Tall concert harp — curved neck with an ornate scroll crown, soundbox base, taut strings running vertically between them. Tall footprint (2x1).
+notes: Concert harp seen edge-on (a harp is a thin planar instrument — from above you see only its profile). Soundbox base at the south end, pillar post rising north, scroll crown at the top.
 ---
-# footprint 2x1: x 0-1, y 0-2 — TALL
-
-# === HITBOX ===
-hitbox rect 0.20,0.10 0.60,1.80 z 0-1.8
-
-# Soundbox base (wide wooden chamber at south end)
-poly 0.18,1.60 0.82,1.60 0.88,1.92 0.12,1.92 texfill polyhaven/dark_wood 0.88
-poly 0.18,1.60 0.82,1.60 0.88,1.92 0.12,1.92 stroke #3a1f00 width 2
-
-# Soundbox top highlight
-line 0.20,1.62 0.80,1.62 stroke #5c3a1e 0.7 width 1
-
-# Gilt trim band on soundbox
-rect 0.18,1.70 0.64,0.04 fill #daa520 0.7
-line 0.18,1.74 0.82,1.74 stroke #8b6914 width 1
-
-# Sound hole on box (small circle)
-circle 0.50,1.80 0.04 fill #1a1208 0.9
-circle 0.50,1.80 0.04 stroke #3a1f00
-
-# Harp pillar (vertical forepost running from base up north — left side)
-rect 0.18,0.22 0.10,1.42 texfill polyhaven/dark_wood 0.9
-rect 0.18,0.22 0.10,1.42 stroke #2a1400 width 1
-
-# Gilt trim on pillar
-line 0.24,0.22 0.24,1.62 stroke #daa520 0.7 width 1
-
-# Curved neck/harmonic curve (bezier from top of pillar arching east to soundbox)
-bezier 0.23,0.22 0.40,0.14 0.72,0.40 0.78,1.60 stroke #3a1f00 width 5
-bezier 0.23,0.22 0.40,0.14 0.72,0.40 0.78,1.60 stroke #5c3a1e 0.7 width 3
-
-# Ornate scroll crown at the top of the neck
-circle 0.25,0.18 0.08 fill #daa520 0.9
-circle 0.25,0.18 0.08 stroke #5a3a00 width 2
-circle 0.25,0.18 0.04 fill #8b6914 0.85
+# footprint 2x1: x 0-1, y 0-2. Harp stands vertically, viewed edge-on from above.
+# === HITBOX — narrow profile along the spine ===
+hitbox rect 0.40,0.15 0.20,1.75 z 0-1.8
+# Soundbox base — widest element, sits on the floor at south
+ellipse 0.50,1.82 0.22,0.12 texfill polyhaven/dark_wood 0.88
+ellipse 0.50,1.82 0.22,0.12 stroke #3a1f00 width 2
+# Gilt trim ring around soundbox rim
+ellipse 0.50,1.82 0.22,0.12 stroke #daa520 0.7 width 1
+# Sound hole at the top of the soundbox
+ellipse 0.50,1.78 0.07,0.03 fill #1a1208 0.9
+ellipse 0.50,1.78 0.07,0.03 stroke #3a1f00 width 1
+# Pillar post — narrow vertical spine from soundbox up to the neck/crown
+rect 0.45,0.20 0.10,1.58 texfill polyhaven/dark_wood 0.92
+rect 0.45,0.20 0.10,1.58 stroke #2a1400 width 1
+# Gilt trim line along the pillar
+line 0.48,0.22 0.48,1.76 stroke #daa520 0.75 width 1
+# Neck curve — bezier arcing slightly off the pillar toward the strings
+bezier 0.52,1.70 0.58,1.10 0.56,0.55 0.50,0.22 stroke #3a1f00 width 4
+bezier 0.52,1.70 0.58,1.10 0.56,0.55 0.50,0.22 stroke #5c3a1e 0.7 width 2
+# Strings — thin taut lines running along the spine between neck and soundbox
+line 0.52,0.40 0.52,1.72 stroke #e8dcc8 0.85 width 1
+line 0.54,0.55 0.54,1.72 stroke #c8b898 0.80 width 1
+line 0.56,0.75 0.56,1.72 stroke #e8dcc8 0.80 width 1
+line 0.50,0.30 0.50,1.72 stroke #c8b898 0.75 width 1
+line 0.48,0.45 0.48,1.72 stroke #e8dcc8 0.80 width 1
+line 0.46,0.65 0.46,1.72 stroke #c8b898 0.75 width 1
+line 0.44,0.90 0.44,1.72 stroke #e8dcc8 0.75 width 1
+# Tuning pegs — small brass dots along the neck
+circle 0.53,0.50 0.018 fill #daa520 0.9
+circle 0.54,0.75 0.018 fill #daa520 0.9
+circle 0.55,1.00 0.018 fill #daa520 0.9
+circle 0.55,1.25 0.018 fill #daa520 0.9
+circle 0.54,1.50 0.018 fill #daa520 0.9
+# Ornate scroll crown at the top of the pillar (nearest the viewer)
+circle 0.50,0.16 0.08 fill #daa520 0.92
+circle 0.50,0.16 0.08 stroke #5a3a00 width 2
+circle 0.50,0.16 0.04 fill #8b6914 0.85
 # Scroll spiral hint
-arc 0.25,0.18 0.06 0 270 stroke #5a3a00 0.8 width 1
-
-# Strings (thin parallel lines from neck down to soundbox)
-line 0.32,0.28 0.34,1.60 stroke #c8b898 0.75 width 1
-line 0.38,0.30 0.42,1.60 stroke #e8dcc8 0.75 width 1
-line 0.44,0.34 0.50,1.60 stroke #c8b898 0.7 width 1
-line 0.50,0.40 0.58,1.60 stroke #e8dcc8 0.7 width 1
-line 0.56,0.48 0.66,1.60 stroke #c8b898 0.7 width 1
-line 0.62,0.58 0.72,1.60 stroke #daa520 0.7 width 1
-line 0.68,0.72 0.76,1.60 stroke #c8b898 0.65 width 1
-
-# Tuning pegs along the curved neck (small circles)
-circle 0.30,0.26 0.018 fill #daa520 0.9
-circle 0.36,0.30 0.018 fill #daa520 0.9
-circle 0.42,0.36 0.018 fill #daa520 0.9
-circle 0.50,0.46 0.018 fill #daa520 0.9
-circle 0.58,0.62 0.018 fill #daa520 0.9
-circle 0.66,0.86 0.018 fill #daa520 0.9
-
-# Soundbox corner leg shadows
-circle 0.16,1.88 0.04 fill #1a0804 0.6
-circle 0.84,1.88 0.04 fill #1a0804 0.6
+arc 0.50,0.16 0.06 0 270 stroke #5a3a00 0.8 width 1
+# Soundbox foot/leg shadow specks
+circle 0.32,1.92 0.03 fill #1a0804 0.55
+circle 0.68,1.92 0.03 fill #1a0804 0.55

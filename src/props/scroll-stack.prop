@@ -1,0 +1,61 @@
+name: Scroll Stack
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: demiplane-laboratory, library, study, wizard-sanctum, archive, arcane-library
+typical_count: few
+clusters_with: scroll-case, scroll-rack, desk, arcane-pedestal, spell-component-loose
+notes: Loose pile of rolled scrolls on the floor or a table. Suggests ongoing research or hasty organizing.
+---
+# === HITBOX ===
+hitbox rect 0.14,0.22 0.72,0.56 z 0-0.2
+
+# Bottom scrolls (rolled, lying at angles)
+# Scroll 1 — horizontal, bottom of pile
+ellipse 0.50,0.62 0.34,0.08 fill #d8c898 0.9
+ellipse 0.50,0.62 0.34,0.08 stroke #8b7355
+# Scroll 1 inner spiral (shows it's rolled)
+line 0.18,0.62 0.82,0.62 stroke #8b7355 0.6 width 1
+# Scroll 1 end caps (ring showing tube hole)
+ellipse 0.17,0.62 0.04,0.07 fill #b8a888 0.9
+ellipse 0.17,0.62 0.04,0.07 stroke #5c3a1e
+ellipse 0.83,0.62 0.04,0.07 fill #b8a888 0.9
+ellipse 0.83,0.62 0.04,0.07 stroke #5c3a1e
+
+# Scroll 2 — diagonal, stacked on top-left
+poly 0.14,0.44 0.52,0.32 0.58,0.40 0.20,0.52 fill #e0d0a0 0.88
+poly 0.14,0.44 0.52,0.32 0.58,0.40 0.20,0.52 stroke #8b7355
+line 0.18,0.46 0.56,0.34 stroke #8b7355 0.6 width 1
+# Red ribbon band
+rect 0.30,0.36 0.06,0.12 fill #aa2828 0.9 rotate -18
+rect 0.30,0.36 0.06,0.12 stroke #550808 rotate -18
+
+# Scroll 3 — diagonal opposite, upper-right
+poly 0.44,0.30 0.82,0.42 0.78,0.50 0.40,0.38 fill #d8c898 0.88
+poly 0.44,0.30 0.82,0.42 0.78,0.50 0.40,0.38 stroke #8b7355
+line 0.46,0.34 0.80,0.44 stroke #8b7355 0.6 width 1
+# Blue ribbon band
+rect 0.58,0.33 0.06,0.12 fill #2a488a 0.9 rotate 18
+rect 0.58,0.33 0.06,0.12 stroke #101a3a rotate 18
+
+# Scroll 4 — short, wedged in pile
+ellipse 0.32,0.54 0.12,0.05 fill #e8d8a8 0.9
+ellipse 0.32,0.54 0.12,0.05 stroke #8b7355
+
+# Scroll 5 — partially unrolled (flat parchment sheet at top)
+poly 0.38,0.22 0.70,0.24 0.72,0.32 0.40,0.30 fill #e8d8a8 0.92
+poly 0.38,0.22 0.70,0.24 0.72,0.32 0.40,0.30 stroke #8b7355
+# Inscription lines on unrolled parchment
+line 0.42,0.26 0.66,0.27 stroke #3a1f00 0.7 width 1
+line 0.42,0.28 0.60,0.29 stroke #3a1f00 0.6 width 1
+line 0.42,0.30 0.64,0.31 stroke #3a1f00 0.55 width 1
+
+# Tube end highlight on scroll 3
+arc 0.82,0.42 0.04 0 180 stroke #ffffff 0.5 width 1
+
+# Faint shadow between scrolls (depth cue)
+ellipse 0.50,0.54 0.24,0.04 fill #3a1f00 0.2

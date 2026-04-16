@@ -1,0 +1,46 @@
+name: Leather Stack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: tannery, workshop, shop-tailor
+typical_count: few
+clusters_with: tanning-rack, hide-scraps, crate-stack, workbench
+notes: Stack of folded finished leather sheets; place along workshop walls or near benches
+---
+# === HITBOX ===
+hitbox rect 0.15,0.15 0.70,0.70 z 0-0.4
+
+# Bottom sheet (largest, slightly offset SE)
+rect 0.18,0.22 0.70,0.66 texfill polyhaven/brown_leather 0.85
+rect 0.18,0.22 0.70,0.66 fill #5c3a1e 0.35
+rect 0.18,0.22 0.70,0.66 stroke #2a1400
+# Stitching along bottom sheet edge
+line 0.22,0.26 0.84,0.26 stroke #c8b898 0.7 width 1
+line 0.22,0.84 0.84,0.84 stroke #c8b898 0.7 width 1
+# Middle sheet (offset NW from bottom)
+rect 0.14,0.16 0.68,0.64 texfill polyhaven/brown_leather 0.88
+rect 0.14,0.16 0.68,0.64 fill #6b4a2e 0.3
+rect 0.14,0.16 0.68,0.64 stroke #2a1400
+# Stitching on middle sheet
+line 0.18,0.20 0.78,0.20 stroke #c8b898 0.7 width 1
+line 0.18,0.76 0.78,0.76 stroke #c8b898 0.7 width 1
+# Top sheet (smaller, offset slightly NE)
+rect 0.20,0.10 0.64,0.60 texfill polyhaven/brown_leather 0.9
+rect 0.20,0.10 0.64,0.60 fill #8a6040 0.3
+rect 0.20,0.10 0.64,0.60 stroke #2a1400
+# Stitching on top sheet
+line 0.24,0.14 0.80,0.14 stroke #d8c8a8 0.8 width 1
+line 0.24,0.66 0.80,0.66 stroke #d8c8a8 0.8 width 1
+line 0.24,0.14 0.24,0.66 stroke #c8b898 0.6 width 1
+line 0.80,0.14 0.80,0.66 stroke #c8b898 0.6 width 1
+# Fold crease line on top sheet
+line 0.24,0.38 0.80,0.38 stroke #3a1f08 0.5
+# Highlight edge (top sheet catches light)
+line 0.22,0.12 0.80,0.12 stroke #b8906a 0.6 width 1
+# Small binding thong
+line 0.50,0.08 0.50,0.16 stroke #4a2800 width 2
+circle 0.50,0.12 0.025 fill #2a1400 0.9

@@ -1,0 +1,77 @@
+name: Casting Pit
+category: Features
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0
+placement: center
+room_types: foundry-great, infernal-forge, smithy-large
+typical_count: single
+clusters_with: blast-furnace, ladle-iron, sand-mold, ingot-stack, overhead-crane
+lights:
+  - type: torch
+    x: 1.0
+    y: 1.0
+    radius: 7
+    color: "#ff7030"
+    intensity: 0.6
+    falloff: linear
+notes: Sunken rectangular casting pit filled with molten iron. Sand-moulded rim, gate runner channel leading off one edge. Ground-level feature — no shadow, doesn't block light. Pair with blast-furnace and ladle-iron.
+---
+# === Outer dark rim (packed earth / sand mound around the pit) ===
+rect 0.10,0.10 1.80,1.80 fill #3a2818 0.95
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/brown_mud 0.55
+rect 0.10,0.10 1.80,1.80 stroke #1a1008 width 2
+
+# === Sand-moulded inner lip (lighter sand color) ===
+rect 0.22,0.22 1.56,1.56 fill #8a6a3a 0.9
+rect 0.22,0.22 1.56,1.56 stroke #4a3218
+
+# === Inner molten iron pool — layered gradient from outer cool to inner hot ===
+rect 0.30,0.30 1.40,1.40 fill #2a0800 0.95
+rect 0.30,0.30 1.40,1.40 stroke #1a0400
+
+# Outer cooling crust
+rect 0.34,0.34 1.32,1.32 fill #aa3300 0.9
+# Mid heat
+rect 0.40,0.40 1.20,1.20 fill #ff6600 0.85
+# Inner bright
+rect 0.48,0.48 1.04,1.04 fill #ffaa30 0.8
+# Hottest molten surface
+rect 0.58,0.58 0.84,0.84 fill #ffdd66 0.85
+# Near-white spots (hottest)
+ellipse 0.86,0.92 0.12,0.08 fill #ffeecc 0.9
+ellipse 1.20,1.12 0.10,0.07 fill #ffeecc 0.85
+
+# === Wavy ripple highlights across the molten surface ===
+bezier 0.40,0.70 0.70,0.62 1.00,0.78 1.60,0.70 stroke #ffe890 0.55 width 2
+bezier 0.40,1.10 0.70,1.18 1.00,1.02 1.60,1.10 stroke #ffcc60 0.5 width 2
+bezier 0.40,1.40 0.80,1.32 1.20,1.44 1.60,1.38 stroke #ffaa30 0.45 width 1
+
+# === Solidifying slag crust patches floating on surface ===
+poly 0.54,0.52 0.62,0.48 0.70,0.54 0.66,0.62 0.56,0.62 fill #4a2410 0.85
+poly 0.54,0.52 0.62,0.48 0.70,0.54 0.66,0.62 0.56,0.62 stroke #1a0a04
+poly 1.30,0.58 1.38,0.54 1.46,0.60 1.42,0.68 1.32,0.66 fill #4a2410 0.8
+poly 0.58,1.40 0.66,1.36 0.74,1.42 0.70,1.50 0.60,1.48 fill #3a1808 0.85
+poly 1.26,1.32 1.34,1.28 1.44,1.34 1.40,1.42 1.28,1.42 fill #4a2410 0.8
+
+# === Bright spark/spot hot points (scattered brighter ember spots) ===
+circle 0.74,0.84 0.025 fill #ffffcc 0.95
+circle 1.30,0.76 0.022 fill #ffeecc 0.9
+circle 0.68,1.22 0.020 fill #ffcc60 0.85
+circle 1.18,1.26 0.022 fill #ffeecc 0.9
+circle 0.94,0.68 0.018 fill #ffff88 0.85
+
+# === Gate runner channel leading south off one edge ===
+# Channel carved into the rim (the "sprue" carrying flow out)
+rect 0.88,1.78 0.24,0.22 fill #3a1808 0.95
+rect 0.88,1.78 0.24,0.22 stroke #1a0400
+# Molten flow inside the runner
+rect 0.92,1.78 0.16,0.22 fill #ff6600 0.9
+rect 0.96,1.78 0.08,0.22 fill #ffaa30 0.85
+line 1.00,1.78 1.00,2.00 stroke #ffdd66 0.95 width 2
+
+# === Heat shimmer wisps over the surface (bezier curls) ===
+bezier 0.60,0.40 0.62,0.32 0.58,0.26 0.62,0.18 stroke #ff8800 0.35 width 1
+bezier 1.40,0.40 1.38,0.32 1.42,0.26 1.38,0.18 stroke #ffaa00 0.35 width 1

@@ -1,0 +1,78 @@
+name: Magical Orrery
+category: Magical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: center
+room_types: demiplane-laboratory, wizard-sanctum, arcane-library, astronomer-tower
+typical_count: single
+clusters_with: arcane-pedestal, spell-focus, carved-rune-stone, orrery-magical
+notes: Working model solar system on a brass base. Place as a centerpiece in studies or laboratories; needs clearance around it to show off orbital rings.
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.82 z 0-1.8
+
+# Brass base circle (wide platform)
+circle 1.0,1.0 0.82 texfill polyhaven/granite_tile 0.75
+circle 1.0,1.0 0.82 stroke #444444
+# Brass rim inlay
+circle 1.0,1.0 0.78 stroke #8b6914 width 2
+circle 1.0,1.0 0.72 stroke #5a3a00 0.6
+
+# Decorative engraving marks on base (zodiac-like notches, 12 around)
+line 1.0,0.22 1.0,0.28 stroke #5a3a00 width 1
+line 1.40,0.30 1.36,0.35 stroke #5a3a00 width 1
+line 1.70,0.60 1.65,0.64 stroke #5a3a00 width 1
+line 1.78,1.0 1.72,1.0 stroke #5a3a00 width 1
+line 1.70,1.40 1.65,1.36 stroke #5a3a00 width 1
+line 1.40,1.70 1.36,1.65 stroke #5a3a00 width 1
+line 1.0,1.78 1.0,1.72 stroke #5a3a00 width 1
+line 0.60,1.70 0.64,1.65 stroke #5a3a00 width 1
+line 0.30,1.40 0.35,1.36 stroke #5a3a00 width 1
+line 0.22,1.0 0.28,1.0 stroke #5a3a00 width 1
+line 0.30,0.60 0.35,0.64 stroke #5a3a00 width 1
+line 0.60,0.30 0.64,0.35 stroke #5a3a00 width 1
+
+# Outer orbital ring (thin brass circle)
+circle 1.0,1.0 0.62 stroke #8b6914 width 2
+circle 1.0,1.0 0.62 stroke #5a3a00 0.5 width 1
+
+# Middle orbital ring
+circle 1.0,1.0 0.46 stroke #8b6914 width 2
+circle 1.0,1.0 0.46 stroke #5a3a00 0.5 width 1
+
+# Inner orbital ring
+circle 1.0,1.0 0.28 stroke #8b6914 width 2
+circle 1.0,1.0 0.28 stroke #5a3a00 0.5 width 1
+
+# Radial arm linking all planets to center (brass spoke)
+line 1.0,1.0 1.58,0.54 stroke #8b6914 width 2
+line 1.0,1.0 1.58,0.54 stroke #5a3a00 0.6 width 1
+
+# Central sun (bright yellow dot)
+circle 1.0,1.0 0.09 fill #2a1400 0.8
+circle 1.0,1.0 0.075 fill #ffdd66 0.95
+circle 1.0,1.0 0.055 fill #fff2a8 0.95
+circle 1.0,1.0 0.025 fill #ffffff 0.9
+
+# Planet bead on inner ring (small blue-grey — mercury-like)
+circle 1.22,0.82 0.045 fill #aa8866 0.95
+circle 1.22,0.82 0.045 stroke #5a3a00
+
+# Planet bead on middle ring (reddish — mars-like)
+circle 0.68,1.34 0.055 fill #aa4422 0.95
+circle 0.68,1.34 0.055 stroke #5a1810
+
+# Planet bead on outer ring (green-blue — earth-like)
+circle 1.58,0.54 0.065 fill #3a6888 0.95
+circle 1.58,0.54 0.065 stroke #1a3048
+# Small moon on arm past outer planet
+circle 1.68,0.46 0.025 fill #c8c0a8 0.95
+circle 1.68,0.46 0.025 stroke #5a5048
+# Tiny arm from outer planet to moon
+line 1.58,0.54 1.68,0.46 stroke #8b6914 width 1
+
+# Subtle base highlight (north edge catches light)
+arc 1.0,1.0 0.80 200 280 stroke #aaaaaa 0.5 width 1

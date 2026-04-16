@@ -1,0 +1,68 @@
+name: Sack Stack
+category: Storage
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: floor
+room_types: pantry, dock-warehouse, mill-workshop, farmhouse-kitchen
+typical_count: few
+clusters_with: sack, grain-sack, crate, barrel
+notes: Three burlap sacks piled together — top-down view shows overlapping round lumps, each with a drawstring gather on top
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# === HITBOX ===
+hitbox ellipse 0.55,0.55 0.40,0.40 z 0-1.2
+hitbox ellipse 1.45,0.55 0.40,0.40 z 0-1.2
+hitbox ellipse 1.00,0.50 0.38,0.36 z 0-1.2
+
+# === West sack (bottom of pile) ===
+ellipse 0.55,0.58 0.40,0.36 texfill polyhaven/rough_linen 0.9
+ellipse 0.55,0.58 0.40,0.36 fill #9a8260 0.35
+ellipse 0.55,0.58 0.40,0.36 stroke #3a2810
+# Content bulges
+ellipse 0.42,0.58 0.10,0.08 fill #b8a580 0.4
+ellipse 0.68,0.62 0.10,0.08 fill #b8a580 0.4
+# Drawstring gather
+ellipse 0.55,0.32 0.09,0.035 fill #3a2010 0.9
+ellipse 0.55,0.32 0.09,0.035 stroke #1a0f00
+# String tails
+bezier 0.51,0.30 0.47,0.24 0.45,0.18 0.43,0.14 stroke #3a2010 width 2
+bezier 0.59,0.30 0.63,0.24 0.65,0.18 0.67,0.14 stroke #3a2010 width 2
+# Highlight
+arc 0.55,0.58 0.38 210 320 stroke #c8b880 0.35 width 1
+
+# === East sack (bottom of pile) ===
+ellipse 1.45,0.58 0.40,0.36 texfill polyhaven/rough_linen 0.88
+ellipse 1.45,0.58 0.40,0.36 fill #8a7450 0.35
+ellipse 1.45,0.58 0.40,0.36 stroke #3a2810
+# Content bulges
+ellipse 1.32,0.62 0.10,0.08 fill #a89570 0.4
+ellipse 1.58,0.58 0.10,0.08 fill #a89570 0.4
+# Drawstring gather
+ellipse 1.45,0.32 0.09,0.035 fill #3a2010 0.9
+ellipse 1.45,0.32 0.09,0.035 stroke #1a0f00
+# String tails
+bezier 1.41,0.30 1.37,0.24 1.35,0.18 1.33,0.14 stroke #3a2010 width 2
+bezier 1.49,0.30 1.53,0.24 1.55,0.18 1.57,0.14 stroke #3a2010 width 2
+# Highlight
+arc 1.45,0.58 0.38 210 320 stroke #c8b880 0.35 width 1
+
+# === Top sack (centered, overlapping both below) ===
+ellipse 1.00,0.50 0.36,0.30 texfill polyhaven/rough_linen 0.92
+ellipse 1.00,0.50 0.36,0.30 fill #a89070 0.4
+ellipse 1.00,0.50 0.36,0.30 stroke #3a2810
+# Content bulges
+ellipse 0.88,0.52 0.10,0.07 fill #c8b090 0.45
+ellipse 1.12,0.48 0.10,0.07 fill #c8b090 0.45
+# Drawstring gather
+ellipse 1.00,0.28 0.09,0.035 fill #3a2010 0.95
+ellipse 1.00,0.28 0.09,0.035 stroke #1a0f00
+# String tails
+bezier 0.96,0.26 0.92,0.20 0.90,0.14 0.88,0.10 stroke #3a2010 width 2
+bezier 1.04,0.26 1.08,0.20 1.10,0.14 1.12,0.10 stroke #3a2010 width 2
+# Knot
+circle 1.00,0.24 0.025 fill #2a1400 0.9
+# Highlight
+arc 1.00,0.50 0.34 210 320 stroke #d8c8a0 0.4 width 1

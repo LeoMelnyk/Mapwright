@@ -193,19 +193,19 @@ async function setupBrowser(args) {
       try {
         await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 5000 });
       } catch {
-        await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 15000 });
+        await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 45000 });
         await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 10000 });
       }
     } else {
       page = await browser.newPage();
       await page.setViewport({ width: 1920, height: 1080 });
-      await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 15000 });
+      await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 45000 });
       await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 10000 });
     }
   } else {
     page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
-    await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 15000 });
+    await page.goto(editorUrl, { waitUntil: 'networkidle2', timeout: 45000 });
     await page.waitForFunction(() => window.editorAPI !== undefined, { timeout: 10000 });
   }
 

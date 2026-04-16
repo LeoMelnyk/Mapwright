@@ -19,7 +19,6 @@ import { showToast } from '../toast.js';
 import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
 import { createOverlayProp } from '../prop-overlay.js';
 import { ensurePropTextures } from '../prop-catalog.js';
-import { bringForward, sendBackward } from '../api/props.js';
 
 const BOX_SELECT_THRESHOLD = 8; // pixels before a mousedown-on-empty becomes a box-select drag
 
@@ -54,6 +53,21 @@ function _removeOverlayAt(row: number, col: number): void {
   }
 }
 
+function _removeOverlayById(propId: string | number): void {
+  const meta = state.dungeon.metadata;
+  if (!meta.props) return;
+  const idx = meta.props.findIndex((p: { id: string | number }) => p.id === propId);
+  if (idx < 0) return;
+  const prop = meta.props[idx]!;
+  const gs = meta.gridSize || 5;
+  const anchorRow = Math.round(prop.y / gs);
+  const anchorCol = Math.round(prop.x / gs);
+  meta.props.splice(idx, 1);
+  if (meta.lights.length) {
+    meta.lights = meta.lights.filter((l) => !(l.propRef?.row === anchorRow && l.propRef.col === anchorCol));
+  }
+}
+
 function _addOverlayAt(
   row: number,
   col: number,
@@ -79,12 +93,101 @@ function _propBounds(
   const scl = overlay.scale ?? 1.0;
   const w = spanCols * gridSize;
   const h = spanRows * gridSize;
-  // Scale expands from center (matching how the canvas transform renderer works)
-  const cx = overlay.x + w / 2;
-  const cy = overlay.y + h / 2;
+  // Rotation center is the base-footprint center — matches renderer so 90°/270° line up
+  // with the non-cardinal path instead of jumping.
+  const catalog = state.propCatalog;
+  const propDef = catalog?.props[overlay.type];
+  const [fRows, fCols] = propDef?.footprint ?? [spanRows, spanCols];
+  const cx = overlay.x + (fCols * gridSize) / 2;
+  const cy = overlay.y + (fRows * gridSize) / 2;
   const topLeft = toCanvas(cx - (w * scl) / 2, cy - (h * scl) / 2, transform);
   const bottomRight = toCanvas(cx + (w * scl) / 2, cy + (h * scl) / 2, transform);
   return { topLeft, bottomRight };
+}
+
+/**
+ * Compute the rotated-rectangle corners (in canvas pixels) that match the prop's rendered
+ * orientation. Mirrors the non-cardinal branch of `renderOverlayProps`: rotates the base
+ * footprint around its center by `-rotation` (CCW for positive degrees).
+ * Also returns the axis-aligned bbox of those corners for label positioning.
+ */
+function _propSelectionShape(
+  overlay: { x: number; y: number; type: string; rotation?: number; scale?: number },
+  gridSize: number,
+  transform: RenderTransform,
+): {
+  corners: { x: number; y: number }[];
+  bbox: { topLeft: { x: number; y: number }; bottomRight: { x: number; y: number } };
+} {
+  const catalog = state.propCatalog;
+  const propDef = catalog?.props[overlay.type];
+  const rotation = overlay.rotation ?? 0;
+  const r = ((rotation % 360) + 360) % 360;
+  const scl = overlay.scale ?? 1.0;
+  const isCardinal = (r === 0 || r === 90 || r === 180 || r === 270) && scl === 1.0;
+
+  // Cardinal + scale 1 path uses axis-aligned effective-footprint bounds — unchanged.
+  if (isCardinal || !propDef) {
+    const b = _propBounds(overlay, gridSize, transform);
+    return {
+      corners: [
+        b.topLeft,
+        { x: b.bottomRight.x, y: b.topLeft.y },
+        b.bottomRight,
+        { x: b.topLeft.x, y: b.bottomRight.y },
+      ],
+      bbox: b,
+    };
+  }
+
+  const [fRows, fCols] = propDef.footprint;
+  const w = fCols * gridSize;
+  const h = fRows * gridSize;
+  // Rotation center matches renderer: (prop.x + fCols*gs/2, prop.y + fRows*gs/2).
+  const cxWorld = overlay.x + w / 2;
+  const cyWorld = overlay.y + h / 2;
+  const hw = (w * scl) / 2;
+  const hh = (h * scl) / 2;
+  // Negated rotation to match ctx.rotate(-rotation) in the renderer.
+  const rad = (-rotation * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+
+  const local = [
+    { x: -hw, y: -hh },
+    { x: hw, y: -hh },
+    { x: hw, y: hh },
+    { x: -hw, y: hh },
+  ];
+  const corners = local.map((p) => {
+    const rx = p.x * cos - p.y * sin;
+    const ry = p.x * sin + p.y * cos;
+    return toCanvas(cxWorld + rx, cyWorld + ry, transform);
+  });
+
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
+  for (const c of corners) {
+    if (c.x < minX) minX = c.x;
+    if (c.y < minY) minY = c.y;
+    if (c.x > maxX) maxX = c.x;
+    if (c.y > maxY) maxY = c.y;
+  }
+  return {
+    corners,
+    bbox: { topLeft: { x: minX, y: minY }, bottomRight: { x: maxX, y: maxY } },
+  };
+}
+
+function _strokeShape(ctx: CanvasRenderingContext2D, corners: { x: number; y: number }[]): void {
+  if (corners.length === 0) return;
+  ctx.beginPath();
+  ctx.moveTo(corners[0]!.x, corners[0]!.y);
+  for (let i = 1; i < corners.length; i++) ctx.lineTo(corners[i]!.x, corners[i]!.y);
+  ctx.closePath();
+  ctx.stroke();
 }
 
 /** Get the effective span of an overlay prop from its catalog definition + rotation. */
@@ -114,10 +217,12 @@ function _hitTestProps(pos: { x: number; y: number } | null, transform: RenderTr
     const scl = prop.scale;
     const w = spanCols * gridSize * scl;
     const h = spanRows * gridSize * scl;
-    const uw = spanCols * gridSize;
-    const uh = spanRows * gridSize;
-    const cx = prop.x + uw / 2;
-    const cy = prop.y + uh / 2;
+    // Center around the base-footprint center — matches both the cardinal tile render and
+    // hitTestPropPixel's coordinate frame.
+    const propDef = catalog?.props[prop.type];
+    const [fRows, fCols] = propDef?.footprint ?? [spanRows, spanCols];
+    const cx = prop.x + (fCols * gridSize) / 2;
+    const cy = prop.y + (fRows * gridSize) / 2;
     const minX = cx - w / 2;
     const minY = cy - h / 2;
     const maxX = cx + w / 2;
@@ -336,9 +441,12 @@ export class PropTool extends Tool {
 
     const cells = state.dungeon.cells;
     const transform = getTransform();
-    const anchor = pos
-      ? _hitTestProps(pos, transform, state.dungeon.metadata.gridSize || 5)
-      : findPropAnchor(cells, row, col);
+    // When a stamp is armed, clicks always place — never select an existing prop.
+    const anchor = state.selectedProp
+      ? null
+      : pos
+        ? _hitTestProps(pos, transform, state.dungeon.metadata.gridSize || 5)
+        : findPropAnchor(cells, row, col);
 
     if (anchor) {
       // Clicking on a prop → select/drag flow
@@ -421,12 +529,16 @@ export class PropTool extends Tool {
       return;
     }
 
-    // Not in any drag — update hover state and cursor (geometric shape hit test)
+    // Not in any drag — update hover state and cursor (geometric shape hit test).
+    // When a stamp is armed, existing props are non-interactive — skip the hit test
+    // so the cursor stays on the placement ghost instead of flipping to "grab".
     const cells = state.dungeon.cells;
     const hoverTransform = getTransform();
-    const anchor = pos
-      ? _hitTestProps(pos, hoverTransform, state.dungeon.metadata.gridSize || 5)
-      : findPropAnchor(cells, row, col);
+    const anchor = state.selectedProp
+      ? null
+      : pos
+        ? _hitTestProps(pos, hoverTransform, state.dungeon.metadata.gridSize || 5)
+        : findPropAnchor(cells, row, col);
     if (anchor) {
       if (this.hoveredAnchor?.row !== anchor.row || this.hoveredAnchor.col !== anchor.col) {
         this.hoveredAnchor = anchor;
@@ -478,14 +590,18 @@ export class PropTool extends Tool {
 
         if (meta.props) {
           const selectedIds = new Set();
+          const catalog = state.propCatalog;
           for (const prop of meta.props) {
-            // Check if prop's visual bounds overlap the selection box
+            // Check if prop's visual bounds overlap the selection box. Use the base-footprint
+            // center so 90°/270° props line up with the renderer's pivot.
             const [spanRows, spanCols] = _overlaySpan(prop);
             const scl = prop.scale;
             const uw = spanCols * gs,
               uh = spanRows * gs;
-            const pcx = prop.x + uw / 2,
-              pcy = prop.y + uh / 2;
+            const propDef = catalog?.props[prop.type];
+            const [fRows, fCols] = propDef?.footprint ?? [spanRows, spanCols];
+            const pcx = prop.x + (fCols * gs) / 2,
+              pcy = prop.y + (fRows * gs) / 2;
             const pw = uw * scl,
               ph = uh * scl;
             const pMinX = pcx - pw / 2,
@@ -563,6 +679,10 @@ export class PropTool extends Tool {
 
     if (e.key === 'r' || e.key === 'R') {
       const degrees = e.shiftKey ? 270 : 90;
+      if (state.propPasteMode) {
+        this._rotatePasteClipboard(degrees);
+        return;
+      }
       if (this.isDragging) {
         this._rotateDragGroup(degrees);
         requestRender();
@@ -573,6 +693,10 @@ export class PropTool extends Tool {
     }
 
     if (e.key === 'f' || e.key === 'F') {
+      if (state.propPasteMode) {
+        this._flipPasteClipboard();
+        return;
+      }
       if (this.isDragging) {
         this._flipDragGroup();
         requestRender();
@@ -583,11 +707,18 @@ export class PropTool extends Tool {
     }
 
     if (e.key === 'Delete' || e.key === 'Backspace') {
+      // In paste mode, Delete has no target (nothing is selected) — ignore.
+      if (state.propPasteMode) return;
       this._deleteSelected();
       return;
     }
 
     // Arrow keys: nudge selected props by 1 foot (or 1 cell with Shift)
+    if (state.propPasteMode && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      // No-op in paste mode — the paste ghost follows the cursor, there's nothing to nudge.
+      e.preventDefault();
+      return;
+    }
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && state.selectedPropAnchors.length > 0) {
       e.preventDefault();
       const gs = state.dungeon.metadata.gridSize || 5;
@@ -599,12 +730,15 @@ export class PropTool extends Tool {
       if (e.key === 'ArrowLeft') dx = -step;
       if (e.key === 'ArrowRight') dx = step;
 
+      const nudgeMeta = state.dungeon.metadata;
       mutate(
         'Nudge prop',
         [],
         () => {
           for (const anchor of state.selectedPropAnchors) {
-            const overlay = _findOverlayAt(anchor.row, anchor.col);
+            const overlay = anchor.propId
+              ? nudgeMeta.props?.find((p: { id: string | number }) => p.id === anchor.propId)
+              : _findOverlayAt(anchor.row, anchor.col);
             if (overlay) {
               overlay.x += dx;
               overlay.y += dy;
@@ -616,21 +750,27 @@ export class PropTool extends Tool {
       // Update anchor positions to match new grid cells
       state.selectedPropAnchors = state.selectedPropAnchors.map(
         (a: { row: number; col: number; propId?: number | string }) => {
-          const overlay = _findOverlayAt(a.row, a.col);
+          const overlay = a.propId
+            ? nudgeMeta.props?.find((p: { id: string | number }) => p.id === a.propId)
+            : _findOverlayAt(a.row, a.col);
           if (!overlay) return a;
           const newRow = Math.round(overlay.y / gs);
           const newCol = Math.round(overlay.x / gs);
-          return { row: newRow, col: newCol };
+          return { row: newRow, col: newCol, propId: a.propId };
         },
       );
       requestRender();
       return;
     }
 
-    // Z-order: [ = send backward, ] = bring forward
+    // Z-order: [ = decrement z, ] = increment z (direct +/-1 on every press)
     if (e.key === '[' || e.key === ']') {
+      const step = e.key === ']' ? 1 : -1;
+      if (state.propPasteMode) {
+        this._adjustPasteZ(step);
+        return;
+      }
       if (this.isDragging && this.dragItems.length > 0) {
-        const step = e.key === ']' ? 1 : -1;
         for (const item of this.dragItems) {
           item.zIndex = Math.max(0, item.zIndex + step);
         }
@@ -638,11 +778,25 @@ export class PropTool extends Tool {
         return;
       }
       if (state.selectedPropAnchors.length > 0) {
-        const anchor = state.selectedPropAnchors[0]!;
-        const overlay = _findOverlayAt(anchor.row, anchor.col);
-        if (overlay) {
-          if (e.key === ']') bringForward(String(overlay.id));
-          else sendBackward(String(overlay.id));
+        const meta = state.dungeon.metadata;
+        const overlays = state.selectedPropAnchors
+          .map((a: { row: number; col: number; propId?: string | number }) =>
+            a.propId != null
+              ? (meta.props?.find((p: { id: string | number }) => p.id === a.propId) ?? null)
+              : _findOverlayAt(a.row, a.col),
+          )
+          .filter((o): o is NonNullable<typeof o> => o !== null);
+        if (overlays.length > 0) {
+          mutate(
+            step > 0 ? 'Increment prop z-index' : 'Decrement prop z-index',
+            [],
+            () => {
+              for (const overlay of overlays) {
+                overlay.zIndex = Math.max(0, overlay.zIndex + step);
+              }
+            },
+            { metaOnly: true, invalidate: ['props'] },
+          );
           requestRender();
         }
       }
@@ -666,6 +820,24 @@ export class PropTool extends Tool {
           this.dragItems[0]!.facing = ((((this.dragItems[0]!.facing || 0) + step) % 360) + 360) % 360;
         } else {
           this._rotateDragGroup(step);
+        }
+      }
+      requestRender();
+      return;
+    }
+
+    // ── Paste ghost: rotate/scale all clipboard items ──
+    if (state.propPasteMode && state.propClipboard) {
+      if (event.shiftKey) {
+        const step = deltaY > 0 ? -0.1 : 0.1;
+        for (const entry of state.propClipboard.props) {
+          const next = Math.max(0.25, Math.min(4.0, entry.prop.scale + step));
+          entry.prop.scale = Math.round(next * 100) / 100;
+        }
+      } else {
+        const step = deltaY > 0 ? 15 : -15;
+        for (const entry of state.propClipboard.props) {
+          entry.prop.rotation = ((((entry.prop.rotation || 0) + step) % 360) + 360) % 360;
         }
       }
       requestRender();
@@ -825,6 +997,16 @@ export class PropTool extends Tool {
       return;
     }
 
+    // When a stamp is armed, right-click clears it (mirrors Escape) instead of deleting a prop.
+    if (state.selectedProp) {
+      state.selectedProp = null;
+      state.propRotation = 0;
+      state.propScale = 1.0;
+      notify();
+      requestRender();
+      return;
+    }
+
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return;
 
@@ -878,7 +1060,6 @@ export class PropTool extends Tool {
         const rot = prop.rotation;
         const scl = prop.scale;
         const flipped = prop.flipped;
-        const [spanRows, spanCols] = getEffectiveFootprint(propDef, rot);
         const needsTransform = scl !== 1.0 || (rot !== 0 && rot !== 90 && rot !== 180 && rot !== 270);
 
         ctx.save();
@@ -899,16 +1080,19 @@ export class PropTool extends Tool {
         }
         ctx.restore();
 
-        const w = spanCols * gridSize,
-          h = spanRows * gridSize;
-        const bCx = col * gridSize + w / 2,
-          bCy = row * gridSize + h / 2;
-        const topLeft = toCanvas(bCx - (w * scl) / 2, bCy - (h * scl) / 2, transform);
-        const bottomRight = toCanvas(bCx + (w * scl) / 2, bCy + (h * scl) / 2, transform);
+        // Rotated outline around the ghost — matches the rendered prop orientation.
+        const ghostOverlay = {
+          x: col * gridSize,
+          y: row * gridSize,
+          type: prop.type,
+          rotation: rot,
+          scale: scl,
+        };
+        const { corners } = _propSelectionShape(ghostOverlay, gridSize, transform);
         ctx.save();
         ctx.strokeStyle = borderColor;
         ctx.lineWidth = 2;
-        ctx.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+        _strokeShape(ctx, corners);
         ctx.restore();
       }
     }
@@ -935,7 +1119,6 @@ export class PropTool extends Tool {
           row = this.dragGhost.row + item.offsetRow + foy;
           col = this.dragGhost.col + item.offsetCol + fox;
         }
-        const [spanRows, spanCols] = getEffectiveFootprint(item.propDef!, item.facing);
         const scl = item.scale;
         const needsTransform =
           scl !== 1.0 || (item.facing !== 0 && item.facing !== 90 && item.facing !== 180 && item.facing !== 270);
@@ -974,17 +1157,19 @@ export class PropTool extends Tool {
         }
         ctx.restore();
 
-        // Bounding box around the ghost
-        const w = spanCols * gridSize;
-        const h = spanRows * gridSize;
-        const cx = col * gridSize + w / 2;
-        const cy = row * gridSize + h / 2;
-        const topLeft = toCanvas(cx - (w * scl) / 2, cy - (h * scl) / 2, transform);
-        const bottomRight = toCanvas(cx + (w * scl) / 2, cy + (h * scl) / 2, transform);
+        // Bounding box around the ghost — rotated + scaled to match the rendered prop.
+        const ghostOverlay = {
+          x: col * gridSize,
+          y: row * gridSize,
+          type: item.origType,
+          rotation: item.facing,
+          scale: scl,
+        };
+        const { corners, bbox } = _propSelectionShape(ghostOverlay, gridSize, transform);
         ctx.save();
         ctx.strokeStyle = borderColor;
         ctx.lineWidth = 2;
-        ctx.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+        _strokeShape(ctx, corners);
         ctx.restore();
 
         // Draw name label only for the lead prop
@@ -994,7 +1179,7 @@ export class PropTool extends Tool {
             let label = name + ` ${item.facing}°`;
             if (scl !== 1.0) label += ` ${Math.round(scl * 100)}%`;
             if (item.zIndex !== 10) label += ` z${item.zIndex}`;
-            this._drawNameLabel(ctx, label, topLeft, bottomRight);
+            this._drawNameLabel(ctx, label, bbox.topLeft, bbox.bottomRight);
           }
         }
       }
@@ -1049,12 +1234,12 @@ export class PropTool extends Tool {
     if (this.hoveredAnchor && !this.isDragging) {
       const hoverOverlay = _findOverlayAt(this.hoveredAnchor.row, this.hoveredAnchor.col);
       if (hoverOverlay) {
-        const { topLeft, bottomRight } = _propBounds(hoverOverlay, gridSize, transform);
+        const { corners } = _propSelectionShape(hoverOverlay, gridSize, transform);
         ctx.save();
         ctx.setLineDash([4, 3]);
         ctx.strokeStyle = 'rgba(100, 200, 255, 0.6)';
         ctx.lineWidth = 1.5;
-        ctx.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+        _strokeShape(ctx, corners);
         ctx.restore();
       }
     }
@@ -1067,12 +1252,12 @@ export class PropTool extends Tool {
         ? meta.props?.find((p: { id: string | number }) => p.id === anchor.propId)
         : _findOverlayAt(anchor.row, anchor.col);
       if (!selOverlay) continue;
-      const { topLeft, bottomRight } = _propBounds(selOverlay, gridSize, transform);
+      const { corners, bbox } = _propSelectionShape(selOverlay, gridSize, transform);
 
       ctx.save();
       ctx.strokeStyle = 'rgba(100, 180, 255, 0.8)';
       ctx.lineWidth = 2;
-      ctx.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+      _strokeShape(ctx, corners);
       ctx.restore();
 
       const propDef = state.propCatalog?.props[selOverlay.type];
@@ -1082,7 +1267,7 @@ export class PropTool extends Tool {
       let label = (propDef?.name ?? selOverlay.type) + ` ${rot}°`;
       if (selScale !== 1.0) label += ` ${Math.round(selScale * 100)}%`;
       if (selZ !== 10) label += ` z${selZ}`;
-      this._drawNameLabel(ctx, label, topLeft, bottomRight);
+      this._drawNameLabel(ctx, label, bbox.topLeft, bbox.bottomRight);
     }
   }
 
@@ -1477,11 +1662,14 @@ export class PropTool extends Tool {
     }
     if (state.selectedPropAnchors.length === 1) {
       const anchor = state.selectedPropAnchors[0]!;
+      const meta = state.dungeon.metadata;
       mutate(
         'Rotate prop',
         [],
         () => {
-          const overlay = _findOverlayAt(anchor.row, anchor.col);
+          const overlay = anchor.propId
+            ? meta.props?.find((p: { id: string | number }) => p.id === anchor.propId)
+            : _findOverlayAt(anchor.row, anchor.col);
           if (overlay) {
             // Props are free-form overlays — no footprint validation needed for rotation
             overlay.rotation = ((((overlay.rotation || 0) + degrees) % 360) + 360) % 360;
@@ -1504,12 +1692,15 @@ export class PropTool extends Tool {
       return;
     }
     if (state.selectedPropAnchors.length === 1) {
-      const { row: fRow, col: fCol } = state.selectedPropAnchors[0]!;
+      const anchor = state.selectedPropAnchors[0]!;
+      const meta = state.dungeon.metadata;
       mutate(
         'Flip prop',
         [],
         () => {
-          const overlay = _findOverlayAt(fRow, fCol);
+          const overlay = anchor.propId
+            ? meta.props?.find((p: { id: string | number }) => p.id === anchor.propId)
+            : _findOverlayAt(anchor.row, anchor.col);
           if (overlay) {
             overlay.flipped = !overlay.flipped;
           }
@@ -1665,8 +1856,11 @@ export class PropTool extends Tool {
     const items = [];
     let c_min = Infinity,
       c_max = -Infinity;
+    const flipMeta = state.dungeon.metadata;
     for (const anchor of state.selectedPropAnchors) {
-      const overlay = _findOverlayAt(anchor.row, anchor.col);
+      const overlay = anchor.propId
+        ? flipMeta.props?.find((p: { id: string | number }) => p.id === anchor.propId)
+        : _findOverlayAt(anchor.row, anchor.col);
       if (!overlay) continue;
       const [spanRows, spanCols] = _overlaySpan(overlay);
       items.push({ anchor, overlay, spanRows, spanCols });
@@ -1733,7 +1927,12 @@ export class PropTool extends Tool {
       [],
       () => {
         for (const anchor of anchorsToDelete) {
-          _removeOverlayAt(anchor.row, anchor.col);
+          // Use propId when available to avoid deleting an overlapping prop on top
+          if (anchor.propId != null) {
+            _removeOverlayById(anchor.propId);
+          } else {
+            _removeOverlayAt(anchor.row, anchor.col);
+          }
         }
       },
       { metaOnly: true, invalidate: ['lighting:props', 'props'] },
@@ -1744,6 +1943,33 @@ export class PropTool extends Tool {
   }
 
   // ── Prop Copy/Paste ──────────────────────────────────────────────────────
+
+  /** Rotate every prop in the paste clipboard by `degrees` (in place, no undo). */
+  _rotatePasteClipboard(degrees: number) {
+    if (!state.propClipboard) return;
+    for (const entry of state.propClipboard.props) {
+      entry.prop.rotation = ((((entry.prop.rotation || 0) + degrees) % 360) + 360) % 360;
+    }
+    requestRender();
+  }
+
+  /** Flip every prop in the paste clipboard (in place, no undo). */
+  _flipPasteClipboard() {
+    if (!state.propClipboard) return;
+    for (const entry of state.propClipboard.props) {
+      entry.prop.flipped = !entry.prop.flipped;
+    }
+    requestRender();
+  }
+
+  /** Bump zIndex of every prop in the paste clipboard by `step` (floored at 0). */
+  _adjustPasteZ(step: number) {
+    if (!state.propClipboard) return;
+    for (const entry of state.propClipboard.props) {
+      entry.prop.zIndex = Math.max(0, entry.prop.zIndex + step);
+    }
+    requestRender();
+  }
 
   _allPastePositionsValid(targetRow: number, targetCol: number) {
     if (!state.propClipboard) return false;

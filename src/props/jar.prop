@@ -1,0 +1,43 @@
+name: Jar
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.7
+placement: floor
+room_types: pantry, kitchen-keep, farmhouse-kitchen, alchemy-lab, peasant-hovel
+typical_count: few
+clusters_with: bottle, jug, pantry-shelf, crate
+notes: Squat ceramic storage jar with cloth-tied lid — belly ring visible beneath, twine cross-tie on top
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-0.7
+
+# Outer belly (ceramic body — widest ring seen from above)
+circle 0.5,0.5 0.36 fill #a87850 0.55
+circle 0.5,0.5 0.36 stroke #3a1f00
+# Belly sheen highlight
+arc 0.5,0.5 0.34 210 330 stroke #d8a878 0.5 width 1
+# Shoulder ring (where body narrows to lid)
+circle 0.5,0.5 0.28 stroke #3a1f00 0.7
+# Lid base ring (ceramic rim)
+circle 0.5,0.5 0.24 fill #8b6844 0.75
+circle 0.5,0.5 0.24 stroke #2a1400
+# Cloth cover (lighter linen tied over the mouth)
+circle 0.5,0.5 0.22 texfill polyhaven/rough_linen 0.85
+circle 0.5,0.5 0.22 stroke #5c3a1e
+# Cloth ruffle / folds hinted as short lines radiating out
+line 0.5,0.28 0.5,0.32 stroke #5c3a1e 0.6
+line 0.72,0.5 0.68,0.5 stroke #5c3a1e 0.6
+line 0.5,0.72 0.5,0.68 stroke #5c3a1e 0.6
+line 0.28,0.5 0.32,0.5 stroke #5c3a1e 0.6
+# Twine cross-tie (two thin lines crossing the cloth top)
+line 0.32,0.42 0.68,0.58 stroke #3a2010 width 2
+line 0.32,0.58 0.68,0.42 stroke #3a2010 width 2
+# Twine highlight
+line 0.32,0.42 0.68,0.58 stroke #8b7355 0.5 width 1
+line 0.32,0.58 0.68,0.42 stroke #8b7355 0.5 width 1
+# Central knot
+circle 0.5,0.5 0.03 fill #2a1400 0.9
+circle 0.5,0.5 0.03 stroke #1a0800

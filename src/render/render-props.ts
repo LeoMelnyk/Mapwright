@@ -1140,7 +1140,11 @@ export function renderOverlayProps(
         const padding = propDef.padding || 0;
         const cellPx = gridSize * transform.scale;
         const { x, y } = propToCanvas(-padding, -padding, row, col, gridSize, transform);
-        ctx.drawImage(tile, x, y, (eCols + 2 * padding) * cellPx, (eRows + 2 * padding) * cellPx);
+        // Center the tile around the base-footprint center so 90°/270° don't visually
+        // jump relative to the non-cardinal path (which rotates around that same center).
+        const dx = ((fCols - eCols) * cellPx) / 2;
+        const dy = ((fRows - eRows) * cellPx) / 2;
+        ctx.drawImage(tile, x + dx, y + dy, (eCols + 2 * padding) * cellPx, (eRows + 2 * padding) * cellPx);
       } else {
         renderProp(ctx, propDef, row, col, r, gridSize, theme, transform, flipped, getTextureImage);
       }

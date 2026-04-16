@@ -1,0 +1,57 @@
+name: Opium Couch
+category: Furniture
+footprint: 2x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: wall
+room_types: opium-den, brothel, harem, parlor, decadent-study
+typical_count: few
+clusters_with: opium-pipe, cushion-pile, teapot, teacup, candle-red, screen-folding
+notes: Low reclining divan for smoking and lounging; bolster at west end (head), place along walls
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 2.84,1.84 z 0-0.8
+
+# footprint 2x3: x range 0-3, y range 0-2
+
+# Carved wood frame (full base)
+rect 0.08,0.08 2.84,1.84 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.08 2.84,1.84 stroke #2a1400
+
+# Frame inner border detail
+rect 0.14,0.14 2.72,1.72 stroke #5c3a1e 0.6
+
+# Fabric top (jacquard upholstery)
+rect 0.22,0.22 2.56,1.56 texfill polyhaven/floral_jacquard 0.85
+rect 0.22,0.22 2.56,1.56 fill #5a1030 0.35
+rect 0.22,0.22 2.56,1.56 stroke #3a0820
+
+# Bolster pillow at west (head) end
+rect 0.28,0.28 0.38,1.44 texfill polyhaven/velour_velvet 0.85
+rect 0.28,0.28 0.38,1.44 fill #6a1838 0.4
+rect 0.28,0.28 0.38,1.44 stroke #2a0410
+
+# Bolster end caps (gold tassels)
+circle 0.47,0.32 0.06 fill #daa520 0.9
+circle 0.47,0.32 0.06 stroke #5a3a00
+circle 0.47,1.68 0.06 fill #daa520 0.9
+circle 0.47,1.68 0.06 stroke #5a3a00
+
+# Bolster seam
+line 0.47,0.28 0.47,1.72 stroke #2a0410 0.7
+
+# Throw blanket draped across (east half)
+poly 1.70,0.26 1.50,1.74 2.70,1.74 2.70,0.26 texfill polyhaven/velour_velvet 0.7
+poly 1.70,0.26 1.50,1.74 2.70,1.74 2.70,0.26 fill #3a1a4a 0.5
+poly 1.70,0.26 1.50,1.74 2.70,1.74 2.70,0.26 stroke #1a0828
+
+# Throw fringe detail
+line 1.70,0.26 1.50,1.74 stroke #daa520 0.5
+
+# Quilted tufting buttons on main cushion
+circle 1.05,0.55 0.035 fill #3a0820 0.9
+circle 1.05,1.45 0.035 fill #3a0820 0.9
+circle 1.50,0.55 0.035 fill #3a0820 0.9
+circle 1.50,1.45 0.035 fill #3a0820 0.9

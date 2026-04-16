@@ -1,0 +1,42 @@
+name: Sponge
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: kiln-pottery, workshop, mill-workshop, bathhouse, servants-kitchen
+typical_count: single
+clusters_with: water-bowl, clay-bin, bucket, wheel-pottery
+notes: Natural sponge on a damp patch. Irregular yellow-tan blob with pitted texture, surrounded by faint wet-floor stain.
+---
+# === Damp patch around sponge (very faint blue-grey) ===
+ellipse 0.50,0.54 0.32,0.24 fill #8098a8 0.15
+ellipse 0.50,0.54 0.24,0.18 fill #90a0b0 0.12
+
+# === Sponge body — irregular rounded blob (yellow-tan) ===
+poly 0.32,0.42 0.40,0.30 0.54,0.28 0.66,0.34 0.72,0.46 0.70,0.60 0.62,0.70 0.48,0.72 0.34,0.66 0.28,0.54 fill #d4c080 0.92
+poly 0.32,0.42 0.40,0.30 0.54,0.28 0.66,0.34 0.72,0.46 0.70,0.60 0.62,0.70 0.48,0.72 0.34,0.66 0.28,0.54 stroke #8a7040 width 1
+
+# === Subtle darker shading on one side (depth) ===
+poly 0.32,0.42 0.28,0.54 0.34,0.66 0.48,0.72 0.40,0.60 0.36,0.50 fill #a88e58 0.3
+
+# === Pitted texture — small darker dots scattered across sponge ===
+circle 0.42,0.38 0.028 fill #8a7040 0.7
+circle 0.54,0.40 0.022 fill #8a7040 0.65
+circle 0.48,0.48 0.026 fill #8a7040 0.7
+circle 0.60,0.46 0.024 fill #8a7040 0.65
+circle 0.38,0.52 0.028 fill #8a7040 0.7
+circle 0.58,0.58 0.026 fill #8a7040 0.7
+circle 0.46,0.60 0.022 fill #8a7040 0.6
+circle 0.64,0.54 0.02 fill #8a7040 0.6
+circle 0.52,0.66 0.024 fill #8a7040 0.65
+circle 0.40,0.60 0.02 fill #8a7040 0.55
+
+# === Highlight catch on top (slightly brighter) ===
+ellipse 0.46,0.36 0.08,0.04 fill #e8d49a 0.5
+
+# === Tiny water droplets near sponge edge ===
+circle 0.28,0.66 0.018 fill #90a0b0 0.6
+circle 0.76,0.50 0.016 fill #90a0b0 0.55

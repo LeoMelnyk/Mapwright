@@ -1,0 +1,45 @@
+name: Hanging Ham
+category: Food
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 2.0
+placement: center
+room_types: pantry, kitchen-keep, farmhouse-kitchen, tavern
+typical_count: few
+clusters_with: ham-hook-row, pantry-shelf, hearth
+notes: Overhead hanging cured ham — top-down shows the ceiling hook and rope, with only the top oval of the ham visible (it dangles below out of view)
+---
+# Overhead prop — no floor shadow, just the ceiling anchor and top of ham
+# === Faint drape shadow beneath (hinting at ham hanging below out of view) ===
+ellipse 0.5,0.62 0.18,0.12 fill #1a1a1a 0.18
+ellipse 0.5,0.62 0.14,0.08 fill #1a1a1a 0.15
+# === Ceiling hook mount plate ===
+circle 0.5,0.24 0.055 fill #333333 0.85
+circle 0.5,0.24 0.055 stroke #1a1a1a
+# Hook mounting screws
+circle 0.48,0.23 0.01 fill #8899aa 0.8
+circle 0.52,0.25 0.01 fill #8899aa 0.8
+# === Iron hook curve (barb pointing down) ===
+bezier 0.5,0.28 0.5,0.34 0.44,0.36 0.44,0.40 stroke #444444 width 3
+bezier 0.5,0.28 0.5,0.34 0.44,0.36 0.44,0.40 stroke #667788 0.5 width 1
+# === Rope/twine from hook down to ham ===
+line 0.44,0.40 0.46,0.50 stroke #8b7355 width 2
+line 0.44,0.40 0.46,0.50 stroke #5c3a1e 0.6 width 1
+# === Top oval of ham peeking into view (the bulk hangs below) ===
+ellipse 0.5,0.60 0.20,0.14 fill #8b3a2a 0.9
+ellipse 0.5,0.60 0.20,0.14 stroke #4a1a10
+# Rind / fat cap at top of ham
+arc 0.5,0.60 0.20 200 340 stroke #e8d0a0 0.75 width 2
+# String tied around the ham (knot visible where rope meets)
+circle 0.46,0.50 0.025 fill #5c3a1e 0.9
+circle 0.46,0.50 0.025 stroke #2a1408
+# Meat striation highlights
+line 0.42,0.58 0.56,0.58 stroke #6a2818 0.5 width 1
+line 0.40,0.62 0.58,0.62 stroke #6a2818 0.4 width 1
+# Glossy cured sheen
+arc 0.5,0.60 0.18 220 310 stroke #c85a4a 0.4 width 1
+# Tiny salt-crust fleck highlights
+circle 0.44,0.56 0.012 fill #e8d0a0 0.7
+circle 0.56,0.62 0.010 fill #e8d0a0 0.6

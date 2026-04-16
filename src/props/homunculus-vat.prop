@@ -1,0 +1,84 @@
+name: Homunculus Vat
+category: Magical
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.2
+placement: floor
+room_types: demiplane-laboratory, wizard-sanctum, alchemy-lab, necromancer-crypt
+typical_count: few
+clusters_with: alchemy-bench, reagent-rack, arcane-experiment-core, specimen-jar-shelf
+notes: Cylindrical alchemical vat growing a homunculus. Small humanoid silhouette floats inside greenish fluid; bubbles rise from below. Place against wall or near workbenches.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.42 z 0-2.2
+
+# Vat footprint is 2x1 — x 0-2, y 0-1. The vat itself is the round left half; feed tube/pipe runs east.
+
+# Ground shadow / base ring
+circle 0.5,0.52 0.44 fill #1a1a1a 0.25
+
+# Outer brass ring (band)
+circle 0.5,0.5 0.42 fill #8b6914 0.95
+circle 0.5,0.5 0.42 stroke #5a3a00 width 2
+# Brass band rivets
+circle 0.5,0.12 0.03 fill #5a3a00 0.95
+circle 0.88,0.5 0.03 fill #5a3a00 0.95
+circle 0.5,0.88 0.03 fill #5a3a00 0.95
+circle 0.12,0.5 0.03 fill #5a3a00 0.95
+
+# Inner glass wall ring
+circle 0.5,0.5 0.36 stroke #7aa8a0 width 2
+
+# Greenish fluid interior
+circle 0.5,0.5 0.34 fill #b8d8d4 0.55
+circle 0.5,0.5 0.34 fill #6a9880 0.4
+
+# Fluid surface sheen / swirl
+arc 0.5,0.5 0.30 200 340 stroke #d8f0e0 0.4 width 1
+arc 0.5,0.5 0.24 40 160 stroke #a0c8b8 0.45 width 1
+
+# Homunculus silhouette (small humanoid, floating fetal-curl)
+# Head
+circle 0.48,0.42 0.07 fill #3a2820 0.85
+circle 0.48,0.42 0.07 stroke #1a0e08
+# Torso
+ellipse 0.50,0.54 0.08,0.09 fill #3a2820 0.85
+ellipse 0.50,0.54 0.08,0.09 stroke #1a0e08
+# Limb stubs (curled arms/legs)
+poly 0.42,0.52 0.38,0.58 0.42,0.62 0.46,0.58 fill #3a2820 0.8
+poly 0.56,0.54 0.62,0.58 0.60,0.64 0.54,0.60 fill #3a2820 0.8
+poly 0.46,0.62 0.44,0.68 0.50,0.70 0.52,0.64 fill #3a2820 0.8
+
+# Rising bubble stream (small bubbles at varying heights)
+circle 0.38,0.76 0.025 fill #e0f0e8 0.75
+circle 0.38,0.76 0.025 stroke #a0c8b8
+circle 0.62,0.72 0.022 fill #e0f0e8 0.8
+circle 0.62,0.72 0.022 stroke #a0c8b8
+circle 0.44,0.32 0.018 fill #e0f0e8 0.7
+circle 0.58,0.26 0.015 fill #e0f0e8 0.65
+circle 0.52,0.80 0.02 fill #e0f0e8 0.75
+# Bubble specks (smaller dots)
+circle 0.30,0.50 0.01 fill #e0f0e8 0.65
+circle 0.70,0.44 0.01 fill #e0f0e8 0.6
+
+# Glass rim highlight
+arc 0.5,0.5 0.40 200 280 stroke #ffffff 0.5 width 1
+
+# Feed/drainage pipe running east (connects to room infrastructure)
+rect 0.86,0.44 0.84,0.12 texfill polyhaven/rusty_metal 0.85
+rect 0.86,0.44 0.84,0.12 stroke #3a2410
+# Pipe bolts
+circle 0.94,0.50 0.022 fill #5a3a00 0.9
+circle 1.10,0.50 0.022 fill #5a3a00 0.9
+circle 1.28,0.50 0.022 fill #5a3a00 0.9
+circle 1.46,0.50 0.022 fill #5a3a00 0.9
+circle 1.62,0.50 0.022 fill #5a3a00 0.9
+# Pipe endcap (east side — where it enters wall)
+rect 1.70,0.40 0.10,0.20 fill #5a3a00 0.9
+rect 1.70,0.40 0.10,0.20 stroke #2a1400
+# Valve wheel at junction to vat
+circle 0.92,0.50 0.05 stroke #8b6914 width 2
+line 0.89,0.50 0.95,0.50 stroke #8b6914 width 1
+line 0.92,0.47 0.92,0.53 stroke #8b6914 width 1

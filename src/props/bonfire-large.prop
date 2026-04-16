@@ -52,20 +52,33 @@ circle 1.58,1.00 0.07 fill #1a0800 0.9
 circle 1.00,0.42 0.07 fill #1a0800 0.9
 circle 1.00,1.58 0.07 fill #1a0800 0.9
 
-# === Flames (tall, drawn as layered organic shapes) ===
-# Outer glow (radial)
-circle 1.0,1.0 0.70 fill #ff6600 0.25
-# Base flame
-poly 0.66,1.10 0.80,0.70 0.95,0.50 1.00,0.30 1.05,0.50 1.20,0.70 1.34,1.10 1.25,1.20 0.75,1.20 fill #e85500 0.8
-poly 0.66,1.10 0.80,0.70 0.95,0.50 1.00,0.30 1.05,0.50 1.20,0.70 1.34,1.10 1.25,1.20 0.75,1.20 stroke #cc3300 0.6
-# Middle flame
-poly 0.78,1.08 0.88,0.80 0.94,0.60 1.00,0.44 1.06,0.60 1.12,0.80 1.22,1.08 1.15,1.14 0.85,1.14 fill #ff8800 0.88
-# Inner flame
-poly 0.86,1.06 0.93,0.82 0.98,0.64 1.00,0.54 1.02,0.64 1.07,0.82 1.14,1.06 1.08,1.10 0.92,1.10 fill #ffaa00 0.9
-# Hottest core
-poly 0.92,1.02 0.97,0.86 0.99,0.72 1.00,0.64 1.01,0.72 1.03,0.86 1.08,1.02 1.04,1.06 0.96,1.06 fill #ffcc00 0.95
-# White hot center
-ellipse 1.00,0.92 0.05,0.10 fill #ffffcc 0.75
+# === Flames (top-down — concentric rings of fire climbing the log pyramid) ===
+# Outer heat halo
+circle 1.0,1.0 0.70 fill #e85500 0.30
+# Outer flame ring (ragged edge)
+poly 1.00,0.32 1.20,0.42 1.42,0.48 1.58,0.66 1.68,1.00 1.58,1.34 1.42,1.52 1.20,1.58 1.00,1.68 0.80,1.58 0.58,1.52 0.42,1.34 0.32,1.00 0.42,0.66 0.58,0.48 0.80,0.42 fill #ff6020 0.80
+# Mid flame ring (bright orange)
+circle 1.0,1.0 0.45 fill #ff8030 0.85
+# Flame tongues radiating outward
+poly 1.00,0.30 0.92,0.50 1.08,0.50 fill #ffaa30 0.85
+poly 1.00,1.70 0.92,1.50 1.08,1.50 fill #ff8030 0.80
+poly 0.30,1.00 0.50,0.92 0.50,1.08 fill #ffaa30 0.80
+poly 1.70,1.00 1.50,0.92 1.50,1.08 fill #ff8030 0.80
+poly 0.48,0.48 0.64,0.62 0.62,0.64 fill #ffaa30 0.75
+poly 1.52,0.48 1.36,0.62 1.38,0.64 fill #ffaa30 0.75
+poly 0.48,1.52 0.62,1.36 0.64,1.38 fill #ff8030 0.75
+poly 1.52,1.52 1.36,1.36 1.38,1.38 fill #ff8030 0.75
+# Inner yellow ring
+circle 1.0,1.0 0.32 fill #ffcc60 0.88
+# Hot white-yellow core
+circle 1.0,1.0 0.20 fill #ffe890 0.92
+# Hottest white center (looking down the flame's axis)
+circle 1.0,1.0 0.10 fill #ffffff 0.95
+# Dark updraft specks (rising soot caught in the fire)
+circle 0.78,0.72 0.020 fill #1a0800 0.55
+circle 1.24,0.76 0.020 fill #1a0800 0.55
+circle 0.74,1.24 0.020 fill #1a0800 0.55
+circle 1.22,1.26 0.020 fill #1a0800 0.55
 
 # === Ember sparks floating around ===
 circle 0.65,0.40 0.025 fill #ffaa00 0.85

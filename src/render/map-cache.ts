@@ -115,6 +115,7 @@ export class MapCache {
   _gridRedrawEnabled: boolean;
   _lastContentVersion: number;
   _lastLightingVersion: number;
+  _lastTheme: Theme | null;
   _cellsRebuildCount: number;
   _compositeRebuildCount: number;
   _lastRebuildMs: number;
@@ -142,6 +143,7 @@ export class MapCache {
     this._gridRedrawEnabled = false;
     this._lastContentVersion = 0;
     this._lastLightingVersion = 0;
+    this._lastTheme = null;
 
     // Diagnostics
     this._cellsRebuildCount = 0;
@@ -209,6 +211,29 @@ export class MapCache {
   invalidateGrid() {
     this._gridDirtySeq++;
     this._gridRedrawEnabled = true;
+  }
+
+  /**
+   * Invalidate just the props (and the other top-of-stack phases: walls, grid, labels).
+   * Uses the pre-grid snapshot to skip expensive base phases (floors, textures, blending,
+   * fills, bridges). Call this whenever overlay props change position/rotation/scale/zIndex.
+   * @returns {void}
+   */
+  invalidateProps() {
+    // Enable two-pass rebuild so the snapshot gets captured on the next full rebuild.
+    this._gridRedrawEnabled = true;
+    if (this._preGridSnapshot) {
+      // Snapshot already exists — cheap grid-only rebuild will pick up new prop art.
+      // _rebuildFromSnapshot calls _buildComposite internally, so we don't bump
+      // _compositeDirtySeq here (that would route through composite-only, which just
+      // re-blits the stale cells layer and skips the prop replay).
+      this._gridDirtySeq++;
+    } else {
+      // No snapshot yet — force a full rebuild. The two-pass path will create the
+      // snapshot so subsequent prop edits hit the fast grid-only path.
+      this._dirtySeq++;
+      this._compositeDirtySeq++;
+    }
   }
 
   /**
@@ -305,6 +330,18 @@ export class MapCache {
       this._lastLightingVersion = lv;
     }
 
+    // Theme reference equality: `getTheme()` returns the same normalized Theme
+    // object for a given raw theme via the _normalizedThemeCache WeakMap, so a
+    // new reference here means the user picked a different preset, edited the
+    // custom theme, or swapped to/from a saved user theme. Theme touches almost
+    // every render phase (floor colors, grid, shading, hatching, blending,
+    // borders) so force a full rebuild rather than composite-only.
+    if (p.theme !== this._lastTheme) {
+      this._dirtySeq++;
+      this._compositeDirtySeq++;
+      this._lastTheme = p.theme;
+    }
+
     const texVer = p.texturesVersion ?? 0;
     const skipSig = p.skipPhases
       ? Object.keys(p.skipPhases)
@@ -319,20 +356,34 @@ export class MapCache {
       this._cellsLayer.texturesVersion !== texVer ||
       this._cellsLayer.skipSig !== skipSig;
 
-    const needsCompositeOnly =
-      !needsCellsRedraw && this._compositeLayer && this._compositeLayer.compositeDirtySeq !== this._compositeDirtySeq;
-
     const needsGridOnly =
       !needsCellsRedraw &&
-      !needsCompositeOnly &&
       this._gridRedrawEnabled &&
       this._preGridSnapshot &&
       this._cellsLayer!.gridDirtySeq !== this._gridDirtySeq;
+
+    const needsCompositeOnly =
+      !needsCellsRedraw &&
+      !needsGridOnly &&
+      this._compositeLayer &&
+      this._compositeLayer.compositeDirtySeq !== this._compositeDirtySeq;
 
     if (!needsCellsRedraw && !needsCompositeOnly && !needsGridOnly) return false;
 
     const _cacheStart = performance.now();
     const cacheTransform = { scale: pxPerFoot, offsetX: 0, offsetY: 0 };
+
+    // Grid-only change — restore pre-grid snapshot and re-render grid + walls + props.
+    // Skips expensive shading/floors/textures/blending phases entirely. Takes priority
+    // over composite-only because _rebuildFromSnapshot calls _buildComposite at the end,
+    // so it handles both channels in one pass (needed when a prop edit bumps lighting
+    // and props together — composite-only alone would re-blit a stale cells layer).
+    if (needsGridOnly) {
+      this._rebuildFromSnapshot(p, cacheTransform, cacheW, cacheH, texVer);
+      this._lastRebuildMs = performance.now() - _cacheStart;
+      this._lastRebuildType = 'grid';
+      return true;
+    }
 
     // Composite-only change (lighting/theme) — skip cells layer, just recomposite.
     // The lightmap has its own internal cache so this is cheap.
@@ -341,18 +392,6 @@ export class MapCache {
       this._lastRebuildMs = performance.now() - _cacheStart;
       this._lastRebuildType = 'composite';
       return true;
-    }
-
-    // Grid-only change — restore pre-grid snapshot and re-render grid + walls + props.
-    // Skips expensive shading/floors/textures/blending phases entirely.
-    if (needsGridOnly) {
-      if (this._preGridSnapshot) {
-        this._rebuildFromSnapshot(p, cacheTransform, cacheW, cacheH, texVer);
-        this._lastRebuildMs = performance.now() - _cacheStart;
-        this._lastRebuildType = 'grid';
-        return true;
-      }
-      // No snapshot yet — fall through to full rebuild which will capture one
     }
 
     // ── Check for partial redraw eligibility ──

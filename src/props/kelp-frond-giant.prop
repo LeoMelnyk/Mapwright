@@ -1,6 +1,6 @@
 name: Giant Kelp Frond
 category: Nature
-footprint: 2x1
+footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
@@ -9,43 +9,67 @@ placement: floor
 room_types: elemental-water-node, coral-reef, merfolk-grotto, aquatic-shrine
 typical_count: few
 clusters_with: kelp-strand, coral-pillar, anemone-small, bubble-drift
-notes: Towering kelp; place against walls or in clusters to break up open aquatic spaces
+notes: Giant kelp seen from above — long ribbon-like leaves radiating from the central stalk, drifting in the current
 ---
-# Footprint 2x1: x 0-1, y 0-2. Stalk rises from south base, tapered leaves flare.
-# Holdfast / root anchor
-ellipse 0.5,1.80 0.35,0.18 fill #2a3a18 0.8
-ellipse 0.5,1.80 0.35,0.18 stroke #152008
-# Main stalk (ribbed bezier column)
-bezier 0.50,1.78 0.44,1.20 0.56,0.70 0.50,0.20 stroke #4a6028 width 8
-bezier 0.50,1.78 0.44,1.20 0.56,0.70 0.50,0.20 stroke #2a3818 width 2
-# Stalk rib accents
-line 0.48,1.60 0.48,0.30 stroke #2a3818 width 1
-line 0.52,1.60 0.52,0.30 stroke #2a3818 width 1
-# Lower left leaf
-poly 0.48,1.55 0.20,1.35 0.10,1.05 0.16,1.00 0.30,1.18 0.46,1.40 fill #6a8038 0.85
-poly 0.48,1.55 0.20,1.35 0.10,1.05 0.16,1.00 0.30,1.18 0.46,1.40 stroke #2a3818
-# Lower right leaf
-poly 0.52,1.45 0.80,1.25 0.92,0.95 0.86,0.90 0.70,1.08 0.54,1.30 fill #6a8038 0.85
-poly 0.52,1.45 0.80,1.25 0.92,0.95 0.86,0.90 0.70,1.08 0.54,1.30 stroke #2a3818
-# Middle left leaf
-poly 0.46,0.95 0.22,0.75 0.12,0.45 0.18,0.40 0.32,0.58 0.48,0.82 fill #809e48 0.85
-poly 0.46,0.95 0.22,0.75 0.12,0.45 0.18,0.40 0.32,0.58 0.48,0.82 stroke #2a3818
-# Middle right leaf
-poly 0.54,0.85 0.78,0.65 0.90,0.35 0.84,0.30 0.68,0.48 0.52,0.72 fill #809e48 0.85
-poly 0.54,0.85 0.78,0.65 0.90,0.35 0.84,0.30 0.68,0.48 0.52,0.72 stroke #2a3818
-# Upper leaves (smaller, lighter)
-poly 0.48,0.45 0.30,0.22 0.22,0.08 0.28,0.05 0.38,0.15 0.50,0.32 fill #9ab858 0.8
-poly 0.48,0.45 0.30,0.22 0.22,0.08 0.28,0.05 0.38,0.15 0.50,0.32 stroke #2a3818
-poly 0.52,0.35 0.70,0.18 0.78,0.05 0.72,0.03 0.62,0.12 0.50,0.25 fill #9ab858 0.8
-poly 0.52,0.35 0.70,0.18 0.78,0.05 0.72,0.03 0.62,0.12 0.50,0.25 stroke #2a3818
-# Leaf vein highlights
-line 0.48,1.55 0.14,1.03 stroke #a0c060 width 1
-line 0.52,1.45 0.89,0.93 stroke #a0c060 width 1
-line 0.46,0.95 0.15,0.43 stroke #a0c060 width 1
-line 0.54,0.85 0.87,0.33 stroke #a0c060 width 1
-line 0.48,0.45 0.25,0.07 stroke #a0c060 width 1
-# Small gas bladders (keep fronds buoyant)
-circle 0.30,1.18 0.025 fill #c8e080 0.85
-circle 0.70,1.08 0.025 fill #c8e080 0.85
-circle 0.32,0.58 0.022 fill #c8e080 0.85
-circle 0.68,0.48 0.022 fill #c8e080 0.85
+# Hitbox: central stalk blocks light
+hitbox circle 1.0,1.0 0.30 z 0-2.0
+# Soft water wash around the plant
+circle 1.0,1.0 0.95 fill #4a6028 0.10
+# === Long ribbon leaves sweeping out in a radial rosette ===
+# North leaf (curving east)
+bezier 1.0,0.85 0.95,0.55 1.20,0.30 1.05,0.08 stroke #6a8038 width 10
+bezier 1.0,0.85 0.95,0.55 1.20,0.30 1.05,0.08 stroke #2a3818 width 1
+# NE leaf
+bezier 1.10,0.92 1.35,0.75 1.65,0.55 1.88,0.35 stroke #809e48 width 9
+bezier 1.10,0.92 1.35,0.75 1.65,0.55 1.88,0.35 stroke #2a3818 width 1
+# East leaf (curving south)
+bezier 1.15,1.0 1.45,1.05 1.70,0.90 1.92,1.10 stroke #6a8038 width 10
+bezier 1.15,1.0 1.45,1.05 1.70,0.90 1.92,1.10 stroke #2a3818 width 1
+# SE leaf
+bezier 1.10,1.08 1.40,1.25 1.60,1.45 1.88,1.65 stroke #809e48 width 9
+bezier 1.10,1.08 1.40,1.25 1.60,1.45 1.88,1.65 stroke #2a3818 width 1
+# South leaf
+bezier 1.0,1.15 1.05,1.45 0.85,1.70 1.00,1.92 stroke #6a8038 width 10
+bezier 1.0,1.15 1.05,1.45 0.85,1.70 1.00,1.92 stroke #2a3818 width 1
+# SW leaf
+bezier 0.90,1.08 0.65,1.25 0.40,1.45 0.12,1.60 stroke #9ab858 width 9
+bezier 0.90,1.08 0.65,1.25 0.40,1.45 0.12,1.60 stroke #2a3818 width 1
+# West leaf (curving north)
+bezier 0.85,1.0 0.55,0.95 0.30,1.10 0.08,0.95 stroke #6a8038 width 10
+bezier 0.85,1.0 0.55,0.95 0.30,1.10 0.08,0.95 stroke #2a3818 width 1
+# NW leaf
+bezier 0.90,0.92 0.60,0.75 0.35,0.50 0.15,0.30 stroke #809e48 width 9
+bezier 0.90,0.92 0.60,0.75 0.35,0.50 0.15,0.30 stroke #2a3818 width 1
+# === Central stalk cap (looking down into the stalk) ===
+circle 1.0,1.0 0.22 texfill polyhaven/bark_brown_02 0.60
+circle 1.0,1.0 0.22 fill #4a6028 0.55
+circle 1.0,1.0 0.22 stroke #2a3818 width 2
+# Stalk rib detail
+circle 1.0,1.0 0.14 stroke #2a3818 width 1
+circle 1.0,1.0 0.07 fill #6a8038 0.8
+# Gas bladders (small round buoyancy pods along leaves)
+circle 1.15,0.45 0.04 fill #c8e080 0.9
+circle 1.15,0.45 0.04 stroke #4a6028
+circle 1.60,0.62 0.035 fill #c8e080 0.9
+circle 1.60,0.62 0.035 stroke #4a6028
+circle 1.55,1.10 0.04 fill #c8e080 0.9
+circle 1.55,1.10 0.04 stroke #4a6028
+circle 1.45,1.40 0.035 fill #c8e080 0.9
+circle 1.45,1.40 0.035 stroke #4a6028
+circle 0.90,1.55 0.04 fill #c8e080 0.9
+circle 0.90,1.55 0.04 stroke #4a6028
+circle 0.50,1.30 0.035 fill #c8e080 0.9
+circle 0.50,1.30 0.035 stroke #4a6028
+circle 0.45,0.95 0.04 fill #c8e080 0.9
+circle 0.45,0.95 0.04 stroke #4a6028
+circle 0.55,0.60 0.035 fill #c8e080 0.9
+circle 0.55,0.60 0.035 stroke #4a6028
+# Leaf-tip highlights (brighter green at the edge of each blade)
+circle 1.05,0.08 0.025 fill #c0d878 0.9
+circle 1.88,0.35 0.022 fill #c0d878 0.85
+circle 1.92,1.10 0.025 fill #c0d878 0.9
+circle 1.88,1.65 0.022 fill #c0d878 0.85
+circle 1.00,1.92 0.025 fill #c0d878 0.9
+circle 0.12,1.60 0.022 fill #c0d878 0.85
+circle 0.08,0.95 0.025 fill #c0d878 0.9
+circle 0.15,0.30 0.022 fill #c0d878 0.85

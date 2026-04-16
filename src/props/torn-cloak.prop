@@ -1,0 +1,69 @@
+name: Torn Cloak
+category: Decor
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: monster-lair-small, cave, dungeon, crypt, ruin, battlefield-recent
+typical_count: few
+clusters_with: half-eaten-carcass, blood-smear, blood-stain, torch-wall, residual-torch-from-victims, bone-pile
+notes: Bloodied tattered cloak discarded on the floor — ragged muddy fabric with a blood stain and a metallic clasp at one end.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.14 0.82,0.76 z 0-0.05
+
+# Ground shadow/wet stain beneath cloak (very subtle)
+ellipse 0.50,0.54 0.42,0.30 fill #1a1408 0.3
+
+# Main cloak body (irregular crumpled fabric — muddy green-brown)
+poly 0.14,0.28 0.26,0.20 0.40,0.18 0.56,0.22 0.70,0.20 0.82,0.26 0.88,0.38 0.86,0.54 0.82,0.68 0.72,0.80 0.58,0.86 0.42,0.84 0.28,0.78 0.18,0.66 0.12,0.50 0.10,0.38 fill #3a3820 0.92
+poly 0.14,0.28 0.26,0.20 0.40,0.18 0.56,0.22 0.70,0.20 0.82,0.26 0.88,0.38 0.86,0.54 0.82,0.68 0.72,0.80 0.58,0.86 0.42,0.84 0.28,0.78 0.18,0.66 0.12,0.50 0.10,0.38 texfill polyhaven/rough_linen 0.5
+poly 0.14,0.28 0.26,0.20 0.40,0.18 0.56,0.22 0.70,0.20 0.82,0.26 0.88,0.38 0.86,0.54 0.82,0.68 0.72,0.80 0.58,0.86 0.42,0.84 0.28,0.78 0.18,0.66 0.12,0.50 0.10,0.38 stroke #1a1808
+
+# Fold/crease ridges (darker creases suggesting crumple)
+bezier 0.22,0.32 0.36,0.38 0.52,0.42 0.70,0.38 stroke #1a1808 0.7 width 1
+bezier 0.20,0.58 0.36,0.56 0.54,0.60 0.74,0.56 stroke #1a1808 0.6 width 1
+bezier 0.30,0.72 0.44,0.70 0.58,0.74 0.72,0.72 stroke #1a1808 0.55 width 1
+
+# Secondary fabric section (lifted corner — slightly lighter wash)
+poly 0.16,0.36 0.28,0.30 0.42,0.36 0.44,0.48 0.34,0.54 0.22,0.52 0.14,0.46 fill #4a4828 0.8
+
+# Dark blood stain soaking into the fabric (one section)
+poly 0.54,0.40 0.68,0.36 0.80,0.42 0.84,0.56 0.76,0.66 0.62,0.68 0.52,0.60 0.48,0.48 fill #3a0808 0.85
+poly 0.54,0.40 0.68,0.36 0.80,0.42 0.84,0.56 0.76,0.66 0.62,0.68 0.52,0.60 0.48,0.48 stroke #1a0000 0.6
+
+# Darker wet center of blood stain
+ellipse 0.66,0.54 0.11,0.08 fill #1a0202 0.8
+
+# Small blood splatter droplets on nearby fabric
+circle 0.42,0.30 0.015 fill #3a0808 0.8
+circle 0.36,0.72 0.018 fill #3a0808 0.75
+circle 0.78,0.74 0.014 fill #3a0808 0.7
+
+# Ragged tears at the edges (notches cut into the outline)
+poly 0.14,0.36 0.06,0.38 0.14,0.42 fill #3a3820 0.9
+poly 0.14,0.36 0.06,0.38 0.14,0.42 stroke #1a1808
+poly 0.88,0.46 0.96,0.50 0.88,0.54 fill #3a3820 0.9
+poly 0.88,0.46 0.96,0.50 0.88,0.54 stroke #1a1808
+poly 0.42,0.84 0.40,0.92 0.48,0.88 fill #3a3820 0.85
+poly 0.42,0.84 0.40,0.92 0.48,0.88 stroke #1a1808
+poly 0.36,0.18 0.32,0.10 0.42,0.14 fill #3a3820 0.85
+poly 0.36,0.18 0.32,0.10 0.42,0.14 stroke #1a1808
+
+# Frayed edge threads sticking out
+line 0.10,0.38 0.04,0.36 stroke #1a1808 width 1
+line 0.12,0.50 0.06,0.52 stroke #1a1808 width 1
+line 0.88,0.38 0.94,0.36 stroke #1a1808 width 1
+line 0.72,0.82 0.76,0.90 stroke #1a1808 width 1
+
+# Metallic clasp at one end (tarnished brass)
+circle 0.24,0.26 0.055 fill #8b6914 0.92
+circle 0.24,0.26 0.055 stroke #3a2a00
+# Clasp inner pin / detail
+circle 0.24,0.26 0.025 fill #5a3a00 0.9
+circle 0.24,0.26 0.012 fill #daa520 0.85
+
+# Mud smear on fabric
+ellipse 0.32,0.58 0.10,0.04 fill #2a1808 0.6

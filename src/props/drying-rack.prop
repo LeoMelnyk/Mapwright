@@ -1,0 +1,61 @@
+name: Drying Rack
+category: Workshop
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: wall
+room_types: kiln-pottery, workshop, mill-workshop, house-medium-artisan
+typical_count: few
+clusters_with: kiln-brick, kiln-large, clay-bin, clay-lump, pottery-shard
+notes: Open wooden shelf rack with 3 horizontal slats holding lines of small unfired pots. Wall-attached at north (low Y).
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.62 z 0-1.5
+
+# === End posts (vertical uprights anchoring rack to wall) ===
+rect 0.08,0.08 0.10,0.62 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.08 0.10,0.62 stroke #2a1400
+rect 1.82,0.08 0.10,0.62 texfill polyhaven/dark_wood 0.9
+rect 1.82,0.08 0.10,0.62 stroke #2a1400
+
+# === Three horizontal slats (from north to south) ===
+# Slat 1 (top, closest to wall)
+rect 0.18,0.12 1.64,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.18,0.12 1.64,0.08 stroke #2a1400
+# Slat 2 (middle)
+rect 0.18,0.32 1.64,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.18,0.32 1.64,0.08 stroke #2a1400
+# Slat 3 (bottom, furthest from wall)
+rect 0.18,0.52 1.64,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.18,0.52 1.64,0.08 stroke #2a1400
+
+# === Unfired pots on slat 1 (3 small circles, tan clay) ===
+circle 0.45,0.16 0.07 fill #a88868 0.9
+circle 0.45,0.16 0.07 stroke #5a4030
+circle 0.95,0.16 0.07 fill #a88868 0.9
+circle 0.95,0.16 0.07 stroke #5a4030
+circle 1.55,0.16 0.07 fill #a88868 0.9
+circle 1.55,0.16 0.07 stroke #5a4030
+
+# === Unfired pots on slat 2 ===
+circle 0.45,0.36 0.07 fill #a88868 0.9
+circle 0.45,0.36 0.07 stroke #5a4030
+circle 0.95,0.36 0.07 fill #a88868 0.9
+circle 0.95,0.36 0.07 stroke #5a4030
+circle 1.55,0.36 0.07 fill #a88868 0.9
+circle 1.55,0.36 0.07 stroke #5a4030
+
+# === Unfired pots on slat 3 ===
+circle 0.45,0.56 0.07 fill #a88868 0.9
+circle 0.45,0.56 0.07 stroke #5a4030
+circle 0.95,0.56 0.07 fill #a88868 0.9
+circle 0.95,0.56 0.07 stroke #5a4030
+circle 1.55,0.56 0.07 fill #a88868 0.9
+circle 1.55,0.56 0.07 stroke #5a4030
+
+# === Tiny rim highlights on pots (catch light) ===
+arc 0.45,0.16 0.05 220 260 stroke #c8a888 0.6 width 1
+arc 0.95,0.36 0.05 220 260 stroke #c8a888 0.6 width 1
+arc 1.55,0.56 0.05 220 260 stroke #c8a888 0.6 width 1

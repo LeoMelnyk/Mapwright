@@ -1,0 +1,35 @@
+name: Clay Dust
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: kiln-pottery, workshop, mill-workshop, house-medium-artisan
+typical_count: many
+clusters_with: clay-bin, clay-lump, pottery-shard, kiln-brick, kiln-large
+notes: Fine clay dust scatter on floor — faint tan blobs, no hard outline. Visual flavor marker for pottery workshops.
+---
+# === Faint tan dust blobs (low opacity, no outlines) ===
+ellipse 0.32,0.28 0.18,0.12 fill #c8a888 0.28
+ellipse 0.62,0.38 0.14,0.10 fill #c8a888 0.32
+ellipse 0.48,0.60 0.22,0.14 fill #c8a888 0.25
+ellipse 0.72,0.68 0.12,0.09 fill #c8a888 0.30
+ellipse 0.22,0.72 0.10,0.07 fill #c8a888 0.28
+
+# === Lighter powder accents (slightly brighter specks on top) ===
+ellipse 0.40,0.34 0.08,0.05 fill #e0c8a8 0.22
+ellipse 0.58,0.56 0.10,0.06 fill #e0c8a8 0.25
+ellipse 0.70,0.30 0.06,0.04 fill #e0c8a8 0.20
+
+# === Tiny scattered flecks (individual dust grains) ===
+circle 0.18,0.42 0.025 fill #b89878 0.35
+circle 0.82,0.48 0.022 fill #b89878 0.32
+circle 0.52,0.18 0.02 fill #b89878 0.30
+circle 0.30,0.50 0.02 fill #b89878 0.28
+circle 0.80,0.80 0.022 fill #b89878 0.32
+circle 0.14,0.60 0.018 fill #b89878 0.28
+
+# === Faint footprint / smudge trail ===
+ellipse 0.44,0.46 0.28,0.06 fill #c8a888 0.12

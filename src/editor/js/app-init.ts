@@ -17,6 +17,7 @@ import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './t
 import type { Tool } from './tools/tool-base.js';
 import { RangeTool, FogRevealTool, type LightTool } from './tools/index.js';
 import { loadPropCatalog } from './prop-catalog.js';
+import { invalidateMinimapCache } from './minimap.js';
 import { initPropSpatial, onPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
 import {
@@ -80,11 +81,17 @@ export async function initApp(
 ): Promise<void> {
   // Wire up prop spatial hash (lazy getter to avoid circular import)
   initPropSpatial(() => state);
-  // When props change (move/place/remove), invalidate the props render layer cache
-  const { invalidatePropsRenderLayer, bumpContentVersion } = await import('../../render/index.js');
+  // When props change (move/place/rotate/scale/remove):
+  //   1. Clear the prop sub-layer cache so the next render rebuilds it.
+  //   2. Route through MapCache.invalidateProps(), which uses the grid-only rebuild path.
+  //      That replays only the top phases (walls + grid + props + labels) against a
+  //      cached pre-grid snapshot, skipping the expensive floors/textures/blending/fills
+  //      phases that a full contentVersion bump would rerun on every wheel tick.
+  const { invalidatePropsRenderLayer } = await import('../../render/index.js');
+  const { getMapCache } = await import('./canvas-view-state.js');
   onPropSpatialDirty(() => {
     invalidatePropsRenderLayer();
-    bumpContentVersion();
+    getMapCache().invalidateProps();
   });
 
   // ── App version (status bar) ───────────────────────────────────────────
@@ -186,6 +193,9 @@ export async function initApp(
 
   // Load themes before metadata so the picker has catalog data on first render
   await loadThemeCatalog((loaded: number, total: number) => onAssetProgress('themes', loaded, total));
+  // Theme colors drive the minimap background; invalidate any cache that was
+  // built before THEMES finished populating (first-frame race on fresh loads).
+  invalidateMinimapCache();
 
   // Init panels
   initToolbar();
@@ -388,6 +398,7 @@ export async function initApp(
       if (state.dungeon.metadata.lights.length) {
         invalidateLightmap();
       }
+      invalidateMinimapCache();
       notify();
       return catalog;
     })
@@ -402,6 +413,7 @@ export async function initApp(
       state.textureCatalog = catalog;
       const texContainer = document.getElementById('textures-panel-content');
       if (texContainer) initTexturesPanel(texContainer);
+      invalidateMinimapCache();
       notify();
       return catalog;
     })

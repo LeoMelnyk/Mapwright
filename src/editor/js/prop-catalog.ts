@@ -1,6 +1,7 @@
 // Prop Catalog Loader
 // Fetches .prop files from the server and builds an in-memory catalog.
-// Uses localStorage to cache parsed definitions on subsequent loads.
+// Caching is handled by the HTTP layer: /props/bundle.json is served with an
+// ETag, so repeat loads get a 304 with no body transfer.
 
 import type { PropCatalog, PropDefinition, PropCommand } from '../../types.js';
 import { parsePropFile, generateHitbox } from '../../render/index.js';
@@ -9,12 +10,19 @@ import { showToast } from './toast.js';
 import { allSettledWithLimit } from './async-batch.js';
 
 const MANIFEST_URL = '/props/manifest.json';
+const BUNDLE_URL = '/props/bundle.json';
 const PROPS_BASE_URL = '/props/';
-const CACHE_KEY = 'prop-catalog';
-const CACHE_VER_KEY = 'prop-catalog-ver';
-const APP_VERSION = '0.10.0'; // bump when prop format or hitbox algorithm changes
 
 let cachedCatalog: PropCatalog | null = null;
+
+// One-time cleanup of the localStorage cache used by earlier versions
+// (the catalog is now HTTP-cached, not mirrored in localStorage).
+try {
+  localStorage.removeItem('prop-catalog');
+  localStorage.removeItem('prop-catalog-ver');
+} catch {
+  /* storage unavailable */
+}
 
 /**
  * Build the catalog structure from a { name: def } map.
@@ -127,35 +135,45 @@ export async function loadPropCatalog(
   if (cachedCatalog) return cachedCatalog;
 
   try {
+    // Try the bundle first — one HTTP request for the whole catalog.
+    // Browser HTTP cache + server ETag means subsequent loads get a 304
+    // with no body transfer, so no explicit app-level cache is needed.
+    const bundleRes = await fetch(BUNDLE_URL).catch(() => null);
+    if (bundleRes?.ok) {
+      const bundle = (await bundleRes.json()) as { version?: string; props?: Record<string, string> };
+      if (bundle.props && typeof bundle.props === 'object') {
+        const names = Object.keys(bundle.props);
+        if (onProgress) onProgress(0, names.length);
+        const props: Record<string, PropDefinition> = {};
+        let parsed = 0;
+        for (const name of names) {
+          try {
+            props[name] = parsePropFile(bundle.props[name]!);
+          } catch (e) {
+            console.warn('[prop-catalog] Failed to parse prop', name, e);
+          }
+          parsed++;
+          if (onProgress) onProgress(parsed, names.length);
+        }
+        cachedCatalog = buildCatalog(props);
+        return cachedCatalog;
+      }
+    }
+
+    // Fallback: per-file fetch (used if bundle.json is missing or malformed —
+    // e.g. a fresh checkout before update-manifest.js has run).
+    console.warn('[prop-catalog] bundle.json unavailable, falling back to per-file fetch');
     const manifestRes = await fetch(MANIFEST_URL);
     if (!manifestRes.ok) {
       console.warn('[prop-catalog] Could not load manifest.json:', manifestRes.status);
       return buildEmptyCatalog();
     }
     const propNames = await manifestRes.json();
-    const version = APP_VERSION + ':' + propNames.join(',');
-
-    // Try localStorage cache (invalidates on app version bump or prop list change)
-    const cachedVer = localStorage.getItem(CACHE_VER_KEY);
-    if (cachedVer === version) {
-      try {
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!) as Record<string, PropDefinition> | null;
-        if (cached && Object.keys(cached).length) {
-          if (onProgress) onProgress(propNames.length, propNames.length);
-          cachedCatalog = buildCatalog(cached);
-          return cachedCatalog;
-        }
-      } catch {
-        /* cache corrupt, fall through */
-      }
-    }
-
-    // Fresh fetch
     let loaded = 0;
     if (onProgress) onProgress(0, propNames.length);
 
     const results = await allSettledWithLimit(propNames, 32, async (name: string) => {
-      const res = await fetch(`${PROPS_BASE_URL}${name}.prop`, { cache: 'no-cache' });
+      const res = await fetch(`${PROPS_BASE_URL}${name}.prop`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       const def = parsePropFile(text);
@@ -164,7 +182,7 @@ export async function loadPropCatalog(
       return { name, def };
     });
 
-    const props = {};
+    const props: Record<string, PropDefinition> = {};
     let propFailCount = 0;
     for (const result of results) {
       if (result.status === 'rejected') {
@@ -173,18 +191,10 @@ export async function loadPropCatalog(
         continue;
       }
       const { name, def } = result.value;
-      (props as Record<string, unknown>)[name] = def;
+      props[name] = def;
     }
     if (propFailCount > 0) {
       showToast(`Failed to load ${propFailCount} prop(s) — some props may not be available`);
-    }
-
-    // Cache to localStorage
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(props));
-      localStorage.setItem(CACHE_VER_KEY, version);
-    } catch {
-      /* localStorage full or unavailable */
     }
 
     cachedCatalog = buildCatalog(props);

@@ -1,0 +1,54 @@
+name: Sewage Channel Crossing
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: sewer-junction, sewer, undercity
+typical_count: few
+clusters_with: sewage-channel, sewage-channel-turn, sewage-channel-t, grate-floor
+notes: Four-way crossing for the sewage channel network — arms 0.60 wide on every cell edge, lips 0.12 thick so sections tile flush with the straight piece.
+---
+# === Stone lip trim around each fluid arm ===
+# Horizontal arm — N lip pieces (flanking the vertical arm)
+rect 0.00,0.08 0.20,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.08 0.20,0.12 stroke #2a2820
+rect 0.80,0.08 0.20,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.80,0.08 0.20,0.12 stroke #2a2820
+# Horizontal arm — S lip pieces
+rect 0.00,0.80 0.20,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.80 0.20,0.12 stroke #2a2820
+rect 0.80,0.80 0.20,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.80,0.80 0.20,0.12 stroke #2a2820
+# Vertical arm — W lip pieces
+rect 0.08,0.00 0.12,0.20 texfill polyhaven/stone_floor 0.85
+rect 0.08,0.00 0.12,0.20 stroke #2a2820
+rect 0.08,0.80 0.12,0.20 texfill polyhaven/stone_floor 0.85
+rect 0.08,0.80 0.12,0.20 stroke #2a2820
+# Vertical arm — E lip pieces
+rect 0.80,0.00 0.12,0.20 texfill polyhaven/stone_floor 0.85
+rect 0.80,0.00 0.12,0.20 stroke #2a2820
+rect 0.80,0.80 0.12,0.20 texfill polyhaven/stone_floor 0.85
+rect 0.80,0.80 0.12,0.20 stroke #2a2820
+# === Fluid plus-shape as a single polygon ===
+poly 0.00,0.20 0.20,0.20 0.20,0.00 0.80,0.00 0.80,0.20 1.00,0.20 1.00,0.80 0.80,0.80 0.80,1.00 0.20,1.00 0.20,0.80 0.00,0.80 fill #3a2a18 0.95
+poly 0.00,0.20 0.20,0.20 0.20,0.00 0.80,0.00 0.80,0.20 1.00,0.20 1.00,0.80 0.80,0.80 0.80,1.00 0.20,1.00 0.20,0.80 0.00,0.80 stroke #1a1208 width 1
+# Flow streaks on horizontal and vertical arms (outside the central junction)
+bezier 0.05,0.34 0.22,0.36 0.35,0.38 0.44,0.42 stroke #5a4028 0.5 width 2
+bezier 0.56,0.42 0.65,0.38 0.78,0.36 0.95,0.34 stroke #5a4028 0.5 width 2
+bezier 0.05,0.68 0.22,0.66 0.35,0.64 0.44,0.60 stroke #4a3020 0.45 width 2
+bezier 0.56,0.60 0.65,0.64 0.78,0.66 0.95,0.68 stroke #4a3020 0.45 width 2
+bezier 0.34,0.05 0.36,0.22 0.38,0.35 0.42,0.44 stroke #5a4028 0.5 width 2
+bezier 0.42,0.56 0.38,0.65 0.36,0.78 0.34,0.95 stroke #5a4028 0.5 width 2
+bezier 0.68,0.05 0.66,0.22 0.64,0.35 0.60,0.44 stroke #4a3020 0.45 width 2
+bezier 0.60,0.56 0.64,0.65 0.66,0.78 0.68,0.95 stroke #4a3020 0.45 width 2
+# Scum patches on each arm
+ellipse 0.12,0.45 0.05,0.04 fill #4a6040 0.5
+ellipse 0.88,0.55 0.05,0.04 fill #4a6040 0.5
+ellipse 0.45,0.12 0.04,0.05 fill #4a6040 0.5
+ellipse 0.55,0.88 0.04,0.05 fill #4a6040 0.5
+# Central bubble cluster
+circle 0.50,0.50 0.020 fill #8aa070 0.7
+circle 0.44,0.56 0.016 fill #8aa070 0.6
+circle 0.56,0.44 0.016 fill #8aa070 0.6

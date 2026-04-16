@@ -1,0 +1,44 @@
+name: Thimble
+category: Tools
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: shop-tailor, merchant-house, textile-loomhouse, workshop
+typical_count: few
+clusters_with: sewing-bench, buttons-jar, scissors-shears, cutting-table
+notes: Tiny brass thimble seen from above as concentric rings; scatter on benches or cutting tables
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.14 z 0-0.2
+
+# Outer rim (brass base)
+circle 0.5,0.5 0.14 fill #daa520 0.9
+circle 0.5,0.5 0.14 stroke #5a3a00 width 2
+# Middle ring (body)
+circle 0.5,0.5 0.11 fill #b8941c 0.85
+circle 0.5,0.5 0.11 stroke #5a3a00
+# Top dome ring
+circle 0.5,0.5 0.08 fill #daa520 0.85
+circle 0.5,0.5 0.08 stroke #5a3a00 0.7
+# Central indent / apex
+circle 0.5,0.5 0.025 fill #8b6914 0.9
+circle 0.5,0.5 0.025 stroke #3a2500
+# Dimples (faint ring of small dots around body)
+circle 0.50,0.40 0.012 fill #5a3a00 0.7
+circle 0.58,0.42 0.012 fill #5a3a00 0.7
+circle 0.60,0.50 0.012 fill #5a3a00 0.7
+circle 0.58,0.58 0.012 fill #5a3a00 0.7
+circle 0.50,0.60 0.012 fill #5a3a00 0.7
+circle 0.42,0.58 0.012 fill #5a3a00 0.7
+circle 0.40,0.50 0.012 fill #5a3a00 0.7
+circle 0.42,0.42 0.012 fill #5a3a00 0.7
+# Inner dimple ring (smaller dots closer to center)
+circle 0.50,0.44 0.008 fill #5a3a00 0.6
+circle 0.56,0.50 0.008 fill #5a3a00 0.6
+circle 0.50,0.56 0.008 fill #5a3a00 0.6
+circle 0.44,0.50 0.008 fill #5a3a00 0.6
+# Highlight gleam on upper surface
+arc 0.5,0.5 0.09 200 250 stroke #ffe88a 0.6 width 1

@@ -1,60 +1,48 @@
 name: Floating Pillar
 category: Structure
-footprint: 2x1
+footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: yes
 height: 2.0
 placement: corner
-room_types: astral-anchor, astral-sea, planar-nexus
+room_types: astral-anchor, astral-sea, planar-nexus, ruined-temple
 typical_count: few
-clusters_with: pillar-floating, dead-god-fragment, drifting-stone
-notes: A suspended marble pillar broken at both ends, hanging motionless in the void. Soft violet mist drifts beneath where its base should be.
+clusters_with: drifting-stone, dead-god-fragment, astral-anchor-stone
+notes: Broken marble pillar hanging in the void — top-down view shows the cracked circular cross-section with mist drifting beneath
 ---
-# footprint 2x1: x range 0-1, y range 0-2
-
-# Hitbox: pillar shaft blocks light
-hitbox circle 0.5,1.0 0.32 z 0-2.0
-
-# Violet mist beneath (hints at gravitational oddity)
-ellipse 0.5,1.85 0.38,0.08 fill #8060d0 0.2
-ellipse 0.5,0.15 0.36,0.08 fill #8060d0 0.2
-
-# Broken upper end — irregular cracked top
-poly 0.32,0.08 0.5,0.02 0.68,0.1 0.72,0.22 0.66,0.32 0.52,0.36 0.36,0.32 0.3,0.22 texfill polyhaven/marble_01 0.85
-poly 0.32,0.08 0.5,0.02 0.68,0.1 0.72,0.22 0.66,0.32 0.52,0.36 0.36,0.32 0.3,0.22 stroke #555555 width 2
-
-# Main pillar shaft (circular top-down — tall column)
-circle 0.5,1.0 0.32 texfill polyhaven/marble_01 0.85
-circle 0.5,1.0 0.32 stroke #555555 width 2
-circle 0.5,1.0 0.26 stroke #888888 width 1
-
-# Fluting marks on shaft (radial)
-line 0.5,0.7 0.5,0.76 stroke #666666 width 1
-line 0.68,0.76 0.64,0.82 stroke #666666 width 1
-line 0.76,0.92 0.7,0.94 stroke #666666 width 1
-line 0.76,1.08 0.7,1.06 stroke #666666 width 1
-line 0.68,1.24 0.64,1.18 stroke #666666 width 1
-line 0.5,1.3 0.5,1.24 stroke #666666 width 1
-line 0.32,1.24 0.36,1.18 stroke #666666 width 1
-line 0.24,1.08 0.3,1.06 stroke #666666 width 1
-line 0.24,0.92 0.3,0.94 stroke #666666 width 1
-line 0.32,0.76 0.36,0.82 stroke #666666 width 1
-
-# Cracked crown (capital remnant)
-circle 0.5,1.0 0.08 fill #8a8a8a 0.6
-circle 0.5,1.0 0.08 stroke #555555
-
-# Broken lower end — irregular cracked bottom
-poly 0.3,1.78 0.42,1.68 0.58,1.66 0.7,1.76 0.72,1.88 0.58,1.96 0.44,1.96 0.3,1.9 texfill polyhaven/marble_01 0.85
-poly 0.3,1.78 0.42,1.68 0.58,1.66 0.7,1.76 0.72,1.88 0.58,1.96 0.44,1.96 0.3,1.9 stroke #555555 width 2
-
-# Crack highlights
-line 0.4,0.3 0.45,0.12 stroke #333333 width 1
-line 0.55,0.34 0.6,0.1 stroke #333333 width 1
-line 0.42,1.72 0.48,1.92 stroke #333333 width 1
-line 0.58,1.7 0.62,1.92 stroke #333333 width 1
-
-# Floating small rubble flakes
-circle 0.2,0.5 0.025 fill #8a8a8a 0.7
-circle 0.82,1.5 0.02 fill #8a8a8a 0.65
+# Hitbox — circular shaft blocks light
+hitbox circle 0.5,0.5 0.36 z 0-2.0
+# Drifting mist halo beneath the hovering pillar
+circle 0.5,0.5 0.46 gradient-radial #c0a0ff #1a1028 0.25
+# Outer pedestal ring (wider crown molding at the top)
+circle 0.5,0.5 0.40 texfill polyhaven/marble_01 0.75
+circle 0.5,0.5 0.40 stroke #6a5a80 width 2
+# Decorative inner ring (shaft edge)
+ring 0.5,0.5 0.32 0.28 fill #8070a0 0.5
+ring 0.5,0.5 0.32 0.28 stroke #4a3a60 width 1
+# Main shaft cross-section
+circle 0.5,0.5 0.28 texfill polyhaven/marble_01 0.85
+circle 0.5,0.5 0.28 stroke #6a5a80 width 1
+# Fluting marks (6 radial grooves)
+line 0.50,0.22 0.50,0.32 stroke #6a5a80 width 1
+line 0.50,0.68 0.50,0.78 stroke #6a5a80 width 1
+line 0.72,0.38 0.64,0.42 stroke #6a5a80 width 1
+line 0.28,0.38 0.36,0.42 stroke #6a5a80 width 1
+line 0.72,0.62 0.64,0.58 stroke #6a5a80 width 1
+line 0.28,0.62 0.36,0.58 stroke #6a5a80 width 1
+# Jagged crack — the pillar is broken across its length
+bezier 0.28,0.52 0.38,0.46 0.58,0.54 0.72,0.48 stroke #2a2038 width 2
+line 0.44,0.50 0.46,0.54 stroke #2a2038 width 1
+line 0.56,0.51 0.54,0.47 stroke #2a2038 width 1
+# Small chunks orbiting the pillar (floating debris)
+circle 0.14,0.28 0.04 fill #8070a0 0.75
+circle 0.14,0.28 0.04 stroke #4a3a60
+circle 0.86,0.74 0.03 fill #8070a0 0.75
+circle 0.86,0.74 0.03 stroke #4a3a60
+circle 0.86,0.22 0.025 fill #8070a0 0.70
+# Dust motes
+circle 0.20,0.72 0.012 fill #e0e0ff 0.7
+circle 0.78,0.30 0.012 fill #e0e0ff 0.7
+# Center highlight (polished marble)
+circle 0.50,0.50 0.08 fill #f8f0ff 0.5

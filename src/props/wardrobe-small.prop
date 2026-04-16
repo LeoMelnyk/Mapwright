@@ -1,0 +1,74 @@
+name: Child's Wardrobe
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: nursery
+typical_count: single
+clusters_with: cradle, toy-chest, bookshelf-child, rocking-chair
+notes: Small child-sized wardrobe; from above only the warm-wood top plank is visible with a stuffed toy sitting on it as decoration
+---
+# === HITBOX ===
+hitbox rect 0.06,0.10 1.88,0.80 z 0-4
+
+# Shadow/gap at wall (north edge)
+rect 0.04,0.04 1.92,0.06 fill #000000 0.15
+
+# Crown molding overhang (slightly wider than body, at north/wall side)
+rect 0.02,0.10 1.96,0.12 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.02,0.10 1.96,0.12 fill #d4a874 0.2
+rect 0.02,0.10 1.96,0.12 stroke #5c3a1e
+
+# Main top surface — warm wood plank
+rect 0.06,0.20 1.88,0.62 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.06,0.20 1.88,0.62 fill #d4a874 0.2
+rect 0.06,0.20 1.88,0.62 stroke #5c3a1e
+
+# Wood grain lines across the top
+line 0.10,0.36 1.90,0.36 stroke #5c3a1e 0.25
+line 0.10,0.52 1.90,0.52 stroke #5c3a1e 0.2
+line 0.10,0.68 1.90,0.68 stroke #5c3a1e 0.25
+
+# Door-seam hint barely visible on the top (where the two doors meet below)
+line 1.00,0.22 1.00,0.80 stroke #5c3a1e 0.3
+
+# Subtle dust/shadow at the back of the top surface (near wall)
+rect 0.08,0.22 1.84,0.10 fill #000000 0.08
+
+# South-edge trim line where the face panel would begin below
+rect 0.06,0.80 1.88,0.08 fill #6b4e2e 0.5
+rect 0.06,0.80 1.88,0.08 stroke #4a2800
+
+# === Stuffed bear sitting on top (decoration, west side) ===
+# Bear body
+ellipse 0.50,0.56 0.10,0.10 fill #c8a078 0.92
+ellipse 0.50,0.56 0.10,0.10 stroke #6a4828 width 1
+# Bear head
+circle 0.50,0.42 0.07 fill #c8a078 0.92
+circle 0.50,0.42 0.07 stroke #6a4828 width 1
+# Round ears
+circle 0.44,0.37 0.025 fill #c8a078 0.92
+circle 0.44,0.37 0.025 stroke #6a4828 width 1
+circle 0.56,0.37 0.025 fill #c8a078 0.92
+circle 0.56,0.37 0.025 stroke #6a4828 width 1
+# Tiny face — snout patch
+ellipse 0.50,0.44 0.025,0.018 fill #e0c098 0.9
+# Eye dots
+circle 0.47,0.41 0.008 fill #1a1208
+circle 0.53,0.41 0.008 fill #1a1208
+# Nose
+circle 0.50,0.435 0.010 fill #3a1f00 0.95
+# Paw pads on body
+circle 0.44,0.54 0.018 fill #e0c098 0.85
+circle 0.56,0.54 0.018 fill #e0c098 0.85
+
+# === Small wooden ball on top (east side) ===
+circle 1.50,0.50 0.08 fill #e4908c 0.92
+circle 1.50,0.50 0.08 stroke #8b4a48 width 1
+# Painted stripe on ball
+arc 1.50,0.50 0.07 200 340 stroke #f0e8a8 0.9 width 2
+# Highlight
+circle 1.47,0.47 0.020 fill #f4c4c0 0.8

@@ -1,0 +1,65 @@
+name: Mine Cart Track Crossing
+category: Structure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel
+typical_count: few
+clusters_with: cart-track, cart-track-turn, cart-track-t, headframe
+notes: Four-way level crossing for mine cart rail — tracks exit all four cell edges and interleave in a wooden deck at the centre
+---
+# === Horizontal track — ties + rails across E-W ===
+rect 0.08,0.28 0.10,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.28 0.10,0.22 stroke #3a1f00
+rect 0.08,0.50 0.10,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.50 0.10,0.22 stroke #3a1f00
+rect 0.82,0.28 0.10,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.82,0.28 0.10,0.22 stroke #3a1f00
+rect 0.82,0.50 0.10,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.82,0.50 0.10,0.22 stroke #3a1f00
+# === Vertical track — ties + rails across N-S ===
+rect 0.28,0.08 0.22,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.28,0.08 0.22,0.10 stroke #3a1f00
+rect 0.50,0.08 0.22,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.50,0.08 0.22,0.10 stroke #3a1f00
+rect 0.28,0.82 0.22,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.28,0.82 0.22,0.10 stroke #3a1f00
+rect 0.50,0.82 0.22,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.50,0.82 0.22,0.10 stroke #3a1f00
+# === Central wooden deck (timbers framing the intersection) ===
+rect 0.28,0.28 0.44,0.44 texfill polyhaven/worn_planks 0.85
+rect 0.28,0.28 0.44,0.44 stroke #3a1f00 width 2
+# Deck plank seams
+line 0.28,0.40 0.72,0.40 stroke #3a1f00 0.6 width 1
+line 0.28,0.54 0.72,0.54 stroke #3a1f00 0.6 width 1
+line 0.40,0.28 0.40,0.72 stroke #3a1f00 0.4 width 1
+line 0.60,0.28 0.60,0.72 stroke #3a1f00 0.4 width 1
+# === Horizontal iron rails ===
+rect 0.00,0.34 1.00,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.34 1.00,0.06 stroke #333333
+line 0.00,0.36 1.00,0.36 stroke #8899aa 0.7 width 1
+rect 0.00,0.60 1.00,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.60 1.00,0.06 stroke #333333
+line 0.00,0.62 1.00,0.62 stroke #8899aa 0.7 width 1
+# === Vertical iron rails ===
+rect 0.34,0.00 0.06,1.00 texfill polyhaven/rusty_metal 0.9
+rect 0.34,0.00 0.06,1.00 stroke #333333
+line 0.36,0.00 0.36,1.00 stroke #8899aa 0.7 width 1
+rect 0.60,0.00 0.06,1.00 texfill polyhaven/rusty_metal 0.9
+rect 0.60,0.00 0.06,1.00 stroke #333333
+line 0.62,0.00 0.62,1.00 stroke #8899aa 0.7 width 1
+# === Crossing frog plates at rail intersections (diamond-shaped iron patches) ===
+poly 0.37,0.34 0.40,0.37 0.37,0.40 0.34,0.37 fill #333333 0.95
+poly 0.63,0.34 0.66,0.37 0.63,0.40 0.60,0.37 fill #333333 0.95
+poly 0.37,0.60 0.40,0.63 0.37,0.66 0.34,0.63 fill #333333 0.95
+poly 0.63,0.60 0.66,0.63 0.63,0.66 0.60,0.63 fill #333333 0.95
+# Rust patches scattered on rails
+circle 0.10,0.37 0.020 fill #8b4000 0.7
+circle 0.88,0.63 0.020 fill #8b4000 0.65
+circle 0.37,0.14 0.018 fill #8b4000 0.65
+circle 0.63,0.88 0.018 fill #8b4000 0.6
+# Coal dust streaks
+ellipse 0.22,0.48 0.06,0.03 fill #0a0a0a 0.5
+ellipse 0.78,0.50 0.06,0.03 fill #0a0a0a 0.5

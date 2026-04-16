@@ -1,0 +1,54 @@
+name: Egg Sac
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: monster-lair-small, spider-lair, cave-drow-outpost, underdark-outpost
+typical_count: few
+clusters_with: spider-egg-cluster, cobweb-cluster, web-strand, carcass-fresh
+notes: Leathery hanging egg sac collapsed onto the floor — sickly translucent membrane with dark eggs visible inside through the skin.
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.52 0.32,0.28 z 0-0.25
+
+# Wet stain underneath (ichor seepage)
+ellipse 0.50,0.62 0.36,0.12 fill #3a3010 0.45
+
+# Main sac body (irregular blob — sickly yellow-grey membrane)
+poly 0.24,0.44 0.30,0.28 0.44,0.20 0.58,0.22 0.72,0.32 0.78,0.48 0.76,0.64 0.66,0.76 0.50,0.80 0.34,0.76 0.24,0.64 0.20,0.54 fill #b8b088 0.92
+poly 0.24,0.44 0.30,0.28 0.44,0.20 0.58,0.22 0.72,0.32 0.78,0.48 0.76,0.64 0.66,0.76 0.50,0.80 0.34,0.76 0.24,0.64 0.20,0.54 stroke #5a4820
+
+# Translucent sheen (greenish-yellow wash)
+poly 0.24,0.44 0.30,0.28 0.44,0.20 0.58,0.22 0.72,0.32 0.78,0.48 0.76,0.64 0.66,0.76 0.50,0.80 0.34,0.76 0.24,0.64 0.20,0.54 fill #c8c060 0.25
+
+# Veiny membrane pattern (translucent vessels)
+bezier 0.30,0.32 0.40,0.38 0.48,0.44 0.54,0.56 stroke #6a5028 0.6 width 1
+bezier 0.68,0.36 0.62,0.48 0.56,0.56 0.54,0.66 stroke #6a5028 0.55 width 1
+bezier 0.34,0.64 0.42,0.60 0.50,0.58 0.58,0.62 stroke #6a5028 0.5 width 1
+bezier 0.44,0.26 0.48,0.40 0.52,0.52 0.54,0.66 stroke #5a4020 0.5 width 1
+
+# Dark egg shapes visible inside through translucent membrane
+ellipse 0.40,0.40 0.07,0.06 fill #2a1a08 0.75
+ellipse 0.58,0.46 0.07,0.06 fill #2a1a08 0.78
+ellipse 0.46,0.58 0.07,0.06 fill #2a1a08 0.75
+ellipse 0.62,0.62 0.05,0.05 fill #2a1a08 0.7
+
+# Faint inner shadows on eggs (curled embryos)
+ellipse 0.40,0.40 0.05,0.04 fill #1a0f04 0.6
+ellipse 0.58,0.46 0.05,0.04 fill #1a0f04 0.6
+
+# Glistening highlight spot (wet sheen)
+ellipse 0.38,0.32 0.10,0.05 fill #ffffff 0.35
+ellipse 0.36,0.30 0.05,0.025 fill #ffffff 0.55
+
+# Torn silk strands dangling (dropped from above)
+line 0.26,0.26 0.22,0.18 stroke #d8d0b0 0.8 width 1
+line 0.70,0.28 0.74,0.18 stroke #d8d0b0 0.8 width 1
+line 0.56,0.22 0.56,0.14 stroke #d8d0b0 0.7 width 1
+
+# Small ichor droplet nearby
+circle 0.82,0.72 0.02 fill #6a5a20 0.7
+circle 0.18,0.78 0.016 fill #6a5a20 0.65

@@ -1,0 +1,65 @@
+name: Folding Screen
+category: Furniture
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.0
+placement: wall
+room_types: opium-den, brothel, harem, bedroom, decadent-study, parlor
+typical_count: single
+clusters_with: opium-couch, cushion-pile, candle-red, bed
+notes: Three-panel silk folding screen; divides a room or conceals a nook, mount along a wall
+---
+# === HITBOX ===
+hitbox rect 0.05,0.08 2.90,0.22 z 0-2.0
+
+# footprint 1x3: x range 0-3, y range 0-1
+
+# Drop shadow south of screen (hint of panels standing up)
+rect 0.10,0.30 2.80,0.14 fill #000000 0.20
+
+# Panel 1 frame (dark wood)
+rect 0.05,0.08 0.95,0.22 texfill polyhaven/dark_wood 0.9
+rect 0.05,0.08 0.95,0.22 stroke #1a1208
+
+# Panel 1 silk interior
+rect 0.10,0.12 0.85,0.14 texfill polyhaven/floral_jacquard 0.85
+rect 0.10,0.12 0.85,0.14 fill #3a1a4a 0.3
+rect 0.10,0.12 0.85,0.14 stroke #2a0820
+
+# Panel 2 frame
+rect 1.05,0.08 0.90,0.22 texfill polyhaven/dark_wood 0.9
+rect 1.05,0.08 0.90,0.22 stroke #1a1208
+
+# Panel 2 silk interior
+rect 1.10,0.12 0.80,0.14 texfill polyhaven/floral_jacquard 0.85
+rect 1.10,0.12 0.80,0.14 fill #4a1a3a 0.3
+rect 1.10,0.12 0.80,0.14 stroke #2a0820
+
+# Panel 3 frame
+rect 2.00,0.08 0.95,0.22 texfill polyhaven/dark_wood 0.9
+rect 2.00,0.08 0.95,0.22 stroke #1a1208
+
+# Panel 3 silk interior
+rect 2.05,0.12 0.85,0.14 texfill polyhaven/floral_jacquard 0.85
+rect 2.05,0.12 0.85,0.14 fill #3a1a4a 0.3
+rect 2.05,0.12 0.85,0.14 stroke #2a0820
+
+# Hinge circles between panels
+circle 1.00,0.12 0.035 fill #daa520 0.9
+circle 1.00,0.12 0.035 stroke #5a3a00
+circle 1.00,0.26 0.035 fill #daa520 0.9
+circle 1.00,0.26 0.035 stroke #5a3a00
+circle 2.00,0.12 0.035 fill #daa520 0.9
+circle 2.00,0.12 0.035 stroke #5a3a00
+circle 2.00,0.26 0.035 fill #daa520 0.9
+circle 2.00,0.26 0.035 stroke #5a3a00
+
+# Gold finial caps on panel tops (zig-zag top hint)
+circle 0.15,0.08 0.03 fill #daa520 0.9
+circle 0.95,0.08 0.03 fill #daa520 0.9
+circle 1.10,0.08 0.03 fill #daa520 0.9
+circle 1.90,0.08 0.03 fill #daa520 0.9
+circle 2.05,0.08 0.03 fill #daa520 0.9
+circle 2.90,0.08 0.03 fill #daa520 0.9

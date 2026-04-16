@@ -1,0 +1,97 @@
+name: Mine Cart (Empty)
+category: Misc
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel
+typical_count: few
+clusters_with: cart-track, cart-track-short, cart-track-turn, cart-track-t, cart-track-x, mine-cart, pickaxe, headframe
+notes: Empty iron-bound mine cart sized to straddle cart-track rails. Place on a track tile facing along the rail direction. Coal dust residue in the bed; no cargo.
+---
+# Hitbox — main body blocks light
+hitbox rect 0.15,0.20 1.70,0.60 z 0-1.5
+# === Wheels — small edge-on ellipses on each rail position ===
+# NW wheel
+ellipse 0.30,0.37 0.08,0.04 fill #444444 0.95
+ellipse 0.30,0.37 0.08,0.04 stroke #222222 width 1
+line 0.22,0.37 0.38,0.37 stroke #8899aa 0.55 width 1
+# NE wheel
+ellipse 1.70,0.37 0.08,0.04 fill #444444 0.95
+ellipse 1.70,0.37 0.08,0.04 stroke #222222 width 1
+line 1.62,0.37 1.78,0.37 stroke #8899aa 0.55 width 1
+# SW wheel
+ellipse 0.30,0.63 0.08,0.04 fill #444444 0.95
+ellipse 0.30,0.63 0.08,0.04 stroke #222222 width 1
+line 0.22,0.63 0.38,0.63 stroke #8899aa 0.55 width 1
+# SE wheel
+ellipse 1.70,0.63 0.08,0.04 fill #444444 0.95
+ellipse 1.70,0.63 0.08,0.04 stroke #222222 width 1
+line 1.62,0.63 1.78,0.63 stroke #8899aa 0.55 width 1
+# === Cart body (wooden box) ===
+rect 0.15,0.22 1.70,0.56 texfill polyhaven/dark_wood 0.9
+rect 0.15,0.22 1.70,0.56 stroke #1a1008 width 2
+# Wood grain lines
+line 0.40,0.23 0.40,0.77 stroke #2a1400 0.45 width 1
+line 0.90,0.23 0.90,0.77 stroke #2a1400 0.45 width 1
+line 1.40,0.23 1.40,0.77 stroke #2a1400 0.45 width 1
+# === Iron reinforcement bands ===
+rect 0.15,0.26 1.70,0.04 fill #555555 0.88
+rect 0.15,0.26 1.70,0.04 stroke #222222 width 1
+rect 0.15,0.70 1.70,0.04 fill #555555 0.88
+rect 0.15,0.70 1.70,0.04 stroke #222222 width 1
+# Vertical iron straps at the corners
+rect 0.16,0.22 0.06,0.56 fill #555555 0.88
+rect 0.16,0.22 0.06,0.56 stroke #222222 width 1
+rect 1.78,0.22 0.06,0.56 fill #555555 0.88
+rect 1.78,0.22 0.06,0.56 stroke #222222 width 1
+# Mid vertical straps
+rect 0.60,0.22 0.04,0.56 fill #555555 0.80
+rect 0.60,0.22 0.04,0.56 stroke #222222 width 1
+rect 1.36,0.22 0.04,0.56 fill #555555 0.80
+rect 1.36,0.22 0.04,0.56 stroke #222222 width 1
+# === Empty cart interior — visible wooden bed with coal-dust residue ===
+# Inner bed (weathered planks floor)
+rect 0.24,0.32 1.52,0.36 texfill polyhaven/weathered_planks 0.82
+rect 0.24,0.32 1.52,0.36 stroke #1a0800 width 1
+# Plank seams visible on the empty floor
+line 0.24,0.42 1.76,0.42 stroke #2a1400 0.55 width 1
+line 0.24,0.52 1.76,0.52 stroke #2a1400 0.55 width 1
+line 0.24,0.62 1.76,0.62 stroke #2a1400 0.55 width 1
+# Coal-dust residue — dark smears in the corners of the bed
+ellipse 0.34,0.38 0.08,0.03 fill #0a0a0a 0.45
+ellipse 1.66,0.38 0.08,0.03 fill #0a0a0a 0.45
+ellipse 0.34,0.62 0.08,0.03 fill #0a0a0a 0.45
+ellipse 1.66,0.62 0.08,0.03 fill #0a0a0a 0.45
+# A few leftover coal/rock bits rattling around
+circle 0.50,0.52 0.025 fill #1a1a1a 0.85
+circle 0.50,0.52 0.025 stroke #0a0a0a
+circle 1.30,0.46 0.022 fill #2a2a2a 0.85
+circle 1.30,0.46 0.022 stroke #0a0a0a
+circle 0.90,0.58 0.018 fill #1a1a1a 0.8
+# Tiny coal-dust specks
+circle 0.70,0.44 0.010 fill #0a0a0a 0.7
+circle 1.10,0.50 0.008 fill #0a0a0a 0.7
+circle 1.50,0.56 0.010 fill #0a0a0a 0.7
+# === Coupling hooks ===
+# Front (east) coupling
+rect 1.86,0.48 0.10,0.04 fill #666666 0.95
+rect 1.86,0.48 0.10,0.04 stroke #222222 width 1
+circle 1.96,0.50 0.03 fill #444444 0.95
+circle 1.96,0.50 0.03 stroke #222222 width 1
+# Back (west) coupling
+rect 0.04,0.48 0.10,0.04 fill #666666 0.95
+rect 0.04,0.48 0.10,0.04 stroke #222222 width 1
+circle 0.04,0.50 0.03 fill #444444 0.95
+circle 0.04,0.50 0.03 stroke #222222 width 1
+# === Rust patches on iron ===
+circle 0.20,0.28 0.022 fill #8b4000 0.65
+circle 1.75,0.72 0.022 fill #8b4000 0.65
+circle 0.80,0.26 0.015 fill #8b4000 0.55
+circle 1.30,0.74 0.018 fill #8b4000 0.55
+circle 1.82,0.28 0.016 fill #8b4000 0.55
+# Coal-dust smears on the outer body edges
+ellipse 0.30,0.78 0.08,0.02 fill #0a0a0a 0.5
+ellipse 1.60,0.20 0.08,0.02 fill #0a0a0a 0.5

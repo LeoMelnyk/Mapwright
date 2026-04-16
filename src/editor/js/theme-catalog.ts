@@ -1,11 +1,11 @@
 // Theme Catalog — loads .theme files, registers them with the renderer, provides previews.
-// Uses localStorage to cache theme data on subsequent loads.
+// Shipped themes come from /themes/bundle.json in one request (HTTP cached via ETag).
+// User-created themes load dynamically per-file via /api/user-themes.
 import type { Theme } from '../../types.js';
 import { THEMES, renderDungeonToCanvas, calculateCanvasSize } from '../../render/index.js';
 
 const BASE_URL = '/themes/';
-const CACHE_KEY = 'theme-catalog';
-const CACHE_VER_KEY = 'theme-catalog-ver';
+const BUNDLE_URL = '/themes/bundle.json';
 
 let catalog: {
   names: string[];
@@ -13,6 +13,15 @@ let catalog: {
   userNames: string[];
   userThemes: Record<string, Record<string, unknown>>;
 } | null = null;
+
+// One-time cleanup of the localStorage cache used by earlier versions
+// (shipped themes are now HTTP-cached, not mirrored in localStorage).
+try {
+  localStorage.removeItem('theme-catalog');
+  localStorage.removeItem('theme-catalog-ver');
+} catch {
+  /* storage unavailable */
+}
 
 // Minimal dungeon used for preview renders — a plain 3×3 room
 const PREVIEW_CELLS = [
@@ -46,35 +55,33 @@ export async function loadThemeCatalog(onProgress?: (loaded: number, total: numb
   if (catalog) return catalog;
 
   try {
-    const res = await fetch(`${BASE_URL}manifest.json`);
-    if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
-    const keys = await res.json();
-    const version = keys.join(',');
-
-    // Try localStorage cache
-    const cachedVer = localStorage.getItem(CACHE_VER_KEY);
-    if (cachedVer === version) {
-      try {
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!) as Record<string, Record<string, unknown>> | null;
-        if (cached && Object.keys(cached).length) {
-          if (onProgress) onProgress(keys.length, keys.length);
-          catalog = { ...buildFromData(cached), userNames: [], userThemes: {} };
-          // Still need to load user themes (not cached with built-ins)
-          await _loadUserThemes();
-          return catalog;
-        }
-      } catch {
-        /* cache corrupt, fall through */
+    // Try the bundle first — one HTTP request for all shipped themes.
+    // Browser HTTP cache + server ETag means subsequent loads get a 304
+    // with no body transfer.
+    const bundleRes = await fetch(BUNDLE_URL).catch(() => null);
+    if (bundleRes?.ok) {
+      const bundle = (await bundleRes.json()) as { version?: string; themes?: Record<string, Record<string, unknown>> };
+      if (bundle.themes && typeof bundle.themes === 'object') {
+        const keys = Object.keys(bundle.themes);
+        if (onProgress) onProgress(keys.length, keys.length);
+        catalog = { ...buildFromData(bundle.themes), userNames: [], userThemes: {} };
+        await _loadUserThemes();
+        return catalog;
       }
     }
 
-    // Fresh fetch
+    // Fallback: manifest + per-file fetch (fresh checkout before
+    // update-themes-manifest.js has run, or bundle malformed).
+    console.warn('[theme-catalog] bundle.json unavailable, falling back to per-file fetch');
+    const res = await fetch(`${BASE_URL}manifest.json`);
+    if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
+    const keys = await res.json();
     let loaded = 0;
     if (onProgress) onProgress(0, keys.length);
 
     const results = await Promise.allSettled(
       keys.map(async (key: string) => {
-        const r = await fetch(`${BASE_URL}${key}.theme`, { cache: 'no-cache' });
+        const r = await fetch(`${BASE_URL}${key}.theme`);
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
         loaded++;
@@ -83,24 +90,16 @@ export async function loadThemeCatalog(onProgress?: (loaded: number, total: numb
       }),
     );
 
-    const themeMap = {};
+    const themeMap: Record<string, Record<string, unknown>> = {};
     for (const result of results) {
       if (result.status === 'rejected') {
         console.warn('[theme-catalog] Failed to load theme:', result.reason);
         continue;
       }
-      (themeMap as Record<string, unknown>)[result.value.key] = result.value.data;
+      themeMap[result.value.key] = result.value.data;
     }
 
-    // Cache to localStorage
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(themeMap));
-      localStorage.setItem(CACHE_VER_KEY, version);
-    } catch {
-      /* localStorage full or unavailable */
-    }
-
-    catalog = { ...buildFromData(themeMap as Record<string, Record<string, unknown>>), userNames: [], userThemes: {} };
+    catalog = { ...buildFromData(themeMap), userNames: [], userThemes: {} };
   } catch (e) {
     console.warn('[theme-catalog] Could not load themes from server:', e);
     catalog = { names: [], themes: {}, userNames: [], userThemes: {} };

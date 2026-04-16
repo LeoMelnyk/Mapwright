@@ -1,0 +1,111 @@
+name: Blast Furnace
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: center
+room_types: foundry-great, infernal-forge, smithy-large
+typical_count: single
+clusters_with: ladle-iron, casting-pit, ingot-stack, slag-heap, overhead-crane
+lights:
+  - type: brazier
+    x: 1.0
+    y: 1.0
+    radius: 10
+    color: "#ff5520"
+    intensity: 0.85
+    falloff: linear
+notes: Towering industrial blast furnace — outer brick ring, iron band, molten fire core looking straight down the stack. Tuyère on one side, slag runnel opposite. Cluster with ladle-iron, casting-pit and overhead-crane.
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.88 z 0-4
+
+# === Outer heat halo on floor (drawn first) ===
+circle 1.0,1.0 0.98 fill #e85500 0.15
+
+# === Outer brick shell (widest ring — structural masonry) ===
+circle 1.0,1.0 0.90 texfill polyhaven/brick_4 0.88
+circle 1.0,1.0 0.90 stroke #0a0400 width 2
+# Weathered soot edge
+circle 1.0,1.0 0.90 fill #1a0a04 0.2
+
+# === Radial brick seams across outer ring ===
+line 1.00,0.10 1.00,0.36 stroke #0a0400 0.7
+line 1.00,1.64 1.00,1.90 stroke #0a0400 0.7
+line 0.10,1.00 0.36,1.00 stroke #0a0400 0.7
+line 1.64,1.00 1.90,1.00 stroke #0a0400 0.7
+line 0.36,0.36 0.52,0.52 stroke #0a0400 0.6
+line 1.64,0.36 1.48,0.52 stroke #0a0400 0.6
+line 0.36,1.64 0.52,1.48 stroke #0a0400 0.6
+line 1.64,1.64 1.48,1.48 stroke #0a0400 0.6
+
+# === Middle iron reinforcement band ===
+circle 1.0,1.0 0.72 texfill polyhaven/rusty_metal 0.8
+circle 1.0,1.0 0.72 fill #3a2818 0.45
+circle 1.0,1.0 0.72 stroke #1a1a1a width 3
+# Rivet studs around the band
+circle 1.0,0.30 0.035 fill #222222 0.95
+circle 1.0,0.30 0.035 stroke #050505
+circle 1.0,1.70 0.035 fill #222222 0.95
+circle 1.0,1.70 0.035 stroke #050505
+circle 0.30,1.0 0.035 fill #222222 0.95
+circle 0.30,1.0 0.035 stroke #050505
+circle 1.70,1.0 0.035 fill #222222 0.95
+circle 1.70,1.0 0.035 stroke #050505
+circle 0.50,0.50 0.028 fill #222222 0.95
+circle 1.50,0.50 0.028 fill #222222 0.95
+circle 0.50,1.50 0.028 fill #222222 0.95
+circle 1.50,1.50 0.028 fill #222222 0.95
+
+# === Inner refractory lining ring (dark heat-scarred stone) ===
+circle 1.0,1.0 0.58 fill #2a1408 0.95
+circle 1.0,1.0 0.58 texfill polyhaven/rock_boulder_cracked 0.55
+circle 1.0,1.0 0.58 stroke #0a0400 width 2
+
+# === Fire core — concentric rings looking straight down the stack ===
+# Outer heat halo in the throat
+circle 1.0,1.0 0.50 fill #cc3300 0.7
+# Outer flame ring — deep orange with ragged edge
+poly 1.00,0.56 1.14,0.62 1.28,0.66 1.36,0.78 1.44,1.00 1.36,1.22 1.28,1.34 1.14,1.38 1.00,1.44 0.86,1.38 0.72,1.34 0.64,1.22 0.56,1.00 0.64,0.78 0.72,0.66 0.86,0.62 fill #ff6020 0.85
+# Mid flame ring — bright orange
+circle 1.0,1.0 0.32 fill #ff8030 0.9
+# Flame tongues licking outward
+poly 1.00,0.54 0.94,0.66 1.06,0.66 fill #ffaa30 0.85
+poly 1.00,1.46 0.94,1.34 1.06,1.34 fill #ff8030 0.8
+poly 0.54,1.00 0.66,0.94 0.66,1.06 fill #ffaa30 0.8
+poly 1.46,1.00 1.34,0.94 1.34,1.06 fill #ff8030 0.8
+# Inner yellow ring
+circle 1.0,1.0 0.22 fill #ffcc60 0.9
+# Hot yellow-white core
+circle 1.0,1.0 0.14 fill #ffe890 0.95
+# Hottest white center (looking down the furnace axis)
+circle 1.0,1.0 0.07 fill #ffffff 1.0
+# Dark updraft soot specks near the core
+circle 0.86,0.82 0.02 fill #1a0800 0.6
+circle 1.14,0.84 0.02 fill #1a0800 0.6
+circle 0.84,1.16 0.02 fill #1a0800 0.6
+circle 1.16,1.14 0.02 fill #1a0800 0.6
+# Bright ember sparks
+circle 0.78,0.76 0.015 fill #ffcc60 0.9
+circle 1.22,0.78 0.015 fill #ffcc60 0.9
+
+# === Tuyère (air-blast pipe) jutting out west side ===
+rect 0.00,0.92 0.22,0.16 texfill polyhaven/metal_plate 0.88
+rect 0.00,0.92 0.22,0.16 stroke #1a1a1a width 2
+# Flange collar where pipe meets shell
+rect 0.14,0.84 0.10,0.32 fill #1a1a1a 0.95
+rect 0.14,0.84 0.10,0.32 stroke #050505
+circle 0.19,0.90 0.022 fill #050505
+circle 0.19,1.10 0.022 fill #050505
+
+# === Slag runnel (drip channel) opposite side — east ===
+rect 1.78,0.96 0.22,0.08 texfill polyhaven/rusty_metal 0.85
+rect 1.78,0.96 0.22,0.08 stroke #1a0a04
+# Glowing slag dribble inside runnel
+rect 1.80,0.98 0.18,0.04 fill #ff6020 0.8
+line 1.80,1.00 1.98,1.00 stroke #ffcc60 0.9 width 1
+# Slag pool splatter at end
+ellipse 1.96,1.00 0.05,0.04 fill #cc3300 0.8
+circle 1.94,1.00 0.02 fill #ffaa30 0.9

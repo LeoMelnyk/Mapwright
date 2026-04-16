@@ -1,0 +1,77 @@
+name: Small Hearth
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 1.2
+lights:
+  - type: candle
+    x: 1.0
+    y: 0.55
+    radius: 4
+    color: "#ff9944"
+    intensity: 0.35
+placement: wall
+room_types: nursery
+typical_count: single
+clusters_with: cradle, rocking-chair, nurse-stool, tiny-chair
+notes: Miniature child-safe fireplace with low stone surround, tiny fire, and a protective guard screen across the opening
+---
+# === HITBOX ===
+hitbox rect 0.10,0.08 1.80,0.80 z 0-1.2
+
+# === Stone surround — U-shape opening south ===
+# North back wall (thick stone)
+rect 0.10,0.08 1.80,0.22 texfill polyhaven/stone_wall 0.85
+rect 0.10,0.08 1.80,0.22 stroke #555555
+# West side wall
+rect 0.10,0.30 0.26,0.50 texfill polyhaven/stone_wall 0.85
+rect 0.10,0.30 0.26,0.50 stroke #555555
+# East side wall
+rect 1.64,0.30 0.26,0.50 texfill polyhaven/stone_wall 0.85
+rect 1.64,0.30 0.26,0.50 stroke #555555
+
+# Small stone detail blocks along the back
+line 0.50,0.16 0.50,0.30 stroke #555555 0.7 width 1
+line 1.00,0.14 1.00,0.30 stroke #555555 0.7 width 1
+line 1.50,0.16 1.50,0.30 stroke #555555 0.7 width 1
+
+# === Firebox floor — sooty brick ===
+rect 0.36,0.30 1.28,0.52 texfill polyhaven/brick_4 0.7
+rect 0.36,0.30 1.28,0.52 stroke #3a2010
+
+# Soot darkening at back
+ellipse 1.00,0.40 0.50,0.10 fill #1a0800 0.35
+
+# === Concentric fire rings (small — half size of normal hearth) ===
+# Outer heat halo
+circle 1.00,0.55 0.26 fill #e85500 0.22
+# Outer orange ring
+circle 1.00,0.55 0.20 fill #ff6020 0.55
+# Mid yellow-orange
+circle 1.00,0.55 0.14 fill #ff8030 0.75
+# Inner yellow core
+circle 1.00,0.55 0.09 fill #ffcc60 0.9
+# Hot white center
+circle 1.00,0.55 0.05 fill #ffe890 0.95
+circle 1.00,0.55 0.025 fill #ffffff 0.9
+
+# Tiny ember sparks
+circle 0.82,0.48 0.012 fill #ffaa00 0.7
+circle 1.18,0.50 0.012 fill #ffcc00 0.7
+circle 0.90,0.66 0.010 fill #ff8800 0.6
+
+# === Fire guard screen — thin arc of iron bars across south opening (child safety) ===
+arc 1.00,0.84 0.14 200 340 stroke #555555 width 2
+# Vertical bars dropped from the arc
+line 0.50,0.82 0.50,0.84 stroke #555555 width 2
+line 0.70,0.74 0.70,0.84 stroke #555555 width 2
+line 0.90,0.72 0.90,0.84 stroke #555555 width 2
+line 1.10,0.72 1.10,0.84 stroke #555555 width 2
+line 1.30,0.74 1.30,0.84 stroke #555555 width 2
+line 1.50,0.82 1.50,0.84 stroke #555555 width 2
+
+# === Front stone lip ===
+rect 0.10,0.80 1.80,0.10 texfill polyhaven/stone_wall 0.8
+rect 0.10,0.80 1.80,0.10 stroke #444444

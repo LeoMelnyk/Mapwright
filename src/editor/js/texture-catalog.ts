@@ -1,6 +1,8 @@
 import type { CellGrid, TextureCatalog, TextureRuntime } from '../../types.js';
 // Texture Catalog — loads .texture metadata and lazily loads PNG images on demand.
-// Mirrors the pattern of theme-catalog.js and prop-catalog.js.
+// Metadata comes from /textures/bundle.json in one request (HTTP cached via ETag);
+// PNG images stay per-file and load lazily through the browser's Image element.
+// Mirrors the pattern of theme-catalog.ts and prop-catalog.ts.
 
 import { showToast } from './toast.js';
 import { allSettledWithLimit } from './async-batch.js';
@@ -19,11 +21,49 @@ interface TextureMetadata {
   credit: string;
 }
 
+/** Raw .texture file contents (what the server serves / writes). */
+interface RawTextureFile {
+  displayName?: string;
+  category?: string;
+  subcategory?: string | null;
+  file: string;
+  scale?: number;
+  credit?: string;
+  maps?: {
+    disp?: string | null;
+    nor?: string | null;
+    arm?: string | null;
+  };
+}
+
 const BASE_URL = '/textures/';
-const CACHE_KEY = 'texture-catalog';
-const CACHE_VER_KEY = 'texture-catalog-ver';
+const BUNDLE_URL = '/textures/bundle.json';
 
 let catalog: TextureCatalog | null = null; // { names, textures, byCategory, categoryOrder }
+
+// One-time cleanup of the localStorage cache used by earlier versions
+// (metadata is now HTTP-cached, not mirrored in localStorage).
+try {
+  localStorage.removeItem('texture-catalog');
+  localStorage.removeItem('texture-catalog-ver');
+} catch {
+  /* storage unavailable */
+}
+
+function normalizeMetadata(id: string, data: RawTextureFile): TextureMetadata {
+  return {
+    id,
+    displayName: data.displayName ?? id,
+    category: data.category ?? 'Uncategorized',
+    subcategory: data.subcategory ?? null,
+    file: data.file,
+    scale: data.scale ?? 2.0,
+    credit: data.credit ?? '',
+    dispFile: data.maps?.disp ?? null,
+    norFile: data.maps?.nor ?? null,
+    armFile: data.maps?.arm ?? null,
+  };
+}
 
 /**
  * A texture entry in the catalog:
@@ -94,34 +134,36 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
   if (catalog) return catalog;
 
   try {
-    const res = await fetch(`${BASE_URL}manifest.json`);
-    if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
-    const keys = await res.json();
-    const version = keys.join(',');
-
-    // Try localStorage cache
-    const cachedVer = localStorage.getItem(CACHE_VER_KEY);
-    if (cachedVer === version) {
-      try {
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!) as TextureMetadata[] | null;
-        if (cached?.length) {
-          catalog = buildFromMetadata(cached);
-          return catalog;
+    // Try the bundle first — one HTTP request for all texture metadata.
+    // Browser HTTP cache + server ETag means subsequent loads get a 304
+    // with no body transfer. Binary PNGs are not included in the bundle
+    // (too large); they load lazily via loadTextureImages(id).
+    const bundleRes = await fetch(BUNDLE_URL).catch(() => null);
+    if (bundleRes?.ok) {
+      const bundle = (await bundleRes.json()) as { version?: string; textures?: Record<string, RawTextureFile> };
+      if (bundle.textures && typeof bundle.textures === 'object') {
+        const entries: TextureMetadata[] = [];
+        for (const [id, data] of Object.entries(bundle.textures)) {
+          entries.push(normalizeMetadata(id, data));
         }
-      } catch {
-        /* cache corrupt, fall through to fresh fetch */
+        catalog = buildFromMetadata(entries);
+        return catalog;
       }
     }
 
-    // Fresh fetch — load all .texture files
+    // Fallback: manifest + per-file fetch (bundle.json missing or malformed).
+    console.warn('[texture-catalog] bundle.json unavailable, falling back to per-file fetch');
+    const res = await fetch(`${BASE_URL}manifest.json`);
+    if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
+    const keys = await res.json();
+
     const results = await allSettledWithLimit(keys, 32, async (key: string) => {
-      const r = await fetch(`${BASE_URL}${key}.texture`, { cache: 'no-cache' });
+      const r = await fetch(`${BASE_URL}${key}.texture`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return { key, data: await r.json() };
+      return { key, data: (await r.json()) as RawTextureFile };
     });
 
-    // Build serializable metadata array
-    const metadataEntries = [];
+    const metadataEntries: TextureMetadata[] = [];
     let textureFailCount = 0;
     for (const result of results) {
       if (result.status === 'rejected') {
@@ -130,33 +172,14 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
         continue;
       }
       const { key, data } = result.value;
-      metadataEntries.push({
-        id: key,
-        displayName: data.displayName ?? key,
-        category: data.category ?? 'Uncategorized',
-        subcategory: data.subcategory ?? null,
-        file: data.file,
-        scale: data.scale ?? 2.0,
-        credit: data.credit ?? '',
-        dispFile: data.maps?.disp ?? null,
-        norFile: data.maps?.nor ?? null,
-        armFile: data.maps?.arm ?? null,
-      });
+      metadataEntries.push(normalizeMetadata(key, data));
     }
 
     if (textureFailCount > 0) {
       showToast(`Failed to load ${textureFailCount} texture(s) — some textures may not render`);
     }
 
-    // Cache metadata to localStorage
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(metadataEntries));
-      localStorage.setItem(CACHE_VER_KEY, version);
-    } catch {
-      /* localStorage full or unavailable — ignore */
-    }
-
-    catalog = buildFromMetadata(metadataEntries as TextureMetadata[]);
+    catalog = buildFromMetadata(metadataEntries);
   } catch (e) {
     console.warn('[texture-catalog] Could not load textures from server:', e);
     showToast('Could not load texture catalog — textures unavailable');

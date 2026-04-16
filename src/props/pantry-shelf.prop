@@ -1,0 +1,61 @@
+name: Pantry Shelf
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: wall
+room_types: pantry, kitchen-keep, farmhouse-kitchen, alchemy-lab
+typical_count: many
+clusters_with: jar, bottle, grain-sack, hanging-ham, bar-counter
+notes: Wall-mounted shelf with jars and bottles lined up — top-down shows thin wooden shelf along north wall with circular lids of containers poking up
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: wooden shelf top overhangs the shelf body; jar/bottle tops sit on it
+
+# === Shelf body (recessed below the top) ===
+rect 0.08,0.08 1.84,0.62 fill #2a1400 0.35
+line 0.08,0.08 0.08,0.70 stroke #3a1f00
+line 1.92,0.08 1.92,0.70 stroke #3a1f00
+line 0.08,0.70 1.92,0.70 stroke #3a1f00
+
+# === Wooden shelf top (overhangs body slightly) ===
+rect 0.0,0.0 2.0,0.60 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.0,0.0 2.0,0.60 stroke #3a1f00
+# Front trim line where top meets face
+line 0.0,0.58 2.0,0.58 stroke #2a1400 0.7
+
+# === Jars and bottles lined up along the shelf (circular lids seen from above) ===
+# Large jar (west)
+circle 0.28,0.30 0.14 fill #a87850 0.8
+circle 0.28,0.30 0.14 stroke #3a1f00
+circle 0.28,0.30 0.10 texfill polyhaven/rough_linen 0.85
+circle 0.28,0.30 0.10 stroke #5c3a1e
+line 0.20,0.26 0.36,0.34 stroke #3a2010 0.7 width 1
+
+# Small bottle
+circle 0.58,0.30 0.09 fill #4a7060 0.7
+circle 0.58,0.30 0.09 stroke #1a2818
+circle 0.58,0.30 0.05 texfill polyhaven/dark_wood 0.85
+circle 0.58,0.30 0.05 stroke #1a0f00
+
+# Medium jar (center-east)
+circle 0.92,0.30 0.12 fill #8b6844 0.8
+circle 0.92,0.30 0.12 stroke #3a1f00
+circle 0.92,0.30 0.09 texfill polyhaven/rough_linen 0.85
+circle 0.92,0.30 0.09 stroke #5c3a1e
+line 0.86,0.27 0.98,0.33 stroke #3a2010 0.7 width 1
+
+# Tall narrow bottle
+circle 1.24,0.30 0.08 fill #3a5848 0.75
+circle 1.24,0.30 0.08 stroke #1a2818
+circle 1.24,0.30 0.045 texfill polyhaven/dark_wood 0.85
+circle 1.24,0.30 0.045 stroke #1a0f00
+
+# Big jar (east)
+circle 1.58,0.30 0.15 fill #a87850 0.8
+circle 1.58,0.30 0.15 stroke #3a1f00
+circle 1.58,0.30 0.11 texfill polyhaven/rough_linen 0.85
+circle 1.58,0.30 0.11 stroke #5c3a1e
+line 1.49,0.26 1.67,0.34 stroke #3a2010 0.7 width 1

@@ -76,8 +76,10 @@ Theme files are JSON files in `src/themes/` that control the visual appearance o
 ### Adding a New Theme
 
 1. Create `your-theme.theme` in `src/themes/`
-2. Add `"your-theme"` to `src/themes/manifest.json`
-3. Include all required color fields (see schema above)
+2. Include all required color fields (see schema above)
+3. Run `node mapwright/tools/update-themes-manifest.js` — regenerates both `manifest.json` (sorted key list) and `bundle.json` (one-shot client load with all theme bodies + content-hash version).
+
+**The editor will serve stale themes until you run this script.** The client fetches `bundle.json` first and falls back to per-file fetches if the bundle is missing. User-created themes (stored under `MAPWRIGHT_THEME_PATH`) are not part of the bundle — they always load dynamically.
 
 ---
 

@@ -1,0 +1,48 @@
+name: Opium Pipe
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: opium-den, brothel, decadent-study, parlor
+typical_count: few
+clusters_with: opium-couch, cushion-pile, pipe-ash, teacup, candle-red
+notes: Long curved opium pipe; place on tables, couches, or cushions
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Pipe stem (long curved bezier, dark wood)
+bezier 0.12,0.72 0.30,0.30 0.60,0.60 0.88,0.22 stroke #2a1400 width 6
+bezier 0.12,0.72 0.30,0.30 0.60,0.60 0.88,0.22 stroke #5c3a1e width 3
+
+# Decorative ornate wrap band mid-stem
+circle 0.45,0.48 0.055 fill #daa520 0.9
+circle 0.45,0.48 0.055 stroke #5a3a00
+line 0.42,0.44 0.48,0.52 stroke #8b6914 0.8
+
+# Bowl end (bowl chamber — small circle at stem tip)
+circle 0.14,0.74 0.09 fill #333333 0.9
+circle 0.14,0.74 0.09 stroke #1a1208 width 2
+
+# Bowl inner dark opening
+circle 0.14,0.74 0.05 fill #1a0800 0.95
+
+# Tiny ember glow in bowl
+circle 0.14,0.74 0.025 fill #ff6600 0.7
+circle 0.14,0.74 0.012 fill #ffaa00 0.85
+
+# Mouthpiece bead at other end
+circle 0.88,0.22 0.055 fill #e8dcc8 0.95
+circle 0.88,0.22 0.055 stroke #3a1f00
+
+# Mouthpiece inner hole
+circle 0.88,0.22 0.02 fill #1a0800 0.9
+
+# Gold ring collar near mouthpiece
+circle 0.80,0.28 0.035 stroke #daa520 width 2
+
+# Decorative tassel hanging off mid-stem
+line 0.45,0.52 0.50,0.70 stroke #8a1020 width 2
+circle 0.50,0.72 0.025 fill #daa520 0.85

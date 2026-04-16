@@ -1,0 +1,50 @@
+name: Cutting Table
+category: Furniture
+footprint: 2x3
+facing: yes
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: center
+room_types: shop-tailor, merchant-house, textile-loomhouse, workshop
+typical_count: single
+clusters_with: sewing-bench, mannequin, scissors-shears, measuring-tape, buttons-jar
+notes: Large flat cutting surface for fabric work; place centrally with walking space around it
+---
+# === HITBOX ===
+hitbox rect 0.12,0.12 2.76,1.76 z 2-2.5
+
+# Table top (wood surface)
+rect 0.12,0.12 2.76,1.76 texfill polyhaven/wood_table 0.85
+rect 0.12,0.12 2.76,1.76 stroke #5c3a1e
+# Leg shadows in corners
+circle 0.28,0.28 0.07 fill #3a1f00 0.5
+circle 2.72,0.28 0.07 fill #3a1f00 0.5
+circle 0.28,1.72 0.07 fill #3a1f00 0.5
+circle 2.72,1.72 0.07 fill #3a1f00 0.5
+# Pattern paper sheet draped across table (off-white)
+rect 0.55,0.30 1.90,1.30 fill #f0e8d4 0.75
+rect 0.55,0.30 1.90,1.30 stroke #b8a888 width 1
+# Faint pattern lines on paper
+line 0.70,0.60 2.30,0.60 stroke #a89878 0.5
+line 0.70,1.00 2.30,1.00 stroke #a89878 0.5
+line 0.70,1.30 2.30,1.30 stroke #a89878 0.5
+# Diagonal pattern guides
+line 0.80,0.40 1.60,1.50 stroke #a89878 0.4
+line 1.80,0.40 2.30,1.20 stroke #a89878 0.4
+# Chalk marks on paper
+line 1.10,0.75 1.30,0.80 stroke #ffffff width 2
+line 1.50,1.10 1.70,1.18 stroke #ffffff width 2
+# Tape measure coil (small ring, south-east of paper)
+circle 2.65,1.55 0.13 fill #e8dcc8 0.9
+circle 2.65,1.55 0.13 stroke #5c3a1e
+circle 2.65,1.55 0.06 fill #3a2810 0.8
+# Tape end trailing out
+bezier 2.54,1.55 2.40,1.60 2.30,1.70 2.20,1.72 stroke #e8dcc8 width 2
+# Shears resting on table (X-shape, upper-left)
+line 0.30,1.65 0.52,1.45 stroke #8899aa width 3
+line 0.52,1.65 0.30,1.45 stroke #8899aa width 3
+circle 0.41,1.55 0.03 fill #555555 0.9
+# Shear handle loops
+circle 0.28,1.67 0.04 stroke #5c3a1e width 2
+circle 0.54,1.67 0.04 stroke #5c3a1e width 2

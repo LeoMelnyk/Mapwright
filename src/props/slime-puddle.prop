@@ -1,0 +1,52 @@
+name: Slime Puddle
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: monster-lair-small, sewer, cave, ooze-den, dungeon
+typical_count: few
+clusters_with: blood-smear, blood-stain, gnawed-bone, carcass-fresh, fungal-growth
+notes: Small residual slime puddle — sickly green-yellow, glistening, left behind by an ooze's passage.
+---
+# === HITBOX ===
+hitbox ellipse 0.50,0.54 0.32,0.26 z 0-0.02
+
+# Outer wet halo (where slime seeped thin)
+poly 0.18,0.46 0.24,0.32 0.38,0.26 0.54,0.26 0.68,0.32 0.78,0.44 0.82,0.58 0.78,0.72 0.66,0.82 0.50,0.86 0.34,0.84 0.22,0.76 0.16,0.62 fill #4a5020 0.45
+
+# Main slime body (irregular blobby shape — sickly green-yellow)
+poly 0.24,0.48 0.30,0.36 0.42,0.30 0.56,0.32 0.66,0.40 0.72,0.52 0.70,0.64 0.62,0.74 0.48,0.78 0.34,0.76 0.26,0.68 0.22,0.58 fill #8a9028 0.85
+poly 0.24,0.48 0.30,0.36 0.42,0.30 0.56,0.32 0.66,0.40 0.72,0.52 0.70,0.64 0.62,0.74 0.48,0.78 0.34,0.76 0.26,0.68 0.22,0.58 stroke #4a5010
+
+# Inner denser core (darker yellow-green)
+poly 0.32,0.50 0.40,0.40 0.52,0.42 0.60,0.50 0.58,0.62 0.46,0.68 0.36,0.62 fill #6a7018 0.85
+
+# Bubble / air pocket circles
+circle 0.38,0.44 0.05 fill #a8b040 0.7
+circle 0.38,0.44 0.05 stroke #4a5010 0.8
+circle 0.58,0.58 0.038 fill #a8b040 0.7
+circle 0.58,0.58 0.038 stroke #4a5010 0.8
+circle 0.48,0.66 0.025 fill #a8b040 0.65
+
+# Tiny bubble highlights
+circle 0.37,0.43 0.018 fill #d8e060 0.6
+circle 0.57,0.57 0.014 fill #d8e060 0.55
+
+# Glistening highlight spot (wet sheen catching light)
+ellipse 0.38,0.38 0.08,0.04 fill #ffffff 0.45
+ellipse 0.36,0.37 0.04,0.02 fill #ffffff 0.7
+
+# Thinner stretched trail (a strand being left behind)
+poly 0.68,0.72 0.76,0.76 0.82,0.82 0.80,0.86 0.72,0.82 fill #8a9028 0.7
+poly 0.68,0.72 0.76,0.76 0.82,0.82 0.80,0.86 0.72,0.82 stroke #4a5010 0.7
+
+# Tiny slime droplet spatter
+circle 0.14,0.30 0.018 fill #8a9028 0.7
+circle 0.86,0.32 0.015 fill #8a9028 0.7
+circle 0.12,0.72 0.014 fill #8a9028 0.65
+
+# Dark fleck suspended in the slime (something being dissolved)
+ellipse 0.48,0.56 0.03,0.02 fill #1a1a04 0.8

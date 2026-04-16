@@ -1,0 +1,70 @@
+name: Painted Nursery Screen
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: wall
+room_types: nursery
+typical_count: single
+clusters_with: cradle, rocking-chair, nurse-stool, hearth-small
+notes: Three-panel folding screen in a shallow zigzag, each panel painted with a simple nursery motif (rabbit, cloud, star)
+---
+# === HITBOX ===
+hitbox rect 0.08,0.30 1.84,0.30 z 0-1.8
+
+# === Panel 1 (west) — angled +15° ===
+# Panel body
+poly 0.10,0.30 0.68,0.38 0.68,0.54 0.10,0.46 texfill polyhaven/wood_table 0.82
+poly 0.10,0.30 0.68,0.38 0.68,0.54 0.10,0.46 fill #f0d8b8 0.35
+poly 0.10,0.30 0.68,0.38 0.68,0.54 0.10,0.46 stroke #8b7355
+
+# Panel 1 motif — tiny painted rabbit silhouette
+ellipse 0.35,0.42 0.06,0.045 fill #d4a0b0 0.9
+ellipse 0.35,0.42 0.06,0.045 stroke #7a4050 width 1
+# Rabbit ears
+poly 0.32,0.38 0.33,0.34 0.35,0.40 fill #d4a0b0 0.9
+poly 0.32,0.38 0.33,0.34 0.35,0.40 stroke #7a4050 width 1
+poly 0.37,0.39 0.39,0.34 0.40,0.40 fill #d4a0b0 0.9
+poly 0.37,0.39 0.39,0.34 0.40,0.40 stroke #7a4050 width 1
+# Tiny tail
+circle 0.29,0.43 0.012 fill #f4ecd4 0.95
+
+# === Panel 2 (middle) — angled -15° ===
+poly 0.68,0.38 1.32,0.30 1.32,0.46 0.68,0.54 texfill polyhaven/wood_table 0.82
+poly 0.68,0.38 1.32,0.30 1.32,0.46 0.68,0.54 fill #f0d8b8 0.35
+poly 0.68,0.38 1.32,0.30 1.32,0.46 0.68,0.54 stroke #8b7355
+
+# Panel 2 motif — painted cloud
+ellipse 0.95,0.38 0.10,0.04 fill #f4f4f8 0.95
+ellipse 1.00,0.36 0.08,0.035 fill #f4f4f8 0.95
+ellipse 1.05,0.38 0.07,0.035 fill #f4f4f8 0.95
+ellipse 0.95,0.38 0.10,0.04 stroke #a8b0bc width 1
+ellipse 1.00,0.36 0.08,0.035 stroke #a8b0bc width 1
+ellipse 1.05,0.38 0.07,0.035 stroke #a8b0bc width 1
+
+# === Panel 3 (east) — angled +15° ===
+poly 1.32,0.30 1.90,0.38 1.90,0.54 1.32,0.46 texfill polyhaven/wood_table 0.82
+poly 1.32,0.30 1.90,0.38 1.90,0.54 1.32,0.46 fill #f0d8b8 0.35
+poly 1.32,0.30 1.90,0.38 1.90,0.54 1.32,0.46 stroke #8b7355
+
+# Panel 3 motif — painted star
+poly 1.60,0.34 1.615,0.39 1.670,0.39 1.625,0.42 1.645,0.475 1.60,0.445 1.555,0.475 1.575,0.42 1.530,0.39 1.585,0.39 fill #f0c840 0.9
+poly 1.60,0.34 1.615,0.39 1.670,0.39 1.625,0.42 1.645,0.475 1.60,0.445 1.555,0.475 1.575,0.42 1.530,0.39 1.585,0.39 stroke #8a7020 width 1
+
+# === Rod frame along the north (top) edge — pale wood ===
+line 0.10,0.30 0.68,0.38 stroke #6b4e2e width 2
+line 0.68,0.38 1.32,0.30 stroke #6b4e2e width 2
+line 1.32,0.30 1.90,0.38 stroke #6b4e2e width 2
+
+# Finial caps at panel junctions
+circle 0.10,0.30 0.025 fill #daa520 0.9
+circle 0.10,0.30 0.025 stroke #8b6914
+circle 0.68,0.38 0.022 fill #daa520 0.85
+circle 1.32,0.30 0.022 fill #daa520 0.85
+circle 1.90,0.38 0.025 fill #daa520 0.9
+circle 1.90,0.38 0.025 stroke #8b6914
+
+# Subtle south-edge shadow hinting at the screen's downward drop
+rect 0.10,0.56 1.80,0.04 fill #000000 0.12

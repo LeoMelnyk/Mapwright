@@ -1,0 +1,46 @@
+name: Cushion Pile
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: opium-den, harem, throne-room, brothel, tent-interior
+typical_count: few
+clusters_with: opium-couch, opium-pipe, teapot, teacup, rug
+notes: Stack of silk cushions for lounging; scatter on floors near couches and low tables
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 0.84,0.84 z 0-0.3
+
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Bottom cushion (deep purple, largest)
+rect 0.08,0.32 0.84,0.52 texfill polyhaven/velour_velvet 0.85
+rect 0.08,0.32 0.84,0.52 fill #3a1a4a 0.45
+rect 0.08,0.32 0.84,0.52 stroke #1a0828
+
+# Bottom cushion tassels (corners)
+circle 0.08,0.84 0.04 fill #daa520 0.85
+circle 0.92,0.84 0.04 fill #daa520 0.85
+
+# Middle cushion (gold, offset)
+rect 0.14,0.20 0.72,0.44 texfill polyhaven/floral_jacquard 0.8
+rect 0.14,0.20 0.72,0.44 fill #8b6914 0.35
+rect 0.14,0.20 0.72,0.44 stroke #5a3a00
+
+# Middle cushion tassel
+circle 0.14,0.62 0.035 fill #5a3a00 0.85
+circle 0.86,0.62 0.035 fill #5a3a00 0.85
+
+# Top cushion (crimson silk, smallest)
+rect 0.22,0.12 0.56,0.34 texfill polyhaven/velour_velvet 0.8
+rect 0.22,0.12 0.56,0.34 fill #8a1020 0.5
+rect 0.22,0.12 0.56,0.34 stroke #4a0810
+
+# Top cushion highlight (silk sheen)
+line 0.26,0.18 0.74,0.18 stroke #d06070 0.5
+
+# Top tassel at center
+circle 0.5,0.12 0.03 fill #daa520 0.9

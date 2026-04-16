@@ -121,17 +121,47 @@ function getRequiredTextureIds() {
   return [...ids];
 }
 
-// Writes manifest.json to the textures directory (parent of destDir/polyhaven/)
-// by scanning all .texture files present. Called after every download session
-// so the editor and server-side renderer know what's available.
+// Writes manifest.json AND bundle.json to the textures directory by scanning
+// all .texture files present in destDir. Called after every download session
+// so the editor and server-side renderer see new textures immediately.
+//
+// manifest.json — flat array of ids (used for the per-file fallback path).
+// bundle.json   — { version, textures: { id: parsedMetadata } } for one-shot
+//                 client load. Binary PNGs stay per-file (browser lazy-loads
+//                 them via Image.src); only the small .texture metadata files
+//                 get bundled.
 function writeManifest(destDir) {
   try {
-    const ids = fs
+    const texturesDir = path.dirname(destDir);
+    const files = fs
       .readdirSync(destDir)
       .filter((f) => f.endsWith('.texture'))
-      .map((f) => `polyhaven/${path.basename(f, '.texture')}`)
       .sort();
-    fs.writeFileSync(path.join(path.dirname(destDir), 'manifest.json'), JSON.stringify(ids, null, 2));
+
+    const ids = files.map((f) => `polyhaven/${path.basename(f, '.texture')}`);
+    fs.writeFileSync(path.join(texturesDir, 'manifest.json'), JSON.stringify(ids, null, 2));
+
+    const textures = {};
+    const hasher = crypto.createHash('sha256');
+    for (const file of files) {
+      const id = `polyhaven/${path.basename(file, '.texture')}`;
+      try {
+        const text = fs.readFileSync(path.join(destDir, file), 'utf-8');
+        const data = JSON.parse(text);
+        textures[id] = data;
+        hasher.update(id);
+        hasher.update('\0');
+        hasher.update(text);
+        hasher.update('\0');
+      } catch {
+        /* skip unreadable or malformed .texture files */
+      }
+    }
+    const version = hasher.digest('hex').slice(0, 16);
+    fs.writeFileSync(
+      path.join(texturesDir, 'bundle.json'),
+      JSON.stringify({ version, textures }),
+    );
   } catch {
     /* ignore — dir may not exist yet */
   }

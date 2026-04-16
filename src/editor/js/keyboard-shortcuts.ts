@@ -227,9 +227,11 @@ export function initKeyboardShortcuts(
         // Delete the props
         pushUndo('Cut props');
         for (const anchor of state.selectedPropAnchors) {
-          const entry = lookupPropAt(anchor.row, anchor.col);
-          if (entry && meta.props) {
-            const idx = meta.props.findIndex((p: { id: number | string }) => p.id === entry.propId);
+          // Use propId when available to avoid deleting the overlapping prop on top
+          const propId =
+            anchor.propId ?? lookupPropAt(anchor.row, anchor.col)?.propId;
+          if (propId != null && meta.props) {
+            const idx = meta.props.findIndex((p: { id: number | string }) => p.id === propId);
             if (idx >= 0) meta.props.splice(idx, 1);
           }
         }
@@ -253,8 +255,12 @@ export function initKeyboardShortcuts(
         state.selectedProp = null;
         state.propRotation = 0;
         state.propScale = 1.0;
-        notify();
       }
+      // Clear existing prop selection — paste mode should act like an armed stamp,
+      // where keyboard transforms apply to the ghost, not to previously-selected props.
+      state.selectedPropAnchors = [];
+      state.selectedPropIds = [];
+      notify();
       state.propPasteMode = true;
       canvasView.requestRender();
       return;

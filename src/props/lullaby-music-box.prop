@@ -1,0 +1,55 @@
+name: Lullaby Music Box
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: nursery
+typical_count: single
+clusters_with: cradle, picture-book, nurse-stool, lullaby-music-box
+notes: Ornate wooden music box with brass trim, spinning disc visible through a round window in the top, and a tiny brass crank on one side
+---
+# === HITBOX ===
+hitbox rect 0.20,0.28 0.60,0.44 z 0-0.25
+
+# Main body — rounded dark-wood rectangle
+rect 0.20,0.28 0.60,0.44 texfill polyhaven/dark_wood 0.88
+rect 0.20,0.28 0.60,0.44 fill #3a1f00 0.2
+rect 0.20,0.28 0.60,0.44 stroke #1a1208
+
+# Brass trim rectangle just inside the edge
+rect 0.24,0.32 0.52,0.36 stroke #daa520 width 2
+rect 0.26,0.34 0.48,0.32 stroke #8b6914 0.6 width 1
+
+# Inlaid corner rosettes (tiny brass dots)
+circle 0.28,0.36 0.02 fill #daa520 0.95
+circle 0.72,0.36 0.02 fill #daa520 0.95
+circle 0.28,0.64 0.02 fill #daa520 0.95
+circle 0.72,0.64 0.02 fill #daa520 0.95
+
+# Central round glass window in the top
+circle 0.50,0.50 0.14 fill #1a1208 0.6
+circle 0.50,0.50 0.14 stroke #8b6914 width 2
+
+# Spinning disc visible through the window — pale enamel
+circle 0.50,0.50 0.11 fill #e8dcc8 0.95
+circle 0.50,0.50 0.11 stroke #8b7355
+
+# Painted star pattern on the disc
+poly 0.50,0.42 0.515,0.48 0.575,0.48 0.528,0.518 0.548,0.575 0.50,0.542 0.452,0.575 0.472,0.518 0.425,0.48 0.485,0.48 fill #4884c8 0.9
+poly 0.50,0.42 0.515,0.48 0.575,0.48 0.528,0.518 0.548,0.575 0.50,0.542 0.452,0.575 0.472,0.518 0.425,0.48 0.485,0.48 stroke #264878 width 1
+
+# Tiny axle dot at disc center
+circle 0.50,0.50 0.015 fill #8b6914 0.95
+
+# Glass highlight arc on the window
+arc 0.50,0.50 0.12 200 250 stroke #ffffff 0.5 width 1
+
+# Brass crank stub on east side
+rect 0.78,0.46 0.06,0.08 fill #daa520 0.9
+rect 0.78,0.46 0.06,0.08 stroke #8b6914
+# Crank handle knob
+circle 0.84,0.50 0.025 fill #daa520 0.95
+circle 0.84,0.50 0.025 stroke #8b6914

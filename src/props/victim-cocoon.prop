@@ -1,0 +1,72 @@
+name: Victim Cocoon
+category: Effects
+footprint: 2x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: slime-pit, ooze-shrine, monster-lair-small, dungeon, cave
+typical_count: few
+clusters_with: ooze-pool, ooze-puddle, slime-trail, dissolved-skeleton, dripping-stalactite
+notes: Humanoid body pickled in a translucent slime cocoon with filament tendrils at the ends — partially dissolved remains visible inside the gel
+---
+# footprint 2x1: x range 0-1, y range 0-2
+# Elongated capsule of slime with skeletal shape visible inside
+
+# Outer faint slime halo / wet sheen
+ellipse 0.50,1.00 0.46,0.94 fill #a8c060 0.35
+
+# Translucent cocoon body (elongated capsule)
+poly 0.34,0.24 0.42,0.18 0.52,0.16 0.62,0.20 0.70,0.32 0.74,0.50 0.76,0.72 0.76,0.96 0.76,1.22 0.74,1.48 0.70,1.70 0.62,1.82 0.52,1.86 0.40,1.82 0.32,1.70 0.28,1.48 0.26,1.22 0.26,0.96 0.26,0.72 0.28,0.50 fill #8ab030 0.65
+poly 0.34,0.24 0.42,0.18 0.52,0.16 0.62,0.20 0.70,0.32 0.74,0.50 0.76,0.72 0.76,0.96 0.76,1.22 0.74,1.48 0.70,1.70 0.62,1.82 0.52,1.86 0.40,1.82 0.32,1.70 0.28,1.48 0.26,1.22 0.26,0.96 0.26,0.72 0.28,0.50 stroke #4a7020 width 2
+
+# Inner slime darkening (shows depth)
+poly 0.38,0.30 0.48,0.24 0.58,0.26 0.66,0.36 0.70,0.54 0.70,0.78 0.70,1.02 0.70,1.28 0.68,1.52 0.64,1.70 0.56,1.78 0.46,1.78 0.38,1.70 0.34,1.52 0.32,1.28 0.32,1.02 0.32,0.78 0.32,0.54 0.36,0.36 fill #4a7020 0.55
+
+# Skull (visible inside cocoon, north end)
+poly 0.40,0.36 0.44,0.30 0.50,0.28 0.56,0.30 0.60,0.36 0.60,0.44 0.56,0.50 0.44,0.50 0.40,0.44 fill #c8b898 0.85
+poly 0.40,0.36 0.44,0.30 0.50,0.28 0.56,0.30 0.60,0.36 0.60,0.44 0.56,0.50 0.44,0.50 0.40,0.44 stroke #6a5848 0.8
+# Eye sockets
+circle 0.46,0.40 0.025 fill #1a1010 0.9
+circle 0.54,0.40 0.025 fill #1a1010 0.9
+
+# Spine running down body (faint, partially dissolved)
+rect 0.49,0.50 0.02,0.64 fill #c8b898 0.7
+
+# Partial ribs (only some visible — others dissolved)
+line 0.49,0.56 0.38,0.58 stroke #c8b898 0.6 width 1
+line 0.51,0.56 0.62,0.58 stroke #c8b898 0.6 width 1
+line 0.49,0.64 0.36,0.66 stroke #c8b898 0.55 width 1
+line 0.51,0.64 0.64,0.66 stroke #c8b898 0.55 width 1
+line 0.49,0.74 0.38,0.76 stroke #c8b898 0.5 width 1
+line 0.51,0.74 0.62,0.76 stroke #c8b898 0.5 width 1
+line 0.49,0.84 0.42,0.86 stroke #c8b898 0.45 width 1
+
+# Dissolved mass in abdomen (dark ragged shape — organs / tissue liquefied)
+poly 0.42,0.94 0.52,0.92 0.60,0.98 0.58,1.10 0.50,1.14 0.42,1.10 0.38,1.02 fill #2a4010 0.7
+
+# Partial leg bone stubs (lower half mostly gone)
+ellipse 0.46,1.28 0.03,0.08 fill #c8b898 0.55
+ellipse 0.54,1.28 0.03,0.08 fill #c8b898 0.55
+ellipse 0.48,1.48 0.025,0.05 fill #a8a088 0.4
+
+# Bubbles floating in the slime
+circle 0.38,0.68 0.025 fill #c8e080 0.85
+circle 0.38,0.68 0.010 fill #ffffff 0.6
+circle 0.62,1.10 0.022 fill #c8e080 0.8
+circle 0.62,1.10 0.009 fill #ffffff 0.55
+circle 0.42,1.58 0.024 fill #c8e080 0.85
+circle 0.42,1.58 0.010 fill #ffffff 0.6
+
+# Filament tendril anchoring at north
+bezier 0.50,0.16 0.44,0.10 0.42,0.06 0.40,0.02 stroke #8ab030 width 2
+bezier 0.50,0.16 0.56,0.10 0.58,0.06 0.60,0.02 stroke #8ab030 width 2
+
+# Filament tendril anchoring at south
+bezier 0.50,1.86 0.44,1.92 0.42,1.96 0.40,1.98 stroke #8ab030 width 2
+bezier 0.50,1.86 0.56,1.92 0.58,1.96 0.60,1.98 stroke #8ab030 width 2
+
+# Glistening highlight arcs along cocoon
+arc 0.50,0.60 0.20 180 260 stroke #c8e080 0.55 width 1
+arc 0.50,1.40 0.20 180 260 stroke #c8e080 0.5 width 1

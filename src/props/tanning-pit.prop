@@ -1,0 +1,40 @@
+name: Tanning Pit
+category: Furniture
+footprint: 2x3
+facing: no
+shadow: no
+blocks_light: no
+height: 0.0
+placement: center
+room_types: tannery, workshop
+typical_count: single
+clusters_with: tanning-vat, tanning-rack, hide-scraps, lime-bin
+notes: In-ground pit with foul olive-brown tanning liquor; place centrally along a wall of the tannery
+---
+# === HITBOX ===
+hitbox rect 0.15,0.15 2.70,1.70 z 0-0.1
+
+# Outer muddy rim (irregular dug earth edge)
+poly 0.18,0.30 0.40,0.18 0.90,0.14 1.50,0.12 2.10,0.16 2.60,0.22 2.82,0.40 2.86,0.90 2.80,1.40 2.60,1.76 2.20,1.86 1.60,1.88 1.00,1.86 0.50,1.78 0.22,1.60 0.14,1.20 0.16,0.70 texfill polyhaven/brown_mud 0.9
+poly 0.18,0.30 0.40,0.18 0.90,0.14 1.50,0.12 2.10,0.16 2.60,0.22 2.82,0.40 2.86,0.90 2.80,1.40 2.60,1.76 2.20,1.86 1.60,1.88 1.00,1.86 0.50,1.78 0.22,1.60 0.14,1.20 0.16,0.70 stroke #2a1804
+# Inner darker mud bank (transition to liquid)
+poly 0.38,0.40 0.80,0.30 1.40,0.26 2.00,0.28 2.50,0.36 2.62,0.60 2.60,1.10 2.50,1.52 2.10,1.68 1.50,1.72 0.90,1.70 0.50,1.58 0.38,1.20 fill #3a2810 0.85
+poly 0.38,0.40 0.80,0.30 1.40,0.26 2.00,0.28 2.50,0.36 2.62,0.60 2.60,1.10 2.50,1.52 2.10,1.68 1.50,1.72 0.90,1.70 0.50,1.58 0.38,1.20 stroke #1a0a00 0.8
+# Liquid surface (olive-brown tanning liquor)
+poly 0.55,0.50 1.00,0.42 1.60,0.40 2.10,0.44 2.40,0.56 2.42,0.90 2.38,1.30 2.05,1.50 1.50,1.56 0.95,1.54 0.60,1.40 0.48,1.00 fill #4a4820 0.95
+poly 0.55,0.50 1.00,0.42 1.60,0.40 2.10,0.44 2.40,0.56 2.42,0.90 2.38,1.30 2.05,1.50 1.50,1.56 0.95,1.54 0.60,1.40 0.48,1.00 stroke #2a2810
+# Scum film patches
+ellipse 1.00,0.80 0.28,0.14 fill #6a6030 0.45
+ellipse 1.80,1.10 0.22,0.12 fill #6a6030 0.4
+# Faint ripples
+arc 1.20,0.90 0.35 180 360 stroke #6a6840 0.4 width 1
+arc 1.80,1.00 0.25 180 360 stroke #6a6840 0.35 width 1
+arc 0.90,1.20 0.20 0 180 stroke #6a6840 0.35 width 1
+# Dark deep center (depth hint)
+ellipse 1.50,0.96 0.40,0.18 fill #1a1808 0.5
+# Surface highlights (greasy sheen)
+arc 1.50,0.96 0.80 220 250 stroke #7a7040 0.35 width 1
+# Stray mud clumps at pit edge
+ellipse 0.50,0.30 0.08,0.05 fill #2a1804 0.7
+ellipse 2.40,1.60 0.09,0.06 fill #2a1804 0.7
+ellipse 0.40,1.50 0.07,0.05 fill #2a1804 0.65

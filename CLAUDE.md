@@ -270,6 +270,8 @@ node tools/puppeteer-bridge.js --load map.json --commands '[...]' --screenshot r
 
 **Note:** `src/textures/` is empty in the repo. In the desktop app, textures are downloaded to the user's AppData folder (`MAPWRIGHT_TEXTURE_PATH`). For CLI tools, run `node tools/download-textures.js --required` to populate `src/textures/` locally.
 
+**Texture bundle (metadata one-shot).** The editor fetches `/textures/bundle.json` — a single file containing every `.texture` metadata body keyed by id, plus a content-hash version — instead of 700+ per-file requests. PNG images still load lazily per-texture via `Image.src`; only the small JSON metadata gets bundled. Both the server's download SSE endpoint and `tools/download-textures.js` regenerate `manifest.json` and `bundle.json` together after every download session, so newly downloaded textures appear in the bundle on the next client load. If the bundle is missing or malformed the client falls back to the old manifest + per-file fetch path.
+
 **Focus:** Texture entry shape, how textures are stored on cells (`cell.texture = {id, opacity}`), blending logic.
 
 ---

@@ -1,0 +1,49 @@
+name: Sewing Bench
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: floor
+room_types: shop-tailor, merchant-house, textile-loomhouse, workshop
+typical_count: few
+clusters_with: cutting-table, mannequin, buttons-jar, thread-spool
+notes: Work bench with treadle base and hand-cranked sewing mechanism; place along wall or near cutting table
+---
+# === HITBOX ===
+hitbox rect 0.12,0.12 0.76,1.76 z 0-2.5
+
+# Bench top surface (tall narrow, 1 col x 2 rows)
+rect 0.12,0.12 0.76,1.76 texfill polyhaven/wood_table 0.85
+rect 0.12,0.12 0.76,1.76 stroke #5c3a1e
+# Leg shadows in corners
+circle 0.22,0.22 0.06 fill #3a1f00 0.5
+circle 0.78,0.22 0.06 fill #3a1f00 0.5
+circle 0.22,1.78 0.06 fill #3a1f00 0.5
+circle 0.78,1.78 0.06 fill #3a1f00 0.5
+# Treadle base visible at south end (two parallel rectangles of pedal boards)
+rect 0.20,1.40 0.28,0.32 texfill polyhaven/dark_wood 0.75
+rect 0.20,1.40 0.28,0.32 stroke #3a1f00
+rect 0.52,1.40 0.28,0.32 texfill polyhaven/dark_wood 0.75
+rect 0.52,1.40 0.28,0.32 stroke #3a1f00
+# Treadle linkage rod between pedals
+line 0.48,1.56 0.52,1.56 stroke #555555 width 2
+# Hand-cranked sewing mechanism (iron disc, upper end)
+circle 0.50,0.50 0.22 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.50 0.22 stroke #333333
+# Crank handle arm
+line 0.50,0.50 0.72,0.38 stroke #444444 width 3
+circle 0.72,0.38 0.05 fill #6b4e2e 0.9
+circle 0.72,0.38 0.05 stroke #3a1f00
+# Central axle/needle housing
+circle 0.50,0.50 0.06 fill #222222 0.9
+circle 0.50,0.50 0.06 stroke #111111
+# Needle pointing south from mechanism
+line 0.50,0.56 0.50,0.78 stroke #8899aa width 2
+# Spool of thread on top (small circle, upper-right)
+circle 0.34,0.24 0.09 fill #c82828 0.9
+circle 0.34,0.24 0.09 stroke #5a0808
+circle 0.34,0.24 0.03 fill #c8b898 0.9
+# Thread trailing from spool toward needle
+bezier 0.34,0.33 0.40,0.40 0.45,0.46 0.50,0.50 stroke #c82828 width 1

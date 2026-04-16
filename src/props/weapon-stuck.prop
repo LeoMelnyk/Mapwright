@@ -4,70 +4,52 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
-height: 0.9
+height: 0.6
 placement: floor
-room_types: battlefield-recent, battlefield, war-camp, ruined-watchtower, orc-war-camp
+room_types: battlefield-recent, ruined-watchtower, war-camp, dungeon
 typical_count: few
-clusters_with: corpse-soldier, arrow-stuck, helmet-fallen, blood-pool, severed-limb
-notes: Sword or axe embedded upright in the ground at an angle; pommel visible from above as a grim monument
+clusters_with: helmet-fallen, corpse-soldier, blood-pool, broken-sword
+notes: Sword driven vertically into the ground — top-down view shows the crossguard, pommel, and a glimpse of the upper blade above a bloody impact ring
 ---
-# footprint 1x1: x range 0-1, y range 0-1
-# Top-down: sword stuck point-down in ground — blade mostly vertical (foreshortened),
-# crossguard and pommel visible above ground
-
-# === Impact / dirt disturbance at base ===
-ellipse 0.50,0.76 0.16,0.08 fill #3a2818 0.65
-ellipse 0.50,0.76 0.16,0.08 stroke #1a1008 0.6
+# Dirt and blood splatter around the impact point
+ellipse 0.50,0.54 0.28,0.14 fill #3a1010 0.55
+ellipse 0.50,0.54 0.28,0.14 stroke #1a0606 0.5
 # Scattered dirt clods
-circle 0.32,0.78 0.02 fill #2a1a0a 0.7
-circle 0.66,0.72 0.022 fill #2a1a0a 0.7
-circle 0.40,0.82 0.018 fill #3a2818 0.6
-
-# Impact crack / split in ground
-line 0.44,0.78 0.36,0.86 stroke #1a1008 width 1
-line 0.56,0.76 0.64,0.82 stroke #1a1008 width 1
-
-# Blood pool around base
-ellipse 0.50,0.72 0.12,0.06 fill #4a0000 0.7
-ellipse 0.52,0.74 0.06,0.03 fill #8b0000 0.7
-
-# === Blade (foreshortened — visible segment above ground, angled slightly) ===
-# Blade upper part (tapers to pommel / fuller groove down middle)
-poly 0.47,0.76 0.53,0.76 0.54,0.22 0.46,0.22 fill #999999 0.95
-poly 0.47,0.76 0.53,0.76 0.54,0.22 0.46,0.22 texfill polyhaven/metal_plate 0.45
-poly 0.47,0.76 0.53,0.76 0.54,0.22 0.46,0.22 stroke #555555
-# Fuller (central blood groove)
-line 0.50,0.72 0.50,0.24 stroke #666666 width 2
-# Blade highlight
-line 0.48,0.70 0.48,0.26 stroke #bbccdd 0.7 width 1
-
-# Blood streaks running down blade
-line 0.48,0.30 0.48,0.68 stroke #3a0000 0.7 width 1
-line 0.52,0.44 0.52,0.70 stroke #3a0000 0.6 width 1
-
-# === Crossguard (horizontal bar) ===
-rect 0.32,0.18 0.36,0.08 fill #daa520 0.9
-rect 0.32,0.18 0.36,0.08 texfill polyhaven/metal_plate 0.3
-rect 0.32,0.18 0.36,0.08 stroke #5a3a00
-# Crossguard ornament detail
-line 0.32,0.22 0.68,0.22 stroke #8b6914 width 1
-
-# === Grip (leather-wrapped handle, short) ===
-rect 0.46,0.08 0.08,0.12 fill #2a1a10 0.95
-rect 0.46,0.08 0.08,0.12 stroke #1a1008
-# Grip wrap diagonals
-line 0.46,0.10 0.54,0.12 stroke #1a1008 0.7 width 1
-line 0.46,0.14 0.54,0.16 stroke #1a1008 0.7 width 1
-line 0.46,0.18 0.54,0.20 stroke #1a1008 0.7 width 1
-
-# === Pommel (top, decorative sphere) ===
-circle 0.50,0.08 0.06 fill #daa520 0.95
-circle 0.50,0.08 0.06 texfill polyhaven/metal_plate 0.25
-circle 0.50,0.08 0.06 stroke #5a3a00
-# Pommel gem / facet
-circle 0.50,0.08 0.025 fill #aa2020 0.85
-circle 0.50,0.08 0.025 stroke #5a1010
-
-# Nicks and battle damage on blade
-line 0.46,0.42 0.49,0.44 stroke #555555 width 1
-line 0.52,0.58 0.55,0.60 stroke #555555 width 1
+circle 0.24,0.56 0.028 fill #2a1a0a 0.7
+circle 0.76,0.54 0.025 fill #2a1a0a 0.7
+circle 0.32,0.46 0.020 fill #3a2818 0.6
+circle 0.68,0.62 0.020 fill #3a2818 0.6
+circle 0.80,0.64 0.018 fill #2a1a0a 0.55
+# Blood splatter droplets
+circle 0.28,0.42 0.022 fill #4a0000 0.8
+circle 0.72,0.68 0.020 fill #4a0000 0.75
+circle 0.38,0.70 0.018 fill #4a0000 0.7
+circle 0.60,0.42 0.016 fill #4a0000 0.7
+# Impact slot — the blade's entry wound in the ground
+rect 0.46,0.50 0.08,0.04 fill #0a0604 0.95
+# Glimpse of blade tip above the impact (foreshortened)
+rect 0.47,0.42 0.06,0.10 fill #888888 0.9
+rect 0.47,0.42 0.06,0.10 texfill polyhaven/metal_plate 0.5
+rect 0.47,0.42 0.06,0.10 stroke #333333 width 1
+# Blood streak down the exposed blade
+line 0.50,0.44 0.50,0.52 stroke #3a0000 0.75 width 1
+# Grip wrap (leather-wrapped handle, above the crossguard)
+rect 0.47,0.32 0.06,0.08 fill #2a1a10 0.95
+rect 0.47,0.32 0.06,0.08 stroke #1a1008 width 1
+line 0.47,0.34 0.53,0.36 stroke #1a1008 0.7 width 1
+line 0.47,0.37 0.53,0.39 stroke #1a1008 0.7 width 1
+# Crossguard — horizontal brass bar (widest element seen from above)
+rect 0.28,0.38 0.44,0.06 fill #daa520 0.95
+rect 0.28,0.38 0.44,0.06 texfill polyhaven/metal_plate 0.3
+rect 0.28,0.38 0.44,0.06 stroke #5a3a00 width 1
+# Crossguard end caps (flared quillons)
+circle 0.28,0.41 0.05 fill #daa520 0.9
+circle 0.28,0.41 0.05 stroke #5a3a00
+circle 0.72,0.41 0.05 fill #daa520 0.9
+circle 0.72,0.41 0.05 stroke #5a3a00
+# Pommel (decorative sphere at the very top, nearest the viewer)
+circle 0.50,0.30 0.06 fill #daa520 0.95
+circle 0.50,0.30 0.06 texfill polyhaven/metal_plate 0.25
+circle 0.50,0.30 0.06 stroke #5a3a00
+# Pommel gem
+circle 0.50,0.30 0.025 fill #aa2020 0.85

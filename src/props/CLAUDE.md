@@ -283,7 +283,8 @@ Commands render in file order (top to bottom). **Draw background/base layers fir
 4. **Wrong facing direction** — Front faces south (high Y). Wall-mounted items have their wall at the north (low Y) edge.
 5. **Using rusty_metal for clean metal** — It looks like wood at small scales. Use `metal_plate` instead.
 6. **Manually drawing drop shadows** — Do NOT add `# Shadow` ellipses or rects offset south of a prop. That's an oblique/isometric-view trick, not top-down. Set `shadow: yes` in the frontmatter and let the render pipeline draw a proper radial shadow under the prop.
-7. **Footprint orientation mismatch** — A tall vertical prop (grandfather clock, broom handle, spinning wheel, curtain rail, standing stone) needs a tall footprint (`2x1`, `3x1`). A wide wall-mounted prop (shelf, tapestry, cupboard, sideboard) needs a wide footprint (`1x2`, `1x3`). Getting this wrong makes the validator emit hundreds of out-of-bounds warnings.
+7. **Footprint matches GROUND extent, not height** — The footprint is the cells the prop occupies on the floor, seen from above. It has nothing to do with how tall the object is. A 10-foot radially-symmetric pillar is `1x1` because its floor footprint is a single cell-wide circle; a grandfather clock is `2x1` because its base is rectangular (tall + narrow on the floor plane). Use `2x1` / `3x1` only for ground-footprints that are genuinely longer in one axis (pews, coffins, siege engines, clocks). Tall cylindrical/polygonal columns (pillars, obelisks, basalt columns, cloud pillars, flame pillars, pearl obelisks) use `1x1` or `2x2` — see "Columns, Pillars, Obelisks" below.
+8. **Side-elevation for tall verticals** — The most common batch-7 mistake: an agent told to draw a "tall pillar of X" draws the pillar rising from the bottom of the footprint to the top (base at high-Y, tip at low-Y, shaft crossing the footprint vertically). That is a side view. Top-down, a tall column is just the circle/polygon you see looking straight down the shaft — decorate with radial spokes, a central highlight, an outer halo, but never with a visible "height."
 
 ### Wall-Mounted Props
 
@@ -319,7 +320,89 @@ Bunk beds, loft beds, and similar multi-tier furniture show only the UPPER tier 
 
 ### Vertical Wheels & Rods
 
-Objects whose main feature is a vertically-oriented wheel, rod, or drum (spinning wheel, water wheel, cart wheel mounted upright, ceiling-hung curtain divider) show the element *edge-on* from above — as a thin ellipse or line, not a full circle. The wheel's diameter appears as the long axis of that ellipse; its thickness is the short axis. Supporting hardware (axle hub, upright posts, base plank) surrounds it. Side-on circle drawings read as a flat plate lying on the floor, which is wrong.
+Objects whose main feature is a vertically-oriented wheel, rod, or drum (spinning wheel, water wheel, cart wheel mounted upright, ceiling-hung curtain divider, concert harp) show the element *edge-on* from above — as a thin ellipse or line, not a full circle. The wheel's diameter appears as the long axis of that ellipse; its thickness is the short axis. Supporting hardware (axle hub, upright posts, base plank) surrounds it. Side-on circle drawings read as a flat plate lying on the floor, which is wrong.
+
+See `harp.prop` (2x1 concert harp drawn as a thin edge-on profile — soundbox ellipse at the south, narrow pillar spine running north, strings as parallel lines along the spine).
+
+### Columns, Pillars, Obelisks, Flame Columns
+
+Radially-symmetric tall structures (pillars, obelisks, cloud/flame/coral pillars, silver-cord pylons, basalt columns, pearl obelisks) use a **square** footprint — `1x1` for a plain column, `2x2` when the object has a wider pedestal or pyramidion that spans more than one cell. Draw:
+- An outer radial halo or heat/mist aura (thin, faint — just establishes presence)
+- The shaft cross-section as a filled circle or polygon (hexagon for basalt, circle for marble, square for obsidian obelisks)
+- Radial details — fluting lines, runes, magma cracks, facet ridges — emanating from the center
+- The very top / apex highlighted as a bright center dot (where the tip catches light)
+- For obelisk-style tips: four triangular facets meeting at the center, each shaded differently to imply the pyramidion's 3D form (see `obelisk.prop` and `obelisk-astral.prop` — the canonical 2x2 pattern)
+
+Never draw the column as a vertical shaft crossing the footprint top-to-bottom.
+
+### Overhead-Hanging / Strung Props
+
+Bunting lines, strung banners between posts, overhead chandeliers, strung paper lanterns — things suspended in the air above the floor. From above you see:
+- The rope / chain / rod as a thin line running across the footprint
+- The **top edges only** of any flags, lanterns, or pendants (small triangular tips, tiny color dots)
+- A subtle diffuse drape shadow beneath the line, hinting at the mass hanging below out-of-view
+- `shadow: no` (the overhead prop doesn't sit on the floor, so the radial floor-shadow doesn't fit)
+
+Never draw full hanging flag triangles, complete chandelier silhouettes, or dangling paper-lantern shapes. See `bunting-line.prop` for the canonical overhead-line pattern.
+
+### Stuck / Embedded Weapons
+
+A sword or spear driven into the ground is *not* the weapon lying flat — only the part sticking up above the impact point is visible. Top-down:
+- Dirt/blood splatter ring around the impact point
+- Small dark impact slot where the blade/shaft enters the ground
+- A short foreshortened stub of blade/shaft poking toward the viewer
+- The widest element (crossguard, spear feather tuft, leather binding) as the most prominent shape near the top
+- Pommel / tip of weapon as a small circle at the very end
+
+See `arrow-stuck.prop` (canonical foreshortened arrow), `weapon-stuck.prop` (stuck sword with crossguard + pommel), `spear-stuck.prop` (feather tuft + binding).
+
+### Cave Mouths / Tunnel Openings
+
+A hole in a rock wall, seen from above. Draw the rock mass as an irregular boulder outline, then cut a dark elliptical hole on the opening side. **No depth gradient, no tapered wedge receding into the rock** — that's a side/oblique view. From directly above, the tunnel opening is just a pitch-black shape, because you can't see down a horizontal tunnel from a vertical viewpoint.
+
+See `cave-mouth-small.prop`. Framing boulders around the mouth and scattered rubble spilling out help establish the scene without implying depth.
+
+### Fire & Flame Columns
+
+A burning column — bonfire, flame pillar, efreet brazier — seen from above is **concentric rings**, not a tall flame silhouette:
+- Outer heat halo (faint orange, widest)
+- Outer flame ring (bright orange, slightly ragged edge with small flame-tongue polys radiating outward)
+- Mid flame ring (yellow-orange)
+- Inner core (yellow-white)
+- Hottest center (white/near-white, smallest)
+- Optional: tiny dark soot specks for rising updraft, small bright spark embers
+
+See `flame-pillar.prop`, `fire-node-core.prop`, `bonfire-large.prop` for the canonical concentric-ring pattern. The temptation to draw a pointed flame shape (wide base, narrow tip) is always a side-elevation trap.
+
+### Tileable / Modular Props (Channels, Tracks, Rails, Countertops)
+
+**Whenever you author a tileable prop, author the full set of variants.** A single straight section is only useful if the map is a straight line — real layouts need turns, branches, crossings, endcaps. The minimum useful set for a linear tileable prop is:
+
+| Variant | Purpose |
+|---|---|
+| Straight (long, 1x3 or 1x4) | Fast coverage for long runs |
+| Straight (short, 1x1) | Fine-grained control — slot between turns/junctions where a long piece won't fit |
+| Turn (90°) | L-shape at one cell corner (rotate to face any corner) |
+| T-junction | Branch off a straight run (rotate for any side) |
+| X-junction | Four-way crossing |
+| End-cap | Closed terminus (for counters, fences, rails that stop mid-room) |
+
+**Ship both a long and short straight.** A 1x3 straight alone forces the DM into awkward gaps when a turn lands mid-cell — a 1x1 straight fills the last cell between a turn and a junction without overshooting. See `cart-track.prop` (1x3) paired with `cart-track-short.prop` (1x1); same for `sewage-channel.prop` / `sewage-channel-short.prop`.
+
+Do NOT ship just "sewage-channel" (straight) and call it done — the DM building a sewer then has nothing to do at corners or intersections. A countertop without corner and endcap variants can only form straight runs. When you identify a new tileable concept, plan and deliver the whole set in one pass.
+
+Props designed to tile into chains or grids — sewage channels, mine-cart tracks, fence rails, sconce lines, bar counters, workshop counters — must use **identical edge geometry** on every cell edge that may connect to another piece. Otherwise the joint shows a visible mismatch.
+
+The reference straight piece (`sewage-channel.prop`, 1x3) establishes:
+- Stone lip 0.12 thick on both long sides (`y=0.08–0.20` and `y=0.80–0.92`)
+- Fluid band 0.60 wide in the middle (`y=0.20–0.80`)
+- Open cell-floor strip 0.08 thick at each far edge (`y=0.00–0.08` and `y=0.92–1.00`)
+
+Every junction variant (turn, T, X) must reproduce those positions on every cell edge that carries an opening. A T-junction's south branch exit at `y=1.00` must have fluid at `x=0.20–0.80`, stone at `x=0.08–0.20` and `x=0.80–0.92`, cell floor at `x=0.00–0.08` and `x=0.92–1.00`. The cart-track variants follow the same convention for rail positions.
+
+**Draw the fluid as a single polygon**, not as two overlapping rects. Overlapping rects with `stroke` will each draw their own outline, and those strokes will cut visible lines across the fluid where the rects cross (a plus-sign of dark lines inside the X junction is the telltale bug). For a plus/T/L fluid shape, express the entire outline as one `poly` and stroke it once.
+
+See `sewage-channel-turn.prop`, `sewage-channel-t.prop`, `sewage-channel-x.prop`, and the matching `cart-track-*` variants for the canonical implementations.
 
 ## Header Fields
 
@@ -578,13 +661,17 @@ At normal map zoom, very small details become invisible. Use this guide to avoid
 
 ## Updating the Manifest
 
-After adding, removing, or renaming props, update the manifest:
+After adding, removing, or renaming props, run:
 
 ```bash
 node mapwright/tools/update-manifest.js
 ```
 
-This scans all `.prop` files and regenerates `src/props/manifest.json` automatically.
+This scans all `.prop` files and regenerates **two** derived files in one pass:
+- `src/props/manifest.json` — flat array of prop names (used by per-file fallback + Node-side rendering).
+- `src/props/bundle.json` — every prop's raw text keyed by name plus a content-hash version. The editor fetches this in one HTTP request at startup (avoids 800+ roundtrips) and falls back to per-file fetches if the bundle is missing.
+
+**The editor will serve stale props until you run this script.** If you edit a `.prop` file and don't see the change in the editor, re-run `update-manifest.js` and hard-reload (the bundle's version hash busts the localStorage cache automatically).
 
 ## Validating Props
 

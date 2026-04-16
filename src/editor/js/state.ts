@@ -128,23 +128,24 @@ function _resolveAndNormalize(rawTheme: Theme): Theme {
  */
 export function getTheme(): Theme {
   const t = state.dungeon.metadata.theme;
-  let raw: Theme;
+  let raw: Theme | undefined;
   if (typeof t === 'string') {
     if (THEMES[t]) {
       raw = THEMES[t]!;
     } else if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
-      // Fallback: user theme not installed locally — use embedded data
       raw = state.dungeon.metadata.savedThemeData.theme as Theme;
     } else {
-      raw = THEMES['blue-parchment']!;
+      raw = THEMES['blue-parchment'];
     }
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   } else if (typeof t === 'object' && t !== null) {
     raw = t;
   } else {
-    raw = THEMES['blue-parchment']!;
+    raw = THEMES['blue-parchment'];
   }
-  return _resolveAndNormalize(raw);
+  // Theme catalog loads asynchronously; a render can fire before THEMES is
+  // populated. normalizeTheme fills in every color key, so `{}` is safe.
+  return _resolveAndNormalize(raw ?? ({} as Theme));
 }
 
 /** Set to true to skip all undo stack pushes (for testing). */

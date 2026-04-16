@@ -1,0 +1,42 @@
+name: Ooze Puddle
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: slime-pit, ooze-shrine, sewer-junction, dungeon, cave
+typical_count: many
+clusters_with: ooze-pool, slime-trail, dissolved-skeleton, rusted-weapon
+notes: Smaller active ooze puddle with asymmetric reaching tendrils — looks almost alive
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Asymmetric ooze puddle with tentacle-edged blob
+
+# Outer pale green halo with reaching fingers (tentacle edge)
+poly 0.50,0.08 0.60,0.14 0.72,0.18 0.84,0.26 0.90,0.40 0.92,0.56 0.88,0.68 0.96,0.78 0.84,0.84 0.72,0.90 0.58,0.92 0.46,0.94 0.32,0.88 0.20,0.94 0.14,0.82 0.08,0.70 0.12,0.56 0.06,0.42 0.16,0.32 0.22,0.22 0.36,0.14 fill #a8c060 0.6
+
+# Mid yellow-green layer
+poly 0.50,0.20 0.60,0.24 0.70,0.30 0.78,0.40 0.80,0.52 0.78,0.62 0.70,0.72 0.58,0.78 0.46,0.80 0.34,0.76 0.24,0.66 0.20,0.52 0.24,0.40 0.32,0.30 0.42,0.24 fill #8ab030 0.8
+
+# Deeper green core
+poly 0.50,0.34 0.60,0.38 0.66,0.46 0.66,0.56 0.58,0.64 0.48,0.66 0.38,0.62 0.34,0.52 0.36,0.42 0.42,0.36 fill #4a7020 0.85
+
+# Dark center
+ellipse 0.50,0.50 0.10,0.08 fill #2a4010 0.9
+
+# Bubbles
+circle 0.42,0.46 0.035 fill #8ab030 0.85
+circle 0.42,0.46 0.035 stroke #4a7020 width 1
+circle 0.40,0.44 0.012 fill #c8e080 0.9
+
+circle 0.60,0.58 0.028 fill #a8c060 0.8
+circle 0.59,0.57 0.010 fill #c8e080 0.85
+
+# Wet highlight
+arc 0.50,0.50 0.16 180 300 stroke #c8e080 0.5 width 1
+
+# Tiny droplet / fleck breaking off
+circle 0.88,0.22 0.028 fill #8ab030 0.8
+circle 0.88,0.22 0.028 stroke #4a7020 0.7

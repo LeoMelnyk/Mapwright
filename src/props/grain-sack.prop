@@ -1,0 +1,46 @@
+name: Grain Sack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.0
+placement: floor
+room_types: pantry, mill-workshop, dock-warehouse, farmhouse-kitchen, peasant-hovel
+typical_count: few
+clusters_with: sack, sack-stack, crate, barrel, pantry-shelf
+notes: Full linen sack of grain — fuller and rounder than generic sack, with a small spill of yellow grain at the base
+---
+# === HITBOX ===
+hitbox ellipse 0.5,0.52 0.34,0.32 z 0-1.0
+
+# Main sack body — fuller, rounder than generic sack
+ellipse 0.5,0.52 0.34,0.32 texfill polyhaven/rough_linen 0.9
+ellipse 0.5,0.52 0.34,0.32 fill #c8b088 0.3
+ellipse 0.5,0.52 0.34,0.32 stroke #4a3018
+# Rounded content bulges (grain filling evenly)
+ellipse 0.40,0.46 0.12,0.10 fill #d8c398 0.45
+ellipse 0.60,0.50 0.12,0.10 fill #d8c398 0.45
+ellipse 0.48,0.64 0.14,0.08 fill #d8c398 0.45
+# Soft center crease
+line 0.50,0.28 0.50,0.78 stroke #5c4028 0.5
+# Drawstring gather at top
+ellipse 0.50,0.28 0.10,0.04 fill #4a3018 0.9
+ellipse 0.50,0.28 0.10,0.04 stroke #2a1810
+# Drawstring tails poking up
+bezier 0.46,0.26 0.42,0.22 0.40,0.18 0.38,0.14 stroke #5c4028 width 2
+bezier 0.54,0.26 0.58,0.22 0.60,0.18 0.62,0.14 stroke #5c4028 width 2
+# Knot
+circle 0.50,0.24 0.025 fill #2a1810 0.9
+# Burlap weave cross-hatching
+line 0.32,0.44 0.34,0.46 stroke #4a3018 0.4
+line 0.64,0.50 0.66,0.52 stroke #4a3018 0.4
+line 0.40,0.66 0.42,0.68 stroke #4a3018 0.4
+# Highlight on upper curve
+arc 0.5,0.52 0.32 210 320 stroke #e8d0a0 0.35 width 1
+# Small grain spill at base (3 yellow specks scattered at SE)
+circle 0.78,0.78 0.022 fill #e8c868 0.9
+circle 0.80,0.82 0.018 fill #e8c868 0.85
+circle 0.74,0.82 0.020 fill #d8b858 0.85
+# Faint spill shadow
+ellipse 0.78,0.82 0.08,0.04 fill #3a2810 0.2

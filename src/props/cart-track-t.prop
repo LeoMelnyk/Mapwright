@@ -1,0 +1,61 @@
+name: Mine Cart Track T-Junction
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel
+typical_count: few
+clusters_with: cart-track, cart-track-turn, cart-track-x, headframe
+notes: T-junction for mine cart rail — at facing 0 the straight run connects W↔E with a branch dropping south. Rotate to reorient.
+---
+# Horizontal ties (perpendicular crossbeams beneath the E-W rails)
+rect 0.08,0.28 0.10,0.44 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.28 0.10,0.44 stroke #3a1f00
+rect 0.32,0.28 0.10,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.32,0.28 0.10,0.22 stroke #3a1f00
+rect 0.58,0.28 0.10,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.58,0.28 0.10,0.22 stroke #3a1f00
+rect 0.82,0.28 0.10,0.44 texfill polyhaven/weathered_planks 0.85
+rect 0.82,0.28 0.10,0.44 stroke #3a1f00
+# Vertical ties for the south branch
+rect 0.28,0.72 0.44,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.28,0.72 0.44,0.10 stroke #3a1f00
+rect 0.28,0.88 0.44,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.28,0.88 0.44,0.10 stroke #3a1f00
+# Horizontal iron rails (full east-west run)
+rect 0.00,0.34 1.00,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.34 1.00,0.06 stroke #333333
+line 0.00,0.36 1.00,0.36 stroke #8899aa 0.7 width 1
+rect 0.00,0.60 1.00,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.60 1.00,0.06 stroke #333333
+line 0.00,0.62 1.00,0.62 stroke #8899aa 0.7 width 1
+# South branch iron rails (dropping to south edge)
+rect 0.34,0.60 0.06,0.40 texfill polyhaven/rusty_metal 0.9
+rect 0.34,0.60 0.06,0.40 stroke #333333
+line 0.36,0.60 0.36,1.00 stroke #8899aa 0.7 width 1
+rect 0.60,0.60 0.06,0.40 texfill polyhaven/rusty_metal 0.9
+rect 0.60,0.60 0.06,0.40 stroke #333333
+line 0.62,0.60 0.62,1.00 stroke #8899aa 0.7 width 1
+# Junction frog (the curved rail piece where the branch meets the main line)
+bezier 0.34,0.40 0.34,0.52 0.42,0.60 0.40,0.60 stroke #555555 width 5
+bezier 0.66,0.40 0.66,0.52 0.58,0.60 0.60,0.60 stroke #555555 width 5
+# Rust patches
+circle 0.12,0.37 0.022 fill #8b4000 0.7
+circle 0.82,0.63 0.022 fill #8b4000 0.65
+circle 0.37,0.80 0.020 fill #8b4000 0.6
+circle 0.63,0.90 0.020 fill #8b4000 0.6
+# Rail spikes
+circle 0.12,0.37 0.014 fill #333333 0.95
+circle 0.12,0.63 0.014 fill #333333 0.95
+circle 0.36,0.37 0.014 fill #333333 0.95
+circle 0.36,0.63 0.014 fill #333333 0.95
+circle 0.62,0.37 0.014 fill #333333 0.95
+circle 0.62,0.63 0.014 fill #333333 0.95
+circle 0.86,0.37 0.014 fill #333333 0.95
+circle 0.86,0.63 0.014 fill #333333 0.95
+circle 0.36,0.76 0.014 fill #333333 0.95
+circle 0.62,0.76 0.014 fill #333333 0.95
+circle 0.36,0.92 0.014 fill #333333 0.95
+circle 0.62,0.92 0.014 fill #333333 0.95

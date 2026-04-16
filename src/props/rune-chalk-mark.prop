@@ -1,0 +1,62 @@
+name: Rune Chalk Mark
+category: Magical
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: demiplane-laboratory, wizard-sanctum, ritual-chamber, cultist-shrine
+typical_count: many
+clusters_with: rune-chalk-mark, arcane-experiment-core, magic-circle, spell-focus, chalk-mark
+notes: Arcane glyph scrawled on the floor in chalk — partial rituals, component warding, or failed diagrams. Cluster many to suggest ritual preparation.
+---
+# === HITBOX ===
+hitbox rect 0.12,0.12 0.76,0.76 z 0-0.01
+
+# Outer circle of the glyph
+circle 0.50,0.50 0.34 stroke #d8d0b8 width 2
+circle 0.50,0.50 0.34 stroke #ffffff 0.5 width 1
+# Partial smudge on east side (erosion)
+arc 0.50,0.50 0.34 0 60 stroke #8a7a5a 0.5 width 2
+ellipse 0.74,0.48 0.10,0.12 fill #b8a888 0.2
+
+# Inner circle
+circle 0.50,0.50 0.22 stroke #d8d0b8 width 2
+circle 0.50,0.50 0.22 stroke #ffffff 0.4 width 1
+
+# Crossing lines through the circles (star pattern)
+line 0.50,0.16 0.50,0.84 stroke #d8d0b8 width 2
+line 0.18,0.32 0.82,0.68 stroke #d8d0b8 width 2
+line 0.18,0.68 0.82,0.32 stroke #d8d0b8 width 2
+
+# Magical blue afterglow on some strokes (active runes)
+line 0.50,0.16 0.50,0.84 stroke #6fa8ff 0.35 width 1
+line 0.18,0.32 0.82,0.68 stroke #6fa8ff 0.30 width 1
+circle 0.50,0.50 0.22 stroke #6fa8ff 0.35 width 1
+
+# Central star/sigil (five-pointed inscription)
+poly 0.50,0.36 0.56,0.46 0.66,0.47 0.58,0.54 0.60,0.64 0.50,0.58 0.40,0.64 0.42,0.54 0.34,0.47 0.44,0.46 stroke #d8d0b8 width 2
+poly 0.50,0.36 0.56,0.46 0.66,0.47 0.58,0.54 0.60,0.64 0.50,0.58 0.40,0.64 0.42,0.54 0.34,0.47 0.44,0.46 stroke #ffffff 0.5 width 1
+
+# Small rune glyphs between the two circles (4 cardinal)
+line 0.50,0.19 0.50,0.25 stroke #d8d0b8 width 2
+line 0.47,0.21 0.53,0.21 stroke #d8d0b8 width 2
+poly 0.76,0.50 0.80,0.47 0.80,0.53 stroke #d8d0b8 width 2
+line 0.48,0.75 0.52,0.81 stroke #d8d0b8 width 2
+line 0.52,0.75 0.48,0.81 stroke #d8d0b8 width 2
+line 0.20,0.48 0.24,0.52 stroke #d8d0b8 width 2
+line 0.20,0.52 0.24,0.48 stroke #d8d0b8 width 2
+
+# Smudge/erosion on east edge (partially erased)
+ellipse 0.78,0.56 0.06,0.08 fill #b8a888 0.25
+ellipse 0.72,0.62 0.05,0.05 fill #b8a888 0.2
+
+# Chalk dust flecks
+circle 0.22,0.22 0.012 fill #ffffff 0.8
+circle 0.78,0.26 0.01 fill #ffffff 0.7
+circle 0.28,0.78 0.012 fill #ffffff 0.75
+circle 0.74,0.74 0.01 fill #ffffff 0.7
+
+# Tiny blue magical spark on active rune
+circle 0.50,0.20 0.015 fill #bbeeff 0.85

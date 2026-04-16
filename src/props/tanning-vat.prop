@@ -1,0 +1,46 @@
+name: Tanning Vat
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: tannery, workshop
+typical_count: few
+clusters_with: tanning-rack, tanning-pit, hide-scraps, lime-bin, bucket
+notes: Deep wooden vat of foul tanning liquor; place centrally, cluster with racks and hide piles
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-1.5
+
+# Outer wooden frame (square vat body)
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.10 1.80,1.80 stroke #2a1400
+# Inner frame rim (thick plank edge)
+rect 0.22,0.22 1.56,1.56 stroke #1a0a00 width 2
+# Plank seam lines on frame
+line 0.10,0.66 0.22,0.66 stroke #1a0a00 0.6
+line 0.10,1.32 0.22,1.32 stroke #1a0a00 0.6
+line 1.78,0.66 1.90,0.66 stroke #1a0a00 0.6
+line 1.78,1.32 1.90,1.32 stroke #1a0a00 0.6
+line 0.66,0.10 0.66,0.22 stroke #1a0a00 0.6
+line 1.32,0.10 1.32,0.22 stroke #1a0a00 0.6
+# Dark liquid surface (brown-green tanning liquor)
+rect 0.24,0.24 1.52,1.52 fill #5a6040 0.95
+rect 0.24,0.24 1.52,1.52 stroke #2a3020
+# Scum ring along inner edge
+rect 0.28,0.28 1.44,1.44 stroke #7a6848 0.6 width 2
+# Darker corrosive stain patches on liquid
+ellipse 0.70,0.70 0.22,0.14 fill #3a4028 0.55
+ellipse 1.30,1.20 0.18,0.12 fill #3a4028 0.5
+# Floating hide edge (partially submerged leather piece)
+poly 0.80,0.90 1.15,0.85 1.35,1.00 1.28,1.25 1.00,1.30 0.82,1.18 texfill polyhaven/brown_leather 0.75
+poly 0.80,0.90 1.15,0.85 1.35,1.00 1.28,1.25 1.00,1.30 0.82,1.18 stroke #2a1400 0.8
+# Greasy surface sheen
+arc 1.00,1.00 0.55 210 260 stroke #8a9060 0.4 width 1
+# Iron corner brackets
+rect 0.10,0.10 0.12,0.12 fill #333333 0.8
+rect 1.78,0.10 0.12,0.12 fill #333333 0.8
+rect 0.10,1.78 0.12,0.12 fill #333333 0.8
+rect 1.78,1.78 0.12,0.12 fill #333333 0.8

@@ -1,0 +1,42 @@
+name: Hide Scraps
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: tannery, workshop, peasant-hovel
+typical_count: many
+clusters_with: tanning-rack, tanning-vat, fur-clump, leather-stack
+notes: Pile of trimmed hide offcuts; scatter near tanning rack or vat
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.34 z 0-0.1
+
+# Largest scrap (underlayer, medium brown)
+poly 0.18,0.50 0.32,0.30 0.56,0.26 0.78,0.36 0.82,0.58 0.72,0.78 0.44,0.82 0.22,0.72 texfill polyhaven/brown_leather 0.8
+poly 0.18,0.50 0.32,0.30 0.56,0.26 0.78,0.36 0.82,0.58 0.72,0.78 0.44,0.82 0.22,0.72 fill #5c3a1e 0.5
+poly 0.18,0.50 0.32,0.30 0.56,0.26 0.78,0.36 0.82,0.58 0.72,0.78 0.44,0.82 0.22,0.72 stroke #2a1400
+# Mid scrap (lighter brown, overlapping)
+poly 0.30,0.36 0.60,0.30 0.78,0.48 0.66,0.64 0.40,0.60 texfill polyhaven/brown_leather 0.7
+poly 0.30,0.36 0.60,0.30 0.78,0.48 0.66,0.64 0.40,0.60 fill #8a6040 0.4
+poly 0.30,0.36 0.60,0.30 0.78,0.48 0.66,0.64 0.40,0.60 stroke #3a1f08
+# Dark scrap (curled edge)
+poly 0.42,0.56 0.66,0.52 0.74,0.68 0.58,0.80 0.38,0.76 fill #3a2010 0.9
+poly 0.42,0.56 0.66,0.52 0.74,0.68 0.58,0.80 0.38,0.76 stroke #1a0a00
+# Small curled scrap (top)
+poly 0.22,0.40 0.34,0.36 0.40,0.44 0.34,0.52 0.24,0.50 texfill polyhaven/brown_leather 0.85
+poly 0.22,0.40 0.34,0.36 0.40,0.44 0.34,0.52 0.24,0.50 stroke #2a1400
+# Thin ragged strip
+poly 0.52,0.22 0.72,0.24 0.74,0.32 0.58,0.34 fill #6b4a2e 0.85
+poly 0.52,0.22 0.72,0.24 0.74,0.32 0.58,0.34 stroke #2a1400
+# Edge trim lines (cut marks)
+line 0.34,0.42 0.52,0.46 stroke #2a1400 0.6
+line 0.56,0.58 0.70,0.54 stroke #2a1400 0.5
+# Hair-side fur fuzz on one scrap edge
+line 0.20,0.48 0.15,0.46 stroke #6a4a28 0.7 width 1
+line 0.22,0.58 0.16,0.60 stroke #6a4a28 0.7 width 1
+line 0.82,0.52 0.86,0.50 stroke #6a4a28 0.7 width 1
+# Dark grime spot
+ellipse 0.50,0.70 0.05,0.03 fill #1a0a00 0.6

@@ -1,0 +1,44 @@
+name: Sewage Channel T-Junction
+category: Terrain
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: sewer-junction, sewer, undercity
+typical_count: many
+clusters_with: sewage-channel, sewage-channel-turn, sewage-channel-x, grate-floor
+notes: T-junction for the sewage channel network — at facing 0 the straight run connects W↔E and a branch drops south. Lips 0.12 thick so sections tile flush with the straight piece.
+---
+# === Stone lips around the fluid T-shape ===
+# North lip — runs the full width above the horizontal fluid
+rect 0.00,0.08 1.00,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.08 1.00,0.12 stroke #2a2820
+# South lip, western segment (west of the south branch)
+rect 0.00,0.80 0.20,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.80 0.20,0.12 stroke #2a2820
+# South lip, eastern segment (east of the south branch)
+rect 0.80,0.80 0.20,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.80,0.80 0.20,0.12 stroke #2a2820
+# South branch — W-side lip (running from the south lip down to the cell edge)
+rect 0.08,0.80 0.12,0.20 texfill polyhaven/stone_floor 0.85
+rect 0.08,0.80 0.12,0.20 stroke #2a2820
+# South branch — E-side lip
+rect 0.80,0.80 0.12,0.20 texfill polyhaven/stone_floor 0.85
+rect 0.80,0.80 0.12,0.20 stroke #2a2820
+# === Fluid T-shape as a single polygon ===
+poly 0.00,0.20 1.00,0.20 1.00,0.80 0.80,0.80 0.80,1.00 0.20,1.00 0.20,0.80 0.00,0.80 fill #3a2a18 0.95
+poly 0.00,0.20 1.00,0.20 1.00,0.80 0.80,0.80 0.80,1.00 0.20,1.00 0.20,0.80 0.00,0.80 stroke #1a1208 width 1
+# Flow streaks on the horizontal run
+bezier 0.05,0.34 0.35,0.32 0.65,0.36 0.95,0.32 stroke #5a4028 0.5 width 2
+bezier 0.05,0.68 0.35,0.70 0.65,0.66 0.95,0.68 stroke #4a3020 0.45 width 2
+# Flow streaks on the south branch (converging from the junction)
+line 0.34,0.82 0.34,0.98 stroke #5a4028 0.5 width 2
+line 0.66,0.82 0.66,0.98 stroke #4a3020 0.45 width 2
+# Scum patches
+ellipse 0.25,0.40 0.12,0.05 fill #4a6040 0.5
+ellipse 0.70,0.60 0.12,0.05 fill #4a6040 0.5
+ellipse 0.50,0.90 0.08,0.04 fill #4a6040 0.5
+# Bubbles
+circle 0.40,0.38 0.02 fill #8aa070 0.7
+circle 0.60,0.62 0.02 fill #8aa070 0.7

@@ -1,0 +1,43 @@
+name: Lime Dust
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: tannery, workshop
+typical_count: many
+clusters_with: lime-bin, tanning-vat, tanning-pit, hide-scraps
+notes: Scattered white lime dust spilled from a bin or sack; place near lime-bin or vat edges
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.02
+
+# Diffuse outer dust cloud (very faint)
+circle 0.50,0.50 0.40 fill #e8e4d8 0.35
+# Inner denser patch
+ellipse 0.48,0.52 0.26,0.22 fill #e8e4d8 0.55
+# Smaller denser nucleus
+poly 0.30,0.52 0.36,0.38 0.50,0.32 0.64,0.36 0.72,0.50 0.68,0.64 0.54,0.72 0.38,0.68 fill #f0ecd8 0.7
+# Bright pale highlight patch
+ellipse 0.44,0.44 0.10,0.08 fill #ffffff 0.55
+# Fine white specks (dense center)
+circle 0.40,0.44 0.012 fill #ffffff 0.85
+circle 0.48,0.40 0.012 fill #ffffff 0.85
+circle 0.56,0.46 0.012 fill #ffffff 0.85
+circle 0.50,0.54 0.012 fill #ffffff 0.8
+circle 0.44,0.58 0.012 fill #ffffff 0.8
+circle 0.58,0.60 0.012 fill #ffffff 0.8
+# Outer scattered motes
+circle 0.22,0.46 0.010 fill #e8e4d8 0.7
+circle 0.78,0.54 0.010 fill #e8e4d8 0.7
+circle 0.26,0.68 0.010 fill #e8e4d8 0.6
+circle 0.74,0.30 0.010 fill #e8e4d8 0.6
+circle 0.42,0.78 0.010 fill #e8e4d8 0.6
+circle 0.60,0.22 0.008 fill #e8e4d8 0.55
+# Tiny chalky clumps
+poly 0.34,0.50 0.38,0.48 0.36,0.54 fill #ffffff 0.75
+poly 0.62,0.50 0.66,0.52 0.64,0.56 fill #ffffff 0.75
+# Breeze streak (faint drift)
+bezier 0.28,0.52 0.36,0.54 0.44,0.52 0.52,0.54 stroke #ffffff 0.4 width 1

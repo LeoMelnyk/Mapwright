@@ -1,0 +1,49 @@
+name: Lime Bin
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.7
+placement: floor
+room_types: tannery, workshop
+typical_count: few
+clusters_with: tanning-vat, tanning-pit, lime-dust, bucket, sack
+notes: Open wooden bin of powdered lime; place along walls near the tanning vat
+---
+# === HITBOX ===
+hitbox rect 0.15,0.15 0.70,0.70 z 0-0.7
+
+# Outer wooden bin body
+rect 0.15,0.15 0.70,0.70 texfill polyhaven/weathered_planks 0.88
+rect 0.15,0.15 0.70,0.70 stroke #2a1400
+# Plank seam lines on rim
+line 0.38,0.15 0.38,0.24 stroke #1a0a00 0.6
+line 0.62,0.15 0.62,0.24 stroke #1a0a00 0.6
+line 0.38,0.76 0.38,0.85 stroke #1a0a00 0.6
+line 0.62,0.76 0.62,0.85 stroke #1a0a00 0.6
+# Inner thick plank rim (top edges of bin walls)
+rect 0.22,0.22 0.56,0.56 stroke #1a0a00 width 2
+# Iron corner brackets
+rect 0.15,0.15 0.08,0.08 fill #444444 0.85
+rect 0.77,0.15 0.08,0.08 fill #444444 0.85
+rect 0.15,0.77 0.08,0.08 fill #444444 0.85
+rect 0.77,0.77 0.08,0.08 fill #444444 0.85
+# Powdered lime filling interior (off-white)
+rect 0.24,0.24 0.52,0.52 fill #e8e4d8 0.95
+rect 0.24,0.24 0.52,0.52 stroke #b8b4a8 0.6
+# Uneven powder surface — mounded texture
+ellipse 0.50,0.50 0.22,0.20 fill #f4f0e4 0.6
+ellipse 0.42,0.44 0.10,0.08 fill #ffffff 0.5
+ellipse 0.58,0.56 0.08,0.06 fill #ffffff 0.45
+# Small dust puff spilling over south-east edge
+ellipse 0.84,0.82 0.10,0.06 fill #e8e4d8 0.55
+ellipse 0.90,0.86 0.06,0.04 fill #f4f0e4 0.4
+circle 0.94,0.84 0.015 fill #ffffff 0.7
+circle 0.88,0.90 0.012 fill #ffffff 0.6
+# Scoop mark in powder
+arc 0.50,0.50 0.14 210 330 stroke #b8b4a8 0.5 width 1
+# Faint gritty specks
+circle 0.36,0.52 0.008 fill #888078 0.7
+circle 0.60,0.40 0.008 fill #888078 0.7
+circle 0.54,0.60 0.008 fill #888078 0.6

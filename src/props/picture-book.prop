@@ -1,0 +1,72 @@
+name: Picture Book
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: nursery
+typical_count: few
+clusters_with: cradle, tiny-chair, children-toys, building-blocks, dollhouse
+notes: Large illustrated children's book lying open on the floor with a simple painted scene on one page
+---
+# === HITBOX ===
+hitbox rect 0.02,0.16 0.96,0.68 z 0-0.08
+
+# Cover edges peeking out behind pages (wider than pages themselves)
+rect 0.02,0.16 0.46,0.68 fill #c84870 0.85
+rect 0.02,0.16 0.46,0.68 stroke #7a2848
+rect 0.52,0.16 0.46,0.68 fill #c84870 0.85
+rect 0.52,0.16 0.46,0.68 stroke #7a2848
+
+# Left page — warm cream paper
+rect 0.06,0.20 0.40,0.60 fill #f4ecd4 0.95
+rect 0.06,0.20 0.40,0.60 stroke #b8a080
+# Slight page curl at SW corner
+poly 0.06,0.76 0.14,0.80 0.10,0.80 0.06,0.78 fill #e0d0a8 0.8
+
+# Right page — warm cream paper
+rect 0.54,0.20 0.40,0.60 fill #f4ecd4 0.95
+rect 0.54,0.20 0.40,0.60 stroke #b8a080
+# Slight page curl at SE corner
+poly 0.94,0.76 0.86,0.80 0.90,0.80 0.94,0.78 fill #e0d0a8 0.8
+
+# Spine crease (center dark line)
+line 0.50,0.18 0.50,0.82 stroke #7a2848 width 2
+line 0.50,0.20 0.50,0.80 stroke #3a1408 0.6
+
+# === Left page painted scene — sun and hills ===
+# Sky wash (subtle pale blue upper area)
+rect 0.08,0.22 0.36,0.22 fill #b8d4e8 0.5
+# Sun
+circle 0.38,0.30 0.04 fill #f0c840 0.95
+circle 0.38,0.30 0.04 stroke #8a7020 width 1
+# Sun rays
+line 0.38,0.24 0.38,0.22 stroke #f0c840 width 1
+line 0.42,0.26 0.44,0.24 stroke #f0c840 width 1
+line 0.44,0.30 0.46,0.30 stroke #f0c840 width 1
+# Two green hills
+arc 0.18,0.62 0.12 180 360 fill #a0c88c 0.9
+arc 0.18,0.62 0.12 180 360 stroke #4a7048 width 1
+arc 0.36,0.66 0.10 180 360 fill #88b878 0.9
+arc 0.36,0.66 0.10 180 360 stroke #4a7048 width 1
+# Ground line
+line 0.08,0.74 0.46,0.74 stroke #6a8848 0.7 width 1
+
+# === Right page — decorative rows of marks (faux text/illustrations) ===
+line 0.58,0.26 0.90,0.26 stroke #8b7355 0.6 width 1
+line 0.58,0.32 0.88,0.32 stroke #8b7355 0.5 width 1
+line 0.58,0.38 0.90,0.38 stroke #8b7355 0.6 width 1
+# Small illustrated decoration — tiny flower
+circle 0.62,0.50 0.025 fill #e4908c 0.9
+circle 0.62,0.50 0.025 stroke #8b4a48 width 1
+circle 0.62,0.50 0.010 fill #f0e8a8 0.95
+# More decorative rows
+line 0.68,0.52 0.90,0.52 stroke #8b7355 0.5 width 1
+line 0.58,0.58 0.90,0.58 stroke #8b7355 0.6 width 1
+line 0.58,0.64 0.86,0.64 stroke #8b7355 0.5 width 1
+line 0.58,0.70 0.90,0.70 stroke #8b7355 0.6 width 1
+# Tiny star decoration
+circle 0.84,0.76 0.020 fill #f0c840 0.9
+circle 0.84,0.76 0.020 stroke #8a7020 width 1

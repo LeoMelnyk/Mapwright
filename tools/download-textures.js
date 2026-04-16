@@ -17,13 +17,40 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 
 const __dirname    = dirname(fileURLToPath(import.meta.url));
 const ROOT         = join(__dirname, '..');
 const TEXTURES_DIR = join(ROOT, 'src/textures');
 const POLYHAVEN_DIR = join(TEXTURES_DIR, 'polyhaven');
 const MANIFEST_PATH = join(TEXTURES_DIR, 'manifest.json');
+const BUNDLE_PATH   = join(TEXTURES_DIR, 'bundle.json');
 const API          = 'https://api.polyhaven.com';
+
+// Rewrite bundle.json to mirror every .texture metadata file under
+// POLYHAVEN_DIR. Binary PNGs stay per-file; only the small JSON sidecars
+// get bundled. Called after any manifest mutation.
+function writeBundle() {
+  const files = readdirSync(POLYHAVEN_DIR)
+    .filter((f) => f.endsWith('.texture'))
+    .sort();
+  const textures = {};
+  const hasher = crypto.createHash('sha256');
+  for (const file of files) {
+    const id = `polyhaven/${file.replace(/\.texture$/, '')}`;
+    try {
+      const text = readFileSync(join(POLYHAVEN_DIR, file), 'utf-8');
+      textures[id] = JSON.parse(text);
+      hasher.update(id);
+      hasher.update('\0');
+      hasher.update(text);
+      hasher.update('\0');
+    } catch { /* skip malformed */ }
+  }
+  const version = hasher.digest('hex').slice(0, 16);
+  writeFileSync(BUNDLE_PATH, JSON.stringify({ version, textures }));
+  return { count: files.length, version };
+}
 
 // Directories and file extensions to scan for polyhaven texture references.
 // Add entries here when new source types are introduced.
@@ -214,12 +241,14 @@ async function main() {
   drawProgress(todo.length, todo.length, 'Complete');
   process.stdout.write('\n\n');
 
-  // ── Update manifest ───────────────────────────────────────────────
+  // ── Update manifest + bundle ──────────────────────────────────────
   if (newKeys.length > 0) {
     const existing = JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'));
     const merged   = [...new Set([...existing, ...newKeys])].sort();
     writeFileSync(MANIFEST_PATH, JSON.stringify(merged, null, 2));
+    const bundle = writeBundle();
     console.log(`Manifest updated — ${merged.length} total entries.`);
+    console.log(`Bundle updated   — ${bundle.count} entries, version ${bundle.version}.`);
   }
 
   console.log(`\nDownloaded: ${succeeded}  Failed: ${failed}`);

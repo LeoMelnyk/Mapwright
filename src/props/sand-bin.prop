@@ -1,0 +1,49 @@
+name: Sand Bin
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: glassworks, workshop
+typical_count: few
+clusters_with: gaffer-bench, annealing-oven, color-rod-bundle
+notes: Wooden bin full of silica sand for glassmaking. Square frame, pale tan sand interior with slight mound at center.
+---
+# === HITBOX ===
+hitbox rect 0.1,0.1 0.8,0.8 z 0-0.8
+
+# === Wooden bin frame (outer square) ===
+rect 0.1,0.1 0.8,0.8 texfill polyhaven/dark_wood 0.88
+rect 0.1,0.1 0.8,0.8 stroke #2a1400
+
+# === Inner bin wall (showing plank thickness) ===
+rect 0.18,0.18 0.64,0.64 stroke #3a1f00 width 2
+
+# === Sand interior (pale tan fill) ===
+rect 0.20,0.20 0.60,0.60 fill #d4b884 0.95
+rect 0.20,0.20 0.60,0.60 stroke #8a6a40
+
+# === Sand grain texture (small darker specks scattered) ===
+circle 0.28,0.30 0.012 fill #a88a5a 0.7
+circle 0.42,0.26 0.010 fill #a88a5a 0.6
+circle 0.56,0.32 0.012 fill #a88a5a 0.65
+circle 0.68,0.28 0.010 fill #a88a5a 0.6
+circle 0.32,0.44 0.012 fill #b89868 0.6
+circle 0.60,0.48 0.010 fill #a88a5a 0.65
+circle 0.72,0.56 0.012 fill #a88a5a 0.6
+circle 0.26,0.62 0.010 fill #b89868 0.55
+circle 0.44,0.70 0.012 fill #a88a5a 0.6
+circle 0.66,0.72 0.010 fill #a88a5a 0.6
+circle 0.36,0.56 0.010 fill #b89868 0.55
+circle 0.52,0.40 0.010 fill #a88a5a 0.6
+
+# === Slight mound highlight at center (lighter tan) ===
+ellipse 0.5,0.5 0.14,0.12 fill #e8cc98 0.45
+
+# === Corner nails on bin frame ===
+circle 0.14,0.14 0.022 fill #444444 0.85
+circle 0.86,0.14 0.022 fill #444444 0.85
+circle 0.14,0.86 0.022 fill #444444 0.85
+circle 0.86,0.86 0.022 fill #444444 0.85
