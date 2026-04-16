@@ -1,0 +1,51 @@
+name: Cargo Hatch Grate
+category: Structure
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ship, cargo-hold, warehouse, dock, industrial
+typical_count: single
+clusters_with: chain-hoist, rope-coil, barrel
+notes: Heavy iron grate covering a cargo hatch; provides access to lower hold decks
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: square frame + thick iron bars crossing the opening
+
+# Dark void beneath the grate (lower hold)
+rect 0.12,0.12 1.76,1.76 fill #0a0a0a 0.7
+
+# Iron frame (outer border of the hatch)
+rect 0.06,0.06 1.88,1.88 stroke #444444 width 4
+rect 0.14,0.14 1.72,1.72 stroke #555555 width 2
+
+# Thick iron bars (running north-south)
+rect 0.44,0.10 0.10,1.80 fill #555555 0.8
+rect 0.44,0.10 0.10,1.80 stroke #333333
+rect 0.96,0.10 0.10,1.80 fill #555555 0.8
+rect 0.96,0.10 0.10,1.80 stroke #333333
+rect 1.48,0.10 0.10,1.80 fill #555555 0.8
+rect 1.48,0.10 0.10,1.80 stroke #333333
+
+# Cross bars (running east-west)
+rect 0.10,0.44 1.80,0.10 fill #555555 0.75
+rect 0.10,0.44 1.80,0.10 stroke #333333
+rect 0.10,0.96 1.80,0.10 fill #555555 0.75
+rect 0.10,0.96 1.80,0.10 stroke #333333
+rect 0.10,1.48 1.80,0.10 fill #555555 0.75
+rect 0.10,1.48 1.80,0.10 stroke #333333
+
+# Corner rivets/bolts
+circle 0.12,0.12 0.04 fill #666666 0.7
+circle 0.12,0.12 0.04 stroke #444444
+circle 1.88,0.12 0.04 fill #666666 0.7
+circle 1.88,0.12 0.04 stroke #444444
+circle 0.12,1.88 0.04 fill #666666 0.7
+circle 0.12,1.88 0.04 stroke #444444
+circle 1.88,1.88 0.04 fill #666666 0.7
+circle 1.88,1.88 0.04 stroke #444444
+
+# Hinge bracket (north side)
+rect 0.80,0.06 0.40,0.10 fill #444444 0.6
+rect 0.80,0.06 0.40,0.10 stroke #333333

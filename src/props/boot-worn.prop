@@ -1,0 +1,46 @@
+name: Worn Boot
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: tenement-room, peasant-hovel, flophouse, slum-dwelling
+typical_count: single
+clusters_with: rag-damp, damp-stain, coal-bucket, pallet
+notes: Single worn-out boot lying on its side, sole visible — flat floor clutter for squalid rooms
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Boot on its side — from above we see the sole (bottom of the boot) facing up
+
+# === Boot sole (main shape — elongated oval) ===
+ellipse 0.50,0.50 0.14,0.26 fill #3a2818 0.9
+ellipse 0.50,0.50 0.14,0.26 texfill polyhaven/brown_leather 0.5
+ellipse 0.50,0.50 0.14,0.26 stroke #1a1008
+
+# Heel block (thicker section at north)
+rect 0.38,0.26 0.24,0.10 fill #2a1808 0.85
+rect 0.38,0.26 0.24,0.10 stroke #1a1008
+
+# Sole wear marks (scuff lines)
+line 0.40,0.44 0.60,0.44 stroke #1a1008 0.5 width 1
+line 0.42,0.54 0.58,0.54 stroke #1a1008 0.4 width 1
+line 0.40,0.64 0.60,0.64 stroke #1a1008 0.5 width 1
+
+# Toe area (rounded south end, lighter wear)
+ellipse 0.50,0.72 0.10,0.06 fill #4a3020 0.7
+ellipse 0.50,0.72 0.10,0.06 stroke #1a1008
+
+# Hole in the sole (worn through)
+ellipse 0.48,0.56 0.04,0.06 fill #0a0804 0.8
+ellipse 0.48,0.56 0.04,0.06 stroke #1a1008
+
+# Boot upper edge visible (leather folding over, east side)
+bezier 0.62,0.30 0.66,0.42 0.66,0.58 0.62,0.70 stroke #5c3a1e 0.7 width 2
+
+# Stitching line along sole edge
+arc 0.50,0.50 0.12 60 300 stroke #8b7355 0.4 width 1
+
+# Loose lace trailing on floor
+bezier 0.44,0.30 0.36,0.24 0.28,0.28 0.22,0.34 stroke #8b7355 0.6 width 1

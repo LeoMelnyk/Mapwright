@@ -1,0 +1,37 @@
+name: Broken Plank
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: chasm, cave, ruin, dungeon, construction-site
+typical_count: many
+clusters_with: broken-bridge-stub, rubble, broken-pottery
+notes: Single snapped wooden plank lying on stone. Floor scatter for ruins and collapsed bridges.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a single broken plank lying at a slight angle on the ground
+
+# === Main plank body (angled slightly) ===
+rect 0.14,0.34 0.72,0.14 texfill polyhaven/weathered_planks 0.85 rotate 12
+rect 0.14,0.34 0.72,0.14 stroke #3a1f00 rotate 12
+
+# === Splintered break at east end ===
+poly 0.82,0.34 0.88,0.36 0.86,0.40 0.90,0.44 0.84,0.46 0.80,0.42 fill #5c3a1e 0.7
+poly 0.82,0.34 0.88,0.36 0.86,0.40 0.90,0.44 0.84,0.46 0.80,0.42 stroke #3a1f00
+
+# === Splintered break at west end ===
+poly 0.16,0.38 0.12,0.40 0.14,0.44 0.10,0.46 0.08,0.42 0.12,0.36 fill #5c3a1e 0.7
+poly 0.16,0.38 0.12,0.40 0.14,0.44 0.10,0.46 0.08,0.42 0.12,0.36 stroke #3a1f00
+
+# Nail sticking up (exposed from the break)
+circle 0.72,0.42 0.02 fill #666666 0.7
+circle 0.72,0.42 0.02 stroke #444444
+
+# Wood grain line along the plank
+line 0.20,0.40 0.78,0.38 stroke #4a2800 0.35
+
+# Small wood chip nearby
+poly 0.40,0.60 0.48,0.58 0.50,0.64 0.42,0.66 fill #8b7355 0.5
+poly 0.40,0.60 0.48,0.58 0.50,0.64 0.42,0.66 stroke #5c3a1e 0.4

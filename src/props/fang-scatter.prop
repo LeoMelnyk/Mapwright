@@ -1,0 +1,46 @@
+name: Fang Scatter
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: spider-lair, monster-lair-small, cave-drow-outpost, underdark-outpost, beast-den
+typical_count: many
+clusters_with: bone-pile-small, spider-husk, carcass-fresh, cobweb-cluster
+notes: Scattered chitinous fangs and pincers on the ground — 4-6 curved pieces shed from giant spiders. Floor scatter for atmosphere.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Fang 1 (large, upper left — curved talon shape) ===
+poly 0.15,0.22 0.18,0.18 0.24,0.15 0.26,0.20 0.22,0.32 0.16,0.30 fill #1a1208 0.85
+poly 0.15,0.22 0.18,0.18 0.24,0.15 0.26,0.20 0.22,0.32 0.16,0.30 stroke #0a0804
+# Chitin sheen
+line 0.20,0.17 0.21,0.28 stroke #3a2a18 0.6 width 1
+
+# === Fang 2 (medium, center-right — thicker pincer) ===
+poly 0.62,0.35 0.68,0.30 0.74,0.32 0.76,0.38 0.70,0.50 0.64,0.46 fill #2a1a0a 0.8
+poly 0.62,0.35 0.68,0.30 0.74,0.32 0.76,0.38 0.70,0.50 0.64,0.46 stroke #0a0804
+line 0.70,0.32 0.68,0.46 stroke #3a2a18 0.5 width 1
+
+# === Fang 3 (small, lower center) ===
+poly 0.40,0.68 0.44,0.62 0.50,0.60 0.52,0.65 0.48,0.76 0.42,0.74 fill #1a1208 0.8
+poly 0.40,0.68 0.44,0.62 0.50,0.60 0.52,0.65 0.48,0.76 0.42,0.74 stroke #0a0804
+
+# === Fang 4 (large, lower right — curved opposite direction) ===
+poly 0.78,0.70 0.82,0.64 0.88,0.62 0.90,0.68 0.85,0.82 0.78,0.80 fill #2a1a0a 0.85
+poly 0.78,0.70 0.82,0.64 0.88,0.62 0.90,0.68 0.85,0.82 0.78,0.80 stroke #0a0804
+line 0.86,0.64 0.83,0.78 stroke #3a2a18 0.55 width 1
+
+# === Fang 5 (tiny, upper right) ===
+poly 0.80,0.14 0.84,0.10 0.88,0.12 0.86,0.22 0.82,0.20 fill #1a1208 0.75
+poly 0.80,0.14 0.84,0.10 0.88,0.12 0.86,0.22 0.82,0.20 stroke #0a0804
+
+# === Fang 6 (medium, left side) ===
+poly 0.28,0.54 0.32,0.48 0.38,0.48 0.38,0.54 0.32,0.64 0.26,0.60 fill #2a1a0a 0.78
+poly 0.28,0.54 0.32,0.48 0.38,0.48 0.38,0.54 0.32,0.64 0.26,0.60 stroke #0a0804
+
+# Tiny fragment chips scattered
+circle 0.52,0.42 0.015 fill #1a1208 0.7
+circle 0.35,0.82 0.012 fill #2a1a0a 0.65
+circle 0.65,0.18 0.012 fill #1a1208 0.6

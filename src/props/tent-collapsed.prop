@@ -1,0 +1,70 @@
+name: Tent Collapsed
+category: Camp
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, ranger-camp, orc-war-camp, battlefield-recent
+typical_count: few
+clusters_with: bedroll, campfire, gear-pack, cookware-scatter
+notes: Partly collapsed canvas tent with pole askew — signs of abandonment or a struggle
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: crumpled tent, one pole still partly up, fabric mound
+
+# Guy ropes protruding (still staked but slack)
+# NW rope (taut to stake)
+line 0.30,0.35 0.08,0.10 stroke #8b7355 width 1
+rect 0.05,0.07 0.06,0.06 fill #2a1400 0.85
+rect 0.05,0.07 0.06,0.06 stroke #0a0400
+# NE rope (slack, dragging)
+bezier 1.60,0.40 1.75,0.25 1.85,0.18 1.92,0.12 stroke #8b7355 0.6 width 1
+rect 1.89,0.09 0.06,0.06 fill #2a1400 0.85
+rect 1.89,0.09 0.06,0.06 stroke #0a0400
+# SW rope (broken, trailing on ground)
+bezier 0.35,1.65 0.20,1.80 0.15,1.85 0.10,1.88 stroke #8b7355 0.5 width 1
+# SE rope (slack)
+bezier 1.55,1.60 1.70,1.75 1.80,1.85 1.90,1.92 stroke #8b7355 0.5 width 1
+rect 1.87,1.89 0.06,0.06 fill #2a1400 0.85
+rect 1.87,1.89 0.06,0.06 stroke #0a0400
+
+# Main crumpled canvas mass (irregular mound shape)
+poly 0.25,0.40 0.80,0.25 1.65,0.35 1.75,0.80 1.60,1.55 1.20,1.70 0.50,1.65 0.20,1.20 0.20,0.70 fill #8a7058 0.88
+poly 0.25,0.40 0.80,0.25 1.65,0.35 1.75,0.80 1.60,1.55 1.20,1.70 0.50,1.65 0.20,1.20 0.20,0.70 texfill polyhaven/rough_linen 0.5
+poly 0.25,0.40 0.80,0.25 1.65,0.35 1.75,0.80 1.60,1.55 1.20,1.70 0.50,1.65 0.20,1.20 0.20,0.70 stroke #3a2408
+
+# Canvas fold ridges (wrinkles in the collapsed fabric)
+bezier 0.35,0.60 0.70,0.55 1.10,0.65 1.50,0.55 stroke #3a2408 0.6 width 1
+bezier 0.30,0.90 0.65,0.85 1.00,0.95 1.40,0.85 stroke #3a2408 0.55 width 1
+bezier 0.35,1.20 0.75,1.15 1.10,1.25 1.55,1.20 stroke #3a2408 0.5 width 1
+bezier 0.40,1.45 0.80,1.42 1.15,1.50 1.45,1.45 stroke #3a2408 0.45 width 1
+
+# Lighter fabric panel (different shade showing through)
+poly 0.80,0.30 1.40,0.40 1.50,0.70 0.90,0.65 fill #a08870 0.5
+poly 0.80,0.30 1.40,0.40 1.50,0.70 0.90,0.65 stroke #3a2408 0.4
+
+# Askew pole (partially standing, angled, foreshortened)
+# Pole base visible where it pushes canvas up (creates a peak in the mound)
+circle 0.65,0.70 0.06 fill #3a1f00 0.85
+circle 0.65,0.70 0.06 stroke #2a1400
+# Foreshortened pole stub angling upward
+rect 0.63,0.60 0.04,0.12 fill #4a2800 0.8
+rect 0.63,0.60 0.04,0.12 stroke #2a1400
+# Fabric peak around pole
+ellipse 0.65,0.70 0.12,0.08 fill #6a5038 0.4
+
+# Collapsed pole lying on ground (visible through canvas)
+line 1.10,0.50 1.55,1.30 stroke #3a1f00 0.7 width 2
+
+# Dark opening where entry flap has fallen (south side gap)
+poly 0.85,1.60 1.15,1.60 1.10,1.75 0.90,1.75 fill #1a1008 0.6
+poly 0.85,1.60 1.15,1.60 1.10,1.75 0.90,1.75 stroke #2a1810 0.5
+
+# Weathering stains on canvas
+ellipse 0.50,1.00 0.15,0.08 fill #3a2408 0.3
+ellipse 1.30,0.60 0.10,0.06 fill #3a2408 0.25
+
+# Torn patch of canvas trailing away
+poly 0.20,1.20 0.12,1.40 0.18,1.50 0.28,1.35 fill #8a7058 0.6
+poly 0.20,1.20 0.12,1.40 0.18,1.50 0.28,1.35 stroke #3a2408 0.5

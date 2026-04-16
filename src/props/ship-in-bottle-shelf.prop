@@ -1,0 +1,44 @@
+name: Ship-in-Bottle Shelf
+category: Decoration
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 2
+placement: wall
+room_types: ship, captain-cabin, tavern, study, harbor
+typical_count: single
+clusters_with: trophy-case, cabinet-liquor, bookshelf
+notes: Tiny wall shelf holding a ship-in-a-bottle display; decorative accent
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small shelf bracket against wall (north) + bottle shape on shelf
+
+# Wall bracket (thin strip at north edge)
+rect 0.20,0.06 0.60,0.08 texfill polyhaven/dark_wood 0.8
+rect 0.20,0.06 0.60,0.08 stroke #3a1f00
+
+# Small shelf board
+rect 0.15,0.14 0.70,0.28 texfill polyhaven/dark_wood 0.85
+rect 0.15,0.14 0.70,0.28 stroke #3a1f00
+
+# Glass bottle body (elongated oval, seen from above)
+ellipse 0.50,0.28 0.22,0.08 fill #aabbcc 0.25
+ellipse 0.50,0.28 0.22,0.08 stroke #667788 0.6
+
+# Tiny mast hints inside bottle (barely visible dark lines)
+line 0.42,0.26 0.42,0.22 stroke #3a1f00 0.4
+line 0.50,0.27 0.50,0.21 stroke #3a1f00 0.4
+line 0.58,0.26 0.58,0.23 stroke #3a1f00 0.4
+
+# Tiny hull shape inside (dark sliver)
+ellipse 0.50,0.30 0.14,0.03 fill #3a1f00 0.35
+
+# Cork at bottle end (east)
+circle 0.72,0.28 0.03 fill #8b7355 0.6
+
+# Glass highlight
+arc 0.50,0.28 0.20 200 320 stroke #ccddee 0.2
+
+# Subtle shadow below shelf
+rect 0.18,0.42 0.64,0.04 fill #000000 0.08

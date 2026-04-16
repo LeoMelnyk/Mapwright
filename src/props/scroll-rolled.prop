@@ -1,0 +1,38 @@
+name: Rolled Scroll
+category: Documents
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ship, captain-cabin, study, wizard-sanctum, library, navigator-room
+typical_count: few
+clusters_with: desk, book-pile, liquor-bottle
+notes: Rolled sea-chart or parchment scroll tied with ribbon; place on desks or shelves
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a rolled scroll lying flat, angled slightly — cylindrical tube with parchment ends
+
+# Scroll body (rolled cylinder seen from above — elongated ellipse)
+ellipse 0.50,0.50 0.32,0.10 texfill polyhaven/rough_linen 0.7
+ellipse 0.50,0.50 0.32,0.10 stroke #8b7355
+
+# Parchment edge detail (lighter center line where the roll meets)
+line 0.20,0.50 0.80,0.50 stroke #c8b898 0.4
+
+# Parchment curl shadow (south side of roll)
+ellipse 0.50,0.54 0.30,0.04 fill #5c3a1e 0.2
+
+# Ribbon tie (dark red, cinching the middle)
+rect 0.46,0.40 0.08,0.20 fill #8b2020 0.6
+rect 0.46,0.40 0.08,0.20 stroke #5a1010 0.5
+
+# Ribbon bow loops (two small bumps)
+circle 0.44,0.44 0.03 fill #8b2020 0.5
+circle 0.56,0.44 0.03 fill #8b2020 0.5
+
+# Scroll ends (exposed parchment circles at left and right)
+circle 0.18,0.50 0.06 fill #e8dcc8 0.5
+circle 0.18,0.50 0.06 stroke #c8b898 0.4
+circle 0.82,0.50 0.06 fill #e8dcc8 0.5
+circle 0.82,0.50 0.06 stroke #c8b898 0.4

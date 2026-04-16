@@ -1,0 +1,49 @@
+name: Bucket on Rope
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: cistern, well, mine-shaft-entrance, deep-mine, cellar
+typical_count: single
+clusters_with: well, mine-shaft-opening, bucket, rope-coil
+notes: A wooden bucket with a long coiled rope beside it, sitting on the ground near a water source. The rope coil is south/east of the bucket.
+---
+# === Coiled rope (south-east of bucket) ===
+# Outer rope coil ring
+ring 0.68,0.65 0.22 0.12 fill #8b7355 0.8
+ring 0.68,0.65 0.22 0.12 stroke #5c3a1e
+# Inner coil detail
+circle 0.68,0.65 0.12 stroke #6b4e2e 0.6
+# Rope texture lines (circular grain)
+arc 0.68,0.65 0.18 30 150 stroke #6b4e2e 0.5 width 1
+arc 0.68,0.65 0.18 210 330 stroke #6b4e2e 0.5 width 1
+
+# Rope tail leading from coil toward bucket
+bezier 0.50,0.55 0.44,0.52 0.40,0.48 0.38,0.42 stroke #8b7355 width 2
+bezier 0.50,0.55 0.44,0.52 0.40,0.48 0.38,0.42 stroke #5c3a1e 0.6 width 1
+
+# === Wooden bucket (NW area) ===
+# Bucket body (top-down circle)
+circle 0.30,0.34 0.18 texfill polyhaven/dark_wood 0.85
+circle 0.30,0.34 0.18 stroke #2a1400
+
+# Metal band
+circle 0.30,0.34 0.17 stroke #555555 width 2
+# Inner rim
+circle 0.30,0.34 0.14 stroke #1a1008
+
+# Bucket interior (dark)
+circle 0.30,0.34 0.12 fill #2a3840 0.85
+
+# Stave seams
+line 0.30,0.16 0.30,0.52 stroke #2a1400 0.4
+line 0.16,0.26 0.44,0.42 stroke #2a1400 0.35
+
+# Handle arc
+arc 0.30,0.22 0.14 180 360 stroke #555555 width 2
+
+# Handle attachment rivets
+circle 0.16,0.34 0.02 fill #444444 0.9
+circle 0.44,0.34 0.02 fill #444444 0.9

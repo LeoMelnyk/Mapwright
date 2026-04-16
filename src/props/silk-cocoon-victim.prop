@@ -1,0 +1,64 @@
+name: Silk Cocoon (Victim)
+category: Misc
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: floor
+room_types: spider-lair, monster-lair-large, cave-drow-outpost, underdark-outpost
+typical_count: few
+clusters_with: silk-cocoon, cobweb-heavy, egg-sac, web-floor, bone-pile
+notes: A silk cocoon with a humanoid victim inside — dark silhouette visible through the translucent wrappings, limbs pressed tight. Occupied and possibly still alive.
+---
+# === HITBOX ===
+hitbox ellipse 0.5,1.0 0.32,0.78 z 0-1.2
+
+# footprint 2x1: x range 0-1, y range 0-2
+
+# Silk strand anchors trailing away
+line 0.50,0.06 0.44,0.00 stroke #d8d0b0 0.6 width 1
+line 0.50,1.94 0.56,2.00 stroke #d8d0b0 0.6 width 1
+line 0.16,0.55 0.04,0.42 stroke #d8d0b0 0.5 width 1
+line 0.84,1.45 0.96,1.55 stroke #d8d0b0 0.5 width 1
+
+# === Main cocoon body (taut — stretched around a body) ===
+ellipse 0.50,1.00 0.36,0.84 fill #d0c8b0 0.9
+ellipse 0.50,1.00 0.36,0.84 stroke #6a5a40
+
+# Silk texture wash
+ellipse 0.50,1.00 0.36,0.84 fill #e0d8c8 0.25
+
+# === Dark humanoid silhouette visible through silk ===
+# Head (at the top / north end)
+ellipse 0.50,0.30 0.14,0.16 fill #2a2018 0.5
+# Shoulders
+ellipse 0.50,0.52 0.26,0.10 fill #2a2018 0.4
+# Torso
+ellipse 0.50,0.80 0.20,0.22 fill #2a2018 0.35
+# Legs (pressed together toward south)
+ellipse 0.50,1.30 0.15,0.30 fill #2a2018 0.3
+# Arms pressed against body
+ellipse 0.30,0.75 0.06,0.20 fill #2a2018 0.25
+ellipse 0.70,0.75 0.06,0.20 fill #2a2018 0.25
+
+# === Wrapping lines (silk bands — tighter than empty cocoon) ===
+line 0.16,0.30 0.84,0.30 stroke #8b7a5a 0.55 width 1
+line 0.14,0.50 0.86,0.50 stroke #8b7a5a 0.5 width 1
+line 0.14,0.70 0.86,0.70 stroke #8b7a5a 0.5 width 1
+line 0.14,0.90 0.86,0.90 stroke #8b7a5a 0.45 width 1
+line 0.14,1.10 0.86,1.10 stroke #8b7a5a 0.5 width 1
+line 0.14,1.30 0.86,1.30 stroke #8b7a5a 0.5 width 1
+line 0.16,1.50 0.84,1.50 stroke #8b7a5a 0.55 width 1
+line 0.20,1.70 0.80,1.70 stroke #8b7a5a 0.5 width 1
+
+# === Glistening wet highlights ===
+ellipse 0.40,0.45 0.12,0.06 fill #ffffff 0.3
+ellipse 0.38,0.43 0.06,0.03 fill #ffffff 0.45
+
+# Faint struggle impression — silk stretched over a pressed hand
+poly 0.68,0.65 0.74,0.60 0.78,0.65 0.76,0.72 0.70,0.74 fill #c0b898 0.5
+poly 0.68,0.65 0.74,0.60 0.78,0.65 0.76,0.72 0.70,0.74 stroke #6a5a40 0.6
+
+# Blood/ichor stain seeping near the feet
+ellipse 0.50,1.75 0.20,0.08 fill #4a1a08 0.4

@@ -1,0 +1,41 @@
+name: Cork Pile
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: brewery, tavern-kitchen, cellar, winery
+typical_count: few
+clusters_with: barrel, crate, brewing-kettle
+notes: Small conical pile of wine/ale corks scattered on the floor near bottling area
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small mound of cylindrical corks, seen from above
+
+# Ground shadow of the pile
+ellipse 0.50,0.52 0.22,0.20 fill #3a2a14 0.2
+
+# Bottom layer corks (seen as small circles/ovals — round cork ends)
+ellipse 0.36,0.58 0.06,0.05 fill #c8a870 0.75
+ellipse 0.36,0.58 0.06,0.05 stroke #8b6914 0.5
+ellipse 0.62,0.60 0.06,0.05 fill #c8a870 0.7
+ellipse 0.62,0.60 0.06,0.05 stroke #8b6914 0.5
+ellipse 0.50,0.64 0.06,0.05 fill #bfa068 0.7
+ellipse 0.50,0.64 0.06,0.05 stroke #8b6914 0.5
+ellipse 0.40,0.46 0.05,0.04 fill #c8a870 0.7
+ellipse 0.40,0.46 0.05,0.04 stroke #8b6914 0.5
+ellipse 0.58,0.48 0.05,0.04 fill #bfa068 0.72
+ellipse 0.58,0.48 0.05,0.04 stroke #8b6914 0.5
+
+# Top cork (apex of the pile — slightly brighter)
+ellipse 0.50,0.52 0.05,0.04 fill #d4b880 0.85
+ellipse 0.50,0.52 0.05,0.04 stroke #8b6914 0.6
+# Tree ring on top cork
+ellipse 0.50,0.52 0.025,0.02 stroke #a08050 0.4
+
+# A couple stray corks rolled away
+ellipse 0.26,0.70 0.04,0.03 fill #c8a870 0.5
+ellipse 0.26,0.70 0.04,0.03 stroke #8b6914 0.35
+ellipse 0.72,0.42 0.035,0.03 fill #bfa068 0.45
+ellipse 0.72,0.42 0.035,0.03 stroke #8b6914 0.3

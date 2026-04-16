@@ -1,0 +1,47 @@
+name: Scorched Scroll
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: infernal-court, wizard-sanctum, study, fiend-lair, dungeon
+typical_count: many
+clusters_with: soul-coin-pile, infernal-contract-pedestal, book-pile
+notes: Partially burned parchment scroll with red script; scatter on floors for infernal atmosphere
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: partially unrolled scroll with charred edges, red writing visible
+
+# === Scroll body (curled parchment) ===
+# Main unfurled parchment
+poly 0.18,0.22 0.75,0.18 0.82,0.30 0.80,0.72 0.72,0.80 0.20,0.78 0.14,0.65 fill #2a1f14 0.8
+poly 0.18,0.22 0.75,0.18 0.82,0.30 0.80,0.72 0.72,0.80 0.20,0.78 0.14,0.65 stroke #1a1208
+
+# === Charred/burned edges — irregular black border ===
+# Charred NE corner
+poly 0.72,0.18 0.82,0.16 0.86,0.22 0.82,0.30 fill #0a0804 0.8
+# Charred SE edge
+poly 0.75,0.72 0.84,0.68 0.82,0.78 0.72,0.80 fill #0a0804 0.75
+# Charred scorch marks
+circle 0.80,0.24 0.04 fill #1a0800 0.6
+circle 0.16,0.68 0.035 fill #1a0800 0.5
+circle 0.76,0.74 0.03 fill #1a0800 0.55
+
+# === Red infernal script ===
+line 0.26,0.32 0.68,0.32 stroke #8b1a1a 0.5 width 1
+line 0.26,0.40 0.62,0.40 stroke #8b1a1a 0.45 width 1
+line 0.24,0.48 0.66,0.48 stroke #8b1a1a 0.5 width 1
+line 0.26,0.56 0.58,0.56 stroke #8b1a1a 0.45 width 1
+line 0.24,0.64 0.64,0.64 stroke #8b1a1a 0.4 width 1
+
+# === Rolled end at west side ===
+ellipse 0.16,0.50 0.05,0.22 fill #2a1f14 0.7
+ellipse 0.16,0.50 0.05,0.22 stroke #1a1208
+# Highlight on the curl
+ellipse 0.14,0.50 0.02,0.20 fill #3a2f20 0.4
+
+# === Ash/soot specks ===
+circle 0.60,0.25 0.015 fill #1a1a1a 0.4
+circle 0.42,0.72 0.012 fill #1a1a1a 0.35
+circle 0.78,0.50 0.015 fill #1a1a1a 0.3

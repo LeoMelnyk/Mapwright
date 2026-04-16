@@ -1,0 +1,30 @@
+name: Broken Fingernail Scratch
+category: Prison
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: oubliette, prison-block, dungeon, torture-chamber
+typical_count: many
+clusters_with: single-tooth, corpse, bone-pile-small, shackles
+notes: Desperate scratch marks clawed into stone; scatter near walls and corners for atmosphere
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: parallel scratches gouged into stone floor
+
+# Faint stain around scratches (old blood/grime)
+ellipse 0.50,0.50 0.35,0.18 fill #3a1a0a 0.12
+
+# Scratch lines — 5 thin parallel reddish-brown grooves
+line 0.18,0.30 0.82,0.68 stroke #5a2a10 0.65 width 2
+line 0.20,0.37 0.84,0.72 stroke #6a3018 0.6 width 2
+line 0.16,0.44 0.80,0.78 stroke #5a2a10 0.55 width 2
+line 0.22,0.50 0.86,0.84 stroke #4a2008 0.5 width 2
+line 0.15,0.56 0.78,0.90 stroke #5a2a10 0.45 width 2
+
+# Deeper gouge on the first scratch (where nail broke)
+line 0.62,0.56 0.74,0.64 stroke #3a1208 0.7 width 3
+
+# Tiny fleck — broken fingernail fragment
+poly 0.72,0.63 0.75,0.61 0.76,0.65 fill #d4a574 0.6

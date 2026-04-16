@@ -1,0 +1,72 @@
+name: Washing Line
+category: Clutter
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 2.5
+placement: center
+room_types: tenement-room, slum-dwelling, peasant-hovel, courtyard, house-medium-family
+typical_count: single
+clusters_with: washing-tub, bucket, stool, boot-worn
+notes: Clothesline strung between two posts/hooks with garments hanging — overhead view shows the cord line plus tiny top-edges of clothing and a subtle drape shadow beneath
+---
+# footprint 1x3: x range 0-3, y range 0-1. Cord runs east-west with slight sag.
+
+# === Drape shadow beneath the line (garments hanging below, casting diffuse shadow) ===
+bezier 0.15,0.62 0.80,0.72 2.20,0.72 2.85,0.62 stroke #1a1a1a 0.15 width 16
+
+# === Main cord line (rope/twine, slight sag) ===
+bezier 0.12,0.42 0.80,0.50 2.20,0.50 2.88,0.42 stroke #8b7355 width 2
+bezier 0.12,0.42 0.80,0.50 2.20,0.50 2.88,0.42 stroke #5c3a1e 0.6 width 1
+
+# === Post anchors at each end ===
+# Left post (wooden, top-down cross-section)
+rect 0.06,0.36 0.10,0.14 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.36 0.10,0.14 stroke #2a1400
+# Right post
+rect 2.84,0.36 0.10,0.14 texfill polyhaven/dark_wood 0.85
+rect 2.84,0.36 0.10,0.14 stroke #2a1400
+
+# === Garment top-edges peeking below the cord (tiny color blocks) ===
+# Garment 1 — beige shirt (x ~0.4)
+line 0.32,0.46 0.48,0.48 stroke #c8b898 0.9 width 3
+circle 0.40,0.50 0.018 fill #c8b898 0.8
+
+# Garment 2 — grey-blue tunic (x ~1.0)
+line 0.90,0.48 1.10,0.50 stroke #7088a0 0.9 width 3
+circle 1.00,0.52 0.018 fill #7088a0 0.8
+
+# Garment 3 — brown breeches (x ~1.6)
+line 1.50,0.50 1.70,0.50 stroke #6b4e2e 0.9 width 3
+circle 1.60,0.52 0.018 fill #6b4e2e 0.8
+
+# Garment 4 — off-white cloth/rag (x ~2.2)
+line 2.12,0.48 2.30,0.48 stroke #d4c8b0 0.9 width 3
+circle 2.21,0.50 0.018 fill #d4c8b0 0.8
+
+# === Clothespin details (tiny pegs gripping the cord above each garment) ===
+# Peg 1
+rect 0.38,0.42 0.04,0.06 fill #c4a882 0.85
+rect 0.38,0.42 0.04,0.06 stroke #5c3a1e
+# Peg 2
+rect 0.98,0.44 0.04,0.06 fill #c4a882 0.85
+rect 0.98,0.44 0.04,0.06 stroke #5c3a1e
+# Peg 3
+rect 1.58,0.46 0.04,0.06 fill #c4a882 0.85
+rect 1.58,0.46 0.04,0.06 stroke #5c3a1e
+# Peg 4
+rect 2.19,0.44 0.04,0.06 fill #c4a882 0.85
+rect 2.19,0.44 0.04,0.06 stroke #5c3a1e
+
+# === Knots at post connections ===
+circle 0.12,0.42 0.025 fill #5c3a1e 0.85
+circle 0.12,0.42 0.025 stroke #2a1400
+circle 2.88,0.42 0.025 fill #5c3a1e 0.85
+circle 2.88,0.42 0.025 stroke #2a1400
+
+# === Drip dots beneath line (damp laundry) ===
+circle 0.42,0.68 0.012 fill #4a6a8a 0.25
+circle 1.02,0.70 0.01 fill #4a6a8a 0.2
+circle 1.62,0.70 0.012 fill #4a6a8a 0.22
+circle 2.22,0.68 0.01 fill #4a6a8a 0.2

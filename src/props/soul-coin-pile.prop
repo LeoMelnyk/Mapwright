@@ -1,0 +1,77 @@
+name: Soul Coin Pile
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: infernal-court, fiend-lair, throne-room, treasury, nine-hells
+typical_count: few
+clusters_with: infernal-contract-pedestal, iron-throne-spiked, chest
+notes: Small mound of black iron coins with trapped-soul ember glow; place near thrones or in treasuries
+lights:
+  - type: candle
+    x: 0.5
+    y: 0.5
+    radius: 3
+    color: "#ff6622"
+    intensity: 0.3
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: scattered mound of dark iron coins, each with a faint orange-red inner glow
+
+# === Faint warm glow halo underneath the pile ===
+circle 0.50,0.50 0.38 gradient-radial #ff4400 #000000 0.1
+
+# === Bottom layer coins (partially covered) ===
+circle 0.28,0.62 0.08 fill #222222 0.75
+circle 0.28,0.62 0.08 stroke #111111
+circle 0.28,0.62 0.04 fill #cc4400 0.2
+
+circle 0.72,0.58 0.08 fill #222222 0.75
+circle 0.72,0.58 0.08 stroke #111111
+circle 0.72,0.58 0.04 fill #cc4400 0.2
+
+circle 0.35,0.35 0.08 fill #222222 0.7
+circle 0.35,0.35 0.08 stroke #111111
+circle 0.35,0.35 0.04 fill #cc4400 0.18
+
+circle 0.68,0.38 0.08 fill #222222 0.7
+circle 0.68,0.38 0.08 stroke #111111
+circle 0.68,0.38 0.04 fill #cc4400 0.18
+
+# === Middle layer coins ===
+circle 0.42,0.55 0.09 fill #2a2a2a 0.85
+circle 0.42,0.55 0.09 stroke #111111
+circle 0.42,0.55 0.05 fill #dd5500 0.25
+circle 0.42,0.55 0.025 fill #ff8800 0.3
+
+circle 0.60,0.50 0.09 fill #2a2a2a 0.85
+circle 0.60,0.50 0.09 stroke #111111
+circle 0.60,0.50 0.05 fill #dd5500 0.25
+circle 0.60,0.50 0.025 fill #ff8800 0.3
+
+circle 0.50,0.38 0.08 fill #2a2a2a 0.8
+circle 0.50,0.38 0.08 stroke #111111
+circle 0.50,0.38 0.04 fill #dd5500 0.22
+circle 0.50,0.38 0.02 fill #ff8800 0.28
+
+# === Top coins (most visible, brightest glow) ===
+circle 0.50,0.50 0.10 fill #333333 0.9
+circle 0.50,0.50 0.10 stroke #1a1a1a
+circle 0.50,0.50 0.06 fill #dd5500 0.35
+circle 0.50,0.50 0.03 fill #ffaa00 0.45
+
+circle 0.38,0.48 0.07 fill #333333 0.85
+circle 0.38,0.48 0.07 stroke #1a1a1a
+circle 0.38,0.48 0.04 fill #dd5500 0.3
+circle 0.38,0.48 0.02 fill #ff8800 0.35
+
+# === Scattered edge coins (fallen off the pile) ===
+circle 0.22,0.48 0.06 fill #222222 0.65
+circle 0.22,0.48 0.06 stroke #111111
+circle 0.22,0.48 0.03 fill #cc4400 0.15
+
+circle 0.75,0.68 0.06 fill #222222 0.65
+circle 0.75,0.68 0.06 stroke #111111
+circle 0.75,0.68 0.03 fill #cc4400 0.15

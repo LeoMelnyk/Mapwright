@@ -1,0 +1,51 @@
+name: Celestial Feather
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: celestial-vault, temple, solar-sanctum, divine-sanctum, angel-court
+typical_count: few
+clusters_with: dew-drop-sparkle, feather-celestial, flower-petals
+notes: Large pure-white glowing feather lying on the ground — angelic evidence or holy relic
+lights:
+  - type: candle
+    x: 0.50
+    y: 0.45
+    radius: 2
+    color: "#ffffff"
+    intensity: 0.15
+---
+# Top-down: a large feather lying flat on the ground, quill running diagonally
+
+# === Faint glow halo beneath feather ===
+ellipse 0.48,0.45 0.35,0.22 fill #ffffff 0.06
+
+# === Feather vane — left side (wider) ===
+poly 0.22,0.72 0.32,0.58 0.40,0.44 0.46,0.30 0.48,0.20 0.50,0.35 0.48,0.50 0.42,0.62 0.34,0.74 fill #f0ece8 0.8
+poly 0.22,0.72 0.32,0.58 0.40,0.44 0.46,0.30 0.48,0.20 0.50,0.35 0.48,0.50 0.42,0.62 0.34,0.74 stroke #c8c0b0
+
+# === Feather vane — right side (narrower) ===
+poly 0.48,0.20 0.52,0.30 0.58,0.44 0.62,0.56 0.68,0.68 0.50,0.60 0.50,0.44 0.50,0.30 fill #e8e4e0 0.75
+poly 0.48,0.20 0.52,0.30 0.58,0.44 0.62,0.56 0.68,0.68 0.50,0.60 0.50,0.44 0.50,0.30 stroke #c8c0b0
+
+# === Central rachis (quill shaft) ===
+bezier 0.48,0.18 0.49,0.35 0.48,0.55 0.44,0.76 stroke #d4ccc0 width 2
+bezier 0.48,0.18 0.49,0.35 0.48,0.55 0.44,0.76 stroke #e8e0d8 width 1
+
+# === Barb lines (fine texture across vane) ===
+line 0.30,0.65 0.48,0.55 stroke #d8d0c8 0.3
+line 0.35,0.58 0.49,0.48 stroke #d8d0c8 0.3
+line 0.40,0.48 0.49,0.40 stroke #d8d0c8 0.3
+line 0.44,0.38 0.49,0.32 stroke #d8d0c8 0.3
+line 0.55,0.40 0.50,0.35 stroke #d0c8c0 0.3
+line 0.58,0.50 0.50,0.45 stroke #d0c8c0 0.3
+line 0.62,0.60 0.50,0.52 stroke #d0c8c0 0.3
+
+# === Calamus (bare quill end at base) ===
+line 0.44,0.76 0.42,0.82 stroke #c8c0b0 width 2
+circle 0.42,0.82 0.015 fill #b8b0a0 0.6
+
+# === Subtle shimmer highlight along rachis ===
+line 0.48,0.22 0.49,0.40 stroke #ffffff 0.2

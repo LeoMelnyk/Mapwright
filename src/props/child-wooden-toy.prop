@@ -1,0 +1,52 @@
+name: Wooden Toy Horse
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: farmhouse-common, nursery, peasant-hovel, house-medium-family
+typical_count: single
+clusters_with: rag-doll, children-toys, blocks-pile, cradle
+notes: Small carved wooden horse toy lying on the floor — top-down shows little platform with horse silhouette on top
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Wheeled platform base ===
+rect 0.28,0.42 0.44,0.18 texfill polyhaven/dark_wood 0.85
+rect 0.28,0.42 0.44,0.18 stroke #2a1400
+
+# Tiny wheels (circles peeking out south)
+circle 0.34,0.60 0.035 fill #3a1f00 0.9
+circle 0.34,0.60 0.035 stroke #1a0a04
+circle 0.66,0.60 0.035 fill #3a1f00 0.9
+circle 0.66,0.60 0.035 stroke #1a0a04
+
+# Axle bars
+line 0.34,0.58 0.34,0.44 stroke #2a1400 0.6
+line 0.66,0.58 0.66,0.44 stroke #2a1400 0.6
+
+# === Horse body on platform (oval, top-down) ===
+ellipse 0.50,0.44 0.16,0.08 fill #c4a882 0.92
+ellipse 0.50,0.44 0.16,0.08 stroke #5c3a1e
+
+# Horse neck + head (bump extending north-east)
+poly 0.62,0.40 0.72,0.32 0.74,0.36 0.66,0.44 fill #c4a882 0.92
+poly 0.62,0.40 0.72,0.32 0.74,0.36 0.66,0.44 stroke #5c3a1e
+
+# Mane detail (tiny strokes)
+line 0.64,0.32 0.68,0.30 stroke #5c3a1e width 2
+line 0.62,0.34 0.66,0.32 stroke #5c3a1e width 2
+
+# Tail (small stroke extending west)
+bezier 0.34,0.44 0.28,0.42 0.26,0.38 0.24,0.34 stroke #5c3a1e width 2
+
+# Eye dot
+circle 0.71,0.33 0.012 fill #1a0a04 0.9
+
+# === Pull cord (lying loosely on the floor) ===
+bezier 0.30,0.50 0.20,0.60 0.22,0.72 0.30,0.76 stroke #8b7355 width 1
+# Cord knot/handle at end
+circle 0.30,0.76 0.025 fill #5c3a1e 0.85
+circle 0.30,0.76 0.025 stroke #2a1400

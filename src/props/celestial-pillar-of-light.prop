@@ -1,0 +1,60 @@
+name: Celestial Pillar of Light
+category: Magical
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: celestial-vault, temple, cathedral, solar-sanctum, divine-sanctum
+typical_count: single
+clusters_with: pillar-marble, banner-celestial, sun-disc-altar
+notes: Radiant column of pure divine light from ceiling to floor — concentric rings, not a flame silhouette
+lights:
+  - type: torch
+    x: 1.0
+    y: 1.0
+    radius: 8
+    color: "#fff0d0"
+    intensity: 0.9
+---
+# Footprint 2x2: x 0-2, y 0-2
+# Top-down: looking straight down a column of light — concentric rings
+# Per "Fire & Flame Columns" rule: halo -> bright -> core
+
+# === Outermost halo — very faint warm gold ===
+circle 1.0,1.0 0.95 fill #fff0c0 0.08
+circle 1.0,1.0 0.80 fill #fff0c0 0.10
+
+# === Outer pale gold ring ===
+circle 1.0,1.0 0.70 fill #ffe8a0 0.20
+circle 1.0,1.0 0.60 fill #ffdd88 0.25
+
+# === Mid bright ring — white-gold ===
+circle 1.0,1.0 0.50 fill #fff0cc 0.45
+circle 1.0,1.0 0.42 fill #fff8dd 0.55
+
+# === Inner bright white ring ===
+circle 1.0,1.0 0.34 fill #fffcee 0.70
+circle 1.0,1.0 0.26 fill #fffff0 0.80
+
+# === Core — near-white, brightest ===
+circle 1.0,1.0 0.18 fill #ffffff 0.90
+circle 1.0,1.0 0.10 fill #ffffff 0.95
+
+# === Radial ray lines — light beams radiating outward ===
+line 1.0,0.15 1.0,0.35 stroke #fff8dd 0.25
+line 1.0,1.65 1.0,1.85 stroke #fff8dd 0.25
+line 0.15,1.0 0.35,1.0 stroke #fff8dd 0.25
+line 1.65,1.0 1.85,1.0 stroke #fff8dd 0.25
+line 0.40,0.40 0.55,0.55 stroke #fff8dd 0.20
+line 1.60,0.40 1.45,0.55 stroke #fff8dd 0.20
+line 0.40,1.60 0.55,1.45 stroke #fff8dd 0.20
+line 1.60,1.60 1.45,1.45 stroke #fff8dd 0.20
+
+# === Floating mote sparkles caught in the light ===
+circle 0.70,0.55 0.02 fill #ffffff 0.6
+circle 1.30,0.65 0.018 fill #ffffff 0.55
+circle 0.60,1.35 0.02 fill #ffffff 0.55
+circle 1.40,1.40 0.018 fill #ffffff 0.5
+circle 0.85,0.75 0.015 fill #fff8dd 0.5
+circle 1.15,1.25 0.015 fill #fff8dd 0.5

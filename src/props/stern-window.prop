@@ -1,0 +1,59 @@
+name: Stern Window
+category: Structure
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 6
+lights:
+  - type: candle
+    x: 1.5
+    y: 0.5
+    radius: 5
+    color: "#aaccee"
+    intensity: 0.4
+placement: wall
+room_types: ship, captain-cabin, officer-quarters
+typical_count: single
+clusters_with: desk, captains-bunk, cabinet-liquor
+notes: Large curved stern window with many panes; place along rear wall of captain's cabin. Provides natural daylight.
+---
+# footprint 1x3: x range 0-3, y range 0-1
+# Top-down: thin wall strip at north + grid of pane divisions + faint blue-grey glow
+
+# Wall structure strip (north edge)
+rect 0.0,0.0 3.0,0.15 texfill polyhaven/dark_wood 0.8
+rect 0.0,0.0 3.0,0.15 stroke #3a1f00
+
+# Window frame (wooden surround)
+rect 0.08,0.12 2.84,0.72 texfill polyhaven/dark_wood 0.75
+rect 0.08,0.12 2.84,0.72 stroke #3a1f00
+
+# Glass panes (blue-grey daylight glow)
+rect 0.16,0.18 2.68,0.58 fill #8899aa 0.3
+
+# Horizontal mullion bars (dividing panes into rows)
+line 0.14,0.38 2.86,0.38 stroke #3a1f00 width 2
+line 0.14,0.56 2.86,0.56 stroke #3a1f00 width 2
+
+# Vertical mullion bars (dividing into columns)
+line 0.50,0.16 0.50,0.78 stroke #3a1f00 width 2
+line 1.00,0.16 1.00,0.78 stroke #3a1f00 width 2
+line 1.50,0.16 1.50,0.78 stroke #3a1f00 width 2
+line 2.00,0.16 2.00,0.78 stroke #3a1f00 width 2
+line 2.50,0.16 2.50,0.78 stroke #3a1f00 width 2
+
+# Sea-light glow through panes (subtle cool blue)
+rect 0.20,0.20 0.26,0.16 fill #aaccee 0.12
+rect 0.54,0.20 0.42,0.16 fill #99bbdd 0.10
+rect 1.04,0.20 0.42,0.16 fill #aaccee 0.12
+rect 1.54,0.20 0.42,0.16 fill #99bbdd 0.10
+rect 2.04,0.20 0.42,0.16 fill #aaccee 0.12
+rect 2.54,0.20 0.26,0.16 fill #99bbdd 0.10
+
+# Light spill on floor (south of window)
+rect 0.30,0.80 2.40,0.14 fill #aaccee 0.06
+
+# Window sill (bottom frame bar)
+rect 0.08,0.76 2.84,0.08 texfill polyhaven/dark_wood 0.8
+rect 0.08,0.76 2.84,0.08 stroke #3a1f00

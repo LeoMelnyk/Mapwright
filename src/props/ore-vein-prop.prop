@@ -1,0 +1,47 @@
+name: Ore Vein
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: cave, mine, elemental-earth-node, natural-cavern
+typical_count: many
+clusters_with: boulder, stone-debris, geode-cluster, fossil-embedded
+notes: Glittering ore veins running through rock on the floor; scatter in mines and earth-themed areas
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: stone surface with bright metallic streak lines running through it
+
+# === Stone base (rough natural rock surface) ===
+ellipse 0.50,0.50 0.40,0.38 texfill polyhaven/rock_boulder_cracked 0.6
+ellipse 0.50,0.50 0.40,0.38 stroke #555555 0.4
+
+# === Primary ore vein (thick bright metallic streaks, running NW-SE) ===
+line 0.15,0.25 0.45,0.50 stroke #ddaa44 width 3
+line 0.45,0.50 0.80,0.65 stroke #ddaa44 width 3
+line 0.80,0.65 0.90,0.78 stroke #cc9933 width 2
+
+# Vein highlight (brighter center of main vein)
+line 0.18,0.26 0.44,0.50 stroke #ffcc66 width 1
+line 0.46,0.50 0.78,0.64 stroke #ffcc66 width 1
+
+# === Secondary ore vein (thinner, branching off) ===
+line 0.35,0.42 0.25,0.60 stroke #cc9933 width 2
+line 0.55,0.55 0.70,0.40 stroke #cc9933 width 2
+line 0.70,0.40 0.85,0.35 stroke #bb8822 width 1
+
+# === Tertiary micro-veins (tiny metallic threads) ===
+line 0.20,0.35 0.28,0.38 stroke #bb8822 width 1
+line 0.60,0.58 0.65,0.72 stroke #bb8822 width 1
+line 0.40,0.55 0.35,0.68 stroke #bb8822 width 1
+
+# === Metallic glint points (bright sparkle dots along veins) ===
+circle 0.30,0.38 0.02 fill #ffdd88 0.7
+circle 0.50,0.52 0.025 fill #ffdd88 0.8
+circle 0.72,0.62 0.02 fill #ffdd88 0.65
+circle 0.45,0.48 0.015 fill #ffffff 0.5
+circle 0.65,0.56 0.015 fill #ffffff 0.45
+circle 0.25,0.55 0.015 fill #ffdd88 0.5
+circle 0.82,0.68 0.015 fill #ffcc66 0.5

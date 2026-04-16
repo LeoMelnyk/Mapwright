@@ -1,0 +1,55 @@
+name: Spice Rack
+category: Kitchen
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 2
+placement: wall
+room_types: ship, galley, kitchen, tavern
+typical_count: few
+clusters_with: cupboard-galley, ship-stove, pewter-plate
+notes: Small wall-mounted rack with labeled jars; place on galley walls near stove
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: thin shelf strip along wall + small jar-top circles
+
+# Shelf back rail (against wall, north edge)
+rect 0.06,0.05 1.88,0.08 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.05 1.88,0.08 stroke #3a1f00
+
+# Shelf board
+rect 0.04,0.12 1.92,0.30 texfill polyhaven/weathered_planks 0.8
+rect 0.04,0.12 1.92,0.30 stroke #3a1f00
+
+# Lip rail at front of shelf (prevents jars sliding off)
+rect 0.04,0.40 1.92,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.04,0.40 1.92,0.06 stroke #3a1f00
+
+# Jar 1 — glass jar top (reddish spice)
+circle 0.28,0.28 0.09 fill #884422 0.6
+circle 0.28,0.28 0.09 stroke #666666 0.7
+circle 0.28,0.28 0.05 fill #aa5533 0.4
+
+# Jar 2 — glass jar top (yellowish spice)
+circle 0.64,0.26 0.09 fill #aa8833 0.6
+circle 0.64,0.26 0.09 stroke #666666 0.7
+circle 0.64,0.26 0.05 fill #ccaa44 0.4
+
+# Jar 3 — glass jar top (dark green herb)
+circle 1.00,0.28 0.09 fill #446633 0.6
+circle 1.00,0.28 0.09 stroke #666666 0.7
+circle 1.00,0.28 0.05 fill #558844 0.4
+
+# Jar 4 — glass jar top (white salt)
+circle 1.36,0.26 0.09 fill #ccccbb 0.6
+circle 1.36,0.26 0.09 stroke #666666 0.7
+circle 1.36,0.26 0.05 fill #ddddcc 0.4
+
+# Jar 5 — glass jar top (dark pepper)
+circle 1.72,0.28 0.09 fill #333322 0.6
+circle 1.72,0.28 0.09 stroke #666666 0.7
+circle 1.72,0.28 0.05 fill #444433 0.4
+
+# Subtle shadow below shelf
+rect 0.06,0.46 1.88,0.04 fill #000000 0.1

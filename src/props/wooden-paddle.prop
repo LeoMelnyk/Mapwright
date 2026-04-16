@@ -1,0 +1,45 @@
+name: Wooden Paddle
+category: Workshop
+footprint: 2x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: brewery, tavern-kitchen, cellar, winery
+typical_count: single
+clusters_with: mash-tun, brewing-kettle, fermentation-vat
+notes: Long-handled wooden stirring paddle lying on the floor; used for mash tuns and brewing kettles
+---
+# footprint 2x1: x range 0-1, y range 0-2
+# Top-down: long paddle lying flat, blade at north (low Y), handle at south (high Y)
+
+# Paddle blade (broad oval at north end)
+ellipse 0.50,0.32 0.18,0.28 texfill polyhaven/wood_table 0.8
+ellipse 0.50,0.32 0.18,0.28 stroke #3a1f00
+
+# Blade grain lines
+line 0.42,0.12 0.42,0.52 stroke #5c3a1e 0.25
+line 0.50,0.14 0.50,0.50 stroke #5c3a1e 0.25
+line 0.58,0.12 0.58,0.52 stroke #5c3a1e 0.25
+
+# Blade wear/stain from use (slight darkening)
+ellipse 0.50,0.28 0.10,0.16 fill #8a6a30 0.15
+
+# Blade edge highlight
+arc 0.50,0.32 0.28 250 290 stroke #8b7355 0.3 width 2
+
+# Shaft-blade junction reinforcement
+rect 0.42,0.56 0.16,0.08 fill #4a2800 0.4
+rect 0.42,0.56 0.16,0.08 stroke #3a1f00 0.5
+
+# Handle shaft (long thin rod running north-south)
+rect 0.46,0.60 0.08,1.30 texfill polyhaven/wood_table 0.85
+rect 0.46,0.60 0.08,1.30 stroke #3a1f00
+
+# Grip wrap (twine)
+line 0.46,1.76 0.54,1.76 stroke #c8b898 0.5
+line 0.46,1.80 0.54,1.80 stroke #c8b898 0.5
+
+# Handle grip end (south, slight flare)
+ellipse 0.50,1.88 0.08,0.06 fill #5c3a1e 0.8
+ellipse 0.50,1.88 0.08,0.06 stroke #3a1f00

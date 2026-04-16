@@ -1,0 +1,54 @@
+name: Bone Charm
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 2
+placement: center
+room_types: bog-witch-hut, cabin-witch, druid-grove, shaman-tent, hermit-cell, shrine-roadside
+typical_count: few
+clusters_with: hung-herb-bundle, animal-skull-small, skull-on-stick, bone-marker
+notes: A dangling charm of bones, feathers, and teeth on a cord hanging overhead. Top-down: cord line across the cell with the top edges of charm objects peeking below + a subtle drape shadow. Overhead-strung style.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Drape shadow below the hanging charm (faint, diffuse) ===
+ellipse 0.50,0.62 0.30,0.10 fill #1a1a1a 0.18
+ellipse 0.50,0.58 0.22,0.06 fill #1a1a1a 0.12
+
+# === Cord/twine line running across the cell ===
+line 0.08,0.42 0.92,0.42 stroke #5c3a1e width 2
+line 0.08,0.42 0.92,0.42 stroke #8b7355 0.5 width 1
+
+# === Top edges of dangling charm objects (peeking south of cord) ===
+
+# Bone piece 1 (short bar — top of a dangling finger bone)
+rect 0.18,0.44 0.08,0.05 fill #e8dcc8 0.85
+rect 0.18,0.44 0.08,0.05 stroke #6a5040
+
+# Feather 1 (thin angled tip poking out)
+line 0.32,0.43 0.35,0.52 stroke #2a2018 0.8 width 2
+line 0.32,0.43 0.35,0.52 stroke #4a3a28 0.5 width 1
+
+# Tooth (small triangular tip)
+poly 0.46,0.44 0.50,0.44 0.48,0.52 fill #e8dcc8 0.9
+poly 0.46,0.44 0.50,0.44 0.48,0.52 stroke #6a5040
+
+# Bone piece 2 (slightly larger — vertebra disc)
+circle 0.62,0.47 0.03 fill #d4c4a8 0.8
+circle 0.62,0.47 0.03 stroke #6a5040
+
+# Feather 2 (another thin tip)
+line 0.74,0.43 0.72,0.51 stroke #1a1208 0.75 width 2
+line 0.74,0.43 0.72,0.51 stroke #3a2a18 0.45 width 1
+
+# Tooth 2 (tiny fang shape)
+poly 0.84,0.44 0.88,0.44 0.86,0.50 fill #d4c4a8 0.85
+poly 0.84,0.44 0.88,0.44 0.86,0.50 stroke #6a5040
+
+# === Cord anchor knots at ends ===
+circle 0.08,0.42 0.025 fill #5c3a1e 0.85
+circle 0.08,0.42 0.025 stroke #2a1408
+circle 0.92,0.42 0.025 fill #5c3a1e 0.85
+circle 0.92,0.42 0.025 stroke #2a1408

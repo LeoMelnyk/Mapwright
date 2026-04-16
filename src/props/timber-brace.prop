@@ -1,0 +1,47 @@
+name: Timber Brace
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel, collapsed-area
+typical_count: many
+clusters_with: timber-brace, cart-track, rail-track, rubble
+notes: Roof-support timber brace — two vertical posts with a horizontal beam connecting them along the wall. Top-down view shows the round post cross-sections at corners and the beam strip running between them. Place against walls in mine tunnels.
+---
+# === Horizontal beam strip along the wall (north edge) ===
+rect 0.08,0.06 0.84,0.14 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.06 0.84,0.14 stroke #2a1400
+
+# Beam wood grain accent
+line 0.14,0.10 0.86,0.10 stroke #4a2800 0.4 width 1
+line 0.14,0.16 0.86,0.16 stroke #4a2800 0.35 width 1
+
+# === Left post (round cross-section at NW corner) ===
+circle 0.16,0.14 0.10 texfill polyhaven/dark_wood 0.85
+circle 0.16,0.14 0.10 stroke #2a1400
+# Post ring detail (growth rings visible top-down)
+circle 0.16,0.14 0.06 stroke #4a2800 0.5
+circle 0.16,0.14 0.03 fill #3a1f00 0.6
+
+# === Right post (round cross-section at NE corner) ===
+circle 0.84,0.14 0.10 texfill polyhaven/dark_wood 0.85
+circle 0.84,0.14 0.10 stroke #2a1400
+circle 0.84,0.14 0.06 stroke #4a2800 0.5
+circle 0.84,0.14 0.03 fill #3a1f00 0.6
+
+# Iron bracket plates where beam meets posts
+rect 0.08,0.04 0.06,0.12 fill #555555 0.8
+rect 0.08,0.04 0.06,0.12 stroke #333333
+rect 0.86,0.04 0.06,0.12 fill #555555 0.8
+rect 0.86,0.04 0.06,0.12 stroke #333333
+
+# Bracket bolt dots
+circle 0.11,0.08 0.015 fill #333333 0.95
+circle 0.11,0.14 0.015 fill #333333 0.95
+circle 0.89,0.08 0.015 fill #333333 0.95
+circle 0.89,0.14 0.015 fill #333333 0.95
+
+# Subtle shadow below beam (indicating structure extending overhead)
+rect 0.10,0.20 0.80,0.04 fill #000000 0.10

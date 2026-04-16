@@ -1,0 +1,40 @@
+name: Kettle Hook
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: ship, galley, kitchen
+typical_count: single
+clusters_with: ship-stove, pewter-plate, wooden-spoon
+notes: Cast-iron swing-arm hook with kettle over a small stove; place near galley stove
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: stove base disc + swing-arm line + kettle (small circle with handle)
+
+# Small stove base (dark iron disc)
+circle 0.35,0.55 0.22 texfill polyhaven/rusty_metal 0.7
+circle 0.35,0.55 0.22 stroke #333333
+# Stove grate lines
+line 0.20,0.48 0.50,0.48 stroke #444444 0.5
+line 0.20,0.55 0.50,0.55 stroke #444444 0.5
+line 0.20,0.62 0.50,0.62 stroke #444444 0.5
+
+# Pivot post (where arm mounts)
+circle 0.35,0.30 0.04 fill #444444 0.9
+circle 0.35,0.30 0.04 stroke #333333
+
+# Swing arm (iron bar from pivot post out to kettle position)
+line 0.35,0.30 0.72,0.38 stroke #555555 width 3
+
+# Kettle body (cast iron, seen from above)
+circle 0.72,0.38 0.14 texfill polyhaven/metal_plate 0.75
+circle 0.72,0.38 0.14 stroke #333333
+# Kettle inner rim
+circle 0.72,0.38 0.10 stroke #444444 0.6
+# Kettle lid knob
+circle 0.72,0.38 0.03 fill #555555 0.8
+
+# Kettle handle (bail arc across top)
+arc 0.72,0.38 0.12 220 320 stroke #444444 width 2

@@ -1,0 +1,67 @@
+name: Witch Hut
+category: Structure
+footprint: 3x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 8
+placement: center
+room_types: bog-witch-hut, swamp, wilderness, graveyard, druid-grove
+typical_count: single
+clusters_with: cauldron-large, dead-tree, hung-herb-bundle, bone-charm, animal-skull-small
+notes: A tiny round wooden hut with thatched roof at map scale. Top-down: outer round thatch-roof disc with layered arc detail, a smoke hole at center, and a small porch/deck at the south edge. 3x3 centerpiece for outdoor encounter maps.
+---
+# === HITBOX ===
+hitbox circle 1.50,1.40 1.25 z 0-8
+
+# footprint 3x3: x range 0-3, y range 0-3
+
+# === Porch / deck at south edge (drawn first, roof overlaps it) ===
+rect 0.80,2.30 1.40,0.55 texfill polyhaven/weathered_planks 0.8
+rect 0.80,2.30 1.40,0.55 stroke #3a1f00
+# Plank lines
+line 0.80,2.45 2.20,2.45 stroke #2a1400 0.5 width 1
+line 0.80,2.60 2.20,2.60 stroke #2a1400 0.5 width 1
+line 0.80,2.75 2.20,2.75 stroke #2a1400 0.45 width 1
+# Porch step (southernmost edge)
+rect 0.95,2.82 1.10,0.12 texfill polyhaven/weathered_planks 0.75
+rect 0.95,2.82 1.10,0.12 stroke #3a1f00
+
+# === Outer thatch roof (large round disc) ===
+circle 1.50,1.40 1.25 fill #7a6a3a 0.9
+circle 1.50,1.40 1.25 texfill polyhaven/rough_linen 0.4
+circle 1.50,1.40 1.25 stroke #3a2a10
+
+# === Concentric thatch arc layers (rings of bundled straw) ===
+circle 1.50,1.40 1.10 stroke #5a4a28 0.6 width 1
+circle 1.50,1.40 0.92 stroke #5a4a28 0.55 width 1
+circle 1.50,1.40 0.74 stroke #5a4a28 0.5 width 1
+circle 1.50,1.40 0.56 stroke #5a4a28 0.45 width 1
+
+# === Thatch texture detail (radial straw lines between rings) ===
+line 1.50,0.18 1.50,0.56 stroke #6a5a30 0.4 width 1
+line 0.55,0.70 0.85,0.92 stroke #6a5a30 0.35 width 1
+line 2.45,0.70 2.15,0.92 stroke #6a5a30 0.35 width 1
+line 0.28,1.40 0.60,1.40 stroke #6a5a30 0.35 width 1
+line 2.72,1.40 2.40,1.40 stroke #6a5a30 0.35 width 1
+line 0.55,2.10 0.85,1.88 stroke #6a5a30 0.35 width 1
+line 2.45,2.10 2.15,1.88 stroke #6a5a30 0.35 width 1
+line 1.50,2.62 1.50,2.30 stroke #6a5a30 0.3 width 1
+
+# === Ridge cap (top of the conical roof — a raised ring) ===
+circle 1.50,1.40 0.38 fill #8a7a48 0.7
+circle 1.50,1.40 0.38 stroke #4a3a18
+
+# === Smoke hole at center (dark opening) ===
+circle 1.50,1.40 0.16 fill #1a1208 0.8
+circle 1.50,1.40 0.16 stroke #2a1a08
+# Faint smoke wisps curling out
+bezier 1.50,1.28 1.45,1.18 1.48,1.10 1.42,1.02 stroke #666666 0.25 width 1
+bezier 1.50,1.28 1.55,1.20 1.52,1.12 1.58,1.04 stroke #666666 0.2 width 1
+
+# === Thatch eave overhang shadow (darker ring at base) ===
+circle 1.50,1.40 1.25 stroke #2a1a08 0.4 width 3
+
+# === Doorway opening visible on south (dark gap under eave) ===
+arc 1.50,2.30 0.18 0 180 fill #1a1208 0.7
+arc 1.50,2.30 0.18 0 180 stroke #2a1a08

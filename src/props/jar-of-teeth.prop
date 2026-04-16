@@ -1,0 +1,62 @@
+name: Jar of Teeth
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: bog-witch-hut, cabin-witch, alchemy-lab, dungeon, hermit-cell, shrine-roadside
+typical_count: few
+clusters_with: jar, reagent-jar, specimen-jar, animal-skull-small, bone-charm, cauldron-large
+notes: A squat clay jar with teeth visible inside — some spilling out onto the ground. Creepy witch reagent or trophy collection. Place on floors or shelves.
+---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.32 z 0-0.6
+
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Spilled teeth on the ground around the jar ===
+# Tooth 1 (triangular — canine)
+poly 0.14,0.60 0.17,0.56 0.20,0.60 0.18,0.66 fill #e8dcc8 0.8
+poly 0.14,0.60 0.17,0.56 0.20,0.60 0.18,0.66 stroke #6a5040
+# Tooth 2 (small molar)
+ellipse 0.80,0.72 0.03,0.025 fill #d4c4a8 0.75
+ellipse 0.80,0.72 0.03,0.025 stroke #6a5040
+# Tooth 3 (tiny incisor)
+poly 0.26,0.78 0.28,0.74 0.30,0.78 fill #e8dcc8 0.7
+# Tooth 4
+ellipse 0.72,0.38 0.025,0.02 fill #d4c4a8 0.7
+ellipse 0.72,0.38 0.025,0.02 stroke #6a5040
+
+# === Jar body (ceramic — wider belly) ===
+circle 0.50,0.50 0.30 fill #a87850 0.6
+circle 0.50,0.50 0.30 stroke #3a1f00
+# Belly sheen
+arc 0.50,0.50 0.28 210 330 stroke #d8a878 0.45 width 1
+
+# === Rim / mouth (looking down into the jar) ===
+circle 0.50,0.50 0.22 fill #8b6844 0.75
+circle 0.50,0.50 0.22 stroke #2a1400
+
+# === Dark interior visible ===
+circle 0.50,0.50 0.18 fill #2a1a10 0.7
+
+# === Teeth visible inside the jar (pile of small shapes) ===
+# Molars
+ellipse 0.46,0.46 0.035,0.03 fill #e8dcc8 0.85
+ellipse 0.46,0.46 0.035,0.03 stroke #8a7a6a
+ellipse 0.55,0.48 0.03,0.025 fill #d4c4a8 0.8
+ellipse 0.55,0.48 0.03,0.025 stroke #8a7a6a
+# Canine (pointed)
+poly 0.48,0.54 0.50,0.50 0.52,0.54 fill #e8dcc8 0.85
+poly 0.48,0.54 0.50,0.50 0.52,0.54 stroke #8a7a6a
+# More molars
+ellipse 0.44,0.53 0.025,0.02 fill #d4c4a8 0.75
+ellipse 0.56,0.52 0.025,0.02 fill #e8dcc8 0.8
+# Dark gaps between teeth
+circle 0.50,0.48 0.015 fill #1a1008 0.6
+circle 0.52,0.52 0.012 fill #1a1008 0.5
+
+# === Glistening highlight on jar rim ===
+arc 0.50,0.50 0.22 200 280 stroke #c8a070 0.4 width 1

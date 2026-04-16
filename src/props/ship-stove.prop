@@ -1,0 +1,63 @@
+name: Ship's Stove
+category: Kitchen
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 4
+lights:
+  - type: candle
+    x: 1.0
+    y: 1.0
+    radius: 4
+    color: "#ff8833"
+    intensity: 0.4
+placement: center
+room_types: ship, galley
+typical_count: single
+clusters_with: kettle-hook, pewter-plate, wooden-spoon, spice-rack
+notes: Squat iron potbelly stove with flue; centerpiece of a ship's galley
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.72 z 0-4
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: round potbelly stove body, flue pipe going up through ceiling
+
+# Warm glow halo on floor
+circle 1.0,1.0 0.90 fill #ff6600 0.06
+
+# Iron stove body (large disc)
+circle 1.0,1.0 0.72 texfill polyhaven/rusty_metal 0.8
+circle 1.0,1.0 0.72 stroke #333333
+# Body detail ring
+circle 1.0,1.0 0.68 stroke #444444 0.5
+
+# Stove door (south side — small rect with handle)
+rect 0.82,1.50 0.36,0.18 fill #444444 0.7
+rect 0.82,1.50 0.36,0.18 stroke #333333
+# Door handle
+rect 0.94,1.55 0.12,0.04 fill #666666 0.8
+# Glow through door slits
+line 0.88,1.54 0.88,1.64 stroke #ff6600 0.3
+line 1.00,1.54 1.00,1.64 stroke #ff6600 0.3
+line 1.12,1.54 1.12,1.64 stroke #ff6600 0.3
+
+# Stove top cooking surface (flat iron plate)
+circle 1.0,1.0 0.55 fill #555555 0.6
+circle 1.0,1.0 0.55 stroke #444444
+
+# Cooking ring (removable plate on top)
+circle 1.0,1.0 0.25 stroke #666666
+circle 1.0,1.0 0.20 stroke #666666 0.5
+
+# Flue pipe (going up through ceiling — small dark circle at center)
+circle 1.0,0.7 0.12 fill #333333 0.9
+circle 1.0,0.7 0.12 stroke #222222
+# Flue pipe inner (dark void)
+circle 1.0,0.7 0.08 fill #111111 0.8
+
+# Heat shimmer accents
+circle 0.85,0.85 0.015 fill #ff8800 0.4
+circle 1.15,0.90 0.015 fill #ffaa00 0.35
+circle 1.05,1.20 0.012 fill #ff6600 0.3

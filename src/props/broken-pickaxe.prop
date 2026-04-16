@@ -1,0 +1,44 @@
+name: Broken Pickaxe
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel, collapsed-area
+typical_count: few
+clusters_with: pickaxe, rubble, ore-pile, boulder
+notes: A pickaxe with a snapped handle — head half-buried in rubble. Scatter in abandoned mine areas for atmosphere.
+---
+# Rubble mound around the buried head
+poly 0.42,0.18 0.62,0.14 0.78,0.20 0.82,0.36 0.74,0.46 0.52,0.48 0.38,0.40 0.36,0.28 texfill polyhaven/rock_boulder_cracked 0.75
+poly 0.42,0.18 0.62,0.14 0.78,0.20 0.82,0.36 0.74,0.46 0.52,0.48 0.38,0.40 0.36,0.28 fill #4a4238 0.3
+poly 0.42,0.18 0.62,0.14 0.78,0.20 0.82,0.36 0.74,0.46 0.52,0.48 0.38,0.40 0.36,0.28 stroke #444444
+
+# Broken handle shaft (snapped, lying south of the head)
+rect 0.18,0.52 0.48,0.07 texfill polyhaven/dark_wood 0.85 rotate 12
+rect 0.18,0.52 0.48,0.07 stroke #2a1400 rotate 12
+
+# Splintered break point (jagged end near the head)
+poly 0.58,0.48 0.64,0.45 0.66,0.52 0.62,0.56 fill #4a2800 0.9
+poly 0.58,0.48 0.64,0.45 0.66,0.52 0.62,0.56 stroke #2a1400
+
+# Handle end cap (far south tip)
+circle 0.22,0.72 0.04 fill #2a1400 0.9
+circle 0.22,0.72 0.04 stroke #1a1208
+
+# Iron head exposed — pick point poking out of rubble
+poly 0.70,0.24 0.88,0.14 0.90,0.18 0.76,0.32 texfill polyhaven/metal_plate 0.8
+poly 0.70,0.24 0.88,0.14 0.90,0.18 0.76,0.32 stroke #222222
+
+# Head highlight
+line 0.76,0.20 0.88,0.16 stroke #8899aa 0.65 width 1
+
+# Small rubble pebbles scattered around
+circle 0.32,0.40 0.025 fill #777777 0.5
+circle 0.80,0.44 0.020 fill #888888 0.45
+circle 0.48,0.56 0.022 fill #666666 0.4
+circle 0.26,0.36 0.018 fill #999999 0.4
+
+# Dirt smudge near break
+circle 0.56,0.52 0.03 fill #3a2a1a 0.35

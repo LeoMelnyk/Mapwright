@@ -1,0 +1,45 @@
+name: Focused Lamp
+category: Lighting
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+lights: [{"preset":"lantern","x":0.5,"y":0.6,"radius":6,"color":"#ffe8c0","intensity":0.6}]
+placement: floor
+room_types: interrogation-room, office, study, torture-chamber
+typical_count: single
+clusters_with: desk, chair, confession-paper, pen-and-inkwell
+notes: Angled hooded lamp on a tall adjustable brass arm; the harsh interrogation light. Place near the prisoner's chair. Top-down: hood disk + arm + base.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small metal hood disk at south + angled arm line back to upright post at north + base
+
+# === Base plate (north edge, on the floor) ===
+circle 0.50,0.22 0.12 fill #666666 0.7
+circle 0.50,0.22 0.12 stroke #444444
+
+# Base plate center bolt
+circle 0.50,0.22 0.04 fill #888888 0.6
+
+# === Upright post (small circle — cross-section of vertical pole) ===
+circle 0.50,0.28 0.04 fill #8b6914 0.8
+circle 0.50,0.28 0.04 stroke #5a3a00
+
+# === Angled arm (line from post to hood) ===
+line 0.50,0.30 0.50,0.56 stroke #8b6914 0.7 width 3
+# Arm joint pivot
+circle 0.50,0.38 0.025 fill #daa520 0.7
+
+# === Hood (metal disk, the main visible element from above) ===
+# The hood is a conical reflector — top-down it's a circle/ellipse
+ellipse 0.50,0.64 0.14,0.12 fill #666666 0.85
+ellipse 0.50,0.64 0.14,0.12 stroke #444444
+# Hood highlight (convex metal surface)
+ellipse 0.48,0.62 0.08,0.05 fill #8899aa 0.3
+# Rim detail
+ellipse 0.50,0.64 0.14,0.12 stroke #555555 0.5
+
+# === Light spill south of hood (warm glow on floor) ===
+ellipse 0.50,0.78 0.18,0.14 fill #ffe8c0 0.2
+ellipse 0.50,0.76 0.12,0.10 fill #ffe8c0 0.3
+circle 0.50,0.74 0.06 fill #fff0d0 0.35

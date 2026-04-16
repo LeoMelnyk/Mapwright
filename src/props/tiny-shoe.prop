@@ -1,0 +1,39 @@
+name: Tiny Shoe
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: fey-glade, fey-court, enchanted-grove, pixie-hollow
+typical_count: few
+clusters_with: dew-drop-sparkle, flower-petals, tiny-shoe
+notes: A single lost fey slipper — whimsical small accent, hints at pixie mischief
+---
+# Top-down view: tiny pointed slipper lying on the ground
+
+# === Shoe sole (outline on ground) ===
+poly 0.32,0.62 0.28,0.52 0.30,0.42 0.36,0.34 0.44,0.28 0.54,0.26 0.60,0.32 0.62,0.40 0.60,0.50 0.56,0.58 0.48,0.64 0.38,0.66 fill #cc2222 0.7
+poly 0.32,0.62 0.28,0.52 0.30,0.42 0.36,0.34 0.44,0.28 0.54,0.26 0.60,0.32 0.62,0.40 0.60,0.50 0.56,0.58 0.48,0.64 0.38,0.66 stroke #881818
+
+# === Shoe upper — slightly inside the sole ===
+poly 0.34,0.60 0.30,0.50 0.32,0.42 0.38,0.35 0.46,0.30 0.54,0.28 0.58,0.34 0.60,0.42 0.58,0.50 0.54,0.56 0.46,0.62 0.38,0.63 fill #dd3333 0.8
+poly 0.34,0.60 0.30,0.50 0.32,0.42 0.38,0.35 0.46,0.30 0.54,0.28 0.58,0.34 0.60,0.42 0.58,0.50 0.54,0.56 0.46,0.62 0.38,0.63 stroke #aa2020
+
+# === Gold trim along opening ===
+bezier 0.36,0.58 0.40,0.55 0.50,0.54 0.56,0.56 stroke #daa520 width 2
+bezier 0.36,0.58 0.40,0.55 0.50,0.54 0.56,0.56 stroke #ffd700 width 1
+
+# === Pointed toe (curls up at the tip) ===
+circle 0.54,0.27 0.03 fill #dd3333 0.85
+circle 0.54,0.27 0.03 stroke #aa2020
+# Gold toe tip
+circle 0.54,0.27 0.015 fill #ffd700 0.7
+
+# === Heel area (slightly raised) ===
+ellipse 0.36,0.62 0.06,0.04 fill #bb2828 0.6
+
+# === Gold buckle detail ===
+circle 0.44,0.44 0.03 fill #daa520 0.75
+circle 0.44,0.44 0.03 stroke #8b6914
+circle 0.44,0.44 0.015 fill #ffd700 0.6

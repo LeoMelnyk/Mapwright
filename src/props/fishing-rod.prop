@@ -1,0 +1,55 @@
+name: Fishing Rod
+category: Camp
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, ranger-camp, cabin-hunters, cabin-trapper, ferry-house
+typical_count: single
+clusters_with: waterskin, crate, barrel, sack
+notes: A slim wooden fishing rod lying on the ground, seen from above — long thin shape with reel bulge at one end
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: fishing rod lying flat on the ground
+
+# Rod shaft (thin taper from butt at west to tip at east)
+# Butt section (thicker)
+line 0.10,0.50 0.60,0.50 stroke #6b4e2e width 3
+# Mid section
+line 0.60,0.50 1.20,0.50 stroke #5c3a1e width 2
+# Tip section (thinnest)
+line 1.20,0.50 1.85,0.50 stroke #4a2800 width 1
+
+# Cork grip (butt end)
+rect 0.08,0.44 0.20,0.12 fill #c8b898 0.75
+rect 0.08,0.44 0.20,0.12 stroke #8b7355
+# Grip wrap lines
+line 0.12,0.44 0.12,0.56 stroke #8b7355 0.5 width 1
+line 0.18,0.44 0.18,0.56 stroke #8b7355 0.5 width 1
+line 0.24,0.44 0.24,0.56 stroke #8b7355 0.5 width 1
+
+# Reel seat (small oval bulge near butt)
+ellipse 0.35,0.50 0.06,0.08 fill #555555 0.8
+ellipse 0.35,0.50 0.06,0.08 stroke #333333
+# Reel handle (tiny nub)
+circle 0.35,0.40 0.025 fill #666666 0.7
+circle 0.35,0.40 0.025 stroke #444444
+# Reel spool detail
+circle 0.35,0.50 0.03 fill #444444 0.5
+
+# Guide rings along the rod (tiny circles)
+circle 0.55,0.50 0.015 fill #666666 0.6
+circle 0.55,0.50 0.015 stroke #444444
+circle 0.75,0.50 0.015 fill #666666 0.6
+circle 0.75,0.50 0.015 stroke #444444
+circle 0.95,0.50 0.012 fill #666666 0.6
+circle 1.15,0.50 0.012 fill #666666 0.6
+circle 1.40,0.50 0.012 fill #666666 0.5
+
+# Fishing line (very thin, trailing from tip)
+bezier 1.85,0.50 1.90,0.45 1.95,0.60 1.92,0.70 stroke #c8b898 0.4 width 1
+
+# Butt cap (end piece)
+ellipse 0.08,0.50 0.03,0.06 fill #444444 0.7
+ellipse 0.08,0.50 0.03,0.06 stroke #333333

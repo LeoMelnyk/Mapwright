@@ -1,0 +1,35 @@
+name: Liquor Bottle
+category: Containers
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ship, captain-cabin, tavern, inn, officer-quarters
+typical_count: few
+clusters_with: cabinet-liquor, desk, pewter-plate
+notes: Dark glass bottle; scatter on desks, tables, or cabin floors
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: single dark glass bottle upright — circular body, narrow neck
+
+# Bottle body (dark green-brown glass, seen from above)
+circle 0.50,0.52 0.14 fill #1a2a18 0.7
+circle 0.50,0.52 0.14 stroke #0a1a08
+# Glass highlight
+arc 0.50,0.52 0.12 210 300 stroke #3a4a38 0.3
+
+# Bottle shoulder (slight taper)
+circle 0.50,0.46 0.09 fill #1a2a18 0.6
+circle 0.50,0.46 0.09 stroke #0a1a08 0.7
+
+# Bottle neck (small circle at top)
+circle 0.50,0.42 0.05 fill #1a2a18 0.7
+circle 0.50,0.42 0.05 stroke #0a1a08
+
+# Cork/stopper
+circle 0.50,0.40 0.03 fill #8b7355 0.8
+circle 0.50,0.40 0.03 stroke #5c3a1e
+
+# Label hint (pale rectangle on body)
+rect 0.40,0.50 0.20,0.12 fill #e8dcc8 0.2

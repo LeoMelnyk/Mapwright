@@ -1,0 +1,82 @@
+name: Earth Node Core
+category: Magical
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 4
+placement: center
+room_types: elemental-earth-node, elemental-node, cave, magical-chamber
+typical_count: single
+clusters_with: obelisk-stone-raw, earth-elemental-anvil, geode-cluster, crystal-formation
+notes: Primal earth node — floating cluster of brown/amber crystals radiating earth energy. Centerpiece of an earth elemental node.
+lights:
+  - type: torch
+    x: 1.0
+    y: 1.0
+    radius: 5
+    color: "#dd8822"
+    intensity: 0.7
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: concentric rings — outer dim earth aura → cracked amber mid-ring → bright crystalline core
+
+# === Outer earth aura (dim, widest) ===
+circle 1.0,1.0 0.95 gradient-radial #dd8822 #000000 0.12
+circle 1.0,1.0 0.80 fill #cc7711 0.10
+
+# === Floating debris ring (small stone chips orbiting the core) ===
+circle 0.25,0.70 0.03 fill #8b7355 0.5
+circle 1.75,1.30 0.035 fill #8b7355 0.45
+circle 0.55,1.75 0.03 fill #8b7355 0.5
+circle 1.50,0.30 0.025 fill #8b7355 0.45
+circle 0.30,1.40 0.025 fill #8b7355 0.4
+circle 1.70,0.65 0.03 fill #8b7355 0.45
+
+# === Mid-ring — cracked amber mineral band ===
+ring 1.0,1.0 0.65 0.42 texfill polyhaven/rock_boulder_cracked 0.7
+ring 1.0,1.0 0.65 0.42 fill #cc7711 0.15
+ring 1.0,1.0 0.65 0.42 stroke #8b6914
+
+# Amber veins across mid-ring (glowing mineral seams)
+line 0.42,0.78 0.58,0.60 stroke #ffaa44 width 2
+line 1.42,0.78 1.58,0.58 stroke #ffaa44 width 2
+line 0.58,1.42 0.42,1.22 stroke #ffaa44 width 2
+line 1.58,1.42 1.42,1.22 stroke #dd8822 width 2
+line 0.80,0.38 1.0,0.42 stroke #ffaa44 width 1
+line 1.0,1.58 1.20,1.62 stroke #dd8822 width 1
+
+# === Inner core — bright crystalline cluster ===
+# Crystalline mass (hexagonal faceted shapes)
+poly 1.0,0.60 1.20,0.72 1.20,0.92 1.0,1.04 0.80,0.92 0.80,0.72 fill #ddaa44 0.75
+poly 1.0,0.60 1.20,0.72 1.20,0.92 1.0,1.04 0.80,0.92 0.80,0.72 stroke #aa7722
+
+# Crystal facets — individual bright points
+poly 0.88,0.80 1.0,0.68 1.12,0.80 1.0,0.88 fill #ffcc66 0.6
+poly 0.85,0.95 0.95,0.90 1.0,1.02 0.90,1.02 fill #eebb55 0.5
+poly 1.0,0.90 1.12,0.88 1.15,1.0 1.05,1.02 fill #eebb55 0.5
+
+# Second crystal tier (offset, overlapping)
+poly 1.0,0.75 1.10,0.82 1.08,0.95 0.98,0.98 0.90,0.90 0.92,0.80 fill #ffdd88 0.55
+poly 1.0,0.75 1.10,0.82 1.08,0.95 0.98,0.98 0.90,0.90 0.92,0.80 stroke #cc9933
+
+# === Hot amber center (brightest point) ===
+circle 1.0,0.88 0.10 fill #ffdd88 0.8
+circle 1.0,0.88 0.06 fill #ffeeaa 0.9
+circle 1.0,0.88 0.03 fill #ffffff 0.7
+
+# === Floating crystal shards (smaller, around the core) ===
+poly 0.65,0.60 0.72,0.55 0.75,0.65 0.68,0.68 fill #ddaa44 0.6
+poly 0.65,0.60 0.72,0.55 0.75,0.65 0.68,0.68 stroke #aa7722
+poly 1.28,0.58 1.35,0.55 1.38,0.65 1.30,0.68 fill #ddaa44 0.55
+poly 1.28,0.58 1.35,0.55 1.38,0.65 1.30,0.68 stroke #aa7722
+poly 0.70,1.15 0.78,1.12 0.80,1.22 0.72,1.25 fill #ddaa44 0.5
+poly 0.70,1.15 0.78,1.12 0.80,1.22 0.72,1.25 stroke #aa7722
+poly 1.22,1.18 1.30,1.14 1.32,1.24 1.24,1.28 fill #ddaa44 0.55
+poly 1.22,1.18 1.30,1.14 1.32,1.24 1.24,1.28 stroke #aa7722
+
+# Small energy sparks
+circle 0.55,0.50 0.02 fill #ffcc66 0.6
+circle 1.45,0.50 0.02 fill #ffcc66 0.55
+circle 0.55,1.30 0.02 fill #ffcc66 0.5
+circle 1.45,1.35 0.02 fill #ffcc66 0.55

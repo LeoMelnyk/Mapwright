@@ -1,0 +1,46 @@
+name: Marble Pillar
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+placement: corner
+room_types: celestial-vault, temple, cathedral, palace, marble-hall, solar-sanctum
+typical_count: few
+clusters_with: banner-celestial, pillar-marble, statue-solar
+notes: Polished white marble pillar with gold fluting — celestial or palatial architecture
+---
+# 1x1 radial cross-section from above (like pillar.prop)
+
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-10
+
+# === Main marble shaft (outer circle) ===
+circle 0.5,0.5 0.38 texfill polyhaven/marble_01 0.88
+circle 0.5,0.5 0.38 stroke #bbbbbb
+
+# === Capital / top piece (lighter inner ring) ===
+ring 0.5,0.5 0.30 0.22 texfill polyhaven/marble_01 0.82
+ring 0.5,0.5 0.30 0.22 stroke #aaaaaa
+
+# === Gold fluting marks (12 radial lines at 30-degree intervals) ===
+line 0.5,0.12 0.5,0.20 stroke #daa520
+line 0.74,0.16 0.69,0.23 stroke #daa520
+line 0.88,0.36 0.80,0.38 stroke #daa520
+line 0.88,0.64 0.80,0.62 stroke #daa520
+line 0.74,0.84 0.69,0.77 stroke #daa520
+line 0.5,0.88 0.5,0.80 stroke #daa520
+line 0.26,0.84 0.31,0.77 stroke #daa520
+line 0.12,0.64 0.20,0.62 stroke #daa520
+line 0.12,0.36 0.20,0.38 stroke #daa520
+line 0.26,0.16 0.31,0.23 stroke #daa520
+line 0.69,0.23 0.64,0.28 stroke #daa520
+line 0.31,0.23 0.36,0.28 stroke #daa520
+
+# === Column core (center detail) — gold accent ===
+circle 0.5,0.5 0.06 fill #daa520 0.6
+circle 0.5,0.5 0.06 stroke #8b6914
+
+# === Marble highlight (subtle light catch on surface) ===
+arc 0.5,0.5 0.34 300 360 fill #ffffff 0.08
+arc 0.5,0.5 0.34 300 360 stroke #ffffff 0.06

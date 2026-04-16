@@ -1,0 +1,43 @@
+name: Banner (Infernal)
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: throne-room, infernal-court, temple, great-hall, fiend-lair
+typical_count: few
+clusters_with: iron-throne-spiked, banner, brazier, pillar
+notes: Tall hanging infernal banner from a ceiling beam; overhead-strung style, top-down shows rod + top edge + drape shadow only
+---
+# footprint 1x1: x range 0-1, y range 0-1. Front faces south.
+# Overhead-hanging banner — from above you see only the rod/chain,
+# top edge of fabric, and a subtle drape shadow hint. NOT the full flag.
+
+# === Faint drape shadow (banner mass hanging below, out of view) ===
+rect 0.12,0.22 0.76,0.14 fill #1a1a1a 0.15
+
+# === Iron mounting chain/rod along wall (north edge) ===
+rect 0.06,0.06 0.88,0.10 fill #444444 0.85
+rect 0.06,0.06 0.88,0.10 stroke #222222
+
+# === Iron ring anchors at rod ends ===
+circle 0.08,0.11 0.04 fill #555555 0.8
+circle 0.08,0.11 0.04 stroke #333333
+circle 0.92,0.11 0.04 fill #555555 0.8
+circle 0.92,0.11 0.04 stroke #333333
+
+# === Fabric top edge visible just south of rod — dark crimson on black ===
+rect 0.12,0.16 0.76,0.07 fill #1a0808 0.75
+rect 0.12,0.16 0.76,0.07 stroke #330a0a
+
+# === Infernal sigil hint — tiny pentagram lines on the fabric top edge ===
+# Just a few visible crimson strokes hinting at the sigil below
+line 0.42,0.17 0.50,0.16 stroke #8b1a1a 0.6 width 1
+line 0.50,0.16 0.58,0.17 stroke #8b1a1a 0.6 width 1
+line 0.44,0.21 0.56,0.21 stroke #8b1a1a 0.5 width 1
+circle 0.50,0.19 0.02 fill #8b1a1a 0.5
+
+# === Subtle fabric fold visible at very top ===
+line 0.25,0.23 0.35,0.22 stroke #2a0808 0.3 width 1
+line 0.65,0.23 0.75,0.22 stroke #2a0808 0.3 width 1

@@ -1,0 +1,40 @@
+name: Celestial Banner
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: celestial-vault, temple, cathedral, throne-room, solar-sanctum
+typical_count: few
+clusters_with: pillar-marble, celestial-pillar-of-light, sun-disc-altar
+notes: Overhead-hanging banner showing sun-disc sigil — hang on walls flanking altars or thrones
+---
+# Top-down: overhead-hanging banner — only rod + top edge visible
+# Reference: banner.prop, bunting-line overhead style
+
+# === Mounting rod along wall (north edge) ===
+rect 0.08,0.06 0.84,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.06 0.84,0.12 stroke #3a1f00
+
+# === Gold finials at rod ends ===
+circle 0.10,0.12 0.06 fill #daa520 0.85
+circle 0.10,0.12 0.06 stroke #8b6914
+circle 0.90,0.12 0.06 fill #daa520 0.85
+circle 0.90,0.12 0.06 stroke #8b6914
+
+# === Fabric top edge — white with gold sun-disc sigil hint ===
+rect 0.14,0.18 0.72,0.10 fill #f0ece0 0.8
+rect 0.14,0.18 0.72,0.10 stroke #c0b898
+
+# Gold sun-disc sigil visible on top edge of fabric
+circle 0.50,0.23 0.035 fill #daa520 0.7
+# Tiny ray lines radiating from disc
+line 0.50,0.185 0.50,0.175 stroke #daa520 0.6
+line 0.535,0.23 0.545,0.23 stroke #daa520 0.6
+line 0.465,0.23 0.455,0.23 stroke #daa520 0.6
+line 0.525,0.205 0.535,0.195 stroke #daa520 0.5
+line 0.475,0.205 0.465,0.195 stroke #daa520 0.5
+
+# === Subtle drape shadow below fabric (hints at mass hanging down) ===
+rect 0.18,0.28 0.64,0.04 fill #c0b898 0.2

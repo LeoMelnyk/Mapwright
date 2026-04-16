@@ -1,0 +1,42 @@
+name: Pen and Inkwell
+category: Prison
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: interrogation-room, office, study, scriptorium-dark
+typical_count: single
+clusters_with: desk, confession-paper, book-open, book-pile
+notes: Metal-nibbed pen laid next to a squat inkwell; place on desk surfaces
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: pen lying at an angle, inkwell nearby
+
+# Small ink spatter on surface
+circle 0.56,0.44 0.01 fill #0a0a1a 0.4
+circle 0.60,0.42 0.008 fill #0a0a1a 0.35
+
+# === Inkwell (squat glass container) ===
+circle 0.58,0.50 0.08 fill #1a1a2a 0.75
+circle 0.58,0.50 0.08 stroke #333344
+# Glass highlight
+arc 0.58,0.50 0.06 220 280 stroke #667788 0.4 width 1
+# Ink surface (dark, nearly black)
+circle 0.58,0.50 0.055 fill #0a0a14 0.8
+# Tiny reflection on ink surface
+circle 0.56,0.48 0.015 fill #667788 0.35
+
+# === Pen (metal nib + wooden shaft lying at angle) ===
+# Shaft (long thin rod)
+line 0.26,0.58 0.52,0.42 stroke #5c3a1e width 2
+# Wooden shaft fill
+line 0.30,0.57 0.50,0.43 stroke #8b6b4a 0.6 width 2
+
+# Metal nib (pointed end near inkwell)
+poly 0.52,0.42 0.55,0.40 0.54,0.43 fill #8899aa 0.8
+# Nib split line
+line 0.52,0.42 0.545,0.415 stroke #444444 0.5 width 1
+
+# Pen end (blunt end)
+circle 0.27,0.58 0.02 fill #5c3a1e 0.7

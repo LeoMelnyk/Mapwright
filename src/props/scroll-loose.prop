@@ -1,0 +1,46 @@
+name: Scroll (Loose)
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: library, study, wizard-sanctum, archive, ruined-library, command-room
+typical_count: many
+clusters_with: scroll-stack, scroll-case, book-pile, broken-binding, desk
+notes: Single unrolled parchment scroll on the floor with curling edges; scatter for lived-in or ransacked rooms
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: an unrolled parchment lying flat, edges curling inward
+
+# Parchment body (slightly irregular rectangle)
+poly 0.14,0.22 0.84,0.18 0.88,0.78 0.18,0.82 fill #e8d8a8 0.9
+poly 0.14,0.22 0.84,0.18 0.88,0.78 0.18,0.82 stroke #8b7355
+
+# Parchment texture
+poly 0.14,0.22 0.84,0.18 0.88,0.78 0.18,0.82 texfill polyhaven/rough_linen 0.15
+
+# Curling top edge (rolled inward — darker strip at north)
+poly 0.16,0.22 0.82,0.19 0.84,0.28 0.18,0.31 fill #d4c4a0 0.7
+poly 0.16,0.22 0.82,0.19 0.84,0.28 0.18,0.31 stroke #8b7355 0.5
+# Shadow beneath curl
+line 0.20,0.30 0.82,0.27 stroke #6b5a3a 0.3 width 2
+
+# Curling bottom edge (rolled inward — darker strip at south)
+poly 0.20,0.72 0.86,0.69 0.88,0.78 0.18,0.82 fill #d4c4a0 0.7
+poly 0.20,0.72 0.86,0.69 0.88,0.78 0.18,0.82 stroke #8b7355 0.5
+# Shadow beneath curl
+line 0.22,0.72 0.84,0.69 stroke #6b5a3a 0.3 width 2
+
+# Written text lines
+line 0.24,0.36 0.76,0.34 stroke #3a1f00 0.5 width 1
+line 0.24,0.40 0.72,0.39 stroke #3a1f00 0.4 width 1
+line 0.24,0.44 0.78,0.43 stroke #3a1f00 0.5 width 1
+line 0.24,0.48 0.68,0.47 stroke #3a1f00 0.35 width 1
+line 0.24,0.52 0.74,0.51 stroke #3a1f00 0.5 width 1
+line 0.24,0.56 0.60,0.55 stroke #3a1f00 0.3 width 1
+line 0.24,0.60 0.70,0.59 stroke #3a1f00 0.4 width 1
+
+# Small wax seal (bottom-right corner)
+circle 0.72,0.64 0.035 fill #cc2200 0.7
+circle 0.72,0.64 0.035 stroke #881100

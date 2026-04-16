@@ -1,0 +1,50 @@
+name: Thumbscrews
+category: Prison
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: interrogation-room, torture-chamber, dungeon
+typical_count: single
+clusters_with: desk, confession-paper, focused-lamp, shackles
+notes: Small brass-and-iron thumbscrew torture device; place on desk surfaces or tables near the interrogator's seat
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: rectangular base plate with two screw heads and a dark finger channel between
+
+# === Base plate (iron) ===
+rect 0.34,0.40 0.32,0.20 fill #555555 0.8
+rect 0.34,0.40 0.32,0.20 stroke #333333
+
+# Corner rivets
+circle 0.37,0.43 0.015 fill #888888 0.6
+circle 0.63,0.43 0.015 fill #888888 0.6
+circle 0.37,0.57 0.015 fill #888888 0.6
+circle 0.63,0.57 0.015 fill #888888 0.6
+
+# === Finger channel (dark groove between screws) ===
+rect 0.42,0.44 0.16,0.12 fill #1a1a1a 0.6
+
+# === Left screw post ===
+circle 0.40,0.50 0.05 fill #8b6914 0.8
+circle 0.40,0.50 0.05 stroke #5a3a00
+# Screw head slot
+line 0.37,0.50 0.43,0.50 stroke #5a3a00 0.7 width 2
+
+# === Right screw post ===
+circle 0.60,0.50 0.05 fill #8b6914 0.8
+circle 0.60,0.50 0.05 stroke #5a3a00
+# Screw head slot
+line 0.57,0.50 0.63,0.50 stroke #5a3a00 0.7 width 2
+
+# === Wing nut handle on left screw ===
+line 0.36,0.46 0.44,0.54 stroke #daa520 0.6 width 2
+line 0.44,0.46 0.36,0.54 stroke #daa520 0.6 width 2
+
+# === Wing nut handle on right screw ===
+line 0.56,0.46 0.64,0.54 stroke #daa520 0.6 width 2
+line 0.64,0.46 0.56,0.54 stroke #daa520 0.6 width 2
+
+# Blood trace in channel
+ellipse 0.50,0.50 0.04,0.03 fill #4a0000 0.35

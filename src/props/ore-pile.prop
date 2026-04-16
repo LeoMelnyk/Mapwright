@@ -1,0 +1,44 @@
+name: Ore Pile
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, forge, smelter
+typical_count: many
+clusters_with: pickaxe, ore-sorting-table, cart, cart-track, shovel
+notes: A mound of raw rock ore chunks with silver/metallic streaks. Scatter in mining areas near tracks or sorting tables.
+---
+# Dirt/dust base (subtle ground halo)
+ellipse 0.50,0.52 0.40,0.36 fill #4a3a28 0.15
+
+# Main ore mound — base layer of dark rock
+poly 0.14,0.42 0.28,0.22 0.50,0.16 0.72,0.22 0.86,0.42 0.82,0.64 0.68,0.78 0.50,0.82 0.30,0.78 0.16,0.62 texfill polyhaven/rock_boulder_cracked 0.8
+poly 0.14,0.42 0.28,0.22 0.50,0.16 0.72,0.22 0.86,0.42 0.82,0.64 0.68,0.78 0.50,0.82 0.30,0.78 0.16,0.62 fill #3a3632 0.35
+poly 0.14,0.42 0.28,0.22 0.50,0.16 0.72,0.22 0.86,0.42 0.82,0.64 0.68,0.78 0.50,0.82 0.30,0.78 0.16,0.62 stroke #333333
+
+# Individual ore chunks visible on top
+poly 0.32,0.28 0.48,0.24 0.52,0.36 0.38,0.40 fill #555555 0.85
+poly 0.32,0.28 0.48,0.24 0.52,0.36 0.38,0.40 stroke #333333
+poly 0.54,0.30 0.68,0.28 0.70,0.42 0.58,0.44 fill #4a4a4a 0.85
+poly 0.54,0.30 0.68,0.28 0.70,0.42 0.58,0.44 stroke #333333
+poly 0.38,0.46 0.54,0.42 0.58,0.56 0.42,0.58 fill #555555 0.8
+poly 0.38,0.46 0.54,0.42 0.58,0.56 0.42,0.58 stroke #333333
+
+# Silver/metallic streaks across ore faces
+line 0.36,0.32 0.48,0.30 stroke #aabbcc 0.7 width 1
+line 0.56,0.36 0.66,0.34 stroke #c0c8d0 0.65 width 1
+line 0.42,0.50 0.52,0.48 stroke #aabbcc 0.6 width 1
+line 0.60,0.54 0.68,0.50 stroke #b8c4d0 0.5 width 1
+
+# Tiny bright metallic flecks
+circle 0.44,0.30 0.015 fill #c8d4e0 0.8
+circle 0.62,0.38 0.015 fill #d0dce8 0.7
+circle 0.48,0.52 0.012 fill #c8d4e0 0.65
+
+# Scattered loose pebbles around the base
+circle 0.20,0.68 0.025 fill #555555 0.5
+circle 0.78,0.70 0.020 fill #4a4a4a 0.45
+circle 0.40,0.82 0.022 fill #666666 0.4
+circle 0.62,0.80 0.018 fill #555555 0.45

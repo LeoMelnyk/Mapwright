@@ -1,0 +1,56 @@
+name: Pickaxe Rack
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: mine-shaft-entrance, mining-camp, deep-mine, workshop, forge
+typical_count: few
+clusters_with: pickaxe, helmet-mining, lantern, timber-brace
+notes: A wall-mounted horizontal bar holding 2-3 pickaxes by their heads. The wall bar runs along the north edge; pickaxe heads hang as small discs with short handle stubs extending south.
+---
+# === Wall mounting bar (thin horizontal bar along north edge) ===
+rect 0.10,0.08 1.80,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.08 1.80,0.10 stroke #2a1400
+
+# Mounting bracket ends (iron)
+rect 0.10,0.06 0.12,0.14 fill #555555 0.85
+rect 0.10,0.06 0.12,0.14 stroke #333333
+rect 1.78,0.06 0.12,0.14 fill #555555 0.85
+rect 1.78,0.06 0.12,0.14 stroke #333333
+
+# === Pickaxe 1 (left) — head disc + handle stub ===
+# Iron head (seen as a small ellipse from above)
+ellipse 0.40,0.22 0.10,0.06 texfill polyhaven/metal_plate 0.8
+ellipse 0.40,0.22 0.10,0.06 stroke #222222
+# Handle shaft extending south
+rect 0.38,0.28 0.04,0.28 texfill polyhaven/dark_wood 0.8
+rect 0.38,0.28 0.04,0.28 stroke #2a1400
+# Handle end
+circle 0.40,0.58 0.03 fill #2a1400 0.85
+circle 0.40,0.58 0.03 stroke #1a1208
+
+# === Pickaxe 2 (center) — head disc + handle stub ===
+ellipse 1.00,0.22 0.10,0.06 texfill polyhaven/metal_plate 0.8
+ellipse 1.00,0.22 0.10,0.06 stroke #222222
+rect 0.98,0.28 0.04,0.30 texfill polyhaven/dark_wood 0.8
+rect 0.98,0.28 0.04,0.30 stroke #2a1400
+circle 1.00,0.60 0.03 fill #2a1400 0.85
+circle 1.00,0.60 0.03 stroke #1a1208
+
+# === Pickaxe 3 (right) — head disc + handle stub ===
+ellipse 1.60,0.22 0.10,0.06 texfill polyhaven/metal_plate 0.8
+ellipse 1.60,0.22 0.10,0.06 stroke #222222
+rect 1.58,0.28 0.04,0.26 texfill polyhaven/dark_wood 0.8
+rect 1.58,0.28 0.04,0.26 stroke #2a1400
+circle 1.60,0.56 0.03 fill #2a1400 0.85
+circle 1.60,0.56 0.03 stroke #1a1208
+
+# Head highlights (polished metal catch)
+line 0.32,0.20 0.36,0.18 stroke #8899aa 0.6 width 1
+line 0.92,0.20 0.96,0.18 stroke #8899aa 0.6 width 1
+line 1.52,0.20 1.56,0.18 stroke #8899aa 0.6 width 1
+
+# Shadow below the bar (subtle drape shadow)
+rect 0.12,0.18 1.76,0.03 fill #000000 0.12

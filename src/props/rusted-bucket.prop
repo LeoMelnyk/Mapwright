@@ -1,0 +1,48 @@
+name: Rusted Bucket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: cistern, sewer, cellar, dungeon, mine-shaft-entrance, deep-mine, ruin
+typical_count: few
+clusters_with: bucket, rubble, rusted-bucket, drowned-rat
+notes: A rusted iron bucket tipped on its side, discarded. Top-down view shows the elliptical opening and side profile of the tipped bucket.
+---
+# === Tipped bucket body (lying on side, oval/ellipse from above) ===
+# Bucket body — elliptical silhouette of the sideways bucket
+ellipse 0.50,0.48 0.22,0.16 texfill polyhaven/rusty_metal 0.8
+ellipse 0.50,0.48 0.22,0.16 stroke #444444
+
+# Darker rust patches
+circle 0.42,0.42 0.05 fill #6a3a10 0.5
+circle 0.58,0.52 0.04 fill #7a4a18 0.45
+circle 0.50,0.56 0.035 fill #6a3a10 0.4
+
+# === Open mouth (dark ellipse at one end showing the interior) ===
+ellipse 0.30,0.48 0.10,0.14 fill #1a1a1a 0.8
+ellipse 0.30,0.48 0.10,0.14 stroke #333333
+
+# Interior shadow gradient
+ellipse 0.32,0.48 0.06,0.10 fill #0a0a0a 0.6
+
+# === Bottom ridge (visible as a circle at the far end) ===
+ellipse 0.70,0.48 0.06,0.10 fill #5a3a18 0.7
+ellipse 0.70,0.48 0.06,0.10 stroke #3a2a10
+
+# === Iron bands (horizontal stripes across the body) ===
+line 0.34,0.34 0.66,0.34 stroke #555555 0.65 width 2
+line 0.34,0.62 0.66,0.62 stroke #555555 0.6 width 2
+
+# Band rust spots
+circle 0.44,0.34 0.015 fill #8b4000 0.7
+circle 0.56,0.62 0.015 fill #8b4000 0.65
+
+# === Handle (bent, lying flat) ===
+arc 0.50,0.34 0.12 180 360 stroke #555555 width 2
+arc 0.50,0.34 0.12 180 360 stroke #333333 0.5 width 1
+
+# Spilled water stain (dark patch spreading from mouth)
+ellipse 0.22,0.50 0.08,0.12 fill #3a4a50 0.2
+ellipse 0.18,0.52 0.05,0.08 fill #3a4a50 0.15

@@ -1,0 +1,68 @@
+name: Brewing Kettle
+category: Workshop
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+placement: center
+room_types: brewery, tavern-kitchen, alchemist-lab
+typical_count: single
+clusters_with: fermentation-vat, mash-tun, wooden-paddle, hops-bunch
+notes: Huge copper brewing kettle with domed lid and steam; centerpiece of a brewery
+lights:
+  - type: torch
+    x: 1.0
+    y: 1.0
+    radius: 3
+    color: "#ff8030"
+    intensity: 0.3
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: large copper disc + dome highlight ring + tap spout on south
+
+# Heat halo from fire below
+circle 1.0,1.0 0.92 fill #e85500 0.1
+
+# Main copper body
+circle 1.0,1.0 0.82 texfill polyhaven/rusty_metal 0.75
+circle 1.0,1.0 0.82 stroke #8b6914
+
+# Copper rim band (outer)
+circle 1.0,1.0 0.78 stroke #daa520 width 3
+# Copper rim band (inner)
+circle 1.0,1.0 0.74 stroke #8b6914
+
+# Dome-shaped lid — concentric rings suggesting convexity
+circle 1.0,1.0 0.62 fill #c49530 0.5
+circle 1.0,1.0 0.62 stroke #8b6914
+circle 1.0,1.0 0.45 fill #d4a540 0.35
+circle 1.0,1.0 0.45 stroke #8b6914 0.4
+circle 1.0,1.0 0.28 fill #dab560 0.3
+circle 1.0,1.0 0.28 stroke #8b6914 0.3
+
+# Dome apex highlight (bright copper)
+circle 1.0,1.0 0.12 fill #e8c880 0.6
+circle 1.0,1.0 0.05 fill #ffd700 0.4
+
+# Lid handle knob at center
+circle 1.0,1.0 0.06 fill #666666 0.8
+circle 1.0,1.0 0.06 stroke #444444
+
+# Rivet studs around rim
+circle 0.38,0.55 0.02 fill #8b6914 0.6
+circle 0.32,1.0 0.02 fill #8b6914 0.6
+circle 0.38,1.45 0.02 fill #8b6914 0.6
+circle 1.62,0.55 0.02 fill #8b6914 0.6
+circle 1.68,1.0 0.02 fill #8b6914 0.6
+circle 1.62,1.45 0.02 fill #8b6914 0.6
+
+# Tap spout stub on south side
+rect 0.90,1.78 0.20,0.16 fill #8b6914 0.8
+rect 0.90,1.78 0.20,0.16 stroke #5a3a00
+# Spout opening
+circle 1.0,1.94 0.04 fill #333333 0.8
+
+# Steam wisps (faint pale arcs near rim)
+arc 0.65,0.40 0.15 200 280 stroke #cccccc 0.15 width 2
+arc 1.35,0.40 0.12 250 330 stroke #cccccc 0.12 width 2
+arc 0.50,0.80 0.10 220 300 stroke #cccccc 0.12 width 2

@@ -1,0 +1,40 @@
+name: Small Animal Skull (Tiny)
+category: Decor
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: bog-witch-hut, cabin-witch, graveyard-village, druid-grove, hermit-cell, hunter-camp, beast-den
+typical_count: many
+clusters_with: bone-pile-small, bone-charm, fang-scatter, feather-bundle, animal-skull
+notes: A tiny animal skull (bird/rat/fox size) lying on the ground — ritual curio or natural detritus. Floor scatter for witchy or feral areas. Unlike animal-skull and skull-small this is deliberately minimal, good for dense scatter.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Cranium (rounded dome, top-down) ===
+ellipse 0.50,0.42 0.18,0.17 fill #e8dcc8 0.9
+ellipse 0.50,0.42 0.18,0.17 stroke #6a5040
+
+# Aged stain
+ellipse 0.55,0.40 0.08,0.06 fill #c8a868 0.25
+
+# === Eye sockets (two dark hollows) ===
+ellipse 0.42,0.46 0.04,0.05 fill #1a1008 0.9
+ellipse 0.42,0.46 0.04,0.05 stroke #4a3828
+ellipse 0.58,0.46 0.04,0.05 fill #1a1008 0.9
+ellipse 0.58,0.46 0.04,0.05 stroke #4a3828
+
+# === Snout (small pointed extension south) ===
+poly 0.44,0.56 0.56,0.56 0.53,0.68 0.50,0.72 0.47,0.68 fill #e8dcc8 0.88
+poly 0.44,0.56 0.56,0.56 0.53,0.68 0.50,0.72 0.47,0.68 stroke #6a5040
+
+# Nasal cavity
+poly 0.48,0.60 0.52,0.60 0.50,0.66 fill #1a1008 0.8
+
+# Cranial suture line
+line 0.42,0.32 0.50,0.30 stroke #6a5040 0.6 width 1
+line 0.50,0.30 0.58,0.32 stroke #6a5040 0.6 width 1
+
+# Highlight on crown
+ellipse 0.48,0.36 0.05,0.025 fill #f4e8d4 0.4

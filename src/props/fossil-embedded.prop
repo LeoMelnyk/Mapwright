@@ -1,0 +1,55 @@
+name: Fossil Embedded
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: cave, elemental-earth-node, tomb, natural-cavern, museum
+typical_count: few
+clusters_with: boulder, stone-debris, ore-vein-prop, geode-cluster
+notes: Stone slab with an embedded prehistoric fossil (ammonite spiral); place as floor detail in earth-themed areas
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: rectangular stone base with detailed ammonite fossil carving in center
+
+# === Stone slab base ===
+rect 0.08,0.10 0.84,0.80 texfill polyhaven/stone_floor 0.8
+rect 0.08,0.10 0.84,0.80 stroke #666666
+
+# Slab surface variation (subtle darker patch)
+rect 0.12,0.14 0.76,0.72 fill #777777 0.08
+
+# === Ammonite fossil (spiral shell, carved/embedded in stone) ===
+# Outer spiral ring
+arc 0.50,0.50 0.28 0 350 stroke #8b7355 width 2
+# Second ring
+arc 0.50,0.50 0.22 20 370 stroke #8b7355 width 2
+# Third ring
+arc 0.50,0.50 0.16 40 380 stroke #8b7355 width 2
+# Fourth ring (inner)
+arc 0.50,0.50 0.10 60 390 stroke #8b7355 width 2
+# Innermost whorl
+arc 0.50,0.50 0.05 80 400 stroke #8b7355 width 2
+
+# Spiral connecting segments (linking the rings into a continuous spiral)
+line 0.50,0.22 0.52,0.28 stroke #8b7355 width 1
+line 0.50,0.28 0.52,0.34 stroke #8b7355 width 1
+line 0.50,0.34 0.52,0.40 stroke #8b7355 width 1
+line 0.50,0.40 0.51,0.45 stroke #8b7355 width 1
+
+# Rib lines radiating from the spiral (shell texture)
+line 0.30,0.35 0.35,0.30 stroke #9a8565 width 1
+line 0.28,0.50 0.34,0.46 stroke #9a8565 width 1
+line 0.32,0.65 0.38,0.60 stroke #9a8565 width 1
+line 0.50,0.75 0.50,0.68 stroke #9a8565 width 1
+line 0.68,0.65 0.62,0.60 stroke #9a8565 width 1
+line 0.72,0.50 0.66,0.46 stroke #9a8565 width 1
+line 0.68,0.35 0.62,0.32 stroke #9a8565 width 1
+
+# Central fossil eye (dark pit)
+circle 0.50,0.50 0.03 fill #444444 0.6
+
+# Fossil shadow (recessed carving effect)
+circle 0.50,0.50 0.30 fill #000000 0.06

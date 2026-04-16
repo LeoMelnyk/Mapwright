@@ -1,0 +1,42 @@
+name: Cargo Lashing
+category: Nautical
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ship, cargo-hold, dock, warehouse
+typical_count: many
+clusters_with: crate, crate-stack, barrel, barrel-stack
+notes: Heavy rope lashings over cargo; place atop crate stacks to secure them
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: thick ropes criss-crossing over a rectangular cargo footprint
+
+# Cargo footprint shadow (the crate/cargo below the ropes)
+rect 0.10,0.10 1.80,0.80 fill #3a2a1a 0.15
+
+# Main diagonal lashing ropes (thick brown hemp)
+line 0.10,0.12 1.90,0.88 stroke #8b7355 width 4
+line 0.10,0.88 1.90,0.12 stroke #8b7355 width 4
+
+# Horizontal securing ropes
+line 0.10,0.50 1.90,0.50 stroke #8b7355 width 3
+
+# Rope crossing knot at center
+circle 1.0,0.50 0.06 fill #6b4e2e 0.7
+circle 1.0,0.50 0.06 stroke #4a2800
+
+# Rope edge tie-downs (small loops at perimeter)
+circle 0.10,0.12 0.04 fill #8b7355 0.5
+circle 0.10,0.12 0.04 stroke #5c3a1e
+circle 1.90,0.12 0.04 fill #8b7355 0.5
+circle 1.90,0.12 0.04 stroke #5c3a1e
+circle 0.10,0.88 0.04 fill #8b7355 0.5
+circle 0.10,0.88 0.04 stroke #5c3a1e
+circle 1.90,0.88 0.04 fill #8b7355 0.5
+circle 1.90,0.88 0.04 stroke #5c3a1e
+
+# Secondary rope weave detail
+line 0.50,0.10 0.50,0.90 stroke #7a6a4e 0.4 width 2
+line 1.50,0.10 1.50,0.90 stroke #7a6a4e 0.4 width 2

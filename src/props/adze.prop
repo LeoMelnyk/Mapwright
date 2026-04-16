@@ -1,0 +1,44 @@
+name: Adze
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cooperage, carpenter, workshop, lumberyard
+typical_count: single
+clusters_with: stave-horse, cooper-mallet, stave-pile, chopping-block
+notes: Cooper's adze tool (curved blade on a short handle) lying on a workbench or floor; used for shaping barrel staves
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: adze lying flat, handle running SW-NE, curved blade at NE end
+
+# Handle shaft (short, thick)
+line 0.22,0.72 0.58,0.40 stroke #6b4e2e width 4
+# Handle wood grain
+line 0.22,0.72 0.58,0.40 stroke #5c3a1e 0.4 width 1
+
+# Handle grip end (slight flare at SW)
+ellipse 0.20,0.74 0.04,0.03 fill #5c3a1e 0.8
+ellipse 0.20,0.74 0.04,0.03 stroke #3a1f00
+
+# Socket — where handle meets blade (iron ferrule)
+ellipse 0.58,0.40 0.05,0.04 fill #555555 0.8
+ellipse 0.58,0.40 0.05,0.04 stroke #333333
+
+# Blade — curved cutting edge (adze blade is perpendicular to handle)
+# From above: a short curved wedge shape
+poly 0.56,0.28 0.74,0.24 0.78,0.30 0.76,0.40 0.60,0.42 fill #888888 0.85
+poly 0.56,0.28 0.74,0.24 0.78,0.30 0.76,0.40 0.60,0.42 stroke #333333
+# Blade bevel highlight
+line 0.58,0.30 0.76,0.28 stroke #8899aa 0.4 width 1
+
+# Cutting edge (bright steel line along the curved front)
+qbezier 0.74,0.24 0.82,0.32 0.76,0.40 stroke #aabbcc width 2
+
+# Iron patina on blade
+ellipse 0.68,0.34 0.06,0.05 fill #555555 0.15
+
+# Wood shaving near the tool
+poly 0.38,0.56 0.42,0.52 0.46,0.56 0.44,0.60 fill #c8b898 0.3
+poly 0.38,0.56 0.42,0.52 0.46,0.56 0.44,0.60 stroke #8b7355 0.2

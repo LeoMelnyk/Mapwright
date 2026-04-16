@@ -1,0 +1,33 @@
+name: Wort Puddle
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: brewery, tavern-kitchen, cellar
+typical_count: few
+clusters_with: brewing-kettle, mash-tun, fermentation-vat, barrel
+notes: Sticky amber-brown puddle of spilled wort on the floor; environmental detail for breweries
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: irregular amber puddle with gradient from amber center to darker edges
+
+# Outer puddle edge (irregular, darker)
+poly 0.22,0.38 0.30,0.22 0.48,0.18 0.66,0.22 0.78,0.34 0.82,0.52 0.78,0.68 0.66,0.78 0.48,0.82 0.30,0.76 0.18,0.60 fill #5a3a10 0.35
+
+# Main puddle body (amber gradient)
+ellipse 0.50,0.50 0.24,0.22 gradient-radial #b88030 #6a4a18 0.5
+
+# Brighter center highlight (fresh spill, sticky sheen)
+ellipse 0.48,0.46 0.12,0.10 fill #d4a040 0.3
+
+# Sheen/reflection highlight
+ellipse 0.44,0.42 0.06,0.04 fill #e8c060 0.25
+
+# Puddle tendril extending from main body
+poly 0.72,0.56 0.80,0.58 0.82,0.64 0.76,0.66 fill #7a5420 0.3
+poly 0.28,0.68 0.22,0.74 0.26,0.80 0.32,0.76 fill #6a4a18 0.25
+
+# Sticky edge darkening
+ellipse 0.50,0.50 0.26,0.24 stroke #4a3010 0.2

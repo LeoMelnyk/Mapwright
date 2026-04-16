@@ -1,0 +1,64 @@
+name: Burner Shelter
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+placement: floor
+room_types: charcoal-burner-camp, ranger-camp, scouts-blind
+typical_count: single
+clusters_with: charcoal-kiln, bedroll, campfire-stone, wood-pile
+notes: Crude lean-to of bark slabs and brush over a pole frame — dark opening on the south side
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: triangular slanted roof of bark plates meeting at ridge, dark opening south
+
+# hitbox for the solid structure
+hitbox rect 0.15,0.15 1.70,1.50
+
+# Ground shadow / disturbed earth around shelter
+ellipse 1.00,1.10 0.85,0.75 fill #2a1a0a 0.12
+
+# Bark slab roof — west panel (slanting from ridge down to west)
+poly 0.20,0.20 1.00,0.20 1.00,1.55 0.20,1.55 fill #5c4020 0.9
+poly 0.20,0.20 1.00,0.20 1.00,1.55 0.20,1.55 texfill polyhaven/bark_brown_02 0.7
+poly 0.20,0.20 1.00,0.20 1.00,1.55 0.20,1.55 stroke #2a1400
+
+# Bark slab roof — east panel (slanting from ridge down to east)
+poly 1.00,0.20 1.80,0.20 1.80,1.55 1.00,1.55 fill #6a4a28 0.88
+poly 1.00,0.20 1.80,0.20 1.80,1.55 1.00,1.55 texfill polyhaven/bark_brown_02 0.65
+poly 1.00,0.20 1.80,0.20 1.80,1.55 1.00,1.55 stroke #2a1400
+
+# Ridge pole (center line running N-S)
+line 1.00,0.18 1.00,1.58 stroke #3a1f00 width 3
+line 1.00,0.18 1.00,1.58 stroke #5c3a1e width 1
+
+# Bark slab gaps / joints (showing through as dark lines)
+line 0.20,0.55 1.00,0.55 stroke #1a0800 0.5 width 1
+line 0.20,0.95 1.00,0.95 stroke #1a0800 0.45 width 1
+line 0.20,1.30 1.00,1.30 stroke #1a0800 0.4 width 1
+line 1.00,0.60 1.80,0.60 stroke #1a0800 0.45 width 1
+line 1.00,1.00 1.80,1.00 stroke #1a0800 0.4 width 1
+line 1.00,1.35 1.80,1.35 stroke #1a0800 0.4 width 1
+
+# Brush/leaf debris on roof surface
+ellipse 0.50,0.70 0.12,0.06 fill #3a5020 0.25
+ellipse 1.40,0.85 0.10,0.05 fill #3a5020 0.2
+ellipse 0.70,1.20 0.08,0.05 fill #2a4018 0.2
+
+# Support poles visible at the edges (cross-pieces)
+line 0.20,0.20 0.20,1.55 stroke #3a1f00 0.7 width 2
+line 1.80,0.20 1.80,1.55 stroke #3a1f00 0.7 width 2
+# North back wall edge (closed)
+line 0.20,0.20 1.80,0.20 stroke #3a1f00 0.6 width 2
+
+# Dark opening at south (the entrance, facing south)
+poly 0.35,1.55 1.65,1.55 1.55,1.85 0.45,1.85 fill #0a0604 0.7
+poly 0.35,1.55 1.65,1.55 1.55,1.85 0.45,1.85 stroke #2a1400 0.5
+# Interior darkness visible through opening
+rect 0.50,1.55 1.00,0.15 fill #0a0604 0.4
+
+# Ground litter around entrance
+circle 0.55,1.90 0.02 fill #3a1f00 0.35
+circle 1.20,1.92 0.025 fill #3a1f00 0.3
+circle 0.85,1.95 0.02 fill #2a4018 0.25

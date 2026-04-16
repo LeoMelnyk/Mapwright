@@ -1,0 +1,55 @@
+name: Cookware Scatter
+category: Camp
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, ranger-camp, orc-war-camp, cave-bandit-camp
+typical_count: single
+clusters_with: campfire, campfire-stone, stool, log-seat
+notes: Scattered tin cups, a small pan, and a dropped ladle near a cold firepit — signs of a hasty meal or sudden departure
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: scattered cookware on the ground
+
+# Small frying pan (round, handle pointing SE)
+circle 0.30,0.35 0.14 texfill polyhaven/rusty_metal 0.75
+circle 0.30,0.35 0.14 stroke #444444
+# Pan interior (darker, soot-stained)
+circle 0.30,0.35 0.10 fill #333333 0.35
+# Pan handle
+rect 0.40,0.32 0.18,0.06 fill #555555 0.85
+rect 0.40,0.32 0.18,0.06 stroke #333333
+# Rivet on handle
+circle 0.42,0.35 0.015 fill #777777 0.7
+
+# Tin cup 1 — upright (NE area)
+circle 0.72,0.28 0.07 fill #777777 0.7
+circle 0.72,0.28 0.07 stroke #555555
+# Cup interior shadow
+circle 0.72,0.28 0.05 fill #444444 0.4
+# Cup handle (tiny loop on east side)
+arc 0.80,0.28 0.04 270 90 stroke #555555 width 2
+
+# Tin cup 2 — knocked over (south, seen as oval)
+ellipse 0.55,0.72 0.08,0.05 fill #777777 0.65
+ellipse 0.55,0.72 0.08,0.05 stroke #555555
+# Spilled liquid stain
+ellipse 0.62,0.78 0.10,0.04 fill #3a2818 0.25
+
+# Ladle — long handle + bowl
+# Bowl (small circle, SW area)
+circle 0.22,0.75 0.06 fill #666666 0.75
+circle 0.22,0.75 0.06 stroke #444444
+circle 0.22,0.75 0.04 fill #444444 0.35
+# Ladle handle (thin line running NE)
+line 0.27,0.70 0.48,0.55 stroke #555555 width 2
+
+# Small wooden spoon (near center)
+line 0.42,0.42 0.58,0.50 stroke #6b4e2e width 2
+ellipse 0.60,0.51 0.04,0.03 fill #5c3a1e 0.7
+ellipse 0.60,0.51 0.04,0.03 stroke #3a1f00
+
+# Grease stain on ground
+ellipse 0.40,0.55 0.08,0.06 fill #2a1a0a 0.2

@@ -1,0 +1,47 @@
+name: Stone Arch (Natural)
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+placement: center
+room_types: chasm, cave, canyon, underground-river, wilderness
+typical_count: single
+clusters_with: boulder, anchor-post, stalagmite
+notes: Natural stone arch bridging a chasm. Top-down shows the arch's keystone top — a solid oval of stone with cracks. blocks_light:no because it's an arch over a gap.
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: the arch top is a solid oval/circle of stone with cracked texture
+
+# === Outer rim of the arch (where it meets the chasm walls) ===
+ellipse 1.0,1.0 0.92,0.82 fill #4a4238 0.25
+ellipse 1.0,1.0 0.92,0.82 stroke #333333 0.3
+
+# === Main arch keystone top (solid stone oval) ===
+ellipse 1.0,1.0 0.78,0.68 texfill polyhaven/rock_boulder_cracked 0.85
+ellipse 1.0,1.0 0.78,0.68 stroke #444444
+
+# === Lighter highlight on the crown (top of the arch catches light) ===
+ellipse 1.0,1.0 0.50,0.42 fill #888888 0.12
+
+# === Crack lines across the keystone ===
+line 0.40,0.65 0.85,1.10 stroke #333333 0.45
+line 0.85,1.10 1.30,0.80 stroke #333333 0.40
+line 1.20,1.20 1.60,1.45 stroke #333333 0.40
+line 0.55,1.30 0.90,1.50 stroke #333333 0.35
+line 1.10,0.55 1.50,0.70 stroke #333333 0.35
+
+# === Smaller surface cracks (finer detail) ===
+line 0.70,0.80 0.90,0.90 stroke #444444 0.30
+line 1.30,1.00 1.50,1.15 stroke #444444 0.30
+line 0.80,1.30 1.00,1.20 stroke #444444 0.25
+
+# === Edge weathering (darker at the rim where water erodes) ===
+ellipse 1.0,1.0 0.78,0.68 stroke #333333 0.2 width 3
+
+# === Small loose stones on the arch surface ===
+circle 0.52,0.82 0.04 fill #5a5248 0.6
+circle 0.52,0.82 0.04 stroke #3a3228
+circle 1.55,1.28 0.035 fill #5a5248 0.55
+circle 1.55,1.28 0.035 stroke #3a3228
+circle 1.10,0.65 0.03 fill #4a4238 0.5

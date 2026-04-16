@@ -1,0 +1,55 @@
+name: Infernal Contract Pedestal
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+placement: center
+room_types: infernal-court, throne-room, fiend-lair, study, wizard-sanctum
+typical_count: single
+clusters_with: candle-cluster, soul-coin-pile, iron-throne-spiked
+notes: Short stone pedestal with an unfurled black parchment contract; place as a focal point
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: stone pedestal (square base) with unfurled dark parchment on top
+
+# === Pedestal base (stone) ===
+rect 0.18,0.18 0.64,0.64 texfill polyhaven/granite_tile 0.75
+rect 0.18,0.18 0.64,0.64 stroke #444444
+
+# === Pedestal top surface (slightly smaller) ===
+rect 0.22,0.22 0.56,0.56 texfill polyhaven/stone_wall 0.7
+rect 0.22,0.22 0.56,0.56 stroke #555555
+
+# === Edge highlights ===
+line 0.22,0.22 0.78,0.22 stroke #666666 width 1
+line 0.22,0.22 0.22,0.78 stroke #666666 width 1
+
+# === Unfurled parchment contract (dark, extends slightly past pedestal) ===
+# Main parchment body
+rect 0.15,0.26 0.70,0.48 fill #1a1208 0.85
+rect 0.15,0.26 0.70,0.48 stroke #0a0804
+
+# === Brimstone-scorched edges ===
+# Charred edge fragments
+line 0.15,0.26 0.85,0.26 stroke #333333 0.6 width 2
+line 0.15,0.74 0.85,0.74 stroke #333333 0.6 width 2
+# Scorch marks along edges
+circle 0.18,0.28 0.03 fill #2a1500 0.5
+circle 0.82,0.72 0.035 fill #2a1500 0.5
+circle 0.78,0.28 0.025 fill #2a1500 0.45
+
+# === Red infernal script lines ===
+line 0.24,0.34 0.72,0.34 stroke #8b1a1a 0.5 width 1
+line 0.24,0.40 0.68,0.40 stroke #8b1a1a 0.45 width 1
+line 0.24,0.46 0.70,0.46 stroke #8b1a1a 0.5 width 1
+line 0.24,0.52 0.65,0.52 stroke #8b1a1a 0.45 width 1
+line 0.24,0.58 0.72,0.58 stroke #8b1a1a 0.5 width 1
+line 0.24,0.64 0.60,0.64 stroke #8b1a1a 0.4 width 1
+
+# === Red wax seal (lower right) ===
+circle 0.70,0.66 0.06 fill #8b0000 0.8
+circle 0.70,0.66 0.06 stroke #5a0000
+# Seal imprint
+circle 0.70,0.66 0.035 stroke #aa2020 0.5
+line 0.68,0.66 0.72,0.66 stroke #aa2020 0.4 width 1

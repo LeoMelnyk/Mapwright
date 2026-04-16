@@ -1,0 +1,32 @@
+name: Spring Coil
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: workshop-artificer, tinker-workshop, clocktower, forge
+typical_count: many
+clusters_with: gear-pile, half-built-device, screwdriver, clockwork-frame
+notes: Loose steel spring lying on the ground; scatter near workstations
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down view of a coil spring lying flat — concentric rings with a slight gap
+
+# Outer coil ring
+circle 0.50,0.50 0.24 stroke #8899aa width 3
+# Mid coil ring
+circle 0.50,0.50 0.17 stroke #667788 width 2
+# Inner coil ring
+circle 0.50,0.50 0.10 stroke #8899aa width 2
+# Center post / core
+circle 0.50,0.50 0.04 fill #555555 0.85
+
+# Coil wire end sticking out (break in the outer ring)
+line 0.74,0.50 0.80,0.44 stroke #8899aa width 3
+# Inner wire end
+line 0.50,0.33 0.56,0.28 stroke #667788 width 2
+
+# Metallic highlight on top of coils
+arc 0.50,0.50 0.24 300 360 stroke #aabbcc 0.4 width 2
+arc 0.50,0.50 0.17 120 180 stroke #aabbcc 0.35 width 2

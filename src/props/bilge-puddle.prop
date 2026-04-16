@@ -1,0 +1,31 @@
+name: Bilge Puddle
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ship, cargo-hold, bilge, dock
+typical_count: many
+clusters_with: ballast-stones, barrel, crate
+notes: Dark scummy bilgewater puddle on deck; scatter in low areas of cargo holds
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: irregular dark puddle with scummy surface
+
+# Outer puddle edge (irregular amoeba shape)
+poly 0.22,0.40 0.28,0.28 0.42,0.22 0.60,0.24 0.74,0.32 0.80,0.46 0.78,0.62 0.70,0.74 0.54,0.78 0.38,0.76 0.24,0.66 0.18,0.52 fill #2a3028 0.5
+poly 0.22,0.40 0.28,0.28 0.42,0.22 0.60,0.24 0.74,0.32 0.80,0.46 0.78,0.62 0.70,0.74 0.54,0.78 0.38,0.76 0.24,0.66 0.18,0.52 stroke #1a2018 0.4
+
+# Inner deeper area
+poly 0.32,0.38 0.44,0.32 0.62,0.34 0.70,0.46 0.66,0.62 0.52,0.68 0.36,0.64 0.28,0.50 fill #1a2418 0.5
+
+# Scum/oil sheen highlights
+ellipse 0.48,0.44 0.12,0.08 fill #3a4a38 0.2
+ellipse 0.56,0.56 0.08,0.06 fill #4a5a48 0.15
+
+# Iridescent oil-slick hint
+arc 0.50,0.48 0.10 180 300 stroke #556655 0.15
+
+# Edge moisture ring (slightly damp area around puddle)
+poly 0.18,0.38 0.24,0.24 0.40,0.18 0.62,0.20 0.78,0.28 0.84,0.44 0.82,0.64 0.74,0.78 0.56,0.82 0.36,0.80 0.20,0.70 0.14,0.54 stroke #3a4038 0.15

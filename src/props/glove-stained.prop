@@ -1,0 +1,44 @@
+name: Stained Glove
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: alchemist-lab, refinery, distillery, workshop-artificer, forge
+typical_count: few
+clusters_with: spill-reagent, flask-small, alchemy-bench, leather-apron
+notes: Discarded work glove with reagent stains; scatter on floors or benches
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: thick leather glove lying palm-down, fingers pointing north
+
+# Main palm/body of glove
+poly 0.28,0.40 0.72,0.40 0.74,0.78 0.26,0.78 texfill polyhaven/brown_leather 0.75
+poly 0.28,0.40 0.72,0.40 0.74,0.78 0.26,0.78 stroke #3d2b1a
+
+# Gauntlet cuff (wide end, south)
+poly 0.22,0.74 0.78,0.74 0.80,0.88 0.20,0.88 fill #6b4e2e 0.7
+poly 0.22,0.74 0.78,0.74 0.80,0.88 0.20,0.88 stroke #3d2b1a
+
+# Fingers (four stubs pointing north)
+rect 0.30,0.22 0.08,0.20 fill #8b7355 0.65
+rect 0.30,0.22 0.08,0.20 stroke #3d2b1a
+rect 0.42,0.18 0.08,0.24 fill #8b7355 0.65
+rect 0.42,0.18 0.08,0.24 stroke #3d2b1a
+rect 0.54,0.20 0.08,0.22 fill #8b7355 0.65
+rect 0.54,0.20 0.08,0.22 stroke #3d2b1a
+rect 0.64,0.26 0.07,0.16 fill #8b7355 0.65
+rect 0.64,0.26 0.07,0.16 stroke #3d2b1a
+
+# Thumb (east side)
+poly 0.72,0.50 0.82,0.42 0.84,0.52 0.74,0.58 fill #8b7355 0.6
+poly 0.72,0.50 0.82,0.42 0.84,0.52 0.74,0.58 stroke #3d2b1a
+
+# Reagent stain splatter (green-blue)
+circle 0.42,0.55 0.08 fill #339977 0.35
+circle 0.55,0.48 0.06 fill #44aa88 0.3
+circle 0.36,0.65 0.05 fill #227766 0.25
+
+# Stitching line across palm
+line 0.32,0.42 0.68,0.42 stroke #4a2800 0.4

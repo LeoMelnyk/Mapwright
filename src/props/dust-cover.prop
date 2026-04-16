@@ -1,0 +1,40 @@
+name: Dust Cover
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: library, study, archive, ruined-library, storage
+typical_count: few
+clusters_with: chair, bookshelf, desk, broken-binding
+notes: Thin white cloth draped over a chair or small table; angular folds visible from above. Place on top of furniture for abandoned-room feel
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a thin white cloth draped over something, angular folds visible
+
+# Main drape body (irregular polygon suggesting cloth over an object)
+poly 0.12,0.18 0.50,0.10 0.88,0.16 0.92,0.52 0.86,0.84 0.48,0.90 0.10,0.82 0.08,0.46 fill #e8e4de 0.75
+poly 0.12,0.18 0.50,0.10 0.88,0.16 0.92,0.52 0.86,0.84 0.48,0.90 0.10,0.82 0.08,0.46 stroke #c8c0b4 0.5
+
+# Fabric texture overlay
+poly 0.12,0.18 0.50,0.10 0.88,0.16 0.92,0.52 0.86,0.84 0.48,0.90 0.10,0.82 0.08,0.46 texfill polyhaven/rough_linen 0.25
+
+# Fold creases (angular lines where cloth drapes over edges beneath)
+line 0.30,0.16 0.24,0.52 stroke #b8b0a4 0.5 width 2
+line 0.24,0.52 0.16,0.80 stroke #b8b0a4 0.4 width 2
+line 0.68,0.14 0.76,0.48 stroke #b8b0a4 0.5 width 2
+line 0.76,0.48 0.82,0.78 stroke #b8b0a4 0.4 width 2
+
+# Central ridge (cloth draped over the top of whatever is beneath)
+line 0.36,0.22 0.64,0.22 stroke #d0c8bc 0.6 width 2
+line 0.36,0.22 0.30,0.50 stroke #c8c0b4 0.45
+line 0.64,0.22 0.72,0.50 stroke #c8c0b4 0.45
+
+# Subtle highlight on ridge top
+line 0.40,0.20 0.60,0.20 stroke #f0ece6 0.4 width 2
+
+# Dust spots
+circle 0.44,0.60 0.02 fill #a09888 0.3
+circle 0.62,0.40 0.015 fill #a09888 0.25
+circle 0.34,0.72 0.018 fill #a09888 0.3

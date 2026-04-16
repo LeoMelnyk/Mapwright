@@ -1,0 +1,36 @@
+name: Signet Ring Tray
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: bedroom, noble-bedchamber, dressing-room, study, office
+typical_count: single
+clusters_with: desk, jewel-casket, bed, bed-double
+notes: Small pewter tray with signet ring and lesser rings; place on desks or nightstands
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small oval pewter tray holding a signet ring + two lesser rings
+
+# Tray (oval pewter dish)
+ellipse 0.50,0.50 0.28,0.22 fill #888899 0.6
+ellipse 0.50,0.50 0.28,0.22 stroke #667788
+
+# Tray inner bevel (slightly lighter)
+ellipse 0.50,0.50 0.24,0.18 fill #99aaaa 0.3
+
+# Signet ring (larger, gold with flat top)
+ring 0.42,0.44 0.08 0.05 fill #daa520 0.85
+ring 0.42,0.44 0.08 0.05 stroke #8b6914
+# Signet face (flat square top)
+rect 0.38,0.38 0.08,0.06 fill #ffd700 0.6
+rect 0.38,0.38 0.08,0.06 stroke #8b6914 0.5
+
+# Lesser ring 1 (silver band)
+ring 0.62,0.42 0.05 0.03 fill #aabbcc 0.7
+ring 0.62,0.42 0.05 0.03 stroke #667788
+
+# Lesser ring 2 (thin bronze)
+ring 0.54,0.60 0.04 0.025 fill #b08040 0.7
+ring 0.54,0.60 0.04 0.025 stroke #805020

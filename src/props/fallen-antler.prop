@@ -1,0 +1,46 @@
+name: Fallen Antler
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: fey-glade, forest, druid-grove, ranger-lodge, hunting-lodge
+typical_count: few
+clusters_with: bone-pile-small, flower-patch, mushroom
+notes: Shed deer antler lying on the ground — decorative wilderness scatter
+---
+# A single antler lying flat on the ground, seen from above
+# Main beam curves from lower-left toward upper-right
+
+# === Main beam ===
+bezier 0.18,0.72 0.30,0.55 0.55,0.40 0.78,0.30 stroke #d4c4a8 width 4
+bezier 0.18,0.72 0.30,0.55 0.55,0.40 0.78,0.30 stroke #c8b898 width 2
+
+# === Tines branching off the main beam ===
+
+# First tine — branches upward-left from near base
+bezier 0.30,0.62 0.26,0.52 0.20,0.42 0.18,0.34 stroke #d4c4a8 width 3
+bezier 0.30,0.62 0.26,0.52 0.20,0.42 0.18,0.34 stroke #c8b898 width 1
+
+# Second tine — branches upward from mid-beam
+bezier 0.45,0.50 0.42,0.38 0.38,0.28 0.35,0.22 stroke #d4c4a8 width 3
+bezier 0.45,0.50 0.42,0.38 0.38,0.28 0.35,0.22 stroke #c8b898 width 1
+
+# Third tine — branches upward-right near tip
+bezier 0.62,0.38 0.60,0.28 0.58,0.22 0.56,0.18 stroke #d4c4a8 width 2
+bezier 0.62,0.38 0.60,0.28 0.58,0.22 0.56,0.18 stroke #c8b898 width 1
+
+# Fourth tine — small fork at the very tip
+bezier 0.75,0.32 0.80,0.24 0.84,0.20 0.86,0.18 stroke #d4c4a8 width 2
+
+# === Base/burr (wide knob where antler was attached to skull) ===
+circle 0.18,0.72 0.06 fill #c8b898 0.7
+circle 0.18,0.72 0.06 stroke #a09878
+
+# === Tine tips — slightly lighter ===
+circle 0.18,0.34 0.02 fill #e8dcc8 0.5
+circle 0.35,0.22 0.02 fill #e8dcc8 0.5
+circle 0.56,0.18 0.02 fill #e8dcc8 0.5
+circle 0.86,0.18 0.02 fill #e8dcc8 0.45
+circle 0.78,0.30 0.02 fill #e8dcc8 0.45

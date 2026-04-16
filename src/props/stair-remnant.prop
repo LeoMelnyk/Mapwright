@@ -1,0 +1,64 @@
+name: Stair Remnant
+category: Ruins
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: ruined-watchtower, ruin, ancient-ruin-overgrown, collapsed-area, dungeon
+typical_count: single
+clusters_with: rubble, broken-arrow-slit, boulder, weapon-rack-broken
+notes: Partial broken stone steps — two or three treads still visible with rubble around, remnant of a collapsed staircase
+---
+# footprint 2x1: x range 0-1, y range 0-2
+# Top-down: broken stone stair treads, south is the approach (low Y = top of stairs)
+# facing: yes — front (approach) faces south (high Y)
+
+# Rubble debris around the stairs
+ellipse 0.50,1.00 0.45,0.85 fill #8b7355 0.08
+
+# Small rubble chunks around base
+circle 0.15,1.65 0.03 fill #888888 0.45
+circle 0.15,1.65 0.03 stroke #666666
+circle 0.82,1.72 0.025 fill #777777 0.4
+circle 0.82,1.72 0.025 stroke #666666
+circle 0.30,1.80 0.02 fill #888888 0.35
+poly 0.70,1.82 0.78,1.78 0.80,1.88 fill #777777 0.4
+poly 0.70,1.82 0.78,1.78 0.80,1.88 stroke #666666
+
+# Tread 1 — topmost remaining step (at north, highest)
+rect 0.08,0.15 0.84,0.40 texfill polyhaven/stone_wall 0.8
+rect 0.08,0.15 0.84,0.40 stroke #555555
+# Tread surface highlight
+rect 0.12,0.18 0.76,0.10 fill #999999 0.1
+# Cracked edge
+line 0.68,0.15 0.75,0.55 stroke #444444 0.4 width 1
+
+# Tread 2 — middle step (slightly wider, lower)
+rect 0.05,0.58 0.90,0.40 texfill polyhaven/stone_wall 0.75
+rect 0.05,0.58 0.90,0.40 stroke #555555
+rect 0.08,0.60 0.84,0.10 fill #999999 0.08
+# Break on the east side (chunk missing)
+poly 0.85,0.70 0.95,0.65 0.95,0.98 0.82,0.98 fill #3a2818 0.4
+poly 0.85,0.70 0.95,0.65 0.95,0.98 0.82,0.98 stroke #555555 0.5
+
+# Tread 3 — lowest remaining step (mostly broken, at south)
+rect 0.02,1.02 0.60,0.38 texfill polyhaven/stone_wall 0.7
+rect 0.02,1.02 0.60,0.38 stroke #555555
+# This tread is broken off on the east side
+poly 0.55,1.02 0.65,1.05 0.60,1.40 0.50,1.38 fill #777777 0.5
+poly 0.55,1.02 0.65,1.05 0.60,1.40 0.50,1.38 stroke #555555 0.5
+
+# Riser faces (dark shadow between treads — the vertical step faces)
+rect 0.08,0.52 0.84,0.08 fill #444444 0.35
+rect 0.05,0.95 0.90,0.08 fill #444444 0.3
+rect 0.02,1.38 0.60,0.06 fill #444444 0.25
+
+# Mortar crumble between stones
+line 0.30,0.20 0.30,0.55 stroke #8b7355 0.25 width 1
+line 0.60,0.60 0.60,0.98 stroke #8b7355 0.2 width 1
+
+# Moss growth on steps (age indicator)
+ellipse 0.20,0.35 0.06,0.04 fill #3a5a2a 0.3
+ellipse 0.45,0.80 0.05,0.03 fill #3a5a2a 0.25
+ellipse 0.15,1.20 0.04,0.03 fill #3a5a2a 0.2

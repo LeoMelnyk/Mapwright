@@ -1,0 +1,49 @@
+name: Dispatch Pouch
+category: Military
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: command-room, war-room, office, guard-room, barracks, messenger-post
+typical_count: few
+clusters_with: campaign-ledger, map-scroll, desk, scroll-loose
+notes: Leather courier's messenger pouch with wax seal on flap; place on desks or floor near command furniture
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: leather pouch lying flat, flap open showing the wax seal
+
+# Pouch body (soft leather rectangle with rounded bottom)
+poly 0.22,0.30 0.78,0.30 0.80,0.72 0.76,0.78 0.24,0.78 0.20,0.72 fill #6b4e2e 0.85
+poly 0.22,0.30 0.78,0.30 0.80,0.72 0.76,0.78 0.24,0.78 0.20,0.72 texfill polyhaven/brown_leather 0.7
+poly 0.22,0.30 0.78,0.30 0.80,0.72 0.76,0.78 0.24,0.78 0.20,0.72 stroke #3a1f00
+
+# Stitching along edges
+line 0.26,0.34 0.74,0.34 stroke #8b7355 0.4 width 1
+line 0.24,0.74 0.76,0.74 stroke #8b7355 0.4 width 1
+
+# Flap (folded open toward north, triangular)
+poly 0.24,0.30 0.76,0.30 0.66,0.16 0.34,0.16 fill #5c3a1e 0.85
+poly 0.24,0.30 0.76,0.30 0.66,0.16 0.34,0.16 texfill polyhaven/brown_leather 0.6
+poly 0.24,0.30 0.76,0.30 0.66,0.16 0.34,0.16 stroke #3a1f00
+
+# Fold crease at flap hinge
+line 0.26,0.30 0.74,0.30 stroke #2a1400 0.5 width 2
+
+# Wax seal on flap
+circle 0.50,0.22 0.06 fill #cc2200 0.85
+circle 0.50,0.22 0.06 stroke #881100
+# Seal impression (sigil cross)
+line 0.47,0.22 0.53,0.22 stroke #881100 0.6 width 1
+line 0.50,0.19 0.50,0.25 stroke #881100 0.6 width 1
+
+# Buckle strap (hanging loose)
+rect 0.44,0.30 0.12,0.16 fill #5c3a1e 0.6
+rect 0.44,0.30 0.12,0.16 stroke #3a1f00 0.5
+# Brass buckle
+rect 0.46,0.42 0.08,0.05 fill #8b6914 0.7
+rect 0.46,0.42 0.08,0.05 stroke #5a3a00
+
+# Shoulder strap (coiled beside pouch)
+arc 0.84,0.54 0.12 270 90 stroke #5c3a1e width 3
+arc 0.84,0.54 0.12 270 90 stroke #3a1f00 0.4 width 1

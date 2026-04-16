@@ -1,0 +1,57 @@
+name: Winch Platform
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: center
+room_types: chasm, mine, cliff-edge, construction-site, dock
+typical_count: single
+clusters_with: anchor-post, rope-bridge, broken-bridge-stub
+notes: Small wooden platform with a hand-crank winch for lowering/raising across a chasm. Top-down: platform square + central drum disc + crank bar.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: flat wooden platform with a winch drum and crank handle
+
+# === Wooden platform base ===
+rect 0.08,0.08 0.84,0.84 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.08 0.84,0.84 stroke #3a1f00
+
+# Plank seams
+line 0.10,0.30 0.90,0.30 stroke #2a1400 0.4
+line 0.10,0.52 0.90,0.52 stroke #2a1400 0.4
+line 0.10,0.74 0.90,0.74 stroke #2a1400 0.4
+
+# === Winch upright supports (two vertical posts on north/south of drum) ===
+rect 0.34,0.20 0.08,0.12 fill #4a2800 0.8
+rect 0.34,0.20 0.08,0.12 stroke #2a1400
+rect 0.58,0.20 0.08,0.12 fill #4a2800 0.8
+rect 0.58,0.20 0.08,0.12 stroke #2a1400
+
+# === Central drum (cylindrical spool seen from above = circle) ===
+circle 0.50,0.44 0.14 texfill polyhaven/dark_wood 0.85
+circle 0.50,0.44 0.14 stroke #2a1400
+# Drum inner ring (wood grain ring)
+circle 0.50,0.44 0.09 stroke #3a2a18 0.5
+# Axle center
+circle 0.50,0.44 0.03 fill #666666 0.7
+circle 0.50,0.44 0.03 stroke #444444
+
+# === Rope wound around drum ===
+arc 0.50,0.44 0.12 90 270 stroke #8b7355 width 2
+# Rope trailing off south (going to the chasm)
+line 0.50,0.58 0.50,0.90 stroke #8b7355 width 3
+line 0.48,0.58 0.48,0.90 stroke #6b5a30 0.3 width 1
+
+# === Crank handle bar (extends east from drum) ===
+line 0.64,0.44 0.88,0.44 stroke #555555 width 3
+line 0.64,0.44 0.88,0.44 stroke #777777 0.4 width 1
+# Crank grip (small knob at end)
+circle 0.88,0.44 0.04 fill #666666 0.8
+circle 0.88,0.44 0.04 stroke #333333
+
+# Corner bolts securing platform
+circle 0.14,0.14 0.02 fill #666666 0.5
+circle 0.86,0.14 0.02 fill #666666 0.5
+circle 0.14,0.86 0.02 fill #666666 0.5
+circle 0.86,0.86 0.02 fill #666666 0.5

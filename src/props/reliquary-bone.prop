@@ -1,0 +1,46 @@
+name: Reliquary (Bone)
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: crypt, tomb, shrine, chapel, mausoleum
+typical_count: few
+clusters_with: candle-cluster, altar, sarcophagus
+notes: Small ornate brass-and-glass reliquary box containing a finger bone; place on altars or near shrines
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: ornate brass box on a short stand, glass top showing bone inside
+
+# === Stand base (small stone disc) ===
+circle 0.50,0.50 0.22 texfill polyhaven/granite_tile 0.6
+circle 0.50,0.50 0.22 stroke #555555
+
+# === Box outer frame (brass) ===
+rect 0.28,0.30 0.44,0.40 fill #8b6914 0.8
+rect 0.28,0.30 0.44,0.40 stroke #5a3a00
+
+# === Glass top (slightly transparent, showing interior) ===
+rect 0.32,0.34 0.36,0.32 fill #aabbcc 0.2
+rect 0.32,0.34 0.36,0.32 stroke #8b6914
+
+# === Finger bone visible inside ===
+rect 0.42,0.40 0.06,0.20 fill #e8dcc8 0.75
+# Knuckle bumps
+circle 0.45,0.40 0.025 fill #d4c4a8 0.7
+circle 0.45,0.48 0.02 fill #d4c4a8 0.65
+circle 0.45,0.55 0.02 fill #d4c4a8 0.65
+
+# === Brass corner ornaments ===
+circle 0.30,0.32 0.025 fill #daa520 0.7
+circle 0.70,0.32 0.025 fill #daa520 0.7
+circle 0.30,0.68 0.025 fill #daa520 0.7
+circle 0.70,0.68 0.025 fill #daa520 0.7
+
+# === Brass clasp at front edge ===
+rect 0.46,0.68 0.08,0.04 fill #daa520 0.8
+rect 0.46,0.68 0.08,0.04 stroke #5a3a00
+
+# === Hinge at back edge ===
+rect 0.46,0.30 0.08,0.03 fill #8b6914 0.6

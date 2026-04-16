@@ -1,0 +1,68 @@
+name: Raw Stone Obelisk
+category: Structure
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 7
+placement: center
+room_types: cave, elemental-earth-node, ruin, natural-cavern, tomb
+typical_count: few
+clusters_with: boulder, obelisk, earth-node-core, fossil-embedded
+notes: Rough-hewn natural stone obelisk, unpolished. Place as focal point or in symmetrical arrangements in earth-themed areas.
+---
+# === HITBOX ===
+hitbox rect 0.45,0.45 1.10,1.10 z 0-7
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: radial cross-section from above with four triangular pyramidion facets
+# Reference: obelisk.prop style but more weathered/natural
+
+# === Ground shadow (larger, rough) ===
+ellipse 1.10,1.10 0.78,0.78 fill #000000 0.12
+ellipse 1.15,1.15 0.68,0.68 fill #000000 0.15
+
+# === Base pedestal (irregular natural stone platform, not square) ===
+poly 0.22,0.40 0.40,0.20 0.80,0.15 1.25,0.18 1.60,0.22 1.80,0.45 1.85,0.80 1.82,1.25 1.78,1.60 1.60,1.80 1.20,1.85 0.80,1.82 0.40,1.78 0.20,1.55 0.15,1.15 0.18,0.72 texfill polyhaven/rock_boulder_cracked 0.75
+poly 0.22,0.40 0.40,0.20 0.80,0.15 1.25,0.18 1.60,0.22 1.80,0.45 1.85,0.80 1.82,1.25 1.78,1.60 1.60,1.80 1.20,1.85 0.80,1.82 0.40,1.78 0.20,1.55 0.15,1.15 0.18,0.72 stroke #555555
+
+# === Shaft cross-section (rough square, slightly irregular) ===
+poly 0.48,0.50 0.52,0.46 1.0,0.42 1.48,0.46 1.52,0.50 1.56,1.0 1.52,1.50 1.48,1.54 1.0,1.58 0.52,1.54 0.48,1.50 0.44,1.0 texfill polyhaven/stone_wall 0.82
+poly 0.48,0.50 0.52,0.46 1.0,0.42 1.48,0.46 1.52,0.50 1.56,1.0 1.52,1.50 1.48,1.54 1.0,1.58 0.52,1.54 0.48,1.50 0.44,1.0 stroke #666666
+
+# === Weathering details (cracks, chips in the shaft surface) ===
+line 0.60,0.55 0.65,0.75 stroke #555555 width 1
+line 0.65,0.75 0.58,0.90 stroke #555555 width 1
+line 1.35,0.55 1.40,0.80 stroke #555555 width 1
+line 0.60,1.30 0.55,1.48 stroke #555555 width 1
+line 1.38,1.25 1.42,1.45 stroke #555555 width 1
+line 0.80,0.50 0.95,0.55 stroke #555555 width 1
+line 1.05,1.50 1.20,1.45 stroke #555555 width 1
+
+# === Pyramidion (four triangular facets meeting at center, rougher than polished obelisk) ===
+# North facet — lightest (catches light)
+poly 0.48,0.50 1.52,0.50 1.0,1.0 fill #999999 0.55
+# East facet — medium-light
+poly 1.52,0.50 1.52,1.50 1.0,1.0 fill #888888 0.50
+# South facet — darkest
+poly 1.52,1.50 0.48,1.50 1.0,1.0 fill #777777 0.45
+# West facet — medium
+poly 0.48,1.50 0.48,0.50 1.0,1.0 fill #8a8a8a 0.48
+
+# Pyramidion outline (rough edges)
+poly 0.48,0.50 1.52,0.50 1.52,1.50 0.48,1.50 stroke #555555
+
+# Edge ridges (sharp stone ridges from corners to tip — rougher than polished)
+line 0.48,0.50 1.0,1.0 stroke #aaaaaa width 1
+line 1.52,0.50 1.0,1.0 stroke #999999 width 1
+line 0.48,1.50 1.0,1.0 stroke #888888 width 1
+line 1.52,1.50 1.0,1.0 stroke #777777 width 1
+
+# Center point (rough apex, not polished)
+circle 1.0,1.0 0.05 fill #bbbbbb 0.4
+circle 1.0,1.0 0.05 stroke #999999
+
+# Lichen/moss patches (natural weathering)
+circle 0.65,0.65 0.04 fill #556644 0.3
+circle 1.30,0.70 0.035 fill #556644 0.25
+circle 0.70,1.35 0.03 fill #556644 0.25

@@ -1,0 +1,43 @@
+name: Damp Stain
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0
+placement: floor
+room_types: tenement-room, slum-dwelling, cellar, dungeon-cell, sewer-tunnel, peasant-hovel
+typical_count: few
+clusters_with: mold-patch, puddle, rat-nest, rag-damp
+notes: Dark irregular damp stain on the floor — flat discoloration with no height, purely visual grime
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Main damp stain (irregular organic shape) ===
+# Outer boundary — large irregular blob
+poly 0.20,0.30 0.34,0.18 0.54,0.16 0.72,0.22 0.82,0.38 0.84,0.56 0.78,0.72 0.62,0.80 0.42,0.82 0.24,0.74 0.16,0.56 0.14,0.40 fill #2a2820 0.35
+
+# Darker core area
+poly 0.30,0.36 0.44,0.28 0.62,0.30 0.72,0.42 0.70,0.58 0.60,0.68 0.44,0.70 0.28,0.62 0.24,0.46 fill #1a1810 0.4
+
+# Darkest wet center
+poly 0.38,0.40 0.52,0.36 0.62,0.44 0.58,0.58 0.46,0.62 0.34,0.54 fill #141210 0.45
+
+# === Tendrils / spread fingers of damp ===
+# Tendril NW
+poly 0.14,0.40 0.10,0.34 0.14,0.28 0.20,0.30 0.16,0.38 fill #2a2820 0.3
+# Tendril SE
+poly 0.62,0.80 0.68,0.84 0.72,0.88 0.66,0.86 0.58,0.82 fill #2a2820 0.25
+# Tendril NE
+poly 0.72,0.22 0.78,0.18 0.82,0.22 0.82,0.30 0.78,0.28 fill #2a2820 0.28
+
+# === Mildew speckling (tiny darker dots) ===
+circle 0.40,0.44 0.015 fill #0a0808 0.4
+circle 0.54,0.50 0.012 fill #0a0808 0.35
+circle 0.46,0.56 0.01 fill #0a0808 0.3
+circle 0.36,0.50 0.012 fill #0a0808 0.35
+circle 0.58,0.42 0.01 fill #0a0808 0.3
+circle 0.50,0.64 0.012 fill #0a0808 0.3
+
+# === Ring stain on edge (moisture spreading from a specific source) ===
+arc 0.24,0.74 0.08 180 300 stroke #1a1810 0.3 width 2

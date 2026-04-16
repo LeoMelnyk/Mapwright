@@ -1,0 +1,61 @@
+name: Stone Debris
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 1
+placement: floor
+room_types: cave, ruin, elemental-earth-node, collapsed-area, dungeon
+typical_count: many
+clusters_with: boulder, rubble, ore-vein-prop, fossil-embedded
+notes: Scatter of medium stone rubble fragments with sharper edges than typical rubble; place in earth-themed or recently collapsed areas
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: scattered medium stone fragments with angular/sharp edges
+
+# Dust base layer
+ellipse 0.50,0.52 0.38,0.36 fill #8b7355 0.08
+
+# === Large angular fragment — NW (sharp-edged, not rounded like rubble) ===
+poly 0.10,0.18 0.28,0.10 0.38,0.22 0.32,0.38 0.14,0.35 texfill polyhaven/stone_wall 0.8
+poly 0.10,0.18 0.28,0.10 0.38,0.22 0.32,0.38 0.14,0.35 stroke #555555
+# Fracture line
+line 0.20,0.14 0.28,0.32 stroke #444444 width 1
+
+# === Large angular fragment — E (different angle, sharp) ===
+poly 0.60,0.22 0.82,0.15 0.90,0.32 0.85,0.48 0.62,0.42 texfill polyhaven/rock_boulder_cracked 0.78
+poly 0.60,0.22 0.82,0.15 0.90,0.32 0.85,0.48 0.62,0.42 stroke #555555
+# Fracture line
+line 0.72,0.20 0.75,0.42 stroke #444444 width 1
+
+# === Medium fragment — S center (triangular shard) ===
+poly 0.32,0.58 0.52,0.52 0.58,0.70 0.42,0.78 0.28,0.72 texfill polyhaven/stone_wall 0.75
+poly 0.32,0.58 0.52,0.52 0.58,0.70 0.42,0.78 0.28,0.72 stroke #555555
+
+# === Medium fragment — SE (angular wedge) ===
+poly 0.65,0.58 0.82,0.55 0.88,0.68 0.78,0.78 0.62,0.72 texfill polyhaven/rock_boulder_cracked 0.75
+poly 0.65,0.58 0.82,0.55 0.88,0.68 0.78,0.78 0.62,0.72 stroke #555555
+
+# === Small sharp shard — NE ===
+poly 0.45,0.12 0.55,0.08 0.58,0.18 0.48,0.22 texfill polyhaven/stone_wall 0.7
+poly 0.45,0.12 0.55,0.08 0.58,0.18 0.48,0.22 stroke #666666
+
+# === Small sharp shard — SW ===
+poly 0.08,0.60 0.20,0.55 0.24,0.65 0.14,0.70 texfill polyhaven/rock_boulder_cracked 0.7
+poly 0.08,0.60 0.20,0.55 0.24,0.65 0.14,0.70 stroke #666666
+
+# === Tiny angular chips ===
+poly 0.40,0.40 0.48,0.38 0.50,0.46 0.42,0.48 texfill polyhaven/stone_wall 0.65
+poly 0.40,0.40 0.48,0.38 0.50,0.46 0.42,0.48 stroke #777777
+
+poly 0.68,0.82 0.75,0.78 0.78,0.86 0.72,0.88 texfill polyhaven/rock_boulder_cracked 0.6
+poly 0.68,0.82 0.75,0.78 0.78,0.86 0.72,0.88 stroke #777777
+
+# Scattered fine gravel
+circle 0.52,0.30 0.02 fill #888888 0.4
+circle 0.18,0.48 0.025 fill #777777 0.4
+circle 0.75,0.45 0.02 fill #888888 0.35
+circle 0.35,0.85 0.02 fill #777777 0.35
+circle 0.58,0.88 0.025 fill #888888 0.3
+circle 0.88,0.82 0.02 fill #777777 0.35

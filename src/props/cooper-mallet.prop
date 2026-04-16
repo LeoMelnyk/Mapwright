@@ -1,0 +1,48 @@
+name: Cooper's Mallet
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cooperage, carpenter, workshop
+typical_count: single
+clusters_with: stave-horse, adze, iron-hoop, stave-pile
+notes: Heavy cooper's mallet with thick cylindrical head for driving hoops onto barrels; lying on the floor
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: mallet lying flat, handle running SW-NE, thick cylindrical head at NE
+
+# Handle shaft (thicker than a regular mallet — cooper's version is heavy-duty)
+line 0.18,0.76 0.52,0.44 stroke #6b4e2e width 4
+# Handle grain highlight
+line 0.20,0.74 0.50,0.46 stroke #8b7355 0.3 width 1
+
+# Handle grip end (SW)
+ellipse 0.16,0.78 0.04,0.035 fill #5c3a1e 0.8
+ellipse 0.16,0.78 0.04,0.035 stroke #3a1f00
+
+# Mallet head (large cylinder lying on its side — oval from above)
+ellipse 0.64,0.38 0.18,0.13 texfill polyhaven/dark_wood 0.85
+ellipse 0.64,0.38 0.18,0.13 stroke #2a1400
+
+# End cap face (round end visible at NE)
+ellipse 0.80,0.36 0.07,0.13 fill #c8b898 0.55
+ellipse 0.80,0.36 0.07,0.13 stroke #3a1f00
+# Growth rings on end face
+ellipse 0.80,0.36 0.04,0.08 stroke #5c3a1e 0.3
+ellipse 0.80,0.36 0.02,0.04 stroke #5c3a1e 0.25
+
+# Other end cap (partially visible at SW end of head)
+ellipse 0.48,0.40 0.04,0.10 fill #b8a080 0.3
+ellipse 0.48,0.40 0.04,0.10 stroke #3a1f00 0.4
+
+# Iron band around head (keeps the head from splitting)
+ellipse 0.56,0.38 0.04,0.12 stroke #555555 0.6 width 2
+ellipse 0.72,0.38 0.04,0.12 stroke #555555 0.5 width 1
+
+# Wear marks on striking face
+ellipse 0.80,0.36 0.03,0.05 fill #4a2800 0.2
+
+# Handle wedge (where handle enters head)
+rect 0.50,0.38 0.05,0.06 fill #3a1f00 0.6

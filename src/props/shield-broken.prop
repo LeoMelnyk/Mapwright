@@ -1,0 +1,64 @@
+name: Shield Broken
+category: Combat
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ruined-watchtower, battlefield-recent, ruin, dungeon, guard-room
+typical_count: few
+clusters_with: weapon-stuck, arrow-broken, corpse, helmet-fallen, bone-pile
+notes: Splintered heater-shield lying face-up, cracked across the middle with a gash through the heraldry
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: broken heater shield flat on ground, face up
+
+# Shield body (heater shape — wide at top, pointed at bottom)
+poly 0.15,0.18 0.85,0.18 0.88,0.50 0.50,0.88 0.12,0.50 fill #666666 0.85
+poly 0.15,0.18 0.85,0.18 0.88,0.50 0.50,0.88 0.12,0.50 texfill polyhaven/metal_plate 0.5
+poly 0.15,0.18 0.85,0.18 0.88,0.50 0.50,0.88 0.12,0.50 stroke #333333
+
+# Shield face paint (faded heraldry — simple field division)
+# Upper half: faded red
+poly 0.20,0.22 0.80,0.22 0.82,0.45 0.18,0.45 fill #8b2020 0.4
+# Lower half: faded blue
+poly 0.18,0.45 0.82,0.45 0.50,0.82 fill #203060 0.4
+
+# Shield rim (metal edge)
+poly 0.15,0.18 0.85,0.18 0.88,0.50 0.50,0.88 0.12,0.50 stroke #555555 width 2
+
+# Boss (center metal dome)
+circle 0.50,0.45 0.08 fill #777777 0.7
+circle 0.50,0.45 0.08 stroke #555555
+circle 0.50,0.45 0.04 fill #888888 0.5
+
+# CRACK — major split running diagonally across the shield
+line 0.22,0.28 0.75,0.65 stroke #0a0604 0.8 width 2
+# Crack detail (splintered wood showing through metal)
+line 0.24,0.30 0.28,0.26 stroke #6b4e2e 0.6 width 1
+line 0.45,0.45 0.48,0.42 stroke #6b4e2e 0.5 width 1
+line 0.60,0.54 0.63,0.52 stroke #6b4e2e 0.5 width 1
+
+# GASH — deep cut through the heraldry (weapon impact)
+poly 0.40,0.30 0.45,0.28 0.55,0.55 0.50,0.58 fill #0a0604 0.7
+poly 0.40,0.30 0.45,0.28 0.55,0.55 0.50,0.58 stroke #333333 0.6
+
+# Secondary crack (smaller)
+line 0.65,0.22 0.70,0.42 stroke #0a0604 0.5 width 1
+
+# Dents and battle damage
+ellipse 0.30,0.35 0.04,0.03 fill #444444 0.3
+ellipse 0.65,0.50 0.03,0.04 fill #444444 0.25
+
+# Rivet heads (along the rim, some missing)
+circle 0.25,0.22 0.015 fill #888888 0.6
+circle 0.50,0.18 0.015 fill #888888 0.6
+circle 0.75,0.22 0.015 fill #888888 0.6
+circle 0.85,0.40 0.015 fill #888888 0.5
+circle 0.15,0.40 0.015 fill #888888 0.5
+# Missing rivet (just a dark hole)
+circle 0.70,0.62 0.015 fill #222222 0.6
+
+# Rust staining
+ellipse 0.60,0.35 0.08,0.05 fill #5a3a1a 0.2
+ellipse 0.35,0.60 0.06,0.04 fill #5a3a1a 0.18

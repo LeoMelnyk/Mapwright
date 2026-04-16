@@ -1,0 +1,47 @@
+name: Jewel Casket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: bedroom, noble-bedchamber, dressing-room, treasury
+typical_count: single
+clusters_with: bed, bed-double, wardrobe, desk, chest
+notes: Small ornate jewelry box; place on desks, dressers, or beside beds
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small ornate jewelry box with cracked-open lid — brass fittings,
+# velvet lining peeking through the gap.
+
+# Box body (dark lacquered wood)
+rect 0.25,0.28 0.50,0.44 texfill polyhaven/dark_wood 0.85
+rect 0.25,0.28 0.50,0.44 stroke #2a1400
+
+# Brass corner fittings
+rect 0.25,0.28 0.06,0.06 fill #daa520 0.7
+rect 0.69,0.28 0.06,0.06 fill #daa520 0.7
+rect 0.25,0.66 0.06,0.06 fill #daa520 0.7
+rect 0.69,0.66 0.06,0.06 fill #daa520 0.7
+
+# Lid cracked open — thin dark gap line across box
+line 0.27,0.44 0.73,0.44 stroke #1a1a1a 0.6
+
+# Velvet lining visible through gap (thin strip of red/purple)
+rect 0.28,0.44 0.44,0.06 fill #6a1a3a 0.5
+
+# Lid surface (north half, slightly raised)
+rect 0.25,0.28 0.50,0.16 texfill polyhaven/dark_wood 0.9
+rect 0.25,0.28 0.50,0.16 stroke #2a1400
+
+# Brass clasp at front (south center)
+rect 0.44,0.68 0.12,0.04 fill #daa520 0.75
+rect 0.44,0.68 0.12,0.04 stroke #8b6914
+
+# Brass hinge at back (north center)
+rect 0.42,0.28 0.16,0.03 fill #8b6914 0.6
+
+# Jewel glint inside (tiny sparkle visible through gap)
+circle 0.42,0.47 0.02 fill #cc2222 0.6
+circle 0.56,0.48 0.015 fill #2244cc 0.5
+circle 0.50,0.46 0.02 fill #ffd700 0.5

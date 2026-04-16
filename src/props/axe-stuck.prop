@@ -1,0 +1,58 @@
+name: Axe Stuck
+category: Camp
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: charcoal-burner-camp, lumberyard, cabin-hunters, cabin-trapper, orc-war-camp
+typical_count: single
+clusters_with: chopping-block, wood-pile, log-pile, tree-stump
+notes: Woodcutter's axe buried in a round stump — foreshortened haft stub with axe head poking up, wood chips scattered
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: axe driven into a stump, only the head and short haft visible
+
+# Stump base (round cross-section, like chopping-block)
+circle 0.50,0.50 0.30 texfill polyhaven/bark_brown_02 0.75
+circle 0.50,0.50 0.30 stroke #2a1400
+# Inner wood surface
+circle 0.50,0.50 0.25 texfill polyhaven/wood_table 0.7
+circle 0.50,0.50 0.25 stroke #5c3a1e 0.4
+# Tree rings
+circle 0.50,0.50 0.18 stroke #5c3a1e 0.25
+circle 0.50,0.50 0.12 stroke #5c3a1e 0.2
+circle 0.50,0.50 0.06 stroke #5c3a1e 0.15
+
+# Wood chip splatter around impact
+circle 0.28,0.38 0.025 fill #8b7355 0.6
+circle 0.72,0.35 0.02 fill #8b7355 0.55
+circle 0.35,0.72 0.02 fill #6b4e2e 0.5
+circle 0.68,0.68 0.025 fill #8b7355 0.5
+circle 0.25,0.55 0.018 fill #6b4e2e 0.45
+circle 0.78,0.52 0.02 fill #8b7355 0.5
+circle 0.60,0.25 0.015 fill #6b4e2e 0.4
+
+# Axe split line in stump (where blade bit in)
+line 0.38,0.42 0.62,0.42 stroke #1a0800 0.7 width 1
+
+# Axe head (wedge shape, blade buried in stump, poll visible)
+# Iron head visible from above (trapezoidal, NE-SW)
+poly 0.36,0.38 0.64,0.38 0.60,0.46 0.40,0.46 texfill polyhaven/metal_plate 0.8
+poly 0.36,0.38 0.64,0.38 0.60,0.46 0.40,0.46 stroke #333333
+# Blade edge highlight (sharp edge at north)
+line 0.38,0.38 0.62,0.38 stroke #8899aa 0.6 width 1
+# Poll (back of axe head, south side)
+rect 0.44,0.46 0.12,0.04 fill #555555 0.8
+rect 0.44,0.46 0.12,0.04 stroke #333333
+
+# Haft stub (foreshortened, angling up toward viewer)
+rect 0.47,0.46 0.06,0.14 texfill polyhaven/dark_wood 0.8
+rect 0.47,0.46 0.06,0.14 stroke #3a1f00
+# Haft end (butt, nearest viewer)
+ellipse 0.50,0.60 0.04,0.03 fill #6b4e2e 0.8
+ellipse 0.50,0.60 0.04,0.03 stroke #3a1f00
+
+# Subtle impact crack in stump radiating from axe
+line 0.50,0.42 0.50,0.25 stroke #3a1f00 0.35 width 1
+line 0.50,0.42 0.35,0.28 stroke #3a1f00 0.25 width 1

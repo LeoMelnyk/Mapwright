@@ -1,0 +1,46 @@
+name: Game Pieces
+category: Military
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: command-room, war-room, tavern, barracks, study
+typical_count: few
+clusters_with: sand-table, map-scroll, dagger-through-map, desk
+notes: Scatter of small wooden strategy tokens (circles and squares); place on tables or sand-tables for war-room feel
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: 4-6 small game pieces (mix of round and square tokens) scattered
+
+# === Round tokens (officer/cavalry pieces) ===
+# Red token 1
+circle 0.30,0.36 0.06 fill #8b2020 0.85
+circle 0.30,0.36 0.06 stroke #5a1010
+circle 0.30,0.36 0.03 fill #aa3030 0.5
+
+# Red token 2
+circle 0.62,0.28 0.05 fill #8b2020 0.8
+circle 0.62,0.28 0.05 stroke #5a1010
+
+# Blue token (enemy marker)
+circle 0.74,0.62 0.06 fill #2a488a 0.85
+circle 0.74,0.62 0.06 stroke #1a2a5a
+circle 0.74,0.62 0.03 fill #3a5aaa 0.5
+
+# === Square tokens (infantry/fortress pieces) ===
+# Dark wood square 1
+rect 0.40,0.52 0.10,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.40,0.52 0.10,0.10 stroke #2a1400
+
+# Dark wood square 2
+rect 0.22,0.64 0.08,0.08 texfill polyhaven/dark_wood 0.8
+rect 0.22,0.64 0.08,0.08 stroke #2a1400
+
+# Light wood square (tilted)
+rect 0.54,0.68 0.09,0.09 fill #8b6b4a 0.8 rotate 15
+rect 0.54,0.68 0.09,0.09 stroke #5c3a1e rotate 15
+
+# === Small triangular token (siege/arrow unit) ===
+poly 0.46,0.34 0.52,0.26 0.58,0.34 fill #daa520 0.75
+poly 0.46,0.34 0.52,0.26 0.58,0.34 stroke #8b6914

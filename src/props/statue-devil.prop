@@ -1,0 +1,60 @@
+name: Statue (Devil)
+category: Structure
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+placement: center
+room_types: infernal-court, temple, fiend-lair, throne-room, hell-gate
+typical_count: few
+clusters_with: brazier, banner-infernal, pillar, soul-coin-pile
+notes: Stone statue of a horned infernal figure with folded wings; top-down shows broad shoulder/wing silhouette with head disc at apex
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: statue from directly above — broad shoulders + folded wings as silhouette,
+# head disc at the apex (north). NOT a side profile.
+
+# === Base pedestal ===
+rect 0.20,0.25 1.60,1.55 texfill polyhaven/granite_tile 0.65
+rect 0.20,0.25 1.60,1.55 stroke #444444
+
+# Pedestal edge highlights
+line 0.20,0.25 1.80,0.25 stroke #555555 width 1
+line 0.20,0.25 0.20,1.80 stroke #555555 width 1
+
+# === Wing + shoulder silhouette (broad shape seen from above) ===
+# Main body mass — torso and folded wings as one large shape
+poly 0.70,0.40 1.30,0.40 1.65,0.65 1.80,1.10 1.75,1.60 1.55,1.75 0.45,1.75 0.25,1.60 0.20,1.10 0.35,0.65 texfill polyhaven/stone_wall 0.75
+poly 0.70,0.40 1.30,0.40 1.65,0.65 1.80,1.10 1.75,1.60 1.55,1.75 0.45,1.75 0.25,1.60 0.20,1.10 0.35,0.65 stroke #333333
+
+# === Wing fold lines (sculpted detail on top surface) ===
+# Left wing fold
+qbezier 0.35,0.68 0.32,1.10 0.45,1.65 stroke #444444 0.5 width 2
+qbezier 0.42,0.75 0.40,1.15 0.50,1.55 stroke #555555 0.35 width 1
+# Right wing fold
+qbezier 1.65,0.68 1.68,1.10 1.55,1.65 stroke #444444 0.5 width 2
+qbezier 1.58,0.75 1.60,1.15 1.50,1.55 stroke #555555 0.35 width 1
+
+# === Shoulder ridge ===
+qbezier 0.40,0.60 1.00,0.50 1.60,0.60 stroke #555555 0.4 width 2
+
+# === Head disc at the apex (looking straight down on the top of the head) ===
+circle 1.00,0.50 0.18 texfill polyhaven/stone_wall 0.8
+circle 1.00,0.50 0.18 stroke #333333
+
+# === Horn stubs (projecting outward from head, foreshortened from above) ===
+# Left horn — short wedge
+poly 0.78,0.42 0.72,0.32 0.76,0.30 0.84,0.40 fill #444444 0.8
+poly 0.78,0.42 0.72,0.32 0.76,0.30 0.84,0.40 stroke #333333
+# Right horn — short wedge
+poly 1.22,0.42 1.28,0.32 1.24,0.30 1.16,0.40 fill #444444 0.8
+poly 1.22,0.42 1.28,0.32 1.24,0.30 1.16,0.40 stroke #333333
+
+# === Subtle face features (carved into top of head, barely visible from above) ===
+circle 0.96,0.48 0.02 fill #222222 0.4
+circle 1.04,0.48 0.02 fill #222222 0.4
+
+# === Weathering/erosion details ===
+line 0.55,1.20 0.62,1.28 stroke #222222 0.25 width 1
+line 1.40,0.90 1.48,0.98 stroke #222222 0.25 width 1
+line 0.80,1.50 0.88,1.55 stroke #222222 0.2 width 1

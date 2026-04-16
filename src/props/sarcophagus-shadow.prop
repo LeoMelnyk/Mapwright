@@ -1,0 +1,61 @@
+name: Sarcophagus (Shadow)
+category: Containers
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+placement: center
+room_types: crypt, tomb, mausoleum, shadowfell, burial-chamber
+typical_count: few
+clusters_with: candle-cluster, cobweb-heavy, shroud-torn
+notes: Dark weathered stone sarcophagus with grief-mask motif; place in mausoleum burial niches
+---
+# footprint 2x1: x range 0-1, y range 0-2. Front faces south.
+
+# === Stone base (outermost layer) — dark weathered stone ===
+rect 0.04,0.04 0.92,1.92 texfill polyhaven/stone_wall 0.65
+rect 0.04,0.04 0.92,1.92 stroke #333333
+
+# === Beveled step — raised ledge ===
+line 0.04,0.04 0.12,0.12 stroke #444444
+line 0.96,0.04 0.88,0.12 stroke #444444
+line 0.04,1.96 0.12,1.88 stroke #444444
+line 0.96,1.96 0.88,1.88 stroke #444444
+rect 0.12,0.12 0.76,1.76 texfill polyhaven/stone_wall 0.7
+rect 0.12,0.12 0.76,1.76 stroke #3a3a3a
+
+# === Lid surface (topmost) ===
+line 0.12,0.12 0.20,0.20 stroke #555555
+line 0.88,0.12 0.80,0.20 stroke #555555
+line 0.12,1.88 0.20,1.80 stroke #555555
+line 0.88,1.88 0.80,1.80 stroke #555555
+rect 0.20,0.20 0.60,1.60 fill #222222 0.7
+rect 0.20,0.20 0.60,1.60 stroke #444444
+
+# === Lid edge highlights ===
+line 0.20,0.20 0.80,0.20 stroke #555555 width 1
+line 0.20,0.20 0.20,1.80 stroke #555555 width 1
+line 0.20,1.80 0.80,1.80 stroke #333333 width 1
+line 0.80,0.20 0.80,1.80 stroke #333333 width 1
+
+# === Decorative trim on lid ===
+rect 0.26,0.28 0.48,1.44 stroke #3a3a3a
+
+# === Grief-mask carving (centered on lid) ===
+# Face oval
+ellipse 0.50,0.80 0.14,0.20 fill #333333 0.4
+ellipse 0.50,0.80 0.14,0.20 stroke #444444
+# Closed eyes (mourning expression) — downturned arcs
+qbezier 0.38,0.72 0.43,0.68 0.48,0.72 stroke #555555 width 1
+qbezier 0.52,0.72 0.57,0.68 0.62,0.72 stroke #555555 width 1
+# Nose
+line 0.50,0.75 0.50,0.82 stroke #444444 width 1
+# Downturned mouth (grief)
+qbezier 0.42,0.88 0.50,0.92 0.58,0.88 stroke #444444 width 1
+# Teardrop under left eye
+poly 0.43,0.74 0.44,0.78 0.42,0.78 fill #555555 0.4
+
+# === Weathering cracks ===
+line 0.30,0.35 0.38,0.42 stroke #1a1a1a 0.3 width 1
+line 0.65,1.50 0.72,1.58 stroke #1a1a1a 0.3 width 1
+line 0.25,1.30 0.32,1.38 stroke #1a1a1a 0.25 width 1

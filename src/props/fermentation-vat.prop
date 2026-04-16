@@ -1,0 +1,56 @@
+name: Fermentation Vat
+category: Workshop
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+placement: center
+room_types: brewery, cellar, winery, tavern-kitchen
+typical_count: few
+clusters_with: brewing-kettle, mash-tun, barrel, hops-bunch
+notes: Tall wooden fermentation vat with iron bands and frothy foam crust on top; brewery staple
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: wooden-plank circle + iron band rings + bubbly cream foam center
+
+# Outer wooden body
+circle 1.0,1.0 0.88 texfill polyhaven/dark_wood 0.85
+circle 1.0,1.0 0.88 stroke #2a1400
+
+# Iron band — outer
+circle 1.0,1.0 0.86 stroke #555555 width 3
+# Iron band — middle
+circle 1.0,1.0 0.72 stroke #555555 width 2
+# Iron band — inner
+circle 1.0,1.0 0.58 stroke #555555 width 2
+
+# Plank seam lines (radial, like barrel staves)
+line 1.0,0.12 1.0,1.88 stroke #3a1f00 0.35
+line 0.12,1.0 1.88,1.0 stroke #3a1f00 0.35
+line 0.30,0.30 1.70,1.70 stroke #3a1f00 0.3
+line 1.70,0.30 0.30,1.70 stroke #3a1f00 0.3
+
+# Interior rim shadow (dark ring inside the rim)
+circle 1.0,1.0 0.52 fill #1a1208 0.3
+circle 1.0,1.0 0.52 stroke #2a1400
+
+# Foam/froth crust (bubbly cream layer filling the opening)
+circle 1.0,1.0 0.48 fill #f0e8d0 0.75
+circle 1.0,1.0 0.48 stroke #c8b898 0.4
+
+# Foam bubble texture — clusters of small circles
+circle 0.82,0.88 0.04 fill #f8f0e0 0.6
+circle 0.92,1.02 0.035 fill #f8f0e0 0.55
+circle 1.08,0.92 0.04 fill #faf2e4 0.6
+circle 1.18,1.08 0.035 fill #f8f0e0 0.5
+circle 1.0,1.0 0.05 fill #faf2e4 0.65
+circle 0.88,1.14 0.03 fill #f8f0e0 0.5
+circle 1.12,0.86 0.03 fill #faf2e4 0.55
+circle 0.78,1.06 0.025 fill #f8f0e0 0.45
+circle 1.22,0.98 0.025 fill #f8f0e0 0.45
+circle 1.0,0.82 0.035 fill #faf2e4 0.55
+circle 1.0,1.18 0.03 fill #faf2e4 0.5
+
+# Darker liquid peeking through foam gaps
+circle 0.95,0.95 0.03 fill #8a6a30 0.35
+circle 1.06,1.06 0.025 fill #8a6a30 0.3

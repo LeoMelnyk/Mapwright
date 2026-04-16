@@ -1,0 +1,53 @@
+name: Web Floor
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: spider-lair, monster-lair-large, cave-drow-outpost, underdark-outpost
+typical_count: many
+clusters_with: cobweb-heavy, egg-sac, silk-cocoon, spider-egg-cluster, web-funnel
+notes: Dense matted spider-silk carpeting on the floor — opaque white threads crossing irregularly, partially obscuring whatever is below. Floor scatter for spider-infested rooms.
+---
+# footprint 2x2: x range 0-2, y range 0-2
+
+# === Base silk wash (faint white covering) ===
+ellipse 1.00,1.00 0.95,0.90 fill #e0d8c8 0.15
+
+# === Dense web threads crossing irregularly ===
+# Horizontal-ish strands
+line 0.05,0.25 1.95,0.30 stroke #e0d8c8 0.45 width 1
+line 0.08,0.55 1.92,0.50 stroke #d8d0b8 0.4 width 1
+line 0.10,0.80 1.90,0.85 stroke #e0d8c8 0.45 width 1
+line 0.05,1.10 1.95,1.05 stroke #d8d0b8 0.4 width 1
+line 0.08,1.35 1.92,1.40 stroke #e0d8c8 0.42 width 1
+line 0.10,1.60 1.90,1.65 stroke #d8d0b8 0.38 width 1
+line 0.05,1.85 1.95,1.80 stroke #e0d8c8 0.4 width 1
+
+# Vertical-ish strands
+line 0.25,0.05 0.30,1.95 stroke #e0d8c8 0.42 width 1
+line 0.55,0.08 0.50,1.92 stroke #d8d0b8 0.38 width 1
+line 0.80,0.05 0.85,1.95 stroke #e0d8c8 0.4 width 1
+line 1.10,0.08 1.05,1.92 stroke #d8d0b8 0.38 width 1
+line 1.40,0.05 1.45,1.95 stroke #e0d8c8 0.42 width 1
+line 1.70,0.08 1.65,1.92 stroke #d8d0b8 0.38 width 1
+
+# Diagonal crossing threads
+line 0.10,0.10 1.90,1.90 stroke #d8d0b8 0.3 width 1
+line 1.90,0.10 0.10,1.90 stroke #d8d0b8 0.3 width 1
+line 0.10,0.60 1.40,1.90 stroke #d0c8b0 0.28 width 1
+line 0.60,0.10 1.90,1.40 stroke #d0c8b0 0.28 width 1
+line 1.90,0.60 0.60,1.90 stroke #d0c8b0 0.25 width 1
+line 1.40,0.10 0.10,1.40 stroke #d0c8b0 0.25 width 1
+
+# === Denser knot areas (where strands overlap more thickly) ===
+ellipse 0.50,0.50 0.20,0.18 fill #d8d0b8 0.2
+ellipse 1.50,0.60 0.18,0.15 fill #d8d0b8 0.18
+ellipse 0.80,1.40 0.22,0.18 fill #d8d0b8 0.2
+ellipse 1.60,1.50 0.20,0.16 fill #d8d0b8 0.18
+
+# Small caught debris
+circle 0.70,0.70 0.02 fill #3a2a18 0.5
+circle 1.30,1.20 0.015 fill #3a2a18 0.45
+circle 0.40,1.60 0.018 fill #3a2a18 0.4

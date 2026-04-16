@@ -1,0 +1,40 @@
+name: Hound (Asleep)
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: bedroom, noble-bedchamber, great-hall, study, kennel
+typical_count: single
+clusters_with: bed, bed-double, fireplace, armchair, carpet-small
+notes: Noble hunting hound curled asleep on the floor; place near beds, fireplaces, or at door thresholds
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: curled sleeping dog — compact oval body with head tucked,
+# tail wrapped around. Facing south (head tucks toward south-east).
+
+# Body — curled oval of brown fur
+ellipse 0.50,0.48 0.28,0.24 texfill polyhaven/brown_leather 0.7
+ellipse 0.50,0.48 0.28,0.24 stroke #5c3a1e
+
+# Darker back ridge (along the top/north arc of the body)
+arc 0.50,0.48 0.26 200 340 fill #4a2800 0.3
+
+# Head tucked in south-east (small circle)
+circle 0.62,0.62 0.10 fill #8b7355 0.85
+circle 0.62,0.62 0.10 stroke #5c3a1e
+
+# Ear (floppy, draped over head)
+ellipse 0.68,0.58 0.06,0.08 fill #6b4e2e 0.7
+ellipse 0.68,0.58 0.06,0.08 stroke #4a2800 0.5
+
+# Muzzle/nose (tiny dark dot)
+circle 0.70,0.66 0.025 fill #2a1400 0.8
+
+# Front paws tucked under head
+ellipse 0.54,0.66 0.07,0.04 fill #c8b898 0.5
+ellipse 0.54,0.66 0.07,0.04 stroke #8b7355 0.4
+
+# Tail curled around west side
+qbezier 0.28,0.35 0.18,0.55 0.32,0.68 stroke #6b4e2e width 3

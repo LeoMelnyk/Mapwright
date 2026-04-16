@@ -1,0 +1,74 @@
+name: Hammer Rack
+category: Workshop
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 4
+placement: wall
+room_types: forge, smithy, workshop
+typical_count: few
+clusters_with: anvil, forge, bellows, trough
+notes: Wall-mounted rack of smithing hammers in various sizes; place on forge walls
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.38 z 0-4
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: thin shelf strip along north + hammer-head discs in a row
+
+# === Wall shelf strip (horizontal bar along north edge) ===
+rect 0.08,0.06 1.84,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.06 1.84,0.12 stroke #3a1f00
+
+# Shelf support brackets (iron)
+rect 0.20,0.10 0.06,0.10 fill #555555 0.7
+rect 0.20,0.10 0.06,0.10 stroke #333333
+rect 0.94,0.10 0.06,0.10 fill #555555 0.7
+rect 0.94,0.10 0.06,0.10 stroke #333333
+rect 1.74,0.10 0.06,0.10 fill #555555 0.7
+rect 1.74,0.10 0.06,0.10 stroke #333333
+
+# === Hammer heads (discs visible from above, various sizes) ===
+# Large sledgehammer head (widest)
+ellipse 0.35,0.32 0.10,0.07 texfill polyhaven/metal_plate 0.85
+ellipse 0.35,0.32 0.10,0.07 stroke #444444
+# Handle stub
+line 0.35,0.18 0.35,0.25 stroke #6b4e2e width 2
+
+# Cross-peen hammer
+ellipse 0.65,0.30 0.08,0.06 texfill polyhaven/metal_plate 0.85
+ellipse 0.65,0.30 0.08,0.06 stroke #444444
+# Peen point
+line 0.65,0.24 0.65,0.20 stroke #555555 width 2
+# Handle stub
+line 0.65,0.18 0.65,0.24 stroke #6b4e2e width 2
+
+# Ball-peen hammer (medium)
+ellipse 0.95,0.30 0.07,0.055 texfill polyhaven/metal_plate 0.85
+ellipse 0.95,0.30 0.07,0.055 stroke #444444
+# Ball peen end (small circle)
+circle 0.95,0.25 0.025 fill #8899aa 0.7
+# Handle stub
+line 0.95,0.18 0.95,0.245 stroke #6b4e2e width 2
+
+# Planishing hammer (smaller, polished)
+ellipse 1.22,0.28 0.06,0.05 texfill polyhaven/metal_plate 0.85
+ellipse 1.22,0.28 0.06,0.05 stroke #444444
+# Handle stub
+line 1.22,0.18 1.22,0.23 stroke #6b4e2e width 2
+
+# Rounding hammer (small)
+ellipse 1.48,0.28 0.055,0.045 texfill polyhaven/metal_plate 0.85
+ellipse 1.48,0.28 0.055,0.045 stroke #444444
+# Handle stub
+line 1.48,0.18 1.48,0.235 stroke #6b4e2e width 2
+
+# Tack hammer (smallest)
+ellipse 1.72,0.26 0.045,0.035 texfill polyhaven/metal_plate 0.85
+ellipse 1.72,0.26 0.045,0.035 stroke #444444
+# Handle stub
+line 1.72,0.18 1.72,0.225 stroke #6b4e2e width 2
+
+# Shadow line below rack
+rect 0.12,0.40 1.76,0.03 fill #000000 0.10

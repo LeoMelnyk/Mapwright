@@ -1,0 +1,53 @@
+name: Liquor Cabinet
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 6
+placement: wall
+room_types: ship, captain-cabin, tavern, study, officer-quarters
+typical_count: single
+clusters_with: liquor-bottle, desk, captains-bunk
+notes: Glass-fronted liquor cabinet with bottles; place against cabin wall
+---
+# === HITBOX ===
+hitbox rect 0.08,0.04 1.84,0.82 z 0-6
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: cabinet top with brass trim + bottle-neck dots hinted at south edge
+
+# Cabinet body (recessed below top, visible at sides and south)
+rect 0.10,0.04 1.80,0.80 fill #2a1400 0.4
+line 0.10,0.04 0.10,0.84 stroke #3a1f00
+line 1.90,0.04 1.90,0.84 stroke #3a1f00
+line 0.10,0.84 1.90,0.84 stroke #3a1f00
+
+# Wooden top surface (rich dark wood)
+rect 0.04,0.0 1.92,0.68 texfill polyhaven/dark_wood 0.85
+rect 0.04,0.0 1.92,0.68 stroke #3a1f00
+
+# Brass trim along top edge
+rect 0.04,0.0 1.92,0.04 fill #daa520 0.6
+rect 0.04,0.0 1.92,0.04 stroke #8b6914
+
+# Crown molding at north (wall) edge
+rect 0.04,0.0 1.92,0.07 fill #4a2800 0.4
+
+# Brass corner accents on top
+rect 0.04,0.0 0.08,0.08 fill #daa520 0.5
+rect 1.88,0.0 0.08,0.08 fill #daa520 0.5
+
+# Bottle neck tops visible at south edge (through glass front, seen from above)
+circle 0.30,0.74 0.035 fill #1a2a1a 0.5
+circle 0.30,0.74 0.035 stroke #333333 0.4
+circle 0.60,0.72 0.03 fill #4a1a1a 0.5
+circle 0.60,0.72 0.03 stroke #333333 0.4
+circle 0.90,0.74 0.035 fill #3a2a1a 0.5
+circle 0.90,0.74 0.035 stroke #333333 0.4
+circle 1.20,0.73 0.03 fill #1a1a2a 0.5
+circle 1.20,0.73 0.03 stroke #333333 0.4
+circle 1.50,0.74 0.035 fill #2a1a0a 0.5
+circle 1.50,0.74 0.035 stroke #333333 0.4
+circle 1.75,0.72 0.03 fill #3a3a1a 0.5
+circle 1.75,0.72 0.03 stroke #333333 0.4

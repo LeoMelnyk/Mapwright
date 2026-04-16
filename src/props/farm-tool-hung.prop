@@ -1,0 +1,42 @@
+name: Hung Farm Tool
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: wall
+room_types: farmhouse-common, barn, tool-shed, stable, farmhouse-kitchen
+typical_count: few
+clusters_with: peg-rail-wall, lantern-hook, farm-tool-hung
+notes: Sickle or rake hung on a wall peg — top-down shows thin tool profile edge-on along the wall (north edge)
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Wall at north (low Y), tool hangs facing south.
+
+# === Wall peg (small wooden knob on north wall) ===
+circle 0.50,0.10 0.04 texfill polyhaven/dark_wood 0.85
+circle 0.50,0.10 0.04 stroke #2a1400
+
+# Peg shadow on wall
+ellipse 0.50,0.14 0.05,0.02 fill #000000 0.15
+
+# === Sickle tool — seen top-down edge-on ===
+# Wooden handle (shaft running east-west along the wall)
+rect 0.14,0.08 0.36,0.06 texfill polyhaven/dark_wood 0.85
+rect 0.14,0.08 0.36,0.06 stroke #2a1400
+
+# Handle end knob
+circle 0.14,0.11 0.035 fill #4a2800 0.9
+circle 0.14,0.11 0.035 stroke #2a1400
+
+# Curved blade (sickle — thin arc curving south from handle end)
+qbezier 0.50,0.11 0.68,0.24 0.62,0.32 stroke #666666 width 2
+# Blade edge highlight
+qbezier 0.50,0.11 0.66,0.22 0.60,0.30 stroke #8899aa 0.5 width 1
+
+# Blade tip
+circle 0.62,0.32 0.015 fill #555555 0.9
+
+# === Faint shadow beneath the tool (hanging below wall) ===
+ellipse 0.50,0.22 0.28,0.06 fill #000000 0.1

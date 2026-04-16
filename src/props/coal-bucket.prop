@@ -1,0 +1,56 @@
+name: Coal Bucket
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1
+placement: floor
+room_types: tenement-room, peasant-hovel, farmhouse-common, kitchen, blacksmith
+typical_count: single
+clusters_with: stove-iron, hearth, fireplace, ash-pile
+notes: Dented iron bucket filled with black coal chunks, short handle arc — top-down shows round rim with coal mass inside
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Bucket body (dented iron, cylindrical — top-down circle) ===
+circle 0.50,0.50 0.28 texfill polyhaven/rusty_metal 0.7
+circle 0.50,0.50 0.28 fill #444444 0.3
+circle 0.50,0.50 0.28 stroke #333333
+
+# Iron band near rim
+circle 0.50,0.50 0.26 stroke #555555 0.6
+
+# Dent (slight flat spot on the east side)
+line 0.74,0.40 0.76,0.58 stroke #333333 0.7 width 2
+
+# === Handle (wire arc over the bucket) ===
+arc 0.50,0.50 0.30 220 320 stroke #555555 width 2
+# Handle attachment rivets
+circle 0.24,0.60 0.02 fill #555555 0.8
+circle 0.76,0.60 0.02 fill #555555 0.8
+
+# === Coal fill inside ===
+# Dark coal mass
+circle 0.50,0.50 0.22 fill #1a1a1a 0.9
+
+# Individual coal chunks (irregular lumps catching light)
+ellipse 0.42,0.44 0.06,0.05 fill #2a2a2a 0.9
+ellipse 0.42,0.44 0.06,0.05 stroke #111111
+ellipse 0.56,0.42 0.05,0.06 fill #282828 0.9
+ellipse 0.56,0.42 0.05,0.06 stroke #111111
+ellipse 0.48,0.54 0.07,0.04 fill #252525 0.9
+ellipse 0.48,0.54 0.07,0.04 stroke #111111
+ellipse 0.58,0.54 0.04,0.05 fill #2c2c2c 0.85
+ellipse 0.58,0.54 0.04,0.05 stroke #111111
+ellipse 0.44,0.38 0.04,0.03 fill #303030 0.85
+
+# Coal dust sheen (subtle reflections)
+circle 0.44,0.42 0.015 fill #555555 0.4
+circle 0.56,0.48 0.012 fill #555555 0.35
+circle 0.50,0.40 0.01 fill #555555 0.3
+
+# Coal dust spilled around bucket base
+circle 0.26,0.72 0.015 fill #1a1a1a 0.5
+circle 0.74,0.68 0.012 fill #1a1a1a 0.45
+circle 0.34,0.78 0.01 fill #1a1a1a 0.4

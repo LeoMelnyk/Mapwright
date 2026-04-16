@@ -1,0 +1,45 @@
+name: Broken Arrow Slit
+category: Ruins
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: ruined-watchtower, ruin, ancient-ruin-overgrown, collapsed-area
+typical_count: few
+clusters_with: rubble, stair-remnant, boulder, weapon-rack-broken
+notes: Small stone rubble fragment with a narrow slit carved into it — fallen from a parapet or embrasure
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a chunk of shaped stone with an arrow slit, lying on the ground amid debris
+
+# Dust and mortar scatter on ground
+ellipse 0.50,0.50 0.38,0.35 fill #8b7355 0.08
+
+# Main stone block (irregular, broken edges)
+poly 0.15,0.20 0.55,0.12 0.85,0.22 0.88,0.60 0.80,0.82 0.45,0.88 0.12,0.75 0.10,0.40 texfill polyhaven/stone_wall 0.8
+poly 0.15,0.20 0.55,0.12 0.85,0.22 0.88,0.60 0.80,0.82 0.45,0.88 0.12,0.75 0.10,0.40 stroke #555555
+
+# Stone surface highlight (top face, lighter)
+poly 0.22,0.28 0.52,0.20 0.78,0.28 0.80,0.55 0.72,0.72 0.45,0.78 0.20,0.68 0.18,0.40 fill #999999 0.12
+
+# The arrow slit (narrow vertical opening carved in the stone)
+rect 0.44,0.25 0.08,0.45 fill #0a0604 0.85
+rect 0.44,0.25 0.08,0.45 stroke #444444
+# Slit flare at top (wider opening, embrasure shape)
+poly 0.38,0.25 0.58,0.25 0.52,0.32 0.44,0.32 fill #0a0604 0.7
+poly 0.38,0.25 0.58,0.25 0.52,0.32 0.44,0.32 stroke #444444 0.6
+# Slit flare at bottom
+poly 0.38,0.70 0.58,0.70 0.52,0.62 0.44,0.62 fill #0a0604 0.7
+poly 0.38,0.70 0.58,0.70 0.52,0.62 0.44,0.62 stroke #444444 0.6
+
+# Mortar crumble lines on stone surface
+line 0.22,0.35 0.42,0.40 stroke #666666 0.3 width 1
+line 0.55,0.45 0.78,0.50 stroke #666666 0.3 width 1
+line 0.30,0.60 0.42,0.72 stroke #666666 0.25 width 1
+
+# Broken edge chips (debris from the break)
+circle 0.90,0.45 0.03 fill #888888 0.5
+circle 0.90,0.45 0.03 stroke #666666
+circle 0.08,0.55 0.025 fill #888888 0.45
+circle 0.50,0.90 0.02 fill #777777 0.4

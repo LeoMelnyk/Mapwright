@@ -1,0 +1,43 @@
+name: Hunting Trophy
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: noble-bedchamber, great-hall, trophy-room, study, dining-room
+typical_count: few
+clusters_with: ancestor-portrait, weapon-rack-wall, fireplace, banner
+notes: Wall-mounted stag head trophy; place on prominent walls, often above fireplaces or flanking doorways
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: wall-mounted stag trophy — only the wall plaque edge strip
+# at the north wall and antler tines protruding south are visible from above.
+
+# Wall mounting plaque (oval wooden shield, top edge visible along wall)
+ellipse 0.50,0.10 0.22,0.06 texfill polyhaven/dark_wood 0.85
+ellipse 0.50,0.10 0.22,0.06 stroke #3a1f00
+
+# Antler spread — two main beams fanning south from plaque
+# Left antler beam
+line 0.40,0.14 0.22,0.50 stroke #d4c4a8 width 2
+# Left tines (forked)
+line 0.30,0.34 0.18,0.28 stroke #d4c4a8 width 2
+line 0.24,0.44 0.14,0.38 stroke #d4c4a8 width 2
+line 0.22,0.50 0.16,0.56 stroke #d4c4a8 width 2
+
+# Right antler beam
+line 0.60,0.14 0.78,0.50 stroke #d4c4a8 width 2
+# Right tines (forked)
+line 0.70,0.34 0.82,0.28 stroke #d4c4a8 width 2
+line 0.76,0.44 0.86,0.38 stroke #d4c4a8 width 2
+line 0.78,0.50 0.84,0.56 stroke #d4c4a8 width 2
+
+# Antler tips (slightly lighter)
+circle 0.16,0.56 0.015 fill #e8dcc8 0.7
+circle 0.84,0.56 0.015 fill #e8dcc8 0.7
+circle 0.18,0.28 0.015 fill #e8dcc8 0.7
+circle 0.82,0.28 0.015 fill #e8dcc8 0.7
+
+# Subtle shadow below plaque
+rect 0.30,0.18 0.40,0.03 fill #000000 0.10
