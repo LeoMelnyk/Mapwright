@@ -217,9 +217,7 @@ let _needsFullRebuild = true; // true on first composite (no canvas yet)
  *  - both null     → no change pending (composite is up to date).
  */
 export function consumeFluidPartialRegion(): { region: FluidDirtyRegion | null; full: boolean } {
-  const result = _needsFullRebuild
-    ? { region: null, full: true }
-    : { region: _pendingPartialRegion, full: false };
+  const result = _needsFullRebuild ? { region: null, full: true } : { region: _pendingPartialRegion, full: false };
   _pendingPartialRegion = null;
   _needsFullRebuild = false;
   return result;
@@ -804,7 +802,7 @@ export function buildFluidComposite(
     worldY0 = 0,
     worldX1 = numCols * gridSize,
     worldY1 = numRows * gridSize;
-  if (canPartial && dirtyRect) {
+  if (canPartial) {
     const padMinRow = Math.max(0, dirtyRect.minRow - 1);
     const padMaxRow = Math.min(numRows - 1, dirtyRect.maxRow + 1);
     const padMinCol = Math.max(0, dirtyRect.minCol - 1);

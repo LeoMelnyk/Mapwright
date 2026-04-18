@@ -70,8 +70,8 @@ export function loadDungeonJSON(
   // Normalize any theme data embedded in the map so downstream consumers can
   // read fields directly (matches the normalize-at-load contract used for
   // shipped and user themes in theme-catalog).
-  if (typeof json.metadata.theme === 'object' && json.metadata.theme !== null) {
-    json.metadata.theme = normalizeTheme(json.metadata.theme as Theme);
+  if (typeof json.metadata.theme === 'object') {
+    json.metadata.theme = normalizeTheme(json.metadata.theme);
   }
   if (json.metadata.savedThemeData?.theme) {
     json.metadata.savedThemeData.theme = normalizeTheme(
