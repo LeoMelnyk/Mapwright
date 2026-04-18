@@ -15,6 +15,7 @@ import {
   renderTimings,
   bumpTimingFrame,
   getContentVersion,
+  getTopContentVersion,
   getGeometryVersion,
   getLightingVersion,
   getDirtyRegion,
@@ -181,6 +182,7 @@ export function render(): void {
     const _cacheStart = performance.now();
     const rebuilt = mapCache.update({
       contentVersion: getContentVersion(),
+      topContentVersion: getTopContentVersion(),
       geometryVersion: getGeometryVersion(),
       lightingVersion: getLightingVersion(),
       texturesVersion: state.texturesVersion,

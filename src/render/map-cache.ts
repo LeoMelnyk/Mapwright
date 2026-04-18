@@ -46,6 +46,11 @@ interface CellsLayer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   dirtySeq: number;
+  /** Top-layer-specific dirty seq. Advances only when walls/props/hazard/trim change.
+   *  Lets partial rebuilds skip clearing the top layer on texture-only paints, so
+   *  features spanning cells (e.g. 2-cell diagonal doors) aren't half-clipped
+   *  at the padded-rebuild boundary. */
+  topDirtySeq: number;
   cacheW: number;
   cacheH: number;
   texturesVersion: number;
@@ -91,6 +96,7 @@ interface MapCacheParams {
   textureOptions: TextureOptions | null;
   getTextureImage?: ((id: string) => HTMLImageElement | null) | null;
   contentVersion: number;
+  topContentVersion?: number;
   geometryVersion?: number;
   lightingVersion: number;
   labelStyle: string;
@@ -185,11 +191,13 @@ export class MapCache {
   _lastCellsThemeSig: string;
   _lastFluidThemeSig: string;
   _dirtySeq: number;
+  _topDirtySeq: number;
   _compositeDirtySeq: number;
   _gridDirtySeq: number;
   /** @deprecated kept for API compatibility — the base/top split is always on now. */
   _gridRedrawEnabled: boolean;
   _lastContentVersion: number;
+  _lastTopContentVersion: number;
   _lastLightingVersion: number;
   _lastTheme: Theme | null;
   _cellsRebuildCount: number;
@@ -225,10 +233,12 @@ export class MapCache {
 
     // Version tracking — compared against caller-supplied versions
     this._dirtySeq = 0;
+    this._topDirtySeq = 0;
     this._compositeDirtySeq = 0;
     this._gridDirtySeq = 0;
     this._gridRedrawEnabled = true;
     this._lastContentVersion = 0;
+    this._lastTopContentVersion = 0;
     this._lastLightingVersion = 0;
     this._lastTheme = null;
 
@@ -456,6 +466,14 @@ export class MapCache {
       this._compositeDirtySeq++;
       log.dev(`MapCache.update: contentVersion ${this._lastContentVersion} → ${cv} forces cells rebuild`);
       this._lastContentVersion = cv;
+    }
+
+    // Top-layer version: advances only when walls/props/hazard/trim change.
+    // Defaults to contentVersion when callers don't provide it (preserves legacy behaviour).
+    const tcv = p.topContentVersion ?? cv;
+    if (tcv !== this._lastTopContentVersion) {
+      this._topDirtySeq++;
+      this._lastTopContentVersion = tcv;
     }
 
     const lv = p.lightingVersion;
@@ -903,6 +921,7 @@ export class MapCache {
     });
 
     this._cellsLayer!.dirtySeq = this._dirtySeq;
+    this._cellsLayer!.topDirtySeq = this._topDirtySeq;
     this._cellsLayer!.gridDirtySeq = this._gridDirtySeq;
     this._cellsLayer!.texturesVersion = texVer;
     this._cellsLayer!.skipSig = skipSig;
@@ -931,6 +950,7 @@ export class MapCache {
         canvas: offscreen,
         ctx: offscreen.getContext('2d')!,
         dirtySeq: 0,
+        topDirtySeq: 0,
         cacheW,
         cacheH,
         texturesVersion: 0,
@@ -997,28 +1017,35 @@ export class MapCache {
     baseCtx.restore();
 
     // ── Top canvas — clear + redraw top phases within clip (alpha).
-    const topCtx = this._cellsLayer!.ctx;
-    topCtx.save();
-    topCtx.beginPath();
-    topCtx.rect(px1, py1, pw, ph);
-    topCtx.clip();
-    topCtx.clearRect(px1, py1, pw, ph);
-    renderCells(topCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
-      showGrid: p.showGrid,
-      labelStyle: p.labelStyle,
-      propCatalog: p.skipPhases?.props ? null : p.propCatalog,
-      textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
-      metadata: p.metadata,
-      skipLabels: p.skipLabels ?? p.lightingEnabled ?? !!p.skipPhases?.labels,
-      showInvisible: p.showInvisible,
-      bgImageEl: p.bgImageEl,
-      bgImgConfig: p.bgImgConfig,
-      cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
-      skipPhases: { ...effectsSkip, floors: true, blending: true, fills: true },
-      visibleBounds: padded,
-      dirtyRegion: padded,
-    });
-    topCtx.restore();
+    // Skip entirely when the top-layer version hasn't advanced (texture/fill-only
+    // edits). Clearing the top layer here on a texture paint is what caused
+    // diagonal features spanning the padded clip boundary to be half-cut.
+    const topNeedsRebuild = this._cellsLayer!.topDirtySeq !== this._topDirtySeq;
+    if (topNeedsRebuild) {
+      const topCtx = this._cellsLayer!.ctx;
+      topCtx.save();
+      topCtx.beginPath();
+      topCtx.rect(px1, py1, pw, ph);
+      topCtx.clip();
+      topCtx.clearRect(px1, py1, pw, ph);
+      renderCells(topCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+        showGrid: p.showGrid,
+        labelStyle: p.labelStyle,
+        propCatalog: p.skipPhases?.props ? null : p.propCatalog,
+        textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+        metadata: p.metadata,
+        skipLabels: p.skipLabels ?? p.lightingEnabled ?? !!p.skipPhases?.labels,
+        showInvisible: p.showInvisible,
+        bgImageEl: p.bgImageEl,
+        bgImgConfig: p.bgImgConfig,
+        cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+        skipPhases: { ...effectsSkip, floors: true, blending: true, fills: true },
+        visibleBounds: padded,
+        dirtyRegion: padded,
+      });
+      topCtx.restore();
+      this._cellsLayer!.topDirtySeq = this._topDirtySeq;
+    }
 
     this._cellsLayer!.dirtySeq = this._dirtySeq;
     // Keep gridDirtySeq / texturesVersion / skipSig in sync — _rebuildPartial
@@ -1074,6 +1101,7 @@ export class MapCache {
     });
 
     this._cellsLayer!.gridDirtySeq = this._gridDirtySeq;
+    this._cellsLayer!.topDirtySeq = this._topDirtySeq;
 
     // Recomposite (top changed, need to re-blit into composite)
     this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer);
@@ -1121,9 +1149,7 @@ export class MapCache {
     this._fluidComposite = next;
     this._lastFluidThemeSig = fluidSig;
     this._fluidCompositeSig = sig;
-    log.dev(
-      `MapCache._ensureFluidComposite → ${next ? (dirtyRect ? 'partial' : 'rebuilt') : 'no fluids'}`,
-    );
+    log.dev(`MapCache._ensureFluidComposite → ${next ? (dirtyRect ? 'partial' : 'rebuilt') : 'no fluids'}`);
   }
 
   // ── Internal: build composite layer ──

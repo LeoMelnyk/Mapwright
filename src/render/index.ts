@@ -10,6 +10,7 @@ export {
   bumpTimingFrame,
   getTimingFrame,
   getContentVersion,
+  getTopContentVersion,
   getGeometryVersion,
   bumpContentVersion,
   getDirtyRegion,

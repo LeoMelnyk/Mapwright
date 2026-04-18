@@ -45,6 +45,7 @@ export function _t<T>(label: string, fn: () => T): T {
 // this to know when the map cache needs rebuilding, even when notify() isn't called.
 let _contentVersion: number = 0;
 let _geometryVersion: number = 0; // bumped only on void↔floor transitions (needsGeometry)
+let _topContentVersion: number = 0; // bumped only when top-layer content (walls/props/hazard/trim) changes — skipped by texture/fill-only paints so the walls cache isn't cleared
 /**
  * Get the current content mutation version counter.
  * @returns {number} Content version
@@ -60,12 +61,23 @@ export function getGeometryVersion(): number {
   return _geometryVersion;
 }
 /**
+ * Get the current top-layer content version counter.
+ * Bumped only when walls/doors/props/hazard/trim change; not bumped by texture-only edits.
+ * Used by the map cache to decide whether a partial rebuild needs to touch the walls/props layer.
+ * @returns {number} Top content version
+ */
+export function getTopContentVersion(): number {
+  return _topContentVersion;
+}
+/**
  * Increment the content version counter.
+ * @param {{ topChanged?: boolean }} [opts] - Pass `topChanged: true` to also bump the top-layer version.
  * @returns {void}
  */
-export function bumpContentVersion(): void {
+export function bumpContentVersion(opts: { topChanged?: boolean } = { topChanged: true }): void {
   _contentVersion++;
-  log.devTrace(`bumpContentVersion → ${_contentVersion}`);
+  if (opts.topChanged !== false) _topContentVersion++;
+  log.devTrace(`bumpContentVersion → ${_contentVersion} (topChanged=${opts.topChanged !== false})`);
 }
 /**
  * Internal: bump geometry version from render-cache.js smartInvalidate.

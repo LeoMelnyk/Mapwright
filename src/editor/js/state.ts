@@ -696,6 +696,7 @@ export function mutate(
     invalidate?: InvalidateFlag[];
     forceGeometry?: boolean;
     forceFluid?: boolean;
+    textureOnly?: boolean;
     topic?: NotifyTopic;
     metaOnly?: boolean;
   } = {},
@@ -773,6 +774,7 @@ export function mutate(
       smartInvalidate(renderBefore, cells, {
         forceGeometry: options.forceGeometry ?? false,
         forceFluid: options.forceFluid ?? false,
+        textureOnly: options.textureOnly ?? false,
       });
     }
     const flags = options.invalidate;

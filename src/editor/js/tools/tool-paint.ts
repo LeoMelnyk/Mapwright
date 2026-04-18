@@ -669,26 +669,31 @@ export class PaintTool extends Tool {
     // Direct markDirty+notify used to skip both, leaving the map stale until
     // the next edit.
     const coords = toFill.map(([r, c]) => ({ row: r, col: c }));
-    mutate('Flood fill', coords, () => {
-      let fMinR = Infinity,
-        fMaxR = -Infinity,
-        fMinC = Infinity,
-        fMaxC = -Infinity;
-      for (const [r, c, halfKey] of toFill) {
-        const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-        const opKey = texKey + 'Opacity';
-        (cells[r]![c] as Record<string, unknown>)[texKey] = tid;
-        (cells[r]![c] as Record<string, unknown>)[opKey] = opacity;
-        if (r < fMinR) fMinR = r;
-        if (r > fMaxR) fMaxR = r;
-        if (c < fMinC) fMinC = c;
-        if (c > fMaxC) fMaxC = c;
-      }
-      if (fMinR <= fMaxR) {
-        accumulateDirtyRect(fMinR, fMinC, fMaxR, fMaxC);
-        _patchBlend({ minRow: fMinR, maxRow: fMaxR, minCol: fMinC, maxCol: fMaxC });
-      }
-    });
+    mutate(
+      'Flood fill',
+      coords,
+      () => {
+        let fMinR = Infinity,
+          fMaxR = -Infinity,
+          fMinC = Infinity,
+          fMaxC = -Infinity;
+        for (const [r, c, halfKey] of toFill) {
+          const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
+          const opKey = texKey + 'Opacity';
+          (cells[r]![c] as Record<string, unknown>)[texKey] = tid;
+          (cells[r]![c] as Record<string, unknown>)[opKey] = opacity;
+          if (r < fMinR) fMinR = r;
+          if (r > fMaxR) fMaxR = r;
+          if (c < fMinC) fMinC = c;
+          if (c > fMaxC) fMaxC = c;
+        }
+        if (fMinR <= fMaxR) {
+          accumulateDirtyRect(fMinR, fMinC, fMaxR, fMaxC);
+          _patchBlend({ minRow: fMinR, maxRow: fMaxR, minCol: fMinC, maxCol: fMaxC });
+        }
+      },
+      { textureOnly: true },
+    );
   }
 
   /** Shift+click in clear-texture mode: flood-clear all textures in the connected room. */
@@ -826,26 +831,31 @@ export class PaintTool extends Tool {
     // Route through mutate() so smartInvalidate bumps contentVersion + patches
     // the blend cache. See floodFill for the rationale.
     const coords = toClear.map(([r, c]) => ({ row: r, col: c }));
-    mutate('Clear texture', coords, () => {
-      let cMinR = Infinity,
-        cMaxR = -Infinity,
-        cMinC = Infinity,
-        cMaxC = -Infinity;
-      for (const [r, c, halfKey] of toClear) {
-        const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-        const opKey = texKey + 'Opacity';
-        delete (cells[r]![c] as Record<string, unknown>)[texKey];
-        delete (cells[r]![c] as Record<string, unknown>)[opKey];
-        if (r < cMinR) cMinR = r;
-        if (r > cMaxR) cMaxR = r;
-        if (c < cMinC) cMinC = c;
-        if (c > cMaxC) cMaxC = c;
-      }
-      if (cMinR <= cMaxR) {
-        accumulateDirtyRect(cMinR, cMinC, cMaxR, cMaxC);
-        _patchBlend({ minRow: cMinR, maxRow: cMaxR, minCol: cMinC, maxCol: cMaxC });
-      }
-    });
+    mutate(
+      'Clear texture',
+      coords,
+      () => {
+        let cMinR = Infinity,
+          cMaxR = -Infinity,
+          cMinC = Infinity,
+          cMaxC = -Infinity;
+        for (const [r, c, halfKey] of toClear) {
+          const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
+          const opKey = texKey + 'Opacity';
+          delete (cells[r]![c] as Record<string, unknown>)[texKey];
+          delete (cells[r]![c] as Record<string, unknown>)[opKey];
+          if (r < cMinR) cMinR = r;
+          if (r > cMaxR) cMaxR = r;
+          if (c < cMinC) cMinC = c;
+          if (c > cMaxC) cMaxC = c;
+        }
+        if (cMinR <= cMaxR) {
+          accumulateDirtyRect(cMinR, cMinC, cMaxR, cMaxC);
+          _patchBlend({ minRow: cMinR, maxRow: cMaxR, minCol: cMinC, maxCol: cMaxC });
+        }
+      },
+      { textureOnly: true },
+    );
   }
 
   /** Syringe mode: pick up the texture from the clicked cell and switch to texture paint. */
@@ -894,17 +904,22 @@ export class PaintTool extends Tool {
       // (forcing a cells rebuild) and triggers the blend patch for the texture
       // change. Direct delete+notify skipped both, so the right-click cleared
       // the cell but the cached map didn't repaint until the next edit.
-      mutate('Clear texture', [{ row, col }], () => {
-        if (halfKey) {
-          delete cell[halfKey];
-          delete (cell as Record<string, unknown>)[halfKey + 'Opacity'];
-        } else {
-          delete cell.texture;
-          delete cell.textureOpacity;
-        }
-        accumulateDirtyRect(row, col, row, col);
-        _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
-      });
+      mutate(
+        'Clear texture',
+        [{ row, col }],
+        () => {
+          if (halfKey) {
+            delete cell[halfKey];
+            delete (cell as Record<string, unknown>)[halfKey + 'Opacity'];
+          } else {
+            delete cell.texture;
+            delete cell.textureOpacity;
+          }
+          accumulateDirtyRect(row, col, row, col);
+          _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
+        },
+        { textureOnly: true },
+      );
     }
   }
 
@@ -975,18 +990,23 @@ export class PaintTool extends Tool {
           if (cells[r]?.[c]) texCoords.push({ row: r, col: c });
         }
       }
-      mutate('Paint texture', texCoords, () => {
-        for (let r = r1; r <= r2; r++) {
-          for (let c = c1; c <= c2; c++) {
-            const cell = cells[r]?.[c];
-            if (!cell) continue;
-            (cell as Record<string, unknown>)[texKey] = tid;
-            (cell as Record<string, unknown>)[opKey] = opacity;
+      mutate(
+        'Paint texture',
+        texCoords,
+        () => {
+          for (let r = r1; r <= r2; r++) {
+            for (let c = c1; c <= c2; c++) {
+              const cell = cells[r]?.[c];
+              if (!cell) continue;
+              (cell as Record<string, unknown>)[texKey] = tid;
+              (cell as Record<string, unknown>)[opKey] = opacity;
+            }
           }
-        }
-        accumulateDirtyRect(r1, c1, r2, c2);
-        _patchBlend({ minRow: r1, maxRow: r2, minCol: c1, maxCol: c2 });
-      });
+          accumulateDirtyRect(r1, c1, r2, c2);
+          _patchBlend({ minRow: r1, maxRow: r2, minCol: c1, maxCol: c2 });
+        },
+        { textureOnly: true },
+      );
     } else if (mode === 'clear-texture') {
       const clearKeys = state.paintSecondary
         ? ['textureSecondary', 'textureSecondaryOpacity']
@@ -1006,17 +1026,22 @@ export class PaintTool extends Tool {
           if (cells[r]?.[c]) clearCoords.push({ row: r, col: c });
         }
       }
-      mutate('Clear texture', clearCoords, () => {
-        for (let r = r1; r <= r2; r++) {
-          for (let c = c1; c <= c2; c++) {
-            const cell = cells[r]?.[c];
-            if (!cell) continue;
-            for (const k of clearKeys) delete cell[k as keyof Cell];
+      mutate(
+        'Clear texture',
+        clearCoords,
+        () => {
+          for (let r = r1; r <= r2; r++) {
+            for (let c = c1; c <= c2; c++) {
+              const cell = cells[r]?.[c];
+              if (!cell) continue;
+              for (const k of clearKeys) delete cell[k as keyof Cell];
+            }
           }
-        }
-        accumulateDirtyRect(r1, c1, r2, c2);
-        invalidateBlendLayerCache();
-      });
+          accumulateDirtyRect(r1, c1, r2, c2);
+          invalidateBlendLayerCache();
+        },
+        { textureOnly: true },
+      );
     }
   }
 

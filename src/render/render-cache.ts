@@ -123,7 +123,11 @@ export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number;
 export function smartInvalidate(
   changes: BeforeState[],
   cells: CellGrid,
-  { forceGeometry = false, forceFluid = false }: { forceGeometry?: boolean; forceFluid?: boolean } = {},
+  {
+    forceGeometry = false,
+    forceFluid = false,
+    textureOnly = false,
+  }: { forceGeometry?: boolean; forceFluid?: boolean; textureOnly?: boolean } = {},
 ): void {
   let needsGeometry = forceGeometry;
   let needsFluid = forceFluid;
@@ -216,7 +220,14 @@ export function smartInvalidate(
     _patchBlendFromCache(cells, dirtyRegion);
   }
 
-  bumpContentVersion();
+  // Top-layer (walls/props/hazard) only needs rebuild when something other than
+  // pure texture changed. `textureOnly` lets texture-paint paths skip the top
+  // rebuild entirely so a region-fill near a diagonal door doesn't clear + re-clip
+  // the walls layer (which was the cause of diagonal features being half-cut
+  // when their geometry straddled the partial-rebuild clip boundary).
+  // Any geometry change (void↔floor) always bumps top because walls can appear/disappear with it.
+  const topChanged = !textureOnly || needsGeometry;
+  bumpContentVersion({ topChanged });
 }
 
 /** Patch blend topology for a dirty region using parameters from the existing blend cache. */
