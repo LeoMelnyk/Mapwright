@@ -794,6 +794,7 @@ export function mutate(
     smartInvalidate(renderBefore, cells, {
       forceGeometry: options.forceGeometry ?? false,
       forceFluid: options.forceFluid ?? false,
+      textureOnly: options.textureOnly ?? false,
     });
   }
   const flags = options.invalidate;

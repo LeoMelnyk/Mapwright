@@ -198,6 +198,7 @@ export class MapCache {
   _gridRedrawEnabled: boolean;
   _lastContentVersion: number;
   _lastTopContentVersion: number;
+  _lastShowInvisible: boolean;
   _lastLightingVersion: number;
   _lastTheme: Theme | null;
   _cellsRebuildCount: number;
@@ -239,6 +240,7 @@ export class MapCache {
     this._gridRedrawEnabled = true;
     this._lastContentVersion = 0;
     this._lastTopContentVersion = 0;
+    this._lastShowInvisible = false;
     this._lastLightingVersion = 0;
     this._lastTheme = null;
 
@@ -474,6 +476,19 @@ export class MapCache {
     if (tcv !== this._lastTopContentVersion) {
       this._topDirtySeq++;
       this._lastTopContentVersion = tcv;
+    }
+
+    // `showInvisible` controls whether invisible walls (`iw`) / doors (`id`) draw
+    // on the top layer. It flips with the active tool (wall/door tool → on,
+    // paint/prop → off), so a tool switch must force a top-layer rebuild even
+    // though no cell content changed.
+    const showInvisible = !!p.showInvisible;
+    if (showInvisible !== this._lastShowInvisible) {
+      this._dirtySeq++;
+      this._topDirtySeq++;
+      this._compositeDirtySeq++;
+      this._lastShowInvisible = showInvisible;
+      log.dev(`MapCache.update: showInvisible → ${showInvisible} forces top rebuild`);
     }
 
     const lv = p.lightingVersion;
