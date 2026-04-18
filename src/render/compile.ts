@@ -75,6 +75,19 @@ function normalizeTheme(theme: Theme): Theme {
     gridCornerLength: (t.gridCornerLength as number | undefined) ?? 0.3,
     gridOpacity: (t.gridOpacity as number | undefined) ?? 0.5,
     textureBlendWidth: (t.textureBlendWidth as number | undefined) ?? 0.35,
+    waterShallowColor: (t.waterShallowColor as string | undefined) ?? '#2d69a5',
+    waterMediumColor: (t.waterMediumColor as string | undefined) ?? '#1c4480',
+    waterDeepColor: (t.waterDeepColor as string | undefined) ?? '#0c265c',
+    waterCausticColor: (t.waterCausticColor as string | undefined) ?? 'rgba(160,215,255,0.55)',
+    lavaShallowColor: (t.lavaShallowColor as string | undefined) ?? '#cc4400',
+    lavaMediumColor: (t.lavaMediumColor as string | undefined) ?? '#992200',
+    lavaDeepColor: (t.lavaDeepColor as string | undefined) ?? '#661100',
+    lavaCausticColor: (t.lavaCausticColor as string | undefined) ?? 'rgba(255,160,60,0.55)',
+    lavaLightColor: (t.lavaLightColor as string | undefined) ?? '#ff5500',
+    lavaLightIntensity: (t.lavaLightIntensity as number | undefined) ?? 0.7,
+    pitBaseColor: (t.pitBaseColor as string | undefined) ?? '#0a0a0a',
+    pitCrackColor: (t.pitCrackColor as string | undefined) ?? '#1a1a1a',
+    pitVignetteColor: (t.pitVignetteColor as string | undefined) ?? 'rgba(0,0,0,0.5)',
   } as unknown as Theme;
   return normalized;
 }

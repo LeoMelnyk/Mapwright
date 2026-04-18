@@ -38,7 +38,7 @@ import { getCachedRoomCells } from './render-cache.js';
 import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
 import { GRID_SCALE } from './constants.js';
 import { cellsLayerThemeSig } from './theme-diff.js';
-import { buildFluidComposite, fluidThemeSig, getFluidDataVersion } from './fluid.js';
+import { buildFluidComposite, fluidThemeSig, getFluidDataVersion, consumeFluidPartialRegion } from './fluid.js';
 import { log } from '../util/index.js';
 
 /** Internal cells-layer state (floors, grid, walls, bridges, props — no lightmap). */
@@ -1099,11 +1099,31 @@ export class MapCache {
 
     const roomCells = getCachedRoomCells(cells);
     const existing = this._fluidComposite;
-    const next = buildFluidComposite(cells, roomCells, gridSize, theme, this._pxPerFoot, cacheW, cacheH, existing);
+    // Consume the pending fluid dirty region accumulated by `patchFluidRegion`.
+    // A theme-color change or a size change invalidates every pixel of the
+    // composite, so only forward the dirty rect when neither happened — else
+    // fall back to a full rebuild (dirtyRect = null).
+    const pending = consumeFluidPartialRegion();
+    const themeChanged = fluidSig !== this._lastFluidThemeSig;
+    const sizeMatches = !!existing && existing.width === cacheW && existing.height === cacheH;
+    const dirtyRect = !pending.full && !themeChanged && sizeMatches ? pending.region : null;
+    const next = buildFluidComposite(
+      cells,
+      roomCells,
+      gridSize,
+      theme,
+      this._pxPerFoot,
+      cacheW,
+      cacheH,
+      existing,
+      dirtyRect,
+    );
     this._fluidComposite = next;
     this._lastFluidThemeSig = fluidSig;
     this._fluidCompositeSig = sig;
-    log.dev(`MapCache._ensureFluidComposite → ${next ? 'rebuilt' : 'no fluids'}`);
+    log.dev(
+      `MapCache._ensureFluidComposite → ${next ? (dirtyRect ? 'partial' : 'rebuilt') : 'no fluids'}`,
+    );
   }
 
   // ── Internal: build composite layer ──

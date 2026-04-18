@@ -191,6 +191,71 @@ export function getFluidDataVersion(): number {
   return _fluidDataVersion;
 }
 
+// ── Partial-rebuild dirty region tracking ─────────────────────────────────
+// `patchFluidRegion` accumulates the dirty cell region here so the next
+// `buildFluidComposite` call can do a targeted clear+refill instead of a
+// full-canvas rebuild. A pit-cell topology change disables partial rebuild
+// for the next composite (vignette group centroids/radii recompute and paint
+// outside the dirty rect), so we flip to full.
+interface FluidDirtyRegion {
+  minRow: number;
+  maxRow: number;
+  minCol: number;
+  maxCol: number;
+}
+let _pendingPartialRegion: FluidDirtyRegion | null = null;
+let _needsFullRebuild = true; // true on first composite (no canvas yet)
+
+/**
+ * Consume the pending dirty region. Returns `{ region, full }` describing
+ * what the next composite rebuild should do. After this call, the pending
+ * state is reset — the caller is expected to actually perform the rebuild.
+ *
+ *  - `full: true`  → rebuild the entire composite (theme change, cells-grid
+ *    identity change, pit topology mutation, or first build).
+ *  - `region` set  → clear+refill only that cell region.
+ *  - both null     → no change pending (composite is up to date).
+ */
+export function consumeFluidPartialRegion(): { region: FluidDirtyRegion | null; full: boolean } {
+  const result = _needsFullRebuild
+    ? { region: null, full: true }
+    : { region: _pendingPartialRegion, full: false };
+  _pendingPartialRegion = null;
+  _needsFullRebuild = false;
+  return result;
+}
+
+function _markFullRebuild(): void {
+  _needsFullRebuild = true;
+  _pendingPartialRegion = null;
+}
+
+function _extendPartialRegion(region: FluidDirtyRegion): void {
+  if (_needsFullRebuild) return; // full rebuild dominates
+  if (!_pendingPartialRegion) {
+    _pendingPartialRegion = { ...region };
+    return;
+  }
+  const p = _pendingPartialRegion;
+  if (region.minRow < p.minRow) p.minRow = region.minRow;
+  if (region.maxRow > p.maxRow) p.maxRow = region.maxRow;
+  if (region.minCol < p.minCol) p.minCol = region.minCol;
+  if (region.maxCol > p.maxCol) p.maxCol = region.maxCol;
+}
+
+function _rebuildFluidCellsArrayFromSet(set: Set<number>, numCols: number): [number, number][] {
+  // Sort by packed key so the resulting array is row-major (matches the
+  // full-grid-scan ordering in `collectFluidCells`). The variant cell
+  // signature hashes array order, so this keeps the polyClip cache stable.
+  const keys = Array.from(set).sort((a, b) => a - b);
+  const out: [number, number][] = new Array(keys.length);
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i]!;
+    out[i] = [Math.floor(k / numCols), k % numCols];
+  }
+  return out;
+}
+
 function collectFluidCells(cells: CellGrid, roomCells: boolean[][], fillType: 'water' | 'lava'): FluidData {
   const depthKey = (fillType + 'Depth') as keyof Cell;
   const numRows = cells.length;
@@ -684,6 +749,11 @@ export function getFluidVariantClip(
  * Returns `null` if the map contains no fluid cells.
  *
  * @param reuseCanvas  Optional existing canvas to reuse (avoids allocation).
+ * @param dirtyRect    Optional cell-space dirty region. When provided
+ *   alongside a reusable canvas of matching size, only the corresponding
+ *   canvas strip is cleared and refilled — the rest of the composite is
+ *   left intact. Expanded by one cell internally to cover variant spill
+ *   into neighbor cells.
  */
 export function buildFluidComposite(
   cells: CellGrid,
@@ -694,6 +764,7 @@ export function buildFluidComposite(
   cacheW: number,
   cacheH: number,
   reuseCanvas?: HTMLCanvasElement | null,
+  dirtyRect?: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null,
 ): HTMLCanvasElement | null {
   // Quick check — do we have any fluid at all?
   let anyFluid = false;
@@ -708,12 +779,47 @@ export function buildFluidComposite(
 
   const _tAll = performance.now();
   const canvas = reuseCanvas ?? document.createElement('canvas');
-  if (canvas.width !== cacheW || canvas.height !== cacheH) {
+  const canvasSizeMatches = canvas.width === cacheW && canvas.height === cacheH;
+  if (!canvasSizeMatches) {
     canvas.width = cacheW;
     canvas.height = cacheH;
   }
   const ctx = canvas.getContext('2d', { alpha: true })!;
-  ctx.clearRect(0, 0, cacheW, cacheH);
+
+  // Partial rebuild only possible when we're drawing into an existing canvas
+  // whose size already matches (otherwise the canvas was just resized and is
+  // blank). Fall back to a full-canvas clear otherwise.
+  const canPartial = !!dirtyRect && !!reuseCanvas && canvasSizeMatches;
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+
+  // Expand the dirty cell region by 1 cell: Voronoi polys centered in variant
+  // cells and open-edge spill both reach up to one neighbor cell, so a 1-cell
+  // padding covers every pixel a removed/added cell could have painted.
+  let rectCx = 0,
+    rectCy = 0,
+    rectCw = cacheW,
+    rectCh = cacheH;
+  let worldX0 = 0,
+    worldY0 = 0,
+    worldX1 = numCols * gridSize,
+    worldY1 = numRows * gridSize;
+  if (canPartial && dirtyRect) {
+    const padMinRow = Math.max(0, dirtyRect.minRow - 1);
+    const padMaxRow = Math.min(numRows - 1, dirtyRect.maxRow + 1);
+    const padMinCol = Math.max(0, dirtyRect.minCol - 1);
+    const padMaxCol = Math.min(numCols - 1, dirtyRect.maxCol + 1);
+    worldX0 = padMinCol * gridSize;
+    worldY0 = padMinRow * gridSize;
+    worldX1 = (padMaxCol + 1) * gridSize;
+    worldY1 = (padMaxRow + 1) * gridSize;
+    rectCx = Math.max(0, Math.floor(worldX0 * pxPerFoot));
+    rectCy = Math.max(0, Math.floor(worldY0 * pxPerFoot));
+    rectCw = Math.min(cacheW - rectCx, Math.ceil((worldX1 - worldX0) * pxPerFoot) + 1);
+    rectCh = Math.min(cacheH - rectCy, Math.ceil((worldY1 - worldY0) * pxPerFoot) + 1);
+  }
+
+  ctx.clearRect(rectCx, rectCy, rectCw, rectCh);
 
   // We work in two coordinate systems:
   //   - CANVAS PIXELS for the tile-pattern fill (so createPattern tiles
@@ -745,14 +851,19 @@ export function buildFluidComposite(
     // 2. Reset to identity so the pattern fill tiles in canvas pixels.
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.fillStyle = ctx.createPattern(tile, 'repeat')!;
-    ctx.fillRect(0, 0, cacheW, cacheH);
+    // Partial rebuild: fillRect only the dirty sub-strip; canvas clip still
+    // constrains paint to the variant's extent∩poly. Full rebuild uses the
+    // whole cache rect.
+    ctx.fillRect(rectCx, rectCy, rectCw, rectCh);
     ctx.restore();
     const _tFillMs = performance.now() - _tFillStart;
     log.dev(
       `[fluid] ${variant}: clip=${_tClipMs.toFixed(1)}ms tile=${_tTileMs.toFixed(1)}ms fill=${_tFillMs.toFixed(1)}ms`,
     );
   }
-  log.dev(`[fluid] buildFluidComposite total=${(performance.now() - _tAll).toFixed(1)}ms`);
+  log.dev(
+    `[fluid] buildFluidComposite total=${(performance.now() - _tAll).toFixed(1)}ms ${canPartial ? `partial=${rectCw}x${rectCh}px` : 'full'}`,
+  );
 
   // Pit vignettes — per-region radial gradient pass. Groups came from the
   // BFS-connected pit regions in `getCachedPitData`.
@@ -772,6 +883,16 @@ export function buildFluidComposite(
       // paint past walls or outside the organic pit silhouette.
       ctx.clip(pitClip.extentClip);
       ctx.clip(pitClip.polyClip);
+      if (canPartial) {
+        // Additional clip to the dirty world rect so we don't paint vignette
+        // pixels outside the strip we just cleared. patchFluidRegion forces
+        // a full rebuild on pit-topology changes, so group centroids/radii
+        // are guaranteed unchanged here — the repainted slice is consistent
+        // with the vignette pixels left in place outside the dirty rect.
+        const dirtyWorld = new Path2D();
+        dirtyWorld.rect(worldX0, worldY0, worldX1 - worldX0, worldY1 - worldY0);
+        ctx.clip(dirtyWorld);
+      }
       for (const group of pitData.groups) {
         let gcx = 0;
         let gcy = 0;
@@ -853,6 +974,7 @@ export function invalidateFluidCache(): void {
   _pitDataCache = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
   _variantClipCache = null;
   _fluidDataVersion++;
+  _markFullRebuild();
   // Don't evict tile canvases — they're keyed on (variant, colorSig,
   // gridSize, pxPerFoot) and can be reused as long as those match.
 }
@@ -867,25 +989,140 @@ export function invalidateFluidTileCache(): void {
 
 /**
  * Incremental patch hook — called by `smartInvalidate` after an in-place
- * fluid cell mutation. Tile textures are unaffected; only the per-variant
- * clips need rebuilding, which happens automatically on next composite
- * request. This is a simple "invalidate variant clips" operation.
+ * fluid cell mutation. Updates the fluid/pit cell caches for the cells
+ * inside `region` only (no full-grid scan), clears the variant clip cache
+ * (the per-variant polyClip cache keyed on cell-set signature survives the
+ * common case where only depth or hazard changed), and accumulates the
+ * region so the next `buildFluidComposite` can do a partial clear+refill.
  *
- * The signature is preserved for compatibility with the legacy
- * `patchFluidRegion` call in render-cache.ts — the region / cells / theme
- * args are accepted but the new clip builder handles the whole grid in one
- * pass (still cheap: O(fluid cells), not O(Voronoi polygons)).
+ * Pit topology changes inside the region trigger a full rebuild because
+ * vignette centroids/radii depend on the full group — partial repaint
+ * would leave stale vignette pixels outside the dirty rect.
  */
 export function patchFluidRegion(
-  _region: { minRow: number; maxRow: number; minCol: number; maxCol: number },
-  _cells: CellGrid,
-  _roomCells: boolean[][],
+  region: { minRow: number; maxRow: number; minCol: number; maxCol: number },
+  cells: CellGrid,
+  roomCells: boolean[][],
   _gridSize: number,
   _theme: Theme,
 ): void {
-  // Variant clips are cheap — invalidate them and let the composite rebuild.
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+
+  const r0 = Math.max(0, region.minRow);
+  const r1 = Math.min(numRows - 1, region.maxRow);
+  const c0 = Math.max(0, region.minCol);
+  const c1 = Math.min(numCols - 1, region.maxCol);
+
+  // ── Water / lava: incrementally patch set + depthMap for cells in region ──
+  if (_fluidCellsCache.cells === cells) {
+    for (const fillType of ['water', 'lava'] as const) {
+      const cache = _fluidCellsCache[fillType];
+      if (!cache) continue;
+      const depthKey = (fillType + 'Depth') as keyof Cell;
+      let mutated = false;
+      for (let row = r0; row <= r1; row++) {
+        for (let col = c0; col <= c1; col++) {
+          const key = row * numCols + col;
+          const cell = cells[row]?.[col];
+          const inRoom = !!roomCells[row]?.[col];
+          const shouldBe = !!cell && cell.fill === fillType && inRoom;
+          const had = cache.fluidSet.has(key);
+          if (shouldBe) {
+            const d = (cell[depthKey] as number | undefined) ?? 1;
+            if (!had) {
+              cache.fluidSet.add(key);
+              mutated = true;
+            }
+            if (cache.depthMap.get(key) !== d) cache.depthMap.set(key, d);
+          } else if (had) {
+            cache.fluidSet.delete(key);
+            cache.depthMap.delete(key);
+            mutated = true;
+          }
+        }
+      }
+      if (mutated) {
+        cache.fluidCells = _rebuildFluidCellsArrayFromSet(cache.fluidSet, numCols);
+      }
+    }
+  } else {
+    // Cells identity changed — can't incrementally patch. Drop caches and
+    // force a full rebuild on the next composite request.
+    _fluidCellsCache = { cells: null, water: null, lava: null };
+    _markFullRebuild();
+  }
+
+  // ── Pit: incrementally patch pitSet; if topology changed, rebuild BFS groups ──
+  let pitTopologyChanged = false;
+  if (_pitDataCache.cells === cells && _pitDataCache.pitSet) {
+    const pitSet = _pitDataCache.pitSet;
+    for (let row = r0; row <= r1; row++) {
+      for (let col = c0; col <= c1; col++) {
+        const key = row * numCols + col;
+        const cell = cells[row]?.[col];
+        const inRoom = !!roomCells[row]?.[col];
+        const shouldBe = !!cell && cell.fill === 'pit' && inRoom;
+        const had = pitSet.has(key);
+        if (shouldBe !== had) {
+          pitTopologyChanged = true;
+          if (shouldBe) pitSet.add(key);
+          else pitSet.delete(key);
+        }
+      }
+    }
+    if (pitTopologyChanged) {
+      // Rebuild pitCells + group BFS from the updated set.
+      const pd = _pitDataCache;
+      const pitCells: [number, number][] = _rebuildFluidCellsArrayFromSet(pitSet, numCols);
+      const visited = new Set<number>();
+      const groups: [number, number][][] = [];
+      for (const [row, col] of pitCells) {
+        const startKey = row * numCols + col;
+        if (visited.has(startKey)) continue;
+        const group: [number, number][] = [];
+        const queue: [number, number][] = [[row, col]];
+        visited.add(startKey);
+        while (queue.length > 0) {
+          const [r2, c2] = queue.shift()!;
+          group.push([r2, c2]);
+          for (const [dr, dc] of [
+            [-1, 0],
+            [1, 0],
+            [0, -1],
+            [0, 1],
+          ] as const) {
+            const nr = r2 + dr;
+            const nc = c2 + dc;
+            if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+            const nkey = nr * numCols + nc;
+            if (!visited.has(nkey) && pitSet.has(nkey)) {
+              visited.add(nkey);
+              queue.push([nr, nc]);
+            }
+          }
+        }
+        groups.push(group);
+      }
+      pd.pitCells = pitCells;
+      pd.groups = groups;
+    }
+  } else {
+    _pitDataCache = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
+    _markFullRebuild();
+    pitTopologyChanged = true; // forces full path below
+  }
+
+  // Variant clips are stale (extentClip geometry depends on per-cell trims
+  // and open-edge neighbors; polyClip reuses per-variant cache keyed on
+  // cell-set signature, so that survives the common depth-only patch).
   _variantClipCache = null;
-  _fluidCellsCache = { cells: null, water: null, lava: null };
-  _pitDataCache = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
+
+  if (pitTopologyChanged) {
+    _markFullRebuild();
+  } else {
+    _extendPartialRegion({ minRow: r0, maxRow: r1, minCol: c0, maxCol: c1 });
+  }
+
   _fluidDataVersion++;
 }

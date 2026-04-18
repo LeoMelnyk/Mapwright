@@ -2,7 +2,7 @@
 // Shipped themes come from /themes/bundle.json in one request (HTTP cached via ETag).
 // User-created themes load dynamically per-file via /api/user-themes.
 import type { Theme } from '../../types.js';
-import { THEMES, renderDungeonToCanvas, calculateCanvasSize } from '../../render/index.js';
+import { THEMES, renderDungeonToCanvas, calculateCanvasSize, normalizeTheme } from '../../render/index.js';
 
 const BASE_URL = '/themes/';
 const BUNDLE_URL = '/themes/bundle.json';
@@ -38,9 +38,10 @@ function buildFromData(themeMap: Record<string, Record<string, unknown>>) {
   const themes: Record<string, Record<string, unknown>> = {};
   for (const [key, data] of Object.entries(themeMap)) {
     const { displayName, ...themeProps } = data;
-    themes[key] = { ...themeProps, displayName };
+    const normalized = normalizeTheme(themeProps as Theme);
+    themes[key] = { ...normalized, displayName };
     names.push(key);
-    THEMES[key] = themeProps as Theme;
+    THEMES[key] = normalized;
   }
   return { names, themes };
 }
@@ -128,10 +129,11 @@ async function _loadUserThemes() {
         if (!r.ok) continue;
         const data = await r.json();
         const { displayName, ...themeProps } = data;
+        const normalized = normalizeTheme(themeProps as Theme);
         const fullKey = `user:${entry.key}`;
         catalog.userNames.push(entry.key);
-        catalog.userThemes[entry.key] = { ...themeProps, displayName: displayName ?? entry.key };
-        THEMES[fullKey] = themeProps as Theme;
+        catalog.userThemes[entry.key] = { ...normalized, displayName: displayName ?? entry.key };
+        THEMES[fullKey] = normalized;
       } catch {
         /* skip individual failures */
       }
@@ -171,10 +173,11 @@ export async function saveUserTheme(name: string, themeObj: Record<string, unkno
   const { key } = await res.json();
   // Register locally
   const fullKey = `user:${key}`;
-  THEMES[fullKey] = { ...themeObj } as Theme;
+  const normalized = normalizeTheme(themeObj as Theme);
+  THEMES[fullKey] = normalized;
   if (catalog) {
     catalog.userNames.push(key);
-    catalog.userThemes[key] = { ...themeObj, displayName: name };
+    catalog.userThemes[key] = { ...normalized, displayName: name };
   }
   return key;
 }

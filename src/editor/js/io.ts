@@ -6,7 +6,7 @@ interface FilePickerWindow {
   showSaveFilePicker?: (options?: Record<string, unknown>) => Promise<FileSystemFileHandle>;
 }
 
-import type { Dungeon } from '../../types.js';
+import type { Dungeon, Theme } from '../../types.js';
 import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
@@ -16,6 +16,7 @@ import {
   renderDungeonToCanvas,
   invalidatePropsCache,
   invalidateAllCaches,
+  normalizeTheme,
   THEMES,
   BRIDGE_TEXTURE_IDS,
 } from '../../render/index.js';
@@ -65,6 +66,18 @@ export function loadDungeonJSON(
   meta.bridges ??= [];
   meta.nextStairId ??= 1;
   meta.nextBridgeId ??= 1;
+
+  // Normalize any theme data embedded in the map so downstream consumers can
+  // read fields directly (matches the normalize-at-load contract used for
+  // shipped and user themes in theme-catalog).
+  if (typeof json.metadata.theme === 'object' && json.metadata.theme !== null) {
+    json.metadata.theme = normalizeTheme(json.metadata.theme as Theme);
+  }
+  if (json.metadata.savedThemeData?.theme) {
+    json.metadata.savedThemeData.theme = normalizeTheme(
+      json.metadata.savedThemeData.theme as Theme,
+    ) as unknown as Record<string, unknown>;
+  }
 
   // Auto-install embedded user theme if not locally available
   const _theme = json.metadata.theme;
