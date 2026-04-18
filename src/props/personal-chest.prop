@@ -1,0 +1,63 @@
+name: Personal Chest
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.9
+placement: floor
+room_types: barracks, guard-room, garrison, quarters, bedroom
+typical_count: many
+clusters_with: bed-small, footlocker, chest-wooden, weapon-rack
+notes: Small soldier's personal chest — compact, iron-banded, sits beside a bunk. Smaller than a footlocker, enough for personal kit.
+---
+# === HITBOX ===
+selection rect 0.18,0.20 0.64,0.60
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: compact military-style chest with iron band and heavy corner plates
+
+# === Body ===
+rect 0.18,0.20 0.64,0.60 texfill polyhaven/dark_wood 0.9
+rect 0.18,0.20 0.64,0.60 stroke #1a0800 width 2
+
+# === Plank seams (east-west) ===
+line 0.20,0.38 0.80,0.38 stroke #2a1400 0.5 width 1
+line 0.20,0.52 0.80,0.52 stroke #2a1400 0.55 width 1
+line 0.20,0.66 0.80,0.66 stroke #2a1400 0.5 width 1
+
+# === Iron band (single, central, north-south) ===
+rect 0.46,0.20 0.08,0.60 fill #3a3a3a 0.85
+rect 0.46,0.20 0.08,0.60 stroke #1a1a1a
+
+# === Heavy iron corner plates ===
+# NW
+rect 0.18,0.20 0.08,0.04 fill #555555 0.9
+rect 0.18,0.20 0.04,0.08 fill #555555 0.9
+# NE
+rect 0.74,0.20 0.08,0.04 fill #555555 0.9
+rect 0.78,0.20 0.04,0.08 fill #555555 0.9
+# SW
+rect 0.18,0.76 0.08,0.04 fill #555555 0.9
+rect 0.18,0.72 0.04,0.08 fill #555555 0.9
+# SE
+rect 0.74,0.76 0.08,0.04 fill #555555 0.9
+rect 0.78,0.72 0.04,0.08 fill #555555 0.9
+
+# === Rivets on iron band ===
+circle 0.50,0.28 0.015 fill #666666 0.85
+circle 0.50,0.28 0.015 stroke #222222
+circle 0.50,0.50 0.015 fill #666666 0.85
+circle 0.50,0.50 0.015 stroke #222222
+circle 0.50,0.72 0.015 fill #666666 0.85
+circle 0.50,0.72 0.015 stroke #222222
+
+# === Hinge (north edge, single) ===
+rect 0.36,0.18 0.28,0.05 fill #444444 0.85
+rect 0.36,0.18 0.28,0.05 stroke #1a1a1a
+
+# === Iron padlock clasp on south edge ===
+rect 0.40,0.78 0.20,0.05 fill #444444 0.9
+rect 0.40,0.78 0.20,0.05 stroke #1a1a1a
+# Keyhole
+circle 0.50,0.805 0.015 fill #1a0800 0.95

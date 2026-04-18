@@ -12,7 +12,7 @@ clusters_with: offering-bowl, altar, shrine-stone, prayer-stone, flowers
 notes: Small ritual offering of coins on a flat surface, often around a shrine
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.24 z 0-0.1
+selection circle 0.5,0.5 0.24
 
 # Stone slab (small offering plate)
 ellipse 0.5,0.52 0.26,0.22 texfill polyhaven/granite_tile 0.75

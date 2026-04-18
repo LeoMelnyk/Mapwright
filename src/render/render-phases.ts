@@ -14,7 +14,6 @@ import type {
 import { getEdge } from '../util/index.js';
 import { toCanvas } from './bounds.js';
 import { renderTimings, getTimingFrame } from './render-state.js';
-import { withTrimVoidClip } from './render-cache.js';
 import { getDiagonalTrimCorner } from './floors.js';
 import {
   renderBorder,
@@ -31,10 +30,8 @@ import {
   scaleFactor,
 } from './borders.js';
 import { drawCellLabel, drawDmLabel } from './features.js';
-import { drawMatrixGrid } from './decorations.js';
 import { renderAllProps, getRenderedPropsLayer } from './props.js';
 import { drawWallShadow, drawRoughWalls, drawBufferShading } from './effects.js';
-import { getFluidPathCache, getRenderedFluidLayer } from './fluid.js';
 import {
   getBlendTopoCache,
   getBlendScratch,
@@ -60,7 +57,13 @@ const HAZARD_COLOR = '#f0c020';
 
 function _getTexPattern(ctx: CanvasRenderingContext2D, entry: TextureRuntime) {
   if (!entry._pattern || entry._patternCtx !== ctx) {
-    entry._pattern = ctx.createPattern(entry.img!, 'repeat');
+    // Prefer the pre-decoded ImageBitmap (populated by loadTextureImages after
+    // createImageBitmap). Canvas2D treats a bitmap as a GPU-ready resource, so
+    // the first fill doesn't pay a lazy-decode stall like it would with the raw
+    // HTMLImageElement. Falls back to the element if the bitmap isn't ready yet
+    // (still-loading texture or a browser without createImageBitmap support).
+    const src = entry._patternBitmap ?? entry.img!;
+    entry._pattern = ctx.createPattern(src, 'repeat');
     entry._patternCtx = ctx;
   }
   return entry._pattern as CanvasPattern;
@@ -846,108 +849,9 @@ export function renderTextureBlending(
   }
 }
 
-/**
- * Render pit/water/lava fills using cached world-space Path2D geometry,
- * composited via ctx.setTransform (same as rock shading) for pixel-perfect
- * output at any zoom level. Also draws the grid overlay.
- * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
- * @param {Array<Array<Object>>} cells - 2D cell grid
- * @param {Array<Array<boolean>>} roomCells - Room cell mask
- * @param {number} gridSize - Grid cell size in feet
- * @param {Object} theme - Theme object
- * @param {Object} transform - Transform with scale, offsetX, offsetY
- * @param {boolean} showGrid - Whether to draw the grid overlay
- * @param {boolean} [skipGrid=false] - Skip grid rendering (caller handles separately)
- * @param {Object|null} [metadata=null] - Dungeon metadata
- * @param {Object|null} [cacheSize=null] - Cache dimensions {w, h, scale}
- * @returns {void}
- */
-export function renderFillPatternsAndGrid(
-  ctx: CanvasRenderingContext2D,
-  cells: CellGrid,
-  roomCells: boolean[][],
-  gridSize: number,
-  theme: Theme,
-  transform: RenderTransform,
-  showGrid: boolean,
-  skipGrid: boolean = false,
-  metadata: Metadata | null = null,
-  cacheSize: { w: number; h: number; scale?: number } | null = null,
-): void {
-  const { scale: sc, offsetX: txOff, offsetY: tyOff } = transform;
-
-  const data = getFluidPathCache(cells, gridSize, theme, roomCells);
-  if (!data) return;
-
-  if (data.pit || data.water || data.lava) {
-    withTrimVoidClip(ctx, cells, gridSize, transform, () => {
-      // Try pre-rendered layer cache (only when rendering to the offscreen map cache)
-      const fluidLayer = cacheSize
-        ? getRenderedFluidLayer(data, gridSize, cacheSize.w, cacheSize.h, cacheSize.scale)
-        : null;
-
-      if (fluidLayer) {
-        // Blit the cached fluid layer
-        ctx.drawImage(fluidLayer, 0, 0);
-      } else {
-        // Direct render path (viewport mode or first build before cache is ready)
-        ctx.save();
-        ctx.setTransform(sc, 0, 0, sc, txOff, tyOff);
-
-        for (const fd of [data.pit, data.water, data.lava]) {
-          if (!fd) continue;
-          ctx.save();
-          ctx.clip(fd.clipPath);
-
-          for (const [colorKey, path] of fd.fills) {
-            const ck = Number(colorKey);
-            const rv = (ck >> 16) & 0xff;
-            const gv = (ck >> 8) & 0xff;
-            const bv = ck & 0xff;
-            ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
-            ctx.fill(path);
-          }
-
-          if (fd.cracksPath) {
-            ctx.strokeStyle = fd.crackColor!;
-            ctx.lineWidth = Math.max(0.3 / sc, 0.06);
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.stroke(fd.cracksPath);
-
-            for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups!) {
-              const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
-              grad.addColorStop(0, fd.vignetteColor!);
-              grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
-              grad.addColorStop(1, 'rgba(0,0,0,0)');
-              ctx.fillStyle = grad;
-              for (const [r2, c2] of group as [number, number][]) {
-                ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
-              }
-            }
-          } else {
-            ctx.strokeStyle = fd.causticColor!;
-            ctx.lineWidth = Math.max(0.5 / sc, 0.09);
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.stroke(fd.causticPath!);
-          }
-
-          ctx.restore();
-        }
-
-        ctx.restore();
-      }
-    });
-  }
-
-  // Grid overlay — skipped here when caller handles it separately (e.g. to draw bridges first).
-  if (!skipGrid && showGrid) {
-    withTrimVoidClip(ctx, cells, gridSize, transform, () => {
-      drawMatrixGrid(ctx, cells, roomCells, gridSize, transform, theme, showGrid, metadata);
-    });
-  }
-}
+// Fluid rendering has been moved to a dedicated composite sublayer — see
+// `buildFluidComposite` in `./fluid.js`. The grid phase is handled directly
+// in `renderCells` (see `render-cells.ts`), so no function is needed here.
 
 /**
  * Draw hazard triangles as the topmost overlay — renders above walls, props, and labels.

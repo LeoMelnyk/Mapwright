@@ -12,7 +12,7 @@ clusters_with: sawdust-pile, log-pile, lumber-stack, log-round, wood-chip
 notes: Scattered wood chips from chopping/sawing; floor scatter in woodworking areas
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.20 0.72,0.60 z 0-0.05
+selection rect 0.14,0.20 0.72,0.60
 
 # Chip 1 (large irregular chunk)
 poly 0.18,0.36 0.26,0.30 0.32,0.36 0.28,0.42 fill #8a5a30 0.9

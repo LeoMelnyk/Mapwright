@@ -12,7 +12,7 @@ clusters_with: hearth, rocking-chair, bed, cushion
 notes: Cat curled asleep in a tight spiral; perfect for fireplaces and cozy corners
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.52 0.30,0.24 z 0-0.3
+selection ellipse 0.5,0.52 0.30,0.24
 
 # Body curl (oval silhouette — grey tabby)
 ellipse 0.5,0.52 0.30,0.24 fill #6a5a4a 0.95

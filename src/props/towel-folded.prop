@@ -12,7 +12,7 @@ clusters_with: folded-cloak, bath-pool, massage-table, sandal-pair
 notes: Neatly folded cream towel with a colored stripe along one edge.
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.24 0.60,0.52 z 0-0.15
+selection rect 0.20,0.24 0.60,0.52
 
 # Main folded towel body (cream linen)
 rect 0.20,0.24 0.60,0.52 texfill polyhaven/rough_linen 0.88

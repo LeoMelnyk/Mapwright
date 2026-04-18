@@ -12,7 +12,7 @@ clusters_with: crate, crate-stack, rag-pile, debris
 notes: Smashed wooden crate with splintered boards, contents spilled
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.14 0.80,0.72 z 0-0.5
+selection rect 0.10,0.14 0.80,0.72
 
 # Base shadow of crate outline
 rect 0.10,0.14 0.80,0.72 fill #1a1008 0.3

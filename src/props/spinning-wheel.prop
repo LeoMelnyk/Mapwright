@@ -12,7 +12,7 @@ clusters_with: yarn-basket, rocking-chair, sewing-basket, thread-spool
 notes: Classic wooden spinning wheel viewed top-down — drive wheel on east, spindle on west, treadle along south
 ---
 # === HITBOX ===
-hitbox rect 0.15,0.40 1.90,1.20 z 0-2
+hitbox rect 0.15,0.40 1.70,1.20 z 0-2
 
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: long base plank east-west. Drive wheel is VERTICAL so from above

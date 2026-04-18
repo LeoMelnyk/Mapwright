@@ -1,0 +1,36 @@
+name: Blotting Rag
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: scriptorium-mundane, scriptorium-dark, counting-house, mansion-study, library
+typical_count: few
+clusters_with: inkwell, quill, desk, ink-stone, sand-shaker
+notes: Crumpled ink-stained linen rag on a desk — small scatter accent near writing tools
+---
+# === HITBOX ===
+selection rect 0.28,0.32 0.44,0.36
+
+# Crumpled linen rag — soft irregular blob with wrinkled folds
+poly 0.30,0.50 0.28,0.40 0.34,0.34 0.44,0.32 0.56,0.34 0.66,0.38 0.72,0.46 0.70,0.58 0.62,0.66 0.48,0.68 0.36,0.66 0.30,0.58 fill #e8dcc8 0.88
+poly 0.30,0.50 0.28,0.40 0.34,0.34 0.44,0.32 0.56,0.34 0.66,0.38 0.72,0.46 0.70,0.58 0.62,0.66 0.48,0.68 0.36,0.66 0.30,0.58 stroke #8b7355
+
+# Linen weave shadow folds
+bezier 0.34,0.40 0.42,0.46 0.54,0.50 0.66,0.44 stroke #c8b898 0.6 width 1
+bezier 0.32,0.56 0.44,0.58 0.58,0.60 0.70,0.54 stroke #c8b898 0.55 width 1
+line 0.40,0.38 0.44,0.48 stroke #c8b898 0.5
+
+# Ink stains (dark blotches where ink was absorbed)
+circle 0.48,0.46 0.08 fill #0a0618 0.75
+circle 0.56,0.52 0.05 fill #0a0618 0.65
+circle 0.38,0.54 0.04 fill #0a0618 0.6
+# Smaller ink specks
+circle 0.62,0.42 0.02 fill #0a0618 0.55
+circle 0.44,0.60 0.022 fill #0a0618 0.5
+circle 0.34,0.46 0.015 fill #0a0618 0.45
+
+# Subtle ink smear (dragged stroke)
+bezier 0.42,0.44 0.48,0.50 0.54,0.54 0.58,0.56 stroke #2a1a40 0.5 width 2

@@ -1,0 +1,59 @@
+name: Posted Broadsheet
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 2
+placement: wall
+room_types: plaza-civic, market-square, tavern-common, town-gate, courthouse-chamber, guildhall, bulletin-board
+typical_count: few
+clusters_with: bulletin-board, banner, lantern
+notes: Printed paper notice nailed to a wall or post — visible from above as the top edge and a hint of printed text below
+---
+# === HITBOX ===
+selection rect 0.22,0.06 0.56,0.18
+
+# footprint 1x1: x range 0-1, y range 0-1; wall at north (low y)
+# Top-down: only the top edge of the paper + nail + thin shadow visible
+
+# Iron nail at top center (dark pinhead holding the paper)
+circle 0.50,0.08 0.025 fill #333333 0.95
+circle 0.50,0.08 0.025 stroke #1a1a1a width 2
+# Nail highlight
+arc 0.50,0.08 0.019 210 260 stroke #777777 0.7 width 1
+
+# Second nail (top-left corner — paper is pinned at corners)
+circle 0.28,0.10 0.02 fill #333333 0.9
+circle 0.28,0.10 0.02 stroke #1a1a1a
+circle 0.72,0.10 0.02 fill #333333 0.9
+circle 0.72,0.10 0.02 stroke #1a1a1a
+
+# Paper top edge (aged parchment — slightly yellowed, torn along top)
+poly 0.24,0.08 0.30,0.10 0.36,0.08 0.44,0.10 0.50,0.08 0.58,0.10 0.66,0.08 0.72,0.10 0.76,0.08 0.76,0.22 0.24,0.22 fill #e8dcc8 0.92
+poly 0.24,0.08 0.30,0.10 0.36,0.08 0.44,0.10 0.50,0.08 0.58,0.10 0.66,0.08 0.72,0.10 0.76,0.08 0.76,0.22 0.24,0.22 stroke #8b7355 width 1
+
+# Header banner area (dark printed headline)
+rect 0.26,0.12 0.48,0.03 fill #1a1010 0.88
+
+# Large printed headline text (thick line)
+line 0.28,0.135 0.72,0.135 stroke #1a1010 width 2
+
+# Smaller printed text lines below
+line 0.28,0.17 0.72,0.17 stroke #2a1400 0.7 width 1
+line 0.28,0.19 0.68,0.19 stroke #2a1400 0.6 width 1
+line 0.28,0.21 0.70,0.21 stroke #2a1400 0.55 width 1
+
+# Small woodcut illustration hint (tiny square block)
+rect 0.30,0.165 0.06,0.04 fill #3a1f00 0.5
+rect 0.30,0.165 0.06,0.04 stroke #2a1400
+
+# Curled corner at one edge (paper is worn)
+bezier 0.76,0.22 0.78,0.20 0.80,0.22 0.78,0.24 stroke #8b7355 width 1
+bezier 0.76,0.22 0.78,0.20 0.80,0.22 0.78,0.24 fill #e8dcc8 0.85
+
+# Torn bottom edge hint (paper hangs further but only top is visible)
+line 0.24,0.22 0.76,0.22 stroke #c8b898 0.8 width 1
+
+# Subtle wall shadow below paper
+rect 0.26,0.23 0.48,0.02 fill #000000 0.18

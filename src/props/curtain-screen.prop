@@ -1,0 +1,77 @@
+name: Curtain Screen
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 3
+placement: wall
+room_types: confessional, brothel-parlor, bath-house, dressing-room, temple, shrine
+typical_count: few
+clusters_with: curtain, curtain-divider, confessional-booth
+notes: Wall-mounted hanging curtain divider — rod running east-west along the wall, gathered dark fabric top edge visible from above.
+---
+# === HITBOX ===
+selection rect 0.06,0.04 1.88,0.22
+
+# footprint 1x2: x 0-2, y 0-1. Wall attachment at north (low Y).
+# Top-down: horizontal rod + narrow strip of gathered fabric top-edge.
+
+# === Curtain rod (brass pole running east-west) ===
+rect 0.06,0.04 1.88,0.06 fill #daa520 0.9
+rect 0.06,0.04 1.88,0.06 stroke #5a3a00
+
+# Rod highlight (catches light)
+line 0.06,0.05 1.94,0.05 stroke #ffd860 0.6 width 1
+
+# === Rod finials (decorative end caps) ===
+circle 0.06,0.07 0.05 fill #daa520 0.95
+circle 0.06,0.07 0.05 stroke #5a3a00
+circle 0.06,0.07 0.02 fill #8b6914 0.8
+circle 1.94,0.07 0.05 fill #daa520 0.95
+circle 1.94,0.07 0.05 stroke #5a3a00
+circle 1.94,0.07 0.02 fill #8b6914 0.8
+
+# === Curtain rings spaced along rod ===
+circle 0.20,0.10 0.022 fill #5a3a00 0.85
+circle 0.20,0.10 0.022 stroke #3a2000 width 1
+circle 0.40,0.10 0.022 fill #5a3a00 0.85
+circle 0.40,0.10 0.022 stroke #3a2000 width 1
+circle 0.60,0.10 0.022 fill #5a3a00 0.85
+circle 0.60,0.10 0.022 stroke #3a2000 width 1
+circle 0.80,0.10 0.022 fill #5a3a00 0.85
+circle 0.80,0.10 0.022 stroke #3a2000 width 1
+circle 1.00,0.10 0.022 fill #5a3a00 0.85
+circle 1.00,0.10 0.022 stroke #3a2000 width 1
+circle 1.20,0.10 0.022 fill #5a3a00 0.85
+circle 1.20,0.10 0.022 stroke #3a2000 width 1
+circle 1.40,0.10 0.022 fill #5a3a00 0.85
+circle 1.40,0.10 0.022 stroke #3a2000 width 1
+circle 1.60,0.10 0.022 fill #5a3a00 0.85
+circle 1.60,0.10 0.022 stroke #3a2000 width 1
+circle 1.80,0.10 0.022 fill #5a3a00 0.85
+circle 1.80,0.10 0.022 stroke #3a2000 width 1
+
+# === Curtain fabric top edge (pleated, dark velvet) ===
+poly 0.12,0.14 0.24,0.12 0.36,0.14 0.48,0.12 0.60,0.14 0.72,0.12 0.84,0.14 0.96,0.12 1.08,0.14 1.20,0.12 1.32,0.14 1.44,0.12 1.56,0.14 1.68,0.12 1.80,0.14 1.88,0.22 0.12,0.22 fill #3a0a18 0.92
+poly 0.12,0.14 0.24,0.12 0.36,0.14 0.48,0.12 0.60,0.14 0.72,0.12 0.84,0.14 0.96,0.12 1.08,0.14 1.20,0.12 1.32,0.14 1.44,0.12 1.56,0.14 1.68,0.12 1.80,0.14 1.88,0.22 0.12,0.22 texfill polyhaven/velour_velvet 0.55
+poly 0.12,0.14 0.24,0.12 0.36,0.14 0.48,0.12 0.60,0.14 0.72,0.12 0.84,0.14 0.96,0.12 1.08,0.14 1.20,0.12 1.32,0.14 1.44,0.12 1.56,0.14 1.68,0.12 1.80,0.14 1.88,0.22 0.12,0.22 stroke #1a0008
+
+# === Pleats (vertical fold lines) ===
+line 0.24,0.14 0.24,0.22 stroke #1a0008 0.75
+line 0.36,0.14 0.36,0.22 stroke #1a0008 0.75
+line 0.48,0.14 0.48,0.22 stroke #1a0008 0.75
+line 0.60,0.14 0.60,0.22 stroke #1a0008 0.75
+line 0.72,0.14 0.72,0.22 stroke #1a0008 0.75
+line 0.84,0.14 0.84,0.22 stroke #1a0008 0.75
+line 0.96,0.14 0.96,0.22 stroke #1a0008 0.75
+line 1.08,0.14 1.08,0.22 stroke #1a0008 0.75
+line 1.20,0.14 1.20,0.22 stroke #1a0008 0.75
+line 1.32,0.14 1.32,0.22 stroke #1a0008 0.75
+line 1.44,0.14 1.44,0.22 stroke #1a0008 0.75
+line 1.56,0.14 1.56,0.22 stroke #1a0008 0.75
+line 1.68,0.14 1.68,0.22 stroke #1a0008 0.75
+line 1.80,0.14 1.80,0.22 stroke #1a0008 0.75
+
+# === Drape shadow hint south of fabric strip ===
+rect 0.14,0.24 1.72,0.04 fill #000000 0.18

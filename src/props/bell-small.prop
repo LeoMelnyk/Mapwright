@@ -1,0 +1,70 @@
+name: Small Prayer Bell
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2
+placement: floor
+room_types: shrine-roadside, shrine, chapel, temple, monastery-courtyard, wayside-chapel
+typical_count: single
+clusters_with: altar-stone-flat, candle, prayer-flag, offering-bowl
+notes: Small brass prayer bell on a short wooden post. Top-down shows wooden post base + circular brass bell cap with striking rope dangling south.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.28
+
+# footprint 1x1: x 0-1, y 0-1.
+# Top-down: small post with a brass bell hanging on a crossbar; view shows bell dome + rope.
+
+# === Shadow ring at base (post shadow) ===
+circle 0.50,0.60 0.14 fill #000000 0.25
+
+# === Wooden post base (square cross-section, seen from above) ===
+rect 0.44,0.54 0.12 0.12 texfill polyhaven/dark_wood 0.9
+rect 0.44,0.54 0.12 0.12 stroke #1a0800 width 1
+# Grain
+line 0.46,0.58 0.54,0.58 stroke #2a1400 0.5
+
+# === Crossbar (thin rectangle running east-west over the post, from which bell hangs) ===
+rect 0.28,0.22 0.44,0.06 texfill polyhaven/dark_wood 0.9
+rect 0.28,0.22 0.44,0.06 stroke #1a0800
+# Crossbar end caps
+circle 0.28,0.25 0.025 fill #2a1400 0.9
+circle 0.72,0.25 0.025 fill #2a1400 0.9
+
+# === Bell body (brass dome, top-down is concentric circles) ===
+# Outer bell rim
+circle 0.50,0.40 0.19 texfill polyhaven/metal_plate 0.8
+circle 0.50,0.40 0.19 fill #daa520 0.55
+circle 0.50,0.40 0.19 stroke #5a3a00 width 2
+
+# Inner rim ring
+circle 0.50,0.40 0.15 stroke #8b6914 width 1
+
+# Shoulder of bell (slightly smaller circle)
+circle 0.50,0.40 0.11 fill #c49520 0.7
+circle 0.50,0.40 0.11 stroke #5a3a00 width 1
+
+# Crown/yoke (top of bell — where it attaches to crossbar)
+circle 0.50,0.40 0.05 fill #8b6914 0.95
+circle 0.50,0.40 0.05 stroke #3a2000 width 1
+
+# Tiny inscription ring
+arc 0.50,0.40 0.17 30 150 stroke #8b6914 0.5 width 1
+
+# Highlight on bell
+arc 0.50,0.40 0.17 200 250 stroke #ffd860 0.55 width 1
+
+# === Striking rope hanging south ===
+line 0.50,0.58 0.50,0.88 stroke #8b7355 width 2
+# Rope knot at end
+circle 0.50,0.90 0.035 fill #6b4e2e 0.9
+circle 0.50,0.90 0.035 stroke #3a2a1a
+# Small tassel wisps
+line 0.48,0.92 0.46,0.96 stroke #8b7355 0.8 width 1
+line 0.52,0.92 0.54,0.96 stroke #8b7355 0.8 width 1
+line 0.50,0.93 0.50,0.97 stroke #8b7355 0.8 width 1
+
+# === Clapper hint (small dark dot at very center of bell) ===
+circle 0.50,0.40 0.018 fill #222222 0.95

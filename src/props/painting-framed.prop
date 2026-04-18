@@ -11,7 +11,7 @@ clusters_with: painting, banner
 notes: Modest gilt-framed portrait or landscape. Top-down wall convention — only the rod/top edge is visible from above. Hang on walls.
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.06 1.60,0.12 z 0-4
+selection rect 0.20,0.06 1.60,0.12
 
 # footprint 1x2: x range 0-2, y range 0-1; wall at north (low y)
 

@@ -10,13 +10,7 @@ room_types: cave, elemental-earth-node, crystal-cave, magical-chamber
 typical_count: few
 clusters_with: crystal-formation, boulder, ore-vein-prop, fossil-embedded
 notes: Split-open geode with glittering amber/purple crystals inside; scatter in earth-themed caves
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 1.5
-    color: "#dd8822"
-    intensity: 0.15
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":1.5,"intensity":0.15,"color":"#dd8822"}]
 ---
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: stone outer shell split open revealing bright jagged crystal interior

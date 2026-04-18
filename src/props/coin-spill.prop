@@ -1,0 +1,114 @@
+name: Coin Spill
+category: Treasure
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: treasure-vault, vault, dragon-hoard, thieves-guild-hideout, reliquary, cave-bandit-camp
+typical_count: few
+clusters_with: coin-pile, coin-stack, chest, gem-cluster, crown-on-cushion, jewelry-loose
+notes: Large sprawling spill of gold coins carpeting the floor — flatter than coin-pile, sprawling wider
+---
+# footprint 2x2: x 0-2, y 0-2
+# === HITBOX ===
+selection rect 0.15,0.15 1.70,1.70
+
+# Faint background shimmer fill
+ellipse 1.00,1.00 0.80,0.72 fill #8b6914 0.12
+ellipse 1.00,1.00 0.60,0.56 fill #daa520 0.08
+
+# === Gold coins (majority) ===
+circle 0.28,0.32 0.08 fill #daa520 0.95
+circle 0.28,0.32 0.08 stroke #5a3a00
+circle 0.28,0.32 0.02 fill #5a3a00 0.8
+circle 0.50,0.26 0.08 fill #ffd700 0.95
+circle 0.50,0.26 0.08 stroke #5a3a00
+circle 0.50,0.26 0.02 fill #5a3a00 0.8
+circle 0.72,0.34 0.07 fill #daa520 0.95
+circle 0.72,0.34 0.07 stroke #5a3a00
+circle 0.96,0.40 0.08 fill #daa520 0.95
+circle 0.96,0.40 0.08 stroke #5a3a00
+circle 0.96,0.40 0.02 fill #5a3a00 0.8
+circle 1.22,0.28 0.08 fill #ffd700 0.95
+circle 1.22,0.28 0.08 stroke #5a3a00
+circle 1.48,0.36 0.07 fill #daa520 0.95
+circle 1.48,0.36 0.07 stroke #5a3a00
+circle 1.70,0.42 0.08 fill #daa520 0.95
+circle 1.70,0.42 0.08 stroke #5a3a00
+circle 1.70,0.42 0.02 fill #5a3a00 0.8
+
+circle 0.34,0.60 0.08 fill #daa520 0.95
+circle 0.34,0.60 0.08 stroke #5a3a00
+circle 0.58,0.66 0.08 fill #ffd700 0.95
+circle 0.58,0.66 0.08 stroke #5a3a00
+circle 0.58,0.66 0.02 fill #5a3a00 0.8
+circle 0.84,0.58 0.08 fill #daa520 0.95
+circle 0.84,0.58 0.08 stroke #5a3a00
+circle 1.12,0.64 0.08 fill #ffd700 0.95
+circle 1.12,0.64 0.08 stroke #5a3a00
+circle 1.40,0.60 0.07 fill #daa520 0.95
+circle 1.40,0.60 0.07 stroke #5a3a00
+circle 1.64,0.68 0.08 fill #daa520 0.95
+circle 1.64,0.68 0.08 stroke #5a3a00
+
+# Central stacked cluster (slightly raised)
+circle 0.80,0.90 0.09 fill #daa520 0.95
+circle 0.80,0.90 0.09 stroke #5a3a00
+circle 1.05,0.88 0.09 fill #ffd700 0.95
+circle 1.05,0.88 0.09 stroke #5a3a00
+circle 1.05,0.88 0.02 fill #5a3a00 0.8
+circle 1.28,0.94 0.09 fill #daa520 0.95
+circle 1.28,0.94 0.09 stroke #5a3a00
+circle 0.92,1.08 0.09 fill #ffd700 0.98
+circle 0.92,1.08 0.09 stroke #5a3a00
+circle 1.18,1.10 0.09 fill #daa520 0.98
+circle 1.18,1.10 0.09 stroke #5a3a00
+circle 1.18,1.10 0.02 fill #5a3a00 0.8
+
+# Silver accent coins
+circle 0.40,0.90 0.07 fill #cccccc 0.95
+circle 0.40,0.90 0.07 stroke #555555
+circle 0.40,0.90 0.015 fill #555555 0.8
+circle 1.58,0.98 0.07 fill #cccccc 0.95
+circle 1.58,0.98 0.07 stroke #555555
+circle 0.58,1.28 0.07 fill #cccccc 0.95
+circle 0.58,1.28 0.07 stroke #555555
+
+# South row
+circle 0.30,1.32 0.08 fill #daa520 0.95
+circle 0.30,1.32 0.08 stroke #5a3a00
+circle 0.80,1.38 0.08 fill #ffd700 0.95
+circle 0.80,1.38 0.08 stroke #5a3a00
+circle 1.08,1.36 0.08 fill #daa520 0.95
+circle 1.08,1.36 0.08 stroke #5a3a00
+circle 1.32,1.28 0.07 fill #daa520 0.95
+circle 1.32,1.28 0.07 stroke #5a3a00
+circle 1.62,1.32 0.08 fill #ffd700 0.95
+circle 1.62,1.32 0.08 stroke #5a3a00
+circle 1.62,1.32 0.02 fill #5a3a00 0.8
+
+# Bottom edge spill (edge-on ellipses)
+ellipse 0.42,1.64 0.08,0.03 fill #daa520 0.9
+ellipse 0.42,1.64 0.08,0.03 stroke #5a3a00
+ellipse 0.90,1.70 0.08,0.03 fill #daa520 0.9
+ellipse 0.90,1.70 0.08,0.03 stroke #5a3a00
+ellipse 1.40,1.66 0.08,0.03 fill #ffd700 0.9
+ellipse 1.40,1.66 0.08,0.03 stroke #5a3a00
+
+# Copper accents
+circle 0.24,1.58 0.06 fill #b06030 0.9
+circle 0.24,1.58 0.06 stroke #5a2810
+circle 1.78,1.56 0.06 fill #b06030 0.9
+circle 1.78,1.56 0.06 stroke #5a2810
+
+# Highlight glints
+arc 0.50,0.26 0.07 210 260 stroke #ffcc00 0.7 width 1
+arc 1.05,0.88 0.08 210 260 stroke #ffffff 0.7 width 1
+arc 1.18,1.10 0.08 210 260 stroke #ffcc00 0.7 width 1
+arc 0.92,1.08 0.08 210 260 stroke #ffffff 0.6 width 1
+circle 0.60,0.50 0.012 fill #ffee88 0.85
+circle 1.30,0.50 0.012 fill #ffffff 0.8
+circle 1.50,1.20 0.012 fill #ffee88 0.8
+circle 0.70,1.20 0.012 fill #ffffff 0.75

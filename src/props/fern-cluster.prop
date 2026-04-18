@@ -12,7 +12,7 @@ clusters_with: bush-berry, mushroom, moss-patch, fungal-growth, fallen-log-mossy
 notes: Cluster of 3-4 fern fronds radiating from a central root crown
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.5
+selection circle 0.5,0.5 0.38
 
 # Root crown (small dark center where fronds emerge)
 circle 0.50,0.50 0.05 fill #2a1800 0.85

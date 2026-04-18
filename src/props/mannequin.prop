@@ -12,7 +12,7 @@ clusters_with: cutting-table, fitting-mirror, sewing-bench, measuring-tape
 notes: Dressmaker's mannequin seen from above as concentric rings; place near fitting mirror or cutting table
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-1.5
+selection circle 0.5,0.5 0.30
 
 # Wooden base disc (widest, bottom layer)
 circle 0.5,0.54 0.30 texfill polyhaven/dark_wood 0.85

@@ -1,0 +1,112 @@
+name: Judge's Bench
+category: Furniture
+footprint: 2x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: center
+room_types: courthouse-chamber, throne-room, council-chamber, guildhall
+typical_count: single
+clusters_with: clerk-desk, chair, scale-justice, gavel, banner
+notes: Elevated wooden bench where a magistrate presides over a courtroom; paneled front with raised desk and high-backed chair
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 2.80,1.80 z 0-5
+
+# footprint 2x3: x range 0-3, y range 0-2
+# Top-down: a large elevated paneled dais with the judge's seating area on the north (back), the writing bench in the middle, and the paneled front wall facing south (toward the room)
+
+# === Elevated dais base (full footprint, dark wood) ===
+rect 0.10,0.10 2.80,1.80 texfill polyhaven/dark_wood 0.92
+rect 0.10,0.10 2.80,1.80 stroke #1a0e00 width 2
+
+# Dais top edge bevel (north side — raised back)
+rect 0.14,0.14 2.72,0.06 fill #3a1f00 0.6
+
+# === North section: high-backed judge's chair seat ===
+# Chair back (visible as thick strip along north edge)
+rect 0.30,0.18 2.40,0.34 texfill polyhaven/dark_wood 0.95
+rect 0.30,0.18 2.40,0.34 stroke #1a0e00 width 2
+
+# Chair back carved paneling (vertical grooves)
+line 0.70,0.20 0.70,0.50 stroke #2a1400 0.7 width 1
+line 1.10,0.20 1.10,0.50 stroke #2a1400 0.7 width 1
+line 1.50,0.20 1.50,0.50 stroke #2a1400 0.7 width 1
+line 1.90,0.20 1.90,0.50 stroke #2a1400 0.7 width 1
+line 2.30,0.20 2.30,0.50 stroke #2a1400 0.7 width 1
+
+# Carved central crest (tall-arched medallion on the backrest)
+ellipse 1.50,0.36 0.16,0.12 fill #8b6914 0.88
+ellipse 1.50,0.36 0.16,0.12 stroke #5a3a00 width 2
+# Crest emblem (scales of justice silhouette hint)
+line 1.44,0.36 1.56,0.36 stroke #3a2400 width 2
+line 1.50,0.30 1.50,0.42 stroke #3a2400 width 2
+circle 1.44,0.38 0.02 fill #daa520 0.9
+circle 1.56,0.38 0.02 fill #daa520 0.9
+
+# Chair top-rail finials (decorative corner caps)
+circle 0.32,0.20 0.04 fill #daa520 0.9
+circle 0.32,0.20 0.04 stroke #5a3a00
+circle 2.68,0.20 0.04 fill #daa520 0.9
+circle 2.68,0.20 0.04 stroke #5a3a00
+
+# === Seat cushion area (middle strip) ===
+rect 0.40,0.56 2.20,0.30 fill #4a1820 0.9
+rect 0.40,0.56 2.20,0.30 stroke #2a0810 width 2
+# Cushion tufting
+circle 0.80,0.70 0.020 fill #2a0810 0.8
+circle 1.20,0.70 0.020 fill #2a0810 0.8
+circle 1.50,0.70 0.020 fill #2a0810 0.8
+circle 1.80,0.70 0.020 fill #2a0810 0.8
+circle 2.20,0.70 0.020 fill #2a0810 0.8
+# Gold braid edge on cushion
+line 0.40,0.56 2.60,0.56 stroke #daa520 0.7 width 1
+line 0.40,0.86 2.60,0.86 stroke #daa520 0.7 width 1
+
+# === Middle: the judge's writing surface / bench top ===
+rect 0.14,0.92 2.72,0.60 texfill polyhaven/wood_table 0.88
+rect 0.14,0.92 2.72,0.60 stroke #1a0e00 width 2
+
+# Documents and gavel laid on the bench
+# Gavel (small hammer resting horizontal)
+rect 0.40,1.12 0.28,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.40,1.12 0.28,0.08 stroke #1a0e00
+rect 0.36,1.08 0.10,0.16 texfill polyhaven/dark_wood 0.95
+rect 0.36,1.08 0.10,0.16 stroke #1a0e00 width 2
+# Gavel sound block
+rect 0.44,1.28 0.20,0.12 fill #5c3a1e 0.85
+rect 0.44,1.28 0.20,0.12 stroke #2a1400 width 2
+
+# Stack of legal documents
+rect 1.80,1.10 0.60,0.40 fill #e8dcc8 0.9
+rect 1.80,1.10 0.60,0.40 stroke #8b7355 width 1
+# Writing on top document
+line 1.84,1.18 2.36,1.18 stroke #2a1400 0.55
+line 1.84,1.24 2.32,1.24 stroke #2a1400 0.5
+line 1.84,1.30 2.36,1.30 stroke #2a1400 0.5
+# Red seal on document
+circle 2.30,1.42 0.04 fill #991111 0.85
+circle 2.30,1.42 0.04 stroke #4a0808
+
+# Inkwell on bench
+circle 1.20,1.20 0.07 fill #5a3a00 0.9
+circle 1.20,1.20 0.07 stroke #2a1400 width 2
+circle 1.20,1.20 0.05 fill #0a0618 0.95
+# Quill in inkwell
+bezier 1.26,1.18 1.38,1.08 1.50,0.98 1.60,0.90 stroke #e8dcc8 width 2
+
+# === South: paneled front face of the bench (carved panels visible as trim strip along south edge) ===
+rect 0.14,1.56 2.72,0.30 fill #2a1400 0.88
+rect 0.14,1.56 2.72,0.30 stroke #1a0e00 width 2
+# Panel divisions (5 recessed panels)
+line 0.68,1.56 0.68,1.86 stroke #1a0e00 width 2
+line 1.22,1.56 1.22,1.86 stroke #1a0e00 width 2
+line 1.76,1.56 1.76,1.86 stroke #1a0e00 width 2
+line 2.30,1.56 2.30,1.86 stroke #1a0e00 width 2
+# Panel carved ornament (small diamonds in center of each panel)
+poly 0.38,1.68 0.44,1.72 0.38,1.76 0.32,1.72 fill #8b6914 0.8
+poly 0.92,1.68 0.98,1.72 0.92,1.76 0.86,1.72 fill #8b6914 0.8
+poly 1.46,1.68 1.52,1.72 1.46,1.76 1.40,1.72 fill #8b6914 0.8
+poly 2.00,1.68 2.06,1.72 2.00,1.76 1.94,1.72 fill #8b6914 0.8
+poly 2.54,1.68 2.60,1.72 2.54,1.76 2.48,1.72 fill #8b6914 0.8

@@ -1,6 +1,7 @@
 name: Anchor
 category: Nautical
 footprint: 2x1
+padding: 0.1
 facing: no
 shadow: yes
 blocks_light: no

@@ -1,0 +1,85 @@
+name: Signal Gong
+category: Features
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 2
+placement: wall
+room_types: underdark-outpost, guard-post, temple-entry, watchtower
+typical_count: single
+clusters_with: watchfire-pit, signal-bell, weapon-rack
+notes: Round metal gong suspended in a wooden A-frame, viewed top-down — you see the circular gong face (flat horizontal disc) with concentric hammered rings and the frame posts on either side.
+---
+# === HITBOX ===
+selection rect 0.06,0.12 0.88,0.70
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: gong hangs vertically in frame. From above you see the thin top EDGE of the disc as a narrow ellipse, two crossbar frame posts, and the base feet.
+# Wait — actually the note says "Concentric gong rings" so it's shown as the flat face visible from above (gong lying on a stand facing up).
+
+# Wooden base platform (rectangular floor stand)
+rect 0.06,0.70 0.88,0.22 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.70 0.88,0.22 fill #3a1f00 0.2
+rect 0.06,0.70 0.88,0.22 stroke #2a1400 width 2
+
+# Base plank seams
+line 0.06,0.80 0.94,0.80 stroke #2a1400 0.6 width 1
+
+# Upright posts (two wooden uprights supporting the gong — seen as thick rectangles from above)
+rect 0.08,0.12 0.10,0.62 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.12 0.10,0.62 fill #2a1400 0.3
+rect 0.08,0.12 0.10,0.62 stroke #2a1400 width 2
+
+rect 0.82,0.12 0.10,0.62 texfill polyhaven/dark_wood 0.9
+rect 0.82,0.12 0.10,0.62 fill #2a1400 0.3
+rect 0.82,0.12 0.10,0.62 stroke #2a1400 width 2
+
+# Post caps (finial on top of each upright)
+circle 0.13,0.14 0.05 fill #5c3a1e 0.9
+circle 0.13,0.14 0.05 stroke #2a1400
+circle 0.87,0.14 0.05 fill #5c3a1e 0.9
+circle 0.87,0.14 0.05 stroke #2a1400
+
+# === Gong disc (between posts, viewed from above) ===
+# Outer rim
+circle 0.5,0.42 0.32 texfill polyhaven/metal_plate 0.8
+circle 0.5,0.42 0.32 fill #8b6914 0.35
+circle 0.5,0.42 0.32 stroke #3a1f00 width 2
+
+# Outermost hammered ring
+circle 0.5,0.42 0.28 stroke #5a3a00 0.7 width 1
+
+# Mid ring
+circle 0.5,0.42 0.22 stroke #5a3a00 0.7 width 1
+
+# Inner ring
+circle 0.5,0.42 0.16 stroke #5a3a00 0.7 width 1
+
+# Central boss (raised dome hit-point)
+circle 0.5,0.42 0.08 fill #daa520 0.85
+circle 0.5,0.42 0.08 texfill polyhaven/metal_plate 0.4
+circle 0.5,0.42 0.08 stroke #5a3a00 width 2
+
+# Central hit-point highlight (where mallet strikes)
+circle 0.5,0.42 0.04 fill #ffee88 0.55
+circle 0.5,0.42 0.02 fill #ffffcc 0.7
+
+# Brass sheen arcs (top-right quadrant highlight)
+arc 0.5,0.42 0.30 200 280 stroke #ffee88 0.5 width 1
+arc 0.5,0.42 0.24 210 270 stroke #ffee88 0.4 width 1
+
+# Chain/cord suspending the gong (from top of each post to the gong rim)
+line 0.13,0.16 0.22,0.24 stroke #555555 width 2
+line 0.87,0.16 0.78,0.24 stroke #555555 width 2
+
+# Tarnish splotches
+circle 0.36,0.36 0.015 fill #5a3a00 0.5
+circle 0.62,0.50 0.015 fill #5a3a00 0.5
+circle 0.44,0.54 0.012 fill #5a3a00 0.4
+
+# Mallet resting on base
+rect 0.44,0.82 0.30,0.04 fill #3a1f00 0.85
+rect 0.44,0.82 0.30,0.04 stroke #2a1400
+circle 0.44,0.84 0.04 fill #5c3a1e 0.9
+circle 0.44,0.84 0.04 stroke #2a1400

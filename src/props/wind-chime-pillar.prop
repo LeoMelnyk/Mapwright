@@ -1,0 +1,88 @@
+name: Wind Chime Pillar
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 4
+placement: corner
+room_types: elemental-shrine, elemental-air-node, djinn-court, storm-spire, shrine, garden
+typical_count: few
+clusters_with: pillar, brazier, ritual-candle, wind-chime-giant, prayer-bead-pile
+notes: Stone pillar with small hanging chimes around it — top-down cross-section of the pillar shaft with chime tubes orbiting. NOT a vertical shaft; radial arrangement.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-4
+
+# Outer ring where chimes hang (faint breeze circle)
+circle 0.5,0.5 0.46 fill #aabbcc 0.08
+
+# === Stone pillar cross-section (central shaft from above) ===
+circle 0.5,0.5 0.28 texfill polyhaven/stone_wall 0.85
+circle 0.5,0.5 0.28 stroke #555555 width 2
+# Capital / top piece inner ring
+ring 0.5,0.5 0.22 0.16 texfill polyhaven/granite_tile 0.8
+ring 0.5,0.5 0.22 0.16 stroke #555555
+
+# Fluting grooves radiating from center
+line 0.5,0.24 0.5,0.30 stroke #555555 width 1
+line 0.5,0.70 0.5,0.76 stroke #555555 width 1
+line 0.24,0.5 0.30,0.5 stroke #555555 width 1
+line 0.70,0.5 0.76,0.5 stroke #555555 width 1
+line 0.33,0.33 0.37,0.37 stroke #555555 width 1
+line 0.67,0.33 0.63,0.37 stroke #555555 width 1
+line 0.33,0.67 0.37,0.63 stroke #555555 width 1
+line 0.67,0.67 0.63,0.63 stroke #555555 width 1
+
+# === Central apex highlight ===
+circle 0.5,0.5 0.06 fill #888888 0.7
+circle 0.5,0.5 0.06 stroke #444444
+circle 0.5,0.5 0.03 fill #bbbbbb 0.8
+
+# === Chime tubes — small metal circles ringed around the pillar (top-down caps) ===
+# Support ring (thin rod from which chimes hang — faint circle above pillar)
+circle 0.5,0.5 0.40 stroke #8b7355 0.65 width 1
+
+# Suspension strings (thin threads from center out to each chime)
+line 0.5,0.5 0.5,0.14 stroke #8b7355 0.75 width 1
+line 0.5,0.5 0.76,0.24 stroke #8b7355 0.75 width 1
+line 0.5,0.5 0.86,0.5 stroke #8b7355 0.75 width 1
+line 0.5,0.5 0.76,0.76 stroke #8b7355 0.75 width 1
+line 0.5,0.5 0.5,0.86 stroke #8b7355 0.75 width 1
+line 0.5,0.5 0.24,0.76 stroke #8b7355 0.75 width 1
+line 0.5,0.5 0.14,0.5 stroke #8b7355 0.75 width 1
+line 0.5,0.5 0.24,0.24 stroke #8b7355 0.75 width 1
+
+# Chime tube top circles (8 arranged radially)
+# North
+circle 0.50,0.14 0.05 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.14 0.05 stroke #444444 width 1
+circle 0.50,0.14 0.02 fill #222222 0.85
+# NE
+circle 0.76,0.24 0.045 texfill polyhaven/metal_plate 0.85
+circle 0.76,0.24 0.045 stroke #444444 width 1
+circle 0.76,0.24 0.018 fill #222222 0.85
+# East
+circle 0.86,0.50 0.05 texfill polyhaven/metal_plate 0.85
+circle 0.86,0.50 0.05 stroke #444444 width 1
+circle 0.86,0.50 0.02 fill #222222 0.85
+# SE
+circle 0.76,0.76 0.045 texfill polyhaven/metal_plate 0.85
+circle 0.76,0.76 0.045 stroke #444444 width 1
+circle 0.76,0.76 0.018 fill #222222 0.85
+# South
+circle 0.50,0.86 0.05 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.86 0.05 stroke #444444 width 1
+circle 0.50,0.86 0.02 fill #222222 0.85
+# SW
+circle 0.24,0.76 0.045 texfill polyhaven/metal_plate 0.85
+circle 0.24,0.76 0.045 stroke #444444 width 1
+circle 0.24,0.76 0.018 fill #222222 0.85
+# West
+circle 0.14,0.50 0.05 texfill polyhaven/metal_plate 0.85
+circle 0.14,0.50 0.05 stroke #444444 width 1
+circle 0.14,0.50 0.02 fill #222222 0.85
+# NW
+circle 0.24,0.24 0.045 texfill polyhaven/metal_plate 0.85
+circle 0.24,0.24 0.045 stroke #444444 width 1
+circle 0.24,0.24 0.018 fill #222222 0.85

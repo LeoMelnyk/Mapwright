@@ -12,7 +12,7 @@ clusters_with: broken-bottle, glass-shard, scorch-mark, workbench
 notes: Scattered broken glass fragments; dangerous floor hazard
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.16 0.72,0.68 z 0-0.05
+selection rect 0.14,0.16 0.72,0.68
 
 # Large shard 1 (greenish glass, jagged)
 poly 0.20,0.22 0.34,0.18 0.40,0.30 0.30,0.40 0.22,0.34 fill #4a7868 0.75

@@ -4,12 +4,16 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 5
 placement: wall
 room_types: library, study, wizard-sanctum, office
 typical_count: single
 clusters_with: bookshelf, desk, book-pile, lectern
 notes: Tall wooden card catalog cabinet with many small drawers; place against library walls
 ---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.60 z 0-5
+
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: cabinet top view — flat wood surface with crown molding at north (wall)
 # and at south edge, tiny brass handle dots hint at the drawer grid below.

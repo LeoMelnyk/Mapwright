@@ -15,6 +15,7 @@ import {
   renderTimings,
   bumpTimingFrame,
   getContentVersion,
+  getGeometryVersion,
   getLightingVersion,
   getDirtyRegion,
   consumeDirtyRegion,
@@ -180,6 +181,7 @@ export function render(): void {
     const _cacheStart = performance.now();
     const rebuilt = mapCache.update({
       contentVersion: getContentVersion(),
+      geometryVersion: getGeometryVersion(),
       lightingVersion: getLightingVersion(),
       texturesVersion: state.texturesVersion,
       cells,
@@ -431,6 +433,57 @@ export function render(): void {
       if (propDef.selectionHitbox) {
         drawPoly(hitboxToScreen(propDef.selectionHitbox), '#ffff00');
       }
+    }
+    ctx.restore();
+  }
+
+  // Debug: selection hitbox overlay — magenta polygon showing what `hitTestPropPixel`
+  // actually tests against. Uses `selectionHitbox` if defined, else `autoHitbox`.
+  if (state.debugShowSelectionBoxes && state.propCatalog && metadata.props?.length) {
+    ctx.save();
+    ctx.strokeStyle = '#ff00ff';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 3]);
+    for (const prop of metadata.props) {
+      const propDef = state.propCatalog.props[prop.type];
+      if (!propDef) continue;
+      const selPolygon = propDef.selectionHitbox ?? propDef.autoHitbox;
+      if (!selPolygon?.length) continue;
+      const rotation = prop.rotation;
+      const scl = prop.scale;
+      const flipped = prop.flipped;
+      const [fRows, fCols] = propDef.footprint;
+      const r = ((rotation % 360) + 360) % 360;
+      const cx = fCols / 2;
+      const cy = fRows / 2;
+
+      const screenPts = selPolygon.map(([hx, hy]: number[]) => {
+        let px = flipped ? fCols - hx! : hx!;
+        let py = hy!;
+        if (r !== 0) {
+          const rad = (-rotation * Math.PI) / 180;
+          const cosA = Math.cos(rad);
+          const sinA = Math.sin(rad);
+          const dx = px - cx;
+          const dy = py - cy;
+          px = cx + dx * cosA - dy * sinA;
+          py = cy + dx * sinA + dy * cosA;
+        }
+        const wx = cx * gridSize + (px - cx) * gridSize * scl;
+        const wy = cy * gridSize + (py - cy) * gridSize * scl;
+        return {
+          x: (prop.x + wx) * transform.scale + transform.offsetX,
+          y: (prop.y + wy) * transform.scale + transform.offsetY,
+        };
+      });
+
+      ctx.beginPath();
+      screenPts.forEach((p, i) => {
+        if (i === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.closePath();
+      ctx.stroke();
     }
     ctx.restore();
   }

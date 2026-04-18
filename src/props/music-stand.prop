@@ -12,7 +12,7 @@ clusters_with: harp, lute-stand, drum-stand, sheet-music, stage-large
 notes: Slim tripod music stand — top-down shows a small triangular base and a rectangular angled tray holding sheet music at waist height
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-1.3
+selection circle 0.5,0.5 0.28
 
 # Tripod base (three legs radiating from center)
 line 0.30,0.82 0.50,0.60 stroke #2a1400 width 3

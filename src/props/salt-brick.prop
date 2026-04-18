@@ -12,7 +12,7 @@ clusters_with: jar, grain-sack, crate, pantry-shelf
 notes: Block of rock salt — rectangular pinkish-white crystal slab with faceted cracks radiating from center
 ---
 # === HITBOX ===
-hitbox rect 0.15,0.20 0.70,0.60 z 0-0.2
+selection rect 0.15,0.20 0.70,0.60
 
 # Base slab — marble texture as the crystal base
 rect 0.15,0.20 0.70,0.60 texfill polyhaven/marble_01 0.85

@@ -12,7 +12,7 @@ clusters_with: desk, writing-desk, inkwell, wax-seal, document-stack
 notes: Bundle of folded letters tied with twine; more personal than document-stack
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.26 0.64,0.56 z 0-0.25
+selection rect 0.18,0.26 0.64,0.56
 
 # Bottom envelope (largest)
 rect 0.18,0.56 0.64,0.24 fill #e8dcc8 0.9

@@ -5,13 +5,7 @@ facing: no
 shadow: yes
 blocks_light: yes
 height: 4
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 4
-    color: "#ff8833"
-    intensity: 0.4
+lights: [{"preset":"fireplace","x":1,"y":1,"radius":4,"intensity":0.4,"color":"#ff8833"}]
 placement: center
 room_types: ship, galley
 typical_count: single

@@ -12,7 +12,7 @@ clusters_with: quill, desk, ledger-stack, parchment-scrap, writing-desk
 notes: Stoppered ceramic ink pot; similar to inkwell but with lid/stopper
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.22 z 0-0.35
+selection circle 0.5,0.5 0.22
 
 # Ceramic body (squat jar)
 circle 0.5,0.55 0.22 texfill polyhaven/stone_wall 0.65

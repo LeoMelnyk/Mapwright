@@ -12,7 +12,7 @@ clusters_with: incense-burner, altar, candle-stub, prayer-bench, skull-stack
 notes: Burnt-down incense stick with ash trail — ritual remnant
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.42 0.64,0.18 z 0-0.05
+selection rect 0.18,0.42 0.64,0.18
 
 # Thin base dish (small ceramic tray)
 ellipse 0.30,0.52 0.12,0.06 fill #4a3020 0.85

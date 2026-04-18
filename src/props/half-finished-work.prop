@@ -1,0 +1,92 @@
+name: Half-Finished Work
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: house-medium-artisan, general-workshop, workshop-artificer, shop-potter, shop-cobbler
+typical_count: single
+clusters_with: workbench, tool-scatter, tool-rack-wall, half-finished-work, polish-rag
+notes: Artisan project in mid-progress on a table — a half-thrown clay pot and a partly-carved wooden bowl. Domestic crafts flavor (distinct from work-in-progress which is smith-focused).
+---
+# === HITBOX ===
+selection rect 0.12,0.18 0.76,0.64
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a cloth workmat with a half-formed clay pot on one side and a partly-carved wooden bowl on the other
+
+# === Cloth workmat ===
+rect 0.08,0.16 0.84,0.68 texfill polyhaven/rough_linen 0.7
+rect 0.08,0.16 0.84,0.68 fill #a08870 0.3
+rect 0.08,0.16 0.84,0.68 stroke #6b4e2e 0.6
+# Mat fold lines
+line 0.10,0.30 0.90,0.28 stroke #5c3a1e 0.4
+line 0.10,0.76 0.90,0.78 stroke #5c3a1e 0.4
+
+# === Half-thrown clay pot (west side, cylindrical form, unfinished rim) ===
+# Outer circular body
+circle 0.30,0.48 0.18 fill #8b5a2e 0.95
+circle 0.30,0.48 0.18 texfill polyhaven/brown_mud 0.55
+circle 0.30,0.48 0.18 stroke #3a1f00 width 2
+
+# Throw lines (concentric rings from wheel)
+circle 0.30,0.48 0.15 stroke #6b4020 0.65
+circle 0.30,0.48 0.12 stroke #6b4020 0.6
+circle 0.30,0.48 0.09 stroke #6b4020 0.55
+
+# Inner wall (dark cavity, open top)
+circle 0.30,0.48 0.10 fill #2a1400 0.9
+circle 0.30,0.48 0.10 stroke #1a0800
+
+# Clay pot rim (uneven, partly formed — asymmetric thickness)
+arc 0.30,0.48 0.10 0 200 stroke #4a2800 width 2
+arc 0.30,0.48 0.11 0 180 stroke #3a1f00 width 1
+
+# Wet clay sheen on upper surface
+arc 0.30,0.48 0.14 230 300 stroke #aa8858 0.5 width 2
+
+# Fingerprints/tool marks in wet clay
+line 0.20,0.42 0.24,0.44 stroke #3a1f00 0.7 width 1
+line 0.36,0.54 0.40,0.56 stroke #3a1f00 0.65 width 1
+line 0.24,0.56 0.26,0.58 stroke #3a1f00 0.65 width 1
+
+# Small clay trim strip fallen next to the pot
+poly 0.18,0.64 0.24,0.66 0.22,0.70 0.16,0.68 fill #6b4020 0.9
+poly 0.18,0.64 0.24,0.66 0.22,0.70 0.16,0.68 stroke #3a1f00
+
+# === Partly-carved wooden bowl (east side) ===
+# Outer wooden disc
+circle 0.68,0.50 0.16 fill #8b6914 0.92
+circle 0.68,0.50 0.16 texfill polyhaven/dark_wood 0.6
+circle 0.68,0.50 0.16 stroke #3a1f00 width 2
+
+# Hollowed interior (partial — uneven carving)
+circle 0.68,0.50 0.10 fill #4a2800 0.85
+circle 0.68,0.50 0.10 stroke #2a1400
+
+# Wood grain rings
+circle 0.68,0.50 0.14 stroke #5c3a1e 0.6
+circle 0.68,0.50 0.12 stroke #5c3a1e 0.55
+
+# Unfinished carving facets (angular gouges still visible)
+poly 0.60,0.42 0.66,0.44 0.64,0.48 fill #5c3a1e 0.75
+poly 0.72,0.46 0.76,0.48 0.74,0.52 fill #5c3a1e 0.75
+poly 0.62,0.56 0.66,0.58 0.64,0.62 fill #6b4e2e 0.7
+
+# Carving gouge marks on inner cavity
+line 0.62,0.48 0.66,0.50 stroke #2a1400 0.75 width 1
+line 0.72,0.52 0.70,0.54 stroke #2a1400 0.7 width 1
+line 0.66,0.54 0.68,0.56 stroke #2a1400 0.65 width 1
+
+# Wood shavings scattered around bowl
+bezier 0.80,0.40 0.84,0.38 0.86,0.42 0.82,0.44 stroke #d4b880 0.8 width 2
+bezier 0.82,0.62 0.86,0.64 0.84,0.66 0.80,0.66 stroke #c4a870 0.75 width 2
+bezier 0.58,0.68 0.62,0.70 0.60,0.72 0.56,0.70 stroke #d4b880 0.75 width 2
+
+# === Small tool lying between the two projects (carving knife) ===
+rect 0.46,0.44 0.06,0.03 fill #888888 0.9
+rect 0.46,0.44 0.06,0.03 stroke #444444
+rect 0.48,0.47 0.04,0.08 fill #5c3a1e 0.9
+rect 0.48,0.47 0.04,0.08 stroke #2a1400

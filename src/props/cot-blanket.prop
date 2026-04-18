@@ -12,7 +12,7 @@ clusters_with: cradle, child-bed, wooden-toy
 notes: Small folded baby blanket in soft pink with embroidered star
 ---
 # === HITBOX ===
-hitbox rect 0.26,0.30 0.48,0.40 z 0-0.1
+selection rect 0.26,0.30 0.48,0.40
 
 # Outer folded fabric (slightly larger, under-layer)
 rect 0.24,0.28 0.52,0.44 texfill polyhaven/rough_linen 0.7

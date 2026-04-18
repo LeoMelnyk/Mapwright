@@ -1,0 +1,61 @@
+name: Shovel Leaning
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: wall
+room_types: graveyard-village, crypt, cemetery-keeper, gardener-shed, storeroom, tool-shed
+typical_count: single
+clusters_with: grave-mound, tombstone, tool-cart, barrel, crate
+notes: Shovel leaning against wall. Blade near north (wall), handle fading south. Angled slightly.
+---
+# === HITBOX ===
+selection poly 0.30,0.08 0.70,0.08 0.64,0.88 0.36,0.88
+
+# === Floor shadow / dirt trail below blade ===
+ellipse 0.60,0.84 0.18,0.04 fill #1a1008 0.35
+# Dirt bits scattered
+circle 0.42,0.84 0.015 fill #4a2800 0.8
+circle 0.68,0.88 0.012 fill #3a2000 0.7
+circle 0.74,0.80 0.010 fill #3a2000 0.7
+
+# === Wall shadow behind shaft (leaning away from wall) ===
+rect 0.42,0.20 0.14,0.66 fill #000000 0.15
+
+# === Blade (at north, rests against wall — spade shape) ===
+# Spade body
+poly 0.30,0.08 0.70,0.08 0.66,0.32 0.50,0.40 0.34,0.32 fill #777777 0.9
+poly 0.30,0.08 0.70,0.08 0.66,0.32 0.50,0.40 0.34,0.32 texfill polyhaven/metal_plate 0.7
+poly 0.30,0.08 0.70,0.08 0.66,0.32 0.50,0.40 0.34,0.32 stroke #333333
+# Blade midline (fold ridge)
+line 0.50,0.08 0.50,0.40 stroke #444444 0.7 width 1
+# Blade bright edge highlight
+line 0.30,0.08 0.70,0.08 stroke #aaaaaa 0.6 width 1
+# Dirt encrustation at blade tip
+ellipse 0.50,0.38 0.10,0.04 fill #3a2000 0.8
+ellipse 0.42,0.34 0.06,0.03 fill #4a2800 0.7
+
+# === Socket / collar where blade meets shaft ===
+rect 0.44,0.32 0.12,0.10 fill #555555 0.92
+rect 0.44,0.32 0.12,0.10 stroke #222222
+# Rivet
+circle 0.50,0.37 0.016 fill #888888 0.8
+
+# === Wooden shaft (running south, slightly angled toward viewer) ===
+# Shaft body
+poly 0.44,0.40 0.56,0.40 0.60,0.82 0.40,0.82 fill #4a2800 0.9
+poly 0.44,0.40 0.56,0.40 0.60,0.82 0.40,0.82 texfill polyhaven/dark_wood 0.75
+poly 0.44,0.40 0.56,0.40 0.60,0.82 0.40,0.82 stroke #1a0a00
+# Wood grain
+line 0.46,0.44 0.42,0.80 stroke #2a1400 0.6 width 1
+line 0.54,0.44 0.58,0.80 stroke #2a1400 0.6 width 1
+
+# === D-grip handle at south end ===
+# Yoke (two arms out)
+poly 0.40,0.82 0.60,0.82 0.62,0.88 0.38,0.88 fill #3a1f00 0.92
+poly 0.40,0.82 0.60,0.82 0.62,0.88 0.38,0.88 stroke #1a0a00
+# D-loop (rounded top)
+arc 0.50,0.90 0.12 0 180 stroke #3a1f00 width 4
+arc 0.50,0.90 0.12 0 180 stroke #1a0a00 width 2

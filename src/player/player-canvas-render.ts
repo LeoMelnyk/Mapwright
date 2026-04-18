@@ -8,7 +8,12 @@ import {
   renderLightmap,
   extractFillLights,
   renderTimings,
+  buildFluidComposite,
+  invalidateFluidCache,
+  FLUID_BASE_SKIP,
+  FLUID_TOP_SKIP,
 } from '../render/index.js';
+import { getCachedRoomCells } from '../render/render-cache.js';
 import { buildPlayerCells, filterStairsForPlayer, filterBridgesForPlayer, filterPropsForPlayer } from './fog.js';
 import playerState from './player-state.js';
 import {
@@ -246,6 +251,45 @@ function renderFallback(theme: Theme, gridSize: number, transform: RenderTransfo
     : null;
   const lightingEnabled = playerMetadata.lightingEnabled && playerMetadata.lights.length > 0;
 
+  // Pass 1: BASE phases (floors + blending) — fluid sits above this.
+  renderCells(ctx, playerCells, gridSize, theme, transform, {
+    showGrid: metadata.features.showGrid,
+    labelStyle: metadata.labelStyle,
+    propCatalog: null,
+    textureOptions: textureOptions as { catalog: TextureCatalog; blendWidth: number } | null,
+    metadata: playerMetadata as Metadata,
+    skipLabels: true,
+    bgImageEl: bgImageEl,
+    bgImgConfig: bgImgConfig as Record<string, string | number | boolean> | null,
+    skipPhases: { ...FLUID_BASE_SKIP },
+  });
+
+  // Fluid composite (water / lava / pit) between base and top phases —
+  // mirrors the MapCache z-order so huge-map fallback renders fluids
+  // correctly too.
+  invalidateFluidCache();
+  const numRows = playerCells.length;
+  const numCols = playerCells[0]?.length ?? 0;
+  if (numRows && numCols) {
+    const fluidCacheW = Math.ceil(numCols * gridSize * transform.scale);
+    const fluidCacheH = Math.ceil(numRows * gridSize * transform.scale);
+    const roomCells = getCachedRoomCells(playerCells);
+    const fluidComposite = buildFluidComposite(
+      playerCells,
+      roomCells,
+      gridSize,
+      theme,
+      transform.scale,
+      fluidCacheW,
+      fluidCacheH,
+      null,
+    );
+    if (fluidComposite) {
+      ctx.drawImage(fluidComposite, transform.offsetX, transform.offsetY);
+    }
+  }
+
+  // Pass 2: TOP phases (bridges + walls + grid + props + hazard).
   renderCells(ctx, playerCells, gridSize, theme, transform, {
     showGrid: metadata.features.showGrid,
     labelStyle: metadata.labelStyle,
@@ -253,8 +297,9 @@ function renderFallback(theme: Theme, gridSize: number, transform: RenderTransfo
     textureOptions: textureOptions as { catalog: TextureCatalog; blendWidth: number } | null,
     metadata: playerMetadata as Metadata,
     skipLabels: lightingEnabled,
-    bgImageEl: bgImageEl,
-    bgImgConfig: bgImgConfig as Record<string, string | number | boolean> | null,
+    bgImageEl: null,
+    bgImgConfig: null,
+    skipPhases: { ...FLUID_TOP_SKIP },
   });
 
   if (lightingEnabled) {

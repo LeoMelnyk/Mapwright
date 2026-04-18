@@ -11,6 +11,9 @@ typical_count: few
 clusters_with: forge, anvil, bellows
 notes: Large wooden bin heaped with coal; place near forge for fuel supply
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.15 0.80,0.70 z 0-2.5
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: wooden-plank rectangle with heaping black coal lumps above rim
 

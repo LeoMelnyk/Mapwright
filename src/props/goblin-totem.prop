@@ -1,0 +1,93 @@
+name: Goblin Totem
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: corner
+room_types: cave-goblin-warren, goblin-warren-entrance, orc-war-camp, cave-bandit-camp, monster-lair-small
+typical_count: few
+clusters_with: bone-totem-small, trash-heap, cage-wicker, skull-on-stick, bone-marker
+notes: Crude goblin totem pole — rough post topped with lashed skulls, bones, feathers, and bloody rags. Territory marker.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.16 z 0-3
+
+# Ground shadow (pole casts wide shadow since it's tall)
+circle 0.52,0.54 0.32 fill #000000 0.30
+circle 0.52,0.54 0.22 fill #000000 0.20
+
+# Outer aura of hanging things (feathers, rags, bones sticking out)
+# Rag 1 — tattered red cloth hanging NW
+poly 0.36,0.34 0.22,0.22 0.14,0.12 0.20,0.18 0.28,0.28 0.34,0.32 fill #6a1810 0.9
+poly 0.36,0.34 0.22,0.22 0.14,0.12 0.20,0.18 0.28,0.28 0.34,0.32 stroke #2a0808 width 1
+line 0.20,0.18 0.36,0.34 stroke #8a3020 0.7 width 1
+
+# Rag 2 — dark tattered cloth hanging SE
+poly 0.64,0.64 0.78,0.76 0.86,0.86 0.80,0.82 0.72,0.72 0.66,0.66 fill #3a1808 0.9
+poly 0.64,0.64 0.78,0.76 0.86,0.86 0.80,0.82 0.72,0.72 0.66,0.66 stroke #1a0804 width 1
+
+# Feather 1 — dark grey/black hanging N
+poly 0.48,0.34 0.44,0.22 0.42,0.10 0.48,0.16 0.52,0.16 0.58,0.10 0.56,0.22 0.52,0.34 fill #2a2218 0.92
+poly 0.48,0.34 0.44,0.22 0.42,0.10 0.48,0.16 0.52,0.16 0.58,0.10 0.56,0.22 0.52,0.34 stroke #0a0804 width 1
+line 0.50,0.10 0.50,0.32 stroke #0a0804 0.7 width 1
+
+# Feather 2 — dirty brown hanging E
+poly 0.66,0.48 0.78,0.44 0.90,0.42 0.84,0.48 0.84,0.52 0.90,0.58 0.78,0.56 0.66,0.52 fill #4a3828 0.92
+poly 0.66,0.48 0.78,0.44 0.90,0.42 0.84,0.48 0.84,0.52 0.90,0.58 0.78,0.56 0.66,0.52 stroke #1a1008 width 1
+line 0.90,0.50 0.66,0.50 stroke #2a1808 0.7 width 1
+
+# Crossbeam stick extending W (small branch with skull tied to it)
+line 0.36,0.50 0.12,0.50 stroke #3a1f00 width 3
+line 0.36,0.50 0.12,0.50 stroke #1a1008 width 1
+# Small skull on west crossbeam
+poly 0.10,0.46 0.14,0.44 0.18,0.44 0.20,0.46 0.18,0.52 0.14,0.54 0.10,0.52 fill #e8dcc8 0.95
+poly 0.10,0.46 0.14,0.44 0.18,0.44 0.20,0.46 0.18,0.52 0.14,0.54 0.10,0.52 stroke #6a5040 width 1
+# Eye sockets
+circle 0.13,0.48 0.014 fill #0a0400 0.95
+circle 0.17,0.48 0.014 fill #0a0400 0.95
+# Nasal hole
+poly 0.15,0.50 0.16,0.50 0.155,0.52 fill #0a0400 0.9
+# Tooth line
+line 0.12,0.52 0.18,0.52 stroke #6a5040 0.7 width 1
+
+# Small bone tied to totem (sticking S)
+line 0.50,0.64 0.50,0.82 stroke #d4c4a8 width 3
+line 0.50,0.64 0.50,0.82 stroke #8a7060 width 1
+circle 0.50,0.82 0.028 fill #e8dcc8 0.95
+circle 0.50,0.82 0.028 stroke #6a5040
+circle 0.50,0.64 0.022 fill #e8dcc8 0.9
+
+# Sinew/rope binding around post (concentric rough arcs)
+arc 0.5,0.5 0.18 0 360 stroke #8a6040 0.85 width 2
+arc 0.5,0.5 0.20 30 160 stroke #6a4028 0.75 width 1
+arc 0.5,0.5 0.20 200 330 stroke #6a4028 0.75 width 1
+arc 0.5,0.5 0.22 80 120 stroke #5a3020 0.6 width 1
+arc 0.5,0.5 0.22 260 300 stroke #5a3020 0.6 width 1
+
+# Wooden post cross-section (rough hewn — irregular square)
+poly 0.40,0.42 0.44,0.38 0.52,0.38 0.58,0.42 0.60,0.48 0.58,0.56 0.52,0.60 0.44,0.60 0.40,0.58 0.38,0.50 texfill polyhaven/dark_wood 0.9
+poly 0.40,0.42 0.44,0.38 0.52,0.38 0.58,0.42 0.60,0.48 0.58,0.56 0.52,0.60 0.44,0.60 0.40,0.58 0.38,0.50 fill #2a1400 0.4
+poly 0.40,0.42 0.44,0.38 0.52,0.38 0.58,0.42 0.60,0.48 0.58,0.56 0.52,0.60 0.44,0.60 0.40,0.58 0.38,0.50 stroke #1a0a00 width 2
+
+# Post grain cross (looking down the end of the pole)
+line 0.42,0.50 0.58,0.50 stroke #2a1400 0.6 width 1
+line 0.50,0.40 0.50,0.60 stroke #2a1400 0.55 width 1
+circle 0.50,0.50 0.03 fill #3a1f00 0.7
+circle 0.50,0.50 0.015 fill #1a0f00 0.8
+
+# Blood smear on post (ritual)
+bezier 0.42,0.42 0.46,0.38 0.52,0.40 0.58,0.44 stroke #4a0808 0.7 width 2
+ellipse 0.46,0.44 0.03,0.02 fill #4a0808 0.8
+
+# Small teeth threaded on a sinew hanging SW
+line 0.40,0.60 0.30,0.78 stroke #8a6040 0.8 width 1
+circle 0.32,0.72 0.014 fill #e8dcc8 0.9
+circle 0.30,0.76 0.012 fill #e8dcc8 0.85
+circle 0.28,0.80 0.012 fill #d4c4a8 0.8
+
+# Carved notches on the post (primitive tally marks)
+line 0.42,0.46 0.44,0.46 stroke #1a0f00 0.9 width 1
+line 0.42,0.48 0.44,0.48 stroke #1a0f00 0.9 width 1
+line 0.42,0.52 0.44,0.52 stroke #1a0f00 0.85 width 1

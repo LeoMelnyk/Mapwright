@@ -12,7 +12,7 @@ clusters_with: animal-tracks, dust-heap, puddle
 notes: Muddy boot prints on a clean floor — recent trespasser
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.18 0.76,0.64 z 0-0.01
+selection rect 0.12,0.18 0.76,0.64
 
 # Boot print 1 (mostly defined, walking north-south)
 # Sole main

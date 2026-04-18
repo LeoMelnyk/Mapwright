@@ -456,12 +456,17 @@ Cheap, structured queries for surveying a map without screenshots or N×M `getCe
 
 | Method | Args | Description |
 |--------|------|-------------|
-| `autofurnish` | `label, roomType, [{density, preferWall}]` | Catalog-driven prop placement: picks props whose `roomTypes` includes the given type (or `'any'`), groups by `placement`, and places a centerpiece + wall props + scattered floor props. `density: "sparse"\|"normal"\|"dense"`. Centerpiece is anchored to the room's actual cell-set centroid (not the bbox center) so L/U shaped rooms work correctly. Returns `{ placed: [{type,row,col,via}], skipped: [{type,via,reason}] }`. |
+| `autofurnish` | `label, roomType, [{density, preferWall}]` | Catalog-driven prop placement: picks props whose `roomTypes` includes the given type (or `'any'`), groups by `placement`, and places a centerpiece + wall props + scattered floor props. `density: "sparse"\|"normal"\|"dense"`. Centerpiece is anchored to the room's actual cell-set centroid (not the bbox center) so L/U shaped rooms work correctly. Returns `{ placed: [{type,row,col,via}], skipped: [{type,via,reason}], lightsAdded: [{id,preset,propRow,propCol,propType}] }`. |
 | `furnishBrief` | `{rooms: [{label, role, density?}]}` | Run `autofurnish` for many rooms in one call. Returns `{ rooms: [...], totals: {placed, skipped} }`. Per-room failures are recorded in the room's own result; the batch never throws. |
 
 ### Bulk placement feedback
 
-`fillWallWithProps`, `lineProps`, `scatterProps`, and `clusterProps` all return `{ success, placed, skipped }` where `skipped: [{ row, col, reason, code?, context? }]` reports every position that was attempted but couldn't take a prop. Reasons include `DOOR_HERE`, `OUT_OF_ROOM`, `OVERLAPS_PROP`, and `PLACE_FAILED: <message>`. `scatterProps` additionally returns `requested` (count asked for) and `available` (valid positions before filtering). `clusterProps` skipped entries include the prop type plus the `code`/`context` from the underlying `placeProp` failure.
+`fillWallWithProps`, `lineProps`, `scatterProps`, `clusterProps`, `autofurnish`, and `commitFurnishing` all return `{ success, placed, skipped, lightsAdded }`:
+
+- **`skipped: [{ row, col, code, reason, context? }]`** — every position that was attempted but couldn't take a prop. `code` is machine-readable, `reason` is the same string (kept for backward compat), `context` carries structured diagnostics. Codes: `OVERLAPS_PROP`, `OUT_OF_ROOM`, `DOOR_HERE`, `DOOR_APPROACH`, `CELL_VOID`, `PLACE_FAILED`.
+- **`lightsAdded: [{ id, preset, propRow, propCol, propType }]`** — every auto-attached light emitted by a placed prop, with attribution. Use this to budget light count across a wall-fill or furnish call without re-querying by propRef.
+- `scatterProps` additionally returns `requested` (count asked for) and `available` (valid positions before filtering). It skips door cells and door-approach cells by default (`options.avoidDoors = true`); set `avoidDoors: false` for intentional door-cell placement (traps, pressure plates).
+- `clusterProps` skipped entries include the prop `type` alongside the standard fields.
 
 ### Annotated screenshots
 
@@ -525,10 +530,13 @@ node tools/puppeteer-bridge.js --load map.json \
 
 | Method | Args | Description |
 |--------|------|-------------|
-| `placeProp` | `row, col, propType, [facing=0]` | Place prop at anchor cell. Facing: `0`, `90`, `180`, `270` |
+| `placeProp` | `row, col, propType, [facing=0], [options]` | Place prop at anchor cell. Facing: `0`/`90`/`180`/`270`. Options: `{ scale, flipped, x, y, zIndex, allowOverlap }` — scale 0.25–4.0, `x`/`y` for freeform world-feet placement, `allowOverlap` permits stacking. Returns `{ success, warnings?, lightsAdded? }` where `lightsAdded: [{id, preset}]` for auto-emitted lights |
 | `removeProp` | `row, col` | Remove prop from anchor cell |
 | `removePropAt` | `row, col` | Remove the prop whose anchor is exactly (row, col). Returns `{ success: false }` if no prop there |
-| `rotateProp` | `row, col` | Rotate prop 90° clockwise |
+| `rotateProp` | `row, col, [degrees=90]` | Rotate prop by delta (positive = CW). Preserves visible anchor for non-square props |
+| `setPropRotation` | `row, col, degrees` | Set prop rotation to an absolute angle (0–359). Preserves visible anchor |
+| `flipProp` | `row, col` | Toggle the `flipped` (mirrored) flag |
+| `movePropInCells` | `row, col, dr, dc` | Move the prop at (row, col) by (dr, dc) cells. Linked lights follow. Throws `OUT_OF_BOUNDS` / `CELL_VOID` if destination is invalid |
 | `listProps` | — | Returns `{ categories, props: { [name]: { name, category, footprint, facing, placement, roomTypes, typicalCount, clustersWith, notes } } }` |
 | `getPropsForRoomType` | `roomType` | Return all props tagged for a room type (e.g. `"library"`, `"forge"`). Returns `{ success, props: [...] }` |
 | `removePropsInRect` | `r1, c1, r2, c2` | Remove all props with anchor cells in rectangle. Returns `{ success, removed }` |
@@ -819,7 +827,7 @@ All 16 available themes:
 
 ## Prop Catalog
 
-Footprint is **W×H** (width × height in cells). Facing props rotate with the `facing` argument to `placeProp`. Use `listProps()` for the definitive runtime list.
+Footprint is **R×C** (rows × cols in cells) — see the full convention note above. Facing props rotate with the `facing` argument to `placeProp`. Use `listProps()` for the definitive runtime list.
 
 ### Combat
 | Name | Display | Footprint | Facing |

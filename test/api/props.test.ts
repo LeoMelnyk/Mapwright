@@ -23,6 +23,7 @@ import {
 import { createRoom } from '../../src/editor/js/api/cells.js';
 import { setLabel } from '../../src/editor/js/api/labels.js';
 import { setDoor } from '../../src/editor/js/api/walls-doors.js';
+import { visibleAnchorOf } from '../../src/editor/js/prop-overlay.js';
 
 // ── Setup ────────────────────────────────────────────────────────────────────
 
@@ -92,14 +93,17 @@ function paintCells(r1, c1, r2, c2) {
   }
 }
 
-/** Find overlay prop at grid position. */
+/** Find overlay prop by visible anchor (row, col). Handles the 90°/270° data-anchor shift. */
 function findOverlay(row, col) {
   const meta = state.dungeon.metadata;
   if (!meta?.props) return null;
   const gs = meta.gridSize || 5;
-  const x = col * gs,
-    y = row * gs;
-  return meta.props.find((p) => Math.abs(p.x - x) < 0.01 && Math.abs(p.y - y) < 0.01) ?? null;
+  for (const p of meta.props) {
+    const def = state.propCatalog?.props[p.type];
+    const vis = visibleAnchorOf(p, def, gs);
+    if (vis.row === row && vis.col === col) return p;
+  }
+  return null;
 }
 
 // ── placeProp ────────────────────────────────────────────────────────────────

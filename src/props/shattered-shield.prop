@@ -1,0 +1,103 @@
+name: Shattered Shield
+category: Combat
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: boss-chamber, battlefield-recent, ruin, dungeon, corrupted-temple, ancient-tomb
+typical_count: single
+clusters_with: weapon-stuck, arrow-broken, corpse, shield-broken, bone-pile, helmet-fallen
+notes: Wooden shield splintered apart, with a major crack running through. Splinters scattered around the main body. More destroyed than shield-broken.
+---
+# === HITBOX ===
+selection rect 0.10,0.10 0.80,0.80
+
+# Faint dust halo
+ellipse 0.50,0.60 0.34,0.10 fill #1a1008 0.2
+
+# === Main shield body — shattered into two halves ===
+# Upper half (intact fragment)
+poly 0.15,0.20 0.48,0.20 0.52,0.28 0.46,0.42 0.38,0.48 0.22,0.42 0.12,0.32 texfill polyhaven/weathered_planks 0.9
+poly 0.15,0.20 0.48,0.20 0.52,0.28 0.46,0.42 0.38,0.48 0.22,0.42 0.12,0.32 fill #6b4e2e 0.35
+poly 0.15,0.20 0.48,0.20 0.52,0.28 0.46,0.42 0.38,0.48 0.22,0.42 0.12,0.32 stroke #2a1400 width 2
+
+# Lower half (more broken)
+poly 0.52,0.28 0.68,0.22 0.82,0.32 0.86,0.48 0.76,0.62 0.58,0.66 0.44,0.58 0.40,0.48 0.46,0.42 texfill polyhaven/weathered_planks 0.9
+poly 0.52,0.28 0.68,0.22 0.82,0.32 0.86,0.48 0.76,0.62 0.58,0.66 0.44,0.58 0.40,0.48 0.46,0.42 fill #6b4e2e 0.35
+poly 0.52,0.28 0.68,0.22 0.82,0.32 0.86,0.48 0.76,0.62 0.58,0.66 0.44,0.58 0.40,0.48 0.46,0.42 stroke #2a1400 width 2
+
+# === Major crack / gap between halves (dark line showing floor below) ===
+poly 0.46,0.42 0.52,0.28 0.44,0.38 0.38,0.48 0.40,0.48 fill #0a0604 0.9
+poly 0.46,0.42 0.52,0.28 0.44,0.38 0.38,0.48 0.40,0.48 stroke #000000 width 1
+
+# === Shield face paint (faded heraldry fragments) ===
+# Remaining red cross on upper half
+rect 0.24,0.22 0.18,0.06 fill #8b2030 0.5
+rect 0.24,0.22 0.18,0.06 stroke #400810 0.6
+# Remaining blue field on lower half
+poly 0.56,0.32 0.78,0.34 0.80,0.48 0.72,0.58 0.58,0.56 fill #1848a0 0.35
+
+# === Shield rim — partially intact ===
+bezier 0.15,0.20 0.32,0.16 0.48,0.18 0.48,0.20 stroke #444444 width 2
+bezier 0.52,0.28 0.58,0.22 0.68,0.20 0.68,0.22 stroke #444444 width 2
+bezier 0.82,0.32 0.86,0.40 0.84,0.48 0.82,0.50 stroke #444444 width 2
+
+# === Shield boss (central metal dome — cracked) ===
+circle 0.45,0.38 0.07 fill #666666 0.6
+circle 0.45,0.38 0.07 stroke #333333 width 1
+# Boss split
+line 0.42,0.34 0.48,0.44 stroke #0a0604 width 2
+circle 0.45,0.38 0.025 fill #222222 0.8
+
+# === Splintered wood pieces scattered around ===
+# Splinter NW
+poly 0.14,0.12 0.22,0.10 0.20,0.14 fill #6b4e2e 0.9
+poly 0.14,0.12 0.22,0.10 0.20,0.14 stroke #2a1400 width 1
+# Splinter N
+poly 0.48,0.08 0.52,0.06 0.54,0.12 0.50,0.14 fill #6b4e2e 0.9
+poly 0.48,0.08 0.52,0.06 0.54,0.12 0.50,0.14 stroke #2a1400 width 1
+# Splinter NE
+poly 0.78,0.14 0.86,0.12 0.84,0.18 0.80,0.20 fill #6b4e2e 0.9
+poly 0.78,0.14 0.86,0.12 0.84,0.18 0.80,0.20 stroke #2a1400 width 1
+# Splinter SW
+poly 0.14,0.62 0.20,0.60 0.22,0.68 0.16,0.70 fill #6b4e2e 0.9
+poly 0.14,0.62 0.20,0.60 0.22,0.68 0.16,0.70 stroke #2a1400 width 1
+# Splinter S
+poly 0.46,0.76 0.54,0.74 0.52,0.82 0.48,0.84 fill #6b4e2e 0.9
+poly 0.46,0.76 0.54,0.74 0.52,0.82 0.48,0.84 stroke #2a1400 width 1
+# Splinter SE
+poly 0.72,0.74 0.82,0.72 0.78,0.80 0.74,0.82 fill #6b4e2e 0.9
+poly 0.72,0.74 0.82,0.72 0.78,0.80 0.74,0.82 stroke #2a1400 width 1
+
+# Long splinter
+line 0.30,0.70 0.14,0.80 stroke #6b4e2e width 3
+line 0.30,0.70 0.14,0.80 stroke #3a2010 width 1
+
+# === Rivets scattered (some popped loose) ===
+circle 0.20,0.24 0.015 fill #888888 0.7
+circle 0.40,0.22 0.015 fill #888888 0.7
+circle 0.70,0.26 0.015 fill #888888 0.7
+circle 0.80,0.50 0.015 fill #888888 0.6
+# Loose rivet (away from shield)
+circle 0.10,0.50 0.015 fill #888888 0.8
+circle 0.10,0.50 0.015 stroke #444444
+circle 0.88,0.68 0.015 fill #888888 0.8
+circle 0.88,0.68 0.015 stroke #444444
+
+# Cracks running through surface
+line 0.20,0.28 0.40,0.40 stroke #0a0604 0.8 width 2
+line 0.60,0.30 0.72,0.50 stroke #0a0604 0.7 width 2
+line 0.56,0.44 0.72,0.58 stroke #0a0604 0.6 width 1
+
+# Battle dents
+ellipse 0.32,0.32 0.04,0.025 fill #444444 0.35
+ellipse 0.68,0.42 0.03,0.025 fill #444444 0.3
+
+# Rust staining
+ellipse 0.50,0.52 0.08,0.04 fill #5a3a1a 0.25
+ellipse 0.24,0.38 0.05,0.03 fill #5a3a1a 0.2
+
+# Blood smear (battle damage)
+bezier 0.40,0.30 0.50,0.36 0.60,0.44 0.72,0.50 stroke #4a0810 0.4 width 2

@@ -1,0 +1,50 @@
+name: Cauldron
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: floor
+room_types: kitchen, alchemy-lab, cabin-witch, bog-witch-hut, tavern-common, mess-hall, ritual-chamber-dark
+typical_count: single
+clusters_with: cauldron-small, cauldron-large, fireplace, brazier, tripod-stand, herb-drying-rack, dried-herbs, fire-pit
+notes: Mid-size iron cauldron — between cauldron-small (witch pot) and cauldron-large (feast pot). Generic; place near a hearth or cooking fire.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.42
+
+# Three short legs peeking past the pot rim (drawn first, behind pot)
+circle 0.22,0.84 0.06 fill #2a2a2a 0.85
+circle 0.22,0.84 0.06 stroke #111111
+circle 0.78,0.84 0.06 fill #2a2a2a 0.85
+circle 0.78,0.84 0.06 stroke #111111
+circle 0.50,0.90 0.06 fill #2a2a2a 0.85
+circle 0.50,0.90 0.06 stroke #111111
+
+# Outer iron body
+circle 0.50,0.50 0.42 texfill polyhaven/rusty_metal_02 0.85
+circle 0.50,0.50 0.42 stroke #1a1a1a
+
+# Heavy iron rim band
+circle 0.50,0.50 0.40 stroke #3a3a3a width 3
+
+# Inner cavity
+circle 0.50,0.50 0.34 fill #1a0a0a 0.95
+circle 0.50,0.50 0.34 stroke #0a0404
+
+# Simmering broth surface (warm brown)
+circle 0.50,0.50 0.29 fill #5a3a1e 0.9
+circle 0.50,0.50 0.29 stroke #2a1a0a
+
+# Sheen highlight on the surface
+ellipse 0.50,0.42 0.16,0.06 fill #8a5a2e 0.4
+
+# A couple of rising bubbles
+circle 0.38,0.46 0.03 fill #9a6a3e 0.8
+circle 0.38,0.46 0.03 stroke #2a1a0a
+circle 0.60,0.56 0.025 fill #8a5a2e 0.75
+circle 0.60,0.56 0.025 stroke #2a1a0a
+
+# Tiny steam wisp
+arc 0.44,0.34 0.06 180 360 stroke #dddddd 0.25 width 1

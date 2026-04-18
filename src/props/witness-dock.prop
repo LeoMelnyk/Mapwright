@@ -1,0 +1,88 @@
+name: Witness Dock
+category: Courthouse
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.1
+placement: center
+room_types: courthouse-chamber, tribunal, inquisitor-hall, hall-of-judgment
+typical_count: few
+clusters_with: prisoner-dock, judges-bench, chair-wooden, bible-stand, scroll-rack
+notes: Small railed witness stand. Narrower than prisoner dock — one person stands behind a railing facing judges. Opening on south.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+
+# === HITBOX ===
+selection rect 0.16,0.12 1.68,0.10
+selection rect 0.16,0.12 0.10,0.76
+selection rect 1.74,0.12 0.10,0.76
+
+# === Interior floor (where witness stands) ===
+rect 0.26,0.22 1.48,0.68 texfill polyhaven/worn_planks 0.75
+rect 0.26,0.22 1.48,0.68 fill #2a1808 0.12
+rect 0.26,0.22 1.48,0.68 stroke #3a1f00
+# Floor plank lines
+line 0.26,0.50 1.74,0.50 stroke #2a1400 0.5
+line 0.26,0.70 1.74,0.70 stroke #2a1400 0.5
+
+# === Worn spot in center (where witness stands) ===
+ellipse 1.00,0.58 0.24,0.12 fill #1a0a00 0.22
+
+# === North (back) rail ===
+rect 0.16,0.12 1.68,0.10 texfill polyhaven/dark_wood 0.92
+rect 0.16,0.12 1.68,0.10 stroke #1a0a00
+# North rail spindles (visible below rail)
+line 0.32,0.22 0.32,0.32 stroke #3a1f00 width 2
+line 0.52,0.22 0.52,0.32 stroke #3a1f00 width 2
+line 0.72,0.22 0.72,0.32 stroke #3a1f00 width 2
+line 0.92,0.22 0.92,0.32 stroke #3a1f00 width 2
+line 1.12,0.22 1.12,0.32 stroke #3a1f00 width 2
+line 1.32,0.22 1.32,0.32 stroke #3a1f00 width 2
+line 1.52,0.22 1.52,0.32 stroke #3a1f00 width 2
+line 1.72,0.22 1.72,0.32 stroke #3a1f00 width 2
+
+# === West rail ===
+rect 0.16,0.12 0.10,0.76 texfill polyhaven/dark_wood 0.92
+rect 0.16,0.12 0.10,0.76 stroke #1a0a00
+line 0.26,0.34 0.38,0.34 stroke #3a1f00 width 2
+line 0.26,0.54 0.38,0.54 stroke #3a1f00 width 2
+line 0.26,0.74 0.38,0.74 stroke #3a1f00 width 2
+
+# === East rail ===
+rect 1.74,0.12 0.10,0.76 texfill polyhaven/dark_wood 0.92
+rect 1.74,0.12 0.10,0.76 stroke #1a0a00
+line 1.62,0.34 1.74,0.34 stroke #3a1f00 width 2
+line 1.62,0.54 1.74,0.54 stroke #3a1f00 width 2
+line 1.62,0.74 1.74,0.74 stroke #3a1f00 width 2
+
+# === Top rail (like a lectern rim along the north inside edge — witness leans here) ===
+rect 0.20,0.22 1.60,0.04 fill #3a1f00 0.85
+rect 0.20,0.22 1.60,0.04 texfill polyhaven/dark_wood 0.7
+rect 0.20,0.22 1.60,0.04 stroke #1a0a00
+
+# === Corner posts ===
+rect 0.12,0.08 0.16,0.16 texfill polyhaven/dark_wood 0.95
+rect 0.12,0.08 0.16,0.16 stroke #1a0a00
+circle 0.20,0.16 0.020 fill #555555 0.8
+
+rect 1.72,0.08 0.16,0.16 texfill polyhaven/dark_wood 0.95
+rect 1.72,0.08 0.16,0.16 stroke #1a0a00
+circle 1.80,0.16 0.020 fill #555555 0.8
+
+rect 0.12,0.84 0.16,0.14 texfill polyhaven/dark_wood 0.95
+rect 0.12,0.84 0.16,0.14 stroke #1a0a00
+circle 0.20,0.90 0.020 fill #555555 0.8
+
+rect 1.72,0.84 0.16,0.14 texfill polyhaven/dark_wood 0.95
+rect 1.72,0.84 0.16,0.14 stroke #1a0a00
+circle 1.80,0.90 0.020 fill #555555 0.8
+
+# === Bible/oath book on lectern rim (small detail at center of north rail) ===
+rect 0.88,0.24 0.24,0.06 fill #4a0000 0.9
+rect 0.88,0.24 0.24,0.06 stroke #1a0000
+# Gilt edge on book
+line 0.88,0.28 1.12,0.28 stroke #daa520 0.8 width 1
+# Cross/symbol on cover
+line 1.00,0.25 1.00,0.29 stroke #daa520 0.9 width 1
+line 0.98,0.27 1.02,0.27 stroke #daa520 0.9 width 1

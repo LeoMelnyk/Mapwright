@@ -9,14 +9,7 @@ placement: center
 room_types: foundry-great, infernal-forge, smithy-large
 typical_count: single
 clusters_with: ladle-iron, casting-pit, ingot-stack, slag-heap, overhead-crane
-lights:
-  - type: brazier
-    x: 1.0
-    y: 1.0
-    radius: 10
-    color: "#ff5520"
-    intensity: 0.85
-    falloff: linear
+lights: [{"preset":"forge","x":1,"y":1,"radius":10,"intensity":0.85,"color":"#ff5520","falloff":"linear"}]
 notes: Towering industrial blast furnace — outer brick ring, iron band, molten fire core looking straight down the stack. Tuyère on one side, slag runnel opposite. Cluster with ladle-iron, casting-pit and overhead-crane.
 ---
 # === HITBOX ===

@@ -10,13 +10,7 @@ room_types: mansion-ballroom, mansion-grand-hall, throne-room
 typical_count: single
 clusters_with: candelabra-tall, banner-heraldic
 notes: Massive ornate hanging chandelier with concentric rings of candles and crystal prisms. Viewed from below looking up — shadow omitted because it hangs overhead. Implies a tall, grand ceiling.
-lights:
-  - type: brazier
-    x: 1.0
-    y: 1.0
-    radius: 22
-    color: "#ffcc66"
-    intensity: 1.0
+lights: [{"preset":"candle","x":1,"y":1,"radius":22,"intensity":1,"color":"#ffcc66"}]
 ---
 # footprint 2x2: x range 0-2, y range 0-2
 # Ambient golden halo (overall light bloom from many candles)

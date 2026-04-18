@@ -1,7 +1,22 @@
-import type { BackgroundImage, CellGrid, Theme, RenderTransform, Metadata, VisibleBounds, PropCatalog, TextureCatalog } from '../types.js';
+import type {
+  BackgroundImage,
+  CellGrid,
+  Theme,
+  RenderTransform,
+  Metadata,
+  VisibleBounds,
+  PropCatalog,
+  TextureCatalog,
+} from '../types.js';
 import { _t } from './render-state.js';
 import { getCachedRoomCells, withTrimVoidClip } from './render-cache.js';
-import { renderFloors, renderTextureBlending, renderFillPatternsAndGrid, renderHazardOverlay, renderWallsAndBorders, renderLabelsStairsProps } from './render-phases.js';
+import {
+  renderFloors,
+  renderTextureBlending,
+  renderHazardOverlay,
+  renderWallsAndBorders,
+  renderLabelsStairsProps,
+} from './render-phases.js';
 import { drawMatrixGrid } from './decorations.js';
 import { renderAllBridges } from './bridges.js';
 import { drawHatching, drawRockShading, drawOuterShading } from './effects.js';
@@ -29,9 +44,17 @@ interface RenderCellsOptions {
   visibleBounds?: VisibleBounds | null;
   cacheSize?: { w: number; h: number; scale?: number } | null;
   skipPhases?: Record<string, boolean> | null;
+  dirtyRegion?: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null;
 }
 
-export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, gridSize: number, theme: Theme, transform: RenderTransform, options: RenderCellsOptions = {}): void {
+export function renderCells(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  options: RenderCellsOptions = {},
+): void {
   const {
     showGrid = false,
     labelStyle = 'circled',
@@ -43,8 +66,9 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
     bgImageEl = null,
     bgImgConfig = null,
     visibleBounds = null,
-    cacheSize = null,  // { w, h } — when set, enables per-phase render layer caching
-    skipPhases = null,  // { shading, floors, blending, fills, walls, props, ... } — debug skip flags
+    cacheSize = null, // { w, h } — when set, enables per-phase render layer caching
+    skipPhases = null, // { shading, floors, blending, fills, walls, props, ... } — debug skip flags
+    dirtyRegion = null,
   } = options;
   const roomCells = _t('roomCells', () => getCachedRoomCells(cells));
 
@@ -55,7 +79,7 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
   if (!skipPhases?.shading) {
     _t('shading', () => {
       if (!skipPhases?.outerShading) {
-        drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res);
+        drawOuterShading(ctx, cells, roomCells, gridSize, theme, transform, _res, dirtyRegion);
       }
       if (!skipPhases?.hatching) {
         drawHatching(ctx, cells, roomCells, gridSize, theme, transform);
@@ -66,7 +90,9 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
   if (!skipPhases?.floors) {
     _t('floors', () => {
       hasTexturedCells = renderFloors(
-        ctx, cells, roomCells,
+        ctx,
+        cells,
+        roomCells,
         { gridSize, theme, transform },
         { textureOptions, bgImageEl, bgImgConfig, visibleBounds, resolution: _res },
       );
@@ -82,16 +108,19 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
     });
   }
 
-  // Fill patterns (pit/water/lava)
-  if (!skipPhases?.fills) {
-    _t('fills', () => renderFillPatternsAndGrid(ctx, cells, roomCells, gridSize, theme, transform, showGrid, true, metadata, cacheSize));
-  }
+  // Fluid fills (water/lava/pit) are NOT drawn here anymore — they live in
+  // a dedicated composite sublayer so fluid-only theme edits don't require
+  // rebuilding the cells canvas. See MapCache `_ensureFluidComposite` and
+  // `buildFluidComposite` in fluid.ts.
 
   // ── Bridges, grid, hatching, walls ──────────
   if (!skipPhases?.bridges) {
     _t('bridges', () => {
       const getTextureImageForBridges = textureOptions?.catalog
-        ? (id: string) => { const e = textureOptions.catalog.textures[id]; return e?.img && ((e.img as HTMLImageElement).complete) ? e.img : null; }
+        ? (id: string) => {
+            const e = textureOptions.catalog.textures[id];
+            return e?.img && (e.img as HTMLImageElement).complete ? e.img : null;
+          }
         : null;
       renderAllBridges(ctx, metadata?.bridges, gridSize, theme, transform, getTextureImageForBridges);
     });
@@ -108,12 +137,29 @@ export function renderCells(ctx: CanvasRenderingContext2D, cells: CellGrid, grid
   }
 
   if (!skipPhases?.walls) {
-    _t('walls', () => renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible, visibleBounds, _res));
+    _t('walls', () =>
+      renderWallsAndBorders(ctx, cells, roomCells, gridSize, theme, transform, showInvisible, visibleBounds, _res),
+    );
   }
 
   // Props, labels, stairs
   if (!skipPhases?.props) {
-    _t('props', () => renderLabelsStairsProps(ctx, cells, gridSize, theme, transform, labelStyle, propCatalog, textureOptions, metadata, skipLabels, visibleBounds, cacheSize));
+    _t('props', () =>
+      renderLabelsStairsProps(
+        ctx,
+        cells,
+        gridSize,
+        theme,
+        transform,
+        labelStyle,
+        propCatalog,
+        textureOptions,
+        metadata,
+        skipLabels,
+        visibleBounds,
+        cacheSize,
+      ),
+    );
   }
 
   // Hazard overlay — topmost layer, renders above everything

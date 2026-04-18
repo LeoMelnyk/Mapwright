@@ -12,7 +12,7 @@ clusters_with: log-book, spyglass, desk, compass, ink-pot
 notes: Rolled-up nautical or treasure chart — tied scroll lying on surface
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.38 0.80,0.24 z 0-0.15
+selection rect 0.10,0.38 0.80,0.24
 
 # Scroll body (elongated cylinder from above — tan paper)
 ellipse 0.50,0.50 0.40,0.12 fill #e8dcc8 0.92

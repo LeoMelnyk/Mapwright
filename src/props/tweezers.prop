@@ -1,0 +1,53 @@
+name: Tweezers
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.04
+placement: floor
+room_types: shop-jeweler, alchemy-lab, apothecary, healers-den, scriptorium-mundane, investigator-office
+typical_count: few
+clusters_with: magnifier, gemstone-scatter, desk, ink-stone
+notes: Fine brass jeweler's tweezers lying on a flat surface; two tapered prongs joined at a hinge
+---
+# === HITBOX ===
+selection rect 0.22,0.26 0.56,0.48
+
+# Hinge head (north end — where the two prongs meet)
+ellipse 0.50,0.28 0.06,0.04 fill #daa520 0.95
+ellipse 0.50,0.28 0.06,0.04 stroke #5a3a00 width 2
+# Hinge pin dot
+circle 0.50,0.28 0.012 fill #5a3a00 0.9
+
+# Left prong (thin tapered strip from hinge to tip — slight outward curve)
+bezier 0.46,0.30 0.40,0.46 0.34,0.60 0.28,0.74 stroke #daa520 width 3
+bezier 0.46,0.30 0.40,0.46 0.34,0.60 0.28,0.74 stroke #5a3a00 0.85 width 2
+
+# Right prong (mirror of left)
+bezier 0.54,0.30 0.60,0.46 0.66,0.60 0.72,0.74 stroke #daa520 width 3
+bezier 0.54,0.30 0.60,0.46 0.66,0.60 0.72,0.74 stroke #5a3a00 0.85 width 2
+
+# Left prong highlight (brass shine)
+bezier 0.45,0.30 0.39,0.46 0.33,0.60 0.27,0.74 stroke #ffd700 0.55 width 1
+
+# Right prong highlight
+bezier 0.55,0.30 0.61,0.46 0.67,0.60 0.73,0.74 stroke #ffd700 0.55 width 1
+
+# Prong tips (fine pointed ends — tiny darker dots)
+circle 0.28,0.74 0.014 fill #5a3a00 0.95
+circle 0.72,0.74 0.014 fill #5a3a00 0.95
+
+# Tip fine points
+line 0.27,0.74 0.26,0.76 stroke #5a3a00 width 1
+line 0.73,0.74 0.74,0.76 stroke #5a3a00 width 1
+
+# Decorative groove on each prong (thin parallel line)
+bezier 0.44,0.34 0.38,0.48 0.32,0.60 0.28,0.70 stroke #3a2400 0.5 width 1
+bezier 0.56,0.34 0.62,0.48 0.68,0.60 0.72,0.70 stroke #3a2400 0.5 width 1
+
+# Small grip ridges near the hinge (crosshatch for finger grip)
+line 0.44,0.38 0.46,0.40 stroke #3a2400 0.7 width 1
+line 0.44,0.42 0.46,0.44 stroke #3a2400 0.7 width 1
+line 0.54,0.38 0.56,0.40 stroke #3a2400 0.7 width 1
+line 0.54,0.42 0.56,0.44 stroke #3a2400 0.7 width 1

@@ -1,5 +1,5 @@
 name: Dried Herbs
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: yes
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: onion-braid, shelf-open, ingredient-rack, hanging-meat, cauldron
 notes: Bundle of dried herbs hanging from the wall/ceiling for drying
 ---
 # === HITBOX ===
-hitbox rect 0.30,0.08 0.40,0.76 z 0-1
+selection rect 0.30,0.08 0.40,0.76
 
 # Twine hanger
 line 0.40,0.08 0.60,0.08 stroke #6b4e2e width 2

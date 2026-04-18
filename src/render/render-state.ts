@@ -1,6 +1,8 @@
 // ── Render performance profiling ────────────────────────────────────────────
 // Populated by renderCells on each frame. Read by canvas-view diagnostics overlay.
 
+import { log } from '../util/index.js';
+
 interface TimingEntry {
   ms: number;
   frame: number;
@@ -14,12 +16,16 @@ let _timingFrame: number = 0;
  * Increment the timing frame counter.
  * @returns {number} The new frame number
  */
-export function bumpTimingFrame(): number { return ++_timingFrame; }
+export function bumpTimingFrame(): number {
+  return ++_timingFrame;
+}
 /**
  * Get the current timing frame counter.
  * @returns {number} Current frame number
  */
-export function getTimingFrame(): number { return _timingFrame; }
+export function getTimingFrame(): number {
+  return _timingFrame;
+}
 
 /**
  * Time a function and record its duration in renderTimings.
@@ -43,22 +49,31 @@ let _geometryVersion: number = 0; // bumped only on void↔floor transitions (ne
  * Get the current content mutation version counter.
  * @returns {number} Content version
  */
-export function getContentVersion(): number { return _contentVersion; }
+export function getContentVersion(): number {
+  return _contentVersion;
+}
 /**
  * Get the current geometry version counter (void/floor transitions only).
  * @returns {number} Geometry version
  */
-export function getGeometryVersion(): number { return _geometryVersion; }
+export function getGeometryVersion(): number {
+  return _geometryVersion;
+}
 /**
  * Increment the content version counter.
  * @returns {void}
  */
-export function bumpContentVersion(): void { _contentVersion++; }
+export function bumpContentVersion(): void {
+  _contentVersion++;
+  log.devTrace(`bumpContentVersion → ${_contentVersion}`);
+}
 /**
  * Internal: bump geometry version from render-cache.js smartInvalidate.
  * @returns {void}
  */
-export function _bumpGeometryVersion(): void { _geometryVersion++; }
+export function _bumpGeometryVersion(): void {
+  _geometryVersion++;
+}
 
 // ─── Dirty region tracking ─────
 // Accumulated bounding rect of cells changed since the last cache rebuild.

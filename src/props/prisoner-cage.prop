@@ -12,7 +12,7 @@ clusters_with: bone-pile, bloodstain, chieftains-throne
 notes: Crude wood-and-iron prisoner cage with cowering figure inside. Door faces south. Bars cast minimal shadow (open cage).
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.18 1.64,1.64 z 0-1.8
+selection rect 0.18,0.18 1.64,1.64
 
 # Cage floor (dark, soiled)
 rect 0.20,0.20 1.60,1.60 texfill polyhaven/weathered_planks 0.75

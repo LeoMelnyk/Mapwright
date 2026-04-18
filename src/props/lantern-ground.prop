@@ -9,13 +9,7 @@ room_types: campsite-traveler, ranger-camp, cabin-hunters, scouts-blind, cave-ba
 typical_count: few
 clusters_with: bedroll, tent, map-pinned, gear-pack
 notes: Small tin lantern sitting on dirt, casting a dim warm amber glow — travelers set these at camp perimeter
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 5
-    color: "#e8a030"
-    intensity: 0.4
+lights: [{"preset":"lantern","x":0.5,"y":0.5,"radius":5,"intensity":0.4,"color":"#e8a030"}]
 ---
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: small tin lantern on ground, warm light spilling out

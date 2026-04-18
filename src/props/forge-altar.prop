@@ -1,0 +1,147 @@
+name: Forge Altar
+category: Religious
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2
+placement: center
+room_types: temple-of-craft, shrine-artisan, dwarf-temple
+typical_count: single
+clusters_with: anvil, ingot-stack, hammer, candle-cluster, offering-bowl
+lights: [{"preset":"forge","x":0.5,"y":0.5,"radius":6,"intensity":0.5,"color":"#ffaa00"},{"preset":"forge","x":1.5,"y":0.5,"radius":6,"intensity":0.5,"color":"#ffaa00"}]
+notes: Ceremonial anvil-altar — stone pedestal with a polished anvil at its center, ringed by offerings (ingots, candles, tools). Centerpiece of a crafting temple.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-2
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: square stone pedestal, anvil on top center, offerings around the rim
+
+# === Stone pedestal base (outermost, widest) ===
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/granite_tile 0.85
+rect 0.08,0.08 1.84,1.84 fill #4a4238 0.3
+rect 0.08,0.08 1.84,1.84 stroke #2a2420 width 2
+
+# Carved corner plinths (slightly raised)
+rect 0.08,0.08 0.24,0.24 fill #6a6058 0.55
+rect 0.08,0.08 0.24,0.24 stroke #2a2420
+rect 1.68,0.08 0.24,0.24 fill #6a6058 0.55
+rect 1.68,0.08 0.24,0.24 stroke #2a2420
+rect 0.08,1.68 0.24,0.24 fill #6a6058 0.55
+rect 0.08,1.68 0.24,0.24 stroke #2a2420
+rect 1.68,1.68 0.24,0.24 fill #6a6058 0.55
+rect 1.68,1.68 0.24,0.24 stroke #2a2420
+
+# === Inset upper tier (polished marble) ===
+rect 0.28,0.28 1.44,1.44 texfill polyhaven/marble_01 0.85
+rect 0.28,0.28 1.44,1.44 stroke #2a2420 width 1
+# Marble surface sheen
+rect 0.30,0.30 1.40,1.40 stroke #a09888 0.45
+
+# === Carved runes on the marble (crafting symbols around the edge) ===
+# North edge runes
+line 0.50,0.34 0.54,0.40 stroke #5c3a1e 0.85 width 1
+line 0.54,0.34 0.50,0.40 stroke #5c3a1e 0.85 width 1
+circle 0.75,0.37 0.015 fill #5c3a1e 0.85
+line 1.00,0.34 1.00,0.40 stroke #5c3a1e 0.85 width 1
+line 0.97,0.37 1.03,0.37 stroke #5c3a1e 0.85 width 1
+circle 1.25,0.37 0.015 fill #5c3a1e 0.85
+line 1.46,0.34 1.50,0.40 stroke #5c3a1e 0.85 width 1
+line 1.50,0.34 1.46,0.40 stroke #5c3a1e 0.85 width 1
+
+# South edge runes
+line 0.50,1.60 0.54,1.66 stroke #5c3a1e 0.85 width 1
+line 0.54,1.60 0.50,1.66 stroke #5c3a1e 0.85 width 1
+circle 0.75,1.63 0.015 fill #5c3a1e 0.85
+line 1.00,1.60 1.00,1.66 stroke #5c3a1e 0.85 width 1
+circle 1.25,1.63 0.015 fill #5c3a1e 0.85
+line 1.46,1.60 1.50,1.66 stroke #5c3a1e 0.85 width 1
+
+# === Central anvil (polished, dark iron, runed) ===
+# Anvil base column
+rect 0.86,0.92 0.28,0.30 fill #3a3a3a 0.95
+rect 0.86,0.92 0.28,0.30 texfill polyhaven/metal_plate 0.6
+rect 0.86,0.92 0.28,0.30 stroke #1a1a1a width 2
+
+# Anvil top face (wide deck)
+rect 0.68,0.86 0.64,0.22 fill #555555 0.95
+rect 0.68,0.86 0.64,0.22 texfill polyhaven/metal_plate 0.75
+rect 0.68,0.86 0.64,0.22 stroke #1a1a1a width 2
+
+# Anvil horn (pointed, facing south)
+poly 0.85,1.08 1.15,1.08 1.00,1.32 texfill polyhaven/metal_plate 0.8
+poly 0.85,1.08 1.15,1.08 1.00,1.32 stroke #1a1a1a
+
+# Anvil heel (flat step, north side)
+rect 0.75,0.78 0.50,0.10 fill #666666 0.9
+rect 0.75,0.78 0.50,0.10 stroke #1a1a1a
+
+# Hardy hole
+rect 1.10,0.93 0.06,0.06 fill #0a0a0a 0.95
+
+# Pritchel hole
+circle 1.20,0.97 0.022 fill #0a0a0a 0.95
+
+# Face polish sheen
+line 0.72,0.90 1.28,0.90 stroke #aabbcc 0.55 width 1
+line 0.72,1.00 1.28,1.00 stroke #8899aa 0.5 width 1
+
+# Central divine rune on anvil face
+circle 1.00,0.96 0.035 fill #daa520 0.85
+circle 1.00,0.96 0.035 stroke #5a3a00 width 1
+line 0.98,0.94 1.02,0.98 stroke #5a3a00 width 1
+line 1.02,0.94 0.98,0.98 stroke #5a3a00 width 1
+
+# === Offerings on the marble tier ===
+# Ingot offering (NW)
+rect 0.42,0.52 0.14,0.06 fill #daa520 0.92
+rect 0.42,0.52 0.14,0.06 stroke #5a3a00
+line 0.44,0.54 0.54,0.54 stroke #5a3a00 0.7 width 1
+
+# Ingot offering (NE)
+rect 1.44,0.52 0.14,0.06 fill #8b6914 0.92
+rect 1.44,0.52 0.14,0.06 stroke #5a3a00
+
+# Small hammer offering (SW)
+rect 0.42,1.42 0.10,0.05 fill #555555 0.9
+rect 0.42,1.42 0.10,0.05 stroke #222222
+line 0.47,1.47 0.47,1.58 stroke #6b4e2e width 2
+
+# Tongs offering (SE, crossed jaws)
+line 1.48,1.42 1.56,1.56 stroke #444444 width 2
+line 1.56,1.42 1.48,1.56 stroke #444444 width 2
+circle 1.52,1.49 0.018 fill #222222 0.9
+
+# === Candles on the four corners of the marble tier ===
+# NW candle
+circle 0.36,0.36 0.035 fill #e8dcc8 0.95
+circle 0.36,0.36 0.035 stroke #5c3a1e
+circle 0.36,0.36 0.015 fill #1a1a1a 0.9
+circle 0.36,0.35 0.012 fill #ffcc00 0.95
+# Candle flame glow
+circle 0.36,0.34 0.04 fill #ff8800 0.3
+
+# NE candle
+circle 1.64,0.36 0.035 fill #e8dcc8 0.95
+circle 1.64,0.36 0.035 stroke #5c3a1e
+circle 1.64,0.36 0.015 fill #1a1a1a 0.9
+circle 1.64,0.35 0.012 fill #ffcc00 0.95
+circle 1.64,0.34 0.04 fill #ff8800 0.3
+
+# SW candle
+circle 0.36,1.64 0.035 fill #e8dcc8 0.95
+circle 0.36,1.64 0.035 stroke #5c3a1e
+circle 0.36,1.64 0.015 fill #1a1a1a 0.9
+circle 0.36,1.63 0.012 fill #ffcc00 0.95
+circle 0.36,1.62 0.04 fill #ff8800 0.3
+
+# SE candle
+circle 1.64,1.64 0.035 fill #e8dcc8 0.95
+circle 1.64,1.64 0.035 stroke #5c3a1e
+circle 1.64,1.64 0.015 fill #1a1a1a 0.9
+circle 1.64,1.63 0.012 fill #ffcc00 0.95
+circle 1.64,1.62 0.04 fill #ff8800 0.3
+
+# === Soft warm central glow from the anvil rune ===
+circle 1.00,0.96 0.12 fill #ffaa00 0.15

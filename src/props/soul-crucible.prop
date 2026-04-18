@@ -9,13 +9,7 @@ placement: corner
 room_types: infernal-forge, infernal-court, dark-temple, ritual-chamber-dark
 typical_count: few
 clusters_with: brazier, forge-great, anvil-devil, altar-sacrificial
-lights:
-  - type: brazier
-    x: 0.5
-    y: 0.5
-    radius: 14
-    color: "#a060e0"
-    intensity: 1.1
+lights: [{"preset":"astral","x":0.5,"y":0.5,"radius":14,"intensity":1.1,"color":"#a060e0"}]
 notes: Infernal iron brazier holding a tormented soul-flame — ghostly purple-green fire, spiky iron rim with horn-decorations, a fleeting face hinted in the flame. Corner placement for dark ritual chambers.
 ---
 # === HITBOX ===

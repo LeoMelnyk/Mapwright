@@ -9,13 +9,7 @@ room_types: elemental-air-node, storm-spire, elemental-node
 typical_count: few
 clusters_with: storm-altar, air-node-vortex, wind-chime-giant
 notes: Jagged forked bolt of captive lightning arcing between two tiny pylon stubs.
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 8
-    color: "#e0e0ff"
-    intensity: 0.9
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"radius":8,"intensity":0.9,"color":"#e0e0ff"}]
 ---
 # Electric glow halo
 circle 0.5,0.5 0.45 gradient-radial #c0c0ff #0a0a20 0.35

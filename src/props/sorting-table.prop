@@ -1,4 +1,4 @@
-name: Ore Sorting Table
+name: Ore Sorting Table (Long)
 category: Furniture
 footprint: 1x2
 facing: yes
@@ -11,7 +11,7 @@ clusters_with: pickaxe, cart-track, winch-large, headframe
 notes: Long wooden table piled with sorted ore — coal, iron chunks, quartz shards, and a small sorting hammer; place against a wall
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.06 1.80,0.76 z 0-1.0
+selection rect 0.10,0.06 1.80,0.76
 
 # Table surface (weathered planks running east-west)
 rect 0.10,0.06 1.80,0.76 texfill polyhaven/weathered_planks 0.85

@@ -5,7 +5,7 @@ facing: yes
 shadow: no
 blocks_light: no
 height: 1
-lights: [{"preset":"candle","x":0.5,"y":0.5}]
+lights: [{"preset":"wall-sconce","x":0.5,"y":0.5}]
 placement: wall
 room_types: mansion-ballroom, mansion-bedroom-master, noble-bedchamber, nursery, mansion-dining, mansion-grand-hall, noble-solar
 typical_count: many
@@ -13,7 +13,7 @@ clusters_with: candle, chandelier, tapestry, painting
 notes: Ornate brass wall sconce holding candles; decorative manor-house fixture
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.04 0.56,0.46 z 0-1
+selection rect 0.22,0.04 0.56,0.46
 
 # Back plate (ornate shield shape flush to north wall)
 poly 0.30,0.04 0.70,0.04 0.74,0.14 0.70,0.26 0.50,0.30 0.30,0.26 0.26,0.14 fill #8b6914 0.85

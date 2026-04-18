@@ -1,0 +1,72 @@
+name: Floor Vase
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 4
+placement: corner
+room_types: house-noble-townhouse, noble-solar, mansion-grand-hall, mansion-bedroom-master, parlor, throne-room
+typical_count: few
+clusters_with: settee, armchair, pianoforte, rug-oriental, pillar
+notes: Tall ornamental ceramic floor vase with flowers or peacock feathers arranged in it. Seen from above: circular mouth with bouquet crown.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.30 z 0-4
+
+# Flower/feather bouquet spilling over the rim (behind the mouth, drawn first so mouth sits on top)
+# Long peacock feather NE
+poly 0.60,0.30 0.82,0.12 0.88,0.18 0.64,0.36 fill #1a3a4a 0.9
+poly 0.60,0.30 0.82,0.12 0.88,0.18 0.64,0.36 stroke #0a1820 width 1
+circle 0.82,0.14 0.04 fill #daa520 0.9
+circle 0.82,0.14 0.025 fill #2d6b3a 0.9
+circle 0.82,0.14 0.012 fill #000000 0.95
+
+# Feather NW
+poly 0.40,0.30 0.18,0.14 0.14,0.20 0.36,0.36 fill #2d5a4a 0.9
+poly 0.40,0.30 0.18,0.14 0.14,0.20 0.36,0.36 stroke #0a2010 width 1
+circle 0.18,0.16 0.035 fill #daa520 0.9
+circle 0.18,0.16 0.02 fill #1a3a4a 0.9
+
+# Rose / flower peeking center-north
+circle 0.50,0.22 0.07 fill #8b0000 0.95
+circle 0.50,0.22 0.07 stroke #4a0000 width 1
+circle 0.50,0.22 0.04 fill #cc2020 0.9
+circle 0.50,0.22 0.02 fill #daa520 0.95
+
+# Small leaf blade
+poly 0.58,0.28 0.70,0.22 0.62,0.34 fill #2d6b3a 0.9
+poly 0.58,0.28 0.70,0.22 0.62,0.34 stroke #1a4020 width 1
+
+# Vase mouth — ceramic ring
+circle 0.5,0.5 0.30 fill #1a1a4a 0.95
+circle 0.5,0.5 0.30 stroke #080820 width 2
+
+# Inner lip
+circle 0.5,0.5 0.26 fill #3a3a7a 0.9
+circle 0.5,0.5 0.26 stroke #1a1a4a width 1
+
+# Darker mouth interior (recessed hollow)
+circle 0.5,0.5 0.20 fill #0a0a20 0.95
+circle 0.5,0.5 0.20 stroke #000000 width 1
+
+# Gilt trim ring
+circle 0.5,0.5 0.28 stroke #daa520 0.8 width 1
+
+# Decorative blue-and-white porcelain band (east/west arcs)
+arc 0.5,0.5 0.30 20 70 stroke #daa520 0.95 width 2
+arc 0.5,0.5 0.30 110 160 stroke #daa520 0.95 width 2
+arc 0.5,0.5 0.30 200 250 stroke #daa520 0.95 width 2
+arc 0.5,0.5 0.30 290 340 stroke #daa520 0.95 width 2
+
+# Small medallion details around rim
+circle 0.50,0.20 0.014 fill #daa520 0.9
+circle 0.80,0.50 0.014 fill #daa520 0.9
+circle 0.50,0.80 0.014 fill #daa520 0.9
+circle 0.20,0.50 0.014 fill #daa520 0.9
+
+# Highlight (glossy ceramic)
+arc 0.5,0.5 0.27 210 260 stroke #6a6aaa 0.6 width 1
+
+# Base shadow ring (vase sits on floor)
+circle 0.5,0.52 0.34 fill #000000 0.18

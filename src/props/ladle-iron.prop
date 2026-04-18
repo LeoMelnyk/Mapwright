@@ -12,9 +12,9 @@ clusters_with: blast-furnace, casting-pit, crucible, crucible-large, sand-mold
 notes: Heavy foundry pouring ladle resting on its side — long wooden/iron handle, heavy iron bowl with molten metal at one end, counterweight ring at the opposite end. Drop near blast-furnace and casting-pit.
 ---
 # === HITBOX ===
-hitbox circle 0.50,0.34 0.32 z 0-0.8
-hitbox rect 0.42,0.30 0.16,1.50 z 0-0.3
-hitbox circle 0.50,1.74 0.14 z 0-0.3
+selection circle 0.50,0.34 0.32
+selection rect 0.42,0.30 0.16,1.50
+selection circle 0.50,1.74 0.14
 
 # footprint 2x1: x range 0-1, y range 0-2 (tall)
 

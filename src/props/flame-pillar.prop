@@ -10,13 +10,7 @@ room_types: elemental-fire-node, elemental-node, volcano-caldera, fire-plane
 typical_count: few
 clusters_with: fire-node-core, ember-pit, basalt-pillar, efreet-brazier-grand
 notes: Top-down view of a living flame column — concentric rings of fire with a white-hot core at the center
-lights:
-  - type: torch
-    x: 0.5
-    y: 0.5
-    radius: 15
-    color: "#ff8030"
-    intensity: 0.9
+lights: [{"preset":"bonfire","x":0.5,"y":0.5,"radius":15,"intensity":0.9,"color":"#ff8030"}]
 ---
 # Outermost heat halo
 circle 0.50,0.50 0.48 fill #e85500 0.25

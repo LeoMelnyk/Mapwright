@@ -12,7 +12,7 @@ clusters_with: marver-slab, gaffer-bench, glass-furnace, jack-tool, finished-ves
 notes: Iron glassblowing pipe — hollow tube with brass mouthpiece at east end, molten glass gather at west end. Lay flat on benches or floor beside the glass furnace.
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.42 1.72,0.16 z 0-0.1
+selection rect 0.14,0.42 1.72,0.16
 
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: long thin iron tube running east-west, mouthpiece (east), molten blob (west)

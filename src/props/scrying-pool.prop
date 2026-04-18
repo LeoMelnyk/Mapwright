@@ -10,16 +10,10 @@ room_types: cave-drow-outpost, underdark-outpost, drow-citadel, ritual-chamber, 
 typical_count: single
 clusters_with: candle-violet, spider-shrine, faerzress-sconce
 notes: Circular stone basin with mirror-still violet water and silver etched rim — reveals distant visions
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 8
-    color: "#a060ff"
-    intensity: 0.6
+lights: [{"preset":"astral","x":1,"y":1,"radius":8,"intensity":0.6,"color":"#a060ff"}]
 ---
 # === HITBOX ===
-hitbox circle 1.0,1.0 0.92 z 0-0.6
+selection circle 1.0,1.0 0.92
 
 # Outer basin stone rim
 circle 1.0,1.0 0.94 texfill polyhaven/stone_wall 0.8

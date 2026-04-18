@@ -12,7 +12,7 @@ clusters_with: teacup, table, opium-couch, cushion-pile, opium-pipe
 notes: Small round clay teapot; pair with teacups on tables
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.3
+selection circle 0.5,0.5 0.32
 
 # footprint 1x1: x range 0-1, y range 0-1
 

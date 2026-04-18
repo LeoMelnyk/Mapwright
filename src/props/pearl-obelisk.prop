@@ -10,13 +10,7 @@ room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto
 typical_count: few
 clusters_with: marid-pavilion, pearl-cluster, water-node-core, coral-pillar
 notes: Translucent pearl obelisk — top-down view shows the pedestal base plus the four-sided pyramidion meeting at the glowing apex
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 10
-    color: "#e0f0ff"
-    intensity: 0.8
+lights: [{"preset":"silvery","x":1,"y":1,"radius":10,"intensity":0.8,"color":"#e0f0ff"}]
 ---
 # Hitbox: shaft cross-section blocks light
 hitbox rect 0.45,0.45 1.1,1.1 z 0-2.2

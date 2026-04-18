@@ -12,7 +12,7 @@ clusters_with: ash-pile, slag-heap, campfire, forge, brazier
 notes: Dark burnt stain on the floor from fire damage
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.01
+selection circle 0.5,0.5 0.38
 
 # Outer char haze (faded perimeter)
 circle 0.5,0.5 0.40 fill #4a2a18 0.25

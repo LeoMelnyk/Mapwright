@@ -12,7 +12,7 @@ clusters_with: hanging-meat, dried-herbs, shelf-open, cupboard
 notes: Braid of onions hanging from wall/beam; drape along walls in kitchens
 ---
 # === HITBOX ===
-hitbox rect 0.34,0.12 0.32,1.72 z 0-1
+selection rect 0.34,0.12 0.32,1.72
 
 # Twine/rope hanger at top
 line 0.40,0.08 0.60,0.08 stroke #6b4e2e width 2

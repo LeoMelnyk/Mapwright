@@ -10,13 +10,7 @@ room_types: astral-anchor, astral-sea, planar-nexus, arcane
 typical_count: single
 clusters_with: obelisk-astral, silver-cord-pylon, astral-anchor-stone
 notes: Silver-framed portal stela — top-down view of the arched stone frame with the swirling violet portal visible through the opening on the floor
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 14
-    color: "#b080ff"
-    intensity: 1.0
+lights: [{"preset":"astral","x":1,"y":1,"radius":14,"intensity":1,"color":"#b080ff"}]
 ---
 # Hitbox — the stone frame blocks light (not the open portal in the center)
 hitbox rect 0.30,0.22 1.40,0.35 z 0-2.4

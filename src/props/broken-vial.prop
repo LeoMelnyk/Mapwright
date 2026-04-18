@@ -10,9 +10,10 @@ room_types: alchemy-lab, demiplane-laboratory, cabin-abandoned, workshop-artific
 typical_count: few
 clusters_with: broken-bottle, broken-glassware, reagent-jar, rag-damp
 notes: Shattered glass vial with spilled glowing potion — sign of disaster or haste.
+lights: [{"preset":"eldritch-glow","x":0.5,"y":0.5,"radius":2,"intensity":0.25}]
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.35 z 0-0.1
+selection circle 0.5,0.5 0.35
 
 # Spilled liquid pool (irregular splash, glowing green)
 poly 0.22,0.54 0.34,0.44 0.48,0.42 0.62,0.48 0.72,0.58 0.68,0.70 0.54,0.74 0.38,0.72 0.26,0.66 fill #4aa060 0.7

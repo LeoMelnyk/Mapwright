@@ -4,7 +4,7 @@ footprint: 1x1
 facing: no
 shadow: no
 blocks_light: no
-lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":3,"color":"#ddeeff","intensity":0.2}]
+lights: [{"preset":"daylight","x":0.5,"y":0.5,"radius":3,"color":"#ddeeff","intensity":0.2}]
 placement: center
 room_types: oubliette, prison-block, dungeon, sewer-junction
 typical_count: single

@@ -12,7 +12,7 @@ clusters_with: forge, anvil, tool-rack, leather-apron, brazier
 notes: Small two-handled hand bellows for stoking fires — teardrop shape
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.20 0.64,0.64 z 0-0.15
+selection rect 0.18,0.20 0.64,0.64
 
 # Teardrop body (wider at south, tapering to nozzle at north)
 poly 0.22,0.78 0.18,0.66 0.20,0.54 0.28,0.44 0.40,0.36 0.50,0.32 0.60,0.36 0.72,0.44 0.80,0.54 0.82,0.66 0.78,0.78 0.50,0.82 fill #8b6914 0.92

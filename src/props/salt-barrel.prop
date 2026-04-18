@@ -1,0 +1,76 @@
+name: Salt Barrel
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.0
+placement: floor
+room_types: butcher-shop, servants-kitchen, pantry, shop-general, smokehouse, dock-warehouse
+typical_count: single
+clusters_with: barrel, barrel-salt-pork, hanging-meat, butcher-block, cleaver
+notes: Small open-top barrel full of coarse salt with a wooden scoop sticking out. Salt crystals are spilled around the rim.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-2.0
+
+# === Wooden barrel outer staves ===
+circle 0.5,0.5 0.36 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.36 stroke #2a1400
+
+# === Outer iron band ===
+circle 0.5,0.5 0.34 stroke #555555 width 1
+
+# === Stave seams on rim ===
+line 0.50,0.14 0.50,0.22 stroke #2a1400 0.7
+line 0.50,0.78 0.50,0.86 stroke #2a1400 0.7
+line 0.14,0.50 0.22,0.50 stroke #2a1400 0.7
+line 0.78,0.50 0.86,0.50 stroke #2a1400 0.7
+line 0.26,0.26 0.30,0.30 stroke #2a1400 0.5
+line 0.74,0.74 0.70,0.70 stroke #2a1400 0.5
+
+# === Dark interior (hollow rim) ===
+circle 0.5,0.5 0.30 fill #1a0a00 0.9
+circle 0.5,0.5 0.30 stroke #080400
+
+# === Salt contents (white, filling the barrel) ===
+circle 0.5,0.5 0.27 fill #f8f8f8 0.95
+circle 0.5,0.5 0.27 stroke #b0b0b0
+
+# === Chunky salt texture (lumpy surface) ===
+circle 0.40,0.44 0.04 fill #e8e8e8 0.75
+circle 0.58,0.42 0.035 fill #e8e8e8 0.7
+circle 0.44,0.58 0.04 fill #e8e8e8 0.7
+circle 0.60,0.58 0.03 fill #e8e8e8 0.65
+
+# === Fine salt crystal speckles ===
+circle 0.36,0.50 0.012 fill #ffffff 0.95
+circle 0.52,0.46 0.010 fill #ffffff 0.9
+circle 0.48,0.54 0.012 fill #ffffff 0.95
+circle 0.58,0.52 0.010 fill #ffffff 0.9
+circle 0.42,0.40 0.010 fill #ffffff 0.9
+circle 0.62,0.48 0.010 fill #ffffff 0.85
+
+# === Wooden scoop handle sticking out (NE — angled up) ===
+# Handle shaft
+rect 0.52,0.28 0.20,0.04 texfill polyhaven/dark_wood 0.9 rotate -30
+rect 0.52,0.28 0.20,0.04 stroke #2a1400 rotate -30
+# Scoop bowl (partially buried in salt)
+ellipse 0.52,0.44 0.08,0.06 texfill polyhaven/dark_wood 0.88
+ellipse 0.52,0.44 0.08,0.06 stroke #2a1400
+# Salt heaped in scoop
+ellipse 0.52,0.42 0.06,0.04 fill #f4f4f4 0.92
+ellipse 0.52,0.42 0.06,0.04 stroke #b0b0b0
+
+# === Spilled salt around rim exterior (NE, SW drifts) ===
+ellipse 0.78,0.28 0.08,0.04 fill #ffffff 0.7
+ellipse 0.22,0.78 0.06,0.03 fill #ffffff 0.65
+
+# Scattered salt crystals outside barrel
+circle 0.82,0.32 0.012 fill #ffffff 0.9
+circle 0.16,0.82 0.012 fill #ffffff 0.85
+circle 0.24,0.74 0.010 fill #ffffff 0.8
+circle 0.78,0.36 0.010 fill #ffffff 0.8
+
+# === Highlight on NW rim ===
+arc 0.5,0.5 0.34 210 260 stroke #c8a078 0.4 width 1

@@ -6,13 +6,13 @@ shadow: no
 blocks_light: no
 height: 0.03
 placement: floor
-room_types: brewery, butcher-shop, tavern-common, butcher-shop, tannery
+room_types: brewery, butcher-shop, tavern-common, tannery
 typical_count: few
 clusters_with: bucket, washing-tub, rag-pile, bloody-rag
 notes: Wet cleaning rag with water puddle around it — kitchen/cleaning staple
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.28 0.64,0.48 z 0-0.03
+selection rect 0.18,0.28 0.64,0.48
 
 # Water puddle halo (light blue under rag)
 poly 0.14,0.54 0.22,0.38 0.40,0.30 0.60,0.32 0.76,0.42 0.84,0.60 0.76,0.74 0.58,0.80 0.38,0.78 0.22,0.72 0.14,0.60 fill #6080a0 0.4

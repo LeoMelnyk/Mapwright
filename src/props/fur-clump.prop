@@ -12,7 +12,7 @@ clusters_with: hide-scraps, tanning-rack, tanning-vat, leather-stack
 notes: Shed fur and discarded pelt tufts; scatter around tanning stations
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.34 z 0-0.08
+selection circle 0.5,0.5 0.34
 
 # Outer warm-tan base (largest irregular blob)
 ellipse 0.50,0.52 0.34,0.28 fill #8a6a48 0.7

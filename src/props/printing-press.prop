@@ -1,0 +1,87 @@
+name: Printing Press
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 6
+placement: center
+room_types: scriptorium-mundane, guildhall, workshop, publisher-shop
+typical_count: single
+clusters_with: type-case, ledger-stack, ink-stone, sand-shaker
+notes: Wooden hand-press with central platen, lead-screw lever arm, and type bed below; centerpiece of a print shop
+---
+# === HITBOX ===
+hitbox rect 0.18,0.18 1.64,1.64 z 0-6
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down view: large wooden frame with central platen, type bed at south, screw mechanism above, lever extending east
+
+# === Main press frame (heavy oak body) ===
+rect 0.18,0.18 1.64,1.64 texfill polyhaven/dark_wood 0.9
+rect 0.18,0.18 1.64,1.64 stroke #1a0e00 width 2
+
+# Inner frame bevel
+rect 0.24,0.24 1.52,1.52 stroke #3a1f00 0.6 width 1
+
+# === Corner uprights (posts — thicker dark squares at corners) ===
+rect 0.18,0.18 0.22,0.22 fill #2a1400 0.85
+rect 0.18,0.18 0.22,0.22 stroke #1a0e00
+rect 1.60,0.18 0.22,0.22 fill #2a1400 0.85
+rect 1.60,0.18 0.22,0.22 stroke #1a0e00
+rect 0.18,1.60 0.22,0.22 fill #2a1400 0.85
+rect 0.18,1.60 0.22,0.22 stroke #1a0e00
+rect 1.60,1.60 0.22,0.22 fill #2a1400 0.85
+rect 1.60,1.60 0.22,0.22 stroke #1a0e00
+
+# === Top cross-beam (spans between uprights — holds the screw) ===
+rect 0.40,0.30 1.20,0.20 texfill polyhaven/dark_wood 0.85
+rect 0.40,0.30 1.20,0.20 stroke #1a0e00 width 2
+
+# === Central screw / platen assembly (brass threaded column seen from above) ===
+circle 1.00,1.00 0.32 fill #8b6914 0.9
+circle 1.00,1.00 0.32 stroke #5a3a00 width 2
+# Screw threads (concentric rings)
+circle 1.00,1.00 0.28 stroke #5a3a00 0.7 width 1
+circle 1.00,1.00 0.24 stroke #5a3a00 0.7 width 1
+circle 1.00,1.00 0.20 stroke #5a3a00 0.7 width 1
+circle 1.00,1.00 0.16 stroke #5a3a00 0.7 width 1
+# Central screw shaft (dark iron core)
+circle 1.00,1.00 0.10 fill #333333 0.95
+circle 1.00,1.00 0.10 stroke #1a1a1a width 2
+# Screw head cross-slot
+line 0.92,1.00 1.08,1.00 stroke #1a1a1a width 2
+line 1.00,0.92 1.00,1.08 stroke #1a1a1a width 2
+
+# === Lever arm (extends from the screw toward east — the operator pulls this) ===
+rect 1.00,0.98 0.78,0.08 texfill polyhaven/dark_wood 0.9
+rect 1.00,0.98 0.78,0.08 stroke #1a0e00
+# Lever handle wrap (leather grip)
+rect 1.60,0.96 0.16,0.12 texfill polyhaven/brown_leather 0.85
+rect 1.60,0.96 0.16,0.12 stroke #3a1f00
+# Handle end-cap
+circle 1.76,1.02 0.035 fill #daa520 0.9
+circle 1.76,1.02 0.035 stroke #5a3a00
+
+# === Type bed (flat recessed surface at south — where the typeset page goes) ===
+rect 0.40,1.30 1.20,0.30 fill #2a1400 0.75
+rect 0.40,1.30 1.20,0.30 stroke #1a0e00 width 2
+
+# Paper/blank sheet loaded on bed
+rect 0.50,1.38 1.00,0.20 fill #e8dcc8 0.85
+rect 0.50,1.38 1.00,0.20 stroke #8b7355
+
+# Typeset text impression (lines of text on the page)
+line 0.56,1.44 1.44,1.44 stroke #1a1010 0.6 width 1
+line 0.56,1.48 1.40,1.48 stroke #1a1010 0.55 width 1
+line 0.56,1.52 1.44,1.52 stroke #1a1010 0.55 width 1
+
+# Ink on the press (dark smudge near platen)
+circle 0.82,1.14 0.025 fill #0a0618 0.8
+circle 1.14,1.20 0.02 fill #0a0618 0.7
+
+# === Iron brackets / fittings ===
+rect 0.30,0.92 0.10,0.16 fill #333333 0.85
+rect 0.30,0.92 0.10,0.16 stroke #1a1a1a
+rect 1.60,0.92 0.10,0.16 fill #333333 0.85
+rect 1.60,0.92 0.10,0.16 stroke #1a1a1a

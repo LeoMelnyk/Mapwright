@@ -15,7 +15,7 @@ notes: Wall-mounted tall mirror with ornate gilded frame. Only the top edge is v
 # Wall-mounted — wall is at north (low Y). Only top edge of frame visible from above.
 
 # === HITBOX ===
-hitbox rect 0.10,0.04 1.80,0.22 z 0-2.5
+selection rect 0.10,0.04 1.80,0.22
 
 # === Ornate gilded frame top edge (widest element, along wall) ===
 rect 0.10,0.06 1.80,0.14 fill #daa520 0.92

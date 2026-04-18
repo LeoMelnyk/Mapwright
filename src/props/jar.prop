@@ -12,7 +12,7 @@ clusters_with: bottle, jug, pantry-shelf, crate
 notes: Squat ceramic storage jar with cloth-tied lid — belly ring visible beneath, twine cross-tie on top
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.36 z 0-0.7
+selection circle 0.5,0.5 0.36
 
 # Outer belly (ceramic body — widest ring seen from above)
 circle 0.5,0.5 0.36 fill #a87850 0.55

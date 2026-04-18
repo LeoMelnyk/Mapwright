@@ -13,7 +13,7 @@ notes: Concert harp seen edge-on (a harp is a thin planar instrument — from ab
 ---
 # footprint 2x1: x 0-1, y 0-2. Harp stands vertically, viewed edge-on from above.
 # === HITBOX — narrow profile along the spine ===
-hitbox rect 0.40,0.15 0.20,1.75 z 0-1.8
+selection rect 0.40,0.15 0.20,1.75
 # Soundbox base — widest element, sits on the floor at south
 ellipse 0.50,1.82 0.22,0.12 texfill polyhaven/dark_wood 0.88
 ellipse 0.50,1.82 0.22,0.12 stroke #3a1f00 width 2

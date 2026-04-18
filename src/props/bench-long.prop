@@ -1,0 +1,45 @@
+name: Mess Bench
+category: Furniture
+footprint: 1x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.4
+placement: wall
+room_types: ship-crew-quarters, mess-hall, barracks
+typical_count: few
+clusters_with: mess-table-folding, table-long
+notes: Long narrow wooden mess bench with no backrest. Place flanking mess tables or along bulkheads.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.28 2.84,0.44 z 0-1.4
+
+# footprint 1x3: x 0-3, y 0-1
+
+# Leg stretchers (thin rails under seat, peeking out at ends)
+rect 0.15,0.30 0.10,0.42 texfill polyhaven/dark_wood 0.8
+rect 0.15,0.30 0.10,0.42 stroke #2a1400
+rect 2.75,0.30 0.10,0.42 texfill polyhaven/dark_wood 0.8
+rect 2.75,0.30 0.10,0.42 stroke #2a1400
+rect 1.45,0.30 0.10,0.42 texfill polyhaven/dark_wood 0.75
+rect 1.45,0.30 0.10,0.42 stroke #2a1400
+
+# Cross brace
+rect 0.25,0.47 2.50,0.06 texfill polyhaven/dark_wood 0.7
+rect 0.25,0.47 2.50,0.06 stroke #2a1400
+
+# Narrow seat planks (two planks, narrower than full bench)
+rect 0.08,0.32 2.84,0.16 texfill polyhaven/wood_table 0.85
+rect 0.08,0.32 2.84,0.16 stroke #5c3a1e
+rect 0.08,0.52 2.84,0.16 texfill polyhaven/wood_table 0.85
+rect 0.08,0.52 2.84,0.16 stroke #5c3a1e
+
+# Plank seam nail heads
+circle 0.40,0.48 0.014 fill #444444 0.85
+circle 1.20,0.48 0.014 fill #444444 0.85
+circle 2.00,0.48 0.014 fill #444444 0.85
+circle 2.70,0.48 0.014 fill #444444 0.85
+
+# Wear/scuff marks
+ellipse 0.80,0.40 0.07,0.03 fill #2a1400 0.3
+ellipse 2.20,0.60 0.08,0.03 fill #2a1400 0.3

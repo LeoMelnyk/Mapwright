@@ -12,7 +12,7 @@ clusters_with: document-stack, letter-stack, desk, wax-seal-kit
 notes: Red wax seal impressed with an emblem; often beside rolled letters or documents
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.18 z 0-0.1
+selection circle 0.5,0.5 0.18
 
 # Wax puddle (irregular drip shape)
 poly 0.32,0.52 0.36,0.38 0.48,0.32 0.62,0.34 0.70,0.44 0.68,0.58 0.58,0.66 0.44,0.66 0.34,0.60 fill #991111 0.9

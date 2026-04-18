@@ -12,7 +12,7 @@ clusters_with: goblet, sideboard, fresh-flowers, fruit-bowl, silver-bowl
 notes: Ornate silver ceremonial bowl — polished metal with engraved pattern
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.34 z 0-0.3
+selection circle 0.5,0.5 0.34
 
 # Bowl foot (raised base)
 circle 0.5,0.60 0.24 fill #aaaaaa 0.9

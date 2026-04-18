@@ -10,13 +10,7 @@ room_types: opium-den, shrine, ritual-chamber, brothel, crypt
 typical_count: many
 clusters_with: candle, candle-cluster, opium-pipe, teacup, cushion-pile
 notes: Short red wax candle with low flame; scatter on tables and shelves for dim, sultry lighting
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 3
-    color: "#ff9050"
-    intensity: 0.3
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":3,"intensity":0.3,"color":"#ff9050"}]
 ---
 # footprint 1x1: x range 0-1, y range 0-1
 

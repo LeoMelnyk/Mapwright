@@ -1,0 +1,147 @@
+name: Infernal Weapon Rack
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: wall
+room_types: infernal-forge, hell-smithy, infernal-court, armory-infernal
+typical_count: few
+clusters_with: anvil-devil, infernal-furnace, weapon-rack, weapon-rack-wall
+lights: [{"preset":"infernal-flame","x":1,"y":0.5,"radius":4,"intensity":0.5,"color":"#cc2200"}]
+notes: Wall-mounted rack of hellforged weapons — jagged iron blades with glowing runes. Faces south. Place on infernal-forge walls.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.42 z 0-5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: dark iron rack along north wall, demonic weapons leaning south from pommels
+
+# === Iron rack base (wrought iron, black with glowing trim) ===
+rect 0.08,0.08 1.84,0.16 fill #1a1a1a 0.95
+rect 0.08,0.08 1.84,0.16 texfill polyhaven/metal_plate 0.45
+rect 0.08,0.08 1.84,0.16 stroke #0a0a0a width 2
+
+# Lower support bar (parallel)
+rect 0.08,0.36 1.84,0.08 fill #1a1a1a 0.92
+rect 0.08,0.36 1.84,0.08 texfill polyhaven/metal_plate 0.4
+rect 0.08,0.36 1.84,0.08 stroke #0a0a0a
+
+# === Spike-studded end posts (demonic motif) ===
+rect 0.08,0.06 0.10,0.40 fill #0a0a0a 0.95
+rect 0.08,0.06 0.10,0.40 stroke #000000
+poly 0.10,0.06 0.13,0.02 0.16,0.06 fill #0a0a0a 0.98
+poly 0.10,0.06 0.13,0.02 0.16,0.06 stroke #000000
+
+rect 1.82,0.06 0.10,0.40 fill #0a0a0a 0.95
+rect 1.82,0.06 0.10,0.40 stroke #000000
+poly 1.84,0.06 1.87,0.02 1.90,0.06 fill #0a0a0a 0.98
+poly 1.84,0.06 1.87,0.02 1.90,0.06 stroke #000000
+
+# === Glowing runes along the rack (cracks in the iron bar) ===
+line 0.30,0.12 0.34,0.20 stroke #cc2200 0.85 width 1
+circle 0.60,0.16 0.012 fill #ff4400 0.9
+line 0.90,0.10 0.96,0.22 stroke #cc2200 0.8 width 1
+circle 1.20,0.16 0.012 fill #ff4400 0.9
+line 1.50,0.12 1.54,0.20 stroke #cc2200 0.85 width 1
+
+# === Weapon 1: Jagged infernal sword (left) ===
+# Blade shaft (serrated black iron, glowing edge)
+line 0.28,0.24 0.26,0.80 stroke #222222 width 4
+line 0.28,0.24 0.26,0.80 stroke #555555 width 2
+line 0.28,0.26 0.26,0.78 stroke #cc2200 0.7 width 1
+# Serration bumps on blade
+poly 0.26,0.40 0.22,0.38 0.27,0.42 fill #222222 0.95
+poly 0.26,0.55 0.22,0.54 0.27,0.57 fill #222222 0.95
+poly 0.27,0.68 0.31,0.66 0.28,0.70 fill #222222 0.95
+# Crossguard (jagged spikes)
+poly 0.20,0.72 0.28,0.72 0.34,0.72 0.30,0.76 0.26,0.76 0.22,0.76 fill #1a1a1a 0.95
+poly 0.20,0.72 0.28,0.72 0.34,0.72 0.30,0.76 0.26,0.76 0.22,0.76 stroke #000000
+# Pommel at rack (skull motif)
+circle 0.28,0.16 0.06 fill #222222 0.95
+circle 0.28,0.16 0.06 texfill polyhaven/metal_plate 0.5
+circle 0.28,0.16 0.06 stroke #000000
+# Tiny skull eye glow
+circle 0.26,0.15 0.008 fill #cc2200 0.85
+circle 0.30,0.15 0.008 fill #cc2200 0.85
+
+# === Weapon 2: Hellforged axe ===
+# Shaft (black wood with iron binding)
+line 0.58,0.24 0.62,0.82 stroke #0a0a0a width 3
+line 0.58,0.24 0.62,0.82 stroke #3a2010 width 1
+# Axe head (jagged, bat-wing shape)
+poly 0.48,0.74 0.62,0.82 0.76,0.74 0.70,0.68 0.62,0.76 0.54,0.68 fill #1a1a1a 0.95
+poly 0.48,0.74 0.62,0.82 0.76,0.74 0.70,0.68 0.62,0.76 0.54,0.68 texfill polyhaven/metal_plate 0.45
+poly 0.48,0.74 0.62,0.82 0.76,0.74 0.70,0.68 0.62,0.76 0.54,0.68 stroke #000000
+# Glowing blade edge
+line 0.48,0.74 0.54,0.68 stroke #cc2200 0.75 width 1
+line 0.70,0.68 0.76,0.74 stroke #cc2200 0.75 width 1
+# Pommel
+circle 0.58,0.16 0.06 fill #222222 0.95
+circle 0.58,0.16 0.06 stroke #000000
+
+# === Weapon 3: Barbed glaive (long spear-like) ===
+# Shaft
+line 0.90,0.24 0.94,0.92 stroke #0a0a0a width 3
+line 0.90,0.24 0.94,0.92 stroke #3a2010 width 1
+# Hooked/barbed head
+poly 0.88,0.86 0.94,0.92 1.00,0.86 0.97,0.82 0.94,0.80 0.91,0.82 fill #1a1a1a 0.95
+poly 0.88,0.86 0.94,0.92 1.00,0.86 0.97,0.82 0.94,0.80 0.91,0.82 texfill polyhaven/metal_plate 0.45
+poly 0.88,0.86 0.94,0.92 1.00,0.86 0.97,0.82 0.94,0.80 0.91,0.82 stroke #000000
+# Back-hook spike
+poly 0.88,0.86 0.82,0.88 0.86,0.84 fill #1a1a1a 0.95
+poly 0.88,0.86 0.82,0.88 0.86,0.84 stroke #000000
+# Glowing tip
+circle 0.94,0.92 0.015 fill #ff4400 0.9
+# Pommel
+circle 0.90,0.16 0.04 fill #222222 0.9
+circle 0.90,0.16 0.04 stroke #000000
+
+# === Weapon 4: Spiked mace ===
+# Shaft
+line 1.20,0.24 1.16,0.74 stroke #0a0a0a width 3
+line 1.20,0.24 1.16,0.74 stroke #3a2010 width 1
+# Spiked head (ring of spikes)
+circle 1.16,0.76 0.08 fill #1a1a1a 0.95
+circle 1.16,0.76 0.08 texfill polyhaven/metal_plate 0.4
+circle 1.16,0.76 0.08 stroke #000000
+# Spikes radiating outward
+poly 1.08,0.74 1.04,0.72 1.10,0.76 fill #0a0a0a 0.98
+poly 1.24,0.74 1.28,0.72 1.22,0.76 fill #0a0a0a 0.98
+poly 1.14,0.68 1.14,0.64 1.18,0.68 fill #0a0a0a 0.98
+poly 1.14,0.84 1.14,0.88 1.18,0.84 fill #0a0a0a 0.98
+# Glowing center of mace
+circle 1.16,0.76 0.024 fill #cc2200 0.8
+# Pommel
+circle 1.20,0.16 0.07 fill #222222 0.95
+circle 1.20,0.16 0.07 stroke #000000
+
+# === Weapon 5: Twin-blade / forked dagger (small) ===
+# Shaft
+line 1.50,0.24 1.52,0.70 stroke #555555 width 2
+# Forked blade tip
+poly 1.46,0.66 1.52,0.70 1.58,0.66 1.55,0.60 1.52,0.64 1.49,0.60 fill #222222 0.95
+poly 1.46,0.66 1.52,0.70 1.58,0.66 1.55,0.60 1.52,0.64 1.49,0.60 texfill polyhaven/metal_plate 0.4
+poly 1.46,0.66 1.52,0.70 1.58,0.66 1.55,0.60 1.52,0.64 1.49,0.60 stroke #000000
+# Glowing crack along blade
+line 1.52,0.60 1.52,0.68 stroke #cc2200 0.7 width 1
+# Pommel
+circle 1.50,0.16 0.05 fill #222222 0.9
+circle 1.50,0.16 0.05 stroke #000000
+
+# === Weapon 6: Short curved scimitar ===
+# Curved blade
+bezier 1.72,0.24 1.68,0.40 1.78,0.60 1.70,0.78 stroke #222222 width 4
+bezier 1.72,0.24 1.68,0.40 1.78,0.60 1.70,0.78 stroke #555555 width 2
+# Glowing inner curve
+bezier 1.72,0.26 1.70,0.40 1.76,0.58 1.72,0.74 stroke #cc2200 0.7 width 1
+# Pommel
+circle 1.72,0.16 0.05 fill #222222 0.9
+circle 1.72,0.16 0.05 stroke #000000
+
+# === Heat glow bleeding from the rack (faint) ===
+ellipse 1.00,0.44 0.80,0.04 fill #cc2200 0.18
+
+# === Soot shadow below rack ===
+rect 0.12,0.44 1.76,0.03 fill #000000 0.25

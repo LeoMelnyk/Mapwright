@@ -1,0 +1,82 @@
+name: Decaying Log
+category: Terrain
+footprint: 1x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.5
+placement: floor
+room_types: mushroom-grove, mushroom-cavern, druid-grove, forest, cabin-abandoned
+typical_count: few
+clusters_with: mushroom, mushroom-cluster, glowcap-cluster, moss-patch, fungus
+notes: Rotten tree log lying on the ground, riddled with small mushrooms and moss; classic mushroom-grove set piece
+---
+# === HITBOX ===
+hitbox rect 0.15,0.22 2.70,0.56 z 0-0.5
+
+# footprint 1x3: x range 0-3, y range 0-1
+# West end cross-section (rotted, dark punky center)
+ellipse 0.18,0.50 0.14,0.28 texfill polyhaven/bark_brown_02 0.75
+ellipse 0.18,0.50 0.14,0.28 fill #3a2810 0.55
+ellipse 0.18,0.50 0.14,0.28 stroke #1a1008 width 2
+ellipse 0.18,0.50 0.09,0.20 fill #2a1808 0.85
+arc 0.18,0.50 0.05 0 360 stroke #4a3020 0.6 width 1
+
+# Main log body — rotten, irregular outline (not perfect rect)
+poly 0.18,0.22 0.60,0.20 1.20,0.24 1.80,0.22 2.40,0.26 2.82,0.24 2.82,0.78 2.40,0.76 1.80,0.80 1.20,0.76 0.60,0.80 0.18,0.78 texfill polyhaven/bark_brown_02 0.78
+poly 0.18,0.22 0.60,0.20 1.20,0.24 1.80,0.22 2.40,0.26 2.82,0.24 2.82,0.78 2.40,0.76 1.80,0.80 1.20,0.76 0.60,0.80 0.18,0.78 fill #3a2410 0.35
+poly 0.18,0.22 0.60,0.20 1.20,0.24 1.80,0.22 2.40,0.26 2.82,0.24 2.82,0.78 2.40,0.76 1.80,0.80 1.20,0.76 0.60,0.80 0.18,0.78 stroke #1a1008 width 2
+
+# Rotted bark peel — dark hollow spots along length
+ellipse 0.80,0.46 0.22,0.12 fill #1a0f00 0.75
+ellipse 0.80,0.46 0.22,0.12 stroke #0a0400 width 1
+ellipse 2.00,0.56 0.18,0.10 fill #1a0f00 0.70
+ellipse 2.00,0.56 0.18,0.10 stroke #0a0400 width 1
+ellipse 1.50,0.34 0.14,0.08 fill #2a1808 0.65
+
+# Bark grooves running along length
+bezier 0.30,0.30 1.00,0.32 2.00,0.28 2.70,0.32 stroke #1a1008 0.6 width 1
+bezier 0.30,0.70 1.00,0.68 2.00,0.72 2.70,0.70 stroke #1a1008 0.6 width 1
+
+# Moss patches spreading over top
+ellipse 0.55,0.36 0.18,0.08 fill #3a5a22 0.78
+ellipse 0.55,0.36 0.18,0.08 stroke #1a3010 0.6 width 1
+ellipse 1.25,0.64 0.22,0.10 fill #4a6a2a 0.80
+ellipse 1.25,0.64 0.22,0.10 stroke #1a3010 0.6 width 1
+ellipse 2.20,0.38 0.20,0.09 fill #3a5a22 0.75
+
+# Small mushrooms sprouting from log
+circle 0.48,0.58 0.06 fill #6b3510 0.9
+circle 0.48,0.58 0.06 stroke #2a1400
+circle 0.48,0.58 0.04 fill #8b4513 0.85
+circle 0.48,0.58 0.02 fill #a05a28 0.7
+
+circle 1.10,0.44 0.07 fill #6b3510 0.9
+circle 1.10,0.44 0.07 stroke #2a1400
+circle 1.10,0.44 0.05 fill #8b4513 0.85
+circle 1.10,0.44 0.025 fill #a05a28 0.7
+
+circle 1.70,0.52 0.055 fill #6b3510 0.9
+circle 1.70,0.52 0.055 stroke #2a1400
+circle 1.70,0.52 0.035 fill #8b4513 0.85
+
+circle 2.35,0.62 0.06 fill #6b3510 0.9
+circle 2.35,0.62 0.06 stroke #2a1400
+circle 2.35,0.62 0.04 fill #8b4513 0.85
+circle 2.35,0.62 0.02 fill #a05a28 0.7
+
+# Tiny caps scattered
+circle 0.90,0.30 0.03 fill #8b4513 0.8
+circle 1.95,0.74 0.028 fill #8b4513 0.8
+circle 2.55,0.48 0.025 fill #8b4513 0.75
+
+# East end cross-section
+ellipse 2.82,0.50 0.14,0.28 texfill polyhaven/bark_brown_02 0.75
+ellipse 2.82,0.50 0.14,0.28 fill #3a2810 0.55
+ellipse 2.82,0.50 0.14,0.28 stroke #1a1008 width 2
+ellipse 2.82,0.50 0.09,0.20 fill #2a1808 0.85
+
+# Soft spore drift on log
+circle 0.70,0.28 0.012 fill #d4c4a8 0.6
+circle 1.50,0.82 0.01 fill #d4c4a8 0.55
+circle 2.20,0.28 0.011 fill #d4c4a8 0.55

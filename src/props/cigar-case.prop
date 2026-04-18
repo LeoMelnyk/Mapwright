@@ -1,0 +1,64 @@
+name: Cigar Case
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: tavern-highend, noble-solar, mansion-dining, gambling-den, private-study
+typical_count: single
+clusters_with: wine-bottle, silver-tray, card-table, armchair
+notes: Open leather/wooden cigar case displaying rolled cigars inside velvet lining
+---
+# === HITBOX ===
+selection rect 0.14,0.22 0.72,0.56
+
+# Closed lid (hinged north, lifted open — appears as flat strip along north edge)
+rect 0.14,0.18 0.72,0.12 texfill polyhaven/dark_wood 0.92
+rect 0.14,0.18 0.72,0.12 stroke #2a1400 width 1
+# Brass hinges on lid
+circle 0.24,0.22 0.02 fill #daa520 0.9
+circle 0.76,0.22 0.02 fill #daa520 0.9
+# Gold inlay emblem on lid
+ellipse 0.50,0.24 0.08,0.03 fill #daa520 0.7
+ellipse 0.50,0.24 0.08,0.03 stroke #5a3a00 width 1
+
+# Case body (lower open section)
+rect 0.14,0.30 0.72,0.48 texfill polyhaven/dark_wood 0.9
+rect 0.14,0.30 0.72,0.48 stroke #2a1400 width 2
+
+# Velvet lining interior (deep red)
+rect 0.18,0.34 0.64,0.40 fill #4a0a0a 0.95
+rect 0.18,0.34 0.64,0.40 texfill polyhaven/velour_velvet 0.5
+rect 0.18,0.34 0.64,0.40 stroke #2a0000 width 1
+
+# Cigars laid out in a row (4-5 cigars, brown, tapered)
+rect 0.22,0.38 0.56,0.06 fill #5c3a1e 0.95
+rect 0.22,0.38 0.56,0.06 stroke #2a1400 width 1
+# Band/label on cigar
+rect 0.40,0.38 0.06,0.06 fill #daa520 0.85
+rect 0.40,0.38 0.06,0.06 stroke #5a3a00 width 1
+# Cigar tip glow (unlit, dark)
+circle 0.76,0.41 0.018 fill #1a0a00 0.9
+
+rect 0.22,0.48 0.56,0.06 fill #6b4428 0.95
+rect 0.22,0.48 0.56,0.06 stroke #2a1400 width 1
+rect 0.40,0.48 0.06,0.06 fill #daa520 0.85
+rect 0.40,0.48 0.06,0.06 stroke #5a3a00 width 1
+circle 0.76,0.51 0.018 fill #1a0a00 0.9
+
+rect 0.22,0.58 0.56,0.06 fill #5c3a1e 0.95
+rect 0.22,0.58 0.56,0.06 stroke #2a1400 width 1
+rect 0.40,0.58 0.06,0.06 fill #daa520 0.85
+rect 0.40,0.58 0.06,0.06 stroke #5a3a00 width 1
+circle 0.76,0.61 0.018 fill #1a0a00 0.9
+
+rect 0.22,0.68 0.56,0.06 fill #6b4428 0.95
+rect 0.22,0.68 0.56,0.06 stroke #2a1400 width 1
+rect 0.40,0.68 0.06,0.06 fill #daa520 0.85
+rect 0.40,0.68 0.06,0.06 stroke #5a3a00 width 1
+circle 0.76,0.71 0.018 fill #1a0a00 0.9
+
+# Gold trim on case rim
+rect 0.18,0.34 0.64,0.40 stroke #daa520 0.6 width 1

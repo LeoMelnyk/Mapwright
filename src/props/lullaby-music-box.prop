@@ -12,7 +12,7 @@ clusters_with: cradle, picture-book, nurse-stool, lullaby-music-box
 notes: Ornate wooden music box with brass trim, spinning disc visible through a round window in the top, and a tiny brass crank on one side
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.28 0.60,0.44 z 0-0.25
+selection rect 0.20,0.28 0.60,0.44
 
 # Main body — rounded dark-wood rectangle
 rect 0.20,0.28 0.60,0.44 texfill polyhaven/dark_wood 0.88

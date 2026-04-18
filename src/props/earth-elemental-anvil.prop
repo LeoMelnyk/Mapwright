@@ -10,13 +10,7 @@ room_types: elemental-earth-node, forge, smithy, magical-chamber
 typical_count: single
 clusters_with: earth-node-core, forge, bellows, obelisk-stone-raw
 notes: Massive anvil shaped from living stone with glowing earth-energy cracks. Place as centerpiece of an elemental forge.
-lights:
-  - type: torch
-    x: 1.0
-    y: 0.5
-    radius: 3
-    color: "#dd8822"
-    intensity: 0.3
+lights: [{"preset":"ember","x":1,"y":0.5,"radius":3,"intensity":0.3,"color":"#dd8822"}]
 ---
 # === HITBOX ===
 hitbox rect 0.25,0.12 1.50,0.76 z 0-3

@@ -1,5 +1,5 @@
 name: Skull Trophy
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: skull-totem, bone-pile, chieftains-throne, bonfire
 notes: Single humanoid skull driven on a short wooden stake into the ground. Smaller than skull-on-stick (shorter, ground-level trophy).
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.55 0.22 z 0-0.8
+selection circle 0.5,0.55 0.22
 
 # Ground blood stain at base
 ellipse 0.50,0.82 0.20,0.06 fill #4a0000 0.6

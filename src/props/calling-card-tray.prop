@@ -1,5 +1,5 @@
 name: Calling Card Tray
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: sideboard, small-table, tea-service, fresh-flowers
 notes: Silver tray holding gentlemen's calling cards — upper class entryway decor
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.5 0.32,0.22 z 0-0.3
+selection ellipse 0.5,0.5 0.32,0.22
 
 # Silver tray (oval, polished)
 ellipse 0.5,0.5 0.32,0.22 fill #cccccc 0.95

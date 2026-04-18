@@ -12,7 +12,7 @@ clusters_with: bar-counter, bench, stool, table, keg, bowl-stew
 notes: Pewter or wooden drinking tankard with handle
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.22 z 0-0.4
+selection circle 0.5,0.5 0.22
 
 # Base (dark shadow ring)
 circle 0.5,0.52 0.24 fill #1a1008 0.4

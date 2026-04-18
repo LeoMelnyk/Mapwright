@@ -12,7 +12,7 @@ clusters_with: scroll-case, scroll-rack, desk, arcane-pedestal, spell-component-
 notes: Loose pile of rolled scrolls on the floor or a table. Suggests ongoing research or hasty organizing.
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.22 0.72,0.56 z 0-0.2
+selection rect 0.14,0.22 0.72,0.56
 
 # Bottom scrolls (rolled, lying at angles)
 # Scroll 1 — horizontal, bottom of pile

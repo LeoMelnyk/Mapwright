@@ -12,7 +12,7 @@ clusters_with: arrow-stuck, broken-spear, dung-pile, rat-carcass
 notes: Snapped arrow shaft with bent fletching lying flat on ground. Scatter along pathways and near tripwires.
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.42 0.74,0.16 z 0-0.1
+selection rect 0.14,0.42 0.74,0.16
 
 # Faint dirt scuff under the arrow
 ellipse 0.50,0.54 0.34,0.06 fill #2a1a0a 0.3

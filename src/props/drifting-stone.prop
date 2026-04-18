@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: dead-god-fragment, star-dust-pile, drifting-stone
 notes: Jagged lavender-grey boulder suspended in the astral, untouched by gravity. Small chunks of rubble sometimes orbit larger ones.
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-0.6
+
 # Faint violet shadow beneath (radial, hinting at no contact)
 circle 0.5,0.55 0.42 fill #4a3a80 0.18
 

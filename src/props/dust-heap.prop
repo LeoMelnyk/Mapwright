@@ -12,7 +12,7 @@ clusters_with: cobweb, rag-pile, rubble-pile, broken-crate
 notes: Soft pile of accumulated dust with debris — age and neglect
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.54 0.32 z 0-0.2
+selection circle 0.5,0.54 0.32
 
 # Outer dust halo (very faint)
 circle 0.5,0.54 0.36 fill #aaa090 0.3

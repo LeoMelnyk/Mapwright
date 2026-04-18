@@ -12,7 +12,7 @@ clusters_with: patched-shirt, rag-pile, narrow-bed
 notes: Pair of battered leather shoes, toes pointing south
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.18 0.72,0.64 z 0-0.15
+selection rect 0.14,0.18 0.72,0.64
 
 # === LEFT SHOE (west) ===
 # Main shoe body — elongated oval, toe south

@@ -1,5 +1,5 @@
 name: Hidden Spike Pit
-category: Trap
+category: Traps
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: tripwire, broken-arrow, dung-pile
 notes: Pit covered with twigs and leaves as camouflage. Part of the cover has broken away exposing the wooden spikes below. Goblin trap; small DC.
 ---
 # === HITBOX ===
-hitbox rect 0.1,0.1 0.8,0.8 z 0-0.1
+selection rect 0.1,0.1 0.8,0.8
 
 # Pit outline (square hole)
 rect 0.10,0.10 0.80,0.80 fill #0a0604 0.9

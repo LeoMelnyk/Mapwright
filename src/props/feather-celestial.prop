@@ -9,13 +9,7 @@ room_types: celestial-vault, temple, solar-sanctum, divine-sanctum, angel-court
 typical_count: few
 clusters_with: dew-drop-sparkle, feather-celestial, flower-petals
 notes: Large pure-white glowing feather lying on the ground — angelic evidence or holy relic
-lights:
-  - type: candle
-    x: 0.50
-    y: 0.45
-    radius: 2
-    color: "#ffffff"
-    intensity: 0.15
+lights: [{"preset":"divine-radiance","x":0.5,"y":0.45,"radius":2,"intensity":0.15,"color":"#ffffff"}]
 ---
 # Top-down: a large feather lying flat on the ground, quill running diagonally
 

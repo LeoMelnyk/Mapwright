@@ -9,13 +9,7 @@ room_types: elemental-air-node, elemental-node, storm-spire
 typical_count: single
 clusters_with: cloud-pillar, djinn-pavilion, feather-drift, wind-chime-giant
 notes: Primal vortex of wind — place as centerpiece of an air node. Swirling silver/white wisps funnel inward toward a bright core.
-lights:
-  - type: candle
-    x: 1.5
-    y: 1.5
-    radius: 12
-    color: "#d0e0ff"
-    intensity: 0.8
+lights: [{"preset":"arcane-blue","x":1.5,"y":1.5,"radius":12,"intensity":0.8,"color":"#d0e0ff"}]
 ---
 # Outer luminous halo
 circle 1.5,1.5 1.4 gradient-radial #8090b0 #0a0814 0.35

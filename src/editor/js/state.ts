@@ -18,6 +18,7 @@ import {
 } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
+import { log } from '../../util/index.js';
 
 // ── Notify topics ─────────────────────────────────────────────────────────
 export type NotifyTopic = 'cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui';
@@ -104,6 +105,7 @@ const state: EditorState = {
   sessionToolsActive: false, // true when session toolbar is shown (session panel open + session active)
   statusInstruction: null, // string or null — shown in #status-center when set
   debugShowHitboxes: false, // when true, render prop hitbox outlines on the canvas
+  debugShowSelectionBoxes: false, // when true, render prop selection boxes for every placed prop
   _lastPushUndoMs: null,
 };
 
@@ -111,13 +113,34 @@ const state: EditorState = {
 // and pure, so the cached object is safe to reuse across frames; this also
 // preserves reference stability for downstream caches that key on theme.
 const _normalizedThemeCache = new WeakMap<Theme, Theme>();
+let _lastRawThemeSeen: Theme | null = null;
 function _resolveAndNormalize(rawTheme: Theme): Theme {
+  if (rawTheme !== _lastRawThemeSeen) {
+    log.devTrace(`getTheme: raw theme ref changed`, {
+      prev: _lastRawThemeSeen,
+      next: rawTheme,
+      sameJson: JSON.stringify(_lastRawThemeSeen) === JSON.stringify(rawTheme),
+    });
+    _lastRawThemeSeen = rawTheme;
+  }
   let cached = _normalizedThemeCache.get(rawTheme);
   if (!cached) {
     cached = normalizeRenderTheme(rawTheme);
     _normalizedThemeCache.set(rawTheme, cached);
   }
   return cached;
+}
+
+/**
+ * Evict the cached normalized theme for the current raw theme object.
+ * Call this after mutating theme properties in-place (e.g. theme panel sliders)
+ * so the next getTheme() call re-normalizes with the updated values.
+ */
+export function invalidateThemeCache(): void {
+  const t = state.dungeon.metadata.theme;
+  if (typeof t === 'object') {
+    _normalizedThemeCache.delete(t);
+  }
 }
 
 /**
@@ -306,7 +329,18 @@ export function undo(): void {
       // Compute before-state from the OLD cells (pre-undo) for the changed coordinates
       const beforeState = changedCoords.map(({ row, col }) => {
         const cell = oldCells[row]?.[col];
-        if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
+        if (!cell)
+          return {
+            row,
+            col,
+            wasVoid: true,
+            fill: null,
+            waterDepth: null,
+            lavaDepth: null,
+            hazard: false,
+            texture: null,
+            textureSecondary: null,
+          };
         return {
           row,
           col,
@@ -315,6 +349,8 @@ export function undo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
+          texture: (cell.texture as string | null) ?? null,
+          textureSecondary: (cell.textureSecondary as string | null) ?? null,
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
@@ -354,7 +390,18 @@ export function redo(): void {
     if (changedCoords && changedCoords.length > 0) {
       const beforeState = changedCoords.map(({ row, col }) => {
         const cell = oldCells[row]?.[col];
-        if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
+        if (!cell)
+          return {
+            row,
+            col,
+            wasVoid: true,
+            fill: null,
+            waterDepth: null,
+            lavaDepth: null,
+            hazard: false,
+            texture: null,
+            textureSecondary: null,
+          };
         return {
           row,
           col,
@@ -363,6 +410,8 @@ export function redo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
+          texture: (cell.texture as string | null) ?? null,
+          textureSecondary: (cell.textureSecondary as string | null) ?? null,
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);

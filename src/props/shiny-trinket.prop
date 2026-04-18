@@ -1,5 +1,5 @@
 name: Shiny Trinket Hoard
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: dung-pile, stolen-shoe, bone-pile, rat-carcass
 notes: Goblin magpie hoard — stolen coins, buttons, cutlery, baubles. Glitter but no real value.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.34 z 0-0.1
+selection circle 0.5,0.5 0.34
 
 # Dirt circle under hoard (where treasures were pawed together)
 ellipse 0.50,0.54 0.36,0.28 fill #2a1a0a 0.4

@@ -12,7 +12,7 @@ clusters_with: rat, mouse-trap, cheese-wheel, bread-heel
 notes: Classic spring-loaded wooden mouse trap on the floor
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.28 0.56,0.44 z 0-0.1
+selection rect 0.22,0.28 0.56,0.44
 
 # Wooden base (rectangular plank)
 rect 0.22,0.30 0.56,0.40 texfill polyhaven/weathered_planks 0.9

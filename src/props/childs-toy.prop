@@ -1,0 +1,71 @@
+name: Child's Toy
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: house-small, house-medium-family, nursery, orphanage, peasant-hovel, cottage, bedroom
+typical_count: single
+clusters_with: bed-small, chest-small, rolled-blanket, basket
+notes: A child's wooden toy horse dropped on the floor — simple carved horse silhouette on small wheels. Suggests a family home. Place mid-floor or beside beds.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: small carved wooden horse toy with wheels on a tiny platform, seen from directly above
+
+# === Shadow under toy ===
+ellipse 0.50,0.58 0.28,0.08 fill #000000 0.22
+
+# === Wooden platform (base with wheels) ===
+rect 0.22,0.42 0.56,0.22 texfill polyhaven/dark_wood 0.88
+rect 0.22,0.42 0.56,0.22 stroke #2a1400
+
+# === Four wheels (seen as small discs at corners of platform) ===
+circle 0.26,0.44 0.05 fill #5c3a1e 0.95
+circle 0.26,0.44 0.05 stroke #1a0800
+circle 0.26,0.44 0.015 fill #1a0800 0.95
+
+circle 0.74,0.44 0.05 fill #5c3a1e 0.95
+circle 0.74,0.44 0.05 stroke #1a0800
+circle 0.74,0.44 0.015 fill #1a0800 0.95
+
+circle 0.26,0.62 0.05 fill #5c3a1e 0.95
+circle 0.26,0.62 0.05 stroke #1a0800
+circle 0.26,0.62 0.015 fill #1a0800 0.95
+
+circle 0.74,0.62 0.05 fill #5c3a1e 0.95
+circle 0.74,0.62 0.05 stroke #1a0800
+circle 0.74,0.62 0.015 fill #1a0800 0.95
+
+# === Horse body silhouette on top — from above, mostly a rounded rectangular back ===
+# Body (elongated oval running east-west)
+ellipse 0.50,0.50 0.22,0.09 fill #a8824a 0.95
+ellipse 0.50,0.50 0.22,0.09 stroke #4a2810 width 1
+
+# === Horse head (small bump extending east) ===
+ellipse 0.74,0.48 0.08,0.06 fill #a8824a 0.95
+ellipse 0.74,0.48 0.08,0.06 stroke #4a2810
+
+# Ears (tiny triangles on head)
+poly 0.76,0.42 0.79,0.40 0.78,0.44 fill #6a4820 0.9
+poly 0.80,0.42 0.82,0.40 0.80,0.44 fill #6a4820 0.9
+
+# === Tail (small carved stub extending west) ===
+poly 0.28,0.48 0.22,0.46 0.20,0.50 0.22,0.54 0.28,0.52 fill #6a4820 0.95
+poly 0.28,0.48 0.22,0.46 0.20,0.50 0.22,0.54 0.28,0.52 stroke #2a1400
+
+# === Mane (darker brown stripe along the neck/back) ===
+line 0.58,0.46 0.74,0.46 stroke #4a2810 width 2
+line 0.58,0.50 0.72,0.50 stroke #4a2810 0.7 width 1
+
+# === Painted eye (small dark dot on head) ===
+circle 0.78,0.48 0.010 fill #1a0800 0.95
+
+# === Pull string attached to front ===
+bezier 0.82,0.50 0.88,0.54 0.92,0.60 0.94,0.66 stroke #c8b898 0.85 width 1
+circle 0.94,0.68 0.018 fill #8b6914 0.9
+circle 0.94,0.68 0.018 stroke #5a3a00
+
+# === Wood grain detail on body ===
+line 0.30,0.50 0.70,0.50 stroke #6a4820 0.35 width 1

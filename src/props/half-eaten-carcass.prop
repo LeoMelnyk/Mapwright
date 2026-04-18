@@ -12,7 +12,7 @@ clusters_with: carcass-fresh, gnawed-bone, bone-pile, blood-pool, blood-smear, f
 notes: Humanoid or animal carcass torn apart at one end — head intact at one side, ribs exposed at the ragged feeding-end. Place where a predator last fed.
 ---
 # === HITBOX ===
-hitbox rect 0.16,0.18 0.68,1.64 z 0-0.3
+selection rect 0.16,0.18 0.68,1.64
 
 # Blood pool seeping out (widest under the torn end, trailing south)
 poly 0.08,1.10 0.20,0.98 0.38,0.94 0.56,0.98 0.72,1.10 0.88,1.30 0.92,1.60 0.84,1.84 0.66,1.94 0.42,1.96 0.22,1.88 0.08,1.70 0.02,1.40 fill #3a0404 0.85

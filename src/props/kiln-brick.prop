@@ -9,13 +9,7 @@ placement: corner
 room_types: kiln-pottery, house-medium-artisan
 typical_count: single
 clusters_with: forge, clay-lump, finished-pot, broken-pot, clay-bin
-lights:
-  - type: brazier
-    x: 1.0
-    y: 1.0
-    radius: 14
-    color: "#ff7030"
-    intensity: 1.0
+lights: [{"preset":"forge","x":1,"y":1,"radius":14,"intensity":1,"color":"#ff7030"}]
 notes: Small brick kiln for firing pottery — square brick body with central firing chamber
 ---
 # === HITBOX ===

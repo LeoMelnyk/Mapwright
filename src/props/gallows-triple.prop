@@ -1,0 +1,92 @@
+name: Triple Gallows
+category: Prison
+footprint: 2x3
+facing: yes
+shadow: no
+blocks_light: yes
+height: 8
+placement: center
+room_types: roadside-gallows, gibbet-square, courtyard, execution-ground
+typical_count: single
+clusters_with: gallows, gibbet, crow-perched, tombstone, crypt-entrance
+notes: Long crossbeam mounted between two upright posts with three nooses dangling. Top-down: two post squares, thick beam, three rope circles + drape shadow beneath each noose. shadow: no (tall structure — floor shadow is wrong).
+---
+# footprint 2x3: x range 0-3, y range 0-2
+
+# === HITBOX (tall verticals block light) ===
+hitbox rect 0.30,0.30 0.36,0.36 z 3-8
+hitbox rect 2.34,0.30 0.36,0.36 z 3-8
+hitbox rect 0.66,0.40 1.68,0.18 z 6-8
+
+# === Drape shadow — diffuse area below each noose (mass hanging below) ===
+ellipse 0.80,1.30 0.20,0.50 fill #1a1008 0.14
+ellipse 1.50,1.30 0.20,0.50 fill #1a1008 0.14
+ellipse 2.20,1.30 0.20,0.50 fill #1a1008 0.14
+
+# === Left upright post (square cross-section from above) ===
+rect 0.30,0.30 0.36,0.36 texfill polyhaven/dark_wood 0.92
+rect 0.30,0.30 0.36,0.36 stroke #1a0a00
+# Post grain
+line 0.42,0.32 0.42,0.64 stroke #2a1400 0.7 width 1
+line 0.54,0.32 0.54,0.64 stroke #2a1400 0.7 width 1
+# Post base (ground plate shadow)
+rect 0.22,0.24 0.52,0.48 stroke #3a1f00 0.4
+
+# === Right upright post ===
+rect 2.34,0.30 0.36,0.36 texfill polyhaven/dark_wood 0.92
+rect 2.34,0.30 0.36,0.36 stroke #1a0a00
+line 2.46,0.32 2.46,0.64 stroke #2a1400 0.7 width 1
+line 2.58,0.32 2.58,0.64 stroke #2a1400 0.7 width 1
+rect 2.26,0.24 0.52,0.48 stroke #3a1f00 0.4
+
+# === Crossbeam (thick horizontal bar connecting posts) ===
+rect 0.66,0.40 1.68,0.18 texfill polyhaven/dark_wood 0.88
+rect 0.66,0.40 1.68,0.18 stroke #1a0a00
+# Beam grain lines
+line 0.68,0.46 2.32,0.46 stroke #2a1400 0.6
+line 0.68,0.52 2.32,0.52 stroke #2a1400 0.6
+# Iron bracket where beam meets left post
+rect 0.62,0.36 0.10,0.26 fill #555555 0.8
+rect 0.62,0.36 0.10,0.26 stroke #333333
+circle 0.67,0.42 0.02 fill #888888 0.8
+circle 0.67,0.56 0.02 fill #888888 0.8
+# Iron bracket where beam meets right post
+rect 2.28,0.36 0.10,0.26 fill #555555 0.8
+rect 2.28,0.36 0.10,0.26 stroke #333333
+circle 2.33,0.42 0.02 fill #888888 0.8
+circle 2.33,0.56 0.02 fill #888888 0.8
+
+# === Diagonal braces (post to beam) ===
+line 0.64,0.64 0.78,0.52 stroke #2a1400 width 2
+line 2.36,0.64 2.22,0.52 stroke #2a1400 width 2
+
+# === Noose 1 (above left — left of beam center) ===
+# Rope from beam to loop
+line 0.80,0.58 0.80,1.10 stroke #8b7355 width 2
+line 0.80,0.58 0.80,1.10 stroke #5c3a1e width 1
+# Noose loop (seen from above as small circle)
+circle 0.80,1.22 0.12 stroke #8b7355 width 3
+circle 0.80,1.22 0.12 stroke #5c3a1e width 1
+# Knot (thicker bit at top of loop)
+circle 0.80,1.10 0.05 fill #6b4e2e 0.95
+circle 0.80,1.10 0.05 stroke #3a2410
+
+# === Noose 2 (center) ===
+line 1.50,0.58 1.50,1.10 stroke #8b7355 width 2
+line 1.50,0.58 1.50,1.10 stroke #5c3a1e width 1
+circle 1.50,1.22 0.12 stroke #8b7355 width 3
+circle 1.50,1.22 0.12 stroke #5c3a1e width 1
+circle 1.50,1.10 0.05 fill #6b4e2e 0.95
+circle 1.50,1.10 0.05 stroke #3a2410
+
+# === Noose 3 (right) ===
+line 2.20,0.58 2.20,1.10 stroke #8b7355 width 2
+line 2.20,0.58 2.20,1.10 stroke #5c3a1e width 1
+circle 2.20,1.22 0.12 stroke #8b7355 width 3
+circle 2.20,1.22 0.12 stroke #5c3a1e width 1
+circle 2.20,1.10 0.05 fill #6b4e2e 0.95
+circle 2.20,1.10 0.05 stroke #3a2410
+
+# === Crow perched on beam (small detail) ===
+ellipse 1.80,0.38 0.05,0.04 fill #0a0608 0.9
+circle 1.83,0.36 0.008 fill #ffcc00 0.8

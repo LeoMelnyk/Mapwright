@@ -12,7 +12,7 @@ clusters_with: chair, silver-candlestick, napkin-pile, tureen, place-card, servi
 notes: Large round formal dining table with a centerpiece bowl and four suggested place settings evenly spaced.
 ---
 # === HITBOX ===
-hitbox circle 1.5,1.5 1.38 z 2-2.5
+selection circle 1.5,1.5 1.38
 
 # Footprint 3x3: x 0-3, y 0-3. Round formal table.
 

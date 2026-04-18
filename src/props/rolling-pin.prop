@@ -1,0 +1,60 @@
+name: Rolling Pin
+category: Kitchen
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: bakery, farmhouse-kitchen, servants-kitchen, house-medium-artisan
+typical_count: single
+clusters_with: kneading-board, rolling-board, flour-sack, bread-loaf, cheese-wheel
+notes: Wooden rolling pin lying flat on a surface. Horizontal cylinder — long barrel with two small knob handles at each end. Dusted with flour.
+---
+# === HITBOX ===
+selection rect 0.08,0.36 0.84,0.30
+
+# === Left handle knob ===
+ellipse 0.14,0.50 0.06,0.05 texfill polyhaven/dark_wood 0.88
+ellipse 0.14,0.50 0.06,0.05 stroke #2a1400
+
+# Left handle shaft (thinner connection)
+rect 0.20,0.46 0.08,0.08 texfill polyhaven/dark_wood 0.85
+rect 0.20,0.46 0.08,0.08 stroke #2a1400
+
+# === Right handle knob ===
+ellipse 0.86,0.50 0.06,0.05 texfill polyhaven/dark_wood 0.88
+ellipse 0.86,0.50 0.06,0.05 stroke #2a1400
+
+# Right handle shaft
+rect 0.72,0.46 0.08,0.08 texfill polyhaven/dark_wood 0.85
+rect 0.72,0.46 0.08,0.08 stroke #2a1400
+
+# === Main barrel (wide cylinder) ===
+rect 0.28,0.36 0.44,0.28 texfill polyhaven/wood_table 0.88
+rect 0.28,0.36 0.44,0.28 stroke #3a1f00
+
+# === Wood grain along barrel ===
+line 0.30,0.42 0.70,0.42 stroke #5c3a1e 0.45
+line 0.30,0.50 0.70,0.50 stroke #5c3a1e 0.4
+line 0.30,0.58 0.70,0.58 stroke #5c3a1e 0.45
+
+# === Highlight along north edge (top of cylinder) ===
+line 0.28,0.38 0.72,0.38 stroke #a88858 0.55 width 1
+
+# === Dark shadow band at south edge ===
+line 0.28,0.62 0.72,0.62 stroke #2a1400 0.5 width 1
+
+# === End caps (barrel-to-handle seams) ===
+line 0.28,0.36 0.28,0.64 stroke #2a1400 0.7
+line 0.72,0.36 0.72,0.64 stroke #2a1400 0.7
+
+# === Flour dusting across barrel ===
+ellipse 0.40,0.48 0.06,0.04 fill #ffffff 0.5
+ellipse 0.58,0.54 0.05,0.03 fill #ffffff 0.45
+circle 0.50,0.44 0.018 fill #ffffff 0.75
+circle 0.46,0.58 0.015 fill #ffffff 0.7
+circle 0.62,0.46 0.012 fill #ffffff 0.65
+
+# Small dough crumb stuck to surface
+circle 0.54,0.50 0.012 fill #e8d4a0 0.7

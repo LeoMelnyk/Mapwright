@@ -12,7 +12,7 @@ clusters_with: wine-glass, decanter, goblet, sideboard, table
 notes: Corked upright wine bottle — distinct from empty-bottle lying on side
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.52 0.12 z 0-0.4
+selection circle 0.5,0.52 0.12
 
 # Bottle base (round, viewed from above)
 circle 0.5,0.58 0.14 fill #1a2818 0.95

@@ -1,0 +1,73 @@
+name: Walking Stick
+category: Misc
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 4
+placement: wall
+room_types: inn-common-room, inn-room, hermit-cell, shepherds-shelter, cabin-hunters, ranger-camp, wayside-chapel
+typical_count: few
+clusters_with: travel-pack, bedroll, cloak-peg, walking-stick
+notes: Long wooden walking stick leaning against a wall. Top-down: thin diagonal wooden shaft with a worn grip wrap, metal ferrule at tip, rounded knob at top.
+---
+# === HITBOX ===
+selection rect 0.36,0.06 0.28,0.86
+
+# footprint 1x1: x 0-1, y 0-1. Stick leans from north (wall) to south (floor) — diagonal.
+
+# === Faint ground shadow where tip rests ===
+ellipse 0.58,0.88 0.08,0.04 fill #000000 0.3
+
+# === Main staff shaft (long wooden stick, diagonal NW-to-SE) ===
+# Shaft as a rotated rectangle
+rect 0.40,0.08 0.20,0.80 texfill polyhaven/dark_wood 0.9 rotate 10
+rect 0.40,0.08 0.20,0.80 stroke #1a0800 width 1 rotate 10
+
+# === Shaft grain detail (lengthwise along the shaft) ===
+line 0.44,0.14 0.60,0.88 stroke #2a1400 0.5 width 1
+line 0.48,0.10 0.64,0.84 stroke #2a1400 0.4 width 1
+line 0.52,0.12 0.68,0.86 stroke #2a1400 0.4 width 1
+
+# === Knots in the wood ===
+circle 0.50,0.34 0.025 stroke #2a1400 width 1
+circle 0.50,0.34 0.012 fill #1a0800 0.7
+circle 0.56,0.58 0.022 stroke #2a1400 width 1
+circle 0.56,0.58 0.010 fill #1a0800 0.7
+
+# === Top knob (rounded grip end at north, where the hand rests) ===
+circle 0.44,0.12 0.08 texfill polyhaven/dark_wood 0.92
+circle 0.44,0.12 0.08 fill #3a1f00 0.4
+circle 0.44,0.12 0.08 stroke #1a0800 width 1
+
+# Top knob highlight
+arc 0.44,0.12 0.07 200 260 stroke #8b6914 0.6 width 1
+
+# === Grip wrapping (leather strap wound around the shaft below the knob) ===
+rect 0.42,0.18 0.18,0.14 fill #3a2010 0.85 rotate 10
+rect 0.42,0.18 0.18,0.14 stroke #1a0800 rotate 10
+
+# Wrap lashing lines
+line 0.42,0.20 0.60,0.22 stroke #2a1400 width 1
+line 0.42,0.23 0.60,0.25 stroke #2a1400 width 1
+line 0.42,0.26 0.60,0.28 stroke #2a1400 width 1
+line 0.42,0.29 0.60,0.31 stroke #2a1400 width 1
+
+# Small leather strap/loop at the grip end
+bezier 0.40,0.18 0.34,0.20 0.32,0.26 0.36,0.30 stroke #3a2010 width 2
+
+# === Metal ferrule at tip (iron cap, bottom of stick) ===
+circle 0.60,0.88 0.06 texfill polyhaven/metal_plate 0.85
+circle 0.60,0.88 0.06 fill #333333 0.5
+circle 0.60,0.88 0.06 stroke #1a1a1a width 1
+
+# Ferrule tip (sharper point sticking out)
+poly 0.56,0.88 0.64,0.88 0.62,0.95 0.58,0.95 fill #555555 0.9
+poly 0.56,0.88 0.64,0.88 0.62,0.95 0.58,0.95 stroke #222222
+
+# === Subtle wear/polish along the shaft (worn by use) ===
+arc 0.52,0.50 0.08 200 260 stroke #8b6914 0.3 width 1
+
+# === Small carved notch near the grip (traveler's mark) ===
+line 0.50,0.40 0.54,0.42 stroke #1a0800 width 1
+line 0.49,0.42 0.53,0.44 stroke #1a0800 width 1

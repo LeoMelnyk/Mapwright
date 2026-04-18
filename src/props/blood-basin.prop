@@ -1,0 +1,79 @@
+name: Blood Basin
+category: Religious
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.7
+lights: [{"preset":"ember","x":0.5,"y":0.5,"color":"#cc2211","intensity":0.4,"radius":3}]
+placement: floor
+room_types: ritual-chamber-dark, dark-temple, cultist-shrine, boss-chamber, corpse-scene, corrupted-temple
+typical_count: few
+clusters_with: altar, candle, ritual-candle, skull-offering, chalk-circle-floor, bone-pile
+notes: Stone basin filled with dark blood — thick rim with crude carvings, glistening surface. Place near altars or at focal ritual points.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.7
+
+# Ground contact shadow
+ellipse 0.5,0.58 0.40,0.10 fill #1a0404 0.4
+
+# Dim red glow from the bowl's contents
+circle 0.5,0.5 0.44 fill #8b0000 0.15
+circle 0.5,0.5 0.36 fill #cc2211 0.18
+
+# === Stone basin outer edge ===
+circle 0.5,0.5 0.40 texfill polyhaven/stone_wall 0.8
+circle 0.5,0.5 0.40 stroke #333333 width 2
+
+# === Basin rim highlight (lit side) ===
+arc 0.5,0.5 0.39 200 340 stroke #888888 0.6 width 1
+
+# === Inner rim (the lip of the basin) ===
+ring 0.5,0.5 0.38 0.34 fill #444444 0.85
+ring 0.5,0.5 0.38 0.34 stroke #222222 width 1
+
+# === Carved rune marks around the rim (4 cardinal) ===
+line 0.50,0.06 0.50,0.12 stroke #1a1a1a 0.8 width 2
+line 0.94,0.50 0.88,0.50 stroke #1a1a1a 0.8 width 2
+line 0.50,0.94 0.50,0.88 stroke #1a1a1a 0.8 width 2
+line 0.06,0.50 0.12,0.50 stroke #1a1a1a 0.8 width 2
+# Diagonal rune hints
+line 0.18,0.18 0.22,0.22 stroke #1a1a1a 0.6 width 1
+line 0.82,0.18 0.78,0.22 stroke #1a1a1a 0.6 width 1
+line 0.18,0.82 0.22,0.78 stroke #1a1a1a 0.6 width 1
+line 0.82,0.82 0.78,0.78 stroke #1a1a1a 0.6 width 1
+
+# === Blood surface (dark pool inside the basin) ===
+circle 0.5,0.5 0.32 fill #4a0000 0.95
+circle 0.5,0.5 0.32 stroke #2a0000 width 1
+
+# Blood surface glisten (fresher, redder center)
+circle 0.5,0.5 0.24 fill #8b0000 0.75
+circle 0.5,0.5 0.16 fill #aa1010 0.65
+
+# Wet highlight / reflection
+ellipse 0.42,0.42 0.08,0.05 fill #cc3322 0.45
+ellipse 0.42,0.42 0.04,0.025 fill #ff4433 0.6
+
+# Ripple rings on blood surface (slow stirring)
+circle 0.5,0.5 0.28 stroke #2a0000 0.7 width 1
+circle 0.5,0.5 0.20 stroke #2a0000 0.6 width 1
+
+# Small clots / congealed bits floating
+circle 0.56,0.58 0.022 fill #2a0000 0.9
+circle 0.40,0.56 0.018 fill #2a0000 0.85
+circle 0.60,0.42 0.016 fill #2a0000 0.85
+
+# Blood drips down the outside of the rim (top-down, visible as dark blobs at edge)
+ellipse 0.32,0.78 0.04,0.03 fill #4a0000 0.85
+ellipse 0.70,0.76 0.035,0.025 fill #4a0000 0.8
+ellipse 0.74,0.22 0.03,0.02 fill #4a0000 0.75
+
+# Dark pool below (leaked blood that pooled beneath the basin)
+ellipse 0.50,0.78 0.18,0.05 fill #2a0000 0.5
+
+# Tiny glints on the blood surface (flickering candle reflection)
+circle 0.38,0.44 0.008 fill #ff6644 0.8
+circle 0.54,0.50 0.008 fill #ff6644 0.75
+circle 0.58,0.48 0.006 fill #ff6644 0.7

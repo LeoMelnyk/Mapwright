@@ -12,7 +12,7 @@ clusters_with: market-stall
 notes: Overlay prop designed to be placed at the same position as market-stall. Canvas canopy seen from above; do not add a drop shadow (it is overhead — shadow would be wrong, like a chandelier).
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.08 1.84,1.84 z 2-2.5
+selection rect 0.08,0.08 1.84,1.84
 
 # Canvas canopy base (full square, slight margin so it overhangs the stall edges visually)
 rect 0.08,0.08 1.84,1.84 fill #b83028 0.92

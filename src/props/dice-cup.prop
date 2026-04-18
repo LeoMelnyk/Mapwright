@@ -12,7 +12,7 @@ clusters_with: playing-cards, coin-scatter, coin-pile, dice, table, stool
 notes: Leather cup for shaking dice; often with dice spilled around it
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.22 z 0-0.3
+selection circle 0.5,0.5 0.22
 
 # Cup body (top-down — dark leather)
 circle 0.5,0.5 0.22 texfill polyhaven/brown_leather 0.9

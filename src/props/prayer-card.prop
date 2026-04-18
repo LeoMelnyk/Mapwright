@@ -12,7 +12,7 @@ clusters_with: candle-stub, altar, prayer-book, prayer-bench, cradle
 notes: Small paper prayer card, sometimes pinned to a wall or tucked onto an altar
 ---
 # === HITBOX ===
-hitbox rect 0.30,0.22 0.40,0.56 z 0-0.02
+selection rect 0.30,0.22 0.40,0.56
 
 # Card body (pale yellowed parchment, slightly rotated)
 rect 0.30,0.22 0.40,0.56 fill #e8dcc8 0.95 rotate -5

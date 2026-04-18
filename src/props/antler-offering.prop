@@ -1,5 +1,5 @@
 name: Antler Offering
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: yes
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: antler-pile, feather-bundle, prayer-stone, cairn-sacred
 notes: Single branching antler laid on the ground as a ritual offering
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.20 0.72,0.60 z 0-0.2
+selection rect 0.14,0.20 0.72,0.60
 
 # Main stem (curved main beam running east-west)
 bezier 0.14,0.68 0.30,0.58 0.56,0.48 0.84,0.42 stroke #d4c4a8 width 6

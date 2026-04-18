@@ -1,0 +1,63 @@
+name: Coal Pile
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: forge, smithy, infernal-forge, foundry-great, smithy-large
+typical_count: few
+clusters_with: forge, anvil, coal-bin, nails-crate, bellows
+notes: Loose heap of black coal chunks on the floor — fuel spilled from a bin or dumped near a forge. Unlike coal-bin, this is uncontained.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.36
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: loose mound of black coal chunks, no container
+
+# === Coal-dust halo (spread of fine dust around the pile) ===
+ellipse 0.50,0.52 0.42,0.36 fill #0a0808 0.45
+ellipse 0.50,0.52 0.32,0.26 fill #0a0808 0.55
+
+# === Base mound (large irregular dark blob) ===
+poly 0.18,0.50 0.26,0.34 0.40,0.26 0.56,0.24 0.72,0.30 0.82,0.44 0.84,0.60 0.76,0.74 0.60,0.80 0.44,0.80 0.28,0.74 0.18,0.62 fill #1a1a1a 0.9
+poly 0.18,0.50 0.26,0.34 0.40,0.26 0.56,0.24 0.72,0.30 0.82,0.44 0.84,0.60 0.76,0.74 0.60,0.80 0.44,0.80 0.28,0.74 0.18,0.62 stroke #0a0a0a
+
+# === Individual coal chunks (angular lumps) ===
+poly 0.32,0.40 0.42,0.36 0.46,0.44 0.38,0.48 fill #252525 0.92
+poly 0.32,0.40 0.42,0.36 0.46,0.44 0.38,0.48 stroke #0a0a0a
+
+poly 0.50,0.34 0.60,0.36 0.62,0.46 0.52,0.46 fill #1e1e1e 0.92
+poly 0.50,0.34 0.60,0.36 0.62,0.46 0.52,0.46 stroke #0a0a0a
+
+poly 0.62,0.50 0.74,0.52 0.72,0.62 0.62,0.62 fill #282828 0.9
+poly 0.62,0.50 0.74,0.52 0.72,0.62 0.62,0.62 stroke #0a0a0a
+
+poly 0.38,0.56 0.50,0.58 0.50,0.68 0.38,0.66 fill #222222 0.9
+poly 0.38,0.56 0.50,0.58 0.50,0.68 0.38,0.66 stroke #0a0a0a
+
+circle 0.28,0.48 0.06 fill #1a1a1a 0.9
+circle 0.28,0.48 0.06 stroke #0a0a0a
+
+circle 0.68,0.40 0.05 fill #252525 0.9
+circle 0.68,0.40 0.05 stroke #0a0a0a
+
+circle 0.54,0.72 0.055 fill #1e1e1e 0.88
+circle 0.54,0.72 0.055 stroke #0a0a0a
+
+# === Faint hot-glow embers (small, implies recently-shoveled coal) ===
+circle 0.44,0.48 0.014 fill #cc3300 0.7
+circle 0.58,0.52 0.012 fill #ff6600 0.65
+circle 0.52,0.40 0.01 fill #cc3300 0.55
+
+# === Scatter bits at edges ===
+circle 0.14,0.44 0.022 fill #1a1a1a 0.85
+circle 0.86,0.54 0.02 fill #1a1a1a 0.85
+circle 0.24,0.74 0.018 fill #222222 0.8
+circle 0.76,0.72 0.018 fill #222222 0.8
+
+# === Coal sheen highlights ===
+circle 0.40,0.42 0.014 fill #555555 0.35
+circle 0.66,0.54 0.012 fill #555555 0.3

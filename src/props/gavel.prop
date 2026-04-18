@@ -12,7 +12,7 @@ clusters_with: ledger-stack, document-stack, desk, writing-desk, sideboard
 notes: Wooden judge's gavel — head with handle, often with matching block
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.30 0.72,0.40 z 0-0.2
+selection rect 0.14,0.30 0.72,0.40
 
 # Sound block (small round base — separate piece)
 circle 0.20,0.52 0.08 fill #5c3a1e 0.9

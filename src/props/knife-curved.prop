@@ -12,7 +12,7 @@ clusters_with: cleaver, chopping-block, whetstone, skinning-knife, hanging-meat
 notes: Curved butchering knife with sweeping blade for slicing meat
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.26 0.72,0.58 z 0-0.1
+selection rect 0.14,0.26 0.72,0.58
 
 # Wooden handle (south end, dark)
 rect 0.44,0.66 0.16,0.18 texfill polyhaven/dark_wood 0.9

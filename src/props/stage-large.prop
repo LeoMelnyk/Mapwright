@@ -14,7 +14,7 @@ notes: Large raised wooden performance platform with stepped riser along the sou
 # footprint 3x3: x 0-3, y 0-3
 
 # === HITBOX ===
-hitbox rect 0.10,0.10 2.80,2.56 z 0-0.5
+selection rect 0.10,0.10 2.80,2.56
 
 # === Main stage platform (wide plank-top deck) ===
 rect 0.10,0.10 2.80,2.56 texfill polyhaven/weathered_planks 0.85

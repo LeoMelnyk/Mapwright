@@ -12,7 +12,7 @@ clusters_with: rat, gnawed-bone, rag-pile, nest-of-rags, mouse-trap
 notes: Single rat scurrying; place along walls or near food scraps
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.52 0.18,0.14 z 0-0.2
+selection ellipse 0.5,0.52 0.18,0.14
 
 # Body (elongated oval, head facing south)
 ellipse 0.5,0.52 0.18,0.14 fill #4a3a2a 0.95

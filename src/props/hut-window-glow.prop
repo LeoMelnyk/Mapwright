@@ -1,16 +1,11 @@
 name: Hut Window Glow
-category: Architectural
+category: Architecture
 footprint: 1x1
 facing: yes
 shadow: no
 blocks_light: no
 height: 1.5
-lights:
-  - color: "#ffaa44"
-    radius: 4
-    intensity: 0.4
-    x: 0.5
-    y: 0.6
+lights: [{"preset":"dim","x":0.5,"y":0.6,"radius":4,"intensity":0.4,"color":"#ffaa44"}]
 placement: wall
 room_types: bog-witch-hut, cabin-witch, peasant-hovel, hermit-cell, guard-post
 typical_count: single

@@ -1,0 +1,86 @@
+name: Spilled Flour Sack
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: cabin-abandoned, kitchen, bakery, ruined-kitchen, peasant-hovel, storage-pantry, mill
+typical_count: few
+clusters_with: crate-splintered, fallen-tool, sack, spilled-salt, overturned-table
+notes: Burst burlap sack on its side with white flour spilling in a soft halo. Sack silhouette with open tear and faint footprints trailing off.
+---
+# footprint 1x1: x 0-1, y 0-1. Burst sack tipped, flour spread across floor.
+
+# === Outer flour dust halo (wide, faint) ===
+circle 0.50,0.50 0.48 fill #f0ece4 0.35
+circle 0.50,0.50 0.48 gradient-radial #f8f4ec #6a6058 0.3
+
+# === Middle flour layer (denser) ===
+ellipse 0.48,0.54 0.38,0.32 fill #f0ece4 0.55
+
+# === Inner flour pile (around the sack opening, densest) ===
+poly 0.24,0.54 0.34,0.42 0.50,0.38 0.64,0.44 0.74,0.56 0.68,0.72 0.50,0.78 0.32,0.74 0.22,0.64 fill #f8f4ec 0.8
+poly 0.24,0.54 0.34,0.42 0.50,0.38 0.64,0.44 0.74,0.56 0.68,0.72 0.50,0.78 0.32,0.74 0.22,0.64 stroke #d8d0c0 0.4 width 1
+
+# === Brightest flour mound (where the sack spilled) ===
+ellipse 0.46,0.56 0.18,0.14 fill #ffffff 0.7
+
+# === Burst burlap sack (lying on its side) ===
+# Sack body (fallen flat, elongated)
+ellipse 0.58,0.52 0.26,0.18 texfill polyhaven/rough_linen 0.9
+ellipse 0.58,0.52 0.26,0.18 fill #9a8260 0.35
+ellipse 0.58,0.52 0.26,0.18 stroke #3a2810 width 1
+
+# Sack lumpy body bulges (mostly emptied)
+ellipse 0.70,0.50 0.10,0.07 fill #b8a580 0.45
+ellipse 0.66,0.58 0.08,0.05 fill #b8a580 0.45
+
+# Sack seam
+line 0.58,0.38 0.58,0.68 stroke #2a1810 0.7
+# Cross stitches
+line 0.56,0.42 0.60,0.42 stroke #2a1810 0.5
+line 0.56,0.52 0.60,0.52 stroke #2a1810 0.5
+line 0.56,0.62 0.60,0.62 stroke #2a1810 0.5
+
+# Burlap weave hatch marks
+line 0.54,0.46 0.56,0.48 stroke #3a2810 0.4
+line 0.66,0.54 0.68,0.56 stroke #3a2810 0.4
+
+# === Burst opening (tear at west end — where flour spills from) ===
+# Torn burlap edges
+poly 0.32,0.48 0.38,0.44 0.44,0.46 0.46,0.52 0.42,0.58 0.36,0.58 0.30,0.54 fill #2a1810 0.8
+poly 0.32,0.48 0.38,0.44 0.44,0.46 0.46,0.52 0.42,0.58 0.36,0.58 0.30,0.54 stroke #1a0f00 width 1
+# Jagged tear lines
+line 0.32,0.46 0.28,0.42 stroke #2a1810 0.85 width 1
+line 0.38,0.44 0.34,0.38 stroke #2a1810 0.85 width 1
+line 0.44,0.46 0.44,0.38 stroke #2a1810 0.8 width 1
+
+# === Drawstring at south end (east end of sack) ===
+ellipse 0.82,0.52 0.04,0.03 fill #3a2010 0.9
+line 0.84,0.50 0.90,0.44 stroke #3a2010 width 2
+line 0.84,0.54 0.90,0.60 stroke #3a2010 width 2
+
+# === Flour scatter specks (loose granules) ===
+circle 0.10,0.22 0.022 fill #ffffff 0.9
+circle 0.16,0.14 0.018 fill #ffffff 0.85
+circle 0.06,0.38 0.02 fill #ffffff 0.85
+circle 0.14,0.76 0.022 fill #ffffff 0.85
+circle 0.22,0.86 0.018 fill #ffffff 0.8
+circle 0.38,0.90 0.02 fill #ffffff 0.85
+circle 0.56,0.92 0.016 fill #ffffff 0.8
+circle 0.86,0.28 0.018 fill #ffffff 0.8
+circle 0.92,0.46 0.016 fill #ffffff 0.75
+circle 0.86,0.80 0.02 fill #ffffff 0.85
+circle 0.94,0.66 0.015 fill #ffffff 0.75
+
+# === Tiny distant specks (far dust) ===
+circle 0.04,0.58 0.01 fill #ffffff 0.6
+circle 0.96,0.32 0.01 fill #ffffff 0.6
+circle 0.02,0.80 0.012 fill #ffffff 0.65
+
+# === Faint footprint trail south (someone walked through it) ===
+ellipse 0.36,0.86 0.04,0.02 fill #c8b8a0 0.5
+ellipse 0.44,0.92 0.04,0.02 fill #c8b8a0 0.45
+ellipse 0.26,0.80 0.035,0.018 fill #c8b8a0 0.4

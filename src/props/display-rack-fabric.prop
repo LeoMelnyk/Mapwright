@@ -11,7 +11,7 @@ clusters_with: fabric-bolt, stall-counter, display-case-small, canvas-awning
 notes: Wall-mounted frame rack with bolts of cloth on a horizontal rod. North edge attaches to wall.
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.06 1.84,0.50 z 0-1.8
+selection rect 0.08,0.06 1.84,0.50
 
 # Footprint 1x2: x 0-2, y 0-1. Wide wall-mounted cloth-bolt rack. Wall at north.
 

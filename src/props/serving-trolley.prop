@@ -12,7 +12,7 @@ clusters_with: round-dining-table, china-cabinet, silver-candlestick, tureen
 notes: Wheeled cart with silver tray, covered dishes, and a crystal decanter. Approaches from south.
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.08 1.84,0.72 z 0-1.0
+selection rect 0.08,0.08 1.84,0.72
 
 # Footprint 1x2: x 0-2, y 0-1. Wall/corner placement; service side at south (high Y).
 

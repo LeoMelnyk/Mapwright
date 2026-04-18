@@ -10,13 +10,7 @@ room_types: farmhouse-common, peasant-hovel, house-medium-family, chapel, bedroo
 typical_count: single
 clusters_with: candle, prayer-stone, prayer-book, holy-symbol
 notes: Small wall shrine shelf with candle, pendant token, and wooden icon — top-down shows thin shelf strip + items along the wall
-lights:
-  - type: candle
-    x: 0.30
-    y: 0.16
-    radius: 3
-    color: "#ffcc80"
-    intensity: 0.3
+lights: [{"preset":"candle","x":0.3,"y":0.16,"radius":3,"intensity":0.3,"color":"#ffcc80"}]
 ---
 # footprint 1x1: x range 0-1, y range 0-1
 # Wall at north (low Y). Shelf mounted on wall, items face south.

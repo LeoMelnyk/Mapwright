@@ -12,7 +12,7 @@ clusters_with: rag-pile, folded-cloak, worn-shoes, narrow-bed
 notes: Threadbare shirt crumpled on the floor with mismatched patches — signals poverty
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.20 0.76,0.62 z 0-0.08
+selection rect 0.12,0.20 0.76,0.62
 
 # Main shirt body (rough crumpled outline — shoulders north, hem south)
 poly 0.28,0.26 0.44,0.22 0.58,0.24 0.72,0.30 0.80,0.42 0.76,0.58 0.70,0.72 0.56,0.80 0.40,0.78 0.26,0.70 0.18,0.56 0.20,0.40 fill #8a7868 0.85

@@ -6,14 +6,14 @@ shadow: yes
 blocks_light: no
 height: 1.0
 placement: any
-lights: [{"type":"candle","x":0.5,"y":0.5,"radius":6,"color":"#ffcc80","intensity":0.7}]
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":6,"color":"#ffcc80","intensity":0.7}]
 room_types: mansion-dining, dining-hall, supper-room, noble-solar, mansion-bedroom-master, temple
 typical_count: few
 clusters_with: round-dining-table, china-cabinet, napkin-pile, tureen
 notes: Tall ornate silver candlestick with one lit candle. Emits soft warm candlelight.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.18 z 0-1.0
+selection circle 0.5,0.5 0.18
 
 # Footprint 1x1: x 0-1, y 0-1. Top-down: round base, fluted stem disc, candle cup, flame.
 

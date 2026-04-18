@@ -1,5 +1,5 @@
 name: Bars (Cell Partition)
-category: Prison & Torture
+category: Prison
 footprint: 1x2
 facing: yes
 shadow: no
@@ -12,8 +12,8 @@ clusters_with: cell-door, rusted-manacle, straw-pile, chain-coil
 notes: Iron-bar cell partition; place along a wall edge to divide cells or fence off a holding pen
 ---
 # === HITBOX — only rails block light slightly, bars let most light through ===
-hitbox rect 0.0,0.30 2.0,0.08 z 0-3
-hitbox rect 0.0,0.62 2.0,0.08 z 0-3
+selection rect 0.0,0.30 2.0,0.08
+selection rect 0.0,0.62 2.0,0.08
 
 # North rail (reinforcing bar, wall-side)
 rect 0.0,0.30 2.0,0.08 texfill polyhaven/metal_plate 0.85

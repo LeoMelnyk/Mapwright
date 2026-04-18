@@ -12,7 +12,7 @@ clusters_with: sideboard, table, decanter, fresh-flowers
 notes: Silver bowl piled with fresh fruit — centerpiece for dining tables
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.34 z 0-0.4
+selection circle 0.5,0.5 0.34
 
 # Silver bowl outer
 circle 0.5,0.54 0.34 fill #aaaaaa 0.95

@@ -12,7 +12,7 @@ clusters_with: cutting-table, scissors-shears, sewing-bench, buttons-jar
 notes: Coiled cloth measuring tape; scatter on cutting surfaces or benches
 ---
 # === HITBOX ===
-hitbox circle 0.45,0.50 0.22 z 0-0.2
+selection circle 0.45,0.50 0.22
 
 # Coiled tape outer ring (linen cloth)
 circle 0.45,0.50 0.22 fill #e8dcc8 0.85

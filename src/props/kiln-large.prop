@@ -9,13 +9,7 @@ placement: wall
 room_types: kiln-pottery, workshop, mill-workshop
 typical_count: single
 clusters_with: kiln-brick, clay-bin, clay-lump, drying-rack, pottery-shard, apron-clay
-lights:
-  - type: brazier
-    x: 1.0
-    y: 1.0
-    radius: 5
-    color: "#ff8800"
-    intensity: 0.25
+lights: [{"preset":"ember","x":1,"y":1,"radius":5,"intensity":0.25,"color":"#ff8800"}]
 notes: Large beehive-style brick firing kiln with domed top seen from above as concentric rings of brick. Firing mouth at south with warm interior glow. Bigger, production-grade variant of kiln-brick.
 ---
 # === HITBOX ===

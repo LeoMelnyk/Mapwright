@@ -8,11 +8,11 @@ height: 0.01
 placement: floor
 room_types: dark-temple, ritual-chamber, torture-chamber, corpse-scene, corrupted-temple
 typical_count: few
-clusters_with: altar, corpse, blood-smear, corpse, skull-small
+clusters_with: altar, corpse, blood-smear, skull-small
 notes: Dried dark blood pool on floor — older and more sinister than fresh blood-smear
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.36 z 0-0.01
+selection circle 0.5,0.5 0.36
 
 # Outer dried crust (dark brown halo)
 poly 0.14,0.50 0.20,0.32 0.34,0.22 0.52,0.20 0.68,0.24 0.80,0.34 0.86,0.52 0.82,0.68 0.70,0.80 0.52,0.84 0.34,0.80 0.22,0.70 0.14,0.60 fill #3a1808 0.9

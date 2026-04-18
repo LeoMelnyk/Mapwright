@@ -12,7 +12,7 @@ clusters_with: bread-loaf, tin-cup, wooden-bowl, cheese-wheel
 notes: End-piece of bread; smaller than a full loaf, suggests hard times
 ---
 # === HITBOX ===
-hitbox poly 0.30,0.38 0.68,0.34 0.72,0.58 0.56,0.70 0.32,0.64 z 0-0.1
+selection poly 0.30,0.38 0.68,0.34 0.72,0.58 0.56,0.70 0.32,0.64
 
 # Heel body (irregular wedge, crusty end)
 poly 0.30,0.38 0.50,0.34 0.68,0.36 0.72,0.54 0.64,0.68 0.44,0.70 0.32,0.62 fill #a0702a 0.95

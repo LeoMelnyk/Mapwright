@@ -1,0 +1,45 @@
+name: Discarded Boot
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: ship-crew-quarters, barracks, cabin-hunters, tenement-room
+typical_count: single
+clusters_with: boots-by-bed, gear-pack, bedroll
+notes: A single leather boot fallen on its side, sole toward viewer. Careless scatter.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: boot lying on its side — you see the full profile silhouette, sole at one side, upper at the other.
+
+# Boot body lying on side (toe west, ankle east), slightly diagonal
+poly 0.08,0.48 0.18,0.38 0.54,0.34 0.82,0.36 0.88,0.44 0.88,0.60 0.80,0.68 0.62,0.70 0.40,0.70 0.22,0.66 0.10,0.58 texfill polyhaven/brown_leather 0.85
+poly 0.08,0.48 0.18,0.38 0.54,0.34 0.82,0.36 0.88,0.44 0.88,0.60 0.80,0.68 0.62,0.70 0.40,0.70 0.22,0.66 0.10,0.58 fill #4a2a10 0.35
+poly 0.08,0.48 0.18,0.38 0.54,0.34 0.82,0.36 0.88,0.44 0.88,0.60 0.80,0.68 0.62,0.70 0.40,0.70 0.22,0.66 0.10,0.58 stroke #2a1400
+
+# Dark ankle opening (east end)
+ellipse 0.80,0.52 0.06,0.10 fill #0a0404 0.9
+ellipse 0.80,0.52 0.06,0.10 stroke #000000
+
+# Sole strip running along south (since boot is on its side, the sole shows as a dark stripe)
+poly 0.12,0.56 0.22,0.64 0.40,0.68 0.62,0.68 0.78,0.64 0.84,0.58 0.84,0.62 0.78,0.68 0.62,0.70 0.40,0.70 0.22,0.66 0.10,0.58 fill #2a1400 0.7
+poly 0.12,0.56 0.22,0.64 0.40,0.68 0.62,0.68 0.78,0.64 0.84,0.58 0.84,0.62 0.78,0.68 0.62,0.70 0.40,0.70 0.22,0.66 0.10,0.58 stroke #1a0a00 0.7
+
+# Heel (west toe is rounded, east has ankle, middle bulge = heel)
+ellipse 0.60,0.55 0.10,0.08 fill #3a2010 0.5
+
+# Leather creases along the upper
+bezier 0.25,0.42 0.40,0.46 0.55,0.46 0.70,0.42 stroke #2a1400 0.6 width 1
+bezier 0.22,0.50 0.38,0.54 0.56,0.54 0.72,0.50 stroke #2a1400 0.5 width 1
+
+# Laces dangling — untied cord flopping out of ankle
+bezier 0.80,0.48 0.86,0.42 0.92,0.40 0.96,0.36 stroke #6b4e2e width 1
+bezier 0.80,0.55 0.88,0.58 0.94,0.56 0.98,0.52 stroke #6b4e2e width 1
+
+# Scuff mark on toe
+ellipse 0.18,0.48 0.05,0.03 fill #6b4020 0.6
+
+# Grime smudge under boot
+ellipse 0.50,0.72 0.22,0.04 fill #1a0f00 0.25

@@ -12,7 +12,7 @@ clusters_with: book-pile, quill, ledger-stack, inkwell
 notes: Small pince-nez or folded spectacles resting on a surface. Two brass lens rings bridged in the middle, with thin folded wire arms.
 ---
 # === HITBOX === (small — glasses barely occlude)
-hitbox rect 0.22,0.40 0.56,0.20 z 0-0.1
+selection rect 0.22,0.40 0.56,0.20
 
 # footprint 1x1: x range 0-1, y range 0-1
 # Two lens rings centered horizontally around y=0.5, connected by a small bridge.

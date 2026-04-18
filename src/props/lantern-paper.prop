@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 1.0
-lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":8,"color":"#ffcc60","intensity":0.7}]
+lights: [{"preset":"lantern","x":0.5,"y":0.5,"radius":8,"color":"#ffcc60","intensity":0.7}]
 placement: any
 room_types: fairground-seasonal, festival-grounds, village-green, tavern, temple
 typical_count: few
@@ -15,7 +15,7 @@ notes: Round paper lantern on short post with warm yellow glow; festive lighting
 # footprint 1x1: x range 0-1, y range 0-1
 
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-1.0
+selection circle 0.5,0.5 0.28
 
 # === Soft outer glow (spills onto ground) ===
 circle 0.5,0.5 0.48 fill #ffcc60 0.15

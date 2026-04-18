@@ -12,7 +12,7 @@ clusters_with: sewing-bench, buttons-jar, scissors-shears, cutting-table
 notes: Tiny brass thimble seen from above as concentric rings; scatter on benches or cutting tables
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.14 z 0-0.2
+selection circle 0.5,0.5 0.14
 
 # Outer rim (brass base)
 circle 0.5,0.5 0.14 fill #daa520 0.9

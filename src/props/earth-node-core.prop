@@ -10,13 +10,7 @@ room_types: elemental-earth-node, elemental-node, cave, magical-chamber
 typical_count: single
 clusters_with: obelisk-stone-raw, earth-elemental-anvil, geode-cluster, crystal-formation
 notes: Primal earth node — floating cluster of brown/amber crystals radiating earth energy. Centerpiece of an earth elemental node.
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 5
-    color: "#dd8822"
-    intensity: 0.7
+lights: [{"preset":"lava-glow","x":1,"y":1,"radius":5,"intensity":0.7,"color":"#dd8822"}]
 ---
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: concentric rings — outer dim earth aura → cracked amber mid-ring → bright crystalline core

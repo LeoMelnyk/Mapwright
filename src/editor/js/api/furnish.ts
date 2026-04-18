@@ -64,6 +64,34 @@ function pickRandom<T>(arr: T[], rng: () => number = Math.random): T | undefined
   return arr[Math.floor(rng() * arr.length)];
 }
 
+/**
+ * Return every cell a prop occupies at the given anchor and facing.
+ * 90°/270° swap the footprint dimensions. Non-square primaries cover more
+ * than one cell, so reservation must track the full span — not just the
+ * anchor — or flanks/secondaries will overlap the centerpiece.
+ */
+function footprintCells(footprint: [number, number], anchorRow: number, anchorCol: number, facing: number): string[] {
+  const [fRows, fCols] = footprint;
+  const r = ((facing % 360) + 360) % 360;
+  const isR90 = r === 90 || r === 270;
+  const spanRows = isR90 ? fCols : fRows;
+  const spanCols = isR90 ? fRows : fCols;
+  const keys: string[] = [];
+  for (let dr = 0; dr < spanRows; dr++) {
+    for (let dc = 0; dc < spanCols; dc++) {
+      keys.push(cellKey(anchorRow + dr, anchorCol + dc));
+    }
+  }
+  return keys;
+}
+
+function footprintFits(footprintKeys: string[], roomCells: Set<string>, usedCells: Set<string>): boolean {
+  for (const k of footprintKeys) {
+    if (!roomCells.has(k) || usedCells.has(k)) return false;
+  }
+  return true;
+}
+
 /** Return cells inside the room that are not within 1 cell of any door. */
 function nonDoorApproachCells(roomCells: Set<string>): Set<string> {
   const cells = state.dungeon.cells;
@@ -189,13 +217,20 @@ export function proposeFurnishing(
   let primaryProp: PropMeta | undefined;
   let primaryRow: number | undefined;
   let primaryCol: number | undefined;
+  let primaryFootprint: [number, number] | undefined;
   if (bySlot.center!.length) {
     primaryProp = pickRandom(bySlot.center!);
     if (primaryProp) {
       const [pr, pc] = centroidCell(roomCells);
       primaryRow = pr;
       primaryCol = pc;
-      usedCells.add(cellKey(pr, pc));
+      primaryFootprint = primaryProp.footprint;
+      // Reserve every cell the centerpiece's footprint covers, not just the
+      // anchor, so flanks/secondaries don't overlap a multi-cell primary
+      // (e.g. a 2×2 throne-dais or 2×1 altar).
+      for (const k of footprintCells(primaryProp.footprint, pr, pc, 0)) {
+        usedCells.add(k);
+      }
       const isLit = isLitProp(primaryProp.name);
       if (isLit) lightBudget--;
       plan.push({
@@ -214,7 +249,7 @@ export function proposeFurnishing(
   // ── 2. Symmetric flanks (if room has bilateral feel) ─────────
   // Flank with structural props (pillar, brazier, candelabra, statue)
   const wantsFlanks = options.symmetric ?? DENSITY_BUDGET[density].flanks;
-  if (wantsFlanks && primaryProp && primaryRow != null && primaryCol != null) {
+  if (wantsFlanks && primaryProp && primaryRow != null && primaryCol != null && primaryFootprint) {
     const flankCandidates = candidates.filter(
       (p) =>
         p.name !== primaryProp.name &&
@@ -225,18 +260,19 @@ export function proposeFurnishing(
     if (flank) {
       const bounds = api.getRoomBounds(label);
       if (bounds.success) {
-        // Mirror across vertical centerline
-        const offset = 2;
-        const lCol = primaryCol - offset;
-        const rCol = primaryCol + offset;
-        const flankFacing = flank.facing ? 90 : 0; // facing east on left, west on right (handled later)
+        // Offset flanks past the primary's actual span (+ 1 cell gap) rather
+        // than a hard-coded ±2, so a 2-wide centerpiece doesn't swallow them.
+        const [, primaryCols] = primaryFootprint;
+        const gap = 1;
+        const lCol = primaryCol - gap - 1; // 1-wide flank's anchor sits 1 cell left of primary
+        const rCol = primaryCol + primaryCols + gap - 1; // right flank anchor at primary's right edge + gap
         const isLit = isLitProp(flank.name);
         for (const [side, c, f] of [
           ['west', lCol, flank.facing ? 90 : 0],
           ['east', rCol, flank.facing ? 270 : 0],
         ] as Array<[string, number, number]>) {
-          const k = cellKey(primaryRow, c);
-          if (!roomCells.has(k) || usedCells.has(k)) {
+          const flankCells = footprintCells(flank.footprint, primaryRow, c, f);
+          if (!footprintFits(flankCells, roomCells, usedCells)) {
             rejected.push({ prop: flank.name, reason: `flank ${side} out of room or occupied` });
             continue;
           }
@@ -252,11 +288,9 @@ export function proposeFurnishing(
             facing: f,
             reasoning: `symmetric flank ${side} of ${primaryProp.name}`,
           });
-          usedCells.add(k);
+          for (const k of flankCells) usedCells.add(k);
           if (isLit) lightBudget--;
         }
-        // Suppress unused warning
-        void flankFacing;
       }
     }
   }
@@ -280,9 +314,13 @@ export function proposeFurnishing(
     if (isLit && lightBudget <= 0) continue;
     const positions = api.getValidPropPositions(label, sec.name, 0);
     if (!positions.success || !positions.positions.length) continue;
-    // Filter out already-used cells and door approaches
+    // Filter out already-used cells (full footprint) and door approaches.
     const safe = nonDoorApproachCells(roomCells);
-    const valid = positions.positions.filter(([r, c]) => safe.has(cellKey(r, c)) && !usedCells.has(cellKey(r, c)));
+    const valid = positions.positions.filter(([r, c]) => {
+      if (!safe.has(cellKey(r, c))) return false;
+      const span = footprintCells(sec.footprint, r, c, 0);
+      return footprintFits(span, roomCells, usedCells);
+    });
     const pick = pickRandom(valid);
     if (!pick) continue;
     const [pr, pc] = pick;
@@ -297,7 +335,7 @@ export function proposeFurnishing(
           ? `secondary clustersWith ${primaryProp.name}`
           : `secondary for ${roomType}`,
     });
-    usedCells.add(cellKey(pr, pc));
+    for (const k of footprintCells(sec.footprint, pr, pc, 0)) usedCells.add(k);
     if (isLit) lightBudget--;
     added++;
   }
@@ -312,7 +350,11 @@ export function proposeFurnishing(
     const positions = api.getValidPropPositions(label, sc.name, 0);
     if (!positions.success) continue;
     const safe = nonDoorApproachCells(roomCells);
-    const valid = positions.positions.filter(([r, c]) => safe.has(cellKey(r, c)) && !usedCells.has(cellKey(r, c)));
+    const valid = positions.positions.filter(([r, c]) => {
+      if (!safe.has(cellKey(r, c))) return false;
+      const span = footprintCells(sc.footprint, r, c, 0);
+      return footprintFits(span, roomCells, usedCells);
+    });
     const pick = pickRandom(valid);
     if (!pick) continue;
     const [pr, pc] = pick;
@@ -324,7 +366,7 @@ export function proposeFurnishing(
       facing: 0,
       reasoning: 'scatter — adds life',
     });
-    usedCells.add(cellKey(pr, pc));
+    for (const k of footprintCells(sc.footprint, pr, pc, 0)) usedCells.add(k);
     scattered++;
   }
 
@@ -335,6 +377,7 @@ interface CommitResult {
   success: true;
   placed: Array<{ role: PlanRole; prop: string; row: number; col: number; facing: number }>;
   failed: Array<{ role: PlanRole; prop: string; row: number; col: number; error: string }>;
+  lightsAdded: Array<{ id: number; preset: string; propRow: number; propCol: number; propType: string }>;
 }
 
 /**
@@ -343,7 +386,9 @@ interface CommitResult {
  * committing — each entry is just a placeProp call.
  *
  * Per-entry failures are recorded but don't halt the batch; check the
- * returned `failed` array.
+ * returned `failed` array. Auto-emitted lights from placed props are
+ * aggregated into `lightsAdded` with attribution so callers can budget light
+ * count without re-querying by propRef.
  */
 export function commitFurnishing(plan: unknown): CommitResult {
   if (plan == null || typeof plan !== 'object') {
@@ -353,13 +398,32 @@ export function commitFurnishing(plan: unknown): CommitResult {
   if (!Array.isArray(entries)) {
     throw new ApiValidationError('INVALID_PLAN', 'commitFurnishing expects an array of plan entries or {plan:[]}', {});
   }
-  const api = getApi() as unknown as { placeProp: (r: number, c: number, t: string, f: number) => unknown };
+  const api = getApi() as unknown as {
+    placeProp: (
+      r: number,
+      c: number,
+      t: string,
+      f: number,
+    ) => { success: boolean; lightsAdded?: Array<{ id: number; preset: string }> };
+  };
   const placed: CommitResult['placed'] = [];
   const failed: CommitResult['failed'] = [];
+  const lightsAdded: CommitResult['lightsAdded'] = [];
   for (const entry of entries) {
     try {
-      api.placeProp(entry.row, entry.col, entry.prop, entry.facing);
+      const res = api.placeProp(entry.row, entry.col, entry.prop, entry.facing);
       placed.push({ role: entry.role, prop: entry.prop, row: entry.row, col: entry.col, facing: entry.facing });
+      if (res.lightsAdded?.length) {
+        for (const l of res.lightsAdded) {
+          lightsAdded.push({
+            id: l.id,
+            preset: l.preset,
+            propRow: entry.row,
+            propCol: entry.col,
+            propType: entry.prop,
+          });
+        }
+      }
     } catch (e) {
       failed.push({
         role: entry.role,
@@ -370,7 +434,7 @@ export function commitFurnishing(plan: unknown): CommitResult {
       });
     }
   }
-  return { success: true, placed, failed };
+  return { success: true, placed, failed, lightsAdded };
 }
 
 interface AutofurnishResult {
@@ -380,6 +444,7 @@ interface AutofurnishResult {
   density: Density;
   placed: Array<{ type: string; row: number; col: number; via: string }>;
   skipped: Array<{ type: string; via: string; reason: string }>;
+  lightsAdded: Array<{ id: number; preset: string; propRow: number; propCol: number; propType: string }>;
 }
 
 /**
@@ -411,6 +476,7 @@ export function autofurnish(
       ...commit.failed.map((f) => ({ type: f.prop, via: roleToVia(f.role), reason: f.error })),
       ...proposal.rejected.map((r) => ({ type: r.prop, via: 'select', reason: r.reason })),
     ],
+    lightsAdded: commit.lightsAdded,
   };
 }
 
@@ -450,6 +516,7 @@ export function furnishBrief(brief: { rooms: BriefRoom[] }): {
         density: r.density ?? 'normal',
         placed: [],
         skipped: [{ type: '*', via: 'autofurnish', reason: e instanceof Error ? e.message : String(e) }],
+        lightsAdded: [],
       });
       totalSkipped++;
     }

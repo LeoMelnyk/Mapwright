@@ -12,7 +12,7 @@ clusters_with: dried-herbs, shelf-open, cauldron, hanging-meat, cheese-wheel
 notes: Small tied bundle of fresh herbs on a surface — distinct from wall-hung dried-herbs
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.26 0.60,0.50 z 0-0.2
+selection rect 0.20,0.26 0.60,0.50
 
 # Binding twine at base (south end)
 rect 0.40,0.66 0.20,0.08 fill #5c3a1e 0.9

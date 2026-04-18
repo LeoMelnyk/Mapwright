@@ -12,7 +12,7 @@ clusters_with: torch-totem, skull-on-stick, bone-marker, cairn-sacred
 notes: Short warding totem — small post topped with lashed bones and feathers. Unlit cousin of torch-totem; tribal territory marker.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.14 z 0-1.2
+selection circle 0.5,0.5 0.14
 
 # Feather hanging NW (muted grey-brown, tied to post)
 poly 0.40,0.38 0.28,0.26 0.22,0.18 0.26,0.22 0.34,0.30 fill #5a4838 0.85

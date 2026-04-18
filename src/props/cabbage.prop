@@ -12,7 +12,7 @@ clusters_with: bread-loaf, cheese-wheel, shelf-open, bucket, basket
 notes: Round head of cabbage — pale green layered leaves
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-0.3
+selection circle 0.5,0.5 0.28
 
 # Outer leaves (dark green, widest)
 poly 0.22,0.50 0.28,0.34 0.44,0.26 0.56,0.26 0.72,0.32 0.78,0.48 0.76,0.62 0.64,0.74 0.48,0.78 0.32,0.72 0.22,0.62 fill #3a5828 0.95

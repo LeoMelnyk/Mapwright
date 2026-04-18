@@ -12,7 +12,7 @@ clusters_with: chalk-mark, workbench, fabric-scrap, chisel
 notes: White chalk mark on the floor — measurement, tally, or thieves' cant glyph
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.28 0.56,0.44 z 0-0.01
+selection rect 0.22,0.28 0.56,0.44
 
 # Main chalk symbol — stylized 'X' or cross mark (primary mark)
 line 0.30,0.36 0.52,0.54 stroke #e8e4d8 width 3

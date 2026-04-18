@@ -1,0 +1,61 @@
+name: Horseshoe
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: forge, smithy, general-workshop, stable, shop-weaponsmith
+typical_count: few
+clusters_with: anvil, horseshoe-pile, hammer, tongs-long, nails-crate
+notes: A single finished iron horseshoe lying flat — finished product from a smith's work. Distinct from horseshoe-pile (which is a heap).
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.36
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a single U-shaped horseshoe lying flat, opening facing south
+
+# Subtle ground smudge
+ellipse 0.50,0.54 0.36,0.32 fill #1a1008 0.14
+
+# === Main horseshoe body (thick U-ring, opening south) ===
+# Use arc as thick stroke first for the shape
+arc 0.50,0.48 0.30 200 340 stroke #222222 width 8
+arc 0.50,0.48 0.30 200 340 stroke #666666 width 6
+arc 0.50,0.48 0.30 200 340 stroke #888888 width 3
+
+# Inner opening edge (darker line)
+arc 0.50,0.48 0.22 200 340 stroke #1a1a1a width 2
+
+# Outer edge highlight
+arc 0.50,0.48 0.32 210 330 stroke #aaaaaa 0.45 width 1
+
+# === Two end-tips (heel caulks - small squarish lumps at the open ends) ===
+# North-west tip (heel at ~200°)
+circle 0.22,0.36 0.048 fill #444444 0.95
+circle 0.22,0.36 0.048 texfill polyhaven/metal_plate 0.5
+circle 0.22,0.36 0.048 stroke #111111
+
+# North-east tip (heel at ~340°)
+circle 0.78,0.36 0.048 fill #444444 0.95
+circle 0.78,0.36 0.048 texfill polyhaven/metal_plate 0.5
+circle 0.78,0.36 0.048 stroke #111111
+
+# === Nail holes (small dark dots around the ring) ===
+circle 0.28,0.30 0.018 fill #0a0a0a 0.9
+circle 0.34,0.24 0.016 fill #0a0a0a 0.85
+circle 0.50,0.20 0.018 fill #0a0a0a 0.9
+circle 0.66,0.24 0.016 fill #0a0a0a 0.85
+circle 0.72,0.30 0.018 fill #0a0a0a 0.9
+circle 0.32,0.56 0.016 fill #0a0a0a 0.8
+circle 0.68,0.56 0.016 fill #0a0a0a 0.8
+
+# === Sheen highlights on the curved face ===
+arc 0.50,0.48 0.30 250 290 stroke #bbbbbb 0.6 width 2
+arc 0.50,0.48 0.28 240 300 stroke #ddddee 0.4 width 1
+
+# Maker's stamp near toe
+circle 0.50,0.22 0.02 fill #111111 0.85
+line 0.48,0.22 0.52,0.22 stroke #aaaaaa 0.5

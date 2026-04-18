@@ -12,7 +12,7 @@ clusters_with: whetstone, dagger-loose, broken-weapon, tool-rack
 notes: Snapped sword blade — jagged fracture in the middle
 ---
 # === HITBOX ===
-hitbox rect 0.36,0.16 0.28,0.68 z 0-0.1
+selection rect 0.36,0.16 0.28,0.68
 
 # Upper half (intact, point end)
 poly 0.44,0.16 0.56,0.16 0.60,0.22 0.58,0.42 0.48,0.50 0.42,0.42 0.40,0.22 fill #aaaaaa 0.95

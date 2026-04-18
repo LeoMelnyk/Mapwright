@@ -9,14 +9,7 @@ placement: center
 room_types: foundry-great, infernal-forge, smithy-large
 typical_count: single
 clusters_with: blast-furnace, ladle-iron, sand-mold, ingot-stack, overhead-crane
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 7
-    color: "#ff7030"
-    intensity: 0.6
-    falloff: linear
+lights: [{"preset":"forge","x":1,"y":1,"radius":7,"intensity":0.6,"color":"#ff7030","falloff":"linear"}]
 notes: Sunken rectangular casting pit filled with molten iron. Sand-moulded rim, gate runner channel leading off one edge. Ground-level feature — no shadow, doesn't block light. Pair with blast-furnace and ladle-iron.
 ---
 # === Outer dark rim (packed earth / sand mound around the pit) ===

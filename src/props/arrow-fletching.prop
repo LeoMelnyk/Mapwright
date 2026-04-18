@@ -12,7 +12,7 @@ clusters_with: arrow-bundle, feather-bundle, workbench, bow
 notes: Loose feather fletchings on a workbench; fletching craft clutter
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.22 0.72,0.58 z 0-0.05
+selection rect 0.14,0.22 0.72,0.58
 
 # Feather 1 (red fletch, large)
 poly 0.22,0.32 0.34,0.26 0.38,0.34 0.26,0.40 fill #aa4040 0.9

@@ -1,0 +1,92 @@
+name: Poppet
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: cabin-witch, bog-witch-hut, hermit-cell, cultist-shrine, torture-chamber, dark-temple
+typical_count: few
+clusters_with: chalk-circle-floor, skull-small, candle, altar, rune-stone, ritual-candle
+notes: Handmade rag doll / voodoo poppet with pins stuck into it. Snout/head north (low Y), feet south (high Y) in top-down view.
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.22,0.34
+
+# Ground contact shadow
+ellipse 0.5,0.80 0.18,0.04 fill #1a1008 0.35
+
+# === Body (stuffed rag cloth) ===
+# Main torso (rough oval)
+poly 0.38,0.32 0.62,0.32 0.66,0.52 0.60,0.68 0.40,0.68 0.34,0.52 texfill polyhaven/rough_linen 0.82
+poly 0.38,0.32 0.62,0.32 0.66,0.52 0.60,0.68 0.40,0.68 0.34,0.52 fill #a88860 0.4
+poly 0.38,0.32 0.62,0.32 0.66,0.52 0.60,0.68 0.40,0.68 0.34,0.52 stroke #4a3820 width 1
+
+# === Head (rag ball at north) ===
+circle 0.50,0.24 0.10 texfill polyhaven/rough_linen 0.85
+circle 0.50,0.24 0.10 fill #b89870 0.35
+circle 0.50,0.24 0.10 stroke #4a3820 width 1
+
+# Neck stitch binding
+line 0.42,0.32 0.58,0.32 stroke #3a2818 width 2
+line 0.44,0.34 0.56,0.34 stroke #1a0804 width 1
+
+# === Face (stitched eyes and mouth — crude X's and stitches) ===
+# Left eye — X
+line 0.46,0.20 0.48,0.24 stroke #1a0804 width 1
+line 0.48,0.20 0.46,0.24 stroke #1a0804 width 1
+# Right eye — X
+line 0.54,0.20 0.52,0.24 stroke #1a0804 width 1
+line 0.52,0.20 0.54,0.24 stroke #1a0804 width 1
+# Mouth stitch
+line 0.46,0.28 0.54,0.28 stroke #1a0804 width 1
+line 0.47,0.28 0.47,0.30 stroke #1a0804 width 1
+line 0.49,0.28 0.49,0.30 stroke #1a0804 width 1
+line 0.51,0.28 0.51,0.30 stroke #1a0804 width 1
+line 0.53,0.28 0.53,0.30 stroke #1a0804 width 1
+
+# === Arms (stubby cloth limbs, spread at sides) ===
+poly 0.34,0.40 0.22,0.44 0.18,0.52 0.24,0.54 0.34,0.48 texfill polyhaven/rough_linen 0.82
+poly 0.34,0.40 0.22,0.44 0.18,0.52 0.24,0.54 0.34,0.48 stroke #4a3820 width 1
+poly 0.66,0.40 0.78,0.44 0.82,0.52 0.76,0.54 0.66,0.48 texfill polyhaven/rough_linen 0.82
+poly 0.66,0.40 0.78,0.44 0.82,0.52 0.76,0.54 0.66,0.48 stroke #4a3820 width 1
+
+# === Legs (stubby at south) ===
+poly 0.42,0.66 0.48,0.66 0.46,0.80 0.42,0.80 texfill polyhaven/rough_linen 0.82
+poly 0.42,0.66 0.48,0.66 0.46,0.80 0.42,0.80 stroke #4a3820 width 1
+poly 0.52,0.66 0.58,0.66 0.58,0.80 0.54,0.80 texfill polyhaven/rough_linen 0.82
+poly 0.52,0.66 0.58,0.66 0.58,0.80 0.54,0.80 stroke #4a3820 width 1
+
+# === Stitching down the torso ===
+line 0.50,0.36 0.50,0.66 stroke #3a2818 0.8 width 1
+line 0.49,0.40 0.51,0.42 stroke #3a2818 0.7 width 1
+line 0.49,0.46 0.51,0.48 stroke #3a2818 0.7 width 1
+line 0.49,0.52 0.51,0.54 stroke #3a2818 0.7 width 1
+line 0.49,0.58 0.51,0.60 stroke #3a2818 0.7 width 1
+line 0.49,0.64 0.51,0.66 stroke #3a2818 0.7 width 1
+
+# === Pins stuck into the body (visible heads + shafts poking out) ===
+# Pin 1 — in chest (red head)
+line 0.50,0.44 0.56,0.36 stroke #888888 width 1
+circle 0.56,0.36 0.02 fill #cc3322 0.95
+circle 0.56,0.36 0.02 stroke #660000
+# Pin 2 — in arm
+line 0.28,0.48 0.20,0.42 stroke #888888 width 1
+circle 0.20,0.42 0.02 fill #cc3322 0.95
+circle 0.20,0.42 0.02 stroke #660000
+# Pin 3 — in leg (black head)
+line 0.45,0.72 0.40,0.80 stroke #888888 width 1
+circle 0.40,0.80 0.018 fill #1a1a1a 0.95
+circle 0.40,0.80 0.018 stroke #000000
+# Pin 4 — in head
+line 0.50,0.24 0.44,0.16 stroke #888888 width 1
+circle 0.44,0.16 0.018 fill #cc3322 0.9
+
+# === Tied cord at waist ===
+line 0.36,0.52 0.64,0.52 stroke #1a0804 width 1
+circle 0.64,0.52 0.015 fill #1a0804
+circle 0.66,0.54 0.014 fill #3a1f00 0.8
+
+# Tiny dark stain (blood or ink)
+ellipse 0.58,0.56 0.03,0.02 fill #4a0000 0.7

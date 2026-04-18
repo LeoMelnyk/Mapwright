@@ -1,0 +1,68 @@
+name: Resonance Pool
+category: Magical
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+lights: [{"preset":"arcane-blue","x":1.0,"y":1.0,"color":"#66ddee","intensity":0.6,"radius":5}]
+placement: center
+room_types: crystal-grotto, wizard-sanctum, demiplane-laboratory, elemental-water-node, underdark-outpost
+typical_count: single
+clusters_with: crystal-cluster, crystal-shard, arcane-pedestal, magic-circle
+notes: Shallow pool of glowing cyan water set into a stone rim — a scrying or elemental resonance pool. Place at room center. Flat floor decoration.
+---
+# Outer ambient halo
+circle 1.0,1.0 0.95 gradient-radial #66ddee #0a1828 0.3
+
+# === Stone rim (outer circular basin) ===
+ring 1.0,1.0 0.92 0.75 texfill polyhaven/stone_wall 0.82
+ring 1.0,1.0 0.92 0.75 stroke #444444 width 2
+# Inner rim edge highlight
+circle 1.0,1.0 0.75 stroke #666666 width 1
+
+# === Water surface (main glowing pool) ===
+circle 1.0,1.0 0.72 fill #3388aa 0.85
+circle 1.0,1.0 0.72 stroke #225566 width 1
+
+# Luminous middle layer
+circle 1.0,1.0 0.60 fill #55bbdd 0.7
+# Bright inner glow
+circle 1.0,1.0 0.44 fill #88ddee 0.65
+# Hottest center (magical resonance focal point)
+circle 1.0,1.0 0.25 fill #bbeeff 0.75
+circle 1.0,1.0 0.12 fill #e8faff 0.85
+
+# === Concentric ripple rings ===
+circle 1.0,1.0 0.68 stroke #aaeeff 0.5 width 1
+circle 1.0,1.0 0.52 stroke #ccf4ff 0.45 width 1
+circle 1.0,1.0 0.36 stroke #ccf4ff 0.4 width 1
+circle 1.0,1.0 0.20 stroke #e0f8ff 0.5 width 1
+
+# === Water highlights / surface glints ===
+ellipse 0.80,0.78 0.18,0.06 fill #ffffff 0.4
+ellipse 1.30,0.82 0.12,0.04 fill #ffffff 0.3
+ellipse 0.82,1.24 0.10,0.04 fill #ffffff 0.28
+ellipse 1.20,1.28 0.14,0.05 fill #ffffff 0.32
+
+# === Floating motes / wisps of magical light ===
+circle 0.70,1.10 0.025 fill #ccf4ff 0.9
+circle 1.34,0.92 0.02 fill #ccf4ff 0.85
+circle 1.14,1.32 0.022 fill #e0f8ff 0.85
+circle 0.86,0.72 0.018 fill #ccf4ff 0.75
+
+# === Rim carvings (rune marks at cardinals) ===
+line 1.0,0.12 1.0,0.22 stroke #88ccee 0.7 width 1
+line 1.88,1.0 1.78,1.0 stroke #88ccee 0.7 width 1
+line 1.0,1.88 1.0,1.78 stroke #88ccee 0.7 width 1
+line 0.12,1.0 0.22,1.0 stroke #88ccee 0.7 width 1
+
+# Small crystal flecks embedded in rim
+circle 0.30,0.40 0.025 fill #aaeeff 0.8
+circle 1.70,0.40 0.025 fill #aaeeff 0.8
+circle 0.30,1.60 0.025 fill #aaeeff 0.8
+circle 1.70,1.60 0.025 fill #aaeeff 0.8
+
+# Subtle prismatic glint at center
+line 0.94,0.94 1.06,1.06 stroke #ffffff 0.6 width 1
+line 0.94,1.06 1.06,0.94 stroke #ffffff 0.5 width 1

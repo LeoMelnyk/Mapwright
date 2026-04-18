@@ -1,0 +1,60 @@
+name: Branding Iron
+category: Prison
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.4
+lights: [{"preset":"ember","x":0.5,"y":0.2,"radius":2,"color":"#ff4400","intensity":0.45,"falloff":"quadratic"}]
+placement: floor
+room_types: torture-chamber, interrogation-room, dungeon, forge
+typical_count: few
+clusters_with: hot-iron, brazier, pincers, torture-rack, tool-cart
+notes: Long iron brand with glowing red tip. Lying across two cells east-west, tip at west (low x). Front = south (handle side).
+---
+# === HITBOX ===
+selection rect 0.05,0.42 1.85,0.16
+
+# === Heat halo around tip (west end) ===
+circle 0.28,0.50 0.26 fill #cc3300 0.14
+circle 0.28,0.50 0.20 fill #ff4400 0.20
+
+# === Iron shaft (long rod running east-west) ===
+rect 0.18,0.46 1.50,0.08 texfill polyhaven/metal_plate 0.85
+rect 0.18,0.46 1.50,0.08 stroke #222222
+# Shaft highlight
+line 0.20,0.48 1.66,0.48 stroke #aaaaaa 0.5 width 1
+
+# === Brand head (west tip — shaped iron mark) ===
+# Cruciform / sigil shape (a sinister mark)
+circle 0.18,0.50 0.12 fill #1a0800 0.95
+circle 0.18,0.50 0.12 stroke #222222
+# Glowing interior
+circle 0.18,0.50 0.10 fill #ff4400 0.85
+circle 0.18,0.50 0.08 fill #ff6600 0.9
+circle 0.18,0.50 0.05 fill #ffaa00 0.95
+# Brand mark shape (cross within circle)
+line 0.10,0.50 0.26,0.50 stroke #ffcc00 width 2
+line 0.18,0.42 0.18,0.58 stroke #ffcc00 width 2
+# Hot glow rising from head
+circle 0.18,0.50 0.14 stroke #ff8800 0.5 width 1
+# Tiny embers/sparks around tip
+circle 0.08,0.42 0.015 fill #ffaa00 0.9
+circle 0.12,0.58 0.012 fill #ff8800 0.8
+circle 0.28,0.40 0.014 fill #ffcc00 0.85
+
+# === Ferrule / collar between head and shaft ===
+rect 0.30,0.43 0.06,0.14 fill #444444 0.9
+rect 0.30,0.43 0.06,0.14 stroke #222222
+
+# === Wooden handle (east end) ===
+rect 1.68,0.42 0.22,0.16 texfill polyhaven/dark_wood 0.92
+rect 1.68,0.42 0.22,0.16 stroke #1a0a00
+# Handle grain
+line 1.70,0.50 1.88,0.50 stroke #2a1400 0.6 width 1
+# Leather wrap near iron
+rect 1.68,0.44 0.06,0.12 fill #4a2800 0.85
+rect 1.68,0.44 0.06,0.12 stroke #1a0a00
+# Handle end cap
+circle 1.88,0.50 0.04 fill #2a1400 0.9
+circle 1.88,0.50 0.04 stroke #1a0a00

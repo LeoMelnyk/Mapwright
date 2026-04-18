@@ -4,18 +4,13 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+height: 12
 placement: floor
 room_types: fey-glade, fey-court, druid-grove, forest, enchanted-grove
 typical_count: few
 clusters_with: fey-mushroom-ring, fey-lantern-bloom, dew-drop-sparkle, mushroom
 notes: Large ancient tree with shimmering bark and glowing lichen — fey forest centerpiece
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 4
-    color: "#ddcc66"
-    intensity: 0.25
+lights: [{"preset":"dim","x":1,"y":1,"radius":4,"intensity":0.25,"color":"#ddcc66"}]
 ---
 # Footprint 2x2: x 0-2, y 0-2
 

@@ -9,13 +9,7 @@ room_types: astral-anchor, astral-sea, spelljammer-dock, planar-nexus
 typical_count: few
 clusters_with: astral-anchor-stone, silver-cord-pylon, floating-candle
 notes: Ornate silver filigree lantern hanging in the void with no support. Contains a fragment of captive starlight.
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 12
-    color: "#e0e0ff"
-    intensity: 0.8
+lights: [{"preset":"silvery","x":0.5,"y":0.5,"radius":12,"intensity":0.8,"color":"#e0e0ff"}]
 ---
 # Outer halo of captured starlight
 circle 0.5,0.5 0.46 gradient-radial #e0e0ff #4a3a80 0.35

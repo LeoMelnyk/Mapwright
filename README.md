@@ -153,7 +153,7 @@ Mapwright includes a real-time fog-of-war player view via WebSocket. Open the **
 - Water depth rendering (shallow / medium / deep) with distinct visual treatment
 
 **Props & Dressing**
-- 170+ props — furniture, containers, nautical items, arcane objects, structural elements
+- 1400+ props — furniture, containers, nautical items, arcane objects, structural elements, room-themed clutter spanning 70+ room types
 - Hover any prop, light, bridge, or label to select; drag to reposition
 
 **Lighting**

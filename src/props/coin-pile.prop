@@ -12,7 +12,7 @@ clusters_with: coin-stack, coin-scatter, coin-purse, chest, scale, treasure-pile
 notes: Small heap of loose coins; smaller than treasure-pile
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.52 0.28 z 0-0.2
+selection circle 0.5,0.52 0.28
 
 # Shadow beneath pile
 ellipse 0.5,0.58 0.28,0.06 fill #1a1008 0.4

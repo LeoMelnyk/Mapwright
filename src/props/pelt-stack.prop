@@ -1,0 +1,56 @@
+name: Pelt Stack
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: cabin-trapper, cabin-hunters, tannery, trader-post, hunting-lodge-large
+typical_count: few
+clusters_with: pelt-roll, fur-clump, antler-pile, tanning-rack
+notes: Stack of folded pelts on the floor — layered irregular rectangles with fur-fringe edges peeking out between layers.
+---
+# === HITBOX ===
+selection rect 0.12,0.18 0.76,0.64
+
+# Shadow beneath stack
+ellipse 0.50,0.82 0.42,0.08 fill #1a0a00 0.3
+
+# === Bottom pelt (largest, showing at edges) ===
+rect 0.10,0.56 0.80,0.26 texfill polyhaven/brown_leather 0.8
+rect 0.10,0.56 0.80,0.26 fill #3a2000 0.4
+rect 0.10,0.56 0.80,0.26 stroke #1a0a00 width 2
+# Fur fringe on bottom pelt (west and east peek)
+poly 0.08,0.62 0.04,0.68 0.08,0.74 fill #4a2800 0.85
+poly 0.92,0.62 0.96,0.68 0.92,0.74 fill #4a2800 0.85
+
+# === Middle pelt ===
+rect 0.14,0.40 0.72,0.22 texfill polyhaven/brown_leather 0.8
+rect 0.14,0.40 0.72,0.22 fill #5c3a1e 0.45
+rect 0.14,0.40 0.72,0.22 stroke #2a1400 width 2
+# Fur texture lines on middle
+line 0.22,0.48 0.30,0.46 stroke #3a2000 0.5 width 1
+line 0.40,0.50 0.50,0.48 stroke #3a2000 0.5 width 1
+line 0.60,0.48 0.70,0.46 stroke #3a2000 0.5 width 1
+
+# === Top pelt (smallest, neatly folded) ===
+rect 0.18,0.24 0.64,0.22 texfill polyhaven/brown_leather 0.8
+rect 0.18,0.24 0.64,0.22 fill #6a4828 0.45
+rect 0.18,0.24 0.64,0.22 stroke #2a1400 width 2
+# Fold crease on top
+line 0.18,0.35 0.82,0.35 stroke #2a1400 0.6 width 1
+# Fur fringe on top edge
+poly 0.26,0.22 0.30,0.17 0.34,0.22 fill #4a2800 0.85
+poly 0.44,0.22 0.48,0.17 0.52,0.22 fill #5a3a20 0.85
+poly 0.62,0.22 0.66,0.17 0.70,0.22 fill #4a2800 0.85
+
+# === Lighter highlight streaks on top pelt ===
+line 0.30,0.40 0.70,0.40 stroke #8a6040 0.4 width 1
+
+# === Stitch / seam dots along pelt edges ===
+circle 0.22,0.56 0.012 fill #c8a878 0.8
+circle 0.50,0.56 0.012 fill #c8a878 0.8
+circle 0.78,0.56 0.012 fill #c8a878 0.8
+circle 0.28,0.40 0.012 fill #c8a878 0.75
+circle 0.72,0.40 0.012 fill #c8a878 0.75

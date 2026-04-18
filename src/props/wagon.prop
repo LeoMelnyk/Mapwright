@@ -1,0 +1,138 @@
+name: Wagon
+category: Transport
+footprint: 2x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: floor
+room_types: lumberyard, stable, yard, street, market-square, farm-exterior, dock-warehouse
+typical_count: single
+clusters_with: horse, barrel, crate, sack, sack-pile, hay-bale
+notes: Four-wheeled cargo wagon with wooden bed. Top-down — large rectangular bed, 4 wheel ovals at corners, draw bar extending north. NOT a side view.
+---
+# footprint 2x3: x 0-3, y 0-2
+# === HITBOX ===
+hitbox rect 0.15,0.20 2.70,1.60 z 0-1.8
+
+# === Draw bar / tongue (extends north/front from bed) ===
+rect 0.05,0.92 0.60,0.16 fill #4a2800 0.8
+rect 0.05,0.92 0.60,0.16 stroke #2a1400 width 2
+# Tongue tip (iron fitting)
+rect 0.00,0.96 0.08,0.08 fill #444444 0.9
+rect 0.00,0.96 0.08,0.08 stroke #222222 width 1
+# Tongue wood grain
+line 0.10,1.00 0.60,1.00 stroke #2a1400 0.6 width 1
+
+# === Wagon bed (main rectangular platform) ===
+rect 0.60,0.30 1.80,1.40 texfill polyhaven/weathered_planks 0.9
+rect 0.60,0.30 1.80,1.40 fill #3a2010 0.3
+rect 0.60,0.30 1.80,1.40 stroke #1a1008 width 2
+
+# Bed plank seams (lengthwise)
+line 0.62,0.60 2.38,0.60 stroke #2a1400 0.6 width 1
+line 0.62,0.90 2.38,0.90 stroke #2a1400 0.6 width 1
+line 0.62,1.10 2.38,1.10 stroke #2a1400 0.6 width 1
+line 0.62,1.40 2.38,1.40 stroke #2a1400 0.6 width 1
+
+# Cross brace (center)
+rect 1.40,0.30 0.12,1.40 fill #3a2010 0.6
+rect 1.40,0.30 0.12,1.40 stroke #1a1008 width 1
+
+# === Side rails (raised edges of the bed) ===
+# North rail
+rect 0.60,0.30 1.80,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.60,0.30 1.80,0.08 fill #2a1400 0.5
+rect 0.60,0.30 1.80,0.08 stroke #1a1008 width 1
+# South rail
+rect 0.60,1.62 1.80,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.60,1.62 1.80,0.08 fill #2a1400 0.5
+rect 0.60,1.62 1.80,0.08 stroke #1a1008 width 1
+# West rail (front)
+rect 0.60,0.30 0.08,1.40 texfill polyhaven/dark_wood 0.88
+rect 0.60,0.30 0.08,1.40 fill #2a1400 0.5
+rect 0.60,0.30 0.08,1.40 stroke #1a1008 width 1
+# East rail (back/tailgate)
+rect 2.32,0.30 0.08,1.40 texfill polyhaven/dark_wood 0.88
+rect 2.32,0.30 0.08,1.40 fill #2a1400 0.5
+rect 2.32,0.30 0.08,1.40 stroke #1a1008 width 1
+
+# Rail iron reinforcements (corner brackets)
+rect 0.60,0.30 0.10,0.10 fill #444444 0.7
+rect 0.60,0.30 0.10,0.10 stroke #222222 width 1
+rect 2.30,0.30 0.10,0.10 fill #444444 0.7
+rect 2.30,0.30 0.10,0.10 stroke #222222 width 1
+rect 0.60,1.60 0.10,0.10 fill #444444 0.7
+rect 0.60,1.60 0.10,0.10 stroke #222222 width 1
+rect 2.30,1.60 0.10,0.10 fill #444444 0.7
+rect 2.30,1.60 0.10,0.10 stroke #222222 width 1
+
+# === Wheels (4 large wheels at corners — long ovals edge-on from above) ===
+# Front-left wheel (NW)
+ellipse 0.88,0.18 0.26,0.10 fill #3a1f00 0.9
+ellipse 0.88,0.18 0.26,0.10 texfill polyhaven/dark_wood 0.6
+ellipse 0.88,0.18 0.26,0.10 stroke #1a1008 width 2
+# Wheel rim (outer iron band)
+ellipse 0.88,0.18 0.26,0.10 stroke #444444 0.8 width 1
+# Wheel hub
+ellipse 0.88,0.18 0.08,0.04 fill #444444 0.9
+ellipse 0.88,0.18 0.08,0.04 stroke #222222 width 1
+circle 0.88,0.18 0.015 fill #222222 0.95
+# Wheel spokes (narrow lines)
+line 0.68,0.18 1.08,0.18 stroke #2a1400 0.7 width 1
+line 0.88,0.10 0.88,0.26 stroke #2a1400 0.6 width 1
+
+# Front-right wheel (NE of bed — but wait, facing north: 2x3 has high X at east, so front=north=low Y means front wheels are at low Y)
+# Rear-left wheel (SW)
+ellipse 0.88,1.82 0.26,0.10 fill #3a1f00 0.9
+ellipse 0.88,1.82 0.26,0.10 texfill polyhaven/dark_wood 0.6
+ellipse 0.88,1.82 0.26,0.10 stroke #1a1008 width 2
+ellipse 0.88,1.82 0.26,0.10 stroke #444444 0.8 width 1
+ellipse 0.88,1.82 0.08,0.04 fill #444444 0.9
+ellipse 0.88,1.82 0.08,0.04 stroke #222222 width 1
+circle 0.88,1.82 0.015 fill #222222 0.95
+line 0.68,1.82 1.08,1.82 stroke #2a1400 0.7 width 1
+line 0.88,1.74 0.88,1.90 stroke #2a1400 0.6 width 1
+
+# Front-right wheel (NE)
+ellipse 2.12,0.18 0.26,0.10 fill #3a1f00 0.9
+ellipse 2.12,0.18 0.26,0.10 texfill polyhaven/dark_wood 0.6
+ellipse 2.12,0.18 0.26,0.10 stroke #1a1008 width 2
+ellipse 2.12,0.18 0.26,0.10 stroke #444444 0.8 width 1
+ellipse 2.12,0.18 0.08,0.04 fill #444444 0.9
+ellipse 2.12,0.18 0.08,0.04 stroke #222222 width 1
+circle 2.12,0.18 0.015 fill #222222 0.95
+line 1.92,0.18 2.32,0.18 stroke #2a1400 0.7 width 1
+line 2.12,0.10 2.12,0.26 stroke #2a1400 0.6 width 1
+
+# Rear-right wheel (SE)
+ellipse 2.12,1.82 0.26,0.10 fill #3a1f00 0.9
+ellipse 2.12,1.82 0.26,0.10 texfill polyhaven/dark_wood 0.6
+ellipse 2.12,1.82 0.26,0.10 stroke #1a1008 width 2
+ellipse 2.12,1.82 0.26,0.10 stroke #444444 0.8 width 1
+ellipse 2.12,1.82 0.08,0.04 fill #444444 0.9
+ellipse 2.12,1.82 0.08,0.04 stroke #222222 width 1
+circle 2.12,1.82 0.015 fill #222222 0.95
+line 1.92,1.82 2.32,1.82 stroke #2a1400 0.7 width 1
+line 2.12,1.74 2.12,1.90 stroke #2a1400 0.6 width 1
+
+# === Axles (connecting left-right wheels) ===
+rect 0.88,0.22 1.24,0.04 fill #444444 0.7
+rect 0.88,0.22 1.24,0.04 stroke #222222 width 1
+rect 0.88,1.74 1.24,0.04 fill #444444 0.7
+rect 0.88,1.74 1.24,0.04 stroke #222222 width 1
+
+# === Driver's seat (raised plank at front of bed) ===
+rect 0.74,0.80 0.30,0.40 texfill polyhaven/dark_wood 0.9
+rect 0.74,0.80 0.30,0.40 fill #3a1f00 0.4
+rect 0.74,0.80 0.30,0.40 stroke #1a1008 width 2
+# Seat edge trim
+line 0.74,0.80 1.04,0.80 stroke #daa520 0.5 width 1
+
+# Reins / ropes coiled on seat
+circle 0.88,1.00 0.04 fill #5c3a1e 0.8
+circle 0.88,1.00 0.04 stroke #2a1400
+arc 0.88,1.00 0.03 0 360 stroke #2a1400 0.7 width 1
+
+# Highlights on bed
+arc 1.50,1.00 0.60 200 250 stroke #8b6914 0.25 width 1

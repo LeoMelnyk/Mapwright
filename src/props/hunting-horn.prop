@@ -1,0 +1,56 @@
+name: Hunting Horn
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: wall
+room_types: hunting-lodge-large, cabin-hunters, ranger-camp, lodge
+typical_count: single
+clusters_with: antler-rack, pelt, pelt-roll, bow, quiver
+notes: Curved brass hunting horn lying on a wall peg. Seen top-down — spiral curl with mouthpiece and flared bell.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.40
+
+# Shadow beneath horn
+ellipse 0.50,0.56 0.36,0.28 fill #1a0a00 0.25
+
+# === Main horn body — curved arc (animal horn) ===
+# Outer curve (the wide sweeping bend)
+bezier 0.20,0.35 0.28,0.18 0.58,0.16 0.82,0.30 stroke #8b6914 width 10
+bezier 0.20,0.35 0.28,0.18 0.58,0.16 0.82,0.30 stroke #5a3a00 width 1
+# Inner body fill (rounded section under arc)
+bezier 0.22,0.40 0.30,0.24 0.58,0.22 0.78,0.35 stroke #daa520 width 7
+bezier 0.22,0.40 0.30,0.24 0.58,0.22 0.78,0.35 stroke #a07a10 0.5 width 1
+
+# === Flared bell (wide opening at east end) ===
+ellipse 0.80,0.36 0.12,0.14 fill #8b6914 0.95
+ellipse 0.80,0.36 0.12,0.14 stroke #5a3a00 width 2
+# Bell rim highlight
+arc 0.80,0.36 0.11 280 80 stroke #ffcc60 0.7 width 2
+# Inner bell darkness (dark throat)
+ellipse 0.80,0.36 0.08,0.10 fill #3a2800 0.8
+ellipse 0.80,0.36 0.05,0.06 fill #1a1000 0.9
+
+# === Mouthpiece (narrow end at west) ===
+circle 0.18,0.38 0.045 fill #daa520 0.95
+circle 0.18,0.38 0.045 stroke #5a3a00 width 1
+circle 0.18,0.38 0.025 fill #3a2800 0.85
+
+# === Brass bands / decorative rings along horn ===
+line 0.32,0.22 0.36,0.28 stroke #5a3a00 width 2
+line 0.50,0.18 0.52,0.26 stroke #5a3a00 width 2
+line 0.68,0.22 0.68,0.30 stroke #5a3a00 width 2
+
+# === Braided leather cord looped south (carry strap) ===
+bezier 0.22,0.42 0.30,0.60 0.60,0.64 0.78,0.44 stroke #5c3a1e width 3
+bezier 0.22,0.42 0.30,0.60 0.60,0.64 0.78,0.44 stroke #3a1f00 0.7 width 1
+# Cord knots at attachment points
+circle 0.24,0.42 0.02 fill #3a1f00 0.9
+circle 0.76,0.42 0.02 fill #3a1f00 0.9
+
+# === Brass highlights (sun-catch spots) ===
+ellipse 0.50,0.22 0.08,0.02 fill #ffdd66 0.5
+ellipse 0.76,0.30 0.04,0.02 fill #ffdd66 0.5

@@ -12,7 +12,7 @@ clusters_with: cleaver, mixing-bowl, long-spoon, kitchen-table
 notes: Pile of freshly diced vegetables; pair with cleaver and cutting surface
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.5 0.34,0.30 z 0-0.1
+selection ellipse 0.5,0.5 0.34,0.30
 
 # Pale wet smear beneath (juice/moisture)
 ellipse 0.50,0.52 0.34,0.28 fill #e8d8b8 0.35

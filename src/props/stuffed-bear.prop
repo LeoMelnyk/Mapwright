@@ -12,7 +12,7 @@ clusters_with: rag-doll, wooden-toy, child-bed, cradle
 notes: Plush toy bear with ribbon around neck; round head and body visible from above
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.12 0.56,0.76 z 0-0.2
+selection rect 0.22,0.12 0.56,0.76
 
 # Ears — two small rounded circles at north of head
 circle 0.36,0.20 0.07 fill #8a5830 0.9

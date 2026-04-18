@@ -12,7 +12,7 @@ clusters_with: butcher-shop, market-stall, bone-pile
 notes: Thin scruffy dog seen from above — body oval, smaller head oval, four short legs, tail curving out. Good for market scenes and tavern scraps.
 ---
 # === HITBOX ===
-hitbox ellipse 0.50,0.55 0.30,0.16 z 0-0.5
+selection ellipse 0.50,0.55 0.30,0.16
 
 # Four short legs (small ovals poking out from body sides)
 ellipse 0.30,0.42 0.05,0.08 fill #6b4820 0.9

@@ -12,7 +12,7 @@ clusters_with: withered-flowers, withered-wreath, gravestone, candle-guttered, s
 notes: Fresh grave mound — recently turned dark earth in oblong shape
 ---
 # === HITBOX ===
-hitbox ellipse 1.0,0.50 0.80,0.30 z 0-0.4
+selection ellipse 1.0,0.50 0.80,0.30
 
 # Main dirt mound (oblong, crowned)
 ellipse 1.0,0.50 0.84,0.32 texfill polyhaven/brown_mud 0.9

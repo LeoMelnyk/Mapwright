@@ -1,0 +1,51 @@
+name: Rope Cordon
+category: Barriers
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: plaza-civic, market-square, courtroom, temple-plaza, gallery, throne-room
+typical_count: few
+clusters_with: lantern-post, bench-stone, pillar, velvet-cloth
+notes: Low rope barrier between two short brass stanchions — crowd control around monuments, exhibits, or processions. Cord drapes in a gentle curve between posts.
+---
+# footprint 1x2: x 0-2, y 0-1
+
+# West stanchion base
+circle 0.30,0.50 0.10 fill #5a3a00 0.9
+circle 0.30,0.50 0.10 stroke #2a1400
+# West stanchion shaft (brass post, top-down)
+circle 0.30,0.50 0.06 fill #daa520 0.95
+circle 0.30,0.50 0.06 stroke #5a3a00
+# West stanchion cap/finial
+circle 0.30,0.50 0.035 fill #ffd700 0.9
+circle 0.30,0.50 0.035 stroke #5a3a00
+
+# East stanchion base
+circle 1.70,0.50 0.10 fill #5a3a00 0.9
+circle 1.70,0.50 0.10 stroke #2a1400
+# East stanchion shaft
+circle 1.70,0.50 0.06 fill #daa520 0.95
+circle 1.70,0.50 0.06 stroke #5a3a00
+# East stanchion cap
+circle 1.70,0.50 0.035 fill #ffd700 0.9
+circle 1.70,0.50 0.035 stroke #5a3a00
+
+# Draping rope (curves south between posts — crimson velvet rope)
+bezier 0.34,0.52 0.70,0.70 1.30,0.70 1.66,0.52 stroke #5a1a1a width 4
+# Rope highlight
+bezier 0.34,0.50 0.70,0.66 1.30,0.66 1.66,0.50 stroke #8a2828 0.7 width 2
+
+# Brass rope hooks where the rope attaches
+circle 0.34,0.51 0.02 fill #daa520 0.9
+circle 0.34,0.51 0.02 stroke #5a3a00
+circle 1.66,0.51 0.02 fill #daa520 0.9
+circle 1.66,0.51 0.02 stroke #5a3a00
+
+# Tassel hint on each end (small fringe dots)
+circle 0.50,0.66 0.02 fill #daa520 0.8
+circle 1.50,0.66 0.02 fill #daa520 0.8
+
+# Subtle ground shadow beneath rope drape
+bezier 0.36,0.54 0.70,0.72 1.30,0.72 1.64,0.54 stroke #000000 0.18 width 2

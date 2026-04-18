@@ -12,7 +12,7 @@ clusters_with: sign-post, ledger-stack, coin-pile
 notes: Posted wall sign listing fees — wooden plank with handwritten text
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.08 0.64,0.60 z 0-1.5
+selection rect 0.18,0.08 0.64,0.60
 
 # Mounting points (small nails at top)
 circle 0.24,0.08 0.015 fill #333333 0.95

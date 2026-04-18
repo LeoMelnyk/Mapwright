@@ -10,13 +10,7 @@ room_types: glassworks, workshop
 typical_count: single
 clusters_with: gaffer-bench, sand-bin, color-rod-bundle, forge
 notes: Large brick annealing oven for slow-cooling glass. Place against a wall with front (south) facing into the workshop.
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.6
-    radius: 4
-    color: "#ffaa00"
-    intensity: 0.15
+lights: [{"preset":"ember","x":1,"y":1.6,"radius":4,"intensity":0.15,"color":"#ffaa00"}]
 ---
 # === HITBOX ===
 hitbox rect 0.1,0.1 1.8,1.55 z 0-2.5

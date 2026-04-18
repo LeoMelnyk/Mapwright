@@ -10,9 +10,10 @@ room_types: cave-bandit-camp, charcoal-burner-camp, elemental-fire-node, forge, 
 typical_count: few
 clusters_with: campfire, hearth, scorch-mark, slag-heap, wood-chip
 notes: Soft gray ash remains of a fire; sometimes with embers still glowing
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":2,"color":"#ff6020","intensity":0.2}]
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.2
+selection circle 0.5,0.5 0.32
 
 # Outer ash scatter (lighter, spread wider)
 poly 0.16,0.50 0.22,0.34 0.36,0.24 0.54,0.22 0.70,0.28 0.82,0.42 0.84,0.58 0.76,0.72 0.60,0.80 0.40,0.80 0.22,0.72 0.14,0.58 fill #888888 0.6

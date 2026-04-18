@@ -1,0 +1,67 @@
+name: Wooden Spoon Pile
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: farmhouse-kitchen, servants-kitchen, kitchen, bakery, tavern-common
+typical_count: few
+clusters_with: wooden-spoon, mixing-bowl, pot-rack, cook-pot-tripod, cauldron
+notes: Pile of wooden stirring spoons jumbled together at different angles. Worn and stained from cooking use.
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.38,0.34
+
+# === Spoon 1 (bottom, angled NE to SW — drawn first) ===
+# Handle
+poly 0.14,0.34 0.18,0.30 0.62,0.58 0.58,0.62 texfill polyhaven/weathered_planks 0.85
+poly 0.14,0.34 0.18,0.30 0.62,0.58 0.58,0.62 stroke #3a1f00
+# Bowl (NW end)
+ellipse 0.14,0.32 0.08,0.06 texfill polyhaven/weathered_planks 0.88
+ellipse 0.14,0.32 0.08,0.06 stroke #3a1f00
+ellipse 0.14,0.32 0.05,0.04 fill #4a2800 0.4
+
+# === Spoon 2 (middle, horizontal — long mixing spoon) ===
+# Handle
+poly 0.20,0.54 0.82,0.50 0.82,0.54 0.20,0.58 texfill polyhaven/dark_wood 0.88
+poly 0.20,0.54 0.82,0.50 0.82,0.54 0.20,0.58 stroke #2a1400
+# Bowl (east end — wider oval)
+ellipse 0.84,0.52 0.10,0.08 texfill polyhaven/dark_wood 0.88
+ellipse 0.84,0.52 0.10,0.08 stroke #2a1400
+# Inner hollow
+ellipse 0.84,0.52 0.07,0.055 fill #2a1400 0.5
+
+# === Spoon 3 (angled NW to SE, crossing on top) ===
+# Handle
+poly 0.28,0.22 0.32,0.18 0.74,0.74 0.70,0.78 texfill polyhaven/weathered_planks 0.85
+poly 0.28,0.22 0.32,0.18 0.74,0.74 0.70,0.78 stroke #3a1f00
+# Bowl (SE end)
+ellipse 0.74,0.78 0.09,0.07 texfill polyhaven/weathered_planks 0.88
+ellipse 0.74,0.78 0.09,0.07 stroke #3a1f00
+ellipse 0.74,0.78 0.06,0.045 fill #4a2800 0.5
+
+# === Small slotted spoon (angled, top) ===
+# Handle
+poly 0.38,0.74 0.42,0.76 0.68,0.30 0.64,0.28 texfill polyhaven/dark_wood 0.85
+poly 0.38,0.74 0.42,0.76 0.68,0.30 0.64,0.28 stroke #2a1400
+# Bowl (NE end)
+ellipse 0.66,0.28 0.07,0.05 texfill polyhaven/dark_wood 0.88
+ellipse 0.66,0.28 0.07,0.05 stroke #2a1400
+# Slotted holes (3 small dots)
+circle 0.65,0.28 0.012 fill #1a0a00 0.9
+circle 0.68,0.30 0.012 fill #1a0a00 0.9
+circle 0.63,0.30 0.012 fill #1a0a00 0.9
+
+# === Staining / sauce residue on bowls ===
+ellipse 0.84,0.52 0.05,0.03 fill #5a1a1a 0.35
+ellipse 0.14,0.32 0.04,0.02 fill #4a2800 0.4
+
+# === Wood grain accent lines ===
+line 0.30,0.54 0.50,0.52 stroke #5c3a1e 0.4
+line 0.50,0.24 0.60,0.32 stroke #5c3a1e 0.35
+line 0.28,0.36 0.40,0.50 stroke #5c3a1e 0.35
+
+# === Highlight glints ===
+line 0.50,0.52 0.64,0.51 stroke #a88858 0.5 width 1

@@ -1,5 +1,5 @@
 name: Curtain Divider
-category: Decor
+category: Decorative
 footprint: 2x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: curtain, silk-scarf, low-table, rose-petals, cushion
 notes: Hanging fabric divider running north-south — top-down shows the ceiling rod with a thin strip of gathered fabric top-edge along it
 ---
 # === HITBOX ===
-hitbox rect 0.36,0.04 0.28,1.92 z 0-3
+selection rect 0.36,0.04 0.28,1.92
 
 # Ceiling rod (brass pole running the full length, N-S — visible as thin strip down center)
 rect 0.48,0.04 0.04,1.92 fill #daa520 0.95

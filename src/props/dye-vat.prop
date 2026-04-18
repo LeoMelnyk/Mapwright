@@ -1,0 +1,72 @@
+name: Dye Vat
+category: Workshop
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: floor
+room_types: textile-loomhouse, weaver-workshop, general-workshop, dyer
+typical_count: few
+clusters_with: loom, basket, bobbin, spindle-rack
+notes: Large wooden vat filled with vivid dye — deep red or blue pool visible from above, with drip stains streaking the rim and floor. Pairs alongside looms and drying racks. NOT a light source.
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.82 z 0-3
+
+# footprint 2x2: x 0-2, y 0-2
+# Top-down: wooden vat — circular wooden staves with iron bands, dark dye pool inside, drip stains around base
+
+# === Drip/splatter stains on floor around the vat ===
+ellipse 0.18,1.50 0.09,0.06 fill #4a0a1a 0.55
+ellipse 1.85,0.32 0.07,0.05 fill #4a0a1a 0.50
+ellipse 1.70,1.82 0.10,0.07 fill #4a0a1a 0.60
+circle 0.30,0.28 0.04 fill #4a0a1a 0.5
+circle 1.62,0.22 0.03 fill #4a0a1a 0.45
+
+# === Outer vat body (wooden staves, seen as ring) ===
+circle 1.00,1.00 0.88 texfill polyhaven/dark_wood 0.85
+circle 1.00,1.00 0.88 stroke #1a0800 width 2
+
+# === Vertical stave seams (radial lines suggesting barrel planks) ===
+line 1.00,0.12 1.00,0.30 stroke #2a1400 0.7 width 1
+line 1.62,0.38 1.50,0.50 stroke #2a1400 0.6 width 1
+line 1.88,1.00 1.70,1.00 stroke #2a1400 0.7 width 1
+line 1.62,1.62 1.50,1.50 stroke #2a1400 0.6 width 1
+line 1.00,1.88 1.00,1.70 stroke #2a1400 0.7 width 1
+line 0.38,1.62 0.50,1.50 stroke #2a1400 0.6 width 1
+line 0.12,1.00 0.30,1.00 stroke #2a1400 0.7 width 1
+line 0.38,0.38 0.50,0.50 stroke #2a1400 0.6 width 1
+
+# === Iron band (outer ring of metal reinforcement) ===
+circle 1.00,1.00 0.80 stroke #333333 width 2
+circle 1.00,1.00 0.80 stroke #555555 0.5 width 1
+
+# === Inner rim (darker lip edge) ===
+circle 1.00,1.00 0.72 fill #1a0800 0.7
+circle 1.00,1.00 0.72 stroke #2a1400
+
+# === Dye pool surface (deep crimson) ===
+circle 1.00,1.00 0.68 fill #8a1020 0.95
+circle 1.00,1.00 0.68 stroke #3a0008
+
+# Inner dye highlights (lighter red reflections)
+ellipse 0.84,0.88 0.18,0.10 fill #b02030 0.5
+ellipse 1.18,1.12 0.14,0.08 fill #a01828 0.5
+
+# Darker dye pooling near rim
+arc 1.00,1.00 0.64 20 80 stroke #4a0810 0.7 width 2
+arc 1.00,1.00 0.64 200 260 stroke #4a0810 0.7 width 2
+
+# === Floating debris / dyed cloth scraps ===
+ellipse 0.82,1.12 0.06,0.03 fill #5a0a18 0.75
+ellipse 0.82,1.12 0.06,0.03 stroke #2a0408
+ellipse 1.20,0.86 0.05,0.03 fill #5a0a18 0.7
+
+# === Dye drip running down outside the vat (south) ===
+bezier 1.02,1.70 1.00,1.78 0.98,1.86 0.96,1.94 stroke #4a0a1a width 2
+bezier 0.82,1.66 0.78,1.74 0.76,1.82 0.78,1.92 stroke #4a0a1a 0.8 width 2
+
+# Stirring stick poking out the dye (top-down: just the handle stub)
+ellipse 1.28,0.78 0.03,0.08 fill #6b4e2e 0.95
+ellipse 1.28,0.78 0.03,0.08 stroke #2a1400

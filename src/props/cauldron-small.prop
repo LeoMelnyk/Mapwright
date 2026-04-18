@@ -12,7 +12,7 @@ clusters_with: cauldron, alchemy-bench, dried-herbs, fire-pit
 notes: Smaller witch's cauldron on tripod legs — portable brewing pot.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.5
+selection circle 0.5,0.5 0.38
 
 # Three stubby legs peeking past pot rim (drawn first, behind pot)
 circle 0.22,0.80 0.06 fill #333333 0.85

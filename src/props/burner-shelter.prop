@@ -4,6 +4,7 @@ footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 4
 placement: floor
 room_types: charcoal-burner-camp, ranger-camp, scouts-blind
 typical_count: single

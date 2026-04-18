@@ -1,0 +1,74 @@
+name: Dry Leaves
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cabin-abandoned, cabin-hedge-witch, forest, ruin, ancient-ruin-overgrown, wilderness
+typical_count: many
+clusters_with: leaf-drift, dry-leaves, twigs, mushroom, mouse-droppings, dust
+notes: Pile of crumpled dry brown autumn leaves — the kind that blows into abandoned cabins
+---
+# Soft ground-tint (dusty brown wash)
+ellipse 0.5,0.55 0.44,0.35 fill #3a2410 0.25
+
+# Base dark leaf layer (deepest, irregular blob)
+poly 0.16,0.60 0.22,0.42 0.34,0.32 0.50,0.28 0.66,0.30 0.78,0.38 0.84,0.52 0.82,0.68 0.72,0.80 0.56,0.84 0.38,0.82 0.24,0.74 fill #3a1f00 0.80
+poly 0.16,0.60 0.22,0.42 0.34,0.32 0.50,0.28 0.66,0.30 0.78,0.38 0.84,0.52 0.82,0.68 0.72,0.80 0.56,0.84 0.38,0.82 0.24,0.74 stroke #1a0f00 width 1
+
+# Individual crumpled leaves (overlapping, various shapes)
+# Leaf 1 — mid brown, upper left
+poly 0.22,0.36 0.30,0.30 0.38,0.32 0.42,0.40 0.36,0.46 0.28,0.44 fill #6a3a10 0.85
+poly 0.22,0.36 0.30,0.30 0.38,0.32 0.42,0.40 0.36,0.46 0.28,0.44 stroke #3a1f00 width 1
+line 0.30,0.32 0.33,0.44 stroke #3a1f00 0.7 width 1
+
+# Leaf 2 — rust red, center
+poly 0.42,0.46 0.52,0.42 0.60,0.48 0.62,0.56 0.54,0.62 0.46,0.60 0.40,0.54 fill #8a3818 0.85
+poly 0.42,0.46 0.52,0.42 0.60,0.48 0.62,0.56 0.54,0.62 0.46,0.60 0.40,0.54 stroke #3a1408 width 1
+line 0.50,0.44 0.52,0.60 stroke #3a1408 0.7 width 1
+line 0.44,0.52 0.58,0.52 stroke #3a1408 0.6 width 1
+
+# Leaf 3 — dark ochre, upper right
+poly 0.60,0.34 0.70,0.32 0.76,0.40 0.74,0.48 0.66,0.50 0.58,0.46 fill #7a4818 0.85
+poly 0.60,0.34 0.70,0.32 0.76,0.40 0.74,0.48 0.66,0.50 0.58,0.46 stroke #3a2010 width 1
+line 0.66,0.34 0.68,0.48 stroke #3a2010 0.65 width 1
+
+# Leaf 4 — tan, lower right (maple-ish lobes)
+poly 0.60,0.60 0.68,0.56 0.76,0.60 0.78,0.68 0.72,0.76 0.64,0.76 0.58,0.70 fill #a06838 0.80
+poly 0.60,0.60 0.68,0.56 0.76,0.60 0.78,0.68 0.72,0.76 0.64,0.76 0.58,0.70 stroke #4a2810 width 1
+line 0.66,0.58 0.68,0.74 stroke #4a2810 0.65 width 1
+line 0.62,0.66 0.76,0.66 stroke #4a2810 0.55 width 1
+
+# Leaf 5 — curled edge, lower left
+poly 0.22,0.64 0.30,0.60 0.38,0.66 0.38,0.74 0.30,0.78 0.22,0.74 fill #7a4020 0.85
+poly 0.22,0.64 0.30,0.60 0.38,0.66 0.38,0.74 0.30,0.78 0.22,0.74 stroke #3a1f00 width 1
+# Curled edge highlight
+bezier 0.36,0.66 0.38,0.70 0.36,0.74 0.32,0.76 stroke #a06838 0.7 width 1
+line 0.30,0.62 0.30,0.76 stroke #3a1f00 0.6 width 1
+
+# Leaf 6 — small dark leaf tucked in
+poly 0.44,0.38 0.50,0.36 0.52,0.42 0.48,0.46 0.42,0.44 fill #5a2808 0.85
+poly 0.44,0.38 0.50,0.36 0.52,0.42 0.48,0.46 0.42,0.44 stroke #2a1008 width 1
+
+# Leaf 7 — pale dry leaf on top (catches the light)
+poly 0.38,0.58 0.46,0.54 0.52,0.58 0.52,0.64 0.46,0.68 0.38,0.66 fill #c0885a 0.70
+poly 0.38,0.58 0.46,0.54 0.52,0.58 0.52,0.64 0.46,0.68 0.38,0.66 stroke #6a3a20 width 1
+
+# Scattered leaf fragments and bits on the edges
+poly 0.14,0.48 0.18,0.44 0.22,0.50 0.18,0.52 fill #5a3018 0.7
+poly 0.14,0.48 0.18,0.44 0.22,0.50 0.18,0.52 stroke #3a1f00 width 1
+poly 0.80,0.74 0.84,0.70 0.88,0.76 0.84,0.80 fill #5a3018 0.7
+poly 0.80,0.74 0.84,0.70 0.88,0.76 0.84,0.80 stroke #3a1f00 width 1
+poly 0.54,0.82 0.60,0.80 0.62,0.86 0.56,0.86 fill #7a4020 0.75
+
+# Tiny leaf crumbs and dust
+circle 0.28,0.50 0.014 fill #4a2810 0.7
+circle 0.72,0.52 0.012 fill #4a2810 0.6
+circle 0.60,0.78 0.010 fill #3a1f00 0.6
+circle 0.18,0.70 0.012 fill #5a3018 0.65
+circle 0.84,0.48 0.010 fill #3a1f00 0.55
+
+# A stray twig
+line 0.30,0.68 0.48,0.74 stroke #3a1f00 0.8 width 1
+line 0.66,0.42 0.82,0.48 stroke #3a1f00 0.7 width 1

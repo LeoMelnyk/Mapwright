@@ -1,5 +1,5 @@
 name: Drive Shaft
-category: Machinery
+category: Industrial
 footprint: 1x3
 facing: yes
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: grain-hopper, millstone, water-wheel, gear
 notes: Horizontal power shaft that transmits rotation from water wheel to machinery; cylinder with iron bearing collars and wooden trestle supports at each end
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.38 2.76,0.26 z 0-0.6
+selection rect 0.12,0.38 2.76,0.26
 
 # West support frame (trestle base + cap block)
 rect 0.05,0.28 0.28,0.44 texfill polyhaven/dark_wood 0.85

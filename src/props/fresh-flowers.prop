@@ -1,5 +1,5 @@
 name: Fresh Flowers
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: vase, sideboard, table, decanter
 notes: Bouquet of cut flowers in a vase; cheerful centerpiece for upscale rooms
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-0.6
+selection circle 0.5,0.5 0.30
 
 # Vase base ring (dark glazed ceramic bottom)
 circle 0.5,0.62 0.18 fill #3a4058 0.9

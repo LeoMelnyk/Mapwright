@@ -1,0 +1,87 @@
+name: Raven Perch
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.8
+placement: floor
+room_types: cabin-witch, bog-witch-hut, wizard-sanctum, hermit-cell, study, cultist-shrine
+typical_count: single
+clusters_with: bone-pile-small, skull-small, cabinet, bookshelf, cauldron-large
+notes: Wooden T-perch with a black raven sitting on top. Raven faces south (high Y). Top-down, you see the raven from above — black silhouette with wings folded.
+---
+# === HITBOX ===
+selection rect 0.40,0.12 0.20,0.76
+
+# Ground contact shadow (at base of perch)
+ellipse 0.50,0.84 0.20,0.05 fill #1a1008 0.4
+
+# === Wooden perch base (circular foot) ===
+circle 0.50,0.82 0.18 texfill polyhaven/dark_wood 0.85
+circle 0.50,0.82 0.18 stroke #2a1400 width 2
+# Base grain
+line 0.36,0.82 0.64,0.82 stroke #3a1f00 0.5 width 1
+line 0.38,0.78 0.62,0.78 stroke #3a1f00 0.4 width 1
+
+# === Vertical post (seen from above — narrow rectangle running N-S since viewer sees the top) ===
+rect 0.47,0.25 0.06,0.55 texfill polyhaven/dark_wood 0.85
+rect 0.47,0.25 0.06,0.55 stroke #2a1400 width 1
+
+# === Cross-arm of the T perch (where the raven sits) ===
+rect 0.30,0.32 0.40,0.06 texfill polyhaven/dark_wood 0.88
+rect 0.30,0.32 0.40,0.06 stroke #2a1400 width 1
+# End caps of cross-arm
+circle 0.30,0.35 0.035 fill #3a1f00 0.85
+circle 0.30,0.35 0.035 stroke #1a0800
+circle 0.70,0.35 0.035 fill #3a1f00 0.85
+circle 0.70,0.35 0.035 stroke #1a0800
+
+# === Raven (top-down view — black silhouette perched on the cross-arm) ===
+# Main body mass (raven body + folded wings seen from above)
+poly 0.50,0.20 0.44,0.24 0.38,0.32 0.36,0.42 0.40,0.52 0.48,0.56 0.52,0.56 0.60,0.52 0.64,0.42 0.62,0.32 0.56,0.24 fill #0a0a0a 0.95
+poly 0.50,0.20 0.44,0.24 0.38,0.32 0.36,0.42 0.40,0.52 0.48,0.56 0.52,0.56 0.60,0.52 0.64,0.42 0.62,0.32 0.56,0.24 stroke #050505 width 1
+
+# Folded wing demarcation lines (suggests feathers layered over body)
+bezier 0.40,0.30 0.38,0.36 0.40,0.46 0.46,0.52 stroke #1a1a1a width 1
+bezier 0.60,0.30 0.62,0.36 0.60,0.46 0.54,0.52 stroke #1a1a1a width 1
+
+# Shoulder ridge (where wings meet body)
+qbezier 0.42,0.30 0.50,0.28 0.58,0.30 stroke #1a1a1a 0.8 width 1
+
+# Feather lines on folded wings
+line 0.42,0.38 0.38,0.46 stroke #1a1a1a 0.7 width 1
+line 0.44,0.42 0.40,0.50 stroke #1a1a1a 0.6 width 1
+line 0.58,0.38 0.62,0.46 stroke #1a1a1a 0.7 width 1
+line 0.56,0.42 0.60,0.50 stroke #1a1a1a 0.6 width 1
+
+# === Head (small dome at top — north of body) ===
+circle 0.50,0.22 0.06 fill #0a0a0a 0.95
+circle 0.50,0.22 0.06 stroke #050505
+
+# Beak (pointing south, but since raven faces south, beak is at south of head)
+poly 0.48,0.26 0.52,0.26 0.50,0.30 fill #1a1a1a 0.95
+poly 0.48,0.26 0.52,0.26 0.50,0.30 stroke #050505
+
+# Eye (tiny bright point — glint)
+circle 0.48,0.21 0.012 fill #ffcc00 0.85
+circle 0.48,0.21 0.006 fill #ffffff 0.95
+
+# === Tail feathers (pointing south, splayed below body) ===
+poly 0.46,0.54 0.54,0.54 0.56,0.64 0.50,0.66 0.44,0.64 fill #0a0a0a 0.9
+poly 0.46,0.54 0.54,0.54 0.56,0.64 0.50,0.66 0.44,0.64 stroke #050505
+# Tail feather lines
+line 0.48,0.54 0.46,0.64 stroke #1a1a1a 0.7 width 1
+line 0.50,0.54 0.50,0.66 stroke #1a1a1a 0.7 width 1
+line 0.52,0.54 0.54,0.64 stroke #1a1a1a 0.7 width 1
+
+# Feet / claws gripping the perch (small dark prongs at front of body)
+line 0.46,0.54 0.44,0.58 stroke #3a1f00 width 2
+line 0.54,0.54 0.56,0.58 stroke #3a1f00 width 2
+
+# Subtle iridescent sheen on wing (dark blue-purple tint)
+ellipse 0.44,0.40 0.04,0.08 fill #1a1a2a 0.5
+ellipse 0.56,0.40 0.04,0.08 fill #1a1a2a 0.5
+
+# Droppings on the perch (tiny white speck)
+circle 0.72,0.36 0.012 fill #ccccaa 0.7

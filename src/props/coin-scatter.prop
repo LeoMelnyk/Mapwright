@@ -12,7 +12,7 @@ clusters_with: coin-pile, coin-stack, coin-purse, dice-cup, playing-cards
 notes: Loose coins scattered on the floor; small find
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.18 0.72,0.64 z 0-0.05
+selection rect 0.14,0.18 0.72,0.64
 
 # Coin 1 (gold, face up)
 circle 0.22,0.32 0.06 fill #daa520 0.95

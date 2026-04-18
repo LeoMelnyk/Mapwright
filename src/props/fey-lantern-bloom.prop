@@ -9,13 +9,7 @@ room_types: fey-glade, fey-court, garden, druid-grove, forest
 typical_count: few
 clusters_with: flower-patch, fey-mushroom-ring, dew-drop-sparkle
 notes: Flower-lantern hybrid with glowing pistil core — natural fey light source
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 5
-    color: "#ffaa70"
-    intensity: 0.5
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":5,"intensity":0.5,"color":"#ffaa70"}]
 ---
 # Warm glow halo on ground
 circle 0.50,0.50 0.46 fill #ffaa50 0.10

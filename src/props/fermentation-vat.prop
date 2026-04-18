@@ -4,12 +4,16 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+height: 4
 placement: center
 room_types: brewery, cellar, winery, tavern-kitchen
 typical_count: few
 clusters_with: brewing-kettle, mash-tun, barrel, hops-bunch
 notes: Tall wooden fermentation vat with iron bands and frothy foam crust on top; brewery staple
 ---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.85 z 0-4
+
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: wooden-plank circle + iron band rings + bubbly cream foam center
 

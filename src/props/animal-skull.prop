@@ -1,5 +1,5 @@
 name: Animal Skull
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: yes
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: skull-small, animal-skull-small, specimen-jar, reagent-jar
 notes: Larger animal skull (wolf/deer) used as alchemy ingredient display. Snout faces south (high Y). Bigger and more detailed than skull-small.
 ---
 # === HITBOX ===
-hitbox ellipse 0.50,0.48 0.30,0.36 z 0-0.3
+selection ellipse 0.50,0.48 0.30,0.36
 
 # Cranium (rounded dome — back of skull north)
 ellipse 0.50,0.36 0.30,0.26 fill #e8dcc8 0.95

@@ -4,12 +4,16 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: yes
+height: 6
 placement: floor
 room_types: graveyard, shadowfell, mausoleum, swamp, ruin
 typical_count: few
 clusters_with: mist-pool, dead-tree, cobweb-heavy
 notes: Small black-barked dead tree with twisted branches; place in corners or against walls for atmosphere
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.30 z 0-6
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: small trunk disc with dark branch lines radiating outward
 

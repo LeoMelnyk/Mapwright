@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: pearl-obelisk, pearl-cluster, water-node-core, coral-pillar
 notes: Ornate underwater pavilion with domed center; single centerpiece per chamber
 ---
+# === HITBOX ===
+hitbox circle 1.5,1.5 1.30 z 0-2.5
+
 # Footprint 3x3: x 0-3, y 0-3. Octagonal platform with central dome and four corner pillars.
 # Outer platform — octagonal base
 poly 1.50,0.15 2.25,0.45 2.55,1.20 2.55,1.80 2.25,2.55 1.50,2.85 0.75,2.55 0.45,1.80 0.45,1.20 0.75,0.45 fill #80c0d0 0.75

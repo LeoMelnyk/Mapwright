@@ -12,7 +12,7 @@ clusters_with: mine-shaft, headframe, cart-track, sorting-table
 notes: Large wooden winch with iron drum and coiled rope, crank handle — place beside a shaft or well to haul loads
 ---
 # === HITBOX ===
-hitbox rect 0.06,0.20 0.88,0.60 z 0-1.2
+selection rect 0.06,0.20 0.88,0.60
 
 # North support post base (left upright)
 rect 0.06,0.22 0.12,0.56 texfill polyhaven/dark_wood 0.9

@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: jar, bottle, grain-sack, hanging-ham, bar-counter
 notes: Wall-mounted shelf with jars and bottles lined up — top-down shows thin wooden shelf along north wall with circular lids of containers poking up
 ---
+# === HITBOX ===
+hitbox rect 0.10,0.05 1.80,0.35 z 0-5
+
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: wooden shelf top overhangs the shelf body; jar/bottle tops sit on it
 

@@ -12,7 +12,7 @@ clusters_with: chair-wooden, overturned-table, rubble-pile, splintered
 notes: Smashed wooden chair toppled over with splayed broken legs and one detached piece
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.30 0.68,0.50 z 0-0.4
+selection rect 0.12,0.30 0.68,0.50
 
 # Seat plank (tilted, main body of chair lying on its side)
 rect 0.22,0.34 0.50,0.44 texfill polyhaven/weathered_planks 0.85 rotate 30

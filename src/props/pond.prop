@@ -1,6 +1,7 @@
 name: Pond
 category: Terrain
 footprint: 3x3
+padding: 0.15
 facing: no
 shadow: no
 blocks_light: no

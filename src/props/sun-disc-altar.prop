@@ -4,18 +4,13 @@ footprint: 1x2
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 4
 placement: center
 room_types: celestial-vault, temple, cathedral, solar-sanctum, divine-sanctum
 typical_count: single
 clusters_with: pillar-marble, banner-celestial, candelabra, censer
 notes: White marble altar with radiant gold sun disc inset on top — solar worship centerpiece
-lights:
-  - type: candle
-    x: 1.0
-    y: 0.5
-    radius: 4
-    color: "#ffd070"
-    intensity: 0.4
+lights: [{"preset":"divine-radiance","x":1,"y":0.5,"radius":4,"intensity":0.4,"color":"#ffd070"}]
 ---
 # Footprint 1x2: rows=1, cols=2 → x 0-2, y 0-1. Front faces south (high Y).
 

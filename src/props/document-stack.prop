@@ -12,7 +12,7 @@ clusters_with: ledger-stack, inkwell, quill, desk, wax-seal, letter-stack
 notes: Loose stack of papers with edges fanning; distinct from ledger-stack (bound books)
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.22 0.72,0.60 z 0-0.3
+selection rect 0.14,0.22 0.72,0.60
 
 # Bottom sheet (largest, offset)
 rect 0.14,0.54 0.72,0.28 fill #e8dcc8 0.9

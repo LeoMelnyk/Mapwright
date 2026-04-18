@@ -12,7 +12,7 @@ clusters_with: bush-hedge, fern-cluster, tree, moss-patch
 notes: Small bush with clusters of dark red and purple berries
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.6
+selection circle 0.5,0.5 0.38
 
 # Outer foliage blob (darkest under-leaves)
 ellipse 0.50,0.52 0.38,0.34 fill #2a4a1a 0.85

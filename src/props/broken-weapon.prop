@@ -12,7 +12,7 @@ clusters_with: broken-shield, corpse, bone-pile, broken-blade, torn-banner
 notes: Shattered crude weapon — splintered haft and bent head, scattered pieces
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.26 0.72,0.52 z 0-0.1
+selection rect 0.14,0.26 0.72,0.52
 
 # === Bent/broken axe head (main piece) ===
 poly 0.14,0.42 0.24,0.30 0.38,0.28 0.48,0.34 0.52,0.46 0.44,0.54 0.32,0.58 0.20,0.54 fill #555555 0.95

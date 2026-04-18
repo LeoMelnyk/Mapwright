@@ -12,7 +12,7 @@ clusters_with: tea-table, small-table, sideboard, lapdog-cushion, fresh-flowers
 notes: Silver tea service set — pot, sugar bowl, creamer on a silver tray
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.5 0.38,0.28 z 0-0.4
+selection ellipse 0.5,0.5 0.38,0.28
 
 # Silver tray
 ellipse 0.5,0.5 0.38,0.28 fill #cccccc 0.95

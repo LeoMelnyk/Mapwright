@@ -12,7 +12,7 @@ clusters_with: coin-pile, coin-scatter, coin-stack, scale, desk
 notes: Small leather drawstring pouch of coins; often with a few spilling out
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.56 0.24,0.20 z 0-0.25
+selection ellipse 0.5,0.56 0.24,0.20
 
 # Pouch body (rounded leather pouch, slightly squashed)
 ellipse 0.5,0.56 0.24,0.22 texfill polyhaven/brown_leather 0.9

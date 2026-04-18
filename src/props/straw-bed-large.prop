@@ -12,7 +12,7 @@ clusters_with: gnawed-bone, bone-pile, carcass-fresh, rat-carcass, blood-smear, 
 notes: Huge filthy matted straw nest used as a predator's den — crushed straw with dark stains, gnawed bone fragments buried in it. Place in a corner.
 ---
 # === HITBOX ===
-hitbox ellipse 1.00,1.00 0.90,0.86 z 0-0.3
+selection ellipse 1.00,1.00 0.90,0.86
 
 # Compressed ground stain underneath (dirt and wear)
 ellipse 1.00,1.04 0.92,0.80 fill #2a1a08 0.5

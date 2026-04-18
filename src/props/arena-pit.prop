@@ -1,0 +1,84 @@
+name: Arena Pit
+category: Features
+footprint: 3x3
+facing: no
+shadow: no
+blocks_light: no
+height: 0
+placement: center
+room_types: boss-chamber, arena, gladiator-pit, fighting-pit, colosseum
+typical_count: single
+clusters_with: weapon-rack, chain-wall, bone-pile, corpse, skull-offering
+notes: Sunken circular fighting pit in the floor — dark central void surrounded by stone rim with chained anchor points and sand-strewn floor visible below.
+---
+# footprint 3x3: x 0-3, y 0-3. Center (1.5, 1.5). Pit is sunken so no blocks_light and no floor shadow.
+
+# === Outer stone rim (wide, heavy ring) ===
+ring 1.5,1.5 1.38 1.18 texfill polyhaven/stone_wall 0.88
+ring 1.5,1.5 1.38 1.18 stroke #2a2a2a width 2
+
+# Outer rim scuffs/cracks
+arc 1.5,1.5 1.32 20 55 stroke #1a1a1a 0.6 width 1
+arc 1.5,1.5 1.32 120 155 stroke #1a1a1a 0.6 width 1
+arc 1.5,1.5 1.32 210 245 stroke #1a1a1a 0.6 width 1
+arc 1.5,1.5 1.32 295 335 stroke #1a1a1a 0.6 width 1
+
+# === Inner rim (lip of pit) ===
+circle 1.5,1.5 1.18 stroke #444444 width 2
+circle 1.5,1.5 1.14 stroke #1a1a1a 0.7 width 1
+
+# === Deep pit shadow (dark gradient receding into depth) ===
+circle 1.5,1.5 1.12 gradient-radial #3a2418 #000000 0.95
+
+# === Sand floor at the bottom of the pit (lighter, partially visible) ===
+circle 1.5,1.5 0.78 fill #6b5028 0.55
+circle 1.5,1.5 0.78 texfill polyhaven/brown_mud 0.4
+
+# === Scattered blood stains on the sand ===
+ellipse 1.30,1.38 0.10,0.06 fill #3a0808 0.7
+ellipse 1.72,1.62 0.12,0.08 fill #3a0808 0.65
+ellipse 1.20,1.80 0.08,0.05 fill #2a0404 0.6
+ellipse 1.80,1.28 0.07,0.04 fill #2a0404 0.55
+
+# === Small drag marks through sand ===
+bezier 1.30,1.40 1.40,1.50 1.55,1.55 1.70,1.60 stroke #3a0808 0.5 width 2
+bezier 1.20,1.80 1.30,1.75 1.40,1.72 1.50,1.70 stroke #2a0404 0.4 width 1
+
+# === Chain anchor points embedded in rim (four cardinal) ===
+# North
+rect 1.42,0.24 0.16,0.10 fill #333333 0.95
+rect 1.42,0.24 0.16,0.10 stroke #1a1a1a
+circle 1.50,0.29 0.04 stroke #222222 width 2
+# East
+rect 2.66,1.42 0.10,0.16 fill #333333 0.95
+rect 2.66,1.42 0.10,0.16 stroke #1a1a1a
+circle 2.71,1.50 0.04 stroke #222222 width 2
+# South
+rect 1.42,2.66 0.16,0.10 fill #333333 0.95
+rect 1.42,2.66 0.16,0.10 stroke #1a1a1a
+circle 1.50,2.71 0.04 stroke #222222 width 2
+# West
+rect 0.24,1.42 0.10,0.16 fill #333333 0.95
+rect 0.24,1.42 0.10,0.16 stroke #1a1a1a
+circle 0.29,1.50 0.04 stroke #222222 width 2
+
+# === Hanging chain stubs from each anchor, descending into pit shadow ===
+line 1.50,0.34 1.50,0.60 stroke #555555 width 2
+line 2.66,1.50 2.40,1.50 stroke #555555 width 2
+line 1.50,2.66 1.50,2.40 stroke #555555 width 2
+line 0.34,1.50 0.60,1.50 stroke #555555 width 2
+# Small chain-link hint
+circle 1.50,0.50 0.02 stroke #333333 width 1
+circle 2.50,1.50 0.02 stroke #333333 width 1
+circle 1.50,2.50 0.02 stroke #333333 width 1
+circle 0.50,1.50 0.02 stroke #333333 width 1
+
+# === Weathered rim blocks (visible stone segments in the rim) ===
+line 1.5,0.12 1.5,0.32 stroke #1a1a1a 0.5
+line 2.12,0.40 2.00,0.52 stroke #1a1a1a 0.5
+line 2.88,1.5 2.68,1.5 stroke #1a1a1a 0.5
+line 2.60,2.12 2.48,2.00 stroke #1a1a1a 0.5
+line 1.5,2.88 1.5,2.68 stroke #1a1a1a 0.5
+line 0.88,2.60 1.00,2.48 stroke #1a1a1a 0.5
+line 0.12,1.5 0.32,1.5 stroke #1a1a1a 0.5
+line 0.40,0.88 0.52,1.00 stroke #1a1a1a 0.5

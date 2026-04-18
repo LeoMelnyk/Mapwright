@@ -1,12 +1,21 @@
 // Shared offscreen map cache used by both the editor and player views.
 //
-// Two internal layers + snapshot:
-//   1. _cellsLayer       — renderCells output (floors, grid, walls, bridges, props — no lightmap)
-//   2. _compositeLayer   — cells + static lightmap + labels (final blit source)
-//   3. _preGridSnapshot  — cells layer state before grid+walls+bridges+props
+// Layer anatomy:
+//   1. _preGridSnapshot  — BASE cells phases (floors, blending, bridges).
+//                          Renamed from its legacy "snapshot" role, this is
+//                          now a first-class sublayer, rebuilt only when
+//                          base-relevant content or theme changes.
+//   2. _fluidComposite   — water / lava / pit via tile blits with spill-
+//                          aware clips. See buildFluidComposite() in fluid.ts.
+//   3. _cellsLayer       — TOP cells phases (walls, grid, props, hazard).
+//                          alpha=true so the base + fluid show through where
+//                          there's no structural content.
+//   4. _compositeLayer   — final flat: bg → shading → hatch → base → fluid →
+//                          top → lightmap → labels.
 //
-// Grid setting changes restore the snapshot and re-render only the cheap top
-// phases (grid, walls, bridges, props), skipping expensive floors/textures/blending.
+// This split lets fluid-only changes rebuild just `_fluidComposite` (no cells
+// work), wall/grid changes rebuild just `_cellsLayer`, and floor/blending
+// changes rebuild just `_preGridSnapshot` — matching the theme-diff buckets.
 //
 // Supports partial dirty-region redraws when only a small area changed.
 // State-agnostic — receives all data through update() parameters.
@@ -24,6 +33,13 @@ import type {
   TextureOptions,
 } from '../types.js';
 import { renderCells, renderLabels } from './render.js';
+import { drawOuterShading } from './effects.js';
+import { getCachedRoomCells } from './render-cache.js';
+import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
+import { GRID_SCALE } from './constants.js';
+import { cellsLayerThemeSig } from './theme-diff.js';
+import { buildFluidComposite, fluidThemeSig, getFluidDataVersion } from './fluid.js';
+import { log } from '../util/index.js';
 
 /** Internal cells-layer state (floors, grid, walls, bridges, props — no lightmap). */
 interface CellsLayer {
@@ -99,6 +115,54 @@ import { renderLightmap, extractFillLights } from './lighting.js';
 
 const DEFAULT_MAX_CACHE_DIM: number = 16384;
 
+/** Return the room-portion triangle (normalized 0–1) for a diagonal trim corner.
+ *  The room keeps the larger triangle; the void is the small corner triangle. */
+function _diagRoomTriangle(corner: string): number[][] {
+  switch (corner) {
+    case 'nw':
+      return [
+        [1, 0],
+        [1, 1],
+        [0, 1],
+      ];
+    case 'ne':
+      return [
+        [0, 0],
+        [1, 1],
+        [0, 1],
+      ];
+    case 'sw':
+      return [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+      ];
+    case 'se':
+      return [
+        [0, 0],
+        [1, 0],
+        [0, 1],
+      ];
+    default:
+      return [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+      ]; // full cell fallback
+  }
+}
+
+/**
+ * Signature of theme properties that affect the cells layer specifically.
+ * Uses the canonical allow-list from theme-diff so effects, fill, grid, label,
+ * and lava-light property changes skip the (expensive) cells rebuild and only
+ * flip the composite / grid / lightmap as appropriate.
+ */
+function _cellsThemeSig(theme: Theme): string {
+  return cellsLayerThemeSig(theme);
+}
+
 /**
  * Shared offscreen map cache for editor and player views.
  * Manages cells layer, composite layer, and pre-grid snapshot for efficient redraws.
@@ -106,12 +170,24 @@ const DEFAULT_MAX_CACHE_DIM: number = 16384;
 export class MapCache {
   _pxPerFoot: number;
   _maxCacheDim: number;
-  _cellsLayer: CellsLayer | null;
+  _cellsLayer: CellsLayer | null; // TOP phases only (walls/grid/props/hazard)
   _compositeLayer: CompositeLayer | null;
-  _preGridSnapshot: SnapshotLayer | null;
+  _preGridSnapshot: SnapshotLayer | null; // BASE phases only (floors/blending/bridges)
+  _fluidComposite: HTMLCanvasElement | null;
+  _fluidCompositeSig: string;
+  _shadingCanvas: HTMLCanvasElement | null;
+  _hatchCanvas: HTMLCanvasElement | null;
+  _shadingSig: string;
+  _hatchSig: string;
+  _effectsComposite: HTMLCanvasElement | null;
+  _effectsCompositeSig: string;
+  _lastGeometryVersion: number;
+  _lastCellsThemeSig: string;
+  _lastFluidThemeSig: string;
   _dirtySeq: number;
   _compositeDirtySeq: number;
   _gridDirtySeq: number;
+  /** @deprecated kept for API compatibility — the base/top split is always on now. */
   _gridRedrawEnabled: boolean;
   _lastContentVersion: number;
   _lastLightingVersion: number;
@@ -135,12 +211,23 @@ export class MapCache {
     this._cellsLayer = null;
     this._compositeLayer = null;
     this._preGridSnapshot = null;
+    this._fluidComposite = null;
+    this._fluidCompositeSig = '';
+    this._shadingCanvas = null;
+    this._hatchCanvas = null;
+    this._shadingSig = '';
+    this._hatchSig = '';
+    this._effectsComposite = null;
+    this._effectsCompositeSig = '';
+    this._lastGeometryVersion = 0;
+    this._lastCellsThemeSig = '';
+    this._lastFluidThemeSig = '';
 
     // Version tracking — compared against caller-supplied versions
     this._dirtySeq = 0;
     this._compositeDirtySeq = 0;
     this._gridDirtySeq = 0;
-    this._gridRedrawEnabled = false;
+    this._gridRedrawEnabled = true;
     this._lastContentVersion = 0;
     this._lastLightingVersion = 0;
     this._lastTheme = null;
@@ -194,6 +281,7 @@ export class MapCache {
   invalidate() {
     this._dirtySeq++;
     this._compositeDirtySeq++;
+    log.devTrace(`MapCache.invalidate() → dirtySeq=${this._dirtySeq}`);
   }
 
   /**
@@ -202,6 +290,7 @@ export class MapCache {
    */
   invalidateComposite() {
     this._compositeDirtySeq++;
+    log.dev(`MapCache.invalidateComposite() → composite-only`);
   }
 
   /**
@@ -211,6 +300,7 @@ export class MapCache {
   invalidateGrid() {
     this._gridDirtySeq++;
     this._gridRedrawEnabled = true;
+    log.dev(`MapCache.invalidateGrid() → grid-overlay only`);
   }
 
   /**
@@ -228,11 +318,13 @@ export class MapCache {
       // _compositeDirtySeq here (that would route through composite-only, which just
       // re-blits the stale cells layer and skips the prop replay).
       this._gridDirtySeq++;
+      log.dev(`MapCache.invalidateProps() → grid-only (cheap path)`);
     } else {
       // No snapshot yet — force a full rebuild. The two-pass path will create the
       // snapshot so subsequent prop edits hit the fast grid-only path.
       this._dirtySeq++;
       this._compositeDirtySeq++;
+      log.devTrace(`MapCache.invalidateProps() → FULL REBUILD (no snapshot)`);
     }
   }
 
@@ -244,6 +336,15 @@ export class MapCache {
     this._cellsLayer = null;
     this._compositeLayer = null;
     this._preGridSnapshot = null;
+    this._fluidComposite = null;
+    this._fluidCompositeSig = '';
+    this._shadingCanvas = null;
+    this._hatchCanvas = null;
+    this._shadingSig = '';
+    this._hatchSig = '';
+    this._effectsComposite = null;
+    this._effectsCompositeSig = '';
+    log.dev(`MapCache.dispose() → all layers freed`);
   }
 
   /**
@@ -262,6 +363,14 @@ export class MapCache {
 
   /**
    * Blit the cached map to a destination context at the given transform.
+   *
+   * Clips to the destination viewport so Chromium only touches the visible
+   * portion of the composite. The 3-arg `drawImage` form doesn't cull by
+   * source rect — with a large composite and a small viewport, Chromium
+   * still has to walk the whole source texture, producing unbounded GPU work
+   * proportional to map size, not screen size. Using the 9-arg form with
+   * source + dest rects bounds the work to `(visible viewport × dpr)` pixels.
+   *
    * @param {CanvasRenderingContext2D} destCtx - Destination canvas context
    * @param {{ offsetX: number, offsetY: number, scale: number }} transform - View transform
    * @returns {void}
@@ -269,9 +378,31 @@ export class MapCache {
   blit(destCtx: CanvasRenderingContext2D, transform: RenderTransform) {
     if (!this._compositeLayer) return;
     const sx = transform.scale / this._pxPerFoot;
-    const dw = this._compositeLayer.cacheW * sx;
-    const dh = this._compositeLayer.cacheH * sx;
-    destCtx.drawImage(this._compositeLayer.canvas, transform.offsetX, transform.offsetY, dw, dh);
+    if (sx <= 0) return;
+
+    const canvas = destCtx.canvas;
+    // destCtx is set up with a DPR transform (see canvas-view-render.ts:107),
+    // so "visible in CSS coords" is what we care about for culling.
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    const viewportW = canvas.width / dpr;
+    const viewportH = canvas.height / dpr;
+
+    // Portion of the composite that lands within [0, viewport].
+    // composite pixel p maps to CSS pixel `offsetX + p * sx` (same for Y).
+    const srcX = Math.max(0, -transform.offsetX / sx);
+    const srcY = Math.max(0, -transform.offsetY / sx);
+    const srcMaxX = Math.min(this._compositeLayer.cacheW, (viewportW - transform.offsetX) / sx);
+    const srcMaxY = Math.min(this._compositeLayer.cacheH, (viewportH - transform.offsetY) / sx);
+    const srcW = srcMaxX - srcX;
+    const srcH = srcMaxY - srcY;
+    if (srcW <= 0 || srcH <= 0) return; // composite entirely off-screen
+
+    const dstX = transform.offsetX + srcX * sx;
+    const dstY = transform.offsetY + srcY * sx;
+    const dstW = srcW * sx;
+    const dstH = srcH * sx;
+
+    destCtx.drawImage(this._compositeLayer.canvas, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH);
   }
 
   /**
@@ -313,13 +444,17 @@ export class MapCache {
     const cacheW = Math.ceil(numCols * p.gridSize * pxPerFoot);
     const cacheH = Math.ceil(numRows * p.gridSize * pxPerFoot);
 
-    if (cacheW > this._maxCacheDim || cacheH > this._maxCacheDim) return false;
+    if (cacheW > this._maxCacheDim || cacheH > this._maxCacheDim) {
+      log.dev(`MapCache.update: skipping — map ${cacheW}×${cacheH}px exceeds maxCacheDim ${this._maxCacheDim}`);
+      return false;
+    }
 
     // ── Dirty tracking ──
     const cv = p.contentVersion;
     if (cv !== this._lastContentVersion) {
       this._dirtySeq++;
       this._compositeDirtySeq++;
+      log.dev(`MapCache.update: contentVersion ${this._lastContentVersion} → ${cv} forces cells rebuild`);
       this._lastContentVersion = cv;
     }
 
@@ -327,19 +462,48 @@ export class MapCache {
     if (lv !== this._lastLightingVersion) {
       // Lighting changes only need composite rebuild (lightmap is baked there)
       if (!p.hasAnimLights) this._compositeDirtySeq++;
+      log.dev(
+        `MapCache.update: lightingVersion ${this._lastLightingVersion} → ${lv}${p.hasAnimLights ? ' (animLights — no composite bump)' : ' → composite rebuild'}`,
+      );
       this._lastLightingVersion = lv;
     }
 
-    // Theme reference equality: `getTheme()` returns the same normalized Theme
-    // object for a given raw theme via the _normalizedThemeCache WeakMap, so a
-    // new reference here means the user picked a different preset, edited the
-    // custom theme, or swapped to/from a saved user theme. Theme touches almost
-    // every render phase (floor colors, grid, shading, hatching, blending,
-    // borders) so force a full rebuild rather than composite-only.
+    // Theme change detection — only rebuild caches whose inputs actually changed.
+    // Effects (hatching/shading) and fills have their own signature-based caches
+    // in the composite, so changing those properties doesn't need a cells rebuild.
     if (p.theme !== this._lastTheme) {
-      this._dirtySeq++;
-      this._compositeDirtySeq++;
+      if (this._lastTheme !== null) {
+        const newCellsSig = _cellsThemeSig(p.theme);
+        if (newCellsSig !== this._lastCellsThemeSig) {
+          // Cells-relevant property changed (floor color, wall color, grid, etc.)
+          this._dirtySeq++;
+          this._compositeDirtySeq++;
+          log.dev(`theme cells-relevant change → cells rebuild`);
+        } else {
+          // Only effects/fill properties changed — composite handles it
+          this._compositeDirtySeq++;
+          log.dev(`theme effects/fill-only change → composite rebuild`);
+        }
+        this._lastCellsThemeSig = newCellsSig;
+      } else {
+        this._lastCellsThemeSig = _cellsThemeSig(p.theme);
+      }
       this._lastTheme = p.theme;
+    }
+
+    // Check if effects layer signatures changed (theme hatching/shading params edited
+    // without changing the theme reference — e.g. theme panel sliders). Effects live
+    // in the composite, not the cells layer, so only bump composite version.
+    const geomVer = p.geometryVersion ?? 0;
+    const resolution = p.metadata?.resolution ?? 1;
+    const newShadingSig = this._shadingSignature(p.theme, cacheW, cacheH, geomVer, resolution);
+    const newHatchSig = this._hatchSignature(p.theme, cacheW, cacheH);
+    if (
+      (newShadingSig !== this._shadingSig && !(this._shadingSig === '' && !this._shadingCanvas)) ||
+      (newHatchSig !== this._hatchSig && !(this._hatchSig === '' && !this._hatchCanvas))
+    ) {
+      this._compositeDirtySeq++;
+      log.dev(`MapCache.update: effects signature changed → composite rebuild`);
     }
 
     const texVer = p.texturesVersion ?? 0;
@@ -382,6 +546,7 @@ export class MapCache {
       this._rebuildFromSnapshot(p, cacheTransform, cacheW, cacheH, texVer);
       this._lastRebuildMs = performance.now() - _cacheStart;
       this._lastRebuildType = 'grid';
+      log.dev(`MapCache.update → grid rebuild (${this._lastRebuildMs.toFixed(1)}ms)`);
       return true;
     }
 
@@ -391,6 +556,7 @@ export class MapCache {
       this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer);
       this._lastRebuildMs = performance.now() - _cacheStart;
       this._lastRebuildType = 'composite';
+      log.dev(`MapCache.update → composite rebuild (${this._lastRebuildMs.toFixed(1)}ms)`);
       return true;
     }
 
@@ -410,7 +576,255 @@ export class MapCache {
 
     this._lastRebuildMs = performance.now() - _cacheStart;
     this._lastRebuildType = canPartial ? 'partial' : 'full';
+    log.dev(`MapCache.update → ${this._lastRebuildType} cells rebuild (${this._lastRebuildMs.toFixed(1)}ms)`);
     return true;
+  }
+
+  // ── Internal: shading/hatching layer caching ──
+  //
+  // Shading (outer glow): uses real roomCells so size/roughness create organic
+  // edges around rooms. Rebuilds on geometry + theme changes (cheap — just circles).
+  //
+  // Hatching (cross-hatch/rock patterns): follows the player view's architecture —
+  // built ONCE with allRoom=true (patterns cover the entire grid), then a cheap
+  // Minkowski-sum mask clips to room proximity on geometry changes.
+  // The expensive Path2D construction only runs on theme/dimension changes.
+
+  _shadingSignature(theme: Theme, cacheW: number, cacheH: number, geomVer: number, resolution: number): string {
+    const os = (theme as Record<string, unknown>).outerShading as Record<string, unknown> | undefined;
+    if (!os?.color || !((os.size as number) > 0)) return '';
+    return `S,${geomVer},${cacheW},${cacheH},${resolution},${os.color},${os.size},${os.roughness ?? 0}`;
+  }
+
+  _hatchSignature(theme: Theme, cacheW: number, cacheH: number): string {
+    if (!(theme as Record<string, number>).hatchOpacity) return '';
+    const t = theme as Record<string, unknown>;
+    return `H,${cacheW},${cacheH},${t.hatchOpacity},${t.hatchSize ?? 0.5},${t.hatchDistance ?? 1},${t.hatchStyle ?? 'lines'},${t.hatchColor ?? (theme as Record<string, string>).wallStroke}`;
+  }
+
+  /** Build the shading layer using real roomCells (preserves size/roughness edges).
+   *  Rebuilds on geometry + theme shading changes — cheap, just circles. */
+  _ensureShadingLayer(
+    cells: CellGrid,
+    gridSize: number,
+    theme: Theme,
+    metadata: Metadata | null,
+    cacheW: number,
+    cacheH: number,
+    geomVer: number,
+  ): void {
+    const resolution = metadata?.resolution ?? 1;
+    const sig = this._shadingSignature(theme, cacheW, cacheH, geomVer, resolution);
+    if (sig === this._shadingSig && this._shadingCanvas) return;
+    if (!sig) {
+      this._shadingCanvas = null;
+      this._shadingSig = '';
+      return;
+    }
+    if (this._shadingCanvas?.width !== cacheW || this._shadingCanvas.height !== cacheH) {
+      this._shadingCanvas = document.createElement('canvas');
+      this._shadingCanvas.width = cacheW;
+      this._shadingCanvas.height = cacheH;
+    }
+    const ctx = this._shadingCanvas.getContext('2d')!;
+    ctx.clearRect(0, 0, cacheW, cacheH);
+    const cacheTransform = { scale: this._pxPerFoot, offsetX: 0, offsetY: 0 };
+    const roomCells = getCachedRoomCells(cells);
+    drawOuterShading(ctx, cells, roomCells, gridSize, theme, cacheTransform, resolution);
+    this._shadingSig = sig;
+    log.dev(`MapCache._ensureShadingLayer → rebuilt (sig=${sig.slice(0, 40)}…)`);
+  }
+
+  /** Build the hatching base layer by rendering one tile and repeating it.
+   *  Only rebuilds on theme/size change — geometry changes only affect the mask. */
+  _ensureHatchLayer(_cells: CellGrid, gridSize: number, theme: Theme, cacheW: number, cacheH: number): void {
+    const sig = this._hatchSignature(theme, cacheW, cacheH);
+    if (sig === this._hatchSig && this._hatchCanvas) return;
+    if (!sig) {
+      this._hatchCanvas = null;
+      this._hatchSig = '';
+      return;
+    }
+    if (this._hatchCanvas?.width !== cacheW || this._hatchCanvas.height !== cacheH) {
+      this._hatchCanvas = document.createElement('canvas');
+      this._hatchCanvas.width = cacheW;
+      this._hatchCanvas.height = cacheH;
+    }
+    const ctx = this._hatchCanvas.getContext('2d')!;
+    ctx.clearRect(0, 0, cacheW, cacheH);
+
+    const pxPerFoot = this._pxPerFoot;
+    const hatchSize = (theme as Record<string, number>).hatchSize ?? 0.5;
+    const hatchOpacity = (theme as Record<string, number>).hatchOpacity ?? 0;
+    const hatchColor = ((theme as Record<string, string>).hatchColor ?? theme.wallStroke) || '#000000';
+    const hatchStyle = (theme as Record<string, string>).hatchStyle ?? 'lines';
+
+    // ── Line hatching tile ──
+    if (hatchStyle !== 'rocks') {
+      const tileWorld = gridSize * 2 * (1.5 + hatchSize * 3);
+      const tilePx = Math.ceil(tileWorld * pxPerFoot);
+      const patternScale = tileWorld / HATCH_TILE_SIZE;
+      const pxScale = patternScale * pxPerFoot;
+
+      const tile = document.createElement('canvas');
+      tile.width = tilePx;
+      tile.height = tilePx;
+      const tc = tile.getContext('2d')!;
+      const path = new Path2D();
+      for (const p of HATCH_PATTERNS) {
+        for (const line of p.cellLines) {
+          path.moveTo(line[0]![0]! * pxScale, line[0]![1]! * pxScale);
+          path.lineTo(line[1]![0]! * pxScale, line[1]![1]! * pxScale);
+        }
+      }
+      tc.strokeStyle = hatchColor;
+      tc.lineWidth = Math.max(0.5, pxPerFoot / GRID_SCALE);
+      tc.lineCap = 'round';
+      tc.globalAlpha = hatchOpacity;
+      tc.stroke(path);
+
+      const pattern = ctx.createPattern(tile, 'repeat')!;
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, 0, cacheW, cacheH);
+    }
+
+    // ── Rock shading tile ──
+    if (hatchStyle === 'rocks' || hatchStyle === 'both') {
+      const tileWorld = gridSize * (8 + hatchSize * 8);
+      const tilePx = Math.ceil(tileWorld * pxPerFoot);
+      const patternScale = tileWorld / WATER_TILE_SIZE;
+      const pxScale = patternScale * pxPerFoot;
+
+      const tile = document.createElement('canvas');
+      tile.width = tilePx;
+      tile.height = tilePx;
+      const tc = tile.getContext('2d')!;
+      const path = new Path2D();
+      const { bins: spatialBins, N: binCount } = WATER_SPATIAL;
+      for (let by = 0; by < binCount; by++) {
+        for (let bx = 0; bx < binCount; bx++) {
+          for (const p of spatialBins[by * binCount + bx]!) {
+            const verts = p.verts;
+            path.moveTo(verts[0]![0]! * pxScale, verts[0]![1]! * pxScale);
+            for (let vi = 1; vi < verts.length; vi++) {
+              path.lineTo(verts[vi]![0]! * pxScale, verts[vi]![1]! * pxScale);
+            }
+            path.closePath();
+          }
+        }
+      }
+      tc.strokeStyle = hatchColor;
+      tc.lineWidth = ((1.5 + hatchSize * 0.5) / GRID_SCALE) * pxPerFoot;
+      tc.lineCap = 'round';
+      tc.lineJoin = 'round';
+      tc.globalAlpha = hatchOpacity;
+      tc.stroke(path);
+
+      const pattern = ctx.createPattern(tile, 'repeat')!;
+      ctx.fillStyle = pattern;
+      ctx.fillRect(0, 0, cacheW, cacheH);
+    }
+
+    this._hatchSig = sig;
+    log.dev(`MapCache._ensureHatchLayer → rebuilt tile (sig=${sig.slice(0, 40)}…)`);
+  }
+
+  /**
+   * Build the hatching composite: hatching base masked to room proximity via
+   * Minkowski-sum arcs around room cells, then room interiors cut out.
+   * Same approach as the player view's fog-edge composites.
+   * Shading is NOT masked here — it uses real roomCells and has its own edges.
+   */
+  _ensureHatchComposite(
+    cells: CellGrid,
+    gridSize: number,
+    theme: Theme,
+    cacheW: number,
+    cacheH: number,
+    geomVer: number,
+  ): void {
+    if (!this._hatchCanvas) {
+      this._effectsComposite = null;
+      this._effectsCompositeSig = '';
+      return;
+    }
+
+    const sig = `${geomVer},${cacheW},${cacheH},${this._hatchSig}`;
+    if (sig === this._effectsCompositeSig && this._effectsComposite) return;
+
+    if (this._effectsComposite?.width !== cacheW || this._effectsComposite.height !== cacheH) {
+      this._effectsComposite = document.createElement('canvas');
+      this._effectsComposite.width = cacheW;
+      this._effectsComposite.height = cacheH;
+    }
+    const ctx = this._effectsComposite.getContext('2d')!;
+    ctx.clearRect(0, 0, cacheW, cacheH);
+
+    // Draw hatching base onto composite
+    ctx.drawImage(this._hatchCanvas, 0, 0);
+
+    // Minkowski-sum mask: keep content only inside rounded region around room cells
+    const roomCells = getCachedRoomCells(cells);
+    const cellPx = gridSize * this._pxPerFoot;
+    const MAX_DIST = Math.round((((theme as Record<string, unknown>).hatchDistance as number | undefined) ?? 1) * 2);
+    const ballRadius = cellPx * (0.5 + MAX_DIST);
+
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.beginPath();
+    for (let r = 0; r < roomCells.length; r++) {
+      const row = roomCells[r]!;
+      for (let c = 0; c < row.length; c++) {
+        if (!row[c]) continue;
+        const cx = (c + 0.5) * cellPx;
+        const cy = (r + 0.5) * cellPx;
+        ctx.moveTo(cx + ballRadius, cy);
+        ctx.arc(cx, cy, ballRadius, 0, Math.PI * 2);
+      }
+    }
+    ctx.fill('nonzero');
+
+    // Cut out room cell interiors for a clean inner edge.
+    // For trim cells, only cut out the room portion (trimClip polygon) so
+    // the voided portion still shows hatching underneath.
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    const trimCells: Array<[number, number, number[][]]> = [];
+    for (let r = 0; r < roomCells.length; r++) {
+      const row = roomCells[r]!;
+      for (let c = 0; c < row.length; c++) {
+        if (!row[c]) continue;
+        const cell = cells[r]?.[c] as Record<string, unknown> | null;
+        const clip = cell?.trimClip as number[][] | undefined;
+        if (clip && clip.length >= 3) {
+          // Trim cell — cut out only the room portion (inside trimClip)
+          const px = c * cellPx,
+            py = r * cellPx;
+          ctx.moveTo(px + clip[0]![0]! * cellPx, py + clip[0]![1]! * cellPx);
+          for (let i = 1; i < clip.length; i++) {
+            ctx.lineTo(px + clip[i]![0]! * cellPx, py + clip[i]![1]! * cellPx);
+          }
+          ctx.closePath();
+        } else if (cell?.trimCorner && !clip) {
+          // Diagonal trim without arc clip — collect for triangle cut-out
+          trimCells.push([r, c, _diagRoomTriangle(cell.trimCorner as string)]);
+          const tri = trimCells[trimCells.length - 1]![2];
+          const px = c * cellPx,
+            py = r * cellPx;
+          ctx.moveTo(px + tri[0]![0]! * cellPx, py + tri[0]![1]! * cellPx);
+          ctx.lineTo(px + tri[1]![0]! * cellPx, py + tri[1]![1]! * cellPx);
+          ctx.lineTo(px + tri[2]![0]! * cellPx, py + tri[2]![1]! * cellPx);
+          ctx.closePath();
+        } else {
+          // Normal cell — cut out entirely
+          ctx.rect(c * cellPx, r * cellPx, cellPx, cellPx);
+        }
+      }
+    }
+    ctx.fill();
+
+    ctx.globalCompositeOperation = 'source-over';
+    this._effectsCompositeSig = sig;
+    log.dev(`MapCache._ensureHatchComposite → rebuilt mask (${roomCells.length}×${roomCells[0]?.length ?? 0})`);
   }
 
   // ── Internal: full cells + composite rebuild ──
@@ -427,14 +841,95 @@ export class MapCache {
   ) {
     this._cellsRebuildCount++;
 
-    // Create / resize cells layer
+    this._ensureBaseLayer(cacheW, cacheH);
+    this._ensureTopLayer(cacheW, cacheH);
+
+    // Shading/hatching effects live in the composite, not the cells layers.
+    const effectsSkip = { ...(p.skipPhases ?? {}), shading: true };
+
+    // ── Pass 1: BASE phases (floors, blending) → _preGridSnapshot.
+    // Bridges moved to the TOP pass so they render above fluid; fluid
+    // (`fills`) is now a composite sublayer and not a renderCells phase.
+    const baseCtx = this._preGridSnapshot!.ctx;
+    baseCtx.clearRect(0, 0, cacheW, cacheH);
+    if (p.preRenderHook) p.preRenderHook(baseCtx, cacheTransform);
+    const baseSkipPhases = {
+      ...effectsSkip,
+      grid: true,
+      walls: true,
+      props: true,
+      hazard: true,
+      fills: true,
+      bridges: true,
+    };
+    renderCells(baseCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+      showGrid: p.showGrid,
+      labelStyle: p.labelStyle,
+      propCatalog: null,
+      textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+      metadata: p.metadata,
+      skipLabels: true,
+      showInvisible: p.showInvisible,
+      bgImageEl: p.bgImageEl,
+      bgImgConfig: p.bgImgConfig,
+      cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+      skipPhases: baseSkipPhases,
+    });
+
+    // ── Pass 2: TOP phases (bridges, walls, grid, props, hazard) → _cellsLayer.
+    // Alpha-transparent by default so base + fluid show through where
+    // there's no structural content. Bridges live here so they render
+    // above the fluid composite but below props / hazard.
+    const topCtx = this._cellsLayer!.ctx;
+    topCtx.clearRect(0, 0, cacheW, cacheH);
+    const topSkipPhases = {
+      ...effectsSkip,
+      floors: true,
+      blending: true,
+      fills: true,
+    };
+    renderCells(topCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+      showGrid: p.showGrid,
+      labelStyle: p.labelStyle,
+      propCatalog: p.skipPhases?.props ? null : p.propCatalog,
+      textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+      metadata: p.metadata,
+      skipLabels: p.skipLabels ?? p.lightingEnabled ?? !!p.skipPhases?.labels,
+      showInvisible: p.showInvisible,
+      bgImageEl: p.bgImageEl,
+      bgImgConfig: p.bgImgConfig,
+      cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+      skipPhases: topSkipPhases,
+    });
+
+    this._cellsLayer!.dirtySeq = this._dirtySeq;
+    this._cellsLayer!.gridDirtySeq = this._gridDirtySeq;
+    this._cellsLayer!.texturesVersion = texVer;
+    this._cellsLayer!.skipSig = skipSig;
+
+    // Composite (base + fluid + top + lightmap + labels)
+    this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer);
+  }
+
+  // Allocate / reuse the BASE layer canvas (floors/blending/bridges).
+  _ensureBaseLayer(cacheW: number, cacheH: number) {
+    if (this._preGridSnapshot?.cacheW !== cacheW || this._preGridSnapshot.cacheH !== cacheH) {
+      const offscreen = document.createElement('canvas');
+      offscreen.width = cacheW;
+      offscreen.height = cacheH;
+      this._preGridSnapshot = { canvas: offscreen, ctx: offscreen.getContext('2d')!, cacheW, cacheH };
+    }
+  }
+
+  // Allocate / reuse the TOP layer canvas (walls/grid/props/hazard).
+  _ensureTopLayer(cacheW: number, cacheH: number) {
     if (this._cellsLayer?.cacheW !== cacheW || this._cellsLayer.cacheH !== cacheH) {
       const offscreen = document.createElement('canvas');
       offscreen.width = cacheW;
       offscreen.height = cacheH;
       this._cellsLayer = {
         canvas: offscreen,
-        ctx: offscreen.getContext('2d', { alpha: false })!,
+        ctx: offscreen.getContext('2d')!,
         dirtySeq: 0,
         cacheW,
         cacheH,
@@ -443,76 +938,6 @@ export class MapCache {
         gridDirtySeq: 0,
       };
     }
-
-    const offCtx = this._cellsLayer.ctx;
-    offCtx.fillStyle = p.theme.background;
-    offCtx.fillRect(0, 0, cacheW, cacheH);
-
-    if (p.preRenderHook) p.preRenderHook(offCtx, cacheTransform);
-
-    if (this._gridRedrawEnabled) {
-      // Two-pass: render base phases, capture snapshot, then render grid+walls+props.
-      // Snapshot enables cheap grid-only redraws later.
-      const baseSkipPhases = { ...(p.skipPhases ?? {}), grid: true, walls: true, props: true, hazard: true };
-      renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
-        showGrid: p.showGrid,
-        labelStyle: p.labelStyle,
-        propCatalog: null,
-        textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
-        metadata: p.metadata,
-        skipLabels: true,
-        showInvisible: p.showInvisible,
-        bgImageEl: p.bgImageEl,
-        bgImgConfig: p.bgImgConfig,
-        cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
-        skipPhases: baseSkipPhases,
-      });
-      this._savePreGridSnapshot(cacheW, cacheH);
-      const topSkipPhases = {
-        ...(p.skipPhases ?? {}),
-        shading: true,
-        floors: true,
-        blending: true,
-        fills: true,
-        bridges: true,
-      };
-      renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
-        showGrid: p.showGrid,
-        labelStyle: p.labelStyle,
-        propCatalog: p.skipPhases?.props ? null : p.propCatalog,
-        textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
-        metadata: p.metadata,
-        skipLabels: p.skipLabels ?? p.lightingEnabled ?? !!p.skipPhases?.labels,
-        showInvisible: p.showInvisible,
-        bgImageEl: p.bgImageEl,
-        bgImgConfig: p.bgImgConfig,
-        cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
-        skipPhases: topSkipPhases,
-      });
-    } else {
-      // Single-pass: normal rendering (player view, or before first grid edit)
-      renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
-        showGrid: p.showGrid,
-        labelStyle: p.labelStyle,
-        propCatalog: p.skipPhases?.props ? null : p.propCatalog,
-        textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
-        metadata: p.metadata,
-        skipLabels: p.skipLabels ?? p.lightingEnabled ?? !!p.skipPhases?.labels,
-        showInvisible: p.showInvisible,
-        bgImageEl: p.bgImageEl,
-        bgImgConfig: p.bgImgConfig,
-        cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
-        skipPhases: p.skipPhases ?? null,
-      });
-    }
-
-    this._cellsLayer.dirtySeq = this._dirtySeq;
-    this._cellsLayer.gridDirtySeq = this._gridDirtySeq;
-    this._cellsLayer.texturesVersion = texVer;
-    this._cellsLayer.skipSig = skipSig;
-
-    // Composite (cells + lightmap + labels)
-    this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer);
   }
 
   // ── Internal: partial cells + composite rebuild ──
@@ -542,19 +967,43 @@ export class MapCache {
     const pw = px2 - px1,
       ph = py2 - py1;
 
-    const layer = this._cellsLayer!;
-    const offCtx = layer.ctx;
-    offCtx.save();
-    offCtx.beginPath();
-    offCtx.rect(px1, py1, pw, ph);
-    offCtx.clip();
+    this._ensureBaseLayer(cacheW, cacheH);
+    this._ensureTopLayer(cacheW, cacheH);
+    const effectsSkip = { ...(p.skipPhases ?? {}), shading: true };
 
-    offCtx.fillStyle = p.theme.background;
-    offCtx.fillRect(px1, py1, pw, ph);
+    // ── Base canvas — clear + redraw base phases within clip.
+    const baseCtx = this._preGridSnapshot!.ctx;
+    baseCtx.save();
+    baseCtx.beginPath();
+    baseCtx.rect(px1, py1, pw, ph);
+    baseCtx.clip();
+    baseCtx.clearRect(px1, py1, pw, ph);
+    if (p.preRenderHook) p.preRenderHook(baseCtx, cacheTransform);
+    renderCells(baseCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+      showGrid: p.showGrid,
+      labelStyle: p.labelStyle,
+      propCatalog: null,
+      textureOptions: p.skipPhases?.textures ? null : p.textureOptions,
+      metadata: p.metadata,
+      skipLabels: true,
+      showInvisible: p.showInvisible,
+      bgImageEl: p.bgImageEl,
+      bgImgConfig: p.bgImgConfig,
+      cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
+      skipPhases: { ...effectsSkip, grid: true, walls: true, props: true, hazard: true, fills: true, bridges: true },
+      visibleBounds: padded,
+      dirtyRegion: padded,
+    });
+    baseCtx.restore();
 
-    if (p.preRenderHook) p.preRenderHook(offCtx, cacheTransform);
-
-    renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+    // ── Top canvas — clear + redraw top phases within clip (alpha).
+    const topCtx = this._cellsLayer!.ctx;
+    topCtx.save();
+    topCtx.beginPath();
+    topCtx.rect(px1, py1, pw, ph);
+    topCtx.clip();
+    topCtx.clearRect(px1, py1, pw, ph);
+    renderCells(topCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
       showGrid: p.showGrid,
       labelStyle: p.labelStyle,
       propCatalog: p.skipPhases?.props ? null : p.propCatalog,
@@ -565,28 +1014,32 @@ export class MapCache {
       bgImageEl: p.bgImageEl,
       bgImgConfig: p.bgImgConfig,
       cacheSize: { w: cacheW, h: cacheH, scale: this._pxPerFoot },
-      skipPhases: p.skipPhases ?? null,
+      skipPhases: { ...effectsSkip, floors: true, blending: true, fills: true },
       visibleBounds: padded,
+      dirtyRegion: padded,
     });
+    topCtx.restore();
 
-    offCtx.restore();
-    layer.dirtySeq = this._dirtySeq;
+    this._cellsLayer!.dirtySeq = this._dirtySeq;
+    // Keep gridDirtySeq / texturesVersion / skipSig in sync — _rebuildPartial
+    // runs both base and top passes, so any pending grid/texture/skip work is
+    // folded in. If we don't stamp these, the next `update()` sees stale
+    // sequence numbers and runs a redundant full-canvas grid rebuild (which
+    // bypasses the clipRect optimization), producing a big GPU task for no
+    // reason.
+    this._cellsLayer!.gridDirtySeq = this._gridDirtySeq;
+    this._cellsLayer!.texturesVersion = texVer;
+    this._cellsLayer!.skipSig = _skipSig ?? this._cellsLayer!.skipSig;
 
     // Partial composite update (clipped to same region)
     this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer, { px1, py1, pw, ph });
   }
 
-  // ── Internal: snapshot / restore for grid-only redraws ──
-
-  _savePreGridSnapshot(cacheW: number, cacheH: number) {
-    if (this._preGridSnapshot?.cacheW !== cacheW || this._preGridSnapshot.cacheH !== cacheH) {
-      const offscreen = document.createElement('canvas');
-      offscreen.width = cacheW;
-      offscreen.height = cacheH;
-      this._preGridSnapshot = { canvas: offscreen, ctx: offscreen.getContext('2d', { alpha: false })!, cacheW, cacheH };
-    }
-    this._preGridSnapshot.ctx.drawImage(this._cellsLayer!.canvas, 0, 0);
-  }
+  // ── Internal: top-layer-only rebuild (walls/grid/props/hazard) ──
+  //
+  // Used when only the top phases changed (e.g. a wall color tweak or a
+  // grid opacity slider). Clears the cells-top canvas and redraws only the
+  // top phases — base layer and fluid composite are reused as-is.
 
   _rebuildFromSnapshot(
     p: MapCacheParams,
@@ -595,20 +1048,18 @@ export class MapCache {
     cacheH: number,
     texVer: number,
   ) {
-    // Restore cells layer to pre-grid state
-    const offCtx = this._cellsLayer!.ctx;
-    offCtx.drawImage(this._preGridSnapshot!.canvas, 0, 0);
+    this._ensureTopLayer(cacheW, cacheH);
+    const topCtx = this._cellsLayer!.ctx;
+    topCtx.clearRect(0, 0, cacheW, cacheH);
 
-    // Re-render only grid + shading + walls + props (skip expensive base phases)
     const topSkipPhases = {
       ...(p.skipPhases ?? {}),
       shading: true,
       floors: true,
       blending: true,
       fills: true,
-      bridges: true,
     };
-    renderCells(offCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
+    renderCells(topCtx, p.cells, p.gridSize, p.theme, cacheTransform, {
       showGrid: p.showGrid,
       labelStyle: p.labelStyle,
       propCatalog: p.skipPhases?.props ? null : p.propCatalog,
@@ -624,11 +1075,44 @@ export class MapCache {
 
     this._cellsLayer!.gridDirtySeq = this._gridDirtySeq;
 
-    // Recomposite (cells changed, need to re-blit into composite)
+    // Recomposite (top changed, need to re-blit into composite)
     this._buildComposite(p, cacheTransform, cacheW, cacheH, texVer);
   }
 
-  // ── Internal: build composite layer (cells + static lightmap + labels) ──
+  // ── Internal: fluid composite sublayer ──
+  //
+  // Rebuilt when the fluid theme signature changes (any fluid color) or
+  // when cell mutations invalidate the variant clips. Blitted into the
+  // final composite between the base layer and the top layer so walls
+  // and grid stay visually on top.
+
+  _ensureFluidComposite(cells: CellGrid, gridSize: number, theme: Theme, cacheW: number, cacheH: number) {
+    const fluidSig = fluidThemeSig(theme);
+    // Key on the fluid-specific data version — bumps only when fluid
+    // cells are added/removed, waterDepth changes, or the fluid theme
+    // is recoloured (see `smartInvalidate` in render-cache.ts for the
+    // needsFluid detection that drives `_fluidDataVersion`). Wall /
+    // prop / texture / far-from-fluid geometry edits don't force the
+    // composite to rebuild.
+    const sig = `${getFluidDataVersion()},${cacheW},${cacheH},${fluidSig}`;
+    if (sig === this._fluidCompositeSig && this._fluidComposite) return;
+
+    const roomCells = getCachedRoomCells(cells);
+    const existing = this._fluidComposite;
+    const next = buildFluidComposite(cells, roomCells, gridSize, theme, this._pxPerFoot, cacheW, cacheH, existing);
+    this._fluidComposite = next;
+    this._lastFluidThemeSig = fluidSig;
+    this._fluidCompositeSig = sig;
+    log.dev(`MapCache._ensureFluidComposite → ${next ? 'rebuilt' : 'no fluids'}`);
+  }
+
+  // ── Internal: build composite layer ──
+  // Order: background → shading → hatching → BASE cells → fluid composite →
+  //        TOP cells → lightmap → labels.
+  //
+  // Effects live here so effects-only changes (theme sliders) skip the
+  // cells rebuild. Fluid sits between base and top so walls/grid/props
+  // stay visually above water/lava/pit.
 
   _buildComposite(
     p: MapCacheParams,
@@ -656,15 +1140,70 @@ export class MapCache {
     this._compositeRebuildCount++;
     const compCtx = this._compositeLayer.ctx;
 
+    // When a clipRect is supplied (partial rebuild from a small dirty region),
+    // use the source-rect form of drawImage so each blit only touches the
+    // relevant strip of pixels on both the source and destination. The old
+    // `ctx.clip()` approach restricted writes but still forced Chromium to
+    // rasterize every source at full-canvas size — that was the bulk of the
+    // GPU stall on single-cell texture applies.
+    const cx = clipRect ? clipRect.px1 : 0;
+    const cy = clipRect ? clipRect.py1 : 0;
+    const cw = clipRect ? clipRect.pw : cacheW;
+    const ch = clipRect ? clipRect.ph : cacheH;
+
+    // drawImage with source + dest rects. When not clipping, fall back to the
+    // simpler 3-arg form (avoids unnecessary sub-rect math).
+    const blit = clipRect
+      ? (src: CanvasImageSource) => compCtx.drawImage(src, cx, cy, cw, ch, cx, cy, cw, ch)
+      : (src: CanvasImageSource) => compCtx.drawImage(src, 0, 0);
+
+    compCtx.globalCompositeOperation = 'source-over';
+
+    // Background fill (was in cells layer, now here so cells layer can be transparent)
+    compCtx.fillStyle = p.theme.background;
+    compCtx.fillRect(cx, cy, cw, ch);
+
+    // Effects layers — built/cached here so effects-only theme changes skip cells rebuild
+    if (!p.skipPhases?.shading) {
+      const geomVer = p.geometryVersion ?? 0;
+      if (!p.skipPhases?.outerShading) {
+        this._ensureShadingLayer(p.cells, p.gridSize, p.theme, p.metadata, cacheW, cacheH, geomVer);
+        if (this._shadingCanvas) blit(this._shadingCanvas);
+      }
+      if (!p.skipPhases?.hatching) {
+        this._ensureHatchLayer(p.cells, p.gridSize, p.theme, cacheW, cacheH);
+        this._ensureHatchComposite(p.cells, p.gridSize, p.theme, cacheW, cacheH, geomVer);
+        if (this._effectsComposite) blit(this._effectsComposite);
+      }
+    }
+
+    // Base cells layer (floors + blending + bridges). Opaque inside rooms
+    // so shading / hatching bleeds only outside the floor.
+    if (this._preGridSnapshot) {
+      blit(this._preGridSnapshot.canvas);
+    }
+
+    // Fluid composite (water / lava / pit tile blits with spill-aware clips).
+    // Rebuilt when fluid theme sig changes or variant clips get invalidated.
+    if (!p.skipPhases?.fills) {
+      this._ensureFluidComposite(p.cells, p.gridSize, p.theme, cacheW, cacheH);
+      if (this._fluidComposite) {
+        blit(this._fluidComposite);
+      }
+    }
+
+    // Top cells layer (walls, grid, props, hazard). Alpha-transparent so
+    // base + fluid show through where there's no structural content.
+    blit(this._cellsLayer!.canvas);
+
+    // Lighting + labels still render full-canvas internally; scope them to the
+    // clip rect so a partial rebuild doesn't re-bake lighting over the whole map.
     if (clipRect) {
       compCtx.save();
       compCtx.beginPath();
-      compCtx.rect(clipRect.px1, clipRect.py1, clipRect.pw, clipRect.ph);
+      compCtx.rect(cx, cy, cw, ch);
       compCtx.clip();
     }
-
-    compCtx.globalCompositeOperation = 'source-over';
-    compCtx.drawImage(this._cellsLayer!.canvas, 0, 0);
 
     // Bake static lighting into composite (skip when animated lights exist —
     // those are rendered per-frame at screen resolution by the caller)

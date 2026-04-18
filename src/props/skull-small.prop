@@ -1,5 +1,5 @@
 name: Small Animal Skull
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: yes
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: bone-marker, skull, cairn-sacred, rat-skeleton, animal-skull, sku
 notes: Small animal skull (rat, cat, or corvid) — ritual curio, warding token, or witch's reagent. Snout faces south (high Y).
 ---
 # === HITBOX ===
-hitbox ellipse 0.50,0.48 0.22,0.26 z 0-0.2
+selection ellipse 0.50,0.48 0.22,0.26
 
 # Ground contact shadow
 ellipse 0.50,0.72 0.18,0.04 fill #1a1008 0.35

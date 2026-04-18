@@ -9,13 +9,7 @@ room_types: elemental-fire-node, volcano-caldera, elemental-node
 typical_count: many
 clusters_with: ember-pit, molten-pool-small, fire-node-core
 notes: Scatter of floating hot embers and soot patches — dark base with orange spark dots scattered across.
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 5
-    color: "#ff6020"
-    intensity: 0.5
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":5,"intensity":0.5,"color":"#ff6020"}]
 ---
 # Soft heat halo
 circle 0.5,0.5 0.45 gradient-radial #ff6020 #0a0400 0.2

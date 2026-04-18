@@ -12,7 +12,7 @@ clusters_with: book, book-pile, desk, ledger-stack
 notes: Tiny desk accent; folded or open pair of round spectacles
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.42 0.72,0.20 z 0-0.05
+selection rect 0.14,0.42 0.72,0.20
 
 # Left lens (wire-rim circle)
 circle 0.30,0.52 0.14 fill #1a1410 0.1

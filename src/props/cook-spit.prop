@@ -1,0 +1,116 @@
+name: Cook Spit
+category: Kitchen
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: cave-goblin-warren, goblin-warren, orc-war-camp, cave-bandit-camp, kobold-warren, ranger-camp, cabin-hunters
+typical_count: single
+clusters_with: campfire, campfire-stone, cooking-tripod, wood-pile, bone-pile
+notes: Small rough roasting spit over a crude fire — two Y-posts driven into the ground with an iron rod between them, skewered meat roasting over flames. Smaller and cruder than cooking-spit (2x3).
+lights: [{"preset":"campfire","x":1.0,"y":0.5,"radius":6,"intensity":0.6}]
+---
+# footprint 1x2: x range 0-2, y range 0-1
+
+# === HITBOX ===
+hitbox rect 0.14,0.38 0.20,0.30 z 0-1.5
+hitbox rect 1.66,0.38 0.20,0.30 z 0-1.5
+
+# === Ash circle under fire ===
+ellipse 1.00,0.52 0.58,0.28 fill #1a0800 0.6
+
+# === Burnt logs arrangement (under fire) ===
+poly 0.56,0.58 0.60,0.52 1.44,0.44 1.48,0.50 fill #3a1f00 0.8
+poly 0.56,0.58 0.60,0.52 1.44,0.44 1.48,0.50 stroke #2a1400
+poly 0.56,0.44 0.60,0.50 1.44,0.58 1.48,0.52 fill #4a2800 0.75
+poly 0.56,0.44 0.60,0.50 1.44,0.58 1.48,0.52 stroke #2a1400
+
+# === Charred log end glow ===
+circle 0.58,0.56 0.03 fill #cc3300 0.55
+circle 1.46,0.46 0.03 fill #cc3300 0.55
+circle 0.58,0.46 0.025 fill #ff6600 0.5
+circle 1.46,0.56 0.025 fill #ff6600 0.5
+
+# === Fire flames (concentric rings top-down) ===
+# Outer heat halo
+circle 1.00,0.52 0.32 fill #e85500 0.30
+# Flame ring
+circle 1.00,0.52 0.24 fill #ff6020 0.7
+# Mid flame
+circle 1.00,0.52 0.18 fill #ff8030 0.85
+# Inner yellow
+circle 1.00,0.52 0.12 fill #ffaa30 0.88
+# Hot core
+circle 1.00,0.52 0.07 fill #ffcc60 0.9
+# White center
+circle 1.00,0.52 0.04 fill #ffee90 0.92
+
+# === Flame tongues radiating ===
+poly 1.00,0.24 0.94,0.40 1.06,0.40 fill #ffaa30 0.75
+poly 1.00,0.80 0.94,0.64 1.06,0.64 fill #ff8030 0.7
+poly 0.74,0.52 0.88,0.46 0.88,0.58 fill #ffaa30 0.7
+poly 1.26,0.52 1.12,0.46 1.12,0.58 fill #ff8030 0.7
+
+# === Left Y-post (driven into ground) ===
+rect 0.18,0.42 0.14,0.26 texfill polyhaven/dark_wood 0.88
+rect 0.18,0.42 0.14,0.26 stroke #2a1400
+# Left Y-fork prongs (cradle the rod)
+poly 0.20,0.44 0.08,0.32 0.12,0.28 0.26,0.42 fill #3a2000 0.8
+poly 0.20,0.44 0.08,0.32 0.12,0.28 0.26,0.42 stroke #2a1400
+poly 0.30,0.44 0.42,0.32 0.38,0.28 0.24,0.42 fill #3a2000 0.8
+poly 0.30,0.44 0.42,0.32 0.38,0.28 0.24,0.42 stroke #2a1400
+
+# Bark texture
+line 0.24,0.48 0.24,0.66 stroke #5c3a1e 0.5
+
+# === Right Y-post ===
+rect 1.68,0.42 0.14,0.26 texfill polyhaven/dark_wood 0.88
+rect 1.68,0.42 0.14,0.26 stroke #2a1400
+poly 1.70,0.44 1.58,0.32 1.62,0.28 1.76,0.42 fill #3a2000 0.8
+poly 1.70,0.44 1.58,0.32 1.62,0.28 1.76,0.42 stroke #2a1400
+poly 1.80,0.44 1.92,0.32 1.88,0.28 1.74,0.42 fill #3a2000 0.8
+poly 1.80,0.44 1.92,0.32 1.88,0.28 1.74,0.42 stroke #2a1400
+
+line 1.74,0.48 1.74,0.66 stroke #5c3a1e 0.5
+
+# === Spit rod (iron bar across, from left Y to right Y) ===
+rect 0.32,0.36 1.36,0.04 fill #666666 0.9
+rect 0.32,0.36 1.36,0.04 texfill polyhaven/rusty_metal 0.3
+rect 0.32,0.36 1.36,0.04 stroke #333333
+
+# Rod ends sticking beyond posts (pointy tips)
+poly 0.14,0.36 0.32,0.36 0.32,0.40 0.14,0.40 fill #555555 0.9
+poly 0.14,0.36 0.32,0.36 0.32,0.40 0.14,0.40 stroke #222222
+poly 1.68,0.36 1.86,0.36 1.86,0.40 1.68,0.40 fill #555555 0.9
+poly 1.68,0.36 1.86,0.36 1.86,0.40 1.68,0.40 stroke #222222
+
+# Handle crank on right (bent rod end)
+bezier 1.86,0.38 1.92,0.38 1.94,0.44 1.90,0.48 stroke #555555 width 3
+bezier 1.86,0.38 1.92,0.38 1.94,0.44 1.90,0.48 stroke #222222 width 1
+
+# === Skewered meat on spit (crude hunk — looks like a small carcass) ===
+ellipse 1.00,0.38 0.30,0.10 fill #6b3818 0.85
+ellipse 1.00,0.38 0.30,0.10 stroke #3a1808
+# Browning/char
+ellipse 0.90,0.36 0.08,0.05 fill #3a1800 0.5
+ellipse 1.12,0.40 0.07,0.04 fill #3a1800 0.45
+# Darker scorched band
+arc 1.00,0.38 0.14 220 320 stroke #2a1000 0.7 width 2
+# Grease drips
+circle 0.92,0.46 0.02 fill #4a2810 0.5
+circle 1.08,0.46 0.022 fill #4a2810 0.55
+
+# === Rope/twine binding holding meat on spit ===
+line 0.86,0.34 0.86,0.42 stroke #8b7355 width 1
+line 1.14,0.34 1.14,0.42 stroke #8b7355 width 1
+
+# === Ember sparks around fire ===
+circle 0.80,0.26 0.02 fill #ffaa00 0.8
+circle 1.24,0.24 0.018 fill #ff8800 0.75
+circle 0.70,0.72 0.018 fill #ffaa00 0.75
+circle 1.30,0.74 0.02 fill #ffcc00 0.8
+
+# === Small smoke wisp ===
+bezier 1.00,0.28 0.96,0.18 1.04,0.12 1.00,0.04 stroke #aaaaaa 0.3 width 1

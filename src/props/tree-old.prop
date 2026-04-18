@@ -1,0 +1,122 @@
+name: Old Tree
+category: Terrain
+footprint: 3x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 20
+placement: floor
+room_types: druid-grove, forest, wilderness, fey-glade, enchanted-grove, sacred-grove
+typical_count: few
+clusters_with: tree, tree-stump, wildflower-patch, shrub, mushroom
+notes: Ancient weathered tree with twisted gnarled canopy and exposed roots. Larger and more irregular than tree.prop. Moss-covered with dappled sunlight.
+---
+# footprint 3x3: x 0-3, y 0-3
+# === HITBOX — wide trunk blocks light ===
+hitbox circle 1.50,1.60 0.38 z 0-20
+
+# === Exposed roots spreading outward (visible beneath canopy edges) ===
+bezier 1.30,1.85 1.15,2.10 0.95,2.30 0.75,2.45 stroke #3a1f00 width 6
+bezier 1.30,1.85 1.15,2.10 0.95,2.30 0.75,2.45 stroke #1a0a00 width 1
+bezier 1.70,1.85 1.85,2.10 2.05,2.30 2.25,2.45 stroke #3a1f00 width 6
+bezier 1.70,1.85 1.85,2.10 2.05,2.30 2.25,2.45 stroke #1a0a00 width 1
+bezier 1.20,1.70 0.95,1.70 0.75,1.75 0.55,1.80 stroke #3a1f00 width 5
+bezier 1.20,1.70 0.95,1.70 0.75,1.75 0.55,1.80 stroke #1a0a00 width 1
+bezier 1.80,1.70 2.05,1.70 2.25,1.75 2.45,1.80 stroke #3a1f00 width 5
+bezier 1.80,1.70 2.05,1.70 2.25,1.75 2.45,1.80 stroke #1a0a00 width 1
+bezier 1.30,1.40 1.20,1.20 1.05,1.05 0.85,0.95 stroke #3a1f00 width 4
+bezier 1.30,1.40 1.20,1.20 1.05,1.05 0.85,0.95 stroke #1a0a00 width 1
+bezier 1.70,1.40 1.80,1.20 1.95,1.05 2.15,0.95 stroke #3a1f00 width 4
+bezier 1.70,1.40 1.80,1.20 1.95,1.05 2.15,0.95 stroke #1a0a00 width 1
+
+# === Twisted trunk (irregular gnarled shape) ===
+poly 1.22,1.30 1.35,1.22 1.55,1.22 1.70,1.28 1.82,1.45 1.88,1.65 1.82,1.85 1.65,1.96 1.40,1.96 1.22,1.88 1.14,1.72 1.14,1.50 texfill polyhaven/bark_brown_02 0.9
+poly 1.22,1.30 1.35,1.22 1.55,1.22 1.70,1.28 1.82,1.45 1.88,1.65 1.82,1.85 1.65,1.96 1.40,1.96 1.22,1.88 1.14,1.72 1.14,1.50 stroke #2a1400 width 2
+# Deep bark grooves / twists
+bezier 1.30,1.35 1.40,1.55 1.45,1.75 1.38,1.92 stroke #1a0a00 0.8 width 2
+bezier 1.65,1.30 1.68,1.50 1.72,1.72 1.68,1.90 stroke #1a0a00 0.7 width 2
+bezier 1.20,1.55 1.32,1.65 1.38,1.75 1.28,1.80 stroke #1a0a00 0.6 width 1
+bezier 1.85,1.55 1.72,1.65 1.66,1.75 1.76,1.80 stroke #1a0a00 0.6 width 1
+
+# Hollow knot in trunk (dark cavity)
+ellipse 1.50,1.55 0.08,0.10 fill #0a0400 0.9
+ellipse 1.50,1.55 0.08,0.10 stroke #1a0a00 width 1
+circle 1.50,1.55 0.04 fill #000000 0.95
+
+# === Dark shadow patches between canopy lobes (depth) ===
+circle 1.50,1.00 0.40 fill #0a2a06 0.22
+circle 0.80,1.40 0.35 fill #0a2a06 0.20
+circle 2.20,1.40 0.35 fill #0a2a06 0.20
+circle 1.00,2.20 0.30 fill #0a2a06 0.18
+circle 2.00,2.20 0.30 fill #0a2a06 0.18
+circle 0.60,0.90 0.28 fill #0a2a06 0.18
+circle 2.40,0.90 0.28 fill #0a2a06 0.18
+
+# === Main canopy lobes (overlapping, gnarled clusters) ===
+circle 0.85,0.75 0.58 fill #2a5a18 0.35
+circle 2.15,0.70 0.58 fill #2d6a1e 0.32
+circle 0.52,1.45 0.50 fill #2a5a18 0.35
+circle 2.48,1.45 0.50 fill #2d6a1e 0.35
+circle 0.95,2.15 0.52 fill #2a5a18 0.32
+circle 2.05,2.20 0.55 fill #2d6a1e 0.35
+circle 1.50,0.55 0.50 fill #2d6a1e 0.32
+circle 1.50,2.45 0.48 fill #2a5a18 0.30
+circle 1.50,1.35 0.45 fill #2d6a1e 0.25
+
+# === Secondary lobes (fill gaps, darker at old-growth edges) ===
+circle 0.65,1.05 0.38 fill #1a4a10 0.28
+circle 2.35,1.10 0.40 fill #1a4a10 0.28
+circle 1.00,1.70 0.35 fill #2a5a18 0.25
+circle 2.00,1.70 0.35 fill #2a5a18 0.25
+circle 0.45,2.00 0.32 fill #1a4a10 0.25
+circle 2.55,2.00 0.32 fill #1a4a10 0.25
+circle 1.20,0.90 0.35 fill #2a5a18 0.25
+circle 1.80,0.90 0.35 fill #2a5a18 0.25
+
+# === Dappled sunlight highlights (lighter green patches — sun through gaps) ===
+circle 1.05,0.80 0.25 fill #5aa030 0.25
+circle 1.95,0.75 0.25 fill #5aa030 0.25
+circle 0.75,1.55 0.20 fill #5aa030 0.22
+circle 2.25,1.55 0.20 fill #5aa030 0.22
+circle 1.20,2.10 0.22 fill #5aa030 0.22
+circle 1.80,2.15 0.22 fill #5aa030 0.22
+circle 1.50,0.70 0.18 fill #6ab040 0.25
+circle 1.35,1.55 0.18 fill #6ab040 0.22
+circle 1.65,1.55 0.18 fill #6ab040 0.22
+
+# === Bright sun-catch accents (dappled light spots) ===
+circle 1.00,0.70 0.12 fill #80c858 0.22
+circle 2.00,0.65 0.11 fill #80c858 0.20
+circle 0.65,1.50 0.10 fill #80c858 0.20
+circle 2.35,1.50 0.10 fill #80c858 0.20
+circle 1.10,2.00 0.10 fill #80c858 0.20
+circle 1.90,2.05 0.10 fill #80c858 0.18
+circle 1.45,0.55 0.09 fill #90d868 0.22
+circle 1.55,2.30 0.09 fill #80c858 0.20
+
+# === Moss patches on trunk and roots (green patches) ===
+circle 1.28,1.80 0.05 fill #4a8040 0.55
+circle 1.75,1.85 0.045 fill #5a9050 0.5
+circle 1.18,1.60 0.04 fill #4a8040 0.5
+circle 1.82,1.62 0.04 fill #5a9050 0.5
+circle 1.15,2.05 0.04 fill #4a8040 0.55
+circle 1.85,2.08 0.04 fill #4a8040 0.5
+# Moss on exposed roots
+circle 0.88,2.28 0.03 fill #5a9050 0.5
+circle 2.12,2.28 0.03 fill #5a9050 0.5
+circle 0.72,1.78 0.028 fill #4a8040 0.5
+circle 2.28,1.78 0.028 fill #4a8040 0.5
+
+# === Canopy lobe outlines (old-growth edges) ===
+circle 0.85,0.75 0.58 stroke #1a3a08 0.22
+circle 2.15,0.70 0.58 stroke #1a3a08 0.22
+circle 0.52,1.45 0.50 stroke #1a3a08 0.20
+circle 2.48,1.45 0.50 stroke #1a3a08 0.22
+circle 0.95,2.15 0.52 stroke #1a3a08 0.20
+circle 2.05,2.20 0.55 stroke #1a3a08 0.22
+
+# === Fallen leaves / old-growth litter at base ===
+ellipse 0.80,2.55 0.06,0.025 fill #8a5028 0.7
+ellipse 2.20,2.55 0.06,0.025 fill #8a5028 0.7
+ellipse 1.00,2.60 0.05,0.02 fill #6a4020 0.65
+ellipse 2.00,2.62 0.05,0.02 fill #6a4020 0.65

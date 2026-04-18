@@ -1,0 +1,57 @@
+name: Tally Stick
+category: Tools
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: dock-warehouse, counting-house, market-stall, toll-bridge-house, customs-house, tax-office, shop-general
+typical_count: few
+clusters_with: cargo-scale, ledger-stack, quill-and-ink, coin-pile, tax-chest
+notes: Notched wooden counting stick used by merchants and tax collectors — flat stick with carved vertical notches tracking counts.
+---
+# footprint 1x1: x 0-1, y 0-1
+
+# Faint drop shadow
+rect 0.18,0.38 0.68,0.22 fill #1a0a00 0.2
+
+# Flat wooden stick body
+rect 0.15,0.34 0.70,0.20 texfill polyhaven/dark_wood 0.9
+rect 0.15,0.34 0.70,0.20 stroke #2a1400
+
+# Subtle wood grain lines
+line 0.15,0.40 0.85,0.40 stroke #3a1f00 0.35
+line 0.15,0.46 0.85,0.46 stroke #3a1f00 0.35
+
+# Tally notches — short vertical cuts on the top edge (grouped in fives with a slash)
+line 0.22,0.34 0.22,0.42 stroke #1a0a00 width 2
+line 0.26,0.34 0.26,0.42 stroke #1a0a00 width 2
+line 0.30,0.34 0.30,0.42 stroke #1a0a00 width 2
+line 0.34,0.34 0.34,0.42 stroke #1a0a00 width 2
+# Slash for group of 5
+line 0.20,0.38 0.36,0.42 stroke #1a0a00 width 2
+
+# Second group
+line 0.42,0.34 0.42,0.42 stroke #1a0a00 width 2
+line 0.46,0.34 0.46,0.42 stroke #1a0a00 width 2
+line 0.50,0.34 0.50,0.42 stroke #1a0a00 width 2
+line 0.54,0.34 0.54,0.42 stroke #1a0a00 width 2
+line 0.40,0.38 0.56,0.42 stroke #1a0a00 width 2
+
+# Third (partial) group — three notches
+line 0.62,0.34 0.62,0.42 stroke #1a0a00 width 2
+line 0.66,0.34 0.66,0.42 stroke #1a0a00 width 2
+line 0.70,0.34 0.70,0.42 stroke #1a0a00 width 2
+
+# Leather thong threaded through hole at west end (for hanging)
+circle 0.20,0.44 0.02 fill #1a0a00 0.95
+circle 0.20,0.44 0.02 stroke #0a0504
+line 0.20,0.44 0.15,0.32 stroke #5c3a1e width 2
+line 0.14,0.30 0.18,0.26 stroke #5c3a1e width 2
+
+# Subtle chamfered edges (highlight along top)
+line 0.16,0.35 0.84,0.35 stroke #8b6914 0.5 width 1
+
+# Name scratch / merchant's mark on east end
+poly 0.78,0.44 0.82,0.42 0.80,0.48 fill #1a0a00 0.7
+line 0.77,0.46 0.83,0.46 stroke #1a0a00 0.8 width 1

@@ -1,0 +1,68 @@
+name: Ferry Raft
+category: Nautical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: center
+room_types: ferry-house, dock, river
+typical_count: single
+clusters_with: ferry-cabin, dock-cleat, rope-coil, anchor
+notes: Flat log-plank raft with rope railings on north and south sides, corner cleats, central guide-rope bollard.
+---
+# === HITBOX ===
+selection rect 0.06,0.10 1.88,1.80
+
+# footprint 2x2: x 0-2, y 0-2
+
+# Raft deck base
+rect 0.06,0.10 1.88,1.80 texfill polyhaven/weathered_planks 0.85
+rect 0.06,0.10 1.88,1.80 fill #5c3a1e 0.15
+rect 0.06,0.10 1.88,1.80 stroke #3a1f00 width 2
+
+# Plank seams (running east-west — logs lashed together)
+line 0.06,0.36 1.94,0.36 stroke #2a1400 0.7 width 1
+line 0.06,0.60 1.94,0.60 stroke #2a1400 0.7 width 1
+line 0.06,0.84 1.94,0.84 stroke #2a1400 0.7 width 1
+line 0.06,1.08 1.94,1.08 stroke #2a1400 0.7 width 1
+line 0.06,1.32 1.94,1.32 stroke #2a1400 0.7 width 1
+line 0.06,1.56 1.94,1.56 stroke #2a1400 0.7 width 1
+
+# Cross-lashing ropes (tying logs together)
+line 0.30,0.10 0.30,1.90 stroke #6b4e2e 0.7 width 2
+line 1.70,0.10 1.70,1.90 stroke #6b4e2e 0.7 width 2
+
+# Corner cleats (wooden bollards for mooring)
+rect 0.08,0.12 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.12 0.14,0.14 stroke #2a1400
+rect 1.78,0.12 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 1.78,0.12 0.14,0.14 stroke #2a1400
+rect 0.08,1.74 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.08,1.74 0.14,0.14 stroke #2a1400
+rect 1.78,1.74 0.14,0.14 texfill polyhaven/dark_wood 0.9
+rect 1.78,1.74 0.14,0.14 stroke #2a1400
+
+# Rope railings — north edge (loose arcing rope between cleats)
+bezier 0.15,0.20 0.50,0.14 1.50,0.14 1.85,0.20 stroke #8b7355 width 3
+bezier 0.15,0.22 0.50,0.16 1.50,0.16 1.85,0.22 stroke #5c3a1e 0.7 width 1
+
+# Rope railings — south edge
+bezier 0.15,1.80 0.50,1.86 1.50,1.86 1.85,1.80 stroke #8b7355 width 3
+bezier 0.15,1.82 0.50,1.88 1.50,1.88 1.85,1.82 stroke #5c3a1e 0.7 width 1
+
+# Central guide-rope bollard (round post)
+circle 1.0,1.0 0.10 texfill polyhaven/dark_wood 0.9
+circle 1.0,1.0 0.10 stroke #2a1400 width 2
+# Rope loop around center bollard
+circle 1.0,1.0 0.15 stroke #8b7355 width 2
+circle 1.0,1.0 0.15 stroke #5c3a1e 0.6 width 1
+
+# Water-stain darkening along plank edges
+line 0.06,0.10 0.06,1.90 stroke #1a0800 0.4 width 2
+line 1.94,0.10 1.94,1.90 stroke #1a0800 0.4 width 2
+
+# Wear knots / plank ends
+circle 0.30,0.22 0.018 fill #2a1400 0.8
+circle 1.70,0.78 0.018 fill #2a1400 0.8
+circle 0.30,1.44 0.018 fill #2a1400 0.8

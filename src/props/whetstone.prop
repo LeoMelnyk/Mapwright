@@ -12,7 +12,7 @@ clusters_with: dagger-loose, tool-rack, weapon-rack, workbench, anvil
 notes: Sharpening stone with oil slick on top and a worn groove down the middle
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.26 0.56,0.48 z 0-0.1
+selection rect 0.22,0.26 0.56,0.48
 
 # Stone body (rectangular block, dark slate grey)
 rect 0.22,0.26 0.56,0.48 texfill polyhaven/granite_tile 0.85

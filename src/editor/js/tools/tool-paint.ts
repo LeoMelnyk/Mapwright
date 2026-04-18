@@ -5,7 +5,7 @@ import type { CardinalDirection, CellGrid, RenderTransform, Cell } from '../../.
 // Shift+drag in room mode: constrain selection to a square.
 // Syringe mode: click to pick up a cell's texture, then auto-switch to texture paint.
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
-import state, { pushUndo, mutate, markDirty, notify, getTheme } from '../state.js';
+import state, { mutate, getTheme } from '../state.js';
 import { setCursor, getTransform, requestRender } from '../canvas-view.js';
 import { toCanvas } from '../utils.js';
 import { selectTexture } from '../panels/index.js';
@@ -465,8 +465,6 @@ export class PaintTool extends Tool {
     if (!tid) return;
     void loadTextureImages(tid); // ensure images are loading (no-op if already started)
 
-    pushUndo('Flood fill');
-
     // Determine which half of the start cell was clicked (for diagonal cells)
     const startCell = cells[startRow][startCol];
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -666,27 +664,31 @@ export class PaintTool extends Tool {
     }
 
     const opacity = state.textureOpacity;
-    let fMinR = Infinity,
-      fMaxR = -Infinity,
-      fMinC = Infinity,
-      fMaxC = -Infinity;
-    for (const [r, c, halfKey] of toFill) {
-      const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-      const opKey = texKey + 'Opacity';
-      (cells[r]![c] as Record<string, unknown>)[texKey] = tid;
-      (cells[r]![c] as Record<string, unknown>)[opKey] = opacity;
-      if (r < fMinR) fMinR = r;
-      if (r > fMaxR) fMaxR = r;
-      if (c < fMinC) fMinC = c;
-      if (c > fMaxC) fMaxC = c;
-    }
-    if (fMinR <= fMaxR) {
-      accumulateDirtyRect(fMinR, fMinC, fMaxR, fMaxC);
-      _patchBlend({ minRow: fMinR, maxRow: fMaxR, minCol: fMinC, maxCol: fMaxC });
-    }
-
-    markDirty();
-    notify();
+    // Route through mutate() so smartInvalidate bumps contentVersion (forces a
+    // cells rebuild) and patches the blend cache for texture-change undo/redo.
+    // Direct markDirty+notify used to skip both, leaving the map stale until
+    // the next edit.
+    const coords = toFill.map(([r, c]) => ({ row: r, col: c }));
+    mutate('Flood fill', coords, () => {
+      let fMinR = Infinity,
+        fMaxR = -Infinity,
+        fMinC = Infinity,
+        fMaxC = -Infinity;
+      for (const [r, c, halfKey] of toFill) {
+        const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
+        const opKey = texKey + 'Opacity';
+        (cells[r]![c] as Record<string, unknown>)[texKey] = tid;
+        (cells[r]![c] as Record<string, unknown>)[opKey] = opacity;
+        if (r < fMinR) fMinR = r;
+        if (r > fMaxR) fMaxR = r;
+        if (c < fMinC) fMinC = c;
+        if (c > fMaxC) fMaxC = c;
+      }
+      if (fMinR <= fMaxR) {
+        accumulateDirtyRect(fMinR, fMinC, fMaxR, fMaxC);
+        _patchBlend({ minRow: fMinR, maxRow: fMaxR, minCol: fMinC, maxCol: fMaxC });
+      }
+    });
   }
 
   /** Shift+click in clear-texture mode: flood-clear all textures in the connected room. */
@@ -821,28 +823,29 @@ export class PaintTool extends Tool {
     }
     if (!hasTexture) return;
 
-    pushUndo('Clear texture');
-    let cMinR = Infinity,
-      cMaxR = -Infinity,
-      cMinC = Infinity,
-      cMaxC = -Infinity;
-    for (const [r, c, halfKey] of toClear) {
-      const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
-      const opKey = texKey + 'Opacity';
-      delete (cells[r]![c] as Record<string, unknown>)[texKey];
-      delete (cells[r]![c] as Record<string, unknown>)[opKey];
-      if (r < cMinR) cMinR = r;
-      if (r > cMaxR) cMaxR = r;
-      if (c < cMinC) cMinC = c;
-      if (c > cMaxC) cMaxC = c;
-    }
-    if (cMinR <= cMaxR) {
-      accumulateDirtyRect(cMinR, cMinC, cMaxR, cMaxC);
-      _patchBlend({ minRow: cMinR, maxRow: cMaxR, minCol: cMinC, maxCol: cMaxC });
-    }
-
-    markDirty();
-    notify();
+    // Route through mutate() so smartInvalidate bumps contentVersion + patches
+    // the blend cache. See floodFill for the rationale.
+    const coords = toClear.map(([r, c]) => ({ row: r, col: c }));
+    mutate('Clear texture', coords, () => {
+      let cMinR = Infinity,
+        cMaxR = -Infinity,
+        cMinC = Infinity,
+        cMaxC = -Infinity;
+      for (const [r, c, halfKey] of toClear) {
+        const texKey = forceSecondary ? 'textureSecondary' : (halfKey ?? 'texture');
+        const opKey = texKey + 'Opacity';
+        delete (cells[r]![c] as Record<string, unknown>)[texKey];
+        delete (cells[r]![c] as Record<string, unknown>)[opKey];
+        if (r < cMinR) cMinR = r;
+        if (r > cMaxR) cMaxR = r;
+        if (c < cMinC) cMinC = c;
+        if (c > cMaxC) cMaxC = c;
+      }
+      if (cMinR <= cMaxR) {
+        accumulateDirtyRect(cMinR, cMinC, cMaxR, cMaxC);
+        _patchBlend({ minRow: cMinR, maxRow: cMaxR, minCol: cMinC, maxCol: cMaxC });
+      }
+    });
   }
 
   /** Syringe mode: pick up the texture from the clicked cell and switch to texture paint. */
@@ -885,21 +888,23 @@ export class PaintTool extends Tool {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const { relX, relY } = event ? getRelPos(event, row, col) : { relX: 0.5, relY: 0.5 };
       const halfKey = halfKeyFromPos(cell, relX, relY);
-      if (halfKey) {
-        if (!cell[halfKey]) return;
-        pushUndo('Clear texture');
-        delete cell[halfKey];
-        delete (cell as Record<string, unknown>)[halfKey + 'Opacity'];
-      } else {
-        if (!cell.texture) return;
-        pushUndo('Clear texture');
-        delete cell.texture;
-        delete cell.textureOpacity;
-      }
-      accumulateDirtyRect(row, col, row, col);
-      _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
-      markDirty();
-      notify();
+      // Early out before pushing undo / firing render — matches previous behaviour.
+      if (halfKey ? !cell[halfKey] : !cell.texture) return;
+      // Route through `mutate()` so smartInvalidate fires: bumps contentVersion
+      // (forcing a cells rebuild) and triggers the blend patch for the texture
+      // change. Direct delete+notify skipped both, so the right-click cleared
+      // the cell but the cached map didn't repaint until the next edit.
+      mutate('Clear texture', [{ row, col }], () => {
+        if (halfKey) {
+          delete cell[halfKey];
+          delete (cell as Record<string, unknown>)[halfKey + 'Opacity'];
+        } else {
+          delete cell.texture;
+          delete cell.textureOpacity;
+        }
+        accumulateDirtyRect(row, col, row, col);
+        _patchBlend({ minRow: row, maxRow: row, minCol: col, maxCol: col });
+      });
     }
   }
 

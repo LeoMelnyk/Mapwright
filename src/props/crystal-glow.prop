@@ -10,13 +10,7 @@ room_types: cave-living, crystal-grotto, elemental-earth-node, underdark-outpost
 typical_count: few
 clusters_with: crystal-shard, mineral-vein, mushroom-glow
 notes: Bioluminescent crystal cluster — magical cave light source, glowing with inner radiance
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 10
-    color: "#8090ff"
-    intensity: 0.7
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"radius":10,"intensity":0.7,"color":"#8090ff"}]
 ---
 # Outer luminous halo (radial gradient)
 circle 0.5,0.5 0.48 gradient-radial #4050a0 #0a0828 0.5

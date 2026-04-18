@@ -1,0 +1,70 @@
+name: Antler Rack
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: wall
+room_types: cabin-hunters, hunting-lodge-large, cabin-trapper, lodge
+typical_count: few
+clusters_with: pelt, pelt-roll, hunting-horn, antler-pile
+notes: Wall-mounted display board with several sets of deer/elk antlers. Wall side at north; antlers project south toward the room.
+---
+# footprint 1x2: x 0-2, y 0-1
+# === Wooden backing board along north wall ===
+rect 0.10,0.06 1.80,0.18 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.06 1.80,0.18 stroke #2a1400
+# Wood grain
+line 0.10,0.12 1.90,0.12 stroke #5c3a1e 0.4
+line 0.10,0.18 1.90,0.18 stroke #5c3a1e 0.4
+# Mounting screws / nails at corners
+circle 0.16,0.10 0.018 fill #333333 0.9
+circle 1.84,0.10 0.018 fill #333333 0.9
+circle 0.16,0.20 0.018 fill #333333 0.9
+circle 1.84,0.20 0.018 fill #333333 0.9
+
+# === Skull mounting plaque 1 (west) ===
+ellipse 0.40,0.22 0.09,0.06 fill #e8dcc8 0.9
+ellipse 0.40,0.22 0.09,0.06 stroke #6a5040
+# Antler 1 — west rack, left tine
+bezier 0.36,0.22 0.26,0.32 0.20,0.46 0.18,0.62 stroke #d4c4a8 width 4
+bezier 0.36,0.22 0.26,0.32 0.20,0.46 0.18,0.62 stroke #8a7040 width 1
+# Branch tines (west rack, left)
+line 0.24,0.36 0.14,0.40 stroke #d4c4a8 width 3
+line 0.24,0.36 0.14,0.40 stroke #8a7040 width 1
+line 0.20,0.50 0.12,0.56 stroke #d4c4a8 width 3
+line 0.20,0.50 0.12,0.56 stroke #8a7040 width 1
+circle 0.18,0.62 0.02 fill #d4c4a8 0.95
+# Antler 1 — west rack, right tine
+bezier 0.44,0.22 0.54,0.32 0.60,0.46 0.62,0.62 stroke #d4c4a8 width 4
+bezier 0.44,0.22 0.54,0.32 0.60,0.46 0.62,0.62 stroke #8a7040 width 1
+line 0.56,0.36 0.66,0.40 stroke #d4c4a8 width 3
+line 0.56,0.36 0.66,0.40 stroke #8a7040 width 1
+line 0.60,0.50 0.68,0.56 stroke #d4c4a8 width 3
+line 0.60,0.50 0.68,0.56 stroke #8a7040 width 1
+circle 0.62,0.62 0.02 fill #d4c4a8 0.95
+
+# === Skull mounting plaque 2 (east) ===
+ellipse 1.40,0.22 0.09,0.06 fill #e8dcc8 0.9
+ellipse 1.40,0.22 0.09,0.06 stroke #6a5040
+# Antler 2 — east rack, left tine
+bezier 1.36,0.22 1.26,0.34 1.22,0.48 1.20,0.66 stroke #e0d4b8 width 4
+bezier 1.36,0.22 1.26,0.34 1.22,0.48 1.20,0.66 stroke #8a7040 width 1
+line 1.24,0.38 1.14,0.42 stroke #e0d4b8 width 3
+line 1.24,0.38 1.14,0.42 stroke #8a7040 width 1
+line 1.22,0.54 1.14,0.60 stroke #e0d4b8 width 3
+line 1.22,0.54 1.14,0.60 stroke #8a7040 width 1
+circle 1.20,0.66 0.02 fill #e0d4b8 0.95
+# Antler 2 — east rack, right tine
+bezier 1.44,0.22 1.54,0.34 1.60,0.48 1.64,0.66 stroke #e0d4b8 width 4
+bezier 1.44,0.22 1.54,0.34 1.60,0.48 1.64,0.66 stroke #8a7040 width 1
+line 1.56,0.38 1.66,0.42 stroke #e0d4b8 width 3
+line 1.56,0.38 1.66,0.42 stroke #8a7040 width 1
+line 1.60,0.54 1.68,0.60 stroke #e0d4b8 width 3
+line 1.60,0.54 1.68,0.60 stroke #8a7040 width 1
+circle 1.64,0.66 0.02 fill #e0d4b8 0.95
+
+# Small brass nameplate between racks
+rect 0.90,0.26 0.20,0.05 fill #8b6914 0.8
+rect 0.90,0.26 0.20,0.05 stroke #5a3a00

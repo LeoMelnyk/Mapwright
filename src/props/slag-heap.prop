@@ -12,7 +12,7 @@ clusters_with: forge, anvil, ingot-stack, crucible, scorch-mark
 notes: Pile of fused iron slag and clinker waste from smelting
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.3
+selection circle 0.5,0.5 0.32
 
 # Dark crusty base pile (irregular blob)
 poly 0.18,0.54 0.24,0.40 0.34,0.32 0.48,0.28 0.64,0.30 0.76,0.38 0.82,0.52 0.80,0.66 0.68,0.76 0.50,0.80 0.32,0.78 0.20,0.70 fill #1a1008 0.95

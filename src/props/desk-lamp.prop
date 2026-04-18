@@ -9,17 +9,11 @@ placement: floor
 room_types: command-room, mansion-study, library, study, office, wizard-sanctum, scriptorium, cartographers-office
 typical_count: single
 clusters_with: desk, writing-desk, ledger-stack, book-pile, inkwell, scroll-case
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 10
-    color: "#ffcc66"
-    intensity: 0.8
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":10,"intensity":0.8,"color":"#ffcc66"}]
 notes: Small brass oil lamp with glass chimney — warm pooled light on a desk. Meant to sit on top of furniture (though placed as a floor prop).
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.18 z 0-0.5
+selection circle 0.5,0.5 0.18
 
 # Brass base plate (widest element, slight oval footprint)
 ellipse 0.5,0.54 0.24,0.20 fill #8b6914 0.9

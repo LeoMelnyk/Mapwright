@@ -1,0 +1,61 @@
+name: Sheep Dung
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.04
+placement: floor
+room_types: shepherds-shelter, barn, stable, croft, peasant-hovel, sheepfold
+typical_count: many
+clusters_with: straw-wisps, sheep-dung, fur-clump, shepherds-crook
+notes: Small dark pellets of sheep droppings scattered on the floor. Ground decal only.
+---
+# Ground scatter — no shadow, no light-block
+
+# === Faint soil stain under pellets ===
+ellipse 0.50,0.52 0.32,0.28 fill #1a0a00 0.15
+
+# === Dung pellets — small dark olive-brown ovals ===
+# Cluster 1 (center)
+ellipse 0.44,0.48 0.040,0.032 fill #2a2010 0.95
+ellipse 0.44,0.48 0.040,0.032 stroke #1a1408 0.7
+ellipse 0.52,0.54 0.040,0.032 fill #2a2010 0.95
+ellipse 0.52,0.54 0.040,0.032 stroke #1a1408 0.7
+ellipse 0.48,0.60 0.038,0.030 fill #3a2810 0.92
+ellipse 0.48,0.60 0.038,0.030 stroke #1a1408 0.7
+ellipse 0.56,0.46 0.036,0.030 fill #2a2010 0.9
+ellipse 0.56,0.46 0.036,0.030 stroke #1a1408 0.7
+ellipse 0.40,0.56 0.036,0.030 fill #3a2810 0.9
+ellipse 0.40,0.56 0.036,0.030 stroke #1a1408 0.7
+
+# Cluster 2 (scattered outliers)
+ellipse 0.30,0.38 0.034,0.028 fill #2a2010 0.9
+ellipse 0.30,0.38 0.034,0.028 stroke #1a1408 0.7
+ellipse 0.68,0.40 0.034,0.028 fill #3a2810 0.92
+ellipse 0.68,0.40 0.034,0.028 stroke #1a1408 0.7
+ellipse 0.72,0.58 0.036,0.030 fill #2a2010 0.9
+ellipse 0.72,0.58 0.036,0.030 stroke #1a1408 0.7
+ellipse 0.34,0.68 0.034,0.028 fill #3a2810 0.9
+ellipse 0.34,0.68 0.034,0.028 stroke #1a1408 0.7
+ellipse 0.64,0.70 0.036,0.030 fill #2a2010 0.92
+ellipse 0.64,0.70 0.036,0.030 stroke #1a1408 0.7
+
+# Distant stragglers
+ellipse 0.22,0.50 0.030,0.024 fill #3a2810 0.85
+ellipse 0.22,0.50 0.030,0.024 stroke #1a1408 0.6
+ellipse 0.78,0.50 0.030,0.024 fill #2a2010 0.85
+ellipse 0.78,0.50 0.030,0.024 stroke #1a1408 0.6
+ellipse 0.50,0.30 0.028,0.024 fill #3a2810 0.8
+ellipse 0.50,0.30 0.028,0.024 stroke #1a1408 0.6
+ellipse 0.48,0.76 0.028,0.024 fill #2a2010 0.8
+ellipse 0.48,0.76 0.028,0.024 stroke #1a1408 0.6
+
+# Highlight glints on top of pellets (slight dampness)
+ellipse 0.44,0.47 0.012,0.006 fill #5a4828 0.5
+ellipse 0.52,0.53 0.012,0.006 fill #5a4828 0.5
+ellipse 0.68,0.39 0.010,0.005 fill #5a4828 0.4
+ellipse 0.34,0.67 0.010,0.005 fill #5a4828 0.4
+
+# Small wool tuft stuck to one pellet
+line 0.48,0.62 0.52,0.66 stroke #e8dcc8 0.6 width 1

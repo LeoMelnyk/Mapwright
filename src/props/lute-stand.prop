@@ -14,7 +14,7 @@ notes: Pear-shaped lute resting on a small A-frame stand — top-down shows the 
 # footprint 1x1
 
 # === HITBOX ===
-hitbox poly 0.18,0.08 0.34,0.08 0.80,0.72 0.80,0.90 0.54,0.90 z 0-0.8
+selection poly 0.18,0.08 0.34,0.08 0.80,0.72 0.80,0.90 0.54,0.90
 
 # A-frame stand legs (faint dark lines beneath the lute)
 line 0.38,0.82 0.56,0.92 stroke #2a1400 0.55 width 2

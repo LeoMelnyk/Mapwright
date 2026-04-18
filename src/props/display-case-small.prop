@@ -12,7 +12,7 @@ clusters_with: stall-counter, display-rack-fabric, spice-bowl
 notes: Glass-topped wooden display case on legs, velvet-lined, small wares inside. Wall side at north.
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.06 1.84,0.78 z 0-0.8
+selection rect 0.08,0.06 1.84,0.78
 
 # Footprint 1x2: x 0-2, y 0-1. Wide rectangular display case.
 

@@ -10,16 +10,10 @@ room_types: cave-drow-outpost, underdark-outpost, drow-citadel, shrine, ritual-c
 typical_count: many
 clusters_with: candle-violet, spider-shrine, scrying-pool, faerzress-sconce
 notes: Slender black drow candle with violet flame and dripping dark wax — placed on altars, shrines, and command tables
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 7
-    color: "#a060ff"
-    intensity: 0.6
+lights: [{"preset":"astral","x":0.5,"y":0.5,"radius":7,"intensity":0.6,"color":"#a060ff"}]
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.09 z 0-0.4
+selection circle 0.5,0.5 0.09
 
 # Dripping dark wax pool around base
 ellipse 0.5,0.56 0.14,0.10 fill #1a1020 0.55

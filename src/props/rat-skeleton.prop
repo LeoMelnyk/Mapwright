@@ -12,7 +12,7 @@ clusters_with: bone-pile, rag-pile, dust-heap, gnawed-bone, rat
 notes: Small skeletal remains of a rat — skull, ribs, tail, scattered bones
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.30 0.64,0.48 z 0-0.05
+selection rect 0.18,0.30 0.64,0.48
 
 # Main body bones (curved spine running N-S)
 bezier 0.50,0.36 0.48,0.50 0.52,0.64 0.50,0.76 stroke #e8dcc8 width 2

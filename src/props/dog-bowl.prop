@@ -12,7 +12,7 @@ clusters_with: hearth, bedroll, stretched-hide, water-jug
 notes: Shallow dog dish — iron or wood, possibly with kibble or water
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-0.2
+selection circle 0.5,0.5 0.30
 
 # Bowl outer rim (wide, shallow — iron)
 circle 0.5,0.5 0.32 fill #4a3020 0.95

@@ -12,7 +12,7 @@ clusters_with: scorch-mark, ash-pile, forge, anvil, slag-heap
 notes: Black sooty stain on the floor — lighter than scorch-mark
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.01
+selection circle 0.5,0.5 0.38
 
 # Outer faint dusting
 circle 0.5,0.5 0.40 fill #1a1408 0.2

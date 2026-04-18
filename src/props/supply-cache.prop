@@ -1,0 +1,66 @@
+name: Supply Cache
+category: Containers
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: wall
+room_types: underdark-outpost, hideout, bandit-camp, smuggler-cache, ruin
+typical_count: few
+clusters_with: crate, barrel, supply-cache, rope-coil
+notes: Hidden supply cache — wooden crates covered with rough burlap tarpaulin, corners of crates poking out.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.10 1.84,0.80 z 0-1.8
+
+# footprint 1x2: x 0-2, y 0-1
+
+# Shadow beneath
+ellipse 1.00,0.94 0.92,0.08 fill #1a0800 0.3
+
+# Crate silhouettes beneath tarp (hinted corners peeking out)
+rect 0.10,0.14 0.80,0.76 texfill polyhaven/weathered_planks 0.7
+rect 0.10,0.14 0.80,0.76 stroke #3a1f00 0.6
+
+rect 1.10,0.14 0.80,0.76 texfill polyhaven/weathered_planks 0.7
+rect 1.10,0.14 0.80,0.76 stroke #3a1f00 0.6
+
+# === Burlap tarpaulin covering both crates ===
+# Main tarp body — irregular draped polygon
+poly 0.06,0.16 0.32,0.08 0.70,0.12 1.10,0.06 1.48,0.10 1.80,0.06 1.96,0.20 1.94,0.52 1.88,0.80 1.92,0.94 1.62,0.90 1.18,0.94 0.78,0.88 0.36,0.92 0.08,0.88 0.04,0.60 0.08,0.34 texfill polyhaven/rough_linen 0.9
+poly 0.06,0.16 0.32,0.08 0.70,0.12 1.10,0.06 1.48,0.10 1.80,0.06 1.96,0.20 1.94,0.52 1.88,0.80 1.92,0.94 1.62,0.90 1.18,0.94 0.78,0.88 0.36,0.92 0.08,0.88 0.04,0.60 0.08,0.34 fill #6b5838 0.45
+poly 0.06,0.16 0.32,0.08 0.70,0.12 1.10,0.06 1.48,0.10 1.80,0.06 1.96,0.20 1.94,0.52 1.88,0.80 1.92,0.94 1.62,0.90 1.18,0.94 0.78,0.88 0.36,0.92 0.08,0.88 0.04,0.60 0.08,0.34 stroke #3a2818
+
+# Tarp fold wrinkles / shadow creases
+bezier 0.20,0.24 0.50,0.30 0.90,0.26 1.20,0.32 stroke #3a2818 0.6 width 1
+bezier 0.30,0.44 0.70,0.50 1.10,0.48 1.50,0.54 stroke #3a2818 0.5 width 1
+bezier 0.22,0.66 0.62,0.70 1.02,0.66 1.42,0.72 stroke #3a2818 0.5 width 1
+
+# Tarp seam along ridge (where two panels are sewn)
+line 0.10,0.50 1.92,0.50 stroke #3a2818 0.7 width 1
+# Stitching dashes along seam
+line 0.30,0.50 0.34,0.50 stroke #1a0f00 0.8 width 1
+line 0.50,0.50 0.54,0.50 stroke #1a0f00 0.8 width 1
+line 0.80,0.50 0.84,0.50 stroke #1a0f00 0.8 width 1
+line 1.10,0.50 1.14,0.50 stroke #1a0f00 0.8 width 1
+line 1.40,0.50 1.44,0.50 stroke #1a0f00 0.8 width 1
+line 1.70,0.50 1.74,0.50 stroke #1a0f00 0.8 width 1
+
+# Crate corner poking through tarp (NW)
+poly 0.10,0.18 0.22,0.14 0.24,0.20 0.14,0.24 texfill polyhaven/dark_wood 0.9
+poly 0.10,0.18 0.22,0.14 0.24,0.20 0.14,0.24 stroke #2a1400
+
+# Crate corner poking through (SE)
+poly 1.80,0.78 1.92,0.82 1.88,0.90 1.76,0.86 texfill polyhaven/dark_wood 0.9
+poly 1.80,0.78 1.92,0.82 1.88,0.90 1.76,0.86 stroke #2a1400
+
+# Rope lashing (tying tarp down)
+bezier 0.10,0.38 0.50,0.36 1.50,0.38 1.94,0.36 stroke #6b4e2e 0.8 width 2
+bezier 0.12,0.64 0.50,0.66 1.50,0.64 1.92,0.66 stroke #6b4e2e 0.8 width 2
+
+# Scattered debris / twig for camouflage
+line 0.40,0.20 0.50,0.18 stroke #2a1400 0.7 width 1
+line 1.60,0.78 1.70,0.80 stroke #2a1400 0.7 width 1
+circle 0.90,0.82 0.02 fill #3a2010 0.6
+circle 1.30,0.20 0.018 fill #3a2010 0.6

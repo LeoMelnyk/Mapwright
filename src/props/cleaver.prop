@@ -12,7 +12,7 @@ clusters_with: chopping-block, cutting-board, hanging-meat, knife-curved
 notes: Heavy meat cleaver with rectangular blade; place on blocks or hanging
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.18 0.56,0.66 z 0-0.2
+selection rect 0.22,0.18 0.56,0.66
 
 # Blade (rectangular, wide)
 rect 0.22,0.18 0.56,0.46 texfill polyhaven/metal_plate 0.9

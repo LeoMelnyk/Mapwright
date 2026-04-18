@@ -17,8 +17,9 @@ import { renderProp, hitTestPropPixel } from '../../../render/index.js';
 import { getTextureCatalog } from '../texture-catalog.js';
 import { showToast } from '../toast.js';
 import { lookupPropAt, markPropSpatialDirty } from '../prop-spatial.js';
-import { createOverlayProp } from '../prop-overlay.js';
-import { ensurePropTextures } from '../prop-catalog.js';
+import { createOverlayProp, refreshLinkedLights, visibleAnchorOf } from '../prop-overlay.js';
+import { ensurePropTextures, ensurePropHitbox } from '../prop-catalog.js';
+import { openPropEditDialog } from '../panels/prop-edit.js';
 
 const BOX_SELECT_THRESHOLD = 8; // pixels before a mousedown-on-empty becomes a box-select drag
 
@@ -78,7 +79,21 @@ function _addOverlayAt(
   const meta = _ensurePropsArray();
   const gs = meta.gridSize || 5;
   const entry = createOverlayProp(meta, propType, row, col, gs, { rotation: facing, flipped });
+  // Caller passes the effective (rotated) top-left cell, but the renderer rotates
+  // around the base-footprint center (Option A). Shift the stored anchor so the
+  // visible prop lands on the requested cell for non-square props at 90°/270°.
+  const propDef = state.propCatalog?.props[propType];
+  if (propDef) {
+    const r = ((facing % 360) + 360) % 360;
+    const [fRows, fCols] = propDef.footprint;
+    const isRotated90 = r === 90 || r === 270;
+    const eRows = isRotated90 ? fCols : fRows;
+    const eCols = isRotated90 ? fRows : fCols;
+    entry.x -= ((fCols - eCols) / 2) * gs;
+    entry.y -= ((fRows - eRows) / 2) * gs;
+  }
   meta.props!.push(entry);
+  ensurePropHitbox(propType);
   ensurePropTextures(propType);
   return entry;
 }
@@ -213,23 +228,26 @@ function _hitTestProps(pos: { x: number; y: number } | null, transform: RenderTr
   // Collect AABB hits, then filter by geometric shape test. Sort by z desc, area asc.
   const hits = [];
   for (const prop of meta.props) {
-    const [spanRows, spanCols] = _overlaySpan(prop);
     const scl = prop.scale;
-    const w = spanCols * gridSize * scl;
-    const h = spanRows * gridSize * scl;
-    // Center around the base-footprint center — matches both the cardinal tile render and
-    // hitTestPropPixel's coordinate frame.
     const propDef = catalog?.props[prop.type];
-    const [fRows, fCols] = propDef?.footprint ?? [spanRows, spanCols];
+    const [fRows, fCols] = propDef?.footprint ?? _overlaySpan(prop);
+    // AABB of the rotated-and-scaled rectangle around the base-footprint center.
+    // For non-cardinal angles, the rotated rect extends beyond the axis-aligned
+    // effective span, so use the full trigonometric envelope.
+    const rad = (prop.rotation * Math.PI) / 180;
+    const absCos = Math.abs(Math.cos(rad));
+    const absSin = Math.abs(Math.sin(rad));
+    const halfW = ((fCols / 2) * absCos + (fRows / 2) * absSin) * gridSize * scl;
+    const halfH = ((fCols / 2) * absSin + (fRows / 2) * absCos) * gridSize * scl;
     const cx = prop.x + (fCols * gridSize) / 2;
     const cy = prop.y + (fRows * gridSize) / 2;
-    const minX = cx - w / 2;
-    const minY = cy - h / 2;
-    const maxX = cx + w / 2;
-    const maxY = cy + h / 2;
+    const minX = cx - halfW;
+    const minY = cy - halfH;
+    const maxX = cx + halfW;
+    const maxY = cy + halfH;
 
     if (wx >= minX && wx <= maxX && wy >= minY && wy <= maxY) {
-      hits.push({ prop, area: w * h, z: prop.zIndex });
+      hits.push({ prop, area: halfW * halfH * 4, z: prop.zIndex });
     }
   }
 
@@ -354,8 +372,16 @@ export class PropTool extends Tool {
   pasteHover: { row: number; col: number } | null;
   dragSnapToGrid: boolean = false;
   _lastWheelUndoTime: number = 0;
+  /**
+   * Debounce arrow-key nudge undo the same way wheel rotate/scale is: rapid
+   * repeat taps (or a held arrow key repeating at ~30 Hz) collapse into a
+   * single undo entry instead of filling the stack with 30 entries per second.
+   */
+  _lastNudgeUndoTime: number = 0;
   _pendingPlaceCtrl: boolean = false;
   _preDragMetaSnapshot: string | null = null;
+  /** Remember the last silent-rejection toast so rapid repeat clicks don't spam. */
+  _lastToast: { key: string; time: number } = { key: '', time: 0 };
 
   constructor() {
     super('prop', '9', 'crosshair');
@@ -430,6 +456,18 @@ export class PropTool extends Tool {
     this.hoverWorldY = null;
   }
 
+  /**
+   * Show a toast for a silent-rejection case (placement blocked, flip blocked,
+   * paste blocked). Debounced per reason-key over 1500ms so rapid repeat clicks
+   * on the same invalid spot don't stack toasts.
+   */
+  _toastOnce(key: string, message: string): void {
+    const now = Date.now();
+    if (this._lastToast.key === key && now - this._lastToast.time < 1500) return;
+    this._lastToast = { key, time: now };
+    showToast(message);
+  }
+
   // ── Mouse Handlers ───────────────────────────────────────────────────────
 
   onMouseDown(row: number, col: number, _edge: EdgeInfo | null, event: MouseEvent | null, pos: CanvasPos | null) {
@@ -447,6 +485,23 @@ export class PropTool extends Tool {
       : pos
         ? _hitTestProps(pos, transform, state.dungeon.metadata.gridSize || 5)
         : findPropAnchor(cells, row, col);
+
+    // Double-click on a prop opens the edit dialog (no drag, no box-select).
+    if (anchor && event?.detail === 2) {
+      const overlay = (anchor as { propId?: number | string }).propId
+        ? state.dungeon.metadata.props?.find(
+            (p: { id: string | number }) => p.id === (anchor as { propId?: number | string }).propId,
+          )
+        : _findOverlayAt(anchor.row, anchor.col);
+      if (overlay) {
+        state.selectedPropAnchors = [
+          { row: anchor.row, col: anchor.col, propId: (anchor as { propId?: number | string }).propId },
+        ];
+        notify();
+        openPropEditDialog(overlay);
+        return;
+      }
+    }
 
     if (anchor) {
       // Clicking on a prop → select/drag flow
@@ -547,8 +602,12 @@ export class PropTool extends Tool {
         requestRender();
       }
     } else {
-      // Track freeform hover when Ctrl held (for placement ghost)
-      const wantsFreeform = (event?.ctrlKey ?? event?.metaKey) && pos;
+      // Track freeform hover when Ctrl is held (sub-cell placement ghost).
+      // Shift overrides Ctrl and forces a grid-snapped ghost, matching the
+      // commit-side behavior below.
+      const ctrlHeldHover = event?.ctrlKey ?? event?.metaKey;
+      const shiftHeldHover = event?.shiftKey ?? false;
+      const wantsFreeform = ctrlHeldHover && !shiftHeldHover && pos;
       if (wantsFreeform) {
         this.hoverFreeform = true;
         this.hoverWorldX = (pos.x - hoverTransform.offsetX) / hoverTransform.scale;
@@ -635,8 +694,13 @@ export class PropTool extends Tool {
     }
 
     if (this._pendingPlace) {
-      // No significant drag — place prop at the original click position
-      const freeform = event?.ctrlKey ?? event?.metaKey ?? this._pendingPlaceCtrl;
+      // No significant drag — place prop at the original click position.
+      // Ctrl (or ⌘) = freeform sub-cell placement. Shift overrides Ctrl to
+      // force a grid snap — matches the keybindings helper's "Shift → Snap
+      // to grid" advertisement.
+      const ctrlHeld = event?.ctrlKey ?? event?.metaKey ?? this._pendingPlaceCtrl;
+      const shiftHeld = event?.shiftKey ?? false;
+      const freeform = ctrlHeld && !shiftHeld;
       let placeRow = this._pendingPlace.row;
       let placeCol = this._pendingPlace.col;
       // Center prop on cursor
@@ -673,6 +737,21 @@ export class PropTool extends Tool {
         state.propScale = 1.0;
         notify();
         requestRender();
+      }
+      return;
+    }
+
+    // Enter on a single selected prop opens the edit dialog. Dialog owns
+    // further Enter presses while open via a capturing window listener, so
+    // this only fires when the dialog is closed.
+    if (e.key === 'Enter' && state.selectedPropAnchors.length === 1 && !state.propPasteMode && !this.isDragging) {
+      const anchor = state.selectedPropAnchors[0]!;
+      const overlay = anchor.propId
+        ? state.dungeon.metadata.props?.find((p: { id: string | number }) => p.id === anchor.propId)
+        : _findOverlayAt(anchor.row, anchor.col);
+      if (overlay) {
+        e.preventDefault();
+        openPropEditDialog(overlay);
       }
       return;
     }
@@ -731,22 +810,39 @@ export class PropTool extends Tool {
       if (e.key === 'ArrowRight') dx = step;
 
       const nudgeMeta = state.dungeon.metadata;
-      mutate(
-        'Nudge prop',
-        [],
-        () => {
-          for (const anchor of state.selectedPropAnchors) {
-            const overlay = anchor.propId
-              ? nudgeMeta.props?.find((p: { id: string | number }) => p.id === anchor.propId)
-              : _findOverlayAt(anchor.row, anchor.col);
-            if (overlay) {
-              overlay.x += dx;
-              overlay.y += dy;
-            }
+      // Debounce undo: a new undo entry is only pushed if >500 ms passed since
+      // the last arrow-key nudge, so holding a direction arrow doesn't fill
+      // the undo stack with one entry per keyboard repeat.
+      const now = Date.now();
+      const NUDGE_UNDO_DEBOUNCE = 500;
+      const needsUndo = !this._lastNudgeUndoTime || now - this._lastNudgeUndoTime > NUDGE_UNDO_DEBOUNCE;
+      this._lastNudgeUndoTime = now;
+
+      const applyNudge = () => {
+        for (const anchor of state.selectedPropAnchors) {
+          const overlay = anchor.propId
+            ? nudgeMeta.props?.find((p: { id: string | number }) => p.id === anchor.propId)
+            : _findOverlayAt(anchor.row, anchor.col);
+          if (overlay) {
+            const propDef = state.propCatalog?.props[overlay.type];
+            const oldVisible = visibleAnchorOf(overlay, propDef, gs);
+            overlay.x += dx;
+            overlay.y += dy;
+            refreshLinkedLights(nudgeMeta, overlay, propDef, oldVisible, dx, dy);
           }
-        },
-        { metaOnly: true, invalidate: ['lighting:props', 'props'] },
-      );
+        }
+      };
+
+      if (needsUndo) {
+        mutate('Nudge prop', [], applyNudge, { metaOnly: true, invalidate: ['lighting:props', 'props'] });
+      } else {
+        // Subsequent nudges in the burst — mutate in place, no new undo entry.
+        applyNudge();
+        markPropSpatialDirty();
+        invalidateLightmap('props');
+        markDirty();
+        notify('props');
+      }
       // Update anchor positions to match new grid cells
       state.selectedPropAnchors = state.selectedPropAnchors.map(
         (a: { row: number; col: number; propId?: number | string }) => {
@@ -885,6 +981,17 @@ export class PropTool extends Tool {
     if (overlays.length === 0) return;
 
     const applyWheelMutation = () => {
+      // Snapshot pre-mutation world position + visible anchor for light reattach.
+      const snap = overlays.map((o) => {
+        const def = state.propCatalog?.props[o.type];
+        return {
+          overlay: o,
+          propDef: def,
+          oldVisible: visibleAnchorOf(o, def, gs),
+          oldX: o.x,
+          oldY: o.y,
+        };
+      });
       if (overlays.length === 1) {
         // Single prop: simple rotation/scale
         if (event.shiftKey) {
@@ -946,6 +1053,10 @@ export class PropTool extends Tool {
           }
         }
       }
+      // Reattach any linked lights and translate them by each prop's world delta.
+      for (const s of snap) {
+        refreshLinkedLights(meta, s.overlay, s.propDef, s.oldVisible, s.overlay.x - s.oldX, s.overlay.y - s.oldY);
+      }
     };
 
     if (needsUndo) {
@@ -982,7 +1093,7 @@ export class PropTool extends Tool {
     return false;
   }
 
-  onRightClick(row: number, col: number) {
+  onRightClick(row: number, col: number, _edge: EdgeInfo | null, _event: MouseEvent, pos: CanvasPos | null = null) {
     // If dragging or pasting, right-click cancels the action instead of deleting
     if (this.isDragging) {
       this._cancelDrag();
@@ -1010,11 +1121,22 @@ export class PropTool extends Tool {
     const cells = state.dungeon.cells;
     if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return;
 
-    // Use cell-based lookup (right-click doesn't receive pixel pos)
-    const anchor = findPropAnchor(cells, row, col);
+    // Prefer pixel-based hit test so stacked props pick the top-most under the cursor.
+    // Why: cell-based lookups (lookupPropAt) return an arbitrary prop covering the cell,
+    // which for overlapping props is usually the bottom-most in visual z-order.
+    const transform = getTransform();
+    const gridSize = state.dungeon.metadata.gridSize || 5;
+    const anchor = pos ? _hitTestProps(pos, transform, gridSize) : findPropAnchor(cells, row, col);
     if (!anchor) return;
 
-    const overlay = _findOverlayAt(anchor.row, anchor.col);
+    // Resolve the overlay by id when the pixel hit test gave us one — falling back to
+    // cell lookup would re-introduce the stacked-prop ambiguity we just resolved.
+    const propId = (anchor as { propId?: number | string }).propId;
+    const meta = state.dungeon.metadata;
+    const overlay =
+      propId !== undefined
+        ? (meta.props?.find((p: { id: string | number }) => p.id === propId) ?? null)
+        : _findOverlayAt(anchor.row, anchor.col);
     if (!overlay) return;
 
     const anchorToDelete = anchor;
@@ -1022,7 +1144,8 @@ export class PropTool extends Tool {
       'Delete prop',
       [],
       () => {
-        _removeOverlayAt(anchorToDelete.row, anchorToDelete.col);
+        if (propId !== undefined) _removeOverlayById(propId);
+        else _removeOverlayAt(anchorToDelete.row, anchorToDelete.col);
       },
       { metaOnly: true, invalidate: ['lighting:props', 'props'] },
     );
@@ -1106,7 +1229,7 @@ export class PropTool extends Tool {
       const isFreeformGhost = this.dragFreeform && this.dragGhost.worldX != null;
 
       for (const item of this.dragItems) {
-        // Compute ghost position, including freeform sub-cell offset
+        // Compute ghost position (visible anchor cell), including freeform sub-cell offset
         let row, col;
         const snapToGrid = this.dragSnapToGrid;
         const fox = snapToGrid ? 0 : item.freeOffsetX || 0;
@@ -1120,17 +1243,29 @@ export class PropTool extends Tool {
           col = this.dragGhost.col + item.offsetCol + fox;
         }
         const scl = item.scale;
-        const needsTransform =
-          scl !== 1.0 || (item.facing !== 0 && item.facing !== 90 && item.facing !== 180 && item.facing !== 270);
+        const needsTransform = scl !== 1.0 || item.facing !== 0;
+
+        // Shift the render anchor so the visible ghost lands on the target
+        // (visible-anchor) cell, matching how _addOverlayAt stores the final prop.
+        const [fRowsGhost, fColsGhost] = item.propDef!.footprint;
+        const rGhost = ((item.facing % 360) + 360) % 360;
+        const isR90Ghost = rGhost === 90 || rGhost === 270;
+        const eRowsGhost = isR90Ghost ? fColsGhost : fRowsGhost;
+        const eColsGhost = isR90Ghost ? fRowsGhost : fColsGhost;
+        const renderRow = row - (fRowsGhost - eRowsGhost) / 2;
+        const renderCol = col - (fColsGhost - eColsGhost) / 2;
 
         ctx.save();
         ctx.globalAlpha = 0.4;
         if (needsTransform) {
           // Use canvas transform for scaled/arbitrary-rotated props
-          const [fRows, fCols] = item.propDef!.footprint;
-          const centerNx = fCols / 2;
-          const centerNy = fRows / 2;
-          const { x: cx, y: cy } = toCanvas((col + centerNx) * gridSize, (row + centerNy) * gridSize, transform);
+          const centerNx = fColsGhost / 2;
+          const centerNy = fRowsGhost / 2;
+          const { x: cx, y: cy } = toCanvas(
+            (renderCol + centerNx) * gridSize,
+            (renderRow + centerNy) * gridSize,
+            transform,
+          );
           ctx.translate(cx, cy);
           ctx.rotate((-item.facing * Math.PI) / 180);
           ctx.scale(scl, scl);
@@ -1145,8 +1280,8 @@ export class PropTool extends Tool {
           renderProp(
             ctx,
             item.propDef!,
-            row,
-            col,
+            renderRow,
+            renderCol,
             item.facing,
             gridSize,
             theme,
@@ -1159,8 +1294,8 @@ export class PropTool extends Tool {
 
         // Bounding box around the ghost — rotated + scaled to match the rendered prop.
         const ghostOverlay = {
-          x: col * gridSize,
-          y: row * gridSize,
+          x: renderCol * gridSize,
+          y: renderRow * gridSize,
           type: item.origType,
           rotation: item.facing,
           scale: scl,
@@ -1218,10 +1353,12 @@ export class PropTool extends Tool {
       const prevDef = catalog?.props[state.selectedProp];
       if (prevDef) {
         if (this.hoverFreeform && this.hoverWorldX != null) {
-          // Freeform: ghost follows exact cursor position (sub-cell)
-          const [spanRows, spanCols] = getEffectiveFootprint(prevDef, state.propRotation);
-          const freeRow = this.hoverWorldY! / gridSize - spanRows / 2;
-          const freeCol = this.hoverWorldX / gridSize - spanCols / 2;
+          // Freeform: ghost follows exact cursor position (sub-cell).
+          // Pass the visible top-left (effective span) — _renderPlacePreview
+          // shifts to the data anchor internally.
+          const [spanRowsFree, spanColsFree] = getEffectiveFootprint(prevDef, state.propRotation);
+          const freeRow = this.hoverWorldY! / gridSize - spanRowsFree / 2;
+          const freeCol = this.hoverWorldX / gridSize - spanColsFree / 2;
           this._renderPlacePreview(ctx, transform, gridSize, freeRow, freeCol);
         } else {
           const anchor = centeredAnchor(this.hoverRow, this.hoverCol, prevDef, state.propRotation);
@@ -1232,7 +1369,10 @@ export class PropTool extends Tool {
 
     // 4. Hover highlight — thin dashed outline on the prop under the cursor
     if (this.hoveredAnchor && !this.isDragging) {
-      const hoverOverlay = _findOverlayAt(this.hoveredAnchor.row, this.hoveredAnchor.col);
+      const meta = state.dungeon.metadata;
+      const hoverOverlay = this.hoveredAnchor.propId
+        ? meta.props?.find((p: { id: string | number }) => p.id === this.hoveredAnchor!.propId)
+        : _findOverlayAt(this.hoveredAnchor.row, this.hoveredAnchor.col);
       if (hoverOverlay) {
         const { corners } = _propSelectionShape(hoverOverlay, gridSize, transform);
         ctx.save();
@@ -1282,7 +1422,19 @@ export class PropTool extends Tool {
     const [spanRows, spanCols] = getEffectiveFootprint(propDef, state.propRotation);
     const cells = state.dungeon.cells;
 
-    if (!isFootprintClear(cells, row, col, spanRows, spanCols)) return;
+    if (!isFootprintClear(cells, row, col, spanRows, spanCols)) {
+      // Distinguish out-of-bounds from void-cell so the user knows what's wrong.
+      const numRows = cells.length;
+      const numCols = cells[0]?.length ?? 0;
+      const outOfBounds = row < 0 || row + spanRows > numRows || col < 0 || col + spanCols > numCols;
+      this._toastOnce(
+        outOfBounds ? 'out-of-bounds' : 'void',
+        outOfBounds
+          ? `Can't place ${propDef.name}: outside the map`
+          : `Can't place ${propDef.name}: cell is void — paint floor first`,
+      );
+      return;
+    }
 
     mutate(
       'Place prop',
@@ -1292,14 +1444,17 @@ export class PropTool extends Tool {
         if (state.propScale !== 1.0) entry.scale = state.propScale;
 
         // Freeform: Ctrl+click places at exact pixel position (sub-cell),
-        // centering the prop on the cursor (matching the ghost preview)
+        // centering the prop on the cursor (matching the ghost preview).
+        // Use base-footprint center to match the renderer's Option A rotation pivot,
+        // so non-square props at 90°/270° visually center on the cursor.
         if (freeform && pixelPos) {
           const transform = getTransform();
           const gs = state.dungeon.metadata.gridSize || 5;
+          const [fRowsFree, fColsFree] = propDef.footprint;
           const cursorWorldX = (pixelPos.x - transform.offsetX) / transform.scale;
           const cursorWorldY = (pixelPos.y - transform.offsetY) / transform.scale;
-          entry.x = cursorWorldX - (spanCols * gs) / 2;
-          entry.y = cursorWorldY - (spanRows * gs) / 2;
+          entry.x = cursorWorldX - (fColsFree * gs) / 2;
+          entry.y = cursorWorldY - (fRowsFree * gs) / 2;
         }
 
         // Create linked lights if the prop defines any
@@ -1336,14 +1491,17 @@ export class PropTool extends Tool {
               x: worldX,
               y: worldY,
               type: preset.type ?? 'point',
-              radius: preset.radius ?? 20,
-              color: preset.color ?? '#ff9944',
-              intensity: preset.intensity ?? 1.0,
-              falloff: preset.falloff ?? 'smooth',
+              radius: lightDef.radius ?? preset.radius ?? 20,
+              color: lightDef.color ?? preset.color ?? '#ff9944',
+              intensity: lightDef.intensity ?? preset.intensity ?? 1.0,
+              falloff: lightDef.falloff ?? preset.falloff ?? 'smooth',
               presetId: lightDef.preset,
               propRef: { row, col },
             };
-            if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+            const dim = lightDef.dimRadius ?? preset.dimRadius;
+            if (dim) light.dimRadius = dim;
+            if (lightDef.angle != null) light.angle = lightDef.angle;
+            if (lightDef.spread != null) light.spread = lightDef.spread;
             if (preset.animation?.type) light.animation = { ...preset.animation };
 
             meta.lights.push(light);
@@ -1373,15 +1531,28 @@ export class PropTool extends Tool {
     const cells = state.dungeon.cells;
     const valid = isFootprintClear(cells, Math.floor(row), Math.floor(col), spanRows, spanCols);
     const theme = getTheme();
-    const needsTransform = scl !== 1.0 || (rot !== 0 && rot !== 90 && rot !== 180 && rot !== 270);
+    const needsTransform = scl !== 1.0 || rot !== 0;
+
+    // Callers pass the visible top-left cell; shift to the data anchor so the
+    // Option A render (which rotates around base-center) lands on the target.
+    const [fRowsPrev, fColsPrev] = propDef.footprint;
+    const rPrev = ((rot % 360) + 360) % 360;
+    const isR90Prev = rPrev === 90 || rPrev === 270;
+    const eRowsPrev = isR90Prev ? fColsPrev : fRowsPrev;
+    const eColsPrev = isR90Prev ? fRowsPrev : fColsPrev;
+    const renderRow = row - (fRowsPrev - eRowsPrev) / 2;
+    const renderCol = col - (fColsPrev - eColsPrev) / 2;
 
     ctx.save();
     ctx.globalAlpha = 0.4;
     if (needsTransform) {
-      const [fRows, fCols] = propDef.footprint;
-      const centerNx = fCols / 2,
-        centerNy = fRows / 2;
-      const { x: cx, y: cy } = toCanvas((col + centerNx) * gridSize, (row + centerNy) * gridSize, transform);
+      const centerNx = fColsPrev / 2,
+        centerNy = fRowsPrev / 2;
+      const { x: cx, y: cy } = toCanvas(
+        (renderCol + centerNx) * gridSize,
+        (renderRow + centerNy) * gridSize,
+        transform,
+      );
       ctx.translate(cx, cy);
       ctx.rotate((-rot * Math.PI) / 180);
       ctx.scale(scl, scl);
@@ -1389,14 +1560,26 @@ export class PropTool extends Tool {
       const offsetTransform = { scale: transform.scale, offsetX: -centerNx * cellPx, offsetY: -centerNy * cellPx };
       renderProp(ctx, propDef, 0, 0, 0, gridSize, theme, offsetTransform, state.propFlipped, getTextureResolver());
     } else {
-      renderProp(ctx, propDef, row, col, rot, gridSize, theme, transform, state.propFlipped, getTextureResolver());
+      renderProp(
+        ctx,
+        propDef,
+        renderRow,
+        renderCol,
+        rot,
+        gridSize,
+        theme,
+        transform,
+        state.propFlipped,
+        getTextureResolver(),
+      );
     }
     ctx.restore();
 
     const w = spanCols * gridSize,
       h = spanRows * gridSize;
-    const bCx = col * gridSize + w / 2,
-      bCy = row * gridSize + h / 2;
+    // Center on the visible-anchor (span-based) so the box hugs the cell-aligned ghost.
+    const bCx = (col + spanCols / 2) * gridSize,
+      bCy = (row + spanRows / 2) * gridSize;
     const topLeft = toCanvas(bCx - (w * scl) / 2, bCy - (h * scl) / 2, transform);
     const bottomRight = toCanvas(bCx + (w * scl) / 2, bCy + (h * scl) / 2, transform);
     const borderColor = valid ? 'rgba(100, 255, 100, 0.5)' : 'rgba(255, 100, 100, 0.5)';
@@ -1473,12 +1656,22 @@ export class PropTool extends Tool {
       if (!overlay) continue;
       const propDef = state.propCatalog?.props[overlay.type];
       if (!propDef) continue;
-      // Compute freeform sub-cell offset
-      const freeOffsetX = (overlay.x - Math.round(overlay.x / gs) * gs) / gs;
-      const freeOffsetY = (overlay.y - Math.round(overlay.y / gs) * gs) / gs;
-      // Find linked lights (by propRef matching this prop's anchor)
-      const anchorRow = Math.round(overlay.y / gs);
-      const anchorCol = Math.round(overlay.x / gs);
+      // Un-shift the rotation-compensation offset so freeform/anchor math is
+      // expressed in visible-anchor space (where the user sees the prop), not
+      // data-anchor space (which is offset by (fCols-eCols)/2 at 90°/270°).
+      const [fRowsI, fColsI] = propDef.footprint;
+      const rI = ((overlay.rotation % 360) + 360) % 360;
+      const isR90I = rI === 90 || rI === 270;
+      const eRowsI = isR90I ? fColsI : fRowsI;
+      const eColsI = isR90I ? fRowsI : fColsI;
+      const visibleX = overlay.x + ((fColsI - eColsI) / 2) * gs;
+      const visibleY = overlay.y + ((fRowsI - eRowsI) / 2) * gs;
+      // Compute freeform sub-cell offset (in visible-anchor space)
+      const freeOffsetX = (visibleX - Math.round(visibleX / gs) * gs) / gs;
+      const freeOffsetY = (visibleY - Math.round(visibleY / gs) * gs) / gs;
+      // Find linked lights (by propRef matching this prop's visible anchor)
+      const anchorRow = Math.round(visibleY / gs);
+      const anchorCol = Math.round(visibleX / gs);
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const linkedLightIds = (meta.lights || [])
         .filter((l) => l.propRef?.row === anchorRow && l.propRef.col === anchorCol)
@@ -1546,29 +1739,18 @@ export class PropTool extends Tool {
     }
 
     if (this._allPositionsValid()) {
-      // Temporarily restore pre-drag metadata so mutate captures the correct "before" state,
-      // then re-place the props at their new positions inside fn().
       const label = this.dragItems.length > 1 ? 'Move props' : 'Move prop';
       const preDragMeta = this._preDragMetaSnapshot!;
       const dragGhost = this.dragGhost;
       const dragItems = this.dragItems;
       const dragFreeform = this.dragFreeform;
       const dragSnapToGrid = this.dragSnapToGrid;
-      Object.assign(state.dungeon.metadata, JSON.parse(preDragMeta));
       let newAnchors: { row: number; col: number; propId: string | number }[] = [];
       mutate(
         label,
         [],
         () => {
-          // First, re-remove the original props (they were restored from preDragMeta)
           const meta = state.dungeon.metadata;
-          for (const item of dragItems) {
-            if (meta.props) {
-              const idx = meta.props.findIndex((p: { id: string | number }) => p.id === item.propId);
-              if (idx >= 0) meta.props.splice(idx, 1);
-            }
-          }
-
           const gs = meta.gridSize || 5;
           const ghost = dragGhost;
           const isFreeform = dragFreeform && ghost.worldX != null;
@@ -1594,8 +1776,14 @@ export class PropTool extends Tool {
             if (item.linkedLightIds.length > 0) {
               const dx = entry.x - item.origX;
               const dy = entry.y - item.origY;
-              const newPropRefRow = Math.round(entry.y / gs);
-              const newPropRefCol = Math.round(entry.x / gs);
+              // propRef tracks the visible-anchor cell (un-shifted), not the stored data anchor
+              const [fRowsL, fColsL] = item.propDef!.footprint;
+              const rL = ((item.facing % 360) + 360) % 360;
+              const isR90L = rL === 90 || rL === 270;
+              const eRowsL = isR90L ? fColsL : fRowsL;
+              const eColsL = isR90L ? fRowsL : fColsL;
+              const newPropRefRow = Math.round(entry.y / gs + (fRowsL - eRowsL) / 2);
+              const newPropRefCol = Math.round(entry.x / gs + (fColsL - eColsL) / 2);
               for (const lightId of item.linkedLightIds) {
                 const light = meta.lights.find((l) => l.id === lightId);
                 if (light) {
@@ -1610,6 +1798,11 @@ export class PropTool extends Tool {
         },
         { metaOnly: true, invalidate: ['lighting:props', 'props'] },
       );
+      // Lift removed the originals from meta.props before mutate ran, so the
+      // captured before-state has them missing. Rewrite it to the pre-drag
+      // snapshot so undo restores them at their original positions.
+      const lastEntry = state.undoStack[state.undoStack.length - 1];
+      if (lastEntry?.patch?.meta) lastEntry.patch.meta.before = preDragMeta;
       state.selectedPropAnchors = newAnchors;
     } else {
       this._restoreDragItems();
@@ -1663,6 +1856,7 @@ export class PropTool extends Tool {
     if (state.selectedPropAnchors.length === 1) {
       const anchor = state.selectedPropAnchors[0]!;
       const meta = state.dungeon.metadata;
+      const gs = meta.gridSize || 5;
       mutate(
         'Rotate prop',
         [],
@@ -1672,7 +1866,10 @@ export class PropTool extends Tool {
             : _findOverlayAt(anchor.row, anchor.col);
           if (overlay) {
             // Props are free-form overlays — no footprint validation needed for rotation
+            const propDef = state.propCatalog?.props[overlay.type];
+            const oldVisible = visibleAnchorOf(overlay, propDef, gs);
             overlay.rotation = ((((overlay.rotation || 0) + degrees) % 360) + 360) % 360;
+            refreshLinkedLights(meta, overlay, propDef, oldVisible, 0, 0);
           }
         },
         { metaOnly: true, invalidate: ['lighting:props', 'props'] },
@@ -1681,7 +1878,7 @@ export class PropTool extends Tool {
       return;
     }
     // No selection → rotate placement default
-    state.propRotation = (state.propRotation + degrees) % 360;
+    state.propRotation = (((state.propRotation + degrees) % 360) + 360) % 360;
     notify();
     requestRender();
   }
@@ -1722,7 +1919,7 @@ export class PropTool extends Tool {
   _rotateDragGroup(degrees = 90) {
     if (!this.dragGhost || this.dragItems.length === 0) return;
     if (this.dragItems.length === 1) {
-      this.dragItems[0]!.facing = (this.dragItems[0]!.facing + degrees) % 360;
+      this.dragItems[0]!.facing = (((this.dragItems[0]!.facing + degrees) % 360) + 360) % 360;
       return;
     }
 
@@ -1755,7 +1952,7 @@ export class PropTool extends Tool {
       const newRelCol = degrees === 90 ? H - relRow - spanRows : relRow;
       item.offsetRow = r_min + newRelRow - this.dragGhost.row;
       item.offsetCol = c_min + newRelCol - this.dragGhost.col;
-      item.facing = (item.facing + degrees) % 360;
+      item.facing = (((item.facing + degrees) % 360) + 360) % 360;
     }
   }
 
@@ -1816,6 +2013,11 @@ export class PropTool extends Tool {
       'Rotate props',
       [],
       () => {
+        const groupMeta = state.dungeon.metadata;
+        const snap = overlays.map((o) => {
+          const def = state.propCatalog?.props[o.type];
+          return { overlay: o, propDef: def, oldVisible: visibleAnchorOf(o, def, gs), oldX: o.x, oldY: o.y };
+        });
         // Rotate each prop around group center + rotate the prop itself
         const rad = (-degrees * Math.PI) / 180; // negate to match visual direction
         const cos = Math.cos(rad);
@@ -1833,6 +2035,16 @@ export class PropTool extends Tool {
           o.y = newCy - (sr * gs) / 2;
           // Rotate the prop itself
           o.rotation = ((((o.rotation || 0) + degrees) % 360) + 360) % 360;
+        }
+        for (const s of snap) {
+          refreshLinkedLights(
+            groupMeta,
+            s.overlay,
+            s.propDef,
+            s.oldVisible,
+            s.overlay.x - s.oldX,
+            s.overlay.y - s.oldY,
+          );
         }
       },
       { metaOnly: true, invalidate: ['lighting:props', 'props'] },
@@ -1886,12 +2098,24 @@ export class PropTool extends Tool {
     for (const p of placements) {
       for (let r = p.newRow; r < p.newRow + p.newSpanRows; r++) {
         for (let c = p.newCol; c < p.newCol + p.newSpanCols; c++) {
-          if (r < 0 || r >= numRows || c < 0 || c >= numCols) return;
-          if (cells[r]![c] === null) return;
+          if (r < 0 || r >= numRows || c < 0 || c >= numCols) {
+            this._toastOnce('flip-blocked', "Can't flip: some props would land outside the map");
+            return;
+          }
+          if (cells[r]![c] === null) {
+            this._toastOnce('flip-blocked', "Can't flip: some props would land on void cells");
+            return;
+          }
           const key = `${r},${c}`;
-          if (claimed.has(key)) return;
+          if (claimed.has(key)) {
+            this._toastOnce('flip-blocked', "Can't flip: selection would overlap itself after mirror");
+            return;
+          }
           const existing = findPropAnchor(cells, r, c);
-          if (existing && !oldKeys.has(`${existing.row},${existing.col}`)) return;
+          if (existing && !oldKeys.has(`${existing.row},${existing.col}`)) {
+            this._toastOnce('flip-blocked', "Can't flip: target cells already hold another prop");
+            return;
+          }
           claimed.add(key);
         }
       }
@@ -1998,7 +2222,10 @@ export class PropTool extends Tool {
 
   _commitPropPaste(targetRow: number, targetCol: number) {
     if (!state.propClipboard) return;
-    if (!this._allPastePositionsValid(targetRow, targetCol)) return;
+    if (!this._allPastePositionsValid(targetRow, targetCol)) {
+      this._toastOnce('paste-blocked', "Can't paste here: some props overlap void cells or the map edge");
+      return;
+    }
 
     const cells = state.dungeon.cells;
     const { props } = state.propClipboard;
@@ -2026,19 +2253,33 @@ export class PropTool extends Tool {
           const col = targetCol + dCol;
           const cell = cells[row]?.[col];
           if (!cell) continue;
-          const entry = _addOverlayAt(row, col, prop.type, (prop.facing ?? prop.rotation) || 0, prop.flipped);
+          const rotation = (prop.facing ?? prop.rotation) || 0;
+          const entry = _addOverlayAt(row, col, prop.type, rotation, prop.flipped);
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (prop.scale != null) entry.scale = prop.scale;
           // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
           if (prop.zIndex != null) entry.zIndex = prop.zIndex;
-          // Preserve freeform sub-cell offset from the original prop
-          const origAnchorRow = Math.round(prop.y / gs);
-          const origAnchorCol = Math.round(prop.x / gs);
-          const offsetX = prop.x - origAnchorCol * gs;
-          const offsetY = prop.y - origAnchorRow * gs;
-          if (Math.abs(offsetX) > 0.01 || Math.abs(offsetY) > 0.01) {
-            entry.x = col * gs + offsetX;
-            entry.y = row * gs + offsetY;
+          // `_addOverlayAt` already applied the 90°/270° anchor-shift correctly
+          // for the target (row, col). We only need to carry over the source
+          // prop's freeform sub-cell offset (if any) as an additive delta — NOT
+          // overwrite entry.x/y, which would discard the rotation shift.
+          const propDef = state.propCatalog?.props[prop.type];
+          if (propDef) {
+            const [fRows, fCols] = propDef.footprint;
+            const r = ((rotation % 360) + 360) % 360;
+            const isR90 = r === 90 || r === 270;
+            const eRows = isR90 ? fCols : fRows;
+            const eCols = isR90 ? fRows : fCols;
+            const shiftX = ((fCols - eCols) / 2) * gs;
+            const shiftY = ((fRows - eRows) / 2) * gs;
+            const visX = prop.x + shiftX;
+            const visY = prop.y + shiftY;
+            const subOffsetX = visX - Math.round(visX / gs) * gs;
+            const subOffsetY = visY - Math.round(visY / gs) * gs;
+            if (Math.abs(subOffsetX) > 0.01 || Math.abs(subOffsetY) > 0.01) {
+              entry.x += subOffsetX;
+              entry.y += subOffsetY;
+            }
           }
           anchors.push({ row, col });
 

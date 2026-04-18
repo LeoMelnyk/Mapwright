@@ -1,0 +1,74 @@
+name: Tipped Bottle
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: cave-bandit-camp, tavern, cabin-abandoned, slum, cave-goblin-warren, dungeon-cell
+typical_count: many
+clusters_with: bottle, trash-heap, bottle-empty, crate-open, barrel
+notes: Empty glass or clay bottle lying on its side on the floor — drained and discarded
+---
+# Faint shadow beneath the tipped bottle (elongated)
+ellipse 0.52,0.56 0.30,0.06 fill #1a0a00 0.22
+
+# Bottle body — lying horizontal (wider east-west), irregular cylinder side profile
+# Main body rectangle
+rect 0.20,0.44 0.40,0.18 fill #3a5848 0.85 rotate -8
+rect 0.20,0.44 0.40,0.18 stroke #1a2818 width 1 rotate -8
+
+# Body highlight (top catches light when tipped)
+rect 0.22,0.44 0.36,0.06 fill #6a9080 0.55 rotate -8
+
+# Body underside shadow
+rect 0.22,0.58 0.36,0.04 fill #1a2818 0.50 rotate -8
+
+# Shoulder curve (where body narrows to neck)
+poly 0.56,0.40 0.66,0.38 0.72,0.42 0.74,0.50 0.72,0.58 0.66,0.62 0.56,0.60 fill #3a5848 0.88
+poly 0.56,0.40 0.66,0.38 0.72,0.42 0.74,0.50 0.72,0.58 0.66,0.62 0.56,0.60 stroke #1a2818 width 1
+# Shoulder highlight
+bezier 0.58,0.42 0.64,0.40 0.70,0.44 0.72,0.50 stroke #6a9080 0.55 width 2
+
+# Neck (narrow tube extending east)
+rect 0.70,0.46 0.18,0.08 fill #2a4838 0.9 rotate -8
+rect 0.70,0.46 0.18,0.08 stroke #0a1808 width 1 rotate -8
+# Neck highlight
+line 0.72,0.47 0.86,0.46 stroke #6a9080 0.5 width 1
+
+# Lip rim at mouth (top-down view of the rim)
+circle 0.88,0.46 0.05 fill #2a4838 0.92
+circle 0.88,0.46 0.05 stroke #0a1808 width 1
+circle 0.88,0.46 0.035 fill #1a2818 0.9
+circle 0.88,0.46 0.02 fill #0a1008 0.95
+
+# West end — base of bottle (rounded butt)
+ellipse 0.20,0.53 0.06,0.09 fill #2a4838 0.9
+ellipse 0.20,0.53 0.06,0.09 stroke #1a2818 width 1
+# Base ring detail
+arc 0.20,0.53 0.06 90 270 stroke #0a1808 0.7 width 1
+
+# Label fragment (peeling, ripped)
+poly 0.30,0.48 0.42,0.47 0.44,0.54 0.32,0.55 fill #d4c4a8 0.75 rotate -8
+poly 0.30,0.48 0.42,0.47 0.44,0.54 0.32,0.55 stroke #6a5040 0.7 width 1 rotate -8
+# Label text scribble
+line 0.32,0.50 0.42,0.50 stroke #3a1f00 0.6 width 1 rotate -8
+line 0.33,0.52 0.40,0.52 stroke #3a1f00 0.55 width 1 rotate -8
+# Torn edge
+line 0.44,0.47 0.46,0.54 stroke #6a5040 0.7 width 1
+
+# Small dribble stain beneath the mouth (last drop)
+ellipse 0.90,0.52 0.04,0.02 fill #4a2810 0.6
+circle 0.94,0.54 0.012 fill #4a2810 0.5
+
+# Glass glint reflections along the body length
+line 0.28,0.48 0.44,0.46 stroke #bae0d0 0.7 width 1 rotate -8
+line 0.50,0.48 0.60,0.47 stroke #bae0d0 0.55 width 1 rotate -8
+
+# Chipped crack on the glass
+bezier 0.40,0.58 0.44,0.56 0.48,0.58 0.50,0.56 stroke #1a2818 0.7 width 1
+
+# Tiny shard broken off near the base
+poly 0.14,0.60 0.18,0.58 0.16,0.64 fill #3a5848 0.75
+poly 0.14,0.60 0.18,0.58 0.16,0.64 stroke #1a2818 width 1

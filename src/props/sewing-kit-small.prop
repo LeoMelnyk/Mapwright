@@ -1,0 +1,86 @@
+name: Sewing Kit (Small)
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: mansion-servants-quarters, house-medium-family, tailor, bedroom, cabin-witch, house-medium-artisan
+typical_count: single
+clusters_with: clothes-rack, wardrobe, thread-rack, sewing-kit-small, bobbin
+notes: Small wooden box holding thread spools, needles, and scissors. Open lid reveals the contents from above. Place on tables, shelves, or beside chairs.
+---
+# === HITBOX ===
+selection rect 0.18,0.22 0.64,0.58
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: small open wooden box with compartments, sewing supplies inside
+
+# === Shadow under box ===
+rect 0.20,0.26 0.66,0.60 fill #000000 0.12
+
+# === Outer wooden box (open lid tipped north against wall) ===
+# Lid (north portion, lifted open)
+rect 0.18,0.08 0.64,0.16 texfill polyhaven/dark_wood 0.9
+rect 0.18,0.08 0.64,0.16 stroke #1a0800
+# Lid hinge line
+line 0.18,0.22 0.82,0.22 stroke #2a1400 width 2
+
+# Lid decorative inlay
+rect 0.28,0.12 0.44,0.08 fill #5a3a00 0.6
+rect 0.28,0.12 0.44,0.08 stroke #3a2000
+circle 0.50,0.16 0.020 fill #daa520 0.85
+
+# === Main box body ===
+rect 0.18,0.22 0.64,0.58 texfill polyhaven/dark_wood 0.92
+rect 0.18,0.22 0.64,0.58 stroke #1a0800 width 2
+
+# === Inner recessed cavity ===
+rect 0.22,0.26 0.56,0.50 fill #3a1f00 0.85
+rect 0.22,0.26 0.56,0.50 stroke #1a0800
+
+# === Compartment divider ===
+line 0.22,0.52 0.78,0.52 stroke #1a0800 width 1
+
+# === Thread spools in top compartment (small circles) ===
+circle 0.30,0.36 0.05 fill #8a1020 0.92
+circle 0.30,0.36 0.05 stroke #3a0008
+circle 0.30,0.36 0.015 fill #2a1400 0.9
+
+circle 0.46,0.38 0.05 fill #1a4880 0.92
+circle 0.46,0.38 0.05 stroke #0a1828
+circle 0.46,0.38 0.015 fill #2a1400 0.9
+
+circle 0.62,0.36 0.05 fill #daa520 0.9
+circle 0.62,0.36 0.05 stroke #5a3a00
+circle 0.62,0.36 0.015 fill #2a1400 0.9
+
+circle 0.74,0.42 0.045 fill #2a5028 0.9
+circle 0.74,0.42 0.045 stroke #101810
+circle 0.74,0.42 0.012 fill #2a1400 0.9
+
+# === Bottom compartment — needles + scissors ===
+# Scissors (crossed blades)
+line 0.28,0.58 0.46,0.72 stroke #8899aa width 2
+line 0.28,0.58 0.46,0.72 stroke #555555 0.7 width 1
+line 0.46,0.58 0.28,0.72 stroke #8899aa width 2
+line 0.46,0.58 0.28,0.72 stroke #555555 0.7 width 1
+# Scissor handles (finger loops)
+circle 0.26,0.72 0.030 stroke #555555 width 2
+circle 0.48,0.72 0.030 stroke #555555 width 2
+# Pivot rivet
+circle 0.37,0.65 0.015 fill #daa520 0.9
+
+# Needles (thin metal slivers)
+line 0.56,0.58 0.72,0.60 stroke #c8c0b0 0.95 width 1
+line 0.56,0.64 0.72,0.66 stroke #c8c0b0 0.9 width 1
+line 0.56,0.70 0.72,0.72 stroke #c8c0b0 0.9 width 1
+# Needle heads (tiny dot eyes)
+circle 0.56,0.58 0.008 fill #666666 0.9
+circle 0.56,0.64 0.008 fill #666666 0.9
+circle 0.56,0.70 0.008 fill #666666 0.9
+
+# === Brass clasp on south edge ===
+rect 0.44,0.80 0.12,0.04 fill #daa520 0.85
+rect 0.44,0.80 0.12,0.04 stroke #5a3a00

@@ -12,7 +12,7 @@ clusters_with: lime-bin, tanning-vat, tanning-pit, hide-scraps
 notes: Scattered white lime dust spilled from a bin or sack; place near lime-bin or vat edges
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.02
+selection circle 0.5,0.5 0.38
 
 # Diffuse outer dust cloud (very faint)
 circle 0.50,0.50 0.40 fill #e8e4d8 0.35

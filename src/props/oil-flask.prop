@@ -12,7 +12,7 @@ clusters_with: lantern-post, wall-lantern, alchemy-bench, shelf-open
 notes: Small glass flask of lamp oil or alchemist fire
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.52 0.16,0.20 z 0-0.4
+selection ellipse 0.5,0.52 0.16,0.20
 
 # Shadow
 ellipse 0.5,0.68 0.18,0.04 fill #1a1008 0.4

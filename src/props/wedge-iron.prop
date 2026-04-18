@@ -12,7 +12,7 @@ clusters_with: axe-head, log-round, hammer, wedge-iron, chisel
 notes: Heavy iron splitting wedge — triangular block for cleaving logs
 ---
 # === HITBOX ===
-hitbox rect 0.30,0.22 0.40,0.56 z 0-0.1
+selection rect 0.30,0.22 0.40,0.56
 
 # Wedge body (triangular, tapering from south to thin north edge)
 poly 0.36,0.24 0.64,0.24 0.68,0.44 0.70,0.64 0.64,0.76 0.36,0.76 0.30,0.64 0.32,0.44 fill #555555 0.95

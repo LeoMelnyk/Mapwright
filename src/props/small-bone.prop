@@ -1,0 +1,48 @@
+name: Small Bone
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cave-living, cave-bear-lair, cave-goblin-warren, crypt, monster-lair-small, wilderness
+typical_count: many
+clusters_with: bone-pile, bone-pile-small, small-bone, corpse, gnawed-bone
+notes: Single small animal bone lying on the floor — scatter for creature-lair flavor
+---
+# Faint shadow under bone
+ellipse 0.48,0.60 0.24,0.06 fill #1a0f00 0.20
+
+# Main long bone shaft — lies diagonally across the cell
+rect 0.22,0.54 0.52,0.06 fill #d4c4a8 0.85 rotate 18
+rect 0.22,0.54 0.52,0.06 stroke #8a7060 width 1 rotate 18
+
+# Slight dark underside shading for depth
+rect 0.22,0.58 0.52,0.02 fill #8a7060 0.55 rotate 18
+
+# Proximal end knob (larger end — joint ball)
+circle 0.26,0.52 0.075 fill #e8dcc8 0.92
+circle 0.26,0.52 0.075 stroke #8a7060 width 1
+circle 0.26,0.52 0.045 fill #d4c4a8 0.7
+arc 0.26,0.52 0.06 210 250 stroke #f8ece0 0.7 width 1
+
+# Distal end knob (smaller end)
+circle 0.76,0.68 0.06 fill #e8dcc8 0.9
+circle 0.76,0.68 0.06 stroke #8a7060 width 1
+circle 0.76,0.68 0.035 fill #d4c4a8 0.65
+arc 0.76,0.68 0.05 210 250 stroke #f8ece0 0.6 width 1
+
+# Hairline crack along shaft
+bezier 0.34,0.56 0.48,0.60 0.58,0.64 0.68,0.66 stroke #8a7060 0.6 width 1
+
+# Gnaw mark on one end (small bite)
+poly 0.72,0.64 0.76,0.62 0.74,0.66 fill #6a5040 0.6
+line 0.73,0.63 0.75,0.66 stroke #3a2818 0.7 width 1
+
+# Tiny bone chip nearby
+poly 0.84,0.82 0.88,0.80 0.90,0.84 0.86,0.86 fill #c8b898 0.7
+poly 0.84,0.82 0.88,0.80 0.90,0.84 0.86,0.86 stroke #8a7060 width 1
+
+# Dust/dirt speck
+circle 0.18,0.72 0.018 fill #3a2818 0.5
+circle 0.42,0.78 0.014 fill #3a2818 0.4

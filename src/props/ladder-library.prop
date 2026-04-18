@@ -1,0 +1,69 @@
+name: Library Ladder
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 7
+placement: wall
+room_types: shop-bookseller, library, mansion-library, archive, wizard-sanctum, scriptorium-mundane
+typical_count: single
+clusters_with: bookshelf, bookshelf-tall, scroll-rack, desk
+notes: Rolling ladder leaning against tall bookshelves; a narrow prop parallel to the wall with two rails and rungs
+---
+# === HITBOX ===
+selection rect 0.20,0.18 1.60,0.24
+
+# footprint 1x2: x range 0-2, y range 0-1; wall at north (low y), ladder leans against the wall
+# Top-down view: two parallel wooden rails running east-west with rungs between, close to the wall edge
+
+# West/top rail (long dark-wood pole running the length)
+rect 0.20,0.18 1.60,0.06 texfill polyhaven/dark_wood 0.9
+rect 0.20,0.18 1.60,0.06 stroke #1a0e00 width 2
+# Wood grain on top rail
+line 0.22,0.21 1.78,0.21 stroke #5c3a1e 0.5 width 1
+
+# East/south rail (parallel rail just south)
+rect 0.20,0.36 1.60,0.06 texfill polyhaven/dark_wood 0.9
+rect 0.20,0.36 1.60,0.06 stroke #1a0e00 width 2
+# Wood grain on south rail
+line 0.22,0.39 1.78,0.39 stroke #5c3a1e 0.5 width 1
+
+# Ladder rungs between the rails (spaced evenly — 8 rungs)
+rect 0.28,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.28,0.24 0.05,0.12 stroke #1a0e00
+rect 0.48,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.48,0.24 0.05,0.12 stroke #1a0e00
+rect 0.68,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.68,0.24 0.05,0.12 stroke #1a0e00
+rect 0.88,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.88,0.24 0.05,0.12 stroke #1a0e00
+rect 1.08,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 1.08,0.24 0.05,0.12 stroke #1a0e00
+rect 1.28,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 1.28,0.24 0.05,0.12 stroke #1a0e00
+rect 1.48,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 1.48,0.24 0.05,0.12 stroke #1a0e00
+rect 1.68,0.24 0.05,0.12 texfill polyhaven/dark_wood 0.85
+rect 1.68,0.24 0.05,0.12 stroke #1a0e00
+
+# Brass rail track (thin strip along the north edge — the rail the ladder slides on)
+rect 0.10,0.14 1.80,0.025 fill #daa520 0.9
+rect 0.10,0.14 1.80,0.025 stroke #5a3a00
+
+# Top of ladder - brass hook that latches onto the track
+rect 0.20,0.14 0.12,0.08 fill #8b6914 0.92
+rect 0.20,0.14 0.12,0.08 stroke #5a3a00
+circle 0.26,0.17 0.018 fill #daa520 0.95
+rect 1.68,0.14 0.12,0.08 fill #8b6914 0.92
+rect 1.68,0.14 0.12,0.08 stroke #5a3a00
+circle 1.74,0.17 0.018 fill #daa520 0.95
+
+# Small rolling wheel at south foot (ladder stands on small casters)
+circle 0.24,0.44 0.025 fill #333333 0.9
+circle 0.24,0.44 0.025 stroke #1a1a1a
+circle 1.76,0.44 0.025 fill #333333 0.9
+circle 1.76,0.44 0.025 stroke #1a1a1a
+
+# Subtle shadow on floor just south of south rail
+rect 0.22,0.44 1.56,0.03 fill #000000 0.15

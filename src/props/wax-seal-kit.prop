@@ -12,7 +12,7 @@ clusters_with: ledger-stack, quill, inkwell, document-stack, wax-seal
 notes: Desk accessory — shallow wooden tray holding a stick of sealing wax and a brass seal stamp with its handle. Place near ledgers, correspondence, and writing desks.
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.28 0.64,0.44 z 0-0.3
+selection rect 0.18,0.28 0.64,0.44
 
 # footprint 1x1: x range 0-1, y range 0-1
 # Shallow rectangular wooden tray holding a wax stick and a brass seal.

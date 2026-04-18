@@ -12,7 +12,7 @@ clusters_with: bedroll, rag-pile, pallet
 notes: Straw-stuffed sleeping pallet; rougher than a bed, often against walls
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.12 0.80,1.76 z 0-0.3
+selection rect 0.10,0.12 0.80,1.76
 
 # Straw-stuffed sack (coarse hemp sack bulging with straw)
 rect 0.10,0.12 0.80,1.76 texfill polyhaven/rough_linen 0.88

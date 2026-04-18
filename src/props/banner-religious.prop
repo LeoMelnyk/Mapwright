@@ -11,7 +11,7 @@ clusters_with: altar, altar-sacrificial, candelabra, tapestry-religious, icon-wa
 notes: Wall-hung liturgical banner — brass rod with finials and a thin wine-red fabric strip bearing a gold holy symbol
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.04 1.80,0.18 z 0-2.5
+selection rect 0.10,0.04 1.80,0.18
 
 # footprint 1x2: x 0-2, y 0-1
 # Wall-hung textile: rod + finials + thin fabric top strip only.

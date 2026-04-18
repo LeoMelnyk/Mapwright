@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 1.2
-lights: [{"preset":"torch","x":1.0,"y":1.0,"radius":18,"color":"#ff7030","intensity":1.0}]
+lights: [{"preset":"bonfire","x":1.0,"y":1.0,"radius":18,"color":"#ff7030","intensity":1.0}]
 placement: center
 room_types: orc-war-camp, cave-bandit-camp, humanoid-lair, war-camp, orc-stronghold, goblin-warren-entrance
 typical_count: single
@@ -13,7 +13,7 @@ clusters_with: bedroll-hide, chieftains-throne, butchery-pit, skull-totem, bone-
 notes: Large orcish bonfire — stacked logs pyramid with charred stone ring. Centerpiece of camp; place props radiating outward.
 ---
 # === HITBOX ===
-hitbox circle 1.0,1.0 0.55 z 0-1.2
+selection circle 1.0,1.0 0.55
 
 # Scorched ground ring
 circle 1.0,1.0 0.90 fill #1a0800 0.55

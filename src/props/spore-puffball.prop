@@ -1,0 +1,53 @@
+name: Spore Puffball
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.5
+placement: floor
+room_types: mushroom-grove, mushroom-cavern, cave-living, underdark-outpost, swamp, forest
+typical_count: few
+clusters_with: mushroom, mushroom-cluster, glowcap-cluster, spore-puff, decaying-log
+notes: Intact spherical puffball fungus — still sealed, ready to burst if disturbed
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.32 z 0-0.5
+
+# Ground shadow
+circle 0.52,0.56 0.36 fill #1a0a00 0.28
+circle 0.52,0.56 0.30 fill #1a0a00 0.18
+
+# Main puffball body (slightly oblate sphere viewed from above — irregular outline)
+poly 0.20,0.50 0.24,0.32 0.36,0.22 0.52,0.20 0.68,0.24 0.80,0.34 0.82,0.52 0.78,0.68 0.68,0.78 0.50,0.82 0.32,0.78 0.22,0.66 fill #c8b898 0.92
+poly 0.20,0.50 0.24,0.32 0.36,0.22 0.52,0.20 0.68,0.24 0.80,0.34 0.82,0.52 0.78,0.68 0.68,0.78 0.50,0.82 0.32,0.78 0.22,0.66 stroke #6a5a40 width 2
+
+# Slightly lighter upper dome
+poly 0.28,0.46 0.32,0.32 0.44,0.26 0.58,0.28 0.70,0.38 0.72,0.50 0.66,0.62 0.54,0.68 0.40,0.66 0.30,0.58 fill #d8c8a8 0.7
+
+# Pale highlight dome (top of the sphere)
+ellipse 0.46,0.40 0.18,0.12 fill #e8dcbc 0.65
+ellipse 0.46,0.40 0.12,0.08 fill #f0e4c4 0.6
+
+# Surface warts/spots (puffball texture)
+circle 0.32,0.36 0.022 fill #a8987c 0.75
+circle 0.58,0.30 0.020 fill #a8987c 0.7
+circle 0.66,0.48 0.024 fill #a8987c 0.75
+circle 0.54,0.60 0.022 fill #a8987c 0.7
+circle 0.34,0.64 0.020 fill #a8987c 0.7
+circle 0.26,0.48 0.018 fill #a8987c 0.65
+circle 0.46,0.48 0.014 fill #a8987c 0.6
+circle 0.62,0.66 0.016 fill #a8987c 0.65
+circle 0.40,0.28 0.014 fill #b8a880 0.55
+circle 0.72,0.58 0.015 fill #b8a880 0.55
+
+# Fine surface cracks (hinting at impending burst)
+bezier 0.32,0.42 0.40,0.38 0.48,0.38 0.56,0.40 stroke #6a5a40 0.45 width 1
+bezier 0.34,0.58 0.42,0.56 0.52,0.58 0.60,0.56 stroke #6a5a40 0.4 width 1
+
+# Small stem peek at base (south side)
+ellipse 0.50,0.82 0.08,0.04 fill #4a3828 0.85
+ellipse 0.50,0.82 0.08,0.04 stroke #2a1808 width 1
+
+# Subtle rim highlight (catches ambient light)
+arc 0.50,0.50 0.30 200 260 stroke #f0e4c4 0.5 width 1

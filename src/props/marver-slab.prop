@@ -12,7 +12,7 @@ clusters_with: blowpipe, gaffer-bench, glass-furnace, workbench
 notes: Flat iron marver plate on a wooden trestle where molten glass is rolled smooth. Polished surface with heat discoloration.
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.15 1.80,0.70 z 0-0.8
+selection rect 0.10,0.15 1.80,0.70
 
 # footprint 1x2: x range 0-2, y range 0-1
 # Top-down: rectangular iron slab on wooden trestle, east-west orientation

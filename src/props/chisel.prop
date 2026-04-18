@@ -12,7 +12,7 @@ clusters_with: hammer, tool-rack, workbench, wedge-iron
 notes: Wood or stone carving chisel — narrow blade with wooden handle
 ---
 # === HITBOX ===
-hitbox rect 0.42,0.14 0.16,0.74 z 0-0.1
+selection rect 0.42,0.14 0.16,0.74
 
 # Handle (wooden top, south end)
 rect 0.40,0.58 0.20,0.28 texfill polyhaven/dark_wood 0.9

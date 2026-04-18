@@ -1,5 +1,5 @@
 name: Fan
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: vanity-table, miniature-portrait, perfume-bottle, silk-scarf
 notes: Ornate folded paper fan on a surface — lady's accessory
 ---
 # === HITBOX ===
-hitbox rect 0.16,0.30 0.68,0.40 z 0-0.05
+selection rect 0.16,0.30 0.68,0.40
 
 # Main fan shape (opened, segmented like pie slice)
 poly 0.50,0.60 0.22,0.32 0.28,0.24 0.38,0.20 0.50,0.18 0.62,0.20 0.72,0.24 0.78,0.32 fill #f0d0c0 0.95

@@ -1,0 +1,83 @@
+name: Fortune Wheel
+category: Decorative
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 5
+placement: floor
+room_types: gambling-den, carnival, tavern-highend
+typical_count: single
+clusters_with: card-table, dice-table, chips-stack
+notes: Large wheel of fortune resting on an easel stand, tilted toward the south (viewer). Face shows foreshortened ellipse with red/gold/green wedges, central hub and pointer at top. Place with a clear viewing lane to the south.
+---
+# === HITBOX ===
+hitbox rect 0.3,0.5 1.4,0.15 z 0-2
+hitbox ellipse 1.0,0.75 0.7,0.4 z 2-5
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: tilted wheel on stand — ellipse shape, wedges partially visible
+
+# === Stand legs (behind/under the wheel) ===
+# Left leg
+poly 0.3,0.5 0.35,0.5 0.45,1.7 0.4,1.7 fill #4a2800 0.6
+poly 0.3,0.5 0.35,0.5 0.45,1.7 0.4,1.7 stroke #2a1400
+# Right leg
+poly 1.65,0.5 1.7,0.5 1.6,1.7 1.55,1.7 fill #4a2800 0.6
+poly 1.65,0.5 1.7,0.5 1.6,1.7 1.55,1.7 stroke #2a1400
+# Cross brace
+rect 0.4,1.35 1.2,0.06 fill #4a2800 0.5
+rect 0.4,1.35 1.2,0.06 stroke #2a1400
+
+# === Back support leg (easel kickstand, angled away from viewer) ===
+poly 0.95,0.55 1.05,0.55 1.04,1.35 0.96,1.35 fill #3a2000 0.55
+poly 0.95,0.55 1.05,0.55 1.04,1.35 0.96,1.35 stroke #1a0a00
+
+# === Wheel face (resting on the easel, tilted toward viewer) ===
+# Outer dark wood rim (slightly bigger than the wheel face)
+ellipse 1.0,0.95 0.68,0.37 texfill polyhaven/dark_wood 0.9
+ellipse 1.0,0.95 0.68,0.37 stroke #2a1400 width 2
+
+# Inner bevel ring
+ellipse 1.0,0.95 0.64,0.345 stroke #5c3a1e width 1
+
+# Main wheel face (cream background)
+ellipse 1.0,0.95 0.62,0.33 fill #e8dcc8 0.95
+ellipse 1.0,0.95 0.62,0.33 stroke #2a1400 width 1
+
+# === 12 colored wedges (red / gold / green cycle) ===
+# Edge points at 30° intervals on ellipse (cx=1.0, cy=0.95, rx=0.62, ry=0.33)
+poly 1.0,0.95 1.62,0.95 1.537,0.785 fill #8b0000 0.88
+poly 1.0,0.95 1.537,0.785 1.31,0.664 fill #daa520 0.88
+poly 1.0,0.95 1.31,0.664 1.0,0.62 fill #2d6b3a 0.88
+poly 1.0,0.95 1.0,0.62 0.69,0.664 fill #8b0000 0.88
+poly 1.0,0.95 0.69,0.664 0.463,0.785 fill #daa520 0.88
+poly 1.0,0.95 0.463,0.785 0.38,0.95 fill #2d6b3a 0.88
+poly 1.0,0.95 0.38,0.95 0.463,1.115 fill #8b0000 0.88
+poly 1.0,0.95 0.463,1.115 0.69,1.236 fill #daa520 0.88
+poly 1.0,0.95 0.69,1.236 1.0,1.28 fill #2d6b3a 0.88
+poly 1.0,0.95 1.0,1.28 1.31,1.236 fill #8b0000 0.88
+poly 1.0,0.95 1.31,1.236 1.537,1.115 fill #daa520 0.88
+poly 1.0,0.95 1.537,1.115 1.62,0.95 fill #2d6b3a 0.88
+
+# === Radial spoke dividers (between wedges) ===
+line 1.0,0.95 1.62,0.95 stroke #1a1008 width 1
+line 1.0,0.95 1.537,0.785 stroke #1a1008 width 1
+line 1.0,0.95 1.31,0.664 stroke #1a1008 width 1
+line 1.0,0.95 1.0,0.62 stroke #1a1008 width 1
+line 1.0,0.95 0.69,0.664 stroke #1a1008 width 1
+line 1.0,0.95 0.463,0.785 stroke #1a1008 width 1
+line 1.0,0.95 0.38,0.95 stroke #1a1008 width 1
+line 1.0,0.95 0.463,1.115 stroke #1a1008 width 1
+line 1.0,0.95 0.69,1.236 stroke #1a1008 width 1
+line 1.0,0.95 1.0,1.28 stroke #1a1008 width 1
+line 1.0,0.95 1.31,1.236 stroke #1a1008 width 1
+line 1.0,0.95 1.537,1.115 stroke #1a1008 width 1
+
+# === Central hub (brass) ===
+circle 1.0,0.95 0.09 fill #daa520 0.95
+circle 1.0,0.95 0.09 stroke #5a3a00 width 2
+circle 1.0,0.95 0.04 fill #ffd700 0.95
+
+# === Pointer/ticker at top (12 o'clock — between top wedge and bevel) ===
+poly 0.96,0.58 1.04,0.58 1.00,0.68 fill #8b0000 0.95
+poly 0.96,0.58 1.04,0.58 1.00,0.68 stroke #2a0000 width 1

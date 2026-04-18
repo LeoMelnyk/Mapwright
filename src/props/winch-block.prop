@@ -1,0 +1,62 @@
+name: Winch Block
+category: Structure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: dock-warehouse, warehouse, loading-bay, barn-loft, mine-shaft-entrance, ship
+typical_count: few
+clusters_with: cargo-scale, crate-stack, rope-coil, winch-large, winch-mechanism
+notes: Overhead rope pulley hanging from a ceiling beam — seen from directly below. Pulley wheel cross-section visible with rope threaded through and dangling down.
+---
+# footprint 1x1: x 0-1, y 0-1. Overhead pulley — shadow: no (suspended).
+
+# Faint drop-shadow hint on floor (diffuse)
+circle 0.50,0.50 0.30 fill #1a0a00 0.10
+
+# Beam cross-section (wooden overhead beam, running east-west, top-down it's a horizontal strip)
+rect 0.10,0.40 0.80,0.20 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.40 0.80,0.20 stroke #2a1400
+# Beam iron strap (where pulley mounts)
+rect 0.38,0.40 0.24,0.20 fill #444444 0.8
+rect 0.38,0.40 0.24,0.20 stroke #222222
+
+# Pulley housing cheek plates (circle from below)
+circle 0.50,0.50 0.22 fill #5c3a1e 0.95
+circle 0.50,0.50 0.22 stroke #2a1400 width 2
+# Inner groove
+circle 0.50,0.50 0.18 fill #4a2800 0.9
+circle 0.50,0.50 0.18 stroke #2a1400
+
+# Pulley wheel rim (dark metal visible through housing gap)
+circle 0.50,0.50 0.14 fill #333333 0.95
+circle 0.50,0.50 0.14 stroke #1a1a1a
+
+# Axle pin (center)
+circle 0.50,0.50 0.04 fill #666666 0.95
+circle 0.50,0.50 0.04 stroke #222222
+
+# Mounting hook (iron hook threading into beam from above)
+rect 0.47,0.30 0.06,0.12 fill #555555 0.9
+rect 0.47,0.30 0.06,0.12 stroke #222222
+
+# Rope entering the pulley from the north (from beam)
+line 0.50,0.28 0.50,0.42 stroke #8b7355 width 3
+line 0.50,0.28 0.50,0.42 stroke #5c4a32 0.7 width 1
+
+# Rope exiting south, dangling down
+line 0.44,0.58 0.38,0.82 stroke #8b7355 width 3
+line 0.44,0.58 0.38,0.82 stroke #5c4a32 0.7 width 1
+line 0.56,0.58 0.58,0.82 stroke #8b7355 width 3
+line 0.56,0.58 0.58,0.82 stroke #5c4a32 0.7 width 1
+
+# Rope end knot / grip at bottom
+circle 0.38,0.84 0.04 fill #8b7355 0.95
+circle 0.38,0.84 0.04 stroke #3a2010
+circle 0.58,0.84 0.04 fill #8b7355 0.95
+circle 0.58,0.84 0.04 stroke #3a2010
+
+# Small iron hook dangling from one rope end (cargo hook)
+poly 0.36,0.88 0.40,0.92 0.38,0.94 0.34,0.92 fill #555555 0.9
+poly 0.36,0.88 0.40,0.92 0.38,0.94 0.34,0.92 stroke #222222

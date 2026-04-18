@@ -1,5 +1,5 @@
 name: Skull on Stick
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: yes
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: bone-totem-small, torch-totem, skull-small, animal-skull, bone-ma
 notes: Wooden stake impaling a skull — crude warning marker. Skull faces south (snout points at approaching intruder).
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.18 z 0-1.5
+selection circle 0.5,0.5 0.18
 
 # Dried blood stain at base of stake (ground pooling)
 ellipse 0.50,0.88 0.18,0.06 fill #3a1008 0.7

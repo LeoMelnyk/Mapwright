@@ -1,0 +1,13 @@
+{
+  "displayName": "Ember",
+  "category": "Fire & Flame",
+  "description": "The dim red-orange glow of hot metal, embers, or glowing coals",
+  "type": "point",
+  "color": "#ff5020",
+  "radius": 5,
+  "dimRadius": 10,
+  "intensity": 0.4,
+  "falloff": "smooth",
+  "z": 1,
+  "animation": { "type": "pulse", "speed": 0.6, "amplitude": 0.2, "radiusVariation": 0 }
+}

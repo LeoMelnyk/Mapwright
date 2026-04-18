@@ -12,7 +12,7 @@ clusters_with: spyglass, chart-rolled, inkwell, quill, desk
 notes: Thick bound journal — captain's or keeper's log book lying open
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.22 0.72,0.56 z 0-0.25
+selection rect 0.14,0.22 0.72,0.56
 
 # Left page (open book — flat white)
 rect 0.16,0.24 0.34,0.50 fill #e8dcc8 0.95

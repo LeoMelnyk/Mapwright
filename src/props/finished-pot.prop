@@ -12,7 +12,7 @@ clusters_with: clay-lump, clay-bin, shelf-bare, display-case
 notes: Completed glazed pottery vessel displayed upright — blue-green glaze with gold band
 ---
 # === HITBOX ===
-hitbox circle 0.50,0.50 0.36 z 0-0.6
+selection circle 0.50,0.50 0.36
 # Outer rim ring (widest) — glazed blue
 circle 0.50,0.50 0.38 fill #4a7090 0.95
 circle 0.50,0.50 0.38 stroke #2a4060

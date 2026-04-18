@@ -1,0 +1,62 @@
+name: Crystal Pillar
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 4
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"color":"#88ddff","intensity":0.7,"radius":6}]
+placement: corner
+room_types: crystal-grotto, wizard-sanctum, elemental-earth-node, demiplane-laboratory, underdark-outpost, astral-anchor
+typical_count: few
+clusters_with: crystal-cluster, crystal-shard, pillar, pillar-marble
+notes: Tall crystal column pillar — top-down cross-section (NOT a vertical shaft). Radial facets emanate from a bright center. Place at room corners or flanking a path.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-4
+
+# Outer cyan halo (presence in the air)
+circle 0.5,0.5 0.48 gradient-radial #66bbdd #0a1828 0.4
+# Soft glow ring
+circle 0.5,0.5 0.42 fill #5599cc 0.22
+
+# === Outer shaft cross-section (hexagonal crystal column seen from above) ===
+poly 0.50,0.12 0.83,0.30 0.83,0.70 0.50,0.88 0.17,0.70 0.17,0.30 fill #4488bb 0.75
+poly 0.50,0.12 0.83,0.30 0.83,0.70 0.50,0.88 0.17,0.70 0.17,0.30 stroke #224466 width 2
+
+# === Radial facets (six triangular wedges meeting at the apex) ===
+# NE facet (lit — catches sky light)
+poly 0.50,0.12 0.83,0.30 0.50,0.50 fill #88ccee 0.7
+# E facet
+poly 0.83,0.30 0.83,0.70 0.50,0.50 fill #66aadd 0.65
+# SE facet (darkest)
+poly 0.83,0.70 0.50,0.88 0.50,0.50 fill #3366aa 0.55
+# SW facet
+poly 0.50,0.88 0.17,0.70 0.50,0.50 fill #4477bb 0.55
+# W facet
+poly 0.17,0.70 0.17,0.30 0.50,0.50 fill #5588bb 0.6
+# NW facet (lit)
+poly 0.17,0.30 0.50,0.12 0.50,0.50 fill #77bbdd 0.7
+
+# === Facet ridge lines (sharp edges from each outer vertex to apex) ===
+line 0.50,0.12 0.50,0.50 stroke #bbddff width 2
+line 0.83,0.30 0.50,0.50 stroke #aaccee width 1
+line 0.83,0.70 0.50,0.50 stroke #335577 width 1
+line 0.50,0.88 0.50,0.50 stroke #224466 width 1
+line 0.17,0.70 0.50,0.50 stroke #446688 width 1
+line 0.17,0.30 0.50,0.50 stroke #aaccee width 1
+
+# === Inner rune etchings on the shaft (subtle) ===
+line 0.44,0.28 0.56,0.28 stroke #bbddff 0.6 width 1
+line 0.70,0.48 0.78,0.52 stroke #bbddff 0.5 width 1
+line 0.22,0.50 0.30,0.46 stroke #bbddff 0.5 width 1
+line 0.44,0.72 0.56,0.72 stroke #bbddff 0.45 width 1
+
+# === Apex highlight — hottest point (the tip catching light) ===
+circle 0.50,0.50 0.08 fill #ccefff 0.85
+circle 0.50,0.50 0.05 fill #ffffff 0.95
+circle 0.50,0.50 0.02 fill #ffffff 1.0
+
+# Prismatic glints radiating from apex
+line 0.50,0.50 0.56,0.44 stroke #ccffcc 0.6 width 1
+line 0.50,0.50 0.44,0.56 stroke #ffccff 0.6 width 1

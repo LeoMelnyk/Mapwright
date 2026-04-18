@@ -1,5 +1,5 @@
 name: Miniature Portrait
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: small-table, writing-desk-small, letter-stack, vanity-table
 notes: Small framed portrait on a desk — cameo-style painted likeness
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.20 0.56,0.60 z 0-0.2
+selection rect 0.22,0.20 0.56,0.60
 
 # Ornate gilt frame (oval)
 ellipse 0.5,0.48 0.28,0.30 fill #daa520 0.95

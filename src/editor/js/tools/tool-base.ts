@@ -29,14 +29,36 @@ export class Tool {
 
   onActivate(): void {}
   onDeactivate(): void {}
-  onMouseDown(_row: number, _col: number, _edge: EdgeInfo | null, _event: MouseEvent | null, _pos: CanvasPos | null): void {}
-  onMouseMove(_row: number, _col: number, _edge: EdgeInfo | null, _event: MouseEvent | null, _pos: CanvasPos | null): void {}
-  onMouseUp(_row: number, _col: number, _edge: EdgeInfo | null, _event: MouseEvent | null, _pos?: CanvasPos | null): void {}
+  onMouseDown(
+    _row: number,
+    _col: number,
+    _edge: EdgeInfo | null,
+    _event: MouseEvent | null,
+    _pos: CanvasPos | null,
+  ): void {}
+  onMouseMove(
+    _row: number,
+    _col: number,
+    _edge: EdgeInfo | null,
+    _event: MouseEvent | null,
+    _pos: CanvasPos | null,
+  ): void {}
+  onMouseUp(
+    _row: number,
+    _col: number,
+    _edge: EdgeInfo | null,
+    _event: MouseEvent | null,
+    _pos?: CanvasPos | null,
+  ): void {}
   onKeyDown(_event: KeyboardEvent): void {}
   onKeyUp(_event: KeyboardEvent): void {}
   onWheel(_row: number, _col: number, _deltaY: number, _event: WheelEvent): void {}
-  onRightClick(_row: number, _col: number, _edge: EdgeInfo | null, _event: MouseEvent): void {}
-  onCancel(): boolean { return false; }
-  getCursor(): string { return this.cursor; }
+  onRightClick(_row: number, _col: number, _edge: EdgeInfo | null, _event: MouseEvent, _pos?: CanvasPos | null): void {}
+  onCancel(): boolean {
+    return false;
+  }
+  getCursor(): string {
+    return this.cursor;
+  }
   renderOverlay(_ctx: CanvasRenderingContext2D, _transform: RenderTransform, _gridSize: number): void {}
 }

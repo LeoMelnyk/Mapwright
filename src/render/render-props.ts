@@ -20,6 +20,7 @@ import type {
 import { toCanvas } from './bounds.js';
 import { warn } from './warnings.js';
 import { parseHexColor, scaleFactor, flipCommand, transformCommand, isGradient } from './parse-props.js';
+import { log } from '../util/index.js';
 
 // ── Prop Tile Cache ──────────────────────────────────────────────────────────
 // Pre-renders each unique {type, facing, flipped} combination to an OffscreenCanvas
@@ -45,6 +46,7 @@ export function invalidatePropsCache(): void {
   _propTileCache.clear();
   _propsRenderLayer = null;
   _propsVersion++;
+  log.dev(`invalidatePropsCache() — tile bitmaps + render layer cleared → propsVersion ${_propsVersion}`);
 }
 /**
  * Clear only the full-map render layer. Use when props are moved/added/removed (tiles are still valid).
@@ -53,6 +55,7 @@ export function invalidatePropsCache(): void {
 export function invalidatePropsRenderLayer(): void {
   _propsRenderLayer = null;
   _propsVersion++;
+  log.dev(`invalidatePropsRenderLayer() — render layer only → propsVersion ${_propsVersion}`);
 }
 /**
  * Get the current props cache version counter.

@@ -1,0 +1,96 @@
+name: Summoning Pool (Glowing)
+category: Magical
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+lights: [{"preset":"infernal-flame","x":1.0,"y":1.0,"color":"#ff4400","intensity":0.9,"radius":8}]
+placement: center
+room_types: boss-chamber, ritual-chamber-dark, hell-gate, dark-temple, fiend-lair, corrupted-temple
+typical_count: single
+clusters_with: ritual-circle, magic-sigil-floor, altar, bone-pile, skull-offering, statue-dark-god
+notes: Glowing ritual pool — molten magma-red surface radiating infernal heat. Place at boss room center or as summoning focus.
+---
+# Flat fluid pool — no shadow, no blocking
+
+# === Outer radiant heat halo ===
+circle 1.0,1.0 0.98 gradient-radial #ff4400 #1a0000 0.5
+# Mid heat glow
+circle 1.0,1.0 0.84 fill #cc2200 0.25
+circle 1.0,1.0 0.74 fill #ff4400 0.3
+
+# === Dark stone rim (containing the pool) ===
+ring 1.0,1.0 0.94 0.82 fill #1a0a08 0.88
+ring 1.0,1.0 0.94 0.82 stroke #0a0404 width 2
+
+# Rim char marks (burned blackened stone)
+arc 1.0,1.0 0.88 15 45 stroke #0a0000 0.8 width 2
+arc 1.0,1.0 0.88 75 105 stroke #0a0000 0.8 width 2
+arc 1.0,1.0 0.88 135 165 stroke #0a0000 0.8 width 2
+arc 1.0,1.0 0.88 195 225 stroke #0a0000 0.8 width 2
+arc 1.0,1.0 0.88 255 285 stroke #0a0000 0.8 width 2
+arc 1.0,1.0 0.88 315 345 stroke #0a0000 0.8 width 2
+
+# === Molten pool surface (layered hot concentric rings) ===
+# Outer molten surface (darker red)
+circle 1.0,1.0 0.80 fill #4a0000 0.95
+circle 1.0,1.0 0.80 stroke #2a0000 width 1
+
+# Mid layer (fiery red)
+circle 1.0,1.0 0.66 fill #8b1010 0.85
+# Cracked crust pattern (darker veins between layers)
+bezier 0.50,0.80 0.68,0.88 0.84,0.72 0.90,0.60 stroke #2a0000 0.8 width 2
+bezier 1.50,0.80 1.32,0.88 1.16,0.72 1.10,0.60 stroke #2a0000 0.7 width 2
+bezier 0.50,1.20 0.68,1.12 0.84,1.28 0.90,1.40 stroke #2a0000 0.7 width 2
+bezier 1.50,1.20 1.32,1.12 1.16,1.28 1.10,1.40 stroke #2a0000 0.7 width 2
+
+# Bright molten (orange-red)
+circle 1.0,1.0 0.54 fill #cc2200 0.85
+# Hotter (orange)
+circle 1.0,1.0 0.40 fill #ff4400 0.85
+# Even hotter (bright orange)
+circle 1.0,1.0 0.28 fill #ff7700 0.9
+# Yellow-hot
+circle 1.0,1.0 0.18 fill #ffaa00 0.92
+# White-hot core
+circle 1.0,1.0 0.10 fill #ffdd66 0.95
+circle 1.0,1.0 0.05 fill #ffffcc 1.0
+
+# === Runic sigils inscribed on the rim (glowing red) ===
+line 1.00,0.10 1.00,0.22 stroke #ff6633 0.9 width 2
+line 0.96,0.14 1.04,0.14 stroke #ff6633 0.8 width 2
+
+line 1.90,1.00 1.78,1.00 stroke #ff6633 0.9 width 2
+line 1.86,0.96 1.86,1.04 stroke #ff6633 0.8 width 2
+
+line 1.00,1.90 1.00,1.78 stroke #ff6633 0.9 width 2
+line 0.96,1.86 1.04,1.86 stroke #ff6633 0.8 width 2
+
+line 0.10,1.00 0.22,1.00 stroke #ff6633 0.9 width 2
+line 0.14,0.96 0.14,1.04 stroke #ff6633 0.8 width 2
+
+# === Rising steam / heat wisps (curling vapor) ===
+bezier 0.70,0.70 0.62,0.56 0.64,0.44 0.58,0.32 stroke #ff8844 0.4 width 2
+bezier 1.30,0.70 1.38,0.56 1.36,0.44 1.42,0.32 stroke #ff8844 0.4 width 2
+bezier 0.72,1.30 0.64,1.44 0.62,1.56 0.56,1.68 stroke #ff8844 0.35 width 2
+bezier 1.28,1.30 1.36,1.44 1.38,1.56 1.44,1.68 stroke #ff8844 0.35 width 2
+
+# === Floating embers / sparks above the pool ===
+circle 0.64,0.44 0.02 fill #ffdd66 0.85
+circle 1.36,0.46 0.018 fill #ffdd66 0.8
+circle 0.58,1.56 0.02 fill #ffdd66 0.85
+circle 1.42,1.58 0.018 fill #ffdd66 0.8
+circle 0.42,0.72 0.015 fill #ffaa44 0.75
+circle 1.58,1.30 0.014 fill #ffaa44 0.7
+circle 0.50,1.40 0.013 fill #ffaa44 0.7
+circle 1.50,0.60 0.013 fill #ffaa44 0.7
+
+# === Tiny infernal glyphs floating in the surface ===
+line 0.80,0.90 0.84,0.94 stroke #1a0000 width 1
+line 1.20,0.88 1.16,0.92 stroke #1a0000 width 1
+line 0.82,1.12 0.88,1.08 stroke #1a0000 width 1
+line 1.18,1.14 1.14,1.10 stroke #1a0000 width 1
+
+# Hottest glint at the very center (white-hot portal eye)
+circle 1.0,1.0 0.03 fill #ffffff 1.0

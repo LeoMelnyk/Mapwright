@@ -1,5 +1,5 @@
 name: Bone Marker
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: cairn-sacred, feather-bundle, standing-stone, prayer-stone, skull
 notes: Upright bone driven into ground as a territorial or sacred marker
 ---
 # === HITBOX ===
-hitbox rect 0.36,0.16 0.28,0.68 z 0-0.6
+selection rect 0.36,0.16 0.28,0.68
 
 # Ground base (dirt mound the bone is driven into)
 ellipse 0.50,0.78 0.20,0.08 fill #3a2418 0.9

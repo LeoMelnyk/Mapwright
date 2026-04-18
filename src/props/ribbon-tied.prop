@@ -1,5 +1,5 @@
 name: Prayer Ribbons
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: prayer-stone, shrine-stone, feather-bundle, coin-offering, cairn-
 notes: Short branch or stick with several colored prayer ribbons knotted on, ends trailing in the wind
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.30 0.80,0.40 z 0-0.2
+selection rect 0.10,0.30 0.80,0.40
 
 # Anchor branch (short crooked stick laid diagonally across cell)
 bezier 0.18,0.52 0.34,0.46 0.62,0.56 0.82,0.50 stroke #3a2010 width 4

@@ -10,9 +10,10 @@ room_types: noble-bedchamber, opium-den, throne-room, shrine, temple-nave, dark-
 typical_count: few
 clusters_with: altar, prayer-bench, censer, low-table
 notes: Ornate brass incense burner emitting curling smoke
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":2,"color":"#ff8040","intensity":0.2}]
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.52 0.22 z 0-0.6
+selection circle 0.5,0.52 0.22
 
 # Drop shadow
 circle 0.5,0.56 0.24 fill #1a1008 0.35

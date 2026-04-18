@@ -12,7 +12,7 @@ clusters_with: cutting-table, sewing-bench, thimble, scissors-shears
 notes: Small glass jar of assorted buttons; place on tables, shelves, or work benches
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.26 z 0-0.5
+selection circle 0.5,0.5 0.26
 
 # Jar glass body (outer circle, transparent blue tint)
 circle 0.5,0.5 0.26 fill #c8dce8 0.45

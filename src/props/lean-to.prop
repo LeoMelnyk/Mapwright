@@ -1,0 +1,73 @@
+name: Lean-To
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.0
+placement: floor
+room_types: ranger-camp, scouts-blind, campsite-traveler, wilderness, charcoal-burner-camp
+typical_count: single
+clusters_with: bedroll, campfire-stone, firewood-stack, ration-pack
+notes: Simple wooden lean-to shelter. Single slanted roof of logs slanting from high ridge at north down to low edge at south. Open facing south.
+---
+# footprint 2x2: x 0-2, y 0-2
+# === HITBOX — the solid shelter structure ===
+hitbox rect 0.16,0.14 1.68,1.30 z 0-2.0
+
+# Ground shadow around shelter
+ellipse 1.00,1.20 0.92,0.82 fill #2a1a0a 0.15
+
+# === Ridge pole (horizontal log at the top — north) ===
+rect 0.12,0.14 1.76,0.14 texfill polyhaven/bark_brown_02 0.85
+rect 0.12,0.14 1.76,0.14 stroke #2a1400 width 2
+
+# === Roof surface — slanted logs/planks running north-to-south ===
+# Base roof panel
+poly 0.16,0.28 1.84,0.28 1.84,1.44 0.16,1.44 texfill polyhaven/bark_brown_02 0.8
+poly 0.16,0.28 1.84,0.28 1.84,1.44 0.16,1.44 fill #5c3a1e 0.35
+poly 0.16,0.28 1.84,0.28 1.84,1.44 0.16,1.44 stroke #2a1400 width 2
+
+# === Individual log / plank lines running from ridge down ===
+line 0.30,0.28 0.30,1.44 stroke #2a1400 0.7 width 1
+line 0.50,0.28 0.50,1.44 stroke #2a1400 0.6 width 1
+line 0.70,0.28 0.70,1.44 stroke #2a1400 0.7 width 1
+line 0.90,0.28 0.90,1.44 stroke #2a1400 0.6 width 1
+line 1.10,0.28 1.10,1.44 stroke #2a1400 0.7 width 1
+line 1.30,0.28 1.30,1.44 stroke #2a1400 0.6 width 1
+line 1.50,0.28 1.50,1.44 stroke #2a1400 0.7 width 1
+line 1.70,0.28 1.70,1.44 stroke #2a1400 0.6 width 1
+
+# === Horizontal lashing ropes binding the logs ===
+line 0.16,0.60 1.84,0.60 stroke #8b7355 0.7 width 1
+line 0.16,0.60 1.84,0.60 stroke #5c3a1e 0.5 width 1
+line 0.16,1.00 1.84,1.00 stroke #8b7355 0.7 width 1
+line 0.16,1.00 1.84,1.00 stroke #5c3a1e 0.5 width 1
+line 0.16,1.36 1.84,1.36 stroke #8b7355 0.7 width 1
+line 0.16,1.36 1.84,1.36 stroke #5c3a1e 0.5 width 1
+
+# === Support posts (west and east corner uprights) ===
+rect 0.12,1.36 0.10,0.12 fill #3a1f00 0.9
+rect 0.12,1.36 0.10,0.12 stroke #1a0a00
+rect 1.78,1.36 0.10,0.12 fill #3a1f00 0.9
+rect 1.78,1.36 0.10,0.12 stroke #1a0a00
+
+# === Brush/leaves piled on roof for weatherproofing ===
+ellipse 0.40,0.80 0.12,0.06 fill #3a5020 0.35
+ellipse 1.20,0.60 0.14,0.07 fill #2a4018 0.35
+ellipse 0.80,1.10 0.11,0.06 fill #3a5020 0.3
+ellipse 1.50,1.20 0.10,0.06 fill #2a4018 0.3
+ellipse 1.00,0.40 0.08,0.04 fill #3a5020 0.35
+
+# === Dark interior visible under the shelter edge at south ===
+rect 0.20,1.44 1.60,0.20 fill #1a0a00 0.6
+
+# === Ground debris in/around opening ===
+circle 0.40,1.72 0.02 fill #3a1f00 0.5
+circle 1.10,1.75 0.025 fill #3a1f00 0.5
+circle 1.60,1.70 0.02 fill #2a4018 0.45
+circle 0.80,1.80 0.018 fill #3a1f00 0.45
+
+# === Small pile of pine needles at south edge ===
+line 1.30,1.60 1.38,1.68 stroke #3a5020 0.6 width 1
+line 1.32,1.62 1.42,1.65 stroke #2a4018 0.6 width 1

@@ -12,7 +12,7 @@ clusters_with: tanning-rack, tanning-vat, hide-scraps, leather-stack, bucket
 notes: Fleshing beam — long curved wooden beam for scraping hides. Place with long axis along a wall; the draped hide end points south toward the worker
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.10 0.60,1.80 z 0-1.0
+selection rect 0.20,0.10 0.60,1.80
 
 # Main wooden beam body (tall rectangle, slightly rounded via inset corners)
 rect 0.22,0.10 0.56,1.80 texfill polyhaven/weathered_planks 0.9

@@ -10,13 +10,7 @@ room_types: elemental-fire-node, genie-court, volcano-caldera
 typical_count: single
 clusters_with: fire-node-core, flame-pillar, lava-fountain
 notes: Huge ornate brazier with brass filigree and raging orange flames. Top-down shows the brass rim and central flame; efreeti silhouettes carved into the outer band.
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 18
-    color: "#ff7030"
-    intensity: 1.0
+lights: [{"preset":"brazier","x":1,"y":1,"radius":18,"intensity":1,"color":"#ff7030"}]
 ---
 # Outer heat halo
 circle 1.0,1.0 0.95 gradient-radial #ff6030 #1a0800 0.35

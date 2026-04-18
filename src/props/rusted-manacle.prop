@@ -1,5 +1,5 @@
 name: Rusted Manacle
-category: Prison & Torture
+category: Prison
 footprint: 1x1
 facing: yes
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: shackles, chain-coil, bars-cell-partition, chain-heavy
 notes: Single iron wrist cuff with short chain to the wall; place along a wall
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.52 0.14 z 0-0.2
+selection circle 0.5,0.52 0.14
 
 # Wall anchor plate (north, wall-side)
 rect 0.38,0.08 0.24,0.08 fill #555555 0.9

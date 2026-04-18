@@ -1,5 +1,5 @@
 name: Tripwire
-category: Trap
+category: Traps
 footprint: 1x2
 facing: yes
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: spike-pit-hidden, cave-mouth-small, broken-arrow, bone-marker
 notes: Thin cord stretched between two small stakes, with tied bones or bells hanging as an alarm. Runs east-west across a passage. Low to the ground — easy to miss.
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.42 1.80,0.16 z 0-0.2
+selection rect 0.10,0.42 1.80,0.16
 
 # West stake (driven into ground)
 rect 0.08,0.42 0.08,0.16 texfill polyhaven/dark_wood 0.9

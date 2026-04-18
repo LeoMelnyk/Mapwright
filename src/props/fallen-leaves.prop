@@ -12,7 +12,7 @@ clusters_with: fallen-leaves, tree, dead-tree, withered-flowers, rubble-pile
 notes: Scatter of autumn leaves; carpet floor or pile in corners
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.10 0.84,0.80 z 0-0.05
+selection rect 0.08,0.10 0.84,0.80
 
 # Leaf 1 (oak, red)
 poly 0.18,0.22 0.24,0.18 0.28,0.24 0.26,0.30 0.20,0.28 fill #a03020 0.85

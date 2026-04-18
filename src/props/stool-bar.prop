@@ -1,0 +1,50 @@
+name: Bar Stool
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: yes
+height: 3
+placement: floor
+room_types: tavern-common, tavern-highend, inn-common-room, brewery, gambling-den, bar-counter
+typical_count: few
+clusters_with: bar-counter, table-round, table-long, tankard
+notes: Tall four-legged bar stool — smaller seat than regular stool, longer leg shadows.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.24 z 0-3
+
+# footprint 1x1
+# Long leg shadows (4 legs splayed outward — tall stool so shadows stretch further)
+rect 0.18,0.12 0.05,0.22 fill #000000 0.22
+rect 0.77,0.12 0.05,0.22 fill #000000 0.22
+rect 0.18,0.66 0.05,0.22 fill #000000 0.22
+rect 0.77,0.66 0.05,0.22 fill #000000 0.22
+
+# Cross-brace footrest ring (visible as thin dark ring peeking out)
+circle 0.5,0.5 0.34 stroke #2a1400 0.5 width 1
+
+# Round wooden seat (slightly smaller than regular stool)
+circle 0.5,0.5 0.24 texfill polyhaven/dark_wood 0.9
+circle 0.5,0.5 0.24 stroke #2a1400 width 2
+
+# Upholstered leather pad (seat cushion)
+circle 0.5,0.5 0.20 fill #5c3a1e 0.95
+circle 0.5,0.5 0.20 texfill polyhaven/brown_leather 0.65
+circle 0.5,0.5 0.20 stroke #2a1400 width 1
+
+# Brass tack studs around pad
+circle 0.50,0.32 0.015 fill #daa520 0.9
+circle 0.64,0.38 0.015 fill #daa520 0.9
+circle 0.68,0.50 0.015 fill #daa520 0.9
+circle 0.64,0.62 0.015 fill #daa520 0.9
+circle 0.50,0.68 0.015 fill #daa520 0.9
+circle 0.36,0.62 0.015 fill #daa520 0.9
+circle 0.32,0.50 0.015 fill #daa520 0.9
+circle 0.36,0.38 0.015 fill #daa520 0.9
+
+# Center tuft button
+circle 0.5,0.5 0.025 fill #3a1f00 0.9
+
+# Seat edge highlight (rim catch)
+arc 0.5,0.5 0.23 220 320 stroke #8b7355 0.3 width 1

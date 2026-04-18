@@ -12,7 +12,7 @@ clusters_with: web-strand, chitin-barrier, glowcap-mushroom, nest-of-rags, dust-
 notes: Sticky spider web strands on the floor — difficult terrain hazard
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.10 0.80,0.80 z 0-0.05
+selection rect 0.10,0.10 0.80,0.80
 
 # Main web strands radiating from center (spoke pattern)
 line 0.5,0.5 0.10,0.10 stroke #e8e8e8 0.85 width 1

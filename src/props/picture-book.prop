@@ -12,7 +12,7 @@ clusters_with: cradle, tiny-chair, children-toys, building-blocks, dollhouse
 notes: Large illustrated children's book lying open on the floor with a simple painted scene on one page
 ---
 # === HITBOX ===
-hitbox rect 0.02,0.16 0.96,0.68 z 0-0.08
+selection rect 0.02,0.16 0.96,0.68
 
 # Cover edges peeking out behind pages (wider than pages themselves)
 rect 0.02,0.16 0.46,0.68 fill #c84870 0.85

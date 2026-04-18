@@ -12,7 +12,7 @@ clusters_with: jar, jug, pantry-shelf, bar-counter
 notes: Glass/ceramic bottle seen from above — round shoulder with smaller neck ring and wooden stopper
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-0.9
+selection circle 0.5,0.5 0.30
 
 # Wide shoulder ring (bottom of bottle viewed from above — base disk)
 circle 0.5,0.5 0.30 fill #3a5848 0.35

@@ -12,7 +12,7 @@ clusters_with: sewing-basket, yarn-basket, rocking-chair, thread-spool
 notes: Wooden embroidery hoop with stretched fabric and floral design
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-0.15
+selection circle 0.5,0.5 0.28
 
 # Outer wooden hoop
 ring 0.5,0.5 0.28 0.22 fill #8b6914 0.92

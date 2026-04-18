@@ -1,0 +1,138 @@
+name: Loom Altar
+category: Religious
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: temple-of-craft, shrine-weaver, shrine-artisan
+typical_count: single
+clusters_with: forge-altar, candle-cluster, offering-bowl, basket-wool, bolt-cloth
+notes: Ceremonial loom with sacred woven cloth in mid-production — floor loom shown top-down, warp threads stretched between beams, weft cloth emerging on one side. Centerpiece of a weaver's shrine.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-3
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: rectangular wooden loom frame with crossbeams, warp threads taut between, sacred cloth partly woven, offerings at corners
+
+# === Stone pedestal base (low plinth beneath the loom) ===
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/granite_tile 0.8
+rect 0.08,0.08 1.84,1.84 fill #4a4238 0.25
+rect 0.08,0.08 1.84,1.84 stroke #2a2420 width 2
+
+# Inset darker base
+rect 0.16,0.16 1.68,1.68 fill #3a342c 0.3
+rect 0.16,0.16 1.68,1.68 stroke #2a2420
+
+# === Wooden loom frame (rectangular, dark polished wood) ===
+# Outer frame (thick beams on all four sides)
+# North beam (top)
+rect 0.24,0.24 1.52,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.24,0.24 1.52,0.14 stroke #1a0800 width 2
+# South beam (bottom) — the "breast beam" where finished cloth rolls
+rect 0.24,1.62 1.52,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.24,1.62 1.52,0.14 stroke #1a0800 width 2
+# West upright
+rect 0.24,0.24 0.14,1.52 texfill polyhaven/dark_wood 0.9
+rect 0.24,0.24 0.14,1.52 stroke #1a0800 width 2
+# East upright
+rect 1.62,0.24 0.14,1.52 texfill polyhaven/dark_wood 0.9
+rect 1.62,0.24 0.14,1.52 stroke #1a0800 width 2
+
+# === Corner carvings (decorative knobs) ===
+circle 0.31,0.31 0.06 fill #5c3a1e 0.95
+circle 0.31,0.31 0.06 stroke #1a0800
+circle 1.69,0.31 0.06 fill #5c3a1e 0.95
+circle 1.69,0.31 0.06 stroke #1a0800
+circle 0.31,1.69 0.06 fill #5c3a1e 0.95
+circle 0.31,1.69 0.06 stroke #1a0800
+circle 1.69,1.69 0.06 fill #5c3a1e 0.95
+circle 1.69,1.69 0.06 stroke #1a0800
+
+# === Warp threads (vertical strings stretched N-S across the frame) ===
+line 0.46,0.38 0.46,1.62 stroke #e8dcc8 0.9 width 1
+line 0.54,0.38 0.54,1.62 stroke #d4c4a8 0.9 width 1
+line 0.62,0.38 0.62,1.62 stroke #e8dcc8 0.85 width 1
+line 0.70,0.38 0.70,1.62 stroke #d4c4a8 0.9 width 1
+line 0.78,0.38 0.78,1.62 stroke #e8dcc8 0.85 width 1
+line 0.86,0.38 0.86,1.62 stroke #d4c4a8 0.9 width 1
+line 0.94,0.38 0.94,1.62 stroke #e8dcc8 0.9 width 1
+line 1.02,0.38 1.02,1.62 stroke #d4c4a8 0.9 width 1
+line 1.10,0.38 1.10,1.62 stroke #e8dcc8 0.9 width 1
+line 1.18,0.38 1.18,1.62 stroke #d4c4a8 0.85 width 1
+line 1.26,0.38 1.26,1.62 stroke #e8dcc8 0.9 width 1
+line 1.34,0.38 1.34,1.62 stroke #d4c4a8 0.9 width 1
+line 1.42,0.38 1.42,1.62 stroke #e8dcc8 0.85 width 1
+line 1.50,0.38 1.50,1.62 stroke #d4c4a8 0.9 width 1
+
+# === Heddle bar (horizontal crossbeam mid-loom) ===
+rect 0.38,0.94 1.24,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.38,0.94 1.24,0.08 stroke #1a0800
+# Heddle cord loops
+line 0.46,0.94 0.46,1.02 stroke #8b7355 0.8 width 1
+line 0.62,0.94 0.62,1.02 stroke #8b7355 0.8 width 1
+line 0.78,0.94 0.78,1.02 stroke #8b7355 0.8 width 1
+line 0.94,0.94 0.94,1.02 stroke #8b7355 0.8 width 1
+line 1.10,0.94 1.10,1.02 stroke #8b7355 0.8 width 1
+line 1.26,0.94 1.26,1.02 stroke #8b7355 0.8 width 1
+line 1.42,0.94 1.42,1.02 stroke #8b7355 0.8 width 1
+
+# === Sacred cloth in progress (south portion, already woven — rich colors) ===
+rect 0.38,1.30 1.24,0.32 texfill polyhaven/floral_jacquard 0.85
+rect 0.38,1.30 1.24,0.32 fill #6a2030 0.35
+rect 0.38,1.30 1.24,0.32 stroke #3a1000 width 1
+
+# Sacred patterns on cloth (gold thread motifs)
+circle 0.60,1.46 0.035 fill #daa520 0.85
+circle 0.60,1.46 0.035 stroke #5a3a00
+circle 1.00,1.46 0.04 fill #daa520 0.9
+circle 1.00,1.46 0.04 stroke #5a3a00
+# Central sacred sigil
+line 0.98,1.44 1.02,1.48 stroke #5a3a00 width 1
+line 1.02,1.44 0.98,1.48 stroke #5a3a00 width 1
+circle 1.40,1.46 0.035 fill #daa520 0.85
+circle 1.40,1.46 0.035 stroke #5a3a00
+# Gold border lines
+line 0.40,1.34 1.60,1.34 stroke #daa520 0.6 width 1
+line 0.40,1.58 1.60,1.58 stroke #daa520 0.6 width 1
+
+# === Shuttle (small wooden spool) laid on the cloth ===
+rect 0.84,1.22 0.32,0.06 fill #8b6914 0.95
+rect 0.84,1.22 0.32,0.06 texfill polyhaven/dark_wood 0.5
+rect 0.84,1.22 0.32,0.06 stroke #1a0800
+# Shuttle points
+poly 0.84,1.22 0.78,1.25 0.84,1.28 fill #5c3a1e 0.9
+poly 0.84,1.22 0.78,1.25 0.84,1.28 stroke #1a0800
+poly 1.16,1.22 1.22,1.25 1.16,1.28 fill #5c3a1e 0.9
+poly 1.16,1.22 1.22,1.25 1.16,1.28 stroke #1a0800
+# Thread wound around the shuttle
+line 0.90,1.24 1.10,1.24 stroke #e8dcc8 0.85 width 1
+line 0.90,1.26 1.10,1.26 stroke #d4c4a8 0.85 width 1
+
+# === Offering bowls at the four upright corners (inside the pedestal) ===
+# NW offering bowl
+circle 0.20,0.20 0.07 fill #5c3a1e 0.9
+circle 0.20,0.20 0.07 stroke #2a1400
+circle 0.20,0.20 0.05 fill #3a2010 0.95
+# Wool tuft in bowl
+ellipse 0.20,0.20 0.035,0.025 fill #e8dcc8 0.85
+
+# NE offering bowl
+circle 1.80,0.20 0.07 fill #5c3a1e 0.9
+circle 1.80,0.20 0.07 stroke #2a1400
+circle 1.80,0.20 0.05 fill #3a2010 0.95
+ellipse 1.80,0.20 0.035,0.025 fill #d4c4a8 0.85
+
+# SW offering bowl
+circle 0.20,1.80 0.07 fill #5c3a1e 0.9
+circle 0.20,1.80 0.07 stroke #2a1400
+circle 0.20,1.80 0.05 fill #3a2010 0.95
+ellipse 0.20,1.80 0.035,0.025 fill #e8dcc8 0.85
+
+# SE offering bowl
+circle 1.80,1.80 0.07 fill #5c3a1e 0.9
+circle 1.80,1.80 0.07 stroke #2a1400
+circle 1.80,1.80 0.05 fill #3a2010 0.95
+ellipse 1.80,1.80 0.035,0.025 fill #d4c4a8 0.85

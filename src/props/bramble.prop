@@ -1,6 +1,7 @@
 name: Bramble
 category: Terrain
 footprint: 1x1
+padding: 0.1
 facing: no
 shadow: no
 blocks_light: yes

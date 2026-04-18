@@ -1,0 +1,63 @@
+name: Whittled Stick
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: ranger-camp, scouts-blind, campsite-traveler, cabin-trapper, cabin-hunters
+typical_count: single
+clusters_with: whittling-knife, campfire-stone, lean-to, log-seat
+notes: Half-whittled stick lying on the ground with a scatter of wood shavings around it. Someone stopped mid-carving.
+---
+# Ground scatter — no shadow, no light-block
+
+# === Faint ground patch under the activity ===
+ellipse 0.50,0.52 0.34,0.30 fill #3a2810 0.15
+
+# === Main stick — tapered one end (whittled), rough bark other end ===
+# Rough bark end (east) — darker, thicker
+poly 0.64,0.44 0.80,0.42 0.82,0.56 0.66,0.58 fill #4a2800 0.9
+poly 0.64,0.44 0.80,0.42 0.82,0.56 0.66,0.58 texfill polyhaven/bark_brown_02 0.6
+poly 0.64,0.44 0.80,0.42 0.82,0.56 0.66,0.58 stroke #2a1400
+
+# Whittled (peeled) section — lighter wood exposed
+poly 0.20,0.48 0.66,0.46 0.66,0.56 0.22,0.54 fill #c8a878 0.9
+poly 0.20,0.48 0.66,0.46 0.66,0.56 0.22,0.54 stroke #5c3a1e width 1
+
+# Whittled end (tapered to a point, west)
+poly 0.14,0.50 0.22,0.48 0.22,0.54 fill #c8a878 0.95
+poly 0.14,0.50 0.22,0.48 0.22,0.54 stroke #5c3a1e width 1
+
+# Knife marks (facets) along whittled section
+line 0.30,0.48 0.36,0.50 stroke #8a6040 0.6 width 1
+line 0.42,0.48 0.48,0.50 stroke #8a6040 0.6 width 1
+line 0.54,0.48 0.60,0.50 stroke #8a6040 0.6 width 1
+line 0.32,0.54 0.38,0.52 stroke #8a6040 0.5 width 1
+line 0.46,0.54 0.52,0.52 stroke #8a6040 0.5 width 1
+
+# === Wood shavings scattered around ===
+# Curled shaving 1
+bezier 0.28,0.36 0.32,0.30 0.38,0.30 0.40,0.36 stroke #d4b890 0.85 width 2
+bezier 0.28,0.36 0.32,0.30 0.38,0.30 0.40,0.36 stroke #8a6040 0.6 width 1
+# Curled shaving 2
+bezier 0.48,0.32 0.52,0.26 0.58,0.28 0.60,0.34 stroke #c8a878 0.85 width 2
+bezier 0.48,0.32 0.52,0.26 0.58,0.28 0.60,0.34 stroke #8a6040 0.6 width 1
+# Curled shaving 3
+bezier 0.24,0.68 0.30,0.72 0.34,0.70 0.38,0.66 stroke #d4b890 0.85 width 2
+bezier 0.24,0.68 0.30,0.72 0.34,0.70 0.38,0.66 stroke #8a6040 0.6 width 1
+# Curled shaving 4
+bezier 0.52,0.70 0.58,0.74 0.64,0.72 0.66,0.68 stroke #c8a878 0.85 width 2
+bezier 0.52,0.70 0.58,0.74 0.64,0.72 0.66,0.68 stroke #8a6040 0.6 width 1
+# Tiny chip shavings
+poly 0.36,0.64 0.40,0.62 0.42,0.66 0.38,0.66 fill #c8a878 0.85
+poly 0.52,0.38 0.56,0.36 0.58,0.40 0.54,0.40 fill #d4b890 0.8
+poly 0.18,0.42 0.22,0.40 0.24,0.44 0.20,0.44 fill #c8a878 0.8
+poly 0.68,0.66 0.72,0.64 0.74,0.68 0.70,0.68 fill #d4b890 0.8
+
+# === Small dust / sawdust specks ===
+circle 0.32,0.40 0.008 fill #c8a878 0.7
+circle 0.58,0.42 0.008 fill #c8a878 0.6
+circle 0.40,0.70 0.008 fill #c8a878 0.65
+circle 0.68,0.62 0.008 fill #c8a878 0.6

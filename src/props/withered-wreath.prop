@@ -1,5 +1,5 @@
 name: Withered Wreath
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: withered-flowers, candle-guttered, fresh-dirt-mound, skull-small
 notes: Dead circular wreath lying on a grave — brown twisted branches
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.1
+selection circle 0.5,0.5 0.32
 
 # Wreath base (braided brown branches — ring shape)
 ring 0.5,0.5 0.34 0.20 fill #4a3020 0.92

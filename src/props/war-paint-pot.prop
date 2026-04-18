@@ -1,5 +1,5 @@
 name: War Paint Pot
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: chieftains-throne, bonfire, bedroll-hide, skull-trophy
 notes: Small clay pot filled with thick red/black war paint, smudged handprint around rim. Left casually on the ground.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-0.2
+selection circle 0.5,0.5 0.28
 
 # Smudged handprint splatter around pot (red + black mix)
 ellipse 0.22,0.32 0.08,0.06 fill #a02020 0.55

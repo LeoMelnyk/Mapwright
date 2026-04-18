@@ -4,12 +4,16 @@ footprint: 2x1
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 2
 placement: center
 room_types: crypt, tomb, mausoleum, shadowfell, burial-chamber
 typical_count: few
 clusters_with: candle-cluster, cobweb-heavy, shroud-torn
 notes: Dark weathered stone sarcophagus with grief-mask motif; place in mausoleum burial niches
 ---
+# === HITBOX ===
+hitbox rect 0.15,0.10 0.70,1.80 z 0-2
+
 # footprint 2x1: x range 0-1, y range 0-2. Front faces south.
 
 # === Stone base (outermost layer) — dark weathered stone ===

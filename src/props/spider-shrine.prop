@@ -10,13 +10,7 @@ room_types: cave-drow-outpost, underdark-outpost, drow-citadel, shrine, ritual-c
 typical_count: single
 clusters_with: candle-violet, scrying-pool, spider-egg-cluster, faerzress-sconce
 notes: Shrine to Lolth — obsidian eight-limbed spider-woman statue on a stepped basalt dais with twisted iron candelabra
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 6
-    color: "#8040c0"
-    intensity: 0.6
+lights: [{"preset":"faerzress","x":1,"y":1,"radius":6,"intensity":0.6,"color":"#8040c0"}]
 ---
 # === HITBOX ===
 hitbox rect 0.14,0.14 1.72,1.72 z 0-2.0

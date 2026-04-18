@@ -12,7 +12,7 @@ clusters_with: bonfire, bone-pile, skull-trophy, chieftains-throne
 notes: Shallow blood-soaked pit with planks and hanging hook suggestion; entrails, bone shards. Used to butcher carcasses.
 ---
 # === HITBOX ===
-hitbox rect 0.1,0.1 1.8,1.8 z 0-0.2
+selection rect 0.1,0.1 1.8,1.8
 
 # Pit outer stain (dark blood-soaked earth)
 rect 0.10,0.10 1.80,1.80 fill #2a0808 0.6

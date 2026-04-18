@@ -14,7 +14,7 @@ notes: Huge gilt-framed oil painting. Top-down shows the gilt frame rod along th
 # footprint 1x3: x range 0-3, y range 0-1
 
 # === HITBOX ===
-hitbox rect 0.10,0.04 2.80,0.18 z 0-6
+selection rect 0.10,0.04 2.80,0.18
 
 # Heavy ornate gilt frame top edge (runs nearly full width)
 rect 0.10,0.04 2.80,0.12 fill #daa520 0.95

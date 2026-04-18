@@ -12,7 +12,7 @@ clusters_with: carcass-fresh, gnawed-bone, scat-pile, corpse, hanging-meat
 notes: Dark cloud of tiny flies over decay; use sparingly near butchered meat or waste
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.5
+selection circle 0.5,0.5 0.32
 
 # Diffuse haze (faint blur)
 circle 0.5,0.5 0.32 fill #1a1a1a 0.12

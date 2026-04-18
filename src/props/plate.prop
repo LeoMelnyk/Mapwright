@@ -1,0 +1,34 @@
+name: Plate
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: kitchen, tavern-common, mess-hall, feast-hall, peasant-hovel, house-merchant, noble-solar, inn-common-room
+typical_count: few
+clusters_with: plate-stack, bowl-stew, cup, fork, spoon, knife, bread-loaf, long-table, table-long, tankard
+notes: Single pewter dinner plate left on a surface — a table setting or left-behind dish. Combine with cutlery / tankard for a used-place feel.
+---
+# Faint shadow
+circle 0.50,0.52 0.32 fill #000000 0.12
+
+# Rim
+circle 0.50,0.50 0.34 texfill polyhaven/metal_plate 0.80
+circle 0.50,0.50 0.34 stroke #555555
+
+# Inner well (slightly darker)
+circle 0.50,0.50 0.28 texfill polyhaven/metal_plate 0.60
+circle 0.50,0.50 0.28 stroke #666666 0.8
+
+# Very inner ring where food would sit
+circle 0.50,0.50 0.22 stroke #777777 0.6
+
+# Central sheen / hammered-pewter highlight
+ellipse 0.44,0.44 0.06,0.04 fill #cccccc 0.35
+ellipse 0.52,0.52 0.03,0.02 fill #bbbbbb 0.25
+
+# Breadcrumb / leftover smudge
+circle 0.56,0.48 0.02 fill #8b7355 0.55
+circle 0.42,0.54 0.015 fill #8b7355 0.45

@@ -12,7 +12,7 @@ clusters_with: coin-scatter, dropped-coin
 notes: Single lost coin on the floor; minor treasure hint
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.10 z 0-0.02
+selection circle 0.5,0.5 0.10
 
 # Faint shadow under coin
 circle 0.52,0.52 0.10 fill #1a1008 0.25

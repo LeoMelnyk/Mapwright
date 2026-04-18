@@ -10,13 +10,7 @@ room_types: astral-anchor, astral-sea, planar-nexus
 typical_count: few
 clusters_with: astral-anchor-stone, silver-cord-stub, portal-stela
 notes: Top-down view of a rune-etched pylon — octagonal plinth with a glowing central cap and silver cords radiating outward into the void
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 10
-    color: "#e0e0ff"
-    intensity: 0.7
+lights: [{"preset":"silvery","x":1,"y":1,"radius":10,"intensity":0.7,"color":"#e0e0ff"}]
 ---
 # Hitbox: pylon shaft blocks light
 hitbox circle 1.0,1.0 0.38 z 0-2.2

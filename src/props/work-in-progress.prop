@@ -1,0 +1,89 @@
+name: Work in Progress
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: general-workshop, forge, smithy, house-medium-artisan, shop-weaponsmith, workshop-artificer
+typical_count: single
+clusters_with: workbench, hammer, tongs-long, anvil, tool-scatter
+notes: Half-completed artisan project — partly-shaped blade blank on one side, partly-carved wooden haft on the other. Universal "this is mid-work" marker.
+---
+# === HITBOX ===
+selection rect 0.14,0.20 0.72,0.60
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a shaped blade blank & partial wooden handle laid out on the work surface
+
+# === Underlying cloth/mat the pieces rest on ===
+rect 0.10,0.18 0.80,0.64 texfill polyhaven/rough_linen 0.7
+rect 0.10,0.18 0.80,0.64 stroke #5c3a1e 0.55
+# Cloth folds
+line 0.12,0.28 0.88,0.26 stroke #5c3a1e 0.4 width 1
+line 0.14,0.72 0.86,0.74 stroke #5c3a1e 0.4 width 1
+
+# === Half-forged blade blank (west side, metal, still rough) ===
+# Blank body (roughly blade-shaped, slightly crooked)
+poly 0.16,0.30 0.46,0.28 0.50,0.34 0.48,0.68 0.20,0.72 0.14,0.50 fill #555555 0.92
+poly 0.16,0.30 0.46,0.28 0.50,0.34 0.48,0.68 0.20,0.72 0.14,0.50 texfill polyhaven/metal_plate 0.55
+poly 0.16,0.30 0.46,0.28 0.50,0.34 0.48,0.68 0.20,0.72 0.14,0.50 stroke #222222 width 2
+
+# Rough-hammered surface texture (scoring marks, uneven)
+line 0.20,0.38 0.40,0.36 stroke #777777 0.5 width 1
+line 0.20,0.46 0.44,0.44 stroke #888888 0.55 width 1
+line 0.22,0.54 0.42,0.52 stroke #777777 0.5 width 1
+line 0.22,0.62 0.42,0.60 stroke #888888 0.5 width 1
+
+# Hammer dimples (where the smith has been working)
+circle 0.28,0.42 0.025 fill #333333 0.6
+circle 0.36,0.54 0.022 fill #333333 0.55
+circle 0.30,0.58 0.02 fill #333333 0.5
+
+# Still-hot spot (dim red glow near tang)
+ellipse 0.20,0.40 0.05,0.07 fill #cc3300 0.4
+ellipse 0.20,0.40 0.03,0.05 fill #ff6600 0.5
+
+# Unfinished edge (jagged, not bevelled)
+line 0.14,0.50 0.16,0.62 stroke #222222 0.85 width 2
+line 0.14,0.50 0.15,0.56 stroke #444444 width 1
+
+# Tang stub (square, where handle will attach)
+rect 0.44,0.32 0.06,0.06 fill #333333 0.9
+rect 0.44,0.32 0.06,0.06 stroke #111111
+
+# === Partly-carved wooden handle/haft (east side) ===
+# Blank haft (rounded wood, partly shaped)
+poly 0.62,0.28 0.78,0.32 0.82,0.38 0.82,0.62 0.78,0.70 0.62,0.74 0.56,0.70 0.54,0.38 0.58,0.32 fill #8b6914 0.9
+poly 0.62,0.28 0.78,0.32 0.82,0.38 0.82,0.62 0.78,0.70 0.62,0.74 0.56,0.70 0.54,0.38 0.58,0.32 texfill polyhaven/dark_wood 0.55
+poly 0.62,0.28 0.78,0.32 0.82,0.38 0.82,0.62 0.78,0.70 0.62,0.74 0.56,0.70 0.54,0.38 0.58,0.32 stroke #3a1f00
+
+# Wood grain
+line 0.60,0.38 0.80,0.38 stroke #5c3a1e 0.5 width 1
+line 0.58,0.48 0.82,0.48 stroke #5c3a1e 0.5 width 1
+line 0.58,0.58 0.82,0.58 stroke #5c3a1e 0.5 width 1
+line 0.60,0.66 0.80,0.66 stroke #5c3a1e 0.5 width 1
+
+# Knife-carved facets (showing partial shaping)
+poly 0.58,0.38 0.62,0.36 0.60,0.44 fill #6b4e2e 0.7
+poly 0.76,0.42 0.82,0.40 0.80,0.50 fill #6b4e2e 0.7
+poly 0.62,0.60 0.66,0.62 0.64,0.68 fill #6b4e2e 0.6
+
+# Carving tool marks
+line 0.62,0.42 0.66,0.40 stroke #3a1f00 0.7 width 1
+line 0.70,0.46 0.74,0.44 stroke #3a1f00 0.7 width 1
+line 0.64,0.56 0.68,0.54 stroke #3a1f00 0.6 width 1
+
+# === Tool laid on the mat between them ===
+# Small file/rasp
+rect 0.48,0.54 0.08,0.03 fill #888888 0.85
+rect 0.48,0.54 0.08,0.03 stroke #333333
+line 0.49,0.555 0.55,0.555 stroke #444444 0.55 width 1
+
+# === Wood shavings scattered on mat ===
+bezier 0.70,0.76 0.74,0.78 0.78,0.76 0.76,0.74 stroke #d4b880 0.8 width 2
+bezier 0.55,0.78 0.58,0.80 0.62,0.78 0.60,0.76 stroke #c4a870 0.75 width 2
+
+# === Metal flake near the blade ===
+poly 0.24,0.74 0.28,0.72 0.30,0.76 0.26,0.78 fill #888888 0.7

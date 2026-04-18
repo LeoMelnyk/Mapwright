@@ -11,7 +11,7 @@ clusters_with: altar, banner-religious, tapestry-religious, candelabra
 notes: Wall-mounted painted icon triptych — gilt rod across the top with a thin painted fabric strip suggesting three hinged panels
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.04 1.80,0.20 z 0-2.0
+selection rect 0.10,0.04 1.80,0.20
 
 # footprint 1x2: x 0-2, y 0-1
 # Top-down wall-hung icon: thin gilt top rail + thin painted panel strip.

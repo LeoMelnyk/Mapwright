@@ -1,0 +1,85 @@
+name: Violet Fungus
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: floor
+room_types: mushroom-cavern, mushroom-grove, underdark-outpost, cave-deep, dungeon-deep
+typical_count: few
+clusters_with: shrieker, spore-pool, mushroom-cluster, luminous-spore
+notes: Menacing purple fungus with necrotic tendrils — known to lash out at passing creatures
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-1.2
+
+# Ground shadow with sickly purple tinge
+circle 0.52,0.54 0.40 fill #1a0030 0.30
+circle 0.52,0.54 0.34 fill #2a0a40 0.22
+
+# Dead ring of foliage around base (necrotic halo)
+ring 0.5,0.5 0.46 0.40 fill #2a1020 0.35
+ring 0.5,0.5 0.42 0.38 fill #3a1028 0.40
+
+# Tendrils lashing outward (dark purple bezier shapes)
+bezier 0.50,0.50 0.30,0.30 0.12,0.18 0.04,0.08 stroke #4a1060 width 5
+bezier 0.50,0.50 0.30,0.30 0.12,0.18 0.04,0.08 stroke #2a0840 width 2
+bezier 0.50,0.50 0.70,0.28 0.88,0.16 0.96,0.08 stroke #4a1060 width 5
+bezier 0.50,0.50 0.70,0.28 0.88,0.16 0.96,0.08 stroke #2a0840 width 2
+bezier 0.50,0.50 0.26,0.68 0.14,0.84 0.06,0.92 stroke #4a1060 width 5
+bezier 0.50,0.50 0.26,0.68 0.14,0.84 0.06,0.92 stroke #2a0840 width 2
+bezier 0.50,0.50 0.72,0.70 0.88,0.84 0.94,0.94 stroke #4a1060 width 5
+bezier 0.50,0.50 0.72,0.70 0.88,0.84 0.94,0.94 stroke #2a0840 width 2
+bezier 0.50,0.50 0.26,0.48 0.12,0.46 0.02,0.48 stroke #4a1060 width 4
+bezier 0.50,0.50 0.72,0.52 0.88,0.54 0.98,0.52 stroke #4a1060 width 4
+bezier 0.50,0.50 0.52,0.72 0.50,0.88 0.48,0.98 stroke #4a1060 width 4
+bezier 0.50,0.50 0.50,0.28 0.50,0.12 0.52,0.02 stroke #4a1060 width 4
+
+# Tendril tips (small dark barbs)
+circle 0.04,0.08 0.028 fill #1a0020 0.9
+circle 0.96,0.08 0.028 fill #1a0020 0.9
+circle 0.06,0.92 0.028 fill #1a0020 0.9
+circle 0.94,0.94 0.028 fill #1a0020 0.9
+circle 0.02,0.48 0.020 fill #1a0020 0.85
+circle 0.98,0.52 0.020 fill #1a0020 0.85
+circle 0.48,0.98 0.020 fill #1a0020 0.85
+circle 0.52,0.02 0.020 fill #1a0020 0.85
+
+# Central fungal body — bulbous, sickly
+circle 0.5,0.5 0.30 fill #3a0848 0.95
+circle 0.5,0.5 0.30 stroke #1a0020 width 2
+circle 0.5,0.5 0.24 fill #5a1068 0.9
+circle 0.5,0.5 0.24 stroke #2a0830 width 1
+
+# Lumpy warts on body (sickly purple-blue)
+circle 0.36,0.42 0.06 fill #4a1860 0.85
+circle 0.36,0.42 0.06 stroke #1a0020
+circle 0.62,0.38 0.055 fill #4a1860 0.85
+circle 0.62,0.38 0.055 stroke #1a0020
+circle 0.58,0.62 0.06 fill #4a1860 0.85
+circle 0.58,0.62 0.06 stroke #1a0020
+circle 0.38,0.60 0.05 fill #4a1860 0.85
+circle 0.38,0.60 0.05 stroke #1a0020
+
+# Pustule highlights (wet, bruised)
+circle 0.36,0.42 0.025 fill #8840a0 0.75
+circle 0.62,0.38 0.022 fill #8840a0 0.7
+circle 0.58,0.62 0.025 fill #8840a0 0.75
+circle 0.38,0.60 0.020 fill #8840a0 0.7
+
+# Puckered center (open sphincter-mouth)
+circle 0.5,0.5 0.08 fill #1a0020 0.95
+circle 0.5,0.5 0.08 stroke #0a0010 width 1
+circle 0.5,0.5 0.04 fill #000000 1.0
+
+# Radial wrinkles from mouth
+line 0.50,0.42 0.50,0.38 stroke #1a0020 0.8 width 1
+line 0.58,0.50 0.62,0.50 stroke #1a0020 0.8 width 1
+line 0.50,0.58 0.50,0.62 stroke #1a0020 0.8 width 1
+line 0.42,0.50 0.38,0.50 stroke #1a0020 0.8 width 1
+
+# Small spore puffs rising from the body
+circle 0.42,0.36 0.014 fill #a870c0 0.7
+circle 0.60,0.44 0.012 fill #a870c0 0.65
+circle 0.50,0.30 0.010 fill #a870c0 0.55

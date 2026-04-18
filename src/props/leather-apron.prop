@@ -12,7 +12,7 @@ clusters_with: tool-rack, weapon-rack, workbench, anvil
 notes: Heavy work apron hanging from a peg; burn marks suggest smithy use
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.10 0.60,0.70 z 0-1.5
+selection rect 0.20,0.10 0.60,0.70
 
 # Peg (small dark dot at top — where apron hangs)
 circle 0.50,0.08 0.03 fill #2a1400 0.9

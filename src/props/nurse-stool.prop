@@ -12,7 +12,7 @@ clusters_with: cradle, rocking-chair, hearth-small, picture-book
 notes: Short round padded stool with upholstered cushion and wooden ring, used by a nurse or nursing parent
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.35 z 0-0.5
+selection circle 0.5,0.5 0.35
 
 # Leg shadow dots peeking south (drawn first, under the cushion)
 circle 0.30,0.82 0.04 fill #2a1400 0.5

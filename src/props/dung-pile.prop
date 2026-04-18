@@ -1,5 +1,5 @@
 name: Dung Pile
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: rat-carcass, stolen-shoe, dung-pile, broken-arrow
 notes: Small pile of greenish-brown goblin droppings with flies. Scatter freely — goblins are disgusting tenants.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.55 0.22 z 0-0.15
+selection circle 0.5,0.55 0.22
 
 # Soak stain around pile (dark wet patch)
 ellipse 0.50,0.56 0.28,0.20 fill #2a2410 0.55

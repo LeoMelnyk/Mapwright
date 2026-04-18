@@ -12,7 +12,7 @@ clusters_with: skinning-table, stretched-hide, cleaver, whetstone, trap-rack
 notes: Curved blade skinning knife with bone handle — trapper's tool
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.20 0.56,0.66 z 0-0.1
+selection rect 0.22,0.20 0.56,0.66
 
 # Bone/antler handle (south end)
 rect 0.40,0.60 0.20,0.24 fill #e0d4b8 0.95

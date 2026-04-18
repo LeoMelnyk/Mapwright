@@ -12,7 +12,7 @@ clusters_with: weapon-rack, shield-rack, armor-stand, banner
 notes: Iron helmet hanging from a wall peg; armory decor
 ---
 # === HITBOX ===
-hitbox rect 0.28,0.08 0.44,0.52 z 0-1
+selection rect 0.28,0.08 0.44,0.52
 
 # Peg (small wooden stub)
 rect 0.46,0.06 0.08,0.06 texfill polyhaven/dark_wood 0.85

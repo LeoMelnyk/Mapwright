@@ -12,7 +12,7 @@ clusters_with: altar, prayer-bench, pew, candle, censer
 notes: Small bound devotional book, often left open on altars or benches
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.22 0.64,0.58 z 0-0.2
+selection rect 0.18,0.22 0.64,0.58
 
 # Leather cover (deep ox-blood red)
 rect 0.18,0.22 0.64,0.58 texfill polyhaven/brown_leather 0.80

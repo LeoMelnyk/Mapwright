@@ -12,7 +12,7 @@ clusters_with: needle-case, thread-spool, sewing-basket, silk-bolt, fabric-scrap
 notes: Small round red cushion bristling with pins
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.22 z 0-0.1
+selection circle 0.5,0.5 0.22
 
 # Main cushion (tomato-red, pincushion classic)
 circle 0.5,0.5 0.22 fill #aa2020 0.95

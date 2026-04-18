@@ -1,0 +1,13 @@
+{
+  "displayName": "Faerzress",
+  "category": "Magical",
+  "description": "The deep purple-magenta radiance of Underdark faerzress — drow sconces, spider shrines, ambient Deep magic",
+  "type": "point",
+  "color": "#8040c0",
+  "radius": 8,
+  "dimRadius": 16,
+  "intensity": 0.6,
+  "falloff": "smooth",
+  "z": 3,
+  "animation": { "type": "pulse", "speed": 0.4, "amplitude": 0.2, "radiusVariation": 0 }
+}

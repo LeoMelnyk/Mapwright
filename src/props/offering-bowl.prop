@@ -12,7 +12,7 @@ clusters_with: altar, cairn-sacred, coin-offering, prayer-stone, fresh-flowers
 notes: Shallow ritual bowl holding assorted offerings — fruit, grain, coins
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.2
+selection circle 0.5,0.5 0.32
 
 # Bowl outer rim (clay/terracotta)
 circle 0.5,0.5 0.32 fill #8a5830 0.95

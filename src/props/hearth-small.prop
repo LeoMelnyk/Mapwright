@@ -5,13 +5,7 @@ facing: yes
 shadow: no
 blocks_light: yes
 height: 1.2
-lights:
-  - type: candle
-    x: 1.0
-    y: 0.55
-    radius: 4
-    color: "#ff9944"
-    intensity: 0.35
+lights: [{"preset":"fireplace","x":1,"y":0.55,"radius":4,"intensity":0.35,"color":"#ff9944"}]
 placement: wall
 room_types: nursery
 typical_count: single

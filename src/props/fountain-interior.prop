@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 3
-lights: [{"type":"candle","x":1.0,"y":1.0,"radius":8,"color":"#c0e0ff","intensity":0.5}]
+lights: [{"preset":"silvery","x":1.0,"y":1.0,"radius":8,"color":"#c0e0ff","intensity":0.5}]
 placement: center
 room_types: mansion-ballroom, mansion-grand-hall, noble-villa, grand-hall, reception-hall, estate
 typical_count: single
@@ -15,8 +15,8 @@ notes: Indoor marble fountain with cherub statuette at the center; cascading tie
 # footprint 2x2: x 0-2, y 0-2
 
 # === HITBOX ===
-hitbox circle 1.0,1.0 0.90 z 0-1
-hitbox circle 1.0,1.0 0.18 z 1-3
+selection circle 1.0,1.0 0.90
+selection circle 1.0,1.0 0.18
 
 # Outer marble basin — octagonal hint via stroke + fill
 circle 1.0,1.0 0.90 texfill polyhaven/marble_01 0.9

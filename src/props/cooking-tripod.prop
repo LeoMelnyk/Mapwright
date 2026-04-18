@@ -1,0 +1,89 @@
+name: Cooking Tripod
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: ranger-camp, campsite-traveler, cabin-hunters, cabin-trapper, orc-war-camp, cave-bandit-camp, shepherds-shelter
+typical_count: single
+clusters_with: campfire, campfire-stone, cook-pot-tripod, bedroll, log-seat
+notes: Iron tripod over smoldering ashes — no pot, just the bare tripod structure with a chain hanging from the apex. Three iron legs splayed over a bed of grey ash and glowing embers.
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":3,"color":"#ff6020","intensity":0.3}]
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.40 z 0-1.5
+
+# === Ash bed / charred ground (grey ash with glowing embers) ===
+circle 0.5,0.5 0.40 fill #3a3028 0.8
+circle 0.5,0.5 0.40 stroke #1a1410
+
+# Ash texture (lighter grey speckle)
+circle 0.38,0.44 0.04 fill #6a5a48 0.6
+circle 0.58,0.48 0.035 fill #6a5a48 0.55
+circle 0.44,0.62 0.04 fill #6a5a48 0.55
+circle 0.60,0.60 0.03 fill #5a4838 0.5
+
+# === Smoldering embers (scattered glow) ===
+circle 0.42,0.50 0.022 fill #ff6030 0.85
+circle 0.42,0.50 0.022 stroke #cc3300 0.6
+circle 0.56,0.54 0.02 fill #ff8030 0.8
+circle 0.50,0.44 0.018 fill #ff4400 0.75
+circle 0.54,0.62 0.02 fill #ff6030 0.8
+circle 0.40,0.58 0.016 fill #ff4400 0.7
+
+# Bright hot core ember
+circle 0.50,0.52 0.016 fill #ffcc00 0.85
+
+# === Burnt log fragment (charred) ===
+poly 0.34,0.52 0.40,0.48 0.52,0.56 0.48,0.60 fill #1a0800 0.85
+poly 0.34,0.52 0.40,0.48 0.52,0.56 0.48,0.60 stroke #0a0400
+# Small glow along log edge
+line 0.36,0.54 0.48,0.58 stroke #ff6030 0.75 width 1
+
+# === Tripod leg 1 (iron pole from apex to NW foot) ===
+poly 0.48,0.50 0.52,0.50 0.15,0.15 0.11,0.19 fill #333333 0.92
+poly 0.48,0.50 0.52,0.50 0.15,0.15 0.11,0.19 texfill polyhaven/rusty_metal 0.4
+poly 0.48,0.50 0.52,0.50 0.15,0.15 0.11,0.19 stroke #1a1a1a
+
+# === Tripod leg 2 (to NE foot) ===
+poly 0.48,0.50 0.52,0.50 0.89,0.19 0.85,0.15 fill #333333 0.92
+poly 0.48,0.50 0.52,0.50 0.89,0.19 0.85,0.15 texfill polyhaven/rusty_metal 0.4
+poly 0.48,0.50 0.52,0.50 0.89,0.19 0.85,0.15 stroke #1a1a1a
+
+# === Tripod leg 3 (to south foot) ===
+poly 0.48,0.50 0.52,0.50 0.54,0.88 0.46,0.88 fill #333333 0.92
+poly 0.48,0.50 0.52,0.50 0.54,0.88 0.46,0.88 texfill polyhaven/rusty_metal 0.4
+poly 0.48,0.50 0.52,0.50 0.54,0.88 0.46,0.88 stroke #1a1a1a
+
+# === Tripod foot caps (splayed ends dug into ash) ===
+ellipse 0.13,0.17 0.04,0.04 fill #222222 0.95
+ellipse 0.13,0.17 0.04,0.04 stroke #000000
+ellipse 0.87,0.17 0.04,0.04 fill #222222 0.95
+ellipse 0.87,0.17 0.04,0.04 stroke #000000
+ellipse 0.50,0.88 0.05,0.04 fill #222222 0.95
+ellipse 0.50,0.88 0.05,0.04 stroke #000000
+
+# === Apex hub (where three legs meet — central iron ring) ===
+circle 0.50,0.50 0.06 fill #222222 0.95
+circle 0.50,0.50 0.06 texfill polyhaven/rusty_metal 0.5
+circle 0.50,0.50 0.06 stroke #111111
+
+# === Iron ring at apex (where chain attaches) ===
+circle 0.50,0.50 0.035 stroke #555555 width 2
+circle 0.50,0.50 0.035 stroke #222222 width 1
+
+# === Hanging chain (short dangling links — empty, no pot) ===
+circle 0.50,0.46 0.012 stroke #444444 width 2
+circle 0.50,0.42 0.012 stroke #444444 width 2
+circle 0.50,0.38 0.014 stroke #444444 width 2
+# Hook at chain end (empty)
+arc 0.50,0.36 0.025 180 360 stroke #444444 width 2
+
+# === Faint heat shimmer (subtle orange halo around embers) ===
+circle 0.50,0.52 0.14 fill #ff6030 0.12
+
+# === Rising smoke wisp ===
+bezier 0.46,0.44 0.42,0.34 0.48,0.26 0.44,0.16 stroke #aaaaaa 0.3 width 1
+bezier 0.54,0.46 0.58,0.36 0.52,0.28 0.56,0.18 stroke #888888 0.25 width 1

@@ -1,0 +1,70 @@
+name: Tooth Jar
+category: Prison
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: torture-chamber, interrogation-room, witch-hut, reliquary, necromancer-sanctum
+typical_count: few
+clusters_with: pincers, torture-instrument-small, tool-cart, alembic, reagent-rack
+notes: Small glass jar full of extracted teeth. Translucent body, white specks inside, tight lid.
+---
+# === HITBOX ===
+selection circle 0.5,0.54 0.28
+
+# === Ground shadow ===
+ellipse 0.5,0.80 0.26,0.05 fill #1a1008 0.35
+
+# === Jar body (glass — tinted blue-green, translucent) ===
+ellipse 0.5,0.54 0.28,0.30 fill #3a5060 0.40
+ellipse 0.5,0.54 0.28,0.30 stroke #2a3848
+
+# === Glass highlight arcs (edge reflection suggests curvature) ===
+arc 0.5,0.54 0.26 210 310 stroke #c0d8e8 0.7 width 1
+arc 0.5,0.54 0.24 220 300 stroke #ffffff 0.4 width 1
+
+# === Teeth inside (tightly packed — small white shapes of various sizes) ===
+# Cluster near bottom
+poly 0.34,0.68 0.38,0.66 0.40,0.72 0.36,0.74 fill #e8dcc8 0.9
+poly 0.34,0.68 0.38,0.66 0.40,0.72 0.36,0.74 stroke #8a7a6a
+poly 0.42,0.70 0.46,0.68 0.48,0.74 0.44,0.76 fill #f0e4d0 0.9
+poly 0.42,0.70 0.46,0.68 0.48,0.74 0.44,0.76 stroke #8a7a6a
+poly 0.52,0.68 0.56,0.66 0.58,0.72 0.54,0.74 fill #e8dcc8 0.88
+poly 0.52,0.68 0.56,0.66 0.58,0.72 0.54,0.74 stroke #8a7a6a
+poly 0.60,0.70 0.64,0.68 0.66,0.74 0.62,0.76 fill #f0e4d0 0.9
+poly 0.60,0.70 0.64,0.68 0.66,0.74 0.62,0.76 stroke #8a7a6a
+# Middle tier
+poly 0.36,0.58 0.40,0.56 0.42,0.62 0.38,0.64 fill #e8dcc8 0.85
+poly 0.36,0.58 0.40,0.56 0.42,0.62 0.38,0.64 stroke #8a7a6a
+poly 0.46,0.56 0.50,0.54 0.52,0.60 0.48,0.62 fill #f0e4d0 0.88
+poly 0.46,0.56 0.50,0.54 0.52,0.60 0.48,0.62 stroke #8a7a6a
+poly 0.56,0.58 0.60,0.56 0.62,0.62 0.58,0.64 fill #e8dcc8 0.85
+poly 0.56,0.58 0.60,0.56 0.62,0.62 0.58,0.64 stroke #8a7a6a
+# Upper tier (smaller teeth — baby teeth)
+poly 0.42,0.48 0.45,0.47 0.47,0.52 0.44,0.53 fill #f0e4d0 0.85
+poly 0.42,0.48 0.45,0.47 0.47,0.52 0.44,0.53 stroke #8a7a6a
+poly 0.52,0.48 0.55,0.47 0.57,0.52 0.54,0.53 fill #e8dcc8 0.85
+poly 0.52,0.48 0.55,0.47 0.57,0.52 0.54,0.53 stroke #8a7a6a
+# Loose teeth near top
+circle 0.48,0.42 0.018 fill #e8dcc8 0.8
+circle 0.54,0.44 0.016 fill #f0e4d0 0.8
+
+# === Blood residue in bottom of jar (darker tint below teeth) ===
+ellipse 0.5,0.76 0.22,0.04 fill #4a0000 0.55
+
+# === Jar rim (darker band at top) ===
+arc 0.5,0.28 0.20 0 180 stroke #2a3848 width 2
+ellipse 0.5,0.28 0.20,0.05 fill #2a3848 0.45
+ellipse 0.5,0.28 0.20,0.05 stroke #1a2028
+
+# === Cork/wax lid ===
+ellipse 0.5,0.22 0.18,0.06 fill #8b6914 0.9
+ellipse 0.5,0.22 0.18,0.06 texfill polyhaven/dark_wood 0.5
+ellipse 0.5,0.22 0.18,0.06 stroke #3a2010
+# Wax seal around lid
+arc 0.5,0.26 0.19 0 180 stroke #4a0000 0.7 width 2
+# Knob on lid
+circle 0.5,0.20 0.04 fill #6b4e2e 0.9
+circle 0.5,0.20 0.04 stroke #3a2010

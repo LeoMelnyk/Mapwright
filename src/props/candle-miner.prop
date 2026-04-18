@@ -10,13 +10,7 @@ room_types: mine-shaft-entrance, mining-camp, deep-mine, cave-living
 typical_count: many
 clusters_with: helmet-mining, pickaxe, sorting-table, winch-large
 notes: Stubby beeswax candle in a bent tin holder with a hook — can be placed on the ground or hung from a peg
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 5
-    color: "#ffcc80"
-    intensity: 0.6
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":5,"intensity":0.6,"color":"#ffcc80"}]
 ---
 # Tin dish (circular base with rim)
 circle 0.50,0.55 0.22 texfill polyhaven/metal_plate 0.8

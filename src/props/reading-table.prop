@@ -9,13 +9,7 @@ placement: center
 room_types: library, study, archive, wizard-sanctum
 typical_count: single
 clusters_with: chair, book-pile, book-open, candle-cluster, pen-and-inkwell
-lights:
-  - x: 1.6
-    y: 0.4
-    color: "#ffcc88"
-    radius: 3
-    intensity: 0.3
-    falloff: smooth
+lights: [{"preset":"candle","x":1.6,"y":0.4,"radius":3,"intensity":0.3,"color":"#ffcc88","falloff":"smooth"}]
 notes: Long scholarly reading table with books and a small lamp; center of library rooms
 ---
 # footprint 2x2: x range 0-2, y range 0-2

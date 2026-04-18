@@ -10,13 +10,7 @@ room_types: elemental-fire-node, elemental-node, volcano-caldera
 typical_count: single
 clusters_with: basalt-pillar, flame-pillar, ember-pit, lava-fountain
 notes: Primal elemental fire node — column of roaring flame with a white-hot heart and charred stone base. Centerpiece of a fire-elemental node.
-lights:
-  - type: torch
-    x: 1.5
-    y: 1.5
-    radius: 20
-    color: "#ff6030"
-    intensity: 1.0
+lights: [{"preset":"bonfire","x":1.5,"y":1.5,"radius":20,"intensity":1,"color":"#ff6030"}]
 ---
 # Outer heat shimmer halo
 circle 1.5,1.5 1.4 gradient-radial #ff6030 #0a0400 0.4

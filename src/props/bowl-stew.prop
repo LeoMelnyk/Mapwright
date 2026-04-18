@@ -12,7 +12,7 @@ clusters_with: table, tankard, bread-loaf, wooden-bowl, stool
 notes: Wooden bowl full of brown stew with chunks floating — warm meal
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-0.2
+selection circle 0.5,0.5 0.30
 
 # Wooden bowl outer rim
 circle 0.5,0.5 0.30 fill #5c3a1e 0.95

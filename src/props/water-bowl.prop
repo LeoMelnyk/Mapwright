@@ -12,7 +12,7 @@ clusters_with: sponge, wheel-pottery, clay-bin, bucket, clay-lump
 notes: Shallow ceramic water bowl. Concentric circles — outer clay rim, inner water surface with subtle reflection highlight.
 ---
 # === HITBOX ===
-hitbox circle 0.50,0.50 0.34 z 0-0.2
+selection circle 0.50,0.50 0.34
 
 # === Outer bowl body (clay) ===
 circle 0.50,0.50 0.38 fill #a85e28 0.9

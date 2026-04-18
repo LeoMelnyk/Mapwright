@@ -4,18 +4,13 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+height: 3
 placement: center
 room_types: charcoal-burner-camp
 typical_count: few
 clusters_with: log-pile, chopping-block, wood-pile, charcoal-lump, axe-stuck
 notes: Earth-covered charcoal mound (domed soil kiln smoldering) — the centerpiece of a charcoal burner's camp
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 4
-    color: "#e06000"
-    intensity: 0.3
+lights: [{"preset":"ember","x":1,"y":1,"radius":4,"intensity":0.3,"color":"#e06000"}]
 ---
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: domed earth mound with concentric rings, smoking vent at center

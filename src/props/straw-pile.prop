@@ -12,7 +12,7 @@ clusters_with: rag-pile, rat-nest, bedroll, pallet
 notes: Pile of dirty straw bedding; spread across floor as crude sleeping mat
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.18 1.76,0.66 z 0-0.2
+selection rect 0.12,0.18 1.76,0.66
 
 # Base mat (dark soiled layer underneath)
 poly 0.14,0.54 0.22,0.32 0.46,0.24 0.88,0.22 1.30,0.22 1.60,0.26 1.82,0.38 1.88,0.56 1.80,0.72 1.50,0.82 1.10,0.84 0.70,0.84 0.36,0.80 0.18,0.70 fill #6a4020 0.7

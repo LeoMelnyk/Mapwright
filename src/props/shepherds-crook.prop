@@ -1,0 +1,74 @@
+name: Shepherd's Crook
+category: Tools
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: wall
+room_types: shepherds-shelter, peasant-hovel, druid-grove, stable, croft
+typical_count: single
+clusters_with: carved-stick, sheep-dung, fire-ring, prayer-stone
+notes: Wooden staff with a curved hook at the top — for catching sheep by the neck. Leaning against a wall — shaft runs east-west with hook at east.
+---
+# footprint 1x2: x 0-2, y 0-1
+# === HITBOX ===
+selection rect 0.14,0.46 1.60,0.10
+selection circle 1.72,0.44 0.16
+
+# Shadow beneath shaft
+ellipse 1.00,0.60 0.80,0.04 fill #1a0a00 0.3
+ellipse 1.72,0.52 0.16,0.04 fill #1a0a00 0.25
+
+# === Main shaft (long wooden staff) ===
+rect 0.14,0.46 1.60,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.14,0.46 1.60,0.08 fill #4a2800 0.4
+rect 0.14,0.46 1.60,0.08 stroke #2a1400 width 2
+
+# Wood grain stripe
+line 0.18,0.50 1.72,0.50 stroke #6a4828 0.3 width 1
+
+# === Western tip (ground end, slightly worn) ===
+circle 0.16,0.50 0.05 fill #3a1f00 0.9
+circle 0.16,0.50 0.05 stroke #1a0a00
+
+# === Hook at east end — curved shepherd's crook ===
+# Main curve of the hook (bezier forming a J/question-mark)
+bezier 1.72,0.50 1.88,0.42 1.92,0.28 1.80,0.20 stroke #4a2800 width 8
+bezier 1.72,0.50 1.88,0.42 1.92,0.28 1.80,0.20 stroke #2a1400 width 1
+# Inner curve (the notch opening)
+bezier 1.72,0.46 1.84,0.40 1.86,0.30 1.78,0.24 stroke #6a4828 0.6 width 3
+# Hook tip (rounded end)
+circle 1.80,0.20 0.045 fill #4a2800 0.95
+circle 1.80,0.20 0.045 stroke #2a1400 width 1
+# Tip highlight
+arc 1.80,0.20 0.035 200 300 stroke #8a6040 0.6 width 1
+
+# === Leather binding where hook meets shaft ===
+rect 1.68,0.44 0.10,0.12 fill #5c3a1e 0.95
+rect 1.68,0.44 0.10,0.12 texfill polyhaven/brown_leather 0.5
+rect 1.68,0.44 0.10,0.12 stroke #2a1400 width 1
+# Leather wrap crosshatch
+line 1.70,0.44 1.68,0.56 stroke #2a1400 0.7 width 1
+line 1.73,0.44 1.71,0.56 stroke #2a1400 0.6 width 1
+line 1.76,0.44 1.74,0.56 stroke #2a1400 0.7 width 1
+
+# === Grip section on shaft (worn patch, leather-wrapped middle) ===
+rect 0.70,0.44 0.30,0.12 fill #5c3a1e 0.9
+rect 0.70,0.44 0.30,0.12 texfill polyhaven/brown_leather 0.4
+rect 0.70,0.44 0.30,0.12 stroke #2a1400 width 1
+line 0.74,0.44 0.72,0.56 stroke #2a1400 0.6 width 1
+line 0.80,0.44 0.78,0.56 stroke #2a1400 0.6 width 1
+line 0.86,0.44 0.84,0.56 stroke #2a1400 0.6 width 1
+line 0.92,0.44 0.90,0.56 stroke #2a1400 0.6 width 1
+line 0.98,0.44 0.96,0.56 stroke #2a1400 0.6 width 1
+# Binding cords at grip ends
+rect 0.68,0.44 0.03,0.12 fill #8b7355 0.85
+rect 0.98,0.44 0.03,0.12 fill #8b7355 0.85
+
+# === Small carved notches / tally marks on shaft ===
+line 0.32,0.47 0.32,0.53 stroke #2a1400 0.8 width 1
+line 0.36,0.47 0.36,0.53 stroke #2a1400 0.8 width 1
+line 0.40,0.47 0.40,0.53 stroke #2a1400 0.8 width 1
+line 1.20,0.47 1.20,0.53 stroke #2a1400 0.7 width 1
+line 1.24,0.47 1.24,0.53 stroke #2a1400 0.7 width 1

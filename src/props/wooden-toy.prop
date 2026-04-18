@@ -12,7 +12,7 @@ clusters_with: cradle, wooden-bowl, narrow-bed, small-table
 notes: Small hand-carved wooden horse, pale unpainted wood — an endearing child's toy
 ---
 # === HITBOX ===
-hitbox rect 0.24,0.30 0.52,0.40 z 0-0.15
+selection rect 0.24,0.30 0.52,0.40
 
 # Body (rounded oval — horse's barrel, viewed from above)
 ellipse 0.50,0.54 0.18,0.14 texfill polyhaven/worn_planks 0.85

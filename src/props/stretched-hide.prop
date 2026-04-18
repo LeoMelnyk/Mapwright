@@ -12,7 +12,7 @@ clusters_with: antler-rack, trap-rack, skinning-knife, skinning-table, stretched
 notes: Animal hide stretched on wooden frame for drying — wall-mounted
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.14 1.72,1.72 z 0-0.1
+selection rect 0.14,0.14 1.72,1.72
 
 # Outer wooden frame (square frame with tension ties)
 rect 0.14,0.14 1.72,0.10 fill #3a1f00 0.9

@@ -11,6 +11,9 @@ typical_count: many
 clusters_with: barrel, barrel-stack, crate, crate-stack
 notes: Labeled provisions barrel; cluster in galley stores
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-3
+
 # Wooden barrel top
 circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.85
 circle 0.5,0.5 0.38 stroke #3a1f00

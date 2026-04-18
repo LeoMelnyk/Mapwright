@@ -1,0 +1,49 @@
+name: Tobacco Pipe
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: lighthouse-keepers-room, mansion-study, parlor, ship-captains-cabin, gentlemens-club, tavern-common
+typical_count: few
+clusters_with: desk, armchair, book-pile, pipe-ashtray, table
+notes: Unlit wooden smoking pipe resting on a flat surface — bowl to the east, stem curving west
+---
+# === HITBOX ===
+selection rect 0.12,0.42 0.76,0.22
+
+# Pipe bowl (the tobacco chamber — seen from above as a dark circle)
+circle 0.74,0.52 0.10 texfill polyhaven/dark_wood 0.9
+circle 0.74,0.52 0.10 stroke #1a0e00 width 2
+# Inner bowl opening (dark cavity)
+circle 0.74,0.52 0.065 fill #1a0e00 0.95
+circle 0.74,0.52 0.065 stroke #0a0404 width 2
+# Cold ash residue in the bowl (grey)
+circle 0.74,0.52 0.048 fill #444444 0.8
+# Small tobacco-leaf flake
+circle 0.72,0.50 0.015 fill #3a2400 0.7
+circle 0.76,0.54 0.012 fill #2a1400 0.65
+
+# Brass ferrule band (ring at base of bowl)
+circle 0.66,0.52 0.03 fill #8b6914 0.92
+circle 0.66,0.52 0.03 stroke #5a3a00
+
+# Pipe stem (curving from bowl west-southwest, slightly arched)
+bezier 0.64,0.52 0.48,0.54 0.30,0.56 0.16,0.56 stroke #2a1400 width 5
+bezier 0.64,0.52 0.48,0.54 0.30,0.56 0.16,0.56 stroke #5c3a1e 0.8 width 3
+# Stem highlight along the top
+bezier 0.64,0.50 0.48,0.52 0.30,0.54 0.16,0.54 stroke #8b6914 0.4 width 1
+
+# Mouthpiece (slightly fatter black end at west)
+ellipse 0.14,0.56 0.04,0.025 fill #1a0e00 0.95
+ellipse 0.14,0.56 0.04,0.025 stroke #0a0404
+
+# Bowl wood grain
+line 0.68,0.48 0.80,0.48 stroke #3a1f00 0.4
+line 0.68,0.56 0.80,0.56 stroke #3a1f00 0.4
+
+# Small wood shaving or spilled crumb of tobacco
+circle 0.40,0.64 0.015 fill #5c3a1e 0.7
+circle 0.50,0.62 0.012 fill #3a2400 0.65

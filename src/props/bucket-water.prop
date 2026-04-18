@@ -12,7 +12,7 @@ clusters_with: gaffer-bench, annealing-oven, forge, anvil, well
 notes: Wooden bucket full of water for quenching or tempering. Top-down view — circular rim with water surface inside.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-1
+selection circle 0.5,0.5 0.30
 
 # Outer stave ring
 circle 0.5,0.5 0.34 texfill polyhaven/dark_wood 0.88

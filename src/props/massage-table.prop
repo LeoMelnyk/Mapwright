@@ -12,7 +12,7 @@ clusters_with: towel-folded, oil-amphora, bath-pool, low-table
 notes: Long wooden massage bench with rolled towel pillow at the north end. Facing south.
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.08 1.80,0.84 z 0-0.6
+selection rect 0.10,0.08 1.80,0.84
 
 # Table body (long plank top, dark wood)
 rect 0.10,0.08 1.80,0.84 texfill polyhaven/wood_table 0.85

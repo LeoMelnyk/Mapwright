@@ -1,0 +1,52 @@
+name: Dropped Rope
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: roadside-gallows, gibbet-square, dock, warehouse, ship, prison-block
+typical_count: few
+clusters_with: gallows, gallows-triple, rope-coil, chain-coil, bone-pile
+notes: Loose dropped rope — uncoiled, irregular S-shape on ground. Looks abandoned, frayed end, maybe a noose loop at one end.
+---
+# === Long rope segment (bezier S-curve) ===
+# Main rope backing shadow
+bezier 0.12,0.28 0.42,0.42 0.66,0.58 0.88,0.86 stroke #2a1a10 0.55 width 6
+# Rope body (thick brown cord)
+bezier 0.12,0.28 0.42,0.42 0.66,0.58 0.88,0.86 stroke #8b7355 width 5
+# Rope shadow on one side (gives dimension)
+bezier 0.13,0.30 0.43,0.44 0.67,0.60 0.89,0.88 stroke #5c4a32 width 3
+# Rope highlight top
+bezier 0.11,0.26 0.41,0.40 0.65,0.56 0.87,0.84 stroke #b09070 0.7 width 1
+
+# === Braid/twist texture lines across rope ===
+line 0.18,0.30 0.22,0.26 stroke #5c4a32 0.6 width 1
+line 0.28,0.34 0.32,0.30 stroke #5c4a32 0.6 width 1
+line 0.38,0.40 0.42,0.36 stroke #5c4a32 0.6 width 1
+line 0.48,0.46 0.52,0.42 stroke #5c4a32 0.6 width 1
+line 0.58,0.52 0.62,0.48 stroke #5c4a32 0.6 width 1
+line 0.68,0.60 0.72,0.56 stroke #5c4a32 0.6 width 1
+line 0.76,0.70 0.80,0.66 stroke #5c4a32 0.6 width 1
+line 0.82,0.78 0.86,0.74 stroke #5c4a32 0.6 width 1
+
+# === Loose loop at north end (suggests noose that was cut or slipped) ===
+circle 0.18,0.26 0.10 stroke #8b7355 width 4
+circle 0.18,0.26 0.10 stroke #5c4a32 width 2
+# Knot below loop
+circle 0.22,0.34 0.035 fill #6b4e2e 0.95
+circle 0.22,0.34 0.035 stroke #3a2410
+
+# === Frayed south end (splitting strands) ===
+line 0.88,0.86 0.92,0.94 stroke #8b7355 width 2
+line 0.88,0.86 0.95,0.90 stroke #8b7355 width 2
+line 0.88,0.86 0.90,0.96 stroke #8b7355 width 2
+# Fine frayed fibers
+line 0.88,0.86 0.96,0.86 stroke #a08868 width 1
+line 0.88,0.86 0.86,0.96 stroke #a08868 width 1
+line 0.88,0.86 0.82,0.92 stroke #a08868 width 1
+
+# === Dirt/dust around rope ===
+circle 0.30,0.48 0.015 fill #3a2a1a 0.5
+circle 0.55,0.62 0.012 fill #3a2a1a 0.5
+circle 0.76,0.78 0.012 fill #3a2a1a 0.5

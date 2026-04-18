@@ -12,7 +12,7 @@ clusters_with: cutting-table, measuring-tape, sewing-bench, buttons-jar
 notes: Open tailoring shears seen from above; scatter on cutting table or workbench
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.10 0.80,0.80 z 0-0.2
+selection rect 0.10,0.10 0.80,0.80
 
 # Blade 1 (north-west to south-east diagonal)
 poly 0.18,0.16 0.26,0.12 0.58,0.54 0.50,0.58 texfill polyhaven/metal_plate 0.85

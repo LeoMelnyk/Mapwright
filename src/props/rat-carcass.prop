@@ -1,5 +1,5 @@
 name: Rat Carcass
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: dung-pile, bone-pile, stolen-shoe, rat-carcass
 notes: Dead rat on its side, tail curled, small bite marks. Goblin leftovers or plague victims.
 ---
 # === HITBOX ===
-hitbox ellipse 0.50,0.54 0.28,0.18 z 0-0.1
+selection ellipse 0.50,0.54 0.28,0.18
 
 # Stain under carcass (small pool of dark fluid)
 ellipse 0.50,0.60 0.30,0.12 fill #2a1008 0.6

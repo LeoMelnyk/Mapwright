@@ -12,7 +12,7 @@ clusters_with: bread-heel, bowl-stew, candle-stub, tankard
 notes: Humble dented tin cup with a small handle — cheap pewter/tin finish
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.18 z 0-0.2
+selection circle 0.5,0.5 0.18
 
 # Cup body (outer circle)
 circle 0.50,0.50 0.16 texfill polyhaven/metal_plate 0.85

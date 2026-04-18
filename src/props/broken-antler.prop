@@ -1,0 +1,77 @@
+name: Broken Antler
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cave-bear-lair, cave-living, hunting-lodge, cabin-hunters, wilderness, monster-lair-small
+typical_count: few
+clusters_with: small-bone, bone-pile-small, fur-nest, antler-pile, trophy-antlers
+notes: Snapped antler fragment left behind — single tine broken off in a fight
+---
+# Faint shadow under the antler
+ellipse 0.50,0.62 0.34,0.08 fill #1a0f00 0.20
+
+# Main antler shaft (curving from SW to NE — bezier)
+bezier 0.14,0.72 0.30,0.58 0.48,0.48 0.66,0.38 stroke #c8b898 width 7
+bezier 0.14,0.72 0.30,0.58 0.48,0.48 0.66,0.38 stroke #8a7060 width 1
+
+# Shaft inner highlight (top side catches light)
+bezier 0.16,0.70 0.32,0.56 0.48,0.46 0.66,0.38 stroke #e8dcc8 0.7 width 2
+
+# Broken end (jagged fracture — SW)
+poly 0.10,0.66 0.14,0.72 0.18,0.78 0.14,0.80 0.06,0.76 fill #c8b898 0.92
+poly 0.10,0.66 0.14,0.72 0.18,0.78 0.14,0.80 0.06,0.76 stroke #6a5040 width 1
+# Splinter crack marks at the break
+line 0.10,0.70 0.15,0.76 stroke #6a5040 0.8 width 1
+line 0.12,0.68 0.16,0.74 stroke #4a3020 0.7 width 1
+# Dark marrow in the break
+poly 0.11,0.72 0.14,0.74 0.13,0.76 0.09,0.75 fill #4a3020 0.85
+
+# Base / antler burr (thick end — NE)
+circle 0.68,0.36 0.08 fill #8a7060 0.92
+circle 0.68,0.36 0.08 stroke #4a3020 width 1
+circle 0.68,0.36 0.055 fill #a89078 0.8
+# Burr texture (rough beaded surface)
+circle 0.65,0.32 0.014 fill #5a4028 0.85
+circle 0.70,0.32 0.012 fill #5a4028 0.8
+circle 0.72,0.38 0.014 fill #5a4028 0.8
+circle 0.66,0.40 0.012 fill #5a4028 0.75
+circle 0.70,0.36 0.010 fill #5a4028 0.7
+
+# First tine branching upward
+bezier 0.46,0.46 0.44,0.36 0.42,0.26 0.40,0.18 stroke #c8b898 width 5
+bezier 0.46,0.46 0.44,0.36 0.42,0.26 0.40,0.18 stroke #8a7060 width 1
+# Tine tip (pointed)
+circle 0.40,0.18 0.022 fill #d4c4a8 0.9
+circle 0.40,0.18 0.022 stroke #6a5040
+# Tine highlight
+bezier 0.47,0.44 0.45,0.34 0.43,0.24 0.40,0.18 stroke #e8dcc8 0.6 width 1
+
+# Second tine (smaller, forward)
+bezier 0.56,0.42 0.56,0.34 0.58,0.26 0.62,0.20 stroke #c8b898 width 4
+bezier 0.56,0.42 0.56,0.34 0.58,0.26 0.62,0.20 stroke #8a7060 width 1
+circle 0.62,0.20 0.018 fill #d4c4a8 0.9
+circle 0.62,0.20 0.018 stroke #6a5040
+
+# Third small tine stub (broken off)
+line 0.32,0.58 0.28,0.50 stroke #c8b898 width 4
+line 0.32,0.58 0.28,0.50 stroke #8a7060 width 1
+poly 0.26,0.48 0.30,0.50 0.28,0.53 fill #6a5040 0.8
+
+# Surface ridges along shaft (natural antler texture)
+bezier 0.22,0.68 0.32,0.60 0.40,0.54 0.50,0.48 stroke #8a7060 0.5 width 1
+bezier 0.26,0.66 0.36,0.58 0.44,0.52 0.54,0.46 stroke #8a7060 0.4 width 1
+
+# Dried blood stain at the break
+ellipse 0.12,0.74 0.05,0.03 fill #5a1008 0.65
+circle 0.08,0.78 0.015 fill #5a1008 0.55
+circle 0.18,0.82 0.012 fill #5a1008 0.5
+
+# Dust / dirt on the underside
+ellipse 0.40,0.66 0.12,0.03 fill #3a2818 0.35
+ellipse 0.55,0.58 0.10,0.03 fill #3a2818 0.3
+
+# Small bone chip nearby
+poly 0.82,0.84 0.86,0.82 0.88,0.86 0.84,0.88 fill #c8b898 0.8

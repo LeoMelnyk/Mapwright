@@ -1,0 +1,71 @@
+name: Leather Strap
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.04
+placement: floor
+room_types: shop-weaponsmith, shop-leatherworker, tannery, general-workshop, armory
+typical_count: few
+clusters_with: scabbard-empty, polish-rag, workbench, leather-stack, leather-apron
+notes: Coiled brown leather strap — a finished length of hide strap ready for use. Coiled at one end, loose tail at the other.
+---
+# === HITBOX ===
+selection rect 0.14,0.14 0.72,0.72
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a looped/coiled leather strap, rolled up with a tail left hanging
+
+# === Ground shadow beneath ===
+ellipse 0.42,0.46 0.30,0.22 fill #1a1008 0.18
+
+# === Coiled portion (concentric oval loops) ===
+# Outer loop
+ering 0.42,0.46 0.28,0.22 0.22,0.16 fill #5c3a1e 0.92
+ering 0.42,0.46 0.28,0.22 0.22,0.16 stroke #2a1400 width 1
+
+# Middle loop
+ering 0.42,0.46 0.22,0.16 0.16,0.10 fill #6b4e2e 0.9
+ering 0.42,0.46 0.22,0.16 0.16,0.10 stroke #3a1f00 width 1
+
+# Inner loop
+ering 0.42,0.46 0.16,0.10 0.10,0.06 fill #5c3a1e 0.92
+ering 0.42,0.46 0.16,0.10 0.10,0.06 stroke #2a1400 width 1
+
+# Inner core (tight wrap)
+ellipse 0.42,0.46 0.10,0.06 fill #3a2010 0.95
+ellipse 0.42,0.46 0.10,0.06 stroke #1a0800
+
+# === Leather grain texture on coils (subtle crease lines) ===
+arc 0.42,0.46 0.25 0 180 stroke #3a1f00 0.55 width 1
+arc 0.42,0.46 0.20 180 360 stroke #3a1f00 0.55 width 1
+arc 0.42,0.46 0.15 30 160 stroke #2a1400 0.5 width 1
+
+# === Loose trailing end (strap extending from outer coil, running SE) ===
+poly 0.66,0.42 0.72,0.44 0.86,0.58 0.92,0.66 0.90,0.72 0.82,0.66 0.68,0.52 0.62,0.48 fill #6b4e2e 0.92
+poly 0.66,0.42 0.72,0.44 0.86,0.58 0.92,0.66 0.90,0.72 0.82,0.66 0.68,0.52 0.62,0.48 stroke #3a1f00
+
+# Strap crease line along its length
+bezier 0.68,0.46 0.76,0.52 0.84,0.60 0.89,0.68 stroke #3a1f00 0.6 width 1
+
+# === Strap tip (tapered/cut edge at the south-east end) ===
+poly 0.86,0.66 0.92,0.66 0.90,0.72 0.84,0.70 fill #4a2800 0.95
+poly 0.86,0.66 0.92,0.66 0.90,0.72 0.84,0.70 stroke #1a0800
+
+# === Tiny highlights along the coil ===
+arc 0.42,0.44 0.25 220 260 stroke #8b7355 0.6 width 1
+arc 0.42,0.44 0.18 200 240 stroke #8b7355 0.55 width 1
+
+# === Iron buckle at outer edge (optional detail) ===
+rect 0.60,0.38 0.08,0.06 fill #555555 0.9
+rect 0.60,0.38 0.08,0.06 stroke #222222
+line 0.64,0.38 0.64,0.44 stroke #333333 width 1
+
+# === Stitching holes punched in the tail ===
+circle 0.76,0.54 0.008 fill #1a0800 0.8
+circle 0.80,0.58 0.008 fill #1a0800 0.8
+circle 0.84,0.62 0.008 fill #1a0800 0.8
+
+# === Faint oil/grease spot on leather ===
+ellipse 0.46,0.42 0.05,0.03 fill #3a2010 0.55

@@ -9,13 +9,7 @@ room_types: celestial-vault, temple, cathedral, solar-sanctum, divine-sanctum
 typical_count: single
 clusters_with: pillar-marble, banner-celestial, sun-disc-altar
 notes: Radiant column of pure divine light from ceiling to floor — concentric rings, not a flame silhouette
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 8
-    color: "#fff0d0"
-    intensity: 0.9
+lights: [{"preset":"divine-radiance","x":1,"y":1,"radius":8,"intensity":0.9,"color":"#fff0d0"}]
 ---
 # Footprint 2x2: x 0-2, y 0-2
 # Top-down: looking straight down a column of light — concentric rings

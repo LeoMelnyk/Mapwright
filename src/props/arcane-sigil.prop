@@ -9,13 +9,7 @@ room_types: wizard-sanctum, ritual-chamber, workshop-artificer, alchemist-lab
 typical_count: few
 clusters_with: arcane-pedestal, magic-circle, ward-stone
 notes: Flat floor inscription — glowing rune circle about 1ft across; scatter near workstations or thresholds
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 3
-    color: "#6644cc"
-    intensity: 0.3
+lights: [{"preset":"astral","x":0.5,"y":0.5,"radius":3,"intensity":0.3,"color":"#6644cc"}]
 ---
 # Outer glow halo (faint purple wash)
 circle 0.5,0.5 0.42 gradient-radial #4422aa #000000 0.18

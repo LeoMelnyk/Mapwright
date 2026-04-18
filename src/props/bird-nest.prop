@@ -12,7 +12,7 @@ clusters_with: fallen-leaves, dust-heap, cobweb, standing-stone
 notes: Abandoned bird's nest made of twigs — possibly with eggs or feathers
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-0.1
+selection circle 0.5,0.5 0.28
 
 # Nest outer ring (woven twigs, bird's-eye view)
 ring 0.5,0.5 0.30 0.16 fill #5c3a1e 0.92

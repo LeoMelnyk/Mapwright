@@ -12,7 +12,7 @@ clusters_with: ledger-stack, document-stack, desk, inkwell
 notes: Torn piece of parchment on the floor; clutter scatter near desks or scribed texts
 ---
 # === HITBOX ===
-hitbox poly 0.22,0.32 0.78,0.28 0.82,0.68 0.20,0.72 z 0-0.05
+selection poly 0.22,0.32 0.78,0.28 0.82,0.68 0.20,0.72
 
 # Parchment body (irregular torn rectangle)
 poly 0.22,0.32 0.44,0.28 0.68,0.30 0.78,0.36 0.80,0.58 0.74,0.68 0.52,0.72 0.28,0.70 0.20,0.58 0.22,0.42 fill #e8dcc8 0.9

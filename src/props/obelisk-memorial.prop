@@ -4,12 +4,16 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+height: 12
 placement: center
 room_types: crypt, tomb, mausoleum, graveyard, memorial-hall
 typical_count: few
 clusters_with: candle-cluster, grave-marker, mourning-bell
 notes: Tall black granite memorial obelisk with rune engravings; place as focal point in burial chambers
 ---
+# === HITBOX ===
+hitbox rect 0.55,0.55 0.90,0.90 z 0-12
+
 # footprint 2x2: x range 0-2, y range 0-2
 # Radial cross-section from above — four pyramidion facets meeting at center
 # Matches obelisk.prop pattern exactly: pedestal, shaft, pyramidion

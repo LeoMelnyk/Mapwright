@@ -1,0 +1,55 @@
+name: Soot Streak
+category: Effects
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: infernal-forge, forge, smithy-large, foundry-great, hearth, chimney
+typical_count: many
+clusters_with: soot-patch, scorch-mark, ash-pile, forge, anvil
+notes: Long black soot smear on the floor — drag mark or streak from dropped hot metal, distinct from soot-patch (circular blot). Directional; rotate to match dragging direction.
+---
+# === HITBOX ===
+selection rect 0.10,0.30 0.80,0.40
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: elongated smear running north-south (default), tapering at ends
+
+# === Faint outer dust halo along the streak length ===
+ellipse 0.50,0.50 0.38,0.18 fill #1a1408 0.18
+
+# === Main streak body (tapered oval, lightly streaked) ===
+poly 0.14,0.50 0.20,0.42 0.30,0.38 0.50,0.36 0.70,0.38 0.80,0.42 0.86,0.50 0.80,0.58 0.70,0.62 0.50,0.64 0.30,0.62 0.20,0.58 fill #1a1410 0.8
+poly 0.14,0.50 0.20,0.42 0.30,0.38 0.50,0.36 0.70,0.38 0.80,0.42 0.86,0.50 0.80,0.58 0.70,0.62 0.50,0.64 0.30,0.62 0.20,0.58 stroke #0a0808 0.55
+
+# === Darker center core (thickest soot) ===
+poly 0.22,0.50 0.30,0.44 0.50,0.42 0.70,0.44 0.78,0.50 0.70,0.56 0.50,0.58 0.30,0.56 fill #0a0604 0.85
+
+# === Drag scratch marks along the streak ===
+line 0.14,0.48 0.86,0.48 stroke #0a0604 0.7 width 2
+line 0.14,0.52 0.86,0.52 stroke #0a0604 0.65 width 2
+line 0.18,0.46 0.82,0.46 stroke #1a1008 0.55 width 1
+line 0.18,0.54 0.82,0.54 stroke #1a1008 0.55 width 1
+
+# === Fade-out whisper at the west tail ===
+bezier 0.14,0.50 0.10,0.52 0.06,0.50 0.02,0.48 stroke #1a1008 0.5 width 2
+circle 0.06,0.50 0.012 fill #1a1408 0.7
+circle 0.04,0.52 0.01 fill #1a1408 0.5
+
+# === Fade-out whisper at the east tail ===
+bezier 0.86,0.50 0.90,0.52 0.94,0.48 0.98,0.46 stroke #1a1008 0.5 width 2
+circle 0.94,0.50 0.012 fill #1a1408 0.7
+circle 0.96,0.48 0.01 fill #1a1408 0.5
+
+# === Scattered soot specks along the streak ===
+circle 0.28,0.40 0.012 fill #1a1408 0.8
+circle 0.42,0.66 0.012 fill #1a1408 0.8
+circle 0.58,0.38 0.01 fill #1a1408 0.75
+circle 0.72,0.64 0.012 fill #1a1408 0.75
+circle 0.36,0.64 0.01 fill #1a1408 0.7
+circle 0.64,0.38 0.01 fill #1a1408 0.7
+
+# === Tiny bright metal fleck caught in the soot ===
+poly 0.46,0.48 0.50,0.46 0.52,0.50 0.48,0.52 fill #777777 0.65

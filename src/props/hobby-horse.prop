@@ -12,7 +12,7 @@ clusters_with: wooden-toy, rocking-horse, blocks-pile
 notes: Child's hobby horse — long wooden stick with carved horse head at north end
 ---
 # === HITBOX ===
-hitbox rect 0.44,0.14 0.12,0.80 z 0-0.15
+selection rect 0.44,0.14 0.12,0.80
 
 # Long wooden stick/rod running north-south (south portion is the grip)
 rect 0.47,0.38 0.06,0.56 texfill polyhaven/dark_wood 0.88

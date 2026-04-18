@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 2.5
-lights: [{"preset":"torch","x":1.0,"y":1.0,"radius":20,"color":"#ff7030","intensity":1.0}]
+lights: [{"preset":"bonfire","x":1.0,"y":1.0,"radius":20,"color":"#ff7030","intensity":1.0}]
 placement: center
 room_types: fairground-seasonal, festival-grounds, village-green, war-camp, orc-war-camp
 typical_count: single
@@ -15,7 +15,7 @@ notes: Roaring festive bonfire with a pyramid of large logs, tall flames, and a 
 # footprint 2x2: x range 0-2, y range 0-2
 
 # === HITBOX ===
-hitbox circle 1.0,1.0 0.60 z 0-2.5
+selection circle 1.0,1.0 0.60
 
 # === Stone ring at base ===
 # Ring of stones around perimeter

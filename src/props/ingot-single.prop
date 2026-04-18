@@ -12,7 +12,7 @@ clusters_with: ingot-stack, iron-scrap, casting-pit, sand-mold, crucible
 notes: A single cast iron ingot — trapezoidal bar with a stamped foundry mark near one end. Scatter near casting-pit and sand-mold.
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.24 0.56,0.54 z 0-0.12
+selection rect 0.22,0.24 0.56,0.54
 
 # Shadow hint around ingot (subtle ground darken — not a drop shadow)
 rect 0.20,0.26 0.60,0.52 fill #1a1008 0.2

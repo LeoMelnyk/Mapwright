@@ -12,7 +12,7 @@ clusters_with: chieftains-throne, bonfire, bone-shrine, skull-trophy
 notes: Tall warding pole with stacked skulls and tattered flags — tribal boundary marker. Top-down shows the pole cross-section with bone shards radiating.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.16 z 0-2.2
+selection circle 0.5,0.5 0.16
 
 # Faint ground shadow halo (just under pole base)
 circle 0.5,0.5 0.32 fill #0a0400 0.25

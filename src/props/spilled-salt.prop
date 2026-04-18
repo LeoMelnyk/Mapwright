@@ -1,0 +1,63 @@
+name: Spilled Salt
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: ritual-chamber, cabin-witch, kitchen, cult-altar, tavern-kitchen, wizard-sanctum, cultist-shrine
+typical_count: few
+clusters_with: chalk-circle-floor, chalk-marks, salt-brick, salt-sack, spilled-salt, candle
+notes: Spilled white salt pattern on the floor — loose granular scatter with crystal gleams. Flat floor, no shadow.
+---
+# Flat floor decal
+
+# === Main salt scatter (irregular white blob) ===
+poly 0.22,0.46 0.28,0.30 0.40,0.22 0.54,0.22 0.66,0.28 0.76,0.38 0.78,0.52 0.72,0.64 0.58,0.72 0.42,0.74 0.28,0.68 0.20,0.58 fill #f0ece4 0.88
+poly 0.22,0.46 0.28,0.30 0.40,0.22 0.54,0.22 0.66,0.28 0.76,0.38 0.78,0.52 0.72,0.64 0.58,0.72 0.42,0.74 0.28,0.68 0.20,0.58 stroke #d8d0c0 0.5 width 1
+
+# === Brighter center (densest salt) ===
+ellipse 0.48,0.48 0.22,0.18 fill #ffffff 0.65
+
+# === Ridge highlights (where salt piles up unevenly) ===
+bezier 0.30,0.44 0.40,0.38 0.52,0.42 0.60,0.38 stroke #ffffff 0.5 width 2
+bezier 0.35,0.58 0.46,0.62 0.56,0.56 0.64,0.58 stroke #ffffff 0.45 width 2
+
+# === Trailing / dragged line (where salt was poured in a line) ===
+qbezier 0.76,0.38 0.84,0.28 0.92,0.20 stroke #f0ece4 0.8 width 4
+qbezier 0.76,0.38 0.84,0.28 0.92,0.20 stroke #ffffff 0.5 width 2
+
+# Second trail south
+qbezier 0.58,0.72 0.64,0.82 0.72,0.90 stroke #f0ece4 0.7 width 3
+
+# === Loose granules scattered outside main blob ===
+circle 0.16,0.34 0.022 fill #ffffff 0.9
+circle 0.14,0.52 0.018 fill #ffffff 0.85
+circle 0.18,0.68 0.02 fill #ffffff 0.85
+circle 0.82,0.42 0.02 fill #ffffff 0.85
+circle 0.84,0.58 0.018 fill #ffffff 0.8
+circle 0.86,0.70 0.016 fill #ffffff 0.8
+circle 0.38,0.16 0.018 fill #ffffff 0.85
+circle 0.54,0.14 0.016 fill #ffffff 0.8
+circle 0.66,0.18 0.015 fill #ffffff 0.75
+circle 0.32,0.80 0.017 fill #ffffff 0.8
+circle 0.50,0.82 0.016 fill #ffffff 0.8
+circle 0.64,0.80 0.014 fill #ffffff 0.75
+
+# === Tiny distant grains (far scatter) ===
+circle 0.08,0.28 0.012 fill #ffffff 0.7
+circle 0.90,0.32 0.01 fill #ffffff 0.65
+circle 0.08,0.72 0.012 fill #ffffff 0.7
+circle 0.90,0.78 0.011 fill #ffffff 0.65
+circle 0.22,0.92 0.01 fill #ffffff 0.6
+
+# === Crystalline sparkle on larger grains ===
+line 0.48,0.48 0.50,0.50 stroke #ffffff 0.95 width 1
+line 0.40,0.52 0.42,0.54 stroke #ffffff 0.85 width 1
+line 0.56,0.44 0.58,0.46 stroke #ffffff 0.85 width 1
+circle 0.48,0.48 0.01 fill #ffffff 1.0
+circle 0.40,0.40 0.008 fill #ffffff 0.9
+
+# === Tipped salt container hint (small dark crescent — where the container tipped) ===
+arc 0.12,0.40 0.08 300 60 stroke #8b6914 0.6 width 2

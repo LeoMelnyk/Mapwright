@@ -1,5 +1,5 @@
 name: Prayer Stone
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: cairn-sacred, shrine-stone, coin-offering, feather-bundle, ribbon
 notes: Small smooth oval stone worn by generations of kneeling supplicants; carved with a single blessing rune
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.52 0.26,0.20 z 0-0.4
+selection ellipse 0.5,0.52 0.26,0.20
 
 # Main stone body (smoothed oval — low domed river rock)
 ellipse 0.50,0.54 0.26,0.20 texfill polyhaven/granite_tile 0.85

@@ -1,0 +1,57 @@
+name: Rope Bridge
+category: Structure
+footprint: 1x4
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: chasm-crossing, ravine, jungle, forest, wilderness, cave-entrance, dockside, swamp
+typical_count: single
+clusters_with: anchor-post, broken-bridge-stub, winch-platform, bridge-wood, rope-coil, fence-post, fence-rope
+notes: Rickety rope bridge with plank treads — runs east-west across a gap. Pair with anchor-posts at the ends; place over a pit or chasm fill.
+---
+# === HITBOX ===
+selection rect 0.04,0.20 3.92,0.60
+
+# Outer rope rails (north and south long ropes, drawn first)
+line 0.04,0.24 3.96,0.24 stroke #8b7355 width 3
+line 0.04,0.76 3.96,0.76 stroke #8b7355 width 3
+
+# Rope strand highlights
+line 0.04,0.22 3.96,0.22 stroke #a89070 0.7 width 1
+line 0.04,0.78 3.96,0.78 stroke #a89070 0.7 width 1
+
+# Wooden plank treads (regular spacing, slightly irregular widths for rustic feel)
+rect 0.10,0.30 0.38,0.44 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.30 0.38,0.44 stroke #3a1f00
+rect 0.56,0.32 0.40,0.40 texfill polyhaven/weathered_planks 0.85
+rect 0.56,0.32 0.40,0.40 stroke #3a1f00
+rect 1.04,0.30 0.38,0.44 texfill polyhaven/weathered_planks 0.85
+rect 1.04,0.30 0.38,0.44 stroke #3a1f00
+rect 1.50,0.32 0.38,0.42 texfill polyhaven/weathered_planks 0.85
+rect 1.50,0.32 0.38,0.42 stroke #3a1f00
+rect 1.96,0.30 0.40,0.44 texfill polyhaven/weathered_planks 0.85
+rect 1.96,0.30 0.40,0.44 stroke #3a1f00
+rect 2.44,0.32 0.38,0.42 texfill polyhaven/weathered_planks 0.85
+rect 2.44,0.32 0.38,0.42 stroke #3a1f00
+rect 2.90,0.30 0.38,0.44 texfill polyhaven/weathered_planks 0.85
+rect 2.90,0.30 0.38,0.44 stroke #3a1f00
+rect 3.36,0.32 0.40,0.42 texfill polyhaven/weathered_planks 0.85
+rect 3.36,0.32 0.40,0.42 stroke #3a1f00
+
+# Rope tie-offs binding each plank to the rails (small knot markers)
+circle 0.12,0.24 0.03 fill #5c3a1e 0.9
+circle 0.46,0.24 0.03 fill #5c3a1e 0.9
+circle 0.58,0.24 0.03 fill #5c3a1e 0.9
+circle 1.06,0.24 0.03 fill #5c3a1e 0.9
+circle 1.52,0.24 0.03 fill #5c3a1e 0.9
+circle 1.98,0.24 0.03 fill #5c3a1e 0.9
+circle 2.46,0.24 0.03 fill #5c3a1e 0.9
+circle 2.92,0.24 0.03 fill #5c3a1e 0.9
+circle 3.38,0.24 0.03 fill #5c3a1e 0.9
+circle 3.76,0.24 0.03 fill #5c3a1e 0.9
+
+# Subtle sag in the rail lines (quadratic bezier mid-bridge)
+qbezier 1.80,0.22 2.00,0.27 2.20,0.22 stroke #7a6345 0.55 width 1
+qbezier 1.80,0.78 2.00,0.74 2.20,0.78 stroke #7a6345 0.55 width 1

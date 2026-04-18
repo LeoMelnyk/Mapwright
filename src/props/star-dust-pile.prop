@@ -9,13 +9,7 @@ room_types: astral-anchor, astral-sea, spelljammer-dock, planar-nexus
 typical_count: many
 clusters_with: drifting-stone, silver-cord-stub, planar-sigil-shard
 notes: Shimmering drift of silver-white dust — particulate starlight settled into a soft mound. Scatter freely across astral rooms.
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 5
-    color: "#e0e0ff"
-    intensity: 0.4
+lights: [{"preset":"silvery","x":0.5,"y":0.5,"radius":5,"intensity":0.4,"color":"#e0e0ff"}]
 ---
 # Soft glow halo
 circle 0.5,0.5 0.42 gradient-radial #e0e0ff #1a0828 0.2

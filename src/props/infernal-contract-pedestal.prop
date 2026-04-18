@@ -4,12 +4,16 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: yes
+height: 2.5
 placement: center
 room_types: infernal-court, throne-room, fiend-lair, study, wizard-sanctum
 typical_count: single
 clusters_with: candle-cluster, soul-coin-pile, iron-throne-spiked
 notes: Short stone pedestal with an unfurled black parchment contract; place as a focal point
 ---
+# === HITBOX ===
+hitbox rect 0.25,0.25 0.50,0.50 z 0-2.5
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: stone pedestal (square base) with unfurled dark parchment on top
 

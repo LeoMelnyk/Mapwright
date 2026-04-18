@@ -10,13 +10,7 @@ room_types: elemental-water-node, aquatic-shrine, sunken-temple, coral-reef
 typical_count: few
 clusters_with: anemone-small, coral-pillar, kelp-strand, pearl-cluster
 notes: Bioluminescent sea anemone; place in scatters on aquatic floors as living light source
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 8
-    color: "#40a0ff"
-    intensity: 0.7
+lights: [{"preset":"bioluminescence","x":0.5,"y":0.5,"radius":8,"intensity":0.7,"color":"#40a0ff"}]
 ---
 # Outer bioluminescent halo
 circle 0.5,0.5 0.46 gradient-radial #40a0ff #0a1830 0.45

@@ -9,13 +9,7 @@ room_types: elemental-fire-node, volcano-caldera, elemental-node
 typical_count: few
 clusters_with: ember-pit, lava-fountain, ember-drift
 notes: Small elongated pool of lava in a stone basin. Cooled dark crust edges with bright orange cracks running through.
-lights:
-  - type: candle
-    x: 1.0
-    y: 0.5
-    radius: 10
-    color: "#ff4020"
-    intensity: 0.8
+lights: [{"preset":"lava-glow","x":1,"y":0.5,"radius":10,"intensity":0.8,"color":"#ff4020"}]
 ---
 # footprint 1x2: x range 0-2, y range 0-1
 

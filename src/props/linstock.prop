@@ -1,10 +1,10 @@
 name: Linstock
-category: Weapon
+category: Combat
 footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: no
-lights: [{"type":"candle","x":0.5,"y":0.18,"radius":3,"color":"#ff8030","intensity":0.4}]
+lights: [{"preset":"ember","x":0.5,"y":0.18,"radius":3,"color":"#ff8030","intensity":0.4}]
 placement: floor
 room_types: ship-gun-deck, warship, gunnery, frigate-deck
 typical_count: few

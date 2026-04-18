@@ -12,7 +12,7 @@ clusters_with: reagent-rack, specimen-jar-shelf, animal-skull, inkwell, broken-v
 notes: Small labeled glass jar with unknown purple substance — alchemy reagent.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.52 0.22 z 0-0.4
+selection circle 0.5,0.52 0.22
 
 # Jar body (glass circle with colored substance)
 circle 0.50,0.54 0.24 fill #d8e8e4 0.65

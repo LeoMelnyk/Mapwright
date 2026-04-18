@@ -12,7 +12,7 @@ clusters_with: altar, banner-religious, icon-wall, candelabra, tapestry
 notes: Large wine-red and gold religious tapestry hung on the wall — heavy brass rod with finials, thin fabric top strip with gold embroidery and central holy medallion
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.04 2.84,0.22 z 0-3.5
+selection rect 0.08,0.04 2.84,0.22
 
 # footprint 1x3: x 0-3, y 0-1
 # Top-down wall textile: brass rod + finials + thin fabric top strip only.

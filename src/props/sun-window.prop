@@ -1,0 +1,53 @@
+name: Sun Window
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.01
+lights: [{"preset":"daylight","x":1.0,"y":0.5,"radius":5,"color":"#ffeaa0","intensity":0.6}]
+placement: wall
+room_types: noble-solar, mansion-grand-hall, house-noble-townhouse, library, study, mansion-bedroom-master, chapel
+typical_count: single
+clusters_with: window-seat, curtain, rug-oriental, armchair
+notes: Flat floor decal of warm sunlight spilling through a window onto the floor. Placed against a wall — the light beam fans south away from the wall. Emits a faint warm ambient light.
+---
+# Flat decal — no hitbox needed, but provide a nominal one
+selection rect 0.04,0.04 1.92,0.92
+
+# footprint 1x2: x 0-2, y 0-1
+# Window frame hint (narrow strip along north wall)
+rect 0.20,0.02 1.60,0.06 fill #3a2810 0.7
+rect 0.20,0.02 1.60,0.06 stroke #1a0a00 width 1
+
+# Three muntins (window panes divided into 3 sections)
+line 0.73,0.02 0.73,0.08 stroke #1a0a00 0.85 width 1
+line 1.27,0.02 1.27,0.08 stroke #1a0a00 0.85 width 1
+
+# Glass gleam on frame
+line 0.24,0.04 1.76,0.04 stroke #ffeaa0 0.6 width 1
+
+# Main light spill — fans outward (trapezoid from window)
+poly 0.30,0.08 1.70,0.08 1.90,0.94 0.10,0.94 fill #ffeaa0 0.35
+poly 0.30,0.08 1.70,0.08 1.90,0.94 0.10,0.94 fill #ffd860 0.25
+
+# Brighter inner beam
+poly 0.45,0.08 1.55,0.08 1.70,0.78 0.30,0.78 fill #ffeaa0 0.45
+
+# Hottest center (near window)
+poly 0.60,0.08 1.40,0.08 1.50,0.50 0.50,0.50 fill #fff0b8 0.55
+
+# Muntin shadow bars within the spill (window frame shadows)
+poly 0.70,0.08 0.76,0.08 0.80,0.94 0.70,0.94 fill #5a4a2a 0.3
+poly 1.24,0.08 1.30,0.08 1.30,0.94 1.20,0.94 fill #5a4a2a 0.3
+
+# Subtle dust motes / specks (tiny warm dots inside the beam)
+circle 0.55,0.30 0.012 fill #ffffff 0.55
+circle 0.80,0.50 0.010 fill #ffffff 0.5
+circle 1.20,0.40 0.012 fill #ffffff 0.55
+circle 1.45,0.65 0.010 fill #ffffff 0.45
+circle 0.95,0.70 0.008 fill #ffffff 0.4
+
+# Soft feathered edges (fading outward)
+line 0.10,0.94 0.30,0.08 stroke #ffeaa0 0.25 width 2
+line 1.90,0.94 1.70,0.08 stroke #ffeaa0 0.25 width 2

@@ -12,7 +12,7 @@ clusters_with: wine-bottle, decanter, table, candelabra, silver-bowl
 notes: Ornate metal goblet viewed from above — bowl with jeweled rim
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.20 z 0-0.3
+selection circle 0.5,0.5 0.20
 
 # Foot base (widest — gold ring)
 circle 0.5,0.56 0.20 fill #8b6914 0.9

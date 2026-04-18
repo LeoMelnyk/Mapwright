@@ -12,7 +12,7 @@ clusters_with: bloodstain, blood-smear, corpse, tool-cart, chair-restraint
 notes: Discarded rag soaked through with blood — balled up or thrown aside
 ---
 # === HITBOX ===
-hitbox rect 0.16,0.24 0.68,0.56 z 0-0.03
+selection rect 0.16,0.24 0.68,0.56
 
 # Main crumpled rag (stained dark red)
 poly 0.18,0.42 0.26,0.28 0.40,0.24 0.56,0.26 0.70,0.30 0.82,0.42 0.80,0.56 0.70,0.70 0.56,0.78 0.40,0.78 0.26,0.72 0.16,0.60 fill #5a1818 0.92

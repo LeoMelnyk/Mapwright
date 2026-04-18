@@ -1,0 +1,70 @@
+name: Wooden Scoop
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.12
+placement: floor
+room_types: mill-grain, bakery, farmhouse-kitchen, granary, pantry, kitchen
+typical_count: single
+clusters_with: sack, sack-pile, barrel, millstone
+notes: Wooden grain scoop resting on a surface — elongated oval bowl with a handle extending south
+---
+# === HITBOX ===
+selection rect 0.28,0.12 0.44,0.74
+
+# Faint shadow
+ellipse 0.50,0.40 0.24,0.24 fill #1a1008 0.3
+
+# === Scoop bowl (rounded oval, wider at north, opening toward south) ===
+ellipse 0.50,0.36 0.24,0.22 texfill polyhaven/dark_wood 0.88
+ellipse 0.50,0.36 0.24,0.22 fill #4a2800 0.35
+ellipse 0.50,0.36 0.24,0.22 stroke #2a1400 width 2
+
+# === Scoop interior cavity (darker, recessed) ===
+ellipse 0.50,0.38 0.18,0.16 fill #2a1400 0.85
+ellipse 0.50,0.38 0.18,0.16 stroke #1a0800 width 1
+
+# Inner wood grain (curved)
+arc 0.50,0.38 0.14 20 160 stroke #3a2010 0.7 width 1
+arc 0.50,0.38 0.10 200 340 stroke #3a2010 0.6 width 1
+
+# === Grain spilling inside the scoop ===
+circle 0.44,0.36 0.015 fill #c8a860 0.85
+circle 0.50,0.34 0.015 fill #c8a860 0.85
+circle 0.54,0.38 0.015 fill #c8a860 0.85
+circle 0.46,0.40 0.013 fill #c8a860 0.8
+circle 0.52,0.42 0.013 fill #c8a860 0.8
+circle 0.48,0.32 0.012 fill #c8a860 0.75
+circle 0.56,0.34 0.012 fill #c8a860 0.75
+circle 0.42,0.40 0.01 fill #c8a860 0.7
+
+# Scoop rim highlight (front lip where grain pours out)
+arc 0.50,0.36 0.22 30 150 stroke #1a0800 0.8 width 1
+arc 0.50,0.36 0.22 210 330 stroke #8b6914 0.6 width 1
+
+# === Handle (extending south — long wooden stem) ===
+rect 0.46,0.48 0.08,0.32 texfill polyhaven/dark_wood 0.9
+rect 0.46,0.48 0.08,0.32 fill #4a2800 0.4
+rect 0.46,0.48 0.08,0.32 stroke #2a1400 width 2
+
+# Handle wood grain
+line 0.48,0.50 0.48,0.78 stroke #2a1400 0.6 width 1
+line 0.52,0.50 0.52,0.78 stroke #2a1400 0.6 width 1
+
+# Handle knob/end cap
+circle 0.50,0.82 0.06 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.82 0.06 fill #3a1f00 0.5
+circle 0.50,0.82 0.06 stroke #2a1400 width 2
+
+# Joint where handle meets scoop (reinforcement)
+rect 0.44,0.46 0.12,0.06 fill #3a1f00 0.7
+rect 0.44,0.46 0.12,0.06 stroke #2a1400
+
+# Wood wear/dents
+ellipse 0.40,0.32 0.04,0.02 fill #2a1400 0.4
+ellipse 0.60,0.40 0.03,0.02 fill #2a1400 0.3
+
+# Highlight on scoop
+arc 0.50,0.36 0.22 200 240 stroke #8b6914 0.5 width 1

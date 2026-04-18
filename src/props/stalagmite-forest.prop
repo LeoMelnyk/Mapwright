@@ -1,0 +1,92 @@
+name: Stalagmite Forest
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: cave, cave-living, cave-deep, underdark, mushroom-cavern
+typical_count: few
+clusters_with: stalagmite, boulder, crystal-formation, cave-pool
+notes: Dense forest of stalagmites rising from the cave floor — acts as a difficult-terrain barrier
+---
+# === HITBOX ===
+hitbox circle 0.55,0.55 0.30 z 0-3
+hitbox circle 1.45,0.55 0.28 z 0-3
+hitbox circle 0.60,1.45 0.28 z 0-3
+hitbox circle 1.40,1.40 0.32 z 0-3
+hitbox circle 1.00,1.00 0.22 z 0-3
+
+# Ground shadow wash across entire cluster
+ellipse 1.0,1.0 0.88,0.82 fill #000000 0.15
+ellipse 1.0,1.0 0.72,0.68 fill #000000 0.12
+
+# === Stalagmite 1 — large NW ===
+circle 0.55,0.55 0.32 fill #000000 0.15
+circle 0.55,0.55 0.30 texfill polyhaven/rock_boulder_cracked 0.75
+circle 0.55,0.55 0.30 stroke #3a3a3a 0.6
+line 0.55,0.27 0.53,0.83 stroke #4a4a4a 0.2
+line 0.83,0.55 0.27,0.55 stroke #4a4a4a 0.18
+circle 0.55,0.55 0.22 texfill polyhaven/rock_boulder_cracked 0.82
+circle 0.55,0.55 0.22 stroke #555555 0.5
+circle 0.53,0.53 0.14 fill #777777 0.7
+circle 0.53,0.53 0.14 stroke #666666 0.4
+circle 0.52,0.52 0.06 fill #999999 0.8
+circle 0.52,0.52 0.03 fill #aaaaaa 0.7
+
+# === Stalagmite 2 — large NE ===
+circle 1.45,0.55 0.30 fill #000000 0.15
+circle 1.45,0.55 0.28 texfill polyhaven/rock_boulder_cracked 0.75
+circle 1.45,0.55 0.28 stroke #3a3a3a 0.6
+line 1.45,0.29 1.43,0.81 stroke #4a4a4a 0.2
+line 1.71,0.55 1.19,0.55 stroke #4a4a4a 0.18
+circle 1.45,0.55 0.20 texfill polyhaven/rock_boulder_cracked 0.82
+circle 1.45,0.55 0.20 stroke #555555 0.5
+circle 1.44,0.54 0.12 fill #777777 0.7
+circle 1.43,0.53 0.05 fill #999999 0.8
+circle 1.43,0.53 0.025 fill #aaaaaa 0.7
+
+# === Stalagmite 3 — medium SW ===
+circle 0.60,1.45 0.30 fill #000000 0.15
+circle 0.60,1.45 0.28 texfill polyhaven/rock_boulder_cracked 0.75
+circle 0.60,1.45 0.28 stroke #3a3a3a 0.6
+line 0.60,1.19 0.58,1.71 stroke #4a4a4a 0.2
+line 0.86,1.45 0.34,1.45 stroke #4a4a4a 0.18
+circle 0.60,1.45 0.20 texfill polyhaven/rock_boulder_cracked 0.82
+circle 0.60,1.45 0.20 stroke #555555 0.5
+circle 0.58,1.43 0.12 fill #777777 0.7
+circle 0.58,1.43 0.05 fill #999999 0.8
+circle 0.58,1.43 0.025 fill #aaaaaa 0.7
+
+# === Stalagmite 4 — largest SE ===
+circle 1.40,1.40 0.34 fill #000000 0.18
+circle 1.40,1.40 0.32 texfill polyhaven/rock_boulder_cracked 0.75
+circle 1.40,1.40 0.32 stroke #3a3a3a 0.6
+line 1.40,1.10 1.38,1.72 stroke #4a4a4a 0.2
+line 1.70,1.40 1.10,1.40 stroke #4a4a4a 0.18
+circle 1.40,1.40 0.24 texfill polyhaven/rock_boulder_cracked 0.82
+circle 1.40,1.40 0.24 stroke #555555 0.5
+circle 1.38,1.38 0.16 fill #777777 0.7
+circle 1.38,1.38 0.16 stroke #666666 0.4
+circle 1.37,1.37 0.08 fill #999999 0.8
+circle 1.37,1.37 0.04 fill #aaaaaa 0.7
+
+# === Stalagmite 5 — small center ===
+circle 1.00,1.00 0.24 fill #000000 0.15
+circle 1.00,1.00 0.22 texfill polyhaven/rock_boulder_cracked 0.75
+circle 1.00,1.00 0.22 stroke #3a3a3a 0.6
+circle 1.00,1.00 0.14 texfill polyhaven/rock_boulder_cracked 0.82
+circle 1.00,1.00 0.14 stroke #555555 0.5
+circle 0.99,0.99 0.08 fill #777777 0.7
+circle 0.99,0.99 0.03 fill #aaaaaa 0.7
+
+# Small rubble/broken stalagmites at base
+circle 0.30,0.95 0.06 fill #4a4a4a 0.85
+circle 0.30,0.95 0.06 stroke #2a2a2a
+circle 1.72,1.00 0.055 fill #4a4a4a 0.85
+circle 1.72,1.00 0.055 stroke #2a2a2a
+circle 1.00,0.28 0.05 fill #4a4a4a 0.8
+circle 1.00,1.74 0.05 fill #4a4a4a 0.8
+circle 0.20,1.72 0.04 fill #3a3a3a 0.8
+circle 1.78,0.22 0.04 fill #3a3a3a 0.8

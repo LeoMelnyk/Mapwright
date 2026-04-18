@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 0.6
-lights: [{"preset":"candle","x":0.5,"y":0.5,"color":"#8080ff","intensity":0.3,"radius":3}]
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"color":"#8080ff","intensity":0.3,"radius":3}]
 placement: floor
 room_types: cabin-witch, crystal-grotto, elemental-earth-node, workshop-artificer, underdark-outpost, demiplane-laboratory
 typical_count: few
@@ -13,7 +13,7 @@ clusters_with: crystal-formation, crystal-ball, crystal-torch, arcane-pedestal, 
 notes: Single pointed crystal shard, softly glowing — magical/elemental energy
 ---
 # === HITBOX ===
-hitbox poly 0.42,0.68 0.58,0.68 0.54,0.22 0.46,0.22 z 0-0.6
+selection poly 0.42,0.68 0.58,0.68 0.54,0.22 0.46,0.22
 
 # Shadow
 ellipse 0.5,0.78 0.18,0.04 fill #1a1008 0.3

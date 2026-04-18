@@ -1,0 +1,39 @@
+name: Shrub
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: yes
+height: 2
+placement: floor
+room_types: garden, courtyard, wilderness, forest, hedge-maze, druid-grove, fey-glade, churchyard, graveyard
+typical_count: many
+clusters_with: shrub, bush, bush-berry, flowers, wildflower-patch, tree-small, fern-cluster
+notes: Small dense shrub — smaller and tighter than bush. Cluster along paths, fencelines, or building foundations.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.55 0.18 z 0-2
+
+# Light ground shadow
+circle 0.50,0.60 0.26 fill #152010 0.20
+
+# Outer canopy — tight, round
+circle 0.50,0.50 0.32 fill #1d4a12 0.75
+circle 0.35,0.55 0.18 fill #1e4a14 0.7
+circle 0.65,0.55 0.18 fill #1e4a14 0.7
+circle 0.42,0.42 0.16 fill #214e16 0.7
+circle 0.58,0.42 0.16 fill #214e16 0.7
+
+# Mid layer
+circle 0.50,0.50 0.22 fill #2a6018 0.75
+circle 0.44,0.44 0.12 fill #2d6a1e 0.65
+
+# Bright sun-catching crown
+circle 0.48,0.46 0.12 fill #3a7a28 0.55
+circle 0.52,0.50 0.08 fill #4a8a30 0.45
+
+# Tiny flecks suggesting individual leaves
+circle 0.38,0.50 0.025 fill #1a4010 0.35
+circle 0.60,0.54 0.025 fill #1a4010 0.3
+circle 0.46,0.56 0.02 fill #1a4010 0.3
+circle 0.56,0.46 0.02 fill #1a4010 0.25

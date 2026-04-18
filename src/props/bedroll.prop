@@ -12,7 +12,7 @@ clusters_with: pallet, pack, campfire, bedroll
 notes: Simple rolled-out sleeping mat; place along walls or around fires
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.18 0.76,1.68 z 0-0.3
+selection rect 0.12,0.18 0.76,1.68
 
 # Groundsheet/mat (dark, larger outline — the roll unrolls full length)
 rect 0.12,0.18 0.76,1.68 texfill polyhaven/rough_linen 0.7

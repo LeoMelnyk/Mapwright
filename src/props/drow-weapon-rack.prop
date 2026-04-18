@@ -12,7 +12,7 @@ clusters_with: spider-silk-drape, faerzress-sconce, drow-command-slab
 notes: Wall-mounted obsidian rack with hanging curved drow swords and short bows — place on drow outpost walls
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.06 1.80,0.36 z 0-5
+selection rect 0.10,0.06 1.80,0.36
 
 # Obsidian horizontal mounting bar (flush to north wall)
 rect 0.10,0.06 1.80,0.16 fill #1a1020 0.95

@@ -1,0 +1,90 @@
+name: Loose Jewelry
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: thieves-guild-hideout, treasure-vault, vault, shop-jeweler, cave-bandit-camp, reliquary
+typical_count: few
+clusters_with: coin-pile, coin-spill, gem-cluster, mask-cloth, lockpicks, chest
+notes: Scattered loose jewelry — rings, necklaces, brooches, gems on a surface
+---
+# === HITBOX ===
+selection rect 0.14,0.14 0.72,0.72
+
+# Faint shadow
+ellipse 0.50,0.60 0.32,0.14 fill #1a1008 0.25
+
+# === Gold necklace (chain curving across) ===
+bezier 0.14,0.30 0.30,0.20 0.50,0.28 0.66,0.22 stroke #daa520 width 2
+bezier 0.14,0.30 0.30,0.20 0.50,0.28 0.66,0.22 stroke #5a3a00 0.6 width 1
+bezier 0.66,0.22 0.78,0.28 0.86,0.36 0.84,0.48 stroke #daa520 width 2
+bezier 0.66,0.22 0.78,0.28 0.86,0.36 0.84,0.48 stroke #5a3a00 0.6 width 1
+# Chain link dots (tiny circles along curve)
+circle 0.22,0.26 0.012 fill #ffd700 0.9
+circle 0.34,0.23 0.012 fill #ffd700 0.9
+circle 0.46,0.25 0.012 fill #ffd700 0.9
+circle 0.58,0.24 0.012 fill #ffd700 0.9
+circle 0.72,0.26 0.012 fill #ffd700 0.9
+circle 0.80,0.34 0.012 fill #ffd700 0.9
+
+# Necklace pendant (teardrop gem)
+poly 0.82,0.48 0.86,0.52 0.82,0.58 0.78,0.52 fill #1848a0 0.95
+poly 0.82,0.48 0.86,0.52 0.82,0.58 0.78,0.52 stroke #0a1830
+circle 0.82,0.52 0.008 fill #ffffff 0.95
+
+# === Gold ring (circle, SW) ===
+ring 0.26,0.58 0.09 0.06 fill #daa520 0.95
+ring 0.26,0.58 0.09 0.06 stroke #5a3a00
+# Ring gem on top
+circle 0.26,0.50 0.025 fill #cc1828 0.95
+circle 0.26,0.50 0.025 stroke #5a0808
+circle 0.26,0.50 0.006 fill #ffffff 0.9
+
+# === Silver ring (overlapping gold ring) ===
+ring 0.38,0.62 0.08 0.055 fill #cccccc 0.95
+ring 0.38,0.62 0.08 0.055 stroke #555555
+
+# === Brooch (oval with central gem, center) ===
+ellipse 0.54,0.52 0.08,0.06 fill #daa520 0.95
+ellipse 0.54,0.52 0.08,0.06 stroke #5a3a00 width 1
+# Brooch filigree swirls
+arc 0.54,0.52 0.07 0 180 stroke #ffd700 0.7 width 1
+arc 0.54,0.52 0.07 180 360 stroke #8b6914 0.7 width 1
+# Central brooch gem
+circle 0.54,0.52 0.022 fill #2a8040 0.95
+circle 0.54,0.52 0.022 stroke #0a3018
+circle 0.54,0.52 0.006 fill #ffffff 0.9
+
+# === Gold bracelet/bangle (SE) ===
+ering 0.68,0.68 0.11,0.09 0.08,0.06 fill #daa520 0.9
+ering 0.68,0.68 0.11,0.09 0.08,0.06 stroke #5a3a00
+# Bangle etching
+arc 0.68,0.68 0.10 30 150 stroke #ffd700 0.7 width 1
+
+# === Loose gems between ===
+# Small ruby
+poly 0.18,0.44 0.22,0.42 0.24,0.46 0.20,0.48 fill #cc1828 0.9
+poly 0.18,0.44 0.22,0.42 0.24,0.46 0.20,0.48 stroke #5a0808
+# Small emerald
+poly 0.44,0.72 0.48,0.70 0.50,0.74 0.46,0.76 fill #2a8040 0.9
+poly 0.44,0.72 0.48,0.70 0.50,0.74 0.46,0.76 stroke #0a3018
+# Small amethyst
+poly 0.62,0.32 0.66,0.30 0.68,0.34 0.64,0.36 fill #6a2080 0.9
+poly 0.62,0.32 0.66,0.30 0.68,0.34 0.64,0.36 stroke #2a1040
+
+# Tiny pearls
+circle 0.30,0.76 0.018 fill #f0e8d8 0.95
+circle 0.30,0.76 0.018 stroke #aaa088
+circle 0.34,0.78 0.018 fill #f0e8d8 0.95
+circle 0.34,0.78 0.018 stroke #aaa088
+circle 0.56,0.78 0.018 fill #f0e8d8 0.95
+circle 0.56,0.78 0.018 stroke #aaa088
+
+# Sparkle glints
+circle 0.26,0.50 0.008 fill #ffffff 0.85
+circle 0.54,0.48 0.008 fill #ffffff 0.85
+circle 0.82,0.52 0.01 fill #ffffff 0.7
+circle 0.68,0.68 0.008 fill #ffee88 0.8

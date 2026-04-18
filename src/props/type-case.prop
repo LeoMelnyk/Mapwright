@@ -1,0 +1,93 @@
+name: Type Case
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: wall
+room_types: scriptorium-mundane, guildhall, workshop, publisher-shop
+typical_count: few
+clusters_with: printing-press, ledger-stack, ink-stone, desk
+notes: Wall-hung partitioned wooden tray of lead type pieces arranged in small compartments; used by printers
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.66 z 0-0.8
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down view: flat wooden tray hung on the wall, partitioned into a grid of small cells each holding lead type
+
+# Outer tray frame (dark wood)
+rect 0.08,0.06 1.84,0.66 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.06 1.84,0.66 stroke #1a0e00 width 2
+
+# Inner tray bed (recessed — where partitions sit)
+rect 0.12,0.10 1.76,0.58 fill #2a1400 0.8
+rect 0.12,0.10 1.76,0.58 stroke #1a0e00
+
+# Vertical partitions (wooden dividers — 8 columns)
+line 0.34,0.10 0.34,0.68 stroke #5c3a1e width 2
+line 0.56,0.10 0.56,0.68 stroke #5c3a1e width 2
+line 0.78,0.10 0.78,0.68 stroke #5c3a1e width 2
+line 1.00,0.10 1.00,0.68 stroke #5c3a1e width 2
+line 1.22,0.10 1.22,0.68 stroke #5c3a1e width 2
+line 1.44,0.10 1.44,0.68 stroke #5c3a1e width 2
+line 1.66,0.10 1.66,0.68 stroke #5c3a1e width 2
+
+# Horizontal partitions (2 rows — 3 total rows)
+line 0.12,0.30 1.88,0.30 stroke #5c3a1e width 2
+line 0.12,0.50 1.88,0.50 stroke #5c3a1e width 2
+
+# Lead type pieces in compartments (small grey squares — each cell has a cluster)
+# Row 1
+rect 0.18,0.16 0.04,0.08 fill #666666 0.9
+rect 0.24,0.14 0.04,0.10 fill #555555 0.85
+rect 0.28,0.18 0.04,0.06 fill #777777 0.88
+rect 0.40,0.16 0.04,0.08 fill #666666 0.9
+rect 0.46,0.14 0.04,0.10 fill #555555 0.85
+rect 0.62,0.16 0.04,0.08 fill #666666 0.9
+rect 0.68,0.14 0.04,0.10 fill #777777 0.88
+rect 0.84,0.16 0.04,0.08 fill #555555 0.9
+rect 0.90,0.18 0.04,0.06 fill #666666 0.85
+rect 1.06,0.16 0.04,0.08 fill #666666 0.9
+rect 1.12,0.14 0.04,0.10 fill #777777 0.88
+rect 1.28,0.14 0.04,0.10 fill #666666 0.9
+rect 1.50,0.16 0.04,0.08 fill #555555 0.9
+rect 1.56,0.14 0.04,0.10 fill #666666 0.85
+rect 1.72,0.16 0.04,0.08 fill #777777 0.9
+rect 1.78,0.14 0.04,0.10 fill #666666 0.85
+
+# Row 2
+rect 0.18,0.36 0.04,0.08 fill #666666 0.9
+rect 0.24,0.34 0.04,0.10 fill #555555 0.85
+rect 0.40,0.36 0.04,0.08 fill #777777 0.88
+rect 0.46,0.34 0.04,0.10 fill #666666 0.9
+rect 0.62,0.34 0.04,0.10 fill #666666 0.9
+rect 0.68,0.36 0.04,0.08 fill #555555 0.85
+rect 0.84,0.36 0.04,0.08 fill #777777 0.88
+rect 0.90,0.34 0.04,0.10 fill #666666 0.9
+rect 1.06,0.36 0.04,0.08 fill #555555 0.88
+rect 1.12,0.34 0.04,0.10 fill #666666 0.9
+rect 1.28,0.36 0.04,0.08 fill #777777 0.9
+rect 1.50,0.34 0.04,0.10 fill #666666 0.85
+rect 1.56,0.36 0.04,0.08 fill #555555 0.88
+rect 1.72,0.34 0.04,0.10 fill #666666 0.9
+
+# Row 3 (some empty compartments to show wear)
+rect 0.18,0.56 0.04,0.08 fill #666666 0.9
+rect 0.24,0.54 0.04,0.10 fill #555555 0.85
+rect 0.62,0.56 0.04,0.08 fill #666666 0.9
+rect 0.68,0.54 0.04,0.10 fill #777777 0.88
+rect 0.84,0.54 0.04,0.10 fill #666666 0.9
+rect 1.06,0.56 0.04,0.08 fill #777777 0.88
+rect 1.28,0.54 0.04,0.10 fill #555555 0.85
+rect 1.50,0.56 0.04,0.08 fill #666666 0.9
+rect 1.72,0.54 0.04,0.10 fill #666666 0.85
+
+# Small lead-type highlight (polished face of a letter)
+line 0.18,0.16 0.22,0.16 stroke #999999 0.7 width 1
+line 0.40,0.36 0.44,0.36 stroke #999999 0.7 width 1
+line 1.06,0.56 1.10,0.56 stroke #999999 0.6 width 1
+
+# Subtle wood grain on frame
+line 0.12,0.40 1.88,0.40 stroke #5c3a1e 0.3

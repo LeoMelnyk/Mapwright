@@ -10,7 +10,37 @@ const panel = () => getEl('properties-content');
 
 let explorerBuilt = false;
 let onSelectProp: ((propType: string) => void) | null = null;
-const collapsedCategories = new Set();
+
+// Collapsed category state is persisted so the user's browsing layout survives
+// reloads. Without this, every session starts with all 70+ categories expanded,
+// forcing the user to re-collapse everything they don't use.
+const COLLAPSED_CATEGORIES_KEY = 'prop-collapsed-categories';
+const collapsedCategories: Set<string> = (() => {
+  try {
+    const raw = localStorage.getItem(COLLAPSED_CATEGORIES_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return new Set(arr.filter((s) => typeof s === 'string'));
+    }
+  } catch {
+    /* ignore */
+  }
+  return new Set<string>();
+})();
+
+function saveCollapsedCategories(): void {
+  try {
+    localStorage.setItem(COLLAPSED_CATEGORIES_KEY, JSON.stringify([...collapsedCategories]));
+  } catch {
+    /* ignore */
+  }
+}
+
+// IntersectionObserver that renders thumb canvases only when a thumb scrolls
+// into view. Replaces the old "batched setTimeout over all 1426 thumbs" loop,
+// which stalled the main thread for 5-10 s on panel open.
+let thumbObserver: IntersectionObserver | null = null;
+let currentCatalog: PropCatalog | null = null;
 
 // ── Favorites (localStorage-backed) ─────────────────────────────────────────
 
@@ -172,6 +202,7 @@ function buildPropExplorer(container: HTMLElement) {
     scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach((g) => {
       g.style.display = 'none';
     });
+    saveCollapsedCategories();
   });
 
   const expandAllBtn = document.createElement('button');
@@ -184,6 +215,7 @@ function buildPropExplorer(container: HTMLElement) {
     scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach((g) => {
       g.style.display = '';
     });
+    saveCollapsedCategories();
   });
 
   searchWrap.appendChild(actionSep);
@@ -198,11 +230,22 @@ function buildPropExplorer(container: HTMLElement) {
 
   let html = '';
 
+  // Category open/closed markup reflects the persisted collapsedCategories set
+  // so the user's previous browsing layout survives a reload.
+  const titleCls = (cat: string) => (collapsedCategories.has(cat) ? 'prop-category-title' : 'prop-category-title open');
+  const gridStyleExtra = (cat: string) => (collapsedCategories.has(cat) ? 'display:none' : '');
+
   // ── Favorites category (pinned at top) ────────────────────────────────────
   const favProps = favoritePropTypes(catalog);
-  const favHidden = favProps.length === 0 ? ' style="display:none"' : '';
-  html += `<div class="prop-category-title open" data-category="${FAVORITES_CATEGORY}"${favHidden}>${FAVORITES_CATEGORY} <span class="collapse-arrow">&#9654;</span></div>`;
-  html += `<div class="prop-grid" data-cat-grid="${FAVORITES_CATEGORY}"${favHidden}>`;
+  const favHideEmpty = favProps.length === 0;
+  const favHidden = favHideEmpty ? ' style="display:none"' : '';
+  const favGridStyle = favHideEmpty
+    ? ' style="display:none"'
+    : gridStyleExtra(FAVORITES_CATEGORY)
+      ? ` style="${gridStyleExtra(FAVORITES_CATEGORY)}"`
+      : '';
+  html += `<div class="${titleCls(FAVORITES_CATEGORY)}" data-category="${FAVORITES_CATEGORY}"${favHidden}>${FAVORITES_CATEGORY} <span class="collapse-arrow">&#9654;</span></div>`;
+  html += `<div class="prop-grid" data-cat-grid="${FAVORITES_CATEGORY}"${favGridStyle}>`;
   for (const propType of favProps) {
     html += thumbHtml(propType, propDisplayName(propType, catalog));
   }
@@ -214,8 +257,9 @@ function buildPropExplorer(container: HTMLElement) {
     const propNames = catalog.byCategory?.[category];
     if (!propNames || propNames.length === 0) continue;
 
-    html += `<div class="prop-category-title open" data-category="${category}">${category} <span class="collapse-arrow">&#9654;</span></div>`;
-    html += `<div class="prop-grid" data-cat-grid="${category}">`;
+    const style = gridStyleExtra(category) ? ` style="${gridStyleExtra(category)}"` : '';
+    html += `<div class="${titleCls(category)}" data-category="${category}">${category} <span class="collapse-arrow">&#9654;</span></div>`;
+    html += `<div class="prop-grid" data-cat-grid="${category}"${style}>`;
 
     for (const propType of sortedByDisplayName(propNames, catalog)) {
       html += thumbHtml(propType, propDisplayName(propType, catalog));
@@ -240,6 +284,7 @@ function buildPropExplorer(container: HTMLElement) {
     const catTitle = (e.target as HTMLElement).closest<HTMLElement>('.prop-category-title');
     if (catTitle) {
       const cat = catTitle.dataset.category;
+      if (!cat) return;
       const grid = scrollArea.querySelector<HTMLElement>(`.prop-grid[data-cat-grid="${cat}"]`);
       if (collapsedCategories.has(cat)) {
         collapsedCategories.delete(cat);
@@ -250,6 +295,7 @@ function buildPropExplorer(container: HTMLElement) {
         catTitle.classList.remove('open');
         if (grid) grid.style.display = 'none';
       }
+      saveCollapsedCategories();
       return;
     }
 
@@ -307,7 +353,7 @@ function filterProps(query: string) {
       grid.style.display = '';
     } else {
       // No query: respect collapse state
-      grid.style.display = collapsedCategories.has(cat) ? 'none' : '';
+      grid.style.display = cat && collapsedCategories.has(cat) ? 'none' : '';
     }
   });
 }
@@ -315,6 +361,7 @@ function filterProps(query: string) {
 const THUMB_CANVAS_SIZE = 60;
 
 function renderThumbCanvas(thumb: HTMLElement, catalog: PropCatalog): void {
+  thumb.dataset.rendered = '1';
   const propType = thumb.dataset.prop!;
   const def = catalog.props[propType];
   if (!def) return;
@@ -354,25 +401,34 @@ function renderThumbCanvas(thumb: HTMLElement, catalog: PropCatalog): void {
 }
 
 function renderThumbnails(catalog: PropCatalog) {
-  const allThumbs = panel().querySelectorAll<HTMLElement>('.prop-thumb');
-  let index = 0;
-  const BATCH_SIZE = 6; // render at least this many per tick regardless of idle budget
+  currentCatalog = catalog;
+  const root = panel();
+  const allThumbs = root.querySelectorAll<HTMLElement>('.prop-thumb');
+  if (!allThumbs.length) return;
 
-  function renderBatch() {
-    let rendered = 0;
-    while (index < allThumbs.length) {
-      const thumb = allThumbs[index]!;
-      index++;
-      renderThumbCanvas(thumb, catalog);
-      rendered++;
-      if (rendered >= BATCH_SIZE) {
-        setTimeout(renderBatch, 0);
-        return;
-      }
-    }
+  // Tear down any prior observer (re-init on catalog rebuild).
+  if (thumbObserver) {
+    thumbObserver.disconnect();
+    thumbObserver = null;
   }
 
-  setTimeout(renderBatch, 0);
+  // rootMargin pre-renders a screen ahead so thumbs appear before the user
+  // scrolls into them, eliminating the "blank squares" perception.
+  thumbObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const thumb = entry.target as HTMLElement;
+        if (thumb.dataset.rendered === '1') continue;
+        if (currentCatalog) renderThumbCanvas(thumb, currentCatalog);
+        thumb.dataset.rendered = '1';
+        thumbObserver!.unobserve(thumb);
+      }
+    },
+    { root: root.querySelector('.prop-scroll-area'), rootMargin: '400px 0px', threshold: 0.01 },
+  );
+
+  allThumbs.forEach((thumb) => thumbObserver!.observe(thumb));
 }
 
 function toggleFavorite(propType: string, catalog: PropCatalog, scrollArea: HTMLElement): void {

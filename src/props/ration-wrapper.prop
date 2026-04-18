@@ -12,7 +12,7 @@ clusters_with: bedroll, campfire, empty-bottle, bread-heel, pallet
 notes: Discarded wax-paper ration wrapper; trail food waste
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.22 0.72,0.58 z 0-0.03
+selection rect 0.14,0.22 0.72,0.58
 
 # Crumpled wrapper body (wax paper, roughly rectangular crumple)
 poly 0.16,0.36 0.24,0.26 0.42,0.24 0.60,0.28 0.76,0.32 0.82,0.46 0.78,0.60 0.66,0.72 0.48,0.78 0.30,0.74 0.18,0.64 0.14,0.50 fill #c8b898 0.92

@@ -12,7 +12,7 @@ clusters_with: music-stand, laurel-wreath, harp, flower-petals
 notes: Tall ceramic vase of fresh bright flowers with ribbon-tied stems — top-down shows a dense ring of flower heads around a small vase rim
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.5
+selection circle 0.5,0.5 0.32
 
 # Vase shadow (subtle ring on floor)
 circle 0.5,0.5 0.22 fill #000000 0.12

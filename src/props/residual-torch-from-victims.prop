@@ -10,14 +10,7 @@ room_types: monster-lair-small, cave, dungeon, crypt, ruin
 typical_count: single
 clusters_with: blood-smear, blood-stain, half-eaten-carcass, torn-cloak, bone-pile
 notes: Still-burning torch dropped by a fleeing or killed victim. Lies at an angle on the floor with flame seen from above as concentric rings.
-lights:
-  - type: torch
-    x: 0.5
-    y: 0.5
-    radius: 6
-    color: "#ff9944"
-    intensity: 0.5
-    falloff: linear
+lights: [{"preset":"torch","x":0.5,"y":0.5,"radius":6,"intensity":0.5,"color":"#ff9944","falloff":"linear"}]
 ---
 # Wooden handle (cylindrical shaft lying at an angle — NW to SE)
 # Handle rotated via rect rotate

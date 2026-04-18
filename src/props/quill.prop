@@ -12,7 +12,7 @@ clusters_with: inkwell, quill-and-ink, parchment-scrap, desk, ledger-stack, docu
 notes: Single feather quill resting on a desk; tiny accent — often paired with inkwell
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.32 0.64,0.22 z 0-0.2
+selection rect 0.18,0.32 0.64,0.22
 
 # Feather shaft (thin bezier, slight diagonal lay)
 bezier 0.24,0.62 0.38,0.48 0.58,0.40 0.82,0.30 stroke #e8dcc8 width 2

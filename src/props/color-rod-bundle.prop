@@ -12,7 +12,7 @@ clusters_with: gaffer-bench, annealing-oven, sand-bin
 notes: Bundle of colored glass rods lying on the floor, tied with twine. Used by glassblowers for color inlay and canework.
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.32 0.84,0.36 z 0-0.2
+selection rect 0.08,0.32 0.84,0.36
 
 # Faint ground scuff under bundle
 ellipse 0.5,0.55 0.42,0.14 fill #2a2018 0.2

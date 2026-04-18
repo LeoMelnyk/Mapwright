@@ -1,0 +1,114 @@
+name: Artisan Tool Shelf
+category: Workshop
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: house-medium-artisan, workshop-artificer, general-workshop, shop-cobbler, shop-general, carpentry-shop, tailors-workshop
+typical_count: few
+clusters_with: tool-rack, tool-rack-wall, workbench, shelf-tools, half-finished-work
+notes: Wall-mounted shelf with an assortment of artisan tools in compartments — scissors, awl, measuring stick, small jars, spool of thread, mallet. Homely and practical.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.42 z 0-4
+
+# footprint 1x2: x 0-2, y 0-1. Wall at north. Top-down: shelf board with items arranged on it.
+
+# === Shelf backer plank (along north wall) ===
+rect 0.08,0.06 1.84,0.12 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.06 1.84,0.12 stroke #2a1400 width 1
+
+# Mounting screws
+circle 0.18,0.12 0.018 fill #555555 0.85
+circle 0.60,0.12 0.018 fill #555555 0.85
+circle 1.00,0.12 0.018 fill #555555 0.85
+circle 1.40,0.12 0.018 fill #555555 0.85
+circle 1.82,0.12 0.018 fill #555555 0.85
+
+# === Shelf surface (wider shelf board projecting south) ===
+rect 0.08,0.18 1.84,0.24 texfill polyhaven/wood_table 0.85
+rect 0.08,0.18 1.84,0.24 stroke #2a1400 width 1
+
+# Shelf grain
+line 0.10,0.26 1.90,0.26 stroke #5c3a1e 0.4
+line 0.10,0.34 1.90,0.34 stroke #5c3a1e 0.35
+
+# Divider slots along shelf
+line 0.32,0.18 0.32,0.42 stroke #3a1f00 0.7 width 1
+line 0.62,0.18 0.62,0.42 stroke #3a1f00 0.7 width 1
+line 0.94,0.18 0.94,0.42 stroke #3a1f00 0.7 width 1
+line 1.28,0.18 1.28,0.42 stroke #3a1f00 0.7 width 1
+line 1.58,0.18 1.58,0.42 stroke #3a1f00 0.7 width 1
+
+# === Compartment 1 — Small clay jar (west end) ===
+circle 0.20,0.30 0.09 texfill polyhaven/stone_floor 0.85
+circle 0.20,0.30 0.09 fill #8a5028 0.5
+circle 0.20,0.30 0.09 stroke #3a1f00 width 1
+# Jar opening
+circle 0.20,0.30 0.05 fill #1a0f00 0.8
+circle 0.20,0.30 0.05 stroke #2a1400
+
+# === Compartment 2 — Scissors (crossed blades) ===
+line 0.40,0.22 0.54,0.40 stroke #8899aa width 2
+line 0.54,0.22 0.40,0.40 stroke #8899aa width 2
+# Blade highlights
+line 0.40,0.22 0.54,0.40 stroke #c8d8e8 0.6 width 1
+# Scissor handles (finger loops)
+circle 0.41,0.22 0.022 stroke #3a1f00 width 2
+circle 0.53,0.22 0.022 stroke #3a1f00 width 2
+# Pivot
+circle 0.47,0.30 0.02 fill #444444 0.9
+
+# === Compartment 3 — Spool of thread ===
+circle 0.78,0.30 0.10 texfill polyhaven/dark_wood 0.9
+circle 0.78,0.30 0.10 stroke #2a1400
+# Thread wrapping
+circle 0.78,0.30 0.08 stroke #8a2840 0.8 width 2
+circle 0.78,0.30 0.06 stroke #a83860 0.7 width 2
+circle 0.78,0.30 0.04 stroke #8a2840 0.7 width 2
+# Spool end hole
+circle 0.78,0.30 0.015 fill #1a0800
+
+# === Compartment 4 — Awl and small knife ===
+# Awl (pointed tool with handle)
+line 0.98,0.24 0.98,0.34 stroke #8899aa width 2
+circle 0.98,0.36 0.035 fill #8b6914 0.95
+circle 0.98,0.36 0.035 stroke #2a1400
+# Small knife beside it
+rect 1.08,0.24 0.04,0.12 fill #8899aa 0.9
+rect 1.08,0.24 0.04,0.12 stroke #333333
+rect 1.07,0.36 0.06,0.04 texfill polyhaven/dark_wood 0.9
+rect 1.07,0.36 0.06,0.04 stroke #1a0800
+
+# === Compartment 5 — Measuring rod / ruler ===
+rect 1.32,0.22 0.22,0.04 texfill polyhaven/wood_table 0.88
+rect 1.32,0.22 0.22,0.04 stroke #2a1400
+# Measure tick marks
+line 1.36,0.22 1.36,0.26 stroke #1a0800 width 1
+line 1.40,0.22 1.40,0.26 stroke #1a0800 width 1
+line 1.44,0.22 1.44,0.26 stroke #1a0800 width 1
+line 1.48,0.22 1.48,0.26 stroke #1a0800 width 1
+line 1.52,0.22 1.52,0.26 stroke #1a0800 width 1
+
+# Small spool of twine below ruler
+circle 1.42,0.34 0.06 texfill polyhaven/rough_linen 0.85
+circle 1.42,0.34 0.06 stroke #3a2810
+circle 1.42,0.34 0.015 fill #2a1810
+
+# === Compartment 6 — Small wooden mallet (east end) ===
+# Mallet head (wooden block)
+rect 1.64,0.24 0.12,0.08 texfill polyhaven/dark_wood 0.92
+rect 1.64,0.24 0.12,0.08 stroke #1a0800 width 1
+# Mallet handle
+rect 1.69,0.32 0.02,0.08 fill #5c3a1e 0.9
+rect 1.69,0.32 0.02,0.08 stroke #1a0800
+
+# === Pinned scrap of paper / receipt in one slot ===
+rect 0.22,0.36 0.08,0.05 fill #e8dcc0 0.85
+rect 0.22,0.36 0.08,0.05 stroke #8a7050 width 1
+line 0.23,0.38 0.29,0.38 stroke #6a5040 0.5
+
+# === Small tool shadow on shelf edge ===
+rect 0.10,0.40 1.80,0.02 fill #000000 0.18

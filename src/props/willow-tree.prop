@@ -1,6 +1,7 @@
 name: Willow Tree
 category: Terrain
 footprint: 3x3
+padding: 0.15
 facing: no
 shadow: yes
 blocks_light: yes

@@ -12,7 +12,7 @@ clusters_with: tankard, playing-cards, bench, stool, smoke-cloud
 notes: Long-stemmed white clay pipe lying on a surface
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.44 0.80,0.18 z 0-0.05
+selection rect 0.10,0.44 0.80,0.18
 
 # Stem (long thin white cylinder)
 rect 0.10,0.50 0.68,0.06 fill #f0e4d0 0.95

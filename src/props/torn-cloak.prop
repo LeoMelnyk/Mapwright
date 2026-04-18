@@ -1,5 +1,5 @@
 name: Torn Cloak
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: half-eaten-carcass, blood-smear, blood-stain, torch-wall, residua
 notes: Bloodied tattered cloak discarded on the floor — ragged muddy fabric with a blood stain and a metallic clasp at one end.
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.14 0.82,0.76 z 0-0.05
+selection rect 0.10,0.14 0.82,0.76
 
 # Ground shadow/wet stain beneath cloak (very subtle)
 ellipse 0.50,0.54 0.42,0.30 fill #1a1408 0.3

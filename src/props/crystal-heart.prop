@@ -1,0 +1,56 @@
+name: Crystal Heart
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+lights: [{"preset":"faerie-fire","x":0.5,"y":0.5,"color":"#ff66ff","intensity":0.9,"radius":9}]
+placement: center
+room_types: crystal-grotto, wizard-sanctum, demiplane-laboratory, boss-chamber, ritual-chamber
+typical_count: single
+clusters_with: arcane-pedestal, crystal-cluster, crystal-shard, magic-circle
+notes: A single large heart-shaped crystal on the floor or a low base — radiant pink/violet magical focus. Place as centerpiece.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.3 z 0-2
+
+# Outer radiant halo
+circle 0.5,0.5 0.48 gradient-radial #ff66ff #1a0028 0.55
+# Mid glow ring
+circle 0.5,0.5 0.38 fill #dd66dd 0.28
+circle 0.5,0.5 0.30 fill #ff88ff 0.3
+
+# Low stone cradle / base (dark ring)
+ring 0.5,0.58 0.32 0.22 fill #2a1830 0.75
+ring 0.5,0.58 0.32 0.22 stroke #4a2840 width 1
+
+# === Heart-shaped crystal (top-down — two lobes north, point south) ===
+# Main heart body (symmetric bezier-approximated polygon)
+poly 0.50,0.32 0.44,0.26 0.36,0.26 0.30,0.32 0.28,0.40 0.32,0.50 0.42,0.62 0.50,0.72 0.58,0.62 0.68,0.50 0.72,0.40 0.70,0.32 0.64,0.26 0.56,0.26 fill #dd44ee 0.88
+poly 0.50,0.32 0.44,0.26 0.36,0.26 0.30,0.32 0.28,0.40 0.32,0.50 0.42,0.62 0.50,0.72 0.58,0.62 0.68,0.50 0.72,0.40 0.70,0.32 0.64,0.26 0.56,0.26 stroke #8822aa width 2
+
+# Left facet (lit)
+poly 0.30,0.32 0.28,0.40 0.32,0.50 0.42,0.62 0.50,0.72 0.50,0.46 fill #ff99ff 0.55
+# Right facet (shadowed)
+poly 0.50,0.46 0.50,0.72 0.58,0.62 0.68,0.50 0.72,0.40 0.70,0.32 fill #aa3399 0.4
+
+# Top notch crease (between the two lobes)
+line 0.50,0.32 0.50,0.42 stroke #8822aa width 1
+
+# Bright inner core (glowing heart)
+ellipse 0.50,0.46 0.08,0.12 fill #ffccff 0.8
+ellipse 0.50,0.46 0.04,0.08 fill #ffffff 0.95
+
+# Highlight glint
+bezier 0.38,0.32 0.40,0.36 0.42,0.42 0.40,0.48 stroke #ffddff 0.85 width 2
+line 0.56,0.30 0.58,0.34 stroke #ffddff 0.75 width 1
+
+# Prismatic sparkles around the heart
+circle 0.20,0.30 0.018 fill #ffccff 0.85
+circle 0.82,0.32 0.016 fill #ffccff 0.8
+circle 0.22,0.62 0.014 fill #ffccff 0.75
+circle 0.78,0.64 0.014 fill #ffccff 0.75
+circle 0.50,0.18 0.015 fill #ffffff 0.9
+circle 0.16,0.46 0.012 fill #ffccff 0.7
+circle 0.84,0.48 0.012 fill #ffccff 0.7

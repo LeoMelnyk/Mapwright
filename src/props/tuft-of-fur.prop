@@ -12,7 +12,7 @@ clusters_with: gnawed-bone, scat-pile, animal-tracks, carcass-fresh
 notes: Small patch of shed animal fur; tracking sign and lair clutter
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.22 z 0-0.05
+selection circle 0.5,0.5 0.22
 
 # Main fluffy mass (irregular blob, grey-brown)
 poly 0.30,0.54 0.36,0.40 0.48,0.36 0.60,0.38 0.70,0.50 0.68,0.62 0.56,0.68 0.42,0.66 0.32,0.60 fill #8a7460 0.8

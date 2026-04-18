@@ -4,12 +4,16 @@ footprint: 1x1
 facing: no
 shadow: yes
 blocks_light: yes
+height: 8
 placement: center
 room_types: market-square, plaza, village-green, crossroads
 typical_count: single
 clusters_with: market-stall, produce-pile, bench
 notes: Stone market cross monument — round pedestal base with a stubby stone cross on top. Town centerpiece landmark.
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-8
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: round stone pedestal base + small cross silhouette on top
 

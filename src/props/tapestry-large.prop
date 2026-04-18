@@ -14,7 +14,7 @@ notes: Massive wall tapestry. Top-down shows the brass mounting rod with finials
 # footprint 1x3: x range 0-3, y range 0-1
 
 # === HITBOX ===
-hitbox rect 0.10,0.04 2.80,0.18 z 0-5
+selection rect 0.10,0.04 2.80,0.18
 
 # Brass mounting rod (wider than fabric, runs across full width)
 rect 0.08,0.04 2.84,0.06 fill #daa520 0.92

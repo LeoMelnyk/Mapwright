@@ -27,6 +27,7 @@ import {
   DEFAULT_LIGHT_Z,
   type WallSegment,
 } from './lighting-geometry.js';
+import { log } from '../util/index.js';
 
 // Re-export geometry helpers so existing importers (lighting-hq.ts, render barrel,
 // editor) keep working without ripple after the split.
@@ -694,6 +695,8 @@ export function invalidateVisibilityCache(structuralChange: boolean | 'props' = 
   }
   _staticLmValid = false; // static lightmap depends on wall segments + light positions
   _lightingVersion++;
+  const scope = structuralChange === true ? 'full' : structuralChange === 'props' ? 'props-only' : 'lights-only';
+  log.devTrace(`invalidateVisibilityCache(${scope}) → lightingVersion ${_lightingVersion}`);
 }
 
 /**
@@ -706,6 +709,7 @@ export function invalidateLightmapCaches(): void {
   _lmCanvas = null;
   _lmW = 0;
   _lmH = 0;
+  log.dev(`invalidateLightmapCaches() — static + dynamic lightmap canvases dropped`);
 }
 
 // ─── Main Entry Point ──────────────────────────────────────────────────────

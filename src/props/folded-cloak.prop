@@ -12,7 +12,7 @@ clusters_with: chest, bed, wardrobe, chair
 notes: Folded travelers cloak on a surface — neat square of heavy fabric
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.22 0.64,0.56 z 0-0.2
+selection rect 0.18,0.22 0.64,0.56
 
 # Main folded cloak (dark forest green, stacked square)
 rect 0.18,0.22 0.64,0.56 texfill polyhaven/velour_velvet 0.85

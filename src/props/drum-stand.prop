@@ -12,7 +12,7 @@ clusters_with: harp, lute-stand, music-stand, sheet-music, stage-large
 notes: Large standing drum on a tripod stand — top-down shows the round drum head with tension rods around the rim and two drumsticks laid across the top
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.9
+selection circle 0.5,0.5 0.38
 
 # Tripod leg shadow hints radiating outward
 line 0.14,0.78 0.30,0.62 stroke #2a1400 0.4 width 2

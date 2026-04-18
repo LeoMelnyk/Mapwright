@@ -1,0 +1,62 @@
+name: Glowcap Cluster
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: mushroom-grove, mushroom-cavern, cave-living, underdark-outpost
+typical_count: many
+clusters_with: mushroom, mushroom-glow, luminous-spore, moss-patch-glowing, decaying-log
+notes: Cluster of vividly glowing mushroom caps — primary light source in mushroom-grove rooms
+lights: [{"preset":"phosphorescent-fungi","x":0.5,"y":0.5,"radius":5,"intensity":0.6,"color":"#44ffcc"}]
+---
+# Outer bioluminescent halo (soft teal wash)
+circle 0.5,0.5 0.48 fill #44ffcc 0.10
+circle 0.5,0.5 0.38 fill #44ffcc 0.18
+circle 0.5,0.5 0.28 fill #66ffdd 0.22
+
+# Central cap (largest glowcap)
+circle 0.50,0.50 0.17 fill #1a3a40 0.92
+circle 0.50,0.50 0.17 stroke #0a1a20
+circle 0.50,0.50 0.13 fill #2a6860 0.85
+circle 0.50,0.50 0.09 fill #44ffcc 0.85
+circle 0.50,0.50 0.05 fill #a0ffe8 0.95
+circle 0.50,0.50 0.02 fill #e0ffff 1.0
+
+# Upper-left cap
+circle 0.24,0.28 0.10 fill #1a3a40 0.9
+circle 0.24,0.28 0.10 stroke #0a1a20
+circle 0.24,0.28 0.07 fill #2a6860 0.85
+circle 0.24,0.28 0.04 fill #44ffcc 0.85
+circle 0.24,0.28 0.02 fill #c0ffe8 0.95
+
+# Upper-right cap
+circle 0.76,0.26 0.09 fill #1a3a40 0.9
+circle 0.76,0.26 0.09 stroke #0a1a20
+circle 0.76,0.26 0.06 fill #2a6860 0.85
+circle 0.76,0.26 0.035 fill #44ffcc 0.85
+circle 0.76,0.26 0.015 fill #c0ffe8 0.95
+
+# Lower-left cap
+circle 0.22,0.74 0.085 fill #1a3a40 0.9
+circle 0.22,0.74 0.085 stroke #0a1a20
+circle 0.22,0.74 0.055 fill #2a6860 0.85
+circle 0.22,0.74 0.03 fill #44ffcc 0.85
+circle 0.22,0.74 0.014 fill #c0ffe8 0.95
+
+# Lower-right cap
+circle 0.78,0.76 0.095 fill #1a3a40 0.9
+circle 0.78,0.76 0.095 stroke #0a1a20
+circle 0.78,0.76 0.065 fill #2a6860 0.85
+circle 0.78,0.76 0.04 fill #44ffcc 0.85
+circle 0.78,0.76 0.018 fill #c0ffe8 0.95
+
+# Drifting glow spores between caps
+circle 0.40,0.40 0.014 fill #c0ffe8 0.9
+circle 0.60,0.38 0.012 fill #c0ffe8 0.85
+circle 0.38,0.62 0.013 fill #c0ffe8 0.85
+circle 0.62,0.62 0.012 fill #c0ffe8 0.85
+circle 0.48,0.22 0.010 fill #c0ffe8 0.75
+circle 0.50,0.80 0.010 fill #c0ffe8 0.75

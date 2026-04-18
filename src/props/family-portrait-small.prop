@@ -1,0 +1,49 @@
+name: Family Portrait
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 3
+placement: wall
+room_types: house-medium-family, house-merchant, parlor, mansion-bedchamber, burgher-house, cottage
+typical_count: few
+clusters_with: painting, painting-framed, banner, candle
+notes: Small framed family portrait hung on a wall; humbler than the grand painting-framed — modest home decor
+---
+# === HITBOX ===
+selection rect 0.22,0.06 0.56,0.14
+
+# footprint 1x1: x range 0-1, y range 0-1; wall at north (low y)
+# Top-down wall convention — only the top rod + frame edge + shadow visible
+
+# Mounting peg / nail (small centered)
+rect 0.48,0.04 0.04,0.04 fill #333333 0.9
+rect 0.48,0.04 0.04,0.04 stroke #1a1a1a
+
+# Picture wire sagging between frame corners (thin line)
+bezier 0.26,0.10 0.40,0.07 0.60,0.07 0.74,0.10 stroke #555555 0.7 width 1
+
+# Outer wooden frame top edge (dark stained wood)
+rect 0.22,0.08 0.56,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.22,0.08 0.56,0.08 stroke #1a0e00 width 2
+
+# Gilt inner trim (thin gold strip just inside frame)
+rect 0.26,0.12 0.48,0.02 fill #daa520 0.9
+rect 0.26,0.12 0.48,0.02 stroke #5a3a00
+
+# Frame corner carved accents (slight brass at corners)
+rect 0.22,0.08 0.04,0.08 fill #8b6914 0.7
+rect 0.74,0.08 0.04,0.08 fill #8b6914 0.7
+
+# Thin canvas top edge peek (dark — the painted scene below)
+rect 0.28,0.16 0.44,0.02 fill #3a2a18 0.75
+
+# Hint of color from portrait (skin-tone and fabric dots — tops of figures' heads)
+circle 0.34,0.17 0.012 fill #c8a878 0.8
+circle 0.44,0.17 0.010 fill #8b5a3a 0.75
+circle 0.56,0.17 0.012 fill #c8a878 0.8
+
+# Subtle drop shadow beneath frame
+rect 0.26,0.18 0.48,0.03 fill #000000 0.2
+rect 0.30,0.21 0.40,0.02 fill #000000 0.1

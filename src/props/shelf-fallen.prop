@@ -12,7 +12,7 @@ clusters_with: shelf, broken-bottle, rubble-pile, chair-broken
 notes: Wall shelf that has collapsed off the wall with contents spilled around the broken plank
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.30 1.80,0.50 z 0-0.3
+selection rect 0.10,0.30 1.80,0.50
 
 # Broken wall bracket still hanging on wall (north edge)
 rect 0.18,0.04 0.08,0.10 fill #3a3020 0.85

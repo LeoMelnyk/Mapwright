@@ -4,19 +4,17 @@ footprint: 2x2
 facing: no
 shadow: yes
 blocks_light: yes
+height: 3.5
 placement: center
 room_types: brewery, tavern-kitchen, alchemist-lab
 typical_count: single
 clusters_with: fermentation-vat, mash-tun, wooden-paddle, hops-bunch
 notes: Huge copper brewing kettle with domed lid and steam; centerpiece of a brewery
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 3
-    color: "#ff8030"
-    intensity: 0.3
+lights: [{"preset":"ember","x":1,"y":1,"radius":3,"intensity":0.3,"color":"#ff8030"}]
 ---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.80 z 0-3.5
+
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: large copper disc + dome highlight ring + tap spout on south
 

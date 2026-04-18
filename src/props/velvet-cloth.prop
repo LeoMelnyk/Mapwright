@@ -1,0 +1,65 @@
+name: Velvet Cloth
+category: Merchandise
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: shop-jeweler, market-stall, shop-merchant, gallery, throne-room, shrine, vault
+typical_count: few
+clusters_with: pearl-strand, ring-display, display-case-small, coin-pile, gem-loose
+notes: Square of rich velvet display cloth laid flat on a surface to display jewelry or valuables. Rich crimson or blue with visible nap texture. Flat, no shadow.
+---
+# footprint 1x1: x 0-1, y 0-1. Flat cloth — no shadow.
+
+# Cloth base layer (rich crimson)
+rect 0.10,0.10 0.80,0.80 texfill polyhaven/velour_velvet 0.8
+rect 0.10,0.10 0.80,0.80 fill #5a1020 0.55
+rect 0.10,0.10 0.80,0.80 stroke #2a0810 width 2
+
+# Inner velvet field (slightly different tone — nap variation)
+rect 0.14,0.14 0.72,0.72 fill #4a0818 0.4
+
+# Velvet nap texture — subtle directional lines
+line 0.14,0.20 0.86,0.20 stroke #6a1828 0.3
+line 0.14,0.30 0.86,0.30 stroke #6a1828 0.25
+line 0.14,0.40 0.86,0.40 stroke #6a1828 0.3
+line 0.14,0.50 0.86,0.50 stroke #6a1828 0.25
+line 0.14,0.60 0.86,0.60 stroke #6a1828 0.3
+line 0.14,0.70 0.86,0.70 stroke #6a1828 0.25
+line 0.14,0.80 0.86,0.80 stroke #6a1828 0.3
+
+# Gold thread border embroidery
+rect 0.12,0.12 0.76,0.76 stroke #daa520 0.7 width 1
+rect 0.16,0.16 0.68,0.68 stroke #8b6914 0.5 width 1
+
+# Corner tassel tufts (small gold dots)
+circle 0.14,0.14 0.025 fill #daa520 0.85
+circle 0.14,0.14 0.025 stroke #5a3a00
+circle 0.86,0.14 0.025 fill #daa520 0.85
+circle 0.86,0.14 0.025 stroke #5a3a00
+circle 0.14,0.86 0.025 fill #daa520 0.85
+circle 0.14,0.86 0.025 stroke #5a3a00
+circle 0.86,0.86 0.025 fill #daa520 0.85
+circle 0.86,0.86 0.025 stroke #5a3a00
+
+# Tiny tassel fringe strands at corners
+line 0.14,0.14 0.10,0.10 stroke #daa520 0.7 width 1
+line 0.86,0.14 0.90,0.10 stroke #daa520 0.7 width 1
+line 0.14,0.86 0.10,0.90 stroke #daa520 0.7 width 1
+line 0.86,0.86 0.90,0.90 stroke #daa520 0.7 width 1
+
+# Cloth fold/crease (subtle curved highlight suggesting soft fabric)
+bezier 0.24,0.40 0.40,0.48 0.60,0.48 0.76,0.44 stroke #8a2030 0.4 width 2
+
+# Soft highlight catching light on upper-left
+arc 0.50,0.50 0.36 200 260 stroke #8a2030 0.35 width 2
+
+# Tiny stitch detail on inner border (short dashes)
+line 0.20,0.16 0.22,0.16 stroke #daa520 0.6
+line 0.30,0.16 0.32,0.16 stroke #daa520 0.6
+line 0.40,0.16 0.42,0.16 stroke #daa520 0.6
+line 0.50,0.16 0.52,0.16 stroke #daa520 0.6
+line 0.60,0.16 0.62,0.16 stroke #daa520 0.6
+line 0.70,0.16 0.72,0.16 stroke #daa520 0.6
+line 0.80,0.16 0.82,0.16 stroke #daa520 0.6

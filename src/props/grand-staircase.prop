@@ -14,7 +14,7 @@ notes: Base landing of a grand staircase ascending north. Marble steps with orna
 # footprint 3x3: x range 0-3, y range 0-3
 
 # === HITBOX ===
-hitbox rect 0.40,0.10 2.20,2.80 z 0-2
+selection rect 0.40,0.10 2.20,2.80
 
 # Base landing platform (full footprint marble)
 rect 0.10,0.10 2.80,2.80 texfill polyhaven/marble_01 0.88

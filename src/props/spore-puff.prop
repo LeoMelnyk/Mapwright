@@ -1,0 +1,55 @@
+name: Spore Puff
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: mushroom-cavern, mushroom-grove, cave-living, underdark-outpost, swamp
+typical_count: few
+clusters_with: spore-puffball, luminous-spore, mushroom-cluster, shrieker
+notes: Burst puffball mid-release — open cap with spore cloud erupting upward; step on it and you get a face full of spores
+---
+# Outer spore cloud halo (expanding outward)
+circle 0.5,0.46 0.42 fill #8a7860 0.12
+circle 0.5,0.46 0.36 fill #8a7860 0.18
+circle 0.5,0.48 0.30 fill #a8988a 0.22
+
+# Irregular puffing cloud (not perfect circle)
+poly 0.18,0.30 0.28,0.18 0.44,0.14 0.60,0.16 0.74,0.24 0.82,0.38 0.78,0.50 0.64,0.54 0.48,0.56 0.32,0.54 0.22,0.46 fill #b8a890 0.35
+poly 0.24,0.32 0.34,0.22 0.48,0.20 0.60,0.22 0.70,0.30 0.74,0.40 0.68,0.48 0.52,0.50 0.38,0.48 0.28,0.42 fill #d0c0a8 0.40
+
+# Burst cap base (what's left of the puffball — split open)
+ellipse 0.50,0.70 0.28,0.14 fill #5c3a1e 0.9
+ellipse 0.50,0.70 0.28,0.14 stroke #2a1400 width 1
+ellipse 0.50,0.72 0.22,0.10 fill #4a2800 0.9
+ellipse 0.50,0.72 0.22,0.10 stroke #1a0f00 width 1
+
+# Dark hole in the center (where spores are erupting from)
+ellipse 0.50,0.70 0.14,0.07 fill #1a0f00 0.95
+ellipse 0.50,0.70 0.14,0.07 stroke #0a0400 width 1
+
+# Burst lip — torn edges of the cap
+poly 0.36,0.66 0.42,0.60 0.40,0.68 fill #3a2408 0.9
+poly 0.58,0.60 0.64,0.66 0.60,0.68 fill #3a2408 0.9
+poly 0.42,0.76 0.50,0.78 0.48,0.80 fill #3a2408 0.85
+
+# Spore motes rising from the puff (denser near base, sparser up top)
+circle 0.38,0.50 0.022 fill #d0c0a8 0.85
+circle 0.54,0.48 0.020 fill #d0c0a8 0.8
+circle 0.62,0.42 0.018 fill #d0c0a8 0.75
+circle 0.44,0.40 0.020 fill #d0c0a8 0.75
+circle 0.50,0.34 0.016 fill #d0c0a8 0.7
+circle 0.58,0.30 0.015 fill #d0c0a8 0.65
+circle 0.36,0.28 0.014 fill #d0c0a8 0.6
+circle 0.48,0.22 0.013 fill #d0c0a8 0.55
+circle 0.62,0.24 0.012 fill #d0c0a8 0.5
+circle 0.42,0.18 0.010 fill #d0c0a8 0.45
+circle 0.56,0.16 0.010 fill #d0c0a8 0.4
+circle 0.30,0.38 0.012 fill #d0c0a8 0.6
+
+# Wisps trailing upward (puff motion)
+bezier 0.42,0.68 0.38,0.50 0.32,0.36 0.28,0.22 stroke #a89880 0.40 width 1
+bezier 0.58,0.68 0.62,0.50 0.66,0.36 0.72,0.22 stroke #a89880 0.40 width 1
+bezier 0.50,0.68 0.50,0.50 0.50,0.32 0.50,0.14 stroke #a89880 0.35 width 1

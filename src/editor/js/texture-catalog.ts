@@ -16,7 +16,6 @@ interface TextureMetadata {
   file: string;
   dispFile: string | null;
   norFile: string | null;
-  armFile: string | null;
   scale: number;
   credit: string;
 }
@@ -35,6 +34,9 @@ interface RawTextureFile {
     arm?: string | null;
   };
 }
+
+// Note: `arm` (AO+Roughness+Metal) is kept in the file format for forward
+// compatibility but is no longer loaded at runtime — no consumer reads it.
 
 const BASE_URL = '/textures/';
 const BUNDLE_URL = '/textures/bundle.json';
@@ -61,7 +63,6 @@ function normalizeMetadata(id: string, data: RawTextureFile): TextureMetadata {
     credit: data.credit ?? '',
     dispFile: data.maps?.disp ?? null,
     norFile: data.maps?.nor ?? null,
-    armFile: data.maps?.arm ?? null,
   };
 }
 
@@ -75,13 +76,11 @@ function normalizeMetadata(id: string, data: RawTextureFile): TextureMetadata {
  *   file: string,           // diffuse PNG path relative to /textures/
  *   dispFile: string|null,  // displacement map path (or null for auto-derived)
  *   norFile: string|null,   // normal map path
- *   armFile: string|null,   // ARM map path
  *   scale: number,          // grid cells per texture tile (default 2.0)
  *   credit: string,
  *   img:     HTMLImageElement|null,  // diffuse — loaded on demand
  *   dispImg: HTMLImageElement|null,  // displacement — loaded on demand
  *   norImg:  HTMLImageElement|null,  // normal map — loaded on demand
- *   armImg:  HTMLImageElement|null,  // AO+Roughness+Metal — loaded on demand
  * }
  *
  * Image elements are null until loadTextureImages(id) is called.
@@ -105,7 +104,6 @@ function buildFromMetadata(entries: TextureMetadata[]): TextureCatalog {
       file: data.file,
       dispFile: (data.dispFile as string) || undefined,
       norFile: (data.norFile as string) || undefined,
-      armFile: (data.armFile as string) || undefined,
       img: undefined,
       dispImg: null,
       norImg: null,
@@ -191,8 +189,15 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
 
 /**
  * Load PNG images for a single texture entry on demand.
+ *
+ * Uses `img.decode()` to pre-decode pixel data off the main thread. Without this,
+ * the first `ctx.createPattern()` / `ctx.drawImage()` call for a newly-loaded
+ * texture triggers a synchronous decode on the paint frame — visible as a
+ * multi-hundred-millisecond GPU hitch on first use. `decode()` forces the decode
+ * to happen now, so the image is in a GPU-ready state before the renderer touches it.
+ *
  * @param {string} id - Texture catalog ID.
- * @returns {Promise<void>} Resolves when diffuse + displacement images are ready.
+ * @returns {Promise<void>} Resolves when diffuse + displacement + normal are decoded and ready.
  */
 export function loadTextureImages(id: string): Promise<void> {
   const entry = catalog?.textures[id];
@@ -202,12 +207,12 @@ export function loadTextureImages(id: string): Promise<void> {
   // (don't return Promise.resolve() — the images may still be loading)
   if (entry._loadPromise) return entry._loadPromise as Promise<void>;
 
-  // Diffuse — always present
+  // Diffuse — always present. Floor pattern source.
   const img = new Image();
   img.src = `${BASE_URL}${entry.file}`;
   entry.img = img;
 
-  // Displacement
+  // Displacement — used by blend.ts for edge blending between adjacent textures.
   const dispSrc = entry.dispFile
     ? `${BASE_URL}${entry.dispFile}`
     : `${BASE_URL}${entry.file!.replace('_diff_', '_disp_')}`;
@@ -215,26 +220,43 @@ export function loadTextureImages(id: string): Promise<void> {
   dispImg.src = dispSrc;
   entry.dispImg = dispImg;
 
-  // Normal map
+  // Normal map — used by lighting.ts per-cell bump effect under lights.
   const norImg = new Image();
   if (entry.norFile) norImg.src = `${BASE_URL}${entry.norFile}`;
   entry.norImg = norImg;
 
-  // ARM
-  const armImg = new Image();
-  if (entry.armFile) armImg.src = `${BASE_URL}${entry.armFile}`;
-  entry.armImg = armImg;
-
-  // Return promise that resolves when diffuse + displacement are ready
-  // (both are needed for rendering — displacement drives edge blend ordering)
-  function awaitImage(image: HTMLImageElement) {
-    if (!image.src || image.complete) return Promise.resolve();
-    return new Promise((resolve) => {
-      image.addEventListener('load', resolve, { once: true });
-      image.addEventListener('error', resolve, { once: true });
+  // Force decode now so the first paint doesn't stall. `decode()` also waits
+  // for the underlying fetch, so this replaces the old 'load'-event wait.
+  // `error` cases resolve too so a missing asset doesn't hang the promise.
+  function decodeOrFallback(image: HTMLImageElement) {
+    if (!image.src) return Promise.resolve();
+    return image.decode().catch(() => {
+      // Decode can reject if the image failed to load or is malformed.
+      // Swallow — renderer skips incomplete images gracefully.
     });
   }
-  entry._loadPromise = Promise.all([awaitImage(img), awaitImage(dispImg)]);
+
+  // After the diffuse image decodes, promote it to an ImageBitmap for the
+  // pattern path. An HTMLImageElement passed to `ctx.createPattern()` lazily
+  // re-decodes on first raster, causing a multi-hundred-ms stall the first
+  // time any cell using this texture is painted. An ImageBitmap is already
+  // GPU-uploadable — the first pattern fill is a straight GPU op.
+  // createImageBitmap runs off the main thread, so load latency is unaffected.
+  const diffuseReady = decodeOrFallback(img).then(async () => {
+    if (!img.naturalWidth) return;
+    try {
+      entry._patternBitmap = await createImageBitmap(img);
+      // Drop any cached pattern that was built from the HTMLImageElement so the
+      // next render rebuilds it from the bitmap instead.
+      entry._pattern = null;
+      entry._patternCtx = null;
+    } catch {
+      // If createImageBitmap fails (very old browser, CORS quirk), fall back
+      // to the HTMLImageElement — createPattern still works, just with a stall.
+    }
+  });
+
+  entry._loadPromise = Promise.all([diffuseReady, decodeOrFallback(dispImg), decodeOrFallback(norImg)]);
   return entry._loadPromise as Promise<void>;
 }
 

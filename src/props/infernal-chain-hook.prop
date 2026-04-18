@@ -12,7 +12,7 @@ clusters_with: chain-coil, chain-heavy, iron-chain-hook, torture-rack, brazier
 notes: Heavy iron meat-hook with dangling chain for hanging bodies or tools; hook tip shows orange heat stains
 ---
 # Tight hitbox on chain column only (hook curves outside)
-hitbox rect 0.42,0.08 0.16,0.60 z 0-2.5
+selection rect 0.42,0.08 0.16,0.60
 
 # Wall plate (flush to north wall)
 rect 0.34,0.06 0.32,0.10 texfill polyhaven/rusty_metal_02 0.85

@@ -10,16 +10,10 @@ room_types: cave-drow-outpost, underdark-outpost, drow-citadel, shrine
 typical_count: many
 clusters_with: candle-violet, spider-shrine, drow-weapon-rack
 notes: Wall-mounted iron bracket emitting faerzress (drow radiation) — purple-black flame; place along drow outpost walls
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.3
-    radius: 8
-    color: "#8040c0"
-    intensity: 0.7
+lights: [{"preset":"faerzress","x":0.5,"y":0.3,"radius":8,"intensity":0.7,"color":"#8040c0"}]
 ---
 # === HITBOX ===
-hitbox rect 0.30,0.04 0.40,0.30 z 0-1.2
+selection rect 0.30,0.04 0.40,0.30
 
 # Iron backing plate flush to north wall
 rect 0.30,0.04 0.40,0.10 texfill polyhaven/rusty_metal_02 0.85

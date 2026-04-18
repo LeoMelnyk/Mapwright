@@ -12,7 +12,7 @@ clusters_with: desk, chest, vault-door, ledger-stack, coin-pile
 notes: Iron ring holding several large skeleton keys — jailer's keyring
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-0.1
+selection circle 0.5,0.5 0.30
 
 # Main iron ring (large circle)
 circle 0.5,0.5 0.24 stroke #444444 width 4

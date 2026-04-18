@@ -12,7 +12,7 @@ clusters_with: cave-mouth-small, rat-nest, dung-pile, junk-pile
 notes: Dark burrow opening into a cave wall — irregular oval mouth with scratched rim and loose dirt from digging. Wall side (back) at north; opening faces south.
 ---
 # === HITBOX ===
-hitbox ellipse 0.50,0.44 0.34,0.26 z 0-0.1
+selection ellipse 0.50,0.44 0.34,0.26
 
 # Loose dirt scatter fan (kicked out to the south during digging)
 ellipse 0.50,0.82 0.36,0.08 fill #3a2010 0.7

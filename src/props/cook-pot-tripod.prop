@@ -11,6 +11,9 @@ typical_count: single
 clusters_with: campfire, cookware-scatter, cauldron, bedroll, log-seat
 notes: Iron pot suspended from a wooden tripod over a small fire; place over or adjacent to a campfire
 ---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.40 z 0-1.5
+
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: three wooden legs radiate from a central hub like a 3-spoke wheel. A cast-iron pot hangs in the center, viewed from directly above as a dark circle with a handle loop.
 

@@ -1,0 +1,159 @@
+name: Crypt
+category: Undead & Dark
+footprint: 8x8
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 12
+placement: center
+room_types: graveyard-village, crypt, necropolis, cemetery-ruined, catacombs-entrance
+typical_count: single
+clusters_with: tombstone, statue-weeping, raven-perched, grave-mound, iron-fence
+notes: Stone mausoleum scenery prop viewed from directly above. Solid peaked-slab roof with central north-south ridge, ornamental cornice trim, four corner finial pillars capped with small spires, a carved cross relief on the roof, and a protruding arched porch (visible as a half-disc) on the south face. NOT enterable — purely decorative centerpiece for graveyards and cemeteries. Surround with tombstones, statues, and iron fencing.
+---
+# === HITBOX ===
+hitbox rect 0.80,0.60 6.40,5.00 z 0-10
+hitbox rect 0.40,0.20 0.80,0.80 z 0-12
+hitbox rect 6.80,0.20 0.80,0.80 z 0-12
+hitbox rect 0.40,5.00 0.80,0.80 z 0-12
+hitbox rect 6.80,5.00 0.80,0.80 z 0-12
+hitbox circle 4.00,5.60 1.00 z 0-8
+
+# footprint 8x8: x 0-8, y 0-8. Top-down on a solid stone mausoleum.
+
+# === Main roof — weathered stone slabs ===
+rect 0.80,0.60 6.40,5.00 texfill polyhaven/stone_wall 0.92
+rect 0.80,0.60 6.40,5.00 stroke #222222 width 2
+
+# === Ornamental cornice trim (stone molding inset from roof edge) ===
+rect 1.00,0.80 6.00,4.60 stroke #444444 width 2
+rect 1.10,0.90 5.80,4.40 stroke #5a5a5a width 1
+
+# Corner rosette accents on the cornice (small embossed medallions)
+circle 1.15,0.95 0.08 fill #5a5a5a 0.9
+circle 1.15,0.95 0.08 stroke #2a2a2a
+circle 6.85,0.95 0.08 fill #5a5a5a 0.9
+circle 6.85,0.95 0.08 stroke #2a2a2a
+circle 1.15,5.25 0.08 fill #5a5a5a 0.9
+circle 1.15,5.25 0.08 stroke #2a2a2a
+circle 6.85,5.25 0.08 fill #5a5a5a 0.9
+circle 6.85,5.25 0.08 stroke #2a2a2a
+
+# === Slab courses running east-west (perpendicular to ridge) ===
+line 0.80,1.30 7.20,1.30 stroke #333333 0.65
+line 0.80,2.00 7.20,2.00 stroke #333333 0.60
+line 0.80,2.70 7.20,2.70 stroke #333333 0.60
+line 0.80,3.40 7.20,3.40 stroke #333333 0.60
+line 0.80,4.10 7.20,4.10 stroke #333333 0.60
+line 0.80,4.80 7.20,4.80 stroke #333333 0.65
+
+# === Central north-south ridge beam (apex of peaked roof) ===
+rect 3.85,0.60 0.30,5.00 fill #444444 0.90
+rect 3.85,0.60 0.30,5.00 stroke #222222 width 1
+# Highlight on the west face of the ridge
+line 3.90,0.65 3.90,5.55 stroke #8a8a8a 0.55 width 1
+# Shadow on the east face of the ridge
+line 4.12,0.65 4.12,5.55 stroke #1a1a1a 0.60 width 1
+
+# === Corner finial pillars (square columns with capitals + spire tops) ===
+# NW
+rect 0.40,0.20 0.80,0.80 texfill polyhaven/granite_tile 0.90
+rect 0.40,0.20 0.80,0.80 stroke #222222 width 2
+rect 0.52,0.32 0.56,0.56 stroke #555555 width 1
+circle 0.80,0.60 0.14 fill #666666 0.95
+circle 0.80,0.60 0.14 stroke #2a2a2a width 1
+circle 0.80,0.60 0.06 fill #8a8a8a 0.9
+# NE
+rect 6.80,0.20 0.80,0.80 texfill polyhaven/granite_tile 0.90
+rect 6.80,0.20 0.80,0.80 stroke #222222 width 2
+rect 6.92,0.32 0.56,0.56 stroke #555555 width 1
+circle 7.20,0.60 0.14 fill #666666 0.95
+circle 7.20,0.60 0.14 stroke #2a2a2a width 1
+circle 7.20,0.60 0.06 fill #8a8a8a 0.9
+# SW
+rect 0.40,5.00 0.80,0.80 texfill polyhaven/granite_tile 0.90
+rect 0.40,5.00 0.80,0.80 stroke #222222 width 2
+rect 0.52,5.12 0.56,0.56 stroke #555555 width 1
+circle 0.80,5.40 0.14 fill #666666 0.95
+circle 0.80,5.40 0.14 stroke #2a2a2a width 1
+circle 0.80,5.40 0.06 fill #8a8a8a 0.9
+# SE
+rect 6.80,5.00 0.80,0.80 texfill polyhaven/granite_tile 0.90
+rect 6.80,5.00 0.80,0.80 stroke #222222 width 2
+rect 6.92,5.12 0.56,0.56 stroke #555555 width 1
+circle 7.20,5.40 0.14 fill #666666 0.95
+circle 7.20,5.40 0.14 stroke #2a2a2a width 1
+circle 7.20,5.40 0.06 fill #8a8a8a 0.9
+
+# === Large carved cross relief on the north half of the roof ===
+rect 3.90,1.40 0.20,1.50 fill #5a5a5a 0.95
+rect 3.90,1.40 0.20,1.50 stroke #2a2a2a width 1
+rect 3.35,1.95 1.30,0.30 fill #5a5a5a 0.95
+rect 3.35,1.95 1.30,0.30 stroke #2a2a2a width 1
+
+# === Secondary engraved emblem on the south half (cross-in-circle) ===
+circle 4.00,4.15 0.30 stroke #5a5a5a width 2
+line 4.00,3.85 4.00,4.45 stroke #5a5a5a width 2
+line 3.70,4.15 4.30,4.15 stroke #5a5a5a width 2
+
+# === Arched porch protruding south from the main building ===
+# Porch rectangular body (north half, tucked against the building)
+rect 3.00,5.60 2.00,0.50 texfill polyhaven/stone_wall 0.92
+rect 3.00,5.60 2.00,0.50 stroke #222222 width 2
+
+# Arched porch roof (south-pointing half-disc — THIS is the "arch of the door" seen from above)
+arc 4.00,6.10 1.00 0 180 texfill polyhaven/stone_wall 0.92
+arc 4.00,6.10 1.00 0 180 stroke #222222 width 2
+
+# Porch roof ornamental trim (concentric arcs = moulding bands)
+arc 4.00,6.10 0.85 0 180 stroke #444444 width 1
+arc 4.00,6.10 0.70 0 180 stroke #555555 width 1
+arc 4.00,6.10 0.50 0 180 stroke #444444 0.7 width 1
+
+# Radial slab lines on the porch (rays from center to perimeter)
+line 4.00,6.10 3.00,6.10 stroke #333333 0.6 width 1
+line 4.00,6.10 5.00,6.10 stroke #333333 0.6 width 1
+line 4.00,6.10 4.00,7.10 stroke #333333 0.6 width 1
+line 4.00,6.10 3.30,6.81 stroke #333333 0.55 width 1
+line 4.00,6.10 4.70,6.81 stroke #333333 0.55 width 1
+
+# Porch keystone / apex emblem (small sigil at the arch peak)
+circle 4.00,6.30 0.10 fill #666666 0.9
+circle 4.00,6.30 0.10 stroke #2a2a2a width 1
+line 4.00,6.22 4.00,6.38 stroke #2a2a2a 0.85 width 1
+line 3.92,6.30 4.08,6.30 stroke #2a2a2a 0.85 width 1
+
+# Ornamental columns flanking the porch body (where it meets the main wall)
+rect 2.85,5.55 0.35,0.60 texfill polyhaven/granite_tile 0.90
+rect 2.85,5.55 0.35,0.60 stroke #222222 width 2
+circle 3.03,5.85 0.09 fill #666666 0.95
+circle 3.03,5.85 0.09 stroke #2a2a2a
+rect 4.80,5.55 0.35,0.60 texfill polyhaven/granite_tile 0.90
+rect 4.80,5.55 0.35,0.60 stroke #222222 width 2
+circle 4.97,5.85 0.09 fill #666666 0.95
+circle 4.97,5.85 0.09 stroke #2a2a2a
+
+# === Moss and weathering patches on the roof slabs ===
+ellipse 1.60,1.70 0.35,0.25 fill #3a4028 0.40
+ellipse 6.35,2.50 0.32,0.22 fill #3a4028 0.35
+ellipse 1.40,3.60 0.30,0.20 fill #3a4028 0.35
+ellipse 6.50,4.20 0.30,0.22 fill #3a4028 0.35
+ellipse 2.40,2.80 0.18,0.14 fill #3a4028 0.30
+ellipse 5.40,3.30 0.22,0.16 fill #3a4028 0.30
+# Moss on porch
+ellipse 3.50,6.40 0.20,0.12 fill #3a4028 0.40
+ellipse 4.50,6.50 0.18,0.12 fill #3a4028 0.35
+
+# === Hairline cracks across slabs ===
+line 2.00,0.90 2.05,2.40 stroke #1a1a1a 0.50 width 1
+line 5.80,1.30 5.85,3.20 stroke #1a1a1a 0.45 width 1
+line 1.50,3.80 1.55,4.90 stroke #1a1a1a 0.45 width 1
+line 6.40,3.90 6.45,4.95 stroke #1a1a1a 0.50 width 1
+
+# === Stone urns flanking the porch (scenery accent) ===
+circle 2.40,6.80 0.18 texfill polyhaven/granite_tile 0.85
+circle 2.40,6.80 0.18 stroke #222222 width 2
+circle 2.40,6.80 0.10 fill #0a0604 0.90
+circle 5.60,6.80 0.18 texfill polyhaven/granite_tile 0.85
+circle 5.60,6.80 0.18 stroke #222222 width 2
+circle 5.60,6.80 0.10 fill #0a0604 0.90

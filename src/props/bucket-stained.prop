@@ -12,7 +12,7 @@ clusters_with: cleaver, blood-smear, knife-curved, rag-damp, stretched-hide, gut
 notes: Wooden bucket fouled with blood and offal — dark red staining runs down the outer staves; a thick dark fluid sloshes inside.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.30 z 0-0.5
+selection circle 0.5,0.5 0.30
 
 # Outer stave body (weathered wood)
 circle 0.5,0.5 0.34 texfill polyhaven/weathered_planks 0.85

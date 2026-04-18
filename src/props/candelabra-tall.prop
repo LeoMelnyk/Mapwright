@@ -10,17 +10,11 @@ room_types: mansion-ballroom, mansion-grand-hall, throne-room, noble-solar
 typical_count: few
 clusters_with: chandelier-grand, candle-dipped, brazier
 notes: Tall floor-standing candelabra with radiating arms holding multiple candles. Flank doorways, thrones, or grand staircases; excellent as corner light source.
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 12
-    color: "#ffcc88"
-    intensity: 0.9
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":12,"intensity":0.9,"color":"#ffcc88"}]
 ---
 # footprint 1x1: x range 0-1, y range 0-1
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-1.8
+selection circle 0.5,0.5 0.32
 
 # Ambient glow from candle cluster
 circle 0.5,0.5 0.48 fill #ffcc66 0.10

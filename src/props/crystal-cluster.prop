@@ -1,0 +1,46 @@
+name: Crystal Cluster
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+placement: floor
+room_types: cave-crystal, underdark, wizard-sanctum, fey-glade, mine-gemstone, shrine-magical, grotto, ritual-chamber
+typical_count: few
+clusters_with: crystal-cluster, crystal-cluster-large, crystal-shard, crystal-formation, crystal-heart, pillar-crystal, resonance-pool, bioluminescent-moss
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"radius":5,"intensity":0.45}]
+notes: Small cluster of glowing crystals jutting from the ground. Smaller and more compact than crystal-cluster-large. Use in caves, gemstone mines, or magical areas.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.26 z 0-2
+
+# Faint halo glow
+circle 0.50,0.50 0.40 fill #4488cc 0.12
+circle 0.50,0.50 0.30 fill #66aaee 0.18
+
+# Rock base (drawn first)
+poly 0.25,0.70 0.38,0.60 0.55,0.58 0.72,0.64 0.78,0.74 0.68,0.82 0.42,0.84 0.28,0.80 fill #2a2838 0.85
+poly 0.25,0.70 0.38,0.60 0.55,0.58 0.72,0.64 0.78,0.74 0.68,0.82 0.42,0.84 0.28,0.80 stroke #1a1828
+
+# Main crystal (tallest, center — foreshortened as a diamond viewed top-down)
+poly 0.50,0.26 0.62,0.50 0.50,0.58 0.38,0.50 fill #6aaaee 0.85
+poly 0.50,0.26 0.62,0.50 0.50,0.58 0.38,0.50 stroke #3366aa
+# Facet highlights
+line 0.50,0.26 0.50,0.58 stroke #aaddff 0.6
+line 0.38,0.50 0.62,0.50 stroke #aaddff 0.35
+
+# Secondary crystal (right)
+poly 0.68,0.46 0.78,0.62 0.70,0.68 0.58,0.58 fill #5a9adc 0.8
+poly 0.68,0.46 0.78,0.62 0.70,0.68 0.58,0.58 stroke #2a5a9a
+line 0.68,0.46 0.70,0.68 stroke #aaddff 0.5
+
+# Secondary crystal (left)
+poly 0.30,0.50 0.40,0.62 0.32,0.70 0.22,0.58 fill #5a9adc 0.8
+poly 0.30,0.50 0.40,0.62 0.32,0.70 0.22,0.58 stroke #2a5a9a
+line 0.30,0.50 0.32,0.70 stroke #aaddff 0.5
+
+# Bright tip highlights (catching light)
+circle 0.50,0.26 0.03 fill #ffffff 0.8
+circle 0.68,0.46 0.025 fill #ffffff 0.7
+circle 0.30,0.50 0.025 fill #ffffff 0.7

@@ -12,7 +12,7 @@ clusters_with: anvil, tool-rack, chisel, workbench, ingot-stack
 notes: Blacksmith's hammer — iron head with wooden haft
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.20 0.60,0.64 z 0-0.15
+selection rect 0.20,0.20 0.60,0.64
 
 # Wooden handle (shaft running north-south)
 rect 0.44,0.32 0.12,0.50 texfill polyhaven/dark_wood 0.9

@@ -16,6 +16,7 @@ import {
   toDisp,
   ApiValidationError,
 } from './_shared.js';
+import { applyThemeChange, snapshotCurrentTheme } from '../canvas-view.js';
 import { _clearCheckpoints } from './operational.js';
 
 /**
@@ -234,8 +235,10 @@ export function setTheme(theme: string): { success: true } {
       type: typeof theme,
     });
   }
+  const prev = snapshotCurrentTheme();
   pushUndo();
   state.dungeon.metadata.theme = theme;
+  applyThemeChange(prev);
   markDirty();
   notify();
   return { success: true };

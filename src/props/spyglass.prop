@@ -12,7 +12,7 @@ clusters_with: chart-rolled, log-book, desk, telescope, map
 notes: Brass telescoping spyglass — collapsed or extended, lying on surface
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.44 0.80,0.16 z 0-0.15
+selection rect 0.10,0.44 0.80,0.16
 
 # Largest segment (eyepiece end — east)
 rect 0.66,0.48 0.24,0.12 fill #daa520 0.95

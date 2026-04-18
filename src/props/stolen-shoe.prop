@@ -1,5 +1,5 @@
 name: Stolen Shoe
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: shiny-trinket, dung-pile, bone-pile, rat-carcass
 notes: Single abandoned leather shoe, laces undone, scuffed. Signifies a missing victim or a goblin's useless prize.
 ---
 # === HITBOX ===
-hitbox ellipse 0.50,0.54 0.28,0.18 z 0-0.15
+selection ellipse 0.50,0.54 0.28,0.18
 
 # Faint scuff / drag stain around shoe
 ellipse 0.50,0.58 0.34,0.20 fill #2a1a0a 0.35

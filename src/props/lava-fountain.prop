@@ -10,13 +10,7 @@ room_types: elemental-fire-node, volcano-caldera, elemental-node
 typical_count: single
 clusters_with: fire-node-core, molten-pool-small, basalt-pillar
 notes: Stone bowl fountain with liquid lava gushing up. Splash ring of molten drops radiates from the central jet.
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 16
-    color: "#ff5020"
-    intensity: 1.0
+lights: [{"preset":"lava-glow","x":1,"y":1,"radius":16,"intensity":1,"color":"#ff5020"}]
 ---
 # Heat halo
 circle 1.0,1.0 0.95 gradient-radial #ff5020 #0a0400 0.35

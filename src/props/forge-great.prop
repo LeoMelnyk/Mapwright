@@ -9,13 +9,7 @@ placement: wall
 room_types: forge, smithy-large, foundry-great, infernal-forge
 typical_count: single
 clusters_with: anvil, bellows, hammer, ingot-stack, slag-heap, quench-trough
-lights:
-  - type: brazier
-    x: 1.0
-    y: 1.3
-    radius: 22
-    color: "#ff6020"
-    intensity: 1.4
+lights: [{"preset":"forge","x":1,"y":1.3,"radius":22,"intensity":1.4,"color":"#ff6020"}]
 notes: Massive double-hearth smithing forge. Twin arched mouths face south, huge chimney vents heat through the top, heavy masonry on all sides. Dwarven or military scale — larger than basic forge.
 ---
 # Hitbox: masonry block (excludes the south floor spill)

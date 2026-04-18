@@ -10,13 +10,7 @@ room_types: distillery, refinery, alchemist-lab, brewery
 typical_count: single
 clusters_with: condenser-coil, flask-small, spill-reagent, alchemy-bench
 notes: Large copper distillation vessel; place centrally with pipe running south
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 3
-    color: "#ff8844"
-    intensity: 0.25
+lights: [{"preset":"ember","x":1,"y":1,"radius":3,"intensity":0.25,"color":"#ff8844"}]
 ---
 # === HITBOX ===
 hitbox circle 1.0,1.0 0.8 z 0-4

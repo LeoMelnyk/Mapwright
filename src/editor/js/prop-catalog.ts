@@ -3,7 +3,7 @@
 // Caching is handled by the HTTP layer: /props/bundle.json is served with an
 // ETag, so repeat loads get a 304 with no body transfer.
 
-import type { PropCatalog, PropDefinition, PropCommand } from '../../types.js';
+import type { PropCatalog, PropDefinition, PropCommand, Dungeon } from '../../types.js';
 import { parsePropFile, generateHitbox } from '../../render/index.js';
 import { loadTextureImages, getTextureCatalog } from './texture-catalog.js';
 import { showToast } from './toast.js';
@@ -26,27 +26,12 @@ try {
 
 /**
  * Build the catalog structure from a { name: def } map.
+ * Hitbox materialization is deferred — see materializePropHitbox().
  */
 function buildCatalog(props: Record<string, PropDefinition>) {
   const byCategory = {};
   const categoryOrder = [];
   for (const [name, def] of Object.entries(props)) {
-    // Always auto-generate the convex hull hitbox (used for selection fallback)
-    if (!def.autoHitbox && def.commands.length) {
-      def.autoHitbox = generateHitbox(def.commands, def.footprint) ?? undefined;
-    }
-    // Lighting hitbox: manual hitbox commands > auto-generated
-    def.hitbox ??= def.manualHitbox?.length ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined) : def.autoHitbox;
-    // Build hitbox zones for z-height shadow projection.
-    // Each zone has { polygon, zBottom, zTop } for height-based shadow casting.
-    if (!def.hitboxZones && def.blocksLight) {
-      def.hitboxZones = buildHitboxZones(def) ?? undefined;
-    }
-    // Selection hitbox: manual selection commands only (falls back to autoHitbox at query time)
-    if (!def.selectionHitbox && def.manualSelection?.length) {
-      def.selectionHitbox = manualHitboxToPolygon(def.manualSelection) ?? undefined;
-    }
-
     if (!(byCategory as Record<string, string[]>)[def.category]) {
       (byCategory as Record<string, string[]>)[def.category] = [];
       categoryOrder.push(def.category);
@@ -54,6 +39,23 @@ function buildCatalog(props: Record<string, PropDefinition>) {
     (byCategory as Record<string, string[]>)[def.category]!.push(name);
   }
   return { categories: categoryOrder, props, byCategory };
+}
+
+/**
+ * Populate a prop's hitbox fields (autoHitbox, hitbox, hitboxZones, selectionHitbox).
+ * Idempotent — skips fields that are already set.
+ */
+function materializePropHitbox(def: PropDefinition): void {
+  if (!def.autoHitbox && def.commands.length) {
+    def.autoHitbox = generateHitbox(def.commands, def.footprint) ?? undefined;
+  }
+  def.hitbox ??= def.manualHitbox?.length ? (manualHitboxToPolygon(def.manualHitbox) ?? undefined) : def.autoHitbox;
+  if (!def.hitboxZones && def.blocksLight) {
+    def.hitboxZones = buildHitboxZones(def) ?? undefined;
+  }
+  if (!def.selectionHitbox && def.manualSelection?.length) {
+    def.selectionHitbox = manualHitboxToPolygon(def.manualSelection) ?? undefined;
+  }
 }
 
 /** Convert manual hitbox commands (rect/circle/poly) into a single polygon. */
@@ -220,6 +222,7 @@ export function getPropCatalog(): PropCatalog | null {
  */
 export function clearPropCatalogCache(): void {
   cachedCatalog = null;
+  backgroundHitboxScheduled = false;
 }
 
 function buildEmptyCatalog() {
@@ -236,4 +239,65 @@ export function ensurePropTextures(propType: string): void {
   if (!def?.textures.length) return;
   if (!getTextureCatalog()) return;
   for (const id of def.textures) void loadTextureImages(id);
+}
+
+/**
+ * Materialize hitboxes for a single prop type if the catalog is loaded.
+ * Idempotent — safe to call at any point (placement, selection, render).
+ */
+export function ensurePropHitbox(propType: string): void {
+  const def = cachedCatalog?.props[propType];
+  if (def) materializePropHitbox(def);
+}
+
+/**
+ * Materialize hitboxes for every prop type used by the given dungeon.
+ * Walks cell props + metadata overlay props.
+ */
+export function ensurePropHitboxesForMap(dungeon: Dungeon): void {
+  if (!cachedCatalog) return;
+  const types = new Set<string>();
+  for (const row of dungeon.cells) {
+    for (const cell of row) {
+      const t = cell?.prop?.type;
+      if (t) types.add(t);
+    }
+  }
+  const overlay = dungeon.metadata.props;
+  if (overlay) {
+    for (const op of overlay) types.add(op.type);
+  }
+  for (const t of types) {
+    const def = cachedCatalog.props[t];
+    if (def) materializePropHitbox(def);
+  }
+}
+
+let backgroundHitboxScheduled = false;
+
+/**
+ * Schedule background materialization of all remaining prop hitboxes.
+ * Uses requestIdleCallback (setTimeout fallback) to chunk the work so it
+ * doesn't block the main thread. Safe to call multiple times — runs once.
+ */
+export function scheduleBackgroundPropHitboxGen(): void {
+  if (backgroundHitboxScheduled || !cachedCatalog) return;
+  backgroundHitboxScheduled = true;
+
+  const defs = Object.values(cachedCatalog.props);
+  let i = 0;
+
+  const ric: (cb: (deadline: { timeRemaining(): number }) => void) => void =
+    (window as unknown as { requestIdleCallback?: (cb: (d: { timeRemaining(): number }) => void) => void })
+      .requestIdleCallback ?? ((cb) => setTimeout(() => cb({ timeRemaining: () => 8 }), 16));
+
+  function runChunk(deadline: { timeRemaining(): number }) {
+    while (i < defs.length && deadline.timeRemaining() > 1) {
+      materializePropHitbox(defs[i]!);
+      i++;
+    }
+    if (i < defs.length) ric(runChunk);
+  }
+
+  ric(runChunk);
 }

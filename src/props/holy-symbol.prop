@@ -10,9 +10,10 @@ room_types: temple-nave, temple, shrine, church
 typical_count: single
 clusters_with: altar, altar-sacrificial, candelabra, censer
 notes: Freestanding sun-disc holy symbol on a small round marble base — radiant gold disc with stylized rays
+lights: [{"preset":"divine-radiance","x":0.5,"y":0.5,"radius":4,"intensity":0.4}]
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.22 z 0-0.8
+selection circle 0.5,0.5 0.22
 
 # Round marble base (plinth seen from above)
 circle 0.5,0.6 0.24 texfill polyhaven/marble_01 0.8

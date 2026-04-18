@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 1.2
-lights: [{"type":"candle","x":0.5,"y":0.5,"radius":6,"color":"#ffcc80","intensity":0.7}]
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":6,"color":"#ffcc80","intensity":0.7}]
 placement: any
 room_types: mansion-grand-hall, mansion-ballroom, great-hall, noble-villa, reception-hall, estate, study, bedroom
 typical_count: few

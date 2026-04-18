@@ -1,0 +1,85 @@
+name: Large Crystal Cluster
+category: Magical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+lights: [{"preset":"astral","x":1.0,"y":1.0,"color":"#bb88ff","intensity":0.7,"radius":7}]
+placement: center
+room_types: crystal-grotto, cave-living, elemental-earth-node, underdark-outpost, demiplane-laboratory
+typical_count: few
+clusters_with: crystal-shard, crystal-cluster, crystal-dust, crystal-heart, mineral-vein
+notes: Large radial cluster of violet crystal shards; place as centerpiece or mineral vein feature. Shards radiate outward from the center.
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.75 z 0-2
+
+# Outer luminous halo
+circle 1.0,1.0 0.95 gradient-radial #6040b0 #0a0820 0.45
+# Soft glow ring
+circle 1.0,1.0 0.70 fill #7755cc 0.2
+circle 1.0,1.0 0.55 fill #9977ee 0.22
+
+# Rocky base mass
+ellipse 1.0,1.05 0.75,0.65 fill #3a2050 0.55
+ellipse 1.0,1.05 0.75,0.65 stroke #2a1040
+
+# === Large central crystal (tallest, catching light at apex) ===
+poly 0.88,1.15 1.12,1.15 1.18,0.70 1.00,0.32 0.82,0.70 fill #9977ee 0.85
+poly 0.88,1.15 1.12,1.15 1.18,0.70 1.00,0.32 0.82,0.70 stroke #4422aa
+# Facet highlight — lit face
+poly 0.90,1.10 0.92,0.72 1.00,0.36 1.00,1.10 fill #ccaaff 0.55
+# Facet shadow — dark face
+poly 1.00,0.36 1.08,0.72 1.10,1.10 1.00,1.10 fill #5533aa 0.45
+# Apex glow
+circle 1.00,0.34 0.06 fill #e8d8ff 0.9
+circle 1.00,0.34 0.03 fill #ffffff 0.95
+
+# === North-west shard (medium) ===
+poly 0.42,0.78 0.56,0.78 0.58,0.48 0.50,0.24 0.40,0.48 fill #8866dd 0.82
+poly 0.42,0.78 0.56,0.78 0.58,0.48 0.50,0.24 0.40,0.48 stroke #4422aa
+poly 0.44,0.76 0.46,0.50 0.50,0.26 0.50,0.76 fill #b8a0ee 0.5
+circle 0.50,0.28 0.035 fill #d8c0ff 0.85
+
+# === North-east shard (medium) ===
+poly 1.44,0.72 1.58,0.72 1.62,0.44 1.52,0.20 1.40,0.44 fill #7755cc 0.82
+poly 1.44,0.72 1.58,0.72 1.62,0.44 1.52,0.20 1.40,0.44 stroke #4422aa
+poly 1.44,0.72 1.46,0.46 1.52,0.22 1.52,0.72 fill #a088dd 0.48
+circle 1.52,0.22 0.032 fill #d8c0ff 0.8
+
+# === South-west shard (medium-small) ===
+poly 0.38,1.55 0.52,1.55 0.54,1.28 0.46,1.08 0.36,1.28 fill #8866dd 0.8
+poly 0.38,1.55 0.52,1.55 0.54,1.28 0.46,1.08 0.36,1.28 stroke #4422aa
+circle 0.46,1.12 0.028 fill #ccaaff 0.8
+
+# === South-east shard (medium-small) ===
+poly 1.48,1.58 1.60,1.58 1.64,1.32 1.56,1.10 1.44,1.32 fill #7755cc 0.8
+poly 1.48,1.58 1.60,1.58 1.64,1.32 1.56,1.10 1.44,1.32 stroke #4422aa
+circle 1.56,1.14 0.028 fill #ccaaff 0.8
+
+# === Small front shards (flanking main) ===
+poly 0.62,1.62 0.72,1.62 0.70,1.40 0.66,1.28 0.60,1.40 fill #9977ee 0.78
+poly 0.62,1.62 0.72,1.62 0.70,1.40 0.66,1.28 0.60,1.40 stroke #4422aa
+
+poly 1.26,1.64 1.36,1.64 1.38,1.42 1.32,1.30 1.24,1.42 fill #9977ee 0.78
+poly 1.26,1.64 1.36,1.64 1.38,1.42 1.32,1.30 1.24,1.42 stroke #4422aa
+
+# === Tiny shards / stubs ===
+poly 0.22,1.20 0.30,1.18 0.28,1.34 0.22,1.34 fill #8866dd 0.75
+poly 0.22,1.20 0.30,1.18 0.28,1.34 0.22,1.34 stroke #4422aa
+poly 1.72,1.28 1.80,1.26 1.80,1.42 1.74,1.42 fill #8866dd 0.75
+poly 1.72,1.28 1.80,1.26 1.80,1.42 1.74,1.42 stroke #4422aa
+poly 0.70,0.40 0.78,0.38 0.78,0.52 0.72,0.52 fill #9977ee 0.7
+poly 0.70,0.40 0.78,0.38 0.78,0.52 0.72,0.52 stroke #4422aa
+
+# === Prismatic sparkles in the air ===
+circle 0.30,0.40 0.02 fill #e0d0ff 0.85
+circle 1.70,0.55 0.018 fill #e0d0ff 0.8
+circle 0.50,1.72 0.016 fill #ffffff 0.7
+circle 1.55,1.75 0.014 fill #e0d0ff 0.7
+circle 0.18,0.78 0.012 fill #ccbbff 0.65
+
+# Rainbow prismatic glint
+line 0.86,0.80 0.88,0.88 stroke #ffccff 0.7 width 1
+line 1.12,0.80 1.10,0.88 stroke #ccffcc 0.6 width 1

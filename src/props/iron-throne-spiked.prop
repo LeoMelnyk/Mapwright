@@ -4,12 +4,16 @@ footprint: 2x2
 facing: yes
 shadow: yes
 blocks_light: yes
+height: 6
 placement: center
 room_types: infernal-court, throne-room, fiend-lair, warlord-hall
 typical_count: single
 clusters_with: banner-infernal, brazier, carpet-royal, soul-coin-pile
 notes: Menacing iron throne with spiked back; place prominently against back wall, facing room entrance
 ---
+# === HITBOX ===
+hitbox rect 0.25,0.20 1.50,1.50 z 0-6
+
 # footprint 2x2: x range 0-2, y range 0-2. Front faces south.
 
 # === Leg shadows (behind everything) ===

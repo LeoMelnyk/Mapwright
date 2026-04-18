@@ -12,7 +12,7 @@ clusters_with: brazier, ash-pile, rubble-pile, skeleton-slumped
 notes: Extinguished iron brazier — cold ashes, rust streaks, cobweb across the rim. Neglected for years. Use as a cold companion to brazier in ruined locations.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.32 z 0-0.6
+selection circle 0.5,0.5 0.32
 
 # Rusted iron bowl — outer rim
 circle 0.5,0.5 0.34 texfill polyhaven/rusty_metal_02 0.85

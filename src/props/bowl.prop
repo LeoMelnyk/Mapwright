@@ -1,0 +1,58 @@
+name: Bowl
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: monastery-refectory, mess-hall, tavern-common, peasant-hovel, hermit-cell, farmhouse-common, inn-common-room, house-small
+typical_count: few
+clusters_with: bowl-stew, wooden-bowl, mug, plate-stack, cutlery-pile, table
+notes: Empty wooden or ceramic bowl. Top-down view — outer rim and darker recessed interior. Simpler than bowl-stew.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.28
+
+# === Outer bowl rim (wood) ===
+circle 0.5,0.5 0.28 texfill polyhaven/dark_wood 0.88
+circle 0.5,0.5 0.28 stroke #2a1400
+
+# === Thick rim band (turned edge) ===
+circle 0.5,0.5 0.26 stroke #4a2800 width 1
+
+# === Inner bowl (recessed, darker) ===
+circle 0.5,0.5 0.23 fill #3a1f00 0.9
+circle 0.5,0.5 0.23 stroke #1a0f00
+
+# === Interior depth shadow ===
+circle 0.5,0.5 0.18 fill #2a1400 0.75
+
+# === Deeper center ===
+circle 0.5,0.5 0.13 fill #1a0a00 0.6
+
+# === Concentric wood turning rings ===
+circle 0.5,0.5 0.21 stroke #5c3a1e 0.5 width 1
+circle 0.5,0.5 0.16 stroke #5c3a1e 0.4 width 1
+circle 0.5,0.5 0.10 stroke #5c3a1e 0.35 width 1
+
+# === Wood grain along outer rim (subtle radial ticks) ===
+line 0.22,0.50 0.26,0.50 stroke #5c3a1e 0.6
+line 0.74,0.50 0.78,0.50 stroke #5c3a1e 0.6
+line 0.50,0.22 0.50,0.26 stroke #5c3a1e 0.55
+line 0.50,0.74 0.50,0.78 stroke #5c3a1e 0.55
+
+# === Small knot / wood defect on rim ===
+circle 0.68,0.30 0.018 fill #2a1400 0.85
+circle 0.68,0.30 0.018 stroke #1a0a00
+
+# === NW rim highlight ===
+arc 0.5,0.5 0.27 215 255 stroke #a88858 0.6 width 1
+
+# === Crumb residue inside (well-used) ===
+circle 0.44,0.48 0.012 fill #8a5820 0.7
+circle 0.54,0.54 0.010 fill #8a5820 0.65
+circle 0.50,0.56 0.008 fill #5a3010 0.6
+
+# === Hairline crack in rim ===
+line 0.30,0.36 0.34,0.42 stroke #1a0a00 0.5

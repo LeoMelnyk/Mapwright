@@ -1,0 +1,126 @@
+name: Wall Tool Rack
+category: Workshop
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: house-medium-artisan, general-workshop, workshop-artificer, shop-cobbler, shop-general
+typical_count: few
+clusters_with: workbench, tool-scatter, half-finished-work, tool-rack, hammer-rack
+notes: Wall-mounted rack of an artisan's hand tools — smaller and more domestic than tool-rack. Hammer, chisels, awls, gouges, plane. Line crafting-room walls.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.40 z 0-4
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: thin wooden plank along north edge with tools hanging below as their top-down silhouettes
+
+# === Wooden backer plank (along north wall) ===
+rect 0.08,0.06 1.84,0.14 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.06 1.84,0.14 stroke #2a1400
+
+# Plank mounting screws
+circle 0.20,0.13 0.018 fill #555555 0.85
+circle 0.20,0.13 0.018 stroke #222222
+circle 0.60,0.13 0.018 fill #555555 0.85
+circle 0.60,0.13 0.018 stroke #222222
+circle 1.00,0.13 0.018 fill #555555 0.85
+circle 1.00,0.13 0.018 stroke #222222
+circle 1.40,0.13 0.018 fill #555555 0.85
+circle 1.40,0.13 0.018 stroke #222222
+circle 1.80,0.13 0.018 fill #555555 0.85
+circle 1.80,0.13 0.018 stroke #222222
+
+# Iron hooks beneath plank
+line 0.24,0.20 0.24,0.24 stroke #333333 width 2
+line 0.44,0.20 0.44,0.24 stroke #333333 width 2
+line 0.64,0.20 0.64,0.24 stroke #333333 width 2
+line 0.84,0.20 0.84,0.24 stroke #333333 width 2
+line 1.04,0.20 1.04,0.24 stroke #333333 width 2
+line 1.24,0.20 1.24,0.24 stroke #333333 width 2
+line 1.44,0.20 1.44,0.24 stroke #333333 width 2
+line 1.64,0.20 1.64,0.24 stroke #333333 width 2
+line 1.84,0.20 1.84,0.24 stroke #333333 width 2
+
+# === Claw hammer (west end) ===
+# Head
+poly 0.18,0.24 0.30,0.24 0.32,0.32 0.28,0.34 0.22,0.34 0.16,0.32 fill #555555 0.95
+poly 0.18,0.24 0.30,0.24 0.32,0.32 0.28,0.34 0.22,0.34 0.16,0.32 texfill polyhaven/metal_plate 0.55
+poly 0.18,0.24 0.30,0.24 0.32,0.32 0.28,0.34 0.22,0.34 0.16,0.32 stroke #222222
+# Claw (forked curve)
+bezier 0.16,0.32 0.14,0.36 0.18,0.40 0.22,0.40 stroke #333333 width 2
+# Handle
+line 0.24,0.34 0.24,0.46 stroke #5c3a1e width 3
+
+# === Chisel 1 (narrow blade) ===
+rect 0.42,0.24 0.04,0.14 fill #8899aa 0.9
+rect 0.42,0.24 0.04,0.14 stroke #333333
+# Wooden handle
+rect 0.41,0.38 0.06,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.41,0.38 0.06,0.08 stroke #2a1400
+# Ferrule
+rect 0.41,0.38 0.06,0.02 fill #777777 0.9
+
+# === Chisel 2 (wider) ===
+rect 0.61,0.24 0.06,0.12 fill #9aabbb 0.9
+rect 0.61,0.24 0.06,0.12 stroke #333333
+rect 0.60,0.36 0.08,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.60,0.36 0.08,0.08 stroke #2a1400
+rect 0.60,0.36 0.08,0.02 fill #777777 0.9
+
+# === Awl (pointed thin tool) ===
+line 0.84,0.24 0.84,0.38 stroke #888888 width 2
+# Bulb handle
+circle 0.84,0.42 0.04 fill #8b6914 0.95
+circle 0.84,0.42 0.04 texfill polyhaven/dark_wood 0.5
+circle 0.84,0.42 0.04 stroke #2a1400
+
+# === Gouge (curved chisel) ===
+bezier 1.02,0.24 1.00,0.30 1.04,0.36 1.02,0.38 stroke #8899aa width 3
+rect 1.00,0.38 0.08,0.08 texfill polyhaven/dark_wood 0.9
+rect 1.00,0.38 0.08,0.08 stroke #2a1400
+rect 1.00,0.38 0.08,0.02 fill #777777 0.9
+
+# === Small hand plane (rectangular with blade slot) ===
+rect 1.16,0.24 0.16,0.18 texfill polyhaven/dark_wood 0.88
+rect 1.16,0.24 0.16,0.18 stroke #1a0800
+# Blade slot (diagonal dark line across plane)
+line 1.18,0.34 1.30,0.32 stroke #8899aa width 2
+# Handle knob
+circle 1.24,0.40 0.025 fill #5c3a1e 0.95
+circle 1.24,0.40 0.025 stroke #1a0800
+
+# === Drawknife (wide blade with handle stubs) ===
+rect 1.40,0.26 0.12,0.04 fill #8899aa 0.9
+rect 1.40,0.26 0.12,0.04 stroke #333333
+# Handle stubs
+rect 1.38,0.30 0.04,0.06 texfill polyhaven/dark_wood 0.88
+rect 1.38,0.30 0.04,0.06 stroke #1a0800
+rect 1.50,0.30 0.04,0.06 texfill polyhaven/dark_wood 0.88
+rect 1.50,0.30 0.04,0.06 stroke #1a0800
+
+# === Saw (blade running south, teeth visible) ===
+rect 1.60,0.24 0.08,0.16 fill #aaaaaa 0.92
+rect 1.60,0.24 0.08,0.16 stroke #333333
+# Saw teeth (small jagged edge on south side)
+poly 1.60,0.40 1.62,0.42 1.64,0.40 1.66,0.42 1.68,0.40 1.68,0.42 1.60,0.42 fill #333333 0.9
+# Handle
+rect 1.58,0.42 0.12,0.06 texfill polyhaven/dark_wood 0.88
+rect 1.58,0.42 0.12,0.06 stroke #1a0800
+
+# === Small mallet (east end) ===
+circle 1.82,0.30 0.07 fill #8b6914 0.92
+circle 1.82,0.30 0.07 texfill polyhaven/dark_wood 0.55
+circle 1.82,0.30 0.07 stroke #2a1400
+line 1.82,0.37 1.82,0.46 stroke #5c3a1e width 3
+
+# === Tool silhouette shadows behind ===
+rect 0.16,0.24 0.18,0.24 fill #000000 0.1
+rect 1.16,0.24 0.16,0.22 fill #000000 0.1
+rect 1.60,0.24 0.08,0.22 fill #000000 0.1
+
+# === Wood grain on plank ===
+line 0.14,0.10 1.86,0.10 stroke #5c3a1e 0.4
+line 0.14,0.16 1.86,0.16 stroke #5c3a1e 0.35

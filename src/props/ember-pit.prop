@@ -10,13 +10,7 @@ room_types: elemental-fire-node, volcano-caldera, elemental-node
 typical_count: few
 clusters_with: fire-node-core, ember-drift, molten-pool-small
 notes: Shallow stone-rimmed pit filled with glowing orange embers and white-hot coals.
-lights:
-  - type: torch
-    x: 1.0
-    y: 1.0
-    radius: 14
-    color: "#ff6020"
-    intensity: 0.9
+lights: [{"preset":"campfire","x":1,"y":1,"radius":14,"intensity":0.9,"color":"#ff6020"}]
 ---
 # Heat halo
 circle 1.0,1.0 0.95 gradient-radial #ff6030 #0a0400 0.3

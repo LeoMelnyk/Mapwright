@@ -12,7 +12,7 @@ clusters_with: kiln-brick, kiln-large, clay-bin, clay-lump, pottery-shard
 notes: Open wooden shelf rack with 3 horizontal slats holding lines of small unfired pots. Wall-attached at north (low Y).
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.08 1.84,0.62 z 0-1.5
+selection rect 0.08,0.08 1.84,0.62
 
 # === End posts (vertical uprights anchoring rack to wall) ===
 rect 0.08,0.08 0.10,0.62 texfill polyhaven/dark_wood 0.9

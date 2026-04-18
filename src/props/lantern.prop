@@ -1,0 +1,54 @@
+name: Lantern
+category: Lighting
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+lights: [{"preset":"lantern","x":0.5,"y":0.5,"radius":6,"color":"#ffaa33","intensity":0.85}]
+placement: any
+room_types: gatehouse-inner, guard-post, watchtower, crypt, dungeon, cave-bandit-camp, barracks, ship-cabin, tavern-common
+typical_count: few
+clusters_with: chair, table, bedroll, crate, barrel
+notes: Generic iron-framed lantern — slightly more rugged than the fancy lantern-post. Octagonal metal housing with warm amber glow visible through glass panes.
+---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.18 z 0-2
+
+# Warm light halo (widest, drawn first)
+circle 0.50,0.50 0.42 fill #ffaa33 0.10
+circle 0.50,0.50 0.30 fill #ffcc44 0.14
+
+# Iron base plate (octagonal, top-down)
+poly 0.50,0.30 0.62,0.34 0.70,0.46 0.70,0.54 0.62,0.66 0.50,0.70 0.38,0.66 0.30,0.54 0.30,0.46 0.38,0.34 texfill polyhaven/metal_plate 0.82
+poly 0.50,0.30 0.62,0.34 0.70,0.46 0.70,0.54 0.62,0.66 0.50,0.70 0.38,0.66 0.30,0.54 0.30,0.46 0.38,0.34 stroke #333333
+
+# Inner glass panels (warm amber glow)
+poly 0.50,0.34 0.58,0.38 0.64,0.46 0.64,0.54 0.58,0.62 0.50,0.66 0.42,0.62 0.36,0.54 0.36,0.46 0.42,0.38 fill #ffcc44 0.55
+poly 0.50,0.34 0.58,0.38 0.64,0.46 0.64,0.54 0.58,0.62 0.50,0.66 0.42,0.62 0.36,0.54 0.36,0.46 0.42,0.38 stroke #5a3a00 0.7
+
+# Frame struts (cross-bars holding glass panes)
+line 0.30,0.50 0.70,0.50 stroke #333333 width 1
+line 0.50,0.30 0.50,0.70 stroke #333333 width 1
+
+# Flame core (bright center)
+circle 0.50,0.50 0.10 fill #e85500 0.55
+circle 0.50,0.50 0.07 fill #ff8800 0.75
+circle 0.50,0.50 0.04 fill #ffcc00 0.85
+circle 0.50,0.50 0.02 fill #ffffff 0.9
+
+# Top cap / handle ring (small iron ring on top, seen from above)
+circle 0.50,0.50 0.05 stroke #444444 width 2
+# Top finial
+circle 0.50,0.50 0.025 fill #666666 0.9
+circle 0.50,0.50 0.025 stroke #222222
+
+# Carrying hook / chain stub (points slightly north — attached overhead)
+line 0.50,0.42 0.50,0.34 stroke #333333 width 2
+line 0.48,0.34 0.52,0.34 stroke #333333 width 2
+
+# Base plate rivets
+circle 0.38,0.36 0.012 fill #222222 0.9
+circle 0.62,0.36 0.012 fill #222222 0.9
+circle 0.38,0.64 0.012 fill #222222 0.9
+circle 0.62,0.64 0.012 fill #222222 0.9

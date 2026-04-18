@@ -12,7 +12,7 @@ clusters_with: decanter, bath-pool, massage-table, perfume-bottle
 notes: Tall ceramic amphora for scented oils; viewed from above as concentric rings with a decorative painted band.
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-0.8
+selection circle 0.5,0.5 0.28
 
 # Body / shoulders of amphora (outer terracotta ring)
 circle 0.5,0.5 0.28 fill #8a4818 0.92

@@ -5,13 +5,7 @@ facing: yes
 shadow: no
 blocks_light: no
 height: 6
-lights:
-  - type: candle
-    x: 1.5
-    y: 0.5
-    radius: 5
-    color: "#aaccee"
-    intensity: 0.4
+lights: [{"preset":"moonlight","x":1.5,"y":0.5,"radius":5,"intensity":0.4,"color":"#aaccee"}]
 placement: wall
 room_types: ship, captain-cabin, officer-quarters
 typical_count: single

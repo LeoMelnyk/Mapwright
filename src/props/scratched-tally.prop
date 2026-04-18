@@ -1,0 +1,53 @@
+name: Scratched Tally
+category: Prison
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: ship-brig, prison-block, oubliette, dungeon, cell
+typical_count: few
+clusters_with: shackles, tally-marks-wall, scratch-marks, chain-wall, broken-fingernail-scratch
+notes: Prisoner's day-count tally marks scratched into wood or stone. Groups of 5 (4 vertical + diagonal crossthrough). Similar to tally-marks-wall but on single 1x1 cell.
+---
+# footprint 1x1: x range 0-1, y range 0-1. Wall along north.
+
+# === Wall strip background (subtle darker band where marks are scratched) ===
+rect 0.06,0.04 0.88,0.28 fill #3a2a20 0.18
+
+# === Tally group 1 (leftmost — complete group of 5) ===
+line 0.12,0.08 0.12,0.28 stroke #9a8878 0.7 width 2
+line 0.17,0.06 0.17,0.26 stroke #8a7868 0.65 width 2
+line 0.22,0.08 0.22,0.28 stroke #9a8878 0.7 width 2
+line 0.27,0.06 0.27,0.26 stroke #8a7868 0.65 width 2
+# Diagonal strike-through
+line 0.09,0.26 0.30,0.06 stroke #9a8878 0.75 width 2
+
+# === Tally group 2 (complete group) ===
+line 0.38,0.07 0.38,0.27 stroke #8a7868 0.65 width 2
+line 0.43,0.06 0.43,0.26 stroke #9a8878 0.7 width 2
+line 0.48,0.08 0.48,0.28 stroke #8a7868 0.6 width 2
+line 0.53,0.06 0.53,0.26 stroke #9a8878 0.7 width 2
+# Diagonal
+line 0.35,0.25 0.56,0.07 stroke #8a7868 0.7 width 2
+
+# === Tally group 3 (complete, slightly lower contrast — older) ===
+line 0.64,0.07 0.64,0.27 stroke #7a6858 0.55 width 2
+line 0.69,0.06 0.69,0.26 stroke #7a6858 0.6 width 2
+line 0.74,0.08 0.74,0.28 stroke #7a6858 0.55 width 2
+line 0.79,0.06 0.79,0.26 stroke #7a6858 0.6 width 2
+# Diagonal (older — fainter)
+line 0.61,0.25 0.82,0.07 stroke #7a6858 0.6 width 2
+
+# === Trailing partial group (2 marks — prisoner stopped counting) ===
+line 0.88,0.07 0.88,0.27 stroke #6a5848 0.5 width 2
+line 0.93,0.06 0.93,0.26 stroke #6a5848 0.5 width 2
+
+# === Dried blood smear over one tally (fingernail snapped) ===
+ellipse 0.45,0.14 0.05,0.03 fill #3a0808 0.5
+# Blood drip trail
+line 0.45,0.16 0.46,0.22 stroke #3a0808 0.45 width 1
+
+# === Chalky bone-dust residue ===
+circle 0.28,0.26 0.010 fill #d4c4a8 0.6
+circle 0.70,0.26 0.010 fill #d4c4a8 0.6

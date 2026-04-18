@@ -12,7 +12,7 @@ clusters_with: pin-cushion, needle-case, silk-bolt, sewing-basket, spinning-whee
 notes: Wooden spool wound with colored thread
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.18 z 0-0.2
+selection circle 0.5,0.5 0.18
 
 # Spool end cap (wood, widest)
 circle 0.5,0.5 0.20 fill #8b6914 0.9

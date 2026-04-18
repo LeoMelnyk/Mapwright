@@ -12,7 +12,7 @@ clusters_with: pin-cushion, thread-spool, silk-bolt, fabric-scrap
 notes: Small cylindrical needle case — carved wood or bone, cap off
 ---
 # === HITBOX ===
-hitbox rect 0.22,0.36 0.56,0.28 z 0-0.15
+selection rect 0.22,0.36 0.56,0.28
 
 # Main body (wooden cylinder lying on side, elongated)
 ellipse 0.42,0.50 0.24,0.12 texfill polyhaven/dark_wood 0.9

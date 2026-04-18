@@ -12,7 +12,7 @@ clusters_with: wine-glass, sideboard, tea-service, goblet
 notes: Crystal wine decanter; place on sideboards and dining tables
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.58 0.22,0.18 z 0-0.8
+selection ellipse 0.5,0.58 0.22,0.18
 
 # Base bulb (rounded bottom, crystal glass)
 ellipse 0.5,0.62 0.22,0.20 fill #a0b8c0 0.35

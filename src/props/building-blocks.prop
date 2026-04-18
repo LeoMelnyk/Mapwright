@@ -12,7 +12,7 @@ clusters_with: children-toys, dollhouse, rocking-horse, spilled-toys, toy-chest
 notes: Scattered wooden alphabet blocks in pastel colors with painted letters on their top faces
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.12 0.76,0.76 z 0-0.3
+selection rect 0.12,0.12 0.76,0.76
 
 # === Block 1 — pastel red, NW, rotated ===
 rect 0.16,0.20 0.22,0.22 fill #e4908c 0.92 rotate 15

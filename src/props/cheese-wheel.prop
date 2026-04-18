@@ -12,7 +12,7 @@ clusters_with: bread-loaf, cutting-board, cleaver, shelf-open
 notes: Round waxed cheese wheel; pantry and kitchen staple
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.36 z 0-0.3
+selection circle 0.5,0.5 0.36
 
 # Wax coating (outer — warm yellow-orange)
 circle 0.5,0.5 0.36 fill #d4a020 0.95

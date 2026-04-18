@@ -1,0 +1,58 @@
+name: Silk Glove
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: tavern-highend, brothel-parlor, noble-solar, mansion-bedroom-master, mansion-dining
+typical_count: single
+clusters_with: hat-tricorn, mask-feathered, silver-tray, cigar-case
+notes: A single silk glove laid flat on a table. Flat decal, no shadow — it lies on the surface.
+---
+# === HITBOX ===
+selection rect 0.30,0.18 0.40,0.64
+
+# Glove cuff (wider opening at wrist — south end)
+poly 0.34,0.80 0.66,0.80 0.70,0.70 0.30,0.70 fill #2a1a3a 0.9
+poly 0.34,0.80 0.66,0.80 0.70,0.70 0.30,0.70 stroke #120818 width 1
+
+# Glove body (tapering palm)
+poly 0.30,0.70 0.70,0.70 0.66,0.45 0.34,0.45 fill #2a1a3a 0.92
+poly 0.30,0.70 0.70,0.70 0.66,0.45 0.34,0.45 stroke #120818 width 1
+
+# Thumb (offset east)
+poly 0.66,0.58 0.76,0.52 0.74,0.44 0.66,0.48 fill #2a1a3a 0.92
+poly 0.66,0.58 0.76,0.52 0.74,0.44 0.66,0.48 stroke #120818 width 1
+
+# Four fingers (tapering north)
+poly 0.36,0.45 0.42,0.45 0.43,0.20 0.38,0.20 fill #2a1a3a 0.92
+poly 0.36,0.45 0.42,0.45 0.43,0.20 0.38,0.20 stroke #120818 width 1
+
+poly 0.44,0.45 0.50,0.45 0.51,0.18 0.46,0.18 fill #2a1a3a 0.92
+poly 0.44,0.45 0.50,0.45 0.51,0.18 0.46,0.18 stroke #120818 width 1
+
+poly 0.52,0.45 0.58,0.45 0.59,0.19 0.54,0.19 fill #2a1a3a 0.92
+poly 0.52,0.45 0.58,0.45 0.59,0.19 0.54,0.19 stroke #120818 width 1
+
+poly 0.60,0.45 0.66,0.45 0.66,0.24 0.62,0.24 fill #2a1a3a 0.92
+poly 0.60,0.45 0.66,0.45 0.66,0.24 0.62,0.24 stroke #120818 width 1
+
+# Silk sheen highlights (lighter streaks)
+line 0.40,0.70 0.42,0.50 stroke #5a4a7a 0.45 width 1
+line 0.56,0.72 0.58,0.52 stroke #5a4a7a 0.45 width 1
+line 0.40,0.42 0.42,0.25 stroke #5a4a7a 0.4 width 1
+line 0.54,0.42 0.56,0.22 stroke #5a4a7a 0.4 width 1
+
+# Pearl button cluster at cuff
+circle 0.40,0.74 0.015 fill #e8dcc8 0.95
+circle 0.50,0.74 0.015 fill #e8dcc8 0.95
+circle 0.60,0.74 0.015 fill #e8dcc8 0.95
+
+# Gold trim line along cuff edge
+line 0.32,0.79 0.68,0.79 stroke #daa520 0.7 width 1
+
+# Subtle wrinkle lines
+qbezier 0.38,0.60 0.45,0.62 0.50,0.60 stroke #1a0a28 0.5 width 1
+qbezier 0.52,0.58 0.58,0.60 0.64,0.58 stroke #1a0a28 0.5 width 1

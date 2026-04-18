@@ -1,0 +1,127 @@
+name: Jeweler's Bench
+category: Workshop
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: shop-jeweler, workshop-artificer, house-medium-artisan
+typical_count: single
+clusters_with: stool, candle-cluster, gem-scatter, ingot-pile, tool-scatter
+notes: Small polished wooden workbench for a jeweler — narrow top, magnifying loupe stand, small tools, tiny scale, gem tray. Facing south. Place against wall with stool in front.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.10 1.84,0.80 z 0-2.5
+
+# footprint 1x2: x range 0-2, y range 0-1 (wide)
+
+# === Wooden bench top (polished, fine-grained) ===
+rect 0.08,0.10 1.84,0.80 texfill polyhaven/wood_table 0.88
+rect 0.08,0.10 1.84,0.80 fill #5c3a1e 0.15
+rect 0.08,0.10 1.84,0.80 stroke #2a1400 width 2
+
+# Edge trim
+rect 0.12,0.14 1.76,0.72 stroke #5c3a1e 0.55
+
+# Wood grain lines
+line 0.14,0.30 1.86,0.30 stroke #5c3a1e 0.35
+line 0.14,0.50 1.86,0.50 stroke #5c3a1e 0.3
+line 0.14,0.68 1.86,0.68 stroke #5c3a1e 0.35
+
+# === Work cutout (semicircular notch in south edge where jeweler sits) ===
+# (dark recess — classic jeweler's bench feature)
+poly 0.78,0.90 0.80,0.68 0.90,0.60 1.10,0.60 1.20,0.68 1.22,0.90 fill #2a1400 0.85
+poly 0.78,0.90 0.80,0.68 0.90,0.60 1.10,0.60 1.20,0.68 1.22,0.90 stroke #1a0800
+
+# Bench pin (small wooden peg sticking into work area)
+rect 0.96,0.64 0.08,0.10 fill #8b6914 0.95
+rect 0.96,0.64 0.08,0.10 texfill polyhaven/dark_wood 0.5
+rect 0.96,0.64 0.08,0.10 stroke #2a1400
+# V-notch in bench pin
+line 0.98,0.64 1.00,0.68 stroke #1a0800 width 1
+line 1.02,0.64 1.00,0.68 stroke #1a0800 width 1
+
+# === Magnifying loupe stand (east end) ===
+# Base
+circle 1.62,0.36 0.08 fill #5c3a1e 0.95
+circle 1.62,0.36 0.08 texfill polyhaven/dark_wood 0.55
+circle 1.62,0.36 0.08 stroke #1a0800
+# Arm (curved)
+bezier 1.62,0.36 1.56,0.42 1.54,0.48 1.56,0.54 stroke #888888 width 3
+# Loupe lens (circle with brass rim)
+circle 1.56,0.54 0.06 fill #a0d0e0 0.4
+circle 1.56,0.54 0.06 stroke #daa520 width 2
+# Lens sheen
+arc 1.56,0.54 0.05 220 280 stroke #ffffff 0.7 width 1
+
+# === Small scale (east-center) ===
+# Base
+circle 1.30,0.36 0.05 fill #5c3a1e 0.95
+circle 1.30,0.36 0.05 stroke #1a0800
+# Upright post
+line 1.30,0.36 1.30,0.26 stroke #daa520 width 2
+# Balance beam
+line 1.22,0.26 1.38,0.26 stroke #daa520 width 1
+# Two pans
+circle 1.22,0.29 0.025 fill #daa520 0.9
+circle 1.22,0.29 0.025 stroke #5a3a00
+circle 1.38,0.29 0.025 fill #daa520 0.9
+circle 1.38,0.29 0.025 stroke #5a3a00
+
+# === Gem tray (small wooden tray with gems, west-center) ===
+rect 0.42,0.24 0.24,0.18 texfill polyhaven/dark_wood 0.9
+rect 0.42,0.24 0.24,0.18 fill #3a2010 0.5
+rect 0.42,0.24 0.24,0.18 stroke #1a0800
+# Inner tray felt (dark)
+rect 0.46,0.28 0.16,0.10 fill #2a0810 0.9
+# Gems (tiny colored circles)
+circle 0.50,0.32 0.015 fill #aa2222 0.95
+circle 0.50,0.32 0.015 stroke #8b0000
+circle 0.56,0.32 0.014 fill #2288aa 0.95
+circle 0.56,0.32 0.014 stroke #1a4a60
+circle 0.52,0.36 0.013 fill #22aa44 0.95
+circle 0.52,0.36 0.013 stroke #0a5a1a
+circle 0.58,0.36 0.014 fill #ffcc00 0.95
+circle 0.58,0.36 0.014 stroke #8b6914
+
+# === Jeweler's small tools scattered (north edge) ===
+# Tweezers (thin V)
+line 0.18,0.22 0.26,0.30 stroke #888888 width 2
+line 0.22,0.22 0.26,0.30 stroke #888888 width 2
+
+# Tiny pliers
+line 0.32,0.22 0.38,0.32 stroke #777777 width 2
+line 0.38,0.22 0.32,0.32 stroke #777777 width 2
+circle 0.35,0.27 0.01 fill #222222 0.9
+
+# Small file
+rect 0.76,0.20 0.10,0.03 fill #888888 0.9
+rect 0.76,0.20 0.10,0.03 stroke #333333
+rect 0.85,0.19 0.04,0.05 texfill polyhaven/dark_wood 0.85
+rect 0.85,0.19 0.04,0.05 stroke #1a0800
+
+# Small graver
+line 1.02,0.22 1.10,0.30 stroke #8899aa width 2
+rect 1.06,0.28 0.04,0.04 texfill polyhaven/dark_wood 0.85
+rect 1.06,0.28 0.04,0.04 stroke #1a0800
+
+# === Small brass candle on bench (for close work light) ===
+circle 0.26,0.48 0.035 fill #daa520 0.9
+circle 0.26,0.48 0.035 stroke #5a3a00
+circle 0.26,0.46 0.015 fill #e8dcc8 0.95
+circle 0.26,0.45 0.01 fill #ffcc00 0.95
+# Glow
+circle 0.26,0.44 0.06 fill #ffaa00 0.2
+
+# === Leg shadows at corners ===
+circle 0.18,0.20 0.08 fill #2a1400 0.4
+circle 1.82,0.20 0.08 fill #2a1400 0.4
+circle 0.18,0.82 0.08 fill #2a1400 0.4
+circle 1.82,0.82 0.08 fill #2a1400 0.4
+
+# === Small drawer line at south edge ===
+line 0.30,0.85 0.72,0.85 stroke #3a1f00 0.7 width 1
+line 1.28,0.85 1.70,0.85 stroke #3a1f00 0.7 width 1
+circle 0.50,0.87 0.02 fill #daa520 0.8
+circle 1.50,0.87 0.02 fill #daa520 0.8

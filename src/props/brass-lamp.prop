@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 0.5
-lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":8,"color":"#ffcc60","intensity":0.7}]
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":8,"color":"#ffcc60","intensity":0.7}]
 placement: floor
 room_types: house-merchant, merchant-home, study, parlor, burgher-house, bedroom
 typical_count: few

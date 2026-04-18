@@ -10,13 +10,7 @@ room_types: elemental-water-node, aquatic-shrine
 typical_count: single
 clusters_with: bubble-pillar, bubble-drift, pearl-obelisk, marid-pavilion
 notes: Primal elemental water whirlpool; place as single dramatic centerpiece. Powerful glow.
-lights:
-  - type: torch
-    x: 1.5
-    y: 1.5
-    radius: 15
-    color: "#60a0ff"
-    intensity: 1.0
+lights: [{"preset":"arcane-blue","x":1.5,"y":1.5,"radius":15,"intensity":1,"color":"#60a0ff"}]
 ---
 # Footprint 3x3: x 0-3, y 0-3.
 # Outer glow halo — radial gradient

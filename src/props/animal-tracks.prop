@@ -12,7 +12,7 @@ clusters_with: scat-pile, tuft-of-fur, animal-tracks, mud-print, carcass-fresh
 notes: Paw prints in mud or snow — tracking sign on floor
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.15 0.80,0.70 z 0-0.01
+selection rect 0.10,0.15 0.80,0.70
 
 # Slight muddy patch background
 poly 0.12,0.30 0.30,0.20 0.58,0.22 0.86,0.34 0.84,0.66 0.60,0.82 0.36,0.82 0.14,0.72 fill #3a2818 0.35

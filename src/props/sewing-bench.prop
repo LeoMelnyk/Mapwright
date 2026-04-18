@@ -12,7 +12,7 @@ clusters_with: cutting-table, mannequin, buttons-jar, thread-spool
 notes: Work bench with treadle base and hand-cranked sewing mechanism; place along wall or near cutting table
 ---
 # === HITBOX ===
-hitbox rect 0.12,0.12 0.76,1.76 z 0-2.5
+selection rect 0.12,0.12 0.76,1.76
 
 # Bench top surface (tall narrow, 1 col x 2 rows)
 rect 0.12,0.12 0.76,1.76 texfill polyhaven/wood_table 0.85

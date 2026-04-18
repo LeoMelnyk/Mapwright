@@ -12,7 +12,7 @@ clusters_with: picture-book, cradle, building-blocks, rocking-chair, nurse-stool
 notes: Very small child-sized chair with a rounded seat and a short backrest strip at the north edge
 ---
 # === HITBOX ===
-hitbox rect 0.26,0.22 0.48,0.56 z 0-0.6
+selection rect 0.26,0.22 0.48,0.56
 
 # Backrest strip at north edge
 rect 0.28,0.22 0.44,0.10 texfill polyhaven/worn_planks 0.8

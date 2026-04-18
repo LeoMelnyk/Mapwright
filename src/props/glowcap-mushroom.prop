@@ -5,7 +5,7 @@ facing: no
 shadow: yes
 blocks_light: no
 height: 0.8
-lights: [{"preset":"candle","x":0.5,"y":0.5,"color":"#80c0ff","intensity":0.4,"radius":3}]
+lights: [{"preset":"phosphorescent-fungi","x":0.5,"y":0.5,"color":"#80c0ff","intensity":0.4,"radius":3}]
 placement: floor
 room_types: mushroom-cavern, spider-lair, underdark-outpost, cave-drow-outpost
 typical_count: few
@@ -13,7 +13,7 @@ clusters_with: giant-mushroom, fungal-growth, crystal-shard, spider-lair
 notes: Bioluminescent mushroom with glowing blue cap — cave light source
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.4 0.28 z 0-0.8
+selection circle 0.5,0.4 0.28
 
 # Light halo around cap
 circle 0.5,0.4 0.40 fill #80c0ff 0.18

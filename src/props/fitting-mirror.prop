@@ -12,7 +12,7 @@ clusters_with: mannequin, cutting-table
 notes: Wall-mounted tall ornate standing mirror; place on walls opposite entrances for fittings
 ---
 # === HITBOX ===
-hitbox rect 0.08,0.04 0.84,0.20 z 0-6
+selection rect 0.08,0.04 0.84,0.20
 
 # Wall-mounted tall fitting mirror seen from above
 # Ornate frame top edge along north wall (widest element)

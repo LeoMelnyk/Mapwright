@@ -12,7 +12,7 @@ clusters_with: pallet, bedroll, peg-rail-wall, gear-pack, cloak
 notes: Pair of worn leather boots caked with mud — seen top-down as oval shapes
 ---
 # === HITBOX ===
-hitbox rect 0.16,0.24 0.68,0.58 z 0-0.25
+selection rect 0.16,0.24 0.68,0.58
 
 # Left boot (seen from above — oval)
 ellipse 0.30,0.50 0.12,0.22 fill #5c3a1e 0.95

@@ -1,0 +1,72 @@
+name: Nail Pile
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: general-workshop, forge, smithy, shop-general, cooperage, mill-lumber, construction
+typical_count: few
+clusters_with: nails-crate, hammer, workbench, tool-scatter, wood-shavings
+notes: Loose scatter of iron nails on the floor — spilled from a bucket or crate. Small pile, not contained.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.32
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: dense scatter of small iron nails at random angles on the floor
+
+# === Subtle ground darken under the pile ===
+ellipse 0.50,0.52 0.34,0.26 fill #1a1408 0.2
+ellipse 0.50,0.52 0.22,0.18 fill #1a1408 0.3
+
+# === Nail shafts — small metallic lines at various angles ===
+line 0.26,0.38 0.34,0.36 stroke #777777 width 2
+line 0.30,0.44 0.38,0.48 stroke #888888 width 2
+line 0.38,0.36 0.44,0.40 stroke #777777 width 2
+line 0.44,0.44 0.54,0.42 stroke #888888 width 2
+line 0.48,0.52 0.56,0.50 stroke #777777 width 2
+line 0.56,0.46 0.62,0.52 stroke #888888 width 2
+line 0.62,0.42 0.70,0.38 stroke #777777 width 2
+line 0.28,0.50 0.36,0.54 stroke #888888 width 2
+line 0.34,0.58 0.44,0.56 stroke #777777 width 2
+line 0.42,0.60 0.50,0.64 stroke #888888 width 2
+line 0.52,0.58 0.60,0.62 stroke #777777 width 2
+line 0.60,0.58 0.68,0.54 stroke #888888 width 2
+line 0.40,0.50 0.48,0.46 stroke #888888 width 2
+line 0.54,0.36 0.62,0.34 stroke #777777 width 2
+line 0.20,0.48 0.28,0.46 stroke #888888 width 2
+line 0.68,0.48 0.74,0.50 stroke #777777 width 2
+line 0.36,0.66 0.44,0.68 stroke #888888 width 2
+line 0.58,0.66 0.66,0.64 stroke #777777 width 2
+
+# === Nail head caps (small bright metallic dots at one end of each shaft) ===
+circle 0.26,0.38 0.014 fill #aabbcc 0.75
+circle 0.38,0.48 0.014 fill #aabbcc 0.7
+circle 0.44,0.40 0.012 fill #aabbcc 0.75
+circle 0.54,0.42 0.014 fill #aabbcc 0.7
+circle 0.56,0.50 0.012 fill #aabbcc 0.7
+circle 0.62,0.52 0.014 fill #aabbcc 0.75
+circle 0.70,0.38 0.014 fill #aabbcc 0.7
+circle 0.36,0.54 0.012 fill #aabbcc 0.7
+circle 0.44,0.56 0.014 fill #aabbcc 0.75
+circle 0.50,0.64 0.012 fill #aabbcc 0.7
+circle 0.60,0.62 0.014 fill #aabbcc 0.7
+circle 0.68,0.54 0.012 fill #aabbcc 0.7
+circle 0.48,0.46 0.012 fill #aabbcc 0.7
+circle 0.62,0.34 0.014 fill #aabbcc 0.7
+circle 0.28,0.46 0.012 fill #aabbcc 0.65
+circle 0.74,0.50 0.012 fill #aabbcc 0.65
+circle 0.44,0.68 0.012 fill #aabbcc 0.65
+circle 0.66,0.64 0.012 fill #aabbcc 0.65
+
+# === Rust streaks on a couple nails ===
+line 0.44,0.40 0.50,0.42 stroke #6a3818 0.55 width 1
+line 0.56,0.50 0.60,0.52 stroke #6a3818 0.5 width 1
+
+# === A few outlier nails at edges ===
+line 0.14,0.38 0.20,0.42 stroke #777777 width 2
+circle 0.14,0.38 0.012 fill #aabbcc 0.6
+line 0.78,0.60 0.84,0.58 stroke #888888 width 2
+circle 0.78,0.60 0.012 fill #aabbcc 0.6

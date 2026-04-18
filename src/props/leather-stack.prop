@@ -12,7 +12,7 @@ clusters_with: tanning-rack, hide-scraps, crate-stack, workbench
 notes: Stack of folded finished leather sheets; place along workshop walls or near benches
 ---
 # === HITBOX ===
-hitbox rect 0.15,0.15 0.70,0.70 z 0-0.4
+selection rect 0.15,0.15 0.70,0.70
 
 # Bottom sheet (largest, slightly offset SE)
 rect 0.18,0.22 0.70,0.66 texfill polyhaven/brown_leather 0.85

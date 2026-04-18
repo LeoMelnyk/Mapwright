@@ -12,7 +12,7 @@ clusters_with: blood-smear, blood-stain, gnawed-bone, carcass-fresh, fungal-grow
 notes: Small residual slime puddle — sickly green-yellow, glistening, left behind by an ooze's passage.
 ---
 # === HITBOX ===
-hitbox ellipse 0.50,0.54 0.32,0.26 z 0-0.02
+selection ellipse 0.50,0.54 0.32,0.26
 
 # Outer wet halo (where slime seeped thin)
 poly 0.18,0.46 0.24,0.32 0.38,0.26 0.54,0.26 0.68,0.32 0.78,0.44 0.82,0.58 0.78,0.72 0.66,0.82 0.50,0.86 0.34,0.84 0.22,0.76 0.16,0.62 fill #4a5020 0.45

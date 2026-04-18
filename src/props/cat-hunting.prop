@@ -1,0 +1,84 @@
+name: Hunting Cat
+category: Creatures
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: butcher-shop, farmhouse-kitchen, cellar, barn, shop-general, mill-grain
+typical_count: single
+clusters_with: cat-sleeping, cat-begging, hanging-meat, sausage-link, chicken-loose, flour-sack
+notes: Cat in a low stalking pose — elongated body, tail held low and twitching, head forward. Facing south (pouncing direction).
+---
+# === HITBOX ===
+selection ellipse 0.5,0.50 0.18,0.34
+
+# === Long tail trailing north, held low and flicking ===
+bezier 0.50,0.14 0.56,0.18 0.52,0.26 0.48,0.34 stroke #6a4028 width 5
+bezier 0.50,0.14 0.56,0.18 0.52,0.26 0.48,0.34 stroke #3a2010 width 1
+# Tail stripes
+line 0.52,0.20 0.56,0.22 stroke #3a2010 0.7
+line 0.50,0.26 0.54,0.28 stroke #3a2010 0.7
+# Tail tip
+circle 0.50,0.14 0.025 fill #3a2010 0.9
+
+# === Elongated body (stretched oval — stalking posture, narrow) ===
+ellipse 0.50,0.52 0.14,0.22 fill #8a5838 0.95
+ellipse 0.50,0.52 0.14,0.22 stroke #3a1f08
+
+# === Body tabby stripes (along back) ===
+bezier 0.38,0.40 0.46,0.38 0.54,0.38 0.62,0.40 stroke #3a1f08 0.7 width 1
+bezier 0.38,0.48 0.46,0.46 0.54,0.46 0.62,0.48 stroke #3a1f08 0.6 width 1
+bezier 0.38,0.58 0.46,0.58 0.54,0.58 0.62,0.58 stroke #3a1f08 0.55 width 1
+bezier 0.40,0.68 0.48,0.68 0.52,0.68 0.60,0.68 stroke #3a1f08 0.5 width 1
+
+# === Shoulder hunch (raised over forelegs — subtle bulge) ===
+ellipse 0.50,0.44 0.12,0.06 fill #9a6848 0.4
+
+# === Belly/chest lighter patch ===
+ellipse 0.50,0.60 0.06,0.12 fill #d8b088 0.5
+
+# === Head lowered south (forward-extended) ===
+circle 0.50,0.76 0.11 fill #8a5838 0.95
+circle 0.50,0.76 0.11 stroke #3a1f08
+
+# === Ears (flattened back — small triangles pointing outward) ===
+poly 0.41,0.72 0.38,0.66 0.44,0.70 fill #6a3a20 0.92
+poly 0.41,0.72 0.38,0.66 0.44,0.70 stroke #3a1f08
+poly 0.59,0.72 0.62,0.66 0.56,0.70 fill #6a3a20 0.92
+poly 0.59,0.72 0.62,0.66 0.56,0.70 stroke #3a1f08
+
+# === Eyes (narrow predator slits, glinting) ===
+ellipse 0.46,0.76 0.014,0.008 fill #e8d048 0.95
+ellipse 0.46,0.76 0.014,0.008 stroke #2a1f00
+ellipse 0.54,0.76 0.014,0.008 fill #e8d048 0.95
+ellipse 0.54,0.76 0.014,0.008 stroke #2a1f00
+# Pupil slits
+line 0.46,0.75 0.46,0.77 stroke #000000 width 1
+line 0.54,0.75 0.54,0.77 stroke #000000 width 1
+
+# === Nose ===
+poly 0.49,0.80 0.51,0.80 0.50,0.82 fill #2a1000 0.9
+
+# === Whiskers ===
+line 0.42,0.80 0.32,0.78 stroke #e8dcc8 0.8
+line 0.42,0.82 0.34,0.84 stroke #e8dcc8 0.7
+line 0.58,0.80 0.68,0.78 stroke #e8dcc8 0.8
+line 0.58,0.82 0.66,0.84 stroke #e8dcc8 0.7
+
+# === Forelegs crouched (tucked under body, barely visible as dark spots) ===
+ellipse 0.44,0.70 0.04,0.03 fill #6a3a20 0.9
+ellipse 0.44,0.70 0.04,0.03 stroke #3a1f08
+ellipse 0.56,0.70 0.04,0.03 fill #6a3a20 0.9
+ellipse 0.56,0.70 0.04,0.03 stroke #3a1f08
+
+# === Hind leg haunch (north end, raised to pounce) ===
+ellipse 0.42,0.38 0.05,0.06 fill #7a4830 0.85
+ellipse 0.42,0.38 0.05,0.06 stroke #3a1f08
+ellipse 0.58,0.38 0.05,0.06 fill #7a4830 0.85
+ellipse 0.58,0.38 0.05,0.06 stroke #3a1f08
+
+# === Focus glint in eyes ===
+circle 0.46,0.75 0.004 fill #ffffff 0.95
+circle 0.54,0.75 0.004 fill #ffffff 0.95

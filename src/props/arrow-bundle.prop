@@ -12,7 +12,7 @@ clusters_with: weapon-rack, arrow-fletching, shield-rack, quiver, bow
 notes: Bound sheaf of arrows standing upright or lying on ground
 ---
 # === HITBOX ===
-hitbox rect 0.30,0.14 0.40,0.72 z 0-0.5
+selection rect 0.30,0.14 0.40,0.72
 
 # Ground shadow
 ellipse 0.5,0.80 0.22,0.04 fill #1a1008 0.4

@@ -12,7 +12,7 @@ clusters_with: long-spoon, flour-sack, kitchen-table, chopped-vegetables
 notes: Large ceramic mixing bowl with dough/batter and a spoon resting in it
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.4
+selection circle 0.5,0.5 0.38
 
 # Outer bowl rim (ceramic)
 circle 0.5,0.5 0.38 fill #d4c8a8 0.92

@@ -1,0 +1,111 @@
+name: Trash Heap
+category: Clutter
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: center
+room_types: cave-goblin-warren, goblin-warren-entrance, sewer-junction, cave-bandit-camp, slum
+typical_count: few
+clusters_with: bone-pile, cage-wicker, goblin-totem, nest-of-rags, trash-heap
+notes: Disgusting refuse pile of broken pottery, gnawed bones, rags, and rotting food. Goblin camp filth.
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.72 z 0-0.8
+
+# Outer stink halo (sickly green-brown wash)
+ellipse 1.0,1.0 0.90,0.82 fill #2a2008 0.25
+ellipse 1.0,1.0 0.75,0.68 fill #3a2810 0.30
+
+# Dark fluid puddle around base (grime)
+poly 0.20,1.05 0.30,0.80 0.55,0.65 0.85,0.58 1.15,0.58 1.45,0.65 1.70,0.80 1.82,1.08 1.78,1.38 1.60,1.62 1.30,1.78 0.98,1.82 0.68,1.78 0.42,1.65 0.25,1.40 fill #1a1808 0.75
+poly 0.20,1.05 0.30,0.80 0.55,0.65 0.85,0.58 1.15,0.58 1.45,0.65 1.70,0.80 1.82,1.08 1.78,1.38 1.60,1.62 1.30,1.78 0.98,1.82 0.68,1.78 0.42,1.65 0.25,1.40 stroke #0a0400 width 2
+
+# Main heap body (irregular muddy pile)
+poly 0.35,1.00 0.42,0.82 0.60,0.68 0.85,0.62 1.15,0.62 1.40,0.68 1.58,0.82 1.65,1.02 1.60,1.25 1.48,1.45 1.25,1.58 1.00,1.62 0.75,1.58 0.52,1.45 0.40,1.25 fill #3a2810 0.92
+poly 0.35,1.00 0.42,0.82 0.60,0.68 0.85,0.62 1.15,0.62 1.40,0.68 1.58,0.82 1.65,1.02 1.60,1.25 1.48,1.45 1.25,1.58 1.00,1.62 0.75,1.58 0.52,1.45 0.40,1.25 stroke #1a1008 width 2
+
+# Rotted organic mass (putrid greenish-brown patches)
+ellipse 0.80,0.95 0.24,0.16 fill #4a4820 0.70
+ellipse 0.80,0.95 0.24,0.16 stroke #1a1808 0.5 width 1
+ellipse 1.28,1.10 0.22,0.14 fill #3a3820 0.70
+ellipse 0.70,1.35 0.20,0.13 fill #4a4820 0.65
+ellipse 1.15,1.40 0.18,0.12 fill #3a3820 0.65
+
+# Broken pottery shards (terracotta — orange-red fragments)
+poly 0.48,0.78 0.60,0.76 0.62,0.84 0.54,0.90 0.46,0.86 fill #a04820 0.92
+poly 0.48,0.78 0.60,0.76 0.62,0.84 0.54,0.90 0.46,0.86 stroke #5a2010 width 1
+# Curve showing pot rim
+arc 0.55,0.84 0.08 180 300 stroke #5a2010 0.8 width 2
+
+poly 1.40,0.88 1.52,0.85 1.58,0.92 1.52,0.98 1.42,0.96 fill #8a4020 0.92
+poly 1.40,0.88 1.52,0.85 1.58,0.92 1.52,0.98 1.42,0.96 stroke #4a1808 width 1
+arc 1.50,0.92 0.07 200 320 stroke #4a1808 0.7 width 2
+
+poly 0.62,1.28 0.70,1.26 0.74,1.32 0.70,1.38 0.62,1.36 fill #a04820 0.9
+poly 0.62,1.28 0.70,1.26 0.74,1.32 0.70,1.38 0.62,1.36 stroke #5a2010 width 1
+
+poly 1.22,1.45 1.30,1.42 1.34,1.48 1.28,1.54 fill #8a4020 0.88
+poly 1.22,1.45 1.30,1.42 1.34,1.48 1.28,1.54 stroke #4a1808 width 1
+
+# Gnawed bones sticking out
+line 0.55,0.88 0.70,1.00 stroke #c8b898 width 3
+circle 0.55,0.88 0.028 fill #d4c4a8 0.9
+circle 0.70,1.00 0.028 fill #d4c4a8 0.9
+line 0.55,0.88 0.70,1.00 stroke #8a7060 0.5 width 1
+
+line 1.15,0.82 1.28,0.75 stroke #c8b898 width 3
+circle 1.15,0.82 0.028 fill #d4c4a8 0.9
+circle 1.28,0.75 0.028 fill #d4c4a8 0.9
+
+# Small skull in the heap
+poly 0.88,1.22 0.92,1.18 0.98,1.18 1.02,1.22 1.00,1.30 0.90,1.30 fill #d4c4a8 0.9
+poly 0.88,1.22 0.92,1.18 0.98,1.18 1.02,1.22 1.00,1.30 0.90,1.30 stroke #6a5040 width 1
+circle 0.92,1.24 0.012 fill #0a0400 0.9
+circle 0.98,1.24 0.012 fill #0a0400 0.9
+
+# Rib fragment
+poly 1.00,0.78 0.90,0.80 0.90,0.82 1.00,0.84 fill #c8b898 0.75
+poly 1.00,0.78 0.90,0.80 0.90,0.82 1.00,0.84 stroke #8a7060 width 1
+
+# Torn rags (mismatched fabric scraps)
+poly 0.42,1.10 0.55,1.06 0.58,1.14 0.48,1.20 fill #5a3018 0.92
+poly 0.42,1.10 0.55,1.06 0.58,1.14 0.48,1.20 stroke #2a1008 width 1
+line 0.48,1.10 0.52,1.16 stroke #2a1008 0.7 width 1
+
+poly 1.38,1.22 1.50,1.20 1.52,1.30 1.42,1.34 fill #4a4820 0.9
+poly 1.38,1.22 1.50,1.20 1.52,1.30 1.42,1.34 stroke #2a2010 width 1
+
+poly 0.62,0.72 0.72,0.70 0.74,0.78 0.66,0.80 fill #6a3010 0.88
+poly 0.62,0.72 0.72,0.70 0.74,0.78 0.66,0.80 stroke #2a1008 width 1
+
+# Flies (tiny dark specks hovering)
+circle 0.48,0.66 0.01 fill #0a0400 0.95
+circle 0.52,0.60 0.008 fill #0a0400 0.9
+circle 1.50,0.65 0.009 fill #0a0400 0.9
+circle 1.55,0.72 0.008 fill #0a0400 0.85
+circle 1.60,0.62 0.01 fill #0a0400 0.9
+circle 0.38,0.72 0.009 fill #0a0400 0.85
+circle 1.00,0.50 0.01 fill #0a0400 0.9
+circle 1.08,0.56 0.008 fill #0a0400 0.85
+
+# Fluid dribble runs from the pile
+bezier 0.50,1.45 0.42,1.55 0.36,1.68 0.30,1.80 stroke #1a0f00 0.7 width 2
+bezier 1.50,1.40 1.58,1.55 1.62,1.68 1.66,1.82 stroke #1a0f00 0.7 width 2
+
+# Half-eaten apple core / food scrap
+circle 0.98,1.45 0.05 fill #6a4020 0.9
+circle 0.98,1.45 0.05 stroke #2a1008 width 1
+circle 0.98,1.45 0.025 fill #4a2810 0.8
+line 0.98,1.40 1.00,1.36 stroke #2a1008 0.7 width 1
+
+# Rust-stained rag twist
+bezier 1.08,0.92 1.18,0.88 1.25,0.94 1.22,1.02 stroke #5a2010 0.85 width 3
+
+# A bent rusted utensil / broken knife
+line 0.78,1.08 0.88,1.02 stroke #4a3828 width 2
+poly 0.88,1.02 0.92,1.00 0.91,1.04 fill #2a2018 0.9
+
+# Slimy reflection highlight
+arc 1.00,1.00 0.30 260 290 stroke #5a5828 0.5 width 2

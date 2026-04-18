@@ -1,0 +1,13 @@
+{
+  "displayName": "Astral",
+  "category": "Magical",
+  "description": "A cool violet-purple glow from planar or astral phenomena — portals, soul-stuff, summonings",
+  "type": "point",
+  "color": "#a080ff",
+  "radius": 10,
+  "dimRadius": 20,
+  "intensity": 0.7,
+  "falloff": "smooth",
+  "z": 5,
+  "animation": { "type": "pulse", "speed": 0.5, "amplitude": 0.25, "radiusVariation": 0 }
+}

@@ -1,0 +1,31 @@
+name: Counter Top (Short)
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: yes
+height: 3.5
+placement: wall
+room_types: tavern, inn, kitchen, shop
+typical_count: few
+clusters_with: bar-counter, counter-corner, bar-counter-t, bar-counter-end, stool, barrel, keg
+notes: Single-cell counter section — matches bar-counter edge geometry (surface y=0.10–0.90, flush left/right) so it tiles seamlessly alongside the 1x2 bar-counter.
+---
+# === HITBOX ===
+hitbox rect 0.0,0.1 1.0,0.8 z 0-3.5
+
+# Counter surface — full width, flush left/right for tiling
+rect 0.0,0.1 1.0,0.8 texfill polyhaven/wood_table 0.85
+
+# Front edge trim (south/room side)
+rect 0.0,0.78 1.0,0.12 fill #4a2800 0.35
+
+# Back edge trim (north/wall side)
+rect 0.0,0.1 1.0,0.08 fill #4a2800 0.25
+
+# Grain line down the centre of the surface
+line 0.0,0.48 1.0,0.48 stroke #5c3a1e 0.3 width 1
+
+# Top and bottom border lines only (no left/right so tiling is seamless)
+line 0.0,0.1 1.0,0.1 stroke #3a1f00
+line 0.0,0.9 1.0,0.9 stroke #3a1f00

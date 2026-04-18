@@ -12,7 +12,7 @@ clusters_with: jar, reagent-jar, specimen-jar, animal-skull-small, bone-charm, c
 notes: A squat clay jar with teeth visible inside — some spilling out onto the ground. Creepy witch reagent or trophy collection. Place on floors or shelves.
 ---
 # === HITBOX ===
-hitbox circle 0.50,0.50 0.32 z 0-0.6
+selection circle 0.50,0.50 0.32
 
 # footprint 1x1: x range 0-1, y range 0-1
 

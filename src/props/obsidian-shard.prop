@@ -12,7 +12,7 @@ clusters_with: crystal-shard, ash-pile, obsidian-shard, altar-stone-flat, crysta
 notes: Sharp-edged shard of black volcanic glass with razor edges and faint iridescent sheen along the fractures
 ---
 # === HITBOX ===
-hitbox poly 0.22,0.52 0.42,0.22 0.68,0.34 0.78,0.62 0.56,0.78 0.34,0.70 z 0-0.2
+selection poly 0.22,0.52 0.42,0.22 0.68,0.34 0.78,0.62 0.56,0.78 0.34,0.70
 
 # Ground contact shadow (dark, close to prop — glass is flat)
 ellipse 0.52,0.74 0.22,0.05 fill #050508 0.5

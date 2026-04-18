@@ -1,0 +1,114 @@
+name: Statue (Dark God)
+category: Structure
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 5
+placement: center
+room_types: dark-temple, cultist-shrine, fiend-lair, boss-chamber, hell-gate, corrupted-temple
+typical_count: single
+clusters_with: altar, brazier, tapestry-dark, skull-offering, candle-cluster, ritual-candle
+notes: Menacing dark deity statue — clawed/horned silhouette seen from above. Broad shoulders, folded clawed wings, horned head disc at apex. Not a side profile.
+---
+# footprint 2x2 — center of shoulders at (1.0,1.0)
+
+# Hitbox — shaft cross-section blocks light
+hitbox rect 0.40,0.40 1.20,1.20 z 0-5
+
+# Ground shadow cast by tall statue
+ellipse 1.20,1.22 0.82,0.80 fill #000000 0.18
+ellipse 1.24,1.26 0.72,0.70 fill #000000 0.2
+
+# === Base pedestal (dark stone, with spikes at corners) ===
+rect 0.20,0.25 1.60,1.55 texfill polyhaven/stone_wall 0.55
+rect 0.20,0.25 1.60,1.55 fill #1a0a1a 0.5
+rect 0.20,0.25 1.60,1.55 stroke #2a1020 width 2
+
+# Pedestal carved edges (dark groove lines)
+line 0.30,0.35 0.30,1.70 stroke #0a0510 0.7 width 1
+line 1.70,0.35 1.70,1.70 stroke #0a0510 0.7 width 1
+line 0.30,0.35 1.70,0.35 stroke #0a0510 0.6 width 1
+line 0.30,1.70 1.70,1.70 stroke #0a0510 0.6 width 1
+
+# Corner spikes projecting from pedestal (small triangular points)
+poly 0.22,0.28 0.14,0.20 0.30,0.24 fill #1a0a1a 0.9
+poly 0.22,0.28 0.14,0.20 0.30,0.24 stroke #0a0510
+poly 1.78,0.28 1.86,0.20 1.70,0.24 fill #1a0a1a 0.9
+poly 1.78,0.28 1.86,0.20 1.70,0.24 stroke #0a0510
+poly 0.22,1.72 0.14,1.80 0.30,1.76 fill #1a0a1a 0.9
+poly 0.22,1.72 0.14,1.80 0.30,1.76 stroke #0a0510
+poly 1.78,1.72 1.86,1.80 1.70,1.76 fill #1a0a1a 0.9
+poly 1.78,1.72 1.86,1.80 1.70,1.76 stroke #0a0510
+
+# === Main body silhouette (broad shoulders + folded wings, seen from above) ===
+poly 0.70,0.42 1.30,0.42 1.62,0.55 1.80,0.80 1.88,1.15 1.82,1.55 1.60,1.74 1.30,1.78 0.70,1.78 0.40,1.74 0.18,1.55 0.12,1.15 0.20,0.80 0.38,0.55 texfill polyhaven/stone_wall 0.5
+poly 0.70,0.42 1.30,0.42 1.62,0.55 1.80,0.80 1.88,1.15 1.82,1.55 1.60,1.74 1.30,1.78 0.70,1.78 0.40,1.74 0.18,1.55 0.12,1.15 0.20,0.80 0.38,0.55 fill #1a0a1a 0.6
+poly 0.70,0.42 1.30,0.42 1.62,0.55 1.80,0.80 1.88,1.15 1.82,1.55 1.60,1.74 1.30,1.78 0.70,1.78 0.40,1.74 0.18,1.55 0.12,1.15 0.20,0.80 0.38,0.55 stroke #0a0510 width 2
+
+# === Clawed wing fold lines (left and right) ===
+# Left wing — curved fold with claw spikes projecting outward
+qbezier 0.38,0.58 0.18,0.90 0.30,1.50 stroke #2a1828 0.6 width 2
+qbezier 0.45,0.68 0.28,0.95 0.36,1.42 stroke #3a2838 0.5 width 1
+# Left wing claw-tips (small spikes poking out from wing edge)
+poly 0.14,0.90 0.06,0.85 0.16,0.98 fill #0a0510 0.9
+poly 0.16,1.25 0.06,1.28 0.20,1.35 fill #0a0510 0.9
+# Right wing — curved fold with claw spikes
+qbezier 1.62,0.58 1.82,0.90 1.70,1.50 stroke #2a1828 0.6 width 2
+qbezier 1.55,0.68 1.72,0.95 1.64,1.42 stroke #3a2838 0.5 width 1
+# Right wing claw-tips
+poly 1.86,0.90 1.94,0.85 1.84,0.98 fill #0a0510 0.9
+poly 1.84,1.25 1.94,1.28 1.80,1.35 fill #0a0510 0.9
+
+# === Shoulder ridge (across top where neck meets shoulders) ===
+qbezier 0.45,0.58 1.00,0.48 1.55,0.58 stroke #2a1828 0.7 width 2
+
+# === Clawed arms wrapped across body (two claws meeting at chest) ===
+bezier 0.48,0.72 0.68,0.92 0.82,1.08 0.98,1.12 stroke #0a0510 width 2
+bezier 1.52,0.72 1.32,0.92 1.18,1.08 1.02,1.12 stroke #0a0510 width 2
+# Claw tips (at chest center)
+poly 0.96,1.08 1.04,1.08 1.00,1.20 fill #3a2838 0.9
+poly 0.96,1.08 1.04,1.08 1.00,1.20 stroke #0a0510
+
+# === Head disc at apex (looking down on top of head) ===
+circle 1.00,0.52 0.19 fill #1a0a1a 0.9
+circle 1.00,0.52 0.19 stroke #0a0510 width 2
+# Head detail wash
+circle 1.00,0.52 0.19 texfill polyhaven/stone_wall 0.35
+
+# === Horns (four curving horns projecting outward from head) ===
+# Main left horn
+poly 0.84,0.42 0.72,0.24 0.76,0.22 0.88,0.40 fill #2a1828 0.95
+poly 0.84,0.42 0.72,0.24 0.76,0.22 0.88,0.40 stroke #0a0510
+# Main right horn
+poly 1.16,0.42 1.28,0.24 1.24,0.22 1.12,0.40 fill #2a1828 0.95
+poly 1.16,0.42 1.28,0.24 1.24,0.22 1.12,0.40 stroke #0a0510
+# Secondary left horn (smaller)
+poly 0.90,0.46 0.82,0.30 0.86,0.30 0.94,0.44 fill #3a2838 0.85
+poly 0.90,0.46 0.82,0.30 0.86,0.30 0.94,0.44 stroke #0a0510
+# Secondary right horn
+poly 1.10,0.46 1.18,0.30 1.14,0.30 1.06,0.44 fill #3a2838 0.85
+poly 1.10,0.46 1.18,0.30 1.14,0.30 1.06,0.44 stroke #0a0510
+
+# === Face features (sunken eye hollows glowing red) ===
+circle 0.94,0.50 0.03 fill #1a0000 0.9
+circle 1.06,0.50 0.03 fill #1a0000 0.9
+# Red eye glow
+circle 0.94,0.50 0.018 fill #cc3322 0.85
+circle 1.06,0.50 0.018 fill #cc3322 0.85
+circle 0.94,0.50 0.008 fill #ff6633 0.95
+circle 1.06,0.50 0.008 fill #ff6633 0.95
+
+# Third eye / brand on forehead
+poly 0.97,0.40 1.03,0.40 1.00,0.44 fill #4a0000 0.8
+poly 0.97,0.40 1.03,0.40 1.00,0.44 stroke #2a0000
+
+# === Weathering and cracks on the stone ===
+line 0.55,1.30 0.62,1.42 stroke #0a0510 0.6 width 1
+line 1.40,1.10 1.50,1.22 stroke #0a0510 0.6 width 1
+line 0.80,1.58 0.90,1.66 stroke #0a0510 0.5 width 1
+line 1.20,0.80 1.28,0.92 stroke #0a0510 0.5 width 1
+bezier 0.40,1.20 0.44,1.28 0.48,1.36 0.52,1.42 stroke #0a0510 0.5 width 1
+
+# Dark aura stain around base
+ellipse 1.00,1.80 0.80,0.08 fill #0a0510 0.5

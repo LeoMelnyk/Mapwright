@@ -1,0 +1,70 @@
+name: Wood Shavings
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: general-workshop, carpentry, cooperage, mill-lumber, shop-weaponsmith, house-medium-artisan, workshop-artificer
+typical_count: few
+clusters_with: workbench, adze, wood-chip-pile, tool-scatter, saw
+notes: Pile of curly wood shavings from planing or lathe work — pale yellow, distinct coil shapes. Visually different from wood-chip-pile (flat angular chips).
+---
+# === HITBOX ===
+selection circle 0.5,0.52 0.36
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: heap of curly shavings with visible spiraled coils
+
+# === Pale dust halo (sawdust spread around pile) ===
+ellipse 0.50,0.54 0.44,0.36 fill #d4b880 0.35
+ellipse 0.50,0.54 0.34,0.28 fill #c4a870 0.4
+
+# === Base pile mound (dense mass of curls) ===
+poly 0.20,0.54 0.26,0.40 0.38,0.32 0.52,0.30 0.66,0.32 0.76,0.40 0.82,0.54 0.80,0.66 0.72,0.76 0.58,0.80 0.42,0.80 0.28,0.74 0.22,0.66 fill #c4a870 0.82
+poly 0.20,0.54 0.26,0.40 0.38,0.32 0.52,0.30 0.66,0.32 0.76,0.40 0.82,0.54 0.80,0.66 0.72,0.76 0.58,0.80 0.42,0.80 0.28,0.74 0.22,0.66 stroke #8b7355 0.55
+
+# === Individual curly shavings (spirals and ringlets) ===
+# Spiral coil 1 (tight curl)
+bezier 0.30,0.42 0.34,0.38 0.40,0.40 0.42,0.44 stroke #e8d4a0 width 3
+bezier 0.42,0.44 0.40,0.50 0.34,0.48 0.30,0.44 stroke #e8d4a0 width 3
+bezier 0.30,0.44 0.32,0.46 0.36,0.46 0.38,0.44 stroke #d4b880 width 2
+
+# Spiral coil 2
+bezier 0.52,0.38 0.58,0.36 0.62,0.40 0.60,0.44 stroke #e8d4a0 width 3
+bezier 0.60,0.44 0.56,0.46 0.52,0.44 0.52,0.40 stroke #e8d4a0 width 2
+
+# Long curl 3 (S-curve)
+bezier 0.36,0.58 0.44,0.52 0.54,0.60 0.62,0.54 stroke #d4b880 width 3
+bezier 0.36,0.58 0.40,0.62 0.48,0.64 0.54,0.62 stroke #c4a870 width 2
+
+# Long curl 4
+bezier 0.28,0.64 0.36,0.70 0.48,0.70 0.56,0.74 stroke #e8d4a0 width 3
+bezier 0.56,0.74 0.64,0.72 0.70,0.66 0.72,0.60 stroke #d4b880 width 3
+
+# Short coil 5
+bezier 0.62,0.48 0.68,0.44 0.74,0.50 0.72,0.56 stroke #e8d4a0 width 3
+
+# Short coil 6
+bezier 0.42,0.72 0.46,0.76 0.54,0.78 0.56,0.74 stroke #d4b880 width 2
+
+# === Bright highlight curls on top ===
+bezier 0.40,0.48 0.48,0.44 0.54,0.48 0.50,0.52 stroke #f4e4b8 0.9 width 2
+bezier 0.56,0.62 0.62,0.58 0.66,0.62 0.62,0.66 stroke #f4e4b8 0.85 width 2
+
+# === Scattered stray curls at edges ===
+bezier 0.16,0.48 0.20,0.44 0.26,0.48 0.22,0.52 stroke #d4b880 0.8 width 2
+bezier 0.82,0.60 0.84,0.56 0.88,0.60 0.84,0.64 stroke #d4b880 0.8 width 2
+bezier 0.46,0.86 0.50,0.88 0.56,0.86 0.54,0.84 stroke #c4a870 0.75 width 2
+
+# === Grain lines on visible shavings ===
+line 0.40,0.44 0.44,0.42 stroke #8b7355 0.45 width 1
+line 0.55,0.42 0.58,0.40 stroke #8b7355 0.45 width 1
+line 0.44,0.62 0.52,0.60 stroke #8b7355 0.4 width 1
+
+# === Tiny sawdust specks scattered ===
+circle 0.14,0.38 0.008 fill #c4a870 0.7
+circle 0.86,0.42 0.008 fill #c4a870 0.7
+circle 0.22,0.78 0.008 fill #c4a870 0.6
+circle 0.78,0.80 0.008 fill #c4a870 0.6

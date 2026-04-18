@@ -3,12 +3,28 @@
 Generated from 160 room vocab specs in `src/rooms/`. These are prop names referenced by specs but not found in the current `src/props/` catalog. Author in priority order — Tier 1 unlocks the most rooms per prop created.
 
 **Original totals (pre-v0.11.0):** 1177 missing  |  Tier 1 (3+ uses): 105  |  Tier 2 (2 uses): 150  |  Tier 3 (1 use): 922
-**Current totals:** 313 missing  |  Tier 1: 3 (aliases only)  |  Tier 2: 0 (complete)  |  Tier 3: 310
-**Catalog size:** 1119 props
+**Current totals:** 3 missing (all aliases)  |  Tier 1: 3 (aliases only)  |  Tier 2: 0 (complete)  |  Tier 3: 0 ✅
+**Catalog size:** 1426 props
 
 ---
 
 ## Progress log
+
+### 2026-04-16 (batches 12-13) — Tier 3 COMPLETE
+
+- **108 props authored** across 5 parallel thematic sub-batches. Catalog grew from 1318 to **1426 props**. Tier 3 remaining: **0**.
+- Sub-batches: textile/domestic (22), ship/military/outdoors (22), civic/gatehouse/shop (22), treasure/thieves/mill/ruin (22), ritual/sacred/abandoned (20).
+- All 108 new props pass `validate-props.js`. Only remaining "missing" entries are the 3 Tier-1 aliases (specs should be remapped, not new props authored): `counter` → `bar-counter`, `bookshelf-short` → `bookshelf`, `rat-swarm-marker` (concept, replace in specs with `rat`/`rat-skeleton`).
+- **Perspective fixups after visual review:**
+  - `fortune-wheel` rewritten from flat-face circle wedges to a tilted ellipse face on an easel stand (archery-target style). Drove new "Tilted-Face Props" section in `src/props/CLAUDE.md`.
+  - `crypt-entrance` grew from a 2x2 front-elevation facade to an 8x8 solid top-down mausoleum (peaked slab roof, N-S ridge, corner finial pillars, cornice trim, carved cross relief, protruding south-facing arched porch). Display name changed to "Crypt"; filename retained so `graveyard-village` spec still resolves. Drove new "Buildings & Structures" section in `src/props/CLAUDE.md`.
+  - `dye-vat` / `signal-bell` had `lights: no` in their frontmatter, which is invalid YAML for a list-typed field — the bundle loader dropped them with a parse error. Fixed by removing the line; documented the invariant under `### lights:` in `src/props/CLAUDE.md`.
+
+### 2026-04 (batch 11)
+
+- **199 props authored** across 8 parallel thematic sub-batches. Catalog grew from 1119 to 1318 props.
+- Thematic sub-batches: kitchen/food/bakery (26), scribe/study/civic (24), forge/workshop/smith (23), tavern/gambling/noble (26), cave/mushroom/underground (25), crystal/magic/ritual (25), graveyard/death/torture (24), hunter/outdoor/peasant (25). One prop skipped as alias: `bowl-of-stew` → remap to existing `bowl-stew`.
+- **Footprint axis fix-up**: four batch-3 props (`hammer-giant`, `pit-saw`, `scabbard-empty`, `quench-trough-blood`) had swapped row/col dimensions — all corrected.
 
 ### 2026-04 (v0.11.0)
 

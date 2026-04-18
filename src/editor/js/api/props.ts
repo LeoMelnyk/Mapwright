@@ -25,9 +25,89 @@ import {
 } from './_shared.js';
 import { getEdge } from '../../../util/index.js';
 import { lookupPropAt } from '../prop-spatial.js';
-import { createOverlayProp, resolveZIndex } from '../prop-overlay.js';
-import { ensurePropTextures } from '../prop-catalog.js';
+import { createOverlayProp, refreshLinkedLights, resolveZIndex, visibleAnchorOf } from '../prop-overlay.js';
+import { ensurePropTextures, ensurePropHitbox } from '../prop-catalog.js';
 import { normalizeRect } from './_rect-utils.js';
+
+// ── Bulk-op shared shapes ──────────────────────────────────────────────────
+
+/**
+ * Structured reasons a bulk prop-placement call may skip a position. Keep
+ * this list aligned with the docs in `src/editor/CLAUDE.md`.
+ */
+export type BulkSkipCode =
+  | 'OVERLAPS_PROP'
+  | 'OUT_OF_ROOM'
+  | 'DOOR_HERE'
+  | 'DOOR_APPROACH'
+  | 'CELL_VOID'
+  | 'PLACE_FAILED';
+
+/**
+ * Standard skipped-position entry returned by every bulk prop op. `reason` is
+ * preserved for backward compatibility with callers that do
+ * `.filter(s => s.reason === 'DOOR_HERE')` — for new code, branch on `code`
+ * and surface `context` for structured diagnostics.
+ */
+export interface BulkSkipEntry {
+  row: number;
+  col: number;
+  code: BulkSkipCode | string;
+  reason: string;
+  context?: Record<string, unknown>;
+}
+
+/**
+ * Flattened light-addition entry returned by bulk ops. Each prop placed can
+ * auto-attach one or more lights (torch-sconce, brazier, chandelier, etc.);
+ * bulk results aggregate every such light plus attribution so the caller can
+ * find which prop produced it without re-querying by propRef.
+ */
+export interface BulkLightAdded {
+  id: number;
+  preset: string;
+  propRow: number;
+  propCol: number;
+  propType: string;
+}
+
+/** Build a skipped entry from a thrown ApiValidationError during a bulk placeProp call. */
+function placeErrorToSkip(row: number, col: number, err: unknown, extra: Record<string, unknown> = {}): BulkSkipEntry {
+  if (err instanceof ApiValidationError) {
+    return {
+      row,
+      col,
+      code: err.code,
+      reason: err.code,
+      context: { ...extra, message: err.message, ...err.context },
+    };
+  }
+  const message = err instanceof Error ? err.message : String(err);
+  return {
+    row,
+    col,
+    code: 'PLACE_FAILED',
+    reason: 'PLACE_FAILED',
+    context: { ...extra, message },
+  };
+}
+
+/** Flatten a placeProp result's lightsAdded into bulk-op attributed entries. */
+function attributeLights(
+  result: { lightsAdded?: Array<{ id: number; preset: string }> },
+  propRow: number,
+  propCol: number,
+  propType: string,
+): BulkLightAdded[] {
+  if (!result.lightsAdded?.length) return [];
+  return result.lightsAdded.map((l) => ({
+    id: l.id,
+    preset: l.preset,
+    propRow,
+    propCol,
+    propType,
+  }));
+}
 
 // ── Overlay Helpers ─────────────────────────────────────────────────────
 
@@ -127,6 +207,7 @@ export function placeProp(
   const gridSize = meta.gridSize || 5;
   const lightsAdded: Array<{ id: number; preset: string }> = [];
 
+  ensurePropHitbox(propType);
   ensurePropTextures(propType);
 
   mutate(
@@ -139,6 +220,15 @@ export function placeProp(
         scale,
         ...(options.zIndex != null && { zIndex: options.zIndex }),
       });
+      // Caller passes the effective (rotated) top-left cell, but the renderer rotates
+      // around the base-footprint center (Option A). Shift the stored anchor so the
+      // visible prop lands on the requested cell for non-square props at 90°/270°.
+      const [fRowsShift, fColsShift] = def.footprint;
+      const isR90Shift = r90 === 90 || r90 === 270;
+      const eRowsShift = isR90Shift ? fColsShift : fRowsShift;
+      const eColsShift = isR90Shift ? fRowsShift : fColsShift;
+      entry.x -= ((fColsShift - eColsShift) / 2) * gridSize;
+      entry.y -= ((fRowsShift - eRowsShift) / 2) * gridSize;
       // Freeform placement: override position with exact world-feet coordinates
       if (options.x != null) entry.x = options.x;
       if (options.y != null) entry.y = options.y;
@@ -168,14 +258,17 @@ export function placeProp(
             x: (col + nx) * gridSize,
             y: (row + ny) * gridSize,
             type: preset.type ?? 'point',
-            radius: preset.radius ?? 20,
-            color: preset.color ?? '#ff9944',
-            intensity: preset.intensity ?? 1.0,
-            falloff: preset.falloff ?? 'smooth',
+            radius: lightEntry.radius ?? preset.radius ?? 20,
+            color: lightEntry.color ?? preset.color ?? '#ff9944',
+            intensity: lightEntry.intensity ?? preset.intensity ?? 1.0,
+            falloff: lightEntry.falloff ?? preset.falloff ?? 'smooth',
             presetId: lightEntry.preset,
             propRef: { row, col },
           };
-          if (preset.dimRadius) light.dimRadius = preset.dimRadius;
+          const dim = lightEntry.dimRadius ?? preset.dimRadius;
+          if (dim) light.dimRadius = dim;
+          if (lightEntry.angle != null) light.angle = lightEntry.angle;
+          if (lightEntry.spread != null) light.spread = lightEntry.spread;
           if (preset.animation?.type) light.animation = { ...preset.animation };
           meta.lights.push(light as unknown as (typeof meta.lights)[number]);
           lightsAdded.push({ id: lightId, preset: lightEntry.preset });
@@ -284,16 +377,169 @@ export function rotateProp(row: number, col: number, degrees: number = 90): { su
   const overlay = findPropAtGrid(row, col);
   if (!overlay) throw new ApiValidationError('NO_PROP_AT_CELL', `No prop at (${row}, ${col})`, { row, col });
   let newFacing: number;
+  const meta = state.dungeon.metadata;
+  const gs = meta.gridSize || 5;
+  const propDef = state.propCatalog?.props[overlay.type];
+  const oldVisible = visibleAnchorOf(overlay, propDef, gs);
   mutate(
     'Rotate prop',
     [],
     () => {
       newFacing = ((((overlay.rotation || 0) + degrees) % 360) + 360) % 360;
       overlay.rotation = newFacing;
+      // Preserve the visible anchor across the rotation for non-square props:
+      // placement applies a rotation-dependent shift so rotated visibles land
+      // on whole cells. Without re-shifting, rotating in place drifts the
+      // visible anchor by half the footprint-difference. Re-anchor so the
+      // cell under (row, col) stays the same before/after.
+      if (propDef) {
+        const [fRows, fCols] = propDef.footprint;
+        const isR90 = newFacing === 90 || newFacing === 270;
+        const eRows = isR90 ? fCols : fRows;
+        const eCols = isR90 ? fRows : fCols;
+        const desiredShiftX = ((fCols - eCols) / 2) * gs;
+        const desiredShiftY = ((fRows - eRows) / 2) * gs;
+        const currentShiftX = oldVisible.col * gs - overlay.x;
+        const currentShiftY = oldVisible.row * gs - overlay.y;
+        overlay.x += currentShiftX - desiredShiftX;
+        overlay.y += currentShiftY - desiredShiftY;
+      }
+      refreshLinkedLights(meta, overlay, propDef, oldVisible, 0, 0);
     },
     { metaOnly: true, invalidate: ['lighting:props', 'props'] },
   );
   return { success: true, facing: newFacing! };
+}
+
+/**
+ * Set the prop's rotation to an absolute value (in degrees). Unlike
+ * `rotateProp(row, col, delta)` which adds a delta, this snaps directly to
+ * the requested angle. Preserves the visible anchor across the rotation so
+ * the prop stays under (row, col) for non-square footprints.
+ *
+ * @param row - Visible-anchor row
+ * @param col - Visible-anchor column
+ * @param degrees - Absolute rotation (normalized to 0–359)
+ */
+export function setPropRotation(row: number, col: number, degrees: number): { success: true; rotation: number } {
+  row = toInt(row);
+  col = toInt(col);
+  validateBounds(row, col);
+  const overlay = findPropAtGrid(row, col);
+  if (!overlay) throw new ApiValidationError('NO_PROP_AT_CELL', `No prop at (${row}, ${col})`, { row, col });
+  const normalized = ((Math.round(degrees) % 360) + 360) % 360;
+  const meta = state.dungeon.metadata;
+  const gs = meta.gridSize || 5;
+  const propDef = state.propCatalog?.props[overlay.type];
+  const oldVisible = visibleAnchorOf(overlay, propDef, gs);
+  mutate(
+    'Set prop rotation',
+    [],
+    () => {
+      overlay.rotation = normalized;
+      if (propDef) {
+        const [fRows, fCols] = propDef.footprint;
+        const isR90 = normalized === 90 || normalized === 270;
+        const eRows = isR90 ? fCols : fRows;
+        const eCols = isR90 ? fRows : fCols;
+        const desiredShiftX = ((fCols - eCols) / 2) * gs;
+        const desiredShiftY = ((fRows - eRows) / 2) * gs;
+        const currentShiftX = oldVisible.col * gs - overlay.x;
+        const currentShiftY = oldVisible.row * gs - overlay.y;
+        overlay.x += currentShiftX - desiredShiftX;
+        overlay.y += currentShiftY - desiredShiftY;
+      }
+      refreshLinkedLights(meta, overlay, propDef, oldVisible, 0, 0);
+    },
+    { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+  );
+  return { success: true, rotation: normalized };
+}
+
+/**
+ * Toggle the `flipped` flag of the prop at (row, col). Flipping mirrors the
+ * prop's art without changing its footprint or anchor, so no cell-validity
+ * checks are needed.
+ */
+export function flipProp(row: number, col: number): { success: true; flipped: boolean } {
+  row = toInt(row);
+  col = toInt(col);
+  validateBounds(row, col);
+  const overlay = findPropAtGrid(row, col);
+  if (!overlay) throw new ApiValidationError('NO_PROP_AT_CELL', `No prop at (${row}, ${col})`, { row, col });
+  let newFlipped = false;
+  mutate(
+    'Flip prop',
+    [],
+    () => {
+      overlay.flipped = !overlay.flipped;
+      newFlipped = overlay.flipped;
+    },
+    { metaOnly: true, invalidate: ['props'] },
+  );
+  return { success: true, flipped: newFlipped };
+}
+
+/**
+ * Move the prop at (row, col) by a cell offset (dr, dc). Works on grid-aligned
+ * props — sub-cell/freeform positions are preserved via stored world-feet
+ * coordinates. Linked lights follow the prop.
+ *
+ * Throws `OUT_OF_BOUNDS` if the new visible anchor would land outside the
+ * grid or on a void cell. Use `movePropTo` (not yet implemented) if you need
+ * absolute-coordinate placement.
+ */
+export function movePropInCells(
+  row: number,
+  col: number,
+  dr: number,
+  dc: number,
+): { success: true; row: number; col: number } {
+  row = toInt(row);
+  col = toInt(col);
+  validateBounds(row, col);
+  const overlay = findPropAtGrid(row, col);
+  if (!overlay) throw new ApiValidationError('NO_PROP_AT_CELL', `No prop at (${row}, ${col})`, { row, col });
+
+  const meta = state.dungeon.metadata;
+  const gs = meta.gridSize || 5;
+  const propDef = state.propCatalog?.props[overlay.type];
+  const oldVisible = visibleAnchorOf(overlay, propDef, gs);
+  const newRow = oldVisible.row + toInt(dr);
+  const newCol = oldVisible.col + toInt(dc);
+
+  // Validate the destination visible anchor is inside the grid.
+  const cells = state.dungeon.cells;
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+  if (newRow < 0 || newRow >= numRows || newCol < 0 || newCol >= numCols) {
+    throw new ApiValidationError(
+      'OUT_OF_BOUNDS',
+      `Moved anchor (${newRow}, ${newCol}) is outside the grid (${numRows} rows, ${numCols} cols)`,
+      { row: newRow, col: newCol, maxRows: numRows, maxCols: numCols },
+    );
+  }
+  if (cells[newRow]![newCol] === null) {
+    throw new ApiValidationError(
+      'CELL_VOID',
+      `Moved anchor (${newRow}, ${newCol}) is a void cell — paint floor first`,
+      { row: newRow, col: newCol },
+    );
+  }
+
+  const dx = toInt(dc) * gs;
+  const dy = toInt(dr) * gs;
+  mutate(
+    'Move prop',
+    [],
+    () => {
+      overlay.x += dx;
+      overlay.y += dy;
+      refreshLinkedLights(meta, overlay, propDef, oldVisible, dx, dy);
+    },
+    { metaOnly: true, invalidate: ['lighting:props', 'props'] },
+  );
+  return { success: true, row: newRow, col: newCol };
 }
 
 /**
@@ -420,9 +666,11 @@ export function removePropsInRect(r1: number, c1: number, r2: number, c2: number
     [],
     () => {
       const before = meta.props!.length;
-      meta.props = meta.props!.filter((p: { x: number; y: number }) => {
-        const pRow = Math.round(p.y / gridSize);
-        const pCol = Math.round(p.x / gridSize);
+      meta.props = meta.props!.filter((p: OverlayProp) => {
+        const def = state.propCatalog?.props[p.type];
+        // Use the visible anchor so 90°/270° rotated non-square props test
+        // against the cells they actually occupy, not their shifted data anchor.
+        const { row: pRow, col: pCol } = visibleAnchorOf(p, def, gridSize);
         return pRow < minR || pRow > maxR || pCol < minC || pCol > maxC;
       });
       removed = before - meta.props.length;
@@ -457,7 +705,12 @@ export function fillWallWithProps(
   propType: string,
   wall: string,
   options: FillWallOptions = {},
-): { success: true; placed: [number, number][]; skipped: Array<{ row: number; col: number; reason: string }> } {
+): {
+  success: true;
+  placed: [number, number][];
+  skipped: BulkSkipEntry[];
+  lightsAdded: BulkLightAdded[];
+} {
   if (!CARDINAL_DIRS.includes(wall))
     throw new ApiValidationError('INVALID_WALL', `wall must be one of: ${CARDINAL_DIRS.join(', ')}`, { wall });
 
@@ -496,8 +749,9 @@ export function fillWallWithProps(
 
   const wallCells = getApi()._getWallCells(roomCells, wall);
   const placed: [number, number][] = [];
-  const skipped: Array<{ row: number; col: number; reason: string }> = [];
-  if (!wallCells.length) return { success: true, placed, skipped };
+  const skipped: BulkSkipEntry[] = [];
+  const lightsAdded: BulkLightAdded[] = [];
+  if (!wallCells.length) return { success: true, placed, skipped, lightsAdded };
 
   const cells = state.dungeon.cells;
   const stride = wall === 'north' || wall === 'south' ? spanCols + gap : spanRows + gap;
@@ -510,7 +764,7 @@ export function fillWallWithProps(
       const cell = cells[wr]?.[wc];
       const edgeVal = cell ? getEdge(cell, wall as CardinalDirection) : undefined;
       if (edgeVal === 'd' || edgeVal === 's') {
-        skipped.push({ row: wr, col: wc, reason: 'DOOR_HERE' });
+        skipped.push({ row: wr, col: wc, code: 'DOOR_HERE', reason: 'DOOR_HERE' });
         i++;
         continue;
       }
@@ -531,35 +785,38 @@ export function fillWallWithProps(
       ac = wc - inset - spanCols + 1;
     }
 
-    let reason: string | null = null;
+    let preCode: 'OUT_OF_ROOM' | 'OVERLAPS_PROP' | null = null;
     outer: for (let dr = 0; dr < spanRows; dr++) {
       for (let dc = 0; dc < spanCols; dc++) {
         if (!roomCells.has(cellKey(ar + dr, ac + dc))) {
-          reason = 'OUT_OF_ROOM';
+          preCode = 'OUT_OF_ROOM';
           break outer;
         }
         if (getApi()._isCellCoveredByProp(ar + dr, ac + dc)) {
-          reason = 'OVERLAPS_PROP';
+          preCode = 'OVERLAPS_PROP';
           break outer;
         }
       }
     }
 
-    if (!reason) {
+    if (!preCode) {
       try {
-        getApi().placeProp(ar, ac, propType, facing);
+        const res = getApi().placeProp(ar, ac, propType, facing);
         placed.push([ar, ac]);
+        lightsAdded.push(...attributeLights(res, ar, ac, propType));
         i += stride;
         continue;
       } catch (e) {
-        reason = e instanceof Error ? `PLACE_FAILED: ${e.message}` : 'PLACE_FAILED';
+        skipped.push(placeErrorToSkip(ar, ac, e, { propType, facing }));
+        i++;
+        continue;
       }
     }
-    skipped.push({ row: ar, col: ac, reason });
+    skipped.push({ row: ar, col: ac, code: preCode, reason: preCode });
     i++;
   }
 
-  return { success: true, placed, skipped };
+  return { success: true, placed, skipped, lightsAdded };
 }
 
 /**
@@ -583,7 +840,12 @@ export function lineProps(
   direction: string,
   count: number,
   options: LinePropsOptions = {},
-): { success: true; placed: [number, number][]; skipped: Array<{ row: number; col: number; reason: string }> } {
+): {
+  success: true;
+  placed: [number, number][];
+  skipped: BulkSkipEntry[];
+  lightsAdded: BulkLightAdded[];
+} {
   startRow = toInt(startRow);
   startCol = toInt(startCol);
   if (!['east', 'south'].includes(direction))
@@ -617,40 +879,42 @@ export function lineProps(
   const [dr, dc] = direction === 'south' ? [spanRows + gap, 0] : [0, spanCols + gap];
 
   const placed: [number, number][] = [];
-  const skipped: Array<{ row: number; col: number; reason: string }> = [];
+  const skipped: BulkSkipEntry[] = [];
+  const lightsAdded: BulkLightAdded[] = [];
   let r = startRow,
     c = startCol;
 
   for (let i = 0; i < count; i++) {
-    let reason: string | null = null;
+    let preCode: 'OUT_OF_ROOM' | 'OVERLAPS_PROP' | null = null;
     outer: for (let pr = 0; pr < spanRows; pr++) {
       for (let pc = 0; pc < spanCols; pc++) {
         if (!roomCells.has(cellKey(r + pr, c + pc))) {
-          reason = 'OUT_OF_ROOM';
+          preCode = 'OUT_OF_ROOM';
           break outer;
         }
         if (getApi()._isCellCoveredByProp(r + pr, c + pc)) {
-          reason = 'OVERLAPS_PROP';
+          preCode = 'OVERLAPS_PROP';
           break outer;
         }
       }
     }
 
-    if (!reason) {
+    if (!preCode) {
       try {
-        getApi().placeProp(r, c, propType, facing);
+        const res = getApi().placeProp(r, c, propType, facing);
         placed.push([r, c]);
+        lightsAdded.push(...attributeLights(res, r, c, propType));
       } catch (e) {
-        skipped.push({ row: r, col: c, reason: e instanceof Error ? `PLACE_FAILED: ${e.message}` : 'PLACE_FAILED' });
+        skipped.push(placeErrorToSkip(r, c, e, { propType, facing }));
       }
     } else {
-      skipped.push({ row: r, col: c, reason });
+      skipped.push({ row: r, col: c, code: preCode, reason: preCode });
     }
     r += dr;
     c += dc;
   }
 
-  return { success: true, placed, skipped };
+  return { success: true, placed, skipped, lightsAdded };
 }
 
 /**
@@ -670,16 +934,22 @@ export function scatterProps(
 ): {
   success: true;
   placed: [number, number][];
-  skipped: Array<{ row: number; col: number; reason: string }>;
+  skipped: BulkSkipEntry[];
+  lightsAdded: BulkLightAdded[];
   requested: number;
   available: number;
 } {
   const facing = options.facing ?? 0;
+  // Scattering rubble / barrels / etc. across a doorway is almost always a
+  // mistake. Default avoidDoors to true; callers who genuinely want to fill
+  // door cells (traps, pressure plates) can opt out explicitly.
+  const avoidDoors = options.avoidDoors !== false;
   const placed: [number, number][] = [];
-  const skipped: Array<{ row: number; col: number; reason: string }> = [];
+  const skipped: BulkSkipEntry[] = [];
+  const lightsAdded: BulkLightAdded[] = [];
   const result = getApi().getValidPropPositions(roomLabel, propType, facing);
   if (!result.success || !result.positions?.length) {
-    return { success: true, placed, skipped, requested: count, available: 0 };
+    return { success: true, placed, skipped, lightsAdded, requested: count, available: 0 };
   }
 
   let positions = [...result.positions];
@@ -697,6 +967,38 @@ export function scatterProps(
     }
   }
 
+  // Precompute door + door-approach cell sets so scattering doesn't blindly
+  // drop props in front of doorways.
+  let doorCells: Set<string> | null = null;
+  let doorApproachCells: Set<string> | null = null;
+  if (avoidDoors) {
+    const roomCells = getApi()._collectRoomCells(roomLabel);
+    if (roomCells) {
+      doorCells = new Set();
+      doorApproachCells = new Set();
+      const cells = state.dungeon.cells;
+      const offsets: Record<string, [number, number]> = {
+        north: [-1, 0],
+        south: [1, 0],
+        east: [0, 1],
+        west: [0, -1],
+      };
+      for (const key of roomCells) {
+        const [dr, dc] = key.split(',').map(Number) as [number, number];
+        const cell = cells[dr]?.[dc];
+        if (!cell) continue;
+        for (const dir of CARDINAL_DIRS) {
+          const v = (cell as Record<string, unknown>)[dir];
+          if (v === 'd' || v === 's' || v === 'id') {
+            doorCells.add(key);
+            const [odr, odc] = offsets[dir]!;
+            doorApproachCells.add(cellKey(dr + odr, dc + odc));
+          }
+        }
+      }
+    }
+  }
+
   // Fisher-Yates shuffle
   for (let i = positions.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -705,19 +1007,29 @@ export function scatterProps(
 
   for (const [r, c] of positions) {
     if (placed.length >= count) break;
+    const key = cellKey(r, c);
+    if (doorCells?.has(key)) {
+      skipped.push({ row: r, col: c, code: 'DOOR_HERE', reason: 'DOOR_HERE' });
+      continue;
+    }
+    if (doorApproachCells?.has(key)) {
+      skipped.push({ row: r, col: c, code: 'DOOR_APPROACH', reason: 'DOOR_APPROACH' });
+      continue;
+    }
     if (getApi()._isCellCoveredByProp(r, c)) {
-      skipped.push({ row: r, col: c, reason: 'OVERLAPS_PROP' });
+      skipped.push({ row: r, col: c, code: 'OVERLAPS_PROP', reason: 'OVERLAPS_PROP' });
       continue;
     }
     try {
-      getApi().placeProp(r, c, propType, facing);
+      const res = getApi().placeProp(r, c, propType, facing);
       placed.push([r, c]);
+      lightsAdded.push(...attributeLights(res, r, c, propType));
     } catch (e) {
-      skipped.push({ row: r, col: c, reason: e instanceof Error ? `PLACE_FAILED: ${e.message}` : 'PLACE_FAILED' });
+      skipped.push(placeErrorToSkip(r, c, e, { propType, facing }));
     }
   }
 
-  return { success: true, placed, skipped, requested: count, available: availableBeforeFilter };
+  return { success: true, placed, skipped, lightsAdded, requested: count, available: availableBeforeFilter };
 }
 
 /**
@@ -736,6 +1048,7 @@ export function clusterProps(
 ): {
   success: true;
   placed: { type: string; row: number; col: number }[];
+  lightsAdded: BulkLightAdded[];
   skipped: {
     type: string;
     row: number;
@@ -759,37 +1072,23 @@ export function clusterProps(
     code?: string;
     context?: Record<string, unknown>;
   }[] = [];
+  const lightsAdded: BulkLightAdded[] = [];
 
   for (const p of props) {
     const r = anchorRow + (p.dr || 0);
     const c = anchorCol + (p.dc || 0);
     const facing = p.facing ?? 0;
     try {
-      getApi().placeProp(r, c, p.type, facing);
+      const res = getApi().placeProp(r, c, p.type, facing);
       placed.push({ type: p.type, row: r, col: c });
+      lightsAdded.push(...attributeLights(res, r, c, p.type));
     } catch (e) {
-      const entry: {
-        type: string;
-        row: number;
-        col: number;
-        reason: string;
-        code?: string;
-        context?: Record<string, unknown>;
-      } = {
-        type: p.type,
-        row: r,
-        col: c,
-        reason: e instanceof Error ? e.message : String(e),
-      };
-      if (e instanceof ApiValidationError) {
-        entry.code = e.code;
-        entry.context = e.context;
-      }
-      skipped.push(entry);
+      const base = placeErrorToSkip(r, c, e, { propType: p.type, facing });
+      skipped.push({ type: p.type, ...base });
     }
   }
 
-  return { success: true, placed, skipped };
+  return { success: true, placed, skipped, lightsAdded };
 }
 
 // ── Overlay Prop Methods (metadata.props[] direct) ──────────────────────

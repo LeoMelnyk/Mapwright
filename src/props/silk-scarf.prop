@@ -12,7 +12,7 @@ clusters_with: low-table, curtain-divider, perfume-bottle, rose-petals
 notes: Draped silk scarf, crumpled or trailing across a surface
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.22 0.72,0.56 z 0-0.05
+selection rect 0.14,0.22 0.72,0.56
 
 # Main scarf body (flowing, crumpled purple silk)
 poly 0.14,0.40 0.24,0.30 0.40,0.26 0.58,0.30 0.72,0.34 0.82,0.44 0.86,0.56 0.78,0.68 0.62,0.76 0.46,0.78 0.30,0.74 0.18,0.66 0.14,0.54 fill #5a2872 0.92

@@ -12,7 +12,7 @@ clusters_with: rag-pile, corpse, torn-banner, bone-pile, torn-cloth
 notes: Ripped cloth fragment — from torn clothing, sail, or cloak
 ---
 # === HITBOX ===
-hitbox poly 0.16,0.30 0.68,0.22 0.82,0.52 0.60,0.78 0.24,0.70 z 0-0.05
+selection poly 0.16,0.30 0.68,0.22 0.82,0.52 0.60,0.78 0.24,0.70
 
 # Main torn fabric shape (irregular, with jagged tears)
 poly 0.16,0.30 0.28,0.24 0.44,0.22 0.60,0.26 0.70,0.24 0.78,0.34 0.82,0.50 0.76,0.64 0.64,0.74 0.48,0.78 0.32,0.74 0.20,0.64 0.14,0.48 fill #5a3028 0.9

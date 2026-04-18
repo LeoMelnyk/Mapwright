@@ -1,0 +1,80 @@
+name: Rotten Fruit
+category: Debris
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: shrine-roadside, peasant-hovel, cabin-abandoned, cellar, alley, dock-warehouse, sewer
+typical_count: few
+clusters_with: moldy-bread, bread-crust, fly-swarm, scat-pile, dropped-apple
+notes: Rotting apple or fruit on the floor — collapsed brown, mold patches, flies buzzing around.
+---
+# === Seepage stain halo on floor (drawn first, behind fruit) ===
+ellipse 0.50,0.54 0.34,0.26 fill #3a2810 0.3
+ellipse 0.48,0.58 0.20,0.14 fill #2a1808 0.4
+
+# === Main rotten fruit body (collapsed, dark brown — was an apple) ===
+ellipse 0.50,0.52 0.26,0.22 fill #4a2810 0.95
+ellipse 0.50,0.52 0.26,0.22 stroke #1a0a00
+
+# === Bruised/collapsed surface with irregular dents ===
+poly 0.32,0.46 0.42,0.42 0.52,0.44 0.66,0.40 0.72,0.48 0.74,0.60 0.66,0.68 0.52,0.70 0.38,0.68 0.28,0.60 fill #3a2008 0.85
+
+# === Lighter greenish-brown soft spots (where flesh broke down) ===
+ellipse 0.40,0.48 0.08,0.06 fill #6a5028 0.75
+ellipse 0.60,0.56 0.07,0.05 fill #5a4020 0.75
+ellipse 0.48,0.62 0.06,0.04 fill #5a4020 0.7
+
+# === White/green mold patches (fuzzy circles) ===
+circle 0.36,0.52 0.05 fill #a8b888 0.75
+circle 0.36,0.52 0.05 stroke #4a5028 0.5
+# Mold fuzz dots
+circle 0.33,0.50 0.008 fill #c8d0a8 0.85
+circle 0.38,0.54 0.008 fill #c8d0a8 0.85
+circle 0.34,0.54 0.008 fill #c8d0a8 0.8
+
+circle 0.62,0.48 0.04 fill #a8b888 0.7
+circle 0.62,0.48 0.04 stroke #4a5028 0.5
+circle 0.60,0.46 0.008 fill #c8d0a8 0.85
+circle 0.64,0.50 0.008 fill #c8d0a8 0.85
+
+# Dark black mold blotches
+circle 0.52,0.58 0.03 fill #1a1008 0.85
+circle 0.56,0.44 0.022 fill #1a1008 0.8
+circle 0.42,0.60 0.018 fill #1a1008 0.75
+
+# === Split/burst seam in skin ===
+bezier 0.40,0.46 0.48,0.48 0.56,0.48 0.62,0.50 stroke #1a0a00 0.8 width 2
+# Oozing pulp
+ellipse 0.50,0.52 0.05,0.02 fill #6a4018 0.8
+
+# === Stem (withered, brown) ===
+line 0.48,0.34 0.50,0.40 stroke #2a1400 width 2
+circle 0.50,0.32 0.014 fill #1a0a00 0.9
+# Shriveled leaf
+poly 0.44,0.34 0.48,0.30 0.46,0.38 fill #4a3820 0.7
+
+# === Flies (tiny dark specks with wing dots) ===
+circle 0.24,0.30 0.012 fill #1a1a1a 0.9
+line 0.22,0.28 0.26,0.30 stroke #666666 0.7
+line 0.22,0.32 0.26,0.30 stroke #666666 0.7
+
+circle 0.78,0.24 0.010 fill #1a1a1a 0.9
+line 0.76,0.22 0.80,0.24 stroke #666666 0.6
+line 0.76,0.26 0.80,0.24 stroke #666666 0.6
+
+circle 0.72,0.74 0.012 fill #1a1a1a 0.9
+line 0.70,0.72 0.74,0.74 stroke #666666 0.7
+line 0.70,0.76 0.74,0.74 stroke #666666 0.7
+
+circle 0.30,0.78 0.010 fill #1a1a1a 0.85
+line 0.28,0.76 0.32,0.78 stroke #666666 0.6
+line 0.28,0.80 0.32,0.78 stroke #666666 0.6
+
+circle 0.18,0.58 0.008 fill #1a1a1a 0.85
+
+# === Drippy stain trail ===
+ellipse 0.78,0.68 0.08,0.03 fill #3a2008 0.5
+circle 0.84,0.70 0.014 fill #3a2008 0.6

@@ -9,13 +9,7 @@ room_types: alchemist-lab, refinery, distillery, workshop-artificer
 typical_count: few
 clusters_with: flask-small, alchemy-bench, glove-stained, smoke-wisp
 notes: Glowing puddle of spilled alchemical reagent; place near workbenches or broken flasks
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 2
-    color: "#33ccaa"
-    intensity: 0.2
+lights: [{"preset":"bioluminescence","x":0.5,"y":0.5,"radius":2,"intensity":0.2,"color":"#33ccaa"}]
 ---
 # footprint 1x1: x range 0-1, y range 0-1
 # Flat glowing puddle on the floor — irregular organic shape

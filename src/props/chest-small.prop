@@ -1,0 +1,60 @@
+name: Small Chest
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: hermit-cell, house-small, peasant-hovel, inn, cottage, bedroom
+typical_count: single
+clusters_with: bed-small, chest-wooden, sack, stool
+notes: Small wooden strongbox — personal valuables chest. Fits under a bench or at the foot of a cot.
+---
+# === HITBOX ===
+selection rect 0.22,0.22 0.56,0.56
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: compact chest, small scale — hinges at north, latch at south
+
+# === Chest body ===
+rect 0.22,0.22 0.56,0.56 texfill polyhaven/dark_wood 0.9
+rect 0.22,0.22 0.56,0.56 stroke #1a0800 width 2
+
+# === Plank seams on lid (running east-west) ===
+line 0.24,0.38 0.76,0.38 stroke #2a1400 0.5 width 1
+line 0.24,0.50 0.76,0.50 stroke #2a1400 0.55 width 1
+line 0.24,0.62 0.76,0.62 stroke #2a1400 0.5 width 1
+
+# === Iron band (single band running east-west across middle) ===
+rect 0.22,0.46 0.56,0.05 fill #333333 0.75
+rect 0.22,0.46 0.56,0.05 stroke #222222
+
+# === Corner brackets ===
+# NW
+rect 0.22,0.22 0.07,0.03 fill #444444 0.8
+rect 0.22,0.22 0.03,0.07 fill #444444 0.8
+# NE
+rect 0.71,0.22 0.07,0.03 fill #444444 0.8
+rect 0.75,0.22 0.03,0.07 fill #444444 0.8
+# SW
+rect 0.22,0.75 0.07,0.03 fill #444444 0.8
+rect 0.22,0.71 0.03,0.07 fill #444444 0.8
+# SE
+rect 0.71,0.75 0.07,0.03 fill #444444 0.8
+rect 0.75,0.71 0.03,0.07 fill #444444 0.8
+
+# === Rivets on the iron band ===
+circle 0.30,0.485 0.012 fill #555555 0.75
+circle 0.50,0.485 0.012 fill #555555 0.75
+circle 0.70,0.485 0.012 fill #555555 0.75
+
+# === Hinge on north edge (single, since it's small) ===
+rect 0.38,0.20 0.24,0.05 fill #444444 0.8
+rect 0.38,0.20 0.24,0.05 stroke #222222
+
+# === Brass clasp on south edge ===
+rect 0.40,0.76 0.20,0.05 fill #daa520 0.85
+rect 0.40,0.76 0.20,0.05 stroke #5a3a00
+# Keyhole
+circle 0.50,0.78 0.014 fill #1a0800 0.95

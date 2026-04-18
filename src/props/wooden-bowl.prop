@@ -12,7 +12,7 @@ clusters_with: bowl-stew, bread-heel, table, stool, tin-cup
 notes: Simple turned wooden bowl — empty or ready for stew
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-0.2
+selection circle 0.5,0.5 0.28
 
 # Outer bowl rim (wood)
 circle 0.5,0.5 0.28 texfill polyhaven/dark_wood 0.9

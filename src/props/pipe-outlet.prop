@@ -12,7 +12,7 @@ clusters_with: grate, drain, water-puddle, fungal-growth, algae-bloom
 notes: Stone drainage pipe mouth set into the north wall. Slime-rimmed opening with water trickling south.
 ---
 # Tight hitbox on the stone lip
-hitbox circle 0.50,0.22 0.22 z 0-0.5
+selection circle 0.50,0.22 0.22
 
 # === Stone lip/ring around the opening (flush to north wall) ===
 # Outer stone ring (raised lip)

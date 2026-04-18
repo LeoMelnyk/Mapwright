@@ -12,7 +12,7 @@ clusters_with: bonfire, bedroll, bone-pile, skull-trophy
 notes: Crude patchwork hide bedroll used by orc warriors; furry edges, bone pillow at head (north). Cluster around bonfire or along walls.
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.16 1.72,0.68 z 0-0.3
+selection rect 0.14,0.16 1.72,0.68
 
 # Ground stain / fur shed underneath
 ellipse 1.00,0.50 0.86,0.30 fill #2a1a0a 0.35

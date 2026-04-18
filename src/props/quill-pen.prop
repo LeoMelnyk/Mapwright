@@ -1,0 +1,59 @@
+name: Ritual Quill
+category: Library & Study
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: scriptorium-dark, wizard-sanctum, cult-sanctum, necromancer-study, warlock-cell
+typical_count: few
+clusters_with: inkwell, ink-stone, scroll-loose, candle, wax-seal
+notes: Black raven-feather ritual quill standing in a dark inkwell of black ink — more sinister than the mundane quill-and-ink; faces south so the feather points into the room
+---
+# === HITBOX ===
+selection rect 0.30,0.10 0.50,0.70
+
+# Obsidian inkwell (dark stone base — wider than the standard brass one)
+circle 0.50,0.70 0.18 fill #1a1a1a 0.92
+circle 0.50,0.70 0.18 stroke #0a0a0a width 2
+# Inkwell lip (narrower than base)
+circle 0.50,0.70 0.12 fill #0a0a0a 0.95
+circle 0.50,0.70 0.12 stroke #000000 width 2
+# Black ink surface
+circle 0.50,0.70 0.10 fill #050308 0.98
+# Faint violet sheen on ink (ritual ink — midnight shimmer)
+arc 0.50,0.70 0.085 200 260 stroke #3a1860 0.5 width 1
+arc 0.50,0.70 0.07 220 240 stroke #5a2880 0.4 width 1
+
+# Carved runes around the rim (four dots at cardinal points)
+circle 0.50,0.56 0.012 fill #5a2880 0.7
+circle 0.64,0.70 0.012 fill #5a2880 0.7
+circle 0.50,0.84 0.012 fill #5a2880 0.7
+circle 0.36,0.70 0.012 fill #5a2880 0.7
+
+# Raven-feather shaft (thicker than mundane quill, near-black, rises toward north)
+bezier 0.52,0.64 0.54,0.46 0.56,0.28 0.58,0.12 stroke #1a0e1a width 3
+# Shaft highlight
+bezier 0.51,0.64 0.53,0.46 0.55,0.28 0.57,0.12 stroke #3a2a3a 0.6 width 1
+
+# Raven feather barbs (dark plume — denser and blacker than mundane quill)
+bezier 0.48,0.56 0.42,0.42 0.40,0.30 0.42,0.16 stroke #1a0e1a 0.85 width 2
+bezier 0.52,0.54 0.48,0.40 0.46,0.28 0.48,0.14 stroke #2a1a2a 0.7 width 1
+bezier 0.56,0.54 0.60,0.40 0.62,0.28 0.64,0.16 stroke #1a0e1a 0.85 width 2
+bezier 0.58,0.56 0.64,0.42 0.66,0.30 0.68,0.18 stroke #2a1a2a 0.7 width 1
+
+# Feather barb filaments (short radiating strokes)
+line 0.44,0.50 0.40,0.46 stroke #1a0e1a 0.65 width 1
+line 0.44,0.40 0.40,0.36 stroke #1a0e1a 0.65 width 1
+line 0.44,0.30 0.40,0.26 stroke #1a0e1a 0.65 width 1
+line 0.56,0.50 0.60,0.46 stroke #1a0e1a 0.65 width 1
+line 0.56,0.40 0.60,0.36 stroke #1a0e1a 0.65 width 1
+line 0.56,0.30 0.60,0.26 stroke #1a0e1a 0.65 width 1
+
+# Faint violet aura at feather tip (magical charge)
+circle 0.58,0.12 0.04 fill #5a2880 0.25
+circle 0.58,0.12 0.02 fill #8840c0 0.4
+
+# Ink bead hanging on the shaft just above the pot (dark droplet about to drip)
+circle 0.54,0.60 0.018 fill #050308 0.95

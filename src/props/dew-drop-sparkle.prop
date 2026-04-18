@@ -9,13 +9,7 @@ room_types: fey-glade, forest, garden, druid-grove
 typical_count: many
 clusters_with: flower-patch, mushroom, songbird-nest
 notes: Tiny glistening dewdrops on grass/moss — scatter liberally for magical morning atmosphere
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 2
-    color: "#c0d8ff"
-    intensity: 0.15
+lights: [{"preset":"silvery","x":0.5,"y":0.5,"radius":2,"intensity":0.15,"color":"#c0d8ff"}]
 ---
 # Soft diffuse halo on the ground (dew mist)
 circle 0.5,0.5 0.42 fill #c0e8ff 0.08

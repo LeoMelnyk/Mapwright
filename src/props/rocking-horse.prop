@@ -12,7 +12,7 @@ clusters_with: wooden-toy, dollhouse, blocks-pile, cradle, child-bed
 notes: Carved wooden rocking horse viewed from above; curved rockers extend east and west beneath the body
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.10 1.60,0.80 z 0-0.8
+selection rect 0.20,0.10 1.60,0.80
 
 # Curved rocker rails (visible as arcs extending beyond body on east/west sides)
 bezier 0.14,0.28 0.08,0.50 0.08,0.50 0.14,0.72 stroke #3a1f00 width 4

@@ -12,7 +12,7 @@ clusters_with: bread-heel, cheese-wheel, butter-churn, scale, cutting-board
 notes: Round crusty loaf; scatter on counters and tables
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.5 0.34,0.28 z 0-0.2
+selection ellipse 0.5,0.5 0.34,0.28
 
 # Loaf base shape (oval, golden crust)
 ellipse 0.5,0.5 0.34,0.28 fill #c8893a 0.95

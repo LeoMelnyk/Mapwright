@@ -12,7 +12,7 @@ clusters_with: blocks-pile, wooden-toy, toy-chest
 notes: Small cluster of scattered tin soldiers with painted red uniforms and tiny muskets
 ---
 # === HITBOX ===
-hitbox rect 0.15,0.15 0.70,0.70 z 0-0.08
+selection rect 0.15,0.15 0.70,0.70
 
 # Soldier 1 — upright-ish, north-west
 # Body

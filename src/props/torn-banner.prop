@@ -1,5 +1,5 @@
 name: Torn Banner
-category: Decor
+category: Decorative
 footprint: 1x2
 facing: yes
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: tapestry, banner, weapon-rack-crude, skull-small, blood-smear
 notes: Battle-torn banner hanging sideways — ripped fabric with emblem faintly visible (top-down: rod + damaged fabric edge)
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.04 1.80,0.30 z 0-3
+selection rect 0.10,0.04 1.80,0.30
 
 # Dark wooden pole (mounting rod, damaged)
 rect 0.06,0.04 1.88,0.06 texfill polyhaven/dark_wood 0.85

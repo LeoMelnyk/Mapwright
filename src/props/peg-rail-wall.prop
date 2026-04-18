@@ -12,7 +12,7 @@ clusters_with: apron-hung, folded-cloak, helm-on-peg, shelf, leather-apron
 notes: Wall-mounted peg rail for hanging clothes or tools
 ---
 # === HITBOX ===
-hitbox rect 0.06,0.06 1.88,0.20 z 0-1.5
+selection rect 0.06,0.06 1.88,0.20
 
 # Rail board (horizontal plank)
 rect 0.06,0.08 1.88,0.10 texfill polyhaven/dark_wood 0.9

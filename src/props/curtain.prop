@@ -1,5 +1,5 @@
 name: Curtain
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: yes
 shadow: no
@@ -12,7 +12,7 @@ clusters_with: window, tapestry, banner, wall-sconce
 notes: Heavy window curtains — top-down shows rod + pleated fabric edge
 ---
 # === HITBOX ===
-hitbox rect 0.06,0.04 0.88,0.22 z 0-3
+selection rect 0.06,0.04 0.88,0.22
 
 # Curtain rod (brass pole across top)
 rect 0.06,0.04 0.88,0.06 fill #daa520 0.9

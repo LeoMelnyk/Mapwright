@@ -12,7 +12,7 @@ clusters_with: coin-pile, coin-scatter, scale, ledger-stack, desk
 notes: Neat vertical stack of coins; counted and organized (different from coin-pile)
 ---
 # === HITBOX ===
-hitbox rect 0.30,0.32 0.40,0.42 z 0-0.3
+selection rect 0.30,0.32 0.40,0.42
 
 # Shadow base beneath stack
 ellipse 0.5,0.74 0.20,0.06 fill #1a1008 0.4

@@ -12,7 +12,7 @@ clusters_with: altar, altar-sacrificial, ash-pile, bone-pile, holy-symbol
 notes: Small cracked pottery offering bowl holding dried flowers, wilted petals, and old fruit — a long-forgotten votive
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.28 z 0-0.2
+selection circle 0.5,0.5 0.28
 
 # Cracked pottery bowl (top-down: dark ring)
 circle 0.5,0.5 0.30 texfill polyhaven/brown_mud 0.8

@@ -10,6 +10,7 @@ room_types: infernal-forge, infernal-court
 typical_count: single
 clusters_with: anvil, forge-great, hammer, glowing-ingot, chain-heavy
 notes: Infernal variant of a smith's anvil — glowing red cracks in black iron, skull motif on side, horn spikes along top. Pair with forge-great and hellish forge props.
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":3,"color":"#cc2200","intensity":0.35}]
 ---
 # === HITBOX ===
 hitbox rect 0.32,0.30 0.36,0.40 z 0-1.5

@@ -12,7 +12,7 @@ clusters_with: flour-sack, flour-sack-stack, bread-loaf, oven, mouse-trap
 notes: Scatter of pale flour dust on floor from spilled sack
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.36 z 0-0.02
+selection circle 0.5,0.5 0.36
 
 # Diffuse dust cloud base (pale)
 circle 0.5,0.5 0.38 fill #f0e4d0 0.35

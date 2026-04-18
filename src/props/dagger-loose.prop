@@ -12,7 +12,7 @@ clusters_with: coin-scatter, playing-cards, bloodstain, corpse, whetstone
 notes: Single dagger lying on a surface; stabbing weapon or thrown blade
 ---
 # === HITBOX ===
-hitbox rect 0.38,0.14 0.24,0.72 z 0-0.1
+selection rect 0.38,0.14 0.24,0.72
 
 # Faint shadow
 rect 0.40,0.18 0.22,0.68 fill #1a1008 0.2

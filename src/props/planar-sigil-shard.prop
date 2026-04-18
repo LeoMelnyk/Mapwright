@@ -9,13 +9,7 @@ room_types: astral-anchor, astral-sea, planar-nexus, githyanki-citadel
 typical_count: few
 clusters_with: astral-anchor-stone, silver-cord-stub, star-dust-pile
 notes: Fragment of a shattered arcane seal — a broken engraved disc, split in half. A residual mana trail spirals from its fractured edge.
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 6
-    color: "#a080ff"
-    intensity: 0.5
+lights: [{"preset":"astral","x":0.5,"y":0.5,"radius":6,"intensity":0.5,"color":"#a080ff"}]
 ---
 # Faint violet residue glow
 circle 0.5,0.5 0.42 gradient-radial #a080ff #1a0828 0.2

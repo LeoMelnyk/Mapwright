@@ -1,0 +1,82 @@
+name: Prayer Beads
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.03
+placement: floor
+room_types: house-medium-family, shrine, chapel, bedroom, bedchamber, noble-bedchamber
+typical_count: single
+clusters_with: prayer-book, prayer-card, candle, altar, bedside-table
+notes: Rosary / prayer beads laid on a surface — loop of small beads with a central pendant. Ground decal.
+---
+# Laid flat on surface — no shadow, no light-block
+
+# === Faint cloth / dust patch under beads ===
+ellipse 0.50,0.50 0.34,0.34 fill #6a5a3a 0.08
+
+# === Main bead loop — string as oval/curved path, beads along it ===
+# Bead positions around a rough oval at center
+# North arc of loop
+circle 0.50,0.24 0.028 fill #6a3818 0.95
+circle 0.50,0.24 0.028 stroke #2a1408 width 1
+circle 0.58,0.25 0.026 fill #8a4820 0.9
+circle 0.58,0.25 0.026 stroke #2a1408 width 1
+circle 0.66,0.28 0.026 fill #6a3818 0.95
+circle 0.66,0.28 0.026 stroke #2a1408 width 1
+circle 0.72,0.34 0.026 fill #8a4820 0.9
+circle 0.72,0.34 0.026 stroke #2a1408 width 1
+# East arc
+circle 0.76,0.42 0.026 fill #6a3818 0.95
+circle 0.76,0.42 0.026 stroke #2a1408 width 1
+circle 0.76,0.50 0.026 fill #8a4820 0.9
+circle 0.76,0.50 0.026 stroke #2a1408 width 1
+circle 0.74,0.58 0.026 fill #6a3818 0.95
+circle 0.74,0.58 0.026 stroke #2a1408 width 1
+# South arc
+circle 0.70,0.65 0.026 fill #8a4820 0.9
+circle 0.70,0.65 0.026 stroke #2a1408 width 1
+circle 0.62,0.70 0.026 fill #6a3818 0.95
+circle 0.62,0.70 0.026 stroke #2a1408 width 1
+circle 0.54,0.72 0.026 fill #8a4820 0.9
+circle 0.54,0.72 0.026 stroke #2a1408 width 1
+circle 0.46,0.72 0.026 fill #6a3818 0.95
+circle 0.46,0.72 0.026 stroke #2a1408 width 1
+# West arc
+circle 0.38,0.70 0.026 fill #8a4820 0.9
+circle 0.38,0.70 0.026 stroke #2a1408 width 1
+circle 0.32,0.66 0.026 fill #6a3818 0.95
+circle 0.32,0.66 0.026 stroke #2a1408 width 1
+circle 0.28,0.58 0.026 fill #8a4820 0.9
+circle 0.28,0.58 0.026 stroke #2a1408 width 1
+circle 0.26,0.50 0.026 fill #6a3818 0.95
+circle 0.26,0.50 0.026 stroke #2a1408 width 1
+circle 0.27,0.42 0.026 fill #8a4820 0.9
+circle 0.27,0.42 0.026 stroke #2a1408 width 1
+circle 0.30,0.34 0.026 fill #6a3818 0.95
+circle 0.30,0.34 0.026 stroke #2a1408 width 1
+circle 0.36,0.28 0.026 fill #8a4820 0.9
+circle 0.36,0.28 0.026 stroke #2a1408 width 1
+circle 0.42,0.25 0.026 fill #6a3818 0.95
+circle 0.42,0.25 0.026 stroke #2a1408 width 1
+
+# === String connecting beads (thin line tracing the oval) ===
+ellipse 0.51,0.48 0.25,0.24 stroke #5c3a1e 0.6 width 1
+
+# === Pendant cord hanging south ===
+line 0.50,0.72 0.50,0.82 stroke #5c3a1e width 1
+# Pendant bead (larger, ornate)
+circle 0.50,0.85 0.040 fill #daa520 0.95
+circle 0.50,0.85 0.040 stroke #5a3a00 width 1
+# Gold pendant cross
+line 0.50,0.80 0.50,0.90 stroke #8b6914 width 2
+line 0.46,0.85 0.54,0.85 stroke #8b6914 width 2
+# Pendant highlight
+circle 0.48,0.83 0.010 fill #ffdd66 0.7
+
+# === Small beads highlights (catch light) ===
+circle 0.49,0.23 0.008 fill #c8a878 0.7
+circle 0.75,0.49 0.008 fill #c8a878 0.7
+circle 0.45,0.71 0.008 fill #c8a878 0.7
+circle 0.27,0.49 0.008 fill #c8a878 0.7

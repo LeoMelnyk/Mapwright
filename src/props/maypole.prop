@@ -8,14 +8,14 @@ height: 3.0
 placement: center
 room_types: fairground-seasonal, festival-grounds, village-green
 typical_count: single
-clusters_with: bunting-line, bonfire-large, stage-performance, ribbon-scatter, bunting-line
+clusters_with: bunting-line, bonfire-large, stage-performance, ribbon-scatter
 notes: Tall central maypole with colorful ribbons streaming down from the top — top-down shows pole cross-section and radiating ribbons
 ---
 # footprint 1x1: x range 0-1, y range 0-1
 # Top-down: pole is a circle center, ribbons radiate outward to ground edge
 
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.08 z 0-3.0
+selection circle 0.5,0.5 0.08
 
 # === Ribbons radiating outward (they splay across footprint to ground) ===
 # Ribbon 1 — red (N)

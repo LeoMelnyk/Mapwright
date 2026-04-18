@@ -1,0 +1,62 @@
+name: Potion Bottle
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: shop-apothecary, apothecary, alchemy-lab, cabin-witch, wizard-sanctum, study, shrine
+typical_count: many
+clusters_with: jar, bottle, shelf-bottles, ingredient-rack, mortar-pestle
+notes: Small glass potion bottle with colored liquid inside and a tiny cork stopper. Viewed top-down as a round bottle with visible colored fluid and small cork dot at center.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.18
+
+# Drop shadow
+ellipse 0.50,0.54 0.22,0.05 fill #1a0a00 0.3
+
+# Bottle base ring (glass bottom visible through liquid)
+circle 0.50,0.50 0.22 fill #2a1a30 0.5
+circle 0.50,0.50 0.22 stroke #0a0510
+
+# Main glass body — round with colored potion (violet magical)
+circle 0.50,0.50 0.20 fill #6a28a0 0.75
+circle 0.50,0.50 0.20 stroke #2a1050
+
+# Liquid surface ring (meniscus where potion meets air)
+circle 0.50,0.50 0.17 stroke #8a48c0 0.6 width 1
+
+# Bubble highlights inside the potion (alchemical shimmer)
+circle 0.44,0.44 0.020 fill #c080f0 0.7
+circle 0.56,0.48 0.015 fill #c080f0 0.7
+circle 0.48,0.56 0.012 fill #a060e0 0.6
+
+# Glass highlight arc (catches light on upper-left)
+arc 0.50,0.50 0.18 200 260 stroke #d4a8f8 0.55 width 2
+
+# Neck base ring (where body narrows)
+circle 0.50,0.50 0.10 stroke #2a1050 0.7 width 1
+
+# Neck of bottle (smaller circle inside)
+circle 0.50,0.50 0.08 fill #4a2070 0.9
+circle 0.50,0.50 0.08 stroke #0a0510
+
+# Cork stopper (top-down — tiny wood circle at very center)
+circle 0.50,0.50 0.05 texfill polyhaven/dark_wood 0.85
+circle 0.50,0.50 0.05 stroke #1a0f00
+# Cork groove
+circle 0.50,0.50 0.035 stroke #3a1f00 0.6 width 1
+
+# Tiny wax seal drip around cork (alchemist's signature)
+arc 0.50,0.50 0.055 30 90 stroke #aa2020 0.8 width 2
+circle 0.54,0.46 0.012 fill #aa2020 0.85
+
+# Label strip (paper tag around the bottle's shoulder)
+arc 0.50,0.50 0.17 30 80 stroke #e8dcc8 0.85 width 4
+# Tiny label text hint
+line 0.62,0.42 0.66,0.40 stroke #1a0a00 0.7 width 1
+
+# Magical glow (very faint — hints at enchantment)
+circle 0.50,0.50 0.26 fill #c080f0 0.08

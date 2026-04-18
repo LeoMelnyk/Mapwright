@@ -1,0 +1,78 @@
+name: Bone Specimen
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: shop-apothecary, apothecary, alchemy-lab, study, wizard-sanctum, crypt, curiosity-shop
+typical_count: few
+clusters_with: jar, dried-lizard, shelf-bottles, bone-pile, potion-bottle
+notes: A preserved bone specimen displayed inside a glass jar on a wooden base — small skull or femur fragment visible. Viewed top-down as a round jar containing a stark pale bone shape.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.28
+
+# Drop shadow
+ellipse 0.50,0.56 0.28,0.06 fill #1a0a00 0.3
+
+# Wooden base disc
+circle 0.50,0.50 0.32 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.50 0.32 stroke #2a1400
+
+# Base rim
+circle 0.50,0.50 0.28 stroke #5c3a1e 0.7 width 1
+
+# Brass plaque on base (specimen label)
+rect 0.36,0.76 0.28,0.06 fill #8b6914 0.9
+rect 0.36,0.76 0.28,0.06 stroke #5a3a00
+line 0.40,0.79 0.60,0.79 stroke #1a0f00 0.7 width 1
+
+# Glass jar/dome (slightly transparent cylinder)
+circle 0.50,0.50 0.26 fill #e8f0f8 0.25
+circle 0.50,0.50 0.26 stroke #8899aa 0.7 width 1
+# Inner glass edge
+circle 0.50,0.50 0.24 stroke #aabbcc 0.5 width 1
+
+# Glass highlight arc
+arc 0.50,0.50 0.25 200 260 stroke #ffffff 0.55 width 2
+
+# === Bone specimen inside (small skull viewed from above) ===
+# Cranium (rounded dome)
+ellipse 0.50,0.46 0.14,0.12 fill #e8dcc8 0.95
+ellipse 0.50,0.46 0.14,0.12 stroke #8b7355
+
+# Cranium ridge / sagittal suture
+line 0.50,0.36 0.50,0.54 stroke #8b7355 0.7 width 1
+# Lateral sutures (squiggly)
+bezier 0.38,0.44 0.44,0.42 0.46,0.46 0.50,0.44 stroke #8b7355 0.5 width 1
+bezier 0.50,0.44 0.54,0.46 0.56,0.42 0.62,0.44 stroke #8b7355 0.5 width 1
+
+# Eye sockets (two dark ovals on the front/south side)
+ellipse 0.44,0.52 0.03,0.04 fill #1a1208 0.9
+ellipse 0.44,0.52 0.03,0.04 stroke #0a0804
+ellipse 0.56,0.52 0.03,0.04 fill #1a1208 0.9
+ellipse 0.56,0.52 0.03,0.04 stroke #0a0804
+
+# Nasal aperture (small triangular dark hole between eyes)
+poly 0.48,0.56 0.52,0.56 0.50,0.60 fill #1a1208 0.9
+poly 0.48,0.56 0.52,0.56 0.50,0.60 stroke #0a0804
+
+# Jaw / mandible hint (south edge of skull)
+arc 0.50,0.58 0.08 0 180 fill #e8dcc8 0.9
+arc 0.50,0.58 0.08 0 180 stroke #8b7355 width 1
+
+# Tiny teeth marks on jaw
+line 0.44,0.62 0.44,0.64 stroke #8b7355 0.7 width 1
+line 0.47,0.64 0.47,0.65 stroke #8b7355 0.7 width 1
+line 0.50,0.64 0.50,0.66 stroke #8b7355 0.7 width 1
+line 0.53,0.64 0.53,0.65 stroke #8b7355 0.7 width 1
+line 0.56,0.62 0.56,0.64 stroke #8b7355 0.7 width 1
+
+# Dust of age on the bone (tiny stains)
+circle 0.40,0.44 0.008 fill #8b7355 0.6
+circle 0.58,0.48 0.010 fill #8b7355 0.55
+
+# Glass dome top highlight (tiny bright spot at apex)
+circle 0.44,0.42 0.018 fill #ffffff 0.7

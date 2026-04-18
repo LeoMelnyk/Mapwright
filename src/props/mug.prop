@@ -1,0 +1,57 @@
+name: Mug
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.35
+placement: floor
+room_types: monastery-refectory, mess-hall, tavern-common, inn-common-room, peasant-hovel, farmhouse-common, guard-room, house-small
+typical_count: few
+clusters_with: bowl, plate-stack, pewter-plate, table, bench, bread-loaf
+notes: Simple wooden or clay drinking mug with handle. Top-down view — circular rim with handle loop to the east side.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.18
+
+# === Mug body (cylindrical — top-down circle, clay/wood) ===
+circle 0.46,0.50 0.16 texfill polyhaven/dark_wood 0.88
+circle 0.46,0.50 0.16 fill #6b4e2e 0.4
+circle 0.46,0.50 0.16 stroke #2a1400
+
+# === Rim band (slightly raised lip) ===
+circle 0.46,0.50 0.15 stroke #4a2800 width 1
+
+# === Dark interior (opening) ===
+circle 0.46,0.50 0.12 fill #1a0f00 0.9
+circle 0.46,0.50 0.12 stroke #080400
+
+# === Liquid inside (ale/cider — amber) ===
+circle 0.46,0.50 0.10 fill #6a3810 0.85
+circle 0.46,0.50 0.10 stroke #3a1808
+
+# === Foam head on top ===
+arc 0.46,0.50 0.09 180 360 stroke #e8dcc0 0.7 width 2
+circle 0.40,0.46 0.012 fill #f0e4d0 0.85
+circle 0.50,0.44 0.010 fill #f0e4d0 0.8
+circle 0.44,0.52 0.010 fill #f0e4d0 0.8
+
+# === Handle (C-shape extending east) ===
+arc 0.66,0.50 0.10 270 90 stroke #6b4e2e width 5
+arc 0.66,0.50 0.10 270 90 stroke #2a1400 width 1
+# Handle inner highlight
+arc 0.66,0.50 0.07 290 70 stroke #8b6914 0.55 width 1
+
+# === Handle attachment points ===
+circle 0.60,0.42 0.018 fill #4a2800 0.85
+circle 0.60,0.58 0.018 fill #4a2800 0.85
+
+# === Wood grain accent on mug body ===
+arc 0.46,0.50 0.13 40 140 stroke #5c3a1e 0.45 width 1
+arc 0.46,0.50 0.13 220 320 stroke #5c3a1e 0.4 width 1
+
+# === NW highlight glint on rim ===
+arc 0.46,0.50 0.15 215 255 stroke #a88858 0.6 width 1
+
+# === Wear ring / scratch on side ===
+line 0.34,0.48 0.38,0.50 stroke #2a1400 0.5

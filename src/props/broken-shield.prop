@@ -12,7 +12,7 @@ clusters_with: corpse, broken-weapon, torn-banner, bone-pile, rubble-pile
 notes: Cracked and split shield; battlefield or monster-lair relic
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.14 0.72,0.72 z 0-0.1
+selection rect 0.14,0.14 0.72,0.72
 
 # Shield body (kite or heater shape, cracked)
 poly 0.26,0.22 0.74,0.22 0.80,0.50 0.50,0.78 0.20,0.50 fill #3a4a58 0.85

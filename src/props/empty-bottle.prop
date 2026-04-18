@@ -12,7 +12,7 @@ clusters_with: bottle, wine-bottle, rag-pile, empty-bottle, playing-cards
 notes: Discarded bottle lying on side; toppled or scattered clutter
 ---
 # === HITBOX ===
-hitbox rect 0.14,0.40 0.72,0.20 z 0-0.3
+selection rect 0.14,0.40 0.72,0.20
 
 # Bottle lying on side (oriented east-west, shadow beneath)
 ellipse 0.50,0.52 0.38,0.10 fill #1a1008 0.25

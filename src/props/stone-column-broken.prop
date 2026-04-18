@@ -1,0 +1,103 @@
+name: Broken Stone Column
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1
+placement: corner
+room_types: ancient-ruin-overgrown, corrupted-temple, ruin, crypt, ancient-tomb
+typical_count: few
+clusters_with: rubble, rubble-pile, statue-toppled, mosaic-fragment, broken-statue
+notes: Broken stub of a fallen stone column. Jagged top where it snapped off, rubble chunks scattered around the base.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-1
+
+# === Rubble/debris scatter at base (surrounding the broken column) ===
+# NW chunk
+poly 0.10,0.22 0.22,0.18 0.26,0.28 0.18,0.34 0.10,0.30 fill #6a6058 0.85
+poly 0.10,0.22 0.22,0.18 0.26,0.28 0.18,0.34 0.10,0.30 texfill polyhaven/stone_wall 0.5
+poly 0.10,0.22 0.22,0.18 0.26,0.28 0.18,0.34 0.10,0.30 stroke #2a2420 width 1
+
+# NE chunk
+poly 0.74,0.18 0.86,0.22 0.90,0.30 0.82,0.36 0.74,0.28 fill #6a6058 0.85
+poly 0.74,0.18 0.86,0.22 0.90,0.30 0.82,0.36 0.74,0.28 texfill polyhaven/rock_boulder_cracked 0.5
+poly 0.74,0.18 0.86,0.22 0.90,0.30 0.82,0.36 0.74,0.28 stroke #2a2420 width 1
+
+# SW chunk
+poly 0.10,0.70 0.20,0.66 0.26,0.74 0.22,0.84 0.12,0.82 fill #6a6058 0.85
+poly 0.10,0.70 0.20,0.66 0.26,0.74 0.22,0.84 0.12,0.82 texfill polyhaven/rock_boulder_cracked 0.5
+poly 0.10,0.70 0.20,0.66 0.26,0.74 0.22,0.84 0.12,0.82 stroke #2a2420 width 1
+
+# SE chunk (large piece)
+poly 0.72,0.72 0.88,0.68 0.90,0.82 0.78,0.88 0.70,0.82 fill #6a6058 0.85
+poly 0.72,0.72 0.88,0.68 0.90,0.82 0.78,0.88 0.70,0.82 texfill polyhaven/stone_wall 0.5
+poly 0.72,0.72 0.88,0.68 0.90,0.82 0.78,0.88 0.70,0.82 stroke #2a2420 width 1
+
+# Small pebbles
+circle 0.36,0.22 0.025 fill #888078 0.85
+circle 0.36,0.22 0.025 stroke #2a2420
+circle 0.66,0.84 0.025 fill #888078 0.85
+circle 0.66,0.84 0.025 stroke #2a2420
+circle 0.26,0.52 0.02 fill #888078 0.8
+circle 0.78,0.48 0.02 fill #888078 0.8
+
+# Dust halo on ground
+circle 0.5,0.5 0.40 fill #aaa088 0.12
+
+# === Broken column base (square pedestal, intact) ===
+rect 0.28,0.28 0.44,0.44 texfill polyhaven/granite_tile 0.85
+rect 0.28,0.28 0.44,0.44 fill #7a7068 0.4
+rect 0.28,0.28 0.44,0.44 stroke #333333 width 2
+
+# Base bevel
+line 0.28,0.28 0.34,0.34 stroke #aaaaaa 0.6 width 1
+line 0.72,0.28 0.66,0.34 stroke #aaaaaa 0.6 width 1
+line 0.28,0.72 0.34,0.66 stroke #444444 0.7 width 1
+line 0.72,0.72 0.66,0.66 stroke #444444 0.7 width 1
+
+# === Broken column stub (jagged cylinder on top of base) ===
+# Main shaft (circular, short)
+circle 0.5,0.5 0.22 texfill polyhaven/stone_wall 0.9
+circle 0.5,0.5 0.22 fill #8a8078 0.35
+circle 0.5,0.5 0.22 stroke #444444 width 2
+
+# Column fluting (vertical ridges suggesting the original column)
+arc 0.5,0.5 0.22 60 80 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 100 120 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 140 160 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 200 220 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 240 260 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 280 300 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 320 340 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 0 20 stroke #666666 0.7 width 1
+arc 0.5,0.5 0.22 40 60 stroke #666666 0.7 width 1
+
+# === Jagged broken top (irregular polygon showing the break) ===
+poly 0.32,0.44 0.40,0.40 0.46,0.42 0.52,0.38 0.58,0.40 0.64,0.44 0.68,0.52 0.64,0.58 0.58,0.62 0.50,0.58 0.42,0.60 0.36,0.56 0.32,0.50 fill #888078 0.9
+poly 0.32,0.44 0.40,0.40 0.46,0.42 0.52,0.38 0.58,0.40 0.64,0.44 0.68,0.52 0.64,0.58 0.58,0.62 0.50,0.58 0.42,0.60 0.36,0.56 0.32,0.50 texfill polyhaven/rock_boulder_cracked 0.6
+poly 0.32,0.44 0.40,0.40 0.46,0.42 0.52,0.38 0.58,0.40 0.64,0.44 0.68,0.52 0.64,0.58 0.58,0.62 0.50,0.58 0.42,0.60 0.36,0.56 0.32,0.50 stroke #2a2420 width 2
+
+# Break texture (cracks radiating)
+line 0.40,0.40 0.50,0.50 stroke #2a2420 0.8 width 1
+line 0.58,0.40 0.52,0.50 stroke #2a2420 0.7 width 1
+line 0.64,0.58 0.54,0.52 stroke #2a2420 0.7 width 1
+line 0.36,0.56 0.46,0.50 stroke #2a2420 0.6 width 1
+
+# Inner darker break (showing depth of shatter)
+poly 0.42,0.48 0.52,0.46 0.56,0.52 0.48,0.54 fill #2a2420 0.5
+
+# === Moss overgrowth on the stub ===
+ellipse 0.36,0.52 0.06,0.04 fill #3a5028 0.7
+ellipse 0.62,0.48 0.06,0.04 fill #3a5028 0.65
+ellipse 0.5,0.62 0.07,0.03 fill #3a5028 0.6
+
+# Climbing vine (small)
+bezier 0.30,0.72 0.36,0.60 0.40,0.50 0.44,0.48 stroke #3a6028 width 2
+circle 0.36,0.58 0.02 fill #3a8028 0.85
+circle 0.42,0.52 0.02 fill #3a8028 0.85
+
+# Age cracks on the intact portion
+line 0.32,0.30 0.40,0.38 stroke #333333 0.5 width 1
+line 0.68,0.30 0.60,0.38 stroke #333333 0.5 width 1

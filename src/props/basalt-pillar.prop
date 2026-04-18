@@ -10,13 +10,7 @@ room_types: elemental-fire-node, elemental-node, volcano-caldera, fire-plane
 typical_count: few
 clusters_with: ember-pit, flame-pillar, ember-drift, fire-node-core
 notes: Hexagonal basalt column seen from above — dark volcanic rock with glowing magma cracks radiating from the center
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 6
-    color: "#ff4400"
-    intensity: 0.5
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":6,"intensity":0.5,"color":"#ff4400"}]
 ---
 # Hitbox — hexagonal column blocks light
 hitbox poly 0.22,0.32 0.22,0.68 0.50,0.88 0.78,0.68 0.78,0.32 0.50,0.12 z 0-2.2

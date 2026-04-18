@@ -1,0 +1,67 @@
+name: Knitting Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: house-medium-family, cottage, cabin-witch, lighthouse-keepers-room, house-small, inn
+typical_count: single
+clusters_with: chair, rocking-chair, basket, stool, knit-blanket
+notes: Ball of yarn with knitting needles half-buried, a partial knitted patch starting to form. Left on a chair, bench, or floor beside a rocking chair.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.3
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: round yarn ball with crossed needles and a small knit patch trailing
+
+# === Soft shadow under the ball ===
+ellipse 0.50,0.56 0.28,0.08 fill #000000 0.2
+
+# === Partial knit patch (small swatch of in-progress fabric) ===
+poly 0.14,0.62 0.32,0.56 0.42,0.66 0.38,0.78 0.20,0.82 0.12,0.74 fill #8b4820 0.85
+poly 0.14,0.62 0.32,0.56 0.42,0.66 0.38,0.78 0.20,0.82 0.12,0.74 stroke #3a1808
+
+# Knit patch texture lines
+line 0.16,0.66 0.38,0.62 stroke #3a1808 0.6 width 1
+line 0.16,0.72 0.40,0.70 stroke #3a1808 0.6 width 1
+line 0.18,0.78 0.36,0.76 stroke #3a1808 0.55 width 1
+
+# === Yarn ball (main round mass, rust-red wool) ===
+circle 0.56,0.50 0.26 fill #8a3820 0.95
+circle 0.56,0.50 0.26 stroke #3a1008
+
+# Yarn strand windings (criss-cross wraps)
+bezier 0.34,0.44 0.48,0.32 0.68,0.36 0.80,0.52 stroke #6a2810 0.75 width 2
+bezier 0.36,0.58 0.50,0.70 0.70,0.66 0.80,0.48 stroke #6a2810 0.7 width 2
+bezier 0.44,0.30 0.62,0.48 0.58,0.64 0.44,0.70 stroke #4a1808 0.65 width 2
+bezier 0.72,0.36 0.70,0.54 0.60,0.66 0.44,0.64 stroke #4a1808 0.65 width 2
+
+# Yarn highlight
+arc 0.56,0.50 0.24 220 280 stroke #b04830 0.5 width 2
+
+# === Knitting needles (two crossed wooden sticks) ===
+# Needle 1 — running NW to SE
+line 0.30,0.22 0.78,0.80 stroke #d4c4a8 width 2
+line 0.30,0.22 0.78,0.80 stroke #8b7355 0.5 width 1
+# Needle 1 tip (pointed)
+circle 0.78,0.80 0.025 fill #e8dcc8 0.9
+circle 0.78,0.80 0.025 stroke #8b7355
+# Needle 1 cap (blunt end)
+circle 0.30,0.22 0.032 fill #8b6914 0.95
+circle 0.30,0.22 0.032 stroke #5a3a00
+
+# Needle 2 — running NE to SW
+line 0.82,0.28 0.30,0.82 stroke #d4c4a8 width 2
+line 0.82,0.28 0.30,0.82 stroke #8b7355 0.5 width 1
+# Needle 2 tip
+circle 0.30,0.82 0.025 fill #e8dcc8 0.9
+circle 0.30,0.82 0.025 stroke #8b7355
+# Needle 2 cap
+circle 0.82,0.28 0.032 fill #8b6914 0.95
+circle 0.82,0.28 0.032 stroke #5a3a00
+
+# === Loose yarn tail trailing to patch ===
+bezier 0.42,0.60 0.36,0.62 0.30,0.64 0.28,0.68 stroke #8a3820 0.85 width 2

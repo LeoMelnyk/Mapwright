@@ -12,7 +12,7 @@ clusters_with: stool, stage-small, musical-instrument
 notes: Raised wooden platform for performers; low, plank surface with step
 ---
 # === HITBOX ===
-hitbox rect 0.10,0.10 1.80,2.80 z 0-0.5
+selection rect 0.10,0.10 1.80,2.80
 
 # Stage main platform (raised wooden floor)
 rect 0.10,0.10 1.80,2.40 texfill polyhaven/weathered_planks 0.9

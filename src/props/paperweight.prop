@@ -1,0 +1,58 @@
+name: Paperweight
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: mansion-study, counting-house, courthouse-chamber, ship-captains-cabin, library, guildhall
+typical_count: few
+clusters_with: desk, ledger-stack, document-stack, inkwell, parchment-scrap
+notes: Ornate brass paperweight in the shape of a lion head on a circular base; holds papers flat on a desk
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.16
+
+# Circular brass base (wider platform)
+circle 0.5,0.5 0.20 fill #8b6914 0.88
+circle 0.5,0.5 0.20 stroke #5a3a00 width 2
+# Inner base ring
+circle 0.5,0.5 0.17 stroke #5a3a00 0.6 width 1
+# Base top bevel highlight
+arc 0.5,0.5 0.19 200 340 stroke #daa520 0.7 width 1
+
+# Central lion-head medallion (raised brass casting)
+circle 0.5,0.5 0.13 fill #daa520 0.95
+circle 0.5,0.5 0.13 stroke #5a3a00 width 2
+
+# Lion mane (radial petals around head)
+circle 0.5,0.36 0.04 fill #8b6914 0.85
+circle 0.5,0.36 0.04 stroke #5a3a00
+circle 0.62,0.42 0.04 fill #8b6914 0.85
+circle 0.62,0.42 0.04 stroke #5a3a00
+circle 0.64,0.54 0.04 fill #8b6914 0.85
+circle 0.64,0.54 0.04 stroke #5a3a00
+circle 0.58,0.62 0.04 fill #8b6914 0.85
+circle 0.58,0.62 0.04 stroke #5a3a00
+circle 0.42,0.62 0.04 fill #8b6914 0.85
+circle 0.42,0.62 0.04 stroke #5a3a00
+circle 0.36,0.54 0.04 fill #8b6914 0.85
+circle 0.36,0.54 0.04 stroke #5a3a00
+circle 0.38,0.42 0.04 fill #8b6914 0.85
+circle 0.38,0.42 0.04 stroke #5a3a00
+
+# Lion face inner detail
+circle 0.5,0.5 0.07 fill #daa520 0.95
+circle 0.5,0.5 0.07 stroke #5a3a00
+
+# Lion eyes
+circle 0.465,0.48 0.014 fill #2a1400 0.9
+circle 0.535,0.48 0.014 fill #2a1400 0.9
+
+# Lion snout / nose
+poly 0.48,0.52 0.52,0.52 0.50,0.56 fill #5a3a00 0.9
+poly 0.48,0.52 0.52,0.52 0.50,0.56 stroke #2a1400
+
+# Highlight on brass
+arc 0.5,0.5 0.11 200 250 stroke #ffd700 0.55 width 1

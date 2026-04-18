@@ -12,7 +12,7 @@ clusters_with: leather-apron, peg-rail-wall, shelf-open, cleaver
 notes: Cloth kitchen apron on a peg — distinct from heavier leather-apron (smithy)
 ---
 # === HITBOX ===
-hitbox rect 0.20,0.08 0.60,0.62 z 0-1.2
+selection rect 0.20,0.08 0.60,0.62
 
 # Peg (small dark nub at top)
 circle 0.50,0.08 0.025 fill #2a1400 0.9

@@ -12,7 +12,7 @@ clusters_with: hanging-garlic, hanging-meat, onion-braid
 notes: String of linked sausages hung from hook; cluster with other hanging food
 ---
 # === HITBOX ===
-hitbox rect 0.24,0.10 0.52,0.78 z 0-1.8
+selection rect 0.24,0.10 0.52,0.78
 
 # Hook at top (iron S-hook)
 bezier 0.50,0.08 0.48,0.12 0.52,0.16 0.50,0.20 stroke #444444 width 3

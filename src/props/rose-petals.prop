@@ -12,7 +12,7 @@ clusters_with: perfume-bottle, silk-scarf, low-table, bathtub, fresh-flowers
 notes: Scattered red rose petals; romantic or ritual scatter
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.38 z 0-0.02
+selection circle 0.5,0.5 0.38
 
 # Petal 1 (curved teardrop, deep red)
 poly 0.20,0.30 0.28,0.26 0.32,0.32 0.26,0.38 fill #aa1020 0.9

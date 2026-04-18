@@ -9,13 +9,7 @@ placement: floor
 room_types: infernal-forge, foundry-great, forge, smithy-large
 typical_count: few
 clusters_with: ingot-stack, anvil-devil, anvil, slag-heap, quench-trough
-lights:
-  - type: candle
-    x: 0.5
-    y: 0.5
-    radius: 6
-    color: "#ff6030"
-    intensity: 0.7
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":6,"intensity":0.7,"color":"#ff6030"}]
 notes: Freshly forged metal ingot still bright with forge heat — hot center, cooling edges, wisps of heat shimmer. Drop near anvils and quench troughs.
 ---
 # Heat halo shimmer on floor (drawn first, behind ingot)

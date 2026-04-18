@@ -9,17 +9,11 @@ placement: center
 room_types: boss-chamber, dark-temple, ritual-chamber-dark, summoning-circle
 typical_count: single
 clusters_with: magic-circle, altar-sacrificial, candle-dipped, ritual-knife, bloodstain, brazier
-lights:
-  - type: candle
-    x: 1.0
-    y: 1.0
-    radius: 16
-    color: "#8822cc"
-    intensity: 0.9
+lights: [{"preset":"astral","x":1,"y":1,"radius":16,"intensity":0.9,"color":"#8822cc"}]
 notes: Large circular ritual pool with carved stone rim, dark fluid surface, infernal glow. Place at room center.
 ---
 # Hitbox is the stone rim
-hitbox circle 1.0,1.0 0.88 z 0-0.3
+selection circle 1.0,1.0 0.88
 
 # footprint 2x2: x range 0-2, y range 0-2
 # Top-down: circular pool with rune-carved stone rim, dark glowing liquid

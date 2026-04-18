@@ -10,13 +10,7 @@ room_types: goblin-warren-entrance, orc-war-camp, cave-bandit-camp, cave-goblin-
 typical_count: few
 clusters_with: hide-tarp, bone-pile, totem-post, campfire, torch-wall
 notes: Vertical post topped with burning brazier-cage and adorned with skulls, feathers, and bone trophies. Marks tribal territory.
-lights:
-  - type: torch
-    x: 0.5
-    y: 0.5
-    radius: 14
-    color: "#ff9040"
-    intensity: 1.0
+lights: [{"preset":"bonfire","x":0.5,"y":0.5,"radius":14,"intensity":1,"color":"#ff9040"}]
 ---
 # === HITBOX ===
 hitbox circle 0.5,0.5 0.22 z 0-2.5

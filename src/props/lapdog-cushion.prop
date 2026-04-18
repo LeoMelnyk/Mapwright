@@ -1,5 +1,5 @@
 name: Lapdog Cushion
-category: Decor
+category: Decorative
 footprint: 1x1
 facing: no
 shadow: yes
@@ -12,7 +12,7 @@ clusters_with: armchair, small-table, tea-service, fan, perfume-bottle
 notes: Plush velvet cushion for a lapdog — maybe occupied
 ---
 # === HITBOX ===
-hitbox ellipse 0.5,0.5 0.34,0.28 z 0-0.2
+selection ellipse 0.5,0.5 0.34,0.28
 
 # Main cushion body (oval, rich velvet)
 ellipse 0.5,0.5 0.36,0.28 fill #4a2058 0.92

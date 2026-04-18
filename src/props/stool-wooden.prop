@@ -1,0 +1,45 @@
+name: Wooden Stool
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: yes
+height: 1.4
+placement: floor
+room_types: ship-brig, prison-block, peasant-hovel, cellar
+typical_count: few
+clusters_with: table, workbench, interrogation-chair
+notes: Rough three-legged wooden stool — crude plank seat, visible splinters. Prison/brig version.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-1.4
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: rough plank seat with three leg shadows peeking out
+
+# Three leg shadows (triangular arrangement — one north, two south)
+rect 0.47,0.14 0.06,0.14 fill #000000 0.22
+rect 0.22,0.70 0.06,0.14 fill #000000 0.22
+rect 0.72,0.70 0.06,0.14 fill #000000 0.22
+
+# Seat — rough circular plank
+circle 0.5,0.5 0.28 texfill polyhaven/weathered_planks 0.88
+circle 0.5,0.5 0.28 fill #3a2000 0.2
+circle 0.5,0.5 0.28 stroke #2a1400 width 2
+
+# Plank seams (two rough boards across seat)
+line 0.26,0.42 0.74,0.42 stroke #2a1400 0.6 width 1
+line 0.26,0.58 0.74,0.58 stroke #2a1400 0.6 width 1
+
+# Crude nail heads
+circle 0.30,0.42 0.015 fill #444444 0.85
+circle 0.70,0.42 0.015 fill #444444 0.85
+circle 0.30,0.58 0.015 fill #444444 0.85
+circle 0.70,0.58 0.015 fill #444444 0.85
+
+# Splinter / wear chips
+poly 0.28,0.34 0.34,0.32 0.32,0.38 fill #1a0f00 0.4
+poly 0.72,0.66 0.66,0.68 0.70,0.62 fill #1a0f00 0.4
+
+# Stain
+ellipse 0.52,0.52 0.06,0.04 fill #1a0800 0.35

@@ -12,7 +12,7 @@ clusters_with: bread-heel, tin-cup, wooden-bowl, rag-pile
 notes: Small wooden bowl with thin gruel or scraps — prisoner rations
 ---
 # === HITBOX ===
-hitbox circle 0.5,0.5 0.26 z 0-0.15
+selection circle 0.5,0.5 0.26
 
 # Outer bowl rim (dark wood)
 circle 0.5,0.5 0.26 texfill polyhaven/dark_wood 0.9

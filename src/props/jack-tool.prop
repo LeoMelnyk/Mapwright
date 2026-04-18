@@ -12,7 +12,7 @@ clusters_with: gaffer-bench, color-rod-bundle, annealing-oven
 notes: Glassworker's jack — long-handled tong-like tool with two iron blades forming a narrow V. Lies flat on the bench or floor.
 ---
 # === HITBOX ===
-hitbox rect 0.18,0.46 0.64,0.10 z 0-0.1
+selection rect 0.18,0.46 0.64,0.10
 
 # Faint tool shadow
 ellipse 0.5,0.53 0.32,0.05 fill #1a1008 0.18

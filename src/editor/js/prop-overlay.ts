@@ -8,10 +8,10 @@ import type { Metadata, OverlayProp, PropDefinition } from '../../types.js';
  * API accepts either preset strings or raw numbers.
  */
 export const Z_PRESETS = {
-  floor: 0,       // carpets, rugs, floor markings
-  furniture: 10,  // tables, chairs, beds
-  tall: 20,       // bookshelves, pillars, statues
-  hanging: 30,    // chandeliers, banners, hanging cages
+  floor: 0, // carpets, rugs, floor markings
+  furniture: 10, // tables, chairs, beds
+  tall: 20, // bookshelves, pillars, statues
+  hanging: 30, // chandeliers, banners, hanging cages
 };
 
 /**
@@ -81,16 +81,13 @@ export function effectiveSpan(propDef: PropDefinition, rotation: number): [numbe
   const [fRows, fCols] = propDef.footprint;
   if (isGridAlignedRotation(rotation)) {
     const r = ((rotation % 360) + 360) % 360;
-    return (r === 90 || r === 270) ? [fCols, fRows] : [fRows, fCols];
+    return r === 90 || r === 270 ? [fCols, fRows] : [fRows, fCols];
   }
   // Arbitrary rotation: compute AABB of rotated rectangle
   const rad = (rotation * Math.PI) / 180;
   const cos = Math.abs(Math.cos(rad));
   const sin = Math.abs(Math.sin(rad));
-  return [
-    fRows * cos + fCols * sin,
-    fRows * sin + fCols * cos,
-  ];
+  return [fRows * cos + fCols * sin, fRows * sin + fCols * cos];
 }
 
 /**
@@ -101,7 +98,11 @@ export function effectiveSpan(propDef: PropDefinition, rotation: number): [numbe
  * @param {number} gridSize
  * @returns {{ minX: number, minY: number, maxX: number, maxY: number }}
  */
-export function getOverlayPropAABB(prop: OverlayProp, propDef: PropDefinition, gridSize: number): { minX: number; minY: number; maxX: number; maxY: number } {
+export function getOverlayPropAABB(
+  prop: OverlayProp,
+  propDef: PropDefinition,
+  gridSize: number,
+): { minX: number; minY: number; maxX: number; maxY: number } {
   const scale = prop.scale;
   const [eRows, eCols] = effectiveSpan(propDef, prop.rotation);
   const w = eCols * gridSize * scale;
@@ -139,7 +140,14 @@ export function getOverlayPropAABB(prop: OverlayProp, propDef: PropDefinition, g
  * @param {object} [options] - { rotation, scale, zIndex, flipped }
  * @returns {object} PropOverlayEntry
  */
-export function createOverlayProp(metadata: Metadata, propType: string, row: number, col: number, gridSize: number, options: { rotation?: number; scale?: number; zIndex?: string | number; flipped?: boolean } = {}): OverlayProp {
+export function createOverlayProp(
+  metadata: Metadata,
+  propType: string,
+  row: number,
+  col: number,
+  gridSize: number,
+  options: { rotation?: number; scale?: number; zIndex?: string | number; flipped?: boolean } = {},
+): OverlayProp {
   const { x, y } = gridToWorldFeet(row, col, gridSize);
   return {
     id: nextPropId(metadata),
@@ -151,4 +159,60 @@ export function createOverlayProp(metadata: Metadata, propType: string, row: num
     zIndex: resolveZIndex(options.zIndex ?? 'furniture'),
     flipped: options.flipped ?? false,
   };
+}
+
+/**
+ * Compute the **visible anchor cell** for an overlay prop — i.e. the cell
+ * `light.propRef` points at. For 90°/270°-rotated non-square props the stored
+ * anchor is shifted inward by half the footprint-difference so rotated props
+ * visually land on whole cells; propRef tracks the un-shifted visible cell.
+ */
+export function visibleAnchorOf(
+  overlay: { x: number; y: number; rotation: number; type: string },
+  propDef: PropDefinition | undefined,
+  gridSize: number,
+): { row: number; col: number } {
+  if (!propDef) {
+    return { row: Math.round(overlay.y / gridSize), col: Math.round(overlay.x / gridSize) };
+  }
+  const [fRows, fCols] = propDef.footprint;
+  const r = ((overlay.rotation % 360) + 360) % 360;
+  const isR90 = r === 90 || r === 270;
+  const eRows = isR90 ? fCols : fRows;
+  const eCols = isR90 ? fRows : fCols;
+  return {
+    row: Math.round(overlay.y / gridSize + (fRows - eRows) / 2),
+    col: Math.round(overlay.x / gridSize + (fCols - eCols) / 2),
+  };
+}
+
+/**
+ * Re-attach any lights whose propRef pointed at `oldVisibleAnchor` to the
+ * overlay prop's **new** visible anchor, translating them by `(dx, dy)` world
+ * feet so a moved prop carries its linked lights with it.
+ *
+ * Call after mutating `overlay.x / y / rotation` for props that may have
+ * linked lights (prop-emitted torches, braziers, chandeliers). No-op if the
+ * prop has no linked lights.
+ */
+export function refreshLinkedLights(
+  meta: Metadata,
+  overlay: OverlayProp,
+  propDef: PropDefinition | undefined,
+  oldVisibleAnchor: { row: number; col: number },
+  dx: number,
+  dy: number,
+): void {
+  const lights = meta.lights;
+  if (!lights.length) return;
+  const gs = meta.gridSize || 5;
+  const newAnchor = visibleAnchorOf(overlay, propDef, gs);
+  for (const light of lights) {
+    const ref = light.propRef;
+    if (!ref) continue;
+    if (ref.row !== oldVisibleAnchor.row || ref.col !== oldVisibleAnchor.col) continue;
+    light.x += dx;
+    light.y += dy;
+    light.propRef = { row: newAnchor.row, col: newAnchor.col };
+  }
 }

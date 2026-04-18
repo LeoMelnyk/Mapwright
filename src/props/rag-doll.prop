@@ -12,7 +12,7 @@ clusters_with: stuffed-bear, wooden-toy, blocks-pile, cradle
 notes: Soft cloth doll lying on the floor; patchwork dress, yarn hair, button eyes
 ---
 # === HITBOX ===
-hitbox rect 0.24,0.14 0.52,0.76 z 0-0.1
+selection rect 0.24,0.14 0.52,0.76
 
 # Head — round cloth head at north
 circle 0.50,0.26 0.12 texfill polyhaven/rough_linen 0.85

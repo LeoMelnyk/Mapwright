@@ -12,7 +12,7 @@ clusters_with: book-pile, quill, reading-glasses
 notes: Small ribbon bookmark — scatter on desks, near book piles, or on reading surfaces. Burgundy or navy fabric with gold thread edge and a tasseled end.
 ---
 # === HITBOX === (very small, flat — negligible occluder)
-hitbox rect 0.30,0.25 0.42,0.10 z 0-0.05
+selection rect 0.30,0.25 0.42,0.10
 
 # footprint 1x1: x range 0-1, y range 0-1
 # A thin strip of ribbon with a tassel at the south end.
