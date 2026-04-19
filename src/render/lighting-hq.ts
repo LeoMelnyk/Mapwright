@@ -14,6 +14,7 @@ import {
   getEffectiveLight,
   extractPropShadowZones,
   computePropShadowPolygon,
+  clampSpread,
   DEFAULT_LIGHT_Z,
 } from './lighting.js';
 
@@ -270,7 +271,7 @@ export function renderLightmapHQ(
       const angleRad = ((eff.angle ?? 0) * Math.PI) / 180;
       coneDirX = Math.cos(angleRad);
       coneDirY = Math.sin(angleRad);
-      cosSpread = Math.cos(((eff.spread ?? 45) * Math.PI) / 180);
+      cosSpread = Math.cos((clampSpread(eff.spread) * Math.PI) / 180);
     }
 
     // Light height above floor for 3D normal map direction

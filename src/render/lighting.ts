@@ -40,6 +40,21 @@ const RAY_EPSILON = 0.00001;
 const ANIM_TIME_SCALE = 0.4;
 const GRADIENT_STOPS = 16;
 
+/**
+ * Clamp a directional light's spread (cone half-angle in degrees).
+ *
+ * Values outside [0, 180] produce divergent behaviour between the real-time
+ * canvas `arc()` fill (which wraps to a full circle when the span ≥ 2π) and
+ * the HQ per-pixel dot-product culling (which narrows again once `cos(spread)`
+ * crosses back through 1). Clamping at the render boundary keeps both paths
+ * in agreement regardless of how bad data entered the map.
+ */
+export function clampSpread(spread: number | undefined): number {
+  const s = spread ?? 45;
+  if (!Number.isFinite(s)) return 45;
+  return Math.max(0, Math.min(180, s));
+}
+
 // ─── 2D Visibility Polygon (Shadow Casting) ────────────────────────────────
 
 const EPSILON = RAY_EPSILON;
@@ -630,7 +645,7 @@ function renderDirectionalLight(
   const intensity = light.intensity;
   const falloff: FalloffType = light.falloff;
   const angleRad = ((light.angle ?? 0) * Math.PI) / 180;
-  const spreadRad = ((light.spread ?? 45) * Math.PI) / 180;
+  const spreadRad = (clampSpread(light.spread) * Math.PI) / 180;
   const effRadius = (light.range ?? light.radius) || 30;
 
   const vpW = lctx.canvas.width;

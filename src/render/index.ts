@@ -53,6 +53,7 @@ export {
   extractFillLights,
   getLightingVersion,
   falloffMultiplier,
+  clampSpread,
 } from './lighting.js';
 // Bounds
 export { toCanvas } from './bounds.js';

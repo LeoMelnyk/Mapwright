@@ -1,4 +1,5 @@
 import type { FalloffType, LightPreset, Light, PlaceLightConfig } from '../../../types.js';
+import { clampSpread } from '../../../render/index.js';
 import { state, mutate, requestRender, getLightCatalog, ApiValidationError } from './_shared.js';
 
 /**
@@ -58,7 +59,7 @@ export function placeLight(x: number, y: number, config: PlaceLightConfig = {}):
 
       if (type === 'directional') {
         light.angle = config.angle ?? 0;
-        light.spread = config.spread ?? 45;
+        light.spread = clampSpread(config.spread);
       }
 
       meta.lights.push(light);

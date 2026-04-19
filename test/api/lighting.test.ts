@@ -95,6 +95,16 @@ describe('placeLight', () => {
     expect(light.spread).toBe(30);
   });
 
+  it('clamps directional spread into [0, 180]', () => {
+    placeLight(10, 10, { type: 'directional', spread: -20 });
+    placeLight(20, 20, { type: 'directional', spread: 400 });
+    placeLight(30, 30, { type: 'directional', spread: NaN });
+    const [a, b, c] = state.dungeon.metadata.lights;
+    expect(a.spread).toBe(0);
+    expect(b.spread).toBe(180);
+    expect(c.spread).toBe(45);
+  });
+
   it('pushes to undo stack', () => {
     expect(state.undoStack.length).toBe(0);
     placeLight(50, 75);
