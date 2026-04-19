@@ -13,6 +13,7 @@ import {
   invalidateBlendLayerCache,
   invalidateVisibilityCache,
 } from '../../render/index.js';
+import { invalidateDecorationCache } from './decoration-cache.js';
 
 // ── Sub-module imports ──────────────────────────────────────────────────────
 import { cvState, ANIM_INTERVAL_MS, getMapCache, getCachedBgImage } from './canvas-view-state.js';
@@ -84,6 +85,10 @@ export function snapshotCurrentTheme(): Theme {
 export function applyThemeChange(prev: Theme | null): void {
   invalidateThemeCache();
   const next = getTheme();
+  // Theme color changes feed into cached decoration bitmaps (title, compass,
+  // scale indicator); blow them away so the next frame re-bakes with the new
+  // colors. Cheap — it's just clearing a map + nulling a field.
+  invalidateDecorationCache();
 
   if (prev === null) {
     const cache = getMapCache();

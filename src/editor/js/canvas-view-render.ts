@@ -5,9 +5,7 @@ import {
   renderCells,
   renderLabels,
   drawBorderOnMap,
-  drawScaleIndicatorOnMap,
   findCompassRosePositionOnMap,
-  drawCompassRoseScaled,
   renderLightmap,
   renderCoverageHeatmap,
   extractFillLights,
@@ -21,6 +19,7 @@ import {
   getDirtyRegion,
   consumeDirtyRegion,
 } from '../../render/index.js';
+import { getCachedText, drawCachedText, getCachedCompass, setFont } from './decoration-cache.js';
 import { showToast } from './toast.js';
 import { toCanvas } from './utils.js';
 import { displayGridSize as _dgs } from '../../util/index.js';
@@ -137,7 +136,7 @@ export function render(): void {
         },
         { text: 'SKIP ALL — compositor test', color: '#f84' },
       ];
-      ctx.font = '13px monospace';
+      setFont(ctx, '13px monospace');
       for (let i = 0; i < lines.length; i++) {
         ctx.fillStyle = 'rgba(0,0,0,0.7)';
         ctx.fillRect(4, 4 + i * 17, ctx.measureText(lines[i]!.text).width + 8, 16);
@@ -351,10 +350,13 @@ export function render(): void {
   }
   if (features.compassRose) {
     const pos = findCompassRosePositionOnMap(cells, gridSize, transform);
-    if (pos) drawCompassRoseScaled(ctx, pos.x, pos.y, theme, pos.scale);
+    if (pos) {
+      const entry = getCachedCompass(theme, pos.scale);
+      ctx.drawImage(entry.canvas as CanvasImageSource, pos.x - entry.centerOffsetX, pos.y - entry.centerOffsetY);
+    }
   }
   if (features.scale) {
-    drawScaleIndicatorOnMap(ctx, cells, gridSize, theme, transform, metadata.resolution);
+    drawScaleIndicatorOnMapCached(ctx, cells, gridSize, theme, transform, metadata.resolution);
   }
 
   // Draw dungeon title (and per-level titles on multi-level maps)
@@ -510,7 +512,7 @@ export function render(): void {
     ctx.fillStyle = 'rgba(0, 212, 255, 0.08)';
     ctx.fillRect(sx, sy, size, size);
     if (size > 20) {
-      ctx.font = 'bold 11px monospace';
+      setFont(ctx, 'bold 11px monospace');
       ctx.fillStyle = '#00d4ff';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'top';
@@ -687,7 +689,7 @@ export function render(): void {
     }
 
     ctx.save();
-    ctx.font = 'bold 12px monospace';
+    setFont(ctx, 'bold 12px monospace');
     const pad = 5;
     const lineH = 18;
     // Filter out spacer lines for width calculation but keep them for layout
@@ -920,6 +922,32 @@ function drawEdgeHighlight(ctx: CanvasRenderingContext2D, gridSize: number, tran
   ctx.stroke();
 }
 
+// Cached replacement for `drawScaleIndicatorOnMap` — same output but the
+// text (fixed font + gridSize/resolution-dependent label) is rendered once
+// to an OffscreenCanvas and blitted each frame.
+function drawScaleIndicatorOnMapCached(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: RenderTransform,
+  resolution: number,
+): void {
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+  const s = transform.scale / 10;
+  const centerXf = (numCols * gridSize) / 2;
+  const bottomYf = numRows * gridSize + 10;
+  const p = toCanvas(centerXf, bottomYf, transform);
+
+  const fontSize = Math.max(8, Math.round(12 * s));
+  const font = `bold ${fontSize}px serif`;
+  const color = theme.textColor ?? '#000';
+  const label = `1 square = ${_dgs(gridSize, resolution)} feet`;
+  const entry = getCachedText(label, font, color);
+  drawCachedText(ctx, entry, p.x, p.y, 'center', 'top');
+}
+
 function drawDungeonTitleOnMap(
   ctx: CanvasRenderingContext2D,
   cells: CellGrid,
@@ -936,30 +964,31 @@ function drawDungeonTitleOnMap(
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const hasSubtitles = metadata.levels && metadata.levels.length > 1;
 
-  ctx.save();
-  ctx.textAlign = 'center';
-  ctx.fillStyle = theme.textColor ?? '#000';
+  const textColor = theme.textColor ?? '#000';
 
-  // Main title — bold, above the dungeon. Give extra headroom when subtitles follow.
+  // Main title — bold, above the dungeon. Cached per (text, font, color) so
+  // the font parse + glyph rasterization only runs when one of those changes.
   const titleFontSize = Math.max(10, Math.round((32 * transform.scale) / 10));
-  ctx.font = `bold ${titleFontSize}px Georgia, "Times New Roman", serif`;
-  ctx.textBaseline = 'bottom';
+  const titleFont = `bold ${titleFontSize}px Georgia, "Times New Roman", serif`;
+  const titleEntry = getCachedText(dungeonName, titleFont, textColor);
   const titleWorldY = hasSubtitles ? -gridSize * 1.0 : -gridSize * 0.5;
   const titleP = toCanvas(centerWorldX, titleWorldY, transform);
-  ctx.fillText(dungeonName, titleP.x, titleP.y);
+  // Original used textBaseline = 'bottom' anchored at titleP.y — alphabetic
+  // placement with the glyph descender just above that line looks the same
+  // visually and is what 'bottom' effectively did for this font.
+  drawCachedText(ctx, titleEntry, titleP.x, titleP.y, 'center', 'bottom');
 
   // Level subtitles — italic, above each level's startRow (including level 0)
   if (hasSubtitles) {
     const subtitleFontSize = Math.max(8, Math.round((18 * transform.scale) / 10));
-    ctx.font = `italic ${subtitleFontSize}px Georgia, "Times New Roman", serif`;
+    const subtitleFont = `italic ${subtitleFontSize}px Georgia, "Times New Roman", serif`;
     for (const level of metadata.levels) {
       if (!level.name) continue;
       const p = toCanvas(centerWorldX, level.startRow * gridSize, transform);
-      ctx.fillText(level.name, p.x, p.y - 10);
+      const entry = getCachedText(level.name, subtitleFont, textColor);
+      drawCachedText(ctx, entry, p.x, p.y - 10, 'center', 'bottom');
     }
   }
-
-  ctx.restore();
 }
 
 function drawLevelSeparators(
