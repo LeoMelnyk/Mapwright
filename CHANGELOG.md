@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.12.0
+
+### Lighting
+
+- **Light groups** — tag any light with a group name ("torches", "traps", "magic auras") and toggle the whole group on/off in the new Groups section at the bottom of the Lighting panel. The toggle affects both the live editor preview and PNG exports, so DMs can dim every torch in the dungeon mid-session without re-placing anything. Ungrouped lights are always visible.
+- **Darkness / anti-light** — new checkbox per light. When enabled, the light SUBTRACTS illumination from the area it covers (D&D Darkness spell, cursed zones, shadow auras) instead of brightening it. Works with every existing feature — falloff curves, radius, animation, directional cones — the area just ends up dark instead of bright.
+- **Soft shadows** — new per-light Soft Shadow slider (0–4 ft). Non-zero values cast four jittered sample rays from a disc around the light center and blend the results, so wall corners fade through a realistic penumbra instead of snapping from fully-lit to fully-dark. Reads as a hand-drawn aesthetic on printed maps.
+- **Contact shadows** — global toggle in the Ambient section. Builds a signed-distance field of the wall geometry and multiplies a subtle dark halo within ~1.5 ft of any wall, giving crevices and seams the ink-shaded look that pure ray-cast visibility can't provide.
+- **Bloom** — Bloom slider in the Ambient section adds a soft Gaussian halo around the brightest lightmap regions, so torches and magical auras read as actual light sources instead of colored discs.
+- **Kelvin color-temperature sliders** — new "Temp (K)" sliders in both the Ambient section and each light's color controls. Drag between 1500K (candle) and 10000K (moonlight); the hex color updates automatically. Artists and DMs usually think in warm/cool, not hex.
+- **Live light preview tile** — the Selected Light section now shows a 64×64 radial-gradient thumbnail of the current color, falloff, and darkness state. Updates in place as you drag sliders, so you can preview choices before committing.
+
+### Lighting — Performance & Correctness
+
+- **Fewer per-frame allocations on flicker-heavy maps** — animated lights used to spread `{...light}` into a fresh object every frame (50 lights × 60 fps ≈ 3,000 short-lived allocations/sec). Replaced with a pooled per-light buffer keyed to each source light; same result, none of the GC pressure.
+- **Prop shadows use a spatial hash** — maps with many light-blocking props previously paid O(lights × zones) per-frame even though most pairs couldn't possibly interact. Zones are now bucketed in 30×30 ft cells, and each light only visits the buckets its radius touches.
+- **HQ exports skip distant prop shadows** — the PNG export path mirrored the real-time renderer's prop shadow list without the real-time path's radius culling, paying per-pixel point-in-polygon cost for shadows that couldn't reach. Now it does the same centroid-distance pre-filter, speeding up exports on dense maps.
+- **Directional cone spread is clamped** — spread values over 180° used to diverge between the editor preview (wrapped to full circle) and the PNG export (narrowed back), producing inconsistent output. The cone half-angle is now clamped into [0°, 180°] at both the API boundary and the render entry points, so preview and export always agree.
+
+### New API methods
+
+- `setLightGroup(id, group | null)` — assign a light to a group or clear its group
+- `setLightGroupEnabled(group, enabled)` — toggle every light in a group on/off
+- `listLightGroups()` — summarize the groups present on the map with counts and enabled state
+- `placeLight` now accepts `darkness: true` alongside the existing fields
+
+---
+
 ## v0.11.0
 
 ### Prop Panel
