@@ -9,6 +9,7 @@ import {
   computeVisibility,
   falloffMultiplier,
   clampSpread,
+  kelvinToRgb,
   getEffectiveLight,
   renderLightmap,
   invalidateVisibilityCache,
@@ -273,6 +274,44 @@ describe('falloffMultiplier', () => {
       expect(Number.isFinite(falloffMultiplier(-5, radius, f))).toBe(true);
       expect(Number.isFinite(falloffMultiplier(radius * 2, radius, f))).toBe(true);
     }
+  });
+});
+
+// ─── kelvinToRgb ───────────────────────────────────────────────────────────
+
+describe('kelvinToRgb', () => {
+  function hexToRgb(h: string) {
+    return {
+      r: parseInt(h.slice(1, 3), 16),
+      g: parseInt(h.slice(3, 5), 16),
+      b: parseInt(h.slice(5, 7), 16),
+    };
+  }
+
+  it('returns a valid #rrggbb string across the useful range', () => {
+    for (const k of [1500, 2700, 4000, 5500, 6500, 8000, 10000]) {
+      expect(kelvinToRgb(k)).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
+  it('warm temps are red-dominant, cool temps are blue-dominant', () => {
+    const warm = hexToRgb(kelvinToRgb(1800));
+    const cool = hexToRgb(kelvinToRgb(9000));
+    expect(warm.r).toBeGreaterThan(warm.b);
+    expect(cool.b).toBeGreaterThan(cool.r);
+  });
+
+  it('6500K (daylight) is near-neutral — channels within 20% of each other', () => {
+    const { r, g, b } = hexToRgb(kelvinToRgb(6500));
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    expect(max - min).toBeLessThan(max * 0.25);
+  });
+
+  it('clamps extreme inputs into the usable range', () => {
+    expect(() => kelvinToRgb(-1)).not.toThrow();
+    expect(() => kelvinToRgb(100000)).not.toThrow();
+    expect(kelvinToRgb(-1)).toMatch(/^#[0-9a-f]{6}$/);
   });
 });
 

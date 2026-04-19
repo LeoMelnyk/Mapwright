@@ -3,6 +3,7 @@ import type { FalloffType, Light, LightAnimationConfig, LightPreset } from '../.
 import state, { markDirty, notify, subscribe, invalidateLightmap } from '../state.js';
 import { requestRender } from '../canvas-view.js';
 import { getLightCatalog } from '../light-catalog.js';
+import { kelvinToRgb } from '../../../render/index.js';
 
 let container: HTMLElement | null = null;
 
@@ -92,6 +93,27 @@ function render() {
   });
   ambColorRow.appendChild(ambColorInput);
   ambientSection.appendChild(ambColorRow);
+
+  // Kelvin color-temperature slider — recomputes ambientColor from the chosen
+  // Kelvin. Artists and DMs usually think in "warm / cool", not hex.
+  ambientSection.appendChild(
+    sliderRow(
+      'Temp (K)',
+      2700,
+      1500,
+      10000,
+      100,
+      (v: number) => {
+        const hex = kelvinToRgb(v);
+        metadata.ambientColor = hex;
+        ambColorInput.value = hex;
+        invalidateLightmap('lights');
+        markDirty();
+        requestRender();
+      },
+      (v: number) => `${v}K`,
+    ),
+  );
   container.appendChild(ambientSection);
 
   // ── Selected Light Properties ──────────────────────────────────────────
@@ -507,6 +529,24 @@ function buildLightSliders(
   colorInput.addEventListener('input', () => onFieldChange('color', colorInput.value));
   colorRowEl.appendChild(colorInput);
   frag.appendChild(colorRowEl);
+
+  // Kelvin color-temperature slider — reads+writes the same field as the
+  // color picker above, so flipping between them always stays consistent.
+  frag.appendChild(
+    sliderRow(
+      'Temp (K)',
+      2700,
+      1500,
+      10000,
+      100,
+      (v: number) => {
+        const hex = kelvinToRgb(v);
+        colorInput.value = hex;
+        onFieldChange('color', hex);
+      },
+      (v: number) => `${v}K`,
+    ),
+  );
 
   // Radius / Range slider
   const radiusLabel = type === 'directional' ? 'Range' : 'Radius';

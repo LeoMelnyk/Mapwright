@@ -54,6 +54,7 @@ export {
   getLightingVersion,
   falloffMultiplier,
   clampSpread,
+  kelvinToRgb,
 } from './lighting.js';
 // Bounds
 export { toCanvas } from './bounds.js';

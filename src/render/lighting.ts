@@ -65,6 +65,42 @@ export type { WallSegment };
 // derived/cached values stay here.
 
 /**
+ * Convert a color temperature in Kelvin to an approximate sRGB hex string.
+ *
+ * Uses the Tanner Helland approximation — fast enough for a UI slider and
+ * visually indistinguishable from higher-fidelity blackbody models for the
+ * 1000–12000 K range we care about (candlelight → icy midnight sky). The
+ * result is clamped per channel and returned as `#rrggbb`.
+ *
+ * Common reference points:
+ *   1500 K — candle
+ *   2000 K — dim incandescent / firelight
+ *   3000 K — warm interior lamp
+ *   4000 K — neutral white
+ *   5500 K — daylight
+ *   6500 K — overcast sky
+ *   8000 K — cool shade
+ *  10000 K — deep blue (cave bioluminescence, moonlit water)
+ */
+export function kelvinToRgb(kelvinIn: number): string {
+  const k = Math.max(1000, Math.min(40000, kelvinIn)) / 100;
+  let r: number, g: number, b: number;
+  if (k <= 66) {
+    r = 255;
+    g = 99.4708025861 * Math.log(k) - 161.1195681661;
+  } else {
+    r = 329.698727446 * Math.pow(k - 60, -0.1332047592);
+    g = 288.1221695283 * Math.pow(k - 60, -0.0755148492);
+  }
+  if (k >= 66) b = 255;
+  else if (k <= 19) b = 0;
+  else b = 138.5177312231 * Math.log(k - 10) - 305.0447927307;
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  const hx = (v: number) => clamp(v).toString(16).padStart(2, '0');
+  return `#${hx(r)}${hx(g)}${hx(b)}`;
+}
+
+/**
  * Unpack a normal-map RGB triple (0–255 bytes) into a unit-ish vector with
  * components in [-1, 1]. The caller is responsible for normalization if it
  * matters — most normal maps are already close to unit length.
