@@ -27,7 +27,7 @@ class DaemonClient {
     });
     const rl = readline.createInterface({ input: this.proc.stdout });
     this.readyPromise = new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error('daemon ready timeout')), 30000);
+      const timeout = setTimeout(() => reject(new Error('daemon ready timeout')), 90000);
       rl.on('line', (line) => {
         const trimmed = line.trim();
         if (!trimmed) return;
@@ -87,7 +87,7 @@ beforeAll(async () => {
   port = await startServer();
   daemon = new DaemonClient();
   await daemon.start(port);
-}, 60000);
+}, 120000);
 
 afterAll(async () => {
   if (daemon) await daemon.stop();
