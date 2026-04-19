@@ -327,7 +327,7 @@ export function buildFullMapCache(): void {
     // Structural changes (room placement, wall edits) need full lighting + geometry invalidation
     if (S._pendingStructuralChange) {
       invalidateGeometryCache();
-      invalidateVisibilityCache();
+      invalidateVisibilityCache('walls');
     }
   }
 

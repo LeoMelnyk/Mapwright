@@ -780,30 +780,45 @@ function _getStaticLmCanvas(w: number, h: number) {
 }
 
 /**
- * Clear the visibility polygon cache. Call when walls or props change.
- * All wall-changing tools call invalidateLightmap() → this function,
- * so per-frame hash recomputation is unnecessary.
+ * Scope of a lighting-cache invalidation.
  *
- * @param {boolean} [structuralChange=true] - If true, also clears wall segments
- *   and prop shadow zones (use when walls/props are added/removed/moved).
- *   If false, only clears per-light caches (use when only light position/config changes).
- * @returns {void}
+ *   `'walls'`   — wall segments or diagonal-wall geometry changed. Rebuilds
+ *                 cachedWallSegments + cachedPropShadowZones + every per-light
+ *                 cache + the static lightmap.
+ *   `'props'`   — a light-blocking prop moved/rotated/changed scale. Rebuilds
+ *                 cachedPropShadowZones + prop-shadow cache + baked-light cache
+ *                 + static lightmap. Keeps wall segments.
+ *   `'lights'`  — only a light's position/config changed. Rebuilds per-light
+ *                 caches + static lightmap. Keeps wall segments and prop zones.
  */
-export function invalidateVisibilityCache(structuralChange: boolean | 'props' = true): void {
+export type LightCacheScope = 'walls' | 'props' | 'lights';
+
+/**
+ * Clear lighting-cache entries that depend on a given scope of change. Every
+ * wall-, prop-, or light-mutating tool calls this (directly or via
+ * invalidateLightmap()), so per-frame hash recomputation is unnecessary.
+ *
+ * Legacy `true` / `false` aliases map to `'walls'` and `'lights'`.
+ */
+export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'walls'): void {
+  // Legacy boolean aliases kept for backwards compat with older callers.
+  const resolved: LightCacheScope = scope === true ? 'walls' : scope === false ? 'lights' : scope;
+
   visibilityCache.clear();
   propShadowsCache.clear();
   bakedLightCache.clear();
-  if (structuralChange === true) {
+  if (resolved === 'walls') {
     cachedWallSegments = null;
     cachedPropShadowZones = null;
-  } else if (structuralChange === 'props') {
+  } else if (resolved === 'props') {
     // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
     cachedPropShadowZones = null;
   }
-  _staticLmValid = false; // static lightmap depends on wall segments + light positions
+  // Static lightmap depends on wall segments, prop shadows, AND any non-animated
+  // light's position/intensity, so every scope currently invalidates it.
+  _staticLmValid = false;
   _lightingVersion++;
-  const scope = structuralChange === true ? 'full' : structuralChange === 'props' ? 'props-only' : 'lights-only';
-  log.devTrace(`invalidateVisibilityCache(${scope}) → lightingVersion ${_lightingVersion}`);
+  log.devTrace(`invalidateVisibilityCache('${resolved}') → lightingVersion ${_lightingVersion}`);
 }
 
 /**

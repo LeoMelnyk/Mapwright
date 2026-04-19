@@ -468,12 +468,11 @@ export function markDirty(): void {
 
 /**
  * Invalidate the lighting visibility cache (call when walls change or on undo/redo).
- * @param {boolean|'props'} [structuralChange=true] - Pass false for light-only changes,
- *   'props' to clear prop shadow zones but keep cached wall segments.
- * @returns {void}
+ * Prefer passing one of 'walls' | 'props' | 'lights'; boolean forms remain accepted
+ * for backwards compat and map to 'walls' / 'lights' respectively.
  */
-export function invalidateLightmap(structuralChange: boolean | 'props' = true): void {
-  invalidateVisibilityCache(structuralChange);
+export function invalidateLightmap(scope: 'walls' | 'props' | 'lights' | boolean = 'walls'): void {
+  invalidateVisibilityCache(scope);
 }
 
 /**

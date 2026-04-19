@@ -95,7 +95,7 @@ export function applyThemeChange(prev: Theme | null): void {
     cache.invalidate();
     invalidateFluidCache();
     invalidateBlendLayerCache();
-    invalidateVisibilityCache(false);
+    invalidateVisibilityCache('lights');
     return;
   }
 
@@ -107,7 +107,7 @@ export function applyThemeChange(prev: Theme | null): void {
   // tile cache is keyed on color signature, so it auto-rebuilds on next
   // lookup — we only need to flag the MapCache composite as dirty.
   if (buckets.has('blend')) invalidateBlendLayerCache();
-  if (buckets.has('lava-light')) invalidateVisibilityCache(false);
+  if (buckets.has('lava-light')) invalidateVisibilityCache('lights');
 
   const cache = getMapCache();
 
