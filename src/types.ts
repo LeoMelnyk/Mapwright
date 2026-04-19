@@ -267,14 +267,6 @@ export interface Metadata {
    */
   disabledLightGroups?: string[];
   /**
-   * When true, the renderer builds a jump-flooded signed-distance field
-   * over the wall geometry and multiplies a subtle "contact shadow" halo
-   * onto the lightmap — pixels within ~1.5 ft of a wall or light-blocking
-   * prop dim slightly, giving crevices and seams the hand-drawn look
-   * visibility polygons alone can't provide.
-   */
-  contactShadows?: boolean;
-  /**
    * Bloom intensity in [0, 1]. When > 0, the renderer applies a screen-
    * blended Gaussian-blurred copy of the lightmap on top of the composited
    * scene — bright torches and magical auras bleed into their surroundings.

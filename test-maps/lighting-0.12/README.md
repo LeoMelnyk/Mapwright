@@ -10,7 +10,6 @@ Long stone hall with four pillars down the middle and three light sources (flick
 
 **Try:**
 - Click the center brazier light → Soft Shadow slider from 0 → 2 ft. Pillar shadow edges should fade through a visible penumbra.
-- Toggle **Contact shadows** in the Ambient section. Every wall gets a subtle darker halo on the adjacent floor pixels.
 - Add a **Group** value of `torches` to the two outer lights, leave the brazier ungrouped. Bottom of panel shows a "torches (2)" toggle — flip it off and the hall darkens while the center brazier stays lit.
 
 ## 02 — Stained Glass Chapel
@@ -39,7 +38,7 @@ Crypt with a bright ambient (0.7), four brazier lights in the corners, and a pow
 - Pan + zoom with all 14 lights flickering. The animation path uses the new intensity-only bake cache and the pooled `getEffectiveLight` buffer — should stay smooth.
 - Add walls or prop rotations in real time — the scoped cache invalidation only rebuilds what's needed.
 - Enable **Soft Shadow** 1.5 ft on every torch. Costs 4× ray-casts per invalidation, but caches thereafter — should stay interactive during pan/zoom.
-- Open the devtools console and inspect `window.renderTimings` to see each lighting phase: `lighting:segments`, `lighting:propZones`, `lighting:staticBuild`, `lighting:animated`, `lighting:normalMap`, `lighting:contactShadows`.
+- Open the devtools console and inspect `window.renderTimings` to see each lighting phase: `lighting:segments`, `lighting:propZones`, `lighting:staticBuild`, `lighting:animated`, `lighting:normalMap`.
 
 ---
 

@@ -115,22 +115,6 @@ function render() {
     ),
   );
 
-  // Contact shadows — SDF-based dark halo near every wall.
-  const csRow = el('label', 'lighting-toggle');
-  const csCb = document.createElement('input');
-  csCb.type = 'checkbox';
-  csCb.checked = !!metadata.contactShadows;
-  csCb.addEventListener('change', () => {
-    if (csCb.checked) metadata.contactShadows = true;
-    else delete metadata.contactShadows;
-    invalidateLightmap('walls');
-    markDirty();
-    requestRender();
-  });
-  csRow.appendChild(csCb);
-  csRow.appendChild(document.createTextNode(' Contact shadows'));
-  ambientSection.appendChild(csRow);
-
   // Bloom intensity — Gaussian-blurred additive overlay on bright lightmap areas.
   ambientSection.appendChild(
     sliderRow(

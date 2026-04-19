@@ -29,7 +29,6 @@ import {
   PropShadowIndex,
   type WallSegment,
 } from './lighting-geometry.js';
-import { buildWallSDF, type WallSDF } from './sdf.js';
 import { _t } from './render-state.js';
 import {
   INVERSE_SQUARE_K,
@@ -947,11 +946,6 @@ const bakedLightCache = new Map<string, BakedLight>();
 let cachedWallSegments: WallSegment[] | null = null;
 let cachedPropShadowZones: ReturnType<typeof extractPropShadowZones> | null = null;
 let cachedPropShadowIndex: PropShadowIndex | null = null;
-/** Contact-shadow SDF cache — rebuilt only when walls or props change. */
-let cachedWallSDF: WallSDF | null = null;
-/** Canvas-backed contact-shadow mask for the current SDF (filtered by lightmap size). */
-let contactShadowCanvas: OffscreenCanvas | HTMLCanvasElement | null = null;
-let contactShadowValid = false;
 let _lightingVersion = 0;
 
 /**
@@ -1039,14 +1033,10 @@ export function invalidateVisibilityCache(scope: LightCacheScope | boolean = 'wa
     cachedWallSegments = null;
     cachedPropShadowZones = null;
     cachedPropShadowIndex = null;
-    cachedWallSDF = null;
-    contactShadowValid = false;
   } else if (resolved === 'props') {
     // Only prop shadows changed (e.g. prop picked up / moved) — keep wall segments
     cachedPropShadowZones = null;
     cachedPropShadowIndex = null;
-    cachedWallSDF = null;
-    contactShadowValid = false;
   }
   // Static lightmap depends on wall segments, prop shadows, AND any non-animated
   // light's position/intensity, so every scope currently invalidates it.
@@ -1234,7 +1224,6 @@ export function renderLightmap(
         cells,
         gridSize,
         textureCatalog,
-        contactShadows: metadata?.contactShadows ?? false,
       }),
     );
     _staticLmValid = true;
@@ -1301,7 +1290,6 @@ function _buildStaticLightmap(
     cells: CellGrid;
     gridSize: number;
     textureCatalog: TextureCatalog | null;
-    contactShadows: boolean;
   },
 ): void {
   const slctx = staticCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
@@ -1324,13 +1312,6 @@ function _buildStaticLightmap(
     _t('lighting:normalMap', () =>
       applyNormalMapBump(slctx, allLights, params.cells, params.gridSize, params.lmTransform, params.textureCatalog),
     );
-  }
-
-  // Contact shadows — SDF-based halo near walls. Built once per invalidation.
-  if (params.contactShadows) {
-    _t('lighting:contactShadows', () => {
-      _applyContactShadowPass(slctx, lmW, lmH, params.segments, params.gridSize, params.cells);
-    });
   }
 }
 
@@ -1594,76 +1575,6 @@ function getBumpTmpCtx() {
     bumpTmpCtx = bumpTmpCanvas.getContext('2d', { willReadFrequently: true }) as typeof bumpTmpCtx;
   }
   return bumpTmpCtx;
-}
-
-/**
- * Multiply a subtle dark halo onto the lightmap where pixels sit close to any
- * wall segment. The effect gives crevices and seams the ink-drawn look hard-
- * edge visibility polygons never produce. Built once per invalidation — the
- * static lightmap rebuilds less often than every frame, so the O(N log N)
- * JFA build is amortized.
- */
-const CONTACT_SHADOW_HALO_FT = 1.5;
-const CONTACT_SHADOW_DARKEN = 0.35; // 1.0 = full black at a wall, 0 = off
-function _applyContactShadowPass(
-  slctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  lmW: number,
-  lmH: number,
-  segments: WallSegment[],
-  gridSize: number,
-  cells: CellGrid,
-) {
-  const worldW = (cells[0]?.length ?? 0) * gridSize;
-  const worldH = cells.length * gridSize;
-  if (worldW <= 0 || worldH <= 0) return;
-
-  // Rebuild SDF + canvas-backed halo mask only if the wall-segment cache
-  // was invalidated. SDF scale of 0.5 px/ft = one sample per 2 ft; plenty
-  // for a 1.5 ft halo and keeps memory at a few hundred kilobytes.
-  if (!contactShadowValid) {
-    const sdfScale = 0.5;
-    cachedWallSDF ??= buildWallSDF(segments, worldW, worldH, sdfScale);
-
-    // Rasterize the halo into an RGBA canvas at SDF resolution. Pixels far
-    // from any wall are white (no darkening); pixels within the halo fall
-    // toward black proportionally.
-    const sdf = cachedWallSDF;
-    const haloPx = CONTACT_SHADOW_HALO_FT * sdfScale;
-    if (contactShadowCanvas?.width !== sdf.w || contactShadowCanvas.height !== sdf.h) {
-      if (typeof OffscreenCanvas !== 'undefined') {
-        contactShadowCanvas = new OffscreenCanvas(sdf.w, sdf.h);
-      } else {
-        contactShadowCanvas = Object.assign(document.createElement('canvas'), { width: sdf.w, height: sdf.h });
-      }
-    }
-    const ctx = contactShadowCanvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
-    const image = ctx.createImageData(sdf.w, sdf.h);
-    const data = image.data;
-    for (let i = 0, j = 0; i < sdf.dist.length; i++, j += 4) {
-      const d = sdf.dist[i]!;
-      // Linear fall-off from CONTACT_SHADOW_DARKEN at distance 0 to 0 at
-      // distance haloPx. Squared rolloff would be softer but also harder
-      // to see — linear reads as "deliberate shadow".
-      const t = d >= haloPx ? 0 : 1 - d / haloPx;
-      const bright = 255 * (1 - CONTACT_SHADOW_DARKEN * t);
-      data[j] = bright;
-      data[j + 1] = bright;
-      data[j + 2] = bright;
-      data[j + 3] = 255;
-    }
-    ctx.putImageData(image, 0, 0);
-    contactShadowValid = true;
-  }
-
-  if (contactShadowCanvas) {
-    slctx.save();
-    slctx.globalCompositeOperation = 'multiply';
-    slctx.imageSmoothingEnabled = true;
-    // Upscale the low-res halo to the lightmap resolution — bilinear is
-    // fine since the halo is inherently blurry.
-    slctx.drawImage(contactShadowCanvas, 0, 0, lmW, lmH);
-    slctx.restore();
-  }
 }
 
 function applyNormalMapBump(
