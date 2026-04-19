@@ -557,7 +557,7 @@ export class PropTool extends Tool {
 
     state.selectedProp = overlay.type;
     state.propRotation = overlay.rotation || 0;
-    state.propFlipped = !!overlay.flipped;
+    state.propFlipped = overlay.flipped || false;
     state.propScale = overlay.scale || 1.0;
     state.selectedPropAnchors = [];
     ensurePropTextures(overlay.type);
@@ -1483,12 +1483,8 @@ export class PropTool extends Tool {
     if (!catalog?.props[state.selectedProp]) return;
 
     const propDef = catalog.props[state.selectedProp]!;
-    const placeRotation = state.propRandomRotation
-      ? Math.floor(Math.random() * 24) * 15
-      : state.propRotation;
-    const placeScale = state.propRandomScale
-      ? 0.8 + Math.floor(Math.random() * 45) * 0.05
-      : state.propScale;
+    const placeRotation = state.propRandomRotation ? Math.floor(Math.random() * 24) * 15 : state.propRotation;
+    const placeScale = state.propRandomScale ? 0.8 + Math.floor(Math.random() * 45) * 0.05 : state.propScale;
     const [spanRows, spanCols] = getEffectiveFootprint(propDef, placeRotation);
     const cells = state.dungeon.cells;
 
