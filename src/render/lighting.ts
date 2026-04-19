@@ -27,6 +27,7 @@ import {
   DEFAULT_LIGHT_Z,
   type WallSegment,
 } from './lighting-geometry.js';
+import { _t } from './render-state.js';
 import { log } from '../util/index.js';
 
 // Re-export geometry helpers so existing importers (lighting-hq.ts, render barrel,
@@ -859,11 +860,12 @@ export function renderLightmap(
   const activeLights = lights;
 
   // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
-  cachedWallSegments ??= extractWallSegments(cells, gridSize, propCatalog, metadata);
+  // Only profile when the cache actually rebuilds — ??= skips _t() on warm hits.
+  cachedWallSegments ??= _t('lighting:segments', () => extractWallSegments(cells, gridSize, propCatalog, metadata));
   const segments = cachedWallSegments;
 
   // Prop shadow zones for z-height projection (cached alongside wall segments)
-  cachedPropShadowZones ??= extractPropShadowZones(propCatalog, metadata, gridSize);
+  cachedPropShadowZones ??= _t('lighting:propZones', () => extractPropShadowZones(propCatalog, metadata, gridSize));
   const propShadowZones = cachedPropShadowZones;
 
   // Lightmap resolution: if lightPxPerFoot is set and smaller than the cache
@@ -876,8 +878,8 @@ export function renderLightmap(
   const lmTransform = { scale: lmScale, offsetX: 0, offsetY: 0 };
 
   // Split lights into static (no animation) and animated
-  const staticLights = [];
-  const animatedLights = [];
+  const staticLights: Light[] = [];
+  const animatedLights: Light[] = [];
   for (const light of activeLights) {
     if (light.animation?.type) {
       animatedLights.push(light);
@@ -891,27 +893,31 @@ export function renderLightmap(
   // Only rebuilt when visibility cache is invalidated (wall/light changes).
   const staticCanvas = _getStaticLmCanvas(lmW, lmH);
   if (!_staticLmValid) {
-    const slctx = staticCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
-    slctx.globalCompositeOperation = 'source-over';
+    _t('lighting:staticBuild', () => {
+      const slctx = staticCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+      slctx.globalCompositeOperation = 'source-over';
 
-    // Fill with ambient
-    const amb = Math.max(0, Math.min(1, ambientLevel));
-    const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
-    slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
-    slctx.fillRect(0, 0, lmW, lmH);
+      // Fill with ambient
+      const amb = Math.max(0, Math.min(1, ambientLevel));
+      const { r: ar, g: ag, b: ab } = parseColor(ambientColor);
+      slctx.fillStyle = `rgb(${Math.round(ar * amb)}, ${Math.round(ag * amb)}, ${Math.round(ab * amb)})`;
+      slctx.fillRect(0, 0, lmW, lmH);
 
-    // Additively blend each static light
-    slctx.globalCompositeOperation = 'lighter';
-    for (const light of staticLights) {
-      _renderOneLight(slctx, light, time, segments, lmTransform, propShadowZones);
-    }
+      // Additively blend each static light
+      slctx.globalCompositeOperation = 'lighter';
+      for (const light of staticLights) {
+        _renderOneLight(slctx, light, time, segments, lmTransform, propShadowZones);
+      }
 
-    // Normal map bump uses all lights for direction, but only apply on static pass
-    if (textureCatalog) {
-      applyNormalMapBump(slctx, activeLights, cells, gridSize, lmTransform, textureCatalog);
-    }
+      // Normal map bump uses all lights for direction, but only apply on static pass
+      if (textureCatalog) {
+        _t('lighting:normalMap', () =>
+          applyNormalMapBump(slctx, activeLights, cells, gridSize, lmTransform, textureCatalog),
+        );
+      }
 
-    _staticLmValid = true;
+      _staticLmValid = true;
+    });
   }
 
   // Determine where to draw the lightmap on the target canvas.
@@ -934,25 +940,27 @@ export function renderLightmap(
   }
 
   // ── Animated lights: blit static cache + render animated lights ──
-  const lightCanvas = _getLightmapCanvas(lmW, lmH);
-  const lctx = lightCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
+  _t('lighting:animated', () => {
+    const lightCanvas = _getLightmapCanvas(lmW, lmH);
+    const lctx = lightCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
 
-  // Start from the cached static lightmap
-  lctx.globalCompositeOperation = 'source-over';
-  lctx.drawImage(staticCanvas, 0, 0);
+    // Start from the cached static lightmap
+    lctx.globalCompositeOperation = 'source-over';
+    lctx.drawImage(staticCanvas, 0, 0);
 
-  // Additively blend animated lights
-  lctx.globalCompositeOperation = 'lighter';
-  for (const light of animatedLights) {
-    _renderOneLight(lctx, light, time, segments, lmTransform, propShadowZones);
-  }
+    // Additively blend animated lights
+    lctx.globalCompositeOperation = 'lighter';
+    for (const light of animatedLights) {
+      _renderOneLight(lctx, light, time, segments, lmTransform, propShadowZones);
+    }
 
-  // Composite lightmap onto main canvas with multiply
-  ctx.save();
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.imageSmoothingEnabled = true;
-  ctx.drawImage(lightCanvas, dx, dy, dw, dh);
-  ctx.restore();
+    // Composite lightmap onto main canvas with multiply
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(lightCanvas, dx, dy, dw, dh);
+    ctx.restore();
+  });
 }
 
 /** Render a single light onto a lightmap context (assumes 'lighter' composite op). */
