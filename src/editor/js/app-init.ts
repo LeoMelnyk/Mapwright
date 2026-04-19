@@ -166,6 +166,18 @@ export async function initApp(
   };
   const toasted = { themes: false, props: false, textures: false };
   const labels = { themes: 'Themes', props: 'Props', textures: 'Textures' };
+  // Texture progress events fire on Image `load` (bytes arrived), but textures
+  // aren't GPU-ready until `decode()` + `createImageBitmap()` finish. Gate the
+  // overlay on this flag, which the texture preload `.then()` sets — otherwise
+  // the overlay hides during the decode gap and textures pop in on first paint.
+  let texturesReady = false;
+  function maybeHideOverlay(sumLoaded: number, sumTotal: number) {
+    const allReported = Object.values(progress).every((v) => v !== null);
+    if (allReported && sumLoaded >= sumTotal && sumTotal > 0 && texturesReady) {
+      setTimeout(() => loadingBar?.classList.remove('active'), 400);
+      editorLoadingOverlay?.classList.add('hidden');
+    }
+  }
   function onAssetProgress(key: string, loaded: number, total: number) {
     (progress as Record<string, unknown>)[key] = { loaded, total };
     // Per-catalog toast
@@ -185,11 +197,19 @@ export async function initApp(
     if (loadingFill && sumTotal > 0) {
       loadingFill.style.width = `${Math.round((sumLoaded / sumTotal) * 100)}%`;
     }
-    const allReported = Object.values(progress).every((v) => v !== null);
-    if (allReported && sumLoaded >= sumTotal && sumTotal > 0) {
-      setTimeout(() => loadingBar?.classList.remove('active'), 400);
-      editorLoadingOverlay?.classList.add('hidden');
+    maybeHideOverlay(sumLoaded, sumTotal);
+  }
+  function markTexturesReady() {
+    texturesReady = true;
+    let sumLoaded = 0,
+      sumTotal = 0;
+    for (const v of Object.values(progress)) {
+      if (v) {
+        sumLoaded += v.loaded;
+        sumTotal += v.total;
+      }
     }
+    maybeHideOverlay(sumLoaded, sumTotal);
   }
 
   // Load themes in the background — don't block editor startup.
@@ -441,6 +461,7 @@ export async function initApp(
   void Promise.all([propCatalogPromise, textureCatalogPromise]).then(([propCatalog, textureCatalog]) => {
     if (!textureCatalog) {
       onAssetProgress('textures', 1, 1);
+      markTexturesReady();
       return;
     }
 
@@ -472,9 +493,11 @@ export async function initApp(
       void ensureTexturesLoaded(usedIds, (loaded, total) => onAssetProgress('textures', loaded, total)).then(() => {
         state.texturesVersion++;
         notify();
+        markTexturesReady();
       });
     } else {
       onAssetProgress('textures', 1, 1);
+      markTexturesReady();
     }
   });
 
