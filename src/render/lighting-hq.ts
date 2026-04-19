@@ -340,6 +340,9 @@ export function renderLightmapHQ(
               const sampleX = Math.min(norW - 1, Math.floor(chunkX * srcW + fracX * srcW));
               const sampleY = Math.min(norH - 1, Math.floor(chunkY * srcH + fracY * srcH));
               const nIdx = (sampleY * norW + sampleX) * 4;
+              // Matches unpackNormal() in lighting.ts — inlined here because this
+              // runs per-pixel per-light in the HQ hot loop and tuple destructuring
+              // would allocate ~5M times on a 500×500 map with 20 lights.
               const nx = (norData.data[nIdx]! / 255) * 2 - 1;
               const ny = (norData.data[nIdx + 1]! / 255) * 2 - 1;
               const nz = (norData.data[nIdx + 2]! / 255) * 2 - 1;

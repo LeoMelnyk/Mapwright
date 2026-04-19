@@ -42,6 +42,18 @@ const ANIM_TIME_SCALE = 0.4;
 const GRADIENT_STOPS = 16;
 
 /**
+ * Unpack a normal-map RGB triple (0–255 bytes) into a unit-ish vector with
+ * components in [-1, 1]. The caller is responsible for normalization if it
+ * matters — most normal maps are already close to unit length.
+ *
+ * Exported so the real-time cell-averaged bump path and the HQ per-pixel
+ * bump path cannot drift on the byte→float encoding.
+ */
+export function unpackNormal(data: Uint8ClampedArray | Uint8Array, idx: number): [number, number, number] {
+  return [(data[idx]! / 255) * 2 - 1, (data[idx + 1]! / 255) * 2 - 1, (data[idx + 2]! / 255) * 2 - 1];
+}
+
+/**
  * Clamp a directional light's spread (cone half-angle in degrees).
  *
  * Values outside [0, 180] produce divergent behaviour between the real-time
@@ -1176,10 +1188,7 @@ function applyNormalMapBump(
       let dotSum = 0;
       let sampleCount = 0;
       for (let i = 0; i < data.length; i += 4) {
-        // Normal map: RGB = XYZ mapped from [0,255] to [-1,1]
-        const nx = (data[i]! / 255) * 2 - 1;
-        const ny = (data[i + 1]! / 255) * 2 - 1;
-        const nz = (data[i + 2]! / 255) * 2 - 1;
+        const [nx, ny, nz] = unpackNormal(data, i);
 
         // Dot product with light direction
         const dot = (nx * lx3 + ny * ly3 + nz * lz3) / lLen;
