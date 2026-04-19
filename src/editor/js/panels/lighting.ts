@@ -117,6 +117,28 @@ function render() {
     nameRow.appendChild(nameInput);
     selSection.appendChild(nameRow);
 
+    // Group input — free-text; leaves lights unassigned when blank.
+    // Used with the Groups section at the bottom of the panel to toggle
+    // entire sets of lights (e.g. "torches", "traps", "magic auras").
+    const groupRow = el('div', 'lighting-slider-row');
+    groupRow.appendChild(labelEl('Group'));
+    const groupInput = document.createElement('input');
+    groupInput.type = 'text';
+    groupInput.className = 'lighting-name-input';
+    groupInput.value = selectedLight.group ?? '';
+    groupInput.placeholder = 'e.g. torches, traps…';
+    groupInput.addEventListener('change', () => {
+      const v = groupInput.value.trim();
+      if (v) selectedLight.group = v;
+      else delete selectedLight.group;
+      invalidateLightmap('lights');
+      markDirty();
+      notify();
+      requestRender();
+    });
+    groupRow.appendChild(groupInput);
+    selSection.appendChild(groupRow);
+
     // Preset dropdown for selected light — re-applies a preset and restores the presetId link
     selSection.appendChild(
       presetDropdown(selectedLight.presetId ?? null, (preset: LightPreset) => {
@@ -403,6 +425,39 @@ function render() {
   });
   coverageSection.appendChild(coverageBtn);
   container.appendChild(coverageSection);
+
+  // ── Groups ──────────────────────────────────────────────────────────────
+  // Summarize every group on the map with a count + on/off checkbox.
+  // Flipping a group toggle invalidates lights-only cache so the re-render
+  // is cheap (no wall-segment rebuild).
+  const groupNames = new Set<string>();
+  for (const l of lights) if (l.group) groupNames.add(l.group);
+  if (groupNames.size > 0) {
+    const disabled = new Set(metadata.disabledLightGroups ?? []);
+    const groupsSection = el('div', 'lighting-section');
+    groupsSection.appendChild(sectionLabel('Groups'));
+    for (const name of [...groupNames].sort((a, b) => a.localeCompare(b))) {
+      const count = lights.filter((l) => l.group === name).length;
+      const row = el('label', 'lighting-toggle');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = !disabled.has(name);
+      cb.addEventListener('change', () => {
+        const next = new Set(metadata.disabledLightGroups ?? []);
+        if (cb.checked) next.delete(name);
+        else next.add(name);
+        metadata.disabledLightGroups = next.size > 0 ? [...next] : undefined;
+        invalidateLightmap('lights');
+        markDirty();
+        notify();
+        requestRender();
+      });
+      row.appendChild(cb);
+      row.appendChild(document.createTextNode(` ${name} (${count})`));
+      groupsSection.appendChild(row);
+    }
+    container.appendChild(groupsSection);
+  }
 }
 
 // ── Shared Light Controls Builder ─────────────────────────────────────────────

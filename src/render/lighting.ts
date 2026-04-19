@@ -960,7 +960,14 @@ export function renderLightmap(
     destW = 0,
     destH = 0,
   } = options ?? {};
-  const activeLights = lights;
+  // Filter out lights whose group is disabled on this map. Un-grouped lights
+  // (group undefined or '') are always rendered. Matches the light-group
+  // toggle in the Lighting panel.
+  const disabledGroups = metadata?.disabledLightGroups;
+  const activeLights =
+    disabledGroups && disabledGroups.length > 0
+      ? lights.filter((l) => !l.group || !disabledGroups.includes(l.group))
+      : lights;
 
   // Wall segments are cached and only recomputed when invalidateVisibilityCache() is called.
   // Only profile when the cache actually rebuilds — ??= skips _t() on warm hits.

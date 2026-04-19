@@ -184,7 +184,13 @@ export function renderLightmapHQ(
   metadata: Metadata | null = null,
 ): void {
   const { ambientColor = '#ffffff', time = 0 } = options ?? {};
-  const activeLights = lights;
+  // Mirror the group filter from the real-time renderer so PNG exports
+  // respect the DM's group-toggle state.
+  const disabledGroups = metadata?.disabledLightGroups;
+  const activeLights =
+    disabledGroups && disabledGroups.length > 0
+      ? lights.filter((l) => !l.group || !disabledGroups.includes(l.group))
+      : lights;
 
   // Float32 accumulator for light contributions (RGB, no alpha)
   const lightAccum = new Float32Array(canvasW * canvasH * 3);

@@ -148,6 +148,79 @@ export function setLightingEnabled(enabled: unknown): { success: true } {
   return { success: true };
 }
 
+// ─── Light groups ──────────────────────────────────────────────────────────
+
+/**
+ * Assign a light to a group (or clear its group with `''` / `null`). Lights
+ * in the same group can be toggled together via setLightGroupEnabled.
+ */
+export function setLightGroup(id: number, group: string | null): { success: true } {
+  const meta = state.dungeon.metadata;
+  const light = meta.lights.find((l) => l.id === id);
+  if (!light) throw new ApiValidationError('LIGHT_NOT_FOUND', `Light with id ${id} not found`, { id });
+  mutate(
+    'Set light group',
+    [],
+    () => {
+      if (group && group.length > 0) light.group = group;
+      else delete light.group;
+    },
+    { metaOnly: true, invalidate: ['lighting'] },
+  );
+  requestRender();
+  return { success: true };
+}
+
+/**
+ * Enable or disable every light in `group`. When disabled, the renderer
+ * filters these lights out entirely (no visibility compute, no composite),
+ * so toggling is cheap enough for real-time DM use.
+ */
+export function setLightGroupEnabled(group: string, enabled: boolean): { success: true } {
+  if (!group || typeof group !== 'string') {
+    throw new ApiValidationError('INVALID_LIGHT_GROUP', `Group name must be a non-empty string`, { group });
+  }
+  const meta = state.dungeon.metadata;
+  mutate(
+    'Toggle light group',
+    [],
+    () => {
+      const disabled = new Set(meta.disabledLightGroups ?? []);
+      if (enabled) disabled.delete(group);
+      else disabled.add(group);
+      meta.disabledLightGroups = disabled.size > 0 ? [...disabled] : undefined;
+    },
+    { metaOnly: true, invalidate: ['lighting'] },
+  );
+  requestRender();
+  return { success: true };
+}
+
+/**
+ * Summarize the groups present on the map: group name → {lightCount, enabled}.
+ * Un-grouped lights appear under the reserved "" key and are always enabled.
+ */
+export function listLightGroups(): {
+  success: true;
+  groups: { name: string; lightCount: number; enabled: boolean }[];
+} {
+  const meta = state.dungeon.metadata;
+  const disabled = new Set(meta.disabledLightGroups ?? []);
+  const counts = new Map<string, number>();
+  for (const l of meta.lights) {
+    const g = l.group ?? '';
+    counts.set(g, (counts.get(g) ?? 0) + 1);
+  }
+  const groups = [...counts.entries()].map(([name, lightCount]) => ({
+    name,
+    lightCount,
+    enabled: name === '' || !disabled.has(name),
+  }));
+  // Sort: ungrouped first, then alphabetical.
+  groups.sort((a, b) => (a.name === '' ? -1 : b.name === '' ? 1 : a.name.localeCompare(b.name)));
+  return { success: true, groups };
+}
+
 /**
  * List all available light presets grouped by category.
  * @returns {{ success: boolean, categories: Array<string>, presets: Object }}

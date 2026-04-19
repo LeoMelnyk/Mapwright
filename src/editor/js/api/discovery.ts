@@ -127,6 +127,9 @@ const REGISTRY: MethodInfo[] = [
   { name: 'getLights', category: 'lighting', intent: 'Return all lights' },
   { name: 'setAmbientLight', category: 'lighting', intent: 'Set ambient light level (0–1)' },
   { name: 'setLightingEnabled', category: 'lighting', intent: 'Toggle the lighting system' },
+  { name: 'setLightGroup', category: 'lighting', intent: 'Assign a light to a named group (or clear)' },
+  { name: 'setLightGroupEnabled', category: 'lighting', intent: 'Enable/disable every light in a group' },
+  { name: 'listLightGroups', category: 'lighting', intent: 'List groups with counts and enabled flag' },
   { name: 'listLightPresets', category: 'catalog', intent: 'List all light presets' },
 
   // ── props ──────────────────────────────────────────

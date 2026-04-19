@@ -133,6 +133,12 @@ export interface Light {
   dimRadius?: number;
   presetId?: string;
   propRef?: { row: number; col: number };
+  /**
+   * Optional group name. Lights sharing a group can be toggled together via
+   * setLightGroupEnabled(). `undefined` or `''` puts the light in the
+   * default (always-on) bucket.
+   */
+  group?: string;
   _propShadows?: {
     shadowPoly: number[][];
     nearCenter: number[];
@@ -236,6 +242,13 @@ export interface Metadata {
   lightingEnabled: boolean;
   ambientLight: number;
   lights: Light[];
+  /**
+   * Disabled light groups. A group whose name appears here is culled from
+   * the renderer output; un-grouped lights (group=undefined or '') are
+   * always rendered. Kept separate from Light.group so the set of groups
+   * on the map can grow without each light carrying redundant state.
+   */
+  disabledLightGroups?: string[];
   stairs: Stairs[];
   bridges: Bridge[];
   nextLightId: number;
