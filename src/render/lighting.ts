@@ -1216,6 +1216,8 @@ export function renderLightmap(
   const dw = useDest ? destW : canvasW;
   const dh = useDest ? destH : canvasH;
 
+  const bloomIntensity = metadata?.bloomIntensity ?? 0;
+
   if (!hasAnimated) {
     // Fast path: no animated lights — composite static lightmap directly
     ctx.save();
@@ -1223,11 +1225,12 @@ export function renderLightmap(
     ctx.imageSmoothingEnabled = true;
     ctx.drawImage(staticCanvas, dx, dy, dw, dh);
     ctx.restore();
+    if (bloomIntensity > 0) _applyBloom(ctx, staticCanvas, dx, dy, dw, dh, bloomIntensity);
     return;
   }
 
   // ── Animated lights: blit static cache + render animated lights ──
-  _t('lighting:animated', () =>
+  const animatedLightmap = _t('lighting:animated', () =>
     _renderAnimatedOverlay(ctx, staticCanvas, lmW, lmH, animatedLights, {
       time,
       segments,
@@ -1236,6 +1239,7 @@ export function renderLightmap(
       dest: { x: dx, y: dy, w: dw, h: dh },
     }),
   );
+  if (bloomIntensity > 0) _applyBloom(ctx, animatedLightmap, dx, dy, dw, dh, bloomIntensity);
 }
 
 /**
@@ -1311,7 +1315,7 @@ function _renderAnimatedOverlay(
     lmTransform: RenderTransform;
     dest: { x: number; y: number; w: number; h: number };
   },
-): void {
+): OffscreenCanvas | HTMLCanvasElement {
   const lightCanvas = _getLightmapCanvas(lmW, lmH);
   const lctx = lightCanvas.getContext('2d') as OffscreenCanvasRenderingContext2D;
 
@@ -1331,6 +1335,38 @@ function _renderAnimatedOverlay(
   ctx.globalCompositeOperation = 'multiply';
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(lightCanvas, x, y, w, h);
+  ctx.restore();
+  return lightCanvas;
+}
+
+/**
+ * Bloom post-pass. Composite a Gaussian-blurred copy of the lightmap onto
+ * the scene with `lighter`, so bright torches bleed a soft halo over their
+ * surroundings. Uses canvas `filter: blur()` — supported in Chromium/Edge
+ * including Electron ≥ 24; no-op on browsers without support (filter is
+ * silently ignored, result is just a soft additive pass without blur).
+ *
+ * Cost is small: one drawImage with filter, one composite. Fits well inside
+ * a 60 fps frame budget.
+ */
+const BLOOM_BLUR_PX = 10;
+function _applyBloom(
+  ctx: CanvasRenderingContext2D,
+  lightmap: OffscreenCanvas | HTMLCanvasElement,
+  dx: number,
+  dy: number,
+  dw: number,
+  dh: number,
+  intensity: number,
+) {
+  const alpha = Math.max(0, Math.min(1, intensity));
+  if (alpha === 0) return;
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.globalAlpha = alpha;
+  ctx.filter = `blur(${BLOOM_BLUR_PX}px)`;
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(lightmap, dx, dy, dw, dh);
   ctx.restore();
 }
 

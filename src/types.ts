@@ -274,6 +274,13 @@ export interface Metadata {
    * visibility polygons alone can't provide.
    */
   contactShadows?: boolean;
+  /**
+   * Bloom intensity in [0, 1]. When > 0, the renderer applies a screen-
+   * blended Gaussian-blurred copy of the lightmap on top of the composited
+   * scene — bright torches and magical auras bleed into their surroundings.
+   * 0 (default) disables the pass entirely.
+   */
+  bloomIntensity?: number;
   stairs: Stairs[];
   bridges: Bridge[];
   nextLightId: number;

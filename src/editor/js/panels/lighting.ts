@@ -131,6 +131,24 @@ function render() {
   csRow.appendChild(document.createTextNode(' Contact shadows'));
   ambientSection.appendChild(csRow);
 
+  // Bloom intensity — Gaussian-blurred additive overlay on bright lightmap areas.
+  ambientSection.appendChild(
+    sliderRow(
+      'Bloom',
+      metadata.bloomIntensity ?? 0,
+      0,
+      1,
+      0.05,
+      (v: number) => {
+        if (v > 0) metadata.bloomIntensity = v;
+        else delete metadata.bloomIntensity;
+        markDirty();
+        requestRender();
+      },
+      (v: number) => (v === 0 ? 'Off' : `${Math.round(v * 100)}%`),
+    ),
+  );
+
   container.appendChild(ambientSection);
 
   // ── Selected Light Properties ──────────────────────────────────────────
