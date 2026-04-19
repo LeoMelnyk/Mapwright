@@ -1,0 +1,35 @@
+name: Coin in Water
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cistern, fountain, well, shrine, underground-lake, flooded-room
+typical_count: few
+clusters_with: coin-in-water, algae-bloom, fountain
+notes: A single copper/silver coin half-submerged at the bottom of shallow water. Small accent prop — scatter a few in fountains, cisterns, or flooded shrine floors for detail.
+---
+# Water distortion ring around the coin (refraction halo)
+circle 0.50,0.50 0.12 fill #5a7a8a 0.15
+
+# Coin body (slightly blurred by water — copper/silver disc)
+circle 0.50,0.50 0.07 fill #b8955a 0.7
+circle 0.50,0.50 0.07 stroke #8a6a3a 0.6
+
+# Coin face detail (faint profile/stamp)
+circle 0.50,0.50 0.05 stroke #9a7a4a 0.4
+# Tiny raised-relief dot at center
+circle 0.50,0.50 0.02 fill #c8a868 0.5
+
+# Light catch on coin edge (water magnification glint)
+arc 0.50,0.50 0.06 200 260 stroke #d8c898 0.55 width 1
+
+# Second coin nearby (slightly different tone — silver)
+circle 0.62,0.58 0.05 fill #a0a8b0 0.55
+circle 0.62,0.58 0.05 stroke #808890 0.45
+circle 0.62,0.58 0.03 stroke #909aa0 0.35
+
+# Water caustic shimmer lines near coins
+line 0.38,0.44 0.42,0.40 stroke #7a9aaa 0.2 width 1
+line 0.56,0.62 0.60,0.66 stroke #7a9aaa 0.18 width 1

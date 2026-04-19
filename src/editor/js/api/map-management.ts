@@ -1,4 +1,4 @@
-import type { Dungeon, LabelStyle } from '../../../types.js';
+import type { Dungeon, LabelStyle, Theme } from '../../../types.js';
 import {
   state,
   pushUndo,
@@ -16,6 +16,8 @@ import {
   toDisp,
   ApiValidationError,
 } from './_shared.js';
+import { normalizeTheme } from '../../../render/index.js';
+import { applyThemeChange, snapshotCurrentTheme } from '../canvas-view.js';
 import { _clearCheckpoints } from './operational.js';
 
 /**
@@ -60,6 +62,19 @@ export function loadMap(json: Record<string, unknown>): { success: true; info: R
   pushUndo();
   state.dungeon = json as unknown as Dungeon;
   migrateToLatest(json as Parameters<typeof migrateToLatest>[0]);
+
+  // Normalize embedded theme data so downstream renderers can read fields
+  // directly (matches the contract applied in theme-catalog for shipped/user
+  // themes and in io.ts:loadDungeonJSON for file-loaded maps).
+  const meta = state.dungeon.metadata as unknown as Record<string, unknown>;
+  if (typeof meta.theme === 'object' && meta.theme !== null) {
+    meta.theme = normalizeTheme(meta.theme as Theme);
+  }
+  const saved = meta.savedThemeData as { theme?: Record<string, unknown> } | undefined;
+  if (saved?.theme) {
+    saved.theme = normalizeTheme(saved.theme as Theme) as unknown as Record<string, unknown>;
+  }
+
   state.currentLevel = 0;
   state.selectedCells = [];
   _clearCheckpoints();
@@ -234,8 +249,10 @@ export function setTheme(theme: string): { success: true } {
       type: typeof theme,
     });
   }
+  const prev = snapshotCurrentTheme();
   pushUndo();
   state.dungeon.metadata.theme = theme;
+  applyThemeChange(prev);
   markDirty();
   notify();
   return { success: true };

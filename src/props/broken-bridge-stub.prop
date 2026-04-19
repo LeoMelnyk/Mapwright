@@ -1,0 +1,46 @@
+name: Broken Bridge Stub
+category: Terrain
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: chasm, cave, ruin, bridge-approach, cliff-edge
+typical_count: few
+clusters_with: anchor-post, broken-plank, rope-bridge
+notes: Partial stump of a ruined wooden bridge — broken plank ends jutting south from a rock edge. Place at chasm edges where a bridge once was.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: broken plank ends + dangling rope stubs heading south (toward chasm)
+
+# === Rock edge (north side = solid ground) ===
+poly 0.04,0.04 0.96,0.04 0.96,0.32 0.82,0.36 0.60,0.30 0.38,0.34 0.18,0.30 0.04,0.34 texfill polyhaven/rock_boulder_cracked 0.80
+poly 0.04,0.04 0.96,0.04 0.96,0.32 0.82,0.36 0.60,0.30 0.38,0.34 0.18,0.30 0.04,0.34 stroke #444444
+
+# === Broken plank 1 (left, longest) ===
+rect 0.14,0.24 0.12,0.44 texfill polyhaven/weathered_planks 0.85
+rect 0.14,0.24 0.12,0.44 stroke #3a1f00
+# Jagged break at south end
+poly 0.14,0.68 0.18,0.72 0.22,0.66 0.26,0.70 fill #5c3a1e 0.7
+poly 0.14,0.68 0.18,0.72 0.22,0.66 0.26,0.70 stroke #3a1f00
+
+# === Broken plank 2 (center, medium) ===
+rect 0.38,0.26 0.12,0.34 texfill polyhaven/weathered_planks 0.85
+rect 0.38,0.26 0.12,0.34 stroke #3a1f00
+# Jagged break
+poly 0.38,0.60 0.42,0.64 0.46,0.58 0.50,0.62 fill #5c3a1e 0.7
+poly 0.38,0.60 0.42,0.64 0.46,0.58 0.50,0.62 stroke #3a1f00
+
+# === Broken plank 3 (right, shortest) ===
+rect 0.64,0.28 0.12,0.26 texfill polyhaven/weathered_planks 0.85
+rect 0.64,0.28 0.12,0.26 stroke #3a1f00
+# Jagged break
+poly 0.64,0.54 0.68,0.58 0.72,0.52 0.76,0.56 fill #5c3a1e 0.7
+poly 0.64,0.54 0.68,0.58 0.72,0.52 0.76,0.56 stroke #3a1f00
+
+# === Rope stubs dangling off south (remains of bridge rope) ===
+bezier 0.10,0.32 0.08,0.50 0.06,0.70 0.10,0.88 stroke #8b7355 width 2
+bezier 0.84,0.34 0.86,0.52 0.90,0.68 0.88,0.85 stroke #8b7355 width 2
+# Frayed rope ends
+circle 0.10,0.88 0.02 fill #8b7355 0.6
+circle 0.88,0.85 0.02 fill #8b7355 0.6

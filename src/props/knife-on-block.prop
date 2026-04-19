@@ -1,0 +1,77 @@
+name: Knife On Block
+category: Kitchen
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.0
+placement: floor
+room_types: servants-kitchen, butcher-shop, farmhouse-kitchen, kitchen, ship-galley
+typical_count: single
+clusters_with: chopping-block, cleaver, hanging-meat, skinning-knife, wooden-spoon
+notes: Butcher's knife embedded upright in a wooden cutting block. Top-down shows the block's tree-ring face with the blade sticking up through it — handle visible as vertical spike.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-1.0
+
+# === Wooden chopping block (bark edge, outer ring) ===
+circle 0.5,0.5 0.38 texfill polyhaven/bark_brown_02 0.8
+circle 0.5,0.5 0.38 stroke #2a1400
+
+# === Inner wood surface (end-grain, lighter) ===
+circle 0.5,0.5 0.33 texfill polyhaven/wood_table 0.85
+circle 0.5,0.5 0.33 stroke #5c3a1e 0.6
+
+# === Tree rings ===
+circle 0.5,0.5 0.28 stroke #5c3a1e 0.28
+circle 0.5,0.5 0.22 stroke #5c3a1e 0.22
+circle 0.5,0.5 0.16 stroke #5c3a1e 0.2
+circle 0.5,0.5 0.10 stroke #5c3a1e 0.18
+
+# === Center heartwood spot ===
+circle 0.5,0.5 0.04 fill #4a2800 0.4
+
+# === Old cleaver gouges radiating from center ===
+line 0.36,0.38 0.56,0.44 stroke #3a1f00 0.35
+line 0.42,0.58 0.62,0.60 stroke #3a1f00 0.3
+line 0.32,0.56 0.48,0.52 stroke #3a1f00 0.28
+
+# === Faint blood stain ===
+ellipse 0.42,0.40 0.08,0.05 fill #5a1a1a 0.25
+ellipse 0.58,0.60 0.06,0.04 fill #5a1a1a 0.2
+
+# === Knife slot (dark impact slit where blade enters wood) ===
+rect 0.44,0.46 0.12,0.03 fill #1a0a00 0.95
+rect 0.44,0.46 0.12,0.03 stroke #0a0400
+
+# === Knife blade rising up (foreshortened — seen from directly above) ===
+# Visible stub of blade sticking up (widest at base, tapering as we look down the edge)
+poly 0.44,0.46 0.56,0.46 0.55,0.38 0.45,0.38 fill #c0c0c0 0.95
+poly 0.44,0.46 0.56,0.46 0.55,0.38 0.45,0.38 texfill polyhaven/metal_plate 0.55
+poly 0.44,0.46 0.56,0.46 0.55,0.38 0.45,0.38 stroke #333333
+# Spine highlight along north edge of visible blade
+line 0.45,0.38 0.55,0.38 stroke #ffffff 0.6 width 1
+
+# === Bolster / guard (brass band between blade and handle, visible from above) ===
+rect 0.43,0.32 0.14,0.07 fill #8b6914 0.92
+rect 0.43,0.32 0.14,0.07 texfill polyhaven/metal_plate 0.3
+rect 0.43,0.32 0.14,0.07 stroke #4a3800
+
+# === Wooden handle (rising vertically — top view is a rounded rectangle) ===
+rect 0.42,0.18 0.16,0.16 texfill polyhaven/dark_wood 0.9
+rect 0.42,0.18 0.16,0.16 stroke #2a1400
+# Handle rivets
+circle 0.46,0.22 0.012 fill #444444 0.9
+circle 0.54,0.22 0.012 fill #444444 0.9
+circle 0.46,0.30 0.012 fill #444444 0.9
+circle 0.54,0.30 0.012 fill #444444 0.9
+
+# === Handle pommel cap (butt end of handle, facing up at viewer) ===
+ellipse 0.50,0.16 0.08,0.04 fill #444444 0.92
+ellipse 0.50,0.16 0.08,0.04 stroke #222222
+# Tang peg dot at center of pommel
+circle 0.50,0.16 0.014 fill #1a1008 0.9
+
+# === Small wood split radiating from knife slot ===
+line 0.44,0.50 0.38,0.56 stroke #2a1400 0.6
+line 0.56,0.50 0.62,0.56 stroke #2a1400 0.55

@@ -1,6 +1,8 @@
 import type { CellGrid, TextureCatalog, TextureRuntime } from '../../types.js';
 // Texture Catalog — loads .texture metadata and lazily loads PNG images on demand.
-// Mirrors the pattern of theme-catalog.js and prop-catalog.js.
+// Metadata comes from /textures/bundle.json in one request (HTTP cached via ETag);
+// PNG images stay per-file and load lazily through the browser's Image element.
+// Mirrors the pattern of theme-catalog.ts and prop-catalog.ts.
 
 import { showToast } from './toast.js';
 import { allSettledWithLimit } from './async-batch.js';
@@ -14,16 +16,55 @@ interface TextureMetadata {
   file: string;
   dispFile: string | null;
   norFile: string | null;
-  armFile: string | null;
   scale: number;
   credit: string;
 }
 
+/** Raw .texture file contents (what the server serves / writes). */
+interface RawTextureFile {
+  displayName?: string;
+  category?: string;
+  subcategory?: string | null;
+  file: string;
+  scale?: number;
+  credit?: string;
+  maps?: {
+    disp?: string | null;
+    nor?: string | null;
+    arm?: string | null;
+  };
+}
+
+// Note: `arm` (AO+Roughness+Metal) is kept in the file format for forward
+// compatibility but is no longer loaded at runtime — no consumer reads it.
+
 const BASE_URL = '/textures/';
-const CACHE_KEY = 'texture-catalog';
-const CACHE_VER_KEY = 'texture-catalog-ver';
+const BUNDLE_URL = '/textures/bundle.json';
 
 let catalog: TextureCatalog | null = null; // { names, textures, byCategory, categoryOrder }
+
+// One-time cleanup of the localStorage cache used by earlier versions
+// (metadata is now HTTP-cached, not mirrored in localStorage).
+try {
+  localStorage.removeItem('texture-catalog');
+  localStorage.removeItem('texture-catalog-ver');
+} catch {
+  /* storage unavailable */
+}
+
+function normalizeMetadata(id: string, data: RawTextureFile): TextureMetadata {
+  return {
+    id,
+    displayName: data.displayName ?? id,
+    category: data.category ?? 'Uncategorized',
+    subcategory: data.subcategory ?? null,
+    file: data.file,
+    scale: data.scale ?? 2.0,
+    credit: data.credit ?? '',
+    dispFile: data.maps?.disp ?? null,
+    norFile: data.maps?.nor ?? null,
+  };
+}
 
 /**
  * A texture entry in the catalog:
@@ -35,13 +76,11 @@ let catalog: TextureCatalog | null = null; // { names, textures, byCategory, cat
  *   file: string,           // diffuse PNG path relative to /textures/
  *   dispFile: string|null,  // displacement map path (or null for auto-derived)
  *   norFile: string|null,   // normal map path
- *   armFile: string|null,   // ARM map path
  *   scale: number,          // grid cells per texture tile (default 2.0)
  *   credit: string,
  *   img:     HTMLImageElement|null,  // diffuse — loaded on demand
  *   dispImg: HTMLImageElement|null,  // displacement — loaded on demand
  *   norImg:  HTMLImageElement|null,  // normal map — loaded on demand
- *   armImg:  HTMLImageElement|null,  // AO+Roughness+Metal — loaded on demand
  * }
  *
  * Image elements are null until loadTextureImages(id) is called.
@@ -65,7 +104,6 @@ function buildFromMetadata(entries: TextureMetadata[]): TextureCatalog {
       file: data.file,
       dispFile: (data.dispFile as string) || undefined,
       norFile: (data.norFile as string) || undefined,
-      armFile: (data.armFile as string) || undefined,
       img: undefined,
       dispImg: null,
       norImg: null,
@@ -94,34 +132,36 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
   if (catalog) return catalog;
 
   try {
-    const res = await fetch(`${BASE_URL}manifest.json`);
-    if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
-    const keys = await res.json();
-    const version = keys.join(',');
-
-    // Try localStorage cache
-    const cachedVer = localStorage.getItem(CACHE_VER_KEY);
-    if (cachedVer === version) {
-      try {
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY)!) as TextureMetadata[] | null;
-        if (cached?.length) {
-          catalog = buildFromMetadata(cached);
-          return catalog;
+    // Try the bundle first — one HTTP request for all texture metadata.
+    // Browser HTTP cache + server ETag means subsequent loads get a 304
+    // with no body transfer. Binary PNGs are not included in the bundle
+    // (too large); they load lazily via loadTextureImages(id).
+    const bundleRes = await fetch(BUNDLE_URL).catch(() => null);
+    if (bundleRes?.ok) {
+      const bundle = (await bundleRes.json()) as { version?: string; textures?: Record<string, RawTextureFile> };
+      if (bundle.textures && typeof bundle.textures === 'object') {
+        const entries: TextureMetadata[] = [];
+        for (const [id, data] of Object.entries(bundle.textures)) {
+          entries.push(normalizeMetadata(id, data));
         }
-      } catch {
-        /* cache corrupt, fall through to fresh fetch */
+        catalog = buildFromMetadata(entries);
+        return catalog;
       }
     }
 
-    // Fresh fetch — load all .texture files
+    // Fallback: manifest + per-file fetch (bundle.json missing or malformed).
+    console.warn('[texture-catalog] bundle.json unavailable, falling back to per-file fetch');
+    const res = await fetch(`${BASE_URL}manifest.json`);
+    if (!res.ok) throw new Error(`manifest HTTP ${res.status}`);
+    const keys = await res.json();
+
     const results = await allSettledWithLimit(keys, 32, async (key: string) => {
-      const r = await fetch(`${BASE_URL}${key}.texture`, { cache: 'no-cache' });
+      const r = await fetch(`${BASE_URL}${key}.texture`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return { key, data: await r.json() };
+      return { key, data: (await r.json()) as RawTextureFile };
     });
 
-    // Build serializable metadata array
-    const metadataEntries = [];
+    const metadataEntries: TextureMetadata[] = [];
     let textureFailCount = 0;
     for (const result of results) {
       if (result.status === 'rejected') {
@@ -130,33 +170,14 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
         continue;
       }
       const { key, data } = result.value;
-      metadataEntries.push({
-        id: key,
-        displayName: data.displayName ?? key,
-        category: data.category ?? 'Uncategorized',
-        subcategory: data.subcategory ?? null,
-        file: data.file,
-        scale: data.scale ?? 2.0,
-        credit: data.credit ?? '',
-        dispFile: data.maps?.disp ?? null,
-        norFile: data.maps?.nor ?? null,
-        armFile: data.maps?.arm ?? null,
-      });
+      metadataEntries.push(normalizeMetadata(key, data));
     }
 
     if (textureFailCount > 0) {
       showToast(`Failed to load ${textureFailCount} texture(s) — some textures may not render`);
     }
 
-    // Cache metadata to localStorage
-    try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify(metadataEntries));
-      localStorage.setItem(CACHE_VER_KEY, version);
-    } catch {
-      /* localStorage full or unavailable — ignore */
-    }
-
-    catalog = buildFromMetadata(metadataEntries as TextureMetadata[]);
+    catalog = buildFromMetadata(metadataEntries);
   } catch (e) {
     console.warn('[texture-catalog] Could not load textures from server:', e);
     showToast('Could not load texture catalog — textures unavailable');
@@ -168,8 +189,15 @@ export async function loadTextureCatalog(): Promise<TextureCatalog | null> {
 
 /**
  * Load PNG images for a single texture entry on demand.
+ *
+ * Uses `img.decode()` to pre-decode pixel data off the main thread. Without this,
+ * the first `ctx.createPattern()` / `ctx.drawImage()` call for a newly-loaded
+ * texture triggers a synchronous decode on the paint frame — visible as a
+ * multi-hundred-millisecond GPU hitch on first use. `decode()` forces the decode
+ * to happen now, so the image is in a GPU-ready state before the renderer touches it.
+ *
  * @param {string} id - Texture catalog ID.
- * @returns {Promise<void>} Resolves when diffuse + displacement images are ready.
+ * @returns {Promise<void>} Resolves when diffuse + displacement + normal are decoded and ready.
  */
 export function loadTextureImages(id: string): Promise<void> {
   const entry = catalog?.textures[id];
@@ -179,12 +207,12 @@ export function loadTextureImages(id: string): Promise<void> {
   // (don't return Promise.resolve() — the images may still be loading)
   if (entry._loadPromise) return entry._loadPromise as Promise<void>;
 
-  // Diffuse — always present
+  // Diffuse — always present. Floor pattern source.
   const img = new Image();
   img.src = `${BASE_URL}${entry.file}`;
   entry.img = img;
 
-  // Displacement
+  // Displacement — used by blend.ts for edge blending between adjacent textures.
   const dispSrc = entry.dispFile
     ? `${BASE_URL}${entry.dispFile}`
     : `${BASE_URL}${entry.file!.replace('_diff_', '_disp_')}`;
@@ -192,26 +220,43 @@ export function loadTextureImages(id: string): Promise<void> {
   dispImg.src = dispSrc;
   entry.dispImg = dispImg;
 
-  // Normal map
+  // Normal map — used by lighting.ts per-cell bump effect under lights.
   const norImg = new Image();
   if (entry.norFile) norImg.src = `${BASE_URL}${entry.norFile}`;
   entry.norImg = norImg;
 
-  // ARM
-  const armImg = new Image();
-  if (entry.armFile) armImg.src = `${BASE_URL}${entry.armFile}`;
-  entry.armImg = armImg;
-
-  // Return promise that resolves when diffuse + displacement are ready
-  // (both are needed for rendering — displacement drives edge blend ordering)
-  function awaitImage(image: HTMLImageElement) {
-    if (!image.src || image.complete) return Promise.resolve();
-    return new Promise((resolve) => {
-      image.addEventListener('load', resolve, { once: true });
-      image.addEventListener('error', resolve, { once: true });
+  // Force decode now so the first paint doesn't stall. `decode()` also waits
+  // for the underlying fetch, so this replaces the old 'load'-event wait.
+  // `error` cases resolve too so a missing asset doesn't hang the promise.
+  function decodeOrFallback(image: HTMLImageElement) {
+    if (!image.src) return Promise.resolve();
+    return image.decode().catch(() => {
+      // Decode can reject if the image failed to load or is malformed.
+      // Swallow — renderer skips incomplete images gracefully.
     });
   }
-  entry._loadPromise = Promise.all([awaitImage(img), awaitImage(dispImg)]);
+
+  // After the diffuse image decodes, promote it to an ImageBitmap for the
+  // pattern path. An HTMLImageElement passed to `ctx.createPattern()` lazily
+  // re-decodes on first raster, causing a multi-hundred-ms stall the first
+  // time any cell using this texture is painted. An ImageBitmap is already
+  // GPU-uploadable — the first pattern fill is a straight GPU op.
+  // createImageBitmap runs off the main thread, so load latency is unaffected.
+  const diffuseReady = decodeOrFallback(img).then(async () => {
+    if (!img.naturalWidth) return;
+    try {
+      entry._patternBitmap = await createImageBitmap(img);
+      // Drop any cached pattern that was built from the HTMLImageElement so the
+      // next render rebuilds it from the bitmap instead.
+      entry._pattern = null;
+      entry._patternCtx = null;
+    } catch {
+      // If createImageBitmap fails (very old browser, CORS quirk), fall back
+      // to the HTMLImageElement — createPattern still works, just with a stall.
+    }
+  });
+
+  entry._loadPromise = Promise.all([diffuseReady, decodeOrFallback(dispImg), decodeOrFallback(norImg)]);
   return entry._loadPromise as Promise<void>;
 }
 

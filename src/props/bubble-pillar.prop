@@ -1,0 +1,47 @@
+name: Bubble Pillar
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: center
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto
+typical_count: few
+clusters_with: bubble-drift, water-node-core, anemone-glow, pearl-cluster
+notes: Top-down view of a rising bubble column — circular cluster with the biggest bubble at the top
+---
+# Rising column viewed straight down: concentric fields of bubbles looking
+# into the water, biggest at top, tiny ones around the edge.
+# Glow halo at the base of the column
+circle 0.5,0.5 0.46 gradient-radial #80c8ff #10304a 0.35
+# Column wash — soft inner glow
+circle 0.5,0.5 0.30 fill #a0d8ff 0.20
+# Large bubble — top of the column, closest to the viewer
+circle 0.50,0.50 0.22 fill #d0f0ff 0.45
+circle 0.50,0.50 0.22 stroke #6090b0 width 1
+# Highlight crescent on the top bubble
+arc 0.50,0.50 0.22 200 330 stroke #ffffff 0.75 width 2
+circle 0.42,0.42 0.05 fill #ffffff 0.8
+# Next-biggest bubble peeking from the column below
+circle 0.32,0.58 0.14 fill #c0e8ff 0.4
+circle 0.32,0.58 0.14 stroke #6090b0 width 1
+circle 0.28,0.54 0.035 fill #ffffff 0.7
+# Another offset bubble
+circle 0.68,0.42 0.12 fill #c0e8ff 0.4
+circle 0.68,0.42 0.12 stroke #6090b0 width 1
+circle 0.72,0.38 0.03 fill #ffffff 0.7
+# Ring of smaller bubbles around the column perimeter (rising from depth)
+circle 0.18,0.28 0.06 fill #c0e8ff 0.45
+circle 0.18,0.28 0.06 stroke #6090b0 width 1
+circle 0.82,0.30 0.055 fill #c0e8ff 0.45
+circle 0.82,0.30 0.055 stroke #6090b0 width 1
+circle 0.22,0.78 0.06 fill #c0e8ff 0.45
+circle 0.22,0.78 0.06 stroke #6090b0 width 1
+circle 0.80,0.76 0.05 fill #c0e8ff 0.4
+circle 0.80,0.76 0.05 stroke #6090b0 width 1
+# Tiny sparkle bubbles in the margins
+circle 0.12,0.50 0.022 fill #e0f4ff 0.85
+circle 0.88,0.54 0.02 fill #e0f4ff 0.8
+circle 0.50,0.10 0.025 fill #e0f4ff 0.85
+circle 0.50,0.90 0.022 fill #e0f4ff 0.8

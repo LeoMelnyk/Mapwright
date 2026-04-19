@@ -71,6 +71,7 @@ function render() {
       0.05,
       (v: number) => {
         metadata.ambientLight = v;
+        invalidateLightmap(false);
         markDirty();
         requestRender();
       },
@@ -85,6 +86,7 @@ function render() {
   ambColorInput.value = metadata.ambientColor ?? '#ffffff';
   ambColorInput.addEventListener('input', () => {
     metadata.ambientColor = ambColorInput.value;
+    invalidateLightmap(false);
     markDirty();
     requestRender();
   });

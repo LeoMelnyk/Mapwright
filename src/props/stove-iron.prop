@@ -1,0 +1,66 @@
+name: Iron Stove
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: tenement-room, peasant-hovel, farmhouse-common, house-small, cabin-hunters
+typical_count: single
+clusters_with: coal-bucket, firewood-stack, kettle, pewter-mug
+notes: Small pot-belly iron cooking stove — top-down shows round stove body with short stovepipe going up (visible as a smaller circle on top)
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":3,"intensity":0.3,"color":"#ff8844"}]
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.34 z 0-3
+
+# === Warm glow on floor around stove ===
+circle 0.50,0.50 0.46 fill #ff6600 0.06
+
+# === Stove body (cast iron, pot-belly shape — wide circle) ===
+circle 0.50,0.50 0.34 texfill polyhaven/metal_plate 0.65
+circle 0.50,0.50 0.34 fill #3a3a3a 0.4
+circle 0.50,0.50 0.34 stroke #222222
+
+# Iron rivets around body rim
+circle 0.26,0.34 0.015 fill #555555 0.7
+circle 0.74,0.34 0.015 fill #555555 0.7
+circle 0.26,0.66 0.015 fill #555555 0.7
+circle 0.74,0.66 0.015 fill #555555 0.7
+
+# Band detail (horizontal rib)
+circle 0.50,0.50 0.30 stroke #444444 0.5
+
+# === Flat top surface (slightly inset) ===
+circle 0.50,0.50 0.24 fill #333333 0.6
+circle 0.50,0.50 0.24 stroke #222222
+
+# Hot plate circles (concentric rings on top)
+circle 0.50,0.50 0.18 stroke #444444 0.5
+circle 0.50,0.50 0.12 stroke #444444 0.4
+
+# Heat glow through the seams (faint orange)
+circle 0.50,0.50 0.20 fill #ff6600 0.08
+arc 0.50,0.50 0.30 30 60 stroke #ff6600 0.2 width 1
+arc 0.50,0.50 0.30 200 240 stroke #ff6600 0.15 width 1
+
+# === Stovepipe (small circle on top, offset slightly north) ===
+circle 0.50,0.36 0.08 fill #2a2a2a 0.95
+circle 0.50,0.36 0.08 stroke #111111
+# Pipe interior (dark void)
+circle 0.50,0.36 0.05 fill #0a0a0a 0.9
+
+# === Stubby legs (4, peeking out at edges) ===
+circle 0.26,0.74 0.03 fill #333333 0.7
+circle 0.26,0.74 0.03 stroke #222222
+circle 0.74,0.74 0.03 fill #333333 0.7
+circle 0.74,0.74 0.03 stroke #222222
+circle 0.26,0.26 0.03 fill #333333 0.6
+circle 0.74,0.26 0.03 fill #333333 0.6
+
+# Small door latch (south, where front loading door is — barely visible from above)
+rect 0.46,0.82 0.08,0.03 fill #555555 0.6
+rect 0.46,0.82 0.08,0.03 stroke #333333

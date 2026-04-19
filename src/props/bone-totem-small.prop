@@ -1,0 +1,59 @@
+name: Small Bone Totem
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.2
+placement: corner
+room_types: goblin-warren-entrance, orc-war-camp, cave-bear-lair
+typical_count: few
+clusters_with: torch-totem, skull-on-stick, bone-marker, cairn-sacred
+notes: Short warding totem — small post topped with lashed bones and feathers. Unlit cousin of torch-totem; tribal territory marker.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.14
+
+# Feather hanging NW (muted grey-brown, tied to post)
+poly 0.40,0.38 0.28,0.26 0.22,0.18 0.26,0.22 0.34,0.30 fill #5a4838 0.85
+poly 0.40,0.38 0.28,0.26 0.22,0.18 0.26,0.22 0.34,0.30 stroke #1a1008
+line 0.26,0.24 0.40,0.40 stroke #8a6040 0.8 width 1
+
+# Feather hanging SW (longer, darker brown-grey)
+poly 0.40,0.62 0.26,0.74 0.18,0.86 0.24,0.82 0.32,0.74 fill #4a3828 0.85
+poly 0.40,0.62 0.26,0.74 0.18,0.86 0.24,0.82 0.32,0.74 stroke #1a0a00
+line 0.24,0.80 0.40,0.64 stroke #8a6040 0.8 width 1
+
+# Feather hanging NE (pale grey)
+poly 0.60,0.40 0.72,0.28 0.80,0.20 0.76,0.26 0.66,0.34 fill #6a6058 0.85
+poly 0.60,0.40 0.72,0.28 0.80,0.20 0.76,0.26 0.66,0.34 stroke #1a1008
+line 0.76,0.26 0.60,0.42 stroke #8a6040 0.8 width 1
+
+# Bone cross-piece extending N (small finger-bone poking up)
+line 0.50,0.38 0.50,0.18 stroke #d4c4a8 width 3
+circle 0.50,0.18 0.04 fill #e8dcc8 0.95
+circle 0.50,0.18 0.04 stroke #6a5040
+# Bone cross-piece extending E (small bone poking out)
+line 0.62,0.50 0.82,0.52 stroke #d4c4a8 width 3
+circle 0.82,0.52 0.035 fill #e8dcc8 0.95
+circle 0.82,0.52 0.035 stroke #6a5040
+# Bone cross-piece extending SE (short rib-like bone)
+line 0.58,0.58 0.74,0.76 stroke #d4c4a8 width 3
+circle 0.74,0.76 0.035 fill #e8dcc8 0.9
+circle 0.74,0.76 0.035 stroke #6a5040
+
+# Sinew lashings binding the bones to the post (tight wrap)
+arc 0.50,0.50 0.13 0 360 stroke #8a6040 0.9 width 2
+arc 0.50,0.50 0.15 20 160 stroke #6a4028 0.8 width 1
+arc 0.50,0.50 0.15 200 340 stroke #6a4028 0.8 width 1
+
+# Wooden post cross-section (dark wood, square)
+rect 0.42,0.42 0.16,0.16 texfill polyhaven/dark_wood 0.9
+rect 0.42,0.42 0.16,0.16 stroke #1a0a00
+# Post grain cross
+line 0.42,0.50 0.58,0.50 stroke #2a1400 0.6 width 1
+line 0.50,0.42 0.50,0.58 stroke #2a1400 0.5 width 1
+
+# Small sinew knot detail (center-top of post where everything ties off)
+circle 0.50,0.50 0.04 fill #8a6040 0.95
+circle 0.50,0.50 0.04 stroke #3a2010

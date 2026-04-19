@@ -1,0 +1,86 @@
+name: Bundle of Herbs
+category: Food
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: house-small, peasant-hovel, farmhouse-kitchen, cabin-witch, cabin-hunters, shop-apothecary
+typical_count: few
+clusters_with: herb-bundle, dried-herbs, cheese-wheel, bread-loaf, cook-pot-tripod
+notes: Small bunch of fresh green herbs tied with twine, lying on a surface. Stems fanning out, twine knot at base.
+---
+# === HITBOX ===
+selection rect 0.18,0.22 0.64,0.54
+
+# === Stems fanning out to north (visible stalks) ===
+line 0.40,0.44 0.32,0.22 stroke #3a5018 width 1
+line 0.44,0.44 0.40,0.20 stroke #3a5018 width 1
+line 0.48,0.44 0.48,0.18 stroke #3a5018 width 1
+line 0.52,0.44 0.56,0.20 stroke #3a5018 width 1
+line 0.56,0.44 0.64,0.22 stroke #3a5018 width 1
+
+# === Leaf bunches along stems (small ovals) ===
+ellipse 0.32,0.32 0.06,0.08 fill #3a6020 0.88
+ellipse 0.32,0.32 0.06,0.08 stroke #1a3010
+ellipse 0.42,0.28 0.05,0.07 fill #4a7028 0.88
+ellipse 0.42,0.28 0.05,0.07 stroke #1a3010
+ellipse 0.50,0.24 0.05,0.07 fill #3a6020 0.88
+ellipse 0.50,0.24 0.05,0.07 stroke #1a3010
+ellipse 0.58,0.28 0.05,0.07 fill #4a7028 0.88
+ellipse 0.58,0.28 0.05,0.07 stroke #1a3010
+ellipse 0.66,0.32 0.06,0.08 fill #3a6020 0.88
+ellipse 0.66,0.32 0.06,0.08 stroke #1a3010
+
+# === Individual pointed leaves (triangular tips) ===
+poly 0.26,0.36 0.22,0.30 0.30,0.32 fill #5a8030 0.88
+poly 0.26,0.36 0.22,0.30 0.30,0.32 stroke #1a3010
+poly 0.72,0.36 0.78,0.32 0.74,0.40 fill #5a8030 0.88
+poly 0.72,0.36 0.78,0.32 0.74,0.40 stroke #1a3010
+poly 0.48,0.20 0.50,0.14 0.54,0.22 fill #5a8030 0.88
+poly 0.48,0.20 0.50,0.14 0.54,0.22 stroke #1a3010
+
+# === Main bunch body (denser oval cluster near binding) ===
+ellipse 0.50,0.44 0.22,0.12 fill #3a6020 0.9
+ellipse 0.50,0.44 0.22,0.12 stroke #1a3010
+
+# === Small leaf detail in main bunch ===
+poly 0.36,0.44 0.42,0.40 0.44,0.46 fill #4a7028 0.85
+poly 0.36,0.44 0.42,0.40 0.44,0.46 stroke #1a3010
+poly 0.54,0.42 0.60,0.44 0.56,0.48 fill #4a7028 0.85
+poly 0.54,0.42 0.60,0.44 0.56,0.48 stroke #1a3010
+
+# === Flower heads (small pale purple/white) ===
+circle 0.40,0.30 0.022 fill #d8c0d8 0.9
+circle 0.40,0.30 0.022 stroke #8a6098
+circle 0.58,0.26 0.022 fill #e8e0a8 0.9
+circle 0.58,0.26 0.022 stroke #8a8028
+
+# === Twine binding at base (wrapped rope) ===
+rect 0.38,0.50 0.24,0.08 fill #5c3a1e 0.92
+rect 0.38,0.50 0.24,0.08 stroke #2a1400
+line 0.38,0.52 0.62,0.52 stroke #8b7355 0.7
+line 0.38,0.54 0.62,0.54 stroke #8b7355 0.6
+line 0.38,0.56 0.62,0.56 stroke #8b7355 0.7
+
+# === Twine knot ===
+circle 0.62,0.54 0.025 fill #3a2010 0.9
+# Twine tail
+bezier 0.62,0.54 0.68,0.56 0.72,0.60 0.74,0.64 stroke #8b7355 width 1
+
+# === Cut stem ends south of binding (pale) ===
+line 0.42,0.58 0.40,0.66 stroke #a8c080 width 1
+line 0.46,0.58 0.46,0.68 stroke #a8c080 width 1
+line 0.50,0.58 0.52,0.68 stroke #a8c080 width 1
+line 0.54,0.58 0.56,0.66 stroke #a8c080 width 1
+line 0.58,0.58 0.60,0.64 stroke #a8c080 width 1
+
+# === Stray loose leaf on floor ===
+poly 0.18,0.70 0.24,0.68 0.22,0.76 fill #4a7028 0.85
+poly 0.18,0.70 0.24,0.68 0.22,0.76 stroke #1a3010
+
+# === Leaf vein detail ===
+line 0.32,0.30 0.32,0.36 stroke #1a3010 0.55
+line 0.50,0.24 0.50,0.30 stroke #1a3010 0.55
+line 0.66,0.30 0.66,0.36 stroke #1a3010 0.55

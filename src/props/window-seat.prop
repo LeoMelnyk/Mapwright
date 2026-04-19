@@ -1,0 +1,72 @@
+name: Window Seat
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 2
+placement: wall
+room_types: noble-solar, mansion-bedroom-master, house-noble-townhouse, mansion-grand-hall, library, study
+typical_count: single
+clusters_with: sun-window, curtain, vase-floor, rug-oriental
+notes: Built-in wall bench tucked under a window. Cushion runs the full length with decorative pillows. Hugs the north wall.
+---
+# === HITBOX ===
+hitbox rect 0.04,0.04 1.92,0.58 z 0-2
+
+# footprint 1x2: x 0-2, y 0-1
+# Wooden bench frame built into wall (north side)
+rect 0.04,0.04 1.92,0.58 texfill polyhaven/dark_wood 0.9
+rect 0.04,0.04 1.92,0.58 stroke #2a1400 width 2
+
+# Inset panel detail on front (south face — thin visible band)
+rect 0.08,0.54 1.84,0.08 fill #1a0a00 0.35
+rect 0.08,0.54 1.84,0.08 stroke #3a1f00 width 1
+
+# Decorative carved panels on front face (three panels)
+rect 0.14,0.56 0.56,0.05 stroke #daa520 0.6 width 1
+rect 0.72,0.56 0.56,0.05 stroke #daa520 0.6 width 1
+rect 1.30,0.56 0.56,0.05 stroke #daa520 0.6 width 1
+
+# Long upholstered cushion (main seat)
+rect 0.10,0.14 1.80,0.36 fill #5a1018 0.95
+rect 0.10,0.14 1.80,0.36 texfill polyhaven/velour_velvet 0.6
+rect 0.10,0.14 1.80,0.36 stroke #2a0000 width 2
+
+# Gold piping around cushion
+rect 0.12,0.16 1.76,0.32 stroke #daa520 0.7 width 1
+
+# Seam down the middle (cushion split)
+line 1.00,0.14 1.00,0.50 stroke #2a0000 0.7 width 1
+
+# Button tufts (3 per half)
+circle 0.30,0.28 0.022 fill #2a0000 0.9
+circle 0.60,0.28 0.022 fill #2a0000 0.9
+circle 0.30,0.40 0.022 fill #2a0000 0.9
+circle 0.60,0.40 0.022 fill #2a0000 0.9
+circle 1.40,0.28 0.022 fill #2a0000 0.9
+circle 1.70,0.28 0.022 fill #2a0000 0.9
+circle 1.40,0.40 0.022 fill #2a0000 0.9
+circle 1.70,0.40 0.022 fill #2a0000 0.9
+
+# Throw pillow 1 (west end, gold brocade)
+rect 0.18,0.20 0.26,0.22 fill #daa520 0.95
+rect 0.18,0.20 0.26,0.22 texfill polyhaven/floral_jacquard 0.5
+rect 0.18,0.20 0.26,0.22 stroke #5a3a00 width 1
+# Tassel corners
+circle 0.19,0.21 0.018 fill #8b6914 0.9
+circle 0.43,0.21 0.018 fill #8b6914 0.9
+circle 0.19,0.41 0.018 fill #8b6914 0.9
+circle 0.43,0.41 0.018 fill #8b6914 0.9
+
+# Throw pillow 2 (east end, deep blue)
+rect 1.56,0.22 0.26,0.22 fill #1a1a4a 0.95
+rect 1.56,0.22 0.26,0.22 texfill polyhaven/velour_velvet 0.45
+rect 1.56,0.22 0.26,0.22 stroke #080820 width 1
+circle 1.57,0.23 0.018 fill #daa520 0.9
+circle 1.81,0.23 0.018 fill #daa520 0.9
+circle 1.57,0.43 0.018 fill #daa520 0.9
+circle 1.81,0.43 0.018 fill #daa520 0.9
+
+# Subtle light spill from window above (faint warm glow across cushion)
+ellipse 1.00,0.30 0.60,0.12 fill #ffeaa0 0.18

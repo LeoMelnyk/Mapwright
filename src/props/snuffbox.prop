@@ -1,0 +1,55 @@
+name: Snuffbox
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: house-noble-townhouse, mansion-study, parlor, gentlemens-club, carriage-interior, noble-solar
+typical_count: few
+clusters_with: desk, armchair, pipe-ashtray, paperweight
+notes: Small enameled snuffbox with painted lid, closed and resting on a flat surface
+---
+# === HITBOX ===
+selection rect 0.30,0.32 0.40,0.36
+
+# Outer box body (gold/brass case)
+rect 0.30,0.32 0.40,0.36 fill #daa520 0.92
+rect 0.30,0.32 0.40,0.36 stroke #5a3a00 width 2
+
+# Inset enamel lid (top surface — deep blue enamel)
+rect 0.34,0.36 0.32,0.28 fill #1a3a7a 0.95
+rect 0.34,0.36 0.32,0.28 stroke #0a1a4a width 2
+
+# Enamel reflection highlight
+line 0.36,0.38 0.56,0.38 stroke #4a6aaa 0.6 width 1
+
+# Central painted miniature (oval portrait frame)
+ellipse 0.50,0.50 0.10,0.08 fill #c8a878 0.85
+ellipse 0.50,0.50 0.10,0.08 stroke #5a3a00 width 2
+# Painted figure hint (small face dot)
+circle 0.50,0.48 0.02 fill #8b5a3a 0.9
+# Tiny body shape below face
+ellipse 0.50,0.54 0.05,0.03 fill #5a3a2a 0.85
+
+# Gold filigree scrollwork on corners
+circle 0.36,0.38 0.015 fill #ffd700 0.8
+circle 0.64,0.38 0.015 fill #ffd700 0.8
+circle 0.36,0.62 0.015 fill #ffd700 0.8
+circle 0.64,0.62 0.015 fill #ffd700 0.8
+# Connecting scroll lines
+line 0.36,0.38 0.40,0.40 stroke #ffd700 0.6 width 1
+line 0.64,0.38 0.60,0.40 stroke #ffd700 0.6 width 1
+line 0.36,0.62 0.40,0.60 stroke #ffd700 0.6 width 1
+line 0.64,0.62 0.60,0.60 stroke #ffd700 0.6 width 1
+
+# Hinge line at north edge (thin break in the case)
+line 0.32,0.34 0.68,0.34 stroke #5a3a00 0.6 width 1
+# Clasp catch at south edge (tiny protrusion)
+rect 0.48,0.67 0.04,0.02 fill #ffd700 0.9
+rect 0.48,0.67 0.04,0.02 stroke #5a3a00
+
+# Subtle brass edge shine
+line 0.30,0.32 0.30,0.68 stroke #ffd700 0.5 width 1
+line 0.30,0.32 0.70,0.32 stroke #ffd700 0.5 width 1

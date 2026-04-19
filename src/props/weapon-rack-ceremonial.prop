@@ -1,0 +1,108 @@
+name: Ceremonial Weapon Rack
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: wall
+room_types: throne-room, court, knightly-hall, noble-armory, royal-hall
+typical_count: few
+clusters_with: banner, throne, carpet-royal, pillar
+notes: Ornate wall-mounted ceremonial weapon display with gold-inlaid blades and polearms. Richer than standard weapon-rack.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.46 z 0-5
+
+# footprint 1x2: x 0-2, y 0-1. Wall at north (low Y).
+# Top-down: ornate wooden rack with gold trim, ceremonial blades/polearms hanging south.
+
+# === Carved wooden backer (dark wood with gold inlay) ===
+rect 0.08,0.08 1.84,0.20 texfill polyhaven/dark_wood 0.92
+rect 0.08,0.08 1.84,0.20 stroke #1a0800 width 2
+
+# Gold upper trim (filigree band)
+rect 0.08,0.08 1.84,0.04 fill #daa520 0.9
+rect 0.08,0.08 1.84,0.04 stroke #5a3a00
+
+# Gold lower trim
+rect 0.08,0.26 1.84,0.02 fill #daa520 0.85
+
+# Ornamental rosettes along the rack (gold)
+circle 0.28,0.18 0.04 fill #daa520 0.9
+circle 0.28,0.18 0.04 stroke #5a3a00
+circle 0.28,0.18 0.015 fill #8b1a1a 0.85
+circle 0.68,0.18 0.04 fill #daa520 0.9
+circle 0.68,0.18 0.04 stroke #5a3a00
+circle 0.68,0.18 0.015 fill #8b1a1a 0.85
+circle 1.00,0.18 0.045 fill #daa520 0.95
+circle 1.00,0.18 0.045 stroke #5a3a00
+circle 1.00,0.18 0.02 fill #8b1a1a 0.9
+circle 1.32,0.18 0.04 fill #daa520 0.9
+circle 1.32,0.18 0.04 stroke #5a3a00
+circle 1.32,0.18 0.015 fill #8b1a1a 0.85
+circle 1.72,0.18 0.04 fill #daa520 0.9
+circle 1.72,0.18 0.04 stroke #5a3a00
+circle 1.72,0.18 0.015 fill #8b1a1a 0.85
+
+# === Ornate end finials (carved caps) ===
+rect 0.06,0.06 0.08,0.28 fill #1a0800 0.9
+rect 0.06,0.06 0.08,0.28 stroke #000000 width 1
+rect 1.86,0.06 0.08,0.28 fill #1a0800 0.9
+rect 1.86,0.06 0.08,0.28 stroke #000000 width 1
+# Gold finial tips
+circle 0.10,0.06 0.04 fill #daa520 0.95
+circle 0.10,0.06 0.04 stroke #5a3a00
+circle 1.90,0.06 0.04 fill #daa520 0.95
+circle 1.90,0.06 0.04 stroke #5a3a00
+
+# === Ceremonial longsword (center position — most prominent) ===
+# Blade (polished silver with gold inlay)
+line 1.00,0.28 1.00,0.88 stroke #c8d8e8 width 4
+line 1.00,0.28 1.00,0.88 stroke #8899aa width 2
+# Gold fuller inlay
+line 1.00,0.36 1.00,0.80 stroke #daa520 0.7 width 1
+# Ornate crossguard (wider, more detailed than standard)
+rect 0.90,0.78 0.20,0.04 fill #daa520 0.95
+rect 0.90,0.78 0.20,0.04 stroke #5a3a00
+# Crossguard end caps (curled)
+circle 0.90,0.80 0.03 fill #daa520 0.95
+circle 0.90,0.80 0.03 stroke #5a3a00
+circle 1.10,0.80 0.03 fill #daa520 0.95
+circle 1.10,0.80 0.03 stroke #5a3a00
+# Sword pommel (jeweled)
+circle 1.00,0.22 0.07 fill #daa520 0.95
+circle 1.00,0.22 0.07 stroke #5a3a00 width 1
+circle 1.00,0.22 0.035 fill #8b1a1a 0.9
+circle 1.00,0.22 0.015 fill #ff4040 0.8
+
+# === Ceremonial halberd (west side) ===
+# Shaft (rich dark wood with gold wraps)
+line 0.40,0.28 0.40,0.92 stroke #3a1f00 width 3
+# Gold bindings
+rect 0.38,0.40 0.04,0.02 fill #daa520 0.85
+rect 0.38,0.60 0.04,0.02 fill #daa520 0.85
+rect 0.38,0.80 0.04,0.02 fill #daa520 0.85
+# Axe-blade head (curved gold-inlaid)
+poly 0.30,0.82 0.40,0.78 0.48,0.82 0.52,0.92 0.44,0.94 0.32,0.90 fill #daa520 0.5
+poly 0.30,0.82 0.40,0.78 0.48,0.82 0.52,0.92 0.44,0.94 0.32,0.90 texfill polyhaven/metal_plate 0.55
+poly 0.30,0.82 0.40,0.78 0.48,0.82 0.52,0.92 0.44,0.94 0.32,0.90 stroke #5a3a00 width 1
+# Spike tip
+line 0.40,0.78 0.40,0.94 stroke #8899aa width 2
+# Pommel
+circle 0.40,0.22 0.05 fill #daa520 0.95
+circle 0.40,0.22 0.05 stroke #5a3a00
+
+# === Ceremonial spear (east side) ===
+line 1.60,0.28 1.60,0.94 stroke #3a1f00 width 3
+# Gold wraps
+rect 1.58,0.44 0.04,0.02 fill #daa520 0.85
+rect 1.58,0.64 0.04,0.02 fill #daa520 0.85
+# Leaf-shaped spear tip (gold-edged)
+poly 1.54,0.84 1.60,0.76 1.66,0.84 1.64,0.92 1.60,0.96 1.56,0.92 fill #c8d8e8 0.9
+poly 1.54,0.84 1.60,0.76 1.66,0.84 1.64,0.92 1.60,0.96 1.56,0.92 stroke #daa520 width 1
+# Tassel at base
+ellipse 1.60,0.38 0.05,0.03 fill #8b1a1a 0.85
+# Pommel
+circle 1.60,0.22 0.05 fill #daa520 0.95
+circle 1.60,0.22 0.05 stroke #5a3a00

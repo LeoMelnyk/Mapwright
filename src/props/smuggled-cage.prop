@@ -1,0 +1,44 @@
+name: Smuggled Cage
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: ship, cargo-hold, black-market, smuggler-den
+typical_count: few
+clusters_with: crate, barrel, cargo-lashing
+notes: Small iron cage with exotic creature silhouette inside; hidden among cargo
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: circular iron birdcage from above — ring of bars, partial creature silhouette
+
+# Cage base plate (iron disc)
+circle 0.50,0.50 0.32 texfill polyhaven/metal_plate 0.6
+circle 0.50,0.50 0.32 stroke #444444
+
+# Cage bars (radial lines from center, seen from above as spoke pattern)
+line 0.50,0.18 0.50,0.82 stroke #555555 width 2
+line 0.18,0.50 0.82,0.50 stroke #555555 width 2
+line 0.27,0.27 0.73,0.73 stroke #555555 width 2
+line 0.73,0.27 0.27,0.73 stroke #555555 width 2
+
+# Cage top ring (iron hoop seen from above)
+circle 0.50,0.50 0.30 stroke #555555 width 3
+circle 0.50,0.50 0.28 stroke #444444
+
+# Hanging hook at top center
+circle 0.50,0.50 0.04 fill #666666 0.8
+circle 0.50,0.50 0.04 stroke #444444
+
+# Creature silhouette inside (dark partial shape — huddled form)
+ellipse 0.48,0.52 0.12,0.10 fill #1a1a1a 0.35
+circle 0.44,0.44 0.05 fill #1a1a1a 0.3
+# Glint of eyes
+circle 0.42,0.43 0.015 fill #ffcc00 0.5
+circle 0.46,0.43 0.015 fill #ffcc00 0.5
+
+# Cage floor litter (straw bits)
+line 0.36,0.60 0.44,0.58 stroke #8b7355 0.3
+line 0.54,0.62 0.62,0.58 stroke #8b7355 0.3
+line 0.46,0.64 0.52,0.66 stroke #8b7355 0.25

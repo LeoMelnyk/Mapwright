@@ -1,0 +1,83 @@
+name: Settee
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: floor
+room_types: house-noble-townhouse, noble-solar, mansion-bedroom-master, mansion-grand-hall, parlor, brothel-parlor
+typical_count: few
+clusters_with: armchair, rug-oriental, fireplace, vase-floor, table-small
+notes: Two-seat upholstered couch with gilt wood frame. Facing south.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 0.84,1.84 z 0-2
+hitbox rect 0.12,0.08 0.76,0.22 z 2-3
+
+# footprint 2x1: x 0-1, y 0-2
+# Backrest (north side, tall & upholstered, facing south means back = low Y)
+rect 0.10,0.08 0.80,0.24 fill #4a0a10 0.95
+rect 0.10,0.08 0.80,0.24 texfill polyhaven/velour_velvet 0.6
+rect 0.10,0.08 0.80,0.24 stroke #2a0000 width 2
+
+# Gilt wood crown above backrest (carved trim along north edge)
+rect 0.08,0.06 0.84,0.04 fill #daa520 0.85
+rect 0.08,0.06 0.84,0.04 stroke #5a3a00 width 1
+
+# Backrest button tufting (2x2 grid)
+circle 0.32,0.16 0.022 fill #2a0000 0.9
+circle 0.68,0.16 0.022 fill #2a0000 0.9
+circle 0.32,0.24 0.022 fill #2a0000 0.9
+circle 0.68,0.24 0.022 fill #2a0000 0.9
+
+# Left armrest (west — runs full length NS)
+rect 0.08,0.12 0.14,1.78 fill #4a0a10 0.95
+rect 0.08,0.12 0.14,1.78 texfill polyhaven/velour_velvet 0.5
+rect 0.08,0.12 0.14,1.78 stroke #2a0000 width 2
+
+# Gilt trim along left armrest top
+rect 0.08,0.12 0.14,0.04 fill #daa520 0.7
+rect 0.08,0.12 0.14,0.04 stroke #5a3a00 width 1
+# Armrest scroll cap (south end)
+circle 0.15,1.84 0.06 fill #daa520 0.85
+circle 0.15,1.84 0.06 stroke #5a3a00 width 1
+arc 0.15,1.84 0.04 0 270 stroke #5a3a00 0.85 width 1
+
+# Right armrest (east — mirror)
+rect 0.78,0.12 0.14,1.78 fill #4a0a10 0.95
+rect 0.78,0.12 0.14,1.78 texfill polyhaven/velour_velvet 0.5
+rect 0.78,0.12 0.14,1.78 stroke #2a0000 width 2
+
+rect 0.78,0.12 0.14,0.04 fill #daa520 0.7
+rect 0.78,0.12 0.14,0.04 stroke #5a3a00 width 1
+circle 0.85,1.84 0.06 fill #daa520 0.85
+circle 0.85,1.84 0.06 stroke #5a3a00 width 1
+arc 0.85,1.84 0.04 270 180 stroke #5a3a00 0.85 width 1
+
+# Seat cushions — two cushions (north seat + south seat)
+rect 0.24,0.34 0.52,0.76 fill #6a1018 0.95
+rect 0.24,0.34 0.52,0.76 texfill polyhaven/velour_velvet 0.6
+rect 0.24,0.34 0.52,0.76 stroke #2a0000 width 2
+
+rect 0.24,1.12 0.52,0.76 fill #6a1018 0.95
+rect 0.24,1.12 0.52,0.76 texfill polyhaven/velour_velvet 0.6
+rect 0.24,1.12 0.52,0.76 stroke #2a0000 width 2
+
+# Cushion seam lines
+line 0.28,0.40 0.72,0.40 stroke #2a0000 0.7 width 1
+line 0.28,1.82 0.72,1.82 stroke #2a0000 0.7 width 1
+
+# Button tufts on cushions
+circle 0.38,0.72 0.025 fill #3a0000 0.9
+circle 0.62,0.72 0.025 fill #3a0000 0.9
+circle 0.38,1.50 0.025 fill #3a0000 0.9
+circle 0.62,1.50 0.025 fill #3a0000 0.9
+
+# Gold braid piping around each cushion
+rect 0.26,0.36 0.48,0.72 stroke #daa520 0.65 width 1
+rect 0.26,1.14 0.48,0.72 stroke #daa520 0.65 width 1
+
+# Leg shadows at corners
+circle 0.14,1.92 0.04 fill #1a0a00 0.55
+circle 0.86,1.92 0.04 fill #1a0a00 0.55

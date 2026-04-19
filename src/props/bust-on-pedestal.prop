@@ -1,0 +1,75 @@
+name: Bust on Pedestal
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3.5
+placement: corner
+room_types: mansion-grand-hall, mansion-library, throne-room, gallery
+typical_count: few
+clusters_with: pedestal-stone, tapestry, chandelier-small, carpet
+notes: Marble bust atop a stone pedestal — noble ancestor or hero
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-3.5
+
+# Pedestal base (square stone, widest at bottom)
+rect 0.18,0.62 0.64,0.22 texfill polyhaven/granite_tile 0.9
+rect 0.18,0.62 0.64,0.22 fill #8a8078 0.4
+rect 0.18,0.62 0.64,0.22 stroke #333333
+# Pedestal middle section
+rect 0.22,0.56 0.56,0.10 texfill polyhaven/marble_01 0.9
+rect 0.22,0.56 0.56,0.10 stroke #555555
+# Pedestal column (narrower middle)
+rect 0.30,0.38 0.40,0.22 texfill polyhaven/marble_01 0.92
+rect 0.30,0.38 0.40,0.22 fill #c8c0b8 0.3
+rect 0.30,0.38 0.40,0.22 stroke #555555
+# Column fluting
+line 0.36,0.38 0.36,0.60 stroke #888888 0.6
+line 0.44,0.38 0.44,0.60 stroke #888888 0.6
+line 0.52,0.38 0.52,0.60 stroke #888888 0.6
+line 0.60,0.38 0.60,0.60 stroke #888888 0.6
+# Pedestal top (capital)
+rect 0.26,0.34 0.48,0.08 texfill polyhaven/marble_01 0.9
+rect 0.26,0.34 0.48,0.08 stroke #555555
+# === Marble bust ===
+# Shoulders/chest base (wider south)
+poly 0.26,0.32 0.74,0.32 0.72,0.22 0.28,0.22 fill #e8e0d8 0.95
+poly 0.26,0.32 0.74,0.32 0.72,0.22 0.28,0.22 texfill polyhaven/marble_01 0.6
+poly 0.26,0.32 0.74,0.32 0.72,0.22 0.28,0.22 stroke #888888
+# Chest drapery folds
+line 0.40,0.22 0.38,0.32 stroke #aaaaaa 0.7
+line 0.50,0.22 0.50,0.32 stroke #aaaaaa 0.7
+line 0.60,0.22 0.62,0.32 stroke #aaaaaa 0.7
+# Neck
+rect 0.44,0.18 0.12,0.08 fill #e8e0d8 0.95
+rect 0.44,0.18 0.12,0.08 texfill polyhaven/marble_01 0.55
+rect 0.44,0.18 0.12,0.08 stroke #888888
+# Head (from above: oval skull)
+ellipse 0.50,0.14 0.10,0.08 fill #e8e0d8 0.95
+ellipse 0.50,0.14 0.10,0.08 texfill polyhaven/marble_01 0.5
+ellipse 0.50,0.14 0.10,0.08 stroke #888888
+# Hair/crown (detailed top of head)
+arc 0.50,0.12 0.10 180 360 stroke #aaaaaa 0.7 width 1
+line 0.42,0.12 0.58,0.12 stroke #aaaaaa 0.6
+# Eye hollows (shadows from above)
+circle 0.47,0.13 0.012 fill #888888 0.6
+circle 0.53,0.13 0.012 fill #888888 0.6
+# Laurel wreath/crown highlights (gold paint remnants)
+line 0.42,0.08 0.58,0.08 stroke #daa520 0.5
+poly 0.44,0.08 0.46,0.06 0.48,0.08 fill #daa520 0.6
+poly 0.52,0.08 0.54,0.06 0.56,0.08 fill #daa520 0.6
+# Marble sheen (top of head highlight)
+arc 0.50,0.14 0.08 210 250 stroke #ffffff 0.7 width 1
+# Pedestal engraved plaque (name plate)
+rect 0.30,0.68 0.40,0.08 fill #8b6914 0.8
+rect 0.30,0.68 0.40,0.08 stroke #3a2000
+# Plaque text lines
+line 0.34,0.71 0.66,0.71 stroke #2a1400 0.7
+line 0.34,0.74 0.62,0.74 stroke #2a1400 0.6
+# Dust on pedestal base
+ellipse 0.40,0.80 0.06,0.02 fill #8a8078 0.4
+ellipse 0.60,0.80 0.06,0.02 fill #8a8078 0.4
+# Crack in marble (age)
+line 0.38,0.40 0.42,0.56 stroke #888888 0.5

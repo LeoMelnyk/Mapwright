@@ -1,0 +1,109 @@
+name: Hanging Vine
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 3.0
+placement: center
+room_types: ancient-ruin-overgrown, jungle, overgrown-ruin, forest, grotto, fey-glade, cave
+typical_count: few
+clusters_with: tree, vine, moss-patch, ruin-column, fallen-pillar
+notes: Hanging vines suspended from overhead. Top-down view shows vertical strand shadows with small leaves visible — not floor plants, but vines hanging DOWN from above.
+---
+# footprint 1x2: x 0-2, y 0-1
+# Overhead prop — no shadow, no light-block
+
+# === Faint shadow lines on ground where vines hang ===
+line 0.30,0.20 0.34,0.80 stroke #1a1a08 0.15 width 4
+line 0.70,0.20 0.66,0.80 stroke #1a1a08 0.15 width 4
+line 1.10,0.20 1.14,0.80 stroke #1a1a08 0.15 width 4
+line 1.50,0.20 1.46,0.80 stroke #1a1a08 0.15 width 4
+line 1.80,0.20 1.84,0.80 stroke #1a1a08 0.15 width 4
+
+# === Main vine strands (bezier curves, slightly swaying) ===
+# Strand 1 (west)
+bezier 0.30,0.08 0.28,0.30 0.36,0.55 0.34,0.88 stroke #3a5a1e width 3
+bezier 0.30,0.08 0.28,0.30 0.36,0.55 0.34,0.88 stroke #1a3a08 0.7 width 1
+
+# Strand 2
+bezier 0.70,0.08 0.72,0.30 0.64,0.55 0.66,0.88 stroke #3a5a1e width 3
+bezier 0.70,0.08 0.72,0.30 0.64,0.55 0.66,0.88 stroke #1a3a08 0.7 width 1
+
+# Strand 3
+bezier 1.10,0.08 1.08,0.30 1.16,0.55 1.14,0.88 stroke #2d5a1e width 3
+bezier 1.10,0.08 1.08,0.30 1.16,0.55 1.14,0.88 stroke #1a3a08 0.7 width 1
+
+# Strand 4
+bezier 1.50,0.08 1.52,0.30 1.44,0.55 1.46,0.88 stroke #3a5a1e width 3
+bezier 1.50,0.08 1.52,0.30 1.44,0.55 1.46,0.88 stroke #1a3a08 0.7 width 1
+
+# Strand 5 (east)
+bezier 1.80,0.08 1.82,0.30 1.86,0.55 1.84,0.88 stroke #2d5a1e width 3
+bezier 1.80,0.08 1.82,0.30 1.86,0.55 1.84,0.88 stroke #1a3a08 0.7 width 1
+
+# === Small leaves along the vines (visible from above as oval blotches) ===
+# Strand 1 leaves
+ellipse 0.34,0.22 0.045,0.030 fill #3a7a28 0.85
+ellipse 0.34,0.22 0.045,0.030 stroke #1a4a10 0.7
+ellipse 0.28,0.42 0.040,0.025 fill #2d6a1e 0.85
+ellipse 0.28,0.42 0.040,0.025 stroke #1a4a10 0.7
+ellipse 0.38,0.65 0.045,0.030 fill #3a7a28 0.85
+ellipse 0.38,0.65 0.045,0.030 stroke #1a4a10 0.7
+ellipse 0.32,0.85 0.040,0.025 fill #2d5a1e 0.85
+
+# Strand 2 leaves
+ellipse 0.74,0.18 0.045,0.030 fill #2d6a1e 0.85
+ellipse 0.74,0.18 0.045,0.030 stroke #1a4a10 0.7
+ellipse 0.68,0.38 0.040,0.025 fill #3a7a28 0.85
+ellipse 0.68,0.38 0.040,0.025 stroke #1a4a10 0.7
+ellipse 0.62,0.60 0.045,0.030 fill #2d6a1e 0.85
+ellipse 0.62,0.60 0.045,0.030 stroke #1a4a10 0.7
+ellipse 0.68,0.82 0.040,0.025 fill #3a7a28 0.85
+
+# Strand 3 leaves
+ellipse 1.14,0.20 0.045,0.030 fill #3a7a28 0.85
+ellipse 1.14,0.20 0.045,0.030 stroke #1a4a10 0.7
+ellipse 1.08,0.42 0.040,0.025 fill #2d6a1e 0.85
+ellipse 1.08,0.42 0.040,0.025 stroke #1a4a10 0.7
+ellipse 1.18,0.64 0.045,0.030 fill #3a7a28 0.85
+ellipse 1.18,0.64 0.045,0.030 stroke #1a4a10 0.7
+ellipse 1.12,0.86 0.040,0.025 fill #2d6a1e 0.85
+
+# Strand 4 leaves
+ellipse 1.54,0.18 0.045,0.030 fill #2d6a1e 0.85
+ellipse 1.54,0.18 0.045,0.030 stroke #1a4a10 0.7
+ellipse 1.48,0.42 0.040,0.025 fill #3a7a28 0.85
+ellipse 1.48,0.42 0.040,0.025 stroke #1a4a10 0.7
+ellipse 1.42,0.64 0.045,0.030 fill #2d6a1e 0.85
+ellipse 1.42,0.64 0.045,0.030 stroke #1a4a10 0.7
+ellipse 1.48,0.84 0.040,0.025 fill #3a7a28 0.85
+
+# Strand 5 leaves
+ellipse 1.84,0.20 0.045,0.030 fill #3a7a28 0.85
+ellipse 1.84,0.20 0.045,0.030 stroke #1a4a10 0.7
+ellipse 1.80,0.44 0.040,0.025 fill #2d6a1e 0.85
+ellipse 1.80,0.44 0.040,0.025 stroke #1a4a10 0.7
+ellipse 1.86,0.68 0.045,0.030 fill #3a7a28 0.85
+ellipse 1.86,0.68 0.045,0.030 stroke #1a4a10 0.7
+
+# === Small flower/fruit clusters on some vines ===
+circle 0.30,0.52 0.020 fill #dd6080 0.85
+circle 0.30,0.52 0.020 stroke #8a2040 0.7
+circle 1.12,0.30 0.018 fill #dd6080 0.85
+circle 1.12,0.30 0.018 stroke #8a2040 0.7
+circle 1.48,0.70 0.020 fill #dd6080 0.85
+circle 1.48,0.70 0.020 stroke #8a2040 0.7
+
+# === Tiny tendrils curling off the strands ===
+bezier 0.34,0.45 0.28,0.50 0.24,0.52 0.22,0.56 stroke #2d6a1e 0.7 width 1
+bezier 0.68,0.28 0.62,0.30 0.58,0.30 0.56,0.34 stroke #2d6a1e 0.7 width 1
+bezier 1.14,0.50 1.20,0.55 1.24,0.56 1.28,0.58 stroke #2d6a1e 0.7 width 1
+bezier 1.46,0.68 1.52,0.72 1.56,0.72 1.58,0.74 stroke #2d6a1e 0.7 width 1
+
+# === Bright highlight dots on leaves (catching light) ===
+circle 0.36,0.22 0.008 fill #80c858 0.65
+circle 0.74,0.18 0.008 fill #80c858 0.65
+circle 1.14,0.20 0.008 fill #80c858 0.65
+circle 1.54,0.18 0.008 fill #80c858 0.65
+circle 1.84,0.20 0.008 fill #80c858 0.65

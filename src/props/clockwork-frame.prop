@@ -1,0 +1,63 @@
+name: Clockwork Frame
+category: Workshop
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: workshop-artificer, forge, tinker-workshop
+typical_count: single
+clusters_with: gear-pile, half-built-device, tool-rack, workbench
+notes: Half-assembled mechanical frame on a worktable; place near tools and supplies
+---
+# footprint 2x2: x range 0-2, y range 0-2
+
+# Worktable surface
+rect 0.1,0.1 1.8,1.8 texfill polyhaven/wood_table 0.8
+rect 0.1,0.1 1.8,1.8 stroke #3a1f00
+# Table legs
+circle 0.22,0.22 0.08 fill #3a1f00 0.5
+circle 1.78,0.22 0.08 fill #3a1f00 0.5
+circle 0.22,1.78 0.08 fill #3a1f00 0.5
+circle 1.78,1.78 0.08 fill #3a1f00 0.5
+
+# Brass rectangular frame outline
+rect 0.3,0.3 1.4,1.4 stroke #8b6914 width 3
+# Cross-brace struts
+line 0.3,0.3 1.7,1.7 stroke #8b6914 width 2
+line 1.7,0.3 0.3,1.7 stroke #8b6914 width 2
+# Mid cross-brace
+line 1.0,0.3 1.0,1.7 stroke #daa520 0.5 width 2
+line 0.3,1.0 1.7,1.0 stroke #daa520 0.5 width 2
+
+# Large gear disc (upper-left quadrant)
+circle 0.65,0.65 0.22 fill #8899aa 0.6
+circle 0.65,0.65 0.22 stroke #444444
+circle 0.65,0.65 0.10 fill #666666 0.7
+circle 0.65,0.65 0.04 fill #222222 0.9
+# Gear teeth marks (small radial ticks)
+line 0.65,0.43 0.65,0.47 stroke #333333 width 2
+line 0.65,0.83 0.65,0.87 stroke #333333 width 2
+line 0.43,0.65 0.47,0.65 stroke #333333 width 2
+line 0.83,0.65 0.87,0.65 stroke #333333 width 2
+
+# Medium gear disc (lower-right)
+circle 1.35,1.35 0.18 fill #8899aa 0.6
+circle 1.35,1.35 0.18 stroke #444444
+circle 1.35,1.35 0.08 fill #666666 0.7
+circle 1.35,1.35 0.035 fill #222222 0.9
+
+# Small gear disc (upper-right)
+circle 1.45,0.60 0.12 fill #667788 0.65
+circle 1.45,0.60 0.12 stroke #444444
+circle 1.45,0.60 0.05 fill #333333 0.8
+
+# Wound coil spring (lower-left)
+circle 0.60,1.40 0.14 stroke #8899aa width 3
+circle 0.60,1.40 0.08 stroke #667788 width 2
+circle 0.60,1.40 0.03 fill #555555 0.9
+
+# Loose connecting rod lying across frame
+line 0.85,1.55 1.55,0.85 stroke #555555 width 3
+circle 0.85,1.55 0.03 fill #444444 0.9
+circle 1.55,0.85 0.03 fill #444444 0.9

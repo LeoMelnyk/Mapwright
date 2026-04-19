@@ -1,0 +1,52 @@
+name: Dice Pile
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: gambling-den, cave-bandit-camp, tavern-common, brothel-parlor, barracks
+typical_count: few
+clusters_with: card-table, dice-table, chips-stack, bone-pile-small
+notes: Scatter of small bone or wooden dice on the floor — faces up with pip marks
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.28
+
+# Die 1 — bone, top-left, rotated
+rect 0.22,0.24 0.14,0.14 fill #e8dcc8 0.95 rotate 18
+rect 0.22,0.24 0.14,0.14 stroke #8b7355 width 1 rotate 18
+# pips (showing "5")
+circle 0.25,0.27 0.014 fill #1a1008 0.9
+circle 0.33,0.27 0.014 fill #1a1008 0.9
+circle 0.29,0.31 0.014 fill #1a1008 0.9
+circle 0.25,0.35 0.014 fill #1a1008 0.9
+circle 0.33,0.35 0.014 fill #1a1008 0.9
+
+# Die 2 — bone, center-right, rotated
+rect 0.58,0.44 0.16,0.16 fill #d4c4a8 0.95 rotate -22
+rect 0.58,0.44 0.16,0.16 stroke #8b7355 width 1 rotate -22
+# pips (showing "3")
+circle 0.62,0.48 0.014 fill #1a1008 0.9
+circle 0.66,0.52 0.014 fill #1a1008 0.9
+circle 0.70,0.56 0.014 fill #1a1008 0.9
+
+# Die 3 — wooden, lower-left, rotated
+rect 0.30,0.60 0.14,0.14 fill #8b6914 0.9 rotate 8
+rect 0.30,0.60 0.14,0.14 stroke #3a1f00 width 1 rotate 8
+# pips (showing "2")
+circle 0.34,0.64 0.014 fill #1a1008 0.9
+circle 0.40,0.70 0.014 fill #1a1008 0.9
+
+# Die 4 — small bone, bottom-right
+rect 0.62,0.66 0.12,0.12 fill #e8dcc8 0.95 rotate 35
+rect 0.62,0.66 0.12,0.12 stroke #8b7355 width 1 rotate 35
+# pips (showing "1")
+circle 0.68,0.72 0.018 fill #1a1008 0.9
+
+# Subtle shadow blobs beneath each die
+ellipse 0.29,0.38 0.08,0.02 fill #1a1008 0.25
+ellipse 0.66,0.58 0.09,0.025 fill #1a1008 0.25
+ellipse 0.37,0.72 0.07,0.02 fill #1a1008 0.2
+ellipse 0.68,0.76 0.06,0.02 fill #1a1008 0.2

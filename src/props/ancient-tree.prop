@@ -1,0 +1,140 @@
+name: Ancient Tree
+category: Terrain
+footprint: 3x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 8
+placement: floor
+room_types: druid-grove, forest, wilderness, fey-glade, enchanted-grove, sacred-grove, elder-forest
+typical_count: single
+clusters_with: tree, tree-old, tree-stump, wildflower-patch, mushroom, toadstool-ring
+notes: Massive ancient colossal tree — wider, more twisted than tree-old, with a hollow face carved in the trunk and a prominent burl. Sparser, broken canopy showing sky. Place at grove center as focal point.
+---
+# footprint 3x3: x 0-3, y 0-3.
+# === HITBOX — very wide trunk blocks light ===
+hitbox circle 1.50,1.50 0.52 z 0-8
+
+# === Deep ground shadow under massive canopy ===
+circle 1.50,1.60 1.35 fill #0a1a04 0.35
+
+# === Massive spreading buttress roots (wider, longer than tree-old) ===
+bezier 1.22,1.94 0.98,2.20 0.72,2.42 0.40,2.58 stroke #3a1f00 width 9
+bezier 1.22,1.94 0.98,2.20 0.72,2.42 0.40,2.58 stroke #1a0a00 width 2
+bezier 1.78,1.94 2.02,2.20 2.28,2.42 2.60,2.58 stroke #3a1f00 width 9
+bezier 1.78,1.94 2.02,2.20 2.28,2.42 2.60,2.58 stroke #1a0a00 width 2
+bezier 1.10,1.72 0.82,1.68 0.52,1.72 0.20,1.78 stroke #3a1f00 width 8
+bezier 1.10,1.72 0.82,1.68 0.52,1.72 0.20,1.78 stroke #1a0a00 width 2
+bezier 1.90,1.72 2.18,1.68 2.48,1.72 2.80,1.78 stroke #3a1f00 width 8
+bezier 1.90,1.72 2.18,1.68 2.48,1.72 2.80,1.78 stroke #1a0a00 width 2
+bezier 1.20,1.30 1.02,1.08 0.78,0.88 0.48,0.72 stroke #3a1f00 width 7
+bezier 1.20,1.30 1.02,1.08 0.78,0.88 0.48,0.72 stroke #1a0a00 width 2
+bezier 1.80,1.30 1.98,1.08 2.22,0.88 2.52,0.72 stroke #3a1f00 width 7
+bezier 1.80,1.30 1.98,1.08 2.22,0.88 2.52,0.72 stroke #1a0a00 width 2
+# Smaller outer root tendrils
+bezier 0.40,2.58 0.26,2.70 0.14,2.82 0.06,2.90 stroke #3a1f00 width 4
+bezier 2.60,2.58 2.74,2.70 2.86,2.82 2.94,2.90 stroke #3a1f00 width 4
+
+# === Colossal twisted trunk (irregular, gnarled — wider than tree-old) ===
+poly 1.08,1.18 1.22,1.04 1.40,0.98 1.60,0.98 1.78,1.04 1.92,1.18 2.02,1.38 2.08,1.62 2.04,1.84 1.92,1.98 1.72,2.08 1.50,2.10 1.28,2.08 1.10,1.96 1.00,1.80 0.94,1.60 0.94,1.38 texfill polyhaven/bark_brown_02 0.92
+poly 1.08,1.18 1.22,1.04 1.40,0.98 1.60,0.98 1.78,1.04 1.92,1.18 2.02,1.38 2.08,1.62 2.04,1.84 1.92,1.98 1.72,2.08 1.50,2.10 1.28,2.08 1.10,1.96 1.00,1.80 0.94,1.60 0.94,1.38 stroke #1a0a00 width 3
+
+# === Deep bark spiral grooves (twisted gnarl) ===
+bezier 1.14,1.20 1.28,1.42 1.38,1.66 1.30,1.92 stroke #1a0a00 0.9 width 3
+bezier 1.86,1.20 1.72,1.42 1.62,1.66 1.70,1.92 stroke #1a0a00 0.9 width 3
+bezier 1.02,1.54 1.20,1.68 1.30,1.80 1.22,1.96 stroke #1a0a00 0.7 width 2
+bezier 1.98,1.54 1.80,1.68 1.70,1.80 1.78,1.96 stroke #1a0a00 0.7 width 2
+
+# === Burl / protruding growth on trunk (gnarly knot) ===
+ellipse 1.14,1.42 0.14,0.11 texfill polyhaven/bark_brown_02 0.92
+ellipse 1.14,1.42 0.14,0.11 stroke #1a0a00 width 2
+circle 1.14,1.42 0.06 stroke #0a0400 width 1
+# Burl whorls
+circle 1.14,1.42 0.04 stroke #0a0400 width 1
+circle 1.14,1.42 0.02 fill #0a0400 0.8
+
+# === Large hollow with carved face — centerpiece! ===
+# Outer hollow opening
+ellipse 1.55,1.65 0.15,0.18 fill #000000 0.95
+ellipse 1.55,1.65 0.15,0.18 stroke #1a0a00 width 2
+# Face — deep-set eye sockets (two darker holes)
+ellipse 1.48,1.58 0.03,0.04 fill #000000 1.0
+ellipse 1.62,1.58 0.03,0.04 fill #000000 1.0
+# Tiny glint of something in the eyes (eerie)
+circle 1.48,1.58 0.008 fill #6aee78 0.7
+circle 1.62,1.58 0.008 fill #6aee78 0.7
+# Mouth (curved hollow opening)
+bezier 1.46,1.74 1.52,1.78 1.58,1.78 1.64,1.74 stroke #000000 width 2
+
+# === Smaller secondary hollow (worn into south edge of trunk) ===
+ellipse 1.40,2.00 0.06,0.04 fill #0a0400 0.9
+ellipse 1.40,2.00 0.06,0.04 stroke #1a0a00
+
+# === Scattered shadow patches between canopy lobes (sky gaps — canopy is broken) ===
+circle 1.50,0.80 0.30 fill #e8e8d8 0.2
+circle 0.60,1.30 0.22 fill #e8e8d8 0.18
+circle 2.40,1.30 0.22 fill #e8e8d8 0.18
+circle 0.90,2.50 0.18 fill #e8e8d8 0.15
+
+# === Main canopy lobes (larger, fewer — ancient canopy is thinner) ===
+circle 0.55,0.60 0.48 fill #2a5a18 0.35
+circle 2.45,0.60 0.48 fill #2d6a1e 0.32
+circle 0.48,1.40 0.44 fill #2a5a18 0.38
+circle 2.52,1.40 0.44 fill #2d6a1e 0.35
+circle 0.85,2.40 0.50 fill #2a5a18 0.32
+circle 2.15,2.40 0.50 fill #2d6a1e 0.34
+circle 1.50,0.48 0.46 fill #2d6a1e 0.34
+circle 1.50,2.56 0.40 fill #2a5a18 0.28
+
+# === Secondary canopy wisps (sparser) ===
+circle 0.50,1.00 0.30 fill #1a4a10 0.28
+circle 2.50,1.00 0.30 fill #1a4a10 0.28
+circle 0.55,1.95 0.30 fill #1a4a10 0.25
+circle 2.45,1.95 0.30 fill #1a4a10 0.25
+
+# === Dappled sunlight highlights (ancient canopy catches light) ===
+circle 1.10,0.70 0.22 fill #5aa030 0.25
+circle 1.90,0.70 0.22 fill #5aa030 0.25
+circle 0.70,1.55 0.18 fill #5aa030 0.22
+circle 2.30,1.55 0.18 fill #5aa030 0.22
+circle 1.10,2.30 0.20 fill #5aa030 0.22
+circle 1.90,2.30 0.20 fill #5aa030 0.22
+
+# === Bright sun-catch accents ===
+circle 0.95,0.55 0.10 fill #80c858 0.22
+circle 2.05,0.55 0.10 fill #80c858 0.22
+circle 0.60,1.45 0.08 fill #80c858 0.2
+circle 2.40,1.45 0.08 fill #80c858 0.2
+circle 1.50,0.30 0.10 fill #90d868 0.25
+
+# === Thick moss mantle on trunk (ancient — more moss than tree-old) ===
+ellipse 1.10,1.50 0.08,0.10 fill #4a8040 0.7
+ellipse 1.10,1.50 0.08,0.10 stroke #3a6030 0.5 width 1
+ellipse 1.92,1.70 0.07,0.09 fill #5a9050 0.65
+ellipse 1.92,1.70 0.07,0.09 stroke #3a6030 0.5 width 1
+ellipse 1.05,1.85 0.06,0.07 fill #4a8040 0.6
+circle 1.88,1.50 0.05 fill #5a9050 0.6
+circle 1.75,2.04 0.045 fill #4a8040 0.6
+# Moss on roots
+circle 0.50,2.54 0.05 fill #4a8040 0.6
+circle 2.50,2.54 0.05 fill #5a9050 0.6
+circle 0.30,1.78 0.04 fill #4a8040 0.55
+circle 2.70,1.78 0.04 fill #4a8040 0.55
+
+# === Bright glowing fungi at base (faint bioluminescent specks) ===
+circle 1.20,2.10 0.025 fill #c8ffd0 0.8
+circle 1.80,2.10 0.022 fill #c8ffd0 0.75
+circle 1.36,2.22 0.02 fill #c8ffd0 0.7
+
+# === Canopy lobe outlines (age rings) ===
+circle 0.55,0.60 0.48 stroke #1a3a08 0.22
+circle 2.45,0.60 0.48 stroke #1a3a08 0.22
+circle 0.48,1.40 0.44 stroke #1a3a08 0.22
+circle 2.52,1.40 0.44 stroke #1a3a08 0.22
+
+# === Fallen leaves and ancient litter at outer base ===
+ellipse 0.25,2.75 0.07,0.03 fill #8a5028 0.75
+ellipse 2.75,2.75 0.07,0.03 fill #8a5028 0.75
+ellipse 0.10,1.50 0.05,0.025 fill #6a4020 0.7
+ellipse 2.90,1.50 0.05,0.025 fill #6a4020 0.7
+ellipse 0.50,0.10 0.05,0.025 fill #6a4020 0.65

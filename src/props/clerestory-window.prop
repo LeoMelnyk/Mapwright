@@ -1,0 +1,53 @@
+name: Clerestory Window
+category: Features
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0
+lights: [{"preset":"daylight","x":1.0,"y":0.5,"radius":5,"color":"#fff4d0","intensity":0.7,"falloff":"quadratic"}]
+placement: wall
+room_types: dock-warehouse, warehouse, temple, cathedral, great-hall, barn, workshop
+typical_count: few
+clusters_with: crate-stack, barrel, workbench, pew
+notes: High wall window (clerestory) projecting a warm daylight pool on the floor below. Rendered as a bright rectangular light patch with grid shadow from window muntins. North edge is flush with the wall.
+---
+# footprint 1x2: x 0-2, y 0-1. Wall at north (low Y). Floor decal.
+
+# Outer soft daylight halo on floor (warm gold-white)
+ellipse 1.00,0.55 0.85,0.40 gradient-radial #fff4d0 #000000 0.45
+
+# Inner bright daylight pool
+ellipse 1.00,0.50 0.65,0.30 fill #fff4d0 0.55
+ellipse 1.00,0.48 0.50,0.22 fill #ffffff 0.55
+
+# Window frame cast shadow pattern (top-down projection of muntins)
+# Main frame outline (the window shape projected)
+rect 0.40,0.24 1.20,0.56 stroke #3a1f00 0.4 width 1
+
+# Vertical mullion shadow (center)
+rect 0.98,0.20 0.04,0.64 fill #3a1f00 0.35
+
+# Horizontal transom shadow
+rect 0.40,0.48 1.20,0.04 fill #3a1f00 0.3
+
+# Pane slivers (where light actually falls, brighter rectangles)
+rect 0.46,0.26 0.48,0.20 fill #fff4d0 0.7
+rect 1.06,0.26 0.48,0.20 fill #fff4d0 0.7
+rect 0.46,0.54 0.48,0.24 fill #fff4d0 0.65
+rect 1.06,0.54 0.48,0.24 fill #fff4d0 0.65
+
+# Window sill hint flush against wall (north edge)
+rect 0.36,0.04 1.28,0.08 texfill polyhaven/stone_wall 0.85
+rect 0.36,0.04 1.28,0.08 stroke #2a2a2a
+
+# Stone frame around window (shown as thin edges on the wall)
+line 0.36,0.12 0.36,0.20 stroke #3a3a3a 0.7 width 1
+line 1.64,0.12 1.64,0.20 stroke #3a3a3a 0.7 width 1
+
+# Dust motes in sunbeam (tiny specks for atmosphere)
+circle 0.80,0.38 0.008 fill #ffffff 0.6
+circle 1.15,0.42 0.010 fill #ffffff 0.55
+circle 0.92,0.58 0.009 fill #ffffff 0.5
+circle 1.28,0.34 0.008 fill #ffffff 0.55
+circle 0.70,0.62 0.010 fill #ffffff 0.5

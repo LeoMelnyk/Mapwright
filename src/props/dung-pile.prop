@@ -1,0 +1,49 @@
+name: Dung Pile
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: goblin-warren-entrance, goblin-warren, cave-bandit-camp, monster-lair-small, humanoid-lair
+typical_count: many
+clusters_with: rat-carcass, stolen-shoe, dung-pile, broken-arrow
+notes: Small pile of greenish-brown goblin droppings with flies. Scatter freely — goblins are disgusting tenants.
+---
+# === HITBOX ===
+selection circle 0.5,0.55 0.22
+
+# Soak stain around pile (dark wet patch)
+ellipse 0.50,0.56 0.28,0.20 fill #2a2410 0.55
+ellipse 0.50,0.56 0.28,0.20 stroke #1a1408 0.4
+
+# Dung lumps (clustered greenish-brown blobs)
+ellipse 0.38,0.54 0.14,0.10 fill #4a5020 0.92
+ellipse 0.38,0.54 0.14,0.10 stroke #2a2810
+
+ellipse 0.56,0.50 0.13,0.09 fill #3a4018 0.92
+ellipse 0.56,0.50 0.13,0.09 stroke #1a1808
+
+ellipse 0.50,0.62 0.15,0.10 fill #4a5020 0.9
+ellipse 0.50,0.62 0.15,0.10 stroke #2a2810
+
+ellipse 0.64,0.62 0.11,0.08 fill #3a4018 0.92
+ellipse 0.64,0.62 0.11,0.08 stroke #1a1808
+
+# Highlight glisten on top of pile
+ellipse 0.44,0.50 0.04,0.02 fill #6a7030 0.55
+ellipse 0.58,0.58 0.03,0.02 fill #6a7030 0.5
+
+# Fly dots (small dark specs above)
+circle 0.28,0.38 0.015 fill #0a0a0a 0.95
+circle 0.70,0.32 0.015 fill #0a0a0a 0.95
+circle 0.60,0.26 0.015 fill #0a0a0a 0.95
+circle 0.78,0.50 0.015 fill #0a0a0a 0.95
+circle 0.22,0.54 0.015 fill #0a0a0a 0.95
+circle 0.46,0.22 0.015 fill #0a0a0a 0.9
+
+# Tiny fly motion lines
+line 0.28,0.38 0.30,0.34 stroke #0a0a0a 0.7 width 1
+line 0.70,0.32 0.72,0.28 stroke #0a0a0a 0.7 width 1
+line 0.78,0.50 0.80,0.46 stroke #0a0a0a 0.7 width 1

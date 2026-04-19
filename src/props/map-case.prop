@@ -1,0 +1,38 @@
+name: Map Case
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 4
+placement: floor
+room_types: library, study, command-room, war-room, cartographer, archive
+typical_count: few
+clusters_with: scroll-rack, desk, scroll-case, campaign-ledger
+notes: Tall cylindrical leather map-case standing upright; from above it is a disc. Place in corners or near desks
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: radial disc — looking straight down into a standing cylinder
+# Outer leather cap + rim + inner darker ring (tube opening hint)
+
+# Leather cap (outer disc — the top of the cylinder)
+circle 0.50,0.50 0.28 texfill polyhaven/brown_leather 0.85
+circle 0.50,0.50 0.28 stroke #3a1f00
+
+# Rim edge (slightly inset ring to show the cap lip)
+circle 0.50,0.50 0.24 stroke #5c3a1e 0.6
+
+# Inner dark ring (hint of the tube opening beneath the cap)
+circle 0.50,0.50 0.16 fill #1a1208 0.4
+circle 0.50,0.50 0.16 stroke #2a1400 0.5
+
+# Cap center button / clasp (brass stud holding cap closed)
+circle 0.50,0.50 0.05 fill #8b6914 0.8
+circle 0.50,0.50 0.05 stroke #5a3a00
+
+# Stitching detail on cap (radial cross pattern)
+line 0.36,0.50 0.64,0.50 stroke #5c3a1e 0.35 width 1
+line 0.50,0.36 0.50,0.64 stroke #5c3a1e 0.35 width 1
+
+# Leather texture highlight arc (top-left catch light)
+arc 0.50,0.50 0.22 200 260 stroke #8b7355 0.3 width 1

@@ -1,0 +1,59 @@
+name: Pipe and Ashtray
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: mansion-study, ship-captains-cabin, gentlemens-club, parlor, lighthouse-keepers-room
+typical_count: few
+clusters_with: desk, armchair, book-pile, tobacco-pipe
+notes: Brass ashtray with a tobacco pipe resting across its lip; place on desks and side tables
+---
+# === HITBOX ===
+selection rect 0.12,0.32 0.76,0.44
+
+# Brass ashtray dish (shallow bowl — oval top-down)
+ellipse 0.50,0.56 0.28,0.18 fill #8b6914 0.9
+ellipse 0.50,0.56 0.28,0.18 stroke #5a3a00 width 2
+# Inner basin (recessed darker)
+ellipse 0.50,0.56 0.23,0.14 fill #3a2400 0.85
+ellipse 0.50,0.56 0.23,0.14 stroke #2a1400
+
+# Dish rim bevel
+ellipse 0.50,0.56 0.26,0.16 stroke #daa520 0.55 width 1
+
+# Ash pile in the dish (grey mound)
+ellipse 0.42,0.58 0.08,0.05 fill #555555 0.85
+ellipse 0.42,0.58 0.08,0.05 stroke #333333
+# Ash specks
+circle 0.40,0.56 0.014 fill #777777 0.8
+circle 0.45,0.60 0.012 fill #666666 0.7
+circle 0.38,0.60 0.01 fill #888888 0.6
+# Tiny ember glow
+circle 0.44,0.58 0.012 fill #cc3300 0.7
+
+# Pipe bowl (the tobacco chamber — dark briar, resting on the east lip)
+circle 0.70,0.50 0.08 texfill polyhaven/dark_wood 0.9
+circle 0.70,0.50 0.08 stroke #1a0e00 width 2
+# Bowl mouth (dark opening at top)
+circle 0.70,0.50 0.05 fill #1a0e00 0.95
+circle 0.70,0.50 0.05 stroke #0a0404
+# Inner bowl hint of ember
+circle 0.70,0.50 0.025 fill #2a1400 0.85
+
+# Pipe stem (curving from bowl westward across the dish)
+bezier 0.66,0.50 0.52,0.48 0.38,0.46 0.22,0.42 stroke #1a0e00 width 4
+bezier 0.66,0.50 0.52,0.48 0.38,0.46 0.22,0.42 stroke #3a1f00 0.85 width 3
+
+# Pipe mouthpiece (slightly thicker black end)
+circle 0.22,0.42 0.028 fill #1a0e00 0.95
+circle 0.22,0.42 0.028 stroke #0a0404
+
+# Brass ferrule ring where stem meets bowl
+circle 0.64,0.50 0.022 fill #daa520 0.9
+circle 0.64,0.50 0.022 stroke #5a3a00
+
+# Wisp of smoke (faint curl rising)
+bezier 0.70,0.46 0.74,0.38 0.76,0.30 0.80,0.24 stroke #cccccc 0.35 width 1

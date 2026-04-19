@@ -1,0 +1,73 @@
+name: Iron Ladle
+category: Tools
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: foundry-great, infernal-forge, smithy-large, refinery
+typical_count: few
+clusters_with: blast-furnace, casting-pit, crucible, crucible-large, sand-mold
+notes: Heavy foundry pouring ladle resting on its side — long wooden/iron handle, heavy iron bowl with molten metal at one end, counterweight ring at the opposite end. Drop near blast-furnace and casting-pit.
+---
+# === HITBOX ===
+selection circle 0.50,0.34 0.32
+selection rect 0.42,0.30 0.16,1.50
+selection circle 0.50,1.74 0.14
+
+# footprint 2x1: x range 0-1, y range 0-2 (tall)
+
+# === Handle rod running along long axis (N–S) ===
+# Iron core
+rect 0.46,0.30 0.08,1.44 texfill polyhaven/rusty_metal 0.85
+rect 0.46,0.30 0.08,1.44 fill #3a2818 0.4
+rect 0.46,0.30 0.08,1.44 stroke #1a1008 width 2
+# Wooden grip wrapping the south end of the handle
+rect 0.42,1.28 0.16,0.42 texfill polyhaven/dark_wood 0.9
+rect 0.42,1.28 0.16,0.42 stroke #2a1400 width 2
+# Grip binding bands
+line 0.42,1.38 0.58,1.38 stroke #1a0a04 width 2
+line 0.42,1.54 0.58,1.54 stroke #1a0a04 width 2
+line 0.42,1.66 0.58,1.66 stroke #1a0a04 width 2
+
+# === Heavy iron bowl at NORTH end (loaded with molten iron) ===
+# Bowl shadow
+ellipse 0.50,0.38 0.32,0.10 fill #1a1008 0.5
+# Bowl outer shell
+circle 0.50,0.34 0.30 texfill polyhaven/rusty_metal 0.85
+circle 0.50,0.34 0.30 fill #3a2818 0.45
+circle 0.50,0.34 0.30 stroke #1a1008 width 3
+# Iron reinforcement band
+circle 0.50,0.34 0.28 stroke #222222 width 2
+# Rivets
+circle 0.32,0.20 0.022 fill #0a0a0a
+circle 0.68,0.20 0.022 fill #0a0a0a
+circle 0.32,0.48 0.022 fill #0a0a0a
+circle 0.68,0.48 0.022 fill #0a0a0a
+# Inner refractory lining
+circle 0.50,0.34 0.22 fill #2a0800 0.95
+circle 0.50,0.34 0.22 stroke #1a0400
+# Molten metal surface — layered rings
+circle 0.50,0.34 0.18 fill #cc3300 0.9
+circle 0.50,0.34 0.14 fill #ff6600 0.9
+circle 0.50,0.34 0.10 fill #ffaa30 0.85
+circle 0.50,0.34 0.06 fill #ffdd66 0.9
+circle 0.50,0.34 0.03 fill #ffffcc 0.95
+# Heat halo above the bowl
+circle 0.50,0.34 0.33 fill #e85500 0.15
+
+# === Spout lip on the east side of the bowl ===
+poly 0.78,0.30 0.90,0.28 0.88,0.40 0.78,0.38 texfill polyhaven/rusty_metal 0.85
+poly 0.78,0.30 0.90,0.28 0.88,0.40 0.78,0.38 fill #3a2818 0.5
+poly 0.78,0.30 0.90,0.28 0.88,0.40 0.78,0.38 stroke #1a1008 width 2
+# Molten drip at spout tip
+circle 0.88,0.34 0.028 fill #ff6600 0.9
+circle 0.90,0.34 0.016 fill #ffaa30 0.95
+
+# === Counterweight ring at SOUTH end ===
+ring 0.50,1.80 0.14 0.07 fill #444444 0.9
+ring 0.50,1.80 0.14 0.07 texfill polyhaven/metal_plate 0.5
+ring 0.50,1.80 0.14 0.07 stroke #1a1a1a width 2
+# Counterweight highlight
+circle 0.50,1.74 0.025 fill #8899aa 0.6

@@ -1,0 +1,46 @@
+name: Ground Lantern
+category: Camp
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, ranger-camp, cabin-hunters, scouts-blind, cave-bandit-camp
+typical_count: few
+clusters_with: bedroll, tent, map-pinned, gear-pack
+notes: Small tin lantern sitting on dirt, casting a dim warm amber glow — travelers set these at camp perimeter
+lights: [{"preset":"lantern","x":0.5,"y":0.5,"radius":5,"intensity":0.4,"color":"#e8a030"}]
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small tin lantern on ground, warm light spilling out
+
+# Warm light halo on ground
+circle 0.50,0.50 0.40 fill #e8a030 0.08
+
+# Base plate (tin disc)
+circle 0.50,0.52 0.16 fill #777777 0.7
+circle 0.50,0.52 0.16 stroke #444444
+
+# Lantern body (hexagonal tin housing from above)
+poly 0.40,0.36 0.50,0.32 0.60,0.36 0.60,0.56 0.50,0.60 0.40,0.56 fill #666666 0.8
+poly 0.40,0.36 0.50,0.32 0.60,0.36 0.60,0.56 0.50,0.60 0.40,0.56 stroke #444444
+# Glass panes (warm glow visible through)
+poly 0.43,0.38 0.50,0.35 0.57,0.38 0.57,0.54 0.50,0.57 0.43,0.54 fill #ffaa00 0.45
+
+# Top cap (circular tin lid)
+circle 0.50,0.46 0.08 fill #777777 0.8
+circle 0.50,0.46 0.08 stroke #555555
+# Vent holes in cap
+circle 0.48,0.44 0.012 fill #333333 0.5
+circle 0.52,0.44 0.012 fill #333333 0.5
+circle 0.50,0.48 0.012 fill #333333 0.5
+
+# Handle loop (small bail handle atop, seen as thin arc)
+arc 0.50,0.40 0.06 180 360 stroke #555555 width 2
+
+# Inner flame glow (hot center)
+circle 0.50,0.46 0.04 fill #ffcc00 0.6
+circle 0.50,0.46 0.02 fill #ffeecc 0.7
+
+# Light spill on ground (warm patch radiating outward)
+circle 0.50,0.52 0.30 fill #e8a030 0.06

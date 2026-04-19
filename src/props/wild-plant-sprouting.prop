@@ -1,0 +1,68 @@
+name: Sprouting Weeds
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: ruined-watchtower, cabin-abandoned, ancient-ruin-overgrown, crypt
+typical_count: many
+clusters_with: fallen-leaves, moss-patch, fern-cluster, bush-berry, rubble-pile
+notes: Weeds and tiny plants pushing up through floor cracks. Signals that a place has been abandoned long enough for nature to reclaim. Scatter across ruined interiors.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small leafy sprouts and grass tufts emerging from hinted floor cracks.
+
+# Hint of cracked floor beneath (thin dark stroke lines, no fill)
+line 0.12,0.34 0.44,0.42 stroke #1a1410 0.55 width 1
+line 0.44,0.42 0.58,0.28 stroke #1a1410 0.45 width 1
+line 0.56,0.60 0.86,0.72 stroke #1a1410 0.55 width 1
+line 0.30,0.68 0.52,0.82 stroke #1a1410 0.45 width 1
+
+# === Grass tuft 1 (NW) — narrow blades radiating from a root point ===
+line 0.22,0.40 0.18,0.26 stroke #3a6a2a width 2
+line 0.22,0.40 0.24,0.24 stroke #4a7a3a width 2
+line 0.22,0.40 0.30,0.26 stroke #3a6a2a width 2
+line 0.22,0.40 0.14,0.30 stroke #4a7a3a width 1
+# Small base leaf
+poly 0.18,0.40 0.22,0.38 0.26,0.40 0.22,0.44 fill #3a6a2a 0.85
+poly 0.18,0.40 0.22,0.38 0.26,0.40 0.22,0.44 stroke #1a3a10
+
+# === Leafy sprout (NE) — 3 small leaves from a stem ===
+bezier 0.70,0.36 0.72,0.30 0.74,0.24 0.72,0.18 stroke #3a6a2a width 2
+poly 0.70,0.30 0.64,0.26 0.66,0.22 0.72,0.24 fill #4a7a3a 0.9
+poly 0.70,0.30 0.64,0.26 0.66,0.22 0.72,0.24 stroke #2a4a18
+poly 0.74,0.28 0.80,0.24 0.80,0.20 0.74,0.22 fill #3a6a2a 0.9
+poly 0.74,0.28 0.80,0.24 0.80,0.20 0.74,0.22 stroke #2a4a18
+# Tiny white flower cluster at top
+circle 0.72,0.16 0.018 fill #e8e4d8 0.95
+circle 0.74,0.18 0.014 fill #f0ecd8 0.9
+
+# === Creeping vine (diagonal across center) ===
+bezier 0.20,0.56 0.38,0.50 0.56,0.62 0.76,0.58 stroke #3a6a2a width 2
+# Vine leaves along the curve
+poly 0.34,0.52 0.38,0.48 0.42,0.52 0.38,0.56 fill #4a7a3a 0.85
+poly 0.34,0.52 0.38,0.48 0.42,0.52 0.38,0.56 stroke #2a4a18
+poly 0.56,0.58 0.60,0.54 0.64,0.60 0.60,0.64 fill #3a6a2a 0.85
+poly 0.56,0.58 0.60,0.54 0.64,0.60 0.60,0.64 stroke #2a4a18
+# Tiny yellow flower on vine
+circle 0.44,0.50 0.016 fill #ffd730 0.9
+circle 0.44,0.50 0.016 stroke #8a6a08
+
+# === Grass tuft 2 (S) — thicker cluster ===
+line 0.42,0.86 0.36,0.72 stroke #3a6a2a width 2
+line 0.42,0.86 0.42,0.70 stroke #4a7a3a width 2
+line 0.42,0.86 0.48,0.72 stroke #3a6a2a width 2
+line 0.42,0.86 0.52,0.76 stroke #4a7a3a width 1
+line 0.42,0.86 0.32,0.76 stroke #3a6a2a width 1
+
+# === Small sprout (SE) with broad leaf ===
+bezier 0.78,0.84 0.78,0.78 0.76,0.72 0.74,0.68 stroke #3a6a2a width 2
+poly 0.74,0.74 0.68,0.70 0.70,0.66 0.76,0.68 0.78,0.72 fill #4a7a3a 0.9
+poly 0.74,0.74 0.68,0.70 0.70,0.66 0.76,0.68 0.78,0.72 stroke #2a4a18
+
+# Tiny flower dots scattered (yellow/white)
+circle 0.28,0.56 0.014 fill #ffd730 0.85
+circle 0.86,0.42 0.012 fill #e8e4d8 0.9
+circle 0.16,0.80 0.012 fill #f0e4a0 0.85

@@ -1,0 +1,79 @@
+name: Mushroom Basket
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: cabin-witch, cabin-hedge-witch, alchemy-lab, kitchen-keep, pantry, mushroom-grove
+typical_count: few
+clusters_with: herb-bundle, basket, mushroom, mortar-and-pestle, jar
+notes: Wicker basket filled with freshly picked mushrooms — witch gathering prop
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.36
+
+# Shadow under basket
+circle 0.52,0.54 0.38 fill #1a0a00 0.22
+
+# Outer wicker rim (darker band)
+circle 0.5,0.5 0.40 fill #4a2810 0.9
+circle 0.5,0.5 0.40 stroke #1a0f00 width 2
+circle 0.5,0.5 0.40 texfill polyhaven/dark_wood 0.4
+
+# Inner basket weave pattern — concentric rings
+ring 0.5,0.5 0.40 0.36 fill #5c3a1e 0.85
+arc 0.5,0.5 0.38 0 360 stroke #2a1400 0.7 width 1
+
+# Woven cross-hatch lines (wicker texture)
+line 0.20,0.38 0.80,0.38 stroke #2a1400 0.7 width 1
+line 0.20,0.50 0.80,0.50 stroke #2a1400 0.6 width 1
+line 0.20,0.62 0.80,0.62 stroke #2a1400 0.7 width 1
+line 0.30,0.20 0.30,0.80 stroke #2a1400 0.5 width 1
+line 0.50,0.18 0.50,0.82 stroke #2a1400 0.4 width 1
+line 0.70,0.20 0.70,0.80 stroke #2a1400 0.5 width 1
+
+# Basket interior (dark well)
+circle 0.5,0.5 0.34 fill #2a1808 0.95
+circle 0.5,0.5 0.34 stroke #1a0f00 width 1
+
+# Mushrooms piled inside (top-down view — caps facing up)
+# Large cap (center-back)
+circle 0.48,0.42 0.11 fill #6b3510 0.92
+circle 0.48,0.42 0.11 stroke #2a1400
+circle 0.48,0.42 0.08 fill #8b4513 0.9
+circle 0.48,0.42 0.04 fill #a05a28 0.7
+circle 0.44,0.40 0.02 fill #c8a070 0.6
+
+# Medium cap (right)
+circle 0.62,0.56 0.08 fill #6b3510 0.9
+circle 0.62,0.56 0.08 stroke #2a1400
+circle 0.62,0.56 0.055 fill #8b4513 0.88
+circle 0.62,0.56 0.028 fill #a05a28 0.7
+
+# Medium cap (left)
+circle 0.36,0.58 0.075 fill #5a3010 0.9
+circle 0.36,0.58 0.075 stroke #2a1400
+circle 0.36,0.58 0.05 fill #7b3f13 0.88
+circle 0.36,0.58 0.025 fill #9a5528 0.7
+
+# Small cap (front)
+circle 0.52,0.64 0.06 fill #6b3510 0.9
+circle 0.52,0.64 0.06 stroke #2a1400
+circle 0.52,0.64 0.04 fill #8b4513 0.85
+
+# Tiny white cap peek
+circle 0.42,0.50 0.045 fill #d4c4a8 0.85
+circle 0.42,0.50 0.045 stroke #6a5040
+
+# Pale gill spots
+circle 0.46,0.41 0.012 fill #c8a070 0.6
+circle 0.64,0.55 0.010 fill #c8a070 0.55
+
+# Basket handle peeking (arc along north)
+arc 0.5,0.42 0.30 190 350 stroke #4a2800 0.7 width 3
+arc 0.5,0.42 0.30 190 350 stroke #2a1400 0.6 width 1
+
+# Rim highlight
+arc 0.5,0.5 0.40 210 250 stroke #8b6838 0.5 width 2

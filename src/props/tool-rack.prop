@@ -1,0 +1,58 @@
+name: Tool Rack
+category: Structure
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: cooperage, forge, general-workshop, smithy-large, mill-lumber, shop-weaponsmith, workshop-artificer, lumberyard
+typical_count: few
+clusters_with: workbench, anvil, leather-apron, ingot-stack
+notes: Wall-mounted rack of hanging hand tools — hammers, pliers, tongs, files
+---
+# === HITBOX ===
+hitbox rect 0.10,0.06 0.80,0.50 z 0-4
+
+# Wall-mounted plank backer (along north edge)
+rect 0.10,0.06 0.80,0.12 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.06 0.80,0.12 stroke #2a1400
+# Plank mounting brackets
+rect 0.12,0.06 0.06,0.12 fill #3a3020 0.85
+rect 0.82,0.06 0.06,0.12 fill #3a3020 0.85
+# Iron hooks (small L-shapes hanging below plank)
+line 0.20,0.18 0.20,0.22 stroke #444444 width 2
+line 0.34,0.18 0.34,0.22 stroke #444444 width 2
+line 0.48,0.18 0.48,0.22 stroke #444444 width 2
+line 0.62,0.18 0.62,0.22 stroke #444444 width 2
+line 0.76,0.18 0.76,0.22 stroke #444444 width 2
+# === Hanging tools (from top-down view, seen as their heads/tops) ===
+# Hammer (square head + short handle)
+rect 0.16,0.22 0.08,0.08 texfill polyhaven/metal_plate 0.9
+rect 0.16,0.22 0.08,0.08 stroke #222222
+line 0.20,0.30 0.20,0.52 stroke #5c3a1e width 3
+# Tongs (thin V-shape, pliers-like)
+poly 0.30,0.24 0.38,0.30 0.36,0.48 0.32,0.48 fill #444444 0.85
+poly 0.30,0.24 0.38,0.30 0.36,0.48 0.32,0.48 stroke #222222
+line 0.34,0.30 0.32,0.46 stroke #1a1008 0.7
+# File (long thin blade)
+rect 0.46,0.22 0.04,0.30 fill #888888 0.9
+rect 0.46,0.22 0.04,0.30 stroke #333333
+line 0.47,0.26 0.47,0.50 stroke #444444 0.6
+line 0.49,0.28 0.49,0.50 stroke #444444 0.6
+rect 0.45,0.50 0.06,0.08 fill #5c3a1e 0.9
+rect 0.45,0.50 0.06,0.08 stroke #2a1400
+# Pliers (X-shape joint visible)
+line 0.58,0.24 0.66,0.50 stroke #555555 width 3
+line 0.66,0.24 0.58,0.50 stroke #555555 width 3
+circle 0.62,0.37 0.02 fill #222222 0.9
+# Chisel (thin with wooden handle)
+rect 0.72,0.22 0.08,0.04 fill #8899aa 0.9
+rect 0.72,0.22 0.08,0.04 stroke #333333
+rect 0.74,0.26 0.04,0.26 texfill polyhaven/dark_wood 0.88
+rect 0.74,0.26 0.04,0.26 stroke #2a1400
+# Tool silhouette shadows on wall
+rect 0.16,0.22 0.08,0.38 fill #000000 0.1
+rect 0.46,0.22 0.04,0.38 fill #000000 0.1
+# Subtle wood grain on plank
+line 0.14,0.12 0.86,0.12 stroke #5c3a1e 0.4

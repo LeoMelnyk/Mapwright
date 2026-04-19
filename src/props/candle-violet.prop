@@ -1,0 +1,39 @@
+name: Violet Candle
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: cave-drow-outpost, underdark-outpost, drow-citadel, shrine, ritual-chamber
+typical_count: many
+clusters_with: candle-violet, spider-shrine, scrying-pool, faerzress-sconce
+notes: Slender black drow candle with violet flame and dripping dark wax — placed on altars, shrines, and command tables
+lights: [{"preset":"astral","x":0.5,"y":0.5,"radius":7,"intensity":0.6,"color":"#a060ff"}]
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.09
+
+# Dripping dark wax pool around base
+ellipse 0.5,0.56 0.14,0.10 fill #1a1020 0.55
+ellipse 0.5,0.56 0.14,0.10 stroke #0a0820
+# Wax drip streaks (thin runs to the south)
+line 0.44,0.58 0.42,0.66 stroke #1a1020 width 2
+line 0.56,0.58 0.58,0.66 stroke #1a1020 width 2
+# Candle body (tall slender black candle — top-down circle)
+circle 0.5,0.5 0.08 fill #1a1020 0.95
+circle 0.5,0.5 0.08 stroke #0a0820
+# Inner wax ring highlight (glossy obsidian sheen)
+circle 0.5,0.5 0.055 stroke #3a2050 width 1
+# Wick
+circle 0.5,0.5 0.015 fill #0a0820 0.95
+# Violet flame glow halo
+circle 0.5,0.5 0.16 fill #a060ff 0.22
+circle 0.5,0.5 0.10 fill #a060ff 0.35
+# Flame core (violet-purple)
+poly 0.47,0.5 0.5,0.40 0.53,0.5 fill #6040a0 0.65
+poly 0.48,0.5 0.5,0.42 0.52,0.5 fill #a060ff 0.8
+poly 0.49,0.49 0.5,0.44 0.51,0.49 fill #c080ff 0.9
+# White-violet hot center
+circle 0.5,0.46 0.015 fill #e0c0ff 0.95

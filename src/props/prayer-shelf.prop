@@ -1,0 +1,58 @@
+name: Prayer Shelf
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.5
+placement: wall
+room_types: farmhouse-common, peasant-hovel, house-medium-family, chapel, bedroom
+typical_count: single
+clusters_with: candle, prayer-stone, prayer-book, holy-symbol
+notes: Small wall shrine shelf with candle, pendant token, and wooden icon — top-down shows thin shelf strip + items along the wall
+lights: [{"preset":"candle","x":0.3,"y":0.16,"radius":3,"intensity":0.3,"color":"#ffcc80"}]
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Wall at north (low Y). Shelf mounted on wall, items face south.
+
+# === Shelf bracket shadows (where brackets attach to wall) ===
+rect 0.20,0.04 0.06,0.08 fill #000000 0.15
+rect 0.74,0.04 0.06,0.08 fill #000000 0.15
+
+# === Shelf surface (thin strip along wall) ===
+rect 0.10,0.06 0.80,0.18 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.06 0.80,0.18 stroke #2a1400
+
+# Wood grain
+line 0.12,0.12 0.88,0.12 stroke #3a1f00 0.3
+line 0.12,0.18 0.88,0.18 stroke #3a1f00 0.25
+
+# === Candle (left side of shelf) ===
+# Candle base/dish
+circle 0.30,0.16 0.05 fill #daa520 0.7
+circle 0.30,0.16 0.05 stroke #5a3a00
+# Candle wax cylinder
+circle 0.30,0.16 0.03 fill #e8dcc8 0.95
+circle 0.30,0.16 0.03 stroke #c8b898
+# Flame glow
+circle 0.30,0.16 0.06 fill #ffcc00 0.2
+# Wick
+circle 0.30,0.16 0.01 fill #ffaa00 0.9
+
+# === Wooden icon (center — small rectangular plaque) ===
+rect 0.44,0.08 0.14,0.14 texfill polyhaven/dark_wood 0.85
+rect 0.44,0.08 0.14,0.14 stroke #2a1400
+# Cross/symbol carved into the icon face (visible from above as thin grooves)
+line 0.51,0.10 0.51,0.18 stroke #1a0a04 0.6 width 1
+line 0.47,0.14 0.55,0.14 stroke #1a0a04 0.6 width 1
+
+# === Pendant token (right side — small disc) ===
+circle 0.72,0.15 0.035 fill #daa520 0.8
+circle 0.72,0.15 0.035 stroke #8b6914
+# Pendant loop
+circle 0.72,0.11 0.015 stroke #8b6914 width 1
+# Simple symbol on pendant face
+circle 0.72,0.15 0.015 fill #ffd700 0.6
+
+# === Faint shadow below the shelf (shelf protrudes from wall) ===
+rect 0.12,0.24 0.76,0.04 fill #000000 0.12

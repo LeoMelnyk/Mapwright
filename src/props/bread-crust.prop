@@ -1,0 +1,60 @@
+name: Bread Crust
+category: Debris
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: shepherds-shelter, peasant-hovel, cave-bandit-camp, cabin-abandoned, alley, prison-cell
+typical_count: few
+clusters_with: moldy-bread, bread-heel, bone-pile-small, chicken-bone, scat-pile
+notes: Gnawed heel/crust of bread left on the floor — bite marks, scattered crumbs. Sign of poverty or hasty meal.
+---
+# === Scatter of crumbs (drawn first, behind crust) ===
+circle 0.22,0.38 0.018 fill #8a5820 0.8
+circle 0.26,0.46 0.014 fill #a06830 0.75
+circle 0.74,0.62 0.02 fill #8a5820 0.8
+circle 0.80,0.54 0.015 fill #a06830 0.75
+circle 0.68,0.74 0.016 fill #8a5820 0.7
+circle 0.16,0.54 0.012 fill #a06830 0.7
+circle 0.34,0.72 0.014 fill #8a5820 0.75
+
+# === Main crust (irregular crescent — gnawed from one side) ===
+poly 0.34,0.42 0.46,0.36 0.58,0.38 0.66,0.44 0.70,0.56 0.66,0.66 0.56,0.72 0.44,0.70 0.36,0.60 0.42,0.54 0.50,0.52 0.48,0.46 0.40,0.48 fill #c8893a 0.95
+poly 0.34,0.42 0.46,0.36 0.58,0.38 0.66,0.44 0.70,0.56 0.66,0.66 0.56,0.72 0.44,0.70 0.36,0.60 0.42,0.54 0.50,0.52 0.48,0.46 0.40,0.48 stroke #6a3a10
+
+# === Darker crust underside arc ===
+arc 0.54,0.56 0.16 40 160 stroke #4a2810 0.6 width 2
+
+# === Pale crumb interior visible where gnawed ===
+poly 0.42,0.54 0.50,0.52 0.48,0.46 0.40,0.48 fill #e8c888 0.85
+poly 0.42,0.54 0.50,0.52 0.48,0.46 0.40,0.48 stroke #8a6030
+
+# === Bite marks (teeth indentations — dark crescent scallops) ===
+arc 0.40,0.48 0.03 0 180 stroke #4a2810 0.7 width 1
+arc 0.46,0.50 0.03 0 180 stroke #4a2810 0.7 width 1
+arc 0.52,0.48 0.025 0 180 stroke #4a2810 0.6 width 1
+
+# === Flour dusting patches ===
+ellipse 0.54,0.44 0.07,0.04 fill #f0e4d0 0.4
+ellipse 0.50,0.64 0.06,0.03 fill #f0e4d0 0.35
+
+# === Crust crackle lines ===
+line 0.48,0.42 0.56,0.44 stroke #4a2810 0.55
+line 0.62,0.52 0.66,0.58 stroke #4a2810 0.5
+line 0.40,0.62 0.44,0.66 stroke #4a2810 0.5
+
+# === Score marks (baker's original slashes) ===
+bezier 0.42,0.42 0.50,0.44 0.58,0.44 0.64,0.46 stroke #5a2810 0.7 width 1
+
+# === Upper crust highlight ===
+arc 0.54,0.54 0.14 220 280 stroke #e8b860 0.55 width 1
+
+# === Tiny flour dot scatter (near the crumbs) ===
+circle 0.52,0.40 0.008 fill #f0e4d0 0.8
+circle 0.60,0.66 0.008 fill #f0e4d0 0.75
+circle 0.48,0.72 0.008 fill #f0e4d0 0.7
+
+# === Small mold spot (going stale) ===
+circle 0.62,0.48 0.012 fill #4a5028 0.5

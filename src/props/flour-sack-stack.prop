@@ -1,0 +1,64 @@
+name: Flour Sack Stack
+category: Containers
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: corner
+room_types: bakery, mill-grain, dock-warehouse, pantry
+typical_count: few
+clusters_with: flour-sack, flour-dust, cart, bread-loaf
+notes: Pile of burlap flour sacks stacked together
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-1.5
+
+# Bottom row — 4 sacks
+# Sack SW
+ellipse 0.55,1.40 0.32,0.28 texfill polyhaven/rough_linen 0.9
+ellipse 0.55,1.40 0.32,0.28 fill #d4b878 0.4
+ellipse 0.55,1.40 0.32,0.28 stroke #4a3820
+# Sack SE
+ellipse 1.45,1.40 0.32,0.28 texfill polyhaven/rough_linen 0.9
+ellipse 1.45,1.40 0.32,0.28 fill #d4b878 0.4
+ellipse 1.45,1.40 0.32,0.28 stroke #4a3820
+# Sack NW
+ellipse 0.55,0.68 0.32,0.28 texfill polyhaven/rough_linen 0.9
+ellipse 0.55,0.68 0.32,0.28 fill #d4b878 0.4
+ellipse 0.55,0.68 0.32,0.28 stroke #4a3820
+# Sack NE
+ellipse 1.45,0.68 0.32,0.28 texfill polyhaven/rough_linen 0.9
+ellipse 1.45,0.68 0.32,0.28 fill #d4b878 0.4
+ellipse 1.45,0.68 0.32,0.28 stroke #4a3820
+# Seams on each sack
+line 0.55,1.16 0.55,1.64 stroke #3a2810 0.6
+line 1.45,1.16 1.45,1.64 stroke #3a2810 0.6
+line 0.55,0.44 0.55,0.92 stroke #3a2810 0.6
+line 1.45,0.44 1.45,0.92 stroke #3a2810 0.6
+# Drawstring tops
+ellipse 0.55,1.18 0.08,0.03 fill #4a3820 0.9
+ellipse 1.45,1.18 0.08,0.03 fill #4a3820 0.9
+ellipse 0.55,0.46 0.08,0.03 fill #4a3820 0.9
+ellipse 1.45,0.46 0.08,0.03 fill #4a3820 0.9
+# Top stack — single sack centered
+ellipse 1.0,1.0 0.38,0.30 texfill polyhaven/rough_linen 0.92
+ellipse 1.0,1.0 0.38,0.30 fill #e0c480 0.4
+ellipse 1.0,1.0 0.38,0.30 stroke #4a3820
+# Top sack shadow beneath
+ellipse 1.0,1.22 0.36,0.05 fill #1a1008 0.3
+# Top sack lumps
+ellipse 0.88,0.92 0.12,0.08 fill #c8ac70 0.5
+ellipse 1.12,1.08 0.12,0.08 fill #c8ac70 0.5
+# Top sack seam
+line 1.0,0.72 1.0,1.28 stroke #3a2810 0.7
+# Top sack drawstring
+ellipse 1.0,0.74 0.10,0.04 fill #4a3820 0.95
+# Stamp on top
+rect 0.84,1.00 0.32,0.08 stroke #4a1828 0.5 width 1
+# Flour dust scatter around base
+circle 0.20,1.70 0.02 fill #f0e4d0 0.7
+circle 1.84,1.72 0.018 fill #f0e4d0 0.7
+circle 0.14,0.80 0.015 fill #f0e4d0 0.6
+circle 1.88,0.60 0.015 fill #f0e4d0 0.6
+circle 0.90,1.74 0.015 fill #f0e4d0 0.6

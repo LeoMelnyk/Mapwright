@@ -1,0 +1,66 @@
+name: Signal Bell
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2
+placement: floor
+room_types: ferry-house, dock, watchtower, temple-entry
+typical_count: single
+clusters_with: lantern-post, anchor-post, dock-cleat
+notes: Brass signal bell mounted on a short wooden post. Top-down shows the circular rim of the bell with clapper visible at center, post cross-section beneath.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# footprint 1x1: x 0-1, y 0-1
+
+# Post base shadow (wider than the bell)
+circle 0.5,0.5 0.38 fill #1a0800 0.2
+
+# Wooden post cross-section (visible at ground level, outside bell ring)
+circle 0.5,0.5 0.36 texfill polyhaven/dark_wood 0.7
+circle 0.5,0.5 0.36 stroke #2a1400 0.6
+
+# Brass bell outer rim (largest concentric ring — the bell flaring down around the post)
+circle 0.5,0.5 0.30 texfill polyhaven/metal_plate 0.7
+circle 0.5,0.5 0.30 fill #daa520 0.5
+circle 0.5,0.5 0.30 stroke #5a3a00 width 2
+
+# Secondary bell band (shoulder of the bell)
+circle 0.5,0.5 0.24 stroke #8b6914 0.6 width 1
+circle 0.5,0.5 0.24 fill #c89518 0.3
+
+# Decorative engraved ring
+circle 0.5,0.5 0.20 stroke #5a3a00 0.7 width 1
+
+# Crown dome (top of bell)
+circle 0.5,0.5 0.14 texfill polyhaven/metal_plate 0.8
+circle 0.5,0.5 0.14 fill #daa520 0.55
+circle 0.5,0.5 0.14 stroke #5a3a00 width 1
+
+# Lift loop (small ring on top of crown, seen edge-on as thin ellipse)
+ellipse 0.5,0.46 0.05,0.02 stroke #5a3a00 width 2
+ellipse 0.5,0.46 0.05,0.02 fill #daa520 0.7
+
+# Clapper visible through the crown opening (dark)
+circle 0.5,0.5 0.06 fill #2a1400 0.9
+circle 0.5,0.5 0.06 stroke #1a0800 width 1
+# Clapper ball
+circle 0.5,0.52 0.03 fill #8b6914 0.9
+circle 0.5,0.52 0.03 stroke #5a3a00
+
+# Brass sheen highlight on bell rim
+arc 0.5,0.5 0.28 200 280 stroke #ffee88 0.6 width 1
+arc 0.5,0.5 0.22 210 270 stroke #ffee88 0.4 width 1
+
+# Rope pull hanging from lift loop (thin line)
+line 0.50,0.46 0.52,0.12 stroke #8b7355 width 2
+line 0.50,0.46 0.52,0.12 stroke #5c3a1e 0.6 width 1
+# Rope tassel at end
+circle 0.52,0.12 0.018 fill #6b4e2e 0.85
+
+# Tarnish specks
+circle 0.42,0.38 0.012 fill #5a3a00 0.5
+circle 0.60,0.56 0.012 fill #5a3a00 0.5

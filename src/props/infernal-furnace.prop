@@ -1,0 +1,119 @@
+name: Infernal Furnace
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 4
+placement: wall
+room_types: infernal-forge, infernal-court, hell-smithy
+typical_count: single
+clusters_with: anvil-devil, hammer-giant, quench-trough-blood, weapon-rack-infernal, tongs-long
+lights: [{"preset":"infernal-flame","x":1,"y":1,"radius":18,"intensity":1.5,"color":"#ff6600"}]
+notes: Demon-mouthed furnace — twisted iron skull with roaring fire in its maw. Concentric-ring fire pattern. Faces south (mouth toward players).
+---
+# Hitbox: bulk of the furnace body
+hitbox rect 0.08,0.08 1.84,1.55 z 0-4
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: iron demon-skull furnace, open mouth at south, chimney in the skull's crown
+
+# === Heat halo on the floor around the opening ===
+ellipse 1.00,1.85 0.85,0.10 fill #ff6600 0.18
+ellipse 1.00,1.80 0.70,0.08 fill #ffaa00 0.12
+ellipse 1.00,1.72 0.55,0.06 fill #ffcc00 0.08
+
+# === Outer iron skull mass (black, slightly bulbous) ===
+poly 0.10,0.50 0.18,0.25 0.35,0.10 0.60,0.06 1.00,0.04 1.40,0.06 1.65,0.10 1.82,0.25 1.90,0.50 1.92,0.90 1.88,1.25 1.80,1.50 1.60,1.60 1.30,1.60 0.70,1.60 0.40,1.60 0.20,1.50 0.12,1.25 0.08,0.90 fill #1a1a1a 0.95
+poly 0.10,0.50 0.18,0.25 0.35,0.10 0.60,0.06 1.00,0.04 1.40,0.06 1.65,0.10 1.82,0.25 1.90,0.50 1.92,0.90 1.88,1.25 1.80,1.50 1.60,1.60 1.30,1.60 0.70,1.60 0.40,1.60 0.20,1.50 0.12,1.25 0.08,0.90 texfill polyhaven/metal_plate 0.4
+poly 0.10,0.50 0.18,0.25 0.35,0.10 0.60,0.06 1.00,0.04 1.40,0.06 1.65,0.10 1.82,0.25 1.90,0.50 1.92,0.90 1.88,1.25 1.80,1.50 1.60,1.60 1.30,1.60 0.70,1.60 0.40,1.60 0.20,1.50 0.12,1.25 0.08,0.90 stroke #0a0a0a width 2
+
+# === Horns (curving outward from the crown) ===
+poly 0.35,0.10 0.18,0.02 0.10,0.16 0.28,0.22 fill #0a0a0a 0.98
+poly 0.35,0.10 0.18,0.02 0.10,0.16 0.28,0.22 stroke #000000
+poly 1.65,0.10 1.82,0.02 1.90,0.16 1.72,0.22 fill #0a0a0a 0.98
+poly 1.65,0.10 1.82,0.02 1.90,0.16 1.72,0.22 stroke #000000
+
+# === Glowing cracks radiating across the iron ===
+bezier 0.30,0.30 0.45,0.40 0.55,0.35 0.70,0.50 stroke #cc2200 0.9 width 2
+bezier 1.30,0.30 1.45,0.40 1.55,0.40 1.70,0.55 stroke #ff4400 0.85 width 2
+bezier 0.50,0.80 0.65,0.90 0.80,0.95 1.00,0.95 stroke #cc2200 0.85 width 2
+line 0.40,0.55 0.50,0.70 stroke #ff4400 0.8 width 1
+line 1.50,0.50 1.60,0.70 stroke #cc2200 0.8 width 1
+line 1.00,0.40 1.10,0.60 stroke #ff4400 0.7 width 1
+
+# === Chimney hole in the crown (central, top of the skull) ===
+circle 1.00,0.38 0.18 fill #0a0400 0.95
+circle 1.00,0.38 0.18 stroke #0a0a0a width 2
+# Heat bleed from chimney
+circle 1.00,0.38 0.14 stroke #3a1808 width 2
+circle 1.00,0.38 0.10 fill #cc3300 0.55
+circle 1.00,0.38 0.06 fill #ff6600 0.75
+circle 1.00,0.38 0.03 fill #ffcc00 0.9
+
+# === Demonic eye vents (glowing eyes above the mouth) ===
+# Left eye
+ellipse 0.68,0.78 0.09,0.06 fill #0a0400 0.95
+ellipse 0.68,0.78 0.09,0.06 stroke #0a0a0a
+ellipse 0.68,0.78 0.06,0.04 fill #ff4400 0.85
+ellipse 0.68,0.78 0.03,0.02 fill #ffcc00 0.95
+# Right eye
+ellipse 1.32,0.78 0.09,0.06 fill #0a0400 0.95
+ellipse 1.32,0.78 0.09,0.06 stroke #0a0a0a
+ellipse 1.32,0.78 0.06,0.04 fill #ff4400 0.85
+ellipse 1.32,0.78 0.03,0.02 fill #ffcc00 0.95
+
+# === Gaping mouth opening (south — the furnace maw) ===
+# Dark cavernous interior
+poly 0.40,1.05 0.35,1.55 0.50,1.58 1.00,1.58 1.50,1.58 1.65,1.55 1.60,1.05 fill #0a0400 0.95
+poly 0.40,1.05 0.35,1.55 0.50,1.58 1.00,1.58 1.50,1.58 1.65,1.55 1.60,1.05 stroke #0a0a0a width 2
+
+# === Fang-like iron teeth along the mouth opening (upper row) ===
+poly 0.45,1.05 0.50,1.20 0.55,1.05 fill #0a0a0a 0.98
+poly 0.45,1.05 0.50,1.20 0.55,1.05 stroke #000000
+poly 0.60,1.05 0.65,1.22 0.70,1.05 fill #0a0a0a 0.98
+poly 0.60,1.05 0.65,1.22 0.70,1.05 stroke #000000
+poly 0.78,1.05 0.84,1.20 0.90,1.05 fill #0a0a0a 0.98
+poly 0.78,1.05 0.84,1.20 0.90,1.05 stroke #000000
+poly 0.95,1.05 1.00,1.22 1.05,1.05 fill #0a0a0a 0.98
+poly 0.95,1.05 1.00,1.22 1.05,1.05 stroke #000000
+poly 1.10,1.05 1.16,1.20 1.22,1.05 fill #0a0a0a 0.98
+poly 1.10,1.05 1.16,1.20 1.22,1.05 stroke #000000
+poly 1.30,1.05 1.35,1.22 1.40,1.05 fill #0a0a0a 0.98
+poly 1.30,1.05 1.35,1.22 1.40,1.05 stroke #000000
+poly 1.45,1.05 1.50,1.20 1.55,1.05 fill #0a0a0a 0.98
+poly 1.45,1.05 1.50,1.20 1.55,1.05 stroke #000000
+
+# === CONCENTRIC-RING FIRE inside the mouth (top-down fire pattern) ===
+# Outer heat halo
+ellipse 1.00,1.35 0.55,0.18 fill #e85500 0.4
+# Outer flame ring
+ellipse 1.00,1.35 0.45,0.15 fill #ff6600 0.7
+# Flame tongues radiating outward (small poly tongues)
+poly 0.55,1.32 0.50,1.28 0.60,1.30 fill #ff6600 0.7
+poly 1.42,1.32 1.48,1.28 1.50,1.32 fill #ff6600 0.7
+poly 0.70,1.22 0.65,1.18 0.75,1.20 fill #ff8800 0.75
+poly 1.28,1.22 1.35,1.18 1.30,1.22 fill #ff8800 0.75
+# Mid flame ring (yellow-orange)
+ellipse 1.00,1.35 0.35,0.12 fill #ff8800 0.85
+# Inner core (yellow)
+ellipse 1.00,1.35 0.25,0.08 fill #ffaa00 0.9
+# Hot center (yellow-white)
+ellipse 1.00,1.35 0.14,0.05 fill #ffcc00 0.95
+# Hottest white-hot spot
+ellipse 1.00,1.33 0.07,0.03 fill #ffee88 0.98
+
+# === Glowing embers rising ===
+circle 0.72,1.10 0.02 fill #ffcc00 0.9
+circle 1.25,1.12 0.018 fill #ff8800 0.9
+circle 0.88,1.00 0.015 fill #ff6600 0.85
+circle 1.15,1.00 0.015 fill #ffaa00 0.85
+
+# === Iron rivets around the mouth (structural) ===
+circle 0.22,0.75 0.025 fill #0a0a0a 0.95
+circle 0.22,1.00 0.025 fill #0a0a0a 0.95
+circle 1.78,0.75 0.025 fill #0a0a0a 0.95
+circle 1.78,1.00 0.025 fill #0a0a0a 0.95
+
+# === Soot staining around the mouth ===
+ellipse 1.00,1.02 0.55,0.04 fill #0a0400 0.7

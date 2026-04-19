@@ -1,0 +1,75 @@
+name: Restraint Chair
+category: Prison
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: interrogation-room, torture-chamber, prison-block, oubliette
+typical_count: single
+clusters_with: chain-coil, shackles, bloodstain, tool-cart, bloody-rag
+notes: Heavy wooden chair with iron shackles at arms and ankles — interrogation tool
+---
+# === HITBOX ===
+hitbox rect 0.16,0.16 0.68,0.68 z 0-2.5
+
+# Main chair body (dark aged wood)
+rect 0.16,0.16 0.68,0.68 texfill polyhaven/dark_wood 0.88
+rect 0.16,0.16 0.68,0.68 fill #1a0f00 0.35
+rect 0.16,0.16 0.68,0.68 stroke #0a0800
+# Wood grain
+line 0.16,0.32 0.84,0.32 stroke #3a1f00 0.5
+line 0.16,0.48 0.84,0.48 stroke #3a1f00 0.5
+line 0.16,0.64 0.84,0.64 stroke #3a1f00 0.5
+# Backrest (tall north section — top-down shows thick strip)
+rect 0.16,0.16 0.68,0.10 fill #0a0800 0.9
+rect 0.16,0.16 0.68,0.10 stroke #000000
+# Backrest iron bars (reinforcement)
+line 0.24,0.18 0.24,0.24 stroke #222222 width 2
+line 0.40,0.18 0.40,0.24 stroke #222222 width 2
+line 0.60,0.18 0.60,0.24 stroke #222222 width 2
+line 0.76,0.18 0.76,0.24 stroke #222222 width 2
+# Seat (middle, stained)
+rect 0.22,0.30 0.56,0.42 fill #2a1408 0.9
+rect 0.22,0.30 0.56,0.42 stroke #0a0400
+# Seat blood stain
+ellipse 0.50,0.52 0.20,0.10 fill #3a0808 0.6
+# Arm iron shackles (east + west sides, mid-chair)
+# West shackle
+rect 0.14,0.42 0.10,0.12 fill #333333 0.95
+rect 0.14,0.42 0.10,0.12 texfill polyhaven/rusty_metal 0.6
+rect 0.14,0.42 0.10,0.12 stroke #1a1008
+# West shackle opening
+circle 0.19,0.48 0.03 fill #1a1008 0.95
+circle 0.19,0.48 0.03 stroke #222222
+# Chain attached to west shackle
+line 0.10,0.48 0.06,0.54 stroke #444444 width 2
+# East shackle
+rect 0.76,0.42 0.10,0.12 fill #333333 0.95
+rect 0.76,0.42 0.10,0.12 texfill polyhaven/rusty_metal 0.6
+rect 0.76,0.42 0.10,0.12 stroke #1a1008
+# East shackle opening
+circle 0.81,0.48 0.03 fill #1a1008 0.95
+circle 0.81,0.48 0.03 stroke #222222
+# East chain
+line 0.90,0.48 0.94,0.54 stroke #444444 width 2
+# Ankle shackles (south, lower)
+rect 0.24,0.72 0.10,0.08 fill #333333 0.95
+rect 0.24,0.72 0.10,0.08 texfill polyhaven/rusty_metal 0.6
+rect 0.24,0.72 0.10,0.08 stroke #1a1008
+circle 0.29,0.76 0.02 fill #1a1008 0.95
+rect 0.66,0.72 0.10,0.08 fill #333333 0.95
+rect 0.66,0.72 0.10,0.08 texfill polyhaven/rusty_metal 0.6
+rect 0.66,0.72 0.10,0.08 stroke #1a1008
+circle 0.71,0.76 0.02 fill #1a1008 0.95
+# Iron bolts holding chair down
+circle 0.20,0.82 0.02 fill #222222 0.95
+circle 0.80,0.82 0.02 fill #222222 0.95
+# Scratch marks (from struggle)
+line 0.30,0.40 0.38,0.48 stroke #1a0404 0.7
+line 0.64,0.42 0.70,0.50 stroke #1a0404 0.7
+line 0.42,0.38 0.46,0.46 stroke #1a0404 0.6
+# Rust streaks
+line 0.18,0.54 0.22,0.70 stroke #6a3818 0.6
+line 0.78,0.54 0.82,0.70 stroke #6a3818 0.6

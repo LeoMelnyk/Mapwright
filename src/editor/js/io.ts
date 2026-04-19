@@ -6,7 +6,7 @@ interface FilePickerWindow {
   showSaveFilePicker?: (options?: Record<string, unknown>) => Promise<FileSystemFileHandle>;
 }
 
-import type { Dungeon } from '../../types.js';
+import type { Dungeon, Theme } from '../../types.js';
 import state, { pushUndo, markDirty, notify } from './state.js';
 import { CURRENT_FORMAT_VERSION, migrateToLatest } from './migrations.js';
 import { showToast } from './toast.js';
@@ -16,6 +16,7 @@ import {
   renderDungeonToCanvas,
   invalidatePropsCache,
   invalidateAllCaches,
+  normalizeTheme,
   THEMES,
   BRIDGE_TEXTURE_IDS,
 } from '../../render/index.js';
@@ -26,7 +27,12 @@ import {
   loadTextureCatalog,
   clearTextureCatalogCache,
 } from './texture-catalog.js';
-import { loadPropCatalog, clearPropCatalogCache } from './prop-catalog.js';
+import {
+  loadPropCatalog,
+  clearPropCatalogCache,
+  ensurePropHitboxesForMap,
+  scheduleBackgroundPropHitboxGen,
+} from './prop-catalog.js';
 import { loadThemeCatalog, clearThemeCatalogCache, saveUserTheme } from './theme-catalog.js';
 import { loadLightCatalog, clearLightCatalogCache } from './light-catalog.js';
 import { requestRender, zoomToFit, invalidateMapCache } from './canvas-view.js';
@@ -61,6 +67,18 @@ export function loadDungeonJSON(
   meta.nextStairId ??= 1;
   meta.nextBridgeId ??= 1;
 
+  // Normalize any theme data embedded in the map so downstream consumers can
+  // read fields directly (matches the normalize-at-load contract used for
+  // shipped and user themes in theme-catalog).
+  if (typeof json.metadata.theme === 'object') {
+    json.metadata.theme = normalizeTheme(json.metadata.theme);
+  }
+  if (json.metadata.savedThemeData?.theme) {
+    json.metadata.savedThemeData.theme = normalizeTheme(
+      json.metadata.savedThemeData.theme as Theme,
+    ) as unknown as Record<string, unknown>;
+  }
+
   // Auto-install embedded user theme if not locally available
   const _theme = json.metadata.theme;
   if (
@@ -82,6 +100,9 @@ export function loadDungeonJSON(
   state.selectedCells = [];
   state.fileHandle = opts.fileHandle ?? null;
   state.fileName = opts.fileName ?? null;
+  // Materialize hitboxes for every prop type used by this map before rendering.
+  // No-op if the catalog isn't loaded yet — app-init handles that case after load.
+  ensurePropHitboxesForMap(json);
   // Flush all render caches (geometry, fluid, blend, visibility, props)
   // so stale data from the previous map doesn't bleed through.
   invalidateAllCaches();
@@ -624,6 +645,13 @@ export async function reloadAssets(): Promise<void> {
   state.lightCatalog = lightCatalog;
   // Themes register into a shared THEMES object — just reload the catalog
   await loadThemeCatalog();
+
+  // The fresh catalog's PropDefinitions have no materialized hitboxes yet.
+  // Without this, existing props on the map lose click-targeting and selection
+  // boxes until the user re-places them. New placements call ensurePropHitbox
+  // themselves; existing ones need a catch-up pass here.
+  ensurePropHitboxesForMap(state.dungeon);
+  scheduleBackgroundPropHitboxGen();
 
   // Re-load texture images for everything currently on the map
   const usedIds = collectTextureIds(state.dungeon.cells);

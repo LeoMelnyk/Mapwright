@@ -1,0 +1,50 @@
+name: Sewage Channel End
+category: Terrain
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: sewer-junction, sewer, undercity
+typical_count: few
+clusters_with: sewage-channel, sewage-channel-short, sewage-channel-turn, sewage-channel-t, sewage-channel-x, grate-floor
+notes: Closed terminus for the sewage channel network — at facing 0 the channel enters from the west edge and dead-ends at the east wall. Edge geometry matches the straight piece at x=0 so it tiles cleanly.
+---
+# West edge matches the straight piece:
+#   open floor 0.00-0.08 and 0.92-1.00 (y)
+#   stone lips 0.08-0.20 and 0.80-0.92 (y)
+#   fluid 0.20-0.80 (y)
+
+# North stone lip (matches straight piece on the west edge, curves around to form the end wall)
+poly 0.00,0.08 1.00,0.08 1.00,0.92 0.90,0.92 0.90,0.18 0.00,0.20 texfill polyhaven/stone_floor 0.85
+poly 0.00,0.08 1.00,0.08 1.00,0.92 0.90,0.92 0.90,0.18 0.00,0.20 stroke #2a2820
+
+# South stone lip (mirror of north)
+poly 0.00,0.80 0.90,0.82 0.90,0.92 0.00,0.92 fill #00000000 0
+# (The above is structurally inside the big poly — drawing it separately to give seam between north and south lips)
+
+# Arched end-cap detail — curved inner stone lip at east side (closes the channel)
+arc 0.72,0.50 0.24 270 90 stroke #2a2820 width 2
+
+# Channel fluid — partial region, leaves the east wall closed
+poly 0.00,0.20 0.88,0.22 0.88,0.36 0.88,0.64 0.88,0.78 0.00,0.80 fill #3a2a18 0.95
+poly 0.00,0.20 0.88,0.22 0.88,0.36 0.88,0.64 0.88,0.78 0.00,0.80 stroke #1a1208 width 1
+
+# Flow streaks feeding toward the dead-end wall (bunch up near the end)
+bezier 0.00,0.32 0.30,0.30 0.60,0.34 0.86,0.38 stroke #5a4028 0.55 width 2
+bezier 0.00,0.48 0.35,0.50 0.65,0.50 0.86,0.50 stroke #5a4028 0.5 width 2
+bezier 0.00,0.66 0.30,0.68 0.60,0.64 0.86,0.60 stroke #4a3020 0.55 width 2
+
+# Scum building up at the dead-end (accumulates here)
+ellipse 0.75,0.36 0.10,0.05 fill #4a6040 0.65
+ellipse 0.78,0.60 0.10,0.05 fill #4a6040 0.65
+ellipse 0.82,0.50 0.06,0.06 fill #4a6040 0.55
+
+# Bubbles rising where flow hits the wall
+circle 0.84,0.32 0.02 fill #8aa070 0.75
+circle 0.84,0.68 0.02 fill #8aa070 0.75
+circle 0.80,0.46 0.018 fill #8aa070 0.7
+
+# Lip highlight (moisture)
+line 0.00,0.20 0.88,0.22 stroke #6a8060 0.3 width 1
+line 0.00,0.80 0.88,0.78 stroke #6a8060 0.3 width 1

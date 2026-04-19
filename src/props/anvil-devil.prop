@@ -1,0 +1,68 @@
+name: Devil's Anvil
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: infernal-forge, infernal-court
+typical_count: single
+clusters_with: anvil, forge-great, hammer, glowing-ingot, chain-heavy
+notes: Infernal variant of a smith's anvil — glowing red cracks in black iron, skull motif on side, horn spikes along top. Pair with forge-great and hellish forge props.
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":3,"color":"#cc2200","intensity":0.35}]
+---
+# === HITBOX ===
+hitbox rect 0.32,0.30 0.36,0.40 z 0-1.5
+hitbox rect 0.15,0.22 0.70,0.46 z 1.5-2.5
+
+# Base/waist (narrow column from above)
+rect 0.32,0.30 0.36,0.40 texfill polyhaven/metal_plate 0.7
+rect 0.32,0.30 0.36,0.40 fill #222222 0.55
+rect 0.32,0.30 0.36,0.40 stroke #0a0a0a
+
+# Main anvil face (dark iron)
+rect 0.15,0.32 0.70,0.30 texfill polyhaven/metal_plate 0.75
+rect 0.15,0.32 0.70,0.30 fill #222222 0.5
+rect 0.15,0.32 0.70,0.30 stroke #0a0a0a
+
+# Glowing red cracks across the face (hairline fractures leaking hellfire)
+bezier 0.18,0.38 0.30,0.42 0.45,0.40 0.60,0.44 stroke #cc2200 0.9 width 2
+bezier 0.60,0.44 0.70,0.46 0.78,0.48 0.82,0.50 stroke #ff4400 0.85 width 1
+line 0.30,0.42 0.34,0.52 stroke #cc2200 0.85 width 2
+line 0.50,0.40 0.54,0.50 stroke #ff4400 0.8 width 1
+
+# Horn (pointed end facing south)
+poly 0.35,0.62 0.65,0.62 0.50,0.88 texfill polyhaven/metal_plate 0.75
+poly 0.35,0.62 0.65,0.62 0.50,0.88 fill #222222 0.5
+poly 0.35,0.62 0.65,0.62 0.50,0.88 stroke #0a0a0a
+# Glowing crack down the horn
+line 0.50,0.64 0.50,0.84 stroke #cc2200 0.85 width 2
+
+# Heel (flat back end - north side)
+rect 0.22,0.22 0.56,0.12 texfill polyhaven/metal_plate 0.75
+rect 0.22,0.22 0.56,0.12 fill #222222 0.5
+rect 0.22,0.22 0.56,0.12 stroke #0a0a0a
+
+# Horn spikes running along the top edge (small demonic barbs)
+poly 0.26,0.22 0.30,0.14 0.34,0.22 fill #1a1a1a 0.95
+poly 0.26,0.22 0.30,0.14 0.34,0.22 stroke #0a0a0a
+poly 0.40,0.22 0.44,0.12 0.48,0.22 fill #1a1a1a 0.95
+poly 0.40,0.22 0.44,0.12 0.48,0.22 stroke #0a0a0a
+poly 0.54,0.22 0.58,0.12 0.62,0.22 fill #1a1a1a 0.95
+poly 0.54,0.22 0.58,0.12 0.62,0.22 stroke #0a0a0a
+poly 0.68,0.22 0.72,0.14 0.76,0.22 fill #1a1a1a 0.95
+poly 0.68,0.22 0.72,0.14 0.76,0.22 stroke #0a0a0a
+
+# Skull relief embossed on the side (bronze)
+ellipse 0.50,0.54 0.06,0.05 fill #8a4018 0.9
+ellipse 0.50,0.54 0.06,0.05 stroke #3a1800
+# Skull eye sockets
+circle 0.48,0.54 0.012 fill #0a0a0a 0.95
+circle 0.52,0.54 0.012 fill #0a0a0a 0.95
+# Skull jaw line
+line 0.47,0.57 0.53,0.57 stroke #3a1800 0.9 width 1
+
+# Hot glow embers in the hardy hole
+rect 0.55,0.42 0.08,0.08 fill #1a0400 0.9
+circle 0.59,0.46 0.025 fill #ff6600 0.8

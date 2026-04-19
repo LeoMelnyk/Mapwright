@@ -1,0 +1,46 @@
+name: Clay Pipe
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: gambling-den, inn-common-room, tavern-common, opium-den
+typical_count: single
+clusters_with: tankard, playing-cards, bench, stool, smoke-cloud
+notes: Long-stemmed white clay pipe lying on a surface
+---
+# === HITBOX ===
+selection rect 0.10,0.44 0.80,0.18
+
+# Stem (long thin white cylinder)
+rect 0.10,0.50 0.68,0.06 fill #f0e4d0 0.95
+rect 0.10,0.50 0.68,0.06 stroke #8b7355
+# Stem highlight
+line 0.10,0.51 0.78,0.51 stroke #ffffff 0.5 width 1
+# Stem shadow underside
+line 0.10,0.55 0.78,0.55 stroke #8b7355 0.5 width 1
+# Mouthpiece (slight bulge at east end)
+ellipse 0.82,0.53 0.04,0.04 fill #f0e4d0 0.95
+ellipse 0.82,0.53 0.04,0.04 stroke #8b7355
+# Ornate mouthpiece band
+line 0.80,0.50 0.80,0.56 stroke #8b7355 0.7 width 1
+# Bowl (west end — clay cup)
+circle 0.18,0.50 0.10 fill #e8d4b0 0.95
+circle 0.18,0.50 0.10 stroke #8a5a30
+# Bowl base disc
+circle 0.18,0.50 0.06 stroke #8a5a30 0.7 width 1
+# Bowl interior (dark from burn)
+circle 0.18,0.50 0.06 fill #1a1008 0.9
+# Glowing ember inside bowl
+circle 0.18,0.50 0.04 fill #c83018 0.6
+circle 0.18,0.50 0.025 fill #e85500 0.7
+circle 0.18,0.50 0.012 fill #ffaa00 0.85
+# Bowl stamp/crest (tiny mark on side)
+circle 0.24,0.48 0.012 fill #6a3a10 0.7
+# Wisp of smoke rising
+bezier 0.18,0.40 0.22,0.32 0.14,0.24 0.20,0.16 stroke #aaaaaa 0.5 width 1
+bezier 0.18,0.40 0.20,0.34 0.16,0.28 0.22,0.20 stroke #cccccc 0.3 width 1
+# Ash fleck
+circle 0.26,0.56 0.01 fill #555555 0.6

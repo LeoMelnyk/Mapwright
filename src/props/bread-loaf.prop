@@ -1,0 +1,39 @@
+name: Bread Loaf
+category: Food
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: bakery, farmhouse-common, house-medium-artisan, house-small, inn-common-room, pantry, tavern-common, market-stall
+typical_count: few
+clusters_with: bread-heel, cheese-wheel, butter-churn, scale, cutting-board
+notes: Round crusty loaf; scatter on counters and tables
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.34,0.28
+
+# Loaf base shape (oval, golden crust)
+ellipse 0.5,0.5 0.34,0.28 fill #c8893a 0.95
+ellipse 0.5,0.5 0.34,0.28 stroke #6a3a10
+# Darker underside ring
+arc 0.5,0.5 0.32 20 160 stroke #4a2810 0.5 width 2
+# Upper highlight (lighter crust)
+arc 0.5,0.5 0.30 200 340 stroke #e8b860 0.6 width 2
+# Flour dusting (lighter patches)
+ellipse 0.38,0.42 0.10,0.06 fill #f0e4d0 0.35
+ellipse 0.62,0.52 0.08,0.05 fill #f0e4d0 0.3
+# Slash marks on top (baker's score)
+bezier 0.30,0.42 0.40,0.50 0.60,0.50 0.70,0.42 stroke #5a2810 width 2
+bezier 0.30,0.52 0.40,0.60 0.60,0.60 0.70,0.52 stroke #5a2810 width 2
+# Inner slash crumb glimpse (lighter inside)
+bezier 0.30,0.42 0.40,0.48 0.60,0.48 0.70,0.42 stroke #d4a858 0.7 width 1
+bezier 0.30,0.52 0.40,0.58 0.60,0.58 0.70,0.52 stroke #d4a858 0.7 width 1
+# Crust crackle lines
+line 0.34,0.38 0.40,0.40 stroke #4a2810 0.5
+line 0.60,0.64 0.66,0.62 stroke #4a2810 0.5
+line 0.52,0.36 0.56,0.38 stroke #4a2810 0.4
+# Tiny flour dot scatter
+circle 0.44,0.48 0.01 fill #f0e4d0 0.7
+circle 0.56,0.54 0.01 fill #f0e4d0 0.7

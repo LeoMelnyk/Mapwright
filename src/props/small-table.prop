@@ -1,0 +1,47 @@
+name: Small Table
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+placement: floor
+room_types: noble-solar, nursery, house-small, house-medium-family, mansion-bedroom-master
+typical_count: few
+clusters_with: chair, armchair, candle, tea-service, book
+notes: Small round side table — single pedestal or quadrupod
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.34 z 0-2
+
+# Table top (round, polished wood)
+circle 0.5,0.5 0.34 texfill polyhaven/wood_table 0.88
+circle 0.5,0.5 0.34 fill #5c3a1e 0.4
+circle 0.5,0.5 0.34 stroke #2a1400
+# Table edge beveling
+circle 0.5,0.5 0.32 stroke #5c3a1e 0.6 width 1
+# Wood grain rings
+arc 0.5,0.5 0.26 30 150 stroke #5c3a1e 0.4 width 1
+arc 0.5,0.5 0.20 200 340 stroke #5c3a1e 0.4 width 1
+arc 0.5,0.5 0.14 30 150 stroke #5c3a1e 0.4 width 1
+# Pedestal visible at center (circular)
+circle 0.5,0.5 0.06 fill #3a1f00 0.6
+# Leg shadows peeking around edges (4 legs in square formation)
+circle 0.26,0.26 0.04 fill #1a1008 0.4
+circle 0.74,0.26 0.04 fill #1a1008 0.4
+circle 0.26,0.74 0.04 fill #1a1008 0.4
+circle 0.74,0.74 0.04 fill #1a1008 0.4
+# Wood grain (center)
+line 0.30,0.50 0.70,0.50 stroke #5c3a1e 0.3
+line 0.30,0.54 0.70,0.54 stroke #5c3a1e 0.25
+line 0.30,0.46 0.70,0.46 stroke #5c3a1e 0.25
+# Item ring marks (faint, from cups)
+circle 0.38,0.38 0.04 stroke #3a1f00 0.25 width 1
+circle 0.62,0.58 0.03 stroke #3a1f00 0.25 width 1
+# Surface highlight
+arc 0.5,0.5 0.30 210 260 stroke #8b6914 0.5 width 1
+# Polish sheen
+arc 0.5,0.5 0.32 220 250 stroke #ffffff 0.3 width 1
+# Tiny item placeholder — a cup
+ellipse 0.56,0.42 0.04,0.02 fill #daa520 0.8
+ellipse 0.56,0.42 0.04,0.02 stroke #5a3a00

@@ -1,0 +1,55 @@
+name: Harp
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.8
+placement: corner
+room_types: bardic-hall, music-hall, theater, bards-college, mansion-grand-hall, noble-solar
+typical_count: single
+clusters_with: music-stand, sheet-music, lute-stand, drum-stand, stage-large
+notes: Concert harp seen edge-on (a harp is a thin planar instrument — from above you see only its profile). Soundbox base at the south end, pillar post rising north, scroll crown at the top.
+---
+# footprint 2x1: x 0-1, y 0-2. Harp stands vertically, viewed edge-on from above.
+# === HITBOX — narrow profile along the spine ===
+selection rect 0.40,0.15 0.20,1.75
+# Soundbox base — widest element, sits on the floor at south
+ellipse 0.50,1.82 0.22,0.12 texfill polyhaven/dark_wood 0.88
+ellipse 0.50,1.82 0.22,0.12 stroke #3a1f00 width 2
+# Gilt trim ring around soundbox rim
+ellipse 0.50,1.82 0.22,0.12 stroke #daa520 0.7 width 1
+# Sound hole at the top of the soundbox
+ellipse 0.50,1.78 0.07,0.03 fill #1a1208 0.9
+ellipse 0.50,1.78 0.07,0.03 stroke #3a1f00 width 1
+# Pillar post — narrow vertical spine from soundbox up to the neck/crown
+rect 0.45,0.20 0.10,1.58 texfill polyhaven/dark_wood 0.92
+rect 0.45,0.20 0.10,1.58 stroke #2a1400 width 1
+# Gilt trim line along the pillar
+line 0.48,0.22 0.48,1.76 stroke #daa520 0.75 width 1
+# Neck curve — bezier arcing slightly off the pillar toward the strings
+bezier 0.52,1.70 0.58,1.10 0.56,0.55 0.50,0.22 stroke #3a1f00 width 4
+bezier 0.52,1.70 0.58,1.10 0.56,0.55 0.50,0.22 stroke #5c3a1e 0.7 width 2
+# Strings — thin taut lines running along the spine between neck and soundbox
+line 0.52,0.40 0.52,1.72 stroke #e8dcc8 0.85 width 1
+line 0.54,0.55 0.54,1.72 stroke #c8b898 0.80 width 1
+line 0.56,0.75 0.56,1.72 stroke #e8dcc8 0.80 width 1
+line 0.50,0.30 0.50,1.72 stroke #c8b898 0.75 width 1
+line 0.48,0.45 0.48,1.72 stroke #e8dcc8 0.80 width 1
+line 0.46,0.65 0.46,1.72 stroke #c8b898 0.75 width 1
+line 0.44,0.90 0.44,1.72 stroke #e8dcc8 0.75 width 1
+# Tuning pegs — small brass dots along the neck
+circle 0.53,0.50 0.018 fill #daa520 0.9
+circle 0.54,0.75 0.018 fill #daa520 0.9
+circle 0.55,1.00 0.018 fill #daa520 0.9
+circle 0.55,1.25 0.018 fill #daa520 0.9
+circle 0.54,1.50 0.018 fill #daa520 0.9
+# Ornate scroll crown at the top of the pillar (nearest the viewer)
+circle 0.50,0.16 0.08 fill #daa520 0.92
+circle 0.50,0.16 0.08 stroke #5a3a00 width 2
+circle 0.50,0.16 0.04 fill #8b6914 0.85
+# Scroll spiral hint
+arc 0.50,0.16 0.06 0 270 stroke #5a3a00 0.8 width 1
+# Soundbox foot/leg shadow specks
+circle 0.32,1.92 0.03 fill #1a0804 0.55
+circle 0.68,1.92 0.03 fill #1a0804 0.55

@@ -1,0 +1,47 @@
+name: Seed Float
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-air-node, elemental-node, storm-spire, genie-court
+typical_count: many
+clusters_with: feather-drift, leaf-drift, air-node-vortex
+notes: Handful of dandelion-like seed parachutes drifting. Wispy pappus fibers radiating from tiny seed cores.
+---
+# Seed 1 — upper-left
+# Wispy fiber rays (pappus)
+line 0.28,0.28 0.18,0.18 stroke #ffffff width 1
+line 0.28,0.28 0.22,0.14 stroke #ffffff width 1
+line 0.28,0.28 0.3,0.12 stroke #ffffff width 1
+line 0.28,0.28 0.38,0.16 stroke #ffffff width 1
+line 0.28,0.28 0.42,0.22 stroke #ffffff width 1
+line 0.28,0.28 0.18,0.3 stroke #ffffff width 1
+line 0.28,0.28 0.18,0.38 stroke #ffffff width 1
+# Soft pappus glow
+circle 0.28,0.23 0.15 fill #ffffff 0.15
+# Seed core
+circle 0.28,0.28 0.025 fill #a0806a 0.9
+
+# Seed 2 — center-right (slightly larger)
+line 0.65,0.5 0.52,0.38 stroke #ffffff width 1
+line 0.65,0.5 0.58,0.34 stroke #ffffff width 1
+line 0.65,0.5 0.67,0.32 stroke #ffffff width 1
+line 0.65,0.5 0.76,0.38 stroke #ffffff width 1
+line 0.65,0.5 0.82,0.48 stroke #ffffff width 1
+line 0.65,0.5 0.8,0.6 stroke #ffffff width 1
+line 0.65,0.5 0.72,0.66 stroke #ffffff width 1
+line 0.65,0.5 0.58,0.62 stroke #ffffff width 1
+circle 0.67,0.48 0.18 fill #ffffff 0.18
+circle 0.65,0.5 0.03 fill #a0806a 0.9
+
+# Seed 3 — lower
+line 0.35,0.78 0.26,0.7 stroke #ffffff width 1
+line 0.35,0.78 0.3,0.64 stroke #ffffff width 1
+line 0.35,0.78 0.4,0.64 stroke #ffffff width 1
+line 0.35,0.78 0.46,0.72 stroke #ffffff width 1
+line 0.35,0.78 0.44,0.86 stroke #ffffff width 1
+line 0.35,0.78 0.28,0.88 stroke #ffffff width 1
+circle 0.36,0.76 0.13 fill #ffffff 0.15
+circle 0.35,0.78 0.022 fill #a0806a 0.9

@@ -1,0 +1,75 @@
+name: Ingot Pile
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: temple-of-craft, forge, foundry-great, smithy-large, refinery, general-workshop
+typical_count: few
+clusters_with: anvil, forge, ingot-stack, ingot-single, crucible, ore-chunk
+notes: Loose pile of cast metal ingots — tumbled together rather than neatly stacked. Contrast with ingot-stack (orderly) and ingot-single (one bar).
+---
+# === HITBOX ===
+selection rect 0.08,0.16 0.84,0.68
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a heap of rectangular ingots thrown together at mixed angles
+
+# === Ground scatter shadow ===
+ellipse 0.50,0.52 0.42,0.34 fill #1a1008 0.18
+
+# === Bottom-layer ingots (darker, mostly covered) ===
+# Ingot lying horizontal (east-west), bottom-left
+rect 0.10,0.58 0.38,0.14 texfill polyhaven/metal_plate 0.8
+rect 0.10,0.58 0.38,0.14 fill #333333 0.45
+rect 0.10,0.58 0.38,0.14 stroke #111111
+
+# Ingot lying horizontal, bottom-right
+rect 0.52,0.62 0.38,0.14 texfill polyhaven/metal_plate 0.8
+rect 0.52,0.62 0.38,0.14 fill #333333 0.4
+rect 0.52,0.62 0.38,0.14 stroke #111111
+
+# === Mid-layer ingots (angled, overlapping) ===
+# Diagonal ingot (rotated rect, leans NE-SW)
+rect 0.18,0.42 0.42,0.14 texfill polyhaven/metal_plate 0.85 rotate 15
+rect 0.18,0.42 0.42,0.14 stroke #222222 rotate 15
+rect 0.18,0.42 0.42,0.14 fill #555555 0.25 rotate 15
+
+# Another angled ingot
+rect 0.42,0.34 0.40,0.14 texfill polyhaven/metal_plate 0.88 rotate -12
+rect 0.42,0.34 0.40,0.14 stroke #222222 rotate -12
+
+# === Top-layer ingots (brighter, more visible) ===
+# Large top ingot across center, nearly flat
+rect 0.22,0.44 0.44,0.14 texfill polyhaven/metal_plate 0.9
+rect 0.22,0.44 0.44,0.14 stroke #222222
+# Brass highlight band
+rect 0.24,0.46 0.40,0.03 fill #aaaaaa 0.5
+
+# Small bronze ingot on top (different metal color)
+rect 0.32,0.28 0.28,0.12 fill #8b6914 0.92
+rect 0.32,0.28 0.28,0.12 stroke #5a3a00
+rect 0.34,0.30 0.24,0.02 fill #daa520 0.55
+
+# Small bronze ingot, angled
+rect 0.54,0.22 0.26,0.12 fill #a08458 0.92 rotate 20
+rect 0.54,0.22 0.26,0.12 stroke #5a3a00 rotate 20
+
+# === Bevel/edge shading on top ingots ===
+line 0.24,0.46 0.64,0.46 stroke #aaaaaa 0.5 width 1
+line 0.24,0.56 0.64,0.56 stroke #444444 0.55 width 1
+
+# === Foundry stamp marks ===
+circle 0.44,0.50 0.022 fill #111111 0.85
+line 0.42,0.50 0.46,0.50 stroke #8899aa 0.5 width 1
+
+rect 0.42,0.33 0.06,0.03 fill #5a3a00 0.75
+
+# === Small stray ingot fragment at edge ===
+rect 0.78,0.38 0.12,0.06 fill #555555 0.85
+rect 0.78,0.38 0.12,0.06 stroke #222222
+
+# === Metal sheen on top-most ingot ===
+line 0.26,0.48 0.62,0.48 stroke #ddddee 0.45 width 1

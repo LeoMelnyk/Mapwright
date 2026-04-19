@@ -1,0 +1,47 @@
+name: Mine Cart Track Turn
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel
+typical_count: many
+clusters_with: cart-track, cart-track-t, cart-track-x, headframe
+notes: 90° corner for the mine cart rail — at facing 0 the track enters from the west edge at y=0.5 and exits south at x=0.5. Rotate to orient the turn into other corners.
+---
+# Wedged wooden ties fanning through the bend (centred on the SW corner)
+poly 0.00,0.28 0.12,0.30 0.08,0.40 0.00,0.38 texfill polyhaven/weathered_planks 0.85
+poly 0.00,0.28 0.12,0.30 0.08,0.40 0.00,0.38 stroke #3a1f00
+poly 0.05,0.52 0.20,0.55 0.14,0.64 0.00,0.62 texfill polyhaven/weathered_planks 0.85
+poly 0.05,0.52 0.20,0.55 0.14,0.64 0.00,0.62 stroke #3a1f00
+poly 0.18,0.68 0.30,0.76 0.22,0.84 0.12,0.78 texfill polyhaven/weathered_planks 0.85
+poly 0.18,0.68 0.30,0.76 0.22,0.84 0.12,0.78 stroke #3a1f00
+poly 0.36,0.82 0.46,0.92 0.38,0.98 0.30,0.90 texfill polyhaven/weathered_planks 0.85
+poly 0.36,0.82 0.46,0.92 0.38,0.98 0.30,0.90 stroke #3a1f00
+poly 0.58,0.88 0.68,0.95 0.62,1.00 0.52,1.00 texfill polyhaven/weathered_planks 0.85
+poly 0.58,0.88 0.68,0.95 0.62,1.00 0.52,1.00 stroke #3a1f00
+# === Outer iron rail — quarter-ring band at r≈0.62 around SW corner ===
+poly 0.000,0.380 0.240,0.430 0.445,0.575 0.585,0.775 0.620,1.000 0.580,1.000 0.550,0.810 0.425,0.620 0.225,0.480 0.000,0.420 fill #555555 0.95
+poly 0.000,0.380 0.240,0.430 0.445,0.575 0.585,0.775 0.620,1.000 0.580,1.000 0.550,0.810 0.425,0.620 0.225,0.480 0.000,0.420 stroke #333333 width 1
+# Outer rail highlight
+bezier 0.00,0.40 0.24,0.46 0.45,0.60 0.60,1.00 stroke #8899aa 0.65 width 1
+# === Inner iron rail — quarter-ring band at r≈0.38 around SW corner ===
+poly 0.000,0.620 0.140,0.660 0.275,0.755 0.370,0.895 0.380,1.000 0.420,1.000 0.420,0.885 0.315,0.720 0.170,0.600 0.000,0.580 fill #555555 0.95
+poly 0.000,0.620 0.140,0.660 0.275,0.755 0.370,0.895 0.380,1.000 0.420,1.000 0.420,0.885 0.315,0.720 0.170,0.600 0.000,0.580 stroke #333333 width 1
+# Inner rail highlight
+bezier 0.00,0.60 0.14,0.66 0.28,0.76 0.40,1.00 stroke #8899aa 0.65 width 1
+# Rust patches on the rails
+circle 0.06,0.40 0.025 fill #8b4000 0.7
+circle 0.40,0.60 0.020 fill #8b4000 0.6
+circle 0.50,0.92 0.022 fill #8b4000 0.65
+circle 0.15,0.65 0.018 fill #8b4000 0.55
+# Rail spikes at each tie
+circle 0.06,0.35 0.014 fill #333333 0.95
+circle 0.06,0.60 0.014 fill #333333 0.95
+circle 0.14,0.57 0.014 fill #333333 0.95
+circle 0.20,0.75 0.014 fill #333333 0.95
+circle 0.28,0.80 0.014 fill #333333 0.95
+circle 0.40,0.87 0.014 fill #333333 0.95
+circle 0.48,0.92 0.014 fill #333333 0.95
+circle 0.60,0.95 0.014 fill #333333 0.95

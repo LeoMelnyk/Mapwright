@@ -1,0 +1,39 @@
+name: Prayer Book
+category: Library & Study
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: celestial-vault, dark-temple, temple-nave, shrine, chapel
+typical_count: few
+clusters_with: altar, prayer-bench, pew, candle, censer
+notes: Small bound devotional book, often left open on altars or benches
+---
+# === HITBOX ===
+selection rect 0.18,0.22 0.64,0.58
+
+# Leather cover (deep ox-blood red)
+rect 0.18,0.22 0.64,0.58 texfill polyhaven/brown_leather 0.80
+rect 0.18,0.22 0.64,0.58 fill #661818 0.4
+rect 0.18,0.22 0.64,0.58 stroke #2a0808
+# Gilt border (rectangular frame)
+rect 0.24,0.28 0.52,0.46 stroke #daa520 width 1
+# Gilt cross at center
+line 0.50,0.40 0.50,0.64 stroke #daa520 width 2
+line 0.42,0.50 0.58,0.50 stroke #daa520 width 2
+# Cross decorative terminals
+circle 0.50,0.40 0.015 fill #daa520 0.9
+circle 0.50,0.64 0.015 fill #daa520 0.9
+circle 0.42,0.50 0.015 fill #daa520 0.9
+circle 0.58,0.50 0.015 fill #daa520 0.9
+# Spine edge (left, darker)
+rect 0.18,0.22 0.05,0.58 fill #3a0808 0.85
+line 0.20,0.24 0.20,0.78 stroke #5a1010 0.4
+# Page edges (fore-edge gilt, right side)
+rect 0.80,0.24 0.03,0.54 fill #daa520 0.7
+# Bookmark ribbon trailing
+line 0.60,0.78 0.62,0.90 stroke #881111 0.9 width 2
+# Corner wear (darker)
+circle 0.20,0.78 0.04 fill #1a0404 0.4

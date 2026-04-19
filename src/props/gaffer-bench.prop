@@ -1,0 +1,57 @@
+name: Gaffer Bench
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.9
+placement: center
+room_types: glassworks, workshop
+typical_count: single
+clusters_with: annealing-oven, bucket-water, color-rod-bundle, jack-tool
+notes: Glassblower's bench — wood plank seat with two long iron rails for rolling the blowpipe, marver plate at one end. Front faces south.
+---
+# === HITBOX ===
+selection rect 0.15,0.2 1.7,1.5
+
+# footprint 2x2: x 0-2, y 0-2. Rails run north-south along the bench length.
+
+# === Wood plank surface ===
+rect 0.15,0.2 1.7,1.5 texfill polyhaven/wood_table 0.88
+rect 0.15,0.2 1.7,1.5 stroke #3a1f00
+
+# Plank seams (lengthwise)
+line 0.15,0.65 1.85,0.65 stroke #2a1400 0.5
+line 0.15,1.25 1.85,1.25 stroke #2a1400 0.5
+
+# === Leg shadow corners (implying bench legs beneath) ===
+circle 0.24,0.28 0.05 fill #1a0a00 0.45
+circle 1.76,0.28 0.05 fill #1a0a00 0.45
+circle 0.24,1.62 0.05 fill #1a0a00 0.45
+circle 1.76,1.62 0.05 fill #1a0a00 0.45
+
+# === Two iron rails running the length (north-south) for rolling the pipe ===
+rect 0.42,0.28 0.08,1.35 texfill polyhaven/metal_plate 0.85
+rect 0.42,0.28 0.08,1.35 stroke #222222
+rect 1.50,0.28 0.08,1.35 texfill polyhaven/metal_plate 0.85
+rect 1.50,0.28 0.08,1.35 stroke #222222
+
+# Rail highlights
+line 0.46,0.30 0.46,1.61 stroke #8899aa 0.5
+line 1.54,0.30 1.54,1.61 stroke #8899aa 0.5
+
+# Rail mounting brackets (north ends)
+rect 0.38,0.25 0.16,0.08 texfill polyhaven/metal_plate 0.7
+rect 0.38,0.25 0.16,0.08 stroke #222222
+rect 1.46,0.25 0.16,0.08 texfill polyhaven/metal_plate 0.7
+rect 1.46,0.25 0.16,0.08 stroke #222222
+# South ends
+rect 0.38,1.58 0.16,0.08 texfill polyhaven/metal_plate 0.7
+rect 0.38,1.58 0.16,0.08 stroke #222222
+rect 1.46,1.58 0.16,0.08 texfill polyhaven/metal_plate 0.7
+rect 1.46,1.58 0.16,0.08 stroke #222222
+
+# === Marver plate (dark flat metal slab at south end, between rails) ===
+rect 0.70,1.35 0.60,0.30 texfill polyhaven/metal_plate 0.85
+rect 0.70,1.35 0.60,0.30 stroke #222222
+rect 0.72,1.37 0.56,0.26 fill #333333 0.35

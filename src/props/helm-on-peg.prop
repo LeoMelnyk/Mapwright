@@ -1,0 +1,55 @@
+name: Helm on Peg
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1
+placement: wall
+room_types: armory, barracks, gatehouse-inner, guard-post, hall-entry
+typical_count: few
+clusters_with: weapon-rack, shield-rack, armor-stand, banner
+notes: Iron helmet hanging from a wall peg; armory decor
+---
+# === HITBOX ===
+selection rect 0.28,0.08 0.44,0.52
+
+# Peg (small wooden stub)
+rect 0.46,0.06 0.08,0.06 texfill polyhaven/dark_wood 0.85
+rect 0.46,0.06 0.08,0.06 stroke #2a1400
+# Peg cap
+circle 0.50,0.08 0.025 fill #3a1f00 0.9
+# Helmet dome (top-down: crown visible as circle)
+circle 0.50,0.32 0.18 texfill polyhaven/metal_plate 0.9
+circle 0.50,0.32 0.18 stroke #222222
+# Dome crown crest
+line 0.50,0.14 0.50,0.50 stroke #555555 width 3
+line 0.50,0.14 0.50,0.50 stroke #222222 width 1
+# Helmet brim/rim flare (wider circle around dome base)
+ellipse 0.50,0.36 0.22,0.08 texfill polyhaven/metal_plate 0.85
+ellipse 0.50,0.36 0.22,0.08 stroke #222222
+# Cheek guards (left & right fins)
+poly 0.28,0.34 0.32,0.30 0.36,0.42 0.30,0.46 fill #666666 0.9
+poly 0.28,0.34 0.32,0.30 0.36,0.42 0.30,0.46 stroke #222222
+poly 0.72,0.34 0.68,0.30 0.64,0.42 0.70,0.46 fill #666666 0.9
+poly 0.72,0.34 0.68,0.30 0.64,0.42 0.70,0.46 stroke #222222
+# Visor slit (dark horizontal line)
+rect 0.40,0.28 0.20,0.03 fill #0a0808 0.95
+rect 0.40,0.28 0.20,0.03 stroke #222222
+# Nose guard (vertical strip)
+rect 0.48,0.28 0.04,0.14 fill #555555 0.9
+rect 0.48,0.28 0.04,0.14 stroke #222222
+# Rivets around rim (iron bolts)
+circle 0.36,0.36 0.015 fill #222222 0.9
+circle 0.50,0.20 0.015 fill #222222 0.9
+circle 0.64,0.36 0.015 fill #222222 0.9
+circle 0.50,0.50 0.015 fill #222222 0.9
+# Dome highlight (metal sheen)
+arc 0.50,0.28 0.14 190 260 stroke #aaaaaa 0.6 width 1
+# Battle dent
+line 0.40,0.20 0.44,0.24 stroke #1a1008 0.7 width 1
+# Rust streak
+line 0.56,0.42 0.58,0.48 stroke #6a3818 0.6
+# Leather neck strap (trailing down from peg)
+line 0.44,0.50 0.42,0.56 stroke #3a2010 width 2
+line 0.56,0.50 0.58,0.56 stroke #3a2010 width 2

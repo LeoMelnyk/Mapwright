@@ -1,0 +1,87 @@
+name: Curtain Divider
+category: Decorative
+footprint: 2x1
+facing: no
+shadow: no
+blocks_light: no
+height: 3
+placement: floor
+room_types: brothel-parlor, opium-den, bath-house, theater-dressing-room
+typical_count: few
+clusters_with: curtain, silk-scarf, low-table, rose-petals, cushion
+notes: Hanging fabric divider running north-south — top-down shows the ceiling rod with a thin strip of gathered fabric top-edge along it
+---
+# === HITBOX ===
+selection rect 0.36,0.04 0.28,1.92
+
+# Ceiling rod (brass pole running the full length, N-S — visible as thin strip down center)
+rect 0.48,0.04 0.04,1.92 fill #daa520 0.95
+rect 0.48,0.04 0.04,1.92 stroke #5a3a00
+# Rod highlight (catches light along its top)
+line 0.49,0.06 0.49,1.94 stroke #ffd860 0.7 width 1
+
+# Rod mounting ends (ceiling anchors — small brass caps at each end)
+circle 0.50,0.06 0.05 fill #daa520 0.95
+circle 0.50,0.06 0.05 stroke #5a3a00
+circle 0.50,0.06 0.02 fill #8b6914 0.85
+circle 0.50,1.94 0.05 fill #daa520 0.95
+circle 0.50,1.94 0.05 stroke #5a3a00
+circle 0.50,1.94 0.02 fill #8b6914 0.85
+
+# Curtain rings spaced along the rod (through which the fabric hangs)
+circle 0.50,0.20 0.03 stroke #5a3a00 width 1
+circle 0.50,0.20 0.025 fill #8b6914 0.4
+circle 0.50,0.40 0.03 stroke #5a3a00 width 1
+circle 0.50,0.40 0.025 fill #8b6914 0.4
+circle 0.50,0.60 0.03 stroke #5a3a00 width 1
+circle 0.50,0.60 0.025 fill #8b6914 0.4
+circle 0.50,0.80 0.03 stroke #5a3a00 width 1
+circle 0.50,0.80 0.025 fill #8b6914 0.4
+circle 0.50,1.00 0.03 stroke #5a3a00 width 1
+circle 0.50,1.00 0.025 fill #8b6914 0.4
+circle 0.50,1.20 0.03 stroke #5a3a00 width 1
+circle 0.50,1.20 0.025 fill #8b6914 0.4
+circle 0.50,1.40 0.03 stroke #5a3a00 width 1
+circle 0.50,1.40 0.025 fill #8b6914 0.4
+circle 0.50,1.60 0.03 stroke #5a3a00 width 1
+circle 0.50,1.60 0.025 fill #8b6914 0.4
+circle 0.50,1.80 0.03 stroke #5a3a00 width 1
+circle 0.50,1.80 0.025 fill #8b6914 0.4
+
+# Fabric top edge visible on either side of the rings (thin bulges of gathered velvet)
+# East side of rings (fabric bunches to the east)
+bezier 0.54,0.12 0.58,0.24 0.56,0.36 0.58,0.48 stroke #8a2848 width 4
+bezier 0.54,0.48 0.60,0.60 0.56,0.72 0.58,0.84 stroke #8a2848 width 4
+bezier 0.54,0.84 0.60,0.96 0.56,1.08 0.58,1.20 stroke #8a2848 width 4
+bezier 0.54,1.20 0.60,1.32 0.56,1.44 0.58,1.56 stroke #8a2848 width 4
+bezier 0.54,1.56 0.60,1.68 0.56,1.80 0.54,1.90 stroke #8a2848 width 4
+# West side of rings (fabric bunches to the west)
+bezier 0.46,0.12 0.42,0.24 0.44,0.36 0.42,0.48 stroke #8a2848 width 4
+bezier 0.46,0.48 0.40,0.60 0.44,0.72 0.42,0.84 stroke #8a2848 width 4
+bezier 0.46,0.84 0.40,0.96 0.44,1.08 0.42,1.20 stroke #8a2848 width 4
+bezier 0.46,1.20 0.40,1.32 0.44,1.44 0.42,1.56 stroke #8a2848 width 4
+bezier 0.46,1.56 0.40,1.68 0.44,1.80 0.46,1.90 stroke #8a2848 width 4
+
+# Darker velvet edge (outline of fabric gathers)
+bezier 0.54,0.12 0.58,0.24 0.56,0.36 0.58,0.48 stroke #3a0820 0.6 width 2
+bezier 0.46,0.12 0.42,0.24 0.44,0.36 0.42,0.48 stroke #3a0820 0.6 width 2
+bezier 0.54,0.84 0.60,0.96 0.56,1.08 0.58,1.20 stroke #3a0820 0.5 width 2
+bezier 0.46,0.84 0.40,0.96 0.44,1.08 0.42,1.20 stroke #3a0820 0.5 width 2
+
+# Silk sheen highlights on top of fabric bulges (catches light from above)
+bezier 0.56,0.16 0.58,0.28 0.56,0.40 0.58,0.52 stroke #c84878 0.55 width 1
+bezier 0.44,0.16 0.42,0.28 0.44,0.40 0.42,0.52 stroke #c84878 0.55 width 1
+bezier 0.56,0.88 0.58,1.00 0.56,1.12 0.58,1.24 stroke #c84878 0.5 width 1
+bezier 0.44,0.88 0.42,1.00 0.44,1.12 0.42,1.24 stroke #c84878 0.5 width 1
+bezier 0.56,1.60 0.58,1.72 0.56,1.84 0.54,1.88 stroke #c84878 0.5 width 1
+bezier 0.44,1.60 0.42,1.72 0.44,1.84 0.46,1.88 stroke #c84878 0.5 width 1
+
+# Gold embroidered dots along fabric top-edge (visible through pleats)
+circle 0.58,0.30 0.015 fill #daa520 0.8
+circle 0.42,0.30 0.015 fill #daa520 0.8
+circle 0.58,0.70 0.015 fill #daa520 0.8
+circle 0.42,0.70 0.015 fill #daa520 0.8
+circle 0.58,1.10 0.015 fill #daa520 0.8
+circle 0.42,1.10 0.015 fill #daa520 0.8
+circle 0.58,1.50 0.015 fill #daa520 0.8
+circle 0.42,1.50 0.015 fill #daa520 0.8

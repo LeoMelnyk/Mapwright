@@ -1,6 +1,7 @@
 name: Shield Rack
 category: Combat
 footprint: 1x2
+padding: 0.2
 facing: yes
 shadow: yes
 blocks_light: yes

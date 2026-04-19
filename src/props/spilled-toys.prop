@@ -1,0 +1,71 @@
+name: Spilled Toys
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: nursery
+typical_count: few
+clusters_with: toy-chest, children-toys, dollhouse, building-blocks, rocking-horse
+notes: Scatter of mixed toys — tipped toy cart, a couple of marbles, a stuffed rabbit, and a rattle
+---
+# === Tipped toy cart (NW) ===
+# Cart body — pale wood plank, tilted
+rect 0.10,0.22 0.26,0.14 fill #d4a874 0.9 rotate -25
+rect 0.10,0.22 0.26,0.14 stroke #8b5c28 rotate -25
+# Cart wheel circles (exposed, sideways)
+circle 0.14,0.36 0.04 fill #3a1f00 0.92
+circle 0.14,0.36 0.04 stroke #1a0a00
+circle 0.14,0.36 0.015 fill #8b6914 0.8
+circle 0.36,0.22 0.04 fill #3a1f00 0.92
+circle 0.36,0.22 0.04 stroke #1a0a00
+circle 0.36,0.22 0.015 fill #8b6914 0.8
+# Pull string trailing south
+bezier 0.16,0.34 0.12,0.46 0.18,0.56 0.22,0.62 stroke #8b7355 width 1
+
+# === Stuffed rabbit (NE-center) ===
+# Rabbit body (soft plush oval)
+ellipse 0.68,0.30 0.11,0.08 fill #f0e0c8 0.92
+ellipse 0.68,0.30 0.11,0.08 stroke #a89878 width 1
+# Rabbit head
+circle 0.78,0.26 0.06 fill #f0e0c8 0.92
+circle 0.78,0.26 0.06 stroke #a89878 width 1
+# Long floppy ears
+poly 0.74,0.22 0.72,0.14 0.76,0.14 0.78,0.22 fill #f0e0c8 0.9
+poly 0.74,0.22 0.72,0.14 0.76,0.14 0.78,0.22 stroke #a89878 width 1
+poly 0.80,0.22 0.80,0.14 0.84,0.14 0.84,0.22 fill #f0e0c8 0.9
+poly 0.80,0.22 0.80,0.14 0.84,0.14 0.84,0.22 stroke #a89878 width 1
+# Tiny eye
+circle 0.80,0.26 0.010 fill #1a1208
+# Pink nose
+circle 0.82,0.28 0.012 fill #e4908c 0.95
+# Bow tie (ribbon)
+poly 0.70,0.22 0.74,0.20 0.74,0.24 fill #d4a0b0 0.9
+poly 0.70,0.22 0.74,0.20 0.74,0.24 stroke #7a4050 width 1
+
+# === Marbles (center-SW, a couple of small balls) ===
+circle 0.30,0.58 0.04 fill #4884c8 0.9
+circle 0.30,0.58 0.04 stroke #264878 width 1
+circle 0.28,0.56 0.015 fill #a0c0e8 0.8
+circle 0.42,0.62 0.035 fill #48a450 0.9
+circle 0.42,0.62 0.035 stroke #1a5a22 width 1
+circle 0.40,0.60 0.012 fill #a0d4a0 0.8
+circle 0.22,0.70 0.030 fill #f0c840 0.9
+circle 0.22,0.70 0.030 stroke #8a7020 width 1
+
+# === Rattle (SE) ===
+# Rattle handle
+rect 0.58,0.70 0.18,0.04 fill #f0d8b8 0.9 rotate 18
+rect 0.58,0.70 0.18,0.04 stroke #8b7355 rotate 18
+# Rattle bulb (round head with tiny painted dots)
+circle 0.78,0.72 0.07 fill #e4908c 0.92
+circle 0.78,0.72 0.07 stroke #8b4a48
+# Dots on the rattle
+circle 0.76,0.70 0.012 fill #f0e8a8 0.9
+circle 0.81,0.72 0.012 fill #f0e8a8 0.9
+circle 0.78,0.75 0.012 fill #f0e8a8 0.9
+
+# Loose ribbon trailing in the scatter
+bezier 0.50,0.50 0.58,0.60 0.52,0.70 0.48,0.78 stroke #d4a0b0 width 2

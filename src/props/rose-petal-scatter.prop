@@ -1,0 +1,57 @@
+name: Rose Petal Scatter
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall, garden
+typical_count: many
+clusters_with: ribbon, dance-card, dropped-fan, rug-runner
+notes: Scattered rose petals in pinks, reds, and creams. Scatter in many cells to suggest a floral shower after a grand entrance or wedding.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Petal 1 — deep red, large
+ellipse 0.22,0.28 0.08,0.05 fill #8b1a2a 0.9
+ellipse 0.22,0.28 0.08,0.05 stroke #4a0820
+line 0.22,0.28 0.26,0.24 stroke #aa4050 0.5
+
+# Petal 2 — pink
+ellipse 0.70,0.22 0.07,0.04 fill #d85080 0.9
+ellipse 0.70,0.22 0.07,0.04 stroke #6a1030
+line 0.70,0.22 0.74,0.20 stroke #e08090 0.5
+
+# Petal 3 — cream
+ellipse 0.50,0.48 0.06,0.04 fill #f0d8c0 0.9
+ellipse 0.50,0.48 0.06,0.04 stroke #a88868
+
+# Petal 4 — bright red
+ellipse 0.30,0.72 0.07,0.045 fill #cc2040 0.9
+ellipse 0.30,0.72 0.07,0.045 stroke #5a1020
+line 0.30,0.72 0.34,0.76 stroke #d06070 0.5
+
+# Petal 5 — soft pink
+ellipse 0.78,0.62 0.06,0.04 fill #e098b0 0.9
+ellipse 0.78,0.62 0.06,0.04 stroke #7a2848
+
+# Petal 6 — cream, small
+ellipse 0.18,0.54 0.05,0.03 fill #f0e0c8 0.88
+ellipse 0.18,0.54 0.05,0.03 stroke #a88868
+
+# Petal 7 — dark red, small
+ellipse 0.60,0.82 0.05,0.03 fill #6a1020 0.9
+ellipse 0.60,0.82 0.05,0.03 stroke #2a0410
+
+# Petal 8 — pink, small
+ellipse 0.86,0.86 0.05,0.03 fill #d06088 0.88
+ellipse 0.86,0.86 0.05,0.03 stroke #6a1030
+
+# Petal 9 — cream, small
+ellipse 0.42,0.18 0.05,0.03 fill #f8e8d0 0.88
+ellipse 0.42,0.18 0.05,0.03 stroke #a88868
+
+# Tiny petal flecks
+ellipse 0.92,0.42 0.03,0.02 fill #8b1a2a 0.8
+ellipse 0.10,0.86 0.03,0.02 fill #d85080 0.8
+ellipse 0.56,0.30 0.03,0.02 fill #f0d8c0 0.8

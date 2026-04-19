@@ -1,0 +1,40 @@
+name: Silk Scarf
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: bardic-hall, brothel-parlor, opium-den, mansion-bedroom-master
+typical_count: single
+clusters_with: low-table, curtain-divider, perfume-bottle, rose-petals
+notes: Draped silk scarf, crumpled or trailing across a surface
+---
+# === HITBOX ===
+selection rect 0.14,0.22 0.72,0.56
+
+# Main scarf body (flowing, crumpled purple silk)
+poly 0.14,0.40 0.24,0.30 0.40,0.26 0.58,0.30 0.72,0.34 0.82,0.44 0.86,0.56 0.78,0.68 0.62,0.76 0.46,0.78 0.30,0.74 0.18,0.66 0.14,0.54 fill #5a2872 0.92
+poly 0.14,0.40 0.24,0.30 0.40,0.26 0.58,0.30 0.72,0.34 0.82,0.44 0.86,0.56 0.78,0.68 0.62,0.76 0.46,0.78 0.30,0.74 0.18,0.66 0.14,0.54 stroke #2a1038
+# Silk sheen highlight (lighter folds)
+poly 0.24,0.38 0.40,0.34 0.54,0.38 0.46,0.50 0.30,0.50 fill #8040a8 0.7
+# Fold shadow (darker crease)
+bezier 0.22,0.50 0.40,0.56 0.60,0.56 0.78,0.52 stroke #2a1038 0.8 width 2
+bezier 0.28,0.62 0.46,0.66 0.62,0.66 0.74,0.62 stroke #2a1038 0.7 width 1
+# Crumple ridges
+bezier 0.30,0.36 0.38,0.44 0.46,0.40 0.50,0.48 stroke #402058 0.6 width 1
+bezier 0.58,0.38 0.62,0.46 0.68,0.44 0.72,0.52 stroke #402058 0.6 width 1
+# Highlight specks (silk shimmer)
+circle 0.36,0.44 0.015 fill #aa60c8 0.7
+circle 0.54,0.42 0.012 fill #aa60c8 0.7
+circle 0.44,0.56 0.012 fill #aa60c8 0.6
+# Gold embroidered edge (tassel trim)
+line 0.14,0.40 0.24,0.30 stroke #daa520 0.7
+line 0.82,0.44 0.86,0.56 stroke #daa520 0.6
+# Tassel at one corner
+line 0.12,0.42 0.08,0.48 stroke #daa520 width 1
+line 0.10,0.42 0.04,0.46 stroke #daa520 width 1
+line 0.14,0.44 0.06,0.54 stroke #daa520 width 1
+# Trailing edge wisp
+bezier 0.18,0.66 0.12,0.72 0.08,0.78 0.04,0.84 stroke #5a2872 0.7 width 2

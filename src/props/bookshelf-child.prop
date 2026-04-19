@@ -1,0 +1,54 @@
+name: Child's Bookshelf
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: wall
+room_types: nursery
+typical_count: single
+clusters_with: cradle, rocking-chair, picture-book, children-toys, tiny-chair
+notes: Short half-height bookshelf for children; pale wood with scalloped crown and tiny peeking spines
+---
+# === HITBOX ===
+hitbox rect 0.06,0.05 1.88,0.72 z 0-3
+
+# Shadow/gap at wall (north edge)
+rect 0.08,0.02 1.84,0.06 fill #000000 0.15
+
+# Scalloped crown molding (slight overhang at wall side with soft wave)
+rect 0.04,0.08 1.92,0.10 texfill polyhaven/wood_table 0.85
+rect 0.04,0.08 1.92,0.10 stroke #6b4e2e
+# Scallop humps along the crown's south edge
+arc 0.30,0.18 0.06 0 180 stroke #6b4e2e 0.7 width 1
+arc 0.60,0.18 0.06 0 180 stroke #6b4e2e 0.7 width 1
+arc 0.90,0.18 0.06 0 180 stroke #6b4e2e 0.7 width 1
+arc 1.20,0.18 0.06 0 180 stroke #6b4e2e 0.7 width 1
+arc 1.50,0.18 0.06 0 180 stroke #6b4e2e 0.7 width 1
+arc 1.80,0.18 0.06 0 180 stroke #6b4e2e 0.7 width 1
+
+# Main top plank — pale warm wood
+rect 0.06,0.18 1.88,0.56 texfill polyhaven/worn_planks 0.8
+rect 0.06,0.18 1.88,0.56 fill #d4b48c 0.25
+rect 0.06,0.18 1.88,0.56 stroke #8b7355
+
+# Wood grain lines
+line 0.12,0.38 1.88,0.38 stroke #6b4e2e 0.25
+line 0.12,0.56 1.88,0.56 stroke #6b4e2e 0.2
+
+# South front lip (where the face panel would begin below)
+rect 0.06,0.70 1.88,0.06 fill #6b4e2e 0.45
+rect 0.06,0.70 1.88,0.06 stroke #5c3a1e
+
+# Tiny book spines peeking along the south front edge (just the top slivers visible)
+rect 0.22,0.66 0.10,0.08 fill #c84848 0.9
+rect 0.22,0.66 0.10,0.08 stroke #7a2828 width 1
+rect 0.34,0.66 0.08,0.08 fill #4884c8 0.9
+rect 0.34,0.66 0.08,0.08 stroke #264878 width 1
+rect 0.44,0.66 0.12,0.08 fill #d4c848 0.9
+rect 0.44,0.66 0.12,0.08 stroke #8a8020 width 1
+rect 1.44,0.66 0.10,0.08 fill #48a450 0.9
+rect 1.44,0.66 0.10,0.08 stroke #1a5a22 width 1
+rect 1.56,0.66 0.08,0.08 fill #c8488c 0.9
+rect 1.56,0.66 0.08,0.08 stroke #7a284a width 1

@@ -1,0 +1,70 @@
+name: Glowcap Mushroom
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.8
+lights: [{"preset":"phosphorescent-fungi","x":0.5,"y":0.5,"color":"#80c0ff","intensity":0.4,"radius":3}]
+placement: floor
+room_types: mushroom-cavern, spider-lair, underdark-outpost, cave-drow-outpost
+typical_count: few
+clusters_with: giant-mushroom, fungal-growth, crystal-shard, spider-lair
+notes: Bioluminescent mushroom with glowing blue cap — cave light source
+---
+# === HITBOX ===
+selection circle 0.5,0.4 0.28
+
+# Light halo around cap
+circle 0.5,0.4 0.40 fill #80c0ff 0.18
+circle 0.5,0.4 0.32 fill #80c0ff 0.25
+# Stem (pale, thin)
+rect 0.46,0.50 0.08,0.28 fill #d4d8c8 0.92
+rect 0.46,0.50 0.08,0.28 stroke #8a8878
+# Stem vertical stripes
+line 0.48,0.52 0.48,0.78 stroke #8a8878 0.6
+line 0.52,0.52 0.52,0.78 stroke #8a8878 0.6
+# Stem base bulb
+ellipse 0.50,0.80 0.08,0.04 fill #a8a898 0.9
+ellipse 0.50,0.80 0.08,0.04 stroke #5a5848
+# === Cap (glowing, top-down shows oval) ===
+circle 0.5,0.40 0.28 fill #4878b0 0.95
+circle 0.5,0.40 0.28 stroke #204058
+# Cap inner glow (brighter toward center)
+circle 0.5,0.40 0.22 fill #68a8d8 0.85
+circle 0.5,0.40 0.16 fill #a0d0e8 0.8
+circle 0.5,0.40 0.10 fill #c0e0f8 0.9
+# Brightest core glow
+circle 0.5,0.40 0.05 fill #e0f0ff 0.95
+# Radial gill lines (visible under cap)
+line 0.5,0.40 0.5,0.12 stroke #204058 0.5
+line 0.5,0.40 0.78,0.40 stroke #204058 0.5
+line 0.5,0.40 0.22,0.40 stroke #204058 0.5
+line 0.5,0.40 0.5,0.68 stroke #204058 0.5
+line 0.5,0.40 0.68,0.22 stroke #204058 0.4
+line 0.5,0.40 0.32,0.22 stroke #204058 0.4
+line 0.5,0.40 0.68,0.58 stroke #204058 0.4
+line 0.5,0.40 0.32,0.58 stroke #204058 0.4
+# Pale glowing spots (luminescent dots)
+circle 0.38,0.30 0.018 fill #ffffff 0.9
+circle 0.62,0.32 0.015 fill #ffffff 0.85
+circle 0.40,0.48 0.015 fill #ffffff 0.8
+circle 0.60,0.50 0.018 fill #ffffff 0.85
+circle 0.50,0.22 0.012 fill #ffffff 0.8
+# Cap edge curl
+arc 0.5,0.40 0.27 0 180 stroke #102840 0.6 width 1
+# Rim highlight
+arc 0.5,0.40 0.26 210 260 stroke #a0d0e8 0.7 width 1
+# Glowing spores drifting
+circle 0.30,0.20 0.012 fill #80c0ff 0.7
+circle 0.70,0.18 0.01 fill #80c0ff 0.7
+circle 0.80,0.40 0.012 fill #80c0ff 0.6
+circle 0.20,0.44 0.01 fill #80c0ff 0.6
+circle 0.68,0.64 0.008 fill #80c0ff 0.55
+# Tiny smaller glowcaps at base
+ellipse 0.34,0.76 0.04,0.025 fill #4878b0 0.9
+ellipse 0.34,0.76 0.04,0.025 stroke #204058
+circle 0.34,0.76 0.02 fill #a0d0e8 0.85
+ellipse 0.66,0.76 0.04,0.025 fill #4878b0 0.9
+ellipse 0.66,0.76 0.04,0.025 stroke #204058
+circle 0.66,0.76 0.02 fill #a0d0e8 0.85

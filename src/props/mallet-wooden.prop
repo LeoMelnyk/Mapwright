@@ -1,0 +1,47 @@
+name: Wooden Mallet
+category: Camp
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: charcoal-burner-camp, lumberyard, carpenter, workshop, cabin-trapper
+typical_count: single
+clusters_with: axe-stuck, chopping-block, wood-pile, crate
+notes: Stout wooden mallet lying on the ground — big cylinder head and short handle, dropped by a worker
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: mallet lying flat, handle running NE-SW, cylinder head at NE end
+
+# Handle (running from SW to NE, thin shaft)
+line 0.22,0.72 0.55,0.42 stroke #6b4e2e width 3
+# Handle texture overlay
+line 0.22,0.72 0.55,0.42 stroke #5c3a1e 0.5 width 1
+
+# Handle grip end (slight flare at SW)
+ellipse 0.20,0.74 0.04,0.03 fill #5c3a1e 0.8
+ellipse 0.20,0.74 0.04,0.03 stroke #3a1f00
+
+# Mallet head (large cylinder seen from above — oval shape because it's lying on its side)
+ellipse 0.62,0.38 0.16,0.10 texfill polyhaven/wood_table 0.8
+ellipse 0.62,0.38 0.16,0.10 stroke #3a1f00
+# End cap face (round end of the cylinder, visible at NE)
+ellipse 0.76,0.36 0.06,0.10 fill #c8b898 0.6
+ellipse 0.76,0.36 0.06,0.10 stroke #5c3a1e
+# Tree rings on end face
+ellipse 0.76,0.36 0.035,0.06 stroke #5c3a1e 0.3
+
+# Head worn surface (dents from use)
+ellipse 0.58,0.38 0.04,0.03 fill #4a2800 0.2
+ellipse 0.66,0.40 0.03,0.02 fill #4a2800 0.15
+
+# Iron band around head (keeps it from splitting)
+ellipse 0.62,0.38 0.16,0.10 stroke #555555 0.4 width 1
+ellipse 0.52,0.38 0.03,0.08 stroke #555555 0.5 width 1
+
+# Handle wedge (where handle enters head)
+rect 0.53,0.36 0.04,0.06 fill #3a1f00 0.6
+
+# Wood chip near mallet
+circle 0.40,0.60 0.02 fill #8b7355 0.4
+circle 0.78,0.55 0.015 fill #6b4e2e 0.35

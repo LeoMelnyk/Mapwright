@@ -1,0 +1,88 @@
+name: Open Trunk
+category: Containers
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 2
+placement: wall
+room_types: cabin-abandoned, ransacked-room, bandit-hideout, house-small, inn, cellar
+typical_count: single
+clusters_with: chest-wooden, chest, sack, scattered-clothes, scattered-coins
+notes: Ransacked open trunk with lid raised against wall. Interior exposed showing scattered contents. Lid rises toward the north (into the wall) — shown as a short flat extension hugging the north edge.
+---
+# === HITBOX ===
+selection rect 0.14,0.16 1.72,0.70
+
+# footprint 1x2: x 0-2, y 0-1
+# Top-down: open trunk, lid flipped back against wall (north), interior visible with scattered loot
+
+# === Lid flipped back (thin strip along north edge — the back of the open lid seen from above) ===
+rect 0.20,0.04 1.60,0.10 texfill polyhaven/dark_wood 0.88
+rect 0.20,0.04 1.60,0.10 stroke #1a0800
+# Lid inside (visible underside)
+line 0.22,0.12 1.78,0.12 stroke #3a1f00 width 1
+# Iron strap on lid back
+rect 0.80,0.04 0.06,0.10 fill #333333 0.75
+rect 1.14,0.04 0.06,0.10 fill #333333 0.75
+
+# === Hinge line (where lid meets body, along north edge of body) ===
+rect 0.14,0.14 1.72,0.04 fill #2a1400 0.85
+rect 0.14,0.14 1.72,0.04 stroke #1a0800
+circle 0.30,0.16 0.022 fill #555555 0.9
+circle 0.30,0.16 0.022 stroke #222222
+circle 1.70,0.16 0.022 fill #555555 0.9
+circle 1.70,0.16 0.022 stroke #222222
+
+# === Outer trunk body (side walls seen from above as frame) ===
+rect 0.14,0.18 1.72,0.68 texfill polyhaven/dark_wood 0.88
+rect 0.14,0.18 1.72,0.68 stroke #1a0800 width 2
+
+# === Interior cavity (dark recess) ===
+rect 0.22,0.24 1.56,0.58 fill #1a0800 0.92
+rect 0.22,0.24 1.56,0.58 stroke #0a0400
+
+# === Scattered contents inside ===
+# Rumpled cloth/clothing (crumpled in one corner)
+poly 0.28,0.34 0.52,0.30 0.62,0.40 0.58,0.56 0.36,0.58 0.26,0.48 fill #6a3828 0.75
+poly 0.28,0.34 0.52,0.30 0.62,0.40 0.58,0.56 0.36,0.58 0.26,0.48 stroke #3a1808
+bezier 0.34,0.40 0.40,0.46 0.48,0.50 0.54,0.48 stroke #3a1808 0.5 width 1
+
+# Scattered coins
+circle 0.72,0.38 0.025 fill #daa520 0.9
+circle 0.72,0.38 0.025 stroke #5a3a00
+circle 0.80,0.46 0.022 fill #daa520 0.85
+circle 0.80,0.46 0.022 stroke #5a3a00
+circle 0.76,0.56 0.024 fill #c0c0c0 0.85
+circle 0.76,0.56 0.024 stroke #666666
+circle 0.88,0.42 0.020 fill #daa520 0.8
+
+# Crumpled paper/letter
+poly 1.00,0.34 1.20,0.32 1.24,0.48 1.10,0.52 0.98,0.46 fill #d8c898 0.85
+poly 1.00,0.34 1.20,0.32 1.24,0.48 1.10,0.52 0.98,0.46 stroke #6a5838
+line 1.04,0.38 1.18,0.38 stroke #3a2818 0.6 width 1
+line 1.04,0.44 1.16,0.44 stroke #3a2818 0.55 width 1
+
+# A small book tipped over
+rect 1.34,0.40 0.20,0.14 fill #4a2820 0.9
+rect 1.34,0.40 0.20,0.14 stroke #1a0808
+line 1.44,0.40 1.44,0.54 stroke #daa520 0.7 width 1
+
+# Empty velvet pouch (ransacked)
+poly 1.26,0.60 1.40,0.58 1.48,0.68 1.44,0.76 1.32,0.78 1.24,0.72 fill #4a2060 0.82
+poly 1.26,0.60 1.40,0.58 1.48,0.68 1.44,0.76 1.32,0.78 1.24,0.72 stroke #1a0828
+
+# Small glint/gem
+circle 0.48,0.72 0.018 fill #d0d0ff 0.9
+circle 0.48,0.72 0.018 stroke #6060a0
+
+# Scattered straw from packing
+line 0.34,0.68 0.44,0.74 stroke #8b7355 0.55 width 1
+line 1.60,0.40 1.68,0.32 stroke #8b7355 0.55 width 1
+line 1.58,0.66 1.66,0.72 stroke #8b7355 0.5 width 1
+
+# === Corner brackets on trunk body ===
+rect 0.14,0.18 0.08,0.04 fill #444444 0.8
+rect 1.78,0.18 0.08,0.04 fill #444444 0.8
+rect 0.14,0.82 0.08,0.04 fill #444444 0.8
+rect 1.78,0.82 0.08,0.04 fill #444444 0.8

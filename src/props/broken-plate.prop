@@ -1,0 +1,65 @@
+name: Broken Plate
+category: Debris
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: servants-kitchen, kitchen, mess-hall, peasant-hovel, cabin-abandoned
+typical_count: few
+clusters_with: broken-pot, plate, cutlery-pile, spilled-food
+notes: Shattered white ceramic plate — arcing rim shards and triangular splinters in a splash pattern on the floor.
+---
+# === Faint ceramic dust halo (drawn first, behind shards) ===
+ellipse 0.50,0.52 0.40,0.34 fill #e8dcc8 0.25
+ellipse 0.46,0.56 0.20,0.16 fill #e8dcc8 0.18
+
+# === Ghost of original plate (implied outer curve from scattered shards) ===
+arc 0.50,0.50 0.34 30 150 stroke #b0a090 0.2 width 1
+
+# === Large curved rim shard (NW — clearly from a plate edge) ===
+poly 0.18,0.28 0.30,0.22 0.44,0.24 0.48,0.32 0.42,0.38 0.28,0.38 0.20,0.34 fill #f0e8d8 0.95
+poly 0.18,0.28 0.30,0.22 0.44,0.24 0.48,0.32 0.42,0.38 0.28,0.38 0.20,0.34 stroke #8a7858
+# Outer rim blue trim on shard
+arc 0.34,0.30 0.15 170 210 stroke #2a4878 0.6 width 1
+
+# === Rim shard E (smaller, curved) ===
+poly 0.68,0.30 0.82,0.34 0.84,0.46 0.76,0.50 0.66,0.44 fill #f0e8d8 0.95
+poly 0.68,0.30 0.82,0.34 0.84,0.46 0.76,0.50 0.66,0.44 stroke #8a7858
+# Blue trim hint
+arc 0.76,0.42 0.12 180 240 stroke #2a4878 0.55 width 1
+
+# === Large center shard (concave inside face) ===
+poly 0.34,0.50 0.48,0.46 0.60,0.52 0.58,0.64 0.46,0.68 0.34,0.62 fill #f4ede0 0.95
+poly 0.34,0.50 0.48,0.46 0.60,0.52 0.58,0.64 0.46,0.68 0.34,0.62 stroke #8a7858
+# Subtle blue decorative line inside
+line 0.40,0.54 0.54,0.56 stroke #2a4878 0.45
+line 0.42,0.60 0.54,0.62 stroke #2a4878 0.35
+
+# === Angular shard south (sharp triangle) ===
+poly 0.56,0.72 0.70,0.68 0.76,0.80 0.64,0.86 fill #e8e0d0 0.95
+poly 0.56,0.72 0.70,0.68 0.76,0.80 0.64,0.86 stroke #8a7858
+
+# === Small triangle shard SW ===
+poly 0.22,0.66 0.32,0.68 0.28,0.80 fill #f0e8d8 0.9
+poly 0.22,0.66 0.32,0.68 0.28,0.80 stroke #8a7858
+
+# === Tiny NE shard ===
+poly 0.70,0.16 0.80,0.18 0.76,0.26 fill #e8e0d0 0.9
+poly 0.70,0.16 0.80,0.18 0.76,0.26 stroke #8a7858
+
+# === Tiny SE splinter ===
+poly 0.84,0.66 0.90,0.72 0.82,0.78 fill #f0e8d8 0.9
+poly 0.84,0.66 0.90,0.72 0.82,0.78 stroke #8a7858
+
+# === Fine ceramic powder specks ===
+circle 0.28,0.52 0.018 fill #c8b898 0.7
+circle 0.58,0.32 0.015 fill #c8b898 0.7
+circle 0.48,0.80 0.018 fill #c8b898 0.7
+circle 0.64,0.54 0.012 fill #8a7858 0.6
+circle 0.38,0.76 0.012 fill #8a7858 0.55
+
+# === Faint crack radiating through floor dust ===
+line 0.36,0.44 0.44,0.52 stroke #6a5848 0.4
+line 0.56,0.46 0.64,0.38 stroke #6a5848 0.35

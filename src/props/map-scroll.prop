@@ -1,0 +1,48 @@
+name: Map Scroll
+category: Combat
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: command-room, war-room, study, cartographer, library, archive
+typical_count: few
+clusters_with: map-case, desk, scroll-case, campaign-ledger, dagger-through-map
+notes: Large rolled campaign map scroll tied with a ribbon; place on tables or in map-case clusters
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: a large rolled scroll lying on its side, tied with a ribbon
+
+# Scroll body (elongated oval — rolled cylinder lying flat)
+ellipse 0.50,0.50 0.38,0.14 texfill polyhaven/rough_linen 0.4
+ellipse 0.50,0.50 0.38,0.14 fill #d8c898 0.65
+ellipse 0.50,0.50 0.38,0.14 stroke #8b7355
+
+# Highlight along top of cylinder (catches light)
+line 0.16,0.42 0.84,0.42 stroke #e8d8a8 0.35 width 1
+
+# Center line (scroll seam/edge of parchment)
+line 0.14,0.50 0.86,0.50 stroke #8b7355 0.5 width 1
+
+# End caps (tube openings — circles showing scroll interior)
+ellipse 0.12,0.50 0.05,0.13 fill #b8a888 0.85
+ellipse 0.12,0.50 0.05,0.13 stroke #5c3a1e
+ellipse 0.88,0.50 0.05,0.13 fill #b8a888 0.85
+ellipse 0.88,0.50 0.05,0.13 stroke #5c3a1e
+
+# Inner tube darkness (spiral hint)
+ellipse 0.12,0.50 0.025,0.07 fill #3a1f00 0.6
+ellipse 0.88,0.50 0.025,0.07 fill #3a1f00 0.6
+
+# === Ribbon tie (across center of scroll) ===
+rect 0.42,0.36 0.16,0.28 fill #8b2020 0.7
+rect 0.42,0.36 0.16,0.28 stroke #5a1010
+
+# Ribbon bow loops
+ellipse 0.44,0.38 0.06,0.04 fill #aa3030 0.7
+ellipse 0.44,0.38 0.06,0.04 stroke #5a1010
+ellipse 0.56,0.38 0.06,0.04 fill #aa3030 0.7
+ellipse 0.56,0.38 0.06,0.04 stroke #5a1010
+# Ribbon tail
+line 0.48,0.64 0.44,0.72 stroke #8b2020 0.6 width 2
+line 0.52,0.64 0.58,0.70 stroke #8b2020 0.6 width 2

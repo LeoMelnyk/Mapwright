@@ -1,0 +1,31 @@
+name: Parchment Scrap
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: scouts-blind, scriptorium-dark, scriptorium-mundane, toll-bridge-house, library, mansion-study
+typical_count: many
+clusters_with: ledger-stack, document-stack, desk, inkwell
+notes: Torn piece of parchment on the floor; clutter scatter near desks or scribed texts
+---
+# === HITBOX ===
+selection poly 0.22,0.32 0.78,0.28 0.82,0.68 0.20,0.72
+
+# Parchment body (irregular torn rectangle)
+poly 0.22,0.32 0.44,0.28 0.68,0.30 0.78,0.36 0.80,0.58 0.74,0.68 0.52,0.72 0.28,0.70 0.20,0.58 0.22,0.42 fill #e8dcc8 0.9
+poly 0.22,0.32 0.44,0.28 0.68,0.30 0.78,0.36 0.80,0.58 0.74,0.68 0.52,0.72 0.28,0.70 0.20,0.58 0.22,0.42 stroke #8b7355
+# Torn edge shading
+poly 0.22,0.32 0.44,0.28 0.68,0.30 0.78,0.36 stroke #c8b898 0.6
+# Written lines (ink strokes)
+line 0.30,0.40 0.64,0.40 stroke #2a1400 0.7
+line 0.30,0.46 0.68,0.46 stroke #2a1400 0.7
+line 0.30,0.52 0.58,0.52 stroke #2a1400 0.6
+line 0.30,0.58 0.62,0.58 stroke #2a1400 0.6
+line 0.30,0.64 0.50,0.64 stroke #2a1400 0.5
+# Inkblot
+circle 0.68,0.58 0.04 fill #1a0f30 0.8
+# Tear crease
+line 0.52,0.28 0.50,0.72 stroke #c8b898 0.4

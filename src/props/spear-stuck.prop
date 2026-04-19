@@ -1,0 +1,45 @@
+name: Stuck Spear
+category: Combat
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.7
+placement: floor
+room_types: orc-war-camp, battlefield-recent, war-camp, ruined-watchtower
+typical_count: few
+clusters_with: skull-totem, spear-stand, corpse-soldier, war-paint-pot
+notes: Spear driven vertically into the ground — top-down view of the feather tuft, leather wrap and impact ring
+---
+# Dirt and impact splatter around the shaft
+ellipse 0.50,0.52 0.24,0.12 fill #3a2818 0.55
+ellipse 0.50,0.52 0.24,0.12 stroke #1a1008 0.5
+# Scattered dirt clods
+circle 0.28,0.52 0.024 fill #2a1a0a 0.7
+circle 0.72,0.54 0.022 fill #2a1a0a 0.7
+circle 0.36,0.62 0.018 fill #3a2818 0.6
+circle 0.64,0.44 0.018 fill #3a2818 0.6
+# Impact hole around the spear butt
+circle 0.50,0.52 0.05 fill #0a0604 0.95
+# Short visible stub of the shaft (the rest is buried)
+circle 0.50,0.52 0.04 fill #5c3a1e 0.95
+circle 0.50,0.52 0.04 texfill polyhaven/dark_wood 0.5
+circle 0.50,0.52 0.04 stroke #2a1400 width 1
+# Leather binding wrap around the shaft just above the ground
+circle 0.50,0.40 0.055 fill #4a2800 0.95
+circle 0.50,0.40 0.055 stroke #1a0a00 width 1
+line 0.46,0.38 0.54,0.42 stroke #1a0a00 0.7 width 1
+line 0.46,0.42 0.54,0.38 stroke #1a0a00 0.7 width 1
+# Shaft continues upward (thin rectangle poking out toward the viewer)
+rect 0.47,0.24 0.06,0.16 fill #5c3a1e 0.95
+rect 0.47,0.24 0.06,0.16 texfill polyhaven/dark_wood 0.4
+rect 0.47,0.24 0.06,0.16 stroke #2a1400 width 1
+# Feather tuft bound at the top (tribal decoration fanning outward)
+poly 0.47,0.24 0.30,0.12 0.36,0.20 fill #a02020 0.9
+poly 0.47,0.24 0.30,0.12 0.36,0.20 stroke #4a0808
+poly 0.53,0.24 0.70,0.12 0.64,0.20 fill #c82020 0.9
+poly 0.53,0.24 0.70,0.12 0.64,0.20 stroke #4a0808
+poly 0.50,0.20 0.50,0.06 0.46,0.12 fill #1a0800 0.9
+poly 0.50,0.20 0.50,0.06 0.46,0.12 stroke #0a0400
+poly 0.50,0.20 0.50,0.06 0.54,0.12 fill #3a1a08 0.9
+poly 0.50,0.20 0.50,0.06 0.54,0.12 stroke #0a0400

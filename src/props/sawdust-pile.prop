@@ -1,0 +1,40 @@
+name: Sawdust Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: cooperage, dock-warehouse, house-medium-artisan, lumberyard, mill-lumber
+typical_count: few
+clusters_with: log-pile, wood-chip, lumber-stack, workbench, cart
+notes: Fresh pale sawdust pile from woodworking; pale gold dust mound
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.34
+
+# Outer dusting (lightest, spread widest)
+poly 0.14,0.52 0.18,0.38 0.32,0.28 0.50,0.24 0.68,0.28 0.82,0.40 0.86,0.56 0.78,0.72 0.60,0.82 0.40,0.82 0.22,0.74 0.14,0.62 fill #d8b878 0.7
+# Mid mound body
+poly 0.22,0.52 0.28,0.40 0.40,0.34 0.54,0.32 0.66,0.38 0.74,0.48 0.76,0.60 0.68,0.70 0.54,0.76 0.38,0.74 0.26,0.66 fill #c8a058 0.88
+# Darker shaded side (southeast)
+poly 0.44,0.50 0.56,0.46 0.68,0.52 0.72,0.62 0.64,0.72 0.50,0.74 0.42,0.68 fill #a07828 0.6
+# Bright highlight (northwest face)
+poly 0.30,0.48 0.42,0.38 0.52,0.38 0.50,0.48 0.38,0.52 fill #e8c888 0.7
+# Individual dust grains scattered
+circle 0.20,0.40 0.012 fill #e8c888 0.7
+circle 0.80,0.50 0.012 fill #e8c888 0.7
+circle 0.28,0.78 0.012 fill #c8a058 0.7
+circle 0.72,0.76 0.01 fill #d8b878 0.6
+circle 0.18,0.62 0.01 fill #d8b878 0.6
+circle 0.86,0.66 0.01 fill #c8a058 0.6
+circle 0.40,0.22 0.01 fill #d8b878 0.5
+circle 0.60,0.22 0.01 fill #e8c888 0.55
+# Wood chip fragments poking out
+poly 0.36,0.46 0.42,0.42 0.44,0.48 fill #8a5a30 0.8
+poly 0.36,0.46 0.42,0.42 0.44,0.48 stroke #5c3a1e
+poly 0.56,0.62 0.64,0.58 0.62,0.66 fill #6b4e2e 0.8
+# Tiny shaving curl
+bezier 0.48,0.40 0.52,0.36 0.58,0.38 0.54,0.42 stroke #a07828 width 2
+bezier 0.48,0.40 0.52,0.36 0.58,0.38 0.54,0.42 stroke #5c3a1e 0.7 width 1

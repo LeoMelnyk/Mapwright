@@ -1,0 +1,53 @@
+name: Building Blocks
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: nursery
+typical_count: few
+clusters_with: children-toys, dollhouse, rocking-horse, spilled-toys, toy-chest
+notes: Scattered wooden alphabet blocks in pastel colors with painted letters on their top faces
+---
+# === HITBOX ===
+selection rect 0.12,0.12 0.76,0.76
+
+# === Block 1 — pastel red, NW, rotated ===
+rect 0.16,0.20 0.22,0.22 fill #e4908c 0.92 rotate 15
+rect 0.16,0.20 0.22,0.22 stroke #8b4a48 rotate 15
+# Painted letter "A" on top (strokes)
+line 0.22,0.38 0.27,0.24 stroke #8b4a48 width 2
+line 0.27,0.24 0.32,0.38 stroke #8b4a48 width 2
+line 0.24,0.33 0.30,0.33 stroke #8b4a48 width 1
+
+# === Block 2 — pastel blue, NE, slight stack on block 1 ===
+rect 0.48,0.14 0.22,0.22 fill #a0c0e8 0.92 rotate -10
+rect 0.48,0.14 0.22,0.22 stroke #4878a0 rotate -10
+# Painted letter "B"
+line 0.55,0.20 0.55,0.32 stroke #4878a0 width 2
+arc 0.58,0.23 0.04 270 90 stroke #4878a0 width 2
+arc 0.58,0.29 0.04 270 90 stroke #4878a0 width 2
+
+# === Block 3 — pastel yellow, stacked atop block 2 (slightly offset) ===
+rect 0.52,0.22 0.20,0.20 fill #f0e8a8 0.95 rotate 8
+rect 0.52,0.22 0.20,0.20 stroke #8a8040 rotate 8
+# Painted letter "C"
+arc 0.62,0.32 0.05 30 330 stroke #8a8040 width 2
+
+# === Block 4 — pastel green, SW ===
+rect 0.14,0.56 0.22,0.22 fill #b0d8a8 0.92 rotate -18
+rect 0.14,0.56 0.22,0.22 stroke #508040 rotate -18
+# Painted letter "D"
+line 0.22,0.62 0.22,0.76 stroke #508040 width 2
+arc 0.22,0.69 0.07 270 90 stroke #508040 width 2
+
+# === Block 5 — pastel peach, SE ===
+rect 0.52,0.58 0.22,0.22 fill #f4c498 0.92 rotate 22
+rect 0.52,0.58 0.22,0.22 stroke #a06840 rotate 22
+# Painted letter "E"
+line 0.60,0.64 0.60,0.78 stroke #a06840 width 2
+line 0.60,0.64 0.70,0.64 stroke #a06840 width 2
+line 0.60,0.71 0.68,0.71 stroke #a06840 width 2
+line 0.60,0.78 0.70,0.78 stroke #a06840 width 2

@@ -1,0 +1,57 @@
+name: Worn Shoes
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: apartment-tenement, mansion-servants-quarters, peasant-hovel
+typical_count: few
+clusters_with: patched-shirt, rag-pile, narrow-bed
+notes: Pair of battered leather shoes, toes pointing south
+---
+# === HITBOX ===
+selection rect 0.14,0.18 0.72,0.64
+
+# === LEFT SHOE (west) ===
+# Main shoe body — elongated oval, toe south
+ellipse 0.32,0.50 0.14,0.30 texfill polyhaven/brown_leather 0.85
+ellipse 0.32,0.50 0.14,0.30 fill #5c3a1e 0.55
+ellipse 0.32,0.50 0.14,0.30 stroke #2a1400
+# Heel counter (darker at north end)
+ellipse 0.32,0.28 0.12,0.08 fill #3a1f00 0.75
+# Tongue slot (center opening, darker)
+ellipse 0.32,0.44 0.07,0.10 fill #2a1400 0.8
+# Laces — cross seam over tongue
+line 0.26,0.40 0.38,0.46 stroke #1a0f00 width 2
+line 0.38,0.40 0.26,0.46 stroke #1a0f00 width 2
+line 0.26,0.48 0.38,0.52 stroke #1a0f00 width 2
+line 0.38,0.48 0.26,0.52 stroke #1a0f00 width 2
+# Seam line down toe
+bezier 0.32,0.56 0.32,0.64 0.32,0.72 0.32,0.78 stroke #2a1400 0.7 width 1
+# Scuff on toe
+ellipse 0.34,0.74 0.05,0.03 fill #3a1f00 0.7
+# Scuff on side
+ellipse 0.20,0.56 0.03,0.05 fill #3a1f00 0.6
+
+# === RIGHT SHOE (east) ===
+# Main shoe body
+ellipse 0.68,0.52 0.14,0.30 texfill polyhaven/brown_leather 0.85
+ellipse 0.68,0.52 0.14,0.30 fill #5c3a1e 0.55
+ellipse 0.68,0.52 0.14,0.30 stroke #2a1400
+# Heel counter
+ellipse 0.68,0.30 0.12,0.08 fill #3a1f00 0.75
+# Tongue slot
+ellipse 0.68,0.46 0.07,0.10 fill #2a1400 0.8
+# Laces — cross seam
+line 0.62,0.42 0.74,0.48 stroke #1a0f00 width 2
+line 0.74,0.42 0.62,0.48 stroke #1a0f00 width 2
+line 0.62,0.50 0.74,0.54 stroke #1a0f00 width 2
+line 0.74,0.50 0.62,0.54 stroke #1a0f00 width 2
+# Seam line down toe
+bezier 0.68,0.58 0.68,0.66 0.68,0.74 0.68,0.80 stroke #2a1400 0.7 width 1
+# Worn sole peeking at heel
+ellipse 0.68,0.26 0.08,0.03 fill #1a0f00 0.5
+# Scuff on toe
+ellipse 0.66,0.76 0.05,0.03 fill #3a1f00 0.7

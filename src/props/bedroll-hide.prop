@@ -1,0 +1,67 @@
+name: Hide Bedroll
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: orc-war-camp, cave-bandit-camp, goblin-warren-entrance, orc-stronghold, humanoid-lair, war-camp
+typical_count: few
+clusters_with: bonfire, bedroll, bone-pile, skull-trophy
+notes: Crude patchwork hide bedroll used by orc warriors; furry edges, bone pillow at head (north). Cluster around bonfire or along walls.
+---
+# === HITBOX ===
+selection rect 0.14,0.16 1.72,0.68
+
+# Ground stain / fur shed underneath
+ellipse 1.00,0.50 0.86,0.30 fill #2a1a0a 0.35
+
+# Patchwork hide groundsheet (wide along x)
+rect 0.14,0.16 1.72,0.68 texfill polyhaven/brown_leather 0.8
+rect 0.14,0.16 1.72,0.68 fill #4a3020 0.35
+rect 0.14,0.16 1.72,0.68 stroke #1a0a00
+
+# Patch seams (stitched hides)
+line 0.60,0.16 0.60,0.84 stroke #1a0a00 0.7 width 1
+line 1.20,0.16 1.20,0.84 stroke #1a0a00 0.7 width 1
+line 0.14,0.46 1.86,0.46 stroke #2a1408 0.55 width 1
+
+# Stitch dots along seams
+circle 0.60,0.26 0.018 fill #8b7355 0.7
+circle 0.60,0.40 0.018 fill #8b7355 0.7
+circle 0.60,0.60 0.018 fill #8b7355 0.7
+circle 0.60,0.74 0.018 fill #8b7355 0.7
+circle 1.20,0.30 0.018 fill #8b7355 0.7
+circle 1.20,0.56 0.018 fill #8b7355 0.7
+
+# Furry fringe edges (irregular tufts along south edge)
+poly 0.18,0.84 0.28,0.92 0.34,0.84 fill #4a3020 0.85
+poly 0.18,0.84 0.28,0.92 0.34,0.84 stroke #1a0a00 0.7
+poly 0.50,0.84 0.60,0.94 0.70,0.84 fill #5a3a20 0.85
+poly 0.50,0.84 0.60,0.94 0.70,0.84 stroke #1a0a00 0.7
+poly 0.90,0.84 1.02,0.92 1.12,0.84 fill #4a3020 0.85
+poly 0.90,0.84 1.02,0.92 1.12,0.84 stroke #1a0a00 0.7
+poly 1.30,0.84 1.42,0.94 1.54,0.84 fill #5a3a20 0.85
+poly 1.30,0.84 1.42,0.94 1.54,0.84 stroke #1a0a00 0.7
+poly 1.62,0.84 1.72,0.92 1.80,0.84 fill #4a3020 0.85
+poly 1.62,0.84 1.72,0.92 1.80,0.84 stroke #1a0a00 0.7
+
+# Furry fringe edges (north side, shorter)
+poly 0.30,0.16 0.38,0.08 0.46,0.16 fill #4a3020 0.8
+poly 0.30,0.16 0.38,0.08 0.46,0.16 stroke #1a0a00 0.6
+poly 0.90,0.16 1.00,0.08 1.10,0.16 fill #5a3a20 0.8
+poly 0.90,0.16 1.00,0.08 1.10,0.16 stroke #1a0a00 0.6
+poly 1.50,0.16 1.60,0.08 1.70,0.16 fill #4a3020 0.8
+poly 1.50,0.16 1.60,0.08 1.70,0.16 stroke #1a0a00 0.6
+
+# Bone pillow at head (north end = low x; front faces south, head at west = low x side)
+ellipse 0.34,0.50 0.18,0.18 fill #e8dcc8 0.92
+ellipse 0.34,0.50 0.18,0.18 stroke #6a5040
+# Pillow bone seam
+line 0.22,0.50 0.46,0.50 stroke #6a5040 0.6 width 1
+# Pillow crack
+line 0.30,0.42 0.34,0.54 stroke #8a7060 0.5 width 1
+
+# Dark blood stain smudge
+ellipse 1.40,0.62 0.10,0.04 fill #4a0000 0.55

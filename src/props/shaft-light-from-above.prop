@@ -1,0 +1,46 @@
+name: Shaft Light From Above
+category: Lighting
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+lights: [{"preset":"daylight","x":1.0,"y":1.0,"radius":5,"color":"#eef4ff","intensity":0.4}]
+placement: center
+room_types: oubliette, dungeon, cave, prison-block
+typical_count: single
+clusters_with: grate-ceiling, rubble, puddle
+notes: Conical pool of pale light on the floor from an overhead shaft or grate; the primary (often only) light source in an oubliette. Place at room center.
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: a soft gradient glow — light pool on the floor under an overhead shaft
+# NOT a 3D cone, just a top-down pool of light with darker edges
+
+# Outermost soft halo (barely visible)
+circle 1.0,1.0 0.95 gradient-radial #eef4ff #000000 0.12
+
+# Mid glow ring
+circle 1.0,1.0 0.72 gradient-radial #dde8f4 #000000 0.22
+
+# Main light pool
+circle 1.0,1.0 0.50 gradient-radial #eef4ff #556677 0.4
+
+# Bright inner core
+circle 1.0,1.0 0.28 fill #eef4ff 0.5
+
+# Hot center
+circle 1.0,1.0 0.12 fill #ffffff 0.55
+
+# Faint dust mote specks floating in the light beam
+circle 0.85,0.80 0.02 fill #ffffff 0.3
+circle 1.15,0.90 0.015 fill #ffffff 0.25
+circle 1.05,1.20 0.018 fill #ffffff 0.28
+circle 0.92,1.10 0.012 fill #ffffff 0.22
+circle 1.20,1.15 0.015 fill #ffffff 0.2
+circle 0.78,1.05 0.012 fill #ffffff 0.18
+circle 1.10,0.75 0.015 fill #ffffff 0.22
+
+# Very faint shadow of shaft edges (subtle square implied by overhead opening)
+line 0.55,0.55 0.55,1.45 stroke #000000 0.06 width 1
+line 1.45,0.55 1.45,1.45 stroke #000000 0.06 width 1
+line 0.55,0.55 1.45,0.55 stroke #000000 0.06 width 1
+line 0.55,1.45 1.45,1.45 stroke #000000 0.06 width 1

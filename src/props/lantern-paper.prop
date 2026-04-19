@@ -1,0 +1,60 @@
+name: Paper Lantern
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.0
+lights: [{"preset":"lantern","x":0.5,"y":0.5,"radius":8,"color":"#ffcc60","intensity":0.7}]
+placement: any
+room_types: fairground-seasonal, festival-grounds, village-green, tavern, temple
+typical_count: few
+clusters_with: bunting-line, game-booth, stage-performance, bonfire-large, pie-stand
+notes: Round paper lantern on short post with warm yellow glow; festive lighting
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+selection circle 0.5,0.5 0.28
+
+# === Soft outer glow (spills onto ground) ===
+circle 0.5,0.5 0.48 fill #ffcc60 0.15
+circle 0.5,0.5 0.40 fill #ffcc60 0.25
+
+# === Post base (seen from above as small dark circle) ===
+circle 0.5,0.5 0.05 fill #3a2418 0.9
+circle 0.5,0.5 0.05 stroke #1a0a04
+
+# === Lantern body (round paper sphere, seen from above = circle) ===
+# Outer paper shell
+circle 0.5,0.5 0.30 fill #ffeec0 0.85
+circle 0.5,0.5 0.30 stroke #8b6914
+
+# Paper panels / ribs (visible as radiating lines)
+line 0.50,0.20 0.50,0.80 stroke #8b6914 0.6 width 1
+line 0.20,0.50 0.80,0.50 stroke #8b6914 0.6 width 1
+line 0.29,0.29 0.71,0.71 stroke #8b6914 0.5 width 1
+line 0.71,0.29 0.29,0.71 stroke #8b6914 0.5 width 1
+
+# Inner glow (brighter center where candle sits)
+circle 0.5,0.5 0.22 fill #ffdc80 0.7
+circle 0.5,0.5 0.14 fill #ffee90 0.85
+circle 0.5,0.5 0.08 fill #ffffcc 0.9
+
+# === Top cap (small wooden disc on top of lantern) ===
+circle 0.5,0.5 0.09 fill #5c3a1e 0.5
+circle 0.5,0.5 0.09 stroke #2a1408 0.6
+
+# Top crown (small handle loop)
+arc 0.5,0.48 0.06 200 340 stroke #3a2418 width 2
+
+# Hanging tassel (small red decoration south)
+line 0.5,0.80 0.5,0.86 stroke #c82020 width 2
+circle 0.5,0.88 0.025 fill #c82020 0.9
+circle 0.5,0.88 0.025 stroke #5a1010
+
+# Decorative paint trim (band around lantern)
+arc 0.5,0.5 0.28 10 80 stroke #c82020 0.7 width 2
+arc 0.5,0.5 0.28 100 170 stroke #c82020 0.7 width 2
+arc 0.5,0.5 0.28 190 260 stroke #c82020 0.7 width 2
+arc 0.5,0.5 0.28 280 350 stroke #c82020 0.7 width 2

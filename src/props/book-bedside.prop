@@ -1,0 +1,37 @@
+name: Bedside Book
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-bedroom-master, bedchamber, noble-suite, bedroom, study
+typical_count: single
+clusters_with: bed, table-small, wine-nightcap
+notes: Open leather book face-down to keep the reader's place, silk ribbon bookmark trailing off the edge.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Book shape — face-down, V of two covers tented slightly
+# Left cover
+poly 0.14,0.32 0.50,0.30 0.50,0.68 0.14,0.70 texfill polyhaven/brown_leather 0.88
+poly 0.14,0.32 0.50,0.30 0.50,0.68 0.14,0.70 stroke #2a1400
+# Right cover
+poly 0.50,0.30 0.86,0.32 0.86,0.70 0.50,0.68 texfill polyhaven/brown_leather 0.88
+poly 0.50,0.30 0.86,0.32 0.86,0.70 0.50,0.68 stroke #2a1400
+# Spine crease down the middle
+line 0.50,0.30 0.50,0.68 stroke #1a1208 width 2
+# Gold tooling on covers
+rect 0.18,0.36 0.30,0.04 stroke #daa520 0.7 width 1
+rect 0.18,0.60 0.30,0.04 stroke #daa520 0.7 width 1
+rect 0.52,0.36 0.30,0.04 stroke #daa520 0.7 width 1
+rect 0.52,0.60 0.30,0.04 stroke #daa520 0.7 width 1
+# Small gold ornament at spine
+circle 0.50,0.50 0.025 fill #daa520 0.85
+# Page edges peeking from under covers (creamy gilt)
+rect 0.14,0.68 0.72,0.03 fill #f0e8c8 0.85
+rect 0.14,0.28 0.72,0.03 fill #f0e8c8 0.85
+# Silk ribbon bookmark trailing south-east
+bezier 0.58,0.68 0.72,0.78 0.84,0.82 0.92,0.88 stroke #a03030 width 3
+bezier 0.58,0.68 0.72,0.78 0.84,0.82 0.92,0.88 stroke #701818 width 1
+# Ribbon tassel
+circle 0.92,0.88 0.03 fill #a03030 0.8

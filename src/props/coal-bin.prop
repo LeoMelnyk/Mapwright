@@ -1,0 +1,55 @@
+name: Coal Bin
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: floor
+room_types: forge, smithy, workshop
+typical_count: few
+clusters_with: forge, anvil, bellows
+notes: Large wooden bin heaped with coal; place near forge for fuel supply
+---
+# === HITBOX ===
+hitbox rect 0.10,0.15 0.80,0.70 z 0-2.5
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: wooden-plank rectangle with heaping black coal lumps above rim
+
+# === Wooden bin structure (outer walls, seen from above) ===
+rect 0.08,0.08 0.84,0.84 texfill polyhaven/weathered_planks 0.8
+rect 0.08,0.08 0.84,0.84 stroke #3a1f00
+
+# Corner posts (darker wood)
+rect 0.08,0.08 0.08,0.08 fill #2a1400 0.7
+rect 0.84,0.08 0.08,0.08 fill #2a1400 0.7
+rect 0.08,0.84 0.08,0.08 fill #2a1400 0.7
+rect 0.84,0.84 0.08,0.08 fill #2a1400 0.7
+
+# Inner rim line (top edge of bin walls)
+rect 0.14,0.14 0.72,0.72 stroke #4a2800
+
+# === Coal heap (mounded above the rim, dark irregular lumps) ===
+# Base coal layer (fills inside of bin)
+ellipse 0.50,0.50 0.32,0.32 fill #1a1a1a 0.85
+ellipse 0.50,0.50 0.32,0.32 stroke #111111
+
+# Coal lumps — irregular circles of varying size
+circle 0.38,0.35 0.08 fill #222222 0.9
+circle 0.38,0.35 0.08 stroke #111111
+circle 0.58,0.40 0.07 fill #1a1a1a 0.9
+circle 0.58,0.40 0.07 stroke #0a0a0a
+circle 0.50,0.55 0.09 fill #252525 0.85
+circle 0.50,0.55 0.09 stroke #111111
+circle 0.35,0.52 0.06 fill #1e1e1e 0.9
+circle 0.65,0.52 0.065 fill #202020 0.9
+circle 0.65,0.52 0.065 stroke #0a0a0a
+circle 0.45,0.42 0.055 fill #282828 0.85
+circle 0.55,0.62 0.06 fill #1c1c1c 0.85
+circle 0.40,0.62 0.05 fill #222222 0.8
+
+# Coal surface sheen highlights (subtle grey glints)
+circle 0.42,0.38 0.02 fill #555555 0.3
+circle 0.56,0.52 0.02 fill #555555 0.25
+circle 0.50,0.45 0.015 fill #666666 0.25

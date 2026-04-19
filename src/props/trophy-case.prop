@@ -1,0 +1,46 @@
+name: Trophy Case
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: wall
+room_types: ship, captain-cabin, officer-quarters, study, guild-hall
+typical_count: single
+clusters_with: ship-in-bottle-shelf, cabinet-liquor, bookshelf
+notes: Glass-fronted wall trophy case with ship's bell or medals; decorative display
+---
+# === HITBOX ===
+hitbox rect 0.10,0.06 0.80,0.78 z 0-5
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: cabinet top with glass front hinted at south edge
+
+# Cabinet body (recessed below top)
+rect 0.12,0.06 0.76,0.76 fill #2a1400 0.35
+line 0.12,0.06 0.12,0.82 stroke #3a1f00
+line 0.88,0.06 0.88,0.82 stroke #3a1f00
+line 0.12,0.82 0.88,0.82 stroke #3a1f00
+
+# Wooden top surface
+rect 0.06,0.02 0.88,0.64 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.02 0.88,0.64 stroke #3a1f00
+
+# Crown molding at north (wall) edge
+rect 0.06,0.02 0.88,0.06 fill #4a2800 0.5
+
+# Brass trim along top front edge
+rect 0.08,0.60 0.84,0.04 fill #daa520 0.5
+rect 0.08,0.60 0.84,0.04 stroke #8b6914 0.5
+
+# Display items visible through glass (from above — tiny shapes at south edge)
+# Ship's bell (small brass dome)
+circle 0.36,0.74 0.05 fill #daa520 0.5
+circle 0.36,0.74 0.05 stroke #8b6914 0.5
+# Medal (small disc)
+circle 0.56,0.76 0.035 fill #ffd700 0.5
+circle 0.56,0.76 0.035 stroke #daa520 0.4
+# Second medal
+circle 0.70,0.74 0.03 fill #aaaaaa 0.4
+circle 0.70,0.74 0.03 stroke #888888 0.3

@@ -1,0 +1,92 @@
+name: Lockpicks
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.03
+placement: floor
+room_types: thieves-guild-hideout, smugglers-den, assassin-cell, hideout, prison
+typical_count: single
+clusters_with: mask-cloth, jewelry-loose, coin-purse, dagger, tools-bag
+notes: Small leather wrap unrolled showing a set of lock picks and tension wrenches. Thin steel needles arranged in fan pattern.
+---
+# === HITBOX ===
+selection rect 0.16,0.30 0.68,0.40
+
+# === Leather wrap/case (unrolled, flat) ===
+rect 0.16,0.34 0.68,0.36 texfill polyhaven/brown_leather 0.9
+rect 0.16,0.34 0.68,0.36 fill #4a2800 0.4
+rect 0.16,0.34 0.68,0.36 stroke #2a1400 width 1
+
+# Leather stitching along edges
+line 0.18,0.36 0.82,0.36 stroke #8b6914 0.6 width 1
+line 0.18,0.68 0.82,0.68 stroke #8b6914 0.6 width 1
+
+# Leather fold line (where it rolls)
+line 0.50,0.34 0.50,0.70 stroke #3a2010 0.5 width 1
+
+# Leather tie cord
+qbezier 0.16,0.52 0.10,0.56 0.06,0.62 stroke #5c3a1e width 2
+circle 0.08,0.60 0.018 fill #3a2010 0.8
+
+# === Pick slot stitching (vertical divisions in the leather) ===
+line 0.26,0.38 0.26,0.66 stroke #3a2010 0.5 width 1
+line 0.34,0.38 0.34,0.66 stroke #3a2010 0.5 width 1
+line 0.42,0.38 0.42,0.66 stroke #3a2010 0.5 width 1
+line 0.58,0.38 0.58,0.66 stroke #3a2010 0.5 width 1
+line 0.66,0.38 0.66,0.66 stroke #3a2010 0.5 width 1
+line 0.74,0.38 0.74,0.66 stroke #3a2010 0.5 width 1
+
+# === Lock picks (thin steel needles with shaped tips) ===
+# Pick 1 — hook tip
+line 0.22,0.64 0.22,0.42 stroke #8899aa width 2
+line 0.22,0.64 0.22,0.42 stroke #cccccc 0.8 width 1
+poly 0.22,0.42 0.25,0.40 0.25,0.38 0.23,0.38 fill #8899aa 0.9
+poly 0.22,0.42 0.25,0.40 0.25,0.38 0.23,0.38 stroke #555555 width 1
+# Handle grip
+rect 0.20,0.64 0.04,0.04 fill #2a1400 0.9
+rect 0.20,0.64 0.04,0.04 stroke #1a0800
+
+# Pick 2 — diamond tip
+line 0.30,0.64 0.30,0.42 stroke #8899aa width 2
+line 0.30,0.64 0.30,0.42 stroke #cccccc 0.8 width 1
+poly 0.30,0.42 0.33,0.40 0.30,0.36 0.27,0.40 fill #8899aa 0.9
+poly 0.30,0.42 0.33,0.40 0.30,0.36 0.27,0.40 stroke #555555 width 1
+rect 0.28,0.64 0.04,0.04 fill #2a1400 0.9
+rect 0.28,0.64 0.04,0.04 stroke #1a0800
+
+# Pick 3 — rake (zigzag tip)
+line 0.38,0.64 0.38,0.44 stroke #8899aa width 2
+line 0.38,0.64 0.38,0.44 stroke #cccccc 0.8 width 1
+poly 0.38,0.44 0.41,0.42 0.38,0.40 0.41,0.38 fill #8899aa 0.9
+poly 0.38,0.44 0.41,0.42 0.38,0.40 0.41,0.38 stroke #555555 width 1
+rect 0.36,0.64 0.04,0.04 fill #2a1400 0.9
+rect 0.36,0.64 0.04,0.04 stroke #1a0800
+
+# Pick 4 — ball tip
+line 0.46,0.64 0.46,0.42 stroke #8899aa width 2
+line 0.46,0.64 0.46,0.42 stroke #cccccc 0.8 width 1
+circle 0.46,0.40 0.02 fill #8899aa 0.9
+circle 0.46,0.40 0.02 stroke #555555
+rect 0.44,0.64 0.04,0.04 fill #2a1400 0.9
+
+# === Tension wrenches (L-shaped, thicker) ===
+# Wrench 1 (south-flat L)
+line 0.62,0.64 0.62,0.48 stroke #667788 width 3
+line 0.62,0.48 0.70,0.48 stroke #667788 width 3
+line 0.62,0.64 0.62,0.48 stroke #aaaaaa 0.7 width 1
+rect 0.60,0.64 0.04,0.04 fill #2a1400 0.9
+rect 0.60,0.64 0.04,0.04 stroke #1a0800
+
+# Wrench 2 (larger L)
+line 0.70,0.64 0.70,0.44 stroke #667788 width 3
+line 0.70,0.44 0.78,0.44 stroke #667788 width 3
+line 0.70,0.64 0.70,0.44 stroke #aaaaaa 0.7 width 1
+rect 0.68,0.64 0.04,0.04 fill #2a1400 0.9
+
+# Tiny metal highlights
+circle 0.22,0.50 0.005 fill #ffffff 0.7
+circle 0.30,0.50 0.005 fill #ffffff 0.7
+circle 0.38,0.50 0.005 fill #ffffff 0.7
+circle 0.46,0.50 0.005 fill #ffffff 0.7

@@ -1,0 +1,84 @@
+name: Tent
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2
+placement: floor
+room_types: campsite-traveler, fairground-seasonal, orc-war-camp, ranger-camp, scouts-blind
+typical_count: few
+clusters_with: bedroll, campfire, gear-pack, rope-coil, lantern-floor
+notes: Canvas tent with guy ropes — top-down shows peaked ridge and triangular panels
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-2
+
+# Guy ropes extending to stakes (4 corners)
+line 0.30,0.30 0.10,0.10 stroke #6b4e2e width 1
+line 1.70,0.30 1.90,0.10 stroke #6b4e2e width 1
+line 0.30,1.70 0.10,1.90 stroke #6b4e2e width 1
+line 1.70,1.70 1.90,1.90 stroke #6b4e2e width 1
+# Stakes at corners (small dark pegs)
+rect 0.06,0.06 0.08,0.08 fill #2a1400 0.9
+rect 0.06,0.06 0.08,0.08 stroke #0a0400
+rect 1.86,0.06 0.08,0.08 fill #2a1400 0.9
+rect 1.86,0.06 0.08,0.08 stroke #0a0400
+rect 0.06,1.86 0.08,0.08 fill #2a1400 0.9
+rect 0.06,1.86 0.08,0.08 stroke #0a0400
+rect 1.86,1.86 0.08,0.08 fill #2a1400 0.9
+rect 1.86,1.86 0.08,0.08 stroke #0a0400
+# Tent canvas (triangular panels meeting at ridge — diamond shape from above)
+# West panel
+poly 0.30,0.30 1.0,0.30 1.0,1.70 0.30,1.70 fill #8a7058 0.92
+poly 0.30,0.30 1.0,0.30 1.0,1.70 0.30,1.70 texfill polyhaven/rough_linen 0.55
+poly 0.30,0.30 1.0,0.30 1.0,1.70 0.30,1.70 stroke #3a2408
+# East panel (slightly lighter to show peak lighting)
+poly 1.0,0.30 1.70,0.30 1.70,1.70 1.0,1.70 fill #a08870 0.92
+poly 1.0,0.30 1.70,0.30 1.70,1.70 1.0,1.70 texfill polyhaven/rough_linen 0.55
+poly 1.0,0.30 1.70,0.30 1.70,1.70 1.0,1.70 stroke #3a2408
+# Ridge pole (center line running N-S)
+line 1.0,0.30 1.0,1.70 stroke #3a1f00 width 3
+line 1.0,0.30 1.0,1.70 stroke #5c3a1e width 1
+# Corner reinforcement patches
+rect 0.28,0.28 0.08,0.08 fill #5c3a1e 0.85
+rect 0.28,0.28 0.08,0.08 stroke #2a1400
+rect 1.64,0.28 0.08,0.08 fill #5c3a1e 0.85
+rect 1.64,0.28 0.08,0.08 stroke #2a1400
+rect 0.28,1.64 0.08,0.08 fill #5c3a1e 0.85
+rect 0.28,1.64 0.08,0.08 stroke #2a1400
+rect 1.64,1.64 0.08,0.08 fill #5c3a1e 0.85
+rect 1.64,1.64 0.08,0.08 stroke #2a1400
+# Canvas seam stitching (along ridge and sides)
+line 0.30,0.30 1.70,0.30 stroke #2a1810 0.7
+line 0.30,1.70 1.70,1.70 stroke #2a1810 0.7
+line 0.30,0.30 0.30,1.70 stroke #2a1810 0.7
+line 1.70,0.30 1.70,1.70 stroke #2a1810 0.7
+# Ridge support poles (visible through canvas at peak)
+rect 0.98,0.34 0.04,0.06 fill #3a1f00 0.8
+rect 0.98,1.60 0.04,0.06 fill #3a1f00 0.8
+# Entry flap at south (slight opening, dark interior visible)
+poly 0.90,1.70 1.10,1.70 1.08,1.90 0.92,1.90 fill #1a1008 0.8
+poly 0.90,1.70 1.10,1.70 1.08,1.90 0.92,1.90 stroke #2a1810
+# Entry flap rolled up
+rect 0.88,1.70 0.04,0.16 fill #5c3a1e 0.85
+rect 1.08,1.70 0.04,0.16 fill #5c3a1e 0.85
+# Canvas subtle fold lines (wind ruffles)
+bezier 0.40,0.50 0.60,0.54 0.80,0.50 0.96,0.54 stroke #3a2408 0.5 width 1
+bezier 0.40,1.00 0.60,1.04 0.80,1.00 0.96,1.04 stroke #3a2408 0.5 width 1
+bezier 0.40,1.40 0.60,1.44 0.80,1.40 0.96,1.44 stroke #3a2408 0.5 width 1
+bezier 1.04,0.50 1.20,0.54 1.40,0.50 1.60,0.54 stroke #3a2408 0.5 width 1
+bezier 1.04,1.00 1.20,1.04 1.40,1.00 1.60,1.04 stroke #3a2408 0.5 width 1
+bezier 1.04,1.40 1.20,1.44 1.40,1.40 1.60,1.44 stroke #3a2408 0.5 width 1
+# Stains on canvas (weathering)
+ellipse 0.60,0.80 0.14,0.06 fill #3a2408 0.4
+ellipse 1.40,1.20 0.12,0.06 fill #3a2408 0.4
+# Patched hole
+rect 1.30,0.60 0.10,0.08 fill #4a2810 0.8
+rect 1.30,0.60 0.10,0.08 stroke #2a1008
+line 1.30,0.64 1.40,0.64 stroke #2a1008 0.6
+# Ridge peak highlight (lightest part where sun hits)
+line 1.0,0.50 1.0,1.50 stroke #c8a080 0.3 width 2
+# Tiny flag atop
+poly 1.0,0.28 1.06,0.22 1.0,0.20 fill #aa2020 0.85
+poly 1.0,0.28 1.06,0.22 1.0,0.20 stroke #5a0808

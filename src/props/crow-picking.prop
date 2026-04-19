@@ -1,0 +1,64 @@
+name: Crow Picking
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp, ruined-watchtower, gibbet-square
+typical_count: few
+clusters_with: corpse-soldier, bone-pile, severed-limb, pyre-mass-grave
+notes: Black crow perched on small carcass with wings slightly raised; carrion bird feeding
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Small carcass beneath (amorphous shape, fur/feathers) ===
+ellipse 0.5,0.62 0.30,0.18 fill #3a2a1a 0.85
+ellipse 0.5,0.62 0.30,0.18 texfill polyhaven/brown_leather 0.4
+ellipse 0.5,0.62 0.30,0.18 stroke #1a1008
+# Blood on carcass
+ellipse 0.48,0.64 0.12,0.07 fill #4a0000 0.75
+# Small protruding ribs / bone fragment
+line 0.58,0.66 0.66,0.70 stroke #c8b898 width 2
+line 0.60,0.58 0.68,0.60 stroke #c8b898 width 1
+
+# === Crow body (slightly off-center, standing on carcass) ===
+ellipse 0.48,0.50 0.14,0.18 fill #0a0608 0.95
+ellipse 0.48,0.50 0.14,0.18 stroke #000000
+
+# === Wings slightly raised (spread a little to each side) ===
+# Left wing (west)
+poly 0.38,0.42 0.18,0.36 0.14,0.50 0.26,0.58 0.38,0.54 fill #0a0608 0.95
+poly 0.38,0.42 0.18,0.36 0.14,0.50 0.26,0.58 0.38,0.54 stroke #000000
+# Feather detail on left wing
+line 0.30,0.40 0.18,0.38 stroke #1a1418 width 1
+line 0.26,0.46 0.16,0.46 stroke #1a1418 width 1
+line 0.24,0.52 0.18,0.54 stroke #1a1418 width 1
+# Right wing (east)
+poly 0.58,0.42 0.80,0.36 0.84,0.52 0.72,0.58 0.58,0.54 fill #0a0608 0.95
+poly 0.58,0.42 0.80,0.36 0.84,0.52 0.72,0.58 0.58,0.54 stroke #000000
+# Feather detail on right wing
+line 0.68,0.40 0.80,0.38 stroke #1a1418 width 1
+line 0.72,0.46 0.82,0.46 stroke #1a1418 width 1
+line 0.72,0.52 0.80,0.54 stroke #1a1418 width 1
+
+# === Tail feathers (south) ===
+poly 0.42,0.64 0.54,0.64 0.56,0.76 0.40,0.76 fill #0a0608 0.95
+poly 0.42,0.64 0.54,0.64 0.56,0.76 0.40,0.76 stroke #000000
+line 0.44,0.66 0.44,0.76 stroke #1a1418 width 1
+line 0.48,0.66 0.48,0.76 stroke #1a1418 width 1
+line 0.52,0.66 0.52,0.76 stroke #1a1418 width 1
+
+# === Head (north, bent down pecking) ===
+ellipse 0.48,0.36 0.07,0.06 fill #0a0608 0.95
+ellipse 0.48,0.36 0.07,0.06 stroke #000000
+# Beak (yellow-grey, pointing down/south toward carcass)
+poly 0.46,0.40 0.50,0.40 0.48,0.50 fill #8b7355 0.95
+poly 0.46,0.40 0.50,0.40 0.48,0.50 stroke #3a2a18
+# Eye (small dot, beady white)
+circle 0.52,0.34 0.012 fill #e8dcc8 0.95
+circle 0.52,0.34 0.018 stroke #000000 width 1
+
+# Blood smear on beak
+circle 0.48,0.48 0.015 fill #4a0000 0.8

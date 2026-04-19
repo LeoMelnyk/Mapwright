@@ -1,0 +1,67 @@
+name: Silver Bowl
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: mansion-grand-hall, shop-jeweler, treasure-vault, mansion-dining, noble-solar
+typical_count: single
+clusters_with: goblet, sideboard, fresh-flowers, fruit-bowl, silver-bowl
+notes: Ornate silver ceremonial bowl — polished metal with engraved pattern
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.34
+
+# Bowl foot (raised base)
+circle 0.5,0.60 0.24 fill #aaaaaa 0.9
+circle 0.5,0.60 0.24 stroke #444444
+# Bowl outer rim (widest)
+circle 0.5,0.5 0.34 fill #cccccc 0.95
+circle 0.5,0.5 0.34 stroke #444444
+# Rim edge (polished band)
+circle 0.5,0.5 0.32 stroke #e0e0e0 0.8 width 1
+# Engraved decorative band around rim
+arc 0.5,0.5 0.30 0 30 stroke #444444 0.8 width 1
+arc 0.5,0.5 0.30 60 90 stroke #444444 0.8 width 1
+arc 0.5,0.5 0.30 120 150 stroke #444444 0.8 width 1
+arc 0.5,0.5 0.30 180 210 stroke #444444 0.8 width 1
+arc 0.5,0.5 0.30 240 270 stroke #444444 0.8 width 1
+arc 0.5,0.5 0.30 300 330 stroke #444444 0.8 width 1
+# Decorative dots between patterns
+circle 0.74,0.36 0.012 fill #333333 0.85
+circle 0.74,0.64 0.012 fill #333333 0.85
+circle 0.26,0.36 0.012 fill #333333 0.85
+circle 0.26,0.64 0.012 fill #333333 0.85
+circle 0.50,0.22 0.012 fill #333333 0.85
+circle 0.50,0.78 0.012 fill #333333 0.85
+# Bowl interior (slightly darker)
+circle 0.5,0.5 0.28 fill #aaaaaa 0.95
+circle 0.5,0.5 0.28 stroke #555555
+# Deeper interior (center)
+circle 0.5,0.5 0.22 fill #888888 0.8
+circle 0.5,0.5 0.22 stroke #555555
+# Central engraved medallion (rose or crest)
+circle 0.5,0.5 0.12 stroke #333333 0.7 width 1
+# Medallion detail (stylized rose)
+circle 0.5,0.5 0.05 fill #666666 0.9
+circle 0.5,0.5 0.05 stroke #333333
+poly 0.45,0.50 0.50,0.45 0.55,0.50 0.50,0.55 fill #888888 0.8
+# Radial engraving around medallion
+line 0.50,0.38 0.50,0.44 stroke #333333 0.8 width 1
+line 0.50,0.56 0.50,0.62 stroke #333333 0.8 width 1
+line 0.38,0.50 0.44,0.50 stroke #333333 0.8 width 1
+line 0.56,0.50 0.62,0.50 stroke #333333 0.8 width 1
+line 0.42,0.42 0.46,0.46 stroke #333333 0.7 width 1
+line 0.54,0.54 0.58,0.58 stroke #333333 0.7 width 1
+line 0.42,0.58 0.46,0.54 stroke #333333 0.7 width 1
+line 0.54,0.46 0.58,0.42 stroke #333333 0.7 width 1
+# Polished sheen (brightest arc)
+arc 0.5,0.5 0.32 210 260 stroke #ffffff 0.9 width 1
+arc 0.5,0.5 0.26 220 260 stroke #ffffff 0.7 width 1
+# Tarnish spots (subtle)
+circle 0.36,0.36 0.02 fill #5a5a5a 0.3
+circle 0.66,0.66 0.02 fill #5a5a5a 0.3
+# Water droplet (fresh polish)
+circle 0.42,0.60 0.015 fill #e0e0e0 0.6

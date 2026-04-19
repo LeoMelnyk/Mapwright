@@ -18,6 +18,7 @@ import {
 } from '../../render/index.js';
 import { createEmptyDungeon } from './utils.js';
 import { markPropSpatialDirty } from './prop-spatial.js';
+import { log } from '../../util/index.js';
 
 // ── Notify topics ─────────────────────────────────────────────────────────
 export type NotifyTopic = 'cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui';
@@ -61,6 +62,8 @@ const state: EditorState = {
   propRotation: 0, // 0, 90, 180, 270 — current placement rotation
   propFlipped: false, // whether the next placed prop is horizontally mirrored
   propScale: 1.0, // scale for next placed prop
+  propRandomRotation: false, // when true, stamp placement uses a random rotation (multiple of 15°)
+  propRandomScale: false, // when true, stamp placement uses a random scale (0.8–3.0 in 0.05 steps)
   propCatalog: null, // PropCatalog object, loaded at init (runtime only, not serialized)
   selectedPropAnchors: [], // array of {row, col} for selected props in select mode (legacy)
   selectedPropIds: [], // array of overlay prop IDs for selected props (new system)
@@ -104,6 +107,7 @@ const state: EditorState = {
   sessionToolsActive: false, // true when session toolbar is shown (session panel open + session active)
   statusInstruction: null, // string or null — shown in #status-center when set
   debugShowHitboxes: false, // when true, render prop hitbox outlines on the canvas
+  debugShowSelectionBoxes: false, // when true, render prop selection boxes for every placed prop
   _lastPushUndoMs: null,
 };
 
@@ -111,13 +115,34 @@ const state: EditorState = {
 // and pure, so the cached object is safe to reuse across frames; this also
 // preserves reference stability for downstream caches that key on theme.
 const _normalizedThemeCache = new WeakMap<Theme, Theme>();
+let _lastRawThemeSeen: Theme | null = null;
 function _resolveAndNormalize(rawTheme: Theme): Theme {
+  if (rawTheme !== _lastRawThemeSeen) {
+    log.devTrace(`getTheme: raw theme ref changed`, {
+      prev: _lastRawThemeSeen,
+      next: rawTheme,
+      sameJson: JSON.stringify(_lastRawThemeSeen) === JSON.stringify(rawTheme),
+    });
+    _lastRawThemeSeen = rawTheme;
+  }
   let cached = _normalizedThemeCache.get(rawTheme);
   if (!cached) {
     cached = normalizeRenderTheme(rawTheme);
     _normalizedThemeCache.set(rawTheme, cached);
   }
   return cached;
+}
+
+/**
+ * Evict the cached normalized theme for the current raw theme object.
+ * Call this after mutating theme properties in-place (e.g. theme panel sliders)
+ * so the next getTheme() call re-normalizes with the updated values.
+ */
+export function invalidateThemeCache(): void {
+  const t = state.dungeon.metadata.theme;
+  if (typeof t === 'object') {
+    _normalizedThemeCache.delete(t);
+  }
 }
 
 /**
@@ -128,23 +153,24 @@ function _resolveAndNormalize(rawTheme: Theme): Theme {
  */
 export function getTheme(): Theme {
   const t = state.dungeon.metadata.theme;
-  let raw: Theme;
+  let raw: Theme | undefined;
   if (typeof t === 'string') {
     if (THEMES[t]) {
       raw = THEMES[t]!;
     } else if (t.startsWith('user:') && state.dungeon.metadata.savedThemeData?.theme) {
-      // Fallback: user theme not installed locally — use embedded data
       raw = state.dungeon.metadata.savedThemeData.theme as Theme;
     } else {
-      raw = THEMES['blue-parchment']!;
+      raw = THEMES['blue-parchment'];
     }
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   } else if (typeof t === 'object' && t !== null) {
     raw = t;
   } else {
-    raw = THEMES['blue-parchment']!;
+    raw = THEMES['blue-parchment'];
   }
-  return _resolveAndNormalize(raw);
+  // Theme catalog loads asynchronously; a render can fire before THEMES is
+  // populated. normalizeTheme fills in every color key, so `{}` is safe.
+  return _resolveAndNormalize(raw ?? ({} as Theme));
 }
 
 /** Set to true to skip all undo stack pushes (for testing). */
@@ -305,7 +331,18 @@ export function undo(): void {
       // Compute before-state from the OLD cells (pre-undo) for the changed coordinates
       const beforeState = changedCoords.map(({ row, col }) => {
         const cell = oldCells[row]?.[col];
-        if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
+        if (!cell)
+          return {
+            row,
+            col,
+            wasVoid: true,
+            fill: null,
+            waterDepth: null,
+            lavaDepth: null,
+            hazard: false,
+            texture: null,
+            textureSecondary: null,
+          };
         return {
           row,
           col,
@@ -314,6 +351,8 @@ export function undo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
+          texture: (cell.texture as string | null) ?? null,
+          textureSecondary: (cell.textureSecondary as string | null) ?? null,
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
@@ -353,7 +392,18 @@ export function redo(): void {
     if (changedCoords && changedCoords.length > 0) {
       const beforeState = changedCoords.map(({ row, col }) => {
         const cell = oldCells[row]?.[col];
-        if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
+        if (!cell)
+          return {
+            row,
+            col,
+            wasVoid: true,
+            fill: null,
+            waterDepth: null,
+            lavaDepth: null,
+            hazard: false,
+            texture: null,
+            textureSecondary: null,
+          };
         return {
           row,
           col,
@@ -362,6 +412,8 @@ export function redo(): void {
           waterDepth: (cell.waterDepth as number | null) ?? null,
           lavaDepth: (cell.lavaDepth as number | null) ?? null,
           hazard: !!cell.hazard,
+          texture: (cell.texture as string | null) ?? null,
+          textureSecondary: (cell.textureSecondary as string | null) ?? null,
         };
       });
       smartInvalidate(beforeState, state.dungeon.cells);
@@ -646,6 +698,7 @@ export function mutate(
     invalidate?: InvalidateFlag[];
     forceGeometry?: boolean;
     forceFluid?: boolean;
+    textureOnly?: boolean;
     topic?: NotifyTopic;
     metaOnly?: boolean;
   } = {},
@@ -723,6 +776,7 @@ export function mutate(
       smartInvalidate(renderBefore, cells, {
         forceGeometry: options.forceGeometry ?? false,
         forceFluid: options.forceFluid ?? false,
+        textureOnly: options.textureOnly ?? false,
       });
     }
     const flags = options.invalidate;
@@ -742,6 +796,7 @@ export function mutate(
     smartInvalidate(renderBefore, cells, {
       forceGeometry: options.forceGeometry ?? false,
       forceFluid: options.forceFluid ?? false,
+      textureOnly: options.textureOnly ?? false,
     });
   }
   const flags = options.invalidate;

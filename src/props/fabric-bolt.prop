@@ -1,0 +1,42 @@
+name: Fabric Bolt
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: any
+room_types: market-stall, market, vendor-row, bazaar, tailor, shop-merchant
+typical_count: few
+clusters_with: display-rack-fabric, stall-counter, display-basket
+notes: Single roll of cloth lying on its side; patterned end visible. Place on counter or floor.
+---
+# Footprint 1x1: x 0-1, y 0-1. Bolt lying on its side — long cylinder with circular end.
+
+# Main body of bolt (rectangular roll lying on side)
+rect 0.14,0.32 0.52,0.36 fill #2a3a7a 0.95
+rect 0.14,0.32 0.52,0.36 stroke #101a40
+
+# Cloth wound stripes along body (wrap lines)
+line 0.14,0.40 0.66,0.40 stroke #4a5aaa 0.55
+line 0.14,0.48 0.66,0.48 stroke #4a5aaa 0.55
+line 0.14,0.56 0.66,0.56 stroke #4a5aaa 0.55
+line 0.14,0.62 0.66,0.62 stroke #101a40 0.45
+
+# Unrolled fabric hanging off south (a little flap)
+poly 0.14,0.68 0.66,0.68 0.60,0.82 0.20,0.82 fill #2a3a7a 0.85
+poly 0.14,0.68 0.66,0.68 0.60,0.82 0.20,0.82 stroke #101a40
+# Pattern on the flap (decorative diamonds)
+poly 0.28,0.73 0.32,0.71 0.36,0.73 0.32,0.77 fill #daa520 0.7
+poly 0.42,0.74 0.46,0.72 0.50,0.74 0.46,0.78 fill #daa520 0.7
+
+# Circular end cap (patterned bolt spiral)
+circle 0.72,0.50 0.18 fill #2a3a7a 0.95
+circle 0.72,0.50 0.18 stroke #101a40
+# Spiral wind layers
+circle 0.72,0.50 0.14 stroke #4a5aaa 0.65
+circle 0.72,0.50 0.10 stroke #4a5aaa 0.60
+circle 0.72,0.50 0.06 stroke #4a5aaa 0.55
+circle 0.72,0.50 0.03 fill #101a40 0.7
+
+# Wound highlight shimmer
+arc 0.72,0.50 0.16 210 280 stroke #6a7acc 0.4 width 1

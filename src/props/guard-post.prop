@@ -1,0 +1,54 @@
+name: Guard Post
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 3
+placement: wall
+room_types: gatehouse, city-wall, keep-outer-bailey, toll-bridge, barracks, border-outpost, castle-gate, watchtower-base
+typical_count: few
+clusters_with: guard-post, brazier, torch-sconce, weapon-rack, shield-rack, halberd-stand, toll-barrier, toll-house, murder-hole-grate, winch-mechanism
+notes: Watch station — a waist-high crenellated stone wall section with a helmet and shield mounted on the wall side. Place along battlements or at gate approaches.
+---
+# === HITBOX ===
+selection rect 0.10,0.10 0.80,0.65
+
+# Ground shadow
+rect 0.08,0.75 0.84,0.14 fill #000000 0.20
+
+# Stone wall block (wall side — north edge)
+rect 0.10,0.10 0.80,0.65 texfill polyhaven/stone_wall 0.85
+rect 0.10,0.10 0.80,0.65 stroke #333333
+
+# Block seams across the wall
+line 0.32,0.10 0.32,0.75 stroke #444444 0.5
+line 0.56,0.10 0.56,0.75 stroke #444444 0.5
+line 0.10,0.42 0.90,0.42 stroke #444444 0.5
+
+# Crenellations along the top (wall side)
+rect 0.14,0.06 0.12,0.08 texfill polyhaven/stone_wall 0.85
+rect 0.14,0.06 0.12,0.08 stroke #333333
+rect 0.38,0.06 0.12,0.08 texfill polyhaven/stone_wall 0.85
+rect 0.38,0.06 0.12,0.08 stroke #333333
+rect 0.62,0.06 0.12,0.08 texfill polyhaven/stone_wall 0.85
+rect 0.62,0.06 0.12,0.08 stroke #333333
+
+# Slit (arrow loop) visible on the crenellated parapet
+rect 0.49,0.30 0.04,0.12 fill #0a0a0a 0.9
+
+# Helmet mounted on the wall (round dome seen from above)
+circle 0.30,0.54 0.09 texfill polyhaven/metal_plate 0.85
+circle 0.30,0.54 0.09 stroke #222222
+circle 0.30,0.54 0.05 stroke #555555 0.7
+
+# Shield mounted on the wall (round shield top)
+circle 0.68,0.54 0.11 texfill polyhaven/rusty_metal 0.80
+circle 0.68,0.54 0.11 stroke #2a1a0a
+# Shield boss
+circle 0.68,0.54 0.035 texfill polyhaven/metal_plate 0.90
+circle 0.68,0.54 0.035 stroke #222222
+
+# Small ledge / shelf running along the floor side (for leaning weapons)
+rect 0.12,0.74 0.76,0.04 fill #3a2812 0.85
+rect 0.12,0.74 0.76,0.04 stroke #1a1208

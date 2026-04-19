@@ -1,0 +1,46 @@
+name: Hung Herb Bundle
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 1.5
+placement: center
+room_types: bog-witch-hut, cabin-witch, kitchen, pantry, druid-grove, hermit-cell, alchemy-lab
+typical_count: few
+clusters_with: bone-charm, jar, reagent-jar, cauldron-large
+notes: A bundle of drying herbs hanging by twine from a ceiling hook. Top-down: small loop of twine + herb-bundle top (green-brown disc) + subtle drape shadow beneath. Overhead-hanging style.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Drape shadow beneath the hanging bundle ===
+ellipse 0.50,0.60 0.20,0.08 fill #1a1a1a 0.18
+ellipse 0.50,0.56 0.14,0.04 fill #1a1a1a 0.12
+
+# === Twine loop at top (hook attachment) ===
+ellipse 0.50,0.38 0.04,0.06 stroke #5c3a1e width 2
+# Short twine tail running down to bundle
+line 0.50,0.44 0.50,0.48 stroke #5c3a1e width 2
+
+# === Herb bundle top (seen from above — round cluster of stem/leaf ends) ===
+# Outer herb disc (mixed green-brown — dried herbs)
+circle 0.50,0.52 0.16 fill #4a6030 0.8
+circle 0.50,0.52 0.16 stroke #2a3818
+
+# Individual stem/leaf ends visible in the cluster
+circle 0.44,0.48 0.04 fill #5a7040 0.7
+circle 0.56,0.48 0.04 fill #3a5020 0.75
+circle 0.50,0.44 0.035 fill #6a8050 0.65
+circle 0.46,0.56 0.04 fill #4a5828 0.7
+circle 0.54,0.56 0.035 fill #5a6838 0.7
+circle 0.50,0.52 0.03 fill #3a4818 0.8
+
+# Dried flower head peeking out (small lavender dot)
+circle 0.58,0.52 0.025 fill #8868a0 0.6
+
+# === Twine binding wrap (visible as a ring around the bundle neck) ===
+circle 0.50,0.52 0.12 stroke #8b7355 0.6 width 1
+
+# Leaf tip poking out south
+line 0.46,0.66 0.44,0.72 stroke #4a6030 0.5 width 1
+line 0.54,0.66 0.56,0.72 stroke #4a6030 0.45 width 1

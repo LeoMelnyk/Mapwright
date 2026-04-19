@@ -1,0 +1,84 @@
+name: Interrogation Chair
+category: Prison
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: ship-brig, interrogation-room, torture-chamber, prison-block
+typical_count: single
+clusters_with: shackles, chain-coil, bloodstain, tool-cart, bloody-rag
+notes: Heavy wooden chair with leather straps at arms — for questioning. Front faces south (high Y). Similar to restraint-chair but uses leather rather than iron.
+---
+# === HITBOX ===
+hitbox rect 0.18,0.18 0.64,0.66 z 0-2.5
+
+# === Main chair body (dark weathered wood) ===
+rect 0.18,0.18 0.64,0.66 texfill polyhaven/dark_wood 0.86
+rect 0.18,0.18 0.64,0.66 stroke #1a0a00
+# Wood grain
+line 0.20,0.34 0.80,0.34 stroke #2a1400 0.5
+line 0.20,0.50 0.80,0.50 stroke #2a1400 0.5
+line 0.20,0.66 0.80,0.66 stroke #2a1400 0.5
+
+# === Backrest (tall north section) ===
+rect 0.18,0.18 0.64,0.12 texfill polyhaven/dark_wood 0.95
+rect 0.18,0.18 0.64,0.12 fill #1a0a00 0.3
+rect 0.18,0.18 0.64,0.12 stroke #000000
+# Backrest vertical slats
+line 0.28,0.20 0.28,0.30 stroke #1a0a00 width 2
+line 0.40,0.20 0.40,0.30 stroke #1a0a00 width 2
+line 0.52,0.20 0.52,0.30 stroke #1a0a00 width 2
+line 0.64,0.20 0.64,0.30 stroke #1a0a00 width 2
+line 0.76,0.20 0.76,0.30 stroke #1a0a00 width 2
+
+# === Seat (darker, stained center) ===
+rect 0.24,0.34 0.52,0.40 fill #2a1408 0.85
+rect 0.24,0.34 0.52,0.40 stroke #0a0400
+# Blood/sweat stain on seat
+ellipse 0.50,0.56 0.18,0.09 fill #3a0808 0.55
+# Scratch marks on seat
+line 0.32,0.42 0.38,0.50 stroke #1a0404 0.6
+line 0.58,0.42 0.64,0.50 stroke #1a0404 0.6
+
+# === Leather arm straps (west arm) ===
+rect 0.15,0.42 0.14,0.08 fill #6b4226 0.9
+rect 0.15,0.42 0.14,0.08 texfill polyhaven/brown_leather 0.7
+rect 0.15,0.42 0.14,0.08 stroke #3a2010
+# Metal buckle on west strap
+rect 0.20,0.44 0.05,0.04 fill #777777 0.9
+rect 0.20,0.44 0.05,0.04 stroke #444444
+# Strap rivet
+circle 0.17,0.46 0.014 fill #555555 0.9
+
+# === Leather arm straps (east arm) ===
+rect 0.71,0.42 0.14,0.08 fill #6b4226 0.9
+rect 0.71,0.42 0.14,0.08 texfill polyhaven/brown_leather 0.7
+rect 0.71,0.42 0.14,0.08 stroke #3a2010
+rect 0.75,0.44 0.05,0.04 fill #777777 0.9
+rect 0.75,0.44 0.05,0.04 stroke #444444
+circle 0.83,0.46 0.014 fill #555555 0.9
+
+# === Leather ankle/leg straps (south) ===
+rect 0.26,0.74 0.14,0.08 fill #6b4226 0.85
+rect 0.26,0.74 0.14,0.08 texfill polyhaven/brown_leather 0.65
+rect 0.26,0.74 0.14,0.08 stroke #3a2010
+rect 0.30,0.76 0.05,0.04 fill #777777 0.85
+rect 0.30,0.76 0.05,0.04 stroke #444444
+
+rect 0.60,0.74 0.14,0.08 fill #6b4226 0.85
+rect 0.60,0.74 0.14,0.08 texfill polyhaven/brown_leather 0.65
+rect 0.60,0.74 0.14,0.08 stroke #3a2010
+rect 0.64,0.76 0.05,0.04 fill #777777 0.85
+rect 0.64,0.76 0.05,0.04 stroke #444444
+
+# === Iron bolts anchoring chair to floor ===
+circle 0.22,0.82 0.022 fill #222222 0.95
+circle 0.78,0.82 0.022 fill #222222 0.95
+circle 0.22,0.22 0.018 fill #222222 0.9
+circle 0.78,0.22 0.018 fill #222222 0.9
+
+# === Fraying rope/strap ends dangling ===
+line 0.16,0.50 0.14,0.56 stroke #6b4226 0.7 width 1
+line 0.84,0.50 0.86,0.56 stroke #6b4226 0.7 width 1

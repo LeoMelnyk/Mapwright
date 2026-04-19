@@ -1,0 +1,67 @@
+name: Large Crucible
+category: Containers
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+lights: [{"preset":"brazier","x":1.0,"y":1.0}]
+placement: center
+room_types: foundry-great, refinery, forge
+typical_count: single
+clusters_with: forge, anvil, ingot-stack, slag-heap, crucible
+notes: Massive industrial crucible with molten metal glowing orange inside
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.70 z 0-2
+
+# Outer shadow pool
+ellipse 1.0,1.72 0.72,0.12 fill #1a1008 0.5
+# Thick stone/ceramic outer rim (heat-resistant)
+circle 1.0,1.0 0.80 fill #3a2820 0.9
+circle 1.0,1.0 0.80 texfill polyhaven/stone_wall 0.55
+circle 1.0,1.0 0.80 stroke #1a1008
+# Iron reinforcement band
+circle 1.0,1.0 0.78 stroke #333333 width 3
+# Middle refractory layer (darker)
+circle 1.0,1.0 0.70 fill #5c3a1e 0.95
+circle 1.0,1.0 0.70 stroke #2a1400
+# Inner lip (where metal pours)
+circle 1.0,1.0 0.62 fill #3a1808 0.95
+circle 1.0,1.0 0.62 stroke #1a0f00
+# Molten metal surface (bright orange/yellow)
+circle 1.0,1.0 0.58 fill #e85500 0.95
+circle 1.0,1.0 0.58 stroke #6a1808
+# Hot glowing inner
+circle 1.0,1.0 0.48 fill #ff8800 0.85
+circle 1.0,1.0 0.38 fill #ffaa00 0.75
+circle 1.0,1.0 0.28 fill #ffcc00 0.7
+# Brightest core
+circle 1.0,1.0 0.16 fill #ffee88 0.95
+# Surface ripples/slag floating
+poly 0.74,1.02 0.80,0.96 0.88,1.00 0.84,1.08 0.76,1.10 fill #4a2410 0.8
+poly 1.12,1.14 1.18,1.08 1.26,1.12 1.22,1.20 1.14,1.22 fill #4a2410 0.8
+poly 0.90,0.80 0.96,0.76 1.04,0.78 1.00,0.86 0.94,0.86 fill #4a2410 0.75
+# Bright spots (hottest points)
+circle 1.10,0.90 0.04 fill #ffff88 0.9
+circle 0.88,1.14 0.035 fill #ffff88 0.85
+# Pour spout (lip protruding south)
+poly 0.88,1.72 1.12,1.72 1.16,1.80 0.84,1.80 fill #3a2820 0.95
+poly 0.88,1.72 1.12,1.72 1.16,1.80 0.84,1.80 texfill polyhaven/stone_wall 0.6
+poly 0.88,1.72 1.12,1.72 1.16,1.80 0.84,1.80 stroke #1a1008
+# Hoist chains/handles on sides (east & west)
+line 0.20,1.00 0.34,1.00 stroke #333333 width 3
+line 1.80,1.00 1.66,1.00 stroke #333333 width 3
+circle 0.22,1.00 0.04 fill #555555 0.9
+circle 0.22,1.00 0.04 stroke #222222
+circle 1.78,1.00 0.04 fill #555555 0.9
+circle 1.78,1.00 0.04 stroke #222222
+# Heat distortion waves
+bezier 0.70,0.50 0.74,0.44 0.72,0.38 0.76,0.30 stroke #ff8800 0.3 width 2
+bezier 1.30,0.50 1.26,0.44 1.28,0.38 1.24,0.30 stroke #ff8800 0.3 width 2
+# Sparks
+circle 0.84,0.80 0.02 fill #ffaa00 0.85
+circle 1.20,0.82 0.018 fill #ffcc00 0.8
+# Scorch marks around base
+ellipse 0.40,1.60 0.14,0.06 fill #0a0404 0.5
+ellipse 1.60,1.62 0.12,0.05 fill #0a0404 0.5

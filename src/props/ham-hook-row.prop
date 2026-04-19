@@ -1,0 +1,58 @@
+name: Ham Hook Row
+category: Food
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 2.2
+placement: wall
+room_types: pantry, kitchen-keep, farmhouse-kitchen, tavern
+typical_count: single
+clusters_with: hanging-ham, pantry-shelf, hearth, bar-counter
+notes: Ceiling beam with iron hooks and cured hams dangling below — overhead prop, no floor shadow. Beam runs east-west along the north wall edge
+---
+# footprint 1x3: x range 0-3, y range 0-1
+# Overhead prop — beam mounted near ceiling, hams hang out of view below
+# === Faint diffuse drape shadow under the line of hams ===
+ellipse 0.55,0.62 0.18,0.10 fill #1a1a1a 0.15
+ellipse 1.35,0.62 0.18,0.10 fill #1a1a1a 0.15
+ellipse 2.15,0.62 0.18,0.10 fill #1a1a1a 0.15
+
+# === Wooden beam along the north edge (wall side) ===
+rect 0.05,0.12 2.90,0.10 texfill polyhaven/dark_wood 0.9
+rect 0.05,0.12 2.90,0.10 stroke #2a1400
+# Beam grain line
+line 0.05,0.17 2.95,0.17 stroke #3a1f00 0.5
+# Mounting brackets at beam ends
+rect 0.05,0.10 0.10,0.14 fill #333333 0.85
+rect 0.05,0.10 0.10,0.14 stroke #1a1a1a
+rect 2.85,0.10 0.10,0.14 fill #333333 0.85
+rect 2.85,0.10 0.10,0.14 stroke #1a1a1a
+
+# === Hook 1 (west) ===
+# Hook curve
+bezier 0.55,0.22 0.55,0.30 0.50,0.34 0.50,0.40 stroke #444444 width 3
+# Rope
+line 0.50,0.40 0.52,0.50 stroke #8b7355 width 2
+# Ham top oval
+ellipse 0.55,0.60 0.18,0.12 fill #8b3a2a 0.9
+ellipse 0.55,0.60 0.18,0.12 stroke #4a1a10
+arc 0.55,0.60 0.18 200 340 stroke #e8d0a0 0.7 width 2
+
+# === Hook 2 (center-west) ===
+bezier 1.35,0.22 1.35,0.30 1.30,0.34 1.30,0.40 stroke #444444 width 3
+line 1.30,0.40 1.32,0.50 stroke #8b7355 width 2
+ellipse 1.35,0.60 0.18,0.12 fill #7a3222 0.9
+ellipse 1.35,0.60 0.18,0.12 stroke #4a1a10
+arc 1.35,0.60 0.18 200 340 stroke #d8c098 0.7 width 2
+
+# === Hook 3 (center-east) ===
+bezier 2.15,0.22 2.15,0.30 2.10,0.34 2.10,0.40 stroke #444444 width 3
+line 2.10,0.40 2.12,0.50 stroke #8b7355 width 2
+ellipse 2.15,0.60 0.18,0.12 fill #8b3a2a 0.9
+ellipse 2.15,0.60 0.18,0.12 stroke #4a1a10
+arc 2.15,0.60 0.18 200 340 stroke #e8d0a0 0.7 width 2
+
+# === Hook 4 (east, empty — just the hook) ===
+bezier 2.75,0.22 2.75,0.30 2.70,0.34 2.70,0.40 stroke #444444 width 3
+bezier 2.75,0.22 2.75,0.30 2.70,0.34 2.70,0.40 stroke #667788 0.5 width 1

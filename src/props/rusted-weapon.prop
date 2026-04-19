@@ -1,0 +1,63 @@
+name: Rusted Weapon
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: slime-pit, battlefield-recent, dungeon, ruins, armory, sewer-junction
+typical_count: few
+clusters_with: dissolved-skeleton, rusted-manacle, bone-pile, victim-cocoon, ooze-puddle
+notes: Badly corroded sword half-eaten by acid — blade pointing north with pommel at south, pitted with rust holes
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Corroded sword — blade north, handle south
+
+# Rust stain halo on ground under weapon
+ellipse 0.50,0.60 0.20,0.34 fill #6a4020 0.25
+
+# Blade — irregular eaten edge (curved, corroded sword)
+poly 0.42,0.08 0.50,0.06 0.58,0.10 0.56,0.22 0.58,0.36 0.54,0.48 0.56,0.58 0.44,0.58 0.44,0.46 0.42,0.34 0.44,0.22 fill #6a4020 0.9
+poly 0.42,0.08 0.50,0.06 0.58,0.10 0.56,0.22 0.58,0.36 0.54,0.48 0.56,0.58 0.44,0.58 0.44,0.46 0.42,0.34 0.44,0.22 texfill polyhaven/rusty_metal 0.7
+poly 0.42,0.08 0.50,0.06 0.58,0.10 0.56,0.22 0.58,0.36 0.54,0.48 0.56,0.58 0.44,0.58 0.44,0.46 0.42,0.34 0.44,0.22 stroke #2a1408 width 1
+
+# Eaten-out notch (acid bite in the blade edge)
+cutout ellipse 0.58,0.28 0.04,0.05
+cutout circle 0.43,0.40 0.025
+
+# Outline the eaten notches
+ellipse 0.58,0.28 0.05,0.06 stroke #2a1408 width 1
+circle 0.43,0.40 0.035 stroke #2a1408 width 1
+
+# Center blood/rust groove down blade
+line 0.50,0.12 0.50,0.54 stroke #3a1808 0.8 width 1
+
+# Cross-guard (horizontal bar)
+rect 0.32,0.58 0.36,0.06 fill #5a3818 0.9
+rect 0.32,0.58 0.36,0.06 texfill polyhaven/rusty_metal 0.6
+rect 0.32,0.58 0.36,0.06 stroke #2a1408 width 1
+
+# Grip / handle wrap (dark wood bound with leather)
+rect 0.46,0.64 0.08,0.24 fill #3a2010 0.95
+rect 0.46,0.64 0.08,0.24 stroke #1a1008
+
+# Grip wrapping bands
+line 0.46,0.70 0.54,0.70 stroke #1a1008 width 1
+line 0.46,0.76 0.54,0.76 stroke #1a1008 width 1
+line 0.46,0.82 0.54,0.82 stroke #1a1008 width 1
+
+# Pommel (round knob at south)
+circle 0.50,0.90 0.06 fill #5a3818 0.95
+circle 0.50,0.90 0.06 texfill polyhaven/rusty_metal 0.55
+circle 0.50,0.90 0.06 stroke #2a1408 width 1
+
+# Rust pit holes along blade
+circle 0.50,0.18 0.018 fill #2a1408 0.85
+circle 0.48,0.36 0.020 fill #2a1408 0.85
+circle 0.52,0.50 0.016 fill #2a1408 0.8
+
+# Rust stains flaking off
+circle 0.36,0.24 0.020 fill #8a5020 0.7
+circle 0.62,0.40 0.018 fill #8a5020 0.65
+circle 0.40,0.52 0.016 fill #8a5020 0.6

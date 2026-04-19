@@ -1,0 +1,60 @@
+name: Card Catalog
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: wall
+room_types: library, study, wizard-sanctum, office
+typical_count: single
+clusters_with: bookshelf, desk, book-pile, lectern
+notes: Tall wooden card catalog cabinet with many small drawers; place against library walls
+---
+# === HITBOX ===
+hitbox rect 0.08,0.08 1.84,0.60 z 0-5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: cabinet top view — flat wood surface with crown molding at north (wall)
+# and at south edge, tiny brass handle dots hint at the drawer grid below.
+
+# Cabinet body (recessed, visible on front and sides)
+rect 0.08,0.04 1.84,0.88 fill #2a1400 0.35
+line 0.08,0.04 0.08,0.92 stroke #3a1f00
+line 1.92,0.04 1.92,0.92 stroke #3a1f00
+line 0.08,0.92 1.92,0.92 stroke #3a1f00
+
+# Crown molding overhang at north (wall side, wider than body)
+rect 0.04,0.04 1.92,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.04,0.04 1.92,0.12 stroke #1a1208
+
+# Flat top surface
+rect 0.08,0.14 1.84,0.60 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.08,0.14 1.84,0.60 stroke #2a1400
+
+# Wood grain lines on top
+line 0.14,0.30 1.86,0.30 stroke #3a1f00 0.18
+line 0.14,0.50 1.86,0.50 stroke #3a1f00 0.15
+
+# Subtle dust line near wall
+rect 0.10,0.16 1.80,0.08 fill #000000 0.05
+
+# Front edge lip (south) — trim strip before the face drops away
+rect 0.08,0.72 1.84,0.08 fill #3a1f00 0.35
+rect 0.08,0.72 1.84,0.08 stroke #2a1400
+
+# Drawer handle hints at south edge (small brass dots in a grid)
+# Row of handles visible just south of the top — the face of the cabinet
+# 6 columns x 2 rows of tiny brass knobs
+circle 0.28,0.84 0.02 fill #daa520 0.65
+circle 0.58,0.84 0.02 fill #daa520 0.65
+circle 0.88,0.84 0.02 fill #daa520 0.65
+circle 1.18,0.84 0.02 fill #daa520 0.65
+circle 1.48,0.84 0.02 fill #daa520 0.65
+circle 1.72,0.84 0.02 fill #daa520 0.65
+circle 0.28,0.90 0.02 fill #daa520 0.55
+circle 0.58,0.90 0.02 fill #daa520 0.55
+circle 0.88,0.90 0.02 fill #daa520 0.55
+circle 1.18,0.90 0.02 fill #daa520 0.55
+circle 1.48,0.90 0.02 fill #daa520 0.55
+circle 1.72,0.90 0.02 fill #daa520 0.55

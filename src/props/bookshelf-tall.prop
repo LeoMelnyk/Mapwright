@@ -1,0 +1,73 @@
+name: Tall Bookshelf
+category: Furniture
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: yes
+height: 8
+placement: wall
+room_types: demiplane-laboratory, library, study, wizard-sanctum
+typical_count: many
+clusters_with: bookshelf, book-pile, scroll-rack, lectern
+notes: Grander/taller variant of bookshelf for libraries and wizard sanctums. Only the flat wooden top is visible from above — no shelves or books. Features crown molding overhang, richer grain, and a small ornament on top.
+---
+# Hitbox: solid shelf body
+hitbox rect 0.05,0.05 2.9,0.80 z 0-8
+
+# footprint 1x3: x range 0-3, y range 0-1
+# Only the TOP of the cabinet is visible — no shelves, no books on shelves.
+
+# Recessed body shadow (behind the crown overhang, visible as a thin dark strip at south)
+rect 0.15,0.78 2.70,0.12 fill #1a0e00 0.55
+line 0.15,0.78 2.85,0.78 stroke #1a0e00
+
+# Main wooden top — generous overhang front and sides
+rect 0.0,0.0 3.0,0.78 texfill polyhaven/wood_cabinet_worn_long 0.88
+rect 0.0,0.0 3.0,0.78 stroke #2a1400
+
+# Crown molding strip along the north (wall) edge
+rect 0.0,0.0 3.0,0.10 fill #3a1f00 0.65
+rect 0.0,0.0 3.0,0.10 stroke #1a0e00
+line 0.0,0.10 3.0,0.10 stroke #5c3a1e 0.6
+
+# Decorative trim line running along the top, just inside the crown
+line 0.08,0.16 2.92,0.16 stroke #5c3a1e width 2
+line 0.08,0.18 2.92,0.18 stroke #2a1400 0.5
+
+# Wood grain striations across the flat top
+line 0.15,0.30 2.85,0.30 stroke #2a1400 0.35
+line 0.12,0.42 2.88,0.42 stroke #2a1400 0.30
+line 0.18,0.54 2.82,0.54 stroke #2a1400 0.35
+line 0.14,0.66 2.86,0.66 stroke #2a1400 0.28
+
+# Southern edge trim (front lip of the top, where the face panel begins below)
+line 0.0,0.74 3.0,0.74 stroke #5c3a1e width 2
+rect 0.0,0.74 3.0,0.04 fill #3a1f00 0.35
+
+# Corner pilaster caps (slightly darker wood squares at the four top corners)
+rect 0.02,0.02 0.14,0.14 fill #2a1400 0.55
+rect 0.02,0.02 0.14,0.14 stroke #1a0e00
+rect 2.84,0.02 0.14,0.14 fill #2a1400 0.55
+rect 2.84,0.02 0.14,0.14 stroke #1a0e00
+
+# Small top ornament — a brass candlestick centered on the top
+# Base disc
+circle 1.50,0.44 0.09 fill #8b6914 0.85
+circle 1.50,0.44 0.09 stroke #5a3a00
+# Stem (thin cross — seen as a dot from above, with a small flared cup)
+circle 1.50,0.44 0.05 fill #daa520 0.9
+circle 1.50,0.44 0.05 stroke #5a3a00
+# Tiny candle remnant on top
+circle 1.50,0.44 0.025 fill #e8dcc8 0.9
+circle 1.50,0.44 0.025 stroke #8b7355
+
+# Secondary ornament — a small closed book resting flat near the left end
+rect 0.38,0.38 0.22,0.16 fill #5c2a1e 0.85
+rect 0.38,0.38 0.22,0.16 stroke #2a1400
+line 0.60,0.40 0.60,0.52 stroke #3a1f00 0.7
+
+# Secondary ornament — a small stoppered bottle on the right end
+circle 2.55,0.44 0.06 fill #2a3a6a 0.80
+circle 2.55,0.44 0.06 stroke #12182a
+circle 2.55,0.40 0.025 fill #5c3a1e 0.9
+circle 2.55,0.40 0.025 stroke #2a1400

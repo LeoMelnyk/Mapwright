@@ -1,0 +1,95 @@
+name: Animal Pen Partition
+category: Architecture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.2
+placement: wall
+room_types: peasant-hovel, barn, stable, livestock-pen, farmhouse-yard, pig-sty, shepherds-shelter
+typical_count: few
+clusters_with: fence-wood-low, hay-pile, trough, animal-pen-partition
+notes: Rough wooden fence partition for livestock area — horizontal rails between stout posts. Low enough to corral but not a perimeter wall. Rural, rough-hewn.
+---
+# === HITBOX ===
+selection rect 0.08,0.36 1.84,0.28
+
+# footprint 1x2: x 0-2, y 0-1. Wall-mounted partition running east-west.
+
+# === Ground shadow beneath partition ===
+rect 0.14,0.64 1.72,0.06 fill #000000 0.2
+
+# === Three stout end/middle posts (vertical, rough hewn) ===
+# Post 1 (west end)
+rect 0.08,0.30 0.18,0.40 texfill polyhaven/dark_wood 0.92
+rect 0.08,0.30 0.18,0.40 stroke #1a0a00 width 1
+# Post grain
+line 0.17,0.34 0.17,0.68 stroke #2a1400 0.6
+# Post top end grain (knot circle)
+circle 0.17,0.36 0.025 stroke #2a1400 width 1
+circle 0.17,0.36 0.015 fill #3a1f00 0.6
+
+# Post 2 (center)
+rect 0.92,0.30 0.16,0.40 texfill polyhaven/dark_wood 0.92
+rect 0.92,0.30 0.16,0.40 stroke #1a0a00 width 1
+line 1.00,0.34 1.00,0.68 stroke #2a1400 0.6
+circle 1.00,0.36 0.025 stroke #2a1400 width 1
+circle 1.00,0.36 0.015 fill #3a1f00 0.6
+
+# Post 3 (east end)
+rect 1.74,0.30 0.18,0.40 texfill polyhaven/dark_wood 0.92
+rect 1.74,0.30 0.18,0.40 stroke #1a0a00 width 1
+line 1.83,0.34 1.83,0.68 stroke #2a1400 0.6
+circle 1.83,0.36 0.025 stroke #2a1400 width 1
+circle 1.83,0.36 0.015 fill #3a1f00 0.6
+
+# === Top horizontal rail (runs east-west across all posts) ===
+rect 0.08,0.40 1.84,0.08 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.40 1.84,0.08 stroke #3a1f00 width 1
+# Rail grain
+line 0.10,0.44 1.90,0.44 stroke #2a1400 0.5
+
+# === Middle horizontal rail ===
+rect 0.08,0.50 1.84,0.06 texfill polyhaven/weathered_planks 0.82
+rect 0.08,0.50 1.84,0.06 stroke #3a1f00 width 1
+line 0.10,0.53 1.90,0.53 stroke #2a1400 0.4
+
+# === Lower horizontal rail ===
+rect 0.08,0.58 1.84,0.06 texfill polyhaven/weathered_planks 0.82
+rect 0.08,0.58 1.84,0.06 stroke #3a1f00 width 1
+line 0.10,0.61 1.90,0.61 stroke #2a1400 0.4
+
+# === Rough tied cord / lashings at post joints (rural fencing detail) ===
+# West post lashings
+line 0.22,0.42 0.28,0.42 stroke #8b7355 width 2
+line 0.22,0.52 0.28,0.52 stroke #8b7355 width 2
+line 0.22,0.60 0.28,0.60 stroke #8b7355 width 2
+# Center post lashings
+line 0.98,0.42 1.04,0.42 stroke #8b7355 width 2
+line 0.98,0.52 1.04,0.52 stroke #8b7355 width 2
+line 0.98,0.60 1.04,0.60 stroke #8b7355 width 2
+# East post lashings
+line 1.80,0.42 1.86,0.42 stroke #8b7355 width 2
+line 1.80,0.52 1.86,0.52 stroke #8b7355 width 2
+line 1.80,0.60 1.86,0.60 stroke #8b7355 width 2
+
+# === Iron nails/spikes at post-rail joints ===
+circle 0.17,0.44 0.018 fill #333333 0.85
+circle 0.17,0.53 0.016 fill #333333 0.85
+circle 0.17,0.61 0.016 fill #333333 0.85
+circle 1.00,0.44 0.018 fill #333333 0.85
+circle 1.00,0.53 0.016 fill #333333 0.85
+circle 1.00,0.61 0.016 fill #333333 0.85
+circle 1.83,0.44 0.018 fill #333333 0.85
+circle 1.83,0.53 0.016 fill #333333 0.85
+circle 1.83,0.61 0.016 fill #333333 0.85
+
+# === Rough wear/scratches (livestock rubbed against rails) ===
+line 0.40,0.52 0.60,0.54 stroke #1a0800 0.5 width 1
+line 1.20,0.50 1.40,0.52 stroke #1a0800 0.5 width 1
+line 0.50,0.60 0.70,0.62 stroke #1a0800 0.4 width 1
+line 1.30,0.60 1.50,0.62 stroke #1a0800 0.4 width 1
+
+# === Muddy smudge at base ===
+ellipse 0.60,0.66 0.14,0.04 fill #3a2010 0.35
+ellipse 1.40,0.66 0.12,0.04 fill #3a2010 0.3

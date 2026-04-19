@@ -1,9 +1,37 @@
 // Custom theme editor — extracted from metadata.js
 import type { GridStyle, Theme } from '../../../types.js';
-import state, { pushUndo, markDirty, notify } from '../state.js';
+import state, { pushUndo, markDirty, notify as stateNotify, invalidateThemeCache } from '../state.js';
 import { THEMES } from '../../../render/index.js';
-import { invalidateGridCache } from '../canvas-view.js';
+import { applyThemeChange, snapshotCurrentTheme } from '../canvas-view.js';
 import { renderThemePreview, saveUserTheme } from '../theme-catalog.js';
+
+// ── Theme-edit batching ──────────────────────────────────────────────────
+// The panel fires many mutations per slider drag. We take ONE snapshot per
+// batch (first mutation after the previous flush) and diff against it when
+// the batch ends. `ensureCustomThemeObject` captures the baseline; the flush
+// happens inside the local `notify()` wrapper below so every notify call —
+// debounced or synchronous — invalidates only the caches actually affected
+// by the property bucket(s) that changed.
+let _pendingSnapshot: Theme | null = null;
+function _captureThemeSnapshot(): void {
+  _pendingSnapshot ??= snapshotCurrentTheme();
+}
+function _flushThemeEdit(): void {
+  if (_pendingSnapshot === null) return;
+  const prev = _pendingSnapshot;
+  _pendingSnapshot = null;
+  applyThemeChange(prev);
+}
+
+/**
+ * Local notify wrapper. Flushes any pending theme-edit snapshot (running the
+ * bucket-diff cache invalidator) before delegating to the state notifier so
+ * the subsequent render picks up only the caches that actually changed.
+ */
+function notify(): void {
+  _flushThemeEdit();
+  stateNotify();
+}
 
 // Theme property labels for the custom editor
 const THEME_PROPS = [
@@ -55,6 +83,31 @@ function saveCteCollapsed() {
 
 // Use setTimeout instead of requestIdleCallback — rIC gets starved by the animated render loop
 const idle = (cb: () => void) => setTimeout(cb, 0);
+
+// Debounced notify for continuous input events (slider drags). Coalesces rapid
+// theme changes into a single render after the user pauses. The local
+// `notify()` wrapper above handles the bucket-diff flush.
+let _notifyTimer: ReturnType<typeof setTimeout> | null = null;
+function debouncedNotify(ms = 150): void {
+  if (_notifyTimer) clearTimeout(_notifyTimer);
+  _notifyTimer = setTimeout(() => {
+    _notifyTimer = null;
+    notify();
+  }, ms);
+}
+/** Flush any pending debounced notify immediately (call before pushUndo/change). */
+function flushNotify(): void {
+  if (_notifyTimer) {
+    clearTimeout(_notifyTimer);
+    _notifyTimer = null;
+    notify();
+  } else {
+    // No pending debounce, but a synchronous caller may still have queued a
+    // theme mutation that hasn't been flushed. Fold the flush in so the
+    // following pushUndo()/notify() sees a clean slate.
+    _flushThemeEdit();
+  }
+}
 
 function buildCustomEditor(customEditorEl: HTMLElement) {
   const theme = getCustomThemeBase();
@@ -378,15 +431,14 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       t.gridLine = gridColorInput.value;
       const hex = gridColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = gridColorInput.value;
-      invalidateGridCache();
       markDirty();
-      notify();
+      debouncedNotify();
     });
     gridColorInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       const t = ensureCustomThemeObject();
       t.gridLine = gridColorInput.value;
-      invalidateGridCache();
       markDirty();
       notify();
       renderCustomThumb();
@@ -407,7 +459,6 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       const t = ensureCustomThemeObject();
       t.gridStyle = gridStyleSelect.value as GridStyle;
       syncGridConditions(gridStyleSelect.value);
-      invalidateGridCache();
       markDirty();
       notify();
       renderCustomThumb();
@@ -433,26 +484,24 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     };
     numInput.addEventListener('input', () => {
       sync(numInput.value, numInput);
-      invalidateGridCache();
       markDirty();
-      notify();
+      debouncedNotify();
     });
     numInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(numInput.value, numInput);
-      invalidateGridCache();
       renderCustomThumb();
     });
     rangeInput.addEventListener('input', () => {
       sync(rangeInput.value, rangeInput);
-      invalidateGridCache();
       markDirty();
-      notify();
+      debouncedNotify();
     });
     rangeInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(rangeInput.value, rangeInput);
-      invalidateGridCache();
       renderCustomThumb();
     });
   }
@@ -467,9 +516,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       const hex = shadingColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = shadingColorInput.value;
       markDirty();
-      notify();
+      debouncedNotify();
     });
     shadingColorInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       const t = ensureCustomThemeObject();
       t.outerShading ??= { color: 'rgba(0,0,0,0)', size: 0 };
@@ -497,9 +547,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     numInput.addEventListener('input', () => {
       sync(numInput.value, numInput);
       markDirty();
-      notify();
+      debouncedNotify();
     });
     numInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(numInput.value, numInput);
       renderCustomThumb();
@@ -507,9 +558,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     rangeInput.addEventListener('input', () => {
       sync(rangeInput.value, rangeInput);
       markDirty();
-      notify();
+      debouncedNotify();
     });
     rangeInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(rangeInput.value, rangeInput);
       renderCustomThumb();
@@ -530,9 +582,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       numInput.addEventListener('input', () => {
         sync(numInput.value, numInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       numInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(numInput.value, numInput);
         renderCustomThumb();
@@ -540,9 +593,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       rangeInput.addEventListener('input', () => {
         sync(rangeInput.value, rangeInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       rangeInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(rangeInput.value, rangeInput);
         renderCustomThumb();
@@ -562,9 +616,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       const hex = wShadowColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = wShadowColorInput.value;
       markDirty();
-      notify();
+      debouncedNotify();
     });
     wShadowColorInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       renderCustomThumb();
     });
@@ -590,9 +645,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     numInput.addEventListener('input', () => {
       sync(numInput.value, numInput);
       markDirty();
-      notify();
+      debouncedNotify();
     });
     numInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(numInput.value, numInput);
       renderCustomThumb();
@@ -600,9 +656,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     rangeInput.addEventListener('input', () => {
       sync(rangeInput.value, rangeInput);
       markDirty();
-      notify();
+      debouncedNotify();
     });
     rangeInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(rangeInput.value, rangeInput);
       renderCustomThumb();
@@ -623,9 +680,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       numInput.addEventListener('input', () => {
         sync(numInput.value, numInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       numInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(numInput.value, numInput);
         renderCustomThumb();
@@ -633,9 +691,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       rangeInput.addEventListener('input', () => {
         sync(rangeInput.value, rangeInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       rangeInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(rangeInput.value, rangeInput);
         renderCustomThumb();
@@ -665,9 +724,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       const hex = hatchColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = hatchColorInput.value;
       markDirty();
-      notify();
+      debouncedNotify();
     });
     hatchColorInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       const t = ensureCustomThemeObject();
       t.hatchColor = hatchColorInput.value;
@@ -699,9 +759,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     numInput.addEventListener('input', () => {
       sync(numInput.value, numInput);
       markDirty();
-      notify();
+      debouncedNotify();
     });
     numInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(numInput.value, numInput);
       renderCustomThumb();
@@ -709,9 +770,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
     rangeInput.addEventListener('input', () => {
       sync(rangeInput.value, rangeInput);
       markDirty();
-      notify();
+      debouncedNotify();
     });
     rangeInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       sync(rangeInput.value, rangeInput);
       renderCustomThumb();
@@ -732,9 +794,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       numInput.addEventListener('input', () => {
         sync(numInput.value, numInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       numInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(numInput.value, numInput);
         renderCustomThumb();
@@ -742,9 +805,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       rangeInput.addEventListener('input', () => {
         sync(rangeInput.value, rangeInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       rangeInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(rangeInput.value, rangeInput);
         renderCustomThumb();
@@ -763,9 +827,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       const hex = causticColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = causticColorInput.value;
       markDirty();
-      notify();
+      debouncedNotify();
     });
     causticColorInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       renderCustomThumb();
     });
@@ -786,9 +851,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       numInput.addEventListener('input', () => {
         sync(numInput.value, numInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       numInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(numInput.value, numInput);
         renderCustomThumb();
@@ -796,9 +862,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       rangeInput.addEventListener('input', () => {
         sync(rangeInput.value, rangeInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       rangeInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(rangeInput.value, rangeInput);
         renderCustomThumb();
@@ -817,9 +884,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       const hex = lavaCausticColorInput.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = lavaCausticColorInput.value;
       markDirty();
-      notify();
+      debouncedNotify();
     });
     lavaCausticColorInput.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       renderCustomThumb();
     });
@@ -840,9 +908,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       numInput.addEventListener('input', () => {
         sync(numInput.value, numInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       numInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(numInput.value, numInput);
         renderCustomThumb();
@@ -850,9 +919,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       rangeInput.addEventListener('input', () => {
         sync(rangeInput.value, rangeInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       rangeInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(rangeInput.value, rangeInput);
         renderCustomThumb();
@@ -874,9 +944,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       numInput.addEventListener('input', () => {
         sync(numInput.value, numInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       numInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(numInput.value, numInput);
         renderCustomThumb();
@@ -884,9 +955,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       rangeInput.addEventListener('input', () => {
         sync(rangeInput.value, rangeInput);
         markDirty();
-        notify();
+        debouncedNotify();
       });
       rangeInput.addEventListener('change', () => {
+        flushNotify();
         pushUndo();
         sync(rangeInput.value, rangeInput);
         renderCustomThumb();
@@ -904,9 +976,10 @@ function buildCustomEditor(customEditorEl: HTMLElement) {
       const hex = input.parentElement?.querySelector('.cte-color-hex');
       if (hex) hex.textContent = input.value;
       markDirty();
-      notify();
+      debouncedNotify();
     });
     input.addEventListener('change', () => {
+      flushNotify();
       pushUndo();
       const prop = input.dataset.labelProp;
       const t = ensureCustomThemeObject();
@@ -924,8 +997,8 @@ function getCustomThemeBase(): Theme {
   const t = state.dungeon.metadata.theme;
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   if (typeof t === 'object' && t !== null) return t;
-  const base = typeof t === 'string' ? THEMES[t] : THEMES['blue-parchment'];
-  return JSON.parse(JSON.stringify(base));
+  const base = (typeof t === 'string' ? THEMES[t] : null) ?? THEMES['blue-parchment'] ?? {};
+  return JSON.parse(JSON.stringify(base)) as Theme;
 }
 
 /**
@@ -936,13 +1009,28 @@ function getCustomThemeBase(): Theme {
  * - If it's a built-in preset, clones it into an inline custom object.
  */
 function ensureCustomThemeObject(): Theme {
+  // Capture a baseline snapshot the first time a mutation starts in this
+  // batch. The snapshot is diffed against the post-mutation theme by
+  // `_flushThemeEdit()` (invoked from debouncedNotify / flushNotify) so
+  // only the caches touched by the actual property change get busted.
+  _captureThemeSnapshot();
+
   let t = state.dungeon.metadata.theme;
   // Inline custom object — edit directly
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (typeof t === 'object' && t !== null) return t;
+  if (typeof t === 'object' && t !== null) {
+    // Evict normalized cache so getTheme() re-normalizes after in-place mutation.
+    // (Redundant with applyThemeChange's own eviction, but keeps getTheme() calls
+    // made BEFORE flush — e.g. the snapshot capture for the next batch — honest.)
+    invalidateThemeCache();
+    return t;
+  }
   // User-saved theme — edit the registry entry in place
 
-  if (typeof t === 'string' && t.startsWith('user:') && THEMES[t]) return THEMES[t]!;
+  if (typeof t === 'string' && t.startsWith('user:') && THEMES[t]) {
+    invalidateThemeCache();
+    return THEMES[t]!;
+  }
   // Built-in preset — clone into inline custom
   t = getCustomThemeBase();
   state.dungeon.metadata.theme = t;

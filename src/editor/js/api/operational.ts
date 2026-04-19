@@ -27,6 +27,7 @@ import {
   ApiValidationError,
   getTransform,
 } from './_shared.js';
+import { isPropAt } from '../prop-spatial.js';
 
 // ── Undo / Redo ──────────────────────────────────────────────────────────
 
@@ -1127,21 +1128,6 @@ export function getValidPropPositions(
   const roomCellSet = getApi()._collectRoomCells(label);
   if (!roomCellSet?.size) return { success: false, error: `Room "${label}" not found` };
 
-  const cells = state.dungeon.cells;
-  const searchRadius = 4;
-
-  // Helper: is cell (r, c) covered by any existing prop?
-  const isCovered = (r: number, c: number) => {
-    if (cells[r]?.[c]?.prop) return true;
-    for (let pr = Math.max(0, r - searchRadius); pr <= r; pr++) {
-      for (let pc = Math.max(0, c - searchRadius); pc <= c; pc++) {
-        const existing = cells[pr]?.[pc]?.prop;
-        if (existing && pr + existing.span[0] > r && pc + existing.span[1] > c) return true;
-      }
-    }
-    return false;
-  };
-
   const positions: [number, number][] = [];
   for (const key of roomCellSet) {
     const [r, c] = parseCellKey(key);
@@ -1152,7 +1138,7 @@ export function getValidPropPositions(
           valid = false;
           break outer;
         }
-        if (isCovered(r + dr, c + dc)) {
+        if (isPropAt(r + dr, c + dc)) {
           valid = false;
           break outer;
         }

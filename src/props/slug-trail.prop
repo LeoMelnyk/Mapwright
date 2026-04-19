@@ -1,0 +1,42 @@
+name: Slug Trail
+category: Terrain
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mushroom-grove, mushroom-cavern, cave-living, sewer-junction, swamp
+typical_count: few
+clusters_with: mycelium-web, moss-patch, mushroom, slug, fungus
+notes: Glistening wet silver-grey trail left by a large slug on the floor — subtle floor decal
+---
+# Outer faint moisture halo along the trail
+bezier 0.15,0.32 0.45,0.28 0.75,0.42 1.00,0.55 stroke #b8c8d0 0.18 width 6
+bezier 1.00,0.55 1.25,0.68 1.55,0.72 1.85,0.62 stroke #b8c8d0 0.18 width 6
+
+# Dark wet undertone (slightly darker than floor)
+bezier 0.15,0.32 0.45,0.28 0.75,0.42 1.00,0.55 stroke #3a4848 0.55 width 4
+bezier 1.00,0.55 1.25,0.68 1.55,0.72 1.85,0.62 stroke #3a4848 0.55 width 4
+
+# Main silver-white glisten line
+bezier 0.15,0.32 0.45,0.28 0.75,0.42 1.00,0.55 stroke #c8d8e0 0.75 width 3
+bezier 1.00,0.55 1.25,0.68 1.55,0.72 1.85,0.62 stroke #c8d8e0 0.75 width 3
+
+# Bright center streak (wettest highlight)
+bezier 0.15,0.32 0.45,0.28 0.75,0.42 1.00,0.55 stroke #e8f0f4 0.85 width 1
+bezier 1.00,0.55 1.25,0.68 1.55,0.72 1.85,0.62 stroke #e8f0f4 0.85 width 1
+
+# Wet droplet highlights along the trail
+ellipse 0.30,0.30 0.03,0.02 fill #e8f0f4 0.8
+ellipse 0.55,0.34 0.025,0.018 fill #e8f0f4 0.75
+ellipse 0.82,0.46 0.028,0.02 fill #e8f0f4 0.8
+ellipse 1.10,0.58 0.025,0.018 fill #e8f0f4 0.75
+ellipse 1.38,0.70 0.028,0.02 fill #e8f0f4 0.8
+ellipse 1.65,0.70 0.025,0.018 fill #e8f0f4 0.75
+
+# Trailing droplets dripping off the end
+circle 1.90,0.58 0.015 fill #c8d8e0 0.7
+circle 1.94,0.52 0.012 fill #c8d8e0 0.6
+
+# Faint crisscross of older trail
+bezier 0.20,0.58 0.50,0.62 0.80,0.60 1.10,0.48 stroke #a8b8c0 0.25 width 2

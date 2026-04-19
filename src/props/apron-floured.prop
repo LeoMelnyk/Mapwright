@@ -1,0 +1,68 @@
+name: Floured Apron
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1.2
+placement: wall
+room_types: bakery, farmhouse-kitchen, servants-kitchen, mill-grain
+typical_count: single
+clusters_with: apron-hung, apron-clay, peg-rail-wall, flour-sack, kneading-board, rolling-pin
+notes: Linen apron dusted with flour, hanging on a wall peg. Top-down — hook, oval bib, skirt, dangling ties with flour patches and handprints.
+---
+# === HITBOX ===
+selection rect 0.22,0.08 0.56,0.64
+
+# === Peg (small dark nub at top of wall) ===
+circle 0.50,0.08 0.028 fill #2a1400 0.9
+circle 0.50,0.08 0.028 stroke #1a0f00
+
+# === Neck strap loop over peg ===
+bezier 0.44,0.10 0.46,0.14 0.54,0.14 0.56,0.10 stroke #c8b898 width 2
+
+# === Apron bib (narrow top — pale linen) ===
+poly 0.44,0.14 0.56,0.14 0.58,0.28 0.42,0.28 fill #f0e4d0 0.95
+poly 0.44,0.14 0.56,0.14 0.58,0.28 0.42,0.28 texfill polyhaven/rough_linen 0.5
+poly 0.44,0.14 0.56,0.14 0.58,0.28 0.42,0.28 stroke #8b7355
+
+# === Apron main body (wider skirt) ===
+poly 0.42,0.28 0.58,0.28 0.72,0.50 0.70,0.68 0.30,0.68 0.28,0.50 fill #f4ecdc 0.95
+poly 0.42,0.28 0.58,0.28 0.72,0.50 0.70,0.68 0.30,0.68 0.28,0.50 texfill polyhaven/rough_linen 0.45
+poly 0.42,0.28 0.58,0.28 0.72,0.50 0.70,0.68 0.30,0.68 0.28,0.50 stroke #8b7355
+
+# === Waist tie strings ===
+bezier 0.28,0.50 0.20,0.46 0.14,0.48 0.08,0.52 stroke #c8b898 width 2
+bezier 0.72,0.50 0.80,0.46 0.86,0.48 0.92,0.52 stroke #c8b898 width 2
+# Waist tie knot
+circle 0.50,0.42 0.025 fill #8b7355 0.85
+
+# === Horizontal waist seam ===
+line 0.30,0.42 0.70,0.42 stroke #8b7355 0.55
+
+# === Pocket seams ===
+line 0.40,0.50 0.40,0.64 stroke #8b7355 0.5
+line 0.60,0.50 0.60,0.64 stroke #8b7355 0.5
+
+# === Hem ===
+line 0.30,0.66 0.70,0.66 stroke #8b7355 0.6
+
+# === Heavy flour dusting (white patches across lower skirt) ===
+ellipse 0.42,0.54 0.10,0.06 fill #ffffff 0.5
+ellipse 0.58,0.58 0.10,0.05 fill #ffffff 0.45
+ellipse 0.48,0.62 0.08,0.04 fill #ffffff 0.4
+# Bib flour patch
+ellipse 0.50,0.22 0.06,0.04 fill #ffffff 0.45
+
+# === Floury handprint smear ===
+bezier 0.36,0.48 0.40,0.52 0.44,0.50 0.46,0.46 stroke #ffffff 0.55 width 3
+bezier 0.54,0.54 0.58,0.58 0.62,0.56 0.64,0.52 stroke #ffffff 0.5 width 3
+
+# === Fine flour specks ===
+circle 0.36,0.58 0.015 fill #ffffff 0.8
+circle 0.64,0.50 0.012 fill #ffffff 0.75
+circle 0.50,0.60 0.012 fill #ffffff 0.75
+circle 0.44,0.40 0.01 fill #ffffff 0.7
+
+# === Fold crease down middle ===
+line 0.50,0.14 0.50,0.66 stroke #c8b898 0.35

@@ -1,0 +1,69 @@
+name: Water Barrel
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: wall
+room_types: ship-main-deck, ship-deck, galleon, ship-gun-deck
+typical_count: few
+clusters_with: barrel, rope-coil, mast-main, cargo-hatch
+notes: Large open-top water butt lashed on deck for crew drinking water; pale water surface with a wooden ladle resting across the rim.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.42 z 0-3
+
+# Footprint 1x1: x 0-1, y 0-1. Open-topped barrel seen from above.
+
+# === Wooden barrel staves (outer ring) ===
+circle 0.50,0.50 0.42 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.50 0.42 stroke #1a0f00
+
+# Iron hoop bands
+circle 0.50,0.50 0.42 stroke #444444 width 3
+circle 0.50,0.50 0.38 stroke #555555 0.7 width 1
+
+# Stave seam lines (radial, visible from above on the rim)
+line 0.50,0.10 0.50,0.22 stroke #2a1400 0.7
+line 0.50,0.78 0.50,0.90 stroke #2a1400 0.7
+line 0.10,0.50 0.22,0.50 stroke #2a1400 0.7
+line 0.78,0.50 0.90,0.50 stroke #2a1400 0.7
+line 0.22,0.22 0.30,0.30 stroke #2a1400 0.5
+line 0.78,0.22 0.70,0.30 stroke #2a1400 0.5
+line 0.22,0.78 0.30,0.70 stroke #2a1400 0.5
+line 0.78,0.78 0.70,0.70 stroke #2a1400 0.5
+
+# Inner rim lip (darker inside edge where staves meet water)
+circle 0.50,0.50 0.34 stroke #1a0f00 width 2
+
+# === Water surface (pale blue-green) ===
+circle 0.50,0.50 0.34 fill #6a9088 0.92
+circle 0.50,0.50 0.34 stroke #3a5048 width 1
+
+# Water highlight / sky reflection sheen
+arc 0.50,0.50 0.30 200 270 stroke #b8d4c8 0.6 width 2
+arc 0.50,0.50 0.26 215 255 stroke #d8ece4 0.5 width 1
+
+# Subtle ripple rings
+circle 0.46,0.46 0.08 stroke #4a6a60 0.4 width 1
+circle 0.54,0.54 0.06 stroke #4a6a60 0.35 width 1
+
+# Small floating debris specks
+circle 0.42,0.40 0.012 fill #3a2a1a 0.7
+circle 0.58,0.56 0.010 fill #3a2a1a 0.7
+
+# === Wooden ladle resting across the rim ===
+# Handle — crosses the barrel diagonally from NE rim outward to SW
+line 0.62,0.30 0.22,0.72 stroke #5c3a1e width 5
+line 0.62,0.30 0.22,0.72 stroke #2a1400 width 2
+# Ladle bowl at the NE end (resting inside the barrel)
+ellipse 0.66,0.28 0.08,0.06 texfill polyhaven/dark_wood 0.9
+ellipse 0.66,0.28 0.08,0.06 stroke #2a1400
+# Bowl interior shadow
+ellipse 0.66,0.28 0.05,0.035 fill #1a0800 0.75
+# Tiny water drip inside the bowl
+ellipse 0.66,0.28 0.03,0.02 fill #6a9088 0.8
+# Ladle grip end (outside the barrel)
+circle 0.20,0.74 0.035 fill #3a1f00 0.9
+circle 0.20,0.74 0.035 stroke #1a0f00

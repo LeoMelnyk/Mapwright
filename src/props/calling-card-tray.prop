@@ -1,0 +1,62 @@
+name: Calling Card Tray
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: house-noble-townhouse, mansion-grand-hall, mansion-dining, noble-solar
+typical_count: single
+clusters_with: sideboard, small-table, tea-service, fresh-flowers
+notes: Silver tray holding gentlemen's calling cards — upper class entryway decor
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.32,0.22
+
+# Silver tray (oval, polished)
+ellipse 0.5,0.5 0.32,0.22 fill #cccccc 0.95
+ellipse 0.5,0.5 0.32,0.22 stroke #444444
+# Tray inner ring (raised edge)
+ellipse 0.5,0.5 0.28,0.18 stroke #888888 0.7 width 1
+# Tray interior (polished darker)
+ellipse 0.5,0.5 0.26,0.16 fill #aaaaaa 0.92
+ellipse 0.5,0.5 0.26,0.16 stroke #666666
+# Engraved pattern (scroll design)
+arc 0.5,0.5 0.24 30 70 stroke #444444 0.7 width 1
+arc 0.5,0.5 0.24 110 150 stroke #444444 0.7 width 1
+arc 0.5,0.5 0.24 210 250 stroke #444444 0.7 width 1
+arc 0.5,0.5 0.24 290 330 stroke #444444 0.7 width 1
+# Central monogram
+poly 0.48,0.48 0.52,0.48 0.52,0.52 0.48,0.52 stroke #444444 0.7 width 1
+# === Cards stacked ===
+# Card 1 (slightly angled)
+rect 0.30,0.44 0.20,0.14 fill #f0e4d0 0.95 rotate -10
+rect 0.30,0.44 0.20,0.14 stroke #8b7355 rotate -10
+# Card 1 text
+line 0.34,0.48 0.46,0.48 stroke #2a1400 0.7 rotate -10
+line 0.34,0.52 0.44,0.52 stroke #2a1400 0.5 rotate -10
+# Card 2 (underneath, peeking)
+rect 0.44,0.42 0.20,0.14 fill #e8dcc8 0.95 rotate 5
+rect 0.44,0.42 0.20,0.14 stroke #8b7355 rotate 5
+# Card 2 text
+line 0.48,0.48 0.60,0.48 stroke #2a1400 0.7 rotate 5
+line 0.48,0.52 0.58,0.52 stroke #2a1400 0.5 rotate 5
+# Card 3 (bottom, askew)
+rect 0.52,0.50 0.22,0.14 fill #f0e4d0 0.95 rotate 15
+rect 0.52,0.50 0.22,0.14 stroke #8b7355 rotate 15
+# Ornate calligraphy on top visible card
+poly 0.38,0.48 0.40,0.46 0.42,0.48 0.40,0.50 fill #2a1400 0.7 rotate -10
+# Small engraved corner decorations on cards
+circle 0.32,0.46 0.01 fill #2a1400 0.6 rotate -10
+# Silver sheen highlights
+arc 0.5,0.5 0.28 210 260 stroke #ffffff 0.7 width 1
+arc 0.5,0.5 0.20 220 260 stroke #ffffff 0.5 width 1
+# Tarnish patches
+circle 0.28,0.58 0.018 fill #555555 0.3
+circle 0.72,0.42 0.015 fill #555555 0.3
+# Small decorative handle ends (ornate)
+poly 0.16,0.50 0.20,0.46 0.20,0.54 fill #daa520 0.85
+poly 0.16,0.50 0.20,0.46 0.20,0.54 stroke #5a3a00
+poly 0.84,0.50 0.80,0.46 0.80,0.54 fill #daa520 0.85
+poly 0.84,0.50 0.80,0.46 0.80,0.54 stroke #5a3a00

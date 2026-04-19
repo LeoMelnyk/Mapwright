@@ -1,0 +1,75 @@
+name: Main Mast
+category: Nautical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 12
+placement: center
+room_types: ship-gun-deck, ship-main-deck, ship-cargo-hold
+typical_count: single
+clusters_with: capstan, cannon, mast-main, anchor, dock-post
+notes: Thick ship mast seen from above — large circular wooden pillar with rope rigging
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.45 z 0-12
+
+# Mast base reinforcement (wider iron band at deck level)
+circle 1.0,1.0 0.50 fill #1a0f00 0.4
+circle 1.0,1.0 0.50 stroke #000000
+# Main mast trunk (thick wood column)
+circle 1.0,1.0 0.44 texfill polyhaven/dark_wood 0.92
+circle 1.0,1.0 0.44 fill #3a1f00 0.4
+circle 1.0,1.0 0.44 stroke #1a0f00
+# Mast wood grain (vertical lines — visible on top view as curves)
+arc 1.0,1.0 0.38 30 150 stroke #5c3a1e 0.5 width 1
+arc 1.0,1.0 0.30 200 340 stroke #5c3a1e 0.5 width 1
+arc 1.0,1.0 0.22 30 150 stroke #5c3a1e 0.5 width 1
+# Iron reinforcement band (around mast)
+circle 1.0,1.0 0.44 stroke #333333 width 3
+circle 1.0,1.0 0.40 stroke #555555 0.7 width 1
+# Second iron band
+circle 1.0,1.0 0.36 stroke #333333 width 2
+# Core/heart of mast (darkest center ring)
+circle 1.0,1.0 0.08 fill #1a0800 0.9
+# Wood age rings
+circle 1.0,1.0 0.20 stroke #3a1f00 0.4 width 1
+circle 1.0,1.0 0.15 stroke #3a1f00 0.4 width 1
+# Rope coils wound around base (thick rigging)
+arc 1.0,1.0 0.46 0 90 stroke #6b4e2e width 3
+arc 1.0,1.0 0.46 90 180 stroke #4a3820 width 3
+arc 1.0,1.0 0.46 180 270 stroke #6b4e2e width 3
+arc 1.0,1.0 0.46 270 360 stroke #4a3820 width 3
+# Rope texture segmentation
+line 0.84,0.64 0.88,0.62 stroke #3a2010 width 1
+line 1.14,0.62 1.18,0.66 stroke #3a2010 width 1
+line 1.36,0.86 1.38,0.90 stroke #3a2010 width 1
+line 1.36,1.14 1.38,1.10 stroke #3a2010 width 1
+line 1.14,1.38 1.18,1.34 stroke #3a2010 width 1
+line 0.84,1.38 0.88,1.36 stroke #3a2010 width 1
+line 0.64,1.14 0.62,1.10 stroke #3a2010 width 1
+line 0.64,0.86 0.62,0.90 stroke #3a2010 width 1
+# Rope ends trailing off
+bezier 0.56,0.48 0.48,0.40 0.42,0.32 0.34,0.28 stroke #6b4e2e width 3
+bezier 1.44,0.52 1.52,0.44 1.60,0.36 1.68,0.30 stroke #6b4e2e width 3
+bezier 1.48,1.44 1.56,1.52 1.62,1.60 1.70,1.68 stroke #6b4e2e width 3
+bezier 0.52,1.52 0.44,1.60 0.36,1.66 0.28,1.72 stroke #6b4e2e width 3
+# Belaying pins (around mast base — wooden pegs for tying ropes)
+rect 0.60,0.48 0.04,0.08 fill #5c3a1e 0.9
+rect 0.60,0.48 0.04,0.08 stroke #2a1400
+rect 1.36,0.48 0.04,0.08 fill #5c3a1e 0.9
+rect 1.36,0.48 0.04,0.08 stroke #2a1400
+rect 1.36,1.44 0.04,0.08 fill #5c3a1e 0.9
+rect 1.36,1.44 0.04,0.08 stroke #2a1400
+rect 0.60,1.44 0.04,0.08 fill #5c3a1e 0.9
+rect 0.60,1.44 0.04,0.08 stroke #2a1400
+# Iron rivets/bolts on bands
+circle 1.0,0.58 0.018 fill #222222 0.9
+circle 1.42,1.0 0.018 fill #222222 0.9
+circle 1.0,1.42 0.018 fill #222222 0.9
+circle 0.58,1.0 0.018 fill #222222 0.9
+# Wood highlight (rim)
+arc 1.0,1.0 0.42 210 260 stroke #8b6914 0.6 width 1
+# Tar staining (waterproofing)
+ellipse 0.80,0.80 0.10,0.06 fill #1a0808 0.4
+ellipse 1.20,1.20 0.08,0.05 fill #1a0808 0.4

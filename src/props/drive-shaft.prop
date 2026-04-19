@@ -1,0 +1,78 @@
+name: Drive Shaft
+category: Industrial
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: center
+room_types: mill-grain, mill-lumber
+typical_count: single
+clusters_with: grain-hopper, millstone, water-wheel, gear
+notes: Horizontal power shaft that transmits rotation from water wheel to machinery; cylinder with iron bearing collars and wooden trestle supports at each end
+---
+# === HITBOX ===
+selection rect 0.12,0.38 2.76,0.26
+
+# West support frame (trestle base + cap block)
+rect 0.05,0.28 0.28,0.44 texfill polyhaven/dark_wood 0.85
+rect 0.05,0.28 0.28,0.44 stroke #2a1400
+# Cap block top plate
+rect 0.05,0.28 0.28,0.10 texfill polyhaven/weathered_planks 0.80
+rect 0.05,0.28 0.28,0.10 stroke #2a1400
+# Mortise peg
+circle 0.19,0.50 0.03 fill #3a1f00 0.85
+
+# East support frame
+rect 2.67,0.28 0.28,0.44 texfill polyhaven/dark_wood 0.85
+rect 2.67,0.28 0.28,0.44 stroke #2a1400
+rect 2.67,0.28 0.28,0.10 texfill polyhaven/weathered_planks 0.80
+rect 2.67,0.28 0.28,0.10 stroke #2a1400
+circle 2.81,0.50 0.03 fill #3a1f00 0.85
+
+# Main shaft body (long horizontal cylinder)
+rect 0.28,0.40 2.44,0.22 texfill polyhaven/dark_wood 0.88
+rect 0.28,0.40 2.44,0.22 stroke #2a1400
+# Shaft lengthwise grain highlight (upper)
+line 0.30,0.44 2.70,0.44 stroke #5c3a1e 0.45
+# Shaft lengthwise grain shadow (lower)
+line 0.30,0.58 2.70,0.58 stroke #1a1208 0.55
+
+# Iron bearing collar — west end (over west support)
+rect 0.24,0.36 0.12,0.30 texfill polyhaven/metal_plate 0.88
+rect 0.24,0.36 0.12,0.30 stroke #222222
+# Collar bolt heads
+circle 0.30,0.40 0.022 fill #444444 0.90
+circle 0.30,0.62 0.022 fill #444444 0.90
+
+# Iron bearing collar — middle-west
+rect 0.86,0.36 0.10,0.30 texfill polyhaven/metal_plate 0.88
+rect 0.86,0.36 0.10,0.30 stroke #222222
+circle 0.91,0.40 0.020 fill #444444 0.85
+circle 0.91,0.62 0.020 fill #444444 0.85
+
+# Iron bearing collar — middle
+rect 1.45,0.36 0.10,0.30 texfill polyhaven/metal_plate 0.88
+rect 1.45,0.36 0.10,0.30 stroke #222222
+circle 1.50,0.40 0.020 fill #444444 0.85
+circle 1.50,0.62 0.020 fill #444444 0.85
+
+# Iron bearing collar — middle-east
+rect 2.04,0.36 0.10,0.30 texfill polyhaven/metal_plate 0.88
+rect 2.04,0.36 0.10,0.30 stroke #222222
+circle 2.09,0.40 0.020 fill #444444 0.85
+circle 2.09,0.62 0.020 fill #444444 0.85
+
+# Iron bearing collar — east end (over east support)
+rect 2.64,0.36 0.12,0.30 texfill polyhaven/metal_plate 0.88
+rect 2.64,0.36 0.12,0.30 stroke #222222
+circle 2.70,0.40 0.022 fill #444444 0.90
+circle 2.70,0.62 0.022 fill #444444 0.90
+
+# Shaft end caps (circular disc visible at each terminus)
+circle 0.28,0.51 0.11 fill #3a1f00 0.85
+circle 0.28,0.51 0.11 stroke #1a1208
+circle 0.28,0.51 0.04 fill #222222 0.9
+circle 2.72,0.51 0.11 fill #3a1f00 0.85
+circle 2.72,0.51 0.11 stroke #1a1208
+circle 2.72,0.51 0.04 fill #222222 0.9

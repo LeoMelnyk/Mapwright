@@ -1,0 +1,83 @@
+name: Giant Mushroom
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: floor
+room_types: mushroom-cavern, mushroom-grove, cave, underdark-outpost
+typical_count: few
+clusters_with: glowcap-mushroom, fungal-growth, giant-mushroom, slime-pit
+notes: Large mushroom with wide cap — underdark/cavern landmark
+---
+# === HITBOX ===
+hitbox circle 1.0,0.86 0.80 z 0-3
+
+# Thick stem (visible at base)
+rect 0.80,1.20 0.40,0.60 fill #d4c8a0 0.95
+rect 0.80,1.20 0.40,0.60 stroke #6a5840
+# Stem texture (vertical fibers)
+line 0.86,1.24 0.86,1.80 stroke #a08868 0.6
+line 0.94,1.22 0.94,1.80 stroke #a08868 0.6
+line 1.06,1.22 1.06,1.80 stroke #a08868 0.6
+line 1.14,1.24 1.14,1.80 stroke #a08868 0.6
+# Stem bulbous base
+ellipse 1.0,1.80 0.24,0.10 fill #c8b890 0.95
+ellipse 1.0,1.80 0.24,0.10 stroke #6a5840
+# Stem veil ring (skirt around stem)
+ellipse 1.0,1.24 0.24,0.05 fill #a08868 0.9
+ellipse 1.0,1.24 0.24,0.05 stroke #5a4828
+# === Large cap (top-down view — circle) ===
+circle 1.0,0.86 0.86 fill #8a4030 0.95
+circle 1.0,0.86 0.86 stroke #4a2010
+# Cap second layer (shadow gradient)
+circle 1.0,0.86 0.72 fill #a04838 0.9
+# Cap highlights
+arc 1.0,0.86 0.80 210 260 stroke #c8684a 0.7 width 2
+# Cap center (darker spot — depression)
+circle 1.0,0.86 0.14 fill #6a2820 0.9
+circle 1.0,0.86 0.14 stroke #3a1008
+# === Radial gills from center ===
+line 1.0,0.86 1.0,0.06 stroke #4a2010 0.5
+line 1.0,0.86 1.0,1.66 stroke #4a2010 0.5
+line 1.0,0.86 0.20,0.86 stroke #4a2010 0.5
+line 1.0,0.86 1.80,0.86 stroke #4a2010 0.5
+line 1.0,0.86 0.40,0.26 stroke #4a2010 0.5
+line 1.0,0.86 1.60,0.26 stroke #4a2010 0.5
+line 1.0,0.86 0.40,1.46 stroke #4a2010 0.5
+line 1.0,0.86 1.60,1.46 stroke #4a2010 0.5
+# Intermediate gills
+line 1.0,0.86 0.30,0.56 stroke #4a2010 0.4
+line 1.0,0.86 1.70,0.56 stroke #4a2010 0.4
+line 1.0,0.86 0.30,1.16 stroke #4a2010 0.4
+line 1.0,0.86 1.70,1.16 stroke #4a2010 0.4
+# White/pale spots (mushroom warts on cap)
+circle 0.70,0.50 0.06 fill #e8dcc8 0.9
+circle 0.70,0.50 0.06 stroke #8a7060
+circle 1.30,0.50 0.05 fill #e8dcc8 0.9
+circle 1.30,0.50 0.05 stroke #8a7060
+circle 0.60,1.00 0.05 fill #e8dcc8 0.9
+circle 0.60,1.00 0.05 stroke #8a7060
+circle 1.40,1.00 0.05 fill #e8dcc8 0.9
+circle 1.40,1.00 0.05 stroke #8a7060
+circle 1.0,0.40 0.04 fill #e8dcc8 0.85
+circle 0.50,0.80 0.04 fill #e8dcc8 0.85
+circle 1.50,0.80 0.04 fill #e8dcc8 0.85
+# Small warts
+circle 0.40,0.60 0.02 fill #d4c4a8 0.8
+circle 1.60,1.10 0.025 fill #d4c4a8 0.8
+circle 0.80,1.30 0.025 fill #d4c4a8 0.8
+# Cap edge curl (rolled under)
+arc 1.0,0.86 0.84 0 180 stroke #3a1008 0.6 width 2
+# Cap sheen
+arc 1.0,0.86 0.70 220 260 stroke #d88858 0.4 width 1
+# Spores dropping (small motes)
+circle 0.50,1.40 0.01 fill #aaaaaa 0.5
+circle 1.50,1.30 0.008 fill #aaaaaa 0.5
+circle 0.80,1.50 0.01 fill #aaaaaa 0.5
+# Small mushrooms sprouting at base
+ellipse 0.82,1.82 0.06,0.04 fill #8a4030 0.9
+ellipse 0.82,1.82 0.06,0.04 stroke #4a2010
+ellipse 1.18,1.82 0.06,0.04 fill #8a4030 0.9
+ellipse 1.18,1.82 0.06,0.04 stroke #4a2010

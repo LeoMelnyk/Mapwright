@@ -1,0 +1,58 @@
+name: Hairbrush Set
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-bedroom-master, bedchamber, noble-suite, dressing-room
+typical_count: single
+clusters_with: jewelry-box, table-small, mirror
+notes: Silver hairbrush, matching hand mirror, and ornate comb laid out on a small velvet tray. Place on a dresser or vanity surface.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Velvet tray base
+rect 0.10,0.18 0.80,0.64 texfill polyhaven/velour_velvet 0.85
+rect 0.10,0.18 0.80,0.64 fill #4a0828 0.3
+rect 0.10,0.18 0.80,0.64 stroke #2a0418
+# Inner tray trim (gold edge)
+rect 0.13,0.21 0.74,0.58 stroke #daa520 0.7 width 1
+# Hand mirror (top-left) — oval with handle pointing south-west
+ellipse 0.32,0.34 0.10,0.08 fill #c0c0c0 0.92
+ellipse 0.32,0.34 0.10,0.08 stroke #666666
+# Mirror reflective face (lighter inner oval)
+ellipse 0.32,0.34 0.07,0.055 fill #e0e8f0 0.7
+ellipse 0.32,0.34 0.07,0.055 stroke #8899aa 0.6
+# Mirror handle
+poly 0.28,0.42 0.32,0.40 0.22,0.62 0.18,0.60 fill #c0c0c0 0.9
+poly 0.28,0.42 0.32,0.40 0.22,0.62 0.18,0.60 stroke #666666
+# Ornate filigree on handle
+circle 0.22,0.58 0.018 fill #daa520 0.8
+# Hairbrush (top-right) — oval back with bristle field
+ellipse 0.66,0.34 0.12,0.08 fill #c0c0c0 0.92
+ellipse 0.66,0.34 0.12,0.08 stroke #666666
+# Bristle dots (darker)
+circle 0.60,0.32 0.012 fill #3a1f00 0.7
+circle 0.66,0.30 0.012 fill #3a1f00 0.7
+circle 0.72,0.34 0.012 fill #3a1f00 0.7
+circle 0.64,0.36 0.012 fill #3a1f00 0.7
+circle 0.70,0.38 0.012 fill #3a1f00 0.7
+# Brush handle south
+poly 0.62,0.42 0.70,0.42 0.74,0.64 0.66,0.66 fill #c0c0c0 0.9
+poly 0.62,0.42 0.70,0.42 0.74,0.64 0.66,0.66 stroke #666666
+# Ornate comb (bottom center) — long with teeth pointing south
+rect 0.30,0.62 0.40,0.05 fill #c0c0c0 0.92
+rect 0.30,0.62 0.40,0.05 stroke #666666
+# Comb teeth
+line 0.32,0.67 0.32,0.76 stroke #c0c0c0 width 1
+line 0.36,0.67 0.36,0.76 stroke #c0c0c0 width 1
+line 0.40,0.67 0.40,0.76 stroke #c0c0c0 width 1
+line 0.44,0.67 0.44,0.76 stroke #c0c0c0 width 1
+line 0.48,0.67 0.48,0.76 stroke #c0c0c0 width 1
+line 0.52,0.67 0.52,0.76 stroke #c0c0c0 width 1
+line 0.56,0.67 0.56,0.76 stroke #c0c0c0 width 1
+line 0.60,0.67 0.60,0.76 stroke #c0c0c0 width 1
+line 0.64,0.67 0.64,0.76 stroke #c0c0c0 width 1
+line 0.68,0.67 0.68,0.76 stroke #c0c0c0 width 1
+# Gold inlay on comb spine
+rect 0.38,0.635 0.24,0.02 fill #daa520 0.85

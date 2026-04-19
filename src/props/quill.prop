@@ -1,0 +1,32 @@
+name: Quill
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: bardic-hall, counting-house, courthouse-chamber, library, study, mansion-study, guildhall, scriptorium-mundane, scriptorium-dark, mansion-library
+typical_count: few
+clusters_with: inkwell, quill-and-ink, parchment-scrap, desk, ledger-stack, document-stack
+notes: Single feather quill resting on a desk; tiny accent — often paired with inkwell
+---
+# === HITBOX ===
+selection rect 0.18,0.32 0.64,0.22
+
+# Feather shaft (thin bezier, slight diagonal lay)
+bezier 0.24,0.62 0.38,0.48 0.58,0.40 0.82,0.30 stroke #e8dcc8 width 2
+# Feather barbs — soft plume on upper half of shaft
+bezier 0.30,0.54 0.36,0.40 0.48,0.34 0.58,0.30 stroke #d4c4a8 0.7 width 1
+bezier 0.34,0.50 0.40,0.38 0.52,0.32 0.62,0.28 stroke #d4c4a8 0.6 width 1
+bezier 0.38,0.46 0.46,0.34 0.58,0.30 0.68,0.26 stroke #c8b898 0.55 width 1
+# Barb filaments — short angled lines
+line 0.40,0.48 0.44,0.42 stroke #c8b898 0.4
+line 0.46,0.44 0.50,0.38 stroke #c8b898 0.4
+line 0.52,0.40 0.56,0.34 stroke #c8b898 0.4
+line 0.58,0.36 0.62,0.32 stroke #c8b898 0.4
+# Nib tip (inked, darker)
+line 0.22,0.64 0.18,0.68 stroke #1a1010 width 2
+circle 0.19,0.66 0.015 fill #1a1010 0.9
+# Tiny ink droplet/smudge near nib
+circle 0.22,0.70 0.02 fill #2a1a40 0.6

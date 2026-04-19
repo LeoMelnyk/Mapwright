@@ -1,0 +1,63 @@
+name: Fabric Display Rack
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: market-stall, market, vendor-row, bazaar, shop-merchant, tailor
+typical_count: few
+clusters_with: fabric-bolt, stall-counter, display-case-small, canvas-awning
+notes: Wall-mounted frame rack with bolts of cloth on a horizontal rod. North edge attaches to wall.
+---
+# === HITBOX ===
+selection rect 0.08,0.06 1.84,0.50
+
+# Footprint 1x2: x 0-2, y 0-1. Wide wall-mounted cloth-bolt rack. Wall at north.
+
+# Wooden frame top (wall-mounted board)
+rect 0.08,0.06 1.84,0.14 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.06 1.84,0.14 stroke #2a1400
+
+# Frame corner brackets
+rect 0.08,0.06 0.10,0.14 fill #5c3a1e 0.9
+rect 1.82,0.06 0.10,0.14 fill #5c3a1e 0.9
+
+# Horizontal rod crossing in front of frame (dark metal)
+rect 0.12,0.22 1.76,0.04 fill #444444 0.9
+rect 0.12,0.22 1.76,0.04 stroke #222222
+
+# Rod end caps (brass finials)
+circle 0.12,0.24 0.045 fill #daa520 0.9
+circle 0.12,0.24 0.045 stroke #5a3a00
+circle 1.88,0.24 0.045 fill #daa520 0.9
+circle 1.88,0.24 0.045 stroke #5a3a00
+
+# Bolt tops visible — circular cross-section of rolled fabric
+# Bolt 1 — burgundy
+ellipse 0.30,0.38 0.11,0.09 fill #5a1a1a 0.95
+ellipse 0.30,0.38 0.11,0.09 stroke #2a0a0a
+ellipse 0.30,0.38 0.07,0.06 fill #7a2828 0.7
+# Bolt 2 — forest green
+ellipse 0.58,0.40 0.11,0.09 fill #2a5a28 0.95
+ellipse 0.58,0.40 0.11,0.09 stroke #0f2810
+ellipse 0.58,0.40 0.07,0.06 fill #3a7a28 0.7
+# Bolt 3 — ochre
+ellipse 0.86,0.38 0.11,0.09 fill #d0a020 0.95
+ellipse 0.86,0.38 0.11,0.09 stroke #6a4e10
+ellipse 0.86,0.38 0.07,0.06 fill #e8c040 0.7
+# Bolt 4 — deep blue
+ellipse 1.14,0.40 0.11,0.09 fill #2a3a7a 0.95
+ellipse 1.14,0.40 0.11,0.09 stroke #101a40
+ellipse 1.14,0.40 0.07,0.06 fill #4a5aaa 0.7
+# Bolt 5 — cream
+ellipse 1.42,0.38 0.11,0.09 fill #e8dcc8 0.95
+ellipse 1.42,0.38 0.11,0.09 stroke #8b7355
+ellipse 1.42,0.38 0.07,0.06 fill #f0e8d8 0.7
+# Bolt 6 — purple
+ellipse 1.70,0.40 0.11,0.09 fill #4a1a5a 0.95
+ellipse 1.70,0.40 0.11,0.09 stroke #200828
+ellipse 1.70,0.40 0.07,0.06 fill #6a2a7a 0.7
+
+# Shadow suggesting drape hanging below rod (hint of fabric out of view)
+rect 0.12,0.46 1.76,0.04 fill #000000 0.18

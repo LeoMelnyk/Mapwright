@@ -1,0 +1,48 @@
+name: Water Bowl
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: kiln-pottery, workshop, mill-workshop, kitchen, servants-kitchen, shrine
+typical_count: few
+clusters_with: sponge, wheel-pottery, clay-bin, bucket, clay-lump
+notes: Shallow ceramic water bowl. Concentric circles — outer clay rim, inner water surface with subtle reflection highlight.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.34
+
+# === Outer bowl body (clay) ===
+circle 0.50,0.50 0.38 fill #a85e28 0.9
+circle 0.50,0.50 0.38 stroke #5a2f14 width 2
+
+# === Bowl rim (inner clay lip) ===
+circle 0.50,0.50 0.34 fill #8a4818 0.85
+circle 0.50,0.50 0.34 stroke #3a1f08
+
+# === Inner bowl (ceramic interior — slightly darker clay) ===
+circle 0.50,0.50 0.30 fill #6a3818 0.9
+circle 0.50,0.50 0.30 stroke #3a1f08
+
+# === Water surface (pale blue) ===
+circle 0.50,0.50 0.26 fill #6090a8 0.6
+circle 0.50,0.50 0.26 stroke #3a5878 0.5
+
+# === Clay-tinted water haze (pottery water gets muddy) ===
+circle 0.50,0.50 0.22 fill #7090a0 0.35
+
+# === Small reflection highlight arc (light catching water surface) ===
+arc 0.50,0.50 0.22 200 250 stroke #b8d0e0 0.75 width 2
+arc 0.50,0.50 0.18 210 240 stroke #d8e8f0 0.5 width 1
+
+# === Tiny ripple rings (subtle) ===
+arc 0.44,0.54 0.06 0 360 stroke #8098a8 0.35 width 1
+arc 0.58,0.46 0.04 0 360 stroke #8098a8 0.35 width 1
+
+# === Small clay crumb floating on surface ===
+circle 0.42,0.44 0.015 fill #6a5040 0.7
+
+# === Outer rim highlight (catches light on south/front side) ===
+arc 0.50,0.50 0.38 30 150 stroke #c87848 0.5 width 1

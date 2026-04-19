@@ -1,0 +1,65 @@
+name: Web Strand
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: cave-drow-outpost, spider-lair, cave, cavern, cabin-abandoned
+typical_count: many
+clusters_with: web-strand, chitin-barrier, glowcap-mushroom, nest-of-rags, dust-heap
+notes: Sticky spider web strands on the floor — difficult terrain hazard
+---
+# === HITBOX ===
+selection rect 0.10,0.10 0.80,0.80
+
+# Main web strands radiating from center (spoke pattern)
+line 0.5,0.5 0.10,0.10 stroke #e8e8e8 0.85 width 1
+line 0.5,0.5 0.50,0.10 stroke #e8e8e8 0.85 width 1
+line 0.5,0.5 0.90,0.10 stroke #e8e8e8 0.85 width 1
+line 0.5,0.5 0.90,0.50 stroke #e8e8e8 0.85 width 1
+line 0.5,0.5 0.90,0.90 stroke #e8e8e8 0.85 width 1
+line 0.5,0.5 0.50,0.90 stroke #e8e8e8 0.85 width 1
+line 0.5,0.5 0.10,0.90 stroke #e8e8e8 0.85 width 1
+line 0.5,0.5 0.10,0.50 stroke #e8e8e8 0.85 width 1
+# Intermediate spokes
+line 0.5,0.5 0.30,0.14 stroke #d8d8d8 0.7 width 1
+line 0.5,0.5 0.70,0.14 stroke #d8d8d8 0.7 width 1
+line 0.5,0.5 0.86,0.30 stroke #d8d8d8 0.7 width 1
+line 0.5,0.5 0.86,0.70 stroke #d8d8d8 0.7 width 1
+line 0.5,0.5 0.70,0.86 stroke #d8d8d8 0.7 width 1
+line 0.5,0.5 0.30,0.86 stroke #d8d8d8 0.7 width 1
+line 0.5,0.5 0.14,0.70 stroke #d8d8d8 0.7 width 1
+line 0.5,0.5 0.14,0.30 stroke #d8d8d8 0.7 width 1
+# Spiral web threads (curved connections)
+bezier 0.32,0.32 0.5,0.20 0.68,0.32 0.80,0.50 stroke #e0e0e0 0.7 width 1
+bezier 0.80,0.50 0.68,0.68 0.50,0.80 0.32,0.68 stroke #e0e0e0 0.7 width 1
+bezier 0.32,0.68 0.20,0.50 0.32,0.32 0.50,0.20 stroke #e0e0e0 0.7 width 1
+# Inner spiral
+bezier 0.40,0.40 0.5,0.32 0.60,0.40 0.68,0.50 stroke #d8d8d8 0.6 width 1
+bezier 0.68,0.50 0.60,0.60 0.50,0.68 0.40,0.60 stroke #d8d8d8 0.6 width 1
+bezier 0.40,0.60 0.32,0.50 0.40,0.40 0.50,0.32 stroke #d8d8d8 0.6 width 1
+# Sticky beads on strands
+circle 0.30,0.30 0.008 fill #f0f0f0 0.85
+circle 0.70,0.30 0.008 fill #f0f0f0 0.85
+circle 0.70,0.70 0.008 fill #f0f0f0 0.85
+circle 0.30,0.70 0.008 fill #f0f0f0 0.85
+circle 0.20,0.50 0.01 fill #f0f0f0 0.85
+circle 0.80,0.50 0.01 fill #f0f0f0 0.85
+circle 0.50,0.20 0.01 fill #f0f0f0 0.85
+circle 0.50,0.80 0.01 fill #f0f0f0 0.85
+# Center thicker hub
+circle 0.50,0.50 0.03 fill #e8e8e8 0.8
+circle 0.50,0.50 0.03 stroke #aaaaaa 0.7
+# Trapped insect corpse (small dark speck)
+ellipse 0.36,0.42 0.025,0.015 fill #2a1408 0.85
+# Trapped moth (larger with wings)
+poly 0.64,0.38 0.70,0.34 0.72,0.40 0.68,0.44 0.62,0.42 fill #6a4828 0.85
+poly 0.64,0.38 0.70,0.34 0.72,0.40 0.68,0.44 0.62,0.42 stroke #2a1408
+# Dust/debris caught in web
+circle 0.24,0.62 0.01 fill #6a6058 0.6
+circle 0.76,0.38 0.008 fill #6a6058 0.5
+circle 0.40,0.80 0.008 fill #6a6058 0.5
+# Thicker strand showing sag/droop
+bezier 0.14,0.14 0.30,0.25 0.50,0.20 0.70,0.24 stroke #aaaaaa 0.5 width 1

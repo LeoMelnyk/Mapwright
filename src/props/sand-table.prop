@@ -1,0 +1,72 @@
+name: Sand Table
+category: Combat
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 2
+placement: center
+room_types: command-room, war-room, barracks, guard-room
+typical_count: single
+clusters_with: game-piece, map-scroll, campaign-ledger, chair
+notes: Large tactical planning sand-table — wide low wooden box filled with sand, miniature unit tokens on the surface. War-room centerpiece
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: wood-frame rectangle + sandy texture inside + scattered unit tokens
+
+# === Wooden frame (outer border of the sand box) ===
+rect 0.06,0.06 1.88,1.88 texfill polyhaven/dark_wood 0.85
+rect 0.06,0.06 1.88,1.88 stroke #3a1f00
+
+# === Sand surface (inner fill) ===
+rect 0.16,0.16 1.68,1.68 fill #c8b080 0.75
+rect 0.16,0.16 1.68,1.68 texfill polyhaven/brown_mud 0.3
+rect 0.16,0.16 1.68,1.68 stroke #8b7355 0.5
+
+# Sand texture variation (slightly different color patches)
+ellipse 0.60,0.60 0.30,0.20 fill #d4c090 0.2
+ellipse 1.40,1.30 0.25,0.18 fill #b8a070 0.2
+
+# === Terrain features sculpted in sand ===
+# Hill (raised sand mound)
+ellipse 0.60,0.80 0.20,0.14 fill #b8a070 0.4
+ellipse 0.60,0.80 0.20,0.14 stroke #8b7355 0.3
+
+# River (groove in sand)
+qbezier 0.80,0.20 1.00,1.00 1.20,1.80 stroke #667788 0.4 width 2
+
+# Forest area (small dark patches)
+circle 1.50,0.60 0.08 fill #3a5a28 0.35
+circle 1.60,0.68 0.06 fill #3a5a28 0.3
+circle 1.44,0.72 0.05 fill #3a5a28 0.3
+
+# === Unit tokens (tiny game pieces on the sand) ===
+# Red army tokens (small squares)
+rect 0.40,0.50 0.08,0.08 fill #8b2020 0.8
+rect 0.40,0.50 0.08,0.08 stroke #5a1010
+rect 0.52,0.56 0.06,0.06 fill #8b2020 0.75
+rect 0.36,0.64 0.06,0.06 fill #8b2020 0.75
+
+# Blue army tokens (small circles)
+circle 1.40,1.20 0.05 fill #2a488a 0.8
+circle 1.40,1.20 0.05 stroke #1a2a5a
+circle 1.52,1.28 0.04 fill #2a488a 0.75
+circle 1.34,1.32 0.04 fill #2a488a 0.75
+
+# Gold command token (larger)
+circle 1.00,1.00 0.06 fill #daa520 0.8
+circle 1.00,1.00 0.06 stroke #8b6914
+circle 1.00,1.00 0.03 fill #ffd700 0.5
+
+# Small flag markers (tiny posts with colored tips)
+line 0.70,1.40 0.70,1.30 stroke #3a1f00 0.6 width 2
+poly 0.70,1.30 0.78,1.33 0.70,1.36 fill #cc2200 0.7
+
+line 1.60,0.44 1.60,0.34 stroke #3a1f00 0.6 width 2
+poly 1.60,0.34 1.68,0.37 1.60,0.40 fill #2a488a 0.7
+
+# === Frame corners (brass tacks holding frame together) ===
+circle 0.12,0.12 0.03 fill #8b6914 0.6
+circle 1.88,0.12 0.03 fill #8b6914 0.6
+circle 0.12,1.88 0.03 fill #8b6914 0.6
+circle 1.88,1.88 0.03 fill #8b6914 0.6

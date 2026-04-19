@@ -1,0 +1,90 @@
+name: Weeping Angel Statue
+category: Features
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: floor
+room_types: graveyard-village, necropolis, crypt, cemetery-ruined, chapel
+typical_count: few
+clusters_with: tombstone, crypt-entrance, grave-mound, bone-marker, urn
+notes: Weathered stone angel, head bowed, wings folded. From above — round plinth, folded wing arcs, bowed head. Marble darkened by age and moss.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.54 0.36 z 0-1.2
+hitbox circle 0.5,0.56 0.22 z 1.2-2.4
+hitbox circle 0.5,0.48 0.10 z 2.4-3
+
+# === Round plinth base (aged stone) ===
+circle 0.5,0.56 0.38 texfill polyhaven/granite_tile 0.75
+circle 0.5,0.56 0.38 stroke #444444 width 2
+# Plinth step ring
+circle 0.5,0.56 0.32 texfill polyhaven/granite_tile 0.85
+circle 0.5,0.56 0.32 stroke #555555
+# Edge highlights
+arc 0.5,0.56 0.38 180 360 stroke #888888 0.5 width 1
+arc 0.5,0.56 0.38 0 180 stroke #222222 0.6 width 1
+
+# === Moss/lichen patches on plinth (weathering) ===
+ellipse 0.20,0.74 0.08,0.05 fill #3a4a20 0.55
+ellipse 0.80,0.72 0.06,0.04 fill #3a4a20 0.50
+ellipse 0.26,0.38 0.05,0.04 fill #3a4a20 0.45
+
+# === Folded wings (two arcs curving behind/around shoulders) ===
+# Left wing (west, folded inward)
+bezier 0.22,0.38 0.14,0.50 0.18,0.68 0.34,0.74 fill #999999 0.80
+bezier 0.22,0.38 0.14,0.50 0.18,0.68 0.34,0.74 stroke #555555 width 2
+# Wing feather ridges (radial arcs)
+arc 0.22,0.52 0.14 100 220 stroke #666666 0.7 width 1
+arc 0.22,0.52 0.10 100 220 stroke #777777 0.6 width 1
+arc 0.22,0.52 0.06 100 220 stroke #888888 0.5 width 1
+
+# Right wing (east, folded inward)
+bezier 0.78,0.38 0.86,0.50 0.82,0.68 0.66,0.74 fill #999999 0.80
+bezier 0.78,0.38 0.86,0.50 0.82,0.68 0.66,0.74 stroke #555555 width 2
+arc 0.78,0.52 0.14 320 80 stroke #666666 0.7 width 1
+arc 0.78,0.52 0.10 320 80 stroke #777777 0.6 width 1
+arc 0.78,0.52 0.06 320 80 stroke #888888 0.5 width 1
+
+# === Torso / shoulders (wide oval, marble) ===
+ellipse 0.50,0.58 0.24,0.16 texfill polyhaven/marble_01 0.80
+ellipse 0.50,0.58 0.24,0.16 stroke #555555 width 2
+# Shoulder moss wash
+ellipse 0.50,0.58 0.24,0.16 fill #3a4028 0.15
+
+# === Robes / drapery pooling around base ===
+bezier 0.32,0.60 0.28,0.70 0.36,0.78 0.44,0.78 stroke #777777 width 2
+bezier 0.68,0.60 0.72,0.70 0.64,0.78 0.56,0.78 stroke #777777 width 2
+line 0.50,0.66 0.46,0.80 stroke #888888 0.8
+line 0.50,0.66 0.54,0.80 stroke #888888 0.8
+
+# === Head (bowed — positioned south of shoulders, tilted forward) ===
+circle 0.50,0.48 0.11 texfill polyhaven/marble_01 0.85
+circle 0.50,0.48 0.11 stroke #555555 width 2
+# Aged/moss tint on head
+circle 0.50,0.48 0.11 fill #3a4028 0.1
+
+# === Hands covering face (small curved detail south of head) ===
+# Left hand
+ellipse 0.46,0.54 0.04,0.05 texfill polyhaven/marble_01 0.85
+ellipse 0.46,0.54 0.04,0.05 stroke #444444
+# Right hand
+ellipse 0.54,0.54 0.04,0.05 texfill polyhaven/marble_01 0.85
+ellipse 0.54,0.54 0.04,0.05 stroke #444444
+
+# === Long hair trailing (lines down from head to shoulders) ===
+line 0.44,0.50 0.42,0.58 stroke #666666 0.6 width 1
+line 0.48,0.52 0.46,0.60 stroke #666666 0.6 width 1
+line 0.56,0.52 0.58,0.60 stroke #666666 0.6 width 1
+line 0.52,0.50 0.54,0.58 stroke #666666 0.6 width 1
+
+# === Tear stain — dark streak running down the face ===
+line 0.50,0.52 0.50,0.56 stroke #3a3028 0.7 width 1
+
+# === Crown highlight (catch light on head) ===
+ellipse 0.49,0.44 0.04,0.02 fill #ffffff 0.2
+
+# === Cracks in stone (age) ===
+bezier 0.34,0.62 0.40,0.66 0.46,0.70 0.50,0.76 stroke #2a2020 0.55 width 1
+line 0.62,0.42 0.68,0.48 stroke #2a2020 0.5 width 1

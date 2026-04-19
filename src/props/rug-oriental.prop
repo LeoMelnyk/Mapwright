@@ -1,0 +1,88 @@
+name: Oriental Rug
+category: Decorative
+footprint: 3x3
+facing: no
+shadow: no
+blocks_light: no
+height: 0.03
+placement: center
+room_types: house-merchant, merchant-home, study, parlor, burgher-house, mansion-grand-hall, noble-solar
+typical_count: single
+clusters_with: dining-table, chair, brass-lamp
+notes: Ornate patterned oriental rug: concentric border bands, central medallion, fringe on east/west ends. Place centrally in a room.
+---
+# footprint 3x3: x range 0-3, y range 0-3
+
+# Fringe on west edge
+line 0.02,0.30 0.06,0.30 stroke #daa520 0.7 width 2
+line 0.02,0.60 0.06,0.60 stroke #daa520 0.7 width 2
+line 0.02,0.90 0.06,0.90 stroke #daa520 0.7 width 2
+line 0.02,1.20 0.06,1.20 stroke #daa520 0.7 width 2
+line 0.02,1.50 0.06,1.50 stroke #daa520 0.7 width 2
+line 0.02,1.80 0.06,1.80 stroke #daa520 0.7 width 2
+line 0.02,2.10 0.06,2.10 stroke #daa520 0.7 width 2
+line 0.02,2.40 0.06,2.40 stroke #daa520 0.7 width 2
+line 0.02,2.70 0.06,2.70 stroke #daa520 0.7 width 2
+
+# Fringe on east edge
+line 2.94,0.30 2.98,0.30 stroke #daa520 0.7 width 2
+line 2.94,0.60 2.98,0.60 stroke #daa520 0.7 width 2
+line 2.94,0.90 2.98,0.90 stroke #daa520 0.7 width 2
+line 2.94,1.20 2.98,1.20 stroke #daa520 0.7 width 2
+line 2.94,1.50 2.98,1.50 stroke #daa520 0.7 width 2
+line 2.94,1.80 2.98,1.80 stroke #daa520 0.7 width 2
+line 2.94,2.10 2.98,2.10 stroke #daa520 0.7 width 2
+line 2.94,2.40 2.98,2.40 stroke #daa520 0.7 width 2
+line 2.94,2.70 2.98,2.70 stroke #daa520 0.7 width 2
+
+# Rug body — deep burgundy base
+rect 0.08,0.10 2.84,2.80 texfill polyhaven/floral_jacquard 0.85
+rect 0.08,0.10 2.84,2.80 fill #5a1a1a 0.35
+rect 0.08,0.10 2.84,2.80 stroke #2a0808 width 2
+
+# Outer gold border band
+rect 0.14,0.16 2.72,2.68 stroke #daa520 width 3
+rect 0.22,0.24 2.56,2.52 stroke #8b6914 width 1
+
+# Second border band (deep red with gold stripes)
+rect 0.30,0.32 2.40,2.36 fill #4a0c18 0.5
+rect 0.30,0.32 2.40,2.36 stroke #daa520 width 1
+
+# Inner field (darker burgundy)
+rect 0.42,0.44 2.16,2.12 texfill polyhaven/dirty_carpet 0.7
+rect 0.42,0.44 2.16,2.12 fill #4a0c18 0.4
+rect 0.42,0.44 2.16,2.12 stroke #2a0810
+
+# Central medallion — large diamond
+poly 1.50,0.80 2.20,1.50 1.50,2.20 0.80,1.50 fill #daa520 0.6
+poly 1.50,0.80 2.20,1.50 1.50,2.20 0.80,1.50 stroke #5a3a00 width 2
+
+# Medallion inner ring
+circle 1.50,1.50 0.42 stroke #5a3a00 width 2
+circle 1.50,1.50 0.42 fill #5a1a1a 0.5
+
+# Inner diamond
+poly 1.50,1.14 1.86,1.50 1.50,1.86 1.14,1.50 fill #daa520 0.55
+poly 1.50,1.14 1.86,1.50 1.50,1.86 1.14,1.50 stroke #5a3a00
+
+# Central rosette
+circle 1.50,1.50 0.14 fill #4a0c18 0.9
+circle 1.50,1.50 0.14 stroke #daa520 width 2
+circle 1.50,1.50 0.06 fill #daa520 0.95
+
+# Corner flourishes (stylized scrollwork)
+circle 0.60,0.62 0.08 fill #daa520 0.7
+circle 0.60,0.62 0.08 stroke #5a3a00
+circle 0.60,0.62 0.035 fill #4a0c18 0.9
+
+circle 2.40,0.62 0.08 fill #daa520 0.7
+circle 2.40,0.62 0.08 stroke #5a3a00
+circle 2.40,0.62 0.035 fill #4a0c18 0.9
+
+circle 0.60,2.38 0.08 fill #daa520 0.7
+circle 0.60,2.38 0.08 stroke #5a3a00
+circle 0.60,2.38 0.035 fill #4a0c18 0.9
+
+circle 2.40,2.38 0.08 fill #daa520 0.7
+circle 2.40,2.38 0.08 stroke #5a3a00
+circle 2.40,2.38 0.035 fill #4a0c18 0.9

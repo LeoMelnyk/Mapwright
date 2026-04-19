@@ -1,0 +1,74 @@
+name: Open Shelf
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 4
+placement: wall
+room_types: bakery, bath-house, butcher-shop, cabin-witch, general-workshop, pantry, servants-kitchen, shop-apothecary, shop-general, shop-tailor, alchemy-lab, mill-grain
+typical_count: few
+clusters_with: ingredient-rack, component-shelf, shelf, bottle, jar, cabinet
+notes: Open shelving unit holding bottles/jars/containers; visible inventory peeking at front edge
+---
+# === HITBOX ===
+hitbox rect 0.0,0.0 2.0,0.85 z 0-4
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: wooden shelf top along north wall, contents peek at front (south) edge
+
+# Shelf body (recessed, visible at front and sides — darker strip peeking under the top)
+rect 0.1,0.0 1.8,0.85 fill #2a1400 0.35
+line 0.1,0.0 0.1,0.85 stroke #3a1f00
+line 1.9,0.0 1.9,0.85 stroke #3a1f00
+line 0.1,0.85 1.9,0.85 stroke #3a1f00
+
+# === Items peeking out at front edge (south) ===
+# Ceramic jar (green glaze)
+circle 0.22,0.74 0.08 fill #4a5028 0.88
+circle 0.22,0.74 0.08 stroke #1a1808
+ellipse 0.22,0.70 0.05,0.02 fill #1a1008 0.85
+# Tall bottle (amber)
+circle 0.42,0.73 0.06 fill #8a6020 0.88
+circle 0.42,0.73 0.06 stroke #3a2408
+circle 0.42,0.73 0.025 fill #d4a860 0.5
+# Wooden bowl
+ellipse 0.60,0.75 0.09,0.04 fill #6b4e2e 0.9
+ellipse 0.60,0.75 0.09,0.04 stroke #2a1400
+ellipse 0.60,0.74 0.06,0.025 fill #3a1f00 0.9
+# Wide jar (brown clay)
+circle 0.82,0.74 0.08 fill #8a5820 0.88
+circle 0.82,0.74 0.08 stroke #3a2408
+ellipse 0.82,0.70 0.05,0.02 fill #1a1008 0.85
+# Blue bottle
+circle 1.02,0.73 0.06 fill #2a4878 0.88
+circle 1.02,0.73 0.06 stroke #101828
+circle 1.02,0.73 0.025 fill #88a0c0 0.5
+# Small tin/cup
+circle 1.20,0.75 0.05 fill #8899aa 0.88
+circle 1.20,0.75 0.05 stroke #333333
+# Ceramic pot (cream)
+circle 1.40,0.74 0.07 fill #c8b898 0.88
+circle 1.40,0.74 0.07 stroke #6a5040
+ellipse 1.40,0.70 0.05,0.02 fill #1a1008 0.8
+# Sack of flour/grain (lumpy cloth)
+ellipse 1.62,0.76 0.09,0.06 fill #a08858 0.9
+ellipse 1.62,0.76 0.09,0.06 stroke #4a3820
+line 1.58,0.72 1.66,0.72 stroke #3a2810 0.6
+# Small green bottle
+circle 1.82,0.74 0.05 fill #3a5028 0.88
+circle 1.82,0.74 0.05 stroke #1a2010
+
+# Wooden shelf top (plank along wall — drawn on top, partially covers items)
+rect 0.0,0.0 2.0,0.65 texfill polyhaven/dark_wood 0.88
+rect 0.0,0.0 2.0,0.65 stroke #3a1f00
+
+# Wood grain on top
+line 0.0,0.18 2.0,0.18 stroke #5c3a1e 0.35
+line 0.0,0.36 2.0,0.36 stroke #5c3a1e 0.35
+line 0.0,0.52 2.0,0.52 stroke #5c3a1e 0.35
+
+# Iron mounting brackets (small dark spots at north edge)
+rect 0.08,0.02 0.06,0.08 fill #3a3020 0.8
+rect 1.86,0.02 0.06,0.08 fill #3a3020 0.8
+rect 0.97,0.02 0.06,0.08 fill #3a3020 0.8

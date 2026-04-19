@@ -1,0 +1,89 @@
+name: Magic Sigil (Floor)
+category: Magical
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+lights: [{"preset":"ember","x":1.0,"y":1.0,"color":"#cc3322","intensity":0.4,"radius":4}]
+placement: center
+room_types: throne-room, ritual-chamber, dark-temple, wizard-sanctum, cultist-shrine, boss-chamber
+typical_count: single
+clusters_with: magic-circle, ritual-circle, magic-sigil, altar, candle-cluster
+notes: Glowing rune sigil etched into the floor — complex runic geometry with gold and red glow. Flat floor art. Place at room center or before a throne.
+---
+# Flat floor sigil — no shadow, no blocking
+
+# === Subtle outer halo (dim red glow) ===
+circle 1.0,1.0 0.92 fill #8b0000 0.08
+circle 1.0,1.0 0.76 fill #aa2200 0.1
+
+# === Outer containment ring ===
+ring 1.0,1.0 0.90 0.86 fill #cc3322 0.75
+ring 1.0,1.0 0.90 0.86 stroke #6a1000 width 1
+# Gold trim inside outer ring
+circle 1.0,1.0 0.84 stroke #daa520 0.85 width 1
+
+# === Cardinal rune notches on outer ring ===
+line 1.0,0.08 1.0,0.22 stroke #daa520 0.85 width 2
+line 0.08,1.0 0.22,1.0 stroke #daa520 0.85 width 2
+line 1.0,1.78 1.0,1.92 stroke #daa520 0.85 width 2
+line 1.78,1.0 1.92,1.0 stroke #daa520 0.85 width 2
+
+# === Diagonal rune notches (shorter) ===
+line 0.35,0.35 0.45,0.45 stroke #daa520 0.7 width 2
+line 1.65,0.35 1.55,0.45 stroke #daa520 0.7 width 2
+line 0.35,1.65 0.45,1.55 stroke #daa520 0.7 width 2
+line 1.65,1.65 1.55,1.55 stroke #daa520 0.7 width 2
+
+# === Mid ring (ornate) ===
+circle 1.0,1.0 0.68 stroke #cc3322 width 2
+circle 1.0,1.0 0.68 stroke #daa520 0.6 width 1
+
+# === Hexagram / six-pointed star inside mid ring ===
+# Upward triangle
+poly 1.00,0.42 1.50,1.28 0.50,1.28 stroke #cc3322 width 2
+poly 1.00,0.42 1.50,1.28 0.50,1.28 stroke #daa520 0.7 width 1
+# Downward triangle
+poly 1.00,1.58 0.50,0.72 1.50,0.72 stroke #cc3322 width 2
+poly 1.00,1.58 0.50,0.72 1.50,0.72 stroke #daa520 0.65 width 1
+
+# === Inner ring ===
+circle 1.0,1.0 0.38 stroke #daa520 width 2
+circle 1.0,1.0 0.38 stroke #ff4422 0.5 width 1
+
+# === Complex runic glyphs between rings (cardinals) ===
+# North glyph
+line 0.95,0.40 1.05,0.40 stroke #daa520 0.8 width 1
+line 1.00,0.36 1.00,0.46 stroke #daa520 0.8 width 1
+poly 0.97,0.48 1.03,0.48 1.00,0.54 stroke #daa520 0.75 width 1
+# East glyph
+line 1.60,0.95 1.60,1.05 stroke #daa520 0.8 width 1
+line 1.56,1.00 1.64,1.00 stroke #daa520 0.8 width 1
+line 1.52,0.96 1.52,1.04 stroke #daa520 0.7 width 1
+# South glyph
+line 0.95,1.60 1.05,1.60 stroke #daa520 0.8 width 1
+line 1.00,1.54 1.00,1.64 stroke #daa520 0.8 width 1
+line 0.94,1.66 1.06,1.66 stroke #daa520 0.7 width 1
+# West glyph
+line 0.40,0.95 0.40,1.05 stroke #daa520 0.8 width 1
+line 0.36,1.00 0.44,1.00 stroke #daa520 0.8 width 1
+line 0.48,0.96 0.48,1.04 stroke #daa520 0.7 width 1
+
+# === Center focal sigil — upward-pointing pentagram inside inner ring ===
+line 1.00,0.66 1.32,1.26 stroke #cc3322 width 2
+line 1.00,0.66 0.68,1.26 stroke #cc3322 width 2
+line 0.66,0.88 1.34,0.88 stroke #cc3322 width 2
+line 0.66,0.88 1.32,1.26 stroke #cc3322 width 2
+line 1.34,0.88 0.68,1.26 stroke #cc3322 width 2
+
+# Gold overlay on pentagram
+line 1.00,0.66 1.32,1.26 stroke #daa520 0.5 width 1
+line 1.00,0.66 0.68,1.26 stroke #daa520 0.5 width 1
+line 0.66,0.88 1.34,0.88 stroke #daa520 0.5 width 1
+
+# === Center focal point — hot glow ===
+circle 1.0,1.0 0.14 fill #cc3322 0.4
+circle 1.0,1.0 0.09 fill #ff4422 0.55
+circle 1.0,1.0 0.05 fill #ffaa44 0.7
+circle 1.0,1.0 0.025 fill #ffddaa 0.85

@@ -1,0 +1,66 @@
+name: Picket Line
+category: Camp
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, ranger-camp, orc-war-camp, fairground-seasonal
+typical_count: single
+clusters_with: tent, cart, waterskin, wood-pile, hay-bale
+notes: Horse tether line between two stakes with small saddle-bag at midpoint — run along camp perimeter
+---
+# footprint 1x3: x range 0-3, y range 0-1
+# Top-down: two stakes with rope line between them, saddlebag at center
+
+# West stake (driven into ground)
+rect 0.12,0.44 0.10,0.12 fill #3a1f00 0.9
+rect 0.12,0.44 0.10,0.12 stroke #1a0800
+# Stake top (cut end visible)
+circle 0.17,0.50 0.04 fill #6b4e2e 0.7
+circle 0.17,0.50 0.04 stroke #3a1f00
+# Disturbed ground around west stake
+circle 0.17,0.50 0.09 fill #3a2818 0.15
+
+# East stake (driven into ground)
+rect 2.78,0.44 0.10,0.12 fill #3a1f00 0.9
+rect 2.78,0.44 0.10,0.12 stroke #1a0800
+# Stake top
+circle 2.83,0.50 0.04 fill #6b4e2e 0.7
+circle 2.83,0.50 0.04 stroke #3a1f00
+# Disturbed ground around east stake
+circle 2.83,0.50 0.09 fill #3a2818 0.15
+
+# Main rope line (slight sag in the middle)
+bezier 0.22,0.50 0.80,0.54 2.20,0.54 2.78,0.50 stroke #8b7355 width 2
+
+# Secondary tether lines hanging down (short stubs with knots)
+line 0.80,0.52 0.80,0.68 stroke #8b7355 width 1
+circle 0.80,0.68 0.02 fill #6b4e2e 0.7
+line 1.50,0.53 1.50,0.70 stroke #8b7355 width 1
+circle 1.50,0.70 0.02 fill #6b4e2e 0.7
+line 2.20,0.52 2.20,0.68 stroke #8b7355 width 1
+circle 2.20,0.68 0.02 fill #6b4e2e 0.7
+
+# Saddlebag at midpoint (draped over the rope)
+# West flap
+rect 1.32,0.38 0.18,0.12 texfill polyhaven/brown_leather 0.8
+rect 1.32,0.38 0.18,0.12 stroke #2a1400
+# East flap
+rect 1.50,0.38 0.18,0.12 texfill polyhaven/brown_leather 0.75
+rect 1.50,0.38 0.18,0.12 stroke #2a1400
+# Buckle strap across top
+line 1.38,0.38 1.62,0.38 stroke #5a3a00 width 2
+# Buckle
+rect 1.47,0.35 0.06,0.04 fill #daa520 0.7
+rect 1.47,0.35 0.06,0.04 stroke #8b6914
+# Hanging saddlebag south side (visible below rope)
+rect 1.35,0.54 0.14,0.18 texfill polyhaven/brown_leather 0.7
+rect 1.35,0.54 0.14,0.18 stroke #2a1400
+rect 1.51,0.54 0.14,0.18 texfill polyhaven/brown_leather 0.65
+rect 1.51,0.54 0.14,0.18 stroke #2a1400
+
+# Rope knot at west stake
+circle 0.22,0.50 0.025 fill #6b4e2e 0.8
+# Rope knot at east stake
+circle 2.78,0.50 0.025 fill #6b4e2e 0.8

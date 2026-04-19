@@ -1,0 +1,25 @@
+name: Cork Stopper
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: alchemist-lab, distillery, refinery, tavern-common, cellar
+typical_count: many
+clusters_with: flask-small, spill-reagent, alchemy-bench, barrel
+notes: Tiny accent — single cork lying on the floor; scatter near flasks and vats
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Small cork stopper lying on its side, seen from above
+
+# Cork body (slightly tapered cylinder cross-section — oval from above)
+ellipse 0.50,0.50 0.12,0.08 fill #c8b898 0.8
+ellipse 0.50,0.50 0.12,0.08 stroke #8b7355
+# Cork grain texture lines
+line 0.42,0.48 0.58,0.48 stroke #b8a878 0.4
+line 0.44,0.52 0.56,0.52 stroke #b8a878 0.4
+# Top highlight
+ellipse 0.48,0.47 0.06,0.03 fill #d8c8a8 0.35
+# Shadow beneath
+ellipse 0.51,0.54 0.13,0.06 fill #000000 0.1

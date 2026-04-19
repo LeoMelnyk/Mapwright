@@ -1,0 +1,41 @@
+name: Pipe Ash
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: opium-den, brothel, decadent-study, tavern
+typical_count: few
+clusters_with: opium-pipe, opium-couch, candle-red
+notes: Scatter of spent pipe ash and dottle; place near pipes and couches for lived-in grime
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Central scorch mark (darkest)
+ellipse 0.5,0.5 0.22,0.18 fill #1a0f08 0.7
+ellipse 0.5,0.5 0.22,0.18 stroke #2a1810 0.5
+
+# Ash scatter blobs (grey-brown irregular)
+ellipse 0.38,0.42 0.08,0.06 fill #5a4838 0.7
+ellipse 0.58,0.38 0.06,0.05 fill #6a5848 0.65
+ellipse 0.62,0.58 0.09,0.06 fill #5a4838 0.7
+ellipse 0.40,0.60 0.07,0.05 fill #6a5848 0.65
+ellipse 0.50,0.50 0.10,0.07 fill #3a2818 0.6
+
+# Outer fine ash dust
+ellipse 0.28,0.54 0.04,0.03 fill #7a6858 0.5
+ellipse 0.72,0.46 0.04,0.03 fill #7a6858 0.5
+ellipse 0.52,0.32 0.04,0.03 fill #7a6858 0.5
+ellipse 0.48,0.68 0.04,0.03 fill #7a6858 0.5
+
+# Dottle (spent tobacco chunks)
+circle 0.44,0.48 0.025 fill #2a1808 0.85
+circle 0.56,0.52 0.02 fill #2a1808 0.85
+circle 0.50,0.44 0.018 fill #3a2010 0.8
+
+# Tiny ember sparks (still warm)
+circle 0.46,0.50 0.015 fill #ff6600 0.8
+circle 0.54,0.48 0.015 fill #ff6600 0.7
+circle 0.50,0.56 0.012 fill #ffaa00 0.75

@@ -1,0 +1,65 @@
+name: Ledger
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: house-merchant, merchant-home, study, parlor, burgher-house, office
+typical_count: single
+clusters_with: letter-sealed, desk, ink-pot, brass-lamp
+notes: Open business ledger with columns of numbers, quill across the page, ink pot nearby. Place on desks or tables.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Open book spread (two pages)
+rect 0.08,0.22 0.84,0.60 fill #e8dcc8 0.95
+rect 0.08,0.22 0.84,0.60 stroke #5c3a1e width 2
+# Center spine/gutter
+line 0.50,0.22 0.50,0.82 stroke #3a1f00 width 2
+# Page curvature shadow along gutter
+rect 0.46,0.22 0.08,0.60 fill #8b7355 0.25
+
+# Left page ruled lines (ledger columns)
+line 0.12,0.32 0.48,0.32 stroke #2a1400 0.6
+line 0.12,0.40 0.48,0.40 stroke #2a1400 0.5
+line 0.12,0.48 0.48,0.48 stroke #2a1400 0.5
+line 0.12,0.56 0.48,0.56 stroke #2a1400 0.5
+line 0.12,0.64 0.48,0.64 stroke #2a1400 0.5
+line 0.12,0.72 0.48,0.72 stroke #2a1400 0.5
+# Left page column divider
+line 0.36,0.28 0.36,0.78 stroke #2a1400 0.4
+
+# Right page ruled lines
+line 0.52,0.32 0.88,0.32 stroke #2a1400 0.6
+line 0.52,0.40 0.88,0.40 stroke #2a1400 0.5
+line 0.52,0.48 0.88,0.48 stroke #2a1400 0.5
+line 0.52,0.56 0.88,0.56 stroke #2a1400 0.5
+line 0.52,0.64 0.88,0.64 stroke #2a1400 0.5
+line 0.52,0.72 0.88,0.72 stroke #2a1400 0.5
+# Right page column divider
+line 0.76,0.28 0.76,0.78 stroke #2a1400 0.4
+
+# Header line on both pages (bolder)
+line 0.12,0.28 0.48,0.28 stroke #2a1400 width 2
+line 0.52,0.28 0.88,0.28 stroke #2a1400 width 2
+
+# Ink scribbles (sample numbers)
+line 0.14,0.36 0.20,0.36 stroke #1a1208 width 1
+line 0.38,0.44 0.44,0.44 stroke #1a1208 width 1
+line 0.14,0.52 0.22,0.52 stroke #1a1208 width 1
+line 0.54,0.36 0.62,0.36 stroke #1a1208 width 1
+line 0.78,0.44 0.84,0.44 stroke #1a1208 width 1
+
+# Quill feather (diagonal across page)
+bezier 0.66,0.14 0.72,0.30 0.58,0.50 0.30,0.70 stroke #e8dcc8 0.9 width 3
+bezier 0.66,0.14 0.72,0.30 0.58,0.50 0.30,0.70 stroke #5c3a1e width 1
+# Feather barbs
+line 0.68,0.18 0.74,0.16 stroke #c8b898 0.7 width 1
+line 0.70,0.26 0.76,0.24 stroke #c8b898 0.7 width 1
+line 0.66,0.36 0.72,0.36 stroke #c8b898 0.7 width 1
+
+# Ink pot
+circle 0.82,0.86 0.08 fill #1a1208 0.95
+circle 0.82,0.86 0.08 stroke #3a2a18
+circle 0.82,0.86 0.05 fill #0a0804 0.95

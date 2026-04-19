@@ -1,0 +1,43 @@
+name: Drifting Stone
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.6
+placement: floor
+room_types: astral-anchor, astral-sea, spelljammer-dock, planar-nexus
+typical_count: many
+clusters_with: dead-god-fragment, star-dust-pile, drifting-stone
+notes: Jagged lavender-grey boulder suspended in the astral, untouched by gravity. Small chunks of rubble sometimes orbit larger ones.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-0.6
+
+# Faint violet shadow beneath (radial, hinting at no contact)
+circle 0.5,0.55 0.42 fill #4a3a80 0.18
+
+# Main boulder (irregular polygon)
+poly 0.5,0.15 0.74,0.22 0.85,0.42 0.82,0.66 0.68,0.82 0.44,0.85 0.22,0.76 0.14,0.54 0.2,0.3 0.34,0.18 texfill polyhaven/rock_boulder_cracked 0.85
+poly 0.5,0.15 0.74,0.22 0.85,0.42 0.82,0.66 0.68,0.82 0.44,0.85 0.22,0.76 0.14,0.54 0.2,0.3 0.34,0.18 stroke #2a2038 width 2
+
+# Lighter top face (where astral light catches)
+poly 0.5,0.22 0.68,0.28 0.76,0.44 0.7,0.58 0.54,0.62 0.36,0.56 0.28,0.42 0.36,0.28 fill #8a78a0 0.55
+
+# Cracks and fissures
+line 0.3,0.35 0.55,0.55 stroke #2a2038 width 1
+line 0.55,0.3 0.48,0.62 stroke #2a2038 width 1
+bezier 0.25,0.6 0.4,0.55 0.6,0.7 0.72,0.7 stroke #2a2038 width 1
+
+# Lavender lichen / star moss patches
+ellipse 0.3,0.3 0.06,0.04 fill #b080ff 0.4
+ellipse 0.7,0.6 0.05,0.04 fill #a080ff 0.4
+
+# Weathered pitting
+circle 0.4,0.45 0.02 fill #1a0828 0.5
+circle 0.62,0.4 0.018 fill #1a0828 0.5
+circle 0.55,0.7 0.02 fill #1a0828 0.5
+
+# Highlight edge (top-lit)
+line 0.34,0.18 0.5,0.15 stroke #c0a0ff width 1
+line 0.5,0.15 0.74,0.22 stroke #c0a0ff width 1

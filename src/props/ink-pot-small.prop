@@ -1,0 +1,45 @@
+name: Small Ink Pot
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: scouts-blind, ranger-lodge, traveler-camp, scriptorium-mundane, hermit-cell, ship-captains-cabin
+typical_count: few
+clusters_with: quill, parchment-scrap, desk
+notes: Small traveler's ceramic ink pot with a cork stopper plugged in — smaller and rougher than the standard inkwell; for field use
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.14
+
+# Small ceramic pot body (squat, earthenware brown)
+circle 0.5,0.5 0.14 fill #5c3a1e 0.9
+circle 0.5,0.5 0.14 stroke #2a1400 width 2
+
+# Throwing ridges (potter's wheel rings)
+circle 0.5,0.5 0.12 stroke #3a1f00 0.5 width 1
+circle 0.5,0.5 0.09 stroke #3a1f00 0.4 width 1
+
+# Neck rim (narrower than body — where stopper fits)
+circle 0.5,0.5 0.065 fill #2a1400 0.9
+circle 0.5,0.5 0.065 stroke #1a0e00 width 2
+
+# Cork stopper (tan, protrudes slightly above)
+circle 0.5,0.5 0.055 fill #c8a878 0.95
+circle 0.5,0.5 0.055 stroke #8b6914
+# Cork top grain
+line 0.46,0.50 0.54,0.50 stroke #8b6914 0.5
+line 0.47,0.48 0.53,0.48 stroke #8b6914 0.4
+line 0.47,0.52 0.53,0.52 stroke #8b6914 0.4
+# Cork tiny pull notch
+circle 0.5,0.5 0.012 fill #3a1f00 0.7
+
+# Twine wrap around neck (traveler's tie for safekeeping)
+arc 0.5,0.5 0.08 20 160 stroke #8b7355 0.8 width 1
+line 0.43,0.58 0.40,0.64 stroke #8b7355 0.7 width 1
+
+# Small ink stain on the side of the pot (dried run)
+circle 0.62,0.56 0.022 fill #0a0618 0.65
+bezier 0.62,0.56 0.63,0.60 0.62,0.62 0.60,0.64 stroke #0a0618 0.5 width 1

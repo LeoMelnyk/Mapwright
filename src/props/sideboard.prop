@@ -1,0 +1,53 @@
+name: Sideboard
+category: Furniture
+footprint: 3x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: wall
+room_types: house-merchant, house-noble-townhouse, mansion-dining, mansion-grand-hall, noble-solar
+typical_count: single
+clusters_with: decanter, wine-glass, fresh-flowers, silver-bowl, tea-service, fruit-bowl
+notes: Long low cabinet against a dining room wall; display surface for decanters and platters
+---
+# === HITBOX ===
+hitbox rect 0.10,0.08 0.80,2.84 z 0-3
+
+# Main cabinet body (long rectangle)
+rect 0.10,0.08 0.80,2.84 texfill polyhaven/wood_cabinet_worn_long 0.88
+rect 0.10,0.08 0.80,2.84 stroke #2a1400
+# Top surface (slightly darker, polished)
+rect 0.14,0.12 0.72,2.76 fill #3a1f00 0.25
+rect 0.14,0.12 0.72,2.76 stroke #5c3a1e 0.7 width 1
+# Surface wood grain
+line 0.14,0.50 0.86,0.50 stroke #5c3a1e 0.3
+line 0.14,1.20 0.86,1.20 stroke #5c3a1e 0.3
+line 0.14,1.80 0.86,1.80 stroke #5c3a1e 0.3
+line 0.14,2.40 0.86,2.40 stroke #5c3a1e 0.3
+# Drawer/door divisions (three sections across length)
+line 0.10,1.00 0.90,1.00 stroke #2a1400 width 2
+line 0.10,2.00 0.90,2.00 stroke #2a1400 width 2
+# Cabinet door panels (recessed)
+rect 0.22,0.20 0.56,0.72 stroke #5c3a1e 0.6 width 1
+rect 0.22,1.14 0.56,0.72 stroke #5c3a1e 0.6 width 1
+rect 0.22,2.14 0.56,0.72 stroke #5c3a1e 0.6 width 1
+# Brass drawer pulls (ornate)
+ellipse 0.82,0.56 0.04,0.06 fill #daa520 0.9
+ellipse 0.82,0.56 0.04,0.06 stroke #5a3a00
+ellipse 0.82,1.50 0.04,0.06 fill #daa520 0.9
+ellipse 0.82,1.50 0.04,0.06 stroke #5a3a00
+ellipse 0.82,2.50 0.04,0.06 fill #daa520 0.9
+ellipse 0.82,2.50 0.04,0.06 stroke #5a3a00
+# Keyhole escutcheons
+rect 0.78,0.70 0.03,0.06 fill #5a3a00 0.9
+rect 0.78,1.64 0.03,0.06 fill #5a3a00 0.9
+rect 0.78,2.64 0.03,0.06 fill #5a3a00 0.9
+# Decorative inlay banding (gilt line along top)
+line 0.14,0.18 0.86,0.18 stroke #daa520 0.5 width 1
+# Carved leg visible at south corners
+rect 0.14,2.82 0.08,0.08 fill #2a1400 0.9
+rect 0.78,2.82 0.08,0.08 fill #2a1400 0.9
+# Small candelabra dot at one end
+circle 0.50,0.30 0.05 fill #daa520 0.6
+circle 0.50,0.30 0.05 stroke #5a3a00

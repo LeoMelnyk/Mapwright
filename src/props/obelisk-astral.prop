@@ -1,0 +1,64 @@
+name: Astral Obelisk
+category: Magical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: corner
+room_types: astral-anchor, astral-sea, githyanki-citadel, planar-nexus
+typical_count: few
+clusters_with: astral-anchor-stone, portal-stela, silver-cord-pylon
+notes: Obsidian obelisk etched with silver astral runes — top-down view of the pedestal, shaft, and four-sided pyramidion meeting at the glowing apex
+lights: [{"preset":"astral","x":1,"y":1,"radius":8,"intensity":0.5,"color":"#c0a0ff"}]
+---
+# Hitbox — shaft cross-section blocks light
+hitbox rect 0.45,0.45 1.1,1.1 z 0-2.5
+# Violet apex halo
+circle 1.0,1.0 0.80 gradient-radial #c0a0ff #1a0828 0.30
+# Stepped stone pedestal
+rect 0.22,0.22 1.56,1.56 texfill polyhaven/stone_wall 0.80
+rect 0.22,0.22 1.56,1.56 stroke #2a2038 width 2
+# Pedestal bevel highlights (NW catches light)
+line 0.22,0.22 1.78,0.22 stroke #6a5098 width 1
+line 0.22,0.22 0.22,1.78 stroke #6a5098 width 1
+# Inner pedestal step
+rect 0.36,0.36 1.28,1.28 texfill polyhaven/granite_tile 0.70
+rect 0.36,0.36 1.28,1.28 stroke #4a3a80 width 1
+# Shaft cross-section — obsidian column (square)
+rect 0.45,0.45 1.10,1.10 fill #1a0828 0.92
+rect 0.45,0.45 1.10,1.10 stroke #4a3a80 width 2
+# Silver rune marks on each face of the shaft
+line 1.0,0.52 1.0,0.62 stroke #c0a0ff width 1
+line 0.96,0.56 1.04,0.56 stroke #c0a0ff width 1
+line 1.48,1.0 1.38,1.0 stroke #c0a0ff width 1
+line 1.44,0.96 1.44,1.04 stroke #c0a0ff width 1
+line 1.0,1.48 1.0,1.38 stroke #c0a0ff width 1
+line 0.96,1.44 1.04,1.44 stroke #c0a0ff width 1
+line 0.52,1.0 0.62,1.0 stroke #c0a0ff width 1
+line 0.56,0.96 0.56,1.04 stroke #c0a0ff width 1
+# === Pyramidion — four triangular facets meeting at the apex ===
+# North facet (toward viewer, brightest)
+poly 0.45,0.45 1.55,0.45 1.0,1.0 fill #4a3a80 0.85
+# East facet
+poly 1.55,0.45 1.55,1.55 1.0,1.0 fill #3a2a68 0.80
+# South facet (darkest)
+poly 1.55,1.55 0.45,1.55 1.0,1.0 fill #2a1a50 0.75
+# West facet
+poly 0.45,1.55 0.45,0.45 1.0,1.0 fill #3a2a68 0.80
+# Pyramidion outline
+poly 0.45,0.45 1.55,0.45 1.55,1.55 0.45,1.55 stroke #4a3a80 width 1
+# Edge ridges from each corner to the apex
+line 0.45,0.45 1.0,1.0 stroke #c0a0ff width 1
+line 1.55,0.45 1.0,1.0 stroke #c0a0ff width 1
+line 1.55,1.55 1.0,1.0 stroke #8060d0 width 1
+line 0.45,1.55 1.0,1.0 stroke #8060d0 width 1
+# Apex glow — captured starlight
+circle 1.0,1.0 0.10 fill #e0e0ff 0.95
+circle 1.0,1.0 0.10 stroke #c0a0ff
+circle 1.0,1.0 0.06 fill #ffffff 1.0
+# Tiny silver rune sparks around the apex
+circle 0.82,0.82 0.018 fill #c0a0ff 0.85
+circle 1.18,0.82 0.018 fill #c0a0ff 0.85
+circle 1.18,1.18 0.018 fill #c0a0ff 0.85
+circle 0.82,1.18 0.018 fill #c0a0ff 0.85

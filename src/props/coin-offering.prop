@@ -1,0 +1,50 @@
+name: Coin Offering
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: burial-mound, shrine-roadside, standing-stones-circle, shrine, temple-nave, graveyard-village
+typical_count: few
+clusters_with: offering-bowl, altar, shrine-stone, prayer-stone, flowers
+notes: Small ritual offering of coins on a flat surface, often around a shrine
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.24
+
+# Stone slab (small offering plate)
+ellipse 0.5,0.52 0.26,0.22 texfill polyhaven/granite_tile 0.75
+ellipse 0.5,0.52 0.26,0.22 fill #666666 0.4
+ellipse 0.5,0.52 0.26,0.22 stroke #333333
+# Stone slab inner ring (worn)
+ellipse 0.5,0.52 0.22,0.18 stroke #555555 0.5 width 1
+# Coin offering ring (coins arranged in circle on the slab)
+circle 0.38,0.46 0.05 fill #daa520 0.95
+circle 0.38,0.46 0.05 stroke #5a3a00
+circle 0.38,0.46 0.012 fill #5a3a00 0.8
+circle 0.50,0.42 0.05 fill #cccccc 0.95
+circle 0.50,0.42 0.05 stroke #555555
+circle 0.50,0.42 0.012 fill #555555 0.8
+circle 0.62,0.46 0.05 fill #b06030 0.95
+circle 0.62,0.46 0.05 stroke #5a2810
+# Second row of offerings
+circle 0.44,0.58 0.05 fill #daa520 0.95
+circle 0.44,0.58 0.05 stroke #5a3a00
+circle 0.56,0.58 0.05 fill #cccccc 0.95
+circle 0.56,0.58 0.05 stroke #555555
+# Center tall offering (edge-on coin)
+ellipse 0.50,0.54 0.06,0.02 fill #daa520 0.9
+ellipse 0.50,0.54 0.06,0.02 stroke #5a3a00
+# Dried petals/offering bits scattered
+poly 0.32,0.60 0.36,0.58 0.38,0.62 0.34,0.64 fill #6a2810 0.7
+poly 0.66,0.60 0.70,0.58 0.72,0.62 0.68,0.64 fill #6a2810 0.7
+# Moss/lichen around edge of slab
+poly 0.28,0.42 0.30,0.38 0.34,0.40 fill #3a6028 0.6
+poly 0.70,0.64 0.74,0.66 0.72,0.68 fill #3a6028 0.6
+# Small gleam
+circle 0.40,0.44 0.01 fill #ffee88 0.85
+circle 0.50,0.40 0.01 fill #ffffff 0.7
+# Stone crack
+line 0.38,0.66 0.58,0.68 stroke #333333 0.5

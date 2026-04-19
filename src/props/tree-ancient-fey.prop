@@ -1,0 +1,81 @@
+name: Ancient Fey Tree
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 12
+placement: floor
+room_types: fey-glade, fey-court, druid-grove, forest, enchanted-grove
+typical_count: few
+clusters_with: fey-mushroom-ring, fey-lantern-bloom, dew-drop-sparkle, mushroom
+notes: Large ancient tree with shimmering bark and glowing lichen — fey forest centerpiece
+lights: [{"preset":"dim","x":1,"y":1,"radius":4,"intensity":0.25,"color":"#ddcc66"}]
+---
+# Footprint 2x2: x 0-2, y 0-2
+
+# === HITBOX — trunk blocks light ===
+hitbox circle 1.0,1.05 0.3 z 0-12
+
+# === Trunk visible through canopy gap ===
+circle 1.0,1.05 0.30 texfill polyhaven/bark_brown_02 0.85
+circle 1.0,1.05 0.30 stroke #3a1f00
+# Root tendrils peeking out
+circle 0.78,1.28 0.08 fill #4a2800 0.35
+circle 1.22,1.25 0.07 fill #4a2800 0.30
+circle 0.88,0.82 0.06 fill #4a2800 0.25
+
+# === Dark shadow patches between canopy lobes ===
+circle 1.0,0.7 0.30 fill #0a2a06 0.18
+circle 0.6,1.05 0.25 fill #0a2a06 0.16
+circle 1.4,1.0 0.25 fill #0a2a06 0.16
+circle 0.8,1.5 0.22 fill #0a2a06 0.15
+circle 1.2,1.45 0.22 fill #0a2a06 0.15
+
+# === Main canopy lobes (overlapping clusters) ===
+circle 0.55,0.50 0.45 fill #2d6a1e 0.28
+circle 1.45,0.48 0.43 fill #3a7a28 0.26
+circle 0.42,1.10 0.38 fill #2d5a1e 0.28
+circle 1.58,1.08 0.40 fill #3a7a28 0.28
+circle 0.70,1.58 0.38 fill #2d6a1e 0.26
+circle 1.30,1.62 0.36 fill #3a7a28 0.28
+circle 1.00,0.38 0.36 fill #357020 0.25
+
+# === Secondary canopy lobes ===
+circle 0.40,0.65 0.30 fill #306820 0.20
+circle 1.60,0.65 0.32 fill #2e6e20 0.20
+circle 1.00,0.82 0.32 fill #2d6a1e 0.16
+circle 0.55,1.55 0.28 fill #2d5a1e 0.18
+circle 1.50,1.55 0.30 fill #357020 0.18
+
+# === Canopy highlight clusters (lighter green, sunlit) ===
+circle 0.70,0.60 0.22 fill #4a9a38 0.14
+circle 1.30,0.56 0.20 fill #4a9a38 0.12
+circle 0.50,1.20 0.18 fill #4a9a38 0.13
+circle 1.55,1.18 0.22 fill #4a9a38 0.12
+circle 1.00,0.48 0.16 fill #5aaa48 0.12
+
+# === Gold sparkle dots scattered on canopy (fey shimmer) ===
+circle 0.55,0.42 0.03 fill #ffd700 0.35
+circle 1.38,0.40 0.025 fill #ffd700 0.30
+circle 0.35,0.95 0.025 fill #ffdd44 0.30
+circle 1.68,0.98 0.03 fill #ffd700 0.32
+circle 0.65,1.55 0.025 fill #ffdd44 0.28
+circle 1.35,1.60 0.03 fill #ffd700 0.30
+circle 1.00,0.30 0.025 fill #ffd700 0.28
+circle 0.80,1.25 0.02 fill #ffdd44 0.25
+circle 1.20,0.75 0.02 fill #ffd700 0.28
+circle 0.42,1.40 0.025 fill #ffdd44 0.26
+
+# === Glowing lichen patches on trunk ===
+circle 0.92,0.92 0.05 fill #88cc44 0.45
+circle 1.08,1.12 0.04 fill #aadd66 0.40
+circle 0.88,1.10 0.035 fill #88cc44 0.35
+
+# === Canopy lobe edge outlines ===
+circle 0.55,0.50 0.45 stroke #1a4a10 0.22
+circle 1.45,0.48 0.43 stroke #1a4a10 0.20
+circle 0.42,1.10 0.38 stroke #1a4a10 0.20
+circle 1.58,1.08 0.40 stroke #1a4a10 0.22
+circle 0.70,1.58 0.38 stroke #1a4a10 0.20
+circle 1.30,1.62 0.36 stroke #1a4a10 0.22

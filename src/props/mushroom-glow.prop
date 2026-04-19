@@ -1,0 +1,59 @@
+name: Glow Mushroom Cluster
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: cave-living, mushroom-cavern, mushroom-grove, underdark-outpost
+typical_count: many
+clusters_with: mushroom, glowcap-mushroom, fungal-growth, cave-cricket
+notes: Cluster of small luminescent mushrooms — gentle cave light source
+lights: [{"preset":"phosphorescent-fungi","x":0.5,"y":0.5,"radius":7,"intensity":0.5,"color":"#80d0c0"}]
+---
+# Outer bioluminescent halo
+circle 0.5,0.5 0.44 fill #80d0c0 0.12
+circle 0.5,0.5 0.34 fill #80d0c0 0.18
+# Mushroom 1 (center, largest)
+circle 0.50,0.48 0.14 fill #4a7080 0.92
+circle 0.50,0.48 0.14 stroke #1a3040
+circle 0.50,0.48 0.10 fill #5a8898 0.85
+circle 0.50,0.48 0.06 fill #80c0d0 0.9
+circle 0.50,0.48 0.03 fill #c0f0e8 0.95
+# Stalk peek under center cap (south edge)
+rect 0.47,0.56 0.06,0.06 fill #6a5040 0.85
+rect 0.47,0.56 0.06,0.06 stroke #3a2818
+# Mushroom 2 (upper left)
+circle 0.26,0.28 0.09 fill #4a7080 0.9
+circle 0.26,0.28 0.09 stroke #1a3040
+circle 0.26,0.28 0.06 fill #5a8898 0.85
+circle 0.26,0.28 0.03 fill #80c0d0 0.9
+circle 0.26,0.28 0.016 fill #c0f0e8 0.95
+rect 0.24,0.34 0.04,0.05 fill #6a5040 0.8
+# Mushroom 3 (upper right)
+circle 0.74,0.24 0.085 fill #4a7080 0.9
+circle 0.74,0.24 0.085 stroke #1a3040
+circle 0.74,0.24 0.055 fill #5a8898 0.85
+circle 0.74,0.24 0.028 fill #80c0d0 0.9
+circle 0.74,0.24 0.014 fill #c0f0e8 0.95
+rect 0.72,0.30 0.04,0.045 fill #6a5040 0.8
+# Mushroom 4 (lower left)
+circle 0.24,0.72 0.08 fill #4a7080 0.9
+circle 0.24,0.72 0.08 stroke #1a3040
+circle 0.24,0.72 0.05 fill #5a8898 0.85
+circle 0.24,0.72 0.025 fill #80c0d0 0.9
+circle 0.24,0.72 0.013 fill #c0f0e8 0.95
+rect 0.22,0.78 0.04,0.045 fill #6a5040 0.8
+# Mushroom 5 (lower right)
+circle 0.76,0.74 0.075 fill #4a7080 0.9
+circle 0.76,0.74 0.075 stroke #1a3040
+circle 0.76,0.74 0.05 fill #5a8898 0.85
+circle 0.76,0.74 0.024 fill #80c0d0 0.9
+circle 0.76,0.74 0.012 fill #c0f0e8 0.95
+rect 0.74,0.80 0.04,0.045 fill #6a5040 0.8
+# Glowing spores drifting between caps
+circle 0.40,0.38 0.012 fill #c0f0e8 0.85
+circle 0.60,0.36 0.01 fill #c0f0e8 0.8
+circle 0.42,0.62 0.012 fill #c0f0e8 0.8
+circle 0.60,0.64 0.01 fill #c0f0e8 0.8

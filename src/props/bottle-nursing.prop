@@ -1,0 +1,53 @@
+name: Nursing Bottle
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: nursery
+typical_count: single
+clusters_with: cradle, nurse-stool, spilled-toys, building-blocks
+notes: Small glass nursing bottle lying on its side with pale milky contents and soft rubber teat at one end
+---
+# === HITBOX ===
+selection rect 0.12,0.40 0.76,0.20
+
+# Main bottle body (elongated capsule) — milky pale-blue glass
+rect 0.20,0.42 0.46,0.18 fill #e8eef4 0.92
+rect 0.20,0.42 0.46,0.18 stroke #8ca8bc
+# Rounded base cap (west end)
+arc 0.20,0.51 0.09 90 270 fill #e8eef4 0.92
+arc 0.20,0.51 0.09 90 270 stroke #8ca8bc
+
+# Milky contents tint visible through glass
+rect 0.22,0.44 0.42,0.14 fill #f4f0e0 0.6
+
+# Neck ring where bottle narrows toward teat
+rect 0.66,0.45 0.06,0.12 fill #e8eef4 0.9
+rect 0.66,0.45 0.06,0.12 stroke #8ca8bc
+
+# Screw collar (white plastic ring)
+rect 0.72,0.43 0.05,0.16 fill #f8f4e8 0.95
+rect 0.72,0.43 0.05,0.16 stroke #a89878
+
+# Rubber teat/nipple (soft rounded circle at east end)
+circle 0.83,0.51 0.07 fill #f0d8b8 0.95
+circle 0.83,0.51 0.07 stroke #8b7355
+# Teat tip dimple
+circle 0.86,0.51 0.015 fill #8b7355 0.6
+
+# Measurement tick marks along the south side
+line 0.28,0.58 0.28,0.60 stroke #8ca8bc width 1
+line 0.36,0.58 0.36,0.60 stroke #8ca8bc width 1
+line 0.44,0.58 0.44,0.60 stroke #8ca8bc width 1
+line 0.52,0.58 0.52,0.60 stroke #8ca8bc width 1
+line 0.60,0.58 0.60,0.60 stroke #8ca8bc width 1
+
+# Tiny painted rabbit decal on body
+circle 0.38,0.50 0.03 fill #d4a0b0 0.8
+circle 0.38,0.50 0.03 stroke #7a4050 width 1
+
+# Glass highlight along north curve
+line 0.26,0.44 0.60,0.44 stroke #ffffff 0.5 width 1

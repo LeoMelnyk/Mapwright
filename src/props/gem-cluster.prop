@@ -1,0 +1,69 @@
+name: Gem Cluster
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: treasure-vault, vault, shop-jeweler, dragon-hoard, reliquary, elemental-earth-node
+typical_count: few
+clusters_with: coin-pile, coin-spill, chest, gold-ingot, jewelry-loose
+notes: Mounded pile of cut and uncut gemstones — many colors, overlapping facets
+---
+# === HITBOX ===
+selection circle 0.5,0.52 0.32
+
+# Faint shadow halo
+ellipse 0.5,0.60 0.32,0.08 fill #1a0820 0.35
+
+# === Large ruby (center, diamond-cut) ===
+poly 0.40,0.46 0.50,0.32 0.60,0.46 0.56,0.58 0.50,0.64 0.44,0.58 fill #cc1828 0.95
+poly 0.40,0.46 0.50,0.32 0.60,0.46 0.56,0.58 0.50,0.64 0.44,0.58 stroke #5a0808
+line 0.40,0.46 0.50,0.32 stroke #f06060 0.8 width 1
+line 0.50,0.32 0.60,0.46 stroke #f06060 0.8 width 1
+line 0.50,0.32 0.50,0.64 stroke #8a1020 0.6 width 1
+line 0.40,0.46 0.60,0.46 stroke #8a1020 0.5 width 1
+poly 0.44,0.48 0.50,0.44 0.56,0.48 0.52,0.58 0.48,0.58 fill #4a0808 0.6
+
+# === Emerald (NE, hexagonal) ===
+poly 0.66,0.30 0.76,0.28 0.82,0.36 0.78,0.46 0.68,0.48 0.62,0.40 fill #2a8040 0.95
+poly 0.66,0.30 0.76,0.28 0.82,0.36 0.78,0.46 0.68,0.48 0.62,0.40 stroke #0a3018
+line 0.66,0.30 0.82,0.36 stroke #60c080 0.7 width 1
+line 0.72,0.30 0.72,0.48 stroke #0a3018 0.5 width 1
+circle 0.72,0.34 0.012 fill #ffffff 0.9
+
+# === Sapphire (NW, round cut) ===
+poly 0.18,0.36 0.26,0.30 0.34,0.34 0.36,0.44 0.30,0.50 0.20,0.48 fill #1848a0 0.95
+poly 0.18,0.36 0.26,0.30 0.34,0.34 0.36,0.44 0.30,0.50 0.20,0.48 stroke #0a1830
+line 0.26,0.30 0.30,0.50 stroke #6080c8 0.6 width 1
+line 0.18,0.36 0.36,0.44 stroke #0a1830 0.5 width 1
+circle 0.26,0.36 0.01 fill #ffffff 0.9
+
+# === Amethyst (SW, tall cut) ===
+poly 0.24,0.60 0.34,0.56 0.38,0.66 0.34,0.76 0.24,0.78 0.20,0.68 fill #6a2080 0.95
+poly 0.24,0.60 0.34,0.56 0.38,0.66 0.34,0.76 0.24,0.78 0.20,0.68 stroke #2a1040
+line 0.24,0.60 0.34,0.76 stroke #a050c0 0.6 width 1
+circle 0.28,0.64 0.01 fill #ffffff 0.85
+
+# === Yellow topaz (SE) ===
+poly 0.62,0.62 0.72,0.60 0.78,0.70 0.74,0.78 0.64,0.78 0.60,0.70 fill #e8c030 0.95
+poly 0.62,0.62 0.72,0.60 0.78,0.70 0.74,0.78 0.64,0.78 0.60,0.70 stroke #8a7810
+line 0.62,0.62 0.74,0.78 stroke #ffe070 0.6 width 1
+circle 0.68,0.66 0.01 fill #ffffff 0.85
+
+# === Small uncut gems scattered between ===
+poly 0.14,0.22 0.22,0.20 0.20,0.26 fill #aa2060 0.85
+poly 0.14,0.22 0.22,0.20 0.20,0.26 stroke #401028
+poly 0.80,0.58 0.88,0.56 0.84,0.64 fill #20a0a0 0.85
+poly 0.80,0.58 0.88,0.56 0.84,0.64 stroke #082030
+poly 0.46,0.72 0.52,0.70 0.54,0.76 0.48,0.78 fill #40a060 0.85
+poly 0.46,0.72 0.52,0.70 0.54,0.76 0.48,0.78 stroke #103020
+
+# === Bright sparkles / light catching facets ===
+circle 0.50,0.36 0.015 fill #ffffff 0.95
+line 0.48,0.34 0.52,0.32 stroke #ffffff 0.8 width 1
+circle 0.36,0.40 0.01 fill #ffffff 0.85
+circle 0.66,0.40 0.01 fill #ffffff 0.85
+circle 0.52,0.60 0.008 fill #ffee88 0.8
+circle 0.32,0.68 0.008 fill #ffffff 0.75

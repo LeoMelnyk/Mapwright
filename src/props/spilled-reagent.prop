@@ -1,0 +1,67 @@
+name: Spilled Reagent
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+lights: [{"preset":"eldritch-glow","x":0.5,"y":0.5,"color":"#66ff88","intensity":0.35,"radius":2}]
+placement: floor
+room_types: alchemy-lab, wizard-sanctum, laboratory, apothecary, potion-brewery
+typical_count: few
+clusters_with: alchemy-bench, alembic, broken-glass, strange-residue, spilled-reagent
+notes: Splash of glowing green-yellow alchemical liquid on the floor with a tipped flask nearby. Faint bioluminescent glow.
+---
+# footprint 1x1: x 0-1, y 0-1. Flat floor decal with soft green glow.
+
+# === Outer luminous halo ===
+circle 0.50,0.52 0.44 gradient-radial #66ff88 #0a1a10 0.35
+
+# === Main puddle — irregular vibrant green splat ===
+poly 0.18,0.52 0.28,0.34 0.44,0.24 0.60,0.26 0.72,0.36 0.82,0.50 0.78,0.66 0.68,0.78 0.50,0.82 0.32,0.78 0.20,0.68 fill #6aee78 0.85
+poly 0.18,0.52 0.28,0.34 0.44,0.24 0.60,0.26 0.72,0.36 0.82,0.50 0.78,0.66 0.68,0.78 0.50,0.82 0.32,0.78 0.20,0.68 stroke #2a6030 width 1
+
+# === Inner darker pool (deeper reagent) ===
+ellipse 0.48,0.54 0.22,0.18 fill #3a8a44 0.75
+
+# === Bright core (most concentrated / glowing) ===
+ellipse 0.50,0.52 0.14,0.10 fill #a8ffb8 0.7
+
+# === Hot highlight ===
+ellipse 0.50,0.50 0.08,0.05 fill #e8ffe8 0.8
+
+# === Splash droplets (bright green specks outside main pool) ===
+circle 0.12,0.28 0.035 fill #6aee78 0.8
+circle 0.10,0.44 0.025 fill #6aee78 0.75
+circle 0.18,0.22 0.02 fill #88ff99 0.8
+circle 0.82,0.26 0.028 fill #6aee78 0.75
+circle 0.88,0.64 0.03 fill #6aee78 0.78
+circle 0.78,0.86 0.02 fill #88ff99 0.75
+circle 0.30,0.88 0.022 fill #6aee78 0.7
+circle 0.58,0.92 0.018 fill #88ff99 0.7
+
+# === Reactive bubbles / fizz (pale green circles on surface) ===
+circle 0.40,0.50 0.03 stroke #c8ffd0 width 1
+circle 0.58,0.60 0.025 stroke #c8ffd0 width 1
+circle 0.52,0.44 0.018 stroke #c8ffd0 width 1
+
+# === Tipped small flask (glass, pale — lying on its side) ===
+# Flask body (rounded, sideways)
+ellipse 0.76,0.38 0.10,0.06 fill #88ccaa 0.55
+ellipse 0.76,0.38 0.10,0.06 stroke #3a8a44
+# Flask interior (residual green glow)
+ellipse 0.76,0.38 0.06,0.035 fill #6aee78 0.7
+# Flask neck (thin)
+rect 0.84,0.36 0.08,0.04 fill #88ccaa 0.5
+rect 0.84,0.36 0.08,0.04 stroke #3a8a44
+# Flask cork (dark)
+rect 0.90,0.36 0.03,0.04 fill #5c3a1e 0.9
+
+# === Tiny sparkle / reactive glint ===
+line 0.50,0.48 0.52,0.50 stroke #ffffff 0.95 width 1
+line 0.42,0.56 0.44,0.58 stroke #ffffff 0.8 width 1
+circle 0.50,0.50 0.008 fill #ffffff 1.0
+
+# === Curling vapor wisps (rising green fume) ===
+bezier 0.36,0.40 0.30,0.28 0.32,0.18 0.28,0.10 stroke #88ff99 0.35 width 2
+bezier 0.62,0.40 0.68,0.28 0.66,0.18 0.70,0.10 stroke #88ff99 0.3 width 2

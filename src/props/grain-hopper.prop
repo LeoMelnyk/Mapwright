@@ -1,0 +1,65 @@
+name: Grain Hopper
+category: Industrial
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: brewery, mill-grain
+typical_count: single
+clusters_with: drive-shaft, millstone, flour-sack, grain-spill
+notes: Inverted wooden funnel that feeds grain into the millstone; square rim with a narrowing throat and some spillage at the corners
+---
+# === HITBOX ===
+hitbox rect 0.12,0.12 1.76,1.76 z 0-2.5
+
+# Outer wooden rim (the wide top opening of the hopper)
+rect 0.12,0.12 1.76,1.76 texfill polyhaven/dark_wood 0.88
+rect 0.12,0.12 1.76,1.76 stroke #1a1208 width 2
+# Outer rim plank seams
+line 0.12,0.60 1.88,0.60 stroke #2a1400 0.55
+line 0.12,1.00 1.88,1.00 stroke #2a1400 0.55
+line 0.12,1.40 1.88,1.40 stroke #2a1400 0.55
+line 0.60,0.12 0.60,1.88 stroke #2a1400 0.45
+line 1.00,0.12 1.00,1.88 stroke #2a1400 0.45
+line 1.40,0.12 1.40,1.88 stroke #2a1400 0.45
+
+# Iron corner brackets (reinforcing the frame)
+rect 0.12,0.12 0.22,0.10 fill #555555 0.85
+rect 0.12,0.12 0.22,0.10 stroke #222222
+rect 1.66,0.12 0.22,0.10 fill #555555 0.85
+rect 1.66,0.12 0.22,0.10 stroke #222222
+rect 0.12,1.78 0.22,0.10 fill #555555 0.85
+rect 0.12,1.78 0.22,0.10 stroke #222222
+rect 1.66,1.78 0.22,0.10 fill #555555 0.85
+rect 1.66,1.78 0.22,0.10 stroke #222222
+
+# Inner funnel rim — second tier going down
+rect 0.34,0.34 1.32,1.32 texfill polyhaven/worn_planks 0.85
+rect 0.34,0.34 1.32,1.32 stroke #2a1400 width 2
+
+# Funnel shadow (angled sides of the cone narrowing inward)
+poly 0.34,0.34 1.66,0.34 1.30,0.78 0.70,0.78 fill #1a1208 0.35
+poly 1.66,0.34 1.66,1.66 1.30,1.22 1.30,0.78 fill #1a1208 0.45
+poly 1.66,1.66 0.34,1.66 0.70,1.22 1.30,1.22 fill #1a1208 0.55
+poly 0.34,1.66 0.34,0.34 0.70,0.78 0.70,1.22 fill #1a1208 0.40
+
+# Inner throat (narrow square opening where grain falls through)
+rect 0.78,0.78 0.44,0.44 fill #0a0604 0.95
+rect 0.78,0.78 0.44,0.44 stroke #1a1208 width 2
+# A few grain kernels caught visible in the throat
+circle 0.88,0.92 0.025 fill #d4b890 0.85
+circle 1.08,0.88 0.022 fill #c8a878 0.80
+circle 0.96,1.08 0.024 fill #d4b890 0.80
+circle 1.12,1.12 0.020 fill #b89868 0.75
+
+# Grain spillage at the rim corners
+circle 0.20,0.22 0.028 fill #d4b890 0.85
+circle 0.26,0.18 0.022 fill #c8a878 0.80
+circle 0.18,0.30 0.020 fill #d4b890 0.75
+circle 1.78,0.24 0.025 fill #c8a878 0.80
+circle 1.82,0.18 0.020 fill #d4b890 0.75
+circle 0.22,1.80 0.024 fill #d4b890 0.80
+circle 1.80,1.78 0.026 fill #c8a878 0.85
+circle 1.76,1.82 0.020 fill #d4b890 0.75

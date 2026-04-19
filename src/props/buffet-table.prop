@@ -1,0 +1,78 @@
+name: Buffet Table
+category: Furniture
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: wall
+room_types: mansion-ballroom, mansion-dining, grand-hall, noble-villa, reception-hall, estate
+typical_count: few
+clusters_with: punch-table, musicians-dais, candelabra, brass-candlestick
+notes: Long banquet table draped in white cloth, serving dishes and stacked plates on top. Place against a wall so guests can approach from the south.
+---
+# footprint 1x3: x range 0-3, y range 0-1
+
+# White linen tablecloth (wide drape overhanging edges)
+rect 0.05,0.08 2.90,0.84 fill #f8f0e0 0.95
+rect 0.05,0.08 2.90,0.84 stroke #c8b898 width 1
+
+# Soft cloth fold shadows along the sides
+line 0.05,0.22 2.95,0.22 stroke #d8c898 0.5
+line 0.05,0.78 2.95,0.78 stroke #d8c898 0.5
+
+# Center gold runner along the table
+rect 0.10,0.40 2.80,0.20 texfill polyhaven/floral_jacquard 0.85
+rect 0.10,0.40 2.80,0.20 fill #daa520 0.30
+rect 0.10,0.40 2.80,0.20 stroke #8b6914
+
+# Large silver serving platter (left)
+ellipse 0.50,0.50 0.22,0.16 texfill polyhaven/metal_plate 0.85
+ellipse 0.50,0.50 0.22,0.16 stroke #666666
+# Roast/food on platter
+ellipse 0.50,0.50 0.12,0.08 fill #8b4a20 0.85
+ellipse 0.50,0.50 0.12,0.08 stroke #3a1f00
+
+# Centerpiece pitcher
+circle 1.50,0.50 0.14 texfill polyhaven/metal_plate 0.88
+circle 1.50,0.50 0.14 stroke #555555
+circle 1.50,0.50 0.09 fill #c0c0c0 0.5
+# Pitcher handle hint
+arc 1.62,0.50 0.06 270 90 stroke #666666 width 2
+
+# Right serving dish (tureen)
+ellipse 2.50,0.50 0.20,0.14 texfill polyhaven/metal_plate 0.85
+ellipse 2.50,0.50 0.20,0.14 stroke #555555
+# Tureen lid knob
+circle 2.50,0.50 0.05 fill #8b6914 0.9
+circle 2.50,0.50 0.05 stroke #5a3a00
+
+# Stacked plates (front-left)
+circle 0.35,0.25 0.09 fill #f8f0e0 0.95
+circle 0.35,0.25 0.09 stroke #8b6914
+circle 0.35,0.25 0.07 stroke #daa520 0.6
+circle 0.35,0.25 0.05 fill #f8f0e0 0.95
+circle 0.35,0.25 0.05 stroke #8b6914
+
+# Stacked plates (front-right)
+circle 2.65,0.25 0.09 fill #f8f0e0 0.95
+circle 2.65,0.25 0.09 stroke #8b6914
+circle 2.65,0.25 0.07 stroke #daa520 0.6
+
+# Wine goblets clustered
+circle 1.00,0.22 0.05 fill #5a1a1a 0.7
+circle 1.00,0.22 0.05 stroke #daa520
+circle 1.20,0.24 0.05 fill #5a1a1a 0.7
+circle 1.20,0.24 0.05 stroke #daa520
+circle 1.85,0.22 0.05 fill #5a1a1a 0.7
+circle 1.85,0.22 0.05 stroke #daa520
+
+# Decorative fruit bowl (back-center)
+circle 1.50,0.22 0.10 texfill polyhaven/dark_wood 0.8
+circle 1.50,0.22 0.10 stroke #3a1f00
+circle 1.46,0.20 0.03 fill #aa2020 0.85
+circle 1.52,0.19 0.03 fill #ffd700 0.85
+circle 1.54,0.24 0.03 fill #6a2020 0.85
+
+# Front edge cloth drape shadow
+rect 0.05,0.88 2.90,0.06 fill #000000 0.12

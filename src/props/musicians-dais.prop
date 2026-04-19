@@ -1,0 +1,69 @@
+name: Musicians' Dais
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: corner
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall, estate
+typical_count: single
+clusters_with: buffet-table, fountain-interior, brass-candlestick
+notes: Low raised wooden platform for a string quartet or small ensemble, carpet on top, two music stands at the front.
+---
+# footprint 2x2: x 0-2, y 0-2
+
+# === HITBOX ===
+selection rect 0.08,0.08 1.84,1.84
+
+# Dais wooden platform base
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/dark_wood 0.85
+rect 0.08,0.08 1.84,1.84 stroke #2a1400 width 2
+
+# Front step (south edge — reveals platform height)
+rect 0.08,1.76 1.84,0.08 fill #1a1208 0.8
+rect 0.08,1.76 1.84,0.08 stroke #0a0604
+
+# Wooden plank seams running north-south
+line 0.50,0.10 0.50,1.74 stroke #3a1f00 0.6
+line 1.00,0.10 1.00,1.74 stroke #3a1f00 0.6
+line 1.50,0.10 1.50,1.74 stroke #3a1f00 0.6
+
+# Carpet runner on top (centered, rich burgundy with gold border)
+rect 0.20,0.20 1.60,1.40 texfill polyhaven/floral_jacquard 0.85
+rect 0.20,0.20 1.60,1.40 fill #5a1a1a 0.45
+rect 0.20,0.20 1.60,1.40 stroke #2a0810 width 2
+
+# Carpet gold border trim
+rect 0.24,0.24 1.52,1.32 stroke #daa520 0.7
+rect 0.28,0.28 1.44,1.24 stroke #8b6914 0.5
+
+# Decorative tassels at carpet corners
+circle 0.22,0.22 0.03 fill #daa520 0.85
+circle 1.78,0.22 0.03 fill #daa520 0.85
+circle 0.22,1.58 0.03 fill #daa520 0.85
+circle 1.78,1.58 0.03 fill #daa520 0.85
+
+# Music stand 1 (front-left) — slim vertical silhouette with a tilted top
+rect 0.54,1.30 0.08,0.22 fill #1a1208 0.9
+rect 0.54,1.30 0.08,0.22 stroke #0a0604
+# Music stand tray (small rect near top)
+rect 0.46,1.26 0.24,0.06 fill #2a1400 0.9
+rect 0.46,1.26 0.24,0.06 stroke #0a0604
+# Stand base (small foot)
+ellipse 0.58,1.54 0.10,0.04 fill #1a1208 0.9
+ellipse 0.58,1.54 0.10,0.04 stroke #0a0604
+
+# Music stand 2 (front-right)
+rect 1.38,1.30 0.08,0.22 fill #1a1208 0.9
+rect 1.38,1.30 0.08,0.22 stroke #0a0604
+rect 1.30,1.26 0.24,0.06 fill #2a1400 0.9
+rect 1.30,1.26 0.24,0.06 stroke #0a0604
+ellipse 1.42,1.54 0.10,0.04 fill #1a1208 0.9
+ellipse 1.42,1.54 0.10,0.04 stroke #0a0604
+
+# Sheet music suggestions (pale rects on stands)
+rect 0.48,1.24 0.20,0.04 fill #f8f0e0 0.85
+rect 0.48,1.24 0.20,0.04 stroke #c8b898
+rect 1.32,1.24 0.20,0.04 fill #f8f0e0 0.85
+rect 1.32,1.24 0.20,0.04 stroke #c8b898

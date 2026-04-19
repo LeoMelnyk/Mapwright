@@ -1,0 +1,76 @@
+name: Scale of Justice
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+placement: center
+room_types: courthouse-chamber, council-chamber, guildhall, temple-nave, mansion-study
+typical_count: single
+clusters_with: judge-bench, clerk-desk, scroll-loose, ledger-stack
+notes: Golden balance scales on a pedestal — two pans suspended from a crossbeam; emblem of justice
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.20 z 0-2
+
+# Pedestal base (stone or marble square base)
+rect 0.30,0.60 0.40,0.24 texfill polyhaven/marble_01 0.88
+rect 0.30,0.60 0.40,0.24 stroke #5a5a5a width 2
+# Base top bevel highlight
+line 0.32,0.62 0.68,0.62 stroke #ffffff 0.5 width 1
+# Base bottom shadow
+rect 0.30,0.78 0.40,0.06 fill #3a3a3a 0.4
+
+# Central vertical post (brass column — seen from above as a narrow rectangle rising from base)
+rect 0.48,0.40 0.04,0.22 fill #daa520 0.95
+rect 0.48,0.40 0.04,0.22 stroke #5a3a00 width 2
+
+# Decorative brass collar at base of post
+rect 0.44,0.58 0.12,0.04 fill #ffd700 0.9
+rect 0.44,0.58 0.12,0.04 stroke #5a3a00
+
+# Decorative brass cap at top of post (where the beam pivots)
+circle 0.50,0.40 0.05 fill #ffd700 0.95
+circle 0.50,0.40 0.05 stroke #5a3a00 width 2
+circle 0.50,0.40 0.025 fill #5a3a00 0.9
+
+# Horizontal crossbeam (the balance arm — long thin brass rod)
+rect 0.14,0.38 0.72,0.04 fill #daa520 0.92
+rect 0.14,0.38 0.72,0.04 stroke #5a3a00 width 2
+# Crossbeam highlight
+line 0.16,0.39 0.84,0.39 stroke #ffd700 0.7 width 1
+
+# Chains dangling from each end of the beam (short vertical strokes)
+line 0.18,0.42 0.18,0.52 stroke #8b6914 width 2
+line 0.20,0.42 0.20,0.52 stroke #8b6914 width 2
+line 0.80,0.42 0.80,0.52 stroke #8b6914 width 2
+line 0.82,0.42 0.82,0.52 stroke #8b6914 width 2
+
+# Left pan (shallow brass dish)
+ellipse 0.19,0.56 0.14,0.06 fill #daa520 0.9
+ellipse 0.19,0.56 0.14,0.06 stroke #5a3a00 width 2
+# Inner pan basin
+ellipse 0.19,0.56 0.11,0.04 fill #8b6914 0.85
+# Pan highlight
+arc 0.19,0.56 0.12 200 260 stroke #ffd700 0.7 width 1
+# Content hint — small object (weight)
+circle 0.19,0.55 0.025 fill #5a3a00 0.85
+circle 0.19,0.55 0.025 stroke #3a2400
+
+# Right pan (mirror of left)
+ellipse 0.81,0.56 0.14,0.06 fill #daa520 0.9
+ellipse 0.81,0.56 0.14,0.06 stroke #5a3a00 width 2
+ellipse 0.81,0.56 0.11,0.04 fill #8b6914 0.85
+arc 0.81,0.56 0.12 200 260 stroke #ffd700 0.7 width 1
+# Content hint — slightly different weight (tilts balance subtly)
+circle 0.81,0.54 0.02 fill #5a3a00 0.85
+circle 0.81,0.54 0.02 stroke #3a2400
+
+# Ornamental finial on top of the post (pointed cap)
+poly 0.48,0.34 0.52,0.34 0.50,0.28 fill #ffd700 0.95
+poly 0.48,0.34 0.52,0.34 0.50,0.28 stroke #5a3a00 width 2
+
+# Small sword engraving on base (symbol of justice)
+line 0.46,0.72 0.54,0.72 stroke #5a3a00 width 1
+line 0.50,0.68 0.50,0.76 stroke #5a3a00 width 1

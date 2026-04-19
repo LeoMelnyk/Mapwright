@@ -1,0 +1,56 @@
+name: Writing Desk
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: house-merchant, house-noble-townhouse, library, mansion-library, mansion-study, noble-solar, ship-captains-cabin
+typical_count: single
+clusters_with: chair, chair-upholstered, inkwell, quill, letter-stack, document-stack, ledger-stack
+notes: Slim elegant writing desk with drawers; more refined than a workbench
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.40 z 0-2.5
+
+# Desk surface (rectangular top)
+rect 0.10,0.10 1.80,1.40 texfill polyhaven/wood_table 0.88
+rect 0.10,0.10 1.80,1.40 stroke #3a1f00
+# Surface edge beveling
+rect 0.14,0.14 1.72,1.32 stroke #5c3a1e 0.5 width 1
+# Wood grain
+line 0.10,0.40 1.90,0.40 stroke #3a1f00 0.3
+line 0.10,0.80 1.90,0.80 stroke #3a1f00 0.3
+line 0.10,1.20 1.90,1.20 stroke #3a1f00 0.3
+# Raised pigeonhole shelf along north edge (for papers)
+rect 0.20,0.16 1.60,0.24 texfill polyhaven/dark_wood 0.88
+rect 0.20,0.16 1.60,0.24 stroke #2a1400
+# Pigeonhole dividers
+line 0.55,0.16 0.55,0.40 stroke #2a1400 width 1
+line 0.90,0.16 0.90,0.40 stroke #2a1400 width 1
+line 1.25,0.16 1.25,0.40 stroke #2a1400 width 1
+line 1.60,0.16 1.60,0.40 stroke #2a1400 width 1
+# Tiny rolled papers in some holes
+rect 0.28,0.22 0.22,0.04 fill #e8dcc8 0.9
+rect 0.62,0.24 0.22,0.04 fill #d4c4a8 0.9
+# Leather writing surface inlay (green panel)
+rect 0.30,0.50 1.40,0.84 fill #2a5028 0.85
+rect 0.30,0.50 1.40,0.84 stroke #1a2818
+# Leather inlay gilt border
+rect 0.34,0.54 1.32,0.76 stroke #daa520 0.6 width 1
+# Drawer face (south edge)
+rect 0.14,1.36 1.72,0.12 texfill polyhaven/dark_wood 0.85
+rect 0.14,1.36 1.72,0.12 stroke #2a1400
+# Drawer handles (two brass pulls)
+circle 0.60,1.42 0.04 fill #daa520 0.9
+circle 0.60,1.42 0.04 stroke #5a3a00
+circle 1.40,1.42 0.04 fill #daa520 0.9
+circle 1.40,1.42 0.04 stroke #5a3a00
+# Leg shadows (peeking at corners)
+circle 0.18,1.50 0.06 fill #1a1008 0.4
+circle 1.82,1.50 0.06 fill #1a1008 0.4
+# Ink blot on leather
+circle 0.80,0.90 0.05 fill #0a0618 0.7
+# Small quill drawn resting on surface
+bezier 1.10,1.00 1.24,0.90 1.40,0.86 1.54,0.80 stroke #e8dcc8 0.9 width 2

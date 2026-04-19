@@ -1,0 +1,56 @@
+name: Sealing Wax
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: mansion-study, counting-house, courthouse-chamber, guildhall, scriptorium-mundane, command-room
+typical_count: few
+clusters_with: desk, wax-seal, wax-seal-kit, quill, inkwell, ledger-stack
+notes: Deep-red wax stick alongside its brass seal matrix — lying ready on a desk
+---
+# === HITBOX ===
+selection rect 0.14,0.28 0.72,0.44
+
+# Wax stick (candle-like cylinder lying horizontally — seen as a long rect from above)
+rect 0.14,0.38 0.44,0.12 fill #991111 0.92
+rect 0.14,0.38 0.44,0.12 stroke #4a0808 width 2
+
+# Wax stick top highlight (glossy sheen)
+line 0.16,0.40 0.56,0.40 stroke #cc2233 0.7 width 1
+# Wax stick wick nub (at west end — tiny dark stub)
+rect 0.10,0.42 0.04,0.04 fill #1a0808 0.9
+rect 0.10,0.42 0.04,0.04 stroke #0a0404
+# Wax stick charred/used tip (slightly melted at east end)
+circle 0.58,0.44 0.04 fill #6b0808 0.9
+circle 0.58,0.44 0.04 stroke #2a0404
+# Soft drip near the used tip
+circle 0.62,0.50 0.018 fill #6b0808 0.8
+
+# Brass seal matrix (round stamp head — sitting south-east of wax stick)
+circle 0.72,0.58 0.10 fill #daa520 0.92
+circle 0.72,0.58 0.10 stroke #5a3a00 width 2
+# Inner engraved ring
+circle 0.72,0.58 0.075 stroke #5a3a00 0.7 width 1
+# Engraved emblem (star-shape hint)
+line 0.68,0.58 0.76,0.58 stroke #3a2400 width 1
+line 0.72,0.54 0.72,0.62 stroke #3a2400 width 1
+line 0.69,0.55 0.75,0.61 stroke #3a2400 0.7 width 1
+line 0.75,0.55 0.69,0.61 stroke #3a2400 0.7 width 1
+
+# Short wooden handle stub protruding from the seal (north side)
+rect 0.705,0.44 0.03,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.705,0.44 0.03,0.08 stroke #1a0e00
+# Brass ferrule where handle meets stamp
+rect 0.700,0.46 0.04,0.02 fill #daa520 0.95
+rect 0.700,0.46 0.04,0.02 stroke #5a3a00
+
+# Brass shine highlight on stamp
+arc 0.72,0.58 0.085 210 260 stroke #ffd700 0.55 width 1
+
+# Small scattered wax shavings (scraped off when warming)
+circle 0.26,0.58 0.015 fill #991111 0.7
+circle 0.34,0.62 0.012 fill #991111 0.65
+circle 0.42,0.58 0.010 fill #991111 0.6

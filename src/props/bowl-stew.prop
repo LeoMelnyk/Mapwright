@@ -1,0 +1,51 @@
+name: Bowl of Stew
+category: Food
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: inn-common-room, tavern-common, farmhouse-common, peasant-hovel, hermit-cell
+typical_count: few
+clusters_with: table, tankard, bread-loaf, wooden-bowl, stool
+notes: Wooden bowl full of brown stew with chunks floating — warm meal
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# Wooden bowl outer rim
+circle 0.5,0.5 0.30 fill #5c3a1e 0.95
+circle 0.5,0.5 0.30 stroke #2a1400
+# Bowl inner edge (darker wood)
+circle 0.5,0.5 0.26 stroke #3a1f00 width 2
+# Stew surface (brown broth)
+circle 0.5,0.5 0.24 fill #6a3810 0.95
+circle 0.5,0.5 0.24 stroke #3a1808
+# Grease shine ring
+arc 0.5,0.5 0.22 210 270 stroke #8a5820 0.7 width 1
+# Meat chunk 1
+poly 0.36,0.44 0.42,0.40 0.46,0.44 0.42,0.48 fill #4a2008 0.9
+poly 0.36,0.44 0.42,0.40 0.46,0.44 0.42,0.48 stroke #2a1008
+# Meat chunk 2
+poly 0.54,0.52 0.60,0.50 0.62,0.56 0.56,0.58 fill #4a2008 0.9
+poly 0.54,0.52 0.60,0.50 0.62,0.56 0.56,0.58 stroke #2a1008
+# Carrot chunk (orange)
+circle 0.58,0.40 0.035 fill #c86820 0.9
+circle 0.58,0.40 0.035 stroke #6a3010
+# Potato chunk (pale)
+circle 0.42,0.58 0.04 fill #d4b078 0.9
+circle 0.42,0.58 0.04 stroke #8a6030
+# Herb flecks (green)
+circle 0.48,0.44 0.012 fill #3a5028 0.9
+circle 0.54,0.60 0.01 fill #3a5028 0.8
+circle 0.38,0.50 0.01 fill #3a5028 0.8
+# Grease bubbles
+circle 0.50,0.50 0.015 fill #f0c060 0.5
+circle 0.60,0.46 0.012 fill #f0c060 0.4
+# Spoon handle sticking out
+rect 0.66,0.56 0.22,0.04 texfill polyhaven/dark_wood 0.9 rotate 20
+rect 0.66,0.56 0.22,0.04 stroke #2a1400 rotate 20
+# Steam wisps
+bezier 0.44,0.40 0.42,0.30 0.48,0.22 0.46,0.12 stroke #aaaaaa 0.4 width 1
+bezier 0.54,0.42 0.58,0.32 0.52,0.24 0.56,0.14 stroke #cccccc 0.35 width 1

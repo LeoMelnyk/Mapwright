@@ -1,0 +1,61 @@
+name: Knit Blanket
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: lighthouse-keepers-room, house-small, house-medium-family, inn, cabin-witch, bedroom
+typical_count: single
+clusters_with: bed, bed-small, chair, rocking-chair, wardrobe
+notes: Hand-knit woollen blanket draped loose over a chair or bed foot — visible ribbed texture, slightly rumpled edges, warm homespun colour.
+---
+# footprint 1x2: x 0-2, y 0-1
+# Top-down: rumpled hand-knit blanket draped on a surface
+
+# === Main blanket body — warm oatmeal wool ===
+poly 0.10,0.22 0.28,0.14 0.82,0.12 1.32,0.16 1.68,0.14 1.88,0.22 1.92,0.74 1.76,0.86 1.30,0.82 0.80,0.88 0.32,0.84 0.12,0.76 fill #c8a878 0.9
+poly 0.10,0.22 0.28,0.14 0.82,0.12 1.32,0.16 1.68,0.14 1.88,0.22 1.92,0.74 1.76,0.86 1.30,0.82 0.80,0.88 0.32,0.84 0.12,0.76 stroke #6a4810 0.8 width 1
+
+# === Darker undertone wash for dimension ===
+poly 0.10,0.22 0.28,0.14 0.82,0.12 1.32,0.16 1.68,0.14 1.88,0.22 1.92,0.74 1.76,0.86 1.30,0.82 0.80,0.88 0.32,0.84 0.12,0.76 texfill polyhaven/rough_linen 0.45
+
+# === Ribbed knit stitch texture — parallel rib lines running east-west ===
+line 0.18,0.26 1.82,0.24 stroke #8b6914 0.5 width 1
+line 0.16,0.32 1.86,0.32 stroke #8b6914 0.55 width 1
+line 0.14,0.40 1.88,0.40 stroke #8b6914 0.55 width 1
+line 0.14,0.48 1.88,0.48 stroke #8b6914 0.55 width 1
+line 0.14,0.56 1.88,0.56 stroke #8b6914 0.55 width 1
+line 0.14,0.64 1.88,0.64 stroke #8b6914 0.55 width 1
+line 0.16,0.72 1.84,0.72 stroke #8b6914 0.5 width 1
+line 0.20,0.80 1.78,0.80 stroke #8b6914 0.45 width 1
+
+# === Knit stitch highlights (small V-shaped flecks) ===
+line 0.40,0.34 0.42,0.37 stroke #e8d8b8 0.5 width 1
+line 0.44,0.34 0.42,0.37 stroke #e8d8b8 0.5 width 1
+line 0.80,0.42 0.82,0.45 stroke #e8d8b8 0.5 width 1
+line 0.84,0.42 0.82,0.45 stroke #e8d8b8 0.5 width 1
+line 1.20,0.50 1.22,0.53 stroke #e8d8b8 0.5 width 1
+line 1.24,0.50 1.22,0.53 stroke #e8d8b8 0.5 width 1
+line 1.50,0.60 1.52,0.63 stroke #e8d8b8 0.5 width 1
+line 1.54,0.60 1.52,0.63 stroke #e8d8b8 0.5 width 1
+line 0.60,0.66 0.62,0.69 stroke #e8d8b8 0.5 width 1
+line 0.64,0.66 0.62,0.69 stroke #e8d8b8 0.5 width 1
+
+# === Fringe tassels at short ends (west + east) ===
+line 0.10,0.28 0.04,0.28 stroke #8b6914 0.7 width 1
+line 0.10,0.38 0.04,0.40 stroke #8b6914 0.7 width 1
+line 0.10,0.48 0.04,0.48 stroke #8b6914 0.7 width 1
+line 0.10,0.58 0.04,0.58 stroke #8b6914 0.7 width 1
+line 0.10,0.68 0.04,0.70 stroke #8b6914 0.7 width 1
+
+line 1.92,0.28 1.98,0.30 stroke #8b6914 0.7 width 1
+line 1.92,0.38 1.98,0.38 stroke #8b6914 0.7 width 1
+line 1.92,0.48 1.98,0.50 stroke #8b6914 0.7 width 1
+line 1.92,0.58 1.98,0.58 stroke #8b6914 0.7 width 1
+line 1.92,0.68 1.98,0.70 stroke #8b6914 0.7 width 1
+
+# === Drape folds (soft creases) ===
+bezier 0.50,0.18 0.60,0.32 0.55,0.54 0.45,0.80 stroke #6a4810 0.35 width 2
+bezier 1.40,0.16 1.50,0.34 1.45,0.58 1.38,0.84 stroke #6a4810 0.35 width 2

@@ -1,0 +1,62 @@
+name: Fallen Helmet
+category: Combat
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp, ruined-watchtower, guard-room
+typical_count: few
+clusters_with: corpse-soldier, arrow-stuck, weapon-stuck, pavise, blood-pool
+notes: Dented helmet on its side, visor bent, straps trailing; discarded battle debris
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: helmet lying on its side — dome visible as curved shape, visor bent
+
+# Helmet body (on its side - looks like asymmetric oval)
+ellipse 0.52,0.52 0.32,0.26 fill #666666 0.92
+ellipse 0.52,0.52 0.32,0.26 texfill polyhaven/metal_plate 0.5
+ellipse 0.52,0.52 0.32,0.26 stroke #333333
+
+# Helmet dome highlight (curved metal sheen)
+arc 0.52,0.52 0.28 200 340 stroke #8899aa 0.6 width 2
+
+# Visor / face opening (now on one side since helmet is tipped)
+# Dark opening showing inside
+ellipse 0.28,0.54 0.10,0.14 fill #0a0604 0.9
+ellipse 0.28,0.54 0.10,0.14 stroke #1a1a1a
+# Visor slit bars
+line 0.22,0.50 0.34,0.50 stroke #2a2a2a width 2
+line 0.22,0.58 0.34,0.58 stroke #2a2a2a width 2
+
+# Dent / bash (impact crater)
+arc 0.68,0.42 0.10 100 260 stroke #2a2a2a 0.8 width 2
+line 0.68,0.38 0.74,0.44 stroke #222222 width 1
+line 0.72,0.36 0.76,0.42 stroke #222222 width 1
+
+# Crest / plume socket (on top of helmet, now tipped sideways)
+rect 0.70,0.58 0.08,0.10 fill #444444 0.9
+rect 0.70,0.58 0.08,0.10 stroke #222222
+# Bent broken plume (red feathers, trailing)
+poly 0.74,0.66 0.86,0.78 0.82,0.82 0.70,0.70 fill #aa3030 0.8
+poly 0.74,0.66 0.86,0.78 0.82,0.82 0.70,0.70 stroke #5a1010
+
+# Chin strap trailing (leather)
+bezier 0.26,0.60 0.18,0.72 0.14,0.86 0.20,0.92 stroke #3a2418 width 3
+# Buckle at end
+rect 0.18,0.88 0.06,0.04 fill #8b6914 0.85
+rect 0.18,0.88 0.06,0.04 stroke #5a3a00
+
+# Rivets around rim
+circle 0.40,0.34 0.018 fill #333333 0.95
+circle 0.64,0.34 0.018 fill #333333 0.95
+circle 0.78,0.56 0.018 fill #333333 0.95
+circle 0.40,0.74 0.018 fill #333333 0.95
+
+# Scratches / battle damage
+line 0.48,0.40 0.58,0.46 stroke #2a2a2a width 1
+line 0.44,0.64 0.56,0.68 stroke #2a2a2a width 1
+
+# Blood smear on helmet
+ellipse 0.56,0.44 0.06,0.02 fill #3a0000 0.7

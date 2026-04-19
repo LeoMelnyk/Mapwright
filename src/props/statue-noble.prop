@@ -1,0 +1,62 @@
+name: Noble Bust Statue
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: corner
+room_types: mansion-grand-hall, mansion-ballroom, gallery, noble-villa, reception-hall, estate, memorial
+typical_count: few
+clusters_with: decorative-urn, coat-rack-ornate, painting-large, banner-heraldic
+notes: Marble bust of a noble on a round column plinth, laurel wreath on the head. Place flanking entrances or in corners.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.32 z 0-1.2
+hitbox circle 0.50,0.50 0.18 z 1.2-1.5
+
+# Round column plinth (wide outer base)
+circle 0.50,0.50 0.34 texfill polyhaven/marble_01 0.88
+circle 0.50,0.50 0.34 stroke #666666 width 2
+
+# Plinth step ring (slightly raised inner)
+circle 0.50,0.50 0.29 texfill polyhaven/marble_01 0.92
+circle 0.50,0.50 0.29 stroke #777777
+
+# Plinth top surface
+circle 0.50,0.50 0.25 texfill polyhaven/marble_01 0.95
+circle 0.50,0.50 0.25 stroke #888888
+
+# Plinth upper highlight
+arc 0.50,0.50 0.25 200 260 stroke #ffffff 0.35 width 1
+
+# Shoulders ellipse (top of bust — wider than head)
+ellipse 0.50,0.54 0.18,0.12 texfill polyhaven/marble_01 0.93
+ellipse 0.50,0.54 0.18,0.12 stroke #666666 width 2
+
+# Drape/toga fold lines over shoulders
+line 0.38,0.60 0.44,0.64 stroke #888888 0.6
+line 0.56,0.64 0.62,0.60 stroke #888888 0.6
+line 0.50,0.52 0.50,0.64 stroke #888888 0.5
+
+# Head (round, slightly above shoulders)
+circle 0.50,0.42 0.13 texfill polyhaven/marble_01 0.96
+circle 0.50,0.42 0.13 stroke #666666 width 2
+
+# Laurel wreath around head (subtle ring of leaf hints)
+arc 0.50,0.42 0.15 180 360 stroke #2a6a20 0.7 width 2
+# Laurel leaves as small ticks
+line 0.37,0.38 0.35,0.34 stroke #2a6a20 width 2
+line 0.42,0.32 0.42,0.28 stroke #2a6a20 width 2
+line 0.50,0.28 0.50,0.26 stroke #2a6a20 width 2
+line 0.58,0.32 0.58,0.28 stroke #2a6a20 width 2
+line 0.63,0.38 0.65,0.34 stroke #2a6a20 width 2
+
+# Face features subtle (brow shadow, nose shadow)
+ellipse 0.50,0.44 0.06,0.03 fill #000000 0.12
+line 0.50,0.42 0.50,0.46 stroke #888888 0.6
+
+# Head highlight
+circle 0.46,0.38 0.03 fill #ffffff 0.3

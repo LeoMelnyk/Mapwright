@@ -1,0 +1,111 @@
+name: Toppled Statue
+category: Features
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 0.5
+placement: floor
+room_types: ancient-ruin-overgrown, corrupted-temple, ruin, ancient-tomb, battlefield-recent, crypt
+typical_count: single
+clusters_with: rubble, rubble-pile, stone-column-broken, mosaic-fragment, broken-statue
+notes: Full stone statue lying horizontally on the ground — broken off its plinth. Head at east, feet at west. Break line visible where it snapped.
+---
+# footprint 1x2: x 0-2, y 0-1
+# === HITBOX ===
+hitbox rect 0.15,0.30 1.70,0.40 z 0-0.5
+
+# Shadow/dust beneath fallen body
+ellipse 1.0,0.68 0.78,0.10 fill #1a1008 0.25
+
+# === Broken plinth base (west end, where statue snapped off) ===
+rect 0.08,0.32 0.18,0.36 texfill polyhaven/granite_tile 0.8
+rect 0.08,0.32 0.18,0.36 fill #6a6058 0.3
+rect 0.08,0.32 0.18,0.36 stroke #2a2420 width 2
+
+# Jagged break top (the remaining stump of the statue's feet area)
+poly 0.26,0.32 0.30,0.40 0.26,0.48 0.30,0.56 0.26,0.68 fill #8a8078 0.9
+poly 0.26,0.32 0.30,0.40 0.26,0.48 0.30,0.56 0.26,0.68 stroke #2a2420 width 2
+
+# === Fallen body — feet section (west, attached to broken base on ground) ===
+# The feet/ankles of the statue
+poly 0.30,0.42 0.48,0.40 0.48,0.60 0.30,0.58 texfill polyhaven/marble_01 0.85
+poly 0.30,0.42 0.48,0.40 0.48,0.60 0.30,0.58 fill #888888 0.3
+poly 0.30,0.42 0.48,0.40 0.48,0.60 0.30,0.58 stroke #444444 width 2
+
+# === Fallen body — legs/torso (main long body, lying horizontal) ===
+poly 0.48,0.40 0.88,0.38 1.30,0.38 1.30,0.62 0.88,0.62 0.48,0.60 texfill polyhaven/marble_01 0.9
+poly 0.48,0.40 0.88,0.38 1.30,0.38 1.30,0.62 0.88,0.62 0.48,0.60 fill #999999 0.35
+poly 0.48,0.40 0.88,0.38 1.30,0.38 1.30,0.62 0.88,0.62 0.48,0.60 stroke #444444 width 2
+
+# Belt/waist division line
+line 0.76,0.38 0.76,0.62 stroke #666666 0.7 width 1
+
+# Robe drape lines (horizontal now because statue lies on its side)
+bezier 0.52,0.44 0.68,0.42 0.84,0.44 1.00,0.42 stroke #666666 0.6 width 1
+bezier 0.52,0.56 0.68,0.58 0.84,0.56 1.00,0.58 stroke #666666 0.6 width 1
+line 0.90,0.40 0.92,0.60 stroke #666666 0.5 width 1
+line 1.10,0.40 1.12,0.60 stroke #666666 0.5 width 1
+
+# === Arms extending (one arm broken off lying near body) ===
+# Attached arm (lying close to body, east side)
+poly 1.30,0.44 1.50,0.42 1.50,0.54 1.30,0.52 texfill polyhaven/marble_01 0.88
+poly 1.30,0.44 1.50,0.42 1.50,0.54 1.30,0.52 fill #888888 0.3
+poly 1.30,0.44 1.50,0.42 1.50,0.54 1.30,0.52 stroke #444444 width 2
+# Hand at end of arm
+circle 1.52,0.48 0.05 texfill polyhaven/marble_01 0.88
+circle 1.52,0.48 0.05 stroke #444444 width 2
+
+# Broken-off arm lying separately (north of body)
+poly 0.80,0.20 0.98,0.18 1.00,0.28 0.82,0.30 texfill polyhaven/marble_01 0.85
+poly 0.80,0.20 0.98,0.18 1.00,0.28 0.82,0.30 fill #888888 0.3
+poly 0.80,0.20 0.98,0.18 1.00,0.28 0.82,0.30 stroke #444444 width 2
+circle 0.78,0.24 0.04 texfill polyhaven/marble_01 0.85
+circle 0.78,0.24 0.04 stroke #444444 width 1
+
+# === Head (east end — fallen, facing up) ===
+circle 1.62,0.50 0.14 texfill polyhaven/marble_01 0.92
+circle 1.62,0.50 0.14 fill #aaaaaa 0.3
+circle 1.62,0.50 0.14 stroke #444444 width 2
+
+# Face features (nose bump, eye sockets — since head lies face-up)
+circle 1.60,0.48 0.02 fill #666666 0.6
+circle 1.64,0.48 0.02 fill #666666 0.6
+poly 1.60,0.52 1.64,0.52 1.62,0.54 fill #666666 0.4
+# Mouth
+line 1.58,0.56 1.66,0.56 stroke #444444 0.7 width 1
+
+# Hair suggestion (crown of head)
+arc 1.62,0.50 0.12 210 330 stroke #777777 0.7 width 1
+
+# === Break/snap lines on body ===
+bezier 0.30,0.40 0.34,0.46 0.32,0.54 0.30,0.60 stroke #2a2420 width 2
+bezier 0.80,0.20 0.82,0.28 0.84,0.32 0.82,0.30 stroke #2a2420 0.7 width 1
+# Crack along torso
+line 0.80,0.38 0.82,0.62 stroke #2a2420 0.6 width 1
+bezier 1.10,0.40 1.14,0.50 1.12,0.56 1.08,0.60 stroke #2a2420 0.5 width 1
+
+# === Moss / weathering (overgrowth on fallen stone) ===
+ellipse 0.60,0.56 0.10,0.05 fill #3a5028 0.6
+ellipse 1.00,0.44 0.10,0.05 fill #3a5028 0.55
+ellipse 1.20,0.58 0.08,0.04 fill #3a5028 0.5
+ellipse 1.56,0.54 0.06,0.03 fill #3a5028 0.5
+
+# === Small rubble chunks near statue (pieces that snapped off) ===
+poly 0.32,0.18 0.42,0.16 0.44,0.24 0.36,0.26 fill #8a8078 0.85
+poly 0.32,0.18 0.42,0.16 0.44,0.24 0.36,0.26 stroke #2a2420 width 1
+poly 0.50,0.76 0.62,0.74 0.64,0.82 0.54,0.84 fill #8a8078 0.85
+poly 0.50,0.76 0.62,0.74 0.64,0.82 0.54,0.84 stroke #2a2420 width 1
+poly 1.40,0.18 1.48,0.16 1.50,0.24 1.42,0.26 fill #8a8078 0.85
+poly 1.40,0.18 1.48,0.16 1.50,0.24 1.42,0.26 stroke #2a2420 width 1
+circle 0.70,0.82 0.03 fill #8a8078 0.85
+circle 0.70,0.82 0.03 stroke #2a2420 width 1
+circle 1.30,0.78 0.025 fill #8a8078 0.8
+
+# Dust/plaster scatter
+ellipse 0.40,0.80 0.10,0.04 fill #aaa088 0.3
+ellipse 1.20,0.22 0.08,0.03 fill #aaa088 0.25
+ellipse 1.60,0.76 0.08,0.03 fill #aaa088 0.3
+
+# Sheen catching light on marble
+arc 1.0,0.50 0.48 200 240 stroke #ffffff 0.25 width 1

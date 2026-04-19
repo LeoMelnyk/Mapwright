@@ -1,0 +1,54 @@
+name: Plunge Basin
+category: Features
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: center
+room_types: bath-house, noble-estate
+typical_count: single
+clusters_with: bath-pool, towel-folded, sandal-pair, steam-cloud
+notes: Cold plunge stone basin — circular carved stone rim with dark cool water inside.
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.88 z 0-0.8
+
+# Outer stone rim
+circle 1.0,1.0 0.88 texfill polyhaven/marble_01 0.88
+circle 1.0,1.0 0.88 stroke #444444 width 2
+
+# Inner rim bevel
+circle 1.0,1.0 0.74 stroke #666666 width 1
+
+# Carved classical edge detail — radial notches
+line 1.00,0.14 1.00,0.22 stroke #3a3a3a 0.6 width 1
+line 1.00,1.78 1.00,1.86 stroke #3a3a3a 0.6 width 1
+line 0.14,1.00 0.22,1.00 stroke #3a3a3a 0.6 width 1
+line 1.78,1.00 1.86,1.00 stroke #3a3a3a 0.6 width 1
+line 0.38,0.38 0.44,0.44 stroke #3a3a3a 0.5 width 1
+line 1.62,0.38 1.56,0.44 stroke #3a3a3a 0.5 width 1
+line 0.38,1.62 0.44,1.56 stroke #3a3a3a 0.5 width 1
+line 1.62,1.62 1.56,1.56 stroke #3a3a3a 0.5 width 1
+
+# Water surface (cool blue)
+circle 1.0,1.0 0.70 fill #4a6a8a 0.92
+circle 1.0,1.0 0.70 stroke #2a4a6a
+
+# Depth gradient — darker toward center
+circle 1.0,1.0 0.54 fill #2a4a6a 0.5
+circle 1.0,1.0 0.36 fill #1a2a4a 0.55
+
+# Water ripple rings
+circle 1.0,1.0 0.62 stroke #6a8aa0 0.5 width 1
+circle 1.0,1.0 0.48 stroke #6a8aa0 0.45 width 1
+
+# Offset surface ripple
+bezier 0.55,0.95 0.80,0.80 1.20,1.15 1.45,1.00 stroke #6a8aa0 0.45 width 1
+bezier 0.60,1.25 0.85,1.10 1.15,1.35 1.40,1.20 stroke #6a8aa0 0.40 width 1
+
+# Cool highlight on far rim
+arc 1.0,1.0 0.80 210 260 stroke #aaaaaa 0.45 width 1
+
+# Subtle surface sheen
+ellipse 0.75,0.80 0.10,0.05 fill #aac8e0 0.25

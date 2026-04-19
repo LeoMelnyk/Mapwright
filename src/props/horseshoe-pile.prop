@@ -1,0 +1,51 @@
+name: Horseshoe Pile
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1
+placement: floor
+room_types: forge, smithy, stable, workshop
+typical_count: few
+clusters_with: anvil, forge, nails-crate, coal-bin
+notes: Small pile of finished iron horseshoes; scatter near forge output area
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: overlapping U-shaped horseshoes in a loose pile
+
+# Ground scatter shadow
+ellipse 0.50,0.52 0.30,0.28 fill #333333 0.10
+
+# === Bottom horseshoes (partially hidden) ===
+# Horseshoe 1 (back-left, mostly hidden)
+arc 0.30,0.35 0.12 200 340 stroke #555555 width 3
+arc 0.30,0.35 0.12 200 340 fill #666666 0.3
+
+# Horseshoe 2 (back-right, rotated)
+arc 0.68,0.38 0.11 180 320 stroke #555555 width 3
+arc 0.68,0.38 0.11 180 320 fill #666666 0.3
+
+# === Middle horseshoes ===
+# Horseshoe 3 (center, U pointing south)
+arc 0.50,0.48 0.13 200 340 stroke #666666 width 3
+arc 0.50,0.48 0.13 200 340 fill #777777 0.35
+
+# Horseshoe 4 (left, tilted)
+arc 0.35,0.55 0.11 220 360 stroke #666666 width 3
+arc 0.35,0.55 0.11 220 360 fill #777777 0.3
+
+# === Top horseshoes (most visible) ===
+# Horseshoe 5 (top of pile, center-right, U pointing south)
+arc 0.58,0.55 0.12 190 350 stroke #777777 width 3
+arc 0.58,0.55 0.12 190 350 fill #888888 0.35
+
+# Horseshoe 6 (topmost, slightly off-center)
+arc 0.48,0.60 0.10 210 330 stroke #8899aa width 3
+arc 0.48,0.60 0.10 210 330 fill #8899aa 0.3
+
+# Nail holes (visible on top horseshoes as tiny dark dots)
+circle 0.42,0.52 0.015 fill #333333 0.6
+circle 0.54,0.52 0.015 fill #333333 0.6
+circle 0.52,0.65 0.015 fill #333333 0.6
+circle 0.62,0.48 0.015 fill #333333 0.6

@@ -1,0 +1,114 @@
+name: Siege Engine (Wrecked)
+category: Combat
+footprint: 3x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: battlefield-recent, battlefield, war-camp, fortification, ruined-watchtower
+typical_count: single
+clusters_with: ballista, pavise, corpse-soldier, arrow-cluster-ground, blood-pool
+notes: Smashed catapult or trebuchet; splintered frame, broken throwing arm, spilled stones, tangled rope
+---
+# footprint 3x3: x range 0-3, y range 0-3
+
+# === HITBOX ===
+hitbox rect 0.40,0.50 2.20,1.60 z 0-1.5
+hitbox rect 1.20,0.15 0.60,2.70 z 0-1.5
+
+# === Ground debris / dirt scatter ===
+ellipse 1.5,1.7 1.35,0.95 fill #2a1808 0.35
+ellipse 1.5,1.7 1.35,0.95 stroke #1a1008 0.3
+
+# === Main frame base (square wooden platform, broken) ===
+# Frame visible as rectangle (broken corners)
+poly 0.40,0.70 2.55,0.55 2.60,1.90 0.45,2.05 fill #3a2418 0.9
+poly 0.40,0.70 2.55,0.55 2.60,1.90 0.45,2.05 texfill polyhaven/weathered_planks 0.55
+poly 0.40,0.70 2.55,0.55 2.60,1.90 0.45,2.05 stroke #1a0a04
+
+# Frame planks (visible ribs)
+line 0.55,0.80 2.50,0.65 stroke #1a0a04 width 2
+line 0.50,1.20 2.55,1.05 stroke #1a0a04 width 2
+line 0.48,1.60 2.58,1.45 stroke #1a0a04 width 2
+
+# === Massive throwing arm (broken, lying diagonal NW to SE) ===
+poly 0.30,0.10 0.58,0.05 2.85,2.65 2.60,2.88 fill #5c3a1e 0.92
+poly 0.30,0.10 0.58,0.05 2.85,2.65 2.60,2.88 texfill polyhaven/dark_wood 0.55
+poly 0.30,0.10 0.58,0.05 2.85,2.65 2.60,2.88 stroke #1a0a04
+# Split / fracture line across arm
+line 1.35,1.20 1.70,1.55 stroke #1a0a04 width 4
+line 1.30,1.30 1.65,1.65 stroke #2a1408 width 2
+# Splintered break
+poly 1.30,1.25 1.55,1.30 1.50,1.40 1.35,1.38 fill #8b6914 0.85
+poly 1.30,1.25 1.55,1.30 1.50,1.40 1.35,1.38 stroke #5a3a00
+line 1.38,1.32 1.52,1.28 stroke #3a1f00 width 2
+line 1.42,1.38 1.54,1.36 stroke #3a1f00 width 2
+
+# Counterweight box at west end (broken open)
+rect 0.20,0.05 0.45,0.35 texfill polyhaven/weathered_planks 0.85
+rect 0.20,0.05 0.45,0.35 stroke #1a0a04
+# Shattered plank
+poly 0.55,0.08 0.70,0.04 0.68,0.14 0.54,0.18 fill #5c3a1e 0.85
+poly 0.55,0.08 0.70,0.04 0.68,0.14 0.54,0.18 stroke #2a1408
+# Stones spilling from counterweight
+circle 0.30,0.42 0.08 fill #666666 0.85
+circle 0.30,0.42 0.08 stroke #333333
+circle 0.52,0.48 0.07 fill #777777 0.85
+circle 0.52,0.48 0.07 stroke #444444
+circle 0.16,0.30 0.06 fill #666666 0.8
+circle 0.16,0.30 0.06 stroke #333333
+
+# === Tangled rope (rigging spilled across ground) ===
+bezier 0.50,1.00 0.90,1.30 1.20,1.80 0.80,2.10 stroke #8b7355 width 3
+bezier 0.80,2.10 1.30,2.30 1.80,2.20 2.10,2.55 stroke #8b7355 width 3
+bezier 2.10,2.55 2.40,2.35 2.50,2.10 2.70,2.30 stroke #8b7355 width 3
+# Rope coils (loops on ground)
+ring 1.10,1.95 0.10,0.06 fill #8b7355 0.8
+ring 1.10,1.95 0.10,0.06 stroke #5c3a1e
+ring 2.20,2.40 0.09 0.055 fill #8b7355 0.8
+
+# === Iron fittings / hardware scattered ===
+# Big iron hinge
+rect 1.40,0.85 0.25,0.12 fill #555555 0.9
+rect 1.40,0.85 0.25,0.12 texfill polyhaven/rusty_metal 0.5
+rect 1.40,0.85 0.25,0.12 stroke #333333
+# Bolts
+circle 1.46,0.91 0.025 fill #333333 0.95
+circle 1.58,0.91 0.025 fill #333333 0.95
+# Bent iron bracket
+poly 2.10,1.20 2.30,1.22 2.35,1.36 2.20,1.40 2.15,1.30 fill #555555 0.9
+poly 2.10,1.20 2.30,1.22 2.35,1.36 2.20,1.40 2.15,1.30 texfill polyhaven/rusty_metal 0.5
+poly 2.10,1.20 2.30,1.22 2.35,1.36 2.20,1.40 2.15,1.30 stroke #333333
+
+# === Large throwing stone (spilled from sling, north) ===
+circle 1.50,0.30 0.18 fill #777777 0.9
+circle 1.50,0.30 0.18 texfill polyhaven/rock_boulder_cracked 0.5
+circle 1.50,0.30 0.18 stroke #444444
+# Cracks on boulder
+line 1.40,0.22 1.58,0.36 stroke #333333 width 1
+line 1.50,0.18 1.54,0.42 stroke #333333 width 1
+
+# Sling leather (torn strap draped over boulder)
+poly 1.36,0.32 1.62,0.36 1.58,0.44 1.32,0.40 fill #3a2418 0.85
+poly 1.36,0.32 1.62,0.36 1.58,0.44 1.32,0.40 texfill polyhaven/brown_leather 0.5
+poly 1.36,0.32 1.62,0.36 1.58,0.44 1.32,0.40 stroke #1a0a04
+
+# Wheel (broken, south)
+ring 0.80,2.55 0.28,0.10 fill #3a2418 0.9
+ring 0.80,2.55 0.28,0.10 texfill polyhaven/dark_wood 0.5
+ring 0.80,2.55 0.28,0.10 stroke #1a0a04
+# Spokes (broken)
+line 0.80,2.27 0.80,2.83 stroke #1a0a04 width 2
+line 0.52,2.55 0.80,2.55 stroke #1a0a04 width 2
+# Broken spoke fragment
+line 0.94,2.42 1.08,2.34 stroke #1a0a04 width 2
+
+# Scorch marks / impact burns
+ellipse 0.90,1.40 0.14,0.08 fill #1a0800 0.7
+ellipse 2.20,1.80 0.12,0.08 fill #1a0800 0.7
+
+# Splinters scattered
+line 1.85,0.40 1.92,0.48 stroke #5c3a1e width 2
+line 2.40,1.70 2.48,1.64 stroke #5c3a1e width 2
+line 0.65,1.60 0.72,1.54 stroke #5c3a1e width 2

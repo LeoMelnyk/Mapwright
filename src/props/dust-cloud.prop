@@ -1,0 +1,30 @@
+name: Dust Cloud
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: mill-grain, mine-shaft-entrance, shop-apothecary, shop-bookseller, granary, attic, cellar-storage
+typical_count: few
+clusters_with: sawdust-pile, flour-dust, flour-sack, grain-spill, cobweb
+notes: Pale particulate haze rising from the floor — flour, sawdust, or grain dust. Thinner and more localized than smoke.
+---
+# Pale tan overlapping ellipses, no strokes — soft particulate suspension
+# Outer wisps (palest, widest)
+ellipse 0.5,0.5 0.40,0.28 fill #e0d4b0 0.15
+ellipse 0.4,0.6 0.34,0.24 fill #e0d4b0 0.15
+ellipse 0.6,0.45 0.32,0.22 fill #e0d4b0 0.15
+# Mid layer pale tan
+ellipse 0.5,0.5 0.30,0.22 fill #d4c4a0 0.2
+ellipse 0.45,0.55 0.24,0.18 fill #d4c4a0 0.2
+ellipse 0.6,0.55 0.22,0.16 fill #d4c4a0 0.2
+# Denser core
+ellipse 0.5,0.52 0.20,0.14 fill #c4b080 0.18
+ellipse 0.48,0.48 0.16,0.12 fill #c4b080 0.18
+# Drifting tiny particles
+circle 0.22,0.40 0.022 fill #d4c4a0 0.35
+circle 0.78,0.62 0.02 fill #d4c4a0 0.3
+circle 0.35,0.78 0.018 fill #c4b080 0.3
+circle 0.72,0.28 0.018 fill #c4b080 0.3

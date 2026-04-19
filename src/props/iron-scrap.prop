@@ -1,0 +1,62 @@
+name: Iron Scrap
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: foundry-great, forge, smithy, smithy-large, refinery, junkyard
+typical_count: few
+clusters_with: ingot-stack, ingot-single, slag-heap, anvil, crucible
+notes: Irregular pile of scrap iron — bent horseshoe, twisted rebar, cracked plate, bent nails. Feeds the blast-furnace and crucibles.
+---
+# === HITBOX ===
+selection rect 0.12,0.14 0.76,0.72
+
+# === Cracked iron plate (base of pile, lying flat) ===
+poly 0.14,0.40 0.30,0.32 0.52,0.36 0.56,0.50 0.48,0.64 0.26,0.66 0.14,0.54 texfill polyhaven/metal_plate 0.75
+poly 0.14,0.40 0.30,0.32 0.52,0.36 0.56,0.50 0.48,0.64 0.26,0.66 0.14,0.54 fill #4a3828 0.4
+poly 0.14,0.40 0.30,0.32 0.52,0.36 0.56,0.50 0.48,0.64 0.26,0.66 0.14,0.54 stroke #1a1a1a width 1
+# Crack in plate
+line 0.22,0.38 0.46,0.60 stroke #111111 0.85 width 2
+
+# === Broken horseshoe (bent U-shape, right-center) ===
+arc 0.64,0.54 0.16 210 330 stroke #3a2818 width 4
+arc 0.64,0.54 0.16 210 330 stroke #5a3a20 width 2
+# Nail holes in shoe
+circle 0.58,0.42 0.015 fill #111111 0.9
+circle 0.70,0.42 0.015 fill #111111 0.9
+
+# === Twisted rebar bar (diagonal, upper right) ===
+bezier 0.46,0.14 0.58,0.22 0.72,0.18 0.86,0.30 stroke #5a3a20 width 4
+bezier 0.46,0.14 0.58,0.22 0.72,0.18 0.86,0.30 stroke #8a5820 width 2
+# Rebar ribs (twist marks)
+line 0.54,0.16 0.56,0.22 stroke #2a1800 0.85 width 1
+line 0.64,0.18 0.66,0.24 stroke #2a1800 0.85 width 1
+line 0.74,0.22 0.76,0.28 stroke #2a1800 0.85 width 1
+
+# === Small bent angle iron (south) ===
+poly 0.28,0.72 0.46,0.74 0.48,0.82 0.44,0.86 0.26,0.80 fill #555555 0.9
+poly 0.28,0.72 0.46,0.74 0.48,0.82 0.44,0.86 0.26,0.80 texfill polyhaven/rusty_metal 0.55
+poly 0.28,0.72 0.46,0.74 0.48,0.82 0.44,0.86 0.26,0.80 stroke #1a1a1a
+
+# === Bent nails scattered ===
+line 0.62,0.76 0.70,0.82 stroke #2a1a0a width 2
+circle 0.62,0.76 0.018 fill #333333 0.9
+line 0.78,0.60 0.84,0.66 stroke #2a1a0a width 2
+circle 0.78,0.60 0.016 fill #333333 0.9
+line 0.18,0.74 0.24,0.70 stroke #2a1a0a width 2
+circle 0.18,0.74 0.016 fill #333333 0.9
+
+# === Small chunk of plate with jagged edge ===
+poly 0.72,0.76 0.84,0.72 0.88,0.80 0.82,0.86 0.74,0.84 texfill polyhaven/rusty_metal 0.75
+poly 0.72,0.76 0.84,0.72 0.88,0.80 0.82,0.86 0.74,0.84 stroke #1a1008
+
+# === Rust staining on the base ground ===
+ellipse 0.40,0.52 0.20,0.14 fill #6a3818 0.25
+ellipse 0.66,0.52 0.12,0.08 fill #6a3818 0.2
+
+# === Small metal sheen highlights ===
+line 0.28,0.46 0.36,0.48 stroke #aaaaaa 0.45 width 1
+line 0.54,0.46 0.70,0.52 stroke #888888 0.4 width 1

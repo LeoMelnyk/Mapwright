@@ -1,0 +1,55 @@
+name: Teapot
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: opium-den, tearoom, parlor, decadent-study, kitchen
+typical_count: single
+clusters_with: teacup, table, opium-couch, cushion-pile, opium-pipe
+notes: Small round clay teapot; pair with teacups on tables
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.32
+
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Handle arc (west side) — drawn first so body covers joins
+arc 0.30,0.50 0.16 90 270 stroke #2a1408 width 6
+arc 0.30,0.50 0.16 90 270 stroke #5c3a1e width 3
+
+# Spout triangle (east side)
+poly 0.68,0.42 0.92,0.38 0.92,0.48 0.68,0.56 texfill polyhaven/marble_01 0.6
+poly 0.68,0.42 0.92,0.38 0.92,0.48 0.68,0.56 fill #3a2010 0.5
+poly 0.68,0.42 0.92,0.38 0.92,0.48 0.68,0.56 stroke #1a0800
+
+# Spout tip opening
+ellipse 0.92,0.43 0.02,0.03 fill #1a0800 0.9
+
+# Teapot body (main round)
+circle 0.5,0.5 0.30 texfill polyhaven/marble_01 0.6
+circle 0.5,0.5 0.30 fill #4a2818 0.55
+circle 0.5,0.5 0.30 stroke #1a0800 width 2
+
+# Body highlight (sheen)
+arc 0.5,0.5 0.26 200 260 stroke #8a6848 0.5 width 2
+
+# Lid outer circle
+circle 0.5,0.5 0.16 fill #5a3020 0.9
+circle 0.5,0.5 0.16 stroke #1a0800
+
+# Lid inner rim
+circle 0.5,0.5 0.13 stroke #3a1808 0.7
+
+# Lid knob
+circle 0.5,0.5 0.05 fill #8b6914 0.95
+circle 0.5,0.5 0.05 stroke #5a3a00
+
+# Knob highlight
+circle 0.48,0.48 0.02 fill #daa520 0.8
+
+# Tiny steam wisp above lid
+circle 0.50,0.32 0.020 fill #e8e8e8 0.3
+circle 0.54,0.28 0.016 fill #e8e8e8 0.25

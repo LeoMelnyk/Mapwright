@@ -1,0 +1,50 @@
+name: Charcoal Lump
+category: Camp
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: charcoal-burner-camp, lumberyard, forge, smithy
+typical_count: many
+clusters_with: charcoal-kiln, soot-print, ash-pile, chopping-block
+notes: Small scatter of black charcoal chunks on bare ground — decorative debris around kilns and forges
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: irregular black charcoal chunks scattered on ground
+
+# Ash dust on ground (subtle base layer)
+ellipse 0.50,0.50 0.35,0.30 fill #333333 0.1
+
+# Large charcoal chunk 1 (NW)
+poly 0.15,0.28 0.30,0.22 0.35,0.35 0.22,0.42 fill #1a1a1a 0.9
+poly 0.15,0.28 0.30,0.22 0.35,0.35 0.22,0.42 stroke #0a0a0a
+# Shiny facet (charcoal has a slight gloss)
+poly 0.20,0.28 0.28,0.25 0.30,0.32 fill #333333 0.3
+
+# Large charcoal chunk 2 (center-south)
+poly 0.40,0.55 0.58,0.50 0.62,0.65 0.48,0.72 fill #1a1a1a 0.88
+poly 0.40,0.55 0.58,0.50 0.62,0.65 0.48,0.72 stroke #0a0a0a
+poly 0.45,0.55 0.52,0.53 0.55,0.60 fill #333333 0.25
+
+# Medium chunk 3 (NE)
+poly 0.65,0.30 0.78,0.25 0.82,0.40 0.70,0.44 fill #1a1a1a 0.85
+poly 0.65,0.30 0.78,0.25 0.82,0.40 0.70,0.44 stroke #0a0a0a
+
+# Small chunk 4 (east)
+poly 0.72,0.58 0.82,0.55 0.85,0.64 0.75,0.66 fill #222222 0.85
+poly 0.72,0.58 0.82,0.55 0.85,0.64 0.75,0.66 stroke #0a0a0a
+
+# Small chunk 5 (SW)
+poly 0.18,0.62 0.28,0.58 0.32,0.68 0.20,0.72 fill #1a1a1a 0.82
+poly 0.18,0.62 0.28,0.58 0.32,0.68 0.20,0.72 stroke #0a0a0a
+
+# Tiny fragments
+circle 0.45,0.38 0.025 fill #1a1a1a 0.7
+circle 0.55,0.80 0.02 fill #222222 0.65
+circle 0.30,0.82 0.025 fill #1a1a1a 0.6
+circle 0.80,0.78 0.02 fill #222222 0.6
+circle 0.38,0.20 0.018 fill #1a1a1a 0.55
+
+# Ash smear between chunks
+ellipse 0.45,0.48 0.10,0.04 fill #444444 0.15

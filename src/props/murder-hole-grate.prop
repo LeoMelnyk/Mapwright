@@ -1,0 +1,68 @@
+name: Murder Hole Grate
+category: Structure
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: gatehouse-inner, gatehouse, portcullis-room, castle-chamber, killing-floor
+typical_count: single
+clusters_with: winch-mechanism, arrow-slit-wall, chain-pile, guard-post
+notes: Iron grate set into the floor (or ceiling) for pouring oil, stones, or arrows onto attackers below. Dark pit visible through heavy iron cross-bars. Flat floor decal.
+---
+# footprint 1x2: x 0-2, y 0-1. Floor grate — flat, does not block light.
+
+# Dark pit beyond the grate
+rect 0.14,0.12 1.72,0.76 fill #0a0604 0.95
+rect 0.14,0.12 1.72,0.76 stroke #000000
+
+# Inner void gradient (void recedes into darkness)
+rect 0.20,0.18 1.60,0.64 fill #1a0a00 0.8
+
+# Stone frame around grate opening
+rect 0.06,0.06 1.88,0.88 stroke #2a2a2a width 2
+rect 0.10,0.10 1.80,0.80 stroke #444444 0.8 width 1
+
+# Heavy iron cross-bars (wider than regular grate — fewer, thicker bars)
+# Vertical bars
+rect 0.30,0.12 0.08,0.76 fill #444444 0.95
+rect 0.30,0.12 0.08,0.76 stroke #222222
+rect 0.58,0.12 0.08,0.76 fill #444444 0.95
+rect 0.58,0.12 0.08,0.76 stroke #222222
+rect 0.86,0.12 0.08,0.76 fill #444444 0.95
+rect 0.86,0.12 0.08,0.76 stroke #222222
+rect 1.14,0.12 0.08,0.76 fill #444444 0.95
+rect 1.14,0.12 0.08,0.76 stroke #222222
+rect 1.42,0.12 0.08,0.76 fill #444444 0.95
+rect 1.42,0.12 0.08,0.76 stroke #222222
+rect 1.70,0.12 0.08,0.76 fill #444444 0.95
+rect 1.70,0.12 0.08,0.76 stroke #222222
+
+# Horizontal cross-bar (center reinforcement)
+rect 0.14,0.46 1.72,0.08 fill #444444 0.95
+rect 0.14,0.46 1.72,0.08 stroke #222222
+
+# Corner rivet bosses (heavy iron fasteners)
+circle 0.12,0.14 0.04 fill #666666 0.95
+circle 0.12,0.14 0.04 stroke #222222
+circle 1.88,0.14 0.04 fill #666666 0.95
+circle 1.88,0.14 0.04 stroke #222222
+circle 0.12,0.86 0.04 fill #666666 0.95
+circle 0.12,0.86 0.04 stroke #222222
+circle 1.88,0.86 0.04 fill #666666 0.95
+circle 1.88,0.86 0.04 stroke #222222
+circle 1.00,0.14 0.035 fill #666666 0.9
+circle 1.00,0.14 0.035 stroke #222222
+circle 1.00,0.86 0.035 fill #666666 0.9
+circle 1.00,0.86 0.035 stroke #222222
+
+# Bar highlights (top edge catches light)
+line 0.31,0.14 0.31,0.86 stroke #777777 0.55 width 1
+line 0.87,0.14 0.87,0.86 stroke #777777 0.55 width 1
+line 1.43,0.14 1.43,0.86 stroke #777777 0.55 width 1
+
+# Ominous rust/blood stains on bars
+line 0.33,0.30 0.32,0.44 stroke #4a0808 0.6 width 2
+line 0.89,0.22 0.90,0.36 stroke #4a0808 0.55 width 2
+line 1.45,0.50 1.44,0.70 stroke #4a0808 0.6 width 2
+line 1.16,0.60 1.17,0.78 stroke #3a0808 0.5 width 2

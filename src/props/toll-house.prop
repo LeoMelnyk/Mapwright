@@ -1,0 +1,76 @@
+name: Toll House
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: center
+room_types: toll-bridge-house, gate, checkpoint, road-crossing, bridge-approach
+typical_count: single
+clusters_with: toll-barrier, lantern-post, tax-chest, guard-post, stool
+notes: Small square collector's hut with peaked roof — viewed from above as a square roof with central ridgeline, chimney, and door placard on south face. Do NOT show vertical facade.
+---
+# === HITBOX ===
+hitbox rect 0.06,0.06 1.88,1.88 z 0-5
+
+# footprint 2x2: x 0-2, y 0-2. Top-down on a peaked-roof hut.
+
+# Outer eaves / roof shadow (overhang)
+rect 0.02,0.02 1.96,1.96 fill #1a1208 0.35
+
+# Main roof surface (shingled/tiled — slight brown)
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.08 1.84,1.84 stroke #2a1400 width 2
+
+# Shingle rows (north half — slope up to ridge)
+line 0.08,0.30 1.92,0.30 stroke #3a1f00 0.5
+line 0.08,0.52 1.92,0.52 stroke #3a1f00 0.5
+line 0.08,0.72 1.92,0.72 stroke #3a1f00 0.45
+# Shingle rows (south half — slope down from ridge)
+line 0.08,1.28 1.92,1.28 stroke #3a1f00 0.45
+line 0.08,1.48 1.92,1.48 stroke #3a1f00 0.5
+line 0.08,1.70 1.92,1.70 stroke #3a1f00 0.5
+
+# Central ridge beam (east-west apex of peaked roof)
+rect 0.08,0.96 1.84,0.08 fill #3a1f00 0.85
+rect 0.08,0.96 1.84,0.08 stroke #1a0f00
+line 0.10,1.00 1.90,1.00 stroke #5c3a1e 0.7
+
+# Ridge highlight (catches light)
+line 0.10,0.97 1.90,0.97 stroke #8b6914 0.5 width 1
+
+# Chimney (small square stack on the west side of ridge)
+rect 0.40,0.86 0.24,0.24 texfill polyhaven/stone_wall 0.9
+rect 0.40,0.86 0.24,0.24 stroke #2a2a2a
+# Chimney cap / flue opening
+rect 0.46,0.92 0.12,0.12 fill #1a1208 0.95
+rect 0.46,0.92 0.12,0.12 stroke #0a0804
+# Wisp of smoke
+bezier 0.52,0.90 0.50,0.82 0.54,0.76 0.52,0.70 stroke #aaaaaa 0.4 width 2
+bezier 0.52,0.78 0.56,0.72 0.48,0.68 0.52,0.62 stroke #999999 0.3 width 2
+
+# Window — small dormer/skylight on south-east slope
+rect 1.30,1.30 0.24,0.18 fill #3a1f00 0.85
+rect 1.30,1.30 0.24,0.18 stroke #1a0f00
+# Glass panes
+rect 1.33,1.33 0.18,0.12 fill #ffcc44 0.55
+rect 1.33,1.33 0.18,0.12 stroke #1a0f00
+line 1.42,1.33 1.42,1.45 stroke #1a0f00 0.8
+line 1.33,1.39 1.51,1.39 stroke #1a0f00 0.8
+
+# Entrance landing strip (south side — shows where the door comes out)
+rect 0.80,1.84 0.40,0.12 texfill polyhaven/stone_wall 0.85
+rect 0.80,1.84 0.40,0.12 stroke #2a2a2a
+
+# Door placard showing toll sign above entrance
+rect 0.86,1.70 0.28,0.12 fill #8b6914 0.9
+rect 0.86,1.70 0.28,0.12 stroke #3a1f00
+line 0.90,1.74 1.10,1.74 stroke #1a1208 0.7
+line 0.90,1.78 1.08,1.78 stroke #1a1208 0.6
+
+# Corner roof braces / decorative gable trim
+line 0.08,0.08 0.30,0.30 stroke #2a1400 width 1
+line 1.92,0.08 1.70,0.30 stroke #2a1400 width 1
+line 0.08,1.92 0.30,1.70 stroke #2a1400 width 1
+line 1.92,1.92 1.70,1.70 stroke #2a1400 width 1

@@ -1,0 +1,57 @@
+name: Shop Counter
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3.5
+placement: floor
+room_types: smithy, shop, market-stall, workshop
+typical_count: single
+clusters_with: stool, crate, display-rack-armor, display-rack-weapons
+notes: Heavy wooden shop counter with iron-banded edge for customer transactions. Tiles seamlessly side-by-side like bar-counter.
+---
+# === HITBOX ===
+hitbox rect 0.0,0.10 2.0,0.80 z 0-3.5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: heavy wooden counter surface with iron bands. Flush left/right for tiling.
+
+# === Counter surface (full width, small margin top/bottom) ===
+rect 0.0,0.10 2.0,0.80 texfill polyhaven/dark_wood 0.85
+
+# === Iron-banded front edge (south/room side — heavier than bar-counter) ===
+rect 0.0,0.76 2.0,0.14 fill #555555 0.3
+# Iron band stripe
+rect 0.0,0.78 2.0,0.04 fill #444444 0.5
+# Iron rivet studs along front band
+circle 0.25,0.80 0.02 fill #666666 0.7
+circle 0.75,0.80 0.02 fill #666666 0.7
+circle 1.25,0.80 0.02 fill #666666 0.7
+circle 1.75,0.80 0.02 fill #666666 0.7
+
+# === Back edge trim (north/wall side) ===
+rect 0.0,0.10 2.0,0.06 fill #4a2800 0.3
+
+# === Surface plank seams (east-west grain) ===
+line 0.0,0.30 2.0,0.30 stroke #3a1f00 0.3
+line 0.0,0.50 2.0,0.50 stroke #3a1f00 0.25
+line 0.0,0.68 2.0,0.68 stroke #3a1f00 0.3
+
+# === Top and bottom border lines (no left/right for seamless tiling) ===
+line 0.0,0.10 2.0,0.10 stroke #3a1f00
+line 0.0,0.90 2.0,0.90 stroke #333333
+
+# === Iron corner brackets (reinforcement) ===
+# NW bracket
+line 0.0,0.12 0.10,0.12 stroke #555555 width 2
+line 0.0,0.12 0.0,0.22 stroke #555555 width 2
+# NE bracket
+line 1.90,0.12 2.0,0.12 stroke #555555 width 2
+line 2.0,0.12 2.0,0.22 stroke #555555 width 2
+# SW bracket
+line 0.0,0.88 0.10,0.88 stroke #555555 width 2
+line 0.0,0.78 0.0,0.88 stroke #555555 width 2
+# SE bracket
+line 1.90,0.88 2.0,0.88 stroke #555555 width 2
+line 2.0,0.78 2.0,0.88 stroke #555555 width 2

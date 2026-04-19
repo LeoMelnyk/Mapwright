@@ -1,0 +1,82 @@
+name: Carved Stick
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: shepherds-shelter, druid-grove, cabin-trapper, wise-womans-hut, peasant-hovel
+typical_count: single
+clusters_with: shepherds-crook, prayer-stone, dried-flowers, antler-offering
+notes: Decorated walking stick with spiral carvings and a bound grip. Lying horizontally on the floor.
+---
+# footprint 1x2: x 0-2, y 0-1
+# === HITBOX ===
+selection rect 0.14,0.40 1.72,0.20
+
+# Shadow beneath stick
+ellipse 1.00,0.66 0.82,0.06 fill #1a0a00 0.3
+
+# === Main shaft of the staff ===
+rect 0.14,0.42 1.72,0.16 texfill polyhaven/dark_wood 0.9
+rect 0.14,0.42 1.72,0.16 fill #4a2800 0.4
+rect 0.14,0.42 1.72,0.16 stroke #2a1400 width 2
+
+# Wood grain highlight
+line 0.18,0.48 1.82,0.48 stroke #6a4828 0.35 width 1
+line 0.18,0.52 1.82,0.52 stroke #6a4828 0.3 width 1
+
+# === Western head — rounded knob ===
+circle 0.16,0.50 0.12 texfill polyhaven/dark_wood 0.9
+circle 0.16,0.50 0.12 fill #5c3a1e 0.4
+circle 0.16,0.50 0.12 stroke #2a1400 width 2
+# Knob carving (spiral)
+arc 0.16,0.50 0.08 0 300 stroke #2a1400 width 1
+arc 0.16,0.50 0.05 0 200 stroke #2a1400 0.7 width 1
+circle 0.16,0.50 0.022 fill #2a1400 0.9
+
+# === Spiral carvings along the shaft ===
+# Spiral 1 (near knob)
+bezier 0.30,0.42 0.35,0.50 0.35,0.50 0.30,0.58 stroke #2a1400 width 1
+bezier 0.32,0.42 0.37,0.50 0.37,0.50 0.32,0.58 stroke #2a1400 0.7 width 1
+# Spiral 2
+bezier 0.52,0.42 0.57,0.50 0.57,0.50 0.52,0.58 stroke #2a1400 width 1
+bezier 0.54,0.42 0.59,0.50 0.59,0.50 0.54,0.58 stroke #2a1400 0.7 width 1
+# Spiral 3
+bezier 0.78,0.42 0.83,0.50 0.83,0.50 0.78,0.58 stroke #2a1400 width 1
+bezier 0.80,0.42 0.85,0.50 0.85,0.50 0.80,0.58 stroke #2a1400 0.7 width 1
+
+# === Bound leather grip (center-east section) ===
+rect 1.00,0.40 0.40,0.20 fill #5c3a1e 0.95
+rect 1.00,0.40 0.40,0.20 texfill polyhaven/brown_leather 0.5
+rect 1.00,0.40 0.40,0.20 stroke #2a1400 width 2
+# Leather wrap crosshatch
+line 1.05,0.40 1.00,0.60 stroke #2a1400 0.7 width 1
+line 1.10,0.40 1.05,0.60 stroke #2a1400 0.6 width 1
+line 1.15,0.40 1.10,0.60 stroke #2a1400 0.7 width 1
+line 1.20,0.40 1.15,0.60 stroke #2a1400 0.6 width 1
+line 1.25,0.40 1.20,0.60 stroke #2a1400 0.7 width 1
+line 1.30,0.40 1.25,0.60 stroke #2a1400 0.6 width 1
+line 1.35,0.40 1.30,0.60 stroke #2a1400 0.7 width 1
+# Leather binding caps (iron or brass rings)
+rect 0.98,0.40 0.04,0.20 fill #8b6914 0.85
+rect 0.98,0.40 0.04,0.20 stroke #5a3a00
+rect 1.40,0.40 0.04,0.20 fill #8b6914 0.85
+rect 1.40,0.40 0.04,0.20 stroke #5a3a00
+
+# === Runic carvings on eastern end ===
+line 1.56,0.48 1.60,0.52 stroke #2a1400 width 1
+line 1.60,0.48 1.56,0.52 stroke #2a1400 width 1
+line 1.66,0.46 1.66,0.54 stroke #2a1400 width 1
+line 1.62,0.50 1.70,0.50 stroke #2a1400 width 1
+line 1.76,0.48 1.80,0.52 stroke #2a1400 width 1
+
+# === Eastern tip (metal ferrule) ===
+rect 1.84,0.44 0.04,0.12 fill #555555 0.9
+rect 1.84,0.44 0.04,0.12 stroke #222222
+
+# === Small hanging charm / leather cord from grip ===
+bezier 1.20,0.60 1.22,0.68 1.24,0.74 1.22,0.80 stroke #5c3a1e width 1
+circle 1.22,0.81 0.022 fill #d4c4a8 0.85
+circle 1.22,0.81 0.022 stroke #5c3a1e

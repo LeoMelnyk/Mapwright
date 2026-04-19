@@ -57,20 +57,19 @@ export function hitTestPropPixel(
   // a manual convex shape that's too loose for accurate click detection.
   const selHitbox = propDef.selectionHitbox ?? propDef.autoHitbox;
   if (selHitbox) {
-    // Inverse-transform the test point back to unrotated/unflipped prop space
+    // Inverse-transform the test point back to unrotated/unflipped prop space.
+    // Pure rotation around base-footprint center (matches the renderer's tile
+    // blit at 90°/270° — no re-anchor shift).
     let hx = nx,
       hy = ny;
     if (r !== 0) {
       const cx = fCols / 2,
         cy = fRows / 2;
-      const rdx = (fRows - fCols) / 2;
-      const rdy = (fCols - fRows) / 2;
       switch (r) {
         case 90: {
-          const tx = hx - rdx,
-            ty = hy - rdy;
-          hx = cx + (ty - cy);
-          hy = cy - (tx - cx);
+          const tx = hx;
+          hx = cx - (hy - cy);
+          hy = cy + (tx - cx);
           break;
         }
         case 180: {
@@ -79,20 +78,20 @@ export function hitTestPropPixel(
           break;
         }
         case 270: {
-          const tx = hx - rdx,
-            ty = hy - rdy;
-          hx = cx - (ty - cy);
-          hy = cy + (tx - cx);
+          const tx = hx;
+          hx = cx + (hy - cy);
+          hy = cy - (tx - cx);
           break;
         }
         default: {
-          const rad = (r * Math.PI) / 180;
+          // Inverse of forward rotation by -rotation radians is rotation by +rotation.
+          const rad = (rotation * Math.PI) / 180;
           const cos = Math.cos(rad),
             sin = Math.sin(rad);
           const dx = hx - cx,
             dy = hy - cy;
-          hx = cx + dx * cos + dy * sin;
-          hy = cy - dx * sin + dy * cos;
+          hx = cx + dx * cos - dy * sin;
+          hy = cy + dx * sin + dy * cos;
           break;
         }
       }
@@ -101,7 +100,15 @@ export function hitTestPropPixel(
     return _pointInPolygon(hx, hy, selHitbox);
   }
 
-  // Fallback: test each draw command's shape (after flip+rotate transform)
+  // Fallback: test each draw command's shape (after flip+rotate transform).
+  // transformCommand applies Option B re-anchoring (commands land in [0, eCols]
+  // × [0, eRows]) while the rendered prop is at Option A (base-center rotated).
+  // Shift the click into Option B space so the tests align.
+  const isRotated90 = r === 90 || r === 270;
+  const eRows = isRotated90 ? fCols : fRows;
+  const eCols = isRotated90 ? fRows : fCols;
+  const nxAdj = nx - (fCols - eCols) / 2;
+  const nyAdj = ny - (fRows - eRows) / 2;
   let hit = false;
   for (const cmd of propDef.commands) {
     if (cmd.type === 'line') continue; // too thin
@@ -116,8 +123,8 @@ export function hitTestPropPixel(
           const rad = (-tc.rotate * Math.PI) / 180;
           const cos = Math.cos(rad),
             sin = Math.sin(rad);
-          const dx = nx - cx,
-            dy = ny - cy;
+          const dx = nxAdj - cx,
+            dy = nyAdj - cy;
           const lx = dx * cos - dy * sin + cx;
           const ly = dx * sin + dy * cos + cy;
           if (
@@ -129,33 +136,33 @@ export function hitTestPropPixel(
             hit = true;
         } else {
           if (
-            nx >= (tc.x ?? 0) &&
-            nx <= (tc.x ?? 0) + (tc.w ?? 0) &&
-            ny >= (tc.y ?? 0) &&
-            ny <= (tc.y ?? 0) + (tc.h ?? 0)
+            nxAdj >= (tc.x ?? 0) &&
+            nxAdj <= (tc.x ?? 0) + (tc.w ?? 0) &&
+            nyAdj >= (tc.y ?? 0) &&
+            nyAdj <= (tc.y ?? 0) + (tc.h ?? 0)
           )
             hit = true;
         }
         break;
       case 'circle': {
-        const dx = nx - (tc.cx ?? 0),
-          dy = ny - (tc.cy ?? 0);
+        const dx = nxAdj - (tc.cx ?? 0),
+          dy = nyAdj - (tc.cy ?? 0);
         if (dx * dx + dy * dy <= (tc.r ?? 0) * (tc.r ?? 0)) hit = true;
         break;
       }
       case 'ellipse': {
-        const edx = (nx - (tc.cx ?? 0)) / (tc.rx ?? 1),
-          edy = (ny - (tc.cy ?? 0)) / (tc.ry ?? 1);
+        const edx = (nxAdj - (tc.cx ?? 0)) / (tc.rx ?? 1),
+          edy = (nyAdj - (tc.cy ?? 0)) / (tc.ry ?? 1);
         if (edx * edx + edy * edy <= 1) hit = true;
         break;
       }
       case 'poly': {
-        if (tc.points && tc.points.length >= 3 && _pointInPolygon(nx, ny, tc.points)) hit = true;
+        if (tc.points && tc.points.length >= 3 && _pointInPolygon(nxAdj, nyAdj, tc.points)) hit = true;
         break;
       }
       case 'arc': {
-        const adx = nx - (tc.cx ?? 0),
-          ady = ny - (tc.cy ?? 0);
+        const adx = nxAdj - (tc.cx ?? 0),
+          ady = nyAdj - (tc.cy ?? 0);
         if (adx * adx + ady * ady > (tc.r ?? 0) * (tc.r ?? 0)) break;
         let angle = (Math.atan2(ady, adx) * 180) / Math.PI;
         if (angle < 0) angle += 360;
@@ -173,21 +180,21 @@ export function hitTestPropPixel(
         let inside = false;
         switch (tc.subShape) {
           case 'circle': {
-            const dx = nx - (tc.cx ?? 0),
-              dy = ny - (tc.cy ?? 0);
+            const dx = nxAdj - (tc.cx ?? 0),
+              dy = nyAdj - (tc.cy ?? 0);
             inside = dx * dx + dy * dy <= (tc.r ?? 0) * (tc.r ?? 0);
             break;
           }
           case 'rect':
             inside =
-              nx >= (tc.x ?? 0) &&
-              nx <= (tc.x ?? 0) + (tc.w ?? 0) &&
-              ny >= (tc.y ?? 0) &&
-              ny <= (tc.y ?? 0) + (tc.h ?? 0);
+              nxAdj >= (tc.x ?? 0) &&
+              nxAdj <= (tc.x ?? 0) + (tc.w ?? 0) &&
+              nyAdj >= (tc.y ?? 0) &&
+              nyAdj <= (tc.y ?? 0) + (tc.h ?? 0);
             break;
           case 'ellipse': {
-            const edx = (nx - (tc.cx ?? 0)) / (tc.rx ?? 1),
-              edy = (ny - (tc.cy ?? 0)) / (tc.ry ?? 1);
+            const edx = (nxAdj - (tc.cx ?? 0)) / (tc.rx ?? 1),
+              edy = (nyAdj - (tc.cy ?? 0)) / (tc.ry ?? 1);
             inside = edx * edx + edy * edy <= 1;
             break;
           }
@@ -199,8 +206,8 @@ export function hitTestPropPixel(
         break;
       }
       case 'ring': {
-        const dx = nx - (tc.cx ?? 0),
-          dy = ny - (tc.cy ?? 0);
+        const dx = nxAdj - (tc.cx ?? 0),
+          dy = nyAdj - (tc.cy ?? 0);
         const dist2 = dx * dx + dy * dy;
         if (dist2 <= (tc.outerR ?? 0) * (tc.outerR ?? 0) && dist2 >= (tc.innerR ?? 0) * (tc.innerR ?? 0)) hit = true;
         break;
@@ -501,18 +508,17 @@ export function extractOverlayPropLightSegments(
     const hitbox = propDef.hitbox;
     const cx = fCols / 2;
     const cy = fRows / 2;
-    const rdx = (fRows - fCols) / 2;
-    const rdy = (fCols - fRows) / 2;
 
-    // Transform each hitbox vertex: flip → rotate → scale → world-feet → translate
+    // Transform each hitbox vertex: flip → rotate around base-footprint center →
+    // scale → world-feet → translate. No re-anchor shift — the rotated prop
+    // stays centered on its 0°-oriented bbox (matches the renderer's tile blit).
     const worldPts = hitbox.map(([hx, hy]: number[]) => {
       let px = flipped ? fCols - hx! : hx!;
       let py = hy!;
-      // Rotate using rotatePoint logic
       switch (r) {
         case 90: {
-          const nx = cx + (py - cy) + rdx;
-          const ny = cy - (px - cx) + rdy;
+          const nx = cx + (py - cy);
+          const ny = cy - (px - cx);
           px = nx;
           py = ny;
           break;
@@ -523,8 +529,8 @@ export function extractOverlayPropLightSegments(
           break;
         }
         case 270: {
-          const nx = cx - (py - cy) + rdx;
-          const ny = cy + (px - cx) + rdy;
+          const nx = cx - (py - cy);
+          const ny = cy + (px - cx);
           px = nx;
           py = ny;
           break;
@@ -542,11 +548,10 @@ export function extractOverlayPropLightSegments(
           break;
         }
       }
-      // To world-feet with scale
       const wx = px * gridSize;
       const wy = py * gridSize;
-      const pcx = ((r === 90 || r === 270 ? fRows : fCols) * gridSize) / 2;
-      const pcy = ((r === 90 || r === 270 ? fCols : fRows) * gridSize) / 2;
+      const pcx = (fCols * gridSize) / 2;
+      const pcy = (fRows * gridSize) / 2;
       return {
         x: overlayProp.x + pcx + (wx - pcx) * scale,
         y: overlayProp.y + pcy + (wy - pcy) * scale,
@@ -563,10 +568,15 @@ export function extractOverlayPropLightSegments(
   }
 
   // Fallback: iterate draw commands
-  // For grid-aligned rotation at scale 1.0, delegate to existing function
+  // For grid-aligned rotation at scale 1.0, delegate to existing function.
+  // Shift the anchor by (fDiff/2) cells so the rotated prop ends up centered on
+  // its 0°-oriented bbox — matching the renderer's tile blit (base-center rotation).
   if ((r === 0 || r === 90 || r === 180 || r === 270) && scale === 1.0) {
-    const row = overlayProp.y / gridSize;
-    const col = overlayProp.x / gridSize;
+    const isRotated90 = r === 90 || r === 270;
+    const eRows = isRotated90 ? fCols : fRows;
+    const eCols = isRotated90 ? fRows : fCols;
+    const row = overlayProp.y / gridSize + (fRows - eRows) / 2;
+    const col = overlayProp.x / gridSize + (fCols - eCols) / 2;
     return extractPropLightSegments(propDef, row, col, r, flipped, gridSize);
   }
 

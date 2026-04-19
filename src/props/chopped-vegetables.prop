@@ -1,0 +1,50 @@
+name: Chopped Vegetables
+category: Food
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: farmhouse-kitchen, servants-kitchen
+typical_count: single
+clusters_with: cleaver, mixing-bowl, long-spoon, kitchen-table
+notes: Pile of freshly diced vegetables; pair with cleaver and cutting surface
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.34,0.30
+
+# Pale wet smear beneath (juice/moisture)
+ellipse 0.50,0.52 0.34,0.28 fill #e8d8b8 0.35
+ellipse 0.50,0.52 0.34,0.28 stroke #a89868 0.35 width 1
+# Carrot dice (orange)
+rect 0.30,0.36 0.06,0.06 fill #e08030 0.92
+rect 0.30,0.36 0.06,0.06 stroke #a0501a 0.8 width 1
+rect 0.58,0.32 0.06,0.06 fill #e08030 0.92 rotate 30
+rect 0.58,0.32 0.06,0.06 stroke #a0501a 0.8 width 1 rotate 30
+rect 0.42,0.60 0.05,0.05 fill #e89038 0.92
+rect 0.42,0.60 0.05,0.05 stroke #a0501a 0.8 width 1
+rect 0.64,0.56 0.06,0.05 fill #e08030 0.92 rotate 15
+rect 0.64,0.56 0.06,0.05 stroke #a0501a 0.8 width 1 rotate 15
+# Potato dice (cream)
+rect 0.38,0.44 0.07,0.07 fill #e0d0a0 0.92
+rect 0.38,0.44 0.07,0.07 stroke #8a7848 0.8 width 1
+rect 0.54,0.48 0.07,0.06 fill #e8d8a8 0.92 rotate 20
+rect 0.54,0.48 0.07,0.06 stroke #8a7848 0.8 width 1 rotate 20
+rect 0.32,0.58 0.06,0.06 fill #e0d0a0 0.92 rotate 45
+rect 0.32,0.58 0.06,0.06 stroke #8a7848 0.8 width 1 rotate 45
+rect 0.50,0.36 0.06,0.06 fill #e8d8a8 0.92
+rect 0.50,0.36 0.06,0.06 stroke #8a7848 0.8 width 1
+# Onion dice (white)
+rect 0.42,0.50 0.05,0.05 fill #d0c8b8 0.9
+rect 0.42,0.50 0.05,0.05 stroke #807868 0.8 width 1
+rect 0.60,0.44 0.04,0.04 fill #d8d0c0 0.9 rotate 25
+rect 0.60,0.44 0.04,0.04 stroke #807868 0.8 width 1 rotate 25
+rect 0.46,0.64 0.05,0.04 fill #d0c8b8 0.9
+rect 0.46,0.64 0.05,0.04 stroke #807868 0.8 width 1
+# Chopped herbs (small green flecks)
+ellipse 0.36,0.52 0.025,0.012 fill #4a7a3a 0.85
+ellipse 0.56,0.62 0.025,0.012 fill #4a7a3a 0.85 rotate 40
+ellipse 0.48,0.42 0.02,0.010 fill #5a8a3a 0.85 rotate 70
+ellipse 0.66,0.50 0.022,0.012 fill #4a7a3a 0.85 rotate 20
+ellipse 0.34,0.44 0.02,0.010 fill #5a8a3a 0.85 rotate 55

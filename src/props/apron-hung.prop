@@ -1,0 +1,48 @@
+name: Apron Hung
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1.2
+placement: wall
+room_types: farmhouse-kitchen, house-medium-artisan, bakery, butcher-shop, servants-kitchen
+typical_count: single
+clusters_with: leather-apron, peg-rail-wall, shelf-open, cleaver
+notes: Cloth kitchen apron on a peg — distinct from heavier leather-apron (smithy)
+---
+# === HITBOX ===
+selection rect 0.20,0.08 0.60,0.62
+
+# Peg (small dark nub at top)
+circle 0.50,0.08 0.025 fill #2a1400 0.9
+# Neck strap loop over peg
+bezier 0.44,0.10 0.46,0.14 0.54,0.14 0.56,0.10 stroke #e8dcc8 width 2
+# Apron bib (narrow top square)
+poly 0.44,0.14 0.56,0.14 0.58,0.28 0.42,0.28 fill #e8dcc8 0.92
+poly 0.44,0.14 0.56,0.14 0.58,0.28 0.42,0.28 stroke #8b7355
+# Apron main body (wider skirt)
+poly 0.42,0.28 0.58,0.28 0.72,0.50 0.70,0.66 0.30,0.66 0.28,0.50 fill #f0e4d0 0.95
+poly 0.42,0.28 0.58,0.28 0.72,0.50 0.70,0.66 0.30,0.66 0.28,0.50 texfill polyhaven/rough_linen 0.5
+poly 0.42,0.28 0.58,0.28 0.72,0.50 0.70,0.66 0.30,0.66 0.28,0.50 stroke #8b7355
+# Waist tie strings
+bezier 0.28,0.50 0.20,0.46 0.14,0.48 0.08,0.52 stroke #c8b898 width 2
+bezier 0.72,0.50 0.80,0.46 0.86,0.48 0.92,0.52 stroke #c8b898 width 2
+# Waist tie knot
+circle 0.50,0.42 0.025 fill #8b7355 0.85
+# Horizontal apron waist seam
+line 0.30,0.42 0.70,0.42 stroke #8b7355 0.6
+# Vertical pocket seams
+line 0.40,0.50 0.40,0.64 stroke #8b7355 0.6
+line 0.60,0.50 0.60,0.64 stroke #8b7355 0.6
+# Hem at bottom
+line 0.30,0.64 0.70,0.64 stroke #8b7355 0.7
+# Stains (flour, tomato)
+circle 0.44,0.36 0.025 fill #f8ecd8 0.7
+circle 0.54,0.54 0.03 fill #c82820 0.4
+circle 0.38,0.58 0.02 fill #c82820 0.3
+# Decorative red trim on bib
+line 0.44,0.16 0.56,0.16 stroke #aa2020 0.7 width 1
+line 0.44,0.26 0.56,0.26 stroke #aa2020 0.7 width 1
+# Fold crease down middle
+line 0.50,0.14 0.50,0.64 stroke #c8b898 0.4

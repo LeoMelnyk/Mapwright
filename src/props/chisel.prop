@@ -1,0 +1,52 @@
+name: Chisel
+category: Tools
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: general-workshop, temple-of-craft, mason-workshop, forge
+typical_count: few
+clusters_with: hammer, tool-rack, workbench, wedge-iron
+notes: Wood or stone carving chisel — narrow blade with wooden handle
+---
+# === HITBOX ===
+selection rect 0.42,0.14 0.16,0.74
+
+# Handle (wooden top, south end)
+rect 0.40,0.58 0.20,0.28 texfill polyhaven/dark_wood 0.9
+rect 0.40,0.58 0.20,0.28 stroke #2a1400
+# Handle shape (octagonal bulge in middle)
+poly 0.40,0.66 0.38,0.70 0.40,0.78 0.60,0.78 0.62,0.70 0.60,0.66 fill #5c3a1e 0.6
+# Handle cap (wider top)
+ellipse 0.50,0.86 0.11,0.04 fill #3a1f00 0.9
+ellipse 0.50,0.86 0.11,0.04 stroke #1a0f00
+# Handle grain
+line 0.44,0.60 0.44,0.82 stroke #5c3a1e 0.4
+line 0.56,0.60 0.56,0.82 stroke #5c3a1e 0.4
+# Iron ferrule (metal band where handle meets blade)
+rect 0.42,0.52 0.16,0.08 fill #555555 0.95
+rect 0.42,0.52 0.16,0.08 stroke #222222
+# Ferrule band detail
+line 0.42,0.56 0.58,0.56 stroke #777777 0.7
+# Shank (blade running north)
+rect 0.46,0.20 0.08,0.34 fill #888888 0.95
+rect 0.46,0.20 0.08,0.34 texfill polyhaven/metal_plate 0.5
+rect 0.46,0.20 0.08,0.34 stroke #333333
+# Shank fuller/bevel
+line 0.50,0.22 0.50,0.50 stroke #444444 0.7 width 1
+# Cutting edge (sharp tip at north)
+poly 0.46,0.20 0.54,0.20 0.50,0.14 fill #cccccc 0.95
+poly 0.46,0.20 0.54,0.20 0.50,0.14 stroke #222222
+# Edge highlight (razor sharp)
+line 0.46,0.20 0.50,0.14 stroke #ffffff 0.9 width 1
+line 0.50,0.14 0.54,0.20 stroke #ffffff 0.9 width 1
+# Blade sheen
+line 0.48,0.22 0.48,0.50 stroke #aaaaaa 0.5 width 1
+line 0.52,0.22 0.52,0.50 stroke #888888 0.4 width 1
+# Rust patch on shank
+circle 0.50,0.40 0.02 fill #6a3818 0.5
+# Wood chips residue on blade (recent use)
+circle 0.58,0.30 0.015 fill #8a5820 0.7
+circle 0.44,0.42 0.012 fill #8a5820 0.6

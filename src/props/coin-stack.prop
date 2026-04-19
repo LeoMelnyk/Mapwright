@@ -1,0 +1,56 @@
+name: Coin Stack
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: counting-house, gambling-den, thieves-guild-hideout, shop-jeweler, treasure-vault, vault
+typical_count: few
+clusters_with: coin-pile, coin-scatter, scale, ledger-stack, desk
+notes: Neat vertical stack of coins; counted and organized (different from coin-pile)
+---
+# === HITBOX ===
+selection rect 0.30,0.32 0.40,0.42
+
+# Shadow base beneath stack
+ellipse 0.5,0.74 0.20,0.06 fill #1a1008 0.4
+# Stack 1 (gold, tallest — center-left)
+# Bottom coin
+ellipse 0.36,0.70 0.09,0.04 fill #8b6914 0.95
+ellipse 0.36,0.70 0.09,0.04 stroke #5a3a00
+ellipse 0.36,0.64 0.09,0.04 fill #c89518 0.95
+ellipse 0.36,0.64 0.09,0.04 stroke #5a3a00
+ellipse 0.36,0.58 0.09,0.04 fill #daa520 0.95
+ellipse 0.36,0.58 0.09,0.04 stroke #5a3a00
+ellipse 0.36,0.52 0.09,0.04 fill #daa520 0.95
+ellipse 0.36,0.52 0.09,0.04 stroke #5a3a00
+ellipse 0.36,0.46 0.09,0.04 fill #e8b820 0.95
+ellipse 0.36,0.46 0.09,0.04 stroke #5a3a00
+# Top coin (face partially visible)
+circle 0.36,0.44 0.09 fill #daa520 0.95
+circle 0.36,0.44 0.09 stroke #5a3a00
+circle 0.36,0.44 0.06 stroke #8b6914 0.6 width 1
+circle 0.36,0.44 0.018 fill #5a3a00 0.8
+# Stack 2 (silver, shorter — right)
+ellipse 0.60,0.70 0.08,0.04 fill #888888 0.95
+ellipse 0.60,0.70 0.08,0.04 stroke #333333
+ellipse 0.60,0.64 0.08,0.04 fill #aaaaaa 0.95
+ellipse 0.60,0.64 0.08,0.04 stroke #333333
+ellipse 0.60,0.58 0.08,0.04 fill #cccccc 0.95
+ellipse 0.60,0.58 0.08,0.04 stroke #333333
+# Top silver coin
+circle 0.60,0.56 0.08 fill #cccccc 0.95
+circle 0.60,0.56 0.08 stroke #555555
+circle 0.60,0.56 0.018 fill #555555 0.8
+# Small stack 3 (copper, very short)
+ellipse 0.76,0.72 0.06 fill #a05828 0.95
+ellipse 0.76,0.72 0.06,0.03 stroke #5a2810
+ellipse 0.76,0.68 0.06,0.03 fill #b06030 0.95
+ellipse 0.76,0.68 0.06,0.03 stroke #5a2810
+# Gold sheen highlights
+arc 0.36,0.44 0.08 210 260 stroke #ffcc00 0.6 width 1
+arc 0.60,0.56 0.07 210 260 stroke #ffffff 0.5 width 1
+# Tiny glint
+circle 0.38,0.42 0.01 fill #ffee88 0.9

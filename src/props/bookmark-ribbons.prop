@@ -1,0 +1,36 @@
+name: Bookmark Ribbons
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: library, study, wizard-sanctum, noble-bedchamber
+typical_count: many
+clusters_with: book-pile, book-open, bookshelf, desk
+notes: Scatter of ribbons half-spilling from an open book; place near bookshelves and reading areas for clutter
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: an open book with several bookmark ribbons spilling out from the pages
+
+# Open book (two pages, spine running north-south through center)
+rect 0.22,0.30 0.26,0.40 fill #e8e0d0 0.7
+rect 0.22,0.30 0.26,0.40 stroke #c8b898 0.5
+rect 0.52,0.30 0.26,0.40 fill #e8e0d0 0.7
+rect 0.52,0.30 0.26,0.40 stroke #c8b898 0.5
+# Spine line
+line 0.50,0.30 0.50,0.70 stroke #8b7355 0.6
+
+# Text hint on pages (faint lines)
+line 0.26,0.38 0.44,0.38 stroke #c8b898 0.25
+line 0.26,0.44 0.42,0.44 stroke #c8b898 0.2
+line 0.26,0.50 0.44,0.50 stroke #c8b898 0.25
+line 0.56,0.38 0.74,0.38 stroke #c8b898 0.25
+line 0.56,0.44 0.72,0.44 stroke #c8b898 0.2
+
+# Red ribbon spilling south from spine
+qbezier 0.48,0.52 0.44,0.72 0.36,0.82 stroke #cc3333 width 2
+# Blue ribbon spilling south-east
+qbezier 0.52,0.56 0.58,0.74 0.66,0.80 stroke #3344aa width 2
+# Green ribbon trailing north-west from pages
+qbezier 0.46,0.36 0.38,0.24 0.28,0.20 stroke #338833 width 2

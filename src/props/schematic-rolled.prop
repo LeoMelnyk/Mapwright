@@ -1,0 +1,46 @@
+name: Rolled Schematic
+category: Workshop
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: workshop-artificer, tinker-workshop, study, forge
+typical_count: few
+clusters_with: half-built-device, desk, book, clockwork-frame
+notes: Rolled parchment with straightedge and compass; scatter on desks or benches
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Rolled parchment tube (oriented east-west)
+rect 0.15,0.32 0.70,0.18 fill #e8e0d0 0.8
+rect 0.15,0.32 0.70,0.18 stroke #c8b898
+# Parchment roll highlight (rounded top edge)
+rect 0.15,0.32 0.70,0.06 fill #f0e8d8 0.4
+# Parchment roll shadow (bottom edge)
+rect 0.15,0.44 0.70,0.06 fill #b8a888 0.3
+
+# Twine ties
+line 0.30,0.30 0.30,0.52 stroke #8b7355 width 2
+line 0.70,0.30 0.70,0.52 stroke #8b7355 width 2
+# Twine knot accents
+circle 0.30,0.41 0.02 fill #8b7355 0.8
+circle 0.70,0.41 0.02 fill #8b7355 0.8
+
+# Straightedge (wooden ruler, diagonal below the scroll)
+rect 0.10,0.62 0.55,0.06 texfill polyhaven/dark_wood 0.8
+rect 0.10,0.62 0.55,0.06 stroke #2a1400
+# Ruler markings
+line 0.20,0.62 0.20,0.65 stroke #1a1208 0.5
+line 0.30,0.62 0.30,0.65 stroke #1a1208 0.5
+line 0.40,0.62 0.40,0.65 stroke #1a1208 0.5
+line 0.50,0.62 0.50,0.65 stroke #1a1208 0.5
+
+# Compass (drafting tool, V-shape with pivot)
+line 0.72,0.58 0.78,0.78 stroke #555555 width 2
+line 0.72,0.58 0.66,0.78 stroke #555555 width 2
+circle 0.72,0.58 0.02 fill #444444 0.9
+# Compass point
+circle 0.66,0.78 0.015 fill #333333 0.9
+# Compass pencil tip
+circle 0.78,0.78 0.015 fill #222222 0.8

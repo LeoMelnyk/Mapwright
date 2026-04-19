@@ -1,0 +1,157 @@
+name: Tally Board with Tokens
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: wall
+room_types: tunnel-mine-worked, mine-shaft-entrance, guard-post, command-room
+typical_count: single
+clusters_with: mine-plan-pinned, lantern, desk, chair, ledger-stack
+notes: The miners' check-board — a wall-hung wooden slab with rows of numbered brass tokens hanging from small pegs. A few empty pegs mark miners who never checked back in. Place on a wall in an office, deputy's station, or mine entrance.
+---
+# footprint 1x1: x range 0-1, y range 0-1. Wall mounted along north edge; board protrudes south.
+
+# === Board top edge (thin wooden strip along the wall) ===
+rect 0.08,0.05 0.84,0.09 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.05 0.84,0.09 stroke #2a1400
+
+# === "SHIFT" label placard at top center (barely-readable sign spot) ===
+rect 0.40,0.07 0.20,0.05 fill #5c3a1e 0.3
+rect 0.40,0.07 0.20,0.05 stroke #2a1400 0.6
+
+# === Board body (the wooden slab face itself, visible as a slightly lighter panel) ===
+rect 0.08,0.14 0.84,0.72 texfill polyhaven/dark_wood 0.75
+rect 0.08,0.14 0.84,0.72 stroke #2a1400 0.8
+
+# === Drop shadow just south of the board top frame (hint of protrusion) ===
+rect 0.08,0.14 0.84,0.04 fill #000000 0.25
+
+# === Faint scratched tally marks between rows (bookkeeping notations) ===
+line 0.14,0.38 0.18,0.38 stroke #5c3a1e 0.35 width 1
+line 0.20,0.38 0.22,0.38 stroke #5c3a1e 0.35 width 1
+line 0.72,0.52 0.78,0.52 stroke #5c3a1e 0.3 width 1
+line 0.14,0.66 0.17,0.66 stroke #5c3a1e 0.3 width 1
+line 0.80,0.78 0.84,0.78 stroke #5c3a1e 0.3 width 1
+
+# === Row 1 (y=0.26): 6 tokens — all present ===
+circle 0.17,0.26 0.015 fill #222222
+circle 0.17,0.26 0.035 fill #daa520
+circle 0.17,0.26 0.035 stroke #8b6914
+circle 0.17,0.26 0.008 fill #5a3a00
+
+circle 0.31,0.26 0.015 fill #222222
+circle 0.31,0.26 0.035 fill #daa520
+circle 0.31,0.26 0.035 stroke #8b6914
+circle 0.31,0.26 0.008 fill #5a3a00
+
+circle 0.45,0.26 0.015 fill #222222
+circle 0.45,0.26 0.035 fill #daa520
+circle 0.45,0.26 0.035 stroke #8b6914
+circle 0.45,0.26 0.008 fill #5a3a00
+
+circle 0.59,0.26 0.015 fill #222222
+circle 0.59,0.26 0.035 fill #daa520
+circle 0.59,0.26 0.035 stroke #8b6914
+circle 0.59,0.26 0.008 fill #5a3a00
+
+circle 0.73,0.26 0.015 fill #222222
+circle 0.73,0.26 0.035 fill #daa520
+circle 0.73,0.26 0.035 stroke #8b6914
+circle 0.73,0.26 0.008 fill #5a3a00
+
+circle 0.87,0.26 0.015 fill #222222
+circle 0.87,0.26 0.035 fill #daa520
+circle 0.87,0.26 0.035 stroke #8b6914
+circle 0.87,0.26 0.008 fill #5a3a00
+
+# === Row 2 (y=0.44): 6 tokens — 2 MISSING (positions 3 and 5) ===
+circle 0.17,0.44 0.015 fill #222222
+circle 0.17,0.44 0.035 fill #daa520
+circle 0.17,0.44 0.035 stroke #8b6914
+circle 0.17,0.44 0.008 fill #5a3a00
+
+circle 0.31,0.44 0.015 fill #222222
+circle 0.31,0.44 0.035 fill #daa520
+circle 0.31,0.44 0.035 stroke #8b6914
+circle 0.31,0.44 0.008 fill #5a3a00
+
+# MISSING TOKEN — empty peg (miner never came back)
+circle 0.45,0.44 0.015 fill #333333
+circle 0.45,0.44 0.015 stroke #1a1208
+
+circle 0.59,0.44 0.015 fill #222222
+circle 0.59,0.44 0.035 fill #daa520
+circle 0.59,0.44 0.035 stroke #8b6914
+circle 0.59,0.44 0.008 fill #5a3a00
+
+# MISSING TOKEN — empty peg
+circle 0.73,0.44 0.015 fill #333333
+circle 0.73,0.44 0.015 stroke #1a1208
+
+# Tarnished token (slightly darker brass, off-kilter)
+circle 0.87,0.44 0.015 fill #222222
+circle 0.87,0.44 0.034 fill #a67c0f
+circle 0.87,0.44 0.034 stroke #5a3a00
+circle 0.87,0.44 0.008 fill #3a2400
+
+# === Row 3 (y=0.62): 6 tokens — 2 MISSING (positions 1 and 4) ===
+# MISSING TOKEN — empty peg
+circle 0.17,0.62 0.015 fill #333333
+circle 0.17,0.62 0.015 stroke #1a1208
+
+circle 0.31,0.62 0.015 fill #222222
+circle 0.31,0.62 0.035 fill #daa520
+circle 0.31,0.62 0.035 stroke #8b6914
+circle 0.31,0.62 0.008 fill #5a3a00
+
+circle 0.45,0.62 0.015 fill #222222
+circle 0.45,0.62 0.035 fill #daa520
+circle 0.45,0.62 0.035 stroke #8b6914
+circle 0.45,0.62 0.008 fill #5a3a00
+
+# MISSING TOKEN — empty peg
+circle 0.59,0.62 0.015 fill #333333
+circle 0.59,0.62 0.015 stroke #1a1208
+
+circle 0.73,0.62 0.015 fill #222222
+circle 0.73,0.62 0.035 fill #daa520
+circle 0.73,0.62 0.035 stroke #8b6914
+circle 0.73,0.62 0.008 fill #5a3a00
+
+circle 0.87,0.62 0.015 fill #222222
+circle 0.87,0.62 0.035 fill #daa520
+circle 0.87,0.62 0.035 stroke #8b6914
+circle 0.87,0.62 0.008 fill #5a3a00
+
+# === Row 4 (y=0.80): 6 tokens — 1 MISSING (position 2) ===
+circle 0.17,0.80 0.015 fill #222222
+circle 0.17,0.80 0.035 fill #daa520
+circle 0.17,0.80 0.035 stroke #8b6914
+circle 0.17,0.80 0.008 fill #5a3a00
+
+# MISSING TOKEN — empty peg
+circle 0.31,0.80 0.015 fill #333333
+circle 0.31,0.80 0.015 stroke #1a1208
+
+circle 0.45,0.80 0.015 fill #222222
+circle 0.45,0.80 0.035 fill #daa520
+circle 0.45,0.80 0.035 stroke #8b6914
+circle 0.45,0.80 0.008 fill #5a3a00
+
+circle 0.59,0.80 0.015 fill #222222
+circle 0.59,0.80 0.035 fill #daa520
+circle 0.59,0.80 0.035 stroke #8b6914
+circle 0.59,0.80 0.008 fill #5a3a00
+
+# Tarnished, slightly off-kilter token (darker brass)
+circle 0.73,0.80 0.015 fill #222222
+circle 0.73,0.80 0.034 fill #a67c0f
+circle 0.73,0.80 0.034 stroke #5a3a00
+circle 0.73,0.80 0.008 fill #3a2400
+
+circle 0.87,0.80 0.015 fill #222222
+circle 0.87,0.80 0.035 fill #daa520
+circle 0.87,0.80 0.035 stroke #8b6914
+circle 0.87,0.80 0.008 fill #5a3a00

@@ -1,0 +1,48 @@
+name: Chalk Mark
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: cooperage, shop-tailor, textile-loomhouse, thieves-guild-hideout, workshop
+typical_count: many
+clusters_with: chalk-mark, workbench, fabric-scrap, chisel
+notes: White chalk mark on the floor — measurement, tally, or thieves' cant glyph
+---
+# === HITBOX ===
+selection rect 0.22,0.28 0.56,0.44
+
+# Main chalk symbol — stylized 'X' or cross mark (primary mark)
+line 0.30,0.36 0.52,0.54 stroke #e8e4d8 width 3
+line 0.30,0.36 0.52,0.54 stroke #ffffff 0.7 width 1
+line 0.52,0.36 0.30,0.54 stroke #e8e4d8 width 3
+line 0.52,0.36 0.30,0.54 stroke #ffffff 0.7 width 1
+# Smudged edges of X
+circle 0.31,0.37 0.012 fill #ffffff 0.5
+circle 0.51,0.37 0.012 fill #ffffff 0.5
+circle 0.31,0.53 0.012 fill #ffffff 0.5
+circle 0.51,0.53 0.012 fill #ffffff 0.5
+# Tally marks beside the X
+line 0.62,0.38 0.62,0.52 stroke #e8e4d8 width 2
+line 0.66,0.38 0.66,0.52 stroke #e8e4d8 width 2
+line 0.70,0.38 0.70,0.52 stroke #e8e4d8 width 2
+line 0.74,0.38 0.74,0.52 stroke #e8e4d8 width 2
+line 0.60,0.52 0.76,0.38 stroke #ffffff 0.9 width 1
+# Arrow marker (directional)
+line 0.28,0.66 0.44,0.66 stroke #e8e4d8 width 2
+line 0.40,0.62 0.44,0.66 stroke #e8e4d8 width 2
+line 0.40,0.70 0.44,0.66 stroke #e8e4d8 width 2
+# Scuff/eraser smear
+ellipse 0.42,0.44 0.10,0.06 fill #ffffff 0.15
+# Chalk dust fleck
+circle 0.22,0.38 0.015 fill #ffffff 0.7
+circle 0.78,0.54 0.012 fill #ffffff 0.7
+circle 0.26,0.58 0.012 fill #ffffff 0.6
+circle 0.74,0.34 0.01 fill #ffffff 0.6
+# Faded older mark
+line 0.34,0.30 0.46,0.30 stroke #e8e4d8 0.4 width 1
+# Dot mark
+circle 0.50,0.68 0.015 fill #ffffff 0.8
+circle 0.56,0.68 0.012 fill #ffffff 0.7

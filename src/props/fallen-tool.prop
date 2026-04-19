@@ -1,0 +1,58 @@
+name: Fallen Tool
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: cabin-abandoned, workshop-abandoned, ruined-forge, general-workshop, carpentry-shop, house-medium-artisan
+typical_count: few
+clusters_with: crate-splintered, overturned-table, rubble-pile, fallen-tool, sawdust-scatter
+notes: Dropped hammer lying on the floor — wooden handle diagonal with iron head fallen at one end. Signals abandonment or sudden flight.
+---
+# footprint 1x1: x 0-1, y 0-1. A claw hammer lying flat, handle diagonally oriented.
+
+# === Soft floor stain under tool (old dust) ===
+ellipse 0.50,0.52 0.38,0.12 fill #2a1810 0.12
+
+# === Hammer handle (wooden, diagonal NW-to-SE) ===
+rect 0.20,0.48 0.54,0.08 texfill polyhaven/dark_wood 0.9 rotate -25
+rect 0.20,0.48 0.54,0.08 stroke #1a0800 rotate -25
+
+# Handle grain lines
+line 0.26,0.60 0.72,0.42 stroke #2a1400 0.5
+line 0.28,0.64 0.74,0.46 stroke #2a1400 0.4
+
+# === Ferrule / metal band where handle meets head ===
+rect 0.60,0.38 0.10,0.06 fill #555555 0.9 rotate -25
+rect 0.60,0.38 0.10,0.06 stroke #222222 rotate -25
+
+# === Hammer head (iron rectangle + claw prong) ===
+# Main head block
+rect 0.66,0.28 0.18,0.14 texfill polyhaven/metal_plate 0.85 rotate -25
+rect 0.66,0.28 0.18,0.14 fill #333333 0.5 rotate -25
+rect 0.66,0.28 0.18,0.14 stroke #1a1a1a width 1 rotate -25
+
+# Face of hammer (striking end — small highlight)
+circle 0.82,0.32 0.03 fill #8899aa 0.7
+circle 0.82,0.32 0.03 stroke #444444
+
+# === Claw prongs (forked end) ===
+bezier 0.66,0.30 0.62,0.22 0.58,0.18 0.54,0.18 stroke #444444 width 2
+bezier 0.66,0.30 0.62,0.22 0.58,0.18 0.54,0.18 stroke #8899aa width 1
+
+# === Handle knob/pommel end (south-east end, slightly flared) ===
+ellipse 0.24,0.58 0.04,0.05 fill #3a1f00 0.9
+ellipse 0.24,0.58 0.04,0.05 stroke #1a0800
+
+# === Small splinter/chip near handle (dropped roughly) ===
+line 0.18,0.66 0.22,0.70 stroke #5c3a1e 0.75 width 1
+circle 0.20,0.68 0.012 fill #3a1f00 0.75
+
+# === Subtle rust speck on head ===
+circle 0.72,0.34 0.012 fill #6a3a10 0.7
+circle 0.76,0.30 0.010 fill #6a3a10 0.65
+
+# === Dust trail showing where it was dropped (faint smear) ===
+bezier 0.30,0.70 0.22,0.72 0.14,0.74 0.08,0.74 stroke #3a2a1a 0.3 width 2

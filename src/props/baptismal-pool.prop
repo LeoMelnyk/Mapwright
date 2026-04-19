@@ -1,0 +1,60 @@
+name: Baptismal Pool
+category: Features
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.6
+lights: [{"preset":"silvery","x":1.0,"y":1.0,"color":"#a8c8e8","intensity":0.4,"radius":3}]
+placement: center
+room_types: baptistry, temple, shrine, chapel
+typical_count: single
+clusters_with: altar, candelabra, censer, kneeling-bench, holy-font
+notes: Shallow octagonal stone font filled with still holy water; faint pale-blue glow. Place at baptistry center.
+---
+# === HITBOX ===
+selection circle 1.0,1.0 0.85
+
+# footprint 2x2: x 0-2, y 0-2. Center at (1.0, 1.0).
+# Top-down: octagonal stone rim enclosing still, softly glowing water.
+
+# === Outer glow halo (faint pale blue) ===
+circle 1.0,1.0 0.95 gradient-radial #a8c8e8 #1a2030 0.25
+
+# === Octagonal stone rim (outer) ===
+poly 0.32,0.72 0.72,0.32 1.28,0.32 1.68,0.72 1.68,1.28 1.28,1.68 0.72,1.68 0.32,1.28 texfill polyhaven/marble_01 0.88
+poly 0.32,0.72 0.72,0.32 1.28,0.32 1.68,0.72 1.68,1.28 1.28,1.68 0.72,1.68 0.32,1.28 stroke #5a5a5a width 2
+
+# === Inner rim lip ===
+poly 0.46,0.78 0.78,0.46 1.22,0.46 1.54,0.78 1.54,1.22 1.22,1.54 0.78,1.54 0.46,1.22 stroke #777777 width 1
+
+# === Water surface — octagonal ===
+poly 0.50,0.82 0.82,0.50 1.18,0.50 1.50,0.82 1.50,1.18 1.18,1.50 0.82,1.50 0.50,1.18 fill #6898c0 0.75
+poly 0.50,0.82 0.82,0.50 1.18,0.50 1.50,0.82 1.50,1.18 1.18,1.50 0.82,1.50 0.50,1.18 stroke #3a5a7a
+
+# Water inner color layer (deeper blue)
+poly 0.64,0.88 0.88,0.64 1.12,0.64 1.36,0.88 1.36,1.12 1.12,1.36 0.88,1.36 0.64,1.12 fill #4a7a9a 0.5
+
+# === Surface shine / still highlight ===
+arc 1.0,1.0 0.40 200 260 stroke #c8e0f0 0.55 width 2
+ellipse 0.86,0.84 0.18,0.06 fill #d0e8f4 0.3
+
+# === Faint inner glow (pale sanctified light from the water) ===
+circle 1.0,1.0 0.48 gradient-radial #d0e8f4 #4a7a9a 0.35
+
+# === Rim facet lines (octagon segments) ===
+line 0.72,0.32 0.46,0.78 stroke #4a4a4a 0.4
+line 1.28,0.32 1.54,0.78 stroke #4a4a4a 0.4
+line 1.68,0.72 1.54,1.22 stroke #4a4a4a 0.4
+line 1.68,1.28 1.22,1.54 stroke #4a4a4a 0.4
+line 1.28,1.68 0.78,1.54 stroke #4a4a4a 0.4
+line 0.72,1.68 0.46,1.22 stroke #4a4a4a 0.4
+
+# === Small holy-water ripples ===
+bezier 0.72,0.96 0.88,0.92 1.12,1.04 1.28,0.98 stroke #c8e0f0 0.5 width 1
+bezier 0.76,1.10 0.92,1.14 1.08,1.06 1.24,1.10 stroke #c8e0f0 0.4 width 1
+
+# === Central cross or light-point (where the sanctified light emanates) ===
+line 1.0,0.92 1.0,1.08 stroke #e8f4ff 0.85 width 2
+line 0.92,1.0 1.08,1.0 stroke #e8f4ff 0.85 width 2
+circle 1.0,1.0 0.04 fill #ffffff 0.9

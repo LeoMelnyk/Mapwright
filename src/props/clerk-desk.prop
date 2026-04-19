@@ -1,0 +1,70 @@
+name: Clerk's Desk
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: courthouse-chamber, counting-house, guildhall, scriptorium-mundane, mansion-study, office
+typical_count: few
+clusters_with: chair-wooden, inkwell, quill, ledger-stack, document-stack, candle
+notes: Small wooden clerk's writing desk with a slanted sloped top; place against walls in courthouses or counting-houses
+---
+# === HITBOX ===
+hitbox rect 0.08,0.10 1.84,0.72 z 0-2.5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: rectangular wooden desk with slanted writing surface (indicated by a gradient from back to front)
+
+# Desk body (full footprint, dark wood)
+rect 0.08,0.10 1.84,0.72 texfill polyhaven/wood_table 0.88
+rect 0.08,0.10 1.84,0.72 stroke #2a1400 width 2
+
+# Slant of the sloped surface — lighter north edge (high side), darker south edge (low side)
+rect 0.08,0.10 1.84,0.12 fill #5c3a1e 0.45
+rect 0.08,0.70 1.84,0.12 fill #1a0e00 0.35
+
+# Hinge line at the top edge (where the slanted lid opens)
+line 0.12,0.18 1.80,0.18 stroke #2a1400 0.8 width 1
+
+# Desk edge groove (ridge at the south edge to keep papers from sliding off)
+rect 0.10,0.72 1.80,0.08 fill #3a1f00 0.8
+rect 0.10,0.72 1.80,0.08 stroke #1a0e00 width 1
+
+# Items on the slanted surface
+# Parchment sheet angled on the slope (writing paper)
+rect 0.60,0.28 0.80,0.40 fill #e8dcc8 0.88
+rect 0.60,0.28 0.80,0.40 stroke #8b7355 width 1
+# Writing lines on the parchment
+line 0.64,0.36 1.36,0.36 stroke #2a1400 0.55 width 1
+line 0.64,0.42 1.32,0.42 stroke #2a1400 0.5 width 1
+line 0.64,0.48 1.36,0.48 stroke #2a1400 0.5 width 1
+line 0.64,0.54 1.28,0.54 stroke #2a1400 0.45 width 1
+line 0.64,0.60 1.36,0.60 stroke #2a1400 0.45 width 1
+
+# Inkwell (upper left corner of desk)
+circle 0.30,0.32 0.07 fill #5a3a00 0.9
+circle 0.30,0.32 0.07 stroke #2a1400 width 2
+circle 0.30,0.32 0.05 fill #0a0618 0.95
+arc 0.30,0.32 0.04 200 260 stroke #3a2860 0.6 width 1
+
+# Quill lying across the parchment
+bezier 0.36,0.32 0.50,0.36 0.68,0.42 0.84,0.52 stroke #e8dcc8 width 2
+bezier 0.40,0.34 0.54,0.38 0.66,0.42 0.76,0.48 stroke #d4c4a8 0.6 width 1
+
+# Small sand shaker (upper right)
+circle 1.72,0.32 0.06 fill #daa520 0.9
+circle 1.72,0.32 0.06 stroke #5a3a00
+circle 1.72,0.32 0.04 fill #ffd700 0.85
+circle 1.72,0.32 0.008 fill #3a2400 0.9
+circle 1.74,0.30 0.008 fill #3a2400 0.85
+circle 1.70,0.34 0.008 fill #3a2400 0.85
+
+# Desk legs visible at corners (darker wood squares)
+rect 0.10,0.76 0.08,0.06 fill #1a0e00 0.85
+rect 1.82,0.76 0.08,0.06 fill #1a0e00 0.85
+
+# Drawer pull at south edge (small brass knob centered on front)
+circle 1.00,0.78 0.025 fill #daa520 0.9
+circle 1.00,0.78 0.025 stroke #5a3a00

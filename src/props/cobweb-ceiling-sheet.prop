@@ -1,0 +1,69 @@
+name: Cobweb (Ceiling Sheet)
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: any
+room_types: crypt, tomb, dungeon, mausoleum, abandoned-room, tunnel-mine-worked, cave-living, spider-lair
+typical_count: few
+clusters_with: cobweb-heavy, cobweb-cluster, spider-egg-cluster, spider-husk, silk-wrapped-victim
+notes: Large 2x2 overhead sheet of cobweb — a silk canopy spanning a whole cell. Anchored to all four corners with a dense central mass. Place where webbing dominates a space (spider lair entrance, long-abandoned chamber).
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Huge overhead sheet of webbing, seen from below — a silk canopy anchored
+# at all four corners with a dense central mass.
+
+# === Corner anchor clumps ===
+poly 0.05,0.05 0.18,0.06 0.20,0.18 0.08,0.20 fill #aaaaaa 0.12
+poly 1.82,0.06 1.95,0.05 1.94,0.20 1.80,0.18 fill #aaaaaa 0.12
+poly 0.06,1.82 0.20,1.80 0.18,1.95 0.05,1.94 fill #aaaaaa 0.12
+poly 1.80,1.82 1.94,1.80 1.95,1.95 1.82,1.94 fill #aaaaaa 0.12
+
+# === Central dense mass (thickest part of the sheet) ===
+poly 0.65,0.75 0.85,0.55 1.15,0.58 1.38,0.78 1.40,1.12 1.22,1.38 0.90,1.42 0.62,1.25 fill #aaaaaa 0.12
+poly 0.78,0.88 0.98,0.72 1.22,0.82 1.28,1.08 1.10,1.28 0.82,1.18 fill #aaaaaa 0.10
+
+# === Primary structural spokes from center to each corner ===
+line 1.0,1.0 0.08,0.08 stroke #888888 0.35 width 2
+line 1.0,1.0 1.92,0.08 stroke #888888 0.35 width 2
+line 1.0,1.0 0.08,1.92 stroke #888888 0.35 width 2
+line 1.0,1.0 1.92,1.92 stroke #888888 0.35 width 2
+
+# === Secondary spokes from center to wall midpoints ===
+line 1.0,1.0 1.0,0.05 stroke #999999 0.28 width 1
+line 1.0,1.0 1.95,1.0 stroke #999999 0.28 width 1
+line 1.0,1.0 1.0,1.95 stroke #999999 0.28 width 1
+line 1.0,1.0 0.05,1.0 stroke #999999 0.28 width 1
+
+# === Cross-strands weaving between spokes (inner ring) ===
+qbezier 0.55,0.35 0.70,0.55 0.88,0.72 stroke #999999 0.25 width 1
+qbezier 1.45,0.35 1.30,0.55 1.12,0.72 stroke #999999 0.25 width 1
+qbezier 1.45,1.65 1.30,1.45 1.12,1.28 stroke #999999 0.25 width 1
+qbezier 0.55,1.65 0.70,1.45 0.88,1.28 stroke #999999 0.25 width 1
+
+# === Cross-strands (outer ring, linking spokes near the edges) ===
+qbezier 0.30,0.10 0.45,0.30 0.65,0.50 stroke #999999 0.22 width 1
+qbezier 1.70,0.10 1.55,0.30 1.35,0.50 stroke #999999 0.22 width 1
+qbezier 1.70,1.90 1.55,1.70 1.35,1.50 stroke #999999 0.22 width 1
+qbezier 0.30,1.90 0.45,1.70 0.65,1.50 stroke #999999 0.22 width 1
+
+# === Corner-to-corner cross ties (long diagonals across the whole sheet) ===
+line 0.12,0.12 1.88,1.88 stroke #999999 0.2 width 1
+line 1.88,0.12 0.12,1.88 stroke #999999 0.2 width 1
+
+# === Fine wispy strands filling gaps ===
+qbezier 0.25,0.55 0.50,0.80 0.85,1.05 stroke #999999 0.15 width 1
+qbezier 1.75,0.55 1.50,0.80 1.15,1.05 stroke #999999 0.15 width 1
+qbezier 0.55,1.75 0.80,1.50 1.05,1.15 stroke #999999 0.15 width 1
+qbezier 1.45,0.25 1.20,0.50 0.95,0.85 stroke #999999 0.15 width 1
+qbezier 0.15,1.35 0.45,1.15 0.75,1.05 stroke #999999 0.15 width 1
+qbezier 1.85,0.65 1.55,0.85 1.25,0.95 stroke #999999 0.15 width 1
+
+# === Small spider guarding center ===
+circle 1.0,1.0 0.022 fill #222222 0.7
+circle 1.0,1.0 0.016 fill #333333 0.5
+
+# === Second speck (wrapped prey husk off-center) ===
+circle 1.32,0.70 0.018 fill #2a2a2a 0.6

@@ -1,0 +1,43 @@
+name: Chip Stack
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: gambling-den, tavern-highend
+typical_count: many
+clusters_with: card-table, dice-table, dice-pile, tankard
+notes: Short stack of gambling chips — two columns of colored tokens seen from above
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# Tall stack (west column) — red chips
+circle 0.38,0.46 0.18 fill #1a0808 0.4
+circle 0.38,0.46 0.18 fill #8b0000 0.95
+circle 0.38,0.46 0.18 stroke #3a0000 width 1
+# Ring of white pips on rim
+circle 0.38,0.46 0.15 stroke #e8dcc8 0.75 width 1
+# Center detail
+circle 0.38,0.46 0.05 fill #e8dcc8 0.85
+circle 0.38,0.46 0.05 stroke #3a0000 width 1
+
+# Shorter stack (east column) — gold chips
+circle 0.66,0.54 0.16 fill #1a0808 0.35
+circle 0.66,0.54 0.16 fill #daa520 0.95
+circle 0.66,0.54 0.16 stroke #5a3a00 width 1
+# Ring of dark pips
+circle 0.66,0.54 0.13 stroke #5a3a00 0.7 width 1
+# Center detail
+circle 0.66,0.54 0.04 fill #8b0000 0.85
+
+# Scattered chip edges hinting height (between stacks)
+arc 0.38,0.46 0.18 200 340 stroke #5a0000 0.7 width 1
+arc 0.66,0.54 0.16 200 340 stroke #3a2000 0.7 width 1
+
+# A lone chip fallen flat at SE
+circle 0.82,0.76 0.10 fill #1a1a3a 0.92
+circle 0.82,0.76 0.10 stroke #080820 width 1
+circle 0.82,0.76 0.04 fill #e8dcc8 0.85

@@ -1,0 +1,59 @@
+name: Iron Chain Hook
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: corrupted-temple, ritual-chamber-dark, infernal-court, torture-chamber, dungeon
+typical_count: few
+clusters_with: chain-coil, chain-heavy, hanging-meat, torture-chamber
+notes: Heavy wall-mounted iron hook with hanging chain — for restraints or hanging bodies
+---
+# === HITBOX ===
+hitbox rect 0.36,0.06 0.28,0.70 z 0-2.5
+
+# Wall mount plate (iron, flush to north wall)
+rect 0.32,0.06 0.36,0.12 fill #333333 0.95
+rect 0.32,0.06 0.36,0.12 texfill polyhaven/rusty_metal 0.6
+rect 0.32,0.06 0.36,0.12 stroke #1a1008
+# Rivets on mount plate
+circle 0.38,0.10 0.02 fill #1a1008 0.95
+circle 0.38,0.10 0.02 stroke #555555 0.6
+circle 0.50,0.10 0.02 fill #1a1008 0.95
+circle 0.50,0.10 0.02 stroke #555555 0.6
+circle 0.62,0.10 0.02 fill #1a1008 0.95
+circle 0.62,0.10 0.02 stroke #555555 0.6
+# Heavy iron eye/ring coming out of plate
+circle 0.50,0.22 0.06 stroke #222222 width 3
+circle 0.50,0.22 0.06 fill #1a1008 0.8
+# Chain descending (2 big links)
+ellipse 0.50,0.30 0.06,0.04 stroke #222222 width 3
+ellipse 0.50,0.30 0.06,0.04 fill #1a1008 0.8
+ellipse 0.50,0.38 0.04,0.06 stroke #222222 width 3
+ellipse 0.50,0.38 0.04,0.06 fill #1a1008 0.8
+ellipse 0.50,0.46 0.06,0.04 stroke #222222 width 3
+ellipse 0.50,0.46 0.06,0.04 fill #1a1008 0.8
+# Large iron hook at bottom (curved J-shape)
+bezier 0.50,0.48 0.50,0.58 0.42,0.64 0.38,0.70 stroke #333333 width 6
+bezier 0.50,0.48 0.50,0.58 0.42,0.64 0.38,0.70 texfill polyhaven/rusty_metal 0.5 width 4
+bezier 0.50,0.48 0.50,0.58 0.42,0.64 0.38,0.70 stroke #1a1008 width 2
+# Hook curl inward
+bezier 0.38,0.70 0.40,0.74 0.46,0.72 0.48,0.68 stroke #333333 width 6
+bezier 0.38,0.70 0.40,0.74 0.46,0.72 0.48,0.68 stroke #1a1008 width 1
+# Hook point (sharp)
+poly 0.46,0.66 0.48,0.64 0.50,0.68 fill #666666 0.95
+poly 0.46,0.66 0.48,0.64 0.50,0.68 stroke #222222
+# Rust streaks
+line 0.42,0.22 0.40,0.44 stroke #6a3818 0.6
+line 0.58,0.22 0.60,0.44 stroke #6a3818 0.6
+# Dried blood on hook
+ellipse 0.44,0.66 0.04,0.03 fill #3a0808 0.7
+# Blood drip
+circle 0.42,0.74 0.015 fill #4a1010 0.6
+# Wall shadow around mount
+rect 0.30,0.04 0.40,0.02 fill #000000 0.3
+# Highlight on metal
+arc 0.50,0.22 0.05 210 260 stroke #888888 0.6 width 1
+arc 0.50,0.58 0.06 210 260 stroke #666666 0.5 width 1

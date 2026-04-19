@@ -1,0 +1,47 @@
+name: Sleeping Cat
+category: Creatures
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: bakery, farmhouse-common, house-medium-artisan, house-small, library, mansion-library, mansion-study, inn-common-room, shop-general, tavern-common, mill-grain, pantry
+typical_count: single
+clusters_with: hearth, rocking-chair, bed, cushion
+notes: Cat curled asleep in a tight spiral; perfect for fireplaces and cozy corners
+---
+# === HITBOX ===
+selection ellipse 0.5,0.52 0.30,0.24
+
+# Body curl (oval silhouette — grey tabby)
+ellipse 0.5,0.52 0.30,0.24 fill #6a5a4a 0.95
+ellipse 0.5,0.52 0.30,0.24 stroke #2a2218
+# Tabby stripes across back
+bezier 0.24,0.48 0.34,0.40 0.48,0.42 0.60,0.46 stroke #3a3020 0.7 width 1
+bezier 0.26,0.58 0.38,0.52 0.52,0.54 0.66,0.56 stroke #3a3020 0.6 width 1
+bezier 0.30,0.66 0.44,0.62 0.56,0.64 0.68,0.66 stroke #3a3020 0.5 width 1
+# Lighter belly/chest band
+ellipse 0.52,0.58 0.16,0.08 fill #8a7a68 0.6
+# Head tucked in (small circle toward belly)
+circle 0.34,0.54 0.12 fill #6a5a4a 0.95
+circle 0.34,0.54 0.12 stroke #2a2218
+# Ear triangles
+poly 0.26,0.46 0.30,0.40 0.32,0.46 fill #4a3a2a 0.9
+poly 0.26,0.46 0.30,0.40 0.32,0.46 stroke #2a2218
+poly 0.38,0.44 0.42,0.38 0.44,0.44 fill #4a3a2a 0.9
+poly 0.38,0.44 0.42,0.38 0.44,0.44 stroke #2a2218
+# Closed eye (line)
+line 0.30,0.54 0.33,0.54 stroke #1a1008 width 1
+# Nose (tiny pink)
+circle 0.28,0.58 0.012 fill #cc8888 0.9
+# Tail wrapped around body
+bezier 0.76,0.52 0.82,0.40 0.72,0.34 0.58,0.34 stroke #6a5a4a width 6
+bezier 0.76,0.52 0.82,0.40 0.72,0.34 0.58,0.34 stroke #2a2218 width 1
+# Tail stripes
+line 0.74,0.46 0.78,0.44 stroke #3a3020 0.7
+line 0.78,0.40 0.82,0.38 stroke #3a3020 0.7
+# Tail tip (darker)
+circle 0.58,0.34 0.035 fill #3a2a1a 0.9
+# Subtle breathing shadow beneath
+ellipse 0.52,0.66 0.26,0.04 fill #1a1410 0.2

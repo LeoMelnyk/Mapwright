@@ -3,8 +3,17 @@
 // re-exports the full public API so no other file needs import changes.
 
 import type { Tool } from './tools/tool-base.js';
-import state, { subscribe } from './state.js';
+import type { Theme } from '../../types.js';
+import state, { subscribe, getTheme, invalidateThemeCache } from './state.js';
 import { initMinimap } from './minimap.js';
+import {
+  diffThemeBuckets,
+  cloneTheme,
+  invalidateFluidCache,
+  invalidateBlendLayerCache,
+  invalidateVisibilityCache,
+} from '../../render/index.js';
+import { invalidateDecorationCache } from './decoration-cache.js';
 
 // ── Sub-module imports ──────────────────────────────────────────────────────
 import { cvState, ANIM_INTERVAL_MS, getMapCache, getCachedBgImage } from './canvas-view-state.js';
@@ -18,13 +27,121 @@ import { zoomToFit, panToLevel } from './canvas-view-viewport.js';
  * Force the offscreen map cache to rebuild on next frame.
  * @returns {void}
  */
-export function invalidateMapCache(): void { getMapCache().invalidate(); }
+export function invalidateMapCache(): void {
+  getMapCache().invalidate();
+}
 
 /**
  * Invalidate only the grid layer of the map cache.
  * @returns {void}
  */
-export function invalidateGridCache(): void { getMapCache().invalidateGrid(); }
+export function invalidateGridCache(): void {
+  getMapCache().invalidateGrid();
+}
+
+/**
+ * Deep-clone the current resolved theme so callers can diff against it after
+ * a mutation. Pair with {@link applyThemeChange}.
+ */
+export function snapshotCurrentTheme(): Theme {
+  return cloneTheme(getTheme());
+}
+
+/**
+ * Apply a theme change by diffing the new theme against a prior snapshot and
+ * invalidating only the caches affected by the property buckets that changed.
+ *
+ * Flow:
+ *   1. Evict the normalized-theme cache so {@link getTheme} re-normalizes.
+ *   2. Diff the new normalized theme against `prev`.
+ *   3. Route each changed bucket to its dedicated invalidator.
+ *
+ * Routing table:
+ *
+ *   | Bucket        | Caches busted                     | MapCache path         |
+ *   |---------------|-----------------------------------|------------------------|
+ *   | floors        | (none)                            | full cells rebuild     |
+ *   | blend         | blend layer                       | full cells rebuild     |
+ *   | fluid         | fluid tile + clip caches          | composite-only         |
+ *   | walls         | (none)                            | top-only rebuild       |
+ *   | grid          | (none)                            | top-only rebuild       |
+ *   | hatch         | (none — composite sublayer)       | composite rebuild      |
+ *   | shading       | (none — composite sublayer)       | composite rebuild      |
+ *   | labels        | (none)                            | composite rebuild      |
+ *   | lava-light    | lighting visibility               | composite (via lights) |
+ *   | decorations   | (none — drawn per-frame)          | none                   |
+ *
+ * `floors` / `blend` rebuild the base cells pass (floors / blending /
+ * bridges); walls / grid / props rebuild ONLY the top cells pass. `fluid`
+ * no longer touches cells at all — it lives in a dedicated composite
+ * sublayer driven by `buildFluidComposite`.
+ *
+ * Pass `null` for `prev` to force a full invalidation (e.g. first load or
+ * fallback when no snapshot is available).
+ *
+ * Theme changes apply to the whole map, so there is no dirty-region
+ * bookkeeping — every bucket's invalidator operates map-wide.
+ */
+export function applyThemeChange(prev: Theme | null): void {
+  invalidateThemeCache();
+  const next = getTheme();
+  // Theme color changes feed into cached decoration bitmaps (title, compass,
+  // scale indicator); blow them away so the next frame re-bakes with the new
+  // colors. Cheap — it's just clearing a map + nulling a field.
+  invalidateDecorationCache();
+
+  if (prev === null) {
+    const cache = getMapCache();
+    cache.invalidate();
+    invalidateFluidCache();
+    invalidateBlendLayerCache();
+    invalidateVisibilityCache(false);
+    return;
+  }
+
+  const buckets = diffThemeBuckets(prev, next);
+  if (buckets.size === 0) return;
+
+  // Targeted auxiliary cache busts — each bucket owns exactly one cache,
+  // so a non-fluid edit never busts the fluid cache, etc. Note: the fluid
+  // tile cache is keyed on color signature, so it auto-rebuilds on next
+  // lookup — we only need to flag the MapCache composite as dirty.
+  if (buckets.has('blend')) invalidateBlendLayerCache();
+  if (buckets.has('lava-light')) invalidateVisibilityCache(false);
+
+  const cache = getMapCache();
+
+  // Base phases (floors / blending / bridges) are rasterized into the
+  // cells-base canvas, so a change here requires a full cells rebuild.
+  const needsCellsRebuild: boolean = buckets.has('floors') || buckets.has('blend');
+
+  // Top phases (walls / grid / props / hazard) live in the cells-top
+  // canvas, which can be repainted without touching base or fluid.
+  const needsTopPhasesRebuild: boolean = !needsCellsRebuild && (buckets.has('walls') || buckets.has('grid'));
+
+  // Everything else (hatch / shading / labels / lava-light) only touches
+  // sublayers composited on top of the cells canvas — composite-only.
+  // `fluid` routes here now: its tile cache was invalidated above, and the
+  // fluid composite rebuilds inside `_buildComposite` via its signature.
+  const needsCompositeRebuild: boolean =
+    !needsCellsRebuild &&
+    !needsTopPhasesRebuild &&
+    (buckets.has('hatch') ||
+      buckets.has('shading') ||
+      buckets.has('labels') ||
+      buckets.has('lava-light') ||
+      buckets.has('fluid'));
+
+  if (needsCellsRebuild) {
+    cache.invalidate();
+  } else if (needsTopPhasesRebuild) {
+    cache.invalidateGrid();
+  } else if (needsCompositeRebuild) {
+    cache.invalidateComposite();
+  }
+  // `decorations` bucket alone → no cache work; a render tick repaints
+  // the border/compass on top of the existing cache.
+}
 
 export { getCachedBgImage };
 
@@ -86,7 +203,9 @@ export function stopAnimLoop(): void {
 // Guarded against the Node test harness which exposes `window` and `document`
 // as plain objects without addEventListener.
 if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-  window.addEventListener('beforeunload', () => { stopAnimLoop(); });
+  window.addEventListener('beforeunload', () => {
+    stopAnimLoop();
+  });
 }
 if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
   document.addEventListener('visibilitychange', () => {
@@ -106,7 +225,10 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
  * @param {Function|null} clickFn - Click handler for session overlay hit testing.
  * @returns {void}
  */
-export function setSessionOverlay(renderFn: ((...args: unknown[]) => void) | null, clickFn: ((...args: unknown[]) => boolean) | null): void {
+export function setSessionOverlay(
+  renderFn: ((...args: unknown[]) => void) | null,
+  clickFn: ((...args: unknown[]) => boolean) | null,
+): void {
   cvState.sessionOverlayFn = renderFn;
   cvState.sessionClickFn = clickFn;
 }
@@ -154,7 +276,14 @@ export function setActiveTool(tool: Tool | null): void {
 /** Watch for devicePixelRatio changes (e.g. window moved to a different-DPI monitor). */
 function _watchDpr() {
   const mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
-  mq.addEventListener('change', () => { resizeCanvas(); _watchDpr(); }, { once: true });
+  mq.addEventListener(
+    'change',
+    () => {
+      resizeCanvas();
+      _watchDpr();
+    },
+    { once: true },
+  );
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
@@ -166,7 +295,11 @@ function _watchDpr() {
  */
 export function init(canvasEl: HTMLCanvasElement): void {
   cvState.canvas = canvasEl;
-  cvState.ctx = canvasEl.getContext('2d', { alpha: false, desynchronized: true });
+  // `desynchronized: true` was meant to cut input latency, but on some GPU
+  // drivers (notably Windows + NVIDIA) it causes cross-queue stalls when
+  // drawing from large offscreen canvases — every frame pays a multi-hundred-ms
+  // GPU wait. `alpha: false` alone is still a meaningful perf win.
+  cvState.ctx = canvasEl.getContext('2d', { alpha: false });
 
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
@@ -186,7 +319,7 @@ export function init(canvasEl: HTMLCanvasElement): void {
   canvasEl.addEventListener('mouseleave', onMouseLeave);
   canvasEl.addEventListener('mouseenter', restoreToolCursor);
   canvasEl.addEventListener('wheel', onWheel, { passive: false });
-  canvasEl.addEventListener('contextmenu', e => e.preventDefault());
+  canvasEl.addEventListener('contextmenu', (e) => e.preventDefault());
 
   requestRender();
 }
@@ -207,7 +340,10 @@ export function setCursor(cursor: string): void {
  * @returns {{ width: number, height: number }} Canvas width and height in CSS pixels.
  */
 export function getCanvasSize(): { width: number; height: number } {
-  return { width: cvState._canvasW || (cvState.canvas?.width ?? 0), height: cvState._canvasH || (cvState.canvas?.height ?? 0) };
+  return {
+    width: cvState._canvasW || (cvState.canvas?.width ?? 0),
+    height: cvState._canvasH || (cvState.canvas?.height ?? 0),
+  };
 }
 
 // ── Re-exports ──────────────────────────────────────────────────────────────

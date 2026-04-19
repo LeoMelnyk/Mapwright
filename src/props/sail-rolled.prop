@@ -1,0 +1,60 @@
+name: Rolled Sail
+category: Nautical
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: floor
+room_types: ship-main-deck, ship-deck, galleon
+typical_count: few
+clusters_with: mast-main, mast-fore, rope-coil, cargo-hatch
+notes: Furled canvas sail lashed into a long cylindrical bundle with rope wrappings at intervals; may rest on deck or be lashed to a yard. Long axis runs N-S.
+---
+# Footprint 2x1: x 0-1, y 0-2. Long bundle running north-south.
+
+# === Bundle body (rolled canvas cylinder, slightly tapered at ends) ===
+# Main cylindrical shape via polygon (tapered at both ends)
+poly 0.30,0.12 0.70,0.12 0.76,0.22 0.82,0.50 0.84,1.00 0.82,1.50 0.76,1.78 0.70,1.88 0.30,1.88 0.24,1.78 0.18,1.50 0.16,1.00 0.18,0.50 0.24,0.22 texfill polyhaven/rough_linen 0.8
+poly 0.30,0.12 0.70,0.12 0.76,0.22 0.82,0.50 0.84,1.00 0.82,1.50 0.76,1.78 0.70,1.88 0.30,1.88 0.24,1.78 0.18,1.50 0.16,1.00 0.18,0.50 0.24,0.22 fill #e0d8c0 0.55
+poly 0.30,0.12 0.70,0.12 0.76,0.22 0.82,0.50 0.84,1.00 0.82,1.50 0.76,1.78 0.70,1.88 0.30,1.88 0.24,1.78 0.18,1.50 0.16,1.00 0.18,0.50 0.24,0.22 stroke #8a7858
+
+# Canvas fold shadow lines running along the length (rolls of fabric visible)
+bezier 0.26,0.30 0.28,0.70 0.28,1.30 0.26,1.70 stroke #8a7858 0.55 width 1
+bezier 0.74,0.30 0.72,0.70 0.72,1.30 0.74,1.70 stroke #8a7858 0.55 width 1
+bezier 0.38,0.22 0.40,0.70 0.40,1.30 0.38,1.78 stroke #8a7858 0.35 width 1
+bezier 0.62,0.22 0.60,0.70 0.60,1.30 0.62,1.78 stroke #8a7858 0.35 width 1
+
+# Canvas highlight down the crest of the bundle (top catching light)
+line 0.50,0.14 0.50,1.86 stroke #f0e8d0 0.5 width 2
+
+# === Rope lashings cinching the bundle at intervals ===
+# Lashing 1 (near north end)
+rect 0.14,0.34 0.72,0.08 fill #5c3a1e 0.9
+rect 0.14,0.34 0.72,0.08 stroke #2a1400
+# Knot lump
+circle 0.52,0.38 0.035 fill #6b4e2e 0.9
+circle 0.52,0.38 0.035 stroke #2a1400
+
+# Lashing 2 (mid-bundle, slightly tighter)
+rect 0.14,0.74 0.72,0.08 fill #5c3a1e 0.9
+rect 0.14,0.74 0.72,0.08 stroke #2a1400
+circle 0.52,0.78 0.035 fill #6b4e2e 0.9
+circle 0.52,0.78 0.035 stroke #2a1400
+
+# Lashing 3
+rect 0.14,1.14 0.72,0.08 fill #5c3a1e 0.9
+rect 0.14,1.14 0.72,0.08 stroke #2a1400
+circle 0.52,1.18 0.035 fill #6b4e2e 0.9
+circle 0.52,1.18 0.035 stroke #2a1400
+
+# Lashing 4 (near south end)
+rect 0.14,1.54 0.72,0.08 fill #5c3a1e 0.9
+rect 0.14,1.54 0.72,0.08 stroke #2a1400
+circle 0.52,1.58 0.035 fill #6b4e2e 0.9
+circle 0.52,1.58 0.035 stroke #2a1400
+
+# === Loose fabric tuft drooping off the south end of the bundle ===
+poly 0.36,1.86 0.66,1.86 0.58,1.96 0.50,1.94 0.42,1.96 fill #e0d8c0 0.75
+poly 0.36,1.86 0.66,1.86 0.58,1.96 0.50,1.94 0.42,1.96 texfill polyhaven/rough_linen 0.6
+poly 0.36,1.86 0.66,1.86 0.58,1.96 0.50,1.94 0.42,1.96 stroke #8a7858

@@ -1,0 +1,50 @@
+name: Broken Pot
+category: Debris
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: kiln-pottery, cabin-abandoned, cistern
+typical_count: few
+clusters_with: rubble-pile, clay-lump, dust-cloud, broken-bottle
+notes: Shattered terracotta pot — scatter of clay shards and dust
+---
+# Dust halo (drawn first, behind shards)
+ellipse 0.50,0.52 0.38,0.32 fill #c8b898 0.35
+ellipse 0.46,0.56 0.22,0.18 fill #c8b898 0.25
+# Curved rim shard NW (shows original circle curve)
+poly 0.18,0.28 0.32,0.22 0.44,0.26 0.40,0.34 0.28,0.38 0.20,0.36 fill #b06040 0.95
+poly 0.18,0.28 0.32,0.22 0.44,0.26 0.40,0.34 0.28,0.38 0.20,0.36 stroke #5a2810
+# Inside darkness on rim shard
+arc 0.32,0.32 0.10 200 340 stroke #2a1408 width 2
+# Curved rim shard E
+poly 0.72,0.30 0.82,0.36 0.80,0.48 0.70,0.50 0.64,0.42 fill #8a4828 0.95
+poly 0.72,0.30 0.82,0.36 0.80,0.48 0.70,0.50 0.64,0.42 stroke #5a2810
+# Interior edge
+line 0.68,0.38 0.76,0.44 stroke #2a1408 width 2
+# Large jagged shard center (concave)
+poly 0.34,0.50 0.48,0.46 0.58,0.52 0.56,0.64 0.44,0.68 0.34,0.62 fill #b06040 0.95
+poly 0.34,0.50 0.48,0.46 0.58,0.52 0.56,0.64 0.44,0.68 0.34,0.62 stroke #5a2810
+# Dark interior strip on center shard
+poly 0.40,0.54 0.50,0.52 0.52,0.60 0.42,0.62 fill #2a1408 0.8
+# Angular shard south
+poly 0.56,0.72 0.70,0.70 0.74,0.82 0.62,0.86 fill #8a4828 0.95
+poly 0.56,0.72 0.70,0.70 0.74,0.82 0.62,0.86 stroke #5a2810
+# Small triangle shard SW
+poly 0.22,0.66 0.32,0.68 0.28,0.80 fill #b06040 0.9
+poly 0.22,0.66 0.32,0.68 0.28,0.80 stroke #5a2810
+# Tiny shard NE corner
+poly 0.70,0.18 0.80,0.20 0.76,0.28 fill #8a4828 0.9
+poly 0.70,0.18 0.80,0.20 0.76,0.28 stroke #5a2810
+# Tiny shard SE
+poly 0.84,0.68 0.90,0.74 0.82,0.78 fill #b06040 0.9
+poly 0.84,0.68 0.90,0.74 0.82,0.78 stroke #5a2810
+# Powder/dust specks scattered
+circle 0.28,0.52 0.02 fill #8a4828 0.8
+circle 0.58,0.32 0.02 fill #8a4828 0.8
+circle 0.48,0.78 0.02 fill #8a4828 0.8
+circle 0.66,0.58 0.018 fill #5a2810 0.7
+# Faint ghost of original pot circle (implied by shard placement)
+arc 0.50,0.50 0.34 40 140 stroke #5a2810 0.25 width 1

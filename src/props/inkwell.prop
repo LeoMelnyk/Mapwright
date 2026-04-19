@@ -1,0 +1,32 @@
+name: Inkwell
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: counting-house, courthouse-chamber, guildhall, library, study, mansion-study, scriptorium-mundane, scriptorium-dark, demiplane-laboratory, ship-captains-cabin
+typical_count: few
+clusters_with: quill, quill-and-ink, desk, ledger-stack, parchment-scrap, document-stack
+notes: Small ink pot — often paired with quill on desks
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.18
+
+# Brass base disc (wider than pot)
+circle 0.5,0.5 0.22 fill #8b6914 0.75
+circle 0.5,0.5 0.22 stroke #5a3a00
+# Subtle base shadow ring
+circle 0.5,0.5 0.20 stroke #3a2400 0.4
+# Ink pot body (glass or ceramic)
+circle 0.5,0.5 0.16 texfill polyhaven/dark_wood 0.7
+circle 0.5,0.5 0.16 stroke #1a1208
+# Lip/opening ring
+circle 0.5,0.5 0.12 stroke #2a1400 width 2
+# Ink meniscus (dark liquid at mouth)
+circle 0.5,0.5 0.10 fill #0a0618 0.95
+# Subtle reflection highlight on ink
+arc 0.5,0.5 0.09 200 260 stroke #3a2860 0.6 width 1
+# Tiny ink drip on base
+circle 0.68,0.54 0.018 fill #0a0618 0.7

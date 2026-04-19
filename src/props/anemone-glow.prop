@@ -1,0 +1,49 @@
+name: Glowing Anemone
+category: Nature
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, coral-reef
+typical_count: few
+clusters_with: anemone-small, coral-pillar, kelp-strand, pearl-cluster
+notes: Bioluminescent sea anemone; place in scatters on aquatic floors as living light source
+lights: [{"preset":"bioluminescence","x":0.5,"y":0.5,"radius":8,"intensity":0.7,"color":"#40a0ff"}]
+---
+# Outer bioluminescent halo
+circle 0.5,0.5 0.46 gradient-radial #40a0ff #0a1830 0.45
+# Soft cyan glow rings
+circle 0.5,0.5 0.36 fill #60b0ff 0.22
+circle 0.5,0.5 0.28 fill #80c8ff 0.28
+# Central stalk / column (mauve base)
+circle 0.5,0.5 0.12 fill #a060c0 0.85
+circle 0.5,0.5 0.12 stroke #502070
+# Inner disk with cyan glow
+circle 0.5,0.5 0.08 fill #80e0ff 0.9
+circle 0.5,0.5 0.04 fill #e0f8ff 0.95
+# Radiating tentacles — 12 sinuous strands in purple/cyan
+line 0.50,0.50 0.50,0.12 stroke #b070d0 width 2
+line 0.50,0.50 0.72,0.20 stroke #a060c0 width 2
+line 0.50,0.50 0.86,0.42 stroke #b070d0 width 2
+line 0.50,0.50 0.86,0.58 stroke #a060c0 width 2
+line 0.50,0.50 0.72,0.80 stroke #b070d0 width 2
+line 0.50,0.50 0.50,0.88 stroke #a060c0 width 2
+line 0.50,0.50 0.28,0.80 stroke #b070d0 width 2
+line 0.50,0.50 0.14,0.58 stroke #a060c0 width 2
+line 0.50,0.50 0.14,0.42 stroke #b070d0 width 2
+line 0.50,0.50 0.28,0.20 stroke #a060c0 width 2
+line 0.50,0.50 0.68,0.12 stroke #60c0e0 width 2
+line 0.50,0.50 0.32,0.12 stroke #60c0e0 width 2
+# Tentacle tip glows
+circle 0.50,0.12 0.025 fill #c0f0ff 0.9
+circle 0.72,0.20 0.02 fill #c0f0ff 0.8
+circle 0.86,0.42 0.02 fill #c0f0ff 0.8
+circle 0.86,0.58 0.02 fill #c0f0ff 0.8
+circle 0.72,0.80 0.02 fill #c0f0ff 0.8
+circle 0.50,0.88 0.025 fill #c0f0ff 0.9
+circle 0.28,0.80 0.02 fill #c0f0ff 0.8
+circle 0.14,0.58 0.02 fill #c0f0ff 0.8
+circle 0.14,0.42 0.02 fill #c0f0ff 0.8
+circle 0.28,0.20 0.02 fill #c0f0ff 0.8

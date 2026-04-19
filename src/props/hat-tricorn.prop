@@ -1,0 +1,49 @@
+name: Tricorn Hat
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: tavern-highend, noble-solar, mansion-bedroom-master, brothel-parlor
+typical_count: single
+clusters_with: glove-silk, silver-tray, cigar-case, armchair, coatrack
+notes: Tricorn hat placed crown-up on a table. Top-down shows the three-cornered brim around a domed crown.
+---
+# === HITBOX ===
+selection poly 0.50,0.14 0.88,0.78 0.12,0.78
+
+# Brim — triangular with rounded corners, three points
+poly 0.50,0.14 0.92,0.78 0.72,0.86 0.50,0.72 0.28,0.86 0.08,0.78 fill #1a0808 0.95
+poly 0.50,0.14 0.92,0.78 0.72,0.86 0.50,0.72 0.28,0.86 0.08,0.78 texfill polyhaven/velour_velvet 0.45
+poly 0.50,0.14 0.92,0.78 0.72,0.86 0.50,0.72 0.28,0.86 0.08,0.78 stroke #080404 width 2
+
+# Upturned brim inner edge (darker shadow)
+poly 0.50,0.26 0.78,0.72 0.50,0.62 0.22,0.72 stroke #000000 0.5 width 1
+
+# Central dome (crown of the hat, viewed from above)
+ellipse 0.50,0.52 0.22,0.24 fill #2a0a0a 0.95
+ellipse 0.50,0.52 0.22,0.24 texfill polyhaven/velour_velvet 0.55
+ellipse 0.50,0.52 0.22,0.24 stroke #0a0000 width 2
+
+# Crown highlight (subtle sheen)
+arc 0.50,0.52 0.20 200 260 stroke #4a1020 0.5 width 1
+
+# Gold trim band along brim edge
+poly 0.50,0.18 0.88,0.76 0.68,0.83 0.50,0.70 0.32,0.83 0.12,0.76 stroke #daa520 0.75 width 1
+
+# Cockade — ornamental rosette on left brim
+circle 0.26,0.48 0.06 fill #8b0000 0.95
+circle 0.26,0.48 0.06 stroke #2a0000 width 1
+circle 0.26,0.48 0.03 fill #daa520 0.95
+circle 0.26,0.48 0.03 stroke #5a3a00 width 1
+
+# Feather plume tucked into cockade (tiny, trailing south)
+qbezier 0.26,0.52 0.22,0.60 0.18,0.66 stroke #e8dcc8 0.85 width 2
+qbezier 0.26,0.52 0.20,0.58 0.14,0.62 stroke #c8b898 0.7 width 1
+
+# Stitching detail on brim edges
+line 0.50,0.20 0.70,0.54 stroke #3a1a1a 0.6 width 1
+line 0.50,0.20 0.30,0.54 stroke #3a1a1a 0.6 width 1
+line 0.30,0.70 0.70,0.70 stroke #3a1a1a 0.6 width 1

@@ -1,0 +1,58 @@
+name: Magical Glow
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"color":"#88ddff","intensity":0.7,"radius":6}]
+placement: any
+room_types: alchemy-lab, wizard-sanctum, demiplane-laboratory, crystal-grotto, ritual-chamber
+typical_count: few
+clusters_with: crystal-shard, magic-circle, magic-sigil-floor, arcane-pedestal
+notes: Generic bright magical glow effect — concentric fade rings. Place on floors, near spellcasting foci, or wherever arcane energy needs to visibly radiate.
+---
+# Flat decorative glow — no shadow, no blocking
+
+# === Concentric fade rings (dim outer to bright inner) ===
+# Outermost very dim ring
+circle 0.5,0.5 0.48 fill #88ddff 0.1
+# Outer ring
+circle 0.5,0.5 0.42 fill #88ddff 0.15
+# Mid outer
+circle 0.5,0.5 0.36 fill #aaddff 0.2
+# Mid
+circle 0.5,0.5 0.30 fill #bbeeff 0.28
+# Mid inner
+circle 0.5,0.5 0.24 fill #ccf4ff 0.4
+# Inner
+circle 0.5,0.5 0.18 fill #e0f8ff 0.55
+# Hot inner
+circle 0.5,0.5 0.12 fill #f0fcff 0.75
+# Center white-hot core
+circle 0.5,0.5 0.07 fill #ffffff 0.9
+circle 0.5,0.5 0.04 fill #ffffff 1.0
+
+# === Radiant rays ===
+line 0.5,0.5 0.5,0.12 stroke #ccf4ff 0.4 width 2
+line 0.5,0.5 0.5,0.88 stroke #ccf4ff 0.4 width 2
+line 0.5,0.5 0.12,0.5 stroke #ccf4ff 0.4 width 2
+line 0.5,0.5 0.88,0.5 stroke #ccf4ff 0.4 width 2
+line 0.5,0.5 0.23,0.23 stroke #ccf4ff 0.3 width 1
+line 0.5,0.5 0.77,0.23 stroke #ccf4ff 0.3 width 1
+line 0.5,0.5 0.23,0.77 stroke #ccf4ff 0.3 width 1
+line 0.5,0.5 0.77,0.77 stroke #ccf4ff 0.3 width 1
+
+# === Sparkling motes floating in the aura ===
+circle 0.24,0.36 0.018 fill #ffffff 0.85
+circle 0.76,0.40 0.016 fill #ffffff 0.8
+circle 0.32,0.72 0.015 fill #ffffff 0.8
+circle 0.70,0.68 0.017 fill #ffffff 0.85
+circle 0.50,0.22 0.014 fill #ccf4ff 0.8
+circle 0.50,0.78 0.014 fill #ccf4ff 0.8
+circle 0.22,0.52 0.013 fill #ccf4ff 0.75
+circle 0.78,0.54 0.013 fill #ccf4ff 0.75
+
+# Prismatic glint
+line 0.42,0.42 0.58,0.58 stroke #ccffff 0.55 width 1
+line 0.42,0.58 0.58,0.42 stroke #ffccff 0.5 width 1

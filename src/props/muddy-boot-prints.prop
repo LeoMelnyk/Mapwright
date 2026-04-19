@@ -1,0 +1,70 @@
+name: Muddy Boot Prints
+category: Scatter
+footprint: 1x3
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: hunting-lodge-large, cabin-hunters, peasant-hovel, entry-hall, mudroom
+typical_count: single
+clusters_with: doormat, boot-rack, cloak-hook, fur-rug
+notes: Trail of muddy bootprints across the floor — left-right alternating prints walking south-to-north or east-to-west.
+---
+# footprint 1x3: x 0-3, y 0-1
+# Ground decal only — no shadow, no light-block
+
+# === Print 1 (left foot) at x=0.25 ===
+# Sole shape (oval)
+ellipse 0.25,0.48 0.08,0.14 fill #3a2010 0.75
+ellipse 0.25,0.48 0.08,0.14 stroke #1a0a00 0.6
+# Heel (smaller oval south)
+ellipse 0.25,0.62 0.06,0.06 fill #2a1408 0.85
+# Mud smear trailing
+ellipse 0.22,0.56 0.04,0.03 fill #3a2010 0.4
+
+# === Print 2 (right foot) at x=0.62 ===
+ellipse 0.62,0.40 0.08,0.14 fill #3a2010 0.75
+ellipse 0.62,0.40 0.08,0.14 stroke #1a0a00 0.6
+ellipse 0.62,0.54 0.06,0.06 fill #2a1408 0.85
+ellipse 0.65,0.48 0.04,0.03 fill #3a2010 0.4
+
+# === Print 3 (left foot) at x=1.00 ===
+ellipse 1.00,0.52 0.08,0.14 fill #4a2820 0.75
+ellipse 1.00,0.52 0.08,0.14 stroke #1a0a00 0.6
+ellipse 1.00,0.66 0.06,0.06 fill #3a1810 0.85
+ellipse 0.97,0.60 0.04,0.03 fill #4a2820 0.4
+
+# === Print 4 (right foot) at x=1.38 ===
+ellipse 1.38,0.42 0.08,0.14 fill #4a2820 0.7
+ellipse 1.38,0.42 0.08,0.14 stroke #1a0a00 0.55
+ellipse 1.38,0.56 0.06,0.06 fill #3a1810 0.8
+ellipse 1.41,0.50 0.04,0.03 fill #4a2820 0.35
+
+# === Print 5 (left foot) at x=1.78 ===
+ellipse 1.78,0.54 0.08,0.14 fill #5a3020 0.65
+ellipse 1.78,0.54 0.08,0.14 stroke #2a1408 0.5
+ellipse 1.78,0.68 0.06,0.06 fill #4a2018 0.75
+
+# === Print 6 (right foot) at x=2.18 ===
+ellipse 2.18,0.42 0.08,0.14 fill #5a3020 0.6
+ellipse 2.18,0.42 0.08,0.14 stroke #2a1408 0.45
+ellipse 2.18,0.56 0.06,0.06 fill #4a2018 0.7
+
+# === Print 7 (fading, left foot) at x=2.56 ===
+ellipse 2.56,0.50 0.08,0.13 fill #6a4030 0.5
+ellipse 2.56,0.50 0.08,0.13 stroke #3a1810 0.35
+ellipse 2.56,0.62 0.05,0.05 fill #5a3020 0.55
+
+# === Print 8 (fading further, right foot) at x=2.85 ===
+ellipse 2.85,0.40 0.07,0.12 fill #7a5040 0.4
+ellipse 2.85,0.40 0.07,0.12 stroke #3a1810 0.25
+
+# === Mud drips / specks between prints ===
+circle 0.42,0.52 0.015 fill #3a2010 0.6
+circle 0.82,0.46 0.012 fill #3a2010 0.55
+circle 1.22,0.58 0.015 fill #4a2820 0.55
+circle 1.58,0.50 0.012 fill #4a2820 0.5
+circle 2.00,0.60 0.012 fill #5a3020 0.45
+circle 2.38,0.48 0.010 fill #5a3020 0.4
+circle 2.72,0.55 0.010 fill #6a4030 0.35

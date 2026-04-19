@@ -3,6 +3,7 @@ import { scaleFactor } from './borders.js';
 import { toCanvas } from './bounds.js';
 import { GRID_SCALE } from './constants.js';
 import { HATCH_TILE_SIZE, HATCH_PATTERNS, WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
+import { log } from '../util/index.js';
 
 /** Cache for hatch/rock Path2D geometry keyed by map state. */
 interface PathCache {
@@ -455,6 +456,7 @@ export function drawOuterShading(
   theme: Theme,
   transform: RenderTransform,
   resolution: number = 1,
+  dirtyRegion?: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null,
 ): void {
   if (!theme.outerShading?.color || !(theme.outerShading.size > 0)) return;
 
@@ -463,24 +465,23 @@ export function drawOuterShading(
   const numCols = cells[0]?.length ?? 0;
   const step = resolution;
   const displayGs = gridSize * step;
+  const worldRadius = displayGs * (0.5 + size / 10);
+  const roughAmp = roughness * 0.2 * displayGs;
 
-  // Rebuild Path2D cache if map data or shading params changed
-  const oc = _outerShadingCache;
-  if (
-    oc?.cells !== cells ||
-    oc.gridSize !== gridSize ||
-    oc.size !== size ||
-    oc.roughness !== roughness ||
-    oc.resolution !== resolution
-  ) {
+  let pathToFill: Path2D;
+
+  if (dirtyRegion) {
+    // Partial rebuild: build a small path covering only the dirty region expanded
+    // by the shading radius so halos from nearby cells are included.
+    const radiusCells = Math.ceil((worldRadius + roughAmp) / gridSize) + 1;
+    const rMin = Math.max(0, dirtyRegion.minRow - radiusCells);
+    const rMax = Math.min(numRows - 1, dirtyRegion.maxRow + radiusCells);
+    const cMin = Math.max(0, dirtyRegion.minCol - radiusCells);
+    const cMax = Math.min(numCols - 1, dirtyRegion.maxCol + radiusCells);
+
     const path = new Path2D();
-    const worldRadius = displayGs * (0.5 + size / 10);
-    const roughAmp = roughness * 0.2 * displayGs;
-
-    // Step by resolution — one arc per display cell, not per sub-cell
-    for (let row = 0; row < numRows; row += step) {
-      for (let col = 0; col < numCols; col += step) {
-        // Check if any sub-cell is a room cell
+    for (let row = rMin; row <= rMax; row += step) {
+      for (let col = cMin; col <= cMax; col += step) {
         let isRoom = false;
         for (let dr = 0; dr < step && !isRoom; dr++)
           for (let dc = 0; dc < step && !isRoom; dc++) if (roomCells[row + dr]?.[col + dc]) isRoom = true;
@@ -500,11 +501,47 @@ export function drawOuterShading(
         path.arc(cx, cy, radius, 0, Math.PI * 2);
       }
     }
+    pathToFill = path;
+  } else {
+    // Full rebuild: use the whole-map Path2D cache.
+    const oc = _outerShadingCache;
+    if (
+      oc?.cells !== cells ||
+      oc.gridSize !== gridSize ||
+      oc.size !== size ||
+      oc.roughness !== roughness ||
+      oc.resolution !== resolution
+    ) {
+      const path = new Path2D();
 
-    _outerShadingCache = { cells, gridSize, size, roughness, resolution, path };
+      for (let row = 0; row < numRows; row += step) {
+        for (let col = 0; col < numCols; col += step) {
+          let isRoom = false;
+          for (let dr = 0; dr < step && !isRoom; dr++)
+            for (let dc = 0; dc < step && !isRoom; dc++) if (roomCells[row + dr]?.[col + dc]) isRoom = true;
+          if (!isRoom) continue;
+
+          const cx = (col + step * 0.5) * gridSize;
+          const cy = (row + step * 0.5) * gridSize;
+
+          let radius = worldRadius;
+          if (roughAmp > 0) {
+            const rand = seededLcg(row * 1337 + col * 7919 + 54321);
+            radius += (rand() - 0.5) * 2 * roughAmp;
+            if (radius <= 0) continue;
+          }
+
+          path.moveTo(cx + radius, cy);
+          path.arc(cx, cy, radius, 0, Math.PI * 2);
+        }
+      }
+
+      _outerShadingCache = { cells, gridSize, size, roughness, resolution, path };
+    }
+    pathToFill = _outerShadingCache!.path;
   }
 
-  // Fill cached path at screen resolution
+  // Fill path at screen resolution
   ctx.save();
   const _os0 = toCanvas(0, 0, transform);
   const _os1 = toCanvas(numCols * gridSize, numRows * gridSize, transform);
@@ -513,7 +550,7 @@ export function drawOuterShading(
   ctx.clip();
   ctx.setTransform(transform.scale, 0, 0, transform.scale, transform.offsetX, transform.offsetY);
   ctx.fillStyle = color;
-  ctx.fill(_outerShadingCache!.path);
+  ctx.fill(pathToFill);
   ctx.restore();
 }
 
@@ -613,4 +650,5 @@ export function invalidateEffectsCache(): void {
   _hatchCache = null;
   _rockCache = null;
   _outerShadingCache = null;
+  log.devTrace(`invalidateEffectsCache() — hatch + rock + outer shading cleared`);
 }

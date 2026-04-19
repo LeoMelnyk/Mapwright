@@ -1,0 +1,37 @@
+name: Algae Bloom
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cistern, sewer, cave, underground-lake, flooded-room
+typical_count: many
+clusters_with: algae-bloom, drowned-rat, coin-in-water, floating-barrel
+notes: A patch of green-brown algae floating on standing water. Scatter multiple across flooded areas for a stagnant-water atmosphere. Flat on the water surface.
+---
+# Base algae mass (irregular green-brown blob)
+poly 0.18,0.40 0.30,0.28 0.48,0.24 0.65,0.30 0.78,0.42 0.82,0.56 0.74,0.68 0.58,0.76 0.40,0.74 0.22,0.64 0.14,0.52 fill #3a5828 0.55
+poly 0.18,0.40 0.30,0.28 0.48,0.24 0.65,0.30 0.78,0.42 0.82,0.56 0.74,0.68 0.58,0.76 0.40,0.74 0.22,0.64 0.14,0.52 stroke #2a4018 0.4
+
+# Denser algae center
+poly 0.32,0.38 0.48,0.32 0.62,0.38 0.68,0.52 0.60,0.62 0.44,0.66 0.30,0.58 fill #3a6028 0.5
+
+# Brown decay patches
+circle 0.40,0.46 0.06 fill #5a4a20 0.4
+circle 0.58,0.54 0.05 fill #4a3a18 0.35
+circle 0.34,0.60 0.04 fill #5a4a20 0.3
+
+# Lighter green highlights (surface scum catching light)
+circle 0.50,0.40 0.04 fill #5a8838 0.35
+circle 0.66,0.48 0.035 fill #4a7828 0.3
+circle 0.38,0.50 0.03 fill #5a8838 0.25
+
+# Tiny bubble dots in the algae
+circle 0.44,0.36 0.015 fill #6a8848 0.5
+circle 0.56,0.44 0.012 fill #6a8848 0.45
+circle 0.48,0.58 0.015 fill #5a7838 0.4
+circle 0.62,0.60 0.012 fill #6a8848 0.35
+
+# Water ripple around algae edge (faint)
+poly 0.16,0.42 0.28,0.26 0.50,0.22 0.68,0.28 0.80,0.40 0.84,0.58 0.76,0.70 0.60,0.78 0.38,0.76 0.20,0.66 0.12,0.54 stroke #5a7a8a 0.15

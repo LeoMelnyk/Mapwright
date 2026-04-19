@@ -1,0 +1,59 @@
+name: Withered Flowers
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: graveyard-village, roadside-gallows, shadowfell-mausoleum, crypt, shrine-roadside, tomb
+typical_count: few
+clusters_with: grave, gravestone, candle-guttered, altar, offering-bowl
+notes: Dried, dead flowers on a grave or altar; mournful decor
+---
+# === HITBOX ===
+selection circle 0.5,0.54 0.30
+
+# Base cluster shadow
+ellipse 0.5,0.74 0.24,0.06 fill #1a1008 0.3
+# Withered stems (dark brown, drooping)
+line 0.40,0.72 0.36,0.38 stroke #3a2810 width 1
+line 0.48,0.74 0.46,0.30 stroke #3a2810 width 1
+line 0.52,0.74 0.54,0.28 stroke #3a2810 width 1
+line 0.56,0.72 0.62,0.36 stroke #3a2810 width 1
+line 0.44,0.70 0.28,0.52 stroke #3a2810 width 1
+line 0.58,0.70 0.70,0.48 stroke #3a2810 width 1
+# Bundled stems at bottom (tied with dark ribbon)
+rect 0.40,0.68 0.20,0.08 fill #2a1010 0.85
+rect 0.40,0.68 0.20,0.08 stroke #1a0808
+# Ribbon tail
+bezier 0.60,0.76 0.66,0.82 0.62,0.86 0.68,0.90 stroke #4a1010 width 2
+# Dry leaves (brown, curled)
+poly 0.30,0.50 0.34,0.46 0.32,0.54 fill #5a4018 0.85
+poly 0.30,0.50 0.34,0.46 0.32,0.54 stroke #3a2810
+poly 0.40,0.56 0.44,0.52 0.42,0.60 fill #5a4018 0.8
+poly 0.66,0.50 0.70,0.46 0.68,0.56 fill #5a4018 0.85
+poly 0.66,0.50 0.70,0.46 0.68,0.56 stroke #3a2810
+# Dead flower 1 (drooping brown)
+poly 0.36,0.40 0.40,0.38 0.38,0.44 fill #6a3810 0.9
+poly 0.34,0.36 0.40,0.32 0.42,0.38 0.38,0.42 0.34,0.40 fill #5a2808 0.9
+poly 0.34,0.36 0.40,0.32 0.42,0.38 0.38,0.42 0.34,0.40 stroke #2a1408
+# Dead flower 2 (shriveled purple)
+circle 0.48,0.32 0.05 fill #4a2040 0.85
+circle 0.48,0.32 0.05 stroke #2a1020
+# Flower 2 wilt droop
+poly 0.46,0.34 0.50,0.34 0.48,0.40 fill #4a2040 0.85
+# Dead flower 3 (yellowed)
+poly 0.56,0.34 0.62,0.30 0.66,0.36 0.60,0.40 fill #5a4810 0.85
+poly 0.56,0.34 0.62,0.30 0.66,0.36 0.60,0.40 stroke #2a2008
+# Shriveled petal detail
+line 0.58,0.34 0.64,0.36 stroke #3a3010 0.6
+# Fallen petals (scattered dead bits)
+circle 0.24,0.66 0.015 fill #5a2808 0.8
+circle 0.78,0.62 0.015 fill #4a2040 0.8
+circle 0.30,0.72 0.012 fill #5a4018 0.7
+circle 0.72,0.70 0.012 fill #5a2808 0.7
+circle 0.52,0.66 0.012 fill #5a4810 0.7
+# Dust/decay around cluster
+circle 0.20,0.60 0.03 fill #1a1008 0.2
+circle 0.82,0.58 0.03 fill #1a1008 0.2

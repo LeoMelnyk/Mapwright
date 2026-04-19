@@ -1,0 +1,58 @@
+name: Rusted Helmet
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: battlefield-recent, monster-lair-small, ruined-watchtower, armory
+typical_count: few
+clusters_with: broken-shield, broken-sword, corpse, gnawed-bone
+notes: Dented iron helmet on its side, face opening visible, heavily rusted
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Helmet lying on side — dome to the north, face opening to south
+
+# Dome body (oval, tilted)
+ellipse 0.50,0.46 0.32,0.30 texfill polyhaven/rusty_metal 0.85
+ellipse 0.50,0.46 0.32,0.30 stroke #2a1008
+
+# Dark rust patches
+poly 0.30,0.34 0.44,0.30 0.48,0.40 0.38,0.46 0.28,0.42 fill #4a2000 0.85
+poly 0.56,0.36 0.70,0.40 0.74,0.52 0.64,0.54 0.58,0.46 fill #4a2000 0.8
+poly 0.38,0.52 0.50,0.54 0.52,0.62 0.40,0.62 fill #4a2000 0.75
+
+# Dent on crown (darker gouge)
+poly 0.42,0.26 0.54,0.22 0.58,0.28 0.48,0.32 0.40,0.30 fill #2a1008 0.8
+line 0.44,0.26 0.54,0.26 stroke #1a0808 width 2
+# Secondary dent
+line 0.64,0.38 0.72,0.44 stroke #1a0808 width 2
+line 0.28,0.48 0.22,0.52 stroke #1a0808 width 2
+
+# Face opening (oval dark hole at south)
+ellipse 0.50,0.66 0.20,0.10 fill #0a0604 0.95
+ellipse 0.50,0.66 0.20,0.10 stroke #1a0808 width 2
+# Nose guard (vertical strip across opening)
+rect 0.48,0.58 0.04,0.16 fill #3a1808 0.9
+rect 0.48,0.58 0.04,0.16 stroke #1a0808
+
+# Brow ridge (rim above face opening)
+bezier 0.30,0.62 0.40,0.56 0.60,0.56 0.70,0.62 stroke #2a1008 width 3
+
+# Cheek-guard flap (hanging loose to south-east)
+poly 0.68,0.68 0.82,0.72 0.84,0.82 0.74,0.82 0.66,0.74 fill #5a2810 0.9
+poly 0.68,0.68 0.82,0.72 0.84,0.82 0.74,0.82 0.66,0.74 texfill polyhaven/rusty_metal 0.5
+poly 0.68,0.68 0.82,0.72 0.84,0.82 0.74,0.82 0.66,0.74 stroke #2a1008
+
+# Broken chin strap
+bezier 0.28,0.70 0.22,0.78 0.18,0.82 0.14,0.88 stroke #2a1408 width 2
+
+# Rivets along rim
+circle 0.28,0.46 0.02 fill #1a0808 0.9
+circle 0.72,0.44 0.02 fill #1a0808 0.9
+circle 0.50,0.22 0.02 fill #1a0808 0.9
+
+# Rust streaks running down
+line 0.40,0.36 0.42,0.48 stroke #6a3000 0.55 width 1
+line 0.60,0.38 0.58,0.50 stroke #6a3000 0.55 width 1

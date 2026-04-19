@@ -1,0 +1,71 @@
+name: Silver Tray
+category: Containers
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: tavern-highend, mansion-dining, noble-solar, brothel-parlor, mansion-bedroom-master
+typical_count: few
+clusters_with: wine-bottle, tankard, cigar-case, bar-counter, sideboard
+notes: Polished silver serving tray with goblets and decanter arranged on it
+---
+# === HITBOX ===
+selection rect 0.10,0.18 1.80,0.64
+
+# footprint 1x2: x 0-2, y 0-1
+# Outer silver rim (widest)
+ellipse 1.00,0.50 0.92,0.36 fill #c8c8d0 0.95
+ellipse 1.00,0.50 0.92,0.36 stroke #4a4a5a width 2
+
+# Inner rim bevel
+ellipse 1.00,0.50 0.88,0.32 stroke #8899aa 0.8 width 1
+
+# Tray surface (darker polished silver)
+ellipse 1.00,0.50 0.84,0.28 fill #9aa0b0 0.95
+ellipse 1.00,0.50 0.84,0.28 stroke #5a5a70 width 1
+
+# Engraved floral scrollwork (small decorative dots + curls inside rim)
+circle 0.30,0.34 0.02 fill #4a4a5a 0.7
+circle 0.30,0.66 0.02 fill #4a4a5a 0.7
+circle 1.70,0.34 0.02 fill #4a4a5a 0.7
+circle 1.70,0.66 0.02 fill #4a4a5a 0.7
+arc 0.40,0.34 0.05 180 360 stroke #4a4a5a 0.6 width 1
+arc 1.60,0.34 0.05 180 360 stroke #4a4a5a 0.6 width 1
+arc 0.40,0.66 0.05 0 180 stroke #4a4a5a 0.6 width 1
+arc 1.60,0.66 0.05 0 180 stroke #4a4a5a 0.6 width 1
+
+# Ornate handles at east and west ends (small curl loops)
+arc 0.08,0.50 0.06 90 270 stroke #4a4a5a width 2
+arc 0.08,0.50 0.06 90 270 stroke #c8c8d0 0.7 width 1
+arc 1.92,0.50 0.06 270 90 stroke #4a4a5a width 2
+arc 1.92,0.50 0.06 270 90 stroke #c8c8d0 0.7 width 1
+
+# Polish highlight streak (upper rim)
+arc 1.00,0.50 0.40 200 260 stroke #ffffff 0.5 width 2
+
+# Goblet 1 (west)
+circle 0.50,0.42 0.11 fill #daa520 0.95
+circle 0.50,0.42 0.11 stroke #5a3a00 width 1
+circle 0.50,0.42 0.08 fill #4a0a10 0.9
+circle 0.50,0.42 0.08 stroke #2a0000 width 1
+arc 0.50,0.42 0.10 210 260 stroke #ffd700 0.6 width 1
+
+# Goblet 2 (east)
+circle 1.50,0.58 0.11 fill #daa520 0.95
+circle 1.50,0.58 0.11 stroke #5a3a00 width 1
+circle 1.50,0.58 0.08 fill #4a0a10 0.9
+circle 1.50,0.58 0.08 stroke #2a0000 width 1
+arc 1.50,0.58 0.10 210 260 stroke #ffd700 0.6 width 1
+
+# Decanter (center — tall crystal with stopper)
+circle 1.00,0.50 0.11 fill #4a0a10 0.85
+circle 1.00,0.50 0.11 stroke #2a0000 width 1
+# Inner liquid reflection
+circle 1.00,0.50 0.08 fill #6a1020 0.8
+# Stopper (top)
+circle 1.00,0.48 0.04 fill #daa520 0.95
+circle 1.00,0.48 0.04 stroke #5a3a00 width 1
+# Crystal highlight
+arc 1.00,0.50 0.10 210 260 stroke #ffd700 0.6 width 1

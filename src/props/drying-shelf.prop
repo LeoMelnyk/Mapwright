@@ -1,0 +1,96 @@
+name: Drying Shelf
+category: Workshop
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 3
+placement: wall
+room_types: house-medium-artisan, cabin-witch, alchemy-lab, apothecary, kitchen, herbalist
+typical_count: few
+clusters_with: shelf, cabinet, drying-shelf, herb-bundle
+notes: Wall-mounted plank shelf lined with drying herbs, pottery, and small bundles. Front items peek at south edge. Place against walls in herbalist, kitchen, or artisan rooms.
+---
+# === HITBOX ===
+hitbox rect 0.0,0.0 2.0,0.85 z 0-3
+
+# footprint 1x2: x 0-2, y 0-1
+# Top-down: weathered plank shelf with drying items at south edge (peeking below the plank)
+
+# Shelf body recess (darker strip visible at front/sides)
+rect 0.1,0.0 1.8,0.85 fill #2a1400 0.4
+line 0.1,0.0 0.1,0.85 stroke #3a2010
+line 1.9,0.0 1.9,0.85 stroke #3a2010
+line 0.1,0.85 1.9,0.85 stroke #3a2010
+
+# === Drying items visible at south edge (under the plank) ===
+# Herb bundle 1 (green-grey sage)
+ellipse 0.24,0.74 0.08,0.05 fill #5a6a48 0.9
+ellipse 0.24,0.74 0.08,0.05 stroke #2a3820
+# Tied string
+line 0.20,0.72 0.28,0.72 stroke #8b7355 0.7 width 1
+
+# Small clay pot
+circle 0.44,0.76 0.06 fill #8a5820 0.92
+circle 0.44,0.76 0.06 stroke #3a2008
+ellipse 0.44,0.72 0.04,0.015 fill #1a0800 0.85
+
+# Herb bundle 2 (lavender — dusky purple)
+ellipse 0.62,0.74 0.07,0.04 fill #6a4878 0.85
+ellipse 0.62,0.74 0.07,0.04 stroke #2a1828
+line 0.58,0.72 0.66,0.72 stroke #8b7355 0.7 width 1
+
+# Small jar with cork
+circle 0.80,0.76 0.055 fill #8aa0b0 0.75
+circle 0.80,0.76 0.055 stroke #4a5060
+circle 0.80,0.74 0.025 fill #6a4810 0.9
+
+# Herb bundle 3 (rosemary — dark green)
+ellipse 1.00,0.74 0.08,0.05 fill #3a5028 0.9
+ellipse 1.00,0.74 0.08,0.05 stroke #1a2810
+line 0.95,0.72 1.05,0.72 stroke #8b7355 0.7 width 1
+
+# Clay bowl
+ellipse 1.22,0.76 0.08,0.04 fill #6b4e2e 0.9
+ellipse 1.22,0.76 0.08,0.04 stroke #2a1400
+ellipse 1.22,0.74 0.055,0.02 fill #3a1f00 0.9
+
+# Herb bundle 4 (yellow flowers — calendula)
+ellipse 1.42,0.74 0.07,0.04 fill #b08828 0.88
+ellipse 1.42,0.74 0.07,0.04 stroke #5a3808
+line 1.38,0.72 1.46,0.72 stroke #8b7355 0.7 width 1
+
+# Stoneware crock
+circle 1.62,0.76 0.07 texfill polyhaven/stone_wall 0.5
+circle 1.62,0.76 0.07 fill #7a6850 0.5
+circle 1.62,0.76 0.07 stroke #3a2a1a
+ellipse 1.62,0.72 0.04,0.018 fill #1a1008 0.8
+
+# Herb bundle 5 (small pink — thyme)
+ellipse 1.80,0.74 0.06,0.04 fill #8a5870 0.85
+ellipse 1.80,0.74 0.06,0.04 stroke #3a1828
+
+# === Plank top covers most items (drawn on top) ===
+rect 0.0,0.0 2.0,0.65 texfill polyhaven/weathered_planks 0.88
+rect 0.0,0.0 2.0,0.65 stroke #3a2010
+
+# Plank wood grain
+line 0.0,0.18 2.0,0.18 stroke #5c3a1e 0.4
+line 0.0,0.36 2.0,0.36 stroke #5c3a1e 0.4
+line 0.0,0.52 2.0,0.52 stroke #5c3a1e 0.4
+
+# Plank seam (two boards joined)
+line 1.0,0.0 1.0,0.65 stroke #2a1400 0.6
+
+# Iron L-brackets at north edge
+rect 0.12,0.02 0.06,0.08 fill #3a3020 0.85
+rect 1.82,0.02 0.06,0.08 fill #3a3020 0.85
+
+# Bracket rivets
+circle 0.15,0.06 0.01 fill #222222 0.9
+circle 1.85,0.06 0.01 fill #222222 0.9
+
+# Faint hanging herb silhouettes on top of plank (suggests bundles drying)
+ellipse 0.35,0.32 0.08,0.03 fill #3a2810 0.3
+ellipse 0.90,0.30 0.07,0.025 fill #3a2810 0.28
+ellipse 1.50,0.34 0.08,0.03 fill #3a2810 0.3

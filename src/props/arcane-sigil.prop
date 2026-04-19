@@ -1,0 +1,33 @@
+name: Arcane Sigil
+category: Magical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: wizard-sanctum, ritual-chamber, workshop-artificer, alchemist-lab
+typical_count: few
+clusters_with: arcane-pedestal, magic-circle, ward-stone
+notes: Flat floor inscription — glowing rune circle about 1ft across; scatter near workstations or thresholds
+lights: [{"preset":"astral","x":0.5,"y":0.5,"radius":3,"intensity":0.3,"color":"#6644cc"}]
+---
+# Outer glow halo (faint purple wash)
+circle 0.5,0.5 0.42 gradient-radial #4422aa #000000 0.18
+# Outer inscribed ring
+circle 0.5,0.5 0.34 stroke #6644aa 0.7 width 2
+# Inner inscribed ring
+circle 0.5,0.5 0.24 stroke #7755cc 0.6 width 2
+# Cardinal rune tick marks (N/S/E/W)
+line 0.5,0.16 0.5,0.26 stroke #8866dd 0.6 width 2
+line 0.5,0.74 0.5,0.84 stroke #8866dd 0.6 width 2
+line 0.16,0.5 0.26,0.5 stroke #8866dd 0.6 width 2
+line 0.74,0.5 0.84,0.5 stroke #8866dd 0.6 width 2
+# Diagonal rune tick marks
+line 0.26,0.26 0.33,0.33 stroke #7755cc 0.5
+line 0.74,0.26 0.67,0.33 stroke #7755cc 0.5
+line 0.26,0.74 0.33,0.67 stroke #7755cc 0.5
+line 0.74,0.74 0.67,0.67 stroke #7755cc 0.5
+# Center sigil glow — concentric layers
+circle 0.5,0.5 0.14 fill #4422aa 0.25
+circle 0.5,0.5 0.08 fill #7755cc 0.4
+circle 0.5,0.5 0.04 fill #ccaaff 0.6

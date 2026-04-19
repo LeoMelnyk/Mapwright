@@ -1,0 +1,46 @@
+name: Waterskin Bundle
+category: Camp
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, ranger-camp, orc-war-camp, cave-bandit-camp, scouts-blind
+typical_count: few
+clusters_with: bedroll, sack, ration-wrapper, cookware-scatter
+notes: Bulging leather waterskin with strap, small scatter item — toss near bedrolls or gear piles
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: leather waterskin lying on ground, bulging
+
+# Strap (long leather loop trailing south)
+bezier 0.45,0.30 0.30,0.50 0.35,0.75 0.50,0.85 stroke #5c3a1e 0.7 width 2
+bezier 0.55,0.30 0.70,0.50 0.65,0.75 0.50,0.85 stroke #5c3a1e 0.6 width 1
+
+# Main body (oval bulging sack)
+ellipse 0.50,0.48 0.18,0.22 texfill polyhaven/brown_leather 0.8
+ellipse 0.50,0.48 0.18,0.22 stroke #2a1400
+
+# Stitch seam down the center
+line 0.50,0.28 0.50,0.68 stroke #1a0800 0.5 width 1
+
+# Side bulge shading (water makes it round)
+ellipse 0.42,0.48 0.06,0.14 fill #4a2800 0.15
+ellipse 0.58,0.48 0.06,0.14 fill #4a2800 0.15
+
+# Neck (narrower opening at north)
+ellipse 0.50,0.26 0.06,0.04 fill #3a1f00 0.85
+ellipse 0.50,0.26 0.06,0.04 stroke #2a1400
+# Tie cord around neck
+ellipse 0.50,0.28 0.08,0.02 stroke #8b7355 0.6 width 1
+
+# Stopper/plug (small circle at top)
+circle 0.50,0.24 0.03 fill #3a1f00 0.9
+circle 0.50,0.24 0.03 stroke #1a0800
+
+# Small wet stain on ground near spout
+ellipse 0.50,0.22 0.05,0.03 fill #3a4a5a 0.15
+
+# Buckle on strap
+rect 0.44,0.78 0.06,0.04 fill #daa520 0.6
+rect 0.44,0.78 0.06,0.04 stroke #8b6914

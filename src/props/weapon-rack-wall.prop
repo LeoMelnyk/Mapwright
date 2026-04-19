@@ -1,0 +1,58 @@
+name: Weapon Rack (Wall)
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: noble-bedchamber, study, great-hall, trophy-room, guard-room
+typical_count: single
+clusters_with: ancestor-portrait, hunting-trophy, banner, armchair
+notes: Decorative wall-mounted display rack with ornamental sword + crossed daggers; place on prominent walls
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: wall-hung display — thin ornate rack bar along the north wall edge,
+# with pommel circles and crossguard strips hinting at the weapons below.
+
+# Ornate mounting bar along wall (north edge)
+rect 0.10,0.06 1.80,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.06 1.80,0.12 stroke #3a1f00
+
+# Decorative end caps on bar (brass)
+circle 0.12,0.12 0.05 fill #daa520 0.75
+circle 0.12,0.12 0.05 stroke #8b6914
+circle 1.88,0.12 0.05 fill #daa520 0.75
+circle 1.88,0.12 0.05 stroke #8b6914
+
+# Center ornament on bar (brass medallion)
+circle 1.00,0.12 0.06 fill #daa520 0.7
+circle 1.00,0.12 0.06 stroke #8b6914
+circle 1.00,0.12 0.035 fill #ffd700 0.5
+
+# === Weapon hints (pommels + crossguards visible from above) ===
+
+# Central sword pommel (ornate, sitting in the rack)
+circle 1.00,0.24 0.06 texfill polyhaven/metal_plate 0.85
+circle 1.00,0.24 0.06 stroke #444444
+# Sword crossguard (perpendicular bar just south of pommel)
+rect 0.88,0.30 0.24,0.04 fill #666666 0.7
+rect 0.88,0.30 0.24,0.04 stroke #444444
+# Grip wrap hint
+rect 0.97,0.24 0.06,0.10 fill #5c3a1e 0.4
+
+# Left dagger pommel (smaller, part of crossed pair)
+circle 0.52,0.22 0.04 texfill polyhaven/metal_plate 0.8
+circle 0.52,0.22 0.04 stroke #555555
+# Left dagger crossguard
+rect 0.44,0.27 0.16,0.03 fill #8b6914 0.6
+rect 0.44,0.27 0.16,0.03 stroke #5a3a00
+
+# Right dagger pommel
+circle 1.48,0.22 0.04 texfill polyhaven/metal_plate 0.8
+circle 1.48,0.22 0.04 stroke #555555
+# Right dagger crossguard
+rect 1.40,0.27 0.16,0.03 fill #8b6914 0.6
+rect 1.40,0.27 0.16,0.03 stroke #5a3a00
+
+# Subtle shadow below the rack
+rect 0.14,0.34 1.72,0.03 fill #000000 0.10

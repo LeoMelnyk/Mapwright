@@ -1,0 +1,41 @@
+name: Hay Wisps
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: farmhouse-common, barn, stable, peasant-hovel, farmhouse-kitchen
+typical_count: many
+clusters_with: hay-bale, muddy-boots, boot-muddy, bucket, broom
+notes: Small scatter of loose hay strands on the floor — flat ground clutter
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Loose hay strands scattered on floor ===
+# Cluster 1 (NW)
+line 0.14,0.22 0.30,0.18 stroke #c8a83a 0.8 width 2
+line 0.18,0.26 0.34,0.24 stroke #b89830 0.7 width 1
+line 0.12,0.30 0.26,0.26 stroke #d4b848 0.75 width 1
+
+# Cluster 2 (center)
+line 0.38,0.44 0.56,0.40 stroke #c8a83a 0.85 width 2
+line 0.42,0.48 0.62,0.46 stroke #b89830 0.7 width 1
+line 0.36,0.50 0.54,0.52 stroke #d4b848 0.8 width 2
+line 0.44,0.54 0.58,0.50 stroke #c8a030 0.6 width 1
+
+# Cluster 3 (SE)
+line 0.62,0.70 0.80,0.66 stroke #c8a83a 0.8 width 2
+line 0.66,0.74 0.84,0.72 stroke #b89830 0.7 width 1
+line 0.60,0.78 0.76,0.76 stroke #d4b848 0.75 width 1
+
+# Stray single wisps
+line 0.72,0.28 0.86,0.32 stroke #c8a83a 0.6 width 1
+line 0.20,0.64 0.34,0.60 stroke #b89830 0.55 width 1
+line 0.48,0.82 0.60,0.86 stroke #d4b848 0.5 width 1
+
+# Tiny seed heads (small dots at some wisp ends)
+circle 0.30,0.18 0.015 fill #b89830 0.7
+circle 0.56,0.40 0.012 fill #c8a83a 0.65
+circle 0.80,0.66 0.015 fill #b89830 0.6

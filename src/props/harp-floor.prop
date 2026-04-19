@@ -1,0 +1,89 @@
+name: Floor Harp
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.8
+placement: corner
+room_types: noble-solar, house-noble-townhouse, mansion-grand-hall, music-hall, bards-college, theater, parlor
+typical_count: single
+clusters_with: stool, pianoforte, candelabra, rug-oriental, settee
+notes: Standing concert harp seen edge-on from above. Soundbox at south end, pillar rising north, crown at the top. Richer gilt finish than workshop harp.
+---
+# === HITBOX ===
+selection rect 0.38,0.12 0.24,1.78
+
+# footprint 2x1: x 0-1, y 0-2. Vertical-standing instrument, viewed edge-on.
+# Soundbox base — widest element at south
+ellipse 0.50,1.84 0.26,0.13 texfill polyhaven/dark_wood 0.92
+ellipse 0.50,1.84 0.26,0.13 fill #1a0808 0.2
+ellipse 0.50,1.84 0.26,0.13 stroke #2a1400 width 2
+
+# Gilt rim around soundbox
+ellipse 0.50,1.84 0.26,0.13 stroke #daa520 0.85 width 1
+
+# Inlay floral band on soundbox (gold)
+ellipse 0.50,1.84 0.22,0.10 stroke #daa520 0.55 width 1
+
+# Sound hole (dark oval)
+ellipse 0.50,1.78 0.08,0.04 fill #0a0400 0.95
+ellipse 0.50,1.78 0.08,0.04 stroke #2a1400 width 1
+
+# Pillar post — ornate column rising north
+rect 0.44,0.16 0.12,1.62 texfill polyhaven/dark_wood 0.95
+rect 0.44,0.16 0.12,1.62 fill #1a0808 0.2
+rect 0.44,0.16 0.12,1.62 stroke #1a0a00 width 2
+
+# Gilt trim stripes along pillar
+line 0.46,0.18 0.46,1.78 stroke #daa520 0.85 width 1
+line 0.54,0.18 0.54,1.78 stroke #daa520 0.85 width 1
+
+# Fluted detail mid-pillar (decorative band)
+rect 0.44,0.80 0.12,0.06 fill #daa520 0.8
+rect 0.44,0.80 0.12,0.06 stroke #5a3a00 width 1
+rect 0.44,1.20 0.12,0.06 fill #daa520 0.8
+rect 0.44,1.20 0.12,0.06 stroke #5a3a00 width 1
+
+# Curved neck — elegant bezier bowing outward
+bezier 0.54,1.70 0.62,1.10 0.60,0.50 0.52,0.20 stroke #2a1400 width 5
+bezier 0.54,1.70 0.62,1.10 0.60,0.50 0.52,0.20 stroke #5c3a1e 0.75 width 3
+# Gilt accent on neck
+bezier 0.54,1.70 0.62,1.10 0.60,0.50 0.52,0.20 stroke #daa520 0.7 width 1
+
+# Strings running between neck and soundbox (many)
+line 0.52,0.30 0.52,1.74 stroke #e8dcc8 0.9 width 1
+line 0.50,0.22 0.50,1.74 stroke #c8b898 0.85 width 1
+line 0.48,0.30 0.48,1.74 stroke #e8dcc8 0.85 width 1
+line 0.46,0.42 0.46,1.74 stroke #c8b898 0.8 width 1
+line 0.44,0.56 0.44,1.74 stroke #e8dcc8 0.8 width 1
+line 0.42,0.72 0.42,1.74 stroke #c8b898 0.8 width 1
+line 0.54,0.50 0.54,1.74 stroke #c8b898 0.8 width 1
+line 0.56,0.70 0.56,1.74 stroke #e8dcc8 0.8 width 1
+line 0.58,0.90 0.58,1.74 stroke #c8b898 0.75 width 1
+line 0.40,0.90 0.40,1.74 stroke #e8dcc8 0.75 width 1
+line 0.60,1.10 0.60,1.74 stroke #c8b898 0.75 width 1
+line 0.38,1.10 0.38,1.74 stroke #e8dcc8 0.75 width 1
+
+# Tuning pegs (brass dots along the neck)
+circle 0.54,0.40 0.02 fill #daa520 0.95
+circle 0.55,0.60 0.02 fill #daa520 0.95
+circle 0.56,0.80 0.02 fill #daa520 0.95
+circle 0.57,1.00 0.02 fill #daa520 0.95
+circle 0.57,1.20 0.02 fill #daa520 0.95
+circle 0.56,1.40 0.02 fill #daa520 0.95
+circle 0.55,1.60 0.02 fill #daa520 0.95
+
+# Ornate scroll crown at the top
+circle 0.50,0.14 0.10 fill #daa520 0.95
+circle 0.50,0.14 0.10 stroke #5a3a00 width 2
+circle 0.50,0.14 0.05 fill #8b6914 0.9
+arc 0.50,0.14 0.08 0 270 stroke #5a3a00 0.8 width 1
+
+# Pedestal foot / base at south
+ellipse 0.50,1.92 0.18,0.05 fill #1a0808 0.85
+ellipse 0.50,1.92 0.18,0.05 stroke #000000 width 1
+
+# Small foot shadows (feet support the soundbox)
+circle 0.32,1.94 0.03 fill #000000 0.55
+circle 0.68,1.94 0.03 fill #000000 0.55

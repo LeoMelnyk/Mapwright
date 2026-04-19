@@ -1,0 +1,58 @@
+name: Small Cupboard
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3.5
+placement: wall
+room_types: tenement-room, peasant-hovel, farmhouse-kitchen, house-small, pantry
+typical_count: single
+clusters_with: stove-iron, coal-bucket, pewter-mug, plate
+notes: Modest small kitchen cupboard against a wall — top-down shows flat wooden top, crown molding at north (wall), hint of door-edge at south
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Wall at north (low Y), front face at south (high Y).
+
+# === HITBOX ===
+hitbox rect 0.06,0.04 0.88,0.82 z 0-3.5
+
+# Shadow gap at wall
+rect 0.04,0.02 0.92,0.04 fill #000000 0.18
+
+# === Crown molding (slight overhang at top/north) ===
+rect 0.02,0.06 0.96,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.02,0.06 0.96,0.08 stroke #1a1208
+
+# === Main cabinet top surface ===
+rect 0.06,0.12 0.88,0.64 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.06,0.12 0.88,0.64 stroke #2a1400
+
+# Wood grain lines
+line 0.08,0.28 0.90,0.28 stroke #3a1f00 0.3
+line 0.08,0.46 0.90,0.46 stroke #3a1f00 0.28
+line 0.08,0.60 0.90,0.60 stroke #3a1f00 0.25
+
+# Dust shadow at back
+rect 0.08,0.14 0.84,0.06 fill #000000 0.08
+
+# === Front edge trim (south — where cabinet face begins below) ===
+rect 0.06,0.72 0.88,0.06 fill #3a1f00 0.45
+rect 0.06,0.72 0.88,0.06 stroke #2a1400
+
+# Door seam hint (center of south edge)
+line 0.50,0.72 0.50,0.78 stroke #2a1400 0.4
+
+# === Small items on top ===
+# Chipped bowl (left)
+ellipse 0.28,0.42 0.08,0.05 fill #8a7058 0.85
+ellipse 0.28,0.42 0.08,0.05 stroke #3a2a1a
+ellipse 0.28,0.42 0.05,0.03 fill #5a4030 0.8
+
+# Tin cup (right)
+circle 0.72,0.40 0.05 fill #777777 0.7
+circle 0.72,0.40 0.05 stroke #444444
+circle 0.72,0.40 0.035 fill #3a3a3a 0.8
+
+# Wood knot imperfection
+circle 0.56,0.34 0.015 fill #2a1400 0.5

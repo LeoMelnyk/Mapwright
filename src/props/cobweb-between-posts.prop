@@ -1,0 +1,54 @@
+name: Cobweb (Between Posts)
+category: Terrain
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: crypt, tomb, dungeon, mausoleum, abandoned-room, tunnel-mine-worked, cave-living
+typical_count: few
+clusters_with: cobweb-heavy, cobweb-cluster, timber-brace, pillar, stone-column
+notes: Cobweb stretched between two anchor points — ideal for spanning between timber-braces or pillars across a tunnel/alcove. Anchors at west (0.10, 0.50) and east (1.90, 0.50). Rotate for other orientations.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Spanning cobweb — silk stretched taut between WEST anchor (0.10, 0.50) and EAST anchor (1.90, 0.50)
+
+# === Anchor masses (where web attaches to posts) ===
+poly 0.06,0.42 0.18,0.40 0.20,0.50 0.18,0.60 0.06,0.58 fill #aaaaaa 0.12
+poly 1.82,0.42 1.94,0.40 1.96,0.50 1.94,0.60 1.82,0.58 fill #aaaaaa 0.12
+
+# === Main spanning strands (east-west structural threads) ===
+line 0.10,0.35 1.90,0.35 stroke #888888 0.35 width 2
+line 0.10,0.50 1.90,0.50 stroke #888888 0.35 width 2
+line 0.10,0.65 1.90,0.65 stroke #888888 0.3 width 1
+line 0.10,0.42 1.90,0.58 stroke #999999 0.25 width 1
+
+# === Sagging droop (gravity-pulled curves) ===
+qbezier 0.10,0.50 1.00,0.75 1.90,0.50 stroke #888888 0.3 width 2
+qbezier 0.10,0.45 1.00,0.68 1.90,0.55 stroke #999999 0.2 width 1
+
+# === Radial strands off WEST anchor ===
+line 0.10,0.50 0.28,0.30 stroke #999999 0.25 width 1
+line 0.10,0.50 0.32,0.48 stroke #999999 0.2 width 1
+line 0.10,0.50 0.26,0.72 stroke #999999 0.2 width 1
+
+# === Radial strands off EAST anchor ===
+line 1.90,0.50 1.72,0.30 stroke #999999 0.25 width 1
+line 1.90,0.50 1.68,0.52 stroke #999999 0.2 width 1
+line 1.90,0.50 1.74,0.70 stroke #999999 0.2 width 1
+
+# === Cross-strands (lattice bridging the spans) ===
+qbezier 0.50,0.35 0.48,0.50 0.52,0.65 stroke #999999 0.2 width 1
+qbezier 0.90,0.35 0.95,0.50 0.92,0.65 stroke #999999 0.18 width 1
+qbezier 1.30,0.35 1.28,0.50 1.32,0.65 stroke #999999 0.2 width 1
+qbezier 1.60,0.35 1.62,0.50 1.58,0.65 stroke #999999 0.18 width 1
+
+# === Wispy drooping strands (broken silk hanging below) ===
+qbezier 0.70,0.65 0.75,0.82 0.68,0.90 stroke #999999 0.18 width 1
+qbezier 1.15,0.70 1.10,0.85 1.18,0.92 stroke #999999 0.15 width 1
+qbezier 1.50,0.65 1.55,0.80 1.48,0.88 stroke #999999 0.15 width 1
+
+# === Tiny spider speck ===
+circle 1.05,0.52 0.02 fill #222222 0.7
+circle 1.05,0.52 0.015 fill #333333 0.5

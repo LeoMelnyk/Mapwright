@@ -1,0 +1,52 @@
+name: Cloth Mask
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: thieves-guild-hideout, cave-bandit-camp, smugglers-den, assassin-cell, hideout
+typical_count: single
+clusters_with: lockpicks, jewelry-loose, dagger, coin-purse
+notes: Dark cloth balaclava/bandit mask laid flat on a surface. Pulled-back fabric with two eye holes visible.
+---
+# === HITBOX ===
+selection rect 0.14,0.28 0.72,0.48
+
+# === Main cloth mass (irregular, slightly bunched) ===
+poly 0.14,0.40 0.20,0.30 0.36,0.28 0.50,0.32 0.64,0.28 0.80,0.30 0.86,0.40 0.84,0.56 0.76,0.68 0.62,0.72 0.50,0.68 0.38,0.72 0.24,0.68 0.16,0.56 fill #1a1a1a 0.95
+poly 0.14,0.40 0.20,0.30 0.36,0.28 0.50,0.32 0.64,0.28 0.80,0.30 0.86,0.40 0.84,0.56 0.76,0.68 0.62,0.72 0.50,0.68 0.38,0.72 0.24,0.68 0.16,0.56 texfill polyhaven/rough_linen 0.35
+poly 0.14,0.40 0.20,0.30 0.36,0.28 0.50,0.32 0.64,0.28 0.80,0.30 0.86,0.40 0.84,0.56 0.76,0.68 0.62,0.72 0.50,0.68 0.38,0.72 0.24,0.68 0.16,0.56 stroke #000000 width 2
+
+# === Fabric folds / wrinkles ===
+bezier 0.22,0.42 0.28,0.48 0.32,0.56 0.28,0.64 stroke #0a0a0a 0.6 width 1
+bezier 0.78,0.42 0.72,0.48 0.68,0.56 0.72,0.64 stroke #0a0a0a 0.6 width 1
+line 0.40,0.34 0.42,0.40 stroke #0a0a0a 0.5 width 1
+line 0.60,0.34 0.58,0.40 stroke #0a0a0a 0.5 width 1
+bezier 0.30,0.68 0.40,0.66 0.60,0.66 0.70,0.68 stroke #0a0a0a 0.5 width 1
+
+# === Eye holes (two dark cutouts showing through to floor) ===
+ellipse 0.36,0.48 0.08,0.05 fill #000000 0.98
+ellipse 0.36,0.48 0.08,0.05 stroke #2a2a2a width 1
+ellipse 0.64,0.48 0.08,0.05 fill #000000 0.98
+ellipse 0.64,0.48 0.08,0.05 stroke #2a2a2a width 1
+
+# Eyehole inner shadow/stitching
+arc 0.36,0.48 0.08 10 170 stroke #000000 0.9 width 1
+arc 0.64,0.48 0.08 10 170 stroke #000000 0.9 width 1
+
+# === Mouth slit (narrow horizontal cut) ===
+line 0.42,0.60 0.58,0.60 stroke #000000 width 2
+
+# === Subtle fabric highlight (catches light) ===
+arc 0.50,0.48 0.30 200 240 stroke #333333 0.5 width 1
+
+# Tie cords trailing back (south ties)
+qbezier 0.18,0.52 0.10,0.64 0.06,0.78 stroke #1a1a1a width 2
+qbezier 0.82,0.52 0.90,0.64 0.94,0.78 stroke #1a1a1a width 2
+
+# Dark fabric grain texture spots
+circle 0.50,0.42 0.02 fill #000000 0.4
+circle 0.28,0.56 0.015 fill #000000 0.4
+circle 0.72,0.56 0.015 fill #000000 0.4

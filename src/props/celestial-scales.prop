@@ -1,0 +1,51 @@
+name: Celestial Scales
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: center
+room_types: celestial-vault, temple, courthouse, judgement-hall, divine-sanctum
+typical_count: single
+clusters_with: pillar-marble, banner-celestial, statue-solar
+notes: Golden scales of justice on a marble pedestal — divine judgement centerpiece
+---
+# Top-down: pedestal disc + crossbar + two pan discs at ends
+
+# === Marble pedestal base ===
+circle 0.50,0.50 0.32 texfill polyhaven/marble_01 0.8
+circle 0.50,0.50 0.32 stroke #aaaaaa
+
+# Pedestal bevel highlight
+circle 0.50,0.50 0.28 texfill polyhaven/granite_tile 0.7
+circle 0.50,0.50 0.28 stroke #999999
+
+# === Central pillar/post (top circle) ===
+circle 0.50,0.50 0.08 fill #daa520 0.85
+circle 0.50,0.50 0.08 stroke #8b6914
+
+# === Crossbar — gold beam spanning left to right ===
+rect 0.10,0.47 0.80,0.06 fill #daa520 0.8
+rect 0.10,0.47 0.80,0.06 stroke #8b6914
+# Crossbar highlight
+line 0.12,0.48 0.88,0.48 stroke #ffd700 0.4
+
+# === Left pan ===
+circle 0.18,0.50 0.10 fill #daa520 0.7
+circle 0.18,0.50 0.10 stroke #8b6914
+# Pan interior
+circle 0.18,0.50 0.07 fill #c49520 0.5
+
+# === Right pan ===
+circle 0.82,0.50 0.10 fill #daa520 0.7
+circle 0.82,0.50 0.10 stroke #8b6914
+# Pan interior
+circle 0.82,0.50 0.07 fill #c49520 0.5
+
+# === Chains from crossbar to pans ===
+line 0.18,0.47 0.18,0.40 stroke #daa520 width 1
+line 0.82,0.47 0.82,0.40 stroke #daa520 width 1
+
+# === Top fulcrum ornament ===
+circle 0.50,0.50 0.04 fill #ffd700 0.9
+circle 0.50,0.50 0.04 stroke #8b6914

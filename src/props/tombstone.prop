@@ -1,0 +1,43 @@
+name: Tombstone
+category: Misc
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: yes
+height: 4
+placement: floor
+room_types: graveyard, crypt, memorial, cemetery, churchyard, ossuary, mausoleum
+typical_count: many
+clusters_with: grave-marker, grave-mound, tombstone, grave-cross, candle, withered-flowers
+notes: Tall ornate gravestone with rounded crown and engraved face — a notch grander than grave-marker; arrange in rows for a formal graveyard.
+---
+# === HITBOX ===
+hitbox rect 0.18,0.30 0.64,0.28 z 0-4
+
+# Ground shadow where stone meets earth
+rect 0.16,0.56 0.68,0.08 fill #000000 0.20
+
+# Slab body — slightly wider than grave-marker, with a rounded crown arc
+arc 0.50,0.32 0.30 180 360 texfill polyhaven/granite_tile 0.85
+rect 0.18,0.30 0.64,0.28 texfill polyhaven/granite_tile 0.85
+rect 0.18,0.30 0.64,0.28 stroke #555555
+arc 0.50,0.32 0.30 180 360 stroke #555555
+
+# Top-edge highlight (catches light)
+arc 0.50,0.32 0.28 180 360 stroke #888888 0.55 width 1
+
+# Moulded border frame inside the slab
+rect 0.23,0.33 0.54,0.22 stroke #777777 0.6
+
+# Inscription block — three faint engraving lines
+line 0.30,0.40 0.70,0.40 stroke #3a3a3a 0.7
+line 0.30,0.45 0.70,0.45 stroke #3a3a3a 0.5
+line 0.34,0.50 0.66,0.50 stroke #3a3a3a 0.45
+
+# Central motif (engraved cross) above the text
+line 0.50,0.14 0.50,0.22 stroke #444444 0.8 width 2
+line 0.45,0.18 0.55,0.18 stroke #444444 0.8 width 2
+
+# Faint weathering cracks
+line 0.28,0.36 0.34,0.42 stroke #444444 0.25
+line 0.62,0.38 0.66,0.50 stroke #444444 0.25

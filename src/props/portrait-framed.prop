@@ -1,0 +1,46 @@
+name: Framed Portrait
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 3
+placement: wall
+room_types: mansion-grand-hall, mansion-ballroom, gallery, noble-villa, reception-hall, estate, study, bedroom
+typical_count: many
+clusters_with: painting-large, mirror-reflected, banner-heraldic, tapestry-large
+notes: Smaller framed portrait on a wall. Top-down shows a thin gilt frame rod with a sliver of painted canvas below.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+selection rect 0.14,0.04 0.72,0.18
+
+# Gilt frame top edge along north wall
+rect 0.14,0.04 0.72,0.10 fill #daa520 0.95
+rect 0.14,0.04 0.72,0.10 stroke #5a3a00 width 2
+
+# Gilt frame shine
+line 0.16,0.06 0.84,0.06 stroke #ffd700 0.85 width 1
+
+# Frame corner ornaments
+rect 0.14,0.04 0.08,0.10 fill #ffd700 0.95
+rect 0.14,0.04 0.08,0.10 stroke #5a3a00
+rect 0.78,0.04 0.08,0.10 fill #ffd700 0.95
+rect 0.78,0.04 0.08,0.10 stroke #5a3a00
+
+# Center decorative crest on frame
+ellipse 0.50,0.09 0.10,0.03 fill #8b6914 0.85
+ellipse 0.50,0.09 0.10,0.03 stroke #5a3a00
+
+# Thin painted canvas sliver below frame
+rect 0.18,0.14 0.64,0.06 fill #3a2a1a 0.88
+rect 0.18,0.14 0.64,0.06 stroke #1a0a00
+
+# Hint of skin tone / clothing from painted portrait (just visible from above)
+rect 0.30,0.15 0.16,0.03 fill #d4a574 0.5
+rect 0.50,0.15 0.14,0.03 fill #4a2060 0.5
+
+# Shadow line below frame
+rect 0.20,0.20 0.60,0.04 fill #000000 0.18
+rect 0.24,0.24 0.52,0.02 fill #000000 0.10

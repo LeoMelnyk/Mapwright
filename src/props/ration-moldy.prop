@@ -1,0 +1,50 @@
+name: Ration Moldy
+category: Ruins
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ruined-watchtower, ruin, abandoned-camp, dungeon, cave-bandit-camp
+typical_count: few
+clusters_with: waterskin, ration-wrapper, bone-pile, empty-bottle
+notes: Ancient fur-covered ration bundle — bread and cheese gone green with mold
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: moldy ration bundle on the ground
+
+# Wrapper (oilcloth, partially unwrapped)
+poly 0.18,0.25 0.78,0.20 0.85,0.75 0.22,0.80 fill #5c4a30 0.6
+poly 0.18,0.25 0.78,0.20 0.85,0.75 0.22,0.80 stroke #3a2818 0.5
+# Wrapper fold
+poly 0.18,0.25 0.35,0.30 0.30,0.55 0.15,0.50 fill #4a3a20 0.5
+poly 0.18,0.25 0.35,0.30 0.30,0.55 0.15,0.50 stroke #3a2818 0.4
+
+# Bread chunk (roughly round, grey-green with mold)
+ellipse 0.45,0.42 0.14,0.12 fill #7a7058 0.8
+ellipse 0.45,0.42 0.14,0.12 stroke #4a4030
+# Mold patches on bread (green-grey fuzzy spots)
+circle 0.40,0.38 0.04 fill #4a6a3a 0.55
+circle 0.50,0.45 0.05 fill #3a5a2a 0.5
+circle 0.42,0.48 0.03 fill #5a7a4a 0.45
+# White mold filaments
+circle 0.48,0.40 0.03 fill #aaaaaa 0.3
+
+# Cheese wedge (triangular, gone green)
+poly 0.58,0.55 0.78,0.50 0.72,0.70 fill #8a8a48 0.75
+poly 0.58,0.55 0.78,0.50 0.72,0.70 stroke #4a4a28
+# Mold on cheese
+circle 0.65,0.58 0.04 fill #3a6a2a 0.5
+circle 0.72,0.62 0.03 fill #4a7a3a 0.45
+# Rind darkened edge
+line 0.58,0.55 0.72,0.70 stroke #3a3a18 0.5 width 1
+
+# Dried meat strip (dark, curled)
+bezier 0.30,0.62 0.35,0.58 0.42,0.68 0.48,0.65 stroke #3a1f00 width 3
+bezier 0.30,0.62 0.35,0.58 0.42,0.68 0.48,0.65 stroke #2a1400 0.5 width 1
+
+# Crumbs scattered around
+circle 0.55,0.78 0.015 fill #7a7058 0.4
+circle 0.35,0.75 0.012 fill #7a7058 0.35
+circle 0.68,0.40 0.012 fill #7a7058 0.3
+circle 0.28,0.40 0.015 fill #7a7058 0.3

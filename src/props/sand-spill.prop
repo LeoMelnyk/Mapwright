@@ -1,0 +1,43 @@
+name: Sand Spill
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: glassworks, workshop
+typical_count: few
+clusters_with: sand-bin, color-rod-bundle, gaffer-bench
+notes: Scatter of spilled silica sand on the floor. Irregular pale tan blob with darker specks and tool-drag streaks. No hard outline.
+---
+# === Main spill blob (irregular, soft edges, no stroke) ===
+poly 0.18,0.58 0.28,0.42 0.44,0.34 0.58,0.38 0.72,0.50 0.78,0.64 0.66,0.76 0.50,0.80 0.32,0.74 0.22,0.66 fill #d4b884 0.45
+
+# === Inner denser patch (slightly heavier deposit) ===
+ellipse 0.48,0.56 0.18,0.13 fill #d4b884 0.35
+
+# === Secondary smaller blob ===
+poly 0.68,0.30 0.78,0.26 0.84,0.34 0.78,0.42 0.70,0.40 fill #d4b884 0.35
+
+# === Tiny outlier patches ===
+ellipse 0.22,0.30 0.06,0.04 fill #d4b884 0.3
+ellipse 0.82,0.70 0.05,0.04 fill #d4b884 0.3
+
+# === Darker specks scattered across the spill ===
+circle 0.28,0.52 0.012 fill #8a6a40 0.6
+circle 0.38,0.48 0.010 fill #8a6a40 0.55
+circle 0.46,0.60 0.012 fill #8a6a40 0.6
+circle 0.56,0.52 0.010 fill #8a6a40 0.55
+circle 0.62,0.66 0.012 fill #8a6a40 0.6
+circle 0.36,0.68 0.010 fill #8a6a40 0.55
+circle 0.52,0.72 0.010 fill #8a6a40 0.55
+circle 0.74,0.36 0.010 fill #8a6a40 0.5
+circle 0.26,0.44 0.010 fill #8a6a40 0.5
+
+# === Tool-drag streaks (thin tapered lines through the spill) ===
+line 0.24,0.62 0.56,0.48 stroke #a88a5a 0.4
+line 0.40,0.74 0.66,0.62 stroke #a88a5a 0.35
+
+# === Faint outer halo (fine dust edge) ===
+ellipse 0.50,0.58 0.34,0.26 fill #d4b884 0.15

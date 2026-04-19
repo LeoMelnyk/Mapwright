@@ -1,0 +1,42 @@
+name: Cave Cricket
+category: Creatures
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: cave-living, cave-goblin-warren, sewer-junction
+typical_count: few
+clusters_with: bat-guano, fungal-growth, web-strand
+notes: Small cave insect — scatters for a living-cave feel. Front faces south.
+---
+# Antennae (long thin curves extending forward/south)
+bezier 0.44,0.28 0.36,0.16 0.30,0.08 0.24,0.02 stroke #3a2810 0.85 width 1
+bezier 0.56,0.28 0.64,0.16 0.70,0.08 0.76,0.02 stroke #3a2810 0.85 width 1
+# Back legs — spiky lines radiating out from rear
+line 0.42,0.62 0.28,0.78 stroke #3a2810 0.9 width 2
+line 0.58,0.62 0.72,0.78 stroke #3a2810 0.9 width 2
+line 0.28,0.78 0.22,0.88 stroke #3a2810 0.85 width 1
+line 0.72,0.78 0.78,0.88 stroke #3a2810 0.85 width 1
+# Middle legs
+line 0.40,0.50 0.22,0.54 stroke #3a2810 0.85 width 2
+line 0.60,0.50 0.78,0.54 stroke #3a2810 0.85 width 2
+# Front legs
+line 0.42,0.38 0.30,0.32 stroke #3a2810 0.8 width 1
+line 0.58,0.38 0.70,0.32 stroke #3a2810 0.8 width 1
+# Main body — elongated oval
+ellipse 0.50,0.50 0.08,0.14 fill #6a5840 0.95
+ellipse 0.50,0.50 0.08,0.14 stroke #2a1808
+# Body segmentation lines
+line 0.43,0.42 0.57,0.42 stroke #3a2810 0.7 width 1
+line 0.43,0.50 0.57,0.50 stroke #3a2810 0.7 width 1
+line 0.44,0.58 0.56,0.58 stroke #3a2810 0.6 width 1
+# Body highlight (pale dorsal ridge)
+ellipse 0.50,0.48 0.025,0.10 fill #8a7858 0.6
+# Head (small bulge at front/north)
+ellipse 0.50,0.34 0.055,0.045 fill #5a4830 0.95
+ellipse 0.50,0.34 0.055,0.045 stroke #2a1808
+# Eyes (tiny dark specks on head)
+circle 0.46,0.32 0.012 fill #1a1008 0.9
+circle 0.54,0.32 0.012 fill #1a1008 0.9

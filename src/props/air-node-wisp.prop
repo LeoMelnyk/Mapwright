@@ -1,0 +1,32 @@
+name: Air Wisp
+category: Magical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-air-node, elemental-node, storm-spire, genie-court
+typical_count: many
+clusters_with: air-node-vortex, feather-drift, seed-float
+notes: Small floating vapor wisp — scatter around larger air features. Curled tendrils evoke animate air.
+---
+# Soft glow halo
+circle 0.5,0.5 0.38 gradient-radial #d0e0ff #0a0814 0.25
+
+# Main curled tendril (S-curve)
+bezier 0.2,0.7 0.35,0.3 0.6,0.4 0.75,0.3 stroke #d0e0ff width 3
+bezier 0.75,0.3 0.85,0.5 0.7,0.65 0.55,0.6 stroke #d0e0ff width 3
+
+# Secondary tendril
+bezier 0.25,0.55 0.4,0.55 0.45,0.7 0.35,0.8 stroke #e0e8ff width 2
+
+# Inner bright wisp
+bezier 0.35,0.55 0.45,0.4 0.6,0.45 0.65,0.4 stroke #ffffff width 2
+
+# Tiny core highlights
+circle 0.55,0.45 0.04 fill #ffffff 0.85
+circle 0.4,0.6 0.025 fill #ffffff 0.7
+
+# Stray sparkle
+circle 0.72,0.55 0.02 fill #e0e8ff 0.7
+circle 0.28,0.38 0.018 fill #e0e8ff 0.6

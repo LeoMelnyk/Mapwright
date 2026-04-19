@@ -1,0 +1,69 @@
+name: Nails Crate
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+placement: floor
+room_types: forge, smithy, workshop, construction
+typical_count: few
+clusters_with: coal-bin, horseshoe-pile, crate, anvil
+notes: Open wooden crate half-full of iron nails; place near forge output or workbench
+---
+# === HITBOX ===
+hitbox rect 0.12,0.12 0.76,0.76 z 0-2
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: open wooden crate, nails visible as dozens of small lines inside
+
+# === Crate body (wooden box, open top) ===
+rect 0.12,0.12 0.76,0.76 texfill polyhaven/weathered_planks 0.8
+rect 0.12,0.12 0.76,0.76 stroke #3a1f00
+
+# Inner wall rim (visible open-top edge)
+rect 0.16,0.16 0.68,0.68 stroke #4a2800
+
+# Corner reinforcements
+rect 0.12,0.12 0.06,0.06 fill #2a1400 0.6
+rect 0.82,0.12 0.06,0.06 fill #2a1400 0.6
+rect 0.12,0.82 0.06,0.06 fill #2a1400 0.6
+rect 0.82,0.82 0.06,0.06 fill #2a1400 0.6
+
+# === Interior shadow (depth of crate) ===
+rect 0.18,0.18 0.64,0.64 fill #1a1208 0.25
+
+# === Nails mass (dense scatter of small metallic lines, various angles) ===
+# Dense cluster of nail shafts (short lines at many angles)
+line 0.25,0.30 0.30,0.25 stroke #888888 width 1
+line 0.32,0.28 0.38,0.32 stroke #777777 width 1
+line 0.40,0.25 0.42,0.35 stroke #888888 width 1
+line 0.48,0.30 0.55,0.28 stroke #777777 width 1
+line 0.58,0.25 0.60,0.34 stroke #888888 width 1
+line 0.65,0.28 0.70,0.32 stroke #777777 width 1
+line 0.28,0.38 0.35,0.42 stroke #888888 width 1
+line 0.38,0.40 0.42,0.48 stroke #777777 width 1
+line 0.50,0.38 0.55,0.45 stroke #888888 width 1
+line 0.60,0.40 0.65,0.38 stroke #777777 width 1
+line 0.68,0.42 0.72,0.48 stroke #888888 width 1
+line 0.25,0.50 0.32,0.48 stroke #777777 width 1
+line 0.35,0.52 0.40,0.58 stroke #888888 width 1
+line 0.48,0.50 0.52,0.55 stroke #777777 width 1
+line 0.58,0.52 0.62,0.58 stroke #888888 width 1
+line 0.68,0.55 0.72,0.50 stroke #777777 width 1
+line 0.30,0.60 0.35,0.65 stroke #888888 width 1
+line 0.42,0.62 0.48,0.60 stroke #777777 width 1
+line 0.55,0.62 0.58,0.68 stroke #888888 width 1
+line 0.65,0.65 0.70,0.60 stroke #777777 width 1
+
+# Nail head dots (bright metallic caps)
+circle 0.30,0.25 0.015 fill #aabbcc 0.7
+circle 0.42,0.35 0.015 fill #aabbcc 0.65
+circle 0.55,0.28 0.015 fill #aabbcc 0.7
+circle 0.60,0.34 0.015 fill #aabbcc 0.6
+circle 0.35,0.42 0.015 fill #aabbcc 0.65
+circle 0.50,0.45 0.015 fill #aabbcc 0.7
+circle 0.65,0.38 0.015 fill #aabbcc 0.6
+circle 0.40,0.58 0.015 fill #aabbcc 0.65
+circle 0.58,0.55 0.015 fill #aabbcc 0.7
+circle 0.70,0.60 0.015 fill #aabbcc 0.6

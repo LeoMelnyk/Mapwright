@@ -1,0 +1,63 @@
+name: Rolled Blanket
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: house-small, campsite-traveler, barracks, hermit-cell, peasant-hovel, cabin-abandoned
+typical_count: few
+clusters_with: bedroll, sack, gear-pack, chest-small, bed-small
+notes: A rolled-up woolen blanket, tied with twine. Top-down shows a stubby cylinder with end spirals visible and a cord cinch across the middle.
+---
+# === HITBOX ===
+selection rect 0.16,0.30 0.68,0.44
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: cylindrical roll lying east-west, end caps showing the spiral wrap, twine cord across middle
+
+# === Shadow beneath the roll ===
+ellipse 0.50,0.58 0.36,0.10 fill #000000 0.22
+
+# === Main cylinder body (the blanket roll) ===
+rect 0.16,0.30 0.68,0.44 fill #8a7858 0.92
+rect 0.16,0.30 0.68,0.44 texfill polyhaven/rough_linen 0.55
+rect 0.16,0.30 0.68,0.44 stroke #4a3828
+
+# === End caps (west and east) — showing spiral wrap ===
+# West end
+ellipse 0.16,0.52 0.06,0.22 fill #6a5a3a 0.95
+ellipse 0.16,0.52 0.06,0.22 stroke #3a2810
+# Spiral rings on west end
+ellipse 0.16,0.52 0.045,0.17 stroke #4a3828 0.7 width 1
+ellipse 0.16,0.52 0.030,0.12 stroke #4a3828 0.6 width 1
+ellipse 0.16,0.52 0.015,0.06 stroke #4a3828 0.6 width 1
+
+# East end
+ellipse 0.84,0.52 0.06,0.22 fill #6a5a3a 0.95
+ellipse 0.84,0.52 0.06,0.22 stroke #3a2810
+# Spiral rings on east end
+ellipse 0.84,0.52 0.045,0.17 stroke #4a3828 0.7 width 1
+ellipse 0.84,0.52 0.030,0.12 stroke #4a3828 0.6 width 1
+ellipse 0.84,0.52 0.015,0.06 stroke #4a3828 0.6 width 1
+
+# === Fabric texture lines along length ===
+line 0.22,0.38 0.78,0.38 stroke #5a4830 0.5 width 1
+line 0.22,0.48 0.78,0.48 stroke #5a4830 0.5 width 1
+line 0.22,0.58 0.78,0.58 stroke #5a4830 0.5 width 1
+line 0.22,0.68 0.78,0.68 stroke #5a4830 0.5 width 1
+
+# === Twine cord wrap across the middle ===
+rect 0.46,0.28 0.08,0.48 fill #3a2810 0.9
+rect 0.46,0.28 0.08,0.48 stroke #1a0f00
+
+# Cord knot (small loop on top)
+circle 0.50,0.34 0.035 fill #3a2810 0.95
+circle 0.50,0.34 0.035 stroke #1a0f00
+# Knot tails
+bezier 0.48,0.36 0.44,0.42 0.42,0.48 0.40,0.52 stroke #3a2810 width 1
+bezier 0.52,0.36 0.56,0.42 0.58,0.48 0.60,0.52 stroke #3a2810 width 1
+
+# === Subtle highlight along top ===
+arc 0.50,0.52 0.34 200 340 stroke #a89878 0.4 width 1

@@ -1,0 +1,51 @@
+name: Spore Pool
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mushroom-cavern, mushroom-grove, cave-living, underdark-outpost
+typical_count: few
+clusters_with: mushroom-cluster, glowcap-cluster, luminous-spore, mycelium-web, shrieker
+notes: Pool of settled luminous spores pooled on the floor — slow violet glow
+lights: [{"preset":"astral","x":1,"y":1,"radius":6,"intensity":0.5,"color":"#aa66ff"}]
+---
+# Outer violet halo (soft glow wash)
+ellipse 1.0,1.0 0.92,0.82 fill #aa66ff 0.10
+ellipse 1.0,1.0 0.80,0.70 fill #aa66ff 0.14
+ellipse 1.0,1.0 0.66,0.56 fill #bb77ff 0.20
+
+# Irregular pool outline (organic blob shape)
+poly 0.28,0.85 0.42,0.55 0.70,0.38 1.00,0.30 1.35,0.36 1.65,0.52 1.78,0.82 1.72,1.15 1.60,1.45 1.30,1.65 0.95,1.72 0.60,1.62 0.35,1.38 0.22,1.10 fill #3a1a6a 0.75
+poly 0.28,0.85 0.42,0.55 0.70,0.38 1.00,0.30 1.35,0.36 1.65,0.52 1.78,0.82 1.72,1.15 1.60,1.45 1.30,1.65 0.95,1.72 0.60,1.62 0.35,1.38 0.22,1.10 stroke #1a0a3a width 1
+
+# Inner pool surface — deeper violet
+poly 0.42,0.95 0.55,0.68 0.78,0.52 1.00,0.46 1.25,0.52 1.48,0.68 1.58,0.95 1.52,1.22 1.38,1.45 1.15,1.58 0.88,1.58 0.62,1.48 0.45,1.28 0.38,1.08 fill #5a2aaa 0.80
+poly 0.42,0.95 0.55,0.68 0.78,0.52 1.00,0.46 1.25,0.52 1.48,0.68 1.58,0.95 1.52,1.22 1.38,1.45 1.15,1.58 0.88,1.58 0.62,1.48 0.45,1.28 0.38,1.08 stroke #2a1060 0.6 width 1
+
+# Brighter center core
+ellipse 1.00,1.00 0.36,0.28 fill #8844dd 0.75
+ellipse 1.00,1.00 0.24,0.18 fill #bb77ff 0.75
+ellipse 1.00,1.00 0.14,0.10 fill #e0c0ff 0.8
+
+# Settled spore motes on the surface
+circle 0.58,0.78 0.028 fill #e0c0ff 0.85
+circle 0.70,0.62 0.022 fill #e0c0ff 0.8
+circle 1.28,0.72 0.025 fill #e0c0ff 0.85
+circle 1.42,0.92 0.020 fill #e0c0ff 0.75
+circle 1.32,1.28 0.024 fill #e0c0ff 0.8
+circle 1.00,1.42 0.026 fill #e0c0ff 0.85
+circle 0.75,1.38 0.021 fill #e0c0ff 0.8
+circle 0.55,1.18 0.023 fill #e0c0ff 0.8
+circle 0.85,0.95 0.018 fill #ffffff 0.85
+circle 1.15,1.08 0.016 fill #ffffff 0.8
+
+# Ripples on the surface
+arc 1.00,1.00 0.44 40 140 stroke #bb88ff 0.45 width 1
+arc 1.00,1.00 0.54 220 320 stroke #bb88ff 0.4 width 1
+arc 1.00,1.00 0.64 160 200 stroke #aa77ff 0.3 width 1
+
+# Spore wisps drifting above surface
+bezier 0.70,0.50 0.60,0.38 0.55,0.28 0.62,0.18 stroke #bb88ff 0.35 width 1
+bezier 1.30,1.50 1.40,1.62 1.48,1.72 1.42,1.82 stroke #bb88ff 0.35 width 1

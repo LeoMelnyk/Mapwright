@@ -1,0 +1,54 @@
+name: Incense Burner
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: noble-bedchamber, opium-den, throne-room, shrine, temple-nave, dark-temple, ritual-chamber
+typical_count: few
+clusters_with: altar, prayer-bench, censer, low-table
+notes: Ornate brass incense burner emitting curling smoke
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":2,"color":"#ff8040","intensity":0.2}]
+---
+# === HITBOX ===
+selection circle 0.5,0.52 0.22
+
+# Drop shadow
+circle 0.5,0.56 0.24 fill #1a1008 0.35
+# Base (ornate brass tripod — three feet visible)
+poly 0.28,0.72 0.36,0.66 0.38,0.74 fill #5a3a00 0.85
+poly 0.28,0.72 0.36,0.66 0.38,0.74 stroke #2a1800
+poly 0.72,0.72 0.64,0.66 0.62,0.74 fill #5a3a00 0.85
+poly 0.72,0.72 0.64,0.66 0.62,0.74 stroke #2a1800
+poly 0.42,0.80 0.50,0.76 0.58,0.80 fill #5a3a00 0.85
+poly 0.42,0.80 0.50,0.76 0.58,0.80 stroke #2a1800
+# Bowl body (ornate brass urn)
+circle 0.50,0.56 0.22 fill #8b6914 0.9
+circle 0.50,0.56 0.22 stroke #5a3a00
+# Body engraving ring
+circle 0.50,0.56 0.20 stroke #daa520 0.6 width 1
+circle 0.50,0.56 0.17 stroke #5a3a00 0.5 width 1
+# Shoulder/neck
+ellipse 0.50,0.40 0.16,0.06 fill #8b6914 0.9
+ellipse 0.50,0.40 0.16,0.06 stroke #5a3a00
+# Domed lid with cut-out vents
+arc 0.50,0.38 0.14 180 360 fill #8b6914 0.9
+arc 0.50,0.38 0.14 180 360 stroke #5a3a00
+# Lid vent slits
+line 0.44,0.32 0.44,0.38 stroke #1a1008 width 1
+line 0.50,0.28 0.50,0.38 stroke #1a1008 width 1
+line 0.56,0.32 0.56,0.38 stroke #1a1008 width 1
+# Lid finial knob
+circle 0.50,0.26 0.03 fill #daa520 0.9
+circle 0.50,0.26 0.03 stroke #5a3a00
+# Glow inside (red embers visible through vents)
+circle 0.50,0.35 0.08 fill #c83018 0.4
+circle 0.50,0.35 0.04 fill #e85500 0.6
+# Smoke curling up (wispy beziers rising north)
+bezier 0.48,0.24 0.42,0.16 0.54,0.08 0.48,0.00 stroke #c8c8c8 0.5 width 2
+bezier 0.52,0.24 0.58,0.14 0.46,0.10 0.52,0.02 stroke #aaaaaa 0.4 width 2
+bezier 0.50,0.20 0.54,0.12 0.48,0.06 0.50,0.02 stroke #dddddd 0.35 width 1
+# Highlight
+arc 0.50,0.56 0.20 210 260 stroke #daa520 0.7 width 1

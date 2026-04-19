@@ -1,0 +1,67 @@
+name: Prayer Bench
+category: Religious
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.2
+placement: wall
+room_types: mansion-bedroom-master, noble-bedchamber, shrine, chapel, temple-nave
+typical_count: single
+clusters_with: altar, candle, prayer-book, incense-burner, pew
+notes: Padded kneeling bench for prayer — narrow, wall-adjacent furniture
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,0.68 z 0-1.2
+
+# Wooden base frame (kneeler supports)
+rect 0.10,0.56 1.80,0.22 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.56 1.80,0.22 stroke #2a1400
+# Wood grain
+line 0.10,0.64 1.90,0.64 stroke #5c3a1e 0.4
+line 0.10,0.72 1.90,0.72 stroke #5c3a1e 0.4
+# Upright back support (north — for elbows/book rest)
+rect 0.20,0.10 1.60,0.20 texfill polyhaven/dark_wood 0.9
+rect 0.20,0.10 1.60,0.20 stroke #2a1400
+# Back top edge (slightly padded)
+rect 0.22,0.10 1.56,0.06 fill #5c3a1e 0.85
+# Ornate back carving (decorative trim)
+line 0.20,0.30 1.80,0.30 stroke #3a1f00 0.8
+line 0.30,0.16 0.30,0.30 stroke #3a1f00 0.6
+line 0.60,0.16 0.60,0.30 stroke #3a1f00 0.6
+line 0.90,0.16 0.90,0.30 stroke #3a1f00 0.6
+line 1.10,0.16 1.10,0.30 stroke #3a1f00 0.6
+line 1.40,0.16 1.40,0.30 stroke #3a1f00 0.6
+line 1.70,0.16 1.70,0.30 stroke #3a1f00 0.6
+# Gilt cross centered on back
+line 1.00,0.14 1.00,0.24 stroke #daa520 width 2
+line 0.94,0.19 1.06,0.19 stroke #daa520 width 2
+# Kneeler cushion (padded top, dark velvet red)
+rect 0.16,0.32 1.68,0.22 fill #6a1818 0.92
+rect 0.16,0.32 1.68,0.22 texfill polyhaven/velour_velvet 0.5
+rect 0.16,0.32 1.68,0.22 stroke #2a0808
+# Cushion button tufting
+circle 0.40,0.40 0.02 fill #3a0808 0.9
+circle 0.40,0.40 0.02 stroke #daa520 0.5
+circle 0.70,0.40 0.02 fill #3a0808 0.9
+circle 0.70,0.40 0.02 stroke #daa520 0.5
+circle 1.00,0.40 0.02 fill #3a0808 0.9
+circle 1.00,0.40 0.02 stroke #daa520 0.5
+circle 1.30,0.40 0.02 fill #3a0808 0.9
+circle 1.30,0.40 0.02 stroke #daa520 0.5
+circle 1.60,0.40 0.02 fill #3a0808 0.9
+circle 1.60,0.40 0.02 stroke #daa520 0.5
+circle 0.40,0.48 0.02 fill #3a0808 0.9
+circle 0.70,0.48 0.02 fill #3a0808 0.9
+circle 1.00,0.48 0.02 fill #3a0808 0.9
+circle 1.30,0.48 0.02 fill #3a0808 0.9
+circle 1.60,0.48 0.02 fill #3a0808 0.9
+# Cushion piping (gold trim)
+line 0.16,0.32 1.84,0.32 stroke #daa520 0.5
+line 0.16,0.54 1.84,0.54 stroke #daa520 0.5
+# Legs visible at corners (south end)
+circle 0.18,0.74 0.04 fill #2a1400 0.85
+circle 1.82,0.74 0.04 fill #2a1400 0.85
+# Wear patches on cushion (where knees go)
+ellipse 0.60,0.44 0.12,0.04 fill #2a0404 0.3
+ellipse 1.40,0.44 0.12,0.04 fill #2a0404 0.3

@@ -1,0 +1,48 @@
+name: Pottery Shard
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: kiln-pottery, workshop, mill-workshop, ruins, dungeon-debris
+typical_count: many
+clusters_with: clay-dust, clay-lump, kiln-brick, kiln-large, broken-pot
+notes: Broken fired-terracotta pieces scattered on the floor. Small angular polygons with painted band details on some.
+---
+# === Faint dust patch behind shards (subtle ground discoloration) ===
+ellipse 0.50,0.52 0.34,0.24 fill #c8a888 0.15
+
+# === Shard 1 (large triangular, NW quadrant, plain) ===
+poly 0.18,0.22 0.34,0.18 0.38,0.34 0.22,0.36 fill #b8672e 0.92
+poly 0.18,0.22 0.34,0.18 0.38,0.34 0.22,0.36 stroke #6a3818
+
+# === Shard 2 (angular with painted band, NE quadrant) ===
+poly 0.58,0.18 0.76,0.22 0.80,0.36 0.64,0.38 0.56,0.28 fill #b8672e 0.92
+poly 0.58,0.18 0.76,0.22 0.80,0.36 0.64,0.38 0.56,0.28 stroke #6a3818
+# Painted band detail (dark brown stripe)
+line 0.60,0.24 0.78,0.28 stroke #3a1f08 0.85 width 2
+
+# === Shard 3 (small triangle, center) ===
+poly 0.42,0.42 0.54,0.44 0.48,0.54 fill #a85e28 0.9
+poly 0.42,0.42 0.54,0.44 0.48,0.54 stroke #5a2f14
+
+# === Shard 4 (elongated angular, SW) ===
+poly 0.16,0.58 0.32,0.54 0.38,0.66 0.28,0.76 0.18,0.72 fill #b8672e 0.92
+poly 0.16,0.58 0.32,0.54 0.38,0.66 0.28,0.76 0.18,0.72 stroke #6a3818
+# Painted band detail
+line 0.20,0.64 0.34,0.62 stroke #3a1f08 0.8 width 2
+
+# === Shard 5 (small angular, SE) ===
+poly 0.62,0.58 0.76,0.62 0.74,0.74 0.60,0.72 fill #a85e28 0.9
+poly 0.62,0.58 0.76,0.62 0.74,0.74 0.60,0.72 stroke #5a2f14
+
+# === Shard 6 (tiny chip near S edge) ===
+poly 0.44,0.78 0.52,0.76 0.54,0.84 0.46,0.86 fill #b8672e 0.88
+poly 0.44,0.78 0.52,0.76 0.54,0.84 0.46,0.86 stroke #6a3818
+
+# === Tiny crumbs / dust around shards ===
+circle 0.40,0.20 0.02 fill #8a4818 0.7
+circle 0.50,0.66 0.018 fill #8a4818 0.65
+circle 0.72,0.46 0.02 fill #8a4818 0.7

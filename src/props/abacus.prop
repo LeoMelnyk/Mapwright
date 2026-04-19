@@ -1,0 +1,95 @@
+name: Abacus
+category: Library & Study
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: counting-house, guildhall, merchant-home, scriptorium-mundane, mansion-study
+typical_count: few
+clusters_with: desk, ledger-stack, quill, inkwell, document-stack
+notes: Wooden-framed counting abacus with rows of sliding beads; place on desks or counting-house counters
+---
+# === HITBOX ===
+selection rect 0.10,0.22 1.80,0.56
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: rectangular wooden frame with horizontal wires and beads
+
+# Outer frame — dark wood border
+rect 0.10,0.22 1.80,0.56 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.22 1.80,0.56 stroke #1a0e00 width 2
+
+# Inner recessed bed (where wires/beads sit)
+rect 0.16,0.28 1.68,0.44 fill #2a1400 0.7
+rect 0.16,0.28 1.68,0.44 stroke #3a1f00
+
+# Horizontal wires (four rows)
+line 0.18,0.36 1.82,0.36 stroke #8b6914 0.85 width 1
+line 0.18,0.46 1.82,0.46 stroke #8b6914 0.85 width 1
+line 0.18,0.56 1.82,0.56 stroke #8b6914 0.85 width 1
+line 0.18,0.66 1.82,0.66 stroke #8b6914 0.85 width 1
+
+# Row 1 beads (dark wood, seven beads)
+circle 0.30,0.36 0.035 fill #5c3a1e 0.9
+circle 0.30,0.36 0.035 stroke #2a1400
+circle 0.42,0.36 0.035 fill #5c3a1e 0.9
+circle 0.42,0.36 0.035 stroke #2a1400
+circle 0.54,0.36 0.035 fill #5c3a1e 0.9
+circle 0.54,0.36 0.035 stroke #2a1400
+circle 1.30,0.36 0.035 fill #5c3a1e 0.9
+circle 1.30,0.36 0.035 stroke #2a1400
+circle 1.42,0.36 0.035 fill #5c3a1e 0.9
+circle 1.42,0.36 0.035 stroke #2a1400
+circle 1.54,0.36 0.035 fill #5c3a1e 0.9
+circle 1.54,0.36 0.035 stroke #2a1400
+circle 1.66,0.36 0.035 fill #5c3a1e 0.9
+circle 1.66,0.36 0.035 stroke #2a1400
+
+# Row 2 beads (lighter wood)
+circle 0.30,0.46 0.035 fill #8b6914 0.9
+circle 0.30,0.46 0.035 stroke #5a3a00
+circle 0.42,0.46 0.035 fill #8b6914 0.9
+circle 0.42,0.46 0.035 stroke #5a3a00
+circle 1.18,0.46 0.035 fill #8b6914 0.9
+circle 1.18,0.46 0.035 stroke #5a3a00
+circle 1.30,0.46 0.035 fill #8b6914 0.9
+circle 1.30,0.46 0.035 stroke #5a3a00
+circle 1.42,0.46 0.035 fill #8b6914 0.9
+circle 1.42,0.46 0.035 stroke #5a3a00
+circle 1.54,0.46 0.035 fill #8b6914 0.9
+circle 1.54,0.46 0.035 stroke #5a3a00
+
+# Row 3 beads (dark)
+circle 0.30,0.56 0.035 fill #5c3a1e 0.9
+circle 0.30,0.56 0.035 stroke #2a1400
+circle 0.42,0.56 0.035 fill #5c3a1e 0.9
+circle 0.42,0.56 0.035 stroke #2a1400
+circle 0.54,0.56 0.035 fill #5c3a1e 0.9
+circle 0.54,0.56 0.035 stroke #2a1400
+circle 0.66,0.56 0.035 fill #5c3a1e 0.9
+circle 0.66,0.56 0.035 stroke #2a1400
+circle 1.42,0.56 0.035 fill #5c3a1e 0.9
+circle 1.42,0.56 0.035 stroke #2a1400
+circle 1.54,0.56 0.035 fill #5c3a1e 0.9
+circle 1.54,0.56 0.035 stroke #2a1400
+
+# Row 4 beads (lighter)
+circle 0.30,0.66 0.035 fill #8b6914 0.9
+circle 0.30,0.66 0.035 stroke #5a3a00
+circle 0.42,0.66 0.035 fill #8b6914 0.9
+circle 0.42,0.66 0.035 stroke #5a3a00
+circle 0.54,0.66 0.035 fill #8b6914 0.9
+circle 0.54,0.66 0.035 stroke #5a3a00
+circle 1.30,0.66 0.035 fill #8b6914 0.9
+circle 1.30,0.66 0.035 stroke #5a3a00
+circle 1.42,0.66 0.035 fill #8b6914 0.9
+circle 1.42,0.66 0.035 stroke #5a3a00
+circle 1.54,0.66 0.035 fill #8b6914 0.9
+circle 1.54,0.66 0.035 stroke #5a3a00
+circle 1.66,0.66 0.035 fill #8b6914 0.9
+circle 1.66,0.66 0.035 stroke #5a3a00
+
+# Central divider bar (separating upper from lower reckoning)
+line 0.90,0.28 0.90,0.72 stroke #1a0e00 width 2

@@ -1,0 +1,70 @@
+name: Charcoal Kiln
+category: Structure
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: charcoal-burner-camp
+typical_count: few
+clusters_with: log-pile, chopping-block, wood-pile, charcoal-lump, axe-stuck
+notes: Earth-covered charcoal mound (domed soil kiln smoldering) — the centerpiece of a charcoal burner's camp
+lights: [{"preset":"ember","x":1,"y":1,"radius":4,"intensity":0.3,"color":"#e06000"}]
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: domed earth mound with concentric rings, smoking vent at center
+
+# hitbox for the solid dome
+hitbox circle 1.0,1.0 0.8
+
+# Scorched earth ring (ground around the kiln)
+circle 1.0,1.0 0.95 fill #1a1208 0.2
+
+# Outer soil/turf ring (the earth covering of the kiln)
+circle 1.0,1.0 0.82 texfill polyhaven/brown_mud 0.7
+circle 1.0,1.0 0.82 stroke #2a1a0a
+
+# Middle ring — darker cracked earth (heat-baked)
+circle 1.0,1.0 0.65 fill #3a2818 0.7
+circle 1.0,1.0 0.65 stroke #1a1208 0.5
+
+# Inner dark earth ring (hottest zone before the vent)
+circle 1.0,1.0 0.45 fill #1a1208 0.6
+circle 1.0,1.0 0.45 stroke #0a0604 0.5
+
+# Crack lines radiating from center (heat fissures)
+line 1.0,1.0 1.0,0.22 stroke #0a0604 0.5 width 1
+line 1.0,1.0 1.68,0.52 stroke #0a0604 0.45 width 1
+line 1.0,1.0 1.78,1.0 stroke #0a0604 0.4 width 1
+line 1.0,1.0 1.55,1.62 stroke #0a0604 0.4 width 1
+line 1.0,1.0 0.35,1.55 stroke #0a0604 0.45 width 1
+line 1.0,1.0 0.22,0.70 stroke #0a0604 0.45 width 1
+
+# Orange glow through cracks (heat seeping through)
+line 1.0,0.90 1.0,0.40 stroke #e85500 0.15 width 2
+line 1.05,0.95 1.50,0.60 stroke #e85500 0.12 width 2
+line 0.95,0.95 0.45,1.40 stroke #e85500 0.12 width 2
+
+# Central vent hole
+circle 1.0,1.0 0.15 fill #0a0604 0.85
+circle 1.0,1.0 0.15 stroke #1a0800
+
+# Vent glow (faint orange from within)
+circle 1.0,1.0 0.12 fill #e85500 0.35
+circle 1.0,1.0 0.08 fill #ff8800 0.3
+circle 1.0,1.0 0.04 fill #ffaa00 0.4
+
+# Smoke wisp indicators (small grey puffs drifting from vent)
+ellipse 1.08,0.85 0.06,0.04 fill #888888 0.2
+ellipse 0.92,0.78 0.05,0.03 fill #999999 0.15
+ellipse 1.0,0.70 0.04,0.03 fill #aaaaaa 0.12
+
+# Soot staining on outer ring (dark patches)
+ellipse 0.55,0.50 0.12,0.08 fill #1a0800 0.2
+ellipse 1.45,1.35 0.10,0.06 fill #1a0800 0.18
+ellipse 0.60,1.40 0.08,0.06 fill #1a0800 0.15
+
+# Turf patches surviving on outer ring
+ellipse 0.40,0.85 0.08,0.05 fill #3a5020 0.2
+ellipse 1.55,0.75 0.06,0.04 fill #3a5020 0.18

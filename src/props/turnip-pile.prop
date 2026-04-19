@@ -1,0 +1,84 @@
+name: Turnip Pile
+category: Food
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: peasant-hovel, farmhouse-kitchen, cellar, pantry, market-stall, shop-general
+typical_count: few
+clusters_with: apple-pile, sack, cart, display-basket, onion-braid
+notes: Heap of turnips — pale cream roots with purple tops, leafy greens sticking up. Rustic peasant food.
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.40,0.38
+
+# === Outer ring of turnips (lower tier) ===
+# Turnip NW
+circle 0.24,0.38 0.13 fill #f0e4d0 0.95
+circle 0.24,0.38 0.13 stroke #8a7040
+# Purple top cap
+arc 0.24,0.32 0.11 180 360 stroke #6a3878 0.85 width 4
+# Taproot wisp
+line 0.20,0.50 0.18,0.56 stroke #8a7040 width 1
+
+# Turnip NE
+circle 0.76,0.40 0.12 fill #eee2cc 0.95
+circle 0.76,0.40 0.12 stroke #8a7040
+arc 0.76,0.34 0.10 180 360 stroke #6a3878 0.85 width 4
+line 0.80,0.50 0.82,0.56 stroke #8a7040 width 1
+
+# Turnip SW
+circle 0.28,0.76 0.12 fill #f0e4d0 0.95
+circle 0.28,0.76 0.12 stroke #8a7040
+arc 0.28,0.70 0.10 180 360 stroke #6a3878 0.8 width 4
+line 0.24,0.86 0.22,0.92 stroke #8a7040 width 1
+
+# Turnip SE
+circle 0.74,0.78 0.12 fill #eee2cc 0.95
+circle 0.74,0.78 0.12 stroke #8a7040
+arc 0.74,0.72 0.10 180 360 stroke #6a3878 0.85 width 4
+line 0.78,0.88 0.80,0.92 stroke #8a7040 width 1
+
+# Turnip N (top of pile)
+circle 0.50,0.22 0.13 fill #f0e4d0 0.95
+circle 0.50,0.22 0.13 stroke #8a7040
+arc 0.50,0.16 0.11 180 360 stroke #6a3878 0.9 width 4
+
+# === Center top turnips (upper tier — piled up) ===
+circle 0.42,0.54 0.12 fill #eee2cc 0.95
+circle 0.42,0.54 0.12 stroke #8a7040
+arc 0.42,0.48 0.10 180 360 stroke #6a3878 0.85 width 4
+
+circle 0.62,0.58 0.11 fill #f0e4d0 0.95
+circle 0.62,0.58 0.11 stroke #8a7040
+arc 0.62,0.52 0.095 180 360 stroke #6a3878 0.85 width 4
+
+# === Leafy green tops sprouting up between turnips ===
+poly 0.22,0.22 0.18,0.12 0.26,0.18 fill #3a6020 0.88
+poly 0.22,0.22 0.18,0.12 0.26,0.18 stroke #1a3010
+poly 0.26,0.26 0.30,0.14 0.32,0.22 fill #4a7028 0.88
+poly 0.26,0.26 0.30,0.14 0.32,0.22 stroke #1a3010
+
+poly 0.74,0.26 0.80,0.14 0.76,0.22 fill #3a6020 0.88
+poly 0.74,0.26 0.80,0.14 0.76,0.22 stroke #1a3010
+poly 0.70,0.28 0.66,0.18 0.72,0.24 fill #4a7028 0.88
+poly 0.70,0.28 0.66,0.18 0.72,0.24 stroke #1a3010
+
+poly 0.44,0.40 0.40,0.30 0.48,0.36 fill #4a7028 0.88
+poly 0.44,0.40 0.40,0.30 0.48,0.36 stroke #1a3010
+poly 0.54,0.40 0.58,0.30 0.52,0.36 fill #3a6020 0.88
+poly 0.54,0.40 0.58,0.30 0.52,0.36 stroke #1a3010
+
+# === Highlights (glint on turnips) ===
+arc 0.24,0.38 0.10 210 260 stroke #ffffff 0.5 width 1
+arc 0.76,0.40 0.09 210 260 stroke #ffffff 0.5 width 1
+arc 0.42,0.54 0.09 210 260 stroke #ffffff 0.5 width 1
+arc 0.62,0.58 0.08 210 260 stroke #ffffff 0.45 width 1
+arc 0.50,0.22 0.10 210 260 stroke #ffffff 0.5 width 1
+
+# === Small root hair / dirt specks ===
+circle 0.32,0.48 0.012 fill #3a2810 0.6
+circle 0.66,0.66 0.01 fill #3a2810 0.55
+circle 0.50,0.82 0.012 fill #3a2810 0.6

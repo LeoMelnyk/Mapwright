@@ -1,0 +1,111 @@
+name: Chain with Shackle
+category: Prison
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: courthouse-chamber, prison-block, dungeon, torture-chamber, ship-brig
+typical_count: few
+clusters_with: shackles, chain-heavy, chain-coil, chain-wall, cage-large
+notes: Length of iron chain ending in an open manacle/shackle. Links run east-west, cuff at east end (high x).
+---
+# === HITBOX ===
+selection rect 0.10,0.42 1.80,0.20
+
+# === Chain links (alternating horizontal and vertical iron ovals, running east-west) ===
+# Link 1 (horizontal) — west anchor end
+ellipse 0.14,0.50 0.10,0.06 fill #444444 0.95
+ellipse 0.14,0.50 0.10,0.06 texfill polyhaven/rusty_metal 0.55
+ellipse 0.14,0.50 0.10,0.06 stroke #222222
+ellipse 0.14,0.50 0.06,0.03 fill #1a1008 0.9
+
+# Link 2 (vertical)
+ellipse 0.28,0.50 0.06,0.09 fill #555555 0.95
+ellipse 0.28,0.50 0.06,0.09 texfill polyhaven/rusty_metal 0.55
+ellipse 0.28,0.50 0.06,0.09 stroke #222222
+ellipse 0.28,0.50 0.03,0.06 fill #1a1008 0.9
+
+# Link 3
+ellipse 0.42,0.50 0.10,0.06 fill #444444 0.95
+ellipse 0.42,0.50 0.10,0.06 texfill polyhaven/rusty_metal 0.55
+ellipse 0.42,0.50 0.10,0.06 stroke #222222
+ellipse 0.42,0.50 0.06,0.03 fill #1a1008 0.9
+
+# Link 4 (vertical)
+ellipse 0.56,0.50 0.06,0.09 fill #555555 0.95
+ellipse 0.56,0.50 0.06,0.09 texfill polyhaven/rusty_metal 0.55
+ellipse 0.56,0.50 0.06,0.09 stroke #222222
+ellipse 0.56,0.50 0.03,0.06 fill #1a1008 0.9
+
+# Link 5
+ellipse 0.70,0.50 0.10,0.06 fill #444444 0.95
+ellipse 0.70,0.50 0.10,0.06 texfill polyhaven/rusty_metal 0.55
+ellipse 0.70,0.50 0.10,0.06 stroke #222222
+ellipse 0.70,0.50 0.06,0.03 fill #1a1008 0.9
+
+# Link 6 (vertical)
+ellipse 0.84,0.50 0.06,0.09 fill #555555 0.95
+ellipse 0.84,0.50 0.06,0.09 texfill polyhaven/rusty_metal 0.55
+ellipse 0.84,0.50 0.06,0.09 stroke #222222
+ellipse 0.84,0.50 0.03,0.06 fill #1a1008 0.9
+
+# Link 7
+ellipse 0.98,0.50 0.10,0.06 fill #444444 0.95
+ellipse 0.98,0.50 0.10,0.06 texfill polyhaven/rusty_metal 0.55
+ellipse 0.98,0.50 0.10,0.06 stroke #222222
+ellipse 0.98,0.50 0.06,0.03 fill #1a1008 0.9
+
+# Link 8 (vertical)
+ellipse 1.12,0.50 0.06,0.09 fill #555555 0.95
+ellipse 1.12,0.50 0.06,0.09 texfill polyhaven/rusty_metal 0.55
+ellipse 1.12,0.50 0.06,0.09 stroke #222222
+
+# Link 9
+ellipse 1.26,0.50 0.10,0.06 fill #444444 0.95
+ellipse 1.26,0.50 0.10,0.06 texfill polyhaven/rusty_metal 0.55
+ellipse 1.26,0.50 0.10,0.06 stroke #222222
+ellipse 1.26,0.50 0.06,0.03 fill #1a1008 0.9
+
+# Link 10 — attaches to shackle
+ellipse 1.40,0.50 0.06,0.09 fill #555555 0.95
+ellipse 1.40,0.50 0.06,0.09 texfill polyhaven/rusty_metal 0.55
+ellipse 1.40,0.50 0.06,0.09 stroke #222222
+
+# === Shackle/manacle (east end — open cuff, hinged) ===
+# Main cuff ring (C-shape, facing south to accept a wrist)
+arc 1.64,0.50 0.16 270 90 stroke #555555 width 6
+arc 1.64,0.50 0.16 270 90 stroke #222222 width 4
+# Inner cuff edge
+arc 1.64,0.50 0.12 270 90 stroke #333333 width 2
+# Rusted texture on cuff
+arc 1.64,0.50 0.14 280 80 stroke #6a3818 0.55 width 1
+# Hinge (where cuff opens — north side)
+circle 1.64,0.34 0.03 fill #222222 0.95
+circle 1.64,0.34 0.03 stroke #111111
+# Hinge pin dot
+circle 1.64,0.34 0.015 fill #888888 0.7
+# Lock plate (south side, open)
+rect 1.58,0.64 0.12,0.06 fill #555555 0.95
+rect 1.58,0.64 0.12,0.06 stroke #222222
+# Keyhole
+rect 1.62,0.66 0.04,0.03 fill #1a1008 0.95
+# Open hasp (swung aside — showing it's unlocked)
+line 1.70,0.64 1.82,0.56 stroke #444444 width 3
+line 1.70,0.64 1.82,0.56 stroke #222222 width 1
+
+# === Ring connecting chain to cuff ===
+circle 1.48,0.50 0.04 stroke #666666 width 2
+circle 1.48,0.50 0.04 stroke #222222 width 1
+
+# === Metal highlights on major links ===
+arc 0.14,0.50 0.08 210 260 stroke #aaaaaa 0.5 width 1
+arc 0.42,0.50 0.08 210 260 stroke #aaaaaa 0.5 width 1
+arc 0.70,0.50 0.08 210 260 stroke #aaaaaa 0.5 width 1
+arc 0.98,0.50 0.08 210 260 stroke #aaaaaa 0.5 width 1
+
+# === Rust spots scattered ===
+circle 0.34,0.46 0.012 fill #6a3818 0.7
+circle 0.76,0.54 0.012 fill #6a3818 0.7
+circle 1.20,0.46 0.012 fill #6a3818 0.7

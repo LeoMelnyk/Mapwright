@@ -1,0 +1,76 @@
+name: Ornamental Dagger
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: mansion-grand-hall, gallery, noble-villa, reception-hall, estate, study
+typical_count: single
+clusters_with: portrait-framed, statue-noble, tapestry-large
+notes: Jeweled dagger laid on a small velvet cushion atop a display stand. Place on walls or small plinths.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Wooden display stand base (rectangular plaque)
+rect 0.12,0.24 0.76,0.52 texfill polyhaven/dark_wood 0.92
+rect 0.12,0.24 0.76,0.52 stroke #1a1208 width 2
+
+# Brass corner caps on stand
+rect 0.12,0.24 0.08,0.08 fill #daa520 0.9
+rect 0.12,0.24 0.08,0.08 stroke #5a3a00
+rect 0.80,0.24 0.08,0.08 fill #daa520 0.9
+rect 0.80,0.24 0.08,0.08 stroke #5a3a00
+rect 0.12,0.68 0.08,0.08 fill #daa520 0.9
+rect 0.12,0.68 0.08,0.08 stroke #5a3a00
+rect 0.80,0.68 0.08,0.08 fill #daa520 0.9
+rect 0.80,0.68 0.08,0.08 stroke #5a3a00
+
+# Engraved name plate (small brass plaque center-south)
+rect 0.30,0.66 0.40,0.06 fill #8b6914 0.9
+rect 0.30,0.66 0.40,0.06 stroke #5a3a00
+
+# Velvet cushion (centered, slightly elevated)
+rect 0.22,0.32 0.56,0.32 texfill polyhaven/velour_velvet 0.9
+rect 0.22,0.32 0.56,0.32 fill #4a2060 0.55
+rect 0.22,0.32 0.56,0.32 stroke #1a0420 width 2
+
+# Cushion button tufts
+circle 0.34,0.42 0.025 fill #2a0830 0.9
+circle 0.66,0.42 0.025 fill #2a0830 0.9
+circle 0.34,0.54 0.025 fill #2a0830 0.9
+circle 0.66,0.54 0.025 fill #2a0830 0.9
+circle 0.50,0.48 0.025 fill #2a0830 0.9
+
+# Gold cushion piping
+rect 0.22,0.32 0.56,0.32 stroke #daa520 0.5
+
+# Dagger laid diagonally across cushion (hilt north-west, blade south-east)
+# Blade (silvery steel)
+poly 0.50,0.40 0.56,0.40 0.78,0.58 0.74,0.62 fill #c0c0c0 0.95
+poly 0.50,0.40 0.56,0.40 0.78,0.58 0.74,0.62 stroke #555555 width 2
+
+# Blade center ridge (highlight)
+line 0.52,0.42 0.76,0.60 stroke #ffffff 0.5 width 1
+
+# Crossguard (small gold hilt bar)
+poly 0.44,0.38 0.52,0.32 0.58,0.38 0.50,0.44 fill #daa520 0.95
+poly 0.44,0.38 0.52,0.32 0.58,0.38 0.50,0.44 stroke #5a3a00 width 2
+
+# Grip (wrapped leather/velvet)
+line 0.44,0.38 0.30,0.26 stroke #2a0830 width 5
+line 0.44,0.38 0.30,0.26 stroke #daa520 width 1
+
+# Pommel — ornate with ruby gem
+circle 0.28,0.24 0.06 fill #daa520 0.95
+circle 0.28,0.24 0.06 stroke #5a3a00 width 2
+# Ruby inset
+circle 0.28,0.24 0.03 fill #aa0020 0.95
+circle 0.28,0.24 0.03 stroke #600010
+
+# Sapphire gems on crossguard
+circle 0.48,0.36 0.02 fill #2040aa 0.95
+circle 0.54,0.40 0.02 fill #2040aa 0.95
+
+# Ruby gleam highlight
+circle 0.27,0.23 0.01 fill #ff6080 0.9

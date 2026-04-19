@@ -1,0 +1,48 @@
+name: Bucket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1
+placement: floor
+room_types: dock-warehouse, guard-post, prison-block, stable, brewery, well, farmhouse-common, servants-kitchen, shop-general
+typical_count: few
+clusters_with: well, mop, broom, washing-tub, shovel
+notes: Wooden bucket with iron bands and rope handle
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-1
+
+# Shadow
+ellipse 0.5,0.58 0.28,0.06 fill #1a1008 0.4
+# Outer rim (top-down view — concentric rings for staves)
+circle 0.5,0.5 0.32 texfill polyhaven/dark_wood 0.88
+circle 0.5,0.5 0.32 stroke #2a1400
+# Outer metal band
+circle 0.5,0.5 0.32 stroke #444444 width 2
+# Stave seams (radial from center)
+line 0.50,0.18 0.50,0.82 stroke #2a1400 0.5
+line 0.23,0.27 0.77,0.73 stroke #2a1400 0.5
+line 0.23,0.73 0.77,0.27 stroke #2a1400 0.5
+line 0.18,0.50 0.82,0.50 stroke #2a1400 0.4
+# Inner bucket rim/lip
+circle 0.5,0.5 0.26 stroke #1a1008 width 2
+# Inside of bucket (dark water or empty)
+circle 0.5,0.5 0.24 fill #2a3840 0.9
+circle 0.5,0.5 0.24 stroke #0a0808
+# Water surface sheen
+arc 0.5,0.5 0.22 210 260 stroke #5a6870 0.6 width 1
+arc 0.5,0.5 0.18 220 250 stroke #8a98a0 0.4 width 1
+# Rope handle arc (across top of bucket)
+arc 0.5,0.30 0.22 180 360 stroke #6b4e2e width 3
+arc 0.5,0.30 0.22 180 360 stroke #3a2010 width 1
+# Handle attachment points
+circle 0.28,0.50 0.025 fill #444444 0.9
+circle 0.72,0.50 0.025 fill #444444 0.9
+# Bands reinforcing bucket (second inner ring)
+circle 0.5,0.5 0.28 stroke #555555 0.8 width 1
+# Wood highlight
+arc 0.5,0.5 0.30 200 260 stroke #8b6914 0.5 width 1
+# Moss/wear stain on outer
+poly 0.22,0.58 0.28,0.56 0.30,0.62 0.24,0.64 fill #3a4820 0.5

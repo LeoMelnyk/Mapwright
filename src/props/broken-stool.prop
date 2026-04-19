@@ -1,0 +1,60 @@
+name: Broken Stool
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: tavern-common, inn-common-room, cave-bandit-camp, ruins, gambling-den
+typical_count: few
+clusters_with: tankard, broken-bottle, rubble, bloodstain
+notes: Splintered remains of a stool — shattered seat, broken leg fragments scattered on floor. Worn; no shadow.
+---
+# === HITBOX ===
+selection rect 0.12,0.20 0.68,0.60
+
+# Cracked seat disc — shattered into 3 fragments
+# Largest piece (west half of seat)
+poly 0.22,0.40 0.34,0.30 0.48,0.36 0.50,0.50 0.46,0.62 0.30,0.66 0.18,0.54 fill #5c3a1e 0.9
+poly 0.22,0.40 0.34,0.30 0.48,0.36 0.50,0.50 0.46,0.62 0.30,0.66 0.18,0.54 texfill polyhaven/weathered_planks 0.6
+poly 0.22,0.40 0.34,0.30 0.48,0.36 0.50,0.50 0.46,0.62 0.30,0.66 0.18,0.54 stroke #2a1400 width 1
+
+# Second fragment (south-east, partially separated)
+poly 0.54,0.48 0.66,0.42 0.72,0.54 0.62,0.68 0.50,0.62 fill #5c3a1e 0.9
+poly 0.54,0.48 0.66,0.42 0.72,0.54 0.62,0.68 0.50,0.62 texfill polyhaven/weathered_planks 0.6
+poly 0.54,0.48 0.66,0.42 0.72,0.54 0.62,0.68 0.50,0.62 stroke #2a1400 width 1
+
+# Small chip splintered off (NE)
+poly 0.56,0.28 0.64,0.24 0.68,0.30 0.60,0.34 fill #5c3a1e 0.9
+poly 0.56,0.28 0.64,0.24 0.68,0.30 0.60,0.34 stroke #2a1400 width 1
+
+# Broken leg piece 1 (snapped, lying beside)
+rect 0.10,0.74 0.20,0.05 fill #3a1f00 0.92 rotate 25
+rect 0.10,0.74 0.20,0.05 stroke #1a0a00 width 1 rotate 25
+# splinter tip
+poly 0.30,0.74 0.34,0.72 0.32,0.76 fill #5c3a1e 0.9
+
+# Broken leg piece 2 (longer shard, NE)
+rect 0.66,0.14 0.22,0.04 fill #3a1f00 0.9 rotate -18
+rect 0.66,0.14 0.22,0.04 stroke #1a0a00 width 1 rotate -18
+poly 0.86,0.10 0.90,0.14 0.86,0.18 0.82,0.14 fill #5c3a1e 0.9
+
+# Splinter debris scatter
+poly 0.74,0.74 0.80,0.72 0.78,0.78 fill #3a1f00 0.9
+line 0.74,0.74 0.80,0.72 stroke #1a0a00 0.7 width 1
+poly 0.14,0.18 0.18,0.16 0.16,0.22 fill #3a1f00 0.9
+line 0.14,0.18 0.18,0.22 stroke #1a0a00 0.7 width 1
+
+# Splinters scattered as small lines
+line 0.40,0.78 0.48,0.80 stroke #3a1f00 0.85 width 2
+line 0.52,0.14 0.58,0.12 stroke #3a1f00 0.85 width 2
+line 0.82,0.42 0.88,0.44 stroke #3a1f00 0.85 width 1
+
+# Nails pulled/exposed
+circle 0.28,0.50 0.012 fill #444444 0.85
+circle 0.62,0.58 0.012 fill #444444 0.85
+
+# Dark cracks on main seat fragment
+line 0.28,0.40 0.42,0.54 stroke #1a0a00 0.8 width 1
+line 0.34,0.58 0.42,0.52 stroke #1a0a00 0.7 width 1

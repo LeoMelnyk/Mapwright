@@ -1,0 +1,99 @@
+name: Game Booth
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: fairground-seasonal, festival-grounds, village-green, marketplace
+typical_count: few
+clusters_with: bunting-line, prize-ring, pie-stand, bonfire-large, lantern-paper
+notes: Striped red-and-white carnival booth with counter, prize shelf, and awning; place against wall with counter facing south (toward fairgoers)
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: booth with awning visible — back wall north, counter south
+
+# === HITBOX ===
+hitbox rect 0.15,0.10 1.70,1.30 z 0-2.5
+
+# === Awning roof (covers most of booth, red/white striped) ===
+# Main awning base
+rect 0.05,0.05 1.90,1.00 fill #f8f0e0 0.92
+rect 0.05,0.05 1.90,1.00 stroke #2a1400
+
+# Red stripes on awning
+rect 0.05,0.05 1.90,0.12 fill #c82020 0.95
+rect 0.05,0.29 1.90,0.12 fill #c82020 0.95
+rect 0.05,0.53 1.90,0.12 fill #c82020 0.95
+rect 0.05,0.77 1.90,0.12 fill #c82020 0.95
+
+# Awning stripe strokes
+line 0.05,0.17 1.95,0.17 stroke #5a1010 width 1
+line 0.05,0.41 1.95,0.41 stroke #5a1010 width 1
+line 0.05,0.65 1.95,0.65 stroke #5a1010 width 1
+line 0.05,0.89 1.95,0.89 stroke #5a1010 width 1
+
+# Awning scalloped south edge
+arc 0.18,1.05 0.08 0 180 fill #c82020 0.9
+arc 0.18,1.05 0.08 0 180 stroke #5a1010
+arc 0.40,1.05 0.08 0 180 fill #f8f0e0 0.9
+arc 0.40,1.05 0.08 0 180 stroke #2a1400
+arc 0.62,1.05 0.08 0 180 fill #c82020 0.9
+arc 0.62,1.05 0.08 0 180 stroke #5a1010
+arc 0.84,1.05 0.08 0 180 fill #f8f0e0 0.9
+arc 0.84,1.05 0.08 0 180 stroke #2a1400
+arc 1.06,1.05 0.08 0 180 fill #c82020 0.9
+arc 1.06,1.05 0.08 0 180 stroke #5a1010
+arc 1.28,1.05 0.08 0 180 fill #f8f0e0 0.9
+arc 1.28,1.05 0.08 0 180 stroke #2a1400
+arc 1.50,1.05 0.08 0 180 fill #c82020 0.9
+arc 1.50,1.05 0.08 0 180 stroke #5a1010
+arc 1.72,1.05 0.08 0 180 fill #f8f0e0 0.9
+arc 1.72,1.05 0.08 0 180 stroke #2a1400
+
+# === Counter (south edge, visible as wood beam in front of booth) ===
+rect 0.15,1.20 1.70,0.22 texfill polyhaven/dark_wood 0.9
+rect 0.15,1.20 1.70,0.22 stroke #2a1400
+
+# Prizes / stuffed animals on counter (peek visible)
+circle 0.35,1.30 0.06 fill #ffcc20 0.9
+circle 0.35,1.30 0.06 stroke #8b6914
+circle 0.70,1.30 0.055 fill #c82020 0.9
+circle 0.70,1.30 0.055 stroke #5a1010
+circle 1.00,1.30 0.06 fill #3080c0 0.9
+circle 1.00,1.30 0.06 stroke #1a4080
+circle 1.30,1.30 0.055 fill #40a040 0.9
+circle 1.30,1.30 0.055 stroke #1a4a1a
+circle 1.60,1.30 0.06 fill #ffcc20 0.9
+circle 1.60,1.30 0.06 stroke #8b6914
+
+# === Corner support posts (visible as circles where awning meets counter) ===
+circle 0.15,1.20 0.06 texfill polyhaven/dark_wood 0.9
+circle 0.15,1.20 0.06 stroke #2a1400
+circle 1.85,1.20 0.06 texfill polyhaven/dark_wood 0.9
+circle 1.85,1.20 0.06 stroke #2a1400
+
+# === Signage / banner on top of awning ===
+rect 0.40,0.00 1.20,0.12 fill #daa520 0.9
+rect 0.40,0.00 1.20,0.12 stroke #5a3a00
+# Sign text (stylized stripes suggesting lettering)
+line 0.50,0.06 0.56,0.06 stroke #1a1408 width 2
+line 0.60,0.04 0.66,0.08 stroke #1a1408 width 2
+line 0.70,0.06 0.76,0.06 stroke #1a1408 width 2
+line 0.80,0.04 0.86,0.08 stroke #1a1408 width 2
+line 0.90,0.06 0.98,0.06 stroke #1a1408 width 2
+line 1.02,0.04 1.08,0.08 stroke #1a1408 width 2
+line 1.12,0.06 1.18,0.06 stroke #1a1408 width 2
+line 1.22,0.04 1.30,0.08 stroke #1a1408 width 2
+line 1.36,0.06 1.44,0.06 stroke #1a1408 width 2
+line 1.48,0.04 1.54,0.08 stroke #1a1408 width 2
+
+# Small pennant flags on corners
+poly 0.05,0.05 0.18,0.00 0.05,0.00 fill #3080c0 0.95
+poly 0.05,0.05 0.18,0.00 0.05,0.00 stroke #1a4080
+poly 1.95,0.05 1.82,0.00 1.95,0.00 fill #3080c0 0.95
+poly 1.95,0.05 1.82,0.00 1.95,0.00 stroke #1a4080
+
+# Ball game / prize hoop on counter
+ring 1.45,1.34 0.04,0.025 fill #ffcc20 0.9

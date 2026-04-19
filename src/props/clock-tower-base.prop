@@ -1,0 +1,68 @@
+name: Clock Tower Base
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 6
+placement: center
+room_types: plaza-civic, city-square, market-square, temple-plaza
+typical_count: single
+clusters_with: fountain, statue-plinth, bench-stone, lantern-post
+notes: Square stone base of a civic clock tower — viewed from directly above, the tower shaft appears as a dark square/circle, entrance arch on south face. Do NOT draw the vertical tower silhouette.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,1.80 z 0-6
+
+# footprint 2x2: x 0-2, y 0-2. Top-down view of a tall tower's footprint.
+
+# Outer pedestal plinth (widest — ground course)
+rect 0.04,0.04 1.92,1.92 texfill polyhaven/granite_tile 0.85
+rect 0.04,0.04 1.92,1.92 stroke #3a3a3a
+
+# Step trim around pedestal
+rect 0.10,0.10 1.80,1.80 stroke #555555 width 1
+
+# Main tower wall cross-section (stone masonry, visible as thick ring)
+rect 0.18,0.18 1.64,1.64 texfill polyhaven/stone_wall 0.9
+rect 0.18,0.18 1.64,1.64 stroke #2a2a2a width 2
+
+# Stone block seams (visible from above on the wall thickness)
+line 0.18,0.50 1.82,0.50 stroke #3a3a3a 0.5
+line 0.18,1.50 1.82,1.50 stroke #3a3a3a 0.5
+line 0.50,0.18 0.50,1.82 stroke #3a3a3a 0.5
+line 1.50,0.18 1.50,1.82 stroke #3a3a3a 0.5
+
+# Interior shaft (hollow — dark, receding into tower interior)
+rect 0.42,0.42 1.16,1.16 fill #1a1208 0.85
+rect 0.42,0.42 1.16,1.16 stroke #0a0804
+
+# Interior tower ceiling hint — pale round inset (bell chamber above)
+circle 1.00,1.00 0.36 fill #3a3020 0.45
+circle 1.00,1.00 0.36 stroke #2a1f10 0.7
+
+# Spiral staircase hint (inside shaft, curving inward)
+arc 1.00,1.00 0.30 20 200 stroke #5c4028 0.7 width 2
+arc 1.00,1.00 0.22 60 240 stroke #6a4a30 0.55 width 1
+arc 1.00,1.00 0.14 100 280 stroke #5c4028 0.5 width 1
+
+# Entrance arch on south face (cut through the wall thickness)
+rect 0.80,1.58 0.40,0.24 fill #1a1208 0.95
+rect 0.80,1.58 0.40,0.24 stroke #2a1400
+# Arch keystone
+arc 1.00,1.58 0.20 180 360 fill #2a2a2a 0.9
+arc 1.00,1.58 0.20 180 360 stroke #1a1a1a
+
+# Threshold stone at base of door
+rect 0.82,1.80 0.36,0.08 fill #555555 0.8
+rect 0.82,1.80 0.36,0.08 stroke #2a2a2a
+
+# Corner quoin stones (visible from above as stronger masonry at corners)
+rect 0.18,0.18 0.14,0.14 texfill polyhaven/granite_tile 0.9
+rect 0.18,0.18 0.14,0.14 stroke #2a2a2a
+rect 1.68,0.18 0.14,0.14 texfill polyhaven/granite_tile 0.9
+rect 1.68,0.18 0.14,0.14 stroke #2a2a2a
+rect 0.18,1.68 0.14,0.14 texfill polyhaven/granite_tile 0.9
+rect 0.18,1.68 0.14,0.14 stroke #2a2a2a
+rect 1.68,1.68 0.14,0.14 texfill polyhaven/granite_tile 0.9
+rect 1.68,1.68 0.14,0.14 stroke #2a2a2a

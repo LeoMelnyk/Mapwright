@@ -1,0 +1,43 @@
+name: Brass Lamp
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":8,"color":"#ffcc60","intensity":0.7}]
+placement: floor
+room_types: house-merchant, merchant-home, study, parlor, burgher-house, bedroom
+typical_count: few
+clusters_with: desk, dining-table, chair
+notes: Brass oil lamp with glass globe and warm flame; sits on floor or low surface.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Warm pooled light halo
+circle 0.5,0.5 0.44 gradient-radial #ffcc60 #000000 0.35
+
+# Brass base plate
+circle 0.5,0.5 0.24 fill #8b6914 0.9
+circle 0.5,0.5 0.24 stroke #5a3a00
+# Base rim detail
+circle 0.5,0.5 0.21 stroke #daa520 0.7 width 1
+
+# Brass stem/fuel reservoir
+circle 0.5,0.5 0.16 fill #daa520 0.95
+circle 0.5,0.5 0.16 stroke #5a3a00
+# Reservoir seam highlight
+circle 0.5,0.5 0.13 stroke #ffd700 0.6 width 1
+
+# Glass globe (warm glowing)
+circle 0.5,0.5 0.11 fill #ffcc60 0.85
+circle 0.5,0.5 0.11 stroke #8b6914
+
+# Inner hot glow
+circle 0.5,0.5 0.07 fill #ffeeaa 0.9
+# Bright flame core
+circle 0.5,0.5 0.035 fill #ffffff 0.95
+
+# Tiny brass fill cap on side
+circle 0.72,0.5 0.025 fill #8b6914 0.9
+circle 0.72,0.5 0.025 stroke #5a3a00

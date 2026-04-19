@@ -1,0 +1,54 @@
+name: Classical Statue
+category: Features
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: corner
+room_types: mansion-ballroom, mansion-grand-hall, noble-estate, temple-nave
+typical_count: few
+clusters_with: statue, pillar, pedestal-stone, potted-palm
+notes: Pale marble figure on a round plinth. From above only the head, shoulders, and suggestion of drapery are visible. Place as a flanking pair or at the end of a sight line.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.36 z 0-0.8
+hitbox circle 0.5,0.55 0.20 z 0.8-2.0
+hitbox circle 0.5,0.42 0.10 z 2.0-2.5
+
+# === Plinth base (round marble) ===
+circle 0.5,0.55 0.36 texfill polyhaven/marble_01 0.75
+circle 0.5,0.55 0.36 stroke #666666 width 2
+# Plinth top ring (stepped)
+circle 0.5,0.55 0.30 texfill polyhaven/marble_01 0.85
+circle 0.5,0.55 0.30 stroke #777777
+# Plinth edge highlight
+arc 0.5,0.55 0.36 180 360 stroke #aaaaaa 0.5 width 1
+arc 0.5,0.55 0.36 0 180 stroke #444444 0.6 width 1
+
+# === Drapery (curving lines radiating from shoulders around figure) ===
+bezier 0.32,0.50 0.30,0.60 0.36,0.70 0.40,0.76 stroke #888888 width 2
+bezier 0.68,0.50 0.70,0.60 0.64,0.70 0.60,0.76 stroke #888888 width 2
+bezier 0.38,0.46 0.34,0.55 0.34,0.64 0.38,0.72 stroke #999999 0.7
+bezier 0.62,0.46 0.66,0.55 0.66,0.64 0.62,0.72 stroke #999999 0.7
+# Front drape fold
+line 0.50,0.58 0.46,0.74 stroke #888888 0.8
+line 0.50,0.58 0.54,0.74 stroke #888888 0.8
+
+# === Shoulders (wide oval marble mass) ===
+ellipse 0.50,0.52 0.20,0.14 texfill polyhaven/marble_01 0.9
+ellipse 0.50,0.52 0.20,0.14 stroke #666666 width 2
+# Shoulder highlight (top catches light)
+ellipse 0.50,0.48 0.16,0.06 fill #ffffff 0.12
+
+# === Head (circular, centered on shoulders, slightly north) ===
+circle 0.50,0.42 0.11 texfill polyhaven/marble_01 0.92
+circle 0.50,0.42 0.11 stroke #666666 width 2
+# Hair/crown suggestion (small arcs on top of head)
+arc 0.50,0.42 0.09 200 340 stroke #888888 0.7
+# Subtle face shadow
+ellipse 0.50,0.44 0.06,0.04 fill #000000 0.08
+# Crown highlight
+circle 0.50,0.38 0.04 fill #ffffff 0.15

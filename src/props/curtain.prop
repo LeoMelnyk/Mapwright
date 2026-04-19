@@ -1,0 +1,62 @@
+name: Curtain
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 3
+placement: wall
+room_types: house-merchant, throne-room, noble-solar, mansion-dining
+typical_count: few
+clusters_with: window, tapestry, banner, wall-sconce
+notes: Heavy window curtains — top-down shows rod + pleated fabric edge
+---
+# === HITBOX ===
+selection rect 0.06,0.04 0.88,0.22
+
+# Curtain rod (brass pole across top)
+rect 0.06,0.04 0.88,0.06 fill #daa520 0.9
+rect 0.06,0.04 0.88,0.06 stroke #5a3a00
+# Rod highlight
+line 0.06,0.05 0.94,0.05 stroke #ffd860 0.6 width 1
+# Rod finials (decorative end caps)
+circle 0.06,0.07 0.04 fill #daa520 0.95
+circle 0.06,0.07 0.04 stroke #5a3a00
+circle 0.94,0.07 0.04 fill #daa520 0.95
+circle 0.94,0.07 0.04 stroke #5a3a00
+# Finial centers
+circle 0.06,0.07 0.018 fill #8b6914 0.8
+circle 0.94,0.07 0.018 fill #8b6914 0.8
+# Curtain rings (metal rings the curtain hangs from)
+circle 0.14,0.10 0.02 fill #5a3a00 0.85
+circle 0.14,0.10 0.02 stroke #3a2000 width 1
+circle 0.26,0.10 0.02 fill #5a3a00 0.85
+circle 0.26,0.10 0.02 stroke #3a2000 width 1
+circle 0.38,0.10 0.02 fill #5a3a00 0.85
+circle 0.38,0.10 0.02 stroke #3a2000 width 1
+circle 0.50,0.10 0.02 fill #5a3a00 0.85
+circle 0.50,0.10 0.02 stroke #3a2000 width 1
+circle 0.62,0.10 0.02 fill #5a3a00 0.85
+circle 0.62,0.10 0.02 stroke #3a2000 width 1
+circle 0.74,0.10 0.02 fill #5a3a00 0.85
+circle 0.74,0.10 0.02 stroke #3a2000 width 1
+circle 0.86,0.10 0.02 fill #5a3a00 0.85
+circle 0.86,0.10 0.02 stroke #3a2000 width 1
+# Curtain fabric top edge (pleated, deep blue)
+poly 0.10,0.14 0.18,0.12 0.26,0.14 0.34,0.12 0.42,0.14 0.50,0.12 0.58,0.14 0.66,0.12 0.74,0.14 0.82,0.12 0.90,0.14 0.92,0.22 0.10,0.22 fill #1a2858 0.92
+poly 0.10,0.14 0.18,0.12 0.26,0.14 0.34,0.12 0.42,0.14 0.50,0.12 0.58,0.14 0.66,0.12 0.74,0.14 0.82,0.12 0.90,0.14 0.92,0.22 0.10,0.22 texfill polyhaven/velour_velvet 0.5
+poly 0.10,0.14 0.18,0.12 0.26,0.14 0.34,0.12 0.42,0.14 0.50,0.12 0.58,0.14 0.66,0.12 0.74,0.14 0.82,0.12 0.90,0.14 0.92,0.22 0.10,0.22 stroke #0a1030
+# Pleats (vertical fold lines)
+line 0.18,0.14 0.18,0.22 stroke #0a1030 0.8
+line 0.26,0.14 0.26,0.22 stroke #0a1030 0.8
+line 0.34,0.14 0.34,0.22 stroke #0a1030 0.8
+line 0.42,0.14 0.42,0.22 stroke #0a1030 0.8
+line 0.50,0.14 0.50,0.22 stroke #0a1030 0.8
+line 0.58,0.14 0.58,0.22 stroke #0a1030 0.8
+line 0.66,0.14 0.66,0.22 stroke #0a1030 0.8
+line 0.74,0.14 0.74,0.22 stroke #0a1030 0.8
+line 0.82,0.14 0.82,0.22 stroke #0a1030 0.8
+# Gold braiding trim along top edge
+line 0.10,0.18 0.92,0.18 stroke #daa520 0.6
+# Smaller shadow fade
+rect 0.14,0.28 0.72,0.03 fill #000000 0.15

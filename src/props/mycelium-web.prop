@@ -1,0 +1,66 @@
+name: Mycelium Web
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mushroom-grove, mushroom-cavern, cave-living, underdark-outpost, crypt
+typical_count: few
+clusters_with: mushroom, mushroom-cluster, glowcap-cluster, spore-pool, decaying-log
+notes: Spreading web of white fungal mycelium strands across the floor — decorative floor decal beneath mushroom growth
+---
+# Very soft ground tint (almost invisible white wash)
+ellipse 1.0,1.0 0.90,0.80 fill #f0e8d8 0.06
+
+# Central mycelium node (where strands converge)
+circle 1.0,1.0 0.10 fill #e8e0c8 0.55
+circle 1.0,1.0 0.10 stroke #c8c0a8 0.6 width 1
+circle 1.0,1.0 0.06 fill #f0e8d0 0.75
+
+# Secondary nodes scattered across web
+circle 0.55,0.42 0.05 fill #e8e0c8 0.5
+circle 1.48,0.55 0.055 fill #e8e0c8 0.5
+circle 0.42,1.50 0.05 fill #e8e0c8 0.5
+circle 1.55,1.48 0.06 fill #e8e0c8 0.5
+circle 0.32,0.95 0.04 fill #e8e0c8 0.45
+circle 1.65,1.05 0.04 fill #e8e0c8 0.45
+circle 0.95,0.30 0.04 fill #e8e0c8 0.45
+circle 1.05,1.68 0.04 fill #e8e0c8 0.45
+
+# Radial mycelium strands from center — thin bezier curves
+bezier 1.00,1.00 0.80,0.80 0.65,0.55 0.55,0.42 stroke #e8e0c8 0.7 width 1
+bezier 1.00,1.00 1.20,0.80 1.35,0.62 1.48,0.55 stroke #e8e0c8 0.7 width 1
+bezier 1.00,1.00 0.80,1.20 0.60,1.38 0.42,1.50 stroke #e8e0c8 0.7 width 1
+bezier 1.00,1.00 1.20,1.20 1.40,1.35 1.55,1.48 stroke #e8e0c8 0.7 width 1
+bezier 1.00,1.00 0.70,1.00 0.50,0.98 0.32,0.95 stroke #e8e0c8 0.65 width 1
+bezier 1.00,1.00 1.30,1.02 1.48,1.04 1.65,1.05 stroke #e8e0c8 0.65 width 1
+bezier 1.00,1.00 0.98,0.70 0.97,0.50 0.95,0.30 stroke #e8e0c8 0.65 width 1
+bezier 1.00,1.00 1.02,1.30 1.04,1.50 1.05,1.68 stroke #e8e0c8 0.65 width 1
+
+# Secondary branches between nodes (fine web structure)
+bezier 0.55,0.42 0.70,0.38 0.82,0.32 0.95,0.30 stroke #d8d0b8 0.5 width 1
+bezier 0.95,0.30 1.15,0.32 1.35,0.42 1.48,0.55 stroke #d8d0b8 0.5 width 1
+bezier 1.48,0.55 1.58,0.75 1.62,0.92 1.65,1.05 stroke #d8d0b8 0.5 width 1
+bezier 1.65,1.05 1.62,1.25 1.60,1.38 1.55,1.48 stroke #d8d0b8 0.5 width 1
+bezier 1.55,1.48 1.30,1.58 1.18,1.64 1.05,1.68 stroke #d8d0b8 0.5 width 1
+bezier 1.05,1.68 0.82,1.64 0.55,1.60 0.42,1.50 stroke #d8d0b8 0.5 width 1
+bezier 0.42,1.50 0.36,1.28 0.33,1.12 0.32,0.95 stroke #d8d0b8 0.5 width 1
+bezier 0.32,0.95 0.36,0.78 0.44,0.58 0.55,0.42 stroke #d8d0b8 0.5 width 1
+
+# Fine hyphae tendrils reaching out to edges
+bezier 0.55,0.42 0.40,0.28 0.28,0.18 0.14,0.08 stroke #c8c0a8 0.4 width 1
+bezier 1.48,0.55 1.64,0.40 1.78,0.28 1.90,0.16 stroke #c8c0a8 0.4 width 1
+bezier 0.42,1.50 0.28,1.64 0.18,1.78 0.08,1.90 stroke #c8c0a8 0.4 width 1
+bezier 1.55,1.48 1.70,1.62 1.80,1.74 1.92,1.88 stroke #c8c0a8 0.4 width 1
+bezier 0.32,0.95 0.18,0.92 0.10,0.88 0.04,0.82 stroke #c8c0a8 0.35 width 1
+bezier 1.65,1.05 1.80,1.08 1.88,1.12 1.96,1.18 stroke #c8c0a8 0.35 width 1
+bezier 0.95,0.30 0.92,0.18 0.90,0.10 0.88,0.04 stroke #c8c0a8 0.35 width 1
+bezier 1.05,1.68 1.08,1.80 1.10,1.88 1.12,1.96 stroke #c8c0a8 0.35 width 1
+
+# Tiny fruiting bodies (pinhead mushrooms) at node tips
+circle 0.55,0.42 0.018 fill #ffffff 0.75
+circle 1.48,0.55 0.018 fill #ffffff 0.75
+circle 0.42,1.50 0.018 fill #ffffff 0.75
+circle 1.55,1.48 0.018 fill #ffffff 0.75
+circle 1.00,1.00 0.022 fill #ffffff 0.8

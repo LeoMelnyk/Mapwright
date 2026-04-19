@@ -1,0 +1,74 @@
+name: Chalk Circle (Floor)
+category: Magical
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: center
+room_types: cabin-witch, ritual-chamber, wizard-sanctum, cultist-shrine, bog-witch-hut
+typical_count: single
+clusters_with: candle-cluster, ritual-candle, chalk-marks, skull-small, poppet
+notes: Simple chalk circle scrawled on the floor with rune marks around its perimeter — a hedge-witch or amateur summoning ring. Flat floor decoration.
+---
+# Flat floor chalk — no shadow, no blocking
+
+# Faint chalk smudge halo
+circle 1.0,1.0 0.92 fill #d8d0b8 0.06
+
+# === Main chalk circle (outer — rough hand-drawn with double stroke) ===
+circle 1.0,1.0 0.88 stroke #e8dcc8 width 3
+circle 1.0,1.0 0.88 stroke #ffffff 0.6 width 1
+# Wobbles / imperfections (rough chalk feel)
+arc 1.0,1.0 0.86 10 40 stroke #e8dcc8 0.75 width 2
+arc 1.0,1.0 0.89 120 150 stroke #e8dcc8 0.7 width 2
+arc 1.0,1.0 0.87 220 260 stroke #e8dcc8 0.7 width 2
+
+# === Inner circle ===
+circle 1.0,1.0 0.66 stroke #e8dcc8 width 2
+circle 1.0,1.0 0.66 stroke #ffffff 0.5 width 1
+
+# === Rune marks around the perimeter (between outer and inner circles) ===
+# North — triangle
+poly 0.96,0.20 1.04,0.20 1.00,0.28 stroke #e8dcc8 width 2
+# NE — cross
+line 1.48,0.36 1.58,0.46 stroke #e8dcc8 width 2
+line 1.58,0.36 1.48,0.46 stroke #e8dcc8 width 2
+# East — circle
+circle 1.76,1.00 0.05 stroke #e8dcc8 width 2
+# SE — star/asterisk
+line 1.54,1.54 1.64,1.64 stroke #e8dcc8 width 2
+line 1.64,1.54 1.54,1.64 stroke #e8dcc8 width 2
+line 1.59,1.52 1.59,1.66 stroke #e8dcc8 width 2
+# South — wavy line
+bezier 0.92,1.75 0.98,1.72 1.02,1.78 1.08,1.75 stroke #e8dcc8 width 2
+# SW — backward-E (rune)
+line 0.36,1.46 0.36,1.62 stroke #e8dcc8 width 2
+line 0.36,1.46 0.46,1.46 stroke #e8dcc8 width 2
+line 0.36,1.54 0.44,1.54 stroke #e8dcc8 width 2
+line 0.36,1.62 0.46,1.62 stroke #e8dcc8 width 2
+# West — spiral (simplified)
+circle 0.24,1.00 0.06 stroke #e8dcc8 width 2
+line 0.18,1.00 0.30,1.00 stroke #e8dcc8 width 2
+# NW — Y shape
+line 0.40,0.36 0.40,0.52 stroke #e8dcc8 width 2
+line 0.40,0.36 0.30,0.28 stroke #e8dcc8 width 2
+line 0.40,0.36 0.50,0.28 stroke #e8dcc8 width 2
+
+# === Inside the inner circle — simple five-pointed star ===
+poly 1.00,0.50 1.19,1.10 0.68,0.74 1.32,0.74 0.81,1.10 stroke #e8dcc8 width 2
+poly 1.00,0.50 1.19,1.10 0.68,0.74 1.32,0.74 0.81,1.10 stroke #ffffff 0.5 width 1
+
+# === Chalk dust flecks scattered around ===
+circle 0.20,0.30 0.018 fill #ffffff 0.8
+circle 1.80,0.32 0.016 fill #ffffff 0.75
+circle 0.24,1.78 0.015 fill #ffffff 0.75
+circle 1.78,1.72 0.014 fill #ffffff 0.7
+circle 0.40,0.80 0.012 fill #ffffff 0.7
+circle 1.62,1.20 0.012 fill #ffffff 0.7
+circle 1.00,0.14 0.014 fill #ffffff 0.7
+circle 0.14,1.10 0.012 fill #ffffff 0.65
+
+# Smudge / partially erased patch (incomplete ritual feel)
+ellipse 1.30,1.24 0.12,0.06 fill #d8d0b8 0.25
+ellipse 0.68,0.54 0.10,0.05 fill #d8d0b8 0.2

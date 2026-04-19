@@ -1,0 +1,66 @@
+name: Cargo Hatch
+category: Nautical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: center
+room_types: ship-main-deck, ship-deck, galleon, ship-cargo-hold
+typical_count: single
+clusters_with: mast-main, mast-fore, cannon, longboat-cradle
+notes: Square wooden hatch cover set flush in the deck over the cargo hold; iron ring pull and strap bands. Ship's main cargo access.
+---
+# Footprint 2x2: x 0-2, y 0-2. No facing — symmetric.
+
+# === Coaming recess shadow (hatch sits in a raised frame) ===
+rect 0.08,0.08 1.84,1.84 fill #1a0f00 0.35
+
+# === Coaming frame (raised lip around the hatch) ===
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/dark_wood 0.88
+rect 0.08,0.08 1.84,1.84 stroke #1a0f00
+
+# Inner recess shadow where cover drops in
+rect 0.18,0.18 1.64,1.64 fill #1a0800 0.55
+
+# === Hatch cover (weathered planks laid across) ===
+rect 0.20,0.20 1.60,1.60 texfill polyhaven/weathered_planks 0.9
+rect 0.20,0.20 1.60,1.60 stroke #2a1400
+
+# Plank seam lines across the cover (horizontal planks)
+line 0.20,0.52 1.80,0.52 stroke #2a1400 0.7
+line 0.20,0.84 1.80,0.84 stroke #2a1400 0.7
+line 0.20,1.16 1.80,1.16 stroke #2a1400 0.7
+line 0.20,1.48 1.80,1.48 stroke #2a1400 0.7
+
+# Plank end-grain highlights
+line 0.20,0.52 1.80,0.52 stroke #5c3a1e 0.3 width 1
+line 0.20,1.16 1.80,1.16 stroke #5c3a1e 0.3 width 1
+
+# === Iron strap bands (cross bracing) ===
+# North-south strap
+rect 0.92,0.22 0.16,1.56 fill #333333 0.85
+rect 0.92,0.22 0.16,1.56 stroke #1a1008
+# East-west strap
+rect 0.22,0.92 1.56,0.16 fill #333333 0.85
+rect 0.22,0.92 1.56,0.16 stroke #1a1008
+
+# Iron rivets at strap intersections and ends
+circle 1.00,0.30 0.028 fill #222222 0.95
+circle 1.00,1.70 0.028 fill #222222 0.95
+circle 0.30,1.00 0.028 fill #222222 0.95
+circle 1.70,1.00 0.028 fill #222222 0.95
+
+# === Central iron ring pull ===
+# Ring mounting plate
+rect 0.82,0.82 0.36,0.36 fill #2a1a10 0.85
+rect 0.82,0.82 0.36,0.36 stroke #1a1008
+# Heavy iron ring (for hauling the cover open)
+ring 1.00,1.00 0.22 0.13 texfill polyhaven/metal_plate 0.75
+ring 1.00,1.00 0.22 0.13 stroke #222222 width 2
+# Ring highlight
+arc 1.00,1.00 0.185 210 310 stroke #888888 0.7 width 1
+
+# Iron staple that the ring hangs from
+rect 0.96,0.78 0.08,0.10 fill #444444 0.9
+rect 0.96,0.78 0.08,0.10 stroke #1a1008

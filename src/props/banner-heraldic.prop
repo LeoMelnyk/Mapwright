@@ -1,0 +1,57 @@
+name: Heraldic Banner
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 5
+placement: wall
+room_types: mansion-grand-hall, throne-room, great-hall, noble-villa, reception-hall, estate
+typical_count: few
+clusters_with: tapestry-large, painting-large, portrait-framed, statue-noble
+notes: Wall-hung family heraldic banner. Top-down shows the brass mounting rod, finials, and a thin velvet top strip with a faint crest. The full drape hangs out of view below.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+
+# === HITBOX ===
+selection rect 0.10,0.04 1.80,0.16
+
+# Brass mounting rod (widest element across top)
+rect 0.08,0.04 1.84,0.06 fill #daa520 0.92
+rect 0.08,0.04 1.84,0.06 stroke #5a3a00
+
+# Rod shine
+line 0.10,0.05 1.90,0.05 stroke #ffd700 0.7 width 1
+
+# Ornate finial caps (east and west ends of rod)
+circle 0.08,0.07 0.05 fill #daa520 0.95
+circle 0.08,0.07 0.05 stroke #5a3a00
+circle 1.92,0.07 0.05 fill #daa520 0.95
+circle 1.92,0.07 0.05 stroke #5a3a00
+# Finial inner knob
+circle 0.08,0.07 0.02 fill #8b6914 0.8
+circle 1.92,0.07 0.02 fill #8b6914 0.8
+
+# Velvet banner top edge (thin fabric strip south of rod)
+rect 0.14,0.10 1.72,0.10 texfill polyhaven/velour_velvet 0.85
+rect 0.14,0.10 1.72,0.10 fill #4a2060 0.45
+rect 0.14,0.10 1.72,0.10 stroke #2a0830 width 1
+
+# Gold edge piping on velvet strip
+line 0.14,0.12 1.86,0.12 stroke #daa520 0.75 width 1
+line 0.14,0.18 1.86,0.18 stroke #daa520 0.55 width 1
+
+# Faint heraldic crest suggestion (top of crest visible)
+ellipse 1.00,0.16 0.10,0.03 fill #daa520 0.7
+ellipse 1.00,0.16 0.10,0.03 stroke #8b6914
+# Flanking motif hints
+circle 0.50,0.16 0.025 fill #daa520 0.6
+circle 1.50,0.16 0.025 fill #daa520 0.6
+
+# Small cord tassel anchors hanging from rod
+line 0.40,0.10 0.40,0.22 stroke #daa520 0.8 width 1
+line 1.60,0.10 1.60,0.22 stroke #daa520 0.8 width 1
+
+# Drop-shadow strip south of banner (fabric thickness shadow)
+rect 0.14,0.20 1.72,0.04 fill #000000 0.22
+rect 0.18,0.24 1.64,0.02 fill #000000 0.10

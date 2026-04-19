@@ -1,0 +1,31 @@
+name: Sewage Channel Turn
+category: Terrain
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: sewer-junction, sewer, undercity
+typical_count: many
+clusters_with: sewage-channel, sewage-channel-t, sewage-channel-x, grate-floor
+notes: 90° corner for the sewage channel network — at facing 0 the channel enters from the west edge and exits south. Channel width 0.60 matches the straight piece so sections tile cleanly.
+---
+# Outer stone lip — thin curved band at r=0.80→0.92 around the SW corner
+poly 0.000,0.080 0.352,0.155 0.651,0.349 0.850,0.648 0.920,1.000 0.800,1.000 0.739,0.694 0.566,0.434 0.306,0.261 0.000,0.200 texfill polyhaven/stone_floor 0.85
+poly 0.000,0.080 0.352,0.155 0.651,0.349 0.850,0.648 0.920,1.000 0.800,1.000 0.739,0.694 0.566,0.434 0.306,0.261 0.000,0.200 stroke #2a2820
+# Inner stone lip — thin curved band at r=0.08→0.20 around the SW corner
+poly 0.000,0.800 0.141,0.859 0.200,1.000 0.080,1.000 0.057,0.943 0.000,0.920 texfill polyhaven/stone_floor 0.85
+poly 0.000,0.800 0.141,0.859 0.200,1.000 0.080,1.000 0.057,0.943 0.000,0.920 stroke #2a2820
+# Channel fluid — quarter-ring band curving W→S
+poly 0.000,0.200 0.306,0.261 0.566,0.434 0.739,0.694 0.800,1.000 0.200,1.000 0.141,0.859 0.000,0.800 fill #3a2a18 0.95
+poly 0.000,0.200 0.306,0.261 0.566,0.434 0.739,0.694 0.800,1.000 0.200,1.000 0.141,0.859 0.000,0.800 stroke #1a1208 width 1
+# Flow streaks curving through the bend
+bezier 0.00,0.35 0.20,0.45 0.40,0.70 0.45,1.00 stroke #5a4028 0.5 width 2
+bezier 0.00,0.65 0.10,0.75 0.22,0.88 0.25,1.00 stroke #4a3020 0.45 width 2
+# Scum patches
+ellipse 0.14,0.44 0.06,0.04 fill #4a6040 0.5
+ellipse 0.36,0.72 0.06,0.04 fill #4a6040 0.5
+ellipse 0.60,0.92 0.08,0.04 fill #4a6040 0.5
+# Bubbles
+circle 0.24,0.58 0.02 fill #8aa070 0.7
+circle 0.48,0.88 0.02 fill #8aa070 0.7

@@ -1,0 +1,44 @@
+name: Soot Patch
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: foundry-great, smithy-large, forge, hearth, chimney
+typical_count: many
+clusters_with: scorch-mark, ash-pile, forge, anvil, slag-heap
+notes: Black sooty stain on the floor — lighter than scorch-mark
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.38
+
+# Outer faint dusting
+circle 0.5,0.5 0.40 fill #1a1408 0.2
+circle 0.5,0.5 0.32 fill #1a1408 0.35
+# Main soot patch (irregular)
+poly 0.18,0.50 0.24,0.32 0.38,0.24 0.54,0.22 0.68,0.28 0.78,0.40 0.84,0.56 0.80,0.68 0.70,0.78 0.54,0.82 0.36,0.80 0.22,0.72 0.14,0.58 fill #1a1410 0.8
+poly 0.18,0.50 0.24,0.32 0.38,0.24 0.54,0.22 0.68,0.28 0.78,0.40 0.84,0.56 0.80,0.68 0.70,0.78 0.54,0.82 0.36,0.80 0.22,0.72 0.14,0.58 stroke #0a0808 0.6
+# Darker center
+poly 0.34,0.50 0.42,0.36 0.54,0.34 0.64,0.40 0.68,0.54 0.60,0.68 0.46,0.70 0.34,0.62 fill #0a0604 0.85
+# Smudge streaks (radial)
+bezier 0.50,0.50 0.40,0.70 0.30,0.80 0.24,0.86 stroke #1a1008 0.6 width 3
+bezier 0.50,0.50 0.62,0.74 0.70,0.82 0.76,0.88 stroke #1a1008 0.55 width 3
+bezier 0.50,0.50 0.36,0.30 0.28,0.22 0.22,0.16 stroke #1a1008 0.6 width 2
+bezier 0.50,0.50 0.68,0.30 0.76,0.20 0.82,0.12 stroke #1a1008 0.55 width 2
+# Fine soot specks scattered
+circle 0.16,0.40 0.015 fill #1a1408 0.8
+circle 0.84,0.46 0.012 fill #1a1408 0.75
+circle 0.22,0.78 0.012 fill #1a1408 0.7
+circle 0.76,0.74 0.012 fill #1a1408 0.7
+circle 0.10,0.64 0.01 fill #1a1408 0.6
+circle 0.90,0.60 0.01 fill #1a1408 0.6
+# Tiny specks in outer area
+circle 0.30,0.14 0.008 fill #1a1408 0.55
+circle 0.66,0.88 0.008 fill #1a1408 0.55
+circle 0.12,0.78 0.008 fill #1a1408 0.5
+# Greasy gloss patch (oil residue)
+ellipse 0.48,0.48 0.14,0.08 fill #2a1810 0.4
+# Tiny metal fleck
+poly 0.56,0.56 0.60,0.54 0.62,0.58 0.58,0.60 fill #666666 0.6

@@ -1,0 +1,67 @@
+name: Lute Stand
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.8
+placement: corner
+room_types: bardic-hall, music-hall, theater, bards-college, tavern-stage, noble-solar
+typical_count: few
+clusters_with: harp, music-stand, drum-stand, sheet-music, stage-large
+notes: Pear-shaped lute resting on a small A-frame stand — top-down shows the teardrop body with rosette sound hole, frets across the neck, and the neck angling up to a pegbox
+---
+# footprint 1x1
+
+# === HITBOX ===
+selection poly 0.18,0.08 0.34,0.08 0.80,0.72 0.80,0.90 0.54,0.90
+
+# A-frame stand legs (faint dark lines beneath the lute)
+line 0.38,0.82 0.56,0.92 stroke #2a1400 0.55 width 2
+line 0.72,0.82 0.56,0.92 stroke #2a1400 0.55 width 2
+line 0.30,0.78 0.82,0.70 stroke #2a1400 0.5 width 2
+
+# Lute body — pear/teardrop shape in south-east quadrant
+poly 0.52,0.48 0.66,0.46 0.80,0.56 0.84,0.70 0.80,0.82 0.68,0.88 0.52,0.88 0.42,0.80 0.40,0.66 0.46,0.54 texfill polyhaven/dark_wood 0.9
+poly 0.52,0.48 0.66,0.46 0.80,0.56 0.84,0.70 0.80,0.82 0.68,0.88 0.52,0.88 0.42,0.80 0.40,0.66 0.46,0.54 stroke #2a1400 width 2
+
+# Body ribbing / grain lines (subtle)
+bezier 0.50,0.50 0.58,0.64 0.64,0.78 0.60,0.88 stroke #5c3a1e 0.5 width 1
+bezier 0.70,0.50 0.74,0.64 0.76,0.78 0.72,0.86 stroke #5c3a1e 0.45 width 1
+
+# Rosette sound hole (ornate rosewood)
+circle 0.62,0.70 0.07 fill #1a0804 0.9
+circle 0.62,0.70 0.07 stroke #3a1f00 width 1
+arc 0.62,0.70 0.05 0 360 stroke #daa520 0.6 width 1
+circle 0.62,0.70 0.025 fill #3a1f00 0.8
+
+# Bridge at south edge of body
+rect 0.56,0.82 0.16,0.03 fill #1a0804 0.9
+rect 0.56,0.82 0.16,0.03 stroke #3a1f00
+
+# Strings running across body to bridge
+line 0.30,0.22 0.60,0.82 stroke #c8b898 0.7 width 1
+line 0.28,0.26 0.62,0.82 stroke #e8dcc8 0.7 width 1
+line 0.26,0.30 0.64,0.82 stroke #c8b898 0.65 width 1
+line 0.24,0.34 0.66,0.82 stroke #daa520 0.7 width 1
+line 0.22,0.38 0.68,0.82 stroke #c8b898 0.6 width 1
+
+# Neck angling up to NW (long thin rect)
+poly 0.22,0.10 0.32,0.08 0.56,0.52 0.46,0.56 texfill polyhaven/dark_wood 0.92
+poly 0.22,0.10 0.32,0.08 0.56,0.52 0.46,0.56 stroke #2a1400 width 1
+
+# Frets across the neck
+line 0.26,0.14 0.32,0.12 stroke #daa520 0.85 width 1
+line 0.30,0.22 0.38,0.20 stroke #daa520 0.85 width 1
+line 0.34,0.30 0.44,0.28 stroke #daa520 0.8 width 1
+line 0.38,0.38 0.48,0.36 stroke #daa520 0.8 width 1
+line 0.42,0.46 0.52,0.44 stroke #c8b898 0.7 width 1
+
+# Pegbox at top of neck (small angled head)
+poly 0.16,0.08 0.28,0.04 0.32,0.12 0.22,0.14 fill #3a1f00 0.9
+poly 0.16,0.08 0.28,0.04 0.32,0.12 0.22,0.14 stroke #2a1400
+
+# Tuning pegs
+circle 0.19,0.06 0.014 fill #daa520 0.9
+circle 0.24,0.04 0.014 fill #daa520 0.9
+circle 0.28,0.08 0.014 fill #daa520 0.9

@@ -1,0 +1,59 @@
+name: Reading Table
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: center
+room_types: library, study, archive, wizard-sanctum
+typical_count: single
+clusters_with: chair, book-pile, book-open, candle-cluster, pen-and-inkwell
+lights: [{"preset":"candle","x":1.6,"y":0.4,"radius":3,"intensity":0.3,"color":"#ffcc88","falloff":"smooth"}]
+notes: Long scholarly reading table with books and a small lamp; center of library rooms
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: rectangular wood table with leg shadow hints, a book, and a small lamp
+
+# === Leg shadows (visible beneath table edges) ===
+circle 0.22,0.22 0.06 fill #3a1f00 0.4
+circle 1.78,0.22 0.06 fill #3a1f00 0.4
+circle 0.22,1.78 0.06 fill #3a1f00 0.4
+circle 1.78,1.78 0.06 fill #3a1f00 0.4
+
+# === Table surface ===
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/wood_table 0.85
+rect 0.10,0.10 1.80,1.80 stroke #5c3a1e
+
+# Front edge lip (slightly recessed south edge)
+rect 0.10,1.78 1.80,0.12 fill #3a1f00 0.2
+
+# === Book (open, on left side of table) ===
+# Left page
+rect 0.30,0.60 0.26,0.40 fill #e8e0d0 0.8
+rect 0.30,0.60 0.26,0.40 stroke #b0a090
+# Right page
+rect 0.58,0.60 0.26,0.40 fill #e8e0d0 0.8
+rect 0.58,0.60 0.26,0.40 stroke #b0a090
+# Spine
+line 0.57,0.62 0.57,0.98 stroke #8a7a6a 0.5
+
+# Text lines on left page
+line 0.34,0.68 0.52,0.68 stroke #888888 0.25
+line 0.34,0.74 0.50,0.74 stroke #888888 0.2
+line 0.34,0.80 0.52,0.80 stroke #888888 0.25
+line 0.34,0.86 0.48,0.86 stroke #888888 0.2
+
+# === Small reading lamp (right side of table) ===
+# Lamp base disc
+circle 1.60,0.40 0.10 fill #8b6914 0.7
+circle 1.60,0.40 0.10 stroke #5a3a00
+# Lamp shade (slightly larger disc above)
+circle 1.60,0.40 0.14 fill #daa520 0.35
+circle 1.60,0.40 0.14 stroke #8b6914 0.4
+# Warm glow halo
+circle 1.60,0.40 0.22 fill #ffcc88 0.1
+
+# === Closed book (stacked near lamp) ===
+rect 1.30,0.60 0.30,0.22 fill #8b2020 0.5
+rect 1.30,0.60 0.30,0.22 stroke #5a1010 0.6

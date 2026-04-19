@@ -1,0 +1,60 @@
+name: Ore Sorting Table (Long)
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+placement: wall
+room_types: mine-shaft-entrance, mining-camp, deep-mine, workshop
+typical_count: few
+clusters_with: pickaxe, cart-track, winch-large, headframe
+notes: Long wooden table piled with sorted ore — coal, iron chunks, quartz shards, and a small sorting hammer; place against a wall
+---
+# === HITBOX ===
+selection rect 0.10,0.06 1.80,0.76
+
+# Table surface (weathered planks running east-west)
+rect 0.10,0.06 1.80,0.76 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.06 1.80,0.76 stroke #3a1f00
+# Plank seam lines running lengthwise
+line 0.12,0.28 1.88,0.28 stroke #3a1f00 0.55 width 1
+line 0.12,0.52 1.88,0.52 stroke #3a1f00 0.55 width 1
+# Iron edge trim along the north (wall) side
+rect 0.10,0.06 1.80,0.06 fill #444444 0.8
+rect 0.10,0.06 1.80,0.06 stroke #222222
+# Corner leg shadows (at the visible corners)
+circle 0.16,0.12 0.05 fill #1a1208 0.5
+circle 1.84,0.12 0.05 fill #1a1208 0.5
+circle 0.16,0.76 0.05 fill #1a1208 0.5
+circle 1.84,0.76 0.05 fill #1a1208 0.5
+# --- Coal pile (dark lumps, west end) ---
+poly 0.22,0.40 0.30,0.32 0.40,0.34 0.44,0.44 0.38,0.52 0.26,0.54 fill #0a0a0a 0.95
+poly 0.22,0.40 0.30,0.32 0.40,0.34 0.44,0.44 0.38,0.52 0.26,0.54 stroke #1a1a1a
+circle 0.28,0.38 0.04 fill #222222 0.85
+circle 0.36,0.44 0.035 fill #222222 0.85
+circle 0.32,0.48 0.025 fill #1a1a1a 0.9
+# --- Iron ore pile (rust-brown chunks, center-west) ---
+poly 0.60,0.36 0.72,0.30 0.82,0.36 0.80,0.48 0.70,0.54 0.58,0.48 fill #6a5a4a 0.9
+poly 0.60,0.36 0.72,0.30 0.82,0.36 0.80,0.48 0.70,0.54 0.58,0.48 stroke #3a2818
+circle 0.66,0.38 0.04 fill #8a6a4a 0.85
+circle 0.76,0.44 0.03 fill #8a6a4a 0.85
+line 0.64,0.42 0.70,0.46 stroke #4a3818 0.7 width 1
+# --- Quartz shard pile (pale, crystalline — center-east) ---
+poly 1.04,0.38 1.14,0.30 1.24,0.34 1.26,0.46 1.18,0.54 1.06,0.52 fill #d4c4a8 0.85
+poly 1.04,0.38 1.14,0.30 1.24,0.34 1.26,0.46 1.18,0.54 1.06,0.52 stroke #6a5040
+# Sharp crystal facet highlights
+line 1.10,0.34 1.14,0.48 stroke #e8dcc8 width 1
+line 1.18,0.36 1.20,0.50 stroke #e8dcc8 width 1
+circle 1.14,0.40 0.025 fill #f0e8d8 0.9
+# --- Small sorting hammer (east end) ---
+# Hammer haft (pointing north-south)
+rect 1.58,0.36 0.04,0.28 texfill polyhaven/dark_wood 0.85
+rect 1.58,0.36 0.04,0.28 stroke #2a1400
+# Hammer head (iron rectangle at the north end of the haft)
+rect 1.50,0.30 0.20,0.10 texfill polyhaven/metal_plate 0.85
+rect 1.50,0.30 0.20,0.10 stroke #222222
+# Coal dust scattered across the table
+circle 0.50,0.22 0.018 fill #0a0a0a 0.55
+circle 0.90,0.66 0.015 fill #0a0a0a 0.55
+circle 1.36,0.24 0.018 fill #0a0a0a 0.55
+circle 1.70,0.70 0.014 fill #0a0a0a 0.55

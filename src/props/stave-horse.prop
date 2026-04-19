@@ -1,0 +1,63 @@
+name: Stave Horse
+category: Workshop
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: cooperage, carpenter, workshop
+typical_count: single
+clusters_with: adze, cooper-mallet, stave-pile, iron-hoop
+notes: Cooper's workhorse bench with foot-lever hold-down at south end and shaving clamp at north; for shaping barrel staves. Front (south) faces the cooper.
+---
+# footprint 2x1: x range 0-1, y range 0-2
+# Top-down: long plank + foot-lever bump at south (high Y) + shaving clamp at north (low Y)
+
+# Four legs (visible as small dark squares at corners)
+circle 0.22,0.20 0.05 fill #3a1f00 0.45
+circle 0.78,0.20 0.05 fill #3a1f00 0.45
+circle 0.22,1.80 0.05 fill #3a1f00 0.45
+circle 0.78,1.80 0.05 fill #3a1f00 0.45
+
+# Main bench plank (long narrow board running north-south)
+rect 0.25,0.14 0.50,1.72 texfill polyhaven/wood_table 0.85
+rect 0.25,0.14 0.50,1.72 stroke #3a1f00
+
+# Plank grain lines (running along the length)
+line 0.38,0.18 0.38,1.82 stroke #5c3a1e 0.2
+line 0.50,0.16 0.50,1.84 stroke #5c3a1e 0.2
+line 0.62,0.18 0.62,1.82 stroke #5c3a1e 0.2
+
+# Shaving clamp at north end (two small jaw blocks)
+rect 0.30,0.16 0.16,0.14 texfill polyhaven/dark_wood 0.8
+rect 0.30,0.16 0.16,0.14 stroke #2a1400
+rect 0.54,0.16 0.16,0.14 texfill polyhaven/dark_wood 0.8
+rect 0.54,0.16 0.16,0.14 stroke #2a1400
+# Clamp bolt/pin
+circle 0.50,0.22 0.025 fill #666666 0.8
+circle 0.50,0.22 0.025 stroke #444444
+# Jaw opening (dark gap between blocks)
+rect 0.46,0.16 0.08,0.12 fill #1a1208 0.4
+
+# Cross-brace support (mid bench)
+rect 0.20,0.90 0.60,0.08 fill #5c3a1e 0.5
+rect 0.20,0.90 0.60,0.08 stroke #3a1f00 0.5
+
+# Foot-lever mechanism at south end
+# Lever pivot bar (runs east-west under south end)
+rect 0.18,1.68 0.64,0.06 fill #555555 0.6
+rect 0.18,1.68 0.64,0.06 stroke #333333
+# Foot pedal (small rectangle extending south from bench)
+rect 0.36,1.76 0.28,0.18 texfill polyhaven/dark_wood 0.75
+rect 0.36,1.76 0.28,0.18 stroke #2a1400
+# Pivot pin
+circle 0.50,1.70 0.025 fill #666666 0.7
+circle 0.50,1.70 0.025 stroke #444444
+
+# Hold-down arm (connects foot lever to clamp — thin iron rod along bench)
+line 0.50,0.30 0.50,1.68 stroke #555555 0.3 width 1
+
+# Wood shavings on the bench surface
+line 0.35,0.50 0.45,0.55 stroke #c8b898 0.3
+line 0.55,0.65 0.65,0.60 stroke #c8b898 0.25
+line 0.40,1.10 0.52,1.08 stroke #c8b898 0.25

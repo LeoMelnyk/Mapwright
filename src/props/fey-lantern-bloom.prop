@@ -1,0 +1,61 @@
+name: Fey Lantern Bloom
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: fey-glade, fey-court, garden, druid-grove, forest
+typical_count: few
+clusters_with: flower-patch, fey-mushroom-ring, dew-drop-sparkle
+notes: Flower-lantern hybrid with glowing pistil core — natural fey light source
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":5,"intensity":0.5,"color":"#ffaa70"}]
+---
+# Warm glow halo on ground
+circle 0.50,0.50 0.46 fill #ffaa50 0.10
+circle 0.50,0.50 0.35 fill #ffcc80 0.12
+
+# === Outer petals — large blossom seen from above ===
+# Five broad petals radiating from center
+
+# Petal north
+poly 0.50,0.10 0.40,0.30 0.50,0.38 0.60,0.30 fill #e060a0 0.7
+poly 0.50,0.10 0.40,0.30 0.50,0.38 0.60,0.30 stroke #b04078
+
+# Petal east
+poly 0.90,0.40 0.70,0.38 0.65,0.50 0.72,0.62 fill #e060a0 0.65
+poly 0.90,0.40 0.70,0.38 0.65,0.50 0.72,0.62 stroke #b04078
+
+# Petal southeast
+poly 0.78,0.82 0.65,0.65 0.55,0.65 0.62,0.78 fill #d858a0 0.65
+poly 0.78,0.82 0.65,0.65 0.55,0.65 0.62,0.78 stroke #b04078
+
+# Petal southwest
+poly 0.22,0.82 0.35,0.65 0.45,0.65 0.38,0.78 fill #d858a0 0.65
+poly 0.22,0.82 0.35,0.65 0.45,0.65 0.38,0.78 stroke #b04078
+
+# Petal west
+poly 0.10,0.40 0.30,0.38 0.35,0.50 0.28,0.62 fill #e060a0 0.7
+poly 0.10,0.40 0.30,0.38 0.35,0.50 0.28,0.62 stroke #b04078
+
+# Petal vein lines
+line 0.50,0.15 0.50,0.35 stroke #cc5090 0.4
+line 0.85,0.42 0.68,0.50 stroke #cc5090 0.4
+line 0.75,0.78 0.60,0.66 stroke #cc5090 0.4
+line 0.25,0.78 0.40,0.66 stroke #cc5090 0.4
+line 0.15,0.42 0.32,0.50 stroke #cc5090 0.4
+
+# === Inner pistil ring ===
+circle 0.50,0.50 0.14 fill #ffcc60 0.7
+circle 0.50,0.50 0.14 stroke #cc9930
+
+# === Glowing pistil core ===
+circle 0.50,0.50 0.09 fill #ffdd88 0.85
+circle 0.50,0.50 0.05 fill #fff0cc 0.95
+circle 0.50,0.50 0.025 fill #ffffff 0.9
+
+# Small stamen dots around pistil
+circle 0.42,0.40 0.02 fill #ffee88 0.7
+circle 0.58,0.40 0.02 fill #ffee88 0.7
+circle 0.42,0.60 0.02 fill #ffee88 0.65
+circle 0.58,0.60 0.02 fill #ffee88 0.65

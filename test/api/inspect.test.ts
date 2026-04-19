@@ -76,6 +76,29 @@ function buildRoom(r1: number, c1: number, r2: number, c2: number, label?: strin
   }
 }
 
+/**
+ * Push an overlay prop into the test dungeon at grid (row, col) and mark the
+ * spatial hash dirty. Post-v0.7 maps no longer store props on cell.prop — they
+ * live in metadata.props[], so tests must use this shape to be inspected.
+ */
+function placeFixtureProp(row: number, col: number, type: string, facing = 0) {
+  const meta = state.dungeon.metadata;
+  meta.props ??= [];
+  meta.nextPropId ??= 1;
+  const gs = meta.gridSize || 5;
+  meta.props.push({
+    id: `prop_${meta.nextPropId++}`,
+    type,
+    x: col * gs,
+    y: row * gs,
+    rotation: facing,
+    scale: 1,
+    zIndex: 10,
+    flipped: false,
+  });
+  markPropSpatialDirty();
+}
+
 beforeEach(() => freshDungeon());
 
 // ─── renderAscii ─────────────────────────────────────────────────────────
@@ -111,7 +134,7 @@ describe('renderAscii', () => {
   it('uses different glyphs for fills, props, labels', () => {
     buildRoom(2, 2, 4, 4);
     state.dungeon.cells[3][3].fill = 'water';
-    state.dungeon.cells[2][3].prop = { type: 'chair', span: [1, 1], facing: 0 };
+    placeFixtureProp(2, 3, 'chair');
     state.dungeon.cells[4][4].center = { label: 'A1' };
     const r = renderAscii(2, 2, 4, 4);
     expect(r.ascii).toContain('~'); // water
@@ -144,7 +167,7 @@ describe('inspectRegion', () => {
     buildRoom(2, 2, 4, 4);
     state.dungeon.cells[3][3].fill = 'lava';
     state.dungeon.cells[3][3].fillDepth = 2;
-    state.dungeon.cells[3][3].prop = { type: 'brazier', span: [1, 1], facing: 0 };
+    placeFixtureProp(3, 3, 'brazier');
     state.dungeon.cells[3][3].center = { label: 'X' };
     const r = inspectRegion(3, 3, 3, 3);
     const cell = r.cells[0];
@@ -230,11 +253,10 @@ describe('getRoomSummary', () => {
 describe('queryCells', () => {
   beforeEach(() => {
     buildRoom(2, 2, 5, 5);
-    state.dungeon.cells[3][3].prop = { type: 'brazier', span: [1, 1], facing: 0 };
-    state.dungeon.cells[3][4].prop = { type: 'chair', span: [1, 1], facing: 0 };
+    placeFixtureProp(3, 3, 'brazier');
+    placeFixtureProp(3, 4, 'chair');
     state.dungeon.cells[4][4].fill = 'water';
     state.dungeon.cells[5][5].center = { label: 'X' };
-    markPropSpatialDirty();
   });
 
   it('returns cells matching prop type', () => {

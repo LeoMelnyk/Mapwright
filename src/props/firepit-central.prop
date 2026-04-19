@@ -1,0 +1,127 @@
+name: Central Firepit
+category: Features
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+lights: [{"preset":"campfire","x":1.0,"y":1.0,"radius":7,"color":"#ff9050","intensity":0.6}]
+placement: center
+room_types: peasant-hovel, farmhouse-common, cabin-hunters, cabin-trapper, meadhall, longhouse, house-small, shepherds-shelter
+typical_count: single
+clusters_with: cooking-tripod, cook-pot-tripod, log-seat, bench, bedroll, hearth
+notes: Large ash-filled firepit in the center of a peasant hovel — ring of stones bounding a wide depression of grey ash with smoldering embers at center. Glows faintly. Low heat — cooking fire, not a roaring bonfire.
+---
+# footprint 2x2: x range 0-2, y range 0-2
+
+# === HITBOX (stone ring footprint) ===
+selection circle 1.0,1.0 0.70
+
+# === Outer ashy ground stain (dirty halo outside stones) ===
+circle 1.0,1.0 0.90 fill #2a2018 0.4
+
+# === Ring of stones bounding the pit ===
+circle 0.22,1.00 0.12 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.22,1.00 0.12 fill #666666 0.55
+circle 0.22,1.00 0.12 stroke #333333
+
+circle 0.38,0.44 0.11 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.38,0.44 0.11 fill #777777 0.55
+circle 0.38,0.44 0.11 stroke #333333
+
+circle 1.00,0.22 0.12 texfill polyhaven/rock_boulder_cracked 0.85
+circle 1.00,0.22 0.12 fill #666666 0.55
+circle 1.00,0.22 0.12 stroke #333333
+
+circle 1.62,0.40 0.11 texfill polyhaven/rock_boulder_cracked 0.85
+circle 1.62,0.40 0.11 fill #777777 0.55
+circle 1.62,0.40 0.11 stroke #333333
+
+circle 1.78,1.00 0.12 texfill polyhaven/rock_boulder_cracked 0.85
+circle 1.78,1.00 0.12 fill #666666 0.55
+circle 1.78,1.00 0.12 stroke #333333
+
+circle 1.62,1.60 0.11 texfill polyhaven/rock_boulder_cracked 0.85
+circle 1.62,1.60 0.11 fill #777777 0.55
+circle 1.62,1.60 0.11 stroke #333333
+
+circle 1.00,1.78 0.12 texfill polyhaven/rock_boulder_cracked 0.85
+circle 1.00,1.78 0.12 fill #666666 0.55
+circle 1.00,1.78 0.12 stroke #333333
+
+circle 0.38,1.56 0.11 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.38,1.56 0.11 fill #777777 0.55
+circle 0.38,1.56 0.11 stroke #333333
+
+# === Stone highlights (NW lit edge on each stone) ===
+arc 0.22,1.00 0.10 210 260 stroke #aaaaaa 0.5 width 1
+arc 1.00,0.22 0.10 210 260 stroke #aaaaaa 0.5 width 1
+arc 1.78,1.00 0.10 210 260 stroke #aaaaaa 0.5 width 1
+arc 1.00,1.78 0.10 210 260 stroke #aaaaaa 0.5 width 1
+
+# === Ash bed inside ring (wide grey depression) ===
+circle 1.0,1.0 0.62 fill #4a4038 0.92
+circle 1.0,1.0 0.62 stroke #2a2018
+
+# Ash texture (lighter grey speckle)
+circle 0.76,0.88 0.06 fill #7a6a58 0.55
+circle 1.20,0.82 0.05 fill #7a6a58 0.5
+circle 1.26,1.18 0.06 fill #6a5a48 0.55
+circle 0.82,1.24 0.05 fill #7a6a58 0.5
+circle 0.72,1.10 0.04 fill #6a5a48 0.45
+
+# Darker ash patches
+circle 0.90,1.08 0.05 fill #2a2018 0.7
+circle 1.10,0.92 0.04 fill #2a2018 0.65
+
+# === Charred log remnants (partially-burnt logs radiating from center) ===
+poly 0.74,0.94 0.78,0.88 1.28,1.08 1.24,1.14 fill #2a1400 0.88
+poly 0.74,0.94 0.78,0.88 1.28,1.08 1.24,1.14 stroke #0a0400 width 1
+poly 0.74,1.06 0.78,1.12 1.28,0.92 1.24,0.86 fill #2a1400 0.85
+poly 0.74,1.06 0.78,1.12 1.28,0.92 1.24,0.86 stroke #0a0400 width 1
+
+# === Log end glow spots ===
+circle 0.76,0.92 0.04 fill #cc3300 0.7
+circle 1.26,1.10 0.04 fill #cc3300 0.7
+circle 0.76,1.10 0.035 fill #ff6600 0.65
+circle 1.26,0.90 0.035 fill #ff6600 0.65
+
+# === Concentric fire glow (soft — not roaring) ===
+# Outer heat halo
+circle 1.0,1.0 0.40 fill #e85500 0.22
+# Flame ring
+circle 1.0,1.0 0.28 fill #ff6020 0.55
+# Mid warm
+circle 1.0,1.0 0.20 fill #ff8030 0.7
+# Inner yellow core
+circle 1.0,1.0 0.14 fill #ffaa30 0.78
+# Hot white-yellow center
+circle 1.0,1.0 0.08 fill #ffd860 0.85
+# Hottest white
+circle 1.0,1.0 0.04 fill #ffffff 0.75
+
+# === Small flame tongues (low fire, subtle) ===
+poly 1.00,0.80 0.96,0.88 1.04,0.88 fill #ffaa30 0.7
+poly 1.00,1.20 0.96,1.12 1.04,1.12 fill #ff8030 0.65
+poly 0.80,1.00 0.88,0.96 0.88,1.04 fill #ffaa30 0.65
+poly 1.20,1.00 1.12,0.96 1.12,1.04 fill #ff8030 0.65
+
+# === Glowing embers scattered in ash ===
+circle 0.86,1.02 0.02 fill #ff6030 0.9
+circle 1.14,0.98 0.022 fill #ff4400 0.85
+circle 1.02,1.14 0.02 fill #ff6030 0.85
+circle 0.96,0.88 0.018 fill #ff4400 0.8
+circle 1.16,1.12 0.016 fill #ff6030 0.8
+circle 0.84,0.90 0.014 fill #ff4400 0.75
+
+# === Tiny bright sparks ===
+circle 0.80,0.72 0.014 fill #ffcc00 0.85
+circle 1.22,0.76 0.012 fill #ffaa00 0.8
+circle 0.78,1.28 0.014 fill #ffcc00 0.8
+circle 1.22,1.24 0.012 fill #ffaa00 0.75
+
+# === Rising smoke wisps (faint grey) ===
+circle 0.94,0.80 0.05 fill #4a4038 0.2
+circle 1.08,0.74 0.04 fill #3a3028 0.22
+circle 0.96,0.62 0.04 fill #3a3028 0.18
+circle 1.10,0.56 0.03 fill #2a2018 0.2

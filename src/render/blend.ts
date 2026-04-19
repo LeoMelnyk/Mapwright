@@ -75,7 +75,7 @@ interface BlendTopoCacheState {
   edges: BlendEdge[] | null;
   corners: BlendCorner[] | null;
 }
-import { CARDINAL_DIRS, OPPOSITE, isEdgeOpen } from '../util/index.js';
+import { CARDINAL_DIRS, OPPOSITE, isEdgeOpen, log } from '../util/index.js';
 
 // ── Texture blend topology cache ──────────────────────────────────────────────
 // Pre-computes edge/corner blend descriptors and world-space Path2D clip polygons.
@@ -940,6 +940,7 @@ export function invalidateBlendLayerCache(): void {
     edges: null,
     corners: null,
   };
+  log.devTrace(`invalidateBlendLayerCache() — blend topology + bitmaps cleared`);
 }
 
 /**

@@ -1,0 +1,64 @@
+name: Watchfire Ring
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: ruined-watchtower, battlefield-recent, scouts-blind, campsite-traveler
+typical_count: single
+clusters_with: campfire-cold, campfire-abandoned, ash-pile, log-seat
+notes: Formal watchfire — ring of 9 stones around a deeply charred center with blackened log ends. Larger and more deliberate than a casual campfire. Long dead, no embers.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: evenly-spaced ring of round stones around a deep-black charred interior with 3 blackened log ends.
+
+# Faint scorched earth beyond the ring
+circle 0.50,0.50 0.46 fill #1a0c06 0.35
+
+# === Stone ring (9 stones arranged evenly around perimeter) ===
+circle 0.50,0.10 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.50,0.10 0.075 stroke #3a3a3a
+circle 0.73,0.18 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.73,0.18 0.075 stroke #3a3a3a
+circle 0.87,0.38 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.87,0.38 0.075 stroke #3a3a3a
+circle 0.90,0.62 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.90,0.62 0.075 stroke #3a3a3a
+circle 0.74,0.84 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.74,0.84 0.075 stroke #3a3a3a
+circle 0.50,0.90 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.50,0.90 0.075 stroke #3a3a3a
+circle 0.26,0.84 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.26,0.84 0.075 stroke #3a3a3a
+circle 0.10,0.62 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.10,0.62 0.075 stroke #3a3a3a
+circle 0.13,0.38 0.075 texfill polyhaven/granite_tile 0.85
+circle 0.13,0.38 0.075 stroke #3a3a3a
+
+# === Deeply charred center (very dark, larger than campfire-cold) ===
+poly 0.26,0.50 0.30,0.34 0.42,0.26 0.58,0.24 0.70,0.30 0.76,0.44 0.76,0.58 0.70,0.70 0.56,0.76 0.42,0.76 0.30,0.68 0.24,0.56 fill #0a0400 0.92
+poly 0.26,0.50 0.30,0.34 0.42,0.26 0.58,0.24 0.70,0.30 0.76,0.44 0.76,0.58 0.70,0.70 0.56,0.76 0.42,0.76 0.30,0.68 0.24,0.56 stroke #000000
+
+# Grey ash dust drifts over the char
+ellipse 0.40,0.42 0.10,0.05 fill #6a6258 0.5
+ellipse 0.58,0.56 0.09,0.04 fill #6a6258 0.45
+ellipse 0.46,0.66 0.08,0.04 fill #555555 0.4
+
+# === Blackened log ends (3, poking toward center) ===
+# Log 1 — from NW
+poly 0.22,0.30 0.28,0.26 0.44,0.42 0.40,0.48 fill #0a0400 0.95
+poly 0.22,0.30 0.28,0.26 0.44,0.42 0.40,0.48 stroke #000000
+# Log 2 — from SE
+poly 0.58,0.52 0.62,0.48 0.80,0.68 0.74,0.72 fill #0a0400 0.95
+poly 0.58,0.52 0.62,0.48 0.80,0.68 0.74,0.72 stroke #000000
+# Log 3 — from south
+poly 0.46,0.62 0.54,0.62 0.56,0.82 0.44,0.82 fill #0a0400 0.92
+poly 0.46,0.62 0.54,0.62 0.56,0.82 0.44,0.82 stroke #000000
+
+# Ash flakes scattered beyond the ring
+circle 0.06,0.24 0.012 fill #8a8278 0.65
+circle 0.94,0.26 0.012 fill #8a8278 0.6
+circle 0.08,0.94 0.012 fill #6a6258 0.6
+circle 0.96,0.96 0.01 fill #8a8278 0.55

@@ -1,0 +1,51 @@
+name: Arrow Broken
+category: Combat
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ruined-watchtower, battlefield-recent, scouts-blind, orc-war-camp, cave-bandit-camp
+typical_count: many
+clusters_with: arrow-stuck, shield-broken, rubble, bone-pile
+notes: Snapped arrow shaft with fletching, half-buried in dirt — battlefield debris scatter
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: broken arrow lying flat on the ground, snapped in the middle
+
+# Dirt disturbance where arrow fell
+ellipse 0.50,0.50 0.30,0.15 fill #3a2818 0.12
+
+# Arrow shaft — front half (from NW to center, with arrowhead)
+line 0.15,0.38 0.45,0.48 stroke #6b4e2e width 2
+# Arrowhead (small metal triangle at NW end)
+poly 0.10,0.38 0.18,0.35 0.18,0.41 fill #666666 0.85
+poly 0.10,0.38 0.18,0.35 0.18,0.41 stroke #444444
+
+# Snap point (gap between the two halves)
+circle 0.48,0.49 0.02 fill #3a2818 0.5
+
+# Arrow shaft — back half (from center to SE, with fletching)
+line 0.52,0.50 0.78,0.58 stroke #6b4e2e width 2
+
+# Splintered break (small slivers at snap point)
+line 0.45,0.47 0.48,0.44 stroke #8b7355 0.6 width 1
+line 0.52,0.51 0.50,0.54 stroke #8b7355 0.5 width 1
+
+# Fletching (3 feathers at the SE end)
+# Top feather
+poly 0.70,0.56 0.82,0.52 0.80,0.58 fill #cccccc 0.8
+poly 0.70,0.56 0.82,0.52 0.80,0.58 stroke #5a5a5a 0.7
+# Bottom feather
+poly 0.70,0.60 0.82,0.64 0.80,0.58 fill #aa3030 0.8
+poly 0.70,0.60 0.82,0.64 0.80,0.58 stroke #5a1010 0.7
+# Center feather (partially hidden)
+poly 0.72,0.58 0.82,0.58 0.78,0.61 fill #aa3030 0.6
+
+# Nock end
+circle 0.80,0.58 0.02 fill #3a1f00 0.8
+circle 0.80,0.58 0.02 stroke #1a0800
+
+# Dirt partially burying the shaft
+ellipse 0.30,0.44 0.06,0.03 fill #3a2818 0.35
+ellipse 0.62,0.55 0.05,0.03 fill #3a2818 0.3

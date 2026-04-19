@@ -1,0 +1,56 @@
+name: Annealing Oven
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: glassworks, workshop
+typical_count: single
+clusters_with: gaffer-bench, sand-bin, color-rod-bundle, forge
+notes: Large brick annealing oven for slow-cooling glass. Place against a wall with front (south) facing into the workshop.
+lights: [{"preset":"ember","x":1,"y":1.6,"radius":4,"intensity":0.15,"color":"#ffaa00"}]
+---
+# === HITBOX ===
+hitbox rect 0.1,0.1 1.8,1.55 z 0-2.5
+
+# footprint 2x2: x 0-2, y 0-2. Wall at north, mouth at south.
+
+# === Brick body (rectangular industrial oven) ===
+rect 0.1,0.1 1.8,1.6 texfill polyhaven/brick_4 0.85
+rect 0.1,0.1 1.8,1.6 stroke #2a1400
+
+# === Iron strapping bands running across top of oven ===
+rect 0.1,0.35 1.8,0.07 texfill polyhaven/metal_plate 0.7
+rect 0.1,0.35 1.8,0.07 stroke #222222
+rect 0.1,0.95 1.8,0.07 texfill polyhaven/metal_plate 0.7
+rect 0.1,0.95 1.8,0.07 stroke #222222
+
+# === Iron corner plates (riveted hardware) ===
+rect 0.12,0.12 0.18,0.18 texfill polyhaven/metal_plate 0.75
+rect 0.12,0.12 0.18,0.18 stroke #222222
+rect 1.70,0.12 0.18,0.18 texfill polyhaven/metal_plate 0.75
+rect 1.70,0.12 0.18,0.18 stroke #222222
+
+# === Rivets on straps ===
+circle 0.22,0.385 0.018 fill #555555 0.9
+circle 0.95,0.385 0.018 fill #555555 0.9
+circle 1.78,0.385 0.018 fill #555555 0.9
+circle 0.22,0.985 0.018 fill #555555 0.9
+circle 0.95,0.985 0.018 fill #555555 0.9
+circle 1.78,0.985 0.018 fill #555555 0.9
+
+# === Brick joint lines (mortar texture hint) ===
+line 0.1,0.65 1.9,0.65 stroke #1a0a00 0.4
+line 0.1,1.35 1.9,1.35 stroke #1a0a00 0.4
+
+# === Oven mouth — dark elliptical opening at south, residual heat (NOT flame) ===
+ellipse 1.0,1.52 0.42,0.18 fill #1a0800 0.85
+ellipse 1.0,1.52 0.42,0.18 stroke #2a1400 width 2
+# Faint warm tint inside (residual heat, low opacity — no bright flame)
+ellipse 1.0,1.52 0.34,0.13 fill #6a2200 0.25
+ellipse 1.0,1.52 0.22,0.08 fill #aa5500 0.18
+# Brick lintel above the mouth
+rect 0.5,1.30 1.0,0.08 texfill polyhaven/brick_4 0.88
+rect 0.5,1.30 1.0,0.08 stroke #1a0a00

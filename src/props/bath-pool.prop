@@ -1,0 +1,64 @@
+name: Bath Pool
+category: Features
+footprint: 3x3
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: center
+room_types: bath-house, mansion-bathroom, noble-estate
+typical_count: single
+clusters_with: plunge-basin, steam-cloud, towel-folded, sandal-pair, oil-amphora
+notes: Large rectangular sunken bathing pool with mosaic tile floor and warm steam wisps. Place as a bath-house centerpiece.
+---
+# === HITBOX ===
+selection rect 0.2,0.2 2.6,2.6
+
+# === Marble stone rim (outer border) ===
+rect 0.15,0.15 2.70,2.70 texfill polyhaven/marble_01 0.88
+rect 0.15,0.15 2.70,2.70 stroke #5a5a5a width 2
+# Inner rim edge (pool lip)
+rect 0.40,0.40 2.20,2.20 stroke #777777 width 1
+
+# === Water surface (base) ===
+rect 0.42,0.42 2.16,2.16 fill #8ab0d0 0.88
+rect 0.42,0.42 2.16,2.16 stroke #4a6a80
+
+# === Mosaic tile pattern visible through water ===
+# Tile grid — alternating darker and lighter squares
+rect 0.50,0.50 0.45,0.45 fill #6a8aa0 0.55
+rect 1.05,0.50 0.45,0.45 fill #4a6a80 0.55
+rect 1.60,0.50 0.45,0.45 fill #6a8aa0 0.55
+rect 2.15,0.50 0.40,0.45 fill #4a6a80 0.55
+rect 0.50,1.05 0.45,0.45 fill #4a6a80 0.55
+rect 1.05,1.05 0.45,0.45 fill #6a8aa0 0.55
+rect 1.60,1.05 0.45,0.45 fill #4a6a80 0.55
+rect 2.15,1.05 0.40,0.45 fill #6a8aa0 0.55
+rect 0.50,1.60 0.45,0.45 fill #6a8aa0 0.55
+rect 1.05,1.60 0.45,0.45 fill #4a6a80 0.55
+rect 1.60,1.60 0.45,0.45 fill #6a8aa0 0.55
+rect 2.15,1.60 0.40,0.45 fill #4a6a80 0.55
+rect 0.50,2.15 0.45,0.40 fill #4a6a80 0.55
+rect 1.05,2.15 0.45,0.40 fill #6a8aa0 0.55
+rect 1.60,2.15 0.45,0.40 fill #4a6a80 0.55
+rect 2.15,2.15 0.40,0.40 fill #6a8aa0 0.55
+# Grout lines (horizontal + vertical)
+line 0.42,1.05 2.58,1.05 stroke #2a3a4a 0.5
+line 0.42,1.60 2.58,1.60 stroke #2a3a4a 0.5
+line 0.42,2.15 2.58,2.15 stroke #2a3a4a 0.5
+line 1.05,0.42 1.05,2.58 stroke #2a3a4a 0.5
+line 1.60,0.42 1.60,2.58 stroke #2a3a4a 0.5
+line 2.15,0.42 2.15,2.58 stroke #2a3a4a 0.5
+
+# === Water overlay / ripple hint ===
+rect 0.42,0.42 2.16,2.16 fill #a0c8e0 0.20
+# Ripple curves on water surface
+bezier 0.60,0.80 1.10,0.65 1.90,0.95 2.40,0.78 stroke #a0c8e0 0.55 width 2
+bezier 0.60,1.55 1.20,1.40 1.80,1.70 2.40,1.52 stroke #a0c8e0 0.50 width 2
+bezier 0.60,2.25 1.15,2.10 1.85,2.40 2.40,2.22 stroke #a0c8e0 0.45 width 2
+
+# === Steam wisps (warm pale ellipses) ===
+ellipse 0.90,0.70 0.30,0.14 fill #e8f0f4 0.22
+ellipse 1.70,1.20 0.34,0.16 fill #e8f0f4 0.22
+ellipse 2.20,2.00 0.28,0.14 fill #e0e8ec 0.22
+ellipse 0.85,2.10 0.32,0.15 fill #e8f0f4 0.20

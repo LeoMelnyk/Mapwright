@@ -1,0 +1,44 @@
+name: Framed Painting
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: house-merchant, merchant-home, study, parlor, burgher-house, gallery, bedroom
+typical_count: few
+clusters_with: painting, banner
+notes: Modest gilt-framed portrait or landscape. Top-down wall convention — only the rod/top edge is visible from above. Hang on walls.
+---
+# === HITBOX ===
+selection rect 0.20,0.06 1.60,0.12
+
+# footprint 1x2: x range 0-2, y range 0-1; wall at north (low y)
+
+# Mounting rod (dark wood, along wall)
+rect 0.20,0.06 1.60,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.20,0.06 1.60,0.08 stroke #2a1400
+
+# Brass finial caps at rod ends
+circle 0.20,0.10 0.04 fill #daa520 0.9
+circle 0.20,0.10 0.04 stroke #5a3a00
+circle 1.80,0.10 0.04 fill #daa520 0.9
+circle 1.80,0.10 0.04 stroke #5a3a00
+
+# Gilt frame top edge (thin sliver just below rod)
+rect 0.26,0.14 1.48,0.06 fill #daa520 0.9
+rect 0.26,0.14 1.48,0.06 stroke #5a3a00
+# Inner frame bevel highlight
+rect 0.28,0.16 1.44,0.02 fill #ffd700 0.7
+
+# Frame corner accents (ornate cornerpieces)
+rect 0.26,0.14 0.06,0.06 fill #8b6914 0.9
+rect 0.26,0.14 0.06,0.06 stroke #5a3a00
+rect 1.68,0.14 0.06,0.06 fill #8b6914 0.9
+rect 1.68,0.14 0.06,0.06 stroke #5a3a00
+
+# Thin canvas top edge peek (dark — suggesting painting below)
+rect 0.30,0.20 1.40,0.02 fill #3a2a18 0.7
+
+# Subtle drop shadow beneath frame
+rect 0.28,0.22 1.44,0.04 fill #000000 0.15

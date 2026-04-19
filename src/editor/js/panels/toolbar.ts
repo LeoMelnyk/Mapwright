@@ -583,6 +583,19 @@ export function init(): void {
     });
   });
 
+  // Prop tool Yes/No toggles (Random Rotation)
+  document.querySelectorAll<HTMLElement>('#prop-options [data-prop-option]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const prop = btn.dataset.propOption; // e.g. 'randomRotation'
+      const val = btn.dataset.val === 'true';
+      const stateKey = 'prop' + prop!.charAt(0).toUpperCase() + prop!.slice(1);
+      state[stateKey] = val;
+      document.querySelectorAll<HTMLElement>(`#prop-options [data-prop-option="${prop}"]`).forEach((b) => {
+        b.classList.toggle('active', b.dataset.val === String(val));
+      });
+    });
+  });
+
   // Trim Yes/No toggle buttons (Round, Inverted, Open)
   document.querySelectorAll<HTMLElement>('#trim-shape-options [data-trim]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -672,6 +685,10 @@ export function updateToolButtons(): void {
   // Trim has no sub-mode bar (only tertiary shape bar)
   const trimShapeBar = getEl('trim-shape-options');
   trimShapeBar.style.display = !state.sessionToolsActive && state.activeTool === 'trim' ? 'flex' : 'none';
+
+  // Prop tool has no sub-mode bar, only a tertiary options bar
+  const propOptionsBar = getEl('prop-options');
+  propOptionsBar.style.display = !state.sessionToolsActive && state.activeTool === 'prop' ? 'flex' : 'none';
 
   // Mode-dependent tertiary bars: hidden when session active or wrong tool active.
   // When the tool IS active, onApply (called from applyToolSideEffects) controls visibility.

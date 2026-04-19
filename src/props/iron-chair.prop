@@ -1,0 +1,80 @@
+name: Iron Throne
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: throne-room, court, tyrant-hall, infernal-court, boss-chamber
+typical_count: single
+clusters_with: brazier, skull-offering, banner, chain-wall, carpet
+notes: Brutal spiked iron throne — top-down shows jagged backrest silhouette, dark metal seat, and hostile spike-tipped arm rests.
+---
+# === HITBOX ===
+hitbox rect 0.18,0.06 0.64,0.82 z 0-3
+
+# footprint 1x1: x 0-1, y 0-1. Front faces south.
+# Top-down: menacing iron throne — sharp peaks at north (backrest), cold iron seat, spiked armrests.
+
+# === Leg shadows ===
+rect 0.20,0.76 0.12,0.12 fill #000000 0.55
+rect 0.68,0.76 0.12,0.12 fill #000000 0.55
+
+# === Jagged backrest (spiky silhouette at north) ===
+# Main backrest plate
+poly 0.20,0.30 0.26,0.06 0.34,0.18 0.42,0.02 0.50,0.14 0.58,0.02 0.66,0.18 0.74,0.06 0.80,0.30 0.80,0.42 0.20,0.42 texfill polyhaven/metal_plate 0.8
+poly 0.20,0.30 0.26,0.06 0.34,0.18 0.42,0.02 0.50,0.14 0.58,0.02 0.66,0.18 0.74,0.06 0.80,0.30 0.80,0.42 0.20,0.42 fill #1a1a1a 0.35
+poly 0.20,0.30 0.26,0.06 0.34,0.18 0.42,0.02 0.50,0.14 0.58,0.02 0.66,0.18 0.74,0.06 0.80,0.30 0.80,0.42 0.20,0.42 stroke #000000 width 2
+
+# Spike peak highlights (cold metal edge)
+line 0.26,0.08 0.34,0.20 stroke #8899aa 0.7 width 1
+line 0.42,0.04 0.50,0.16 stroke #8899aa 0.7 width 1
+line 0.58,0.04 0.66,0.20 stroke #8899aa 0.7 width 1
+line 0.74,0.08 0.66,0.20 stroke #667788 0.6 width 1
+
+# Central vertical rib on backrest
+line 0.50,0.14 0.50,0.42 stroke #000000 0.7 width 2
+line 0.50,0.18 0.50,0.40 stroke #8899aa 0.55 width 1
+
+# === Left armrest (iron bar with spike on front) ===
+rect 0.18,0.42 0.12,0.36 texfill polyhaven/metal_plate 0.78
+rect 0.18,0.42 0.12,0.36 fill #1a1a1a 0.4
+rect 0.18,0.42 0.12,0.36 stroke #000000 width 1
+# Spike on front of left armrest (pointing south)
+poly 0.18,0.76 0.30,0.76 0.24,0.88 fill #333333 0.95
+poly 0.18,0.76 0.30,0.76 0.24,0.88 stroke #000000
+# Rivet studs on armrest
+circle 0.24,0.50 0.018 fill #555555 0.85
+circle 0.24,0.60 0.018 fill #555555 0.85
+circle 0.24,0.70 0.018 fill #555555 0.85
+
+# === Right armrest (mirror) ===
+rect 0.70,0.42 0.12,0.36 texfill polyhaven/metal_plate 0.78
+rect 0.70,0.42 0.12,0.36 fill #1a1a1a 0.4
+rect 0.70,0.42 0.12,0.36 stroke #000000 width 1
+# Spike on front of right armrest
+poly 0.70,0.76 0.82,0.76 0.76,0.88 fill #333333 0.95
+poly 0.70,0.76 0.82,0.76 0.76,0.88 stroke #000000
+# Rivet studs
+circle 0.76,0.50 0.018 fill #555555 0.85
+circle 0.76,0.60 0.018 fill #555555 0.85
+circle 0.76,0.70 0.018 fill #555555 0.85
+
+# === Iron seat (cold dark plate) ===
+rect 0.30,0.42 0.40,0.36 texfill polyhaven/metal_plate 0.75
+rect 0.30,0.42 0.40,0.36 fill #1a1a1a 0.55
+rect 0.30,0.42 0.40,0.36 stroke #000000 width 1
+
+# Seat rivets (four corners)
+circle 0.36,0.48 0.02 fill #555555 0.9
+circle 0.64,0.48 0.02 fill #555555 0.9
+circle 0.36,0.72 0.02 fill #555555 0.9
+circle 0.64,0.72 0.02 fill #555555 0.9
+
+# Dark bloodstain at center of seat (brutal implication)
+ellipse 0.50,0.60 0.10,0.08 fill #2a0000 0.6
+
+# Seat cross-hatch scoring
+line 0.34,0.52 0.66,0.76 stroke #000000 0.4 width 1
+line 0.66,0.52 0.34,0.76 stroke #000000 0.4 width 1

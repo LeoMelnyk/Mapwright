@@ -1,0 +1,101 @@
+name: Meat Hook Rack
+category: Kitchen
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 2.5
+placement: wall
+room_types: butcher-shop, smokehouse, ship-galley, farmhouse-kitchen
+typical_count: single
+clusters_with: hanging-meat, hanging-sausage, sausage-link, chopping-block, cleaver, butcher-block
+notes: Overhead iron rack with multiple S-hooks holding cuts of meat. Wall-mounted rail at north, hooks hanging south with slabs of meat.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Wall at north (y=0), meat hangs into room at south
+
+# === HITBOX ===
+selection rect 0.04,0.02 1.92,0.14
+
+# === Iron support rail (thick bar along wall) ===
+rect 0.08,0.04 1.84,0.12 texfill polyhaven/rusty_metal 0.8
+rect 0.08,0.04 1.84,0.12 fill #333333 0.55
+rect 0.08,0.04 1.84,0.12 stroke #1a1a1a
+
+# === Wall mounting brackets (heavier iron) ===
+rect 0.30,0.0 0.10,0.08 fill #2a2a2a 0.9
+rect 0.30,0.0 0.10,0.08 stroke #111111
+rect 0.96,0.0 0.10,0.08 fill #2a2a2a 0.9
+rect 0.96,0.0 0.10,0.08 stroke #111111
+rect 1.62,0.0 0.10,0.08 fill #2a2a2a 0.9
+rect 1.62,0.0 0.10,0.08 stroke #111111
+
+# === Rail highlight (top catches light) ===
+line 0.12,0.06 1.90,0.06 stroke #888888 0.55 width 1
+
+# === Rail shadow below ===
+rect 0.10,0.16 1.82,0.03 fill #000000 0.18
+
+# === S-Hook 1 (hanging down from rail) ===
+bezier 0.24,0.16 0.22,0.20 0.26,0.24 0.24,0.28 stroke #333333 width 3
+bezier 0.24,0.16 0.22,0.20 0.26,0.24 0.24,0.28 stroke #111111 width 1
+arc 0.24,0.30 0.03 0 180 stroke #333333 width 3
+
+# === Meat slab 1 (beef cut, dark red) ===
+poly 0.16,0.32 0.32,0.32 0.34,0.48 0.30,0.62 0.22,0.68 0.14,0.62 0.12,0.48 fill #7a2018 0.92
+poly 0.16,0.32 0.32,0.32 0.34,0.48 0.30,0.62 0.22,0.68 0.14,0.62 0.12,0.48 stroke #3a0808
+# Fatty marbling
+bezier 0.16,0.42 0.22,0.44 0.28,0.42 0.32,0.44 stroke #e8d0a8 0.55 width 1
+bezier 0.14,0.54 0.22,0.56 0.28,0.54 0.32,0.54 stroke #e8d0a8 0.5 width 1
+# Hook piercing point
+circle 0.24,0.32 0.02 fill #222222 0.9
+
+# === S-Hook 2 ===
+bezier 0.64,0.16 0.62,0.20 0.66,0.24 0.64,0.28 stroke #333333 width 3
+bezier 0.64,0.16 0.62,0.20 0.66,0.24 0.64,0.28 stroke #111111 width 1
+arc 0.64,0.30 0.03 0 180 stroke #333333 width 3
+
+# === Meat slab 2 (smaller cut — pork belly — cream/pink) ===
+poly 0.56,0.32 0.72,0.32 0.74,0.46 0.70,0.56 0.58,0.56 0.54,0.46 fill #a84838 0.92
+poly 0.56,0.32 0.72,0.32 0.74,0.46 0.70,0.56 0.58,0.56 0.54,0.46 stroke #3a0808
+# Thick fat cap
+arc 0.64,0.45 0.09 0 180 stroke #e8d0a8 0.7 width 2
+circle 0.64,0.32 0.02 fill #222222 0.9
+
+# === S-Hook 3 (center) ===
+bezier 1.04,0.16 1.02,0.20 1.06,0.24 1.04,0.28 stroke #333333 width 3
+bezier 1.04,0.16 1.02,0.20 1.06,0.24 1.04,0.28 stroke #111111 width 1
+arc 1.04,0.30 0.03 0 180 stroke #333333 width 3
+
+# === Meat slab 3 (large cut — hanging lowest) ===
+poly 0.92,0.32 1.16,0.32 1.20,0.50 1.14,0.68 1.04,0.74 0.94,0.68 0.88,0.50 fill #8a2818 0.93
+poly 0.92,0.32 1.16,0.32 1.20,0.50 1.14,0.68 1.04,0.74 0.94,0.68 0.88,0.50 stroke #3a0808
+bezier 0.92,0.44 1.00,0.46 1.08,0.44 1.16,0.46 stroke #e8d0a8 0.55 width 1
+bezier 0.90,0.56 1.00,0.58 1.08,0.58 1.18,0.56 stroke #e8d0a8 0.5 width 1
+# Skin darker crust
+arc 1.04,0.52 0.14 200 340 stroke #4a1008 0.6 width 2
+# Paprika/salt
+circle 0.98,0.42 0.015 fill #c86030 0.55
+circle 1.08,0.56 0.014 fill #c86030 0.5
+# Drip
+circle 1.04,0.78 0.018 fill #4a1008 0.6
+circle 0.24,0.32 0.02 fill #222222 0.9
+
+# === S-Hook 4 ===
+bezier 1.44,0.16 1.42,0.20 1.46,0.24 1.44,0.28 stroke #333333 width 3
+bezier 1.44,0.16 1.42,0.20 1.46,0.24 1.44,0.28 stroke #111111 width 1
+arc 1.44,0.30 0.03 0 180 stroke #333333 width 3
+
+# === Meat slab 4 (ribs — long narrow cut with curved bones) ===
+poly 1.34,0.32 1.54,0.32 1.56,0.56 1.52,0.64 1.36,0.64 1.32,0.56 fill #9a3020 0.92
+poly 1.34,0.32 1.54,0.32 1.56,0.56 1.52,0.64 1.36,0.64 1.32,0.56 stroke #3a0808
+# Rib bone lines
+line 1.38,0.36 1.38,0.60 stroke #e8dcc0 0.7 width 1
+line 1.44,0.36 1.44,0.62 stroke #e8dcc0 0.7 width 1
+line 1.50,0.36 1.50,0.60 stroke #e8dcc0 0.7 width 1
+circle 1.44,0.32 0.02 fill #222222 0.9
+
+# === S-Hook 5 (rightmost, empty) ===
+bezier 1.80,0.16 1.78,0.20 1.82,0.24 1.80,0.28 stroke #333333 width 3
+bezier 1.80,0.16 1.78,0.20 1.82,0.24 1.80,0.28 stroke #111111 width 1
+arc 1.80,0.30 0.04 0 180 stroke #333333 width 3

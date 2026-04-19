@@ -1,0 +1,56 @@
+name: Rose Petals
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: bath-house, brothel-parlor, celestial-vault, bedchamber
+typical_count: many
+clusters_with: perfume-bottle, silk-scarf, low-table, bathtub, fresh-flowers
+notes: Scattered red rose petals; romantic or ritual scatter
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.38
+
+# Petal 1 (curved teardrop, deep red)
+poly 0.20,0.30 0.28,0.26 0.32,0.32 0.26,0.38 fill #aa1020 0.9
+poly 0.20,0.30 0.28,0.26 0.32,0.32 0.26,0.38 stroke #5a0810
+# Petal 2
+poly 0.42,0.22 0.50,0.18 0.54,0.26 0.46,0.30 fill #c82030 0.9
+poly 0.42,0.22 0.50,0.18 0.54,0.26 0.46,0.30 stroke #5a0810
+# Petal 3 (pink)
+poly 0.66,0.26 0.74,0.22 0.78,0.30 0.72,0.34 fill #e04060 0.9
+poly 0.66,0.26 0.74,0.22 0.78,0.30 0.72,0.34 stroke #5a0810
+# Petal 4
+poly 0.30,0.44 0.40,0.42 0.42,0.50 0.34,0.52 fill #aa1020 0.9
+poly 0.30,0.44 0.40,0.42 0.42,0.50 0.34,0.52 stroke #5a0810
+# Petal 5 (center)
+poly 0.54,0.44 0.62,0.40 0.66,0.48 0.58,0.52 fill #c82030 0.9
+poly 0.54,0.44 0.62,0.40 0.66,0.48 0.58,0.52 stroke #5a0810
+# Petal 6 (pink)
+poly 0.70,0.50 0.78,0.46 0.82,0.54 0.74,0.58 fill #e04060 0.9
+poly 0.70,0.50 0.78,0.46 0.82,0.54 0.74,0.58 stroke #5a0810
+# Petal 7
+poly 0.18,0.56 0.26,0.54 0.30,0.62 0.22,0.64 fill #aa1020 0.9
+poly 0.18,0.56 0.26,0.54 0.30,0.62 0.22,0.64 stroke #5a0810
+# Petal 8
+poly 0.42,0.60 0.50,0.56 0.54,0.64 0.46,0.68 fill #c82030 0.9
+poly 0.42,0.60 0.50,0.56 0.54,0.64 0.46,0.68 stroke #5a0810
+# Petal 9 (bottom row)
+poly 0.30,0.72 0.38,0.68 0.42,0.76 0.34,0.80 fill #aa1020 0.9
+poly 0.30,0.72 0.38,0.68 0.42,0.76 0.34,0.80 stroke #5a0810
+# Petal 10
+poly 0.58,0.72 0.66,0.68 0.70,0.76 0.62,0.80 fill #e04060 0.9
+poly 0.58,0.72 0.66,0.68 0.70,0.76 0.62,0.80 stroke #5a0810
+# Small petal fragments/scatter
+circle 0.82,0.38 0.015 fill #aa1020 0.85
+circle 0.16,0.46 0.015 fill #c82030 0.85
+circle 0.80,0.66 0.012 fill #e04060 0.85
+circle 0.12,0.72 0.012 fill #aa1020 0.8
+circle 0.50,0.82 0.012 fill #c82030 0.8
+# Tiny highlights on petals
+line 0.24,0.30 0.28,0.34 stroke #e04060 0.5
+line 0.48,0.24 0.52,0.28 stroke #e04060 0.5
+line 0.72,0.28 0.76,0.32 stroke #ffffff 0.3

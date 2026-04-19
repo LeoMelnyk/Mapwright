@@ -1,0 +1,53 @@
+name: Stained Bucket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: butcher-shop, tannery, torture-chamber, slaughterhouse, mortuary, alchemy-lab, cave-goblin-warren
+typical_count: few
+clusters_with: cleaver, blood-smear, knife-curved, rag-damp, stretched-hide, gutting-table
+notes: Wooden bucket fouled with blood and offal — dark red staining runs down the outer staves; a thick dark fluid sloshes inside.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# Outer stave body (weathered wood)
+circle 0.5,0.5 0.34 texfill polyhaven/weathered_planks 0.85
+circle 0.5,0.5 0.34 stroke #2a1400
+# Iron band (outer)
+circle 0.5,0.5 0.34 stroke #3a2818 width 2
+# Stave seams
+line 0.50,0.16 0.50,0.84 stroke #2a1400 0.5
+line 0.22,0.28 0.78,0.72 stroke #2a1400 0.5
+line 0.22,0.72 0.78,0.28 stroke #2a1400 0.5
+line 0.16,0.50 0.84,0.50 stroke #2a1400 0.4
+# Dark blood stain splotches on outer rim (drips and smears)
+poly 0.48,0.16 0.54,0.14 0.56,0.20 0.50,0.22 fill #3a0808 0.85
+poly 0.48,0.16 0.54,0.14 0.56,0.20 0.50,0.22 stroke #1a0404 0.6
+poly 0.18,0.46 0.24,0.40 0.28,0.48 0.22,0.54 fill #5a1008 0.8
+poly 0.18,0.46 0.24,0.40 0.28,0.48 0.22,0.54 stroke #1a0404 0.5
+poly 0.72,0.58 0.80,0.54 0.82,0.64 0.76,0.68 fill #3a0808 0.85
+# Drip running down stave
+line 0.54,0.16 0.56,0.30 stroke #3a0808 width 2
+line 0.24,0.48 0.22,0.62 stroke #5a1008 width 2
+# Inner rim / lip
+circle 0.5,0.5 0.26 stroke #1a0808 width 2
+# Fluid interior (dark brown/red — congealing blood and water)
+circle 0.5,0.5 0.24 fill #2a1808 0.95
+circle 0.5,0.5 0.24 stroke #1a0a04
+# Scum film floating on top
+ellipse 0.46,0.48 0.10,0.06 fill #5a3818 0.5
+ellipse 0.56,0.54 0.08,0.05 fill #3a2010 0.6
+# Clot / chunk in fluid
+circle 0.52,0.46 0.035 fill #1a0404 0.85
+# Faint reflection sheen
+arc 0.5,0.5 0.22 210 250 stroke #6a3030 0.4 width 1
+# Rope handle arc (darkened with stain)
+arc 0.5,0.30 0.22 180 360 stroke #4a3020 width 3
+arc 0.5,0.30 0.22 180 360 stroke #1a1008 width 1
+# Handle attachment points
+circle 0.28,0.50 0.025 fill #333333 0.9
+circle 0.72,0.50 0.025 fill #333333 0.9

@@ -1,0 +1,71 @@
+name: Obelisk (Memorial)
+category: Structure
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 12
+placement: center
+room_types: crypt, tomb, mausoleum, graveyard, memorial-hall
+typical_count: few
+clusters_with: candle-cluster, grave-marker, mourning-bell
+notes: Tall black granite memorial obelisk with rune engravings; place as focal point in burial chambers
+---
+# === HITBOX ===
+hitbox rect 0.55,0.55 0.90,0.90 z 0-12
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Radial cross-section from above — four pyramidion facets meeting at center
+# Matches obelisk.prop pattern exactly: pedestal, shaft, pyramidion
+
+# === Base pedestal — dark stone platform ===
+rect 0.20,0.20 1.60,1.60 texfill polyhaven/stone_wall 0.7
+rect 0.20,0.20 1.60,1.60 stroke #333333
+
+# Pedestal edge highlights
+line 0.20,0.20 1.80,0.20 stroke #555555 width 1
+line 0.20,0.20 0.20,1.80 stroke #555555 width 1
+
+# === Shaft cross-section — black granite ===
+rect 0.40,0.40 1.20,1.20 fill #1a1a1a 0.85
+rect 0.40,0.40 1.20,1.20 stroke #333333
+
+# === Carved rune glyphs on shaft surface ===
+# NW quadrant runes
+line 0.55,0.52 0.55,0.68 stroke #444444 width 1
+line 0.50,0.58 0.62,0.58 stroke #444444 width 1
+line 0.52,0.65 0.58,0.72 stroke #444444 width 1
+# NE quadrant runes
+line 1.38,0.52 1.38,0.68 stroke #444444 width 1
+line 1.42,0.60 1.50,0.60 stroke #444444 width 1
+line 1.35,0.55 1.45,0.55 stroke #444444 width 1
+# SW quadrant runes
+line 0.55,1.32 0.55,1.48 stroke #444444 width 1
+line 0.50,1.40 0.62,1.40 stroke #444444 width 1
+# SE quadrant runes
+line 1.40,1.35 1.40,1.48 stroke #444444 width 1
+line 1.35,1.42 1.48,1.42 stroke #444444 width 1
+line 1.42,1.32 1.48,1.38 stroke #444444 width 1
+
+# === Pyramidion — four triangular facets meeting at center ===
+# North facet — lightest (catches light)
+poly 0.40,0.40 1.60,0.40 1.0,1.0 fill #444444 0.7
+# East facet — medium-light
+poly 1.60,0.40 1.60,1.60 1.0,1.0 fill #3a3a3a 0.65
+# South facet — darkest (shadow side)
+poly 1.60,1.60 0.40,1.60 1.0,1.0 fill #2a2a2a 0.6
+# West facet — medium
+poly 0.40,1.60 0.40,0.40 1.0,1.0 fill #353535 0.6
+
+# Pyramidion outline
+poly 0.40,0.40 1.60,0.40 1.60,1.60 0.40,1.60 stroke #222222
+
+# === Edge ridges from corners to center tip ===
+line 0.40,0.40 1.0,1.0 stroke #555555 width 1
+line 1.60,0.40 1.0,1.0 stroke #4a4a4a width 1
+line 0.40,1.60 1.0,1.0 stroke #3a3a3a width 1
+line 1.60,1.60 1.0,1.0 stroke #333333 width 1
+
+# === Center point — very tip of the pyramidion ===
+circle 1.0,1.0 0.04 fill #666666 0.6
+circle 1.0,1.0 0.04 stroke #555555

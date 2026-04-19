@@ -1,0 +1,44 @@
+name: Finished Pot
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: kiln-pottery, shop-general, market-stall, house-medium-artisan
+typical_count: few
+clusters_with: clay-lump, clay-bin, shelf-bare, display-case
+notes: Completed glazed pottery vessel displayed upright — blue-green glaze with gold band
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.36
+# Outer rim ring (widest) — glazed blue
+circle 0.50,0.50 0.38 fill #4a7090 0.95
+circle 0.50,0.50 0.38 stroke #2a4060
+# Mid ring (slight shoulder inset) — darker glaze
+circle 0.50,0.50 0.34 fill #3a6080 0.92
+circle 0.50,0.50 0.34 stroke #2a4060
+# Decorative gold band around the shoulder
+ring 0.50,0.50 0.34 0.30 fill #daa520 0.85
+ring 0.50,0.50 0.34 0.30 stroke #8b6914
+# Geometric pattern dots on gold band (cardinal points)
+circle 0.50,0.18 0.022 fill #5a3a00 0.9
+circle 0.82,0.50 0.022 fill #5a3a00 0.9
+circle 0.50,0.82 0.022 fill #5a3a00 0.9
+circle 0.18,0.50 0.022 fill #5a3a00 0.9
+# Diagonal small marks
+circle 0.72,0.28 0.016 fill #5a3a00 0.85
+circle 0.72,0.72 0.016 fill #5a3a00 0.85
+circle 0.28,0.72 0.016 fill #5a3a00 0.85
+circle 0.28,0.28 0.016 fill #5a3a00 0.85
+# Inner rim (lip of pot) — slightly lighter glaze edge
+circle 0.50,0.50 0.28 fill #4a7090 0.95
+circle 0.50,0.50 0.28 stroke #2a4060
+# Inner opening (dark interior of vessel)
+circle 0.50,0.50 0.24 fill #1a2838 0.9
+circle 0.50,0.50 0.24 stroke #0a1018
+# Reflection highlight arc inside rim (glazed sheen)
+arc 0.50,0.50 0.22 210 280 stroke #a0c0d8 0.7 width 2
+# Outer glaze highlight on shoulder
+arc 0.50,0.50 0.36 220 260 stroke #a0c0d8 0.55 width 2

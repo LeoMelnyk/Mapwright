@@ -1,0 +1,61 @@
+name: Pedestal
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: treasure-vault, vault, reliquary, gallery, temple-nave, shrine, wizard-sanctum
+typical_count: few
+clusters_with: crown-on-cushion, gem-cluster, bust-on-pedestal, crystal-ball, offering-bowl
+notes: Tall empty display pedestal for holding artifacts. Place in centers of display halls. Top has a flat surface awaiting an item.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.32 z 0-3
+
+# === Square base plinth (wide) ===
+rect 0.14,0.14 0.72,0.72 texfill polyhaven/granite_tile 0.85
+rect 0.14,0.14 0.72,0.72 fill #8a8078 0.35
+rect 0.14,0.14 0.72,0.72 stroke #333333 width 2
+
+# Base bevel hints
+line 0.14,0.14 0.22,0.22 stroke #aaaaaa 0.6 width 1
+line 0.86,0.14 0.78,0.22 stroke #aaaaaa 0.6 width 1
+line 0.14,0.86 0.22,0.78 stroke #444444 0.7 width 1
+line 0.86,0.86 0.78,0.78 stroke #444444 0.7 width 1
+
+# === Middle column (narrower square, recessed) ===
+rect 0.26,0.26 0.48,0.48 texfill polyhaven/stone_wall 0.85
+rect 0.26,0.26 0.48,0.48 fill #999999 0.4
+rect 0.26,0.26 0.48,0.48 stroke #444444 width 2
+
+# Shaft fluting (vertical lines)
+line 0.32,0.28 0.32,0.72 stroke #666666 0.7 width 1
+line 0.40,0.28 0.40,0.72 stroke #666666 0.7 width 1
+line 0.48,0.28 0.48,0.72 stroke #666666 0.7 width 1
+line 0.56,0.28 0.56,0.72 stroke #666666 0.7 width 1
+line 0.64,0.28 0.64,0.72 stroke #666666 0.7 width 1
+
+# === Top capital (circular display surface — wider than column) ===
+circle 0.5,0.50 0.26 texfill polyhaven/marble_01 0.92
+circle 0.5,0.50 0.26 fill #d0c8c0 0.4
+circle 0.5,0.50 0.26 stroke #444444 width 2
+
+# Capital decorative ring
+circle 0.5,0.50 0.23 stroke #777777 0.8 width 1
+
+# Top flat display surface (slightly recessed)
+circle 0.5,0.50 0.18 fill #c0b8b0 0.85
+circle 0.5,0.50 0.18 stroke #555555
+
+# Faint center ring (where item would sit)
+circle 0.5,0.50 0.10 stroke #888888 0.4 width 1
+
+# Marble sheen highlight
+arc 0.5,0.50 0.24 200 250 stroke #ffffff 0.8 width 1
+arc 0.5,0.50 0.24 300 340 stroke #ffffff 0.5 width 1
+
+# Age cracks
+line 0.30,0.78 0.38,0.84 stroke #444444 0.5 width 1
+line 0.60,0.20 0.66,0.26 stroke #444444 0.4 width 1

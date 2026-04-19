@@ -1,0 +1,45 @@
+name: Dead Brazier
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: corner
+room_types: ruined-watchtower, crypt, cabin-abandoned, orc-war-camp
+typical_count: few
+clusters_with: brazier, ash-pile, rubble-pile, skeleton-slumped
+notes: Extinguished iron brazier — cold ashes, rust streaks, cobweb across the rim. Neglected for years. Use as a cold companion to brazier in ruined locations.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.32
+
+# Rusted iron bowl — outer rim
+circle 0.5,0.5 0.34 texfill polyhaven/rusty_metal_02 0.85
+circle 0.5,0.5 0.34 stroke #2a1a10
+# Inner rim ring (worn metal edge)
+circle 0.5,0.5 0.28 stroke #1a0f08 width 1
+# Rust streaks on rim
+arc 0.5,0.5 0.34 30 70 stroke #5a2810 width 2
+arc 0.5,0.5 0.34 200 240 stroke #5a2810 width 2
+# Interior dark soot bed
+circle 0.5,0.5 0.26 fill #1a1410 0.95
+# Cold grey ash mound (irregular, off-center)
+poly 0.36,0.50 0.42,0.40 0.52,0.38 0.62,0.44 0.64,0.54 0.58,0.62 0.46,0.62 0.38,0.58 fill #3a3530 0.88
+poly 0.36,0.50 0.42,0.40 0.52,0.38 0.62,0.44 0.64,0.54 0.58,0.62 0.46,0.62 0.38,0.58 stroke #1a1410
+# Darker ash divots
+ellipse 0.46,0.48 0.05,0.03 fill #1a1410 0.7
+ellipse 0.56,0.54 0.04,0.03 fill #1a1410 0.6
+# Small charred stub poking through ash
+line 0.44,0.46 0.52,0.54 stroke #0a0604 width 2
+# Grey ash dust highlights
+circle 0.42,0.44 0.018 fill #8a8278 0.55
+circle 0.58,0.50 0.016 fill #8a8278 0.5
+# Cobweb strand spanning the bowl (two diagonal lines + crosshair)
+line 0.22,0.30 0.78,0.70 stroke #d8d4c8 0.45 width 1
+line 0.34,0.26 0.66,0.74 stroke #d8d4c8 0.35 width 1
+# Tiny bolt/rivet dots on rim (visible hardware)
+circle 0.50,0.18 0.018 fill #1a0f08 0.9
+circle 0.50,0.82 0.018 fill #1a0f08 0.9
+circle 0.18,0.50 0.018 fill #1a0f08 0.9
+circle 0.82,0.50 0.018 fill #1a0f08 0.9

@@ -1,0 +1,107 @@
+name: Wildflower Patch
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: druid-grove, meadow, wilderness, fey-glade, forest-clearing, garden
+typical_count: few
+clusters_with: flower-patch, shrub, tree, butterfly-cloud, tall-grass
+notes: Large patch of mixed wildflowers on grass. Ground decal — colored dots on green background. Scatter across open natural spaces.
+---
+# footprint 2x2: x 0-2, y 0-2
+# Ground scatter — no shadow, no light-block
+
+# === Grass base layer (multiple blended greens) ===
+ellipse 1.00,1.00 0.92,0.88 fill #3a6a28 0.25
+ellipse 0.55,0.60 0.40,0.35 fill #4a7a38 0.3
+ellipse 1.45,0.70 0.38,0.32 fill #2d6a1e 0.28
+ellipse 0.60,1.40 0.42,0.36 fill #3a7a28 0.3
+ellipse 1.45,1.35 0.40,0.34 fill #4a7a38 0.28
+ellipse 1.00,1.00 0.50,0.40 fill #357020 0.25
+
+# Grass blade hints
+line 0.25,0.32 0.30,0.22 stroke #2d5a1e 0.6 width 1
+line 0.65,0.28 0.68,0.20 stroke #2d6a1e 0.6 width 1
+line 1.20,0.30 1.18,0.22 stroke #2d5a1e 0.6 width 1
+line 1.70,0.32 1.72,0.22 stroke #2d6a1e 0.6 width 1
+line 0.35,0.72 0.32,0.65 stroke #2d5a1e 0.55 width 1
+line 1.20,1.80 1.24,1.85 stroke #2d5a1e 0.55 width 1
+line 1.70,1.78 1.66,1.85 stroke #2d6a1e 0.55 width 1
+line 0.22,1.40 0.20,1.48 stroke #2d5a1e 0.6 width 1
+line 1.85,1.20 1.92,1.25 stroke #2d6a1e 0.6 width 1
+
+# === Wildflowers — scattered colored dots ===
+# White daisies (cluster 1 — NW)
+circle 0.30,0.40 0.045 fill #f0f0f0 0.9
+circle 0.30,0.40 0.018 fill #f0c030 0.85
+circle 0.45,0.55 0.040 fill #f0f0f0 0.9
+circle 0.45,0.55 0.015 fill #f0c030 0.85
+circle 0.20,0.62 0.035 fill #e8e8e8 0.85
+circle 0.20,0.62 0.014 fill #e8a020 0.8
+# White daisies (cluster 2 — SE)
+circle 1.60,1.50 0.045 fill #f0f0f0 0.9
+circle 1.60,1.50 0.018 fill #f0c030 0.85
+circle 1.80,1.35 0.038 fill #e8e8e8 0.88
+circle 1.80,1.35 0.015 fill #e8a020 0.8
+
+# Yellow buttercups
+circle 0.70,0.30 0.040 fill #ffd740 0.9
+circle 0.70,0.30 0.015 fill #e09020 0.85
+circle 0.90,0.80 0.042 fill #ffd740 0.9
+circle 0.90,0.80 0.016 fill #e09020 0.85
+circle 0.35,1.15 0.040 fill #f5c800 0.88
+circle 0.35,1.15 0.015 fill #e09020 0.85
+circle 1.20,1.70 0.038 fill #ffd740 0.9
+circle 1.20,1.70 0.015 fill #e09020 0.85
+circle 1.70,0.90 0.040 fill #f5c800 0.88
+circle 1.70,0.90 0.015 fill #e09020 0.85
+
+# Purple/violet flowers
+circle 1.05,0.40 0.038 fill #9055cc 0.9
+circle 1.05,0.40 0.013 fill #f0c030 0.85
+circle 1.35,0.25 0.035 fill #8045bb 0.88
+circle 1.35,0.25 0.012 fill #f0c030 0.85
+circle 0.60,1.30 0.038 fill #9055cc 0.9
+circle 0.60,1.30 0.013 fill #f0c030 0.85
+circle 1.50,1.10 0.036 fill #aa66dd 0.88
+circle 1.50,1.10 0.013 fill #f0c030 0.85
+
+# Red poppies
+circle 0.80,1.00 0.040 fill #dd3344 0.9
+circle 0.80,1.00 0.014 fill #1a1a1a 0.75
+circle 1.25,0.65 0.042 fill #cc2838 0.88
+circle 1.25,0.65 0.015 fill #1a1a1a 0.75
+circle 0.50,0.90 0.038 fill #dd3344 0.9
+circle 0.50,0.90 0.013 fill #1a1a1a 0.75
+circle 1.70,1.70 0.040 fill #cc2838 0.88
+circle 1.70,1.70 0.014 fill #1a1a1a 0.75
+
+# Blue cornflowers
+circle 0.25,0.85 0.038 fill #5588dd 0.9
+circle 0.25,0.85 0.013 fill #f0c030 0.8
+circle 1.10,1.45 0.038 fill #4478cc 0.88
+circle 1.10,1.45 0.013 fill #f0c030 0.8
+circle 1.55,0.45 0.038 fill #5588dd 0.9
+circle 1.55,0.45 0.013 fill #f0c030 0.8
+circle 0.85,1.55 0.036 fill #4478cc 0.88
+circle 0.85,1.55 0.013 fill #f0c030 0.8
+
+# Pink
+circle 0.45,0.28 0.035 fill #e05080 0.9
+circle 0.45,0.28 0.013 fill #f0c030 0.8
+circle 1.55,0.80 0.036 fill #d04070 0.88
+circle 1.55,0.80 0.013 fill #f0c030 0.8
+circle 0.70,1.55 0.034 fill #e05080 0.88
+circle 0.70,1.55 0.012 fill #f0c030 0.8
+
+# Tiny buds/unopened flowers
+circle 0.50,0.45 0.018 fill #f5c800 0.7
+circle 1.00,1.20 0.016 fill #9055cc 0.7
+circle 1.40,0.50 0.018 fill #dd3344 0.7
+circle 0.30,1.05 0.016 fill #5588dd 0.7
+circle 1.15,0.85 0.018 fill #ffd740 0.7
+circle 0.65,0.75 0.016 fill #e05080 0.7
+circle 1.35,1.55 0.018 fill #f5c800 0.7

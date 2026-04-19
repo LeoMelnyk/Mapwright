@@ -1,0 +1,44 @@
+name: Apple Pile
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: any
+room_types: market-stall, market, vendor-row, bazaar, kitchen, cellar
+typical_count: few
+clusters_with: display-basket, stall-counter, spice-bowl, fabric-bolt
+notes: Heap of red and green apples mounded in a vendor's display. Pair with display-basket or stall-counter.
+---
+# Footprint 1x1: x 0-1, y 0-1. Top-down rounded cluster of apples.
+
+# Outer ring of apples (lower tier, varied colors)
+circle 0.22,0.40 0.13 fill #b02818 0.95
+circle 0.22,0.40 0.13 stroke #4a0a00
+circle 0.78,0.42 0.12 fill #c83820 0.95
+circle 0.78,0.42 0.12 stroke #4a0a00
+circle 0.28,0.78 0.13 fill #80a040 0.95
+circle 0.28,0.78 0.13 stroke #2a3a10
+circle 0.74,0.80 0.12 fill #a83020 0.95
+circle 0.74,0.80 0.12 stroke #4a0a00
+circle 0.50,0.22 0.13 fill #80a040 0.95
+circle 0.50,0.22 0.13 stroke #2a3a10
+
+# Center top apples (upper tier — piled up)
+circle 0.42,0.52 0.12 fill #c83820 0.95
+circle 0.42,0.52 0.12 stroke #4a0a00
+circle 0.62,0.58 0.11 fill #b02818 0.95
+circle 0.62,0.58 0.11 stroke #4a0a00
+circle 0.52,0.72 0.10 fill #80a040 0.95
+circle 0.52,0.72 0.10 stroke #2a3a10
+
+# Highlights (glint on apples)
+arc 0.22,0.40 0.10 210 260 stroke #f08070 0.6 width 1
+arc 0.78,0.42 0.09 210 260 stroke #f08070 0.6 width 1
+arc 0.42,0.52 0.09 210 260 stroke #f08070 0.6 width 1
+arc 0.28,0.78 0.10 210 260 stroke #b0c870 0.5 width 1
+
+# Small leaves poking between apples
+poly 0.48,0.30 0.54,0.26 0.52,0.34 fill #3a7a28 0.8
+poly 0.40,0.60 0.46,0.56 0.44,0.64 fill #3a7a28 0.8
+poly 0.66,0.50 0.72,0.46 0.70,0.54 fill #3a7a28 0.75

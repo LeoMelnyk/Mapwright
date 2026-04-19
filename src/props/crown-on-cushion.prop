@@ -1,0 +1,91 @@
+name: Crown on Cushion
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: center
+room_types: treasure-vault, vault, reliquary, throne-room, royal-bedchamber
+typical_count: single
+clusters_with: pedestal, coin-spill, gem-cluster, jewelry-loose, scepter
+notes: Golden crown resting atop a red velvet cushion with tasseled corners. Display piece — place on a pedestal or altar.
+---
+# === HITBOX ===
+selection rect 0.16,0.20 0.68,0.60
+
+# === Velvet cushion (square, slightly puffy corners) ===
+poly 0.20,0.22 0.80,0.22 0.84,0.28 0.84,0.72 0.80,0.78 0.20,0.78 0.16,0.72 0.16,0.28 texfill polyhaven/velour_velvet 0.85
+poly 0.20,0.22 0.80,0.22 0.84,0.28 0.84,0.72 0.80,0.78 0.20,0.78 0.16,0.72 0.16,0.28 fill #7a1020 0.55
+poly 0.20,0.22 0.80,0.22 0.84,0.28 0.84,0.72 0.80,0.78 0.20,0.78 0.16,0.72 0.16,0.28 stroke #3a0810 width 2
+
+# Cushion puffy highlight (center dome)
+ellipse 0.50,0.50 0.28,0.22 fill #a02038 0.35
+# Cushion top-left sheen
+ellipse 0.38,0.38 0.14,0.10 fill #c03848 0.25
+
+# Gold braid trim along edges
+rect 0.20,0.24 0.60,0.02 fill #daa520 0.8
+rect 0.20,0.74 0.60,0.02 fill #daa520 0.8
+rect 0.20,0.24 0.02,0.52 fill #daa520 0.75
+rect 0.76,0.24 0.02,0.52 fill #daa520 0.75
+
+# Corner tassels (small gold clusters at 4 corners)
+circle 0.18,0.22 0.035 fill #daa520 0.9
+circle 0.18,0.22 0.035 stroke #5a3a00
+line 0.18,0.24 0.14,0.30 stroke #daa520 0.7 width 1
+line 0.20,0.24 0.18,0.32 stroke #8b6914 0.6 width 1
+circle 0.82,0.22 0.035 fill #daa520 0.9
+circle 0.82,0.22 0.035 stroke #5a3a00
+line 0.82,0.24 0.86,0.30 stroke #daa520 0.7 width 1
+circle 0.18,0.78 0.035 fill #daa520 0.9
+circle 0.18,0.78 0.035 stroke #5a3a00
+line 0.18,0.76 0.14,0.70 stroke #daa520 0.7 width 1
+circle 0.82,0.78 0.035 fill #daa520 0.9
+circle 0.82,0.78 0.035 stroke #5a3a00
+line 0.82,0.76 0.86,0.70 stroke #daa520 0.7 width 1
+
+# === Crown (top-down: circlet with points sticking up) ===
+# Crown base ring
+ring 0.50,0.50 0.20 0.13 fill #ffd700 0.95
+ring 0.50,0.50 0.20 0.13 stroke #5a3a00 width 2
+
+# Inner velvet cap showing through crown
+circle 0.50,0.50 0.13 fill #6a0a18 0.85
+circle 0.50,0.50 0.13 stroke #3a0810
+
+# Crown fleur/points (8 radial points around the circlet)
+poly 0.50,0.26 0.52,0.30 0.48,0.30 fill #ffd700 0.95
+poly 0.50,0.26 0.52,0.30 0.48,0.30 stroke #5a3a00
+poly 0.67,0.33 0.68,0.37 0.64,0.36 fill #ffd700 0.95
+poly 0.67,0.33 0.68,0.37 0.64,0.36 stroke #5a3a00
+poly 0.74,0.50 0.70,0.52 0.70,0.48 fill #ffd700 0.95
+poly 0.74,0.50 0.70,0.52 0.70,0.48 stroke #5a3a00
+poly 0.67,0.67 0.64,0.64 0.68,0.63 fill #ffd700 0.95
+poly 0.67,0.67 0.64,0.64 0.68,0.63 stroke #5a3a00
+poly 0.50,0.74 0.48,0.70 0.52,0.70 fill #ffd700 0.95
+poly 0.50,0.74 0.48,0.70 0.52,0.70 stroke #5a3a00
+poly 0.33,0.67 0.36,0.64 0.32,0.63 fill #ffd700 0.95
+poly 0.33,0.67 0.36,0.64 0.32,0.63 stroke #5a3a00
+poly 0.26,0.50 0.30,0.48 0.30,0.52 fill #ffd700 0.95
+poly 0.26,0.50 0.30,0.48 0.30,0.52 stroke #5a3a00
+poly 0.33,0.33 0.36,0.36 0.32,0.37 fill #ffd700 0.95
+poly 0.33,0.33 0.36,0.36 0.32,0.37 stroke #5a3a00
+
+# Gems set in the circlet
+circle 0.50,0.32 0.025 fill #cc1828 0.95
+circle 0.50,0.32 0.025 stroke #5a0808
+circle 0.68,0.50 0.025 fill #1848a0 0.95
+circle 0.68,0.50 0.025 stroke #0a1830
+circle 0.50,0.68 0.025 fill #2a8040 0.95
+circle 0.50,0.68 0.025 stroke #0a3018
+circle 0.32,0.50 0.025 fill #e8c030 0.95
+circle 0.32,0.50 0.025 stroke #8a7810
+
+# Crown highlights
+arc 0.50,0.50 0.18 200 250 stroke #ffffff 0.7 width 1
+arc 0.50,0.50 0.18 300 350 stroke #ffcc00 0.6 width 1
+
+# Central gem sparkle
+circle 0.50,0.32 0.008 fill #ffffff 0.95
+circle 0.50,0.50 0.012 fill #ffee88 0.6

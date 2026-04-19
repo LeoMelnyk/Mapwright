@@ -1,0 +1,61 @@
+name: Silver Candlestick
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.0
+placement: any
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":6,"color":"#ffcc80","intensity":0.7}]
+room_types: mansion-dining, dining-hall, supper-room, noble-solar, mansion-bedroom-master, temple
+typical_count: few
+clusters_with: round-dining-table, china-cabinet, napkin-pile, tureen
+notes: Tall ornate silver candlestick with one lit candle. Emits soft warm candlelight.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.18
+
+# Footprint 1x1: x 0-1, y 0-1. Top-down: round base, fluted stem disc, candle cup, flame.
+
+# Base (wide silver foot)
+circle 0.5,0.5 0.28 fill #8899aa 0.7
+circle 0.5,0.5 0.28 stroke #555555
+# Base inner disc (slightly raised)
+circle 0.5,0.5 0.24 fill #c0c0c0 0.95
+circle 0.5,0.5 0.24 stroke #555555
+
+# Base fluted decoration (radial spokes)
+line 0.5,0.26 0.5,0.34 stroke #555555 0.6 width 1
+line 0.5,0.66 0.5,0.74 stroke #555555 0.6 width 1
+line 0.26,0.5 0.34,0.5 stroke #555555 0.6 width 1
+line 0.66,0.5 0.74,0.5 stroke #555555 0.6 width 1
+line 0.34,0.34 0.40,0.40 stroke #555555 0.5 width 1
+line 0.66,0.34 0.60,0.40 stroke #555555 0.5 width 1
+line 0.34,0.66 0.40,0.60 stroke #555555 0.5 width 1
+line 0.66,0.66 0.60,0.60 stroke #555555 0.5 width 1
+
+# Fluted stem disc (middle swell, viewed from top as a ring)
+circle 0.5,0.5 0.15 fill #c0c0c0 0.95
+circle 0.5,0.5 0.15 stroke #555555
+circle 0.5,0.5 0.12 stroke #8899aa 0.7
+
+# Candle cup (drip pan — small dish above stem)
+circle 0.5,0.5 0.10 fill #8899aa 0.9
+circle 0.5,0.5 0.10 stroke #444444
+
+# Candle (white wax — circular cross-section)
+circle 0.5,0.5 0.065 fill #f0e8d8 0.95
+circle 0.5,0.5 0.065 stroke #8b7355
+
+# Wax drips on cup (small blobs)
+circle 0.44,0.52 0.018 fill #f0e8d8 0.85
+circle 0.56,0.48 0.015 fill #f0e8d8 0.8
+
+# Flame (small glow + tear shape)
+circle 0.5,0.5 0.055 fill #ffcc80 0.45
+circle 0.5,0.5 0.035 fill #ffaa00 0.65
+poly 0.49,0.50 0.50,0.46 0.51,0.50 fill #ffcc00 0.85
+circle 0.5,0.49 0.012 fill #ffffff 0.9
+
+# Base rim highlight (silver glint)
+arc 0.5,0.5 0.27 210 340 stroke #f0f0f0 0.5 width 1

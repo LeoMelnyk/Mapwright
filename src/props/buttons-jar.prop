@@ -1,0 +1,50 @@
+name: Buttons Jar
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: shop-tailor, merchant-house, textile-loomhouse, workshop
+typical_count: few
+clusters_with: cutting-table, sewing-bench, thimble, scissors-shears
+notes: Small glass jar of assorted buttons; place on tables, shelves, or work benches
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.26
+
+# Jar glass body (outer circle, transparent blue tint)
+circle 0.5,0.5 0.26 fill #c8dce8 0.45
+circle 0.5,0.5 0.26 stroke #8899aa width 2
+# Inner rim highlight (glass edge)
+circle 0.5,0.5 0.22 stroke #e8f0ff 0.5
+# Jar lid (metal, slightly smaller concentric)
+circle 0.5,0.5 0.26 stroke #666666 width 1
+ring 0.5,0.5 0.26 0.23 fill #777777 0.55
+ring 0.5,0.5 0.26 0.23 stroke #444444
+# Small lid knob / center
+circle 0.5,0.5 0.04 fill #888888 0.8
+circle 0.5,0.5 0.04 stroke #444444
+# --- Buttons inside (visible through glass / top of jar) ---
+# Off-white bone button (NW)
+circle 0.40,0.42 0.035 fill #e8dcc8 0.9
+circle 0.40,0.42 0.035 stroke #8b7355
+circle 0.40,0.42 0.008 fill #5c3a1e 0.8
+# Dark brown wooden button (NE)
+circle 0.60,0.40 0.032 fill #4a2800 0.95
+circle 0.60,0.40 0.032 stroke #2a1400
+# Bone button (center-south)
+circle 0.50,0.60 0.030 fill #d4c4a8 0.9
+circle 0.50,0.60 0.030 stroke #8b7355
+# Red button (SW)
+circle 0.40,0.60 0.028 fill #882818 0.9
+circle 0.40,0.60 0.028 stroke #3a0808
+# Brass button (SE)
+circle 0.62,0.58 0.028 fill #daa520 0.9
+circle 0.62,0.58 0.028 stroke #5a3a00
+# Tiny pearl button (center)
+circle 0.50,0.48 0.022 fill #f0e8d4 0.9
+circle 0.50,0.48 0.022 stroke #a89878
+# Glass reflection highlight
+arc 0.5,0.5 0.22 200 240 stroke #ffffff 0.5 width 2

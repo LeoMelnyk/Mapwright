@@ -1,0 +1,53 @@
+name: Clay-Splattered Apron
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1.5
+placement: wall
+room_types: kiln-pottery, workshop, mill-workshop, house-medium-artisan
+typical_count: single
+clusters_with: apron-hung, drying-rack, clay-bin, wheel-pottery, kiln-brick
+notes: Leather apron splattered with wet clay, hanging on a wall peg. Top-down view — hook, oval apron top, dangling strap lines.
+---
+# === Peg (small dark nub at top of wall) ===
+circle 0.50,0.08 0.028 fill #2a1400 0.9
+circle 0.50,0.08 0.028 stroke #1a0f00
+
+# === Neck strap loop over peg ===
+bezier 0.44,0.10 0.46,0.14 0.54,0.14 0.56,0.10 stroke #5c3a1e width 2
+
+# === Apron bib (oval shape of apron top, leather brown) ===
+ellipse 0.50,0.28 0.16,0.14 fill #6b4e2e 0.95
+ellipse 0.50,0.28 0.16,0.14 texfill polyhaven/brown_leather 0.55
+ellipse 0.50,0.28 0.16,0.14 stroke #3a1f00 width 2
+
+# === Apron main body (wider leather skirt) ===
+poly 0.36,0.34 0.64,0.34 0.74,0.56 0.72,0.70 0.28,0.70 0.26,0.56 fill #6b4e2e 0.95
+poly 0.36,0.34 0.64,0.34 0.74,0.56 0.72,0.70 0.28,0.70 0.26,0.56 texfill polyhaven/brown_leather 0.5
+poly 0.36,0.34 0.64,0.34 0.74,0.56 0.72,0.70 0.28,0.70 0.26,0.56 stroke #3a1f00
+
+# === Dangling straps (thin lines left and right of bib) ===
+line 0.34,0.30 0.18,0.38 stroke #5c3a1e width 2
+line 0.66,0.30 0.82,0.38 stroke #5c3a1e width 2
+line 0.26,0.56 0.14,0.64 stroke #5c3a1e width 2
+line 0.74,0.56 0.86,0.64 stroke #5c3a1e width 2
+
+# === Waist seam across apron ===
+line 0.30,0.48 0.70,0.48 stroke #3a1f00 0.6
+
+# === Clay splatters (grey-brown wet clay blobs on apron) ===
+circle 0.42,0.40 0.04 fill #6a5848 0.8
+circle 0.42,0.40 0.04 stroke #3a2820 0.5
+circle 0.58,0.52 0.05 fill #6a5848 0.85
+circle 0.58,0.52 0.05 stroke #3a2820 0.5
+circle 0.46,0.62 0.035 fill #7a6858 0.75
+ellipse 0.56,0.30 0.03,0.02 fill #6a5848 0.7
+circle 0.36,0.56 0.025 fill #8a7868 0.6
+
+# === Small dried clay crumb on bib ===
+circle 0.52,0.24 0.02 fill #a88868 0.7
+
+# === Fold crease down middle (subtle) ===
+line 0.50,0.34 0.50,0.68 stroke #3a1f00 0.35

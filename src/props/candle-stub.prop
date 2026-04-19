@@ -1,0 +1,37 @@
+name: Candle Stub
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: apartment-tenement, mansion-servants-quarters, peasant-hovel, cabin-abandoned, crypt
+typical_count: many
+clusters_with: candle, candle-cluster, candle-guttered, prayer-card
+notes: Burnt-down candle stub; remnants of a melted candle
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.14
+
+# Large puddled wax base (spread wider than candle body)
+poly 0.34,0.58 0.40,0.48 0.52,0.44 0.62,0.46 0.68,0.54 0.66,0.64 0.56,0.68 0.42,0.68 0.36,0.62 fill #e8dcc8 0.85
+poly 0.34,0.58 0.40,0.48 0.52,0.44 0.62,0.46 0.68,0.54 0.66,0.64 0.56,0.68 0.42,0.68 0.36,0.62 stroke #a08878
+# Drip tails
+poly 0.32,0.60 0.28,0.68 0.34,0.66 fill #e8dcc8 0.8
+poly 0.68,0.56 0.74,0.62 0.68,0.64 fill #e8dcc8 0.8
+# Stub body (short remnant circle)
+circle 0.50,0.52 0.10 fill #f0e4d0 0.95
+circle 0.50,0.52 0.10 stroke #a08878
+# Central melted crater
+circle 0.50,0.52 0.06 fill #8a6030 0.7
+circle 0.50,0.52 0.06 stroke #5a3818
+# Char/burn residue in crater
+circle 0.50,0.52 0.04 fill #3a2010 0.85
+# Blackened wick stub (burnt out)
+circle 0.50,0.52 0.018 fill #0a0808 0.95
+# No active flame — this is burnt out
+# Wax highlight
+arc 0.50,0.52 0.09 210 260 stroke #ffffff 0.4 width 1
+# Soot smear
+circle 0.58,0.46 0.02 fill #1a1008 0.5

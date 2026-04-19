@@ -1,0 +1,55 @@
+name: Muddy Work Boots
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: farmhouse-common, entry-hall, peasant-hovel, stable, farmhouse-kitchen
+typical_count: single
+clusters_with: hay-wisps, peg-rail-wall, cloak, broom
+notes: Pair of mud-caked leather work boots left by the door — top-down shows two boot-tops with mud ring around them
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Boots oriented with toes pointing south (toward the room interior)
+
+# === Mud ring/splatter around the boots ===
+ellipse 0.50,0.52 0.38,0.34 fill #3a2818 0.2
+# Mud drips
+circle 0.20,0.40 0.02 fill #3a2818 0.5
+circle 0.82,0.48 0.018 fill #3a2818 0.45
+circle 0.36,0.82 0.015 fill #3a2818 0.4
+circle 0.68,0.80 0.018 fill #3a2818 0.45
+
+# === Left boot ===
+ellipse 0.34,0.50 0.12,0.22 fill #5c3a1e 0.95
+ellipse 0.34,0.50 0.12,0.22 texfill polyhaven/brown_leather 0.55
+ellipse 0.34,0.50 0.12,0.22 stroke #2a1400
+# Boot opening (dark interior at top/north)
+ellipse 0.34,0.32 0.08,0.04 fill #1a0f00 0.9
+ellipse 0.34,0.32 0.08,0.04 stroke #2a1400
+# Toe cap (wider at south)
+poly 0.24,0.62 0.44,0.62 0.42,0.72 0.26,0.72 fill #4a2800 0.9
+poly 0.24,0.62 0.44,0.62 0.42,0.72 0.26,0.72 stroke #2a1400
+# Mud caking on sole
+poly 0.24,0.72 0.44,0.72 0.42,0.76 0.26,0.78 fill #3a2818 0.8
+poly 0.24,0.72 0.44,0.72 0.42,0.76 0.26,0.78 stroke #1a1008
+
+# === Right boot ===
+ellipse 0.66,0.50 0.12,0.22 fill #5c3a1e 0.95
+ellipse 0.66,0.50 0.12,0.22 texfill polyhaven/brown_leather 0.55
+ellipse 0.66,0.50 0.12,0.22 stroke #2a1400
+# Boot opening
+ellipse 0.66,0.32 0.08,0.04 fill #1a0f00 0.9
+ellipse 0.66,0.32 0.08,0.04 stroke #2a1400
+# Toe cap
+poly 0.56,0.62 0.76,0.62 0.74,0.72 0.58,0.72 fill #4a2800 0.9
+poly 0.56,0.62 0.76,0.62 0.74,0.72 0.58,0.72 stroke #2a1400
+# Mud caking
+poly 0.56,0.72 0.76,0.72 0.74,0.78 0.58,0.76 fill #3a2818 0.8
+poly 0.56,0.72 0.76,0.72 0.74,0.78 0.58,0.76 stroke #1a1008
+
+# Mud splashes on boot uppers
+ellipse 0.34,0.58 0.06,0.03 fill #3a2818 0.55
+ellipse 0.66,0.56 0.07,0.03 fill #3a2818 0.5

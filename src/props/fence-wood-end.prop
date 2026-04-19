@@ -1,0 +1,63 @@
+name: Low Wooden Fence (End Post)
+category: Architecture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.2
+placement: floor
+room_types: roadside-gallows, graveyard-village, village-green, garden, farmhouse-yard, market
+typical_count: few
+clusters_with: fence-wood-low, fence-wood-corner, tombstone, grave-mound, gate-gallows
+notes: Terminating post for the low wooden fence. At facing 0 the rail enters from the west edge (y=0.40–0.58) and ends at a single large end-post on the east side. The post cap is drawn top-down (concentric squares + 4-way facet lines for the pyramidion apex) so it reads correctly from above. Edge geometry matches fence-wood-low so sections tile cleanly.
+---
+# === HITBOX ===
+selection rect 0.00,0.40 1.00,0.22
+selection rect 0.66,0.28 0.24,0.44
+
+# Ground shadow under the rail and the end post
+rect 0.00,0.58 0.66,0.06 fill #000000 0.15
+rect 0.66,0.56 0.24,0.12 fill #000000 0.20
+
+# === Rail segments (enter from west, stop at the end post) ===
+rect 0.00,0.40 0.66,0.10 texfill polyhaven/weathered_planks 0.82
+rect 0.00,0.40 0.66,0.10 stroke #3a1f00
+rect 0.00,0.52 0.66,0.06 texfill polyhaven/weathered_planks 0.78
+rect 0.00,0.52 0.66,0.06 stroke #3a1f00
+# Rail grain
+line 0.00,0.44 0.66,0.44 stroke #2a1400 0.5
+line 0.00,0.47 0.66,0.47 stroke #2a1400 0.4
+
+# === Terminal end post — a single prominent block ===
+rect 0.66,0.28 0.24,0.44 texfill polyhaven/dark_wood 0.94
+rect 0.66,0.28 0.24,0.44 stroke #1a0a00
+
+# === Top-down pyramidion cap ===
+# Concentric inner square (the chamfered cap below the apex)
+rect 0.70,0.32 0.16,0.36 fill #5c3a1e 0.9
+rect 0.70,0.32 0.16,0.36 stroke #1a0a00 0.7
+
+# 4-way facet lines from cap corners to the apex — each stroke implies one
+# slope of the pyramidion, read top-down as four triangles meeting at center.
+line 0.70,0.32 0.78,0.50 stroke #3a2010 0.8
+line 0.86,0.32 0.78,0.50 stroke #3a2010 0.8
+line 0.70,0.68 0.78,0.50 stroke #3a2010 0.8
+line 0.86,0.68 0.78,0.50 stroke #3a2010 0.8
+
+# Apex highlight (the tip of the pyramidion catching light)
+circle 0.78,0.50 0.028 fill #8b6914 0.9
+circle 0.78,0.50 0.014 fill #c8a060 0.9
+
+# Bolt accents on the post face (showing the cap is nailed on)
+circle 0.72,0.36 0.014 fill #333333 0.85
+circle 0.84,0.36 0.014 fill #333333 0.85
+circle 0.72,0.64 0.014 fill #333333 0.85
+circle 0.84,0.64 0.014 fill #333333 0.85
+
+# === Pickets along the rail (west of the end post) ===
+poly 0.06,0.34 0.14,0.34 0.14,0.40 0.10,0.32 0.06,0.40 fill #4a2800 0.9
+poly 0.06,0.34 0.14,0.34 0.14,0.40 0.10,0.32 0.06,0.40 stroke #1a0a00
+poly 0.26,0.34 0.34,0.34 0.34,0.40 0.30,0.32 0.26,0.40 fill #4a2800 0.9
+poly 0.26,0.34 0.34,0.34 0.34,0.40 0.30,0.32 0.26,0.40 stroke #1a0a00
+poly 0.46,0.34 0.54,0.34 0.54,0.40 0.50,0.32 0.46,0.40 fill #4a2800 0.9
+poly 0.46,0.34 0.54,0.34 0.54,0.40 0.50,0.32 0.46,0.40 stroke #1a0a00

@@ -1,0 +1,47 @@
+name: Color Rod Bundle
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: glassworks, workshop
+typical_count: few
+clusters_with: gaffer-bench, annealing-oven, sand-bin
+notes: Bundle of colored glass rods lying on the floor, tied with twine. Used by glassblowers for color inlay and canework.
+---
+# === HITBOX ===
+selection rect 0.08,0.32 0.84,0.36
+
+# Faint ground scuff under bundle
+ellipse 0.5,0.55 0.42,0.14 fill #2a2018 0.2
+
+# Rods — several colored rods running parallel east-west, slight overlap
+# Rod 1 — red (top)
+rect 0.08,0.36 0.84,0.05 fill #a8201a 0.9
+rect 0.08,0.36 0.84,0.05 stroke #5a0c08
+# Rod 2 — amber
+rect 0.10,0.42 0.82,0.05 fill #d89020 0.9
+rect 0.10,0.42 0.82,0.05 stroke #6a4008
+# Rod 3 — green
+rect 0.08,0.48 0.84,0.05 fill #2a8040 0.9
+rect 0.08,0.48 0.84,0.05 stroke #0a3818
+# Rod 4 — blue
+rect 0.09,0.54 0.83,0.05 fill #2040a8 0.9
+rect 0.09,0.54 0.83,0.05 stroke #081858
+# Rod 5 — pale cyan
+rect 0.10,0.60 0.82,0.05 fill #70b0c0 0.9
+rect 0.10,0.60 0.82,0.05 stroke #284050
+
+# Specular highlights (long thin shine lines on top of rods)
+line 0.12,0.375 0.88,0.375 stroke #ff8878 0.5
+line 0.12,0.495 0.88,0.495 stroke #68c080 0.45
+line 0.12,0.555 0.88,0.555 stroke #6080d0 0.45
+
+# Twine band crossing the bundle (dark rope)
+rect 0.42,0.33 0.10,0.36 fill #6b4e2e 0.95
+rect 0.42,0.33 0.10,0.36 stroke #2a1408
+# Twine knot
+circle 0.47,0.51 0.035 fill #5c3a1e 0.95
+circle 0.47,0.51 0.035 stroke #2a1408

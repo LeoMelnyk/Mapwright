@@ -1,3 +1,5 @@
+import { setDevLogging } from '../../util/index.js';
+
 // Editor-level settings: persist across maps via localStorage.
 // These are NOT map properties — they belong to the editor environment.
 const EDITOR_SETTINGS_KEY = 'mw-editor-settings';
@@ -7,9 +9,9 @@ const DEFAULTS = {
   memoryUsage: false,
   minimap: false,
   diagExpanded: true,
-  renderQuality: 20,  // cache px/ft: 10=Low, 15=Medium, 20=High, 30=Ultra
-  lightQuality: 10,   // lightmap px/ft: 5=Low, 10=Medium, 15=High, 20=Ultra
-  debug: false,       // show debug panel in right sidebar
+  renderQuality: 20, // cache px/ft: 10=Low, 15=Medium, 20=High, 30=Ultra
+  lightQuality: 10, // lightmap px/ft: 5=Low, 10=Medium, 15=High, 20=Ultra
+  debug: false, // show debug panel in right sidebar
 };
 
 let _cache: Record<string, unknown> | null = null;
@@ -28,7 +30,9 @@ function load(): Record<string, unknown> {
 function save() {
   try {
     localStorage.setItem(EDITOR_SETTINGS_KEY, JSON.stringify(_cache));
-  } catch { /* localStorage unavailable */ }
+  } catch {
+    /* localStorage unavailable */
+  }
 }
 
 /**
@@ -48,4 +52,5 @@ export function getEditorSettings(): Record<string, unknown> {
 export function setEditorSetting(key: string, value: unknown): void {
   load()[key] = value;
   save();
+  if (key === 'debug') setDevLogging(Boolean(value));
 }

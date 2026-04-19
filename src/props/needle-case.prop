@@ -1,0 +1,50 @@
+name: Needle Case
+category: Tools
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: shop-tailor, textile-loomhouse, sewing-nook
+typical_count: single
+clusters_with: pin-cushion, thread-spool, silk-bolt, fabric-scrap
+notes: Small cylindrical needle case — carved wood or bone, cap off
+---
+# === HITBOX ===
+selection rect 0.22,0.36 0.56,0.28
+
+# Main body (wooden cylinder lying on side, elongated)
+ellipse 0.42,0.50 0.24,0.12 texfill polyhaven/dark_wood 0.9
+ellipse 0.42,0.50 0.24,0.12 stroke #2a1400
+# Carved decorative rings
+line 0.24,0.44 0.60,0.44 stroke #5c3a1e 0.7
+line 0.24,0.56 0.60,0.56 stroke #5c3a1e 0.7
+# Carved pattern (chevrons)
+line 0.28,0.46 0.32,0.50 stroke #3a1f00 0.7
+line 0.32,0.50 0.36,0.46 stroke #3a1f00 0.7
+line 0.36,0.46 0.40,0.50 stroke #3a1f00 0.7
+line 0.40,0.50 0.44,0.46 stroke #3a1f00 0.7
+line 0.44,0.46 0.48,0.50 stroke #3a1f00 0.7
+line 0.48,0.50 0.52,0.46 stroke #3a1f00 0.7
+# Open end (cap removed — dark hole)
+ellipse 0.66,0.50 0.06,0.10 fill #1a0f00 0.95
+ellipse 0.66,0.50 0.06,0.10 stroke #2a1400
+# Needles sticking out (tiny silver points)
+line 0.66,0.48 0.82,0.44 stroke #cccccc width 1
+circle 0.82,0.44 0.008 fill #888888 0.9
+line 0.66,0.50 0.84,0.50 stroke #cccccc width 1
+circle 0.84,0.50 0.008 fill #888888 0.9
+line 0.66,0.52 0.82,0.56 stroke #cccccc width 1
+circle 0.82,0.56 0.008 fill #888888 0.9
+line 0.66,0.46 0.78,0.38 stroke #cccccc width 1
+circle 0.78,0.38 0.008 fill #888888 0.9
+# Cap (removed, lying nearby at east end)
+ellipse 0.88,0.54 0.05,0.06 texfill polyhaven/dark_wood 0.9
+ellipse 0.88,0.54 0.05,0.06 stroke #2a1400
+# Cap carving
+line 0.85,0.54 0.91,0.54 stroke #5c3a1e 0.7
+# Highlight on body
+arc 0.42,0.50 0.22 210 260 stroke #8b6914 0.5 width 1
+# Thread loop around case
+bezier 0.30,0.40 0.26,0.48 0.28,0.58 0.34,0.64 stroke #c82020 0.8 width 1

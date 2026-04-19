@@ -1,0 +1,47 @@
+name: Floating Barrel
+category: Containers
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cistern, sewer, flooded-room, underground-lake, dock-warehouse
+typical_count: few
+clusters_with: floating-barrel, algae-bloom, drowned-rat, barrel
+notes: A wooden barrel floating on water, partially submerged. Shows the top 2/3 of the lid with a wet/dark submersion ring at the base. No shadow — it's on water, not ground.
+---
+# Water disturbance ring (ripple around the barrel)
+circle 0.50,0.50 0.42 stroke #5a7a8a 0.12
+circle 0.50,0.50 0.44 stroke #5a7a8a 0.08
+
+# === Submersion ring (dark wet band at waterline) ===
+circle 0.50,0.50 0.38 fill #2a3840 0.45
+circle 0.50,0.50 0.38 stroke #1a2830 0.5
+
+# === Barrel lid (top visible portion) ===
+circle 0.50,0.50 0.34 texfill polyhaven/dark_wood 0.8
+circle 0.50,0.50 0.34 stroke #3a1f00
+
+# Outer metal band
+circle 0.50,0.50 0.32 stroke #555555 0.8
+# Inner metal band
+circle 0.50,0.50 0.20 stroke #555555 0.7
+
+# Plank seam lines
+line 0.28,0.24 0.28,0.76 stroke #3a1f00 0.4
+line 0.72,0.24 0.72,0.76 stroke #3a1f00 0.4
+line 0.50,0.16 0.50,0.84 stroke #3a1f00 0.4
+
+# Center bung hole
+circle 0.50,0.50 0.04 fill #1a0a00 0.75
+
+# === Wet sheen on the exposed lid ===
+arc 0.50,0.50 0.28 200 260 stroke #6a8090 0.3 width 1
+arc 0.50,0.50 0.24 210 250 stroke #8a98a0 0.2 width 1
+
+# Water reflection highlight at waterline edge
+arc 0.50,0.50 0.38 120 180 stroke #7a9aaa 0.2 width 1
+arc 0.50,0.50 0.38 300 360 stroke #7a9aaa 0.18 width 1
+
+# Darkened wood where water has seeped (bottom portion of lid)
+arc 0.50,0.50 0.30 60 120 fill #2a1a0a 0.2

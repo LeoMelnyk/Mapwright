@@ -1,0 +1,63 @@
+name: Fallen Beam
+category: Terrain
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: ancient-ruin-overgrown, ruined-watchtower, cave, corrupted-temple, cabin-abandoned
+typical_count: single
+clusters_with: rubble-pile, collapsed-wall-segment, dust-heap, broken-crate
+notes: Collapsed roof beam — long splintered timber lying across floor
+---
+# === HITBOX ===
+hitbox rect 0.10,0.20 2.80,0.60 z 0-0.8
+
+# Main beam body (long rectangular timber)
+rect 0.10,0.28 2.80,0.44 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.28 2.80,0.44 fill #3a2010 0.45
+rect 0.10,0.28 2.80,0.44 stroke #1a1008
+# Wood grain (lengthwise)
+line 0.10,0.38 2.90,0.38 stroke #5c3a1e 0.5
+line 0.10,0.48 2.90,0.48 stroke #5c3a1e 0.5
+line 0.10,0.58 2.90,0.58 stroke #5c3a1e 0.5
+line 0.10,0.66 2.90,0.66 stroke #5c3a1e 0.4
+# Cracks (splintering)
+bezier 0.60,0.28 0.66,0.40 0.72,0.56 0.78,0.72 stroke #1a1008 0.7 width 1
+bezier 1.40,0.28 1.46,0.40 1.52,0.56 1.58,0.72 stroke #1a1008 0.7 width 1
+bezier 2.20,0.28 2.26,0.40 2.32,0.56 2.38,0.72 stroke #1a1008 0.7 width 1
+# Shattered west end (splintered from impact)
+poly 0.10,0.28 0.02,0.34 0.06,0.42 0.00,0.50 0.04,0.58 0.00,0.66 0.10,0.72 fill #3a2010 0.92
+poly 0.10,0.28 0.02,0.34 0.06,0.42 0.00,0.50 0.04,0.58 0.00,0.66 0.10,0.72 stroke #1a1008
+# Splintered jagged edge (west)
+line 0.10,0.32 0.02,0.30 stroke #5c3a1e width 2
+line 0.10,0.48 0.02,0.50 stroke #5c3a1e width 2
+line 0.10,0.60 0.02,0.62 stroke #5c3a1e width 2
+# Shattered east end
+poly 2.90,0.28 2.96,0.38 2.92,0.48 2.98,0.58 2.94,0.66 2.90,0.72 fill #3a2010 0.92
+poly 2.90,0.28 2.96,0.38 2.92,0.48 2.98,0.58 2.94,0.66 2.90,0.72 stroke #1a1008
+# Iron reinforcement bands (the beam had structural metal)
+rect 0.78,0.26 0.06,0.48 fill #3a3020 0.85
+rect 0.78,0.26 0.06,0.48 stroke #1a1008
+line 0.80,0.28 0.80,0.72 stroke #555555 0.6
+rect 1.90,0.26 0.06,0.48 fill #3a3020 0.85
+rect 1.90,0.26 0.06,0.48 stroke #1a1008
+line 1.92,0.28 1.92,0.72 stroke #555555 0.6
+# Notches where beam joined structure
+rect 0.22,0.24 0.10,0.08 fill #1a1008 0.8
+rect 2.58,0.24 0.10,0.08 fill #1a1008 0.8
+# Nails sticking out
+line 0.40,0.28 0.42,0.22 stroke #444444 width 1
+line 1.24,0.72 1.26,0.78 stroke #444444 width 1
+line 2.20,0.28 2.22,0.22 stroke #444444 width 1
+# Moss patches on old wood
+ellipse 1.10,0.52 0.14,0.06 fill #3a5028 0.6
+ellipse 2.30,0.54 0.12,0.06 fill #3a5028 0.55
+# Rot/discoloration
+ellipse 0.50,0.42 0.16,0.08 fill #1a1008 0.4
+ellipse 1.70,0.62 0.14,0.06 fill #1a1008 0.4
+# Small splinters scattered around
+line 0.22,0.82 0.30,0.84 stroke #5c3a1e 0.7
+line 1.80,0.84 1.86,0.86 stroke #5c3a1e 0.7
+line 2.60,0.18 2.66,0.16 stroke #5c3a1e 0.7

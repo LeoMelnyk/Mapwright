@@ -1,0 +1,42 @@
+name: Galley Cupboard
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 5
+placement: wall
+room_types: ship, galley, kitchen
+typical_count: few
+clusters_with: pewter-plate, spice-rack, ship-stove
+notes: Narrow wall-mounted cupboard with netting to hold dishware against ship roll; place along galley walls
+---
+# === HITBOX ===
+hitbox rect 0.10,0.05 1.80,0.80 z 0-5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: flat cabinet top at north + net-grid hint at south edge
+
+# Cabinet body (recessed below top, visible at sides and south)
+rect 0.12,0.05 1.76,0.78 fill #2a1400 0.35
+line 0.12,0.05 0.12,0.83 stroke #3a1f00
+line 1.88,0.05 1.88,0.83 stroke #3a1f00
+line 0.12,0.83 1.88,0.83 stroke #3a1f00
+
+# Wooden top surface (overhangs body on front and sides)
+rect 0.04,0.0 1.92,0.68 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.04,0.0 1.92,0.68 stroke #3a1f00
+
+# Crown molding strip along north (wall) edge
+rect 0.04,0.0 1.92,0.06 fill #4a2800 0.5
+
+# Netting across the front (south edge) — rope grid hints
+line 0.20,0.70 0.20,0.82 stroke #8b7355 0.5
+line 0.50,0.70 0.50,0.82 stroke #8b7355 0.5
+line 0.80,0.70 0.80,0.82 stroke #8b7355 0.5
+line 1.10,0.70 1.10,0.82 stroke #8b7355 0.5
+line 1.40,0.70 1.40,0.82 stroke #8b7355 0.5
+line 1.70,0.70 1.70,0.82 stroke #8b7355 0.5
+# Horizontal rope lines
+line 0.14,0.73 1.86,0.73 stroke #8b7355 0.4
+line 0.14,0.78 1.86,0.78 stroke #8b7355 0.4

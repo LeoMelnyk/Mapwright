@@ -1,0 +1,45 @@
+name: Condenser Coil
+category: Alchemy
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 4
+placement: floor
+room_types: alchemist-lab, workshop-artificer, distillery, refinery
+typical_count: few
+clusters_with: distillery-vat, alembic, flask-small, alchemy-bench
+notes: Tall copper condenser apparatus; place near distillery vat or alchemy bench
+---
+# === HITBOX ===
+hitbox circle 0.50,0.50 0.38 z 0-4
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down radial cross-section: concentric copper rings + central post
+
+# Outer copper coil ring (widest spiral, seen as ring from above)
+ring 0.50,0.50 0.38 0.32 fill #b87333 0.7
+ring 0.50,0.50 0.38 0.32 stroke #7a4a22
+
+# Second coil ring
+ring 0.50,0.50 0.28 0.22 fill #b87333 0.65
+ring 0.50,0.50 0.28 0.22 stroke #7a4a22
+
+# Third (inner) coil ring
+ring 0.50,0.50 0.18 0.13 fill #b87333 0.6
+ring 0.50,0.50 0.18 0.13 stroke #7a4a22
+
+# Central vertical post disc
+circle 0.50,0.50 0.09 texfill polyhaven/metal_plate 0.8
+circle 0.50,0.50 0.09 stroke #333333
+# Post highlight
+circle 0.48,0.47 0.03 fill #aabbcc 0.35
+
+# Copper patina highlights on outer ring
+arc 0.50,0.50 0.35 30 90 stroke #cc9955 0.35 width 2
+arc 0.50,0.50 0.25 200 260 stroke #cc9955 0.3 width 2
+
+# Inlet pipe stub (south)
+rect 0.44,0.86 0.12,0.12 fill #b87333 0.75
+rect 0.44,0.86 0.12,0.12 stroke #7a4a22
+circle 0.50,0.92 0.04 fill #333333 0.7

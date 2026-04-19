@@ -1,0 +1,98 @@
+name: Sack Pile
+category: Containers
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.4
+placement: floor
+room_types: mill-grain, mill-water, pantry, dock-warehouse, farmhouse-kitchen, bakery, granary
+typical_count: few
+clusters_with: sack, sack-stack, scoop-wooden, millstone, barrel, crate
+notes: Large pile of burlap flour sacks stacked high. Multiple overlapping round sacks seen from above, each with drawstring gather.
+---
+# footprint 2x2: x 0-2, y 0-2
+# === HITBOX ===
+hitbox rect 0.14,0.14 1.72,1.72 z 0-1.4
+
+# Base shadow
+ellipse 1.0,1.80 0.80,0.14 fill #1a1008 0.3
+
+# === Bottom layer — 4 sacks at corners (largest) ===
+# NW sack
+ellipse 0.48,0.56 0.38,0.34 texfill polyhaven/rough_linen 0.88
+ellipse 0.48,0.56 0.38,0.34 fill #8a7450 0.35
+ellipse 0.48,0.56 0.38,0.34 stroke #3a2810 width 2
+# NW drawstring
+ellipse 0.48,0.30 0.10,0.04 fill #3a2010 0.9
+ellipse 0.48,0.30 0.10,0.04 stroke #1a0f00
+bezier 0.42,0.28 0.38,0.22 0.36,0.16 0.34,0.12 stroke #3a2010 width 2
+bezier 0.54,0.28 0.58,0.22 0.60,0.16 0.62,0.12 stroke #3a2010 width 2
+# NW content bulges
+ellipse 0.34,0.56 0.10,0.08 fill #a89070 0.4
+ellipse 0.62,0.60 0.10,0.08 fill #a89070 0.4
+
+# NE sack
+ellipse 1.52,0.56 0.38,0.34 texfill polyhaven/rough_linen 0.90
+ellipse 1.52,0.56 0.38,0.34 fill #9a8260 0.35
+ellipse 1.52,0.56 0.38,0.34 stroke #3a2810 width 2
+# NE drawstring
+ellipse 1.52,0.30 0.10,0.04 fill #3a2010 0.9
+ellipse 1.52,0.30 0.10,0.04 stroke #1a0f00
+bezier 1.46,0.28 1.42,0.22 1.40,0.16 1.38,0.12 stroke #3a2010 width 2
+bezier 1.58,0.28 1.62,0.22 1.64,0.16 1.66,0.12 stroke #3a2010 width 2
+ellipse 1.38,0.60 0.10,0.08 fill #b8a580 0.4
+ellipse 1.66,0.54 0.10,0.08 fill #b8a580 0.4
+
+# SW sack
+ellipse 0.48,1.44 0.38,0.32 texfill polyhaven/rough_linen 0.85
+ellipse 0.48,1.44 0.38,0.32 fill #8a7450 0.4
+ellipse 0.48,1.44 0.38,0.32 stroke #3a2810 width 2
+ellipse 0.48,1.20 0.10,0.04 fill #3a2010 0.9
+ellipse 0.48,1.20 0.10,0.04 stroke #1a0f00
+ellipse 0.36,1.44 0.10,0.07 fill #a89070 0.4
+ellipse 0.60,1.48 0.10,0.07 fill #a89070 0.4
+
+# SE sack
+ellipse 1.52,1.44 0.38,0.32 texfill polyhaven/rough_linen 0.88
+ellipse 1.52,1.44 0.38,0.32 fill #9a8260 0.4
+ellipse 1.52,1.44 0.38,0.32 stroke #3a2810 width 2
+ellipse 1.52,1.20 0.10,0.04 fill #3a2010 0.9
+ellipse 1.52,1.20 0.10,0.04 stroke #1a0f00
+ellipse 1.40,1.44 0.10,0.07 fill #b8a580 0.4
+ellipse 1.64,1.48 0.10,0.07 fill #b8a580 0.4
+
+# === Top layer — 2 sacks on top (slightly smaller, centered) ===
+# Top-center sack (north)
+ellipse 1.0,0.60 0.38,0.30 texfill polyhaven/rough_linen 0.92
+ellipse 1.0,0.60 0.38,0.30 fill #a89070 0.4
+ellipse 1.0,0.60 0.38,0.30 stroke #3a2810 width 2
+ellipse 1.0,0.38 0.10,0.04 fill #3a2010 0.95
+ellipse 1.0,0.38 0.10,0.04 stroke #1a0f00
+bezier 0.94,0.36 0.90,0.30 0.88,0.24 0.86,0.20 stroke #3a2010 width 2
+bezier 1.06,0.36 1.10,0.30 1.12,0.24 1.14,0.20 stroke #3a2010 width 2
+circle 1.0,0.34 0.025 fill #2a1400 0.9
+ellipse 0.88,0.62 0.10,0.07 fill #c8b090 0.45
+ellipse 1.12,0.58 0.10,0.07 fill #c8b090 0.45
+
+# Top-center sack (south)
+ellipse 1.0,1.40 0.38,0.30 texfill polyhaven/rough_linen 0.92
+ellipse 1.0,1.40 0.38,0.30 fill #a89070 0.4
+ellipse 1.0,1.40 0.38,0.30 stroke #3a2810 width 2
+ellipse 1.0,1.18 0.10,0.04 fill #3a2010 0.95
+ellipse 1.0,1.18 0.10,0.04 stroke #1a0f00
+bezier 0.94,1.16 0.90,1.10 0.88,1.04 0.86,1.00 stroke #3a2010 width 2
+bezier 1.06,1.16 1.10,1.10 1.12,1.04 1.14,1.00 stroke #3a2010 width 2
+ellipse 0.88,1.42 0.10,0.07 fill #c8b090 0.45
+ellipse 1.12,1.38 0.10,0.07 fill #c8b090 0.45
+
+# Highlights
+arc 0.48,0.56 0.36 210 260 stroke #c8b880 0.35 width 1
+arc 1.52,0.56 0.36 210 260 stroke #c8b880 0.35 width 1
+arc 1.0,0.60 0.36 210 260 stroke #d8c8a0 0.45 width 1
+arc 1.0,1.40 0.36 210 260 stroke #d8c8a0 0.45 width 1
+
+# A tear/hole in one sack with flour spilling
+poly 0.70,1.36 0.76,1.36 0.74,1.42 0.70,1.42 fill #2a1810 0.7
+ellipse 0.80,1.52 0.10,0.04 fill #e8e0d0 0.6
+ellipse 0.88,1.60 0.08,0.03 fill #e8e0d0 0.5

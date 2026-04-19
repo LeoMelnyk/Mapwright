@@ -1,0 +1,81 @@
+name: Torch Totem
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: corner
+room_types: goblin-warren-entrance, orc-war-camp, cave-bandit-camp, cave-goblin-warren
+typical_count: few
+clusters_with: hide-tarp, bone-pile, totem-post, campfire, torch-wall
+notes: Vertical post topped with burning brazier-cage and adorned with skulls, feathers, and bone trophies. Marks tribal territory.
+lights: [{"preset":"bonfire","x":0.5,"y":0.5,"radius":14,"intensity":1,"color":"#ff9040"}]
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-2.5
+
+# Adornment arms extending out (bone cross-pieces lashed to post)
+# Feather hanging SW
+poly 0.30,0.70 0.18,0.82 0.16,0.90 0.22,0.88 0.28,0.80 fill #4a2a18 0.85
+poly 0.30,0.70 0.18,0.82 0.16,0.90 0.22,0.88 0.28,0.80 stroke #1a0a00
+line 0.20,0.86 0.28,0.74 stroke #8a6040 0.7 width 1
+
+# Feather hanging SE
+poly 0.70,0.70 0.82,0.82 0.86,0.88 0.80,0.88 0.74,0.82 fill #3a2010 0.85
+poly 0.70,0.70 0.82,0.82 0.86,0.88 0.80,0.88 0.74,0.82 stroke #1a0a00
+line 0.82,0.84 0.74,0.74 stroke #8a6040 0.7 width 1
+
+# Bone trophy dangling NW (small skull/bone)
+ellipse 0.22,0.22 0.06,0.05 fill #d4c4a8 0.95
+ellipse 0.22,0.22 0.06,0.05 stroke #8a7a58
+circle 0.20,0.22 0.012 fill #1a0a00 0.9
+circle 0.24,0.22 0.012 fill #1a0a00 0.9
+# Bone tie-cord to post
+line 0.28,0.26 0.44,0.42 stroke #8a6040 0.7 width 1
+
+# Bone trophy dangling NE (finger-bone cluster)
+line 0.80,0.16 0.82,0.28 stroke #d4c4a8 width 2
+line 0.76,0.18 0.78,0.28 stroke #d4c4a8 width 2
+line 0.84,0.18 0.86,0.28 stroke #d4c4a8 width 2
+line 0.72,0.22 0.80,0.20 stroke #8a6040 0.7 width 1
+
+# Wooden post cross-section (dark wood, square-ish)
+rect 0.40,0.40 0.20,0.20 texfill polyhaven/dark_wood 0.9
+rect 0.40,0.40 0.20,0.20 stroke #1a0a00
+# Post grain cross marks
+line 0.40,0.50 0.60,0.50 stroke #2a1400 0.6 width 1
+line 0.50,0.40 0.50,0.60 stroke #2a1400 0.5 width 1
+
+# Crude lashings/rope wrap around top of post (holds brazier cage)
+arc 0.50,0.50 0.15 0 360 stroke #8a6040 0.9 width 2
+arc 0.50,0.50 0.17 30 150 stroke #6a4028 0.8 width 1
+arc 0.50,0.50 0.17 210 330 stroke #6a4028 0.8 width 1
+
+# Iron brazier-cage ring (sits atop post — holds fuel)
+ring 0.50,0.50 0.26 0.18 fill #3a2a1a 0.8
+ring 0.50,0.50 0.26 0.18 texfill polyhaven/rusty_metal 0.55
+ring 0.50,0.50 0.26 0.18 stroke #1a0a00
+
+# Cage bars crossing over the fire (4 radial bars visible from above)
+line 0.50,0.24 0.50,0.76 stroke #3a2a1a width 2
+line 0.24,0.50 0.76,0.50 stroke #3a2a1a width 2
+line 0.32,0.32 0.68,0.68 stroke #2a1810 0.7 width 1
+line 0.68,0.32 0.32,0.68 stroke #2a1810 0.7 width 1
+
+# Charred base (inside cage — burnt fuel)
+circle 0.50,0.50 0.16 fill #1a0800 0.85
+
+# Layered fire glow inside cage
+circle 0.50,0.50 0.16 fill #e85500 0.35
+circle 0.50,0.50 0.12 fill #ff6600 0.5
+circle 0.50,0.50 0.08 fill #ffaa00 0.7
+circle 0.50,0.50 0.05 fill #ffcc00 0.85
+# Hot white core
+circle 0.50,0.50 0.025 fill #ffee88 0.95
+
+# Tiny embers spitting out between cage bars
+circle 0.38,0.46 0.012 fill #ff8800 0.75
+circle 0.62,0.54 0.01 fill #ffaa00 0.7
+circle 0.54,0.38 0.012 fill #ff6600 0.7
+circle 0.46,0.62 0.01 fill #ffaa00 0.65

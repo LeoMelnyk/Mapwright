@@ -1,0 +1,48 @@
+name: Fur Clump
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: tannery, workshop, peasant-hovel
+typical_count: many
+clusters_with: hide-scraps, tanning-rack, tanning-vat, leather-stack
+notes: Shed fur and discarded pelt tufts; scatter around tanning stations
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.34
+
+# Outer warm-tan base (largest irregular blob)
+ellipse 0.50,0.52 0.34,0.28 fill #8a6a48 0.7
+ellipse 0.48,0.50 0.32,0.26 fill #9a7a58 0.55
+# Secondary grey-brown clump (overlap)
+ellipse 0.38,0.58 0.20,0.16 fill #6a5238 0.75
+ellipse 0.62,0.44 0.18,0.14 fill #a88858 0.7
+# Darker inner tuft
+ellipse 0.52,0.54 0.16,0.12 fill #5a4028 0.7
+# Pale highlight tuft
+ellipse 0.44,0.44 0.12,0.08 fill #c8a878 0.55
+# Radial hair strokes — outer fringe (warm tan)
+line 0.20,0.40 0.10,0.34 stroke #8a6a48 0.85 width 1
+line 0.22,0.52 0.08,0.54 stroke #8a6a48 0.85 width 1
+line 0.24,0.66 0.12,0.72 stroke #8a6a48 0.85 width 1
+line 0.78,0.38 0.88,0.32 stroke #8a6a48 0.85 width 1
+line 0.80,0.52 0.92,0.54 stroke #8a6a48 0.85 width 1
+line 0.76,0.66 0.88,0.74 stroke #8a6a48 0.85 width 1
+line 0.40,0.26 0.38,0.14 stroke #6a5238 0.85 width 1
+line 0.54,0.24 0.56,0.12 stroke #6a5238 0.85 width 1
+line 0.42,0.80 0.40,0.92 stroke #6a5238 0.85 width 1
+line 0.58,0.80 0.60,0.92 stroke #6a5238 0.85 width 1
+# Finer grey hair wisps
+line 0.30,0.32 0.22,0.24 stroke #a89878 0.7 width 1
+line 0.70,0.34 0.78,0.24 stroke #a89878 0.7 width 1
+line 0.32,0.74 0.24,0.82 stroke #a89878 0.7 width 1
+line 0.68,0.72 0.76,0.80 stroke #a89878 0.7 width 1
+# Inner short curly hair strokes
+line 0.46,0.46 0.42,0.42 stroke #3a2810 0.8 width 1
+line 0.58,0.52 0.62,0.48 stroke #3a2810 0.8 width 1
+line 0.50,0.60 0.46,0.64 stroke #3a2810 0.8 width 1
+# Single stray long hair
+bezier 0.50,0.40 0.40,0.28 0.30,0.20 0.18,0.12 stroke #6a5238 0.7 width 1

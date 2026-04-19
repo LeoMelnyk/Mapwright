@@ -1,0 +1,79 @@
+name: Stretched Hide
+category: Clutter
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: wall
+room_types: cabin-hunters, cabin-trapper, hunting-lodge-large, tannery
+typical_count: few
+clusters_with: antler-rack, trap-rack, skinning-knife, skinning-table, stretched-hide
+notes: Animal hide stretched on wooden frame for drying — wall-mounted
+---
+# === HITBOX ===
+selection rect 0.14,0.14 1.72,1.72
+
+# Outer wooden frame (square frame with tension ties)
+rect 0.14,0.14 1.72,0.10 fill #3a1f00 0.9
+rect 0.14,0.14 1.72,0.10 texfill polyhaven/dark_wood 0.5
+rect 0.14,0.14 1.72,0.10 stroke #2a1400
+rect 0.14,1.76 1.72,0.10 fill #3a1f00 0.9
+rect 0.14,1.76 1.72,0.10 texfill polyhaven/dark_wood 0.5
+rect 0.14,1.76 1.72,0.10 stroke #2a1400
+rect 0.14,0.14 0.10,1.72 fill #3a1f00 0.9
+rect 0.14,0.14 0.10,1.72 texfill polyhaven/dark_wood 0.5
+rect 0.14,0.14 0.10,1.72 stroke #2a1400
+rect 1.76,0.14 0.10,1.72 fill #3a1f00 0.9
+rect 1.76,0.14 0.10,1.72 texfill polyhaven/dark_wood 0.5
+rect 1.76,0.14 0.10,1.72 stroke #2a1400
+# Frame corner joints
+rect 0.14,0.14 0.10,0.10 fill #1a0800 0.9
+rect 1.76,0.14 0.10,0.10 fill #1a0800 0.9
+rect 0.14,1.76 0.10,0.10 fill #1a0800 0.9
+rect 1.76,1.76 0.10,0.10 fill #1a0800 0.9
+# Stretched hide (irregular pentagon/shield shape, tan fur)
+poly 0.36,0.32 1.00,0.28 1.62,0.34 1.68,0.90 1.40,1.60 0.60,1.64 0.30,1.00 fill #a07848 0.95
+poly 0.36,0.32 1.00,0.28 1.62,0.34 1.68,0.90 1.40,1.60 0.60,1.64 0.30,1.00 texfill polyhaven/brown_leather 0.5
+poly 0.36,0.32 1.00,0.28 1.62,0.34 1.68,0.90 1.40,1.60 0.60,1.64 0.30,1.00 stroke #4a2810
+# Hide darker back (fur side markings)
+poly 0.60,0.60 1.00,0.50 1.40,0.60 1.40,1.20 1.00,1.40 0.60,1.20 fill #8a6028 0.8
+# Fur texture lines (scraping marks)
+bezier 0.50,0.50 0.80,0.58 1.20,0.54 1.50,0.50 stroke #5a3810 0.6 width 1
+bezier 0.50,0.80 0.80,0.86 1.20,0.82 1.50,0.78 stroke #5a3810 0.6 width 1
+bezier 0.50,1.10 0.80,1.16 1.20,1.12 1.50,1.08 stroke #5a3810 0.6 width 1
+bezier 0.50,1.40 0.80,1.44 1.20,1.40 1.50,1.36 stroke #5a3810 0.5 width 1
+# Dark spots (fur markings)
+ellipse 0.80,0.70 0.08,0.05 fill #4a2808 0.7
+ellipse 1.20,0.90 0.06,0.04 fill #4a2808 0.7
+ellipse 0.80,1.20 0.07,0.05 fill #4a2808 0.7
+ellipse 1.20,1.30 0.06,0.04 fill #4a2808 0.7
+# Rope/sinew ties stretching hide to frame (diagonal)
+line 0.36,0.32 0.20,0.20 stroke #6b4e2e width 2
+line 1.00,0.28 1.00,0.18 stroke #6b4e2e width 2
+line 1.62,0.34 1.80,0.22 stroke #6b4e2e width 2
+line 1.68,0.90 1.82,0.90 stroke #6b4e2e width 2
+line 1.40,1.60 1.58,1.80 stroke #6b4e2e width 2
+line 0.60,1.64 0.42,1.82 stroke #6b4e2e width 2
+line 0.30,1.00 0.18,1.00 stroke #6b4e2e width 2
+# Rope knot/loops at frame (small circles where rope ties)
+circle 0.20,0.20 0.015 fill #4a3020 0.95
+circle 1.00,0.18 0.015 fill #4a3020 0.95
+circle 1.80,0.22 0.015 fill #4a3020 0.95
+circle 1.82,0.90 0.015 fill #4a3020 0.95
+circle 1.58,1.80 0.015 fill #4a3020 0.95
+circle 0.42,1.82 0.015 fill #4a3020 0.95
+circle 0.18,1.00 0.015 fill #4a3020 0.95
+# Nails/pegs on frame
+circle 0.60,0.19 0.012 fill #555555 0.9
+circle 1.40,0.19 0.012 fill #555555 0.9
+circle 0.19,0.60 0.012 fill #555555 0.9
+circle 0.19,1.40 0.012 fill #555555 0.9
+circle 1.81,0.60 0.012 fill #555555 0.9
+circle 1.81,1.40 0.012 fill #555555 0.9
+# Blood stain near edge
+ellipse 0.50,0.40 0.08,0.04 fill #3a0808 0.5
+# Small fur tufts along edge
+line 1.66,0.50 1.72,0.50 stroke #6a4020 0.7
+line 1.66,0.70 1.72,0.70 stroke #6a4020 0.7
+line 0.34,1.30 0.28,1.30 stroke #6a4020 0.7

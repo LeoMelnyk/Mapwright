@@ -4,22 +4,27 @@
  * update-manifest.js
  *
  * Scans all .prop files in mapwright/src/props/, parses each file's YAML-like
- * header, and regenerates mapwright/src/props/manifest.json.
+ * header, and regenerates two artifacts:
+ *   - manifest.json — flat JSON array of prop names (sorted alphabetically)
+ *   - bundle.json   — { version, props: { name: rawFileText } } for one-shot
+ *                     client load (avoids 800+ HTTP roundtrips at startup)
  *
  * Usage:  node mapwright/tools/update-manifest.js
  *
- * The manifest is a flat JSON array of prop names (filenames without .prop),
- * sorted alphabetically. This matches the format consumed by prop-catalog.js
- * and prop-catalog-node.js.
+ * Run this script after adding, editing, or renaming any .prop file so the
+ * client sees the change on its next load. The editor fetches bundle.json
+ * first and falls back to per-file fetches if the bundle is missing.
  */
 
 import fs from 'fs';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROPS_DIR = resolve(__dirname, '..', 'src', 'props');
 const MANIFEST_PATH = join(PROPS_DIR, 'manifest.json');
+const BUNDLE_PATH = join(PROPS_DIR, 'bundle.json');
 
 
 /**
@@ -56,6 +61,7 @@ const files = fs.readdirSync(PROPS_DIR)
   .sort();
 
 const propNames = [];
+const propTexts = {};
 const categories = {};
 const warnings = [];
 
@@ -82,6 +88,7 @@ for (const file of files) {
   categories[category] = (categories[category] || 0) + 1;
 
   propNames.push(name);
+  propTexts[name] = text;
 }
 
 // Sort alphabetically
@@ -89,6 +96,23 @@ propNames.sort();
 
 // Write manifest
 fs.writeFileSync(MANIFEST_PATH, JSON.stringify(propNames) + '\n', 'utf-8');
+
+// Write bundle — single file containing every prop's raw text, keyed by name.
+// Version hash covers every name + text, so adding/editing/renaming any prop
+// changes the version and busts client-side caches automatically.
+const sortedProps = {};
+const hasher = crypto.createHash('sha256');
+for (const name of propNames) {
+  sortedProps[name] = propTexts[name];
+  hasher.update(name);
+  hasher.update('\0');
+  hasher.update(propTexts[name]);
+  hasher.update('\0');
+}
+const bundleVersion = hasher.digest('hex').slice(0, 16);
+const bundle = { version: bundleVersion, props: sortedProps };
+fs.writeFileSync(BUNDLE_PATH, JSON.stringify(bundle) + '\n', 'utf-8');
+const bundleBytes = fs.statSync(BUNDLE_PATH).size;
 
 // Print summary
 const categoryCount = Object.keys(categories).length;
@@ -100,6 +124,7 @@ if (warnings.length > 0) {
   console.log('');
 }
 console.log(`Updated manifest: ${propNames.length} props across ${categoryCount} categories`);
+console.log(`Updated bundle:   ${propNames.length} props, ${(bundleBytes / 1024).toFixed(1)} KB, version ${bundleVersion}`);
 
 // Print category breakdown
 const sortedCategories = Object.entries(categories).sort((a, b) => a[0].localeCompare(b[0]));

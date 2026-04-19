@@ -1,0 +1,75 @@
+name: Candle Bundle
+category: Merchandise
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: shop-general, market-stall, pantry, chandler, storage, cabin-witch
+typical_count: few
+clusters_with: shelf-bare, crate-open, display-basket, candle, candle-cluster
+notes: Bundle of unused taper candles tied with string — bound for sale or storage. Wicks still white, no melted wax. Viewed from above as a cluster of pale circles with twine wrap.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.28
+
+# footprint 1x1: x 0-1, y 0-1
+
+# Drop shadow
+ellipse 0.50,0.56 0.30,0.08 fill #1a0a00 0.3
+
+# Twine/string wrap ring (binding around the bundle)
+ring 0.50,0.50 0.30 0.28 fill #8b7355 0.95
+ring 0.50,0.50 0.30 0.28 stroke #3a2010
+# Knot bump on the west side
+poly 0.20,0.48 0.24,0.46 0.26,0.52 0.22,0.54 fill #8b7355 0.9
+poly 0.20,0.48 0.24,0.46 0.26,0.52 0.22,0.54 stroke #3a2010
+# String tail dangling
+line 0.18,0.52 0.14,0.58 stroke #8b7355 width 2
+line 0.14,0.58 0.12,0.62 stroke #5c4a32 width 1
+
+# Individual candle tops — pale cream circles clustered together
+# Center candle
+circle 0.50,0.50 0.07 fill #e8dcc8 0.95
+circle 0.50,0.50 0.07 stroke #a08878
+circle 0.50,0.50 0.015 fill #333333 0.9
+
+# Ring of surrounding candles
+circle 0.36,0.42 0.065 fill #e8dcc8 0.95
+circle 0.36,0.42 0.065 stroke #a08878
+circle 0.36,0.42 0.012 fill #333333 0.9
+
+circle 0.64,0.42 0.065 fill #e8dcc8 0.95
+circle 0.64,0.42 0.065 stroke #a08878
+circle 0.64,0.42 0.012 fill #333333 0.9
+
+circle 0.36,0.58 0.065 fill #e8dcc8 0.95
+circle 0.36,0.58 0.065 stroke #a08878
+circle 0.36,0.58 0.012 fill #333333 0.9
+
+circle 0.64,0.58 0.065 fill #e8dcc8 0.95
+circle 0.64,0.58 0.065 stroke #a08878
+circle 0.64,0.58 0.012 fill #333333 0.9
+
+circle 0.50,0.36 0.062 fill #e8dcc8 0.92
+circle 0.50,0.36 0.062 stroke #a08878
+circle 0.50,0.36 0.012 fill #333333 0.9
+
+circle 0.50,0.64 0.062 fill #e8dcc8 0.92
+circle 0.50,0.64 0.062 stroke #a08878
+circle 0.50,0.64 0.012 fill #333333 0.9
+
+# Outer candles
+circle 0.26,0.50 0.06 fill #d8ccb8 0.9
+circle 0.26,0.50 0.06 stroke #a08878
+circle 0.26,0.50 0.012 fill #333333 0.85
+
+circle 0.74,0.50 0.06 fill #d8ccb8 0.9
+circle 0.74,0.50 0.06 stroke #a08878
+circle 0.74,0.50 0.012 fill #333333 0.85
+
+# Subtle highlights on a few candles (catching light)
+arc 0.50,0.50 0.07 200 260 stroke #ffffff 0.55 width 1
+arc 0.36,0.42 0.065 200 260 stroke #ffffff 0.45 width 1
+arc 0.64,0.42 0.065 200 260 stroke #ffffff 0.45 width 1

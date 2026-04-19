@@ -1,0 +1,68 @@
+name: Wood Pile
+category: Camp
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, ranger-camp, charcoal-burner-camp, cabin-hunters, cabin-trapper, lumberyard
+typical_count: few
+clusters_with: campfire, campfire-stone, axe-stuck, chopping-block
+notes: Modest pile of split firewood stacked end-on — round cross-section ends visible from above
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: firewood pile seen from above — round log ends visible
+
+# Bottom layer (3 logs side by side, cross-section ends visible)
+# Log 1 (left)
+circle 0.24,0.68 0.10 texfill polyhaven/bark_brown_02 0.75
+circle 0.24,0.68 0.10 stroke #2a1400
+circle 0.24,0.68 0.07 fill #8b7355 0.6
+circle 0.24,0.68 0.07 stroke #5c3a1e 0.4
+# Ring pattern
+circle 0.24,0.68 0.04 stroke #5c3a1e 0.3
+
+# Log 2 (center)
+circle 0.48,0.72 0.11 texfill polyhaven/bark_brown_02 0.8
+circle 0.48,0.72 0.11 stroke #2a1400
+circle 0.48,0.72 0.08 fill #8b7355 0.55
+circle 0.48,0.72 0.08 stroke #5c3a1e 0.4
+circle 0.48,0.72 0.04 stroke #5c3a1e 0.3
+# Heartwood dot
+circle 0.48,0.72 0.02 fill #4a2800 0.5
+
+# Log 3 (right)
+circle 0.72,0.66 0.10 texfill polyhaven/bark_brown_02 0.75
+circle 0.72,0.66 0.10 stroke #2a1400
+circle 0.72,0.66 0.07 fill #8b7355 0.6
+circle 0.72,0.66 0.07 stroke #5c3a1e 0.4
+circle 0.72,0.66 0.04 stroke #5c3a1e 0.3
+
+# Top layer (2 logs stacked on bottom, slightly forward)
+# Log 4 (left-center, on top)
+circle 0.35,0.48 0.10 texfill polyhaven/bark_brown_02 0.8
+circle 0.35,0.48 0.10 stroke #2a1400
+circle 0.35,0.48 0.07 fill #c8b898 0.5
+circle 0.35,0.48 0.07 stroke #5c3a1e 0.4
+circle 0.35,0.48 0.04 stroke #5c3a1e 0.3
+circle 0.35,0.48 0.02 fill #4a2800 0.4
+
+# Log 5 (right-center, on top)
+circle 0.62,0.45 0.09 texfill polyhaven/bark_brown_02 0.8
+circle 0.62,0.45 0.09 stroke #2a1400
+circle 0.62,0.45 0.06 fill #c8b898 0.5
+circle 0.62,0.45 0.06 stroke #5c3a1e 0.4
+circle 0.62,0.45 0.035 stroke #5c3a1e 0.3
+
+# Apex log (single log at the very top)
+circle 0.48,0.30 0.08 texfill polyhaven/bark_brown_02 0.85
+circle 0.48,0.30 0.08 stroke #2a1400
+circle 0.48,0.30 0.055 fill #c8b898 0.55
+circle 0.48,0.30 0.055 stroke #5c3a1e 0.4
+circle 0.48,0.30 0.03 stroke #5c3a1e 0.3
+circle 0.48,0.30 0.015 fill #4a2800 0.5
+
+# Bark chips on ground
+circle 0.15,0.85 0.02 fill #3a1f00 0.4
+circle 0.82,0.80 0.015 fill #3a1f00 0.35
+circle 0.50,0.88 0.02 fill #3a1f00 0.3

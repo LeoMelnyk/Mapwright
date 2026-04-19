@@ -1,0 +1,49 @@
+name: Fern Cluster
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: druid-grove, cave-living, ancient-ruin-overgrown, forest, wilderness, swamp
+typical_count: many
+clusters_with: bush-berry, mushroom, moss-patch, fungal-growth, fallen-log-mossy
+notes: Cluster of 3-4 fern fronds radiating from a central root crown
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.38
+
+# Root crown (small dark center where fronds emerge)
+circle 0.50,0.50 0.05 fill #2a1800 0.85
+circle 0.50,0.50 0.05 stroke #1a0800 width 1
+
+# Frond 1 — north-pointing spine
+bezier 0.50,0.50 0.50,0.38 0.48,0.26 0.46,0.14 stroke #2a4a1a width 2
+# Frond 1 leaflets (alternating left/right)
+bezier 0.50,0.42 0.44,0.40 0.40,0.38 0.38,0.36 stroke #4a6a2a width 1
+bezier 0.50,0.42 0.56,0.40 0.60,0.38 0.62,0.36 stroke #4a6a2a width 1
+bezier 0.49,0.34 0.42,0.30 0.38,0.28 0.34,0.24 stroke #4a6a2a width 1
+bezier 0.49,0.34 0.56,0.30 0.60,0.28 0.64,0.24 stroke #4a6a2a width 1
+bezier 0.47,0.24 0.42,0.20 0.38,0.18 0.36,0.14 stroke #4a6a2a width 1
+bezier 0.47,0.24 0.52,0.20 0.56,0.18 0.58,0.14 stroke #4a6a2a width 1
+
+# Frond 2 — northeast-pointing spine
+bezier 0.50,0.50 0.62,0.42 0.74,0.32 0.84,0.22 stroke #2a4a1a width 2
+bezier 0.60,0.44 0.60,0.36 0.60,0.32 0.58,0.28 stroke #4a6a2a width 1
+bezier 0.60,0.44 0.68,0.46 0.72,0.48 0.76,0.50 stroke #4a6a2a width 1
+bezier 0.70,0.36 0.70,0.28 0.70,0.24 0.68,0.20 stroke #4a6a2a width 1
+bezier 0.70,0.36 0.78,0.38 0.82,0.40 0.86,0.42 stroke #4a6a2a width 1
+
+# Frond 3 — south-southwest-pointing spine
+bezier 0.50,0.50 0.40,0.62 0.30,0.74 0.20,0.86 stroke #2a4a1a width 2
+bezier 0.42,0.60 0.34,0.58 0.30,0.56 0.26,0.54 stroke #4a6a2a width 1
+bezier 0.42,0.60 0.44,0.68 0.44,0.72 0.44,0.76 stroke #4a6a2a width 1
+bezier 0.32,0.72 0.24,0.70 0.20,0.68 0.16,0.66 stroke #4a6a2a width 1
+bezier 0.32,0.72 0.34,0.80 0.34,0.84 0.34,0.88 stroke #4a6a2a width 1
+
+# Frond 4 — east-pointing spine
+bezier 0.50,0.50 0.62,0.58 0.74,0.66 0.84,0.76 stroke #2a4a1a width 2
+bezier 0.60,0.56 0.64,0.50 0.66,0.46 0.68,0.42 stroke #4a6a2a width 1
+bezier 0.60,0.56 0.58,0.62 0.58,0.66 0.58,0.70 stroke #4a6a2a width 1
+bezier 0.72,0.66 0.76,0.60 0.78,0.56 0.80,0.52 stroke #4a6a2a width 1

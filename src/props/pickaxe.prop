@@ -1,0 +1,42 @@
+name: Pickaxe
+category: Misc
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, workshop, forge
+typical_count: few
+clusters_with: helmet-mining, sorting-table, cart-track, candle-miner
+notes: Miner's pickaxe with a wooden haft and iron head, lying on the ground
+---
+# Wooden haft (long handle — running diagonally across the cell)
+rect 0.16,0.52 0.64,0.08 texfill polyhaven/dark_wood 0.85 rotate 25
+rect 0.16,0.52 0.64,0.08 stroke #2a1400 rotate 25
+# Grip wrapping (darker band near the south end)
+rect 0.18,0.68 0.20,0.10 fill #3a1f00 0.85 rotate 25
+rect 0.18,0.68 0.20,0.10 stroke #1a1208 rotate 25
+# Iron head mounting collar
+ellipse 0.72,0.36 0.07,0.05 fill #444444 0.95
+ellipse 0.72,0.36 0.07,0.05 stroke #222222
+# Iron pickaxe head (double-ended, one pointed pick, one flat adze)
+# Pick point (sharp end)
+poly 0.72,0.34 0.92,0.20 0.96,0.22 0.78,0.40 fill #555555 0.95
+poly 0.72,0.34 0.92,0.20 0.96,0.22 0.78,0.40 texfill polyhaven/metal_plate 0.75
+poly 0.72,0.34 0.92,0.20 0.96,0.22 0.78,0.40 stroke #222222
+# Adze / flat cutting end (opposite side)
+poly 0.72,0.38 0.56,0.52 0.58,0.56 0.74,0.42 fill #555555 0.95
+poly 0.72,0.38 0.56,0.52 0.58,0.56 0.74,0.42 texfill polyhaven/metal_plate 0.75
+poly 0.72,0.38 0.56,0.52 0.58,0.56 0.74,0.42 stroke #222222
+# Head highlight (polished edges catching light)
+line 0.80,0.28 0.94,0.22 stroke #8899aa 0.7 width 1
+line 0.64,0.50 0.58,0.54 stroke #8899aa 0.6 width 1
+# Handle end cap (south tip)
+circle 0.22,0.80 0.05 fill #2a1400 0.9
+circle 0.22,0.80 0.05 stroke #1a1208
+# Coal dust smudges on the head
+circle 0.82,0.30 0.025 fill #0a0a0a 0.6
+circle 0.68,0.46 0.020 fill #0a0a0a 0.55
+# Scratches on the haft
+line 0.34,0.60 0.48,0.62 stroke #1a1208 0.7 width 1
+line 0.50,0.66 0.60,0.70 stroke #1a1208 0.6 width 1

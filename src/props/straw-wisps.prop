@@ -1,0 +1,58 @@
+name: Straw Wisps
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.03
+placement: floor
+room_types: peasant-hovel, barn, stable, shepherds-shelter, croft, peasant-hut
+typical_count: many
+clusters_with: straw-pile, sheep-dung, bedroll, broom
+notes: Loose straw scattered on the floor. Ground decal only.
+---
+# Ground scatter — no shadow, no light-block
+
+# === Faint straw dust patch ===
+ellipse 0.50,0.50 0.42,0.38 fill #8a7040 0.12
+
+# === Loose straw pieces (lines in varied directions) ===
+line 0.20,0.32 0.36,0.28 stroke #c8a860 0.85 width 1
+line 0.20,0.32 0.36,0.28 stroke #8b7355 0.5 width 1
+line 0.28,0.42 0.44,0.36 stroke #d4b890 0.8 width 1
+line 0.18,0.50 0.34,0.48 stroke #c8a860 0.85 width 1
+line 0.24,0.58 0.40,0.62 stroke #b89850 0.8 width 1
+line 0.16,0.68 0.30,0.66 stroke #c8a860 0.8 width 1
+line 0.22,0.76 0.38,0.74 stroke #d4b890 0.85 width 1
+line 0.38,0.82 0.52,0.78 stroke #c8a860 0.8 width 1
+
+# Middle area
+line 0.42,0.24 0.58,0.30 stroke #c8a860 0.85 width 1
+line 0.46,0.40 0.62,0.38 stroke #d4b890 0.85 width 1
+line 0.40,0.50 0.56,0.52 stroke #c8a860 0.8 width 1
+line 0.44,0.62 0.60,0.60 stroke #b89850 0.75 width 1
+line 0.48,0.72 0.64,0.70 stroke #c8a860 0.8 width 1
+line 0.52,0.82 0.68,0.84 stroke #d4b890 0.8 width 1
+
+# East area
+line 0.62,0.26 0.78,0.32 stroke #c8a860 0.85 width 1
+line 0.66,0.40 0.82,0.36 stroke #b89850 0.8 width 1
+line 0.60,0.50 0.76,0.50 stroke #d4b890 0.85 width 1
+line 0.64,0.60 0.80,0.58 stroke #c8a860 0.8 width 1
+line 0.70,0.70 0.84,0.72 stroke #b89850 0.8 width 1
+line 0.66,0.78 0.82,0.80 stroke #c8a860 0.85 width 1
+
+# Cross-angled pieces (for natural scatter feel)
+line 0.30,0.22 0.26,0.38 stroke #b89850 0.7 width 1
+line 0.52,0.20 0.48,0.34 stroke #c8a860 0.75 width 1
+line 0.74,0.22 0.78,0.38 stroke #b89850 0.7 width 1
+line 0.34,0.68 0.30,0.82 stroke #c8a860 0.75 width 1
+line 0.56,0.68 0.52,0.82 stroke #b89850 0.7 width 1
+line 0.78,0.66 0.82,0.80 stroke #c8a860 0.75 width 1
+
+# Tiny straw bits / dust
+circle 0.32,0.48 0.010 fill #c8a860 0.7
+circle 0.48,0.28 0.010 fill #d4b890 0.7
+circle 0.68,0.44 0.010 fill #c8a860 0.7
+circle 0.54,0.66 0.010 fill #b89850 0.7
+circle 0.72,0.80 0.010 fill #c8a860 0.7

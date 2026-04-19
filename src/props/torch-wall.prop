@@ -1,0 +1,44 @@
+name: Wall Torch
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: yes
+height: 1
+lights: [{"preset":"torch","x":0.5,"y":0.5}]
+placement: wall
+room_types: cave-bandit-camp, cave-goblin-warren, chasm-crossing, dungeon, cave, corridor, any
+typical_count: many
+clusters_with: torch-sconce, torch-totem, brazier
+notes: Rougher cave-style torch mounted on a wall; simpler than torch-sconce
+---
+# === HITBOX ===
+hitbox rect 0.30,0.02 0.40,0.44 z 0-1
+
+# Wall bracket — simple iron spike driven into wall (small rectangle at north)
+rect 0.38,0.04 0.24,0.08 texfill polyhaven/rusty_metal 0.85
+rect 0.38,0.04 0.24,0.08 stroke #3a3020
+# Iron arm extending south
+rect 0.46,0.10 0.08,0.18 fill #4a3020 0.85
+rect 0.46,0.10 0.08,0.18 stroke #2a1810
+# Arm binding ring
+line 0.44,0.18 0.56,0.18 stroke #666666 0.7 width 1
+# Torch wood shaft (top of wooden stake, brown)
+circle 0.50,0.32 0.09 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.32 0.09 stroke #2a1400
+# Pitch/oil wrap (darker layer on top)
+circle 0.50,0.32 0.07 fill #2a1810 0.85
+# Pitch wrap binding (rope/cloth twists)
+arc 0.50,0.32 0.08 0 90 stroke #5a3a1e 0.7 width 1
+arc 0.50,0.32 0.08 120 210 stroke #5a3a1e 0.7 width 1
+# Flame glow (layered — warm light radiating out)
+circle 0.50,0.36 0.26 fill #ff6600 0.1
+circle 0.50,0.36 0.20 fill #ff8800 0.18
+circle 0.50,0.36 0.14 fill #ffaa00 0.3
+circle 0.50,0.36 0.09 fill #ffcc00 0.5
+# Bright flame core
+circle 0.50,0.36 0.05 fill #ffee88 0.85
+# Tiny embers flaring
+circle 0.40,0.40 0.012 fill #ff8800 0.7
+circle 0.60,0.38 0.01 fill #ffaa00 0.6
+circle 0.46,0.44 0.01 fill #ff8800 0.5

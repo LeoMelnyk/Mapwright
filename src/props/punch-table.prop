@@ -1,0 +1,71 @@
+name: Punch Table
+category: Furniture
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: center
+room_types: mansion-ballroom, grand-hall, noble-villa, reception-hall, estate
+typical_count: single
+clusters_with: buffet-table, spilled-punch, musicians-dais
+notes: Round cloth-draped table carrying a massive crystal punch bowl, ladle, and cups. Place near a wall or in a room corner where guests cluster.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+
+# Tablecloth drape (wide oval skirt overhangs)
+ellipse 1.00,0.50 0.94,0.46 fill #f8f0e0 0.95
+ellipse 1.00,0.50 0.94,0.46 stroke #c8b898 width 2
+
+# Gold-embroidered hem detail
+ellipse 1.00,0.50 0.92,0.44 stroke #daa520 0.6
+
+# Cloth fold shadow hints
+ellipse 1.00,0.50 0.80,0.36 stroke #d8c898 0.5
+
+# Crystal punch bowl — large central vessel
+ellipse 1.00,0.50 0.32,0.24 fill #c8e0ee 0.7
+ellipse 1.00,0.50 0.32,0.24 stroke #88a0b8 width 2
+
+# Bowl rim highlight (outer crystal edge)
+ellipse 1.00,0.50 0.30,0.22 stroke #e0f0ff 0.8
+
+# Red punch fill inside bowl
+ellipse 1.00,0.50 0.26,0.18 fill #8b1a2a 0.9
+ellipse 1.00,0.50 0.26,0.18 stroke #5a1020
+
+# Punch surface highlight
+ellipse 0.92,0.44 0.08,0.04 fill #c02040 0.5
+
+# Fruit slice floating
+ellipse 1.10,0.46 0.04,0.025 fill #ff8080 0.85
+ellipse 1.10,0.46 0.04,0.025 stroke #aa2020
+
+# Silver ladle poking out of the bowl
+line 1.28,0.48 1.42,0.36 stroke #c0c0c0 width 3
+circle 1.44,0.34 0.05 fill #c0c0c0 0.85
+circle 1.44,0.34 0.05 stroke #667788
+
+# Clustered crystal cups around the bowl (small rings)
+circle 0.40,0.34 0.07 fill #c8e0ee 0.6
+circle 0.40,0.34 0.07 stroke #88a0b8
+circle 0.40,0.34 0.04 fill #8b1a2a 0.8
+
+circle 0.48,0.60 0.07 fill #c8e0ee 0.6
+circle 0.48,0.60 0.07 stroke #88a0b8
+circle 0.48,0.60 0.04 fill #8b1a2a 0.8
+
+circle 1.60,0.34 0.07 fill #c8e0ee 0.6
+circle 1.60,0.34 0.07 stroke #88a0b8
+circle 1.60,0.34 0.04 fill #8b1a2a 0.8
+
+circle 1.56,0.66 0.07 fill #c8e0ee 0.6
+circle 1.56,0.66 0.07 stroke #88a0b8
+circle 1.56,0.66 0.04 fill #8b1a2a 0.8
+
+# Empty cup (crystal only, no punch)
+circle 0.36,0.62 0.06 fill #c8e0ee 0.5
+circle 0.36,0.62 0.06 stroke #88a0b8
+
+# Bowl center gleam
+circle 0.94,0.46 0.03 fill #ffffff 0.5

@@ -1,0 +1,69 @@
+name: Silver Cord Pylon
+category: Magical
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.2
+placement: corner
+room_types: astral-anchor, astral-sea, planar-nexus
+typical_count: few
+clusters_with: astral-anchor-stone, silver-cord-stub, portal-stela
+notes: Top-down view of a rune-etched pylon — octagonal plinth with a glowing central cap and silver cords radiating outward into the void
+lights: [{"preset":"silvery","x":1,"y":1,"radius":10,"intensity":0.7,"color":"#e0e0ff"}]
+---
+# Hitbox: pylon shaft blocks light
+hitbox circle 1.0,1.0 0.38 z 0-2.2
+# Violet halo around the pylon
+circle 1.0,1.0 0.90 gradient-radial #c0a0ff #1a0828 0.30
+# Octagonal stone plinth (base, visible from above)
+poly 0.40,0.22 1.60,0.22 1.78,0.40 1.78,1.60 1.60,1.78 0.40,1.78 0.22,1.60 0.22,0.40 texfill polyhaven/stone_wall 0.80
+poly 0.40,0.22 1.60,0.22 1.78,0.40 1.78,1.60 1.60,1.78 0.40,1.78 0.22,1.60 0.22,0.40 stroke #4a3a80 width 2
+# Plinth inner trim (rune band)
+poly 0.52,0.36 1.48,0.36 1.64,0.52 1.64,1.48 1.48,1.64 0.52,1.64 0.36,1.48 0.36,0.52 fill #8060c0 0.35
+poly 0.52,0.36 1.48,0.36 1.64,0.52 1.64,1.48 1.48,1.64 0.52,1.64 0.36,1.48 0.36,0.52 stroke #8060d0 width 1
+# Runes on the band (small cross-marks at each corner)
+line 1.0,0.36 1.0,0.44 stroke #e0e0ff width 1
+line 1.0,1.56 1.0,1.64 stroke #e0e0ff width 1
+line 0.36,1.0 0.44,1.0 stroke #e0e0ff width 1
+line 1.56,1.0 1.64,1.0 stroke #e0e0ff width 1
+line 0.42,0.42 0.48,0.48 stroke #e0e0ff width 1
+line 1.58,0.42 1.52,0.48 stroke #e0e0ff width 1
+line 1.58,1.58 1.52,1.52 stroke #e0e0ff width 1
+line 0.42,1.58 0.48,1.52 stroke #e0e0ff width 1
+# Shaft cross-section (octagonal inner column)
+poly 0.70,0.58 1.30,0.58 1.42,0.70 1.42,1.30 1.30,1.42 0.70,1.42 0.58,1.30 0.58,0.70 texfill polyhaven/marble_01 0.75
+poly 0.70,0.58 1.30,0.58 1.42,0.70 1.42,1.30 1.30,1.42 0.70,1.42 0.58,1.30 0.58,0.70 stroke #4a3a80 width 2
+# Central rune disc
+circle 1.0,1.0 0.22 fill #c0c0c0 0.75
+circle 1.0,1.0 0.22 stroke #8060d0 width 2
+circle 1.0,1.0 0.14 fill #e0e0ff 0.8
+circle 1.0,1.0 0.14 stroke #8060d0 width 1
+# Apex glowing core (captive starlight)
+circle 1.0,1.0 0.08 fill #ffffff 0.95
+circle 1.0,1.0 0.04 fill #e0e0ff 1.0
+# === Silver cord tethers — radiating out into the void from the apex ===
+# N
+bezier 1.0,0.80 1.0,0.50 0.95,0.25 1.05,0.05 stroke #e0e0ff width 2
+circle 1.05,0.05 0.028 fill #e0e0ff 0.9
+# NE
+bezier 1.14,0.86 1.40,0.62 1.65,0.40 1.90,0.20 stroke #c0a0ff width 2
+circle 1.90,0.20 0.025 fill #e0e0ff 0.9
+# E
+bezier 1.20,1.0 1.50,1.0 1.75,1.05 1.95,0.95 stroke #e0e0ff width 2
+circle 1.95,0.95 0.028 fill #e0e0ff 0.9
+# SE
+bezier 1.14,1.14 1.40,1.38 1.65,1.60 1.88,1.82 stroke #c0a0ff width 2
+circle 1.88,1.82 0.025 fill #e0e0ff 0.9
+# S
+bezier 1.0,1.20 1.05,1.50 0.95,1.75 1.02,1.95 stroke #e0e0ff width 2
+circle 1.02,1.95 0.028 fill #e0e0ff 0.9
+# SW
+bezier 0.86,1.14 0.60,1.38 0.35,1.60 0.10,1.82 stroke #c0a0ff width 2
+circle 0.10,1.82 0.025 fill #e0e0ff 0.9
+# W
+bezier 0.80,1.0 0.50,1.0 0.22,0.95 0.05,1.05 stroke #e0e0ff width 2
+circle 0.05,1.05 0.028 fill #e0e0ff 0.9
+# NW
+bezier 0.86,0.86 0.60,0.60 0.35,0.38 0.12,0.18 stroke #c0a0ff width 2
+circle 0.12,0.18 0.025 fill #e0e0ff 0.9

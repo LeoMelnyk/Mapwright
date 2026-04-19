@@ -1,0 +1,87 @@
+name: Iron Throne (Spiked)
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 6
+placement: center
+room_types: infernal-court, throne-room, fiend-lair, warlord-hall
+typical_count: single
+clusters_with: banner-infernal, brazier, carpet-royal, soul-coin-pile
+notes: Menacing iron throne with spiked back; place prominently against back wall, facing room entrance
+---
+# === HITBOX ===
+hitbox rect 0.25,0.20 1.50,1.50 z 0-6
+
+# footprint 2x2: x range 0-2, y range 0-2. Front faces south.
+
+# === Leg shadows (behind everything) ===
+rect 0.22,1.55 0.18,0.18 fill #0a0808 0.4
+rect 1.60,1.55 0.18,0.18 fill #0a0808 0.4
+rect 0.22,0.50 0.18,0.12 fill #0a0808 0.3
+rect 1.60,0.50 0.18,0.12 fill #0a0808 0.3
+
+# === High backrest (north) — dark iron ===
+rect 0.20,0.10 1.60,0.50 fill #333333 0.9
+rect 0.20,0.10 1.60,0.50 stroke #222222
+
+# === Spike bumps along top of backrest ===
+poly 0.30,0.10 0.35,0.00 0.40,0.10 fill #444444 0.9
+poly 0.30,0.10 0.35,0.00 0.40,0.10 stroke #222222
+poly 0.55,0.10 0.60,0.00 0.65,0.10 fill #444444 0.9
+poly 0.55,0.10 0.60,0.00 0.65,0.10 stroke #222222
+poly 0.78,0.10 0.83,0.00 0.88,0.10 fill #444444 0.9
+poly 0.78,0.10 0.83,0.00 0.88,0.10 stroke #222222
+poly 1.00,0.10 1.05,0.00 1.10,0.10 fill #444444 0.9
+poly 1.00,0.10 1.05,0.00 1.10,0.10 stroke #222222
+poly 1.20,0.10 1.25,0.00 1.30,0.10 fill #444444 0.9
+poly 1.20,0.10 1.25,0.00 1.30,0.10 stroke #222222
+poly 1.42,0.10 1.47,0.00 1.52,0.10 fill #444444 0.9
+poly 1.42,0.10 1.47,0.00 1.52,0.10 stroke #222222
+poly 1.62,0.10 1.67,0.00 1.72,0.10 fill #444444 0.9
+poly 1.62,0.10 1.67,0.00 1.72,0.10 stroke #222222
+
+# === Backrest metal detail ===
+line 0.22,0.25 1.78,0.25 stroke #555555 width 1
+line 0.22,0.40 1.78,0.40 stroke #444444 width 1
+# Rivet studs
+circle 0.50,0.32 0.03 fill #555555 0.6
+circle 1.00,0.32 0.03 fill #555555 0.6
+circle 1.50,0.32 0.03 fill #555555 0.6
+
+# === Left armrest — iron with spikes ===
+rect 0.20,0.55 0.28,1.10 fill #333333 0.85
+rect 0.20,0.55 0.28,1.10 stroke #222222
+# Spike at front of left armrest
+poly 0.28,1.60 0.34,1.70 0.40,1.60 fill #444444 0.8
+poly 0.28,1.60 0.34,1.70 0.40,1.60 stroke #222222
+# Rivet studs on left arm
+circle 0.34,0.75 0.025 fill #555555 0.5
+circle 0.34,1.05 0.025 fill #555555 0.5
+circle 0.34,1.35 0.025 fill #555555 0.5
+
+# === Right armrest — iron with spikes ===
+rect 1.52,0.55 0.28,1.10 fill #333333 0.85
+rect 1.52,0.55 0.28,1.10 stroke #222222
+# Spike at front of right armrest
+poly 1.60,1.60 1.66,1.70 1.72,1.60 fill #444444 0.8
+poly 1.60,1.60 1.66,1.70 1.72,1.60 stroke #222222
+# Rivet studs on right arm
+circle 1.66,0.75 0.025 fill #555555 0.5
+circle 1.66,1.05 0.025 fill #555555 0.5
+circle 1.66,1.35 0.025 fill #555555 0.5
+
+# === Seat — dark fur/flayed-skin cushion between armrests ===
+rect 0.48,0.60 1.04,1.00 fill #1a0808 0.8
+rect 0.48,0.60 1.04,1.00 stroke #0a0404
+# Fur/hide texture lines
+qbezier 0.55,0.70 0.80,0.68 1.05,0.72 stroke #2a1010 0.4 width 1
+qbezier 0.55,0.85 0.82,0.82 1.10,0.88 stroke #2a1010 0.35 width 1
+qbezier 0.52,1.00 0.78,0.98 1.08,1.02 stroke #2a1010 0.4 width 1
+qbezier 0.55,1.15 0.80,1.12 1.05,1.18 stroke #2a1010 0.35 width 1
+qbezier 0.55,1.30 0.82,1.28 1.08,1.32 stroke #2a1010 0.3 width 1
+qbezier 0.55,1.45 0.78,1.42 1.02,1.48 stroke #2a1010 0.3 width 1
+
+# === Front edge of seat (south face, very dark) ===
+line 0.48,1.58 1.52,1.58 stroke #0a0404 width 2

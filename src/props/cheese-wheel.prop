@@ -1,0 +1,43 @@
+name: Cheese Wheel
+category: Food
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: farmhouse-common, farmhouse-kitchen, pantry, servants-kitchen, market-stall, shop-general
+typical_count: few
+clusters_with: bread-loaf, cutting-board, cleaver, shelf-open
+notes: Round waxed cheese wheel; pantry and kitchen staple
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.36
+
+# Wax coating (outer — warm yellow-orange)
+circle 0.5,0.5 0.36 fill #d4a020 0.95
+circle 0.5,0.5 0.36 stroke #8a5a10
+# Wax sheen ring
+arc 0.5,0.5 0.34 200 280 stroke #f0d460 0.7 width 2
+# Shadow/darker underside
+arc 0.5,0.5 0.34 20 160 stroke #6a4008 0.5 width 2
+# Cut wedge slice removed (from top, showing cheese interior)
+poly 0.5,0.5 0.70,0.30 0.78,0.46 fill #f8e8a8 0.95
+poly 0.5,0.5 0.70,0.30 0.78,0.46 stroke #6a4008
+# Interior texture (tiny holes in cheese)
+circle 0.62,0.40 0.015 fill #c8a050 0.5
+circle 0.66,0.44 0.012 fill #c8a050 0.5
+circle 0.68,0.38 0.01 fill #c8a050 0.5
+circle 0.72,0.42 0.01 fill #c8a050 0.5
+# Rind stamp (pressed marking on top)
+rect 0.36,0.58 0.20,0.10 fill #6a4008 0.4
+rect 0.36,0.58 0.20,0.10 stroke #5a3008 0.5
+# Stamp text-like marks
+line 0.40,0.61 0.52,0.61 stroke #3a2008 0.5
+line 0.40,0.64 0.50,0.64 stroke #3a2008 0.5
+# Top surface highlight
+arc 0.5,0.5 0.30 240 300 stroke #f0c050 0.6 width 1
+# Cloth wrap edge (tiny linen strip on side)
+line 0.20,0.48 0.20,0.54 stroke #d4c4a8 width 2
+# Wax crease line
+bezier 0.20,0.56 0.30,0.66 0.70,0.66 0.80,0.58 stroke #8a5a10 0.5

@@ -1,0 +1,75 @@
+name: Heavy Chain
+category: Combat
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.3
+placement: floor
+room_types: chasm-crossing, ship-brig, dock-warehouse, torture-chamber, infernal-court
+typical_count: few
+clusters_with: chain-coil, shackles, cage-large, anchor, iron-chain-hook
+notes: Thick iron chain stretched across floor — large oval links
+---
+# === HITBOX ===
+hitbox rect 0.10,0.40 1.80,0.20 z 0-0.3
+
+# === Heavy chain links (large iron ovals linked together) ===
+# Link 1
+ellipse 0.20,0.50 0.14,0.08 fill #444444 0.95
+ellipse 0.20,0.50 0.14,0.08 texfill polyhaven/rusty_metal 0.6
+ellipse 0.20,0.50 0.14,0.08 stroke #222222
+ellipse 0.20,0.50 0.10,0.05 fill #1a1008 0.9
+# Link 2 (perpendicular orientation — vertical)
+ellipse 0.40,0.50 0.08,0.12 fill #555555 0.95
+ellipse 0.40,0.50 0.08,0.12 texfill polyhaven/rusty_metal 0.6
+ellipse 0.40,0.50 0.08,0.12 stroke #222222
+ellipse 0.40,0.50 0.05,0.08 fill #1a1008 0.9
+# Link 3
+ellipse 0.60,0.50 0.14,0.08 fill #444444 0.95
+ellipse 0.60,0.50 0.14,0.08 texfill polyhaven/rusty_metal 0.6
+ellipse 0.60,0.50 0.14,0.08 stroke #222222
+ellipse 0.60,0.50 0.10,0.05 fill #1a1008 0.9
+# Link 4 (vertical)
+ellipse 0.80,0.50 0.08,0.12 fill #555555 0.95
+ellipse 0.80,0.50 0.08,0.12 texfill polyhaven/rusty_metal 0.6
+ellipse 0.80,0.50 0.08,0.12 stroke #222222
+ellipse 0.80,0.50 0.05,0.08 fill #1a1008 0.9
+# Link 5
+ellipse 1.00,0.50 0.14,0.08 fill #444444 0.95
+ellipse 1.00,0.50 0.14,0.08 texfill polyhaven/rusty_metal 0.6
+ellipse 1.00,0.50 0.14,0.08 stroke #222222
+ellipse 1.00,0.50 0.10,0.05 fill #1a1008 0.9
+# Link 6 (vertical)
+ellipse 1.20,0.50 0.08,0.12 fill #555555 0.95
+ellipse 1.20,0.50 0.08,0.12 texfill polyhaven/rusty_metal 0.6
+ellipse 1.20,0.50 0.08,0.12 stroke #222222
+ellipse 1.20,0.50 0.05,0.08 fill #1a1008 0.9
+# Link 7
+ellipse 1.40,0.50 0.14,0.08 fill #444444 0.95
+ellipse 1.40,0.50 0.14,0.08 texfill polyhaven/rusty_metal 0.6
+ellipse 1.40,0.50 0.14,0.08 stroke #222222
+ellipse 1.40,0.50 0.10,0.05 fill #1a1008 0.9
+# Link 8 (vertical)
+ellipse 1.60,0.50 0.08,0.12 fill #555555 0.95
+ellipse 1.60,0.50 0.08,0.12 texfill polyhaven/rusty_metal 0.6
+ellipse 1.60,0.50 0.08,0.12 stroke #222222
+ellipse 1.60,0.50 0.05,0.08 fill #1a1008 0.9
+# Link 9 (end)
+ellipse 1.80,0.50 0.12,0.08 fill #444444 0.95
+ellipse 1.80,0.50 0.12,0.08 texfill polyhaven/rusty_metal 0.6
+ellipse 1.80,0.50 0.12,0.08 stroke #222222
+# Large iron ring/anchor point at east end
+circle 1.90,0.50 0.06 fill #333333 0.95
+circle 1.90,0.50 0.06 stroke #1a1008
+circle 1.90,0.50 0.04 fill #1a1008 0.95
+# Metal highlights
+arc 0.20,0.50 0.12 210 260 stroke #888888 0.5 width 1
+arc 0.60,0.50 0.12 210 260 stroke #888888 0.5 width 1
+arc 1.00,0.50 0.12 210 260 stroke #888888 0.5 width 1
+arc 1.40,0.50 0.12 210 260 stroke #888888 0.5 width 1
+# Rust spots
+circle 0.30,0.44 0.015 fill #6a3818 0.6
+circle 0.70,0.56 0.015 fill #6a3818 0.6
+circle 1.30,0.46 0.015 fill #6a3818 0.6
+circle 1.70,0.58 0.015 fill #6a3818 0.6

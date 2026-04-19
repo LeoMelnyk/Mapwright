@@ -178,6 +178,7 @@ export function updateMinimap(): void {
       metadata,
       skipLabels: true,
       showInvisible: false,
+      skipPhases: { shading: true },
     });
     _mmCache.dirtySeq = dirtySig;
   }

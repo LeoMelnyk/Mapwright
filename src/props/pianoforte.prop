@@ -1,0 +1,92 @@
+name: Pianoforte
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 4
+placement: wall
+room_types: house-noble-townhouse, noble-solar, mansion-grand-hall, music-hall, bards-college, parlor, brothel-parlor
+typical_count: single
+clusters_with: stool, bench, harp-floor, settee, candelabra, rug-oriental
+notes: Small upright piano seen from above. Flat top with crown molding at north (wall side), ivory/ebony key strip visible at the south edge where the keyboard faces the player.
+---
+# === HITBOX ===
+hitbox rect 0.04,0.04 1.92,1.92 z 0-4
+
+# footprint 2x2: x 0-2, y 0-2
+# Piano cabinet body (dark polished wood — most of footprint)
+rect 0.04,0.04 1.92,1.92 texfill polyhaven/dark_wood 0.92
+rect 0.04,0.04 1.92,1.92 fill #1a0808 0.35
+rect 0.04,0.04 1.92,1.92 stroke #000000 width 2
+
+# Crown molding overhang along north (wall side) — slight extension darker band
+rect 0.00,0.00 2.00,0.18 texfill polyhaven/dark_wood 0.95
+rect 0.00,0.00 2.00,0.18 fill #000000 0.25
+rect 0.00,0.00 2.00,0.18 stroke #000000 width 2
+
+# Molding detail line
+line 0.04,0.16 1.96,0.16 stroke #daa520 0.5 width 1
+line 0.04,0.20 1.96,0.20 stroke #daa520 0.35 width 1
+
+# Top surface sheen (polished lacquer highlight — subtle radial)
+arc 1.00,1.00 0.80 200 260 stroke #4a2828 0.4 width 2
+
+# Gold inlay emblem centered on top
+ellipse 1.00,0.60 0.24,0.08 fill #daa520 0.65
+ellipse 1.00,0.60 0.24,0.08 stroke #5a3a00 width 1
+# Emblem inner detail
+line 0.82,0.60 1.18,0.60 stroke #5a3a00 0.7 width 1
+# Small musical note symbol hint
+circle 0.94,0.60 0.02 fill #5a3a00 0.85
+circle 1.06,0.60 0.02 fill #5a3a00 0.85
+
+# Sheet music ledge (raised rail running across, north of keys)
+rect 0.10,1.38 1.80,0.08 texfill polyhaven/dark_wood 0.95
+rect 0.10,1.38 1.80,0.08 stroke #000000 width 1
+# Brass candle holders on ledge (two)
+circle 0.30,1.42 0.04 fill #daa520 0.9
+circle 0.30,1.42 0.04 stroke #5a3a00 width 1
+circle 1.70,1.42 0.04 fill #daa520 0.9
+circle 1.70,1.42 0.04 stroke #5a3a00 width 1
+
+# Fallboard / key cover strip (closed or just above the keys)
+rect 0.06,1.50 1.88,0.12 texfill polyhaven/dark_wood 0.95
+rect 0.06,1.50 1.88,0.12 fill #000000 0.35
+rect 0.06,1.50 1.88,0.12 stroke #000000 width 1
+
+# Ivory keyboard band at south edge (facing the player)
+rect 0.08,1.66 1.84,0.20 fill #e8dcc8 0.98
+rect 0.08,1.66 1.84,0.20 stroke #1a0a00 width 2
+
+# White key dividers (vertical lines)
+line 0.22,1.66 0.22,1.86 stroke #1a0a00 0.85 width 1
+line 0.36,1.66 0.36,1.86 stroke #1a0a00 0.85 width 1
+line 0.50,1.66 0.50,1.86 stroke #1a0a00 0.85 width 1
+line 0.64,1.66 0.64,1.86 stroke #1a0a00 0.85 width 1
+line 0.78,1.66 0.78,1.86 stroke #1a0a00 0.85 width 1
+line 0.92,1.66 0.92,1.86 stroke #1a0a00 0.85 width 1
+line 1.06,1.66 1.06,1.86 stroke #1a0a00 0.85 width 1
+line 1.20,1.66 1.20,1.86 stroke #1a0a00 0.85 width 1
+line 1.34,1.66 1.34,1.86 stroke #1a0a00 0.85 width 1
+line 1.48,1.66 1.48,1.86 stroke #1a0a00 0.85 width 1
+line 1.62,1.66 1.62,1.86 stroke #1a0a00 0.85 width 1
+line 1.76,1.66 1.76,1.86 stroke #1a0a00 0.85 width 1
+
+# Black keys (sharps/flats — positioned in groups of 2 and 3)
+rect 0.17,1.66 0.10,0.12 fill #0a0404 0.98
+rect 0.31,1.66 0.10,0.12 fill #0a0404 0.98
+rect 0.59,1.66 0.10,0.12 fill #0a0404 0.98
+rect 0.73,1.66 0.10,0.12 fill #0a0404 0.98
+rect 0.87,1.66 0.10,0.12 fill #0a0404 0.98
+rect 1.15,1.66 0.10,0.12 fill #0a0404 0.98
+rect 1.29,1.66 0.10,0.12 fill #0a0404 0.98
+rect 1.57,1.66 0.10,0.12 fill #0a0404 0.98
+rect 1.71,1.66 0.10,0.12 fill #0a0404 0.98
+
+# Shadow below keyboard edge
+rect 0.08,1.86 1.84,0.04 fill #000000 0.35
+
+# Leg shadows at front corners (piano legs)
+circle 0.12,1.92 0.05 fill #000000 0.5
+circle 1.88,1.92 0.05 fill #000000 0.5

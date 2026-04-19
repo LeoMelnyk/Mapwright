@@ -10,7 +10,91 @@ const panel = () => getEl('properties-content');
 
 let explorerBuilt = false;
 let onSelectProp: ((propType: string) => void) | null = null;
-const collapsedCategories = new Set();
+
+// Collapsed category state is persisted so the user's browsing layout survives
+// reloads. Without this, every session starts with all 70+ categories expanded,
+// forcing the user to re-collapse everything they don't use.
+const COLLAPSED_CATEGORIES_KEY = 'prop-collapsed-categories';
+const collapsedCategories: Set<string> = (() => {
+  try {
+    const raw = localStorage.getItem(COLLAPSED_CATEGORIES_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return new Set(arr.filter((s) => typeof s === 'string'));
+    }
+  } catch {
+    /* ignore */
+  }
+  return new Set<string>();
+})();
+
+function saveCollapsedCategories(): void {
+  try {
+    localStorage.setItem(COLLAPSED_CATEGORIES_KEY, JSON.stringify([...collapsedCategories]));
+  } catch {
+    /* ignore */
+  }
+}
+
+// IntersectionObserver that renders thumb canvases only when a thumb scrolls
+// into view. Replaces the old "batched setTimeout over all 1426 thumbs" loop,
+// which stalled the main thread for 5-10 s on panel open.
+let thumbObserver: IntersectionObserver | null = null;
+let currentCatalog: PropCatalog | null = null;
+
+// ── Favorites (localStorage-backed) ─────────────────────────────────────────
+
+const FAVORITES_KEY = 'prop-favorites';
+const FAVORITES_CATEGORY = '★ Favorites';
+const favorites: Set<string> = (() => {
+  try {
+    const raw = localStorage.getItem(FAVORITES_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return new Set(arr.filter((s) => typeof s === 'string'));
+    }
+  } catch {
+    /* ignore */
+  }
+  return new Set<string>();
+})();
+
+function saveFavorites(): void {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites]));
+  } catch {
+    /* ignore */
+  }
+}
+
+function propDisplayName(propType: string, catalog: PropCatalog): string {
+  return catalog.props[propType]?.name ?? propType;
+}
+
+function sortedByDisplayName(propTypes: string[], catalog: PropCatalog): string[] {
+  return [...propTypes].sort((a, b) => propDisplayName(a, catalog).localeCompare(propDisplayName(b, catalog)));
+}
+
+function favoritePropTypes(catalog: PropCatalog): string[] {
+  return sortedByDisplayName(
+    [...favorites].filter((p) => catalog.props[p]),
+    catalog,
+  );
+}
+
+const HEART_SVG =
+  '<svg viewBox="0 0 24 24" width="12" height="12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+
+function thumbHtml(propType: string, displayName: string): string {
+  const favClass = favorites.has(propType) ? ' favorited' : '';
+  return (
+    `<div class="prop-thumb" data-prop="${propType}">` +
+    '<div class="prop-thumb-shimmer"></div>' +
+    `<span>${displayName}</span>` +
+    `<button class="prop-fav-btn${favClass}" data-fav="${propType}" title="Toggle favorite" aria-label="Toggle favorite">${HEART_SVG}</button>` +
+    '</div>'
+  );
+}
 
 /**
  * Register a callback invoked when a prop is selected in the explorer.
@@ -93,6 +177,18 @@ function buildPropExplorer(container: HTMLElement) {
     clearBtn.style.display = searchInput.value ? '' : 'none';
     filterProps(searchInput.value.trim().toLowerCase());
   });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (searchInput.value) {
+      searchInput.value = '';
+      clearBtn.style.display = 'none';
+      filterProps('');
+    } else {
+      searchInput.blur();
+    }
+  });
   clearBtn.addEventListener('click', () => {
     searchInput.value = '';
     clearBtn.style.display = 'none';
@@ -113,10 +209,12 @@ function buildPropExplorer(container: HTMLElement) {
   collapseAllBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/></svg>`;
   collapseAllBtn.addEventListener('click', () => {
     catalog.categories.forEach((cat: string) => collapsedCategories.add(cat));
+    collapsedCategories.add(FAVORITES_CATEGORY);
     scrollArea.querySelectorAll<HTMLElement>('.prop-category-title').forEach((t) => t.classList.remove('open'));
     scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach((g) => {
       g.style.display = 'none';
     });
+    saveCollapsedCategories();
   });
 
   const expandAllBtn = document.createElement('button');
@@ -129,6 +227,7 @@ function buildPropExplorer(container: HTMLElement) {
     scrollArea.querySelectorAll<HTMLElement>('.prop-grid').forEach((g) => {
       g.style.display = '';
     });
+    saveCollapsedCategories();
   });
 
   searchWrap.appendChild(actionSep);
@@ -142,20 +241,40 @@ function buildPropExplorer(container: HTMLElement) {
   scrollArea.className = 'prop-scroll-area';
 
   let html = '';
-  for (const category of catalog.categories) {
+
+  // Category open/closed markup reflects the persisted collapsedCategories set
+  // so the user's previous browsing layout survives a reload.
+  const titleCls = (cat: string) => (collapsedCategories.has(cat) ? 'prop-category-title' : 'prop-category-title open');
+  const gridStyleExtra = (cat: string) => (collapsedCategories.has(cat) ? 'display:none' : '');
+
+  // ── Favorites category (pinned at top) ────────────────────────────────────
+  const favProps = favoritePropTypes(catalog);
+  const favHideEmpty = favProps.length === 0;
+  const favHidden = favHideEmpty ? ' style="display:none"' : '';
+  const favGridStyle = favHideEmpty
+    ? ' style="display:none"'
+    : gridStyleExtra(FAVORITES_CATEGORY)
+      ? ` style="${gridStyleExtra(FAVORITES_CATEGORY)}"`
+      : '';
+  html += `<div class="${titleCls(FAVORITES_CATEGORY)}" data-category="${FAVORITES_CATEGORY}"${favHidden}>${FAVORITES_CATEGORY} <span class="collapse-arrow">&#9654;</span></div>`;
+  html += `<div class="prop-grid" data-cat-grid="${FAVORITES_CATEGORY}"${favGridStyle}>`;
+  for (const propType of favProps) {
+    html += thumbHtml(propType, propDisplayName(propType, catalog));
+  }
+  html += '</div>';
+
+  // ── Regular categories, alphabetically sorted ─────────────────────────────
+  const sortedCategories = [...catalog.categories].sort((a, b) => a.localeCompare(b));
+  for (const category of sortedCategories) {
     const propNames = catalog.byCategory?.[category];
     if (!propNames || propNames.length === 0) continue;
 
-    html += `<div class="prop-category-title open" data-category="${category}">${category} <span class="collapse-arrow">&#9654;</span></div>`;
-    html += `<div class="prop-grid" data-cat-grid="${category}">`;
+    const style = gridStyleExtra(category) ? ` style="${gridStyleExtra(category)}"` : '';
+    html += `<div class="${titleCls(category)}" data-category="${category}">${category} <span class="collapse-arrow">&#9654;</span></div>`;
+    html += `<div class="prop-grid" data-cat-grid="${category}"${style}>`;
 
-    for (const propType of propNames) {
-      const def = catalog.props[propType]!;
-      const displayName = def.name || propType;
-      html += `<div class="prop-thumb" data-prop="${propType}">`;
-      html += '<div class="prop-thumb-shimmer"></div>';
-      html += `<span>${displayName}</span>`;
-      html += '</div>';
+    for (const propType of sortedByDisplayName(propNames, catalog)) {
+      html += thumbHtml(propType, propDisplayName(propType, catalog));
     }
 
     html += '</div>';
@@ -164,11 +283,20 @@ function buildPropExplorer(container: HTMLElement) {
   scrollArea.innerHTML = html;
   explorer.appendChild(scrollArea);
 
-  // Bind click on category titles (collapse/expand) and thumbnails
+  // Bind click on heart button, category titles, and thumbnails
   scrollArea.addEventListener('click', (e) => {
+    const favBtn = (e.target as HTMLElement).closest<HTMLElement>('.prop-fav-btn');
+    if (favBtn) {
+      e.stopPropagation();
+      const propType = favBtn.dataset.fav;
+      if (propType) toggleFavorite(propType, catalog, scrollArea);
+      return;
+    }
+
     const catTitle = (e.target as HTMLElement).closest<HTMLElement>('.prop-category-title');
     if (catTitle) {
       const cat = catTitle.dataset.category;
+      if (!cat) return;
       const grid = scrollArea.querySelector<HTMLElement>(`.prop-grid[data-cat-grid="${cat}"]`);
       if (collapsedCategories.has(cat)) {
         collapsedCategories.delete(cat);
@@ -179,6 +307,7 @@ function buildPropExplorer(container: HTMLElement) {
         catTitle.classList.remove('open');
         if (grid) grid.style.display = 'none';
       }
+      saveCollapsedCategories();
       return;
     }
 
@@ -236,76 +365,128 @@ function filterProps(query: string) {
       grid.style.display = '';
     } else {
       // No query: respect collapse state
-      grid.style.display = collapsedCategories.has(cat) ? 'none' : '';
+      grid.style.display = cat && collapsedCategories.has(cat) ? 'none' : '';
     }
   });
 }
 
+const THUMB_CANVAS_SIZE = 60;
+
+function renderThumbCanvas(thumb: HTMLElement, catalog: PropCatalog): void {
+  thumb.dataset.rendered = '1';
+  const propType = thumb.dataset.prop!;
+  const def = catalog.props[propType];
+  if (!def) return;
+
+  const [rows, cols] = def.footprint;
+  const maxDim = Math.max(rows, cols);
+  const scale = THUMB_CANVAS_SIZE / maxDim;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = THUMB_CANVAS_SIZE;
+  canvas.height = THUMB_CANVAS_SIZE;
+  const ctx = getCtx(canvas);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, THUMB_CANVAS_SIZE, THUMB_CANVAS_SIZE);
+
+  const transform = { scale, offsetX: 0, offsetY: 0, lineWidth: 1.5 };
+  if (cols < maxDim) transform.offsetX = (THUMB_CANVAS_SIZE - cols * scale) / 2;
+  if (rows < maxDim) transform.offsetY = (THUMB_CANVAS_SIZE - rows * scale) / 2;
+
+  const texCat = getTextureCatalog();
+  const getTexImg = texCat
+    ? (id: string) => {
+        const e = texCat.textures[id];
+        return e?.img?.complete ? e.img : null;
+      }
+    : null;
+  renderProp(ctx, def, 0, 0, 0, 1, getTheme(), transform, false, getTexImg);
+
+  const shimmer = thumb.querySelector<HTMLElement>('.prop-thumb-shimmer');
+  if (shimmer) {
+    shimmer.replaceWith(canvas);
+  } else {
+    const existingCanvas = thumb.querySelector('canvas');
+    if (existingCanvas) existingCanvas.replaceWith(canvas);
+    else thumb.prepend(canvas);
+  }
+}
+
 function renderThumbnails(catalog: PropCatalog) {
-  const allThumbs = panel().querySelectorAll<HTMLElement>('.prop-thumb');
+  currentCatalog = catalog;
+  const root = panel();
+  const allThumbs = root.querySelectorAll<HTMLElement>('.prop-thumb');
+  if (!allThumbs.length) return;
 
-  const theme = getTheme();
-  const CANVAS_SIZE = 60;
-  let index = 0;
-  const BATCH_SIZE = 6; // render at least this many per tick regardless of idle budget
-
-  function renderBatch() {
-    let rendered = 0;
-    while (index < allThumbs.length) {
-      const thumb = allThumbs[index]!;
-      index++;
-
-      const propType = thumb.dataset.prop!;
-      const def = catalog.props[propType]!;
-
-      const [rows, cols] = def.footprint;
-      const maxDim = Math.max(rows, cols);
-      const scale = CANVAS_SIZE / maxDim;
-
-      const canvas = document.createElement('canvas');
-      canvas.width = CANVAS_SIZE;
-      canvas.height = CANVAS_SIZE;
-      const ctx = getCtx(canvas);
-
-      // White background for visibility against the dark panel
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-
-      const transform = { scale, offsetX: 0, offsetY: 0, lineWidth: 1.5 };
-
-      // Center the prop if non-square
-      if (cols < maxDim) {
-        transform.offsetX = (CANVAS_SIZE - cols * scale) / 2;
-      }
-      if (rows < maxDim) {
-        transform.offsetY = (CANVAS_SIZE - rows * scale) / 2;
-      }
-
-      const texCat = getTextureCatalog();
-      const getTexImg = texCat
-        ? (id: string) => {
-            const e = texCat.textures[id];
-            return e?.img?.complete ? e.img : null;
-          }
-        : null;
-      renderProp(ctx, def, 0, 0, 0, 1, theme, transform, false, getTexImg);
-
-      // Replace shimmer with canvas
-      const shimmer = thumb.querySelector<HTMLElement>('.prop-thumb-shimmer');
-      if (shimmer) {
-        shimmer.replaceWith(canvas);
-      }
-
-      rendered++;
-      // Yield after BATCH_SIZE to avoid blocking the main thread too long
-      if (rendered >= BATCH_SIZE) {
-        setTimeout(renderBatch, 0);
-        return;
-      }
-    }
+  // Tear down any prior observer (re-init on catalog rebuild).
+  if (thumbObserver) {
+    thumbObserver.disconnect();
+    thumbObserver = null;
   }
 
-  setTimeout(renderBatch, 0);
+  // rootMargin pre-renders a screen ahead so thumbs appear before the user
+  // scrolls into them, eliminating the "blank squares" perception.
+  thumbObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const thumb = entry.target as HTMLElement;
+        if (thumb.dataset.rendered === '1') continue;
+        if (currentCatalog) renderThumbCanvas(thumb, currentCatalog);
+        thumb.dataset.rendered = '1';
+        thumbObserver!.unobserve(thumb);
+      }
+    },
+    { root: root.querySelector('.prop-scroll-area'), rootMargin: '400px 0px', threshold: 0.01 },
+  );
+
+  allThumbs.forEach((thumb) => thumbObserver!.observe(thumb));
+}
+
+function toggleFavorite(propType: string, catalog: PropCatalog, scrollArea: HTMLElement): void {
+  const nowFav = !favorites.has(propType);
+  if (nowFav) favorites.add(propType);
+  else favorites.delete(propType);
+  saveFavorites();
+
+  // Update heart state on every thumb (favorites grid + normal category)
+  scrollArea.querySelectorAll<HTMLElement>(`.prop-fav-btn[data-fav="${propType}"]`).forEach((btn) => {
+    btn.classList.toggle('favorited', nowFav);
+  });
+
+  const favTitle = scrollArea.querySelector<HTMLElement>(`.prop-category-title[data-category="${FAVORITES_CATEGORY}"]`);
+  const favGrid = scrollArea.querySelector<HTMLElement>(`.prop-grid[data-cat-grid="${FAVORITES_CATEGORY}"]`);
+  if (!favTitle || !favGrid) return;
+
+  if (nowFav) {
+    const def = catalog.props[propType];
+    if (def) {
+      const displayName = propDisplayName(propType, catalog);
+      const temp = document.createElement('div');
+      temp.innerHTML = thumbHtml(propType, displayName);
+      const newThumb = temp.firstElementChild as HTMLElement;
+
+      // Insert in alphabetical position
+      const existingThumbs = Array.from(favGrid.querySelectorAll<HTMLElement>('.prop-thumb'));
+      const insertBefore = existingThumbs.find((t) => {
+        const otherName = propDisplayName(t.dataset.prop!, catalog);
+        return displayName.localeCompare(otherName) < 0;
+      });
+      if (insertBefore) favGrid.insertBefore(newThumb, insertBefore);
+      else favGrid.appendChild(newThumb);
+
+      renderThumbCanvas(newThumb, catalog);
+      if (state.selectedProp === propType) newThumb.classList.add('selected');
+    }
+  } else {
+    const existing = favGrid.querySelector<HTMLElement>(`.prop-thumb[data-prop="${propType}"]`);
+    if (existing) existing.remove();
+  }
+
+  const hasAny = !!favGrid.querySelector('.prop-thumb');
+  const collapsed = collapsedCategories.has(FAVORITES_CATEGORY);
+  favTitle.style.display = hasAny ? '' : 'none';
+  favGrid.style.display = hasAny && !collapsed ? '' : 'none';
 }
 
 function updateSelectedThumb() {

@@ -1,0 +1,45 @@
+name: Cradle
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: wall
+room_types: apartment-tenement, house-medium-family, nursery
+typical_count: single
+clusters_with: rocking-chair, small-table, yarn-basket
+notes: Wooden rocking cradle for an infant; curved bottom rockers visible at ends
+---
+# === HITBOX ===
+hitbox rect 0.14,0.18 0.72,1.64 z 0-1.8
+
+# Cradle body — rectangular wooden basket, rounded ends
+rect 0.14,0.18 0.72,1.64 texfill polyhaven/dark_wood 0.88
+rect 0.14,0.18 0.72,1.64 stroke #3a1f00
+# Rounded ends (caps)
+arc 0.50,0.28 0.26 180 360 texfill polyhaven/dark_wood 0.88
+arc 0.50,0.28 0.26 180 360 stroke #3a1f00
+arc 0.50,1.72 0.26 0 180 texfill polyhaven/dark_wood 0.88
+arc 0.50,1.72 0.26 0 180 stroke #3a1f00
+# Inner padding/blanket (soft cream cloth filling the interior)
+rect 0.22,0.28 0.56,1.44 texfill polyhaven/rough_linen 0.9
+rect 0.22,0.28 0.56,1.44 fill #e8dcc8 0.4
+rect 0.22,0.28 0.56,1.44 stroke #8b7355
+# Tiny pillow at head (north)
+ellipse 0.50,0.42 0.18,0.10 fill #f0e4d0 0.95
+ellipse 0.50,0.42 0.18,0.10 stroke #8b7355
+# Blanket folded over (south portion)
+rect 0.28,1.00 0.44,0.60 fill #4466aa 0.7
+rect 0.28,1.00 0.44,0.60 stroke #223366
+# Blanket fold line
+line 0.28,1.12 0.72,1.12 stroke #223366 0.5
+# Rocker base — curved skids extending east/west beneath
+bezier 0.08,0.40 0.06,0.30 0.14,0.20 0.22,0.18 stroke #3a1f00 width 3
+bezier 0.08,1.60 0.06,1.70 0.14,1.80 0.22,1.82 stroke #3a1f00 width 3
+bezier 0.92,0.40 0.94,0.30 0.86,0.20 0.78,0.18 stroke #3a1f00 width 3
+bezier 0.92,1.60 0.94,1.70 0.86,1.80 0.78,1.82 stroke #3a1f00 width 3
+# Wood grain slats (vertical planks on side of cradle)
+line 0.30,0.18 0.30,1.82 stroke #2a1400 0.3
+line 0.50,0.18 0.50,1.82 stroke #2a1400 0.3
+line 0.70,0.18 0.70,1.82 stroke #2a1400 0.3

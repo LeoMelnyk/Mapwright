@@ -1,0 +1,65 @@
+name: Market Stall Awning
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 2.5
+placement: floor
+room_types: fairground-seasonal, market-square
+typical_count: few
+clusters_with: market-stall
+notes: Overlay prop designed to be placed at the same position as market-stall. Canvas canopy seen from above; do not add a drop shadow (it is overhead — shadow would be wrong, like a chandelier).
+---
+# === HITBOX ===
+selection rect 0.08,0.08 1.84,1.84
+
+# Canvas canopy base (full square, slight margin so it overhangs the stall edges visually)
+rect 0.08,0.08 1.84,1.84 fill #b83028 0.92
+rect 0.08,0.08 1.84,1.84 texfill polyhaven/rough_linen 0.45
+rect 0.08,0.08 1.84,1.84 stroke #5a0808
+# Red/white vertical stripes — three white bands across the 2-cell width
+rect 0.36,0.08 0.26,1.84 fill #f0e8dc 0.90
+rect 0.36,0.08 0.26,1.84 texfill polyhaven/rough_linen 0.35
+rect 0.86,0.08 0.26,1.84 fill #f0e8dc 0.90
+rect 0.86,0.08 0.26,1.84 texfill polyhaven/rough_linen 0.35
+rect 1.36,0.08 0.26,1.84 fill #f0e8dc 0.90
+rect 1.36,0.08 0.26,1.84 texfill polyhaven/rough_linen 0.35
+# Seam stitching along stripe boundaries
+line 0.36,0.08 0.36,1.92 stroke #5a0808 0.7
+line 0.62,0.08 0.62,1.92 stroke #5a0808 0.7
+line 0.86,0.08 0.86,1.92 stroke #5a0808 0.7
+line 1.12,0.08 1.12,1.92 stroke #5a0808 0.7
+line 1.36,0.08 1.36,1.92 stroke #5a0808 0.7
+line 1.62,0.08 1.62,1.92 stroke #5a0808 0.7
+# Ridge line crossing east-west (subtle sag — canopy sags toward center)
+bezier 0.08,1.00 0.60,1.08 1.40,1.08 1.92,1.00 stroke #3a0404 0.5 width 2
+# Support pole pass-throughs (small circles where poles rise through canopy)
+circle 0.20,0.20 0.07 fill #4a2800 0.95
+circle 0.20,0.20 0.07 stroke #1a0a00
+circle 1.80,0.20 0.07 fill #4a2800 0.95
+circle 1.80,0.20 0.07 stroke #1a0a00
+circle 0.20,1.80 0.07 fill #4a2800 0.95
+circle 0.20,1.80 0.07 stroke #1a0a00
+circle 1.80,1.80 0.07 fill #4a2800 0.95
+circle 1.80,1.80 0.07 stroke #1a0a00
+# Pole collar rings (reinforcement where pole meets canvas)
+circle 0.20,0.20 0.11 stroke #5a0808 width 1
+circle 1.80,0.20 0.11 stroke #5a0808 width 1
+circle 0.20,1.80 0.11 stroke #5a0808 width 1
+circle 1.80,1.80 0.11 stroke #5a0808 width 1
+# Subtle fabric ripples / sag highlights (canvas bowing between poles)
+bezier 0.20,0.60 0.60,0.66 1.40,0.66 1.80,0.60 stroke #f4e8d8 0.25 width 1
+bezier 0.20,1.40 0.60,1.46 1.40,1.46 1.80,1.40 stroke #f4e8d8 0.25 width 1
+# Scalloped front valance (south edge — fabric trim hanging down visible as notched line)
+bezier 0.08,1.88 0.30,1.96 0.50,1.96 0.72,1.88 stroke #5a0808 0.7 width 2
+bezier 0.72,1.88 0.94,1.96 1.14,1.96 1.36,1.88 stroke #5a0808 0.7 width 2
+bezier 1.36,1.88 1.58,1.96 1.78,1.96 1.92,1.88 stroke #5a0808 0.7 width 2
+# Weathering stains on canvas
+ellipse 0.48,0.40 0.08,0.05 fill #3a0808 0.3
+ellipse 1.52,1.20 0.10,0.05 fill #3a0808 0.3
+# Rope ties at corners (cinched fabric to pole)
+line 0.14,0.14 0.26,0.26 stroke #6b4e2e 0.9 width 1
+line 1.86,0.14 1.74,0.26 stroke #6b4e2e 0.9 width 1
+line 0.14,1.86 0.26,1.74 stroke #6b4e2e 0.9 width 1
+line 1.86,1.86 1.74,1.74 stroke #6b4e2e 0.9 width 1

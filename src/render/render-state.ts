@@ -1,6 +1,8 @@
 // ── Render performance profiling ────────────────────────────────────────────
 // Populated by renderCells on each frame. Read by canvas-view diagnostics overlay.
 
+import { log } from '../util/index.js';
+
 interface TimingEntry {
   ms: number;
   frame: number;
@@ -14,12 +16,16 @@ let _timingFrame: number = 0;
  * Increment the timing frame counter.
  * @returns {number} The new frame number
  */
-export function bumpTimingFrame(): number { return ++_timingFrame; }
+export function bumpTimingFrame(): number {
+  return ++_timingFrame;
+}
 /**
  * Get the current timing frame counter.
  * @returns {number} Current frame number
  */
-export function getTimingFrame(): number { return _timingFrame; }
+export function getTimingFrame(): number {
+  return _timingFrame;
+}
 
 /**
  * Time a function and record its duration in renderTimings.
@@ -39,26 +45,47 @@ export function _t<T>(label: string, fn: () => T): T {
 // this to know when the map cache needs rebuilding, even when notify() isn't called.
 let _contentVersion: number = 0;
 let _geometryVersion: number = 0; // bumped only on void↔floor transitions (needsGeometry)
+let _topContentVersion: number = 0; // bumped only when top-layer content (walls/props/hazard/trim) changes — skipped by texture/fill-only paints so the walls cache isn't cleared
 /**
  * Get the current content mutation version counter.
  * @returns {number} Content version
  */
-export function getContentVersion(): number { return _contentVersion; }
+export function getContentVersion(): number {
+  return _contentVersion;
+}
 /**
  * Get the current geometry version counter (void/floor transitions only).
  * @returns {number} Geometry version
  */
-export function getGeometryVersion(): number { return _geometryVersion; }
+export function getGeometryVersion(): number {
+  return _geometryVersion;
+}
+/**
+ * Get the current top-layer content version counter.
+ * Bumped only when walls/doors/props/hazard/trim change; not bumped by texture-only edits.
+ * Used by the map cache to decide whether a partial rebuild needs to touch the walls/props layer.
+ * @returns {number} Top content version
+ */
+export function getTopContentVersion(): number {
+  return _topContentVersion;
+}
 /**
  * Increment the content version counter.
+ * @param {{ topChanged?: boolean }} [opts] - Pass `topChanged: true` to also bump the top-layer version.
  * @returns {void}
  */
-export function bumpContentVersion(): void { _contentVersion++; }
+export function bumpContentVersion(opts: { topChanged?: boolean } = { topChanged: true }): void {
+  _contentVersion++;
+  if (opts.topChanged !== false) _topContentVersion++;
+  log.devTrace(`bumpContentVersion → ${_contentVersion} (topChanged=${opts.topChanged !== false})`);
+}
 /**
  * Internal: bump geometry version from render-cache.js smartInvalidate.
  * @returns {void}
  */
-export function _bumpGeometryVersion(): void { _geometryVersion++; }
+export function _bumpGeometryVersion(): void {
+  _geometryVersion++;
+}
 
 // ─── Dirty region tracking ─────
 // Accumulated bounding rect of cells changed since the last cache rebuild.

@@ -1,0 +1,78 @@
+name: Ornate Coat Rack
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.0
+placement: corner
+room_types: mansion-grand-hall, manor-foyer, noble-villa, reception-hall, estate
+typical_count: few
+clusters_with: umbrella-stand, decorative-urn
+notes: Tall freestanding ornate coat rack with brass hooks and a cloak draped on one hook. Top-down shows central pole with radiating hook nubs.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+selection circle 0.50,0.50 0.18
+
+# Round wooden base plate
+circle 0.50,0.50 0.30 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.50 0.30 stroke #2a1400 width 2
+
+# Inner base ring
+circle 0.50,0.50 0.24 stroke #3a1f00
+
+# Central pole (seen from above)
+circle 0.50,0.50 0.09 texfill polyhaven/dark_wood 0.95
+circle 0.50,0.50 0.09 stroke #1a1208 width 2
+
+# Brass collar around pole
+circle 0.50,0.50 0.11 stroke #daa520 width 2
+
+# Pole cap at top (small brass knob)
+circle 0.50,0.50 0.05 fill #daa520 0.95
+circle 0.50,0.50 0.05 stroke #5a3a00
+
+# Six curled brass hooks radiating outward (hook nubs visible from above)
+# North hook
+line 0.50,0.41 0.50,0.26 stroke #daa520 width 3
+circle 0.50,0.22 0.04 fill #daa520 0.95
+circle 0.50,0.22 0.04 stroke #5a3a00
+
+# Northeast
+line 0.57,0.43 0.70,0.32 stroke #daa520 width 3
+circle 0.73,0.28 0.04 fill #daa520 0.95
+circle 0.73,0.28 0.04 stroke #5a3a00
+
+# Southeast
+line 0.57,0.57 0.70,0.68 stroke #daa520 width 3
+circle 0.73,0.72 0.04 fill #daa520 0.95
+circle 0.73,0.72 0.04 stroke #5a3a00
+
+# South
+line 0.50,0.59 0.50,0.74 stroke #daa520 width 3
+circle 0.50,0.78 0.04 fill #daa520 0.95
+circle 0.50,0.78 0.04 stroke #5a3a00
+
+# Southwest
+line 0.43,0.57 0.30,0.68 stroke #daa520 width 3
+circle 0.27,0.72 0.04 fill #daa520 0.95
+circle 0.27,0.72 0.04 stroke #5a3a00
+
+# Northwest — with a cloak draped
+line 0.43,0.43 0.30,0.32 stroke #daa520 width 3
+circle 0.27,0.28 0.04 fill #daa520 0.95
+circle 0.27,0.28 0.04 stroke #5a3a00
+
+# Draped cloak (velvet bundle hanging on NW hook, seen from above)
+ellipse 0.22,0.36 0.14,0.12 texfill polyhaven/velour_velvet 0.88
+ellipse 0.22,0.36 0.14,0.12 fill #2a0830 0.55
+ellipse 0.22,0.36 0.14,0.12 stroke #1a0420 width 2
+
+# Cloak fold suggestion
+arc 0.22,0.36 0.10 180 360 stroke #4a2060 0.7
+
+# Gold clasp on cloak
+circle 0.16,0.30 0.025 fill #ffd700 0.95
+circle 0.16,0.30 0.025 stroke #5a3a00

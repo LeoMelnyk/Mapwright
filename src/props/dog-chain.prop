@@ -1,0 +1,112 @@
+name: Dog Chain
+category: Misc
+footprint: 2x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: corner
+room_types: lumberyard, stable, yard, farmhouse-exterior, guardhouse
+typical_count: single
+clusters_with: post, kennel, bone-pile, water-trough
+notes: Heavy iron chain with empty leather collar, anchored to a wooden post. The dog is absent — chain lies slack on the ground.
+---
+# footprint 2x1: x 0-1, y 0-2
+# === HITBOX ===
+selection circle 0.50,0.30 0.20
+selection rect 0.30,0.50 0.40,1.40
+
+# === Wooden post (anchor, north end) ===
+circle 0.50,0.30 0.18 texfill polyhaven/dark_wood 0.85
+circle 0.50,0.30 0.18 fill #3a1f00 0.4
+circle 0.50,0.30 0.18 stroke #1a1008 width 2
+
+# Post wood grain (concentric rings)
+circle 0.50,0.30 0.14 stroke #2a1400 0.7 width 1
+circle 0.50,0.30 0.10 stroke #2a1400 0.6 width 1
+circle 0.50,0.30 0.06 stroke #2a1400 0.6 width 1
+circle 0.50,0.30 0.012 fill #1a1008 0.8
+
+# === Iron ring bolted to top of post ===
+ring 0.50,0.30 0.06 0.035 fill #444444 0.9
+ring 0.50,0.30 0.06 0.035 stroke #222222 width 1
+
+# Bolt head (square plate)
+rect 0.44,0.22 0.04,0.04 fill #555555 0.9
+rect 0.44,0.22 0.04,0.04 stroke #222222
+
+# === Chain (heavy links, trailing south along the ground) ===
+# Link 1 (near post)
+ellipse 0.52,0.44 0.045,0.03 fill #666666 0.9
+ellipse 0.52,0.44 0.045,0.03 stroke #222222 width 1
+# Link 2
+ellipse 0.48,0.58 0.03,0.045 fill #555555 0.9
+ellipse 0.48,0.58 0.03,0.045 stroke #222222 width 1
+# Link 3
+ellipse 0.54,0.72 0.045,0.03 fill #666666 0.9
+ellipse 0.54,0.72 0.045,0.03 stroke #222222 width 1
+# Link 4
+ellipse 0.46,0.86 0.03,0.045 fill #555555 0.9
+ellipse 0.46,0.86 0.03,0.045 stroke #222222 width 1
+# Link 5
+ellipse 0.52,1.00 0.045,0.03 fill #666666 0.9
+ellipse 0.52,1.00 0.045,0.03 stroke #222222 width 1
+# Link 6 (chain starts curving)
+ellipse 0.48,1.14 0.03,0.045 fill #555555 0.9
+ellipse 0.48,1.14 0.03,0.045 stroke #222222 width 1
+# Link 7
+ellipse 0.54,1.28 0.045,0.03 fill #666666 0.9
+ellipse 0.54,1.28 0.045,0.03 stroke #222222 width 1
+# Link 8
+ellipse 0.46,1.42 0.03,0.045 fill #555555 0.9
+ellipse 0.46,1.42 0.03,0.045 stroke #222222 width 1
+# Link 9 (curving east slightly)
+ellipse 0.52,1.54 0.045,0.03 fill #666666 0.9
+ellipse 0.52,1.54 0.045,0.03 stroke #222222 width 1
+
+# Chain shadow/scuff on ground
+ellipse 0.50,1.00 0.08,0.50 fill #1a1008 0.15
+
+# === Leather collar (south end, open/unbuckled, lying flat) ===
+# Main collar strap (curved ring shape)
+ering 0.55,1.70 0.16,0.12 0.11,0.08 fill #5c3a1e 0.9
+ering 0.55,1.70 0.16,0.12 0.11,0.08 stroke #2a1400 width 2
+
+# Collar buckle (metal D-ring)
+rect 0.64,1.66 0.05,0.08 fill #666666 0.9
+rect 0.64,1.66 0.05,0.08 stroke #222222 width 1
+circle 0.66,1.70 0.02 fill #333333 0.9
+
+# Collar studs (metal decorations)
+circle 0.42,1.64 0.015 fill #888888 0.9
+circle 0.42,1.64 0.015 stroke #333333 width 1
+circle 0.48,1.60 0.015 fill #888888 0.9
+circle 0.48,1.60 0.015 stroke #333333 width 1
+circle 0.56,1.80 0.015 fill #888888 0.9
+circle 0.56,1.80 0.015 stroke #333333 width 1
+circle 0.50,1.82 0.015 fill #888888 0.9
+circle 0.50,1.82 0.015 stroke #333333 width 1
+
+# Last chain link connecting to collar
+ellipse 0.54,1.64 0.03,0.045 fill #555555 0.9
+ellipse 0.54,1.64 0.03,0.045 stroke #222222
+
+# === Dog bowl / water spill nearby (hint of a missing dog) ===
+ellipse 0.20,1.60 0.12,0.08 texfill polyhaven/dark_wood 0.8
+ellipse 0.20,1.60 0.12,0.08 stroke #2a1400 width 1
+ellipse 0.20,1.60 0.08,0.05 fill #1a1008 0.7
+
+# Bone nearby
+ellipse 0.80,1.40 0.08,0.025 fill #e8dcc8 0.9
+ellipse 0.80,1.40 0.08,0.025 stroke #8a8068 width 1
+circle 0.74,1.40 0.022 fill #e8dcc8 0.9
+circle 0.74,1.40 0.022 stroke #8a8068
+circle 0.86,1.40 0.022 fill #e8dcc8 0.9
+circle 0.86,1.40 0.022 stroke #8a8068
+
+# Dirt scuffs (where dog paced)
+ellipse 0.30,1.20 0.10,0.06 fill #4a3020 0.3
+ellipse 0.70,1.00 0.08,0.05 fill #4a3020 0.25
+
+# Post top highlight
+arc 0.50,0.30 0.17 200 240 stroke #8b6914 0.5 width 1

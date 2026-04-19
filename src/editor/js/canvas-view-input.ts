@@ -45,8 +45,8 @@ export function onMouseDown(e: MouseEvent): void {
     return;
   }
 
-  // Alt+click: pan (unless the active tool handles Alt itself, e.g. paint syringe)
-  if (e.button === 0 && e.altKey && state.activeTool !== 'paint') {
+  // Alt+click: pan (unless the active tool handles Alt itself, e.g. paint/prop syringe)
+  if (e.button === 0 && e.altKey && state.activeTool !== 'paint' && state.activeTool !== 'prop') {
     cvState.isPanning = true;
     cvState.panStartX = pos.x;
     cvState.panStartY = pos.y;
@@ -223,7 +223,7 @@ export function onMouseUp(e: MouseEvent): void {
       const bi = state.dungeon.metadata.backgroundImage;
       const transform = getTransform();
       const cellPx = gridSize * transform.scale;
-      const newPixelsPerCell = Math.round(d * (bi?.pixelsPerCell ?? 70) / cellPx);
+      const newPixelsPerCell = Math.round((d * (bi?.pixelsPerCell ?? 70)) / cellPx);
       if (cvState._bgMeasureCallback) cvState._bgMeasureCallback(Math.max(1, newPixelsPerCell));
     }
     _cancelBgMeasure();
@@ -252,9 +252,9 @@ export function onMouseUp(e: MouseEvent): void {
       const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
       const edge = nearestEdge(pos.x, pos.y, transform, gridSize);
       if (state.sessionToolsActive && cvState.sessionTool?.onRightClick) {
-        cvState.sessionTool.onRightClick(cell.row, cell.col, edge, e);
+        cvState.sessionTool.onRightClick(cell.row, cell.col, edge, e, pos);
       } else if (cvState.activeTool?.onRightClick) {
-        cvState.activeTool.onRightClick(cell.row, cell.col, edge, e);
+        cvState.activeTool.onRightClick(cell.row, cell.col, edge, e, pos);
       }
       requestRender();
     }
@@ -315,7 +315,11 @@ export function onWheel(e: WheelEvent): void {
   // Alt+wheel → dispatch to active tool (rotation/scale)
   if (e.altKey && cvState.activeTool?.onWheel) {
     const { gridSize, resolution } = state.dungeon.metadata;
-    const transform = { scale: CELL_SIZE * state.zoom / _dgs(gridSize, resolution), offsetX: state.panX, offsetY: state.panY };
+    const transform = {
+      scale: (CELL_SIZE * state.zoom) / _dgs(gridSize, resolution),
+      offsetX: state.panX,
+      offsetY: state.panY,
+    };
     const cell = pixelToCell(pos.x, pos.y, transform, gridSize);
     cvState.activeTool.onWheel(cell.row, cell.col, e.deltaY, e);
     return;

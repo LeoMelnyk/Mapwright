@@ -1,0 +1,68 @@
+name: Ferry Cabin
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 9
+placement: center
+room_types: ferry-house, dock, riverside
+typical_count: single
+clusters_with: ferry-raft, signal-bell, fish-bucket, dock-cleat, lantern-post
+notes: Small wooden ferry shed/cabin with peaked roof, door opening on the south face. Roof ridge runs east-west; shingled slopes visible from above.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.04 1.84,1.92 z 0-9
+
+# footprint 2x2: x 0-2, y 0-2
+
+# Ground shadow under eaves
+rect 0.02,0.00 1.96,2.00 fill #000000 0.15
+
+# Main cabin body / base outline (rectangular, slight eave overhang)
+rect 0.08,0.04 1.84,1.92 fill #3a1f00 0.4
+rect 0.08,0.04 1.84,1.92 stroke #2a1400
+
+# North roof slope (dark side — away from sun)
+poly 0.08,0.04 1.92,0.04 1.84,0.98 0.16,0.98 texfill polyhaven/weathered_planks 0.75
+poly 0.08,0.04 1.92,0.04 1.84,0.98 0.16,0.98 fill #2a1400 0.35
+poly 0.08,0.04 1.92,0.04 1.84,0.98 0.16,0.98 stroke #2a1400
+
+# South roof slope (lighter — sun-facing)
+poly 0.16,1.02 1.84,1.02 1.92,1.96 0.08,1.96 texfill polyhaven/weathered_planks 0.85
+poly 0.16,1.02 1.84,1.02 1.92,1.96 0.08,1.96 fill #5c3a1e 0.2
+poly 0.16,1.02 1.84,1.02 1.92,1.96 0.08,1.96 stroke #2a1400
+
+# Roof ridge line (east-west, top of peak)
+line 0.16,1.00 1.84,1.00 stroke #1a0800 width 3
+line 0.16,1.00 1.84,1.00 stroke #8b6914 0.5 width 1
+
+# Shingle rows on north slope
+line 0.12,0.28 1.88,0.28 stroke #2a1400 0.6 width 1
+line 0.14,0.52 1.86,0.52 stroke #2a1400 0.6 width 1
+line 0.15,0.76 1.85,0.76 stroke #2a1400 0.6 width 1
+
+# Shingle rows on south slope
+line 0.15,1.24 1.85,1.24 stroke #2a1400 0.6 width 1
+line 0.12,1.48 1.88,1.48 stroke #2a1400 0.6 width 1
+line 0.10,1.72 1.90,1.72 stroke #2a1400 0.6 width 1
+
+# Stone chimney poking through north slope (offset east)
+rect 1.40,0.40 0.20,0.24 texfill polyhaven/stone_wall 0.85
+rect 1.40,0.40 0.20,0.24 stroke #222222
+# Chimney opening
+rect 1.46,0.46 0.08,0.10 fill #0a0400 0.95
+
+# Door at south face (cutout in roof edge, darker)
+rect 0.82,1.84 0.36,0.14 fill #1a0800 0.95
+rect 0.82,1.84 0.36,0.14 stroke #2a1400
+# Door threshold step
+rect 0.80,1.96 0.40,0.04 fill #3a1f00 0.8
+
+# Small window on south slope (east side)
+rect 1.48,1.60 0.16,0.10 fill #ffcc44 0.3
+rect 1.48,1.60 0.16,0.10 stroke #5c3a1e
+line 1.56,1.60 1.56,1.70 stroke #2a1400 width 1
+
+# Eave edge highlight
+line 0.08,1.96 1.92,1.96 stroke #8b6914 0.5 width 1

@@ -1,0 +1,43 @@
+name: Cobweb Cluster
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 2.5
+placement: corner
+room_types: cabin-abandoned, crypt, oubliette, ruined-watchtower, sewer-junction
+typical_count: few
+clusters_with: web-strand, fungal-growth, rat-nest, rubble-pile
+notes: Thick cobweb cluster overhead (corner web); pale radial spokes with concentric spiral threads
+---
+# Radial spokes from hub (primary 8 directions)
+line 0.50,0.50 0.08,0.08 stroke #d8d8d8 0.55 width 1
+line 0.50,0.50 0.50,0.06 stroke #d8d8d8 0.55 width 1
+line 0.50,0.50 0.92,0.08 stroke #d8d8d8 0.55 width 1
+line 0.50,0.50 0.94,0.50 stroke #d8d8d8 0.55 width 1
+line 0.50,0.50 0.92,0.92 stroke #d8d8d8 0.55 width 1
+line 0.50,0.50 0.50,0.94 stroke #d8d8d8 0.55 width 1
+line 0.50,0.50 0.08,0.92 stroke #d8d8d8 0.55 width 1
+line 0.50,0.50 0.06,0.50 stroke #d8d8d8 0.55 width 1
+# Intermediate thinner spokes
+line 0.50,0.50 0.26,0.12 stroke #d8d8d8 0.4 width 1
+line 0.50,0.50 0.74,0.12 stroke #d8d8d8 0.4 width 1
+line 0.50,0.50 0.88,0.26 stroke #d8d8d8 0.4 width 1
+line 0.50,0.50 0.88,0.74 stroke #d8d8d8 0.4 width 1
+line 0.50,0.50 0.74,0.88 stroke #d8d8d8 0.4 width 1
+line 0.50,0.50 0.26,0.88 stroke #d8d8d8 0.4 width 1
+line 0.50,0.50 0.12,0.74 stroke #d8d8d8 0.4 width 1
+line 0.50,0.50 0.12,0.26 stroke #d8d8d8 0.4 width 1
+# Concentric spiral arcs (silk ring threads)
+arc 0.50,0.50 0.36 0 360 stroke #d8d8d8 0.5 width 1
+arc 0.50,0.50 0.24 0 360 stroke #d8d8d8 0.45 width 1
+arc 0.50,0.50 0.14 0 360 stroke #d8d8d8 0.5 width 1
+# Partial outer arc (asymmetry — torn web)
+arc 0.50,0.50 0.44 200 350 stroke #d8d8d8 0.4 width 1
+# Trapped dust/insect specks along threads
+circle 0.32,0.32 0.012 fill #2a2420 0.8
+circle 0.68,0.30 0.01 fill #2a2420 0.7
+circle 0.66,0.70 0.012 fill #2a2420 0.8
+circle 0.30,0.66 0.01 fill #2a2420 0.7
+circle 0.22,0.50 0.01 fill #2a2420 0.6

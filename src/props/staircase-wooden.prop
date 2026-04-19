@@ -1,0 +1,80 @@
+name: Wooden Staircase
+category: Architecture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 10
+placement: wall
+room_types: tavern-common, inn-common-room, mansion-grand-hall, house-merchant, brothel-parlor, merchant-home
+typical_count: single
+clusters_with: bar-counter, banister, carpet-runner
+notes: Section of an interior wooden staircase going up toward north. Top-down shows tread planks with shadow lines and a railing on one side.
+---
+# === HITBOX ===
+hitbox rect 0.06,0.06 1.88,0.88 z 0-10
+
+# footprint 1x2: x 0-2, y 0-1
+# Stringer (side support beam along south edge/railing side)
+rect 0.06,0.78 1.88,0.10 texfill polyhaven/dark_wood 0.92
+rect 0.06,0.78 1.88,0.10 stroke #2a1400 width 2
+
+# Stringer north side (wall-attached support)
+rect 0.06,0.06 1.88,0.06 texfill polyhaven/dark_wood 0.92
+rect 0.06,0.06 1.88,0.06 stroke #2a1400 width 1
+
+# Tread planks (going from south = bottom step, north = top step — stairs climbing north)
+# Each tread is a horizontal plank; shadow lines at the riser show step drop
+# Tread 1 (southernmost, widest-visible riser shadow)
+rect 0.06,0.68 1.88,0.12 texfill polyhaven/wood_table 0.88
+rect 0.06,0.68 1.88,0.12 stroke #5c3a1e width 1
+line 0.06,0.68 1.94,0.68 stroke #1a0a00 0.9 width 2
+
+# Tread 2
+rect 0.06,0.56 1.88,0.12 texfill polyhaven/wood_table 0.85
+rect 0.06,0.56 1.88,0.12 stroke #5c3a1e width 1
+line 0.06,0.56 1.94,0.56 stroke #1a0a00 0.85 width 2
+
+# Tread 3
+rect 0.06,0.44 1.88,0.12 texfill polyhaven/wood_table 0.82
+rect 0.06,0.44 1.88,0.12 stroke #5c3a1e width 1
+line 0.06,0.44 1.94,0.44 stroke #1a0a00 0.8 width 2
+
+# Tread 4
+rect 0.06,0.32 1.88,0.12 texfill polyhaven/wood_table 0.78
+rect 0.06,0.32 1.88,0.12 stroke #5c3a1e width 1
+line 0.06,0.32 1.94,0.32 stroke #1a0a00 0.75 width 2
+
+# Tread 5 (topmost visible, darkest with shadow of next step up)
+rect 0.06,0.20 1.88,0.12 texfill polyhaven/wood_table 0.7
+rect 0.06,0.20 1.88,0.12 stroke #5c3a1e width 1
+line 0.06,0.20 1.94,0.20 stroke #1a0a00 0.7 width 2
+
+# Nosing highlights (subtle lighter edge at south of each tread)
+line 0.06,0.80 1.94,0.80 stroke #8b6914 0.5 width 1
+line 0.06,0.68 1.94,0.68 stroke #8b6914 0.4 width 1
+line 0.06,0.56 1.94,0.56 stroke #8b6914 0.3 width 1
+
+# Railing along south edge (visible as thin rail + baluster caps)
+# Handrail (top of railing seen from above)
+rect 0.06,0.90 1.88,0.04 texfill polyhaven/dark_wood 0.95
+rect 0.06,0.90 1.88,0.04 stroke #2a1400 width 1
+
+# Balusters peeking up between tread edge and rail (tiny post tops)
+circle 0.20,0.88 0.025 fill #3a1f00 0.9
+circle 0.45,0.88 0.025 fill #3a1f00 0.9
+circle 0.70,0.88 0.025 fill #3a1f00 0.9
+circle 0.95,0.88 0.025 fill #3a1f00 0.9
+circle 1.20,0.88 0.025 fill #3a1f00 0.9
+circle 1.45,0.88 0.025 fill #3a1f00 0.9
+circle 1.70,0.88 0.025 fill #3a1f00 0.9
+
+# Newel posts at both ends (larger)
+rect 0.06,0.86 0.08,0.10 fill #1a0a00 0.95
+rect 0.06,0.86 0.08,0.10 stroke #000000 width 1
+rect 1.86,0.86 0.08,0.10 fill #1a0a00 0.95
+rect 1.86,0.86 0.08,0.10 stroke #000000 width 1
+
+# Ornamental ball tops on newels
+circle 0.10,0.87 0.022 fill #daa520 0.8
+circle 1.90,0.87 0.022 fill #daa520 0.8

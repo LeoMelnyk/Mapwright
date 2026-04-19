@@ -1,0 +1,64 @@
+name: Abandoned Campfire
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: battlefield-recent, campsite-traveler, cabin-abandoned, cave-bandit-camp
+typical_count: single
+clusters_with: ash-pile, campfire, log-seat, bedroll
+notes: Cold, long-dead campfire — ring of stones around an ash pile with charred log ends. No flame.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Outer ash scatter (faint grey dust spreading past stone ring)
+ellipse 0.50,0.50 0.42,0.40 fill #6a6258 0.35
+
+# Central ash pile (dark grey, irregular)
+poly 0.28,0.48 0.34,0.36 0.46,0.32 0.58,0.34 0.68,0.40 0.72,0.52 0.66,0.62 0.56,0.68 0.44,0.68 0.32,0.62 0.26,0.54 fill #2a2018 0.88
+poly 0.28,0.48 0.34,0.36 0.46,0.32 0.58,0.34 0.68,0.40 0.72,0.52 0.66,0.62 0.56,0.68 0.44,0.68 0.32,0.62 0.26,0.54 stroke #1a1410
+
+# Inner cold char (darker center)
+poly 0.38,0.48 0.44,0.42 0.54,0.42 0.60,0.50 0.56,0.58 0.46,0.60 0.38,0.54 fill #1a1410 0.9
+
+# Grey ash dusting highlights on the mound
+circle 0.42,0.44 0.03 fill #8a8278 0.5
+circle 0.58,0.52 0.025 fill #8a8278 0.5
+circle 0.48,0.60 0.02 fill #6a6258 0.5
+
+# Stone ring — 7 stones around perimeter
+circle 0.20,0.50 0.07 texfill polyhaven/granite_tile 0.85
+circle 0.20,0.50 0.07 stroke #3a3a3a
+circle 0.26,0.28 0.065 texfill polyhaven/granite_tile 0.85
+circle 0.26,0.28 0.065 stroke #3a3a3a
+circle 0.50,0.20 0.07 texfill polyhaven/granite_tile 0.85
+circle 0.50,0.20 0.07 stroke #3a3a3a
+circle 0.74,0.28 0.065 texfill polyhaven/granite_tile 0.85
+circle 0.74,0.28 0.065 stroke #3a3a3a
+circle 0.80,0.50 0.07 texfill polyhaven/granite_tile 0.85
+circle 0.80,0.50 0.07 stroke #3a3a3a
+circle 0.74,0.74 0.065 texfill polyhaven/granite_tile 0.85
+circle 0.74,0.74 0.065 stroke #3a3a3a
+circle 0.26,0.74 0.065 texfill polyhaven/granite_tile 0.85
+circle 0.26,0.74 0.065 stroke #3a3a3a
+
+# Charred log ends poking out of ashes
+# Log 1 — northwest, angled
+poly 0.14,0.38 0.20,0.34 0.44,0.46 0.40,0.52 fill #1a0a06 0.95
+poly 0.14,0.38 0.20,0.34 0.44,0.46 0.40,0.52 stroke #0a0604
+ellipse 0.16,0.38 0.04,0.03 fill #3a2818 0.8
+# Log 2 — southeast, angled
+poly 0.56,0.54 0.60,0.48 0.86,0.60 0.82,0.66 fill #1a0a06 0.95
+poly 0.56,0.54 0.60,0.48 0.86,0.60 0.82,0.66 stroke #0a0604
+ellipse 0.84,0.64 0.04,0.03 fill #3a2818 0.8
+# Log 3 — shorter, poking south
+poly 0.44,0.62 0.52,0.62 0.54,0.84 0.46,0.84 fill #1a0a06 0.9
+poly 0.44,0.62 0.52,0.62 0.54,0.84 0.46,0.84 stroke #0a0604
+ellipse 0.50,0.84 0.05,0.02 fill #3a2818 0.8
+
+# Grey ash dusting on logs
+circle 0.30,0.42 0.018 fill #8a8278 0.55
+circle 0.70,0.56 0.018 fill #8a8278 0.55
+circle 0.50,0.76 0.015 fill #6a6258 0.5

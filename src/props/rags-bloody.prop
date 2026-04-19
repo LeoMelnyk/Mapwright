@@ -1,0 +1,44 @@
+name: Bloody Rags
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, dungeon, crypt, torture-chamber
+typical_count: few
+clusters_with: rags-bloody, helmet-mining, pickaxe, bloodstain
+notes: Crumpled bloodstained cloth rags discarded on the ground — grim dungeon dressing
+---
+# Main crumpled cloth body (irregular lump)
+poly 0.18,0.42 0.30,0.26 0.52,0.22 0.72,0.28 0.84,0.44 0.80,0.66 0.66,0.80 0.42,0.82 0.22,0.72 0.14,0.56 fill #a89888 0.9
+poly 0.18,0.42 0.30,0.26 0.52,0.22 0.72,0.28 0.84,0.44 0.80,0.66 0.66,0.80 0.42,0.82 0.22,0.72 0.14,0.56 stroke #4a3828
+# Folded edge / overlap (lighter cloth folded over itself)
+poly 0.30,0.48 0.50,0.42 0.66,0.50 0.62,0.62 0.42,0.68 0.32,0.60 fill #c8b898 0.7
+poly 0.30,0.48 0.50,0.42 0.66,0.50 0.62,0.62 0.42,0.68 0.32,0.60 stroke #6a5040
+# Crease lines (folds in the cloth)
+bezier 0.24,0.50 0.38,0.44 0.56,0.46 0.72,0.56 stroke #6a5040 0.7 width 1
+bezier 0.30,0.62 0.46,0.70 0.62,0.68 0.72,0.58 stroke #6a5040 0.6 width 1
+line 0.48,0.32 0.44,0.56 stroke #4a3828 0.5 width 1
+# Frayed edges (tattered strands sticking out)
+line 0.14,0.54 0.06,0.52 stroke #a89888 0.7 width 1
+line 0.86,0.46 0.92,0.44 stroke #a89888 0.7 width 1
+line 0.70,0.82 0.78,0.90 stroke #a89888 0.6 width 1
+line 0.26,0.78 0.18,0.84 stroke #a89888 0.6 width 1
+# Large central blood stain (dark, partly dried)
+ellipse 0.48,0.52 0.22,0.16 fill #4a1010 0.85
+ellipse 0.48,0.52 0.22,0.16 stroke #2a0808
+# Wet/fresh center of stain (darker, glossy)
+ellipse 0.48,0.52 0.12,0.09 fill #2a0808 0.95
+# Outer blood halo (soaked into cloth)
+ellipse 0.48,0.52 0.28,0.20 fill #6a1a1a 0.35
+# Smaller secondary blood smear
+ellipse 0.30,0.68 0.08,0.06 fill #4a1010 0.75
+ellipse 0.30,0.68 0.08,0.06 stroke #2a0808 0.6
+# Blood droplets splattered outside the rag
+circle 0.16,0.30 0.018 fill #4a1010 0.85
+circle 0.84,0.72 0.015 fill #4a1010 0.85
+circle 0.68,0.18 0.012 fill #4a1010 0.8
+# Dirt / coal grime smudges
+ellipse 0.68,0.66 0.05,0.03 fill #1a1208 0.5
+ellipse 0.28,0.36 0.04,0.03 fill #1a1208 0.45

@@ -1,0 +1,65 @@
+name: Infernal Chain Hook
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: wall
+room_types: infernal-court, infernal-forge, torture-chamber, ritual-chamber-dark
+typical_count: few
+clusters_with: chain-coil, chain-heavy, iron-chain-hook, torture-rack, brazier
+notes: Heavy iron meat-hook with dangling chain for hanging bodies or tools; hook tip shows orange heat stains
+---
+# Tight hitbox on chain column only (hook curves outside)
+selection rect 0.42,0.08 0.16,0.60
+
+# Wall plate (flush to north wall)
+rect 0.34,0.06 0.32,0.10 texfill polyhaven/rusty_metal_02 0.85
+rect 0.34,0.06 0.32,0.10 fill #1a1008 0.3
+rect 0.34,0.06 0.32,0.10 stroke #0a0605
+
+# Rivets on wall plate
+circle 0.40,0.11 0.018 fill #0a0605 0.95
+circle 0.60,0.11 0.018 fill #0a0605 0.95
+
+# Top anchor ring (large iron eye)
+ring 0.50,0.22 0.07 0.04 texfill polyhaven/metal_plate 0.75
+ring 0.50,0.22 0.07 0.04 fill #1a1008 0.4
+ring 0.50,0.22 0.07 0.04 stroke #0a0605 width 2
+
+# === Chain-link cluster — several oval rings stacked ===
+# Link 1 (horizontal oval)
+ering 0.50,0.31 0.055,0.035 0.035,0.020 texfill polyhaven/rusty_metal_02 0.75
+ering 0.50,0.31 0.055,0.035 0.035,0.020 stroke #0a0605 width 2
+# Link 2 (vertical oval, interlocks)
+ering 0.50,0.39 0.035,0.055 0.020,0.035 texfill polyhaven/rusty_metal_02 0.75
+ering 0.50,0.39 0.035,0.055 0.020,0.035 stroke #0a0605 width 2
+# Link 3 (horizontal)
+ering 0.50,0.47 0.055,0.035 0.035,0.020 texfill polyhaven/rusty_metal_02 0.75
+ering 0.50,0.47 0.055,0.035 0.035,0.020 stroke #0a0605 width 2
+# Link 4 (vertical, last before hook)
+ering 0.50,0.55 0.035,0.055 0.020,0.035 texfill polyhaven/rusty_metal_02 0.75
+ering 0.50,0.55 0.035,0.055 0.020,0.035 stroke #0a0605 width 2
+
+# === Heavy J-curve hook (edge-on view) ===
+# Hook shaft
+bezier 0.50,0.60 0.50,0.72 0.44,0.80 0.36,0.82 stroke #2a1a10 width 7
+bezier 0.50,0.60 0.50,0.72 0.44,0.80 0.36,0.82 stroke #4a3020 width 4
+# Hook curl back
+bezier 0.36,0.82 0.32,0.84 0.34,0.90 0.42,0.88 stroke #2a1a10 width 7
+bezier 0.36,0.82 0.32,0.84 0.34,0.90 0.42,0.88 stroke #4a3020 width 4
+# Hook point — sharp triangular tip
+poly 0.40,0.86 0.44,0.82 0.46,0.90 fill #2a1a10 0.95
+poly 0.40,0.86 0.44,0.82 0.46,0.90 stroke #0a0605
+
+# Heat-stain red glow on the hook tip
+circle 0.43,0.86 0.05 fill #5a1010 0.6
+circle 0.43,0.86 0.03 fill #7a1818 0.5
+
+# Dark base shadow under the hook point
+ellipse 0.42,0.92 0.08,0.02 fill #0a0605 0.4
+
+# Rust streaks running down the chain
+line 0.46,0.26 0.44,0.58 stroke #5a2a10 0.5
+line 0.54,0.26 0.56,0.58 stroke #5a2a10 0.5

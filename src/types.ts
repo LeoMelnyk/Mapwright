@@ -133,7 +133,13 @@ export interface Light {
   dimRadius?: number;
   presetId?: string;
   propRef?: { row: number; col: number };
-  _propShadows?: { shadowPoly: number[][]; nearCenter: number[]; farCenter: number[]; opacity: number; hard: boolean }[];
+  _propShadows?: {
+    shadowPoly: number[][];
+    nearCenter: number[];
+    farCenter: number[];
+    opacity: number;
+    hard: boolean;
+  }[];
 }
 
 /** A light preset from the catalog. */
@@ -398,6 +404,16 @@ export interface PropLight {
   preset: string;
   x: number;
   y: number;
+  // Optional per-prop overrides on top of the named preset. Parsed from the
+  // prop file's `lights:` JSON, so any field the preset defines may be
+  // overridden inline.
+  radius?: number;
+  color?: string;
+  intensity?: number;
+  falloff?: FalloffType;
+  dimRadius?: number;
+  angle?: number;
+  spread?: number;
 }
 
 /** Prop catalog structure. */
@@ -574,6 +590,8 @@ export interface EditorState {
   propRotation: number;
   propFlipped: boolean;
   propScale: number;
+  propRandomRotation: boolean;
+  propRandomScale: boolean;
   selectedPropAnchors: { row: number; col: number; propId?: number | string }[];
   selectedPropIds: number[];
 
@@ -637,7 +655,11 @@ export interface EditorState {
   wallType: string;
 
   // Infrastructure
-  listeners: { fn: (s: EditorState) => void; label: string; topics?: ('cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui')[] }[];
+  listeners: {
+    fn: (s: EditorState) => void;
+    label: string;
+    topics?: ('cells' | 'metadata' | 'lighting' | 'props' | 'viewport' | 'ui')[];
+  }[];
   _lastPushUndoMs: { stringify: number; total: number } | null;
 
   /** Allow dynamic string-key access for toolbar/keybindings state binding. */
@@ -710,6 +732,7 @@ export interface LinePropsOptions {
 export interface ScatterPropsOptions {
   facing?: number;
   avoidWalls?: number | boolean;
+  avoidDoors?: boolean;
 }
 
 /** Options for placeLight API method (merged with LightPreset fields when preset is used). */
@@ -823,10 +846,13 @@ export interface TextureRuntime {
   dispFile?: string;
   norImg?: HTMLImageElement | null;
   norFile?: string;
-  armFile?: string;
   _loadPromise?: Promise<unknown> | null;
   _pattern?: CanvasPattern | null;
   _patternCtx?: CanvasRenderingContext2D | null;
+  // GPU-ready bitmap for Canvas2D pattern creation. Populated after diffuse
+  // decode; `createPattern(bitmap)` skips the lazy re-decode that Canvas2D
+  // does with an HTMLImageElement on first fill, killing the paint-time stall.
+  _patternBitmap?: ImageBitmap | null;
   [key: string]: unknown;
 }
 

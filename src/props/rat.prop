@@ -1,0 +1,44 @@
+name: Rat
+category: Creatures
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: pantry, servants-kitchen, sewer-junction, cellar, dungeon, oubliette, prison-block
+typical_count: few
+clusters_with: rat, gnawed-bone, rag-pile, nest-of-rags, mouse-trap
+notes: Single rat scurrying; place along walls or near food scraps
+---
+# === HITBOX ===
+selection ellipse 0.5,0.52 0.18,0.14
+
+# Body (elongated oval, head facing south)
+ellipse 0.5,0.52 0.18,0.14 fill #4a3a2a 0.95
+ellipse 0.5,0.52 0.18,0.14 stroke #1a1208
+# Back fur darker patch
+ellipse 0.5,0.46 0.14,0.06 fill #2a2018 0.6
+# Head (smaller oval extending south)
+ellipse 0.5,0.68 0.10,0.10 fill #4a3a2a 0.95
+ellipse 0.5,0.68 0.10,0.10 stroke #1a1208
+# Ears (two small circles on head)
+circle 0.44,0.62 0.035 fill #6a5040 0.9
+circle 0.44,0.62 0.035 stroke #1a1208 0.7
+circle 0.56,0.62 0.035 fill #6a5040 0.9
+circle 0.56,0.62 0.035 stroke #1a1208 0.7
+# Eyes (tiny black dots)
+circle 0.46,0.68 0.01 fill #000000 0.95
+circle 0.54,0.68 0.01 fill #000000 0.95
+# Snout (tiny triangle)
+poly 0.48,0.74 0.52,0.74 0.50,0.78 fill #6a5040 0.85
+# Nose
+circle 0.50,0.77 0.012 fill #1a0808 0.9
+# Front legs (tiny visible)
+line 0.42,0.62 0.38,0.68 stroke #2a1808 width 1
+line 0.58,0.62 0.62,0.68 stroke #2a1808 width 1
+# Tail (bezier curving north)
+bezier 0.50,0.38 0.46,0.28 0.58,0.22 0.66,0.14 stroke #6a5040 width 2
+bezier 0.50,0.38 0.46,0.28 0.58,0.22 0.66,0.14 stroke #1a1208 width 1
+# Fur highlight
+arc 0.5,0.52 0.16 200 260 stroke #8a7060 0.4 width 1

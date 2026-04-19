@@ -1,0 +1,44 @@
+name: Soot Print
+category: Camp
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: charcoal-burner-camp, forge, smithy, lumberyard
+typical_count: many
+clusters_with: charcoal-lump, soot-patch, ash-pile
+notes: Sooty boot/footprint smear on rock or earth — decorative environmental detail
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: sooty boot print smeared on the ground
+
+# Faint soot smear halo (ground around the print)
+ellipse 0.50,0.48 0.28,0.35 fill #222222 0.08
+
+# Boot sole print (elongated oval with heel and toe)
+# Toe area (slightly wider, north end)
+ellipse 0.50,0.32 0.12,0.10 fill #1a1a1a 0.5
+# Arch gap (slightly lighter — less contact)
+ellipse 0.50,0.47 0.08,0.06 fill #222222 0.2
+# Heel area (round, south end)
+ellipse 0.50,0.62 0.10,0.08 fill #1a1a1a 0.45
+
+# Boot tread marks (horizontal lines across the sole)
+line 0.40,0.26 0.60,0.26 stroke #0a0a0a 0.35 width 1
+line 0.38,0.30 0.62,0.30 stroke #0a0a0a 0.3 width 1
+line 0.40,0.34 0.60,0.34 stroke #0a0a0a 0.3 width 1
+line 0.42,0.38 0.58,0.38 stroke #0a0a0a 0.25 width 1
+# Heel tread
+line 0.42,0.58 0.58,0.58 stroke #0a0a0a 0.3 width 1
+line 0.40,0.62 0.60,0.62 stroke #0a0a0a 0.35 width 1
+line 0.42,0.66 0.58,0.66 stroke #0a0a0a 0.3 width 1
+
+# Smear trail (dragged slightly south, as if walking)
+ellipse 0.52,0.75 0.08,0.04 fill #222222 0.15
+
+# Soot specks around the print
+circle 0.30,0.45 0.015 fill #1a1a1a 0.3
+circle 0.70,0.38 0.012 fill #1a1a1a 0.25
+circle 0.65,0.72 0.015 fill #1a1a1a 0.25
+circle 0.35,0.70 0.012 fill #1a1a1a 0.2

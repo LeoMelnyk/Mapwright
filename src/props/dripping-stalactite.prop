@@ -1,0 +1,53 @@
+name: Dripping Stalactite
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3.5
+placement: any
+room_types: slime-pit, cave, underdark, ooze-shrine
+typical_count: many
+clusters_with: stalactite-hanging, ooze-puddle, ooze-pool, slime-trail
+notes: Cave stalactite seen from directly above (radial cross-section) with a green slime droplet forming at the tip — concentric rings of rock tapering to a slimy point
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.30 z 0-3.5
+
+# footprint 1x1 — RADIAL cross-section from above (NOT a vertical shaft)
+
+# Outer rough rock base (widest ring)
+poly 0.50,0.10 0.64,0.14 0.78,0.20 0.86,0.32 0.90,0.46 0.88,0.60 0.82,0.74 0.70,0.84 0.54,0.90 0.38,0.88 0.24,0.82 0.14,0.70 0.10,0.54 0.12,0.40 0.20,0.26 0.34,0.16 texfill polyhaven/rock_boulder_cracked 0.80
+poly 0.50,0.10 0.64,0.14 0.78,0.20 0.86,0.32 0.90,0.46 0.88,0.60 0.82,0.74 0.70,0.84 0.54,0.90 0.38,0.88 0.24,0.82 0.14,0.70 0.10,0.54 0.12,0.40 0.20,0.26 0.34,0.16 stroke #2a2420 width 2
+
+# First taper ring (narrower stone)
+circle 0.5,0.5 0.30 texfill polyhaven/stone_wall 0.75
+circle 0.5,0.5 0.30 stroke #3a3028 width 1
+
+# Radial flowstone striations emanating from center
+line 0.50,0.12 0.50,0.28 stroke #2a2420 0.45 width 1
+line 0.50,0.72 0.50,0.88 stroke #2a2420 0.45 width 1
+line 0.12,0.50 0.28,0.50 stroke #2a2420 0.45 width 1
+line 0.72,0.50 0.88,0.50 stroke #2a2420 0.45 width 1
+line 0.22,0.22 0.36,0.36 stroke #2a2420 0.35 width 1
+line 0.78,0.22 0.64,0.36 stroke #2a2420 0.35 width 1
+line 0.22,0.78 0.36,0.64 stroke #2a2420 0.35 width 1
+line 0.78,0.78 0.64,0.64 stroke #2a2420 0.35 width 1
+
+# Second taper ring
+circle 0.5,0.5 0.20 fill #5a5048 0.85
+circle 0.5,0.5 0.20 stroke #3a3028 width 1
+
+# Near-tip dark ring (where tip catches light from below)
+circle 0.5,0.5 0.12 fill #3a3028 0.9
+
+# Slime droplet forming at tip (green)
+circle 0.5,0.5 0.08 fill #4a7020 0.9
+circle 0.5,0.5 0.08 stroke #2a4010 width 1
+
+# Bright slime highlight (wet surface)
+circle 0.485,0.485 0.04 fill #8ab030 0.9
+circle 0.48,0.48 0.018 fill #c8e080 0.95
+
+# Outer halo suggesting slime sheen forming on rim
+arc 0.5,0.5 0.22 140 260 stroke #4a7020 0.5 width 1

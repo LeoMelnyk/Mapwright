@@ -1,0 +1,46 @@
+name: Spice Bowl
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: any
+room_types: market-stall, market, vendor-row, bazaar, kitchen, alchemy-lab
+typical_count: few
+clusters_with: stall-counter, display-basket, apple-pile, fabric-bolt
+notes: Wide shallow ceramic bowl heaped with colorful spice (red paprika, yellow saffron, or brown cumin).
+---
+# Footprint 1x1: x 0-1, y 0-1. Wide shallow bowl with a mounded spice heap.
+
+# Bowl rim (ceramic — pale clay)
+circle 0.5,0.5 0.44 fill #c8a878 0.95
+circle 0.5,0.5 0.44 stroke #5c3a1e
+
+# Inner bowl lip (slightly darker)
+circle 0.5,0.5 0.40 stroke #8b6914 width 2
+
+# Spice mound — wide center pile of red paprika
+circle 0.5,0.5 0.32 fill #c83820 0.95
+circle 0.5,0.5 0.32 stroke #6a1810
+
+# Mound highlight (top of heap catches light)
+circle 0.46,0.46 0.18 fill #e85530 0.6
+circle 0.46,0.46 0.10 fill #ff6844 0.4
+
+# Texture specks of darker spice
+circle 0.42,0.56 0.02 fill #8a1010 0.7
+circle 0.58,0.52 0.018 fill #8a1010 0.7
+circle 0.50,0.60 0.015 fill #8a1010 0.6
+circle 0.54,0.42 0.018 fill #8a1010 0.6
+circle 0.38,0.48 0.015 fill #8a1010 0.55
+
+# Small wooden scoop handle poking out of mound
+rect 0.60,0.28 0.06,0.18 fill #5c3a1e 0.9
+rect 0.60,0.28 0.06,0.18 stroke #2a1400
+circle 0.63,0.28 0.04 fill #8b6914 0.9
+circle 0.63,0.28 0.04 stroke #5c3a1e
+
+# Rim highlight
+arc 0.5,0.5 0.44 210 330 stroke #e8dcc8 0.45 width 1
+# Rim shadow inside
+arc 0.5,0.5 0.42 30 160 stroke #5c3a1e 0.4 width 1

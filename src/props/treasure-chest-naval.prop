@@ -1,0 +1,67 @@
+name: Naval Treasure Chest
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2
+placement: wall
+room_types: ship, captain-cabin, cargo-hold, treasure-room
+typical_count: few
+clusters_with: chest, crate, cabinet-liquor
+notes: Iron-banded oak chest with brass lock and anchor emblem; place against walls or at focal points
+---
+# === HITBOX ===
+hitbox rect 0.14,0.15 0.72,0.70 z 0-2
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: rounded lid chest — variant of chest.prop with naval embellishments
+
+# Chest body (slightly rounded shape)
+poly 0.14,0.20 0.18,0.15 0.82,0.15 0.86,0.20 0.86,0.80 0.82,0.85 0.18,0.85 0.14,0.80 texfill polyhaven/dark_wood 0.85
+poly 0.14,0.20 0.18,0.15 0.82,0.15 0.86,0.20 0.86,0.80 0.82,0.85 0.18,0.85 0.14,0.80 stroke #2a1400
+
+# Plank lines on lid
+line 0.18,0.28 0.82,0.28 stroke #2a1400 0.4
+line 0.16,0.42 0.84,0.42 stroke #2a1400 0.35
+line 0.16,0.58 0.84,0.58 stroke #2a1400 0.35
+line 0.18,0.72 0.82,0.72 stroke #2a1400 0.4
+
+# Heavy iron bands (dark, running north-south)
+rect 0.28,0.15 0.08,0.70 fill #333333 0.7
+rect 0.28,0.15 0.08,0.70 stroke #222222
+rect 0.64,0.15 0.08,0.70 fill #333333 0.7
+rect 0.64,0.15 0.08,0.70 stroke #222222
+
+# Metal corner brackets
+rect 0.14,0.15 0.10,0.04 fill #444444 0.75
+rect 0.14,0.15 0.04,0.10 fill #444444 0.75
+rect 0.76,0.15 0.10,0.04 fill #444444 0.75
+rect 0.82,0.15 0.04,0.10 fill #444444 0.75
+rect 0.14,0.81 0.10,0.04 fill #444444 0.75
+rect 0.14,0.75 0.04,0.10 fill #444444 0.75
+rect 0.76,0.81 0.10,0.04 fill #444444 0.75
+rect 0.82,0.75 0.04,0.10 fill #444444 0.75
+
+# Anchor emblem stamped on lid center (brass inlay)
+# Anchor shank (vertical line)
+line 0.50,0.38 0.50,0.62 stroke #daa520 0.6 width 2
+# Anchor stock (horizontal crossbar)
+line 0.42,0.42 0.58,0.42 stroke #daa520 0.6 width 2
+# Anchor arms (curved bottom)
+qbezier 0.42,0.58 0.46,0.64 0.50,0.62 stroke #daa520 0.6 width 2
+qbezier 0.58,0.58 0.54,0.64 0.50,0.62 stroke #daa520 0.6 width 2
+# Anchor ring at top
+circle 0.50,0.36 0.03 stroke #daa520 0.6 width 2
+
+# Ornate brass lock (front/south edge)
+rect 0.42,0.82 0.16,0.06 fill #daa520 0.8
+rect 0.42,0.82 0.16,0.06 stroke #8b6914
+# Keyhole
+circle 0.50,0.85 0.018 fill #333333 0.8
+
+# Hinges (north edge)
+rect 0.28,0.13 0.10,0.06 fill #444444 0.7
+rect 0.28,0.13 0.10,0.06 stroke #333333
+rect 0.62,0.13 0.10,0.06 fill #444444 0.7
+rect 0.62,0.13 0.10,0.06 stroke #333333

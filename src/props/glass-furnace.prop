@@ -1,0 +1,93 @@
+name: Glass Furnace
+category: Workshop
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: glassworks, foundry-great
+typical_count: single
+clusters_with: kiln-brick, forge, forge-great, marver-slab, blowpipe
+lights: [{"preset":"forge","x":1,"y":1,"radius":20,"intensity":1.3,"color":"#ffaa44"}]
+notes: Round domed glassblowing furnace with bright gloryhole opening facing south. Hotter and whiter than an iron forge. Ash scatter at south base.
+---
+# === HITBOX ===
+hitbox circle 1.0,0.95 0.82 z 0-2.5
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: circular domed brick furnace, central gloryhole, ash scatter south
+
+# Heat haze spill on floor south (behind everything)
+ellipse 1.0,1.85 0.55,0.12 fill #ffaa44 0.15
+ellipse 1.0,1.78 0.42,0.09 fill #ffdd66 0.10
+
+# Outer dome — brick base ring
+circle 1.0,0.95 0.82 texfill polyhaven/brick_4 0.88
+circle 1.0,0.95 0.82 stroke #1a0a04 width 2
+# Darken outer rim
+circle 1.0,0.95 0.82 fill #1a0a04 0.18
+
+# Mid dome ring — shoulder (stone/granite)
+circle 1.0,0.95 0.65 texfill polyhaven/stone_wall 0.82
+circle 1.0,0.95 0.65 stroke #1a0a04
+
+# Upper dome ring — closer to crown, heat-stained
+circle 1.0,0.95 0.48 texfill polyhaven/brick_4 0.78
+circle 1.0,0.95 0.48 stroke #1a0a04
+# Warm glow bleeding through bricks near crown
+circle 1.0,0.95 0.48 fill #ff8800 0.12
+
+# Dome crown (top)
+circle 1.0,0.95 0.32 texfill polyhaven/granite_tile 0.75
+circle 1.0,0.95 0.32 stroke #1a0a04
+
+# Radial mortar seams (spokes)
+line 1.0,0.13 1.0,0.63 stroke #1a0a04 0.7
+line 0.30,0.55 0.60,0.75 stroke #1a0a04 0.6
+line 1.70,0.55 1.40,0.75 stroke #1a0a04 0.6
+line 0.22,1.25 0.55,1.10 stroke #1a0a04 0.6
+line 1.78,1.25 1.45,1.10 stroke #1a0a04 0.6
+
+# Central gloryhole (bright hot opening)
+# Dark outer rim of opening
+circle 1.0,0.95 0.26 fill #1a0800 0.92
+circle 1.0,0.95 0.26 stroke #0a0400 width 2
+
+# Soot-stained inner ring
+circle 1.0,0.95 0.22 stroke #2a1000 width 1
+
+# Layered fire glow — outer ember
+circle 1.0,0.95 0.20 fill #ffaa00 0.70
+# Brighter middle
+circle 1.0,0.95 0.15 fill #ffdd66 0.80
+# Hottest white-gold core
+circle 1.0,0.95 0.09 fill #ffffcc 0.92
+# Intense white spark
+circle 1.0,0.95 0.04 fill #ffffff 0.85
+
+# Brass door fittings — hinge brackets flanking gloryhole
+rect 0.70,0.88 0.06,0.14 fill #daa520 0.9
+rect 0.70,0.88 0.06,0.14 stroke #5a3a00
+rect 1.24,0.88 0.06,0.14 fill #daa520 0.9
+rect 1.24,0.88 0.06,0.14 stroke #5a3a00
+# Rivets on brass
+circle 0.73,0.92 0.018 fill #5a3a00 0.9
+circle 0.73,0.98 0.018 fill #5a3a00 0.9
+circle 1.27,0.92 0.018 fill #5a3a00 0.9
+circle 1.27,0.98 0.018 fill #5a3a00 0.9
+
+# Ash scatter at south base
+ellipse 0.55,1.72 0.10,0.05 fill #2a1800 0.85
+ellipse 0.55,1.72 0.10,0.05 stroke #0a0400
+ellipse 1.00,1.78 0.14,0.06 fill #1a0a00 0.85
+ellipse 1.45,1.72 0.10,0.05 fill #2a1800 0.85
+ellipse 1.45,1.72 0.10,0.05 stroke #0a0400
+
+# Glowing embers in ash
+circle 0.72,1.76 0.018 fill #ffaa44 0.95
+circle 1.20,1.80 0.016 fill #ffdd66 0.9
+circle 0.88,1.82 0.015 fill #ff8800 0.85
+
+# Warm glow bleeding over top of dome (heat bloom from within)
+arc 1.0,0.95 0.30 200 340 stroke #ffaa00 0.45 width 2

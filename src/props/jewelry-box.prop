@@ -1,0 +1,55 @@
+name: Jewelry Box
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: mansion-bedroom-master, bedchamber, noble-suite, dressing-room
+typical_count: single
+clusters_with: hairbrush-set, table-small, wardrobe
+notes: Small ornate jewelry box sitting open on a dresser, a pearl necklace spilling over the rim, brass corner fittings catching the light.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Box body (rectangular, slightly tall)
+rect 0.22,0.32 0.56,0.44 texfill polyhaven/dark_wood 0.9
+rect 0.22,0.32 0.56,0.44 stroke #1a1208
+# Brass corner fittings
+rect 0.22,0.32 0.08,0.08 fill #daa520 0.9
+rect 0.22,0.32 0.08,0.08 stroke #5a3a00
+rect 0.70,0.32 0.08,0.08 fill #daa520 0.9
+rect 0.70,0.32 0.08,0.08 stroke #5a3a00
+rect 0.22,0.68 0.08,0.08 fill #daa520 0.9
+rect 0.22,0.68 0.08,0.08 stroke #5a3a00
+rect 0.70,0.68 0.08,0.08 fill #daa520 0.9
+rect 0.70,0.68 0.08,0.08 stroke #5a3a00
+# Open lid flipped back (hinged at north, lying open northward)
+rect 0.24,0.14 0.52,0.20 texfill polyhaven/dark_wood 0.88
+rect 0.24,0.14 0.52,0.20 stroke #1a1208
+# Lid velvet lining (inside of lid facing up)
+rect 0.28,0.18 0.44,0.14 fill #4a0828 0.8
+rect 0.28,0.18 0.44,0.14 stroke #2a0418
+# Hinge line
+line 0.24,0.33 0.76,0.33 stroke #3a1f00 width 2
+circle 0.32,0.33 0.02 fill #daa520 0.8
+circle 0.68,0.33 0.02 fill #daa520 0.8
+# Interior velvet (dark crimson)
+rect 0.28,0.36 0.44,0.38 fill #4a0828 0.85
+rect 0.28,0.36 0.44,0.38 stroke #2a0418
+# Gold ring inside
+circle 0.38,0.48 0.04 stroke #daa520 width 2
+circle 0.38,0.48 0.02 fill #ff2244 0.7
+# Gold brooch
+ellipse 0.62,0.48 0.06,0.04 fill #daa520 0.9
+ellipse 0.62,0.48 0.06,0.04 stroke #5a3a00
+circle 0.62,0.48 0.018 fill #4488dd 0.8
+# Pearl necklace spilling out over south rim
+circle 0.40,0.72 0.018 fill #f8f0e0 0.95
+circle 0.44,0.76 0.018 fill #f8f0e0 0.95
+circle 0.48,0.80 0.018 fill #f8f0e0 0.95
+circle 0.52,0.84 0.018 fill #f8f0e0 0.95
+circle 0.56,0.86 0.018 fill #f8f0e0 0.95
+circle 0.60,0.84 0.018 fill #f8f0e0 0.95
+circle 0.64,0.80 0.018 fill #f8f0e0 0.95
+# Pearl string line
+bezier 0.40,0.72 0.48,0.82 0.58,0.88 0.64,0.80 stroke #e0d8c0 0.6 width 1

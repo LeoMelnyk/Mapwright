@@ -1,0 +1,73 @@
+name: Pavise
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp, ruined-watchtower, fortification
+typical_count: few
+clusters_with: arrow-stuck, arrow-cluster-ground, corpse-soldier, ballista
+notes: Large rectangular siege shield propped upright on the ground; face-out with heraldic emblem, props can hide behind
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: shield propped up, facing south (low Y = wall side, high Y = shield face)
+
+# === HITBOX ===
+hitbox rect 0.10,0.30 1.80,0.30 z 0-1.5
+
+# Ground strut / support peg (north side, leaning back)
+rect 0.30,0.08 1.40,0.10 texfill polyhaven/dark_wood 0.85
+rect 0.30,0.08 1.40,0.10 stroke #2a1400
+
+# === Shield face (main body — visible as elongated rect since shield leans slightly) ===
+rect 0.10,0.22 1.80,0.52 texfill polyhaven/dark_wood 0.85
+rect 0.10,0.22 1.80,0.52 stroke #2a1400
+
+# Shield top edge (curved top visible as thin band)
+ellipse 1.0,0.22 0.90,0.08 fill #5c3a1e 0.9
+ellipse 1.0,0.22 0.90,0.08 texfill polyhaven/dark_wood 0.5
+ellipse 1.0,0.22 0.90,0.08 stroke #2a1400
+
+# Metal reinforcement bands (horizontal iron bars)
+rect 0.12,0.34 1.76,0.05 fill #555555 0.85
+rect 0.12,0.34 1.76,0.05 stroke #333333
+rect 0.12,0.58 1.76,0.05 fill #555555 0.85
+rect 0.12,0.58 1.76,0.05 stroke #333333
+
+# Rivets on bands
+circle 0.22,0.365 0.02 fill #333333 0.95
+circle 0.60,0.365 0.02 fill #333333 0.95
+circle 1.00,0.365 0.02 fill #333333 0.95
+circle 1.40,0.365 0.02 fill #333333 0.95
+circle 1.78,0.365 0.02 fill #333333 0.95
+circle 0.22,0.605 0.02 fill #333333 0.95
+circle 0.60,0.605 0.02 fill #333333 0.95
+circle 1.00,0.605 0.02 fill #333333 0.95
+circle 1.40,0.605 0.02 fill #333333 0.95
+circle 1.78,0.605 0.02 fill #333333 0.95
+
+# === Heraldic emblem (painted shield face) ===
+# Heraldic field (red panel)
+rect 0.70,0.42 0.60,0.18 fill #aa2020 0.85
+rect 0.70,0.42 0.60,0.18 stroke #5a1010
+# Gold eagle/cross emblem
+poly 0.94,0.46 1.06,0.46 1.08,0.50 1.00,0.54 0.92,0.50 fill #daa520 0.9
+poly 0.94,0.46 1.06,0.46 1.08,0.50 1.00,0.54 0.92,0.50 stroke #5a3a00
+line 0.86,0.51 1.14,0.51 stroke #daa520 width 2
+line 1.00,0.44 1.00,0.58 stroke #daa520 width 2
+
+# Arrow stuck in shield
+poly 0.46,0.46 0.50,0.46 0.50,0.58 0.46,0.58 fill #7a5020 0.95
+poly 0.46,0.46 0.50,0.46 0.50,0.58 0.46,0.58 stroke #3a1f00
+poly 0.44,0.58 0.52,0.58 0.48,0.66 fill #aa3030 0.85
+poly 0.44,0.58 0.52,0.58 0.48,0.66 stroke #5a1010
+
+# Battle gouges / scratches
+line 0.20,0.50 0.40,0.56 stroke #1a0a04 width 2
+line 1.50,0.46 1.70,0.52 stroke #1a0a04 width 2
+line 0.30,0.68 0.42,0.72 stroke #1a0a04 width 1
+
+# Drop shadow strip south of shield (indicates shield casts cover on ground)
+rect 0.10,0.74 1.80,0.08 fill #1a1208 0.25

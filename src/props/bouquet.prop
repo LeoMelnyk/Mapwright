@@ -1,0 +1,63 @@
+name: Bouquet
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: wall
+room_types: bardic-hall, music-hall, theater, bards-college, mansion-dining, noble-solar
+typical_count: few
+clusters_with: music-stand, laurel-wreath, harp, flower-petals
+notes: Tall ceramic vase of fresh bright flowers with ribbon-tied stems — top-down shows a dense ring of flower heads around a small vase rim
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.32
+
+# Vase shadow (subtle ring on floor)
+circle 0.5,0.5 0.22 fill #000000 0.12
+
+# Ceramic vase rim (seen from above — dark circle)
+circle 0.5,0.5 0.14 texfill polyhaven/stone_wall 0.75
+circle 0.5,0.5 0.14 stroke #3a2820 width 2
+# Vase inner opening
+circle 0.5,0.5 0.08 fill #1a1208 0.9
+circle 0.5,0.5 0.08 stroke #2a1400
+
+# Silk ribbon tied around vase rim (gold)
+arc 0.5,0.5 0.14 200 340 stroke #daa520 width 2
+# Ribbon tails trailing
+line 0.42,0.60 0.38,0.66 stroke #daa520 width 2
+line 0.58,0.60 0.62,0.66 stroke #daa520 width 2
+
+# Dense ring of flower heads (bouquet from above)
+# Red flowers
+circle 0.28,0.42 0.07 fill #c82020 0.95
+circle 0.28,0.42 0.07 stroke #5a1010
+circle 0.28,0.42 0.02 fill #ffcc00 0.9
+# Orange flowers
+circle 0.72,0.40 0.07 fill #ff8030 0.95
+circle 0.72,0.40 0.07 stroke #a04010
+circle 0.72,0.40 0.02 fill #ffcc00 0.85
+# Pink flowers
+circle 0.32,0.72 0.065 fill #c03080 0.95
+circle 0.32,0.72 0.065 stroke #5a1040
+# Blue flowers
+circle 0.70,0.72 0.065 fill #3080c0 0.95
+circle 0.70,0.72 0.065 stroke #103050
+# Yellow flower top
+circle 0.50,0.30 0.07 fill #ffcc00 0.95
+circle 0.50,0.30 0.07 stroke #8a6010
+# White flowers filling gaps
+circle 0.48,0.70 0.05 fill #e8dcc8 0.9
+circle 0.48,0.70 0.05 stroke #8a7858
+circle 0.22,0.60 0.05 fill #e8dcc8 0.9
+circle 0.22,0.60 0.05 stroke #8a7858
+circle 0.78,0.60 0.05 fill #e8dcc8 0.9
+circle 0.78,0.60 0.05 stroke #8a7858
+
+# Green leaf hints between flowers
+poly 0.40,0.34 0.44,0.30 0.46,0.36 0.42,0.38 fill #4a8030 0.8
+poly 0.56,0.34 0.60,0.30 0.62,0.36 0.58,0.38 fill #4a8030 0.8
+poly 0.40,0.64 0.44,0.68 0.42,0.72 0.38,0.68 fill #3a6020 0.8
+poly 0.60,0.64 0.64,0.68 0.62,0.72 0.58,0.68 fill #3a6020 0.8

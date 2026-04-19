@@ -1,0 +1,68 @@
+name: Mess Hall Table
+category: Furniture
+footprint: 1x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: tavern-common, inn-common-room, mess-hall, barracks, meeting-room, mansion-dining, common-room
+typical_count: few
+clusters_with: bench, chair, stool, tankard, bowl-stew, wine-bottle
+notes: Long feast / mess hall table running east-west. Flanked by benches on both sides.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.12 2.84,0.76 z 0-2.5
+
+# footprint 1x3: x 0-3, y 0-1
+# Leg shadows at corners + midpoint
+circle 0.22,0.22 0.06 fill #1a0f00 0.5
+circle 2.78,0.22 0.06 fill #1a0f00 0.5
+circle 0.22,0.78 0.06 fill #1a0f00 0.5
+circle 2.78,0.78 0.06 fill #1a0f00 0.5
+circle 1.50,0.22 0.05 fill #1a0f00 0.4
+circle 1.50,0.78 0.05 fill #1a0f00 0.4
+
+# Tabletop — long planks running lengthwise (east-west)
+rect 0.08,0.12 2.84,0.76 texfill polyhaven/wood_table 0.88
+rect 0.08,0.12 2.84,0.76 fill #3a1f00 0.15
+rect 0.08,0.12 2.84,0.76 stroke #3a1f00 width 2
+
+# Plank seams (3 long planks)
+line 0.08,0.37 2.92,0.37 stroke #2a1400 0.85 width 1
+line 0.08,0.63 2.92,0.63 stroke #2a1400 0.85 width 1
+
+# Wood grain (subtle horizontal streaks)
+line 0.15,0.22 0.80,0.22 stroke #5c3a1e 0.4 width 1
+line 0.90,0.28 1.60,0.28 stroke #5c3a1e 0.4 width 1
+line 1.70,0.24 2.40,0.24 stroke #5c3a1e 0.4 width 1
+line 0.20,0.48 0.90,0.48 stroke #5c3a1e 0.4 width 1
+line 1.10,0.52 1.80,0.52 stroke #5c3a1e 0.4 width 1
+line 1.90,0.50 2.70,0.50 stroke #5c3a1e 0.4 width 1
+line 0.30,0.72 1.00,0.72 stroke #5c3a1e 0.4 width 1
+line 1.20,0.78 2.00,0.78 stroke #5c3a1e 0.4 width 1
+line 2.10,0.76 2.80,0.76 stroke #5c3a1e 0.4 width 1
+
+# Scorch marks / wear stains
+ellipse 0.70,0.40 0.10,0.05 fill #1a0f00 0.3
+ellipse 1.80,0.60 0.08,0.05 fill #1a0f00 0.3
+ellipse 2.40,0.30 0.07,0.04 fill #1a0f00 0.3
+
+# Nail heads along plank seams
+circle 0.20,0.37 0.013 fill #444444 0.85
+circle 0.80,0.37 0.013 fill #444444 0.85
+circle 1.50,0.37 0.013 fill #444444 0.85
+circle 2.20,0.37 0.013 fill #444444 0.85
+circle 2.80,0.37 0.013 fill #444444 0.85
+circle 0.20,0.63 0.013 fill #444444 0.85
+circle 0.80,0.63 0.013 fill #444444 0.85
+circle 1.50,0.63 0.013 fill #444444 0.85
+circle 2.20,0.63 0.013 fill #444444 0.85
+circle 2.80,0.63 0.013 fill #444444 0.85
+
+# Edge bevel
+rect 0.12,0.16 2.76,0.68 stroke #5c3a1e 0.45 width 1
+
+# Knife cut marks
+line 1.10,0.46 1.16,0.48 stroke #2a1400 0.7 width 1
+line 2.00,0.66 2.06,0.68 stroke #2a1400 0.7 width 1

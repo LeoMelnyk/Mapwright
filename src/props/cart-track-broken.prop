@@ -1,0 +1,73 @@
+name: Mine Cart Track (Broken)
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: tunnel-mine-worked, mine-shaft-entrance
+typical_count: few
+clusters_with: cart-track, cart-track-short, cart-track-turn, cart-track-t, cart-track-x, derailed-mine-cart, rubble, coal-pile, coal-dust-drift, broken-plank, timber-brace
+notes: A broken mine-cart track section — rails torn up, sleepers splintered, iron twisted. At facing 0 the track enters from the west and breaks off before the east edge. Place at the end of a haulage drift that ends in collapse, derailment, or sabotage. Rotate to orient the break direction.
+---
+# === West zone: intact track remnant ===
+# Two wooden sleepers (ties) in the west half
+rect 0.08,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.18 0.10,0.64 stroke #3a1f00
+rect 0.40,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.40,0.18 0.10,0.64 stroke #3a1f00
+# North iron rail — intact from west edge, ends jagged around x=0.58
+rect 0.00,0.34 0.56,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.34 0.56,0.06 stroke #333333
+line 0.00,0.36 0.56,0.36 stroke #8899aa 0.7 width 1
+# Jagged broken end of north rail (zigzag splinter)
+poly 0.56,0.34 0.60,0.33 0.58,0.37 0.62,0.36 0.59,0.40 0.56,0.40 fill #2a2a2a 0.95
+poly 0.56,0.34 0.60,0.33 0.58,0.37 0.62,0.36 0.59,0.40 0.56,0.40 stroke #111111
+# South iron rail — intact from west edge, ends sooner and bends sideways
+rect 0.00,0.60 0.48,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.60 0.48,0.06 stroke #333333
+line 0.00,0.62 0.48,0.62 stroke #8899aa 0.7 width 1
+# South rail torn and bent down-south (twisted iron fragment curling away)
+poly 0.48,0.60 0.56,0.66 0.62,0.74 0.60,0.78 0.54,0.74 0.50,0.68 0.48,0.66 texfill polyhaven/rusty_metal 0.9
+poly 0.48,0.60 0.56,0.66 0.62,0.74 0.60,0.78 0.54,0.74 0.50,0.68 0.48,0.66 stroke #333333
+# Rail spikes in the intact sleepers
+circle 0.13,0.37 0.018 fill #333333 0.95
+circle 0.13,0.63 0.018 fill #333333 0.95
+circle 0.45,0.37 0.018 fill #333333 0.95
+circle 0.45,0.63 0.018 fill #333333 0.95
+# A little rust on the intact rails
+circle 0.28,0.37 0.020 fill #8b4000 0.65
+circle 0.34,0.63 0.018 fill #8b4000 0.6
+# === Break zone: destroyed track ===
+# Shattered sleeper fragment (splintered, rotated) east of the last intact tie
+poly 0.62,0.22 0.74,0.20 0.78,0.26 0.76,0.34 0.70,0.36 0.64,0.32 0.60,0.28 texfill polyhaven/weathered_planks 0.8
+poly 0.62,0.22 0.74,0.20 0.78,0.26 0.76,0.34 0.70,0.36 0.64,0.32 0.60,0.28 stroke #3a1f00
+# Second broken plank fragment, knocked aside to the south
+poly 0.70,0.70 0.84,0.66 0.90,0.72 0.86,0.80 0.76,0.82 0.68,0.78 texfill polyhaven/weathered_planks 0.8
+poly 0.70,0.70 0.84,0.66 0.90,0.72 0.86,0.80 0.76,0.82 0.68,0.78 stroke #3a1f00
+# Small third splinter
+poly 0.82,0.42 0.90,0.40 0.92,0.48 0.86,0.50 texfill polyhaven/weathered_planks 0.75
+poly 0.82,0.42 0.90,0.40 0.92,0.48 0.86,0.50 stroke #3a1f00
+# Rail stub torn upward (foreshortened — rail top cap pointing toward viewer)
+poly 0.66,0.44 0.70,0.42 0.72,0.52 0.68,0.54 fill #444444 0.95
+poly 0.66,0.44 0.70,0.42 0.72,0.52 0.68,0.54 stroke #1a1a1a
+circle 0.69,0.43 0.025 fill #555555 0.9
+# Loose chunk of broken rail lying across the gap
+rect 0.74,0.52 0.18,0.04 texfill polyhaven/rusty_metal 0.85 rotate 20
+rect 0.74,0.52 0.18,0.04 stroke #333333 rotate 20
+# Coal-dust smear where carts came off
+ellipse 0.78,0.56 0.18,0.10 fill #0a0808 0.55
+# Loose coal and gravel scatter
+circle 0.64,0.50 0.022 fill #0a0a0a 0.9
+circle 0.72,0.38 0.018 fill #0a0a0a 0.85
+circle 0.80,0.30 0.020 fill #0a0a0a 0.85
+circle 0.88,0.58 0.022 fill #0a0a0a 0.9
+circle 0.82,0.72 0.018 fill #0a0a0a 0.85
+circle 0.94,0.44 0.016 fill #0a0a0a 0.8
+# Loose free rail spikes with tiny drop-shadow offsets
+circle 0.67,0.66 0.022 fill #000000 0.4
+circle 0.66,0.65 0.020 fill #333333 0.95
+circle 0.89,0.30 0.020 fill #000000 0.4
+circle 0.88,0.29 0.018 fill #333333 0.95
+circle 0.78,0.78 0.019 fill #333333 0.9

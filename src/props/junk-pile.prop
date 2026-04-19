@@ -1,0 +1,93 @@
+name: Junk Pile
+category: Clutter
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.6
+placement: corner
+room_types: goblin-warren-entrance, cave-goblin-warren, orc-war-camp, sewer-junction
+typical_count: few
+clusters_with: rubble-pile, rat-nest, broken-crate, dung-pile
+notes: Chaotic heap of scavenged trash — broken wood, bent iron, rag scraps, pot shards, bones, random cloth. Dirtier and more varied than rubble; goblins and rat-warren clutter.
+---
+# === HITBOX ===
+hitbox poly 0.14,0.68 0.60,0.40 1.30,0.34 1.82,0.48 1.88,0.82 1.40,0.92 0.70,0.94 0.18,0.86 z 0-0.6
+
+# Base grime patch (dirt/filth staining the floor under the heap)
+ellipse 1.00,0.70 0.90,0.28 fill #2a1a0c 0.55
+ellipse 1.00,0.70 0.90,0.28 stroke #1a1008 0.6
+
+# Broken wood plank (diagonal, splintered) — base of the pile
+rect 0.24,0.58 0.70,0.10 texfill polyhaven/weathered_planks 0.85 rotate -12
+rect 0.24,0.58 0.70,0.10 stroke #3a2010 rotate -12
+
+# Second plank fragment (shorter, crossing the first)
+rect 0.90,0.52 0.46,0.09 texfill polyhaven/weathered_planks 0.85 rotate 18
+rect 0.90,0.52 0.46,0.09 stroke #3a2010 rotate 18
+
+# Bent iron bar / twisted metal strap
+bezier 0.30,0.82 0.60,0.62 1.00,0.84 1.30,0.68 stroke #555555 width 4
+bezier 0.30,0.82 0.60,0.62 1.00,0.84 1.30,0.68 stroke #1a1408 width 1
+
+# Second twisted iron fragment
+bezier 1.40,0.80 1.58,0.62 1.72,0.70 1.82,0.58 stroke #666666 width 3
+bezier 1.40,0.80 1.58,0.62 1.72,0.70 1.82,0.58 stroke #1a1408 width 1
+
+# Cracked pot rim (broken crescent)
+arc 0.46,0.78 0.14 210 340 stroke #6b4e2e width 4
+arc 0.46,0.78 0.14 210 340 stroke #2a1400 width 1
+# Pot shard scattered nearby
+poly 0.30,0.86 0.42,0.90 0.38,0.80 fill #8a7058 0.85
+poly 0.30,0.86 0.42,0.90 0.38,0.80 stroke #3a2a1a
+
+# Torn red cloth rag (muted red)
+poly 0.64,0.46 0.88,0.42 0.96,0.58 0.86,0.64 0.70,0.62 fill #7a2818 0.85
+poly 0.64,0.46 0.88,0.42 0.96,0.58 0.86,0.64 0.70,0.62 texfill polyhaven/rough_linen 0.35
+poly 0.64,0.46 0.88,0.42 0.96,0.58 0.86,0.64 0.70,0.62 stroke #2a0a04
+
+# Torn green-mossy cloth scrap (second fabric, muted green)
+poly 1.08,0.72 1.28,0.68 1.36,0.82 1.22,0.90 1.04,0.86 fill #3a4a28 0.85
+poly 1.08,0.72 1.28,0.68 1.36,0.82 1.22,0.90 1.04,0.86 texfill polyhaven/rough_linen 0.35
+poly 1.08,0.72 1.28,0.68 1.36,0.82 1.22,0.90 1.04,0.86 stroke #1a2010
+
+# Small dented tin cup (circular with dark interior)
+circle 1.54,0.78 0.10 fill #555555 0.9
+circle 1.54,0.78 0.10 stroke #1a1408
+circle 1.54,0.78 0.06 fill #1a1008 0.9
+
+# Gnawed bone end (small, sticking out of the pile)
+line 1.60,0.46 1.74,0.40 stroke #e8dcc8 width 5
+line 1.60,0.46 1.74,0.40 stroke #8a7a6a width 2
+circle 1.74,0.40 0.035 fill #e8dcc8 0.95
+circle 1.74,0.40 0.035 stroke #6a5040
+
+# Second bone — smaller finger-bone fragment
+line 0.22,0.48 0.34,0.44 stroke #d4c4a8 width 3
+circle 0.22,0.48 0.025 fill #e8dcc8 0.9
+circle 0.34,0.44 0.025 fill #e8dcc8 0.9
+
+# Bent rusty nail sticking up out of the pile
+line 0.52,0.54 0.56,0.40 stroke #3a2818 width 2
+
+# Crumpled paper/parchment scrap (dirty beige)
+poly 1.18,0.56 1.32,0.50 1.40,0.60 1.30,0.66 1.18,0.62 fill #a89878 0.8
+poly 1.18,0.56 1.32,0.50 1.40,0.60 1.30,0.66 1.18,0.62 stroke #4a3a20
+
+# Small splintered stick (dark wood)
+line 0.78,0.88 0.94,0.78 stroke #2a1400 width 3
+
+# Dust/grime smudges layered over the pile
+ellipse 0.60,0.76 0.18,0.06 fill #6a5840 0.3
+ellipse 1.34,0.72 0.16,0.06 fill #6a5840 0.3
+
+# Dark grease/filth stain
+ellipse 1.00,0.88 0.22,0.05 fill #1a1008 0.55
+
+# Tiny scattered debris chips around the base
+circle 0.14,0.74 0.022 fill #5c3a1e 0.85
+circle 0.14,0.74 0.022 stroke #2a1400
+circle 1.88,0.56 0.022 fill #555555 0.85
+circle 1.88,0.56 0.022 stroke #1a1408
+circle 0.16,0.92 0.018 fill #c8b898 0.8
+circle 1.86,0.90 0.018 fill #3a1f00 0.8

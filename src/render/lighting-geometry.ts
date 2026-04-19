@@ -199,16 +199,14 @@ function transformHitboxToWorld(
   const r = ((rotation % 360) + 360) % 360;
   const cx = fCols / 2;
   const cy = fRows / 2;
-  const rdx = (fRows - fCols) / 2;
-  const rdy = (fCols - fRows) / 2;
 
   return polygon.map(([hx, hy]: number[]) => {
     let px = flipped ? fCols - hx! : hx!;
     let py = hy!;
     switch (r) {
       case 90: {
-        const nx = cx + (py - cy) + rdx;
-        const ny = cy - (px - cx) + rdy;
+        const nx = cx + (py - cy);
+        const ny = cy - (px - cx);
         px = nx;
         py = ny;
         break;
@@ -219,8 +217,8 @@ function transformHitboxToWorld(
         break;
       }
       case 270: {
-        const nx = cx - (py - cy) + rdx;
-        const ny = cy + (px - cx) + rdy;
+        const nx = cx - (py - cy);
+        const ny = cy + (px - cx);
         px = nx;
         py = ny;
         break;
@@ -240,8 +238,8 @@ function transformHitboxToWorld(
     }
     const wx = px * gridSize;
     const wy = py * gridSize;
-    const pcx = ((r === 90 || r === 270 ? fRows : fCols) * gridSize) / 2;
-    const pcy = ((r === 90 || r === 270 ? fCols : fRows) * gridSize) / 2;
+    const pcx = (fCols * gridSize) / 2;
+    const pcy = (fRows * gridSize) / 2;
     return [overlayProp.x + pcx + (wx - pcx) * scale, overlayProp.y + pcy + (wy - pcy) * scale];
   });
 }

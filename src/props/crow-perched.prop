@@ -1,0 +1,54 @@
+name: Crow Perched
+category: Misc
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: roadside-gallows, graveyard-village, gibbet-square, battlefield, ruined-watchtower
+typical_count: few
+clusters_with: gallows, gibbet, tombstone, crow-picking, corpse, raven-perched
+notes: Single crow standing still, wings folded. Head faces south. Place atop posts, walls, or ground near carrion.
+---
+# === Ground shadow (very faint — bird's body) ===
+ellipse 0.50,0.60 0.16,0.04 fill #1a1008 0.30
+
+# === Tail feathers (north, behind body — tips visible from above) ===
+poly 0.42,0.30 0.58,0.30 0.56,0.44 0.44,0.44 fill #0a0608 0.95
+poly 0.42,0.30 0.58,0.30 0.56,0.44 0.44,0.44 stroke #000000
+line 0.46,0.32 0.46,0.42 stroke #1a1418 width 1
+line 0.50,0.32 0.50,0.42 stroke #1a1418 width 1
+line 0.54,0.32 0.54,0.42 stroke #1a1418 width 1
+
+# === Body (folded, oval — main mass) ===
+ellipse 0.50,0.52 0.16,0.18 fill #0a0608 0.95
+ellipse 0.50,0.52 0.16,0.18 stroke #000000
+
+# === Folded wings (tight against body — thin bands on each side) ===
+# Left wing fold
+bezier 0.36,0.46 0.32,0.54 0.34,0.62 0.42,0.64 stroke #1a1418 width 2
+poly 0.36,0.46 0.34,0.60 0.42,0.64 0.44,0.50 fill #0a0608 0.9
+poly 0.36,0.46 0.34,0.60 0.42,0.64 0.44,0.50 stroke #000000
+# Right wing fold
+bezier 0.64,0.46 0.68,0.54 0.66,0.62 0.58,0.64 stroke #1a1418 width 2
+poly 0.64,0.46 0.66,0.60 0.58,0.64 0.56,0.50 fill #0a0608 0.9
+poly 0.64,0.46 0.66,0.60 0.58,0.64 0.56,0.50 stroke #000000
+# Primary feather tips peeking out
+line 0.38,0.58 0.36,0.64 stroke #1a1418 width 1
+line 0.62,0.58 0.64,0.64 stroke #1a1418 width 1
+
+# === Head (south end, alert — small circle) ===
+ellipse 0.50,0.72 0.09,0.08 fill #0a0608 0.95
+ellipse 0.50,0.72 0.09,0.08 stroke #000000
+
+# === Beak (pointing south) ===
+poly 0.47,0.77 0.53,0.77 0.50,0.86 fill #3a2a18 0.95
+poly 0.47,0.77 0.53,0.77 0.50,0.86 stroke #1a1008
+
+# === Eye (small dot) ===
+circle 0.53,0.70 0.014 fill #ffcc00 0.95
+circle 0.53,0.70 0.020 stroke #000000 width 1
+
+# === Iridescent sheen on body (dark blue-green gloss) ===
+arc 0.50,0.52 0.14 210 330 stroke #1a2030 0.6 width 1

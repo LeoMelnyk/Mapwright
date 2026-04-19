@@ -1,0 +1,52 @@
+name: Gear Locker
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 6
+placement: wall
+room_types: ship-crew-quarters, barracks, guard-post
+typical_count: few
+clusters_with: bed, footlocker, bench-long
+notes: Tall narrow wooden locker for crew kit — top-down shows the flat plank top, crown overhang at the wall, door seam hint at the south face edge.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.02 0.84,0.86 z 0-6
+
+# footprint 1x1: x 0-1, y 0-1
+# Shadow/gap at wall (north edge)
+rect 0.06,0.02 0.88,0.04 fill #000000 0.18
+
+# Crown molding overhang
+rect 0.04,0.06 0.92,0.08 texfill polyhaven/dark_wood 0.85
+rect 0.04,0.06 0.92,0.08 stroke #2a1400
+
+# Main top surface
+rect 0.08,0.14 0.84,0.70 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.08,0.14 0.84,0.70 fill #3a1f00 0.15
+rect 0.08,0.14 0.84,0.70 stroke #3a1f00
+
+# Wood grain (running north-south for a narrow locker)
+line 0.22,0.16 0.22,0.82 stroke #5c3a1e 0.3 width 1
+line 0.38,0.16 0.38,0.82 stroke #5c3a1e 0.25 width 1
+line 0.62,0.16 0.62,0.82 stroke #5c3a1e 0.25 width 1
+line 0.78,0.16 0.78,0.82 stroke #5c3a1e 0.3 width 1
+
+# Dust shadow near wall
+rect 0.10,0.16 0.80,0.08 fill #000000 0.1
+
+# South-edge trim where face panel begins below
+rect 0.08,0.82 0.84,0.06 fill #6b4e2e 0.5
+rect 0.08,0.82 0.84,0.06 stroke #4a2800
+
+# Corner brass cap fittings (top corners)
+circle 0.12,0.18 0.028 fill #daa520 0.8
+circle 0.12,0.18 0.028 stroke #5a3a00
+circle 0.88,0.18 0.028 fill #daa520 0.8
+circle 0.88,0.18 0.028 stroke #5a3a00
+
+# Nail heads
+circle 0.50,0.10 0.014 fill #444444 0.8
+circle 0.20,0.84 0.014 fill #444444 0.8
+circle 0.80,0.84 0.014 fill #444444 0.8

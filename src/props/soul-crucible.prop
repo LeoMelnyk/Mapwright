@@ -1,0 +1,67 @@
+name: Soul Crucible
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: corner
+room_types: infernal-forge, infernal-court, dark-temple, ritual-chamber-dark
+typical_count: few
+clusters_with: brazier, forge-great, anvil-devil, altar-sacrificial
+lights: [{"preset":"astral","x":0.5,"y":0.5,"radius":14,"intensity":1.1,"color":"#a060e0"}]
+notes: Infernal iron brazier holding a tormented soul-flame — ghostly purple-green fire, spiky iron rim with horn-decorations, a fleeting face hinted in the flame. Corner placement for dark ritual chambers.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-1.5
+
+# Outer rusted iron bowl
+circle 0.50,0.50 0.40 texfill polyhaven/rusty_metal_02 0.88
+circle 0.50,0.50 0.40 fill #1a1010 0.4
+circle 0.50,0.50 0.40 stroke #0a0a0a width 2
+
+# Spiky horned rim (triangular spikes around the outside)
+poly 0.50,0.06 0.46,0.18 0.54,0.18 fill #1a1010 0.95
+poly 0.50,0.06 0.46,0.18 0.54,0.18 stroke #050505
+poly 0.79,0.14 0.72,0.22 0.80,0.26 fill #1a1010 0.95
+poly 0.79,0.14 0.72,0.22 0.80,0.26 stroke #050505
+poly 0.94,0.50 0.82,0.46 0.82,0.54 fill #1a1010 0.95
+poly 0.94,0.50 0.82,0.46 0.82,0.54 stroke #050505
+poly 0.79,0.86 0.80,0.74 0.72,0.78 fill #1a1010 0.95
+poly 0.79,0.86 0.80,0.74 0.72,0.78 stroke #050505
+poly 0.50,0.94 0.46,0.82 0.54,0.82 fill #1a1010 0.95
+poly 0.50,0.94 0.46,0.82 0.54,0.82 stroke #050505
+poly 0.21,0.86 0.28,0.78 0.20,0.74 fill #1a1010 0.95
+poly 0.21,0.86 0.28,0.78 0.20,0.74 stroke #050505
+poly 0.06,0.50 0.18,0.46 0.18,0.54 fill #1a1010 0.95
+poly 0.06,0.50 0.18,0.46 0.18,0.54 stroke #050505
+poly 0.21,0.14 0.28,0.22 0.20,0.26 fill #1a1010 0.95
+poly 0.21,0.14 0.28,0.22 0.20,0.26 stroke #050505
+
+# Inner rim (darker interior lip)
+circle 0.50,0.50 0.34 fill #0a0604 0.9
+circle 0.50,0.50 0.34 stroke #050505
+
+# Soul-flame layers — outermost purple
+circle 0.50,0.50 0.30 fill #5a2a8a 0.7
+circle 0.50,0.50 0.26 fill #7a40a0 0.75
+circle 0.50,0.50 0.20 fill #a060c0 0.8
+circle 0.50,0.50 0.14 fill #c880e0 0.85
+circle 0.50,0.50 0.08 fill #e8d0f8 0.9
+
+# Green sickly wisps threading through the purple
+bezier 0.28,0.45 0.35,0.30 0.55,0.30 0.60,0.50 stroke #5aa060 0.65 width 2
+bezier 0.70,0.48 0.65,0.64 0.45,0.70 0.38,0.56 stroke #5aa060 0.6 width 2
+
+# Tormented face hint — eye hollows and open-mouth shadow
+ellipse 0.44,0.46 0.022,0.028 fill #1a0a2a 0.85
+ellipse 0.56,0.46 0.022,0.028 fill #1a0a2a 0.85
+ellipse 0.50,0.56 0.05,0.03 fill #2a1030 0.8
+
+# Wispy soul tendrils escaping upward (bezier curves from flame)
+bezier 0.40,0.30 0.32,0.18 0.28,0.08 0.22,0.00 stroke #a060c0 0.55 width 2
+bezier 0.50,0.26 0.50,0.12 0.48,0.06 0.52,-0.02 stroke #c880e0 0.6 width 2
+bezier 0.60,0.30 0.68,0.18 0.72,0.08 0.78,0.00 stroke #a060c0 0.55 width 2
+
+# Iron bowl band detail (outer ring stroke for depth)
+circle 0.50,0.50 0.36 stroke #2a2020 0.8 width 1

@@ -1,0 +1,65 @@
+name: Dropped Burning Torch
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: monster-lair-small, cave, dungeon, crypt, ruin
+typical_count: single
+clusters_with: blood-smear, blood-stain, half-eaten-carcass, torn-cloak, bone-pile
+notes: Still-burning torch dropped by a fleeing or killed victim. Lies at an angle on the floor with flame seen from above as concentric rings.
+lights: [{"preset":"torch","x":0.5,"y":0.5,"radius":6,"intensity":0.5,"color":"#ff9944","falloff":"linear"}]
+---
+# Wooden handle (cylindrical shaft lying at an angle — NW to SE)
+# Handle rotated via rect rotate
+rect 0.10,0.64 0.52,0.12 texfill polyhaven/dark_wood 0.9 rotate -25
+rect 0.10,0.64 0.52,0.12 stroke #2a1400 rotate -25
+
+# Handle grip binding (rope wrap near the butt end)
+line 0.18,0.80 0.26,0.74 stroke #5a3a1e width 2
+line 0.20,0.82 0.28,0.76 stroke #5a3a1e width 2
+
+# Butt end circle (tip of handle at SW)
+circle 0.14,0.82 0.045 fill #3a1f00 0.9
+circle 0.14,0.82 0.045 stroke #1a0a00
+
+# Pitch/oil-wrapped head (darker burning end, NE side)
+circle 0.58,0.50 0.11 fill #2a1810 0.95
+circle 0.58,0.50 0.11 stroke #1a0a00
+
+# Pitch wrap binding (visible twine around the burning head base)
+arc 0.58,0.50 0.11 60 180 stroke #5a3a1e 0.8 width 1
+arc 0.58,0.50 0.11 200 320 stroke #5a3a1e 0.8 width 1
+
+# Heat halo (widest, faint orange)
+circle 0.58,0.50 0.38 fill #ff6600 0.08
+circle 0.58,0.50 0.30 fill #ff6600 0.14
+
+# Outer flame ring (bright orange, slightly ragged)
+circle 0.58,0.50 0.22 fill #ff8800 0.25
+# Ragged flame tongues radiating outward
+poly 0.58,0.26 0.56,0.20 0.62,0.24 0.60,0.26 fill #ff8800 0.6
+poly 0.80,0.46 0.86,0.42 0.84,0.50 0.80,0.50 fill #ff8800 0.55
+poly 0.60,0.72 0.58,0.78 0.64,0.76 0.62,0.72 fill #ff8800 0.55
+poly 0.38,0.54 0.32,0.52 0.36,0.58 0.40,0.56 fill #ff8800 0.5
+
+# Mid flame ring (yellow-orange)
+circle 0.58,0.50 0.15 fill #ffaa00 0.45
+
+# Inner core (yellow-white)
+circle 0.58,0.50 0.09 fill #ffcc00 0.7
+
+# Hottest center (near-white)
+circle 0.58,0.50 0.05 fill #ffee88 0.9
+circle 0.58,0.50 0.025 fill #ffffff 0.95
+
+# Tiny spark embers flying off
+circle 0.74,0.34 0.012 fill #ffaa00 0.8
+circle 0.46,0.30 0.01 fill #ff8800 0.7
+circle 0.78,0.62 0.01 fill #ffaa00 0.75
+circle 0.44,0.68 0.008 fill #ff8800 0.6
+
+# Scorch mark on floor beneath the flame head (dark soot)
+ellipse 0.58,0.52 0.20,0.16 fill #1a0800 0.25

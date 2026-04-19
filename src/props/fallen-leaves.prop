@@ -1,0 +1,54 @@
+name: Fallen Leaves
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: ancient-ruin-overgrown, burial-mound, charcoal-burner-camp, druid-grove, forest, ruined-watchtower, graveyard-village, standing-stones-circle, roadside-gallows, shepherds-shelter
+typical_count: many
+clusters_with: fallen-leaves, tree, dead-tree, withered-flowers, rubble-pile
+notes: Scatter of autumn leaves; carpet floor or pile in corners
+---
+# === HITBOX ===
+selection rect 0.08,0.10 0.84,0.80
+
+# Leaf 1 (oak, red)
+poly 0.18,0.22 0.24,0.18 0.28,0.24 0.26,0.30 0.20,0.28 fill #a03020 0.85
+poly 0.18,0.22 0.24,0.18 0.28,0.24 0.26,0.30 0.20,0.28 stroke #5a1808
+line 0.22,0.20 0.22,0.30 stroke #5a1808 0.5
+# Leaf 2 (maple, orange)
+poly 0.38,0.16 0.44,0.14 0.50,0.18 0.48,0.24 0.42,0.24 0.38,0.22 fill #c86020 0.85
+poly 0.38,0.16 0.44,0.14 0.50,0.18 0.48,0.24 0.42,0.24 0.38,0.22 stroke #5a2808
+# Leaf 3 (yellow)
+poly 0.60,0.20 0.66,0.18 0.72,0.22 0.70,0.30 0.64,0.30 fill #d8a030 0.85
+poly 0.60,0.20 0.66,0.18 0.72,0.22 0.70,0.30 0.64,0.30 stroke #6a5008
+line 0.66,0.22 0.66,0.30 stroke #6a5008 0.5
+# Leaf 4 (brown, curled)
+poly 0.24,0.40 0.32,0.36 0.38,0.42 0.34,0.50 0.26,0.48 fill #6a4018 0.85
+poly 0.24,0.40 0.32,0.36 0.38,0.42 0.34,0.50 0.26,0.48 stroke #3a2010
+# Leaf 5 (orange-red)
+poly 0.50,0.42 0.58,0.38 0.64,0.46 0.58,0.52 0.52,0.48 fill #b84820 0.85
+poly 0.50,0.42 0.58,0.38 0.64,0.46 0.58,0.52 0.52,0.48 stroke #5a1808
+# Leaf 6 (yellow-brown)
+poly 0.74,0.44 0.82,0.42 0.84,0.50 0.78,0.54 0.74,0.50 fill #a08028 0.85
+poly 0.74,0.44 0.82,0.42 0.84,0.50 0.78,0.54 0.74,0.50 stroke #5a4008
+# Leaf 7 (bottom row red)
+poly 0.16,0.60 0.22,0.56 0.28,0.62 0.24,0.70 0.18,0.68 fill #a03020 0.85
+poly 0.16,0.60 0.22,0.56 0.28,0.62 0.24,0.70 0.18,0.68 stroke #5a1808
+# Leaf 8 (orange)
+poly 0.40,0.62 0.48,0.58 0.52,0.66 0.48,0.72 0.42,0.70 fill #c86020 0.85
+poly 0.40,0.62 0.48,0.58 0.52,0.66 0.48,0.72 0.42,0.70 stroke #5a2808
+# Leaf 9 (yellow)
+poly 0.60,0.66 0.68,0.62 0.74,0.70 0.68,0.76 0.62,0.72 fill #d8a030 0.85
+poly 0.60,0.66 0.68,0.62 0.74,0.70 0.68,0.76 0.62,0.72 stroke #6a5008
+# Leaf 10 (dark brown)
+poly 0.30,0.74 0.38,0.72 0.42,0.80 0.36,0.84 0.30,0.82 fill #6a4018 0.85
+poly 0.30,0.74 0.38,0.72 0.42,0.80 0.36,0.84 0.30,0.82 stroke #3a2010
+# Tiny bits/fragments
+circle 0.12,0.44 0.012 fill #a03020 0.7
+circle 0.90,0.64 0.012 fill #c86020 0.7
+circle 0.52,0.30 0.01 fill #d8a030 0.65
+circle 0.86,0.30 0.01 fill #a03020 0.65
+circle 0.10,0.82 0.01 fill #6a4018 0.7

@@ -1,0 +1,59 @@
+name: Hot Iron
+category: Prison
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":3,"color":"#ff5500","intensity":0.7,"falloff":"quadratic"}]
+placement: floor
+room_types: torture-chamber, interrogation-room, forge, smithy
+typical_count: single
+clusters_with: branding-iron, brazier, pincers, tool-cart, torture-rack
+notes: Iron rod heating in a small brazier, tip glowing red-orange. Brazier from above as a ring with rod end and hot core.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.34
+
+# === Outer heat halo ===
+circle 0.5,0.5 0.46 fill #cc3300 0.12
+
+# === Brazier bowl (iron ring from above) ===
+ring 0.5,0.5 0.34 0.26 texfill polyhaven/rusty_metal 0.85
+ring 0.5,0.5 0.34 0.26 stroke #222222
+
+# === Rivets on bowl rim ===
+circle 0.5,0.18 0.025 fill #333333 0.9
+circle 0.5,0.82 0.025 fill #333333 0.9
+circle 0.18,0.5 0.025 fill #333333 0.9
+circle 0.82,0.5 0.025 fill #333333 0.9
+
+# === Glowing coals / fire inside bowl ===
+circle 0.5,0.5 0.24 fill #1a0800 0.9
+circle 0.5,0.5 0.22 fill #cc3300 0.6
+circle 0.5,0.5 0.18 fill #ff5500 0.75
+circle 0.5,0.5 0.14 fill #ff8800 0.85
+circle 0.5,0.5 0.09 fill #ffaa00 0.9
+circle 0.5,0.5 0.05 fill #ffdd44 0.95
+
+# === Ember spark dots ===
+circle 0.40,0.42 0.02 fill #ffcc00 0.85
+circle 0.58,0.46 0.018 fill #ff8800 0.8
+circle 0.46,0.58 0.022 fill #ffaa00 0.85
+circle 0.58,0.58 0.016 fill #ff6600 0.75
+
+# === Iron rod resting on bowl, handle extending east ===
+# Rod shaft
+rect 0.38,0.47 0.54,0.06 texfill polyhaven/metal_plate 0.88
+rect 0.38,0.47 0.54,0.06 stroke #222222
+# Glowing west end of rod (buried in coals — bright hot tip)
+circle 0.40,0.50 0.06 fill #ffcc00 0.95
+circle 0.40,0.50 0.04 fill #ffffaa 0.9
+# Wooden handle east end
+rect 0.82,0.45 0.14,0.10 texfill polyhaven/dark_wood 0.92
+rect 0.82,0.45 0.14,0.10 stroke #1a0a00
+# Handle end cap
+circle 0.94,0.50 0.025 fill #1a0a00 0.9
+
+# === Smoke wisp (faint curl) ===
+bezier 0.55,0.35 0.62,0.28 0.58,0.20 0.60,0.12 stroke #888888 0.30 width 2

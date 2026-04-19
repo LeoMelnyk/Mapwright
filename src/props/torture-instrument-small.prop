@@ -1,0 +1,73 @@
+name: Small Torture Instrument
+category: Prison
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: prison-block, torture-chamber, interrogation-room, dungeon
+typical_count: few
+clusters_with: pincers, branding-iron, hot-iron, tool-cart, tooth-jar, bloody-rag
+notes: Assorted small cruel tool (thumbscrew, awl, or pliers) on bloodied rag. Ominous scatter prop.
+---
+# === HITBOX ===
+selection rect 0.14,0.18 0.72,0.64
+
+# === Bloodied linen rag underneath ===
+poly 0.10,0.26 0.88,0.22 0.90,0.82 0.08,0.78 fill #8a7a6a 0.55
+poly 0.10,0.26 0.88,0.22 0.90,0.82 0.08,0.78 texfill polyhaven/rough_linen 0.45
+poly 0.10,0.26 0.88,0.22 0.90,0.82 0.08,0.78 stroke #3a2a20 0.5
+# Rag crease lines
+line 0.28,0.28 0.30,0.76 stroke #5a4a3a 0.4
+line 0.66,0.26 0.68,0.80 stroke #5a4a3a 0.4
+# Blood soak patches
+ellipse 0.34,0.44 0.14,0.09 fill #4a0000 0.65
+ellipse 0.66,0.60 0.12,0.08 fill #3a0000 0.55
+circle 0.50,0.72 0.04 fill #4a0000 0.6
+
+# === Thumbscrew (small iron vise with wing nut — center) ===
+# Top plate
+rect 0.38,0.36 0.14,0.04 fill #444444 0.95
+rect 0.38,0.36 0.14,0.04 texfill polyhaven/rusty_metal 0.6
+rect 0.38,0.36 0.14,0.04 stroke #1a1008
+# Bottom plate
+rect 0.38,0.52 0.14,0.04 fill #444444 0.95
+rect 0.38,0.52 0.14,0.04 texfill polyhaven/rusty_metal 0.6
+rect 0.38,0.52 0.14,0.04 stroke #1a1008
+# Central screw rod
+rect 0.43,0.36 0.04,0.20 fill #555555 0.95
+rect 0.43,0.36 0.04,0.20 stroke #222222
+# Wing nut (top of screw)
+poly 0.36,0.28 0.54,0.28 0.50,0.36 0.40,0.36 fill #555555 0.95
+poly 0.36,0.28 0.54,0.28 0.50,0.36 0.40,0.36 stroke #222222
+# Wing nut hole highlight
+circle 0.45,0.32 0.015 fill #222222 0.9
+
+# === Awl / spike (east side, laid diagonally) ===
+# Wooden handle
+poly 0.68,0.36 0.76,0.34 0.78,0.46 0.70,0.48 fill #4a2800 0.92
+poly 0.68,0.36 0.76,0.34 0.78,0.46 0.70,0.48 texfill polyhaven/dark_wood 0.7
+poly 0.68,0.36 0.76,0.34 0.78,0.46 0.70,0.48 stroke #1a0a00
+# Handle end cap
+circle 0.77,0.40 0.025 fill #1a0a00 0.9
+# Iron spike (pointed awl blade going SW)
+line 0.70,0.46 0.52,0.68 stroke #555555 width 3
+line 0.70,0.46 0.52,0.68 stroke #333333 width 2
+# Spike point
+circle 0.52,0.68 0.015 fill #1a1008 0.9
+# Bright metal highlight
+line 0.69,0.48 0.54,0.66 stroke #aaaaaa 0.5 width 1
+
+# === Blood droplet on spike ===
+circle 0.58,0.62 0.018 fill #4a0000 0.85
+
+# === Extracted tooth (small white curio) ===
+poly 0.24,0.58 0.30,0.58 0.31,0.66 0.26,0.70 0.23,0.66 fill #e8dcc8 0.92
+poly 0.24,0.58 0.30,0.58 0.31,0.66 0.26,0.70 0.23,0.66 stroke #8a7a6a
+# Root crack
+line 0.26,0.64 0.27,0.68 stroke #6a5040 0.7 width 1
+
+# === Rust flecks and dirt ===
+circle 0.46,0.44 0.010 fill #6a3818 0.7
+circle 0.72,0.54 0.008 fill #6a3818 0.7

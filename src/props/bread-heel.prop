@@ -1,0 +1,39 @@
+name: Bread Heel
+category: Food
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: apartment-tenement, bakery, peasant-hovel, tavern-common
+typical_count: many
+clusters_with: bread-loaf, tin-cup, wooden-bowl, cheese-wheel
+notes: End-piece of bread; smaller than a full loaf, suggests hard times
+---
+# === HITBOX ===
+selection poly 0.30,0.38 0.68,0.34 0.72,0.58 0.56,0.70 0.32,0.64
+
+# Heel body (irregular wedge, crusty end)
+poly 0.30,0.38 0.50,0.34 0.68,0.36 0.72,0.54 0.64,0.68 0.44,0.70 0.32,0.62 fill #a0702a 0.95
+poly 0.30,0.38 0.50,0.34 0.68,0.36 0.72,0.54 0.64,0.68 0.44,0.70 0.32,0.62 stroke #4a2810
+# Flat cut side (lighter crumb interior visible)
+poly 0.30,0.38 0.36,0.40 0.34,0.60 0.32,0.62 fill #d4a860 0.9
+poly 0.30,0.38 0.36,0.40 0.34,0.60 0.32,0.62 stroke #8a5820
+# Crumb texture dots on cut side
+circle 0.33,0.46 0.01 fill #8a5820 0.6
+circle 0.32,0.52 0.01 fill #8a5820 0.6
+circle 0.34,0.56 0.008 fill #8a5820 0.5
+# Crust top (darker browning)
+arc 0.50,0.48 0.22 250 340 stroke #3a1a08 0.6 width 2
+# Highlight on crust
+arc 0.50,0.48 0.20 200 260 stroke #d8a858 0.5 width 1
+# Flour dusting
+circle 0.52,0.42 0.02 fill #f0e4d0 0.5
+circle 0.58,0.58 0.015 fill #f0e4d0 0.45
+# Bite mark / torn edge
+poly 0.60,0.66 0.68,0.62 0.66,0.68 fill #d4a860 0.7
+poly 0.60,0.66 0.68,0.62 0.66,0.68 stroke #8a5820
+# Small crumb beside heel
+circle 0.74,0.72 0.018 fill #a0702a 0.8
+circle 0.28,0.72 0.015 fill #a0702a 0.75

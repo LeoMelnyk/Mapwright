@@ -1,0 +1,48 @@
+name: Tiny Chair
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: nursery
+typical_count: few
+clusters_with: picture-book, cradle, building-blocks, rocking-chair, nurse-stool
+notes: Very small child-sized chair with a rounded seat and a short backrest strip at the north edge
+---
+# === HITBOX ===
+selection rect 0.26,0.22 0.48,0.56
+
+# Backrest strip at north edge
+rect 0.28,0.22 0.44,0.10 texfill polyhaven/worn_planks 0.8
+rect 0.28,0.22 0.44,0.10 fill #f0d8b8 0.3
+rect 0.28,0.22 0.44,0.10 stroke #8b7355
+
+# Backrest decorative cutout (small heart shape in center)
+poly 0.46,0.26 0.48,0.24 0.50,0.25 0.50,0.24 0.52,0.24 0.54,0.26 0.50,0.30 fill #c84870 0.85
+poly 0.46,0.26 0.48,0.24 0.50,0.25 0.50,0.24 0.52,0.24 0.54,0.26 0.50,0.30 stroke #7a2848 width 1
+
+# Corner post pommel tops (north-west and north-east)
+circle 0.30,0.24 0.035 fill #d4a874 0.95
+circle 0.30,0.24 0.035 stroke #8b5c28
+circle 0.70,0.24 0.035 fill #d4a874 0.95
+circle 0.70,0.24 0.035 stroke #8b5c28
+
+# Main seat — rounded square pale wood
+rect 0.28,0.34 0.44,0.42 texfill polyhaven/worn_planks 0.8
+rect 0.28,0.34 0.44,0.42 fill #f0d8b8 0.4
+rect 0.28,0.34 0.44,0.42 stroke #8b7355
+
+# Seat grain lines
+line 0.32,0.48 0.68,0.48 stroke #8b7355 0.3
+line 0.32,0.60 0.68,0.60 stroke #8b7355 0.3
+
+# Front corner post pommel tops (south corners, smaller — visible under seat edge)
+circle 0.30,0.74 0.028 fill #d4a874 0.9
+circle 0.30,0.74 0.028 stroke #8b5c28
+circle 0.70,0.74 0.028 fill #d4a874 0.9
+circle 0.70,0.74 0.028 stroke #8b5c28
+
+# Subtle seat bevel / highlight
+arc 0.50,0.54 0.18 210 330 stroke #f4ecd4 0.5 width 1

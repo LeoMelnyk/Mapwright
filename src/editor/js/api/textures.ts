@@ -39,11 +39,16 @@ export function setTexture(row: number, col: number, textureId: string, opacity:
   const cell = ensureCell(row, col);
   void loadTextureImages(textureId);
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
-  mutate('setTexture', coords, () => {
-    cell.texture = textureId;
-    cell.textureOpacity = Math.max(0, Math.min(1, opacity));
-    _blendPatch(row, col, row, col);
-  });
+  mutate(
+    'setTexture',
+    coords,
+    () => {
+      cell.texture = textureId;
+      cell.textureOpacity = Math.max(0, Math.min(1, opacity));
+      _blendPatch(row, col, row, col);
+    },
+    { textureOnly: true },
+  );
   return { success: true };
 }
 
@@ -60,11 +65,16 @@ export function removeTexture(row: number, col: number): { success: true } {
   const cell = state.dungeon.cells[row]![col];
   if (!cell?.texture) return { success: true };
   const coords: Array<{ row: number; col: number }> = [{ row, col }];
-  mutate('removeTexture', coords, () => {
-    delete cell.texture;
-    delete cell.textureOpacity;
-    _blendPatch(row, col, row, col);
-  });
+  mutate(
+    'removeTexture',
+    coords,
+    () => {
+      delete cell.texture;
+      delete cell.textureOpacity;
+      _blendPatch(row, col, row, col);
+    },
+    { textureOnly: true },
+  );
   return { success: true };
 }
 
@@ -91,18 +101,23 @@ export function setTextureRect(
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
   void loadTextureImages(textureId);
-  mutate('setTextureRect', coords, () => {
-    for (let r = minR; r <= maxR; r++) {
-      for (let c = minC; c <= maxC; c++) {
-        const cell = state.dungeon.cells[r]?.[c];
-        if (cell) {
-          cell.texture = textureId;
-          cell.textureOpacity = clampedOpacity;
+  mutate(
+    'setTextureRect',
+    coords,
+    () => {
+      for (let r = minR; r <= maxR; r++) {
+        for (let c = minC; c <= maxC; c++) {
+          const cell = state.dungeon.cells[r]?.[c];
+          if (cell) {
+            cell.texture = textureId;
+            cell.textureOpacity = clampedOpacity;
+          }
         }
       }
-    }
-    _blendPatch(minR, minC, maxR, maxC);
-  });
+      _blendPatch(minR, minC, maxR, maxC);
+    },
+    { textureOnly: true },
+  );
   return { success: true };
 }
 
@@ -118,18 +133,23 @@ export function removeTextureRect(r1: number, c1: number, r2: number, c2: number
   const { minR, maxR, minC, maxC } = normalizeRect(r1, c1, r2, c2);
   const coords: Array<{ row: number; col: number }> = [];
   for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) coords.push({ row: r, col: c });
-  mutate('removeTextureRect', coords, () => {
-    for (let r = minR; r <= maxR; r++) {
-      for (let c = minC; c <= maxC; c++) {
-        const cell = state.dungeon.cells[r]?.[c];
-        if (cell) {
-          delete cell.texture;
-          delete cell.textureOpacity;
+  mutate(
+    'removeTextureRect',
+    coords,
+    () => {
+      for (let r = minR; r <= maxR; r++) {
+        for (let c = minC; c <= maxC; c++) {
+          const cell = state.dungeon.cells[r]?.[c];
+          if (cell) {
+            delete cell.texture;
+            delete cell.textureOpacity;
+          }
         }
       }
-    }
-    _blendPatch(minR, minC, maxR, maxC);
-  });
+      _blendPatch(minR, minC, maxR, maxC);
+    },
+    { textureOnly: true },
+  );
   return { success: true };
 }
 

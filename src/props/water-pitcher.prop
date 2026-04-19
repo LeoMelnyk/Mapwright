@@ -1,0 +1,41 @@
+name: Water Pitcher
+category: Prison
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: interrogation-room, torture-chamber, prison-block, tavern, kitchen
+typical_count: single
+clusters_with: desk, chair, water-dish-dry, confession-paper
+notes: Heavy clay water pitcher; place on desks, tables, or on the floor near the interrogator's side
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: round pitcher body with handle on one side, water staining at base
+
+# Water stain ring on floor/surface (moisture seep)
+ellipse 0.50,0.52 0.18,0.17 fill #4a5a6a 0.12
+
+# Pitcher body (circular clay vessel, seen from above)
+circle 0.50,0.50 0.14 fill #8b6b4a 0.85
+circle 0.50,0.50 0.14 stroke #5c3a1e
+
+# Opening at top (dark interior)
+circle 0.50,0.50 0.08 fill #2a1a10 0.7
+
+# Water surface visible inside (if partially full)
+circle 0.50,0.50 0.06 fill #4a5a6a 0.35
+
+# Rim highlight
+circle 0.50,0.50 0.08 stroke #a08060 0.4
+
+# === Handle (loop on east side) ===
+arc 0.64,0.50 0.07 270 90 stroke #8b6b4a width 3
+arc 0.64,0.50 0.07 270 90 stroke #5c3a1e 0.5 width 1
+
+# Spout lip (small protrusion on west side)
+poly 0.36,0.47 0.33,0.50 0.36,0.53 fill #8b6b4a 0.7
+poly 0.36,0.47 0.33,0.50 0.36,0.53 stroke #5c3a1e 0.5
+
+# Waterlogged staining at base
+arc 0.50,0.50 0.15 120 240 stroke #4a5a6a 0.2 width 2

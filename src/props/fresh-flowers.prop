@@ -1,0 +1,59 @@
+name: Fresh Flowers
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: house-noble-townhouse, mansion-dining, noble-solar, mansion-bedroom-master, nursery
+typical_count: single
+clusters_with: vase, sideboard, table, decanter
+notes: Bouquet of cut flowers in a vase; cheerful centerpiece for upscale rooms
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# Vase base ring (dark glazed ceramic bottom)
+circle 0.5,0.62 0.18 fill #3a4058 0.9
+circle 0.5,0.62 0.18 stroke #1a1828
+# Vase body shoulder
+circle 0.5,0.58 0.16 fill #4a5068 0.9
+circle 0.5,0.58 0.16 stroke #1a1828
+# Vase neck opening (dark hole)
+ellipse 0.5,0.50 0.12,0.05 fill #1a1828 0.95
+ellipse 0.5,0.50 0.12,0.05 stroke #0a0810
+# Vase glaze highlight
+arc 0.5,0.60 0.14 210 260 stroke #6a7088 0.6 width 1
+# Leaves (green, spreading outward from vase)
+poly 0.32,0.42 0.24,0.30 0.30,0.36 0.38,0.44 fill #3a6028 0.85
+poly 0.32,0.42 0.24,0.30 0.30,0.36 0.38,0.44 stroke #1a3010
+poly 0.68,0.42 0.76,0.30 0.70,0.36 0.62,0.44 fill #3a6028 0.85
+poly 0.68,0.42 0.76,0.30 0.70,0.36 0.62,0.44 stroke #1a3010
+poly 0.42,0.38 0.40,0.24 0.46,0.30 0.48,0.40 fill #4a7030 0.85
+poly 0.42,0.38 0.40,0.24 0.46,0.30 0.48,0.40 stroke #1a3010
+# Stems visible at vase opening
+line 0.46,0.48 0.40,0.28 stroke #3a5018 width 1
+line 0.50,0.48 0.48,0.22 stroke #3a5018 width 1
+line 0.54,0.48 0.58,0.26 stroke #3a5018 width 1
+line 0.48,0.48 0.30,0.32 stroke #3a5018 width 1
+line 0.52,0.48 0.70,0.32 stroke #3a5018 width 1
+# Flowers — red rose
+circle 0.42,0.24 0.07 fill #c82028 0.95
+circle 0.42,0.24 0.07 stroke #6a0818
+arc 0.42,0.24 0.06 200 260 stroke #e84048 0.6 width 1
+circle 0.42,0.24 0.03 fill #8a1020 0.9
+# Flower — pink/white
+circle 0.58,0.26 0.07 fill #f0d0c8 0.95
+circle 0.58,0.26 0.07 stroke #a06068
+circle 0.58,0.26 0.03 fill #daa020 0.9
+# Flower — yellow
+circle 0.50,0.20 0.06 fill #f0c030 0.95
+circle 0.50,0.20 0.06 stroke #a07808
+circle 0.50,0.20 0.025 fill #6a4008 0.9
+# Small bud
+circle 0.30,0.32 0.04 fill #e04038 0.9
+circle 0.30,0.32 0.04 stroke #6a0818
+# Small bud 2
+circle 0.70,0.32 0.04 fill #d8c040 0.9
+circle 0.70,0.32 0.04 stroke #a07808

@@ -1,0 +1,61 @@
+name: Specimen Jar Shelf
+category: Alchemy
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 1.5
+placement: wall
+room_types: alchemy-lab, demiplane-laboratory, cabin-witch
+typical_count: few
+clusters_with: specimen-tank, reagent-rack, bookshelf, component-shelf
+notes: Wall shelf displaying 4 specimen jars with suspended oddities (embryos, eyes, organs). Dark wood shelf top over jars visible at south edge.
+---
+# === HITBOX ===
+hitbox rect 0.0,0.0 2.0,0.85 z 0-1.5
+
+# Shelf recess/body (visible behind/beneath top plank)
+rect 0.08,0.0 1.84,0.85 fill #2a1400 0.45
+line 0.08,0.0 0.08,0.85 stroke #3a1f00
+line 1.92,0.0 1.92,0.85 stroke #3a1f00
+line 0.08,0.85 1.92,0.85 stroke #3a1f00
+
+# === 4 specimen jars lined up, jar rims peeking out at front (south) ===
+# Jar 1 (green — suspended organ)
+circle 0.35,0.74 0.10 fill #d8e8e4 0.60
+circle 0.35,0.74 0.10 stroke #7aa8a0
+circle 0.35,0.74 0.08 fill #4a7a4a 0.85
+circle 0.35,0.74 0.08 stroke #2a4a2a 0.7
+circle 0.35,0.74 0.035 fill #3a1f00 0.9
+circle 0.35,0.74 0.035 stroke #1a0f00
+
+# Jar 2 (red-brown — heart/organ)
+circle 0.80,0.75 0.11 fill #d8e8e4 0.60
+circle 0.80,0.75 0.11 stroke #7aa8a0
+circle 0.80,0.75 0.09 fill #7a4040 0.85
+circle 0.80,0.75 0.09 stroke #4a2020 0.7
+circle 0.80,0.75 0.038 fill #3a1f00 0.9
+circle 0.80,0.75 0.038 stroke #1a0f00
+
+# Jar 3 (yellow — embryonic fluid)
+circle 1.25,0.74 0.10 fill #d8e8e4 0.60
+circle 1.25,0.74 0.10 stroke #7aa8a0
+circle 1.25,0.74 0.08 fill #8a7a40 0.85
+circle 1.25,0.74 0.08 stroke #5a4a20 0.7
+circle 1.25,0.74 0.035 fill #3a1f00 0.9
+circle 1.25,0.74 0.035 stroke #1a0f00
+
+# Jar 4 (purple-blue — floating eye)
+circle 1.70,0.75 0.11 fill #d8e8e4 0.60
+circle 1.70,0.75 0.11 stroke #7aa8a0
+circle 1.70,0.75 0.09 fill #4a4a6a 0.85
+circle 1.70,0.75 0.09 stroke #2a2a4a 0.7
+circle 1.70,0.75 0.038 fill #3a1f00 0.9
+circle 1.70,0.75 0.038 stroke #1a0f00
+
+# Wooden shelf top plank (drawn on top, covers jar bodies)
+rect 0.0,0.0 2.0,0.64 texfill polyhaven/dark_wood 0.88
+rect 0.0,0.0 2.0,0.64 stroke #3a1f00
+# Wood grain lines
+line 0.0,0.22 2.0,0.22 stroke #5c3a1e 0.4
+line 0.0,0.44 2.0,0.44 stroke #5c3a1e 0.4

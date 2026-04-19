@@ -1,0 +1,91 @@
+name: Potbelly Stove
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: lighthouse-keepers-room, cabin-hunters, tenement-room, cottage-parlor, watchtower
+typical_count: single
+clusters_with: oil-reservoir, coal-bucket, firewood-stack, kettle
+notes: Small cast-iron potbelly stove with a stovepipe. Top-down shows round bellied body with the stovepipe cap as a smaller circle offset north. Slight warm glow.
+lights: [{"preset":"fireplace","x":0.5,"y":0.5,"radius":6,"intensity":0.4,"color":"#ff8844"}]
+---
+# === HITBOX ===
+hitbox circle 0.5,0.55 0.32 z 0-3
+
+# footprint 1x1: x 0-1, y 0-1
+
+# === Warm glow halo on floor ===
+circle 0.5,0.55 0.46 fill #ff6600 0.10
+circle 0.5,0.55 0.38 fill #ff8844 0.08
+
+# === Stove belly (wide pot-bellied cast iron body) ===
+circle 0.5,0.55 0.36 texfill polyhaven/metal_plate 0.6
+circle 0.5,0.55 0.36 fill #2a2a2a 0.55
+circle 0.5,0.55 0.36 stroke #111111 width 2
+
+# Belly ring (horizontal iron band)
+circle 0.5,0.55 0.32 stroke #444444 0.6 width 1
+circle 0.5,0.55 0.28 stroke #333333 0.5 width 1
+
+# Iron rivets around belly
+circle 0.24,0.40 0.016 fill #555555 0.8
+circle 0.76,0.40 0.016 fill #555555 0.8
+circle 0.24,0.70 0.016 fill #555555 0.8
+circle 0.76,0.70 0.016 fill #555555 0.8
+circle 0.50,0.22 0.016 fill #555555 0.8
+circle 0.50,0.88 0.016 fill #555555 0.8
+
+# === Flat top plate (inset circle on top of belly) ===
+circle 0.5,0.55 0.22 fill #1a1a1a 0.7
+circle 0.5,0.55 0.22 texfill polyhaven/metal_plate 0.4
+circle 0.5,0.55 0.22 stroke #111111 width 2
+
+# Hot cooking ring on top plate
+circle 0.5,0.55 0.16 stroke #444444 0.6 width 1
+circle 0.5,0.55 0.10 stroke #333333 0.5 width 1
+
+# Heat shimmer in ring (faint glow through seams)
+circle 0.5,0.55 0.14 fill #ff6600 0.12
+arc 0.5,0.55 0.20 40 80 stroke #ff8844 0.3 width 1
+arc 0.5,0.55 0.20 220 260 stroke #ff8844 0.25 width 1
+
+# === Stovepipe (small circle on top, offset north — going up through the ceiling) ===
+circle 0.5,0.30 0.10 fill #1a1a1a 0.95
+circle 0.5,0.30 0.10 texfill polyhaven/metal_plate 0.5
+circle 0.5,0.30 0.10 stroke #111111 width 2
+
+# Stovepipe cap rim
+circle 0.5,0.30 0.08 stroke #333333 0.7 width 1
+
+# Stovepipe inner (dark void)
+circle 0.5,0.30 0.06 fill #0a0a0a 0.95
+circle 0.5,0.30 0.06 stroke #000000
+
+# Smoke curl rising
+bezier 0.50,0.24 0.46,0.20 0.54,0.16 0.50,0.10 stroke #888888 0.4 width 2
+bezier 0.50,0.28 0.54,0.22 0.48,0.18 0.52,0.12 stroke #aaaaaa 0.3 width 1
+
+# === Four stubby legs peeking out at edges ===
+circle 0.22,0.84 0.035 fill #333333 0.8
+circle 0.22,0.84 0.035 stroke #111111
+circle 0.78,0.84 0.035 fill #333333 0.8
+circle 0.78,0.84 0.035 stroke #111111
+circle 0.22,0.26 0.028 fill #333333 0.7
+circle 0.78,0.26 0.028 fill #333333 0.7
+
+# Door latch on south face (where loading door is — barely visible from above)
+rect 0.44,0.86 0.12,0.04 fill #555555 0.7
+rect 0.44,0.86 0.12,0.04 stroke #222222 width 1
+# Handle knob
+circle 0.50,0.88 0.018 fill #daa520 0.85
+circle 0.50,0.88 0.018 stroke #5a3a00
+
+# Heat glow through door seam
+line 0.44,0.88 0.56,0.88 stroke #ff6600 0.5 width 1
+
+# Metallic sheen arcs
+arc 0.5,0.55 0.34 200 260 stroke #8899aa 0.4 width 1
+arc 0.5,0.55 0.20 210 270 stroke #aabbcc 0.4 width 1

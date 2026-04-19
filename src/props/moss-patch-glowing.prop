@@ -1,0 +1,43 @@
+name: Glowing Moss Patch
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cave-drow-outpost, cave-living, underdark-outpost, mushroom-cavern
+typical_count: many
+clusters_with: moss-patch, mushroom-glow, mushroom-cluster
+notes: Bioluminescent cave moss with tiny glowing spores — pale cyan-blue; scatter on damp underdark floors and walls
+lights: [{"preset":"phosphorescent-fungi","x":0.5,"y":0.5,"radius":5,"intensity":0.5,"color":"#60c0c0"}]
+---
+# Outer luminous halo
+circle 0.5,0.5 0.46 fill #60c0c0 0.12
+circle 0.5,0.5 0.36 fill #60c0c0 0.20
+# Dark moss base (cave-damp greens)
+ellipse 0.46,0.50 0.38,0.30 fill #0a1a20 0.55
+ellipse 0.56,0.58 0.30,0.26 fill #0a1a20 0.50
+# Dim moss patches
+ellipse 0.30,0.42 0.22,0.18 fill #183a40 0.60
+ellipse 0.64,0.56 0.22,0.17 fill #183a40 0.60
+ellipse 0.48,0.68 0.24,0.16 fill #183a40 0.55
+ellipse 0.38,0.28 0.16,0.12 fill #183a40 0.50
+# Medium glow moss (teal-cyan)
+ellipse 0.44,0.48 0.22,0.18 fill #2a6868 0.55
+ellipse 0.58,0.42 0.16,0.13 fill #2a6868 0.55
+ellipse 0.34,0.60 0.14,0.11 fill #2a6868 0.50
+# Brighter cyan highlights
+ellipse 0.42,0.46 0.14,0.10 fill #60c0c0 0.5
+ellipse 0.60,0.50 0.11,0.08 fill #60c0c0 0.48
+ellipse 0.34,0.56 0.09,0.07 fill #60c0c0 0.45
+# Hot bioluminescent points
+circle 0.44,0.44 0.04 fill #a0f0f0 0.75
+circle 0.62,0.48 0.03 fill #a0f0f0 0.70
+circle 0.36,0.58 0.025 fill #a0f0f0 0.65
+circle 0.50,0.52 0.02 fill #a0f0f0 0.65
+# Drifting glowing spores
+circle 0.28,0.30 0.015 fill #c0ffff 0.85
+circle 0.70,0.30 0.012 fill #c0ffff 0.80
+circle 0.72,0.68 0.013 fill #c0ffff 0.80
+circle 0.22,0.66 0.011 fill #c0ffff 0.75
+circle 0.50,0.22 0.010 fill #c0ffff 0.70

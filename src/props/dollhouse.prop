@@ -1,0 +1,50 @@
+name: Dollhouse
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: nursery, mansion-bedroom-master
+typical_count: single
+clusters_with: wooden-toy, blocks-pile, child-bed
+notes: Miniature peaked-roof dollhouse seen from above; pink-painted roof, tiny chimney with smoke
+---
+# === HITBOX ===
+hitbox rect 0.18,0.18 0.64,0.64 z 0-0.8
+
+# Dollhouse walls/base (outer rectangle — visible at eave line)
+rect 0.18,0.18 0.64,0.64 texfill polyhaven/dark_wood 0.88
+rect 0.18,0.18 0.64,0.64 stroke #2a1400
+# Roof ridge (peaked roof viewed from above — two sloped halves meeting at centerline)
+poly 0.18,0.18 0.82,0.18 0.50,0.50 fill #d4a0b0 0.88
+poly 0.18,0.18 0.82,0.18 0.50,0.50 stroke #5c3840 width 1
+poly 0.18,0.82 0.82,0.82 0.50,0.50 fill #c89098 0.88
+poly 0.18,0.82 0.82,0.82 0.50,0.50 stroke #5c3840 width 1
+poly 0.18,0.18 0.18,0.82 0.50,0.50 fill #b8808a 0.88
+poly 0.18,0.18 0.18,0.82 0.50,0.50 stroke #5c3840 width 1
+poly 0.82,0.18 0.82,0.82 0.50,0.50 fill #b8808a 0.88
+poly 0.82,0.18 0.82,0.82 0.50,0.50 stroke #5c3840 width 1
+# Shingle lines (front sloped face)
+line 0.24,0.22 0.76,0.22 stroke #8b5868 0.5 width 1
+line 0.30,0.30 0.70,0.30 stroke #8b5868 0.5 width 1
+line 0.36,0.38 0.64,0.38 stroke #8b5868 0.5 width 1
+# Tiny chimney (offset near one roof edge)
+rect 0.62,0.24 0.10,0.10 texfill polyhaven/stone_wall 0.9
+rect 0.62,0.24 0.10,0.10 stroke #2a2a2a
+# Chimney smoke wisp
+circle 0.70,0.20 0.03 fill #d0d0d0 0.5
+circle 0.74,0.16 0.025 fill #c8c8c8 0.35
+# Tiny window with warm lit interior (peeking from eave)
+rect 0.30,0.72 0.08,0.06 fill #ffe0a0 0.9
+rect 0.30,0.72 0.08,0.06 stroke #3a1f00 width 1
+rect 0.62,0.72 0.08,0.06 fill #ffe0a0 0.9
+rect 0.62,0.72 0.08,0.06 stroke #3a1f00 width 1
+# Front-door hint (darker rectangle at south edge eave)
+rect 0.46,0.76 0.08,0.06 fill #5c3a1e 0.9
+rect 0.46,0.76 0.08,0.06 stroke #2a1400
+# Front walk stones peeking out from south
+circle 0.50,0.86 0.02 fill #a09080 0.8
+circle 0.46,0.90 0.018 fill #a09080 0.7
+circle 0.54,0.90 0.018 fill #a09080 0.7

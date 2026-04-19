@@ -1,0 +1,68 @@
+name: Clothes Rack
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 3
+placement: floor
+room_types: mansion-servants-quarters, dressing-room, bedroom, tailor, house-medium-artisan, inn
+typical_count: single
+clusters_with: wardrobe, chest, mirror, servant-uniform-hung
+notes: Free-standing wooden coat/clothes rack with pegs — vertical post on a cross-foot base. Top-down shows the X-shaped foot and garments draped around the post.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.3
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: X-shaped or cross footbase, central post, and hanging garments seen from above
+
+# === Shadow on the floor ===
+circle 0.50,0.50 0.38 fill #000000 0.18
+
+# === Cross-shaped footed base (X spanning the footprint) ===
+rect 0.12,0.46 0.76,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.12,0.46 0.76,0.08 stroke #2a1400
+rect 0.46,0.12 0.08,0.76 texfill polyhaven/dark_wood 0.88
+rect 0.46,0.12 0.08,0.76 stroke #2a1400
+
+# === Foot caps (little pads at each end) ===
+circle 0.14,0.50 0.04 fill #3a1f00 0.9
+circle 0.14,0.50 0.04 stroke #1a0800
+circle 0.86,0.50 0.04 fill #3a1f00 0.9
+circle 0.86,0.50 0.04 stroke #1a0800
+circle 0.50,0.14 0.04 fill #3a1f00 0.9
+circle 0.50,0.14 0.04 stroke #1a0800
+circle 0.50,0.86 0.04 fill #3a1f00 0.9
+circle 0.50,0.86 0.04 stroke #1a0800
+
+# === Draped garments (seen from above, hanging around the post) ===
+# A cloak draped to the south
+poly 0.38,0.54 0.62,0.54 0.68,0.80 0.56,0.88 0.44,0.88 0.32,0.80 fill #4a2838 0.75
+poly 0.38,0.54 0.62,0.54 0.68,0.80 0.56,0.88 0.44,0.88 0.32,0.80 stroke #2a1420
+# Cloak fold lines
+bezier 0.44,0.58 0.44,0.70 0.44,0.80 0.42,0.86 stroke #2a1420 0.6 width 1
+bezier 0.56,0.58 0.56,0.70 0.56,0.80 0.58,0.86 stroke #2a1420 0.6 width 1
+
+# A tunic draped west
+poly 0.34,0.40 0.44,0.42 0.44,0.58 0.34,0.60 0.24,0.58 0.20,0.50 0.24,0.42 fill #3a5038 0.7
+poly 0.34,0.40 0.44,0.42 0.44,0.58 0.34,0.60 0.24,0.58 0.20,0.50 0.24,0.42 stroke #1a2818
+
+# A scarf/shawl draped east
+poly 0.58,0.38 0.72,0.34 0.82,0.44 0.78,0.56 0.66,0.58 0.56,0.50 fill #8a3020 0.7
+poly 0.58,0.38 0.72,0.34 0.82,0.44 0.78,0.56 0.66,0.58 0.56,0.50 stroke #3a1008
+bezier 0.60,0.42 0.66,0.44 0.72,0.48 0.76,0.52 stroke #3a1008 0.6 width 1
+
+# === Central post (seen end-on from above — wooden disc with peg hints) ===
+circle 0.50,0.50 0.08 texfill polyhaven/dark_wood 0.95
+circle 0.50,0.50 0.08 stroke #1a0800
+
+# === Pegs radiating from post top (small protrusions) ===
+circle 0.50,0.40 0.02 fill #5c3a1e 0.95
+circle 0.60,0.50 0.02 fill #5c3a1e 0.95
+circle 0.50,0.60 0.02 fill #5c3a1e 0.95
+circle 0.40,0.50 0.02 fill #5c3a1e 0.95
+
+# Top finial (bright centre highlight)
+circle 0.50,0.50 0.025 fill #8b6914 0.9
+circle 0.50,0.50 0.025 stroke #5a3a00

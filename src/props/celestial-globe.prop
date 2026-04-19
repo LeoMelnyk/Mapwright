@@ -1,0 +1,54 @@
+name: Celestial Globe
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: center
+room_types: library, study, wizard-sanctum, observatory, cartographer
+typical_count: single
+clusters_with: desk, bookshelf, armchair, crystal-ball
+notes: Brass-mounted celestial globe on tripod stand; place as room centerpiece or on desks
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: looking straight down at a globe on a tripod — circle disc
+# with constellation star-points scattered across surface + meridian ring.
+
+# Tripod legs (three brass legs radiating from center)
+line 0.50,0.50 0.50,0.16 stroke #8b6914 width 2
+line 0.50,0.50 0.22,0.72 stroke #8b6914 width 2
+line 0.50,0.50 0.78,0.72 stroke #8b6914 width 2
+# Leg feet (small brass circles)
+circle 0.50,0.16 0.03 fill #daa520 0.7
+circle 0.22,0.72 0.03 fill #daa520 0.7
+circle 0.78,0.72 0.03 fill #daa520 0.7
+
+# Globe orb (dark blue-black celestial sphere seen from above)
+circle 0.50,0.48 0.26 fill #1a1a3a 0.85
+circle 0.50,0.48 0.26 stroke #333355
+
+# Meridian ring (brass arc around the globe)
+circle 0.50,0.48 0.28 stroke #daa520 width 2
+
+# Constellation star-points scattered across the globe surface
+circle 0.40,0.36 0.015 fill #ffd700 0.7
+circle 0.56,0.32 0.015 fill #ffd700 0.6
+circle 0.62,0.44 0.015 fill #ffd700 0.7
+circle 0.38,0.50 0.015 fill #ffd700 0.6
+circle 0.52,0.56 0.015 fill #ffd700 0.65
+circle 0.44,0.42 0.015 fill #ffd700 0.55
+circle 0.60,0.54 0.015 fill #ffd700 0.6
+circle 0.48,0.62 0.015 fill #ffd700 0.5
+
+# Faint constellation lines connecting some stars
+line 0.40,0.36 0.56,0.32 stroke #6666aa 0.25
+line 0.56,0.32 0.62,0.44 stroke #6666aa 0.25
+line 0.38,0.50 0.52,0.56 stroke #6666aa 0.2
+line 0.44,0.42 0.40,0.36 stroke #6666aa 0.2
+
+# Equatorial ring (faint horizontal circle on globe)
+ellipse 0.50,0.48 0.25,0.08 stroke #555577 0.3
+
+# Hub at top (small brass cap at pole)
+circle 0.50,0.48 0.05 fill #daa520 0.6
+circle 0.50,0.48 0.05 stroke #8b6914

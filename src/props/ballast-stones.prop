@@ -1,0 +1,43 @@
+name: Ballast Stones
+category: Nautical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: ship, cargo-hold, dock, bilge
+typical_count: many
+clusters_with: bilge-puddle, cargo-lashing, barrel
+notes: Pile of smoothed river stones used as ballast; scatter in cargo hold floor areas
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: cluster of smoothed round stones piled low
+
+# Bottom layer stones (partially hidden)
+circle 0.30,0.62 0.10 fill #888888 0.5
+circle 0.30,0.62 0.10 stroke #666666 0.4
+circle 0.68,0.60 0.11 fill #7a7a7a 0.5
+circle 0.68,0.60 0.11 stroke #606060 0.4
+circle 0.50,0.70 0.09 fill #808080 0.5
+circle 0.50,0.70 0.09 stroke #606060 0.4
+
+# Middle layer stones
+circle 0.35,0.44 0.12 fill #999999 0.6
+circle 0.35,0.44 0.12 stroke #666666
+circle 0.60,0.42 0.11 fill #8a8a8a 0.6
+circle 0.60,0.42 0.11 stroke #666666
+circle 0.48,0.55 0.10 fill #929292 0.6
+circle 0.48,0.55 0.10 stroke #6a6a6a
+
+# Top stones (most visible)
+circle 0.42,0.36 0.09 fill #aaaaaa 0.7
+circle 0.42,0.36 0.09 stroke #777777
+circle 0.58,0.50 0.08 fill #a0a0a0 0.7
+circle 0.58,0.50 0.08 stroke #777777
+# Stone highlight glints
+arc 0.42,0.36 0.06 210 300 stroke #cccccc 0.2
+arc 0.58,0.50 0.05 220 310 stroke #bbbbbb 0.2
+
+# Small loose stone at edge
+circle 0.24,0.50 0.05 fill #959595 0.5
+circle 0.24,0.50 0.05 stroke #777777 0.4

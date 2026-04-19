@@ -1,0 +1,73 @@
+name: Belaying Pin Rack
+category: Nautical
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1
+placement: wall
+room_types: ship-main-deck, ship-deck, galleon
+typical_count: few
+clusters_with: mast-main, mast-fore, rope-coil, ship-wheel
+notes: Wooden rail mounted along a wall with a row of belaying pins for tying off running rigging; rope strands loop between pins. Wall side at north (low Y).
+---
+# Footprint 2x1: x 0-1, y 0-2. Wall side north. Rail runs along the long axis (N-S) beside the wall.
+
+# === Dark backing shadow against the wall ===
+rect 0.16,0.10 0.68,1.80 fill #1a0f00 0.22
+
+# === Main rail (dark wood plank along the wall) ===
+rect 0.20,0.14 0.60,1.72 texfill polyhaven/dark_wood 0.9
+rect 0.20,0.14 0.60,1.72 stroke #2a1400
+
+# Rail top edge highlight (catching light)
+line 0.22,0.18 0.78,0.18 stroke #5c3a1e 0.6 width 1
+
+# Iron bracket mounts (securing rail to wall)
+rect 0.18,0.22 0.08,0.12 fill #444444 0.9
+rect 0.18,0.22 0.08,0.12 stroke #1a1008
+rect 0.18,1.66 0.08,0.12 fill #444444 0.9
+rect 0.18,1.66 0.08,0.12 stroke #1a1008
+circle 0.22,0.28 0.012 fill #222222 0.95
+circle 0.22,1.72 0.012 fill #222222 0.95
+
+# === Belaying pins (wooden pegs poking up through the rail) ===
+# Seven pins evenly spaced down the rail. Each pin = dark circle with brass cap highlight.
+circle 0.50,0.32 0.062 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.32 0.062 stroke #1a0f00
+circle 0.50,0.30 0.028 fill #8b6914 0.8
+
+circle 0.50,0.54 0.062 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.54 0.062 stroke #1a0f00
+circle 0.50,0.52 0.028 fill #8b6914 0.8
+
+circle 0.50,0.76 0.062 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.76 0.062 stroke #1a0f00
+circle 0.50,0.74 0.028 fill #8b6914 0.8
+
+circle 0.50,0.98 0.062 texfill polyhaven/dark_wood 0.9
+circle 0.50,0.98 0.062 stroke #1a0f00
+circle 0.50,0.96 0.028 fill #8b6914 0.8
+
+circle 0.50,1.20 0.062 texfill polyhaven/dark_wood 0.9
+circle 0.50,1.20 0.062 stroke #1a0f00
+circle 0.50,1.18 0.028 fill #8b6914 0.8
+
+circle 0.50,1.42 0.062 texfill polyhaven/dark_wood 0.9
+circle 0.50,1.42 0.062 stroke #1a0f00
+circle 0.50,1.40 0.028 fill #8b6914 0.8
+
+circle 0.50,1.64 0.062 texfill polyhaven/dark_wood 0.9
+circle 0.50,1.64 0.062 stroke #1a0f00
+circle 0.50,1.62 0.028 fill #8b6914 0.8
+
+# === Rope strand looped between pins (tied-off running rigging) ===
+# Rope weaves from pin 2 south along the rack
+bezier 0.52,0.58 0.64,0.64 0.64,0.72 0.52,0.78 stroke #8b7355 width 3
+bezier 0.52,0.58 0.64,0.64 0.64,0.72 0.52,0.78 stroke #4a3820 width 1
+bezier 0.52,1.00 0.64,1.08 0.64,1.16 0.52,1.24 stroke #8b7355 width 3
+bezier 0.52,1.00 0.64,1.08 0.64,1.16 0.52,1.24 stroke #4a3820 width 1
+
+# Loose rope end trailing off the south end of the rack
+bezier 0.52,1.66 0.66,1.76 0.72,1.84 0.78,1.90 stroke #8b7355 width 3
+bezier 0.52,1.66 0.66,1.76 0.72,1.84 0.78,1.90 stroke #4a3820 width 1

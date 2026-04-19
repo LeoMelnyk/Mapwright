@@ -1,0 +1,50 @@
+name: Glowing Crystal Cluster
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: cave-living, crystal-grotto, elemental-earth-node, underdark-outpost
+typical_count: few
+clusters_with: crystal-shard, mineral-vein, mushroom-glow
+notes: Bioluminescent crystal cluster — magical cave light source, glowing with inner radiance
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"radius":10,"intensity":0.7,"color":"#8090ff"}]
+---
+# Outer luminous halo (radial gradient)
+circle 0.5,0.5 0.48 gradient-radial #4050a0 #0a0828 0.5
+# Soft glow ring
+circle 0.5,0.5 0.36 fill #5060c0 0.25
+circle 0.5,0.5 0.28 fill #8090e0 0.3
+# Main central crystal shard (largest, pointing up)
+poly 0.46,0.66 0.54,0.66 0.56,0.42 0.50,0.18 0.44,0.42 fill #8090e0 0.9
+poly 0.46,0.66 0.54,0.66 0.56,0.42 0.50,0.18 0.44,0.42 stroke #2030a0
+# Central crystal facet highlight
+poly 0.48,0.64 0.50,0.20 0.50,0.64 fill #b0c0ff 0.65
+# Secondary shard — left
+poly 0.24,0.72 0.34,0.72 0.32,0.48 0.28,0.38 fill #7080d0 0.88
+poly 0.24,0.72 0.34,0.72 0.32,0.48 0.28,0.38 stroke #2030a0
+# Secondary shard — right
+poly 0.66,0.70 0.76,0.70 0.74,0.46 0.70,0.34 fill #7080d0 0.88
+poly 0.66,0.70 0.76,0.70 0.74,0.46 0.70,0.34 stroke #2030a0
+# Small shard — front left
+poly 0.36,0.78 0.44,0.78 0.42,0.60 0.38,0.54 fill #6070c0 0.85
+poly 0.36,0.78 0.44,0.78 0.42,0.60 0.38,0.54 stroke #2030a0
+# Small shard — front right
+poly 0.56,0.78 0.64,0.78 0.62,0.60 0.58,0.54 fill #6070c0 0.85
+poly 0.56,0.78 0.64,0.78 0.62,0.60 0.58,0.54 stroke #2030a0
+# Bright inner cores glowing through each crystal
+ellipse 0.50,0.44 0.025,0.10 fill #e0e8ff 0.95
+ellipse 0.29,0.56 0.018,0.08 fill #e0e8ff 0.85
+ellipse 0.71,0.54 0.018,0.08 fill #e0e8ff 0.85
+ellipse 0.40,0.68 0.014,0.05 fill #e0e8ff 0.8
+ellipse 0.60,0.68 0.014,0.05 fill #e0e8ff 0.8
+# Hottest white core at main crystal tip
+circle 0.50,0.28 0.04 fill #e0e8ff 0.9
+circle 0.50,0.28 0.02 fill #ffffff 0.95
+# Prismatic sparkles in the air
+circle 0.30,0.30 0.015 fill #c0d0ff 0.85
+circle 0.72,0.28 0.012 fill #c0d0ff 0.8
+circle 0.82,0.62 0.014 fill #c0d0ff 0.75
+circle 0.18,0.60 0.012 fill #c0d0ff 0.75

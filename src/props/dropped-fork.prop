@@ -1,0 +1,44 @@
+name: Dropped Fork
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mansion-dining, dining-hall, supper-room, kitchen, tavern
+typical_count: single
+clusters_with: spilled-wine, napkin-pile, round-dining-table
+notes: A single silver fork on the floor beside a food smear — hints at a dinner disturbance.
+---
+# Footprint 1x1: x 0-1, y 0-1. Fork lying at angle, small food smear nearby.
+
+# Food smear on floor (brown gravy or sauce splat)
+ellipse 0.66,0.68 0.14,0.08 fill #4a2808 0.75
+ellipse 0.72,0.62 0.05,0.04 fill #6a4018 0.7
+ellipse 0.60,0.74 0.04,0.03 fill #6a4018 0.6
+# Chunk of food in the smear
+circle 0.68,0.68 0.025 fill #2a1000 0.8
+circle 0.74,0.72 0.018 fill #2a1000 0.7
+
+# Fork handle (silver, at angle)
+rect 0.22,0.38 0.34,0.06 fill #c0c0c0 0.95 rotate 20
+rect 0.22,0.38 0.34,0.06 stroke #555555 rotate 20
+# Handle decorative bead mid-shaft
+circle 0.38,0.44 0.025 fill #8899aa 0.9
+circle 0.38,0.44 0.025 stroke #333333
+
+# Fork head (wider flat area where tines start)
+rect 0.52,0.46 0.08,0.08 fill #c0c0c0 0.95 rotate 20
+rect 0.52,0.46 0.08,0.08 stroke #555555 rotate 20
+
+# Fork tines (four) — short lines at angle
+line 0.58,0.52 0.72,0.58 stroke #c0c0c0 width 3
+line 0.60,0.50 0.74,0.54 stroke #c0c0c0 width 3
+line 0.62,0.48 0.76,0.50 stroke #c0c0c0 width 3
+line 0.56,0.54 0.70,0.62 stroke #c0c0c0 width 3
+# Tine outlines for definition
+line 0.58,0.52 0.72,0.58 stroke #333333 0.6 width 1
+line 0.62,0.48 0.76,0.50 stroke #333333 0.6 width 1
+
+# Handle highlight (glint)
+line 0.26,0.39 0.54,0.45 stroke #f0f0f0 0.5 width 1

@@ -1,0 +1,41 @@
+name: Cabbage
+category: Food
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: apartment-tenement, peasant-hovel, pantry, farmhouse-kitchen, market-stall
+typical_count: few
+clusters_with: bread-loaf, cheese-wheel, shelf-open, bucket, basket
+notes: Round head of cabbage — pale green layered leaves
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.28
+
+# Outer leaves (dark green, widest)
+poly 0.22,0.50 0.28,0.34 0.44,0.26 0.56,0.26 0.72,0.32 0.78,0.48 0.76,0.62 0.64,0.74 0.48,0.78 0.32,0.72 0.22,0.62 fill #3a5828 0.95
+poly 0.22,0.50 0.28,0.34 0.44,0.26 0.56,0.26 0.72,0.32 0.78,0.48 0.76,0.62 0.64,0.74 0.48,0.78 0.32,0.72 0.22,0.62 stroke #1a3010
+# Middle leaves (medium green)
+circle 0.5,0.50 0.22 fill #5a7830 0.9
+circle 0.5,0.50 0.22 stroke #1a3010
+# Inner head (lighter yellowish-green)
+circle 0.5,0.50 0.16 fill #8aa048 0.9
+circle 0.5,0.50 0.16 stroke #2a4010
+# Leaf veins radiating from center
+line 0.50,0.50 0.34,0.38 stroke #2a4010 0.6 width 1
+line 0.50,0.50 0.66,0.38 stroke #2a4010 0.6 width 1
+line 0.50,0.50 0.32,0.58 stroke #2a4010 0.6 width 1
+line 0.50,0.50 0.68,0.58 stroke #2a4010 0.6 width 1
+line 0.50,0.50 0.50,0.30 stroke #2a4010 0.6 width 1
+line 0.50,0.50 0.50,0.70 stroke #2a4010 0.6 width 1
+# Center bud/core
+circle 0.50,0.50 0.04 fill #c8d868 0.9
+circle 0.50,0.50 0.04 stroke #5a7828
+# Leaf curl highlights
+arc 0.50,0.50 0.20 220 260 stroke #aac060 0.5 width 1
+arc 0.50,0.50 0.14 220 260 stroke #c0d870 0.4 width 1
+# Outer leaf curl edges
+bezier 0.30,0.38 0.40,0.42 0.44,0.36 0.50,0.32 stroke #1a3010 0.5
+bezier 0.56,0.32 0.60,0.36 0.68,0.40 0.72,0.44 stroke #1a3010 0.5

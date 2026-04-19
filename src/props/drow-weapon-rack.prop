@@ -1,0 +1,57 @@
+name: Drow Weapon Rack
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 5
+placement: wall
+room_types: cave-drow-outpost, underdark-outpost, drow-citadel, armory
+typical_count: few
+clusters_with: spider-silk-drape, faerzress-sconce, drow-command-slab
+notes: Wall-mounted obsidian rack with hanging curved drow swords and short bows — place on drow outpost walls
+---
+# === HITBOX ===
+selection rect 0.10,0.06 1.80,0.36
+
+# Obsidian horizontal mounting bar (flush to north wall)
+rect 0.10,0.06 1.80,0.16 fill #1a1020 0.95
+rect 0.10,0.06 1.80,0.16 stroke #0a0820
+# Silver engraved band along the bar
+line 0.14,0.12 1.86,0.12 stroke #c0c0c0 0.55 width 1
+# Obsidian end posts
+rect 0.10,0.06 0.10,0.34 fill #0a0820 0.95
+rect 1.80,0.06 0.10,0.34 fill #0a0820 0.95
+# Silver slot indicators on the bar (where pommels sit)
+rect 0.30,0.08 0.04,0.12 fill #c0c0c0 0.7
+rect 0.60,0.08 0.04,0.12 fill #c0c0c0 0.7
+rect 0.90,0.08 0.04,0.12 fill #c0c0c0 0.7
+rect 1.20,0.08 0.04,0.12 fill #c0c0c0 0.7
+rect 1.50,0.08 0.04,0.12 fill #c0c0c0 0.7
+# --- Curved drow sword 1 (scimitar, leaning south) ---
+# Curved blade
+bezier 0.32,0.22 0.28,0.32 0.34,0.40 0.30,0.50 stroke #c0c0c0 width 2
+# Crossguard (curved)
+line 0.27,0.22 0.37,0.22 stroke #8040c0 width 2
+# Pommel (obsidian sphere at rack)
+circle 0.32,0.14 0.055 fill #1a1020 0.95
+circle 0.32,0.14 0.055 stroke #c0c0c0
+# --- Drow short bow 1 (top-down: thin curved strip) ---
+bezier 0.60,0.22 0.55,0.35 0.65,0.48 0.60,0.60 stroke #1a1020 width 3
+# Bowstring (fine silver line)
+line 0.60,0.22 0.60,0.60 stroke #c0c0c0 0.75 width 1
+# --- Curved drow sword 2 (scimitar, leaning opposite) ---
+bezier 0.92,0.22 0.96,0.32 0.88,0.42 0.94,0.54 stroke #c0c0c0 width 2
+line 0.87,0.22 0.97,0.22 stroke #8040c0 width 2
+circle 0.92,0.14 0.055 fill #1a1020 0.95
+circle 0.92,0.14 0.055 stroke #c0c0c0
+# --- Drow short bow 2 ---
+bezier 1.20,0.22 1.25,0.36 1.15,0.50 1.20,0.62 stroke #1a1020 width 3
+line 1.20,0.22 1.20,0.62 stroke #c0c0c0 0.7 width 1
+# --- Curved drow sword 3 ---
+bezier 1.52,0.22 1.48,0.32 1.54,0.42 1.50,0.52 stroke #c0c0c0 width 2
+line 1.47,0.22 1.57,0.22 stroke #8040c0 width 2
+circle 1.52,0.14 0.055 fill #1a1020 0.95
+circle 1.52,0.14 0.055 stroke #c0c0c0
+# Faint violet faerzress sheen across the bar
+rect 0.10,0.06 1.80,0.04 fill #8040c0 0.18

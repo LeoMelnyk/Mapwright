@@ -1,0 +1,48 @@
+name: Gnawed Bone
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: cave-bear-lair, goblin-warren-entrance, monster-lair-small, orc-war-camp, cave-goblin-warren, sewer-junction, pantry
+typical_count: many
+clusters_with: bone-pile, tuft-of-fur, carcass-fresh, scat-pile, rat
+notes: Single stripped bone with teeth marks; floor clutter for lairs
+---
+# === HITBOX ===
+selection rect 0.12,0.44 0.76,0.14
+
+# Bone shaft (elongated, slightly curved)
+bezier 0.18,0.50 0.35,0.46 0.65,0.54 0.82,0.50 stroke #e8dcc8 width 10
+# Shaft body gradient
+bezier 0.18,0.50 0.35,0.46 0.65,0.54 0.82,0.50 stroke #c8b898 width 6
+# Shaft core
+bezier 0.18,0.50 0.35,0.46 0.65,0.54 0.82,0.50 stroke #d4c4a8 width 4
+# Knuckle ends (rounded joints at both ends)
+circle 0.18,0.50 0.08 fill #e8dcc8 0.95
+circle 0.18,0.50 0.08 stroke #8a7a6a
+circle 0.82,0.50 0.08 fill #e8dcc8 0.95
+circle 0.82,0.50 0.08 stroke #8a7a6a
+# Joint highlight on knuckles
+arc 0.18,0.50 0.07 200 260 stroke #f0e8d4 0.6 width 1
+arc 0.82,0.50 0.07 200 260 stroke #f0e8d4 0.6 width 1
+# Knuckle shadow crevices
+arc 0.18,0.50 0.07 20 80 stroke #8a7a6a 0.7 width 1
+arc 0.82,0.50 0.07 100 160 stroke #8a7a6a 0.7 width 1
+# Gnaw marks — small chip scars along shaft
+poly 0.34,0.44 0.38,0.42 0.40,0.46 fill #a08878 0.7
+poly 0.34,0.44 0.38,0.42 0.40,0.46 stroke #6a5040 0.6
+poly 0.48,0.56 0.52,0.58 0.50,0.52 fill #a08878 0.7
+poly 0.48,0.56 0.52,0.58 0.50,0.52 stroke #6a5040 0.6
+poly 0.62,0.44 0.66,0.42 0.68,0.46 fill #a08878 0.7
+poly 0.62,0.44 0.66,0.42 0.68,0.46 stroke #6a5040 0.6
+# Tooth scrape lines
+line 0.28,0.48 0.32,0.50 stroke #8a7a6a 0.6
+line 0.56,0.52 0.60,0.54 stroke #8a7a6a 0.6
+line 0.72,0.48 0.76,0.50 stroke #8a7a6a 0.6
+# Faint blood stain at one end
+circle 0.18,0.50 0.06 fill #4a1a10 0.3
+# Tiny bone chip nearby
+poly 0.30,0.64 0.34,0.62 0.36,0.66 0.32,0.68 fill #d4c4a8 0.7

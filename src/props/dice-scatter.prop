@@ -1,0 +1,60 @@
+name: Dice Scatter
+category: Camp
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: campsite-traveler, inn-common-room, barracks, orc-war-camp, guard-room
+typical_count: single
+clusters_with: cookware-scatter, stool, log-seat, empty-bottle
+notes: Handful of small bone dice with a knocked-over leather cup — gambling debris
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: bone dice scattered around a tipped leather cup
+
+# Leather cup — knocked over, seen as an oval mouth
+ellipse 0.58,0.42 0.10,0.07 texfill polyhaven/brown_leather 0.75
+ellipse 0.58,0.42 0.10,0.07 stroke #2a1400
+# Cup interior (dark opening)
+ellipse 0.58,0.42 0.07,0.04 fill #1a1008 0.6
+# Cup base visible (tilted, south side)
+ellipse 0.58,0.50 0.08,0.03 fill #4a2800 0.7
+ellipse 0.58,0.50 0.08,0.03 stroke #2a1400
+
+# Bone die 1 (small square, NW)
+rect 0.22,0.30 0.07,0.07 fill #e8dcc8 0.9
+rect 0.22,0.30 0.07,0.07 stroke #8b7355
+# Pip dots
+circle 0.255,0.335 0.01 fill #333333 0.8
+circle 0.255,0.365 0.01 fill #333333 0.8
+
+# Bone die 2 (rotated slightly, near cup mouth)
+rect 0.42,0.36 0.06,0.06 fill #d4c4a8 0.9 rotate 15
+rect 0.42,0.36 0.06,0.06 stroke #8b7355 rotate 15
+circle 0.45,0.39 0.01 fill #333333 0.8
+
+# Bone die 3 (south of cup)
+rect 0.52,0.62 0.07,0.07 fill #e8dcc8 0.85
+rect 0.52,0.62 0.07,0.07 stroke #8b7355
+circle 0.555,0.645 0.01 fill #333333 0.8
+circle 0.555,0.675 0.01 fill #333333 0.8
+circle 0.555,0.655 0.01 fill #333333 0.8
+
+# Bone die 4 (west, near ground)
+rect 0.18,0.58 0.06,0.06 fill #d4c4a8 0.88 rotate 25
+rect 0.18,0.58 0.06,0.06 stroke #8b7355 rotate 25
+circle 0.21,0.61 0.01 fill #333333 0.8
+
+# Bone die 5 (east)
+rect 0.74,0.54 0.06,0.06 fill #e8dcc8 0.85 rotate 10
+rect 0.74,0.54 0.06,0.06 stroke #8b7355 rotate 10
+circle 0.76,0.565 0.01 fill #333333 0.8
+circle 0.78,0.575 0.01 fill #333333 0.8
+
+# Small copper coin near the dice (wagered)
+circle 0.35,0.70 0.03 fill #daa520 0.7
+circle 0.35,0.70 0.03 stroke #8b6914
+# Another coin
+circle 0.72,0.38 0.025 fill #daa520 0.6
+circle 0.72,0.38 0.025 stroke #8b6914

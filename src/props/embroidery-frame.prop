@@ -1,0 +1,75 @@
+name: Embroidery Frame
+category: Furniture
+facing: yes
+footprint: 1x1
+shadow: yes
+blocks_light: no
+height: 3
+placement: floor
+room_types: noble-solar, parlor, mansion-bedchamber, mansion-servants-quarters, nunnery, bedroom
+typical_count: single
+clusters_with: armchair, chair, sewing-basket, carpet
+notes: Upright hoop standing embroidery frame with stretched cloth and needle work in progress; seated work
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.22
+
+# Wooden tripod stand legs (three legs radiating from center — visible as thin angled strokes)
+line 0.50,0.50 0.20,0.78 stroke #1a0e00 width 3
+line 0.50,0.50 0.80,0.78 stroke #1a0e00 width 3
+line 0.50,0.50 0.50,0.82 stroke #1a0e00 width 3
+
+# Feet (small dots at leg ends)
+circle 0.20,0.78 0.03 fill #1a0e00 0.9
+circle 0.20,0.78 0.03 stroke #000000
+circle 0.80,0.78 0.03 fill #1a0e00 0.9
+circle 0.80,0.78 0.03 stroke #000000
+circle 0.50,0.82 0.03 fill #1a0e00 0.9
+circle 0.50,0.82 0.03 stroke #000000
+
+# Central vertical post (seen as small dark circle at origin)
+circle 0.50,0.50 0.025 fill #2a1400 0.9
+circle 0.50,0.50 0.025 stroke #1a0e00
+
+# Outer hoop ring (the embroidery hoop — large wooden circle seen edge-on slightly tilted, but mostly as a ring from above)
+ring 0.50,0.32 0.22 0.19 fill #8b6914 0.9
+ring 0.50,0.32 0.22 0.19 stroke #5a3a00 width 2
+
+# Inner hoop (slightly lighter — the tension ring)
+circle 0.50,0.32 0.19 stroke #3a2400 0.7 width 1
+
+# Stretched cloth within the hoop (pale linen)
+circle 0.50,0.32 0.185 fill #e8dcc8 0.92
+circle 0.50,0.32 0.185 stroke #c8b898 width 1
+
+# Embroidered pattern — floral motif (central design)
+# Rose-like pattern
+circle 0.50,0.32 0.04 fill #991144 0.8
+circle 0.50,0.32 0.04 stroke #4a0820
+# Petals
+circle 0.50,0.24 0.025 fill #cc3366 0.75
+circle 0.56,0.30 0.025 fill #cc3366 0.75
+circle 0.50,0.38 0.025 fill #cc3366 0.75
+circle 0.44,0.30 0.025 fill #cc3366 0.75
+# Rose center (gold thread)
+circle 0.50,0.32 0.015 fill #daa520 0.9
+
+# Green leaves/vines
+bezier 0.40,0.36 0.36,0.38 0.34,0.36 0.32,0.32 stroke #2a4a2a 0.8 width 2
+bezier 0.60,0.36 0.64,0.38 0.66,0.36 0.68,0.32 stroke #2a4a2a 0.8 width 2
+
+# Tiny dotted stitches (embroidery texture hints)
+circle 0.45,0.22 0.008 fill #5a3a2a 0.7
+circle 0.55,0.22 0.008 fill #5a3a2a 0.7
+circle 0.42,0.42 0.008 fill #5a3a2a 0.7
+circle 0.58,0.42 0.008 fill #5a3a2a 0.7
+
+# Tension screw at north edge of hoop (brass knob where the hoop tightens)
+circle 0.50,0.11 0.028 fill #daa520 0.9
+circle 0.50,0.11 0.028 stroke #5a3a00
+
+# Needle with trailing thread (stuck into the cloth at an angle)
+line 0.52,0.34 0.62,0.48 stroke #aaaaaa width 1
+line 0.52,0.34 0.62,0.48 stroke #dddddd 0.8 width 1
+# Red thread trailing from needle
+bezier 0.54,0.36 0.60,0.42 0.64,0.50 0.66,0.56 stroke #cc3366 0.75 width 1

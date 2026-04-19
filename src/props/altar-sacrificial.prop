@@ -1,0 +1,58 @@
+name: Sacrificial Altar
+category: Religious
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.0
+placement: center
+room_types: temple-nave, temple, shrine, crypt, ritual-chamber
+typical_count: single
+clusters_with: censer, candelabra, bloodstain, ash-pile
+notes: Bloodstained stone altar with channel grooves leading to a bronze catch-bowl at the south edge; wrist-strap rings near the corners
+---
+# === HITBOX ===
+hitbox rect 0.12,0.12 1.76,0.76 z 0-1.0
+
+# Stone slab base (dark marble with bloodstain tint)
+rect 0.12,0.12 1.76,0.76 texfill polyhaven/marble_01 0.85
+rect 0.12,0.12 1.76,0.76 fill #4a0000 0.18
+rect 0.12,0.12 1.76,0.76 stroke #2a0808 width 2
+
+# Inner recessed panel
+rect 0.24,0.22 1.52,0.56 stroke #5a1a1a width 1
+
+# Bloodstain soaked into the slab
+ellipse 1.0,0.46 0.48,0.22 fill #4a0000 0.55
+ellipse 1.0,0.46 0.30,0.14 fill #2a0000 0.6
+
+# Channel grooves flowing south toward the bowl
+bezier 0.60,0.30 0.72,0.42 0.84,0.54 1.00,0.70 stroke #2a0000 width 3
+bezier 1.40,0.30 1.28,0.42 1.16,0.54 1.00,0.70 stroke #2a0000 width 3
+line 0.30,0.50 0.60,0.50 stroke #2a0000 width 2
+line 1.70,0.50 1.40,0.50 stroke #2a0000 width 2
+
+# Bronze catch-bowl at front (south edge)
+circle 1.0,0.82 0.11 texfill polyhaven/rusty_metal 0.85
+circle 1.0,0.82 0.11 stroke #5a3a00 width 2
+circle 1.0,0.82 0.07 fill #2a0000 0.85
+circle 1.0,0.82 0.07 stroke #5a3a00
+
+# Bronze rim highlight on bowl
+arc 1.0,0.82 0.11 200 340 stroke #daa520 0.7 width 1
+
+# Wrist-strap rings (bronze mount points) — near corners
+circle 0.22,0.22 0.04 fill #8b6914 0.9
+circle 0.22,0.22 0.04 stroke #5a3a00
+circle 1.78,0.22 0.04 fill #8b6914 0.9
+circle 1.78,0.22 0.04 stroke #5a3a00
+circle 0.22,0.78 0.04 fill #8b6914 0.9
+circle 0.22,0.78 0.04 stroke #5a3a00
+circle 1.78,0.78 0.04 fill #8b6914 0.9
+circle 1.78,0.78 0.04 stroke #5a3a00
+
+# Dried splatters radiating from center
+circle 0.42,0.34 0.025 fill #4a0000 0.7
+circle 1.58,0.36 0.022 fill #4a0000 0.65
+circle 0.50,0.66 0.02 fill #4a0000 0.6
+circle 1.46,0.68 0.02 fill #4a0000 0.6

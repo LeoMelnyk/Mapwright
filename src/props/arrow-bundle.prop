@@ -1,0 +1,68 @@
+name: Arrow Bundle
+category: Combat
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: armory, gatehouse-inner, shop-weaponsmith, ranger-camp, hunting-lodge-large, guard-post
+typical_count: few
+clusters_with: weapon-rack, arrow-fletching, shield-rack, quiver, bow
+notes: Bound sheaf of arrows standing upright or lying on ground
+---
+# === HITBOX ===
+selection rect 0.30,0.14 0.40,0.72
+
+# Ground shadow
+ellipse 0.5,0.80 0.22,0.04 fill #1a1008 0.4
+# Bundle binding cord (middle wrap)
+rect 0.32,0.46 0.36,0.06 fill #3a2010 0.95
+rect 0.32,0.46 0.36,0.06 stroke #1a0808
+line 0.32,0.48 0.68,0.48 stroke #5c3a1e 0.7
+# Second binding near top
+rect 0.32,0.22 0.36,0.04 fill #3a2010 0.9
+# === Arrows (bundle of ~7) ===
+# Shafts (light wood, parallel)
+line 0.34,0.20 0.34,0.78 stroke #8a6a30 width 1
+line 0.38,0.20 0.38,0.78 stroke #8a6a30 width 1
+line 0.42,0.20 0.42,0.78 stroke #a07840 width 1
+line 0.46,0.20 0.46,0.78 stroke #8a6a30 width 1
+line 0.50,0.20 0.50,0.78 stroke #a07840 width 1
+line 0.54,0.20 0.54,0.78 stroke #8a6a30 width 1
+line 0.58,0.20 0.58,0.78 stroke #a07840 width 1
+line 0.62,0.20 0.62,0.78 stroke #8a6a30 width 1
+line 0.66,0.20 0.66,0.78 stroke #a07840 width 1
+# Arrowheads (north tips, small triangles — iron)
+poly 0.33,0.20 0.35,0.16 0.37,0.20 fill #555555 0.95
+poly 0.37,0.20 0.39,0.16 0.41,0.20 fill #666666 0.95
+poly 0.41,0.20 0.43,0.16 0.45,0.20 fill #555555 0.95
+poly 0.45,0.20 0.47,0.16 0.49,0.20 fill #666666 0.95
+poly 0.49,0.20 0.51,0.16 0.53,0.20 fill #555555 0.95
+poly 0.53,0.20 0.55,0.16 0.57,0.20 fill #666666 0.95
+poly 0.57,0.20 0.59,0.16 0.61,0.20 fill #555555 0.95
+poly 0.61,0.20 0.63,0.16 0.65,0.20 fill #666666 0.95
+poly 0.65,0.20 0.67,0.16 0.69,0.20 fill #555555 0.95
+# Arrowhead outlines
+poly 0.33,0.20 0.35,0.16 0.37,0.20 stroke #222222
+poly 0.49,0.20 0.51,0.16 0.53,0.20 stroke #222222
+poly 0.65,0.20 0.67,0.16 0.69,0.20 stroke #222222
+# Fletchings (south ends, feather fans)
+poly 0.33,0.78 0.35,0.82 0.37,0.78 fill #aa4040 0.9
+poly 0.33,0.78 0.35,0.82 0.37,0.78 stroke #6a1820
+poly 0.37,0.78 0.39,0.82 0.41,0.78 fill #e8dcc8 0.9
+poly 0.37,0.78 0.39,0.82 0.41,0.78 stroke #8b7355
+poly 0.41,0.78 0.43,0.82 0.45,0.78 fill #aa4040 0.9
+poly 0.41,0.78 0.43,0.82 0.45,0.78 stroke #6a1820
+poly 0.45,0.78 0.47,0.82 0.49,0.78 fill #e8dcc8 0.9
+poly 0.45,0.78 0.47,0.82 0.49,0.78 stroke #8b7355
+poly 0.49,0.78 0.51,0.82 0.53,0.78 fill #aa4040 0.9
+poly 0.49,0.78 0.51,0.82 0.53,0.78 stroke #6a1820
+poly 0.53,0.78 0.55,0.82 0.57,0.78 fill #e8dcc8 0.9
+poly 0.53,0.78 0.55,0.82 0.57,0.78 stroke #8b7355
+poly 0.57,0.78 0.59,0.82 0.61,0.78 fill #aa4040 0.9
+poly 0.57,0.78 0.59,0.82 0.61,0.78 stroke #6a1820
+poly 0.61,0.78 0.63,0.82 0.65,0.78 fill #e8dcc8 0.9
+poly 0.61,0.78 0.63,0.82 0.65,0.78 stroke #8b7355
+poly 0.65,0.78 0.67,0.82 0.69,0.78 fill #aa4040 0.9
+poly 0.65,0.78 0.67,0.82 0.69,0.78 stroke #6a1820

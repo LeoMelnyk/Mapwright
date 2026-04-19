@@ -1,0 +1,80 @@
+name: Powder Crate (Stenciled)
+category: Containers
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.0
+placement: floor
+room_types: tunnel-mine-worked, mine-shaft-entrance, armory, command-room
+typical_count: few
+clusters_with: keg, keg-stack, powder-tub, crate, crate-stack, barrel
+notes: A wooden crate stenciled with a powder / explosives warning. Used in powder magazines and mine offices. Visibly hazardous — the stencil is the narrative read.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Top-down closed crate with a bold stenciled skull-and-flame warning on the lid.
+# The stencil is the focal element — this is what distinguishes it from a plain crate.
+
+# Crate body (plank lid)
+rect 0.08,0.08 0.84,0.84 texfill polyhaven/weathered_planks 0.9
+rect 0.08,0.08 0.84,0.84 stroke #3a1f00
+
+# Plank seams dividing lid into 3 slats (east-west)
+line 0.08,0.36 0.92,0.36 stroke #3a1f00 0.7
+line 0.08,0.64 0.92,0.64 stroke #3a1f00 0.7
+
+# Iron band wrapping across the lid (north-south of center)
+line 0.14,0.22 0.86,0.22 stroke #333333 width 4
+line 0.14,0.78 0.86,0.78 stroke #333333 width 4
+
+# Iron corner fittings — dark rects at each corner with rivets
+rect 0.08,0.08 0.14,0.14 fill #444444 0.9
+rect 0.08,0.08 0.14,0.14 stroke #222222
+circle 0.12,0.12 0.018 fill #777777 0.9
+circle 0.18,0.18 0.015 fill #777777 0.85
+rect 0.78,0.08 0.14,0.14 fill #444444 0.9
+rect 0.78,0.08 0.14,0.14 stroke #222222
+circle 0.88,0.12 0.018 fill #777777 0.9
+circle 0.82,0.18 0.015 fill #777777 0.85
+rect 0.08,0.78 0.14,0.14 fill #444444 0.9
+rect 0.08,0.78 0.14,0.14 stroke #222222
+circle 0.12,0.88 0.018 fill #777777 0.9
+circle 0.18,0.82 0.015 fill #777777 0.85
+rect 0.78,0.78 0.14,0.14 fill #444444 0.9
+rect 0.78,0.78 0.14,0.14 stroke #222222
+circle 0.88,0.88 0.018 fill #777777 0.9
+circle 0.82,0.82 0.015 fill #777777 0.85
+
+# === STENCILED WARNING (focal element) ===
+# Painted in weathered white, dominant center-lid skull with flame crown above.
+
+# Flame crown above skull — three stencil flame tongues (faded white paint)
+poly 0.36,0.34 0.40,0.24 0.44,0.34 fill #d4c4a8 0.75
+poly 0.45,0.32 0.50,0.20 0.55,0.32 fill #d4c4a8 0.78
+poly 0.56,0.34 0.60,0.24 0.64,0.34 fill #d4c4a8 0.75
+
+# Skull cranium — rounded top
+ellipse 0.50,0.50 0.22,0.18 fill #d4c4a8 0.82
+# Jaw — slightly narrower rect below cranium
+rect 0.36,0.58 0.28,0.14 fill #d4c4a8 0.82
+
+# Eye sockets — dark cutouts give the stencil its iconic skull read
+ellipse 0.41,0.48 0.055,0.07 fill #1a1208 0.95
+ellipse 0.59,0.48 0.055,0.07 fill #1a1208 0.95
+
+# Nose — triangular dark slot
+poly 0.48,0.56 0.52,0.56 0.50,0.62 fill #1a1208 0.95
+
+# Teeth — vertical grid lines on jaw (three gaps)
+line 0.44,0.60 0.44,0.70 stroke #1a1208 width 2
+line 0.50,0.60 0.50,0.70 stroke #1a1208 width 2
+line 0.56,0.60 0.56,0.70 stroke #1a1208 width 2
+line 0.38,0.65 0.62,0.65 stroke #1a1208 0.7
+
+# Grime / scratches breaking up the stencil paint (age and wear)
+line 0.32,0.44 0.46,0.52 stroke #3a1f00 0.5 width 2
+line 0.54,0.56 0.68,0.62 stroke #3a1f00 0.4 width 2
+line 0.40,0.72 0.58,0.76 stroke #3a1f00 0.45
+
+# Loose rope across the north-east corner
+line 0.62,0.10 0.94,0.28 stroke #8b7355 width 2

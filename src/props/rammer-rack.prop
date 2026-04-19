@@ -1,0 +1,44 @@
+name: Rammer Rack
+category: Misc
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: ship-gun-deck, warship, gunnery, frigate-deck
+typical_count: few
+clusters_with: cannon, swab-rammer, gun-port
+notes: Horizontal wooden wall rack holding rammer, sponge, and worm tools. Wall side at north; from above the rack is a long bar with tool-end circles poking south.
+---
+# footprint 1x2: x 0-2, y 0-1
+# Wall-mounted backboard (along north edge)
+rect 0.12,0.06 1.76,0.14 texfill polyhaven/dark_wood 0.9
+rect 0.12,0.06 1.76,0.14 stroke #2a1400
+# Mounting brackets (iron)
+rect 0.20,0.08 0.06,0.10 fill #444444 0.8
+rect 0.20,0.08 0.06,0.10 stroke #222222
+rect 1.74,0.08 0.06,0.10 fill #444444 0.8
+rect 1.74,0.08 0.06,0.10 stroke #222222
+# Three tool shafts running lengthwise (east-west), tool heads protruding south
+# Rammer (wooden ram, northmost slot)
+rect 0.22,0.22 1.56,0.05 texfill polyhaven/dark_wood 0.85
+rect 0.22,0.22 1.56,0.05 stroke #2a1400
+# Rammer head (cylindrical block at east end)
+circle 1.80,0.245 0.06 fill #5c3a1e 0.9
+circle 1.80,0.245 0.06 stroke #2a1400
+# Sponge (middle slot) — fluffy wool head
+rect 0.22,0.42 1.48,0.05 texfill polyhaven/dark_wood 0.85
+rect 0.22,0.42 1.48,0.05 stroke #2a1400
+circle 1.72,0.445 0.08 fill #d4c4a8 0.85
+circle 1.72,0.445 0.08 stroke #8b7355
+# Worm (bottom slot) — iron spiral end
+rect 0.22,0.62 1.50,0.05 texfill polyhaven/dark_wood 0.85
+rect 0.22,0.62 1.50,0.05 stroke #2a1400
+circle 1.74,0.645 0.07 fill #555555 0.85
+circle 1.74,0.645 0.07 stroke #222222
+# Spiral lines on worm head
+arc 1.74,0.645 0.05 0 270 stroke #222222 width 1
+# Small pegs holding tools in place
+circle 0.30,0.245 0.02 fill #3a1f00 0.7
+circle 0.30,0.445 0.02 fill #3a1f00 0.7
+circle 0.30,0.645 0.02 fill #3a1f00 0.7

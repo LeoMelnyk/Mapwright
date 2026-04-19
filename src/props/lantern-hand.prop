@@ -1,0 +1,57 @@
+name: Hand Lantern
+category: Lighting
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":4,"color":"#ffcc66","intensity":0.6}]
+placement: floor
+room_types: shop-general, study, bedroom, tavern-common, cabin-hunters, ship-cabin, desk, workshop
+typical_count: few
+clusters_with: desk, ledger-stack, book-pile, map-table, chair
+notes: Small handheld brass lantern set down on a table or desk — dim warm pool of light. Compact and portable, smaller than a standing lantern.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.14
+
+# Soft warm halo
+circle 0.50,0.50 0.30 fill #ffcc66 0.12
+circle 0.50,0.50 0.22 fill #ffd080 0.15
+
+# Drop shadow (small, offset south slightly)
+ellipse 0.50,0.54 0.18,0.05 fill #1a0a00 0.35
+
+# Brass base disc
+circle 0.50,0.50 0.16 fill #8b6914 0.9
+circle 0.50,0.50 0.16 stroke #5a3a00
+
+# Inner brass rim
+circle 0.50,0.50 0.13 stroke #daa520 0.7 width 1
+
+# Glass chamber (small square of four panes, top-down)
+rect 0.40,0.40 0.20,0.20 fill #daa520 0.85
+rect 0.40,0.40 0.20,0.20 stroke #5a3a00
+# Warm glass inner glow
+rect 0.42,0.42 0.16,0.16 fill #ffcc66 0.65
+rect 0.42,0.42 0.16,0.16 stroke #8b6914 0.6
+
+# Candle flame at center
+circle 0.50,0.50 0.04 fill #ff8800 0.6
+circle 0.50,0.50 0.025 fill #ffcc00 0.8
+circle 0.50,0.50 0.012 fill #ffffff 0.9
+
+# Glass pane mullions (tiny cross)
+line 0.50,0.40 0.50,0.60 stroke #5a3a00 0.7 width 1
+line 0.40,0.50 0.60,0.50 stroke #5a3a00 0.7 width 1
+
+# Carrying handle (small arc on top/north, seen from above as a curved strap)
+arc 0.50,0.38 0.08 180 360 stroke #daa520 width 2
+arc 0.50,0.38 0.08 180 360 stroke #5a3a00 0.6 width 1
+
+# Handle pivot dots
+circle 0.42,0.38 0.015 fill #5a3a00 0.9
+circle 0.58,0.38 0.015 fill #5a3a00 0.9
+
+# Tiny highlight on brass base (catching light)
+arc 0.50,0.50 0.15 220 260 stroke #f0d060 0.7 width 1

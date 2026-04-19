@@ -1,0 +1,43 @@
+name: Scissors Shears
+category: Tools
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: shop-tailor, merchant-house, textile-loomhouse, workshop
+typical_count: single
+clusters_with: cutting-table, measuring-tape, sewing-bench, buttons-jar
+notes: Open tailoring shears seen from above; scatter on cutting table or workbench
+---
+# === HITBOX ===
+selection rect 0.10,0.10 0.80,0.80
+
+# Blade 1 (north-west to south-east diagonal)
+poly 0.18,0.16 0.26,0.12 0.58,0.54 0.50,0.58 texfill polyhaven/metal_plate 0.85
+poly 0.18,0.16 0.26,0.12 0.58,0.54 0.50,0.58 stroke #333333
+# Blade 1 highlight
+line 0.22,0.18 0.52,0.54 stroke #aabbcc width 1
+# Blade 2 (north-east to south-west diagonal, crossed)
+poly 0.74,0.16 0.82,0.20 0.50,0.58 0.42,0.54 texfill polyhaven/metal_plate 0.85
+poly 0.74,0.16 0.82,0.20 0.50,0.58 0.42,0.54 stroke #333333
+# Blade 2 highlight
+line 0.78,0.18 0.48,0.54 stroke #aabbcc width 1
+# Pivot screw at crossing center
+circle 0.50,0.54 0.04 fill #daa520 0.95
+circle 0.50,0.54 0.04 stroke #5a3a00
+# Pivot screw slot
+line 0.48,0.54 0.52,0.54 stroke #3a1f00 width 1
+# Looped handle 1 (south-west, iron ring)
+ring 0.34,0.76 0.12 0.07 fill #555555 0.9
+ring 0.34,0.76 0.12 0.07 stroke #222222
+# Looped handle 2 (south-east, iron ring)
+ring 0.66,0.76 0.12 0.07 fill #555555 0.9
+ring 0.66,0.76 0.12 0.07 stroke #222222
+# Handle bridge connectors from pivot to loops
+line 0.46,0.58 0.40,0.70 stroke #555555 width 3
+line 0.54,0.58 0.60,0.70 stroke #555555 width 3
+# Tiny tip accents on blade points (sharp cutting edges)
+circle 0.20,0.14 0.015 fill #ccddee 0.9
+circle 0.78,0.18 0.015 fill #ccddee 0.9

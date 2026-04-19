@@ -1,0 +1,34 @@
+name: Clay Lump
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: kiln-pottery, house-medium-artisan
+typical_count: few
+clusters_with: clay-bin, broken-pot, finished-pot, wheel-potters
+notes: Unworked wet clay lump on a surface or floor — pottery in-progress marker
+---
+# Irregular wet clay blob (patty shape, slightly elongated)
+poly 0.22,0.48 0.30,0.32 0.48,0.24 0.66,0.28 0.78,0.40 0.80,0.58 0.72,0.72 0.54,0.78 0.36,0.74 0.24,0.62 fill #6a5040 0.95
+poly 0.22,0.48 0.30,0.32 0.48,0.24 0.66,0.28 0.78,0.40 0.80,0.58 0.72,0.72 0.54,0.78 0.36,0.74 0.24,0.62 stroke #3a2418
+# Dark wet patches (low spots holding water)
+ellipse 0.42,0.46 0.10,0.06 fill #5a4030 0.8
+ellipse 0.60,0.58 0.08,0.05 fill #5a4030 0.75
+# Finger impressions (curved gouges from hands pressing in)
+bezier 0.34,0.42 0.40,0.48 0.44,0.52 0.48,0.58 stroke #3a2418 0.7 width 2
+bezier 0.54,0.40 0.58,0.46 0.60,0.52 0.62,0.58 stroke #3a2418 0.7 width 2
+# Tool mark (straight ridge scraped across)
+line 0.38,0.62 0.66,0.56 stroke #3a2418 0.6 width 1
+# Highlight on raised ridge (catches light)
+arc 0.50,0.44 0.18 200 260 stroke #7a6050 0.6 width 2
+# Small water sheen on damp top
+ellipse 0.48,0.50 0.14,0.05 fill #8a7060 0.35
+# Tiny clay crumb beside main lump
+poly 0.26,0.70 0.32,0.68 0.34,0.74 0.28,0.76 fill #6a5040 0.9
+poly 0.26,0.70 0.32,0.68 0.34,0.74 0.28,0.76 stroke #3a2418
+# Second tiny crumb
+circle 0.74,0.70 0.035 fill #6a5040 0.9
+circle 0.74,0.70 0.035 stroke #3a2418

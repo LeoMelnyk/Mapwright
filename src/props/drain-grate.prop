@@ -1,0 +1,38 @@
+name: Drain Grate
+category: Structure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: interrogation-room, torture-chamber, prison-block, dungeon, sewer-junction
+typical_count: single
+clusters_with: grate-floor, corpse, water-pitcher
+notes: Circular iron drain grate set flush into the floor for draining blood or water; place near center of interrogation rooms or at low points
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: circular drain grate set in floor
+
+# Dark drain pit beneath
+circle 0.50,0.50 0.22 fill #0a0804 0.9
+
+# Iron rim ring
+ring 0.50,0.50 0.24 0.20 fill #555555 0.8
+ring 0.50,0.50 0.24 0.20 stroke #333333
+
+# Cross bars over the drain
+line 0.30,0.50 0.70,0.50 stroke #555555 width 3
+line 0.50,0.30 0.50,0.70 stroke #555555 width 3
+line 0.36,0.36 0.64,0.64 stroke #444444 width 2
+line 0.64,0.36 0.36,0.64 stroke #444444 width 2
+
+# Highlight on bars
+line 0.31,0.49 0.69,0.49 stroke #777777 0.3 width 1
+line 0.49,0.31 0.49,0.69 stroke #777777 0.3 width 1
+
+# Rust stains around drain (on the floor)
+arc 0.50,0.50 0.28 30 80 stroke #6a4020 0.3 width 2
+arc 0.50,0.50 0.30 190 240 stroke #5a3018 0.25 width 2
+
+# Dark residue staining
+ellipse 0.50,0.50 0.15,0.15 fill #1a0804 0.3

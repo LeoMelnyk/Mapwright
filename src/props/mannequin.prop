@@ -1,0 +1,40 @@
+name: Mannequin
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.5
+placement: center
+room_types: shop-tailor, merchant-house, textile-loomhouse, dressing-room
+typical_count: few
+clusters_with: cutting-table, fitting-mirror, sewing-bench, measuring-tape
+notes: Dressmaker's mannequin seen from above as concentric rings; place near fitting mirror or cutting table
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# Wooden base disc (widest, bottom layer)
+circle 0.5,0.54 0.30 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.54 0.30 stroke #3a1f00
+# Base trim ring
+circle 0.5,0.54 0.26 stroke #5c3a1e width 1
+# Shoulder ring (mid layer, fabric-draped form, widest anatomical part)
+circle 0.5,0.50 0.24 texfill polyhaven/rough_linen 0.85
+circle 0.5,0.50 0.24 stroke #8b7355
+# Shoulder seam line (faint concentric)
+circle 0.5,0.50 0.20 stroke #8b7355 0.5
+# Neck ring (smaller, between shoulders and head)
+circle 0.50,0.46 0.10 fill #d4c4a8 0.9
+circle 0.50,0.46 0.10 stroke #8b7355
+# Head circle (top, slightly offset north)
+circle 0.50,0.42 0.08 fill #e8dcc8 0.9
+circle 0.50,0.42 0.08 stroke #8b7355
+# Center top highlight dot (apex of form)
+circle 0.50,0.42 0.025 fill #ffffff 0.6
+# Pin / fabric pin at shoulder (tiny accent)
+circle 0.62,0.50 0.015 fill #daa520 0.95
+circle 0.40,0.52 0.015 fill #daa520 0.95
+# Chalk measurement marks on shoulder fabric
+line 0.36,0.54 0.42,0.56 stroke #ffffff 0.7
+line 0.58,0.54 0.64,0.56 stroke #ffffff 0.7

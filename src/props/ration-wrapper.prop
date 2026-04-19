@@ -1,0 +1,45 @@
+name: Ration Wrapper
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.03
+placement: floor
+room_types: charcoal-burner-camp, ferry-house, scouts-blind, toll-bridge-house, campsite-traveler
+typical_count: many
+clusters_with: bedroll, campfire, empty-bottle, bread-heel, pallet
+notes: Discarded wax-paper ration wrapper; trail food waste
+---
+# === HITBOX ===
+selection rect 0.14,0.22 0.72,0.58
+
+# Crumpled wrapper body (wax paper, roughly rectangular crumple)
+poly 0.16,0.36 0.24,0.26 0.42,0.24 0.60,0.28 0.76,0.32 0.82,0.46 0.78,0.60 0.66,0.72 0.48,0.78 0.30,0.74 0.18,0.64 0.14,0.50 fill #c8b898 0.92
+poly 0.16,0.36 0.24,0.26 0.42,0.24 0.60,0.28 0.76,0.32 0.82,0.46 0.78,0.60 0.66,0.72 0.48,0.78 0.30,0.74 0.18,0.64 0.14,0.50 stroke #8b7355
+# Crumple creases
+bezier 0.24,0.36 0.38,0.42 0.56,0.44 0.72,0.40 stroke #8b7355 0.6 width 1
+bezier 0.22,0.52 0.38,0.60 0.58,0.58 0.76,0.54 stroke #8b7355 0.6 width 1
+bezier 0.28,0.30 0.32,0.50 0.36,0.64 0.38,0.74 stroke #8b7355 0.5 width 1
+bezier 0.62,0.30 0.60,0.50 0.58,0.66 0.54,0.76 stroke #8b7355 0.5 width 1
+# Fold shadow (darker crease pockets)
+poly 0.30,0.44 0.44,0.46 0.46,0.52 0.32,0.52 fill #8b7355 0.4
+poly 0.50,0.46 0.64,0.48 0.64,0.54 0.52,0.54 fill #8b7355 0.4
+# Grease/oil stain
+ellipse 0.48,0.52 0.12,0.06 fill #6a4810 0.5
+# Crumb residue (food bits)
+circle 0.36,0.40 0.015 fill #8a5820 0.85
+circle 0.46,0.44 0.012 fill #8a5820 0.8
+circle 0.58,0.52 0.012 fill #a07040 0.8
+circle 0.42,0.58 0.01 fill #8a5820 0.7
+# Torn edge
+poly 0.76,0.60 0.82,0.56 0.80,0.64 fill #c8b898 0.9
+poly 0.76,0.60 0.82,0.56 0.80,0.64 stroke #8b7355
+# Twine that held it (scrap)
+bezier 0.14,0.50 0.08,0.48 0.06,0.52 0.04,0.56 stroke #6b4e2e width 1
+# Ink stamp/maker's mark
+rect 0.58,0.32 0.12,0.04 stroke #2a1400 0.5 width 1
+line 0.60,0.34 0.68,0.34 stroke #2a1400 0.6
+# Dusty ground around
+circle 0.16,0.72 0.02 fill #8a7355 0.3
+circle 0.84,0.68 0.02 fill #8a7355 0.3

@@ -1,0 +1,65 @@
+name: Cook Pot Tripod
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: campsite-traveler, cabin-hunters, cabin-trapper, orc-war-camp
+typical_count: single
+clusters_with: campfire, cookware-scatter, cauldron, bedroll, log-seat
+notes: Iron pot suspended from a wooden tripod over a small fire; place over or adjacent to a campfire
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.40 z 0-1.5
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: three wooden legs radiate from a central hub like a 3-spoke wheel. A cast-iron pot hangs in the center, viewed from directly above as a dark circle with a handle loop.
+
+# === Fire glow underneath (visible between legs) ===
+circle 0.5,0.5 0.34 fill #1a0800 0.4
+circle 0.5,0.5 0.28 fill #cc3300 0.35
+circle 0.5,0.5 0.22 fill #e85500 0.3
+
+# === Tripod legs (three wooden poles radiating from center hub) ===
+# Leg 1 — north
+poly 0.48,0.50 0.52,0.50 0.53,0.08 0.47,0.08 texfill polyhaven/dark_wood 0.85
+poly 0.48,0.50 0.52,0.50 0.53,0.08 0.47,0.08 stroke #2a1400
+# Leg 2 — southwest (120°)
+poly 0.48,0.50 0.52,0.50 0.16,0.78 0.12,0.72 texfill polyhaven/dark_wood 0.85
+poly 0.48,0.50 0.52,0.50 0.16,0.78 0.12,0.72 stroke #2a1400
+# Leg 3 — southeast (240°)
+poly 0.48,0.50 0.52,0.50 0.88,0.72 0.84,0.78 texfill polyhaven/dark_wood 0.85
+poly 0.48,0.50 0.52,0.50 0.88,0.72 0.84,0.78 stroke #2a1400
+
+# Leg foot caps (splayed ends)
+ellipse 0.50,0.08 0.05,0.03 fill #3a1f00 0.9
+ellipse 0.14,0.75 0.04,0.04 fill #3a1f00 0.9
+ellipse 0.86,0.75 0.04,0.04 fill #3a1f00 0.9
+
+# === Hanging chain/hook from apex (short dark line) ===
+line 0.50,0.50 0.50,0.44 stroke #333333 width 2
+
+# === Cook pot (hanging in center, viewed from above) ===
+# Outer iron body
+circle 0.50,0.50 0.26 texfill polyhaven/rusty_metal 0.85
+circle 0.50,0.50 0.26 fill #333333 0.5
+circle 0.50,0.50 0.26 stroke #1a1a1a
+# Rim band highlight
+circle 0.50,0.50 0.24 stroke #555555 width 1
+# Dark interior (contents/shadow)
+circle 0.50,0.50 0.20 fill #1a0f08 0.9
+circle 0.50,0.50 0.20 stroke #0a0604
+# Handle loop (bail arc crossing over the top of the pot)
+arc 0.50,0.50 0.28 200 340 stroke #444444 width 2
+# Handle attachment ears on rim
+circle 0.24,0.50 0.025 fill #444444 0.9
+circle 0.24,0.50 0.025 stroke #222222
+circle 0.76,0.50 0.025 fill #444444 0.9
+circle 0.76,0.50 0.025 stroke #222222
+# Liquid surface sheen (steaming broth)
+ellipse 0.50,0.44 0.10,0.05 fill #3a2a18 0.35
+# Tiny bubble
+circle 0.44,0.52 0.015 fill #4a3a28 0.5
+circle 0.56,0.48 0.012 fill #4a3a28 0.5

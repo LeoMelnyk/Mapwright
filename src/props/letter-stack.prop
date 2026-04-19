@@ -1,0 +1,41 @@
+name: Letter Stack
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: lighthouse-keepers-room, mansion-study, noble-solar, library
+typical_count: few
+clusters_with: desk, writing-desk, inkwell, wax-seal, document-stack
+notes: Bundle of folded letters tied with twine; more personal than document-stack
+---
+# === HITBOX ===
+selection rect 0.18,0.26 0.64,0.56
+
+# Bottom envelope (largest)
+rect 0.18,0.56 0.64,0.24 fill #e8dcc8 0.9
+rect 0.18,0.56 0.64,0.24 stroke #8b7355
+# Fold crease
+line 0.18,0.68 0.82,0.68 stroke #8b7355 0.5
+# Red seal dot on bottom envelope
+circle 0.72,0.64 0.03 fill #881111 0.9
+# Middle envelope (offset, slightly yellowed)
+rect 0.22,0.40 0.60,0.22 fill #d4c4a8 0.92
+rect 0.22,0.40 0.60,0.22 stroke #8b7355
+# Middle envelope seal
+circle 0.70,0.50 0.028 fill #5a0808 0.85
+# Address line on middle envelope
+line 0.28,0.48 0.58,0.48 stroke #2a1400 0.6
+line 0.28,0.54 0.50,0.54 stroke #2a1400 0.5
+# Top envelope (folded, smaller)
+rect 0.26,0.26 0.54,0.18 fill #f0e4d0 0.95
+rect 0.26,0.26 0.54,0.18 stroke #8b7355
+# Top envelope address
+line 0.32,0.32 0.60,0.32 stroke #2a1400 0.6
+line 0.32,0.38 0.52,0.38 stroke #2a1400 0.5
+# Twine binding (vertical)
+line 0.50,0.26 0.52,0.80 stroke #6b4e2e 0.95 width 2
+# Twine knot
+circle 0.51,0.52 0.025 fill #4a2800 0.9

@@ -1,0 +1,43 @@
+name: Cloud Pillar
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.0
+placement: center
+room_types: elemental-air-node, elemental-node, storm-spire, genie-court
+typical_count: few
+clusters_with: air-node-vortex, djinn-pavilion, wind-chime-giant
+notes: Top-down view of a vertical cloud pillar — concentric tufts of condensed vapour as seen from directly above
+---
+# Outer diffuse halo (haze of condensation)
+circle 0.5,0.5 0.48 fill #c0c8e0 0.20
+# Main cloud mass — overlapping cumulus tufts around the column core
+circle 0.50,0.50 0.38 fill #e8ecf4 0.80
+circle 0.50,0.50 0.38 stroke #a0a8c0 width 1
+# Outer tufts bulging around the perimeter
+circle 0.25,0.32 0.18 fill #f0f2f8 0.80
+circle 0.25,0.32 0.18 stroke #a0a8c0 width 1
+circle 0.75,0.30 0.17 fill #f0f2f8 0.80
+circle 0.75,0.30 0.17 stroke #a0a8c0 width 1
+circle 0.72,0.72 0.18 fill #f4f4fa 0.80
+circle 0.72,0.72 0.18 stroke #a0a8c0 width 1
+circle 0.28,0.74 0.17 fill #f4f4fa 0.80
+circle 0.28,0.74 0.17 stroke #a0a8c0 width 1
+# Secondary bulges between the outer tufts
+circle 0.18,0.52 0.12 fill #e8ecf4 0.70
+circle 0.82,0.48 0.12 fill #e8ecf4 0.70
+circle 0.48,0.16 0.12 fill #e8ecf4 0.70
+circle 0.52,0.86 0.12 fill #e8ecf4 0.70
+# Bright apex highlight — top of the column closest to the viewer
+circle 0.50,0.50 0.22 fill #ffffff 0.85
+circle 0.50,0.50 0.22 stroke #b0b8d0 width 1
+circle 0.46,0.46 0.12 fill #ffffff 0.95
+# Subtle lavender shadows between tufts (volumetric hint)
+circle 0.40,0.62 0.06 fill #a090b0 0.20
+circle 0.62,0.40 0.06 fill #a090b0 0.20
+# Wispy strands spiralling outward from the apex
+bezier 0.50,0.50 0.30,0.40 0.18,0.28 0.10,0.22 stroke #ffffff width 2
+bezier 0.50,0.50 0.70,0.40 0.82,0.28 0.90,0.22 stroke #ffffff width 1
+bezier 0.50,0.50 0.32,0.70 0.20,0.82 0.12,0.86 stroke #ffffff width 1

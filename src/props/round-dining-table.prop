@@ -1,0 +1,83 @@
+name: Round Dining Table
+category: Furniture
+footprint: 3x3
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: center
+room_types: mansion-dining, dining-hall, supper-room, noble-solar
+typical_count: single
+clusters_with: chair, silver-candlestick, napkin-pile, tureen, place-card, serving-trolley
+notes: Large round formal dining table with a centerpiece bowl and four suggested place settings evenly spaced.
+---
+# === HITBOX ===
+selection circle 1.5,1.5 1.38
+
+# Footprint 3x3: x 0-3, y 0-3. Round formal table.
+
+# Table top (rich wood)
+circle 1.5,1.5 1.38 texfill polyhaven/wood_table 0.88
+circle 1.5,1.5 1.38 stroke #3a1f00 width 2
+
+# Table edge bevel (inner ring)
+circle 1.5,1.5 1.32 stroke #5c3a1e 0.6
+
+# Wood grain suggestion (subtle radial)
+circle 1.5,1.5 1.00 stroke #5c3a1e 0.25
+circle 1.5,1.5 0.70 stroke #5c3a1e 0.25
+
+# Velvet table runner across center (east-west)
+rect 0.18,1.30 2.64,0.40 texfill polyhaven/velour_velvet 0.8
+rect 0.18,1.30 2.64,0.40 fill #5a1a1a 0.35
+rect 0.18,1.30 2.64,0.40 stroke #2a0a0a 0.6
+
+# Centerpiece bowl (ornate porcelain)
+circle 1.5,1.5 0.22 fill #f0e8d8 0.95
+circle 1.5,1.5 0.22 stroke #8b7355
+circle 1.5,1.5 0.18 fill #f8f0e0 0.9
+# Centerpiece contents — fruit
+circle 1.42,1.44 0.05 fill #c83820 0.95
+circle 1.42,1.44 0.05 stroke #4a0a00
+circle 1.58,1.46 0.05 fill #80a040 0.95
+circle 1.58,1.46 0.05 stroke #2a3a10
+circle 1.50,1.56 0.05 fill #d0a020 0.95
+circle 1.50,1.56 0.05 stroke #5a3a00
+
+# === FOUR PLACE SETTINGS (N, S, E, W) ===
+# North setting (around y=0.35)
+circle 1.5,0.40 0.18 fill #f0e8d8 0.95
+circle 1.5,0.40 0.18 stroke #8b7355
+circle 1.5,0.40 0.13 stroke #daa520 0.6 width 1
+# North fork & knife
+rect 1.20,0.34 0.08,0.16 fill #c0c0c0 0.9
+rect 1.20,0.34 0.08,0.16 stroke #555555
+rect 1.74,0.34 0.08,0.16 fill #c0c0c0 0.9
+rect 1.74,0.34 0.08,0.16 stroke #555555
+
+# South setting
+circle 1.5,2.60 0.18 fill #f0e8d8 0.95
+circle 1.5,2.60 0.18 stroke #8b7355
+circle 1.5,2.60 0.13 stroke #daa520 0.6 width 1
+rect 1.20,2.50 0.08,0.16 fill #c0c0c0 0.9
+rect 1.20,2.50 0.08,0.16 stroke #555555
+rect 1.74,2.50 0.08,0.16 fill #c0c0c0 0.9
+rect 1.74,2.50 0.08,0.16 stroke #555555
+
+# West setting
+circle 0.40,1.5 0.18 fill #f0e8d8 0.95
+circle 0.40,1.5 0.18 stroke #8b7355
+circle 0.40,1.5 0.13 stroke #daa520 0.6 width 1
+rect 0.32,1.20 0.16,0.08 fill #c0c0c0 0.9
+rect 0.32,1.20 0.16,0.08 stroke #555555
+rect 0.32,1.74 0.16,0.08 fill #c0c0c0 0.9
+rect 0.32,1.74 0.16,0.08 stroke #555555
+
+# East setting
+circle 2.60,1.5 0.18 fill #f0e8d8 0.95
+circle 2.60,1.5 0.18 stroke #8b7355
+circle 2.60,1.5 0.13 stroke #daa520 0.6 width 1
+rect 2.52,1.20 0.16,0.08 fill #c0c0c0 0.9
+rect 2.52,1.20 0.16,0.08 stroke #555555
+rect 2.52,1.74 0.16,0.08 fill #c0c0c0 0.9
+rect 2.52,1.74 0.16,0.08 stroke #555555

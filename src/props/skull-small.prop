@@ -1,0 +1,58 @@
+name: Small Animal Skull
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: cabin-witch, graveyard-village, druid-grove, shrine-roadside, hermit-cell, bog-witch-hut, hunter-camp
+typical_count: few
+clusters_with: bone-marker, skull, cairn-sacred, rat-skeleton, animal-skull, skull-small, feather-bundle
+notes: Small animal skull (rat, cat, or corvid) — ritual curio, warding token, or witch's reagent. Snout faces south (high Y).
+---
+# === HITBOX ===
+selection ellipse 0.50,0.48 0.22,0.26
+
+# Ground contact shadow
+ellipse 0.50,0.72 0.18,0.04 fill #1a1008 0.35
+# Cranium (rounded dome — back of skull north)
+ellipse 0.50,0.42 0.22,0.22 fill #e8dcc8 0.95
+ellipse 0.50,0.42 0.22,0.22 stroke #6a5040
+# Cranium dome texture wash
+ellipse 0.50,0.42 0.22,0.22 texfill polyhaven/granite_tile 0.25
+# Cranial suture (zig-zag seam across top)
+line 0.42,0.30 0.46,0.34 stroke #6a5040 0.7 width 1
+line 0.46,0.34 0.50,0.30 stroke #6a5040 0.7 width 1
+line 0.50,0.30 0.54,0.34 stroke #6a5040 0.7 width 1
+line 0.54,0.34 0.58,0.30 stroke #6a5040 0.7 width 1
+# Aged yellowing wash across top-right (uneven staining)
+ellipse 0.56,0.38 0.10,0.08 fill #c8a868 0.3
+# Eye sockets (two dark hollows)
+ellipse 0.42,0.48 0.055,0.065 fill #1a1008 0.95
+ellipse 0.42,0.48 0.055,0.065 stroke #4a3828
+ellipse 0.58,0.48 0.055,0.065 fill #1a1008 0.95
+ellipse 0.58,0.48 0.055,0.065 stroke #4a3828
+# Tiny eye-socket rim highlight
+arc 0.42,0.48 0.055 200 320 stroke #c8b898 0.5 width 1
+arc 0.58,0.48 0.055 200 320 stroke #c8b898 0.5 width 1
+# Snout/muzzle projection (south — pointed, narrower than cranium)
+poly 0.42,0.60 0.58,0.60 0.56,0.74 0.50,0.80 0.44,0.74 fill #e8dcc8 0.95
+poly 0.42,0.60 0.58,0.60 0.56,0.74 0.50,0.80 0.44,0.74 stroke #6a5040
+# Snout suture / central seam
+line 0.50,0.60 0.50,0.78 stroke #6a5040 0.6 width 1
+# Nasal cavity (dark triangular opening at snout tip)
+poly 0.48,0.66 0.52,0.66 0.50,0.74 fill #1a1008 0.9
+poly 0.48,0.66 0.52,0.66 0.50,0.74 stroke #4a3828
+# Small teeth ridge along lower snout edge
+line 0.45,0.78 0.47,0.80 stroke #6a5040 width 1
+line 0.49,0.79 0.51,0.81 stroke #6a5040 width 1
+line 0.53,0.78 0.55,0.80 stroke #6a5040 width 1
+# Cheekbone arches (side ridges between eye and jaw)
+arc 0.36,0.56 0.06 270 90 stroke #6a5040 0.65 width 1
+arc 0.64,0.56 0.06 90 270 stroke #6a5040 0.65 width 1
+# Hairline cracks across cranium (age)
+bezier 0.34,0.36 0.40,0.34 0.48,0.36 0.54,0.32 stroke #4a3828 0.6 width 1
+line 0.56,0.44 0.62,0.40 stroke #4a3828 0.55 width 1
+# Bright highlight on crown of skull
+ellipse 0.48,0.36 0.06,0.03 fill #f4e8d4 0.45

@@ -94,29 +94,36 @@ export function startDungeonBroadcast() {
   subscribe(() => {
     if (!sessionState.active) return;
     const cv = getContentVersion();
-    if (cv === _lastBroadcastContentVersion) return; // no content change
+    const lv = getLightingVersion();
+    const pv = getPropsVersion();
+    if (
+      cv === _lastBroadcastContentVersion &&
+      lv === _lastBroadcastLightingVersion &&
+      pv === _lastBroadcastPropsVersion
+    )
+      return; // no content/lighting/prop change
     _lastBroadcastContentVersion = cv;
     if (dungeonTimer) clearTimeout(dungeonTimer);
     dungeonTimer = setTimeout(() => {
       // Compute change hints for the player
       const resolvedTheme = getTheme();
       const themeJSON = JSON.stringify(resolvedTheme);
-      const lv = getLightingVersion();
-      const pv = getPropsVersion();
+      const lvNow = getLightingVersion();
+      const pvNow = getPropsVersion();
       const numRows = state.dungeon.cells.length;
       const numCols = state.dungeon.cells[0]?.length ?? 0;
 
       const changeHints = {
         dirtyRegion: consumeBroadcastDirtyRegion(),
         themeChanged: themeJSON !== _lastBroadcastThemeJSON,
-        lightingChanged: lv !== _lastBroadcastLightingVersion,
-        propsChanged: pv !== _lastBroadcastPropsVersion,
+        lightingChanged: lvNow !== _lastBroadcastLightingVersion,
+        propsChanged: pvNow !== _lastBroadcastPropsVersion,
         gridResized: numRows !== _lastBroadcastGridRows || numCols !== _lastBroadcastGridCols,
       };
 
       _lastBroadcastThemeJSON = themeJSON;
-      _lastBroadcastLightingVersion = lv;
-      _lastBroadcastPropsVersion = pv;
+      _lastBroadcastLightingVersion = lvNow;
+      _lastBroadcastPropsVersion = pvNow;
       _lastBroadcastGridRows = numRows;
       _lastBroadcastGridCols = numCols;
 

@@ -1,0 +1,72 @@
+name: Portal Stela
+category: Magical
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.4
+placement: center
+room_types: astral-anchor, astral-sea, planar-nexus, arcane
+typical_count: single
+clusters_with: obelisk-astral, silver-cord-pylon, astral-anchor-stone
+notes: Silver-framed portal stela — top-down view of the arched stone frame with the swirling violet portal visible through the opening on the floor
+lights: [{"preset":"astral","x":1,"y":1,"radius":14,"intensity":1,"color":"#b080ff"}]
+---
+# Hitbox — the stone frame blocks light (not the open portal in the center)
+hitbox rect 0.30,0.22 1.40,0.35 z 0-2.4
+hitbox rect 0.30,1.42 1.40,0.35 z 0-2.4
+hitbox rect 0.22,0.30 0.35,1.40 z 0-2.4
+hitbox rect 1.42,0.30 0.35,1.40 z 0-2.4
+# Violet portal glow bleeding past the frame
+circle 1.0,1.0 0.90 gradient-radial #b080ff #1a0828 0.35
+# === Stone frame (arched doorway top-down) ===
+# North face of the frame
+rect 0.22,0.22 1.56,0.35 texfill polyhaven/stone_wall 0.85
+rect 0.22,0.22 1.56,0.35 stroke #4a3a80 width 2
+# South face
+rect 0.22,1.42 1.56,0.35 texfill polyhaven/stone_wall 0.85
+rect 0.22,1.42 1.56,0.35 stroke #4a3a80 width 2
+# West jamb
+rect 0.22,0.22 0.35,1.56 texfill polyhaven/stone_wall 0.85
+rect 0.22,0.22 0.35,1.56 stroke #4a3a80 width 2
+# East jamb
+rect 1.42,0.22 0.35,1.56 texfill polyhaven/stone_wall 0.85
+rect 1.42,0.22 0.35,1.56 stroke #4a3a80 width 2
+# Arched corners (curved inner edges)
+arc 0.58,0.58 0.18 180 270 stroke #4a3a80 width 2
+arc 1.42,0.58 0.18 270 360 stroke #4a3a80 width 2
+arc 1.42,1.42 0.18 0 90 stroke #4a3a80 width 2
+arc 0.58,1.42 0.18 90 180 stroke #4a3a80 width 2
+# Silver rune engravings on the frame faces
+line 0.60,0.38 0.90,0.38 stroke #c0a0ff width 1
+line 1.10,0.38 1.40,0.38 stroke #c0a0ff width 1
+line 0.60,1.62 0.90,1.62 stroke #c0a0ff width 1
+line 1.10,1.62 1.40,1.62 stroke #c0a0ff width 1
+line 0.38,0.60 0.38,0.90 stroke #c0a0ff width 1
+line 0.38,1.10 0.38,1.40 stroke #c0a0ff width 1
+line 1.62,0.60 1.62,0.90 stroke #c0a0ff width 1
+line 1.62,1.10 1.62,1.40 stroke #c0a0ff width 1
+# === Portal surface (swirling violet plane visible through the opening) ===
+circle 1.0,1.0 0.42 fill #4a2080 0.9
+circle 1.0,1.0 0.42 stroke #c0a0ff width 2
+# Swirl spiral
+bezier 1.0,0.62 1.30,0.70 1.35,1.10 1.12,1.30 stroke #a080ff width 2
+bezier 1.12,1.30 0.88,1.35 0.68,1.10 0.78,0.82 stroke #a080ff width 2
+bezier 0.78,0.82 0.95,0.72 1.10,0.82 1.05,0.98 stroke #c0a0ff width 2
+# Bright inner core of the vortex
+circle 1.0,1.0 0.16 fill #c0a0ff 0.85
+circle 1.0,1.0 0.08 fill #ffffff 0.95
+# Small orbiting sparks around the portal
+circle 0.70,0.66 0.022 fill #e0e0ff 0.9
+circle 1.32,0.74 0.020 fill #e0e0ff 0.85
+circle 1.30,1.28 0.022 fill #e0e0ff 0.9
+circle 0.68,1.30 0.020 fill #e0e0ff 0.85
+# Finial caps at each outer corner of the frame
+circle 0.30,0.30 0.08 fill #c0a0ff 0.85
+circle 0.30,0.30 0.08 stroke #4a3a80
+circle 1.70,0.30 0.08 fill #c0a0ff 0.85
+circle 1.70,0.30 0.08 stroke #4a3a80
+circle 1.70,1.70 0.08 fill #c0a0ff 0.85
+circle 1.70,1.70 0.08 stroke #4a3a80
+circle 0.30,1.70 0.08 fill #c0a0ff 0.85
+circle 0.30,1.70 0.08 stroke #4a3a80

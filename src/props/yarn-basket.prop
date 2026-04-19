@@ -1,0 +1,60 @@
+name: Yarn Basket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.6
+placement: floor
+room_types: house-medium-artisan, noble-solar, textile-loomhouse, cabin-witch, nursery
+typical_count: single
+clusters_with: spinning-wheel, sewing-basket, rocking-chair, embroidery-hoop
+notes: Wicker basket full of yarn balls in mixed colors
+---
+# === HITBOX ===
+hitbox circle 0.5,0.52 0.36 z 0-0.6
+
+# Basket outer body (wicker tan)
+circle 0.5,0.52 0.36 texfill polyhaven/rough_linen 0.75
+circle 0.5,0.52 0.36 fill #a08058 0.45
+circle 0.5,0.52 0.36 stroke #5c3a1e
+# Wicker weave pattern
+arc 0.5,0.52 0.34 200 340 stroke #6b4e2e 0.5 width 1
+arc 0.5,0.52 0.30 200 340 stroke #6b4e2e 0.5 width 1
+line 0.5,0.18 0.5,0.86 stroke #6b4e2e 0.45
+line 0.22,0.34 0.78,0.70 stroke #6b4e2e 0.4
+line 0.22,0.70 0.78,0.34 stroke #6b4e2e 0.4
+# Rim
+circle 0.5,0.52 0.34 stroke #3a1f00 width 2
+# Interior shadow
+circle 0.5,0.52 0.30 fill #3a2810 0.4
+# === Yarn balls piled inside ===
+# Large red yarn ball
+circle 0.36,0.46 0.11 fill #aa2020 0.95
+circle 0.36,0.46 0.11 stroke #5a0808
+# Red yarn strands (criss-cross pattern)
+bezier 0.28,0.42 0.34,0.46 0.38,0.42 0.44,0.48 stroke #8a1818 0.8 width 1
+bezier 0.28,0.48 0.34,0.44 0.40,0.50 0.44,0.44 stroke #8a1818 0.8 width 1
+line 0.26,0.46 0.46,0.46 stroke #e84040 0.6
+# Blue yarn ball (offset, smaller)
+circle 0.58,0.48 0.09 fill #1a4880 0.95
+circle 0.58,0.48 0.09 stroke #0a1830
+bezier 0.50,0.44 0.56,0.50 0.62,0.44 0.66,0.50 stroke #0a2858 0.8 width 1
+bezier 0.50,0.52 0.58,0.46 0.62,0.52 0.66,0.46 stroke #0a2858 0.8 width 1
+# Cream/ivory yarn ball (front)
+circle 0.48,0.64 0.08 fill #e8dcc8 0.95
+circle 0.48,0.64 0.08 stroke #8b7355
+bezier 0.40,0.60 0.46,0.66 0.52,0.60 0.56,0.66 stroke #c8b898 0.7 width 1
+bezier 0.40,0.66 0.48,0.62 0.54,0.68 0.56,0.62 stroke #c8b898 0.7 width 1
+# Small yellow yarn ball
+circle 0.70,0.60 0.06 fill #d8c040 0.95
+circle 0.70,0.60 0.06 stroke #8a7810
+# Yarn strand trailing out of basket (red)
+bezier 0.26,0.46 0.18,0.42 0.12,0.38 0.08,0.30 stroke #aa2020 width 1
+bezier 0.08,0.30 0.06,0.24 0.10,0.18 0.12,0.12 stroke #aa2020 0.8 width 1
+# Knitting needles sticking up
+line 0.42,0.32 0.38,0.20 stroke #8b6914 width 1
+line 0.58,0.34 0.62,0.22 stroke #8b6914 width 1
+# Needle points
+circle 0.38,0.20 0.012 fill #daa520 0.9
+circle 0.62,0.22 0.012 fill #daa520 0.9

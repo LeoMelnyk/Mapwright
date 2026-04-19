@@ -1,0 +1,65 @@
+name: Pearl Obelisk
+category: Structure
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.2
+placement: corner
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto
+typical_count: few
+clusters_with: marid-pavilion, pearl-cluster, water-node-core, coral-pillar
+notes: Translucent pearl obelisk — top-down view shows the pedestal base plus the four-sided pyramidion meeting at the glowing apex
+lights: [{"preset":"silvery","x":1,"y":1,"radius":10,"intensity":0.8,"color":"#e0f0ff"}]
+---
+# Hitbox: shaft cross-section blocks light
+hitbox rect 0.45,0.45 1.1,1.1 z 0-2.2
+# Halo around the apex (slightly larger than the pedestal)
+circle 1.0,1.0 0.85 gradient-radial #e0f0ff #103060 0.35
+# Base pedestal — pearl marble square platform
+rect 0.25,0.25 1.5,1.5 texfill polyhaven/marble_01 0.80
+rect 0.25,0.25 1.5,1.5 stroke #6090b0 width 2
+# Pedestal edge highlights (northwest quadrant catches light)
+line 0.25,0.25 1.75,0.25 stroke #f8fcff width 1
+line 0.25,0.25 0.25,1.75 stroke #f8fcff width 1
+# Inner pedestal trim
+rect 0.38,0.38 1.24,1.24 fill #d0e0f0 0.45
+rect 0.38,0.38 1.24,1.24 stroke #80a0c0 width 1
+# Shaft cross-section — main obelisk column (square)
+rect 0.45,0.45 1.10,1.10 fill #e8f4ff 0.85
+rect 0.45,0.45 1.10,1.10 stroke #6090b0 width 2
+# Embedded pearl studs on the shaft faces (one per side)
+circle 1.0,0.52 0.05 fill #ffffff 0.95
+circle 1.0,0.52 0.05 stroke #a0c0e0
+circle 1.48,1.0 0.05 fill #ffffff 0.95
+circle 1.48,1.0 0.05 stroke #a0c0e0
+circle 1.0,1.48 0.05 fill #ffffff 0.95
+circle 1.0,1.48 0.05 stroke #a0c0e0
+circle 0.52,1.0 0.05 fill #ffffff 0.95
+circle 0.52,1.0 0.05 stroke #a0c0e0
+# === Pyramidion (tip) — four triangular facets meeting at the apex center ===
+# North facet — brightest (sun-facing)
+poly 0.45,0.45 1.55,0.45 1.0,1.0 fill #f8fcff 0.8
+# East facet — medium-light
+poly 1.55,0.45 1.55,1.55 1.0,1.0 fill #d8eaf8 0.7
+# South facet — medium (shadow side)
+poly 1.55,1.55 0.45,1.55 1.0,1.0 fill #b0c8e0 0.6
+# West facet — medium-light
+poly 0.45,1.55 0.45,0.45 1.0,1.0 fill #d8eaf8 0.7
+# Pyramidion outline
+poly 0.45,0.45 1.55,0.45 1.55,1.55 0.45,1.55 stroke #6090b0 width 1
+# Edge ridges from each corner to the apex
+line 0.45,0.45 1.0,1.0 stroke #ffffff width 1
+line 1.55,0.45 1.0,1.0 stroke #e0f0ff width 1
+line 0.45,1.55 1.0,1.0 stroke #a0c0e0 width 1
+line 1.55,1.55 1.0,1.0 stroke #a0c0e0 width 1
+# Apex glow core (captive starlight at the point)
+circle 1.0,1.0 0.10 fill #ffffff 0.95
+circle 1.0,1.0 0.10 stroke #c0d8f0
+circle 1.0,1.0 0.06 fill #e0f8ff 1.0
+circle 1.0,1.0 0.03 fill #ffffff 1.0
+# Tiny sparkle points around the apex
+circle 0.80,0.80 0.018 fill #ffffff 0.85
+circle 1.20,0.80 0.018 fill #ffffff 0.85
+circle 1.20,1.20 0.018 fill #ffffff 0.85
+circle 0.80,1.20 0.018 fill #ffffff 0.85

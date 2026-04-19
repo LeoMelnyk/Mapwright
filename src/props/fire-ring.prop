@@ -1,0 +1,83 @@
+name: Fire Ring
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.4
+lights: [{"preset":"campfire","x":0.5,"y":0.5,"radius":5,"intensity":0.5,"color":"#ff9944"}]
+placement: center
+room_types: shepherds-shelter, peasant-hovel, campsite-traveler, croft, ranger-camp
+typical_count: single
+clusters_with: carved-stick, shepherds-crook, sheep-dung, straw-wisps, bedroll
+notes: Small stone-ringed campfire with low flames — a rustic shepherd's hearth. Smaller than campfire-stone. Circle of small stones around warm embers and a small flame.
+---
+# footprint 1x1: x 0-1, y 0-1
+# === HITBOX ===
+selection circle 0.50,0.50 0.40
+
+# === Scorched ground (dark patch extending beyond ring) ===
+circle 0.50,0.50 0.44 fill #1a0a04 0.3
+
+# === Stone ring (8 small rounded stones) ===
+circle 0.50,0.14 0.07 fill #777777 0.8
+circle 0.50,0.14 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.50,0.14 0.07 stroke #3a3a3a
+circle 0.76,0.22 0.07 fill #888888 0.8
+circle 0.76,0.22 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.76,0.22 0.07 stroke #3a3a3a
+circle 0.86,0.50 0.07 fill #777777 0.8
+circle 0.86,0.50 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.86,0.50 0.07 stroke #3a3a3a
+circle 0.76,0.78 0.07 fill #888888 0.8
+circle 0.76,0.78 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.76,0.78 0.07 stroke #3a3a3a
+circle 0.50,0.86 0.07 fill #777777 0.8
+circle 0.50,0.86 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.50,0.86 0.07 stroke #3a3a3a
+circle 0.24,0.78 0.07 fill #888888 0.8
+circle 0.24,0.78 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.24,0.78 0.07 stroke #3a3a3a
+circle 0.14,0.50 0.07 fill #777777 0.8
+circle 0.14,0.50 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.14,0.50 0.07 stroke #3a3a3a
+circle 0.24,0.22 0.07 fill #888888 0.8
+circle 0.24,0.22 0.07 texfill polyhaven/granite_tile 0.6
+circle 0.24,0.22 0.07 stroke #3a3a3a
+
+# === Ash bed inside ring ===
+circle 0.50,0.50 0.28 fill #3a2820 0.6
+circle 0.50,0.50 0.22 fill #2a1810 0.7
+
+# === Small burning log fragments ===
+poly 0.36,0.52 0.42,0.46 0.56,0.50 0.54,0.56 fill #2a1408 0.9
+poly 0.36,0.52 0.42,0.46 0.56,0.50 0.54,0.56 stroke #0a0402
+poly 0.48,0.44 0.60,0.46 0.62,0.52 0.52,0.52 fill #3a1f00 0.85
+poly 0.48,0.44 0.60,0.46 0.62,0.52 0.52,0.52 stroke #0a0402
+
+# === Concentric fire rings (small warm flame) ===
+# Outer heat halo
+circle 0.50,0.50 0.22 fill #e85500 0.25
+# Outer flame ring
+circle 0.50,0.50 0.16 fill #cc3300 0.55
+# Mid yellow-orange
+circle 0.50,0.50 0.11 fill #ff8030 0.75
+# Inner yellow core
+circle 0.50,0.50 0.07 fill #ffaa00 0.9
+circle 0.50,0.50 0.045 fill #ffcc40 0.95
+# Hot white center
+circle 0.50,0.50 0.024 fill #ffeecc 0.95
+circle 0.50,0.50 0.012 fill #ffffff 0.9
+
+# === Small flame tongues ===
+poly 0.50,0.34 0.47,0.44 0.53,0.44 fill #ff8800 0.6
+poly 0.36,0.50 0.44,0.47 0.44,0.53 fill #ff8800 0.55
+poly 0.64,0.50 0.56,0.47 0.56,0.53 fill #ff8800 0.55
+
+# === Ember sparks ===
+circle 0.32,0.36 0.012 fill #ffaa00 0.7
+circle 0.68,0.38 0.010 fill #ffcc00 0.65
+circle 0.34,0.66 0.010 fill #ff8800 0.6
+circle 0.66,0.66 0.012 fill #ffaa00 0.65
+circle 0.42,0.30 0.008 fill #ffcc00 0.55
+circle 0.60,0.68 0.008 fill #ffaa00 0.5

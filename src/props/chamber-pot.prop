@@ -1,0 +1,67 @@
+name: Chamber Pot
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: mansion-servants-quarters, bedchamber, peasant-hovel, house-small, apartment-tenement, mansion-bedroom-master, inn-room
+typical_count: single
+clusters_with: bed, chamber-pot-stand, wardrobe, nightstand
+notes: Small ceramic chamber pot sitting on floor. Round rim with handle loop to one side, pale glazed ceramic with simple blue trim.
+---
+# === HITBOX ===
+selection circle 0.5,0.52 0.24
+
+# === Pot body base shadow (subtle dirt ring) ===
+ellipse 0.5,0.56 0.26,0.20 fill #3a2810 0.2
+
+# === Outer pot rim (pale glazed ceramic) ===
+circle 0.50,0.52 0.24 fill #e8dcc8 0.95
+circle 0.50,0.52 0.24 stroke #8a7858
+
+# === Thick rim band (slightly darker, raised lip) ===
+circle 0.50,0.52 0.22 stroke #a89878 width 2
+
+# === Blue trim painted line around rim ===
+circle 0.50,0.52 0.20 stroke #2a4878 0.8 width 1
+
+# === Second blue trim line ===
+circle 0.50,0.52 0.17 stroke #2a4878 0.5 width 1
+
+# === Dark interior (opening — looking down into pot) ===
+circle 0.50,0.52 0.15 fill #1a1408 0.9
+circle 0.50,0.52 0.15 stroke #080400
+
+# === Brownish liquid/residue at bottom (unfortunately realistic detail) ===
+ellipse 0.50,0.54 0.11,0.08 fill #5a3818 0.5
+
+# === Handle loop (C-shape extending east off rim) ===
+arc 0.76,0.52 0.08 280 80 stroke #c8b098 width 4
+arc 0.76,0.52 0.08 280 80 stroke #8a7858 width 1
+# Handle inner highlight
+arc 0.76,0.52 0.06 300 60 stroke #f0e4d0 0.55 width 1
+
+# === Handle attachment points (where handle joins pot) ===
+circle 0.72,0.44 0.02 fill #a89878 0.85
+circle 0.72,0.44 0.02 stroke #6a5038
+circle 0.72,0.60 0.02 fill #a89878 0.85
+circle 0.72,0.60 0.02 stroke #6a5038
+
+# === Small blue flower motif on visible outer rim ===
+circle 0.34,0.40 0.018 fill #2a4878 0.85
+circle 0.28,0.52 0.016 fill #2a4878 0.8
+circle 0.34,0.64 0.018 fill #2a4878 0.85
+# Tiny petal dots
+circle 0.34,0.38 0.008 fill #6088c8 0.85
+circle 0.34,0.66 0.008 fill #6088c8 0.85
+
+# === Pot base shadow at south (weight) ===
+arc 0.50,0.52 0.23 20 160 stroke #6a5038 0.5 width 1
+
+# === NW highlight glint on glaze ===
+arc 0.50,0.52 0.22 210 260 stroke #ffffff 0.5 width 1
+
+# === Small chip in rim (damage) ===
+poly 0.44,0.28 0.48,0.28 0.46,0.32 fill #6a5038 0.6

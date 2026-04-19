@@ -1,0 +1,69 @@
+name: Prize Ring
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: fairground-seasonal, festival-grounds, village-green
+typical_count: few
+clusters_with: game-booth, children-toys, bunting-line, ribbon-scatter
+notes: Ring-toss target with three small pegs and a few wooden hoops scattered at the base
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: base platform with three pegs (visible as circle tops) and hoops scattered on ground
+
+# === Wooden base platform (hexagonal) ===
+poly 0.16,0.50 0.28,0.30 0.52,0.24 0.76,0.30 0.86,0.50 0.78,0.70 0.52,0.76 0.28,0.70 fill #8b6914 0.88
+poly 0.16,0.50 0.28,0.30 0.52,0.24 0.76,0.30 0.86,0.50 0.78,0.70 0.52,0.76 0.28,0.70 texfill polyhaven/weathered_planks 0.5
+poly 0.16,0.50 0.28,0.30 0.52,0.24 0.76,0.30 0.86,0.50 0.78,0.70 0.52,0.76 0.28,0.70 stroke #3a1f00
+
+# Plank grooves on base
+line 0.18,0.48 0.84,0.48 stroke #3a1f00 0.5 width 1
+line 0.22,0.56 0.80,0.56 stroke #3a1f00 0.5 width 1
+
+# === Three pegs (cylinders — seen from above as circles with rim) ===
+# Peg 1 (NW)
+circle 0.34,0.42 0.07 fill #daa520 0.9
+circle 0.34,0.42 0.07 stroke #5a3a00
+circle 0.34,0.42 0.04 fill #8b6914 0.9
+# Peg 2 (NE)
+circle 0.66,0.42 0.07 fill #daa520 0.9
+circle 0.66,0.42 0.07 stroke #5a3a00
+circle 0.66,0.42 0.04 fill #8b6914 0.9
+# Peg 3 (S center)
+circle 0.50,0.60 0.07 fill #daa520 0.9
+circle 0.50,0.60 0.07 stroke #5a3a00
+circle 0.50,0.60 0.04 fill #8b6914 0.9
+
+# Peg paint stripes (barber-pole style, visible as arc on side)
+arc 0.34,0.42 0.06 90 270 stroke #c82020 width 2
+arc 0.66,0.42 0.06 90 270 stroke #c82020 width 2
+arc 0.50,0.60 0.06 90 270 stroke #c82020 width 2
+
+# === Hoops (scattered at base of platform) ===
+# Hoop 1 (over peg 1, scored!)
+ring 0.34,0.42 0.12,0.09 fill #3080c0 0.85
+ring 0.34,0.42 0.12,0.09 stroke #1a4080
+
+# Hoop 2 (on ground, missed — SW)
+ring 0.20,0.80 0.11,0.08 fill #40a040 0.85
+ring 0.20,0.80 0.11,0.08 stroke #1a4a1a
+
+# Hoop 3 (on ground, tilted — SE)
+ering 0.84,0.78 0.11,0.06 0.08,0.04 fill #ffcc20 0.85
+ering 0.84,0.78 0.11,0.06 0.08,0.04 stroke #8b6914
+
+# Hoop 4 (partial, on edge — N)
+ering 0.72,0.14 0.10,0.04 0.07,0.025 fill #c82020 0.85
+ering 0.72,0.14 0.10,0.04 0.07,0.025 stroke #5a1010
+
+# Small score card / painted number board at front
+rect 0.40,0.84 0.20,0.10 fill #f8f0e0 0.9
+rect 0.40,0.84 0.20,0.10 stroke #3a2a18
+# Number '3' suggestion on card
+line 0.46,0.87 0.54,0.87 stroke #1a1408 width 2
+line 0.54,0.87 0.54,0.91 stroke #1a1408 width 2
+line 0.46,0.89 0.54,0.89 stroke #1a1408 width 2
+line 0.46,0.91 0.54,0.91 stroke #1a1408 width 2

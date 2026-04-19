@@ -1,0 +1,43 @@
+name: Candle Night Light
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: nursery, mansion-bedroom-master, noble-bedchamber
+typical_count: few
+clusters_with: candle-stub, candle-dipped, cradle, child-bed
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":8,"intensity":0.7,"color":"#ffcc88"}]
+notes: Short candle in a ceramic saucer; warm watchful glow for a child's bedside
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.22
+
+# Saucer/dish base — pale ceramic
+circle 0.50,0.50 0.26 fill #e8d8c0 0.9
+circle 0.50,0.50 0.26 stroke #8b7a58
+# Inner saucer well
+circle 0.50,0.50 0.20 fill #d8c8a8 0.85
+circle 0.50,0.50 0.20 stroke #a89878 0.7
+# Saucer rim highlight
+arc 0.50,0.50 0.24 200 280 stroke #fffaf0 0.5 width 1
+# Wax drip pool in dish
+ellipse 0.50,0.52 0.14,0.10 fill #e8dcc8 0.6
+ellipse 0.50,0.52 0.14,0.10 stroke #a08878 0.4
+# Candle body — short squat stub
+circle 0.50,0.50 0.10 fill #f0e4d0 0.95
+circle 0.50,0.50 0.10 stroke #a08878
+# Dripped wax lump on candle side
+arc 0.50,0.50 0.09 200 260 stroke #c8b898 0.7 width 1
+# Wick base (dark char)
+circle 0.50,0.50 0.025 fill #1a1008 0.95
+# Flame glow — outermost halo
+circle 0.50,0.50 0.14 fill #ffaa00 0.18
+# Flame glow — mid
+circle 0.50,0.48 0.08 fill #ff8800 0.35
+# Flame core
+circle 0.50,0.48 0.045 fill #ffcc00 0.75
+# Flame hot center
+circle 0.50,0.48 0.02 fill #fff0c0 0.9

@@ -1,6 +1,7 @@
 name: Battering Ram
 category: Combat
 footprint: 1x5
+padding: 0.15
 facing: yes
 shadow: yes
 blocks_light: yes

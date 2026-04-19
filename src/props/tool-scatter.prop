@@ -1,0 +1,94 @@
+name: Tool Scatter
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: house-medium-artisan, general-workshop, workshop-artificer, forge, shop-cobbler, shop-general, smithy-large
+typical_count: many
+clusters_with: workbench, tool-rack-wall, tool-rack, half-finished-work, work-in-progress
+notes: Loose scatter of small hand tools on a surface — chisels, awls, pliers, small hammer. Clutter for active workbenches.
+---
+# === HITBOX ===
+selection rect 0.10,0.20 0.80,0.60
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: several small tools lying at various angles, casually arranged
+
+# === Faint ground darken (suggests oil on wood surface) ===
+ellipse 0.50,0.52 0.38,0.28 fill #2a1810 0.18
+
+# === Small hammer (diagonal, NW-SE) ===
+# Head
+rect 0.14,0.32 0.12,0.06 fill #555555 0.92
+rect 0.14,0.32 0.12,0.06 texfill polyhaven/metal_plate 0.6
+rect 0.14,0.32 0.12,0.06 stroke #222222
+# Handle (line diagonal)
+line 0.26,0.35 0.42,0.50 stroke #5c3a1e width 3
+line 0.26,0.35 0.42,0.50 stroke #3a1f00 width 1
+
+# === Small chisel (pointing east, handle west) ===
+# Handle (wood)
+rect 0.28,0.58 0.10,0.06 texfill polyhaven/dark_wood 0.88
+rect 0.28,0.58 0.10,0.06 stroke #1a0800
+# Ferrule
+rect 0.37,0.58 0.02,0.06 fill #777777 0.9
+# Blade
+rect 0.39,0.60 0.10,0.02 fill #8899aa 0.9
+rect 0.39,0.60 0.10,0.02 stroke #333333
+
+# === Awl / scribe (thin pointed tool, diagonal) ===
+line 0.46,0.26 0.60,0.38 stroke #888888 width 2
+# Bulb handle
+circle 0.60,0.38 0.035 fill #8b6914 0.95
+circle 0.60,0.38 0.035 texfill polyhaven/dark_wood 0.5
+circle 0.60,0.38 0.035 stroke #2a1400
+
+# === Small pliers / tongs (X-shape) ===
+line 0.58,0.52 0.72,0.68 stroke #555555 width 2
+line 0.72,0.52 0.58,0.68 stroke #555555 width 2
+circle 0.65,0.60 0.018 fill #222222 0.9
+circle 0.65,0.60 0.018 stroke #111111
+
+# === File (long thin rectangle with cross-hatch) ===
+rect 0.62,0.24 0.22,0.04 fill #888888 0.9
+rect 0.62,0.24 0.22,0.04 stroke #333333
+# Wood handle
+rect 0.82,0.22 0.08,0.08 texfill polyhaven/dark_wood 0.88
+rect 0.82,0.22 0.08,0.08 stroke #1a0800
+# File cross-hatch
+line 0.64,0.25 0.68,0.27 stroke #444444 0.7 width 1
+line 0.68,0.25 0.72,0.27 stroke #444444 0.7 width 1
+line 0.72,0.25 0.76,0.27 stroke #444444 0.7 width 1
+line 0.76,0.25 0.80,0.27 stroke #444444 0.7 width 1
+
+# === Small nail or tack scattered ===
+line 0.22,0.66 0.28,0.68 stroke #888888 width 2
+circle 0.22,0.66 0.012 fill #aabbcc 0.75
+
+line 0.68,0.74 0.74,0.76 stroke #777777 width 2
+circle 0.68,0.74 0.012 fill #aabbcc 0.7
+
+# === Small screwdriver-like spike tool ===
+line 0.78,0.58 0.86,0.52 stroke #888888 width 2
+rect 0.84,0.50 0.06,0.05 texfill polyhaven/dark_wood 0.88 rotate -40
+rect 0.84,0.50 0.06,0.05 stroke #1a0800 rotate -40
+
+# === Measuring calipers (small) ===
+line 0.14,0.60 0.24,0.74 stroke #888888 width 2
+line 0.18,0.60 0.28,0.74 stroke #888888 width 2
+circle 0.16,0.60 0.018 fill #444444 0.9
+
+# === Small wood shavings / curls ===
+bezier 0.40,0.70 0.44,0.72 0.48,0.70 0.46,0.68 stroke #d4b880 0.8 width 2
+bezier 0.52,0.74 0.56,0.76 0.60,0.74 0.58,0.72 stroke #c4a870 0.7 width 2
+
+# === Tiny metal shavings ===
+circle 0.36,0.48 0.01 fill #8899aa 0.65
+circle 0.52,0.42 0.008 fill #8899aa 0.6
+circle 0.56,0.66 0.008 fill #8899aa 0.6
+
+# === Oil drop ===
+ellipse 0.48,0.56 0.025,0.02 fill #1a1008 0.6

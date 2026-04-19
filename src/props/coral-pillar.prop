@@ -1,0 +1,66 @@
+name: Coral Pillar
+category: Nature
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.8
+placement: corner
+room_types: elemental-water-node, coral-reef, aquatic-shrine, merfolk-grotto
+typical_count: few
+clusters_with: anemone-glow, anemone-small, shell-scatter, kelp-strand
+notes: Branching coral seen from above — a rosette of fingers radiating from a central stalk
+---
+# Hitbox: central trunk blocks light
+hitbox circle 1.0,1.0 0.40 z 0-1.8
+# Rocky holdfast base
+circle 1.0,1.0 0.55 fill #554030 0.45
+circle 1.0,1.0 0.55 stroke #2a1810 width 1
+# Central trunk cross-section (top of the pillar)
+circle 1.0,1.0 0.18 texfill polyhaven/rock_boulder_cracked 0.75
+circle 1.0,1.0 0.18 fill #d04020 0.55
+circle 1.0,1.0 0.18 stroke #802010 width 2
+# === Branches radiating outward (tongue-shaped polys from center) ===
+# North branch
+poly 0.90,0.90 1.10,0.90 1.06,0.30 1.00,0.10 0.94,0.30 fill #e05030 0.85
+poly 0.90,0.90 1.10,0.90 1.06,0.30 1.00,0.10 0.94,0.30 stroke #802010
+# NE branch
+poly 1.05,0.85 1.18,0.95 1.65,0.45 1.75,0.30 1.55,0.35 fill #e05030 0.82
+poly 1.05,0.85 1.18,0.95 1.65,0.45 1.75,0.30 1.55,0.35 stroke #802010
+# East branch
+poly 1.10,0.92 1.10,1.08 1.75,1.05 1.92,1.00 1.75,0.95 fill #ff6040 0.82
+poly 1.10,0.92 1.10,1.08 1.75,1.05 1.92,1.00 1.75,0.95 stroke #802010
+# SE branch
+poly 1.08,1.12 0.95,1.20 1.55,1.70 1.70,1.82 1.65,1.60 fill #e05030 0.80
+poly 1.08,1.12 0.95,1.20 1.55,1.70 1.70,1.82 1.65,1.60 stroke #802010
+# South branch
+poly 0.90,1.10 1.10,1.10 1.06,1.65 1.00,1.90 0.94,1.65 fill #ff7050 0.82
+poly 0.90,1.10 1.10,1.10 1.06,1.65 1.00,1.90 0.94,1.65 stroke #802010
+# SW branch
+poly 0.92,1.12 0.82,1.18 0.38,1.72 0.28,1.82 0.42,1.58 fill #e05030 0.80
+poly 0.92,1.12 0.82,1.18 0.38,1.72 0.28,1.82 0.42,1.58 stroke #802010
+# West branch
+poly 0.90,1.08 0.90,0.92 0.28,0.98 0.10,1.00 0.28,1.05 fill #ff6040 0.82
+poly 0.90,1.08 0.90,0.92 0.28,0.98 0.10,1.00 0.28,1.05 stroke #802010
+# NW branch
+poly 0.88,0.92 0.95,0.82 0.38,0.35 0.22,0.25 0.40,0.48 fill #e05030 0.82
+poly 0.88,0.92 0.95,0.82 0.38,0.35 0.22,0.25 0.40,0.48 stroke #802010
+# Polyp dots along branches (small textured circles)
+circle 1.00,0.20 0.04 fill #ffb080 0.9
+circle 1.65,0.38 0.035 fill #ffa070 0.85
+circle 1.85,1.00 0.04 fill #ffb080 0.9
+circle 1.62,1.72 0.035 fill #ffa070 0.85
+circle 1.00,1.80 0.04 fill #ffb080 0.9
+circle 0.35,1.72 0.035 fill #ffa070 0.85
+circle 0.18,1.00 0.04 fill #ffb080 0.9
+circle 0.32,0.32 0.035 fill #ffa070 0.85
+# Mid-branch polyp dots
+circle 1.00,0.55 0.025 fill #ff9060 0.85
+circle 1.45,0.70 0.025 fill #ff9060 0.85
+circle 1.45,1.30 0.025 fill #ff9060 0.85
+circle 1.00,1.45 0.025 fill #ff9060 0.85
+circle 0.55,1.30 0.025 fill #ff9060 0.85
+circle 0.55,0.70 0.025 fill #ff9060 0.85
+# Central polyp crown (tip of the trunk)
+circle 1.00,1.00 0.06 fill #ffc080 0.9
+circle 1.00,1.00 0.03 fill #ffffff 0.7

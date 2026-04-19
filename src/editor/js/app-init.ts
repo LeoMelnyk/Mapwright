@@ -16,7 +16,8 @@ import { loadThemeCatalog } from './theme-catalog.js';
 import { loadTextureCatalog, collectTextureIds, ensureTexturesLoaded } from './texture-catalog.js';
 import type { Tool } from './tools/tool-base.js';
 import { RangeTool, FogRevealTool, type LightTool } from './tools/index.js';
-import { loadPropCatalog } from './prop-catalog.js';
+import { loadPropCatalog, ensurePropHitboxesForMap, scheduleBackgroundPropHitboxGen } from './prop-catalog.js';
+import { invalidateMinimapCache } from './minimap.js';
 import { initPropSpatial, onPropSpatialDirty } from './prop-spatial.js';
 import { loadLightCatalog } from './light-catalog.js';
 import {
@@ -50,6 +51,7 @@ import {
   initKeybindingsHelper,
   toggleKeybindingsHelper,
   initDebugPanel,
+  initPropEditDialog,
   updateToolButtons,
   setSubMode,
 } from './panels/index.js';
@@ -80,11 +82,17 @@ export async function initApp(
 ): Promise<void> {
   // Wire up prop spatial hash (lazy getter to avoid circular import)
   initPropSpatial(() => state);
-  // When props change (move/place/remove), invalidate the props render layer cache
-  const { invalidatePropsRenderLayer, bumpContentVersion } = await import('../../render/index.js');
+  // When props change (move/place/rotate/scale/remove):
+  //   1. Clear the prop sub-layer cache so the next render rebuilds it.
+  //   2. Route through MapCache.invalidateProps(), which uses the grid-only rebuild path.
+  //      That replays only the top phases (walls + grid + props + labels) against a
+  //      cached pre-grid snapshot, skipping the expensive floors/textures/blending/fills
+  //      phases that a full contentVersion bump would rerun on every wheel tick.
+  const { invalidatePropsRenderLayer } = await import('../../render/index.js');
+  const { getMapCache } = await import('./canvas-view-state.js');
   onPropSpatialDirty(() => {
     invalidatePropsRenderLayer();
-    bumpContentVersion();
+    getMapCache().invalidateProps();
   });
 
   // ── App version (status bar) ───────────────────────────────────────────
@@ -158,6 +166,18 @@ export async function initApp(
   };
   const toasted = { themes: false, props: false, textures: false };
   const labels = { themes: 'Themes', props: 'Props', textures: 'Textures' };
+  // Texture progress events fire on Image `load` (bytes arrived), but textures
+  // aren't GPU-ready until `decode()` + `createImageBitmap()` finish. Gate the
+  // overlay on this flag, which the texture preload `.then()` sets — otherwise
+  // the overlay hides during the decode gap and textures pop in on first paint.
+  let texturesReady = false;
+  function maybeHideOverlay(sumLoaded: number, sumTotal: number) {
+    const allReported = Object.values(progress).every((v) => v !== null);
+    if (allReported && sumLoaded >= sumTotal && sumTotal > 0 && texturesReady) {
+      setTimeout(() => loadingBar?.classList.remove('active'), 400);
+      editorLoadingOverlay?.classList.add('hidden');
+    }
+  }
   function onAssetProgress(key: string, loaded: number, total: number) {
     (progress as Record<string, unknown>)[key] = { loaded, total };
     // Per-catalog toast
@@ -177,15 +197,33 @@ export async function initApp(
     if (loadingFill && sumTotal > 0) {
       loadingFill.style.width = `${Math.round((sumLoaded / sumTotal) * 100)}%`;
     }
-    const allReported = Object.values(progress).every((v) => v !== null);
-    if (allReported && sumLoaded >= sumTotal && sumTotal > 0) {
-      setTimeout(() => loadingBar?.classList.remove('active'), 400);
-      editorLoadingOverlay?.classList.add('hidden');
+    maybeHideOverlay(sumLoaded, sumTotal);
+  }
+  function markTexturesReady() {
+    texturesReady = true;
+    let sumLoaded = 0,
+      sumTotal = 0;
+    for (const v of Object.values(progress)) {
+      if (v) {
+        sumLoaded += v.loaded;
+        sumTotal += v.total;
+      }
     }
+    maybeHideOverlay(sumLoaded, sumTotal);
   }
 
-  // Load themes before metadata so the picker has catalog data on first render
-  await loadThemeCatalog((loaded: number, total: number) => onAssetProgress('themes', loaded, total));
+  // Load themes in the background — don't block editor startup.
+  // The metadata panel's theme picker rebuilds when the catalog arrives via
+  // the user-themes-changed event (also fired on user-theme save/delete).
+  void loadThemeCatalog((loaded: number, total: number) => onAssetProgress('themes', loaded, total))
+    .then(() => {
+      // Theme colors drive the minimap background; invalidate any cache that
+      // was built before THEMES finished populating.
+      invalidateMinimapCache();
+      window.dispatchEvent(new Event('user-themes-changed'));
+      notify();
+    })
+    .catch((err) => console.warn('Failed to load theme catalog:', err));
 
   // Init panels
   initToolbar();
@@ -212,6 +250,9 @@ export async function initApp(
   // Init background image panel
   const bgImageContainer = document.getElementById('background-image-panel-content');
   if (bgImageContainer) initBackgroundImagePanel(bgImageContainer);
+
+  // Prop edit dialog (floating, opens on double-click / Enter)
+  initPropEditDialog();
 
   // Keybindings helper (floating panel)
   initKeybindingsHelper();
@@ -381,6 +422,10 @@ export async function initApp(
   const propCatalogPromise = loadPropCatalog((loaded, total) => onAssetProgress('props', loaded, total))
     .then((catalog) => {
       state.propCatalog = catalog;
+      // Materialize hitboxes for props on the current map first, then fill in
+      // the rest of the catalog in the background via requestIdleCallback.
+      ensurePropHitboxesForMap(state.dungeon);
+      scheduleBackgroundPropHitboxGen();
       // Invalidate the lighting visibility cache so wall segments are recomputed
       // with full prop data (props can cast shadows; segments cached before this
       // point would exclude prop-based walls, causing animated lights to render
@@ -388,6 +433,7 @@ export async function initApp(
       if (state.dungeon.metadata.lights.length) {
         invalidateLightmap();
       }
+      invalidateMinimapCache();
       notify();
       return catalog;
     })
@@ -402,6 +448,7 @@ export async function initApp(
       state.textureCatalog = catalog;
       const texContainer = document.getElementById('textures-panel-content');
       if (texContainer) initTexturesPanel(texContainer);
+      invalidateMinimapCache();
       notify();
       return catalog;
     })
@@ -414,6 +461,7 @@ export async function initApp(
   void Promise.all([propCatalogPromise, textureCatalogPromise]).then(([propCatalog, textureCatalog]) => {
     if (!textureCatalog) {
       onAssetProgress('textures', 1, 1);
+      markTexturesReady();
       return;
     }
 
@@ -445,9 +493,11 @@ export async function initApp(
       void ensureTexturesLoaded(usedIds, (loaded, total) => onAssetProgress('textures', loaded, total)).then(() => {
         state.texturesVersion++;
         notify();
+        markTexturesReady();
       });
     } else {
       onAssetProgress('textures', 1, 1);
+      markTexturesReady();
     }
   });
 

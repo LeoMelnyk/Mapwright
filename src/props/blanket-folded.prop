@@ -1,0 +1,54 @@
+name: Folded Blanket
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: shop-general, house-small, house-medium-family, mansion-servants-quarters, inn, tailor
+typical_count: few
+clusters_with: shelf, cabinet, wardrobe, blanket-folded, chest-wooden
+notes: A neatly folded blanket — square stack on a shelf or surface, visible fold edges on two sides. Merchant shop display or household linen.
+---
+# === HITBOX ===
+selection rect 0.20,0.20 0.60,0.60
+
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: square folded blanket stack, crisp fold edges on west and north
+
+# === Shadow under the fold ===
+rect 0.22,0.24 0.62,0.62 fill #000000 0.12
+
+# === Main blanket top surface ===
+rect 0.20,0.20 0.60,0.60 fill #5a3a4a 0.92
+rect 0.20,0.20 0.60,0.60 texfill polyhaven/velour_velvet 0.5
+rect 0.20,0.20 0.60,0.60 stroke #2a1820 width 2
+
+# === Fold edges (layers visible on west and north) ===
+# West fold stack — three fabric layers visible as subtle steps
+line 0.21,0.22 0.21,0.78 stroke #4a2838 0.8 width 1
+line 0.23,0.24 0.23,0.76 stroke #4a2838 0.6 width 1
+line 0.25,0.26 0.25,0.74 stroke #4a2838 0.5 width 1
+
+# North fold edge
+line 0.22,0.21 0.78,0.21 stroke #4a2838 0.8 width 1
+line 0.24,0.23 0.76,0.23 stroke #4a2838 0.6 width 1
+line 0.26,0.25 0.74,0.25 stroke #4a2838 0.5 width 1
+
+# === Decorative stripe woven into blanket (offset band) ===
+rect 0.20,0.40 0.60,0.08 fill #daa520 0.55
+line 0.20,0.40 0.80,0.40 stroke #8b6914 0.5 width 1
+line 0.20,0.48 0.80,0.48 stroke #8b6914 0.5 width 1
+
+# === Weave texture — subtle fabric grain ===
+line 0.28,0.32 0.72,0.32 stroke #3a2028 0.35 width 1
+line 0.28,0.58 0.72,0.58 stroke #3a2028 0.35 width 1
+line 0.28,0.66 0.72,0.66 stroke #3a2028 0.35 width 1
+
+# === Highlight along the top fold ===
+line 0.28,0.22 0.76,0.22 stroke #8a6878 0.55 width 1
+
+# === Small tag or ribbon detail (south-east corner) ===
+rect 0.64,0.70 0.10,0.04 fill #c8b898 0.8
+rect 0.64,0.70 0.10,0.04 stroke #6a5a3a

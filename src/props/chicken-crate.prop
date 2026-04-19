@@ -1,0 +1,50 @@
+name: Chicken Crate
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: market-square, farm, kitchen, village-green
+typical_count: few
+clusters_with: crate, produce-pile, sack, market-stall
+notes: Slatted wooden crate holding live chickens. Top-down shows slat pattern with chicken heads peering through gaps.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: wooden slats across top, chicken heads visible between gaps
+
+# Dark interior visible through slats
+rect 0.10,0.10 0.80,0.80 fill #1a1208 0.7
+
+# Wooden slats running east-west across the top
+rect 0.08,0.08 0.84,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.08 0.84,0.10 stroke #3a1f00
+rect 0.08,0.26 0.84,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.26 0.84,0.10 stroke #3a1f00
+rect 0.08,0.44 0.84,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.44 0.84,0.10 stroke #3a1f00
+rect 0.08,0.62 0.84,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.62 0.84,0.10 stroke #3a1f00
+rect 0.08,0.80 0.84,0.10 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.80 0.84,0.10 stroke #3a1f00
+
+# Frame border (thicker edge pieces)
+rect 0.06,0.06 0.88,0.04 fill #4a2800 0.7
+rect 0.06,0.06 0.88,0.04 stroke #2a1400
+rect 0.06,0.90 0.88,0.04 fill #4a2800 0.7
+rect 0.06,0.90 0.88,0.04 stroke #2a1400
+rect 0.06,0.06 0.04,0.88 fill #4a2800 0.7
+rect 0.06,0.06 0.04,0.88 stroke #2a1400
+rect 0.90,0.06 0.04,0.88 fill #4a2800 0.7
+rect 0.90,0.06 0.04,0.88 stroke #2a1400
+
+# Chicken heads peering up between slats (small dots)
+circle 0.30,0.21 0.03 fill #e8d4a0 0.9
+circle 0.30,0.21 0.03 stroke #8b6914
+circle 0.30,0.195 0.012 fill #cc4400 0.85
+circle 0.65,0.39 0.03 fill #e0cca0 0.9
+circle 0.65,0.39 0.03 stroke #8b6914
+circle 0.65,0.375 0.012 fill #cc4400 0.85
+circle 0.45,0.57 0.03 fill #e8d4a0 0.85
+circle 0.45,0.57 0.03 stroke #8b6914
+circle 0.45,0.555 0.012 fill #cc4400 0.85

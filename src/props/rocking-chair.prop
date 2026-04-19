@@ -1,0 +1,56 @@
+name: Rocking Chair
+category: Furniture
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: floor
+room_types: cabin-witch, farmhouse-common, house-medium-family, nursery, noble-solar, cabin-abandoned
+typical_count: single
+clusters_with: hearth, fireplace, cradle, yarn-basket, cat-sleeping, small-table
+notes: Wooden rocker — curved rails at base visible as arcs extending east/west
+---
+# === HITBOX ===
+hitbox rect 0.25,0.40 1.50,1.20 z 0-2.5
+
+# Curved rocker rails (visible as arcs extending beyond seat footprint)
+bezier 0.20,0.50 0.15,0.80 0.15,1.20 0.22,1.52 stroke #2a1400 width 4
+bezier 1.80,0.50 1.85,0.80 1.85,1.20 1.78,1.52 stroke #2a1400 width 4
+# Rocker rail inner highlights
+bezier 0.20,0.50 0.15,0.80 0.15,1.20 0.22,1.52 stroke #5c3a1e 0.6 width 2
+bezier 1.80,0.50 1.85,0.80 1.85,1.20 1.78,1.52 stroke #5c3a1e 0.6 width 2
+# Main seat base
+rect 0.40,0.60 1.20,0.90 texfill polyhaven/dark_wood 0.88
+rect 0.40,0.60 1.20,0.90 stroke #2a1400
+# Seat cushion (woven)
+rect 0.48,0.68 1.04,0.78 texfill polyhaven/rough_linen 0.8
+rect 0.48,0.68 1.04,0.78 fill #8b4020 0.5
+rect 0.48,0.68 1.04,0.78 stroke #3a1808
+# Cushion seam
+line 0.48,1.08 1.52,1.08 stroke #3a1808 0.5
+# Backrest (tall north section, stretching toward y=0)
+rect 0.46,0.20 1.08,0.44 texfill polyhaven/dark_wood 0.88
+rect 0.46,0.20 1.08,0.44 stroke #2a1400
+# Backrest decorative spindles (vertical slats)
+line 0.60,0.22 0.60,0.62 stroke #3a1f00 width 2
+line 0.80,0.22 0.80,0.62 stroke #3a1f00 width 2
+line 1.00,0.22 1.00,0.62 stroke #3a1f00 width 2
+line 1.20,0.22 1.20,0.62 stroke #3a1f00 width 2
+line 1.40,0.22 1.40,0.62 stroke #3a1f00 width 2
+# Backrest top crest
+rect 0.44,0.16 1.12,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.44,0.16 1.12,0.08 stroke #2a1400
+# Crest curve decoration
+arc 1.00,0.20 0.12 180 360 stroke #5c3a1e 0.7 width 1
+# Armrest supports (small uprights on east/west sides)
+rect 0.38,0.56 0.10,0.18 fill #4a2800 0.85
+rect 0.38,0.56 0.10,0.18 stroke #2a1400
+rect 1.52,0.56 0.10,0.18 fill #4a2800 0.85
+rect 1.52,0.56 0.10,0.18 stroke #2a1400
+# Armrest tops (flat grips)
+ellipse 0.43,0.58 0.08,0.05 fill #5c3a1e 0.9
+ellipse 1.57,0.58 0.08,0.05 fill #5c3a1e 0.9
+# Wood grain accents
+line 0.50,0.80 1.50,0.82 stroke #3a1f00 0.3
+line 0.50,1.20 1.50,1.22 stroke #3a1f00 0.3

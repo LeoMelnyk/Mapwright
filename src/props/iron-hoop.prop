@@ -1,0 +1,36 @@
+name: Iron Hoop
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: cooperage, smithy, workshop, storage
+typical_count: many
+clusters_with: stave-pile, hooping-fire, cooper-mallet, barrel
+notes: A single iron barrel hoop lying flat on the floor; cooperage scatter detail
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: large iron ring lying flat on the floor
+
+# Outer ring body (iron, with slight rust)
+ring 0.50,0.50 0.38 0.30 texfill polyhaven/rusty_metal 0.7
+ring 0.50,0.50 0.38 0.30 stroke #444444
+
+# Inner edge stroke
+circle 0.50,0.50 0.30 stroke #555555
+
+# Rust patches
+arc 0.50,0.50 0.34 30 80 fill #6a4a30 0.2
+arc 0.50,0.50 0.34 180 230 fill #5a3a20 0.2
+
+# Iron sheen highlights (bright spots where light catches)
+arc 0.50,0.50 0.35 310 340 stroke #8899aa 0.3 width 2
+arc 0.50,0.50 0.33 100 130 stroke #8899aa 0.25 width 1
+
+# Rivet/weld mark
+circle 0.50,0.12 0.02 fill #666666 0.6
+circle 0.50,0.12 0.02 stroke #444444
+
+# Slight overlap joint visible at the weld
+line 0.44,0.13 0.56,0.13 stroke #555555 0.4 width 1

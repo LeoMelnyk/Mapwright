@@ -1,0 +1,46 @@
+name: Captain's Bunk
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: wall
+room_types: ship, captain-cabin, officer-quarters, barracks
+typical_count: single
+clusters_with: chest, cabinet-liquor, desk
+notes: Built-in wall bunk with storage drawer below; place against cabin wall
+---
+# === HITBOX ===
+hitbox rect 0.08,0.04 0.84,1.88 z 0-3
+
+# footprint 2x1: x range 0-1, y range 0-2
+# Top-down: mattress rectangle + pillow at north end + drawer handle dot at south
+
+# Bunk frame (built into wall, dark wood surround)
+rect 0.06,0.02 0.88,1.96 texfill polyhaven/dark_wood 0.8
+rect 0.06,0.02 0.88,1.96 stroke #3a1f00
+
+# Drawer face visible below bunk at south edge
+rect 0.10,1.78 0.80,0.18 fill #2a1400 0.45
+rect 0.10,1.78 0.80,0.18 stroke #3a1f00
+# Drawer pull handle
+circle 0.50,1.88 0.03 fill #daa520 0.7
+circle 0.50,1.88 0.03 stroke #8b6914
+
+# Mattress
+rect 0.14,0.10 0.72,1.64 texfill polyhaven/rough_linen 0.8
+rect 0.14,0.10 0.72,1.64 stroke #8b7d6b 0.6
+
+# Blanket (covers lower 2/3)
+rect 0.14,0.60 0.72,1.14 texfill polyhaven/velour_velvet 0.75
+rect 0.14,0.60 0.72,1.14 stroke #4a3a5a 0.4
+# Blanket fold edge
+line 0.14,0.60 0.86,0.60 stroke #4a3a5a 0.5
+
+# Pillow (at north/wall end)
+rect 0.24,0.16 0.52,0.30 fill #e8dcc8 0.9
+rect 0.24,0.16 0.52,0.30 stroke #b0a090
+
+# Side rail (wooden lip along open side)
+rect 0.06,0.02 0.04,1.96 fill #4a2800 0.6

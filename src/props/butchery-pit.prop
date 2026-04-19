@@ -1,0 +1,72 @@
+name: Butchery Pit
+category: Features
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: orc-war-camp, cave-bandit-camp, orc-stronghold, humanoid-lair, war-camp
+typical_count: single
+clusters_with: bonfire, bone-pile, skull-trophy, chieftains-throne
+notes: Shallow blood-soaked pit with planks and hanging hook suggestion; entrails, bone shards. Used to butcher carcasses.
+---
+# === HITBOX ===
+selection rect 0.1,0.1 1.8,1.8
+
+# Pit outer stain (dark blood-soaked earth)
+rect 0.10,0.10 1.80,1.80 fill #2a0808 0.6
+rect 0.10,0.10 1.80,1.80 stroke #0a0200
+
+# Splatter pooling (deeper pool in SW/SE)
+ellipse 0.70,1.40 0.40,0.22 fill #4a0000 0.85
+ellipse 1.30,1.30 0.34,0.18 fill #4a0000 0.8
+ellipse 1.00,0.70 0.28,0.16 fill #4a0000 0.7
+
+# Bloodstained planks crossing pit (butcher's boards)
+rect 0.20,0.40 1.60,0.22 texfill polyhaven/weathered_planks 0.75
+rect 0.20,0.40 1.60,0.22 fill #4a0000 0.55
+rect 0.20,0.40 1.60,0.22 stroke #1a0200
+line 0.60,0.40 0.60,0.62 stroke #1a0200 0.6 width 1
+line 1.20,0.40 1.20,0.62 stroke #1a0200 0.6 width 1
+
+rect 0.20,1.20 1.60,0.22 texfill polyhaven/weathered_planks 0.75
+rect 0.20,1.20 1.60,0.22 fill #4a0000 0.6
+rect 0.20,1.20 1.60,0.22 stroke #1a0200
+line 0.70,1.20 0.70,1.42 stroke #1a0200 0.6 width 1
+line 1.30,1.20 1.30,1.42 stroke #1a0200 0.6 width 1
+
+# Iron hooks (seen top-down as small dark circles with stroke — hanging above pit)
+circle 0.50,0.30 0.06 fill #333333 0.95
+circle 0.50,0.30 0.06 stroke #111111
+circle 0.50,0.30 0.025 fill #666666 0.85
+circle 1.00,0.30 0.06 fill #333333 0.95
+circle 1.00,0.30 0.06 stroke #111111
+circle 1.00,0.30 0.025 fill #666666 0.85
+circle 1.50,0.30 0.06 fill #333333 0.95
+circle 1.50,0.30 0.06 stroke #111111
+circle 1.50,0.30 0.025 fill #666666 0.85
+
+# Entrails pile (coiled flesh)
+bezier 0.80,1.60 0.60,1.70 1.00,1.80 0.90,1.60 fill #6a1020 0.85
+bezier 0.80,1.60 0.60,1.70 1.00,1.80 0.90,1.60 stroke #2a0008 width 1
+bezier 0.90,1.60 1.10,1.70 1.30,1.72 1.20,1.58 fill #5a0818 0.85
+bezier 0.90,1.60 1.10,1.70 1.30,1.72 1.20,1.58 stroke #2a0008 width 1
+
+# Bone shards scattered
+line 0.32,0.90 0.42,0.88 stroke #e8dcc8 width 2
+line 1.64,0.88 1.74,0.94 stroke #e8dcc8 width 2
+line 0.40,1.70 0.50,1.74 stroke #d4c4a8 width 2
+line 1.52,1.60 1.62,1.58 stroke #e8dcc8 width 2
+line 0.86,0.88 0.94,0.80 stroke #d4c4a8 width 2
+
+# Small bone chunks
+circle 0.28,1.54 0.03 fill #e8dcc8 0.9
+circle 0.28,1.54 0.03 stroke #6a5040
+circle 1.72,1.46 0.028 fill #d4c4a8 0.9
+circle 1.72,1.46 0.028 stroke #6a5040
+
+# Flies/gore dots
+circle 0.50,1.06 0.015 fill #0a0a0a 0.8
+circle 1.40,0.94 0.015 fill #0a0a0a 0.8
+circle 0.96,1.02 0.015 fill #0a0a0a 0.8

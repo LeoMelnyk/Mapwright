@@ -1,0 +1,68 @@
+name: Display Rack (Weapons)
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 5
+placement: wall
+room_types: armory, smithy, shop, trophy-room
+typical_count: few
+clusters_with: display-rack-armor, weapon-rack, shield-rack
+notes: Wall-mounted display rack with 3-4 crossed ornamental weapons; line shop or armory walls
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.42 z 0-5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: thin wall bar along north + weapon pommels/crossguards poking up
+
+# === Wall mounting bar (main horizontal rail along north edge) ===
+rect 0.08,0.06 1.84,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.06 1.84,0.12 stroke #3a1f00
+
+# End brackets (iron)
+rect 0.08,0.06 0.08,0.10 fill #555555 0.75
+rect 0.08,0.06 0.08,0.10 stroke #333333
+rect 1.84,0.06 0.08,0.10 fill #555555 0.75
+rect 1.84,0.06 0.08,0.10 stroke #333333
+
+# === Weapon pommels (circles at the rack, evenly spaced) ===
+# Sword 1 pommel
+circle 0.35,0.15 0.06 texfill polyhaven/metal_plate 0.85
+circle 0.35,0.15 0.06 stroke #444444
+# Sword 1 crossguard (thin strip south of pommel)
+line 0.28,0.30 0.42,0.30 stroke #666666 width 2
+
+# Axe pommel
+circle 0.75,0.15 0.05 fill #888888 0.8
+circle 0.75,0.15 0.05 stroke #444444
+# Axe blade tip poking south
+poly 0.68,0.28 0.75,0.40 0.82,0.28 texfill polyhaven/metal_plate 0.8
+poly 0.68,0.28 0.75,0.40 0.82,0.28 stroke #444444
+
+# Sword 2 pommel (ornate, gold)
+circle 1.15,0.15 0.06 fill #daa520 0.85
+circle 1.15,0.15 0.06 stroke #8b6914
+# Sword 2 crossguard
+line 1.08,0.30 1.22,0.30 stroke #8b6914 width 2
+
+# Mace pommel
+circle 1.55,0.15 0.07 texfill polyhaven/metal_plate 0.8
+circle 1.55,0.15 0.07 stroke #444444
+# Mace head flanges
+circle 1.48,0.28 0.025 fill #666666 0.7
+circle 1.62,0.28 0.025 fill #666666 0.7
+circle 1.55,0.25 0.025 fill #666666 0.7
+circle 1.55,0.35 0.025 fill #666666 0.7
+
+# === Crossed weapon shafts (visible leaning south, foreshortened) ===
+# Diagonal cross-bars (two weapons crossed, thin lines)
+line 0.30,0.20 0.50,0.42 stroke #8899aa width 1
+line 0.50,0.20 0.30,0.42 stroke #8899aa width 1
+
+line 1.10,0.20 1.30,0.42 stroke #8899aa width 1
+line 1.30,0.20 1.10,0.42 stroke #8899aa width 1
+
+# Shadow line below the rack
+rect 0.12,0.46 1.76,0.04 fill #000000 0.12

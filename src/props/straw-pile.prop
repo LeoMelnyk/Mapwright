@@ -1,0 +1,49 @@
+name: Straw Pile
+category: Clutter
+footprint: 1x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: prison-block, barn, stable, orc-war-camp
+typical_count: few
+clusters_with: rag-pile, rat-nest, bedroll, pallet
+notes: Pile of dirty straw bedding; spread across floor as crude sleeping mat
+---
+# === HITBOX ===
+selection rect 0.12,0.18 1.76,0.66
+
+# Base mat (dark soiled layer underneath)
+poly 0.14,0.54 0.22,0.32 0.46,0.24 0.88,0.22 1.30,0.22 1.60,0.26 1.82,0.38 1.88,0.56 1.80,0.72 1.50,0.82 1.10,0.84 0.70,0.84 0.36,0.80 0.18,0.70 fill #6a4020 0.7
+# Main straw spread (beige-yellow)
+poly 0.16,0.54 0.26,0.34 0.50,0.26 0.90,0.24 1.28,0.26 1.56,0.32 1.78,0.44 1.82,0.58 1.72,0.72 1.42,0.80 1.06,0.82 0.66,0.80 0.36,0.76 0.20,0.66 fill #c8a060 0.85
+# Soiled patch (center-west)
+ellipse 0.58,0.58 0.14,0.08 fill #6a4020 0.7
+# Soiled patch (east)
+ellipse 1.40,0.48 0.12,0.07 fill #6a4020 0.6
+# Straw strands — criss-crossing thin lines
+line 0.22,0.40 0.46,0.58 stroke #8a6030 width 2
+line 0.36,0.30 0.58,0.50 stroke #c8a060 width 2
+line 0.54,0.28 0.78,0.48 stroke #8a6030 width 2
+line 0.70,0.30 0.92,0.54 stroke #c8a060 width 2
+line 0.88,0.32 1.08,0.56 stroke #8a6030 width 2
+line 1.04,0.28 1.26,0.50 stroke #c8a060 width 2
+line 1.20,0.32 1.42,0.56 stroke #8a6030 width 2
+line 1.38,0.30 1.60,0.52 stroke #c8a060 width 2
+line 1.54,0.36 1.72,0.58 stroke #8a6030 width 2
+# Counter-diagonal strands
+line 0.30,0.70 0.50,0.48 stroke #8a6030 width 2
+line 0.50,0.74 0.72,0.52 stroke #c8a060 width 2
+line 0.70,0.76 0.90,0.52 stroke #8a6030 width 2
+line 0.94,0.76 1.14,0.50 stroke #c8a060 width 2
+line 1.18,0.78 1.38,0.54 stroke #8a6030 width 2
+line 1.40,0.76 1.60,0.50 stroke #c8a060 width 2
+# Stray strands poking out
+line 0.10,0.58 0.22,0.52 stroke #c8a060 width 2
+line 1.88,0.50 1.78,0.54 stroke #c8a060 width 2
+line 0.84,0.86 0.82,0.76 stroke #8a6030 width 2
+line 1.22,0.86 1.24,0.76 stroke #c8a060 width 2
+# Small soiled dark spots
+circle 0.38,0.62 0.025 fill #6a4020 0.7
+circle 1.18,0.68 0.022 fill #6a4020 0.7

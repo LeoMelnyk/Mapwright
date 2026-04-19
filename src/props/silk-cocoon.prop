@@ -1,0 +1,51 @@
+name: Silk Cocoon
+category: Misc
+footprint: 2x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1
+placement: floor
+room_types: spider-lair, monster-lair-large, cave-drow-outpost, underdark-outpost
+typical_count: few
+clusters_with: silk-cocoon-victim, cobweb-heavy, egg-sac, web-floor
+notes: An empty silk cocoon bundle on the floor — long tubular shape of matted web, slightly deflated. Whatever was inside has been consumed.
+---
+# === HITBOX ===
+hitbox ellipse 0.5,1.0 0.30,0.75 z 0-1
+
+# footprint 2x1: x range 0-1, y range 0-2
+
+# Silk strand anchors trailing away from the cocoon
+line 0.50,0.08 0.42,0.00 stroke #d8d0b0 0.6 width 1
+line 0.50,1.92 0.55,2.00 stroke #d8d0b0 0.6 width 1
+line 0.18,0.60 0.05,0.50 stroke #d8d0b0 0.5 width 1
+line 0.82,1.40 0.95,1.50 stroke #d8d0b0 0.5 width 1
+
+# === Main cocoon body (elongated oval of matted white silk) ===
+ellipse 0.50,1.00 0.34,0.82 fill #d0c8b0 0.9
+ellipse 0.50,1.00 0.34,0.82 stroke #6a5a40
+
+# Silk texture wash (grey-white overlay)
+ellipse 0.50,1.00 0.34,0.82 fill #e0d8c8 0.3
+
+# === Wrapping lines (silk bands encircling the cocoon) ===
+line 0.18,0.35 0.82,0.35 stroke #8b7a5a 0.55 width 1
+line 0.16,0.55 0.84,0.55 stroke #8b7a5a 0.5 width 1
+line 0.16,0.75 0.84,0.75 stroke #8b7a5a 0.5 width 1
+line 0.16,0.95 0.84,0.95 stroke #8b7a5a 0.45 width 1
+line 0.16,1.15 0.84,1.15 stroke #8b7a5a 0.5 width 1
+line 0.16,1.35 0.84,1.35 stroke #8b7a5a 0.5 width 1
+line 0.18,1.55 0.82,1.55 stroke #8b7a5a 0.55 width 1
+line 0.22,1.72 0.78,1.72 stroke #8b7a5a 0.5 width 1
+
+# === Deflated hollow impression (empty inside — sagging center) ===
+ellipse 0.50,1.00 0.18,0.45 fill #a09878 0.35
+
+# Glistening wet highlight
+ellipse 0.42,0.50 0.12,0.06 fill #ffffff 0.3
+ellipse 0.40,0.48 0.06,0.03 fill #ffffff 0.45
+
+# Small torn opening at one end
+poly 0.40,0.22 0.50,0.18 0.60,0.22 0.56,0.30 0.44,0.30 fill #4a3828 0.6
+poly 0.40,0.22 0.50,0.18 0.60,0.22 0.56,0.30 0.44,0.30 stroke #2a1a10

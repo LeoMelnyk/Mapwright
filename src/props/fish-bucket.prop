@@ -1,0 +1,72 @@
+name: Fish Bucket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1
+placement: floor
+room_types: ferry-house, dock, kitchen, fishmonger-stall
+typical_count: few
+clusters_with: bucket, rope-coil, anchor, fishing-net
+notes: Wooden bucket with fish tails poking up from the rim — fresh catch still inside.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.32
+
+# footprint 1x1: x 0-1, y 0-1
+
+# Shadow
+ellipse 0.5,0.58 0.30,0.06 fill #1a1008 0.4
+
+# Bucket staves (outer wood ring)
+circle 0.5,0.5 0.34 texfill polyhaven/dark_wood 0.88
+circle 0.5,0.5 0.34 stroke #2a1400
+# Iron band
+circle 0.5,0.5 0.34 stroke #444444 width 2
+
+# Stave seams
+line 0.5,0.18 0.5,0.20 stroke #2a1400 0.7
+line 0.80,0.50 0.82,0.50 stroke #2a1400 0.7
+line 0.5,0.82 0.5,0.80 stroke #2a1400 0.7
+line 0.18,0.50 0.20,0.50 stroke #2a1400 0.7
+
+# Inner rim
+circle 0.5,0.5 0.28 stroke #1a1008 width 2
+
+# Water/brine inside (dark murky)
+circle 0.5,0.5 0.26 fill #1a2838 0.95
+circle 0.5,0.5 0.26 stroke #0a1018
+
+# Fish 1 — tail poking up from west side of bucket
+poly 0.30,0.38 0.44,0.46 0.46,0.54 0.40,0.52 0.34,0.48 fill #6a7a88 0.9
+poly 0.30,0.38 0.44,0.46 0.46,0.54 0.40,0.52 0.34,0.48 stroke #3a4858
+# Fish 1 tail fin
+poly 0.24,0.32 0.30,0.38 0.24,0.44 0.20,0.42 0.22,0.36 fill #8a9aaa 0.85
+poly 0.24,0.32 0.30,0.38 0.24,0.44 0.20,0.42 0.22,0.36 stroke #3a4858
+# Scale highlights
+line 0.34,0.42 0.40,0.46 stroke #aabbcc 0.5 width 1
+line 0.36,0.46 0.42,0.50 stroke #aabbcc 0.5 width 1
+
+# Fish 2 — tail poking up from east, slightly angled
+poly 0.60,0.46 0.68,0.52 0.66,0.60 0.58,0.56 0.56,0.50 fill #5a6a78 0.9
+poly 0.60,0.46 0.68,0.52 0.66,0.60 0.58,0.56 0.56,0.50 stroke #2a3848
+# Fish 2 tail fin
+poly 0.74,0.60 0.80,0.66 0.76,0.74 0.70,0.70 0.70,0.64 fill #7a8a98 0.85
+poly 0.74,0.60 0.80,0.66 0.76,0.74 0.70,0.70 0.70,0.64 stroke #2a3848
+# Scale highlights
+line 0.62,0.50 0.66,0.54 stroke #9aaabb 0.5 width 1
+
+# Fish 3 — small tail north
+poly 0.50,0.32 0.56,0.38 0.52,0.44 0.46,0.40 0.46,0.34 fill #6a7a88 0.85
+poly 0.50,0.32 0.56,0.38 0.52,0.44 0.46,0.40 0.46,0.34 stroke #3a4858
+
+# Rope handle arc (north)
+arc 0.5,0.32 0.22 180 360 stroke #6b4e2e width 3
+arc 0.5,0.32 0.22 180 360 stroke #3a2010 width 1
+circle 0.28,0.50 0.022 fill #444444 0.9
+circle 0.72,0.50 0.022 fill #444444 0.9
+
+# Brine splashes on rim
+circle 0.36,0.26 0.02 fill #5a7a88 0.55
+circle 0.66,0.28 0.018 fill #5a7a88 0.5

@@ -1,0 +1,54 @@
+name: Water Bucket
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1
+placement: floor
+room_types: glassworks, workshop, forge, smithy, kitchen, stable
+typical_count: few
+clusters_with: gaffer-bench, annealing-oven, forge, anvil, well
+notes: Wooden bucket full of water for quenching or tempering. Top-down view — circular rim with water surface inside.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# Outer stave ring
+circle 0.5,0.5 0.34 texfill polyhaven/dark_wood 0.88
+circle 0.5,0.5 0.34 stroke #2a1400
+
+# Outer iron band
+circle 0.5,0.5 0.34 stroke #444444 width 2
+
+# Stave seams (radial)
+line 0.50,0.16 0.50,0.84 stroke #2a1400 0.5
+line 0.26,0.26 0.74,0.74 stroke #2a1400 0.5
+line 0.26,0.74 0.74,0.26 stroke #2a1400 0.5
+line 0.16,0.50 0.84,0.50 stroke #2a1400 0.4
+
+# Inner rim
+circle 0.5,0.5 0.28 stroke #1a1008 width 2
+
+# Water surface inside (blue-grey)
+circle 0.5,0.5 0.26 fill #3a5868 0.9
+circle 0.5,0.5 0.26 stroke #1a2830
+
+# Inner water shading toward edge
+circle 0.5,0.5 0.26 fill #1a2830 0.2
+
+# Ripple highlights
+arc 0.5,0.5 0.22 200 250 stroke #8ab0c0 0.55 width 1
+arc 0.5,0.5 0.17 220 245 stroke #b0d0e0 0.4 width 1
+arc 0.5,0.5 0.13 230 260 stroke #d0e8f0 0.3 width 1
+
+# Reinforcing inner band
+circle 0.5,0.5 0.30 stroke #555555 0.7 width 1
+
+# Rope/wood handle arc across top
+arc 0.5,0.32 0.22 180 360 stroke #6b4e2e width 3
+arc 0.5,0.32 0.22 180 360 stroke #3a2010 width 1
+
+# Handle attachment points (iron rings)
+circle 0.28,0.50 0.028 fill #444444 0.9
+circle 0.72,0.50 0.028 fill #444444 0.9

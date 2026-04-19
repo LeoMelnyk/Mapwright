@@ -1,0 +1,128 @@
+name: Mosaic Fragment
+category: Decorative
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: ancient-ruin-overgrown, corrupted-temple, ruin, crypt, ancient-tomb, gallery
+typical_count: few
+clusters_with: rubble, rubble-pile, stone-column-broken, statue-toppled, broken-statue
+notes: Fragmented floor mosaic with missing sections — colorful tiles forming a partial pattern, some scattered loose around edges
+---
+# footprint 2x2: x 0-2, y 0-2
+# === HITBOX ===
+selection rect 0.10,0.10 1.80,1.80
+
+# === Base stone slab (visible where tiles are missing) ===
+rect 0.10,0.10 1.80,1.80 fill #5a5048 0.7
+rect 0.10,0.10 1.80,1.80 texfill polyhaven/stone_floor 0.5
+rect 0.10,0.10 1.80,1.80 stroke #2a2420 width 1
+
+# Mortar bedding (slightly lighter color where tiles would sit)
+rect 0.20,0.20 1.60,1.60 fill #7a7068 0.4
+
+# === Intact mosaic section (NW — geometric pattern) ===
+# Blue tiles
+rect 0.24,0.24 0.12,0.12 fill #1848a0 0.95
+rect 0.24,0.24 0.12,0.12 stroke #0a1830 width 1
+rect 0.40,0.24 0.12,0.12 fill #2060c0 0.95
+rect 0.40,0.24 0.12,0.12 stroke #0a1830 width 1
+rect 0.56,0.24 0.12,0.12 fill #1848a0 0.95
+rect 0.56,0.24 0.12,0.12 stroke #0a1830 width 1
+rect 0.72,0.24 0.12,0.12 fill #2060c0 0.95
+rect 0.72,0.24 0.12,0.12 stroke #0a1830 width 1
+# Gold accent
+rect 0.24,0.40 0.12,0.12 fill #daa520 0.95
+rect 0.24,0.40 0.12,0.12 stroke #5a3a00 width 1
+# White tile
+rect 0.40,0.40 0.12,0.12 fill #e8dcc8 0.95
+rect 0.40,0.40 0.12,0.12 stroke #6a6058 width 1
+# Red tile (center motif)
+rect 0.56,0.40 0.12,0.12 fill #8b2030 0.95
+rect 0.56,0.40 0.12,0.12 stroke #400810 width 1
+rect 0.72,0.40 0.12,0.12 fill #daa520 0.95
+rect 0.72,0.40 0.12,0.12 stroke #5a3a00 width 1
+
+rect 0.24,0.56 0.12,0.12 fill #2060c0 0.95
+rect 0.24,0.56 0.12,0.12 stroke #0a1830 width 1
+rect 0.40,0.56 0.12,0.12 fill #8b2030 0.95
+rect 0.40,0.56 0.12,0.12 stroke #400810 width 1
+rect 0.56,0.56 0.12,0.12 fill #e8dcc8 0.95
+rect 0.56,0.56 0.12,0.12 stroke #6a6058 width 1
+rect 0.72,0.56 0.12,0.12 fill #8b2030 0.95
+rect 0.72,0.56 0.12,0.12 stroke #400810 width 1
+
+# === Missing section (SE — crumbling edge, irregular gap) ===
+# Jagged edge of remaining tiles
+rect 0.24,0.72 0.12,0.12 fill #1848a0 0.9
+rect 0.24,0.72 0.12,0.12 stroke #0a1830 width 1
+rect 0.40,0.72 0.10,0.10 fill #2060c0 0.85
+rect 0.40,0.72 0.10,0.10 stroke #0a1830 width 1
+# Broken/cracked tile
+poly 0.56,0.72 0.68,0.72 0.66,0.82 0.58,0.84 fill #daa520 0.8
+poly 0.56,0.72 0.68,0.72 0.66,0.82 0.58,0.84 stroke #5a3a00 width 1
+
+# === East section (partial pattern with more variety) ===
+rect 1.04,0.24 0.12,0.12 fill #2a8040 0.95
+rect 1.04,0.24 0.12,0.12 stroke #0a3018 width 1
+rect 1.20,0.24 0.12,0.12 fill #e8dcc8 0.95
+rect 1.20,0.24 0.12,0.12 stroke #6a6058 width 1
+rect 1.36,0.24 0.12,0.12 fill #2a8040 0.95
+rect 1.36,0.24 0.12,0.12 stroke #0a3018 width 1
+rect 1.52,0.24 0.12,0.12 fill #e8dcc8 0.95
+rect 1.52,0.24 0.12,0.12 stroke #6a6058 width 1
+
+rect 1.04,0.40 0.12,0.12 fill #e8dcc8 0.95
+rect 1.04,0.40 0.12,0.12 stroke #6a6058 width 1
+rect 1.20,0.40 0.12,0.12 fill #2a8040 0.95
+rect 1.20,0.40 0.12,0.12 stroke #0a3018 width 1
+# Broken edge tile
+poly 1.36,0.40 1.48,0.40 1.44,0.52 1.36,0.50 fill #e8dcc8 0.85
+poly 1.36,0.40 1.48,0.40 1.44,0.52 1.36,0.50 stroke #6a6058 width 1
+
+# === Central motif (partial rosette — circular gold and red) ===
+circle 1.0,1.0 0.22 fill #daa520 0.85
+circle 1.0,1.0 0.22 stroke #5a3a00 width 2
+circle 1.0,1.0 0.14 fill #8b2030 0.85
+circle 1.0,1.0 0.14 stroke #400810 width 1
+circle 1.0,1.0 0.06 fill #daa520 0.9
+circle 1.0,1.0 0.06 stroke #5a3a00 width 1
+# Petals around rosette (8 petals)
+poly 1.0,0.78 1.04,0.82 1.0,0.84 0.96,0.82 fill #e8dcc8 0.85
+poly 1.0,0.78 1.04,0.82 1.0,0.84 0.96,0.82 stroke #6a6058 width 1
+poly 1.16,0.84 1.20,0.88 1.18,0.92 1.14,0.88 fill #e8dcc8 0.85
+poly 1.16,0.84 1.20,0.88 1.18,0.92 1.14,0.88 stroke #6a6058 width 1
+poly 1.22,1.0 1.18,1.04 1.16,1.0 1.18,0.96 fill #e8dcc8 0.85
+poly 1.22,1.0 1.18,1.04 1.16,1.0 1.18,0.96 stroke #6a6058 width 1
+poly 1.0,1.22 0.96,1.18 1.0,1.16 1.04,1.18 fill #e8dcc8 0.85
+poly 1.0,1.22 0.96,1.18 1.0,1.16 1.04,1.18 stroke #6a6058 width 1
+poly 0.78,1.0 0.82,0.96 0.84,1.0 0.82,1.04 fill #e8dcc8 0.85
+poly 0.78,1.0 0.82,0.96 0.84,1.0 0.82,1.04 stroke #6a6058 width 1
+
+# === Loose tiles scattered (on top of the slab, displaced) ===
+rect 0.32,1.40 0.08,0.08 fill #1848a0 0.9 rotate 20
+rect 0.50,1.56 0.08,0.08 fill #daa520 0.9 rotate 45
+rect 0.66,1.44 0.08,0.08 fill #8b2030 0.9 rotate 15
+rect 1.40,1.36 0.08,0.08 fill #2a8040 0.9 rotate 30
+rect 1.54,1.50 0.08,0.08 fill #e8dcc8 0.9 rotate 10
+rect 1.68,1.62 0.08,0.08 fill #2060c0 0.9 rotate 50
+rect 1.60,1.20 0.08,0.08 fill #daa520 0.85 rotate 35
+
+# === Large gap/missing section (SW exposed stone) ===
+poly 0.12,1.20 0.60,1.30 0.50,1.68 0.24,1.80 0.12,1.60 fill #4a4038 0.75
+poly 0.12,1.20 0.60,1.30 0.50,1.68 0.24,1.80 0.12,1.60 stroke #2a2420 width 1
+
+# === Cracks running through the mosaic ===
+bezier 0.40,0.20 0.60,0.50 0.80,0.80 1.20,1.10 stroke #2a2420 0.7 width 2
+bezier 1.20,0.30 1.10,0.60 1.30,1.00 1.60,1.40 stroke #2a2420 0.6 width 2
+
+# Moss creeping through cracks
+ellipse 0.80,0.80 0.06,0.04 fill #3a5028 0.7
+ellipse 1.30,1.00 0.05,0.03 fill #3a5028 0.65
+ellipse 0.40,1.30 0.06,0.04 fill #3a5028 0.6
+
+# Dirt/dust
+ellipse 1.60,0.60 0.14,0.08 fill #6a5430 0.3
+ellipse 0.60,1.60 0.12,0.08 fill #6a5430 0.3

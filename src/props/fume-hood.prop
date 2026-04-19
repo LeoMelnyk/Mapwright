@@ -1,0 +1,105 @@
+name: Fume Hood
+category: Workshop
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: wall
+room_types: alchemy-lab, laboratory, workshop-artificer
+typical_count: single
+clusters_with: alchemy-bench, alembic, brewing-kettle, crucible, bellows
+notes: Stone/metal ventilation hood suspended over an alchemy workbench — catches vapors and draws them up a chimney. Wall-mounted along north. From above: overhang skirt visible, chimney flue in the back, faint vapor glow beneath.
+lights: [{"preset":"eldritch-glow","x":1.0,"y":0.5,"radius":2,"intensity":0.2}]
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.60 z 0-3
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: wide trapezoidal hood that widens toward the south (overhanging the bench), chimney flue exits the top at north, faint colored glow of vapors beneath
+
+# === Faint vapor glow spreading south below the hood skirt ===
+ellipse 1.00,0.74 0.70,0.12 fill #44aa66 0.2
+ellipse 1.00,0.70 0.58,0.10 fill #66cc88 0.15
+ellipse 1.00,0.66 0.45,0.08 fill #88ee99 0.12
+
+# === Chimney flue (circular pipe where hood vents up through ceiling) ===
+# Flue base plate
+rect 0.78,0.06 0.44,0.18 fill #555555 0.95
+rect 0.78,0.06 0.44,0.18 texfill polyhaven/metal_plate 0.55
+rect 0.78,0.06 0.44,0.18 stroke #222222 width 2
+# Flue collar
+circle 1.00,0.16 0.14 fill #333333 0.95
+circle 1.00,0.16 0.14 texfill polyhaven/metal_plate 0.5
+circle 1.00,0.16 0.14 stroke #111111 width 2
+# Inner flue opening (dark)
+circle 1.00,0.16 0.09 fill #0a0404 0.95
+circle 1.00,0.16 0.09 stroke #1a0a06 width 2
+# Soot staining inner rim
+circle 1.00,0.16 0.07 stroke #2a1400 0.8 width 1
+# Rising smoke puff (seen from above as small gray halo)
+circle 1.00,0.16 0.06 fill #666666 0.35
+circle 1.00,0.16 0.04 fill #888888 0.3
+
+# === Rivets securing flue to back plate ===
+circle 0.83,0.10 0.018 fill #0a0a0a 0.95
+circle 1.17,0.10 0.018 fill #0a0a0a 0.95
+circle 0.83,0.20 0.018 fill #0a0a0a 0.95
+circle 1.17,0.20 0.018 fill #0a0a0a 0.95
+
+# === Hood body (stone/metal trapezoid, widens toward the south) ===
+# The hood's wider lower skirt extends past the footprint of the flue
+poly 0.20,0.22 1.80,0.22 1.88,0.58 0.12,0.58 texfill polyhaven/metal_plate 0.65
+poly 0.20,0.22 1.80,0.22 1.88,0.58 0.12,0.58 fill #3a342c 0.5
+poly 0.20,0.22 1.80,0.22 1.88,0.58 0.12,0.58 stroke #1a1a1a width 2
+
+# Inner shadow (depth of hood cavity)
+poly 0.26,0.26 1.74,0.26 1.82,0.54 0.18,0.54 fill #1a1008 0.55
+
+# === Structural ribs on the hood face (visible from above) ===
+line 0.40,0.22 0.35,0.58 stroke #1a1a1a 0.75 width 2
+line 0.70,0.22 0.68,0.58 stroke #1a1a1a 0.7 width 2
+line 1.00,0.22 1.00,0.58 stroke #1a1a1a 0.75 width 2
+line 1.30,0.22 1.32,0.58 stroke #1a1a1a 0.7 width 2
+line 1.60,0.22 1.65,0.58 stroke #1a1a1a 0.75 width 2
+
+# === Lip / reinforcement band along the south skirt edge ===
+poly 0.12,0.58 1.88,0.58 1.86,0.64 0.14,0.64 fill #1a1a1a 0.9
+poly 0.12,0.58 1.88,0.58 1.86,0.64 0.14,0.64 texfill polyhaven/metal_plate 0.4
+poly 0.12,0.58 1.88,0.58 1.86,0.64 0.14,0.64 stroke #0a0a0a
+
+# Corner brace plates
+rect 0.12,0.58 0.08,0.06 fill #0a0a0a 0.95
+rect 1.80,0.58 0.08,0.06 fill #0a0a0a 0.95
+
+# === Sooty stains on the inner face ===
+ellipse 0.48,0.44 0.18,0.06 fill #0a0604 0.55
+ellipse 1.00,0.46 0.20,0.06 fill #0a0604 0.6
+ellipse 1.52,0.44 0.18,0.06 fill #0a0604 0.55
+
+# === Condensed droplets / greasy streaks (running south from the soot patches) ===
+line 0.48,0.48 0.50,0.58 stroke #1a1008 0.6 width 1
+line 1.00,0.50 1.00,0.60 stroke #1a1008 0.65 width 1
+line 1.52,0.48 1.54,0.58 stroke #1a1008 0.6 width 1
+
+# === Vapor wisps curling out from under the skirt (alchemical green glow) ===
+bezier 0.40,0.66 0.36,0.72 0.44,0.78 0.40,0.84 stroke #66dd88 0.5 width 2
+bezier 0.80,0.66 0.84,0.74 0.78,0.80 0.82,0.86 stroke #88ee99 0.55 width 2
+bezier 1.20,0.66 1.16,0.74 1.22,0.80 1.18,0.86 stroke #66dd88 0.5 width 2
+bezier 1.60,0.66 1.64,0.72 1.58,0.78 1.62,0.84 stroke #88ee99 0.55 width 2
+
+# === Chain suspension (thin chains from ceiling — visible as small circles at the corners of the skirt) ===
+circle 0.14,0.58 0.022 fill #555555 0.9
+circle 0.14,0.58 0.022 stroke #222222
+circle 1.86,0.58 0.022 fill #555555 0.9
+circle 1.86,0.58 0.022 stroke #222222
+# Chain links going north (tiny ovals)
+ellipse 0.14,0.46 0.014,0.02 stroke #555555 width 1
+ellipse 0.14,0.38 0.014,0.02 stroke #555555 width 1
+ellipse 0.14,0.30 0.014,0.02 stroke #555555 width 1
+ellipse 1.86,0.46 0.014,0.02 stroke #555555 width 1
+ellipse 1.86,0.38 0.014,0.02 stroke #555555 width 1
+ellipse 1.86,0.30 0.014,0.02 stroke #555555 width 1
+
+# === Hood sheen highlight ===
+line 0.24,0.26 1.76,0.26 stroke #888888 0.45 width 1

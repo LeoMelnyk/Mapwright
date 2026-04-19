@@ -1,0 +1,49 @@
+name: Shell Scatter
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto, coral-reef
+typical_count: many
+clusters_with: sea-glass-shard, pearl-cluster, anemone-small, fish-skeleton
+notes: Assortment of small seashells; scatter densely to suggest tide-line debris
+---
+# Faint sand wash under scatter
+ellipse 0.5,0.5 0.40,0.35 fill #c0b090 0.12
+# Spiral shell (upper left) — conch-like spiral
+circle 0.28,0.30 0.10 fill #e8c890 0.9
+circle 0.28,0.30 0.10 stroke #806030
+circle 0.28,0.30 0.07 fill #f0d8a0 0.85
+circle 0.29,0.29 0.04 fill #f8e0b0 0.85
+circle 0.30,0.28 0.02 fill #ffe8c0 0.9
+line 0.18,0.30 0.38,0.30 stroke #806030 width 1
+line 0.28,0.20 0.28,0.40 stroke #806030 width 1
+# Fan shell (upper right) — ridged fan
+poly 0.68,0.18 0.82,0.22 0.86,0.34 0.72,0.38 0.62,0.30 fill #f0d8c0 0.9
+poly 0.68,0.18 0.82,0.22 0.86,0.34 0.72,0.38 0.62,0.30 stroke #8a6040
+line 0.68,0.18 0.72,0.38 stroke #8a6040 width 1
+line 0.74,0.20 0.76,0.38 stroke #8a6040 width 1
+line 0.80,0.22 0.80,0.36 stroke #8a6040 width 1
+# Conch shell (center lower) — elongated spiral
+ellipse 0.52,0.66 0.14,0.08 fill #f8d8a8 0.9
+ellipse 0.52,0.66 0.14,0.08 stroke #806030
+ellipse 0.48,0.64 0.09,0.05 fill #f8e0b8 0.85
+ellipse 0.46,0.62 0.05,0.03 fill #ffe8c8 0.9
+# Small spiral (lower left)
+circle 0.22,0.72 0.07 fill #e8c080 0.88
+circle 0.22,0.72 0.07 stroke #705020
+circle 0.22,0.72 0.045 fill #f0d090 0.85
+circle 0.23,0.71 0.02 fill #f8d8a0 0.9
+# Small fan (lower right)
+poly 0.78,0.66 0.86,0.70 0.86,0.80 0.76,0.82 0.72,0.74 fill #f0d0b0 0.85
+poly 0.78,0.66 0.86,0.70 0.86,0.80 0.76,0.82 0.72,0.74 stroke #806040
+line 0.78,0.66 0.78,0.82 stroke #806040 width 1
+# Tiny shell fragments
+circle 0.44,0.30 0.025 fill #f0d0a0 0.8
+circle 0.60,0.48 0.025 fill #e8c890 0.8
+circle 0.36,0.86 0.022 fill #f0d0a0 0.75
+circle 0.68,0.84 0.02 fill #e8c890 0.75
+circle 0.10,0.50 0.022 fill #f0d0a0 0.8
+circle 0.90,0.50 0.02 fill #e8c890 0.75

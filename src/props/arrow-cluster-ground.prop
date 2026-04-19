@@ -1,0 +1,64 @@
+name: Arrow Cluster (Ground)
+category: Combat
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp, ruined-watchtower
+typical_count: few
+clusters_with: arrow-stuck, arrow-fletching, blood-pool, corpse-soldier, helmet-fallen
+notes: Many arrows embedded in the ground at angles from a volley; fletched tops visible with broken shafts
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Dirt impact scatter ground stain
+ellipse 0.5,0.55 0.42,0.32 fill #3a2818 0.35
+ellipse 0.5,0.55 0.42,0.32 stroke #1a1008 0.4
+# Scattered dirt clods
+circle 0.15,0.35 0.02 fill #2a1a0a 0.6
+circle 0.85,0.65 0.02 fill #2a1a0a 0.6
+circle 0.25,0.80 0.018 fill #3a2818 0.55
+circle 0.80,0.25 0.015 fill #2a1a0a 0.55
+
+# Arrow 1 (tall fletching standing up, center)
+# Impact hole
+ellipse 0.50,0.60 0.04,0.02 fill #0a0604 0.9
+# Shaft (foreshortened)
+poly 0.48,0.58 0.52,0.58 0.53,0.78 0.47,0.78 fill #7a5020 0.95
+poly 0.48,0.58 0.52,0.58 0.53,0.78 0.47,0.78 stroke #3a1f00
+# Red fletching
+poly 0.47,0.78 0.50,0.68 0.53,0.78 fill #aa3030 0.9
+poly 0.47,0.78 0.50,0.68 0.53,0.78 stroke #5a1010
+poly 0.47,0.78 0.38,0.85 0.48,0.82 fill #aa3030 0.85
+poly 0.53,0.78 0.62,0.85 0.52,0.82 fill #aa3030 0.85
+
+# Arrow 2 (leaning, broken mid-shaft, NW)
+ellipse 0.22,0.38 0.035,0.018 fill #0a0604 0.85
+poly 0.20,0.37 0.24,0.37 0.32,0.22 0.28,0.20 fill #7a5020 0.9
+poly 0.20,0.37 0.24,0.37 0.32,0.22 0.28,0.20 stroke #3a1f00
+# Broken splintered tip
+line 0.30,0.20 0.32,0.15 stroke #3a1f00 width 1
+line 0.28,0.20 0.26,0.16 stroke #3a1f00 width 1
+# White fletching
+poly 0.28,0.20 0.20,0.10 0.26,0.14 fill #e8dcc8 0.85
+poly 0.28,0.20 0.20,0.10 0.26,0.14 stroke #8b7355
+
+# Arrow 3 (leaning, SE)
+ellipse 0.74,0.72 0.035,0.018 fill #0a0604 0.85
+poly 0.72,0.71 0.76,0.71 0.86,0.92 0.82,0.94 fill #7a5020 0.9
+poly 0.72,0.71 0.76,0.71 0.86,0.92 0.82,0.94 stroke #3a1f00
+# Red fletching
+poly 0.82,0.94 0.92,0.96 0.86,0.88 fill #aa3030 0.85
+poly 0.82,0.94 0.92,0.96 0.86,0.88 stroke #5a1010
+
+# Arrow 4 (short broken shaft, E)
+poly 0.62,0.44 0.66,0.44 0.82,0.52 0.80,0.56 fill #7a5020 0.9
+poly 0.62,0.44 0.66,0.44 0.82,0.52 0.80,0.56 stroke #3a1f00
+# Broken jagged end
+line 0.82,0.52 0.86,0.50 stroke #3a1f00 width 1
+line 0.80,0.56 0.84,0.58 stroke #3a1f00 width 1
+
+# Loose single fletching feather on ground
+poly 0.12,0.72 0.22,0.74 0.18,0.68 fill #aa3030 0.7
+line 0.12,0.72 0.22,0.74 stroke #5a1010 0.6

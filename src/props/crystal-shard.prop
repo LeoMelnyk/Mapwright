@@ -1,0 +1,51 @@
+name: Crystal Shard
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.6
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"color":"#8080ff","intensity":0.3,"radius":3}]
+placement: floor
+room_types: cabin-witch, crystal-grotto, elemental-earth-node, workshop-artificer, underdark-outpost, demiplane-laboratory
+typical_count: few
+clusters_with: crystal-formation, crystal-ball, crystal-torch, arcane-pedestal, magic-circle
+notes: Single pointed crystal shard, softly glowing — magical/elemental energy
+---
+# === HITBOX ===
+selection poly 0.42,0.68 0.58,0.68 0.54,0.22 0.46,0.22
+
+# Shadow
+ellipse 0.5,0.78 0.18,0.04 fill #1a1008 0.3
+# Ground glow halo
+circle 0.5,0.68 0.30 fill #8080ff 0.2
+circle 0.5,0.68 0.22 fill #a0a0ff 0.25
+# Main crystal shaft (tall pointed shard, top-down shows narrow hexagonal column)
+poly 0.44,0.68 0.56,0.68 0.58,0.30 0.50,0.16 0.42,0.30 fill #6060d0 0.85
+poly 0.44,0.68 0.56,0.68 0.58,0.30 0.50,0.16 0.42,0.30 stroke #202080
+# Crystal facet highlights (faces catching light)
+poly 0.46,0.66 0.48,0.32 0.50,0.18 0.50,0.66 fill #a0a0ff 0.6
+poly 0.50,0.18 0.52,0.32 0.54,0.66 0.50,0.66 fill #4040a0 0.5
+# Crystalline tip glow
+poly 0.46,0.20 0.50,0.14 0.54,0.20 0.52,0.28 0.48,0.28 fill #e0e0ff 0.85
+# Small secondary shards at base
+poly 0.32,0.66 0.38,0.64 0.36,0.76 fill #6060d0 0.85
+poly 0.32,0.66 0.38,0.64 0.36,0.76 stroke #202080
+poly 0.62,0.66 0.66,0.64 0.70,0.74 fill #6060d0 0.85
+poly 0.62,0.66 0.66,0.64 0.70,0.74 stroke #202080
+# Small shard highlights
+line 0.34,0.66 0.36,0.76 stroke #a0a0ff 0.7 width 1
+line 0.64,0.66 0.68,0.74 stroke #a0a0ff 0.7 width 1
+# Crystal prismatic refraction (rainbow glint)
+line 0.48,0.44 0.50,0.48 stroke #ffccff 0.7 width 1
+line 0.52,0.34 0.50,0.38 stroke #ccffcc 0.6 width 1
+# Embedded inner glow core
+ellipse 0.50,0.46 0.04,0.14 fill #ffffff 0.6
+ellipse 0.50,0.46 0.02,0.08 fill #ffffff 0.9
+# Tiny sparkles in air
+circle 0.38,0.38 0.012 fill #e0e0ff 0.8
+circle 0.64,0.50 0.01 fill #ffffff 0.7
+circle 0.36,0.52 0.01 fill #e0e0ff 0.7
+# Edge outline
+line 0.50,0.16 0.42,0.30 stroke #a0a0ff 0.5
+line 0.50,0.16 0.58,0.30 stroke #a0a0ff 0.5

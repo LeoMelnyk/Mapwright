@@ -1,0 +1,70 @@
+name: Bird Nest
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: ancient-ruin-overgrown, ruined-watchtower, tower-abandoned
+typical_count: few
+clusters_with: fallen-leaves, dust-heap, cobweb, standing-stone
+notes: Abandoned bird's nest made of twigs — possibly with eggs or feathers
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.28
+
+# Nest outer ring (woven twigs, bird's-eye view)
+ring 0.5,0.5 0.30 0.16 fill #5c3a1e 0.92
+ring 0.5,0.5 0.30 0.16 texfill polyhaven/dark_wood 0.5
+ring 0.5,0.5 0.30 0.16 stroke #2a1400
+# Twig details (radial sticks)
+line 0.20,0.50 0.34,0.50 stroke #3a2010 width 1
+line 0.66,0.50 0.80,0.50 stroke #3a2010 width 1
+line 0.50,0.20 0.50,0.34 stroke #3a2010 width 1
+line 0.50,0.66 0.50,0.80 stroke #3a2010 width 1
+line 0.28,0.28 0.38,0.38 stroke #3a2010 width 1
+line 0.72,0.28 0.62,0.38 stroke #3a2010 width 1
+line 0.28,0.72 0.38,0.62 stroke #3a2010 width 1
+line 0.72,0.72 0.62,0.62 stroke #3a2010 width 1
+# More twig crosshatch
+line 0.24,0.40 0.36,0.46 stroke #4a2810 0.7
+line 0.64,0.44 0.76,0.38 stroke #4a2810 0.7
+line 0.30,0.62 0.42,0.58 stroke #4a2810 0.7
+line 0.58,0.60 0.70,0.64 stroke #4a2810 0.7
+# Grass/straw woven in
+bezier 0.24,0.54 0.32,0.58 0.38,0.54 0.30,0.50 stroke #a08858 0.7 width 1
+bezier 0.72,0.54 0.70,0.58 0.64,0.56 0.70,0.50 stroke #a08858 0.7 width 1
+# Inner nest lining (softer material, darker)
+circle 0.5,0.5 0.16 fill #3a2810 0.9
+circle 0.5,0.5 0.16 stroke #1a1008
+# === Eggs or feathers inside ===
+# Egg 1 (pale blue)
+ellipse 0.46,0.48 0.04,0.05 fill #c8d0c0 0.95
+ellipse 0.46,0.48 0.04,0.05 stroke #8a8868
+# Egg 1 speckles
+circle 0.46,0.46 0.006 fill #6a5840 0.85
+circle 0.47,0.50 0.005 fill #6a5840 0.85
+# Egg 2 (cream with spots)
+ellipse 0.54,0.52 0.04,0.05 fill #e8dcc8 0.95
+ellipse 0.54,0.52 0.04,0.05 stroke #8a7858
+# Egg 2 speckles
+circle 0.54,0.50 0.006 fill #6a5040 0.85
+circle 0.55,0.54 0.005 fill #6a5040 0.85
+# Egg 3 (partial, smaller)
+ellipse 0.50,0.54 0.035,0.045 fill #d8d0b0 0.9
+ellipse 0.50,0.54 0.035,0.045 stroke #8a7858
+# Small white feather lining
+bezier 0.42,0.54 0.48,0.56 0.54,0.54 0.58,0.56 stroke #e8e0d8 0.7 width 1
+# Fluff/down bits
+circle 0.42,0.52 0.008 fill #f0e8d8 0.75
+circle 0.58,0.48 0.008 fill #f0e8d8 0.75
+# Green moss bits woven in
+poly 0.32,0.34 0.36,0.32 0.34,0.38 fill #3a5028 0.7
+poly 0.66,0.68 0.70,0.66 0.68,0.72 fill #3a5028 0.7
+# Fallen twig beside nest
+line 0.15,0.32 0.22,0.30 stroke #3a2010 width 2
+# Single dropped feather outside nest
+poly 0.80,0.68 0.88,0.66 0.86,0.74 fill #8a8878 0.8
+poly 0.80,0.68 0.88,0.66 0.86,0.74 stroke #3a2810
+line 0.82,0.70 0.86,0.72 stroke #3a2810 0.5

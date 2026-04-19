@@ -1,0 +1,62 @@
+name: Sleeping Dog
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: inn-common-room, tavern-common, cabin-hunters, peasant-hovel, house-merchant, mansion-grand-hall
+typical_count: single
+clusters_with: fireplace, hearth, carpet, bench, armchair
+notes: Dog curled up asleep — viewed top-down as a furry oval with head tucked toward tail
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.34,0.28
+
+# Body oval (curled up, tawny-brown fur)
+ellipse 0.5,0.54 0.34,0.28 fill #6b4428 0.95
+ellipse 0.5,0.54 0.34,0.28 stroke #2a1400 width 2
+
+# Back ridge (darker fur along spine — curl pattern)
+arc 0.5,0.54 0.30 200 340 stroke #3a1f00 0.75 width 2
+
+# Lighter belly/underside peek (south-west)
+arc 0.5,0.62 0.26 30 150 stroke #8b6914 0.6 width 2
+
+# Head tucked (facing SW, nose near tail at SE)
+ellipse 0.28,0.42 0.14,0.12 fill #5c3a1e 0.95
+ellipse 0.28,0.42 0.14,0.12 stroke #2a1400 width 2
+
+# Snout / muzzle
+ellipse 0.18,0.46 0.08,0.06 fill #6b4428 0.95
+ellipse 0.18,0.46 0.08,0.06 stroke #2a1400 width 1
+
+# Nose (dark tip)
+circle 0.12,0.48 0.018 fill #1a0a00 0.95
+
+# Closed eye (simple arc, sleeping)
+arc 0.26,0.38 0.03 10 170 stroke #1a0a00 0.9 width 2
+
+# Ear flopped over (west ear visible)
+poly 0.32,0.32 0.44,0.28 0.40,0.38 fill #3a1f00 0.95
+poly 0.32,0.32 0.44,0.28 0.40,0.38 stroke #1a0a00 width 1
+
+# Paw peeking (front paw tucked by chin)
+ellipse 0.24,0.56 0.06,0.04 fill #5c3a1e 0.9
+ellipse 0.24,0.56 0.06,0.04 stroke #2a1400 width 1
+
+# Tail curled around body (tip visible near snout)
+bezier 0.78,0.52 0.74,0.66 0.48,0.72 0.36,0.62 stroke #3a1f00 width 5
+bezier 0.78,0.52 0.74,0.66 0.48,0.72 0.36,0.62 stroke #6b4428 0.7 width 3
+# Tail tip (lighter fur fluff)
+circle 0.36,0.62 0.03 fill #8b6914 0.85
+
+# Rump highlight
+arc 0.70,0.54 0.20 280 340 stroke #8b6914 0.5 width 2
+
+# Fur texture hints (streaks)
+line 0.42,0.44 0.50,0.46 stroke #3a1f00 0.5 width 1
+line 0.56,0.42 0.64,0.44 stroke #3a1f00 0.5 width 1
+line 0.62,0.62 0.70,0.64 stroke #3a1f00 0.5 width 1
+line 0.40,0.68 0.48,0.70 stroke #3a1f00 0.5 width 1

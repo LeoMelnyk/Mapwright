@@ -2,8 +2,24 @@
 
 import playerState from './player-state.js';
 import * as playerCanvas from './player-canvas.js';
-import { invalidateFullMapCache, invalidateLightingOnly, invalidatePropsChange, patchOpenedDoor, revealFogCells, concealFogCells, resetFogLayers, markAssetsReady } from './player-canvas.js';
-import { loadPropCatalog, loadTextureCatalog, collectTextureIds, ensureTexturesLoaded, RangeTool } from '../editor/js/index.js';
+import {
+  invalidateFullMapCache,
+  invalidateLightingOnly,
+  invalidatePropsChange,
+  patchOpenedDoor,
+  revealFogCells,
+  concealFogCells,
+  resetFogLayers,
+  markAssetsReady,
+} from './player-canvas.js';
+import {
+  loadPropCatalog,
+  ensurePropHitboxesForMap,
+  loadTextureCatalog,
+  collectTextureIds,
+  ensureTexturesLoaded,
+  RangeTool,
+} from '../editor/js/index.js';
 import { BRIDGE_TEXTURE_IDS } from '../render/index.js';
 import { CARDINAL_OFFSETS } from '../util/index.js';
 import type { Dungeon, PropDefinition, Theme, VisibleBounds } from '../types.js';
@@ -114,7 +130,7 @@ let playerToken: string | null = null;
 async function checkSessionAndConnect(): Promise<void> {
   try {
     const res = await fetch('/api/session/status');
-    const status = await res.json() as { active: boolean; passwordRequired: boolean };
+    const status = (await res.json()) as { active: boolean; passwordRequired: boolean };
     if (status.active && status.passwordRequired) {
       showPasswordPrompt();
       return;
@@ -130,7 +146,10 @@ function showPasswordPrompt(): void {
   const input = document.getElementById('password-input') as HTMLInputElement | null;
   const submit = document.getElementById('password-submit');
   const errorEl = document.getElementById('password-error');
-  if (!overlay || !input || !submit) { connect(); return; }
+  if (!overlay || !input || !submit) {
+    connect();
+    return;
+  }
 
   overlay.classList.remove('hidden');
 
@@ -146,25 +165,35 @@ function showPasswordPrompt(): void {
         body: JSON.stringify({ password }),
       });
       if (!res.ok) {
-        const data = await res.json() as { error: string };
-        if (errorEl) { errorEl.textContent = data.error || 'Authentication failed'; errorEl.classList.remove('hidden'); }
+        const data = (await res.json()) as { error: string };
+        if (errorEl) {
+          errorEl.textContent = data.error || 'Authentication failed';
+          errorEl.classList.remove('hidden');
+        }
         submit.textContent = 'Join';
         (submit as HTMLButtonElement).disabled = false;
         return;
       }
-      const data = await res.json() as { token: string };
+      const data = (await res.json()) as { token: string };
       playerToken = data.token;
       overlay.classList.add('hidden');
       connect();
     } catch {
-      if (errorEl) { errorEl.textContent = 'Server unreachable'; errorEl.classList.remove('hidden'); }
+      if (errorEl) {
+        errorEl.textContent = 'Server unreachable';
+        errorEl.classList.remove('hidden');
+      }
       submit.textContent = 'Join';
       (submit as HTMLButtonElement).disabled = false;
     }
   };
 
-  submit.addEventListener('click', () => { void doSubmit(); });
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') void doSubmit(); });
+  submit.addEventListener('click', () => {
+    void doSubmit();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') void doSubmit();
+  });
   input.focus();
 }
 
@@ -201,7 +230,12 @@ function connect(): void {
 
   ws.addEventListener('message', (e: MessageEvent) => {
     let msg: WSMessage;
-    try { msg = JSON.parse(e.data) as WSMessage; } catch { console.warn('[player] malformed WebSocket message', String(e.data).slice(0, 120)); return; }
+    try {
+      msg = JSON.parse(e.data) as WSMessage;
+    } catch {
+      console.warn('[player] malformed WebSocket message', String(e.data).slice(0, 120));
+      return;
+    }
     handleMessage(msg);
   });
 }
@@ -252,7 +286,7 @@ async function loadMapTextures(): Promise<void> {
     // Check _loadPromise — if it exists, the texture was already loading/loaded before this call.
     const catalog = playerState.textureCatalog as Record<string, unknown>;
     const textures = catalog.textures as Record<string, Record<string, unknown>> | undefined;
-    const hadNew = [...usedIds].some(id => {
+    const hadNew = [...usedIds].some((id) => {
       const entry = textures?.[id];
       return entry && !entry._loadPromise;
     });
@@ -274,6 +308,11 @@ async function tryInitialBuild(): Promise<void> {
   if (_initDone) return;
   if (!playerState.dungeon || !playerState.propCatalog || !playerState.textureCatalog) return;
   _initDone = true;
+
+  // Fresh PropDefinitions have no materialized hitboxes. The lighting engine
+  // reads hitbox polygons to compute prop shadow geometry — without this,
+  // props on the map don't block light correctly.
+  ensurePropHitboxesForMap(playerState.dungeon);
 
   await loadMapTextures();
   markAssetsReady();
@@ -363,8 +402,11 @@ function onSessionInit(msg: SessionInitMessage): void {
   // Apply DM viewport (snap immediately on init — no interpolation)
   if (msg.viewport) {
     playerCanvas.applyDMViewport(
-      msg.viewport.panX, msg.viewport.panY, msg.viewport.zoom,
-      msg.viewport.canvasWidth, msg.viewport.canvasHeight
+      msg.viewport.panX,
+      msg.viewport.panY,
+      msg.viewport.zoom,
+      msg.viewport.canvasWidth,
+      msg.viewport.canvasHeight,
     );
     playerCanvas.snapToDMViewport();
   }
@@ -441,12 +483,15 @@ function onDoorOpen(msg: DoorOpenMessage): void {
     const [dr, dc] = offset ?? [0, 0];
     const rows = [msg.row, msg.row + dr];
     const cols = [msg.col, msg.col + dc];
-    invalidateFullMapCache({
-      minRow: Math.min(...rows),
-      maxRow: Math.max(...rows),
-      minCol: Math.min(...cols),
-      maxCol: Math.max(...cols),
-    }, { structural: true });
+    invalidateFullMapCache(
+      {
+        minRow: Math.min(...rows),
+        maxRow: Math.max(...rows),
+        minCol: Math.min(...cols),
+        maxCol: Math.max(...cols),
+      },
+      { structural: true },
+    );
   }
   // Normal doors don't change the rendered content — player already sees them as doors
   playerCanvas.requestRender();
@@ -460,7 +505,7 @@ function onStairsOpen(msg: StairsOpenMessage): void {
   const stairs = playerState.dungeon?.metadata.stairs ?? [];
   let region: VisibleBounds | null = null;
   for (const id of msg.stairIds) {
-    const stair = stairs.find(s => s.id === id);
+    const stair = stairs.find((s) => s.id === id);
     if (!stair?.points) continue;
     for (const [r, c] of stair.points) {
       if (!region) {
@@ -481,6 +526,9 @@ function onDungeonUpdate(msg: DungeonUpdateMessage): void {
   if (!playerState.dungeon) return;
   playerState.dungeon.cells = msg.cells;
   playerState.dungeon.metadata = msg.metadata;
+  // Idempotent: materializes hitboxes for any newly-introduced prop types
+  // so lighting shadows pick them up on the next render.
+  ensurePropHitboxesForMap(playerState.dungeon);
   // Only replace resolvedTheme when it actually changed (preserves reference for render caches)
   if (msg.changeHints?.themeChanged && msg.resolvedTheme) {
     playerState.resolvedTheme = msg.resolvedTheme;
@@ -556,9 +604,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btn) btn.addEventListener('click', () => playerCanvas.resyncToDM());
 
   // Range shape sub-tool switching (player toolbar)
-  document.querySelectorAll<HTMLElement>('#player-toolbar [data-range-shape]').forEach(shapeBtn => {
+  document.querySelectorAll<HTMLElement>('#player-toolbar [data-range-shape]').forEach((shapeBtn) => {
     shapeBtn.addEventListener('click', () => {
-      document.querySelectorAll<HTMLElement>('#player-toolbar [data-range-shape]').forEach(b => b.classList.remove('active'));
+      document
+        .querySelectorAll<HTMLElement>('#player-toolbar [data-range-shape]')
+        .forEach((b) => b.classList.remove('active'));
       shapeBtn.classList.add('active');
       if (playerRangeTool) playerRangeTool.setSubTool(shapeBtn.dataset.rangeShape!);
     });
@@ -574,15 +624,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load catalogs, then try the initial build (no-op if session init
   // hasn't arrived yet — onSessionInit will call tryInitialBuild again)
-  const propCatalogPromise = loadPropCatalog().then((catalog: unknown) => {
-    playerState.propCatalog = catalog as typeof playerState.propCatalog;
-    return catalog;
-  }).catch((err: unknown) => { console.warn('Player: failed to load prop catalog:', err); return null; });
+  const propCatalogPromise = loadPropCatalog()
+    .then((catalog: unknown) => {
+      playerState.propCatalog = catalog as typeof playerState.propCatalog;
+      return catalog;
+    })
+    .catch((err: unknown) => {
+      console.warn('Player: failed to load prop catalog:', err);
+      return null;
+    });
 
-  const textureCatalogPromise = loadTextureCatalog().then((catalog: unknown) => {
-    playerState.textureCatalog = catalog as typeof playerState.textureCatalog;
-    return catalog;
-  }).catch((err: unknown) => { console.warn('Player: failed to load texture catalog:', err); return null; });
+  const textureCatalogPromise = loadTextureCatalog()
+    .then((catalog: unknown) => {
+      playerState.textureCatalog = catalog as typeof playerState.textureCatalog;
+      return catalog;
+    })
+    .catch((err: unknown) => {
+      console.warn('Player: failed to load texture catalog:', err);
+      return null;
+    });
 
   void Promise.all([propCatalogPromise, textureCatalogPromise]).then(() => tryInitialBuild());
 

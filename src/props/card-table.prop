@@ -1,0 +1,56 @@
+name: Card Table
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: center
+room_types: gambling-den, tavern-highend, brothel-parlor, private-study
+typical_count: few
+clusters_with: chair, stool, chips-stack, dice-pile, tankard
+notes: Round green felt gaming table for cards or games of chance. Center it with chairs around.
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.82 z 0-2.5
+
+# footprint 2x2: x 0-2, y 0-2
+# Leg shadows at cardinal points (round pedestal table)
+circle 1.0,0.20 0.08 fill #1a0f00 0.45
+circle 1.0,1.80 0.08 fill #1a0f00 0.45
+circle 0.20,1.00 0.08 fill #1a0f00 0.45
+circle 1.80,1.00 0.08 fill #1a0f00 0.45
+
+# Dark wood edge ring (polished mahogany)
+circle 1.0,1.0 0.88 texfill polyhaven/dark_wood 0.88
+circle 1.0,1.0 0.88 stroke #2a1400 width 2
+
+# Inner wooden bevel
+circle 1.0,1.0 0.82 stroke #5c3a1e width 1
+
+# Green felt playing surface
+circle 1.0,1.0 0.78 fill #2d6b3a 0.95
+circle 1.0,1.0 0.78 stroke #1a4020 width 1
+
+# Felt texture hint (slightly brighter inner region)
+circle 1.0,1.0 0.72 fill #357c44 0.25
+
+# Gold trim ring between wood and felt
+circle 1.0,1.0 0.80 stroke #daa520 0.6 width 1
+
+# Corner card-suit motifs (at NE, NW, SE, SW of felt)
+# Spade NW
+poly 0.50,0.48 0.55,0.55 0.50,0.62 0.45,0.55 fill #1a1008 0.8
+# Heart NE
+poly 1.50,0.50 1.54,0.46 1.58,0.50 1.54,0.56 1.50,0.62 1.46,0.56 1.42,0.50 1.46,0.46 fill #8b0000 0.75
+# Club SW
+circle 0.48,1.48 0.03 fill #1a1008 0.8
+circle 0.43,1.54 0.03 fill #1a1008 0.8
+circle 0.53,1.54 0.03 fill #1a1008 0.8
+# Diamond SE
+poly 1.52,1.44 1.58,1.52 1.52,1.60 1.46,1.52 fill #8b0000 0.75
+
+# Central dealer mark (chip-shaped)
+circle 1.0,1.0 0.08 fill #daa520 0.7
+circle 1.0,1.0 0.08 stroke #5a3a00 width 1
+circle 1.0,1.0 0.04 fill #8b0000 0.8

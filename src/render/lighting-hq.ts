@@ -87,7 +87,7 @@ let maskCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null
  * Rasterize a visibility polygon into a Uint8Array shadow mask.
  * Uses Canvas2D polygon fill for GPU-accelerated, anti-aliased rasterization.
  *
- * @param {Array} visibility - [{x,y},...] polygon in world-feet
+ * @param {Float32Array} visibility - interleaved [x0,y0,x1,y1,...] polygon in world-feet
  * @param {object} transform - {offsetX, offsetY, scale}
  * @param {number} bbX - bounding box left in pixels
  * @param {number} bbY - bounding box top in pixels
@@ -96,7 +96,7 @@ let maskCtx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null
  * @returns {Uint8Array} - one byte per pixel: 0=shadow, 255=lit, AA values in between
  */
 function rasterizeShadowMask(
-  visibility: Array<{ x: number; y: number }>,
+  visibility: Float32Array,
   transform: RenderTransform,
   bbX: number,
   bbY: number,
@@ -125,11 +125,13 @@ function rasterizeShadowMask(
 
   // Draw visibility polygon offset by bounding box origin
   maskCtx!.beginPath();
-  const p0 = visibility[0]!;
-  maskCtx!.moveTo(p0.x * transform.scale + transform.offsetX - bbX, p0.y * transform.scale + transform.offsetY - bbY);
-  for (let i = 1; i < visibility.length; i++) {
-    const p = visibility[i]!;
-    maskCtx!.lineTo(p.x * transform.scale + transform.offsetX - bbX, p.y * transform.scale + transform.offsetY - bbY);
+  const sx = transform.scale;
+  const ox = transform.offsetX - bbX;
+  const oy = transform.offsetY - bbY;
+  const n = visibility.length;
+  maskCtx!.moveTo(visibility[0]! * sx + ox, visibility[1]! * sx + oy);
+  for (let i = 2; i < n; i += 2) {
+    maskCtx!.lineTo(visibility[i]! * sx + ox, visibility[i + 1]! * sx + oy);
   }
   maskCtx!.closePath();
   maskCtx!.fill();

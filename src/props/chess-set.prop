@@ -1,0 +1,126 @@
+name: Chess Set
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: noble-solar, mansion-study, parlor, gentlemens-club, library, wizard-sanctum
+typical_count: single
+clusters_with: table, armchair, bookshelf, desk
+notes: Wooden chess board with pieces placed as if mid-game — alternating light and dark squares with piece silhouettes
+---
+# === HITBOX ===
+selection rect 0.12,0.12 0.76,0.76
+
+# === Board base (dark wood border) ===
+rect 0.12,0.12 0.76,0.76 texfill polyhaven/dark_wood 0.9
+rect 0.12,0.12 0.76,0.76 stroke #1a0e00 width 2
+# Inner border bevel
+rect 0.16,0.16 0.68,0.68 stroke #5c3a1e 0.7 width 1
+
+# === Playing surface — 8x8 grid of alternating squares ===
+# Base (light squares — full cream layer)
+rect 0.18,0.18 0.64,0.64 fill #e8dcc8 0.95
+
+# Dark squares overlaid (alternating pattern)
+# Row 0 (y=0.18-0.26)
+rect 0.26,0.18 0.08,0.08 fill #4a2800 0.9
+rect 0.42,0.18 0.08,0.08 fill #4a2800 0.9
+rect 0.58,0.18 0.08,0.08 fill #4a2800 0.9
+rect 0.74,0.18 0.08,0.08 fill #4a2800 0.9
+# Row 1
+rect 0.18,0.26 0.08,0.08 fill #4a2800 0.9
+rect 0.34,0.26 0.08,0.08 fill #4a2800 0.9
+rect 0.50,0.26 0.08,0.08 fill #4a2800 0.9
+rect 0.66,0.26 0.08,0.08 fill #4a2800 0.9
+# Row 2
+rect 0.26,0.34 0.08,0.08 fill #4a2800 0.9
+rect 0.42,0.34 0.08,0.08 fill #4a2800 0.9
+rect 0.58,0.34 0.08,0.08 fill #4a2800 0.9
+rect 0.74,0.34 0.08,0.08 fill #4a2800 0.9
+# Row 3
+rect 0.18,0.42 0.08,0.08 fill #4a2800 0.9
+rect 0.34,0.42 0.08,0.08 fill #4a2800 0.9
+rect 0.50,0.42 0.08,0.08 fill #4a2800 0.9
+rect 0.66,0.42 0.08,0.08 fill #4a2800 0.9
+# Row 4
+rect 0.26,0.50 0.08,0.08 fill #4a2800 0.9
+rect 0.42,0.50 0.08,0.08 fill #4a2800 0.9
+rect 0.58,0.50 0.08,0.08 fill #4a2800 0.9
+rect 0.74,0.50 0.08,0.08 fill #4a2800 0.9
+# Row 5
+rect 0.18,0.58 0.08,0.08 fill #4a2800 0.9
+rect 0.34,0.58 0.08,0.08 fill #4a2800 0.9
+rect 0.50,0.58 0.08,0.08 fill #4a2800 0.9
+rect 0.66,0.58 0.08,0.08 fill #4a2800 0.9
+# Row 6
+rect 0.26,0.66 0.08,0.08 fill #4a2800 0.9
+rect 0.42,0.66 0.08,0.08 fill #4a2800 0.9
+rect 0.58,0.66 0.08,0.08 fill #4a2800 0.9
+rect 0.74,0.66 0.08,0.08 fill #4a2800 0.9
+# Row 7
+rect 0.18,0.74 0.08,0.08 fill #4a2800 0.9
+rect 0.34,0.74 0.08,0.08 fill #4a2800 0.9
+rect 0.50,0.74 0.08,0.08 fill #4a2800 0.9
+rect 0.66,0.74 0.08,0.08 fill #4a2800 0.9
+
+# Grid outline
+rect 0.18,0.18 0.64,0.64 stroke #1a0e00 width 1
+
+# === Chess pieces (small circles/dots with a point for silhouette) ===
+# Dark pieces — top side
+# King (center of rank, with cross point)
+circle 0.54,0.22 0.025 fill #1a1010 0.95
+circle 0.54,0.22 0.025 stroke #000000
+line 0.54,0.195 0.54,0.215 stroke #1a1010 width 2
+# Queen
+circle 0.46,0.22 0.025 fill #1a1010 0.95
+circle 0.46,0.22 0.025 stroke #000000
+# Rook (square-topped)
+rect 0.17,0.20 0.04,0.04 fill #1a1010 0.95
+rect 0.17,0.20 0.04,0.04 stroke #000000
+# Bishop (slightly taller — small dot above)
+circle 0.38,0.22 0.022 fill #1a1010 0.95
+circle 0.38,0.22 0.022 stroke #000000
+circle 0.38,0.20 0.008 fill #1a1010 0.9
+# Knight (oval — horse-head suggestion)
+ellipse 0.30,0.22 0.025,0.022 fill #1a1010 0.95
+ellipse 0.30,0.22 0.025,0.022 stroke #000000
+
+# Dark pawns on the second rank (a few scattered — as if mid-game)
+circle 0.22,0.30 0.018 fill #1a1010 0.92
+circle 0.22,0.30 0.018 stroke #000000
+circle 0.38,0.30 0.018 fill #1a1010 0.92
+circle 0.38,0.30 0.018 stroke #000000
+# One dark pawn advanced
+circle 0.50,0.46 0.018 fill #1a1010 0.92
+circle 0.50,0.46 0.018 stroke #000000
+
+# White pieces — bottom side
+# King
+circle 0.46,0.78 0.025 fill #f0e8d8 0.95
+circle 0.46,0.78 0.025 stroke #5c3a1e
+line 0.46,0.76 0.46,0.80 stroke #5c3a1e width 2
+# Queen
+circle 0.54,0.78 0.025 fill #f0e8d8 0.95
+circle 0.54,0.78 0.025 stroke #5c3a1e
+# Rook
+rect 0.17,0.76 0.04,0.04 fill #f0e8d8 0.95
+rect 0.17,0.76 0.04,0.04 stroke #5c3a1e
+# Bishop
+circle 0.62,0.78 0.022 fill #f0e8d8 0.95
+circle 0.62,0.78 0.022 stroke #5c3a1e
+circle 0.62,0.76 0.008 fill #f0e8d8 0.9
+# Knight
+ellipse 0.70,0.78 0.025,0.022 fill #f0e8d8 0.95
+ellipse 0.70,0.78 0.025,0.022 stroke #5c3a1e
+
+# White pawns
+circle 0.30,0.70 0.018 fill #f0e8d8 0.92
+circle 0.30,0.70 0.018 stroke #5c3a1e
+circle 0.46,0.62 0.018 fill #f0e8d8 0.92
+circle 0.46,0.62 0.018 stroke #5c3a1e
+circle 0.62,0.70 0.018 fill #f0e8d8 0.92
+circle 0.62,0.70 0.018 stroke #5c3a1e

@@ -1,4 +1,4 @@
-import type { CellGrid, RenderTransform, Metadata } from '../../../types.js';
+import type { CellGrid, OverlayProp, RenderTransform, Metadata } from '../../../types.js';
 // Erase tool: drag a selection box, then void all cells within it on release
 // Shift: constrain the drag rectangle to a square (larger dimension wins)
 import { Tool, type EdgeInfo, type CanvasPos } from './tool-base.js';
@@ -8,6 +8,7 @@ import { toCanvas } from '../utils.js';
 import { requestRender } from '../canvas-view.js';
 import { showToast } from '../toast.js';
 import { isInBounds, snapToSquare, normalizeBounds } from '../../../util/index.js';
+import { visibleAnchorOf } from '../prop-overlay.js';
 
 function _removeStair(meta: Metadata, cells: CellGrid, id: number): void {
   const stairs = meta.stairs;
@@ -170,9 +171,10 @@ export class EraseTool extends Tool {
 
           if (meta.props?.length) {
             const gridSize = meta.gridSize || 5;
-            meta.props = meta.props.filter((p) => {
-              const pRow = Math.round(p.y / gridSize);
-              const pCol = Math.round(p.x / gridSize);
+            meta.props = meta.props.filter((p: OverlayProp) => {
+              const def = state.propCatalog?.props[p.type];
+              // Visible anchor — accounts for 90°/270° anchor-shift on non-square props
+              const { row: pRow, col: pCol } = visibleAnchorOf(p, def, gridSize);
               return pRow < r1 || pRow > r2 || pCol < c1 || pCol > c2;
             });
           }

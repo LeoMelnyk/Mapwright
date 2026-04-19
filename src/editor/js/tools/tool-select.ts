@@ -5,6 +5,8 @@ import state, { pushUndo, markDirty, notify, invalidateLightmap } from '../state
 import { requestRender, setCursor } from '../canvas-view.js';
 import { showToast } from '../toast.js';
 import { captureBeforeState, smartInvalidate } from '../../../render/index.js';
+import { markPropSpatialDirty } from '../prop-spatial.js';
+import { refreshLinkedLights, visibleAnchorOf } from '../prop-overlay.js';
 
 const MOVE_THRESHOLD = 8; // pixels before a mousedown-on-selection becomes a move drag
 
@@ -388,11 +390,39 @@ export class SelectTool extends Tool {
       cells[row + dRow]![col + dCol] = data;
     }
 
-    // Move lights anchored to selected cells
-    const lights = state.dungeon.metadata.lights;
+    // Move overlay props whose visible anchor cell is in the selection.
+    // Props carry their linked lights (refreshLinkedLights handles propRef +
+    // world-feet translation); unlinked lights still move via their own cell
+    // membership below.
+    const meta = state.dungeon.metadata;
+    const gridSize = meta.gridSize || 5;
+    const movedLightIds = new Set<number>();
+    if (meta.props?.length) {
+      for (const overlay of meta.props) {
+        const propDef = state.propCatalog?.props[overlay.type];
+        const vis = visibleAnchorOf(overlay, propDef, gridSize);
+        if (!selectedSet.has(`${vis.row},${vis.col}`)) continue;
+        const dx = dCol * gridSize;
+        const dy = dRow * gridSize;
+        overlay.x += dx;
+        overlay.y += dy;
+        // Track which lights refreshLinkedLights moves, so the cell-membership
+        // pass below doesn't translate them a second time.
+        const beforeIds = meta.lights
+          .filter((l) => l.propRef?.row === vis.row && l.propRef.col === vis.col)
+          .map((l) => l.id);
+        refreshLinkedLights(meta, overlay, propDef, vis, dx, dy);
+        for (const id of beforeIds) movedLightIds.add(id);
+      }
+      markPropSpatialDirty();
+    }
+
+    // Move unlinked lights (and any linked lights not already carried by a
+    // moved prop) whose cell sits inside the selection.
+    const lights = meta.lights;
     if (lights.length) {
-      const gridSize = state.dungeon.metadata.gridSize || 5;
       for (const light of lights) {
+        if (movedLightIds.has(light.id)) continue;
         const lightRow = Math.round(light.y / gridSize);
         const lightCol = Math.round(light.x / gridSize);
         if (selectedSet.has(`${lightRow},${lightCol}`)) {

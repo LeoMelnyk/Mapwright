@@ -1,0 +1,46 @@
+name: Tall Mirror
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 2.5
+placement: wall
+room_types: mansion-ballroom, mansion-grand-hall, mansion-bedroom-master, noble-solar
+typical_count: few
+clusters_with: mirror, mirror-standing, candelabra-tall, flower-arrangement
+notes: Wall-mounted tall mirror with ornate gilded frame. Only the top edge is visible from above — minimal visual footprint following wall-mounted prop conventions.
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Wall-mounted — wall is at north (low Y). Only top edge of frame visible from above.
+
+# === HITBOX ===
+selection rect 0.10,0.04 1.80,0.22
+
+# === Ornate gilded frame top edge (widest element, along wall) ===
+rect 0.10,0.06 1.80,0.14 fill #daa520 0.92
+rect 0.10,0.06 1.80,0.14 stroke #5a3a00 width 2
+
+# Frame inner detail line (gold highlight)
+line 0.14,0.10 1.86,0.10 stroke #ffd700 0.7
+line 0.14,0.18 1.86,0.18 stroke #5a3a00 0.6
+
+# === Frame finials at each end (ornate carved caps) ===
+circle 0.12,0.12 0.08 fill #daa520 0.95
+circle 0.12,0.12 0.08 stroke #5a3a00
+circle 0.12,0.12 0.04 fill #ffd700 0.9
+circle 1.88,0.12 0.08 fill #daa520 0.95
+circle 1.88,0.12 0.08 stroke #5a3a00
+circle 1.88,0.12 0.04 fill #ffd700 0.9
+
+# Center flourish (decorative crest on frame top)
+ellipse 1.00,0.09 0.14,0.05 fill #ffd700 0.85
+ellipse 1.00,0.09 0.14,0.05 stroke #5a3a00
+line 0.92,0.09 1.08,0.09 stroke #8b6914 0.7
+
+# === Thin reflective glass strip peeking south of frame ===
+rect 0.14,0.20 1.72,0.04 fill #8a9aa8 0.55
+rect 0.14,0.20 1.72,0.04 stroke #556670
+
+# Faint glass gleam
+line 0.30,0.22 0.80,0.22 stroke #c8dce8 0.5

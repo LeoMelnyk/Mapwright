@@ -1,0 +1,43 @@
+name: Basalt Pillar
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.2
+placement: corner
+room_types: elemental-fire-node, elemental-node, volcano-caldera, fire-plane
+typical_count: few
+clusters_with: ember-pit, flame-pillar, ember-drift, fire-node-core
+notes: Hexagonal basalt column seen from above — dark volcanic rock with glowing magma cracks radiating from the center
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":6,"intensity":0.5,"color":"#ff4400"}]
+---
+# Hitbox — hexagonal column blocks light
+hitbox poly 0.22,0.32 0.22,0.68 0.50,0.88 0.78,0.68 0.78,0.32 0.50,0.12 z 0-2.2
+# Faint heat halo
+circle 0.5,0.5 0.48 gradient-radial #e85500 #0a0400 0.22
+# Hexagonal basalt column cross-section
+poly 0.22,0.32 0.22,0.68 0.50,0.88 0.78,0.68 0.78,0.32 0.50,0.12 texfill polyhaven/volcanic_rock_tiles 0.85
+poly 0.22,0.32 0.22,0.68 0.50,0.88 0.78,0.68 0.78,0.32 0.50,0.12 stroke #0a0400 width 2
+# Darker basalt core
+poly 0.32,0.40 0.32,0.60 0.50,0.72 0.68,0.60 0.68,0.40 0.50,0.28 fill #1a0800 0.85
+poly 0.32,0.40 0.32,0.60 0.50,0.72 0.68,0.60 0.68,0.40 0.50,0.28 stroke #0a0400 width 1
+# Glowing magma cracks radiating from the core
+line 0.50,0.50 0.22,0.36 stroke #ff6020 width 2
+line 0.50,0.50 0.22,0.64 stroke #ff6020 width 2
+line 0.50,0.50 0.78,0.36 stroke #ff4020 width 2
+line 0.50,0.50 0.78,0.64 stroke #ff6020 width 2
+line 0.50,0.50 0.50,0.15 stroke #ff4020 width 2
+line 0.50,0.50 0.50,0.85 stroke #ff6020 width 2
+# Secondary branching cracks
+line 0.36,0.44 0.28,0.42 stroke #ffaa30 width 1
+line 0.64,0.56 0.72,0.58 stroke #ffaa30 width 1
+line 0.44,0.62 0.40,0.74 stroke #ffaa30 width 1
+line 0.56,0.38 0.60,0.26 stroke #ffaa30 width 1
+# Glowing crack junction — the hottest spot
+circle 0.50,0.50 0.08 fill #ff6020 0.75
+circle 0.50,0.50 0.05 fill #ffaa30 0.85
+circle 0.50,0.50 0.025 fill #ffcc60 0.95
+# Basalt edge highlights
+line 0.22,0.32 0.50,0.12 stroke #555555 width 1
+line 0.50,0.12 0.78,0.32 stroke #555555 width 1

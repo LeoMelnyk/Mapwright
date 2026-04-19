@@ -1,0 +1,67 @@
+name: Raven Perched
+category: Misc
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.6
+placement: floor
+room_types: graveyard-village, necropolis, crypt, tower-ruined, haunted-wood
+typical_count: few
+clusters_with: tombstone, crypt-entrance, crow-perched, statue-weeping, bone-pile
+notes: Large raven on ground or perch — slightly bigger than a crow, darker, heavier body. Head south, alert gaze. Omen of death.
+---
+# === Faint body shadow ===
+ellipse 0.50,0.62 0.20,0.05 fill #050204 0.30
+
+# === Tail feathers (north, behind body — broader than crow) ===
+poly 0.38,0.26 0.62,0.26 0.60,0.44 0.40,0.44 fill #050204 0.98
+poly 0.38,0.26 0.62,0.26 0.60,0.44 0.40,0.44 stroke #000000
+line 0.44,0.28 0.44,0.42 stroke #1a1a24 width 1
+line 0.50,0.28 0.50,0.42 stroke #1a1a24 width 1
+line 0.56,0.28 0.56,0.42 stroke #1a1a24 width 1
+
+# === Body (larger, more robust than crow) ===
+ellipse 0.50,0.54 0.20,0.22 fill #050204 0.98
+ellipse 0.50,0.54 0.20,0.22 stroke #000000
+
+# === Folded wings (wider — primaries peek south past body) ===
+# Left wing
+poly 0.32,0.44 0.26,0.54 0.30,0.66 0.40,0.70 0.46,0.58 fill #050204 0.96
+poly 0.32,0.44 0.26,0.54 0.30,0.66 0.40,0.70 0.46,0.58 stroke #000000
+# Wing feather detail
+line 0.30,0.50 0.26,0.54 stroke #1a1a24 width 1
+line 0.30,0.60 0.28,0.66 stroke #1a1a24 width 1
+line 0.36,0.66 0.36,0.72 stroke #1a1a24 width 1
+
+# Right wing
+poly 0.68,0.44 0.74,0.54 0.70,0.66 0.60,0.70 0.54,0.58 fill #050204 0.96
+poly 0.68,0.44 0.74,0.54 0.70,0.66 0.60,0.70 0.54,0.58 stroke #000000
+line 0.70,0.50 0.74,0.54 stroke #1a1a24 width 1
+line 0.70,0.60 0.72,0.66 stroke #1a1a24 width 1
+line 0.64,0.66 0.64,0.72 stroke #1a1a24 width 1
+
+# === Hackle feathers around neck (ruffled — raven signature) ===
+line 0.42,0.66 0.40,0.72 stroke #1a1a24 width 1
+line 0.48,0.68 0.46,0.74 stroke #1a1a24 width 1
+line 0.54,0.68 0.56,0.74 stroke #1a1a24 width 1
+line 0.60,0.66 0.62,0.72 stroke #1a1a24 width 1
+
+# === Head (south — prominent, held forward) ===
+ellipse 0.50,0.76 0.11,0.10 fill #050204 0.98
+ellipse 0.50,0.76 0.11,0.10 stroke #000000
+
+# === Heavy dagger beak (pointing south — thicker than crow) ===
+poly 0.45,0.82 0.55,0.82 0.52,0.94 0.48,0.94 fill #1a1408 0.98
+poly 0.45,0.82 0.55,0.82 0.52,0.94 0.48,0.94 stroke #000000
+# Beak ridge
+line 0.50,0.82 0.50,0.92 stroke #2a2418 0.7 width 1
+
+# === Eye (beady, with menacing glint) ===
+circle 0.54,0.74 0.018 fill #e0b020 0.95
+circle 0.54,0.74 0.022 stroke #000000 width 1
+circle 0.545,0.735 0.006 fill #ffeebb 0.95
+
+# === Iridescent purple-green sheen ===
+arc 0.50,0.54 0.18 210 330 stroke #1a0820 0.5 width 1
+arc 0.50,0.54 0.16 200 340 stroke #081a18 0.5 width 1

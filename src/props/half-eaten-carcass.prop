@@ -1,0 +1,84 @@
+name: Half-Eaten Carcass
+category: Effects
+footprint: 2x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: monster-lair-small, cave-bear-lair, owlbear-den, ghoul-warren, butcher-shop
+typical_count: few
+clusters_with: carcass-fresh, gnawed-bone, bone-pile, blood-pool, blood-smear, fly-swarm
+notes: Humanoid or animal carcass torn apart at one end — head intact at one side, ribs exposed at the ragged feeding-end. Place where a predator last fed.
+---
+# === HITBOX ===
+selection rect 0.16,0.18 0.68,1.64
+
+# Blood pool seeping out (widest under the torn end, trailing south)
+poly 0.08,1.10 0.20,0.98 0.38,0.94 0.56,0.98 0.72,1.10 0.88,1.30 0.92,1.60 0.84,1.84 0.66,1.94 0.42,1.96 0.22,1.88 0.08,1.70 0.02,1.40 fill #3a0404 0.85
+poly 0.08,1.10 0.20,0.98 0.38,0.94 0.56,0.98 0.72,1.10 0.88,1.30 0.92,1.60 0.84,1.84 0.66,1.94 0.42,1.96 0.22,1.88 0.08,1.70 0.02,1.40 stroke #1a0000 0.7
+
+# Fresher wet center of blood pool (brighter red)
+ellipse 0.50,1.50 0.28,0.24 fill #7a0808 0.7
+
+# Intact body/torso at north end (leather-brown hide)
+poly 0.28,0.20 0.48,0.16 0.64,0.22 0.72,0.36 0.74,0.60 0.72,0.84 0.66,1.00 0.56,1.06 0.42,1.08 0.30,1.02 0.22,0.88 0.18,0.64 0.20,0.40 fill #6a4820 0.95
+poly 0.28,0.20 0.48,0.16 0.64,0.22 0.72,0.36 0.74,0.60 0.72,0.84 0.66,1.00 0.56,1.06 0.42,1.08 0.30,1.02 0.22,0.88 0.18,0.64 0.20,0.40 texfill polyhaven/brown_leather 0.5
+poly 0.28,0.20 0.48,0.16 0.64,0.22 0.72,0.36 0.74,0.60 0.72,0.84 0.66,1.00 0.56,1.06 0.42,1.08 0.30,1.02 0.22,0.88 0.18,0.64 0.20,0.40 stroke #2a1408
+
+# Head (intact at north end)
+ellipse 0.46,0.22 0.18,0.12 fill #5a3818 0.95
+ellipse 0.46,0.22 0.18,0.12 stroke #2a1408
+
+# Closed dead eye
+line 0.40,0.22 0.46,0.24 stroke #1a1008 width 1
+circle 0.50,0.22 0.015 fill #1a1008 0.8
+
+# Slack jaw / open mouth with teeth
+poly 0.42,0.28 0.52,0.30 0.50,0.34 0.44,0.33 fill #1a0404 0.9
+line 0.44,0.30 0.44,0.32 stroke #e8dcc8 width 1
+line 0.48,0.30 0.48,0.32 stroke #e8dcc8 width 1
+
+# Matted fur patches (darker markings)
+ellipse 0.46,0.50 0.18,0.08 fill #3a2010 0.6
+ellipse 0.48,0.80 0.14,0.06 fill #3a2010 0.55
+
+# Torn ragged edge of cavity (where body was ripped open)
+poly 0.22,1.02 0.32,1.08 0.42,1.10 0.56,1.10 0.66,1.08 0.74,1.02 0.72,1.16 0.62,1.22 0.48,1.24 0.34,1.22 0.24,1.14 fill #4a0808 0.9
+poly 0.22,1.02 0.32,1.08 0.42,1.10 0.56,1.10 0.66,1.08 0.74,1.02 0.72,1.16 0.62,1.22 0.48,1.24 0.34,1.22 0.24,1.14 stroke #1a0000
+
+# Messy red cavity interior (deeper, darker)
+poly 0.30,1.10 0.46,1.08 0.60,1.12 0.64,1.24 0.60,1.36 0.48,1.40 0.36,1.38 0.28,1.28 fill #2a0404 0.95
+
+# Exposed rib arcs fanning out of the cavity (white bone curves)
+bezier 0.26,1.18 0.24,1.24 0.26,1.32 0.30,1.40 stroke #e8dcc8 width 3
+bezier 0.26,1.18 0.24,1.24 0.26,1.32 0.30,1.40 stroke #8a7060 width 1
+bezier 0.34,1.12 0.30,1.22 0.30,1.34 0.32,1.46 stroke #e8dcc8 width 3
+bezier 0.34,1.12 0.30,1.22 0.30,1.34 0.32,1.46 stroke #8a7060 width 1
+bezier 0.48,1.10 0.48,1.24 0.48,1.38 0.48,1.50 stroke #e8dcc8 width 3
+bezier 0.48,1.10 0.48,1.24 0.48,1.38 0.48,1.50 stroke #8a7060 width 1
+bezier 0.62,1.12 0.66,1.24 0.68,1.36 0.66,1.48 stroke #e8dcc8 width 3
+bezier 0.62,1.12 0.66,1.24 0.68,1.36 0.66,1.48 stroke #8a7060 width 1
+bezier 0.70,1.18 0.74,1.26 0.74,1.34 0.70,1.42 stroke #e8dcc8 width 3
+bezier 0.70,1.18 0.74,1.26 0.74,1.34 0.70,1.42 stroke #8a7060 width 1
+
+# Gristle / meat strings trailing out
+bezier 0.36,1.44 0.34,1.54 0.38,1.64 0.36,1.72 stroke #5a0808 width 2
+bezier 0.54,1.40 0.58,1.52 0.56,1.62 0.60,1.72 stroke #5a0808 width 2
+bezier 0.44,1.38 0.42,1.48 0.46,1.58 0.44,1.68 stroke #4a0404 width 2
+
+# Spilled entrails (small dark globs)
+ellipse 0.40,1.60 0.08,0.05 fill #2a0404 0.9
+ellipse 0.58,1.68 0.07,0.04 fill #2a0404 0.9
+ellipse 0.48,1.78 0.06,0.035 fill #1a0202 0.85
+
+# Blood splatters around carcass
+circle 0.10,0.80 0.02 fill #3a0808 0.7
+circle 0.86,0.90 0.022 fill #3a0808 0.7
+circle 0.08,0.40 0.015 fill #3a0808 0.65
+circle 0.88,0.50 0.018 fill #3a0808 0.65
+
+# Flies on the carcass
+circle 0.48,0.90 0.01 fill #0a0404 0.9
+circle 0.42,1.30 0.008 fill #0a0404 0.85
+circle 0.58,1.52 0.01 fill #0a0404 0.9

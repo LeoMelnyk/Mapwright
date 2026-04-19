@@ -1,0 +1,79 @@
+name: Market Stall
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1
+placement: floor
+room_types: fairground-seasonal, market-square, market-stall
+typical_count: few
+clusters_with: market-stall-awning, sack, apple-pile, bread-loaf, coin-purse, scales-merchant
+notes: Wooden trestle stall with fruit arrayed on counter-top. Pair with market-stall-awning placed at same position for full market stall look.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.20 1.80,1.60 z 0-1
+
+# Trestle legs (shadows showing under counter, at the 4 corners)
+rect 0.12,0.20 0.16,0.12 fill #2a1400 0.7
+rect 0.12,0.20 0.16,0.12 stroke #1a0a00
+rect 1.72,0.20 0.16,0.12 fill #2a1400 0.7
+rect 1.72,0.20 0.16,0.12 stroke #1a0a00
+rect 0.12,1.68 0.16,0.12 fill #2a1400 0.7
+rect 0.12,1.68 0.16,0.12 stroke #1a0a00
+rect 1.72,1.68 0.16,0.12 fill #2a1400 0.7
+rect 1.72,1.68 0.16,0.12 stroke #1a0a00
+# Main counter top (wooden planks)
+rect 0.10,0.28 1.80,1.44 texfill polyhaven/weathered_planks 0.88
+rect 0.10,0.28 1.80,1.44 stroke #3a1f00
+# Plank seams running east-west (across counter width)
+line 0.10,0.64 1.90,0.64 stroke #2a1400 0.6
+line 0.10,1.00 1.90,1.00 stroke #2a1400 0.6
+line 0.10,1.36 1.90,1.36 stroke #2a1400 0.6
+# Front edge trim (south / customer side) — darker shadow lip
+rect 0.10,1.66 1.80,0.08 fill #3a1f00 0.55
+# Back rail (north / merchant side) — slight upstand
+rect 0.10,0.28 1.80,0.06 fill #4a2800 0.5
+# === GOODS: piles of apples on the counter ===
+# Pile cluster 1 (left) — basket rim
+ellipse 0.50,0.80 0.30,0.24 texfill polyhaven/weathered_planks 0.85
+ellipse 0.50,0.80 0.30,0.24 stroke #3a1f00
+# apples in left basket
+circle 0.38,0.74 0.09 fill #b02820 0.95
+circle 0.38,0.74 0.09 stroke #5a0c08
+circle 0.56,0.72 0.09 fill #c03028 0.95
+circle 0.56,0.72 0.09 stroke #5a0c08
+circle 0.46,0.86 0.09 fill #a82018 0.95
+circle 0.46,0.86 0.09 stroke #5a0c08
+circle 0.62,0.88 0.08 fill #b82c22 0.95
+circle 0.62,0.88 0.08 stroke #5a0c08
+# tiny apple highlights
+circle 0.36,0.72 0.02 fill #ffd4a0 0.8
+circle 0.54,0.70 0.02 fill #ffd4a0 0.8
+# Pile cluster 2 (right) — wooden crate
+rect 1.14,0.56 0.64,0.48 texfill polyhaven/weathered_planks 0.85
+rect 1.14,0.56 0.64,0.48 stroke #2a1400
+line 1.14,0.80 1.78,0.80 stroke #2a1400 0.6
+# apples in right crate
+circle 1.28,0.72 0.085 fill #c03028 0.95
+circle 1.28,0.72 0.085 stroke #5a0c08
+circle 1.46,0.70 0.09 fill #a82018 0.95
+circle 1.46,0.70 0.09 stroke #5a0c08
+circle 1.64,0.74 0.085 fill #b82c22 0.95
+circle 1.64,0.74 0.085 stroke #5a0c08
+circle 1.36,0.90 0.085 fill #b02820 0.95
+circle 1.36,0.90 0.085 stroke #5a0c08
+circle 1.56,0.92 0.09 fill #c03028 0.95
+circle 1.56,0.92 0.09 stroke #5a0c08
+# Loose apples along front of counter
+circle 0.30,1.28 0.08 fill #a82018 0.95
+circle 0.30,1.28 0.08 stroke #5a0c08
+circle 0.96,1.22 0.08 fill #b82c22 0.95
+circle 0.96,1.22 0.08 stroke #5a0c08
+circle 1.70,1.30 0.08 fill #a82018 0.95
+circle 1.70,1.30 0.08 stroke #5a0c08
+# Price sign (small wooden shingle at front-left)
+rect 0.20,1.48 0.22,0.14 fill #8b6914 0.9
+rect 0.20,1.48 0.22,0.14 stroke #3a1f00
+line 0.24,1.54 0.38,1.54 stroke #2a1400 0.8
+line 0.24,1.58 0.34,1.58 stroke #2a1400 0.8

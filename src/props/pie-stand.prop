@@ -1,0 +1,105 @@
+name: Pie Stand
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.1
+placement: floor
+room_types: fairground-seasonal, festival-grounds, village-green, marketplace, tavern, kitchen
+typical_count: few
+clusters_with: apple-barrel, bunting-line, game-booth, bonfire-large, lantern-paper
+notes: Wooden pushcart with top tray of whole pies and cut slices, checkered cloth draped; vendor cart
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: elongated cart viewed from above — top tray south (customer side), handle north
+
+# === HITBOX ===
+hitbox rect 0.10,0.20 1.80,0.65 z 0-1.1
+
+# === Cart base (rectangular wood chassis) ===
+rect 0.10,0.20 1.80,0.65 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.20 1.80,0.65 stroke #1a0a04
+
+# Plank grooves
+line 0.10,0.42 1.90,0.42 stroke #2a1400 width 1
+line 0.10,0.64 1.90,0.64 stroke #2a1400 width 1
+
+# === Checkered cloth draped over one end ===
+# Base cloth (white)
+rect 0.12,0.70 0.50,0.22 fill #f8f0e0 0.92
+rect 0.12,0.70 0.50,0.22 stroke #8b7355
+# Red check squares
+rect 0.16,0.72 0.06,0.06 fill #c82020 0.85
+rect 0.28,0.72 0.06,0.06 fill #c82020 0.85
+rect 0.40,0.72 0.06,0.06 fill #c82020 0.85
+rect 0.52,0.72 0.06,0.06 fill #c82020 0.85
+rect 0.22,0.80 0.06,0.06 fill #c82020 0.85
+rect 0.34,0.80 0.06,0.06 fill #c82020 0.85
+rect 0.46,0.80 0.06,0.06 fill #c82020 0.85
+rect 0.16,0.86 0.06,0.06 fill #c82020 0.85
+rect 0.28,0.86 0.06,0.06 fill #c82020 0.85
+rect 0.40,0.86 0.06,0.06 fill #c82020 0.85
+rect 0.52,0.86 0.06,0.06 fill #c82020 0.85
+
+# === Pies (on top of cart tray) ===
+# Pie 1 (whole apple pie, west)
+circle 0.32,0.40 0.14 fill #c4a882 0.95
+circle 0.32,0.40 0.14 stroke #5c3a1e
+# Lattice top
+line 0.22,0.38 0.42,0.42 stroke #8b6914 width 2
+line 0.22,0.42 0.42,0.38 stroke #8b6914 width 2
+line 0.24,0.32 0.40,0.48 stroke #8b6914 width 2
+line 0.40,0.32 0.24,0.48 stroke #8b6914 width 2
+# Pie crust edge detail (scalloped)
+arc 0.32,0.40 0.14 0 360 stroke #3a2a18 width 1
+
+# Pie 2 (berry pie, center)
+circle 0.72,0.42 0.14 fill #c4a882 0.95
+circle 0.72,0.42 0.14 stroke #5c3a1e
+# Open top showing berries
+circle 0.72,0.42 0.10 fill #4a0a28 0.9
+circle 0.72,0.42 0.10 stroke #2a0414
+# Berry highlights
+circle 0.68,0.40 0.018 fill #8b1040 0.9
+circle 0.74,0.40 0.018 fill #8b1040 0.9
+circle 0.76,0.45 0.018 fill #8b1040 0.9
+circle 0.70,0.45 0.018 fill #8b1040 0.9
+
+# Pie 3 (cream pie, east)
+circle 1.12,0.42 0.14 fill #f8e8c0 0.95
+circle 1.12,0.42 0.14 stroke #5c3a1e
+# Swirl of cream
+bezier 1.04,0.42 1.08,0.36 1.16,0.40 1.20,0.44 stroke #8b6914 width 2
+bezier 1.20,0.44 1.14,0.46 1.10,0.42 1.08,0.46 stroke #8b6914 width 2
+
+# Pie 4 (cut pie showing slices removed, east)
+arc 1.52,0.42 0.14 30 330 fill #c4a882 0.95
+arc 1.52,0.42 0.14 30 330 stroke #5c3a1e
+# Cut face (filling visible)
+poly 1.52,0.42 1.64,0.35 1.64,0.49 fill #8b5020 0.9
+poly 1.52,0.42 1.64,0.35 1.64,0.49 stroke #3a2a18
+# Pie tin outer rim
+arc 1.52,0.42 0.14 0 360 stroke #3a2a18 width 1
+
+# === Individual slice on a plate ===
+circle 1.76,0.28 0.08 fill #e8dcc8 0.9
+circle 1.76,0.28 0.08 stroke #8b7355
+# The slice (wedge)
+poly 1.76,0.28 1.82,0.22 1.82,0.34 fill #c4a882 0.95
+poly 1.76,0.28 1.82,0.22 1.82,0.34 stroke #5c3a1e
+
+# === Push handle (north side, small bar) ===
+rect 0.40,0.08 1.20,0.06 texfill polyhaven/dark_wood 0.9
+rect 0.40,0.08 1.20,0.06 stroke #1a0a04
+
+# === Wheels (visible at cart corners) ===
+circle 0.20,0.86 0.08 fill #3a2418 0.9
+circle 0.20,0.86 0.08 stroke #1a0a04
+circle 0.20,0.86 0.04 stroke #1a0a04 width 2
+circle 1.80,0.86 0.08 fill #3a2418 0.9
+circle 1.80,0.86 0.08 stroke #1a0a04
+circle 1.80,0.86 0.04 stroke #1a0a04 width 2
+
+# Chalkboard sign/menu (small rect on cart)
+rect 1.70,0.22 0.12,0.10 fill #1a1408 0.9

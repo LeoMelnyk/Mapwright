@@ -1,0 +1,57 @@
+name: Broken Crate
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: dock-warehouse, sewer-junction, ship-cargo-hold, ruined-watchtower, cabin-abandoned
+typical_count: few
+clusters_with: crate, crate-stack, rag-pile, debris
+notes: Smashed wooden crate with splintered boards, contents spilled
+---
+# === HITBOX ===
+selection rect 0.10,0.14 0.80,0.72
+
+# Base shadow of crate outline
+rect 0.10,0.14 0.80,0.72 fill #1a1008 0.3
+# Intact planks on two sides (what remains)
+rect 0.10,0.14 0.12,0.72 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.14 0.12,0.72 stroke #3a2010
+rect 0.10,0.14 0.80,0.12 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.14 0.80,0.12 stroke #3a2010
+# Partial plank south (broken off)
+rect 0.10,0.78 0.40,0.08 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.78 0.40,0.08 stroke #3a2010
+# Jagged break edges
+poly 0.50,0.78 0.54,0.74 0.58,0.80 0.62,0.76 0.66,0.82 0.70,0.78 0.74,0.84 0.78,0.82 fill #2a1408 0.7
+# Broken plank fragments
+poly 0.60,0.30 0.72,0.26 0.78,0.42 0.66,0.46 fill #8a5a30 0.85 rotate 20
+poly 0.60,0.30 0.72,0.26 0.78,0.42 0.66,0.46 stroke #3a1f00 rotate 20
+# Plank grain
+line 0.62,0.32 0.74,0.42 stroke #5c3a1e 0.5
+# Splintered board
+rect 0.30,0.50 0.30,0.06 texfill polyhaven/weathered_planks 0.85 rotate -15
+rect 0.30,0.50 0.30,0.06 stroke #3a2010 rotate -15
+# Nails sticking out
+line 0.22,0.18 0.22,0.12 stroke #444444 width 1
+line 0.28,0.18 0.28,0.12 stroke #444444 width 1
+line 0.14,0.38 0.08,0.38 stroke #444444 width 1
+line 0.14,0.58 0.08,0.58 stroke #444444 width 1
+# Spilled contents — straw packing
+bezier 0.40,0.40 0.46,0.44 0.52,0.42 0.58,0.46 stroke #c8a058 0.8
+bezier 0.44,0.48 0.50,0.52 0.56,0.50 0.62,0.54 stroke #c8a058 0.7
+bezier 0.36,0.56 0.42,0.60 0.48,0.58 0.54,0.62 stroke #c8a058 0.7
+# Spilled item — small round object (pot/pot shard)
+circle 0.52,0.66 0.06 fill #6b4e2e 0.85
+circle 0.52,0.66 0.06 stroke #2a1400
+# Broken pottery shards
+poly 0.64,0.60 0.72,0.58 0.70,0.66 fill #8a7058 0.85
+poly 0.64,0.60 0.72,0.58 0.70,0.66 stroke #3a2a1a
+# Splinter debris
+line 0.36,0.30 0.42,0.28 stroke #5c3a1e width 1
+line 0.28,0.40 0.34,0.36 stroke #5c3a1e width 1
+# Stamp marking on intact side
+line 0.14,0.28 0.18,0.30 stroke #2a1400 0.7 width 1
+line 0.14,0.32 0.18,0.34 stroke #2a1400 0.7 width 1

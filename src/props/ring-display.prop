@@ -1,0 +1,92 @@
+name: Ring Display
+category: Merchandise
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: shop-jeweler, market-stall, vault, treasure-room, gallery, display
+typical_count: few
+clusters_with: velvet-cloth, pearl-strand, display-case-small, coin-pile, gem-loose
+notes: Small jewelry ring stand — velvet pad with multiple tiny ring circles arranged in rows. Wall/counter side at north.
+---
+# === HITBOX ===
+selection rect 0.14,0.14 0.72,0.72
+
+# footprint 1x1: x 0-1, y 0-1
+
+# Faint drop shadow
+ellipse 0.50,0.78 0.32,0.06 fill #1a0a00 0.25
+
+# Wooden base tray
+rect 0.12,0.12 0.76,0.76 texfill polyhaven/dark_wood 0.9
+rect 0.12,0.12 0.76,0.76 stroke #2a1400
+# Base rim trim
+rect 0.16,0.16 0.68,0.68 stroke #5c3a1e 0.5 width 1
+
+# Velvet inner pad
+rect 0.18,0.18 0.64,0.64 texfill polyhaven/velour_velvet 0.8
+rect 0.18,0.18 0.64,0.64 fill #2a3a7a 0.55
+rect 0.18,0.18 0.64,0.64 stroke #101a40
+
+# Gold thread border
+rect 0.20,0.20 0.60,0.60 stroke #daa520 0.6 width 1
+
+# === Rings on display ===
+# Row 1 (upper) — 3 rings
+# Ring 1 — gold band with tiny gem
+circle 0.30,0.30 0.055 stroke #daa520 width 2
+circle 0.30,0.30 0.040 stroke #8b6914 0.6 width 1
+circle 0.30,0.28 0.018 fill #aa2020 0.9
+circle 0.30,0.28 0.018 stroke #5a0808
+
+# Ring 2 — silver band with diamond
+circle 0.50,0.30 0.055 stroke #c0c0c0 width 2
+circle 0.50,0.30 0.040 stroke #666666 0.6 width 1
+poly 0.50,0.26 0.52,0.28 0.50,0.32 0.48,0.28 fill #c0e0ff 0.9
+poly 0.50,0.26 0.52,0.28 0.50,0.32 0.48,0.28 stroke #6a8aaa
+
+# Ring 3 — gold with green emerald
+circle 0.70,0.30 0.055 stroke #daa520 width 2
+circle 0.70,0.30 0.040 stroke #8b6914 0.6 width 1
+rect 0.685,0.285 0.03,0.03 fill #2a8a48 0.92
+rect 0.685,0.285 0.03,0.03 stroke #104020
+
+# Row 2 (lower) — 3 rings
+# Ring 4 — plain silver wedding band
+circle 0.30,0.52 0.055 stroke #c0c0c0 width 2
+circle 0.30,0.52 0.040 stroke #888888 0.7 width 1
+
+# Ring 5 — gold signet ring (flat square top)
+circle 0.50,0.52 0.055 stroke #daa520 width 2
+rect 0.475,0.495 0.05,0.05 fill #8b6914 0.95
+rect 0.475,0.495 0.05,0.05 stroke #5a3a00
+# Engraved mark
+line 0.48,0.52 0.52,0.52 stroke #3a1f00 0.8 width 1
+line 0.50,0.50 0.50,0.54 stroke #3a1f00 0.8 width 1
+
+# Ring 6 — gold with sapphire
+circle 0.70,0.52 0.055 stroke #daa520 width 2
+circle 0.70,0.52 0.040 stroke #8b6914 0.6 width 1
+circle 0.70,0.50 0.020 fill #2a3a7a 0.92
+circle 0.70,0.50 0.020 stroke #101a40
+
+# Row 3 (bottom) — 2 larger rings
+# Large ring with ruby cluster
+circle 0.36,0.72 0.06 stroke #daa520 width 2
+circle 0.36,0.70 0.018 fill #aa2020 0.9
+circle 0.33,0.72 0.012 fill #aa2020 0.85
+circle 0.39,0.72 0.012 fill #aa2020 0.85
+
+# Large signet with onyx
+circle 0.64,0.72 0.06 stroke #c0c0c0 width 2
+rect 0.615,0.695 0.05,0.05 fill #1a1a20 0.95
+rect 0.615,0.695 0.05,0.05 stroke #000000
+
+# Subtle highlight on pad (catches light)
+arc 0.50,0.42 0.22 200 260 stroke #4a5aaa 0.4 width 2
+
+# Price tag string at one corner (tiny detail)
+line 0.80,0.26 0.84,0.22 stroke #d4c4a8 0.7 width 1
+circle 0.84,0.22 0.015 fill #d4c4a8 0.8

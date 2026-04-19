@@ -1,0 +1,48 @@
+name: Floor Lantern
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.6
+lights: [{"preset":"lantern","x":0.5,"y":0.5}]
+placement: floor
+room_types: cabin-hunters, library, mansion-servants-quarters, ruined-watchtower, ship-captains-cabin, lighthouse-keepers-room
+typical_count: few
+clusters_with: desk, chair, book-pile, bedroll
+notes: Hand-held hooded lantern set down on floor; warm pooled light
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-0.6
+
+# Drop shadow
+circle 0.5,0.54 0.26 fill #1a1008 0.3
+# Base plate (iron disc)
+circle 0.5,0.52 0.22 fill #4a3020 0.85
+circle 0.5,0.52 0.22 stroke #2a1810
+# Base rim
+circle 0.5,0.52 0.20 stroke #5a4028 0.7 width 1
+# Glass chamber (square lamp with glass panes, seen from above)
+rect 0.32,0.34 0.36,0.36 fill #8a6020 0.85
+rect 0.32,0.34 0.36,0.36 stroke #3a2008
+# Glass panes (slightly inset)
+rect 0.36,0.38 0.28,0.28 fill #f0c040 0.6
+rect 0.36,0.38 0.28,0.28 stroke #3a2008
+# Inner glow — warm yellow from candle within
+rect 0.38,0.40 0.24,0.24 fill #ffcc00 0.5
+rect 0.38,0.40 0.24,0.24 stroke #8a6020 0.6
+# Candle flame at center
+circle 0.5,0.52 0.06 fill #ffaa00 0.7
+circle 0.5,0.52 0.03 fill #ffee88 0.95
+# Pane frames (vertical bars)
+line 0.48,0.34 0.48,0.70 stroke #3a2008 width 1
+line 0.52,0.34 0.52,0.70 stroke #3a2008 width 1
+# Horizontal bar
+line 0.32,0.52 0.68,0.52 stroke #3a2008 width 1
+# Handle loop on top (small arc pointing up/north)
+arc 0.5,0.30 0.06 180 360 stroke #444444 width 2
+# Hood/top cap
+ellipse 0.5,0.32 0.12,0.04 fill #4a3020 0.9
+ellipse 0.5,0.32 0.12,0.04 stroke #2a1810
+# Light halo ring
+circle 0.5,0.52 0.30 fill #ffaa00 0.1

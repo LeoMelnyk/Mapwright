@@ -1,0 +1,63 @@
+name: Toll Barrier
+category: Barriers
+footprint: 1x3
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1
+placement: center
+room_types: toll-bridge-house, gate, checkpoint, road-crossing, bridge-approach
+typical_count: single
+clusters_with: toll-house, lantern-post, tax-chest, guard-post
+notes: Horizontal wooden pole barrier across a road — counterweight on one end, pivot post on the other. Pole lies east-west across the footprint.
+---
+# === HITBOX ===
+selection rect 0.10,0.40 2.80,0.20
+
+# footprint 1x3: x 0-3, y 0-1. Horizontal pole barrier.
+
+# West pivot post (square base)
+rect 0.10,0.36 0.24,0.28 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.36 0.24,0.28 stroke #2a1400
+# Pivot post iron bracket
+rect 0.12,0.44 0.20,0.12 fill #333333 0.9
+rect 0.12,0.44 0.20,0.12 stroke #222222
+# Pivot axle
+circle 0.22,0.50 0.04 fill #555555 0.95
+circle 0.22,0.50 0.04 stroke #222222
+
+# Horizontal pole (red-and-white painted or plain wooden)
+rect 0.28,0.46 2.40,0.08 fill #d4c4a8 0.9
+rect 0.28,0.46 2.40,0.08 stroke #3a1f00
+
+# Red painted warning bands
+rect 0.60,0.46 0.20,0.08 fill #aa2020 0.92
+rect 0.60,0.46 0.20,0.08 stroke #6a1010
+rect 1.20,0.46 0.20,0.08 fill #aa2020 0.92
+rect 1.20,0.46 0.20,0.08 stroke #6a1010
+rect 1.80,0.46 0.20,0.08 fill #aa2020 0.92
+rect 1.80,0.46 0.20,0.08 stroke #6a1010
+rect 2.40,0.46 0.20,0.08 fill #aa2020 0.92
+rect 2.40,0.46 0.20,0.08 stroke #6a1010
+
+# Pole highlight
+line 0.28,0.47 2.68,0.47 stroke #f0e0c0 0.6 width 1
+
+# Counterweight stone at east end (lowered tip)
+circle 2.72,0.50 0.14 texfill polyhaven/stone_wall 0.9
+circle 2.72,0.50 0.14 stroke #2a2a2a
+# Iron strapping on counterweight
+circle 2.72,0.50 0.14 stroke #444444 width 1
+circle 2.72,0.50 0.10 stroke #444444 0.7
+# Chain linking pole to counterweight
+line 2.68,0.50 2.72,0.50 stroke #555555 width 2
+
+# Warning sign mounted on pivot post (small placard)
+rect 0.14,0.26 0.16,0.10 fill #8b6914 0.9
+rect 0.14,0.26 0.16,0.10 stroke #3a1f00
+line 0.16,0.30 0.28,0.30 stroke #1a1208 0.8 width 1
+line 0.16,0.33 0.26,0.33 stroke #1a1208 0.6 width 1
+
+# Iron cap on pole at east end
+rect 2.66,0.44 0.06,0.12 fill #444444 0.9
+rect 2.66,0.44 0.06,0.12 stroke #222222

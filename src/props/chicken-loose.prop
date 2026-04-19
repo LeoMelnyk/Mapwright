@@ -1,0 +1,81 @@
+name: Loose Chicken
+category: Creatures
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: peasant-hovel, farmhouse-kitchen, barn, village-green, market-stall, cabin-abandoned
+typical_count: few
+clusters_with: chicken-crate, cat-hunting, turnip-pile, sack, wooden-bowl
+notes: Single hen walking around free — plump body, small head forward, tail feathers back. Facing south.
+---
+# === HITBOX ===
+selection ellipse 0.5,0.52 0.22,0.28
+
+# === Tail feathers (raised at north end — fan shape) ===
+poly 0.50,0.24 0.42,0.28 0.40,0.34 0.44,0.40 fill #8a5838 0.9
+poly 0.50,0.24 0.42,0.28 0.40,0.34 0.44,0.40 stroke #3a1f08
+poly 0.50,0.24 0.58,0.28 0.60,0.34 0.56,0.40 fill #8a5838 0.9
+poly 0.50,0.24 0.58,0.28 0.60,0.34 0.56,0.40 stroke #3a1f08
+# Center tail feather
+poly 0.50,0.22 0.48,0.36 0.52,0.36 fill #6a4028 0.9
+poly 0.50,0.22 0.48,0.36 0.52,0.36 stroke #3a1f08
+# Feather barb lines
+line 0.48,0.30 0.52,0.30 stroke #3a1f08 0.7
+line 0.46,0.36 0.54,0.36 stroke #3a1f08 0.6
+
+# === Main body (plump oval — brown/red feathered) ===
+ellipse 0.50,0.54 0.20,0.22 fill #a85028 0.95
+ellipse 0.50,0.54 0.20,0.22 stroke #3a1f08
+
+# === Feather texture (overlapping scallops on back) ===
+arc 0.40,0.44 0.05 0 180 stroke #6a3018 0.7 width 1
+arc 0.50,0.42 0.05 0 180 stroke #6a3018 0.7 width 1
+arc 0.60,0.44 0.05 0 180 stroke #6a3018 0.7 width 1
+arc 0.42,0.52 0.05 0 180 stroke #6a3018 0.6 width 1
+arc 0.52,0.52 0.05 0 180 stroke #6a3018 0.6 width 1
+arc 0.58,0.52 0.05 0 180 stroke #6a3018 0.6 width 1
+arc 0.44,0.60 0.05 0 180 stroke #6a3018 0.55 width 1
+arc 0.54,0.60 0.05 0 180 stroke #6a3018 0.55 width 1
+
+# === Wing outline (folded to body — darker curved line) ===
+bezier 0.36,0.48 0.40,0.60 0.48,0.68 0.58,0.66 stroke #5a2810 0.8 width 2
+# Wing feather tips
+line 0.40,0.62 0.42,0.66 stroke #3a1f08 0.7
+line 0.48,0.66 0.50,0.70 stroke #3a1f08 0.7
+
+# === Lighter breast patch (pale belly) ===
+ellipse 0.50,0.66 0.10,0.08 fill #d8a878 0.5
+
+# === Head (small, forward — south) ===
+circle 0.50,0.78 0.08 fill #a85028 0.95
+circle 0.50,0.78 0.08 stroke #3a1f08
+
+# === Red comb on top of head (floppy crest) ===
+poly 0.44,0.74 0.46,0.68 0.50,0.72 0.54,0.68 0.56,0.74 fill #c82828 0.95
+poly 0.44,0.74 0.46,0.68 0.50,0.72 0.54,0.68 0.56,0.74 stroke #7a1010
+
+# === Beak (small yellow-orange triangle pointing south) ===
+poly 0.48,0.84 0.52,0.84 0.50,0.88 fill #e8a020 0.95
+poly 0.48,0.84 0.52,0.84 0.50,0.88 stroke #8a5010
+
+# === Wattle (red flap below beak) ===
+ellipse 0.50,0.86 0.02,0.025 fill #c82828 0.9
+ellipse 0.50,0.86 0.02,0.025 stroke #7a1010
+
+# === Eye (small bead) ===
+circle 0.46,0.77 0.012 fill #1a0a00 0.95
+circle 0.46,0.77 0.004 fill #ffffff 0.85
+
+# === Scaly yellow leg (peeking out south, taking a step) ===
+line 0.46,0.78 0.44,0.92 stroke #e8a020 width 2
+# Foot claws (3 splayed toes)
+line 0.44,0.92 0.40,0.96 stroke #8a5010 width 1
+line 0.44,0.92 0.44,0.98 stroke #8a5010 width 1
+line 0.44,0.92 0.48,0.96 stroke #8a5010 width 1
+
+# === Small feather fluff detail on tail ===
+circle 0.46,0.32 0.012 fill #d8a878 0.7
+circle 0.54,0.32 0.012 fill #d8a878 0.65

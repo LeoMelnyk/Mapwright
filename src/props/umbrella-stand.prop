@@ -1,0 +1,66 @@
+name: Umbrella Stand
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.0
+placement: corner
+room_types: mansion-grand-hall, manor-foyer, noble-villa, reception-hall, estate
+typical_count: single
+clusters_with: coat-rack-ornate, decorative-urn
+notes: Tall brass and ceramic umbrella stand with two walking sticks and a parasol handle poking up. Place in foyers and grand-hall corners near entry doors.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === HITBOX ===
+selection circle 0.50,0.50 0.22
+
+# Round ceramic vessel body (widest visible from above)
+circle 0.50,0.50 0.28 fill #e8dcc8 0.95
+circle 0.50,0.50 0.28 stroke #8b6914 width 2
+
+# Brass banding around top rim
+circle 0.50,0.50 0.26 stroke #daa520 width 3
+
+# Inner brass rim
+circle 0.50,0.50 0.24 stroke #5a3a00 width 1
+
+# Ceramic painted pattern hints (blue floral)
+circle 0.38,0.38 0.025 fill #2040aa 0.5
+circle 0.62,0.38 0.025 fill #2040aa 0.5
+circle 0.38,0.62 0.025 fill #2040aa 0.5
+circle 0.62,0.62 0.025 fill #2040aa 0.5
+
+# Inner cavity opening (dark)
+circle 0.50,0.50 0.20 fill #2a1400 0.85
+circle 0.50,0.50 0.20 stroke #1a0a00 width 2
+
+# Inner shadow
+circle 0.50,0.50 0.16 fill #000000 0.45
+
+# Walking stick 1 — wooden cane (head pokes up at angle)
+line 0.50,0.50 0.38,0.36 stroke #5c3a1e width 4
+line 0.50,0.50 0.38,0.36 stroke #1a1208 width 1
+# Cane handle (curved knob)
+circle 0.36,0.34 0.05 fill #daa520 0.95
+circle 0.36,0.34 0.05 stroke #5a3a00 width 2
+circle 0.36,0.34 0.02 fill #8b6914 0.8
+
+# Walking stick 2 — dark wood cane
+line 0.50,0.50 0.60,0.34 stroke #2a1400 width 4
+line 0.50,0.50 0.60,0.34 stroke #0a0604 width 1
+# Silver cane head
+circle 0.62,0.32 0.045 fill #c0c0c0 0.95
+circle 0.62,0.32 0.045 stroke #555555 width 2
+
+# Parasol handle — a curved handle poking up
+bezier 0.50,0.50 0.55,0.42 0.52,0.34 0.46,0.32 stroke #4a2060 width 4
+bezier 0.50,0.50 0.55,0.42 0.52,0.34 0.46,0.32 stroke #1a0420 width 1
+
+# Parasol tassel at handle end
+circle 0.46,0.32 0.03 fill #daa520 0.9
+circle 0.46,0.32 0.03 stroke #5a3a00
+
+# Rim highlight
+arc 0.50,0.50 0.27 200 260 stroke #ffffff 0.4 width 1

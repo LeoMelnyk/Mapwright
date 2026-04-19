@@ -1,0 +1,45 @@
+name: Place Card
+category: Misc
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: any
+room_types: mansion-dining, dining-hall, supper-room, noble-solar
+typical_count: few
+clusters_with: round-dining-table, napkin-pile, silver-candlestick, tureen
+notes: Calligraphic place-card in a small brass holder — a tent-folded card for seating arrangement.
+---
+# Footprint 1x1: x 0-1, y 0-1. Top-down: brass holder base with tent card peeked above.
+
+# Brass holder base (small oval foot)
+ellipse 0.50,0.70 0.18,0.06 fill #daa520 0.95
+ellipse 0.50,0.70 0.18,0.06 stroke #5a3a00
+
+# Brass holder clip (small rectangle at center)
+rect 0.42,0.60 0.16,0.10 fill #8b6914 0.95
+rect 0.42,0.60 0.16,0.10 stroke #5a3a00
+
+# Tent card (folded in half — from above we see the top fold ridge and the two slanted panels)
+# Left panel (slants down-left)
+poly 0.22,0.34 0.50,0.32 0.50,0.58 0.26,0.60 fill #f0e8d8 0.95
+poly 0.22,0.34 0.50,0.32 0.50,0.58 0.26,0.60 stroke #8b7355
+# Right panel (slants down-right)
+poly 0.50,0.32 0.78,0.34 0.74,0.60 0.50,0.58 fill #f8f0e0 0.95
+poly 0.50,0.32 0.78,0.34 0.74,0.60 0.50,0.58 stroke #8b7355
+
+# Fold ridge (center crease — sharpest line)
+line 0.50,0.32 0.50,0.58 stroke #5c3a1e width 2
+
+# Calligraphic name (suggestion via stylized strokes on front panel — the right panel)
+line 0.56,0.42 0.68,0.42 stroke #2a1400 0.8 width 1
+line 0.58,0.46 0.66,0.46 stroke #2a1400 0.7 width 1
+line 0.56,0.50 0.70,0.50 stroke #2a1400 0.8 width 1
+# Decorative flourish
+qbezier 0.58,0.54 0.62,0.52 0.68,0.55 stroke #881818 0.7 width 1
+
+# Card edge shadow
+line 0.26,0.60 0.74,0.60 stroke #c8b898 0.5 width 1
+
+# Holder highlight (brass glint)
+arc 0.50,0.70 0.16 210 340 stroke #ffd700 0.4 width 1

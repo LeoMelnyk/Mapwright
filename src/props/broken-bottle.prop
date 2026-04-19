@@ -1,0 +1,40 @@
+name: Broken Bottle
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: cabin-abandoned, peasant-hovel, tavern-common, sewer-junction
+typical_count: few
+clusters_with: broken-vial, empty-bottle, rubble-pile, rag-pile
+notes: Shattered glass bottle — jagged base ring intact with scattered angular shards around it
+---
+# Base ring (broken bottle bottom, still standing)
+circle 0.50,0.52 0.13 fill #a8c4b8 0.6
+circle 0.50,0.52 0.13 stroke #4a6a5e
+# Dark interior (opening looking down into shattered base)
+circle 0.50,0.52 0.09 fill #1a2420 0.85
+circle 0.50,0.52 0.09 stroke #3a4a44
+# Jagged break rim on the base (top edge chipped)
+poly 0.38,0.48 0.42,0.44 0.46,0.50 0.50,0.42 0.54,0.48 0.58,0.44 0.62,0.50 fill #a8c4b8 0.7
+poly 0.38,0.48 0.42,0.44 0.46,0.50 0.50,0.42 0.54,0.48 0.58,0.44 0.62,0.50 stroke #4a6a5e
+# Wine/liquid stain puddle underneath
+ellipse 0.52,0.58 0.22,0.12 fill #4a1010 0.45
+# Scattered glass shards (angular polygons)
+poly 0.18,0.30 0.26,0.26 0.24,0.34 fill #a8c4b8 0.6
+poly 0.18,0.30 0.26,0.26 0.24,0.34 stroke #4a6a5e
+poly 0.76,0.22 0.86,0.24 0.82,0.32 0.74,0.30 fill #a8c4b8 0.6
+poly 0.76,0.22 0.86,0.24 0.82,0.32 0.74,0.30 stroke #4a6a5e
+poly 0.14,0.66 0.22,0.62 0.24,0.72 0.16,0.76 fill #a8c4b8 0.6
+poly 0.14,0.66 0.22,0.62 0.24,0.72 0.16,0.76 stroke #4a6a5e
+poly 0.78,0.68 0.88,0.72 0.84,0.82 0.74,0.78 fill #a8c4b8 0.6
+poly 0.78,0.68 0.88,0.72 0.84,0.82 0.74,0.78 stroke #4a6a5e
+poly 0.30,0.82 0.40,0.80 0.38,0.88 fill #a8c4b8 0.6
+poly 0.30,0.82 0.40,0.80 0.38,0.88 stroke #4a6a5e
+poly 0.64,0.16 0.72,0.18 0.68,0.24 fill #a8c4b8 0.6
+poly 0.64,0.16 0.72,0.18 0.68,0.24 stroke #4a6a5e
+# Tiny glass slivers (highlights)
+line 0.34,0.22 0.40,0.26 stroke #d4e8dc width 1
+line 0.58,0.80 0.64,0.84 stroke #d4e8dc width 1

@@ -1,0 +1,48 @@
+name: Potter's Wheel
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: floor
+room_types: workshop-potter, workshop, artisan-quarter, kiln-room, peasant-hovel
+typical_count: single
+clusters_with: clay-bin, clay-lump, wheel-potters, apron-clay, sponge, water-bowl, broken-pottery, pottery-shard
+notes: Top-down potter's wheel — circular stone/wood turntable with a spindle hub and a half-formed clay vessel rising from the center. Place against a wall or in a workshop corner.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.46
+
+# Wooden base plank (drawn first, under the turntable)
+rect 0.08,0.64 0.84,0.26 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.64 0.84,0.26 stroke #3a1f00
+
+# Main turntable — large wheel
+circle 0.50,0.50 0.46 texfill polyhaven/dark_wood 0.85
+circle 0.50,0.50 0.46 stroke #2a1400
+
+# Banding rings on the turntable
+circle 0.50,0.50 0.40 stroke #3a1f00 0.7
+circle 0.50,0.50 0.30 stroke #3a1f00 0.5
+
+# Spindle hub in the center (iron)
+circle 0.50,0.50 0.10 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.50 0.10 stroke #222222
+
+# Half-formed clay vessel rising from center
+circle 0.50,0.50 0.08 fill #8b6914 0.9
+circle 0.50,0.50 0.08 stroke #5a3a00
+
+# Clay lip / rim catching light
+circle 0.48,0.48 0.05 fill #a97a2a 0.85
+circle 0.48,0.48 0.05 stroke #5a3a00
+
+# Wet clay sheen highlight
+ellipse 0.48,0.48 0.03,0.02 fill #d4a574 0.55
+
+# Clay splatter on the turntable (splashes radiating out)
+circle 0.28,0.38 0.03 fill #8b6914 0.6
+circle 0.72,0.42 0.025 fill #8b6914 0.55
+circle 0.34,0.64 0.02 fill #8b6914 0.5
+circle 0.66,0.62 0.025 fill #8b6914 0.5

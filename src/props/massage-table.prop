@@ -1,0 +1,54 @@
+name: Massage Table
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.6
+placement: center
+room_types: bath-house, brothel-parlor, mansion-bathroom
+typical_count: few
+clusters_with: towel-folded, oil-amphora, bath-pool, low-table
+notes: Long wooden massage bench with rolled towel pillow at the north end. Facing south.
+---
+# === HITBOX ===
+selection rect 0.10,0.08 1.80,0.84
+
+# Table body (long plank top, dark wood)
+rect 0.10,0.08 1.80,0.84 texfill polyhaven/wood_table 0.85
+rect 0.10,0.08 1.80,0.84 fill #3a1f00 0.35
+rect 0.10,0.08 1.80,0.84 stroke #2a1400
+
+# Subtle tufted padding indication (rounded inset panel)
+rect 0.22,0.18 1.56,0.64 fill #4a2a10 0.45
+rect 0.22,0.18 1.56,0.64 stroke #2a1400 0.7
+
+# Padding tufts / seam dimples
+circle 0.50,0.50 0.03 fill #2a1400 0.7
+circle 0.90,0.50 0.03 fill #2a1400 0.7
+circle 1.30,0.50 0.03 fill #2a1400 0.7
+circle 1.70,0.50 0.03 fill #2a1400 0.7
+
+# Seam along centerline
+line 0.22,0.50 1.78,0.50 stroke #2a1400 0.6 width 1
+
+# Rolled/folded towel pillow at west end (north for facing)
+rect 0.14,0.20 0.22,0.60 texfill polyhaven/rough_linen 0.9
+rect 0.14,0.20 0.22,0.60 fill #e8dcc0 0.45
+rect 0.14,0.20 0.22,0.60 stroke #a89878
+
+# Towel fold creases
+line 0.14,0.40 0.36,0.40 stroke #a89878 0.7
+line 0.14,0.60 0.36,0.60 stroke #a89878 0.7
+
+# Towel stripe detail
+line 0.14,0.30 0.36,0.30 stroke #8a3040 0.6 width 1
+
+# Leg shadow hints at corners
+circle 0.18,0.14 0.04 fill #1a1008 0.4
+circle 1.82,0.14 0.04 fill #1a1008 0.4
+circle 0.18,0.86 0.04 fill #1a1008 0.4
+circle 1.82,0.86 0.04 fill #1a1008 0.4
+
+# Surface sheen
+arc 1.0,0.5 0.45 200 250 stroke #8b6914 0.4 width 1

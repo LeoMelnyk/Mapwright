@@ -1,0 +1,67 @@
+name: Strigil
+category: Tools
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: bath-house, athlete-quarters, bedroom-villa
+typical_count: single
+clusters_with: water-jar, oil-flask, towel-folded
+notes: Curved bronze body-scraper tool — hooked scoop blade with short grip. Lying on surface.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: curved crescent scoop blade, short wrapped handle at one end.
+
+# Shadow beneath
+ellipse 0.5,0.54 0.40,0.08 fill #1a0800 0.2
+
+# === GRIP / HANDLE (east end) ===
+# Handle core
+rect 0.68,0.46 0.24,0.10 fill #8b6914 0.9
+rect 0.68,0.46 0.24,0.10 texfill polyhaven/metal_plate 0.4
+rect 0.68,0.46 0.24,0.10 stroke #5a3a00 width 1
+
+# Leather wrap around handle
+line 0.70,0.48 0.70,0.54 stroke #3a2010 width 2
+line 0.74,0.48 0.74,0.54 stroke #3a2010 width 2
+line 0.78,0.48 0.78,0.54 stroke #3a2010 width 2
+line 0.82,0.48 0.82,0.54 stroke #3a2010 width 2
+line 0.86,0.48 0.86,0.54 stroke #3a2010 width 2
+
+# Handle pommel cap (east end)
+circle 0.92,0.51 0.04 fill #daa520 0.9
+circle 0.92,0.51 0.04 stroke #5a3a00
+
+# Socket/ferrule where handle meets blade
+rect 0.64,0.44 0.06,0.14 fill #8b6914 0.9
+rect 0.64,0.44 0.06,0.14 stroke #5a3a00 width 1
+
+# === CURVED SCOOP BLADE (west, curving around) ===
+# Outer blade edge (large curve)
+bezier 0.64,0.44 0.40,0.30 0.16,0.36 0.08,0.52 stroke #daa520 width 4
+bezier 0.64,0.44 0.40,0.30 0.16,0.36 0.08,0.52 stroke #5a3a00 0.7 width 2
+
+# Inner blade edge (forms the scoop channel)
+bezier 0.64,0.56 0.44,0.52 0.24,0.58 0.16,0.64 stroke #c89518 width 3
+bezier 0.64,0.56 0.44,0.52 0.24,0.58 0.16,0.64 stroke #5a3a00 0.7 width 1
+
+# Blade body (filled polygon between the two curves)
+poly 0.64,0.44 0.40,0.30 0.16,0.36 0.08,0.52 0.12,0.56 0.16,0.64 0.24,0.58 0.44,0.52 0.64,0.56 fill #daa520 0.7
+poly 0.64,0.44 0.40,0.30 0.16,0.36 0.08,0.52 0.12,0.56 0.16,0.64 0.24,0.58 0.44,0.52 0.64,0.56 texfill polyhaven/metal_plate 0.3
+poly 0.64,0.44 0.40,0.30 0.16,0.36 0.08,0.52 0.12,0.56 0.16,0.64 0.24,0.58 0.44,0.52 0.64,0.56 stroke #5a3a00 width 1
+
+# Inner blade polished sheen (bright bronze highlight)
+bezier 0.56,0.42 0.38,0.36 0.22,0.42 0.14,0.54 stroke #ffee88 0.6 width 1
+
+# Blade tip (west point)
+circle 0.08,0.52 0.022 fill #5a3a00 0.8
+
+# Tarnish spots
+circle 0.40,0.40 0.012 fill #5a3a00 0.5
+circle 0.30,0.50 0.010 fill #5a3a00 0.5
+circle 0.76,0.50 0.010 fill #5a3a00 0.4
+
+# Oil residue smudge inside the scoop
+ellipse 0.40,0.46 0.10,0.03 fill #8b6914 0.4

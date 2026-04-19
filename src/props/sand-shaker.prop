@@ -1,0 +1,51 @@
+name: Sand Shaker
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.25
+placement: floor
+room_types: scriptorium-mundane, counting-house, mansion-study, library, guildhall
+typical_count: few
+clusters_with: inkwell, quill, desk, ledger-stack, blotting-rag, ink-stone
+notes: Brass pounce/sand shaker — perforated canister for sprinkling fine sand over wet ink to dry it
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.15
+
+# Outer base disc (slight flare at bottom)
+circle 0.5,0.5 0.18 fill #8b6914 0.8
+circle 0.5,0.5 0.18 stroke #5a3a00 width 2
+
+# Main canister body
+circle 0.5,0.5 0.15 fill #daa520 0.9
+circle 0.5,0.5 0.15 stroke #5a3a00 width 2
+
+# Body middle band (decorative ring)
+circle 0.5,0.5 0.12 stroke #5a3a00 0.6 width 1
+
+# Perforated dome top (brighter brass)
+circle 0.5,0.5 0.10 fill #ffd700 0.9
+circle 0.5,0.5 0.10 stroke #5a3a00 width 2
+
+# Perforation holes arranged in a ring and center (sand comes out here)
+circle 0.5,0.5 0.012 fill #3a2400 0.9
+circle 0.54,0.47 0.012 fill #3a2400 0.85
+circle 0.46,0.47 0.012 fill #3a2400 0.85
+circle 0.54,0.53 0.012 fill #3a2400 0.85
+circle 0.46,0.53 0.012 fill #3a2400 0.85
+circle 0.575,0.50 0.010 fill #3a2400 0.8
+circle 0.425,0.50 0.010 fill #3a2400 0.8
+circle 0.50,0.575 0.010 fill #3a2400 0.8
+circle 0.50,0.425 0.010 fill #3a2400 0.8
+
+# Brass shine highlight
+arc 0.5,0.5 0.13 210 260 stroke #ffd860 0.7 width 1
+
+# Tiny sand scatter around the base (pounce grains that missed)
+circle 0.68,0.62 0.008 fill #c8a878 0.8
+circle 0.32,0.66 0.008 fill #c8a878 0.75
+circle 0.72,0.40 0.008 fill #c8a878 0.7
+circle 0.28,0.42 0.008 fill #c8a878 0.75
+circle 0.66,0.30 0.006 fill #c8a878 0.6

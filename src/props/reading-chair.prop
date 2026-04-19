@@ -1,0 +1,43 @@
+name: Reading Chair
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: floor
+room_types: library, study, bedroom, noble-bedchamber, common-room
+typical_count: few
+clusters_with: bookshelf, side-table, book-pile, fireplace, candle-cluster
+notes: Plush upholstered wingback reading chair; place facing fireplaces, desks, or windows
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: wingback reading chair — wider/taller backrest than armchair,
+# deep cushion, wing panels flanking the backrest.
+
+# === HITBOX ===
+hitbox rect 0.08,0.06 0.84,0.78 z 0-2
+hitbox rect 0.10,0.06 0.80,0.18 z 2-4
+
+# Wingback (north edge, wider than armchair backrest, with wing extensions)
+poly 0.10,0.06 0.90,0.06 0.92,0.24 0.86,0.30 0.14,0.30 0.08,0.24 texfill polyhaven/velour_velvet 0.85
+poly 0.10,0.06 0.90,0.06 0.92,0.24 0.86,0.30 0.14,0.30 0.08,0.24 stroke #4a2040
+
+# Left armrest
+rect 0.08,0.24 0.12,0.56 texfill polyhaven/dark_wood 0.8
+rect 0.08,0.24 0.12,0.56 stroke #3a1f00
+
+# Right armrest
+rect 0.80,0.24 0.12,0.56 texfill polyhaven/dark_wood 0.8
+rect 0.80,0.24 0.12,0.56 stroke #3a1f00
+
+# Deep seat cushion (plush velvet, larger than armchair)
+rect 0.20,0.26 0.60,0.56 texfill polyhaven/velour_velvet 0.8
+rect 0.20,0.26 0.60,0.56 stroke #5a2a4a
+
+# Cushion button tufts (two subtle dimples)
+circle 0.38,0.46 0.025 fill #3a1a2a 0.3
+circle 0.62,0.46 0.025 fill #3a1a2a 0.3
+
+# Front cushion edge (rolled, slightly raised)
+rect 0.20,0.76 0.60,0.06 fill #5a3a5a 0.3

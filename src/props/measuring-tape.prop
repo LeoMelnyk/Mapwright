@@ -1,0 +1,42 @@
+name: Measuring Tape
+category: Tools
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: shop-tailor, merchant-house, textile-loomhouse, workshop
+typical_count: single
+clusters_with: cutting-table, scissors-shears, sewing-bench, buttons-jar
+notes: Coiled cloth measuring tape; scatter on cutting surfaces or benches
+---
+# === HITBOX ===
+selection circle 0.45,0.50 0.22
+
+# Coiled tape outer ring (linen cloth)
+circle 0.45,0.50 0.22 fill #e8dcc8 0.85
+circle 0.45,0.50 0.22 stroke #8b7355
+# Inner coil layer
+circle 0.45,0.50 0.17 fill #d4c4a8 0.8
+circle 0.45,0.50 0.17 stroke #8b7355 0.7
+# Innermost coil (tightest spiral ring)
+circle 0.45,0.50 0.11 fill #e8dcc8 0.75
+circle 0.45,0.50 0.11 stroke #8b7355 0.6
+# Central pin / axle hole
+circle 0.45,0.50 0.04 fill #5c3a1e 0.9
+circle 0.45,0.50 0.04 stroke #3a1f00
+# Tick marks on outer ring (radial ticks)
+line 0.45,0.28 0.45,0.32 stroke #3a1f00 width 1
+line 0.45,0.68 0.45,0.72 stroke #3a1f00 width 1
+line 0.23,0.50 0.27,0.50 stroke #3a1f00 width 1
+line 0.63,0.50 0.67,0.50 stroke #3a1f00 width 1
+line 0.31,0.36 0.34,0.39 stroke #3a1f00 width 1
+line 0.56,0.64 0.59,0.67 stroke #3a1f00 width 1
+# Trailing tape end arcing outward to south-east
+bezier 0.65,0.58 0.78,0.66 0.82,0.78 0.88,0.88 stroke #e8dcc8 width 4
+bezier 0.65,0.58 0.78,0.66 0.82,0.78 0.88,0.88 stroke #8b7355 width 1
+# Tick marks along trailing tape
+line 0.72,0.64 0.74,0.68 stroke #3a1f00 width 1
+line 0.80,0.74 0.82,0.78 stroke #3a1f00 width 1
+line 0.84,0.82 0.86,0.86 stroke #3a1f00 width 1

@@ -1,0 +1,32 @@
+name: Smoke Wisp
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: forge, alchemist-lab, refinery, distillery, kitchen, workshop-artificer
+typical_count: many
+clusters_with: crucible, distillery-vat, spill-reagent, bonfire-large
+notes: Faint residual smoke effect; scatter near heat sources or chemical spills
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Translucent grey smoke wisps — soft curves, no hard outlines
+
+# Outer diffuse haze
+circle 0.50,0.50 0.40 fill #888888 0.08
+
+# Main wisp curve (large S-bend)
+qbezier 0.30,0.75 0.60,0.40 0.42,0.18 stroke #999999 0.2 width 4
+# Parallel wisp strand
+qbezier 0.38,0.80 0.68,0.45 0.50,0.22 stroke #888888 0.15 width 3
+
+# Secondary thin wisp (drifting right)
+qbezier 0.55,0.70 0.72,0.50 0.60,0.30 stroke #aaaaaa 0.12 width 3
+
+# Faint curling tendril (left)
+qbezier 0.25,0.65 0.20,0.45 0.35,0.32 stroke #999999 0.1 width 2
+
+# Soft inner density (subtle blob)
+ellipse 0.45,0.48 0.12,0.18 fill #999999 0.1
+ellipse 0.52,0.38 0.08,0.12 fill #aaaaaa 0.08

@@ -1,0 +1,48 @@
+name: Floating Pillar
+category: Structure
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.0
+placement: corner
+room_types: astral-anchor, astral-sea, planar-nexus, ruined-temple
+typical_count: few
+clusters_with: drifting-stone, dead-god-fragment, astral-anchor-stone
+notes: Broken marble pillar hanging in the void — top-down view shows the cracked circular cross-section with mist drifting beneath
+---
+# Hitbox — circular shaft blocks light
+hitbox circle 0.5,0.5 0.36 z 0-2.0
+# Drifting mist halo beneath the hovering pillar
+circle 0.5,0.5 0.46 gradient-radial #c0a0ff #1a1028 0.25
+# Outer pedestal ring (wider crown molding at the top)
+circle 0.5,0.5 0.40 texfill polyhaven/marble_01 0.75
+circle 0.5,0.5 0.40 stroke #6a5a80 width 2
+# Decorative inner ring (shaft edge)
+ring 0.5,0.5 0.32 0.28 fill #8070a0 0.5
+ring 0.5,0.5 0.32 0.28 stroke #4a3a60 width 1
+# Main shaft cross-section
+circle 0.5,0.5 0.28 texfill polyhaven/marble_01 0.85
+circle 0.5,0.5 0.28 stroke #6a5a80 width 1
+# Fluting marks (6 radial grooves)
+line 0.50,0.22 0.50,0.32 stroke #6a5a80 width 1
+line 0.50,0.68 0.50,0.78 stroke #6a5a80 width 1
+line 0.72,0.38 0.64,0.42 stroke #6a5a80 width 1
+line 0.28,0.38 0.36,0.42 stroke #6a5a80 width 1
+line 0.72,0.62 0.64,0.58 stroke #6a5a80 width 1
+line 0.28,0.62 0.36,0.58 stroke #6a5a80 width 1
+# Jagged crack — the pillar is broken across its length
+bezier 0.28,0.52 0.38,0.46 0.58,0.54 0.72,0.48 stroke #2a2038 width 2
+line 0.44,0.50 0.46,0.54 stroke #2a2038 width 1
+line 0.56,0.51 0.54,0.47 stroke #2a2038 width 1
+# Small chunks orbiting the pillar (floating debris)
+circle 0.14,0.28 0.04 fill #8070a0 0.75
+circle 0.14,0.28 0.04 stroke #4a3a60
+circle 0.86,0.74 0.03 fill #8070a0 0.75
+circle 0.86,0.74 0.03 stroke #4a3a60
+circle 0.86,0.22 0.025 fill #8070a0 0.70
+# Dust motes
+circle 0.20,0.72 0.012 fill #e0e0ff 0.7
+circle 0.78,0.30 0.012 fill #e0e0ff 0.7
+# Center highlight (polished marble)
+circle 0.50,0.50 0.08 fill #f8f0ff 0.5

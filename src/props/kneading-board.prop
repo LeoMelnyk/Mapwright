@@ -1,0 +1,48 @@
+name: Kneading Board
+category: Kitchen
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: kitchen, bakery, peasant-hovel, tavern-kitchen, mess-hall, inn-common-room
+typical_count: single
+clusters_with: flour-bag, rolling-pin, peel-wooden, dough-ball, bread-loaf, apron-floured, rolling-board, cutting-board
+notes: Long flat wooden board dusted with flour — for kneading bread dough. Place on a counter or table.
+---
+# Ground shadow
+rect 0.08,0.08 1.84,0.86 fill #000000 0.12
+
+# The board itself — long wooden plank
+rect 0.08,0.08 1.84,0.84 texfill polyhaven/wood_table 0.85
+rect 0.08,0.08 1.84,0.84 stroke #3a1f00
+
+# Inner bevel (gives it thickness)
+rect 0.12,0.12 1.76,0.76 stroke #5c3a1e 0.6
+
+# Flour dusting across the surface
+circle 0.30,0.30 0.08 fill #f5ead5 0.5
+circle 0.80,0.25 0.10 fill #f5ead5 0.6
+circle 1.40,0.35 0.09 fill #f5ead5 0.55
+circle 1.70,0.60 0.07 fill #f5ead5 0.5
+circle 0.55,0.60 0.08 fill #f5ead5 0.55
+circle 1.10,0.65 0.09 fill #f5ead5 0.5
+
+# Scattered flour grains
+circle 0.20,0.70 0.015 fill #ffffff 0.75
+circle 0.45,0.20 0.012 fill #ffffff 0.8
+circle 0.72,0.55 0.012 fill #ffffff 0.7
+circle 0.98,0.22 0.015 fill #ffffff 0.8
+circle 1.30,0.70 0.012 fill #ffffff 0.75
+circle 1.55,0.28 0.015 fill #ffffff 0.7
+circle 1.80,0.50 0.012 fill #ffffff 0.7
+
+# Dough ball resting on the board (soft round lump)
+circle 1.05,0.50 0.18 fill #e8dcc8 0.9
+circle 1.05,0.50 0.18 stroke #b8a888 0.7
+ellipse 1.00,0.44 0.08,0.04 fill #f5eedd 0.5
+
+# Knead marks in the flour (trailing finger paths)
+qbezier 0.25,0.48 0.45,0.72 0.70,0.58 stroke #b8a888 0.35 width 1
+qbezier 1.40,0.48 1.60,0.70 1.80,0.58 stroke #b8a888 0.30 width 1

@@ -1,0 +1,84 @@
+name: Dark Tapestry
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 3
+placement: wall
+room_types: dark-temple, cultist-shrine, fiend-lair, corrupted-temple, hell-gate, boss-chamber
+typical_count: few
+clusters_with: tapestry, altar, brazier, candelabra, banner, statue-dark-god
+notes: Dark wall tapestry with demonic imagery — top-down wall prop. Only shows the iron rod + top fabric edge + shadow below.
+---
+# === HITBOX ===
+selection rect 0.10,0.04 1.80,0.18
+
+# footprint 1x2: x 0-2, y 0-1
+# Wall-mounted — rod along north edge (low Y), fabric hangs south out-of-view
+
+# === Iron mounting rod (dark, ornate) ===
+rect 0.08,0.04 1.84,0.06 fill #2a2228 0.92
+rect 0.08,0.04 1.84,0.06 texfill polyhaven/rusty_metal 0.35
+rect 0.08,0.04 1.84,0.06 stroke #0a0508 width 1
+
+# Subtle rod highlight (slight metallic sheen)
+line 0.10,0.05 1.90,0.05 stroke #4a3838 0.5 width 1
+
+# === Clawed finial caps (east & west ends — small spiky ornaments) ===
+circle 0.08,0.07 0.05 fill #2a1828 0.95
+circle 0.08,0.07 0.05 stroke #0a0508
+poly 0.04,0.05 0.04,0.02 0.08,0.04 fill #0a0508 0.9
+poly 0.12,0.05 0.12,0.02 0.08,0.04 fill #0a0508 0.9
+circle 0.08,0.07 0.018 fill #cc3322 0.8
+
+circle 1.92,0.07 0.05 fill #2a1828 0.95
+circle 1.92,0.07 0.05 stroke #0a0508
+poly 1.88,0.05 1.88,0.02 1.92,0.04 fill #0a0508 0.9
+poly 1.96,0.05 1.96,0.02 1.92,0.04 fill #0a0508 0.9
+circle 1.92,0.07 0.018 fill #cc3322 0.8
+
+# === Tapestry top fabric edge (dark velvet strip visible from above) ===
+rect 0.14,0.10 1.72,0.10 texfill polyhaven/velour_velvet 0.85
+rect 0.14,0.10 1.72,0.10 fill #1a0510 0.65
+rect 0.14,0.10 1.72,0.10 stroke #0a0205 width 1
+
+# === Dark embroidered banding along top edge ===
+line 0.14,0.13 1.86,0.13 stroke #8b0000 0.7 width 1
+line 0.14,0.17 1.86,0.17 stroke #4a0000 0.6 width 1
+
+# === Demonic imagery hints (tops of symbols visible along the strip) ===
+# Central inverted pentagram (small — just the top points visible)
+poly 0.98,0.16 1.02,0.16 1.00,0.19 fill #cc3322 0.8
+poly 0.98,0.16 1.02,0.16 1.00,0.19 stroke #660000
+# Small horn-pair motifs on either side
+poly 0.36,0.17 0.38,0.13 0.40,0.17 fill #4a0000 0.75
+poly 0.40,0.17 0.42,0.13 0.44,0.17 fill #4a0000 0.75
+poly 1.56,0.17 1.58,0.13 1.60,0.17 fill #4a0000 0.75
+poly 1.60,0.17 1.62,0.13 1.64,0.17 fill #4a0000 0.75
+# Smaller sigils (dots suggesting more pattern)
+circle 0.60,0.16 0.015 fill #8b0000 0.7
+circle 0.72,0.16 0.015 fill #8b0000 0.7
+circle 1.28,0.16 0.015 fill #8b0000 0.7
+circle 1.40,0.16 0.015 fill #8b0000 0.7
+
+# === Glowing red rune details (magical afterimage) ===
+circle 1.00,0.16 0.02 fill #ff3322 0.45
+line 0.38,0.15 0.42,0.15 stroke #cc3322 0.5 width 1
+line 1.58,0.15 1.62,0.15 stroke #cc3322 0.5 width 1
+
+# === Drop shadow cast on wall below the tapestry ===
+rect 0.14,0.20 1.72,0.05 fill #000000 0.35
+# Fade south
+rect 0.18,0.25 1.64,0.03 fill #000000 0.18
+rect 0.22,0.28 1.56,0.02 fill #000000 0.1
+
+# Ragged frayed edge at the bottom of visible strip (gives it menace)
+line 0.30,0.20 0.32,0.22 stroke #0a0205 0.6 width 1
+line 0.50,0.20 0.52,0.22 stroke #0a0205 0.6 width 1
+line 0.70,0.20 0.72,0.22 stroke #0a0205 0.6 width 1
+line 0.90,0.20 0.92,0.22 stroke #0a0205 0.6 width 1
+line 1.10,0.20 1.12,0.22 stroke #0a0205 0.6 width 1
+line 1.30,0.20 1.32,0.22 stroke #0a0205 0.6 width 1
+line 1.50,0.20 1.52,0.22 stroke #0a0205 0.6 width 1
+line 1.70,0.20 1.72,0.22 stroke #0a0205 0.6 width 1

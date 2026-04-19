@@ -6,7 +6,7 @@
 // All methods are read-only (no mutate/pushUndo). Coordinates returned
 // are display coords (after toDisp).
 
-import type { Cell } from '../../../types.js';
+import type { Cell, OverlayProp } from '../../../types.js';
 import {
   state,
   getApi,
@@ -19,6 +19,26 @@ import {
   parseCellKey,
 } from './_shared.js';
 import { falloffMultiplier } from '../../../render/index.js';
+import { isPropAt } from '../prop-spatial.js';
+
+/**
+ * Build a map from anchor cellKey(row, col) → overlay props anchored exactly there.
+ * Post-v0.7.0 props live on metadata.props[] (world-feet positioned), not cell.prop.
+ * Use this when you need anchor-only semantics (the classic cell.prop lookup).
+ */
+function buildAnchorMap(): Map<string, OverlayProp[]> {
+  const meta = state.dungeon.metadata;
+  const out = new Map<string, OverlayProp[]>();
+  if (!meta.props?.length) return out;
+  const gs = meta.gridSize || 5;
+  for (const p of meta.props) {
+    const key = cellKey(Math.round(p.y / gs), Math.round(p.x / gs));
+    const arr = out.get(key);
+    if (arr) arr.push(p);
+    else out.set(key, [p]);
+  }
+  return out;
+}
 
 // ─── shared helpers ──────────────────────────────────────────────────────
 
@@ -38,11 +58,11 @@ function clampRect(
   return { ir1, ic1, ir2, ic2 };
 }
 
-function cellGlyph(cell: Cell | null): string {
+function cellGlyph(cell: Cell | null, hasPropAt = false): string {
   if (!cell) return ' ';
   if (cell.center?.['stair-id'] != null) return '>';
   if (cell.center?.['bridge-id'] != null) return '=';
-  if (cell.prop) return 'o';
+  if (hasPropAt) return 'o';
   if (cell.center?.label != null) return '*';
   if (cell.fill === 'water') return '~';
   if (cell.fill === 'lava') return '^';
@@ -114,7 +134,7 @@ export function renderAscii(
     contentLine.push(edgeGlyph(edgeOf(cells[r]![ic1] ?? null, 'west'), 'v'));
     for (let c = ic1; c <= ic2; c++) {
       const cell = cells[r]![c] ?? null;
-      contentLine.push(cellGlyph(cell));
+      contentLine.push(cellGlyph(cell, isPropAt(r, c)));
       contentLine.push(edgeGlyph(edgeOf(cell, 'east'), 'v'));
     }
     lines.push(contentLine.join(''));
@@ -230,6 +250,7 @@ export function inspectRegion(
   const cells = state.dungeon.cells;
   const meta = state.dungeon.metadata;
   const out: RegionCellInfo[] = [];
+  const anchors = buildAnchorMap();
 
   for (let r = ir1; r <= ir2; r++) {
     for (let c = ic1; c <= ic2; c++) {
@@ -254,7 +275,13 @@ export function inspectRegion(
       }
       if (cell.hazard) info.hazard = true;
       if (cell.texture) info.texture = cell.texture;
-      if (cell.prop) info.prop = { type: cell.prop.type, facing: cell.prop.facing };
+      const anchored = anchors.get(cellKey(r, c));
+      if (anchored?.length) {
+        // Pick the topmost prop anchored at this cell (max zIndex, then last pushed).
+        const top = anchored.reduce((a, b) => (b.zIndex >= a.zIndex ? b : a));
+        const facing = typeof top.rotation === 'number' ? top.rotation : (top.facing ?? 0);
+        info.prop = { type: top.type, facing };
+      }
       if (cell.center?.label != null) info.label = cell.center.label;
       if (cell.center?.['stair-id'] != null) info.stairId = cell.center['stair-id'];
       if (typeof cell.center?.['bridge-id'] === 'number') info.bridgeId = cell.center['bridge-id'];
@@ -445,6 +472,7 @@ export function queryCells(predicate: CellPredicate = {}): {
   const propTypes = asArray(predicate.prop);
   const fillTypes = asArray(predicate.fill);
   const out: Array<{ row: number; col: number; cell: Cell | null }> = [];
+  const anchors = predicate.hasProp != null || propTypes != null ? buildAnchorMap() : null;
 
   for (let r = Math.max(0, r1); r <= Math.min(cells.length - 1, r2); r++) {
     const rowCells = cells[r]!;
@@ -460,9 +488,11 @@ export function queryCells(predicate: CellPredicate = {}): {
         continue;
       }
 
-      if (predicate.hasProp === true && !cell.prop) continue;
-      if (predicate.hasProp === false && cell.prop) continue;
-      if (propTypes && (!cell.prop || !propTypes.includes(cell.prop.type))) continue;
+      const anchoredHere = anchors?.get(cellKey(r, c));
+      const hasProp = !!anchoredHere?.length;
+      if (predicate.hasProp === true && !hasProp) continue;
+      if (predicate.hasProp === false && hasProp) continue;
+      if (propTypes && !anchoredHere?.some((p) => propTypes.includes(p.type))) continue;
 
       if (predicate.hasFill === true && !cell.fill) continue;
       if (predicate.hasFill === false && cell.fill) continue;
@@ -1014,19 +1044,7 @@ export function findConflicts(
     }
   }
 
-  // 3. Texture on void cells (data corruption)
-  for (let r = 0; r < cells.length; r++) {
-    for (let c = 0; c < (cells[r]?.length ?? 0); c++) {
-      const cell = cells[r]?.[c];
-      if (cell && (cell.texture || cell.fill || cell.prop || cell.center?.label != null)) continue;
-      if (cell == null) {
-        // Genuinely void cell — skip
-        continue;
-      }
-    }
-  }
-
-  // 4. Lights outside any cell (placed in void)
+  // 3. Lights outside any cell (placed in void)
   const gs = meta.gridSize || 5;
   for (const light of meta.lights) {
     const lr = Math.floor(light.y / gs);
@@ -1052,7 +1070,7 @@ export function findConflicts(
     }
   }
 
-  // 5. Dark rooms (only if lighting is enabled and not explicitly skipped).
+  // 4. Dark rooms (only if lighting is enabled and not explicitly skipped).
   // Unlit rooms are valid by design for caves, ruins, and sealed crypts, so
   // this is reported as `info` rather than `warning`. Authors can silence
   // specific rooms via `unlitRooms: [...]` or disable entirely via
@@ -1077,7 +1095,7 @@ export function findConflicts(
     }
   }
 
-  // 6. Stair / bridge overlap (one cell shared between two)
+  // 5. Stair / bridge overlap (one cell shared between two)
   const stairCellMap = new Map<string, number[]>();
   const bridgeCellMap = new Map<string, number[]>();
   for (let r = 0; r < cells.length; r++) {
@@ -1200,7 +1218,7 @@ function describeRoom(label: string, includeAscii: boolean): RoomSnapshot | null
         } else if (cell?.center?.label != null && roomCells.has(cellKey(r, c))) {
           contentLine.push('*');
         } else {
-          contentLine.push(cellGlyph(cell));
+          contentLine.push(cellGlyph(cell, isPropAt(r, c)));
         }
         contentLine.push(edgeGlyph(edgeOf(cell, 'east'), 'v'));
       }

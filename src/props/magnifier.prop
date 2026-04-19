@@ -1,0 +1,50 @@
+name: Magnifier
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: shop-jeweler, alchemy-lab, mansion-study, library, scriptorium-mundane, investigator-office
+typical_count: few
+clusters_with: desk, tweezers, gemstone-scatter, ledger-stack
+notes: Round magnifying glass with a brass frame and short wooden handle; lies on the desk at rest
+---
+# === HITBOX ===
+selection rect 0.12,0.38 0.76,0.26
+
+# Wooden handle (to the east of the lens — lying horizontal)
+rect 0.62,0.46 0.30,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.62,0.46 0.30,0.08 stroke #1a0e00 width 2
+# Handle wood grain
+line 0.62,0.50 0.92,0.50 stroke #5c3a1e 0.5 width 1
+# Handle end-cap
+circle 0.92,0.50 0.03 fill #3a1f00 0.9
+circle 0.92,0.50 0.03 stroke #1a0e00
+
+# Brass ferrule connecting handle to lens frame
+rect 0.58,0.44 0.06,0.12 fill #daa520 0.92
+rect 0.58,0.44 0.06,0.12 stroke #5a3a00 width 2
+
+# Brass lens frame (ring around the glass)
+circle 0.38,0.50 0.24 fill #daa520 0.9
+circle 0.38,0.50 0.24 stroke #5a3a00 width 2
+# Inner frame bevel
+circle 0.38,0.50 0.21 stroke #5a3a00 0.6 width 1
+
+# Glass lens (clear — mostly just a faint tint with highlights)
+circle 0.38,0.50 0.20 fill #aaccdd 0.25
+circle 0.38,0.50 0.20 stroke #5a8aaa 0.6 width 1
+
+# Lens reflection highlight (crescent curve — glass catches light)
+arc 0.38,0.50 0.17 200 260 stroke #eeffff 0.75 width 2
+arc 0.38,0.50 0.14 220 250 stroke #ffffff 0.55 width 1
+
+# Faint magnified detail visible through the lens (tiny suggestion of an enlarged pattern)
+line 0.32,0.44 0.44,0.44 stroke #8b7355 0.35 width 1
+line 0.32,0.50 0.44,0.50 stroke #8b7355 0.3 width 1
+line 0.32,0.56 0.44,0.56 stroke #8b7355 0.3 width 1
+
+# Brass shine on frame
+arc 0.38,0.50 0.225 210 260 stroke #ffd700 0.6 width 1

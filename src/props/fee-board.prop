@@ -1,0 +1,70 @@
+name: Fee Board
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1.5
+placement: wall
+room_types: ferry-house, toll-bridge-house, entry-gate, watchtower
+typical_count: single
+clusters_with: sign-post, ledger-stack, coin-pile
+notes: Posted wall sign listing fees — wooden plank with handwritten text
+---
+# === HITBOX ===
+selection rect 0.18,0.08 0.64,0.60
+
+# Mounting points (small nails at top)
+circle 0.24,0.08 0.015 fill #333333 0.95
+circle 0.76,0.08 0.015 fill #333333 0.95
+# Main wooden board (weathered plank)
+rect 0.18,0.10 0.64,0.56 texfill polyhaven/weathered_planks 0.9
+rect 0.18,0.10 0.64,0.56 fill #5c3a1e 0.3
+rect 0.18,0.10 0.64,0.56 stroke #2a1400
+# Plank seams (horizontal)
+line 0.18,0.26 0.82,0.26 stroke #2a1400 0.6
+line 0.18,0.50 0.82,0.50 stroke #2a1400 0.6
+# Plank wood grain
+line 0.22,0.18 0.78,0.18 stroke #5c3a1e 0.4
+line 0.22,0.34 0.78,0.34 stroke #5c3a1e 0.4
+line 0.22,0.42 0.78,0.42 stroke #5c3a1e 0.4
+line 0.22,0.58 0.78,0.58 stroke #5c3a1e 0.4
+# Title banner at top (darker wood area)
+rect 0.22,0.12 0.56,0.10 fill #3a1f00 0.85
+# Title text
+line 0.28,0.16 0.50,0.16 stroke #daa520 0.9 width 1
+line 0.52,0.16 0.72,0.16 stroke #daa520 0.9 width 1
+line 0.28,0.20 0.72,0.20 stroke #daa520 0.6
+# Fee list items (text lines)
+line 0.24,0.30 0.56,0.30 stroke #1a1008 0.85
+line 0.60,0.30 0.76,0.30 stroke #1a1008 0.85
+line 0.24,0.36 0.54,0.36 stroke #1a1008 0.85
+line 0.60,0.36 0.76,0.36 stroke #1a1008 0.85
+line 0.24,0.42 0.52,0.42 stroke #1a1008 0.85
+line 0.60,0.42 0.76,0.42 stroke #1a1008 0.85
+line 0.24,0.48 0.56,0.48 stroke #1a1008 0.8
+line 0.60,0.48 0.76,0.48 stroke #1a1008 0.8
+# Coin symbols (simplified circles next to prices)
+circle 0.65,0.30 0.012 fill #daa520 0.9
+circle 0.65,0.36 0.012 fill #daa520 0.9
+circle 0.65,0.42 0.012 fill #aaaaaa 0.9
+circle 0.65,0.48 0.012 fill #b06030 0.9
+# Bottom disclaimer text (smaller)
+line 0.26,0.58 0.66,0.58 stroke #1a1008 0.6
+line 0.30,0.62 0.62,0.62 stroke #1a1008 0.55
+# Decorative wax seal at bottom
+circle 0.60,0.62 0.025 fill #881818 0.85
+circle 0.60,0.62 0.025 stroke #3a0808
+# Nails reinforcing corners (rusty)
+circle 0.24,0.16 0.01 fill #444444 0.9
+circle 0.76,0.16 0.01 fill #444444 0.9
+circle 0.24,0.60 0.01 fill #444444 0.9
+circle 0.76,0.60 0.01 fill #444444 0.9
+# Weather damage (water stains)
+ellipse 0.30,0.54 0.08,0.03 fill #1a1008 0.3
+# Crack
+line 0.50,0.24 0.52,0.50 stroke #1a1008 0.4
+# Lantern/candle bracket at top-right (for night reading)
+rect 0.76,0.04 0.06,0.04 fill #333333 0.85
+# Small shadow below board
+rect 0.18,0.66 0.64,0.04 fill #000000 0.25

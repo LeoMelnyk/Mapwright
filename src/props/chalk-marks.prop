@@ -1,0 +1,63 @@
+name: Chalk Marks
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: cabin-witch, ritual-chamber, wizard-sanctum, workshop, thieves-guild-hideout, demiplane-laboratory
+typical_count: many
+clusters_with: chalk-circle-floor, chalk-mark, rune-chalk-mark, spilled-salt, torn-page
+notes: Small chalk glyphs scrawled on the floor — partial ritual components, tally marks, or arcane notation
+---
+# Flat floor chalk — no shadow, no blocking
+
+# Faint chalk smudge background
+ellipse 0.5,0.5 0.44,0.38 fill #d8d0b8 0.06
+
+# === Glyph 1 (NW corner): simple rune — vertical stem with bar ===
+line 0.22,0.22 0.22,0.40 stroke #e8dcc8 width 2
+line 0.22,0.30 0.32,0.30 stroke #e8dcc8 width 2
+line 0.22,0.22 0.22,0.40 stroke #ffffff 0.6 width 1
+
+# === Glyph 2 (NE corner): triangle ===
+poly 0.68,0.22 0.80,0.22 0.74,0.34 stroke #e8dcc8 width 2
+poly 0.68,0.22 0.80,0.22 0.74,0.34 stroke #ffffff 0.5 width 1
+
+# === Glyph 3 (center): small star/asterisk ===
+line 0.42,0.46 0.58,0.54 stroke #e8dcc8 width 2
+line 0.58,0.46 0.42,0.54 stroke #e8dcc8 width 2
+line 0.50,0.44 0.50,0.56 stroke #e8dcc8 width 2
+line 0.42,0.46 0.58,0.54 stroke #ffffff 0.6 width 1
+
+# === Glyph 4 (SW corner): tally marks ===
+line 0.20,0.66 0.20,0.80 stroke #e8dcc8 width 2
+line 0.25,0.66 0.25,0.80 stroke #e8dcc8 width 2
+line 0.30,0.66 0.30,0.80 stroke #e8dcc8 width 2
+line 0.18,0.73 0.32,0.73 stroke #e8dcc8 0.85 width 1
+
+# === Glyph 5 (SE corner): curved spiral-hook ===
+bezier 0.60,0.72 0.72,0.68 0.78,0.76 0.72,0.80 stroke #e8dcc8 width 2
+line 0.72,0.80 0.66,0.80 stroke #e8dcc8 width 2
+
+# === Glyph 6 (small arrow between center and S) ===
+line 0.46,0.84 0.54,0.84 stroke #e8dcc8 width 2
+line 0.52,0.82 0.54,0.84 stroke #e8dcc8 width 2
+line 0.52,0.86 0.54,0.84 stroke #e8dcc8 width 2
+
+# === Faded older marks (partially erased) ===
+line 0.38,0.28 0.44,0.32 stroke #e8dcc8 0.4 width 1
+line 0.60,0.62 0.66,0.64 stroke #e8dcc8 0.35 width 1
+circle 0.70,0.40 0.025 stroke #e8dcc8 0.4 width 1
+
+# === Chalk dust flecks ===
+circle 0.14,0.52 0.014 fill #ffffff 0.8
+circle 0.86,0.48 0.012 fill #ffffff 0.75
+circle 0.34,0.58 0.012 fill #ffffff 0.75
+circle 0.66,0.28 0.012 fill #ffffff 0.7
+circle 0.48,0.70 0.01 fill #ffffff 0.7
+circle 0.78,0.84 0.01 fill #ffffff 0.65
+
+# Smudge (eraser swipe)
+ellipse 0.54,0.30 0.08,0.04 fill #d8d0b8 0.22

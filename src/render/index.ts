@@ -10,6 +10,7 @@ export {
   bumpTimingFrame,
   getTimingFrame,
   getContentVersion,
+  getTopContentVersion,
   getGeometryVersion,
   bumpContentVersion,
   getDirtyRegion,
@@ -22,7 +23,21 @@ export {
   getBroadcastDirtyRegion,
   consumeBroadcastDirtyRegion,
 } from './render.js';
-export { invalidateFluidCache } from './fluid.js';
+export {
+  invalidateFluidCache,
+  invalidateFluidTileCache,
+  getFluidCacheParams,
+  getFluidDataVersion,
+  getFluidVariantTile,
+  getFluidVariantClip,
+  buildFluidComposite,
+  fluidThemeSig,
+  patchFluidRegion,
+  FLUID_VARIANTS,
+  FLUID_BASE_SKIP,
+  FLUID_TOP_SKIP,
+  type FluidVariant,
+} from './fluid.js';
 // Decorations & lighting
 export {
   drawBorderOnMap,
@@ -56,6 +71,15 @@ export {
 export { drawDmLabel } from './features.js';
 // Themes
 export { THEMES } from './themes.js';
+// Theme change diffing — property → cache-bucket routing
+export {
+  type ThemeBucket,
+  THEME_BUCKETS,
+  CELLS_LAYER_KEYS,
+  diffThemeBuckets,
+  cloneTheme,
+  cellsLayerThemeSig,
+} from './theme-diff.js';
 // Bridges
 export { BRIDGE_TEXTURE_IDS } from './bridges.js';
 // Compile-to-canvas
@@ -81,7 +105,9 @@ import { invalidateGeometryCache, invalidateBlendLayerCache, bumpContentVersion 
 import { invalidateFluidCache } from './fluid.js';
 import { invalidateVisibilityCache } from './lighting.js';
 import { invalidatePropsCache } from './props.js';
+import { log } from '../util/index.js';
 export function invalidateAllCaches(): void {
+  log.devTrace(`invalidateAllCaches() — full cache teardown`);
   invalidateGeometryCache();
   invalidateFluidCache();
   invalidateBlendLayerCache();

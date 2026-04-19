@@ -1,0 +1,59 @@
+name: Small Cave Mouth
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2.5
+placement: wall
+room_types: goblin-warren-entrance, goblin-warren, cave, cave-bandit-camp, monster-lair-small, humanoid-lair
+typical_count: single
+clusters_with: tripwire, bone-marker, dung-pile, skull-on-stick
+notes: Small rough tunnel entrance set into a rock wall. Top-down view shows the boulder ring around a black hole opening south. Crawl-sized — only goblins comfortable.
+---
+# Hitbox — rock mass blocks light everywhere except the opening
+hitbox poly 0.10,0.10 1.90,0.10 1.90,1.30 1.45,1.30 1.35,1.05 0.65,1.05 0.55,1.30 0.10,1.30 z 0-2.5
+# === Rock mass (large irregular boulder shape framing the mouth) ===
+poly 0.08,0.14 0.40,0.08 0.90,0.04 1.30,0.06 1.70,0.10 1.92,0.20 1.94,0.60 1.90,1.10 1.84,1.50 1.70,1.76 1.40,1.88 0.60,1.88 0.30,1.76 0.16,1.50 0.10,1.10 0.06,0.60 texfill polyhaven/rock_boulder_cracked 0.85
+poly 0.08,0.14 0.40,0.08 0.90,0.04 1.30,0.06 1.70,0.10 1.92,0.20 1.94,0.60 1.90,1.10 1.84,1.50 1.70,1.76 1.40,1.88 0.60,1.88 0.30,1.76 0.16,1.50 0.10,1.10 0.06,0.60 fill #4a4238 0.4
+poly 0.08,0.14 0.40,0.08 0.90,0.04 1.30,0.06 1.70,0.10 1.92,0.20 1.94,0.60 1.90,1.10 1.84,1.50 1.70,1.76 1.40,1.88 0.60,1.88 0.30,1.76 0.16,1.50 0.10,1.10 0.06,0.60 stroke #1a1408 width 2
+# === Dark tunnel opening — black hole in the south face of the rock ===
+# Main cavity (ellipse into the rock)
+ellipse 1.0,1.50 0.45,0.32 fill #000000 0.98
+ellipse 1.0,1.50 0.45,0.32 stroke #1a1408 width 2
+# Inner darkness (slightly smaller, pitch black)
+ellipse 1.0,1.50 0.38,0.26 fill #000000 1.0
+# === Framing boulders around the mouth ===
+circle 0.35,1.40 0.22 texfill polyhaven/rock_boulder_cracked 0.9
+circle 0.35,1.40 0.22 fill #3a3228 0.4
+circle 0.35,1.40 0.22 stroke #1a1408
+circle 1.65,1.40 0.22 texfill polyhaven/rock_boulder_cracked 0.9
+circle 1.65,1.40 0.22 fill #3a3228 0.4
+circle 1.65,1.40 0.22 stroke #1a1408
+circle 0.30,0.50 0.18 texfill polyhaven/rock_boulder_cracked 0.9
+circle 0.30,0.50 0.18 stroke #1a1408
+circle 1.70,0.50 0.18 texfill polyhaven/rock_boulder_cracked 0.9
+circle 1.70,0.50 0.18 stroke #1a1408
+circle 1.00,0.22 0.16 texfill polyhaven/rock_boulder_cracked 0.9
+circle 1.00,0.22 0.16 stroke #1a1408
+circle 0.55,0.82 0.12 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.55,0.82 0.12 stroke #1a1408
+circle 1.45,0.82 0.12 texfill polyhaven/rock_boulder_cracked 0.85
+circle 1.45,0.82 0.12 stroke #1a1408
+# === Scattered rubble at the mouth (spilled out of the tunnel) ===
+circle 0.52,1.78 0.05 fill #2a1a10 0.85
+circle 1.48,1.80 0.045 fill #2a1a10 0.85
+circle 0.80,1.86 0.04 fill #1a1008 0.85
+circle 1.22,1.84 0.04 fill #2a1a10 0.8
+circle 1.00,1.90 0.035 fill #1a1008 0.8
+circle 0.40,1.68 0.04 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.40,1.68 0.04 stroke #1a1408
+circle 1.60,1.68 0.04 texfill polyhaven/rock_boulder_cracked 0.85
+circle 1.60,1.68 0.04 stroke #1a1408
+# === Claw-scratch marks on stone near the mouth (goblin traffic) ===
+line 0.56,1.30 0.68,1.22 stroke #1a1008 0.7 width 1
+line 0.58,1.36 0.68,1.30 stroke #1a1008 0.7 width 1
+line 1.44,1.30 1.32,1.22 stroke #1a1008 0.7 width 1
+line 1.42,1.36 1.32,1.30 stroke #1a1008 0.6 width 1
+# Mud smear dragged out of the cave
+bezier 1.00,1.68 0.94,1.78 1.06,1.84 1.00,1.92 stroke #4a2a10 0.5 width 2

@@ -1,0 +1,70 @@
+name: Pigeon Flock
+category: Creatures
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: plaza-civic, market-square, courtyard, ruined-temple, abandoned-courtyard, temple-plaza
+typical_count: few
+clusters_with: fountain, bench-stone, statue-plinth, grain-scatter
+notes: Small flock of pigeons scattered on the ground — dark grey/blue silhouettes pecking at crumbs. Each bird is a small teardrop body with a head dot.
+---
+# footprint 1x1: x 0-1, y 0-1
+
+# Scattered crumbs/seed on the ground
+circle 0.42,0.52 0.012 fill #8b7355 0.7
+circle 0.58,0.48 0.010 fill #8b7355 0.7
+circle 0.50,0.62 0.010 fill #6b4e2e 0.7
+circle 0.35,0.42 0.008 fill #8b7355 0.6
+
+# Pigeon 1 — center-left, facing east
+ellipse 0.32,0.52 0.10,0.06 fill #4a5060 0.95
+ellipse 0.32,0.52 0.10,0.06 stroke #2a2a35
+circle 0.42,0.52 0.035 fill #3a4050 0.95
+circle 0.42,0.52 0.035 stroke #1a1a25
+# Beak
+poly 0.45,0.52 0.47,0.51 0.45,0.53 fill #666666 0.9
+# Eye
+circle 0.43,0.51 0.007 fill #ffaa00 0.9
+# Wing hint
+arc 0.32,0.52 0.08 200 340 stroke #2a2a35 0.6 width 1
+
+# Pigeon 2 — upper-right, facing south
+ellipse 0.66,0.34 0.06,0.10 fill #5a5560 0.95
+ellipse 0.66,0.34 0.06,0.10 stroke #2a2a35
+circle 0.66,0.44 0.035 fill #3a4050 0.95
+circle 0.66,0.44 0.035 stroke #1a1a25
+poly 0.66,0.47 0.65,0.49 0.67,0.49 fill #666666 0.9
+circle 0.67,0.43 0.007 fill #ffaa00 0.9
+
+# Pigeon 3 — lower-right, facing west (pecking down)
+ellipse 0.76,0.66 0.10,0.06 fill #3a404a 0.95
+ellipse 0.76,0.66 0.10,0.06 stroke #1a1a25
+circle 0.66,0.68 0.035 fill #2a3040 0.95
+circle 0.66,0.68 0.035 stroke #1a1a25
+poly 0.63,0.69 0.61,0.70 0.63,0.67 fill #666666 0.9
+circle 0.65,0.67 0.007 fill #ffaa00 0.9
+arc 0.76,0.66 0.08 20 160 stroke #1a1a25 0.6 width 1
+
+# Pigeon 4 — upper-left, facing east
+ellipse 0.22,0.28 0.08,0.05 fill #5a5560 0.92
+ellipse 0.22,0.28 0.08,0.05 stroke #2a2a35
+circle 0.30,0.28 0.028 fill #3a4050 0.95
+circle 0.30,0.28 0.028 stroke #1a1a25
+poly 0.33,0.28 0.35,0.27 0.33,0.29 fill #666666 0.9
+
+# Pigeon 5 — lower-left, facing north-east
+ellipse 0.26,0.76 0.08,0.05 fill #4a5060 0.92
+ellipse 0.26,0.76 0.08,0.05 stroke #2a2a35
+circle 0.32,0.72 0.025 fill #3a4050 0.95
+circle 0.32,0.72 0.025 stroke #1a1a25
+
+# Pigeon 6 — small, far away (top center)
+ellipse 0.54,0.20 0.06,0.04 fill #5a5560 0.88
+ellipse 0.54,0.20 0.06,0.04 stroke #2a2a35
+circle 0.58,0.20 0.02 fill #3a4050 0.9
+
+# Subtle head-bob motion hint — tiny chest feathers
+arc 0.32,0.52 0.10 260 290 stroke #6a7080 0.5 width 1
+arc 0.66,0.34 0.10 170 200 stroke #6a7080 0.5 width 1

@@ -1,0 +1,64 @@
+name: Songbird Nest
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: fey-glade, forest, garden, druid-grove, treehouse
+typical_count: few
+clusters_with: dew-drop-sparkle, flower-patch, tree-small
+notes: Small woven bird nest with three speckled eggs — gentle nature scatter
+---
+# Top-down: round woven nest with eggs visible inside
+
+# === Outer nest rim — woven twigs ===
+circle 0.50,0.50 0.36 fill #8b7355 0.7
+circle 0.50,0.50 0.36 stroke #5c3a1e
+
+# Woven twig texture — overlapping ring strands
+ring 0.50,0.50 0.36 0.28 fill #6b4e2e 0.5
+ring 0.50,0.50 0.36 0.28 stroke #4a2800 0.3
+
+# Inner weave ring
+ring 0.50,0.50 0.32 0.24 fill #8b7355 0.4
+ring 0.50,0.50 0.32 0.24 stroke #5c3a1e 0.3
+
+# Woven strand lines across the rim
+arc 0.50,0.50 0.32 10 80 stroke #5c3a1e 0.4
+arc 0.50,0.50 0.32 100 170 stroke #5c3a1e 0.4
+arc 0.50,0.50 0.32 200 270 stroke #5c3a1e 0.4
+arc 0.50,0.50 0.32 290 360 stroke #5c3a1e 0.35
+
+# === Nest interior — soft mossy lining ===
+circle 0.50,0.50 0.22 fill #6b8a50 0.5
+circle 0.50,0.50 0.22 fill #8baa68 0.3
+
+# === Three speckled eggs ===
+# Egg 1 — center-left
+ellipse 0.40,0.48 0.07,0.055 fill #d8e0d0 0.9
+ellipse 0.40,0.48 0.07,0.055 stroke #a0a890
+# Speckles
+circle 0.38,0.46 0.012 fill #8b7355 0.5
+circle 0.42,0.50 0.01 fill #8b7355 0.45
+circle 0.36,0.49 0.01 fill #8b7355 0.4
+
+# Egg 2 — center-right
+ellipse 0.60,0.46 0.065,0.055 fill #dce4d4 0.9
+ellipse 0.60,0.46 0.065,0.055 stroke #a0a890
+# Speckles
+circle 0.58,0.44 0.012 fill #8b7355 0.5
+circle 0.62,0.48 0.01 fill #8b7355 0.45
+circle 0.57,0.48 0.01 fill #8b7355 0.4
+
+# Egg 3 — center-bottom
+ellipse 0.50,0.58 0.065,0.05 fill #d4dcd0 0.9
+ellipse 0.50,0.58 0.065,0.05 stroke #a0a890
+# Speckles
+circle 0.48,0.56 0.012 fill #8b7355 0.5
+circle 0.52,0.59 0.01 fill #8b7355 0.45
+circle 0.50,0.55 0.01 fill #8b7355 0.4
+
+# Stray twig poking out of nest
+line 0.80,0.40 0.66,0.44 stroke #5c3a1e width 1
+line 0.22,0.62 0.34,0.58 stroke #5c3a1e width 1

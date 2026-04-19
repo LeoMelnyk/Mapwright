@@ -1,0 +1,59 @@
+name: Wall Icon Triptych
+category: Decorative
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: temple-nave, temple, shrine, church, cathedral
+typical_count: few
+clusters_with: altar, banner-religious, tapestry-religious, candelabra
+notes: Wall-mounted painted icon triptych — gilt rod across the top with a thin painted fabric strip suggesting three hinged panels
+---
+# === HITBOX ===
+selection rect 0.10,0.04 1.80,0.20
+
+# footprint 1x2: x 0-2, y 0-1
+# Top-down wall-hung icon: thin gilt top rail + thin painted panel strip.
+
+# Gilt mounting rod along the wall
+rect 0.10,0.04 1.80,0.06 fill #daa520 0.92
+rect 0.10,0.04 1.80,0.06 stroke #5a3a00
+# Rod shine
+line 0.12,0.05 1.88,0.05 stroke #ffd860 0.6 width 1
+
+# Ornate finial caps
+circle 0.10,0.07 0.04 fill #daa520 0.95
+circle 0.10,0.07 0.04 stroke #5a3a00
+circle 1.90,0.07 0.04 fill #daa520 0.95
+circle 1.90,0.07 0.04 stroke #5a3a00
+
+# Thin painted panel strip (three icons visible as tops of panels)
+# Left panel
+rect 0.16,0.10 0.58,0.12 texfill polyhaven/dark_wood 0.8
+rect 0.16,0.10 0.58,0.12 fill #2a1a0a 0.45
+rect 0.16,0.10 0.58,0.12 stroke #3a1f00
+# Center panel (larger)
+rect 0.76,0.10 0.48,0.12 texfill polyhaven/dark_wood 0.8
+rect 0.76,0.10 0.48,0.12 fill #2a1a0a 0.45
+rect 0.76,0.10 0.48,0.12 stroke #3a1f00
+# Right panel
+rect 1.26,0.10 0.58,0.12 texfill polyhaven/dark_wood 0.8
+rect 1.26,0.10 0.58,0.12 fill #2a1a0a 0.45
+rect 1.26,0.10 0.58,0.12 stroke #3a1f00
+
+# Gilt banding between panels (hinge hints)
+line 0.75,0.10 0.75,0.22 stroke #daa520 width 1
+line 1.25,0.10 1.25,0.22 stroke #daa520 width 1
+
+# Gilt halo/painted detail hint on each panel (tops of saints' halos visible)
+circle 0.45,0.16 0.03 fill #daa520 0.85
+circle 0.45,0.16 0.03 stroke #5a3a00
+circle 1.00,0.16 0.035 fill #daa520 0.9
+circle 1.00,0.16 0.035 stroke #5a3a00
+circle 1.55,0.16 0.03 fill #daa520 0.85
+circle 1.55,0.16 0.03 stroke #5a3a00
+
+# Gilt upper and lower edge bands of the triptych strip
+line 0.16,0.11 1.84,0.11 stroke #daa520 0.8 width 1
+line 0.16,0.21 1.84,0.21 stroke #daa520 0.6 width 1

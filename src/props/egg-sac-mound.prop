@@ -1,0 +1,73 @@
+name: Egg Sac Mound
+category: Misc
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+placement: center
+room_types: spider-lair, monster-lair-large, cave-drow-outpost, underdark-outpost
+typical_count: single
+clusters_with: egg-sac, spider-egg-cluster, cobweb-heavy, web-floor
+notes: A large pale silken egg sac the size of a person curled on the floor — visible pulsing clusters of tiny eggs inside the stretched membrane. Centerpiece of a spider breeding chamber.
+---
+# === HITBOX ===
+hitbox ellipse 1.0,1.0 0.78,0.72 z 0-2
+
+# footprint 2x2: x range 0-2, y range 0-2
+
+# Ichor stain seeping out underneath
+ellipse 1.0,1.35 0.65,0.30 fill #3a3010 0.35
+ellipse 0.55,1.20 0.25,0.12 fill #3a3010 0.25
+
+# === Main sac body (massive irregular blob — sickly pale membrane) ===
+poly 0.28,0.72 0.40,0.40 0.65,0.24 1.00,0.20 1.35,0.24 1.60,0.40 1.72,0.72 1.74,1.10 1.68,1.48 1.52,1.70 1.20,1.80 0.80,1.80 0.48,1.70 0.32,1.48 0.26,1.10 fill #b8b088 0.92
+poly 0.28,0.72 0.40,0.40 0.65,0.24 1.00,0.20 1.35,0.24 1.60,0.40 1.72,0.72 1.74,1.10 1.68,1.48 1.52,1.70 1.20,1.80 0.80,1.80 0.48,1.70 0.32,1.48 0.26,1.10 stroke #5a4820
+
+# Translucent greenish-yellow membrane sheen
+poly 0.28,0.72 0.40,0.40 0.65,0.24 1.00,0.20 1.35,0.24 1.60,0.40 1.72,0.72 1.74,1.10 1.68,1.48 1.52,1.70 1.20,1.80 0.80,1.80 0.48,1.70 0.32,1.48 0.26,1.10 fill #c8c060 0.2
+
+# === Veiny membrane pattern ===
+bezier 0.45,0.45 0.65,0.55 0.85,0.70 1.00,0.95 stroke #6a5028 0.55 width 1
+bezier 1.50,0.50 1.35,0.75 1.15,0.95 1.00,1.20 stroke #6a5028 0.5 width 1
+bezier 0.40,1.20 0.60,1.10 0.85,1.05 1.10,1.15 stroke #6a5028 0.5 width 1
+bezier 1.55,1.10 1.35,1.25 1.10,1.35 0.85,1.40 stroke #5a4020 0.45 width 1
+bezier 0.80,0.30 0.90,0.55 1.00,0.80 1.05,1.10 stroke #5a4020 0.5 width 1
+bezier 1.20,0.30 1.15,0.60 1.08,0.90 1.00,1.20 stroke #6a5028 0.45 width 1
+
+# === Dark egg clusters visible through translucent skin ===
+# Cluster 1 (upper left)
+ellipse 0.65,0.60 0.10,0.09 fill #2a1a08 0.7
+ellipse 0.80,0.55 0.08,0.07 fill #2a1a08 0.65
+ellipse 0.72,0.72 0.07,0.06 fill #2a1a08 0.6
+# Cluster 2 (center)
+ellipse 1.00,0.90 0.12,0.10 fill #2a1a08 0.75
+ellipse 1.15,0.82 0.09,0.08 fill #2a1a08 0.7
+ellipse 0.90,1.00 0.08,0.07 fill #2a1a08 0.65
+# Cluster 3 (lower right)
+ellipse 1.35,1.20 0.10,0.09 fill #2a1a08 0.7
+ellipse 1.20,1.30 0.08,0.07 fill #2a1a08 0.65
+ellipse 1.40,1.38 0.07,0.06 fill #2a1a08 0.6
+# Cluster 4 (lower left)
+ellipse 0.60,1.30 0.09,0.08 fill #2a1a08 0.65
+ellipse 0.75,1.40 0.07,0.06 fill #2a1a08 0.6
+
+# Faint curled embryo shadows inside eggs
+ellipse 1.00,0.90 0.08,0.06 fill #1a0f04 0.55
+ellipse 0.65,0.60 0.07,0.05 fill #1a0f04 0.5
+ellipse 1.35,1.20 0.07,0.05 fill #1a0f04 0.5
+
+# === Glistening wet highlight spots ===
+ellipse 0.70,0.42 0.18,0.08 fill #ffffff 0.3
+ellipse 0.65,0.38 0.08,0.04 fill #ffffff 0.5
+ellipse 1.40,0.65 0.10,0.05 fill #ffffff 0.25
+
+# === Torn silk strands (remnants from ceiling) ===
+line 0.50,0.24 0.42,0.10 stroke #d8d0b0 0.8 width 1
+line 1.30,0.22 1.35,0.08 stroke #d8d0b0 0.75 width 1
+line 1.00,0.20 1.00,0.06 stroke #d8d0b0 0.7 width 1
+
+# Small ichor droplets scattered nearby
+circle 1.85,1.55 0.025 fill #6a5a20 0.65
+circle 0.15,1.60 0.02 fill #6a5a20 0.6
+circle 1.80,0.45 0.018 fill #6a5a20 0.55

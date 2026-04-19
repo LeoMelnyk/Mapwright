@@ -1,0 +1,35 @@
+name: Counter Top (End)
+category: Furniture
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: yes
+height: 3.5
+placement: wall
+room_types: tavern, inn, kitchen, shop
+typical_count: single
+clusters_with: bar-counter, bar-counter-short, counter-corner, bar-counter-t, stool
+notes: End-cap counter — at facing 0 the counter enters from the east edge (y=0.10–0.90) and rounds off at the west side. Use as the terminating piece of a bar run.
+---
+# === HITBOX ===
+hitbox rect 0.10,0.1 0.90,0.8 z 0-3.5
+
+# Counter surface — rounded at the west end
+arc 0.40,0.50 0.40 90 270 texfill polyhaven/wood_table 0.85
+rect 0.40,0.10 0.60,0.80 texfill polyhaven/wood_table 0.85
+
+# Back edge trim (along the north wall side, wrapping around the rounded end)
+rect 0.40,0.10 0.60,0.08 fill #4a2800 0.25
+arc 0.40,0.50 0.40 170 270 stroke #4a2800 0.35 width 3
+
+# Front edge trim (south side, wrapping around)
+rect 0.40,0.78 0.60,0.12 fill #4a2800 0.35
+arc 0.40,0.50 0.40 90 190 stroke #4a2800 0.50 width 3
+
+# Grain line
+line 0.10,0.48 1.00,0.48 stroke #5c3a1e 0.3 width 1
+
+# Border line on the curved cap
+arc 0.40,0.50 0.40 90 270 stroke #3a1f00
+line 0.40,0.10 1.00,0.10 stroke #3a1f00
+line 0.40,0.90 1.00,0.90 stroke #3a1f00

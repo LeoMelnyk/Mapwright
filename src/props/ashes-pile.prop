@@ -1,0 +1,47 @@
+name: Ashes Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: temple-nave, temple, shrine, hearth, ritual-chamber
+typical_count: few
+clusters_with: altar-sacrificial, censer, candelabra, scorch-mark
+notes: Small grey ash mound with black char flecks and faintly glowing embers — remains of a ritual offering or censer burnout
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":3,"intensity":0.3,"color":"#ff7030"}]
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.28
+
+# Faint heat glow
+circle 0.5,0.5 0.30 fill #ff7030 0.08
+
+# Outer grey ash scatter
+poly 0.20,0.52 0.24,0.36 0.34,0.26 0.50,0.22 0.66,0.26 0.76,0.36 0.80,0.52 0.74,0.68 0.60,0.78 0.42,0.78 0.26,0.68 fill #8a8a8a 0.6
+poly 0.20,0.52 0.24,0.36 0.34,0.26 0.50,0.22 0.66,0.26 0.76,0.36 0.80,0.52 0.74,0.68 0.60,0.78 0.42,0.78 0.26,0.68 stroke #4a4a4a 0.5
+
+# Mid mound (darker grey)
+poly 0.30,0.50 0.34,0.38 0.44,0.32 0.56,0.32 0.66,0.38 0.70,0.52 0.64,0.66 0.50,0.70 0.36,0.64 fill #4a4a4a 0.85
+
+# Dark char interior
+poly 0.38,0.50 0.42,0.42 0.50,0.40 0.58,0.44 0.62,0.52 0.56,0.60 0.46,0.60 fill #1a1a1a 0.9
+
+# Black char flecks
+circle 0.36,0.44 0.02 fill #000000 0.85
+circle 0.60,0.46 0.018 fill #000000 0.8
+circle 0.48,0.62 0.018 fill #000000 0.75
+circle 0.62,0.38 0.015 fill #000000 0.7
+
+# Glowing embers
+circle 0.46,0.48 0.022 fill #ff7030 0.9
+circle 0.54,0.52 0.018 fill #ffaa00 0.85
+circle 0.50,0.46 0.012 fill #ffcc00 0.9
+circle 0.56,0.46 0.014 fill #e85500 0.75
+
+# Ash flakes in periphery
+circle 0.22,0.38 0.01 fill #aaaaaa 0.65
+circle 0.78,0.58 0.01 fill #aaaaaa 0.6
+circle 0.30,0.76 0.01 fill #888888 0.55
+circle 0.72,0.30 0.01 fill #888888 0.55

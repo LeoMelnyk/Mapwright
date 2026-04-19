@@ -1,0 +1,37 @@
+name: Feather Drift
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: elemental-air-node, elemental-node, storm-spire, genie-court
+typical_count: many
+clusters_with: feather-drift-cluster, leaf-drift, seed-float
+notes: Two or three single feathers settling — varied colors (white, grey, crow-black). Scatter around air nodes.
+---
+# White feather (NW, curved)
+bezier 0.18,0.25 0.28,0.1 0.38,0.12 0.42,0.3 fill #f4f4f8 0.85
+bezier 0.18,0.25 0.28,0.1 0.38,0.12 0.42,0.3 stroke #b0b0c0 width 1
+line 0.2,0.28 0.42,0.3 stroke #c0c0d0 width 1
+# Barb hints on white feather
+line 0.24,0.2 0.27,0.16 stroke #d0d0dc width 1
+line 0.30,0.16 0.33,0.12 stroke #d0d0dc width 1
+line 0.36,0.14 0.39,0.11 stroke #d0d0dc width 1
+
+# Grey feather (center-right)
+bezier 0.55,0.45 0.7,0.38 0.85,0.5 0.82,0.68 fill #8090a0 0.8
+bezier 0.55,0.45 0.7,0.38 0.85,0.5 0.82,0.68 stroke #4a5560 width 1
+line 0.58,0.47 0.82,0.67 stroke #5a6a78 width 1
+# Barb hints
+line 0.63,0.42 0.65,0.38 stroke #a0b0c0 width 1
+line 0.72,0.43 0.75,0.40 stroke #a0b0c0 width 1
+
+# Black crow feather (SW, tip pointing down)
+bezier 0.25,0.62 0.3,0.75 0.38,0.9 0.34,0.95 fill #1a1a20 0.85
+bezier 0.25,0.62 0.3,0.75 0.38,0.9 0.34,0.95 stroke #000000 width 1
+line 0.28,0.64 0.33,0.94 stroke #2a2a30 width 1
+
+# Iridescent sheen on black feather
+line 0.29,0.7 0.31,0.72 stroke #4050a0 width 1
+line 0.31,0.8 0.33,0.82 stroke #4050a0 width 1

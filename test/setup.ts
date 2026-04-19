@@ -19,7 +19,8 @@ if (typeof globalThis.document === 'undefined') {
     createElement: (tag) => ({
       tagName: tag.toUpperCase(),
       getContext: () => null,
-      width: 0, height: 0,
+      width: 0,
+      height: 0,
       style: {},
     }),
   };
@@ -37,8 +38,12 @@ if (typeof globalThis.localStorage === 'undefined') {
   const store = {};
   globalThis.localStorage = {
     getItem: (k) => store[k] ?? null,
-    setItem: (k, v) => { store[k] = String(v); },
-    removeItem: (k) => { delete store[k]; },
+    setItem: (k, v) => {
+      store[k] = String(v);
+    },
+    removeItem: (k) => {
+      delete store[k];
+    },
   };
 }
 
@@ -48,6 +53,8 @@ vi.mock('../src/editor/js/canvas-view.js', () => ({
   requestRender: vi.fn(),
   setCursor: vi.fn(),
   getTransform: vi.fn(() => ({ scale: 1, offsetX: 0, offsetY: 0 })),
+  snapshotCurrentTheme: vi.fn(() => ({})),
+  applyThemeChange: vi.fn(),
 }));
 
 vi.mock('../src/editor/js/panels/index.js', () => ({
@@ -69,7 +76,15 @@ vi.mock('../src/editor/js/texture-catalog.js', () => ({
 vi.mock('../src/editor/js/light-catalog.js', () => ({
   getLightCatalog: vi.fn(() => ({
     lights: {
-      torch: { displayName: 'Torch', category: 'fire', type: 'point', color: '#ff8833', radius: 20, intensity: 1, falloff: 'smooth' },
+      torch: {
+        displayName: 'Torch',
+        category: 'fire',
+        type: 'point',
+        color: '#ff8833',
+        radius: 20,
+        intensity: 1,
+        falloff: 'smooth',
+      },
     },
     categoryOrder: ['fire'],
   })),
@@ -94,10 +109,12 @@ vi.mock('../src/editor/js/stair-geometry.js', () => ({
   isDegenerate: vi.fn(() => false),
   getOccupiedCells: vi.fn((vertices) => {
     // Simple rectangle approximation for testing
-    const rows = vertices.map(v => v[0]);
-    const cols = vertices.map(v => v[1]);
-    const minR = Math.min(...rows), maxR = Math.max(...rows);
-    const minC = Math.min(...cols), maxC = Math.max(...cols);
+    const rows = vertices.map((v) => v[0]);
+    const cols = vertices.map((v) => v[1]);
+    const minR = Math.min(...rows),
+      maxR = Math.max(...rows);
+    const minC = Math.min(...cols),
+      maxC = Math.max(...cols);
     const cells = [];
     for (let r = minR; r < maxR; r++) {
       for (let c = minC; c < maxC; c++) {
@@ -117,7 +134,9 @@ vi.mock('../src/editor/js/bridge-geometry.js', () => ({
 
 vi.mock('../src/editor/js/tools/index.js', () => {
   class MockTool {
-    constructor(name) { this.name = name; }
+    constructor(name) {
+      this.name = name;
+    }
     onActivate() {}
     onDeactivate() {}
     onMouseDown() {}
@@ -125,7 +144,9 @@ vi.mock('../src/editor/js/tools/index.js', () => {
     onMouseUp() {}
     onKeyDown() {}
     onRightClick() {}
-    getCursor() { return 'crosshair'; }
+    getCursor() {
+      return 'crosshair';
+    }
     renderOverlay() {}
   }
   class MockRoomTool extends MockTool {
@@ -160,19 +181,67 @@ vi.mock('../src/editor/js/tools/index.js', () => {
     RoomTool: MockRoomTool,
     TrimTool: MockTrimTool,
     PaintTool: MockPaintTool,
-    WallTool: class extends MockTool { constructor() { super('wall'); } },
-    DoorTool: class extends MockTool { constructor() { super('door'); } },
-    LabelTool: class extends MockTool { constructor() { super('label'); } },
+    WallTool: class extends MockTool {
+      constructor() {
+        super('wall');
+      }
+    },
+    DoorTool: class extends MockTool {
+      constructor() {
+        super('door');
+      }
+    },
+    LabelTool: class extends MockTool {
+      constructor() {
+        super('label');
+      }
+    },
     STAMP_CURSOR: 'stamp',
-    StairsTool: class extends MockTool { constructor() { super('stairs'); } },
-    BridgeTool: class extends MockTool { constructor() { super('bridge'); } },
-    SelectTool: class extends MockTool { constructor() { super('select'); } },
-    PropTool: class extends MockTool { constructor() { super('prop'); } },
-    EraseTool: class extends MockTool { constructor() { super('erase'); } },
-    LightTool: class extends MockTool { constructor() { super('light'); } },
-    FillTool: class extends MockTool { constructor() { super('fill'); } },
-    RangeTool: class extends MockTool { constructor() { super('range'); } },
-    FogRevealTool: class extends MockTool { constructor() { super('fog-reveal'); } },
+    StairsTool: class extends MockTool {
+      constructor() {
+        super('stairs');
+      }
+    },
+    BridgeTool: class extends MockTool {
+      constructor() {
+        super('bridge');
+      }
+    },
+    SelectTool: class extends MockTool {
+      constructor() {
+        super('select');
+      }
+    },
+    PropTool: class extends MockTool {
+      constructor() {
+        super('prop');
+      }
+    },
+    EraseTool: class extends MockTool {
+      constructor() {
+        super('erase');
+      }
+    },
+    LightTool: class extends MockTool {
+      constructor() {
+        super('light');
+      }
+    },
+    FillTool: class extends MockTool {
+      constructor() {
+        super('fill');
+      }
+    },
+    RangeTool: class extends MockTool {
+      constructor() {
+        super('range');
+      }
+    },
+    FogRevealTool: class extends MockTool {
+      constructor() {
+        super('fog-reveal');
+      }
+    },
     SYRINGE_CURSOR: 'syringe',
   };
 });
@@ -193,6 +262,7 @@ vi.mock('../src/render/index.js', () => ({
   invalidateBlendLayerCache: vi.fn(),
   invalidateFluidCache: vi.fn(),
   invalidatePropsCache: vi.fn(),
+  invalidatePropsRenderLayer: vi.fn(),
   renderCells: vi.fn(),
   renderLabels: vi.fn(),
   THEMES: { 'stone-dungeon': {}, 'blue-parchment': {} },
@@ -204,4 +274,11 @@ vi.mock('../src/render/index.js', () => ({
   // Identity in tests: getTheme should return the same reference it was given
   // so existing toBe() reference-equality assertions still hold.
   normalizeTheme: vi.fn((t) => t),
+  // Render version counters and broadcast dirty-region consumer —
+  // used by dm-session-broadcast. Default to zero-returning stubs;
+  // tests that need stateful behavior override via mockImplementation.
+  getContentVersion: vi.fn(() => 0),
+  getLightingVersion: vi.fn(() => 0),
+  getPropsVersion: vi.fn(() => 0),
+  consumeBroadcastDirtyRegion: vi.fn(() => null),
 }));

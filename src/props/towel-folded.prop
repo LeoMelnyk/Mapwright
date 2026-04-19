@@ -1,0 +1,35 @@
+name: Towel Folded
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: bath-house, mansion-bathroom, servants-kitchen
+typical_count: few
+clusters_with: folded-cloak, bath-pool, massage-table, sandal-pair
+notes: Neatly folded cream towel with a colored stripe along one edge.
+---
+# === HITBOX ===
+selection rect 0.20,0.24 0.60,0.52
+
+# Main folded towel body (cream linen)
+rect 0.20,0.24 0.60,0.52 texfill polyhaven/rough_linen 0.88
+rect 0.20,0.24 0.60,0.52 fill #e8dcc0 0.55
+rect 0.20,0.24 0.60,0.52 stroke #a89878
+
+# Fold lines across the top (stacked folds)
+line 0.20,0.40 0.80,0.40 stroke #c8b898 0.85 width 1
+line 0.20,0.54 0.80,0.54 stroke #c8b898 0.85 width 1
+line 0.20,0.66 0.80,0.66 stroke #c8b898 0.7 width 1
+
+# Top-layer highlight
+rect 0.24,0.28 0.52,0.08 fill #f0e8d0 0.5
+
+# Decorative stripe along one edge (subtle slate-blue)
+rect 0.20,0.72 0.60,0.04 fill #8090a0 0.85
+rect 0.20,0.72 0.60,0.04 stroke #506070 0.7
+
+# Edge shadow underneath
+rect 0.20,0.76 0.60,0.02 fill #6a5a40 0.4

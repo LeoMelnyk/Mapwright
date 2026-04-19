@@ -1,0 +1,44 @@
+name: Ink Stone
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: scriptorium-mundane, scriptorium-dark, library, mansion-study, counting-house
+typical_count: few
+clusters_with: inkwell, quill, desk, blotting-rag, sand-shaker
+notes: Small carved stone slab for grinding ink cakes — wet grinding well with pooled black ink
+---
+# === HITBOX ===
+selection rect 0.18,0.26 0.64,0.48
+
+# Stone slab body (rectangular, dark granite)
+rect 0.18,0.26 0.64,0.48 texfill polyhaven/granite_tile 0.85
+rect 0.18,0.26 0.64,0.48 fill #333333 0.35
+rect 0.18,0.26 0.64,0.48 stroke #1a1a1a width 2
+
+# Beveled edge highlight
+rect 0.22,0.30 0.56,0.40 stroke #555555 0.6 width 1
+
+# Grinding well (recessed oval on the south half — where ink pools)
+ellipse 0.50,0.56 0.22,0.12 fill #1a1208 0.9
+ellipse 0.50,0.56 0.22,0.12 stroke #0a0404 width 2
+
+# Pooled wet ink in the well
+ellipse 0.50,0.56 0.18,0.09 fill #0a0618 0.95
+
+# Ink surface reflection
+arc 0.50,0.56 0.14 200 260 stroke #3a2860 0.6 width 1
+
+# Ink cake stub (small dark cube resting on the dry north half)
+rect 0.42,0.34 0.14,0.10 fill #1a1010 0.95
+rect 0.42,0.34 0.14,0.10 stroke #0a0404
+# Ink cake worn top
+line 0.44,0.36 0.54,0.36 stroke #2a1a30 0.6
+
+# Small drips and grind residue around the well
+circle 0.36,0.60 0.018 fill #0a0618 0.7
+circle 0.66,0.58 0.02 fill #0a0618 0.6
+line 0.42,0.48 0.46,0.52 stroke #1a0618 0.5 width 1

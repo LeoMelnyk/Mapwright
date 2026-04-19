@@ -1,0 +1,53 @@
+name: Clay Bin
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.7
+placement: floor
+room_types: house-medium-artisan, kiln-pottery, shop-general
+typical_count: few
+clusters_with: wheel-pottery, workbench, shelf-open, bucket, water-jug
+notes: Open wooden bin of damp grey clay — pottery workshop supply
+---
+# === HITBOX ===
+hitbox rect 0.14,0.14 0.72,0.72 z 0-0.7
+
+# Wooden outer bin (square, staved)
+rect 0.14,0.14 0.72,0.72 texfill polyhaven/dark_wood 0.88
+rect 0.14,0.14 0.72,0.72 fill #4a2800 0.4
+rect 0.14,0.14 0.72,0.72 stroke #2a1400
+# Plank seams on sides
+line 0.28,0.14 0.28,0.86 stroke #2a1400 0.5
+line 0.42,0.14 0.42,0.86 stroke #2a1400 0.5
+line 0.58,0.14 0.58,0.86 stroke #2a1400 0.5
+line 0.72,0.14 0.72,0.86 stroke #2a1400 0.5
+# Iron bands reinforcing
+line 0.14,0.22 0.86,0.22 stroke #3a3020 width 2
+line 0.14,0.78 0.86,0.78 stroke #3a3020 width 2
+# Inner recess (darker, opening at top)
+rect 0.20,0.20 0.60,0.60 fill #2a1400 0.85
+rect 0.20,0.20 0.60,0.60 stroke #1a0f00
+# Clay surface (grey-brown wet clay)
+rect 0.22,0.22 0.56,0.56 fill #6a5848 0.95
+rect 0.22,0.22 0.56,0.56 stroke #3a2820
+# Clay lumps and surface irregularities
+poly 0.30,0.36 0.42,0.32 0.44,0.42 0.34,0.46 fill #7a6858 0.7
+poly 0.56,0.40 0.68,0.38 0.70,0.48 0.58,0.52 fill #7a6858 0.7
+poly 0.36,0.58 0.48,0.54 0.52,0.64 0.38,0.68 fill #5a4838 0.6
+# Hand prints/finger gouges
+bezier 0.32,0.48 0.38,0.52 0.42,0.56 0.44,0.60 stroke #3a2820 0.6 width 1
+bezier 0.56,0.60 0.60,0.64 0.62,0.68 0.66,0.70 stroke #3a2820 0.6 width 1
+# Wet clay sheen (damp spots catching light)
+ellipse 0.50,0.40 0.12,0.06 fill #8a7868 0.4
+ellipse 0.40,0.60 0.10,0.05 fill #8a7868 0.35
+# Wooden shaping tool poking out
+line 0.70,0.32 0.82,0.22 stroke #8b6914 width 2
+line 0.70,0.32 0.82,0.22 stroke #5c3a1e width 1
+circle 0.70,0.32 0.02 fill #5c3a1e 0.9
+# Water splash stains on wood outside
+ellipse 0.18,0.56 0.05,0.03 fill #2a2018 0.5
+ellipse 0.82,0.64 0.05,0.03 fill #2a2018 0.5
+# Wood grain top
+line 0.14,0.18 0.86,0.18 stroke #5c3a1e 0.4

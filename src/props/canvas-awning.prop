@@ -1,0 +1,51 @@
+name: Canvas Awning
+category: Structure
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: market-stall, market, vendor-row, bazaar
+typical_count: single
+clusters_with: stall-counter, display-rack-fabric, display-basket
+notes: Red-and-white striped canvas stretched over two poles. North edge is the wall-attached edge.
+---
+# Footprint 2x2: x 0-2, y 0-2. Top-down: stretched cloth with two support-pole circles along north edge, slight droop at south.
+
+# Support poles on north edge (wall side)
+circle 0.25,0.20 0.09 fill #5c3a1e 0.95
+circle 0.25,0.20 0.09 stroke #2a1400
+circle 1.75,0.20 0.09 fill #5c3a1e 0.95
+circle 1.75,0.20 0.09 stroke #2a1400
+
+# Pole caps (brass)
+circle 0.25,0.20 0.04 fill #daa520 0.9
+circle 0.25,0.20 0.04 stroke #5a3a00
+circle 1.75,0.20 0.04 fill #daa520 0.9
+circle 1.75,0.20 0.04 stroke #5a3a00
+
+# Main canvas body — slightly drooping south edge (polygon curves out a bit)
+poly 0.18,0.28 1.82,0.28 1.88,1.82 1.00,1.92 0.12,1.82 fill #f0e8d0 0.92
+poly 0.18,0.28 1.82,0.28 1.88,1.82 1.00,1.92 0.12,1.82 stroke #8b7355
+
+# Red stripes running north-south across canvas
+rect 0.36,0.28 0.20,1.60 fill #c82020 0.85
+rect 0.72,0.28 0.20,1.60 fill #c82020 0.85
+rect 1.08,0.28 0.20,1.60 fill #c82020 0.85
+rect 1.44,0.28 0.20,1.60 fill #c82020 0.85
+
+# Stripe shading at droop (south ends darker)
+rect 0.36,1.70 0.20,0.18 fill #8a1010 0.3
+rect 0.72,1.70 0.20,0.18 fill #8a1010 0.3
+rect 1.08,1.70 0.20,0.18 fill #8a1010 0.3
+rect 1.44,1.70 0.20,0.18 fill #8a1010 0.3
+
+# Taut crease lines (where canvas stretches from poles)
+line 0.25,0.28 0.40,1.86 stroke #8b7355 0.4
+line 1.75,0.28 1.60,1.86 stroke #8b7355 0.4
+line 1.00,0.28 1.00,1.92 stroke #8b7355 0.35
+
+# Scalloped south hem trim (wavy edge suggestion)
+arc 0.50,1.86 0.08 0 180 stroke #8b7355 0.6 width 1
+arc 1.00,1.90 0.08 0 180 stroke #8b7355 0.6 width 1
+arc 1.50,1.86 0.08 0 180 stroke #8b7355 0.6 width 1

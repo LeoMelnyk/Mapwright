@@ -1,0 +1,43 @@
+name: Slag Heap
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: elemental-fire-node, forge, foundry-great, smithy-large, refinery
+typical_count: few
+clusters_with: forge, anvil, ingot-stack, crucible, scorch-mark
+notes: Pile of fused iron slag and clinker waste from smelting
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.32
+
+# Dark crusty base pile (irregular blob)
+poly 0.18,0.54 0.24,0.40 0.34,0.32 0.48,0.28 0.64,0.30 0.76,0.38 0.82,0.52 0.80,0.66 0.68,0.76 0.50,0.80 0.32,0.78 0.20,0.70 fill #1a1008 0.95
+poly 0.18,0.54 0.24,0.40 0.34,0.32 0.48,0.28 0.64,0.30 0.76,0.38 0.82,0.52 0.80,0.66 0.68,0.76 0.50,0.80 0.32,0.78 0.20,0.70 stroke #0a0404
+# Fused slag chunks (irregular glass-like blobs)
+poly 0.30,0.42 0.40,0.38 0.44,0.48 0.36,0.52 fill #3a2a1a 0.9
+poly 0.30,0.42 0.40,0.38 0.44,0.48 0.36,0.52 stroke #1a1008
+poly 0.52,0.44 0.62,0.40 0.68,0.52 0.58,0.56 fill #2a2018 0.9
+poly 0.52,0.44 0.62,0.40 0.68,0.52 0.58,0.56 stroke #1a1008
+poly 0.42,0.58 0.54,0.54 0.58,0.66 0.44,0.70 fill #3a2a1a 0.9
+poly 0.42,0.58 0.54,0.54 0.58,0.66 0.44,0.70 stroke #1a1008
+# Glowing ember cracks (hot residual heat)
+line 0.38,0.46 0.42,0.50 stroke #c83018 0.6
+line 0.56,0.46 0.60,0.50 stroke #c83018 0.6
+line 0.46,0.60 0.50,0.64 stroke #ff6600 0.5
+line 0.32,0.68 0.38,0.70 stroke #c83018 0.5
+# Greenish/purple oxidized patches
+poly 0.28,0.62 0.36,0.58 0.40,0.66 0.32,0.68 fill #3a4a28 0.6
+poly 0.60,0.66 0.68,0.62 0.72,0.70 0.64,0.72 fill #4a2848 0.6
+# Small metal specks (unfused)
+circle 0.28,0.52 0.015 fill #8899aa 0.7
+circle 0.68,0.58 0.015 fill #8899aa 0.7
+circle 0.50,0.72 0.015 fill #8899aa 0.7
+# Ash dust around edges
+circle 0.16,0.60 0.04 fill #888888 0.2
+circle 0.86,0.56 0.04 fill #888888 0.2
+# Scorch stain beneath
+ellipse 0.50,0.78 0.30,0.06 fill #0a0404 0.4

@@ -1,0 +1,64 @@
+name: Acid-Etched Altar
+category: Religious
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.0
+placement: center
+room_types: slime-pit, ritual-chamber-dark, ooze-shrine, dungeon, cave
+typical_count: single
+clusters_with: ooze-pool, ooze-puddle, dissolved-skeleton, slime-trail
+notes: Stone altar being eaten away by acid — irregular pits dissolved into the slab with sickly green slime residue dripping off every edge
+---
+# === HITBOX ===
+hitbox rect 0.18,0.14 1.64,1.72 z 0-1.0
+
+# Outer slime halo — thin green wet ring where acid has pooled around the base
+ellipse 1.0,1.0 0.94,0.94 fill #4a7020 0.18
+ellipse 1.0,1.0 0.88,0.88 fill #8ab030 0.12
+
+# Main stone slab (irregular — edges eaten away)
+poly 0.22,0.18 0.56,0.14 1.10,0.12 1.54,0.16 1.82,0.26 1.86,0.62 1.84,1.06 1.88,1.48 1.78,1.80 1.42,1.88 0.96,1.86 0.54,1.84 0.22,1.76 0.14,1.42 0.16,0.94 0.12,0.56 texfill polyhaven/granite_tile 0.85
+poly 0.22,0.18 0.56,0.14 1.10,0.12 1.54,0.16 1.82,0.26 1.86,0.62 1.84,1.06 1.88,1.48 1.78,1.80 1.42,1.88 0.96,1.86 0.54,1.84 0.22,1.76 0.14,1.42 0.16,0.94 0.12,0.56 stroke #2a2420 width 2
+
+# Inner recessed panel
+rect 0.34,0.30 1.32,1.40 stroke #3a3028 width 1
+
+# Acid-eaten pits (dark cutouts where the stone has been dissolved through)
+cutout ellipse 0.62,0.58 0.14,0.10
+cutout ellipse 1.38,0.82 0.12,0.16
+cutout ellipse 0.86,1.32 0.18,0.12
+cutout circle 1.54,1.44 0.08
+
+# Slime residue ringing each eaten pit (sickly yellow-green)
+ellipse 0.62,0.58 0.18,0.13 stroke #8ab030 width 2
+ellipse 1.38,0.82 0.16,0.20 stroke #8ab030 width 2
+ellipse 0.86,1.32 0.22,0.15 stroke #8ab030 width 2
+circle 1.54,1.44 0.11 stroke #8ab030 width 2
+
+# Pool of pale slime collected in the largest pit
+ellipse 0.86,1.32 0.12,0.07 fill #a8c060 0.7
+
+# Surface pitting (small shallow bite marks not all the way through)
+circle 0.48,0.30 0.03 fill #4a5020 0.6
+circle 1.22,0.38 0.028 fill #4a5020 0.55
+circle 0.42,1.04 0.026 fill #4a5020 0.5
+circle 1.10,1.62 0.03 fill #4a5020 0.55
+circle 1.66,0.46 0.024 fill #4a5020 0.5
+
+# Slime drip running off south edge
+poly 0.72,1.82 0.80,1.92 0.78,1.98 0.70,1.96 0.68,1.88 fill #8ab030 0.85
+poly 0.72,1.82 0.80,1.92 0.78,1.98 0.70,1.96 0.68,1.88 stroke #4a7020
+
+# Slime drip running off east edge
+poly 1.84,1.10 1.94,1.16 1.98,1.24 1.92,1.28 1.86,1.22 fill #a8c060 0.85
+poly 1.84,1.10 1.94,1.16 1.98,1.24 1.92,1.28 1.86,1.22 stroke #4a7020
+
+# Slime drip running off west edge
+poly 0.16,0.70 0.06,0.76 0.02,0.84 0.08,0.88 0.14,0.82 fill #8ab030 0.85
+poly 0.16,0.70 0.06,0.76 0.02,0.84 0.08,0.88 0.14,0.82 stroke #4a7020
+
+# Wet highlight on slime residue
+arc 0.62,0.58 0.16 200 300 stroke #c8e080 0.6 width 1
+arc 1.38,0.82 0.18 160 260 stroke #c8e080 0.6 width 1

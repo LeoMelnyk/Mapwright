@@ -1,0 +1,63 @@
+name: Toy Chest
+category: Containers
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 0.6
+placement: wall
+room_types: nursery, house-medium-family
+typical_count: single
+clusters_with: chest, blocks-pile, wooden-toy, rag-doll
+notes: Small wooden chest with tilted-open lid showing scattered toys inside; painted stars and hearts on exterior
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,0.80 z 0-0.6
+
+# Open lid tilted back — shows as a thin band at the north edge (receding)
+rect 0.10,0.10 1.80,0.16 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.10 1.80,0.16 fill #2a1400 0.35
+rect 0.10,0.10 1.80,0.16 stroke #1a0a00
+# Painted star on lid
+poly 0.50,0.14 0.53,0.20 0.59,0.20 0.54,0.23 0.56,0.28 0.50,0.25 0.44,0.28 0.46,0.23 0.41,0.20 0.47,0.20 fill #d4c848 0.9
+poly 0.50,0.14 0.53,0.20 0.59,0.20 0.54,0.23 0.56,0.28 0.50,0.25 0.44,0.28 0.46,0.23 0.41,0.20 0.47,0.20 stroke #8a8020 width 1
+# Painted heart on lid (east side)
+poly 1.40,0.18 1.44,0.14 1.48,0.14 1.50,0.18 1.50,0.20 1.44,0.26 1.38,0.20 1.38,0.18 1.40,0.14 1.44,0.14 fill #c84870 0.9
+poly 1.40,0.18 1.44,0.14 1.48,0.14 1.50,0.18 1.50,0.20 1.44,0.26 1.38,0.20 1.38,0.18 1.40,0.14 1.44,0.14 stroke #7a2848 width 1
+# Chest interior opening — dark interior visible
+rect 0.14,0.26 1.72,0.58 fill #2a1400 0.85
+rect 0.14,0.26 1.72,0.58 stroke #1a0a00
+# Chest body sides/rim (south and east/west borders visible)
+rect 0.10,0.78 1.80,0.12 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.78 1.80,0.12 stroke #1a0a00
+rect 0.10,0.26 0.10,0.58 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.26 0.10,0.58 stroke #1a0a00
+rect 1.80,0.26 0.10,0.58 texfill polyhaven/dark_wood 0.88
+rect 1.80,0.26 0.10,0.58 stroke #1a0a00
+# Scattered toys inside (spilling slightly)
+# Red block
+rect 0.32,0.40 0.18,0.18 fill #c84848 0.92 rotate 12
+rect 0.32,0.40 0.18,0.18 stroke #7a2828 rotate 12
+# Blue ball
+circle 0.70,0.52 0.12 fill #4884c8 0.92
+circle 0.70,0.52 0.12 stroke #264878
+circle 0.68,0.48 0.04 fill #a0c0e8 0.7
+# Yellow block
+rect 1.00,0.38 0.16,0.16 fill #d4c848 0.92 rotate -18
+rect 1.00,0.38 0.16,0.16 stroke #8a8020 rotate -18
+# Doll arm poking out (small cream rounded shape)
+ellipse 1.40,0.50 0.10,0.06 fill #e8dcc0 0.9 rotate 20
+ellipse 1.40,0.50 0.10,0.06 stroke #8b7355 rotate 20
+# Tiny toy spilling over south edge
+circle 1.58,0.60 0.08 fill #48a450 0.9
+circle 1.58,0.60 0.08 stroke #1a5a22
+# Brass corner fittings (south edge)
+rect 0.10,0.78 0.12,0.12 fill #daa520 0.85
+rect 0.10,0.78 0.12,0.12 stroke #8b6914
+rect 1.78,0.78 0.12,0.12 fill #daa520 0.85
+rect 1.78,0.78 0.12,0.12 stroke #8b6914
+# Brass clasp/latch at south center
+rect 0.86,0.82 0.28,0.08 fill #daa520 0.9
+rect 0.86,0.82 0.28,0.08 stroke #8b6914
+# Keyhole
+circle 1.00,0.86 0.02 fill #1a0a00 0.9

@@ -1,0 +1,107 @@
+name: Myconid Circle
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.5
+placement: center
+room_types: mushroom-cavern, mushroom-grove, underdark-outpost, druid-grove
+typical_count: single
+clusters_with: mushroom-cluster, glowcap-cluster, spore-pool, mycelium-web
+notes: Ring of mushrooms in a ritual fairy-circle formation — myconid ceremonial ground
+---
+# Soft central mycelial ground wash
+circle 1.0,1.0 0.75 fill #2a3818 0.20
+circle 1.0,1.0 0.60 fill #1a2810 0.25
+
+# Darker bare earth in center of ring
+ellipse 1.0,1.05 0.35,0.28 fill #1a0f08 0.55
+ellipse 1.0,1.05 0.35,0.28 stroke #0a0400 0.5 width 1
+
+# Faint spiral mycelium in the earth
+bezier 1.00,1.05 0.92,0.98 0.88,1.06 0.94,1.14 stroke #c8b898 0.35 width 1
+bezier 1.00,1.05 1.08,0.98 1.12,1.06 1.06,1.14 stroke #c8b898 0.35 width 1
+
+# Ring of 12 mushrooms at radius ~0.72 from center (1.0,1.0)
+# Mushroom at 0 degrees (east)
+circle 1.72,1.00 0.11 fill #6b3510 0.92
+circle 1.72,1.00 0.11 stroke #2a1400
+circle 1.72,1.00 0.08 fill #8b4513 0.88
+circle 1.72,1.00 0.045 fill #a05a28 0.7
+circle 1.72,1.00 0.02 fill #c8a070 0.55
+ring 1.72,1.00 0.11 0.09 fill #d4c4a8 0.3
+
+# Mushroom at 30 degrees
+circle 1.62,1.36 0.10 fill #6b3510 0.9
+circle 1.62,1.36 0.10 stroke #2a1400
+circle 1.62,1.36 0.07 fill #8b4513 0.85
+circle 1.62,1.36 0.04 fill #a05a28 0.68
+
+# Mushroom at 60
+circle 1.36,1.62 0.11 fill #6b3510 0.92
+circle 1.36,1.62 0.11 stroke #2a1400
+circle 1.36,1.62 0.08 fill #8b4513 0.88
+circle 1.36,1.62 0.045 fill #a05a28 0.7
+circle 1.36,1.62 0.02 fill #c8a070 0.55
+
+# Mushroom at 90 (south)
+circle 1.00,1.72 0.10 fill #5a3010 0.9
+circle 1.00,1.72 0.10 stroke #2a1400
+circle 1.00,1.72 0.07 fill #7b3f13 0.85
+circle 1.00,1.72 0.04 fill #9a5528 0.7
+
+# Mushroom at 120
+circle 0.64,1.62 0.11 fill #6b3510 0.92
+circle 0.64,1.62 0.11 stroke #2a1400
+circle 0.64,1.62 0.08 fill #8b4513 0.88
+circle 0.64,1.62 0.045 fill #a05a28 0.7
+
+# Mushroom at 150
+circle 0.38,1.36 0.10 fill #6b3510 0.9
+circle 0.38,1.36 0.10 stroke #2a1400
+circle 0.38,1.36 0.07 fill #8b4513 0.85
+circle 0.38,1.36 0.04 fill #a05a28 0.68
+
+# Mushroom at 180 (west)
+circle 0.28,1.00 0.11 fill #6b3510 0.92
+circle 0.28,1.00 0.11 stroke #2a1400
+circle 0.28,1.00 0.08 fill #8b4513 0.88
+circle 0.28,1.00 0.045 fill #a05a28 0.7
+circle 0.28,1.00 0.02 fill #c8a070 0.55
+ring 0.28,1.00 0.11 0.09 fill #d4c4a8 0.3
+
+# Mushroom at 210
+circle 0.38,0.64 0.10 fill #6b3510 0.9
+circle 0.38,0.64 0.10 stroke #2a1400
+circle 0.38,0.64 0.07 fill #8b4513 0.85
+circle 0.38,0.64 0.04 fill #a05a28 0.68
+
+# Mushroom at 240
+circle 0.64,0.38 0.11 fill #6b3510 0.92
+circle 0.64,0.38 0.11 stroke #2a1400
+circle 0.64,0.38 0.08 fill #8b4513 0.88
+circle 0.64,0.38 0.045 fill #a05a28 0.7
+circle 0.64,0.38 0.02 fill #c8a070 0.55
+
+# Mushroom at 270 (north)
+circle 1.00,0.28 0.10 fill #5a3010 0.9
+circle 1.00,0.28 0.10 stroke #2a1400
+circle 1.00,0.28 0.07 fill #7b3f13 0.85
+circle 1.00,0.28 0.04 fill #9a5528 0.7
+
+# Mushroom at 300
+circle 1.36,0.38 0.11 fill #6b3510 0.92
+circle 1.36,0.38 0.11 stroke #2a1400
+circle 1.36,0.38 0.08 fill #8b4513 0.88
+circle 1.36,0.38 0.045 fill #a05a28 0.7
+
+# Mushroom at 330
+circle 1.62,0.64 0.10 fill #6b3510 0.9
+circle 1.62,0.64 0.10 stroke #2a1400
+circle 1.62,0.64 0.07 fill #8b4513 0.85
+circle 1.62,0.64 0.04 fill #a05a28 0.68
+
+# Connecting mycelium arcs on the ground between mushrooms
+arc 1.00,1.00 0.72 0 360 stroke #c8b898 0.3 width 1
+arc 1.00,1.00 0.68 0 360 stroke #c8b898 0.25 width 1

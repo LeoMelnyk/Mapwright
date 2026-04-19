@@ -1,0 +1,64 @@
+name: Shadow Tree
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 6
+placement: floor
+room_types: graveyard, shadowfell, mausoleum, swamp, ruin
+typical_count: few
+clusters_with: mist-pool, dead-tree, cobweb-heavy
+notes: Small black-barked dead tree with twisted branches; place in corners or against walls for atmosphere
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.30 z 0-6
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small trunk disc with dark branch lines radiating outward
+
+# === Branch sprays radiating from trunk ===
+# Branch N
+line 0.50,0.35 0.48,0.08 stroke #1a1208 0.7 width 2
+line 0.48,0.12 0.38,0.04 stroke #1a1208 0.6 width 1
+line 0.48,0.15 0.58,0.05 stroke #1a1208 0.55 width 1
+
+# Branch NE
+line 0.62,0.38 0.88,0.10 stroke #1a1208 0.7 width 2
+line 0.82,0.15 0.92,0.08 stroke #1a1208 0.55 width 1
+line 0.80,0.18 0.88,0.22 stroke #1a1208 0.5 width 1
+
+# Branch E
+line 0.65,0.50 0.92,0.48 stroke #1a1208 0.7 width 2
+line 0.88,0.48 0.96,0.38 stroke #1a1208 0.55 width 1
+
+# Branch SE
+line 0.62,0.62 0.85,0.88 stroke #1a1208 0.7 width 2
+line 0.80,0.82 0.90,0.92 stroke #1a1208 0.55 width 1
+
+# Branch S
+line 0.50,0.65 0.52,0.92 stroke #1a1208 0.7 width 2
+line 0.52,0.85 0.60,0.95 stroke #1a1208 0.55 width 1
+
+# Branch SW
+line 0.38,0.62 0.12,0.88 stroke #1a1208 0.7 width 2
+line 0.18,0.82 0.08,0.92 stroke #1a1208 0.55 width 1
+
+# Branch W
+line 0.35,0.50 0.08,0.52 stroke #1a1208 0.7 width 2
+line 0.12,0.52 0.05,0.42 stroke #1a1208 0.55 width 1
+
+# Branch NW
+line 0.38,0.38 0.12,0.12 stroke #1a1208 0.7 width 2
+line 0.18,0.18 0.08,0.08 stroke #1a1208 0.55 width 1
+
+# === Trunk (drawn last, on top of branch bases) ===
+circle 0.50,0.50 0.15 texfill polyhaven/bark_brown_02 0.85
+circle 0.50,0.50 0.15 stroke #0a0804
+# Dark bark cracks
+line 0.50,0.36 0.50,0.42 stroke #0a0804 0.6
+line 0.50,0.58 0.50,0.64 stroke #0a0804 0.6
+line 0.36,0.50 0.42,0.50 stroke #0a0804 0.6
+line 0.58,0.50 0.64,0.50 stroke #0a0804 0.6
+# Hollow dark center
+circle 0.50,0.50 0.06 fill #0a0804 0.7

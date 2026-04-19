@@ -1,0 +1,108 @@
+name: Performance Stage
+category: Structure
+footprint: 3x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: wall
+room_types: fairground-seasonal, festival-grounds, village-green, tavern, throne-room
+typical_count: single
+clusters_with: bunting-line, lantern-paper, bonfire-large, maypole, pie-stand
+notes: Raised wooden performance stage with painted sun-motif curtain backdrop and two ornamental poles
+---
+# footprint 3x3: x range 0-3, y range 0-3
+# Top-down: stage platform occupies most footprint; backdrop curtain at north (wall side)
+
+# === HITBOX ===
+hitbox rect 0.15,0.10 2.70,2.70 z 0-0.8
+
+# === Stage platform (raised wooden boards) ===
+rect 0.15,0.10 2.70,2.70 texfill polyhaven/weathered_planks 0.9
+rect 0.15,0.10 2.70,2.70 stroke #2a1400 width 2
+
+# Plank seam lines (running east-west)
+line 0.15,0.50 2.85,0.50 stroke #3a1f00 width 1
+line 0.15,0.85 2.85,0.85 stroke #3a1f00 width 1
+line 0.15,1.20 2.85,1.20 stroke #3a1f00 width 1
+line 0.15,1.55 2.85,1.55 stroke #3a1f00 width 1
+line 0.15,1.90 2.85,1.90 stroke #3a1f00 width 1
+line 0.15,2.25 2.85,2.25 stroke #3a1f00 width 1
+line 0.15,2.60 2.85,2.60 stroke #3a1f00 width 1
+
+# Plank end-caps (shaded perimeter)
+rect 0.15,0.10 2.70,0.08 fill #2a1400 0.35
+rect 0.15,2.72 2.70,0.08 fill #2a1400 0.35
+
+# === Curtain backdrop (north wall, draped) ===
+# Curtain rod
+rect 0.25,0.10 2.50,0.06 texfill polyhaven/dark_wood 0.9
+rect 0.25,0.10 2.50,0.06 stroke #1a0a04
+# Rod finials
+circle 0.25,0.13 0.06 fill #daa520 0.9
+circle 0.25,0.13 0.06 stroke #5a3a00
+circle 2.75,0.13 0.06 fill #daa520 0.9
+circle 2.75,0.13 0.06 stroke #5a3a00
+
+# Curtain top (rich red velvet, visible as band with folds)
+rect 0.30,0.16 2.40,0.26 fill #8b2020 0.9
+rect 0.30,0.16 2.40,0.26 texfill polyhaven/velour_velvet 0.5
+rect 0.30,0.16 2.40,0.26 stroke #3a0404
+
+# Curtain vertical folds (pleats)
+line 0.50,0.16 0.50,0.42 stroke #3a0404 width 2
+line 0.80,0.16 0.80,0.42 stroke #3a0404 width 2
+line 1.10,0.16 1.10,0.42 stroke #3a0404 width 2
+line 1.40,0.16 1.40,0.42 stroke #3a0404 width 2
+line 1.70,0.16 1.70,0.42 stroke #3a0404 width 2
+line 2.00,0.16 2.00,0.42 stroke #3a0404 width 2
+line 2.30,0.16 2.30,0.42 stroke #3a0404 width 2
+line 2.50,0.16 2.50,0.42 stroke #3a0404 width 2
+
+# Gold trim at curtain bottom
+rect 0.30,0.40 2.40,0.04 fill #daa520 0.9
+rect 0.30,0.40 2.40,0.04 stroke #5a3a00
+
+# === Sun motif painted on curtain (center, radiating gold) ===
+# Sun disc
+circle 1.50,0.30 0.10 fill #daa520 0.95
+circle 1.50,0.30 0.10 stroke #5a3a00
+# Sun face details
+circle 1.46,0.28 0.012 fill #1a1408
+circle 1.54,0.28 0.012 fill #1a1408
+arc 1.50,0.32 0.03 0 180 stroke #1a1408 width 1
+# Sun rays
+line 1.50,0.16 1.50,0.20 stroke #daa520 width 3
+line 1.50,0.40 1.50,0.44 stroke #daa520 width 3
+line 1.36,0.30 1.40,0.30 stroke #daa520 width 3
+line 1.60,0.30 1.64,0.30 stroke #daa520 width 3
+line 1.40,0.20 1.44,0.24 stroke #daa520 width 2
+line 1.60,0.20 1.56,0.24 stroke #daa520 width 2
+line 1.40,0.40 1.44,0.36 stroke #daa520 width 2
+line 1.60,0.40 1.56,0.36 stroke #daa520 width 2
+
+# === Ornamental poles flanking stage front ===
+# Left pole (SW corner of stage)
+circle 0.35,2.60 0.10 texfill polyhaven/dark_wood 0.9
+circle 0.35,2.60 0.10 stroke #1a0a04
+# Pole cap (gold ball)
+circle 0.35,2.60 0.05 fill #daa520 0.95
+circle 0.35,2.60 0.05 stroke #5a3a00
+# Ribbon trailing from pole
+bezier 0.35,2.60 0.28,2.68 0.22,2.76 0.12,2.80 stroke #c82020 width 3
+
+# Right pole (SE corner)
+circle 2.65,2.60 0.10 texfill polyhaven/dark_wood 0.9
+circle 2.65,2.60 0.10 stroke #1a0a04
+circle 2.65,2.60 0.05 fill #daa520 0.95
+circle 2.65,2.60 0.05 stroke #5a3a00
+bezier 2.65,2.60 2.72,2.68 2.78,2.76 2.88,2.80 stroke #c82020 width 3
+
+# === Small stage steps visible at front-center (south) ===
+rect 1.20,2.72 0.60,0.14 texfill polyhaven/dark_wood 0.9
+rect 1.20,2.72 0.60,0.14 stroke #1a0a04
+line 1.20,2.79 1.80,2.79 stroke #1a0a04 width 1
+
+# Painted decorative trim around stage edge
+line 0.18,0.52 2.82,0.52 stroke #daa520 0.7 width 2
+line 0.18,2.58 2.82,2.58 stroke #daa520 0.7 width 2

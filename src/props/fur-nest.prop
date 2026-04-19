@@ -1,0 +1,75 @@
+name: Fur Nest
+category: Clutter
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: cave-bear-lair, cave-living, monster-lair-small, hunting-lodge, wilderness
+typical_count: single
+clusters_with: claw-marked-wall, bone-pile, small-bone, broken-antler, fur-nest
+notes: Heap of matted fur, straw, and leaves — sleeping spot of a large beast
+---
+# === HITBOX ===
+selection circle 1.0,1.0 0.78
+
+# Outer debris halo (scattered tufts and detritus)
+circle 0.4,0.4 0.05 fill #3a2810 0.7
+circle 1.6,0.5 0.04 fill #3a2810 0.7
+circle 0.3,1.3 0.045 fill #3a2810 0.7
+circle 1.7,1.5 0.05 fill #3a2810 0.7
+circle 0.6,1.8 0.04 fill #3a2810 0.65
+circle 1.4,0.2 0.035 fill #3a2810 0.65
+
+# Large soft organic pile outline (irregular blobby shape)
+poly 0.25,0.90 0.35,0.55 0.55,0.30 0.85,0.22 1.15,0.20 1.45,0.26 1.68,0.42 1.80,0.68 1.82,1.00 1.78,1.32 1.68,1.58 1.48,1.72 1.20,1.80 0.92,1.82 0.62,1.75 0.40,1.60 0.28,1.35 0.22,1.10 fill #2a1808 0.92
+poly 0.25,0.90 0.35,0.55 0.55,0.30 0.85,0.22 1.15,0.20 1.45,0.26 1.68,0.42 1.80,0.68 1.82,1.00 1.78,1.32 1.68,1.58 1.48,1.72 1.20,1.80 0.92,1.82 0.62,1.75 0.40,1.60 0.28,1.35 0.22,1.10 stroke #0a0400 width 2
+
+# Inner mid-tone (warmer brown — matted fur)
+poly 0.40,0.95 0.48,0.65 0.65,0.44 0.90,0.36 1.12,0.36 1.35,0.42 1.55,0.55 1.65,0.78 1.68,1.02 1.62,1.28 1.48,1.50 1.25,1.62 1.00,1.68 0.75,1.62 0.55,1.50 0.45,1.30 0.40,1.10 fill #4a2810 0.88
+poly 0.40,0.95 0.48,0.65 0.65,0.44 0.90,0.36 1.12,0.36 1.35,0.42 1.55,0.55 1.65,0.78 1.68,1.02 1.62,1.28 1.48,1.50 1.25,1.62 1.00,1.68 0.75,1.62 0.55,1.50 0.45,1.30 0.40,1.10 texfill polyhaven/brown_leather 0.4
+
+# Center depression (where the beast sleeps)
+ellipse 1.00,1.05 0.36,0.30 fill #1a0a00 0.85
+ellipse 1.00,1.05 0.36,0.30 stroke #0a0400 width 1
+ellipse 1.00,1.05 0.28,0.22 fill #2a1008 0.8
+
+# Fur tufts and strands (radial strokes outward)
+bezier 1.00,1.00 0.85,0.80 0.70,0.55 0.58,0.38 stroke #6a4018 0.75 width 2
+bezier 1.00,1.00 1.15,0.80 1.30,0.55 1.42,0.38 stroke #6a4018 0.75 width 2
+bezier 1.00,1.00 0.78,1.18 0.60,1.40 0.48,1.55 stroke #6a4018 0.75 width 2
+bezier 1.00,1.00 1.22,1.18 1.40,1.40 1.52,1.55 stroke #6a4018 0.75 width 2
+bezier 1.00,1.00 0.76,0.95 0.55,0.90 0.38,0.85 stroke #6a4018 0.7 width 2
+bezier 1.00,1.00 1.24,1.05 1.45,1.10 1.62,1.15 stroke #6a4018 0.7 width 2
+
+# Lighter fur highlights (catching light on raised tufts)
+bezier 0.70,0.70 0.80,0.60 0.90,0.55 0.96,0.50 stroke #8a6838 0.65 width 1
+bezier 1.30,0.70 1.20,0.60 1.10,0.55 1.04,0.50 stroke #8a6838 0.65 width 1
+bezier 0.68,1.30 0.80,1.38 0.92,1.44 0.98,1.48 stroke #8a6838 0.6 width 1
+bezier 1.32,1.30 1.20,1.38 1.10,1.44 1.02,1.48 stroke #8a6838 0.6 width 1
+
+# Scattered leaves / straw (dry brown bits mixed in)
+poly 0.55,0.50 0.62,0.48 0.60,0.56 0.52,0.58 fill #8a5018 0.85
+poly 0.55,0.50 0.62,0.48 0.60,0.56 0.52,0.58 stroke #4a2800 width 1
+poly 1.38,0.60 1.45,0.58 1.43,0.66 1.35,0.68 fill #8a5018 0.85
+poly 1.38,0.60 1.45,0.58 1.43,0.66 1.35,0.68 stroke #4a2800 width 1
+poly 0.60,1.42 0.68,1.40 0.66,1.48 0.58,1.50 fill #7a4018 0.85
+poly 0.60,1.42 0.68,1.40 0.66,1.48 0.58,1.50 stroke #4a2800 width 1
+poly 1.35,1.40 1.42,1.38 1.40,1.46 1.32,1.48 fill #8a5018 0.80
+
+# Straw strands poking out
+line 0.70,0.45 0.62,0.38 stroke #8a7038 0.7 width 1
+line 1.30,0.50 1.38,0.42 stroke #8a7038 0.7 width 1
+line 0.52,1.20 0.44,1.14 stroke #8a7038 0.7 width 1
+line 1.48,1.30 1.56,1.24 stroke #8a7038 0.7 width 1
+line 0.85,0.38 0.82,0.30 stroke #a88840 0.6 width 1
+line 1.15,0.38 1.18,0.30 stroke #a88840 0.6 width 1
+
+# Small gnawed bone in the nest
+line 0.90,1.15 1.05,1.18 stroke #d4c4a8 width 2
+circle 0.90,1.15 0.022 fill #e8dcc8 0.9
+circle 1.05,1.18 0.022 fill #e8dcc8 0.9
+
+# Stain in the hollow (sweat/grease)
+ellipse 1.00,1.08 0.14,0.08 fill #0a0400 0.6

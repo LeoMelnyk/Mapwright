@@ -1,0 +1,67 @@
+name: Mine Cart Track End
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel
+typical_count: few
+clusters_with: cart-track, cart-track-short, cart-track-turn, cart-track-t, cart-track-x, mine-cart
+notes: End-cap / buffer stop for the mine cart rail — at facing 0 the track enters from the west and terminates at a heavy timber buffer. Rotate to orient the stop.
+---
+# Wooden ties under the rails (only west portion)
+rect 0.08,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.08,0.18 0.10,0.64 stroke #3a1f00
+rect 0.40,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.40,0.18 0.10,0.64 stroke #3a1f00
+# North iron rail (terminates at buffer)
+rect 0.00,0.34 0.68,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.34 0.68,0.06 stroke #333333
+line 0.00,0.36 0.68,0.36 stroke #8899aa 0.7 width 1
+# South iron rail (terminates at buffer)
+rect 0.00,0.60 0.68,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.60 0.68,0.06 stroke #333333
+line 0.00,0.62 0.68,0.62 stroke #8899aa 0.7 width 1
+# Rust patches on rails
+circle 0.20,0.37 0.020 fill #8b4000 0.7
+circle 0.52,0.63 0.018 fill #8b4000 0.65
+# Rail spikes
+circle 0.13,0.37 0.018 fill #333333 0.95
+circle 0.13,0.63 0.018 fill #333333 0.95
+circle 0.45,0.37 0.018 fill #333333 0.95
+circle 0.45,0.63 0.018 fill #333333 0.95
+# === Buffer stop — heavy timber beam spanning both rails ===
+# Main buffer beam (thick cross-timber)
+rect 0.68,0.28 0.14,0.44 texfill polyhaven/dark_wood 0.92
+rect 0.68,0.28 0.14,0.44 stroke #1a0800 width 2
+# Iron reinforcement plates on the beam
+rect 0.68,0.30 0.14,0.05 fill #555555 0.9
+rect 0.68,0.30 0.14,0.05 stroke #222222 width 1
+rect 0.68,0.65 0.14,0.05 fill #555555 0.9
+rect 0.68,0.65 0.14,0.05 stroke #222222 width 1
+# Buffer contact plates (the face that stops the cart — pointing west toward oncoming carts)
+rect 0.66,0.32 0.04,0.12 fill #555555 0.95
+rect 0.66,0.32 0.04,0.12 stroke #222222 width 1
+rect 0.66,0.56 0.04,0.12 fill #555555 0.95
+rect 0.66,0.56 0.04,0.12 stroke #222222 width 1
+# === Ballast / rubble behind the buffer (braces the stop) ===
+# Pile of broken rock and gravel east of the beam
+circle 0.86,0.30 0.06 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.86,0.30 0.06 stroke #3a3228
+circle 0.92,0.46 0.07 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.92,0.46 0.07 stroke #3a3228
+circle 0.88,0.64 0.065 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.88,0.64 0.065 stroke #3a3228
+circle 0.96,0.80 0.055 texfill polyhaven/rock_boulder_cracked 0.85
+circle 0.96,0.80 0.055 stroke #3a3228
+circle 0.86,0.78 0.045 fill #3a3228 0.85
+# Smaller gravel scatter
+circle 0.82,0.40 0.022 fill #2a2820 0.8
+circle 0.90,0.22 0.020 fill #2a2820 0.8
+circle 0.82,0.70 0.020 fill #2a2820 0.8
+# Coal dust smear where carts have impacted
+ellipse 0.70,0.50 0.02,0.14 fill #0a0a0a 0.55
+# Warning paint stripes on the buffer face
+line 0.67,0.34 0.69,0.44 stroke #ffcc20 0.7 width 2
+line 0.67,0.58 0.69,0.68 stroke #ffcc20 0.7 width 2

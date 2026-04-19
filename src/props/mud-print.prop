@@ -1,0 +1,63 @@
+name: Mud Print
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+placement: floor
+room_types: ferry-house, toll-bridge-house, entry-hall, peasant-hovel
+typical_count: many
+clusters_with: animal-tracks, dust-heap, puddle
+notes: Muddy boot prints on a clean floor — recent trespasser
+---
+# === HITBOX ===
+selection rect 0.12,0.18 0.76,0.64
+
+# Boot print 1 (mostly defined, walking north-south)
+# Sole main
+ellipse 0.30,0.32 0.10,0.05 fill #3a2818 0.85
+ellipse 0.30,0.32 0.10,0.05 stroke #1a1008 0.6
+# Heel
+ellipse 0.30,0.42 0.06,0.04 fill #3a2818 0.85
+ellipse 0.30,0.42 0.06,0.04 stroke #1a1008 0.6
+# Boot print 1 detail (nail/stitch marks)
+circle 0.26,0.30 0.008 fill #1a1008 0.8
+circle 0.34,0.30 0.008 fill #1a1008 0.8
+circle 0.30,0.40 0.008 fill #1a1008 0.8
+# Boot print 2 (offset, second step)
+ellipse 0.55,0.52 0.10,0.05 fill #4a3420 0.85
+ellipse 0.55,0.52 0.10,0.05 stroke #1a1008 0.6
+ellipse 0.55,0.62 0.06,0.04 fill #4a3420 0.85
+ellipse 0.55,0.62 0.06,0.04 stroke #1a1008 0.6
+circle 0.51,0.50 0.008 fill #1a1008 0.8
+circle 0.59,0.50 0.008 fill #1a1008 0.8
+circle 0.55,0.60 0.008 fill #1a1008 0.8
+# Boot print 3 (partial, fading)
+ellipse 0.78,0.72 0.08,0.04 fill #5a4028 0.65
+ellipse 0.78,0.72 0.08,0.04 stroke #2a1810 0.4
+ellipse 0.78,0.80 0.05,0.03 fill #5a4028 0.6
+# Trail/drag smears between prints
+bezier 0.34,0.40 0.40,0.44 0.48,0.48 0.52,0.50 stroke #4a3418 0.5 width 2
+bezier 0.60,0.64 0.66,0.68 0.72,0.72 0.76,0.74 stroke #5a4028 0.4 width 2
+# Mud splatter drops scattered
+circle 0.16,0.22 0.012 fill #3a2818 0.65
+circle 0.42,0.38 0.012 fill #3a2818 0.65
+circle 0.20,0.54 0.012 fill #3a2818 0.6
+circle 0.48,0.62 0.01 fill #4a3420 0.6
+circle 0.68,0.40 0.012 fill #3a2818 0.6
+circle 0.68,0.62 0.01 fill #5a4028 0.55
+circle 0.80,0.26 0.01 fill #3a2818 0.55
+circle 0.16,0.76 0.01 fill #5a4028 0.55
+# Moisture sheen on fresh print
+arc 0.30,0.32 0.08 210 260 stroke #6a4828 0.4 width 1
+# Dirt texture dots in prints
+circle 0.28,0.30 0.006 fill #1a1008 0.9
+circle 0.32,0.34 0.006 fill #1a1008 0.85
+circle 0.53,0.50 0.006 fill #1a1008 0.9
+circle 0.57,0.54 0.006 fill #1a1008 0.85
+# Lighter mud around edges (drier)
+arc 0.30,0.35 0.12 180 360 stroke #6a5028 0.3 width 1
+arc 0.55,0.56 0.12 180 360 stroke #6a5028 0.25 width 1
+# Grass blade stuck in mud
+line 0.44,0.36 0.42,0.32 stroke #3a5018 width 1

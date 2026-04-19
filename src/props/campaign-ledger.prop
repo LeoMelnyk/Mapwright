@@ -1,0 +1,65 @@
+name: Campaign Ledger
+category: Combat
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: command-room, war-room, office, guard-room, barracks
+typical_count: single
+clusters_with: desk, pen-and-inkwell, dispatch-pouch, map-scroll
+notes: Large leather-bound open ledger with military tally columns; place on desks or command tables
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: large open ledger, two pages spread, with tally columns
+
+# Leather cover edges (peeking out behind pages)
+rect 0.08,0.14 0.84,0.72 texfill polyhaven/brown_leather 0.6
+rect 0.08,0.14 0.84,0.72 stroke #3a1f00
+
+# Left page
+rect 0.10,0.16 0.38,0.68 fill #e8e0d0 0.9
+rect 0.10,0.16 0.38,0.68 stroke #b0a090
+
+# Right page
+rect 0.52,0.16 0.38,0.68 fill #e8e0d0 0.9
+rect 0.52,0.16 0.38,0.68 stroke #b0a090
+
+# Spine crease
+line 0.50,0.16 0.50,0.84 stroke #8a7a6a 0.6
+
+# === Left page: tally columns ===
+# Column dividers
+line 0.26,0.22 0.26,0.78 stroke #888888 0.3
+line 0.38,0.22 0.38,0.78 stroke #888888 0.3
+# Header line
+line 0.14,0.26 0.44,0.26 stroke #444444 0.5 width 2
+# Tally rows
+line 0.14,0.32 0.44,0.32 stroke #888888 0.2
+line 0.14,0.38 0.44,0.38 stroke #888888 0.2
+line 0.14,0.44 0.44,0.44 stroke #888888 0.2
+line 0.14,0.50 0.44,0.50 stroke #888888 0.2
+line 0.14,0.56 0.44,0.56 stroke #888888 0.2
+line 0.14,0.62 0.44,0.62 stroke #888888 0.2
+line 0.14,0.68 0.44,0.68 stroke #888888 0.2
+# Tally mark clusters (short vertical dashes in cells)
+line 0.28,0.28 0.28,0.31 stroke #3a1f00 0.5 width 1
+line 0.30,0.28 0.30,0.31 stroke #3a1f00 0.5 width 1
+line 0.32,0.28 0.32,0.31 stroke #3a1f00 0.5 width 1
+line 0.40,0.28 0.40,0.31 stroke #3a1f00 0.5 width 1
+line 0.42,0.28 0.42,0.31 stroke #3a1f00 0.5 width 1
+
+# === Right page: text entries ===
+line 0.56,0.24 0.84,0.24 stroke #888888 0.3
+line 0.56,0.30 0.80,0.30 stroke #888888 0.25
+line 0.56,0.36 0.82,0.36 stroke #888888 0.3
+line 0.56,0.42 0.76,0.42 stroke #888888 0.25
+line 0.56,0.48 0.84,0.48 stroke #888888 0.3
+line 0.56,0.54 0.78,0.54 stroke #888888 0.25
+line 0.56,0.60 0.82,0.60 stroke #888888 0.3
+
+# Ink blot (hasty writing)
+circle 0.78,0.48 0.015 fill #0a0a1a 0.5
+
+# Bookmark ribbon
+line 0.88,0.16 0.86,0.10 stroke #8b2020 0.7

@@ -27,6 +27,8 @@ import {
 } from './decorations.js';
 import { renderLightmapHQ } from './lighting-hq.js';
 import { extractFillLights } from './lighting.js';
+import { buildFluidComposite, invalidateFluidCache, FLUID_BASE_SKIP, FLUID_TOP_SKIP } from './fluid.js';
+import { getCachedRoomCells } from './render-cache.js';
 import {
   buildPlayerCells,
   filterStairsForPlayer,
@@ -73,6 +75,19 @@ function normalizeTheme(theme: Theme): Theme {
     gridCornerLength: (t.gridCornerLength as number | undefined) ?? 0.3,
     gridOpacity: (t.gridOpacity as number | undefined) ?? 0.5,
     textureBlendWidth: (t.textureBlendWidth as number | undefined) ?? 0.35,
+    waterShallowColor: (t.waterShallowColor as string | undefined) ?? '#2d69a5',
+    waterMediumColor: (t.waterMediumColor as string | undefined) ?? '#1c4480',
+    waterDeepColor: (t.waterDeepColor as string | undefined) ?? '#0c265c',
+    waterCausticColor: (t.waterCausticColor as string | undefined) ?? 'rgba(160,215,255,0.55)',
+    lavaShallowColor: (t.lavaShallowColor as string | undefined) ?? '#cc4400',
+    lavaMediumColor: (t.lavaMediumColor as string | undefined) ?? '#992200',
+    lavaDeepColor: (t.lavaDeepColor as string | undefined) ?? '#661100',
+    lavaCausticColor: (t.lavaCausticColor as string | undefined) ?? 'rgba(255,160,60,0.55)',
+    lavaLightColor: (t.lavaLightColor as string | undefined) ?? '#ff5500',
+    lavaLightIntensity: (t.lavaLightIntensity as number | undefined) ?? 0.7,
+    pitBaseColor: (t.pitBaseColor as string | undefined) ?? '#0a0a0a',
+    pitCrackColor: (t.pitCrackColor as string | undefined) ?? '#1a1a1a',
+    pitVignetteColor: (t.pitVignetteColor as string | undefined) ?? 'rgba(0,0,0,0.5)',
   } as unknown as Theme;
   return normalized;
 }
@@ -104,6 +119,34 @@ function resolveTheme(
 // Re-exported for the editor's live render path so it can normalize themes
 // loaded from .theme files before passing them to renderCells.
 export { normalizeTheme };
+
+// ── Export fluid helper ──────────────────────────────────────────────────
+// The live editor's MapCache composites fluids between the base and top
+// cells phases. The export pipeline mirrors that split: we call
+// `renderCells` twice with disjoint `skipPhases` and blit a fluid
+// composite in between, so walls / grid / props stay visually above
+// water / lava / pit.
+
+function _blitFluidCompositeForLevel(
+  ctx: CanvasRenderingContext2D,
+  cells: CellGrid,
+  gridSize: number,
+  theme: Theme,
+  transform: { scale: number; offsetX: number; offsetY: number },
+): void {
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+  if (!numRows || !numCols) return;
+  const cacheW = Math.ceil(numCols * gridSize * transform.scale);
+  const cacheH = Math.ceil(numRows * gridSize * transform.scale);
+  const roomCells = getCachedRoomCells(cells);
+  const composite = buildFluidComposite(cells, roomCells, gridSize, theme, transform.scale, cacheW, cacheH, null);
+  if (!composite) return;
+  // Composite renders world (0,0) at canvas (0,0); transform.offsetX/Y
+  // maps world (0,0) to target (offsetX, offsetY). Blit at that offset so
+  // the world coords line up.
+  ctx.drawImage(composite, transform.offsetX, transform.offsetY);
+}
 
 /**
  * Calculate the required canvas pixel dimensions for a dungeon config.
@@ -212,6 +255,22 @@ export function renderDungeonToCanvas(
         ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 }
         : null;
       const levelLightingEnabled = config.metadata.lightingEnabled;
+      // Pass 1: base phases (shading + floors + blending + bridges)
+      renderCells(ctx, levelCells, gridSize, theme, levelTransform, {
+        showGrid: showGridInCorridors,
+        labelStyle,
+        propCatalog: null,
+        textureOptions: levelTexOpts,
+        metadata: config.metadata,
+        skipLabels: true,
+        bgImageEl,
+        bgImgConfig: config.metadata.backgroundImage ?? null,
+        skipPhases: { ...FLUID_BASE_SKIP },
+      });
+      // Fluid composite (water / lava / pit) between base and top phases
+      invalidateFluidCache();
+      _blitFluidCompositeForLevel(ctx, levelCells, gridSize, theme, levelTransform);
+      // Pass 2: top phases (walls + grid + props + hazard)
       renderCells(ctx, levelCells, gridSize, theme, levelTransform, {
         showGrid: showGridInCorridors,
         labelStyle,
@@ -219,8 +278,9 @@ export function renderDungeonToCanvas(
         textureOptions: levelTexOpts,
         metadata: config.metadata,
         skipLabels: levelLightingEnabled,
-        bgImageEl,
-        bgImgConfig: config.metadata.backgroundImage ?? null,
+        bgImageEl: null,
+        bgImgConfig: null,
+        skipPhases: { ...FLUID_TOP_SKIP },
       });
 
       // Lighting overlay for this level (pixel-perfect for export)
@@ -284,6 +344,22 @@ export function renderDungeonToCanvas(
 
     const texOpts = textureCatalog ? { catalog: textureCatalog, blendWidth: theme.textureBlendWidth ?? 0.35 } : null;
     const singleLevelLightingEnabled = config.metadata.lightingEnabled;
+    // Pass 1: base phases (shading + floors + blending + bridges)
+    renderCells(ctx, config.cells, gridSize, theme, transform, {
+      showGrid: showGridInCorridors,
+      labelStyle,
+      propCatalog: null,
+      textureOptions: texOpts,
+      metadata: config.metadata,
+      skipLabels: true,
+      bgImageEl,
+      bgImgConfig: config.metadata.backgroundImage ?? null,
+      skipPhases: { ...FLUID_BASE_SKIP },
+    });
+    // Fluid composite (water / lava / pit) between base and top phases
+    invalidateFluidCache();
+    _blitFluidCompositeForLevel(ctx, config.cells, gridSize, theme, transform);
+    // Pass 2: top phases (walls + grid + props + hazard)
     renderCells(ctx, config.cells, gridSize, theme, transform, {
       showGrid: showGridInCorridors,
       labelStyle,
@@ -291,8 +367,9 @@ export function renderDungeonToCanvas(
       textureOptions: texOpts,
       metadata: config.metadata,
       skipLabels: singleLevelLightingEnabled,
-      bgImageEl,
-      bgImgConfig: config.metadata.backgroundImage ?? null,
+      bgImageEl: null,
+      bgImgConfig: null,
+      skipPhases: { ...FLUID_TOP_SKIP },
     });
 
     // Lighting overlay (pixel-perfect for export)

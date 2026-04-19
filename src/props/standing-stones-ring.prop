@@ -1,0 +1,74 @@
+name: Standing Stones Ring
+category: Terrain
+footprint: 3x3
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: druid-grove, standing-stones-circle, sacred-site, wilderness, moor
+typical_count: single
+clusters_with: cairn-sacred, altar-wooden, prayer-stone, shrine-stone, standing-stone
+notes: Miniature stone ring of 6 standing stones around a sacred central patch
+---
+# === HITBOX ===
+# Central area is open — ring of stones blocks at their positions
+hitbox circle 0.72,0.72 0.22 z 0-1.5
+hitbox circle 2.28,0.72 0.22 z 0-1.5
+hitbox circle 0.42,1.50 0.22 z 0-1.5
+hitbox circle 2.58,1.50 0.22 z 0-1.5
+hitbox circle 0.72,2.28 0.22 z 0-1.5
+hitbox circle 2.28,2.28 0.22 z 0-1.5
+
+# Sacred ground (pale mossy circle inside the ring)
+circle 1.50,1.50 0.95 fill #4a5a3a 0.55
+circle 1.50,1.50 0.95 stroke #2a3a22 0.6 width 1
+# Inner bare dirt patch
+circle 1.50,1.50 0.40 fill #5a4838 0.60
+circle 1.50,1.50 0.40 stroke #3a2818 0.6 width 1
+# Worn path ring between grass and bare patch
+ring 1.50,1.50 0.70 0.45 fill #6a5a48 0.30
+# Scattered moss in sacred circle
+ellipse 1.10,1.20 0.14,0.08 fill #4a6a2a 0.70
+ellipse 1.90,1.80 0.12,0.07 fill #4a6a2a 0.70
+ellipse 1.80,1.10 0.10,0.06 fill #3a5a22 0.65
+
+# Stone 1 — NW (position ~0.72, 0.72)
+ellipse 0.72,0.80 0.22,0.08 fill #1a1008 0.45
+poly 0.56,0.60 0.66,0.54 0.80,0.54 0.88,0.62 0.88,0.80 0.80,0.86 0.64,0.84 0.56,0.74 fill #5a5048 0.95
+poly 0.56,0.60 0.66,0.54 0.80,0.54 0.88,0.62 0.88,0.80 0.80,0.86 0.64,0.84 0.56,0.74 texfill polyhaven/granite_tile 0.55
+poly 0.56,0.60 0.66,0.54 0.80,0.54 0.88,0.62 0.88,0.80 0.80,0.86 0.64,0.84 0.56,0.74 stroke #2a2420 width 1
+ellipse 0.62,0.72 0.05,0.04 fill #3a5028 0.70
+
+# Stone 2 — NE (position ~2.28, 0.72)
+ellipse 2.28,0.80 0.22,0.08 fill #1a1008 0.45
+poly 2.12,0.60 2.22,0.54 2.36,0.54 2.44,0.62 2.44,0.80 2.36,0.86 2.20,0.84 2.12,0.74 fill #5a5048 0.95
+poly 2.12,0.60 2.22,0.54 2.36,0.54 2.44,0.62 2.44,0.80 2.36,0.86 2.20,0.84 2.12,0.74 texfill polyhaven/stone_wall 0.55
+poly 2.12,0.60 2.22,0.54 2.36,0.54 2.44,0.62 2.44,0.80 2.36,0.86 2.20,0.84 2.12,0.74 stroke #2a2420 width 1
+ellipse 2.36,0.74 0.05,0.03 fill #3a5028 0.70
+
+# Stone 3 — W (position ~0.42, 1.50)
+ellipse 0.42,1.58 0.22,0.08 fill #1a1008 0.45
+poly 0.26,1.38 0.36,1.32 0.50,1.32 0.58,1.40 0.58,1.58 0.50,1.64 0.34,1.62 0.26,1.52 fill #6a6058 0.95
+poly 0.26,1.38 0.36,1.32 0.50,1.32 0.58,1.40 0.58,1.58 0.50,1.64 0.34,1.62 0.26,1.52 texfill polyhaven/granite_tile 0.55
+poly 0.26,1.38 0.36,1.32 0.50,1.32 0.58,1.40 0.58,1.58 0.50,1.64 0.34,1.62 0.26,1.52 stroke #2a2420 width 1
+
+# Stone 4 — E (position ~2.58, 1.50)
+ellipse 2.58,1.58 0.22,0.08 fill #1a1008 0.45
+poly 2.42,1.38 2.52,1.32 2.66,1.32 2.74,1.40 2.74,1.58 2.66,1.64 2.50,1.62 2.42,1.52 fill #5a5048 0.95
+poly 2.42,1.38 2.52,1.32 2.66,1.32 2.74,1.40 2.74,1.58 2.66,1.64 2.50,1.62 2.42,1.52 texfill polyhaven/stone_wall 0.55
+poly 2.42,1.38 2.52,1.32 2.66,1.32 2.74,1.40 2.74,1.58 2.66,1.64 2.50,1.62 2.42,1.52 stroke #2a2420 width 1
+ellipse 2.50,1.54 0.04,0.03 fill #3a5028 0.70
+
+# Stone 5 — SW (position ~0.72, 2.28)
+ellipse 0.72,2.36 0.22,0.08 fill #1a1008 0.45
+poly 0.56,2.16 0.66,2.10 0.80,2.10 0.88,2.18 0.88,2.36 0.80,2.42 0.64,2.40 0.56,2.30 fill #6a6058 0.95
+poly 0.56,2.16 0.66,2.10 0.80,2.10 0.88,2.18 0.88,2.36 0.80,2.42 0.64,2.40 0.56,2.30 texfill polyhaven/granite_tile 0.55
+poly 0.56,2.16 0.66,2.10 0.80,2.10 0.88,2.18 0.88,2.36 0.80,2.42 0.64,2.40 0.56,2.30 stroke #2a2420 width 1
+
+# Stone 6 — SE (position ~2.28, 2.28)
+ellipse 2.28,2.36 0.22,0.08 fill #1a1008 0.45
+poly 2.12,2.16 2.22,2.10 2.36,2.10 2.44,2.18 2.44,2.36 2.36,2.42 2.20,2.40 2.12,2.30 fill #5a5048 0.95
+poly 2.12,2.16 2.22,2.10 2.36,2.10 2.44,2.18 2.44,2.36 2.36,2.42 2.20,2.40 2.12,2.30 texfill polyhaven/stone_wall 0.55
+poly 2.12,2.16 2.22,2.10 2.36,2.10 2.44,2.18 2.44,2.36 2.36,2.42 2.20,2.40 2.12,2.30 stroke #2a2420 width 1
+ellipse 2.20,2.30 0.04,0.03 fill #3a5028 0.70

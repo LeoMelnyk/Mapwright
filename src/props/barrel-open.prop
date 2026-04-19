@@ -1,0 +1,50 @@
+name: Barrel (Open)
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 3
+placement: any
+room_types: market-stall, market, vendor-row, bazaar, storage, kitchen, cellar
+typical_count: few
+clusters_with: barrel, crate-stacked, stall-counter, display-basket
+notes: Open-top barrel with goods visible — grain, pickles, or oats inside.
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.38
+
+# Footprint 1x1: x 0-1, y 0-1. Open barrel top — lip, dark interior, contents mound.
+
+# Wooden barrel rim (outer ring of staves)
+circle 0.5,0.5 0.40 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.40 stroke #2a1400
+
+# Outer iron band
+circle 0.5,0.5 0.38 stroke #555555 width 1
+
+# Dark interior (the hollow)
+circle 0.5,0.5 0.32 fill #1a0a00 0.95
+circle 0.5,0.5 0.32 stroke #080400
+
+# Contents mound — grain/oats (ochre warm color)
+circle 0.5,0.5 0.28 fill #d0a020 0.92
+circle 0.5,0.5 0.28 stroke #6a4e10
+
+# Texture speckle on grain surface
+circle 0.40,0.44 0.02 fill #8b6914 0.7
+circle 0.58,0.46 0.018 fill #8b6914 0.7
+circle 0.46,0.58 0.02 fill #8b6914 0.7
+circle 0.60,0.58 0.015 fill #8b6914 0.7
+circle 0.52,0.42 0.015 fill #8b6914 0.6
+circle 0.42,0.56 0.018 fill #8b6914 0.6
+circle 0.56,0.54 0.017 fill #8b6914 0.6
+
+# Highlight on grain (light side)
+arc 0.5,0.5 0.24 210 300 stroke #f0c860 0.4 width 1
+
+# Stave seams on the rim
+line 0.5,0.10 0.5,0.22 stroke #2a1400 0.7
+line 0.5,0.78 0.5,0.90 stroke #2a1400 0.7
+line 0.10,0.5 0.22,0.5 stroke #2a1400 0.7
+line 0.78,0.5 0.90,0.5 stroke #2a1400 0.7

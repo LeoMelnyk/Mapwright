@@ -1,0 +1,53 @@
+name: Decanter with Glasses
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: house-merchant, merchant-home, study, parlor, burgher-house, mansion-dining
+typical_count: single
+clusters_with: dining-table, sideboard, letter-sealed
+notes: Crystal decanter of dark wine and two matching glasses on a silver tray. Place on tables or sideboards.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Silver tray
+ellipse 0.5,0.55 0.42,0.30 fill #c0c0c8 0.9
+ellipse 0.5,0.55 0.42,0.30 stroke #666666
+# Tray inner rim
+ellipse 0.5,0.55 0.38,0.26 stroke #888888 0.7 width 1
+# Tray highlight (polish)
+arc 0.5,0.55 0.36 200 320 stroke #ffffff 0.4 width 2
+
+# Decanter base (dark wine filled)
+ellipse 0.5,0.45 0.12,0.10 fill #5a1a1a 0.95
+ellipse 0.5,0.45 0.12,0.10 stroke #2a0808
+# Decanter crystal highlights
+arc 0.5,0.45 0.10 210 280 stroke #ffaaaa 0.5 width 1
+# Decanter shoulder (smaller circle above)
+circle 0.5,0.38 0.06 fill #5a1a1a 0.9
+circle 0.5,0.38 0.06 stroke #2a0808
+# Decanter neck
+rect 0.47,0.30 0.06,0.10 fill #5a1a1a 0.85
+rect 0.47,0.30 0.06,0.10 stroke #2a0808
+# Stopper
+ellipse 0.5,0.28 0.05,0.03 fill #daa520 0.9
+ellipse 0.5,0.28 0.05,0.03 stroke #5a3a00
+
+# Glass 1 (west, with wine)
+circle 0.26,0.62 0.07 fill #3a2a28 0.85
+circle 0.26,0.62 0.07 stroke #222222
+# Wine in glass
+circle 0.26,0.62 0.05 fill #5a1a1a 0.85
+# Rim highlight
+arc 0.26,0.62 0.065 220 320 stroke #ffffff 0.4 width 1
+
+# Glass 2 (east, with wine)
+circle 0.74,0.62 0.07 fill #3a2a28 0.85
+circle 0.74,0.62 0.07 stroke #222222
+circle 0.74,0.62 0.05 fill #5a1a1a 0.85
+arc 0.74,0.62 0.065 220 320 stroke #ffffff 0.4 width 1
+
+# Tray engraving hint (gold flourish)
+arc 0.5,0.55 0.34 45 135 stroke #daa520 0.5 width 1

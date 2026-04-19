@@ -1,0 +1,41 @@
+name: Red Candle
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: opium-den, shrine, ritual-chamber, brothel, crypt
+typical_count: many
+clusters_with: candle, candle-cluster, opium-pipe, teacup, cushion-pile
+notes: Short red wax candle with low flame; scatter on tables and shelves for dim, sultry lighting
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":3,"intensity":0.3,"color":"#ff9050"}]
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# Melted wax pool at base
+ellipse 0.5,0.56 0.16,0.10 fill #7a1010 0.5
+ellipse 0.5,0.56 0.16,0.10 stroke #4a0808
+
+# Outer red wax disc
+circle 0.5,0.5 0.14 fill #a01818 0.9
+circle 0.5,0.5 0.14 stroke #4a0808
+
+# Inner wax rim (slightly brighter)
+circle 0.5,0.5 0.10 fill #c02020 0.8
+
+# Dark wick base
+circle 0.5,0.5 0.025 fill #1a0800 0.95
+
+# Outer flame glow
+circle 0.5,0.5 0.08 fill #ff6600 0.35
+
+# Flame tongue
+poly 0.47,0.5 0.5,0.42 0.53,0.5 fill #ff8800 0.6
+
+# Inner hot flame
+poly 0.48,0.5 0.5,0.45 0.52,0.5 fill #ffcc00 0.7
+
+# White-yellow hot center
+circle 0.5,0.49 0.02 fill #ffffcc 0.9

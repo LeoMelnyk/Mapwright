@@ -1,0 +1,54 @@
+name: Giant Clam Shell
+category: Decorative
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+height: 1.0
+placement: center
+room_types: elemental-water-node, aquatic-shrine, sunken-temple, merfolk-grotto, coral-reef
+typical_count: single
+clusters_with: pearl-cluster, shell-scatter, anemone-glow, marid-pavilion
+notes: Enormous open clam with pearl inside; place as single centerpiece or small focal point
+---
+# Footprint 2x2: x 0-2, y 0-2.
+# Outer shell — lower half (southern half of the opened clam)
+poly 0.20,1.00 0.40,1.60 0.80,1.88 1.20,1.88 1.60,1.60 1.80,1.00 1.70,1.10 1.45,1.72 1.00,1.84 0.55,1.72 0.30,1.10 fill #d8c8b0 0.9
+poly 0.20,1.00 0.40,1.60 0.80,1.88 1.20,1.88 1.60,1.60 1.80,1.00 1.70,1.10 1.45,1.72 1.00,1.84 0.55,1.72 0.30,1.10 stroke #70604c
+# Outer shell — upper half (northern half, opened back)
+poly 0.20,1.00 0.40,0.40 0.80,0.12 1.20,0.12 1.60,0.40 1.80,1.00 1.70,0.90 1.45,0.28 1.00,0.16 0.55,0.28 0.30,0.90 fill #d8c8b0 0.88
+poly 0.20,1.00 0.40,0.40 0.80,0.12 1.20,0.12 1.60,0.40 1.80,1.00 1.70,0.90 1.45,0.28 1.00,0.16 0.55,0.28 0.30,0.90 stroke #70604c
+# Inner iridescent lining — lower
+poly 0.30,1.10 0.55,1.72 1.00,1.84 1.45,1.72 1.70,1.10 1.55,1.15 1.00,1.75 0.45,1.15 fill #f8ecd8 0.92
+poly 0.30,1.10 0.55,1.72 1.00,1.84 1.45,1.72 1.70,1.10 1.55,1.15 1.00,1.75 0.45,1.15 stroke #8a7a6a
+# Inner iridescent lining — upper
+poly 0.30,0.90 0.55,0.28 1.00,0.16 1.45,0.28 1.70,0.90 1.55,0.85 1.00,0.25 0.45,0.85 fill #f8ecd8 0.92
+poly 0.30,0.90 0.55,0.28 1.00,0.16 1.45,0.28 1.70,0.90 1.55,0.85 1.00,0.25 0.45,0.85 stroke #8a7a6a
+# Ridged fan pattern — lower half
+line 1.00,1.00 0.25,1.15 stroke #a09080 width 1
+line 1.00,1.00 0.45,1.55 stroke #a09080 width 1
+line 1.00,1.00 0.70,1.78 stroke #a09080 width 1
+line 1.00,1.00 1.00,1.85 stroke #a09080 width 1
+line 1.00,1.00 1.30,1.78 stroke #a09080 width 1
+line 1.00,1.00 1.55,1.55 stroke #a09080 width 1
+line 1.00,1.00 1.75,1.15 stroke #a09080 width 1
+# Ridged fan pattern — upper half
+line 1.00,1.00 0.25,0.85 stroke #a09080 width 1
+line 1.00,1.00 0.45,0.45 stroke #a09080 width 1
+line 1.00,1.00 0.70,0.22 stroke #a09080 width 1
+line 1.00,1.00 1.00,0.15 stroke #a09080 width 1
+line 1.00,1.00 1.30,0.22 stroke #a09080 width 1
+line 1.00,1.00 1.55,0.45 stroke #a09080 width 1
+line 1.00,1.00 1.75,0.85 stroke #a09080 width 1
+# Iridescent sheen overlays (blue-pink)
+ellipse 1.00,1.40 0.40,0.22 fill #c0e0ff 0.30
+ellipse 1.00,0.60 0.40,0.22 fill #ffd8e8 0.25
+# Hinge line (east-west axis where shells meet)
+line 0.20,1.00 1.80,1.00 stroke #5a4a30 width 2
+# Central pearl
+circle 1.00,1.00 0.18 fill #ffffff 0.95
+circle 1.00,1.00 0.18 stroke #c0d0e0
+circle 0.96,0.96 0.07 fill #ffffff 0.95
+circle 1.00,1.00 0.10 fill #f8fcff 0.95
+# Glow ring around the pearl
+circle 1.00,1.00 0.26 stroke #e0f0ff width 1

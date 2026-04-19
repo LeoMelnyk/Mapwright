@@ -1,0 +1,64 @@
+name: Washing Tub
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.8
+placement: floor
+room_types: apartment-tenement, house-small, servants-kitchen, laundry
+typical_count: single
+clusters_with: bucket, rag-damp, broom, washing-tub, water-jug
+notes: Wide wooden washing tub with soapy water and washboard
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.8
+
+# Wooden tub body (wide, low staved barrel)
+circle 0.5,0.5 0.38 texfill polyhaven/dark_wood 0.88
+circle 0.5,0.5 0.38 stroke #2a1400
+# Stave seams (radial)
+line 0.50,0.12 0.50,0.88 stroke #2a1400 0.5
+line 0.22,0.22 0.78,0.78 stroke #2a1400 0.5
+line 0.22,0.78 0.78,0.22 stroke #2a1400 0.5
+line 0.12,0.50 0.88,0.50 stroke #2a1400 0.4
+# Iron bands
+circle 0.5,0.5 0.38 stroke #3a3020 width 2
+circle 0.5,0.5 0.34 stroke #444444 0.7 width 1
+# Inner rim
+circle 0.5,0.5 0.32 stroke #1a0f00 width 2
+# Water surface (soapy white-blue)
+circle 0.5,0.5 0.30 fill #c0d8e0 0.92
+circle 0.5,0.5 0.30 stroke #6080a0
+# Foam/soap bubbles (pale surface)
+circle 0.40,0.42 0.06 fill #f0f4f8 0.8
+circle 0.40,0.42 0.06 stroke #c0d0d8 0.6
+circle 0.60,0.52 0.05 fill #f0f4f8 0.8
+circle 0.60,0.52 0.05 stroke #c0d0d8 0.6
+circle 0.46,0.58 0.04 fill #f0f4f8 0.75
+circle 0.58,0.38 0.035 fill #f0f4f8 0.7
+# Tiny bubbles
+circle 0.36,0.52 0.012 fill #ffffff 0.9
+circle 0.66,0.40 0.012 fill #ffffff 0.9
+circle 0.52,0.64 0.012 fill #ffffff 0.9
+circle 0.44,0.36 0.01 fill #ffffff 0.85
+# Cloth submerged (pale grey peeking through foam)
+ellipse 0.44,0.54 0.14,0.06 fill #7a8090 0.5
+# Washboard (wooden board leaning in tub)
+rect 0.28,0.26 0.10,0.40 fill #8b6914 0.9
+rect 0.28,0.26 0.10,0.40 texfill polyhaven/weathered_planks 0.5
+rect 0.28,0.26 0.10,0.40 stroke #2a1400
+# Washboard ribs (horizontal ridges)
+line 0.28,0.32 0.38,0.32 stroke #3a1f00 width 1
+line 0.28,0.38 0.38,0.38 stroke #3a1f00 width 1
+line 0.28,0.44 0.38,0.44 stroke #3a1f00 width 1
+line 0.28,0.50 0.38,0.50 stroke #3a1f00 width 1
+line 0.28,0.56 0.38,0.56 stroke #3a1f00 width 1
+line 0.28,0.62 0.38,0.62 stroke #3a1f00 width 1
+# Water ripples around washboard
+bezier 0.38,0.30 0.44,0.34 0.50,0.32 0.56,0.36 stroke #8098a8 0.5 width 1
+bezier 0.38,0.60 0.44,0.58 0.50,0.62 0.56,0.58 stroke #8098a8 0.5 width 1
+# Exterior wood highlight
+arc 0.5,0.5 0.36 210 260 stroke #8b6914 0.5 width 1
+# Water stain on outside
+ellipse 0.20,0.68 0.04,0.06 fill #1a0f00 0.4

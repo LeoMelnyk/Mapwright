@@ -1,0 +1,45 @@
+name: Bobbin
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: textile-loomhouse, weaver-workshop, house-medium-artisan, general-workshop
+typical_count: many
+clusters_with: spindle-rack, thread-rack, loom, spinning-wheel, basket
+notes: Small wooden thread bobbin with wound thread — tiny footprint, scatter on tables, in baskets, near looms
+---
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: small cylindrical bobbin — flange disc at each end, thread-wound core between
+
+# === Subtle shadow under the bobbin ===
+ellipse 0.50,0.58 0.20,0.08 fill #000000 0.2
+
+# === End flange discs (the two wooden caps) ===
+# North flange
+ellipse 0.50,0.36 0.20,0.06 texfill polyhaven/dark_wood 0.9
+ellipse 0.50,0.36 0.20,0.06 stroke #2a1400
+# South flange
+ellipse 0.50,0.64 0.20,0.06 texfill polyhaven/dark_wood 0.9
+ellipse 0.50,0.64 0.20,0.06 stroke #2a1400
+
+# === Thread-wound core (between the two flanges) ===
+rect 0.30,0.36 0.40,0.28 fill #c8a878 0.92
+rect 0.30,0.36 0.40,0.28 stroke #6a4810
+
+# Thread winding bands (horizontal lines suggesting wound fibre)
+line 0.30,0.40 0.70,0.40 stroke #8b6914 0.55 width 1
+line 0.30,0.44 0.70,0.44 stroke #6a4810 0.6 width 1
+line 0.30,0.48 0.70,0.48 stroke #8b6914 0.55 width 1
+line 0.30,0.52 0.70,0.52 stroke #6a4810 0.6 width 1
+line 0.30,0.56 0.70,0.56 stroke #8b6914 0.55 width 1
+line 0.30,0.60 0.70,0.60 stroke #6a4810 0.6 width 1
+
+# === Centre axle holes (dark dots on each flange) ===
+circle 0.50,0.36 0.025 fill #1a0800 0.9
+circle 0.50,0.64 0.025 fill #1a0800 0.9
+
+# Loose thread tail trailing off
+bezier 0.68,0.48 0.78,0.46 0.82,0.42 0.86,0.38 stroke #c8a878 0.8 width 1

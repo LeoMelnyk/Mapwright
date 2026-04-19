@@ -1,0 +1,55 @@
+name: Hooping Fire
+category: Workshop
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: center
+room_types: cooperage, smithy, workshop
+typical_count: single
+clusters_with: iron-hoop, cooper-mallet, stave-horse, stave-pile
+notes: Small controlled fire in a shallow metal fire-pan for heating iron barrel hoops; cooperage essential
+lights: [{"preset":"campfire","x":0.5,"y":0.5,"radius":4,"intensity":0.5,"color":"#ff8030"}]
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: concentric rings per fire rules — metal pan + fire rings
+
+# Outermost heat halo
+circle 0.50,0.50 0.48 fill #e85500 0.12
+
+# Metal fire-pan rim (shallow iron dish)
+circle 0.50,0.50 0.40 texfill polyhaven/metal_plate 0.7
+circle 0.50,0.50 0.40 stroke #333333
+# Inner rim edge
+circle 0.50,0.50 0.36 stroke #444444
+
+# Charred base inside pan
+circle 0.50,0.50 0.32 fill #1a0800 0.5
+
+# Outer flame ring (bright orange, slightly ragged)
+poly 0.50,0.20 0.58,0.24 0.66,0.28 0.72,0.36 0.76,0.44 0.78,0.50 0.76,0.58 0.72,0.66 0.66,0.72 0.58,0.76 0.50,0.78 0.42,0.76 0.34,0.72 0.28,0.66 0.24,0.58 0.22,0.50 0.24,0.44 0.28,0.36 0.34,0.28 0.42,0.24 fill #e85500 0.6
+
+# Mid flame ring (amber-orange)
+circle 0.50,0.50 0.22 fill #ff8800 0.7
+
+# Small flame tongues radiating outward
+poly 0.50,0.18 0.47,0.24 0.53,0.24 fill #ffaa00 0.6
+poly 0.82,0.50 0.76,0.47 0.76,0.53 fill #ffaa00 0.55
+poly 0.50,0.82 0.47,0.76 0.53,0.76 fill #ff8800 0.55
+poly 0.18,0.50 0.24,0.47 0.24,0.53 fill #ffaa00 0.55
+
+# Inner core (yellow)
+circle 0.50,0.50 0.14 fill #ffcc00 0.8
+
+# Hottest center (white-yellow)
+circle 0.50,0.50 0.07 fill #ffe880 0.9
+circle 0.50,0.50 0.03 fill #ffffff 0.8
+
+# Dark soot specks
+circle 0.38,0.30 0.015 fill #1a0800 0.4
+circle 0.62,0.34 0.015 fill #1a0800 0.4
+circle 0.36,0.66 0.015 fill #1a0800 0.35
+
+# Bright spark embers
+circle 0.56,0.26 0.012 fill #ffcc00 0.8
+circle 0.34,0.60 0.012 fill #ffcc00 0.7

@@ -1,0 +1,68 @@
+name: Log Round
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1
+placement: floor
+room_types: lumberyard, mill-lumber, forest, cabin-hunters
+typical_count: few
+clusters_with: log-pile, firewood-stack, axe-head, wedge-iron, wood-chip
+notes: Single thick section of tree trunk — chopping block
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.40 z 0-1
+
+# Outer bark
+circle 0.5,0.5 0.42 fill #3a1f00 0.9
+circle 0.5,0.5 0.42 texfill polyhaven/bark_brown_02 0.7
+circle 0.5,0.5 0.42 stroke #1a0f00
+# Inner cut surface (exposed wood)
+circle 0.5,0.5 0.38 fill #c8a060 0.95
+circle 0.5,0.5 0.38 texfill polyhaven/wood_table 0.5
+circle 0.5,0.5 0.38 stroke #5c3a1e
+# Annual growth rings
+circle 0.5,0.5 0.36 stroke #8a6830 0.6 width 1
+circle 0.5,0.5 0.32 stroke #8a6830 0.6 width 1
+circle 0.5,0.5 0.27 stroke #8a6830 0.6 width 1
+circle 0.5,0.5 0.22 stroke #8a6830 0.6 width 1
+circle 0.5,0.5 0.17 stroke #8a6830 0.6 width 1
+circle 0.5,0.5 0.12 stroke #8a6830 0.6 width 1
+circle 0.5,0.5 0.07 stroke #8a6830 0.6 width 1
+# Heart/pith (darker center)
+circle 0.5,0.5 0.05 fill #6a4020 0.85
+circle 0.5,0.5 0.05 stroke #3a1f00
+# Radial cracks (seasoning cracks)
+line 0.50,0.12 0.50,0.28 stroke #3a1f00 width 2
+line 0.50,0.72 0.50,0.88 stroke #3a1f00 width 2
+line 0.18,0.50 0.28,0.50 stroke #3a1f00 width 2
+line 0.82,0.50 0.72,0.50 stroke #3a1f00 width 2
+line 0.26,0.26 0.34,0.34 stroke #3a1f00 0.8 width 1
+line 0.74,0.26 0.66,0.34 stroke #3a1f00 0.8 width 1
+line 0.26,0.74 0.34,0.66 stroke #3a1f00 0.8 width 1
+line 0.74,0.74 0.66,0.66 stroke #3a1f00 0.8 width 1
+# Knot holes (dark circles)
+circle 0.34,0.42 0.025 fill #3a1f00 0.85
+circle 0.34,0.42 0.025 stroke #1a0f00
+circle 0.66,0.58 0.02 fill #3a1f00 0.85
+circle 0.66,0.58 0.02 stroke #1a0f00
+# Axe scar marks (from past chopping)
+line 0.44,0.42 0.50,0.48 stroke #1a0f00 0.8 width 2
+line 0.48,0.52 0.56,0.58 stroke #1a0f00 0.7 width 2
+line 0.40,0.54 0.46,0.58 stroke #1a0f00 0.6 width 2
+# Sap (dried amber)
+ellipse 0.38,0.60 0.04,0.02 fill #d4a040 0.7
+circle 0.62,0.38 0.015 fill #d4a040 0.7
+# Bark texture details
+arc 0.5,0.5 0.42 30 80 stroke #2a1400 0.7 width 2
+arc 0.5,0.5 0.42 200 250 stroke #2a1400 0.7 width 2
+arc 0.5,0.5 0.42 280 330 stroke #2a1400 0.7 width 2
+# Moss patch on bark
+poly 0.16,0.58 0.20,0.54 0.22,0.62 0.18,0.66 fill #3a5028 0.7
+poly 0.16,0.58 0.20,0.54 0.22,0.62 0.18,0.66 stroke #1a3010
+# Wood chips at base (scattered)
+poly 0.10,0.88 0.14,0.86 0.12,0.92 fill #8a5830 0.8
+poly 0.86,0.90 0.90,0.88 0.92,0.92 fill #8a5830 0.8
+# Highlight on top
+arc 0.5,0.5 0.36 210 260 stroke #e8c880 0.5 width 1

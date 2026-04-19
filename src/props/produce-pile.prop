@@ -1,0 +1,51 @@
+name: Produce Pile
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: market-square, kitchen, farm, storage, village-green
+typical_count: many
+clusters_with: market-stall, sack, crate, dropped-apple, chicken-crate
+notes: Heap of fresh produce (apples, turnips, cabbages) on a market cloth. Floor scatter for market scenes.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: cloth on ground with produce heaped on it
+
+# === Market cloth underneath ===
+poly 0.12,0.18 0.82,0.14 0.90,0.82 0.16,0.88 fill #c8a868 0.6
+poly 0.12,0.18 0.82,0.14 0.90,0.82 0.16,0.88 stroke #8b6914 0.5
+
+# === Cabbages (large green circles) ===
+circle 0.36,0.42 0.12 fill #5a8a3a 0.9
+circle 0.36,0.42 0.12 stroke #2a5a18
+# Cabbage leaf vein lines
+line 0.30,0.42 0.42,0.42 stroke #3a6a28 0.5
+line 0.36,0.32 0.36,0.52 stroke #3a6a28 0.5
+
+circle 0.62,0.62 0.11 fill #4a7a2e 0.9
+circle 0.62,0.62 0.11 stroke #2a5a18
+line 0.55,0.62 0.69,0.62 stroke #3a6a28 0.5
+
+# === Apples (small red circles) ===
+circle 0.54,0.34 0.07 fill #b82820 0.95
+circle 0.54,0.34 0.07 stroke #6a0c08
+circle 0.72,0.40 0.065 fill #c03028 0.95
+circle 0.72,0.40 0.065 stroke #6a0c08
+circle 0.44,0.72 0.065 fill #a82018 0.9
+circle 0.44,0.72 0.065 stroke #6a0c08
+
+# === Turnips (pale yellow-white circles) ===
+circle 0.28,0.62 0.08 fill #e8dca0 0.9
+circle 0.28,0.62 0.08 stroke #8b8050
+circle 0.74,0.72 0.07 fill #ddd498 0.85
+circle 0.74,0.72 0.07 stroke #8b8050
+
+# Tiny root stubs on turnips
+line 0.28,0.70 0.28,0.74 stroke #6b5a30 0.6
+line 0.74,0.79 0.74,0.82 stroke #6b5a30 0.6
+
+# Apple highlight dots
+circle 0.52,0.31 0.02 fill #ffd4a0 0.5
+circle 0.70,0.37 0.02 fill #ffd4a0 0.5

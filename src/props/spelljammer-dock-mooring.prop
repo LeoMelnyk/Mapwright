@@ -1,0 +1,50 @@
+name: Spelljammer Mooring
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.0
+placement: corner
+room_types: spelljammer-dock, astral-sea, githyanki-citadel
+typical_count: few
+clusters_with: dock-cleat, dock-post, githyanki-perch
+notes: Heavy stone bollard with a silver cleat — top-down view of the square plinth, round bollard, and rope coil looped around it
+---
+# Hitbox — bollard blocks light
+hitbox circle 0.5,0.5 0.32 z 0-1.0
+# Square stone plinth (broader anchoring slab the bollard sits on)
+rect 0.16,0.16 0.68,0.68 texfill polyhaven/stone_wall 0.85
+rect 0.16,0.16 0.68,0.68 stroke #444444 width 2
+# Plinth bevel highlight (NW catches light)
+line 0.16,0.16 0.84,0.16 stroke #888888 width 1
+line 0.16,0.16 0.16,0.84 stroke #888888 width 1
+# Bollard cylinder cross-section (top of the bollard seen straight down)
+circle 0.5,0.5 0.28 texfill polyhaven/stone_wall 0.85
+circle 0.5,0.5 0.28 stroke #333333 width 2
+# Iron reinforcement band
+ring 0.5,0.5 0.28 0.24 fill #333333 0.85
+ring 0.5,0.5 0.28 0.24 stroke #1a1a1a width 1
+# Silver-wire rope coil wrapped around the bollard (a ring of rope)
+ring 0.5,0.5 0.24 0.18 fill #c0c0c0 0.7
+ring 0.5,0.5 0.24 0.18 stroke #8b7355 width 1
+# Rope twist highlights
+arc 0.5,0.5 0.21 45 135 stroke #e0e0ff 0.85 width 1
+arc 0.5,0.5 0.21 225 315 stroke #e0e0ff 0.85 width 1
+# Silver cleat — horizontal T-bar mounted on top of the bollard
+rect 0.30,0.46 0.40,0.08 fill #c0c0c0 0.95
+rect 0.30,0.46 0.40,0.08 stroke #555555 width 1
+# Cleat end caps (flared horns at each end)
+circle 0.30,0.50 0.07 fill #c0c0c0 0.9
+circle 0.30,0.50 0.07 stroke #555555
+circle 0.70,0.50 0.07 fill #c0c0c0 0.9
+circle 0.70,0.50 0.07 stroke #555555
+# Cleat center rivet
+circle 0.50,0.50 0.04 fill #e0e0ff 0.95
+circle 0.50,0.50 0.04 stroke #555555
+# Rope tail trailing off south (out of the coil, toward a ship)
+bezier 0.62,0.68 0.72,0.80 0.80,0.90 0.88,0.96 stroke #c0c0c0 width 3
+bezier 0.62,0.68 0.72,0.80 0.80,0.90 0.88,0.96 stroke #e0e0ff width 1
+# Weathered plinth corner chips
+circle 0.18,0.82 0.022 fill #222222 0.6
+circle 0.82,0.82 0.020 fill #222222 0.6

@@ -1,0 +1,65 @@
+name: Low Wooden Fence (Corner)
+category: Architecture
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1
+placement: floor
+room_types: roadside-gallows, graveyard-village, village-green, garden, farmhouse-yard, market
+typical_count: few
+clusters_with: fence-wood-low, fence-wood-end, tombstone, grave-mound
+notes: 90° L-corner for the low wooden fence. At facing 0 the rail enters from the west edge (y=0.40–0.58) and exits south at x=0.40–0.60. Single corner post at the bend; edge geometry matches fence-wood-low so sections tile cleanly.
+---
+# === HITBOX ===
+selection rect 0.00,0.40 0.60,0.22
+selection rect 0.40,0.40 0.22,0.60
+
+# Ground shadow beneath both rail legs
+rect 0.00,0.58 0.60,0.06 fill #000000 0.15
+rect 0.40,0.40 0.22,0.60 fill #000000 0.08
+
+# === West leg rails (enter from west edge, stop at the corner post) ===
+rect 0.00,0.40 0.40,0.10 texfill polyhaven/weathered_planks 0.82
+rect 0.00,0.40 0.40,0.10 stroke #3a1f00
+rect 0.00,0.52 0.40,0.06 texfill polyhaven/weathered_planks 0.78
+rect 0.00,0.52 0.40,0.06 stroke #3a1f00
+line 0.00,0.44 0.40,0.44 stroke #2a1400 0.5
+line 0.00,0.47 0.40,0.47 stroke #2a1400 0.4
+
+# === South leg rails (exit south edge, start at the corner post) ===
+# Rotated 90° CW: top rail (wider) maps to east side; lower rail (thinner) to west side.
+rect 0.42,0.60 0.06,0.40 texfill polyhaven/weathered_planks 0.78
+rect 0.42,0.60 0.06,0.40 stroke #3a1f00
+rect 0.50,0.60 0.10,0.40 texfill polyhaven/weathered_planks 0.82
+rect 0.50,0.60 0.10,0.40 stroke #3a1f00
+line 0.53,0.60 0.53,1.00 stroke #2a1400 0.5
+line 0.56,0.60 0.56,1.00 stroke #2a1400 0.4
+
+# === Corner post at the bend ===
+rect 0.40,0.40 0.20,0.20 texfill polyhaven/dark_wood 0.94
+rect 0.40,0.40 0.20,0.20 stroke #1a0a00
+# Top-down pyramidion cap: inner square
+rect 0.43,0.43 0.14,0.14 fill #5c3a1e 0.9
+rect 0.43,0.43 0.14,0.14 stroke #1a0a00 0.6
+# 4-way facet lines from inner-cap corners to the apex dot (imply the pyramid's slopes)
+line 0.43,0.43 0.50,0.50 stroke #3a2010 0.7
+line 0.57,0.43 0.50,0.50 stroke #3a2010 0.7
+line 0.43,0.57 0.50,0.50 stroke #3a2010 0.7
+line 0.57,0.57 0.50,0.50 stroke #3a2010 0.7
+# Apex highlight
+circle 0.50,0.50 0.025 fill #8b6914 0.9
+circle 0.50,0.50 0.012 fill #c8a060 0.85
+
+# === Pickets along the west leg (above the west rail) ===
+poly 0.06,0.34 0.14,0.34 0.14,0.40 0.10,0.32 0.06,0.40 fill #4a2800 0.9
+poly 0.06,0.34 0.14,0.34 0.14,0.40 0.10,0.32 0.06,0.40 stroke #1a0a00
+poly 0.26,0.34 0.34,0.34 0.34,0.40 0.30,0.32 0.26,0.40 fill #4a2800 0.9
+poly 0.26,0.34 0.34,0.34 0.34,0.40 0.30,0.32 0.26,0.40 stroke #1a0a00
+
+# === Pickets along the south leg (east of the east rail, pointing east) ===
+# Pentagons rotated 90° CW from the horizontal picket shape.
+poly 0.60,0.66 0.60,0.74 0.66,0.74 0.68,0.70 0.66,0.66 fill #4a2800 0.9
+poly 0.60,0.66 0.60,0.74 0.66,0.74 0.68,0.70 0.66,0.66 stroke #1a0a00
+poly 0.60,0.86 0.60,0.94 0.66,0.94 0.68,0.90 0.66,0.86 fill #4a2800 0.9
+poly 0.60,0.86 0.60,0.94 0.66,0.94 0.68,0.90 0.66,0.86 stroke #1a0a00

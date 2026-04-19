@@ -1,0 +1,13 @@
+{
+  "displayName": "Silvery",
+  "category": "Magical",
+  "description": "A cool silver-white ethereal light — pearls, stars, silver cords, celestial embers",
+  "type": "point",
+  "color": "#e0e0ff",
+  "radius": 8,
+  "dimRadius": 16,
+  "intensity": 0.6,
+  "falloff": "smooth",
+  "z": 5,
+  "animation": { "type": "pulse", "speed": 0.3, "amplitude": 0.15, "radiusVariation": 0 }
+}

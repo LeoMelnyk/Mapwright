@@ -1,0 +1,48 @@
+name: Cobweb (Spiral Wheel)
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: corner
+room_types: crypt, tomb, dungeon, mausoleum, abandoned-room, tunnel-mine-worked, cave-living
+typical_count: few
+clusters_with: cobweb-heavy, cobweb-cluster, cobweb-light, spider-husk, bone-pile
+notes: An orb-weaver's spiral wheel web built in a corner — radial strands crossed by concentric arcs. Anchor point is NW corner (0.05,0.05); the wheel's center is offset slightly into the room. Rotate to target other corners.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Orb-weaver's spiral wheel web anchored at NW corner, hub at (0.35, 0.35)
+
+# === Anchor support strands from NW corner ===
+# Structural bridge threads from corner out to various points
+line 0.05,0.05 0.88,0.30 stroke #888888 0.35 width 2
+line 0.05,0.05 0.60,0.70 stroke #888888 0.35 width 2
+line 0.05,0.05 0.30,0.88 stroke #888888 0.3 width 1
+line 0.05,0.05 0.78,0.55 stroke #999999 0.25 width 1
+
+# === Radial spokes from wheel hub (0.35, 0.35) ===
+# Some reach outward toward room, some shoot free
+line 0.35,0.35 0.85,0.35 stroke #999999 0.3 width 1
+line 0.35,0.35 0.35,0.85 stroke #999999 0.3 width 1
+line 0.35,0.35 0.72,0.68 stroke #999999 0.28 width 1
+line 0.35,0.35 0.15,0.62 stroke #aaaaaa 0.22 width 1
+line 0.35,0.35 0.62,0.12 stroke #aaaaaa 0.22 width 1
+
+# === Concentric spiral arcs around hub ===
+# Inner ring
+arc 0.35,0.35 0.12 20 300 stroke #999999 0.3 width 1
+# Mid ring
+arc 0.35,0.35 0.22 10 280 stroke #888888 0.28 width 1
+# Outer ring
+arc 0.35,0.35 0.34 0 250 stroke #888888 0.22 width 1
+# Outermost partial ring (fades into cell — kept within bounds of cell)
+arc 0.35,0.35 0.34 350 200 stroke #aaaaaa 0.18 width 1
+
+# === Fine cross-wisps linking wheel edge to corner anchor ===
+qbezier 0.45,0.14 0.25,0.22 0.08,0.30 stroke #999999 0.18 width 1
+qbezier 0.55,0.60 0.30,0.48 0.12,0.30 stroke #aaaaaa 0.15 width 1
+
+# === Spider at hub ===
+circle 0.35,0.35 0.018 fill #222222 0.7
+circle 0.35,0.35 0.01 fill #111111 0.8

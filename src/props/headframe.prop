@@ -1,0 +1,60 @@
+name: Mine Headframe
+category: Structure
+footprint: 3x3
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3.0
+placement: center
+room_types: mine-shaft-entrance, mining-camp, deep-mine
+typical_count: single
+clusters_with: mine-shaft, winch-large, cart-track, sorting-table
+notes: Large wooden pithead scaffold built over a vertical shaft — tall square timber frame with crossed top beams
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 2.80,2.80 z 0-3.0
+
+# Square timber base frame (outer perimeter beams seen from above)
+rect 0.10,0.10 2.80,0.24 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.10 2.80,0.24 stroke #3a1f00
+rect 0.10,2.66 2.80,0.24 texfill polyhaven/weathered_planks 0.85
+rect 0.10,2.66 2.80,0.24 stroke #3a1f00
+rect 0.10,0.10 0.24,2.80 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.10 0.24,2.80 stroke #3a1f00
+rect 2.66,0.10 0.24,2.80 texfill polyhaven/weathered_planks 0.85
+rect 2.66,0.10 0.24,2.80 stroke #3a1f00
+# Corner post caps (thick corner timbers)
+rect 0.10,0.10 0.30,0.30 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.10 0.30,0.30 stroke #2a1400
+rect 2.60,0.10 0.30,0.30 texfill polyhaven/dark_wood 0.9
+rect 2.60,0.10 0.30,0.30 stroke #2a1400
+rect 0.10,2.60 0.30,0.30 texfill polyhaven/dark_wood 0.9
+rect 0.10,2.60 0.30,0.30 stroke #2a1400
+rect 2.60,2.60 0.30,0.30 texfill polyhaven/dark_wood 0.9
+rect 2.60,2.60 0.30,0.30 stroke #2a1400
+# Iron bracket bolts at corners
+circle 0.25,0.25 0.04 fill #333333 0.95
+circle 2.75,0.25 0.04 fill #333333 0.95
+circle 0.25,2.75 0.04 fill #333333 0.95
+circle 2.75,2.75 0.04 fill #333333 0.95
+# Crossed top beams (X-shape over the shaft — diagonal)
+poly 0.34,0.34 0.54,0.34 2.66,2.66 2.46,2.66 fill #4a2800 0.9
+poly 0.34,0.34 0.54,0.34 2.66,2.66 2.46,2.66 stroke #2a1400
+poly 2.46,0.34 2.66,0.34 0.54,2.66 0.34,2.66 fill #4a2800 0.9
+poly 2.46,0.34 2.66,0.34 0.54,2.66 0.34,2.66 stroke #2a1400
+# Central peak / crown plate (where beams meet, with pulley)
+circle 1.50,1.50 0.22 texfill polyhaven/dark_wood 0.9
+circle 1.50,1.50 0.22 stroke #1a1208
+# Pulley wheel ring at the crown
+circle 1.50,1.50 0.16 stroke #daa520 width 2
+circle 1.50,1.50 0.10 stroke #5a3a00 width 1
+# Hoist rope descending into the shaft (visible at center)
+circle 1.50,1.50 0.04 fill #8b7355 0.95
+circle 1.50,1.50 0.04 stroke #5c3a1e
+# Diagonal cross-bracing on side walls (visible as thin lines between corners)
+line 0.40,0.40 2.60,0.26 stroke #2a1400 width 2
+line 0.40,2.60 2.60,2.74 stroke #2a1400 width 2
+line 0.26,0.40 0.40,2.60 stroke #2a1400 width 2
+line 2.74,0.40 2.60,2.60 stroke #2a1400 width 2
+# Open shaft mouth visible at center (dark pit beneath the crown)
+circle 1.50,1.50 0.34 fill #0a0a0a 0.55

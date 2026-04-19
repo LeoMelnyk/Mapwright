@@ -1,0 +1,64 @@
+name: Wax Seal Kit
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: command-room, counting-house, courthouse-chamber, guildhall, scriptorium-dark, scriptorium-mundane
+typical_count: few
+clusters_with: ledger-stack, quill, inkwell, document-stack, wax-seal
+notes: Desk accessory — shallow wooden tray holding a stick of sealing wax and a brass seal stamp with its handle. Place near ledgers, correspondence, and writing desks.
+---
+# === HITBOX ===
+selection rect 0.18,0.28 0.64,0.44
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Shallow rectangular wooden tray holding a wax stick and a brass seal.
+
+# Tray body — dark wood, slightly wider than tall
+rect 0.18,0.28 0.64,0.44 texfill polyhaven/dark_wood 0.88
+rect 0.18,0.28 0.64,0.44 stroke #1a0e00 width 2
+
+# Tray inner well (recessed rim — lighter inset)
+rect 0.22,0.32 0.56,0.36 fill #2a1400 0.70
+rect 0.22,0.32 0.56,0.36 stroke #3a1f00 width 1
+
+# Subtle inner grain highlight
+line 0.24,0.42 0.78,0.42 stroke #5c3a1e 0.35 width 1
+line 0.24,0.58 0.78,0.58 stroke #5c3a1e 0.30 width 1
+
+# === Wax stick (lying diagonally in the left half of the tray) ===
+# Body — a burgundy cylinder seen from above as an elongated rect
+rect 0.26,0.43 0.26,0.10 fill #8b2233 0.92 rotate 20
+rect 0.26,0.43 0.26,0.10 stroke #4a0c18 rotate 20
+# Melted/softened end (darker, rounded tip)
+circle 0.51,0.52 0.055 fill #6b1a27 0.9
+circle 0.51,0.52 0.055 stroke #2a0410
+# Unused end (clean cut, slightly brighter)
+circle 0.27,0.44 0.050 fill #a82a3e 0.92
+circle 0.27,0.44 0.050 stroke #4a0c18
+# Tiny drip on the tray near the melted end
+circle 0.56,0.58 0.028 fill #6b1a27 0.85
+circle 0.56,0.58 0.028 stroke #2a0410
+
+# === Brass seal stamp (right side of the tray, handle protruding south) ===
+# Round stamp head (the engraved face — seen as a brass disc)
+circle 0.68,0.44 0.090 fill #8b6914 0.90
+circle 0.68,0.44 0.090 stroke #5a3a00 width 2
+# Inner ring where the engraving is
+circle 0.68,0.44 0.062 stroke #5a3a00 width 1
+# Tiny engraved star/mark hint
+line 0.66,0.44 0.70,0.44 stroke #3a2400 width 1
+line 0.68,0.42 0.68,0.46 stroke #3a2400 width 1
+
+# Seal handle — short wooden grip protruding south from the stamp head
+rect 0.655,0.53 0.050 0.16 texfill polyhaven/dark_wood 0.85
+rect 0.655,0.53 0.050 0.16 stroke #1a0e00
+# Brass ferrule band where handle meets stamp
+rect 0.650,0.52 0.060 0.03 fill #daa520 0.92
+rect 0.650,0.52 0.060 0.03 stroke #5a3a00
+# Rounded handle cap at the south end
+circle 0.680,0.69 0.030 fill #3a1f00 0.9
+circle 0.680,0.69 0.030 stroke #1a0e00

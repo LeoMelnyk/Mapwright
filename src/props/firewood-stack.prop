@@ -1,0 +1,105 @@
+name: Firewood Stack
+category: Structure
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: wall
+room_types: cabin-hunters, house-small, farmhouse-common, cabin-trapper, hearth
+typical_count: few
+clusters_with: hearth, campfire, log-pile, fireplace, ash-pile
+notes: Neatly stacked split firewood — cut ends facing viewer
+---
+# === HITBOX ===
+hitbox rect 0.10,0.10 1.80,0.80 z 0-1.5
+
+# Background wall brackets (support)
+rect 0.10,0.08 0.10,0.84 fill #3a3020 0.8
+rect 1.80,0.08 0.10,0.84 fill #3a3020 0.8
+# === Stacked logs (cut end circles visible) ===
+# Row 1 (bottom)
+circle 0.28,0.80 0.10 fill #c8a060 0.95
+circle 0.28,0.80 0.10 stroke #5c3a1e
+circle 0.28,0.80 0.08 stroke #8a6830 0.7 width 1
+# Age rings
+circle 0.28,0.80 0.04 stroke #5c3a1e 0.5 width 1
+circle 0.28,0.80 0.06 stroke #5c3a1e 0.4 width 1
+# Bark edge
+arc 0.28,0.80 0.10 0 360 stroke #4a2810 0.7 width 1
+# Log 2
+circle 0.48,0.80 0.10 fill #d4a868 0.95
+circle 0.48,0.80 0.10 stroke #5c3a1e
+circle 0.48,0.80 0.05 stroke #8a6830 0.6 width 1
+# Log 3
+circle 0.68,0.80 0.10 fill #c8a060 0.95
+circle 0.68,0.80 0.10 stroke #5c3a1e
+circle 0.68,0.80 0.05 stroke #8a6830 0.6 width 1
+# Log 4
+circle 0.88,0.80 0.10 fill #d4a868 0.95
+circle 0.88,0.80 0.10 stroke #5c3a1e
+circle 0.88,0.80 0.05 stroke #8a6830 0.6 width 1
+# Log 5
+circle 1.08,0.80 0.10 fill #c8a060 0.95
+circle 1.08,0.80 0.10 stroke #5c3a1e
+# Log 6
+circle 1.28,0.80 0.10 fill #d4a868 0.95
+circle 1.28,0.80 0.10 stroke #5c3a1e
+# Log 7
+circle 1.48,0.80 0.10 fill #c8a060 0.95
+circle 1.48,0.80 0.10 stroke #5c3a1e
+# Log 8
+circle 1.68,0.80 0.10 fill #d4a868 0.95
+circle 1.68,0.80 0.10 stroke #5c3a1e
+# Row 2 (middle — offset for stability)
+circle 0.38,0.60 0.10 fill #c8a060 0.95
+circle 0.38,0.60 0.10 stroke #5c3a1e
+circle 0.58,0.60 0.10 fill #d4a868 0.95
+circle 0.58,0.60 0.10 stroke #5c3a1e
+circle 0.78,0.60 0.10 fill #c8a060 0.95
+circle 0.78,0.60 0.10 stroke #5c3a1e
+circle 0.98,0.60 0.10 fill #d4a868 0.95
+circle 0.98,0.60 0.10 stroke #5c3a1e
+circle 1.18,0.60 0.10 fill #c8a060 0.95
+circle 1.18,0.60 0.10 stroke #5c3a1e
+circle 1.38,0.60 0.10 fill #d4a868 0.95
+circle 1.38,0.60 0.10 stroke #5c3a1e
+circle 1.58,0.60 0.10 fill #c8a060 0.95
+circle 1.58,0.60 0.10 stroke #5c3a1e
+# Row 3 (top — fewer logs)
+circle 0.48,0.40 0.10 fill #d4a868 0.95
+circle 0.48,0.40 0.10 stroke #5c3a1e
+circle 0.68,0.40 0.10 fill #c8a060 0.95
+circle 0.68,0.40 0.10 stroke #5c3a1e
+circle 0.88,0.40 0.10 fill #d4a868 0.95
+circle 0.88,0.40 0.10 stroke #5c3a1e
+circle 1.08,0.40 0.10 fill #c8a060 0.95
+circle 1.08,0.40 0.10 stroke #5c3a1e
+circle 1.28,0.40 0.10 fill #d4a868 0.95
+circle 1.28,0.40 0.10 stroke #5c3a1e
+circle 1.48,0.40 0.10 fill #c8a060 0.95
+circle 1.48,0.40 0.10 stroke #5c3a1e
+# Top row (smallest)
+circle 0.78,0.22 0.08 fill #c8a060 0.95
+circle 0.78,0.22 0.08 stroke #5c3a1e
+circle 0.98,0.22 0.08 fill #d4a868 0.95
+circle 0.98,0.22 0.08 stroke #5c3a1e
+circle 1.18,0.22 0.08 fill #c8a060 0.95
+circle 1.18,0.22 0.08 stroke #5c3a1e
+# Age rings on select logs (detail)
+circle 0.48,0.40 0.04 stroke #8a6830 0.5 width 1
+circle 0.68,0.40 0.04 stroke #8a6830 0.5 width 1
+circle 0.98,0.60 0.04 stroke #8a6830 0.5 width 1
+circle 0.98,0.22 0.04 stroke #8a6830 0.5 width 1
+# Some logs with bark patches (dark brown)
+arc 0.28,0.80 0.10 140 220 stroke #2a1400 0.8 width 2
+arc 1.28,0.80 0.10 140 220 stroke #2a1400 0.8 width 2
+arc 0.68,0.40 0.10 140 220 stroke #2a1400 0.8 width 2
+# Kindling bits and bark shards at base
+line 0.16,0.88 0.22,0.88 stroke #5c3a1e width 2
+line 1.76,0.88 1.82,0.88 stroke #5c3a1e width 2
+circle 0.16,0.92 0.012 fill #3a2010 0.8
+circle 1.80,0.92 0.012 fill #3a2010 0.8
+# Small highlight on top logs
+arc 0.78,0.22 0.07 210 260 stroke #f0c080 0.6 width 1
+arc 0.98,0.22 0.07 210 260 stroke #f0c080 0.6 width 1

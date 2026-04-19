@@ -1,0 +1,41 @@
+name: Faerzress Sconce
+category: Magical
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 1.2
+placement: wall
+room_types: cave-drow-outpost, underdark-outpost, drow-citadel, shrine
+typical_count: many
+clusters_with: candle-violet, spider-shrine, drow-weapon-rack
+notes: Wall-mounted iron bracket emitting faerzress (drow radiation) — purple-black flame; place along drow outpost walls
+lights: [{"preset":"faerzress","x":0.5,"y":0.3,"radius":8,"intensity":0.7,"color":"#8040c0"}]
+---
+# === HITBOX ===
+selection rect 0.30,0.04 0.40,0.30
+
+# Iron backing plate flush to north wall
+rect 0.30,0.04 0.40,0.10 texfill polyhaven/rusty_metal_02 0.85
+rect 0.30,0.04 0.40,0.10 stroke #222222
+# Iron support bracket arm (extending south into room)
+poly 0.44,0.14 0.56,0.14 0.54,0.24 0.46,0.24 fill #222222 0.95
+poly 0.44,0.14 0.56,0.14 0.54,0.24 0.46,0.24 stroke #111111
+# Iron bowl / cup holding the flame
+ellipse 0.50,0.26 0.10,0.05 fill #333333 0.95
+ellipse 0.50,0.26 0.10,0.05 stroke #111111
+# Outer faerzress glow halo (large, dim)
+circle 0.50,0.28 0.28 fill #6040a0 0.18
+circle 0.50,0.28 0.20 fill #8040c0 0.25
+# Mid glow
+circle 0.50,0.28 0.14 fill #a060ff 0.35
+# Purple-black flame (poly teardrop rising north)
+poly 0.44,0.26 0.50,0.10 0.56,0.26 fill #2a1040 0.75
+poly 0.46,0.26 0.50,0.14 0.54,0.26 fill #6040a0 0.85
+poly 0.47,0.25 0.50,0.18 0.53,0.25 fill #a060ff 0.9
+# Hot violet core
+circle 0.50,0.22 0.025 fill #c080ff 0.95
+circle 0.50,0.22 0.012 fill #e0c0ff 0.95
+# Drifting faerzress spark
+circle 0.38,0.18 0.012 fill #a060ff 0.8
+circle 0.62,0.20 0.010 fill #a060ff 0.75

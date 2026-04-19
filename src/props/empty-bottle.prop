@@ -1,0 +1,46 @@
+name: Empty Bottle
+category: Clutter
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: barracks, campsite-traveler, graveyard-village, tavern-common, gambling-den, cabin-abandoned, peasant-hovel, opium-den
+typical_count: many
+clusters_with: bottle, wine-bottle, rag-pile, empty-bottle, playing-cards
+notes: Discarded bottle lying on side; toppled or scattered clutter
+---
+# === HITBOX ===
+selection rect 0.14,0.40 0.72,0.20
+
+# Bottle lying on side (oriented east-west, shadow beneath)
+ellipse 0.50,0.52 0.38,0.10 fill #1a1008 0.25
+# Main body (elongated, dark green glass)
+rect 0.14,0.42 0.50,0.16 fill #2a4028 0.85
+rect 0.14,0.42 0.50,0.16 stroke #101810
+# Body rounded ends
+arc 0.14,0.50 0.08 90 270 fill #2a4028 0.85
+arc 0.14,0.50 0.08 90 270 stroke #101810
+# Shoulder narrowing to neck
+poly 0.64,0.42 0.72,0.46 0.72,0.54 0.64,0.58 fill #2a4028 0.85
+poly 0.64,0.42 0.72,0.46 0.72,0.54 0.64,0.58 stroke #101810
+# Neck (cylinder)
+rect 0.72,0.46 0.12,0.08 fill #2a4028 0.88
+rect 0.72,0.46 0.12,0.08 stroke #101810
+# Mouth/opening (dark hole)
+circle 0.86,0.50 0.04 fill #0a0808 0.95
+circle 0.86,0.50 0.04 stroke #101810
+# Cork residue
+circle 0.86,0.50 0.025 fill #6b4e2e 0.7
+# Body glass highlight
+line 0.20,0.44 0.60,0.44 stroke #5a8050 0.6 width 1
+# Torn paper label
+rect 0.26,0.48 0.18,0.12 fill #d4c4a8 0.85
+rect 0.26,0.48 0.18,0.12 stroke #8b7355
+line 0.28,0.52 0.42,0.52 stroke #2a1400 0.6
+line 0.28,0.56 0.40,0.56 stroke #2a1400 0.5
+# Torn/peeling edge
+poly 0.44,0.48 0.46,0.52 0.44,0.56 0.42,0.54 fill #c8b898 0.8
+# Bottom base edge (circle edge visible as ellipse)
+ellipse 0.14,0.50 0.03,0.08 fill #1a2010 0.8

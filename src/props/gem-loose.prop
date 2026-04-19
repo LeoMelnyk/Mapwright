@@ -1,0 +1,60 @@
+name: Loose Gem
+category: Treasure
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: elemental-earth-node, shop-jeweler, treasure-vault, cave-drow-outpost
+typical_count: few
+clusters_with: coin-pile, coin-scatter, crystal-shard, ore-chunk, chest
+notes: Uncut or cut loose gemstone sparkling on a surface — various colors
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.14
+
+# Faint shadow
+ellipse 0.5,0.58 0.12,0.02 fill #1a1008 0.3
+# Main gem (cut ruby with facets)
+poly 0.38,0.48 0.50,0.36 0.62,0.48 0.58,0.58 0.50,0.64 0.42,0.58 fill #cc1828 0.95
+poly 0.38,0.48 0.50,0.36 0.62,0.48 0.58,0.58 0.50,0.64 0.42,0.58 stroke #5a0808
+# Gem facet highlights (light catches edges)
+line 0.38,0.48 0.50,0.36 stroke #f06060 0.8 width 1
+line 0.50,0.36 0.62,0.48 stroke #f06060 0.8 width 1
+# Inner facet lines
+line 0.50,0.36 0.50,0.64 stroke #8a1020 0.6 width 1
+line 0.38,0.48 0.58,0.58 stroke #8a1020 0.5 width 1
+line 0.62,0.48 0.42,0.58 stroke #8a1020 0.5 width 1
+# Brilliant gem sparkle at top facet
+circle 0.50,0.42 0.012 fill #ffffff 0.95
+# Light reflection
+line 0.46,0.40 0.52,0.38 stroke #ffffff 0.8 width 1
+# Dark deep inner color (shadow in cuts)
+poly 0.44,0.50 0.50,0.48 0.56,0.50 0.52,0.58 0.48,0.58 fill #4a0808 0.7
+# === Small companion gems scattered ===
+# Emerald (green)
+poly 0.24,0.32 0.30,0.28 0.34,0.34 0.28,0.38 fill #2a8040 0.9
+poly 0.24,0.32 0.30,0.28 0.34,0.34 0.28,0.38 stroke #0a3018
+line 0.28,0.30 0.32,0.34 stroke #60c080 0.7 width 1
+circle 0.29,0.32 0.008 fill #ffffff 0.9
+# Sapphire (blue)
+poly 0.70,0.30 0.76,0.26 0.80,0.32 0.74,0.36 fill #1848a0 0.9
+poly 0.70,0.30 0.76,0.26 0.80,0.32 0.74,0.36 stroke #0a1830
+line 0.74,0.28 0.78,0.32 stroke #6080c8 0.7 width 1
+circle 0.75,0.30 0.008 fill #ffffff 0.9
+# Yellow topaz
+poly 0.22,0.68 0.28,0.66 0.30,0.72 0.24,0.74 fill #e8c030 0.9
+poly 0.22,0.68 0.28,0.66 0.30,0.72 0.24,0.74 stroke #8a7810
+circle 0.26,0.70 0.008 fill #ffffff 0.85
+# Purple amethyst
+poly 0.70,0.70 0.76,0.68 0.80,0.74 0.74,0.76 fill #6a2080 0.9
+poly 0.70,0.70 0.76,0.68 0.80,0.74 0.74,0.76 stroke #2a1040
+circle 0.75,0.72 0.008 fill #ffffff 0.85
+# Tiny sparkle glints around the gems
+circle 0.36,0.40 0.01 fill #ffffff 0.8
+circle 0.64,0.40 0.008 fill #ffffff 0.75
+circle 0.40,0.62 0.008 fill #ffffff 0.7
+circle 0.62,0.62 0.01 fill #ffffff 0.75
+# Main ruby bright flash
+line 0.50,0.36 0.54,0.32 stroke #ffffff 0.9 width 1

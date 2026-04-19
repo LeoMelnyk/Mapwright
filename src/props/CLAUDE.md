@@ -93,48 +93,61 @@ clip-end                     — End clipping region (restore previous state)
 
 ### Hitbox & Selection Commands
 
-Props automatically get a convex-hull hitbox generated from their draw commands at load time. This auto-hitbox is used for both mouse click detection and light occlusion. Manual overrides are available for props that need more accurate shapes:
+Props have two independent hitboxes, serving different purposes:
+
+| Command | Purpose | Required when |
+|---|---|---|
+| `hitbox` | **Light occlusion** — the polygon that casts a shadow | `blocks_light: yes` |
+| `selection` | **Mouse click detection** — the polygon that registers clicks | Whenever the auto-hull is too loose (optional) |
+
+**Rule (enforced by the validator):**
+- `blocks_light: yes` → must define at least one `hitbox` command. The auto-hull is almost always too loose for accurate shadows on real furniture shapes.
+- `blocks_light: no` → must not define any `hitbox` commands. `hitbox` is ignored by the renderer when the prop doesn't block light; if you want a custom click shape, use `selection` instead.
+
+Both commands fall back to the same auto-generated convex hull when omitted.
 
 ```
-hitbox rect x,y w,h         — Lighting occlusion rectangle
-hitbox circle cx,cy r        — Lighting occlusion circle
-hitbox poly x1,y1 x2,y2 ... — Lighting occlusion polygon (3+ vertices, auto-closed)
-selection rect x,y w,h      — Mouse click detection rectangle
-selection circle cx,cy r     — Mouse click detection circle
-selection poly x1,y1 x2,y2 ...  — Mouse click detection polygon
+hitbox rect x,y w,h [z bottom-top]         — Lighting occlusion rectangle
+hitbox circle cx,cy r [z bottom-top]       — Lighting occlusion circle
+hitbox poly x1,y1 x2,y2 ... [z bottom-top] — Lighting occlusion polygon (3+ vertices, auto-closed)
+selection rect x,y w,h                     — Mouse click detection rectangle
+selection circle cx,cy r                   — Mouse click detection circle
+selection poly x1,y1 x2,y2 ...             — Mouse click detection polygon
 ```
 
-**How hitboxes work:**
+**Z-zones (`z bottom-top`) — height range in feet.** Optional trailing `z 0-3` marks the hitbox as occluding light only between `bottom` and `top` feet of height. Used for props with tiered vertical profile — e.g. a devil's anvil whose waist is narrow (0–1.5ft) but whose top is wide (1.5–2.5ft):
 
-| Purpose | Priority | Fallback |
-|---------|----------|----------|
-| **Light occlusion** (`blocks_light: yes`) | Manual `hitbox` commands | Auto-generated convex hull |
-| **Mouse click detection** | Manual `selection` commands | Auto-generated convex hull |
+```
+hitbox rect 0.32,0.30 0.36,0.40 z 0-1.5   # narrow waist
+hitbox rect 0.15,0.22 0.70,0.46 z 1.5-2.5 # wide top
+```
 
-- **Auto-generated hitbox:** At load time, all draw commands are rasterized to a 32px-per-cell grid, the boundary is traced via Moore neighborhood contour, and the convex hull is computed and simplified with Douglas-Peucker. This produces ~6-20 vertex polygons.
-- **Manual `hitbox`:** Overrides auto-hitbox for **lighting only**. Use when the auto-hull is too loose (e.g. an L-shaped prop that shouldn't cast shadow from its concavity). Multiple hitbox commands are combined into one shape.
-- **Manual `selection`:** Overrides auto-hitbox for **click detection only**. Use when the clickable area should differ from the visual (e.g. a tree where only the trunk should be clickable, not the full canopy). Multiple selection commands are combined.
-- **Rotation/scale:** Hitboxes are defined in prop-local coordinates (same as draw commands) and are automatically rotated, scaled, and flipped at placement time.
+Omit `z` on a hitbox and it occludes at **infinite height** (acts like a full wall). Set `zTop` to the prop's declared `height:` so shadow projection scales correctly. `zTop > height` or `zBottom > zTop` will fail validation.
 
-**When to add manual hitboxes:**
+**Auto-generated hitbox:** At load time, all draw commands are rasterized to a 32px-per-cell grid, the boundary is traced via Moore neighborhood contour, and the convex hull is computed and simplified with Douglas-Peucker. The auto-hull is used by both subsystems when the corresponding manual command is absent (hitbox for lighting, selection for clicks). Because it's a convex hull, it's frequently looser than the prop's visible silhouette — hence the requirement to define `hitbox` explicitly whenever the prop blocks light.
 
-Most props work fine with auto-generated hitboxes. Add manual overrides when:
-- The prop has concavities that create incorrect shadows (use `hitbox`)
-- The clickable area should be much smaller than the visual (use `selection`)
-- The prop extends significantly beyond its footprint and you want tighter bounds
+**Rotation/scale:** Hitboxes and selections are defined in prop-local coordinates (same as draw commands) and are automatically rotated, scaled, and flipped at placement time.
+
+**Multiple commands:** You can emit several `hitbox` (or `selection`) lines; they combine into the union shape.
+
+**When to add manual `selection`:** auto-hull covers more than the prop's real silhouette — e.g. a tree where clicking the canopy shouldn't select the trunk, or a banner whose flowing fabric extends past the hardware. When the visible prop fills its footprint tightly, the auto-hull is fine.
 
 **Examples:**
 ```
-# Bookshelf — rectangular shadow is more accurate than the hull of all shelf details
-hitbox rect 0.05,0.05 1.9,0.9
+# Bookshelf — blocks light; rectangular shadow is more accurate than the hull of all shelf details
+hitbox rect 0.05,0.05 1.9,0.9 z 0-6
 
-# Tree — only trunk should be clickable, but full canopy blocks light
-hitbox circle 0.5,0.5 0.45
+# Tree — canopy blocks light, but only the trunk should register clicks
+hitbox circle 0.5,0.5 0.45 z 0-20
 selection circle 0.5,0.5 0.15
 
 # L-shaped forge — two rectangles for accurate shadow
-hitbox rect 0.1,0.1 0.8,1.8
-hitbox rect 0.1,0.1 1.8,0.8
+hitbox rect 0.1,0.1 0.8,1.8 z 0-3
+hitbox rect 0.1,0.1 1.8,0.8 z 0-3
+
+# Floor-level decal — flat, doesn't block light, tight click region
+# (blocks_light: no in header)
+selection circle 0.5,0.5 0.28
 ```
 
 ### Styles (appended after shape)
@@ -282,13 +295,171 @@ Commands render in file order (top to bottom). **Draw background/base layers fir
 3. **Exceeding footprint bounds** — All coordinates must stay within 0–cols (x) and 0–rows (y).
 4. **Wrong facing direction** — Front faces south (high Y). Wall-mounted items have their wall at the north (low Y) edge.
 5. **Using rusty_metal for clean metal** — It looks like wood at small scales. Use `metal_plate` instead.
+6. **Manually drawing drop shadows** — Do NOT add `# Shadow` ellipses or rects offset south of a prop. That's an oblique/isometric-view trick, not top-down. Set `shadow: yes` in the frontmatter and let the render pipeline draw a proper radial shadow under the prop.
+7. **Footprint matches GROUND extent, not height** — The footprint is the cells the prop occupies on the floor, seen from above. It has nothing to do with how tall the object is. A 10-foot radially-symmetric pillar is `1x1` because its floor footprint is a single cell-wide circle; a grandfather clock is `2x1` because its base is rectangular (tall + narrow on the floor plane). Use `2x1` / `3x1` only for ground-footprints that are genuinely longer in one axis (pews, coffins, siege engines, clocks). Tall cylindrical/polygonal columns (pillars, obelisks, basalt columns, cloud pillars, flame pillars, pearl obelisks) use `1x1` or `2x2` — see "Columns, Pillars, Obelisks" below.
+8. **Side-elevation for tall verticals** — The most common batch-7 mistake: an agent told to draw a "tall pillar of X" draws the pillar rising from the bottom of the footprint to the top (base at high-Y, tip at low-Y, shaft crossing the footprint vertically). That is a side view. Top-down, a tall column is just the circle/polygon you see looking straight down the shaft — decorate with radial spokes, a central highlight, an outer halo, but never with a visible "height."
+9. **Building facade as a prop** — Drawing a "crypt entrance" or small building with block courses arrayed on a vertical wall, an arched doorway shown as a ∩ bulge, a keystone above the arch, or a cross carved into the front wall. Those are architectural elevations, not top-down. From straight above you see the ROOF of the building plus any structures that protrude upward or outward. See "Buildings & Structures" below.
+10. **Granite plinths under floor props** — A stone rectangle texfilled beneath a prop to make it look "elevated" is a side-view convention. The renderer already draws a radial shadow under any prop with `shadow: yes`; a manually-drawn plinth just clutters the cell with a grey patch. Props sit directly on the map floor.
 
 ### Wall-Mounted Props
 
-Props that lean against or hang on a wall (mirror, painting, weapon rack, shield rack, tapestry, torch sconce) should have `facing: yes` and be drawn with:
+Props that lean against or hang on a wall (mirror, painting, weapon rack, shield rack, tapestry, banner, torch sconce) should have `facing: yes` and be drawn with:
 - The wall attachment along the **north edge** (low Y)
 - Only the top edge of the frame/rack visible from above
 - Very minimal visual footprint (you can barely see a flat wall-hung object from above)
+
+**Reference convention for flat wall-hung textiles (tapestry, banner, painting):**
+- Brass/wooden rod (thin rect along the wall edge, widest element)
+- Finial caps at rod ends (small brass circles)
+- Thin fabric top edge strip just south of rod (only a few rows of pixels deep)
+- Subtle drop-shadow rect south of the fabric strip indicating the drape hanging below out-of-view
+- Do NOT draw the full fabric drape with tassels, pleats, emblem, bottom fringe — that's a side elevation
+
+### Cabinet & Wardrobe Furniture
+
+Large wall-parallel furniture (cupboard, wardrobe, sideboard, bookshelf, grandfather clock) seen from above shows ONLY the flat top:
+- Crown molding / slight overhang at north (wall side)
+- Wood grain on the flat top surface
+- Slight trim or shadow line at south edge where the face panel begins below
+- Items placed on top (jar, bowl, candlestick, books) are visible; doors, handles, keyholes, clock faces, pendulums, drawer pulls are on the SOUTH front face and are **hidden from the top-down view** — do not draw them
+
+See `wardrobe.prop`, `bookshelf.prop`, and `component-shelf.prop` for the canonical implementation.
+
+### Stacked / Elevated Furniture
+
+Bunk beds, loft beds, and similar multi-tier furniture show only the UPPER tier from a top-down view — the lower tier is directly beneath and obscured. Signal the second level exists with:
+- Tall corner posts that extend down past the upper tier
+- Guard rail / safety rail along one edge (visible as a thick strip with spindles)
+- Ladder rung ends protruding beyond the footprint
+- Do NOT draw two stacked mattresses separated by a gap — that's a front elevation
+
+### Vertical Wheels & Rods
+
+Objects whose main feature is a vertically-oriented wheel, rod, or drum (spinning wheel, water wheel, cart wheel mounted upright, ceiling-hung curtain divider, concert harp) show the element *edge-on* from above — as a thin ellipse or line, not a full circle. The wheel's diameter appears as the long axis of that ellipse; its thickness is the short axis. Supporting hardware (axle hub, upright posts, base plank) surrounds it. Side-on circle drawings read as a flat plate lying on the floor, which is wrong.
+
+See `harp.prop` (2x1 concert harp drawn as a thin edge-on profile — soundbox ellipse at the south, narrow pillar spine running north, strings as parallel lines along the spine).
+
+### Tilted-Face Props (Wheels / Targets / Boards on an Easel or Stand)
+
+A vertical wheel, target, or signboard tilted slightly toward the viewer on a freestanding stand (archery target, wheel of fortune, easel-mounted painting, chalkboard) shows its face as a **foreshortened ellipse** — the originally-round or square face appears wider than tall because we're looking at it from above at an angle:
+
+- Stand legs angled from the back (low Y) outward to the viewer side (high Y), with a cross-brace spanning between them
+- Optional back kickstand leg for easels (a single rect running south along the centerline behind the face)
+- Face drawn as a filled ellipse with `rx > ry` — a 57° tilt (like `archery-target.prop`) corresponds to a ratio around `rx=0.65, ry=0.35`
+- Concentric rings, wheel wedges, text panels, dart boards, etc. drawn as nested ellipses inside — match the outer ellipse's rx:ry ratio
+- For wheel wedges: compute 12 edge points on the ellipse at 30° intervals (`x = cx + rx*cos(θ)`, `y = cy - ry*sin(θ)` since screen y is inverted) and draw each wedge as a triangular `poly` from center to two adjacent edge points. Circular `arc` wedges won't match the ellipse shape.
+- Spoke dividers: straight `line` from center to each ellipse edge point
+- Pointer / ticker at the 12 o'clock position (top edge of the face, where the ellipse intersects its short axis) as a small triangular `poly`
+
+See `archery-target.prop` (canonical tilted-face on a tripod stand) and `fortune-wheel.prop` (wheel on an easel with 12 polygon wedges + radial spoke lines).
+
+Never draw the face as a perfect circle with circular `arc` wedges — that reads as a flat disc lying on the floor, not a vertical face viewed at an angle.
+
+### Columns, Pillars, Obelisks, Flame Columns
+
+Radially-symmetric tall structures (pillars, obelisks, cloud/flame/coral pillars, silver-cord pylons, basalt columns, pearl obelisks) use a **square** footprint — `1x1` for a plain column, `2x2` when the object has a wider pedestal or pyramidion that spans more than one cell. Draw:
+- An outer radial halo or heat/mist aura (thin, faint — just establishes presence)
+- The shaft cross-section as a filled circle or polygon (hexagon for basalt, circle for marble, square for obsidian obelisks)
+- Radial details — fluting lines, runes, magma cracks, facet ridges — emanating from the center
+- The very top / apex highlighted as a bright center dot (where the tip catches light)
+- For obelisk-style tips: four triangular facets meeting at the center, each shaded differently to imply the pyramidion's 3D form (see `obelisk.prop` and `obelisk-astral.prop` — the canonical 2x2 pattern)
+
+Never draw the column as a vertical shaft crossing the footprint top-to-bottom.
+
+### Overhead-Hanging / Strung Props
+
+Bunting lines, strung banners between posts, overhead chandeliers, strung paper lanterns — things suspended in the air above the floor. From above you see:
+- The rope / chain / rod as a thin line running across the footprint
+- The **top edges only** of any flags, lanterns, or pendants (small triangular tips, tiny color dots)
+- A subtle diffuse drape shadow beneath the line, hinting at the mass hanging below out-of-view
+- `shadow: no` (the overhead prop doesn't sit on the floor, so the radial floor-shadow doesn't fit)
+
+Never draw full hanging flag triangles, complete chandelier silhouettes, or dangling paper-lantern shapes. See `bunting-line.prop` for the canonical overhead-line pattern.
+
+### Stuck / Embedded Weapons
+
+A sword or spear driven into the ground is *not* the weapon lying flat — only the part sticking up above the impact point is visible. Top-down:
+- Dirt/blood splatter ring around the impact point
+- Small dark impact slot where the blade/shaft enters the ground
+- A short foreshortened stub of blade/shaft poking toward the viewer
+- The widest element (crossguard, spear feather tuft, leather binding) as the most prominent shape near the top
+- Pommel / tip of weapon as a small circle at the very end
+
+See `arrow-stuck.prop` (canonical foreshortened arrow), `weapon-stuck.prop` (stuck sword with crossguard + pommel), `spear-stuck.prop` (feather tuft + binding).
+
+### Cave Mouths / Tunnel Openings
+
+A hole in a rock wall, seen from above. Draw the rock mass as an irregular boulder outline, then cut a dark elliptical hole on the opening side. **No depth gradient, no tapered wedge receding into the rock** — that's a side/oblique view. From directly above, the tunnel opening is just a pitch-black shape, because you can't see down a horizontal tunnel from a vertical viewpoint.
+
+See `cave-mouth-small.prop`. Framing boulders around the mouth and scattered rubble spilling out help establish the scene without implying depth.
+
+### Fire & Flame Columns
+
+A burning column — bonfire, flame pillar, efreet brazier — seen from above is **concentric rings**, not a tall flame silhouette:
+- Outer heat halo (faint orange, widest)
+- Outer flame ring (bright orange, slightly ragged edge with small flame-tongue polys radiating outward)
+- Mid flame ring (yellow-orange)
+- Inner core (yellow-white)
+- Hottest center (white/near-white, smallest)
+- Optional: tiny dark soot specks for rising updraft, small bright spark embers
+
+See `flame-pillar.prop`, `fire-node-core.prop`, `bonfire-large.prop` for the canonical concentric-ring pattern. The temptation to draw a pointed flame shape (wide base, narrow tip) is always a side-elevation trap.
+
+### Tileable / Modular Props (Channels, Tracks, Rails, Countertops)
+
+**Whenever you author a tileable prop, author the full set of variants.** A single straight section is only useful if the map is a straight line — real layouts need turns, branches, crossings, endcaps. The minimum useful set for a linear tileable prop is:
+
+| Variant | Purpose |
+|---|---|
+| Straight (long, 1x3 or 1x4) | Fast coverage for long runs |
+| Straight (short, 1x1) | Fine-grained control — slot between turns/junctions where a long piece won't fit |
+| Turn (90°) | L-shape at one cell corner (rotate to face any corner) |
+| T-junction | Branch off a straight run (rotate for any side) |
+| X-junction | Four-way crossing |
+| End-cap | Closed terminus (for counters, fences, rails that stop mid-room) |
+
+**Ship both a long and short straight.** A 1x3 straight alone forces the DM into awkward gaps when a turn lands mid-cell — a 1x1 straight fills the last cell between a turn and a junction without overshooting. See `cart-track.prop` (1x3) paired with `cart-track-short.prop` (1x1); same for `sewage-channel.prop` / `sewage-channel-short.prop`.
+
+Do NOT ship just "sewage-channel" (straight) and call it done — the DM building a sewer then has nothing to do at corners or intersections. A countertop without corner and endcap variants can only form straight runs. When you identify a new tileable concept, plan and deliver the whole set in one pass.
+
+Props designed to tile into chains or grids — sewage channels, mine-cart tracks, fence rails, sconce lines, bar counters, workshop counters — must use **identical edge geometry** on every cell edge that may connect to another piece. Otherwise the joint shows a visible mismatch.
+
+The reference straight piece (`sewage-channel.prop`, 1x3) establishes:
+- Stone lip 0.12 thick on both long sides (`y=0.08–0.20` and `y=0.80–0.92`)
+- Fluid band 0.60 wide in the middle (`y=0.20–0.80`)
+- Open cell-floor strip 0.08 thick at each far edge (`y=0.00–0.08` and `y=0.92–1.00`)
+
+Every junction variant (turn, T, X) must reproduce those positions on every cell edge that carries an opening. A T-junction's south branch exit at `y=1.00` must have fluid at `x=0.20–0.80`, stone at `x=0.08–0.20` and `x=0.80–0.92`, cell floor at `x=0.00–0.08` and `x=0.92–1.00`. The cart-track variants follow the same convention for rail positions.
+
+**Draw the fluid as a single polygon**, not as two overlapping rects. Overlapping rects with `stroke` will each draw their own outline, and those strokes will cut visible lines across the fluid where the rects cross (a plus-sign of dark lines inside the X junction is the telltale bug). For a plus/T/L fluid shape, express the entire outline as one `poly` and stroke it once.
+
+See `sewage-channel-turn.prop`, `sewage-channel-t.prop`, `sewage-channel-x.prop`, and the matching `cart-track-*` variants for the canonical implementations.
+
+### Buildings & Structures (Huts, Crypts, Towers, Outbuildings)
+
+Full-size building props (toll-houses, ferry cabins, mausoleums, gatehouses, dovecotes) are drawn as if photographed from a hot-air balloon directly overhead — you see the ROOF and any features that protrude above or beyond its footprint. Never a front-facing facade with the door visible on a vertical wall.
+
+**Do draw:**
+- Rectangular roof silhouette filling most of the footprint (inset slightly so the roof overhang casts its shadow at the edge)
+- For peaked roofs: a single ridge beam (thin `rect` running the length of the roof) with a lighter line along one side (highlight) and a darker line along the other (shadow) to imply the two slopes meeting at the apex
+- Slab / shingle courses running perpendicular to the ridge, as thin horizontal `line`s spaced along the slope
+- For flat roofs: a paver grid pattern of thin cross-hatched `line`s
+- Ornamental cornice trim: a thin rect inset from the roof edge giving a moulding frame, optionally with small rosette medallion `circle`s at each corner
+- Corner finial pillars as square `rect` cross-sections extending slightly beyond the building footprint at each corner, with an inner bevel `rect` for the capital and a `circle` cap on top (with a smaller bright inner dot as the spire tip)
+- Carved reliefs on the roof (cross, sigil, family crest) as filled rects/polys or strokes — these are bas-reliefs on the flat roof surface, visible as embossed silhouettes
+- Chimneys as small stone rects with a dark opening
+- Dormers or skylights as small dark rectangles on the slope
+
+**If you need to show an entrance:** build a protruding **porch or vestibule** sticking outward from one side of the building. From above it reads as a rectangular or arched structure extending beyond the main roofline — the "arch of the door" is the top-down silhouette of an arched porch, drawn as a south-pointing half-disc (`arc cx,cy r 0 180 texfill`). Add concentric arc bands for moulding trim and radial lines for slab courses on the porch roof.
+
+**Never draw:**
+- A front-elevation facade (vertical block courses, a door in the wall, an arched ∩ above the door, a keystone above the arch)
+- The door opening itself as a rectangular dark hole in the building silhouette — doors are vertical features, invisible from directly above
+- A granite / paved plinth extending around the building base — `shadow: yes` handles the elevation shadow
+- Descending trapezoidal steps leading up to the south face — those read as a side-view staircase
+- The interior of the building (a crypt shown as a floor-plan cutaway is a different class of prop, and buildings marked as "scenery only" should be solid and opaque from above)
+
+See `toll-house.prop` (2x2 peaked-roof hut with chimney, dormer window, door placard), `ferry-cabin.prop` (2x2 shed with peaked roof + south door landing), and `crypt-entrance.prop` (8x8 solid mausoleum with corner finial pillars, cornice trim, carved cross relief, and an arched porch protruding south) for the canonical building patterns at different scales.
 
 ## Header Fields
 
@@ -318,6 +489,8 @@ Use `no` for:
 - Open/thin items (weapon rack, brazier, table)
 - Transparent items (portcullis, chain-wall)
 
+**When `blocks_light: yes`, always also set `height:`** — see the `height:` section below. Without a declared height, the prop casts an infinite shadow.
+
 ### `facing: yes|no`
 
 Whether the prop can be rotated when placed. Use `yes` for:
@@ -328,6 +501,94 @@ Whether the prop can be rotated when placed. Use `yes` for:
 Use `no` for:
 - Symmetrical objects (barrels, pillars, wells, tables)
 - Random scatter (rubble, bone piles, caltrops)
+
+### `height:` (feet — REQUIRED when `blocks_light: yes`)
+
+Prop height in feet. Used by the lighting engine to compute how far shadows extend when the prop's `blocks_light: yes`. A torch-sconce at `height: 1` casts a short shadow; a pillar at `height: 8` casts a long one.
+
+- **`blocks_light: yes` without `height:`** is a bug — the shadow is treated as infinite, which tends to plunge the scene into darkness. Always declare one. The validator enforces this.
+- **Floor decals / flat items** (scorch marks, rugs, puddles) should set `height: 0` or a small value like `0.1`.
+- **Common heights:** floor clutter 0.1–0.5, low furniture 1–2, tables/chairs 3, counters 3.5, wardrobes 6, pillars 8–10, obelisks 12+.
+- **Match any hitbox `z` zones** — every hitbox's `zTop` must be ≤ `height`.
+
+### `lights:` (optional — OMIT if not emitting)
+
+The `lights:` frontmatter key auto-attaches light emitters to the prop at placement time. If the prop doesn't glow, **omit the field entirely**.
+
+**Format: a single line of inline JSON.** The header parser is single-line only — multi-line YAML formats silently fail to parse and the prop emits no light.
+
+```yaml
+# CORRECT — single-line JSON array
+lights: [{"preset":"candle","x":0.5,"y":0.5}]
+lights: [{"preset":"ember","x":0.5,"y":0.5,"radius":3,"color":"#cc2200","intensity":0.35}]
+lights: [{"preset":"forge","x":0.5,"y":0.5},{"preset":"forge","x":1.5,"y":0.5}]
+
+# BROKEN — multi-line YAML. Parser reads the first `lights:` line as empty, prop emits no light.
+lights:
+  - preset: candle
+    x: 0.5
+    y: 0.5
+
+# BROKEN — wrong key name. Preset lookup fails; light falls back to defaults.
+lights: [{"type":"candle","x":0.5,"y":0.5}]
+#         ^^^^^^ must be "preset", not "type"
+
+# BROKEN — boolean/empty values break JSON.parse; the prop drops out of the catalog.
+lights: no
+lights: []
+lights: false
+```
+
+**Required fields per entry:**
+| Field | Type | Meaning |
+|---|---|---|
+| `preset` | string | Preset name from `src/lights/manifest.json` (see list below) |
+| `x` | number | Column offset inside the footprint (0 to cols) |
+| `y` | number | Row offset inside the footprint (0 to rows) |
+
+**Optional inline overrides** (take precedence over the preset's defaults):
+| Field | Type | Notes |
+|---|---|---|
+| `color` | `#rrggbb` | Override hex color |
+| `radius` | number (feet) | Override bright radius. Cap: 15 for small lights, 30 for strong indoor. |
+| `intensity` | number (0–2) | Override brightness |
+| `falloff` | `smooth` / `linear` / `quadratic` / `sharp` / `step` / `inverse-square` | Override falloff curve |
+| `dimRadius` | number (feet) | Override dim radius |
+| `angle` | number (degrees) | For directional presets only |
+| `spread` | number (degrees) | For directional presets only |
+
+**Available presets** (see `src/lights/manifest.json` for the authoritative list):
+
+| Category | Presets |
+|---|---|
+| Fire & flame | `candle`, `oil-lamp`, `lantern`, `torch`, `wall-sconce`, `campfire`, `fireplace`, `brazier`, `bonfire`, `forge`, `ember` |
+| Magical | `light-cantrip`, `dancing-lights`, `continual-flame`, `faerie-fire`, `moonbeam`, `daylight`, `eldritch-glow`, `divine-radiance`, `infernal-flame`, `necrotic`, `arcane-blue`, `astral`, `silvery`, `faerzress` |
+| Natural | `moonlight`, `starlight`, `bioluminescence`, `lava-glow`, `phosphorescent-fungi`, `sunbeam` |
+| Utility | `dim`, `bright`, `spotlight`, `ambient-glow` |
+
+**Picking the right preset:** the preset controls color, falloff, animation (flicker/pulse), and z-height. Match the preset to the prop concept, then use inline overrides to tune radius/intensity. Quick guide:
+
+- Small burning thing → `candle` (r=10), `oil-lamp` (r=15), `ember` (r=5, dim red)
+- Wall-mounted burning thing → `torch-sconce` style: `torch` (r=20) or `wall-sconce` (r=15)
+- Metal bowl of coals → `brazier` (r=25)
+- Hearth / indoor fire → `fireplace` (r=25)
+- Outdoor camp fire → `campfire` (r=30), `bonfire` (big — r=40)
+- Forge / furnace / smelter → `forge` (r=20, intense)
+- Glowing hot metal / embers / molten → `ember` (dim red) or `lava-glow`
+- Daylight spilling in (grate, window, shaft) → `daylight` (r=60, point) for floor pools; `sunbeam` (directional) for angled beams
+- Crystals / magical motes → `arcane-blue` (blue-white), `astral` (violet), `silvery` (silver-white), `eldritch-glow` (green), `faerie-fire` (pink-violet)
+- Fungal / bioluminescent → `phosphorescent-fungi` (green) or `bioluminescence` (teal)
+- Divine / celestial → `divine-radiance` (warm gold)
+- Infernal / devilish → `infernal-flame` (deep red)
+- Drow / Underdark → `faerzress` (deep purple)
+- Undead / necromantic → `necrotic` (sickly purple)
+
+**Wrong-preset pitfalls:**
+- Don't use `candle` for daylight — it's orange fire.
+- Don't use `torch` for a bonfire — torch has small radius; use `bonfire` or `campfire`.
+- Don't use `sunbeam` (directional) for floor-pool props — use `daylight` instead.
+
+**Validating:** run `node tools/validate-props.js` — it will flag broken `lights:` entries before they reach the editor.
 
 ## Common Color Palette
 
@@ -547,24 +808,43 @@ At normal map zoom, very small details become invisible. Use this guide to avoid
 
 ## Updating the Manifest
 
-After adding, removing, or renaming props, update the manifest:
+After adding, removing, or renaming props, run:
 
 ```bash
 node mapwright/tools/update-manifest.js
 ```
 
-This scans all `.prop` files and regenerates `src/props/manifest.json` automatically.
+This scans all `.prop` files and regenerates **two** derived files in one pass:
+- `src/props/manifest.json` — flat array of prop names (used by per-file fallback + Node-side rendering).
+- `src/props/bundle.json` — every prop's raw text keyed by name plus a content-hash version. The editor fetches this in one HTTP request at startup (avoids 1100+ roundtrips) and falls back to per-file fetches if the bundle is missing.
+
+**The editor will serve stale props until you run this script.** If you edit a `.prop` file and don't see the change in the editor, re-run `update-manifest.js` and hard-reload (the bundle's version hash busts the localStorage cache automatically).
 
 ## Validating Props
 
-Run the bounds validator to check all props have coordinates within their declared footprint:
+Run the validator before committing prop changes. Exit 0 means clean, 1 means warnings.
 
 ```bash
 node mapwright/tools/validate-props.js              # Validate all props
-node mapwright/tools/validate-props.js pillar.prop   # Validate specific prop
+node mapwright/tools/validate-props.js pillar.prop   # Validate specific files
 ```
 
-Output shows `✓` for valid props, `✗` with details for any out-of-bounds coordinates.
+The validator enforces:
+- **Required header fields:** `name`, `category`, `footprint`
+- **Unknown header fields** (typos like `heights:` or `block_light:`) are flagged
+- **Enumerated values:** `placement` ∈ {wall, corner, center, floor, any}; `typical_count` ∈ {single, few, many}; `facing`/`shadow`/`blocks_light` ∈ {yes, no, true, false}
+- **Duplicate entries** in `clusters_with` and `room_types`
+- **Draw-command bounds:** coordinates must stay within footprint (+ `padding:` if declared)
+- **Lights:** single-line JSON only; preset must exist in the manifest; `x`/`y` inside footprint; `color` is `#rrggbb`; no unknown fields; no `"type"` key (must be `"preset"`)
+- **Hitbox / selection:** coordinates in footprint; z-zones obey `0 ≤ zBottom ≤ zTop ≤ height`; `blocks_light: yes` requires at least one `hitbox`; `blocks_light: no` forbids `hitbox` (use `selection`)
+- **Height:** non-negative; required when `blocks_light: yes`
+
+**Separate backlog tool:** the validator deliberately ignores `clusters_with` refs that point to non-existent props — there are ~200 such refs that represent prop ideas we haven't created yet. Surface them explicitly with:
+
+```bash
+node mapwright/tools/lint-cluster-refs.js           # frequency-sorted list of missing props
+node mapwright/tools/lint-cluster-refs.js --by-file # grouped by source prop
+```
 
 ## Previewing Props
 

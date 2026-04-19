@@ -1,0 +1,42 @@
+name: Luminous Spore
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mushroom-grove, mushroom-cavern, cave-living, underdark-outpost
+typical_count: many
+clusters_with: glowcap-cluster, spore-pool, spore-puff, mushroom-glow, moss-patch-glowing
+notes: Faint drifting spore cloud — decorative floor haze, not a true light source but adds ambient glow
+lights: [{"preset":"phosphorescent-fungi","x":0.5,"y":0.5,"radius":4,"intensity":0.3,"color":"#66ffaa"}]
+---
+# Outer diffuse halo (very faint green)
+circle 0.5,0.5 0.48 fill #66ffaa 0.08
+circle 0.5,0.5 0.40 fill #66ffaa 0.12
+circle 0.5,0.5 0.32 fill #66ffaa 0.16
+
+# Irregular cloud shape (organic, not a perfect circle)
+poly 0.22,0.44 0.32,0.28 0.50,0.22 0.70,0.28 0.80,0.44 0.78,0.62 0.66,0.76 0.48,0.80 0.32,0.74 0.22,0.60 fill #66ffaa 0.14
+poly 0.28,0.48 0.38,0.34 0.52,0.30 0.66,0.36 0.72,0.50 0.66,0.64 0.52,0.70 0.38,0.66 0.30,0.58 fill #88ffc8 0.18
+
+# Denser inner core (soft green-cyan)
+ellipse 0.48,0.52 0.18,0.14 fill #a0ffd0 0.22
+ellipse 0.52,0.48 0.14,0.10 fill #c0ffe0 0.25
+
+# Suspended glowing spore motes scattered within the cloud
+circle 0.34,0.38 0.018 fill #e0ffe8 0.9
+circle 0.46,0.30 0.014 fill #e0ffe8 0.85
+circle 0.60,0.34 0.016 fill #e0ffe8 0.85
+circle 0.68,0.50 0.013 fill #e0ffe8 0.8
+circle 0.58,0.64 0.015 fill #e0ffe8 0.85
+circle 0.42,0.66 0.014 fill #e0ffe8 0.8
+circle 0.30,0.54 0.012 fill #e0ffe8 0.75
+circle 0.52,0.52 0.020 fill #ffffff 0.9
+circle 0.38,0.48 0.012 fill #e0ffe8 0.7
+circle 0.64,0.60 0.011 fill #e0ffe8 0.7
+
+# Drift wisps trailing off (bezier curves)
+bezier 0.18,0.42 0.10,0.38 0.08,0.30 0.12,0.22 stroke #88ffc8 0.35 width 1
+bezier 0.82,0.58 0.90,0.62 0.92,0.72 0.86,0.80 stroke #88ffc8 0.35 width 1
+bezier 0.50,0.82 0.58,0.90 0.48,0.96 0.42,0.92 stroke #88ffc8 0.30 width 1

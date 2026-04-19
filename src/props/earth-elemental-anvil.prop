@@ -1,0 +1,67 @@
+name: Earth-Elemental Anvil
+category: Magical
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 3
+placement: center
+room_types: elemental-earth-node, forge, smithy, magical-chamber
+typical_count: single
+clusters_with: earth-node-core, forge, bellows, obelisk-stone-raw
+notes: Massive anvil shaped from living stone with glowing earth-energy cracks. Place as centerpiece of an elemental forge.
+lights: [{"preset":"ember","x":1,"y":0.5,"radius":3,"intensity":0.3,"color":"#dd8822"}]
+---
+# === HITBOX ===
+hitbox rect 0.25,0.12 1.50,0.76 z 0-3
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: massive stone anvil, wider and heavier than standard anvil, with amber glow cracks
+
+# === Warm ambient glow (earth energy leaking upward) ===
+ellipse 1.0,0.50 0.65,0.35 fill #dd8822 0.08
+ellipse 1.0,0.50 0.45,0.25 fill #ffaa44 0.06
+
+# === Base/waist (heavy stone column from above) ===
+rect 0.55,0.20 0.90,0.55 texfill polyhaven/rock_boulder_cracked 0.75
+rect 0.55,0.20 0.90,0.55 stroke #444444
+
+# === Main anvil face (massive stone surface, wider than base) ===
+rect 0.25,0.18 1.50,0.54 texfill polyhaven/stone_wall 0.85
+rect 0.25,0.18 1.50,0.54 stroke #333333
+
+# Face surface highlight (rough stone sheen)
+rect 0.30,0.22 1.40,0.46 fill #888888 0.12
+
+# === Glowing earth-energy cracks across the face ===
+line 0.40,0.25 0.65,0.55 stroke #ffaa44 width 2
+line 0.65,0.55 0.90,0.40 stroke #dd8822 width 2
+line 0.90,0.40 1.20,0.60 stroke #ffaa44 width 2
+line 1.20,0.60 1.50,0.35 stroke #dd8822 width 2
+# Branch cracks
+line 0.55,0.38 0.45,0.50 stroke #cc7711 width 1
+line 1.05,0.48 1.15,0.30 stroke #cc7711 width 1
+line 0.75,0.45 0.80,0.62 stroke #cc7711 width 1
+
+# Crack glow halos (soft amber around crack intersections)
+circle 0.65,0.55 0.04 fill #ffcc66 0.4
+circle 0.90,0.40 0.035 fill #ffcc66 0.35
+circle 1.20,0.60 0.04 fill #ffcc66 0.4
+
+# === Hardy hole (square tool hole, stone-edged) ===
+rect 1.35,0.36 0.10,0.10 fill #111111 0.85
+rect 1.35,0.36 0.10,0.10 stroke #333333
+
+# === Horn (blunt stone horn pointing south) ===
+poly 0.65,0.72 1.35,0.72 1.0,0.95 texfill polyhaven/rock_boulder_cracked 0.8
+poly 0.65,0.72 1.35,0.72 1.0,0.95 stroke #333333
+# Horn crack glow
+line 0.85,0.76 1.0,0.90 stroke #dd8822 width 1
+
+# === Heel (flat back end, north side) ===
+rect 0.35,0.10 1.30,0.12 texfill polyhaven/stone_wall 0.8
+rect 0.35,0.10 1.30,0.12 stroke #333333
+
+# Edge wear marks (stone grinding lines)
+line 0.28,0.22 1.72,0.22 stroke #667788
+line 0.28,0.68 1.72,0.68 stroke #667788

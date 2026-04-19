@@ -1,0 +1,45 @@
+name: Mist Pool
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: crypt, mausoleum, graveyard, shadowfell, necromancer-lair
+typical_count: few
+clusters_with: sarcophagus, dead-tree, shadow-tree
+notes: Low ground-hugging dark mist covering floor cells; place in open areas for atmosphere
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Dark mist seen from above — soft radial gradient with wispy edges
+
+# === Outer mist haze (faintest, largest) ===
+ellipse 1.0,1.0 0.95,0.90 gradient-radial #1a1a1a #000000 0.12
+
+# === Main mist body ===
+ellipse 1.0,1.0 0.80,0.75 gradient-radial #333333 #0a0a0a 0.25
+ellipse 1.0,1.0 0.60,0.55 gradient-radial #444444 #111111 0.3
+
+# === Denser center mass ===
+ellipse 1.0,1.0 0.40,0.35 fill #3a3a3a 0.3
+
+# === Wispy curls at perimeter ===
+# North wisps
+qbezier 0.30,0.18 0.55,0.08 0.80,0.22 stroke #555555 0.2 width 3
+qbezier 1.20,0.15 1.45,0.05 1.70,0.20 stroke #555555 0.18 width 2
+
+# East wisps
+qbezier 1.80,0.50 1.92,0.75 1.78,1.0 stroke #555555 0.2 width 3
+qbezier 1.85,1.20 1.95,1.45 1.82,1.60 stroke #555555 0.18 width 2
+
+# South wisps
+qbezier 0.35,1.78 0.60,1.92 0.85,1.80 stroke #555555 0.2 width 3
+qbezier 1.15,1.82 1.40,1.95 1.65,1.78 stroke #555555 0.18 width 2
+
+# West wisps
+qbezier 0.20,0.55 0.08,0.80 0.22,1.05 stroke #555555 0.2 width 3
+qbezier 0.15,1.25 0.05,1.50 0.18,1.70 stroke #555555 0.18 width 2
+
+# === Subtle inner swirl currents ===
+qbezier 0.55,0.70 0.80,0.60 1.10,0.80 stroke #4a4a4a 0.15 width 2
+qbezier 0.90,1.20 1.20,1.35 1.45,1.15 stroke #4a4a4a 0.15 width 2

@@ -1,0 +1,36 @@
+name: Smoke Stub
+category: Prison
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: interrogation-room, guard-post, guard-room, tavern, office
+typical_count: few
+clusters_with: pen-and-inkwell, confession-paper, chair, desk
+notes: Half-smoked rolled-leaf stub with thin ash trail; scatter near interrogator's chair or desk. Fantasy analogue of a cigarette.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: small rolled-leaf stub lying on floor with ash residue
+
+# Ash trail (thin scatter behind the stub)
+line 0.34,0.52 0.42,0.50 stroke #888888 0.3 width 2
+circle 0.36,0.53 0.015 fill #999999 0.25
+circle 0.38,0.51 0.012 fill #aaaaaa 0.2
+circle 0.32,0.54 0.01 fill #888888 0.2
+
+# Ash head (burnt end — dark grey crumble)
+ellipse 0.44,0.50 0.03,0.025 fill #444444 0.7
+
+# Rolled-leaf body (short tube, warm brown)
+rect 0.46,0.47 0.14,0.06 fill #8b6b4a 0.85
+rect 0.46,0.47 0.14,0.06 stroke #5c3a1e
+
+# Paper wrap line
+line 0.52,0.47 0.52,0.53 stroke #a08060 0.3 width 1
+
+# Unburnt tip end
+ellipse 0.60,0.50 0.02,0.025 fill #6b4e2e 0.8
+
+# Faint scorch mark on floor beneath
+ellipse 0.46,0.52 0.04,0.02 fill #333333 0.15

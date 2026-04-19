@@ -1,0 +1,50 @@
+name: Claw Gouge (Wall)
+category: Terrain
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: wall
+room_types: cave-bear-lair, monster-lair-small, tunnel-mine-worked, cave-living, spider-lair
+typical_count: few
+clusters_with: scratch-marks, rubble, bloodstain, claw-gouge-wall, regurgitation-pile, nest-depression
+notes: Four parallel claw gouges raked into a wall by a large burrowing beast. Place flush against a wall (attachment at north edge). Tile multiple copies along a wall to show a long rake. Rotate for other walls.
+---
+# footprint 1x2: x range 0-2, y range 0-1. Wall at north edge (low y); gouges run east-west just south of the wall.
+
+# === Gouge 1 — closest to wall (y center ~0.12) — drop shadow beneath ===
+rect 0.12,0.14 1.76,0.02 fill #0a0a0a 0.25
+# Gouge 1 ragged poly (torn stone edges wobble in/out of nominal band)
+poly 0.12,0.115 0.30,0.098 0.52,0.105 0.78,0.092 1.04,0.108 1.32,0.100 1.58,0.110 1.82,0.118 1.72,0.142 1.46,0.138 1.18,0.144 0.90,0.136 0.62,0.148 0.36,0.140 0.20,0.146 fill #1a0f08 1.0 stroke #2a1a0a width 1
+
+# === Gouge 2 (y center ~0.24) ===
+rect 0.10,0.26 1.78,0.02 fill #0a0a0a 0.25
+poly 0.10,0.228 0.28,0.215 0.54,0.222 0.82,0.208 1.10,0.224 1.40,0.216 1.66,0.226 1.86,0.232 1.74,0.258 1.48,0.254 1.20,0.262 0.92,0.252 0.64,0.264 0.38,0.256 0.22,0.262 fill #1a0f08 1.0 stroke #2a1a0a width 1
+
+# === Gouge 3 (y center ~0.36) ===
+rect 0.14,0.38 1.72,0.02 fill #0a0a0a 0.25
+poly 0.14,0.348 0.34,0.332 0.58,0.342 0.86,0.328 1.14,0.344 1.42,0.336 1.66,0.346 1.84,0.352 1.70,0.378 1.44,0.374 1.18,0.382 0.90,0.370 0.62,0.384 0.38,0.376 0.22,0.380 fill #1a0f08 1.0 stroke #2a1a0a width 1
+
+# === Gouge 4 — farthest from wall (y center ~0.48) ===
+rect 0.12,0.50 1.74,0.02 fill #0a0a0a 0.25
+poly 0.12,0.468 0.32,0.452 0.56,0.462 0.84,0.448 1.12,0.464 1.40,0.456 1.64,0.464 1.84,0.472 1.72,0.498 1.46,0.494 1.18,0.502 0.90,0.490 0.62,0.504 0.36,0.496 0.20,0.500 fill #1a0f08 1.0 stroke #2a1a0a width 1
+
+# === Stress cracks radiating from gouge ends into the wall (north) ===
+line 0.14,0.11 0.08,0.04 stroke #2a1a0a 0.5 width 1
+line 1.84,0.11 1.90,0.05 stroke #2a1a0a 0.5 width 1
+line 0.12,0.23 0.06,0.16 stroke #2a1a0a 0.5 width 1
+line 1.86,0.35 1.92,0.30 stroke #2a1a0a 0.5 width 1
+
+# === Blood/ichor smear spilling from middle gouge (gouge 2) ===
+poly 0.88,0.232 1.02,0.244 1.12,0.258 1.04,0.272 0.94,0.268 0.86,0.254 fill #4a0000 0.5
+
+# === Stone dust and chip debris at south edge (below gouge 4) ===
+poly 0.42,0.56 0.48,0.55 0.52,0.58 0.46,0.60 fill #3a3228 0.8
+poly 1.22,0.57 1.30,0.56 1.34,0.60 1.26,0.61 fill #3a3228 0.8
+circle 0.30,0.56 0.022 fill #5c4a3a 0.7
+circle 0.58,0.58 0.018 fill #8b7355 0.6
+circle 0.78,0.56 0.020 fill #5c4a3a 0.7
+circle 1.04,0.57 0.016 fill #8b7355 0.6
+circle 1.44,0.58 0.022 fill #5c4a3a 0.7
+circle 1.66,0.56 0.018 fill #8b7355 0.6

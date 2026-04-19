@@ -1,0 +1,47 @@
+name: Silver Cord Stub
+category: Magical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: astral-anchor, astral-sea, planar-nexus
+typical_count: few
+clusters_with: silver-cord-pylon, planar-sigil-shard, star-dust-pile
+notes: Severed end of a silver cord, still twitching slightly. Its dangling filament sparks and frays — a grim sign of a traveler who will not return to their body.
+lights: [{"preset":"silvery","x":0.5,"y":0.5,"radius":5,"intensity":0.5,"color":"#e0e0ff"}]
+---
+# Faint silver residue glow
+circle 0.5,0.5 0.38 gradient-radial #e0e0ff #4a3a80 0.22
+
+# Main cord body — serpentine twisted silver thread
+bezier 0.12,0.3 0.3,0.38 0.45,0.55 0.5,0.6 stroke #e0e0ff width 3
+bezier 0.5,0.6 0.62,0.68 0.74,0.6 0.85,0.5 stroke #c0c0c0 width 3
+
+# Cord inner bright highlight
+bezier 0.12,0.3 0.3,0.38 0.45,0.55 0.5,0.6 stroke #ffffff width 1
+bezier 0.5,0.6 0.62,0.68 0.74,0.6 0.85,0.5 stroke #ffffff width 1
+
+# Severed end — frayed split (at 0.85,0.5)
+line 0.85,0.5 0.92,0.44 stroke #e0e0ff width 1
+line 0.85,0.5 0.92,0.5 stroke #c0a0ff width 1
+line 0.85,0.5 0.92,0.56 stroke #e0e0ff width 1
+line 0.85,0.5 0.88,0.42 stroke #c0a0ff width 1
+line 0.85,0.5 0.88,0.58 stroke #c0a0ff width 1
+
+# Severed end — bright burst
+circle 0.88,0.5 0.05 fill #e0e0ff 0.55
+circle 0.88,0.5 0.025 fill #ffffff 0.9
+
+# Sparks / dangling motes near fray
+circle 0.94,0.44 0.014 fill #e0e0ff 0.85
+circle 0.96,0.52 0.012 fill #ffffff 0.8
+circle 0.92,0.6 0.012 fill #c0a0ff 0.75
+
+# Violet backdrop taint at severance
+circle 0.88,0.5 0.12 fill #a080ff 0.15
+
+# Twisted cord strands (detail)
+line 0.25,0.32 0.3,0.4 stroke #c0a0ff width 1
+line 0.42,0.5 0.48,0.58 stroke #c0a0ff width 1
+line 0.65,0.66 0.72,0.62 stroke #c0a0ff width 1

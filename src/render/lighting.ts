@@ -27,6 +27,7 @@ import {
   DEFAULT_LIGHT_Z,
   type WallSegment,
 } from './lighting-geometry.js';
+import { log } from '../util/index.js';
 
 // Re-export geometry helpers so existing importers (lighting-hq.ts, render barrel,
 // editor) keep working without ripple after the split.
@@ -194,7 +195,7 @@ export function computeVisibility(
   ly: number,
   radius: number,
   segments: Array<{ x1: number; y1: number; x2: number; y2: number }>,
-): Array<{ x: number; y: number }> {
+): Float32Array {
   // Add bounding box segments to limit visibility to the light's radius
   const r = radius + 1; // slight padding
   const bounds = [
@@ -242,16 +243,20 @@ export function computeVisibility(
   // Sort by angle
   angles.sort((a, b) => a - b);
 
-  // Build visibility polygon using grid-accelerated ray casting
-  const polygon = [];
+  // Build visibility polygon using grid-accelerated ray casting.
+  // Store as interleaved Float32Array [x0,y0,x1,y1,...] — no per-point object
+  // allocation, and consumers can iterate with index arithmetic.
+  const scratch = new Float32Array(angles.length * 2);
+  let n = 0;
   for (const angle of angles) {
     const hit = castRayGrid(lx, ly, angle, grid);
     if (hit) {
-      polygon.push({ x: hit.x, y: hit.y });
+      scratch[n * 2] = hit.x;
+      scratch[n * 2 + 1] = hit.y;
+      n++;
     }
   }
-
-  return polygon;
+  return scratch.subarray(0, n * 2);
 }
 
 // ─── Lightmap Rendering ────────────────────────────────────────────────────
@@ -421,20 +426,25 @@ function _applyPropShadowsToRT(
 /**
  * Draw visibility polygon as a white filled shape into gctx,
  * offset so that world-to-canvas coords are relative to (bbX, bbY).
+ *
+ * `visibility` is an interleaved Float32Array [x0, y0, x1, y1, ...].
  */
 function clipToVisibility(
   gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  visibility: Array<{ x: number; y: number }>,
+  visibility: Float32Array,
   transform: RenderTransform,
   bbX: number,
   bbY: number,
 ) {
+  const n = visibility.length;
+  if (n < 6) return; // need ≥ 3 points
+  const sx = transform.scale;
+  const ox = transform.offsetX - bbX;
+  const oy = transform.offsetY - bbY;
   gctx.beginPath();
-  const p0 = visibility[0]!;
-  gctx.moveTo(p0.x * transform.scale + transform.offsetX - bbX, p0.y * transform.scale + transform.offsetY - bbY);
-  for (let i = 1; i < visibility.length; i++) {
-    const p = visibility[i]!;
-    gctx.lineTo(p.x * transform.scale + transform.offsetX - bbX, p.y * transform.scale + transform.offsetY - bbY);
+  gctx.moveTo(visibility[0]! * sx + ox, visibility[1]! * sx + oy);
+  for (let i = 2; i < n; i += 2) {
+    gctx.lineTo(visibility[i]! * sx + ox, visibility[i + 1]! * sx + oy);
   }
   gctx.closePath();
   gctx.fill();
@@ -472,57 +482,40 @@ function buildRadialGradient(
  * Uses destination-in composite to mask a radial gradient to the visibility polygon —
  * giving anti-aliased shadow edges without a CPU pixel loop.
  */
-function renderPointLight(
-  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+/**
+ * Build the composited point-light RT (gradient + visibility clip + prop shadows)
+ * into `gctx`, which must already be sized to (bbW, bbH) and cleared. Returns
+ * nothing; the caller owns the draw-to-target step. Split out so the bake
+ * cache can reuse the same composite logic on a persistent per-light canvas.
+ */
+function buildPointLightComposite(
+  gctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   light: Light,
-  visibility: Array<{ x: number; y: number }>,
+  visibility: Float32Array,
   transform: RenderTransform,
+  bbX: number,
+  bbY: number,
+  bbW: number,
+  bbH: number,
+  cx: number,
+  cy: number,
+  rPx: number,
+  dimRPx: number | null,
 ) {
-  if (visibility.length < 3) return;
-
-  const cx = light.x * transform.scale + transform.offsetX;
-  const cy = light.y * transform.scale + transform.offsetY;
-  const rPx = light.radius * transform.scale;
-  const dimRPx = light.dimRadius && light.dimRadius > light.radius ? light.dimRadius * transform.scale : null;
-  const outerRPx = dimRPx ?? rPx;
-
-  // Clip bounding box to the canvas viewport. Without this, zooming in deeply
-  // makes outerRPx thousands of pixels, causing a massive OffscreenCanvas and
-  // radial gradient to be allocated every frame.
-  //
-  // Snap to integer pixel coordinates: fractional bbX/bbY cause drawImage to
-  // sub-pixel interpolate, blending gradient edge pixels with transparent ones
-  // and producing a faint visible line at the bounding box edge.
-  const vpW = lctx.canvas.width;
-  const vpH = lctx.canvas.height;
-  const bbX = Math.floor(Math.max(cx - outerRPx, 0));
-  const bbY = Math.floor(Math.max(cy - outerRPx, 0));
-  const bbW = Math.ceil(Math.min(cx + outerRPx, vpW)) - bbX;
-  const bbH = Math.ceil(Math.min(cy + outerRPx, vpH)) - bbY;
-  if (bbW <= 0 || bbH <= 0) return; // fully off-screen
-
-  const cw = bbW;
-  const ch = bbH;
-
-  const gctx = ensureLightRTCanvas(cw, ch);
-  gctx.clearRect(0, 0, cw, ch);
-
   const { r, g, b } = parseColor(light.color);
   const intensity = light.intensity;
   const falloff: FalloffType = light.falloff;
-  const relCx = cx - bbX; // gradient center within the clipped box
+  const relCx = cx - bbX;
   const relCy = cy - bbY;
 
   if (dimRPx) {
-    // Unified gradient: bright zone clamped to dimIntensity floor, dim zone fades to 0.
-    // Prevents the brightness jump that occurs when two source-over gradients are layered.
     const dimIntensity = Math.min(1, intensity * 0.5);
     const brightFrac = rPx / dimRPx;
     const grad = gctx.createRadialGradient(relCx, relCy, 0, relCx, relCy, dimRPx);
     grad.addColorStop(0, `rgba(${r},${g},${b},${Math.min(1, intensity)})`);
     const numStops = 8;
     for (let i = 1; i < numStops; i++) {
-      const t = i / numStops; // fraction through bright zone
+      const t = i / numStops;
       const gradFrac = t * brightFrac;
       const mult = falloffMultiplier(t * light.radius, light.radius, falloff);
       const alpha = Math.max(dimIntensity, Math.min(1, intensity * mult));
@@ -533,23 +526,89 @@ function renderPointLight(
     gctx.fillStyle = grad;
     gctx.fillRect(0, 0, bbW, bbH);
   } else {
-    // No dim zone — standard bright gradient
     gctx.fillStyle = buildRadialGradient(gctx, relCx, relCy, rPx, r, g, b, intensity, light.radius, falloff);
     gctx.fillRect(0, 0, bbW, bbH);
   }
 
-  // Mask gradient to visibility polygon
   gctx.globalCompositeOperation = 'destination-in';
   gctx.fillStyle = '#ffffff';
   clipToVisibility(gctx, visibility, transform, bbX, bbY);
   gctx.globalCompositeOperation = 'source-over';
 
-  // Apply z-height prop shadows (subtract from the lit area on the RT canvas)
   if (light._propShadows?.length) {
     _applyPropShadowsToRT(gctx, light, transform, bbX, bbY);
   }
+}
 
-  lctx.drawImage(lightRTCanvas!, 0, 0, cw, ch, bbX, bbY, cw, ch);
+function _computePointLightBBox(light: Light, transform: RenderTransform, vpW: number, vpH: number) {
+  const cx = light.x * transform.scale + transform.offsetX;
+  const cy = light.y * transform.scale + transform.offsetY;
+  const rPx = light.radius * transform.scale;
+  const dimRPx = light.dimRadius && light.dimRadius > light.radius ? light.dimRadius * transform.scale : null;
+  const outerRPx = dimRPx ?? rPx;
+  const bbX = Math.floor(Math.max(cx - outerRPx, 0));
+  const bbY = Math.floor(Math.max(cy - outerRPx, 0));
+  const bbW = Math.ceil(Math.min(cx + outerRPx, vpW)) - bbX;
+  const bbH = Math.ceil(Math.min(cy + outerRPx, vpH)) - bbY;
+  return { cx, cy, rPx, dimRPx, bbX, bbY, bbW, bbH };
+}
+
+function _allocateBakedCanvas(w: number, h: number): OffscreenCanvas | HTMLCanvasElement {
+  if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(w, h);
+  const c = document.createElement('canvas');
+  c.width = w;
+  c.height = h;
+  return c;
+}
+
+function renderPointLight(
+  lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  light: Light,
+  visibility: Float32Array,
+  transform: RenderTransform,
+) {
+  if (visibility.length < 6) return; // < 3 points
+
+  // Clip bounding box to the canvas viewport. Without this, zooming in deeply
+  // makes outerRPx thousands of pixels, causing a massive OffscreenCanvas and
+  // radial gradient to be allocated every frame. Snap to integer pixel
+  // coordinates: fractional bbX/bbY cause drawImage to sub-pixel interpolate,
+  // blending gradient edge pixels with transparent ones and producing a faint
+  // visible line at the bounding box edge.
+  const { cx, cy, rPx, dimRPx, bbX, bbY, bbW, bbH } = _computePointLightBBox(
+    light,
+    transform,
+    lctx.canvas.width,
+    lctx.canvas.height,
+  );
+  if (bbW <= 0 || bbH <= 0) return; // fully off-screen
+
+  const gctx = ensureLightRTCanvas(bbW, bbH);
+  gctx.clearRect(0, 0, bbW, bbH);
+  buildPointLightComposite(gctx, light, visibility, transform, bbX, bbY, bbW, bbH, cx, cy, rPx, dimRPx);
+  lctx.drawImage(lightRTCanvas!, 0, 0, bbW, bbH, bbX, bbY, bbW, bbH);
+}
+
+/**
+ * Bake a point light's full composite at intensity=1 onto a fresh persistent
+ * OffscreenCanvas. Caller blits with globalAlpha = current intensity each frame.
+ * Returns null if the light is fully off-screen.
+ */
+function _bakePointLight(
+  light: Light,
+  visibility: Float32Array,
+  transform: RenderTransform,
+  vpW: number,
+  vpH: number,
+): BakedLight | null {
+  const { cx, cy, rPx, dimRPx, bbX, bbY, bbW, bbH } = _computePointLightBBox(light, transform, vpW, vpH);
+  if (bbW <= 0 || bbH <= 0) return null;
+  const canvas = _allocateBakedCanvas(bbW, bbH);
+  const gctx = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
+  // Bake at intensity=1 so per-frame globalAlpha scales the whole composite.
+  const bakeLight: Light = { ...light, intensity: 1 };
+  buildPointLightComposite(gctx, bakeLight, visibility, transform, bbX, bbY, bbW, bbH, cx, cy, rPx, dimRPx);
+  return { canvas, bbX, bbY, bbW, bbH, scale: transform.scale };
 }
 
 /**
@@ -558,10 +617,10 @@ function renderPointLight(
 function renderDirectionalLight(
   lctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   light: Light,
-  visibility: Array<{ x: number; y: number }>,
+  visibility: Float32Array,
   transform: RenderTransform,
 ) {
-  if (visibility.length < 3) return;
+  if (visibility.length < 6) return; // < 3 points
 
   const cx = light.x * transform.scale + transform.offsetX;
   const cy = light.y * transform.scale + transform.offsetY;
@@ -623,6 +682,25 @@ function renderDirectionalLight(
 // ─── Visibility Cache ──────────────────────────────────────────────────────
 
 const visibilityCache = new Map();
+const propShadowsCache = new Map<
+  string,
+  Array<{ shadowPoly: number[][]; nearCenter: number[]; farCenter: number[]; opacity: number; hard: boolean }>
+>();
+type BakedLight = {
+  canvas: OffscreenCanvas | HTMLCanvasElement;
+  bbX: number;
+  bbY: number;
+  bbW: number;
+  bbH: number;
+  scale: number;
+};
+// Intensity-only animated lights (flicker/pulse/strobe without radiusVariation)
+// bake their full composited RT — gradient + visibility clip + prop shadows —
+// at intensity=1 once per light/scale, then each frame applies intensity via
+// globalAlpha on a single drawImage. The destination-in (visibility mask) and
+// destination-out (prop shadows) passes commute with globalAlpha scaling, so
+// the result is mathematically identical to rebuilding the composite every frame.
+const bakedLightCache = new Map<string, BakedLight>();
 let cachedWallSegments: WallSegment[] | null = null;
 let cachedPropShadowZones: ReturnType<typeof extractPropShadowZones> | null = null;
 let _lightingVersion = 0;
@@ -685,6 +763,8 @@ function _getStaticLmCanvas(w: number, h: number) {
  */
 export function invalidateVisibilityCache(structuralChange: boolean | 'props' = true): void {
   visibilityCache.clear();
+  propShadowsCache.clear();
+  bakedLightCache.clear();
   if (structuralChange === true) {
     cachedWallSegments = null;
     cachedPropShadowZones = null;
@@ -694,6 +774,8 @@ export function invalidateVisibilityCache(structuralChange: boolean | 'props' = 
   }
   _staticLmValid = false; // static lightmap depends on wall segments + light positions
   _lightingVersion++;
+  const scope = structuralChange === true ? 'full' : structuralChange === 'props' ? 'props-only' : 'lights-only';
+  log.devTrace(`invalidateVisibilityCache(${scope}) → lightingVersion ${_lightingVersion}`);
 }
 
 /**
@@ -706,6 +788,7 @@ export function invalidateLightmapCaches(): void {
   _lmCanvas = null;
   _lmW = 0;
   _lmH = 0;
+  log.dev(`invalidateLightmapCaches() — static + dynamic lightmap canvases dropped`);
 }
 
 // ─── Main Entry Point ──────────────────────────────────────────────────────
@@ -869,48 +952,102 @@ function _renderOneLight(
   const eff = getEffectiveLight(light, time);
   const outerRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : eff.radius || 30;
   const effectiveRadius = eff.range ?? outerRadius;
-  const cacheKey = `${light.id}:${eff.x},${eff.y},${effectiveRadius}`;
+  const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
+
+  // Cull lights whose bounding circle doesn't touch the lightmap canvas.
+  // Avoids running computeVisibility (which does ray casts against every
+  // nearby wall endpoint) on lights that can never contribute a pixel.
+  // `transform` is the lightmap transform, so (x,y)*scale+offset lands in
+  // lctx.canvas-space directly.
+  const cxPx = eff.x * transform.scale + transform.offsetX;
+  const cyPx = eff.y * transform.scale + transform.offsetY;
+  const rPx = effectiveRadius * transform.scale;
+  const vpW = lctx.canvas.width;
+  const vpH = lctx.canvas.height;
+  if (cxPx + rPx < 0 || cxPx - rPx > vpW || cyPx + rPx < 0 || cyPx - rPx > vpH) {
+    return;
+  }
+
+  const cacheKey = `${light.id}:${eff.x},${eff.y},${lightZ},${effectiveRadius}`;
   let visibility = visibilityCache.get(cacheKey);
   if (!visibility) {
     visibility = computeVisibility(eff.x, eff.y, effectiveRadius, segments);
     visibilityCache.set(cacheKey, visibility);
   }
 
-  // Compute z-height prop shadow polygons for this light
-  const lightZ = eff.z ?? DEFAULT_LIGHT_Z;
-  const propShadows = [];
-  if (propShadowZones.length) {
-    const rSq = effectiveRadius * effectiveRadius;
-    for (const { zones } of propShadowZones) {
-      for (const zone of zones) {
-        // Cull props outside the light's radius — use centroid distance check
-        const cx = zone.centroidX;
-        const cy = zone.centroidY;
-        const dx = cx - eff.x;
-        const dy = cy - eff.y;
-        if (dx * dx + dy * dy > rSq) continue;
+  // Compute z-height prop shadow polygons for this light. Shadow geometry
+  // only depends on light position+z+radius and prop zones (both invalidated
+  // via invalidateVisibilityCache → propShadowsCache.clear), so animated
+  // flicker/pulse lights that only vary intensity reuse the cached polygons.
+  let propShadows = propShadowsCache.get(cacheKey);
+  if (!propShadows) {
+    propShadows = [];
+    if (propShadowZones.length) {
+      const rSq = effectiveRadius * effectiveRadius;
+      for (const { zones } of propShadowZones) {
+        for (const zone of zones) {
+          // Cull props outside the light's radius — use centroid distance check
+          const cx = zone.centroidX;
+          const cy = zone.centroidY;
+          const dx = cx - eff.x;
+          const dy = cy - eff.y;
+          if (dx * dx + dy * dy > rSq) continue;
 
-        const shadow = computePropShadowPolygon(
-          eff.x,
-          eff.y,
-          lightZ,
-          zone.worldPolygon,
-          zone.zBottom,
-          zone.zTop,
-          effectiveRadius,
-        );
-        if (shadow) propShadows.push(shadow);
+          const shadow = computePropShadowPolygon(
+            eff.x,
+            eff.y,
+            lightZ,
+            zone.worldPolygon,
+            zone.zBottom,
+            zone.zTop,
+            effectiveRadius,
+          );
+          if (shadow) propShadows.push(shadow);
+        }
       }
     }
+    propShadowsCache.set(cacheKey, propShadows);
   }
   // Attach shadow data to the effective light so render functions can use it
   eff._propShadows = propShadows;
 
   if (eff.type === 'directional') {
     renderDirectionalLight(lctx, eff, visibility, transform);
-  } else {
-    renderPointLight(lctx, eff, visibility, transform);
+    return;
   }
+
+  // Bake-cache fast path: flicker/pulse/strobe animations that only vary
+  // intensity (no radiusVariation) reuse a composited RT across frames —
+  // per-frame cost collapses to one `drawImage` with `globalAlpha`.
+  // destination-in (visibility) and destination-out (prop shadows) both
+  // commute with globalAlpha scaling, so the result is identical.
+  const anim = light.animation;
+  const intensityOnly =
+    !!anim?.type &&
+    !(anim.radiusVariation && anim.radiusVariation > 0) &&
+    (anim.type === 'flicker' || anim.type === 'pulse' || anim.type === 'strobe');
+  if (intensityOnly) {
+    const bakeKey = `${light.id}:${transform.scale.toFixed(3)}`;
+    let baked = bakedLightCache.get(bakeKey);
+    if (baked?.scale !== transform.scale) {
+      const vpW2 = lctx.canvas.width;
+      const vpH2 = lctx.canvas.height;
+      // Bake the light with propShadows attached at intensity=1.
+      const bakeLight: Light = { ...light, intensity: 1, _propShadows: propShadows };
+      baked = _bakePointLight(bakeLight, visibility, transform, vpW2, vpH2) ?? undefined;
+      if (baked) bakedLightCache.set(bakeKey, baked);
+    }
+    if (baked) {
+      const alpha = Math.max(0, Math.min(1, eff.intensity));
+      lctx.save();
+      lctx.globalAlpha = alpha;
+      lctx.drawImage(baked.canvas, baked.bbX, baked.bbY);
+      lctx.restore();
+      return;
+    }
+  }
+
+  renderPointLight(lctx, eff, visibility, transform);
 }
 
 // ─── Simplified Normal Map Bump Effect ─────────────────────────────────────
@@ -1142,6 +1279,15 @@ export function renderCoverageHeatmap(
  * @param {object} theme - Resolved theme object (including any themeOverrides)
  * @returns {Array} Light objects ready for renderLightmap / renderLightmapHQ
  */
+let _fillLightsCache: {
+  cells: CellGrid;
+  gridSize: number;
+  color: string;
+  intensity: number;
+  version: number;
+  lights: Light[];
+} | null = null;
+
 export function extractFillLights(
   cells: CellGrid,
   gridSize: number,
@@ -1149,6 +1295,21 @@ export function extractFillLights(
 ): Light[] {
   const color = (theme as Record<string, unknown>).lavaLightColor as string;
   const intensity = (theme as Record<string, unknown>).lavaLightIntensity as number;
+
+  // Fill lights only change when cells, gridSize, or the lava theme colors change.
+  // `_lightingVersion` is bumped by `invalidateVisibilityCache` — which is called
+  // by `smartInvalidate` on any fluid-involving cell edit and by the theme-change
+  // pipeline on lava-light bucket changes. So keying on it covers the common cases.
+  if (
+    _fillLightsCache?.cells === cells &&
+    _fillLightsCache.gridSize === gridSize &&
+    _fillLightsCache.color === color &&
+    _fillLightsCache.intensity === intensity &&
+    _fillLightsCache.version === _lightingVersion
+  ) {
+    return _fillLightsCache.lights;
+  }
+
   const lights: Light[] = [];
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
@@ -1280,5 +1441,6 @@ export function extractFillLights(
     }
   }
 
+  _fillLightsCache = { cells, gridSize, color, intensity, version: _lightingVersion, lights };
   return lights;
 }

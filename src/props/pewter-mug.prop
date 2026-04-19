@@ -1,0 +1,37 @@
+name: Pewter Mug
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: farmhouse-common, tavern, common-room, peasant-hovel, guard-room
+typical_count: few
+clusters_with: table, bench, plate, tankard
+notes: Single pewter drinking mug with handle sitting on the floor or table — small item centered in cell
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Mug body (cylindrical — top-down circle) ===
+circle 0.50,0.50 0.14 texfill polyhaven/metal_plate 0.7
+circle 0.50,0.50 0.14 fill #888888 0.3
+circle 0.50,0.50 0.14 stroke #555555
+
+# Rim highlight
+circle 0.50,0.50 0.12 stroke #999999 0.6
+
+# Dark interior
+circle 0.50,0.50 0.10 fill #2a2018 0.85
+circle 0.50,0.50 0.10 stroke #444444
+
+# Liquid residue inside (ale dregs)
+ellipse 0.50,0.52 0.07,0.06 fill #4a3018 0.6
+
+# === Handle (C-shape extending east) ===
+arc 0.64,0.50 0.08 280 80 stroke #666666 width 3
+# Handle inner highlight
+arc 0.64,0.50 0.06 300 60 stroke #888888 0.5 width 1
+
+# Light reflection on rim (NW)
+arc 0.50,0.50 0.13 200 260 stroke #aaaaaa 0.4 width 1

@@ -1,0 +1,54 @@
+name: Letter from Home
+category: Library & Study
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: mansion-servants-quarters, barracks, ranger-lodge, ship-captains-cabin, hermit-cell, traveler-camp
+typical_count: single
+clusters_with: desk, bed, chest, bedside-table, lantern
+notes: A folded paper letter with a broken wax seal, left on a bed or floor — narrative detail
+---
+# === HITBOX ===
+selection rect 0.22,0.28 0.56,0.44
+
+# Folded letter body (parchment rectangle, slightly skewed)
+rect 0.22,0.28 0.56,0.44 fill #e8dcc8 0.92
+rect 0.22,0.28 0.56,0.44 stroke #8b7355 width 2
+
+# Parchment shadow/fold crease (visible fold line across the middle)
+line 0.22,0.50 0.78,0.50 stroke #8b7355 0.6 width 1
+
+# Subtle age discoloration
+line 0.24,0.34 0.76,0.34 stroke #c8b898 0.5 width 1
+line 0.26,0.66 0.74,0.66 stroke #c8b898 0.45 width 1
+
+# Handwritten text lines (scratchy ink)
+line 0.28,0.38 0.72,0.38 stroke #2a1400 0.7 width 1
+line 0.28,0.42 0.68,0.42 stroke #2a1400 0.65 width 1
+line 0.28,0.46 0.70,0.46 stroke #2a1400 0.6 width 1
+# Second half lines below fold
+line 0.28,0.54 0.72,0.54 stroke #2a1400 0.65 width 1
+line 0.28,0.58 0.66,0.58 stroke #2a1400 0.6 width 1
+line 0.28,0.62 0.70,0.62 stroke #2a1400 0.55 width 1
+
+# Signature flourish at bottom
+bezier 0.46,0.66 0.52,0.68 0.58,0.66 0.64,0.68 stroke #2a1400 0.7 width 1
+
+# Broken wax seal at top (cracked red seal where the letter was opened)
+circle 0.68,0.30 0.07 fill #991111 0.9
+circle 0.68,0.30 0.07 stroke #4a0808 width 2
+# Crack in seal (seal is broken)
+line 0.64,0.28 0.72,0.33 stroke #3a0404 width 2
+# Flake of wax that fell off
+circle 0.76,0.34 0.018 fill #881010 0.8
+circle 0.76,0.34 0.018 stroke #4a0808
+
+# Curled corner (letter was opened and not perfectly refolded)
+bezier 0.22,0.28 0.26,0.24 0.32,0.24 0.36,0.28 stroke #8b7355 width 2
+bezier 0.22,0.28 0.26,0.24 0.32,0.24 0.36,0.28 fill #e8dcc8 0.9
+
+# Tear along one edge (worn from reading)
+line 0.78,0.56 0.76,0.62 stroke #8b7355 0.7 width 1

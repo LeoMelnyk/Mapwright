@@ -6,6 +6,7 @@ import { invalidateFluidCache, patchFluidRegion, getFluidCacheParams } from './f
 import { invalidateVisibilityCache } from './lighting.js';
 import { invalidateEffectsCache } from './effects.js';
 import { toCanvas } from './bounds.js';
+import { log } from '../util/index.js';
 
 // Re-export cache invalidation functions (public API maintained for direct importers)
 export { invalidateFluidCache };
@@ -34,6 +35,7 @@ export function getCachedRoomCells(cells: CellGrid): boolean[][] {
 export function invalidateGeometryCache(): void {
   _roomCellsCache = { cells: null, result: null };
   invalidateEffectsCache();
+  log.devTrace(`invalidateGeometryCache() — room cells + effects cleared`);
 }
 
 // ── Smart cache invalidation ─────────────────────────────────────────────────
@@ -68,12 +70,25 @@ interface BeforeState {
   waterDepth: number | null;
   lavaDepth: number | null;
   hazard: boolean;
+  texture: string | null;
+  textureSecondary: string | null;
 }
 
 export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number; col: number }>): BeforeState[] {
   return coords.map(({ row, col }) => {
     const cell = cells[row]?.[col];
-    if (!cell) return { row, col, wasVoid: true, fill: null, waterDepth: null, lavaDepth: null, hazard: false };
+    if (!cell)
+      return {
+        row,
+        col,
+        wasVoid: true,
+        fill: null,
+        waterDepth: null,
+        lavaDepth: null,
+        hazard: false,
+        texture: null,
+        textureSecondary: null,
+      };
     return {
       row,
       col,
@@ -82,6 +97,8 @@ export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number;
       waterDepth: (cell.waterDepth as number | null) ?? null,
       lavaDepth: (cell.lavaDepth as number | null) ?? null,
       hazard: !!cell.hazard,
+      texture: (cell.texture as string | null) ?? null,
+      textureSecondary: (cell.textureSecondary as string | null) ?? null,
     };
   });
 }
@@ -106,10 +123,18 @@ export function captureBeforeState(cells: CellGrid, coords: Array<{ row: number;
 export function smartInvalidate(
   changes: BeforeState[],
   cells: CellGrid,
-  { forceGeometry = false, forceFluid = false }: { forceGeometry?: boolean; forceFluid?: boolean } = {},
+  {
+    forceGeometry = false,
+    forceFluid = false,
+    textureOnly = false,
+  }: { forceGeometry?: boolean; forceFluid?: boolean; textureOnly?: boolean } = {},
 ): void {
   let needsGeometry = forceGeometry;
   let needsFluid = forceFluid;
+  // Track texture changes so undo/redo and right-click paths trigger a blend
+  // patch — the blend topology is keyed on neighbouring textures, and stale
+  // blends are visible as wrong-coloured edges at texture seams after undo.
+  let needsBlend = false;
 
   for (const {
     row,
@@ -119,8 +144,10 @@ export function smartInvalidate(
     waterDepth: beforeWD,
     lavaDepth: beforeLD,
     hazard: beforeHazard,
+    texture: beforeTex,
+    textureSecondary: beforeTexSec,
   } of changes) {
-    if (needsGeometry && needsFluid) break;
+    if (needsGeometry && needsFluid && needsBlend) break;
 
     const afterCell = cells[row]?.[col] ?? null;
     const isVoid = afterCell === null;
@@ -133,13 +160,23 @@ export function smartInvalidate(
           needsFluid = true;
         }
       }
+      // Void↔floor toggles alter the blend topology too (appearing/disappearing cells).
+      if (beforeTex || beforeTexSec) needsBlend = true;
     } else if (!wasVoid && !isVoid) {
-      if (
-        beforeFill !== afterCell.fill ||
-        beforeWD !== afterCell.waterDepth ||
-        beforeLD !== afterCell.lavaDepth ||
-        beforeHazard !== afterCell.hazard
-      ) {
+      // captureBeforeState normalizes missing fields to null, but the raw cell
+      // object may have `undefined` for fields that were never set. Naively
+      // comparing `null !== undefined` is true — so any edit on a cell without
+      // a fill triggered a full fluid composite rebuild. Normalize both sides.
+      const afterFill = afterCell.fill ?? null;
+      const afterWD = afterCell.waterDepth ?? null;
+      const afterLD = afterCell.lavaDepth ?? null;
+      const afterHazard = !!afterCell.hazard;
+      const afterTex = (afterCell.texture as string | null) ?? null;
+      const afterTexSec = (afterCell.textureSecondary as string | null) ?? null;
+      if (beforeTex !== afterTex || beforeTexSec !== afterTexSec) {
+        needsBlend = true;
+      }
+      if (beforeFill !== afterFill || beforeWD !== afterWD || beforeLD !== afterLD || beforeHazard !== afterHazard) {
         needsFluid = true;
       }
     }
@@ -158,13 +195,15 @@ export function smartInvalidate(
 
   const dirtyRegion = getDirtyRegion();
 
-  // Fluid cache: locally rebuild just the dirty region on the existing render
-  // layer — works for both adding and removing fills.
+  // Fluid cache: with the tile-composite architecture, variant clips are
+  // cheap to rebuild (O(fluid cells)), and tile textures stay valid across
+  // cell edits. We just bust the clip cache and let the next composite
+  // rebuild produce fresh geometry.
   if (needsFluid) {
     const fp = !forceFluid ? getFluidCacheParams() : null;
     if (fp && dirtyRegion) {
       const roomCells = getCachedRoomCells(cells);
-      patchFluidRegion(dirtyRegion, cells, roomCells, fp.gridSize, fp.theme);
+      patchFluidRegion(dirtyRegion, cells, roomCells, fp.gridSize, {} as Theme);
     } else {
       invalidateFluidCache();
     }
@@ -174,11 +213,21 @@ export function smartInvalidate(
   }
 
   // Patch blend edges for the dirty region if a blend cache already exists.
-  if (needsGeometry && dirtyRegion) {
+  // `needsGeometry` covers void↔floor transitions (edges may appear/disappear);
+  // `needsBlend` covers texture-change edits (undo/redo, right-click clear,
+  // any direct-mutation path that doesn't call _patchBlend itself).
+  if ((needsGeometry || needsBlend) && dirtyRegion) {
     _patchBlendFromCache(cells, dirtyRegion);
   }
 
-  bumpContentVersion();
+  // Top-layer (walls/props/hazard) only needs rebuild when something other than
+  // pure texture changed. `textureOnly` lets texture-paint paths skip the top
+  // rebuild entirely so a region-fill near a diagonal door doesn't clear + re-clip
+  // the walls layer (which was the cause of diagonal features being half-cut
+  // when their geometry straddled the partial-rebuild clip boundary).
+  // Any geometry change (void↔floor) always bumps top because walls can appear/disappear with it.
+  const topChanged = !textureOnly || needsGeometry;
+  bumpContentVersion({ topChanged });
 }
 
 /** Patch blend topology for a dirty region using parameters from the existing blend cache. */

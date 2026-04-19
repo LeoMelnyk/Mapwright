@@ -1,0 +1,62 @@
+name: Torn Notice
+category: Misc
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: roadside-gallows, gibbet-square, tavern, guard-post, market, courthouse-chamber
+typical_count: few
+clusters_with: gallows, gallows-triple, notice-board, tombstone
+notes: Weathered torn paper nailed to a post or wall. Partial lettering, ripped edge at bottom. Wall strip along north.
+---
+# footprint 1x1: x range 0-1, y range 0-1. Wall-mounted along north edge.
+
+# === Paper body (irregular yellowed sheet with ragged edges) ===
+poly 0.22,0.08 0.76,0.06 0.78,0.12 0.80,0.22 0.76,0.32 0.66,0.38 0.52,0.34 0.40,0.40 0.28,0.36 0.22,0.28 0.18,0.18 fill #e8dcb8 0.92
+poly 0.22,0.08 0.76,0.06 0.78,0.12 0.80,0.22 0.76,0.32 0.66,0.38 0.52,0.34 0.40,0.40 0.28,0.36 0.22,0.28 0.18,0.18 stroke #8a7848 width 1
+
+# === Paper aged/stained wash ===
+poly 0.22,0.08 0.76,0.06 0.78,0.12 0.80,0.22 0.76,0.32 0.66,0.38 0.52,0.34 0.40,0.40 0.28,0.36 0.22,0.28 0.18,0.18 texfill polyhaven/rough_linen 0.25
+
+# === Watermarks / stains ===
+ellipse 0.35,0.22 0.08,0.05 fill #6a4828 0.30
+ellipse 0.62,0.16 0.06,0.04 fill #6a4828 0.25
+
+# === Header text (thick bold letters — "WANTED" or "DECREE") ===
+rect 0.26,0.11 0.04,0.05 fill #1a0a00 0.85
+rect 0.32,0.11 0.04,0.05 fill #1a0a00 0.85
+rect 0.38,0.11 0.04,0.05 fill #1a0a00 0.85
+rect 0.44,0.11 0.04,0.05 fill #1a0a00 0.85
+rect 0.50,0.11 0.04,0.05 fill #1a0a00 0.85
+rect 0.56,0.11 0.04,0.05 fill #1a0a00 0.85
+rect 0.62,0.11 0.04,0.05 fill #1a0a00 0.85
+rect 0.68,0.11 0.04,0.05 fill #1a0a00 0.85
+
+# === Body text lines (thin hand-inked strokes) ===
+line 0.24,0.20 0.72,0.20 stroke #2a1808 0.75 width 1
+line 0.24,0.23 0.60,0.23 stroke #2a1808 0.7 width 1
+line 0.24,0.26 0.70,0.26 stroke #2a1808 0.7 width 1
+line 0.24,0.29 0.54,0.29 stroke #2a1808 0.65 width 1
+# Line interrupted by tear
+line 0.30,0.32 0.40,0.32 stroke #2a1808 0.55 width 1
+line 0.56,0.33 0.64,0.33 stroke #2a1808 0.55 width 1
+
+# === Iron nail at top-center (holding paper to post) ===
+circle 0.50,0.09 0.025 fill #444444 0.95
+circle 0.50,0.09 0.025 stroke #222222
+circle 0.50,0.09 0.010 fill #888888 0.8
+
+# === Nail rust stain radiating from nail ===
+circle 0.50,0.11 0.04 fill #6a3818 0.35
+
+# === Torn/ragged bottom edge — jagged rip ===
+poly 0.40,0.40 0.44,0.36 0.46,0.42 0.50,0.34 0.52,0.40 0.56,0.36 0.60,0.42 0.52,0.34 0.48,0.42 fill #e8dcb8 0.7
+# Shreds / threads hanging below tear
+line 0.42,0.40 0.44,0.44 stroke #8a7848 0.6 width 1
+line 0.48,0.42 0.49,0.46 stroke #8a7848 0.6 width 1
+line 0.54,0.40 0.55,0.44 stroke #8a7848 0.6 width 1
+
+# === Curling corner (top-right curls forward) ===
+bezier 0.74,0.06 0.80,0.08 0.82,0.14 0.80,0.20 stroke #8a7848 width 1
+poly 0.74,0.06 0.80,0.08 0.82,0.14 0.78,0.12 fill #d4c4a8 0.7

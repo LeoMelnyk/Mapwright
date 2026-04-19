@@ -1,0 +1,67 @@
+name: Mash Tun
+category: Workshop
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 4
+placement: center
+room_types: brewery, tavern-kitchen, cellar
+typical_count: single
+clusters_with: brewing-kettle, fermentation-vat, wooden-paddle, hops-bunch
+notes: Large round wooden mash tun (grain-soaking vessel), open-topped with floating grain and a stirring paddle across the top
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.85 z 0-4
+
+# footprint 2x2: x range 0-2, y range 0-2
+# Top-down: wooden circle + iron band rings + brown-tan grain layer + stirring paddle
+
+# Outer wooden body
+circle 1.0,1.0 0.88 texfill polyhaven/weathered_planks 0.85
+circle 1.0,1.0 0.88 stroke #2a1400
+
+# Iron band — outer
+circle 1.0,1.0 0.86 stroke #555555 width 3
+# Iron band — mid-upper
+circle 1.0,1.0 0.74 stroke #555555 width 2
+# Iron band — mid-lower
+circle 1.0,1.0 0.62 stroke #555555 width 2
+
+# Plank seam lines (radial staves)
+line 1.0,0.12 1.0,1.88 stroke #3a1f00 0.35
+line 0.12,1.0 1.88,1.0 stroke #3a1f00 0.35
+line 0.30,0.30 1.70,1.70 stroke #3a1f00 0.3
+line 1.70,0.30 0.30,1.70 stroke #3a1f00 0.3
+
+# Interior shadow ring
+circle 1.0,1.0 0.54 fill #1a1208 0.25
+circle 1.0,1.0 0.54 stroke #2a1400 0.6
+
+# Grain mash layer (brown-tan, filling the open top)
+circle 1.0,1.0 0.50 fill #b8944a 0.8
+circle 1.0,1.0 0.50 stroke #8a6a30 0.4
+
+# Grain texture — irregular speckles on the mash surface
+circle 0.82,0.88 0.03 fill #c8a460 0.5
+circle 0.92,1.12 0.025 fill #a88040 0.45
+circle 1.08,0.90 0.03 fill #c8a460 0.5
+circle 1.18,1.10 0.025 fill #a88040 0.4
+circle 1.0,0.82 0.03 fill #c8a460 0.45
+circle 1.0,1.20 0.025 fill #c8a460 0.45
+circle 0.86,1.04 0.02 fill #a88040 0.4
+circle 1.14,0.96 0.02 fill #c8a460 0.4
+
+# Liquid peeking through at edges (darker amber)
+circle 0.68,0.84 0.03 fill #6a4a20 0.3
+circle 1.32,1.16 0.025 fill #6a4a20 0.25
+
+# Stirring paddle resting across the tun (east-west)
+rect 0.08,0.96 1.84,0.08 texfill polyhaven/wood_table 0.85
+rect 0.08,0.96 1.84,0.08 stroke #3a1f00
+# Paddle blade (wider end, west side)
+ellipse 0.18,1.0 0.12,0.14 texfill polyhaven/wood_table 0.8
+ellipse 0.18,1.0 0.12,0.14 stroke #3a1f00
+# Handle end (east side — slightly thicker grip)
+rect 1.78,0.94 0.16,0.12 fill #6b4e2e 0.7
+rect 1.78,0.94 0.16,0.12 stroke #3a1f00

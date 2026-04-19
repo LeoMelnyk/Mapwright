@@ -1,0 +1,67 @@
+name: Strange Residue
+category: Effects
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+lights: [{"preset":"astral","x":0.5,"y":0.5,"color":"#b044ff","intensity":0.35,"radius":2}]
+placement: floor
+room_types: alchemy-lab, wizard-sanctum, cursed-laboratory, abandoned-tower, ritual-chamber, mad-scholar-study
+typical_count: few
+clusters_with: spilled-reagent, strange-residue, arcane-pedestal, broken-glass, chalk-circle-floor
+notes: Unknown glowing violet residue smear on the floor. Thin, iridescent, wet-looking with wisps curling outward. Use sparingly for ominous lab contamination.
+---
+# footprint 1x1: x 0-1, y 0-1. Flat glowing smear.
+
+# === Outer violet halo ===
+circle 0.52,0.52 0.46 gradient-radial #b044ff #100818 0.32
+
+# === Main residue smear — irregular drag-shape (not a neat puddle) ===
+poly 0.14,0.60 0.22,0.42 0.36,0.30 0.54,0.28 0.70,0.38 0.80,0.48 0.86,0.60 0.78,0.72 0.64,0.78 0.50,0.76 0.32,0.80 0.20,0.74 fill #7a1ac8 0.75
+poly 0.14,0.60 0.22,0.42 0.36,0.30 0.54,0.28 0.70,0.38 0.80,0.48 0.86,0.60 0.78,0.72 0.64,0.78 0.50,0.76 0.32,0.80 0.20,0.74 stroke #3a0868 width 1
+
+# === Inner deeper glow (iridescent core) ===
+ellipse 0.50,0.54 0.26,0.18 fill #9a4aff 0.6
+
+# === Brighter glow spot ===
+ellipse 0.50,0.52 0.14,0.10 fill #c884ff 0.65
+
+# === Bright hot iridescent center ===
+ellipse 0.50,0.52 0.07,0.04 fill #f0d4ff 0.7
+
+# === Dragged streaks / smear tails (extending outward from main blob) ===
+bezier 0.14,0.60 0.06,0.70 0.02,0.80 0.02,0.92 stroke #7a1ac8 0.7 width 3
+bezier 0.14,0.60 0.06,0.70 0.02,0.80 0.02,0.92 stroke #c884ff 0.5 width 1
+bezier 0.86,0.60 0.94,0.54 0.96,0.46 0.96,0.38 stroke #7a1ac8 0.65 width 3
+bezier 0.86,0.60 0.94,0.54 0.96,0.46 0.96,0.38 stroke #c884ff 0.45 width 1
+
+# === Swirled drag pattern (spiral smear — unnatural) ===
+bezier 0.30,0.44 0.40,0.50 0.60,0.58 0.70,0.64 stroke #3a0868 0.6 width 2
+bezier 0.36,0.66 0.48,0.60 0.60,0.52 0.70,0.48 stroke #c884ff 0.5 width 1
+
+# === Iridescent specks / reactive flecks ===
+circle 0.24,0.38 0.025 fill #c884ff 0.85
+circle 0.18,0.50 0.02 fill #c884ff 0.8
+circle 0.76,0.70 0.022 fill #c884ff 0.85
+circle 0.72,0.32 0.024 fill #c884ff 0.8
+circle 0.36,0.78 0.02 fill #c884ff 0.75
+
+# === Outer scatter droplets ===
+circle 0.08,0.30 0.018 fill #7a1ac8 0.75
+circle 0.88,0.24 0.018 fill #7a1ac8 0.75
+circle 0.12,0.86 0.016 fill #7a1ac8 0.7
+circle 0.84,0.88 0.018 fill #7a1ac8 0.7
+
+# === Rising violet wisps (unnatural vapor) ===
+bezier 0.42,0.42 0.36,0.28 0.40,0.18 0.36,0.08 stroke #c884ff 0.35 width 2
+bezier 0.58,0.42 0.64,0.28 0.60,0.18 0.64,0.08 stroke #c884ff 0.3 width 2
+
+# === Sparkle glints ===
+line 0.50,0.48 0.52,0.50 stroke #ffffff 0.9 width 1
+line 0.42,0.58 0.44,0.60 stroke #ffffff 0.8 width 1
+circle 0.50,0.52 0.006 fill #ffffff 1.0
+
+# === Faint scorch ring around the edges (burned floor) ===
+arc 0.50,0.54 0.44 20 90 stroke #1a0020 0.55 width 1
+arc 0.50,0.54 0.44 200 320 stroke #1a0020 0.55 width 1

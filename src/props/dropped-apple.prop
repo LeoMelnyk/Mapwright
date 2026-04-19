@@ -1,0 +1,31 @@
+name: Dropped Apple
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: market-square, kitchen, tavern, alley, village-green
+typical_count: many
+clusters_with: broken-pottery, produce-pile, market-stall
+notes: Single bright red apple on the ground. Tiny accent scatter prop for market flavor.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: single round apple with stem and highlight
+
+# Apple body
+circle 0.50,0.52 0.10 fill #b82820 0.95
+circle 0.50,0.52 0.10 stroke #6a0c08
+
+# Slight color variation (darker side)
+arc 0.50,0.52 0.10 180 360 fill #901818 0.3
+
+# Stem (tiny dark line at top)
+line 0.50,0.42 0.51,0.38 stroke #3a2a10 width 2
+
+# Small leaf next to stem
+poly 0.52,0.40 0.58,0.38 0.56,0.43 fill #4a8a30 0.8
+poly 0.52,0.40 0.58,0.38 0.56,0.43 stroke #2a5a18
+
+# Highlight dot (light reflecting on top)
+circle 0.46,0.48 0.03 fill #ffd4a0 0.6

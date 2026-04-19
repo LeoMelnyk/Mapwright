@@ -1,0 +1,55 @@
+name: Mine Shaft
+category: Structure
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: mine-shaft-entrance, mining-camp, deep-mine, cave-living
+typical_count: single
+clusters_with: headframe, winch-large, cart-track, pickaxe
+notes: Vertical shaft opening in the floor — dark pit rimmed with a wooden plank frame; rope descends into darkness
+---
+# Wooden plank frame around the shaft (square border of heavy timbers)
+rect 0.14,0.14 1.72,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.14,0.14 1.72,0.22 stroke #3a1f00
+rect 0.14,1.64 1.72,0.22 texfill polyhaven/weathered_planks 0.85
+rect 0.14,1.64 1.72,0.22 stroke #3a1f00
+rect 0.14,0.14 0.22,1.72 texfill polyhaven/weathered_planks 0.85
+rect 0.14,0.14 0.22,1.72 stroke #3a1f00
+rect 1.64,0.14 0.22,1.72 texfill polyhaven/weathered_planks 0.85
+rect 1.64,0.14 0.22,1.72 stroke #3a1f00
+# Iron corner bolts on the frame
+circle 0.25,0.25 0.035 fill #333333 0.95
+circle 1.75,0.25 0.035 fill #333333 0.95
+circle 0.25,1.75 0.035 fill #333333 0.95
+circle 1.75,1.75 0.035 fill #333333 0.95
+# Shaft opening — deep black pit
+rect 0.36,0.36 1.28,1.28 fill #0a0a0a 0.98
+# Inner darkness gradient (giving depth)
+rect 0.42,0.42 1.16,1.16 gradient-radial #2a1400 #000000 0.95
+# Ladder hooks on the north edge (two iron brackets)
+rect 0.72,0.30 0.06,0.10 fill #444444 0.95
+rect 0.72,0.30 0.06,0.10 stroke #222222
+rect 1.22,0.30 0.06,0.10 fill #444444 0.95
+rect 1.22,0.30 0.06,0.10 stroke #222222
+# Ladder rungs visible just below the hooks (descending into darkness)
+line 0.74,0.42 1.26,0.42 stroke #4a2800 width 2
+line 0.74,0.54 1.26,0.54 stroke #4a2800 0.75 width 2
+line 0.74,0.66 1.26,0.66 stroke #4a2800 0.5 width 2
+line 0.74,0.78 1.26,0.78 stroke #4a2800 0.3 width 2
+# Ladder rails (vertical)
+line 0.74,0.42 0.74,0.90 stroke #4a2800 0.7 width 2
+line 1.26,0.42 1.26,0.90 stroke #4a2800 0.7 width 2
+# Rope descending into darkness on the south side
+line 1.00,1.20 1.00,1.80 stroke #8b7355 width 3
+# Rope fray/knot at the top of descent
+circle 1.00,1.20 0.04 fill #8b7355 0.9
+circle 1.00,1.20 0.04 stroke #5c3a1e
+# Scattered dirt/debris on the frame edges
+circle 0.50,0.20 0.02 fill #6a5a4a 0.6
+circle 1.40,1.78 0.018 fill #6a5a4a 0.6
+circle 0.22,1.20 0.015 fill #6a5a4a 0.6
+# Warning chalk marks on the frame
+line 0.40,0.20 0.60,0.20 stroke #e8dcc8 0.55 width 1
+line 0.50,0.16 0.50,0.24 stroke #e8dcc8 0.55 width 1

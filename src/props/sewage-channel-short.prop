@@ -1,0 +1,31 @@
+name: Sewage Channel (Short)
+category: Terrain
+facing: yes
+footprint: 1x1
+shadow: no
+blocks_light: no
+placement: floor
+room_types: sewer-junction, sewer, undercity
+typical_count: many
+clusters_with: sewage-channel, sewage-channel-turn, sewage-channel-t, sewage-channel-x, grate-floor
+notes: Single-cell straight section of sewage channel — use for fine-grained layouts between turns and junctions. Tiles seamlessly with sewage-channel (1x3) and all sewage-channel-* variants.
+---
+# North stone lip
+rect 0.00,0.08 1.00,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.08 1.00,0.12 stroke #2a2820
+# South stone lip
+rect 0.00,0.80 1.00,0.12 texfill polyhaven/stone_floor 0.85
+rect 0.00,0.80 1.00,0.12 stroke #2a2820
+# Channel fluid (matching the 1x3 piece's channel width)
+rect 0.00,0.20 1.00,0.60 fill #3a2a18 0.95
+rect 0.00,0.20 1.00,0.60 stroke #1a1208
+# Flow streaks
+bezier 0.02,0.32 0.25,0.30 0.75,0.36 0.98,0.32 stroke #5a4028 0.55 width 2
+bezier 0.02,0.50 0.30,0.52 0.70,0.48 0.98,0.50 stroke #5a4028 0.5 width 2
+bezier 0.02,0.68 0.25,0.70 0.75,0.64 0.98,0.68 stroke #4a3020 0.45 width 2
+# Scum patches
+ellipse 0.30,0.38 0.10,0.05 fill #4a6040 0.55
+ellipse 0.70,0.62 0.10,0.05 fill #4a6040 0.5
+# Bubbles
+circle 0.45,0.48 0.02 fill #8aa070 0.7
+circle 0.65,0.52 0.018 fill #8aa070 0.6

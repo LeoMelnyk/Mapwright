@@ -1,0 +1,61 @@
+name: Folding Mess Table
+category: Furniture
+footprint: 1x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2.4
+placement: center
+room_types: ship-crew-quarters, mess-hall, barracks
+typical_count: few
+clusters_with: bench-long, bench, stool, tankard, bowl-stew
+notes: Narrow collapsible plank table with center hinge — two plank halves meet at a midline hinge line.
+---
+# === HITBOX ===
+hitbox rect 0.08,0.14 1.84,0.72 z 0-2.4
+
+# footprint 1x2: x 0-2, y 0-1
+
+# Leg shadows at the four corners
+circle 0.20,0.22 0.05 fill #1a0f00 0.45
+circle 1.80,0.22 0.05 fill #1a0f00 0.45
+circle 0.20,0.78 0.05 fill #1a0f00 0.45
+circle 1.80,0.78 0.05 fill #1a0f00 0.45
+
+# Tabletop — two plank halves meeting at center hinge
+rect 0.08,0.14 1.84,0.72 texfill polyhaven/wood_table 0.88
+rect 0.08,0.14 1.84,0.72 fill #3a1f00 0.12
+rect 0.08,0.14 1.84,0.72 stroke #3a1f00 width 2
+
+# Wood grain on west half
+line 0.14,0.28 0.92,0.28 stroke #5c3a1e 0.35 width 1
+line 0.14,0.50 0.92,0.50 stroke #5c3a1e 0.3 width 1
+line 0.14,0.72 0.92,0.72 stroke #5c3a1e 0.35 width 1
+# Wood grain on east half
+line 1.08,0.28 1.86,0.28 stroke #5c3a1e 0.35 width 1
+line 1.08,0.50 1.86,0.50 stroke #5c3a1e 0.3 width 1
+line 1.08,0.72 1.86,0.72 stroke #5c3a1e 0.35 width 1
+
+# Central hinge line (the visible fold/seam)
+line 1.00,0.14 1.00,0.86 stroke #1a0f00 width 3
+line 1.00,0.14 1.00,0.86 stroke #555555 0.6 width 1
+
+# Brass hinge plates at top and bottom of the seam
+rect 0.94,0.18 0.12,0.08 texfill polyhaven/metal_plate 0.8
+rect 0.94,0.18 0.12,0.08 fill #daa520 0.4
+rect 0.94,0.18 0.12,0.08 stroke #5a3a00
+circle 0.97,0.22 0.012 fill #2a1400 0.8
+circle 1.03,0.22 0.012 fill #2a1400 0.8
+
+rect 0.94,0.74 0.12,0.08 texfill polyhaven/metal_plate 0.8
+rect 0.94,0.74 0.12,0.08 fill #daa520 0.4
+rect 0.94,0.74 0.12,0.08 stroke #5a3a00
+circle 0.97,0.78 0.012 fill #2a1400 0.8
+circle 1.03,0.78 0.012 fill #2a1400 0.8
+
+# Edge bevel
+rect 0.12,0.18 1.76,0.64 stroke #5c3a1e 0.4 width 1
+
+# Ring stains
+circle 0.40,0.40 0.07 stroke #1a0a00 0.4 width 1
+circle 1.55,0.60 0.06 stroke #1a0a00 0.4 width 1

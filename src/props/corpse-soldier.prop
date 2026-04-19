@@ -1,0 +1,104 @@
+name: Corpse (Soldier)
+category: Misc
+footprint: 3x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp, ruined-watchtower, guard-room
+typical_count: few
+clusters_with: corpse-horse, commander-corpse-mounted, blood-pool, arrow-stuck, helmet-fallen, weapon-stuck
+notes: Armored soldier's body face up; helmet askew, shield fallen alongside
+---
+# footprint 3x1: x range 0-1, y range 0-3
+# Top-down: body face up, head north (low Y), feet south (high Y)
+
+# Blood pool beneath (irregular)
+poly 0.12,1.20 0.25,0.98 0.46,0.92 0.68,0.94 0.84,1.06 0.92,1.30 0.88,1.60 0.76,1.80 0.58,1.88 0.40,1.90 0.22,1.76 0.12,1.54 fill #4a0000 0.32
+poly 0.12,1.20 0.25,0.98 0.46,0.92 0.68,0.94 0.84,1.06 0.92,1.30 0.88,1.60 0.76,1.80 0.58,1.88 0.40,1.90 0.22,1.76 0.12,1.54 stroke #2a0000 0.3
+
+# === Helmet (north, slightly askew) ===
+ellipse 0.52,0.36 0.18,0.16 fill #666666 0.92
+ellipse 0.52,0.36 0.18,0.16 texfill polyhaven/metal_plate 0.5
+ellipse 0.52,0.36 0.18,0.16 stroke #333333
+# Visor slit
+line 0.44,0.34 0.60,0.34 stroke #0a0604 width 2
+# Helmet dent
+arc 0.62,0.30 0.06 180 340 stroke #2a2a2a 0.7 width 1
+# Small plume (red, bent)
+poly 0.48,0.24 0.56,0.24 0.52,0.16 fill #aa3030 0.85
+poly 0.48,0.24 0.56,0.24 0.52,0.16 stroke #5a1010
+
+# === Torso — chest armor (metal breastplate) ===
+poly 0.28,0.56 0.72,0.56 0.76,0.90 0.74,1.30 0.68,1.58 0.32,1.58 0.26,1.30 0.24,0.90 fill #666666 0.88
+poly 0.28,0.56 0.72,0.56 0.76,0.90 0.74,1.30 0.68,1.58 0.32,1.58 0.26,1.30 0.24,0.90 texfill polyhaven/metal_plate 0.5
+poly 0.28,0.56 0.72,0.56 0.76,0.90 0.74,1.30 0.68,1.58 0.32,1.58 0.26,1.30 0.24,0.90 stroke #333333
+# Chest emblem (faded)
+poly 0.42,0.88 0.58,0.88 0.56,1.12 0.50,1.18 0.44,1.12 fill #8b6914 0.55
+poly 0.42,0.88 0.58,0.88 0.56,1.12 0.50,1.18 0.44,1.12 stroke #5a3a00 0.6
+# Armor rivets
+circle 0.30,0.62 0.02 fill #444444 0.9
+circle 0.70,0.62 0.02 fill #444444 0.9
+circle 0.28,1.44 0.02 fill #444444 0.9
+circle 0.72,1.44 0.02 fill #444444 0.9
+# Arrow stuck in chest
+rect 0.48,0.80 0.04,0.18 fill #7a5020 0.95
+rect 0.48,0.80 0.04,0.18 stroke #3a1f00
+poly 0.46,0.98 0.54,0.98 0.50,0.90 fill #aa3030 0.85
+poly 0.46,0.98 0.54,0.98 0.50,0.90 stroke #5a1010
+# Blood around arrow
+ellipse 0.50,0.84 0.08,0.04 fill #3a0000 0.75
+
+# === Belt + skirt below breastplate ===
+rect 0.28,1.56 0.44,0.06 fill #2a1a10 0.85
+rect 0.28,1.56 0.44,0.06 stroke #1a1008
+rect 0.44,1.56 0.12,0.06 fill #8b6914 0.6
+rect 0.44,1.56 0.12,0.06 stroke #5a3a00
+# Leather skirt / tasset
+poly 0.30,1.62 0.70,1.62 0.72,1.80 0.28,1.80 fill #3a2418 0.8
+poly 0.30,1.62 0.70,1.62 0.72,1.80 0.28,1.80 texfill polyhaven/brown_leather 0.4
+poly 0.30,1.62 0.70,1.62 0.72,1.80 0.28,1.80 stroke #1a0a04
+
+# === Legs (south) ===
+# Left leg (greaves)
+rect 0.32,1.78 0.16,0.80 fill #555555 0.85
+rect 0.32,1.78 0.16,0.80 texfill polyhaven/metal_plate 0.4
+rect 0.32,1.78 0.16,0.80 stroke #333333
+# Left boot
+poly 0.30,2.54 0.50,2.54 0.52,2.74 0.28,2.74 fill #2a1408 0.9
+poly 0.30,2.54 0.50,2.54 0.52,2.74 0.28,2.74 stroke #1a0a04
+# Right leg (bent slightly outward)
+rect 0.52,1.78 0.16,0.78 fill #555555 0.85
+rect 0.52,1.78 0.16,0.78 texfill polyhaven/metal_plate 0.4
+rect 0.52,1.78 0.16,0.78 stroke #333333
+# Right boot
+poly 0.50,2.52 0.72,2.54 0.74,2.72 0.50,2.72 fill #2a1408 0.9
+poly 0.50,2.52 0.72,2.54 0.74,2.72 0.50,2.72 stroke #1a0a04
+
+# === Arms sprawled ===
+# Left arm (out west)
+poly 0.24,0.70 0.18,0.76 0.04,1.20 0.10,1.26 0.26,0.84 fill #555555 0.82
+poly 0.24,0.70 0.18,0.76 0.04,1.20 0.10,1.26 0.26,0.84 texfill polyhaven/metal_plate 0.4
+poly 0.24,0.70 0.18,0.76 0.04,1.20 0.10,1.26 0.26,0.84 stroke #333333
+# Left gauntlet
+circle 0.07,1.24 0.06 fill #444444 0.9
+circle 0.07,1.24 0.06 stroke #222222
+# Right arm (bent across body)
+poly 0.76,0.72 0.84,0.80 0.90,1.10 0.82,1.16 0.74,0.88 fill #555555 0.82
+poly 0.76,0.72 0.84,0.80 0.90,1.10 0.82,1.16 0.74,0.88 texfill polyhaven/metal_plate 0.4
+poly 0.76,0.72 0.84,0.80 0.90,1.10 0.82,1.16 0.74,0.88 stroke #333333
+# Right gauntlet
+circle 0.86,1.13 0.06 fill #444444 0.9
+circle 0.86,1.13 0.06 stroke #222222
+
+# === Shield fallen beside (west, within footprint) ===
+ellipse 0.16,2.00 0.15,0.22 fill #5c3a1e 0.9
+ellipse 0.16,2.00 0.15,0.22 texfill polyhaven/dark_wood 0.5
+ellipse 0.16,2.00 0.15,0.22 stroke #1a0a04
+# Shield boss (metal center)
+circle 0.16,2.00 0.05 fill #777777 0.9
+circle 0.16,2.00 0.05 stroke #444444
+# Shield emblem (simple cross)
+line 0.08,2.00 0.24,2.00 stroke #daa520 width 2
+line 0.16,1.88 0.16,2.12 stroke #daa520 width 2

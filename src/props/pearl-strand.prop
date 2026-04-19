@@ -1,0 +1,74 @@
+name: Pearl Strand
+category: Merchandise
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: shop-jeweler, market-stall, vault, treasure-room, boudoir, gallery
+typical_count: few
+clusters_with: velvet-cloth, ring-display, coin-pile, gem-loose, display-case-small
+notes: String of pearls laid on a dark surface — viewed from above as a gentle curve of small white glossy spheres. Works well on velvet-cloth.
+---
+# footprint 1x1: x 0-1, y 0-1. Flat jewelry — no shadow.
+
+# Faint drape shadow hint under strand
+bezier 0.15,0.40 0.35,0.60 0.65,0.68 0.85,0.52 stroke #000000 0.25 width 4
+
+# String connecting pearls (very thin)
+bezier 0.14,0.38 0.34,0.58 0.66,0.66 0.86,0.50 stroke #d4c4a8 0.6 width 1
+
+# Row of pearls along the curve (small glossy white circles)
+# Each pearl = main sphere + tiny highlight
+circle 0.16,0.38 0.032 fill #f4ecd8 0.95
+circle 0.16,0.38 0.032 stroke #8b7355
+circle 0.15,0.37 0.012 fill #ffffff 0.9
+
+circle 0.24,0.44 0.034 fill #f4ecd8 0.95
+circle 0.24,0.44 0.034 stroke #8b7355
+circle 0.23,0.43 0.013 fill #ffffff 0.9
+
+circle 0.32,0.50 0.035 fill #f4ecd8 0.95
+circle 0.32,0.50 0.035 stroke #8b7355
+circle 0.31,0.49 0.014 fill #ffffff 0.9
+
+circle 0.40,0.55 0.036 fill #f8f0dc 0.95
+circle 0.40,0.55 0.036 stroke #8b7355
+circle 0.39,0.54 0.014 fill #ffffff 0.9
+
+circle 0.48,0.60 0.037 fill #f4ecd8 0.95
+circle 0.48,0.60 0.037 stroke #8b7355
+circle 0.47,0.59 0.015 fill #ffffff 0.95
+
+circle 0.56,0.63 0.036 fill #f8f0dc 0.95
+circle 0.56,0.63 0.036 stroke #8b7355
+circle 0.55,0.62 0.014 fill #ffffff 0.9
+
+circle 0.64,0.64 0.036 fill #f4ecd8 0.95
+circle 0.64,0.64 0.036 stroke #8b7355
+circle 0.63,0.63 0.014 fill #ffffff 0.9
+
+circle 0.72,0.62 0.035 fill #f8f0dc 0.95
+circle 0.72,0.62 0.035 stroke #8b7355
+circle 0.71,0.61 0.013 fill #ffffff 0.9
+
+circle 0.79,0.57 0.034 fill #f4ecd8 0.95
+circle 0.79,0.57 0.034 stroke #8b7355
+circle 0.78,0.56 0.013 fill #ffffff 0.9
+
+circle 0.85,0.52 0.033 fill #f4ecd8 0.95
+circle 0.85,0.52 0.033 stroke #8b7355
+circle 0.84,0.51 0.012 fill #ffffff 0.9
+
+# Clasp at the end (small gold fitting)
+rect 0.13,0.37 0.04,0.03 fill #daa520 0.95
+rect 0.13,0.37 0.04,0.03 stroke #5a3a00
+rect 0.85,0.50 0.04,0.03 fill #daa520 0.95
+rect 0.85,0.50 0.04,0.03 stroke #5a3a00
+
+# Tiny hook detail on one clasp
+arc 0.87,0.52 0.02 0 180 stroke #daa520 width 1
+
+# Soft sheen highlights on a few pearls (brightest ones)
+circle 0.40,0.55 0.018 fill #ffffff 0.5
+circle 0.56,0.63 0.016 fill #ffffff 0.5

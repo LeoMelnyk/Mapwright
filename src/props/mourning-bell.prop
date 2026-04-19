@@ -1,0 +1,45 @@
+name: Mourning Bell
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 5
+placement: floor
+room_types: crypt, mausoleum, graveyard, chapel, funeral-parlor
+typical_count: single
+clusters_with: candle-cluster, sarcophagus, grave-marker
+notes: Small iron bell on a standalone post, tolled for the dead; place near entrances or altars
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.28 z 0-5
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: vertical post (circle) with short horizontal arm, bell hanging below as a ring
+
+# === Post base plate (small stone disc) ===
+circle 0.42,0.48 0.14 texfill polyhaven/granite_tile 0.7
+circle 0.42,0.48 0.14 stroke #555555
+
+# === Post top (iron disc seen from above) ===
+circle 0.42,0.48 0.07 fill #444444 0.9
+circle 0.42,0.48 0.07 stroke #333333
+
+# === Horizontal arm extending east from post top ===
+rect 0.46,0.46 0.22,0.04 fill #555555 0.85
+rect 0.46,0.46 0.22,0.04 stroke #333333
+
+# === Bell hanging below arm — visible as flared opening ring ===
+# Outer bell rim (the flared bottom of the bell seen from above)
+circle 0.68,0.48 0.12 fill #555555 0.6
+circle 0.68,0.48 0.12 stroke #333333
+# Inner dark void of the bell opening
+circle 0.68,0.48 0.08 fill #1a1a1a 0.7
+# Clapper dot at center
+circle 0.68,0.48 0.025 fill #444444 0.8
+
+# === Arm bracket detail ===
+circle 0.46,0.48 0.025 fill #666666 0.6
+
+# === Bell top cap (where it attaches to arm) ===
+circle 0.68,0.48 0.035 fill #666666 0.5

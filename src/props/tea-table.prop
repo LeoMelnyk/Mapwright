@@ -1,0 +1,75 @@
+name: Tea Table
+category: Furniture
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 2
+placement: floor
+room_types: house-noble-townhouse, noble-solar, mansion-bedroom-master, mansion-library
+typical_count: single
+clusters_with: tea-service, chair-upholstered, armchair, small-table, lapdog-cushion
+notes: Round polished tea table — low elegant surface for afternoon tea
+---
+# === HITBOX ===
+hitbox circle 1.0,1.0 0.72 z 0-2
+
+# Table top (large round polished wood)
+circle 1.0,1.0 0.72 texfill polyhaven/wood_table 0.9
+circle 1.0,1.0 0.72 fill #5c3a1e 0.3
+circle 1.0,1.0 0.72 stroke #2a1400
+# Table edge beveling
+circle 1.0,1.0 0.70 stroke #5c3a1e 0.6 width 1
+circle 1.0,1.0 0.68 stroke #3a1f00 0.5 width 1
+# Wood grain rings
+arc 1.0,1.0 0.60 30 150 stroke #5c3a1e 0.4 width 1
+arc 1.0,1.0 0.50 200 340 stroke #5c3a1e 0.4 width 1
+arc 1.0,1.0 0.40 30 150 stroke #5c3a1e 0.4 width 1
+arc 1.0,1.0 0.30 200 340 stroke #5c3a1e 0.4 width 1
+arc 1.0,1.0 0.20 30 150 stroke #5c3a1e 0.4 width 1
+# Central inlay detail (decorative medallion, gold)
+circle 1.0,1.0 0.10 fill #daa520 0.6
+circle 1.0,1.0 0.10 stroke #5a3a00
+# Inlay rose pattern
+poly 0.96,1.00 1.00,0.96 1.04,1.00 1.00,1.04 fill #8b6914 0.7
+circle 1.0,1.0 0.025 fill #5a3a00 0.9
+# Leg shadows at 4 corners (curved legs — visible as subtle circles)
+circle 0.34,0.34 0.06 fill #1a1008 0.35
+circle 1.66,0.34 0.06 fill #1a1008 0.35
+circle 0.34,1.66 0.06 fill #1a1008 0.35
+circle 1.66,1.66 0.06 fill #1a1008 0.35
+# === Items on tea table ===
+# Tea cup & saucer (NE area)
+circle 1.30,0.70 0.12 fill #f0e4d0 0.95
+circle 1.30,0.70 0.12 stroke #8b7355
+circle 1.30,0.70 0.08 fill #e8dcc8 0.95
+circle 1.30,0.70 0.08 stroke #8b7355
+# Tea inside cup
+circle 1.30,0.70 0.06 fill #6a3810 0.85
+# Cup handle
+arc 1.42,0.70 0.03 270 90 stroke #8b7355 width 2
+# Small cake plate (SW)
+ellipse 0.70,1.30 0.14,0.10 fill #daa520 0.9
+ellipse 0.70,1.30 0.14,0.10 stroke #5a3a00
+# Tiny cakes
+circle 0.66,1.28 0.03 fill #c8893a 0.9
+circle 0.74,1.30 0.03 fill #c8893a 0.9
+circle 0.70,1.34 0.025 fill #c8893a 0.9
+# Teapot (SE — partial)
+ellipse 1.20,1.30 0.14,0.10 fill #6080a0 0.9
+ellipse 1.20,1.30 0.14,0.10 stroke #2a4060
+# Teapot spout
+poly 1.28,1.28 1.36,1.26 1.38,1.32 1.30,1.32 fill #6080a0 0.9
+poly 1.28,1.28 1.36,1.26 1.38,1.32 1.30,1.32 stroke #2a4060
+# Teapot handle
+arc 1.06,1.30 0.06 90 270 stroke #2a4060 width 2
+# Teapot lid
+circle 1.20,1.28 0.04 fill #2a4060 0.9
+# Doily/napkin (cream lace)
+poly 0.70,0.76 0.80,0.72 0.86,0.80 0.80,0.88 0.72,0.86 0.66,0.82 fill #f0e4d0 0.65
+poly 0.70,0.76 0.80,0.72 0.86,0.80 0.80,0.88 0.72,0.86 0.66,0.82 stroke #c8b898 0.7
+# Small silver spoon
+line 1.42,0.86 1.52,0.78 stroke #cccccc width 2
+ellipse 1.52,0.76 0.03,0.02 fill #cccccc 0.9
+# Surface highlight (polish sheen)
+arc 1.0,1.0 0.65 210 260 stroke #ffffff 0.3 width 1

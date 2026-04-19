@@ -121,7 +121,12 @@ interface EditorApiMap {
     facing: number,
   ): { success: boolean; positions?: [number, number][] };
   placeLight(x: number, y: number, config?: PlaceLightConfig): { success: boolean; id: number };
-  placeProp(row: number, col: number, propType: string, facing?: number): { success: boolean };
+  placeProp(
+    row: number,
+    col: number,
+    propType: string,
+    facing?: number,
+  ): { success: boolean; warnings?: string[]; lightsAdded?: Array<{ id: number; preset: string }> };
   setDoor(row: number, col: number, direction: string, type?: string): { success: boolean };
   setLabel(row: number, col: number, text: string): { success: boolean };
   waitForTextures(timeoutMs?: number): Promise<{ success: boolean }>;

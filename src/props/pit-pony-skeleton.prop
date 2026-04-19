@@ -1,0 +1,158 @@
+name: Pit Pony Skeleton
+category: Misc
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.4
+placement: floor
+room_types: tunnel-mine-worked, mine-shaft-entrance, cave-living
+typical_count: single
+clusters_with: feed-trough, hay-wisps, timber-brace, rusted-manacle, bone-pile, rat-skeleton
+notes: The bones of a pit pony still partly in its leather harness — mine stable fatality, collapse victim, or starved when the miners never came back. Small scale (Shetland-sized). Place in a stable, or just off a haulage drift.
+---
+# footprint 2x2: x range 0-2, y range 0-2
+# Shetland-sized pony lying on its side, spine running east-west along y~1.0
+# Head at east (x~1.8), tail/pelvis at west (x~0.25)
+
+# === Dust patina beneath the bones ===
+ellipse 1.0,1.05 0.85,0.32 fill #5a4a38 0.12
+ellipse 1.0,1.05 0.75,0.26 fill #7a6a52 0.08
+
+# === Spine — vertebrae running east-west along y~1.0 ===
+poly 0.32,1.02 0.40,0.98 0.40,1.06 0.32,1.06 fill #d4c4a8 0.9
+poly 0.32,1.02 0.40,0.98 0.40,1.06 0.32,1.06 stroke #6b5c48
+circle 0.36,1.02 0.012 fill #3a2818 0.9
+poly 0.42,1.00 0.50,0.98 0.50,1.06 0.42,1.06 fill #e8dcc8 0.9
+poly 0.42,1.00 0.50,0.98 0.50,1.06 0.42,1.06 stroke #6b5c48
+circle 0.46,1.02 0.012 fill #3a2818 0.9
+poly 0.52,0.99 0.60,0.97 0.60,1.06 0.52,1.06 fill #d4c4a8 0.9
+poly 0.52,0.99 0.60,0.97 0.60,1.06 0.52,1.06 stroke #6b5c48
+circle 0.56,1.01 0.012 fill #3a2818 0.9
+poly 0.62,0.98 0.70,0.96 0.70,1.05 0.62,1.05 fill #e8dcc8 0.9
+poly 0.62,0.98 0.70,0.96 0.70,1.05 0.62,1.05 stroke #6b5c48
+circle 0.66,1.00 0.012 fill #3a2818 0.9
+poly 0.72,0.97 0.80,0.96 0.80,1.04 0.72,1.05 fill #d4c4a8 0.9
+poly 0.72,0.97 0.80,0.96 0.80,1.04 0.72,1.05 stroke #6b5c48
+circle 0.76,1.00 0.012 fill #3a2818 0.9
+poly 0.82,0.96 0.90,0.95 0.90,1.04 0.82,1.04 fill #e8dcc8 0.9
+poly 0.82,0.96 0.90,0.95 0.90,1.04 0.82,1.04 stroke #6b5c48
+circle 0.86,0.99 0.012 fill #3a2818 0.9
+poly 0.92,0.95 1.00,0.94 1.00,1.03 0.92,1.04 fill #d4c4a8 0.9
+poly 0.92,0.95 1.00,0.94 1.00,1.03 0.92,1.04 stroke #6b5c48
+circle 0.96,0.98 0.012 fill #3a2818 0.9
+poly 1.02,0.95 1.10,0.94 1.10,1.03 1.02,1.03 fill #e8dcc8 0.9
+poly 1.02,0.95 1.10,0.94 1.10,1.03 1.02,1.03 stroke #6b5c48
+circle 1.06,0.98 0.012 fill #3a2818 0.9
+poly 1.12,0.95 1.20,0.94 1.20,1.03 1.12,1.03 fill #d4c4a8 0.9
+poly 1.12,0.95 1.20,0.94 1.20,1.03 1.12,1.03 stroke #6b5c48
+circle 1.16,0.98 0.012 fill #3a2818 0.9
+poly 1.22,0.95 1.30,0.94 1.30,1.03 1.22,1.03 fill #e8dcc8 0.9
+poly 1.22,0.95 1.30,0.94 1.30,1.03 1.22,1.03 stroke #6b5c48
+circle 1.26,0.98 0.012 fill #3a2818 0.9
+poly 1.32,0.95 1.40,0.96 1.40,1.04 1.32,1.03 fill #d4c4a8 0.9
+poly 1.32,0.95 1.40,0.96 1.40,1.04 1.32,1.03 stroke #6b5c48
+circle 1.36,0.99 0.012 fill #3a2818 0.9
+poly 1.42,0.96 1.50,0.97 1.50,1.05 1.42,1.04 fill #e8dcc8 0.9
+poly 1.42,0.96 1.50,0.97 1.50,1.05 1.42,1.04 stroke #6b5c48
+circle 1.46,1.00 0.012 fill #3a2818 0.9
+
+# === Ribcage — rib arcs sweeping south from spine ===
+bezier 0.55,1.04 0.56,1.18 0.56,1.30 0.54,1.38 stroke #d4c4a8 width 2
+bezier 0.55,1.04 0.56,1.18 0.56,1.30 0.54,1.38 stroke #6b5c48 width 1
+bezier 0.68,1.03 0.70,1.20 0.72,1.34 0.70,1.42 stroke #e8dcc8 width 2
+bezier 0.68,1.03 0.70,1.20 0.72,1.34 0.70,1.42 stroke #6b5c48 width 1
+bezier 0.81,1.02 0.84,1.22 0.86,1.36 0.84,1.44 stroke #d4c4a8 width 2
+bezier 0.81,1.02 0.84,1.22 0.86,1.36 0.84,1.44 stroke #6b5c48 width 1
+bezier 0.94,1.01 0.98,1.22 1.00,1.36 0.98,1.44 stroke #e8dcc8 width 2
+bezier 0.94,1.01 0.98,1.22 1.00,1.36 0.98,1.44 stroke #6b5c48 width 1
+bezier 1.07,1.01 1.10,1.22 1.12,1.34 1.10,1.42 stroke #d4c4a8 width 2
+bezier 1.07,1.01 1.10,1.22 1.12,1.34 1.10,1.42 stroke #6b5c48 width 1
+bezier 1.20,1.01 1.22,1.20 1.22,1.32 1.20,1.40 stroke #e8dcc8 width 2
+bezier 1.20,1.01 1.22,1.20 1.22,1.32 1.20,1.40 stroke #6b5c48 width 1
+bezier 1.33,1.02 1.34,1.18 1.32,1.28 1.30,1.36 stroke #d4c4a8 width 2
+bezier 1.33,1.02 1.34,1.18 1.32,1.28 1.30,1.36 stroke #6b5c48 width 1
+
+# === Pelvis (west end) — broader bone plate with hip joints ===
+poly 0.18,0.90 0.26,0.86 0.36,0.88 0.40,0.96 0.38,1.08 0.32,1.14 0.22,1.12 0.16,1.04 fill #d4c4a8 0.9
+poly 0.18,0.90 0.26,0.86 0.36,0.88 0.40,0.96 0.38,1.08 0.32,1.14 0.22,1.12 0.16,1.04 stroke #6b5c48
+circle 0.26,0.94 0.028 fill #3a2818 0.7
+circle 0.28,1.06 0.028 fill #3a2818 0.7
+
+# === Skull (east end) — elongated pony skull, long and narrow ===
+poly 1.52,0.96 1.60,0.92 1.72,0.92 1.82,0.95 1.88,1.00 1.86,1.08 1.78,1.12 1.66,1.13 1.56,1.10 1.50,1.04 fill #e8dcc8 0.95
+poly 1.52,0.96 1.60,0.92 1.72,0.92 1.82,0.95 1.88,1.00 1.86,1.08 1.78,1.12 1.66,1.13 1.56,1.10 1.50,1.04 stroke #6b5c48
+# Eye sockets
+circle 1.64,1.00 0.028 fill #1a1010 0.92
+circle 1.72,0.99 0.028 fill #1a1010 0.92
+# Nasal cavity — teardrop-shaped
+poly 1.82,1.02 1.86,1.04 1.84,1.08 1.80,1.07 fill #1a1010 0.9
+# Jaw/cheek line
+line 1.58,1.08 1.78,1.10 stroke #6b5c48 width 1
+# Teeth hints (small molars)
+line 1.76,1.10 1.76,1.13 stroke #6b5c48 width 1
+line 1.72,1.11 1.72,1.14 stroke #6b5c48 width 1
+
+# === Front legs (east end, near skull) — two bone segments each ===
+# Front-upper leg 1
+poly 1.30,1.02 1.40,1.06 1.42,1.18 1.32,1.16 fill #c8b898 0.85
+poly 1.30,1.02 1.40,1.06 1.42,1.18 1.32,1.16 stroke #6b5c48
+circle 1.36,1.17 0.022 fill #3a2818 0.8
+# Front-lower leg 1 (radius)
+poly 1.32,1.18 1.42,1.20 1.46,1.36 1.36,1.38 fill #d4c4a8 0.85
+poly 1.32,1.18 1.42,1.20 1.46,1.36 1.36,1.38 stroke #6b5c48
+# Hoof 1
+ellipse 1.42,1.40 0.04,0.025 fill #2a1408 0.9
+# Front-upper leg 2 (splayed differently)
+poly 1.44,1.02 1.52,1.04 1.54,1.16 1.46,1.16 fill #c8b898 0.85
+poly 1.44,1.02 1.52,1.04 1.54,1.16 1.46,1.16 stroke #6b5c48
+circle 1.50,1.17 0.022 fill #3a2818 0.8
+# Front-lower leg 2
+poly 1.48,1.18 1.56,1.18 1.60,1.32 1.52,1.34 fill #d4c4a8 0.85
+poly 1.48,1.18 1.56,1.18 1.60,1.32 1.52,1.34 stroke #6b5c48
+ellipse 1.56,1.36 0.04,0.025 fill #2a1408 0.9
+
+# === Rear legs (west end, near pelvis) ===
+# Rear-upper leg 1 (femur, bent)
+poly 0.30,1.10 0.42,1.12 0.44,1.26 0.32,1.26 fill #c8b898 0.85
+poly 0.30,1.10 0.42,1.12 0.44,1.26 0.32,1.26 stroke #6b5c48
+circle 0.38,1.26 0.022 fill #3a2818 0.8
+# Rear-lower leg 1 (tibia)
+poly 0.34,1.28 0.44,1.26 0.50,1.40 0.40,1.42 fill #d4c4a8 0.85
+poly 0.34,1.28 0.44,1.26 0.50,1.40 0.40,1.42 stroke #6b5c48
+ellipse 0.46,1.44 0.04,0.025 fill #2a1408 0.9
+# Rear-upper leg 2
+poly 0.20,1.14 0.30,1.14 0.32,1.28 0.22,1.28 fill #c8b898 0.85
+poly 0.20,1.14 0.30,1.14 0.32,1.28 0.22,1.28 stroke #6b5c48
+circle 0.26,1.28 0.022 fill #3a2818 0.8
+# Rear-lower leg 2
+poly 0.18,1.30 0.28,1.28 0.30,1.46 0.20,1.48 fill #d4c4a8 0.85
+poly 0.18,1.30 0.28,1.28 0.30,1.46 0.20,1.48 stroke #6b5c48
+ellipse 0.24,1.50 0.04,0.025 fill #2a1408 0.9
+
+# === Leather harness remnants ===
+# Strap across the ribcage (girth strap)
+poly 0.86,0.86 0.98,0.86 1.00,1.46 0.88,1.46 fill #2a1408 0.75
+poly 0.86,0.86 0.98,0.86 1.00,1.46 0.88,1.46 texfill polyhaven/brown_leather 0.4
+poly 0.86,0.86 0.98,0.86 1.00,1.46 0.88,1.46 stroke #1a0a04
+# Strap across skull (bridle noseband)
+poly 1.66,0.88 1.82,0.90 1.82,0.98 1.66,0.96 fill #2a1408 0.75
+poly 1.66,0.88 1.82,0.90 1.82,0.98 1.66,0.96 texfill polyhaven/brown_leather 0.4
+poly 1.66,0.88 1.82,0.90 1.82,0.98 1.66,0.96 stroke #1a0a04
+# Cheek strap trailing back from bridle
+poly 1.52,1.00 1.66,0.96 1.66,1.02 1.52,1.06 fill #1a0a04 0.7
+# Rusted iron buckle on the girth strap
+rect 0.89,1.18 0.05,0.06 fill #444444 0.9
+rect 0.89,1.18 0.05,0.06 stroke #222222
+circle 0.915,1.21 0.018 stroke #222222 width 1
+
+# === Scattered smaller loose bones nearby ===
+# Disconnected hoof bone in the dust (south of ribcage)
+ellipse 1.10,1.62 0.045,0.028 fill #2a1408 0.85
+ellipse 1.10,1.62 0.045,0.028 stroke #1a0a04
+# Loose rib fragment
+bezier 0.48,1.58 0.52,1.64 0.58,1.66 0.62,1.62 stroke #d4c4a8 width 2
+bezier 0.48,1.58 0.52,1.64 0.58,1.66 0.62,1.62 stroke #6b5c48 width 1
+# Small bone chip
+poly 1.60,1.52 1.68,1.50 1.70,1.56 1.62,1.58 fill #e8dcc8 0.85
+poly 1.60,1.52 1.68,1.50 1.70,1.56 1.62,1.58 stroke #6b5c48

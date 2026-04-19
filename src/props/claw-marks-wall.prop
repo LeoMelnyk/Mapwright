@@ -1,0 +1,46 @@
+name: Wall Claw Marks
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: monster-lair-small, cave-bear-lair, owlbear-den, cave
+typical_count: few
+clusters_with: blood-smear, blood-stain, tuft-of-fur, gnawed-bone, carcass-fresh
+notes: Parallel deep claw gouges scoring the wall — place against walls where a predator marked its territory. Rotation handled automatically by fillWallWithProps.
+---
+# Faint wider scuff behind the gouges (where claw knuckles scraped)
+rect 0.08,0.02 0.84,0.18 fill #3a2418 0.35
+
+# Main gouge 1 (westmost — curved, deepest)
+bezier 0.12,0.04 0.20,0.08 0.28,0.12 0.34,0.22 stroke #1a0f08 width 4
+bezier 0.12,0.04 0.20,0.08 0.28,0.12 0.34,0.22 stroke #3a2010 0.7 width 2
+
+# Main gouge 2
+bezier 0.32,0.03 0.40,0.08 0.46,0.14 0.50,0.24 stroke #1a0f08 width 4
+bezier 0.32,0.03 0.40,0.08 0.46,0.14 0.50,0.24 stroke #3a2010 0.7 width 2
+
+# Main gouge 3
+bezier 0.54,0.03 0.60,0.08 0.64,0.14 0.66,0.24 stroke #1a0f08 width 4
+bezier 0.54,0.03 0.60,0.08 0.64,0.14 0.66,0.24 stroke #3a2010 0.7 width 2
+
+# Main gouge 4 (eastmost — slightly shorter, ragged)
+bezier 0.76,0.04 0.82,0.10 0.84,0.16 0.86,0.22 stroke #1a0f08 width 4
+bezier 0.76,0.04 0.82,0.10 0.84,0.16 0.86,0.22 stroke #3a2010 0.7 width 2
+
+# Secondary scratch detail lines (lighter) running parallel
+bezier 0.16,0.06 0.22,0.10 0.28,0.14 0.34,0.20 stroke #6a4828 0.6 width 1
+bezier 0.36,0.06 0.42,0.10 0.46,0.14 0.50,0.20 stroke #6a4828 0.6 width 1
+bezier 0.58,0.06 0.62,0.10 0.64,0.14 0.66,0.20 stroke #6a4828 0.6 width 1
+
+# Small chips / gouge terminations (dark pits at gouge ends)
+circle 0.34,0.22 0.022 fill #1a0f08 0.9
+circle 0.50,0.24 0.024 fill #1a0f08 0.9
+circle 0.66,0.24 0.022 fill #1a0f08 0.9
+circle 0.86,0.22 0.02 fill #1a0f08 0.85
+
+# Dust / stone flake debris scattered south of the gouges
+circle 0.26,0.28 0.012 fill #5a4838 0.7
+circle 0.58,0.30 0.01 fill #5a4838 0.7
+circle 0.78,0.28 0.01 fill #5a4838 0.6

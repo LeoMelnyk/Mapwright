@@ -1,86 +1,15 @@
 {
-  "generatedAt": "2026-04-12T19:24:26.419Z",
+  "generatedAt": "2026-04-16T01:38:06.120Z",
   "totalSpecs": 160,
   "totalUniquePropsReferenced": 1375,
-  "existingProps": 198,
-  "missingProps": 1177,
+  "existingProps": 1120,
+  "missingProps": 313,
   "missing": [
     {
       "prop": "abacus",
       "usedInSpecs": 1,
       "specs": [
         "counting-house"
-      ]
-    },
-    {
-      "prop": "acid-etched-altar",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "adze",
-      "usedInSpecs": 1,
-      "specs": [
-        "cooperage"
-      ]
-    },
-    {
-      "prop": "air-node-vortex",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "air-node-wisp",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "algae-bloom",
-      "usedInSpecs": 1,
-      "specs": [
-        "cistern"
-      ]
-    },
-    {
-      "prop": "altar-sacrificial",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "altar-stone-flat",
-      "usedInSpecs": 2,
-      "specs": [
-        "ancient-ruin-overgrown",
-        "standing-stones-circle"
-      ]
-    },
-    {
-      "prop": "altar-wooden",
-      "usedInSpecs": 1,
-      "specs": [
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "ancestor-portrait",
-      "usedInSpecs": 1,
-      "specs": [
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "anchor-post",
-      "usedInSpecs": 1,
-      "specs": [
-        "chasm-crossing"
       ]
     },
     {
@@ -91,68 +20,10 @@
       ]
     },
     {
-      "prop": "anemone-glow",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "anemone-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
       "prop": "animal-pen-partition",
       "usedInSpecs": 1,
       "specs": [
         "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "animal-skull",
-      "usedInSpecs": 1,
-      "specs": [
-        "alchemy-lab"
-      ]
-    },
-    {
-      "prop": "animal-skull-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "bog-witch-hut"
-      ]
-    },
-    {
-      "prop": "animal-tracks",
-      "usedInSpecs": 2,
-      "specs": [
-        "ancient-ruin-overgrown",
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "annealing-oven",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "antler-offering",
-      "usedInSpecs": 1,
-      "specs": [
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "antler-pile",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-trapper",
-        "hunting-lodge-large"
       ]
     },
     {
@@ -163,60 +34,10 @@
       ]
     },
     {
-      "prop": "anvil-devil",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-forge"
-      ]
-    },
-    {
-      "prop": "apple-barrel",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "apple-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "apron-clay",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
       "prop": "apron-floured",
       "usedInSpecs": 1,
       "specs": [
         "bakery"
-      ]
-    },
-    {
-      "prop": "apron-hung",
-      "usedInSpecs": 2,
-      "specs": [
-        "farmhouse-kitchen",
-        "house-medium-artisan"
-      ]
-    },
-    {
-      "prop": "arcane-experiment-core",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "arcane-sigil",
-      "usedInSpecs": 1,
-      "specs": [
-        "workshop-artificer"
       ]
     },
     {
@@ -227,147 +48,10 @@
       ]
     },
     {
-      "prop": "arrow-broken",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "arrow-bundle",
-      "usedInSpecs": 3,
-      "specs": [
-        "armory",
-        "gatehouse-inner",
-        "shop-weaponsmith"
-      ]
-    },
-    {
-      "prop": "arrow-cluster-ground",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "arrow-fletching",
-      "usedInSpecs": 3,
-      "specs": [
-        "hunting-lodge-large",
-        "ranger-camp",
-        "scouts-blind"
-      ]
-    },
-    {
       "prop": "arrow-slit-wall",
       "usedInSpecs": 1,
       "specs": [
         "gatehouse-inner"
-      ]
-    },
-    {
-      "prop": "arrow-stuck",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "ash-pile",
-      "usedInSpecs": 7,
-      "specs": [
-        "cave-bandit-camp",
-        "charcoal-burner-camp",
-        "elemental-fire-node",
-        "goblin-warren-entrance",
-        "orc-war-camp",
-        "shepherds-shelter",
-        "toll-bridge-house"
-      ]
-    },
-    {
-      "prop": "ashes-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "astral-anchor-stone",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "astral-lantern",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "auction-block",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-square"
-      ]
-    },
-    {
-      "prop": "axe-head",
-      "usedInSpecs": 2,
-      "specs": [
-        "lumberyard",
-        "mill-lumber"
-      ]
-    },
-    {
-      "prop": "axe-stuck",
-      "usedInSpecs": 1,
-      "specs": [
-        "charcoal-burner-camp"
-      ]
-    },
-    {
-      "prop": "ballast-stones",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-cargo-hold"
-      ]
-    },
-    {
-      "prop": "banner-celestial",
-      "usedInSpecs": 1,
-      "specs": [
-        "celestial-vault"
-      ]
-    },
-    {
-      "prop": "banner-fallen",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "banner-heraldic",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "banner-infernal",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-court"
-      ]
-    },
-    {
-      "prop": "banner-religious",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
       ]
     },
     {
@@ -378,59 +62,10 @@
       ]
     },
     {
-      "prop": "barrel-open",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "barrel-salt-pork",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "bars-cell-partition",
-      "usedInSpecs": 1,
-      "specs": [
-        "prison-block"
-      ]
-    },
-    {
-      "prop": "basalt-pillar",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
       "prop": "basket",
       "usedInSpecs": 1,
       "specs": [
         "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "basket-wool",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-common"
-      ]
-    },
-    {
-      "prop": "bat-guano",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-living"
-      ]
-    },
-    {
-      "prop": "bath-pool",
-      "usedInSpecs": 1,
-      "specs": [
-        "bath-house"
       ]
     },
     {
@@ -441,68 +76,10 @@
       ]
     },
     {
-      "prop": "bedroll",
-      "usedInSpecs": 16,
-      "specs": [
-        "barracks",
-        "cabin-abandoned",
-        "cabin-hunters",
-        "cabin-trapper",
-        "cabin-witch",
-        "campsite-traveler",
-        "cave-bandit-camp",
-        "cave-goblin-warren",
-        "charcoal-burner-camp",
-        "hermit-cell",
-        "ranger-camp",
-        "ruined-watchtower",
-        "scouts-blind",
-        "shepherds-shelter",
-        "ship-brig",
-        "underdark-outpost"
-      ]
-    },
-    {
-      "prop": "bedroll-hide",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "belaying-pin-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
-      ]
-    },
-    {
       "prop": "bell-small",
       "usedInSpecs": 1,
       "specs": [
         "shrine-roadside"
-      ]
-    },
-    {
-      "prop": "bellows-giant",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-forge"
-      ]
-    },
-    {
-      "prop": "bellows-hand",
-      "usedInSpecs": 2,
-      "specs": [
-        "forge",
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "bench-astral",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
       ]
     },
     {
@@ -513,46 +90,10 @@
       ]
     },
     {
-      "prop": "bench-upholstered",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "bilge-puddle",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-cargo-hold"
-      ]
-    },
-    {
-      "prop": "bird-nest",
-      "usedInSpecs": 2,
-      "specs": [
-        "ancient-ruin-overgrown",
-        "ruined-watchtower"
-      ]
-    },
-    {
       "prop": "blanket-folded",
       "usedInSpecs": 1,
       "specs": [
         "shop-general"
-      ]
-    },
-    {
-      "prop": "blast-furnace",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
-      "prop": "blocks-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
       ]
     },
     {
@@ -563,37 +104,6 @@
       ]
     },
     {
-      "prop": "blood-pool",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "blood-smear",
-      "usedInSpecs": 3,
-      "specs": [
-        "butcher-shop",
-        "monster-lair-small",
-        "thieves-guild-hideout"
-      ]
-    },
-    {
-      "prop": "blood-stain",
-      "usedInSpecs": 1,
-      "specs": [
-        "prison-block"
-      ]
-    },
-    {
-      "prop": "bloodstain",
-      "usedInSpecs": 2,
-      "specs": [
-        "dark-temple",
-        "ritual-chamber"
-      ]
-    },
-    {
       "prop": "bloodstain-large",
       "usedInSpecs": 1,
       "specs": [
@@ -601,25 +111,10 @@
       ]
     },
     {
-      "prop": "bloody-rag",
-      "usedInSpecs": 2,
-      "specs": [
-        "interrogation-room",
-        "torture-chamber"
-      ]
-    },
-    {
       "prop": "blotting-rag",
       "usedInSpecs": 1,
       "specs": [
         "scriptorium-mundane"
-      ]
-    },
-    {
-      "prop": "blowpipe",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
       ]
     },
     {
@@ -637,76 +132,10 @@
       ]
     },
     {
-      "prop": "bone-charm",
-      "usedInSpecs": 1,
-      "specs": [
-        "bog-witch-hut"
-      ]
-    },
-    {
-      "prop": "bone-marker",
-      "usedInSpecs": 3,
-      "specs": [
-        "burial-mound",
-        "druid-grove",
-        "standing-stones-circle"
-      ]
-    },
-    {
       "prop": "bone-specimen",
       "usedInSpecs": 1,
       "specs": [
         "shop-apothecary"
-      ]
-    },
-    {
-      "prop": "bone-totem-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "bonfire",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "bonfire-large",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "book-bedside",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
-      ]
-    },
-    {
-      "prop": "bookmark",
-      "usedInSpecs": 2,
-      "specs": [
-        "library",
-        "shop-bookseller"
-      ]
-    },
-    {
-      "prop": "bookmark-ribbons",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-library"
-      ]
-    },
-    {
-      "prop": "bookshelf-child",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
       ]
     },
     {
@@ -716,29 +145,6 @@
         "library",
         "lighthouse-keepers-room",
         "ship-captains-cabin"
-      ]
-    },
-    {
-      "prop": "bookshelf-tall",
-      "usedInSpecs": 2,
-      "specs": [
-        "demiplane-laboratory",
-        "library"
-      ]
-    },
-    {
-      "prop": "boot-muddy",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-hunters",
-        "cabin-trapper"
-      ]
-    },
-    {
-      "prop": "boot-worn",
-      "usedInSpecs": 1,
-      "specs": [
-        "apartment-tenement"
       ]
     },
     {
@@ -756,38 +162,10 @@
       ]
     },
     {
-      "prop": "boots-drying",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "bottle",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
-      ]
-    },
-    {
       "prop": "bottle-empty",
       "usedInSpecs": 1,
       "specs": [
         "cave-bandit-camp"
-      ]
-    },
-    {
-      "prop": "bottle-nursing",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "bouquet",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
       ]
     },
     {
@@ -805,39 +183,10 @@
       ]
     },
     {
-      "prop": "bowl-stew",
-      "usedInSpecs": 2,
-      "specs": [
-        "inn-common-room",
-        "tavern-common"
-      ]
-    },
-    {
       "prop": "branding-iron",
       "usedInSpecs": 1,
       "specs": [
         "torture-chamber"
-      ]
-    },
-    {
-      "prop": "brass-candlestick",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "brass-lamp",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "brazier-dead",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
       ]
     },
     {
@@ -852,39 +201,6 @@
       "usedInSpecs": 1,
       "specs": [
         "shepherds-shelter"
-      ]
-    },
-    {
-      "prop": "bread-heel",
-      "usedInSpecs": 4,
-      "specs": [
-        "apartment-tenement",
-        "bakery",
-        "peasant-hovel",
-        "tavern-common"
-      ]
-    },
-    {
-      "prop": "bread-loaf",
-      "usedInSpecs": 10,
-      "specs": [
-        "bakery",
-        "farmhouse-common",
-        "house-medium-artisan",
-        "house-medium-family",
-        "house-small",
-        "inn-common-room",
-        "market-stall",
-        "mess-hall",
-        "monastery-refectory",
-        "shop-general"
-      ]
-    },
-    {
-      "prop": "brewing-kettle",
-      "usedInSpecs": 1,
-      "specs": [
-        "brewery"
       ]
     },
     {
@@ -909,120 +225,10 @@
       ]
     },
     {
-      "prop": "broken-arrow",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "broken-arrow-slit",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "broken-binding",
-      "usedInSpecs": 1,
-      "specs": [
-        "library"
-      ]
-    },
-    {
-      "prop": "broken-blade",
-      "usedInSpecs": 2,
-      "specs": [
-        "mill-lumber",
-        "shop-weaponsmith"
-      ]
-    },
-    {
-      "prop": "broken-bottle",
-      "usedInSpecs": 1,
-      "specs": [
-        "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "broken-bridge-stub",
-      "usedInSpecs": 1,
-      "specs": [
-        "chasm-crossing"
-      ]
-    },
-    {
-      "prop": "broken-crate",
-      "usedInSpecs": 3,
-      "specs": [
-        "dock-warehouse",
-        "sewer-junction",
-        "ship-cargo-hold"
-      ]
-    },
-    {
-      "prop": "broken-fingernail-scratch",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
-      ]
-    },
-    {
-      "prop": "broken-glassware",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "broken-pickaxe",
-      "usedInSpecs": 1,
-      "specs": [
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "broken-plank",
-      "usedInSpecs": 1,
-      "specs": [
-        "chasm-crossing"
-      ]
-    },
-    {
       "prop": "broken-plate",
       "usedInSpecs": 1,
       "specs": [
         "servants-kitchen"
-      ]
-    },
-    {
-      "prop": "broken-pot",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "broken-pottery",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-square"
-      ]
-    },
-    {
-      "prop": "broken-shield",
-      "usedInSpecs": 3,
-      "specs": [
-        "battlefield-recent",
-        "monster-lair-small",
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "broken-spear",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
       ]
     },
     {
@@ -1040,117 +246,10 @@
       ]
     },
     {
-      "prop": "broken-sword",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "broken-tooth",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
-      ]
-    },
-    {
-      "prop": "broken-vial",
-      "usedInSpecs": 1,
-      "specs": [
-        "alchemy-lab"
-      ]
-    },
-    {
-      "prop": "broken-weapon",
-      "usedInSpecs": 2,
-      "specs": [
-        "boss-chamber",
-        "cave-goblin-warren"
-      ]
-    },
-    {
-      "prop": "broom",
-      "usedInSpecs": 7,
-      "specs": [
-        "brewery",
-        "farmhouse-common",
-        "house-small",
-        "market-stall",
-        "mill-grain",
-        "peasant-hovel",
-        "shop-general"
-      ]
-    },
-    {
       "prop": "brush-blind",
       "usedInSpecs": 1,
       "specs": [
         "scouts-blind"
-      ]
-    },
-    {
-      "prop": "bubble-drift",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "bubble-pillar",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "bucket",
-      "usedInSpecs": 9,
-      "specs": [
-        "dock-warehouse",
-        "guard-post",
-        "prison-block",
-        "ship-brig",
-        "ship-cargo-hold",
-        "ship-crew-quarters",
-        "ship-gun-deck",
-        "ship-main-deck",
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "bucket-on-rope",
-      "usedInSpecs": 1,
-      "specs": [
-        "cistern"
-      ]
-    },
-    {
-      "prop": "bucket-stained",
-      "usedInSpecs": 2,
-      "specs": [
-        "butcher-shop",
-        "tannery"
-      ]
-    },
-    {
-      "prop": "bucket-water",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "buffet-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "building-blocks",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
       ]
     },
     {
@@ -1161,77 +260,10 @@
       ]
     },
     {
-      "prop": "bunk-bed",
-      "usedInSpecs": 2,
-      "specs": [
-        "barracks",
-        "mansion-servants-quarters"
-      ]
-    },
-    {
-      "prop": "bunting-line",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "burner-shelter",
-      "usedInSpecs": 1,
-      "specs": [
-        "charcoal-burner-camp"
-      ]
-    },
-    {
-      "prop": "bush-berry",
-      "usedInSpecs": 1,
-      "specs": [
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "bust-on-pedestal",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-grand-hall",
-        "mansion-library"
-      ]
-    },
-    {
-      "prop": "butchery-pit",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "butter-churn",
-      "usedInSpecs": 2,
-      "specs": [
-        "farmhouse-common",
-        "farmhouse-kitchen"
-      ]
-    },
-    {
       "prop": "butterfly-cloud",
       "usedInSpecs": 1,
       "specs": [
         "forest-clearing"
-      ]
-    },
-    {
-      "prop": "buttons-jar",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
-      ]
-    },
-    {
-      "prop": "cabbage",
-      "usedInSpecs": 2,
-      "specs": [
-        "apartment-tenement",
-        "peasant-hovel"
       ]
     },
     {
@@ -1242,63 +274,10 @@
       ]
     },
     {
-      "prop": "cabinet-liquor",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-captains-cabin"
-      ]
-    },
-    {
       "prop": "cage-wicker",
       "usedInSpecs": 1,
       "specs": [
         "cave-goblin-warren"
-      ]
-    },
-    {
-      "prop": "cairn-sacred",
-      "usedInSpecs": 4,
-      "specs": [
-        "burial-mound",
-        "druid-grove",
-        "shrine-roadside",
-        "standing-stones-circle"
-      ]
-    },
-    {
-      "prop": "calling-card-tray",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-noble-townhouse",
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "campaign-ledger",
-      "usedInSpecs": 1,
-      "specs": [
-        "command-room"
-      ]
-    },
-    {
-      "prop": "campfire-abandoned",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "campfire-cold",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "candelabra-tall",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
       ]
     },
     {
@@ -1309,133 +288,10 @@
       ]
     },
     {
-      "prop": "candle-dipped",
-      "usedInSpecs": 6,
-      "specs": [
-        "alchemy-lab",
-        "house-small",
-        "library",
-        "shrine-roadside",
-        "tavern-common",
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "candle-guttered",
-      "usedInSpecs": 2,
-      "specs": [
-        "graveyard-village",
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "candle-miner",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "candle-night-light",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "candle-red",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "candle-stub",
-      "usedInSpecs": 3,
-      "specs": [
-        "apartment-tenement",
-        "mansion-servants-quarters",
-        "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "candle-violet",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
-      "prop": "cannon-swivel",
-      "usedInSpecs": 2,
-      "specs": [
-        "ship-gun-deck",
-        "ship-main-deck"
-      ]
-    },
-    {
-      "prop": "cannon-tackle",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
-      "prop": "canopy-bed",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-bedroom-master",
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "canvas-awning",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "captains-bunk",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-captains-cabin"
-      ]
-    },
-    {
-      "prop": "carcass-fresh",
-      "usedInSpecs": 2,
-      "specs": [
-        "cave-bear-lair",
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "card-catalog",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-library"
-      ]
-    },
-    {
       "prop": "card-table",
       "usedInSpecs": 1,
       "specs": [
         "gambling-den"
-      ]
-    },
-    {
-      "prop": "cargo-hatch",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
-      ]
-    },
-    {
-      "prop": "cargo-lashing",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-cargo-hold"
       ]
     },
     {
@@ -1446,39 +302,10 @@
       ]
     },
     {
-      "prop": "cart-track",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "carved-rune-stone",
-      "usedInSpecs": 2,
-      "specs": [
-        "ancient-ruin-overgrown",
-        "standing-stones-circle"
-      ]
-    },
-    {
       "prop": "carved-stick",
       "usedInSpecs": 1,
       "specs": [
         "shepherds-shelter"
-      ]
-    },
-    {
-      "prop": "casting-pit",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
-      "prop": "cat-begging",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
       ]
     },
     {
@@ -1489,91 +316,6 @@
       ]
     },
     {
-      "prop": "cat-sleeping",
-      "usedInSpecs": 12,
-      "specs": [
-        "bakery",
-        "farmhouse-common",
-        "house-medium-artisan",
-        "house-medium-family",
-        "inn-common-room",
-        "lumberyard",
-        "mansion-library",
-        "mill-grain",
-        "shop-bookseller",
-        "shop-general",
-        "tavern-common",
-        "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "cauldron-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "alchemy-lab"
-      ]
-    },
-    {
-      "prop": "cave-cricket",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-living"
-      ]
-    },
-    {
-      "prop": "cave-mouth-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "celestial-globe",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-library"
-      ]
-    },
-    {
-      "prop": "celestial-pillar-of-light",
-      "usedInSpecs": 1,
-      "specs": [
-        "celestial-vault"
-      ]
-    },
-    {
-      "prop": "celestial-scales",
-      "usedInSpecs": 1,
-      "specs": [
-        "celestial-vault"
-      ]
-    },
-    {
-      "prop": "cell-door",
-      "usedInSpecs": 1,
-      "specs": [
-        "prison-block"
-      ]
-    },
-    {
-      "prop": "chain-coil",
-      "usedInSpecs": 4,
-      "specs": [
-        "cistern",
-        "infernal-court",
-        "infernal-forge",
-        "torture-chamber"
-      ]
-    },
-    {
-      "prop": "chain-heavy",
-      "usedInSpecs": 2,
-      "specs": [
-        "chasm-crossing",
-        "ship-brig"
-      ]
-    },
-    {
       "prop": "chain-shackle",
       "usedInSpecs": 1,
       "specs": [
@@ -1581,53 +323,10 @@
       ]
     },
     {
-      "prop": "chair-broken",
-      "usedInSpecs": 1,
-      "specs": [
-        "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "chair-restraint",
-      "usedInSpecs": 2,
-      "specs": [
-        "interrogation-room",
-        "torture-chamber"
-      ]
-    },
-    {
-      "prop": "chair-upholstered",
-      "usedInSpecs": 3,
-      "specs": [
-        "house-merchant",
-        "library",
-        "tavern-common"
-      ]
-    },
-    {
-      "prop": "chair-wooden",
-      "usedInSpecs": 3,
-      "specs": [
-        "house-merchant",
-        "house-small",
-        "tavern-common"
-      ]
-    },
-    {
       "prop": "chalk-circle-floor",
       "usedInSpecs": 1,
       "specs": [
         "cabin-witch"
-      ]
-    },
-    {
-      "prop": "chalk-mark",
-      "usedInSpecs": 4,
-      "specs": [
-        "cooperage",
-        "shop-tailor",
-        "textile-loomhouse",
-        "thieves-guild-hideout"
       ]
     },
     {
@@ -1645,70 +344,10 @@
       ]
     },
     {
-      "prop": "chamber-pot-stand",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
-      ]
-    },
-    {
-      "prop": "chandelier-grand",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "chandelier-small",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-merchant",
-        "tavern-common"
-      ]
-    },
-    {
-      "prop": "charcoal-kiln",
-      "usedInSpecs": 1,
-      "specs": [
-        "charcoal-burner-camp"
-      ]
-    },
-    {
-      "prop": "charcoal-lump",
-      "usedInSpecs": 1,
-      "specs": [
-        "charcoal-burner-camp"
-      ]
-    },
-    {
-      "prop": "chart-rolled",
-      "usedInSpecs": 2,
-      "specs": [
-        "lighthouse-keepers-room",
-        "ship-captains-cabin"
-      ]
-    },
-    {
-      "prop": "cheese-wheel",
-      "usedInSpecs": 3,
-      "specs": [
-        "farmhouse-common",
-        "farmhouse-kitchen",
-        "pantry"
-      ]
-    },
-    {
       "prop": "chess-set",
       "usedInSpecs": 1,
       "specs": [
         "noble-solar"
-      ]
-    },
-    {
-      "prop": "chest-ornate",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
       ]
     },
     {
@@ -1733,24 +372,10 @@
       ]
     },
     {
-      "prop": "chicken-crate",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-square"
-      ]
-    },
-    {
       "prop": "chicken-loose",
       "usedInSpecs": 1,
       "specs": [
         "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "chieftains-throne",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
       ]
     },
     {
@@ -1761,68 +386,10 @@
       ]
     },
     {
-      "prop": "child-bed",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "child-doll-rag",
-      "usedInSpecs": 1,
-      "specs": [
-        "apartment-tenement"
-      ]
-    },
-    {
-      "prop": "child-wooden-toy",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-common"
-      ]
-    },
-    {
-      "prop": "children-toys",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "china-cabinet",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
-      ]
-    },
-    {
       "prop": "chips-stack",
       "usedInSpecs": 1,
       "specs": [
         "gambling-den"
-      ]
-    },
-    {
-      "prop": "chisel",
-      "usedInSpecs": 2,
-      "specs": [
-        "general-workshop",
-        "temple-of-craft"
-      ]
-    },
-    {
-      "prop": "chitin-barrier",
-      "usedInSpecs": 2,
-      "specs": [
-        "cave-drow-outpost",
-        "underdark-outpost"
-      ]
-    },
-    {
-      "prop": "chopped-vegetables",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
       ]
     },
     {
@@ -1833,13 +400,6 @@
       ]
     },
     {
-      "prop": "cigarette-stub",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
-      ]
-    },
-    {
       "prop": "claw-marked-wall",
       "usedInSpecs": 1,
       "specs": [
@@ -1847,48 +407,10 @@
       ]
     },
     {
-      "prop": "claw-marks-wall",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
-      "prop": "clay-bin",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-medium-artisan",
-        "kiln-pottery"
-      ]
-    },
-    {
       "prop": "clay-cup",
       "usedInSpecs": 1,
       "specs": [
         "house-small"
-      ]
-    },
-    {
-      "prop": "clay-dust",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "clay-lump",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "cleaver",
-      "usedInSpecs": 3,
-      "specs": [
-        "butcher-shop",
-        "farmhouse-kitchen",
-        "ship-galley"
       ]
     },
     {
@@ -1913,38 +435,10 @@
       ]
     },
     {
-      "prop": "clockwork-frame",
-      "usedInSpecs": 1,
-      "specs": [
-        "workshop-artificer"
-      ]
-    },
-    {
       "prop": "clothes-rack",
       "usedInSpecs": 1,
       "specs": [
         "mansion-servants-quarters"
-      ]
-    },
-    {
-      "prop": "cloud-pillar",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "coal-bin",
-      "usedInSpecs": 1,
-      "specs": [
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "coal-bucket",
-      "usedInSpecs": 1,
-      "specs": [
-        "apartment-tenement"
       ]
     },
     {
@@ -1955,134 +449,10 @@
       ]
     },
     {
-      "prop": "coat-rack-ornate",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "cobweb-cluster",
-      "usedInSpecs": 1,
-      "specs": [
-        "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "cobweb-heavy",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "coin-in-water",
-      "usedInSpecs": 1,
-      "specs": [
-        "cistern"
-      ]
-    },
-    {
-      "prop": "coin-offering",
-      "usedInSpecs": 3,
-      "specs": [
-        "burial-mound",
-        "shrine-roadside",
-        "standing-stones-circle"
-      ]
-    },
-    {
-      "prop": "coin-pile",
-      "usedInSpecs": 8,
-      "specs": [
-        "bakery",
-        "counting-house",
-        "gambling-den",
-        "shop-general",
-        "shop-jeweler",
-        "shop-weaponsmith",
-        "tavern-common",
-        "tavern-highend"
-      ]
-    },
-    {
-      "prop": "coin-purse",
-      "usedInSpecs": 4,
-      "specs": [
-        "brothel-parlor",
-        "house-merchant",
-        "market-stall",
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "coin-scatter",
-      "usedInSpecs": 5,
-      "specs": [
-        "cave-bandit-camp",
-        "ferry-house",
-        "goblin-warren-entrance",
-        "market-square",
-        "toll-bridge-house"
-      ]
-    },
-    {
       "prop": "coin-spill",
       "usedInSpecs": 1,
       "specs": [
         "treasure-vault"
-      ]
-    },
-    {
-      "prop": "coin-stack",
-      "usedInSpecs": 3,
-      "specs": [
-        "counting-house",
-        "gambling-den",
-        "thieves-guild-hideout"
-      ]
-    },
-    {
-      "prop": "collapsed-stair",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "collapsed-wall-segment",
-      "usedInSpecs": 2,
-      "specs": [
-        "ancient-ruin-overgrown",
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "color-rod-bundle",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "commander-corpse-mounted",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "condenser-coil",
-      "usedInSpecs": 1,
-      "specs": [
-        "refinery"
-      ]
-    },
-    {
-      "prop": "confession-paper",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
       ]
     },
     {
@@ -2100,13 +470,6 @@
       ]
     },
     {
-      "prop": "cook-pot-tripod",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
       "prop": "cook-spit",
       "usedInSpecs": 1,
       "specs": [
@@ -2118,48 +481,6 @@
       "usedInSpecs": 1,
       "specs": [
         "ranger-camp"
-      ]
-    },
-    {
-      "prop": "cookware-scatter",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "coral-pillar",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "cork-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "brewery"
-      ]
-    },
-    {
-      "prop": "corpse-horse",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "corpse-soldier",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "cot-blanket",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
       ]
     },
     {
@@ -2180,26 +501,10 @@
       ]
     },
     {
-      "prop": "cradle",
-      "usedInSpecs": 3,
-      "specs": [
-        "apartment-tenement",
-        "house-medium-family",
-        "nursery"
-      ]
-    },
-    {
       "prop": "crate-splintered",
       "usedInSpecs": 1,
       "specs": [
         "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "crate-stacked",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
       ]
     },
     {
@@ -2210,32 +515,10 @@
       ]
     },
     {
-      "prop": "crow-picking",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
       "prop": "crown-on-cushion",
       "usedInSpecs": 1,
       "specs": [
         "treasure-vault"
-      ]
-    },
-    {
-      "prop": "crucible-large",
-      "usedInSpecs": 2,
-      "specs": [
-        "foundry-great",
-        "refinery"
-      ]
-    },
-    {
-      "prop": "crucifix-wall",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
       ]
     },
     {
@@ -2260,65 +543,10 @@
       ]
     },
     {
-      "prop": "crystal-glow",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-living"
-      ]
-    },
-    {
       "prop": "crystal-heart",
       "usedInSpecs": 1,
       "specs": [
         "crystal-grotto"
-      ]
-    },
-    {
-      "prop": "crystal-shard",
-      "usedInSpecs": 4,
-      "specs": [
-        "cabin-witch",
-        "crystal-grotto",
-        "elemental-earth-node",
-        "workshop-artificer"
-      ]
-    },
-    {
-      "prop": "cupboard",
-      "usedInSpecs": 2,
-      "specs": [
-        "farmhouse-common",
-        "house-medium-family"
-      ]
-    },
-    {
-      "prop": "cupboard-galley",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "cupboard-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "apartment-tenement"
-      ]
-    },
-    {
-      "prop": "curtain",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-merchant",
-        "throne-room"
-      ]
-    },
-    {
-      "prop": "curtain-divider",
-      "usedInSpecs": 2,
-      "specs": [
-        "brothel-parlor",
-        "opium-den"
       ]
     },
     {
@@ -2329,61 +557,10 @@
       ]
     },
     {
-      "prop": "cushion-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
-      ]
-    },
-    {
       "prop": "cutlery-pile",
       "usedInSpecs": 1,
       "specs": [
         "mess-hall"
-      ]
-    },
-    {
-      "prop": "cutting-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
-      ]
-    },
-    {
-      "prop": "dagger-bedside",
-      "usedInSpecs": 1,
-      "specs": [
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "dagger-loose",
-      "usedInSpecs": 3,
-      "specs": [
-        "gambling-den",
-        "shop-weaponsmith",
-        "thieves-guild-hideout"
-      ]
-    },
-    {
-      "prop": "dagger-through-map",
-      "usedInSpecs": 1,
-      "specs": [
-        "command-room"
-      ]
-    },
-    {
-      "prop": "damp-stain",
-      "usedInSpecs": 1,
-      "specs": [
-        "apartment-tenement"
-      ]
-    },
-    {
-      "prop": "dance-card",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
       ]
     },
     {
@@ -2394,77 +571,10 @@
       ]
     },
     {
-      "prop": "dead-god-fragment",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "decanter",
-      "usedInSpecs": 4,
-      "specs": [
-        "house-noble-townhouse",
-        "mansion-dining",
-        "mansion-study",
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "decanter-with-glasses",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
       "prop": "decaying-log",
       "usedInSpecs": 1,
       "specs": [
         "mushroom-grove"
-      ]
-    },
-    {
-      "prop": "decorative-urn",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "desk-lamp",
-      "usedInSpecs": 2,
-      "specs": [
-        "command-room",
-        "mansion-study"
-      ]
-    },
-    {
-      "prop": "desk-writing",
-      "usedInSpecs": 2,
-      "specs": [
-        "alchemy-lab",
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "dew-drop-sparkle",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
-      ]
-    },
-    {
-      "prop": "dice-cup",
-      "usedInSpecs": 7,
-      "specs": [
-        "barracks",
-        "gambling-den",
-        "gatehouse-inner",
-        "guard-post",
-        "mess-hall",
-        "ship-crew-quarters",
-        "tavern-common"
       ]
     },
     {
@@ -2475,111 +585,10 @@
       ]
     },
     {
-      "prop": "dice-scatter",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
       "prop": "dice-table",
       "usedInSpecs": 1,
       "specs": [
         "gambling-den"
-      ]
-    },
-    {
-      "prop": "dining-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "dispatch-pouch",
-      "usedInSpecs": 1,
-      "specs": [
-        "command-room"
-      ]
-    },
-    {
-      "prop": "display-basket",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "display-case-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "display-rack-armor",
-      "usedInSpecs": 1,
-      "specs": [
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "display-rack-fabric",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "display-rack-weapons",
-      "usedInSpecs": 1,
-      "specs": [
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "dissolved-skeleton",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "distillation-setup",
-      "usedInSpecs": 1,
-      "specs": [
-        "alchemy-lab"
-      ]
-    },
-    {
-      "prop": "distillery-vat",
-      "usedInSpecs": 1,
-      "specs": [
-        "refinery"
-      ]
-    },
-    {
-      "prop": "djinn-pavilion",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "document-stack",
-      "usedInSpecs": 3,
-      "specs": [
-        "counting-house",
-        "courthouse-chamber",
-        "guildhall"
-      ]
-    },
-    {
-      "prop": "dog-bowl",
-      "usedInSpecs": 2,
-      "specs": [
-        "hunting-lodge-large",
-        "shepherds-shelter"
       ]
     },
     {
@@ -2597,51 +606,10 @@
       ]
     },
     {
-      "prop": "dog-stray",
-      "usedInSpecs": 2,
-      "specs": [
-        "fairground-seasonal",
-        "market-square"
-      ]
-    },
-    {
-      "prop": "dollhouse",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "drain-grate",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
-      ]
-    },
-    {
-      "prop": "dressing-screen",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
-      ]
-    },
-    {
       "prop": "dried-flowers",
       "usedInSpecs": 1,
       "specs": [
         "shrine-roadside"
-      ]
-    },
-    {
-      "prop": "dried-herbs",
-      "usedInSpecs": 6,
-      "specs": [
-        "alchemy-lab",
-        "cabin-hunters",
-        "cabin-trapper",
-        "cabin-witch",
-        "farmhouse-common",
-        "house-medium-family"
       ]
     },
     {
@@ -2652,69 +620,10 @@
       ]
     },
     {
-      "prop": "drifting-stone",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
       "prop": "driftwood",
       "usedInSpecs": 1,
       "specs": [
         "ferry-house"
-      ]
-    },
-    {
-      "prop": "drip-stain",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-living"
-      ]
-    },
-    {
-      "prop": "dripping-stalactite",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "drive-shaft",
-      "usedInSpecs": 2,
-      "specs": [
-        "mill-grain",
-        "mill-lumber"
-      ]
-    },
-    {
-      "prop": "dropped-apple",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-square"
-      ]
-    },
-    {
-      "prop": "dropped-coin",
-      "usedInSpecs": 3,
-      "specs": [
-        "battlefield-recent",
-        "fairground-seasonal",
-        "plaza-civic"
-      ]
-    },
-    {
-      "prop": "dropped-fan",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "dropped-fork",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
       ]
     },
     {
@@ -2725,45 +634,10 @@
       ]
     },
     {
-      "prop": "drow-command-slab",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
-      "prop": "drow-weapon-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
-      "prop": "drowned-rat",
-      "usedInSpecs": 1,
-      "specs": [
-        "cistern"
-      ]
-    },
-    {
-      "prop": "drum-stand",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
-      ]
-    },
-    {
       "prop": "dry-leaves",
       "usedInSpecs": 1,
       "specs": [
         "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "drying-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
       ]
     },
     {
@@ -2774,98 +648,10 @@
       ]
     },
     {
-      "prop": "dung-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "dust-cloud",
-      "usedInSpecs": 4,
-      "specs": [
-        "mill-grain",
-        "mine-shaft-entrance",
-        "shop-apothecary",
-        "shop-bookseller"
-      ]
-    },
-    {
-      "prop": "dust-cover",
-      "usedInSpecs": 1,
-      "specs": [
-        "library"
-      ]
-    },
-    {
-      "prop": "dust-heap",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-abandoned",
-        "crypt"
-      ]
-    },
-    {
-      "prop": "dust-sheet-partial",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-library"
-      ]
-    },
-    {
       "prop": "dye-vat",
       "usedInSpecs": 1,
       "specs": [
         "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "earth-elemental-anvil",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-earth-node"
-      ]
-    },
-    {
-      "prop": "earth-node-core",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-earth-node"
-      ]
-    },
-    {
-      "prop": "efreet-brazier-grand",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
-      "prop": "egg-sac",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
-      "prop": "egg-sac-mound",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "ember-drift",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
-      "prop": "ember-pit",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
       ]
     },
     {
@@ -2876,90 +662,10 @@
       ]
     },
     {
-      "prop": "embroidery-hoop",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-noble-townhouse",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "empty-bottle",
-      "usedInSpecs": 5,
-      "specs": [
-        "barracks",
-        "campsite-traveler",
-        "graveyard-village",
-        "mess-hall",
-        "roadside-gallows"
-      ]
-    },
-    {
-      "prop": "fabric-bolt",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "fabric-scrap",
-      "usedInSpecs": 2,
-      "specs": [
-        "shop-tailor",
-        "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "faerzress-sconce",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
       "prop": "fainting-couch",
       "usedInSpecs": 1,
       "specs": [
         "brothel-parlor"
-      ]
-    },
-    {
-      "prop": "fallen-antler",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
-      ]
-    },
-    {
-      "prop": "fallen-beam",
-      "usedInSpecs": 2,
-      "specs": [
-        "ancient-ruin-overgrown",
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "fallen-leaves",
-      "usedInSpecs": 11,
-      "specs": [
-        "ancient-ruin-overgrown",
-        "burial-mound",
-        "charcoal-burner-camp",
-        "ferry-house",
-        "forest-clearing",
-        "hunting-lodge-large",
-        "plaza-civic",
-        "ranger-camp",
-        "scouts-blind",
-        "shepherds-shelter",
-        "toll-bridge-house"
-      ]
-    },
-    {
-      "prop": "fallen-mask",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
       ]
     },
     {
@@ -2977,84 +683,10 @@
       ]
     },
     {
-      "prop": "fan",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-noble-townhouse",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "fang-scatter",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "farm-tool-hung",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-common"
-      ]
-    },
-    {
-      "prop": "feather-bundle",
-      "usedInSpecs": 3,
-      "specs": [
-        "druid-grove",
-        "elemental-shrine",
-        "shrine-roadside"
-      ]
-    },
-    {
-      "prop": "feather-celestial",
-      "usedInSpecs": 1,
-      "specs": [
-        "celestial-vault"
-      ]
-    },
-    {
-      "prop": "feather-drift",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "feather-drift-cluster",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "fee-board",
-      "usedInSpecs": 2,
-      "specs": [
-        "ferry-house",
-        "toll-bridge-house"
-      ]
-    },
-    {
       "prop": "fence-wood-low",
       "usedInSpecs": 1,
       "specs": [
         "roadside-gallows"
-      ]
-    },
-    {
-      "prop": "fermentation-vat",
-      "usedInSpecs": 1,
-      "specs": [
-        "brewery"
-      ]
-    },
-    {
-      "prop": "fern-cluster",
-      "usedInSpecs": 1,
-      "specs": [
-        "druid-grove"
       ]
     },
     {
@@ -3072,48 +704,6 @@
       ]
     },
     {
-      "prop": "fey-archfey-throne",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
-      ]
-    },
-    {
-      "prop": "fey-lantern-bloom",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
-      ]
-    },
-    {
-      "prop": "fey-mushroom-ring",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
-      ]
-    },
-    {
-      "prop": "finished-pot",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "finished-vessel",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "fire-node-core",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
       "prop": "fire-ring",
       "usedInSpecs": 1,
       "specs": [
@@ -3128,14 +718,6 @@
       ]
     },
     {
-      "prop": "firewood-stack",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-hunters",
-        "house-small"
-      ]
-    },
-    {
       "prop": "fish-bucket",
       "usedInSpecs": 1,
       "specs": [
@@ -3143,149 +725,10 @@
       ]
     },
     {
-      "prop": "fish-skeleton",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "fishing-rod",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "fitting-mirror",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
-      ]
-    },
-    {
-      "prop": "flame-pillar",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
-      "prop": "flask-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "refinery"
-      ]
-    },
-    {
-      "prop": "floating-barrel",
-      "usedInSpecs": 1,
-      "specs": [
-        "cistern"
-      ]
-    },
-    {
-      "prop": "floating-candle",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "floating-debris",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "floating-stone",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
       "prop": "flour-bag",
       "usedInSpecs": 1,
       "specs": [
         "servants-kitchen"
-      ]
-    },
-    {
-      "prop": "flour-barrel",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
-      ]
-    },
-    {
-      "prop": "flour-dust",
-      "usedInSpecs": 2,
-      "specs": [
-        "bakery",
-        "farmhouse-kitchen"
-      ]
-    },
-    {
-      "prop": "flour-sack",
-      "usedInSpecs": 2,
-      "specs": [
-        "bakery",
-        "mill-grain"
-      ]
-    },
-    {
-      "prop": "flour-sack-stack",
-      "usedInSpecs": 2,
-      "specs": [
-        "bakery",
-        "mill-grain"
-      ]
-    },
-    {
-      "prop": "flower-arrangement",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "flower-petals",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
-      ]
-    },
-    {
-      "prop": "fly-swarm",
-      "usedInSpecs": 3,
-      "specs": [
-        "butcher-shop",
-        "market-stall",
-        "tannery"
-      ]
-    },
-    {
-      "prop": "focused-lamp",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
-      ]
-    },
-    {
-      "prop": "folded-cloak",
-      "usedInSpecs": 2,
-      "specs": [
-        "barracks",
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "folded-gown",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
       ]
     },
     {
@@ -3303,57 +746,10 @@
       ]
     },
     {
-      "prop": "forge-great",
-      "usedInSpecs": 2,
-      "specs": [
-        "forge",
-        "smithy-large"
-      ]
-    },
-    {
       "prop": "fortune-wheel",
       "usedInSpecs": 1,
       "specs": [
         "gambling-den"
-      ]
-    },
-    {
-      "prop": "fossil-embedded",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-earth-node"
-      ]
-    },
-    {
-      "prop": "fountain-interior",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "fresh-dirt-mound",
-      "usedInSpecs": 2,
-      "specs": [
-        "graveyard-village",
-        "roadside-gallows"
-      ]
-    },
-    {
-      "prop": "fresh-flowers",
-      "usedInSpecs": 3,
-      "specs": [
-        "house-noble-townhouse",
-        "mansion-dining",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "fruit-bowl",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-merchant",
-        "mansion-dining"
       ]
     },
     {
@@ -3371,22 +767,6 @@
       ]
     },
     {
-      "prop": "fungal-growth",
-      "usedInSpecs": 3,
-      "specs": [
-        "cave-drow-outpost",
-        "sewer-junction",
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "fur-clump",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
-      ]
-    },
-    {
       "prop": "fur-nest",
       "usedInSpecs": 1,
       "specs": [
@@ -3401,31 +781,10 @@
       ]
     },
     {
-      "prop": "gaffer-bench",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
       "prop": "gallows-triple",
       "usedInSpecs": 1,
       "specs": [
         "roadside-gallows"
-      ]
-    },
-    {
-      "prop": "game-booth",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "game-piece",
-      "usedInSpecs": 1,
-      "specs": [
-        "command-room"
       ]
     },
     {
@@ -3436,34 +795,10 @@
       ]
     },
     {
-      "prop": "gavel",
-      "usedInSpecs": 2,
-      "specs": [
-        "courthouse-chamber",
-        "guildhall"
-      ]
-    },
-    {
       "prop": "gear-locker",
       "usedInSpecs": 1,
       "specs": [
         "ship-crew-quarters"
-      ]
-    },
-    {
-      "prop": "gear-pack",
-      "usedInSpecs": 3,
-      "specs": [
-        "ranger-camp",
-        "scouts-blind",
-        "shepherds-shelter"
-      ]
-    },
-    {
-      "prop": "gear-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "workshop-artificer"
       ]
     },
     {
@@ -3474,70 +809,10 @@
       ]
     },
     {
-      "prop": "gem-loose",
-      "usedInSpecs": 2,
-      "specs": [
-        "elemental-earth-node",
-        "shop-jeweler"
-      ]
-    },
-    {
-      "prop": "geode-cluster",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-earth-node"
-      ]
-    },
-    {
-      "prop": "giant-mushroom",
-      "usedInSpecs": 2,
-      "specs": [
-        "mushroom-cavern",
-        "mushroom-grove"
-      ]
-    },
-    {
-      "prop": "githyanki-perch",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "glass-furnace",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "glass-shard",
-      "usedInSpecs": 3,
-      "specs": [
-        "glassworks",
-        "refinery",
-        "workshop-artificer"
-      ]
-    },
-    {
       "prop": "glove-silk",
       "usedInSpecs": 1,
       "specs": [
         "tavern-highend"
-      ]
-    },
-    {
-      "prop": "glove-single",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "glove-stained",
-      "usedInSpecs": 1,
-      "specs": [
-        "refinery"
       ]
     },
     {
@@ -3548,116 +823,10 @@
       ]
     },
     {
-      "prop": "glowcap-mushroom",
-      "usedInSpecs": 2,
-      "specs": [
-        "mushroom-cavern",
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "glowing-ingot",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-forge"
-      ]
-    },
-    {
-      "prop": "gnawed-bone",
-      "usedInSpecs": 4,
-      "specs": [
-        "cave-bear-lair",
-        "goblin-warren-entrance",
-        "monster-lair-small",
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "goblet",
-      "usedInSpecs": 2,
-      "specs": [
-        "guildhall",
-        "treasure-vault"
-      ]
-    },
-    {
       "prop": "goblin-totem",
       "usedInSpecs": 1,
       "specs": [
         "cave-goblin-warren"
-      ]
-    },
-    {
-      "prop": "grain-hopper",
-      "usedInSpecs": 2,
-      "specs": [
-        "brewery",
-        "mill-grain"
-      ]
-    },
-    {
-      "prop": "grain-sack",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
-      ]
-    },
-    {
-      "prop": "grain-spill",
-      "usedInSpecs": 2,
-      "specs": [
-        "brewery",
-        "mill-grain"
-      ]
-    },
-    {
-      "prop": "grand-staircase",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "grandfather-clock",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-merchant",
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "grate-ceiling",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
-      ]
-    },
-    {
-      "prop": "grate-floor",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "grate-shaft",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-cargo-hold"
-      ]
-    },
-    {
-      "prop": "grate-shaft-light",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "grate-wall",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
       ]
     },
     {
@@ -3668,53 +837,10 @@
       ]
     },
     {
-      "prop": "gun-port",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
-      "prop": "hairbrush-set",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
-      ]
-    },
-    {
-      "prop": "half-built-device",
-      "usedInSpecs": 1,
-      "specs": [
-        "workshop-artificer"
-      ]
-    },
-    {
-      "prop": "half-eaten-carcass",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
       "prop": "half-finished-work",
       "usedInSpecs": 1,
       "specs": [
         "house-medium-artisan"
-      ]
-    },
-    {
-      "prop": "ham-hook-row",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
-      ]
-    },
-    {
-      "prop": "hammer",
-      "usedInSpecs": 2,
-      "specs": [
-        "general-workshop",
-        "temple-of-craft"
       ]
     },
     {
@@ -3725,49 +851,6 @@
       ]
     },
     {
-      "prop": "hammer-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "hanging-garlic",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
-      ]
-    },
-    {
-      "prop": "hanging-ham",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
-      ]
-    },
-    {
-      "prop": "hanging-meat",
-      "usedInSpecs": 2,
-      "specs": [
-        "farmhouse-kitchen",
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "hanging-sausage",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
-      ]
-    },
-    {
-      "prop": "harp",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
-      ]
-    },
-    {
       "prop": "harp-floor",
       "usedInSpecs": 1,
       "specs": [
@@ -3775,141 +858,10 @@
       ]
     },
     {
-      "prop": "harpsichord",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
       "prop": "hat-tricorn",
       "usedInSpecs": 1,
       "specs": [
         "tavern-highend"
-      ]
-    },
-    {
-      "prop": "hay-wisps",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-common"
-      ]
-    },
-    {
-      "prop": "headframe",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "hearth-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "helm-on-peg",
-      "usedInSpecs": 3,
-      "specs": [
-        "armory",
-        "barracks",
-        "gatehouse-inner"
-      ]
-    },
-    {
-      "prop": "helmet-fallen",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "helmet-mining",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "helmet-rusted",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "herb-bundle",
-      "usedInSpecs": 2,
-      "specs": [
-        "servants-kitchen",
-        "shop-apothecary"
-      ]
-    },
-    {
-      "prop": "herb-drying-rack",
-      "usedInSpecs": 2,
-      "specs": [
-        "bog-witch-hut",
-        "cabin-witch"
-      ]
-    },
-    {
-      "prop": "hide-scraps",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
-      ]
-    },
-    {
-      "prop": "hide-tarp",
-      "usedInSpecs": 2,
-      "specs": [
-        "goblin-warren-entrance",
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "hobby-horse",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "holy-symbol",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "holystone",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
-      ]
-    },
-    {
-      "prop": "homunculus-vat",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "hooping-fire",
-      "usedInSpecs": 1,
-      "specs": [
-        "cooperage"
-      ]
-    },
-    {
-      "prop": "hops-bunch",
-      "usedInSpecs": 1,
-      "specs": [
-        "brewery"
       ]
     },
     {
@@ -3927,13 +879,6 @@
       ]
     },
     {
-      "prop": "horseshoe-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "smithy-large"
-      ]
-    },
-    {
       "prop": "hot-iron",
       "usedInSpecs": 1,
       "specs": [
@@ -3941,77 +886,10 @@
       ]
     },
     {
-      "prop": "hound-asleep",
-      "usedInSpecs": 1,
-      "specs": [
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "hung-herb-bundle",
-      "usedInSpecs": 1,
-      "specs": [
-        "bog-witch-hut"
-      ]
-    },
-    {
       "prop": "hunting-horn",
       "usedInSpecs": 1,
       "specs": [
         "hunting-lodge-large"
-      ]
-    },
-    {
-      "prop": "hunting-trophy",
-      "usedInSpecs": 1,
-      "specs": [
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "hut-window-glow",
-      "usedInSpecs": 1,
-      "specs": [
-        "bog-witch-hut"
-      ]
-    },
-    {
-      "prop": "icon-wall",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "incense-burner",
-      "usedInSpecs": 3,
-      "specs": [
-        "noble-bedchamber",
-        "opium-den",
-        "throne-room"
-      ]
-    },
-    {
-      "prop": "incense-stub",
-      "usedInSpecs": 2,
-      "specs": [
-        "dark-temple",
-        "ritual-chamber"
-      ]
-    },
-    {
-      "prop": "infernal-chain-hook",
-      "usedInSpecs": 2,
-      "specs": [
-        "infernal-court",
-        "infernal-forge"
-      ]
-    },
-    {
-      "prop": "infernal-contract-pedestal",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-court"
       ]
     },
     {
@@ -4029,34 +907,6 @@
       ]
     },
     {
-      "prop": "ingot-single",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
-      "prop": "ingot-stack",
-      "usedInSpecs": 6,
-      "specs": [
-        "forge",
-        "foundry-great",
-        "general-workshop",
-        "refinery",
-        "smithy-large",
-        "treasure-vault"
-      ]
-    },
-    {
-      "prop": "ink-pot",
-      "usedInSpecs": 3,
-      "specs": [
-        "mansion-library",
-        "mansion-study",
-        "scriptorium-dark"
-      ]
-    },
-    {
       "prop": "ink-pot-small",
       "usedInSpecs": 1,
       "specs": [
@@ -4068,19 +918,6 @@
       "usedInSpecs": 1,
       "specs": [
         "scriptorium-mundane"
-      ]
-    },
-    {
-      "prop": "inkwell",
-      "usedInSpecs": 7,
-      "specs": [
-        "counting-house",
-        "courthouse-chamber",
-        "guildhall",
-        "scriptorium-mundane",
-        "shop-apothecary",
-        "shop-bookseller",
-        "workshop-artificer"
       ]
     },
     {
@@ -4098,14 +935,6 @@
       ]
     },
     {
-      "prop": "iron-chain-hook",
-      "usedInSpecs": 2,
-      "specs": [
-        "corrupted-temple",
-        "ritual-chamber-dark"
-      ]
-    },
-    {
       "prop": "iron-chair",
       "usedInSpecs": 1,
       "specs": [
@@ -4113,66 +942,10 @@
       ]
     },
     {
-      "prop": "iron-hoop",
-      "usedInSpecs": 1,
-      "specs": [
-        "cooperage"
-      ]
-    },
-    {
-      "prop": "iron-scrap",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
-      "prop": "iron-throne-spiked",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-court"
-      ]
-    },
-    {
-      "prop": "jack-tool",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "jar",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
-      ]
-    },
-    {
-      "prop": "jar-of-teeth",
-      "usedInSpecs": 1,
-      "specs": [
-        "bog-witch-hut"
-      ]
-    },
-    {
-      "prop": "jewel-casket",
-      "usedInSpecs": 1,
-      "specs": [
-        "noble-bedchamber"
-      ]
-    },
-    {
       "prop": "jeweler-bench",
       "usedInSpecs": 1,
       "specs": [
         "shop-jeweler"
-      ]
-    },
-    {
-      "prop": "jewelry-box",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
       ]
     },
     {
@@ -4190,77 +963,10 @@
       ]
     },
     {
-      "prop": "junk-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "keg-stack",
-      "usedInSpecs": 3,
-      "specs": [
-        "brewery",
-        "inn-common-room",
-        "tavern-common"
-      ]
-    },
-    {
-      "prop": "kelp-frond-giant",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "kelp-strand",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
       "prop": "kennel",
       "usedInSpecs": 1,
       "specs": [
         "hunting-lodge-large"
-      ]
-    },
-    {
-      "prop": "kettle-hook",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "key-ring",
-      "usedInSpecs": 2,
-      "specs": [
-        "counting-house",
-        "gatehouse-inner"
-      ]
-    },
-    {
-      "prop": "kiln-brick",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "kiln-large",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "knife-curved",
-      "usedInSpecs": 2,
-      "specs": [
-        "butcher-shop",
-        "tannery"
       ]
     },
     {
@@ -4292,41 +998,10 @@
       ]
     },
     {
-      "prop": "ladder-rolling",
-      "usedInSpecs": 1,
-      "specs": [
-        "library"
-      ]
-    },
-    {
-      "prop": "ladle-iron",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
       "prop": "lantern",
       "usedInSpecs": 1,
       "specs": [
         "gatehouse-inner"
-      ]
-    },
-    {
-      "prop": "lantern-floor",
-      "usedInSpecs": 4,
-      "specs": [
-        "cabin-hunters",
-        "library",
-        "mansion-servants-quarters",
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "lantern-ground",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
       ]
     },
     {
@@ -4337,42 +1012,6 @@
       ]
     },
     {
-      "prop": "lantern-paper",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "lapdog-cushion",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-noble-townhouse",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "laurel-wreath",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
-      ]
-    },
-    {
-      "prop": "lava-fountain",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
-      "prop": "leaf-drift",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
       "prop": "lean-to",
       "usedInSpecs": 1,
       "specs": [
@@ -4380,55 +1019,9 @@
       ]
     },
     {
-      "prop": "leather-apron",
-      "usedInSpecs": 6,
-      "specs": [
-        "cooperage",
-        "foundry-great",
-        "mill-lumber",
-        "refinery",
-        "smithy-large",
-        "tannery"
-      ]
-    },
-    {
-      "prop": "leather-stack",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
-      ]
-    },
-    {
       "prop": "leather-strap",
       "usedInSpecs": 1,
       "specs": [
-        "shop-weaponsmith"
-      ]
-    },
-    {
-      "prop": "ledger",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "ledger-stack",
-      "usedInSpecs": 14,
-      "specs": [
-        "armory",
-        "brewery",
-        "counting-house",
-        "courthouse-chamber",
-        "guildhall",
-        "house-merchant",
-        "interrogation-room",
-        "lumberyard",
-        "mill-grain",
-        "mine-shaft-entrance",
-        "scriptorium-mundane",
-        "shop-bookseller",
-        "shop-general",
         "shop-weaponsmith"
       ]
     },
@@ -4440,68 +1033,10 @@
       ]
     },
     {
-      "prop": "letter-sealed",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "letter-stack",
-      "usedInSpecs": 3,
-      "specs": [
-        "lighthouse-keepers-room",
-        "mansion-study",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "library-ladder",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-library"
-      ]
-    },
-    {
-      "prop": "lightning-arc-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "lime-bin",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
-      ]
-    },
-    {
-      "prop": "lime-dust",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
-      ]
-    },
-    {
-      "prop": "linstock",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
       "prop": "lint-clump",
       "usedInSpecs": 1,
       "specs": [
         "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "liquor-bottle",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-captains-cabin"
       ]
     },
     {
@@ -4512,54 +1047,10 @@
       ]
     },
     {
-      "prop": "log-book",
-      "usedInSpecs": 2,
-      "specs": [
-        "lighthouse-keepers-room",
-        "ship-captains-cabin"
-      ]
-    },
-    {
       "prop": "log-carriage",
       "usedInSpecs": 1,
       "specs": [
         "mill-lumber"
-      ]
-    },
-    {
-      "prop": "log-fallen",
-      "usedInSpecs": 1,
-      "specs": [
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "log-round",
-      "usedInSpecs": 2,
-      "specs": [
-        "lumberyard",
-        "mill-lumber"
-      ]
-    },
-    {
-      "prop": "log-seat",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "long-spoon",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
-      ]
-    },
-    {
-      "prop": "longboat-cradle",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
       ]
     },
     {
@@ -4577,32 +1068,10 @@
       ]
     },
     {
-      "prop": "low-table",
-      "usedInSpecs": 2,
-      "specs": [
-        "brothel-parlor",
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "lullaby-music-box",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
       "prop": "luminous-spore",
       "usedInSpecs": 1,
       "specs": [
         "mushroom-grove"
-      ]
-    },
-    {
-      "prop": "lute-stand",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
       ]
     },
     {
@@ -4627,85 +1096,6 @@
       ]
     },
     {
-      "prop": "mallet-wooden",
-      "usedInSpecs": 1,
-      "specs": [
-        "cooperage"
-      ]
-    },
-    {
-      "prop": "mannequin",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
-      ]
-    },
-    {
-      "prop": "map-case",
-      "usedInSpecs": 1,
-      "specs": [
-        "library"
-      ]
-    },
-    {
-      "prop": "map-pinned",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "map-scroll",
-      "usedInSpecs": 1,
-      "specs": [
-        "command-room"
-      ]
-    },
-    {
-      "prop": "marid-pavilion",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "market-cross",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-square"
-      ]
-    },
-    {
-      "prop": "market-stall",
-      "usedInSpecs": 2,
-      "specs": [
-        "fairground-seasonal",
-        "market-square"
-      ]
-    },
-    {
-      "prop": "market-stall-awning",
-      "usedInSpecs": 2,
-      "specs": [
-        "fairground-seasonal",
-        "market-square"
-      ]
-    },
-    {
-      "prop": "marver-slab",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "mash-tun",
-      "usedInSpecs": 1,
-      "specs": [
-        "brewery"
-      ]
-    },
-    {
       "prop": "mask-cloth",
       "usedInSpecs": 1,
       "specs": [
@@ -4720,68 +1110,10 @@
       ]
     },
     {
-      "prop": "masquerade-mask",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "massage-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "bath-house"
-      ]
-    },
-    {
-      "prop": "mast-fore",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
-      ]
-    },
-    {
-      "prop": "mast-main",
-      "usedInSpecs": 2,
-      "specs": [
-        "ship-gun-deck",
-        "ship-main-deck"
-      ]
-    },
-    {
-      "prop": "match-tub",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
-      "prop": "maypole",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "measuring-tape",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
-      ]
-    },
-    {
       "prop": "meat-hook-rack",
       "usedInSpecs": 1,
       "specs": [
         "butcher-shop"
-      ]
-    },
-    {
-      "prop": "melted-wax",
-      "usedInSpecs": 2,
-      "specs": [
-        "dark-temple",
-        "ritual-chamber"
       ]
     },
     {
@@ -4799,88 +1131,10 @@
       ]
     },
     {
-      "prop": "mine-shaft",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "mine-shaft-opening",
-      "usedInSpecs": 1,
-      "specs": [
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "mineral-vein",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-living"
-      ]
-    },
-    {
-      "prop": "miniature-portrait",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-bedroom-master",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "mirror-reflected",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "mirror-tall",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "mist-pool",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "mixing-bowl",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
-      ]
-    },
-    {
-      "prop": "moldy-bread",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
-      ]
-    },
-    {
-      "prop": "molten-pool-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
       "prop": "mosaic-fragment",
       "usedInSpecs": 1,
       "specs": [
         "ancient-ruin-overgrown"
-      ]
-    },
-    {
-      "prop": "moss-patch-glowing",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
       ]
     },
     {
@@ -4891,41 +1145,10 @@
       ]
     },
     {
-      "prop": "mourning-bell",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "mouse-trap",
-      "usedInSpecs": 3,
-      "specs": [
-        "apartment-tenement",
-        "mansion-servants-quarters",
-        "mill-grain"
-      ]
-    },
-    {
-      "prop": "mud-print",
-      "usedInSpecs": 2,
-      "specs": [
-        "ferry-house",
-        "toll-bridge-house"
-      ]
-    },
-    {
       "prop": "muddy-boot-prints",
       "usedInSpecs": 1,
       "specs": [
         "hunting-lodge-large"
-      ]
-    },
-    {
-      "prop": "muddy-boots",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-common"
       ]
     },
     {
@@ -4947,27 +1170,6 @@
       "usedInSpecs": 1,
       "specs": [
         "cabin-witch"
-      ]
-    },
-    {
-      "prop": "mushroom-glow",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-living"
-      ]
-    },
-    {
-      "prop": "music-stand",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
-      ]
-    },
-    {
-      "prop": "musicians-dais",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
       ]
     },
     {
@@ -4999,155 +1201,10 @@
       ]
     },
     {
-      "prop": "nails-crate",
-      "usedInSpecs": 1,
-      "specs": [
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "napkin-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
-      ]
-    },
-    {
-      "prop": "narrow-bed",
-      "usedInSpecs": 2,
-      "specs": [
-        "apartment-tenement",
-        "mansion-servants-quarters"
-      ]
-    },
-    {
-      "prop": "needle-case",
-      "usedInSpecs": 2,
-      "specs": [
-        "shop-tailor",
-        "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "nest-of-rags",
-      "usedInSpecs": 2,
-      "specs": [
-        "monster-lair-small",
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "nurse-stool",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "obelisk-astral",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "obelisk-memorial",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "obelisk-stone-raw",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-earth-node"
-      ]
-    },
-    {
-      "prop": "obsidian-shard",
-      "usedInSpecs": 2,
-      "specs": [
-        "elemental-fire-node",
-        "elemental-shrine"
-      ]
-    },
-    {
-      "prop": "offering-bowl",
-      "usedInSpecs": 2,
-      "specs": [
-        "burial-mound",
-        "standing-stones-circle"
-      ]
-    },
-    {
-      "prop": "oil-amphora",
-      "usedInSpecs": 1,
-      "specs": [
-        "bath-house"
-      ]
-    },
-    {
-      "prop": "oil-flask",
-      "usedInSpecs": 5,
-      "specs": [
-        "armory",
-        "cabin-hunters",
-        "cabin-trapper",
-        "gatehouse-inner",
-        "house-medium-artisan"
-      ]
-    },
-    {
       "prop": "oil-reservoir",
       "usedInSpecs": 1,
       "specs": [
         "lighthouse-keepers-room"
-      ]
-    },
-    {
-      "prop": "oil-slick",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "onion-braid",
-      "usedInSpecs": 4,
-      "specs": [
-        "farmhouse-kitchen",
-        "pantry",
-        "servants-kitchen",
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "ooze-pool",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "ooze-puddle",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "opium-couch",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "opium-pipe",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
       ]
     },
     {
@@ -5158,107 +1215,10 @@
       ]
     },
     {
-      "prop": "ore-cart",
-      "usedInSpecs": 2,
-      "specs": [
-        "mine-shaft-entrance",
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "ore-chunk",
-      "usedInSpecs": 3,
-      "specs": [
-        "elemental-earth-node",
-        "mine-shaft-entrance",
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "ore-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "ore-sorting-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "ore-vein-prop",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-earth-node"
-      ]
-    },
-    {
-      "prop": "ornamental-dagger",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "orrery-magical",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "overhead-crane",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
       "prop": "overturned-table",
       "usedInSpecs": 1,
       "specs": [
         "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "painting-framed",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "painting-large",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "pallet",
-      "usedInSpecs": 4,
-      "specs": [
-        "cabin-hunters",
-        "cabin-trapper",
-        "peasant-hovel",
-        "prison-block"
-      ]
-    },
-    {
-      "prop": "pantry-door",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-kitchen"
-      ]
-    },
-    {
-      "prop": "pantry-shelf",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
       ]
     },
     {
@@ -5269,56 +1229,10 @@
       ]
     },
     {
-      "prop": "parchment-scrap",
-      "usedInSpecs": 4,
-      "specs": [
-        "scouts-blind",
-        "scriptorium-dark",
-        "scriptorium-mundane",
-        "toll-bridge-house"
-      ]
-    },
-    {
-      "prop": "patched-shirt",
-      "usedInSpecs": 2,
-      "specs": [
-        "apartment-tenement",
-        "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "pavise",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "pearl-cluster",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "pearl-obelisk",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
       "prop": "pearl-strand",
       "usedInSpecs": 1,
       "specs": [
         "shop-jeweler"
-      ]
-    },
-    {
-      "prop": "pebble-suspended",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
       ]
     },
     {
@@ -5329,26 +1243,10 @@
       ]
     },
     {
-      "prop": "pedestal-stone",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-grand-hall",
-        "reliquary"
-      ]
-    },
-    {
       "prop": "peel-wooden",
       "usedInSpecs": 1,
       "specs": [
         "bakery"
-      ]
-    },
-    {
-      "prop": "peg-rail-wall",
-      "usedInSpecs": 2,
-      "specs": [
-        "apartment-tenement",
-        "mansion-servants-quarters"
       ]
     },
     {
@@ -5366,21 +1264,6 @@
       ]
     },
     {
-      "prop": "pen-and-inkwell",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
-      ]
-    },
-    {
-      "prop": "perfume-bottle",
-      "usedInSpecs": 2,
-      "specs": [
-        "brothel-parlor",
-        "mansion-bedroom-master"
-      ]
-    },
-    {
       "prop": "personal-chest",
       "usedInSpecs": 1,
       "specs": [
@@ -5388,59 +1271,10 @@
       ]
     },
     {
-      "prop": "pewter-mug",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-common"
-      ]
-    },
-    {
-      "prop": "pewter-plate",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-galley"
-      ]
-    },
-    {
       "prop": "pianoforte",
       "usedInSpecs": 1,
       "specs": [
         "house-noble-townhouse"
-      ]
-    },
-    {
-      "prop": "pickaxe",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "pickaxe-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "picket-line",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "picture-book",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "pie-stand",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
       ]
     },
     {
@@ -5458,39 +1292,10 @@
       ]
     },
     {
-      "prop": "pillar-floating",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "pillar-marble",
-      "usedInSpecs": 1,
-      "specs": [
-        "celestial-vault"
-      ]
-    },
-    {
-      "prop": "pin-cushion",
-      "usedInSpecs": 2,
-      "specs": [
-        "shop-tailor",
-        "textile-loomhouse"
-      ]
-    },
-    {
       "prop": "pincers",
       "usedInSpecs": 1,
       "specs": [
         "torture-chamber"
-      ]
-    },
-    {
-      "prop": "pipe-ash",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
       ]
     },
     {
@@ -5501,23 +1306,6 @@
       ]
     },
     {
-      "prop": "pipe-clay",
-      "usedInSpecs": 3,
-      "specs": [
-        "gambling-den",
-        "inn-common-room",
-        "tavern-common"
-      ]
-    },
-    {
-      "prop": "pipe-outlet",
-      "usedInSpecs": 2,
-      "specs": [
-        "cistern",
-        "sewer-junction"
-      ]
-    },
-    {
       "prop": "pit-saw",
       "usedInSpecs": 1,
       "specs": [
@@ -5525,46 +1313,10 @@
       ]
     },
     {
-      "prop": "place-card",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
-      ]
-    },
-    {
-      "prop": "planar-sigil-shard",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
       "prop": "plate-stack",
       "usedInSpecs": 1,
       "specs": [
         "mess-hall"
-      ]
-    },
-    {
-      "prop": "playing-cards",
-      "usedInSpecs": 9,
-      "specs": [
-        "barracks",
-        "brothel-parlor",
-        "cave-bandit-camp",
-        "gambling-den",
-        "guard-post",
-        "ship-crew-quarters",
-        "tavern-common",
-        "tavern-highend",
-        "thieves-guild-hideout"
-      ]
-    },
-    {
-      "prop": "plunge-basin",
-      "usedInSpecs": 1,
-      "specs": [
-        "bath-house"
       ]
     },
     {
@@ -5582,20 +1334,6 @@
       ]
     },
     {
-      "prop": "portal-stela",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "portrait-framed",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
       "prop": "potbelly-stove",
       "usedInSpecs": 1,
       "specs": [
@@ -5610,57 +1348,10 @@
       ]
     },
     {
-      "prop": "potted-palm",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "pottery-shard",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "powder-tub",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
       "prop": "prayer-beads",
       "usedInSpecs": 1,
       "specs": [
         "house-medium-family"
-      ]
-    },
-    {
-      "prop": "prayer-bench",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-bedroom-master",
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "prayer-book",
-      "usedInSpecs": 3,
-      "specs": [
-        "celestial-vault",
-        "dark-temple",
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "prayer-card",
-      "usedInSpecs": 3,
-      "specs": [
-        "apartment-tenement",
-        "mansion-servants-quarters",
-        "peasant-hovel"
       ]
     },
     {
@@ -5671,32 +1362,10 @@
       ]
     },
     {
-      "prop": "prayer-shelf",
-      "usedInSpecs": 1,
-      "specs": [
-        "farmhouse-common"
-      ]
-    },
-    {
-      "prop": "prayer-stone",
-      "usedInSpecs": 2,
-      "specs": [
-        "druid-grove",
-        "shrine-roadside"
-      ]
-    },
-    {
       "prop": "printing-press",
       "usedInSpecs": 1,
       "specs": [
         "scriptorium-mundane"
-      ]
-    },
-    {
-      "prop": "prisoner-cage",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
       ]
     },
     {
@@ -5714,94 +1383,10 @@
       ]
     },
     {
-      "prop": "prize-ring",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "produce-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-square"
-      ]
-    },
-    {
-      "prop": "puddle",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
-      ]
-    },
-    {
-      "prop": "puddle-wort",
-      "usedInSpecs": 1,
-      "specs": [
-        "brewery"
-      ]
-    },
-    {
-      "prop": "pulpit",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "punch-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "pyre-mass-grave",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "quench-barrel",
-      "usedInSpecs": 3,
-      "specs": [
-        "forge",
-        "house-medium-artisan",
-        "smithy-large"
-      ]
-    },
-    {
       "prop": "quench-trough-blood",
       "usedInSpecs": 1,
       "specs": [
         "infernal-forge"
-      ]
-    },
-    {
-      "prop": "quill",
-      "usedInSpecs": 10,
-      "specs": [
-        "bardic-hall",
-        "counting-house",
-        "courthouse-chamber",
-        "guildhall",
-        "mansion-library",
-        "mansion-study",
-        "scriptorium-mundane",
-        "shop-apothecary",
-        "shop-bookseller",
-        "workshop-artificer"
-      ]
-    },
-    {
-      "prop": "quill-and-ink",
-      "usedInSpecs": 4,
-      "specs": [
-        "demiplane-laboratory",
-        "house-merchant",
-        "library",
-        "ship-captains-cabin"
       ]
     },
     {
@@ -5819,101 +1404,10 @@
       ]
     },
     {
-      "prop": "rag-damp",
-      "usedInSpecs": 2,
-      "specs": [
-        "brewery",
-        "butcher-shop"
-      ]
-    },
-    {
-      "prop": "rag-doll",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "rag-pile",
-      "usedInSpecs": 11,
-      "specs": [
-        "cave-goblin-warren",
-        "chasm-crossing",
-        "oubliette",
-        "ship-brig",
-        "ship-cargo-hold",
-        "ship-crew-quarters",
-        "ship-galley",
-        "slime-pit",
-        "spider-lair",
-        "tunnel-mine-worked",
-        "underdark-outpost"
-      ]
-    },
-    {
-      "prop": "rags-bloody",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "rail-track",
-      "usedInSpecs": 1,
-      "specs": [
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "rain-puddle",
-      "usedInSpecs": 1,
-      "specs": [
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "rammer-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
-      "prop": "rat",
-      "usedInSpecs": 3,
-      "specs": [
-        "pantry",
-        "servants-kitchen",
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "rat-carcass",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "rat-nest",
-      "usedInSpecs": 1,
-      "specs": [
-        "prison-block"
-      ]
-    },
-    {
       "prop": "rat-sign",
       "usedInSpecs": 1,
       "specs": [
         "mill-grain"
-      ]
-    },
-    {
-      "prop": "rat-skeleton",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-abandoned",
-        "oubliette"
       ]
     },
     {
@@ -5929,34 +1423,10 @@
       ]
     },
     {
-      "prop": "ration-bowl",
-      "usedInSpecs": 1,
-      "specs": [
-        "prison-block"
-      ]
-    },
-    {
-      "prop": "ration-moldy",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
       "prop": "ration-pack",
       "usedInSpecs": 1,
       "specs": [
         "cabin-hunters"
-      ]
-    },
-    {
-      "prop": "ration-wrapper",
-      "usedInSpecs": 4,
-      "specs": [
-        "charcoal-burner-camp",
-        "ferry-house",
-        "scouts-blind",
-        "toll-bridge-house"
       ]
     },
     {
@@ -5981,91 +1451,10 @@
       ]
     },
     {
-      "prop": "reading-chair",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-library"
-      ]
-    },
-    {
-      "prop": "reading-glasses",
-      "usedInSpecs": 2,
-      "specs": [
-        "library",
-        "shop-bookseller"
-      ]
-    },
-    {
-      "prop": "reading-spectacles",
-      "usedInSpecs": 3,
-      "specs": [
-        "mansion-library",
-        "mansion-study",
-        "scriptorium-dark"
-      ]
-    },
-    {
-      "prop": "reading-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "library"
-      ]
-    },
-    {
-      "prop": "reagent-jar",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "reagent-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "reliquary-bone",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "residual-torch-from-victims",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
       "prop": "resonance-pool",
       "usedInSpecs": 1,
       "specs": [
         "crystal-grotto"
-      ]
-    },
-    {
-      "prop": "ribbon",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "ribbon-scatter",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "ribbon-tied",
-      "usedInSpecs": 2,
-      "specs": [
-        "shrine-roadside",
-        "standing-stones-circle"
       ]
     },
     {
@@ -6080,24 +1469,6 @@
       "usedInSpecs": 1,
       "specs": [
         "standing-stones-circle"
-      ]
-    },
-    {
-      "prop": "rocking-chair",
-      "usedInSpecs": 5,
-      "specs": [
-        "cabin-witch",
-        "farmhouse-common",
-        "house-medium-family",
-        "lighthouse-keepers-room",
-        "nursery"
-      ]
-    },
-    {
-      "prop": "rocking-horse",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
       ]
     },
     {
@@ -6122,40 +1493,10 @@
       ]
     },
     {
-      "prop": "rope-bridge",
-      "usedInSpecs": 1,
-      "specs": [
-        "chasm-crossing"
-      ]
-    },
-    {
       "prop": "rope-cordon",
       "usedInSpecs": 1,
       "specs": [
         "plaza-civic"
-      ]
-    },
-    {
-      "prop": "rose-petal-scatter",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
-      ]
-    },
-    {
-      "prop": "rose-petals",
-      "usedInSpecs": 3,
-      "specs": [
-        "bath-house",
-        "brothel-parlor",
-        "celestial-vault"
-      ]
-    },
-    {
-      "prop": "round-dining-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
       ]
     },
     {
@@ -6166,89 +1507,10 @@
       ]
     },
     {
-      "prop": "rubble-pile",
-      "usedInSpecs": 2,
-      "specs": [
-        "corrupted-temple",
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "rug-oriental",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "rug-runner",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "rune-chalk-mark",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "rusted-bucket",
-      "usedInSpecs": 1,
-      "specs": [
-        "cistern"
-      ]
-    },
-    {
-      "prop": "rusted-manacle",
-      "usedInSpecs": 1,
-      "specs": [
-        "prison-block"
-      ]
-    },
-    {
-      "prop": "rusted-tool",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "rusted-weapon",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "sack",
-      "usedInSpecs": 2,
-      "specs": [
-        "campsite-traveler",
-        "market-square"
-      ]
-    },
-    {
       "prop": "sack-pile",
       "usedInSpecs": 1,
       "specs": [
         "mill-grain"
-      ]
-    },
-    {
-      "prop": "sack-stack",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
-      ]
-    },
-    {
-      "prop": "sail-rolled",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
       ]
     },
     {
@@ -6259,35 +1521,6 @@
       ]
     },
     {
-      "prop": "salt-brick",
-      "usedInSpecs": 1,
-      "specs": [
-        "pantry"
-      ]
-    },
-    {
-      "prop": "salt-sack",
-      "usedInSpecs": 2,
-      "specs": [
-        "servants-kitchen",
-        "shop-general"
-      ]
-    },
-    {
-      "prop": "sand-bin",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "sand-mold",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
       "prop": "sand-shaker",
       "usedInSpecs": 1,
       "specs": [
@@ -6295,49 +1528,10 @@
       ]
     },
     {
-      "prop": "sand-spill",
-      "usedInSpecs": 1,
-      "specs": [
-        "glassworks"
-      ]
-    },
-    {
-      "prop": "sand-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "command-room"
-      ]
-    },
-    {
-      "prop": "sandal-pair",
-      "usedInSpecs": 1,
-      "specs": [
-        "bath-house"
-      ]
-    },
-    {
-      "prop": "sarcophagus-shadow",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
       "prop": "sausage-link",
       "usedInSpecs": 1,
       "specs": [
         "butcher-shop"
-      ]
-    },
-    {
-      "prop": "sawdust-pile",
-      "usedInSpecs": 5,
-      "specs": [
-        "cooperage",
-        "dock-warehouse",
-        "house-medium-artisan",
-        "lumberyard",
-        "mill-lumber"
       ]
     },
     {
@@ -6355,56 +1549,10 @@
       ]
     },
     {
-      "prop": "scale",
-      "usedInSpecs": 10,
-      "specs": [
-        "bakery",
-        "butcher-shop",
-        "counting-house",
-        "mill-grain",
-        "refinery",
-        "shop-apothecary",
-        "shop-general",
-        "shop-jeweler",
-        "thieves-guild-hideout",
-        "workshop-artificer"
-      ]
-    },
-    {
       "prop": "scale-justice",
       "usedInSpecs": 1,
       "specs": [
         "courthouse-chamber"
-      ]
-    },
-    {
-      "prop": "scales-merchant",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-merchant",
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "scat-pile",
-      "usedInSpecs": 2,
-      "specs": [
-        "cave-bear-lair",
-        "monster-lair-small"
-      ]
-    },
-    {
-      "prop": "schematic-rolled",
-      "usedInSpecs": 1,
-      "specs": [
-        "workshop-artificer"
-      ]
-    },
-    {
-      "prop": "scissors-shears",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
       ]
     },
     {
@@ -6415,33 +1563,10 @@
       ]
     },
     {
-      "prop": "scorch-mark",
-      "usedInSpecs": 3,
-      "specs": [
-        "foundry-great",
-        "glassworks",
-        "refinery"
-      ]
-    },
-    {
       "prop": "scorched-cell",
       "usedInSpecs": 1,
       "specs": [
         "boss-chamber"
-      ]
-    },
-    {
-      "prop": "scorched-scroll",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-court"
-      ]
-    },
-    {
-      "prop": "scraping-beam",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
       ]
     },
     {
@@ -6459,80 +1584,10 @@
       ]
     },
     {
-      "prop": "screen-folding",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "screen-painted",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "screwdriver",
-      "usedInSpecs": 1,
-      "specs": [
-        "workshop-artificer"
-      ]
-    },
-    {
-      "prop": "scroll-loose",
-      "usedInSpecs": 1,
-      "specs": [
-        "library"
-      ]
-    },
-    {
-      "prop": "scroll-rack-tall",
-      "usedInSpecs": 1,
-      "specs": [
-        "library"
-      ]
-    },
-    {
-      "prop": "scroll-rolled",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-captains-cabin"
-      ]
-    },
-    {
-      "prop": "scroll-stack",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
       "prop": "scrying-crystal",
       "usedInSpecs": 1,
       "specs": [
         "crystal-grotto"
-      ]
-    },
-    {
-      "prop": "scrying-pool",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
-      "prop": "scummy-water-pool",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "sea-glass-shard",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
       ]
     },
     {
@@ -6543,24 +1598,10 @@
       ]
     },
     {
-      "prop": "seed-float",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
       "prop": "servant-uniform-hung",
       "usedInSpecs": 1,
       "specs": [
         "mansion-servants-quarters"
-      ]
-    },
-    {
-      "prop": "serving-trolley",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
       ]
     },
     {
@@ -6571,54 +1612,10 @@
       ]
     },
     {
-      "prop": "severed-limb",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "sewage-channel",
-      "usedInSpecs": 1,
-      "specs": [
-        "sewer-junction"
-      ]
-    },
-    {
-      "prop": "sewing-basket",
-      "usedInSpecs": 3,
-      "specs": [
-        "house-medium-family",
-        "house-small",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "sewing-bench",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
-      ]
-    },
-    {
       "prop": "sewing-kit-small",
       "usedInSpecs": 1,
       "specs": [
         "mansion-servants-quarters"
-      ]
-    },
-    {
-      "prop": "shadow-tree",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "shaft-light-from-above",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
       ]
     },
     {
@@ -6629,50 +1626,10 @@
       ]
     },
     {
-      "prop": "shed-skin",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
       "prop": "sheep-dung",
       "usedInSpecs": 1,
       "specs": [
         "shepherds-shelter"
-      ]
-    },
-    {
-      "prop": "sheet-music",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
-      ]
-    },
-    {
-      "prop": "shelf",
-      "usedInSpecs": 4,
-      "specs": [
-        "apartment-tenement",
-        "farmhouse-common",
-        "house-medium-family",
-        "mansion-servants-quarters"
-      ]
-    },
-    {
-      "prop": "shelf-bare",
-      "usedInSpecs": 2,
-      "specs": [
-        "general-workshop",
-        "pantry"
-      ]
-    },
-    {
-      "prop": "shelf-bottles",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-witch",
-        "tavern-common"
       ]
     },
     {
@@ -6683,31 +1640,6 @@
       ]
     },
     {
-      "prop": "shelf-fallen",
-      "usedInSpecs": 1,
-      "specs": [
-        "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "shelf-open",
-      "usedInSpecs": 12,
-      "specs": [
-        "bakery",
-        "bath-house",
-        "butcher-shop",
-        "glassworks",
-        "house-small",
-        "kiln-pottery",
-        "mill-grain",
-        "opium-den",
-        "refinery",
-        "shop-general",
-        "shop-tailor",
-        "textile-loomhouse"
-      ]
-    },
-    {
       "prop": "shelf-tools",
       "usedInSpecs": 1,
       "specs": [
@@ -6715,80 +1647,10 @@
       ]
     },
     {
-      "prop": "shell-giant",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "shell-scatter",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
       "prop": "shepherds-crook",
       "usedInSpecs": 1,
       "specs": [
         "shepherds-shelter"
-      ]
-    },
-    {
-      "prop": "shield-broken",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "shiny-trinket",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "ship-in-bottle-shelf",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-captains-cabin"
-      ]
-    },
-    {
-      "prop": "ship-stove",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "ships-ladder",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
-      ]
-    },
-    {
-      "prop": "shop-counter",
-      "usedInSpecs": 1,
-      "specs": [
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "shot-garland",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
-      "prop": "shot-loose",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
       ]
     },
     {
@@ -6806,44 +1668,6 @@
       ]
     },
     {
-      "prop": "shrine-stone",
-      "usedInSpecs": 2,
-      "specs": [
-        "hermit-cell",
-        "shrine-roadside"
-      ]
-    },
-    {
-      "prop": "shroud-torn",
-      "usedInSpecs": 1,
-      "specs": [
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "side-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-library"
-      ]
-    },
-    {
-      "prop": "sideboard",
-      "usedInSpecs": 3,
-      "specs": [
-        "house-merchant",
-        "house-noble-townhouse",
-        "mansion-dining"
-      ]
-    },
-    {
-      "prop": "siege-engine-wrecked",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
       "prop": "signal-bell",
       "usedInSpecs": 1,
       "specs": [
@@ -6858,73 +1682,6 @@
       ]
     },
     {
-      "prop": "signet-ring-tray",
-      "usedInSpecs": 1,
-      "specs": [
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "silk-bolt",
-      "usedInSpecs": 2,
-      "specs": [
-        "shop-tailor",
-        "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "silk-cocoon",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "silk-cocoon-victim",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "silk-scarf",
-      "usedInSpecs": 3,
-      "specs": [
-        "bardic-hall",
-        "brothel-parlor",
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "silver-bowl",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-grand-hall",
-        "shop-jeweler"
-      ]
-    },
-    {
-      "prop": "silver-candlestick",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
-      ]
-    },
-    {
-      "prop": "silver-cord-pylon",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "silver-cord-stub",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
       "prop": "silver-tray",
       "usedInSpecs": 1,
       "specs": [
@@ -6932,117 +1689,10 @@
       ]
     },
     {
-      "prop": "single-tooth",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
-      ]
-    },
-    {
-      "prop": "skeleton-charred",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
-      "prop": "skeleton-slumped",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "skinning-knife",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-hunters",
-        "cabin-trapper"
-      ]
-    },
-    {
-      "prop": "skinning-table",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-hunters",
-        "cabin-trapper"
-      ]
-    },
-    {
       "prop": "skull-offering",
       "usedInSpecs": 1,
       "specs": [
         "ritual-chamber"
-      ]
-    },
-    {
-      "prop": "skull-on-stick",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "skull-small",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-witch",
-        "graveyard-village"
-      ]
-    },
-    {
-      "prop": "skull-stack",
-      "usedInSpecs": 3,
-      "specs": [
-        "corrupted-temple",
-        "ossuary",
-        "ritual-chamber-dark"
-      ]
-    },
-    {
-      "prop": "skull-totem",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "skull-trophy",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "slag-heap",
-      "usedInSpecs": 5,
-      "specs": [
-        "elemental-fire-node",
-        "forge",
-        "foundry-great",
-        "infernal-forge",
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "slime-puddle",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
-      "prop": "slime-trail",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
-      ]
-    },
-    {
-      "prop": "slippers",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
       ]
     },
     {
@@ -7060,36 +1710,6 @@
       ]
     },
     {
-      "prop": "small-table",
-      "usedInSpecs": 2,
-      "specs": [
-        "noble-solar",
-        "nursery"
-      ]
-    },
-    {
-      "prop": "smoke-cloud",
-      "usedInSpecs": 2,
-      "specs": [
-        "gambling-den",
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "smoke-wisp",
-      "usedInSpecs": 1,
-      "specs": [
-        "refinery"
-      ]
-    },
-    {
-      "prop": "smuggled-cage",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-cargo-hold"
-      ]
-    },
-    {
       "prop": "snare-set",
       "usedInSpecs": 1,
       "specs": [
@@ -7104,74 +1724,10 @@
       ]
     },
     {
-      "prop": "songbird-nest",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
-      ]
-    },
-    {
-      "prop": "soot-patch",
-      "usedInSpecs": 2,
-      "specs": [
-        "foundry-great",
-        "smithy-large"
-      ]
-    },
-    {
-      "prop": "soot-print",
-      "usedInSpecs": 1,
-      "specs": [
-        "charcoal-burner-camp"
-      ]
-    },
-    {
       "prop": "soot-streak",
       "usedInSpecs": 1,
       "specs": [
         "infernal-forge"
-      ]
-    },
-    {
-      "prop": "sorting-table",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
-      "prop": "soul-coin-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-court"
-      ]
-    },
-    {
-      "prop": "soul-crucible",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-forge"
-      ]
-    },
-    {
-      "prop": "spark-burst",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-fire-node"
-      ]
-    },
-    {
-      "prop": "spear-stuck",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "specimen-jar-shelf",
-      "usedInSpecs": 1,
-      "specs": [
-        "alchemy-lab"
       ]
     },
     {
@@ -7182,102 +1738,10 @@
       ]
     },
     {
-      "prop": "spell-component-loose",
-      "usedInSpecs": 1,
-      "specs": [
-        "demiplane-laboratory"
-      ]
-    },
-    {
-      "prop": "spelljammer-dock-mooring",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "spice-bowl",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "spice-rack",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "spider-egg-cluster",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
-      "prop": "spider-husk",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "spider-matriarch-pad",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "spider-shrine",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
-      "prop": "spider-silk-drape",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-drow-outpost"
-      ]
-    },
-    {
-      "prop": "spike-pit-hidden",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "spill-reagent",
-      "usedInSpecs": 1,
-      "specs": [
-        "refinery"
-      ]
-    },
-    {
-      "prop": "spilled-ale",
-      "usedInSpecs": 2,
-      "specs": [
-        "fairground-seasonal",
-        "tavern-common"
-      ]
-    },
-    {
       "prop": "spilled-flour-sack",
       "usedInSpecs": 1,
       "specs": [
         "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "spilled-punch",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
       ]
     },
     {
@@ -7295,42 +1759,10 @@
       ]
     },
     {
-      "prop": "spilled-toys",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "spilled-wine",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
-      ]
-    },
-    {
       "prop": "spindle-rack",
       "usedInSpecs": 1,
       "specs": [
         "house-medium-artisan"
-      ]
-    },
-    {
-      "prop": "spinning-wheel",
-      "usedInSpecs": 5,
-      "specs": [
-        "farmhouse-common",
-        "general-workshop",
-        "house-medium-family",
-        "noble-solar",
-        "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "sponge",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
       ]
     },
     {
@@ -7355,63 +1787,10 @@
       ]
     },
     {
-      "prop": "spring-coil",
-      "usedInSpecs": 1,
-      "specs": [
-        "workshop-artificer"
-      ]
-    },
-    {
-      "prop": "spyglass",
-      "usedInSpecs": 2,
-      "specs": [
-        "lighthouse-keepers-room",
-        "ship-captains-cabin"
-      ]
-    },
-    {
       "prop": "spyglass-tripod",
       "usedInSpecs": 1,
       "specs": [
         "scouts-blind"
-      ]
-    },
-    {
-      "prop": "stage-large",
-      "usedInSpecs": 1,
-      "specs": [
-        "bardic-hall"
-      ]
-    },
-    {
-      "prop": "stage-performance",
-      "usedInSpecs": 1,
-      "specs": [
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "stage-small",
-      "usedInSpecs": 3,
-      "specs": [
-        "bardic-hall",
-        "tavern-common",
-        "tavern-highend"
-      ]
-    },
-    {
-      "prop": "stair-remnant",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "staircase",
-      "usedInSpecs": 2,
-      "specs": [
-        "brothel-parlor",
-        "inn-common-room"
       ]
     },
     {
@@ -7422,62 +1801,10 @@
       ]
     },
     {
-      "prop": "stalactite-hanging",
-      "usedInSpecs": 1,
-      "specs": [
-        "cave-living"
-      ]
-    },
-    {
       "prop": "stalagmite-forest",
       "usedInSpecs": 1,
       "specs": [
         "cave-living"
-      ]
-    },
-    {
-      "prop": "stall-counter",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
-      "prop": "standing-stone",
-      "usedInSpecs": 3,
-      "specs": [
-        "burial-mound",
-        "druid-grove",
-        "standing-stones-circle"
-      ]
-    },
-    {
-      "prop": "standing-stone-fallen",
-      "usedInSpecs": 2,
-      "specs": [
-        "burial-mound",
-        "standing-stones-circle"
-      ]
-    },
-    {
-      "prop": "standing-stones-ring",
-      "usedInSpecs": 1,
-      "specs": [
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "star-dust-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "astral-anchor"
-      ]
-    },
-    {
-      "prop": "statue-classical",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-ballroom"
       ]
     },
     {
@@ -7488,38 +1815,10 @@
       ]
     },
     {
-      "prop": "statue-deity",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "statue-devil",
-      "usedInSpecs": 1,
-      "specs": [
-        "infernal-court"
-      ]
-    },
-    {
-      "prop": "statue-noble",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
       "prop": "statue-small",
       "usedInSpecs": 1,
       "specs": [
         "shrine-roadside"
-      ]
-    },
-    {
-      "prop": "statue-solar",
-      "usedInSpecs": 1,
-      "specs": [
-        "celestial-vault"
       ]
     },
     {
@@ -7537,59 +1836,10 @@
       ]
     },
     {
-      "prop": "stave-horse",
-      "usedInSpecs": 1,
-      "specs": [
-        "cooperage"
-      ]
-    },
-    {
-      "prop": "stave-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "cooperage"
-      ]
-    },
-    {
-      "prop": "steam-cloud",
-      "usedInSpecs": 1,
-      "specs": [
-        "bath-house"
-      ]
-    },
-    {
-      "prop": "stern-window",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-captains-cabin"
-      ]
-    },
-    {
-      "prop": "stolen-shoe",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "stone-arch-natural",
-      "usedInSpecs": 1,
-      "specs": [
-        "chasm-crossing"
-      ]
-    },
-    {
       "prop": "stone-column-broken",
       "usedInSpecs": 1,
       "specs": [
         "ancient-ruin-overgrown"
-      ]
-    },
-    {
-      "prop": "stone-debris",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-earth-node"
       ]
     },
     {
@@ -7600,38 +1850,10 @@
       ]
     },
     {
-      "prop": "stool-vendor",
-      "usedInSpecs": 1,
-      "specs": [
-        "market-stall"
-      ]
-    },
-    {
       "prop": "stool-wooden",
       "usedInSpecs": 1,
       "specs": [
         "ship-brig"
-      ]
-    },
-    {
-      "prop": "stopper-cork",
-      "usedInSpecs": 1,
-      "specs": [
-        "refinery"
-      ]
-    },
-    {
-      "prop": "storm-altar",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
-      ]
-    },
-    {
-      "prop": "stove-iron",
-      "usedInSpecs": 1,
-      "specs": [
-        "apartment-tenement"
       ]
     },
     {
@@ -7642,32 +1864,10 @@
       ]
     },
     {
-      "prop": "straw-bed-large",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
-      "prop": "straw-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "prison-block"
-      ]
-    },
-    {
       "prop": "straw-wisps",
       "usedInSpecs": 1,
       "specs": [
         "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "stretched-hide",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-hunters",
-        "cabin-trapper"
       ]
     },
     {
@@ -7678,32 +1878,10 @@
       ]
     },
     {
-      "prop": "stuffed-bear",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "summoning-pool",
-      "usedInSpecs": 2,
-      "specs": [
-        "boss-chamber",
-        "dark-temple"
-      ]
-    },
-    {
       "prop": "summoning-pool-glow",
       "usedInSpecs": 1,
       "specs": [
         "boss-chamber"
-      ]
-    },
-    {
-      "prop": "sun-disc-altar",
-      "usedInSpecs": 1,
-      "specs": [
-        "celestial-vault"
       ]
     },
     {
@@ -7721,13 +1899,6 @@
       ]
     },
     {
-      "prop": "swab-rammer",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-gun-deck"
-      ]
-    },
-    {
       "prop": "table-long",
       "usedInSpecs": 1,
       "specs": [
@@ -7742,76 +1913,10 @@
       ]
     },
     {
-      "prop": "table-small",
-      "usedInSpecs": 2,
-      "specs": [
-        "apartment-tenement",
-        "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "tallow-pot",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-trapper",
-        "cabin-witch"
-      ]
-    },
-    {
-      "prop": "tally-marks-wall",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
-      ]
-    },
-    {
       "prop": "tally-stick",
       "usedInSpecs": 1,
       "specs": [
         "dock-warehouse"
-      ]
-    },
-    {
-      "prop": "tankard",
-      "usedInSpecs": 9,
-      "specs": [
-        "brewery",
-        "gambling-den",
-        "inn-common-room",
-        "lighthouse-keepers-room",
-        "mess-hall",
-        "ship-crew-quarters",
-        "ship-galley",
-        "tavern-common",
-        "thieves-guild-hideout"
-      ]
-    },
-    {
-      "prop": "tanning-pit",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
-      ]
-    },
-    {
-      "prop": "tanning-vat",
-      "usedInSpecs": 1,
-      "specs": [
-        "tannery"
-      ]
-    },
-    {
-      "prop": "tapestry",
-      "usedInSpecs": 8,
-      "specs": [
-        "crypt",
-        "mansion-ballroom",
-        "mansion-dining",
-        "noble-bedchamber",
-        "noble-solar",
-        "sanctuary-inner",
-        "sanctum-order",
-        "throne-room"
       ]
     },
     {
@@ -7822,90 +1927,9 @@
       ]
     },
     {
-      "prop": "tapestry-large",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
-      "prop": "tapestry-religious",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "tattered-letter",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "tea-service",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-noble-townhouse",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "tea-table",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-noble-townhouse",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "teacup",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "teapot",
-      "usedInSpecs": 1,
-      "specs": [
-        "opium-den"
-      ]
-    },
-    {
-      "prop": "tent",
-      "usedInSpecs": 2,
-      "specs": [
-        "campsite-traveler",
-        "fairground-seasonal"
-      ]
-    },
-    {
-      "prop": "tent-collapsed",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "thimble",
-      "usedInSpecs": 1,
-      "specs": [
-        "shop-tailor"
-      ]
-    },
-    {
       "prop": "thread-rack",
       "usedInSpecs": 1,
       "specs": [
-        "textile-loomhouse"
-      ]
-    },
-    {
-      "prop": "thread-spool",
-      "usedInSpecs": 2,
-      "specs": [
-        "shop-tailor",
         "textile-loomhouse"
       ]
     },
@@ -7914,50 +1938,6 @@
       "usedInSpecs": 1,
       "specs": [
         "mansion-servants-quarters"
-      ]
-    },
-    {
-      "prop": "thumbscrews",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
-      ]
-    },
-    {
-      "prop": "timber-brace",
-      "usedInSpecs": 1,
-      "specs": [
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "tin-cup",
-      "usedInSpecs": 3,
-      "specs": [
-        "apartment-tenement",
-        "mansion-servants-quarters",
-        "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "tin-soldier-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "tiny-chair",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "tiny-shoe",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
       ]
     },
     {
@@ -7989,36 +1969,6 @@
       ]
     },
     {
-      "prop": "tongs-long",
-      "usedInSpecs": 1,
-      "specs": [
-        "foundry-great"
-      ]
-    },
-    {
-      "prop": "tool-cart",
-      "usedInSpecs": 2,
-      "specs": [
-        "interrogation-room",
-        "torture-chamber"
-      ]
-    },
-    {
-      "prop": "tool-rack",
-      "usedInSpecs": 9,
-      "specs": [
-        "cooperage",
-        "forge",
-        "general-workshop",
-        "lumberyard",
-        "mill-lumber",
-        "mine-shaft-entrance",
-        "smithy-large",
-        "temple-of-craft",
-        "workshop-artificer"
-      ]
-    },
-    {
       "prop": "tool-rack-wall",
       "usedInSpecs": 1,
       "specs": [
@@ -8037,50 +1987,6 @@
       "usedInSpecs": 1,
       "specs": [
         "torture-chamber"
-      ]
-    },
-    {
-      "prop": "torch-totem",
-      "usedInSpecs": 2,
-      "specs": [
-        "goblin-warren-entrance",
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "torch-wall",
-      "usedInSpecs": 6,
-      "specs": [
-        "cave-bandit-camp",
-        "cave-goblin-warren",
-        "chasm-crossing",
-        "slime-pit",
-        "spider-lair",
-        "tunnel-mine-worked"
-      ]
-    },
-    {
-      "prop": "torn-banner",
-      "usedInSpecs": 2,
-      "specs": [
-        "corrupted-temple",
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "torn-cloak",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
-      "prop": "torn-cloth",
-      "usedInSpecs": 3,
-      "specs": [
-        "cave-bandit-camp",
-        "cave-bear-lair",
-        "goblin-warren-entrance"
       ]
     },
     {
@@ -8105,28 +2011,6 @@
       ]
     },
     {
-      "prop": "towel-folded",
-      "usedInSpecs": 1,
-      "specs": [
-        "bath-house"
-      ]
-    },
-    {
-      "prop": "toy-chest",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "trap-rack",
-      "usedInSpecs": 2,
-      "specs": [
-        "cabin-hunters",
-        "cabin-trapper"
-      ]
-    },
-    {
       "prop": "trash-heap",
       "usedInSpecs": 1,
       "specs": [
@@ -8141,20 +2025,6 @@
       ]
     },
     {
-      "prop": "treasure-chest-naval",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-cargo-hold"
-      ]
-    },
-    {
-      "prop": "tree-ancient-fey",
-      "usedInSpecs": 1,
-      "specs": [
-        "fey-glade"
-      ]
-    },
-    {
       "prop": "tree-old",
       "usedInSpecs": 1,
       "specs": [
@@ -8162,41 +2032,10 @@
       ]
     },
     {
-      "prop": "tripwire",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "trophy-case",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-captains-cabin"
-      ]
-    },
-    {
       "prop": "trunk-open",
       "usedInSpecs": 1,
       "specs": [
         "cabin-abandoned"
-      ]
-    },
-    {
-      "prop": "tuft-of-fur",
-      "usedInSpecs": 4,
-      "specs": [
-        "cave-bear-lair",
-        "hunting-lodge-large",
-        "orc-war-camp",
-        "shepherds-shelter"
-      ]
-    },
-    {
-      "prop": "tureen",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-dining"
       ]
     },
     {
@@ -8221,13 +2060,6 @@
       ]
     },
     {
-      "prop": "umbrella-stand",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-grand-hall"
-      ]
-    },
-    {
       "prop": "urn",
       "usedInSpecs": 1,
       "specs": [
@@ -8246,13 +2078,6 @@
       "usedInSpecs": 1,
       "specs": [
         "shop-jeweler"
-      ]
-    },
-    {
-      "prop": "victim-cocoon",
-      "usedInSpecs": 1,
-      "specs": [
-        "slime-pit"
       ]
     },
     {
@@ -8284,84 +2109,10 @@
       ]
     },
     {
-      "prop": "wall-sconce",
-      "usedInSpecs": 4,
-      "specs": [
-        "mansion-ballroom",
-        "mansion-bedroom-master",
-        "noble-bedchamber",
-        "nursery"
-      ]
-    },
-    {
-      "prop": "war-paint-pot",
-      "usedInSpecs": 1,
-      "specs": [
-        "orc-war-camp"
-      ]
-    },
-    {
-      "prop": "wardrobe-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "nursery"
-      ]
-    },
-    {
-      "prop": "warren-hole",
-      "usedInSpecs": 1,
-      "specs": [
-        "goblin-warren-entrance"
-      ]
-    },
-    {
-      "prop": "washing-line",
-      "usedInSpecs": 1,
-      "specs": [
-        "apartment-tenement"
-      ]
-    },
-    {
-      "prop": "washing-tub",
-      "usedInSpecs": 2,
-      "specs": [
-        "apartment-tenement",
-        "house-small"
-      ]
-    },
-    {
       "prop": "watchfire-pit",
       "usedInSpecs": 1,
       "specs": [
         "underdark-outpost"
-      ]
-    },
-    {
-      "prop": "watchfire-ring",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
-      ]
-    },
-    {
-      "prop": "water-barrel",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-main-deck"
-      ]
-    },
-    {
-      "prop": "water-bowl",
-      "usedInSpecs": 1,
-      "specs": [
-        "kiln-pottery"
-      ]
-    },
-    {
-      "prop": "water-dish-dry",
-      "usedInSpecs": 1,
-      "specs": [
-        "oubliette"
       ]
     },
     {
@@ -8372,66 +2123,10 @@
       ]
     },
     {
-      "prop": "water-jug",
-      "usedInSpecs": 4,
-      "specs": [
-        "cabin-hunters",
-        "cabin-trapper",
-        "house-medium-artisan",
-        "house-medium-family"
-      ]
-    },
-    {
-      "prop": "water-node-core",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-water-node"
-      ]
-    },
-    {
-      "prop": "water-pitcher",
-      "usedInSpecs": 1,
-      "specs": [
-        "interrogation-room"
-      ]
-    },
-    {
       "prop": "water-skin",
       "usedInSpecs": 1,
       "specs": [
         "charcoal-burner-camp"
-      ]
-    },
-    {
-      "prop": "waterskin",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
-      ]
-    },
-    {
-      "prop": "wax-seal",
-      "usedInSpecs": 4,
-      "specs": [
-        "counting-house",
-        "courthouse-chamber",
-        "guildhall",
-        "scriptorium-mundane"
-      ]
-    },
-    {
-      "prop": "wax-seal-kit",
-      "usedInSpecs": 2,
-      "specs": [
-        "command-room",
-        "scriptorium-dark"
-      ]
-    },
-    {
-      "prop": "weapon-rack-broken",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
       ]
     },
     {
@@ -8442,15 +2137,6 @@
       ]
     },
     {
-      "prop": "weapon-rack-crude",
-      "usedInSpecs": 3,
-      "specs": [
-        "cave-bandit-camp",
-        "orc-war-camp",
-        "toll-bridge-house"
-      ]
-    },
-    {
       "prop": "weapon-rack-infernal",
       "usedInSpecs": 1,
       "specs": [
@@ -8458,84 +2144,10 @@
       ]
     },
     {
-      "prop": "weapon-rack-small",
-      "usedInSpecs": 2,
-      "specs": [
-        "ship-brig",
-        "ship-captains-cabin"
-      ]
-    },
-    {
-      "prop": "weapon-rack-wall",
-      "usedInSpecs": 1,
-      "specs": [
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "weapon-stuck",
-      "usedInSpecs": 1,
-      "specs": [
-        "battlefield-recent"
-      ]
-    },
-    {
-      "prop": "web-cluster",
-      "usedInSpecs": 1,
-      "specs": [
-        "monster-lair-small"
-      ]
-    },
-    {
-      "prop": "web-floor",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "web-funnel",
-      "usedInSpecs": 1,
-      "specs": [
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "web-strand",
-      "usedInSpecs": 2,
-      "specs": [
-        "cave-drow-outpost",
-        "spider-lair"
-      ]
-    },
-    {
-      "prop": "wedge-iron",
-      "usedInSpecs": 2,
-      "specs": [
-        "lumberyard",
-        "mill-lumber"
-      ]
-    },
-    {
-      "prop": "whetstone",
-      "usedInSpecs": 2,
-      "specs": [
-        "armory",
-        "shop-weaponsmith"
-      ]
-    },
-    {
       "prop": "whittled-stick",
       "usedInSpecs": 1,
       "specs": [
         "ranger-camp"
-      ]
-    },
-    {
-      "prop": "wild-plant-sprouting",
-      "usedInSpecs": 1,
-      "specs": [
-        "ruined-watchtower"
       ]
     },
     {
@@ -8553,31 +2165,10 @@
       ]
     },
     {
-      "prop": "winch-large",
-      "usedInSpecs": 1,
-      "specs": [
-        "mine-shaft-entrance"
-      ]
-    },
-    {
       "prop": "winch-mechanism",
       "usedInSpecs": 1,
       "specs": [
         "gatehouse-inner"
-      ]
-    },
-    {
-      "prop": "winch-platform",
-      "usedInSpecs": 1,
-      "specs": [
-        "chasm-crossing"
-      ]
-    },
-    {
-      "prop": "wind-chime-giant",
-      "usedInSpecs": 1,
-      "specs": [
-        "elemental-air-node"
       ]
     },
     {
@@ -8595,119 +2186,10 @@
       ]
     },
     {
-      "prop": "wine-bottle",
-      "usedInSpecs": 2,
-      "specs": [
-        "brothel-parlor",
-        "tavern-highend"
-      ]
-    },
-    {
-      "prop": "wine-decanter",
-      "usedInSpecs": 1,
-      "specs": [
-        "command-room"
-      ]
-    },
-    {
-      "prop": "wine-glass",
-      "usedInSpecs": 4,
-      "specs": [
-        "bardic-hall",
-        "brothel-parlor",
-        "mansion-ballroom",
-        "tavern-highend"
-      ]
-    },
-    {
-      "prop": "wine-nightcap",
-      "usedInSpecs": 1,
-      "specs": [
-        "mansion-bedroom-master"
-      ]
-    },
-    {
-      "prop": "wine-rack-small",
-      "usedInSpecs": 1,
-      "specs": [
-        "house-merchant"
-      ]
-    },
-    {
-      "prop": "witch-hut",
-      "usedInSpecs": 1,
-      "specs": [
-        "bog-witch-hut"
-      ]
-    },
-    {
-      "prop": "witch-hut-stilts",
-      "usedInSpecs": 1,
-      "specs": [
-        "bog-witch-hut"
-      ]
-    },
-    {
-      "prop": "withered-flowers",
-      "usedInSpecs": 3,
-      "specs": [
-        "graveyard-village",
-        "roadside-gallows",
-        "shadowfell-mausoleum"
-      ]
-    },
-    {
-      "prop": "withered-offering",
-      "usedInSpecs": 1,
-      "specs": [
-        "temple-nave"
-      ]
-    },
-    {
-      "prop": "withered-wreath",
-      "usedInSpecs": 2,
-      "specs": [
-        "crypt",
-        "shrine-roadside"
-      ]
-    },
-    {
       "prop": "witness-dock",
       "usedInSpecs": 1,
       "specs": [
         "courthouse-chamber"
-      ]
-    },
-    {
-      "prop": "wood-bin",
-      "usedInSpecs": 2,
-      "specs": [
-        "lighthouse-keepers-room",
-        "ship-galley"
-      ]
-    },
-    {
-      "prop": "wood-chip",
-      "usedInSpecs": 3,
-      "specs": [
-        "cooperage",
-        "lumberyard",
-        "mill-lumber"
-      ]
-    },
-    {
-      "prop": "wood-chip-pile",
-      "usedInSpecs": 2,
-      "specs": [
-        "charcoal-burner-camp",
-        "druid-grove"
-      ]
-    },
-    {
-      "prop": "wood-pile",
-      "usedInSpecs": 1,
-      "specs": [
-        "campsite-traveler"
       ]
     },
     {
@@ -8718,28 +2200,6 @@
       ]
     },
     {
-      "prop": "wooden-bowl",
-      "usedInSpecs": 2,
-      "specs": [
-        "farmhouse-common",
-        "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "wooden-paddle",
-      "usedInSpecs": 1,
-      "specs": [
-        "brewery"
-      ]
-    },
-    {
-      "prop": "wooden-spoon",
-      "usedInSpecs": 1,
-      "specs": [
-        "ship-galley"
-      ]
-    },
-    {
       "prop": "wooden-spoon-pile",
       "usedInSpecs": 1,
       "specs": [
@@ -8747,53 +2207,10 @@
       ]
     },
     {
-      "prop": "wooden-toy",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-medium-family",
-        "nursery"
-      ]
-    },
-    {
       "prop": "work-in-progress",
       "usedInSpecs": 1,
       "specs": [
         "general-workshop"
-      ]
-    },
-    {
-      "prop": "worn-shoes",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-servants-quarters",
-        "peasant-hovel"
-      ]
-    },
-    {
-      "prop": "writing-desk",
-      "usedInSpecs": 5,
-      "specs": [
-        "house-merchant",
-        "house-noble-townhouse",
-        "library",
-        "mansion-study",
-        "noble-solar"
-      ]
-    },
-    {
-      "prop": "writing-desk-small",
-      "usedInSpecs": 2,
-      "specs": [
-        "mansion-bedroom-master",
-        "noble-bedchamber"
-      ]
-    },
-    {
-      "prop": "yarn-basket",
-      "usedInSpecs": 2,
-      "specs": [
-        "house-medium-artisan",
-        "noble-solar"
       ]
     }
   ]

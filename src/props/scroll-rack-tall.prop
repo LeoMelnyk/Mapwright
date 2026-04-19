@@ -1,0 +1,84 @@
+name: Scroll Rack (Tall)
+category: Library & Study
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 7
+placement: wall
+room_types: library, archive, wizard-sanctum, study, command-room
+typical_count: few
+clusters_with: bookshelf, scroll-case, scroll-stack, desk
+notes: Tall wall-mounted scroll rack with many small cubbies for scroll tubes; use alongside bookshelves for variety. Taller and denser than scroll-rack.prop
+---
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: cabinet top + crown molding at north + hint of scroll-end circles at south edge
+
+# === HITBOX ===
+hitbox rect 0.04,0.02 1.92,0.80
+
+# === Cabinet body (recessed below top, visible at south face) ===
+rect 0.08,0.06 1.84,0.76 fill #2a1400 0.35
+rect 0.08,0.06 1.84,0.76 stroke #3a1f00
+
+# === Cabinet top surface (flat wood top seen from above) ===
+rect 0.04,0.02 1.92,0.62 texfill polyhaven/wood_cabinet_worn_long 0.85
+rect 0.04,0.02 1.92,0.62 stroke #3a1f00
+
+# Crown molding at north (wall side — thin darker strip)
+rect 0.02,0.02 1.96,0.08 texfill polyhaven/dark_wood 0.9
+rect 0.02,0.02 1.96,0.08 stroke #2a1400
+
+# === Scroll-end circles at south edge (many tiny dots visible poking out) ===
+# Row of scroll tube ends — small circles representing parchment tube cross-sections
+# These are visible at the south face of the rack, peeking out from cubbies
+
+# Left section cubbies
+circle 0.16,0.72 0.035 fill #e8dcc8 0.75
+circle 0.16,0.72 0.035 stroke #c8b898 0.6
+circle 0.28,0.74 0.03 fill #ddd0aa 0.7
+circle 0.28,0.74 0.03 stroke #c8b898 0.6
+circle 0.40,0.72 0.035 fill #e8dcc8 0.75
+circle 0.40,0.72 0.035 stroke #c8b898 0.6
+circle 0.22,0.78 0.025 fill #d4c4a0 0.65
+circle 0.34,0.76 0.03 fill #e8d8a8 0.7
+circle 0.34,0.76 0.03 stroke #c8b898 0.5
+
+# Center section cubbies
+circle 0.56,0.74 0.035 fill #ddd0aa 0.75
+circle 0.56,0.74 0.035 stroke #c8b898 0.6
+circle 0.68,0.72 0.03 fill #e8dcc8 0.7
+circle 0.68,0.72 0.03 stroke #c8b898 0.6
+circle 0.80,0.74 0.035 fill #d4c4a0 0.75
+circle 0.80,0.74 0.035 stroke #c8b898 0.6
+circle 0.62,0.78 0.025 fill #e8d8a8 0.65
+circle 0.74,0.76 0.03 fill #ddd0aa 0.7
+circle 0.74,0.76 0.03 stroke #c8b898 0.5
+
+# Right section cubbies
+circle 1.00,0.72 0.035 fill #e8dcc8 0.75
+circle 1.00,0.72 0.035 stroke #c8b898 0.6
+circle 1.12,0.74 0.03 fill #ddd0aa 0.7
+circle 1.12,0.74 0.03 stroke #c8b898 0.6
+circle 1.24,0.72 0.035 fill #e8dcc8 0.75
+circle 1.24,0.72 0.035 stroke #c8b898 0.6
+circle 1.06,0.78 0.025 fill #d4c4a0 0.65
+circle 1.18,0.76 0.03 fill #e8d8a8 0.7
+circle 1.18,0.76 0.03 stroke #c8b898 0.5
+
+# Far-right section cubbies
+circle 1.44,0.74 0.035 fill #ddd0aa 0.75
+circle 1.44,0.74 0.035 stroke #c8b898 0.6
+circle 1.56,0.72 0.03 fill #e8dcc8 0.7
+circle 1.56,0.72 0.03 stroke #c8b898 0.6
+circle 1.68,0.74 0.035 fill #d4c4a0 0.75
+circle 1.68,0.74 0.035 stroke #c8b898 0.6
+circle 1.50,0.78 0.025 fill #e8d8a8 0.65
+circle 1.80,0.72 0.03 fill #e8dcc8 0.7
+circle 1.80,0.72 0.03 stroke #c8b898 0.5
+
+# Brass end-caps on a few scroll tubes
+circle 0.16,0.72 0.02 fill #8b6914 0.6
+circle 0.56,0.74 0.02 fill #8b6914 0.6
+circle 1.24,0.72 0.02 fill #8b6914 0.6
+circle 1.68,0.74 0.02 fill #8b6914 0.6

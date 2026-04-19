@@ -1,0 +1,42 @@
+name: Pelt
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: cabin-hunters, tanners, tannery, ranger-camp, trapper-cabin, druid-grove, orc-war-camp, workshop-leatherworker
+typical_count: few
+clusters_with: pelt, fur-rug, hide-scraps, hide-tarp, fur-clump, antler-rack, hunting-horn, tanning-rack, bone-pile
+notes: Single animal hide spread on the floor — rough pelt with irregular edges and tufts of fur around the perimeter. A trapper's offering or work-in-progress hide.
+---
+# Irregular pelt outline (four-lobed, like splayed hide with legs)
+poly 0.20,0.30 0.30,0.20 0.42,0.16 0.50,0.12 0.58,0.16 0.70,0.20 0.82,0.32 0.84,0.50 0.80,0.64 0.72,0.78 0.58,0.82 0.50,0.86 0.42,0.82 0.28,0.78 0.20,0.66 0.16,0.52 0.14,0.40 fill #8b6f47 0.85
+poly 0.20,0.30 0.30,0.20 0.42,0.16 0.50,0.12 0.58,0.16 0.70,0.20 0.82,0.32 0.84,0.50 0.80,0.64 0.72,0.78 0.58,0.82 0.50,0.86 0.42,0.82 0.28,0.78 0.20,0.66 0.16,0.52 0.14,0.40 stroke #3a2818
+
+# Darker spine marking along center
+ellipse 0.50,0.50 0.06,0.32 fill #5c3a1e 0.5
+
+# Fur tuft accents around perimeter (small radial strokes)
+line 0.20,0.28 0.16,0.22 stroke #6a4a28 0.7 width 1
+line 0.34,0.18 0.32,0.12 stroke #6a4a28 0.7 width 1
+line 0.50,0.12 0.50,0.06 stroke #6a4a28 0.7 width 1
+line 0.66,0.18 0.68,0.12 stroke #6a4a28 0.7 width 1
+line 0.82,0.32 0.88,0.28 stroke #6a4a28 0.7 width 1
+line 0.84,0.50 0.92,0.50 stroke #6a4a28 0.7 width 1
+line 0.80,0.66 0.88,0.70 stroke #6a4a28 0.7 width 1
+line 0.72,0.78 0.76,0.86 stroke #6a4a28 0.7 width 1
+line 0.50,0.86 0.50,0.92 stroke #6a4a28 0.7 width 1
+line 0.28,0.78 0.24,0.86 stroke #6a4a28 0.7 width 1
+line 0.20,0.66 0.12,0.70 stroke #6a4a28 0.7 width 1
+line 0.16,0.50 0.08,0.50 stroke #6a4a28 0.7 width 1
+
+# Light fur highlights (patches of paler hair)
+ellipse 0.40,0.36 0.06,0.04 fill #c8a878 0.4
+ellipse 0.60,0.64 0.05,0.03 fill #c8a878 0.35
+
+# Small spots / markings
+circle 0.35,0.58 0.022 fill #3a2818 0.7
+circle 0.60,0.38 0.02 fill #3a2818 0.6
+circle 0.52,0.70 0.018 fill #3a2818 0.55

@@ -4,7 +4,7 @@ footprint: 2x2
 facing: no
 shadow: no
 blocks_light: no
-lights: [{"preset":"torch","x":1.0,"y":1.0}]
+lights: [{"preset":"candle","x":1.0,"y":1.0}]
 placement: center
 room_types: throne-room, great-hall, ballroom, temple
 typical_count: single

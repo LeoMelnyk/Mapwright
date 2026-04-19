@@ -1,0 +1,51 @@
+name: Cell Door
+category: Prison
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: yes
+height: 3
+placement: wall
+room_types: prison-block, dungeon-cell, torture-chamber
+typical_count: few
+clusters_with: bars-cell-partition, rusted-manacle, chain-coil, key-ring
+notes: Heavy iron-banded wooden cell door; place in a wall opening. Small barred peek window at top (north edge)
+---
+# === HITBOX ===
+hitbox rect 0.05,0.15 0.90,0.55 z 0-3
+
+# Door body (wood)
+rect 0.05,0.15 0.90,0.55 texfill polyhaven/dark_wood 0.9
+rect 0.05,0.15 0.90,0.55 stroke #1a1208
+# Hinges along west edge (north and south hinge)
+rect 0.04,0.22 0.08,0.08 fill #333333 0.9
+rect 0.04,0.22 0.08,0.08 stroke #1a1208
+rect 0.04,0.56 0.08,0.08 fill #333333 0.9
+rect 0.04,0.56 0.08,0.08 stroke #1a1208
+# Iron band — upper horizontal
+rect 0.05,0.30 0.90,0.05 fill #333333 0.95
+rect 0.05,0.30 0.90,0.05 stroke #1a1208
+# Iron band — lower horizontal
+rect 0.05,0.56 0.90,0.05 fill #333333 0.95
+rect 0.05,0.56 0.90,0.05 stroke #1a1208
+# Iron band rivets (upper)
+circle 0.15,0.325 0.018 fill #555555 0.9
+circle 0.50,0.325 0.018 fill #555555 0.9
+circle 0.85,0.325 0.018 fill #555555 0.9
+# Iron band rivets (lower)
+circle 0.15,0.585 0.018 fill #555555 0.9
+circle 0.50,0.585 0.018 fill #555555 0.9
+circle 0.85,0.585 0.018 fill #555555 0.9
+# Barred peek window (top center)
+rect 0.36,0.18 0.28,0.10 fill #0a0a0a 0.95
+rect 0.36,0.18 0.28,0.10 stroke #1a1208
+# Window bars (vertical, 3 grate lines)
+line 0.44,0.19 0.44,0.27 stroke #666666 width 2
+line 0.50,0.19 0.50,0.27 stroke #666666 width 2
+line 0.56,0.19 0.56,0.27 stroke #666666 width 2
+# Heavy lock plate on south-east side
+rect 0.72,0.40 0.16,0.14 fill #444444 0.9
+rect 0.72,0.40 0.16,0.14 stroke #1a1208
+# Keyhole
+circle 0.80,0.46 0.018 fill #0a0a0a 0.95
+rect 0.795,0.46 0.01,0.04 fill #0a0a0a 0.95

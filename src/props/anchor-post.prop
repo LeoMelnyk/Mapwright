@@ -1,0 +1,42 @@
+name: Anchor Post
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: chasm, cave, mine, bridge-approach, cliff-edge
+typical_count: few
+clusters_with: rope-bridge, broken-bridge-stub, winch-platform
+notes: Large iron post driven into rock with a thick rope leading off one edge (south). Place at chasm edges as rope-bridge anchors.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: iron post disc at center + thick rope line running south out of footprint
+
+# === Rope running south from the post ===
+line 0.50,0.55 0.50,0.98 stroke #8b7355 width 4
+# Rope edge highlights
+line 0.48,0.55 0.48,0.98 stroke #6b5a30 0.4 width 1
+line 0.52,0.55 0.52,0.98 stroke #a08a60 0.3 width 1
+
+# === Rope coil around the post base ===
+ellipse 0.50,0.50 0.28,0.26 stroke #8b7355 0.7
+ellipse 0.50,0.50 0.24,0.22 stroke #8b7355 0.5
+
+# === Iron post top (disc from above) ===
+circle 0.50,0.50 0.16 texfill polyhaven/metal_plate 0.85
+circle 0.50,0.50 0.16 stroke #333333
+# Inner ring detail
+circle 0.50,0.50 0.10 stroke #555555 0.6
+# Center bolt
+circle 0.50,0.50 0.035 fill #888888 0.7
+circle 0.50,0.50 0.035 stroke #333333
+
+# === Base plate (iron plate bolted to rock) ===
+rect 0.30,0.30 0.40,0.40 fill #555555 0.3
+rect 0.30,0.30 0.40,0.40 stroke #333333 0.4
+# Corner bolts on base plate
+circle 0.34,0.34 0.02 fill #666666 0.6
+circle 0.66,0.34 0.02 fill #666666 0.6
+circle 0.34,0.66 0.02 fill #666666 0.6
+circle 0.66,0.66 0.02 fill #666666 0.6

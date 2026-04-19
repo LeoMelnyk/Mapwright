@@ -1,0 +1,68 @@
+name: Spider Matriarch Pad
+category: Terrain
+footprint: 3x3
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: spider-lair, monster-lair-large, cave-drow-outpost
+typical_count: single
+clusters_with: egg-sac-mound, spider-husk, cobweb-heavy, web-floor, fang-scatter
+notes: A wide trampled circle of matted web serving as the matriarch's resting area — silk layer with bone fragments, egg husks, and hair strands. 3x3 centerpiece for the queen spider's chamber.
+---
+# footprint 3x3: x range 0-3, y range 0-3
+
+# === Base matted silk layer (wide irregular disc) ===
+ellipse 1.50,1.50 1.35,1.30 fill #c8c0a8 0.3
+ellipse 1.50,1.50 1.20,1.15 fill #d0c8b0 0.35
+ellipse 1.50,1.50 1.00,0.95 fill #d8d0b8 0.3
+
+# === Dense silk threads criss-crossing irregularly ===
+line 0.30,0.80 2.70,0.70 stroke #d8d0b0 0.4 width 1
+line 0.40,1.20 2.60,1.30 stroke #d8d0b0 0.35 width 1
+line 0.35,1.80 2.65,1.70 stroke #d8d0b0 0.35 width 1
+line 0.45,2.20 2.55,2.30 stroke #d8d0b0 0.4 width 1
+line 0.70,0.30 0.80,2.70 stroke #d8d0b0 0.35 width 1
+line 1.30,0.35 1.20,2.65 stroke #d8d0b0 0.3 width 1
+line 2.00,0.40 2.10,2.60 stroke #d8d0b0 0.35 width 1
+line 2.50,0.50 2.40,2.50 stroke #d8d0b0 0.3 width 1
+# Diagonal strands
+line 0.40,0.40 2.60,2.60 stroke #d8d0b0 0.3 width 1
+line 2.60,0.40 0.40,2.60 stroke #d8d0b0 0.3 width 1
+line 0.50,1.50 2.50,1.50 stroke #d0c8b0 0.35 width 1
+line 1.50,0.50 1.50,2.50 stroke #d0c8b0 0.35 width 1
+
+# === Bone fragments scattered in the silk ===
+# Femur fragment 1
+rect 0.80,0.90 0.30,0.05 fill #d4c4a8 0.65
+circle 0.82,0.915 0.035 fill #e8dcc8 0.6
+circle 1.08,0.915 0.035 fill #e8dcc8 0.6
+# Femur fragment 2
+rect 1.90,1.70 0.05,0.28 fill #d4c4a8 0.6
+circle 1.925,1.72 0.03 fill #e8dcc8 0.55
+circle 1.925,1.96 0.03 fill #e8dcc8 0.55
+# Small rib
+poly 1.20,2.10 1.35,2.08 1.38,2.14 1.22,2.16 fill #c8b898 0.55
+# Vertebra
+circle 2.20,1.10 0.04 fill #d4c4a8 0.6
+circle 2.20,1.10 0.04 stroke #8a7a6a 0.5
+
+# === Crushed egg husks (broken shells) ===
+poly 0.60,1.60 0.68,1.55 0.75,1.60 0.72,1.68 0.62,1.68 fill #c8b898 0.5
+poly 0.60,1.60 0.68,1.55 0.75,1.60 0.72,1.68 0.62,1.68 stroke #6a5a40 0.6
+poly 2.10,0.80 2.18,0.76 2.24,0.82 2.20,0.88 2.12,0.88 fill #c8b898 0.45
+poly 2.10,0.80 2.18,0.76 2.24,0.82 2.20,0.88 2.12,0.88 stroke #6a5a40 0.5
+
+# === Dark hair/fur strands ===
+bezier 1.00,1.20 1.10,1.15 1.25,1.18 1.35,1.22 stroke #2a1a08 0.5 width 1
+bezier 1.60,1.80 1.72,1.75 1.80,1.82 1.90,1.85 stroke #2a1a08 0.45 width 1
+bezier 0.80,2.00 0.92,1.95 1.00,2.00 1.10,2.05 stroke #2a1a08 0.4 width 1
+
+# === Ichor stains (dark wet patches in the silk) ===
+ellipse 1.50,1.50 0.30,0.25 fill #3a3010 0.25
+ellipse 0.90,1.40 0.15,0.12 fill #3a3010 0.2
+ellipse 2.10,1.50 0.18,0.14 fill #3a3010 0.2
+
+# === Small fang chips ===
+poly 1.70,0.70 1.74,0.66 1.78,0.70 1.76,0.76 fill #1a1208 0.6
+poly 0.50,2.30 0.54,2.26 0.58,2.30 0.56,2.36 fill #1a1208 0.55

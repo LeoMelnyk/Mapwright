@@ -1,0 +1,57 @@
+name: Scratch Marks
+category: Prison
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+placement: wall
+room_types: prison-block, oubliette, dungeon, crypt
+typical_count: few
+clusters_with: tally-marks-wall, shackles, broken-fingernail-scratch, chain-wall
+notes: Desperate claw/nail scratches on a stone wall. Wide wall strip along north edge. Shallow random slashes, not neat tallies.
+---
+# footprint 1x2: x range 0-2, y range 0-1. Wall mounted — marks along north edge.
+
+# === Wall strip shadow background (darker stone where scratches are) ===
+rect 0.08,0.04 1.84,0.26 fill #3a2a20 0.18
+
+# === Group 1 (left side — many rough parallel slashes) ===
+line 0.12,0.08 0.16,0.26 stroke #9a8878 0.7 width 2
+line 0.18,0.06 0.22,0.24 stroke #8a7868 0.65 width 2
+line 0.24,0.08 0.28,0.26 stroke #9a8878 0.6 width 1
+line 0.30,0.05 0.34,0.25 stroke #8a7868 0.7 width 2
+line 0.36,0.07 0.40,0.27 stroke #7a6858 0.6 width 2
+line 0.42,0.06 0.46,0.24 stroke #9a8878 0.55 width 1
+
+# === Group 2 (center — angled desperate strokes) ===
+line 0.56,0.08 0.64,0.26 stroke #8a7868 0.7 width 2
+line 0.60,0.05 0.68,0.24 stroke #9a8878 0.65 width 2
+line 0.66,0.08 0.74,0.26 stroke #7a6858 0.6 width 2
+line 0.72,0.06 0.80,0.25 stroke #8a7868 0.65 width 1
+# Short parallel claw scratches (4 fingers)
+line 0.86,0.08 0.84,0.26 stroke #9a8878 0.7 width 2
+line 0.92,0.06 0.90,0.24 stroke #9a8878 0.7 width 2
+line 0.98,0.08 0.96,0.26 stroke #9a8878 0.7 width 2
+line 1.04,0.06 1.02,0.24 stroke #9a8878 0.7 width 2
+
+# === Group 3 (right — more scattered, less regular) ===
+line 1.16,0.10 1.22,0.24 stroke #8a7868 0.6 width 2
+line 1.24,0.06 1.30,0.22 stroke #7a6858 0.65 width 1
+line 1.32,0.09 1.38,0.27 stroke #9a8878 0.65 width 2
+line 1.40,0.06 1.46,0.24 stroke #8a7868 0.6 width 2
+line 1.48,0.08 1.54,0.26 stroke #7a6858 0.6 width 1
+# Crossed/X marks
+line 1.60,0.08 1.72,0.24 stroke #8a7868 0.7 width 2
+line 1.72,0.08 1.60,0.24 stroke #8a7868 0.6 width 1
+# Trailing off scratches
+line 1.78,0.10 1.82,0.22 stroke #7a6858 0.5 width 1
+line 1.84,0.08 1.88,0.20 stroke #7a6858 0.5 width 1
+
+# === Dark stain / dried blood smear ===
+ellipse 0.70,0.18 0.12,0.04 fill #2a0808 0.50
+ellipse 1.30,0.16 0.10,0.04 fill #2a0808 0.45
+
+# === Chalky white bone-dust where nails broke ===
+circle 0.40,0.24 0.010 fill #d4c4a8 0.6
+circle 1.00,0.25 0.010 fill #d4c4a8 0.6
+circle 1.66,0.25 0.010 fill #d4c4a8 0.6

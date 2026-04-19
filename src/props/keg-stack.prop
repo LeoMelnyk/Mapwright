@@ -1,0 +1,62 @@
+name: Keg Stack
+category: Containers
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: yes
+height: 3
+placement: corner
+room_types: brewery, inn-common-room, tavern-common, cellar, dock-warehouse
+typical_count: few
+clusters_with: keg, barrel, bar-counter, crate-stack
+notes: Stack of small kegs piled in a corner; storage cluster
+---
+# === HITBOX ===
+hitbox rect 0.15,0.15 1.70,1.70 z 0-3
+
+# Lower layer: 4 kegs arranged in a 2x2 grid (viewed from above as circles)
+# Keg 1 NW
+circle 0.55,0.55 0.38 texfill polyhaven/dark_wood 0.85
+circle 0.55,0.55 0.38 stroke #2a1400
+circle 0.55,0.55 0.32 stroke #3a1f00 0.6 width 1
+# Keg 1 metal bands
+arc 0.55,0.55 0.36 200 340 stroke #666666 0.7 width 1
+arc 0.55,0.55 0.36 20 160 stroke #666666 0.7 width 1
+# Keg 1 bung hole
+circle 0.55,0.55 0.06 fill #1a0808 0.9
+circle 0.55,0.55 0.06 stroke #2a1400
+# Keg 2 NE
+circle 1.45,0.55 0.38 texfill polyhaven/dark_wood 0.85
+circle 1.45,0.55 0.38 stroke #2a1400
+circle 1.45,0.55 0.32 stroke #3a1f00 0.6 width 1
+arc 1.45,0.55 0.36 200 340 stroke #666666 0.7 width 1
+arc 1.45,0.55 0.36 20 160 stroke #666666 0.7 width 1
+circle 1.45,0.55 0.06 fill #1a0808 0.9
+circle 1.45,0.55 0.06 stroke #2a1400
+# Keg 3 SW
+circle 0.55,1.45 0.38 texfill polyhaven/dark_wood 0.85
+circle 0.55,1.45 0.38 stroke #2a1400
+circle 0.55,1.45 0.32 stroke #3a1f00 0.6 width 1
+arc 0.55,1.45 0.36 200 340 stroke #666666 0.7 width 1
+arc 0.55,1.45 0.36 20 160 stroke #666666 0.7 width 1
+circle 0.55,1.45 0.06 fill #1a0808 0.9
+circle 0.55,1.45 0.06 stroke #2a1400
+# Keg 4 SE
+circle 1.45,1.45 0.38 texfill polyhaven/dark_wood 0.85
+circle 1.45,1.45 0.38 stroke #2a1400
+circle 1.45,1.45 0.32 stroke #3a1f00 0.6 width 1
+arc 1.45,1.45 0.36 200 340 stroke #666666 0.7 width 1
+arc 1.45,1.45 0.36 20 160 stroke #666666 0.7 width 1
+circle 1.45,1.45 0.06 fill #1a0808 0.9
+circle 1.45,1.45 0.06 stroke #2a1400
+# Top keg (centered, stacked on top) — slightly smaller, shadow below
+circle 1.0,1.0 0.40 fill #1a1008 0.3
+circle 1.0,1.0 0.36 texfill polyhaven/dark_wood 0.9
+circle 1.0,1.0 0.36 stroke #2a1400
+circle 1.0,1.0 0.30 stroke #3a1f00 0.6 width 1
+arc 1.0,1.0 0.34 200 340 stroke #777777 0.8 width 1
+arc 1.0,1.0 0.34 20 160 stroke #777777 0.8 width 1
+circle 1.0,1.0 0.08 fill #1a0808 0.95
+circle 1.0,1.0 0.08 stroke #2a1400
+# Top keg bung plug
+circle 1.0,1.0 0.05 fill #4a2800 0.9

@@ -5,6 +5,7 @@ export default defineConfig({
     environment: 'node',
     include: ['test/e2e/**/*.test.js'],
     testTimeout: 60000,
+    hookTimeout: 30000,
     pool: 'forks',
     maxConcurrency: 1, // serial — shared server
   },

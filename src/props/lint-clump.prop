@@ -1,0 +1,40 @@
+name: Lint Clump
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: textile-loomhouse, weaver-workshop, general-workshop, house-medium-artisan
+typical_count: many
+clusters_with: bobbin, loom, spinning-wheel, basket, lint-clump
+notes: Small pile of lint and fibre scrap — sits flat on the floor, marks worked-in weaver spaces. Scatter freely near looms and under benches.
+---
+# footprint 1x1: x 0-1, y 0-1
+# Top-down: low, flat fluffy lint clump — no shadow, no light block
+
+# === Main lint mass — soft irregular blob ===
+ellipse 0.50,0.52 0.22,0.16 fill #e8e2d4 0.7
+ellipse 0.50,0.52 0.22,0.16 stroke #b8b0a0 0.3
+
+# === Fluffy lobes / secondary tufts around main mass ===
+ellipse 0.34,0.44 0.10,0.07 fill #e8e2d4 0.6
+ellipse 0.66,0.46 0.11,0.08 fill #ece6d8 0.6
+ellipse 0.42,0.64 0.09,0.06 fill #e8e2d4 0.55
+ellipse 0.60,0.62 0.10,0.07 fill #ece6d8 0.6
+
+# === Highlight tufts (bright centre) ===
+circle 0.48,0.50 0.05 fill #f4eee0 0.6
+circle 0.56,0.54 0.04 fill #f4eee0 0.55
+
+# === Stray fibre wisps ===
+bezier 0.26,0.50 0.20,0.48 0.16,0.44 0.12,0.42 stroke #c8c0b0 0.6 width 1
+bezier 0.74,0.50 0.80,0.52 0.84,0.56 0.88,0.58 stroke #c8c0b0 0.55 width 1
+bezier 0.50,0.34 0.48,0.28 0.44,0.24 0.40,0.20 stroke #c8c0b0 0.55 width 1
+bezier 0.52,0.70 0.54,0.76 0.58,0.80 0.62,0.84 stroke #c8c0b0 0.5 width 1
+
+# === Darker fibre flecks (contrast specks) ===
+circle 0.40,0.52 0.012 fill #8b7355 0.6
+circle 0.62,0.48 0.010 fill #8b7355 0.6
+circle 0.52,0.60 0.012 fill #8b7355 0.55

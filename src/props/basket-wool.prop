@@ -1,0 +1,48 @@
+name: Wool Basket
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1
+placement: floor
+room_types: farmhouse-common, weaver-workshop, peasant-hovel, house-medium-family
+typical_count: single
+clusters_with: spinning-wheel, yarn-basket, stool, chair
+notes: Wicker basket heaped with raw wool fleece — top-down shows round wicker rim with fluffy white-grey wool filling
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Wicker basket body (outer rim) ===
+circle 0.50,0.50 0.38 texfill polyhaven/dark_wood 0.75
+circle 0.50,0.50 0.38 stroke #3a1f00
+
+# Wicker weave detail (concentric bands)
+circle 0.50,0.50 0.34 stroke #5c3a1e 0.5
+circle 0.50,0.50 0.28 stroke #5c3a1e 0.4
+circle 0.50,0.50 0.22 stroke #5c3a1e 0.35
+
+# Radial wicker spokes (subtle)
+line 0.50,0.12 0.50,0.88 stroke #4a2800 0.3
+line 0.18,0.30 0.82,0.70 stroke #4a2800 0.3
+line 0.18,0.70 0.82,0.30 stroke #4a2800 0.3
+line 0.12,0.50 0.88,0.50 stroke #4a2800 0.3
+
+# === Wool fleece filling (heaped above the rim) ===
+# Main wool mass — soft lumpy cloud
+ellipse 0.50,0.48 0.30,0.28 fill #d8d0c0 0.9
+ellipse 0.50,0.48 0.30,0.28 stroke #b8b0a0 0.5
+
+# Wool lump highlights (fluffy texture)
+circle 0.38,0.40 0.10 fill #e4dcd0 0.85
+circle 0.60,0.42 0.11 fill #e0d8cc 0.8
+circle 0.48,0.54 0.09 fill #e4dcd0 0.85
+circle 0.54,0.38 0.08 fill #dcd4c4 0.7
+
+# Grey-toned deeper wool tufts
+circle 0.42,0.50 0.06 fill #b8b0a0 0.5
+circle 0.58,0.50 0.05 fill #b8b0a0 0.45
+
+# Stray wisps poking over the rim
+bezier 0.22,0.38 0.16,0.32 0.14,0.28 0.12,0.26 stroke #d8d0c0 0.7 width 2
+bezier 0.78,0.42 0.84,0.38 0.86,0.34 0.88,0.30 stroke #d8d0c0 0.65 width 2

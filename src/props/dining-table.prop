@@ -1,0 +1,59 @@
+name: Dining Table
+category: Furniture
+footprint: 2x3
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.5
+placement: center
+room_types: house-merchant, merchant-home, mansion-dining, burgher-house, great-hall
+typical_count: single
+clusters_with: chair, decanter-with-glasses, candelabra
+notes: Rectangular polished wood dining table with runner and candleholder. Place centrally with chairs arranged around perimeter.
+---
+# === HITBOX ===
+selection rect 0.15,0.12 2.70,1.76
+
+# footprint 2x3: x range 0-3, y range 0-2
+
+# Tabletop (rich polished wood)
+rect 0.15,0.12 2.70,1.76 texfill polyhaven/wood_table 0.9
+rect 0.15,0.12 2.70,1.76 stroke #3a1f00 width 2
+# Inner polish highlight band
+rect 0.22,0.18 2.56,1.64 stroke #5c3a1e 0.5 width 1
+
+# Wood grain accent lines
+line 0.20,0.40 2.80,0.42 stroke #4a2800 0.3
+line 0.20,0.80 2.80,0.78 stroke #4a2800 0.3
+line 0.20,1.20 2.80,1.22 stroke #4a2800 0.3
+line 0.20,1.60 2.80,1.58 stroke #4a2800 0.3
+
+# Central runner (burgundy fabric down the middle)
+rect 0.40,0.82 2.20,0.36 texfill polyhaven/velour_velvet 0.8
+rect 0.40,0.82 2.20,0.36 fill #5a1a1a 0.4
+rect 0.40,0.82 2.20,0.36 stroke #2a0808
+# Runner gold border stripes
+line 0.40,0.86 2.60,0.86 stroke #daa520 0.6 width 1
+line 0.40,1.14 2.60,1.14 stroke #daa520 0.6 width 1
+# Runner fringe ends
+line 0.40,0.84 0.40,1.16 stroke #daa520 0.5 width 1
+line 2.60,0.84 2.60,1.16 stroke #daa520 0.5 width 1
+
+# Central candleholder
+circle 1.50,1.00 0.10 fill #8b6914 0.9
+circle 1.50,1.00 0.10 stroke #5a3a00
+circle 1.50,1.00 0.06 fill #daa520 0.95
+# Candle in holder
+circle 1.50,1.00 0.035 fill #e8dcc8 0.9
+# Flame
+poly 1.48,1.00 1.50,0.95 1.52,1.00 fill #ff8800 0.7
+poly 1.49,1.00 1.50,0.96 1.51,1.00 fill #ffcc00 0.8
+
+# Leg shadow corners
+circle 0.30,0.25 0.08 fill #3a1f00 0.5
+circle 2.70,0.25 0.08 fill #3a1f00 0.5
+circle 0.30,1.75 0.08 fill #3a1f00 0.5
+circle 2.70,1.75 0.08 fill #3a1f00 0.5
+# Mid-edge leg shadows (eight-legged suggestion)
+circle 1.50,0.22 0.06 fill #3a1f00 0.4
+circle 1.50,1.78 0.06 fill #3a1f00 0.4

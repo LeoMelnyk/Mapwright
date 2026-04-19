@@ -1,0 +1,59 @@
+name: Ration Pack
+category: Supplies
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: cabin-hunters, ranger-camp, scouts-blind, campsite-traveler, supply-room
+typical_count: few
+clusters_with: bedroll, waterskin, rope-coil, firewood-stack
+notes: Traveler's ration bundle — oilcloth-wrapped parcel tied with twine. Seen from above as a slightly irregular rectangular parcel with knotted twine tie and small label tag.
+---
+# === HITBOX ===
+selection rect 0.18,0.22 0.64,0.56
+
+# Shadow beneath parcel
+ellipse 0.50,0.80 0.34,0.06 fill #1a0a00 0.25
+
+# === Main oilcloth wrapped bundle ===
+poly 0.20,0.24 0.78,0.22 0.82,0.50 0.78,0.76 0.22,0.78 0.18,0.50 fill #6a5a3a 0.9
+poly 0.20,0.24 0.78,0.22 0.82,0.50 0.78,0.76 0.22,0.78 0.18,0.50 texfill polyhaven/rough_linen 0.55
+poly 0.20,0.24 0.78,0.22 0.82,0.50 0.78,0.76 0.22,0.78 0.18,0.50 stroke #3a2a10 width 2
+
+# === Oilcloth fold creases ===
+bezier 0.22,0.36 0.40,0.38 0.60,0.36 0.78,0.34 stroke #3a2a10 0.5 width 1
+bezier 0.22,0.64 0.40,0.66 0.60,0.64 0.78,0.62 stroke #3a2a10 0.5 width 1
+# Center crease
+line 0.50,0.22 0.50,0.78 stroke #2a1a08 0.4 width 1
+
+# === Twine binding (crossed — east-west rope) ===
+line 0.16,0.50 0.84,0.50 stroke #c8a878 width 2
+line 0.16,0.50 0.84,0.50 stroke #8b7355 0.7 width 1
+# === Twine binding (north-south rope) ===
+line 0.50,0.20 0.50,0.80 stroke #c8a878 width 2
+line 0.50,0.20 0.50,0.80 stroke #8b7355 0.7 width 1
+# Knot in center
+circle 0.50,0.50 0.035 fill #8b7355 0.9
+circle 0.50,0.50 0.035 stroke #5c3a1e width 1
+# Twine tails
+line 0.50,0.52 0.56,0.60 stroke #8b7355 width 1
+line 0.50,0.52 0.46,0.58 stroke #8b7355 width 1
+
+# === Label tag tied to twine (small paper square) ===
+rect 0.62,0.58 0.10,0.08 fill #e8dcc8 0.9
+rect 0.62,0.58 0.10,0.08 stroke #5c3a1e width 1
+# Tag string
+line 0.58,0.56 0.62,0.60 stroke #8b7355 width 1
+# Tiny ink marks on tag
+line 0.64,0.61 0.70,0.61 stroke #2a1400 0.7 width 1
+line 0.64,0.63 0.68,0.63 stroke #2a1400 0.7 width 1
+
+# === Highlights on oilcloth (sun-catch) ===
+ellipse 0.35,0.35 0.08,0.04 fill #8a7a5a 0.4
+ellipse 0.65,0.65 0.06,0.03 fill #8a7a5a 0.35
+
+# === Wax seal blob (small, at a corner) ===
+circle 0.76,0.28 0.025 fill #8b1818 0.9
+circle 0.76,0.28 0.025 stroke #5a0808 width 1

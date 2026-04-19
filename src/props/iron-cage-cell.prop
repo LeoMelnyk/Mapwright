@@ -1,0 +1,120 @@
+name: Iron Cage Cell
+category: Prison
+footprint: 2x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 7
+placement: corner
+room_types: ship-brig, prison-block, dungeon, oubliette, slaver-hold
+typical_count: few
+clusters_with: shackles, chain-shackle, scratched-tally, bone-pile, interrogation-chair
+notes: Small iron-barred cell box. Square frame, barred gate faces south (high Y), dark interior. Smaller than cage-large (2x2 vs 3x3) — a solitary cell.
+---
+# footprint 2x2: x range 0-2, y range 0-2
+
+# === HITBOX — solid corner posts + frame rails cast shadow; bars pass light ===
+hitbox rect 0.06,0.06 0.18,0.18 z 0-7
+hitbox rect 1.76,0.06 0.18,0.18 z 0-7
+hitbox rect 0.06,1.76 0.18,0.18 z 0-7
+hitbox rect 1.76,1.76 0.18,0.18 z 0-7
+hitbox rect 0.24,0.08 1.52,0.10 z 0-7
+hitbox rect 0.24,1.82 1.52,0.10 z 0-7
+hitbox rect 0.08,0.24 0.10,1.52 z 0-7
+hitbox rect 1.82,0.24 0.10,1.52 z 0-7
+
+# === Dark dirty interior (stone/wood floor visible through bars) ===
+rect 0.18,0.18 1.64,1.64 texfill polyhaven/worn_planks 0.65
+rect 0.18,0.18 1.64,1.64 fill #1a0a00 0.45
+rect 0.18,0.18 1.64,1.64 stroke #0a0400
+
+# === Filth and straw inside cell ===
+line 0.38,0.48 0.52,0.54 stroke #8b7355 0.6 width 1
+line 0.62,0.68 0.76,0.64 stroke #8b7355 0.55 width 1
+line 1.20,0.50 1.32,0.56 stroke #8b7355 0.6 width 1
+line 1.42,1.20 1.54,1.16 stroke #8b7355 0.55 width 1
+line 0.48,1.32 0.60,1.38 stroke #8b7355 0.55 width 1
+# Dark stains
+ellipse 0.70,1.10 0.12,0.08 fill #2a0808 0.4
+circle 1.30,0.80 0.04 fill #2a0808 0.45
+
+# === Iron bars — vertical (running north-south) ===
+line 0.40,0.18 0.40,1.82 stroke #333333 width 2
+line 0.40,0.18 0.40,1.82 stroke #555555 0.6 width 1
+line 0.70,0.18 0.70,1.82 stroke #333333 width 2
+line 0.70,0.18 0.70,1.82 stroke #555555 0.6 width 1
+line 1.00,0.18 1.00,1.82 stroke #333333 width 2
+line 1.00,0.18 1.00,1.82 stroke #555555 0.6 width 1
+line 1.30,0.18 1.30,1.82 stroke #333333 width 2
+line 1.30,0.18 1.30,1.82 stroke #555555 0.6 width 1
+line 1.60,0.18 1.60,1.82 stroke #333333 width 2
+line 1.60,0.18 1.60,1.82 stroke #555555 0.6 width 1
+
+# === Iron bars — horizontal (running east-west) ===
+line 0.18,0.50 1.82,0.50 stroke #444444 width 2
+line 0.18,0.50 1.82,0.50 stroke #666666 0.6 width 1
+line 0.18,1.00 1.82,1.00 stroke #444444 width 2
+line 0.18,1.00 1.82,1.00 stroke #666666 0.6 width 1
+line 0.18,1.50 1.82,1.50 stroke #444444 width 2
+line 0.18,1.50 1.82,1.50 stroke #666666 0.6 width 1
+
+# === Frame rails (solid iron perimeter) ===
+# North
+rect 0.24,0.08 1.52,0.10 texfill polyhaven/metal_plate 0.85
+rect 0.24,0.08 1.52,0.10 stroke #222222
+# South
+rect 0.24,1.82 1.52,0.10 texfill polyhaven/metal_plate 0.85
+rect 0.24,1.82 1.52,0.10 stroke #222222
+# West
+rect 0.08,0.24 0.10,1.52 texfill polyhaven/metal_plate 0.85
+rect 0.08,0.24 0.10,1.52 stroke #222222
+# East
+rect 1.82,0.24 0.10,1.52 texfill polyhaven/metal_plate 0.85
+rect 1.82,0.24 0.10,1.52 stroke #222222
+
+# === Corner posts (thick, solid) ===
+rect 0.06,0.06 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 0.06,0.06 0.18,0.18 fill #1a1008 0.3
+rect 0.06,0.06 0.18,0.18 stroke #111111
+circle 0.15,0.15 0.03 fill #666666 0.7
+
+rect 1.76,0.06 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 1.76,0.06 0.18,0.18 fill #1a1008 0.3
+rect 1.76,0.06 0.18,0.18 stroke #111111
+circle 1.85,0.15 0.03 fill #666666 0.7
+
+rect 0.06,1.76 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 0.06,1.76 0.18,0.18 fill #1a1008 0.3
+rect 0.06,1.76 0.18,0.18 stroke #111111
+circle 0.15,1.85 0.03 fill #666666 0.7
+
+rect 1.76,1.76 0.18,0.18 texfill polyhaven/metal_plate 0.9
+rect 1.76,1.76 0.18,0.18 fill #1a1008 0.3
+rect 1.76,1.76 0.18,0.18 stroke #111111
+circle 1.85,1.85 0.03 fill #666666 0.7
+
+# === Door gate (south face — cell opening) ===
+# Hinge markers on east edge of door
+rect 1.52,1.80 0.08,0.06 fill #222222 0.95
+rect 1.52,1.80 0.08,0.06 stroke #111111
+# Lock plate at west side of door
+rect 0.34,1.82 0.16,0.10 fill #444444 0.95
+rect 0.34,1.82 0.16,0.10 stroke #222222
+# Keyhole
+rect 0.40,1.85 0.04,0.04 fill #1a1008 0.95
+# Heavy padlock hanging from door
+circle 0.42,1.94 0.04 stroke #333333 width 3
+circle 0.42,1.94 0.04 stroke #111111 width 1
+rect 0.39,1.94 0.06,0.05 fill #555555 0.95
+rect 0.39,1.94 0.06,0.05 stroke #222222
+
+# === Rust streaks on bars ===
+circle 0.40,0.72 0.012 fill #6a3818 0.7
+circle 1.00,1.18 0.010 fill #6a3818 0.7
+circle 1.60,0.62 0.010 fill #6a3818 0.7
+
+# === Ominous darkness interior pooling in corners ===
+circle 0.30,0.30 0.10 fill #000000 0.35
+circle 1.70,0.30 0.10 fill #000000 0.35
+circle 0.30,1.70 0.10 fill #000000 0.35
+circle 1.70,1.70 0.10 fill #000000 0.35

@@ -1,0 +1,74 @@
+name: Dissolved Skeleton
+category: Effects
+footprint: 2x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.2
+placement: floor
+room_types: slime-pit, ooze-shrine, sewer-junction, dungeon, cave
+typical_count: few
+clusters_with: ooze-pool, ooze-puddle, slime-trail, victim-cocoon, rusted-weapon
+notes: Partial skeleton with upper body intact and lower half (pelvis, legs) dissolving into a green slime pool — ragged bone edges and tiny fizzing bubbles
+---
+# footprint 2x1: x range 0-1, y range 0-2
+# Top-down: skull to north, ribs mid, lower body dissolving into slime pool to south
+
+# Slime pool consuming the lower body (bottom third)
+poly 0.14,1.20 0.28,1.10 0.46,1.08 0.62,1.12 0.82,1.16 0.92,1.32 0.96,1.58 0.88,1.82 0.70,1.94 0.46,1.96 0.24,1.88 0.10,1.74 0.06,1.50 fill #4a7020 0.85
+poly 0.14,1.20 0.28,1.10 0.46,1.08 0.62,1.12 0.82,1.16 0.92,1.32 0.96,1.58 0.88,1.82 0.70,1.94 0.46,1.96 0.24,1.88 0.10,1.74 0.06,1.50 stroke #2a4010 width 1
+
+# Mid slime color
+ellipse 0.50,1.54 0.34,0.30 fill #8ab030 0.7
+
+# Pale wet halo around slime edge
+poly 0.14,1.20 0.28,1.10 0.46,1.08 0.62,1.12 0.82,1.16 0.92,1.32 0.96,1.58 0.88,1.82 0.70,1.94 0.46,1.96 0.24,1.88 0.10,1.74 0.06,1.50 stroke #a8c060 width 2
+
+# Skull (north end)
+poly 0.34,0.18 0.38,0.10 0.46,0.06 0.56,0.06 0.64,0.10 0.68,0.18 0.66,0.28 0.62,0.34 0.40,0.34 0.36,0.28 fill #e8dcc8 0.9
+poly 0.34,0.18 0.38,0.10 0.46,0.06 0.56,0.06 0.64,0.10 0.68,0.18 0.66,0.28 0.62,0.34 0.40,0.34 0.36,0.28 stroke #8a7a6a
+# Eye sockets
+circle 0.44,0.18 0.035 fill #1a1010 0.9
+circle 0.58,0.18 0.035 fill #1a1010 0.9
+# Nasal
+poly 0.49,0.24 0.53,0.24 0.51,0.28 fill #1a1010 0.7
+# Jaw line
+line 0.40,0.32 0.62,0.32 stroke #8a7a6a 0.7
+
+# Spine running down (partially visible between ribs)
+rect 0.485,0.34 0.03,0.74 fill #d4c4a8 0.85
+rect 0.485,0.34 0.03,0.74 stroke #8a7a6a
+
+# Ribs fanning out from spine (left side)
+poly 0.49,0.38 0.28,0.36 0.28,0.40 0.49,0.42 fill #d4c4a8 0.85
+poly 0.49,0.46 0.24,0.46 0.24,0.50 0.49,0.52 fill #c8b898 0.85
+poly 0.49,0.56 0.22,0.58 0.22,0.62 0.49,0.62 fill #d4c4a8 0.85
+poly 0.49,0.66 0.24,0.70 0.24,0.74 0.49,0.72 fill #c8b898 0.85
+poly 0.49,0.76 0.28,0.82 0.28,0.86 0.49,0.82 fill #d4c4a8 0.8
+poly 0.49,0.86 0.32,0.94 0.32,0.98 0.49,0.92 fill #c8b898 0.75
+# Ribs fanning out (right side, mirror)
+poly 0.51,0.38 0.72,0.36 0.72,0.40 0.51,0.42 fill #d4c4a8 0.85
+poly 0.51,0.46 0.76,0.46 0.76,0.50 0.51,0.52 fill #c8b898 0.85
+poly 0.51,0.56 0.78,0.58 0.78,0.62 0.51,0.62 fill #d4c4a8 0.85
+poly 0.51,0.66 0.76,0.70 0.76,0.74 0.51,0.72 fill #c8b898 0.85
+poly 0.51,0.76 0.72,0.82 0.72,0.86 0.51,0.82 fill #d4c4a8 0.8
+poly 0.51,0.86 0.68,0.94 0.68,0.98 0.51,0.92 fill #c8b898 0.75
+
+# Ragged/eaten edges where bones meet slime (irregular dissolution)
+poly 0.34,1.02 0.42,1.08 0.38,1.14 0.30,1.12 fill #a8a088 0.6
+poly 0.58,1.04 0.66,1.10 0.62,1.18 0.54,1.14 fill #a8a088 0.6
+
+# Partial pelvis fragment emerging from slime (half-dissolved, ragged)
+poly 0.40,1.10 0.48,1.14 0.54,1.14 0.60,1.12 0.58,1.24 0.44,1.26 fill #c8b898 0.65
+poly 0.40,1.10 0.48,1.14 0.54,1.14 0.60,1.12 0.58,1.24 0.44,1.26 stroke #6a5848 0.7
+
+# Dissolved bone stubs faintly visible through slime
+ellipse 0.46,1.40 0.08,0.04 fill #a8a088 0.45
+ellipse 0.54,1.60 0.06,0.03 fill #a8a088 0.35
+
+# Fizz / bubbles on slime surface
+circle 0.30,1.50 0.028 fill #c8e080 0.85
+circle 0.30,1.50 0.012 fill #ffffff 0.7
+circle 0.72,1.66 0.024 fill #c8e080 0.8
+circle 0.72,1.66 0.010 fill #ffffff 0.6
+circle 0.50,1.82 0.020 fill #c8e080 0.75

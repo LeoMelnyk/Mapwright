@@ -1,0 +1,37 @@
+name: Broken Pottery
+category: Scatter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: market-square, ruin, kitchen, storage, alley
+typical_count: many
+clusters_with: rubble, dropped-apple, produce-pile
+notes: Shattered clay pot fragments scattered on the ground. Small accent scatter prop.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: broken clay shards scattered on floor
+
+# Largest shard (curved piece of pot wall)
+poly 0.28,0.22 0.48,0.18 0.55,0.30 0.50,0.42 0.32,0.38 fill #c47a48 0.9
+poly 0.28,0.22 0.48,0.18 0.55,0.30 0.50,0.42 0.32,0.38 stroke #7a4420
+
+# Medium shard (triangular)
+poly 0.58,0.50 0.76,0.42 0.80,0.62 0.65,0.64 fill #b86e3c 0.85
+poly 0.58,0.50 0.76,0.42 0.80,0.62 0.65,0.64 stroke #7a4420
+
+# Small shard (southeast)
+poly 0.52,0.70 0.68,0.72 0.62,0.82 0.48,0.78 fill #c47a48 0.85
+poly 0.52,0.70 0.68,0.72 0.62,0.82 0.48,0.78 stroke #7a4420
+
+# Tiny chip (northwest)
+poly 0.18,0.48 0.28,0.46 0.30,0.56 0.20,0.58 fill #b86e3c 0.8
+poly 0.18,0.48 0.28,0.46 0.30,0.56 0.20,0.58 stroke #7a4420
+
+# Very small chip
+poly 0.72,0.26 0.80,0.24 0.82,0.32 fill #c47a48 0.75
+poly 0.72,0.26 0.80,0.24 0.82,0.32 stroke #7a4420
+
+# Dust / clay powder smear around the shards
+ellipse 0.50,0.50 0.30,0.25 fill #a06840 0.10

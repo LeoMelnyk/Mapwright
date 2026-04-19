@@ -1,0 +1,65 @@
+name: Scrying Crystal
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.2
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"color":"#aaccff","intensity":0.5,"radius":4}]
+placement: center
+room_types: wizard-sanctum, fortune-teller, divination-room, crystal-grotto, demiplane-laboratory
+typical_count: single
+clusters_with: arcane-pedestal, desk, candle-cluster, crystal-ball, rune-stone
+notes: Crystal orb resting on a three-legged tripod or small pedestal — scrying focus. Place on tables or as a small centerpiece.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.22 z 0-1.2
+
+# Ambient halo
+circle 0.5,0.5 0.44 gradient-radial #88bbee #0a1428 0.3
+
+# === Three-legged tripod base (seen from above — three splayed legs radiating out) ===
+# Leg 1 — north
+poly 0.48,0.50 0.52,0.50 0.54,0.18 0.46,0.18 fill #3a1f00 0.85
+poly 0.48,0.50 0.52,0.50 0.54,0.18 0.46,0.18 stroke #1a0800
+# Leg 2 — SE
+poly 0.52,0.50 0.54,0.46 0.80,0.70 0.76,0.76 fill #3a1f00 0.85
+poly 0.52,0.50 0.54,0.46 0.80,0.70 0.76,0.76 stroke #1a0800
+# Leg 3 — SW
+poly 0.46,0.46 0.48,0.50 0.24,0.76 0.20,0.70 fill #3a1f00 0.85
+poly 0.46,0.46 0.48,0.50 0.24,0.76 0.20,0.70 stroke #1a0800
+
+# Leg feet (small caps)
+circle 0.50,0.18 0.04 fill #5a3a00 0.8
+circle 0.50,0.18 0.04 stroke #1a0800
+circle 0.78,0.73 0.04 fill #5a3a00 0.8
+circle 0.78,0.73 0.04 stroke #1a0800
+circle 0.22,0.73 0.04 fill #5a3a00 0.8
+circle 0.22,0.73 0.04 stroke #1a0800
+
+# === Tripod ring / cradle (holds the orb) ===
+circle 0.5,0.5 0.22 texfill polyhaven/dark_wood 0.8
+circle 0.5,0.5 0.22 stroke #1a0800 width 2
+ring 0.5,0.5 0.22 0.17 fill #5a3a00 0.75
+ring 0.5,0.5 0.22 0.17 stroke #1a0800
+
+# === Crystal orb ===
+circle 0.5,0.5 0.17 fill #5588bb 0.55
+circle 0.5,0.5 0.17 stroke #335577 width 1
+# Inner glow — swirling mists
+circle 0.5,0.5 0.12 fill #88bbee 0.5
+circle 0.5,0.5 0.08 fill #bbddff 0.55
+# Hot center
+circle 0.5,0.5 0.04 fill #e8f4ff 0.85
+
+# Glass sheen highlight
+ellipse 0.44,0.44 0.05,0.035 fill #ffffff 0.6
+ellipse 0.44,0.44 0.025,0.018 fill #ffffff 0.9
+
+# Rim glint on orb
+arc 0.5,0.5 0.16 30 90 stroke #ccddff 0.7 width 1
+
+# Tiny motes around orb
+circle 0.30,0.34 0.014 fill #ccddff 0.85
+circle 0.70,0.38 0.012 fill #ccddff 0.8
+circle 0.74,0.56 0.012 fill #ccddff 0.75

@@ -1,0 +1,63 @@
+name: Animal Skull
+category: Decorative
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: alchemy-lab, cabin-witch, bog-witch-hut, demiplane-laboratory
+typical_count: few
+clusters_with: skull-small, animal-skull-small, specimen-jar, reagent-jar
+notes: Larger animal skull (wolf/deer) used as alchemy ingredient display. Snout faces south (high Y). Bigger and more detailed than skull-small.
+---
+# === HITBOX ===
+selection ellipse 0.50,0.48 0.30,0.36
+
+# Cranium (rounded dome — back of skull north)
+ellipse 0.50,0.36 0.30,0.26 fill #e8dcc8 0.95
+ellipse 0.50,0.36 0.30,0.26 stroke #8a7040
+# Cranium bone texture wash
+ellipse 0.50,0.36 0.30,0.26 texfill polyhaven/granite_tile 0.25
+# Aged yellowing wash (uneven staining across cranium)
+ellipse 0.60,0.30 0.14,0.10 fill #d4c4a8 0.55
+ellipse 0.38,0.42 0.10,0.08 fill #d4c4a8 0.45
+# Cranial suture (zig-zag seam along top)
+line 0.38,0.24 0.44,0.30 stroke #8a7040 width 1
+line 0.44,0.30 0.50,0.24 stroke #8a7040 width 1
+line 0.50,0.24 0.56,0.30 stroke #8a7040 width 1
+line 0.56,0.30 0.62,0.24 stroke #8a7040 width 1
+# Hairline cracks across cranium (age)
+bezier 0.30,0.40 0.38,0.36 0.46,0.40 0.54,0.36 stroke #8a7040 0.7 width 1
+line 0.58,0.48 0.66,0.42 stroke #8a7040 0.65 width 1
+# Eye sockets (deep dark hollows)
+ellipse 0.38,0.44 0.08,0.09 fill #0a0604 0.95
+ellipse 0.38,0.44 0.08,0.09 stroke #5a4028
+ellipse 0.62,0.44 0.08,0.09 fill #0a0604 0.95
+ellipse 0.62,0.44 0.08,0.09 stroke #5a4028
+# Socket rim highlights
+arc 0.38,0.44 0.08 200 340 stroke #d4c4a8 0.55 width 1
+arc 0.62,0.44 0.08 200 340 stroke #d4c4a8 0.55 width 1
+# Cheekbone / zygomatic arches (side ridges)
+arc 0.28,0.54 0.08 270 90 stroke #8a7040 0.75 width 2
+arc 0.72,0.54 0.08 90 270 stroke #8a7040 0.75 width 2
+# Elongated snout/muzzle (south — tapered, long for wolf/deer)
+poly 0.38,0.60 0.62,0.60 0.60,0.82 0.54,0.92 0.46,0.92 0.40,0.82 fill #e8dcc8 0.95
+poly 0.38,0.60 0.62,0.60 0.60,0.82 0.54,0.92 0.46,0.92 0.40,0.82 stroke #8a7040
+# Snout suture / central seam
+line 0.50,0.60 0.50,0.90 stroke #8a7040 0.7 width 1
+# Nasal cavity (dark opening at snout tip)
+poly 0.46,0.68 0.54,0.68 0.52,0.84 0.50,0.88 0.48,0.84 fill #0a0604 0.95
+poly 0.46,0.68 0.54,0.68 0.52,0.84 0.50,0.88 0.48,0.84 stroke #5a4028
+# Fangs/teeth along lower snout edges (visible pair)
+poly 0.42,0.86 0.44,0.84 0.46,0.92 fill #e8dcc8 0.95
+poly 0.42,0.86 0.44,0.84 0.46,0.92 stroke #8a7040
+poly 0.58,0.86 0.56,0.84 0.54,0.92 fill #e8dcc8 0.95
+poly 0.58,0.86 0.56,0.84 0.54,0.92 stroke #8a7040
+# Small teeth row along snout edge
+line 0.42,0.78 0.44,0.80 stroke #8a7040 width 1
+line 0.46,0.80 0.48,0.82 stroke #8a7040 width 1
+line 0.52,0.82 0.54,0.80 stroke #8a7040 width 1
+line 0.56,0.80 0.58,0.78 stroke #8a7040 width 1
+# Bright highlight on crown of skull
+ellipse 0.46,0.30 0.08,0.04 fill #f4e8d4 0.5

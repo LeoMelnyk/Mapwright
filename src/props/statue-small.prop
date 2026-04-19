@@ -1,0 +1,92 @@
+name: Small Statue
+category: Features
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: center
+room_types: shrine-roadside, shrine, peasant-hovel, farmhouse-kitchen, roadside-chapel, garden
+typical_count: single
+clusters_with: coin-offering, candle, flowers, shrine-stone, prayer-stone, incense-stick
+notes: Small humble religious figurine on a simple stone base. Modest shrine statue — weathered but cared for. Place at roadside shrines and home altars.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.55 0.22 z 0-0.4
+hitbox circle 0.5,0.52 0.12 z 0.4-1.5
+
+# === Small round stone base ===
+circle 0.5,0.58 0.24 texfill polyhaven/granite_tile 0.85
+circle 0.5,0.58 0.24 fill #7a7068 0.35
+circle 0.5,0.58 0.24 stroke #3a3028 width 2
+
+# Base step ring
+circle 0.5,0.58 0.19 stroke #555555 0.7 width 1
+
+# Small flowers / offerings at base
+poly 0.30,0.72 0.34,0.70 0.32,0.74 fill #e8a830 0.85
+poly 0.30,0.72 0.34,0.70 0.32,0.74 stroke #8a6810
+poly 0.68,0.72 0.72,0.70 0.70,0.74 fill #cc3030 0.85
+poly 0.68,0.72 0.72,0.70 0.70,0.74 stroke #5a1010
+# Small petals
+circle 0.40,0.76 0.015 fill #e8a830 0.75
+circle 0.58,0.76 0.015 fill #cc3030 0.75
+circle 0.50,0.78 0.015 fill #e8e0d0 0.8
+
+# === Figurine body (small oval robed figure) ===
+ellipse 0.50,0.52 0.12,0.10 texfill polyhaven/marble_01 0.9
+ellipse 0.50,0.52 0.12,0.10 fill #c0b8a8 0.4
+ellipse 0.50,0.52 0.12,0.10 stroke #555555 width 2
+
+# Simple robe drape lines
+line 0.46,0.58 0.44,0.64 stroke #666666 0.7 width 1
+line 0.50,0.60 0.50,0.66 stroke #666666 0.7 width 1
+line 0.54,0.58 0.56,0.64 stroke #666666 0.7 width 1
+
+# === Head (small circle, north of body) ===
+circle 0.50,0.42 0.07 texfill polyhaven/marble_01 0.92
+circle 0.50,0.42 0.07 fill #d0c8b8 0.4
+circle 0.50,0.42 0.07 stroke #555555 width 2
+
+# Hood / head covering suggestion
+arc 0.50,0.42 0.07 180 360 stroke #777777 0.8 width 1
+arc 0.50,0.42 0.06 180 360 stroke #888888 0.6 width 1
+
+# Tiny face shadow
+ellipse 0.50,0.44 0.03,0.02 fill #666666 0.3
+
+# === Small arms folded (tiny bumps at the front) ===
+circle 0.44,0.52 0.025 fill #b0a898 0.8
+circle 0.44,0.52 0.025 stroke #555555 width 1
+circle 0.56,0.52 0.025 fill #b0a898 0.8
+circle 0.56,0.52 0.025 stroke #555555 width 1
+
+# === Small halo / crown hint ===
+arc 0.50,0.42 0.10 200 340 stroke #daa520 0.7 width 1
+
+# === Weathering / moss ===
+ellipse 0.30,0.60 0.04,0.025 fill #3a5028 0.5
+ellipse 0.70,0.62 0.04,0.025 fill #3a5028 0.5
+ellipse 0.50,0.74 0.05,0.02 fill #3a5028 0.4
+
+# Age cracks on base
+line 0.32,0.62 0.38,0.68 stroke #333333 0.5 width 1
+line 0.62,0.50 0.68,0.56 stroke #333333 0.4 width 1
+
+# Small chip on base edge
+poly 0.72,0.60 0.76,0.58 0.74,0.62 fill #444444 0.7
+
+# Worn spots on figure
+ellipse 0.46,0.48 0.02,0.015 fill #888888 0.5
+ellipse 0.54,0.48 0.02,0.015 fill #888888 0.5
+
+# === Small candle stub at foot ===
+circle 0.38,0.82 0.02 fill #d0c8a8 0.9
+circle 0.38,0.82 0.02 stroke #6a6048
+line 0.38,0.80 0.38,0.78 stroke #3a3020 width 1
+# Tiny flame
+ellipse 0.38,0.77 0.008,0.012 fill #ffcc00 0.9
+
+# Sheen highlight
+arc 0.5,0.52 0.10 200 240 stroke #ffffff 0.4 width 1
+arc 0.5,0.42 0.06 200 240 stroke #ffffff 0.5 width 1

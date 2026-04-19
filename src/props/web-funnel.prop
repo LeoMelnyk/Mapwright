@@ -1,0 +1,45 @@
+name: Web Funnel
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: spider-lair, monster-lair-small, cave-drow-outpost, underdark-outpost, beast-den
+typical_count: few
+clusters_with: cobweb-heavy, cobweb-cluster, web-floor, fang-scatter, spider-egg-cluster
+notes: A conical funnel web with a dark opening at the apex — the spider retreats into this burrow. Concentric silk rings narrow to a dark center hole. Place in corners or against walls.
+---
+# footprint 1x1: x range 0-1, y range 0-1
+
+# === Outermost silk ring (faint, wide) ===
+circle 0.50,0.50 0.46 stroke #d8d0b0 0.3 width 1
+circle 0.50,0.50 0.44 fill #d8d0b8 0.08
+
+# === Radiating structural strands (from center outward) ===
+line 0.50,0.50 0.50,0.04 stroke #d8d0b0 0.4 width 1
+line 0.50,0.50 0.92,0.18 stroke #d8d0b0 0.38 width 1
+line 0.50,0.50 0.96,0.50 stroke #d8d0b0 0.4 width 1
+line 0.50,0.50 0.92,0.82 stroke #d8d0b0 0.38 width 1
+line 0.50,0.50 0.50,0.96 stroke #d8d0b0 0.4 width 1
+line 0.50,0.50 0.08,0.82 stroke #d8d0b0 0.38 width 1
+line 0.50,0.50 0.04,0.50 stroke #d8d0b0 0.4 width 1
+line 0.50,0.50 0.08,0.18 stroke #d8d0b0 0.38 width 1
+
+# === Concentric silk rings (narrowing inward) ===
+circle 0.50,0.50 0.38 stroke #d0c8b0 0.35 width 1
+circle 0.50,0.50 0.30 stroke #c8c0a8 0.4 width 1
+circle 0.50,0.50 0.22 stroke #c0b898 0.45 width 1
+circle 0.50,0.50 0.15 stroke #b8b088 0.5 width 1
+
+# === Dense silk fill between inner rings ===
+circle 0.50,0.50 0.22 fill #d0c8b0 0.2
+circle 0.50,0.50 0.15 fill #c8c0a8 0.25
+
+# === Dark funnel opening at center ===
+circle 0.50,0.50 0.10 fill #1a1208 0.85
+circle 0.50,0.50 0.10 stroke #0a0804
+# Depth gradient
+circle 0.50,0.50 0.08 fill #0a0804 0.9
+# Tiny highlight on rim (silk catching light)
+arc 0.50,0.50 0.10 200 280 stroke #d8d0b0 0.5 width 1

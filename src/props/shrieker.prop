@@ -1,0 +1,67 @@
+name: Shrieker
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+placement: floor
+room_types: mushroom-cavern, mushroom-grove, underdark-outpost, cave-living, dungeon-deep
+typical_count: few
+clusters_with: violet-fungus, mushroom-cluster, spore-pool, glowcap-cluster
+notes: Large screaming fungal creature — magenta cap with dark mouth gap that wails when disturbed. Alarm fungus.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.50 0.36 z 0-1.5
+
+# Ground shadow
+circle 0.52,0.54 0.40 fill #2a0a10 0.35
+circle 0.52,0.54 0.32 fill #1a0408 0.28
+
+# Outer cap rim (dark magenta edge, irregular organic shape)
+poly 0.14,0.50 0.20,0.28 0.36,0.16 0.50,0.12 0.66,0.16 0.80,0.28 0.86,0.50 0.80,0.70 0.64,0.82 0.50,0.86 0.34,0.82 0.20,0.70 fill #4a0a28 0.92
+poly 0.14,0.50 0.20,0.28 0.36,0.16 0.50,0.12 0.66,0.16 0.80,0.28 0.86,0.50 0.80,0.70 0.64,0.82 0.50,0.86 0.34,0.82 0.20,0.70 stroke #1a0408 width 2
+
+# Main cap surface (deep magenta-red)
+poly 0.22,0.50 0.28,0.32 0.40,0.22 0.52,0.20 0.64,0.24 0.74,0.34 0.78,0.50 0.72,0.66 0.58,0.76 0.50,0.78 0.38,0.74 0.28,0.64 fill #8a1a48 0.90
+poly 0.22,0.50 0.28,0.32 0.40,0.22 0.52,0.20 0.64,0.24 0.74,0.34 0.78,0.50 0.72,0.66 0.58,0.76 0.50,0.78 0.38,0.74 0.28,0.64 stroke #3a0818 width 1
+
+# Brighter pink-magenta zones (engorged flesh)
+ellipse 0.38,0.38 0.10,0.08 fill #b83068 0.70
+ellipse 0.62,0.40 0.09,0.07 fill #b83068 0.65
+ellipse 0.44,0.60 0.11,0.09 fill #b83068 0.60
+
+# Pale blotches (sickly patches)
+circle 0.34,0.52 0.045 fill #c88898 0.55
+circle 0.64,0.56 0.040 fill #c88898 0.50
+circle 0.50,0.32 0.035 fill #c88898 0.55
+
+# Central mouth gap (the screaming maw — dark jagged hole)
+poly 0.38,0.46 0.44,0.44 0.48,0.48 0.52,0.42 0.58,0.46 0.62,0.50 0.58,0.56 0.54,0.60 0.48,0.62 0.42,0.58 0.38,0.54 fill #0a0204 1.0
+poly 0.38,0.46 0.44,0.44 0.48,0.48 0.52,0.42 0.58,0.46 0.62,0.50 0.58,0.56 0.54,0.60 0.48,0.62 0.42,0.58 0.38,0.54 stroke #2a0408 width 1
+
+# Inner mouth darkness (pitch black gullet)
+poly 0.42,0.50 0.48,0.48 0.54,0.52 0.52,0.58 0.46,0.58 fill #000000 1.0
+
+# Ragged "teeth" / cap gill edges lining the maw
+line 0.40,0.46 0.42,0.50 stroke #4a0818 width 1
+line 0.46,0.44 0.47,0.48 stroke #4a0818 width 1
+line 0.54,0.44 0.53,0.48 stroke #4a0818 width 1
+line 0.60,0.48 0.58,0.52 stroke #4a0818 width 1
+line 0.58,0.58 0.56,0.60 stroke #4a0818 width 1
+line 0.44,0.60 0.45,0.56 stroke #4a0818 width 1
+
+# Surface warts / pustules
+circle 0.30,0.30 0.020 fill #3a0818 0.9
+circle 0.68,0.32 0.018 fill #3a0818 0.85
+circle 0.72,0.56 0.022 fill #3a0818 0.9
+circle 0.28,0.62 0.019 fill #3a0818 0.85
+circle 0.54,0.70 0.016 fill #3a0818 0.8
+
+# Small bright highlight (catches light — wet, fleshy)
+arc 0.50,0.50 0.30 220 250 stroke #d89080 0.5 width 2
+
+# Vein-like dark lines radiating from the maw
+bezier 0.44,0.58 0.38,0.68 0.32,0.76 0.28,0.82 stroke #2a0408 0.6 width 1
+bezier 0.56,0.56 0.64,0.66 0.70,0.74 0.76,0.80 stroke #2a0408 0.6 width 1
+bezier 0.42,0.46 0.34,0.36 0.28,0.26 0.24,0.18 stroke #2a0408 0.5 width 1

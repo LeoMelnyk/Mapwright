@@ -1,0 +1,46 @@
+name: Shroud (Torn)
+category: Terrain
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: crypt, tomb, mausoleum, burial-chamber, ossuary
+typical_count: many
+clusters_with: bone-pile, coffin, sarcophagus-shadow, cobweb-heavy
+notes: Crumpled burial shroud half-covering bones on the floor; scatter for atmosphere in tombs
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: crumpled white-grey linen cloth with torn strips, partial bones peeking out
+
+# === Bones peeking from underneath the shroud ===
+# Femur partially exposed at SE
+rect 0.60,0.65 0.30,0.06 fill #d4c4a8 0.6
+circle 0.62,0.68 0.04 fill #e8dcc8 0.55
+circle 0.88,0.68 0.04 fill #e8dcc8 0.55
+# Rib fragment at east edge
+rect 0.72,0.48 0.22,0.04 fill #c8b898 0.5
+
+# === Main shroud body (crumpled linen) ===
+poly 0.10,0.18 0.55,0.12 0.78,0.22 0.82,0.55 0.70,0.75 0.35,0.80 0.08,0.65 fill #c8c0b0 0.55
+poly 0.10,0.18 0.55,0.12 0.78,0.22 0.82,0.55 0.70,0.75 0.35,0.80 0.08,0.65 stroke #8a8275 0.4
+
+# === Fabric fold lines (crumpled texture) ===
+qbezier 0.18,0.30 0.40,0.25 0.60,0.35 stroke #9a9285 0.35 width 1
+qbezier 0.15,0.50 0.35,0.45 0.55,0.55 stroke #9a9285 0.3 width 1
+qbezier 0.25,0.65 0.45,0.60 0.65,0.68 stroke #9a9285 0.3 width 1
+
+# === Torn strip 1 — trailing from main body NE ===
+poly 0.70,0.28 0.88,0.18 0.92,0.22 0.76,0.35 fill #c8c0b0 0.45
+poly 0.70,0.28 0.88,0.18 0.92,0.22 0.76,0.35 stroke #8a8275 0.3
+
+# === Torn strip 2 — trailing south ===
+poly 0.30,0.75 0.38,0.88 0.32,0.92 0.22,0.82 fill #c8c0b0 0.4
+poly 0.30,0.75 0.38,0.88 0.32,0.92 0.22,0.82 stroke #8a8275 0.3
+
+# === Torn strip 3 — small scrap NW ===
+poly 0.08,0.20 0.04,0.10 0.12,0.08 0.15,0.18 fill #c8c0b0 0.35
+
+# === Stain/discoloration patches ===
+ellipse 0.40,0.45 0.12,0.08 fill #8a7a6a 0.15
+ellipse 0.55,0.60 0.08,0.06 fill #7a6a5a 0.12

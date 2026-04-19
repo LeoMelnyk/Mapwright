@@ -1,0 +1,38 @@
+name: Ration Bowl
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: prison-block, oubliette, peasant-hovel
+typical_count: few
+clusters_with: bread-heel, tin-cup, wooden-bowl, rag-pile
+notes: Small wooden bowl with thin gruel or scraps — prisoner rations
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.26
+
+# Outer bowl rim (dark wood)
+circle 0.5,0.5 0.26 texfill polyhaven/dark_wood 0.9
+circle 0.5,0.5 0.26 stroke #1a1208
+# Inner rim (step-down)
+circle 0.5,0.5 0.22 fill #3a2000 0.9
+circle 0.5,0.5 0.22 stroke #1a1208
+# Gruel surface (pale grey-brown)
+circle 0.5,0.5 0.19 fill #8a7855 0.92
+circle 0.5,0.5 0.19 stroke #4a3820
+# Gruel surface ripples/lumps
+circle 0.46,0.48 0.03 fill #a08a68 0.7
+circle 0.54,0.52 0.025 fill #a08a68 0.6
+circle 0.50,0.56 0.02 fill #6a5830 0.6
+# A small unidentified lump / scrap of bone
+ellipse 0.52,0.46 0.025,0.015 fill #d4c4a8 0.85
+# Residue smudge on outer rim
+arc 0.5,0.5 0.25 60 90 stroke #2a1400 0.6 width 1
+# Subtle rim highlight
+arc 0.5,0.5 0.255 220 260 stroke #6b4e2e 0.5 width 1
+# Tiny crumb outside bowl
+circle 0.76,0.56 0.012 fill #8a5820 0.7
+circle 0.22,0.44 0.01 fill #8a5820 0.6

@@ -1,0 +1,68 @@
+name: Chicken Bone
+category: Debris
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: cave-bandit-camp, peasant-hovel, cabin-abandoned, goblin-warren, prison-cell, alley, sewer, kobold-warren
+typical_count: few
+clusters_with: bone-pile-small, bread-crust, fruit-rotten, scat-pile, moldy-bread
+notes: Single gnawed chicken drumstick or wishbone lying discarded. Pale bone with gristle/bite marks.
+---
+# === Grease stain halo (drawn first) ===
+ellipse 0.50,0.54 0.34,0.22 fill #5a3a18 0.2
+ellipse 0.48,0.56 0.18,0.10 fill #3a2010 0.25
+
+# === Drumstick bone (main body — angled NW-SE) ===
+# Upper joint knob (narrow end)
+ellipse 0.28,0.38 0.06,0.08 fill #e8dcc0 0.95
+ellipse 0.28,0.38 0.06,0.08 stroke #8a7858
+
+# Shaft
+poly 0.24,0.40 0.32,0.34 0.70,0.62 0.66,0.68 fill #e8dcc0 0.95
+poly 0.24,0.40 0.32,0.34 0.70,0.62 0.66,0.68 stroke #8a7858
+
+# Bottom joint knob (wider end — drumstick bulb)
+ellipse 0.72,0.66 0.09,0.10 fill #e8dcc0 0.95
+ellipse 0.72,0.66 0.09,0.10 stroke #8a7858
+
+# === Bone shaft highlight ===
+line 0.28,0.40 0.66,0.62 stroke #ffffff 0.45 width 1
+
+# === Gristle/cartilage remnant (yellowish on top knob) ===
+ellipse 0.28,0.36 0.04,0.05 fill #c8b088 0.7
+ellipse 0.28,0.36 0.04,0.05 stroke #8a7858
+
+# === Small meat scrap clinging (dark red-brown) ===
+ellipse 0.68,0.64 0.05,0.04 fill #5a2818 0.85
+ellipse 0.68,0.64 0.05,0.04 stroke #2a1008
+
+# === Bite marks (teeth scratches on shaft) ===
+line 0.36,0.42 0.40,0.40 stroke #6a5030 0.75 width 1
+line 0.42,0.46 0.46,0.44 stroke #6a5030 0.75 width 1
+line 0.48,0.50 0.52,0.48 stroke #6a5030 0.7 width 1
+line 0.54,0.54 0.58,0.52 stroke #6a5030 0.7 width 1
+
+# === Crack line in bottom knob ===
+line 0.72,0.62 0.76,0.70 stroke #8a7858 0.7
+
+# === Marrow visible in crack (pinkish/dark) ===
+circle 0.74,0.66 0.015 fill #6a3a28 0.85
+
+# === Small bone fragment broken off ===
+poly 0.84,0.72 0.90,0.70 0.88,0.78 fill #e8dcc0 0.9
+poly 0.84,0.72 0.90,0.70 0.88,0.78 stroke #8a7858
+
+# === Cartilage nub on top joint ===
+circle 0.26,0.34 0.02 fill #d8c4a0 0.85
+circle 0.26,0.34 0.02 stroke #8a7858
+
+# === Grease/fat droplets ===
+circle 0.42,0.60 0.014 fill #8a6838 0.7
+circle 0.58,0.72 0.012 fill #8a6838 0.65
+circle 0.36,0.70 0.010 fill #8a6838 0.6
+
+# === Tiny bone splinter ===
+line 0.18,0.64 0.24,0.66 stroke #c8b898 width 1

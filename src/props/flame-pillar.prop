@@ -1,0 +1,44 @@
+name: Flame Pillar
+category: Magical
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 2.3
+placement: center
+room_types: elemental-fire-node, elemental-node, volcano-caldera, fire-plane
+typical_count: few
+clusters_with: fire-node-core, ember-pit, basalt-pillar, efreet-brazier-grand
+notes: Top-down view of a living flame column — concentric rings of fire with a white-hot core at the center
+lights: [{"preset":"bonfire","x":0.5,"y":0.5,"radius":15,"intensity":0.9,"color":"#ff8030"}]
+---
+# Outermost heat halo
+circle 0.50,0.50 0.48 fill #e85500 0.25
+# Outer flame envelope — ragged edge
+poly 0.50,0.08 0.62,0.18 0.76,0.22 0.82,0.38 0.88,0.50 0.82,0.62 0.76,0.78 0.62,0.82 0.50,0.92 0.38,0.82 0.24,0.78 0.18,0.62 0.12,0.50 0.18,0.38 0.24,0.22 0.38,0.18 fill #ff6020 0.70
+# Mid flame ring — orange
+circle 0.50,0.50 0.28 fill #ff8030 0.85
+# Flame licks radiating outward (tongues of fire)
+poly 0.50,0.10 0.45,0.22 0.55,0.22 fill #ffaa30 0.85
+poly 0.50,0.90 0.45,0.78 0.55,0.78 fill #ff6020 0.75
+poly 0.10,0.50 0.22,0.45 0.22,0.55 fill #ffaa30 0.80
+poly 0.90,0.50 0.78,0.45 0.78,0.55 fill #ff8030 0.80
+poly 0.20,0.20 0.30,0.28 0.28,0.30 fill #ffaa30 0.75
+poly 0.80,0.20 0.72,0.28 0.70,0.30 fill #ffaa30 0.75
+poly 0.20,0.80 0.30,0.72 0.28,0.70 fill #ff8030 0.75
+poly 0.80,0.80 0.72,0.72 0.70,0.70 fill #ff8030 0.75
+# Inner bright yellow ring
+circle 0.50,0.50 0.20 fill #ffcc60 0.85
+# Hot white core — the column looking straight down its axis
+circle 0.50,0.50 0.12 fill #ffe890 0.95
+circle 0.50,0.50 0.07 fill #ffffff 1.0
+# Dark updraft specks (rising soot)
+circle 0.32,0.28 0.018 fill #1a0800 0.5
+circle 0.68,0.32 0.018 fill #1a0800 0.5
+circle 0.28,0.64 0.018 fill #1a0800 0.5
+circle 0.72,0.68 0.018 fill #1a0800 0.5
+# Bright spark embers caught in the updraft
+circle 0.38,0.22 0.012 fill #ffcc60 0.9
+circle 0.62,0.26 0.012 fill #ffcc60 0.9
+circle 0.24,0.58 0.012 fill #ffcc60 0.9
+circle 0.76,0.62 0.012 fill #ffcc60 0.9

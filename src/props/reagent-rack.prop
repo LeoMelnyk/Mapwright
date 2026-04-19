@@ -1,0 +1,73 @@
+name: Reagent Rack
+category: Alchemy
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: demiplane-laboratory, alchemy-lab, wizard-sanctum, shop-apothecary, workshop-artificer
+typical_count: few
+clusters_with: alchemy-bench, alembic, reagent-jar, component-shelf, mortar-pestle
+notes: Wall-mounted wooden reagent rack with assorted small bottles. Place along walls flanking workbenches.
+---
+# === HITBOX ===
+hitbox rect 0.06,0.04 1.88,0.54 z 0-4
+
+# Footprint 2x1 — x 0-2, y 0-1. Wall at north (low y).
+# Top-down: you see the flat wooden rack top with bottle caps/stoppers peeking at front.
+
+# Recessed rack body behind shelf top (where bottles sit)
+rect 0.10,0.04 1.80,0.85 fill #2a1400 0.40
+line 0.10,0.04 0.10,0.85 stroke #3a1f00
+line 1.90,0.04 1.90,0.85 stroke #3a1f00
+line 0.10,0.85 1.90,0.85 stroke #3a1f00
+
+# Bottle caps/stoppers at front edge (varied colors — 9 bottles)
+# Bottle 1 — pale blue
+circle 0.22,0.72 0.055 fill #6aa8d8 0.85
+circle 0.22,0.72 0.055 stroke #2a5878
+circle 0.22,0.72 0.022 fill #b0d8ee 0.55
+# Bottle 2 — green
+circle 0.40,0.73 0.06 fill #3a8840 0.85
+circle 0.40,0.73 0.06 stroke #1a4a20
+circle 0.40,0.73 0.025 fill #88d890 0.55
+# Bottle 3 — amber
+circle 0.58,0.72 0.05 fill #c88830 0.85
+circle 0.58,0.72 0.05 stroke #704818
+# Bottle 4 — deep red
+circle 0.74,0.74 0.06 fill #aa2828 0.88
+circle 0.74,0.74 0.06 stroke #550808
+circle 0.74,0.74 0.022 fill #ee7070 0.5
+# Bottle 5 — purple
+circle 0.92,0.72 0.055 fill #7a3aa8 0.88
+circle 0.92,0.72 0.055 stroke #3a1858
+circle 0.92,0.72 0.022 fill #b880ee 0.55
+# Bottle 6 — pale blue (smaller vial)
+circle 1.08,0.73 0.045 fill #8ac0e0 0.85
+circle 1.08,0.73 0.045 stroke #3a5878
+# Bottle 7 — amber (round flask)
+circle 1.26,0.74 0.065 fill #b06820 0.88
+circle 1.26,0.74 0.065 stroke #603818
+circle 1.26,0.74 0.028 fill #e8a860 0.5
+# Bottle 8 — green tall vial
+circle 1.46,0.72 0.055 fill #2a6830 0.88
+circle 1.46,0.72 0.055 stroke #102818
+# Bottle 9 — yellow
+circle 1.64,0.73 0.05 fill #d8c828 0.85
+circle 1.64,0.73 0.05 stroke #807010
+# Bottle 10 — red vial
+circle 1.80,0.72 0.045 fill #a83848 0.85
+circle 1.80,0.72 0.045 stroke #581828
+
+# Wooden rack top (covers most of shelf — visible from above)
+rect 0.06,0.04 1.88,0.62 texfill polyhaven/dark_wood 0.88
+rect 0.06,0.04 1.88,0.62 stroke #3a1f00
+# Wood grain
+line 0.06,0.22 1.94,0.22 stroke #5c3a1e 0.35
+line 0.06,0.44 1.94,0.44 stroke #5c3a1e 0.35
+# Mounting brackets (small iron fittings at ends)
+rect 0.08,0.06 0.08,0.08 fill #333333 0.85
+rect 1.84,0.06 0.08,0.08 fill #333333 0.85
+# Shelf edge shadow
+rect 0.08,0.62 1.84,0.03 fill #000000 0.25

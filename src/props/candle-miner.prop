@@ -1,0 +1,41 @@
+name: Miner's Candle
+category: Features
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.3
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, cave-living
+typical_count: many
+clusters_with: helmet-mining, pickaxe, sorting-table, winch-large
+notes: Stubby beeswax candle in a bent tin holder with a hook — can be placed on the ground or hung from a peg
+lights: [{"preset":"candle","x":0.5,"y":0.5,"radius":5,"intensity":0.6,"color":"#ffcc80"}]
+---
+# Tin dish (circular base with rim)
+circle 0.50,0.55 0.22 texfill polyhaven/metal_plate 0.8
+circle 0.50,0.55 0.22 stroke #555555
+# Dish inner (darker well)
+circle 0.50,0.55 0.16 fill #555555 0.85
+circle 0.50,0.55 0.16 stroke #333333
+# Bent tin hook (extending from the rim to the south-east)
+bezier 0.72,0.55 0.82,0.60 0.84,0.70 0.78,0.78 stroke #8899aa width 3
+bezier 0.72,0.55 0.82,0.60 0.84,0.70 0.78,0.78 stroke #444444 width 1
+# Wax drippings on the dish rim
+ellipse 0.36,0.56 0.05,0.03 fill #e8dcc8 0.7
+ellipse 0.64,0.60 0.04,0.03 fill #e8dcc8 0.6
+# Stubby candle body (yellow beeswax)
+circle 0.50,0.52 0.10 fill #f0d088 0.95
+circle 0.50,0.52 0.10 stroke #8b6914
+# Inner wax highlight
+circle 0.48,0.50 0.06 fill #ffe0a0 0.55
+# Wick
+circle 0.50,0.52 0.02 fill #333333 0.95
+# Flame halo
+circle 0.50,0.50 0.14 fill #ffcc80 0.25
+circle 0.50,0.50 0.08 fill #ffcc80 0.4
+# Flame
+poly 0.47,0.52 0.50,0.42 0.53,0.52 fill #cc3300 0.5
+poly 0.48,0.52 0.50,0.44 0.52,0.52 fill #ff8800 0.7
+poly 0.49,0.51 0.50,0.46 0.51,0.51 fill #ffcc00 0.85
+circle 0.50,0.47 0.012 fill #ffffff 0.95

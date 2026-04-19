@@ -1,0 +1,48 @@
+name: Prayer Card
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: apartment-tenement, mansion-servants-quarters, peasant-hovel, shrine, chapel
+typical_count: few
+clusters_with: candle-stub, altar, prayer-book, prayer-bench, cradle
+notes: Small paper prayer card, sometimes pinned to a wall or tucked onto an altar
+---
+# === HITBOX ===
+selection rect 0.30,0.22 0.40,0.56
+
+# Card body (pale yellowed parchment, slightly rotated)
+rect 0.30,0.22 0.40,0.56 fill #e8dcc8 0.95 rotate -5
+rect 0.30,0.22 0.40,0.56 stroke #8b7355 rotate -5
+# Ornate border
+rect 0.33,0.25 0.34,0.50 stroke #daa520 0.6 rotate -5
+# Central icon — stylized cross/halo
+line 0.48,0.40 0.48,0.56 stroke #8b2020 width 2 rotate -5
+line 0.42,0.46 0.54,0.46 stroke #8b2020 width 2 rotate -5
+# Halo circle around cross
+circle 0.48,0.46 0.07 stroke #daa520 0.8 width 1 rotate -5
+# Dots at cross terminals
+circle 0.48,0.40 0.012 fill #8b2020 0.9 rotate -5
+circle 0.48,0.56 0.012 fill #8b2020 0.9 rotate -5
+circle 0.42,0.46 0.012 fill #8b2020 0.9 rotate -5
+circle 0.54,0.46 0.012 fill #8b2020 0.9 rotate -5
+# Text lines below icon
+line 0.36,0.64 0.62,0.64 stroke #2a1400 0.7 rotate -5
+line 0.36,0.68 0.60,0.68 stroke #2a1400 0.6 rotate -5
+line 0.36,0.72 0.58,0.72 stroke #2a1400 0.6 rotate -5
+# Text line above icon
+line 0.36,0.30 0.62,0.30 stroke #2a1400 0.8 rotate -5
+line 0.38,0.34 0.60,0.34 stroke #2a1400 0.6 rotate -5
+# Folded corner (one corner bent)
+poly 0.64,0.22 0.70,0.22 0.70,0.28 fill #d4c4a8 0.95 rotate -5
+poly 0.64,0.22 0.70,0.22 0.70,0.28 stroke #8b7355 rotate -5
+# Wax stain or tear
+circle 0.38,0.42 0.025 fill #8b2020 0.4 rotate -5
+# Small pin hole at top
+circle 0.50,0.25 0.01 fill #444444 0.8 rotate -5
+# Age spots
+circle 0.58,0.50 0.015 fill #a08040 0.4 rotate -5
+circle 0.40,0.58 0.012 fill #a08040 0.4 rotate -5

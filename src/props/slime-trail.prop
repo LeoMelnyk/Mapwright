@@ -1,0 +1,50 @@
+name: Slime Trail
+category: Effects
+footprint: 2x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: slime-pit, ooze-shrine, sewer-junction, dungeon, cave
+typical_count: many
+clusters_with: ooze-pool, ooze-puddle, dissolved-skeleton, victim-cocoon
+notes: Glistening slime trail along the floor — elongated wavy streak that fades at both ends, suggesting an ooze has recently slithered past
+---
+# footprint 2x1: x range 0-1, y range 0-2
+# Long wavy slime streak running along y (north-south)
+
+# Outer faint halo (wet sheen bleeding off the trail)
+poly 0.42,0.12 0.50,0.10 0.58,0.14 0.56,0.30 0.60,0.50 0.56,0.72 0.58,0.94 0.56,1.16 0.60,1.38 0.56,1.58 0.58,1.78 0.54,1.92 0.46,1.94 0.40,1.82 0.44,1.60 0.40,1.40 0.44,1.18 0.40,0.96 0.42,0.74 0.38,0.52 0.42,0.32 fill #a8c060 0.40
+
+# Main slime body (brighter yellow-green core)
+poly 0.44,0.18 0.50,0.16 0.54,0.20 0.52,0.34 0.55,0.52 0.51,0.72 0.54,0.92 0.50,1.14 0.54,1.36 0.50,1.56 0.52,1.76 0.48,1.86 0.44,1.80 0.47,1.60 0.44,1.40 0.46,1.18 0.44,0.96 0.46,0.74 0.43,0.52 0.46,0.32 fill #8ab030 0.80
+
+# Deeper green core spine (thinner)
+bezier 0.49,0.24 0.52,0.60 0.48,1.00 0.50,1.36 stroke #4a7020 width 3
+bezier 0.50,1.36 0.48,1.60 0.50,1.76 0.49,1.82 stroke #4a7020 width 2
+
+# Wet highlight running along the spine
+bezier 0.48,0.28 0.50,0.60 0.47,1.00 0.49,1.36 stroke #c8e080 0.75 width 1
+bezier 0.49,1.36 0.47,1.60 0.49,1.76 0.48,1.80 stroke #c8e080 0.6 width 1
+
+# Small bubbles embedded in trail
+circle 0.48,0.46 0.025 fill #c8e080 0.85
+circle 0.48,0.46 0.010 fill #ffffff 0.7
+circle 0.52,0.88 0.022 fill #a8c060 0.8
+circle 0.52,0.88 0.009 fill #ffffff 0.6
+circle 0.48,1.26 0.024 fill #c8e080 0.85
+circle 0.48,1.26 0.010 fill #ffffff 0.7
+circle 0.50,1.60 0.020 fill #a8c060 0.75
+
+# Tapered fade at north end (thinner drip)
+circle 0.48,0.12 0.018 fill #8ab030 0.55
+circle 0.47,0.08 0.012 fill #a8c060 0.40
+
+# Tapered fade at south end
+circle 0.49,1.92 0.016 fill #8ab030 0.55
+circle 0.48,1.96 0.010 fill #a8c060 0.35
+
+# Small droplet splash off trail
+circle 0.36,0.72 0.020 fill #8ab030 0.65
+circle 0.62,1.12 0.018 fill #8ab030 0.6

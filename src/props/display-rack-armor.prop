@@ -1,0 +1,53 @@
+name: Display Rack (Armor)
+category: Combat
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: yes
+height: 5
+placement: wall
+room_types: armory, smithy, shop, trophy-room
+typical_count: few
+clusters_with: display-rack-weapons, armor-stand, weapon-rack
+notes: Wall-mounted rack displaying breastplate and helm; line shop or armory walls
+---
+# === HITBOX ===
+hitbox rect 0.08,0.06 1.84,0.40 z 0-5
+
+# footprint 1x2: x range 0-2, y range 0-1
+# Top-down: thin wall-mounted bar along north + armor silhouettes poking above
+
+# === Wall mounting bar (main horizontal rail along north edge) ===
+rect 0.08,0.06 1.84,0.12 texfill polyhaven/dark_wood 0.9
+rect 0.08,0.06 1.84,0.12 stroke #3a1f00
+
+# End brackets (iron)
+rect 0.08,0.08 0.08,0.08 fill #555555 0.8
+rect 0.08,0.08 0.08,0.08 stroke #333333
+rect 1.84,0.08 0.08,0.08 fill #555555 0.8
+rect 1.84,0.08 0.08,0.08 stroke #333333
+
+# === Helm (small circle disc, left side) ===
+# Helm dome seen from above
+circle 0.55,0.28 0.12 texfill polyhaven/metal_plate 0.85
+circle 0.55,0.28 0.12 stroke #444444
+# Helm crest ridge (thin line across top)
+line 0.45,0.28 0.65,0.28 stroke #8899aa width 2
+# Helm visor slit
+line 0.48,0.32 0.62,0.32 stroke #333333 width 1
+
+# === Breastplate (shallow curve, right side) ===
+# Breastplate top edge — the shallow crest visible from above
+ellipse 1.35,0.30 0.28,0.14 texfill polyhaven/metal_plate 0.85
+ellipse 1.35,0.30 0.28,0.14 stroke #444444
+# Center ridge line
+line 1.35,0.18 1.35,0.42 stroke #8899aa width 1
+# Surface highlight
+ellipse 1.35,0.26 0.18,0.08 fill #8899aa 0.15
+
+# === Mounting hooks (small iron pegs visible from above) ===
+circle 0.55,0.14 0.025 fill #666666 0.8
+circle 1.35,0.14 0.025 fill #666666 0.8
+
+# Shadow line below the rack
+rect 0.12,0.44 1.76,0.04 fill #000000 0.12

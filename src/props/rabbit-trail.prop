@@ -1,0 +1,94 @@
+name: Rabbit Trail
+category: Scatter
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.02
+placement: floor
+room_types: forest-clearing, wilderness, meadow, druid-grove, hunters-trail
+typical_count: single
+clusters_with: snare-set, shrub, wildflower-patch, tree, forest-litter
+notes: Small rabbit paw-prints in dirt or mud leading across the floor. Ground decal — pairs of small prints showing bounding gait.
+---
+# footprint 1x2: x 0-2, y 0-1
+# Ground decal — no shadow, no light-block
+
+# === Faint trail path (disturbed ground) ===
+ellipse 1.00,0.50 0.90,0.22 fill #3a2a18 0.12
+
+# === Rabbit tracks — pattern: two small front paws side-by-side, two larger rear paws staggered behind, bounding forward (east direction) ===
+
+# Set 1 (west, slightly faded — older)
+# Front paws (small pair)
+ellipse 0.18,0.36 0.022,0.030 fill #2a1808 0.55
+ellipse 0.18,0.36 0.022,0.030 stroke #1a1008 0.4
+ellipse 0.18,0.58 0.022,0.030 fill #2a1808 0.55
+ellipse 0.18,0.58 0.022,0.030 stroke #1a1008 0.4
+# Rear paws (larger, elongated)
+ellipse 0.28,0.32 0.028,0.060 fill #2a1808 0.55
+ellipse 0.28,0.32 0.028,0.060 stroke #1a1008 0.4
+ellipse 0.28,0.62 0.028,0.060 fill #2a1808 0.55
+ellipse 0.28,0.62 0.028,0.060 stroke #1a1008 0.4
+
+# Set 2
+ellipse 0.56,0.40 0.022,0.030 fill #3a2010 0.7
+ellipse 0.56,0.40 0.022,0.030 stroke #1a1008 0.5
+ellipse 0.56,0.56 0.022,0.030 fill #3a2010 0.7
+ellipse 0.56,0.56 0.022,0.030 stroke #1a1008 0.5
+ellipse 0.66,0.36 0.028,0.060 fill #3a2010 0.7
+ellipse 0.66,0.36 0.028,0.060 stroke #1a1008 0.5
+ellipse 0.66,0.60 0.028,0.060 fill #3a2010 0.7
+ellipse 0.66,0.60 0.028,0.060 stroke #1a1008 0.5
+
+# Set 3 (center, clearest)
+ellipse 0.98,0.42 0.022,0.030 fill #3a2010 0.85
+ellipse 0.98,0.42 0.022,0.030 stroke #1a1008 0.6
+ellipse 0.98,0.54 0.022,0.030 fill #3a2010 0.85
+ellipse 0.98,0.54 0.022,0.030 stroke #1a1008 0.6
+# Tiny toe pads on front paws
+circle 0.975,0.39 0.006 fill #1a1008 0.7
+circle 0.985,0.395 0.006 fill #1a1008 0.7
+circle 0.975,0.51 0.006 fill #1a1008 0.7
+circle 0.985,0.515 0.006 fill #1a1008 0.7
+ellipse 1.08,0.38 0.028,0.060 fill #3a2010 0.85
+ellipse 1.08,0.38 0.028,0.060 stroke #1a1008 0.6
+ellipse 1.08,0.60 0.028,0.060 fill #3a2010 0.85
+ellipse 1.08,0.60 0.028,0.060 stroke #1a1008 0.6
+# Toe pads on rear paws
+circle 1.07,0.35 0.006 fill #1a1008 0.7
+circle 1.085,0.36 0.006 fill #1a1008 0.7
+circle 1.09,0.62 0.006 fill #1a1008 0.7
+circle 1.075,0.63 0.006 fill #1a1008 0.7
+
+# Set 4
+ellipse 1.38,0.40 0.022,0.030 fill #3a2010 0.75
+ellipse 1.38,0.40 0.022,0.030 stroke #1a1008 0.5
+ellipse 1.38,0.58 0.022,0.030 fill #3a2010 0.75
+ellipse 1.38,0.58 0.022,0.030 stroke #1a1008 0.5
+ellipse 1.48,0.36 0.028,0.060 fill #3a2010 0.75
+ellipse 1.48,0.36 0.028,0.060 stroke #1a1008 0.5
+ellipse 1.48,0.62 0.028,0.060 fill #3a2010 0.75
+ellipse 1.48,0.62 0.028,0.060 stroke #1a1008 0.5
+
+# Set 5 (east, fading — newer going east, or older going west)
+ellipse 1.72,0.44 0.022,0.030 fill #3a2010 0.55
+ellipse 1.72,0.44 0.022,0.030 stroke #1a1008 0.4
+ellipse 1.72,0.54 0.022,0.030 fill #3a2010 0.55
+ellipse 1.72,0.54 0.022,0.030 stroke #1a1008 0.4
+ellipse 1.82,0.40 0.026,0.055 fill #3a2010 0.5
+ellipse 1.82,0.40 0.026,0.055 stroke #1a1008 0.35
+ellipse 1.82,0.58 0.026,0.055 fill #3a2010 0.5
+ellipse 1.82,0.58 0.026,0.055 stroke #1a1008 0.35
+
+# === Small dirt scuff marks between prints ===
+circle 0.42,0.48 0.010 fill #3a2010 0.55
+circle 0.82,0.50 0.010 fill #3a2010 0.55
+circle 1.22,0.50 0.010 fill #3a2010 0.55
+circle 1.60,0.48 0.010 fill #3a2010 0.5
+
+# A few rabbit droppings along trail (tiny dark pellets)
+circle 0.75,0.80 0.012 fill #1a1408 0.7
+circle 0.78,0.82 0.010 fill #1a1408 0.7
+circle 1.45,0.82 0.012 fill #1a1408 0.7
+circle 1.48,0.80 0.010 fill #1a1408 0.7

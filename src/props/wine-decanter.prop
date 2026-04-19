@@ -1,0 +1,63 @@
+name: Wine Decanter
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 1
+placement: floor
+room_types: command-room, war-room, study, throne-room, tavern, dining-hall, bedroom
+typical_count: single
+clusters_with: desk, reading-table, chair, campaign-ledger
+notes: Crystal wine decanter on a silver tray with cups; place on tables in command rooms or study for refined atmosphere
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: silver tray (oval) + decanter (round) + 1-2 small cups
+
+# === Silver tray (base) ===
+ellipse 0.50,0.52 0.38,0.30 fill #aaaaaa 0.5
+ellipse 0.50,0.52 0.38,0.30 texfill polyhaven/metal_plate 0.35
+ellipse 0.50,0.52 0.38,0.30 stroke #777777
+
+# Tray rim highlight
+ellipse 0.50,0.52 0.36,0.28 stroke #cccccc 0.3
+
+# === Wine decanter (center, largest element) ===
+# Decanter body (wide base, viewed from above)
+circle 0.46,0.48 0.14 fill #4a1020 0.6
+circle 0.46,0.48 0.14 stroke #3a0818
+
+# Glass rim / crystal edge
+circle 0.46,0.48 0.14 stroke #8899aa 0.3
+
+# Wine visible through glass (dark interior)
+circle 0.46,0.48 0.10 fill #3a0818 0.7
+
+# Glass highlight (light catch on rim)
+arc 0.46,0.48 0.12 210 260 stroke #ccddee 0.4 width 1
+
+# Decanter neck (narrow opening at top)
+circle 0.46,0.48 0.04 fill #667788 0.5
+circle 0.46,0.48 0.04 stroke #8899aa 0.4
+
+# Stopper
+circle 0.46,0.48 0.025 fill #aaaaaa 0.7
+
+# Handle (small arc to the side)
+arc 0.46,0.48 0.17 40 100 stroke #8899aa 0.5 width 2
+
+# === Cup 1 (right of decanter) ===
+circle 0.72,0.56 0.06 fill #aaaaaa 0.5
+circle 0.72,0.56 0.06 stroke #777777
+# Wine in cup
+circle 0.72,0.56 0.04 fill #4a1020 0.6
+# Glass highlight
+arc 0.72,0.56 0.05 200 260 stroke #cccccc 0.35 width 1
+
+# === Cup 2 (lower-left of decanter) ===
+circle 0.34,0.68 0.055 fill #aaaaaa 0.5
+circle 0.34,0.68 0.055 stroke #777777
+# Wine in cup
+circle 0.34,0.68 0.035 fill #4a1020 0.55
+# Glass highlight
+arc 0.34,0.68 0.045 210 270 stroke #cccccc 0.35 width 1

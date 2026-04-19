@@ -1,0 +1,65 @@
+name: Dagger Through Map
+category: Combat
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: floor
+room_types: command-room, war-room, office, guard-room, tavern, rogues-den
+typical_count: single
+clusters_with: desk, map-scroll, campaign-ledger, game-piece
+notes: Parchment map pinned flat to a table by a dagger driven through its center; dramatic set-dressing for command rooms
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: map rectangle + foreshortened dagger (pommel circle + crossguard strip + blade stub)
+# Reference: arrow-stuck.prop foreshortening technique
+
+# === Parchment map (flat on surface) ===
+rect 0.10,0.14 0.80,0.72 fill #e8d8a8 0.85
+rect 0.10,0.14 0.80,0.72 stroke #8b7355
+rect 0.10,0.14 0.80,0.72 texfill polyhaven/rough_linen 0.12
+
+# Map markings (coastline, routes, X marks)
+# Coastline (wavy line)
+qbezier 0.16,0.40 0.40,0.32 0.60,0.44 stroke #5a4a2a 0.5 width 1
+qbezier 0.60,0.44 0.74,0.50 0.82,0.42 stroke #5a4a2a 0.5 width 1
+# River
+line 0.30,0.22 0.38,0.52 stroke #4466aa 0.35 width 1
+# Route line (dotted effect — short dashes)
+line 0.24,0.60 0.40,0.56 stroke #8b2020 0.4 width 1
+line 0.42,0.55 0.58,0.62 stroke #8b2020 0.4 width 1
+line 0.60,0.63 0.72,0.58 stroke #8b2020 0.4 width 1
+# Town dots
+circle 0.26,0.60 0.02 fill #3a1f00 0.6
+circle 0.72,0.58 0.02 fill #3a1f00 0.6
+
+# === Dagger (driven through center — foreshortened, viewed from above) ===
+# Impact tear in parchment (radial cracks around blade entry)
+line 0.46,0.46 0.42,0.42 stroke #5a4a2a 0.5 width 1
+line 0.54,0.46 0.58,0.42 stroke #5a4a2a 0.5 width 1
+line 0.46,0.54 0.42,0.58 stroke #5a4a2a 0.5 width 1
+line 0.54,0.54 0.58,0.58 stroke #5a4a2a 0.5 width 1
+
+# Blade stub (very short, foreshortened — just the bit poking up above the map)
+rect 0.47,0.44 0.06,0.12 fill #8899aa 0.8
+rect 0.47,0.44 0.06,0.12 stroke #444444
+
+# Crossguard (horizontal bar across blade — most prominent feature)
+rect 0.36,0.48 0.28,0.05 fill #666666 0.85
+rect 0.36,0.48 0.28,0.05 stroke #333333
+# Crossguard end ornaments
+circle 0.37,0.505 0.025 fill #555555 0.7
+circle 0.63,0.505 0.025 fill #555555 0.7
+
+# Grip (short leather-wrapped section above crossguard)
+rect 0.46,0.53 0.08,0.10 texfill polyhaven/brown_leather 0.8
+rect 0.46,0.53 0.08,0.10 stroke #3a1f00
+# Grip wrap lines
+line 0.46,0.55 0.54,0.55 stroke #2a1400 0.4 width 1
+line 0.46,0.58 0.54,0.58 stroke #2a1400 0.4 width 1
+line 0.46,0.61 0.54,0.61 stroke #2a1400 0.4 width 1
+
+# Pommel (round knob at top, most visible element)
+circle 0.50,0.66 0.05 fill #666666 0.85
+circle 0.50,0.66 0.05 stroke #333333
+circle 0.50,0.66 0.025 fill #8899aa 0.5

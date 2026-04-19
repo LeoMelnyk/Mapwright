@@ -1,0 +1,66 @@
+name: Ritual Candle
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 1.5
+lights: [{"preset":"candle","x":0.5,"y":0.5,"color":"#ffcc66","intensity":0.5,"radius":3}]
+placement: floor
+room_types: standing-stones-circle, ritual-chamber, cabin-witch, dark-temple, cultist-shrine, shrine-roadside
+typical_count: many
+clusters_with: candle, candle-cluster, chalk-circle-floor, skull-small, ritual-candle, altar
+notes: Single tall ritual candle with dripping wax — larger and more elaborate than a plain candle. Place in circles around ritual areas or at shrine edges.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.12 z 0-1.5
+
+# Ground contact glow
+circle 0.5,0.56 0.22 fill #ffcc66 0.15
+circle 0.5,0.56 0.15 fill #ffcc66 0.22
+
+# === Wax drip pools at base (melted wax pooling on floor) ===
+ellipse 0.50,0.64 0.18,0.10 fill #e8dcc8 0.5
+ellipse 0.50,0.64 0.18,0.10 stroke #c8b898 0.5
+# Drip runs
+ellipse 0.34,0.62 0.05,0.03 fill #e8dcc8 0.55
+ellipse 0.68,0.60 0.04,0.025 fill #e8dcc8 0.55
+ellipse 0.56,0.72 0.04,0.025 fill #e8dcc8 0.5
+ellipse 0.42,0.70 0.03,0.02 fill #e8dcc8 0.5
+
+# === Candle body (tall pillar candle — top circle seen from above) ===
+# Outer wax layer (with dripping texture around rim)
+circle 0.50,0.50 0.14 fill #f0e4d0 0.92
+circle 0.50,0.50 0.14 stroke #a89870 width 2
+
+# Wax drip tongues down the sides (top-down they appear as bulges on the rim)
+circle 0.38,0.52 0.04 fill #e8dcc8 0.85
+circle 0.38,0.52 0.04 stroke #a89870
+circle 0.62,0.48 0.035 fill #e8dcc8 0.85
+circle 0.62,0.48 0.035 stroke #a89870
+circle 0.54,0.62 0.035 fill #e8dcc8 0.8
+circle 0.54,0.62 0.035 stroke #a89870
+
+# Inner wax cavity (melted center — pool where wick sits)
+circle 0.50,0.50 0.08 fill #8b6914 0.45
+circle 0.50,0.50 0.08 stroke #5a3a00 width 1
+
+# === Wick (char tip) ===
+circle 0.50,0.50 0.02 fill #1a1008 0.95
+
+# === Flame (concentric glow layers) ===
+circle 0.50,0.50 0.10 fill #cc3300 0.25
+circle 0.50,0.48 0.07 fill #e85500 0.4
+poly 0.46,0.50 0.50,0.40 0.54,0.50 fill #ff8800 0.6
+poly 0.47,0.50 0.50,0.42 0.53,0.50 fill #ffaa00 0.7
+poly 0.48,0.50 0.50,0.44 0.52,0.50 fill #ffcc66 0.8
+poly 0.49,0.49 0.50,0.46 0.51,0.49 fill #ffe8aa 0.9
+# Flame white-hot core
+circle 0.50,0.48 0.02 fill #ffffcc 0.95
+
+# Rim highlight on candle top (lit side)
+arc 0.50,0.50 0.13 200 340 stroke #fff8e8 0.5 width 1
+
+# Tiny ember flecks / heat shimmer
+circle 0.42,0.42 0.012 fill #ffaa44 0.7
+circle 0.58,0.44 0.01 fill #ffaa44 0.65

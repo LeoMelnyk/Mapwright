@@ -1,0 +1,53 @@
+name: Child Bed
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: no
+height: 1.0
+placement: wall
+room_types: nursery, house-medium-family
+typical_count: single
+clusters_with: cradle, wooden-toy, dollhouse, blocks-pile, narrow-bed
+notes: Small child's bed with cheerful striped quilt; headboard at north
+---
+# === HITBOX ===
+selection rect 0.10,0.08 1.80,0.84
+
+# Wooden frame base
+rect 0.10,0.08 1.80,0.84 texfill polyhaven/dark_wood 0.88
+rect 0.10,0.08 1.80,0.84 stroke #3a1f00
+# Headboard slab (west end — north edge when rotated; here the "head" is west end of 1x2)
+rect 0.10,0.08 0.20,0.84 texfill polyhaven/dark_wood 0.9
+rect 0.10,0.08 0.20,0.84 fill #2a1400 0.35
+rect 0.10,0.08 0.20,0.84 stroke #1a0a00
+# Carved post tops at corners
+circle 0.14,0.14 0.05 fill #5c3a1e 0.95
+circle 0.14,0.14 0.05 stroke #1a0a00
+circle 0.14,0.86 0.05 fill #5c3a1e 0.95
+circle 0.14,0.86 0.05 stroke #1a0a00
+circle 1.86,0.14 0.04 fill #5c3a1e 0.9
+circle 1.86,0.14 0.04 stroke #1a0a00
+circle 1.86,0.86 0.04 fill #5c3a1e 0.9
+circle 1.86,0.86 0.04 stroke #1a0a00
+# Mattress/linen base
+rect 0.32,0.16 1.48,0.68 texfill polyhaven/rough_linen 0.85
+rect 0.32,0.16 1.48,0.68 stroke #8b7355
+# Pillow (at head/west end)
+rect 0.36,0.28 0.22,0.44 fill #f0e4d0 0.95
+rect 0.36,0.28 0.22,0.44 stroke #a08878
+# Pillow indentation
+ellipse 0.47,0.50 0.08,0.14 fill #c8b898 0.45
+# Quilt covering rest of bed
+rect 0.60,0.18 1.18,0.64 texfill polyhaven/rough_linen 0.7
+rect 0.60,0.18 1.18,0.64 fill #d4b090 0.75
+rect 0.60,0.18 1.18,0.64 stroke #8b5e3a
+# Quilt stripes (warm cheerful pattern)
+rect 0.72,0.18 0.08,0.64 fill #c87050 0.7
+rect 0.96,0.18 0.08,0.64 fill #70a0c8 0.7
+rect 1.20,0.18 0.08,0.64 fill #c87050 0.7
+rect 1.44,0.18 0.08,0.64 fill #70a0c8 0.7
+rect 1.64,0.18 0.08,0.64 fill #c87050 0.7
+# Quilt fold at foot
+line 0.60,0.28 1.78,0.28 stroke #8b5e3a 0.6
+line 0.60,0.72 1.78,0.72 stroke #8b5e3a 0.5

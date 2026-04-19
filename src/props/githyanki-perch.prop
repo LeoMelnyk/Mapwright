@@ -1,0 +1,54 @@
+name: Githyanki Perch
+category: Decorative
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 1.3
+placement: corner
+room_types: githyanki-citadel, astral-anchor, astral-sea, spelljammer-dock
+typical_count: few
+clusters_with: obelisk-astral, spelljammer-dock-mooring, astral-anchor-stone
+notes: Angular red-stone warrior platform with sharp geometric silver fittings. Used by gith lookouts to survey the astral. Front faces south.
+---
+# === HITBOX ===
+hitbox rect 0.15,0.10 0.70,1.80 z 0-1.3
+
+# footprint 2x1: x range 0-1, y range 0-2
+
+# Base plinth (dark red stone, sharply angular)
+poly 0.08,0.15 0.92,0.15 0.98,0.3 0.98,1.7 0.92,1.88 0.08,1.88 0.02,1.7 0.02,0.3 texfill polyhaven/brick_4 0.85
+poly 0.08,0.15 0.92,0.15 0.98,0.3 0.98,1.7 0.92,1.88 0.08,1.88 0.02,1.7 0.02,0.3 stroke #2a0808 width 2
+
+# Upper tier (stepped back — platform face)
+poly 0.18,0.3 0.82,0.3 0.88,0.42 0.88,1.58 0.82,1.72 0.18,1.72 0.12,1.58 0.12,0.42 fill #6a1818 0.85
+poly 0.18,0.3 0.82,0.3 0.88,0.42 0.88,1.58 0.82,1.72 0.18,1.72 0.12,1.58 0.12,0.42 stroke #2a0808 width 2
+
+# Silver corner fittings (sharp angular brackets)
+poly 0.15,0.3 0.3,0.3 0.3,0.45 0.22,0.45 0.15,0.38 fill #c0c0c0 0.85
+poly 0.15,0.3 0.3,0.3 0.3,0.45 0.22,0.45 0.15,0.38 stroke #555555 width 1
+poly 0.85,0.3 0.7,0.3 0.7,0.45 0.78,0.45 0.85,0.38 fill #c0c0c0 0.85
+poly 0.85,0.3 0.7,0.3 0.7,0.45 0.78,0.45 0.85,0.38 stroke #555555 width 1
+poly 0.15,1.72 0.3,1.72 0.3,1.55 0.22,1.55 0.15,1.64 fill #c0c0c0 0.85
+poly 0.15,1.72 0.3,1.72 0.3,1.55 0.22,1.55 0.15,1.64 stroke #555555 width 1
+poly 0.85,1.72 0.7,1.72 0.7,1.55 0.78,1.55 0.85,1.64 fill #c0c0c0 0.85
+poly 0.85,1.72 0.7,1.72 0.7,1.55 0.78,1.55 0.85,1.64 stroke #555555 width 1
+
+# Gith glyph etched on platform face
+poly 0.5,0.8 0.58,0.9 0.58,1.1 0.5,1.2 0.42,1.1 0.42,0.9 stroke #c0c0c0 width 2
+line 0.5,0.8 0.5,1.2 stroke #e0e0ff width 1
+line 0.42,1.0 0.58,1.0 stroke #e0e0ff width 1
+
+# Silver rim around upper platform edge
+line 0.18,0.3 0.82,0.3 stroke #c0c0c0 width 2
+line 0.18,1.72 0.82,1.72 stroke #c0c0c0 width 2
+
+# Sharp corner spikes at front (south edge) — lookout direction
+poly 0.2,1.72 0.26,1.85 0.32,1.72 fill #c0c0c0 0.9
+poly 0.2,1.72 0.26,1.85 0.32,1.72 stroke #555555
+poly 0.68,1.72 0.74,1.85 0.8,1.72 fill #c0c0c0 0.9
+poly 0.68,1.72 0.74,1.85 0.8,1.72 stroke #555555
+
+# Weathered pits in red stone
+circle 0.3,0.6 0.02 fill #2a0808 0.6
+circle 0.7,1.4 0.02 fill #2a0808 0.6

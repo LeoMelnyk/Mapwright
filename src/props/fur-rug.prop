@@ -1,0 +1,75 @@
+name: Fur Rug
+category: Decorative
+footprint: 2x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.05
+placement: floor
+room_types: hunting-lodge-large, cabin-hunters, noble-bedchamber, study
+typical_count: single
+clusters_with: great-hearth, fur-clump, pelt, pelt-roll
+notes: Bear or wolf fur rug with mounted head at north end. Lays flat on the floor.
+---
+# footprint 2x2: x 0-2, y 0-2
+# Ground shadow under rug (extends slightly beyond fur)
+ellipse 1.00,1.15 0.95,0.80 fill #1a0a00 0.15
+
+# === Main pelt body (irregular rounded tetragon with splayed limbs) ===
+poly 1.00,0.55 1.40,0.62 1.72,0.90 1.80,1.30 1.70,1.65 1.45,1.80 1.20,1.85 0.80,1.85 0.55,1.80 0.30,1.65 0.20,1.30 0.28,0.90 0.60,0.62 texfill polyhaven/brown_leather 0.75
+poly 1.00,0.55 1.40,0.62 1.72,0.90 1.80,1.30 1.70,1.65 1.45,1.80 1.20,1.85 0.80,1.85 0.55,1.80 0.30,1.65 0.20,1.30 0.28,0.90 0.60,0.62 fill #5c3a1e 0.55
+poly 1.00,0.55 1.40,0.62 1.72,0.90 1.80,1.30 1.70,1.65 1.45,1.80 1.20,1.85 0.80,1.85 0.55,1.80 0.30,1.65 0.20,1.30 0.28,0.90 0.60,0.62 stroke #2a1400 width 2
+
+# Splayed front paws (southwest and southeast)
+ellipse 0.32,1.70 0.10,0.08 fill #4a2800 0.85
+ellipse 0.32,1.70 0.10,0.08 stroke #1a0a00
+ellipse 1.68,1.70 0.10,0.08 fill #4a2800 0.85
+ellipse 1.68,1.70 0.10,0.08 stroke #1a0a00
+# Claw tips
+line 0.26,1.76 0.22,1.82 stroke #1a0a00 width 1
+line 0.32,1.78 0.30,1.84 stroke #1a0a00 width 1
+line 0.38,1.78 0.38,1.84 stroke #1a0a00 width 1
+line 1.62,1.78 1.62,1.84 stroke #1a0a00 width 1
+line 1.68,1.78 1.70,1.84 stroke #1a0a00 width 1
+line 1.74,1.76 1.78,1.82 stroke #1a0a00 width 1
+
+# Splayed hind paws (further south, smaller)
+ellipse 0.50,1.82 0.08,0.06 fill #3a2000 0.85
+ellipse 1.50,1.82 0.08,0.06 fill #3a2000 0.85
+
+# Fur texture — radial streaks
+line 1.00,0.72 1.00,0.60 stroke #3a2000 0.5 width 1
+line 0.80,0.80 0.68,0.72 stroke #3a2000 0.5 width 1
+line 1.20,0.80 1.32,0.72 stroke #3a2000 0.5 width 1
+line 0.60,1.10 0.40,1.10 stroke #3a2000 0.4 width 1
+line 1.40,1.10 1.60,1.10 stroke #3a2000 0.4 width 1
+line 0.80,1.50 0.70,1.65 stroke #3a2000 0.4 width 1
+line 1.20,1.50 1.30,1.65 stroke #3a2000 0.4 width 1
+
+# Lighter fur underbelly
+ellipse 1.00,1.30 0.45,0.30 fill #8a6040 0.35
+
+# === Head at north end (mounted bear/wolf head) ===
+ellipse 1.00,0.40 0.28,0.22 fill #4a2800 0.95
+ellipse 1.00,0.40 0.28,0.22 stroke #1a0a00 width 2
+# Head fur highlights
+ellipse 0.88,0.34 0.06,0.04 fill #6a4020 0.6
+ellipse 1.12,0.34 0.06,0.04 fill #6a4020 0.6
+# Ears (two rounded triangles)
+poly 0.82,0.28 0.76,0.20 0.88,0.24 fill #3a2000 0.9
+poly 0.82,0.28 0.76,0.20 0.88,0.24 stroke #1a0a00
+poly 1.18,0.28 1.24,0.20 1.12,0.24 fill #3a2000 0.9
+poly 1.18,0.28 1.24,0.20 1.12,0.24 stroke #1a0a00
+# Snout bump
+ellipse 1.00,0.52 0.10,0.07 fill #3a2000 0.95
+ellipse 1.00,0.52 0.10,0.07 stroke #1a0a00
+# Nose
+circle 1.00,0.55 0.028 fill #0a0400 0.95
+# Eye glints (glass eyes, shiny)
+circle 0.92,0.40 0.020 fill #2a1400 0.95
+circle 1.08,0.40 0.020 fill #2a1400 0.95
+circle 0.925,0.398 0.006 fill #ffeecc 0.8
+circle 1.085,0.398 0.006 fill #ffeecc 0.8
+# Fangs (two small white triangles from snout)
+poly 0.97,0.56 0.96,0.60 0.99,0.58 fill #e8dcc8 0.9
+poly 1.03,0.56 1.04,0.60 1.01,0.58 fill #e8dcc8 0.9

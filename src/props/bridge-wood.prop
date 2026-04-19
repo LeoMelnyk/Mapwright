@@ -1,0 +1,92 @@
+name: Wooden Plank Bridge
+category: Architecture
+footprint: 1x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: sewer-junction, sewer-tunnels, cave, ravine, swamp-crossing, mine, cistern
+typical_count: few
+clusters_with: sewage-channel, puddle, grate-floor, rope-coil
+notes: Short wooden plank bridge spanning a sewer channel or gap. Top-down shows parallel planks with dark gap visible at north/south edges.
+---
+# === HITBOX ===
+selection rect 0.10,0.10 1.80,0.80
+
+# footprint 1x2: x 0-2, y 0-1. Spans east-west across a gap running N-S? No — spans a channel running east-west, with dark gap visible at north and south beyond the planks.
+
+# === Dark gap visible beyond bridge north edge (where the channel is below) ===
+rect 0.0,0.0 2.0,0.08 fill #0a0a0a 0.85
+
+# === Dark gap visible beyond bridge south edge ===
+rect 0.0,0.92 2.0,0.08 fill #0a0a0a 0.85
+
+# === Stone landing edges (east and west) - the bridge abuts solid stone on the sides ===
+rect 0.0,0.08 0.10,0.84 texfill polyhaven/stone_wall 0.85
+rect 0.0,0.08 0.10,0.84 stroke #2a2a2a
+rect 1.90,0.08 0.10,0.84 texfill polyhaven/stone_wall 0.85
+rect 1.90,0.08 0.10,0.84 stroke #2a2a2a
+
+# === Main bridge planks (running east-west across the gap) ===
+# Plank 1 (north)
+rect 0.10,0.10 1.80,0.16 texfill polyhaven/weathered_planks 0.88
+rect 0.10,0.10 1.80,0.16 stroke #2a1400 width 1
+
+# Plank 2
+rect 0.10,0.27 1.80,0.15 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.27 1.80,0.15 stroke #2a1400 width 1
+
+# Plank 3 (middle)
+rect 0.10,0.43 1.80,0.15 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.43 1.80,0.15 stroke #2a1400 width 1
+
+# Plank 4
+rect 0.10,0.59 1.80,0.15 texfill polyhaven/weathered_planks 0.85
+rect 0.10,0.59 1.80,0.15 stroke #2a1400 width 1
+
+# Plank 5 (south)
+rect 0.10,0.75 1.80,0.16 texfill polyhaven/weathered_planks 0.88
+rect 0.10,0.75 1.80,0.16 stroke #2a1400 width 1
+
+# === Cross-support beams (under planks, visible at ends as dark bands) ===
+rect 0.10,0.10 0.06,0.82 fill #3a1f00 0.55
+rect 1.84,0.10 0.06,0.82 fill #3a1f00 0.55
+
+# === Plank grain (east-west lines on each plank) ===
+line 0.12,0.16 1.88,0.16 stroke #3a1f00 0.4
+line 0.12,0.20 1.88,0.20 stroke #3a1f00 0.35
+line 0.12,0.34 1.88,0.34 stroke #3a1f00 0.4
+line 0.12,0.50 1.88,0.50 stroke #3a1f00 0.4
+line 0.12,0.66 1.88,0.66 stroke #3a1f00 0.4
+line 0.12,0.82 1.88,0.82 stroke #3a1f00 0.4
+
+# === Narrow gaps between planks (slightly darker seams) ===
+line 0.10,0.26 1.90,0.26 stroke #1a0800 0.85 width 1
+line 0.10,0.42 1.90,0.42 stroke #1a0800 0.85 width 1
+line 0.10,0.58 1.90,0.58 stroke #1a0800 0.85 width 1
+line 0.10,0.74 1.90,0.74 stroke #1a0800 0.85 width 1
+
+# === Iron nails at plank ends ===
+circle 0.18,0.18 0.02 fill #555555 0.85
+circle 1.82,0.18 0.02 fill #555555 0.85
+circle 0.18,0.34 0.018 fill #555555 0.85
+circle 1.82,0.34 0.018 fill #555555 0.85
+circle 0.18,0.50 0.018 fill #555555 0.85
+circle 1.82,0.50 0.018 fill #555555 0.85
+circle 0.18,0.66 0.018 fill #555555 0.85
+circle 1.82,0.66 0.018 fill #555555 0.85
+circle 0.18,0.82 0.02 fill #555555 0.85
+circle 1.82,0.82 0.02 fill #555555 0.85
+# Middle plank nails
+circle 1.00,0.18 0.016 fill #555555 0.7
+circle 1.00,0.82 0.016 fill #555555 0.7
+
+# === Wet/damp stain on the middle planks (from splashes below) ===
+ellipse 0.90,0.50 0.22,0.08 fill #2a3440 0.3
+ellipse 1.30,0.66 0.16,0.06 fill #2a3440 0.25
+
+# === Wear/scuff marks ===
+line 0.50,0.34 0.60,0.36 stroke #1a0800 0.6 width 1
+line 1.40,0.58 1.50,0.60 stroke #1a0800 0.6 width 1
+line 0.80,0.82 0.90,0.84 stroke #1a0800 0.5 width 1

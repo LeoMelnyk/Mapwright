@@ -1,0 +1,59 @@
+name: Broken Glassware
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.08
+placement: floor
+room_types: demiplane-laboratory, alchemy-lab, wizard-sanctum, workshop-artificer, glassworks
+typical_count: few
+clusters_with: glass-shard, broken-vial, spell-component-loose, scorch-mark
+notes: Shattered laboratory glass — broken flask, stem fragments, and spilled reagent. Failed experiment scatter.
+---
+# === HITBOX ===
+selection rect 0.12,0.14 0.76,0.72
+
+# Spilled green reagent puddle (beneath the shards)
+ellipse 0.52,0.60 0.26,0.14 fill #4a7840 0.55
+ellipse 0.52,0.60 0.26,0.14 stroke #2a4828 0.7
+# Puddle inner sheen
+ellipse 0.52,0.58 0.14,0.06 fill #7aa860 0.4
+
+# Large shard (curved piece of round flask) — upper left
+poly 0.18,0.22 0.34,0.18 0.40,0.32 0.26,0.40 fill #a8d0d8 0.45
+poly 0.18,0.22 0.34,0.18 0.40,0.32 0.26,0.40 stroke #6a8890
+line 0.20,0.24 0.38,0.30 stroke #ffffff 0.6 width 1
+
+# Triangular shard — upper right
+poly 0.56,0.18 0.74,0.22 0.70,0.38 0.58,0.32 fill #b8dce0 0.5
+poly 0.56,0.18 0.74,0.22 0.70,0.38 0.58,0.32 stroke #6a8890
+line 0.58,0.22 0.70,0.34 stroke #ffffff 0.7 width 1
+
+# Long splinter shard — middle
+poly 0.14,0.50 0.42,0.46 0.44,0.52 0.16,0.56 fill #a8d0d8 0.45 rotate 8
+poly 0.14,0.50 0.42,0.46 0.44,0.52 0.16,0.56 stroke #6a8890 rotate 8
+line 0.16,0.52 0.42,0.49 stroke #ffffff 0.7 width 1 rotate 8
+
+# Flask base/stem fragment (curved ring segment)
+arc 0.72,0.54 0.12 90 260 stroke #6a8890 width 2
+arc 0.72,0.54 0.12 90 260 fill #c0e0e4 0.35
+
+# Small jagged shard — lower left
+poly 0.22,0.68 0.32,0.66 0.34,0.78 0.24,0.80 fill #b8dce0 0.5
+poly 0.22,0.68 0.32,0.66 0.34,0.78 0.24,0.80 stroke #6a8890
+line 0.24,0.70 0.32,0.76 stroke #ffffff 0.6 width 1
+
+# Another stem fragment (small curved piece)
+poly 0.64,0.74 0.78,0.72 0.82,0.82 0.70,0.84 fill #a8d0d8 0.45
+poly 0.64,0.74 0.78,0.72 0.82,0.82 0.70,0.84 stroke #6a8890
+
+# Tiny shard flecks
+poly 0.46,0.30 0.50,0.28 0.52,0.34 fill #b8dce0 0.5
+poly 0.44,0.72 0.48,0.70 0.50,0.76 fill #a8d0d8 0.45
+
+# Sparkle glints
+circle 0.30,0.24 0.012 fill #ffffff 0.9
+circle 0.66,0.28 0.01 fill #ffffff 0.85
+circle 0.24,0.52 0.01 fill #ffffff 0.8
+circle 0.78,0.58 0.012 fill #ffffff 0.85

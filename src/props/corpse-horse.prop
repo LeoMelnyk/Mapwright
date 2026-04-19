@@ -1,0 +1,99 @@
+name: Corpse (Horse)
+category: Misc
+footprint: 3x2
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: battlefield-recent, battlefield, war-camp
+typical_count: few
+clusters_with: corpse-soldier, commander-corpse-mounted, blood-pool, arrow-stuck
+notes: Dead horse sprawled on side; tangled mane, saddle still attached
+---
+# footprint 3x2: x range 0-2, y range 0-3
+# Top-down: horse lies on its side, head east, tail west, belly south
+
+# Blood pool beneath
+ellipse 1.0,1.5 0.75,0.38 fill #4a0000 0.3
+ellipse 1.0,1.5 0.75,0.38 stroke #2a0000 0.25
+
+# === Main barrel / torso ===
+ellipse 1.0,1.45 0.82,0.48 fill #3a2418 0.9
+ellipse 1.0,1.45 0.82,0.48 texfill polyhaven/brown_leather 0.55
+ellipse 1.0,1.45 0.82,0.48 stroke #1a0a04
+
+# === Neck extending east ===
+poly 1.70,1.28 1.88,1.20 1.96,1.38 1.80,1.50 fill #3a2418 0.9
+poly 1.70,1.28 1.88,1.20 1.96,1.38 1.80,1.50 texfill polyhaven/brown_leather 0.5
+poly 1.70,1.28 1.88,1.20 1.96,1.38 1.80,1.50 stroke #1a0a04
+
+# === Head (east) ===
+ellipse 1.92,1.32 0.10,0.09 fill #3a2418 0.9
+ellipse 1.92,1.32 0.10,0.09 texfill polyhaven/brown_leather 0.5
+ellipse 1.92,1.32 0.10,0.09 stroke #1a0a04
+# Nostril
+circle 1.98,1.32 0.018 fill #0a0604 0.9
+# Eye (closed / dead)
+line 1.88,1.28 1.94,1.28 stroke #0a0604 width 2
+# Ear
+poly 1.86,1.22 1.88,1.14 1.92,1.20 fill #2a1408 0.9
+# Bridle strap (leather)
+line 1.82,1.28 1.98,1.30 stroke #2a1408 width 2
+line 1.82,1.36 1.98,1.36 stroke #2a1408 width 2
+
+# === Tangled mane (north of neck) ===
+line 1.62,1.14 1.66,0.98 stroke #1a0a04 width 3
+line 1.72,1.10 1.78,0.92 stroke #1a0a04 width 3
+line 1.82,1.14 1.88,0.98 stroke #1a0a04 width 2
+line 1.56,1.16 1.50,1.04 stroke #1a0a04 width 2
+line 1.78,1.04 1.84,0.88 stroke #1a0a04 width 2
+
+# === Tail (west) ===
+poly 0.18,1.40 0.02,1.28 0.0,1.36 0.04,1.50 0.16,1.52 fill #1a0a04 0.9
+line 0.10,1.30 0.02,1.20 stroke #1a0a04 width 2
+line 0.08,1.46 0.02,1.54 stroke #1a0a04 width 2
+line 0.14,1.38 0.06,1.26 stroke #1a0a04 width 2
+
+# === Legs splayed ===
+# Front legs (east side, bent)
+poly 1.60,1.04 1.70,0.98 1.74,1.12 1.64,1.16 fill #2a1a10 0.85
+poly 1.60,1.04 1.70,0.98 1.74,1.12 1.64,1.16 stroke #1a0a04
+poly 1.52,1.00 1.58,0.92 1.64,0.90 1.68,0.96 fill #2a1a10 0.85
+poly 1.52,1.00 1.58,0.92 1.64,0.90 1.68,0.96 stroke #1a0a04
+# Rear legs (west side, splayed)
+poly 0.42,1.04 0.52,0.96 0.58,1.10 0.48,1.16 fill #2a1a10 0.85
+poly 0.42,1.04 0.52,0.96 0.58,1.10 0.48,1.16 stroke #1a0a04
+poly 0.30,0.98 0.36,0.86 0.44,0.88 0.42,1.00 fill #2a1a10 0.85
+poly 0.30,0.98 0.36,0.86 0.44,0.88 0.42,1.00 stroke #1a0a04
+# Hooves
+ellipse 1.72,1.14 0.04,0.03 fill #0a0604 0.9
+ellipse 1.62,0.92 0.04,0.03 fill #0a0604 0.9
+ellipse 0.56,1.12 0.04,0.03 fill #0a0604 0.9
+ellipse 0.40,0.88 0.04,0.03 fill #0a0604 0.9
+
+# Belly legs (tucked south)
+poly 0.70,1.84 0.80,1.92 0.74,2.00 0.66,1.94 fill #2a1a10 0.8
+poly 0.70,1.84 0.80,1.92 0.74,2.00 0.66,1.94 stroke #1a0a04
+poly 1.30,1.86 1.40,1.92 1.36,2.02 1.26,1.96 fill #2a1a10 0.8
+poly 1.30,1.86 1.40,1.92 1.36,2.02 1.26,1.96 stroke #1a0a04
+
+# === Saddle on top of horse ===
+rect 0.80,1.30 0.50,0.30 texfill polyhaven/brown_leather 0.85
+rect 0.80,1.30 0.50,0.30 stroke #2a1408
+# Saddle horn (front, east)
+circle 1.26,1.36 0.06 fill #5c3a1e 0.9
+circle 1.26,1.36 0.06 stroke #2a1408
+# Saddle cantle (back, west)
+poly 0.80,1.42 0.80,1.56 0.88,1.56 0.88,1.42 fill #5c3a1e 0.85
+# Saddle blanket poking out
+rect 0.74,1.28 0.62,0.04 fill #6a1010 0.7
+rect 0.74,1.66 0.62,0.04 fill #6a1010 0.7
+# Stirrup hanging
+line 0.84,1.60 0.84,1.76 stroke #2a1408 width 2
+circle 0.84,1.78 0.06 fill #555555 0.8
+circle 0.84,1.78 0.06 stroke #333333
+
+# Blood spatter
+circle 1.85,1.70 0.04 fill #4a0000 0.8
+circle 0.28,1.66 0.035 fill #4a0000 0.75

@@ -1,0 +1,71 @@
+name: Oracle Pit
+category: Magical
+footprint: 2x2
+facing: no
+shadow: no
+blocks_light: no
+height: 0.2
+lights: [{"preset":"eldritch-glow","x":1.0,"y":1.0,"color":"#66cc88","intensity":0.4,"radius":4}]
+placement: center
+room_types: oracle-chamber, divination-room, temple-nave, dark-temple, ritual-chamber
+typical_count: single
+clusters_with: altar, candle-cluster, ritual-candle, bone-pile, rune-stone
+notes: Stone rim around a dark vapor-pit; place at room center. Sibyl/oracle prophesies over the rising green mist.
+---
+# Flat pit — no shadow, no blocking (the rim itself has minimal height)
+
+# === Stone rim (outer octagonal mass) ===
+poly 0.45,0.15 1.55,0.15 1.85,0.45 1.85,1.55 1.55,1.85 0.45,1.85 0.15,1.55 0.15,0.45 texfill polyhaven/stone_wall 0.82
+poly 0.45,0.15 1.55,0.15 1.85,0.45 1.85,1.55 1.55,1.85 0.45,1.85 0.15,1.55 0.15,0.45 stroke #444444 width 2
+
+# Cracked weathered stone blocks
+line 0.45,0.15 0.45,0.40 stroke #333333 0.6 width 1
+line 1.55,0.15 1.55,0.40 stroke #333333 0.6 width 1
+line 1.55,1.85 1.55,1.60 stroke #333333 0.6 width 1
+line 0.45,1.85 0.45,1.60 stroke #333333 0.6 width 1
+line 0.15,0.80 0.40,0.80 stroke #333333 0.5 width 1
+line 1.85,0.80 1.60,0.80 stroke #333333 0.5 width 1
+line 0.15,1.20 0.40,1.20 stroke #333333 0.5 width 1
+line 1.85,1.20 1.60,1.20 stroke #333333 0.5 width 1
+
+# Rim highlights
+line 0.45,0.15 1.55,0.15 stroke #666666 0.7 width 1
+
+# === Dark elliptical pit (the mouth) ===
+ellipse 1.0,1.0 0.62,0.55 fill #0a0a08 0.95
+ellipse 1.0,1.0 0.62,0.55 stroke #000000 width 2
+
+# Pit depth gradient (dark ring just inside rim)
+ellipse 1.0,1.0 0.60,0.53 stroke #1a1a18 0.8 width 1
+ellipse 1.0,1.0 0.54,0.48 fill #050504 0.85
+
+# === Green vapor rising from pit (concentric clouds) ===
+# Faint outer mist
+ellipse 1.0,1.0 0.58,0.50 fill #66cc88 0.15
+# Mid mist
+ellipse 1.0,1.0 0.48,0.40 fill #88dd99 0.18
+# Denser inner mist
+ellipse 1.0,1.0 0.36,0.30 fill #aaee88 0.22
+# Brightest at center
+ellipse 1.0,1.0 0.22,0.18 fill #ccffaa 0.3
+ellipse 1.0,1.0 0.12,0.10 fill #e8ffc8 0.4
+
+# === Vapor wisps (curling tendrils) ===
+bezier 0.70,0.70 0.60,0.50 0.56,0.32 0.52,0.20 stroke #88dd99 0.5 width 2
+bezier 1.30,0.70 1.40,0.50 1.44,0.32 1.48,0.22 stroke #88dd99 0.45 width 2
+bezier 0.72,1.32 0.60,1.52 0.54,1.68 0.48,1.82 stroke #88dd99 0.45 width 2
+bezier 1.28,1.30 1.42,1.48 1.48,1.66 1.54,1.80 stroke #88dd99 0.4 width 2
+
+# Tiny vapor motes
+circle 0.56,0.36 0.025 fill #ccffaa 0.7
+circle 1.42,0.38 0.022 fill #ccffaa 0.65
+circle 0.62,1.60 0.02 fill #ccffaa 0.6
+circle 1.46,1.58 0.02 fill #ccffaa 0.6
+circle 1.00,0.28 0.018 fill #e8ffc8 0.7
+circle 1.00,1.70 0.018 fill #e8ffc8 0.65
+
+# Rim offerings (small dark specks — dried prayers, ash)
+circle 0.30,0.50 0.03 fill #3a2818 0.7
+circle 1.68,0.50 0.028 fill #3a2818 0.7
+circle 0.30,1.50 0.028 fill #3a2818 0.65
+circle 1.70,1.48 0.028 fill #3a2818 0.65

@@ -1,0 +1,63 @@
+name: Crystal Dust
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.01
+lights: [{"preset":"astral","x":0.5,"y":0.5,"color":"#ccaaff","intensity":0.25,"radius":3}]
+placement: floor
+room_types: crystal-grotto, cave-living, underdark-outpost, demiplane-laboratory, wizard-sanctum
+typical_count: many
+clusters_with: crystal-shard, crystal-cluster-large, crystal-heart, mineral-vein
+notes: Scatter of tiny glittering crystal fragments on the floor — residue from crystal formations or spell components
+---
+# Flat floor scatter — no shadow, no light blocking
+
+# Faint violet dust halo
+circle 0.5,0.5 0.45 fill #9977ee 0.1
+circle 0.5,0.5 0.32 fill #bb99ff 0.12
+
+# === Larger crystal fragments (visible tops) ===
+poly 0.24,0.32 0.30,0.30 0.32,0.36 0.28,0.40 fill #9977ee 0.75
+poly 0.24,0.32 0.30,0.30 0.32,0.36 0.28,0.40 stroke #5533aa
+
+poly 0.62,0.26 0.70,0.24 0.72,0.32 0.66,0.34 fill #8866dd 0.72
+poly 0.62,0.26 0.70,0.24 0.72,0.32 0.66,0.34 stroke #5533aa
+
+poly 0.40,0.66 0.48,0.64 0.50,0.72 0.44,0.74 fill #9977ee 0.72
+poly 0.40,0.66 0.48,0.64 0.50,0.72 0.44,0.74 stroke #5533aa
+
+poly 0.72,0.62 0.80,0.60 0.80,0.68 0.74,0.70 fill #7755cc 0.7
+poly 0.72,0.62 0.80,0.60 0.80,0.68 0.74,0.70 stroke #4422aa
+
+# === Small shard highlights ===
+circle 0.28,0.34 0.015 fill #e0d0ff 0.85
+circle 0.67,0.28 0.012 fill #e0d0ff 0.8
+circle 0.45,0.68 0.012 fill #e0d0ff 0.8
+
+# === Glitter flecks (tiny sparkles) ===
+circle 0.18,0.48 0.02 fill #ccaaff 0.85
+circle 0.20,0.70 0.014 fill #ccaaff 0.8
+circle 0.38,0.22 0.016 fill #bb99ff 0.8
+circle 0.52,0.44 0.014 fill #e0d0ff 0.85
+circle 0.56,0.56 0.012 fill #ccaaff 0.75
+circle 0.82,0.42 0.015 fill #bb99ff 0.8
+circle 0.30,0.82 0.013 fill #ccaaff 0.75
+circle 0.78,0.80 0.014 fill #bb99ff 0.75
+circle 0.62,0.84 0.012 fill #ccaaff 0.7
+circle 0.14,0.22 0.011 fill #ddccff 0.8
+circle 0.86,0.24 0.012 fill #ddccff 0.75
+circle 0.14,0.82 0.01 fill #ccaaff 0.7
+
+# === Even tinier bright specks ===
+circle 0.34,0.48 0.008 fill #ffffff 0.9
+circle 0.58,0.32 0.008 fill #ffffff 0.85
+circle 0.72,0.78 0.008 fill #ffffff 0.8
+circle 0.24,0.58 0.007 fill #ffffff 0.85
+circle 0.48,0.84 0.007 fill #ffffff 0.8
+
+# Prismatic glint lines
+line 0.38,0.38 0.40,0.42 stroke #ffccff 0.7 width 1
+line 0.64,0.50 0.66,0.54 stroke #ccffcc 0.6 width 1
+line 0.50,0.30 0.48,0.26 stroke #ccddff 0.6 width 1

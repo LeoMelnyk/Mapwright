@@ -1,26 +1,100 @@
-import type { CellGrid, Cell, Direction, FluidGeometryData, Theme } from '../types.js';
-import { WATER_TILE_SIZE, WATER_SPATIAL } from './patterns.js';
-import { getEdge } from '../util/index.js';
+// Fluid (water / lava / pit) rendering — tile-based fast path.
+//
+// The Voronoi pattern in WATER_PATTERNS is deterministic and tileable. We
+// render it ONCE per (variant, color, resolution) into an offscreen tile
+// canvas, then blit it across the map via `createPattern(..., 'repeat')`.
+// Visible variation comes from each cell sampling a different ~1/64th slice
+// of the 8-cell-wide tile — no per-cell Voronoi work at render time.
+//
+// Spill-over onto adjacent cells is preserved via a per-variant clip path:
+// cell rects + non-same-fluid neighbor rects (+ same-fluid different-depth
+// neighbors, so depth transitions stay organic). Each variant's clip is
+// painted in depth order (deep → medium → shallow) so shallower depths
+// overspill into deeper regions along the boundary.
+//
+// Pit vignettes remain per-region radial gradients drawn on top of the tile
+// blits; they aren't tileable.
+//
+// ## Caches
+//  - `_fluidCellsCache` / `_pitDataCache` — per-(cells, fillType) collections
+//    of fluid cell positions + depth maps + pit region groupings. Invalidate
+//    only on cells-grid identity change.
+//  - `_variantTileCache` — one `HTMLCanvasElement` per (variant, colorSig,
+//    overlayColor, gridSize, pxPerFoot). Rendered once, blitted everywhere.
+//  - `_variantClipCache` — one `Path2D` per (cells, variant). Cheap to build
+//    (O(fluid cells)); rebuilt on cells identity change.
 
-/** Result of collectFluidCells — cached per fill type. */
-interface FluidData {
-  fluidCells: [number, number][];
-  depthMap: Map<number, number>;
-  fluidSet: Set<number>;
-  numCols: number;
+import type { CellGrid, Cell, Direction, Theme } from '../types.js';
+import { WATER_TILE_SIZE, WATER_PATTERNS, WATER_SPATIAL } from './patterns.js';
+import { getEdge, log } from '../util/index.js';
+
+// ── Variant taxonomy ──────────────────────────────────────────────────────
+
+/** One of the 7 fill variants the renderer knows about. */
+export type FluidVariant =
+  | 'pit'
+  | 'water-shallow'
+  | 'water-medium'
+  | 'water-deep'
+  | 'lava-shallow'
+  | 'lava-medium'
+  | 'lava-deep';
+
+/** All variants in the order they are painted (deep → shallow). */
+export const FLUID_VARIANTS: readonly FluidVariant[] = [
+  'pit',
+  'water-deep',
+  'water-medium',
+  'water-shallow',
+  'lava-deep',
+  'lava-medium',
+  'lava-shallow',
+];
+
+/**
+ * `renderCells` skipPhases for the BASE pass (floors + blending). Use this
+ * alongside the fluid composite blit to sandwich fluids between the floor
+ * layer and the structural top phases. Paired with {@link FLUID_TOP_SKIP}.
+ */
+export const FLUID_BASE_SKIP: Readonly<Record<string, boolean>> = Object.freeze({
+  grid: true,
+  walls: true,
+  props: true,
+  hazard: true,
+  fills: true,
+  bridges: true,
+});
+
+/**
+ * `renderCells` skipPhases for the TOP pass (bridges + walls + grid + props
+ * + hazard). Bridges render above the fluid composite but below props, so
+ * they live with the structural layers. Shading is owned by the caller or
+ * composite sublayers, never redrawn here.
+ */
+export const FLUID_TOP_SKIP: Readonly<Record<string, boolean>> = Object.freeze({
+  shading: true,
+  floors: true,
+  blending: true,
+  fills: true,
+});
+
+interface VariantMeta {
+  fillType: 'water' | 'lava' | 'pit';
+  depth: 1 | 2 | 3 | null; // null for pit
 }
 
-/** Pit data cache. */
-interface PitData {
-  cells: CellGrid | null;
-  pitSet: Set<number> | null;
-  pitCells: [number, number][] | null;
-  groups: [number, number][][] | null;
-  numCols: number;
-  numRows: number;
-}
+const VARIANT_META: Record<FluidVariant, VariantMeta> = {
+  pit: { fillType: 'pit', depth: null },
+  'water-shallow': { fillType: 'water', depth: 1 },
+  'water-medium': { fillType: 'water', depth: 2 },
+  'water-deep': { fillType: 'water', depth: 3 },
+  'lava-shallow': { fillType: 'lava', depth: 1 },
+  'lava-medium': { fillType: 'lava', depth: 2 },
+  'lava-deep': { fillType: 'lava', depth: 3 },
+};
 
-/** Fluid defaults for water/lava. */
+// ── Defaults (used when a theme omits a color) ────────────────────────────
+
 interface FluidColorDefaults {
   base?: string;
   shallow: string;
@@ -31,7 +105,73 @@ interface FluidColorDefaults {
   vignette?: string;
 }
 
-// ── Per-frame fluid/pit caches ───────────────────────────────────────────────
+const FLUID_DEFAULTS: Record<'water' | 'lava', FluidColorDefaults> = {
+  water: { shallow: '#2d69a5', medium: '#1e4b8a', deep: '#0f2d6e', caustic: 'rgba(160,215,255,0.55)' },
+  lava: { shallow: '#cc4400', medium: '#992200', deep: '#661100', caustic: 'rgba(255,160,60,0.55)' },
+};
+
+const PIT_DEFAULTS: FluidColorDefaults = {
+  base: '#1a1a18',
+  crack: 'rgba(0,0,0,0.45)',
+  vignette: 'rgba(0,0,0,0.65)',
+  shallow: '#1a1a18',
+  medium: '#111110',
+  deep: '#0a0a08',
+  caustic: 'transparent',
+};
+
+function variantBaseColor(variant: FluidVariant, theme: Theme): string {
+  const t = theme as Record<string, unknown>;
+  switch (variant) {
+    case 'pit':
+      return (t.pitBaseColor as string | undefined) ?? PIT_DEFAULTS.base!;
+    case 'water-shallow':
+      return (t.waterShallowColor as string | undefined) ?? FLUID_DEFAULTS.water.shallow;
+    case 'water-medium':
+      return (t.waterMediumColor as string | undefined) ?? FLUID_DEFAULTS.water.medium;
+    case 'water-deep':
+      return (t.waterDeepColor as string | undefined) ?? FLUID_DEFAULTS.water.deep;
+    case 'lava-shallow':
+      return (t.lavaShallowColor as string | undefined) ?? FLUID_DEFAULTS.lava.shallow;
+    case 'lava-medium':
+      return (t.lavaMediumColor as string | undefined) ?? FLUID_DEFAULTS.lava.medium;
+    case 'lava-deep':
+      return (t.lavaDeepColor as string | undefined) ?? FLUID_DEFAULTS.lava.deep;
+  }
+}
+
+function variantOverlayColor(variant: FluidVariant, theme: Theme): string {
+  const t = theme as Record<string, unknown>;
+  if (variant === 'pit') return (t.pitCrackColor as string | undefined) ?? PIT_DEFAULTS.crack!;
+  if (variant.startsWith('water')) return (t.waterCausticColor as string | undefined) ?? FLUID_DEFAULTS.water.caustic;
+  return (t.lavaCausticColor as string | undefined) ?? FLUID_DEFAULTS.lava.caustic;
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  const x = hex.replace('#', '');
+  return [parseInt(x.substring(0, 2), 16), parseInt(x.substring(2, 4), 16), parseInt(x.substring(4, 6), 16)];
+}
+
+// ── Per-frame cell-collection caches ──────────────────────────────────────
+// Reused as-is from the legacy path. These track WHICH cells are fluid, at
+// WHICH depth, and (for pit) connected-region groupings for vignettes.
+
+interface FluidData {
+  fluidCells: [number, number][];
+  depthMap: Map<number, number>;
+  fluidSet: Set<number>;
+  numCols: number;
+}
+
+interface PitData {
+  cells: CellGrid | null;
+  pitSet: Set<number> | null;
+  pitCells: [number, number][] | null;
+  groups: [number, number][][] | null;
+  numCols: number;
+  numRows: number;
+}
+
 let _fluidCellsCache: { cells: CellGrid | null; water: FluidData | null; lava: FluidData | null } = {
   cells: null,
   water: null,
@@ -39,40 +179,111 @@ let _fluidCellsCache: { cells: CellGrid | null; water: FluidData | null; lava: F
 };
 let _pitDataCache: PitData = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
 
-// ── World-space fluid Path2D cache ──────────────────────────────────────────
-// Builds pit/water/lava geometry as Path2D objects in world coordinates, keyed
-// on cells + gridSize + theme. Rendered via ctx.setTransform (same as rock
-// shading) so output is pixel-perfect at any zoom — no drawImage pixel scaling.
-let _fluidPathCache: {
-  cells: CellGrid | null;
-  gridSize: number | null;
-  theme: Theme | null;
-  data: Record<string, unknown> | null;
-} = { cells: null, gridSize: null, theme: null, data: null };
+/**
+ * Monotonic version bumped only when fluid-relevant data changes (variant
+ * cells added/removed, depth tweaks, fluid theme recolor). MapCache keys
+ * the fluid composite sig on this so wall/prop/texture edits — which bump
+ * the global content version but don't touch fluids — don't force a full
+ * fluid composite rebuild.
+ */
+let _fluidDataVersion = 0;
+export function getFluidDataVersion(): number {
+  return _fluidDataVersion;
+}
 
-// ── Rendered fluid layer cache ─────────────────────────────────────────────
-// Pre-rendered offscreen canvas of all fill patterns (pit/water/lava) at cache
-// resolution. Valid as long as _fluidPathCache is valid. Avoids re-rendering
-// thousands of Voronoi Path2D objects on every map cache rebuild.
-let _fluidRenderLayer: {
-  canvas: OffscreenCanvas | HTMLCanvasElement;
-  w: number;
-  h: number;
-  pathCacheRef: unknown;
-  cacheScale?: number;
-  gridSize?: number;
-} | null = null;
+// ── Partial-rebuild dirty region tracking ─────────────────────────────────
+// `patchFluidRegion` accumulates the dirty cell region here so the next
+// `buildFluidComposite` call can do a targeted clear+refill instead of a
+// full-canvas rebuild. A pit-cell topology change disables partial rebuild
+// for the next composite (vignette group centroids/radii recompute and paint
+// outside the dirty rect), so we flip to full.
+interface FluidDirtyRegion {
+  minRow: number;
+  maxRow: number;
+  minCol: number;
+  maxCol: number;
+}
+let _pendingPartialRegion: FluidDirtyRegion | null = null;
+let _needsFullRebuild = true; // true on first composite (no canvas yet)
 
-function getCachedFluidCells(cells: CellGrid, roomCells: boolean[][], fillType: string): FluidData {
+/**
+ * Consume the pending dirty region. Returns `{ region, full }` describing
+ * what the next composite rebuild should do. After this call, the pending
+ * state is reset — the caller is expected to actually perform the rebuild.
+ *
+ *  - `full: true`  → rebuild the entire composite (theme change, cells-grid
+ *    identity change, pit topology mutation, or first build).
+ *  - `region` set  → clear+refill only that cell region.
+ *  - both null     → no change pending (composite is up to date).
+ */
+export function consumeFluidPartialRegion(): { region: FluidDirtyRegion | null; full: boolean } {
+  const result = _needsFullRebuild ? { region: null, full: true } : { region: _pendingPartialRegion, full: false };
+  _pendingPartialRegion = null;
+  _needsFullRebuild = false;
+  return result;
+}
+
+function _markFullRebuild(): void {
+  _needsFullRebuild = true;
+  _pendingPartialRegion = null;
+}
+
+function _extendPartialRegion(region: FluidDirtyRegion): void {
+  if (_needsFullRebuild) return; // full rebuild dominates
+  if (!_pendingPartialRegion) {
+    _pendingPartialRegion = { ...region };
+    return;
+  }
+  const p = _pendingPartialRegion;
+  if (region.minRow < p.minRow) p.minRow = region.minRow;
+  if (region.maxRow > p.maxRow) p.maxRow = region.maxRow;
+  if (region.minCol < p.minCol) p.minCol = region.minCol;
+  if (region.maxCol > p.maxCol) p.maxCol = region.maxCol;
+}
+
+function _rebuildFluidCellsArrayFromSet(set: Set<number>, numCols: number): [number, number][] {
+  // Sort by packed key so the resulting array is row-major (matches the
+  // full-grid-scan ordering in `collectFluidCells`). The variant cell
+  // signature hashes array order, so this keeps the polyClip cache stable.
+  const keys = Array.from(set).sort((a, b) => a - b);
+  const out: [number, number][] = new Array(keys.length);
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i]!;
+    out[i] = [Math.floor(k / numCols), k % numCols];
+  }
+  return out;
+}
+
+function collectFluidCells(cells: CellGrid, roomCells: boolean[][], fillType: 'water' | 'lava'): FluidData {
+  const depthKey = (fillType + 'Depth') as keyof Cell;
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+  const fluidSet = new Set<number>();
+  const fluidCells: [number, number][] = [];
+  const depthMap = new Map<number, number>();
+  for (let row = 0; row < numRows; row++) {
+    for (let col = 0; col < numCols; col++) {
+      const cell = cells[row]?.[col];
+      if (cell?.fill === fillType && roomCells[row]?.[col]) {
+        const key = row * numCols + col;
+        fluidSet.add(key);
+        fluidCells.push([row, col]);
+        depthMap.set(key, cell[depthKey] as number);
+      }
+    }
+  }
+  return { fluidCells, depthMap, fluidSet, numCols };
+}
+
+function getCachedFluidCells(cells: CellGrid, roomCells: boolean[][], fillType: 'water' | 'lava'): FluidData {
   if (_fluidCellsCache.cells !== cells) {
     _fluidCellsCache = { cells, water: null, lava: null };
   }
-  const key = fillType as 'water' | 'lava';
-  _fluidCellsCache[key] ??= collectFluidCells(cells, roomCells, fillType);
-  return _fluidCellsCache[key];
+  _fluidCellsCache[fillType] ??= collectFluidCells(cells, roomCells, fillType);
+  return _fluidCellsCache[fillType];
 }
 
-function getCachedPitData(cells: CellGrid, roomCells: boolean[][]) {
+function getCachedPitData(cells: CellGrid, roomCells: boolean[][]): PitData {
   if (_pitDataCache.cells === cells) return _pitDataCache;
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
@@ -123,908 +334,793 @@ function getCachedPitData(cells: CellGrid, roomCells: boolean[][]) {
   return _pitDataCache;
 }
 
-// ── Water rendering ──────────────────────────────────────────────────────────
+// ── Variant tile cache ────────────────────────────────────────────────────
+
+interface VariantTileEntry {
+  canvas: HTMLCanvasElement;
+  sig: string;
+}
+const _variantTileCache: Partial<Record<FluidVariant, VariantTileEntry>> = {};
 
 /**
- * Collect water cells and read per-cell waterDepth (1/2/3).
- * Replaces the old BFS-based depth computation.
+ * Get (or build) a tileable offscreen canvas for a fluid variant. The tile
+ * is `gridSize * 8` world-feet wide (matches the legacy Voronoi tile size)
+ * and rendered at `pxPerFoot` resolution. Repeated via `createPattern` when
+ * blitted into the fluid composite.
+ *
+ * The tile bakes:
+ *  - A base fill (variant color).
+ *  - Each of ~670 Voronoi polygons with a fixed per-polygon jitter (seeded
+ *    by `p.idx` only, so the pattern is stable across the map rather than
+ *    per-cell random — visible variation still comes from each map cell
+ *    sampling a different slice of the 8-cell tile).
+ *  - A stroked overlay pass: caustics (water/lava) or cracks (pit).
  */
-function collectFluidCells(cells: CellGrid, roomCells: boolean[][], fillType: string): FluidData {
-  const depthKey = (fillType + 'Depth') as keyof Cell;
-  const numRows = cells.length;
-  const numCols = cells[0]?.length ?? 0;
-  const fluidSet = new Set<number>();
-  const fluidCells: [number, number][] = [];
-  const depthMap = new Map<number, number>();
-  for (let row = 0; row < numRows; row++) {
-    for (let col = 0; col < numCols; col++) {
-      const cell = cells[row]?.[col];
-      if (cell?.fill === fillType && roomCells[row]?.[col]) {
-        const key = row * numCols + col;
-        fluidSet.add(key);
-        fluidCells.push([row, col]);
-        depthMap.set(key, cell[depthKey] as number);
-      }
-    }
+export function getFluidVariantTile(
+  variant: FluidVariant,
+  theme: Theme,
+  gridSize: number,
+  pxPerFoot: number,
+): HTMLCanvasElement {
+  const baseHex = variantBaseColor(variant, theme);
+  const overlay = variantOverlayColor(variant, theme);
+  const sig = `${baseHex}|${overlay}|${gridSize}|${pxPerFoot}`;
+  const cached = _variantTileCache[variant];
+  if (cached?.sig === sig) return cached.canvas;
+
+  const tileWorld = gridSize * 8;
+  const tilePx = Math.max(1, Math.ceil(tileWorld * pxPerFoot));
+  const patternScale = tileWorld / WATER_TILE_SIZE; // world feet per pattern unit
+  const pxScale = patternScale * pxPerFoot; // canvas px per pattern unit
+
+  const canvas = cached?.canvas ?? document.createElement('canvas');
+  if (canvas.width !== tilePx || canvas.height !== tilePx) {
+    canvas.width = tilePx;
+    canvas.height = tilePx;
   }
-  return { fluidCells, depthMap, fluidSet, numCols };
+  const ctx = canvas.getContext('2d', { alpha: true })!;
+  ctx.clearRect(0, 0, tilePx, tilePx);
+
+  // Base fill — interior cells sit on this flat color; Voronoi polygons
+  // sit on top with their jitter offsets.
+  ctx.fillStyle = baseHex;
+  ctx.fillRect(0, 0, tilePx, tilePx);
+
+  const baseRgb = hexToRgb(baseHex);
+  const isPit = variant === 'pit';
+
+  // Jitter — seeded by polygon index only (not cell row/col) so the tile
+  // is stable. Water/lava use ±6 (7 discrete levels); pit biases darker
+  // with 5 levels.
+  ctx.beginPath();
+  for (const p of WATER_PATTERNS) {
+    let js = Math.imul(p.idx! * 31 + 12345, 1664525) >>> 0;
+    js = (Math.imul(js, 1664525) + 1013904223) >>> 0;
+    const unit = js / 0x100000000;
+    const jitter = isPit ? Math.round((unit - 0.55) * 5) * (16 / 5) : Math.round((unit - 0.5) * 7) * 2;
+    const rv = Math.max(0, Math.min(255, Math.round(baseRgb[0] + jitter)));
+    const gv = Math.max(0, Math.min(255, Math.round(baseRgb[1] + jitter)));
+    const bv = Math.max(0, Math.min(255, Math.round(baseRgb[2] + jitter)));
+    ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
+    ctx.beginPath();
+    ctx.moveTo(p.verts[0]![0]! * pxScale, p.verts[0]![1]! * pxScale);
+    for (let i = 1; i < p.verts.length; i++) {
+      ctx.lineTo(p.verts[i]![0]! * pxScale, p.verts[i]![1]! * pxScale);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Overlay: stroke all Voronoi edges (caustic shimmer for water/lava,
+  // crack lines for pit). Single batched Path2D for one stroke call.
+  const overlayPath = new Path2D();
+  for (const p of WATER_PATTERNS) {
+    overlayPath.moveTo(p.verts[0]![0]! * pxScale, p.verts[0]![1]! * pxScale);
+    for (let i = 1; i < p.verts.length; i++) {
+      overlayPath.lineTo(p.verts[i]![0]! * pxScale, p.verts[i]![1]! * pxScale);
+    }
+    overlayPath.closePath();
+  }
+  ctx.strokeStyle = overlay;
+  ctx.lineWidth = Math.max(isPit ? 0.3 : 0.5, pxPerFoot * (isPit ? 0.03 : 0.05));
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.stroke(overlayPath);
+
+  _variantTileCache[variant] = { canvas, sig };
+  return canvas;
 }
 
-// Default fluid colors keyed by fill type
-const FLUID_DEFAULTS: Record<string, FluidColorDefaults> = {
-  water: { shallow: '#2d69a5', medium: '#1e4b8a', deep: '#0f2d6e', caustic: 'rgba(160,215,255,0.55)' },
-  lava: { shallow: '#cc4400', medium: '#992200', deep: '#661100', caustic: 'rgba(255,160,60,0.55)' },
-};
+// ── Variant clip cache ────────────────────────────────────────────────────
+//
+// The clip for a variant is the union of:
+//   1. cell rects for cells matching the variant's depth
+//   2. non-same-fluid neighbor rects where the shared edge is open
+//      (preserves ragged bleed onto void / dirt / different fluid families)
+//   3. same-fluid different-depth neighbor rects (organic depth transitions)
+//   4. trim polygons for cells with `trimClip`
+//
+// Variants are blitted deep → shallow (see `FLUID_VARIANTS` order) so
+// shallower depths overspill into deeper cells along the boundary.
 
-// Default pit colors — dark earthy stone with subtle cracks
-const PIT_DEFAULTS: FluidColorDefaults = {
-  base: '#1a1a18', // dark warm gray base
-  crack: 'rgba(0,0,0,0.45)', // dark crack lines between Voronoi cells
-  vignette: 'rgba(0,0,0,0.65)', // radial darkening toward pit center
-  shallow: '#1a1a18',
-  medium: '#111110',
-  deep: '#0a0a08',
-  caustic: 'transparent',
-};
+interface VariantClip {
+  /**
+   * Wall-respecting EXTENT in world-space: variant cell rects plus rects of
+   * open-edge (non-walled) neighbors. Used to constrain the fluid from
+   * bleeding through walls / doors.
+   */
+  extentClip: Path2D;
+  /**
+   * ORGANIC shape in world-space: the union of Voronoi polygons whose centre
+   * falls inside a variant cell. These polygons naturally extend past cell
+   * boundaries, giving the organic ragged edge — intersected with
+   * `extentClip` at draw time, walls still respected.
+   */
+  polyClip: Path2D;
+  /** True if any cells of this variant exist (else the composite skips it). */
+  hasCells: boolean;
+}
 
-/**
- * Build world-space Path2D geometry for all fluid (water/lava) and pit fills.
- * Stores vertices in world coordinates; rendering uses ctx.setTransform so
- * output is pixel-perfect at any zoom level (no drawImage pixel scaling).
- * Called once per unique (cells, gridSize, theme) combination.
- *
- * @param {Array} roomCells - Pre-computed room cell mask (from getCachedRoomCells)
- */
-function buildFluidGeometry(cells: CellGrid, gridSize: number, theme: Theme, roomCells: boolean[][]) {
-  const numRows = cells.length;
-  const numCols = cells[0]?.length ?? 0;
+interface VariantClipCacheEntry {
+  cells: CellGrid;
+  gridSize: number;
+  roomCellsRef: boolean[][];
+  clips: Partial<Record<FluidVariant, VariantClip>>;
+}
+let _variantClipCache: VariantClipCacheEntry | null = null;
 
-  const toRgb = (h: string) => {
-    if (Array.isArray(h)) return h;
-    const x = h.replace('#', '');
-    return [parseInt(x.substring(0, 2), 16), parseInt(x.substring(2, 4), 16), parseInt(x.substring(4, 6), 16)];
-  };
+// Separate long-lived cache for the polyClip (the Voronoi-polygon-union),
+// keyed on variant cell-set signature. Building this Path2D is the single
+// biggest cost (~65µs per polygon for thousands of polygons), so we reuse
+// it across any change that doesn't actually move a cell into or out of
+// the variant — wall placements near water, door tweaks, prop edits, even
+// floor painting adjacent to water, all bypass the rebuild.
+interface PolyClipCacheEntry {
+  cellSig: string;
+  polyClip: Path2D;
+}
+const _polyClipCache: Partial<Record<FluidVariant, PolyClipCacheEntry>> = {};
+let _polyClipCacheCellsRef: CellGrid | null = null;
+
+function _variantCellSig(variantCells: [number, number][], numCols: number): string {
+  // Cheap, order-agnostic signature. The cell pairs come out of
+  // getCachedFluidCells / getCachedPitData in row-major order already, so
+  // building the string is a single pass — no sort.
+  let sig = `${variantCells.length}|`;
+  for (let i = 0; i < variantCells.length; i++) {
+    const [r, c] = variantCells[i]!;
+    sig += r * numCols + c;
+    sig += ',';
+  }
+  return sig;
+}
+
+const BLEED_DIRS: readonly [number, number, Direction][] = [
+  [-1, 0, 'north'],
+  [1, 0, 'south'],
+  [0, -1, 'west'],
+  [0, 1, 'east'],
+];
+
+// ── Polygon-by-cell index ─────────────────────────────────────────────────
+// Maps grid-cell index (row*numCols + col) → list of every Voronoi polygon
+// whose centre falls inside that cell, across all tile copies that cover
+// the map. Built ONCE per (gridSize, numRows, numCols); stable across all
+// cell mutations because it depends only on map dimensions and the fixed
+// `WATER_PATTERNS` tile.
+//
+// Before this index: `buildVariantClip` iterated ~100k polygons per map
+// per rebuild, taking ~2s on fluid-heavy maps. With it, clip construction
+// is O(variant cells × polygons-per-cell ≈ 7) and each rebuild is <5ms.
+interface IndexedPolygon {
+  offX: number;
+  offY: number;
+  verts: number[][];
+}
+let _polyByCellCache: {
+  key: string;
+  map: Map<number, IndexedPolygon[]>;
+} | null = null;
+
+function getPolyByCell(gridSize: number, numRows: number, numCols: number): Map<number, IndexedPolygon[]> {
+  const key = `${gridSize}|${numRows}|${numCols}`;
+  if (_polyByCellCache?.key === key) return _polyByCellCache.map;
+  const _t0 = performance.now();
 
   const tileWorld = gridSize * 8;
   const patternScale = tileWorld / WATER_TILE_SIZE;
-  const { bins: spatialBins, N: binCount, binSize } = WATER_SPATIAL;
-  const bleedDirs: [number, number, string][] = [
-    [-1, 0, 'north'],
-    [1, 0, 'south'],
-    [0, -1, 'west'],
-    [0, 1, 'east'],
-  ];
+  const { bins: spatialBins, N: binCount } = WATER_SPATIAL;
+  const totalBins = binCount * binCount;
 
-  function buildForFluid(fillType: string) {
-    const { fluidCells, depthMap, fluidSet } = getCachedFluidCells(cells, roomCells, fillType);
-    if (fluidCells.length === 0) return null;
+  const mapMaxX = numCols * gridSize;
+  const mapMaxY = numRows * gridSize;
+  const txMin = 0;
+  const txMax = Math.ceil(mapMaxX / tileWorld);
+  const tyMin = 0;
+  const tyMax = Math.ceil(mapMaxY / tileWorld);
 
-    const defaults = FLUID_DEFAULTS[fillType]!;
-    const fluidColors = [
-      toRgb((theme[fillType + 'ShallowColor'] as string) || defaults.shallow),
-      toRgb((theme[fillType + 'MediumColor'] as string) || defaults.medium),
-      toRgb((theme[fillType + 'DeepColor'] as string) || defaults.deep),
-    ];
-    const causticColor = theme[fillType + 'CausticColor'] ?? defaults.caustic;
-
-    // Wall-aware clip path in world space — includes bleed cells adjacent to fluid.
-    // For trim boundary cells, clip to the floor polygon (trimClip) instead of the full cell rect.
-    const clipPath = new Path2D();
-    for (const [row, col] of fluidCells) {
-      const cell = cells[row]![col]!;
-      if (cell.trimClip && !cell.trimOpen) {
-        // Add only the floor polygon (trimClip is in cell-local [0,1] coords)
-        const ox = col * gridSize,
-          oy = row * gridSize;
-        const clip = cell.trimClip;
-        clipPath.moveTo(ox + clip[0]![0]! * gridSize, oy + clip[0]![1]! * gridSize);
-        for (let i = 1; i < clip.length; i++)
-          clipPath.lineTo(ox + clip[i]![0]! * gridSize, oy + clip[i]![1]! * gridSize);
-        clipPath.closePath();
-      } else {
-        clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
-      }
-      for (const [dr, dc, dir] of bleedDirs) {
-        const nr = row + dr,
-          nc = col + dc;
-        if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
-        if (fluidSet.has(nr * numCols + nc)) continue;
-        const edgeVal = getEdge(cell, dir as Direction);
-        if (edgeVal === 'w' || edgeVal === 'd') continue;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor) continue; // don't bleed into void cells (trimmed away)
-        if (neighbor.trimClip && !neighbor.trimOpen) continue;
-        clipPath.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
-      }
-    }
-
-    // Fluid bounding box for tile iteration (no viewport culling — cache is viewport-independent)
-    let wMinX = Infinity,
-      wMinY = Infinity,
-      wMaxX = -Infinity,
-      wMaxY = -Infinity;
-    for (const [row, col] of fluidCells) {
-      if (col * gridSize < wMinX) wMinX = col * gridSize;
-      if (row * gridSize < wMinY) wMinY = row * gridSize;
-      if ((col + 1) * gridSize > wMaxX) wMaxX = (col + 1) * gridSize;
-      if ((row + 1) * gridSize > wMaxY) wMaxY = (row + 1) * gridSize;
-    }
-    const txMin = Math.floor(wMinX / tileWorld) - 1;
-    const txMax = Math.ceil(wMaxX / tileWorld) + 1;
-    const tyMin = Math.floor(wMinY / tileWorld) - 1;
-    const tyMax = Math.ceil(wMaxY / tileWorld) + 1;
-
-    // Collect world-space polygon data grouped by colour for batched fills.
-    // Jitter quantized to 7 discrete levels → O(~21) colour groups regardless of tile count.
-    const strokeData = []; // flat: [nv, x0, y0, x1, y1, ...]
-    const fillBatches = new Map(); // colorKey -> [strokeData base indices]
-
-    for (let ty = tyMin; ty <= tyMax; ty++) {
-      for (let tx = txMin; tx <= txMax; tx++) {
-        const offX = tx * tileWorld;
-        const offY = ty * tileWorld;
-        const colMin = Math.max(0, Math.floor(offX / gridSize));
-        const colMax = Math.min(numCols - 1, Math.floor((offX + tileWorld) / gridSize));
-        const rowMin = Math.max(0, Math.floor(offY / gridSize));
-        const rowMax = Math.min(numRows - 1, Math.floor((offY + tileWorld) / gridSize));
-        if (colMin > colMax || rowMin > rowMax) continue;
-
-        for (let r = rowMin; r <= rowMax; r++) {
-          for (let col = colMin; col <= colMax; col++) {
-            const key = r * numCols + col;
-            if (!fluidSet.has(key)) continue;
-
-            const depth = depthMap.get(key) ?? 1;
-            const baseC = fluidColors[Math.min(depth, 3) - 1]!;
-
-            const txl0 = (col * gridSize - offX) / patternScale;
-            const txl1 = ((col + 1) * gridSize - offX) / patternScale;
-            const tyl0 = (r * gridSize - offY) / patternScale;
-            const tyl1 = ((r + 1) * gridSize - offY) / patternScale;
-            const bxMin = Math.max(0, Math.floor(txl0 / binSize));
-            const bxMax = Math.min(binCount - 1, Math.ceil(txl1 / binSize) - 1);
-            const byMin = Math.max(0, Math.floor(tyl0 / binSize));
-            const byMax = Math.min(binCount - 1, Math.ceil(tyl1 / binSize) - 1);
-            if (bxMin > bxMax || byMin > byMax) continue;
-
-            for (let by = byMin; by <= byMax; by++) {
-              for (let bx = bxMin; bx <= bxMax; bx++) {
-                for (const p of spatialBins[by * binCount + bx]!) {
-                  if (Math.floor((p.centre[0] * patternScale + offX) / gridSize) !== col) continue;
-                  if (Math.floor((p.centre[1] * patternScale + offY) / gridSize) !== r) continue;
-
-                  let js = (r * 997 + col * 1009 + p.idx! * 31) >>> 0 || 1;
-                  js = (Math.imul(js, 1664525) + 1013904223) >>> 0;
-                  const jitter = Math.round((js / 0x100000000 - 0.5) * 7) * 2;
-
-                  const rv = Math.max(0, Math.min(255, Math.round(baseC[0]! + jitter)));
-                  const gv = Math.max(0, Math.min(255, Math.round(baseC[1]! + jitter)));
-                  const bv = Math.max(0, Math.min(255, Math.round(baseC[2]! + jitter)));
-                  const colorKey = (rv << 16) | (gv << 8) | bv;
-
-                  // World-space vertices (no sc/offset multiplication)
-                  const verts = p.verts;
-                  const nv = verts.length;
-                  const base = strokeData.length;
-                  strokeData.push(nv);
-                  for (let i = 0; i < nv; i++) {
-                    strokeData.push(verts[i]![0]! * patternScale + offX, verts[i]![1]! * patternScale + offY);
-                  }
-
-                  let batch = fillBatches.get(colorKey);
-                  if (!batch) {
-                    batch = [];
-                    fillBatches.set(colorKey, batch);
-                  }
-                  batch.push(base);
-                }
-              }
-            }
+  const map = new Map<number, IndexedPolygon[]>();
+  for (let ty = tyMin; ty <= tyMax; ty++) {
+    for (let tx = txMin; tx <= txMax; tx++) {
+      const offX = tx * tileWorld;
+      const offY = ty * tileWorld;
+      for (let bi = 0; bi < totalBins; bi++) {
+        const bin = spatialBins[bi]!;
+        for (let pi = 0; pi < bin.length; pi++) {
+          const p = bin[pi]!;
+          const wx = p.centre[0] * patternScale + offX;
+          const wy = p.centre[1] * patternScale + offY;
+          const col = Math.floor(wx / gridSize);
+          const row = Math.floor(wy / gridSize);
+          if (col < 0 || col >= numCols || row < 0 || row >= numRows) continue;
+          const cellKey = row * numCols + col;
+          let list = map.get(cellKey);
+          if (!list) {
+            list = [];
+            map.set(cellKey, list);
           }
+          list.push({ offX, offY, verts: p.verts });
         }
       }
     }
-
-    // Build fills Map: interior base-fill rects first, then Voronoi polygons merged in
-    const fills = new Map(); // colorKey -> Path2D
-
-    // Interior cells (all 4 neighbours fluid): exact base colour, no jitter
-    for (const [row, col] of fluidCells) {
-      let isEdge = false;
-      for (const [dr, dc] of [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-      ] as const) {
-        if (!fluidSet.has((row + dr) * numCols + (col + dc))) {
-          isEdge = true;
-          break;
-        }
-      }
-      if (isEdge) continue;
-      const depth = depthMap.get(row * numCols + col) ?? 1;
-      const baseC = fluidColors[Math.min(depth, 3) - 1]!;
-      const colorKey = (baseC[0]! << 16) | (baseC[1]! << 8) | baseC[2]!;
-      let p = fills.get(colorKey);
-      if (!p) {
-        p = new Path2D();
-        fills.set(colorKey, p);
-      }
-      p.rect(col * gridSize, row * gridSize, gridSize, gridSize);
-    }
-
-    // Voronoi polygons merged into the same Map (same colorKey shares a Path2D)
-    for (const [colorKey, bases] of fillBatches) {
-      let path = fills.get(colorKey);
-      if (!path) {
-        path = new Path2D();
-        fills.set(colorKey, path);
-      }
-      for (const base of bases) {
-        const nv = strokeData[base]!;
-        path.moveTo(strokeData[base + 1]!, strokeData[base + 2]!);
-        for (let i = 1; i < nv; i++) {
-          path.lineTo(strokeData[base + 1 + i * 2]!, strokeData[base + 2 + i * 2]!);
-        }
-        path.closePath();
-      }
-    }
-
-    // All-edges caustic stroke path
-    const causticPath = new Path2D();
-    let si = 0;
-    while (si < strokeData.length) {
-      const nv = strokeData[si++]!;
-      causticPath.moveTo(strokeData[si]!, strokeData[si + 1]!);
-      si += 2;
-      for (let j = 1; j < nv; j++) {
-        causticPath.lineTo(strokeData[si]!, strokeData[si + 1]!);
-        si += 2;
-      }
-      causticPath.closePath();
-    }
-
-    return { clipPath, fills, causticPath, causticColor };
   }
 
-  function buildForPit() {
-    const { pitSet, pitCells, groups } = getCachedPitData(cells, roomCells);
-    if (pitCells!.length === 0) return null;
+  _polyByCellCache = { key, map };
+  log.dev(`[fluid] getPolyByCell rebuilt ${map.size} cells in ${(performance.now() - _t0).toFixed(1)}ms`);
+  return map;
+}
 
-    const baseColor = toRgb((theme.pitBaseColor as string) || PIT_DEFAULTS.base!);
-    const crackColor = (theme.pitCrackColor as string) || PIT_DEFAULTS.crack!;
-    const vignetteColor = theme.pitVignetteColor ?? PIT_DEFAULTS.vignette;
+function buildVariantClip(
+  variant: FluidVariant,
+  cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+): VariantClip {
+  const meta = VARIANT_META[variant];
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+  const extentClip = new Path2D();
+  const polyClip = new Path2D();
 
-    // Wall-aware clip in world space — respects trim boundaries
-    const clipPath = new Path2D();
-    for (const [row, col] of pitCells!) {
-      const cell = cells[row]![col]!;
-      if (cell.trimClip && !cell.trimOpen) {
-        const ox = col * gridSize,
-          oy = row * gridSize;
-        const clip = cell.trimClip;
-        clipPath.moveTo(ox + clip[0]![0]! * gridSize, oy + clip[0]![1]! * gridSize);
-        for (let i = 1; i < clip.length; i++)
-          clipPath.lineTo(ox + clip[i]![0]! * gridSize, oy + clip[i]![1]! * gridSize);
-        clipPath.closePath();
-      } else {
-        clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
-      }
-      for (const [dr, dc, dir] of bleedDirs) {
-        const nr = row + dr,
-          nc = col + dc;
-        if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
-        if (pitSet!.has(nr * numCols + nc)) continue;
-        const edgeVal = getEdge(cell, dir as Direction);
-        if (edgeVal === 'w' || edgeVal === 'd') continue;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor) continue; // don't bleed into void cells (trimmed away)
-        if (neighbor.trimClip && !neighbor.trimOpen) continue;
-        clipPath.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
-      }
+  // Figure out which cells belong to this variant.
+  const variantCells: [number, number][] = [];
+  if (meta.fillType === 'pit') {
+    const pd = getCachedPitData(cells, roomCells);
+    for (const [r, c] of pd.pitCells ?? []) variantCells.push([r, c]);
+  } else {
+    const fd = getCachedFluidCells(cells, roomCells, meta.fillType);
+    for (const [r, c] of fd.fluidCells) {
+      const key = r * numCols + c;
+      if (fd.depthMap.get(key) === meta.depth) variantCells.push([r, c]);
     }
-
-    // Bounding box
-    let wMinX = Infinity,
-      wMinY = Infinity,
-      wMaxX = -Infinity,
-      wMaxY = -Infinity;
-    for (const [row, col] of pitCells!) {
-      if (col * gridSize < wMinX) wMinX = col * gridSize;
-      if (row * gridSize < wMinY) wMinY = row * gridSize;
-      if ((col + 1) * gridSize > wMaxX) wMaxX = (col + 1) * gridSize;
-      if ((row + 1) * gridSize > wMaxY) wMaxY = (row + 1) * gridSize;
-    }
-    const txMin = Math.floor(wMinX / tileWorld) - 1;
-    const txMax = Math.ceil(wMaxX / tileWorld) + 1;
-    const tyMin = Math.floor(wMinY / tileWorld) - 1;
-    const tyMax = Math.ceil(wMaxY / tileWorld) + 1;
-
-    const strokeData = [];
-    const fillBatches = new Map();
-
-    for (let ty = tyMin; ty <= tyMax; ty++) {
-      for (let tx = txMin; tx <= txMax; tx++) {
-        const offX = tx * tileWorld;
-        const offY = ty * tileWorld;
-        const colMin = Math.max(0, Math.floor(offX / gridSize));
-        const colMax = Math.min(numCols - 1, Math.floor((offX + tileWorld) / gridSize));
-        const rowMin = Math.max(0, Math.floor(offY / gridSize));
-        const rowMax = Math.min(numRows - 1, Math.floor((offY + tileWorld) / gridSize));
-        if (colMin > colMax || rowMin > rowMax) continue;
-
-        for (let r = rowMin; r <= rowMax; r++) {
-          for (let col = colMin; col <= colMax; col++) {
-            if (!pitSet!.has(r * numCols + col)) continue;
-
-            const txl0 = (col * gridSize - offX) / patternScale;
-            const txl1 = ((col + 1) * gridSize - offX) / patternScale;
-            const tyl0 = (r * gridSize - offY) / patternScale;
-            const tyl1 = ((r + 1) * gridSize - offY) / patternScale;
-            const bxMin = Math.max(0, Math.floor(txl0 / binSize));
-            const bxMax = Math.min(binCount - 1, Math.ceil(txl1 / binSize) - 1);
-            const byMin = Math.max(0, Math.floor(tyl0 / binSize));
-            const byMax = Math.min(binCount - 1, Math.ceil(tyl1 / binSize) - 1);
-            if (bxMin > bxMax || byMin > byMax) continue;
-
-            for (let by = byMin; by <= byMax; by++) {
-              for (let bx = bxMin; bx <= bxMax; bx++) {
-                for (const p of spatialBins[by * binCount + bx]!) {
-                  if (Math.floor((p.centre[0] * patternScale + offX) / gridSize) !== col) continue;
-                  if (Math.floor((p.centre[1] * patternScale + offY) / gridSize) !== r) continue;
-
-                  // Asymmetric jitter: biased darker for pit stone look.
-                  // Quantized to 5 discrete levels to enable colour-batch rendering.
-                  let js = (r * 997 + col * 1009 + p.idx! * 31) >>> 0 || 1;
-                  js = (Math.imul(js, 1664525) + 1013904223) >>> 0;
-                  const jitter = Math.round((js / 0x100000000 - 0.55) * 5) * (16 / 5);
-
-                  const rv = Math.max(0, Math.min(255, Math.round(baseColor[0]! + jitter)));
-                  const gv = Math.max(0, Math.min(255, Math.round(baseColor[1]! + jitter)));
-                  const bv = Math.max(0, Math.min(255, Math.round(baseColor[2]! + jitter)));
-                  const colorKey = (rv << 16) | (gv << 8) | bv;
-
-                  const verts = p.verts;
-                  const nv = verts.length;
-                  const base = strokeData.length;
-                  strokeData.push(nv);
-                  for (let i = 0; i < nv; i++) {
-                    strokeData.push(verts[i]![0]! * patternScale + offX, verts[i]![1]! * patternScale + offY);
-                  }
-
-                  let batch = fillBatches.get(colorKey);
-                  if (!batch) {
-                    batch = [];
-                    fillBatches.set(colorKey, batch);
-                  }
-                  batch.push(base);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Build fills Map: interior rects first, then Voronoi polygons
-    const fills = new Map();
-    for (const [row, col] of pitCells!) {
-      let isEdge = false;
-      for (const [dr, dc] of [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-      ] as const) {
-        if (!pitSet!.has((row + dr) * numCols + (col + dc))) {
-          isEdge = true;
-          break;
-        }
-      }
-      if (isEdge) continue;
-      const colorKey = (baseColor[0]! << 16) | (baseColor[1]! << 8) | baseColor[2]!;
-      let p = fills.get(colorKey);
-      if (!p) {
-        p = new Path2D();
-        fills.set(colorKey, p);
-      }
-      p.rect(col * gridSize, row * gridSize, gridSize, gridSize);
-    }
-
-    for (const [colorKey, bases] of fillBatches) {
-      let path = fills.get(colorKey);
-      if (!path) {
-        path = new Path2D();
-        fills.set(colorKey, path);
-      }
-      for (const base of bases) {
-        const nv = strokeData[base]!;
-        path.moveTo(strokeData[base + 1]!, strokeData[base + 2]!);
-        for (let i = 1; i < nv; i++) {
-          path.lineTo(strokeData[base + 1 + i * 2]!, strokeData[base + 2 + i * 2]!);
-        }
-        path.closePath();
-      }
-    }
-
-    const cracksPath = new Path2D();
-    let si = 0;
-    while (si < strokeData.length) {
-      const nv = strokeData[si++]!;
-      cracksPath.moveTo(strokeData[si]!, strokeData[si + 1]!);
-      si += 2;
-      for (let j = 1; j < nv; j++) {
-        cracksPath.lineTo(strokeData[si]!, strokeData[si + 1]!);
-        si += 2;
-      }
-      cracksPath.closePath();
-    }
-
-    // Pre-compute vignette group data in world units (recreated per render since
-    // createRadialGradient uses the active CTM at call time, not at gradient creation)
-    const vignetteGroups = groups!.map((group: [number, number][]) => {
-      const gcx = group.reduce((sum: number, [, c]: [number, number]) => sum + (c + 0.5) * gridSize, 0) / group.length;
-      const gcy = group.reduce((sum: number, [r]: [number, number]) => sum + (r + 0.5) * gridSize, 0) / group.length;
-      let maxDistWorld = 0;
-      for (const [r2, c2] of group) {
-        for (const [cx, cy] of [
-          [c2, r2],
-          [c2 + 1, r2],
-          [c2, r2 + 1],
-          [c2 + 1, r2 + 1],
-        ] as const) {
-          const d = Math.sqrt((cx * gridSize - gcx) ** 2 + (cy * gridSize - gcy) ** 2);
-          if (d > maxDistWorld) maxDistWorld = d;
-        }
-      }
-      return { gcx, gcy, maxDistWorld, cells: group };
-    });
-
-    return { clipPath, fills, cracksPath, crackColor, vignetteColor, vignetteGroups };
   }
 
-  return {
-    water: buildForFluid('water'),
-    lava: buildForFluid('lava'),
-    pit: buildForPit(),
+  if (variantCells.length === 0) return { extentClip, polyClip, hasCells: false };
+
+  const _tStart = performance.now();
+
+  // ── EXTENT clip — wall-respecting rectangular region ──────────────────
+  const variantSet = new Set<number>();
+  for (const [r, c] of variantCells) variantSet.add(r * numCols + c);
+
+  const cellIsSameFamily = (r: number, c: number): boolean => {
+    const cell = cells[r]?.[c];
+    if (!cell) return false;
+    if (!roomCells[r]?.[c]) return false;
+    return cell.fill === meta.fillType;
   };
+
+  for (const [row, col] of variantCells) {
+    const cell = cells[row]![col]!;
+    // Own cell: trim-aware
+    if (cell.trimClip && !cell.trimOpen) {
+      const ox = col * gridSize;
+      const oy = row * gridSize;
+      const poly = cell.trimClip;
+      extentClip.moveTo(ox + poly[0]![0]! * gridSize, oy + poly[0]![1]! * gridSize);
+      for (let i = 1; i < poly.length; i++) {
+        extentClip.lineTo(ox + poly[i]![0]! * gridSize, oy + poly[i]![1]! * gridSize);
+      }
+      extentClip.closePath();
+    } else {
+      extentClip.rect(col * gridSize, row * gridSize, gridSize, gridSize);
+    }
+
+    // Spill onto open-edge neighbors (wall/door blocks bleed).
+    for (const [dr, dc, dir] of BLEED_DIRS) {
+      const nr = row + dr;
+      const nc = col + dc;
+      if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+      const neighborKey = nr * numCols + nc;
+      if (variantSet.has(neighborKey)) continue;
+      const edgeVal = getEdge(cell, dir);
+      if (edgeVal === 'w' || edgeVal === 'd') continue;
+      const neighbor = cells[nr]?.[nc];
+      if (!neighbor) continue;
+      const isSameFamily = cellIsSameFamily(nr, nc);
+      if (!isSameFamily) {
+        if (neighbor.trimClip && !neighbor.trimOpen) continue;
+        extentClip.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
+      } else {
+        // Same-family different-depth neighbor: include for organic depth transitions.
+        if (neighbor.trimClip && !neighbor.trimOpen) {
+          const ox = nc * gridSize;
+          const oy = nr * gridSize;
+          const poly = neighbor.trimClip;
+          extentClip.moveTo(ox + poly[0]![0]! * gridSize, oy + poly[0]![1]! * gridSize);
+          for (let i = 1; i < poly.length; i++) {
+            extentClip.lineTo(ox + poly[i]![0]! * gridSize, oy + poly[i]![1]! * gridSize);
+          }
+          extentClip.closePath();
+        } else {
+          extentClip.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
+        }
+      }
+    }
+  }
+
+  const _tExtent = performance.now() - _tStart;
+
+  // ── POLY clip — Voronoi polygons whose centre is in a variant cell ────
+  // The polyClip depends ONLY on which cells belong to the variant; it's
+  // invariant across wall placements, neighbor edits, and anything else
+  // that doesn't change the variant's cell set. We cache it separately
+  // from the extentClip, keyed on a signature of the variant cell set,
+  // so wall/prop edits don't trigger the ~1000ms Path2D rebuild.
+  if (_polyClipCacheCellsRef !== cells) {
+    // Cells identity changed (new map loaded) — drop every polyClip entry.
+    for (const k of Object.keys(_polyClipCache)) {
+      delete _polyClipCache[k as FluidVariant];
+    }
+    _polyClipCacheCellsRef = cells;
+  }
+  const cellSig = _variantCellSig(variantCells, numCols);
+  const cached = _polyClipCache[variant];
+  let finalPolyClip: Path2D;
+  let polyCount = 0;
+  let _tPoly: number;
+  if (cached?.cellSig === cellSig) {
+    finalPolyClip = cached.polyClip;
+    _tPoly = 0;
+  } else {
+    const _tPolyStart = performance.now();
+    const tileWorld = gridSize * 8;
+    const patternScale = tileWorld / WATER_TILE_SIZE;
+    const polyMap = getPolyByCell(gridSize, numRows, numCols);
+    for (const [row, col] of variantCells) {
+      const polys = polyMap.get(row * numCols + col);
+      if (!polys) continue;
+      for (let i = 0; i < polys.length; i++) {
+        const { offX, offY, verts } = polys[i]!;
+        polyClip.moveTo(verts[0]![0]! * patternScale + offX, verts[0]![1]! * patternScale + offY);
+        for (let vi = 1; vi < verts.length; vi++) {
+          polyClip.lineTo(verts[vi]![0]! * patternScale + offX, verts[vi]![1]! * patternScale + offY);
+        }
+        polyClip.closePath();
+        polyCount++;
+      }
+    }
+    finalPolyClip = polyClip;
+    _polyClipCache[variant] = { cellSig, polyClip: finalPolyClip };
+    _tPoly = performance.now() - _tPolyStart;
+  }
+  log.dev(
+    `[fluid] buildVariantClip(${variant}): cells=${variantCells.length} polys=${polyCount} extent=${_tExtent.toFixed(1)}ms poly=${_tPoly.toFixed(1)}ms ${cached?.cellSig === cellSig ? '(poly cache hit)' : '(poly rebuilt)'}`,
+  );
+
+  return { extentClip, polyClip: finalPolyClip, hasCells: true };
 }
 
 /**
- * Get or rebuild the world-space fluid Path2D geometry cache.
- * @param {Array<Array<Object>>} cells - 2D cell grid
- * @param {number} gridSize - Grid cell size in feet
- * @param {Object} theme - Theme object with fluid color settings
- * @param {Array<Array<boolean>>} roomCells - Room cell mask
- * @returns {{ pit: Object|null, water: Object|null, lava: Object|null }} Cached fluid geometry data
+ * Get (or build) the world-space clip Path2D for a fluid variant. Cached on
+ * `cells` identity + gridSize; invalidated by `invalidateFluidCache`.
  */
-export function getFluidPathCache(
+export function getFluidVariantClip(
+  variant: FluidVariant,
   cells: CellGrid,
+  roomCells: boolean[][],
+  gridSize: number,
+): VariantClip {
+  if (
+    _variantClipCache?.cells === cells &&
+    _variantClipCache.gridSize === gridSize &&
+    _variantClipCache.roomCellsRef === roomCells
+  ) {
+    const existing = _variantClipCache.clips[variant];
+    if (existing) return existing;
+  } else {
+    _variantClipCache = { cells, gridSize, roomCellsRef: roomCells, clips: {} };
+  }
+  const built = buildVariantClip(variant, cells, roomCells, gridSize);
+  _variantClipCache.clips[variant] = built;
+  return built;
+}
+
+// ── Fluid composite builder ───────────────────────────────────────────────
+
+/**
+ * Build the fluid composite — an offscreen canvas at cache resolution with
+ * every fluid variant blitted within its own clip, plus pit vignettes
+ * layered on top. This is the ONLY rendering path the live editor and the
+ * HQ export pipeline use for fluids.
+ *
+ * Returns `null` if the map contains no fluid cells.
+ *
+ * @param reuseCanvas  Optional existing canvas to reuse (avoids allocation).
+ * @param dirtyRect    Optional cell-space dirty region. When provided
+ *   alongside a reusable canvas of matching size, only the corresponding
+ *   canvas strip is cleared and refilled — the rest of the composite is
+ *   left intact. Expanded by one cell internally to cover variant spill
+ *   into neighbor cells.
+ */
+export function buildFluidComposite(
+  cells: CellGrid,
+  roomCells: boolean[][],
   gridSize: number,
   theme: Theme,
-  roomCells: boolean[][],
-): FluidGeometryData | null {
-  if (_fluidPathCache.cells === cells && _fluidPathCache.gridSize === gridSize && _fluidPathCache.theme === theme) {
-    return _fluidPathCache.data;
-  }
-  const data = buildFluidGeometry(cells, gridSize, theme, roomCells) as FluidGeometryData;
-  _fluidPathCache = { cells, gridSize, theme, data };
-  return data;
-}
-
-/**
- * Return a pre-rendered offscreen canvas containing all fluid fills at cache resolution.
- * Returns null if there are no fluids. The canvas is cached and reused as long as the
- * fluid path cache is valid and dimensions match.
- *
- * Arc void clips are NOT applied here — the caller applies them when blitting this layer
- * onto the main cache canvas (avoids duplicating complex arc geometry code).
- * @param {Object} data - Fluid geometry data from getFluidPathCache
- * @param {number} gridSize - Grid cell size in feet
- * @param {number} cacheW - Cache canvas width in pixels
- * @param {number} cacheH - Cache canvas height in pixels
- * @param {number} [cacheScale=10] - Pixels per foot at cache resolution
- * @returns {HTMLCanvasElement|null} Pre-rendered fluid canvas, or null
- */
-export function getRenderedFluidLayer(
-  data: FluidGeometryData | null,
-  gridSize: number,
+  pxPerFoot: number,
   cacheW: number,
   cacheH: number,
-  cacheScale: number = 10,
-): OffscreenCanvas | HTMLCanvasElement | null {
-  if (!data || (!data.pit && !data.water && !data.lava)) return null;
-
-  // Return cached layer if still valid
-  if (
-    _fluidRenderLayer?.w === cacheW &&
-    _fluidRenderLayer.h === cacheH &&
-    _fluidRenderLayer.pathCacheRef === _fluidPathCache
-  ) {
-    return _fluidRenderLayer.canvas;
-  }
-
-  // Create or resize the offscreen canvas
-  let offCanvas;
-  if (_fluidRenderLayer?.canvas) {
-    offCanvas = _fluidRenderLayer.canvas;
-    if (offCanvas.width !== cacheW || offCanvas.height !== cacheH) {
-      offCanvas.width = cacheW;
-      offCanvas.height = cacheH;
+  reuseCanvas?: HTMLCanvasElement | null,
+  dirtyRect?: { minRow: number; maxRow: number; minCol: number; maxCol: number } | null,
+): HTMLCanvasElement | null {
+  // Quick check — do we have any fluid at all?
+  let anyFluid = false;
+  for (const v of FLUID_VARIANTS) {
+    const vc = getFluidVariantClip(v, cells, roomCells, gridSize);
+    if (vc.hasCells) {
+      anyFluid = true;
+      break;
     }
-  } else {
-    offCanvas = document.createElement('canvas');
-    offCanvas.width = cacheW;
-    offCanvas.height = cacheH;
+  }
+  if (!anyFluid) return null;
+
+  const _tAll = performance.now();
+  const canvas = reuseCanvas ?? document.createElement('canvas');
+  const canvasSizeMatches = canvas.width === cacheW && canvas.height === cacheH;
+  if (!canvasSizeMatches) {
+    canvas.width = cacheW;
+    canvas.height = cacheH;
+  }
+  const ctx = canvas.getContext('2d', { alpha: true })!;
+
+  // Partial rebuild only possible when we're drawing into an existing canvas
+  // whose size already matches (otherwise the canvas was just resized and is
+  // blank). Fall back to a full-canvas clear otherwise.
+  const canPartial = !!dirtyRect && !!reuseCanvas && canvasSizeMatches;
+  const numRows = cells.length;
+  const numCols = cells[0]?.length ?? 0;
+
+  // Expand the dirty cell region by 1 cell: Voronoi polys centered in variant
+  // cells and open-edge spill both reach up to one neighbor cell, so a 1-cell
+  // padding covers every pixel a removed/added cell could have painted.
+  let rectCx = 0,
+    rectCy = 0,
+    rectCw = cacheW,
+    rectCh = cacheH;
+  let worldX0 = 0,
+    worldY0 = 0,
+    worldX1 = numCols * gridSize,
+    worldY1 = numRows * gridSize;
+  if (canPartial) {
+    const padMinRow = Math.max(0, dirtyRect.minRow - 1);
+    const padMaxRow = Math.min(numRows - 1, dirtyRect.maxRow + 1);
+    const padMinCol = Math.max(0, dirtyRect.minCol - 1);
+    const padMaxCol = Math.min(numCols - 1, dirtyRect.maxCol + 1);
+    worldX0 = padMinCol * gridSize;
+    worldY0 = padMinRow * gridSize;
+    worldX1 = (padMaxCol + 1) * gridSize;
+    worldY1 = (padMaxRow + 1) * gridSize;
+    rectCx = Math.max(0, Math.floor(worldX0 * pxPerFoot));
+    rectCy = Math.max(0, Math.floor(worldY0 * pxPerFoot));
+    rectCw = Math.min(cacheW - rectCx, Math.ceil((worldX1 - worldX0) * pxPerFoot) + 1);
+    rectCh = Math.min(cacheH - rectCy, Math.ceil((worldY1 - worldY0) * pxPerFoot) + 1);
   }
 
-  const ctx = offCanvas.getContext('2d', { alpha: true }) as OffscreenCanvasRenderingContext2D;
-  ctx.clearRect(0, 0, cacheW, cacheH);
+  ctx.clearRect(rectCx, rectCy, rectCw, rectCh);
 
-  const sc = cacheScale;
+  // We work in two coordinate systems:
+  //   - CANVAS PIXELS for the tile-pattern fill (so createPattern tiles
+  //     every tilePx canvas pixels, naturally matching the tile size).
+  //   - WORLD FEET for the clip Path2D construction — applied under a
+  //     temporary scale transform so the world-space path lands on the
+  //     correct canvas pixels. Clip regions persist in canvas-pixel space
+  //     once set, so we can reset the transform before the fill.
 
-  // World-space CTM — all cached Path2D coordinates are in world units
-  ctx.setTransform(sc, 0, 0, sc, 0, 0);
+  for (const variant of FLUID_VARIANTS) {
+    const _tClipStart = performance.now();
+    const { extentClip, polyClip, hasCells } = getFluidVariantClip(variant, cells, roomCells, gridSize);
+    const _tClipMs = performance.now() - _tClipStart;
+    if (!hasCells) continue;
 
-  for (const fd of [data.pit, data.water, data.lava]) {
-    if (!fd) continue;
+    const _tTileStart = performance.now();
+    const tile = getFluidVariantTile(variant, theme, gridSize, pxPerFoot);
+    const _tTileMs = performance.now() - _tTileStart;
+
+    const _tFillStart = performance.now();
     ctx.save();
-    ctx.clip(fd.clipPath);
+    // 1. Apply world→canvas scale so the world-space clips land correctly.
+    ctx.setTransform(pxPerFoot, 0, 0, pxPerFoot, 0, 0);
+    // Intersect polyClip (organic Voronoi edges) with extentClip
+    // (wall-respecting rectangular extent). Inside fluid cells + open-edge
+    // neighbors, polygons centred in fluid cells paint; walls cut off bleed.
+    ctx.clip(extentClip);
+    ctx.clip(polyClip);
+    // 2. Reset to identity so the pattern fill tiles in canvas pixels.
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = ctx.createPattern(tile, 'repeat')!;
+    // Partial rebuild: fillRect only the dirty sub-strip; canvas clip still
+    // constrains paint to the variant's extent∩poly. Full rebuild uses the
+    // whole cache rect.
+    ctx.fillRect(rectCx, rectCy, rectCw, rectCh);
+    ctx.restore();
+    const _tFillMs = performance.now() - _tFillStart;
+    log.dev(
+      `[fluid] ${variant}: clip=${_tClipMs.toFixed(1)}ms tile=${_tTileMs.toFixed(1)}ms fill=${_tFillMs.toFixed(1)}ms`,
+    );
+  }
+  log.dev(
+    `[fluid] buildFluidComposite total=${(performance.now() - _tAll).toFixed(1)}ms ${canPartial ? `partial=${rectCw}x${rectCh}px` : 'full'}`,
+  );
 
-    // Batched fill pass
-    for (const [colorKey, path] of fd.fills) {
-      const ck = Number(colorKey);
-      const rv = (ck >> 16) & 0xff;
-      const gv = (ck >> 8) & 0xff;
-      const bv = ck & 0xff;
-      ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
-      ctx.fill(path);
-    }
-
-    if (fd.cracksPath) {
-      ctx.strokeStyle = fd.crackColor!;
-      ctx.lineWidth = Math.max(0.3 / sc, 0.06);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke(fd.cracksPath);
-
-      for (const { gcx, gcy, maxDistWorld, cells: group } of fd.vignetteGroups!) {
-        const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDistWorld);
-        grad.addColorStop(0, fd.vignetteColor!);
+  // Pit vignettes — per-region radial gradient pass. Groups came from the
+  // BFS-connected pit regions in `getCachedPitData`.
+  const pitData = getCachedPitData(cells, roomCells);
+  if (pitData.groups && pitData.groups.length > 0) {
+    const vignetteColor = (theme as Record<string, unknown>).pitVignetteColor as string | undefined;
+    const vc = vignetteColor ?? PIT_DEFAULTS.vignette!;
+    // Clip to the pit variant's clip so the vignette doesn't paint outside
+    // pit regions.
+    const pitClip = getFluidVariantClip('pit', cells, roomCells, gridSize);
+    if (pitClip.hasCells) {
+      ctx.save();
+      // Vignettes are expressed in world feet (gradient centers + radii).
+      // Apply world→canvas scale so gradient math lands on canvas pixels.
+      ctx.setTransform(pxPerFoot, 0, 0, pxPerFoot, 0, 0);
+      // Match the fluid region — extent ∩ polygon — so the vignette doesn't
+      // paint past walls or outside the organic pit silhouette.
+      ctx.clip(pitClip.extentClip);
+      ctx.clip(pitClip.polyClip);
+      if (canPartial) {
+        // Additional clip to the dirty world rect so we don't paint vignette
+        // pixels outside the strip we just cleared. patchFluidRegion forces
+        // a full rebuild on pit-topology changes, so group centroids/radii
+        // are guaranteed unchanged here — the repainted slice is consistent
+        // with the vignette pixels left in place outside the dirty rect.
+        const dirtyWorld = new Path2D();
+        dirtyWorld.rect(worldX0, worldY0, worldX1 - worldX0, worldY1 - worldY0);
+        ctx.clip(dirtyWorld);
+      }
+      for (const group of pitData.groups) {
+        let gcx = 0;
+        let gcy = 0;
+        for (const [r, c] of group) {
+          gcx += (c + 0.5) * gridSize;
+          gcy += (r + 0.5) * gridSize;
+        }
+        gcx /= group.length;
+        gcy /= group.length;
+        let maxDist = 0;
+        for (const [r, c] of group) {
+          for (const [cx, cy] of [
+            [c, r],
+            [c + 1, r],
+            [c, r + 1],
+            [c + 1, r + 1],
+          ] as const) {
+            const d = Math.hypot(cx * gridSize - gcx, cy * gridSize - gcy);
+            if (d > maxDist) maxDist = d;
+          }
+        }
+        const grad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, maxDist);
+        grad.addColorStop(0, vc);
         grad.addColorStop(0.4, 'rgba(0,0,0,0.25)');
         grad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = grad;
-        for (const [r2, c2] of group as [number, number][]) {
-          ctx.fillRect(c2 * gridSize, r2 * gridSize, gridSize, gridSize);
+        for (const [r, c] of group) {
+          ctx.fillRect(c * gridSize, r * gridSize, gridSize, gridSize);
         }
       }
-    } else {
-      ctx.strokeStyle = fd.causticColor!;
-      ctx.lineWidth = Math.max(0.5 / sc, 0.09);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.stroke(fd.causticPath!);
+      ctx.restore();
     }
-
-    ctx.restore();
   }
 
-  _fluidRenderLayer = { canvas: offCanvas, w: cacheW, h: cacheH, pathCacheRef: _fluidPathCache, cacheScale, gridSize };
-  return offCanvas;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  return canvas;
 }
 
+// ── Cache introspection + invalidation ────────────────────────────────────
+
 /**
- * Return stored parameters from the current fluid path cache (or null if no cache).
- * @returns {{ gridSize: number, theme: Object }|null} Cached parameters, or null
+ * Theme signature covering every fluid-relevant color. Used by MapCache to
+ * detect fluid-theme-only changes so the fluid composite can rebuild
+ * without touching the cells layer.
  */
-export function getFluidCacheParams(): { gridSize: number; theme: Theme } | null {
-  if (!_fluidPathCache.data) return null;
-  return { gridSize: _fluidPathCache.gridSize as number, theme: _fluidPathCache.theme as Theme };
+export function fluidThemeSig(theme: Theme): string {
+  const t = theme as Record<string, unknown>;
+  return [
+    t.waterShallowColor,
+    t.waterMediumColor,
+    t.waterDeepColor,
+    t.waterCausticColor,
+    t.lavaShallowColor,
+    t.lavaMediumColor,
+    t.lavaDeepColor,
+    t.lavaCausticColor,
+    t.pitBaseColor,
+    t.pitCrackColor,
+    t.pitVignetteColor,
+  ].join(',');
 }
 
 /**
- * Call this whenever fluid/pit cell data is mutated in-place (same cells reference).
- * @returns {void}
+ * Return stored parameters from the variant clip cache (or null if empty).
+ * Used by `smartInvalidate` in render-cache.ts to decide whether a patch is
+ * possible after in-place cell mutation.
+ */
+export function getFluidCacheParams(): { gridSize: number } | null {
+  if (!_variantClipCache) return null;
+  return { gridSize: _variantClipCache.gridSize };
+}
+
+/**
+ * Clear every fluid cache. Call on cells-grid replacement, fluid theme
+ * change, or any time the variant geometry might have gone stale.
  */
 export function invalidateFluidCache(): void {
-  _fluidPathCache = { cells: null, gridSize: null, theme: null, data: null };
   _fluidCellsCache = { cells: null, water: null, lava: null };
   _pitDataCache = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
-  _fluidRenderLayer = null;
+  _variantClipCache = null;
+  _fluidDataVersion++;
+  _markFullRebuild();
+  // Don't evict tile canvases — they're keyed on (variant, colorSig,
+  // gridSize, pxPerFoot) and can be reused as long as those match.
 }
 
 /**
- * Incremental fluid update — rebuild geometry for just the dirty region and
- * re-render that area on the existing fluid layer canvas.
+ * Evict ALL tile canvases too. Call on theme color change so tiles rebuild
+ * with the new colors on next composite.
+ */
+export function invalidateFluidTileCache(): void {
+  for (const v of FLUID_VARIANTS) delete _variantTileCache[v];
+}
+
+/**
+ * Incremental patch hook — called by `smartInvalidate` after an in-place
+ * fluid cell mutation. Updates the fluid/pit cell caches for the cells
+ * inside `region` only (no full-grid scan), clears the variant clip cache
+ * (the per-variant polyClip cache keyed on cell-set signature survives the
+ * common case where only depth or hazard changed), and accumulates the
+ * region so the next `buildFluidComposite` can do a partial clear+refill.
  *
- * @param {{ minRow: number, maxRow: number, minCol: number, maxCol: number }} region
- * @param {Array} cells  Current cell grid
- * @param {Array} roomCells  Room cell mask
- * @param {number} gridSize
- * @param {Object} theme - Theme object with fluid color settings
- * @returns {void}
+ * Pit topology changes inside the region trigger a full rebuild because
+ * vignette centroids/radii depend on the full group — partial repaint
+ * would leave stale vignette pixels outside the dirty rect.
  */
 export function patchFluidRegion(
   region: { minRow: number; maxRow: number; minCol: number; maxCol: number },
   cells: CellGrid,
   roomCells: boolean[][],
-  gridSize: number,
-  theme: Theme,
+  _gridSize: number,
+  _theme: Theme,
 ): void {
-  if (!_fluidRenderLayer?.canvas) return;
-  const { canvas, cacheScale: sc } = _fluidRenderLayer;
-  if (!sc) return;
-
   const numRows = cells.length;
   const numCols = cells[0]?.length ?? 0;
 
-  // Clear area: 1 cell padding around dirty region (wipes bleed pixels)
-  // Scan area: 2 cells padding (re-renders neighbors whose patterns bleed in)
-  const CLEAR_PAD = 1;
-  const SCAN_PAD = 2;
-  const clearMinR = Math.max(0, region.minRow - CLEAR_PAD);
-  const clearMaxR = Math.min(numRows - 1, region.maxRow + CLEAR_PAD);
-  const clearMinC = Math.max(0, region.minCol - CLEAR_PAD);
-  const clearMaxC = Math.min(numCols - 1, region.maxCol + CLEAR_PAD);
-  const minR = Math.max(0, region.minRow - SCAN_PAD);
-  const maxR = Math.min(numRows - 1, region.maxRow + SCAN_PAD);
-  const minC = Math.max(0, region.minCol - SCAN_PAD);
-  const maxC = Math.min(numCols - 1, region.maxCol + SCAN_PAD);
+  const r0 = Math.max(0, region.minRow);
+  const r1 = Math.min(numRows - 1, region.maxRow);
+  const c0 = Math.max(0, region.minCol);
+  const c1 = Math.min(numCols - 1, region.maxCol);
 
-  // Clear the dirty region on the render layer
-  const px = clearMinC * gridSize * sc;
-  const py = clearMinR * gridSize * sc;
-  const pw = (clearMaxC - clearMinC + 1) * gridSize * sc;
-  const ph = (clearMaxR - clearMinR + 1) * gridSize * sc;
-  const ctx = canvas.getContext('2d', { alpha: true }) as OffscreenCanvasRenderingContext2D;
-  ctx.save();
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(px, py, pw, ph);
-
-  // Rebuild geometry for fluid cells in the dirty region and render them
-  const tileWorld = gridSize * 8;
-  const patternScale = tileWorld / WATER_TILE_SIZE;
-  const { bins: spatialBins, N: binCount, binSize } = WATER_SPATIAL;
-  const bleedDirs: [number, number, string][] = [
-    [-1, 0, 'north'],
-    [1, 0, 'south'],
-    [0, -1, 'west'],
-    [0, 1, 'east'],
-  ];
-
-  const toRgb = (h: string) => {
-    if (Array.isArray(h)) return h;
-    const x = h.replace('#', '');
-    return [parseInt(x.substring(0, 2), 16), parseInt(x.substring(2, 4), 16), parseInt(x.substring(4, 6), 16)];
-  };
-
-  // Clip rendering to the dirty region
-  ctx.beginPath();
-  ctx.rect(px, py, pw, ph);
-  ctx.clip();
-  ctx.setTransform(sc, 0, 0, sc, 0, 0);
-
-  for (const fillType of ['pit', 'water', 'lava']) {
-    // Collect fluid cells in the dirty region
-    const depthKey = fillType + 'Depth';
-    const fluidCells: [number, number][] = [];
-    const fluidSet = new Set<number>();
-    const depthMap = new Map<number, number>();
-
-    // Scan the dirty region for fluid cells
-    for (let row = minR; row <= maxR; row++) {
-      for (let col = minC; col <= maxC; col++) {
-        const cell = cells[row]?.[col];
-        if (cell?.fill === fillType && roomCells[row]?.[col]) {
+  // ── Water / lava: incrementally patch set + depthMap for cells in region ──
+  if (_fluidCellsCache.cells === cells) {
+    for (const fillType of ['water', 'lava'] as const) {
+      const cache = _fluidCellsCache[fillType];
+      if (!cache) continue;
+      const depthKey = (fillType + 'Depth') as keyof Cell;
+      let mutated = false;
+      for (let row = r0; row <= r1; row++) {
+        for (let col = c0; col <= c1; col++) {
           const key = row * numCols + col;
-          fluidSet.add(key);
-          fluidCells.push([row, col]);
-          depthMap.set(key, cell[depthKey as keyof Cell] as number);
-        }
-      }
-    }
-    // Also collect immediate neighbors outside the region for edge detection
-    for (let row = Math.max(0, minR - 1); row <= Math.min(numRows - 1, maxR + 1); row++) {
-      for (let col = Math.max(0, minC - 1); col <= Math.min(numCols - 1, maxC + 1); col++) {
-        if (row >= minR && row <= maxR && col >= minC && col <= maxC) continue;
-        const cell = cells[row]?.[col];
-        if (cell?.fill === fillType && roomCells[row]?.[col]) {
-          fluidSet.add(row * numCols + col);
-        }
-      }
-    }
-
-    if (fluidCells.length === 0) continue;
-
-    const isPit = fillType === 'pit';
-    const defaults = isPit ? PIT_DEFAULTS : FLUID_DEFAULTS[fillType]!;
-    const fluidColors = isPit
-      ? [toRgb((theme.pitBaseColor as string) || defaults.base!)]
-      : [
-          toRgb((theme[fillType + 'ShallowColor'] as string) || defaults.shallow),
-          toRgb((theme[fillType + 'MediumColor'] as string) || defaults.medium),
-          toRgb((theme[fillType + 'DeepColor'] as string) || defaults.deep),
-        ];
-
-    // Build clip path for this region's cells — respects trim boundaries
-    const clipPath = new Path2D();
-    for (const [row, col] of fluidCells) {
-      const cell = cells[row]![col]!;
-      if (cell.trimClip && !cell.trimOpen) {
-        const ox = col * gridSize,
-          oy = row * gridSize;
-        const clip = cell.trimClip;
-        clipPath.moveTo(ox + clip[0]![0]! * gridSize, oy + clip[0]![1]! * gridSize);
-        for (let i = 1; i < clip.length; i++)
-          clipPath.lineTo(ox + clip[i]![0]! * gridSize, oy + clip[i]![1]! * gridSize);
-        clipPath.closePath();
-      } else {
-        clipPath.rect(col * gridSize, row * gridSize, gridSize, gridSize);
-      }
-      for (const [dr, dc, dir] of bleedDirs) {
-        const nr = row + dr,
-          nc = col + dc;
-        if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
-        if (fluidSet.has(nr * numCols + nc)) continue;
-        const edgeVal = getEdge(cell, dir as Direction);
-        if (edgeVal === 'w' || edgeVal === 'd') continue;
-        const neighbor = cells[nr]?.[nc];
-        if (!neighbor) continue; // don't bleed into void cells (trimmed away)
-        if (neighbor.trimClip && !neighbor.trimOpen) continue;
-        clipPath.rect(nc * gridSize, nr * gridSize, gridSize, gridSize);
-      }
-    }
-
-    ctx.save();
-    ctx.clip(clipPath);
-
-    // Interior cells: solid base fill
-    for (const [row, col] of fluidCells) {
-      let isEdge = false;
-      for (const [dr, dc] of [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-      ] as const) {
-        if (!fluidSet.has((row + dr) * numCols + (col + dc))) {
-          isEdge = true;
-          break;
-        }
-      }
-      if (isEdge) continue;
-      const baseC = (isPit ? fluidColors[0] : fluidColors[Math.min(depthMap.get(row * numCols + col) ?? 1, 3) - 1])!;
-      ctx.fillStyle = `rgb(${baseC[0]},${baseC[1]},${baseC[2]})`;
-      ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
-    }
-
-    // Voronoi polygons for edge cells
-    const txMin = Math.floor((minC * gridSize) / tileWorld) - 1;
-    const txMax = Math.ceil(((maxC + 1) * gridSize) / tileWorld) + 1;
-    const tyMin = Math.floor((minR * gridSize) / tileWorld) - 1;
-    const tyMax = Math.ceil(((maxR + 1) * gridSize) / tileWorld) + 1;
-
-    for (let ty = tyMin; ty <= tyMax; ty++) {
-      for (let tx = txMin; tx <= txMax; tx++) {
-        const offX = tx * tileWorld;
-        const offY = ty * tileWorld;
-        const cMin = Math.max(minC, Math.floor(offX / gridSize));
-        const cMax = Math.min(maxC, Math.floor((offX + tileWorld) / gridSize));
-        const rMin2 = Math.max(minR, Math.floor(offY / gridSize));
-        const rMax2 = Math.min(maxR, Math.floor((offY + tileWorld) / gridSize));
-        if (cMin > cMax || rMin2 > rMax2) continue;
-
-        for (let r = rMin2; r <= rMax2; r++) {
-          for (let col = cMin; col <= cMax; col++) {
-            const key = r * numCols + col;
-            if (!fluidSet.has(key)) continue;
-
-            const depth = depthMap.get(key) ?? 1;
-            const baseC = (isPit ? fluidColors[0] : fluidColors[Math.min(depth, 3) - 1])!;
-
-            const txl0 = (col * gridSize - offX) / patternScale;
-            const txl1 = ((col + 1) * gridSize - offX) / patternScale;
-            const tyl0 = (r * gridSize - offY) / patternScale;
-            const tyl1 = ((r + 1) * gridSize - offY) / patternScale;
-            const bxMin = Math.max(0, Math.floor(txl0 / binSize));
-            const bxMax = Math.min(binCount - 1, Math.ceil(txl1 / binSize) - 1);
-            const byMin = Math.max(0, Math.floor(tyl0 / binSize));
-            const byMax = Math.min(binCount - 1, Math.ceil(tyl1 / binSize) - 1);
-            if (bxMin > bxMax || byMin > byMax) continue;
-
-            for (let by = byMin; by <= byMax; by++) {
-              for (let bx = bxMin; bx <= bxMax; bx++) {
-                for (const p of spatialBins[by * binCount + bx]!) {
-                  if (Math.floor((p.centre[0] * patternScale + offX) / gridSize) !== col) continue;
-                  if (Math.floor((p.centre[1] * patternScale + offY) / gridSize) !== r) continue;
-
-                  let js = (r * 997 + col * 1009 + p.idx! * 31) >>> 0 || 1;
-                  js = (Math.imul(js, 1664525) + 1013904223) >>> 0;
-                  const jitter = Math.round((js / 0x100000000 - 0.5) * 7) * 2;
-
-                  const rv = Math.max(0, Math.min(255, Math.round(baseC[0]! + jitter)));
-                  const gv = Math.max(0, Math.min(255, Math.round(baseC[1]! + jitter)));
-                  const bv = Math.max(0, Math.min(255, Math.round(baseC[2]! + jitter)));
-
-                  ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
-                  const verts = p.verts;
-                  ctx.beginPath();
-                  ctx.moveTo(verts[0]![0]! * patternScale + offX, verts[0]![1]! * patternScale + offY);
-                  for (let i = 1; i < verts.length; i++) {
-                    ctx.lineTo(verts[i]![0]! * patternScale + offX, verts[i]![1]! * patternScale + offY);
-                  }
-                  ctx.closePath();
-                  ctx.fill();
-                }
-              }
+          const cell = cells[row]?.[col];
+          const inRoom = !!roomCells[row]?.[col];
+          const shouldBe = !!cell && cell.fill === fillType && inRoom;
+          const had = cache.fluidSet.has(key);
+          if (shouldBe) {
+            const d = (cell[depthKey] as number | undefined) ?? 1;
+            if (!had) {
+              cache.fluidSet.add(key);
+              mutated = true;
             }
+            if (cache.depthMap.get(key) !== d) cache.depthMap.set(key, d);
+          } else if (had) {
+            cache.fluidSet.delete(key);
+            cache.depthMap.delete(key);
+            mutated = true;
           }
         }
       }
-    }
-
-    // Caustic/crack stroke
-    if (isPit) {
-      const crackColor = (theme.pitCrackColor as string) || defaults.crack!;
-      ctx.strokeStyle = crackColor;
-      ctx.lineWidth = Math.max(0.3 / sc, 0.06);
-    } else {
-      const causticColor = (theme[fillType + 'CausticColor'] as string) || defaults.caustic;
-      ctx.strokeStyle = causticColor;
-      ctx.lineWidth = Math.max(0.5 / sc, 0.09);
-    }
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    // Re-stroke Voronoi edges for the dirty region
-    for (let ty = tyMin; ty <= tyMax; ty++) {
-      for (let tx = txMin; tx <= txMax; tx++) {
-        const offX = tx * tileWorld;
-        const offY = ty * tileWorld;
-        const cMin = Math.max(minC, Math.floor(offX / gridSize));
-        const cMax = Math.min(maxC, Math.floor((offX + tileWorld) / gridSize));
-        const rMin2 = Math.max(minR, Math.floor(offY / gridSize));
-        const rMax2 = Math.min(maxR, Math.floor((offY + tileWorld) / gridSize));
-        if (cMin > cMax || rMin2 > rMax2) continue;
-
-        for (let r = rMin2; r <= rMax2; r++) {
-          for (let col = cMin; col <= cMax; col++) {
-            if (!fluidSet.has(r * numCols + col)) continue;
-
-            const txl0 = (col * gridSize - offX) / patternScale;
-            const txl1 = ((col + 1) * gridSize - offX) / patternScale;
-            const tyl0 = (r * gridSize - offY) / patternScale;
-            const tyl1 = ((r + 1) * gridSize - offY) / patternScale;
-            const bxMin = Math.max(0, Math.floor(txl0 / binSize));
-            const bxMax = Math.min(binCount - 1, Math.ceil(txl1 / binSize) - 1);
-            const byMin = Math.max(0, Math.floor(tyl0 / binSize));
-            const byMax = Math.min(binCount - 1, Math.ceil(tyl1 / binSize) - 1);
-            if (bxMin > bxMax || byMin > byMax) continue;
-
-            for (let by = byMin; by <= byMax; by++) {
-              for (let bx = bxMin; bx <= bxMax; bx++) {
-                for (const p of spatialBins[by * binCount + bx]!) {
-                  if (Math.floor((p.centre[0] * patternScale + offX) / gridSize) !== col) continue;
-                  if (Math.floor((p.centre[1] * patternScale + offY) / gridSize) !== r) continue;
-                  const verts = p.verts;
-                  ctx.beginPath();
-                  ctx.moveTo(verts[0]![0]! * patternScale + offX, verts[0]![1]! * patternScale + offY);
-                  for (let i = 1; i < verts.length; i++) {
-                    ctx.lineTo(verts[i]![0]! * patternScale + offX, verts[i]![1]! * patternScale + offY);
-                  }
-                  ctx.closePath();
-                  ctx.stroke();
-                }
-              }
-            }
-          }
-        }
+      if (mutated) {
+        cache.fluidCells = _rebuildFluidCellsArrayFromSet(cache.fluidSet, numCols);
       }
     }
-
-    ctx.restore();
+  } else {
+    // Cells identity changed — can't incrementally patch. Drop caches and
+    // force a full rebuild on the next composite request.
+    _fluidCellsCache = { cells: null, water: null, lava: null };
+    _markFullRebuild();
   }
 
-  ctx.restore();
+  // ── Pit: incrementally patch pitSet; if topology changed, rebuild BFS groups ──
+  let pitTopologyChanged = false;
+  if (_pitDataCache.cells === cells && _pitDataCache.pitSet) {
+    const pitSet = _pitDataCache.pitSet;
+    for (let row = r0; row <= r1; row++) {
+      for (let col = c0; col <= c1; col++) {
+        const key = row * numCols + col;
+        const cell = cells[row]?.[col];
+        const inRoom = !!roomCells[row]?.[col];
+        const shouldBe = !!cell && cell.fill === 'pit' && inRoom;
+        const had = pitSet.has(key);
+        if (shouldBe !== had) {
+          pitTopologyChanged = true;
+          if (shouldBe) pitSet.add(key);
+          else pitSet.delete(key);
+        }
+      }
+    }
+    if (pitTopologyChanged) {
+      // Rebuild pitCells + group BFS from the updated set.
+      const pd = _pitDataCache;
+      const pitCells: [number, number][] = _rebuildFluidCellsArrayFromSet(pitSet, numCols);
+      const visited = new Set<number>();
+      const groups: [number, number][][] = [];
+      for (const [row, col] of pitCells) {
+        const startKey = row * numCols + col;
+        if (visited.has(startKey)) continue;
+        const group: [number, number][] = [];
+        const queue: [number, number][] = [[row, col]];
+        visited.add(startKey);
+        while (queue.length > 0) {
+          const [r2, c2] = queue.shift()!;
+          group.push([r2, c2]);
+          for (const [dr, dc] of [
+            [-1, 0],
+            [1, 0],
+            [0, -1],
+            [0, 1],
+          ] as const) {
+            const nr = r2 + dr;
+            const nc = c2 + dc;
+            if (nr < 0 || nr >= numRows || nc < 0 || nc >= numCols) continue;
+            const nkey = nr * numCols + nc;
+            if (!visited.has(nkey) && pitSet.has(nkey)) {
+              visited.add(nkey);
+              queue.push([nr, nc]);
+            }
+          }
+        }
+        groups.push(group);
+      }
+      pd.pitCells = pitCells;
+      pd.groups = groups;
+    }
+  } else {
+    _pitDataCache = { cells: null, pitSet: null, pitCells: null, groups: null, numCols: 0, numRows: 0 };
+    _markFullRebuild();
+    pitTopologyChanged = true; // forces full path below
+  }
+
+  // Variant clips are stale (extentClip geometry depends on per-cell trims
+  // and open-edge neighbors; polyClip reuses per-variant cache keyed on
+  // cell-set signature, so that survives the common depth-only patch).
+  _variantClipCache = null;
+
+  if (pitTopologyChanged) {
+    _markFullRebuild();
+  } else {
+    _extendPartialRegion({ minRow: r0, maxRow: r1, minCol: c0, maxCol: c1 });
+  }
+
+  _fluidDataVersion++;
 }

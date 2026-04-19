@@ -1,0 +1,63 @@
+name: Stolen Shoe
+category: Decorative
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.15
+placement: floor
+room_types: goblin-warren-entrance, goblin-warren, monster-lair-small, humanoid-lair, kobold-warren
+typical_count: few
+clusters_with: shiny-trinket, dung-pile, bone-pile, rat-carcass
+notes: Single abandoned leather shoe, laces undone, scuffed. Signifies a missing victim or a goblin's useless prize.
+---
+# === HITBOX ===
+selection ellipse 0.50,0.54 0.28,0.18
+
+# Faint scuff / drag stain around shoe
+ellipse 0.50,0.58 0.34,0.20 fill #2a1a0a 0.35
+
+# Shoe body (oval outline — top-down view showing upper leather)
+ellipse 0.50,0.54 0.26,0.16 fill #5c3a1e 0.92
+ellipse 0.50,0.54 0.26,0.16 texfill polyhaven/brown_leather 0.5
+ellipse 0.50,0.54 0.26,0.16 stroke #1a1008
+
+# Heel end (rounded, slightly darker — east end)
+ellipse 0.70,0.54 0.08,0.12 fill #4a2a10 0.95
+ellipse 0.70,0.54 0.08,0.12 stroke #1a1008
+
+# Toe end (rounded, lighter — west end)
+ellipse 0.30,0.54 0.08,0.12 fill #6a4828 0.9
+ellipse 0.30,0.54 0.08,0.12 stroke #1a1008
+
+# Tongue (visible opening on top — south face, slightly open)
+poly 0.42,0.50 0.58,0.50 0.56,0.62 0.44,0.62 fill #2a1408 0.95
+poly 0.42,0.50 0.58,0.50 0.56,0.62 0.44,0.62 stroke #1a0a00
+# Inner shadow
+ellipse 0.50,0.56 0.06,0.04 fill #0a0604 0.85
+
+# Laces (crossed, undone)
+line 0.44,0.52 0.52,0.48 stroke #d4c4a8 0.9 width 2
+line 0.46,0.48 0.54,0.52 stroke #d4c4a8 0.9 width 2
+line 0.44,0.56 0.50,0.54 stroke #c8b898 0.85 width 2
+line 0.50,0.54 0.56,0.58 stroke #c8b898 0.85 width 2
+
+# Trailing lace (one loose lace flopped out)
+bezier 0.56,0.58 0.68,0.68 0.78,0.72 0.88,0.68 stroke #d4c4a8 width 2
+circle 0.88,0.68 0.018 fill #8b7355 0.9
+circle 0.88,0.68 0.018 stroke #3a2010
+
+# Other loose lace (shorter)
+bezier 0.44,0.58 0.34,0.70 0.26,0.74 0.18,0.72 stroke #d4c4a8 width 2
+circle 0.18,0.72 0.018 fill #8b7355 0.9
+circle 0.18,0.72 0.018 stroke #3a2010
+
+# Scuff marks on shoe surface
+line 0.36,0.50 0.42,0.48 stroke #2a1408 0.6 width 1
+line 0.60,0.56 0.66,0.56 stroke #2a1408 0.55 width 1
+
+# Sole edge line (south side, darker strip)
+bezier 0.26,0.60 0.38,0.66 0.62,0.66 0.74,0.60 stroke #1a0a00 0.7 width 1
+
+# Heel highlight
+ellipse 0.68,0.50 0.04,0.02 fill #8b7355 0.45

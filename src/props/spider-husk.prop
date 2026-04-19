@@ -1,0 +1,70 @@
+name: Spider Husk
+category: Terrain
+footprint: 2x2
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: spider-lair, monster-lair-large, cave-drow-outpost, underdark-outpost, beast-den
+typical_count: few
+clusters_with: fang-scatter, cobweb-heavy, egg-sac, bone-pile-small
+notes: A dry hollowed giant-spider carapace with legs curled inward — molted or dead. Top-down: central body disc with 8 jointed leg lines radiating outward (curled tips).
+---
+# footprint 2x2: x range 0-2, y range 0-2
+
+# === Curled legs radiating outward (drawn first, body overlaps their bases) ===
+# Leg 1 (N)
+bezier 1.00,0.72 0.95,0.42 0.90,0.20 0.82,0.12 stroke #2a1a0a 0.8 width 2
+line 0.82,0.12 0.78,0.18 stroke #2a1a0a 0.7 width 1
+# Leg 2 (NE)
+bezier 1.22,0.78 1.45,0.50 1.65,0.30 1.72,0.22 stroke #2a1a0a 0.8 width 2
+line 1.72,0.22 1.66,0.26 stroke #2a1a0a 0.7 width 1
+# Leg 3 (E)
+bezier 1.32,1.00 1.55,0.95 1.75,0.90 1.85,0.85 stroke #2a1a0a 0.8 width 2
+line 1.85,0.85 1.80,0.92 stroke #2a1a0a 0.7 width 1
+# Leg 4 (SE)
+bezier 1.22,1.22 1.45,1.50 1.65,1.70 1.72,1.78 stroke #2a1a0a 0.8 width 2
+line 1.72,1.78 1.66,1.74 stroke #2a1a0a 0.7 width 1
+# Leg 5 (S)
+bezier 1.00,1.28 1.05,1.58 1.10,1.80 1.18,1.88 stroke #2a1a0a 0.8 width 2
+line 1.18,1.88 1.12,1.82 stroke #2a1a0a 0.7 width 1
+# Leg 6 (SW)
+bezier 0.78,1.22 0.55,1.50 0.35,1.70 0.28,1.78 stroke #2a1a0a 0.8 width 2
+line 0.28,1.78 0.34,1.74 stroke #2a1a0a 0.7 width 1
+# Leg 7 (W)
+bezier 0.68,1.00 0.45,1.05 0.25,1.10 0.15,1.15 stroke #2a1a0a 0.8 width 2
+line 0.15,1.15 0.20,1.08 stroke #2a1a0a 0.7 width 1
+# Leg 8 (NW)
+bezier 0.78,0.78 0.55,0.50 0.35,0.30 0.28,0.22 stroke #2a1a0a 0.8 width 2
+line 0.28,0.22 0.34,0.26 stroke #2a1a0a 0.7 width 1
+
+# === Abdomen (larger rear section, slightly south) ===
+ellipse 1.00,1.18 0.32,0.28 fill #3a2a18 0.8
+ellipse 1.00,1.18 0.32,0.28 stroke #1a1008
+# Abdomen texture — dried chitin cracks
+line 0.80,1.08 1.00,1.18 stroke #1a1008 0.5 width 1
+line 1.20,1.08 1.00,1.18 stroke #1a1008 0.5 width 1
+line 1.00,1.18 1.00,1.42 stroke #1a1008 0.45 width 1
+# Faded markings
+ellipse 1.00,1.15 0.18,0.14 fill #4a3828 0.4
+
+# === Cephalothorax (front body disc, slightly north) ===
+ellipse 1.00,0.85 0.26,0.22 fill #3a2a18 0.85
+ellipse 1.00,0.85 0.26,0.22 stroke #1a1008
+# Eye cluster (8 dots in a cluster on the head)
+circle 0.92,0.78 0.025 fill #1a1008 0.9
+circle 1.00,0.76 0.03 fill #1a1008 0.9
+circle 1.08,0.78 0.025 fill #1a1008 0.9
+circle 0.96,0.82 0.02 fill #1a1008 0.85
+circle 1.04,0.82 0.02 fill #1a1008 0.85
+# Fang sockets (chelicerae)
+poly 0.92,0.88 0.96,0.92 0.92,0.96 0.88,0.92 fill #1a1008 0.7
+poly 1.08,0.88 1.04,0.92 1.08,0.96 1.12,0.92 fill #1a1008 0.7
+
+# Waist connector (pedicel)
+ellipse 1.00,1.00 0.10,0.06 fill #2a1a10 0.75
+ellipse 1.00,1.00 0.10,0.06 stroke #1a1008
+
+# Dry chitin highlight
+ellipse 0.94,0.78 0.08,0.04 fill #6a5a40 0.35
+ellipse 0.94,1.10 0.10,0.05 fill #6a5a40 0.3

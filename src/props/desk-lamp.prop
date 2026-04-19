@@ -1,0 +1,41 @@
+name: Desk Lamp
+category: Features
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: command-room, mansion-study, library, study, office, wizard-sanctum, scriptorium, cartographers-office
+typical_count: single
+clusters_with: desk, writing-desk, ledger-stack, book-pile, inkwell, scroll-case
+lights: [{"preset":"oil-lamp","x":0.5,"y":0.5,"radius":10,"intensity":0.8,"color":"#ffcc66"}]
+notes: Small brass oil lamp with glass chimney — warm pooled light on a desk. Meant to sit on top of furniture (though placed as a floor prop).
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.18
+
+# Brass base plate (widest element, slight oval footprint)
+ellipse 0.5,0.54 0.24,0.20 fill #8b6914 0.9
+ellipse 0.5,0.54 0.24,0.20 stroke #5a3a00
+# Inner base ring
+ellipse 0.5,0.54 0.20,0.16 stroke #daa520 0.7 width 1
+# Oil reservoir (brass dome)
+circle 0.5,0.50 0.16 fill #daa520 0.9
+circle 0.5,0.50 0.16 stroke #5a3a00
+# Highlight on reservoir
+arc 0.5,0.50 0.14 200 260 stroke #ffd700 0.7 width 1
+# Glass chimney ring (seen from above as a circle)
+circle 0.5,0.50 0.12 fill #2a1808 0.4
+circle 0.5,0.50 0.12 stroke #3a2810 width 1
+# Layered fire glow inside chimney
+circle 0.5,0.50 0.11 fill #cc3300 0.35
+circle 0.5,0.50 0.09 fill #e85500 0.5
+circle 0.5,0.50 0.07 fill #ff8800 0.7
+circle 0.5,0.50 0.05 fill #ffaa00 0.85
+circle 0.5,0.50 0.03 fill #ffcc00 0.95
+# Hot white core
+circle 0.5,0.50 0.018 fill #ffee88 1.0
+# Outer warm light halo (seeps onto the desk surface)
+circle 0.5,0.50 0.35 fill #ffaa00 0.1
+circle 0.5,0.50 0.28 fill #ffcc66 0.12

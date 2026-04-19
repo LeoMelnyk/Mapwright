@@ -1,0 +1,54 @@
+name: Ore Sorting Table
+category: Furniture
+footprint: 2x1
+facing: yes
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, smelter, workshop
+typical_count: single
+clusters_with: ore-pile, pickaxe, bucket, stool
+notes: A low wooden sorting table with segregated compartments holding sorted ore fragments. Place near ore piles or mine entrances. Front (south) faces the worker.
+---
+# === Table surface (plank top) ===
+rect 0.06,0.08 0.88,0.84 texfill polyhaven/wood_table 0.85
+rect 0.06,0.08 0.88,0.84 stroke #3a1f00
+
+# Leg shadows at corners
+circle 0.14,0.16 0.04 fill #2a1400 0.45
+circle 0.86,0.16 0.04 fill #2a1400 0.45
+circle 0.14,0.84 0.04 fill #2a1400 0.45
+circle 0.86,0.84 0.04 fill #2a1400 0.45
+
+# === Divider strips (creating 3 compartments) ===
+# Vertical dividers
+line 0.38,0.14 0.38,0.86 stroke #3a1f00 0.8 width 2
+line 0.62,0.14 0.62,0.86 stroke #3a1f00 0.8 width 2
+
+# Raised rim around edges (darker wood strip)
+rect 0.06,0.08 0.88,0.06 fill #3a1f00 0.5
+rect 0.06,0.86 0.88,0.06 fill #3a1f00 0.5
+rect 0.06,0.08 0.06,0.84 fill #3a1f00 0.45
+rect 0.88,0.08 0.06,0.84 fill #3a1f00 0.45
+
+# === Left compartment — dark ore chunks ===
+circle 0.16,0.40 0.03 fill #3a3632 0.85
+circle 0.24,0.50 0.035 fill #444444 0.8
+circle 0.18,0.60 0.028 fill #3a3632 0.8
+circle 0.28,0.38 0.025 fill #555555 0.75
+circle 0.22,0.72 0.030 fill #444444 0.8
+
+# === Center compartment — ore with metallic streaks ===
+circle 0.45,0.42 0.032 fill #555555 0.85
+circle 0.52,0.55 0.035 fill #4a4a4a 0.8
+circle 0.48,0.68 0.028 fill #555555 0.8
+line 0.44,0.44 0.48,0.42 stroke #aabbcc 0.7 width 1
+line 0.51,0.56 0.55,0.55 stroke #b8c4d0 0.6 width 1
+
+# === Right compartment — bright silver-rich ore ===
+circle 0.70,0.44 0.030 fill #666666 0.85
+circle 0.78,0.52 0.032 fill #777777 0.8
+circle 0.74,0.66 0.028 fill #666666 0.8
+line 0.69,0.46 0.73,0.44 stroke #c8d4e0 0.75 width 1
+line 0.77,0.54 0.82,0.52 stroke #c8d4e0 0.7 width 1
+circle 0.72,0.56 0.015 fill #d8e0ea 0.7

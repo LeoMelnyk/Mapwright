@@ -1,0 +1,78 @@
+name: Bottle Shelf
+category: Furniture
+footprint: 1x2
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 4
+placement: wall
+room_types: cabin-witch, tavern-common, alchemy-lab, bar-counter, apothecary
+typical_count: few
+clusters_with: shelf-open, ingredient-rack, bar-counter, wine-rack, cabinet
+notes: Wall shelf lined with assorted bottles — tavern/apothecary display
+---
+# === HITBOX ===
+hitbox rect 0.0,0.0 2.0,0.85 z 0-4
+
+# Body recessed behind shelf top
+rect 0.1,0.0 1.8,0.85 fill #2a1400 0.4
+line 0.1,0.0 0.1,0.85 stroke #3a1f00
+line 1.9,0.0 1.9,0.85 stroke #3a1f00
+line 0.1,0.85 1.9,0.85 stroke #3a1f00
+
+# === Bottles lined up at front edge (south) — varied colors and sizes ===
+# Green bottle (tall, slim)
+circle 0.20,0.73 0.06 fill #2a5028 0.92
+circle 0.20,0.73 0.06 stroke #101810
+circle 0.20,0.73 0.02 fill #5a3a00 0.8
+# Amber apothecary bottle
+circle 0.36,0.74 0.07 fill #8a5820 0.92
+circle 0.36,0.74 0.07 stroke #3a2008
+circle 0.36,0.74 0.025 fill #2a1408 0.85
+# Clear/pale bottle with liquid
+circle 0.52,0.73 0.06 fill #8aa0b0 0.75
+circle 0.52,0.73 0.06 stroke #4a5060
+circle 0.52,0.72 0.04 fill #4a6880 0.85
+# Red wine bottle
+circle 0.68,0.74 0.07 fill #2a0808 0.92
+circle 0.68,0.74 0.07 stroke #100404
+circle 0.68,0.74 0.025 fill #6a1818 0.7
+# Blue alchemy vial
+circle 0.84,0.73 0.06 fill #1a4880 0.92
+circle 0.84,0.73 0.06 stroke #0a1828
+circle 0.84,0.72 0.03 fill #4080c0 0.8
+# Small purple vial
+circle 0.98,0.75 0.05 fill #4a2060 0.92
+circle 0.98,0.75 0.05 stroke #1a0828
+circle 0.98,0.74 0.02 fill #8040a0 0.8
+# Wide flask with stopper
+circle 1.14,0.74 0.08 fill #5a3828 0.92
+circle 1.14,0.74 0.08 stroke #2a1408
+circle 1.14,0.72 0.03 fill #2a1008 0.85
+# Clear wine bottle
+circle 1.30,0.73 0.06 fill #2a4028 0.9
+circle 1.30,0.73 0.06 stroke #101810
+circle 1.30,0.72 0.025 fill #5a3a00 0.7
+# Tall amber
+circle 1.46,0.74 0.06 fill #b06830 0.92
+circle 1.46,0.74 0.06 stroke #5a3008
+# Apothecary bottle with glowing green contents
+circle 1.62,0.73 0.07 fill #4a8028 0.9
+circle 1.62,0.73 0.07 stroke #1a3010
+circle 1.62,0.73 0.04 fill #8ad840 0.7
+# Small round vial (red)
+circle 1.78,0.75 0.05 fill #8a2020 0.9
+circle 1.78,0.75 0.05 stroke #3a0808
+
+# Shelf top plank covers most (drawn on top)
+rect 0.0,0.0 2.0,0.66 texfill polyhaven/dark_wood 0.88
+rect 0.0,0.0 2.0,0.66 stroke #3a1f00
+# Wood grain
+line 0.0,0.2 2.0,0.2 stroke #5c3a1e 0.35
+line 0.0,0.4 2.0,0.4 stroke #5c3a1e 0.35
+# Bottle shadows on shelf top (faint)
+arc 0.20,0.70 0.05 180 360 fill #000000 0.15
+arc 0.52,0.70 0.05 180 360 fill #000000 0.15
+arc 0.84,0.70 0.05 180 360 fill #000000 0.15
+arc 1.30,0.70 0.05 180 360 fill #000000 0.15
+arc 1.62,0.70 0.06 180 360 fill #000000 0.15

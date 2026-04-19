@@ -1,0 +1,54 @@
+name: Nurse's Stool
+category: Furniture
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: nursery
+typical_count: single
+clusters_with: cradle, rocking-chair, hearth-small, picture-book
+notes: Short round padded stool with upholstered cushion and wooden ring, used by a nurse or nursing parent
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.35
+
+# Leg shadow dots peeking south (drawn first, under the cushion)
+circle 0.30,0.82 0.04 fill #2a1400 0.5
+circle 0.50,0.84 0.04 fill #2a1400 0.5
+circle 0.70,0.82 0.04 fill #2a1400 0.5
+
+# Outer wooden ring (edge of stool frame)
+circle 0.50,0.50 0.36 texfill polyhaven/dark_wood 0.85
+circle 0.50,0.50 0.36 stroke #3a1f00
+
+# Brass tack ring
+circle 0.50,0.50 0.34 stroke #daa520 0.8 width 1
+
+# Inner cushion — upholstered fabric
+circle 0.50,0.50 0.30 texfill polyhaven/floral_jacquard 0.75
+circle 0.50,0.50 0.30 fill #d4a0b0 0.35
+circle 0.50,0.50 0.30 stroke #8b7355
+
+# Cushion button tufts (small dark dots in a pattern)
+circle 0.50,0.50 0.02 fill #8b5868 0.9
+circle 0.38,0.42 0.018 fill #8b5868 0.85
+circle 0.62,0.42 0.018 fill #8b5868 0.85
+circle 0.38,0.58 0.018 fill #8b5868 0.85
+circle 0.62,0.58 0.018 fill #8b5868 0.85
+circle 0.50,0.36 0.018 fill #8b5868 0.85
+circle 0.50,0.64 0.018 fill #8b5868 0.85
+
+# Cushion highlight (soft rounded bulge)
+arc 0.50,0.50 0.26 210 310 stroke #f0e0d0 0.4 width 2
+
+# Tiny brass tacks around the rim
+circle 0.22,0.50 0.012 fill #daa520 0.9
+circle 0.78,0.50 0.012 fill #daa520 0.9
+circle 0.50,0.22 0.012 fill #daa520 0.9
+circle 0.50,0.78 0.012 fill #daa520 0.9
+circle 0.32,0.32 0.012 fill #daa520 0.85
+circle 0.68,0.32 0.012 fill #daa520 0.85
+circle 0.32,0.68 0.012 fill #daa520 0.85
+circle 0.68,0.68 0.012 fill #daa520 0.85

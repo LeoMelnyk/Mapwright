@@ -1,0 +1,44 @@
+name: Mine Rail Track
+category: Structure
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+placement: floor
+room_types: mine-shaft-entrance, mining-camp, deep-mine, tunnel
+typical_count: many
+clusters_with: cart-track, cart-track-short, cart-track-turn, cart-track-t, cart-track-x
+notes: Single-cell iron mine rail section — matches cart-track-short edge geometry exactly (north rail y=0.34, south rail y=0.60) so it tiles seamlessly with all cart-track-* variants. Use for fine-grained track layouts where you want a slightly different visual (fewer ties, more rust) from cart-track-short.
+---
+# Wooden ties (2 ties instead of 3 — sparser, older mine feel)
+rect 0.15,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.15,0.18 0.10,0.64 stroke #3a1f00
+rect 0.65,0.18 0.10,0.64 texfill polyhaven/weathered_planks 0.85
+rect 0.65,0.18 0.10,0.64 stroke #3a1f00
+
+# North iron rail (edge-to-edge, matching cart-track-short: y=0.34, h=0.06)
+rect 0.00,0.34 1.00,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.34 1.00,0.06 stroke #333333
+# Rail highlight (polished top edge at y=0.36)
+line 0.00,0.36 1.00,0.36 stroke #8899aa 0.7 width 1
+
+# South iron rail (edge-to-edge, matching cart-track-short: y=0.60, h=0.06)
+rect 0.00,0.60 1.00,0.06 texfill polyhaven/rusty_metal 0.9
+rect 0.00,0.60 1.00,0.06 stroke #333333
+line 0.00,0.62 1.00,0.62 stroke #8899aa 0.7 width 1
+
+# Rail spikes at each tie
+circle 0.20,0.37 0.018 fill #333333 0.95
+circle 0.20,0.63 0.018 fill #333333 0.95
+circle 0.70,0.37 0.018 fill #333333 0.95
+circle 0.70,0.63 0.018 fill #333333 0.95
+
+# Heavier rust patches (older mine look)
+circle 0.35,0.37 0.025 fill #8b4000 0.7
+circle 0.50,0.63 0.022 fill #8b4000 0.65
+circle 0.80,0.36 0.020 fill #8b4000 0.6
+circle 0.10,0.62 0.018 fill #8b4000 0.55
+
+# Dirt between ties
+circle 0.42,0.50 0.03 fill #4a3a28 0.25
+circle 0.55,0.48 0.025 fill #3a2a1a 0.2

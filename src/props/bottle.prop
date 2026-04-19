@@ -1,0 +1,41 @@
+name: Bottle
+category: Kitchen
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.9
+placement: floor
+room_types: pantry, kitchen-keep, farmhouse-kitchen, tavern, alchemy-lab
+typical_count: few
+clusters_with: jar, jug, pantry-shelf, bar-counter
+notes: Glass/ceramic bottle seen from above — round shoulder with smaller neck ring and wooden stopper
+---
+# === HITBOX ===
+selection circle 0.5,0.5 0.30
+
+# Wide shoulder ring (bottom of bottle viewed from above — base disk)
+circle 0.5,0.5 0.30 fill #3a5848 0.35
+circle 0.5,0.5 0.30 stroke #1a2818
+# Main body circle — glass
+circle 0.5,0.5 0.28 fill #4a7060 0.55
+circle 0.5,0.5 0.28 stroke #1a2818
+# Shoulder highlight ring (catches light along the upper curve)
+arc 0.5,0.5 0.26 200 340 stroke #9acdbd 0.45 width 1
+# Inner shoulder ring where neck meets body
+circle 0.5,0.5 0.18 stroke #1a2818 0.6
+# Neck base ring
+circle 0.5,0.5 0.14 fill #3a5848 0.6
+circle 0.5,0.5 0.14 stroke #1a2818
+# Neck shaft (smaller circle)
+circle 0.5,0.5 0.10 fill #2a4838 0.8
+circle 0.5,0.5 0.10 stroke #0a1808
+# Wooden stopper top disk
+circle 0.5,0.5 0.075 texfill polyhaven/dark_wood 0.85
+circle 0.5,0.5 0.075 stroke #1a0f00
+# Cork ring groove
+circle 0.5,0.5 0.055 stroke #3a1f00 0.7 width 1
+# Tiny highlight nick on stopper
+circle 0.48,0.48 0.015 fill #8b7355 0.7
+# Glass highlight streak on shoulder
+arc 0.5,0.5 0.24 230 260 stroke #bae0d0 0.5 width 2

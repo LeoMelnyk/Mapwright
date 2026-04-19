@@ -1,0 +1,37 @@
+name: Dagger (Bedside)
+category: Combat
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+placement: floor
+room_types: bedroom, noble-bedchamber, quarters, guard-room
+typical_count: single
+clusters_with: bed, bed-double, nightstand, chest
+notes: Ornamental jeweled dagger lying on floor or bedside surface; place next to beds for character detail
+---
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: ornamental dagger lying flat — blade, crossguard, grip, pommel
+
+# Blade (polished steel, narrow taper running NW-SE diagonal)
+poly 0.22,0.25 0.26,0.22 0.68,0.64 0.72,0.68 0.68,0.72 0.26,0.30 fill #8899aa 0.85
+poly 0.22,0.25 0.26,0.22 0.68,0.64 0.72,0.68 0.68,0.72 0.26,0.30 stroke #555566
+
+# Blade center ridge (fuller line)
+line 0.28,0.27 0.66,0.65 stroke #aabbcc 0.4
+
+# Crossguard (perpendicular to blade at grip junction)
+rect 0.60,0.58 0.04,0.18 fill #daa520 0.85
+rect 0.60,0.58 0.04,0.18 stroke #8b6914
+rect 0.68,0.58 0.04,0.18 fill #daa520 0.85
+rect 0.68,0.58 0.04,0.18 stroke #8b6914
+
+# Grip (wrapped leather)
+rect 0.70,0.68 0.12,0.06 texfill polyhaven/brown_leather 0.8
+rect 0.70,0.68 0.12,0.06 stroke #3a1f00
+
+# Pommel jewel (ruby)
+circle 0.82,0.71 0.04 fill #cc2222 0.8
+circle 0.82,0.71 0.04 stroke #881111
+# Pommel setting
+circle 0.82,0.71 0.05 stroke #daa520 0.6

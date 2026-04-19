@@ -1,0 +1,71 @@
+name: Cutlery Pile
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+height: 0.1
+placement: floor
+room_types: mess-hall, tavern-common, inn-common-room, kitchen, servants-kitchen
+typical_count: few
+clusters_with: plate-stack, pewter-plate, mug, wooden-bowl, table
+notes: Scattered pile of forks, knives, and spoons — crossed at various angles as if dumped on a surface
+---
+# === HITBOX ===
+selection ellipse 0.5,0.5 0.36,0.32
+
+# === Spoon (bottom, angled NE) — drawn first so others overlap ===
+# Spoon handle
+poly 0.18,0.66 0.22,0.68 0.68,0.36 0.64,0.34 fill #888888 0.88
+poly 0.18,0.66 0.22,0.68 0.68,0.36 0.64,0.34 stroke #444444
+# Spoon bowl (oval at east end)
+ellipse 0.72,0.34 0.10,0.07 fill #a8a8a8 0.9
+ellipse 0.72,0.34 0.10,0.07 stroke #444444
+# Spoon bowl inner hollow
+ellipse 0.72,0.34 0.06,0.04 fill #5a5a5a 0.55
+
+# === Fork (angled NW to SE) ===
+# Fork handle
+poly 0.20,0.30 0.24,0.28 0.58,0.58 0.54,0.62 fill #999999 0.9
+poly 0.20,0.30 0.24,0.28 0.58,0.58 0.54,0.62 stroke #444444
+# Fork head (wide base)
+poly 0.56,0.60 0.62,0.56 0.70,0.66 0.66,0.70 fill #a8a8a8 0.9
+poly 0.56,0.60 0.62,0.56 0.70,0.66 0.66,0.70 stroke #444444
+# Fork tines (4 small prongs extending SE)
+line 0.62,0.62 0.74,0.74 stroke #666666 width 2
+line 0.64,0.60 0.76,0.72 stroke #666666 width 2
+line 0.66,0.58 0.78,0.70 stroke #666666 width 2
+line 0.68,0.56 0.80,0.68 stroke #666666 width 2
+
+# === Knife (lying horizontal, pointed west) ===
+# Knife handle (wooden, east)
+rect 0.60,0.50 0.22,0.06 texfill polyhaven/dark_wood 0.88
+rect 0.60,0.50 0.22,0.06 stroke #2a1400
+# Handle rivets
+circle 0.66,0.53 0.012 fill #444444 0.9
+circle 0.76,0.53 0.012 fill #444444 0.9
+# Knife blade (metal, tapering to point west)
+poly 0.60,0.50 0.60,0.56 0.30,0.56 0.22,0.53 0.30,0.50 fill #c0c0c0 0.92
+poly 0.60,0.50 0.60,0.56 0.30,0.56 0.22,0.53 0.30,0.50 texfill polyhaven/metal_plate 0.45
+poly 0.60,0.50 0.60,0.56 0.30,0.56 0.22,0.53 0.30,0.50 stroke #333333
+# Blade highlight
+line 0.32,0.52 0.58,0.52 stroke #e0e0e0 0.65 width 1
+# Blade edge (cutting edge)
+line 0.30,0.56 0.60,0.56 stroke #888888 0.6 width 1
+
+# === Second small spoon (tucked south) ===
+# Handle
+poly 0.32,0.78 0.36,0.80 0.54,0.70 0.50,0.68 fill #888888 0.85
+poly 0.32,0.78 0.36,0.80 0.54,0.70 0.50,0.68 stroke #444444
+# Bowl
+ellipse 0.28,0.80 0.06,0.04 fill #a8a8a8 0.88
+ellipse 0.28,0.80 0.06,0.04 stroke #444444
+
+# === Scattered food crumb specks ===
+circle 0.38,0.44 0.012 fill #8a5820 0.7
+circle 0.56,0.38 0.01 fill #8a5820 0.6
+circle 0.44,0.72 0.012 fill #5a3010 0.65
+
+# === Tiny metal glints on cutlery ===
+circle 0.40,0.52 0.008 fill #ffffff 0.7
+circle 0.70,0.64 0.008 fill #ffffff 0.65

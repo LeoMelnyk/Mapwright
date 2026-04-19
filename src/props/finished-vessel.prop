@@ -1,0 +1,56 @@
+name: Finished Vessel
+category: Containers
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: no
+height: 0.5
+placement: floor
+room_types: glassworks, shop-general, mansion-grand-hall
+typical_count: few
+clusters_with: finished-pot, decanter, wine-glass
+notes: Pale translucent glass vase or bowl viewed from above — soft blue-green glass with a gold decorative band near the rim.
+---
+# === HITBOX ===
+selection circle 0.50,0.50 0.34
+
+# footprint 1x1: x range 0-1, y range 0-1
+# Top-down: circular vessel rim, dark interior opening, gold band decoration
+
+# Outer rim (widest) — pale translucent glass
+circle 0.50,0.50 0.36 fill #c8e0dc 0.70
+circle 0.50,0.50 0.36 stroke #6a8880
+
+# Mid glass ring (shoulder)
+circle 0.50,0.50 0.32 fill #b8d4d0 0.75
+circle 0.50,0.50 0.32 stroke #6a8880
+
+# Gold decorative band around the shoulder
+ring 0.50,0.50 0.32 0.26 fill #daa520 0.85
+ring 0.50,0.50 0.32 0.26 stroke #8b6914
+
+# Pattern dots on gold band (cardinal points)
+circle 0.50,0.21 0.020 fill #5a3a00 0.9
+circle 0.79,0.50 0.020 fill #5a3a00 0.9
+circle 0.50,0.79 0.020 fill #5a3a00 0.9
+circle 0.21,0.50 0.020 fill #5a3a00 0.9
+
+# Small dash marks between dots on band
+circle 0.70,0.30 0.013 fill #5a3a00 0.8
+circle 0.70,0.70 0.013 fill #5a3a00 0.8
+circle 0.30,0.70 0.013 fill #5a3a00 0.8
+circle 0.30,0.30 0.013 fill #5a3a00 0.8
+
+# Inner rim edge (lip) — slightly lighter glass
+circle 0.50,0.50 0.24 fill #d8ece8 0.75
+circle 0.50,0.50 0.24 stroke #6a8880
+
+# Dark interior of vessel
+circle 0.50,0.50 0.20 fill #2a3a3a 0.9
+circle 0.50,0.50 0.20 stroke #0a1818
+
+# Highlight arc on rim (glass sheen)
+arc 0.50,0.50 0.22 210 280 stroke #e8f0ec 0.8 width 2
+
+# Outer shoulder highlight (translucent glass sheen)
+arc 0.50,0.50 0.34 215 265 stroke #e8f0ec 0.55 width 2

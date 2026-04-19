@@ -1,0 +1,104 @@
+name: Broken Statue
+category: Features
+footprint: 1x1
+facing: yes
+shadow: yes
+blocks_light: yes
+height: 2
+placement: center
+room_types: corrupted-temple, ruin, ancient-ruin-overgrown, crypt, ancient-tomb, desecrated-shrine
+typical_count: few
+clusters_with: rubble, rubble-pile, stone-column-broken, mosaic-fragment, altar-desecrated
+notes: Ruined statue still standing on plinth but missing head and arms. Jagged broken surfaces where pieces were sheared off.
+---
+# === HITBOX ===
+hitbox circle 0.5,0.55 0.30 z 0-0.6
+hitbox circle 0.5,0.55 0.20 z 0.6-2
+
+# === Round plinth base (weathered stone) ===
+circle 0.5,0.56 0.36 texfill polyhaven/granite_tile 0.75
+circle 0.5,0.56 0.36 fill #6a6058 0.4
+circle 0.5,0.56 0.36 stroke #2a2420 width 2
+
+# Plinth step ring
+circle 0.5,0.56 0.30 texfill polyhaven/granite_tile 0.85
+circle 0.5,0.56 0.30 stroke #555555
+
+# Plinth edge highlights
+arc 0.5,0.56 0.36 180 360 stroke #888888 0.5 width 1
+arc 0.5,0.56 0.36 0 180 stroke #2a2420 0.7 width 1
+
+# === Broken plinth chip (part of plinth missing) ===
+poly 0.18,0.52 0.24,0.48 0.26,0.58 0.20,0.62 fill #4a4038 0.85
+poly 0.18,0.52 0.24,0.48 0.26,0.58 0.20,0.62 stroke #1a1410 width 2
+
+# Cracks radiating in plinth
+line 0.3,0.42 0.5,0.56 stroke #2a2420 0.7 width 1
+line 0.7,0.72 0.5,0.56 stroke #2a2420 0.6 width 1
+
+# === Torso / body remaining (oval, marble, weathered) ===
+ellipse 0.50,0.56 0.22,0.18 texfill polyhaven/marble_01 0.80
+ellipse 0.50,0.56 0.22,0.18 fill #8a8078 0.3
+ellipse 0.50,0.56 0.22,0.18 stroke #444444 width 2
+
+# Robe drape lines
+line 0.44,0.64 0.42,0.74 stroke #666666 0.7 width 1
+line 0.50,0.66 0.50,0.76 stroke #666666 0.7 width 1
+line 0.56,0.64 0.58,0.74 stroke #666666 0.7 width 1
+bezier 0.34,0.58 0.30,0.66 0.32,0.72 0.38,0.74 stroke #666666 0.6 width 1
+bezier 0.66,0.58 0.70,0.66 0.68,0.72 0.62,0.74 stroke #666666 0.6 width 1
+
+# === Jagged broken top where head was (neck stump) ===
+poly 0.42,0.42 0.46,0.38 0.50,0.40 0.54,0.38 0.58,0.42 0.56,0.48 0.50,0.46 0.44,0.48 fill #8a8078 0.9
+poly 0.42,0.42 0.46,0.38 0.50,0.40 0.54,0.38 0.58,0.42 0.56,0.48 0.50,0.46 0.44,0.48 texfill polyhaven/rock_boulder_cracked 0.5
+poly 0.42,0.42 0.46,0.38 0.50,0.40 0.54,0.38 0.58,0.42 0.56,0.48 0.50,0.46 0.44,0.48 stroke #2a2420 width 2
+
+# Neck break cracks
+line 0.46,0.40 0.50,0.46 stroke #2a2420 0.7 width 1
+line 0.54,0.40 0.50,0.46 stroke #2a2420 0.7 width 1
+
+# Inner dark break (depth)
+poly 0.46,0.44 0.54,0.44 0.52,0.46 0.48,0.46 fill #2a2420 0.6
+
+# === Jagged broken shoulders where arms were ===
+# Left shoulder stump
+poly 0.28,0.50 0.34,0.48 0.38,0.54 0.34,0.58 0.28,0.56 fill #8a8078 0.9
+poly 0.28,0.50 0.34,0.48 0.38,0.54 0.34,0.58 0.28,0.56 texfill polyhaven/rock_boulder_cracked 0.5
+poly 0.28,0.50 0.34,0.48 0.38,0.54 0.34,0.58 0.28,0.56 stroke #2a2420 width 2
+line 0.30,0.52 0.36,0.56 stroke #2a2420 0.7 width 1
+
+# Right shoulder stump
+poly 0.72,0.50 0.66,0.48 0.62,0.54 0.66,0.58 0.72,0.56 fill #8a8078 0.9
+poly 0.72,0.50 0.66,0.48 0.62,0.54 0.66,0.58 0.72,0.56 texfill polyhaven/rock_boulder_cracked 0.5
+poly 0.72,0.50 0.66,0.48 0.62,0.54 0.66,0.58 0.72,0.56 stroke #2a2420 width 2
+line 0.70,0.52 0.64,0.56 stroke #2a2420 0.7 width 1
+
+# === Moss / lichen / weathering ===
+ellipse 0.30,0.60 0.06,0.04 fill #3a5028 0.6
+ellipse 0.70,0.64 0.06,0.04 fill #3a5028 0.55
+ellipse 0.42,0.70 0.05,0.03 fill #3a5028 0.5
+ellipse 0.60,0.46 0.05,0.03 fill #3a5028 0.5
+ellipse 0.22,0.76 0.07,0.04 fill #3a5028 0.6
+
+# Dark staining (old blood or corruption)
+ellipse 0.50,0.58 0.12,0.08 fill #4a1818 0.2
+line 0.50,0.48 0.50,0.74 stroke #4a1818 0.3 width 2
+
+# === Cracks running down the torso ===
+bezier 0.36,0.44 0.40,0.58 0.38,0.70 0.34,0.78 stroke #2a2420 0.7 width 1
+bezier 0.64,0.44 0.60,0.58 0.62,0.70 0.66,0.78 stroke #2a2420 0.6 width 1
+line 0.50,0.48 0.48,0.72 stroke #2a2420 0.5 width 1
+
+# === Small rubble pieces at base (from broken-off parts) ===
+poly 0.12,0.76 0.20,0.74 0.22,0.82 0.14,0.84 fill #8a8078 0.85
+poly 0.12,0.76 0.20,0.74 0.22,0.82 0.14,0.84 stroke #2a2420 width 1
+poly 0.78,0.80 0.86,0.78 0.88,0.86 0.80,0.88 fill #8a8078 0.85
+poly 0.78,0.80 0.86,0.78 0.88,0.86 0.80,0.88 stroke #2a2420 width 1
+
+# Tiny pebbles (from shattered head/arms)
+circle 0.32,0.82 0.02 fill #888078 0.8
+circle 0.68,0.82 0.02 fill #888078 0.8
+circle 0.44,0.84 0.015 fill #888078 0.75
+
+# Marble sheen
+arc 0.5,0.56 0.20 200 240 stroke #ffffff 0.25 width 1

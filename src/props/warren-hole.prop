@@ -1,0 +1,52 @@
+name: Warren Hole
+category: Terrain
+footprint: 1x1
+facing: yes
+shadow: no
+blocks_light: no
+height: 0.1
+placement: wall
+room_types: goblin-warren-entrance, cave-goblin-warren, sewer-junction
+typical_count: few
+clusters_with: cave-mouth-small, rat-nest, dung-pile, junk-pile
+notes: Dark burrow opening into a cave wall — irregular oval mouth with scratched rim and loose dirt from digging. Wall side (back) at north; opening faces south.
+---
+# === HITBOX ===
+selection ellipse 0.50,0.44 0.34,0.26
+
+# Loose dirt scatter fan (kicked out to the south during digging)
+ellipse 0.50,0.82 0.36,0.08 fill #3a2010 0.7
+ellipse 0.50,0.82 0.36,0.08 stroke #1a1008 0.6
+# Small dirt clumps in the scatter
+circle 0.32,0.82 0.025 fill #4a3018 0.85
+circle 0.32,0.82 0.025 stroke #1a1008
+circle 0.68,0.84 0.022 fill #3a2010 0.85
+circle 0.68,0.84 0.022 stroke #1a1008
+circle 0.50,0.88 0.02 fill #4a3018 0.8
+circle 0.42,0.86 0.018 fill #2a1808 0.8
+circle 0.58,0.86 0.018 fill #2a1808 0.8
+
+# Rough stone/dirt rim around the hole (outer ring — irregular oval)
+ering 0.50,0.44 0.36,0.28 0.28,0.20 texfill polyhaven/rock_boulder_cracked 0.88
+ering 0.50,0.44 0.36,0.28 0.28,0.20 stroke #2a1810
+
+# Inner rim shadow (darker transition into the hole)
+ering 0.50,0.44 0.30,0.22 0.26,0.18 fill #1a1008 0.8
+
+# Dark hole interior (deep black — the actual burrow opening)
+ellipse 0.50,0.44 0.26,0.18 fill #0a0604 1.0
+ellipse 0.50,0.44 0.26,0.18 stroke #1a1008
+
+# Subtle gradient shading inside the hole (fades to pure black at far back)
+ellipse 0.50,0.40 0.18,0.12 fill #050302 0.9
+
+# Claw/scratch marks radiating around the rim (diagonal slashes)
+line 0.20,0.30 0.28,0.38 stroke #2a1810 width 2
+line 0.18,0.42 0.26,0.44 stroke #2a1810 width 2
+line 0.22,0.58 0.30,0.54 stroke #2a1810 width 2
+line 0.80,0.30 0.72,0.38 stroke #2a1810 width 2
+line 0.82,0.46 0.74,0.46 stroke #2a1810 width 2
+line 0.78,0.60 0.70,0.56 stroke #2a1810 width 2
+line 0.50,0.18 0.50,0.24 stroke #2a1810 width 2
+line 0.42,0.20 0.46,0.26 stroke #2a1810 width 1
+line 0.58,0.20 0.54,0.26 stroke #2a1810 width 1

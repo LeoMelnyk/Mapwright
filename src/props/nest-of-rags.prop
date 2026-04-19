@@ -1,0 +1,68 @@
+name: Nest of Rags
+category: Clutter
+footprint: 1x1
+facing: no
+shadow: yes
+blocks_light: yes
+height: 0.4
+placement: floor
+room_types: monster-lair-small, sewer-junction, cave, rag-pile, cabin-abandoned
+typical_count: few
+clusters_with: rag-pile, bone-pile, gnawed-bone, tuft-of-fur, rat
+notes: Round nest of gathered rags — creature's sleeping spot with straw and bones
+---
+# === HITBOX ===
+hitbox circle 0.5,0.5 0.38 z 0-0.4
+
+# Outer ring (pile of rags arranged in circle)
+ring 0.5,0.5 0.40 0.22 fill #3a2418 0.92
+ring 0.5,0.5 0.40 0.22 texfill polyhaven/rough_linen 0.45
+ring 0.5,0.5 0.40 0.22 stroke #1a1008
+# Ring folds/ridges
+arc 0.5,0.5 0.36 30 60 stroke #1a1008 0.7 width 2
+arc 0.5,0.5 0.36 120 150 stroke #1a1008 0.7 width 2
+arc 0.5,0.5 0.36 210 240 stroke #1a1008 0.7 width 2
+arc 0.5,0.5 0.36 300 330 stroke #1a1008 0.7 width 2
+# Colored rag patches (mismatched fabric scraps)
+poly 0.20,0.50 0.26,0.44 0.30,0.50 0.24,0.56 fill #6a3010 0.85
+poly 0.20,0.50 0.26,0.44 0.30,0.50 0.24,0.56 stroke #2a1008
+poly 0.70,0.50 0.76,0.44 0.80,0.50 0.74,0.56 fill #5a3018 0.85
+poly 0.70,0.50 0.76,0.44 0.80,0.50 0.74,0.56 stroke #2a1008
+poly 0.44,0.20 0.50,0.14 0.56,0.20 0.50,0.26 fill #4a4820 0.85
+poly 0.44,0.20 0.50,0.14 0.56,0.20 0.50,0.26 stroke #1a1808
+poly 0.44,0.80 0.50,0.74 0.56,0.80 0.50,0.86 fill #5a3828 0.85
+poly 0.44,0.80 0.50,0.74 0.56,0.80 0.50,0.86 stroke #2a1010
+# Dark interior hollow (center of nest — bedding depression)
+circle 0.5,0.5 0.22 fill #1a0f00 0.9
+circle 0.5,0.5 0.22 stroke #0a0400
+# Straw/dried grass lining inside
+line 0.38,0.44 0.50,0.50 stroke #a08858 0.7 width 1
+line 0.42,0.38 0.56,0.46 stroke #a08858 0.7 width 1
+line 0.56,0.46 0.62,0.54 stroke #a08858 0.6 width 1
+line 0.42,0.58 0.54,0.58 stroke #a08858 0.6 width 1
+line 0.48,0.62 0.60,0.62 stroke #a08858 0.6 width 1
+# Bone fragments in nest
+line 0.44,0.48 0.52,0.52 stroke #c8b898 width 2
+circle 0.44,0.48 0.01 fill #d4c4a8 0.9
+circle 0.52,0.52 0.01 fill #d4c4a8 0.9
+# Small skull
+poly 0.56,0.48 0.60,0.46 0.60,0.52 0.56,0.52 fill #d4c4a8 0.9
+poly 0.56,0.48 0.60,0.46 0.60,0.52 0.56,0.52 stroke #8a7060
+circle 0.58,0.49 0.005 fill #0a0404 0.9
+# Tufts of fur
+circle 0.40,0.56 0.015 fill #6a4018 0.7
+circle 0.58,0.42 0.012 fill #6a4018 0.6
+# Stitches holding rags together (crude)
+line 0.30,0.30 0.34,0.34 stroke #3a2010 0.8
+line 0.66,0.30 0.70,0.34 stroke #3a2010 0.8
+line 0.30,0.70 0.34,0.66 stroke #3a2010 0.8
+line 0.66,0.70 0.70,0.66 stroke #3a2010 0.8
+# Small scraps of cloth sticking out
+line 0.16,0.40 0.12,0.36 stroke #5a3018 0.7
+line 0.84,0.60 0.88,0.64 stroke #5a3018 0.7
+# Pellets/droppings (creature lives here)
+circle 0.46,0.54 0.01 fill #2a1808 0.85
+circle 0.50,0.48 0.008 fill #2a1808 0.8
+# Dark stain (saliva/food)
+ellipse 0.50,0.58 0.08,0.03 fill #1a0f00 0.5
+bezier 0.28,0.28 0.34,0.32 0.34,0.38 0.30,0.42 stroke #1a1008 0.5 width 1

@@ -9,7 +9,7 @@ placement: wall
 room_types: forge, smithy
 typical_count: single
 clusters_with: anvil, bellows, trough, workbench
-lights: [{"preset":"brazier","x":1.0,"y":1.0}]
+lights: [{"preset":"forge","x":1.0,"y":1.0}]
 notes: Domed brick forge; open at south. Pair with anvil, bellows, trough.
 ---
 # Hitbox: dome blocks light, not the open mouth area

@@ -1,0 +1,57 @@
+name: Lightning Arc (Small)
+category: Magical
+footprint: 1x1
+facing: no
+shadow: no
+blocks_light: no
+placement: center
+room_types: elemental-air-node, storm-spire, elemental-node
+typical_count: few
+clusters_with: storm-altar, air-node-vortex, wind-chime-giant
+notes: Jagged forked bolt of captive lightning arcing between two tiny pylon stubs.
+lights: [{"preset":"arcane-blue","x":0.5,"y":0.5,"radius":8,"intensity":0.9,"color":"#e0e0ff"}]
+---
+# Electric glow halo
+circle 0.5,0.5 0.45 gradient-radial #c0c0ff #0a0a20 0.35
+circle 0.5,0.5 0.3 fill #e0e0ff 0.25
+
+# West pylon stub
+rect 0.1,0.42 0.1,0.16 texfill polyhaven/metal_plate 0.85
+rect 0.1,0.42 0.1,0.16 stroke #444444 width 1
+# West pylon cap
+circle 0.2,0.5 0.05 fill #888888 0.9
+circle 0.2,0.5 0.05 stroke #222222
+
+# East pylon stub
+rect 0.8,0.42 0.1,0.16 texfill polyhaven/metal_plate 0.85
+rect 0.8,0.42 0.1,0.16 stroke #444444 width 1
+# East pylon cap
+circle 0.8,0.5 0.05 fill #888888 0.9
+circle 0.8,0.5 0.05 stroke #222222
+
+# Main jagged bolt (west to east, zig-zag)
+line 0.2,0.5 0.3,0.4 stroke #ffffff width 3
+line 0.3,0.4 0.4,0.55 stroke #ffffff width 3
+line 0.4,0.55 0.5,0.42 stroke #ffffff width 3
+line 0.5,0.42 0.6,0.55 stroke #ffffff width 3
+line 0.6,0.55 0.7,0.44 stroke #ffffff width 3
+line 0.7,0.44 0.8,0.5 stroke #ffffff width 3
+
+# Bolt outer glow (blue-white halo on bolt)
+line 0.2,0.5 0.3,0.4 stroke #a0a0ff width 5
+line 0.3,0.4 0.4,0.55 stroke #a0a0ff width 5
+line 0.4,0.55 0.5,0.42 stroke #a0a0ff width 5
+line 0.5,0.42 0.6,0.55 stroke #a0a0ff width 5
+line 0.6,0.55 0.7,0.44 stroke #a0a0ff width 5
+line 0.7,0.44 0.8,0.5 stroke #a0a0ff width 5
+
+# Fork branches
+line 0.4,0.55 0.45,0.7 stroke #ffffff width 2
+line 0.6,0.55 0.55,0.68 stroke #ffffff width 2
+line 0.5,0.42 0.52,0.28 stroke #e0e0ff width 2
+
+# Spark dots
+circle 0.3,0.4 0.03 fill #ffffff 0.95
+circle 0.7,0.44 0.03 fill #ffffff 0.95
+circle 0.45,0.7 0.025 fill #e0e0ff 0.8
+circle 0.52,0.28 0.025 fill #e0e0ff 0.8
