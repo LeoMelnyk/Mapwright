@@ -346,12 +346,19 @@ export function falloffMultiplier(dist: number, radius: number, falloff: Falloff
 }
 
 /**
+ * Per-light pooled "effective" buffer. getEffectiveLight rewrites the buffer
+ * in place each frame instead of spreading `{...light}` into a fresh object,
+ * dropping 50 light × 60 fps ≈ 3000 short-lived allocations/sec on maps with
+ * heavy animation. WeakMap keeps us tied to the source light's lifetime, so
+ * removing a light frees its buffer automatically.
+ */
+const effBufCache = new WeakMap<Light, Light>();
+
+/**
  * Return an effective (possibly animated) copy of a light for the given time.
- * Returns the same object if no animation is set (avoids allocation).
- *
- * @param {object} light
- * @param {number} time - Elapsed seconds
- * @returns {Object} Effective light with animated properties applied
+ * Non-animated lights pass through unchanged (no allocation). Animated lights
+ * get a per-light pooled buffer — callers must treat the returned object as
+ * ephemeral (read-and-forget within the current frame).
  */
 export function getEffectiveLight(light: Light, time: number): Light {
   if (!light.animation?.type) return light;
@@ -374,7 +381,18 @@ export function getEffectiveLight(light: Light, time: number): Light {
       break;
   }
 
-  const result = { ...light };
+  // Reuse a per-light buffer — Object.assign rewrites every field on each
+  // frame so position, color, falloff changes on the source light are picked
+  // up immediately even if the buffer was allocated earlier.
+  let result = effBufCache.get(light);
+  if (!result) {
+    result = {} as Light;
+    effBufCache.set(light, result);
+  }
+  Object.assign(result, light);
+  // Drop any ephemeral per-frame fields the previous call attached (e.g.
+  // _propShadows), so callers can't accidentally read last frame's data.
+  result._propShadows = undefined;
   result.intensity = Math.max(0.01, light.intensity * Math.max(0, intensityMult));
   if (light.radius && radiusMult !== 1.0) result.radius = Math.max(1, light.radius * Math.max(0.1, radiusMult));
   if (light.range && radiusMult !== 1.0) result.range = Math.max(1, light.range * Math.max(0.1, radiusMult));
