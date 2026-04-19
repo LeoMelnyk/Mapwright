@@ -575,7 +575,11 @@ function buildPointLightComposite(
   rPx: number,
   dimRPx: number | null,
 ) {
-  const { r, g, b } = parseColor(light.color);
+  // Darkness lights paint BLACK into the lightmap (any brightness -> zero when
+  // the lightmap is later multiplied onto the base). Same falloff shape as a
+  // normal light, just with the RT's gradient color replaced so the outer
+  // source-over composite simply overwrites ambient + accumulated lights.
+  const { r, g, b } = light.darkness ? { r: 0, g: 0, b: 0 } : parseColor(light.color);
   const intensity = light.intensity;
   const falloff: FalloffType = light.falloff;
   const relCx = cx - bbX;
@@ -659,7 +663,19 @@ function renderPointLight(
   const gctx = ensureLightRTCanvas(bbW, bbH);
   gctx.clearRect(0, 0, bbW, bbH);
   buildPointLightComposite(gctx, light, visibility, transform, bbX, bbY, bbW, bbH, cx, cy, rPx, dimRPx);
-  lctx.drawImage(lightRTCanvas!, 0, 0, bbW, bbH, bbX, bbY, bbW, bbH);
+  if (light.darkness) {
+    // The RT gradient is already colored black for darkness lights. Use
+    // source-over so the black pixels OVERWRITE ambient + any accumulated
+    // lights at the center of the radius, fading to transparent (no-op) at
+    // the edge. Final multiply step turns black lightmap pixels into black
+    // scene pixels — true magical darkness, even darkvision-proof.
+    lctx.save();
+    lctx.globalCompositeOperation = 'source-over';
+    lctx.drawImage(lightRTCanvas!, 0, 0, bbW, bbH, bbX, bbY, bbW, bbH);
+    lctx.restore();
+  } else {
+    lctx.drawImage(lightRTCanvas!, 0, 0, bbW, bbH, bbX, bbY, bbW, bbH);
+  }
 }
 
 /**
@@ -749,7 +765,15 @@ function renderDirectionalLight(
     _applyPropShadowsToRT(gctx, light, transform, bbX, bbY);
   }
 
-  lctx.drawImage(lightRTCanvas!, 0, 0, cw, ch, bbX, bbY, cw, ch);
+  if (light.darkness) {
+    // See renderPointLight — darkness cones paint black into the lightmap.
+    lctx.save();
+    lctx.globalCompositeOperation = 'source-over';
+    lctx.drawImage(lightRTCanvas!, 0, 0, cw, ch, bbX, bbY, cw, ch);
+    lctx.restore();
+  } else {
+    lctx.drawImage(lightRTCanvas!, 0, 0, cw, ch, bbX, bbY, cw, ch);
+  }
 }
 
 // ─── Visibility Cache ──────────────────────────────────────────────────────
@@ -1269,6 +1293,11 @@ function _renderOneLight(
       const alpha = Math.max(0, Math.min(1, eff.intensity));
       lctx.save();
       lctx.globalAlpha = alpha;
+      // Darkness lights paint black pixels directly — the baked RT was built
+      // from a black gradient, so source-over composites it over the
+      // accumulated lightmap (and the outer 'lighter' mode the caller set
+      // would incorrectly additively blend black with existing light).
+      if (light.darkness) lctx.globalCompositeOperation = 'source-over';
       lctx.drawImage(baked.canvas, baked.bbX, baked.bbY);
       lctx.restore();
       return;

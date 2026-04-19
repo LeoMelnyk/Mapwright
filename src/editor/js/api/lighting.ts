@@ -62,6 +62,9 @@ export function placeLight(x: number, y: number, config: PlaceLightConfig = {}):
         light.spread = clampSpread(config.spread);
       }
 
+      // Darkness / anti-light — subtracts illumination instead of adding.
+      if (config.darkness) light.darkness = true;
+
       meta.lights.push(light);
       if (!meta.lightingEnabled) meta.lightingEnabled = true;
       lightId = light.id;

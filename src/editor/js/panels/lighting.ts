@@ -139,6 +139,23 @@ function render() {
     groupRow.appendChild(groupInput);
     selSection.appendChild(groupRow);
 
+    // Darkness / anti-light toggle — subtracts illumination instead of adding.
+    const darknessRow = el('label', 'lighting-toggle');
+    const darknessCb = document.createElement('input');
+    darknessCb.type = 'checkbox';
+    darknessCb.checked = !!selectedLight.darkness;
+    darknessCb.addEventListener('change', () => {
+      if (darknessCb.checked) selectedLight.darkness = true;
+      else delete selectedLight.darkness;
+      invalidateLightmap('lights');
+      markDirty();
+      notify();
+      requestRender();
+    });
+    darknessRow.appendChild(darknessCb);
+    darknessRow.appendChild(document.createTextNode(' Darkness (subtract light)'));
+    selSection.appendChild(darknessRow);
+
     // Preset dropdown for selected light — re-applies a preset and restores the presetId link
     selSection.appendChild(
       presetDropdown(selectedLight.presetId ?? null, (preset: LightPreset) => {

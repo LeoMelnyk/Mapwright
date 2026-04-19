@@ -437,4 +437,32 @@ describe('blend-mode stacking', () => {
     expect(p.g).toBeGreaterThan(240);
     expect(p.b).toBeGreaterThan(240);
   });
+
+  it('darkness light carves a dark pocket out of bright ambient', () => {
+    const imgLight = renderAt([], 1); // ambient only, full bright
+    const imgDark = renderAt(
+      [
+        {
+          id: 1,
+          x: 25,
+          y: 25,
+          type: 'point',
+          radius: 15,
+          color: '#ffffff',
+          intensity: 1,
+          falloff: 'linear',
+          darkness: true,
+        },
+      ],
+      1,
+    );
+    const bright = pixelAt(imgLight, 25, 25);
+    const dark = pixelAt(imgDark, 25, 25);
+    expect(dark.r).toBeLessThan(bright.r);
+    expect(dark.g).toBeLessThan(bright.g);
+    expect(dark.b).toBeLessThan(bright.b);
+    // Edges of the canvas stay bright.
+    const edge = pixelAt(imgDark, 2, 2);
+    expect(edge.r).toBeGreaterThan(dark.r + 100);
+  });
 });

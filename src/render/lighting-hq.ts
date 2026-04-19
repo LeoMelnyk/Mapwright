@@ -219,6 +219,10 @@ export function renderLightmapHQ(
 
   for (const light of activeLights) {
     const eff = getEffectiveLight(light, time as number);
+    // Darkness lights subtract illumination instead of adding. Applied as a
+    // signed accumulation; the output loop clamps to [0, 255] so heavy
+    // darkness doesn't wrap around.
+    const darknessSign = light.darkness ? -1 : 1;
     const brightRadius = (eff.range ?? eff.radius) || 30;
     const dimRadius = eff.dimRadius && eff.dimRadius > (eff.radius || 0) ? eff.dimRadius : null;
     const effectiveRadius = dimRadius ?? brightRadius;
@@ -402,9 +406,10 @@ export function renderLightmapHQ(
         }
 
         const accIdx = (py * canvasW + px) * 3;
-        lightAccum[accIdx]! += rNorm * contribution;
-        lightAccum[accIdx + 1]! += gNorm * contribution;
-        lightAccum[accIdx + 2]! += bNorm * contribution;
+        const signed = darknessSign * contribution;
+        lightAccum[accIdx]! += rNorm * signed;
+        lightAccum[accIdx + 1]! += gNorm * signed;
+        lightAccum[accIdx + 2]! += bNorm * signed;
       }
     }
   }
@@ -420,9 +425,10 @@ export function renderLightmapHQ(
   const out = imageData.data;
 
   for (let i = 0, j = 0; i < out.length; i += 4, j += 3) {
-    out[i] = Math.min(255, Math.round((ambR + lightAccum[j]!) * 255));
-    out[i + 1] = Math.min(255, Math.round((ambG + lightAccum[j + 1]!) * 255));
-    out[i + 2] = Math.min(255, Math.round((ambB + lightAccum[j + 2]!) * 255));
+    // Clamp both ends — darkness lights can push the accumulator negative.
+    out[i] = Math.max(0, Math.min(255, Math.round((ambR + lightAccum[j]!) * 255)));
+    out[i + 1] = Math.max(0, Math.min(255, Math.round((ambG + lightAccum[j + 1]!) * 255)));
+    out[i + 2] = Math.max(0, Math.min(255, Math.round((ambB + lightAccum[j + 2]!) * 255)));
     out[i + 3] = 255;
   }
 

@@ -139,6 +139,15 @@ export interface Light {
    * default (always-on) bucket.
    */
   group?: string;
+  /**
+   * When true, this light SUBTRACTS illumination instead of adding it.
+   * Used for the D&D Darkness spell, cursed zones, and shadow auras.
+   * The gradient shape and radius behave identically to a normal light,
+   * but the renderer composites with destination-out so the area ends up
+   * darker than the ambient level. Intensity controls how fully opaque
+   * the darkness gets at the center.
+   */
+  darkness?: boolean;
   _propShadows?: {
     shadowPoly: number[][];
     nearCenter: number[];
@@ -760,6 +769,8 @@ export interface PlaceLightConfig {
   angle?: number;
   spread?: number;
   dimRadius?: number;
+  /** If true, the light subtracts illumination (D&D Darkness spell). */
+  darkness?: boolean;
   // Preset fields that get merged in but then deleted
   displayName?: string;
   description?: string;
