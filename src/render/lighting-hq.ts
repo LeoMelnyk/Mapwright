@@ -311,8 +311,11 @@ export function renderLightmapHQ(
     // the light opted in — sample polygons get averaged inside).
     const shadowMask = rasterizeShadowMask(visibility, transform, bbX, bbY, bbW, bbH, softVisibilities);
 
-    // Parse light color to [0,1]
-    const { r, g, b } = parseColor(eff.color || '#ff9944');
+    // Parse light color to [0,1]. Darkness lights subtract uniformly across
+    // every channel regardless of user-set color (matches the real-time path,
+    // which paints a pure black RT for darkness — "absence of light" rather
+    // than "colored anti-light").
+    const { r, g, b } = light.darkness ? { r: 255, g: 255, b: 255 } : parseColor(eff.color || '#ff9944');
     const rNorm = r / 255;
     const gNorm = g / 255;
     const bNorm = b / 255;
