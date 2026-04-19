@@ -1419,6 +1419,21 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   border-bottom: 1px solid var(--border);
 }
 
+/* Secondary toolbar: collapse/expand (left) + size toggle (right) */
+.prop-size-row {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.prop-size-row-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 /* Scrollable prop categories */
 .prop-scroll-area {
   flex: 1;
@@ -1571,7 +1586,7 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 
 .prop-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(var(--prop-cols, 3), 1fr);
   gap: 4px;
   margin-bottom: 8px;
 }
@@ -1623,10 +1638,24 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
   background: var(--accent-dim);
 }
 .prop-thumb canvas {
-  width: 40px;
-  height: 40px;
+  width: var(--prop-thumb-w, 40px);
+  height: var(--prop-thumb-h, 40px);
   border-radius: 3px;
   image-rendering: crisp-edges;
+}
+#prop-explorer[data-size="2"] {
+  --prop-cols: 2;
+  --prop-thumb-w: 80px;
+  --prop-thumb-h: 80px;
+}
+#prop-explorer[data-size="1"] {
+  --prop-cols: 1;
+  --prop-thumb-w: 100%;
+  --prop-thumb-h: auto;
+}
+#prop-explorer[data-size="1"] .prop-thumb canvas,
+#prop-explorer[data-size="1"] .prop-thumb-shimmer {
+  aspect-ratio: 1 / 1;
 }
 .prop-thumb span {
   font-size: 10px;
@@ -1650,8 +1679,8 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 .prop-category-title.open .collapse-arrow { transform: rotate(90deg); }
 
 .prop-thumb-shimmer {
-  width: 40px;
-  height: 40px;
+  width: var(--prop-thumb-w, 40px);
+  height: var(--prop-thumb-h, 40px);
   border-radius: 3px;
   background: linear-gradient(90deg, var(--btn-bg) 25%, var(--btn-hover) 50%, var(--btn-bg) 75%);
   background-size: 200% 100%;
@@ -2061,6 +2090,10 @@ html[data-theme="light"] #theme-toggle .icon-moon { display: inline; }
 .texture-action-btn:hover {
   color: var(--text);
   background: var(--btn-hover);
+}
+.texture-action-btn.active {
+  color: var(--accent);
+  background: var(--accent-dim);
 }
 
 /* Scrollable grid area */

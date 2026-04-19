@@ -2,6 +2,11 @@
 
 ## v0.12.0
 
+### Prop Panel
+
+- **Thumbnail size toggle** — three new buttons at the top of the prop panel switch between 3-per-row (default), 2-per-row, and 1-per-row (full-width) layouts, so you can preview prop artwork at glance-sized or hero-sized without leaving the panel. The setting persists across sessions, and thumbnails re-render at a higher internal resolution at larger sizes so they stay crisp instead of pixelating.
+- **Secondary toolbar row** — the Collapse All / Expand All buttons have moved out of the search bar onto a dedicated toolbar row alongside the new size toggle, giving the search input the full width of the panel.
+
 ### Lighting
 
 - **Light groups** — tag any light with a group name ("torches", "traps", "magic auras") and toggle the whole group on/off in the new Groups section at the bottom of the Lighting panel. The toggle affects both the live editor preview and PNG exports, so DMs can dim every torch in the dungeon mid-session without re-placing anything. Ungrouped lights are always visible.
